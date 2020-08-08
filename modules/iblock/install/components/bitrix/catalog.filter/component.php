@@ -54,7 +54,7 @@ foreach($arParams["OFFERS_PROPERTY_CODE"] as $k=>$v)
 
 $arParams["SAVE_IN_SESSION"] = $arParams["SAVE_IN_SESSION"]=="Y";
 
-if(strlen($arParams["FILTER_NAME"])<=0|| !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
+if($arParams["FILTER_NAME"] == ''|| !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
 	$arParams["FILTER_NAME"] = "arrFilter";
 $FILTER_NAME = $arParams["FILTER_NAME"];
 $arParams["PREFILTER_NAME"] = (isset($arParams["PREFILTER_NAME"]) ? (string)$arParams["PREFILTER_NAME"] : '');
@@ -150,7 +150,7 @@ foreach($arDateFields as $id => $arField)
 }
 
 /*Leave filter values empty*/
-if(strlen($_REQUEST["del_filter"]) > 0)
+if($_REQUEST["del_filter"] <> '')
 {
 	foreach($arrDFV as $id => $arField)
 		$GLOBALS[$arField["days_to_back"]["name"]] = "";
@@ -159,7 +159,7 @@ if(strlen($_REQUEST["del_filter"]) > 0)
 		$GLOBALS[$arField["days_to_back"]["name"]] = "";
 }
 /*Read filter values from request*/
-elseif(strlen($_REQUEST["set_filter"]) > 0)
+elseif($_REQUEST["set_filter"] <> '')
 {
 	if(isset($_REQUEST[$FILTER_NAME."_pf"]))
 		$arrPFV = $_REQUEST[$FILTER_NAME."_pf"];
@@ -187,7 +187,7 @@ elseif(strlen($_REQUEST["set_filter"]) > 0)
 		if(isset($_REQUEST[$name]))
 		{
 			$value = $arrDFV[$id]["days_to_back"]["value"] = $_REQUEST[$name];
-			if(strlen($value) > 0)
+			if($value <> '')
 				$arrDFV[$id]["from"]["value"] = GetTime($now - 86400*intval($value));
 		}
 	}
@@ -206,7 +206,7 @@ elseif(strlen($_REQUEST["set_filter"]) > 0)
 		if(isset($_REQUEST[$name]))
 		{
 			$value = $arrODFV[$id]["days_to_back"]["value"] = $_REQUEST[$name];
-			if(strlen($value) > 0)
+			if($value <> '')
 				$arrODFV[$id]["from"]["value"] = GetTime($now - 86400*intval($value));
 		}
 	}
@@ -435,7 +435,7 @@ foreach($arParams["FIELD_CODE"] as $field_code)
 			if(!is_array($value))
 			{
 				$field_res = '<input type="text" name="'.$name.'" size="'.$arParams["TEXT_WIDTH"].'" value="'.htmlspecialcharsbx($value).'" />';
-				if (strlen($value)>0)
+				if ($value <> '')
 					${$FILTER_NAME}["?".$field_code] = $value;
 
 				$field_type = 'INPUT';
@@ -451,7 +451,7 @@ foreach($arParams["FIELD_CODE"] as $field_code)
 				$value_left = "";
 			$field_res = '<input type="text" name="'.$name_left.'" size="'.$arParams["NUMBER_WIDTH"].'" value="'.htmlspecialcharsbx($value_left).'" />&nbsp;'.GetMessage("CC_BCF_TILL").'&nbsp;';
 
-			if(strlen($value_left) > 0)
+			if($value_left <> '')
 				${$FILTER_NAME}[">=".$field_code] = intval($value_left);
 
 			$name_right = $FILTER_NAME."_ff[".$field_code."][RIGHT]";
@@ -461,7 +461,7 @@ foreach($arParams["FIELD_CODE"] as $field_code)
 				$value_right = "";
 			$field_res .= '<input type="text" name="'.$name_right.'" size="'.$arParams["NUMBER_WIDTH"].'" value="'.htmlspecialcharsbx($value_right).'" />';
 
-			if(strlen($value_right) > 0)
+			if($value_right <> '')
 				${$FILTER_NAME}["<=".$field_code] = intval($value_right);
 
 			$field_type = 'RANGE';
@@ -472,7 +472,7 @@ foreach($arParams["FIELD_CODE"] as $field_code)
 			$arrRef = array("reference" => array_values($arResult["arrSection"]), "reference_id" => array_keys($arResult["arrSection"]));
 			$field_res = SelectBoxFromArray($name, $arrRef, $value, " ", "");
 
-			if (!is_array($value) && $value != "NOT_REF" && strlen($value) > 0)
+			if (!is_array($value) && $value != "NOT_REF" && $value <> '')
 				${$FILTER_NAME}[$field_code] = intval($value);
 
 			$_name = $FILTER_NAME."_ff[INCLUDE_SUBSECTIONS]";
@@ -513,10 +513,10 @@ foreach($arParams["FIELD_CODE"] as $field_code)
 			$field_res = ob_get_contents();
 			ob_end_clean();
 
-			if(strlen($arDateField["from"]["value"]) > 0)
+			if($arDateField["from"]["value"] <> '')
 				${$FILTER_NAME}[$arDateField["filter_from"]] = $arDateField["from"]["value"];
 
-			if(strlen($arDateField["to"]["value"]) > 0)
+			if($arDateField["to"]["value"] <> '')
 				${$FILTER_NAME}[$arDateField["filter_to"]] = $arDateField["to"]["value"];
 
 			$field_type = 'DATE_RANGE';
@@ -621,7 +621,7 @@ foreach($arResult["arrProp"] as $prop_id => $arProp)
 			}
 			else
 			{
-				if (!is_array($value) && strlen($value) > 0)
+				if (!is_array($value) && $value <> '')
 					${$FILTER_NAME}["PROPERTY"][$arProp["CODE"]] = $value;
 			}
 			break;
@@ -634,7 +634,7 @@ foreach($arResult["arrProp"] as $prop_id => $arProp)
 				$value_left = "";
 			$res .= '<input type="text" name="'.$name_left.'" size="'.$arParams["NUMBER_WIDTH"].'" value="'.htmlspecialcharsbx($value_left).'" />&nbsp;'.GetMessage("CC_BCF_TILL").'&nbsp;';
 
-			if (strlen($value_left) > 0)
+			if ($value_left <> '')
 				${$FILTER_NAME}["PROPERTY"][">=".$arProp["CODE"]] = doubleval($value_left);
 
 			$name_right = $FILTER_NAME."_pf[".$arProp["CODE"]."][RIGHT]";
@@ -644,7 +644,7 @@ foreach($arResult["arrProp"] as $prop_id => $arProp)
 				$value_right = "";
 			$res .= '<input type="text" name="'.$name_right.'" size="'.$arParams["NUMBER_WIDTH"].'" value="'.htmlspecialcharsbx($value_right).'" />';
 
-			if (strlen($value_right) > 0)
+			if ($value_right <> '')
 				${$FILTER_NAME}["PROPERTY"]["<=".$arProp["CODE"]] = doubleval($value_right);
 
 			$type = 'RANGE';
@@ -660,7 +660,7 @@ foreach($arResult["arrProp"] as $prop_id => $arProp)
 			{
 				$res .= '<input type="text" name="'.$name.'" size="'.$arParams["TEXT_WIDTH"].'" value="'.htmlspecialcharsbx($value).'" />';
 
-				if (strlen($value) > 0)
+				if ($value <> '')
 					${$FILTER_NAME}["PROPERTY"]["?".$arProp["CODE"]] = $value;
 			}
 			$type = 'INPUT';
@@ -709,7 +709,7 @@ foreach($arParams["OFFERS_FIELD_CODE"] as $field_code)
 		case "IBLOCK_EXTERNAL_ID":
 		case "SEARCHABLE_CONTENT":
 			$field_res = '<input type="text" name="'.$name.'" size="'.$arParams["TEXT_WIDTH"].'" value="'.htmlspecialcharsbx($value).'" />';
-			if (strlen($value)>0)
+			if ($value <> '')
 				${$FILTER_NAME}["OFFERS"]["?".$field_code] = $value;
 
 			$field_type = 'INPUT';
@@ -721,14 +721,14 @@ foreach($arParams["OFFERS_FIELD_CODE"] as $field_code)
 			$value = $arrOFV[$field_code]["LEFT"];
 			$field_res = '<input type="text" name="'.$name_left.'" size="'.$arParams["NUMBER_WIDTH"].'" value="'.htmlspecialcharsbx($value).'" />&nbsp;'.GetMessage("CC_BCF_TILL").'&nbsp;';
 
-			if(strlen($value)>0)
+			if($value <> '')
 				${$FILTER_NAME}["OFFERS"][">=".$field_code] = intval($value);
 
 			$name_right = $FILTER_NAME."_of[".$field_code."][RIGHT]";
 			$value = $arrOFV[$field_code]["RIGHT"];
 			$field_res .= '<input type="text" name="'.$name_right.'" size="'.$arParams["NUMBER_WIDTH"].'" value="'.htmlspecialcharsbx($value).'" />';
 
-			if(strlen($value)>0)
+			if($value <> '')
 				${$FILTER_NAME}["OFFERS"]["<=".$field_code] = intval($value);
 
 			$field_type = 'RANGE';
@@ -763,10 +763,10 @@ foreach($arParams["OFFERS_FIELD_CODE"] as $field_code)
 			$field_res = ob_get_contents();
 			ob_end_clean();
 
-			if(strlen($arDateField["from"]["value"]) > 0)
+			if($arDateField["from"]["value"] <> '')
 				${$FILTER_NAME}["OFFERS"][$arDateField["filter_from"]] = $arDateField["from"]["value"];
 
-			if(strlen($arDateField["to"]["value"]) > 0)
+			if($arDateField["to"]["value"] <> '')
 				${$FILTER_NAME}["OFFERS"][$arDateField["filter_to"]] = $arDateField["to"]["value"];
 
 			$field_type = 'DATE_RANGE';
@@ -872,7 +872,7 @@ foreach($arResult["arrOfferProp"] as $prop_id => $arProp)
 			}
 			else
 			{
-				if (strlen($value)>0)
+				if ($value <> '')
 					${$FILTER_NAME}["OFFERS"]["PROPERTY"][$arProp["CODE"]] = $value;
 			}
 
@@ -883,14 +883,14 @@ foreach($arResult["arrOfferProp"] as $prop_id => $arProp)
 			$value = $arrOPFV[$arProp["CODE"]]["LEFT"];
 			$res .= '<input type="text" name="'.$name_left.'" size="'.$arParams["NUMBER_WIDTH"].'" value="'.htmlspecialcharsbx($value).'" />&nbsp;'.GetMessage("CC_BCF_TILL").'&nbsp;';
 
-			if (strlen($value)>0)
+			if ($value <> '')
 				${$FILTER_NAME}["OFFERS"]["PROPERTY"][">=".$arProp["CODE"]] = intval($value);
 
 			$name_right = $FILTER_NAME."_op[".$arProp["CODE"]."][RIGHT]";
 			$value = $arrOPFV[$arProp["CODE"]]["RIGHT"];
 			$res .= '<input type="text" name="'.$name_right.'" size="'.$arParams["NUMBER_WIDTH"].'" value="'.htmlspecialcharsbx($value).'" />';
 
-			if (strlen($value)>0)
+			if ($value <> '')
 				${$FILTER_NAME}["OFFERS"]["PROPERTY"]["<=".$arProp["CODE"]] = doubleval($value);
 
 			$type = 'RANGE';
@@ -905,7 +905,7 @@ foreach($arResult["arrOfferProp"] as $prop_id => $arProp)
 			$value = $arrOPFV[$arProp["CODE"]];
 			$res .= '<input type="text" name="'.$name.'" size="'.$arParams["TEXT_WIDTH"].'" value="'.htmlspecialcharsbx($value).'" />';
 
-			if (strlen($value)>0)
+			if ($value <> '')
 				${$FILTER_NAME}["OFFERS"]["PROPERTY"]["?".$arProp["CODE"]] = $value;
 
 			$type = 'INPUT';
@@ -944,7 +944,7 @@ foreach($arResult["arrPrice"] as $price_code => $arPrice)
 	$name_left = $FILTER_NAME."_cf[".$arPrice["ID"]."][LEFT]";
 	$value_left = $arrCFV[$arPrice["ID"]]["LEFT"];
 
-	if (strlen($value_left)>0)
+	if ($value_left <> '')
 	{
 		if ($arResult['MODULES']['catalog'])
 			${$FILTER_NAME}[">=CATALOG_PRICE_".$arPrice["ID"]] = $value_left;
@@ -957,7 +957,7 @@ foreach($arResult["arrPrice"] as $price_code => $arPrice)
 	$name_right = $FILTER_NAME."_cf[".$arPrice["ID"]."][RIGHT]";
 	$value_right = $arrCFV[$arPrice["ID"]]["RIGHT"];
 
-	if (strlen($value_right)>0)
+	if ($value_right <> '')
 	{
 		if ($arResult['MODULES']['catalog'])
 			${$FILTER_NAME}["<=CATALOG_PRICE_".$arPrice["ID"]] = $value_right;
@@ -997,7 +997,7 @@ if (
 			foreach ($arItem["INPUT_NAMES"] as $i => $name)
 			{
 				$value = $arItem["~INPUT_VALUES"][$i];
-				if (strlen($value) > 0)
+				if ($value <> '')
 				{
 					$GLOBALS[$arParams["PAGER_PARAMS_NAME"]][$name] = $value;
 				}
@@ -1007,23 +1007,23 @@ if (
 		{
 			foreach ($arItem["~INPUT_VALUE"] as $value)
 			{
-				if (strlen($value) > 0)
+				if ($value <> '')
 				{
 					$GLOBALS[$arParams["PAGER_PARAMS_NAME"]][$arItem["INPUT_NAME"]][] = $value;
 				}
 			}
 		}
-		elseif (isset($arItem["INPUT_NAME"]) && strlen($arItem["~INPUT_VALUE"]) > 0)
+		elseif (isset($arItem["INPUT_NAME"]) && $arItem["~INPUT_VALUE"] <> '')
 		{
 			$GLOBALS[$arParams["PAGER_PARAMS_NAME"]][$arItem["INPUT_NAME"]] = $arItem["~INPUT_VALUE"];
 		}
 	}
 
-	if (strlen($_REQUEST["del_filter"]) > 0)
+	if ($_REQUEST["del_filter"] <> '')
 	{
 		//$GLOBALS[$arParams["PAGER_PARAMS_NAME"]]["del_filter"] = $_REQUEST["del_filter"];
 	}
-	elseif (strlen($_REQUEST["set_filter"]) > 0)
+	elseif ($_REQUEST["set_filter"] <> '')
 	{
 		$GLOBALS[$arParams["PAGER_PARAMS_NAME"]]["set_filter"] = $_REQUEST["set_filter"];
 	}

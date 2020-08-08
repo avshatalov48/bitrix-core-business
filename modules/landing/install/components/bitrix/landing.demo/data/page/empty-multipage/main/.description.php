@@ -25,7 +25,6 @@ return [
 		'RULE' => null,
 		'ADDITIONAL_FIELDS' => [
 			'THEME_CODE' => '3corporate',
-			'THEME_CODE_TYPO' => 'app',
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'METAMAIN_USE' => 'N',

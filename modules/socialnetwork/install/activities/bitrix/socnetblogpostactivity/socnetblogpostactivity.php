@@ -140,13 +140,13 @@ class CBPSocnetBlogPostActivity
 		foreach ($users as $user)
 		{
 			$user = (string) $user;
-			if (strpos($user, 'user_') === 0)
+			if (mb_strpos($user, 'user_') === 0)
 			{
-				$result[] = 'U'.substr($user, strlen('user_'));
+				$result[] = 'U'.mb_substr($user, mb_strlen('user_'));
 			}
-			elseif (strpos($user, 'group_') === 0)
+			elseif (mb_strpos($user, 'group_') === 0)
 			{
-				$code = strtoupper(substr($user, strlen('group_')));
+				$code = mb_strtoupper(mb_substr($user, mb_strlen('group_')));
 				if (preg_match('#^(DR[0-9]+|SG[0-9]+)$#', $code))
 				{
 					$result[] = $code;
@@ -201,7 +201,7 @@ class CBPSocnetBlogPostActivity
 		$bRights = false;
 		$rsUser = CUser::GetByID($userId);
 		$arUser = $rsUser->Fetch();
-		if(strlen($arUser["NAME"]."".$arUser["LAST_NAME"]) <= 0)
+		if($arUser["NAME"]."".$arUser["LAST_NAME"] == '')
 		{
 			$arFields["NAME"] = GetMessage("SNBPA_BLOG_NAME")." ".$arUser["LOGIN"];
 		}
@@ -249,7 +249,7 @@ class CBPSocnetBlogPostActivity
 	public static function ValidateProperties($arTestProperties = array(), CBPWorkflowTemplateUser $user = null)
 	{
 		$arErrors = array();
-		if (!array_key_exists("PostMessage", $arTestProperties) || strlen($arTestProperties["PostMessage"]) <= 0)
+		if (!array_key_exists("PostMessage", $arTestProperties) || $arTestProperties["PostMessage"] == '')
 			$arErrors[] = array("code" => "NotExist", "parameter" => "GroupName", "message" => GetMessage("SNBPA_EMPTY_POST_MESSAGE"));
 		if (!array_key_exists("OwnerId", $arTestProperties) || count($arTestProperties["OwnerId"]) <= 0)
 			$arErrors[] = array("code" => "NotExist", "parameter" => "OwnerId", "message" => GetMessage("SNBPA_EMPTY_OWNER"));
@@ -350,7 +350,7 @@ class CBPSocnetBlogPostActivity
 			$arProperties[$value] = $arCurrentValues[$key];
 		}
 
-		if (strlen($arProperties["PostSite"]) <= 0)
+		if ($arProperties["PostSite"] == '')
 			$arProperties["PostSite"] = $arCurrentValues["post_site_x"];
 
 		$user = new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser);

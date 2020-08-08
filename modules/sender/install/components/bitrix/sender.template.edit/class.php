@@ -1,29 +1,32 @@
 <?
 
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ErrorCollection;
+use Bitrix\Fileman;
 use Bitrix\Main\Context;
-use Bitrix\Main\Web\Uri;
+use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Loader;
-use Bitrix\Main\Error;
-
-use Bitrix\Sender\Internals\QueryController;
-use Bitrix\Sender\Internals\CommonAjax;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Uri;
+use Bitrix\Sender\Access\ActionDictionary;
 use Bitrix\Sender\Entity;
+use Bitrix\Sender\Internals\CommonAjax;
+use Bitrix\Sender\Internals\QueryController;
 use Bitrix\Sender\Message;
 use Bitrix\Sender\Security;
-
-use Bitrix\Fileman;
-
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
+if (!Bitrix\Main\Loader::includeModule('sender'))
+{
+	ShowError('Module `sender` not installed');
+	die();
+}
+
 Loc::loadMessages(__FILE__);
 
-class SenderTemplateEditComponent extends CBitrixComponent
+class SenderTemplateEditComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 {
 	/** @var ErrorCollection $errors */
 	protected $errors;
@@ -42,11 +45,8 @@ class SenderTemplateEditComponent extends CBitrixComponent
 		$this->arParams['ID'] = $this->arParams['ID'] ? $this->arParams['ID'] : (int) $this->request->get('ID');
 
 		$this->arParams['SET_TITLE'] = isset($this->arParams['SET_TITLE']) ? (bool) $this->arParams['SET_TITLE'] : true;
-		$this->arParams['CAN_EDIT'] = isset($this->arParams['CAN_EDIT'])
-			?
-			$this->arParams['CAN_EDIT']
-			:
-			Security\Access::current()->canModifyLetters();
+
+		$this->canEdit();
 	}
 
 	protected function preparePost()
@@ -89,7 +89,7 @@ class SenderTemplateEditComponent extends CBitrixComponent
 			);
 		}
 
-		if (!Security\Access::current()->canViewLetters())
+		if (!Security\Access::getInstance()->canViewLetters())
 		{
 			Security\AccessChecker::addError($this->errors);
 			return false;
@@ -145,27 +145,17 @@ class SenderTemplateEditComponent extends CBitrixComponent
 
 	public function executeComponent()
 	{
-		$this->errors = new \Bitrix\Main\ErrorCollection();
-		if (!Loader::includeModule('sender'))
-		{
-			$this->errors->setError(new Error('Module `sender` is not installed.'));
-			$this->printErrors();
-			return;
-		}
+		parent::executeComponent();
+		parent::prepareResultAndTemplate();
+	}
 
-		$this->initParams();
-		if (!$this->checkRequiredParams())
-		{
-			$this->printErrors();
-			return;
-		}
+	public function getEditAction()
+	{
+		return ActionDictionary::ACTION_TEMPLATE_EDIT;
+	}
 
-		if (!$this->prepareResult())
-		{
-			$this->printErrors();
-			return;
-		}
-
-		$this->includeComponentTemplate();
+	public function getViewAction()
+	{
+		return ActionDictionary::ACTION_TEMPLATE_VIEW;
 	}
 }

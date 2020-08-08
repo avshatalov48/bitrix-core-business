@@ -144,7 +144,7 @@ abstract class Entity
 
 	/**
 	 * @param $name
-	 * @return null|string
+	 * @return string|null
 	 */
 	public function getField($name)
 	{
@@ -199,7 +199,7 @@ abstract class Entity
 						elseif($eventResult->getType() == Main\EventResult::ERROR)
 						{
 
-							$errorMsg = new ResultError(Main\Localization\Loc::getMessage('SALE_EVENT_ON_BEFORE_'.strtoupper($this->eventName).'_SET_FIELD_ERROR'), 'SALE_EVENT_ON_BEFORE_'.strtoupper($this->eventName).'_SET_FIELD_ERROR');
+							$errorMsg = new ResultError(Main\Localization\Loc::getMessage('SALE_EVENT_ON_BEFORE_'.mb_strtoupper($this->eventName).'_SET_FIELD_ERROR'), 'SALE_EVENT_ON_BEFORE_'.mb_strtoupper($this->eventName).'_SET_FIELD_ERROR');
 
 							if ($eventResultData = $eventResult->getParameters())
 							{
@@ -439,7 +439,7 @@ abstract class Entity
 						}
 						elseif($eventResult->getType() == Main\EventResult::ERROR)
 						{
-							$errorMsg = new ResultError(Main\Localization\Loc::getMessage('SALE_EVENT_ON_BEFORE_'.strtoupper($this->eventName).'_SET_FIELDS_ERROR'), 'SALE_EVENT_ON_BEFORE_'.strtoupper($this->eventName).'_SET_FIELDS_ERROR');
+							$errorMsg = new ResultError(Main\Localization\Loc::getMessage('SALE_EVENT_ON_BEFORE_'.mb_strtoupper($this->eventName).'_SET_FIELDS_ERROR'), 'SALE_EVENT_ON_BEFORE_'.mb_strtoupper($this->eventName).'_SET_FIELDS_ERROR');
 
 							if ($eventResultData = $eventResult->getParameters())
 							{
@@ -598,7 +598,7 @@ abstract class Entity
 	 */
 	public function getId()
 	{
-		return $this->getField("ID");
+		return (int)$this->getField("ID");
 	}
 
 	/**

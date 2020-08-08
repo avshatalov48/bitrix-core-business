@@ -268,7 +268,7 @@ class CPerfQuery
 
 		$match = array();
 		if (preg_match("/^(select) /i", $this->sql, $match))
-			$this->type = strtolower($match[1]);
+			$this->type = mb_strtolower($match[1]);
 		else
 			$this->type = "unknown";
 
@@ -307,14 +307,14 @@ class CPerfQuery
 		{
 			if ($str == ")")
 				$braces--;
-			elseif (substr($str, 0, 1) == "(")
+			elseif (mb_substr($str, 0, 1) == "(")
 				$braces++;
 
 			if ($subq == 0)
 			{
 				if (preg_match("/^\\(\\s*select/is", $str))
 				{
-					$this->subqueries[] = substr($str, 1);
+					$this->subqueries[] = mb_substr($str, 1);
 					$subq++;
 					unset($ar[$i]);
 				}
@@ -472,7 +472,7 @@ class CPerfQuery
 						//Try to find out if index already exists
 						foreach ($arIndexes as $index_name => $index_columns)
 						{
-							if (substr($index_columns, 0, strlen($index2test)) === $index2test)
+							if (mb_substr($index_columns, 0, mb_strlen($index2test)) === $index2test)
 							{
 								if (
 									$index_found === ""
@@ -514,7 +514,7 @@ class CPerfQuery
 	function _adjust_columns($arColumns)
 	{
 		$arColumns = array_unique($arColumns);
-		while (strlen(implode(",", $arColumns)) > 250)
+		while (mb_strlen(implode(",", $arColumns)) > 250)
 		{
 			//TODO: add brains here
 			//1 exclude blobs and clobs

@@ -35,7 +35,6 @@
 			>
 			</div>
 
-
 			<!--			for resource booking-->
 			<div class="g-bg-gray-dark-v5"
 				 data-form-style-bg-as-text="1"
@@ -60,17 +59,25 @@
 				 data-form-style-light-bg="1"
 			>
 			</div>
+			<p class="landing-semantic-text-medium"
+			   data-form-style-main-font-weight="1"
+			   data-form-style-header-text-font-size="1"
+			   data-form-style-label-font-weight="1"
+			   data-form-style-label-font-size="1"
+			   data-form-style-second-font-color="1"
+			>
+			</p>
 		</div>
 
 		<div class="row align-items-center">
 			<div class="landing-block-node-video-col js-animation slideInRight col-md-6">
 				<div class="landing-block-node-video-container embed-responsive embed-responsive-16by9 mx-auto w-100">
-					<iframe class="landing-block-node-video embed-responsive-item"
-							width="100%"
-							src="//www.youtube.com/embed/q4d8g9Dn3ww?autoplay=0&controls=1&loop=1&mute=0&rel=0"
-							data-source="https://www.youtube.com/watch?v=q4d8g9Dn3ww"
-							frameborder="0"
-							allowfullscreen=""></iframe>
+					<div class="landing-block-node-video embed-responsive-item g-video-preview w-100"
+						 data-src="//www.youtube.com/embed/q4d8g9Dn3ww?autoplay=0&controls=1&loop=1&mute=0&rel=0"
+						 data-source="https://www.youtube.com/watch?v=q4d8g9Dn3ww"
+						 data-preview="//img.youtube.com/vi/q4d8g9Dn3ww/sddefault.jpg"
+						 style="background-image:url(//img.youtube.com/vi/q4d8g9Dn3ww/sddefault.jpg)"
+					></div>
 				</div>
 			</div>
 			<div class="col-md-6">
@@ -78,7 +85,9 @@
 					 data-b24form=""
 					 data-b24form-use-style="Y"
 					 data-b24form-show-header="N"
-				></div>
+				>
+					<div class="g-landing-alert">MESS[LANDING_BLOCK_WEBFORM_PRELOADER]</div>
+				</div>
 			</div>
 		</div>
 	</div>

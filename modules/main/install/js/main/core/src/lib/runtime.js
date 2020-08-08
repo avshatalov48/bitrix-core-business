@@ -11,6 +11,9 @@ import {
 import merge from './runtime/merge';
 import createComparator from './runtime/create-comparator';
 
+/**
+ * @memberOf BX
+ */
 export default class Runtime
 {
 	static debug = debug;

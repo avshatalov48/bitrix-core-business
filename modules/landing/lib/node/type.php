@@ -20,7 +20,7 @@ class Type
 	 */
 	public static function getClassName($type)
 	{
-		$type = strtolower($type);
+		$type = mb_strtolower($type);
 
 		if ($type === '' || $type === 'type')
 		{

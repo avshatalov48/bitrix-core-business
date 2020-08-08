@@ -156,12 +156,12 @@ final class Share extends Base
 						if (
 							$entityDataFormatted
 							&& isset($entityDataFormatted['name'])
-							&& strlen($entityDataFormatted['name']) > 0
+							&& $entityDataFormatted['name'] <> ''
 						)
 						{
 							$newRightsNameList[] = (
 								isset($entityDataFormatted['link'])
-								&& strlen($entityDataFormatted['link']) > 0
+								&& $entityDataFormatted['link'] <> ''
 								&& (!isset($options['bPublicPage']) || !$options['bPublicPage'])
 								&& (!isset($options['mail']) || !$options['mail'])
 									? (

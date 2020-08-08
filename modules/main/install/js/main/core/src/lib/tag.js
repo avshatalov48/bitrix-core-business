@@ -42,6 +42,9 @@ function parseProps(sections: string[], ...substitutions: string[]): {[key: stri
 		}, {});
 }
 
+/**
+ * @memberOf BX
+ */
 export default class Tag
 {
 	/**

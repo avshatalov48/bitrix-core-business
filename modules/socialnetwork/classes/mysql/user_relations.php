@@ -27,7 +27,7 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 		\Bitrix\Socialnetwork\Util::processEqualityFieldsToUpdate($arFields1, $strUpdate);
 
 		$ID = false;
-		if (strlen($arInsert[0]) > 0)
+		if ($arInsert[0] <> '')
 		{
 			$strSql =
 				"INSERT INTO b_sonet_user_relations(".$arInsert[0].") ".
@@ -36,7 +36,7 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 
 			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-			$ID = IntVal($DB->LastID());
+			$ID = intval($DB->LastID());
 
 			$events = GetModuleEvents("socialnetwork", "OnSocNetUserRelationsAdd");
 			while ($arEvent = $events->Fetch())
@@ -71,7 +71,7 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 		if (!CSocNetGroup::__ValidateID($ID))
 			return false;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$arFields1 = \Bitrix\Socialnetwork\Util::getEqualityFields($arFields);
 
@@ -88,7 +88,7 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 		$strUpdate = $DB->PrepareUpdate("b_sonet_user_relations", $arFields);
 		\Bitrix\Socialnetwork\Util::processEqualityFieldsToUpdate($arFields1, $strUpdate);
 
-		if (strlen($strUpdate) > 0)
+		if ($strUpdate <> '')
 		{
 			$strSql =
 				"UPDATE b_sonet_user_relations SET ".
@@ -114,7 +114,7 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 				elseif ($arUserRelationOld["RELATION"] != SONET_RELATIONS_REQUEST && $arFields["RELATION"] == SONET_RELATIONS_REQUEST)
 					$mailType = "INVITE_FRIEND";
 
-				if (StrLen($mailType) > 0)
+				if ($mailType <> '')
 					CSocNetUserRelations::SendEvent($ID, $mailType);
 			}
 
@@ -227,7 +227,7 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 		{
 			if (
 				$arSqls2
-				&& strlen($arSqls2["WHERE"]) > 0
+				&& $arSqls2["WHERE"] <> ''
 			)
 			{
 				$strSql = "SELECT COUNT(*) AS CNT FROM  (";
@@ -243,7 +243,7 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 					"	".$arSqls["FROM"]." ".
 					"WHERE ".$arSqls2["WHERE"]." ";
 
-				if (strlen($arSqls["GROUPBY"]) > 0)
+				if ($arSqls["GROUPBY"] <> '')
 				{
 					$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 				}
@@ -257,12 +257,12 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 					"FROM b_sonet_user_relations UR ".
 					"	".$arSqls["FROM"]." ";
 
-				if (strlen($arSqls["WHERE"]) > 0)
+				if ($arSqls["WHERE"] <> '')
 				{
 					$strSql .= "WHERE ".$arSqls["WHERE"]." ";
 				}
 
-				if (strlen($arSqls["GROUPBY"]) > 0)
+				if ($arSqls["GROUPBY"] <> '')
 				{
 					$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 				}
@@ -281,18 +281,18 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 			"SELECT ".$arSqls["SELECT"]." ".
 			"FROM b_sonet_user_relations UR ".
 			"	".$arSqls["FROM"]." ";
-		if (strlen($arSqls["WHERE"]) > 0)
+		if ($arSqls["WHERE"] <> '')
 		{
 			$strSql .= "WHERE ".$arSqls["WHERE"]." ";
 		}
-		if (strlen($arSqls["ORDERBY"]) > 0)
+		if ($arSqls["ORDERBY"] <> '')
 		{
 			$strSql .= "ORDER BY ".$arSqls["ORDERBY"]." ";
 		}
 
 		if (
 			$arSqls2 
-			&& strlen($arSqls2["WHERE"]) > 0
+			&& $arSqls2["WHERE"] <> ''
 		)
 		{
 			$strSql = "(".$strSql.") ";
@@ -303,34 +303,34 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 				"	".$arSqls["FROM"]." ".
 				"WHERE ".$arSqls2["WHERE"]." ";
 
-			if (strlen($arSqls2["ORDERBY"]) > 0)
+			if ($arSqls2["ORDERBY"] <> '')
 			{
 				$strSql .= "ORDER BY ".$arSqls2["ORDERBY"]." ";
 			}
 			$strSql .= ") ";
 		}
 
-		if (strlen($arSqls["GROUPBY"]) > 0)
+		if ($arSqls["GROUPBY"] <> '')
 		{
 			$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 		}
 
-		if (is_array($arNavStartParams) && IntVal($arNavStartParams["nTopCount"]) <= 0)
+		if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"]) <= 0)
 		{
 			$strSql_tmp =
 				"SELECT COUNT('x') as CNT ".
 				"FROM b_sonet_user_relations UR ".
 				"	".$arSqls["FROM"]." ";
-			if (strlen($arSqls["WHERE"]) > 0)
+			if ($arSqls["WHERE"] <> '')
 				$strSql_tmp .= "WHERE ".$arSqls["WHERE"]." ";
-			if (strlen($arSqls["GROUPBY"]) > 0)
+			if ($arSqls["GROUPBY"] <> '')
 				$strSql_tmp .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
 			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$cnt = 0;
-			if (strlen($arSqls["GROUPBY"]) <= 0)
+			if ($arSqls["GROUPBY"] == '')
 			{
 				if ($arRes = $dbRes->Fetch())
 					$cnt = $arRes["CNT"];
@@ -349,8 +349,8 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 		}
 		else
 		{
-			if (is_array($arNavStartParams) && IntVal($arNavStartParams["nTopCount"]) > 0)
-				$strSql .= "LIMIT ".IntVal($arNavStartParams["nTopCount"]);
+			if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"]) > 0)
+				$strSql .= "LIMIT ".intval($arNavStartParams["nTopCount"]);
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
@@ -364,10 +364,10 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 	{
 		global $DB;
 
-		$userID = IntVal($userID);
-		$number = IntVal($number);
+		$userID = intval($userID);
+		$number = intval($number);
 
-		$curYear = IntVal(Date('Y'));
+		$curYear = intval(Date('Y'));
 
 		$strSql =
 			"SELECT U.ID, U.NAME, U.LAST_NAME, U.SECOND_NAME, U.LOGIN, U.EMAIL, U.PERSONAL_PHOTO, U.PERSONAL_GENDER, U.PERSONAL_BIRTHDAY as PB, ".
@@ -397,8 +397,8 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 	{
 		global $DB;
 
-		$userID = IntVal($userID);
-		$number = IntVal($number);
+		$userID = intval($userID);
+		$number = intval($number);
 
 		$strSql =
 			"SELECT UR.RELATION, UR.FIRST_USER_ID, UR.SECOND_USER_ID ".

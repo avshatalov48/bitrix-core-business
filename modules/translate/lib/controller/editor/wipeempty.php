@@ -66,7 +66,7 @@ class WipeEmpty
 
 			foreach ($pathList as $testPath)
 			{
-				if (substr($testPath, -4) === '.php')
+				if (mb_substr($testPath, -4) === '.php')
 				{
 					if (Translate\IO\Path::isLangDir($testPath))
 					{
@@ -139,7 +139,7 @@ class WipeEmpty
 			$isOk = true;
 
 			// file
-			if (substr($testPath, -4) === '.php')
+			if (mb_substr($testPath, -4) === '.php')
 			{
 				$testPath = Translate\IO\Path::replaceLangId($testPath, '#LANG_ID#');
 
@@ -163,7 +163,7 @@ class WipeEmpty
 			// folder
 			else
 			{
-				if (substr($testPath, -5) === '/lang')
+				if (mb_substr($testPath, -5) === '/lang')
 				{
 					$testPath .= '/#LANG_ID#';
 				}

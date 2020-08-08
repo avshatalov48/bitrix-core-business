@@ -48,7 +48,7 @@ class Service
 	 */
 	public static function canCurrentUserUse()
 	{
-		//TODO: add Security\Access::current()->canModifyRc()
+		//TODO: add Security\Access::getInstance()->canModifyRc()
 		return self::canUse();
 	}
 

@@ -18,7 +18,8 @@
 		this.slotHeight = 20;
 		this.title = BX.message('EC_VIEW_DAY');
 		this.entryWidthOffset = 2;
-		this.lastEntryWidthOffset = 14;
+		this.lastEntryWidthOffset = 8;
+		this.hotkey = 'D';
 
 		this.contClassName = 'calendar-day-view';
 		this.gridWrapClass = 'calendar-grid-wrap';
@@ -354,11 +355,10 @@
 			}
 		}, this), 0);
 
-
 		this.showOffHours();
 
 		// Show "now" red time line
-		this.showNowTime(this.timeLinesCont);
+		this.showNowTime(this.gridRow);
 
 		this.gridRow.appendChild(BX.create('DIV', {props: {className: 'calendar-grid-day-events-holder'}}));
 	};
@@ -795,7 +795,7 @@
 				entry = day.entries.timeline[entryIndex].entry;
 				entryPart = day.entries.timeline[entryIndex].part;
 
-				timeFrom = getTimeIndex(entry.from);
+				timeFrom = getTimeIndex(entry.from, 1);
 				timeTo = getTimeIndex(entry.to, 1);
 				if (timeFrom === timeTo)
 					timeTo += 1;
@@ -834,7 +834,7 @@
 					entry = day.entries.timeline[entryIndex].entry;
 					entryPart = day.entries.timeline[entryIndex].part;
 
-					timeFrom = getTimeIndex(entry.from);
+					timeFrom = getTimeIndex(entry.from, 1);
 					timeTo = getTimeIndex(entry.to, 1);
 					if (timeFrom === timeTo)
 						timeTo += 1;
@@ -935,6 +935,7 @@
 					if (startList.length > 1)
 					{
 						parallelPosition = BX.util.array_search(entryIndex, day.layers[timeFrom][entryPart.layerIndex].start);
+
 						var entryWidthOffset = this.entryWidthOffset;
 						if (parallelPosition == day.layers[timeFrom][entryPart.layerIndex].start.length - 1)
 						{
@@ -1186,7 +1187,7 @@
 			res = false,
 			top,
 			wrapNode, innerNode, nameNode, timeNode, timeLabel, resizerNode,
-			bgNode, borderNode,
+			bgNode,
 			workTime = this.util.getWorkTime(),
 			entry = params.entry,
 			from = params.part.from,
@@ -1199,9 +1200,14 @@
 			entryClassName += ' calendar-event-block-intranet';
 		}
 
+		if (entry.isExpired())
+		{
+			entryClassName += ' calendar-event-block-wrap-past';
+		}
+
 		if (!this.collapseOffHours
 			|| (toTimeValue > workTime.start
-			&& fromTimeValue < workTime.end))
+				&& fromTimeValue < workTime.end))
 		{
 			if (this.collapseOffHours)
 			{
@@ -1225,19 +1231,21 @@
 				}
 			});
 
-			borderNode = wrapNode.appendChild(BX.create('DIV', {props: {className: 'calendar-event-block-border'}}));
-
 			innerNode = wrapNode.appendChild(BX.create('DIV', {props: {className: 'calendar-event-block-inner'}}));
 			bgNode = innerNode.appendChild(BX.create('DIV', {props: {className: 'calendar-event-block-background'}}));
 			timeLabel = this.calendar.util.formatTime(entry.from) + ' &ndash; ' + this.calendar.util.formatTime(entry.to);
-			timeNode = innerNode.appendChild(BX.create('SPAN', {
-				props: {className: 'calendar-event-block-time'},
-				html: timeLabel + '<span class="calendar-event-block-time-shadow">'+ timeLabel +'</span>'
-			}));
-
 			nameNode = innerNode.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-block-text'}, text: params.entry.name}));
 
-			borderNode.style.backgroundColor = entry.color;
+			if (!this.calendar.util.isDarkColor(entry.color))
+			{
+				BX.Dom.addClass(innerNode, 'calendar-event-text-dark');
+			}
+
+			timeNode = innerNode.appendChild(BX.create('SPAN', {
+				props: {className: 'calendar-event-block-time'},
+				html: timeLabel
+			}));
+
 			bgNode.style.backgroundColor = entry.color;
 
 			if (this.calendar.entryController.canDo(entry, 'edit'))
@@ -1372,13 +1380,13 @@
 				if (from)
 				{
 					timeLabel = this.calendar.util.formatTime(from.getHours(), from.getMinutes());
-					entryPart.params.timeNode.innerHTML = timeLabel + '<span class="calendar-event-block-time-shadow">'+ timeLabel +'</span>';
+					entryPart.params.timeNode.innerHTML = timeLabel;
 				}
 				BX.addClass(entryPart.params.wrapNode, 'calendar-event-block-compact');
 				if (innerNodeWidth < MIN_ENTRY_WIDTH)
 					BX.addClass(entryPart.params.wrapNode, 'narrow-block');
 			}
-			else if (lines == 1)
+			else if (lines === 1)
 			{
 				nameNode.style.whiteSpace = 'nowrap';
 				nameNode.style.display = 'block';
@@ -1442,9 +1450,6 @@
 
 		if (time.getTime() > viewRange.start.getTime() && time.getTime() < viewRange.end.getTime())
 		{
-			if (!this.nowTimeCont)
-				this.showNowTime();
-
 			if (this.dayCount > 1)
 			{
 				var dayOffset = this.util.getWeekDayOffset(this.util.getWeekDayByInd(time.getDay()));
@@ -1454,7 +1459,7 @@
 				}
 				else
 				{
-					this.nowTimeLine.style.left = 'calc(' + dayOffset + ' * 100% / ' + this.dayCount + ')';
+					this.nowTimeLine.style.left = 'calc(' + dayOffset + ' * 100% / ' + this.dayCount + ' - 4px)';
 				}
 			}
 		}
@@ -1494,7 +1499,7 @@
 				{
 					this.nowTimeLabel.style.display = '';
 				}
-				this.nowTimeCont.style.top = ((timeValue - workTime.start) * this.gridLineHeight + 1) + 'px';
+				this.nowTimeCont.style.top = ((timeValue - workTime.start) * this.gridLineHeight  + this.timeLinesCont.offsetTop)  + 'px';
 			}
 		}
 		else
@@ -1507,8 +1512,7 @@
 				showTimeLable = false;
 				this.nowTimeLabel.style.display = 'none';
 			}
-
-			this.nowTimeCont.style.top = (timeValue * this.gridLineHeight + 1) + 'px';
+			this.nowTimeCont.style.top = (timeValue * this.gridLineHeight + this.timeLinesCont.offsetTop) + 'px';
 		}
 
 		if (showTimeLable && Math.abs((nearestLineIndex - timeValue) * this.gridLineHeight) < nowTimeVisualOffsetPx)
@@ -1774,7 +1778,7 @@
 				clearTimeout(this.scrollTopInterval);
 
 			if (this.timeLinesCont && !this.nowTimeCont)
-				this.showNowTime(this.timeLinesCont);
+				this.showNowTime(this.gridRow);
 
 			if (animate)
 			{
@@ -2193,7 +2197,7 @@
 			partWrap, innerNode,
 			entryClassName = 'calendar-event-block-wrap',
 			from = params.dayFrom,
-			borderNode, bgNode,timeLabel, timeNode, nameNode, bindNode,
+			bgNode,timeLabel, timeNode, nameNode, bindNode,
 			section = this.calendar.sectionController.getCurrentSection(),
 			color = section.color;
 
@@ -2210,21 +2214,19 @@
 				width: 'calc(100% / ' + this.dayCount + ' - ' + this.lastEntryWidthOffset + 'px)'
 			}
 		}));
-		borderNode = partWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-event-block-border'}}));
 		innerNode = partWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-event-block-inner'}}));
 		bgNode = innerNode.appendChild(BX.create('DIV', {props: {className: 'calendar-event-block-background'}}));
 		timeLabel = this.calendar.util.formatTime(entryTime.from.getHours(), entryTime.from.getMinutes()) + ' &ndash; ' + this.calendar.util.formatTime(entryTime.to.getHours(), entryTime.to.getMinutes());
-		innerNode.appendChild(BX.create('SPAN', {
-			props: {className: 'calendar-event-block-time'},
-			style: {color: '#fff'},
-			html: timeLabel + '<span class="calendar-event-block-time-shadow">'+ timeLabel +'</span>'
-		}));
 		innerNode.appendChild(BX.create('SPAN', {
 			props: {className: 'calendar-event-block-text'},
 			style: {color: '#fff'},
 			text: entryName
 		}));
-		borderNode.style.backgroundColor = color;
+		innerNode.appendChild(BX.create('SPAN', {
+			props: {className: 'calendar-event-block-time'},
+			style: {color: '#fff'},
+			html: timeLabel
+		}));
 		bgNode.style.backgroundColor = color;
 
 		var pos = BX.pos(partWrap);
@@ -2247,7 +2249,6 @@
 		nameNode = entryClone.querySelector('.calendar-event-block-text');
 		timeNode = entryClone.querySelector('.calendar-event-block-time');
 		innerNode = entryClone.querySelector('.calendar-event-block-inner');
-		borderNode = entryClone.querySelector('.calendar-event-block-border');
 		bgNode = entryClone.querySelector('.calendar-event-block-background');
 		bindNode = entryClone.appendChild(BX.create('DIV', {props: {className: 'calendar-event-bind-node'}}));
 
@@ -2262,7 +2263,6 @@
 			section: section,
 			entryName: entryName,
 			bindNode: bindNode,
-			borderNode: borderNode,
 			blockBackgroundNode: bgNode,
 			changeTimeCallback: function(from, to)
 			{
@@ -2279,7 +2279,7 @@
 						+ ' &ndash; '
 						+ _this.calendar.util.formatTime(to.h, to.m);
 				}
-				timeNode.innerHTML = timeLabel + '<span class="calendar-event-block-time-shadow">'+ timeLabel +'</span>';
+				timeNode.innerHTML = timeLabel;
 			},
 			changeNameCallback: function(name)
 			{
@@ -2330,8 +2330,6 @@
 			changeSectionCallback: function(section)
 			{
 				var color = section.color;
-				if (params.entry.borderNode)
-					params.entry.borderNode.style.backgroundColor = color;
 				if (params.entry.blockBackgroundNode)
 					params.entry.blockBackgroundNode.style.backgroundColor = color;
 			},
@@ -2448,7 +2446,7 @@
 		this.name = 'week';
 		this.title = BX.message('EC_VIEW_WEEK');
 		this.contClassName = 'calendar-week-view';
-
+		this.hotkey = 'W';
 		this.gridWrapClass = 'calendar-grid-wrap';
 		this.fullDayContClass = 'calendar-grid-week-full-days-events-holder';
 		this.outerGridClass = 'calendar-grid-week-container';

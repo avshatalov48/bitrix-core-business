@@ -1,6 +1,7 @@
 <?
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
+use Bitrix\Main\Loader;
 use Bitrix\Sender\Recipient;
 
 /** @global CMain $APPLICATION */
@@ -44,7 +45,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 
 	if(isset($_GET['tag']) && isset($_GET['sender_subscription']) && $_GET['sender_subscription']=='confirm')
 	{
-		if(!CModule::IncludeModule("sender"))
+		if(!Loader::includeModule("sender"))
 		{
 			$obCache->AbortDataCache();
 			ShowError(GetMessage("SENDER_SUBSCR_MODULE_NOT_INSTALLED"));
@@ -80,7 +81,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && check_bitrix_sessid() && isset($_POST
 {
 	if(check_email($_POST["SENDER_SUBSCRIBE_EMAIL"], true))
 	{
-		if(!CModule::IncludeModule("sender"))
+		if(!Loader::includeModule("sender"))
 		{
 			$obCache->AbortDataCache();
 			ShowError(GetMessage("SENDER_SUBSCR_MODULE_NOT_INSTALLED"));
@@ -112,7 +113,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && check_bitrix_sessid() && isset($_POST
 					'select' => array('EXISTED_MAILING_ID' => 'MAILING.ID'),
 					'filter' => array(
 						'=CONTACT.TYPE_ID' => Recipient\Type::EMAIL,
-						'=CONTACT.CODE' => strtolower($_POST["SENDER_SUBSCRIBE_EMAIL"]),
+						'=CONTACT.CODE' => mb_strtolower($_POST["SENDER_SUBSCRIBE_EMAIL"]),
 						'!MAILING.ID' => null
 					),
 				));
@@ -130,7 +131,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && check_bitrix_sessid() && isset($_POST
 				// do not send if no selected mailings and subscriber existed
 				$contactDb = \Bitrix\Sender\ContactTable::getList(array('filter' => array(
 					'=TYPE_ID' => Recipient\Type::EMAIL,
-					'=CODE' => strtolower($_POST["SENDER_SUBSCRIBE_EMAIL"]),
+					'=CODE' => mb_strtolower($_POST["SENDER_SUBSCRIBE_EMAIL"]),
 				)));
 				if($contact = $contactDb->fetch())
 					$sendEmailToSubscriber = false;
@@ -195,7 +196,7 @@ if($arParams["USE_PERSONALIZATION"])
 	{
 		$subscr_EMAIL = $APPLICATION->get_cookie('SENDER_SUBSCR_EMAIL');
 	}
-	$subscr_EMAIL = strtolower(strlen($subscr_EMAIL) > 0? $subscr_EMAIL : $USER->GetParam("EMAIL"));
+	$subscr_EMAIL = mb_strtolower($subscr_EMAIL <> ''? $subscr_EMAIL : $USER->GetParam("EMAIL"));
 
 	if(isset($_SESSION['SENDER_SUBSCRIBE_LIST']) && is_array($_SESSION['SENDER_SUBSCRIBE_LIST']))
 	{
@@ -204,7 +205,7 @@ if($arParams["USE_PERSONALIZATION"])
 	}
 	else
 	{
-		if(!CModule::IncludeModule("sender"))
+		if(!Loader::includeModule("sender"))
 		{
 			$obCache->AbortDataCache();
 			ShowError(GetMessage("SENDER_SUBSCR_MODULE_NOT_INSTALLED"));
@@ -248,7 +249,7 @@ $obCache = new CPHPCache;
 $strCacheID = LANG.$arParams["SHOW_HIDDEN"];
 if($obCache->StartDataCache($arParams["CACHE_TIME"], $strCacheID, "/".SITE_ID.$this->GetRelativePath()))
 {
-	if(!CModule::IncludeModule("sender"))
+	if(!Loader::includeModule("sender"))
 	{
 		$obCache->AbortDataCache();
 		ShowError(GetMessage("SENDER_SUBSCR_MODULE_NOT_INSTALLED"));
@@ -266,9 +267,9 @@ else
 	$mailingList = $obCache->GetVars();
 }
 
-if(strlen($_REQUEST["SENDER_SUBSCRIBE_EMAIL"])>0)
+if($_REQUEST["SENDER_SUBSCRIBE_EMAIL"] <> '')
 	$arResult["EMAIL"] = htmlspecialcharsbx($_REQUEST["SENDER_SUBSCRIBE_EMAIL"]);
-elseif(strlen($arSubscription["EMAIL"])>0)
+elseif($arSubscription["EMAIL"] <> '')
 	$arResult["EMAIL"] = htmlspecialcharsbx($arSubscription["EMAIL"]);
 else
 	$arResult["EMAIL"] = "";

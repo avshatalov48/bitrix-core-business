@@ -2,6 +2,7 @@
 
 namespace Bitrix\Landing\Assets;
 
+use Bitrix\Landing\Landing;
 use Bitrix\Main;
 
 class WebpackBuilder extends Builder
@@ -98,6 +99,10 @@ class WebpackBuilder extends Builder
 		{
 			if (array_key_exists($type, $this->normalizedResources))
 			{
+				if($type === Types::TYPE_LANG)
+				{
+					$this->webpackFile->setUseLang();
+				}
 				foreach ($this->normalizedResources[$type] as $resource)
 				{
 					$this->webpackFile->addResource($resource);
@@ -141,6 +146,7 @@ class WebpackBuilder extends Builder
 		sort($list);
 
 		$list[] = Main\ModuleManager::getVersion('landing');
+		$list[] = Landing::getPreviewMode() ? 'previewMode' : 'publicMode';
 
 		return self::PACKAGE_NAME . self::PACKAGE_NAME_SUFFIX . '_' . md5(serialize($list)) . '.js';
 	}

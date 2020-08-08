@@ -80,7 +80,7 @@ if (Loader::requireModule("bizproc"))
 
 			$iblockId = self::getIblockId($fieldType);
 			$propertyId = 0;
-			$queryObject = \CIBlockProperty::getByID(substr($field["Field"], strlen("PROPERTY_")), $iblockId);
+			$queryObject = \CIBlockProperty::getByID(mb_substr($field["Field"], mb_strlen("PROPERTY_")), $iblockId);
 			if ($property = $queryObject->fetch())
 			{
 				$propertyId = $property["ID"];

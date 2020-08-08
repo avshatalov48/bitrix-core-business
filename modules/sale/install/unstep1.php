@@ -1,7 +1,7 @@
 <?
 foreach (GetModuleEvents('sale', 'OnModuleUnInstall', true) as $arEvent)
 {
-	if (strlen($arEvent["TO_CLASS"]) <= 0)
+	if ($arEvent["TO_CLASS"] == '')
 		$arEvent["CALLBACK"] = $arEvent["TO_METHOD"];
 	ExecuteModuleEventEx($arEvent);
 }

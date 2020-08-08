@@ -41,14 +41,22 @@ namespace Bitrix\Rest\Marketplace\Urls
 		{
 			if (null === self::$localDir)
 			{
-				self::$localDir = "/";
-				$dir = new \Bitrix\Main\IO\Directory($this->directory, SITE_ID);
-				if ($dir->isExists())
+				$siteId = SITE_ID;
+				self::$localDir = \Bitrix\Main\IO\Path::DIRECTORY_SEPARATOR;
+				if (($site = \CSite::getById($siteId)->fetch()) && !empty($site["DIR"]))
 				{
-					self::$localDir = $dir->getPath();
+					$path = [\Bitrix\Main\SiteTable::getDocumentRoot($siteId), $site["DIR"], $this->directory];
+					$dir = new \Bitrix\Main\IO\Directory(\Bitrix\Main\IO\Path::combine($path), $siteId);
+					if ($dir->isExists())
+					{
+						self::$localDir = \Bitrix\Main\IO\Path::combine([self::$localDir, $site["DIR"]]);
+					}
 				}
 			}
-			return self::$localDir.$this->directory;
+			$res = \Bitrix\Main\IO\Path::combine([self::$localDir, $this->directory]);
+			if (substr($res, 0, -1) !== \Bitrix\Main\IO\Path::DIRECTORY_SEPARATOR)
+				$res .= \Bitrix\Main\IO\Path::DIRECTORY_SEPARATOR;
+			return $res;
 		}
 
 		protected function getReplacedId(string $url, $id = null)
@@ -76,12 +84,75 @@ namespace Bitrix\Rest\Marketplace\Urls
 			"list" => "installed/",
 			"detail" => "detail/#ID#/",
 			"category" => "category/#ID#/",
-			"edit" => "edit/#ID#/"
+			"placement_view" => "view/#APP#/",
+			"placement" => "placement/#PLACEMENT_ID#/"
 		];
 
 		public function getCategoryUrl($id = null)
 		{
-			return $this->getReplacedId($this->pages["edit"], $id ?: "all");
+			if ($id === null)
+			{
+				return $this->getReplacedId($this->pages["index"]);
+			}
+			return $this->getReplacedId($this->pages["category"], $id);
+		}
+
+		public function getPlacementUrl($placementId, $params)
+		{
+			$placementId = intVal($placementId);
+			$replace = null;
+			$subject = null;
+			if ($placementId > 0)
+			{
+				$replace = [
+					'#PLACEMENT_ID#'
+				];
+				$subject = [
+					$placementId
+				];
+			}
+			$url = $this->getReplaced($this->pages["placement"], $replace, $subject);
+
+			if(is_array($params))
+			{
+				$uri = new \Bitrix\Main\Web\Uri($url);
+				$uri->addParams(
+					[
+						'params' => $params
+					]
+				);
+				$url = $uri->getUri();
+			}
+			return $url;
+		}
+
+		public function getPlacementViewUrl($appCode, $params)
+		{
+			$replace = null;
+			$subject = null;
+			if ($appCode)
+			{
+				$replace = [
+					'#APP#'
+				];
+				$subject = [
+					$appCode
+				];
+			}
+			$url = $this->getReplaced($this->pages["placement_view"], $replace, $subject);
+
+			if (is_array($params))
+			{
+				$uri = new \Bitrix\Main\Web\Uri($url);
+				$uri->addParams(
+					[
+						'params' => $params
+					]
+				);
+				$url = $uri->getUri();
+			}
+
+			return $url;
 		}
 	}
 	class Application extends Templates
@@ -115,9 +186,10 @@ namespace Bitrix\Rest\Marketplace\Urls
 			'section' => 'section/#MANIFEST_CODE#/',
 			'import' => 'import/',
 			'import_app' => 'import/#APP_CODE#/',
-			'import_rollback' => 'import_rollback/',
-			'export' => 'export/#MANIFEST_CODE#/',
-			'export_element' => 'export/#MANIFEST_CODE#/#ITEM_CODE#/'
+			'import_rollback' => 'import_rollback/#APP#/',
+			'import_manifest' => 'import_#MANIFEST_CODE#/',
+			'export' => 'export_#MANIFEST_CODE#/',
+			'export_element' => 'export_#MANIFEST_CODE#/#ITEM_CODE#/'
 		];
 
 		public function getPlacement($code = null, $context = null)
@@ -169,6 +241,22 @@ namespace Bitrix\Rest\Marketplace\Urls
 			return $this->getReplaced($this->pages["import"]);
 		}
 
+		public function getImportManifest($manifestCode)
+		{
+			$replace = null;
+			$subject = null;
+			if (!is_null($manifestCode))
+			{
+				$replace = [
+					'#MANIFEST_CODE#'
+				];
+				$subject = [
+					$manifestCode
+				];
+			}
+			return $this->getReplaced($this->pages["import_manifest"], $replace, $subject);
+		}
+
 		public function getImportApp($code = null)
 		{
 			$replace = null;
@@ -185,9 +273,16 @@ namespace Bitrix\Rest\Marketplace\Urls
 			return $this->getReplaced($this->pages["import_app"], $replace, $subject);
 		}
 
-		public function getImportRollback()
+		public function getImportRollback($appCode)
 		{
-			return $this->getReplaced($this->pages["import_rollback"]);
+			$replace = [
+				'#APP#'
+			];
+			$subject = [
+				$appCode
+			];
+
+			return $this->getReplaced($this->pages["import_rollback"], $replace, $subject);
 		}
 
 		public function getExport($manifestCode = null)
@@ -265,6 +360,16 @@ namespace Bitrix\Rest\Marketplace
 			return "";
 		}
 
+		public static function getApplicationPlacementUrl($placementId = null, $params = null)
+		{
+			return MarketplaceUrls::getInstance()->getPlacementUrl($placementId, $params);
+		}
+
+		public static function getApplicationPlacementViewUrl($appCode = null, $params = null)
+		{
+			return MarketplaceUrls::getInstance()->getPlacementViewUrl($appCode, $params);
+		}
+
 		public static function getMarketplaceUrl()
 		{
 			return MarketplaceUrls::getInstance()->getIndexUrl();
@@ -291,14 +396,19 @@ namespace Bitrix\Rest\Marketplace
 			return Configuration::getInstance()->getImport();
 		}
 
+		public static function getConfigurationImportManifestUrl($code)
+		{
+			return Configuration::getInstance()->getImportManifest($code);
+		}
+
 		public static function getConfigurationImportAppUrl($code = null)
 		{
 			return Configuration::getInstance()->getImportApp($code);
 		}
 
-		public static function getConfigurationImportRollbackUrl()
+		public static function getConfigurationImportRollbackUrl($appCode)
 		{
-			return Configuration::getInstance()->getImportRollback();
+			return Configuration::getInstance()->getImportRollback($appCode);
 		}
 
 		public static function getConfigurationExportUrl($manifestCode = null)

@@ -4,20 +4,15 @@
  *
  * @package bitrix
  * @subpackage im
- * @copyright 2001-2019 Bitrix
+ * @copyright 2001-2020 Bitrix
  */
 
-const DeviceType = Object.freeze({
+export const DeviceType = Object.freeze({
 	mobile: 'mobile',
 	desktop: 'desktop',
 });
 
-const DeviceOrientation = Object.freeze({
+export const DeviceOrientation = Object.freeze({
 	horizontal: 'horizontal',
 	portrait: 'portrait',
 });
-
-export {
-	DeviceType,
-	DeviceOrientation,
-};

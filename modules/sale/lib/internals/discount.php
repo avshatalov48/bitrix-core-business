@@ -407,6 +407,11 @@ class DiscountTable extends Main\Entity\DataManager
 	{
 		$fields = static::getRowById($discountId);
 
+		if (empty($fields))
+		{
+			return self::EXECUTE_MODE_GENERAL;
+		}
+
 		return Analyzer::getInstance()->canCalculateSeparately($fields) ?
 			self::EXECUTE_MODE_SEPARATELY : self::EXECUTE_MODE_GENERAL;
 	}

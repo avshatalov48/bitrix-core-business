@@ -28,8 +28,8 @@ if (
 	$GLOBALS["APPLICATION"]->SetAdditionalCSS("/bitrix/components/bitrix/socialnetwork.group_menu/templates/.default/style.css");
 
 	if (
-		strpos(SITE_TEMPLATE_ID, "stretchy") === 0
-		|| strpos(SITE_TEMPLATE_ID, "taby") === 0
+		mb_strpos(SITE_TEMPLATE_ID, "stretchy") === 0
+		|| mb_strpos(SITE_TEMPLATE_ID, "taby") === 0
 	)
 	{
 		$this->SetViewTarget("sidebar", 5);
@@ -37,7 +37,7 @@ if (
 			#sidebar { position: relative; }
 			#sidebar .content-title { padding-right: 23px; }
 		</style>
-		<a id="group_menu_subscribe_button" class="profile-menu-notify-btn<?=($arReturnGroupMenu["IS_SUBSCRIBED"] ? " profile-menu-notify-btn-active" : "")?>" title="<?=GetMessage("SONET_SGM_T_NOTIFY_TITLE_".($arReturnGroupMenu["IS_SUBSCRIBED"] ? "ON" : "OFF"))?>" href="#" onclick="__SGMSetSubscribe(<?=$arResult["VARIABLES"]["group_id"]?>, event);" style="z-index: 100; position: absolute; top: <?=(strpos(SITE_TEMPLATE_ID, "stretchy") === 0 ? "60" : "93")?>px; right: 6px;"></a><?
+		<a id="group_menu_subscribe_button" class="profile-menu-notify-btn<?=($arReturnGroupMenu["IS_SUBSCRIBED"] ? " profile-menu-notify-btn-active" : "")?>" title="<?=GetMessage("SONET_SGM_T_NOTIFY_TITLE_".($arReturnGroupMenu["IS_SUBSCRIBED"] ? "ON" : "OFF"))?>" href="#" onclick="__SGMSetSubscribe(<?=$arResult["VARIABLES"]["group_id"]?>, event);" style="z-index: 100; position: absolute; top: <?=(mb_strpos(SITE_TEMPLATE_ID, "stretchy") === 0 ? "60" : "93")?>px; right: 6px;"></a><?
 		$this->EndViewTarget();
 	}
 }

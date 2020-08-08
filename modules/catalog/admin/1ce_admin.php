@@ -51,7 +51,7 @@ if ($USER->CanDoOperation('catalog_read')):
 			array("1CE_USE_ZIP", GetMessage("CAT_1CE_USE_ZIP"), "Y", Array("checkbox")),
 		);
 
-		if($_SERVER['REQUEST_METHOD'] == "POST" && strlen($Update)>0 && $USER->CanDoOperation('edit_php') && check_bitrix_sessid())
+		if($_SERVER['REQUEST_METHOD'] == "POST" && $Update <> '' && $USER->CanDoOperation('edit_php') && check_bitrix_sessid())
 		{
 			for ($i = 0, $intCount = count($arAllOptions); $i < $intCount; $i++)
 			{

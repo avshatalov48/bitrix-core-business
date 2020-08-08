@@ -18,7 +18,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
 $sTableID = "tbl_sale_tax_rate";
 
-$oSort = new CAdminSorting($sTableID, "ID", "asc");
+$oSort = new CAdminUiSorting($sTableID, "ID", "asc");
 $lAdmin = new CAdminUiList($sTableID, $oSort);
 
 $listTax = array();
@@ -114,7 +114,7 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 
 	foreach ($arID as $ID)
 	{
-		if (strlen($ID) <= 0)
+		if ($ID == '')
 			continue;
 
 		switch ($_REQUEST['action'])
@@ -217,7 +217,7 @@ while ($arTaxRate = $dbResultList->NavNext(false))
 	$fieldShow = "";
 	if (in_array("PERSON_TYPE_ID", $arVisibleColumns))
 	{
-		if (IntVal($arTaxRate["PERSON_TYPE_ID"])>0)
+		if (intval($arTaxRate["PERSON_TYPE_ID"])>0)
 		{
 			$arPerType = $arPersonTypeList[$arTaxRate["PERSON_TYPE_ID"]];
 			$fieldShow .= "[".$arPerType["ID"]."] ".$arPerType["NAME"]." (".htmlspecialcharsEx($arPerType["LID"]).")";

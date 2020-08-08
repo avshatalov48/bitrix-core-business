@@ -133,6 +133,31 @@ abstract class Check
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getUrl()
+	{
+		if (!$this->getField('LINK_PARAMS'))
+		{
+			return '';
+		}
+
+		$cashbox = Manager::getObjectById($this->getField('CASHBOX_ID'));
+		if (!$cashbox)
+		{
+			return '';
+		}
+
+		$ofd = $cashbox->getOfd();
+		if (!$ofd)
+		{
+			return '';
+		}
+
+		return $ofd->generateCheckLink($this->getField('LINK_PARAMS'));
+	}
+
+	/**
 	 * @param array $cashboxList
 	 */
 	public function setAvailableCashbox(array $cashboxList)
@@ -350,7 +375,7 @@ abstract class Check
 		elseif ($this->fields['SHIPMENT_ID'] > 0)
 		{
 			/** @var Shipment $shipmentClassName */
-			$shipmentClassName = $registry->getPaymentClassName();
+			$shipmentClassName = $registry->getShipmentClassName();
 			$dbRes = $shipmentClassName::getList(array('filter' => array('ID' => $this->fields['SHIPMENT_ID'])));
 			$data = $dbRes->fetch();
 			$orderId = $data['ORDER_ID'];
@@ -685,27 +710,26 @@ abstract class Check
 						$item['QUANTITY'] = 1;
 						$item['SUM'] = $basketItem->getPriceWithVat();
 
-						$shipmentItem->getShipmentItemStoreCollection()->rewind();
-
-						$storeCollection = $shipmentItem->getShipmentItemStoreCollection();
-						for ($i = $basketItem->getQuantity(); $i > 0; $i--)
+						$collection = $shipmentItem->getShipmentItemStoreCollection();
+						foreach ($collection as $itemStore)
 						{
-							$markingCode = '';
-
-							/** @var ShipmentItemStore $itemStore */
-							if ($itemStore = $storeCollection->current())
-							{
-								$markingCode = $this->buildTag1162(
-									$itemStore->getMarkingCode(),
-									$basketItem->getMarkingCodeGroup()
-								);
-
-								$storeCollection->next();
-							}
-
-							$item['NOMENCLATURE_CODE'] = $markingCode;
+							$item['NOMENCLATURE_CODE'] = $this->buildTag1162(
+								$itemStore->getMarkingCode(),
+								$basketItem->getMarkingCodeGroup()
+							);
 
 							$result['PRODUCTS'][] = $item;
+						}
+
+						$diff = $shipmentItem->getQuantity() - $collection->count();
+						if ($diff)
+						{
+							for ($i = 0; $i < $diff; $i++)
+							{
+								$item['NOMENCLATURE_CODE'] = '';
+
+								$result['PRODUCTS'][] = $item;
+							}
 						}
 					}
 					else
@@ -785,12 +809,15 @@ abstract class Check
 	 */
 	protected function buildTag1162(string $markingCode, string $markingCodeGroup) : string
 	{
-		list($gtin, $serial, ) = $this->parseMarkingCode($markingCode);
+		[$gtin, $serial, ] = $this->parseMarkingCode($markingCode);
 
-		return
-			$this->convertToBinaryFormat($markingCodeGroup, 2).' '.
-			$this->convertToBinaryFormat($gtin, 6).' '.
-			$this->convertCharsToHex($serial);
+		$hex =
+			$this->convertToBinaryFormat($markingCodeGroup, 2).
+			$this->convertToBinaryFormat($gtin, 6).
+			$this->convertCharsToHex($serial)
+		;
+
+		return hex2bin($hex);
 	}
 
 	/**
@@ -799,9 +826,9 @@ abstract class Check
 	 */
 	private function parseMarkingCode(string $code) : array
 	{
-		$gtin = substr($code, 2, 14);
-		$serial = substr($code, 18, 13);
-		$reserve = substr($code, 27);
+		$gtin = mb_substr($code, 2, 14);
+		$serial = mb_substr($code, 18, 13);
+		$reserve = mb_substr($code, 27);
 
 		return [$gtin, $serial, $reserve];
 	}
@@ -818,14 +845,9 @@ abstract class Check
 		for ($i = 0; $i < $size; $i++)
 		{
 			$hex = dechex(($string >> (8 * $i)) & 0xFF);
-			if (strlen($hex) === 1)
+			if (mb_strlen($hex) === 1)
 			{
 				$hex = '0'.$hex;
-			}
-
-			if ($i !== 0)
-			{
-				$result = ' '.$result;
 			}
 
 			$result = ToUpper($hex).$result;
@@ -842,20 +864,15 @@ abstract class Check
 	{
 		$result = '';
 
-		for ($i = 0, $len = strlen($string); $i < $len; $i++)
+		for ($i = 0, $len = mb_strlen($string); $i < $len; $i++)
 		{
 			$hex = dechex(ord($string[$i]));
-			if (strlen($hex) === 1)
+			if (mb_strlen($hex) === 1)
 			{
 				$hex = '0'.$hex;
 			}
 
 			$result .= ToUpper($hex);
-
-			if ($i !== $len - 1)
-			{
-				$result .= ' ';
-			}
 		}
 
 		return $result;

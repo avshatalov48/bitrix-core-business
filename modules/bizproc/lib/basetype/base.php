@@ -36,7 +36,7 @@ class Base
 	 */
 	protected static function getFormatCallable($format)
 	{
-		$format = strtolower($format);
+		$format = mb_strtolower($format);
 		$formats = static::getFormats();
 		if (isset($formats[$format]['callable']))
 		{
@@ -57,7 +57,7 @@ class Base
 	 */
 	protected static function getFormatSeparator($format)
 	{
-		$format = strtolower($format);
+		$format = mb_strtolower($format);
 		$separator = ', '; //default - coma
 		$formats = static::getFormats();
 		if (isset($formats[$format]['separator']))
@@ -75,7 +75,7 @@ class Base
 	 */
 	public static function addFormat($name, array $options)
 	{
-		$name = strtolower($name);
+		$name = mb_strtolower($name);
 		if (empty($options['callable']))
 			throw new Main\ArgumentException('Callable property in format options is not set.');
 
@@ -697,6 +697,10 @@ HTML;
 	 */
 	public static function externalizeValue(FieldType $fieldType, $objectName, $value)
 	{
+		if (is_object($value) && method_exists($value, '__toString'))
+		{
+			return (string) $value;
+		}
 		return $value;
 	}
 

@@ -9,3 +9,4 @@ $MESS['LANDING_CMP_PAR_PAGE_URL_LANDING_VIEW'] = 'Ссылка на редакт
 $MESS['LANDING_CMP_PAR_PAGE_URL_SITES'] = 'Ссылка на список сайтов';
 $MESS['LANDING_CMP_PAR_PAGE_URL_SITE_SHOW'] = 'Ссылка на список страниц сайта';
 $MESS['LANDING_CMP_PAR_DRAFT_MODE'] = 'Всегда работать в режиме черновика';
+$MESS['LANDING_CMP_PAR_PAGE_URL_ROLES'] = 'Ссылка на управление доступом';

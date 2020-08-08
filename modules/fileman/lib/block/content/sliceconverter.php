@@ -25,12 +25,12 @@ class SliceConverter implements IConverter
 	public static function isValid($string)
 	{
 		$result = true;
-		$string = strtoupper($string);
-		if(strpos($string, '<!--START ' . static::SLICE_SECTION_ID . '/') === false)
+		$string = mb_strtoupper($string);
+		if(mb_strpos($string, '<!--START '.static::SLICE_SECTION_ID.'/') === false)
 		{
 			$result = false;
 		}
-		if(strpos($string, '<!--END ' . static::SLICE_SECTION_ID . '/') === false)
+		if(mb_strpos($string, '<!--END '.static::SLICE_SECTION_ID.'/') === false)
 		{
 			$result = false;
 		}

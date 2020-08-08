@@ -1,0 +1,9 @@
+[data-name="variation_grid"] .ui-entity-editor-included-area-container-loader {
+	background: url(images/skeleton.svg);
+	height: 500px;
+}
+
+.ui-btn.ui-btn-highlighted {
+	z-index: 140;
+	background-color: #fff;
+}

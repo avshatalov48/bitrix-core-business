@@ -24,7 +24,7 @@ $product_price = number_format(CSalePaySystemAction::GetParamValue("SHOULD_PAY")
 <input type="hidden" name="phone" value="<?=CSalePaySystemAction::GetParamValue("PHONE")?>"> 
 <input type="hidden" name="email" value="<?=CSalePaySystemAction::GetParamValue("EMAIL")?>">
 <?
-if(strlen(CSalePaySystemAction::GetParamValue("ORDER_UNIQ")) > 0)
+if(CSalePaySystemAction::GetParamValue("ORDER_UNIQ") <> '')
 {
 	?>
 	<input type="hidden" name="order_id" value="<?=CSalePaySystemAction::GetParamValue("ORDER_ID");?>">
@@ -38,19 +38,19 @@ else
 	<?
 }
 
-if(strlen(CSalePaySystemAction::GetParamValue("YANDEX_FORWARD")) > 0)
+if(CSalePaySystemAction::GetParamValue("YANDEX_FORWARD") <> '')
 {
 	?>
 	<input type="hidden" name="payment_type_group_id" value="16">
 	<?
 }
-elseif(strlen(CSalePaySystemAction::GetParamValue("WEBMONEY_FORWARD")) > 0)
+elseif(CSalePaySystemAction::GetParamValue("WEBMONEY_FORWARD") <> '')
 {
 	?>
 	<input type="hidden" name="payment_type_group_id" value="15">
 	<?
 }
-elseif(strlen(CSalePaySystemAction::GetParamValue("QIWI_FORWARD")) > 0)
+elseif(CSalePaySystemAction::GetParamValue("QIWI_FORWARD") <> '')
 {
 	?>
 	<input type="hidden" name="payment_type_group_id" value="21">

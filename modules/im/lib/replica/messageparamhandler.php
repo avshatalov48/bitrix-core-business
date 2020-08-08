@@ -196,12 +196,12 @@ if (Loader::includeModule('replica'))
 					$message['MESSAGE'] = preg_replace("/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/i", "$2", $message['MESSAGE']);
 					$message['MESSAGE'] = preg_replace("/------------------------------------------------------(.*)------------------------------------------------------/mi", " [".GetMessage('IM_QUOTE')."] ", str_replace(array("#BR#"), Array(" "), $message['MESSAGE']));
 
-					if (count($message['FILES']) > 0 && strlen($message['MESSAGE']) < 200)
+					if (count($message['FILES']) > 0 && mb_strlen($message['MESSAGE']) < 200)
 					{
 						foreach ($message['FILES'] as $file)
 						{
 							$file = " [".GetMessage('IM_MESSAGE_FILE').": ".$file['name']."]";
-							if (strlen($message['MESSAGE'].$file) > 200)
+							if (mb_strlen($message['MESSAGE'].$file) > 200)
 								break;
 
 							$message['MESSAGE'] .= $file;
@@ -209,11 +209,11 @@ if (Loader::includeModule('replica'))
 						$message['MESSAGE'] = trim($message['MESSAGE']);
 					}
 
-					$isChat = $chat && strlen($chat['TITLE']) > 0;
+					$isChat = $chat && $chat['TITLE'] <> '';
 
-					$dot = strlen($message['MESSAGE'])>=200? '...': '';
-					$message['MESSAGE'] = substr($message['MESSAGE'], 0, 199).$dot;
-					$message['MESSAGE'] = strlen($message['MESSAGE'])>0? $message['MESSAGE']: '-';
+					$dot = mb_strlen($message['MESSAGE']) >= 200? '...': '';
+					$message['MESSAGE'] = mb_substr($message['MESSAGE'], 0, 199).$dot;
+					$message['MESSAGE'] = $message['MESSAGE'] <> ''? $message['MESSAGE']: '-';
 
 					$arMessageFields = array(
 						"MESSAGE_TYPE" => IM_MESSAGE_SYSTEM,

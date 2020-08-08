@@ -50,7 +50,7 @@ namespace Bitrix\Sale\PaySystem\AdminPage\PaySystemRestrictions
 
 	while ($record = $dbRecords->Fetch())
 	{
-		if(strlen($record['CLASS_NAME']) > 0)
+		if($record['CLASS_NAME'] <> '')
 		{
 			$restrictionClassNamesUsed[] = $record['CLASS_NAME'];
 
@@ -89,7 +89,7 @@ namespace Bitrix\Sale\PaySystem\AdminPage\PaySystemRestrictions
 		{
 			$html = Input\Manager::getViewHtml($params, (isset($record["PARAMS"][$name]) ? $record["PARAMS"][$name] : null));
 			if ($html)
-				$paramsField .= (isset($params["LABEL"]) && strlen($params["LABEL"]) > 0 ? $params["LABEL"].': ' : '').$html.'<br>';
+				$paramsField .= (isset($params["LABEL"]) && $params["LABEL"] <> '' ? $params["LABEL"].': ' : '').$html.'<br>';
 		}
 
 		$row->AddField('PARAMS', $paramsField);
@@ -120,7 +120,7 @@ namespace Bitrix\Sale\PaySystem\AdminPage\PaySystemRestrictions
 
 		foreach($restrictionClassNames as $class)
 		{
-			if(strlen($class) <= 0)
+			if($class == '')
 				continue;
 
 			if(in_array($class, $restrictionClassNamesUsed))

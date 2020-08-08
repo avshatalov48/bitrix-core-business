@@ -18,14 +18,14 @@ class CommonNormalizer implements INormalizer
 		$result = $string;
 
 		// todo: \w on non-utf-8 sites
-		if(strtolower(SITE_CHARSET) != 'utf-8')
+		if(mb_strtolower(SITE_CHARSET) != 'utf-8')
 		{
 			$result = Encoding::convertEncoding($result, SITE_CHARSET, 'utf-8');
 		}
 
 		$result = preg_replace('/([^\w\s]|_)/iu', ' ', $result);
 
-		if(strtolower(SITE_CHARSET) != 'utf-8')
+		if(mb_strtolower(SITE_CHARSET) != 'utf-8')
 		{
 			$result = Encoding::convertEncoding($result, 'utf-8', SITE_CHARSET);
 		}

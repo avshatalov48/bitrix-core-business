@@ -26,7 +26,7 @@ $arMLTypes = CMedialib::GetTypes();
 $curTypeInd = 0;
 $curType = false;
 
-if (isset($_REQUEST['type']) && intVal($_REQUEST['type']) > 0 ) // && check_bitrix_sessid() http://jabber.bx/view.php?id=28997 commit
+if (isset($_REQUEST['type']) && intval($_REQUEST['type']) > 0 ) // && check_bitrix_sessid() http://jabber.bx/view.php?id=28997 commit
 {
 	for ($i = 0, $l = count($arMLTypes); $i < $l; $i++)
 	{
@@ -171,7 +171,7 @@ BX.ready(function()
 					del_item: '<?= CMedialib::CanDoOperation('medialib_del_item', 0)?>',
 					access: '<?= CMedialib::CanDoOperation('medialib_access', 0)?>'
 				},
-				curColl: <?= isset($_REQUEST['cur_col']) ? intVal($_REQUEST['cur_col']) : 0?>,
+				curColl: <?= isset($_REQUEST['cur_col']) ? intval($_REQUEST['cur_col']) : 0?>,
 				bCanUpload: <?= $USER->CanDoOperation('fileman_upload_files') ? 'true' : 'false'?>,
 				bCanViewStructure: <?= $USER->CanDoOperation('fileman_view_file_structure') ? 'true' : 'false'?>,
 				strExt : "<?= htmlspecialcharsEx(CMedialib::GetMediaExtentions())?>",

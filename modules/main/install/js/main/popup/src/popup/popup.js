@@ -198,6 +198,7 @@ export default class Popup extends EventEmitter
 		this.handleResize = this.handleResize.bind(this);
 		this.handleMove = this.handleMove.bind(this);
 		this.onTitleMouseDown = this.onTitleMouseDown.bind(this);
+		this.handleFullScreen = this.handleFullScreen.bind(this);
 
 		this.subscribeFromOptions(params.events);
 
@@ -239,7 +240,7 @@ export default class Popup extends EventEmitter
 
 			if (Type.isPlainObject(params.closeIcon))
 			{
-				Dom.adjust(this.closeIcon, params.closeIcon);
+				Dom.style(this.closeIcon, params.closeIcon);
 			}
 		}
 
@@ -1684,15 +1685,24 @@ export default class Popup extends EventEmitter
 		}
 		else
 		{
-			if (Browser.isChrome() || Browser.isSafari())
+			if (this.contentContainer.requestFullScreen)
 			{
-				this.contentContainer.webkitRequestFullScreen(this.contentContainer.ALLOW_KEYBOARD_INPUT);
-				Event.bind(window, 'webkitfullscreenchange', this.fullscreenBind = this.eventFullScreen.bind(this));
+				this.contentContainer.requestFullScreen();
+				Event.bind(window, 'fullscreenchange', this.handleFullScreen);
 			}
-			else if (Browser.isFirefox())
+			else if (this.contentContainer.mozRequestFullScreen)
 			{
-				this.contentContainer.mozRequestFullScreen(this.contentContainer.ALLOW_KEYBOARD_INPUT);
-				Event.bind(window, 'mozfullscreenchange', this.fullscreenBind = this.eventFullScreen.bind(this));
+				this.contentContainer.mozRequestFullScreen();
+				Event.bind(window, 'mozfullscreenchange', this.handleFullScreen);
+			}
+			else if (this.contentContainer.webkitRequestFullScreen)
+			{
+				this.contentContainer.webkitRequestFullScreen();
+				Event.bind(window, 'webkitfullscreenchange', this.handleFullScreen);
+			}
+			else
+			{
+				console.log('fullscreen mode is not supported');
 			}
 		}
 	}
@@ -1700,33 +1710,33 @@ export default class Popup extends EventEmitter
 	/**
 	 * @private
 	 */
-	eventFullScreen(event): void
+	handleFullScreen(event): void
 	{
 		if (Popup.fullscreenStatus)
 		{
-			if (Browser.isChrome() || Browser.isSafari())
-			{
-				Event.unbind(window, 'webkitfullscreenchange', this.fullscreenBind);
-			}
-			else if (Browser.isFirefox())
-			{
-				Event.unbind(window, 'mozfullscreenchange', this.fullscreenBind);
-			}
-
-			Dom.removeClass(this.contentContainer, 'popup-window-fullscreen', [this.contentContainer]);
+			Event.unbind(window, 'fullscreenchange', this.handleFullScreen);
+			Event.unbind(window, 'webkitfullscreenchange', this.handleFullScreen);
+			Event.unbind(window, 'mozfullscreenchange', this.handleFullScreen);
 
 			Popup.fullscreenStatus = false;
-			this.emit('onFullscreenLeave');
 
-			this.adjustPosition();
+			if (!this.isDestroyed())
+			{
+				Dom.removeClass(this.contentContainer, 'popup-window-fullscreen');
+				this.emit('onFullscreenLeave');
+				this.adjustPosition();
+			}
 		}
 		else
 		{
-			Dom.addClass(this.contentContainer, 'popup-window-fullscreen');
 			Popup.fullscreenStatus = true;
-			this.emit('onFullscreenEnter', new BaseEvent({ compatData: [this.contentContainer] }));
 
-			this.adjustPosition();
+			if (!this.isDestroyed())
+			{
+				Dom.addClass(this.contentContainer, 'popup-window-fullscreen');
+				this.emit('onFullscreenEnter');
+				this.adjustPosition();
+			}
 		}
 	}
 

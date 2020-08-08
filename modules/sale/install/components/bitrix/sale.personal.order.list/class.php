@@ -202,7 +202,7 @@ class CBitrixPersonalOrderListComponent extends CBitrixComponent
 		if (!is_array($arParams['HISTORIC_STATUSES']) || empty($arParams['HISTORIC_STATUSES']))
 			$arParams['HISTORIC_STATUSES'] = array('F');
 
-		$arParams["NAV_TEMPLATE"] = (strlen($arParams["NAV_TEMPLATE"]) ? $arParams["NAV_TEMPLATE"] : "");
+		$arParams["NAV_TEMPLATE"] = ($arParams["NAV_TEMPLATE"] <> ''? $arParams["NAV_TEMPLATE"] : "");
 
 		self::tryParseInt($arParams["ORDERS_PER_PAGE"], 20);
 		self::tryParseString($arParams["ACTIVE_DATE_FORMAT"], "d.m.Y");
@@ -218,7 +218,7 @@ class CBitrixPersonalOrderListComponent extends CBitrixComponent
 		{
 			$arParams['ALLOW_INNER'] = "N";
 		}
-		
+
 		if (empty($arParams['ONLY_INNER_FULL']))
 		{
 			$arParams['ONLY_INNER_FULL'] = "Y";
@@ -262,7 +262,7 @@ class CBitrixPersonalOrderListComponent extends CBitrixComponent
 	public static function tryParseString(&$fld, $default)
 	{
 		$fld = trim((string)$fld);
-		if(!strlen($fld) && isset($default))
+		if(!mb_strlen($fld) && isset($default))
 			$fld = htmlspecialcharsbx($default);
 
 		return $fld;
@@ -309,7 +309,7 @@ class CBitrixPersonalOrderListComponent extends CBitrixComponent
 		$this->requestData["COPY_ORDER"] = ($_REQUEST["COPY_ORDER"] == "Y");
 		$this->requestData["ID"] = urldecode(urldecode($this->arParams["ID"]));
 
-		if (strlen($_REQUEST["del_filter"]))
+		if($_REQUEST["del_filter"] <> '')
 		{
 			unset($_REQUEST["filter_id"]);
 			unset($_REQUEST["filter_date_from"]);
@@ -318,7 +318,7 @@ class CBitrixPersonalOrderListComponent extends CBitrixComponent
 			unset($_REQUEST["filter_payed"]);
 			unset($_REQUEST["filter_canceled"]);
 			$_REQUEST["filter_history"] = "Y";
-			if ($this->arParams["SAVE_IN_SESSION"] == "Y")
+			if($this->arParams["SAVE_IN_SESSION"] == "Y")
 			{
 				unset($_SESSION["spo_filter_id"]);
 				unset($_SESSION["spo_filter_date_from"]);
@@ -342,8 +342,8 @@ class CBitrixPersonalOrderListComponent extends CBitrixComponent
 				$_REQUEST["by"] = $this->arParams['DEFAULT_SORT'];
 		}
 
-		$this->sortBy = (strlen($_REQUEST["by"]) ? $_REQUEST["by"]: $this->arParams['DEFAULT_SORT']);
-		$this->sortOrder = (strlen($_REQUEST["order"]) != "" && $_REQUEST["order"] == "ASC" ? "ASC": "DESC");		
+		$this->sortBy = ($_REQUEST["by"] <> ''? $_REQUEST["by"] : $this->arParams['DEFAULT_SORT']);
+		$this->sortOrder = (mb_strlen($_REQUEST["order"]) != "" && $_REQUEST["order"] == "ASC" ? "ASC": "DESC");
 
 		$this->prepareFilter();
 	}
@@ -354,20 +354,30 @@ class CBitrixPersonalOrderListComponent extends CBitrixComponent
 	 */
 	protected function filterRestore()
 	{
-		if ($this->arParams["SAVE_IN_SESSION"] == "Y" && !strlen($_REQUEST["filter"]))
+		if ($this->arParams["SAVE_IN_SESSION"] == "Y" && !mb_strlen($_REQUEST["filter"]))
 		{
 			if (intval($_SESSION["spo_filter_id"]))
 				$_REQUEST["filter_id"] = $_SESSION["spo_filter_id"];
-			if (strlen($_SESSION["spo_filter_date_from"]))
+			if($_SESSION["spo_filter_date_from"] <> '')
+			{
 				$_REQUEST["filter_date_from"] = $_SESSION["spo_filter_date_from"];
-			if (strlen($_SESSION["spo_filter_date_to"]))
+			}
+			if($_SESSION["spo_filter_date_to"] <> '')
+			{
 				$_REQUEST["filter_date_to"] = $_SESSION["spo_filter_date_to"];
-			if (strlen($_SESSION["spo_filter_status"]))
+			}
+			if($_SESSION["spo_filter_status"] <> '')
+			{
 				$_REQUEST["filter_status"] = $_SESSION["spo_filter_status"];
-			if (strlen($_SESSION["spo_filter_payed"]))
+			}
+			if($_SESSION["spo_filter_payed"] <> '')
+			{
 				$_REQUEST["filter_payed"] = $_SESSION["spo_filter_payed"];
-			if (strlen($_SESSION["spo_filter_canceled"]))
+			}
+			if($_SESSION["spo_filter_canceled"] <> '')
+			{
 				$_REQUEST["filter_canceled"] = $_SESSION["spo_filter_canceled"];
+			}
 			if ($_SESSION["spo_filter_history"] == "Y")
 				$_REQUEST["filter_history"] = "Y";
 		}
@@ -379,7 +389,7 @@ class CBitrixPersonalOrderListComponent extends CBitrixComponent
 	 */
 	protected function filterStore()
 	{
-		if ($this->arParams["SAVE_IN_SESSION"] == "Y" && strlen($_REQUEST["filter"]))
+		if ($this->arParams["SAVE_IN_SESSION"] == "Y" && mb_strlen($_REQUEST["filter"]))
 		{
 			$_SESSION["spo_filter_id"] = $_REQUEST["filter_id"];
 			$_SESSION["spo_filter_date_from"] = $_REQUEST["filter_date_from"];
@@ -403,26 +413,30 @@ class CBitrixPersonalOrderListComponent extends CBitrixComponent
 		$arFilter["USER_ID"] = $USER->GetID();
 		$arFilter["LID"] = SITE_ID;
 
-		if (strlen($_REQUEST["filter_id"]))
+		if($_REQUEST["filter_id"] <> '')
 		{
-			if ($this->options['USE_ACCOUNT_NUMBER'])
+			if($this->options['USE_ACCOUNT_NUMBER'])
+			{
 				$arFilter["ACCOUNT_NUMBER"] = $_REQUEST["filter_id"];
+			}
 			else
+			{
 				$arFilter["ID"] = intval($_REQUEST["filter_id"]);
+			}
 		}
 
-		if (strlen($_REQUEST["filter_date_from"]))
+		if($_REQUEST["filter_date_from"] <> '')
 		{
 			$arFilter[">=DATE_INSERT"] = trim($_REQUEST["filter_date_from"]);
 		}
 
-		if (strlen($_REQUEST["filter_date_to"]))
+		if($_REQUEST["filter_date_to"] <> '')
 		{
 			$arFilter["<=DATE_INSERT"] = trim($_REQUEST["filter_date_to"]);
 
-			if ($arDate = ParseDateTime(trim($_REQUEST["filter_date_to"]), $this->dateFormat))
+			if($arDate = ParseDateTime(trim($_REQUEST["filter_date_to"]), $this->dateFormat))
 			{
-				if (strlen(trim($_REQUEST["filter_date_to"])) < 11)
+				if(mb_strlen(trim($_REQUEST["filter_date_to"])) < 11)
 				{
 					$arDate["HH"] = 23;
 					$arDate["MI"] = 59;
@@ -433,11 +447,15 @@ class CBitrixPersonalOrderListComponent extends CBitrixComponent
 			}
 		}
 
-		if (strlen($_REQUEST["filter_status"]))
+		if($_REQUEST["filter_status"] <> '')
+		{
 			$arFilter["STATUS_ID"] = trim($_REQUEST["filter_status"]);
+		}
 
-		if (strlen($_REQUEST["filter_payed"]))
+		if($_REQUEST["filter_payed"] <> '')
+		{
 			$arFilter["PAYED"] = trim($_REQUEST["filter_payed"]);
+		}
 
 		if (!isset($_REQUEST['show_all']) || $_REQUEST['show_all'] == 'N')
 		{
@@ -463,8 +481,10 @@ class CBitrixPersonalOrderListComponent extends CBitrixComponent
 			}
 		}
 
-		if (strlen($_REQUEST["filter_canceled"]))
+		if($_REQUEST["filter_canceled"] <> '')
+		{
 			$arFilter["CANCELED"] = trim($_REQUEST["filter_canceled"]);
+		}
 
 		$this->filter = $arFilter;
 	}
@@ -547,7 +567,7 @@ class CBitrixPersonalOrderListComponent extends CBitrixComponent
 	 */
 	protected function performActionCopyOrder()
 	{
-		if (strlen($this->requestData["ID"]) && $this->requestData["COPY_ORDER"])
+		if (mb_strlen($this->requestData["ID"]) && $this->requestData["COPY_ORDER"])
 		{
 			if($id = $this->getRealId($this->requestData["ID"]))
 				$this->copyOrder2CustomerBasket($id);
@@ -1023,7 +1043,7 @@ class CBitrixPersonalOrderListComponent extends CBitrixComponent
 
 			$listOrderBasket[$basket['ORDER_ID']][$basket['ID']] = $basket;
 		}
-		
+
 		$trackingManager = Sale\Delivery\Tracking\Manager::getInstance();
 
 		$deliveryStatusClassName = $this->registry->getDeliveryStatusClassName();
@@ -1056,7 +1076,7 @@ class CBitrixPersonalOrderListComponent extends CBitrixComponent
 			$shipment['DELIVERY_NAME'] = htmlspecialcharsbx($shipment['DELIVERY_NAME']);
 			$shipment["FORMATED_DELIVERY_PRICE"] = SaleFormatCurrency(floatval($shipment["PRICE_DELIVERY"]), $shipment["CURRENCY"]);
 			$shipment["DELIVERY_STATUS_NAME"] = $deliveryStatuses[$shipment["STATUS_ID"]];
-			if ($shipment["DELIVERY_ID"] > 0 && strlen($shipment["TRACKING_NUMBER"]))
+			if ($shipment["DELIVERY_ID"] > 0 && mb_strlen($shipment["TRACKING_NUMBER"]))
 			{
 				$shipment["TRACKING_URL"] = $trackingManager->getTrackingUrl($shipment["DELIVERY_ID"], $shipment["TRACKING_NUMBER"]);
 			}
@@ -1072,7 +1092,7 @@ class CBitrixPersonalOrderListComponent extends CBitrixComponent
 
 		$paymentIdList = array();
 		$paymentList = array();
-		
+
 		while ($payment = $listPayments->fetch())
 		{
 			$paySystemFields = $this->dbResult['PAYSYS'][$payment['PAY_SYSTEM_ID']];
@@ -1168,7 +1188,7 @@ class CBitrixPersonalOrderListComponent extends CBitrixComponent
 		$arResult["NAV_STRING"] = $this->dbQueryResult['ORDERS']->GetPageNavString(Localization\Loc::getMessage("SPOL_PAGES"), $this->arParams["NAV_TEMPLATE"]);
 
 		// bug walkaround
-		$this->arParams["PATH_TO_CANCEL"] .= (strpos($this->arParams["PATH_TO_CANCEL"], "?") === false ? "?" : "&");
+		$this->arParams["PATH_TO_CANCEL"] .= (mb_strpos($this->arParams["PATH_TO_CANCEL"], "?") === false ? "?" : "&");
 		if (empty($this->arParams["PATH_TO_CATALOG"]))
 		{
 			$this->arParams["PATH_TO_CATALOG"] = '/catalog/';
@@ -1218,7 +1238,7 @@ class CBitrixPersonalOrderListComponent extends CBitrixComponent
 				}
 
 				$arOrder["URL_TO_DETAIL"] = CComponentEngine::makePathFromTemplate($this->arParams["PATH_TO_DETAIL"], array("ID" => urlencode(urlencode($arOrder["ACCOUNT_NUMBER"]))));
-				if (strpos($this->arParams["PATH_TO_COPY"], "COPY_ORDER"))
+				if(mb_strpos($this->arParams["PATH_TO_COPY"], "COPY_ORDER"))
 				{
 					$arOrder["URL_TO_COPY"] = CComponentEngine::makePathFromTemplate($this->arParams["PATH_TO_COPY"], array("ID" => urlencode(urlencode($arOrder["ACCOUNT_NUMBER"]))));
 				}
@@ -1255,7 +1275,9 @@ class CBitrixPersonalOrderListComponent extends CBitrixComponent
 			$arResult["ORDERS"] = array();
 		}
 		$arResult['SORT_TYPE'] = $this->sortBy;
-		
+
+		$arResult["RETURN_URL"] = (new Sale\PaySystem\Context())->getUrl();
+
 		$this->arResult = $arResult;
 	}
 
@@ -1334,7 +1356,7 @@ class CBitrixPersonalOrderListComponent extends CBitrixComponent
 	{
 		if (!$this->useIblock)
 			return;
-		if (strlen($this->arParams['ACTIVE_DATE_FORMAT']) && self::isNonemptyArray($conversion))
+		if (mb_strlen($this->arParams['ACTIVE_DATE_FORMAT']) && self::isNonemptyArray($conversion))
 			foreach ($conversion as $fld)
 			{
 				if (!empty($arr[$fld]))

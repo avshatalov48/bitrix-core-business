@@ -59,7 +59,7 @@ if($arResult["ERROR"] === '' && $saleModulePermissions >= "W" && check_bitrix_se
 			foreach ($paramsStructure as $name => $param)
 			{
 				$paramsField .= "<tr>".
-					"<td>".(strlen($param["LABEL"]) > 0 ? $param["LABEL"].": " : "")."</td>".
+					"<td>".($param["LABEL"] <> '' ? $param["LABEL"].": " : "")."</td>".
 					"<td>".\Bitrix\Sale\Internals\Input\Manager::getEditHtml("RESTRICTION[".$name."]", $param, (isset($params[$name]) ? $params[$name] : null))."</td>".
 					"</tr>";
 			}
@@ -145,12 +145,36 @@ if($arResult["ERROR"] === '' && $saleModulePermissions >= "W" && check_bitrix_se
 			break;
 		case "generate_link":
 			$arResult["LINK"] = Cashbox\Manager::getConnectionLink();
-			break;		
+			break;
+		case "test_connect":
+			$cashboxId = $request->get('cashboxId') ? (int)$request->get('cashboxId') : 0;
+
+			$cashbox = Cashbox\Manager::getObjectById($cashboxId);
+			if ($cashbox && $cashbox instanceof Cashbox\ITestConnection)
+			{
+				$result = $cashbox->testConnection();
+				if ($result->isSuccess())
+				{
+					$arResult['STATUS'] = 'OK';
+				}
+				else
+				{
+					$arResult['STATUS'] = implode($result->getErrorMessages(), "\n");
+				}
+			}
+
+			break;
 		case "reload_settings":
 			$cashbox = array('HANDLER' => $request->get('handler'), 'KKM_ID' => $request->get('kkmId'));
+			/** @var Cashbox\Cashbox $handler */
 			$handler = $cashbox['HANDLER'];
-			if (class_exists($handler))
+			if (is_subclass_of($handler, Cashbox\Cashbox::class))
 			{
+				if ($handler === '\\'.Cashbox\CashboxOrangeData::class)
+				{
+					$arResult['OFD'] = '\\'.Cashbox\TaxcomOfd::class;
+				}
+
 				ob_start();
 				require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/sale/admin/cashbox_settings.php");
 				$arResult["HTML"] = ob_get_contents();
@@ -158,7 +182,7 @@ if($arResult["ERROR"] === '' && $saleModulePermissions >= "W" && check_bitrix_se
 
 				$arResult['GENERAL_REQUIRED_FIELDS'] = $handler::getGeneralRequiredFields();
 
-				$kkmList = $cashbox['HANDLER']::getSupportedKkmModels();
+				$kkmList = $handler::getSupportedKkmModels();
 				if ($kkmList)
 				{
 					$requiredClass = '';
@@ -408,16 +432,16 @@ else
 {
 	if ($request->get('mode') == 'settings')
 		getRestrictionHtml($request->get('ID'));
-	elseif(strlen($arResult["ERROR"]) <= 0)
+	elseif($arResult["ERROR"] == '')
 		$arResult["ERROR"] = "Error! Access denied";
 }
 
-if(strlen($arResult["ERROR"]) > 0)
+if($arResult["ERROR"] <> '')
 	$arResult["RESULT"] = "ERROR";
 else
 	$arResult["RESULT"] = "OK";
 
-if(strtolower(SITE_CHARSET) != 'utf-8')
+if(mb_strtolower(SITE_CHARSET) != 'utf-8')
 	$arResult = $APPLICATION->ConvertCharsetArray($arResult, SITE_CHARSET, 'utf-8');
 
 header('Content-Type: application/json');

@@ -92,11 +92,11 @@ if ($bAlert)
 			$alertIntervalText = $intervalLang["sale"][$monitoring->getInterval()];
 		}
 	}
-	elseif ($testCount === 1 && HasMessage("GD_BITRIXCLOUD_MONITOR_".strtoupper($testAlert->getName())))
+	elseif ($testCount === 1 && HasMessage("GD_BITRIXCLOUD_MONITOR_".mb_strtoupper($testAlert->getName())))
 	{
 		$uptimeRate = 1;
 		$resultText = FormatDate("ddiff", time(), $testAlert->getResult());
-		$sumHtml = GetMessage("GD_BITRIXCLOUD_MONITOR_".strtoupper($testAlert->getName()), array(
+		$sumHtml = GetMessage("GD_BITRIXCLOUD_MONITOR_".mb_strtoupper($testAlert->getName()), array(
 			"#DOMAIN#" => $converter->Decode($testDomain),
 			"#DAYS#" => $resultText,
 		));

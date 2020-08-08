@@ -51,7 +51,7 @@
 								else
 									echo GetMessage("STPOL_PAYED_N");
 								?>
-								<?if(IntVal($vval["ORDER"]["PAY_SYSTEM_ID"])>0)
+								<?if(intval($vval["ORDER"]["PAY_SYSTEM_ID"])>0)
 									echo GetMessage("P_PAY_SYS").$arResult["INFO"]["PAY_SYSTEM"][$vval["ORDER"]["PAY_SYSTEM_ID"]]["NAME"]?>
 								<br />
 								<b><?echo GetMessage("STPOL_STATUS_T")?></b>
@@ -59,11 +59,11 @@
 								<?echo GetMessage("STPOL_STATUS_FROM")?>
 								<?=$vval["ORDER"]["DATE_STATUS"];?>
 								<br />
-								<?if(IntVal($vval["ORDER"]["DELIVERY_ID"])>0)
+								<?if(intval($vval["ORDER"]["DELIVERY_ID"])>0)
 								{
 									echo "<b>".GetMessage("P_DELIVERY")."</b>".$arResult["INFO"]["DELIVERY"][$vval["ORDER"]["DELIVERY_ID"]]["NAME"];
 								}
-								elseif (strpos($vval["ORDER"]["DELIVERY_ID"], ":") !== false)
+								elseif (mb_strpos($vval["ORDER"]["DELIVERY_ID"], ":") !== false)
 								{
 									echo "<b>".GetMessage("P_DELIVERY")."</b>";
 									$arId = explode(":", $vval["ORDER"]["DELIVERY_ID"]);
@@ -92,10 +92,10 @@
 											<td width="100%">
 
 												<?
-												if (strlen($vvval["DETAIL_PAGE_URL"]) > 0)
+												if ($vvval["DETAIL_PAGE_URL"] <> '')
 													echo "<a href=\"".$vvval["DETAIL_PAGE_URL"]."\">";
 												echo $vvval["NAME"];
-												if (strlen($vvval["DETAIL_PAGE_URL"]) > 0)
+												if ($vvval["DETAIL_PAGE_URL"] <> '')
 													echo "</a>";
 												?>
 											</td>

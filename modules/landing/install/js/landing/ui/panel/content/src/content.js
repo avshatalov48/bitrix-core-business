@@ -92,7 +92,10 @@ export class Content extends BasePanel
 		this.content = Content.createContent();
 		this.closeButton = new BX.Landing.UI.Button.BaseButton('close', {
 			className: 'landing-ui-panel-content-close',
-			onClick: this.hide.bind(this),
+			onClick: () => {
+				void this.hide();
+				this.emit('onCancel');
+			},
 			attrs: {
 				title: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_SLIDER_CLOSE'),
 			},
@@ -152,7 +155,10 @@ export class Content extends BasePanel
 	{
 		Dom.append(this.overlay, document.body);
 
-		Event.bind(this.overlay, 'click', this.hide.bind(this));
+		Event.bind(this.overlay, 'click', () => {
+			this.emit('onCancel');
+			void this.hide();
+		});
 		Event.bind(this.layout, 'mouseenter', this.onMouseEnter);
 		Event.bind(this.layout, 'mouseleave', this.onMouseLeave);
 		Event.bind(this.content, 'mouseenter', this.onMouseEnter);
@@ -209,6 +215,7 @@ export class Content extends BasePanel
 	{
 		if (event.keyCode === 27)
 		{
+			this.emit('onCancel');
 			void this.hide();
 		}
 	}

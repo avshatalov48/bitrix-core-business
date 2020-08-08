@@ -7,7 +7,6 @@ $MESS["TR_IMPORT_ERR_LANGUAGE_LIST_ABSENT"] = "Активированные яз
 $MESS["TR_IMPORT_ERROR_DESTINATION_FILEPATH_ABSENT"] = "не указан файл назначения";
 $MESS["TR_IMPORT_ERROR_PHRASE_CODE_ABSENT"] = "пустой идентификатор фразы";
 $MESS["TR_IMPORT_ERROR_LINE_FILE_EXT"] = "Ошибка в строке #LINE#:<br>&nbsp;&nbsp;#ERROR#";
-$MESS["TR_IMPORT_ERROR_ROW_LANG_ABSENT"] = "нет фразы для языка #LANG#";
 $MESS["TR_IMPORT_ERROR_NO_VALID_UTF8_PHRASE"] = "невалидные utf-8 символы для языка #LANG#";
 $MESS["TR_IMPORT_ERROR_LINE_FILE_BIG"] = "Ошибка в строке #LINE#:<br>&nbsp;&nbsp;#FILENAME#&nbsp;&nbsp;#PHRASE#&nbsp;&nbsp;#ERROR#";
 $MESS["TR_IMPORT_ERROR_FILE_NOT_LANG"] = "Файл \"#FILE#\" не является языковым";

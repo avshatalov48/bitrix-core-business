@@ -199,7 +199,7 @@ class Product extends Entity
 		}
 		$fields['WEIGHT'] = (float)$fields['WEIGHT'];
 		if ($fields['TMP_ID'] !== null)
-			$fields['TMP_ID'] = substr($fields['TMP_ID'], 0, 40);
+			$fields['TMP_ID'] = mb_substr($fields['TMP_ID'], 0, 40);
 
 		/* purchasing price */
 		$purchasingPrice = null;
@@ -422,7 +422,7 @@ class Product extends Entity
 			}
 		}
 		if (isset($fields['TMP_ID']))
-			$fields['TMP_ID'] = substr($fields['TMP_ID'], 0, 40);
+			$fields['TMP_ID'] = mb_substr($fields['TMP_ID'], 0, 40);
 
 		/* purchasing price */
 		$existPurchasingPrice = array_key_exists('PURCHASING_PRICE', $fields);

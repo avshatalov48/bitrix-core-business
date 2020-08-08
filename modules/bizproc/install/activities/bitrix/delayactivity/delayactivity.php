@@ -50,6 +50,12 @@ class CBPDelayActivity
 		$timeoutDuration = $this->TimeoutDuration;
 		$timeoutDurationValue = 0;
 		$timeoutTime = $this->TimeoutTime;
+
+		if (is_array($timeoutTime)) //if multiple value
+		{
+			$timeoutTime = reset($timeoutTime);
+		}
+
 		$isLocalTime = ($this->TimeoutTimeIsLocal === 'Y');
 
 		if ($timeoutDuration != null)
@@ -67,7 +73,7 @@ class CBPDelayActivity
 			{
 				if (intval($timeoutTime)."|" != $timeoutTime."|")
 				{
-					$timeoutTime = MakeTimeStamp($timeoutTime);
+					$timeoutTime = MakeTimeStamp((string) $timeoutTime);
 				}
 
 				if ($isLocalTime)
@@ -177,7 +183,7 @@ class CBPDelayActivity
 		$timeoutDuration = ($this->IsPropertyExists("TimeoutDuration") ? $this->TimeoutDuration : 0);
 
 		$timeoutDurationType = ($this->IsPropertyExists("TimeoutDurationType") ? $this->TimeoutDurationType : "s");
-		$timeoutDurationType = strtolower($timeoutDurationType);
+		$timeoutDurationType = mb_strtolower($timeoutDurationType);
 		if (!in_array($timeoutDurationType, array("s", "d", "h", "m")))
 		{
 			$timeoutDurationType = "s";
@@ -291,12 +297,12 @@ class CBPDelayActivity
 				$arCurrentValues["delay_date"] = '';
 			}
 
-			if (strlen($arCurrentValues["delay_date"]) > 0 && $d = MakeTimeStamp($arCurrentValues["delay_date"]))
+			if ($arCurrentValues["delay_date"] <> '' && $d = MakeTimeStamp($arCurrentValues["delay_date"]))
 			{
 				$properties["TimeoutTime"] = $d;
 			}
 			elseif (
-				strlen($arCurrentValues["delay_date_x"]) > 0 &&
+				$arCurrentValues["delay_date_x"] <> '' &&
 				CBPActivity::isExpression($arCurrentValues["delay_date_x"])
 			)
 			{

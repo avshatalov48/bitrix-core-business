@@ -16,7 +16,10 @@ return array(
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(
 			'THEME_CODE' => 'accounting',
-			'THEME_CODE_TYPO' => 'accounting',
+			'THEMEFONTS_CODE' => 'g-font-open-sans',
+			'THEMEFONTS_CODE_H' => 'g-font-open-sans',
+			'THEMEFONTS_SIZE' => '1',
+			'THEMEFONTS_USE' => 'Y',
 			'B24BUTTON_CODE' => $buttons[0],
 			'UP_SHOW' => 'Y',
 		)

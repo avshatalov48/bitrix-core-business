@@ -11,7 +11,7 @@
 
 if($arParams["USE_FILTER"]=="Y")
 {
-	if(strlen($arParams["FILTER_NAME"])<=0 || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
+	if($arParams["FILTER_NAME"] == '' || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
 		$arParams["FILTER_NAME"] = "arrFilter";
 }
 else
@@ -32,7 +32,7 @@ if($arParams["USE_CATEGORIES"])
 	$arParams["CATEGORY_IBLOCK"] = array_keys($ar);
 }
 $arParams["CATEGORY_CODE"]=trim($arParams["CATEGORY_CODE"]);
-if(strlen($arParams["CATEGORY_CODE"])<=0)
+if($arParams["CATEGORY_CODE"] == '')
 	$arParams["CATEGORY_CODE"]="CATEGORY";
 $arParams["CATEGORY_ITEMS_COUNT"]=intval($arParams["CATEGORY_ITEMS_COUNT"]);
 if($arParams["CATEGORY_ITEMS_COUNT"]<=0)
@@ -132,7 +132,7 @@ if($arParams["SEF_MODE"] == "Y")
 		$folder404 = str_replace("\\", "/", $arParams["SEF_FOLDER"]);
 		if ($folder404 != "/")
 			$folder404 = "/".trim($folder404, "/ \t\n\r\0\x0B")."/";
-		if (substr($folder404, -1) == "/")
+		if (mb_substr($folder404, -1) == "/")
 			$folder404 .= "index.php";
 
 		if ($folder404 != $APPLICATION->GetCurPage(true))
@@ -165,7 +165,7 @@ else
 
 	if(isset($arVariables["ELEMENT_ID"]) && intval($arVariables["ELEMENT_ID"]) > 0)
 		$componentPage = "detail";
-	elseif(isset($arVariables["ELEMENT_CODE"]) && strlen($arVariables["ELEMENT_CODE"]) > 0)
+	elseif(isset($arVariables["ELEMENT_CODE"]) && $arVariables["ELEMENT_CODE"] <> '')
 		$componentPage = "detail";
 	elseif(isset($arVariables["SECTION_ID"]) && intval($arVariables["SECTION_ID"]) > 0)
 	{
@@ -174,16 +174,16 @@ else
 		else
 			$componentPage = "section";
 	}
-	elseif(isset($arVariables["SECTION_CODE"]) && strlen($arVariables["SECTION_CODE"]) > 0)
+	elseif(isset($arVariables["SECTION_CODE"]) && $arVariables["SECTION_CODE"] <> '')
 	{
 		if(isset($arVariables["rss"]) && $arVariables["rss"]=="y")
 			$componentPage = "rss_section";
 		else
 			$componentPage = "section";
 	}
-	elseif(isset($arVariables["q"]) && strlen(trim($arVariables["q"])) > 0)
+	elseif(isset($arVariables["q"]) && trim($arVariables["q"]) <> '')
 		$componentPage = "search";
-	elseif(isset($arVariables["tags"]) && strlen(trim($arVariables["tags"])) > 0)
+	elseif(isset($arVariables["tags"]) && trim($arVariables["tags"]) <> '')
 		$componentPage = "search";
 	elseif(isset($arVariables["rss"]) && $arVariables["rss"]=="y")
 		$componentPage = "rss";

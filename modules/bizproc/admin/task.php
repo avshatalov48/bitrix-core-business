@@ -31,7 +31,7 @@ if (!$arTask)
 {
 	$workflowId = trim($_REQUEST["workflow_id"]);
 
-	if (strlen($workflowId) > 0)
+	if ($workflowId <> '')
 	{
 		$dbTask = CBPTaskService::GetList(
 			array(),
@@ -55,9 +55,9 @@ else
 {
 	$arTask["PARAMETERS"]["DOCUMENT_ID"] = CBPStateService::GetStateDocumentId($arTask['WORKFLOW_ID']);
 	$backUrl = !empty($_REQUEST["back_url"]) ? "/".ltrim(trim($_REQUEST["back_url"]), "\\/") : '';
-	if (strlen($backUrl) <= 0)
+	if ($backUrl == '')
 		$backUrl = "/bitrix/admin/bizproc_task_list.php?lang=".LANGUAGE_ID;
-	if (strlen($backUrl) <= 0 && !empty($arTask["PARAMETERS"]["DOCUMENT_ID"]))
+	if ($backUrl == '' && !empty($arTask["PARAMETERS"]["DOCUMENT_ID"]))
 		$backUrl = CBPDocument::GetDocumentAdminPage($arTask["PARAMETERS"]["DOCUMENT_ID"]);
 
 	$backUrl = CHTTP::urlDeleteParams($backUrl, array('mode'));
@@ -77,7 +77,7 @@ else
 			if (CBPDocument::PostTaskForm($arTask, $userId, $_REQUEST + $_FILES, $arErrorsTmp, $USER->GetFormattedName(false)))
 			{
 				$showType = "Success";
-				if (strlen($backUrl) > 0)
+				if ($backUrl <> '')
 				{
 					LocalRedirect($backUrl);
 					die();
@@ -129,7 +129,7 @@ else
 
 	$APPLICATION->SetTitle(str_replace("#ID#", $taskId, GetMessage("BPAT_TITLE")));
 
-	if (strlen($errorMessage) > 0)
+	if ($errorMessage <> '')
 		CAdminMessage::ShowMessage($errorMessage);
 
 	$runtime = CBPRuntime::GetRuntime();
@@ -228,7 +228,7 @@ else
 				<td align="right" valign="top" width="40%"><?= GetMessage("BPAT_DESCR") ?>:</td>
 				<td width="60%" valign="top"><?= nl2br($arTask["DESCRIPTION"]) ?></td>
 			</tr>
-			<?if (strlen($arTask["PARAMETERS"]["DOCUMENT_URL"]) > 0):?>
+			<?if ($arTask["PARAMETERS"]["DOCUMENT_URL"] <> ''):?>
 			<tr>
 				<td align="right" valign="top" width="40%">&nbsp;</td>
 				<td width="60%" valign="top"><a href="<?= $arTask["PARAMETERS"]["DOCUMENT_URL"] ?>" target="_blank"><?= GetMessage("BPAT_GOTO_DOC") ?></a></td>

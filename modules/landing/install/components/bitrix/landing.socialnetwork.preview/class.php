@@ -22,6 +22,7 @@ class LandingSocialnetworkPreviewComponent extends \CBitrixComponent
 
 		if ($landingId && Loader::includeModule('landing'))
 		{
+			\Bitrix\Landing\Hook::setEditMode(true);
 			$this->arResult['PREVIEW'] = UrlPreview::getPreview($landingId);
 		}
 

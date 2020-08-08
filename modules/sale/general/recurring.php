@@ -10,17 +10,17 @@ class CAllSaleRecurring
 {
 	function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
-		if ((is_set($arFields, "USER_ID") || $ACTION=="ADD") && IntVal($arFields["USER_ID"]) <= 0)
+		if ((is_set($arFields, "USER_ID") || $ACTION=="ADD") && intval($arFields["USER_ID"]) <= 0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGR_EMPTY_USER_ID"), "NO_USER_ID");
 			return false;
 		}
-		if ((is_set($arFields, "NEXT_DATE") || $ACTION=="ADD") && strlen($arFields["NEXT_DATE"]) <= 0)
+		if ((is_set($arFields, "NEXT_DATE") || $ACTION=="ADD") && $arFields["NEXT_DATE"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGR_EMPTY_NEXT_DATE"), "NO_NEXT_DATE");
 			return false;
 		}
-		if ((is_set($arFields, "ORDER_ID") || $ACTION=="ADD") && IntVal($arFields["ORDER_ID"]) <= 0)
+		if ((is_set($arFields, "ORDER_ID") || $ACTION=="ADD") && intval($arFields["ORDER_ID"]) <= 0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGR_EMPTY_ORDER_ID"), "NO_ORDER_ID");
 			return false;
@@ -69,7 +69,7 @@ class CAllSaleRecurring
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if ($ID <= 0)
 			return False;
 
@@ -89,7 +89,7 @@ class CAllSaleRecurring
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if ($ID <= 0)
 			return False;
 
@@ -102,12 +102,12 @@ class CAllSaleRecurring
 	{
 		$callbackFunc = trim($callbackFunc);
 		$module = trim($module);
-		$productID = IntVal($productID);
+		$productID = intval($productID);
 
 		$result = False;
-		if (strlen($callbackFunc) > 0)
+		if ($callbackFunc <> '')
 		{
-			if (strlen($module)>0 && $module != "main")
+			if ($module <> '' && $module != "main")
 				CModule::IncludeModule($module);
 
 			$arArgs = array($productID);
@@ -155,7 +155,7 @@ class CAllSaleRecurring
 		global $DB;
 		global $USER;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if ($ID <= 0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGR_NO_RECID"), "NO_RECORD_ID");
@@ -178,7 +178,7 @@ class CAllSaleRecurring
 
 
 		$bSuccess = True;
-		$newOrderID = IntVal($arRecur["ORDER_ID"]);
+		$newOrderID = intval($arRecur["ORDER_ID"]);
 
 		/** @var $productProvider IBXSaleProductProvider */
 		if ($productProvider = CSaleBasket::GetProductProvider($arRecur))
@@ -213,7 +213,7 @@ class CAllSaleRecurring
 			// Delivery
 			$deliveryPrice = 0;
 			$deliveryID = 0;
-			$arOrder["DELIVERY_ID"] = IntVal($arOrder["DELIVERY_ID"]);
+			$arOrder["DELIVERY_ID"] = intval($arOrder["DELIVERY_ID"]);
 			if ($arOrder["DELIVERY_ID"] > 0)
 			{
 				$deliveryLocation = 0;
@@ -228,7 +228,7 @@ class CAllSaleRecurring
 						array("VALUE")
 					);
 				if ($arOrderPropValues = $dbOrderPropValues->Fetch())
-					$deliveryLocation = IntVal($arOrderPropValues["VALUE"]);
+					$deliveryLocation = intval($arOrderPropValues["VALUE"]);
 
 				$dbDelivery = CSaleDelivery::GetList(
 						array("SORT" => "ASC", "NAME" => "ASC"),
@@ -243,15 +243,15 @@ class CAllSaleRecurring
 				while ($arDelivery = $dbDelivery->Fetch())
 				{
 					$deliveryPriceTmp = \Bitrix\Sale\PriceMaths::roundPrecision(CCurrencyRates::ConvertCurrency($arDelivery["PRICE"], $arDelivery["CURRENCY"], $baseSiteCurrency));
-					if (IntVal($arDelivery["ID"]) == $arOrder["DELIVERY_ID"])
+					if (intval($arDelivery["ID"]) == $arOrder["DELIVERY_ID"])
 					{
-						$deliveryID = IntVal($arDelivery["ID"]);
+						$deliveryID = intval($arDelivery["ID"]);
 						$deliveryPrice = $deliveryPriceTmp;
 						break;
 					}
 					if ($deliveryPriceTmp < $deliveryPrice || $deliveryID <= 0)
 					{
-						$deliveryID = IntVal($arDelivery["ID"]);
+						$deliveryID = intval($arDelivery["ID"]);
 						$deliveryPrice = $deliveryPriceTmp;
 					}
 				}
@@ -324,7 +324,7 @@ class CAllSaleRecurring
 				$dbTaxExemptTmp = CSaleTax::GetExemptList(array("GROUP_ID" => $arUserGroups["GROUP_ID"]));
 				while ($arTaxExemptTmp = $dbTaxExemptTmp->Fetch())
 				{
-					$arTaxExemptTmp["TAX_ID"] = IntVal($arTaxExemptTmp["TAX_ID"]);
+					$arTaxExemptTmp["TAX_ID"] = intval($arTaxExemptTmp["TAX_ID"]);
 					if (!in_array($arTaxExemptTmp["TAX_ID"], $arTaxExempt))
 						$arTaxExempt[] = $arTaxExemptTmp["TAX_ID"];
 				}
@@ -346,7 +346,7 @@ class CAllSaleRecurring
 						array("VALUE")
 					);
 				if ($arOrderPropValues = $dbOrderPropValues->Fetch())
-					$taxLocation = IntVal($arOrderPropValues["VALUE"]);
+					$taxLocation = intval($arOrderPropValues["VALUE"]);
 
 				$arTaxList = array();
 				$dbTaxRateTmp = CSaleTaxRate::GetList(
@@ -360,7 +360,7 @@ class CAllSaleRecurring
 					);
 				while ($arTaxRateTmp = $dbTaxRateTmp->Fetch())
 				{
-					if (!in_array(IntVal($arTaxRateTmp["TAX_ID"]), $arTaxExempt))
+					if (!in_array(intval($arTaxRateTmp["TAX_ID"]), $arTaxExempt))
 					{
 						$arTaxList[] = $arTaxRateTmp;
 					}
@@ -471,7 +471,7 @@ class CAllSaleRecurring
 
 				$basketID = CSaleBasket::Add($arFields);
 
-				$basketID = IntVal($basketID);
+				$basketID = intval($basketID);
 				if ($basketID <= 0)
 					$bSuccess = False;
 
@@ -502,7 +502,7 @@ class CAllSaleRecurring
 
 					$newOrderID = CSaleOrder::Add($arFields);
 
-					$newOrderID = IntVal($newOrderID);
+					$newOrderID = intval($newOrderID);
 					if ($newOrderID <= 0)
 						$bSuccess = False;
 				}
@@ -575,14 +575,14 @@ class CAllSaleRecurring
 						$strOrderList .= "\n";
 					}
 
-					if (strlen($payerName) <= 0 || strlen($payerEMail) <= 0)
+					if ($payerName == '' || $payerEMail == '')
 					{
 						$dbUser = CUser::GetByID($arOrder["USER_ID"]);
 						if ($arUser = $dbUser->Fetch())
 						{
-							if (strlen($payerName) <= 0)
-								$payerName = $arUser["NAME"].((strlen($arUser["NAME"])<=0 || strlen($arUser["LAST_NAME"])<=0) ? "" : " ").$arUser["LAST_NAME"];
-							if (strlen($payerEMail) <= 0)
+							if ($payerName == '')
+								$payerName = $arUser["NAME"].(($arUser["NAME"] == '' || $arUser["LAST_NAME"] == '') ? "" : " ").$arUser["LAST_NAME"];
+							if ($payerEMail == '')
 								$payerEMail = $arUser["EMAIL"];
 						}
 					}
@@ -688,12 +688,12 @@ class CAllSaleRecurring
 					"RECUR_SCHEME_TYPE" => $arProduct["RECUR_SCHEME_TYPE"],
 					"WITHOUT_ORDER" => $arProduct["WITHOUT_ORDER"],
 					"NEXT_DATE" => Date($GLOBALS["DB"]->DateFormatToPHP(CLang::GetDateFormat("FULL", SITE_ID)), time() + SALE_PROC_REC_TIME + CTimeZone::GetOffset()),
-					"REMAINING_ATTEMPTS" => (IntVal($arRecur["REMAINING_ATTEMPTS"]) - 1),
+					"REMAINING_ATTEMPTS" => (intval($arRecur["REMAINING_ATTEMPTS"]) - 1),
 					"SUCCESS_PAYMENT" => "N"
 				);
 				CSaleRecurring::Update($arRecur["ID"], $arFields);
 
-				if ((IntVal($arRecur["REMAINING_ATTEMPTS"]) - 1) <= 0)
+				if ((intval($arRecur["REMAINING_ATTEMPTS"]) - 1) <= 0)
 				{
 					CSaleRecurring::CancelRecurring($arRecur["ID"], "Y", "Can't pay order");
 					/*
@@ -712,7 +712,7 @@ class CAllSaleRecurring
 	{
 		global $DB, $USER;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$val = (($val != "Y") ? "N" : "Y");
 		$description = Trim($description);
 
@@ -738,7 +738,7 @@ class CAllSaleRecurring
 		$arFields = array(
 				"CANCELED" => $val,
 				"DATE_CANCELED" => (($val == "Y") ? Date(CDatabase::DateFormatToPHP(CLang::GetDateFormat("FULL", LANG))) : False),
-				"CANCELED_REASON" => ( strlen($description)>0 ? $description : false )
+				"CANCELED_REASON" => ( $description <> '' ? $description : false )
 			);
 		$res = CSaleRecurring::Update($ID, $arFields);
 
@@ -787,8 +787,8 @@ class CAllSaleRecurring
 		CSaleRecurring::CheckRecurring();
 
 		global $pPERIOD;
-		if (defined("SALE_PROC_REC_FREQUENCY") && IntVal(SALE_PROC_REC_FREQUENCY) > 0)
-			$pPERIOD = IntVal(SALE_PROC_REC_FREQUENCY);
+		if (defined("SALE_PROC_REC_FREQUENCY") && intval(SALE_PROC_REC_FREQUENCY) > 0)
+			$pPERIOD = intval(SALE_PROC_REC_FREQUENCY);
 		else
 			$pPERIOD = 7200;
 
@@ -803,7 +803,7 @@ class CAllSaleRecurring
 	function OnCurrencyDelete($Currency)
 	{
 		global $DB;
-		if (strlen($Currency)<=0) return false;
+		if ($Currency == '') return false;
 
 		return $DB->Query("DELETE FROM b_sale_recurring WHERE CURRENCY = '".$DB->ForSql($ID)."' ", true);
 	}
@@ -811,7 +811,7 @@ class CAllSaleRecurring
 	function OnUserDelete($UserID)
 	{
 		global $DB;
-		$UserID = IntVal($UserID);
+		$UserID = intval($UserID);
 
 		return $DB->Query("DELETE FROM b_sale_recurring WHERE USER_ID = ".$UserID." ", true);
 	}

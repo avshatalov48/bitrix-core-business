@@ -18,7 +18,7 @@ if (!$USER->IsAuthorized())
 }
 
 $arParams["PATH_TO_DETAIL"] = Trim($arParams["PATH_TO_DETAIL"]);
-if (strlen($arParams["PATH_TO_DETAIL"]) <= 0)
+if ($arParams["PATH_TO_DETAIL"] == '')
 	$arParams["PATH_TO_DETAIL"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?ID=#ID#");
 $arParams["URL_TO_NEW"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_DETAIL"], Array("ID" => "new"));
 
@@ -30,14 +30,14 @@ if($arParams["SET_TITLE"] == 'Y')
 
 //Delete profile
 $errorMessage = "";
-$del_id = IntVal($_REQUEST["del_id"]);
+$del_id = intval($_REQUEST["del_id"]);
 if ($del_id > 0 && check_bitrix_sessid())
 {
 	$dbUserCards = CSaleUserCards::GetList(
 			array(),
 			array(
 					"ID" => $del_id,
-					"USER_ID" => IntVal($USER->GetID())
+					"USER_ID" => intval($USER->GetID())
 				)
 		);
 	if ($arUserCards = $dbUserCards->Fetch())
@@ -56,15 +56,15 @@ if ($del_id > 0 && check_bitrix_sessid())
 	}
 }
 
-if(strLen($errorMessage)>=0)
+if($errorMessage !== '')
 	$arResult["ERROR_MESSAGE"] = $errorMessage;
 	
-$by = (strlen($_REQUEST["by"])>0 ? $_REQUEST["by"]: "ID");
-$order = (strlen($_REQUEST["order"])>0 ? $_REQUEST["order"]: "DESC");
+$by = ($_REQUEST["by"] <> '' ? $_REQUEST["by"]: "ID");
+$order = ($_REQUEST["order"] <> '' ? $_REQUEST["order"]: "DESC");
 
 $dbUserCards = CSaleUserCards::GetList(
 		array($by => $order),
-		array("USER_ID" => IntVal($USER->GetID()))
+		array("USER_ID" => intval($USER->GetID()))
 	);
 $dbUserCards->NavStart($arParams["PER_PAGE"]);
 $arResult["NAV_STRING"] = $dbUserCards->GetPageNavString(GetMessage("SPCL_PAGES"));

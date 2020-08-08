@@ -4,7 +4,14 @@ define("NOT_CHECK_PERMISSIONS", true);
 define("NO_AGENT_CHECK", true);
 define("DisableEventsCheck", true);
 
-if(isset($_REQUEST['mode']) && $_REQUEST['mode'] === 'view')
+use Bitrix\Main\UserField\{TypeBase, Dispatcher, Display};
+use Bitrix\Main\Web\PostDecodeFilter;
+use Bitrix\Main\Component\BaseUfComponent;
+use Bitrix\Main\UserField\Types\BaseType;
+
+require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_before.php");
+
+if(isset($_REQUEST['mode']) && $_REQUEST['mode'] === BaseType::MODE_VIEW)
 {
 	define('BX_SECURITY_SESSION_READONLY', true);
 }
@@ -14,18 +21,8 @@ if(isset($_REQUEST['tpl']) && isset($_REQUEST['tpls']))
 	define('SITE_TEMPLATE_ID', $_REQUEST['tpl']);
 }
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
-
-/**
- * Bitrix vars
- *
- * @global CMain $APPLICATION
- * @global CUser $USER
- * @global CUserTypeManager $USER_FIELD_MANAGER
- */
-
 $request = \Bitrix\Main\Context::getCurrent()->getRequest();
-$request->addFilter(new \Bitrix\Main\Web\PostDecodeFilter());
+$request->addFilter(new PostDecodeFilter());
 
 if(check_bitrix_sessid())
 {
@@ -35,7 +32,7 @@ if(check_bitrix_sessid())
 		$fields = array();
 	}
 
-	$userFieldDispatcher = \Bitrix\Main\UserField\Dispatcher::instance();
+	$userFieldDispatcher = Dispatcher::instance();
 
 	if(
 		isset($_REQUEST['tpl'])
@@ -85,35 +82,24 @@ if(check_bitrix_sessid())
 	}
 
 	$mode = $request['mode'];
-	if($mode !== 'view')
+
+	$mediaType = !empty($request['MEDIA_TYPE']) ? $request['MEDIA_TYPE'] : BaseUfComponent::MEDIA_TYPE_DEFAULT;
+
+	$view = new Display($mode, $mediaType);
+
+	if(isset($request['FORM']))
 	{
-		$mode = 'edit';
-	}
-
-	$view = null;
-	switch($mode)
-	{
-		case 'edit':
-
-			$view = new \Bitrix\Main\UserField\DisplayEdit();
-
-			if(isset($request['FORM']))
-			{
-				$view->setAdditionalParameter('form_name', $request['FORM'], true);
-			}
-
-			break;
-
-		case 'view':
-
-			$view = new \Bitrix\Main\UserField\DisplayView();
-
-		break;
+		$view->setAdditionalParameter('form_name', $request['FORM'], true);
 	}
 
 	if(isset($request['CONTEXT']))
 	{
 		$view->setAdditionalParameter('CONTEXT', $request['CONTEXT'], true);
+	}
+
+	if(isset($request['MEDIA_TYPE']))
+	{
+		$view->setAdditionalParameter('mediaType', $request['MEDIA_TYPE'], true);
 	}
 
 	$userFieldDispatcher->setView($view);

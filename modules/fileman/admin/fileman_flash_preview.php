@@ -13,7 +13,7 @@ if(CModule::IncludeModule("compression"))
 if (isset($_GET['path']))
 {
 	$flashExtensions = array("swf", "spl");
-	$extension = GetFileExtension(strtolower($path));
+	$extension = GetFileExtension(mb_strtolower($path));
 
 	if(!in_array($extension, $flashExtensions))
 		return false;

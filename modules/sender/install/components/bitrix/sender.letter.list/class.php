@@ -1,30 +1,35 @@
 <?
 
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ErrorCollection;
-use Bitrix\Main\Web\Uri;
-use Bitrix\Main\UI\Filter\Options as FilterOptions;
 use Bitrix\Main\Grid\Options as GridOptions;
-use Bitrix\Main\Loader;
-use Bitrix\Main\Error;
-
-use Bitrix\Sender\Message;
-use Bitrix\Sender\Entity;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\SystemException;
+use Bitrix\Main\UI\Filter\Options as FilterOptions;
+use Bitrix\Main\Web\Uri;
+use Bitrix\Sender\Access\ActionDictionary;
+use Bitrix\Sender\Access\Map\MailingAction;
 use Bitrix\Sender\Dispatch;
+use Bitrix\Sender\Entity;
 use Bitrix\Sender\Integration;
+use Bitrix\Sender\Internals\PrettyDate;
+use Bitrix\Sender\Message;
 use Bitrix\Sender\Stat\Statistics;
 use Bitrix\Sender\UI\PageNavigation;
-use Bitrix\Sender\Security;
-use Bitrix\Sender\Internals\PrettyDate;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
+if (!Bitrix\Main\Loader::includeModule('sender'))
+{
+	ShowError('Module `sender` not installed');
+	die();
+}
+
 Loc::loadMessages(__FILE__);
 
-class SenderLetterListComponent extends CBitrixComponent
+class SenderLetterListComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 {
 	/** @var ErrorCollection $errors */
 	protected $errors;
@@ -36,19 +41,17 @@ class SenderLetterListComponent extends CBitrixComponent
 
 	protected function initParams()
 	{
-		$this->arParams['PATH_TO_LIST'] = isset($this->arParams['PATH_TO_LIST']) ? $this->arParams['PATH_TO_LIST'] : '';
-		$this->arParams['PATH_TO_USER_PROFILE'] = isset($this->arParams['PATH_TO_USER_PROFILE']) ? $this->arParams['PATH_TO_USER_PROFILE'] : '';
-		$this->arParams['NAME_TEMPLATE'] = empty($this->arParams['NAME_TEMPLATE']) ? \CSite::GetNameFormat(false) : str_replace(array("#NOBR#","#/NOBR#"), array("",""), $this->arParams["NAME_TEMPLATE"]);
+		parent::initParams();
 
 		$this->arParams['GRID_ID'] = isset($this->arParams['GRID_ID']) ? $this->arParams['GRID_ID'] : 'SENDER_LETTER_GRID';
 		$this->arParams['FILTER_ID'] = isset($this->arParams['FILTER_ID']) ? $this->arParams['FILTER_ID'] : $this->arParams['GRID_ID'] . '_FILTER';
 
 		$this->arParams['SET_TITLE'] = isset($this->arParams['SET_TITLE']) ? $this->arParams['SET_TITLE'] == 'Y' : true;
-		$this->arParams['CAN_EDIT'] = isset($this->arParams['CAN_EDIT'])
-			?
-			$this->arParams['CAN_EDIT']
-			:
-			Security\Access::current()->canModifyLetters();
+		$this->arParams['CAN_VIEW_CLIENT'] = $this->arParams['CAN_VIEW_CLIENT']??
+			$this->getAccessController()->check(ActionDictionary::ACTION_MAILING_CLIENT_VIEW);
+
+		$this->arParams['CAN_PAUSE_START_STOP'] = $this->arParams['CAN_PAUSE_START_STOP']??
+			$this->getAccessController()->check(ActionDictionary::ACTION_MAILING_PAUSE_START_STOP);
 
 		$this->arParams['SHOW_CAMPAIGNS'] = isset($this->arParams['SHOW_CAMPAIGNS'])
 			?
@@ -69,6 +72,15 @@ class SenderLetterListComponent extends CBitrixComponent
 		foreach ($messages as $message)
 		{
 			$message = new Message\Adapter($message);
+
+			if(!$this->getAccessController()->check(
+				MailingAction::getMap()[$message->getCode()]
+			))
+			{
+				continue;
+			}
+
+
 			$list[] = array(
 				'CODE' => $message->getCode(),
 				'NAME' => $message->getName(),
@@ -111,12 +123,6 @@ class SenderLetterListComponent extends CBitrixComponent
 		{
 			/**@var CAllMain*/
 			$GLOBALS['APPLICATION']->SetTitle(Loc::getMessage('SENDER_LETTER_LIST_COMP_TITLE'));
-		}
-
-		if (!Security\Access::current()->canViewLetters())
-		{
-			Security\AccessChecker::addError($this->errors);
-			return false;
 		}
 
 		$this->arResult['ERRORS'] = array();
@@ -230,7 +236,7 @@ class SenderLetterListComponent extends CBitrixComponent
 					$item['EMAIL_FROM'] = $item['OUTPUT_NUMBER'];
 				}
 			}
-			catch (\Bitrix\Main\SystemException $exception)
+			catch (SystemException $exception)
 			{
 				continue;
 			}
@@ -406,7 +412,7 @@ class SenderLetterListComponent extends CBitrixComponent
 		$sorting = $gridOptions->getSorting(array('sort' => $defaultSort));
 
 		$by = key($sorting['sort']);
-		$order = strtoupper(current($sorting['sort'])) === 'ASC' ? 'ASC' : 'DESC';
+		$order = mb_strtoupper(current($sorting['sort'])) === 'ASC' ? 'ASC' : 'DESC';
 
 		$list = array();
 		foreach ($this->getUiGridColumns() as $column)
@@ -666,28 +672,8 @@ class SenderLetterListComponent extends CBitrixComponent
 
 	public function executeComponent()
 	{
-		$this->errors = new \Bitrix\Main\ErrorCollection();
-		if (!Loader::includeModule('sender'))
-		{
-			$this->errors->setError(new Error('Module `sender` is not installed.'));
-			$this->printErrors();
-			return;
-		}
-
-		$this->initParams();
-		if (!$this->checkRequiredParams())
-		{
-			$this->printErrors();
-			return;
-		}
-
-		if (!$this->prepareResult())
-		{
-			$this->printErrors();
-			return;
-		}
-
-		$this->includeComponentTemplate();
+		parent::executeComponent();
+		parent::prepareResultAndTemplate();
 	}
 
 	protected function getExportGridColumns()
@@ -752,5 +738,15 @@ class SenderLetterListComponent extends CBitrixComponent
 			}
 		}
 		return $result;
+	}
+
+	public function getEditAction()
+	{
+		return $this->getViewAction();
+	}
+
+	public function getViewAction()
+	{
+		return ActionDictionary::ACTION_MAILING_VIEW;
 	}
 }

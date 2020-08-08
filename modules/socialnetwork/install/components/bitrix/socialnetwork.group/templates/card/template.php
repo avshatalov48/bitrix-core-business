@@ -9,15 +9,18 @@
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI;
 
-UI\Extension::load("socialnetwork.common");
+UI\Extension::load([
+	'socialnetwork.common',
+	'ui.icons.b24',
+]);
 
-if(strlen($arResult["FatalError"])>0)
+if($arResult["FatalError"] <> '')
 {
 	?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?
 }
 else
 {
-	if(strlen($arResult["ErrorMessage"])>0)
+	if($arResult["ErrorMessage"] <> '')
 	{
 		?><span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br /><?
 	}
@@ -92,7 +95,12 @@ else
 
 		?><div class="socialnetwork-group-box">
 			<div class="socialnetwork-group-left"><?=Loc::getMessage('SONET_C6_CREATED')?></div>
-			<div class="socialnetwork-group-right"><?=FormatDateFromDB($arResult["Group"]["DATE_CREATE"], $arParams["DATE_TIME_FORMAT"], true)?></div>
+			<div class="socialnetwork-group-right"><?
+				echo \CComponentUtil::getDateTimeFormatted([
+					'TIMESTAMP' => MakeTimeStamp($arResult["Group"]["DATE_CREATE"]),
+					'TZ_OFFSET' => \CTimeZone::getOffset()
+				]);
+			?></div>
 		</div><?
 
 		if ($arResult['Group']['PROJECT'] == 'Y')
@@ -120,7 +128,9 @@ else
 						: ""
 					);
 
-					?><div bx-user-id="<?=intval($owner['USER_ID'])?>" class="socialnetwork-group-user" title="<?=$owner["NAME_FORMATTED"]?>" style="<?=$backgroundStyle?>"></div>
+					?><div bx-user-id="<?=intval($owner['USER_ID'])?>" class="ui-icon ui-icon-common-user socialnetwork-group-user" title="<?=$owner["NAME_FORMATTED"]?>">
+						<i style="<?=$backgroundStyle?>"></i>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -148,7 +158,9 @@ else
 									: ""
 							);
 
-							?><div bx-user-id="<?=intval($moderator['USER_ID'])?>" class="socialnetwork-group-user" title="<?=$moderator["NAME_FORMATTED"]?>" style="<?=$backgroundStyle?>"></div><?
+							?><div bx-user-id="<?=intval($moderator['USER_ID'])?>" class="ui-icon ui-icon-common-user socialnetwork-group-user" title="<?=$moderator["NAME_FORMATTED"]?>">
+								<i style="<?=$backgroundStyle?>"></i>
+							</div><?
 							$counter++;
 						}
 					}
@@ -185,7 +197,9 @@ else
 								: ""
 							);
 
-							?><div bx-user-id="<?=intval($member['USER_ID'])?>" class="socialnetwork-group-user" title="<?=$member["NAME_FORMATTED"]?>" style="<?=$backgroundStyle?>"></div><?
+							?><div bx-user-id="<?=intval($member['USER_ID'])?>" class="ui-icon ui-icon-common-user socialnetwork-group-user" title="<?=$member["NAME_FORMATTED"]?>">
+								<i style="<?=$backgroundStyle?>"></i>
+							</div><?
 							$counter++;
 						}
 					}

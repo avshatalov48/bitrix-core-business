@@ -4,15 +4,11 @@
  *
  * @package bitrix
  * @subpackage im
- * @copyright 2001-2019 Bitrix
+ * @copyright 2001-2020 Bitrix
  */
 
-const MessageType = Object.freeze({
+export const MessageType = Object.freeze({
 	self: 'self',
 	opponent: 'opponent',
 	system: 'system',
 });
-
-export {
-	MessageType
-};

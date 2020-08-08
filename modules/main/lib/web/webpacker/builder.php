@@ -123,6 +123,11 @@ class Builder
 	{
 		foreach ($this->modules as $index => $module)
 		{
+			if ($module === 'main.core')
+			{
+				$module .= '.minimal';
+			}
+
 			if ($module === Converter::CORE_EXTENSION && !$this->hasCoreExtension())
 			{
 				continue;
@@ -201,10 +206,7 @@ class Builder
 		{
 			foreach ($properties as $propertyName => $propertyValue)
 			{
-				if ($propertyValue)
-				{
-					$profile->setProperty($propertyName, $propertyValue);
-				}
+				$profile->setProperty($propertyName, $propertyValue);
 			}
 		}
 		$profile->useAllLangs(!!self::getValueByKey($webPacker, Resource\Profile::USE_ALL_LANGS));

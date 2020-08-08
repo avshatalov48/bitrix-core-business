@@ -5,7 +5,7 @@ class CAllSocNetSmile
 	{
 		$res_str = "";
 		$arSmile = array();
-		$return_array = intVal($num_cols) > 0 ? false : true;
+		$return_array = intval($num_cols) > 0 ? false : true;
 		if ($strLang === False)
 			$strLang = LANGUAGE_ID;
 		if ($strPath2Icons === False)
@@ -46,11 +46,11 @@ class CAllSocNetSmile
 		foreach ($arSmile as $res)
 		{
 			if ($ind == 0) {$res_str .= "<tr align=\"center\">";}
-			$res_str .= "<td width=\"".IntVal(100/$num_cols)."%\">";
+			$res_str .= "<td width=\"".intval(100/$num_cols)."%\">";
 			$strTYPING = strtok($res['TYPING'], " ");
 			$res_str .= "<img src=\"".$strPath2Icons.$res['IMAGE']."\" alt=\"".$res['NAME']."\" title=\"".$res['NAME']."\" border=\"0\"";
-			if (IntVal($res['IMAGE_WIDTH'])>0) {$res_str .= " width=\"".$res['IMAGE_WIDTH']."\"";}
-			if (IntVal($res['IMAGE_HEIGHT'])>0) {$res_str .= " height=\"".$res['IMAGE_HEIGHT']."\"";}
+			if (intval($res['IMAGE_WIDTH'])>0) {$res_str .= " width=\"".$res['IMAGE_WIDTH']."\"";}
+			if (intval($res['IMAGE_HEIGHT'])>0) {$res_str .= " height=\"".$res['IMAGE_HEIGHT']."\"";}
 			$res_str .= " onclick=\"if(emoticon){emoticon('".$strTYPING."');}\" name=\"smile\"  id='".$strTYPING."' ";
 			$res_str .= "/>&nbsp;</td>\n";
 			$ind++;
@@ -75,16 +75,16 @@ class CAllSocNetSmile
 	function CheckFields($ACTION, &$arFields)
 	{
 		if ((is_set($arFields, "SMILE_TYPE") || $ACTION=="ADD") && $arFields["SMILE_TYPE"]!="I" && $arFields["SMILE_TYPE"]!="S") return False;
-		if ((is_set($arFields, "IMAGE") || $ACTION=="ADD") && strlen($arFields["IMAGE"])<=0) return False;
+		if ((is_set($arFields, "IMAGE") || $ACTION=="ADD") && $arFields["IMAGE"] == '') return False;
 
-		if ((is_set($arFields, "SORT") || $ACTION=="ADD") && IntVal($arFields["SORT"])<=0) $arFields["SORT"] = 150;
+		if ((is_set($arFields, "SORT") || $ACTION=="ADD") && intval($arFields["SORT"])<=0) $arFields["SORT"] = 150;
 
 		if (is_set($arFields, "LANG") || $ACTION=="ADD")
 		{
 			for ($i = 0; $i<count($arFields["LANG"]); $i++)
 			{
-				if (!is_set($arFields["LANG"][$i], "LID") || strlen($arFields["LANG"][$i]["LID"])<=0) return false;
-				if (!is_set($arFields["LANG"][$i], "NAME") || strlen($arFields["LANG"][$i]["NAME"])<=0) return false;
+				if (!is_set($arFields["LANG"][$i], "LID") || $arFields["LANG"][$i]["LID"] == '') return false;
+				if (!is_set($arFields["LANG"][$i], "NAME") || $arFields["LANG"][$i]["NAME"] == '') return false;
 			}
 
 			$db_lang = CLangAdmin::GetList(($b="sort"), ($o="asc"), array("ACTIVE" => "Y"));
@@ -106,7 +106,7 @@ class CAllSocNetSmile
 	function Delete($ID)
 	{
 		global $DB, $CACHE_MANAGER;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$DB->Query("DELETE FROM b_sonet_smile_lang WHERE SMILE_ID = ".$ID, True);
 		$DB->Query("DELETE FROM b_sonet_smile WHERE ID = ".$ID, True);
@@ -119,7 +119,7 @@ class CAllSocNetSmile
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$strSql = 
 			"SELECT FR.ID, FR.SORT, FR.SMILE_TYPE, FR.TYPING, FR.IMAGE, FR.CLICKABLE, ".
 			"	FR.DESCRIPTION, FR.IMAGE_WIDTH, FR.IMAGE_HEIGHT ".
@@ -138,7 +138,7 @@ class CAllSocNetSmile
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$strSql = 
 			"SELECT FR.ID, FR.SORT, FR.SMILE_TYPE, FR.TYPING, FR.IMAGE, FR.CLICKABLE, ".
 			"	FRL.LID, FRL.NAME, FR.DESCRIPTION, FR.IMAGE_WIDTH, FR.IMAGE_HEIGHT ".
@@ -158,7 +158,7 @@ class CAllSocNetSmile
 	{
 		global $DB;
 
-		$SMILE_ID = IntVal($SMILE_ID);
+		$SMILE_ID = intval($SMILE_ID);
 		$strSql = 
 			"SELECT FRL.ID, FRL.SMILE_ID, FRL.LID, FRL.NAME ".
 			"FROM b_sonet_smile_lang FRL ".

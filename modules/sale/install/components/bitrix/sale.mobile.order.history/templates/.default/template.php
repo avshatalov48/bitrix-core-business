@@ -24,7 +24,7 @@ if(is_array($arResult["HISTORY"]) && !empty($arResult["HISTORY"]))
 						)
 					);
 
-		if (strlen($arItemHistory["INFO"]) > 0)
+		if ($arItemHistory["INFO"] <> '')
 		{
 			$arSection["ROWS"][] = array(
 				"TITLE" => GetMessage("SMOH_DESCRIPTION").":",

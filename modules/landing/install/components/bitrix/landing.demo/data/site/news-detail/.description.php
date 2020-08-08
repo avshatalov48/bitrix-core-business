@@ -23,7 +23,6 @@ return array(
 	'preview3x' => '',
 	'preview_url' => '',
 	'show_in_list' => 'Y',
-	// 'sort' => 10,
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(
 			'B24BUTTON_CODE' => $buttons[0],
@@ -31,7 +30,10 @@ return array(
 			'VIEW_USE' => 'Y',
 			'UP_SHOW' => 'Y',
 			'THEME_CODE' => '2business',
-			'THEME_CODE_TYPO' => 'app',
+			'THEMEFONTS_CODE' => 'g-font-open-sans',
+			'THEMEFONTS_CODE_H' => 'g-font-open-sans',
+			'THEMEFONTS_SIZE' => '1.14286',
+			'THEMEFONTS_USE' => 'Y',
 			'BACKGROUND_USE' => 'N',
 			'BACKGROUND_POSITION' => 'center',
 			'YACOUNTER_USE' => 'N',

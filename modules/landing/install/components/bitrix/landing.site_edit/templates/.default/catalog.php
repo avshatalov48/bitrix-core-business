@@ -98,7 +98,7 @@ else
 							?>
 							<tr class="landing-form-title-catalog">
 								<td colspan="2">
-									<?=Loc::getMessage('LANDING_TPL_HOOK_SETT_HEADER_'.strtoupper($header));?></td>
+									<?=Loc::getMessage('LANDING_TPL_HOOK_SETT_HEADER_'.mb_strtoupper($header));?></td>
 							</tr>
 							<?
 						}
@@ -117,7 +117,7 @@ else
 									$additionalCss = ' landing-form-select-multi';
 								}
 								?>
-								<tr id="row_<?= strtolower($code);?>">
+								<tr id="row_<?= mb_strtolower($code);?>">
 									<td class="ui-form-label">
 										<div class="landing-form-label-inner">
 											<?= $label ? $label :$field->getLabel();?>
@@ -176,13 +176,13 @@ else
 											<?else:?>
 												<?
 												$field->viewForm(array(
-													'id' => 'settings_' . strtolower($code),
+													'id' => 'settings_'.mb_strtolower($code),
 													'class' => $template->getCssByType($field->getType()) . $additionalCss,
 													'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
 												 ));
 												?>
 												<?if ($field->getType() == 'checkbox'):?>
-												<label for="settings_<?= strtolower($code);?>">
+												<label for="settings_<?= mb_strtolower($code);?>">
 													<?= $field->getLabel();?>
 												</label>
 												<?endif;?>

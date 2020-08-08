@@ -49,14 +49,14 @@ Loc::loadMessages(__FILE__);
  * <li> WF_LAST_HISTORY_ID int optional
  * <li> SHOW_COUNTER int optional
  * <li> SHOW_COUNTER_START datetime optional
- * <li> PREVIEW_PICTURE_FILE reference to {@link \Bitrix\File\FileTable}
- * <li> DETAIL_PICTURE_FILE reference to {@link \Bitrix\File\FileTable}
+ * <li> PREVIEW_PICTURE_FILE reference to {@link \Bitrix\Main\FileTable}
+ * <li> DETAIL_PICTURE_FILE reference to {@link \Bitrix\Main\FileTable}
  * <li> IBLOCK reference to {@link \Bitrix\Iblock\IblockTable}
  * <li> WF_PARENT_ELEMENT reference to {@link \Bitrix\Iblock\IblockElementTable}
  * <li> IBLOCK_SECTION reference to {@link \Bitrix\Iblock\IblockSectionTable}
- * <li> MODIFIED_BY_USER reference to {@link \Bitrix\User\UserTable}
- * <li> CREATED_BY_USER reference to {@link \Bitrix\User\UserTable}
- * <li> WF_LOCKED_BY_USER reference to {@link \Bitrix\User\UserTable}
+ * <li> MODIFIED_BY_USER reference to {@link \Bitrix\Main\UserTable}
+ * <li> CREATED_BY_USER reference to {@link \Bitrix\Main\UserTable}
+ * <li> WF_LOCKED_BY_USER reference to {@link \Bitrix\Main\UserTable}
  * </ul>
  *
  * @package Bitrix\Iblock

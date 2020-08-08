@@ -84,9 +84,9 @@ if($MOD_RIGHT=="W" && $arID = $lAdmin->GroupAction())
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		switch($_REQUEST['action'])
 		{
@@ -230,14 +230,14 @@ while($arRes = $rsData->NavNext(true, "f_"))
 			}
 
 			$ar["STRINGS"] = trim($ar["STRINGS"]);
-			if (strpos($ar["STRINGS"], "\n")>0)
+			if (mb_strpos($ar["STRINGS"], "\n") > 0)
 			{
 				$ar["STRINGS"] = str_replace("\r", '', $ar["STRINGS"]);
 				$ar["STRINGS"] = '"'.str_replace("\n", '","', $ar["STRINGS"]).'"';
-				$strCond .= " ".$strNameTmp2." {".htmlspecialcharsbx(substr($ar["STRINGS"], 0, 30)).(strlen(trim($ar["STRINGS"]))>30?"...":"")."}";
+				$strCond .= " ".$strNameTmp2." {".htmlspecialcharsbx(mb_substr($ar["STRINGS"], 0, 30)).(mb_strlen(trim($ar["STRINGS"])) > 30?"...":"")."}";
 			}
 			else
-				$strCond .= " ".$strNameTmp1." &quot;".htmlspecialcharsbx(substr($ar["STRINGS"], 0, 30)).(strlen($ar["STRINGS"])>30?"...":"")."&quot;";
+				$strCond .= " ".$strNameTmp1." &quot;".htmlspecialcharsbx(mb_substr($ar["STRINGS"], 0, 30)).(mb_strlen($ar["STRINGS"]) > 30?"...":"")."&quot;";
 		}
 
 		$strAction = "";
@@ -251,7 +251,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 			$strAction .= ($strAction!=""?", ":"").GetMessage("MAIL_FILT_ADM_DELETE");
 		}
 
-		if(strlen($arRes["ACTION_PHP"])>0)
+		if($arRes["ACTION_PHP"] <> '')
 		{
 			$strAction .= ($strAction!=""?", ":"").GetMessage("MAIL_FILT_ADM_PHP_ACTION");
 		}

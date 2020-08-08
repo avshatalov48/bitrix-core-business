@@ -121,6 +121,11 @@ class PaymentTable extends Main\Entity\DataManager
 				'data_type' => 'datetime',
 				'title' => Loc::getMessage('ORDER_PAYMENT_ENTITY_PS_RESPONSE_DATE_FIELD'),
 			),
+			'PS_RECURRING_TOKEN' => array(
+				'data_type' => 'string',
+				'validation' => array(__CLASS__, 'validatePsRecurringToken'),
+				'title' => Loc::getMessage('ORDER_PAYMENT_ENTITY_PS_RECURRING_TOKEN_FIELD'),
+			),
 			'PAY_VOUCHER_NUM' => array(
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validatePayVoucherNum'),
@@ -407,6 +412,18 @@ class PaymentTable extends Main\Entity\DataManager
 	 * @return array
 	 */
 	public static function validateReasonMarked()
+	{
+		return array(
+			new Main\Entity\Validator\Length(null, 255),
+		);
+	}
+
+	/**
+	 * Returns validators for PS_RECURRING_TOKEN field.
+	 *
+	 * @return array
+	 */
+	public static function validatePsRecurringToken()
 	{
 		return array(
 			new Main\Entity\Validator\Length(null, 255),

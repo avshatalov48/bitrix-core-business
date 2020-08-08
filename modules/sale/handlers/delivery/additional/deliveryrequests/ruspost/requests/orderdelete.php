@@ -88,7 +88,7 @@ class OrderDelete extends Base
 		));
 
 		while($row = $res->fetch())
-			if(strlen($row['EXTERNAL_ID']) > 0)
+			if($row['EXTERNAL_ID'] <> '')
 				$this->idsMap[$row['SHIPMENT_ID']] = $row['EXTERNAL_ID'];
 
 		if(!empty($this->idsMap))

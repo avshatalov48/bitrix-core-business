@@ -1,6 +1,7 @@
 <?php
 
 use Bitrix\Main\Loader;
+use Bitrix\Blog\Copy\Integration\Group;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 	die();
@@ -54,8 +55,13 @@ if (Loader::includeModule("blog"))
 		"bitrix:socialnetwork.copy.checker",
 		"",
 		[
-			"QUEUE_ID" => $arParams["BLOG_GROUP_ID"],
-			"HELPER" => new Bitrix\Blog\Copy\Integration\Group()
+			"moduleId" => Group::MODULE_ID,
+			"queueId" => $arParams["BLOG_GROUP_ID"],
+			"stepperClassName" => Group::STEPPER_CLASS,
+			"checkerOption" => Group::CHECKER_OPTION,
+			"errorOption" => Group::ERROR_OPTION,
+			"titleMessage" => GetMessage("BLG_STEPPER_PROGRESS_TITLE"),
+			"errorMessage" => GetMessage("BLG_STEPPER_PROGRESS_ERROR"),
 		],
 		$component,
 		["HIDE_ICONS" => "Y"]

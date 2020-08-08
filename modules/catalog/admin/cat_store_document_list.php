@@ -206,11 +206,11 @@ $lAdmin->AddFilter($filterFields, $arFilter);
 global $by, $order;
 if (!isset($by))
 	$by = 'ID';
-$by = strtoupper($by);
+$by = mb_strtoupper($by);
 
 if (!isset($order))
 	$order = 'DESC';
-$order = strtoupper($order);
+$order = mb_strtoupper($order);
 $docsOrder = array($by => $order);
 
 if (!$bReadOnly && ($arID = $lAdmin->GroupAction()))
@@ -647,7 +647,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 
 $lAdmin->DisplayFilter($filterFields);
 $lAdmin->DisplayList();
-if(strlen($errorMessage) > 0)
+if($errorMessage <> '')
 	CAdminMessage::ShowMessage($errorMessage);
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

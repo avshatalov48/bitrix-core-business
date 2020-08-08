@@ -17,9 +17,7 @@ class highloadblock extends CModule
 	function highloadblock()
 	{
 		$arModuleVersion = array();
-		$path = str_replace("\\", "/", __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen("/index.php"));
-		include($path."/version.php");
+		include(__DIR__.'/version.php');
 		$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 		$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
 		$this->MODULE_NAME = GetMessage("HLBLOCK_MODULE_NAME");
@@ -58,7 +56,7 @@ class highloadblock extends CModule
 		// Database tables creation
 		if (!$DB->Query("SELECT 'x' FROM b_hlblock_entity WHERE 1=0", true))
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/highloadblock/install/db/".strtolower($DB->type)."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/highloadblock/install/db/".mb_strtolower($DB->type)."/install.sql");
 		}
 		if ($this->errors !== false)
 		{
@@ -98,7 +96,7 @@ class highloadblock extends CModule
 			$this->UnInstallTasks();
 
 			// remove hl system data
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/highloadblock/install/db/".strtolower($DB->type)."/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/highloadblock/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
 		}
 
 		UnRegisterModule("highloadblock");
@@ -164,7 +162,7 @@ class highloadblock extends CModule
 		global $USER, $APPLICATION, $step;
 		if ($USER->IsAdmin())
 		{
-			$step = IntVal($step);
+			$step = intval($step);
 			if ($step < 2)
 			{
 				$APPLICATION->IncludeAdminFile(GetMessage("HLBLOCK_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/highloadblock/install/unstep1.php");

@@ -267,128 +267,102 @@ window["__logShowCommentForm"] = function(xmlId)
 		window["UC"][xmlId].reply();
 };
 
-var waitTimeout = null;
-var waitDiv = null;
-var	waitPopup = null;
-var waitTime = 500;
-
 function __logShowHiddenDestination(log_id, created_by_id, bindElement)
 {
-	var sonetLXmlHttpSet6 = new XMLHttpRequest();
-
-	sonetLXmlHttpSet6.open("POST", BX.message('sonetLESetPath'), true);
-	sonetLXmlHttpSet6.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-
-	sonetLXmlHttpSet6.onreadystatechange = function()
+	BX.ajax.runAction('socialnetwork.api.livefeed.logentry.getHiddenDestinations', {
+		data: {
+			params: {
+				logId: log_id,
+				createdById: created_by_id,
+				pathToUser: BX.message('sonetLPathToUser'),
+				pathToWorkgroup: BX.message('sonetLPathToGroup'),
+				pathToDepartment: BX.message('sonetLPathToDepartment'),
+				nameTemplate: BX.message('sonetLNameTemplate'),
+				showLogin: BX.message('sonetLShowLogin')
+			}
+		}
+	}).then(function(response)
 	{
-		if(sonetLXmlHttpSet6.readyState == 4)
+		var destinationList = response.data.destinationList;
+		if (!BX.type.isNotEmptyObject(destinationList))
 		{
-			if(sonetLXmlHttpSet6.status == 200)
+			return;
+		}
+
+		if (BX(bindElement))
+		{
+			var containerNode = bindElement.parentNode;
+			containerNode.removeChild(bindElement);
+
+			var url = '';
+
+			for (var key in destinationList)
 			{
-				var data = LBlock.DataParser(sonetLXmlHttpSet6.responseText);
-				if (typeof(data) == "object")
+				if(!destinationList.hasOwnProperty(key))
 				{
-					if (data[0] == '*')
+					continue;
+				}
+
+				if (BX.type.isNotEmptyString(destinationList[key]['TITLE']))
+				{
+					containerNode.appendChild(BX.create('SPAN', {
+						html: ', '
+					}));
+
+					if (BX.type.isNotEmptyString(destinationList[key]['CRM_PREFIX']))
 					{
-						if (sonetLErrorDiv != null)
-						{
-							sonetLErrorDiv.style.display = "block";
-							sonetLErrorDiv.innerHTML = sonetLXmlHttpSet6.responseText;
-						}
-						return;
+						containerNode.appendChild(BX.create('SPAN', {
+							props: {
+								className: 'feed-add-post-destination-prefix'
+							},
+							html: destinationList[key]['CRM_PREFIX'] + ':&nbsp;'
+						}));
 					}
-					sonetLXmlHttpSet6.abort();
-					var arDestinations = data["arDestinations"];
-					
-					if (typeof (arDestinations) == "object")
+
+					if (BX.type.isNotEmptyString(destinationList[key]['URL']))
 					{
-						if (BX(bindElement))
-						{
-							var cont = bindElement.parentNode;
-							cont.removeChild(bindElement);
-							var url = '';
-
-							for (var i = 0; i < arDestinations.length; i++)
-							{
-								if (typeof (arDestinations[i]['TITLE']) != 'undefined' && arDestinations[i]['TITLE'].length > 0)
-								{
-									cont.appendChild(BX.create('SPAN', {
-										html: ', '
-									}));
-
-									if (typeof (arDestinations[i]['CRM_PREFIX']) != 'undefined' && arDestinations[i]['CRM_PREFIX'].length > 0)
-									{
-										cont.appendChild(BX.create('SPAN', {
-											props: {
-												className: 'feed-add-post-destination-prefix'
-											},
-											html: arDestinations[i]['CRM_PREFIX'] + ':&nbsp;'
-										}));
-									}
-								
-									if (typeof (arDestinations[i]['URL']) != 'undefined' && arDestinations[i]['URL'].length > 0)
-									{
-										cont.appendChild(BX.create('A', {
-											props: {
-												className: 'feed-add-post-destination-new' + (typeof (arDestinations[i]['IS_EXTRANET']) != 'undefined' && arDestinations[i]['IS_EXTRANET'] == 'Y' ? ' feed-post-user-name-extranet' : ''),
-												'href': arDestinations[i]['URL']
-											},
-											html: arDestinations[i]['TITLE']
-										}));
-									}
-									else
-									{
-										cont.appendChild(BX.create('SPAN', {
-											props: {
-												className: 'feed-add-post-destination-new' + (typeof (arDestinations[i]['IS_EXTRANET']) != 'undefined' && arDestinations[i]['IS_EXTRANET'] == 'Y' ? ' feed-post-user-name-extranet' : '')
-											},
-											html: arDestinations[i]['TITLE']
-										}));
-									}
-								}
-							}
-
-							if (
-								data["iDestinationsHidden"] != 'undefined'
-								&& parseInt(data["iDestinationsHidden"]) > 0
-							)
-							{
-								data["iDestinationsHidden"] = parseInt(data["iDestinationsHidden"]);
-								var suffix = (
-									(data["iDestinationsHidden"] % 100) > 10
-									&& (data["iDestinationsHidden"] % 100) < 20
-										? 5
-										: data["iDestinationsHidden"] % 10
-								);
-
-								cont.appendChild(BX.create('SPAN', {
-									html: '&nbsp;' + BX.message('sonetLDestinationHidden' + suffix).replace("#COUNT#", data["iDestinationsHidden"])
-								}));
-							}
-						}
+						containerNode.appendChild(BX.create('A', {
+							props: {
+								className: 'feed-add-post-destination-new' + (BX.type.isNotEmptyString(destinationList[key]['IS_EXTRANET']) && destinationList[key]['IS_EXTRANET'] == 'Y' ? ' feed-post-user-name-extranet' : ''),
+								href: destinationList[key]['URL']
+							},
+							html: destinationList[key]['TITLE']
+						}));
+					}
+					else
+					{
+						containerNode.appendChild(BX.create('SPAN', {
+							props: {
+								className: 'feed-add-post-destination-new' + (BX.type.isNotEmptyString(destinationList[key]['IS_EXTRANET']) && destinationList[key]['IS_EXTRANET'] == 'Y' ? ' feed-post-user-name-extranet' : '')
+							},
+							html: destinationList[key]['TITLE']
+						}));
 					}
 				}
 			}
-			else
+
+			if (
+				typeof response.data['hiddenDestinationsCount'] != 'undefined'
+				&& parseInt(response.data['hiddenDestinationsCount']) > 0
+			)
 			{
-				// error!
+				response.data['hiddenDestinationsCount'] = parseInt(response.data['hiddenDestinationsCount']);
+				var suffix = (
+					(response.data['hiddenDestinationsCount'] % 100) > 10
+					&& (response.data['hiddenDestinationsCount'] % 100) < 20
+						? 5
+						: response.data['hiddenDestinationsCount'] % 10
+				);
+
+				containerNode.appendChild(BX.create('SPAN', {
+					html: '&nbsp;' + BX.message('sonetLDestinationHidden' + suffix).replace("#COUNT#", response.data['hiddenDestinationsCount'])
+				}));
 			}
 		}
-	};
 
-	sonetLXmlHttpSet6.send("r=" + Math.floor(Math.random() * 1000)
-		+ "&" + BX.message('sonetLSessid')
-		+ "&site=" + BX.util.urlencode(BX.message('SITE_ID'))
-		+ "&nt=" + BX.util.urlencode(BX.message('sonetLNameTemplate'))
-		+ "&log_id=" + encodeURIComponent(log_id)
-		+ (created_by_id ? "&created_by_id=" + encodeURIComponent(created_by_id) : "")
-		+ "&p_user=" + BX.util.urlencode(BX.message('sonetLPathToUser'))
-		+ "&p_group=" + BX.util.urlencode(BX.message('sonetLPathToGroup'))
-		+ "&p_dep=" + BX.util.urlencode(BX.message('sonetLPathToDepartment'))
-		+ "&dlim=" + BX.util.urlencode(BX.message('sonetLDestinationLimit'))
-		+ "&action=get_more_destination"
-	);
+	}, function(response) {
 
+	});
 }
 
 function __logSetFollow(log_id)
@@ -432,7 +406,7 @@ function __logSetFollow(log_id)
 	return false;
 }
 
-function __logRefreshEntry(params)
+function __logRefreshEntry(params) // crm.livefeed.activity
 {
 	var entryNode = (params.node !== undefined ? BX(params.node) : false);
 	var logId = (params.logId !== undefined ? parseInt(params.logId) : 0);
@@ -471,59 +445,45 @@ function __logRefreshEntry(params)
 
 window.__logEditComment = function(entityXmlId, key, postId)
 {
-	BX.ajax({
-		url: BX.message('sonetLESetPath'),
-		method: 'POST',
-		dataType: 'json',
+	BX.ajax.runAction('socialnetwork.api.livefeed.comment.getsource', {
 		data: {
-			"comment_id": key,
-			"post_id": postId,
-			"site" : BX.message('sonetLSiteId'),
-			"action": "get_comment_src",
-			"sessid": BX.bitrix_sessid()
-		},
-		onsuccess: function(data) 
-		{
+			params: {
+				postId: postId,
+				commentId: key
+			}
+		}
+	}).then(function(response) {
+		var responseData = response.data;
+
+			var eventData = {
+				messageBBCode : responseData.message,
+				messageFields : {
+					arFiles : (
+						BX.type.isNotEmptyObject(responseData.UF.UF_SONET_COM_FILE)
+							? responseData.UF.UF_SONET_COM_FILE.VALUE
+							: []
+					)
+				}
+			};
+
 			if (
-				typeof data.message != 'undefined'
-				&& typeof data.sourceId != 'undefined'
+				BX.type.isNotEmptyObject(responseData.UF.UF_SONET_COM_DOC)
+				&& BX.type.isNotEmptyString(responseData.UF.UF_SONET_COM_DOC.USER_TYPE_ID)
 			)
 			{
-				var eventData = {
-					messageBBCode : data.message,
-					messageFields : { 
-						arFiles : (
-							typeof data["UF"] != 'undefined'
-							&& typeof data["UF"]["UF_SONET_COM_FILE"] != 'undefined'
-								? data["UF"]["UF_SONET_COM_FILE"]["VALUE"]
-								: []
-						)
-					}
-				};
-
-				if (
-					typeof data["UF"] != 'undefined'
-					&& typeof data["UF"]["UF_SONET_COM_DOC"] != 'undefined'
-					&& typeof data["UF"]["UF_SONET_COM_DOC"]["USER_TYPE_ID"] != 'undefined'
-
-				)
+				if (responseData.UF.UF_SONET_COM_DOC.USER_TYPE_ID == 'webdav_element')
 				{
-					if (data["UF"]["UF_SONET_COM_DOC"]["USER_TYPE_ID"] == "webdav_element")
-					{
-						eventData["messageFields"]["arDocs"] = data["UF"]["UF_SONET_COM_DOC"]["VALUE"];
-					}
-					else if (data["UF"]["UF_SONET_COM_DOC"]["USER_TYPE_ID"] == "disk_file")
-					{
-						eventData["messageFields"]["arDFiles"] = data["UF"]["UF_SONET_COM_DOC"]["VALUE"];
-					}
+					eventData.messageFields.arDocs = responseData.UF.UF_SONET_COM_DOC.VALUE;
 				}
-
-				window["UC"][window.SLEC.formKey]["entitiesCorrespondence"][entityXmlId+'-'+data.sourceId] = [postId, data.id];
-				BX.onCustomEvent(window, 'OnUCAfterRecordEdit', [entityXmlId, data.sourceId, eventData, 'EDIT']);
+				else if (responseData.UF.UF_SONET_COM_DOC.USER_TYPE_ID == 'disk_file')
+				{
+					eventData.messageFields.arDFiles = responseData.UF.UF_SONET_COM_DOC.VALUE;
+				}
 			}
-		},
-		onfailure: function(data) {}
-	});
+
+			window.UC[window.SLEC.formKey].entitiesCorrespondence[entityXmlId + '-' + responseData.sourceId] = [ postId, responseData.id ];
+			BX.onCustomEvent(window, 'OnUCAfterRecordEdit', [ entityXmlId, responseData.sourceId, eventData, 'EDIT' ]);
+	}, function() {});
 };
 
 (function(){

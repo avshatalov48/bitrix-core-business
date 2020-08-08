@@ -4,7 +4,7 @@ if ($arResult["NEED_AUTH"] == "Y")
 {
 	$APPLICATION->AuthForm("");
 }
-elseif (strlen($arResult["FatalError"])>0)
+elseif ($arResult["FatalError"] <> '')
 {
 	?>
 	<span class='errortext'><?=$arResult["FatalError"]?></span><br /><br />
@@ -12,7 +12,7 @@ elseif (strlen($arResult["FatalError"])>0)
 }
 else
 {
-	if(strlen($arResult["ErrorMessage"])>0)
+	if($arResult["ErrorMessage"] <> '')
 	{
 		?>
 		<span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br />
@@ -72,7 +72,7 @@ else
 
 	<form method="post" name="form1" action="<?=POST_FORM_ACTION_URI?>" enctype="multipart/form-data">
 	<input type="hidden" name="do_delete_all_flag" value="">
-	<?if (StrLen($arResult["NAV_STRING"]) > 0):?>
+	<?if ($arResult["NAV_STRING"] <> ''):?>
 		<?=$arResult["NAV_STRING"]?><br /><br />
 	<?endif;?>
 	<div class="sonet-cntnr-messages-users-messages">
@@ -111,7 +111,7 @@ else
 		<?endif;?>
 	</table>
 	</div>	
-	<?if (StrLen($arResult["NAV_STRING"]) > 0):?>
+	<?if ($arResult["NAV_STRING"] <> ''):?>
 		<?=$arResult["NAV_STRING"]?>
 		<br /><br />
 	<?endif;?>

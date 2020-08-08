@@ -98,7 +98,7 @@ if($arParams["SEF_MODE"] == "Y")
 		$folder404 = str_replace("\\", "/", $arParams["SEF_FOLDER"]);
 		if ($folder404 != "/")
 			$folder404 = "/".trim($folder404, "/ \t\n\r\0\x0B")."/";
-		if (substr($folder404, -1) == "/")
+		if (mb_substr($folder404, -1) == "/")
 			$folder404 .= "index.php";
 
 		if ($folder404 != $APPLICATION->GetCurPage(true))
@@ -144,11 +144,11 @@ else
 		$componentPage = "compare";
 	elseif(isset($arVariables["ELEMENT_ID"]) && intval($arVariables["ELEMENT_ID"]) > 0)
 		$componentPage = "element";
-	elseif(isset($arVariables["ELEMENT_CODE"]) && strlen($arVariables["ELEMENT_CODE"]) > 0)
+	elseif(isset($arVariables["ELEMENT_CODE"]) && $arVariables["ELEMENT_CODE"] <> '')
 		$componentPage = "element";
 	elseif(isset($arVariables["SECTION_ID"]) && intval($arVariables["SECTION_ID"]) > 0)
 		$componentPage = "section";
-	elseif(isset($arVariables["SECTION_CODE"]) && strlen($arVariables["SECTION_CODE"]) > 0)
+	elseif(isset($arVariables["SECTION_CODE"]) && $arVariables["SECTION_CODE"] <> '')
 		$componentPage = "section";
 	elseif(isset($_REQUEST["q"]))
 		$componentPage = "search";

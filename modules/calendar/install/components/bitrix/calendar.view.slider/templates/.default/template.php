@@ -75,7 +75,7 @@ if (!is_null($event['UF_WEBDAV_CAL_EVENT']))
 }
 
 $avatarSize = 34;
-$event['REMIND'] = CCalendarEvent::GetTextReminders($event['REMIND']);
+$event['REMIND'] = CCalendarReminder::GetTextReminders($event['REMIND']);
 
 $curUserStatus = '';
 $userId = CCalendar::GetCurUserId();
@@ -288,7 +288,7 @@ $arParams['UF'] = $UF;
 					</div>
 				</div>
 
-				<?if (is_array($event['REMIND']) && count($event['REMIND']) > 0):?>
+				<?if (is_array($event['REMIND'])):?>
 				<div class="calendar-slider-sidebar-layout-main calendar-slider-sidebar-border-bottom calendar-slider-sidebar-remind">
 					<div class="calendar-slider-sidebar-row">
 						<div class="calendar-slider-sidebar-string-name"><?= Loc::getMessage('EC_VIEW_REMINDERS')?>:</div>
@@ -296,12 +296,7 @@ $arParams['UF'] = $UF;
 							<span class="calendar-slider-sidebar-remind-link-name"><?= Loc::getMessage('EC_VIEW_REMINDER_ADD')?></span>
 						</span>
 					</div>
-					<?foreach($event['REMIND'] as $remind):?>
-						<div class="calendar-slider-sidebar-remind-warning">
-							<span class="calendar-slider-sidebar-remind-warning-name"><?= $remind['text']?></span>
-							<div class="calendar-close-button"></div>
-						</div>
-					<?endforeach;?>
+					<div class="calendar-slider-sidebar-remind-wrap"></div>
 				</div>
 				<?endif;?>
 
@@ -482,7 +477,7 @@ $arParams['UF'] = $UF;
 								<input type="hidden" id="<?=$id?>_current_status" value="<?= $curUserStatus?>"/>
 								<span id="<?=$id?>_status_buttonset"></span>
 								<button id="<?=$id?>_but_edit" class="ui-btn ui-btn-light-border"><?= Loc::getMessage('EC_VIEW_SLIDER_EDIT')?></button>
-								<button id="<?=$id?>_but_del" class="ui-btn ui-btn-link"><?= Loc::getMessage('EC_VIEW_SLIDER_DEL')?></button>
+								<button id="<?=$id?>_but_del" class="ui-btn ui-btn-light-border"><?= Loc::getMessage('EC_VIEW_SLIDER_DEL')?></button>
 
 						</div>
 					</div>
@@ -506,19 +501,19 @@ $arParams['UF'] = $UF;
 					// Q - MODERATE, U - EDIT, Y - FULL_ACCESS
 					if ($eventCommentId > 0)
 					{
-						$APPLICATION->IncludeComponent("bitrix:forum.comments", "bitrix24", array(
+						$APPLICATION->IncludeComponent("bitrix:forum.comments", "bitrix24", [
 							"FORUM_ID" => $set['forum_id'],
 							"ENTITY_TYPE" => "EV", //
-							"ENTITY_ID" => $eventCommentId, //Event id
-							"ENTITY_XML_ID" => CCalendarEvent::GetEventCommentXmlId($event), //
+							"ENTITY_ID" => $eventCommentId, //Event idtEventCommentXmlId($event), //
+							"ENTITY_XML_ID" => CCalendarEvent::GetEventCommentXmlId($event),
 							"PERMISSION" => $permission, //
 							"URL_TEMPLATES_PROFILE_VIEW" => $set['path_to_user'],
 							"SHOW_RATING" => "Y",
 							"SHOW_LINK_TO_MESSAGE" => "N",
 							"BIND_VIEWER" => "Y"
-						),
+						],
 							false,
-							array('HIDE_ICONS' => 'Y')
+							['HIDE_ICONS' => 'Y']
 						);
 					}
 					?>

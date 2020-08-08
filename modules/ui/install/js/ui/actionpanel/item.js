@@ -28,6 +28,7 @@ BX.UI.ActionPanel.Item = function(options)
 	this.actionPanel = options.actionPanel;
 	this.options = options;
 	this.attributes = BX.prop.getObject(options, 'attributes');
+	this.dataset = options.dataset;
 	this.disabled = options.disabled;
 	this.layout = {
 		container: null,
@@ -112,6 +113,16 @@ BX.UI.ActionPanel.Item.prototype =
 		this.href ? this.layout.container.setAttribute('href', this.href) : null;
 		this.href ? this.layout.container.setAttribute('title', this.text) : null;
 
+		if (BX.type.isString(this.onclick))
+		{
+			this.layout.container.setAttribute('onclick', this.onclick);
+		}
+
+		if (this.dataset)
+		{
+			BX.adjust(this.layout.container, {'dataset': this.dataset});
+		}
+
 		if (this.options.hide)
 		{
 			this.hide();
@@ -171,11 +182,7 @@ BX.UI.ActionPanel.Item.prototype =
 			return;
 		}
 
-		if(BX.type.isString(this.onclick))
-		{
-			eval(this.onclick);
-		}
-		else if (BX.type.isFunction(this.onclick))
+		if (BX.type.isFunction(this.onclick))
 		{
 			this.onclick.call(this, event, this);
 		}
@@ -195,11 +202,7 @@ BX.UI.ActionPanel.Item.prototype =
 		}
 		else
 		{
-			if(BX.type.isString(this.onclick))
-			{
-				eval(this.onclick);
-			}
-			else if (BX.type.isFunction(this.onclick))
+			if (BX.type.isFunction(this.onclick))
 			{
 				this.onclick.call(this, event, this);
 			}

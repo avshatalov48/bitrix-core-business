@@ -20,9 +20,9 @@ ClearVars();
 $errorMessage = "";
 $bVarsFromForm = false;
 
-$ID = IntVal($ID);
+$ID = intval($ID);
 
-if ($_SERVER['REQUEST_METHOD']=="POST" && strlen($Update)>0 && $saleModulePermissions>="U" && check_bitrix_sessid())
+if ($_SERVER['REQUEST_METHOD']=="POST" && $Update <> '' && $saleModulePermissions>="U" && check_bitrix_sessid())
 {
 	$adminSidePanelHelper->decodeUriComponent();
 
@@ -31,12 +31,12 @@ if ($_SERVER['REQUEST_METHOD']=="POST" && strlen($Update)>0 && $saleModulePermis
 		if ($saleModulePermissions < "W")
 			$errorMessage .= GetMessage("SAE_NO_PERMS2ADD").".<br>";
 
-		$USER_ID = IntVal($USER_ID);
+		$USER_ID = intval($USER_ID);
 		if ($USER_ID <= 0)
 			$errorMessage .= GetMessage("SAE_EMPTY_USER").".<br>";
 
 		$CURRENCY = Trim($CURRENCY);
-		if (strlen($CURRENCY) <= 0)
+		if ($CURRENCY == '')
 			$errorMessage .= GetMessage("SAE_EMPTY_CURRENCY").".<br>";
 
 		if ($errorMessage == '')
@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD']=="POST" && strlen($Update)>0 && $saleModulePermis
 					$arFilter,
 					array()
 				);
-			if (IntVal($num) > 0)
+			if (intval($num) > 0)
 				$errorMessage .= str_replace("#USER#", $USER_ID, str_replace("#CURRENCY#", $CURRENCY, GetMessage("SAE_ALREADY_EXISTS"))).".<br>";
 		}
 
@@ -129,11 +129,11 @@ if ($_SERVER['REQUEST_METHOD']=="POST" && strlen($Update)>0 && $saleModulePermis
 
 	if ($errorMessage == '')
 	{
-		$ID = IntVal($arUserAccount["ID"]);
+		$ID = intval($arUserAccount["ID"]);
 
 		$arFields = array(
 				"=TIMESTAMP_X" => $DB->GetNowFunction(),
-				"NOTES" => ((strlen($NOTES) > 0) ? $NOTES : False)
+				"NOTES" => (($NOTES <> '') ? $NOTES : False)
 			);
 		if (!CSaleUserAccount::Update($ID, $arFields))
 		{
@@ -147,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD']=="POST" && strlen($Update)>0 && $saleModulePermis
 	if ($errorMessage == '')
 	{
 		$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $ID));
-		if (strlen($apply) <= 0)
+		if ($apply == '')
 		{
 			$adminSidePanelHelper->localRedirect($listUrl);
 			LocalRedirect($listUrl);

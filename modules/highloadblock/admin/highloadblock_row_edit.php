@@ -148,7 +148,7 @@ if ($is_update_form && $action === 'delete' && $canDelete && check_bitrix_sessid
 }
 
 // save action
-if ((strlen($save)>0 || strlen($apply)>0) && $_SERVER['REQUEST_METHOD'] =='POST' && $canEdit && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $_SERVER['REQUEST_METHOD'] =='POST' && $canEdit && check_bitrix_sessid())
 {
 	$data = array();
 
@@ -168,7 +168,7 @@ if ((strlen($save)>0 || strlen($apply)>0) && $_SERVER['REQUEST_METHOD'] =='POST'
 
 	if($result->isSuccess())
 	{
-		if (strlen($save)>0)
+		if ($save <> '')
 		{
 			LocalRedirect('highloadblock_rows_list.php?ENTITY_ID='.$hlblock['ID'].'&lang='.LANGUAGE_ID);
 		}
@@ -284,7 +284,7 @@ $tabControl->BeginEpilogContent();
 <?$tabControl->EndEpilogContent();?>
 
 	<? $tabControl->Begin(array(
-		'FORM_ACTION' => $APPLICATION->GetCurPage().'?ENTITY_ID='.$hlblock['ID'].'&ID='.IntVal($ID).'&lang='.LANG
+		'FORM_ACTION' => $APPLICATION->GetCurPage().'?ENTITY_ID='.$hlblock['ID'].'&ID='.intval($ID).'&lang='.LANG
 	));?>
 
 	<? $tabControl->BeginNextFormTab(); ?>

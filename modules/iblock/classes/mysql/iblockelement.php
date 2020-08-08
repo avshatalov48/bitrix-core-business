@@ -146,10 +146,10 @@ class CIBlockElement extends CAllIBlockElement
 		{
 			foreach ($arFilter as $key => $val)
 			{
-				if (strlen($val) <= 0 || $val == "NOT_REF")
+				if ($val == '' || $val == "NOT_REF")
 					continue;
 				$val = $DB->ForSql($val);
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 				case "ID":
@@ -224,7 +224,7 @@ class CIBlockElement extends CAllIBlockElement
 			".$strSqlOrder."
 		";
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = (strlen($strSqlSearch)>0);
+		$is_filtered = ($strSqlSearch <> '');
 		return $res;
 	}
 
@@ -524,12 +524,12 @@ class CIBlockElement extends CAllIBlockElement
 				$this->arFilterIBlocks[$db_prop["IBLOCK_ID"]] = $db_prop["IBLOCK_ID"];
 		}
 
-		if(strlen($arJoinProps["BES"]))
+		if($arJoinProps["BES"] <> '')
 		{
 			$sFrom .= "\t\t\t".$arJoinProps["BES"]."\n";
 		}
 
-		if(strlen($arJoinProps["FC"]))
+		if($arJoinProps["FC"] <> '')
 		{
 			$sFrom .= "\t\t\t".$arJoinProps["FC"]."\n";
 			$this->bDistinct = $this->bDistinct || (isset($arJoinProps["FC_DISTINCT"]) && $arJoinProps["FC_DISTINCT"] == "Y");
@@ -604,19 +604,23 @@ class CIBlockElement extends CAllIBlockElement
 		$sOrderBy = "";
 		foreach($arSqlOrder as $i=>$val)
 		{
-			if(strlen($val))
+			if($val <> '')
 			{
-				if($sOrderBy=="")
+				if($sOrderBy == "")
+				{
 					$sOrderBy = " ORDER BY ";
+				}
 				else
+				{
 					$sOrderBy .= ",";
+				}
 
 				$sOrderBy .= $val." ";
 			}
 		}
 
 		$sSelect = trim($sSelect, ", \t\n\r");
-		if(strlen($sSelect) <= 0)
+		if($sSelect == '')
 			$sSelect = "0 as NOP ";
 
 		$this->bDistinct = $this->bDistinct || (isset($arFilter["INCLUDE_SUBSECTIONS"]) && $arFilter["INCLUDE_SUBSECTIONS"] == "Y");
@@ -694,7 +698,7 @@ class CIBlockElement extends CAllIBlockElement
 				$nElementID > 0
 				&& $el->sGroupBy == ""
 				&& $el->sOrderBy != ""
-				&& strpos($el->sSelect, "BE.ID") !== false
+				&& mb_strpos($el->sSelect, "BE.ID") !== false
 				&& !$el->bCatalogSort
 			)
 			{
@@ -888,9 +892,9 @@ class CIBlockElement extends CAllIBlockElement
 			while($arProp = $props->Fetch())
 			{
 				$pr_val_id = $arProp['PROPERTY_VALUE_ID'];
-				if($arProp['PROPERTY_TYPE']=='F' && strlen($pr_val_id)>0)
+				if($arProp['PROPERTY_TYPE']=='F' && $pr_val_id <> '')
 				{
-					if(strlen($arProp["CODE"]) > 0 && is_set($arFieldProps, $arProp["CODE"]))
+					if($arProp["CODE"] <> '' && is_set($arFieldProps, $arProp["CODE"]))
 						$pr_id = $arProp["CODE"];
 					else
 						$pr_id = $arProp['ID'];
@@ -903,9 +907,9 @@ class CIBlockElement extends CAllIBlockElement
 					{
 						$new_value = $arFieldProps[$pr_id][$pr_val_id];
 						if(
-							strlen($new_value['name']) <= 0
+							$new_value['name'] == ''
 							&& $new_value['del'] != "Y"
-							&& strlen($new_value['VALUE']['name']) <= 0
+							&& $new_value['VALUE']['name'] == ''
 							&& $new_value['VALUE']['del'] != "Y"
 						)
 						{
@@ -934,10 +938,10 @@ class CIBlockElement extends CAllIBlockElement
 				}
 
 				if (
-					strlen($pr_val_id)<=0
+					$pr_val_id == ''
 					|| array_key_exists($arProp["ID"], $bFieldProps)
 					|| (
-						strlen($arProp["CODE"])>0
+						$arProp["CODE"] <> ''
 						&& array_key_exists($arProp["CODE"], $bFieldProps)
 					)
 				)
@@ -1085,7 +1089,7 @@ class CIBlockElement extends CAllIBlockElement
 			)
 			{
 				if(
-					strlen($arFields["PREVIEW_PICTURE"]["tmp_name"]) > 0
+					$arFields["PREVIEW_PICTURE"]["tmp_name"] <> ''
 					&& (
 						$arFields["PREVIEW_PICTURE"]["tmp_name"] === $arFields["DETAIL_PICTURE"]["tmp_name"]
 						|| ($arFields["PREVIEW_PICTURE"]["COPY_FILE"] == "Y" && !$arFields["PREVIEW_PICTURE"]["copy"])
@@ -1116,7 +1120,7 @@ class CIBlockElement extends CAllIBlockElement
 			)
 			{
 				if(
-					strlen($arFields["PREVIEW_PICTURE"]["tmp_name"]) > 0
+					$arFields["PREVIEW_PICTURE"]["tmp_name"] <> ''
 					&& (
 						$arFields["PREVIEW_PICTURE"]["tmp_name"] === $arFields["DETAIL_PICTURE"]["tmp_name"]
 						|| ($arFields["PREVIEW_PICTURE"]["COPY_FILE"] == "Y" && !$arFields["PREVIEW_PICTURE"]["copy"])
@@ -1169,7 +1173,7 @@ class CIBlockElement extends CAllIBlockElement
 			)
 			{
 				if(
-					strlen($arFields["DETAIL_PICTURE"]["tmp_name"]) > 0
+					$arFields["DETAIL_PICTURE"]["tmp_name"] <> ''
 					&& (
 						$arFields["DETAIL_PICTURE"]["tmp_name"] === $arFields["PREVIEW_PICTURE"]["tmp_name"]
 						|| ($arFields["DETAIL_PICTURE"]["COPY_FILE"] == "Y" && !$arFields["DETAIL_PICTURE"]["copy"])
@@ -1200,7 +1204,7 @@ class CIBlockElement extends CAllIBlockElement
 			)
 			{
 				if(
-					strlen($arFields["DETAIL_PICTURE"]["tmp_name"]) > 0
+					$arFields["DETAIL_PICTURE"]["tmp_name"] <> ''
 					&& (
 						$arFields["DETAIL_PICTURE"]["tmp_name"] === $arFields["PREVIEW_PICTURE"]["tmp_name"]
 						|| ($arFields["DETAIL_PICTURE"]["COPY_FILE"] == "Y" && !$arFields["DETAIL_PICTURE"]["copy"])
@@ -1230,8 +1234,8 @@ class CIBlockElement extends CAllIBlockElement
 		if(isset($arFields["PREVIEW_PICTURE"]) && is_array($arFields["PREVIEW_PICTURE"]))
 		{
 			if(
-				strlen($arFields["PREVIEW_PICTURE"]["name"])<=0
-				&& strlen($arFields["PREVIEW_PICTURE"]["del"])<=0
+				$arFields["PREVIEW_PICTURE"]["name"] == ''
+				&& $arFields["PREVIEW_PICTURE"]["del"] == ''
 				&& !is_set($arFields["PREVIEW_PICTURE"], "description")
 			)
 			{
@@ -1253,8 +1257,8 @@ class CIBlockElement extends CAllIBlockElement
 		if(isset($arFields["DETAIL_PICTURE"]) && is_array($arFields["DETAIL_PICTURE"]))
 		{
 			if(
-				strlen($arFields["DETAIL_PICTURE"]["name"])<=0
-				&& strlen($arFields["DETAIL_PICTURE"]["del"])<=0
+				$arFields["DETAIL_PICTURE"]["name"] == ''
+				&& $arFields["DETAIL_PICTURE"]["del"] == ''
 				&& !is_set($arFields["DETAIL_PICTURE"], "description")
 			)
 			{
@@ -1305,7 +1309,7 @@ class CIBlockElement extends CAllIBlockElement
 
 		$arFields["IBLOCK_ID"] = $ar_element["IBLOCK_ID"];
 
-		if(!$this->CheckFields($arFields, $ID, $bCheckDiskQuota) || strlen($strWarning))
+		if(!$this->CheckFields($arFields, $ID, $bCheckDiskQuota) || mb_strlen($strWarning))
 		{
 			$this->LAST_ERROR .= $strWarning;
 			$Result = false;
@@ -1343,8 +1347,8 @@ class CIBlockElement extends CAllIBlockElement
 					if(is_array($arFields["PREVIEW_PICTURE"]))
 					{
 						if(
-							strlen($arFields["PREVIEW_PICTURE"]["name"])<=0
-							&& strlen($arFields["PREVIEW_PICTURE"]["del"])<=0
+							$arFields["PREVIEW_PICTURE"]["name"] == ''
+							&& $arFields["PREVIEW_PICTURE"]["del"] == ''
 						)
 						{
 							if(array_key_exists("description", $arFields["PREVIEW_PICTURE"]))
@@ -1384,8 +1388,8 @@ class CIBlockElement extends CAllIBlockElement
 					if(is_array($arFields["DETAIL_PICTURE"]))
 					{
 						if(
-							strlen($arFields["DETAIL_PICTURE"]["name"])<=0
-							&& strlen($arFields["DETAIL_PICTURE"]["del"])<=0
+							$arFields["DETAIL_PICTURE"]["name"] == ''
+							&& $arFields["DETAIL_PICTURE"]["del"] == ''
 						)
 						{
 							if(array_key_exists("description", $arFields["DETAIL_PICTURE"]))
@@ -1766,7 +1770,7 @@ class CIBlockElement extends CAllIBlockElement
 					if(
 						$property["MULTIPLE"] == "N"
 						&& isset($ar["PROPERTY_".$property_id])
-						&& strlen($ar["PROPERTY_".$property_id])
+						&& mb_strlen($ar["PROPERTY_".$property_id])
 					)
 					{
 						if (!isset($arDBProps[$property_id]))
@@ -1828,7 +1832,7 @@ class CIBlockElement extends CAllIBlockElement
 			}
 			else
 			{
-				if (strlen($prop["CODE"]) > 0 && array_key_exists($prop["CODE"], $PROPERTY_VALUES))
+				if ($prop["CODE"] <> '' && array_key_exists($prop["CODE"], $PROPERTY_VALUES))
 					$PROP = $PROPERTY_VALUES[$prop["CODE"]];
 				else
 					$PROP = $PROPERTY_VALUES[$prop["ID"]];
@@ -2059,7 +2063,7 @@ class CIBlockElement extends CAllIBlockElement
 						else
 							$arWas[$val] = true;
 
-						if (strlen($val) <= 0) //Delete property value
+						if ($val == '') //Delete property value
 						{
 							if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "N")
 							{
@@ -2141,7 +2145,7 @@ class CIBlockElement extends CAllIBlockElement
 					else
 						$arWas[$val] = true;
 
-					if (strlen($val) <= 0)
+					if ($val == '')
 						continue;
 
 					if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "N")
@@ -2168,7 +2172,7 @@ class CIBlockElement extends CAllIBlockElement
 							FROM
 								b_iblock_property P
 							WHERE
-								ID = ".IntVal($prop["ID"])."
+								ID = ".intval($prop["ID"])."
 						");
 					}
 
@@ -2200,10 +2204,14 @@ class CIBlockElement extends CAllIBlockElement
 					foreach (array_reverse($arDBProps[$prop["ID"]], true) as $res)
 					{
 						//Preserve description from database
-						if (strlen($res["DESCRIPTION"]))
+						if($res["DESCRIPTION"] <> '')
+						{
 							$description = $res["DESCRIPTION"];
+						}
 						else
+						{
 							$description = false;
+						}
 
 						if (!array_key_exists($res["ID"], $orderedPROP))
 						{
@@ -2224,8 +2232,8 @@ class CIBlockElement extends CAllIBlockElement
 
 							//Check if no new file and no delete command
 							if (
-								!strlen($val["tmp_name"])
-								&& !strlen($val["del"])
+								!mb_strlen($val["tmp_name"])
+								&& !mb_strlen($val["del"])
 							) //Overwrite with database value
 							{
 								//But save description from incoming value
@@ -2266,7 +2274,7 @@ class CIBlockElement extends CAllIBlockElement
 							$val = $val["VALUE"];
 						}
 
-						if (is_array($val) && strlen($val["del"]))
+						if (is_array($val) && mb_strlen($val["del"]))
 						{
 							unset($orderedPROP[$res["ID"]]);
 							$arFilesToDelete[$res["VALUE"]] = array(
@@ -2375,7 +2383,7 @@ class CIBlockElement extends CAllIBlockElement
 							FROM
 								b_iblock_property P
 							WHERE
-								ID = ".IntVal($prop["ID"])."
+								ID = ".intval($prop["ID"])."
 						");
 					}
 					else
@@ -2392,7 +2400,7 @@ class CIBlockElement extends CAllIBlockElement
 							FROM
 								b_iblock_property P
 							WHERE
-								ID = ".IntVal($prop["ID"])."
+								ID = ".intval($prop["ID"])."
 						");
 					}
 
@@ -2426,7 +2434,7 @@ class CIBlockElement extends CAllIBlockElement
 							$val_desc = false;
 						}
 
-						if (strlen($val) <= 0)
+						if ($val == '')
 						{
 							if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "N")
 							{
@@ -2500,7 +2508,7 @@ class CIBlockElement extends CAllIBlockElement
 						$val_desc = false;
 					}
 
-					if (strlen($val) <= 0)
+					if ($val == '')
 						continue;
 
 					if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "N")
@@ -2530,7 +2538,7 @@ class CIBlockElement extends CAllIBlockElement
 							FROM
 								b_iblock_property P
 							WHERE
-								ID = ".IntVal($prop["ID"])."
+								ID = ".intval($prop["ID"])."
 						");
 					}
 

@@ -91,7 +91,7 @@ if ($arParams["AJAX_CALL"] == "Y")
 	if($calcResult->isNextStep())
 		$result["RESULT"] = "NEXT_STEP";
 
-	if($calcResult->isSuccess() && strlen($calcResult->getDescription()) > 0)
+	if($calcResult->isSuccess() && $calcResult->getDescription() <> '')
 		$result["RESULT"] = "NOTE";
 
 	if(intval($calcResult->getPacksCount()) > 0)
@@ -101,7 +101,7 @@ if ($arParams["AJAX_CALL"] == "Y")
 	{
 		$result["VALUE_FORMATTED"] = CurrencyFormat($calcResult->getPrice(), $arParams["CURRENCY"]);
 	}
-	elseif ($calcResult->isNextStep()  && strlen($calcResult->getTmpData()) > 0)
+	elseif ($calcResult->isNextStep()  && $calcResult->getTmpData() <> '')
 	{
 		$result["TEMP"] = CUtil::JSEscape($calcResult->getTmpData());
 	}
@@ -127,16 +127,16 @@ else
 			}
 		}
 
-		if(strlen($folderPath) <= 0)
+		if($folderPath == '')
 		{
-			$folderPath = $this->GetPath().'/templates/'.(strlen($componentTemplate) > 0 ? $componentTemplate : '.default');
+			$folderPath = $this->GetPath().'/templates/'.($componentTemplate <> '' ? $componentTemplate : '.default');
 		}
 
 		$APPLICATION->AddHeadScript($folderPath.'/proceed.js');
 	}
 	elseif ($arParams["STEP"] == 0)
 	{
-		$arResult["PATH"] = $this->GetPath().'/templates/'.(strlen($componentTemplate) > 0 ? $componentTemplate : '.default').'/';
+		$arResult["PATH"] = $this->GetPath().'/templates/'.($componentTemplate <> '' ? $componentTemplate : '.default').'/';
 	}
 }
 

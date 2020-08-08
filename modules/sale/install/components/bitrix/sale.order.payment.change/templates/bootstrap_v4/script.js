@@ -11,6 +11,7 @@ BX.Sale.OrderPaymentChange = (function()
 		this.onlyInnerFull = params.onlyInnerFull || "";
 		this.templateName = params.templateName || "";
 		this.pathToPayment = params.pathToPayment || "";
+		this.returnUrl = params.returnUrl || "";
 		this.refreshPrices = params.refreshPrices || "N";
 		this.inner = params.inner || "";
 		this.templateFolder = params.templateFolder;
@@ -18,7 +19,7 @@ BX.Sale.OrderPaymentChange = (function()
 
 		BX.ready(BX.proxy(this.init, this));
 	};
-	
+
 	classDescription.prototype.init = function()
 	{
 		var listPaySystems = this.wrapper.getElementsByClassName('sale-order-payment-change-pp-list')[0];
@@ -58,7 +59,8 @@ BX.Sale.OrderPaymentChange = (function()
 						inner: this.inner,
 						refreshPrices: this.refreshPrices,
 						onlyInnerFull: this.onlyInnerFull,
-						pathToPayment: this.pathToPayment
+						pathToPayment: this.pathToPayment,
+						returnUrl: this.returnUrl,
 					},
 					onsuccess: BX.proxy(function(result)
 					{
@@ -90,7 +92,7 @@ BX.Sale.OrderPaymentChange = (function()
 
 BX.Sale.OrderInnerPayment = (function()
 {
-	var paymentDescription = function(params) 
+	var paymentDescription = function(params)
 	{
 		this.ajaxUrl = params.url;
 		this.accountNumber = params.accountNumber || {};
@@ -152,7 +154,8 @@ BX.Sale.OrderInnerPayment = (function()
 							paymentNumber: this.paymentNumber,
 							inner: "Y",
 							onlyInnerFull: this.onlyInnerFull,
-							paymentSum :this.inputElement.value
+							paymentSum: this.inputElement.value,
+							returnUrl: this.returnUrl,
 						},
 						onsuccess: BX.proxy(function(result)
 						{
@@ -171,6 +174,6 @@ BX.Sale.OrderInnerPayment = (function()
 			}, this)
 		);
 	};
-	
+
 	return paymentDescription;
 })();

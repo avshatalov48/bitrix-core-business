@@ -3,9 +3,9 @@
 	<input type="submit" name="Add" value="<?echo GetMessage("STPCL_NEW")?>">
 	<input type="hidden" name="ID" value="new">
 </form>
-<?if(strlen($arResult["ERROR_MESSAGE"])>0)
+<?if($arResult["ERROR_MESSAGE"] <> '')
 	ShowError($arResult["ERROR_MESSAGE"]);?>
-<?if(strlen($arResult["NAV_STRING"]) > 0):?>
+<?if($arResult["NAV_STRING"] <> ''):?>
 	<p><?=$arResult["NAV_STRING"]?></p>
 <?endif?>
 <table class="sale_personal_cc_list data-table">
@@ -31,6 +31,6 @@
 		</tr>
 	<?endforeach;?>
 </table>
-<?if(strlen($arResult["NAV_STRING"]) > 0):?>
+<?if($arResult["NAV_STRING"] <> ''):?>
 	<p><?=$arResult["NAV_STRING"]?></p>
 <?endif?>

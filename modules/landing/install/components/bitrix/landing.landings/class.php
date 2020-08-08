@@ -29,24 +29,79 @@ class LandingLandingsComponent extends LandingBaseComponent
 	 */
 	protected function actionCopy($id, $additional = array())
 	{
-		$res = \Bitrix\Landing\PublicAction\Landing::copy(
-			$id,
-			isset($additional['siteId']) ? $additional['siteId'] : null,
-			isset($additional['folderId']) ? $additional['folderId'] : null
+		$siteId = isset($additional['siteId'])
+					? $additional['siteId'] : null;
+		$folderId = isset($additional['folderId'])
+					? $additional['folderId'] : null;
+		if(mb_strpos($siteId, '_'))
+		{
+			[$siteId, $folderId] = explode('_', $siteId);
+		}
+
+		$landing = Landing::createInstance($id);
+		if ($landing->exist())
+		{
+			$landing->copy($siteId, $folderId);
+		}
+		$this->setErrors(
+			$landing->getError()->getErrors()
 		);
 
-		if ($res->getError()->isEmpty())
+		return $landing->getError()->isEmpty();
+	}
+
+	/**
+	 * Move some landing.
+	 * @param int $id Landing id.
+	 * @param array $additional Additional params.
+	 * @return boolean
+	 */
+	protected function actionMove($id, $additional = array())
+	{
+		$siteId = isset($additional['siteId'])
+				? $additional['siteId'] : null;
+		$folderId = isset($additional['folderId'])
+				? $additional['folderId'] : null;
+		if(mb_strpos($siteId, '_'))
 		{
-			return true;
-		}
-		else
-		{
-			$this->setErrors(
-				$res->getError()->getErrors()
-			);
+			[$siteId, $folderId] = explode('_', $siteId);
 		}
 
-		return false;
+		if (!$siteId)
+		{
+			$this->addError('ACCESS_DENIED');
+			return false;
+		}
+
+		$landing = Landing::createInstance($id);
+		if ($landing->exist())
+		{
+			$rightsSite = Rights::getOperationsForSite(
+				$siteId
+			);
+			if (!in_array(Rights::ACCESS_TYPES['edit'], $rightsSite))
+			{
+				$this->addError('ACCESS_DENIED');
+				return false;
+			}
+			if (!$landing->canDelete())
+			{
+				$this->addError('ACCESS_DENIED');
+				return false;
+			}
+			Landing::update($id, [
+				'ACTIVE' => 'N',
+				'PUBLIC' => 'N',
+				'CODE' => $landing->getCode(),
+				'SITE_ID' => $siteId,
+				'FOLDER_ID' => $folderId
+			]);
+		}
+		$this->setErrors(
+			$landing->getError()->getErrors()
+		);
+
+		return $landing->getError()->isEmpty();
 	}
 
 	/**
@@ -175,6 +230,61 @@ class LandingLandingsComponent extends LandingBaseComponent
 	}
 
 	/**
+	 * Returns sites and folders array.
+	 * @param array $sites Sites array.
+	 * @return array
+	 */
+	protected function getTreeForCopy(array $sites): array
+	{
+		$tree = [];
+		$folders = [];
+
+		// get folders of sites
+		$res = Landing::getList([
+			'select' => [
+				'ID', 'SITE_ID', 'TITLE'
+			],
+			'filter' => [
+				'SITE_ID' => array_keys($sites),
+				'=FOLDER' => 'Y'
+			]
+		]);
+		while ($row = $res->fetch())
+		{
+			if (!isset($folders[$row['SITE_ID']]))
+			{
+				$folders[$row['SITE_ID']] = [];
+			}
+			$folders[$row['SITE_ID']][$row['ID']] = $row['TITLE'];;
+		}
+
+		// fill tree with sites and folders
+		foreach ($sites as $site)
+		{
+			$tree[] = [
+				'TITLE' => $site['TITLE'],
+				'SITE_ID' => $site['ID'],
+				'FOLDER_ID' => 0,
+				'DEPTH' => 0
+			];
+			if (isset($folders[$site['ID']]))
+			{
+				foreach ($folders[$site['ID']] as $folderId => $folderTitle)
+				{
+					$tree[] = [
+						'TITLE' => $folderTitle,
+						'SITE_ID' => $site['ID'],
+						'FOLDER_ID' => $folderId,
+						'DEPTH' => 1
+					];
+				}
+			}
+		}
+
+		return $tree;
+	}
+
+	/**
 	 * Base executable method.
 	 * @return void
 	 */
@@ -197,6 +307,8 @@ class LandingLandingsComponent extends LandingBaseComponent
 			$this->checkParam('PAGE_URL_LANDING_VIEW', '');
 			$this->checkParam('DRAFT_MODE', 'N');
 			$this->checkParam('~AGREEMENT', []);
+
+			\Bitrix\Landing\Hook::setEditMode(true);
 
 			\Bitrix\Landing\Site\Type::setScope(
 				$this->arParams['TYPE']
@@ -238,13 +350,19 @@ class LandingLandingsComponent extends LandingBaseComponent
 
 			$this->arResult['IS_DELETED'] = LandingFilterComponent::isDeleted();
 			$this->arResult['SITES'] = $sites = $this->getSites();
+			$this->arResult['TREE'] = $this->getTreeForCopy(array_reverse($sites, true));
 			$this->arResult['IS_INTRANET'] = $this->isIntranet();
 
 			// types mismatch
+			$availableType = [$this->arParams['TYPE']];
+			if ($this->arParams['TYPE'] == 'STORE')
+			{
+				$availableType[] = 'SMN';
+			}
 			if (
 				!isset($sites[$siteId]) ||
 				$sites[$siteId]['SPECIAL'] == 'Y' ||
-				$sites[$siteId]['TYPE'] != $this->arParams['TYPE']
+				!in_array($sites[$siteId]['TYPE'], $availableType)
 			)
 			{
 				\localRedirect($this->getRealFile());

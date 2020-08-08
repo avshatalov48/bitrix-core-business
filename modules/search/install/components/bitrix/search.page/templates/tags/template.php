@@ -46,7 +46,7 @@ if(is_array($arCloudParams["arrFILTER"]))
 		{
 			$arCloudParams["arrFILTER_forum"] = $arParams["arrFILTER_forum"];
 		}
-		elseif(strpos($strFILTER,"iblock_")===0)
+		elseif(mb_strpos($strFILTER, "iblock_") === 0)
 		{
 			if (isset($arParams["arrFILTER_".$strFILTER]) && is_array($arParams["arrFILTER_".$strFILTER]))
 			{
@@ -71,7 +71,7 @@ $APPLICATION->IncludeComponent("bitrix:search.tags.cloud", ".default", $arCloudP
 <form action="" method="get">
 	<input type="hidden" name="tags" value="<?echo $arResult["REQUEST"]["TAGS"]?>" />
 <?if($arParams["USE_SUGGEST"] === "Y"):
-	if(strlen($arResult["REQUEST"]["~QUERY"]) && is_object($arResult["NAV_RESULT"]))
+	if(mb_strlen($arResult["REQUEST"]["~QUERY"]) && is_object($arResult["NAV_RESULT"]))
 	{
 		$arResult["FILTER_MD5"] = $arResult["NAV_RESULT"]->GetFilterMD5();
 		$obSearchSuggest = new CSearchSuggest($arResult["FILTER_MD5"], $arResult["REQUEST"]["~QUERY"]);
@@ -200,7 +200,7 @@ endif;?>
 		<p><?echo $arItem["BODY_FORMATED"]?></p>
 		<?if (
 			$arParams["SHOW_RATING"] == "Y"
-			&& strlen($arItem["RATING_TYPE_ID"]) > 0
+			&& $arItem["RATING_TYPE_ID"] <> ''
 			&& $arItem["RATING_ENTITY_ID"] > 0
 		):?>
 			<div class="search-item-rate"><?

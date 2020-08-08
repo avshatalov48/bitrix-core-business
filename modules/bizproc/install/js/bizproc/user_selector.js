@@ -68,6 +68,15 @@
 		return selector;
 	};
 
+	/**
+	 * @param container
+	 * @returns {UserSelector|null}
+	 */
+	UserSelector.getByNode = function(container)
+	{
+		return selectors.get(container);
+	};
+
 	UserSelector.prototype = {
 		prepareNodes: function()
 		{
@@ -346,6 +355,13 @@
 			var tagNode = this.tagNode;
 			var items = this.itemsNode;
 
+			if (!type && item.entityType)
+			{
+				type = item.entityType;
+			}
+
+			var addedResult = false;
+
 			if (!BX.findChild(items, { attr : { 'data-id' : item.id }}, false, false))
 			{
 				if (me.selectOne && me.inited)
@@ -372,6 +388,7 @@
 
 				var container = this.createItemNode({
 					text: item.name,
+					className: type === 'bpuserroles' ? 'bizproc-type-control-user-item-head' : '',
 					deleteEvents: {
 						click: function(e) {
 							if (me.selectOne && me.required)
@@ -402,9 +419,25 @@
 				{
 					item.entityType = type;
 				}
+
+				addedResult = true;
 			}
 			destinationInput.value = '';
 			tagNode.innerHTML = BX.message('BIZPROC_JS_USER_SELECTOR_EDIT');
+
+			return addedResult;
+		},
+		toggleItem: function(item, type)
+		{
+			if (!this.addItem(item, type))
+			{
+				this.unsetValue(item, type);
+				var element = BX.findChild(this.itemsNode, { attr : { 'data-id' : item.id }}, false, false);
+				if (element)
+				{
+					BX.remove(element);
+				}
+			}
 		},
 		addItems: function(items)
 		{
@@ -436,7 +469,7 @@
 		{
 			return BX.create('span', {
 				attrs: {
-					className: 'bizproc-type-control-user-item'
+					className: 'bizproc-type-control-user-item ' + options.className
 				},
 				children: [
 					BX.create('span', {
@@ -529,6 +562,14 @@
 				}
 				this.valueNode.value = newVal.join(',');
 			}
+
+			if (this.selected && this.selected.length)
+			{
+				this.selected = this.selected.filter(function(item)
+				{
+					return (item.id !== id);
+				});
+			}
 		},
 		getValueId: function(item, type)
 		{
@@ -569,6 +610,11 @@
 					id = matches[2] + entityId;
 					entityType = (matches[2] === '') ? 'users' : 'bpuserroles';
 
+					if (entityType === 'users' && id[0] !== 'U')
+					{
+						id = 'U' + id;
+					}
+
 					if (matches[2] === 'DR')
 					{
 						entityType = 'department';
@@ -591,9 +637,9 @@
 						items.push(this.roles[pair]);
 					}
 
-					if (!found && this.config.groups)
+					if (!found && this.getGroups().length)
 					{
-						this.config.groups.forEach(function(group)
+						this.getGroups().forEach(function(group)
 						{
 							if (pair === group['name'])
 							{
@@ -644,9 +690,9 @@
 			var fields = BX.Bizproc.FieldType.getDocumentFields();
 			var roles = {};
 
-			if (this.config.groups)
+			if (this.getGroups().length)
 			{
-				this.config.groups.forEach(function(group)
+				this.getGroups().forEach(function(group)
 				{
 					roles[group['id']] = {
 						id: group['id'],
@@ -677,6 +723,13 @@
 			});
 
 			this.roles = roles;
+		},
+		/**
+		 * @returns {[]}
+		 */
+		getGroups: function()
+		{
+			return this.config.groups ||  BX.Bizproc.FieldType.getDocumentUserGroups();
 		}
 	};
 

@@ -34,7 +34,7 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent
 		if ($this->prepareMobileData)
 		{
 			$url = SITE_DIR."mobile/log/index.php";
-			$url .= (strpos($url, "?") === false ? "?" : "&").
+			$url .= (mb_strpos($url, "?") === false ? "?" : "&").
 				http_build_query(array(
 					"detail_log_id" => $this->arParams["LOG_ID"],
 					"comment_post_id" => $this->arParams["ID"]

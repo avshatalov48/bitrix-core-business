@@ -1,7 +1,7 @@
 <?
 IncludeModuleLangFile(__FILE__);
 
-class CCloudStorageService_Yandex extends CCloudStorageService_AmazonS3
+class CCloudStorageService_Yandex extends CCloudStorageService_S3
 {
 	protected $set_headers =/*.(array[string]string).*/array();
 	protected $new_end_point = '';
@@ -12,7 +12,7 @@ class CCloudStorageService_Yandex extends CCloudStorageService_AmazonS3
 	*/
 	function GetObject()
 	{
-		return new CCloudStorageService_HotBox();
+		return new CCloudStorageService_Yandex();
 	}
 	/**
 	 * @return string
@@ -58,18 +58,69 @@ class CCloudStorageService_Yandex extends CCloudStorageService_AmazonS3
 
 		$result = '
 		<tr id="SETTINGS_0_'.$htmlID.'" style="display:'.($cur_SERVICE_ID === $this->GetID() || !$bServiceSet? '': 'none').'" class="settings-tr adm-detail-required-field">
-			<td>'.GetMessage("CLO_STORAGE_S3_EDIT_ACCESS_KEY").':</td>
+			<td>'.GetMessage("CLO_STORAGE_YANDEX_EDIT_ACCESS_KEY").':</td>
 			<td><input type="hidden" name="SETTINGS['.$htmlID.'][ACCESS_KEY]" id="'.$htmlID.'ACCESS_KEY" value="'.htmlspecialcharsbx($arSettings['ACCESS_KEY']).'"><input type="text" size="55" name="'.$htmlID.'INP_ACCESS_KEY" id="'.$htmlID.'INP_ACCESS_KEY" value="'.htmlspecialcharsbx($arSettings['ACCESS_KEY']).'" '.($arBucket['READ_ONLY'] === 'Y'? '"disabled"': '').' onchange="BX(\''.$htmlID.'ACCESS_KEY\').value = this.value"></td>
 		</tr>
 		<tr id="SETTINGS_1_'.$htmlID.'" style="display:'.($cur_SERVICE_ID === $this->GetID() || !$bServiceSet? '': 'none').'" class="settings-tr adm-detail-required-field">
-			<td>'.GetMessage("CLO_STORAGE_S3_EDIT_SECRET_KEY").':</td>
+			<td>'.GetMessage("CLO_STORAGE_YANDEX_EDIT_SECRET_KEY").':</td>
 			<td><input type="hidden" name="SETTINGS['.$htmlID.'][SECRET_KEY]" id="'.$htmlID.'SECRET_KEY" value="'.htmlspecialcharsbx($arSettings['SECRET_KEY']).'"><input type="text" size="55" name="'.$htmlID.'INP_SECRET_KEY" id="'.$htmlID.'INP_SECRET_KEY" value="'.htmlspecialcharsbx($arSettings['SECRET_KEY']).'" autocomplete="off" '.($arBucket['READ_ONLY'] === 'Y'? '"disabled"': '').' onchange="BX(\''.$htmlID.'SECRET_KEY\').value = this.value"></td>
 		</tr>
 		';
 		return $result;
 	}
+	/**
+	 * @param array[string]string $arBucket
+	 * @param array[string]string & $arSettings
+	 * @return bool
+	*/
+	function CheckSettings($arBucket, &$arSettings)
+	{
+		global $APPLICATION;
+		$aMsg =/*.(array[int][string]string).*/array();
 
-	protected function GetRequestHost($bucket)
+		$result = array(
+			"ACCESS_KEY" => is_array($arSettings)? trim($arSettings["ACCESS_KEY"]): '',
+			"SECRET_KEY" => is_array($arSettings)? trim($arSettings["SECRET_KEY"]): '',
+		);
+		if(is_array($arSettings) && array_key_exists("SESSION_TOKEN", $arSettings))
+		{
+			$result["SESSION_TOKEN"] = trim($arSettings["SESSION_TOKEN"]);
+		}
+
+		if($arBucket["READ_ONLY"] !== "Y" && $result["ACCESS_KEY"] === '')
+		{
+			$aMsg[] = array(
+				"id" => $this->GetID()."INP_ACCESS_KEY",
+				"text" => GetMessage("CLO_STORAGE_YANDEX_EMPTY_ACCESS_KEY"),
+			);
+		}
+
+		if($arBucket["READ_ONLY"] !== "Y" && $result["SECRET_KEY"] === '')
+		{
+			$aMsg[] = array(
+				"id" => $this->GetID()."INP_SECRET_KEY",
+				"text" => GetMessage("CLO_STORAGE_YANDEX_EMPTY_SECRET_KEY"),
+			);
+		}
+
+		if(!empty($aMsg))
+		{
+			$e = new CAdminException($aMsg);
+			$APPLICATION->ThrowException($e);
+			return false;
+		}
+		else
+		{
+			$arSettings = $result;
+		}
+
+		return true;
+	}
+	/**
+	 * @param string $bucket
+	 * @return string
+	 **/
+	protected function GetRequestHost($bucket, $arSettings)
 	{
 		if(
 			$this->new_end_point != ""
@@ -115,7 +166,7 @@ class CCloudStorageService_Yandex extends CCloudStorageService_AmazonS3
 			$host = $arBucket["CNAME"];
 			$pref = "";
 		}
-		elseif ($proto === "https" && strpos($arBucket["BUCKET"], ".") !== false)
+		elseif ($proto === "https" && mb_strpos($arBucket["BUCKET"], ".") !== false)
 		{
 			$host = "storage.yandexcloud.net";
 			$pref = $arBucket["BUCKET"];
@@ -133,7 +184,7 @@ class CCloudStorageService_Yandex extends CCloudStorageService_AmazonS3
 
 		if ($arBucket["PREFIX"] != "")
 		{
-			if(substr($URI, 0, strlen($arBucket["PREFIX"])+1) !== $arBucket["PREFIX"]."/")
+			if(mb_substr($URI, 0, mb_strlen($arBucket["PREFIX"]) + 1) !== $arBucket["PREFIX"]."/")
 				$URI = $arBucket["PREFIX"]."/".$URI;
 		}
 

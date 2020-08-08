@@ -42,6 +42,7 @@ create table if not exists b_landing_block
     PARENT_ID int(18) default null,
     LID int(18) not null,
     CODE varchar(255) not null,
+    XML_ID varchar(255) default null,
     INITIATOR_APP_CODE varchar(255) not null,
     ANCHOR varchar(255) null,
     SORT int(18) default 500,
@@ -52,6 +53,7 @@ create table if not exists b_landing_block
     SOURCE_PARAMS mediumtext default null,
     CONTENT mediumtext not null,
     SEARCH_CONTENT mediumtext default null,
+    ASSETS text default null,
     CREATED_BY_ID int(18) not null,
     MODIFIED_BY_ID int(18) not null,
     DATE_CREATE timestamp null,
@@ -75,6 +77,7 @@ create table if not exists b_landing_site
     DESCRIPTION varchar(255) default null,
     TYPE varchar(50) not null default 'PAGE',
     TPL_ID int(18),
+    TPL_CODE varchar(255) default null,
     DOMAIN_ID int(18) not null,
     SMN_SITE_ID char(2) default null,
     LANDING_ID_INDEX int(18) default null,
@@ -101,6 +104,7 @@ create table if not exists b_landing_domain
     DOMAIN varchar(255) not null,
     XML_ID varchar(255) default null,
     PROTOCOL varchar(10) not null,
+    PROVIDER varchar(50) default null,
     CREATED_BY_ID int(18) not null,
     MODIFIED_BY_ID int(18) not null,
     DATE_CREATE timestamp null,
@@ -108,6 +112,7 @@ create table if not exists b_landing_domain
     PRIMARY KEY(ID),
     INDEX IX_B_DOMAIN_ACTIVE (ACTIVE),
     INDEX IX_B_DOMAIN_DOMAIN (DOMAIN),
+    INDEX IX_B_DOMAIN_PROVIDER (PROVIDER),
     INDEX IX_B_DOMAIN_XML_ID (XML_ID)
 );
 
@@ -342,4 +347,29 @@ create table if not exists b_landing_binding
     INDEX IX_B_BINDING (BINDING_ID, BINDING_TYPE),
     INDEX IX_B_ENTITY (ENTITY_ID, ENTITY_TYPE),
     INDEX IX_B_BINDING_TYPE (BINDING_TYPE)
+);
+
+create table if not exists b_landing_chat
+(
+    ID int(18) not null auto_increment,
+    CHAT_ID int(18) not null,
+    TITLE varchar(255) not null,
+    AVATAR int(18) default null,
+    CREATED_BY_ID int(18) not null,
+	MODIFIED_BY_ID int(18) not null,
+	DATE_CREATE timestamp null,
+	DATE_MODIFY timestamp not null,
+    PRIMARY KEY(ID),
+    INDEX IX_B_CHAT (CHAT_ID)
+);
+
+create table if not exists b_landing_chat_binding
+(
+    ID int(18) not null auto_increment,
+    INTERNAL_CHAT_ID int(18) not null,
+    ENTITY_ID int(18) not null,
+    ENTITY_TYPE char(1) not null,
+    PRIMARY KEY(ID),
+    INDEX IX_B_CHAT (INTERNAL_CHAT_ID),
+    INDEX IX_B_ENTITY (ENTITY_ID, ENTITY_TYPE)
 );

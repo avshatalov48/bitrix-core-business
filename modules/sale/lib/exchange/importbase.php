@@ -395,7 +395,7 @@ abstract class ImportBase
 		$result = array();
 		foreach ($rekv as $k=>$v)
 		{
-			if(isset($exportProfile[$k]) && strlen($exportProfile[$k]['NAME'])>0 && strlen($v)>0)
+			if(isset($exportProfile[$k]) && $exportProfile[$k]['NAME'] <> '' && $v <> '')
 			{
 				$result[$exportProfile[$k]['NAME']] = $v;
 			}

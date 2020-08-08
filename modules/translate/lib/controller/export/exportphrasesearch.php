@@ -2,6 +2,7 @@
 namespace Bitrix\Translate\Controller\Export;
 
 use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Translate;
 use Bitrix\Translate\Index;
 
@@ -30,7 +31,9 @@ class ExportPhraseSearch
 	 */
 	public function __construct($name, Main\Engine\Controller $controller, $config = array())
 	{
-		$this->keepField('pathList', 'seekPathId');
+		$this->keepField(['pathList', 'seekPathId']);
+
+		Loc::loadLanguageFile(__DIR__ . '/exportaction.php');
 
 		parent::__construct($name, $controller, $config);
 	}
@@ -74,7 +77,7 @@ class ExportPhraseSearch
 			if ($this->totalItems > 0)
 			{
 				$this->exportFileName = $this->generateExportFileName($path, $this->languages);
-				$this->createExportTempFile();
+				$this->createExportTempFile($this->exportFileName);
 			}
 
 			$this->saveProgressParameters();
@@ -117,11 +120,11 @@ class ExportPhraseSearch
 
 		foreach ($this->languages as $langId)
 		{
-			$select[] = strtoupper($langId). "_LANG";
+			$select[] = mb_strtoupper($langId)."_LANG";
 		}
 		if (!in_array($this->filter['LANGUAGE_ID'], $this->languages))
 		{
-			$select[] = strtoupper($this->filter['LANGUAGE_ID']). "_LANG";
+			$select[] = mb_strtoupper($this->filter['LANGUAGE_ID'])."_LANG";
 		}
 
 		/** @var Main\ORM\Query\Result $cachePathRes */

@@ -212,7 +212,7 @@ class Double extends Base
 	{
 		$value = parent::extractValue($fieldType, $field, $request);
 
-		if ($value !== null && is_string($value) && strlen($value) > 0)
+		if ($value !== null && is_string($value) && $value <> '')
 		{
 			if (\CBPActivity::isExpression($value))
 				return $value;

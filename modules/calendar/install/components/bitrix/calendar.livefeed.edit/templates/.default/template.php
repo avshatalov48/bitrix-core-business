@@ -174,7 +174,7 @@ $APPLICATION->IncludeComponent(
 				"LAZYLOAD" => 'Y',
 				"LIST" => [],
 				"INPUT_NAME" => 'EVENT_DEST_CODES[]',
-				"USE_SYMBOLIC_ID" => "Y",
+				"USE_SYMBOLIC_ID" => true,
 				"BUTTON_SELECT_CAPTION" => \Bitrix\Main\Localization\Loc::getMessage("ECLF_DESTINATION_ADD_USERS"),
 				"BUTTON_SELECT_CAPTION_MORE" => \Bitrix\Main\Localization\Loc::getMessage("ECLF_DESTINATION_ADD_MORE"),
 				"API_VERSION" => 3,
@@ -185,7 +185,9 @@ $APPLICATION->IncludeComponent(
 					'enableSonetgroups' => 'Y',
 					'departmentSelectDisable' => 'N',
 					'showVacations' => 'Y',
-					'enableAll' => 'Y'
+					'enableAll' => 'Y',
+					'allowSearchEmailUsers' => 'Y',
+					'allowEmailInvitation' => 'Y'
 				)
 			]
 		);

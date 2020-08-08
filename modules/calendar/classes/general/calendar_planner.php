@@ -1,15 +1,16 @@
 <?
 class CCalendarPlanner
 {
-	public static function Init($config = array(), $initialParams = false)
+	public static function Init($config = [], $initialParams = false)
 	{
 		self::InitJsCore($config, $initialParams);
 	}
 
-	public static function InitJsCore($config = array(), $initialParams)
+	public static function InitJsCore($config = [], $initialParams)
 	{
 		global $APPLICATION;
-		CUtil::InitJSCore(array('ajax', 'window', 'popup', 'access', 'date', 'viewer', 'socnetlogdest'));
+		\Bitrix\Main\UI\Extension::load(['ajax', 'window', 'popup', 'access', 'date', 'viewer', 'socnetlogdest']);
+		\Bitrix\Main\UI\Extension::load(['calendar.planner']);
 
 		// Config
 		if (!$config['id'])
@@ -23,17 +24,21 @@ class CCalendarPlanner
 		<div id="<?= htmlspecialcharsbx($config['id'])?>" class="calendar-planner-wrapper"></div>
 		<script type="text/javascript">
 			BX.namespace('BX.Calendar');
-			if(typeof BX.Calendar.Planner === 'undefined')
+			if(typeof BX.Calendar.PlannerManager === 'undefined')
 			{
-				BX.Calendar.Planner = {
+				BX.Calendar.PlannerManager = {
 					planners: {},
 					Get: function(id)
 					{
-						return BX.Calendar.Planner.planners[id] || false;
+						return BX.Calendar.PlannerManager.planners[id] || false;
 					},
 					Init: function(id, config, initialParams)
 					{
-						BX.Calendar.Planner.planners[id] = new CalendarPlanner(config, initialParams);
+						if (window.CalendarPlanner)
+						{
+							BX.Calendar.PlannerManager.planners[id] = new window.CalendarPlanner(config, initialParams);
+							//BX.Calendar.PlannerManager.planners[id] = new BX.Calendar.Planner(config, initialParams);
+						}
 					}
 				}
 			}
@@ -41,7 +46,7 @@ class CCalendarPlanner
 			BX.message(<?=CUtil::PhpToJSObject($mess_lang, false);?>);
 			BX.ready(function()
 			{
-				BX.Calendar.Planner.Init(
+				BX.Calendar.PlannerManager.Init(
 					'<?= CUtil::JSEscape($config['id'])?>',
 					<?=\Bitrix\Main\Web\Json::encode($config, false);?>,
 					<?=\Bitrix\Main\Web\Json::encode($initialParams);?>
@@ -51,20 +56,20 @@ class CCalendarPlanner
 		<?
 	}
 
-	public static function prepareData($params = array())
+	public static function prepareData($params = [])
 	{
 		$curEventId = intVal($params['entry_id']);
 		$curUserId = intVal($params['user_id']);
 		$hostUserId = intVal($params['host_id']);
-		$skipEntryList = (isset($params['skipEntryList']) && is_array($params['skipEntryList'])) ? $params['skipEntryList'] : array();
-		$resourceIdList = array();
+		$skipEntryList = (isset($params['skipEntryList']) && is_array($params['skipEntryList'])) ? $params['skipEntryList'] : [];
+		$resourceIdList = [];
 
 		$result = array(
-			'users' => array(),
-			'entries' => array(),
-			'accessibility' => array()
+			'users' => [],
+			'entries' => [],
+			'accessibility' => []
 		);
-		$userIds = array();
+		$userIds = [];
 
 		if (isset($params['codes']) && is_array($params['codes']))
 		{
@@ -81,7 +86,7 @@ class CCalendarPlanner
 				if (!$hostUserId && $curUserId == $user['USER_ID'])
 					$status = 'h';
 
-				$userSettings = CCalendarUserSettings::Get($user['USER_ID']);
+				$userSettings = \Bitrix\Calendar\UserSettings::get($user['USER_ID']);
 				$result['entries'][] = array(
 					'type' => 'user',
 					'id' => $user['USER_ID'],
@@ -113,7 +118,7 @@ class CCalendarPlanner
 					'id' => $resourceId,
 					'name' => $resource['name']
 				);
-				$result['accessibility'][$resourceId] = array();
+				$result['accessibility'][$resourceId] = [];
 			}
 		}
 
@@ -126,16 +131,18 @@ class CCalendarPlanner
 			'to' => $to, // date or datetime in UTC
 			'curEventId' => $curEventId,
 			'getFromHR' => true,
-			'checkPermissions' => true
+			'checkPermissions' => false
 		));
 
-		$result['accessibility'] = array();
+		$result['accessibility'] = [];
 		$deltaOffset = isset($params['timezone']) ? (CCalendar::GetTimezoneOffset($params['timezone']) - CCalendar::GetCurrentOffsetUTC($curUserId)) : 0;
 
 		foreach($accessibility as $userId => $entries)
 		{
-			$result['accessibility'][$userId] = array();
+			if (empty($entries))
+				continue;
 
+			$result['accessibility'][$userId] = [];
 			foreach($entries as $entry)
 			{
 				if (in_array($entry['ID'], $skipEntryList))
@@ -145,35 +152,31 @@ class CCalendarPlanner
 
 				if (isset($entry['DT_FROM']) && !isset($entry['DATE_FROM']))
 				{
-					$result['accessibility'][$userId][] = array(
-						'id' => $entry['ID'],
-						'title' => $entry['NAME'],
-						'dateFrom' => $entry['DT_FROM'],
-						'dateTo' => $entry['DT_TO'],
-						'type' => $entry['FROM_HR'] ? 'hr' : 'event'
-					);
+					$dateFrom = $entry['DT_FROM'];
+					$dateTo = $entry['DT_FROM'];
 				}
 				else
 				{
-					$fromTs = CCalendar::Timestamp($entry['DATE_FROM']);
-					$toTs = CCalendar::Timestamp($entry['DATE_TO']);
+					$dateFrom = $entry['DATE_FROM'];
+					$dateTo = $entry['DATE_TO'];
 
-					if ($entry['DT_SKIP_TIME'] !== "Y")
+					if ($entry['DT_SKIP_TIME'] !== "Y"
+						&&
+						($entry['~USER_OFFSET_FROM'] != $deltaOffset
+							|| $entry['~USER_OFFSET_TO'] != $deltaOffset))
 					{
-						$fromTs -= $entry['~USER_OFFSET_FROM'];
-						$toTs -= $entry['~USER_OFFSET_TO'];
-						$fromTs += $deltaOffset;
-						$toTs += $deltaOffset;
+						$dateFrom = CCalendar::Date(CCalendar::Timestamp($entry['DATE_FROM']) - $entry['~USER_OFFSET_FROM'] + $deltaOffset);
+						$dateTo = CCalendar::Date(CCalendar::Timestamp($entry['DATE_TO']) - $entry['~USER_OFFSET_TO'] + $deltaOffset);
 					}
-
-					$result['accessibility'][$userId][] = array(
-						'id' => $entry['ID'],
-						'title' => $entry['NAME'],
-						'dateFrom' => CCalendar::Date($fromTs, $entry['DT_SKIP_TIME'] != 'Y'),
-						'dateTo' => CCalendar::Date($toTs, $entry['DT_SKIP_TIME'] != 'Y'),
-						'type' => $entry['FROM_HR'] ? 'hr' : 'event'
-					);
 				}
+
+				$result['accessibility'][$userId][] = array(
+					'id' => $entry['ID'],
+					'name' => $entry['NAME'],
+					'dateFrom' => $dateFrom,
+					'dateTo' => $dateTo,
+					'type' => $entry['FROM_HR'] ? 'hr' : 'event'
+				);
 			}
 		}
 
@@ -190,11 +193,11 @@ class CCalendarPlanner
 			if($location['mrid'])
 			{
 				$mrid = 'MR_'.$location['mrid'];
-				$entry = array(
+				$entry = [
 					'type' => 'room',
 					'id' => $mrid,
 					'name' => 'meeting room'
-				);
+				];
 
 				$roomList = CCalendar::GetMeetingRoomList();
 				foreach($roomList as $room)
@@ -208,15 +211,15 @@ class CCalendarPlanner
 				}
 
 				$result['entries'][] = $entry;
-				$result['accessibility'][$mrid] = array();
+				$result['accessibility'][$mrid] = [];
 
-				$meetingRoomRes = CCalendar::GetAccessibilityForMeetingRoom(array(
+				$meetingRoomRes = CCalendar::GetAccessibilityForMeetingRoom([
 					'allowReserveMeeting' => true,
 					'id' => $location['mrid'],
 					'from' => $from,
 					'to' => $to,
 					'curEventId' => $roomEventId
-				));
+				]);
 
 				foreach($meetingRoomRes as $entry)
 				{
@@ -250,8 +253,9 @@ class CCalendarPlanner
 				}
 
 				$result['entries'][] = $entry;
-				$result['accessibility'][$roomId] = array();
+				$result['accessibility'][$roomId] = [];
 				$meetingRoomRes = CCalendarLocation::getRoomAccessibility($location['room_id'], $from, $to);
+
 				foreach($meetingRoomRes as $entry)
 				{
 					if (in_array($entry['ID'], $skipEntryList))
@@ -315,9 +319,9 @@ class CCalendarPlanner
 				);
 			}
 		}
+
 		return $result;
 	}
-
 }
 
 ?>

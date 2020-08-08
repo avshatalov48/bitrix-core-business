@@ -17,21 +17,21 @@ class CAllSaleAuxiliary
 	{
 		global $DB;
 
-		$userID = IntVal($userID);
+		$userID = intval($userID);
 		if ($userID <= 0)
 			return false;
 
 		$itemMD5 = Trim($itemMD5);
-		if (strlen($itemMD5) <= 0)
+		if ($itemMD5 == '')
 			return false;
 
-		$periodLength = IntVal($periodLength);
+		$periodLength = intval($periodLength);
 		if ($periodLength <= 0)
 			return False;
 
 		$periodType = Trim($periodType);
 		$periodType = ToUpper($periodType);
-		if (strlen($periodType) <= 0)
+		if ($periodType == '')
 			return False;
 
 		$checkVal = 0;
@@ -75,22 +75,22 @@ class CAllSaleAuxiliary
 	//********** ADD, UPDATE, DELETE **************//
 	function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
-		if ((is_set($arFields, "USER_ID") || $ACTION=="ADD") && IntVal($arFields["USER_ID"]) <= 0)
+		if ((is_set($arFields, "USER_ID") || $ACTION=="ADD") && intval($arFields["USER_ID"]) <= 0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException("Empty user field", "EMPTY_USER_ID");
 			return false;
 		}
-		if ((is_set($arFields, "ITEM") || $ACTION=="ADD") && strlen($arFields["ITEM"]) <= 0)
+		if ((is_set($arFields, "ITEM") || $ACTION=="ADD") && $arFields["ITEM"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException("Empty item field", "EMPTY_ITEM");
 			return false;
 		}
-		if ((is_set($arFields, "ITEM_MD5") || $ACTION=="ADD") && strlen($arFields["ITEM_MD5"]) <= 0)
+		if ((is_set($arFields, "ITEM_MD5") || $ACTION=="ADD") && $arFields["ITEM_MD5"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException("Empty item md5 field", "EMPTY_ITEM_MD5");
 			return false;
 		}
-		if ((is_set($arFields, "DATE_INSERT") || $ACTION=="ADD") && strlen($arFields["DATE_INSERT"]) <= 0)
+		if ((is_set($arFields, "DATE_INSERT") || $ACTION=="ADD") && $arFields["DATE_INSERT"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException("Empty date insert field", "EMPTY_DATE_INSERT");
 			return false;
@@ -116,7 +116,7 @@ class CAllSaleAuxiliary
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if ($ID <= 0)
 			return False;
 
@@ -127,7 +127,7 @@ class CAllSaleAuxiliary
 	{
 		global $DB;
 
-		$userID = IntVal($userID);
+		$userID = intval($userID);
 		if ($userID <= 0)
 			return False;
 
@@ -137,7 +137,7 @@ class CAllSaleAuxiliary
 	//********** EVENTS **************//
 	function OnUserDelete($userID)
 	{
-		$userID = IntVal($userID);
+		$userID = intval($userID);
 
 		$bSuccess = True;
 

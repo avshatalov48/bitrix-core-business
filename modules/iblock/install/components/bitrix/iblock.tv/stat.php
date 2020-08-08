@@ -13,7 +13,7 @@ if(
 	if(
 		$arFile["STAT_EVENT"]
 		&& !$arFile["WAS_STAT_EVENT"] //not yet for this session
-		&& strlen($arFile["STAT_EVENT1"]) > 0 //event1 defined
+		&& $arFile["STAT_EVENT1"] <> '' //event1 defined
 		&& CModule::IncludeModule('statistic')
 	)
 	{

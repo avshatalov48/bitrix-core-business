@@ -1757,17 +1757,11 @@
 			var pre = line.getElement(BX.proxy(this.MakeTab, this), ch, false);
 			BX.cleanNode(this.pMeasure);
 			this.pMeasure.appendChild(pre);
+
 			var
 				anchor = pre.anchor,
 				top = anchor.offsetTop,
 				left = anchor.offsetLeft;
-
-//			if (BX.browser.IsIE() && top == 0 && left == 0)
-//			{
-//				var backup = BX.create("SPAN", {html:"x"});
-//				anchor.parentNode.insertBefore(backup, anchor.nextSibling);
-//				top = backup.offsetTop;
-//			}
 
 			return {top: top, left: left};
 		},
@@ -4180,7 +4174,7 @@
 			{
 				var
 					outPos = 0,
-					anchor = pre.anchor = BX.create("SPAN");
+					anchor = pre.anchor = BX.create("TT", {props: {className: "bxce-anchor"}});
 				span = function (html, text, style)
 				{
 					var l = text.length;

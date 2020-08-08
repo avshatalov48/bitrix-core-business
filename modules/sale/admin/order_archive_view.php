@@ -79,7 +79,7 @@ $APPLICATION->SetTitle(
 		"SALE_OVIEW_TITLE",
 		array(
 			"#ID#" => $saleOrder->getId(),
-			"#NUM#" => strlen($saleOrder->getField('ACCOUNT_NUMBER')) > 0 ? $saleOrder->getField('ACCOUNT_NUMBER') : $saleOrder->getId(),
+			"#NUM#" => $saleOrder->getField('ACCOUNT_NUMBER') <> '' ? $saleOrder->getField('ACCOUNT_NUMBER') : $saleOrder->getId(),
 			"#DATE#" => $saleOrder->getDateInsert()->toString()
 		)
 	)

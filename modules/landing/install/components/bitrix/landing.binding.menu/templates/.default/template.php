@@ -65,11 +65,6 @@ if ($arResult['SUCCESS'])
 		isMenuShown = !isMenuShown;
 	}
 </script>
-<style type="text/css">
-	.landing-item-add-new {
-		display: none!important;
-	}
-</style>
 
 <?if ($arParams['SITE_ID'] <= 0):?>
 	<?$APPLICATION->IncludeComponent(
@@ -79,7 +74,8 @@ if ($arResult['SUCCESS'])
 			'TYPE' => $arParams['TYPE'],
 			'DRAFT_MODE' => 'Y',
 			'OVER_TITLE' => Loc::getMessage('LANDING_TPL_BINDING_ACTION_BIND'),
-			'PAGE_URL_SITE' => str_replace('__id__', '#site_show#', $arResult['ACTION_URL'])
+			'PAGE_URL_SITE' => str_replace('__id__', '#site_show#', $arResult['ACTION_URL']),
+			'PAGE_URL_SITE_EDIT' => $this->getComponent()->getUri(['create' => 'Y'])
 		),
 		$component
 	);?>

@@ -4,7 +4,7 @@ if ($arResult["NEED_AUTH"] == "Y")
 {
 	$APPLICATION->AuthForm("");
 }
-elseif (strlen($arResult["FatalError"])>0)
+elseif ($arResult["FatalError"] <> '')
 {
 	?>
 	<span class='errortext'><?=$arResult["FatalError"]?></span><br /><br />
@@ -12,7 +12,7 @@ elseif (strlen($arResult["FatalError"])>0)
 }
 else
 {
-	if(strlen($arResult["ErrorMessage"])>0)
+	if($arResult["ErrorMessage"] <> '')
 	{
 		?>
 		<span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br />
@@ -110,7 +110,7 @@ else
 				}
 				?>:
 				<?= $arEvent["TITLE_FORMAT"] ?>
-				<?if (StrLen($arEvent["MESSAGE_FORMAT"]) > 0):?>
+				<?if ($arEvent["MESSAGE_FORMAT"] <> ''):?>
 					<div id="sonet_message_<?= $ind ?>" class="sonet-log-message" style="display:none;">
 						<br />
 						<?= $arEvent["MESSAGE_FORMAT"]; ?><br />

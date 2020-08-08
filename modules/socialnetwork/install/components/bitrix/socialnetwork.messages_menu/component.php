@@ -11,48 +11,48 @@ if (!$GLOBALS["USER"]->IsAuthorized())
 	return;
 
 $arParams["PAGE_ID"] = Trim($arParams["PAGE_ID"]);
-if (StrLen($arParams["PAGE_ID"]) <= 0)
+if ($arParams["PAGE_ID"] == '')
 	$arParams["PAGE_ID"] = "messages_input";
 
-if(strLen($arParams["USER_VAR"])<=0)
+if($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
-if(strLen($arParams["PAGE_VAR"])<=0)
+if($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if(strlen($arParams["PATH_TO_USER"])<=0)
+if($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_MESSAGES_INPUT"] = trim($arParams["PATH_TO_MESSAGES_INPUT"]);
-if(strlen($arParams["PATH_TO_MESSAGES_INPUT"])<=0)
+if($arParams["PATH_TO_MESSAGES_INPUT"] == '')
 	$arParams["PATH_TO_MESSAGES_INPUT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=messages_input");
 
 $arParams["PATH_TO_MESSAGES_OUTPUT"] = trim($arParams["PATH_TO_MESSAGES_OUTPUT"]);
-if(strlen($arParams["PATH_TO_MESSAGES_OUTPUT"])<=0)
+if($arParams["PATH_TO_MESSAGES_OUTPUT"] == '')
 	$arParams["PATH_TO_MESSAGES_OUTPUT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=messages_output");
 
 $arParams["PATH_TO_USER_BAN"] = trim($arParams["PATH_TO_USER_BAN"]);
-if(strlen($arParams["PATH_TO_USER_BAN"])<=0)
+if($arParams["PATH_TO_USER_BAN"] == '')
 	$arParams["PATH_TO_USER_BAN"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_ban");
 
 $arParams["PATH_TO_MESSAGES_USERS"] = trim($arParams["PATH_TO_MESSAGES_USERS"]);
-if (strlen($arParams["PATH_TO_MESSAGES_USERS"]) <= 0)
+if ($arParams["PATH_TO_MESSAGES_USERS"] == '')
 	$arParams["PATH_TO_MESSAGES_USERS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=messages_users");
 
 $arParams["PATH_TO_LOG"] = trim($arParams["PATH_TO_LOG"]);
-if (strlen($arParams["PATH_TO_LOG"]) <= 0)
+if ($arParams["PATH_TO_LOG"] == '')
 	$arParams["PATH_TO_LOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=log");
 
 $arParams["PATH_TO_TASKS"] = trim($arParams["PATH_TO_TASKS"]);
-if (strlen($arParams["PATH_TO_TASKS"]) <= 0)
+if ($arParams["PATH_TO_TASKS"] == '')
 	$arParams["PATH_TO_TASKS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=tasks");
 
 $arParams["PATH_TO_SUBSCRIBE"] = trim($arParams["PATH_TO_SUBSCRIBE"]);
-if (strlen($arParams["PATH_TO_SUBSCRIBE"]) <= 0)
+if ($arParams["PATH_TO_SUBSCRIBE"] == '')
 	$arParams["PATH_TO_SUBSCRIBE"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=subscribe");
 
 $arParams["PATH_TO_BIZPROC"] = trim($arParams["PATH_TO_BIZPROC"]);
-if (strlen($arParams["PATH_TO_BIZPROC"]) <= 0)
+if ($arParams["PATH_TO_BIZPROC"] == '')
 	$arParams["PATH_TO_BIZPROC"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=bizproc");
 
 	
@@ -84,29 +84,29 @@ if (is_dir($dir) && $directory = opendir($dir)):
 endif;
 
 $parent = & $this->GetParent();
-if (is_object($parent) && strlen($parent->__name) > 0)
+if (is_object($parent) && $parent->__name <> '')
 {
 	$parent = & $parent->GetParent();
 
-	if (is_object($parent) && is_array($parent->arParams) && array_key_exists("SM_THEME", $parent->arParams) && strlen($parent->arParams["SM_THEME"]) > 0)
+	if (is_object($parent) && is_array($parent->arParams) && array_key_exists("SM_THEME", $parent->arParams) && $parent->arParams["SM_THEME"] <> '')
 		$arParams["SM_THEME"] = $parent->arParams["SM_THEME"];
 	else
 	{
 		$site_template = CSite::GetCurTemplate();
 
-		if (strpos($site_template, "bright") === 0)
+		if (mb_strpos($site_template, "bright") === 0)
 			$arParams["SM_THEME"] = "grey";
 		else
 		{
 			$theme_tmp_id = COption::GetOptionString("main", "wizard_".$site_template."_sm_theme_id");
-			if (strlen($theme_tmp_id) > 0)
+			if ($theme_tmp_id <> '')
 				$theme_id = $theme_tmp_id;
 			elseif (CModule::IncludeModule('extranet') && CExtranet::IsExtranetSite())
 				$theme_id = COption::GetOptionString("main", "wizard_".$site_template."_theme_id_extranet");
 			else
 				$theme_id = COption::GetOptionString("main", "wizard_".$site_template."_theme_id");
 
-			if (strlen($theme_id) > 0)
+			if ($theme_id <> '')
 				$arParams["SM_THEME"] = $theme_id;
 			else
 				$arParams["SM_THEME"] = "grey";

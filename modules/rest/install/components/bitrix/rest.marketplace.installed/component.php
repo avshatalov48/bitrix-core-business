@@ -158,7 +158,15 @@ if (!empty($updateCodes))
 
 		foreach ($arUpdates["ITEMS"] as $key => $app)
 		{
-			$arResult['ITEMS'][$app["CODE"]]["UPDATES_AVAILABLE"] = "Y";
+			if($app['TYPE'] === AppTable::TYPE_CONFIGURATION)
+			{
+				$arResult['ITEMS'][$app["CODE"]]["UPDATES_AVAILABLE"] = "N";
+			}
+			else
+			{
+				$arResult['ITEMS'][$app["CODE"]]["UPDATES_AVAILABLE"] = "Y";
+			}
+
 			$arResult['ITEMS'][$app["CODE"]]["STATUS"] = $updateStatuses[$app["CODE"]];
 
 			if ($filterData["UPDATES"] == "Y")

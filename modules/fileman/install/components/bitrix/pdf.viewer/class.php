@@ -18,7 +18,7 @@ class CDiskPdfComponent extends \CBitrixComponent
 			return;
 		}
 
-		if (isset($this->arParams['VIEWER_ID']) && strlen($this->arParams['VIEWER_ID']) > 0)
+		if (isset($this->arParams['VIEWER_ID']) && $this->arParams['VIEWER_ID'] <> '')
 		{
 			$this->arResult['ID'] = $this->arParams['VIEWER_ID'];
 		}
@@ -95,6 +95,6 @@ class CDiskPdfComponent extends \CBitrixComponent
 
 	public function getComponentId ()
 	{
-		return substr(md5(serialize($this->arParams)), 10).$this->randString();
+		return mb_substr(md5(serialize($this->arParams)), 10).$this->randString();
 	}
 }

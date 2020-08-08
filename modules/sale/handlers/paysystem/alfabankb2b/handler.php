@@ -80,7 +80,7 @@ class AlfaBankB2BHandler extends PaySystem\BaseServiceHandler implements PaySyst
 					{
 						$errorCode = $error[0]['#']['errorCode'][0]['#'];
 						$errorString = Main\Localization\Loc::getMessage('SALE_HPS_ALFABANK_ERROR_'.$errorCode);
-						if (strlen($errorString) === 0)
+						if ($errorString == '')
 							$errorString = $error[0]['#']['errorString'][0]['#'];
 
 						$serviceResult->addError(new Main\Error($errorString));
@@ -128,9 +128,9 @@ class AlfaBankB2BHandler extends PaySystem\BaseServiceHandler implements PaySyst
 	{
 		$data = $this->convertToUtf8($data);
 
-		$start = strpos($data, '<soapenv:Body');
-		$end = strpos($data, '</soapenv:Body>');
-		$body = substr($data, $start, $end - $start + 15);
+		$start = mb_strpos($data, '<soapenv:Body');
+		$end = mb_strpos($data, '</soapenv:Body>');
+		$body = mb_substr($data, $start, $end - $start + 15);
 		$this->setExtraParams(array('DIGEST_VALUE' => $this->getHash($body)));
 
 		$result = $this->showTemplate(null, 'sign');
@@ -202,7 +202,7 @@ class AlfaBankB2BHandler extends PaySystem\BaseServiceHandler implements PaySyst
 		$header .= "Content-Type: text/xml; charset=utf-8\r\n";
 		$header .= "Connection: Keep-Alive\r\n";
 		$header .= "SOAPAction: ".$action."\r\n";
-		$header .= sprintf("Content-length: %s\r\n", strlen($data));
+		$header .= sprintf("Content-length: %s\r\n", mb_strlen($data));
 		$header .= "\r\n";
 
 		$errNo = '';
@@ -322,7 +322,7 @@ class AlfaBankB2BHandler extends PaySystem\BaseServiceHandler implements PaySyst
 				{
 					$errorCode = $error[0]['#']['errorCode'][0]['#'];
 					$errorString = Main\Localization\Loc::getMessage('SALE_HPS_ALFABANK_ERROR_'.$errorCode);
-					if (strlen($errorString) === 0)
+					if ($errorString == '')
 						$errorString = $error[0]['#']['errorString'][0]['#'];
 
 					$serviceResult->addError(new Main\Error($errorString));
@@ -331,7 +331,7 @@ class AlfaBankB2BHandler extends PaySystem\BaseServiceHandler implements PaySyst
 			else if (is_array($response) && $this->verifySign($response))
 			{
 				$requestId = $response['Envelope']['#']['Body'][0]['#']['WSCreateAccountMovementListRequestAddResponse'][0]['#']['outParms'][0]['#']['requestId'][0]['#'];
-				if (strlen($requestId) > 0)
+				if ($requestId <> '')
 					$serviceResult->setData(array('requestId' => $requestId));
 			}
 		}
@@ -379,7 +379,7 @@ class AlfaBankB2BHandler extends PaySystem\BaseServiceHandler implements PaySyst
 				{
 					$errorCode = $error[0]['#']['errorCode'][0]['#'];
 					$errorString = Main\Localization\Loc::getMessage('SALE_HPS_ALFABANK_ERROR_'.$errorCode);
-					if (strlen($errorString) === 0)
+					if ($errorString == '')
 						$errorString = $error[0]['#']['errorString'][0]['#'];
 
 					$serviceResult->addError(new Main\Error($errorString));
@@ -432,7 +432,7 @@ class AlfaBankB2BHandler extends PaySystem\BaseServiceHandler implements PaySyst
 				{
 					$errorCode = $error[0]['#']['errorCode'][0]['#'];
 					$errorString = Main\Localization\Loc::getMessage('SALE_HPS_ALFABANK_ERROR_'.$errorCode);
-					if (strlen($errorString) === 0)
+					if ($errorString == '')
 						$errorString = $error[0]['#']['errorString'][0]['#'];
 
 					$serviceResult->addError(new Main\Error($errorString));

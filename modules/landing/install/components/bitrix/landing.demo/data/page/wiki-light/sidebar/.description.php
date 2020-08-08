@@ -20,17 +20,15 @@ return [
 	'type' => ['knowledge', 'group'],
 	'version' => 3,
 	'fields' => [
-		'TITLE' => Loc::getMessage("LANDING_DEMO_WIKI_SEDEBAR-TITLE"),
+		'TITLE' => Loc::getMessage("LANDING_DEMO_WIKI_LIGHT_SEDEBAR_TITLE"),
 		'RULE' => null,
 		'ADDITIONAL_FIELDS' => [
-			'THEME_CODE' => '3corporate',
-			'THEME_CODE_TYPO' => 'app',
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'METAMAIN_USE' => 'N',
-			'METAMAIN_TITLE' => Loc::getMessage("LANDING_DEMO_WIKI_SEDEBAR-TITLE"),
+			'METAMAIN_TITLE' => Loc::getMessage("LANDING_DEMO_WIKI_LIGHT_SEDEBAR_TITLE"),
 			'METAMAIN_DESCRIPTION' => '',
-			'METAOG_TITLE' => Loc::getMessage("LANDING_DEMO_WIKI_SEDEBAR-TITLE"),
+			'METAOG_TITLE' => Loc::getMessage("LANDING_DEMO_WIKI_LIGHT_SEDEBAR_TITLE"),
 			'METAOG_DESCRIPTION' => '',
 			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/wiki-light/sidebar/preview.jpg',
 			'PIXELFB_USE' => 'N',
@@ -49,15 +47,16 @@ return [
 	],
 	'layout' => [],
 	'items' => [
-		'#block3363' => [
-			'old_id' => 3363,
-			'code' => '32.2.img_one_big',
+		'#block3364' => [
+			'old_id' => 3364,
+			'code' => '32.16.img_one_big_sidebar',
 			'access' => 'X',
+			'anchor' => '',
 			'nodes' => [
 			],
 			'style' => [
 				'#wrapper' => [
-					0 => 'landing-block g-pt-auto g-pb-auto',
+					0 => 'landing-block landing-block-menu g-pl-auto g-pr-auto g-mt-auto g-pt-30 g-pb-30',
 				],
 			],
 		],
@@ -79,7 +78,7 @@ return [
 							'target' => '_self',
 							'children' => [
 								0 => [
-									'text' => 'Kanban in Tasks',
+									'text' => 'Article example',
 									'href' => '#landing230',
 									'target' => '_self',
 								],
@@ -97,18 +96,6 @@ return [
 				],
 				'.landing-block-node-menu' => [
 					0 => 'landing-block-node-menu navbar-nav g-menu-multilevel js-scroll-nav flex-column list-unstyled w-100 g-mb-0',
-				],
-			],
-		],
-		'#block3361' => [
-			'old_id' => 3361,
-			'code' => '59.2.search_sidebar',
-			'access' => 'X',
-			'nodes' => [
-			],
-			'style' => [
-				'#wrapper' => [
-					0 => 'landing-block g-pb-15 g-pl-7 g-pr-10 g-pt-14',
 				],
 			],
 		],

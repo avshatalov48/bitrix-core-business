@@ -113,7 +113,8 @@ class rest extends CModule
 		\CAgent::AddAgent("Bitrix\\Rest\\Marketplace\\Client::getNumUpdates();", "rest", "N", 86400);
 		\CAgent::AddAgent("Bitrix\\Rest\\EventOfflineTable::cleanProcessAgent();", "rest", "N", 86400);
 		\CAgent::AddAgent("Bitrix\\Rest\\UsageStatTable::cleanUpAgent();", "rest", "N", 86400);
-
+		\CAgent::AddAgent("Bitrix\\Rest\\LogTable::cleanUpAgent();", "rest", "N", 86400);
+		\CAgent::AddAgent('\Bitrix\Rest\Configuration\Helper::sendStatisticAgent();', "rest", "N",86400);
 
 		return true;
 	}

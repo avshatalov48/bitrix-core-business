@@ -7,27 +7,27 @@ if (!CModule::IncludeModule("socialnetwork"))
 	return;
 }
 
-$arParams["USER_ID"] = IntVal($arParams["USER_ID"]);
-$arParams["GROUP_ID"] = IntVal($arParams["GROUP_ID"]);
+$arParams["USER_ID"] = intval($arParams["USER_ID"]);
+$arParams["GROUP_ID"] = intval($arParams["GROUP_ID"]);
 
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 
-if (strLen($arParams["USER_VAR"]) <= 0)
+if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if (strLen($arParams["GROUP_VAR"]) <= 0)
+if ($arParams["GROUP_VAR"] == '')
 	$arParams["GROUP_VAR"] = "group_id";
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if (strlen($arParams["PATH_TO_USER"]) <= 0)
+if ($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_GROUP"] = trim($arParams["PATH_TO_GROUP"]);
-if (strlen($arParams["PATH_TO_GROUP"]) <= 0)
+if ($arParams["PATH_TO_GROUP"] == '')
 	$arParams["PATH_TO_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#");
 
-if (strlen($arParams["NAME_TEMPLATE"]) <= 0)		
+if ($arParams["NAME_TEMPLATE"] == '')
 	$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 $bUseLogin = $arParams['SHOW_LOGIN'] != "N" ? true : false;
 
@@ -111,21 +111,21 @@ else
 					else
 					{
 						$arResult["ShowForm"] = "Input";
-						if ($_SERVER["REQUEST_METHOD"]=="POST" && strlen($_POST["save"]) > 0 && check_bitrix_sessid())
+						if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["save"] <> '' && check_bitrix_sessid())
 						{
 							$errorMessage = "";
 
-							if (strlen($_POST["MESSAGE"]) <= 0)
+							if ($_POST["MESSAGE"] == '')
 								$errorMessage .= GetMessage("SONET_C11_NO_MESSAGE").". ";
 
 							if (
-								strlen($errorMessage) <= 0
+								$errorMessage == ''
 								&& !CSocNetUserToGroup::SendRequestToJoinGroup($GLOBALS["USER"]->GetID(), $arResult["User"]["ID"], $arResult["Group"]["ID"], $_POST["MESSAGE"])
 								&& ($e = $APPLICATION->GetException())
 							)
 								$errorMessage .= $e->GetString();
 
-							if (strlen($errorMessage) > 0)
+							if ($errorMessage <> '')
 								$arResult["ErrorMessage"] = $errorMessage;
 							else
 								$arResult["ShowForm"] = "Confirm";

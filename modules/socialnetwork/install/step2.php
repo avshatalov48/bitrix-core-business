@@ -2,20 +2,24 @@
 <?
 global $errors;
 
-$errorsCnt = count($errors);
+$errorsCnt = (
+	is_array($errors)
+		? count($errors)
+		: 0
+);
 if(
 	!is_array($errors)
 	|| $errorsCnt <= 0
 ):
-	echo CAdminMessage::ShowNote(GetMessage("MOD_INST_OK"));
+	CAdminMessage::ShowNote(GetMessage("MOD_INST_OK"));
 else:
 	for($i=0; $i<$errorsCnt; $i++)
 		$alErrors .= $errors[$i]."<br>";
-	echo CAdminMessage::ShowMessage(Array("TYPE"=>"ERROR", "MESSAGE" =>GetMessage("MOD_INST_ERR"), "DETAILS"=>$alErrors, "HTML"=>true));
+	CAdminMessage::ShowMessage(Array("TYPE"=>"ERROR", "MESSAGE" =>GetMessage("MOD_INST_ERR"), "DETAILS"=>$alErrors, "HTML"=>true));
 endif;
 if ($ex = $APPLICATION->GetException())
 {
-	echo CAdminMessage::ShowMessage(Array("TYPE" => "ERROR", "MESSAGE" => GetMessage("MOD_INST_ERR"), "HTML" => true, "DETAILS" => $ex->GetString()));
+	CAdminMessage::ShowMessage(Array("TYPE" => "ERROR", "MESSAGE" => GetMessage("MOD_INST_ERR"), "HTML" => true, "DETAILS" => $ex->GetString()));
 }
 
 global $public_installed;
@@ -53,7 +57,7 @@ if ($public_installed) :
 			?>
 			<tr>
 				<td width="0%"><p>[<?=$fSite["SITE_ID"]?>] <?=htmlspecialcharsEx($fSite["NAME"])?></p></td>
-				<td width="0%"><p><a href="<?if(strlen($fSite["SERVER_NAME"])>0) echo "http://".htmlspecialcharsBx($fSite["SERVER_NAME"]);?><?=htmlspecialcharsBx($fSite["DIR"]).${"public_path_".$fSite["SITE_ID"]}?>/"><?=htmlspecialcharsEx($fSite["DIR"]).${"public_path_".$fSite["SITE_ID"]}?>/</a></p></td>
+				<td width="0%"><p><a href="<?if($fSite["SERVER_NAME"] <> '') echo "http://".htmlspecialcharsBx($fSite["SERVER_NAME"]);?><?=htmlspecialcharsBx($fSite["DIR"]).${"public_path_".$fSite["SITE_ID"]}?>/"><?=htmlspecialcharsEx($fSite["DIR"]).${"public_path_".$fSite["SITE_ID"]}?>/</a></p></td>
 			</tr>
 			<?
 		}

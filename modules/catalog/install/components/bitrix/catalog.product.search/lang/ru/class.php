@@ -27,6 +27,7 @@ $MESS["SPS_FIELD_DETAIL_TEXT"] = "Детальное описание";
 $MESS["SPS_FIELD_DETAIL_PICTURE"] = "Детальная картинка";
 $MESS["SPS_FIELD_CODE"] = "Символьный код";
 $MESS["SPS_FIELD_XML_ID"] = "Внешний код";
+$MESS["SPS_FIELD_SORT"] = "Сортировка";
 $MESS["SPS_GOTO_PARENT_SECTION"] = "Перейти на уровень выше";
 $MESS["SPS_ROOT_NAME"] = "Корень";
 $MESS["SPS_SEARCH_PLACEHOLDER"] = "Начните вводить фразу для поиска или штрихкод";

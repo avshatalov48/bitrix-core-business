@@ -111,9 +111,9 @@ class RusPost extends Base
 	 */
 	protected function checkTrackNumberFormat($trackNumber)
 	{
-		if(strlen($trackNumber) == 13)
+		if(mb_strlen($trackNumber) == 13)
 			return preg_match('/^[A-Z]{2}?\d{9}?[A-Z]{2}$/i', $trackNumber) == 1;
-		elseif(strlen($trackNumber) == 14)
+		elseif(mb_strlen($trackNumber) == 14)
 			return preg_match('/^\d{14}?$/', $trackNumber) == 1;
 		else
 			return false;
@@ -125,7 +125,7 @@ class RusPost extends Base
 	 */
 	public function getTrackingUrl($trackingNumber = '')
 	{
-		return 'https://pochta.ru/tracking'.(strlen($trackingNumber) > 0 ? '#'.$trackingNumber : '');
+		return 'https://pochta.ru/tracking'.($trackingNumber <> '' ? '#'.$trackingNumber : '');
 	}
 }
 
@@ -170,7 +170,7 @@ class RusPostSingle
 	{
 		$result = new Result();
 
-		if(strtolower(SITE_CHARSET) != 'utf-8')
+		if(mb_strtolower(SITE_CHARSET) != 'utf-8')
 			$requestData = Encoding::convertEncoding($requestData, SITE_CHARSET, 'UTF-8');
 
 		$httpRes = $this->httpClient->post(self::$url, $requestData);
@@ -189,7 +189,7 @@ class RusPostSingle
 		{
 			$status = $this->httpClient->getStatus();
 
-			if(strtolower(SITE_CHARSET) != 'utf-8')
+			if(mb_strtolower(SITE_CHARSET) != 'utf-8')
 				$httpRes = Encoding::convertEncoding($httpRes, 'UTF-8', SITE_CHARSET);
 
 			$objXML = new \CDataXML();
@@ -333,7 +333,7 @@ class RusPostSingle
 	 */
 	protected function mapStatus($oper, $attr)
 	{
-		if(strlen($oper) <= 0)
+		if($oper == '')
 			return Statuses::UNKNOWN;
 
 		/*
@@ -468,7 +468,7 @@ class RusPostSingle
 		if(!is_array($rusPostStatuses[$oper]))
 			return $rusPostStatuses[$oper];
 
-		if(strlen($attr) <= 0)
+		if($attr == '')
 			return Statuses::UNKNOWN;
 
 		if(!isset($rusPostStatuses[$oper][$attr]))

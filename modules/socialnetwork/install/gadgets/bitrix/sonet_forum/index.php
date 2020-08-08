@@ -6,7 +6,7 @@ $arGadgetParams["SHOW"] = ($arGadgetParams["SHOW"]?$arGadgetParams["SHOW"]:false
 if(!CModule::IncludeModule("socialnetwork"))
 	return false;
 
-if (strlen(trim($arGadgetParams["TITLE"])) > 0)	
+if (trim($arGadgetParams["TITLE"]) <> '')	
 	$arGadget["TITLE"] = htmlspecialcharsback($arGadgetParams["TITLE"]);
 elseif ($arParams["MODE"] == "SG")
 	$arGadget["TITLE"] = GetMessage('GD_SONET_FORUM_TITLE_GROUP');

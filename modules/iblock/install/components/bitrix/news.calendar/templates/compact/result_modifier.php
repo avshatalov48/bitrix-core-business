@@ -2,7 +2,7 @@
 
 $arParams["FILTER_NAME"] = trim($arParams["FILTER_NAME"]);
 $arParams["LIST_URL"] = trim($arParams["LIST_URL"]);
-if(strlen($arParams["FILTER_NAME"]) > 0 && strlen($arParams["LIST_URL"]) > 0)
+if($arParams["FILTER_NAME"] <> '' && $arParams["LIST_URL"] <> '')
 {
 	foreach($arResult["MONTH"] as $week => $arWeek)
 	{
@@ -17,9 +17,9 @@ if(strlen($arParams["FILTER_NAME"]) > 0 && strlen($arParams["LIST_URL"]) > 0)
 				$strTO   = date($GLOBALS["DB"]->DateFormatToPHP(CLang::GetDateFormat("SHORT")), $timeTO);
 
 				$LIST_URL = $arParams["LIST_URL"];
-				if(strpos($LIST_URL, "?") === false)
+				if(mb_strpos($LIST_URL, "?") === false)
 					$LIST_URL .= "?";
-				if(strpos($LIST_URL, "&") !== false)
+				if(mb_strpos($LIST_URL, "&") !== false)
 					$LIST_URL .= "&";
 
 

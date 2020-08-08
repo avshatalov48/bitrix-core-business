@@ -4,10 +4,10 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 global $USER;
 
-$arParams["NOTIFY_ID"] = IntVal($arParams["NOTIFY_ID"]);
+$arParams["NOTIFY_ID"] = intval($arParams["NOTIFY_ID"]);
 $arParams["NOTIFY_PRODUCT_ID"] = trim($arParams["NOTIFY_PRODUCT_ID"]);
 $arParams["NOTIFY_ACTION"]=trim($arParams["NOTIFY_ACTION"]);
-if(strlen($arParams["NOTIFY_ACTION"])<=0)
+if($arParams["NOTIFY_ACTION"] == '')
 	$arParams["NOTIFY_ACTION"] = "action";
 $arParams["NOTIFY_USE_CAPTHA"] = $arParams["NOTIFY_USE_CAPTHA"] == "Y" ? "Y" : "N";
 
@@ -15,7 +15,7 @@ $arResult = array("STATUS" => "N", "NOTIFY_URL" => "", "ERRORS" => "");
 
 $notifyOption = COption::GetOptionString("sale", "subscribe_prod", "");
 $arNotify = Array();
-if(strlen($notifyOption) > 0)
+if($notifyOption <> '')
 	$arNotify = unserialize($notifyOption);
 
 if (CModule::IncludeModule('sale') && CModule::IncludeModule('catalog') && $arParams["NOTIFY_ID"] > 0 && !empty($arNotify) && $arNotify[SITE_ID]['use'] == 'Y')

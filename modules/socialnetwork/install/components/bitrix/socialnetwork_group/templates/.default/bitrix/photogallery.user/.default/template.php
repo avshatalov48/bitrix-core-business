@@ -2,7 +2,7 @@
 IncludeAJAX();
 return;
 $bIsMine = ($arResult["GALLERY"]["CREATED_BY"] == $USER->GetID() && $USER->IsAuthorized());
-$arParams["GALLERY_AVATAR_SIZE"] = intVal(intVal($arParams["GALLERY_AVATAR_SIZE"]) > 0 ?  $arParams["GALLERY_AVATAR_SIZE"] : 50);
+$arParams["GALLERY_AVATAR_SIZE"] = intval(intval($arParams["GALLERY_AVATAR_SIZE"]) > 0 ?  $arParams["GALLERY_AVATAR_SIZE"] : 50);
 /* MY TOP PANEL */
 if ($GLOBALS["USER"]->IsAuthorized() && !empty($arResult["GALLERY"])):
 ?><div class="photo-user photo-user-my"><?

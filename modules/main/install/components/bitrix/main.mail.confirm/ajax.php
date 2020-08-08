@@ -116,6 +116,16 @@ class MainMailConfirmAjax
 				$error = getMessage('MAIN_MAIL_CONFIRM_EMPTY_SMTP_PASSWORD');
 				return;
 			}
+			else if (preg_match('/^\^/', $smtp['password']))
+			{
+				$error = getMessage('MAIN_MAIL_CONFIRM_INVALID_SMTP_PASSWORD_CARET');
+				return;
+			}
+			else if (preg_match('/\x00/', $smtp['password']))
+			{
+				$error = getMessage('MAIN_MAIL_CONFIRM_INVALID_SMTP_PASSWORD_NULL');
+				return;
+			}
 		}
 
 		$pending = array();

@@ -275,8 +275,8 @@ if (Loader::requireModule('bizproc'))
 		public static function compareValues($valueA, $valueB)
 		{
 			if (
-				strpos($valueA, '|') === false
-				|| strpos($valueB, '|') === false
+				mb_strpos($valueA, '|') === false
+				|| mb_strpos($valueB, '|') === false
 				|| !Main\Loader::includeModule('currency')
 			)
 			{

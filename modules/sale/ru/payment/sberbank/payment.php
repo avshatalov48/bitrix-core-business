@@ -34,7 +34,7 @@
 		<!-- Изменяемые данные (начало) -->
 		<TR> 
 			<TD vAlign=middle width=270 height="53"> <font size="-1"><STRONG>Оплата заказа № 
-			<?= IntVal($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"]) ?>
+			<?= intval($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"]) ?>
 			от 
 			<?= htmlspecialcharsbx($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["DATE_INSERT_DATE"]) ?></STRONG>
 			</font></TD>
@@ -73,7 +73,7 @@
 		<!-- Изменяемые данные (начало) -->
 		<TR> 
 			<TD height=53 vAlign=middle width=270> <font size="-1"><strong>Оплата заказа № 
-			<?= IntVal($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"]) ?>
+			<?= intval($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"]) ?>
 			от 
 			<?= htmlspecialcharsEx($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["DATE_INSERT_DATE"]) ?></strong></font></TD>
 			<TD> 

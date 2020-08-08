@@ -7,7 +7,7 @@ IncludeModuleLangFile(__FILE__);
 $ADV_RIGHT = $APPLICATION->GetGroupRight($module_id);
 if ($ADV_RIGHT>="R") :
 
-if ($REQUEST_METHOD=="GET" && $ADV_RIGHT=="W" && strlen($RestoreDefaults)>0 && check_bitrix_sessid())
+if ($REQUEST_METHOD=="GET" && $ADV_RIGHT=="W" && $RestoreDefaults <> '' && check_bitrix_sessid())
 {
 	COption::RemoveOption($module_id);
 	$z = CGroup::GetList($v1="id",$v2="asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
@@ -34,7 +34,7 @@ $aTabs = array(
 );
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
-if($REQUEST_METHOD=="POST" && strlen($Update.$Apply)>0 && $ADV_RIGHT>="W" && check_bitrix_sessid())
+if($REQUEST_METHOD=="POST" && $Update.$Apply <> '' && $ADV_RIGHT>="W" && check_bitrix_sessid())
 {
 	// смена подкаталога для хранения баннеров
 	$old_subdir = COption::GetOptionString($module_id, "UPLOAD_SUBDIR");
@@ -50,7 +50,7 @@ if($REQUEST_METHOD=="POST" && strlen($Update.$Apply)>0 && $ADV_RIGHT>="W" && che
 		$name = $arAllOptions[$i][0];
 		$val = ${$name};
 
-		if (strlen($arAllOptions[$i][3]) > 0 && $_POST[$name.'_clear'] === "Y")
+		if ($arAllOptions[$i][3] <> '' && $_POST[$name.'_clear'] === "Y")
 		{
 			if (is_callable($arAllOptions[$i][3]))
 			{
@@ -101,7 +101,7 @@ $tabControl->BeginNextTab();
 						<input type="checkbox" name="<?echo htmlspecialcharsbx($Option[0])?>" id="<?echo htmlspecialcharsbx($Option[0])?>" value="Y"<?if($val=="Y")echo " checked";?>>
 					<?
 					elseif($type[0]=="text"):
-						if (strlen($Option[4])>0)
+						if ($Option[4] <> '')
 						{
 							$arr = explode(",",$Option[4]);
 							$count = 0;
@@ -116,7 +116,7 @@ $tabControl->BeginNextTab();
 						?>
 						<input type="text" size="<?=$type[1]?>" maxlength="255" value="<?=htmlspecialcharsbx($val)?>" name="<?=htmlspecialcharsbx($Option[0])?>">
 						<?
-						if (strlen($Option[3]) > 0)
+						if ($Option[3] <> '')
 						{
 							?>
 							<label for="<?=htmlspecialcharsbx($Option[0])?>_clear">
@@ -126,7 +126,7 @@ $tabControl->BeginNextTab();
 							<?
 						};
 
-						if (strlen($Option[4]) > 0)
+						if ($Option[4] <> '')
 						{
 							echo '('.GetMessage("AD_RECORDS").' '.$count.')';
 						}
@@ -153,11 +153,11 @@ function RestoreDefaults()
 		window.location = "<?echo $APPLICATION->GetCurPage()?>?RestoreDefaults=Y&lang=<?=LANGUAGE_ID?>&mid=<?echo urlencode($mid)?>&<?echo bitrix_sessid_get()?>";
 }
 </script>
-	<?if(strlen($_REQUEST["back_url_settings"])>0):?>
+	<?if($_REQUEST["back_url_settings"] <> ''):?>
 	<input type="submit" name="Update" value="<?=GetMessage("MAIN_SAVE")?>" title="<?=GetMessage("MAIN_OPT_SAVE_TITLE")?>"<?if ($ADV_RIGHT<"W") echo " disabled" ?>>
 	<?endif?>
 	<input type="submit" name="Apply" value="<?=GetMessage("MAIN_OPT_APPLY")?>" title="<?=GetMessage("MAIN_OPT_APPLY_TITLE")?>"<?if ($ADV_RIGHT<"W") echo " disabled" ?>>
-	<?if(strlen($_REQUEST["back_url_settings"])>0):?>
+	<?if($_REQUEST["back_url_settings"] <> ''):?>
 		<input type="button" name="Cancel" value="<?=GetMessage("MAIN_OPT_CANCEL")?>" title="<?=GetMessage("MAIN_OPT_CANCEL_TITLE")?>" onclick="window.location='<?echo htmlspecialcharsbx(CUtil::JSEscape($_REQUEST["back_url_settings"]))?>'">
 		<input type="hidden" name="back_url_settings" value="<?=htmlspecialcharsbx($_REQUEST["back_url_settings"])?>">
 	<?endif?>

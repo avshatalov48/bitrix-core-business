@@ -233,6 +233,7 @@
 				});
 			}
 
+			//UserSelectorFieldEditControl
 			this.userList = new BX.Calendar.UserField.ResourceBooking.UserSelector({
 				shown: fieldSettings.USE_USERS === 'Y',
 				outerWrap: this.userSelectorWrap,
@@ -276,8 +277,6 @@
 						props: { className: "calendar-resourcebook-content-block-field" }
 					}
 				));
-
-			console.dir(fieldSettings);
 
 			this.timezoneSelector = new BX.Calendar.UserField.ResourceBooking.TimezoneSelector({
 				outerWrap: this.timezoneSelectWrap,

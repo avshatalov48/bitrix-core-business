@@ -49,12 +49,12 @@ $lAdmin->InitFilter($arFilterFields);
 
 $arFilter = array();
 
-if (strlen($filter_date_from)>0) $arFilter[">=DATE_INSERT"] = Trim($filter_date_from);
-if (strlen($filter_date_to)>0)
+if ($filter_date_from <> '') $arFilter[">=DATE_INSERT"] = Trim($filter_date_from);
+if ($filter_date_to <> '')
 {
 	if ($arDate = ParseDateTime($filter_date_to, CSite::GetDateFormat("FULL", SITE_ID)))
 	{
-		if (StrLen($filter_date_to) < 11)
+		if (mb_strlen($filter_date_to) < 11)
 		{
 			$arDate["HH"] = 23;
 			$arDate["MI"] = 59;
@@ -80,9 +80,9 @@ $arCurUsed = Array();
 $minDate = 0;
 $maxDate = 0;
 
-if(strlen($filter_date_from) > 0)
+if($filter_date_from <> '')
 	$minDate = MakeTimeStamp($filter_date_from);
-if(strlen($filter_date_to) > 0)
+if($filter_date_to <> '')
 	$maxDate = MakeTimeStamp($filter_date_to);
 else
 	$maxDate = mktime(0, 0, 0, date("n"), date("j")+1, date("Y"));
@@ -132,12 +132,12 @@ while($arBasket = $dbBasket->Fetch())
 		$arResult[$key]["PRICE_ORDER_ALLOW_DELIVERY"][$arBasket["CURRENCY"]] = 0;
 
 
-	if(IntVal($arBasket["ORDER_ID"]) <= 0)
+	if(intval($arBasket["ORDER_ID"]) <= 0)
 		$arResult[$key]["COUNT"]++;
 	else
 		$arResult[$key]["ORDER_COUNT"]++;
 
-	if(IntVal($arBasket["ORDER_ID"]) > 0)
+	if(intval($arBasket["ORDER_ID"]) > 0)
 	{
 		$arResult[$key]["ORDER_QUANTITY"] += $arBasket["QUANTITY"];
 		$arResult[$key]["PRICE_PRODUCT"][$arBasket["CURRENCY"]] += roundEx($arBasket["PRICE"]*$arBasket["QUANTITY"], SALE_VALUE_PRECISION);
@@ -199,9 +199,9 @@ function bxStatSort($a, $b)
 			$k = "PAYED";
 		else
 			$k = "ALLOW_DELIVERY";
-		if(IntVal($a[$k]) == IntVal($b[$k]) && IntVal($b[$k]) == 0)
+		if(intval($a[$k]) == intval($b[$k]) && intval($b[$k]) == 0)
 			return 0;
-		elseif(IntVal($a[$k]) > 0 && IntVal($b[$k]) > 0)
+		elseif(intval($a[$k]) > 0 && intval($b[$k]) > 0)
 		{
 			if(DoubleVal($a[$k]*100/$a["ORDER_COUNT"]) > DoubleVal($b[$k]*100/$b["ORDER_COUNT"]))
 				return ($order == "DESC") ? -1 : 1;
@@ -210,9 +210,9 @@ function bxStatSort($a, $b)
 			else
 				return 0;
 		}
-		elseif(IntVal($a[$k]) > 0 && IntVal($b[$k]) <= 0)
+		elseif(intval($a[$k]) > 0 && intval($b[$k]) <= 0)
 			return ($order == "DESC") ? -1 : 1;
-		elseif(IntVal($a[$k]) <= 0 && IntVal($b[$k]) > 0)
+		elseif(intval($a[$k]) <= 0 && intval($b[$k]) > 0)
 			return ($order == "DESC") ? 1 : -1;
 		else
 			return 0;
@@ -238,9 +238,9 @@ function bxStatSort($a, $b)
 
 		if($bFound)
 		{
-			if(IntVal($a[$v][$k]) == IntVal($b[$v][$k]))
+			if(intval($a[$v][$k]) == intval($b[$v][$k]))
 				return 0;
-			elseif(IntVal($a[$v][$k]) > IntVal($b[$v][$k]))
+			elseif(intval($a[$v][$k]) > intval($b[$v][$k]))
 				return ($order == "DESC") ? -1 : 1;
 			else
 				return ($order == "DESC") ? 1 : -1;
@@ -309,7 +309,7 @@ while ($arResult = $dbResult->GetNext())
 	$row->AddViewField("ORDER_QUANTITY", $arResult["ORDER_QUANTITY"]);
 	$row->AddViewField("BASKET_QUANTITY", $arResult["BASKET_QUANTITY"]);
 	$row->AddViewField("PAYED", $arResult["PAYED"]);
-	if(IntVal($arResult["ORDER_COUNT"]) > 0)
+	if(intval($arResult["ORDER_COUNT"]) > 0)
 	{
 		$row->AddViewField("PAYED_PROC", roundEx($arResult["PAYED"]*100/$arResult["ORDER_COUNT"], 0));
 		$row->AddViewField("ALLOW_DELIVERY_PROC", roundEx($arResult["ALLOW_DELIVERY"]*100/$arResult["ORDER_COUNT"], 0));

@@ -30,11 +30,14 @@ if ($arResult["bTasksAvailable"])
 }
 
 CJSCore::Init($extensions);
-UI\Extension::load("ui.buttons");
-UI\Extension::load("ui.animations");
-UI\Extension::load("ui.tooltip");
-UI\Extension::load("main.rating");
-UI\Extension::load("socialnetwork.commentaux");
+UI\Extension::load([
+	'ui.buttons',
+	'ui.animations',
+	'ui.tooltip',
+	'ui.icons.b24',
+	'main.rating',
+	'socialnetwork.commentaux'
+]);
 
 $bodyClass = $APPLICATION->GetPageProperty("BodyClass");
 $bodyClass = $bodyClass ? $bodyClass." no-all-paddings" : "no-all-paddings";
@@ -42,9 +45,6 @@ $APPLICATION->SetPageProperty("BodyClass", $bodyClass);
 
 ?><script>
 	BX.message({
-		sonetBPSetPath: '<?=CUtil::JSEscape("/bitrix/components/bitrix/socialnetwork.log.ex/ajax.php")?>',
-		sonetBPSiteId: '<?=CUtil::JSEscape(SITE_ID)?>',
-		sonetBPPathToPost: '<?=CUtil::JSEscape($arParams["PATH_TO_POST"])?>',
 		BLOG_POST_LINK_COPIED: '<?=GetMessageJS("BLOG_POST_LINK_COPIED")?>',
 		sonetLMenuFavoritesTitleY: '<?=GetMessageJS("BLOG_POST_MENU_TITLE_FAVORITES_Y")?>',
 		sonetLMenuFavoritesTitleN: '<?=GetMessageJS("BLOG_POST_MENU_TITLE_FAVORITES_N")?>',
@@ -58,22 +58,14 @@ $APPLICATION->SetPageProperty("BodyClass", $bodyClass);
 		BLOG_POST_VOTE_EXPORT: '<?=GetMessageJS("BLOG_POST_VOTE_EXPORT")?>',
 		BLOG_POST_MOD_PUB: '<?=GetMessageJS("BLOG_POST_MOD_PUB")?>',
 		BLOG_MES_HIDE: '<?=GetMessageJS("BLOG_MES_HIDE")?>',
-		BLOG_MES_HIDE_POST_CONFIRM: '<?=GetMessageJS("BLOG_MES_HIDE_POST_CONFIRM")?>'
+		BLOG_MES_HIDE_POST_CONFIRM: '<?=GetMessageJS("BLOG_MES_HIDE_POST_CONFIRM")?>',
+		sonetBPDeletePath: '<?=CUtil::JSEscape($arResult["urlToDelete"])?>'
 		<?
 		if (!$arResult["bFromList"])
 		{
 			?>,
 			sonetLESetPath: '<?=CUtil::JSEscape('/bitrix/components/bitrix/socialnetwork.log.entry/ajax.php')?>',
-			sonetLSessid: '<?=bitrix_sessid_get()?>',
-			sonetLLangId: '<?=CUtil::JSEscape(LANGUAGE_ID)?>',
-			sonetLSiteId: '<?=CUtil::JSEscape(SITE_ID)?>'
-			<?
-		}
-
-		if ($arResult["canDelete"])
-		{
-			?>,
-			sonetBPDeletePath: '<?=CUtil::JSEscape($arResult["urlToDelete"])?>'
+			sonetLSessid: '<?=bitrix_sessid_get()?>'
 			<?
 		}
 		?>
@@ -86,26 +78,29 @@ $APPLICATION->SetPageProperty("BodyClass", $bodyClass);
 		)
 		{
 			oSBPostManager.init({
-				tagLinkPattern: '<?=(!empty($arParams["PATH_TO_LOG_TAG"]) ? CUtil::JSEscape($arParams["PATH_TO_LOG_TAG"]) : '')?>'
+				tagLinkPattern: '<?=(!empty($arParams["PATH_TO_LOG_TAG"]) ? CUtil::JSEscape($arParams["PATH_TO_LOG_TAG"]) : '')?>',
+				readOnly: '<?=($arResult['ReadOnly'] ? 'Y' : 'N')?>',
+				pathToUser: '<?=(!empty($arParams["PATH_TO_USER"]) ? CUtil::JSEscape($arParams["PATH_TO_USER"]) : '')?>',
+				pathToPost: '<?=(!empty($arParams["PATH_TO_POST"]) ? CUtil::JSEscape($arParams["PATH_TO_POST"]) : '')?>'
 			});
 		}
 	});
 </script><?
 
 ?><div class="feed-item-wrap"><?
-if(strlen($arResult["MESSAGE"])>0)
+if($arResult["MESSAGE"] <> '')
 {
 	?><div class="feed-add-successfully">
 		<span class="feed-add-info-text"><span class="feed-add-info-icon"></span><?=$arResult["MESSAGE"]?></span>
 	</div><?
 }
-if(strlen($arResult["ERROR_MESSAGE"])>0)
+if($arResult["ERROR_MESSAGE"] <> '')
 {
 	?><div class="feed-add-error">
 		<span class="feed-add-info-text"><span class="feed-add-info-icon"></span><?=$arResult["ERROR_MESSAGE"]?></span>
 	</div><?
 }
-if(strlen($arResult["FATAL_MESSAGE"])>0)
+if($arResult["FATAL_MESSAGE"] <> '')
 {
 	if(!$arResult["bFromList"])
 	{
@@ -114,7 +109,7 @@ if(strlen($arResult["FATAL_MESSAGE"])>0)
 		</div><?
 	}
 }
-elseif(strlen($arResult["NOTE_MESSAGE"])>0)
+elseif($arResult["NOTE_MESSAGE"] <> '')
 {
 	?><div class="feed-add-successfully">
 		<span class="feed-add-info-text"><span class="feed-add-info-icon"></span><?=$arResult["NOTE_MESSAGE"]?></span>
@@ -209,7 +204,7 @@ else
 		if (
 			!$arResult["ReadOnly"]
 			&& array_key_exists("FOLLOW", $arParams)
-			&& strlen($arParams["FOLLOW"]) > 0
+			&& $arParams["FOLLOW"] <> ''
 			&& intval($arParams["LOG_ID"]) > 0
 		)
 		{
@@ -258,7 +253,7 @@ else
 					{
 						$postDest[] = (
 							$type == "U"
-							&& IntVal($val["ID"]) <= 0
+							&& intval($val["ID"]) <= 0
 								? array("id" => "UA", "name" => ($arResult["bIntranetInstalled"] ? GetMessage("BLOG_DESTINATION_ALL") : GetMessage("BLOG_DESTINATION_ALL_BSM")), "type" => "groups")
 								: array("id" => $type.$id, "name" => $val["NAME"], "type" => $typeText, "entityId" => $type.$id)
 						);
@@ -297,13 +292,13 @@ else
 			if (array_key_exists("USER_ID", $arParams) && intval($arParams["USER_ID"]) > 0)
 				$aditStyles .= " sonet-log-item-createdby-".$arParams["USER_ID"];
 
-			if (array_key_exists("ENTITY_TYPE", $arParams) && strlen($arParams["ENTITY_TYPE"]) > 0 && array_key_exists("ENTITY_ID", $arParams) && intval($arParams["ENTITY_ID"]) > 0 )
+			if (array_key_exists("ENTITY_TYPE", $arParams) && $arParams["ENTITY_TYPE"] <> '' && array_key_exists("ENTITY_ID", $arParams) && intval($arParams["ENTITY_ID"]) > 0 )
 			{
 				$aditStyles .= " sonet-log-item-where-".$arParams["ENTITY_TYPE"]."-".$arParams["ENTITY_ID"]."-all";
-				if (array_key_exists("EVENT_ID", $arParams) && strlen($arParams["EVENT_ID"]) > 0)
+				if (array_key_exists("EVENT_ID", $arParams) && $arParams["EVENT_ID"] <> '')
 				{
 					$aditStyles .= " sonet-log-item-where-".$arParams["ENTITY_TYPE"]."-".$arParams["ENTITY_ID"]."-".str_replace("_", '-', $arParams["EVENT_ID"]);
-					if (array_key_exists("EVENT_ID_FULLSET", $arParams) && strlen($arParams["EVENT_ID_FULLSET"]) > 0)
+					if (array_key_exists("EVENT_ID_FULLSET", $arParams) && $arParams["EVENT_ID_FULLSET"] <> '')
 						$aditStyles .= " sonet-log-item-where-".$arParams["ENTITY_TYPE"]."-".$arParams["ENTITY_ID"]."-".str_replace("_", '-', $arParams["EVENT_ID_FULLSET"]);
 				}
 			}
@@ -311,18 +306,20 @@ else
 			$avatar = false;
 			if (
 				isset($arResult["arUser"]["PERSONAL_PHOTO_resized"]["src"]) &&
-				strlen($arResult["arUser"]["PERSONAL_PHOTO_resized"]["src"]) > 0
+				$arResult["arUser"]["PERSONAL_PHOTO_resized"]["src"] <> ''
 			)
 			{
 				$avatar = $arResult["arUser"]["PERSONAL_PHOTO_resized"]["src"];
 			}
 			?>
 			<div class="feed-post-cont-wrap<?=$aditStyles?>" id="blg-post-img-<?=$arResult["Post"]["ID"]?>">
-				<div class="feed-user-avatar"
-					<? if ($avatar):?>
-						style="background: url('<?=$avatar?>'); background-size: cover;"
-					<? endif ?>
-				></div>
+				<div class="ui-icon ui-icon-common-user feed-user-avatar">
+					<i
+						<? if ($avatar):?>
+							style="background: url('<?=\CHTTP::urnEncode($avatar)?>'); background-size: cover;"
+						<? endif ?>
+					></i>
+				</div>
 				<div class="feed-post-title-block"><?
 					$anchor_id = $arResult["Post"]["ID"];
 					$arTooltipParams = (
@@ -463,7 +460,7 @@ else
 								else
 								{
 									if (
-										strlen($val["URL"]) > 0
+										$val["URL"] <> ''
 										&& !$arResult["bPublicPage"]
 									)
 									{
@@ -499,7 +496,7 @@ else
 									echo ", ";
 								}
 								if (
-									strlen($val["URL"]) > 0
+									$val["URL"] <> ''
 									&& !$arResult["bPublicPage"]
 								)
 								{
@@ -533,7 +530,7 @@ else
 									echo ", ";
 
 								if (
-									strlen($val["URL"]) > 0
+									$val["URL"] <> ''
 									&& !$arResult["bExtranetSite"]
 								)
 								{
@@ -576,7 +573,7 @@ else
 									?><span class="feed-add-post-destination-prefix<?=$classPrefixAdditional?>"><?=$val["CRM_PREFIX"]?>:&nbsp;</span><?
 								}
 								if (
-									strlen($val["URL"]) > 0
+									$val["URL"] <> ''
 									&& !$arResult["bPublicPage"]
 								)
 								{
@@ -622,7 +619,7 @@ else
 						empty($arParams['MODE'])
 						|| $arParams['MODE'] != 'LANDING'
 					)
-					&& strlen($arResult["urlToEdit"]) > 0
+					&& $arResult["urlToEdit"] <> ''
 						&& (
 							$arResult["PostPerm"] > BLOG_PERMS_MODERATE
 							|| (
@@ -666,7 +663,28 @@ else
 					}
 
 				?></div><? // feed-post-title-block
-				?><div class="feed-post-text-block<?=($arResult["Post"]["IS_IMPORTANT"] ? " feed-info-block" : "")?>" id="blog_post_outer_<?=$arResult["Post"]["ID"]?>"><?
+
+				$classList = [
+					'feed-post-text-block'
+				];
+
+				if ($arResult["Post"]["IS_IMPORTANT"])
+				{
+					$classList[] = 'feed-info-block';
+				}
+
+				if (
+					(
+						$arResult["Post"]["textFormated"] === ''
+						|| mb_strtolower($arResult["Post"]["textFormated"]) === '<b></b>' // empty text patch for attached diles
+					)
+					&& !$arResult["Post"]["IS_IMPORTANT"]
+				)
+				{
+					$classList[] = 'feed-info-block-empty';
+				}
+
+				?><div class="<?=(implode(' ', $classList))?>" id="blog_post_outer_<?=$arResult["Post"]["ID"]?>"><?
 					$className = "";
 					if ($arResult["bFromList"])
 					{
@@ -674,19 +692,6 @@ else
 					}
 					?><div class="<?=$className?>"<?if($arResult["bFromList"]) {?> id="feed-post-contentview-BLOG_POST-<?=intval($arResult["Post"]["ID"])?>" bx-content-view-xml-id="BLOG_POST-<?=intval($arResult["Post"]["ID"])?>"<? }?>>
 						<div class="feed-post-text-block-inner-inner" id="blog_post_body_<?=$arResult["Post"]["ID"]?>"><?=$arResult["Post"]["textFormated"]?><?
-
-						if (
-							$arResult["POST_PROPERTIES"]["SHOW"] == "Y"
-							&& array_key_exists("UF_BLOG_POST_VOTE", $arResult["POST_PROPERTIES"]["DATA"])
-						)
-						{
-							$arPostField = $arResult["POST_PROPERTIES"]["DATA"]["UF_BLOG_POST_VOTE"];
-							if(!empty($arPostField["VALUE"]))
-							{
-								$voteId = $arPostField["VALUE"];
-								$arPostField['BLOG_DATE_PUBLISH'] = $arResult["Post"]["DATE_PUBLISH"];
-							}
-						}
 
 						if ($arResult["Post"]["CUT"] == "Y")
 						{
@@ -813,7 +818,9 @@ else
 									"arAddField" => array(
 										"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"], 
 										"PATH_TO_USER" => $arParams["~PATH_TO_USER"],
-									)
+									),
+									"GRID" => ($arResult['Post']['hasInlineDiskFile'] ? 'N' : 'Y'),
+									"USE_TOGGLE_VIEW" => ($arResult["PostPerm"] >= 'W' ? 'Y' : 'N'),
 								), null, array("HIDE_ICONS"=>"Y")
 							);?><?
 						}
@@ -862,14 +869,15 @@ else
 								{
 									$anchor_id = 'post_grat_'.$arGratUser["ID"].'_'.RandString(5);
 									$avatar = false;
-									if (isset($arGratUser["AVATAR_SRC"]) && strlen($arGratUser["AVATAR_SRC"]) > 0)
+									if (isset($arGratUser["AVATAR_SRC"]) && $arGratUser["AVATAR_SRC"] <> '')
 									{
 										$avatar = $arGratUser["AVATAR_SRC"];
 									}
 									?><span class="feed-user-name-wrap">
-										<div class="feed-user-avatar">
+										<div class="ui-icon ui-icon-common-user feed-user-avatar">
 											<? if ($avatar):?>
-												<img src="<?=$avatar?>" alt="<?=CUser::FormatName($arParams['NAME_TEMPLATE'], $arGratUser)?>">
+												<i style="background-image: url('<?=$avatar?>');" alt="<?=CUser::FormatName($arParams['NAME_TEMPLATE'], $arGratUser)?>"></i>
+<!--												<img src="--><?//=$avatar?><!--" alt="--><?//=CUser::FormatName($arParams['NAME_TEMPLATE'], $arGratUser)?><!--">-->
 											<? endif ?>
 										</div>
 										<div class="feed-user-name-wrap-inner"><?
@@ -895,7 +903,7 @@ else
 							{
 								$anchor_id = 'post_grat_'.$arGratUser["ID"].'_'.RandString(5);
 								$avatar = false;
-								if (isset($arGratUser["AVATAR_SRC"]) && strlen($arGratUser["AVATAR_SRC"]) > 0)
+								if (isset($arGratUser["AVATAR_SRC"]) && $arGratUser["AVATAR_SRC"] <> '')
 								{
 									$avatar = $arGratUser["AVATAR_SRC"];
 								}
@@ -929,8 +937,8 @@ else
 								"bitrix:system.field.view",
 								$arPostField["USER_TYPE"]["USER_TYPE_ID"],
 								array(
-									"arUserField" => $arPostField,
-								), 
+									"arUserField" => $arPostField
+								),
 								null, 
 								array("HIDE_ICONS"=>"Y")
 							);?><?
@@ -951,7 +959,7 @@ else
 						if ($arParams["SHOW_RATING"] == "Y")
 						{
 							$voteId = "BLOG_POST".'_'.$arResult["Post"]["ID"].'-'.(time()+rand(0, 1000));
-							$emotion = (!empty($arResult["RATING"][$arResult["Post"]["ID"]]["USER_REACTION"]) ? strtoupper($arResult["RATING"][$arResult["Post"]["ID"]]["USER_REACTION"]) : 'LIKE');
+							$emotion = (!empty($arResult["RATING"][$arResult["Post"]["ID"]]["USER_REACTION"])? mb_strtoupper($arResult["RATING"][$arResult["Post"]["ID"]]["USER_REACTION"]) : 'LIKE');
 
 
 							if ($arResult["bIntranetInstalled"])
@@ -988,7 +996,7 @@ else
 
 						if(!in_array($arParams["TYPE"], array("DRAFT", "MODERATION")))
 						{
-							$bHasComments = (IntVal($arResult["PostSrc"]["NUM_COMMENTS"]) > 0);
+							$bHasComments = (intval($arResult["PostSrc"]["NUM_COMMENTS"]) > 0);
 							?><span class="feed-inform-comments"><?
 							?><a href="javascript:void(0);" id="blog-post-addc-add-<?=$arResult["Post"]["ID"]?>"><?=GetMessage("BLOG_COMMENTS_ADD")?></a><?
 							?></span><?
@@ -997,7 +1005,7 @@ else
 						if (
 							!$arResult["ReadOnly"]
 							&& array_key_exists("FOLLOW", $arParams)
-							&& strlen($arParams["FOLLOW"]) > 0
+							&& $arParams["FOLLOW"] <> ''
 							&& intval($arParams["LOG_ID"]) > 0
 						)
 						{
@@ -1014,14 +1022,14 @@ else
 									pathToPost: '<?=CUtil::JSEscape($arParams["PATH_TO_POST"])?>',
 									publicPage: <?=($arResult["bPublicPage"] ? 'true' : 'false')?>,
 									tasksAvailable: <?=($arResult["bTasksAvailable"] ? 'true' : 'false')?>,
-									urlToEdit: '<?=(strlen($arResult["urlToEdit"]) > 0 ? CUtil::JSEscape($arResult["urlToEdit"]) : '')?>',
-									urlToHide: '<?=(strlen($arResult["urlToHide"]) > 0 ? CUtil::JSEscape($arResult["urlToHide"]) : '')?>',
-									urlToDelete: '<?=(!$arResult["bFromList"] && strlen($arResult["urlToDelete"]) > 0 ? CUtil::JSEscape($arResult["urlToDelete"]) : '')?>',
-									urlToPub: '<?=(strlen($arResult["urlToPostPub"]) > 0 ? CUtil::JSEscape($arResult["urlToPostPub"]) : '')?>',
+									urlToEdit: '<?=($arResult["urlToEdit"] <> '' ? CUtil::JSEscape($arResult["urlToEdit"]) : '')?>',
+									urlToHide: '<?=($arResult["urlToHide"] <> '' ? CUtil::JSEscape($arResult["urlToHide"]) : '')?>',
+									urlToDelete: '<?=(!$arResult["bFromList"] && $arResult["urlToDelete"] <> '' ? CUtil::JSEscape($arResult["urlToDelete"]) : '')?>',
+									urlToPub: '<?=($arResult["urlToPostPub"] <> '' ? CUtil::JSEscape($arResult["urlToPostPub"]) : '')?>',
 									voteId: <?=(intval($voteId) > 0 ? intval($voteId) : 'false')?>,
 									postType: '<?=CUtil::JSEscape($arParams["TYPE"])?>',
 									group_readonly: <?=($arResult["ReadOnly"] ? 'true' : 'false')?>,
-									serverName: '<?=CUtil::JSEscape((CMain::IsHTTPS() ? "https" : "http")."://".((defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME) > 0) ? SITE_SERVER_NAME : COption::GetOptionString("main", "server_name", "")))?>',
+									serverName: '<?=CUtil::JSEscape((CMain::IsHTTPS() ? "https" : "http")."://".((defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '') ? SITE_SERVER_NAME : COption::GetOptionString("main", "server_name", "")))?>',
 									items: <?=\CUtil::phpToJSObject(!empty($arParams["ADIT_MENU"]) ? $arParams["ADIT_MENU"] : array())?>
 								});
 								return BX.PreventDefault(e);

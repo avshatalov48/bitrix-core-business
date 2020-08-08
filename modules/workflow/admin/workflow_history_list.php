@@ -68,11 +68,11 @@ $arFilter = array(
 	"DOCUMENT_ID" => $find_document_id,
 	"DATE_MODIFY_1" => $find_modify_1,
 	"DATE_MODIFY_2" => $find_modify_2,
-	"MODIFIED_USER" => ($find_type == "modified_by" && strlen($find) > 0 ? $find : $find_modified_user),
+	"MODIFIED_USER" => ($find_type == "modified_by" && $find <> '' ? $find : $find_modified_user),
 	"SITE_ID" => $find_site_id,
 	"FILENAME" => $find_filename,
-	"TITLE" => ($find_type == "title" && strlen($find) > 0 ? $find : $find_title),
-	"BODY" => ($find_type == "body" && strlen($find) > 0 ? $find : $find_body),
+	"TITLE" => ($find_type == "title" && $find <> '' ? $find : $find_title),
+	"BODY" => ($find_type == "body" && $find <> '' ? $find : $find_body),
 	"STATUS" => $find_status,
 	"STATUS_ID" => $find_status_id,
 	"ID_EXACT_MATCH" => $find_id_exact_match,
@@ -94,7 +94,7 @@ if ($arID = $lAdmin->GroupAction())
 	}
 	foreach ($arID as $ID)
 	{
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if ($ID <= 0)
 			continue;
 

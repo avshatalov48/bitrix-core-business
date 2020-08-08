@@ -20,10 +20,14 @@ $result = array(
 );
 
 $siteId = '';
-if(strlen($_REQUEST['SITE_ID']))
+if($_REQUEST['SITE_ID'] <> '')
+{
 	$siteId = $_REQUEST['SITE_ID'];
-elseif(strlen(SITE_ID))
+}
+elseif(mb_strlen(SITE_ID))
+{
 	$siteId = SITE_ID;
+}
 
 if($_REQUEST['ACT'] != 'GET_LOCS_BY_ZIP')
 {
@@ -37,10 +41,12 @@ if($_REQUEST['ACT'] != 'GET_LOCS_BY_ZIP')
 	{
 		$result['DATA']['ID'] = intval($item['LOCATION_ID']);
 
-		if(strlen($siteId))
+		if($siteId <> '')
 		{
 			if(!Location\SiteLocationTable::checkConnectionExists($siteId, $result['DATA']['ID']))
+			{
 				$result['ERRORS'] = array('Found, but not connected');
+			}
 		}
 	}
 }
@@ -56,9 +62,13 @@ else
 
 		$locationId = intval($item['LOCATION_ID']);
 
-		if(strlen($siteId))
+		if($siteId <> '')
+		{
 			if(!Location\SiteLocationTable::checkConnectionExists($siteId, $locationId))
+			{
 				continue;
+			}
+		}
 
 		$parentId = intval($item['PARENT_ID']);
 

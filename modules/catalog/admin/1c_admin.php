@@ -103,7 +103,7 @@ if ($USER->CanDoOperation('catalog_read')) :
 			),
 		);
 
-		if ($_SERVER['REQUEST_METHOD'] == "POST" && strlen($Update)>0 && $USER->CanDoOperation('edit_php') && check_bitrix_sessid())
+		if ($_SERVER['REQUEST_METHOD'] == "POST" && $Update <> '' && $USER->CanDoOperation('edit_php') && check_bitrix_sessid())
 		{
 			$arDisableOptions = array();
 			foreach ($arOptionsDeps as $option => $subOptions)

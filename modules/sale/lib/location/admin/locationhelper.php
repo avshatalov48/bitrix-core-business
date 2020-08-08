@@ -190,7 +190,7 @@ final class LocationHelper extends NameHelper
 		{
 			foreach($externals as $eId => $external)
 			{
-				if(!strlen($external['XML_ID']))
+				if($external['XML_ID'] == '')
 					unset($externals[$eId]);
 			}
 		}
@@ -352,7 +352,7 @@ final class LocationHelper extends NameHelper
 
 	public static function checkRequestIsMenuRequest()
 	{
-		return strpos($_REQUEST['admin_mnu_menu_id'], self::MENU_ITEMS_QUERY_STRING_TAG) !== false;
+		return mb_strpos($_REQUEST['admin_mnu_menu_id'], self::MENU_ITEMS_QUERY_STRING_TAG) !== false;
 	}
 
 	public static function getLocationSubMenu()
@@ -637,7 +637,7 @@ final class LocationHelper extends NameHelper
 
 	public static function getZipByLocation($locationCode, $parameters = array())
 	{
-		if(strlen($locationCode) <= 0)
+		if($locationCode == '')
 			return new \Bitrix\Main\DB\ArrayResult(array());
 
 		if(!is_array($parameters))
@@ -701,7 +701,7 @@ final class LocationHelper extends NameHelper
 	 */
 	public static function getLocationPathDisplay($primary)
 	{
-		if(!strlen($primary))
+		if($primary == '')
 			return '';
 
 		if((string) $primary === (string) intval($primary))

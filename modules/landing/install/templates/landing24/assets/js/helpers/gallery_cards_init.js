@@ -16,6 +16,7 @@
 
 	BX.addCustomEvent("BX.Landing.Block:Node:update", function (event)
 	{
+		// todo: maybe not need in editor?
 		if (typeof(window["landingGalleresCards" + event.block.id]) != 'undefined')
 		{
 			var gallery = event.block.querySelector(event.makeRelativeSelector(".js-gallery-cards"));
@@ -69,7 +70,7 @@
 				aParams.attrs[this.dataFancybox] = BX.data(image, this.dataFancybox.replace('data-', '')) + '_' + this.uniqId;
 
 				// add title to link
-				var alt = image.getAttribute('alt');
+				var alt = BX.Text.encode(image.getAttribute('alt'));
 				if (alt != null)
 				{
 					aParams.attrs[this.dataFancyboxTitle] = alt;
@@ -123,7 +124,7 @@
 						var outerParams = {attrs: {'href': src}};
 
 						// add title to link
-						var alt = image.getAttribute('alt');
+						var alt = BX.Text.encode(image.getAttribute('alt'));
 						if (alt != null)
 						{
 							outerParams.attrs[this.dataFancyboxTitle] = alt;

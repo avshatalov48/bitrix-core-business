@@ -7,7 +7,7 @@ if ($arResult["ShowReady"]=="Y" || $arResult["ShowDelay"]=="Y" || $arResult["Sho
 		if ($arHeader["name"] == '')
 		{
 			$arResult["GRID"]["HEADERS"][$id]["name"] = GetMessage("SALE_".$arHeader["id"]);
-			if(strlen($arResult["GRID"]["HEADERS"][$id]["name"])==0)
+			if($arResult["GRID"]["HEADERS"][$id]["name"] == '')
 				$arResult["GRID"]["HEADERS"][$id]["name"] = GetMessage("SALE_".str_replace("_FORMATED", "", $arHeader["id"]));
 		}
 	endforeach;

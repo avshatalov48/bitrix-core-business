@@ -6,7 +6,7 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Socialnetwork\UserWelltoryTable;
 
-class StressLevel extends \Bitrix\Main\Engine\Controller
+class StressLevel extends \Bitrix\Socialnetwork\Controller\Base
 {
 	private function isCurrentUserAdmin()
 	{

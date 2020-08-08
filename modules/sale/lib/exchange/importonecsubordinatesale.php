@@ -130,7 +130,7 @@ final class ImportOneCSubordinateSale extends ImportOneCPackage
 								{
 									//системная и реальная отгрузка
 									$externalId = current($shipmentList)['ID_1C'];
-									$shipmentFields['ID_1C'] = strlen($externalId)<=0? $documentOrder->getField('ID_1C'):$externalId;
+									$shipmentFields['ID_1C'] = $externalId == ''? $documentOrder->getField('ID_1C'):$externalId;
 									$shipmentFields['ID'] = current($shipmentList)['ID'];
 								}
 								else

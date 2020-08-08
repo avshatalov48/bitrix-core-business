@@ -21,7 +21,7 @@ class CAllPerfomanceTable
 		$arQueryOrder = array();
 		foreach ($arOrder as $strColumn => $strDirection)
 		{
-			$strDirection = strtoupper($strDirection) == "ASC"? "ASC": "DESC";
+			$strDirection = mb_strtoupper($strDirection) == "ASC"? "ASC": "DESC";
 			if (array_key_exists($strColumn, $arFields))
 			{
 				$arSelect[] = $strColumn;

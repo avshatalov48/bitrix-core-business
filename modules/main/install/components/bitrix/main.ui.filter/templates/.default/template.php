@@ -211,17 +211,19 @@ if ($arResult["LIMITS_ENABLED"])
 ?>
 
 <script>
-	BX.Main.filterManager.push(
-		'<?=\CUtil::jSEscape($arParams["FILTER_ID"])?>',
-		new BX.Main.Filter(
-			<?=CUtil::PhpToJSObject($arResult)?>,
-			<?=CUtil::PhpToJSObject($arParams["CONFIG"])?>,
-			<?=CUtil::PhpToJSObject(Type::getList())?>,
-			<?=CUtil::PhpToJSObject(DateType::getList())?>,
-			<?=CUtil::PhpToJSObject(NumberType::getList())?>,
-			<?=CUtil::PhpToJSObject(AdditionalDateType::getList())?>
-		)
-	);
+	BX.ready(function() {
+		BX.Main.filterManager.push(
+			'<?=\CUtil::jSEscape($arParams["FILTER_ID"])?>',
+			new BX.Main.Filter(
+				<?=CUtil::PhpToJSObject($arResult)?>,
+				<?=CUtil::PhpToJSObject($arParams["CONFIG"])?>,
+				<?=CUtil::PhpToJSObject(Type::getList())?>,
+				<?=CUtil::PhpToJSObject(DateType::getList())?>,
+				<?=CUtil::PhpToJSObject(NumberType::getList())?>,
+				<?=CUtil::PhpToJSObject(AdditionalDateType::getList())?>
+			)
+		);
+	});
 </script>
 <?
 	if (!empty($arResult["TARGET_VIEW_ID"]))

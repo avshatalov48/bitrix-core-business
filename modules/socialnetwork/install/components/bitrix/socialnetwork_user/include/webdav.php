@@ -91,15 +91,15 @@ $file = trim(preg_replace("'[\\\\/]+'", "/", (dirname(__FILE__)."/../lang/".LANG
 
 __IncludeLang($file);
 
-$object = (strPos($componentPage, "group_files")!== false ? "group" : "user");
+$object = (mb_strpos($componentPage, "group_files") !== false ? "group" : "user");
 /********************************************************************
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-$arParams["IBLOCK_TYPE"] = intVal($object == "user" ? $arParams["FILES_USER_IBLOCK_TYPE"] : $arParams["FILES_GROUP_IBLOCK_TYPE"]);
-$arParams["IBLOCK_ID"] = intVal($object == "user" ? $arParams["FILES_USER_IBLOCK_ID"] : $arParams["FILES_GROUP_IBLOCK_ID"]);
+$arParams["IBLOCK_TYPE"] = intval($object == "user" ? $arParams["FILES_USER_IBLOCK_TYPE"] : $arParams["FILES_GROUP_IBLOCK_TYPE"]);
+$arParams["IBLOCK_ID"] = intval($object == "user" ? $arParams["FILES_USER_IBLOCK_ID"] : $arParams["FILES_GROUP_IBLOCK_ID"]);
 $arParams['USE_AUTH'] = ($arParams['FILES_USE_AUTH'] == "Y" ? "Y" : "N");
-$arParams["NAME_FILE_PROPERTY"] = strToupper(trim(empty($arParams["FILE_NAME_FILE_PROPERTY"]) ? "FILE" : $arParams["FILE_NAME_FILE_PROPERTY"]));
+$arParams["NAME_FILE_PROPERTY"] = mb_strtoupper(trim(empty($arParams["FILE_NAME_FILE_PROPERTY"])? "FILE" : $arParams["FILE_NAME_FILE_PROPERTY"]));
 $arParams["FILES_PATH_TO_SMILE"] = "/bitrix/images/forum/smile/";
 $arResult['BASE_URL'] = ($object == "user" ? $arParams["FILES_USER_BASE_URL"] : $arParams["FILES_GROUP_BASE_URL"]);
 if ($arParams["SEF_MODE"] == "Y"):
@@ -245,7 +245,7 @@ if ($arParams["SET_NAV_CHAIN"] == "Y" || $arParams["SET_TITLE"] == "Y")
 	}
 	else
 	{
-		if (strlen($arParams["NAME_TEMPLATE"]) <= 0)
+		if ($arParams["NAME_TEMPLATE"] == '')
 			$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 
 		$arParams["TITLE_NAME_TEMPLATE"] = str_replace(
@@ -350,15 +350,15 @@ $arParsedUrl = parse_url($_SERVER['REQUEST_URI']);
 $page = ($arParsedUrl ? $arParsedUrl['path'] : $_SERVER['REQUEST_URI']);
 /************** Initial object *************************************/
 $arParams["DOCUMENT_TYPE"] = array("webdav", "CIBlockDocumentWebdavSocnet", "iblock_".$arParams["IBLOCK_ID"]."_".$object."_".
-		intVal($object == "user" ? $arResult["VARIABLES"]["user_id"] : $arResult["VARIABLES"]["group_id"]));
+		intval($object == "user" ? $arResult["VARIABLES"]["user_id"] : $arResult["VARIABLES"]["group_id"]));
 
 $arBizProcParameters = array(
 	"object" => $object,
 	"owner" => ($object == "user" ? $arResult["VARIABLES"]["user_id"] : $arResult["GROUP"]["OWNER_ID"]),
-	"moderator" => strtolower($object == "user" ? SONET_RELATIONS_TYPE_NONE : SONET_ROLES_MODERATOR),
+	"moderator" => mb_strtolower($object == "user"? SONET_RELATIONS_TYPE_NONE : SONET_ROLES_MODERATOR),
 	"path" => ($object == "user" ? $arResult["PATH_TO_USER_FILES_WEBDAV_BIZPROC_VIEW"] : $arResult["PATH_TO_GROUP_FILES_WEBDAV_BIZPROC_VIEW"]),
 	"document_type" => $ob->wfParams['DOCUMENT_TYPE'][2]);
-$user_id_str = (intVal($arResult["VARIABLES"]["user_id"]) > 0 ? $arResult["VARIABLES"]["user_id"] : $GLOBALS["USER"]->GetId());
+$user_id_str = (intval($arResult["VARIABLES"]["user_id"]) > 0 ? $arResult["VARIABLES"]["user_id"] : $GLOBALS["USER"]->GetId());
 $arBizProcParameters["path"] = str_replace(
 	array(
 		"#user_id#",
@@ -457,14 +457,14 @@ if(array_key_exists("GetDialogDiv", $_REQUEST) && intval($_REQUEST["GetDialogDiv
 	CWebDavExtLinks::PrintDialogDiv($ob);
 }
 
-if(array_key_exists("DeleteLink", $_REQUEST) && strlen($_REQUEST["DeleteLink"]) > 0)
+if(array_key_exists("DeleteLink", $_REQUEST) && $_REQUEST["DeleteLink"] <> '')
 {
 	CWebDavExtLinks::CheckSessID();
 	CWebDavExtLinks::CheckRights($ob);
 	CWebDavExtLinks::DeleteLink($_REQUEST["DeleteLink"]);
 }
 
-if(array_key_exists("DeleteAllLinks", $_REQUEST) && strlen($_REQUEST["DeleteAllLinks"]) > 0)
+if(array_key_exists("DeleteAllLinks", $_REQUEST) && $_REQUEST["DeleteAllLinks"] <> '')
 {
 	CWebDavExtLinks::CheckSessID();
 	CWebDavExtLinks::CheckRights($ob);
@@ -580,7 +580,7 @@ if (($_SERVER['REQUEST_METHOD'] == 'POST' || $_SERVER['REQUEST_METHOD'] == 'GET'
 	}
 
 	elseif (($componentPage == "user_files_section_edit" || $componentPage == "group_files_section_edit") &&
-		strToUpper($_REQUEST["use_light_view"]) == "Y")
+		mb_strtoupper($_REQUEST["use_light_view"]) == "Y")
 	{
 		$componentPage .= "_simple";
 	}
@@ -633,7 +633,7 @@ if (($_SERVER['REQUEST_METHOD'] == 'POST' || $_SERVER['REQUEST_METHOD'] == 'GET'
 						{
 							$arParams["FORM_ID"] = "webdavForm".$arParams["IBLOCK_ID"];
 							$elementUrl = str_replace('#element_id#', $elementID, $elementUrl);
-							$elementUrl .= (strpos($elementUrl, '?') !== false ? '&' : '?');
+							$elementUrl .= (mb_strpos($elementUrl, '?') !== false ? '&' : '?');
 							$elementUrl .= $arParams["FORM_ID"].'_active_tab=tab_comments';
 
 							LocalRedirect($elementUrl);
@@ -668,11 +668,11 @@ else
 ********************************************************************/
 foreach ($arDefaultUrlTemplates404 as $url => $value)
 {
-	if (strPos($componentPage, "user_files") === false && strPos($componentPage, "group_files") === false &&
-		strPos($componentPage, "bizproc") === false)
+	if (mb_strpos($componentPage, "user_files") === false && mb_strpos($componentPage, "group_files") === false &&
+		mb_strpos($componentPage, "bizproc") === false)
 		continue;
-	$user_id_str = (intVal($arResult["VARIABLES"]["user_id"]) > 0 ? $arResult["VARIABLES"]["user_id"] : $GLOBALS["USER"]->GetId());
-	$arResult["~PATH_TO_".strToUpper($url)] = str_replace(
+	$user_id_str = (intval($arResult["VARIABLES"]["user_id"]) > 0 ? $arResult["VARIABLES"]["user_id"] : $GLOBALS["USER"]->GetId());
+	$arResult["~PATH_TO_".mb_strtoupper($url)] = str_replace(
 		array(
 			"#user_id#",
 			"#group_id#",
@@ -693,7 +693,7 @@ foreach ($arDefaultUrlTemplates404 as $url => $value)
 			"#ACTION#",
 			"#ID#",
 			"#ID#"),
-		$arResult["PATH_TO_".strToUpper($url)]);
+		$arResult["PATH_TO_".mb_strtoupper($url)]);
 }
 
 if ($ob->workflow == 'bizproc' || $ob->workflow == 'bizproc_limited')
@@ -713,7 +713,7 @@ $arResult["VARIABLES"]["PERMISSION"] = $arParams["PERMISSION"];
 $arResult["VARIABLES"]["CHECK_CREATOR"] = $arParams["CHECK_CREATOR"];
 $arResult["VARIABLES"]["BASE_URL"] = $arResult['BASE_URL'];
 $arResult["VARIABLES"]["STR_TITLE"] = $arParams["STR_TITLE"];
-$arResult["VARIABLES"]["PAGE_NAME"] = strtoupper(str_replace(array("user_files_", "user_files", "group_files_", "group_files"), "", $componentPage));
+$arResult["VARIABLES"]["PAGE_NAME"] = mb_strtoupper(str_replace(array("user_files_", "user_files", "group_files_", "group_files"), "", $componentPage));
 $arResult["VARIABLES"]["PAGE_NAME"] = ($arResult["VARIABLES"]["PAGE_NAME"] == "" ? "SECTIONS" : $arResult["VARIABLES"]["PAGE_NAME"]);
 $arResult["VARIABLES"]["MODULE_ID"] = $ob->wfParams['DOCUMENT_TYPE'][0];
 $arResult["VARIABLES"]["ENTITY"] = $ob->wfParams['DOCUMENT_TYPE'][1]; 

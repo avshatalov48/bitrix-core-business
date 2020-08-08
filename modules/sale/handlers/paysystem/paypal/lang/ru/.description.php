@@ -11,6 +11,7 @@ $MESS["SALE_HPS_PAYPAL_SHOULD_PAY"] = "Сумма к оплате";
 $MESS["SALE_HPS_PAYPAL_CURRENCY"] = "Валюта оплаты";
 $MESS["SALE_HPS_PAYPAL_NOTIFY_URL"] = "Адрес страницы для получения уведомлений";
 $MESS["SALE_HPS_PAYPAL_RETURN"] = "Адрес возврата";
+$MESS["SALE_HPS_PAYPAL_RETURN_DESC"] = "Оставьте пустым для автоматического определения адреса, клиент вернется на страницу с которой был выполнен переход на оплату";
 $MESS["SALE_HPS_PAYPAL_TEST"] = "Тестовый режим";
 $MESS["SALE_HPS_PAYPAL_SSL_ENABLE"] = "Поддержка SSL в PHP на вашем сайте";
 $MESS["SALE_HPS_PAYPAL_ON0"] = "Название первого опционального поля";

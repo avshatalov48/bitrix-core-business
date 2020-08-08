@@ -1,5 +1,7 @@
 <?
 
+use Bitrix\Main\Error;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\UserConsent\Agreement;
@@ -22,8 +24,34 @@ class MainUserConsentListComponent extends CBitrixComponent
 	/** @var  Agreement $agreement */
 	protected $agreement;
 
+	public function executeComponent()
+	{
+		$this->errors = new ErrorCollection();
+
+		$this->initParams();
+
+		if (!$this->checkRequiredParams())
+		{
+			$this->printErrors();
+			return;
+		}
+
+		if (!$this->prepareResult())
+		{
+			$this->printErrors();
+			return;
+		}
+
+		$this->includeComponentTemplate();
+	}
+
 	protected function checkRequiredParams()
 	{
+		if (!Loader::includeModule('ui'))
+		{
+			$this->errors->setError(new Error('Could not include ui module'));
+			return false;
+		}
 		return true;
 	}
 
@@ -36,11 +64,11 @@ class MainUserConsentListComponent extends CBitrixComponent
 		$this->arParams['GRID_ID'] = isset($this->arParams['GRID_ID']) ? $this->arParams['GRID_ID'] : 'MAIN_USER_CONSENT_AGREEMENT_GRID';
 		$this->arParams['FILTER_ID'] = isset($this->arParams['FILTER_ID']) ? $this->arParams['GRID_FILTER_ID'] : $this->arParams['FILTER_ID'] . '_FILTER';
 
-		$this->arParams['RENDER_FILTER_INTO_VIEW'] = isset($this->arParams['RENDER_FILTER_INTO_VIEW']) ? $this->arParams['RENDER_FILTER_INTO_VIEW'] : '';
-		$this->arParams['RENDER_FILTER_INTO_VIEW_SORT'] = isset($this->arParams['RENDER_FILTER_INTO_VIEW_SORT']) ? $this->arParams['RENDER_FILTER_INTO_VIEW_SORT'] : 10;
-
 		$this->arParams['SET_TITLE'] = isset($this->arParams['SET_TITLE']) ? $this->arParams['SET_TITLE'] == 'Y' : true;
+
 		$this->arParams['CAN_EDIT'] = isset($this->arParams['CAN_EDIT']) ? $this->arParams['CAN_EDIT'] : false;
+
+		$this->arParams['ADMIN_MODE'] = isset($this->arParams['ADMIN_MODE']) ? $this->arParams['ADMIN_MODE'] : false;
 	}
 
 	protected function processPostAction()
@@ -97,25 +125,24 @@ class MainUserConsentListComponent extends CBitrixComponent
 		// get rows
 		$booleanList = $this->getBooleanNameList();
 		$typeNames = Agreement::getTypeNames();
-		$list = AgreementTable::getList(array(
-			'select' => array('ID', 'DATE_INSERT', 'ACTIVE', 'NAME', 'TYPE'),
+		$list = AgreementTable::getList([
+			'select' => ['ID', 'DATE_INSERT', 'ACTIVE', 'NAME', 'TYPE'],
 			'filter' => $this->getDataFilter(),
 			'offset' => $nav->getOffset(),
 			'limit' => $nav->getLimit(),
 			'count_total' => true,
-			'cache' => array('ttl' => 3600),
-			'order' => array(
-				'ID' => 'ASC'
-			)
-		));
+			'cache' => ['ttl' => 3600],
+			'order' => $this->getGridOrder()
+		]);
 		foreach ($list as $item)
 		{
-
 			$item['ACTIVE'] = $booleanList[$item['ACTIVE']];
 			$item['TYPE'] = $typeNames[$item['TYPE']];
 
 			$this->arResult['ROWS'][] = $item;
 		}
+
+		$this->prepareRowsActions();
 
 		$this->arResult['TOTAL_ROWS_COUNT'] = $list->getCount();
 
@@ -163,79 +190,124 @@ class MainUserConsentListComponent extends CBitrixComponent
 		{
 			$filter['NAME'] = '%' . $requestFilter['NAME'] . '%';
 		}
-		/*
-		if (isset($requestFilter['ACTIVE']) && $requestFilter['ACTIVE'])
+		if (isset($requestFilter['LANGUAGE_ID']) && $requestFilter['LANGUAGE_ID'])
 		{
-			$filter['=ACTIVE'] = $requestFilter['ACTIVE'];
+			$filter['=LANGUAGE_ID'] = $requestFilter['LANGUAGE_ID'];
 		}
-		*/
 
 		return $filter;
 	}
 
-	protected function setUiGridColumns()
+	protected function setUiGridColumns(): void
 	{
-		$this->arResult['COLUMNS'] = array(
-			array(
+		$this->arResult['COLUMNS'] = $this->getUiGridColumns();
+	}
+
+	private function getUiGridColumns(): array
+	{
+		return [
+			[
 				"id" => "ID",
 				"name" => "ID",
 				"default" => false
-			),
-			array(
+			],
+			[
 				"id" => "DATE_INSERT",
 				"name" => Loc::getMessage('MAIN_USER_CONSENT_LIST_COMP_UI_COLUMN_DATE_INSERT'),
-				"default" => true
-			),
-			array(
+				"default" => true,
+				"sort" => "DATE_INSERT",
+			],
+			[
 				"id" => "NAME",
 				"name" => Loc::getMessage('MAIN_USER_CONSENT_LIST_COMP_UI_COLUMN_NAME'),
-				"default" => true
-			),
-			array(
+				"default" => true,
+				"sort" => "NAME",
+			],
+			[
 				"id" => "TYPE",
 				"name" => Loc::getMessage('MAIN_USER_CONSENT_LIST_COMP_UI_COLUMN_TYPE'),
+				"default" => true,
+				"sort" => "TYPE",
+			],
+			[
+				"id" => "ADDITIONAL",
+				"name" => Loc::getMessage('MAIN_USER_CONSENT_LIST_COMP_UI_COLUMN_TITLE_ADDITIONAL'),
 				"default" => true
-			),
-			/*
-			array(
-				"id" => "ACTIVE",
-				"name" => Loc::getMessage('MAIN_USER_CONSENT_LIST_COMP_UI_COLUMN_ACTIVE'),
-				"default" => true
-			)
-			*/
-		);
+			],
+		];
 	}
 
 	protected function setUiFilter()
 	{
-		$this->arResult['FILTERS'] = array(
-			array(
+		$this->arResult['FILTERS'] = [
+			[
 				"id" => "NAME",
 				"name" => Loc::getMessage('MAIN_USER_CONSENT_LIST_COMP_UI_COLUMN_NAME'),
 				"default" => true
-			),
-			array(
+			],
+			[
 				"id" => "TYPE",
 				"name" => Loc::getMessage('MAIN_USER_CONSENT_LIST_COMP_UI_COLUMN_TYPE'),
 				"type" => "list",
 				"items" => Agreement::getTypeNames(),
 				"default" => true
-			),
-			array(
+			],
+			[
 				"id" => "DATE_INSERT",
 				"name" => Loc::getMessage('MAIN_USER_CONSENT_LIST_COMP_UI_COLUMN_DATE_INSERT'),
 				"type" => "date",
 				"default" => true
-			),
-			/*
-			array(
-				"id" => "ACTIVE",
-				"name" => Loc::getMessage('MAIN_USER_CONSENT_LIST_COMP_UI_COLUMN_ACTIVE'),
-				"type" => "checkbox",
+			],
+			[
+				"id" => "LANGUAGE_ID",
+				"name" => Loc::getMessage('MAIN_USER_CONSENT_LIST_COMP_UI_COLUMN_LANGUAGE_ID'),
+				"type" => "list",
+				"items" => $this->getLanguages(),
 				"default" => true
-			),
-			*/
-		);
+			],
+		];
+	}
+
+	private function getGridOrder()
+	{
+		$defaultSort = ['ID' => 'DESC'];
+
+		$gridOptions = new Bitrix\Main\Grid\Options($this->arParams['GRID_ID']);
+		$sorting = $gridOptions->getSorting(['sort' => $defaultSort]);
+
+		$by = key($sorting['sort']);
+		$order = strtoupper(current($sorting['sort'])) === 'ASC' ? 'ASC' : 'DESC';
+
+		$list = [];
+		foreach ($this->getUiGridColumns() as $column)
+		{
+			if (!empty($column['sort']))
+			{
+				$list[] = $column['sort'];
+			}
+		}
+
+		if (!in_array($by, $list))
+		{
+			return $defaultSort;
+		}
+
+		return [$by => $order];
+	}
+
+	private function getLanguages(): array
+	{
+		$languages = [];
+
+		$by = "sort";
+		$order = "asc";
+		$queryObject = CLanguage::getList($by, $order, []);
+		while ($language = $queryObject->fetch())
+		{
+			$languages[$language['LANGUAGE_ID']] = $language['LANGUAGE_ID'];
+		}
+
+		return $languages;
 	}
 
 	protected function printErrors()
@@ -246,22 +318,40 @@ class MainUserConsentListComponent extends CBitrixComponent
 		}
 	}
 
-	public function executeComponent()
+	private function prepareRowsActions()
 	{
-		$this->errors = new \Bitrix\Main\ErrorCollection();
-		$this->initParams();
-		if (!$this->checkRequiredParams())
+		foreach ($this->arResult['ROWS'] as $index => $data)
 		{
-			$this->printErrors();
-			return;
-		}
+			$pathToEdit = str_replace('#id#', $data['ID'], $this->arParams['PATH_TO_EDIT']);
+			$pathToConsentList = str_replace('#id#', $data['ID'], $this->arParams['PATH_TO_CONSENT_LIST']);
 
-		if (!$this->prepareResult())
-		{
-			$this->printErrors();
-			return;
-		}
+			$data['NAME'] = '<a data-bx-slider-href="" href="' . htmlspecialcharsbx($pathToEdit) .
+				'">' . htmlspecialcharsbx($data['NAME']) . '</a>';
 
-		$this->includeComponentTemplate();
+			$data['ADDITIONAL'] = '<a data-bx-slider-href="" href="' . htmlspecialcharsbx($pathToConsentList) .
+				'">' . Loc::getMessage('MAIN_USER_CONSENT_LIST_COMP_UI_ROW_ACTION_VIEW_CONSENTS') . '</a>';
+
+			$actions = [];
+			$actions[] = [
+				'text' => Loc::getMessage('MAIN_USER_CONSENT_LIST_COMP_UI_ROW_ACTION_VIEW'),
+				'onclick' => 'BX.SidePanel.Instance.open("' . \CUtil::JSEscape($pathToEdit). '")',
+				'default' => true
+			];
+			$actions[] = [
+				'text' => Loc::getMessage('MAIN_USER_CONSENT_LIST_COMP_UI_ROW_ACTION_VIEW_CONSENTS'),
+				'href' => CUtil::JSEscape($pathToConsentList),
+			];
+			$actions[] = [
+				'text' => Loc::getMessage('MAIN_USER_CONSENT_LIST_COMP_UI_ROW_ACTION_REMOVE'),
+				'onclick' => 'BX.Main.UserConsent.List.remove(' . \CUtil::JSEscape($data['ID']). ', "' .
+					\CUtil::JSEscape($this->arParams['GRID_ID']). '")',
+			];
+
+			$this->arResult['ROWS'][$index] = [
+				'id' => $data['ID'],
+				'columns' => $data,
+				'actions' => $actions
+			];
+		}
 	}
 }

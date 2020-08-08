@@ -94,6 +94,7 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 		this._optionFlags = 0;
 
 		this._isEditable = true;
+		this._isShownAlways = false;
 		this._isTransferable = true;
 		this._isContextMenuEnabled = true;
 		this._isRequired = false;
@@ -117,6 +118,7 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 			this._data = BX.prop.getObject(this._settings, "data", {});
 
 			this._isEditable = BX.prop.getBoolean(this._settings, "editable", true);
+			this._isShownAlways = BX.prop.getBoolean(this._settings, "showAlways", false);
 			this._isTransferable = BX.prop.getBoolean(this._settings, "transferable", true);
 			this._isContextMenuEnabled = BX.prop.getBoolean(this._settings, "enabledMenu", true);
 			this._isTitleEnabled = BX.prop.getBoolean(this._settings, "enableTitle", true)
@@ -207,6 +209,10 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 		isEditable: function()
 		{
 			return this._isEditable;
+		},
+		isShownAlways: function()
+		{
+			return this._isShownAlways;
 		},
 		isTransferable: function()
 		{
@@ -321,9 +327,21 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 		{
 			var result = { name: this._name };
 
-			if(this._type === "section")
+			if(this._type === "column")
+			{
+				result["type"] = "column";
+				result["data"] = this._data;
+
+				result["elements"] = [];
+				for(var i = 0, length = this._elements.length; i < length; i++)
+				{
+					result["elements"].push(this._elements[i].createConfigItem());
+				}
+			}
+			else if(this._type === "section")
 			{
 				result["type"] = "section";
+				result["data"] = this._data;
 
 				if(this._title !== "")
 				{
@@ -335,6 +353,16 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 				{
 					//result["elements"].push({ name: this._elements[i].getName() });
 					result["elements"].push(this._elements[i].createConfigItem());
+				}
+			}
+			else if(this._type === "included_area")
+			{
+				result["type"] = "included_area";
+				result["data"] = this._data;
+
+				if(this._title !== "")
+				{
+					result["title"] = this._title;
 				}
 			}
 			else

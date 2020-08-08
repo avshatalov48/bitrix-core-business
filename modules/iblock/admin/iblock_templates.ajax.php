@@ -39,7 +39,7 @@ if (check_bitrix_sessid())
 		);
 		foreach ($_POST as $key => $value)
 		{
-			if (substr($key, 0, 3) === "UF_")
+			if (mb_substr($key, 0, 3) === "UF_")
 				$arFields[$key] = $value;
 		}
 	}

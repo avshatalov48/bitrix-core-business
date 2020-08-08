@@ -55,7 +55,7 @@ if (
 	is_array($arAllCurrentValues)
 	&& array_key_exists("IBLOCK_TYPE", $arAllCurrentValues)
 	&& array_key_exists("VALUE", $arAllCurrentValues["IBLOCK_TYPE"])
-	&& strlen($arAllCurrentValues["IBLOCK_TYPE"]["VALUE"]) > 0
+	&& $arAllCurrentValues["IBLOCK_TYPE"]["VALUE"] <> ''
 )
 {
 	$dbIBlock = CIBlock::GetList(

@@ -1,188 +1,4 @@
 ;(function(window) {
-	function ViewSwitcher(params)
-	{
-		this.calendar = params.calendar;
-		this.wrap = params.wrap;
-		this.popupId = this.calendar.id + '_view_switcher';
-		if (params.dropDownMode)
-		{
-			this.createDropDown();
-		}
-		else
-		{
-			this.createSelector();
-		}
-
-		BX.addCustomEvent(this.calendar, "afterSetView", BX.proxy(this.onAfterSetView, this));
-	}
-
-	ViewSwitcher.prototype = {
-		createSelector:function ()
-		{
-			var
-				wrap = this.wrap.appendChild(BX.create('DIV', {
-					props: {className: 'calendar-view-switcher-list'},
-					events: {
-						click: BX.delegate(function(e)
-						{
-							var target = e.target || e.srcElement;
-							if (target && target.getAttribute)
-							{
-								var viewName = target.getAttribute('data-bx-calendar-view');
-								this.calendar.setView(viewName, {animation: true});
-							}
-						}, this)
-					}
-				}));
-
-			this.calendar.views.forEach(function(view)
-			{
-				view.switchNode = wrap.appendChild(
-					BX.create('SPAN', {
-						props: {className: 'calendar-view-switcher-list-item' + (this.calendar.currentViewName === view.name ? ' calendar-view-switcher-list-item-active' : '')},
-						attrs: {'data-bx-calendar-view': view.name},
-						text: view.title || view.name
-					})
-				);
-			}, this);
-		},
-
-		createDropDown: function ()
-		{
-			this.selectorText = BX.create("div", {props: {className:"calendar-view-switcher-text"}});
-			this.selectorTextInner = this.selectorText.appendChild(BX.create("div", {props: {className: "calendar-view-switcher-text-inner"}}));
-
-			BX.adjust(this.wrap, {
-				children: [
-					this.selectorText,
-					BX.create("div", {props: {className:"calendar-view-switcher-dropdown"}})
-				],
-				events: {click: BX.proxy(this.showPopup, this)}
-			});
-
-			if (BX.type.isArray(this.calendar.util.config.additionalViewModes))
-			{
-				this.viewModeTextInner = this.selectorText.appendChild(BX.create("div", {props: {className: "calendar-view-switcher-text-mode-inner"}}));
-			}
-
-			this.getMenuItems();
-		},
-
-		getMenuItems: function()
-		{
-			this.menuItems = [];
-			this.calendar.views.forEach(function(view)
-			{
-				this.menuItems.push({
-					text: view.title || view.name,
-					className: this.calendar.currentViewName === view.name ? 'menu-popup-item-accept' : ' ',
-					onclick: BX.delegate(function(){
-						this.calendar.setView(view.name, {animation: true});
-						this.menuPopup.close();
-					}, this)
-				});
-
-				if (this.calendar.currentViewName === view.name)
-				{
-					this.selectorTextInner.innerHTML = view.title || view.name;
-				}
-			}, this);
-
-			if (BX.type.isArray(this.calendar.util.config.additionalViewModes))
-			{
-				var i, mode;
-
-				this.menuItems.push({
-					text: '<span>' + BX.message('EC_VIEW_MODE_SHOW_BY') + '</span>',
-					className: 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label'
-				});
-
-				for (i = 0; i < this.calendar.util.config.additionalViewModes.length; i++)
-				{
-					mode = this.calendar.util.config.additionalViewModes[i];
-					this.menuItems.push({
-						dataset: mode,
-						text: BX.util.htmlspecialchars(mode.label),
-						className: mode.selected ? 'menu-popup-item-accept' : ' ',
-						onclick: BX.delegate(function(e, item){
-							this.calendar.triggerEvent('changeViewMode', item.dataset);
-							this.viewModeTextInner.innerHTML = '(' + BX.util.htmlspecialchars(item.dataset.label) + ')';
-							for (j = 0; j < this.calendar.util.config.additionalViewModes.length; j++)
-							{
-								this.calendar.util.config.additionalViewModes[j].selected = item.dataset.id == this.calendar.util.config.additionalViewModes[j].id;
-							}
-							this.menuPopup.close();
-						}, this)
-					});
-
-					if (mode.selected)
-					{
-						this.viewModeTextInner.innerHTML = '(' + BX.util.htmlspecialchars(mode.label) + ')';
-					}
-				}
-			}
-			this.calendar.triggerEvent('beforeViewModePopupOpened', this.menuItems);
-
-			return this.menuItems;
-		},
-
-		showPopup: function ()
-		{
-			if (this.menuPopup && this.menuPopup.popupWindow && this.menuPopup.popupWindow.isShown())
-			{
-				return this.menuPopup.close();
-			}
-
-			this.getMenuItems();
-
-			this.menuPopup = BX.PopupMenu.create(
-				this.popupId,
-				this.selectorText,
-				this.menuItems,
-				{
-					closeByEsc : true,
-					autoHide : true,
-					zIndex: this.zIndex,
-					offsetTop: -3,
-					offsetLeft: this.selectorText.offsetWidth - 6,
-					angle: true
-				}
-			);
-
-			this.menuPopup.show();
-
-			BX.addCustomEvent(this.menuPopup.popupWindow, 'onPopupClose', BX.delegate(function()
-			{
-				BX.PopupMenu.destroy(this.popupId);
-				this.menuPopup = null;
-			}, this));
-		},
-
-		onAfterSetView: function()
-		{
-			var
-				newView = this.calendar.getView(),
-				i, nodes = this.wrap.querySelectorAll('.calendar-view-switcher-list-item-active');
-
-			for (i = 0; i < nodes.length; i++)
-			{
-				BX.removeClass(nodes[i], 'calendar-view-switcher-list-item-active');
-			}
-
-			if (newView)
-			{
-				if (newView.switchNode)
-				{
-					BX.addClass(this.calendar.getView().switchNode, 'calendar-view-switcher-list-item-active');
-				}
-
-				if (this.selectorTextInner)
-				{
-					this.selectorTextInner.innerHTML = newView.title || newView.name;
-				}
-			}
-		}
-	};
 
 	function SettingsMenu(params)
 	{
@@ -280,122 +96,6 @@
 			}
 		}
 	};
-
-	function AddButton(params)
-	{
-		this.calendar = params.calendar;
-		this.wrap = params.wrap;
-		this.id = this.calendar.id + '_top_add_button';
-		this.zIndex = params.zIndex || 3200;
-		this.create();
-	}
-
-	AddButton.prototype = {
-		create: function ()
-		{
-
-			this.menuItems = [
-				{
-					text: BX.message('EC_ADD_EVENT'),
-					onclick: BX.proxy(this.addEntry, this)
-				}
-			];
-
-			if (this.calendar.showTasks)
-			{
-				this.menuItems.push({
-					text: BX.message('EC_ADD_TASK'),
-					onclick: BX.proxy(this.addTask, this)
-				});
-			}
-
-			if (this.menuItems.length > 1)
-			{
-				this.addButtonMore = BX.create("span", {
-					props: {className: "ui-btn-double ui-btn-primary"},
-					children: [
-						BX.create("button", {
-							props: {className: "ui-btn-main", type: "button"},
-							html: BX.message('EC_ADD'),
-							events: {click: BX.proxy(this.addEntry, this)}
-						})
-					]
-				});
-				this.wrap.appendChild(this.addButtonMore);
-
-				this.addButtonExtra = BX.create("span", {
-					props: {className: "ui-btn-extra"},
-					events: {click: BX.proxy(this.showPopup, this)}
-				});
-				this.addButtonMore.appendChild(this.addButtonExtra)
-			}
-			else
-			{
-				this.button = this.wrap.appendChild(BX.create("button", {
-					props: {className: "ui-btn ui-btn-primary", type: "button"},
-					html: BX.message('EC_ADD'),
-					events: {click: BX.proxy(this.addEntry, this)}
-				}));
-			}
-		},
-
-		showPopup: function ()
-		{
-			if (this.menuPopup && this.menuPopup.popupWindow && this.menuPopup.popupWindow.isShown())
-			{
-				return this.menuPopup.close();
-			}
-
-			this.menuPopup = BX.PopupMenu.create(
-				this.id,
-				this.addButtonExtra,
-				this.menuItems,
-				{
-					closeByEsc : true,
-					autoHide : true,
-					zIndex: this.zIndex,
-					offsetTop: 0,
-					offsetLeft: 15,
-					angle: true
-				}
-			);
-
-			this.menuPopup.show();
-
-			BX.addCustomEvent(this.menuPopup.popupWindow, 'onPopupClose', BX.delegate(function()
-			{
-				BX.PopupMenu.destroy(this.addButtonMorePopupId);
-				BX.PopupMenu.destroy(this.id);
-				this.menuPopup = null;
-				this.addBtnMenu = null;
-			}, this));
-		},
-
-		addEntry: function()
-		{
-			if (this.menuPopup && this.menuPopup.popupWindow && this.menuPopup.popupWindow.isShown())
-			{
-				this.menuPopup.close();
-			}
-
-			if (!this.calendar.editSlider)
-			{
-				this.calendar.editSlider = new window.BXEventCalendar.EditEntrySlider(this.calendar);
-			}
-			this.calendar.editSlider.show({});
-		},
-
-		addTask: function()
-		{
-			if (this.menuPopup && this.menuPopup.popupWindow && this.menuPopup.popupWindow.isShown())
-			{
-				this.menuPopup.close();
-			}
-
-			BX.SidePanel.Instance.open(this.calendar.util.getEditTaskPath(), {loader: "task-new-loader"});
-		}
-	};
-
 
 	function SelectInput(params)
 	{
@@ -579,169 +279,6 @@
 			this.shown = false;
 		}
 	};
-
-	function Reminder(params)
-	{
-		this.controlList = {};
-		this.selectedValues = [];
-		this.values = params.values;
-		this.addButton = params.addButtonNode;
-		this.valuesWrap = params.valuesContainerNode;
-		this.changeCallack = params.changeCallack;
-		this.showPopupCallBack = params.showPopupCallBack;
-		this.hidePopupCallBack = params.hidePopupCallBack;
-		this.id = params.id || 'reminder-' + Math.round(Math.random() * 1000000);
-		this.zIndex = params.zIndex || 3200;
-
-		BX.unbind(this.addButton, 'click', BX.proxy(this.showPopup, this));
-		BX.bind(this.addButton, 'click', BX.proxy(this.showPopup, this));
-
-		if (params.selectedValues && params.selectedValues.length > 0)
-		{
-			for (var i = 0; i < params.selectedValues.length; i++)
-			{
-				this.addValue(params.selectedValues[i]);
-			}
-		}
-	}
-
-	Reminder.prototype = {
-		showPopup: function()
-		{
-			var
-				_this = this,
-				i, menuItems = [];
-
-			for (i = 0; i < this.values.length; i++)
-			{
-				if (!BX.util.in_array(this.values[i].value, this.selectedValues))
-				{
-					menuItems.push({
-						text: this.values[i].label, onclick: (function (value)
-						{
-							return function ()
-							{
-								_this.addValue(value);
-								_this.reminderMenu.close();
-							}
-						})(this.values[i].value)
-					});
-				}
-			}
-
-			this.reminderMenu = BX.PopupMenu.create(
-				this.id,
-				this.addButton,
-				menuItems,
-				{
-					closeByEsc : true,
-					autoHide : true,
-					zIndex: this.zIndex,
-					offsetTop: 0,
-					offsetLeft: 9,
-					angle: true
-				}
-			);
-
-			this.reminderMenu.show();
-			if (this.showPopupCallBack)
-				this.showPopupCallBack();
-
-			BX.addCustomEvent(_this.reminderMenu.popupWindow, 'onPopupClose', function()
-			{
-				if (_this.hidePopupCallBack)
-					_this.hidePopupCallBack();
-				BX.PopupMenu.destroy(_this.id);
-				_this.reminderMenu = null;
-			});
-		},
-
-		addValue: function(value)
-		{
-			var i, item, closeIcon, _this = this;
-			if (value >= 0 && !BX.util.in_array(value, this.selectedValues))
-			{
-				for (i = 0; i < this.values.length; i++)
-				{
-					if (this.values[i].value == value)
-					{
-						if (!this.selectedValues.length)
-							BX.cleanNode(this.valuesWrap);
-
-						item = this.valuesWrap.appendChild(BX.create('SPAN', {props: {className: 'calendar-reminder-item'}, text: this.values[i].shortLabel || this.values[i].label}));
-						closeIcon = item.appendChild(BX.create('SPAN', {props: {className: 'calendar-reminder-clear-icon'}, events: {click: function(){_this.removeValue(value);}}}));
-						this.selectedValues.push(value);
-						this.controlList[value] = item;
-						break;
-					}
-				}
-
-				if (item === undefined)
-				{
-					if (!this.selectedValues.length)
-						BX.cleanNode(this.valuesWrap);
-
-					item = this.valuesWrap.appendChild(BX.create('SPAN', {props: {className: 'calendar-reminder-item'}, text: this.getText(value)}));
-					closeIcon = item.appendChild(BX.create('SPAN', {props: {className: 'calendar-reminder-clear-icon'}, events: {click: function(){_this.removeValue(value);}}}));
-					this.selectedValues.push(value);
-					this.controlList[value] = item;
-				}
-			}
-
-			if (this.selectedValues.length === this.values.length)
-			{
-				this.addButton.style.display = 'none';
-			}
-
-			if (this.changeCallack)
-				this.changeCallack(this.selectedValues);
-		},
-
-		getText: function(value)
-		{
-			var tempValue = value,
-				dividers = [60, 24], //list of time dividers
-				messageCodes = ['EC_REMIND1_MIN_COUNT', 'EC_REMIND1_HOUR_COUNT', 'EC_REMIND1_DAY_COUNT'],
-				result = '';
-			for (var i = 0; i < messageCodes.length; i++)
-			{
-				if (tempValue < dividers[i] || i === dividers.length)
-				{
-					result = BX.message(messageCodes[i]).toString();
-					result = result.replace('\#COUNT\#', tempValue.toString());
-					break;
-				}
-				else
-				{
-					tempValue = Math.ceil(tempValue / dividers[i]);
-				}
-			}
-
-			return result;
-		},
-
-		removeValue: function(value)
-		{
-			if (this.controlList[value] && BX.isNodeInDom(this.controlList[value]))
-			{
-				BX.cleanNode(this.controlList[value], true);
-			}
-			this.selectedValues = BX.util.deleteFromArray(this.selectedValues, BX.util.array_search(value, this.selectedValues));
-
-			if (this.selectedValues.length < this.values.length)
-			{
-				this.addButton.style.display = '';
-			}
-
-			if (!this.selectedValues.length)
-			{
-				this.valuesWrap.appendChild(BX.create('SPAN', {props: {className: ''}, text: ' ' + BX.message('EC_REMIND1_NO')}));
-			}
-			if (this.changeCallack)
-				this.changeCallack(this.selectedValues);
-		}
-	};
-
 
 	function DestinationSelector(id, params)
 	{
@@ -2003,7 +1540,7 @@
 
 					if (timeNode)
 					{
-						timeNode.innerHTML = timeLabel + '<span class="calendar-event-block-time-shadow">'+ timeLabel +'</span>';
+						timeNode.innerHTML = timeLabel;
 					}
 					this.resizedState.entryWrap.style.height = height + 'px';
 				}
@@ -2023,33 +1560,228 @@
 	};
 
 
+	function SectionSelector(params)
+	{
+		this.id = params.id || 'section-select-' + Math.round(Math.random() * 1000000);
+		this.sectionList = params.sectionList;
+		this.sectionGroupList = params.sectionGroupList;
+		this.selectCallback = params.selectCallback;
+		this.openPopupCallback = params.openPopupCallback;
+		this.closePopupCallback = params.closePopupCallback;
+		this.getCurrentSection = params.getCurrentSection;
+		this.zIndex = params.zIndex || 1200;
+		this.mode = params.mode;
+		this.DOM = {
+			outerWrap: params.outerWrap
+		};
 
+		this.init();
+	}
+
+	SectionSelector.prototype = {
+		init: function()
+		{
+			this.DOM.select = this.DOM.outerWrap.appendChild(BX.create('DIV', {
+				props: {className: 'calendar-field calendar-field-select' + (this.mode === 'compact' ? ' calendar-field-tiny' : '')},
+				events: {
+					click: BX.delegate(this.openPopup, this)
+				}
+			}));
+
+			this.DOM.innerValue = this.DOM.select.appendChild(BX.create('DIV', {
+				props: {className: 'calendar-field-select-icon'},
+				style: {backgroundColor : this.getCurrentColor()}
+			}));
+
+			if (this.mode === 'full')
+			{
+				this.DOM.selectInnerText = this.DOM.select.appendChild(BX.create('SPAN', {text: this.getCurrentTitle()}));
+			}
+		},
+
+		openPopup: function() {
+			if (this.sectionMenu && this.sectionMenu.popupWindow && this.sectionMenu.popupWindow.isShown())
+			{
+				return this.sectionMenu.close();
+			}
+
+			var
+				submenuClass = 'main-buttons-submenu-separator main-buttons-submenu-item main-buttons-hidden-label',
+				i, menuItems = [], icon;
+
+			if (BX.type.isArray(this.sectionGroupList))
+			{
+				this.sectionGroupList.forEach(function(sectionGroup)
+				{
+					var filteredList = [], i;
+					if (sectionGroup.belongsToView)
+					{
+						filteredList = this.sectionList.filter(function(section){
+							return section.belongsToView();
+						});
+					}
+					else if (sectionGroup.type === 'user')
+					{
+						filteredList = this.sectionList.filter(function(section){
+							return section.type === 'user' && section.ownerId === sectionGroup.ownerId;
+						});
+					}
+					else if (sectionGroup.type === 'company')
+					{
+						filteredList = this.sectionList.filter(function(section){
+							return section.type === 'company_calendar' || section.type === sectionGroup.type;
+						});
+					}
+					else
+					{
+						filteredList = this.sectionList.filter(function(section){
+							return section.type === sectionGroup.type;
+						});
+					}
+
+					if (filteredList.length > 0)
+					{
+						menuItems.push({
+							text: '<span>' + sectionGroup.title + '</span>',
+							className: submenuClass
+						});
+
+						for (i = 0; i < filteredList.length; i++)
+						{
+							menuItems.push(this.getMenuItem(filteredList[i]));
+						}
+					}
+				}, this);
+			}
+			else
+			{
+				for (i = 0; i < this.sectionList.length; i++)
+				{
+					menuItems.push(this.getMenuItem(this.sectionList[i]));
+				}
+			}
+
+			this.sectionMenu = BX.PopupMenu.create(
+				this.id,
+				this.DOM.select,
+				menuItems,
+				{
+					closeByEsc : true,
+					autoHide : true,
+					zIndex: this.zIndex,
+					offsetTop: 0,
+					offsetLeft: this.mode === 'compact' ? 40 : 0,
+					angle: this.mode === 'compact'
+				}
+			);
+
+			this.sectionMenu.popupWindow.contentContainer.style.overflow = "auto";
+			this.sectionMenu.popupWindow.contentContainer.style.maxHeight = "400px";
+
+			if (this.mode === 'full')
+			{
+				this.sectionMenu.popupWindow.setWidth(this.DOM.select.offsetWidth - 2);
+				this.sectionMenu.popupWindow.contentContainer.style.overflowX = "hidden";
+			}
+
+			this.sectionMenu.show();
+
+			// Paint round icons for section menu
+			for (i = 0; i < this.sectionMenu.menuItems.length; i++)
+			{
+				if (this.sectionMenu.menuItems[i].layout.item)
+				{
+					icon = this.sectionMenu.menuItems[i].layout.item.querySelector('.menu-popup-item-icon');
+					if (icon)
+					{
+						icon.style.backgroundColor = this.sectionMenu.menuItems[i].color;
+					}
+				}
+			}
+
+			BX.addClass(this.DOM.select, 'active');
+
+			if (BX.type.isFunction(this.openPopupCallback))
+			{
+				this.openPopupCallback(this);
+			}
+
+			BX.addCustomEvent(this.sectionMenu.popupWindow, 'onPopupClose', BX.delegate(function()
+			{
+				if (BX.type.isFunction(this.openPopupCallback))
+				{
+					this.closePopupCallback();
+				}
+				BX.removeClass(this.DOM.select, 'active');
+				BX.PopupMenu.destroy(this.id);
+				this.sectionMenu = null;
+			}, this));
+		},
+
+		getCurrentColor: function()
+		{
+			return (this.getCurrentSection() || {}).color || false;
+		},
+
+		getCurrentTitle: function()
+		{
+			return (this.getCurrentSection() || {}).name || '';
+		},
+
+		getPopup: function()
+		{
+			return this.sectionMenu;
+		},
+
+		getMenuItem: function(sectionItem)
+		{
+			var _this = this;
+			return {
+				text: BX.util.htmlspecialchars(sectionItem.name),
+					color: sectionItem.color,
+					className: 'calendar-add-popup-section-menu-item',
+					onclick: (function (section)
+				{
+					return function ()
+					{
+						_this.DOM.innerValue.style.backgroundColor = section.color;
+						if (_this.DOM.selectInnerText)
+						{
+							_this.DOM.selectInnerText.innerHTML = BX.util.htmlspecialchars(section.name);
+						}
+
+						if (BX.type.isFunction(_this.selectCallback))
+						{
+							_this.selectCallback(section);
+						}
+						_this.sectionMenu.close();
+					}
+				})(sectionItem)
+			}
+		}
+	};
 
 	if (window.BXEventCalendar)
 	{
-		window.BXEventCalendar.ViewSwitcher = ViewSwitcher;
 		window.BXEventCalendar.SettingsMenu = SettingsMenu;
-		window.BXEventCalendar.AddButton = AddButton;
 		window.BXEventCalendar.SelectInput = SelectInput;
-		window.BXEventCalendar.ReminderSelector = Reminder;
 		window.BXEventCalendar.DestinationSelector = DestinationSelector;
 		window.BXEventCalendar.LocationSelector = LocationSelector;
 		window.BXEventCalendar.NavigationCalendar = NavigationCalendar;
 		window.BXEventCalendar.DragDrop = DragDrop;
+		window.BXEventCalendar.SectionSelector = SectionSelector;
 	}
 	else
 	{
 		BX.addCustomEvent(window, "onBXEventCalendarInit", function()
 		{
-			window.BXEventCalendar.ViewSwitcher = ViewSwitcher;
 			window.BXEventCalendar.SettingsMenu = SettingsMenu;
-			window.BXEventCalendar.AddButton = AddButton;
 			window.BXEventCalendar.SelectInput = SelectInput;
-			window.BXEventCalendar.ReminderSelector = Reminder;
 			window.BXEventCalendar.DestinationSelector = DestinationSelector;
 			window.BXEventCalendar.LocationSelector = LocationSelector;
 			window.BXEventCalendar.NavigationCalendar = NavigationCalendar;
 			window.BXEventCalendar.DragDrop = DragDrop;
+			window.BXEventCalendar.SectionSelector = SectionSelector;
 		});
 	}
 })(window);

@@ -8,7 +8,6 @@ $MESS["TR_IMPORT_ERROR_LINE_FILE_BIG"] = "Error in row #LINE#:<br>&nbsp;&nbsp;#F
 $MESS["TR_IMPORT_ERROR_LINE_FILE_EXT"] = "Error in row #LINE#: #ERROR#";
 $MESS["TR_IMPORT_ERROR_NO_VALID_UTF8_PHRASE"] = "invalid UTF-8 characters for the \"#LANG#\" language ID";
 $MESS["TR_IMPORT_ERROR_PHRASE_CODE_ABSENT"] = "\"key\" value is not specified";
-$MESS["TR_IMPORT_ERROR_ROW_LANG_ABSENT"] = "string for the \"#LANG#\" language ID is missing";
 $MESS["TR_IMPORT_ERROR_WRITE_CREATE"] = "Cannot create file \"#FILE#\"";
 $MESS["TR_IMPORT_ERROR_WRITE_UPDATE"] = "Cannot write to \"#FILE#\"";
 $MESS["TR_IMPORT_ERR_DESTINATION_FIELD_ABSENT"] = "\"file\" field is missing";

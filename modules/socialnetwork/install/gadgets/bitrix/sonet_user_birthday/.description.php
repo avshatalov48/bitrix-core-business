@@ -2,7 +2,7 @@
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
-if (strlen($_REQUEST["src_site"]) > 0)
+if ($_REQUEST["src_site"] <> '')
 	$gd_site_id = $_REQUEST["src_site"];
 else
 	$gd_site_id = SITE_ID;

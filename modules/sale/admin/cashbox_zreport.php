@@ -27,7 +27,7 @@ $instance = \Bitrix\Main\Application::getInstance();
 $context = $instance->getContext();
 $request = $context->getRequest();
 
-$oSort = new CAdminSorting($tableId, "ID", "asc");
+$oSort = new CAdminUiSorting($tableId, "ID", "asc");
 $lAdmin = new CAdminUiList($tableId, $oSort);
 
 $cashBoxList = array();

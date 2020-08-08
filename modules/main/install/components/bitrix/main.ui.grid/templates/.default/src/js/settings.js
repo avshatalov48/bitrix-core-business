@@ -70,6 +70,7 @@
 			classEditorCheckbox: 'main-grid-editor-checkbox',
 			classEditorTextarea: 'main-grid-editor-textarea',
 			classEditorCustom: 'main-grid-editor-custom',
+			classEditorMoney: 'main-grid-editor-money',
 			classCellContainer: 'main-grid-cell-content',
 			classEditorOutput: 'main-grid-editor-output',
 			classSettingsWindow: 'main-grid-settings-window',

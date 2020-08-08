@@ -26,7 +26,7 @@ function CheckFields() // fields check
 	$FILENAME = "/".ltrim(_normalizePath($FILENAME), "/");
 	$io = CBXVirtualIo::GetInstance();
 
-	if (strlen($FILENAME) <= 0)
+	if ($FILENAME == '')
 	{
 		$arMsg[] = array(
 			"id" => "FILENAME",
@@ -199,7 +199,7 @@ if($ID > 0)
 	$z = $DB->Query("SELECT ID FROM b_workflow_document WHERE ID='$ID'", false, $err_mess.__LINE__);
 	if (!($zr=$z->Fetch()))
 	{
-		if(strlen($fname) > 0)
+		if($fname <> '')
 		{
 			$ID = 0;
 		}
@@ -276,7 +276,7 @@ if ($ID > 0)
 }
 
 $aTabs = array();
-if (IntVal($ID) > 0)
+if (intval($ID) > 0)
 	$aTabs[] = array(
 		"DIV" => "edit1",
 		"TAB" => GetMessage("FLOW_EDIT_RECORD"),
@@ -308,7 +308,7 @@ $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
 // Save or Apply was clicked
 if (
-	(strlen($save)>0 || strlen($apply)>0)
+	($save <> '' || $apply <> '')
 	&& $WORKFLOW_RIGHT > "R"
 	&& $_SERVER["REQUEST_METHOD"] == "POST"
 	&& check_bitrix_sessid()
@@ -322,12 +322,12 @@ if (
 			for ($i = 1; $i <= $nums; $i++)
 			{
 				$arFile = $_FILES["file_".$i];
-				if (strlen($arFile["name"]) <= 0 || $arFile["tmp_name"] == "none")
+				if ($arFile["name"] == '' || $arFile["tmp_name"] == "none")
 					continue;
 
 				$arFile["name"] = GetFileName($arFile["name"]);
 				$fname = ${"fname_".$i};
-				if (strlen($fname) <= 0)
+				if ($fname == '')
 					$fname = $arFile["name"];
 
 				$path = GetDirPath($FILENAME);
@@ -472,16 +472,16 @@ if (
 				if ($STATUS_ID == 1)
 					$strNote.= GetMessage("FLOW_PUBLISHED_SUCCESS");
 
-				if (strlen($save) > 0 || $STATUS_ID == 1)
+				if ($save <> '' || $STATUS_ID == 1)
 				{
-					if (strlen($return_url) > 0)
+					if ($return_url <> '')
 						LocalRedirect($return_url);
 					else
 						LocalRedirect("/bitrix/admin/workflow_list.php?lang=".LANGUAGE_ID."&set_default=Y&strNote=".urlencode($strNote));
 				}
-				elseif (strlen($apply) > 0)
+				elseif ($apply <> '')
 				{
-					LocalRedirect("/bitrix/admin/workflow_edit.php?lang=".LANGUAGE_ID."&ID=".$ID."&strNote=".urlencode($strNote)."&".$tabControl->ActiveTabParam().(strlen($return_url) ? "&return_url=".urlencode($return_url) : ""));
+					LocalRedirect("/bitrix/admin/workflow_edit.php?lang=".LANGUAGE_ID."&ID=".$ID."&strNote=".urlencode($strNote)."&".$tabControl->ActiveTabParam().($return_url <> ''? "&return_url=".urlencode($return_url) : ""));
 				}
 			}
 		}
@@ -510,7 +510,7 @@ if (!($workflow->ExtractFields()))
 		$str_BODY = $arContent["CONTENT"];
 		$get_content = "Y";
 	}
-	elseif (strlen($template) > 0)
+	elseif ($template <> '')
 	{
 		foreach($arTemplates as $Template)
 		{
@@ -532,7 +532,7 @@ if (!($workflow->ExtractFields()))
 		$str_TITLE = $arContent["TITLE"];
 		$str_BODY = $arContent["CONTENT"];
 	}
-	$str_FILENAME = strlen($fname)? htmlspecialcharsbx($fname): "/untitled.php";
+	$str_FILENAME = $fname <> ''? htmlspecialcharsbx($fname) : "/untitled.php";
 	$str_SITE_ID = htmlspecialcharsbx($site);
 	$str_BODY_TYPE = "html";
 	$str_TITLE = htmlspecialcharsbx($str_TITLE);
@@ -564,25 +564,25 @@ if ($USER->CanDoFileOperation('fm_lpa', Array($str_SITE_ID, $str_FILENAME)) && !
 		for ($n = 0; $n < $l; $n++)
 		{
 			$start = $arPHP[$n][0];
-			$str_BODY .= substr($content, $end, $start-$end);
+			$str_BODY .= mb_substr($content, $end, $start - $end);
 			$end = $arPHP[$n][1];
 
 			//Trim php tags
 			$src = $arPHP[$n][2];
-			if (SubStr($src, 0, 5) == "<?"."php")
-				$src = SubStr($src, 5);
+			if (mb_substr($src, 0, 5) == "<?"."php")
+				$src = mb_substr($src, 5);
 			else
-				$src = SubStr($src, 2);
-			$src = SubStr($src, 0, -2);
+				$src = mb_substr($src, 2);
+			$src = mb_substr($src, 0, -2);
 
 			//If it's Component 2, keep the php code. If it's component 1 or ordinary PHP - than replace code by #PHPXXXX#
 			$comp2_begin = '$APPLICATION->INCLUDECOMPONENT(';
-			if (strtoupper(substr($src,0, strlen($comp2_begin))) == $comp2_begin)
+			if (mb_strtoupper(mb_substr($src, 0, mb_strlen($comp2_begin))) == $comp2_begin)
 				$str_BODY .= $arPHP[$n][2];
 			else
 				$str_BODY .= '#PHP'.str_pad(++$php_count, 4, "0", STR_PAD_LEFT).'#';
 		}
-		$str_BODY .= substr($content, $end);
+		$str_BODY .= mb_substr($content, $end);
 	}
 	else
 	{

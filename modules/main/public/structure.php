@@ -13,9 +13,6 @@
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 
-if(CModule::IncludeModule("compression"))
-	CCompress::Disable2048Spaces();
-
 IncludeModuleLangFile(__FILE__);
 
 $obJSPopup = new CJSPopup(GetMessage("pub_struct_title"));

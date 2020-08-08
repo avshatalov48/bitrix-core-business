@@ -15,3 +15,4 @@ $MESS['REST_CONFIGURATION_IMPORT_ERRORS_POPUP_TITLE'] = 'Отчёт об оши�
 $MESS['REST_CONFIGURATION_IMPORT_ERRORS_POPUP_TEXT_LABEL'] = 'Описание проблемы';
 $MESS['REST_CONFIGURATION_IMPORT_ERRORS_POPUP_TEXT_PLACEHOLDER'] = 'Текст описания проблемы';
 $MESS['REST_CONFIGURATION_IMPORT_ERRORS_POPUP_BTN_COPY'] = 'Копировать';
+$MESS['REST_CONFIGURATION_IMPORT_ERRORS_MAX_FILE_SIZE'] = 'Максимальный размер загружаемого файла: #SIZE# Мбайт';

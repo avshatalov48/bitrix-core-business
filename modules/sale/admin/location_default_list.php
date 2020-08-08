@@ -119,16 +119,16 @@ if(empty($fatal))
 
 <?SearchHelper::checkIndexesValid();?>
 
-<?if(strlen($fatal)):?>
+<? if($fatal <> ''): ?>
 
 	<div class="error-message">
-		<?CAdminMessage::ShowMessage(array('MESSAGE' => $fatal, 'type' => 'ERROR'))?>
+		<? CAdminMessage::ShowMessage(array('MESSAGE' => $fatal, 'type' => 'ERROR')) ?>
 	</div>
 
-<?else:?>
+<? else: ?>
 
-	<?$lAdmin->DisplayList();?>
+	<? $lAdmin->DisplayList(); ?>
 
-<?endif?>
+<? endif?>
 
 <?require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>

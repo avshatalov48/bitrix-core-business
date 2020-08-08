@@ -99,6 +99,11 @@ class SberbankOnlineHandler
 			$result->addErrors($showTemplateResult->getErrors());
 		}
 
+		if ($params['URL'])
+		{
+			$result->setPaymentUrl($params['URL']);
+		}
+
 		return $result;
 	}
 
@@ -343,8 +348,8 @@ class SberbankOnlineHandler
 			return false;
 		}
 
-		$result = strtoupper($result);
-		return ($result === strtoupper($checksum));
+		$result = mb_strtoupper($result);
+		return ($result === mb_strtoupper($checksum));
 	}
 
 	/**
@@ -574,8 +579,8 @@ class SberbankOnlineHandler
 		$params = [
 			'orderNumber' => $orderNumber,
 			'amount' => (int)PriceMaths::roundPrecision($payment->getSum() * 100),
-			'returnUrl' => $this->getBusinessValue($payment, 'SBERBANK_RETURN_SUCCESS_URL'),
-			'failUrl' => $this->getBusinessValue($payment, 'SBERBANK_RETURN_FAIL_URL'),
+			'returnUrl' => $this->getSuccessUrl($payment),
+			'failUrl' => $this->getFailUrl($payment),
 			'jsonParams' => self::encode($jsonParams)
 		];
 
@@ -583,6 +588,24 @@ class SberbankOnlineHandler
 		$params['description'] = $this->getOrderDescription($payment);
 
 		return $params;
+	}
+
+	/**
+	 * @param Payment $payment
+	 * @return mixed|string
+	 */
+	private function getSuccessUrl(Payment $payment)
+	{
+		return $this->getBusinessValue($payment, 'SBERBANK_RETURN_SUCCESS_URL') ?: $this->service->getContext()->getUrl();
+	}
+
+	/**
+	 * @param Payment $payment
+	 * @return mixed|string
+	 */
+	private function getFailUrl(Payment $payment)
+	{
+		return $this->getBusinessValue($payment, 'SBERBANK_RETURN_FAIL_URL') ?: $this->service->getContext()->getUrl();
 	}
 
 	/**

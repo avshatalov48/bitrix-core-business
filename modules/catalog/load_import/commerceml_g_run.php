@@ -231,8 +231,8 @@ function cmlStartElement($parser, $name, $attrs)
 					}
 				}
 
-				$arIBlockCache[$currentCatalog["ID"]] = IntVal($currentCatalog["BID"]);
-				$iBlockIDString .= ",".IntVal($currentCatalog["BID"]);
+				$arIBlockCache[$currentCatalog["ID"]] = intval($currentCatalog["BID"]);
+				$iBlockIDString .= ",".intval($currentCatalog["BID"]);
 				if (!CCatalog::GetByID($currentCatalog["BID"]))
 					CCatalog::Add(Array("IBLOCK_ID" => $currentCatalog["BID"]));
 
@@ -323,7 +323,7 @@ function cmlStartElement($parser, $name, $attrs)
 
 				$strSql =
 					"INSERT INTO b_catalog_cml_product (XML_ID, CATALOG_ID, NAME, MODIFIED_BY, PARENT_CATEGORY, CODE) ".
-					"VALUES ('".$currentProduct["ID"]."', ".$currentCatalog["BID"].", '".$DB->ForSql($currentProduct["Name"])."', ".((IntVal($USER->GetID()) > 0) ? IntVal($USER->GetID()) : 1).", '".$currentProduct["ParentCategory"]."', '".(false === $currentProduct["Code"] ? '' : $DB->ForSql($currentProduct["Code"]))."')";
+					"VALUES ('".$currentProduct["ID"]."', ".$currentCatalog["BID"].", '".$DB->ForSql($currentProduct["Name"])."', ".((intval($USER->GetID()) > 0) ? intval($USER->GetID()) : 1).", '".$currentProduct["ParentCategory"]."', '".(false === $currentProduct["Code"] ? '' : $DB->ForSql($currentProduct["Code"]))."')";
 
 				$DB->Query($strSql);
 
@@ -332,7 +332,7 @@ function cmlStartElement($parser, $name, $attrs)
 
 				$cmlLoadCnts["PRODUCT"]++;
 
-				if (strlen($currentProduct["ParentCategory"]) > 0)
+				if ($currentProduct["ParentCategory"] <> '')
 				{
 					$strSql =
 						"INSERT INTO b_catalog_cml_product_cat (CATALOG_ID, PRODUCT_XML_ID, CATEGORY_XML_ID) ".
@@ -383,14 +383,14 @@ function cmlStartElement($parser, $name, $attrs)
 			$currentOffersList = array();
 			$currentOffersList["CatalogID"] = $attrs[$nameUTF["CatalogID"]];
 			$currentOffersList["Currency"] = $arCMLCurrencies[$attrs[$nameUTF["Currency"]]];
-			if (strlen($currentOffersList["Currency"]) <= 0)
+			if ($currentOffersList["Currency"] == '')
 				$currentOffersList["Currency"] = "USD";
 
 			if (!array_key_exists($currentOffersList["CatalogID"], $arIBlockCache))
 			{
 				$dbIBlockList = CIBlock::GetList(array(), array("XML_ID" => $currentOffersList["CatalogID"]));
 				if ($arIBlock = $dbIBlockList->Fetch())
-					$arIBlockCache[$currentOffersList["CatalogID"]] = IntVal($arIBlock["ID"]);
+					$arIBlockCache[$currentOffersList["CatalogID"]] = intval($arIBlock["ID"]);
 			}
 
 			$strSql =
@@ -399,7 +399,7 @@ function cmlStartElement($parser, $name, $attrs)
 
 			$DB->Query($strSql);
 
-			$currentOffersList["ID"] = IntVal($DB->LastID());
+			$currentOffersList["ID"] = intval($DB->LastID());
 
 			break;
 
@@ -409,9 +409,9 @@ function cmlStartElement($parser, $name, $attrs)
 				$currentOffer = array();
 				$currentOffer["ProductId"] = $attrs[$nameUTF["ProductId"]];
 				$currentOffer["Price"] = DoubleVal(str_replace(",", ".", $attrs[$nameUTF["Price"]]));
-				$currentOffer["Amount"] = IntVal($attrs[$nameUTF["Amount"]]);
+				$currentOffer["Amount"] = intval($attrs[$nameUTF["Amount"]]);
 				$currentOffer["Currency"] = $arCMLCurrencies[$attrs[$nameUTF["Currency"]]];
-				if (strlen($currentOffer["Currency"]) <= 0)
+				if ($currentOffer["Currency"] == '')
 					$currentOffer["Currency"] = $currentOffersList["Currency"];
 
 				$strSql =
@@ -468,7 +468,7 @@ function cmlEndElement($parser, $name)
 			break;
 
 		case $nameUTF["OffersList"]:
-			if (!array_key_exists("PRICE_TYPE", $currentOffersList) || strlen($currentOffersList["PRICE_TYPE"]) <= 0)
+			if (!array_key_exists("PRICE_TYPE", $currentOffersList) || $currentOffersList["PRICE_TYPE"] == '')
 			{
 				$strSql = "SELECT NAME FROM b_catalog_group WHERE BASE = 'Y'";
 				$dbRes = $DB->Query($strSql);
@@ -489,7 +489,7 @@ function cmlEndElement($parser, $name)
 				$dbRes = $DB->Query($strSql);
 				if ($arRes = $dbRes->Fetch())
 				{
-					if (IntVal($arRes["CNT"]) <= 0)
+					if (intval($arRes["CNT"]) <= 0)
 					{
 						CCatalogGroup::Add(
 								array(
@@ -521,7 +521,7 @@ function __SetTimeMark($text, $startStop = "")
 	if (!$bCmlDebug)
 		return;
 
-	if (StrToUpper($startStop) == "START")
+	if (mb_strtoupper($startStop) == "START")
 	{
 		$hFile = fopen($_SERVER["DOCUMENT_ROOT"].CML_DEBUG_FILE_NAME, "w");
 		fwrite($hFile, date("H:i:s")." - ".__getMemoryUsage()." - ".$text."\n");
@@ -532,7 +532,7 @@ function __SetTimeMark($text, $startStop = "")
 		$cmlTimeMarkGlobalFrom = __getMicroTime();
 		$cmlTimeMarkFrom = __getMicroTime();
 	}
-	elseif (StrToUpper($startStop) == "STOP")
+	elseif (mb_strtoupper($startStop) == "STOP")
 	{
 		$cmlTimeMarkTo = __getMicroTime();
 		$cmlMemoryMarkTo = __getMemoryUsage();
@@ -705,19 +705,19 @@ function cmlCreateTempTables()
 
 
 
-if (StrToUpper($DB->type) != "MYSQL")
+if ($DB->type != "MYSQL")
 	$strImportErrorMessage .= GetMessage("CML_R_MYSQL_ONLY").". ";
 
-if (strlen($strImportErrorMessage) <= 0)
+if ($strImportErrorMessage == '')
 {
 	$DATA_FILE_NAME = "";
 
 	if (isset($_FILES["FILE_1C"]) && is_uploaded_file($_FILES["FILE_1C"]["tmp_name"]))
 		$DATA_FILE_NAME = $_FILES["FILE_1C"]["tmp_name"];
 
-	if (strlen($DATA_FILE_NAME) <= 0)
+	if ($DATA_FILE_NAME == '')
 	{
-		if (strlen($URL_FILE_1C) > 0)
+		if ($URL_FILE_1C <> '')
 		{
 			$URL_FILE_1C = Rel2Abs("/", $URL_FILE_1C);
 			if (file_exists($_SERVER["DOCUMENT_ROOT"].$URL_FILE_1C) && is_file($_SERVER["DOCUMENT_ROOT"].$URL_FILE_1C))
@@ -725,12 +725,12 @@ if (strlen($strImportErrorMessage) <= 0)
 		}
 	}
 
-	if (strlen($DATA_FILE_NAME) <= 0)
+	if ($DATA_FILE_NAME == '')
 		$strImportErrorMessage .= GetMessage("CICML_NO_LOAD_FILE")."<br>";
 
 	global $IBLOCK_TYPE_ID;
 	$IBLOCK_TYPE_ID = trim(strval($IBLOCK_TYPE_ID));
-	if (0 < strlen($IBLOCK_TYPE_ID))
+	if ($IBLOCK_TYPE_ID <> '')
 	{
 		$rsIBlockTypes = CIBlockType::GetByID($IBLOCK_TYPE_ID);
 		if (!($arIBlockType = $rsIBlockTypes->Fetch()))
@@ -738,18 +738,18 @@ if (strlen($strImportErrorMessage) <= 0)
 			$IBLOCK_TYPE_ID = '';
 		}
 	}
-	if (strlen($IBLOCK_TYPE_ID) <= 0)
+	if ($IBLOCK_TYPE_ID == '')
 	{
 		$IBLOCK_TYPE_ID = COption::GetOptionString("catalog", "default_catalog_1c", "");
 	}
-	if (strlen($IBLOCK_TYPE_ID) <= 0)
+	if ($IBLOCK_TYPE_ID == '')
 	{
 		ClearVars('f_');
 		$iblocks = CIBlockType::GetList(array('SORT' => 'ASC'));
 		if ($iblocks->ExtractFields("f_"))
 			$IBLOCK_TYPE_ID = $f_ID;
 	}
-	if (strlen($IBLOCK_TYPE_ID) <= 0)
+	if ($IBLOCK_TYPE_ID == '')
 		$strImportErrorMessage .= GetMessage("CICML_NO_IBLOCK")."<br>";
 
 	if ($keepExistingProperties != "Y" && $keepExistingProperties != "N")
@@ -847,9 +847,9 @@ if (strlen($strImportErrorMessage) <= 0)
 	$xmlData = file_get_contents($DATA_FILE_NAME);
 
 	__SetTimeMark("Get contents");
-	if ($pe = strpos($xmlData, ">"))
+	if ($pe = mb_strpos($xmlData, ">"))
 	{
-		$headerString = substr($xmlData, 0, $pe);
+		$headerString = mb_substr($xmlData, 0, $pe);
 		if(preg_match('#encoding[\s]*=[\s]*"(.*?)"#i', $headerString, $arMatch))
 		{
 			$xmlData = $APPLICATION->ConvertCharset($xmlData, $arMatch[1], LANG_CHARSET);
@@ -880,32 +880,32 @@ if (strlen($strImportErrorMessage) <= 0)
 			"chr(\\1)"
 		);
 
-	$pb = strpos($xmlData, "<");
+	$pb = mb_strpos($xmlData, "<");
 	while ($pb !== false)
 	{
-		$pe = strpos($xmlData, ">", $pb);
+		$pe = mb_strpos($xmlData, ">", $pb);
 		if($pe === false)
 			break;
 
-		$tag_cont = substr($xmlData, $pb+1, $pe-$pb-1);
-		$pb = strpos($xmlData, "<", $pe);
+		$tag_cont = mb_substr($xmlData, $pb + 1, $pe - $pb - 1);
+		$pb = mb_strpos($xmlData, "<", $pe);
 
-		$check_str = substr($tag_cont, 0, 1);
+		$check_str = mb_substr($tag_cont, 0, 1);
 		if($check_str=="?")
 			continue;
 		elseif($check_str=="!")
 			continue;
 		elseif($check_str=="/")
-			cmlEndElement(false, substr($tag_cont, 1));
+			cmlEndElement(false, mb_substr($tag_cont, 1));
 		else
 		{
 			$p = 0;
-			$ltag_cont = strlen($tag_cont);
-			while(($p < $ltag_cont) && (strpos(" \t\n\r", substr($tag_cont, $p, 1))===false))
+			$ltag_cont = mb_strlen($tag_cont);
+			while(($p < $ltag_cont) && (mb_strpos(" \t\n\r", mb_substr($tag_cont, $p, 1)) === false))
 				$p++;
-			$name = substr($tag_cont, 0, $p);
-			$at = substr($tag_cont, $p);
-			if (strpos($at, "&")!==false)
+			$name = mb_substr($tag_cont, 0, $p);
+			$at = mb_substr($tag_cont, $p);
+			if (mb_strpos($at, "&") !== false)
 				$bAmp = true;
 			else
 				$bAmp = false;
@@ -916,7 +916,7 @@ if (strlen($strImportErrorMessage) <= 0)
 				$attrs[$attrs_tmp[1][$i]] = ($bAmp ? preg_replace($search, $replace, $attrs_tmp[2][$i]) : $attrs_tmp[2][$i]);
 			if (!cmlStartElement(false, $name, $attrs))
 				break;
-			if(substr($tag_cont, -1) === "/")
+			if(mb_substr($tag_cont, -1) === "/")
 				cmlEndElement(false, $name);
 		}
 	}
@@ -925,7 +925,7 @@ if (strlen($strImportErrorMessage) <= 0)
 	__SetTimeMark("Parse");
 }
 
-if (strlen($strImportErrorMessage) <= 0)
+if ($strImportErrorMessage == '')
 {
 	// If there are catalogs in CommerceML data file
 	if ($iBlockIDString != "0")
@@ -1147,7 +1147,7 @@ if (strlen($strImportErrorMessage) <= 0)
 		{
 			$strSql =
 				"UPDATE b_iblock_section SET ".
-				"	IBLOCK_SECTION_ID = ".((IntVal($arRes["VALUE_ID"]) > 0) ? IntVal($arRes["VALUE_ID"]) : "NULL" )." ".
+				"	IBLOCK_SECTION_ID = ".((intval($arRes["VALUE_ID"]) > 0) ? intval($arRes["VALUE_ID"]) : "NULL" )." ".
 				"WHERE ID = ".$arRes["ID"]." ";
 			$DB->Query($strSql);
 		}
@@ -1156,21 +1156,21 @@ if (strlen($strImportErrorMessage) <= 0)
 		function ReSort($iblockID, $id = 0, $cnt = 0, $depth = 0, $active = "Y")
 		{
 			global $DB;
-			$iblockID = IntVal($iblockID);
+			$iblockID = intval($iblockID);
 
 			if ($id > 0)
 				$DB->Query(
 					"UPDATE b_iblock_section SET ".
 					"	TIMESTAMP_X = ".(($DB->type=="ORACLE") ? "NULL" : "TIMESTAMP_X").", ".
-					"	RIGHT_MARGIN = ".IntVal($cnt).", ".
-					"	LEFT_MARGIN = ".IntVal($cnt)." ".
-					"WHERE ID=".IntVal($id));
+					"	RIGHT_MARGIN = ".intval($cnt).", ".
+					"	LEFT_MARGIN = ".intval($cnt)." ".
+					"WHERE ID=".intval($id));
 
 			$strSql =
 				"SELECT BS.ID, BS.ACTIVE ".
 				"FROM b_iblock_section BS ".
 				"WHERE BS.IBLOCK_ID = ".$iblockID." ".
-				"	AND ".(($id > 0) ? "BS.IBLOCK_SECTION_ID = ".IntVal($id) : "BS.IBLOCK_SECTION_ID IS NULL")." ".
+				"	AND ".(($id > 0) ? "BS.IBLOCK_SECTION_ID = ".intval($id) : "BS.IBLOCK_SECTION_ID IS NULL")." ".
 				"ORDER BY BS.SORT, BS.NAME ";
 
 			$cnt++;
@@ -1184,10 +1184,10 @@ if (strlen($strImportErrorMessage) <= 0)
 			$DB->Query(
 				"UPDATE b_iblock_section SET ".
 				"	TIMESTAMP_X = ".($DB->type=="ORACLE"?"NULL":"TIMESTAMP_X").", ".
-				"	RIGHT_MARGIN = ".IntVal($cnt).", ".
-				"	DEPTH_LEVEL = ".IntVal($depth).", ".
+				"	RIGHT_MARGIN = ".intval($cnt).", ".
+				"	DEPTH_LEVEL = ".intval($depth).", ".
 				"	GLOBAL_ACTIVE = '".$active."' ".
-				"WHERE ID=".IntVal($id));
+				"WHERE ID=".intval($id));
 			return $cnt + 1;
 		}
 
@@ -1423,8 +1423,8 @@ if (strlen($strImportErrorMessage) <= 0)
 				"UPDATE b_iblock_element SET ".
 				"	MODIFIED_BY = '".$arRes["MODIFIED_BY"]."', ".
 				"	NAME = '".$DB->ForSql($arRes["NAME"])."', ".
-				"	IBLOCK_SECTION_ID = ".((IntVal($arRes["PARENT_CATEGORY"]) > 0) ? IntVal($arRes["PARENT_CATEGORY"]) : "NULL" ).", ".
-				"	IN_SECTIONS = '".((IntVal($arRes["CNT"]) > 0) ? "Y" : "N" )."', ".
+				"	IBLOCK_SECTION_ID = ".((intval($arRes["PARENT_CATEGORY"]) > 0) ? intval($arRes["PARENT_CATEGORY"]) : "NULL" ).", ".
+				"	IN_SECTIONS = '".((intval($arRes["CNT"]) > 0) ? "Y" : "N" )."', ".
 				"	TIMESTAMP_X = NOW(), ".
 				"	TMP_ID = '".$DB->ForSql($tmpid)."' ".
 				(true == $boolTranslitElement ? ",	CODE = '".$DB->ForSql($arRes['CODE'])."'" : '').
@@ -1610,7 +1610,7 @@ if (strlen($strImportErrorMessage) <= 0)
 		{
 			$strSql =
 				"UPDATE b_catalog_product SET ".
-				"	QUANTITY = ".IntVal($arRes["CNT"])." ".
+				"	QUANTITY = ".intval($arRes["CNT"])." ".
 				"WHERE ID = ".$arRes["ID"]." ";
 			$DB->Query($strSql);
 		}
@@ -1748,7 +1748,7 @@ if (strlen($strImportErrorMessage) <= 0)
 		{
 			$strSql =
 				"UPDATE b_catalog_product SET ".
-				"	QUANTITY = ".IntVal($arRes["CNT"])." ".
+				"	QUANTITY = ".intval($arRes["CNT"])." ".
 				"WHERE ID = ".$arRes["ID"]." ";
 			$DB->Query($strSql);
 		}
@@ -1851,7 +1851,7 @@ if (strlen($strImportErrorMessage) <= 0)
 	__SetTimeMark("Clear temp tables", "STOP");
 }
 
-if (strlen($strImportErrorMessage) <= 0)
+if ($strImportErrorMessage == '')
 {
 	$totalExecutionTime = RoundEx(getmicrotime() - $startImportExecTime, 1);
 	$totalExecutionTimeM = RoundEx($totalExecutionTime / 60, 1);

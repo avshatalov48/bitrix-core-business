@@ -1,22 +1,25 @@
 <?
 
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Context;
-use Bitrix\Main\Web\Uri;
-use Bitrix\Main\Loader;
 use Bitrix\Main\Error;
-
-use Bitrix\Sender\Internals\QueryController;
-use Bitrix\Sender\Internals\CommonAjax;
+use Bitrix\Main\ErrorCollection;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Uri;
 use Bitrix\Sender\Entity;
+use Bitrix\Sender\Internals\CommonAjax;
+use Bitrix\Sender\Internals\QueryController;
+use Bitrix\Sender\ListTable;
 use Bitrix\Sender\Message;
 use Bitrix\Sender\Security;
-use Bitrix\Sender\ListTable;
-
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
+	die();
+}
+
+if (!Bitrix\Main\Loader::includeModule('sender'))
+{
+	ShowError('Module `sender` not installed');
 	die();
 }
 
@@ -61,7 +64,7 @@ class SenderContactImportComponent extends CBitrixComponent
 			?
 			$this->arParams['CAN_EDIT']
 			:
-			Security\Access::current()->canModifySegments();
+			Security\Access::getInstance()->canModifySegments();
 	}
 
 	protected function preparePost()
@@ -151,7 +154,7 @@ class SenderContactImportComponent extends CBitrixComponent
 	public function executeComponent()
 	{
 		$this->errors = new \Bitrix\Main\ErrorCollection();
-		if (!Loader::includeModule('sender'))
+		if (!Bitrix\Main\Loader::includeModule('sender'))
 		{
 			$this->errors->setError(new Error('Module `sender` is not installed.'));
 			$this->printErrors();

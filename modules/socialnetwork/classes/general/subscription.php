@@ -11,7 +11,7 @@ class CAllSocNetSubscription
 
 		if (
 			$ACTION != "ADD" 
-			&& IntVal($ID) <= 0
+			&& intval($ID) <= 0
 		)
 		{
 			$APPLICATION->ThrowException("System error 870164", "ERROR");
@@ -20,7 +20,7 @@ class CAllSocNetSubscription
 
 		if (
 			(is_set($arFields, "USER_ID") || $ACTION == "ADD") 
-			&& IntVal($arFields["USER_ID"]) <= 0
+			&& intval($arFields["USER_ID"]) <= 0
 		)
 		{
 			$APPLICATION->ThrowException(Loc::getMessage("SONET_SS_EMPTY_USER_ID"), "EMPTY_USER_ID");
@@ -38,7 +38,7 @@ class CAllSocNetSubscription
 
 		if (
 			(is_set($arFields, "CODE") || $ACTION == "ADD") 
-			&& strlen(trim($arFields["CODE"])) <= 0
+			&& trim($arFields["CODE"]) == ''
 		)
 		{
 			$APPLICATION->ThrowException(Loc::getMessage("SONET_SS_EMPTY_CODE"), "EMPTY_CODE");
@@ -55,7 +55,7 @@ class CAllSocNetSubscription
 		if (!CSocNetGroup::__ValidateID($ID))
 			return false;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$bSuccess = $DB->Query("DELETE FROM b_sonet_subscription WHERE ID = ".$ID."", true);
 
@@ -66,18 +66,18 @@ class CAllSocNetSubscription
 	{
 		global $DB, $CACHE_MANAGER;
 
-		$userID = IntVal($userID);
+		$userID = intval($userID);
 		$code = trim($code);
 		
 		if (
 			$userID <= 0
-			&& strlen($code) <= 0
+			&& $code == ''
 		)
 			return false;
 
 		$DB->Query("DELETE FROM b_sonet_subscription WHERE 1=1 ".
 			(intval($userID) > 0 ? "AND USER_ID = ".$userID." " : "").
-			(strlen($code) > 0 ? "AND CODE = '".$code."' " : "")
+			($code <> '' ? "AND CODE = '".$code."' " : "")
 		, true);
 
 		if(defined("BX_COMP_MANAGED_CACHE"))
@@ -97,12 +97,12 @@ class CAllSocNetSubscription
 			return false;
 		}
 
-		$userID = IntVal($userID);
+		$userID = intval($userID);
 		$code = trim($code);
 
 		if (
 			$userID <= 0
-			|| strlen($code) <= 0
+			|| $code == ''
 		)
 		{
 			return false;
@@ -232,10 +232,7 @@ class CAllSocNetSubscription
 		if (!empty($chatData))
 		{
 			$arFields["GROUP_ID"] = array_diff($arFields["GROUP_ID"], array_unique(array_keys($chatData)));
-		}
 
-		if (!empty($chatData))
-		{
 			$tmp = \CSocNetLogTools::processPath(
 				array(
 					"URL" => $arFields["URL"],
@@ -365,7 +362,7 @@ class CAllSocNetSubscription
 
 		$workgroupsPage = COption::GetOptionString("socialnetwork", "workgroups_page", "/workgroups/", SITE_ID);
 		$groupUrlTemplate = COption::GetOptionString("socialnetwork", "group_path_template", "/workgroups/group/#group_id#/", SITE_ID);
-		$groupUrlTemplate = "#GROUPS_PATH#".substr($groupUrlTemplate, strlen($workgroupsPage), strlen($groupUrlTemplate)-strlen($workgroupsPage));
+		$groupUrlTemplate = "#GROUPS_PATH#".mb_substr($groupUrlTemplate, mb_strlen($workgroupsPage), mb_strlen($groupUrlTemplate) - mb_strlen($workgroupsPage));
 
 		$canViewUserIdList = array();
 
@@ -414,8 +411,8 @@ class CAllSocNetSubscription
 			$url = $arTmp["URLS"]["URL"];
 
 			$serverName = (
-				strpos($url, "http://") === 0
-				|| strpos($url, "https://") === 0
+			mb_strpos($url, "http://") === 0
+				|| mb_strpos($url, "https://") === 0
 					? ""
 					: $arTmp["SERVER_NAME"]
 			);
@@ -513,7 +510,7 @@ class CAllSocNetSubscription
 		}
 
 		$code = trim($code);
-		if (strlen($code) <= 0)
+		if ($code == '')
 		{
 			return false;
 		}

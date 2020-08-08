@@ -63,7 +63,7 @@ class Select extends Base
 		switch ($type)
 		{
 			case FieldType::BOOL:
-				$value = strtolower((string)$key);
+				$value = mb_strtolower((string)$key);
 				$value = in_array($value, array('y', 'yes', 'true', '1')) ? 'Y' : 'N';
 				break;
 			case FieldType::DOUBLE:
@@ -83,8 +83,8 @@ class Select extends Base
 				break;
 			case FieldType::USER:
 				$value = trim($key);
-				if (strpos($value, 'user_') === false
-					&& strpos($value, 'group_') === false
+				if (mb_strpos($value, 'user_') === false
+					&& mb_strpos($value, 'group_') === false
 					&& !preg_match('#^[0-9]+$#', $value)
 				)
 				{

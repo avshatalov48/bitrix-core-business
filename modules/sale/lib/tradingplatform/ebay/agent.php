@@ -64,7 +64,7 @@ class Agent
 			Ebay::log(Logger::LOG_LEVEL_ERROR, "EBAY_FEED_ERROR", $feedType, $e->getMessage(), $siteId);
 		}
 
-		if(strlen($result) <=0 && !$once)
+		if($result == '' && !$once)
 			$result = 'Bitrix\Sale\TradingPlatform\Ebay\Agent::start("'.$feedType.'","'.$siteId.'");';
 
 		return $result;

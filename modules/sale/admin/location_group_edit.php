@@ -48,7 +48,7 @@ try
 	$actionSaveAndAdd = isset($_REQUEST['save_and_add']);
 	$formSubmitted = ($actionSave || $actionApply || $actionSaveAndAdd) && check_bitrix_sessid();
 
-	$returnUrl = strlen($_REQUEST['return_url']) ? $_REQUEST['return_url'] : false;
+	$returnUrl = $_REQUEST['return_url'] <> ''? $_REQUEST['return_url'] : false;
 
 	if($userIsAdmin && !empty($_REQUEST['element']) && $formSubmitted) // form submitted, handling it
 	{
@@ -128,7 +128,7 @@ try
 			$code = $e->getCode();
 			$message = $e->getMessage().(!empty($code) ? ' ('.$code.')' : '');
 
-			$actionFailureMessage = Loc::getMessage('SALE_LOCATION_E_CANNOT_'.($saveAsId ? 'UPDATE' : 'SAVE').'_ITEM').(strlen($message) ? ': <br /><br />'.$message : '');
+			$actionFailureMessage = Loc::getMessage('SALE_LOCATION_E_CANNOT_'.($saveAsId ? 'UPDATE' : 'SAVE').'_ITEM').($message <> ''? ': <br /><br />'.$message : '');
 
 			$DB->Rollback();
 
@@ -160,7 +160,7 @@ try
 			if($readAsId)
 			{
 				$langU = ToUpper(LANGUAGE_ID);
-				$nameToDisplay = strlen($formData['NAME_'.$langU]) ? $formData['NAME_'.$langU] : $formData['CODE'];
+				$nameToDisplay = $formData['NAME_'.$langU] <> ''? $formData['NAME_'.$langU] : $formData['CODE'];
 			}
 		}
 		else
@@ -204,15 +204,15 @@ if(!$fatalFailure) // no fatals like "module not installed, etc."
 	$tabControl->BeginEpilogContent();
 
 	?>
-	<?if(strlen($_REQUEST['return_url'])):?>
-		<input type="hidden" name="return_url" value="<?=htmlspecialcharsbx($returnUrl)?>">
-	<?endif?>
+	<? if($_REQUEST['return_url'] <> ''):?>
+	<input type="hidden" name="return_url" value="<?= htmlspecialcharsbx($returnUrl) ?>">
+<?endif?>
 	<?=bitrix_sessid_post()?>
 	<?
 	$tabControl->EndEpilogContent();
 }
 
-$APPLICATION->SetTitle(strlen($nameToDisplay) ? Loc::getMessage('SALE_LOCATION_E_ITEM_EDIT', array('#ITEM_NAME#' => $nameToDisplay)) : Loc::getMessage('SALE_LOCATION_E_ITEM_NEW'));
+$APPLICATION->SetTitle($nameToDisplay <> ''? Loc::getMessage('SALE_LOCATION_E_ITEM_EDIT', array('#ITEM_NAME#' => $nameToDisplay)) : Loc::getMessage('SALE_LOCATION_E_ITEM_NEW'));
 ?>
 
 <?require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");?>

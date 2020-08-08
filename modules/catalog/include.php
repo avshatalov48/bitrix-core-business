@@ -9,6 +9,8 @@ use Bitrix\Main\Loader,
 
 Loc::loadMessages(__FILE__);
 
+define('CATALOG_CONTAINER_PATH', 'modules/catalog/.container.php');
+
 define("CATALOG_PATH2EXPORTS", "/bitrix/php_interface/include/catalog_export/");
 define("CATALOG_PATH2EXPORTS_DEF", "/bitrix/modules/catalog/load/");
 define('CATALOG_DEFAULT_EXPORT_PATH', '/bitrix/catalog_export/');
@@ -84,7 +86,7 @@ $arTreeDescr = array(
 CJSCore::RegisterExt('core_condtree', $arTreeDescr);
 
 global $DB;
-$strDBType = strtolower($DB->type);
+$strDBType = mb_strtolower($DB->type);
 
 define('CATALOG_VALUE_EPSILON', 1e-6);
 define('CATALOG_VALUE_PRECISION', 2);
@@ -172,6 +174,7 @@ Loader::registerAutoLoadClasses(
 		'\Bitrix\Catalog\Ebay\ExportOffer' => 'lib/ebay/exportoffer.php',
 		'\Bitrix\Catalog\Ebay\ExportOfferCreator' => 'lib/ebay/exportoffercreator.php',
 		'\Bitrix\Catalog\Ebay\ExportOfferSKU' => 'lib/ebay/exportoffersku.php',
+		'\Bitrix\Catalog\Grid\Panel\ProductGroupAction' => 'lib/grid/panel/productgroupaction.php',
 		'\Bitrix\Catalog\Grid\ProductAction' => 'lib/grid/productaction.php',
 		'\Bitrix\Catalog\Helpers\Admin\CatalogEdit' => 'lib/helpers/admin/catalogedit.php',
 		'\Bitrix\Catalog\Helpers\Admin\IblockPriceChanger' => 'lib/helpers/admin/iblockpricechanger.php',
@@ -197,10 +200,13 @@ Loader::registerAutoLoadClasses(
 		'\Bitrix\Catalog\Product\Viewed' => 'lib/product/viewed.php',
 		'\Bitrix\Catalog\Update\AdminFilterOption' => 'lib/update/adminfilteroption.php',
 		'\Bitrix\Catalog\Update\AdminGridOption' => 'lib/update/admingridoption.php',
+		'\Bitrix\Catalog\Url\AdminPage\CatalogBuilder' => 'lib/url/adminpage/catalogbuilder.php',
+		'\Bitrix\Catalog\Url\AdminPage\Registry' => 'lib/url/adminpage/registry.php',
 		'\Bitrix\Catalog\CatalogIblockTable' => 'lib/catalogiblock.php',
 		'\Bitrix\Catalog\CatalogViewedProductTable' => 'lib/catalogviewedproduct.php',
 		'\Bitrix\Catalog\DiscountTable' => 'lib/discount.php',
 		'\Bitrix\Catalog\DiscountCouponTable' => 'lib/discountcoupon.php',
+		'\Bitrix\Catalog\DiscountEntityTable' => 'lib/discountentity.php',
 		'\Bitrix\Catalog\DiscountModuleTable' => 'lib/discountmodule.php',
 		'\Bitrix\Catalog\DiscountRestrictionTable' => 'lib/discountrestriction.php',
 		'\Bitrix\Catalog\ExtraTable' => 'lib/extra.php',
@@ -789,7 +795,7 @@ function CatalogPayOrderCallback($productID, $userID, $bPaid, $orderID)
 						$arOldGroups["GROUP_ID"] = intval($arOldGroups["GROUP_ID"]);
 						if (array_key_exists($arOldGroups["GROUP_ID"], $arTmp))
 						{
-							if (strlen($arOldGroups["DATE_ACTIVE_FROM"]) <= 0)
+							if ($arOldGroups["DATE_ACTIVE_FROM"] == '')
 							{
 								$arUserGroups[$arTmp[$arOldGroups["GROUP_ID"]]]["DATE_ACTIVE_FROM"] = false;
 							}
@@ -801,7 +807,7 @@ function CatalogPayOrderCallback($productID, $userID, $bPaid, $orderID)
 									$arUserGroups[$arTmp[$arOldGroups["GROUP_ID"]]]["DATE_ACTIVE_FROM"] = $arOldGroups["DATE_ACTIVE_FROM"];
 							}
 
-							if (strlen($arOldGroups["DATE_ACTIVE_TO"]) <= 0)
+							if ($arOldGroups["DATE_ACTIVE_TO"] == '')
 							{
 								$arUserGroups[$arTmp[$arOldGroups["GROUP_ID"]]]["DATE_ACTIVE_TO"] = false;
 							}
@@ -1425,7 +1431,7 @@ function Add2Basket($PRICE_ID, $QUANTITY = 1, $arRewriteFields = array(), $arPro
 	$arParentSku = CCatalogSku::GetProductInfo($arProduct['ID'], $arProduct['IBLOCK_ID']);
 	if (!empty($arParentSku))
 	{
-		if (strpos($arProduct["~XML_ID"], '#') === false)
+		if (mb_strpos($arProduct["~XML_ID"], '#') === false)
 		{
 			$parentIterator = Iblock\ElementTable::getList(array(
 				'select' => array('ID', 'XML_ID'),
@@ -1748,7 +1754,7 @@ function SubscribeProduct($intProductID, $arRewriteFields = array(), $arProductP
 	$arParentSku = CCatalogSku::GetProductInfo($intProductID, $arProduct['IBLOCK_ID']);
 	if (!empty($arParentSku))
 	{
-		if (strpos($arProduct["~XML_ID"], '#') === false)
+		if (mb_strpos($arProduct["~XML_ID"], '#') === false)
 		{
 			$parentIterator = Iblock\ElementTable::getList(array(
 				'select' => array('ID', 'XML_ID'),
@@ -2227,7 +2233,7 @@ function __CatalogSetTimeMark($text, $startStop = "")
 {
 	global $__catalogTimeMarkTo, $__catalogTimeMarkFrom, $__catalogTimeMarkGlobalFrom;
 
-	if (strtoupper($startStop) == "START")
+	if (mb_strtoupper($startStop) == "START")
 	{
 		$hFile = fopen($_SERVER["DOCUMENT_ROOT"]."/__catalog_debug.txt", "a");
 		fwrite($hFile, date("H:i:s")." - ".$text."\n");
@@ -2236,7 +2242,7 @@ function __CatalogSetTimeMark($text, $startStop = "")
 		$__catalogTimeMarkGlobalFrom = __CatalogGetMicroTime();
 		$__catalogTimeMarkFrom = __CatalogGetMicroTime();
 	}
-	elseif (strtoupper($startStop) == "STOP")
+	elseif (mb_strtoupper($startStop) == "STOP")
 	{
 		$__catalogTimeMarkTo = __CatalogGetMicroTime();
 
@@ -2301,14 +2307,14 @@ function CatalogGenerateCoupon()
 	}
 
 	$allchars = 'ABCDEFGHIJKLNMOPQRSTUVWXYZ0123456789';
-	$charsLen = strlen($allchars)-1;
+	$charsLen = mb_strlen($allchars) - 1;
 	$string1 = '';
 	$string2 = '';
 	for ($i = 0; $i < 5; $i++)
-		$string1 .= substr($allchars, rand(0, $charsLen), 1);
+		$string1 .= mb_substr($allchars, rand(0, $charsLen), 1);
 
 	for ($i = 0; $i < 7; $i++)
-		$string2 .= substr($allchars, rand(0, $charsLen), 1);
+		$string2 .= mb_substr($allchars, rand(0, $charsLen), 1);
 
 	return 'CP-'.$string1.'-'.$string2;
 }

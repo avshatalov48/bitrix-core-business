@@ -177,10 +177,10 @@ class CSecurityUserTest
 			$user = $dbUser->fetch();
 			$password = $user['PASSWORD'];
 			$salt = '';
-			if (strlen($password) > 32)
+			if (mb_strlen($password) > 32)
 			{
-				$salt = substr($password, 0, strlen($password) - 32);
-				$password = substr($password, -32);
+				$salt = mb_substr($password, 0, mb_strlen($password) - 32);
+				$password = mb_substr($password, -32);
 			}
 		}
 

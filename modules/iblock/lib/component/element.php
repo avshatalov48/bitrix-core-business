@@ -631,8 +631,8 @@ abstract class Element extends Base
 			$element['LINKED_ELEMENTS'] = array();
 
 			if (
-				strlen($this->arParams['LINK_PROPERTY_SID']) > 0
-				&& strlen($this->arParams['LINK_IBLOCK_TYPE']) > 0
+				$this->arParams['LINK_PROPERTY_SID'] <> ''
+				&& $this->arParams['LINK_IBLOCK_TYPE'] <> ''
 				&& $this->arParams['LINK_IBLOCK_ID'] > 0
 			)
 			{

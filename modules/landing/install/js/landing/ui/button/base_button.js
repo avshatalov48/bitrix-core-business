@@ -177,7 +177,7 @@
 		 */
 		disable: function()
 		{
-			addClass(this.layout, "landing-ui-disable");
+			addClass(this.layout, "landing-ui-disabled");
 		},
 
 
@@ -186,7 +186,7 @@
 		 */
 		enable: function()
 		{
-			removeClass(this.layout, "landing-ui-disable");
+			removeClass(this.layout, "landing-ui-disabled");
 			this.layout.removeAttribute("disabled");
 		},
 

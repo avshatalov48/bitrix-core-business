@@ -18,9 +18,7 @@ class sender extends CModule
 	{
 		$arModuleVersion = array();
 
-		$path = str_replace("\\", "/", __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen("/index.php"));
-		include($path."/version.php");
+		include(__DIR__.'/version.php');
 
 		if (is_array($arModuleVersion) && array_key_exists("VERSION", $arModuleVersion))
 		{
@@ -59,7 +57,7 @@ class sender extends CModule
 			RegisterModule("sender");
 			CModule::IncludeModule("sender");
 
-			if (strtolower($DB->type) == 'mysql')
+			if ($DB->type == 'MYSQL')
 			{
 				$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/db/".$DBType."/install_ft.sql");
 				if ($errors === false)
@@ -110,7 +108,11 @@ class sender extends CModule
 
 			\Bitrix\Sender\Runtime\Job::actualizeAll();
 			\Bitrix\Sender\Trigger\Manager::activateAllHandlers(true);
-			\Bitrix\Sender\Security\Role\Manager::installRoles();
+			\CAgent::AddAgent(
+				'Bitrix\\Sender\\Access\\Install\\AccessInstaller::installAgent();',
+				"sender", "N", 60, "", "Y",
+				\ConvertTimeStamp(time()+\CTimeZone::GetOffset()+450, "FULL")
+			);
 
 			CTimeZone::Enable();
 
@@ -233,7 +235,7 @@ class sender extends CModule
 		$POST_RIGHT = $APPLICATION->GetGroupRight("sender");
 		if($POST_RIGHT == "W")
 		{
-			$step = IntVal($step);
+			$step = intval($step);
 			if($step < 2)
 			{
 				$APPLICATION->IncludeAdminFile(GetMessage("SENDER_MODULE_INST_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/inst1.php");
@@ -257,7 +259,7 @@ class sender extends CModule
 		$POST_RIGHT = $APPLICATION->GetGroupRight("sender");
 		if($POST_RIGHT == "W")
 		{
-			$step = IntVal($step);
+			$step = intval($step);
 			if($step < 2)
 			{
 				$APPLICATION->IncludeAdminFile(GetMessage("SENDER_MODULE_UNINST_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/uninst1.php");

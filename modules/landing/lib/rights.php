@@ -189,7 +189,7 @@ class Rights
 			);
 			while ($row = $res->fetch())
 			{
-				$row['NAME'] = substr($row['NAME'], 14);
+				$row['NAME'] = mb_substr($row['NAME'], 14);
 				$tasks[$row['ID']] = $row;
 			}
 		}
@@ -423,14 +423,14 @@ class Rights
 			{
 				if ($row['ENTITY_ID'] == 0)
 				{
-					$operationsDefault[] = substr($row['OPERATION_NAME'], 8);
+					$operationsDefault[] = mb_substr($row['OPERATION_NAME'], 8);
 					continue;
 				}
 				if (!isset($operations[$row['ENTITY_ID']]))
 				{
 					$operations[$row['ENTITY_ID']] = array();
 				}
-				$operations[$row['ENTITY_ID']][] = substr($row['OPERATION_NAME'], 8);
+				$operations[$row['ENTITY_ID']][] = mb_substr($row['OPERATION_NAME'], 8);
 				$operations[$row['ENTITY_ID']] = array_unique($operations[$row['ENTITY_ID']]);
 			}
 		}
@@ -572,12 +572,6 @@ class Rights
 	protected static function setOperations($entityId, $entityType, array $rights = [])
 	{
 		if (!self::isFeatureOn())
-		{
-			return false;
-		}
-
-		// fix me
-		if (Site\Type::getCurrentScopeId() == 'GROUP')
 		{
 			return false;
 		}
@@ -910,10 +904,10 @@ class Rights
 
 		foreach (self::ADDITIONAL_RIGHTS as $right)
 		{
-			if (strpos($right, '_') > 0)
+			if (mb_strpos($right, '_') > 0)
 			{
 				list($prefix, ) = explode('_', $right);
-				$prefix = strtoupper($prefix);
+				$prefix = mb_strtoupper($prefix);
 				if ($prefix != $type)
 				{
 					continue;
@@ -923,7 +917,7 @@ class Rights
 			{
 				continue;
 			}
-			$rights[$right] = Loc::getMessage('LANDING_RIGHTS_R_' . strtoupper($right));
+			$rights[$right] = Loc::getMessage('LANDING_RIGHTS_R_'.mb_strtoupper($right));
 		}
 
 		return $rights;
@@ -950,7 +944,7 @@ class Rights
 
 		if ($type !== null)
 		{
-			$type = strtolower($type);
+			$type = mb_strtolower($type);
 			//@todo: hotfix for group right
 			if ($type == 'group')
 			{

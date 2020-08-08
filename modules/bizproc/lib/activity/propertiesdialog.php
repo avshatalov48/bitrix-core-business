@@ -448,7 +448,7 @@ class PropertiesDialog
 	public function setDialogFileName($dialogFileName)
 	{
 		$dialogFileName = (string)$dialogFileName;
-		if (strpos($dialogFileName, '.') === false)
+		if (mb_strpos($dialogFileName, '.') === false)
 			$dialogFileName .= '.php';
 
 		$this->dialogFileName = $dialogFileName;

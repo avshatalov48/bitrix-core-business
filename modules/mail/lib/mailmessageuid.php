@@ -113,6 +113,8 @@ class MailMessageUidTable extends Entity\DataManager
 		));
 
 		$result = $connection->query(sprintf('DELETE %s', $query));
+		$count = $connection->getAffectedRowsCount();
+		$result->setCount($count > 0 ? $count : 0);
 
 		if ($messagesIds = array_column($eventData, 'MESSAGE_ID'))
 		{
@@ -147,6 +149,45 @@ class MailMessageUidTable extends Entity\DataManager
 		));
 		$event->send();
 		EventManager::getInstance()->removeEventHandler('mail', 'onMailMessageDeleted', $eventKey);
+
+		return $result;
+	}
+
+	/**
+	 * @param array $filter
+	 * @return \Bitrix\Main\DB\Result
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\Db\SqlQueryException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public static function deleteListSoft(array $filter)
+	{
+		$entity = static::getEntity();
+		$connection = $entity->getConnection();
+
+		$query = sprintf(
+			'UPDATE %s SET %s WHERE %s AND NOT EXISTS (SELECT 1 FROM %s WHERE %s)',
+			$connection->getSqlHelper()->quote($entity->getDbTableName()),
+			$connection->getSqlHelper()->prepareUpdate($entity->getDbTableName(), [
+				'DELETE_TIME' => time(),
+			])[0],
+			Entity\Query::buildFilterSql(
+				$entity,
+				$filter
+			),
+			$connection->getSqlHelper()->quote(Internals\MessageUploadQueueTable::getTableName()),
+			Entity\Query::buildFilterSql(
+				$entity,
+				[
+					'=ID' => new \Bitrix\Main\DB\SqlExpression('?#', 'ID'),
+					'=MAILBOX_ID' => new \Bitrix\Main\DB\SqlExpression('?#', 'MAILBOX_ID'),
+				]
+			)
+		);
+
+		$result = $connection->query($query);
+		$count = $connection->getAffectedRowsCount();
+		$result->setCount($count > 0 ? $count : 0);
 
 		return $result;
 	}
@@ -204,7 +245,7 @@ class MailMessageUidTable extends Entity\DataManager
 		{
 			if (strncmp('MAILBOX_', $selectingField, 8) === 0 && !MailMessageUidTable::getEntity()->hasField($selectingField))
 			{
-				$emailsForDeleteQuery->addSelect('MAILBOX.' . substr($selectingField, 8), $selectingField);
+				$emailsForDeleteQuery->addSelect('MAILBOX.'.mb_substr($selectingField, 8), $selectingField);
 				continue;
 			}
 			$emailsForDeleteQuery->addSelect($selectingField);
@@ -272,6 +313,9 @@ class MailMessageUidTable extends Entity\DataManager
 			'MESSAGE' => array(
 				'data_type' => 'Bitrix\Mail\MailMessage',
 				'reference' => array('=this.MESSAGE_ID' => 'ref.ID'),
+			),
+			'DELETE_TIME' => array(
+				'data_type' => 'integer',
 			),
 		);
 	}

@@ -29,7 +29,7 @@ $getMessageLocal = function($messageCode, $replace = []) use ($arParams)
 	);
 };
 
-$containerId = 'sender-campaign-selector-' . strtolower($arParams['INPUT_NAME']);
+$containerId = 'sender-campaign-selector-'.mb_strtolower($arParams['INPUT_NAME']);
 ?>
 
 <div id="<?=htmlspecialcharsbx($containerId)?>" class="sender-campaign-selector-wrapper">

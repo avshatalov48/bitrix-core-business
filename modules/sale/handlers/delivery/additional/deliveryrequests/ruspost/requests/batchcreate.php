@@ -148,7 +148,7 @@ class BatchCreate extends Base
 			{
 				$shipmentId = $createResult->getInternalId();
 
-				if($createResult->isSuccess() && strlen($createResult->getExternalId()) > 0)
+				if($createResult->isSuccess() && $createResult->getExternalId() <> '')
 					$this->shipmentIdsMap[$shipmentId] = $createResult->getExternalId();
 			}
 

@@ -19,6 +19,9 @@ class CIBlockPropertyFileMan
 			"ConvertToDB" => array(__CLASS__, "ConvertToDB"),
 			"ConvertFromDB" => array(__CLASS__, "ConvertFromDB"),
 			"GetSettingsHTML" => array(__CLASS__, "GetSettingsHTML"),
+			'GetUIEntityEditorProperty' => array(__CLASS__, 'GetUIEntityEditorProperty'),
+			'GetUIEntityEditorPropertyEditHtml' => array(__CLASS__, 'GetUIEntityEditorPropertyEditHtml'),
+			'GetUIEntityEditorPropertyViewHtml' => array(__CLASS__, 'GetUIEntityEditorPropertyViewHtml'),
 		);
 	}
 
@@ -85,7 +88,7 @@ class CIBlockPropertyFileMan
 	{
 		global $APPLICATION;
 
-		if (strLen(trim($strHTMLControlName["FORM_NAME"])) <= 0)
+		if (trim($strHTMLControlName["FORM_NAME"]) == '')
 			$strHTMLControlName["FORM_NAME"] = "form_element";
 		$name = preg_replace("/[^a-zA-Z0-9_]/i", "x", htmlspecialcharsbx($strHTMLControlName["VALUE"]));
 
@@ -153,9 +156,9 @@ class CIBlockPropertyFileMan
 	public static function ConvertFromDB($arProperty, $value)
 	{
 		$return = array();
-		if (strLen(trim($value["VALUE"])) > 0)
+		if (trim($value["VALUE"]) <> '')
 			$return["VALUE"] = $value["VALUE"];
-		if (strLen(trim($value["DESCRIPTION"])) > 0)
+		if (trim($value["DESCRIPTION"]) <> '')
 			$return["DESCRIPTION"] = $value["DESCRIPTION"];
 		return $return;
 	}
@@ -167,5 +170,32 @@ class CIBlockPropertyFileMan
 		);
 
 		return '';
+	}
+
+	public static function GetUIEntityEditorProperty($settings, $value)
+	{
+		return [
+			'type' => 'custom'
+		];
+	}
+
+	public static function GetUIEntityEditorPropertyEditHtml(array $params = []) : string
+	{
+		$settings = $params['SETTINGS'] ?? [];
+		$value = $params['VALUE'] ?? '';
+		$paramsHTMLControl = [
+			'MODE' => 'iblock_element_admin',
+			'VALUE' => $params['FIELD_NAME'] ?? '',
+		];
+		return self::GetPropertyFieldHtml($settings, $value, $paramsHTMLControl);
+	}
+
+	public static function GetUIEntityEditorPropertyViewHtml(array $params = []) : string
+	{
+		$result = '';
+		if(!empty($params['VALUE']))
+		{
+		}
+		return $result;
 	}
 }

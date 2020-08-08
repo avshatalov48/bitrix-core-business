@@ -36,7 +36,7 @@ class Permission
 		$allowPath = false;
 		foreach ($initFolders as $oneFolder)
 		{
-			if (strpos($path, $oneFolder) === 0)
+			if (mb_strpos($path, $oneFolder) === 0)
 			{
 				$allowPath = true;
 				break;

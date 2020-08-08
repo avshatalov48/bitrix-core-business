@@ -1,10 +1,10 @@
-;(function()
+;(function ()
 {
 	'use strict';
 
 	BX.namespace('BX.Main.UF');
 
-	if(typeof BX.Main.UF.Manager !== 'undefined')
+	if (typeof BX.Main.UF.Manager !== 'undefined')
 	{
 		return;
 	}
@@ -17,26 +17,26 @@
 	 * @constructor
 	 */
 
-	BX.Main.UF.Manager = function()
+	BX.Main.UF.Manager = function ()
 	{
 		this.mode = this.mode || '';
 		this.ajaxUrl = '/bitrix/tools/uf.php';
 	};
 
 
-	BX.Main.UF.Manager.getEdit = function(param, callback)
+	BX.Main.UF.Manager.getEdit = function (param, callback)
 	{
 		return BX.Main.UF.EditManager.get(param, callback);
 	};
 
-	BX.Main.UF.Manager.getView = function(param, callback)
+	BX.Main.UF.Manager.getView = function (param, callback)
 	{
 		return BX.Main.UF.ViewManager.get(param, callback);
 	};
 
-	BX.Main.UF.Manager.prototype.get = function(param, callback)
+	BX.Main.UF.Manager.prototype.get = function (param, callback)
 	{
-		if(!this.mode)
+		if (!this.mode)
 		{
 			this.displayError([
 				'No mode set. Use BX.UF.EditManager or BX.UF.ViewManager'
@@ -48,13 +48,14 @@
 		return this.query(this.mode, {
 			FIELDS: param.FIELDS,
 			FORM: param.FORM || '',
-			CONTEXT: param.CONTEXT || ''
+			CONTEXT: param.CONTEXT || '',
+			MEDIA_TYPE: param.MEDIA_TYPE || ''
 		}, callback);
 	};
 
-	BX.Main.UF.Manager.prototype.add = function(param, callback)
+	BX.Main.UF.Manager.prototype.add = function (param, callback)
 	{
-		if(!this.mode)
+		if (!this.mode)
 		{
 			this.displayError([
 				'No mode set. Use BX.UF.EditManager or BX.UF.ViewManager'
@@ -70,9 +71,9 @@
 		}, callback);
 	};
 
-	BX.Main.UF.Manager.prototype.update = function(param, callback)
+	BX.Main.UF.Manager.prototype.update = function (param, callback)
 	{
-		if(!this.mode)
+		if (!this.mode)
 		{
 			this.displayError([
 				'No mode set. Use BX.UF.EditManager or BX.UF.ViewManager'
@@ -88,9 +89,9 @@
 		}, callback);
 	};
 
-	BX.Main.UF.Manager.prototype.delete = function(param, callback)
+	BX.Main.UF.Manager.prototype.delete = function (param, callback)
 	{
-		if(!this.mode)
+		if (!this.mode)
 		{
 			this.displayError([
 				'No mode set. Use BX.UF.EditManager or BX.UF.ViewManager'
@@ -106,7 +107,7 @@
 		}, callback);
 	};
 
-	BX.Main.UF.Manager.prototype.query = function(mode, param, callback)
+	BX.Main.UF.Manager.prototype.query = function (mode, param, callback)
 	{
 		BX.ajax({
 			dataType: 'json',
@@ -117,62 +118,62 @@
 		});
 	};
 
-	BX.Main.UF.Manager.prototype.prepareQuery = function(mode, param)
+	BX.Main.UF.Manager.prototype.prepareQuery = function (mode, param)
 	{
-		var p = param||{};
+		var p = param || {};
 
 		p.mode = mode;
-		p.lang = BX.message('LANGUAGE_ID')||'';
-		p.tpl = BX.message('UF_SITE_TPL')||'';
-		p.tpls = BX.message('UF_SITE_TPL_SIGN')||'';
+		p.lang = BX.message('LANGUAGE_ID') || '';
+		p.tpl = BX.message('UF_SITE_TPL') || '';
+		p.tpls = BX.message('UF_SITE_TPL_SIGN') || '';
 		p.sessid = BX.bitrix_sessid();
 
 		return p;
 	};
 
-	BX.Main.UF.Manager.prototype.queryCallback = function(callback)
+	BX.Main.UF.Manager.prototype.queryCallback = function (callback)
 	{
 		var processResult = BX.proxy(this.processResult, this);
-		return function(result)
+		return function (result)
 		{
 			processResult(result, callback);
 		}
 	};
 
-	BX.Main.UF.Manager.prototype.processResult = function(result, callback)
+	BX.Main.UF.Manager.prototype.processResult = function (result, callback)
 	{
 		var asset = '';
-		if(BX.type.isArray(result.ASSET))
+		if (BX.type.isArray(result.ASSET))
 		{
 			asset += result.ASSET.join('\n');
 		}
 
-		if(!!result.ERROR)
+		if (!!result.ERROR)
 		{
 			this.displayError(result.ERROR);
 		}
 
-		return BX.html(null, asset).then(function()
+		return BX.html(null, asset).then(function ()
 		{
-			if(!!callback)
+			if (!!callback)
 			{
 				callback(result.FIELD);
 			}
 		});
 	};
 
-	BX.Main.UF.Manager.prototype.displayError = function(errorList)
+	BX.Main.UF.Manager.prototype.displayError = function (errorList)
 	{
-		for(var i in errorList)
+		for (var i in errorList)
 		{
-			if(errorList.hasOwnProperty(i))
+			if (errorList.hasOwnProperty(i))
 			{
 				console.error(errorList[i]);
 			}
 		}
 	};
 
-	BX.Main.UF.Manager.prototype.registerField = function(field, fieldDescription, node)
+	BX.Main.UF.Manager.prototype.registerField = function (field, fieldDescription, node)
 	{
 		fieldStack[field] = {
 			FIELD: fieldDescription,
@@ -180,40 +181,40 @@
 		};
 	};
 
-	BX.Main.UF.Manager.prototype.unRegisterField = function(field)
+	BX.Main.UF.Manager.prototype.unRegisterField = function (field)
 	{
-		if(!!fieldStack[field])
+		if (!!fieldStack[field])
 		{
 			delete fieldStack[field];
 		}
 	};
 
 
-	BX.Main.UF.ViewManager = function()
+	BX.Main.UF.ViewManager = function ()
 	{
 		BX.Main.UF.ViewManager.superclass.constructor.apply(this, arguments);
 
-		this.mode = 'view';
+		this.mode = 'main.view';
 	};
 	BX.extend(BX.Main.UF.ViewManager, BX.Main.UF.Manager);
 
-	BX.Main.UF.EditManager = function()
+	BX.Main.UF.EditManager = function ()
 	{
 		BX.Main.UF.EditManager.superclass.constructor.apply(this, arguments);
 
-		this.mode = 'edit';
+		this.mode = 'main.edit';
 	};
 	BX.extend(BX.Main.UF.EditManager, BX.Main.UF.Manager);
 
-	BX.Main.UF.EditManager.prototype.validate = function(fieldList, callback)
+	BX.Main.UF.EditManager.prototype.validate = function (fieldList, callback)
 	{
-		if(fieldList.length > 0)
+		if (fieldList.length > 0)
 		{
 			var request = [];
-			for(var i = 0; i < fieldList.length; i++)
+			for (var i = 0; i < fieldList.length; i++)
 			{
 				var value = BX.Main.UF.Factory.getValue(fieldList[i]);
-				if(value !== null)
+				if (value !== null)
 				{
 					request.push({
 						'ENTITY_ID': fieldStack[fieldList[i]].FIELD.ENTITY_ID,
@@ -231,7 +232,7 @@
 		}
 		else
 		{
-			this.queryCallback(callback)({'FIELD':[]});
+			this.queryCallback(callback)({'FIELD': []});
 		}
 	};
 
@@ -241,19 +242,19 @@
 	 * @constructor
 	 */
 
-	BX.Main.UF.BaseType = function()
+	BX.Main.UF.BaseType = function ()
 	{
 	};
 
-	BX.Main.UF.BaseType.prototype.addRow = function(fieldName, thisButton)
+	BX.Main.UF.BaseType.prototype.addRow = function (fieldName, thisButton)
 	{
 		var element = thisButton.parentNode.getElementsByTagName('span');
-		if(element && element.length > 0 && element[0])
+		if (element && element.length > 0 && element[0])
 		{
 			var parentElement = element[0].parentNode; // parent
 			var newNode = this.getClone(element[element.length - 1], fieldName);
 
-			if(parentElement === thisButton.parentNode)
+			if (parentElement === thisButton.parentNode)
 			{
 				parentElement.insertBefore(newNode, thisButton);
 			}
@@ -264,12 +265,88 @@
 		}
 	};
 
-	BX.Main.UF.BaseType.prototype.getClone = function(node, fieldName)
+	/**
+	 * @deprecated
+	 * @param fieldName
+	 * @param thisButton
+	 */
+	BX.Main.UF.BaseType.prototype.addMobileRow = function (fieldName, thisButton)
+	{
+		var element = thisButton.parentNode.getElementsByTagName('span');
+		if (element && element.length && element[0])
+		{
+			var parentElement = element[0].parentNode; // parent
+			var newNode = this.getClone(element[element.length - 1], fieldName);
+			var firstChildren = newNode.firstElementChild;
+			var name = firstChildren.getAttribute('name');
+			var re = /\[(\d)]/;
+			var newName = name.replace(re, function (match, index)
+			{
+				index = parseInt(index) + 1;
+				return '[' + index + ']';
+			});
+			var newItemId = false;
+			var prevItemName = false;
+			var userFieldTypeName = null;
+
+			firstChildren.setAttribute('name', newName);
+
+			if (firstChildren.hasChildNodes())
+			{
+				firstChildren.childNodes.forEach(
+					function (item, index, array)
+					{
+						if (!prevItemName && item.attributes !== undefined && item.tagName === 'INPUT')
+						{
+							item.setAttribute('name', newName);
+							prevItemName = item.getAttribute('id');
+							newItemId = prevItemName + '_1';
+							userFieldTypeName = item.getAttribute('data-user-field-type-name');
+						}
+
+						if (prevItemName && item.attributes !== undefined && item.id !== undefined)
+						{
+							var id = item.getAttribute('id');
+
+							if (id !== prevItemName)
+							{
+								item.setAttribute('id', id.replace(prevItemName, newItemId));
+							}
+							else
+							{
+								item.setAttribute('id', newItemId);
+							}
+						}
+					}
+				);
+			}
+
+			if (parentElement === thisButton.parentNode)
+			{
+				parentElement.insertBefore(newNode, thisButton);
+			}
+			else
+			{
+				parentElement.appendChild(newNode);
+			}
+
+			if (newItemId)
+			{
+				BX.onCustomEvent(
+					'onAddMobileUfField',
+					[newItemId, userFieldTypeName]
+				);
+			}
+
+		}
+	};
+
+	BX.Main.UF.BaseType.prototype.getClone = function (node, fieldName)
 	{
 		var newNode = node.cloneNode(true);
 
 		var inputList = this.findInput(newNode, fieldName);
-		for(var i = 0; i < inputList.length; i++)
+		for (var i = 0; i < inputList.length; i++)
 		{
 			inputList[i].value = '';
 		}
@@ -277,7 +354,7 @@
 		return newNode;
 	};
 
-	BX.Main.UF.BaseType.prototype.findInput = function(node, fieldName)
+	BX.Main.UF.BaseType.prototype.findInput = function (node, fieldName)
 	{
 		return BX.findChildren(node, {
 			tagName: /INPUT|TEXTAREA|SELECT/i,
@@ -287,31 +364,31 @@
 		}, true);
 	};
 
-	BX.Main.UF.BaseType.prototype.isEmpty = function(field)
+	BX.Main.UF.BaseType.prototype.isEmpty = function (field)
 	{
 		var node = this.getNode(field),
 			fieldName = field + (
 				fieldStack[field].FIELD.MULTIPLE === 'Y'
-				? '[]'
-				: ''
+					? '[]'
+					: ''
 			);
 
-		if(!BX.isNodeInDom(node))
+		if (!BX.isNodeInDom(node))
 		{
 			console.error('Node for field ' + field + ' is already removed from DOM');
 		}
 
 		var nodeList = this.findInput(node, fieldName);
 
-		if(nodeList.length <= 0)
+		if (nodeList.length <= 0)
 		{
 			console.error('Unable to find field ' + field + ' in the registered node');
 		}
 		else
 		{
-			for(var i = 0; i < nodeList.length; i++)
+			for (var i = 0; i < nodeList.length; i++)
 			{
-				if(nodeList[i].value !== '')
+				if (nodeList[i].value !== '')
 				{
 					return false;
 				}
@@ -321,34 +398,47 @@
 		return true;
 	};
 
-	BX.Main.UF.BaseType.prototype.getValue = function(field)
+	BX.Main.UF.BaseType.prototype.getValue = function (field)
 	{
 		var node = this.getNode(field),
 			fieldName = field + (
-					fieldStack[field].FIELD.MULTIPLE === 'Y'
-						? '[]'
-						: ''
-				),
+				fieldStack[field].FIELD.MULTIPLE === 'Y'
+					? '[]'
+					: ''
+			),
 			value = fieldStack[field].FIELD.MULTIPLE === 'Y' ? [] : '';
 
-		if(!BX.isNodeInDom(node))
+		if (!BX.isNodeInDom(node))
 		{
 			console.error('Node for field ' + field + ' is already removed from DOM');
 		}
 		var nodeList = this.findInput(node, fieldName);
 
-		if(nodeList.length <= 0)
+		if (nodeList.length <= 0)
 		{
-			if (!BX.util.in_array(fieldStack[field].FIELD.USER_TYPE_ID, [ 'crm', 'employee' ]))
+			var nodeChildren = (node.children.length ? node.children[0] : false);
+			/**
+			 * @todo remove !BX.util.in_array(fieldStack[field].FIELD.USER_TYPE_ID, ['crm', 'employee'])
+			 * after deploy new Crm and Employee types
+			 */
+			if (
+				!BX.util.in_array(fieldStack[field].FIELD.USER_TYPE_ID, ['crm', 'employee'])
+				&&
+				(
+					!nodeChildren
+					||
+					nodeChildren.getAttribute('data-has-input') !== 'no'
+				)
+			)
 			{
 				console.error('Unable to find field ' + field + ' in the registered node');
 			}
 		}
 		else
 		{
-			for(var i = 0; i < nodeList.length; i++)
+			for (var i = 0; i < nodeList.length; i++)
 			{
-				if(
+				if (
 					nodeList[i].tagName === 'INPUT'
 					&& (nodeList[i].type === 'radio' || nodeList[i].type === 'checkbox')
 					&& !nodeList[i].checked
@@ -357,7 +447,7 @@
 					continue;
 				}
 
-				if(fieldStack[field].FIELD.MULTIPLE === 'Y')
+				if (fieldStack[field].FIELD.MULTIPLE === 'Y')
 				{
 					value.push(nodeList[i].value);
 				}
@@ -372,28 +462,28 @@
 		return value;
 	};
 
-	BX.Main.UF.BaseType.prototype.focus = function(field)
+	BX.Main.UF.BaseType.prototype.focus = function (field)
 	{
 		var node = this.getNode(field),
 			fieldName = field + (
-					fieldStack[field].FIELD.MULTIPLE === 'Y'
-						? '[]'
-						: ''
-				);
+				fieldStack[field].FIELD.MULTIPLE === 'Y'
+					? '[]'
+					: ''
+			);
 
-		if(!BX.isNodeInDom(node))
+		if (!BX.isNodeInDom(node))
 		{
 			console.error('Node for field ' + field + ' is already removed from DOM');
 		}
 		var nodeList = this.findInput(node, fieldName);
 
-		if(nodeList.length > 0)
+		if (nodeList.length > 0)
 		{
 			BX.focus(nodeList[0]);
 		}
 	};
 
-	BX.Main.UF.BaseType.prototype.getNode = function(field)
+	BX.Main.UF.BaseType.prototype.getNode = function (field)
 	{
 		return fieldStack[field].NODE;
 	};
@@ -403,14 +493,14 @@
 	 *
 	 * @constructor
 	 */
-	BX.Main.UF.TypeBoolean = function()
+	BX.Main.UF.TypeBoolean = function ()
 	{
 	};
 	BX.extend(BX.Main.UF.TypeBoolean, BX.Main.UF.BaseType);
 
 	BX.Main.UF.TypeBoolean.USER_TYPE_ID = 'boolean';
 
-	BX.Main.UF.TypeBoolean.prototype.isEmpty = function(field)
+	BX.Main.UF.TypeBoolean.prototype.isEmpty = function (field)
 	{
 		return false;
 	};
@@ -420,7 +510,7 @@
 	 *
 	 * @constructor
 	 */
-	BX.Main.UF.TypeInteger = function()
+	BX.Main.UF.TypeInteger = function ()
 	{
 	};
 	BX.extend(BX.Main.UF.TypeInteger, BX.Main.UF.BaseType);
@@ -432,7 +522,7 @@
 	 *
 	 * @constructor
 	 */
-	BX.Main.UF.TypeDouble = function()
+	BX.Main.UF.TypeDouble = function ()
 	{
 	};
 	BX.extend(BX.Main.UF.TypeDouble, BX.Main.UF.BaseType);
@@ -444,7 +534,7 @@
 	 *
 	 * @constructor
 	 */
-	BX.Main.UF.TypeSting = function()
+	BX.Main.UF.TypeSting = function ()
 	{
 	};
 	BX.extend(BX.Main.UF.TypeSting, BX.Main.UF.BaseType);
@@ -456,7 +546,7 @@
 	 *
 	 * @constructor
 	 */
-	BX.Main.UF.TypeUrl = function()
+	BX.Main.UF.TypeUrl = function ()
 	{
 	};
 	BX.extend(BX.Main.UF.TypeUrl, BX.Main.UF.BaseType);
@@ -468,7 +558,7 @@
 	 *
 	 * @constructor
 	 */
-	BX.Main.UF.TypeStingFormatted = function()
+	BX.Main.UF.TypeStingFormatted = function ()
 	{
 	};
 	BX.extend(BX.Main.UF.TypeStingFormatted, BX.Main.UF.TypeSting);
@@ -481,22 +571,22 @@
 	 *
 	 * @constructor
 	 */
-	BX.Main.UF.TypeEnumeration = function()
+	BX.Main.UF.TypeEnumeration = function ()
 	{
 	};
 	BX.extend(BX.Main.UF.TypeEnumeration, BX.Main.UF.BaseType);
 
 	BX.Main.UF.TypeEnumeration.USER_TYPE_ID = 'enumeration';
 
-	BX.Main.UF.TypeEnumeration.prototype.findInput = function(node, fieldName)
+	BX.Main.UF.TypeEnumeration.prototype.findInput = function (node, fieldName)
 	{
 		var inputList = BX.Main.UF.TypeEnumeration.superclass.findInput.apply(this, arguments);
 
-		if(inputList.length > 0)
+		if (inputList.length > 0)
 		{
-			for(var i = 0; i < inputList.length; i++)
+			for (var i = 0; i < inputList.length; i++)
 			{
-				if(inputList[i].tagName === 'INPUT' && inputList[i].type === 'hidden' && inputList.length > 1)
+				if (inputList[i].tagName === 'INPUT' && inputList[i].type === 'hidden' && inputList.length > 1)
 				{
 					delete inputList[i];
 					break;
@@ -507,9 +597,9 @@
 		return BX.util.array_values(inputList);
 	};
 
-	BX.Main.UF.TypeEnumeration.prototype.focus = function(field)
+	BX.Main.UF.TypeEnumeration.prototype.focus = function (field)
 	{
-		if(fieldStack[field]
+		if (fieldStack[field]
 			&& fieldStack[field].FIELD.SETTINGS.DISPLAY === 'UI'
 			&& BX.type.isElementNode(fieldStack[field].NODE)
 		)
@@ -527,14 +617,14 @@
 	 *
 	 * @constructor
 	 */
-	BX.Main.UF.TypeDate = function()
+	BX.Main.UF.TypeDate = function ()
 	{
 	};
 	BX.extend(BX.Main.UF.TypeDate, BX.Main.UF.BaseType);
 
 	BX.Main.UF.TypeDate.USER_TYPE_ID = 'date';
 
-	BX.Main.UF.TypeDate.prototype.focus = function(field)
+	BX.Main.UF.TypeDate.prototype.focus = function (field)
 	{
 		var fieldName = field + (
 			fieldStack[field].FIELD.MULTIPLE === 'Y'
@@ -543,7 +633,7 @@
 		);
 		var inputList = this.findInput(this.getNode(field), fieldName);
 
-		if(inputList.length > 0)
+		if (inputList.length > 0)
 		{
 			BX.fireEvent(inputList[0], 'click');
 		}
@@ -556,7 +646,7 @@
 	 *
 	 * @constructor
 	 */
-	BX.Main.UF.TypeDateTime = function()
+	BX.Main.UF.TypeDateTime = function ()
 	{
 	};
 	BX.extend(BX.Main.UF.TypeDateTime, BX.Main.UF.TypeDate);
@@ -568,18 +658,18 @@
 	 *
 	 * @constructor
 	 */
-	BX.Main.UF.TypeFile = function()
+	BX.Main.UF.TypeFile = function ()
 	{
 	};
 	BX.extend(BX.Main.UF.TypeFile, BX.Main.UF.BaseType);
 
 	BX.Main.UF.TypeFile.USER_TYPE_ID = 'file';
 
-	BX.Main.UF.TypeFile.prototype.findInput = function(node, fieldName)
+	BX.Main.UF.TypeFile.prototype.findInput = function (node, fieldName)
 	{
 		var inputList = BX.Main.UF.TypeFile.superclass.findInput.apply(this, arguments);
 
-		if(inputList.length <= 0)
+		if (inputList.length <= 0)
 		{
 			inputList = BX.findChildren(node, {
 				tagName: /INPUT/i,
@@ -593,7 +683,7 @@
 		return inputList;
 	};
 
-	BX.Main.UF.TypeFile.prototype.getValue = function(field)
+	BX.Main.UF.TypeFile.prototype.getValue = function (field)
 	{
 		var
 			baseValue = BX.Main.UF.TypeFile.superclass.getValue.apply(this, arguments),
@@ -601,18 +691,18 @@
 			deletedNodeList = [],
 			i;
 
-		if(fieldStack[field].FIELD.MULTIPLE === 'Y')
+		if (fieldStack[field].FIELD.MULTIPLE === 'Y')
 		{
 			var deletedFieldName = field + '_del[]';
 
-			if(BX.type.isArray(baseValue) && baseValue.length > 0)
+			if (BX.type.isArray(baseValue) && baseValue.length > 0)
 			{
 				deletedNodeList = BX.Main.UF.TypeFile.superclass.findInput.apply(this, [node, deletedFieldName]);
 
-				for(i = 0; i < deletedNodeList.length; i++)
+				for (i = 0; i < deletedNodeList.length; i++)
 				{
 					var pos = BX.util.array_search(deletedNodeList[i].value, baseValue);
-					if(pos >= 0)
+					if (pos >= 0)
 					{
 						baseValue[pos] = {'old_id': deletedNodeList[i].value, 'del': 'Y', 'tmp_name': ''};
 					}
@@ -621,15 +711,15 @@
 
 			return BX.util.array_values(baseValue);
 		}
-		else if(baseValue > 0)
+		else if (baseValue > 0)
 		{
 			var deletedFieldName = field + '_del';
 
 			deletedNodeList = BX.Main.UF.TypeFile.superclass.findInput.apply(this, [node, deletedFieldName]);
 
-			for(i = 0; i < deletedNodeList.length; i++)
+			for (i = 0; i < deletedNodeList.length; i++)
 			{
-				if(baseValue == deletedNodeList[i].value)
+				if (baseValue == deletedNodeList[i].value)
 				{
 					baseValue = {'old_id': baseValue, 'del': 'Y', 'tmp_name': ''};
 					break;
@@ -646,7 +736,7 @@
 	 *
 	 * @constructor
 	 */
-	BX.Main.UF.Factory = function()
+	BX.Main.UF.Factory = function ()
 	{
 		this.defaultTypeHandler = BX.Main.UF.BaseType;
 
@@ -654,18 +744,18 @@
 		this.objectCollection = {};
 	};
 
-	BX.Main.UF.Factory.prototype.setTypeHandler = function(type, handlerClass)
+	BX.Main.UF.Factory.prototype.setTypeHandler = function (type, handlerClass)
 	{
 		this.typeHandlerList[type] = handlerClass;
-		if(typeof this.objectCollection[type] !== 'undefined')
+		if (typeof this.objectCollection[type] !== 'undefined')
 		{
 			delete this.objectCollection[type];
 		}
 	};
 
-	BX.Main.UF.Factory.prototype.get = function(type)
+	BX.Main.UF.Factory.prototype.get = function (type)
 	{
-		if(typeof this.objectCollection[type] === 'undefined')
+		if (typeof this.objectCollection[type] === 'undefined')
 		{
 			this.objectCollection[type] = this.getObject(type);
 		}
@@ -673,14 +763,14 @@
 		return this.objectCollection[type];
 	};
 
-	BX.Main.UF.Factory.prototype.getObject = function(type)
+	BX.Main.UF.Factory.prototype.getObject = function (type)
 	{
-		return new (this.typeHandlerList[type]||this.defaultTypeHandler);
+		return new (this.typeHandlerList[type] || this.defaultTypeHandler);
 	};
 
-	BX.Main.UF.Factory.prototype.getFieldObject = function(field)
+	BX.Main.UF.Factory.prototype.getFieldObject = function (field)
 	{
-		if(typeof fieldStack[field] === 'undefined')
+		if (typeof fieldStack[field] === 'undefined')
 		{
 			console.error('Field ' + field + 'is not registered. Use BX.Main.UF.Factory.registerField to register');
 
@@ -690,9 +780,9 @@
 		return this.get(fieldStack[field]['FIELD']['USER_TYPE_ID']);
 	};
 
-	BX.Main.UF.Factory.prototype.isEmpty = function(field)
+	BX.Main.UF.Factory.prototype.isEmpty = function (field)
 	{
-		if(typeof fieldStack[field] === 'undefined')
+		if (typeof fieldStack[field] === 'undefined')
 		{
 			console.error('Field ' + field + 'is not registered. Use BX.Main.UF.Factory.registerField to register');
 
@@ -702,9 +792,9 @@
 		return this.get(fieldStack[field]['FIELD']['USER_TYPE_ID']).isEmpty(field);
 	};
 
-	BX.Main.UF.Factory.prototype.getValue = function(field)
+	BX.Main.UF.Factory.prototype.getValue = function (field)
 	{
-		if(typeof fieldStack[field] === 'undefined')
+		if (typeof fieldStack[field] === 'undefined')
 		{
 			console.error('Field ' + field + 'is not registered. Use BX.Main.UF.Factory.registerField to register');
 
@@ -714,9 +804,9 @@
 		return this.get(fieldStack[field]['FIELD']['USER_TYPE_ID']).getValue(field);
 	};
 
-	BX.Main.UF.Factory.prototype.focus = function(field)
+	BX.Main.UF.Factory.prototype.focus = function (field)
 	{
-		if(typeof fieldStack[field] === 'undefined')
+		if (typeof fieldStack[field] === 'undefined')
 		{
 			console.error('Field ' + field + 'is not registered. Use BX.Main.UF.Factory.registerField to register');
 		}

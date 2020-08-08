@@ -263,7 +263,7 @@ class ContactTable extends Entity\DataManager
 			unset($ar['LIST_CODE'], $ar['LIST_NAME']);
 		}
 
-		$ar['EMAIL'] = strtolower($ar['EMAIL']);
+		$ar['EMAIL'] = mb_strtolower($ar['EMAIL']);
 		$contactDb = ContactTable::getList(array(
 			'select' => array('ID'),
 			'filter' => array(

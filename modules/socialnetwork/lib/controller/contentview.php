@@ -4,9 +4,22 @@ namespace Bitrix\Socialnetwork\Controller;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Error;
 use Bitrix\Socialnetwork\Livefeed;
+use Bitrix\Socialnetwork\Item\UserContentView;
 
-class ContentView extends \Bitrix\Main\Engine\Controller
+class ContentView extends Base
 {
+	public function configureActions()
+	{
+		$configureActions = parent::configureActions();
+		$configureActions['set'] = [
+			'+prefilters' => [
+				new \Bitrix\Main\Engine\ActionFilter\CloseSession(),
+			]
+		];
+
+		return $configureActions;
+	}
+
 	public function setAction(array $params = [])
 	{
 		$xmlIdList = (
@@ -41,18 +54,28 @@ class ContentView extends \Bitrix\Main\Engine\Controller
 					&& $entityId > 0
 				)
 				{
-					$provider = Livefeed\Provider::init(array(
+					$provider = Livefeed\Provider::init([
 						'ENTITY_TYPE' => $entityType,
 						'ENTITY_ID' => $entityId,
-					));
+					]);
 					if ($provider)
 					{
-						$provider->setContentView(array(
+						$provider->setContentView([
 							'save' => $save
-						));
+						]);
+/*
+						$provider->deleteCounter([
+							'userId' => $this->getCurrentUser()->getId(),
+							'siteId' => SITE_ID
+						]);
+*/
 					}
 				}
 			}
+
+			UserContentView::finalize([
+				'userId' => $this->getCurrentUser()->getId()
+			]);
 		}
 
 		return [
@@ -83,7 +106,7 @@ class ContentView extends \Bitrix\Main\Engine\Controller
 				: ''
 		);
 
-		if (strlen($contentId) <= 0)
+		if ($contentId == '')
 		{
 			$this->addError(new Error('Empty Content ID', 'SONET_CONTROLLER_CONTENTVIEW_EMPTY_CONTENT_ID'));
 			return null;
@@ -95,7 +118,7 @@ class ContentView extends \Bitrix\Main\Engine\Controller
 			return null;
 		}
 
-		$userList = \Bitrix\Socialnetwork\Item\UserContentView::getUserList([
+		$userList = UserContentView::getUserList([
 			'contentId' => $contentId,
 			'page' => $page,
 			'pathToUserProfile' => $pathToUserProfile

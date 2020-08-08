@@ -30,7 +30,7 @@ if (isset($arResult['SITES'][$arParams['SITE_ID']]))
 }
 
 \CJSCore::init(array(
-	'landing_master', 'action_dialog', 'clipboard', 'sidepanel'
+	'landing_master', 'action_dialog', 'clipboard', 'sidepanel', 'ui.icons.disk'
 ));
 
 // assets
@@ -48,15 +48,35 @@ Asset::getInstance()->addCSS(
 );
 
 // get site selector
-$siteSelector = '<select id="landing-site-selector" style="display: none;" class="ui-select">';
-foreach ($arResult['SITES'] as $site)
+$siteSelector = '<input id="landing-site-selector-value" type="hidden" value="' . $arParams['SITE_ID'] . '_0" />';
+$siteSelector .= '<ul id="landing-site-selector" style="display: none;" class="landing-site-selector-list">';
+foreach ($arResult['TREE'] as $siteItem)
 {
-	$selected = $site['ID'] == $arParams['SITE_ID'] ? ' selected="selected"' : '';
-	$siteSelector .= '<option value="' . $site['ID'] . '"' . $selected . '>' .
-						\htmlspecialcharsbx($site['TITLE']) .
-					'</option>';
+	$selected = false;
+	$value = $siteItem['SITE_ID'];
+	if ($siteItem['FOLDER_ID'])
+	{
+		$value .= '_' . $siteItem['FOLDER_ID'];
+	}
+	else if ($siteItem['SITE_ID'] == $arParams['SITE_ID'])
+	{
+		$selected = true;
+	}
+	$siteSelector .= '<li class="landing-site-selector-item' .
+						($siteItem['DEPTH'] ? ' landing-site-selector-item-lower' : '') .
+						($selected ? ' landing-site-selector-item-selected' : '') . '" 
+						data-value="' . $value . '_' . ($siteItem['FOLDER_ID'] ? $siteItem['FOLDER_ID'] : 0) . '" 
+						onclick="onClickSelectorItem(this);"
+						>
+							<span class="ui-icon ui-icon-file-folder">
+								<i></i>
+							</span>
+							<span class="landing-site-selector-item-value">' .
+								\htmlspecialcharsbx($siteItem['TITLE']) .
+							'</span>
+					</li>';
 }
-$siteSelector .= '</select>';
+$siteSelector .= '</ul>';
 echo $siteSelector;
 
 // prepare urls
@@ -157,6 +177,13 @@ if ($arParams['TILE_MODE'] == 'view')
 		'sessid' => bitrix_sessid()
 	));
 
+	$uriMove = new \Bitrix\Main\Web\Uri($arResult['CUR_URI']);
+	$uriMove->addParams(array(
+		'action' => 'move',
+		'param' => $item['ID'],
+		'sessid' => bitrix_sessid()
+	));
+
 	if ($item['FOLDER'] == 'Y' && $item['ID'] != $folderId)
 	{
 		$uriFolder = new \Bitrix\Main\Web\Uri($arResult['CUR_URI']);
@@ -172,7 +199,7 @@ if ($arParams['TILE_MODE'] == 'view')
 	if ($item['IS_AREA'])
 	{
 		$areaCode = $item['AREA_CODE'];
-		$areaTitle = Loc::getMessage('LANDING_TPL_AREA_' . strtoupper($item['AREA_CODE']));
+		$areaTitle = Loc::getMessage('LANDING_TPL_AREA_'.mb_strtoupper($item['AREA_CODE']));
 	}
 	else if ($item['IS_HOMEPAGE'])
 	{
@@ -235,8 +262,10 @@ if ($arParams['TILE_MODE'] == 'view')
 									viewSite: '<?= \htmlspecialcharsbx(\CUtil::jsEscape($urlView));?>',
 									ID: '<?= $item['ID'];?>',
 									isArea: <?= $item['IS_AREA'] ? 'true' : 'false';?>,
+							 		isMainPage: <?= $item['IS_HOMEPAGE'] ? 'true' : 'false';?>,
 									publicUrl: '<?= \htmlspecialcharsbx(\CUtil::jsEscape($item['PUBLIC_URL']));?>',
 									copyPage: '<?= \htmlspecialcharsbx(\CUtil::jsEscape($uriCopy->getUri()));?>',
+									movePage: '<?= \htmlspecialcharsbx(\CUtil::jsEscape($uriMove->getUri()));?>',
 									deletePage: '#',
 							 		publicPage: '#',
 									editPage: '<?= \htmlspecialcharsbx(\CUtil::jsEscape($urlEdit));?>',
@@ -409,6 +438,54 @@ if ($arParams['TILE_MODE'] == 'view')
 
 	if (typeof showTileMenu === 'undefined')
 	{
+		function copyPage(params, isMoving)
+		{
+			isMoving === !!isMoving;
+			var url = isMoving ? params.movePage : params.copyPage;
+			BX.Landing.UI.Tool.ActionDialog.getInstance()
+				.show({
+					title: isMoving
+							? '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_MOVE_TITLE'));?>'
+							:  '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_COPY_TITLE'));?>',
+					content: BX('landing-site-selector')
+				})
+				.then(
+					function() {
+						url += '&additional[siteId]=';
+						url += BX('landing-site-selector-value').value;
+						<?if ($folderId):?>
+						url += '&additional[folderId]=';
+						url += <?= (int)$folderId;?>;
+						<?endif;?>
+						var loaderContainer = BX.create('div',{
+							attrs:{className:'landing-filter-loading-container'}
+						});
+						document.body.appendChild(loaderContainer);
+						var loader = new BX.Loader({size: 130, color: '#bfc3c8'});
+						loader.show(loaderContainer);
+						if (top.window !== window)
+						{
+							// we are in slider
+							window.location.href = url;
+						}
+						else
+						{
+							top.window.location.href = url;
+						}
+					},
+					function() {
+						//
+					}
+				);
+
+			var selectedItemPos = document.querySelector('.landing-site-selector-item-selected').getBoundingClientRect();
+
+			if (!isSelectedItemVisible(selectedItemPos))
+			{
+				scrollToSelectedItem(selectedItemPos);
+			}
+		}
+
 		function showTileMenu(node, params)
 		{
 			var menuItems = [
@@ -480,40 +557,17 @@ if ($arParams['TILE_MODE'] == 'view')
 					onclick: function(event)
 					{
 						event.preventDefault();
-
-						BX.Landing.UI.Tool.ActionDialog.getInstance()
-							.show({
-								title: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_COPY_TITLE'));?>',
-								content: BX('landing-site-selector')
-							})
-							.then(
-								function() {
-									params.copyPage += '&additional[siteId]=';
-									params.copyPage += BX('landing-site-selector').value;
-									<?if ($folderId):?>
-									params.copyPage += '&additional[folderId]=';
-									params.copyPage += <?= (int)$folderId;?>;
-									<?endif;?>
-									var loaderContainer = BX.create('div',{
-										attrs:{className:'landing-filter-loading-container'}
-									});
-									document.body.appendChild(loaderContainer);
-									var loader = new BX.Loader({size: 130, color: '#bfc3c8'});
-									loader.show(loaderContainer);
-									if (top.window !== window)
-									{
-										// we are in slider
-										window.location.href = params.copyPage;
-									}
-									else
-									{
-										top.window.location.href = params.copyPage;
-									}
-								},
-								function() {
-									//
-								}
-							);
+						copyPage(params);
+						this.popupWindow.close();
+					}
+				},
+				{
+					text: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_MOVE'));?>',
+					disabled: params.isDeleted || params.isFolder || params.isEditDisabled || params.isDeleteDisabled || params.isMainPage,
+					onclick: function(event)
+					{
+						event.preventDefault();
+						copyPage(params, true);
 						this.popupWindow.close();
 					}
 				},
@@ -652,6 +706,34 @@ if ($arParams['TILE_MODE'] == 'view')
 		{
 			addButton.click();
 		}
+	}
+
+	function isSelectedItemVisible(node)
+	{
+		var parentNodePos = document.querySelector('.landing-site-selector-list').getBoundingClientRect();
+		return (
+			node.bottom > parentNodePos.top &&
+			node.top < parentNodePos.bottom &&
+			node.right > parentNodePos.left &&
+			node.left < parentNodePos.right
+		);
+	}
+
+	function scrollToSelectedItem(node)
+	{
+		document.querySelector('.landing-site-selector-list').scrollTo(0, node.y);
+	}
+
+	function onClickSelectorItem(node)
+	{
+		var items = document.querySelectorAll('.landing-site-selector-item');
+		items.forEach(function (item)
+		{
+			item.classList.remove('landing-site-selector-item-selected');
+		}, this);
+
+		BX('landing-site-selector-value').value = BX.data(node, 'value');
+		node.classList.add('landing-site-selector-item-selected');
 	}
 
 </script>

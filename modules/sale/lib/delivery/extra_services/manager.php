@@ -190,7 +190,7 @@ class Manager
 				(isset($params["RIGHTS"][self::RIGHTS_CLIENT_IDX]) ? $params["RIGHTS"][self::RIGHTS_CLIENT_IDX] : "Y");
 		}
 
-		if(!isset($params["CLASS_NAME"]) || strlen($params["CLASS_NAME"]) <= 0 || !class_exists($params["CLASS_NAME"]))
+		if(!isset($params["CLASS_NAME"]) || $params["CLASS_NAME"] == '' || !class_exists($params["CLASS_NAME"]))
 			return $params;
 
 		if(!isset($params["ACTIVE"]))
@@ -215,7 +215,7 @@ class Manager
 	 */
 	public static function getAdminParamsControl($className, $name, array $params)
 	{
-		if(strlen($className) <= 0)
+		if($className == '')
 			throw new ArgumentNullException("className");
 
 		if(!is_callable($className.'::getAdminParamsControl'))
@@ -235,7 +235,7 @@ class Manager
 	 */
 	public function addItem($params, $currency, $value = null, array $additionalParams = array())
 	{
-		if(strlen($params["CLASS_NAME"]) <= 0 )
+		if($params["CLASS_NAME"] == '' )
 			return false;
 
 		if(!isset($params["CLASS_NAME"]))

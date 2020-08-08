@@ -202,7 +202,7 @@ class CUpdaterLocationPro extends \CUpdater implements \Serializable
 
 	protected static function checkIndexExistsByName($indexName, $tableName)
 	{
-		if(!strlen($indexName) || !strlen($tableName))
+		if(!mb_strlen($indexName) || !mb_strlen($tableName))
 			return false;
 
 		$dbConnection = Main\HttpApplication::getConnection();
@@ -891,15 +891,15 @@ class CUpdaterLocationPro extends \CUpdater implements \Serializable
 		// in locations
 		$this->Query(array(
 			self::DB_TYPE_MYSQL => 'update '.self::TABLE_LOCATION.' set CODE = ID;',
-			self::DB_TYPE_MSSQL => 'update '.strtoupper(self::TABLE_LOCATION).' set CODE = ID;',
-			self::DB_TYPE_ORACLE => 'update '.strtoupper(self::TABLE_LOCATION).' set CODE = ID;'
+			self::DB_TYPE_MSSQL => 'update '.mb_strtoupper(self::TABLE_LOCATION).' set CODE = ID;',
+			self::DB_TYPE_ORACLE => 'update '.mb_strtoupper(self::TABLE_LOCATION).' set CODE = ID;'
 		));
 
 		// in groups
 		$this->Query(array(
 			self::DB_TYPE_MYSQL => 'update '.self::TABLE_LOCATION_GROUP.' set CODE = ID;',
-			self::DB_TYPE_MSSQL => 'update '.strtoupper(self::TABLE_LOCATION_GROUP).' set CODE = ID;',
-			self::DB_TYPE_ORACLE => 'update '.strtoupper(self::TABLE_LOCATION_GROUP).' set CODE = ID;'
+			self::DB_TYPE_MSSQL => 'update '.mb_strtoupper(self::TABLE_LOCATION_GROUP).' set CODE = ID;',
+			self::DB_TYPE_ORACLE => 'update '.mb_strtoupper(self::TABLE_LOCATION_GROUP).' set CODE = ID;'
 		));
 	}
 
@@ -940,7 +940,7 @@ class CUpdaterLocationPro extends \CUpdater implements \Serializable
 				$item['LOCATION_ID'] = trim($item['LOCATION_ID']);
 				$item['ZIP'] = trim($item['ZIP']);
 
-				if(strlen($item['LOCATION_ID']) && strlen($item['ZIP']))
+				if(mb_strlen($item['LOCATION_ID']) && mb_strlen($item['ZIP']))
 				{
 					$loc2External->insert(array(
 						'LOCATION_ID' => $item['LOCATION_ID'],
@@ -1565,7 +1565,7 @@ class CUpdaterLocationPro extends \CUpdater implements \Serializable
 
 	protected function dropTable($tableName = '')
 	{
-		if(!strlen($tableName))
+		if($tableName == '')
 			return false;
 
 		global $DB;
@@ -1578,7 +1578,7 @@ class CUpdaterLocationPro extends \CUpdater implements \Serializable
 
 	protected function createTemporalTable($tableName = '', $columns = array())
 	{
-		if(!strlen($tableName))
+		if($tableName == '')
 			return false;
 
 		if($this->dropTable($tableName));
@@ -1588,13 +1588,13 @@ class CUpdaterLocationPro extends \CUpdater implements \Serializable
 
 	protected function createTable($tableName = '', $columns = array(), $constraints = array())
 	{
-		if(!strlen($tableName) || !is_array($columns) || empty($columns) || $this->TableExists($tableName))
+		if(!mb_strlen($tableName) || !is_array($columns) || empty($columns) || $this->TableExists($tableName))
 			return false;
 
 		global $DB;
 
 		$tableName = $DB->ForSql($tableName);
-		$tableNameUC = strtoupper($tableName);
+		$tableNameUC = mb_strtoupper($tableName);
 
 		// queries that should be called after table creation
 		$afterTableCreate = array();
@@ -1741,7 +1741,7 @@ class CUpdaterLocationPro extends \CUpdater implements \Serializable
 		$tableName = preg_replace("/[^A-Za-z0-9%_]+/i", "", $tableName);
 		$tableName = Trim($tableName);
 
-		if (strlen($tableName) <= 0)
+		if ($tableName == '')
 			return False;
 
 		global $DB;
@@ -1754,9 +1754,9 @@ class CUpdaterLocationPro extends \CUpdater implements \Serializable
 		{
 			$strSql = '';
 			if($this->UsingOracle())
-				$strSql = "SELECT TABLE_NAME FROM USER_TABLES WHERE TABLE_NAME LIKE UPPER('".strtoupper($DB->ForSql($tableName))."')";
+				$strSql = "SELECT TABLE_NAME FROM USER_TABLES WHERE TABLE_NAME LIKE UPPER('".mb_strtoupper($DB->ForSql($tableName))."')";
 			elseif($this->UsingMssql())
-				$strSql = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME LIKE '".strtoupper($DB->ForSql($tableName))."'";
+				$strSql = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME LIKE '".mb_strtoupper($DB->ForSql($tableName))."'";
 
 			return !!$DB->Query($strSql)->fetch();
 		}

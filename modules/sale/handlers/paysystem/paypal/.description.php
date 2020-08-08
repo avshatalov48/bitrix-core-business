@@ -6,160 +6,147 @@ use \Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
-$description = array(
+$description = [
 	'RETURN' => Loc::getMessage('SALE_HPS_PAYPAL_DESC_RETURN'),
 	'RESTRICTION' => Loc::getMessage('SALE_HPS_PAYPAL_DESC_RESTRICTION'),
 	'COMMISSION' => Loc::getMessage('SALE_HPS_PAYPAL_DESC_COMMISSION')
-);
+];
 
-if (IsModuleInstalled('crm'))
-{
-	$returnUrl = 'https://'.$_SERVER['HTTP_HOST'].'/bitrix/tools/sale_ps_success.php';
-}
-else
-{
-	$returnUrl = 'https://'.$_SERVER['HTTP_HOST'].'/personal/payment/success.php';
-}
-
-$data = array(
+$data = [
 	'NAME' => Loc::getMessage('SALE_HPS_PAYPAL_NAME'),
 	'SORT' => 1000,
-	'CODES' => array(
-		'PAYPAL_USER'  => array(
+	'CODES' => [
+		'PAYPAL_USER'  => [
 			'NAME' => Loc::getMessage('SALE_HPS_PAYPAL_USER'),
 			'SORT' => 100,
 			'GROUP' => 'CONNECT_SETTINGS_PAYPAL',
-		),
-		'PAYPAL_PWD'  => array(
+		],
+		'PAYPAL_PWD'  => [
 			'NAME' => Loc::getMessage('SALE_HPS_PAYPAL_PWD'),
 			'SORT' => 200,
 			'GROUP' => 'CONNECT_SETTINGS_PAYPAL',
-		),
-		'PAYPAL_SIGNATURE'  => array(
+		],
+		'PAYPAL_SIGNATURE'  => [
 			'NAME' => Loc::getMessage('SALE_HPS_PAYPAL_SIGNATURE'),
 			'SORT' => 300,
 			'GROUP' => 'CONNECT_SETTINGS_PAYPAL',
-		),
-		'PAYMENT_ID' => array(
+		],
+		'PAYMENT_ID' => [
 			'NAME' => Loc::getMessage('SALE_HPS_PAYPAL_ORDER_ID'),
 			'SORT' => 400,
 			'GROUP' => 'PAYMENT',
-			'DEFAULT' => array(
+			'DEFAULT' => [
 				'PROVIDER_VALUE' => 'ID',
 				'PROVIDER_KEY' => 'PAYMENT',
-			)
-		),
-		'PAYMENT_DATE_INSERT' => array(
+			]
+		],
+		'PAYMENT_DATE_INSERT' => [
 			'NAME' => Loc::getMessage('SALE_HPS_PAYPAL_DATE_INSERT'),
 			'SORT' => 500,
 			'GROUP' => 'PAYMENT',
-			'DEFAULT' => array(
+			'DEFAULT' => [
 				'PROVIDER_VALUE' => 'DATE_BILL',
 				'PROVIDER_KEY' => 'PAYMENT',
-			)
-		),
-		'PAYMENT_SHOULD_PAY' => array(
+			]
+		],
+		'PAYMENT_SHOULD_PAY' => [
 			'NAME' => Loc::getMessage('SALE_HPS_PAYPAL_SHOULD_PAY'),
 			'SORT' => 600,
 			'GROUP' => 'PAYMENT',
-			'DEFAULT' => array(
+			'DEFAULT' => [
 				'PROVIDER_VALUE' => 'SUM',
 				'PROVIDER_KEY' => 'PAYMENT',
-			)
-		),
-		'PAYMENT_CURRENCY' => array(
+			]
+		],
+		'PAYMENT_CURRENCY' => [
 			'NAME' => Loc::getMessage('SALE_HPS_PAYPAL_CURRENCY'),
 			'SORT' => 700,
 			'GROUP' => 'PAYMENT',
-			'DEFAULT' => array(
+			'DEFAULT' => [
 				'PROVIDER_VALUE' => 'CURRENCY',
 				'PROVIDER_KEY' => 'PAYMENT',
-			)
-		),
-		'PAYPAL_NOTIFY_URL' => array(
+			]
+		],
+		'PAYPAL_NOTIFY_URL' => [
 			'NAME' => Loc::getMessage('SALE_HPS_PAYPAL_NOTIFY_URL'),
 			'SORT' => 800,
 			'GROUP' => 'CONNECT_SETTINGS_PAYPAL',
-			'DEFAULT' => array(
+			'DEFAULT' => [
 				'PROVIDER_VALUE' => 'https://'.$_SERVER['HTTP_HOST'].'/bitrix/tools/sale_ps_result.php',
 				'PROVIDER_KEY' => 'VALUE',
-			)
-		),
-		'PS_IS_TEST' => array(
+			]
+		],
+		'PS_IS_TEST' => [
 			'NAME' => Loc::getMessage('SALE_HPS_PAYPAL_TEST'),
 			'SORT' => 900,
 			'GROUP' => 'GENERAL_SETTINGS',
-			"INPUT" => array(
+			'INPUT' => [
 				'TYPE' => 'Y/N'
-			)
-		),
-		'PAYPAL_SSL_ENABLE' => array(
+			]
+		],
+		'PAYPAL_SSL_ENABLE' => [
 			'NAME' => Loc::getMessage('SALE_HPS_PAYPAL_SSL_ENABLE'),
 			'SORT' => 1000,
 			'GROUP' => 'CONNECT_SETTINGS_PAYPAL',
-			"INPUT" => array(
+			'INPUT' => [
 				'TYPE' => 'Y/N'
-			),
-			'DEFAULT' => array(
-				"PROVIDER_VALUE" => "Y",
-				"PROVIDER_KEY" => "INPUT"
-			)
-		),
-		'PAYPAL_BUTTON_SRC'  => array(
+			],
+			'DEFAULT' => [
+				'PROVIDER_VALUE' => 'Y',
+				'PROVIDER_KEY' => 'INPUT'
+			]
+		],
+		'PAYPAL_BUTTON_SRC'  => [
 			'NAME' => Loc::getMessage('SALE_HPS_PAYPAL_BUTTON_SRC'),
 			'SORT' => 1100,
 			'GROUP' => 'PS_OTHER',
-			'DEFAULT' => array(
+			'DEFAULT' => [
 				'PROVIDER_VALUE' => Loc::getMessage('SALE_HPS_PAYPAL_BUTTON_SRC_NAME_VALUE'),
 				'PROVIDER_KEY' => 'VALUE',
-			)
-		),
-		'PAYPAL_ON0'  => array(
+			]
+		],
+		'PAYPAL_ON0'  => [
 			'NAME' => Loc::getMessage('SALE_HPS_PAYPAL_ON0'),
 			'GROUP' => 'PS_OTHER',
 			'SORT' => 1300,
-		),
-		'PAYPAL_ON1'  => array(
+		],
+		'PAYPAL_ON1'  => [
 			'NAME' => Loc::getMessage('SALE_HPS_PAYPAL_ON1'),
 			'GROUP' => 'PS_OTHER',
 			'SORT' => 1400
-		),
-		'PAYPAL_BUSINESS' => array(
+		],
+		'PAYPAL_BUSINESS' => [
 			'NAME' => Loc::getMessage('SALE_HPS_PAYPAL_BUSINESS'),
 			'SORT' => 1500,
 			'GROUP' => 'CONNECT_SETTINGS_PAYPAL',
-			'DEFAULT' => array(
+			'DEFAULT' => [
 				'PROVIDER_VALUE' => '',
 				'PROVIDER_KEY' => 'VALUE'
-			)
-		),
-		'PAYPAL_IDENTITY_TOKEN' => array(
+			]
+		],
+		'PAYPAL_IDENTITY_TOKEN' => [
 			'NAME' => Loc::getMessage('SALE_HPS_PAYPAL_IDENTITY_TOKEN'),
 			'SORT' => 1600,
 			'GROUP' => 'CONNECT_SETTINGS_PAYPAL'
-		),
-		'PAYPAL_RETURN' => array(
+		],
+		'PAYPAL_RETURN' => [
 			'NAME' => Loc::getMessage('SALE_HPS_PAYPAL_RETURN'),
+			'DESCRIPTION' => Loc::getMessage('SALE_HPS_PAYPAL_RETURN_DESC'),
 			'SORT' => 1700,
 			'GROUP' => 'CONNECT_SETTINGS_PAYPAL',
-			'DEFAULT' => array(
-				'PROVIDER_VALUE' => $returnUrl,
-				'PROVIDER_KEY' => 'VALUE',
-			)
-		),
-		'PAYPAL_LC' => array(
+		],
+		'PAYPAL_LC' => [
 			'NAME' => Loc::getMessage('SALE_HPS_PAYPAL_LS'),
 			'SORT' => 1800,
 			'GROUP' => 'CONNECT_SETTINGS_PAYPAL',
-			'INPUT' => array(
+			'INPUT' => [
 				'TYPE' => 'ENUM',
-				'OPTIONS' => array(
+				'OPTIONS' => [
 					'RU' => Loc::getMessage('SALE_HPS_PAYPAL_LC_RUSSIAN'),
 					'DE' => Loc::getMessage('SALE_HPS_PAYPAL_LC_GERMAN'),
 					'US' => Loc::getMessage('SALE_HPS_PAYPAL_LC_ENGLISH')
-				),
-			)
-		),
-	)
-)
-?>
+				],
+			]
+		],
+	]
+];

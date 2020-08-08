@@ -8,8 +8,9 @@ class CSocNetLogFollow
 		global $USER;
 
 		static $LOG_CACHE;
+		static $runCache = []; // to prevent double run
 
-		if (strlen($code) <= 0)
+		if ($code == '')
 		{
 			$code = "**";
 		}
@@ -19,10 +20,27 @@ class CSocNetLogFollow
 			$type = "N";
 		}
 
-		if (intval($user_id) <= 0)
+		$user_id = intval($user_id);
+		if ($user_id <= 0)
 		{
 			$user_id = $USER->GetID();
 		}
+
+		$runCacheKey = [
+			'userId' => $user_id,
+			'code' => $code,
+			'type' => $type,
+			'date' => $follow_date,
+			'siteId' => $site_id,
+			'byWF' => $bByWF
+		];
+
+		$runCacheKey = md5(serialize($runCacheKey));
+		if (array_key_exists($runCacheKey, $runCache))
+		{
+			return true;
+		}
+		$runCache[$runCacheKey] = true;
 
 		$arFollows = array();
 
@@ -80,8 +98,8 @@ class CSocNetLogFollow
 
 				if ($arLog)
 				{
-					$log_date = (strlen($arLog["LOG_DATE"]) > 0 ? $arLog["LOG_DATE"] : false);
-					$log_update = (strlen($arLog["LOG_UPDATE"]) > 0 ? $arLog["LOG_UPDATE"] : false);
+					$log_date = ($arLog["LOG_DATE"] <> '' ? $arLog["LOG_DATE"] : false);
+					$log_update = ($arLog["LOG_UPDATE"] <> '' ? $arLog["LOG_UPDATE"] : false);
 
 					if (array_key_exists($code, $arFollows)) // already in the follows table
 					{
@@ -90,7 +108,7 @@ class CSocNetLogFollow
 							$code, 
 							$type, 
 							(
-								strlen($arFollows[$code]["FOLLOW_DATE"]) > 0 
+								$arFollows[$code]["FOLLOW_DATE"] <> ''
 									? $arFollows[$code]["FOLLOW_DATE"] // existing value
 									: (
 										$type == "N" 
@@ -119,6 +137,15 @@ class CSocNetLogFollow
 							$bByWF
 						);
 					}
+
+					if ($res)
+					{
+						$events = getModuleEvents('socialnetwork', 'onAfterLogFollowSet');
+						while ($eventFields = $events->fetch())
+						{
+							executeModuleEventEx($eventFields, [ $log_id, $type, $user_id ]);
+						}
+					}
 				}
 			}
 		}
@@ -140,7 +167,7 @@ class CSocNetLogFollow
 
 		if (
 			intval($user_id) <= 0 
-			|| strlen($code) <= 0
+			|| $code == ''
 		)
 		{
 			return false;
@@ -178,7 +205,7 @@ class CSocNetLogFollow
 	{
 		global $DB, $CACHE_MANAGER;
 
-		if (intval($user_id) <= 0 || strlen($code) <= 0)
+		if (intval($user_id) <= 0 || $code == '')
 			return false;
 
 		if ($type != "Y")
@@ -208,7 +235,7 @@ class CSocNetLogFollow
 	{
 		global $DB, $CACHE_MANAGER;
 
-		if (intval($user_id) <= 0 || strlen($code) <= 0)
+		if (intval($user_id) <= 0 || $code == '')
 			return false;
 
 		$strSQL = "DELETE FROM b_sonet_log_follow WHERE USER_ID = ".$user_id." AND CODE = '".$code."'";
@@ -348,7 +375,7 @@ class CSocNetLogFollow
 
 		if (
 			intval($user_id) <= 0
-			|| strlen($rating_type_id) <= 0
+			|| $rating_type_id == ''
 			|| intval($rating_entity_id) <= 0
 		)
 			return false;
@@ -454,7 +481,7 @@ class CSocNetLogFollow
 			"SELECT ".$arSqls["SELECT"]." ".
 			"FROM b_sonet_log_follow SLF ".
 			"	".$arSqls["FROM"]." ";
-		if (strlen($arSqls["WHERE"]) > 0)
+		if ($arSqls["WHERE"] <> '')
 			$strSql .= "WHERE ".$arSqls["WHERE"]." ";
 
 		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);

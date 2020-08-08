@@ -42,17 +42,17 @@ $lAdmin->InitFilter($arFilterFields);
 
 $arFilter = array();
 
-if (IntVal($filter_user_id) > 0) $arFilter["USER_ID"] = IntVal($filter_user_id);
-if (strlen($filter_login) > 0) $arFilter["USER_LOGIN"] = $filter_login;
-if (strlen($filter_user) > 0) $arFilter["%USER_USER"] = $filter_user;
-if (strlen($filter_active) > 0) $arFilter["ACTIVE"] = $filter_active;
+if (intval($filter_user_id) > 0) $arFilter["USER_ID"] = intval($filter_user_id);
+if ($filter_login <> '') $arFilter["USER_LOGIN"] = $filter_login;
+if ($filter_user <> '') $arFilter["%USER_USER"] = $filter_user;
+if ($filter_active <> '') $arFilter["ACTIVE"] = $filter_active;
 
 if ($lAdmin->EditAction() && $saleModulePermissions >= "W")
 {
 	foreach ($FIELDS as $ID => $arFields)
 	{
 		$DB->StartTransaction();
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		if (!$lAdmin->IsUpdated($ID))
 			continue;
@@ -89,7 +89,7 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 
 	foreach ($arID as $ID)
 	{
-		if (strlen($ID) <= 0)
+		if ($ID == '')
 			continue;
 
 		switch ($_REQUEST['action'])
@@ -164,7 +164,7 @@ while ($arCCard = $dbResultList->NavNext(true, "f_"))
 	$row->AddField("ID", $f_ID);
 
 	$fieldValue  = "[<a href=\"/bitrix/admin/user_edit.php?ID=".$f_USER_ID."&lang=".LANG."\">".$f_USER_ID."</a>] ";
-	$fieldValue .= htmlspecialcharsEx($arCCard["USER_NAME"].((strlen($arCCard["USER_NAME"])<=0 || strlen($arCCard["USER_LAST_NAME"])<=0) ? "" : " ").$arCCard["USER_LAST_NAME"])."<br>";
+	$fieldValue .= htmlspecialcharsEx($arCCard["USER_NAME"].(($arCCard["USER_NAME"] == '' || $arCCard["USER_LAST_NAME"] == '') ? "" : " ").$arCCard["USER_LAST_NAME"])."<br>";
 	$fieldValue .= htmlspecialcharsEx($arCCard["USER_LOGIN"])."&nbsp;&nbsp;&nbsp; ";
 	$fieldValue .= "<a href=\"mailto:".htmlspecialcharsbx($arCCard["USER_EMAIL"])."\">".htmlspecialcharsEx($arCCard["USER_EMAIL"])."</a>";
 	$row->AddField("USER_ID", $fieldValue);

@@ -25,7 +25,7 @@ CModule::AddAutoloadClasses(
 );
 */
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/classes/".strtolower($DB->type)."/advertising.php");
+require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/classes/".mb_strtolower($DB->type)."/advertising.php");
 
 \CJSCore::RegisterExt("adv_templates", Array(
 	"js" =>    "/bitrix/js/advertising/template.js",

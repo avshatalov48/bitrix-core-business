@@ -1,5 +1,45 @@
 BX.namespace("BX.UI");
 
+if(typeof BX.UI.EntityConfigType === "undefined")
+{
+	BX.UI.EntityConfigType = {
+		COLUMN: "column",
+		SECTION: "section",
+		INCLUDED_AREA: "included_area",
+		FIELD: "field"
+	}
+}
+
+if(typeof BX.UI.EntityConfigFactory === "undefined")
+{
+	BX.UI.EntityConfigFactory =
+	{
+		createByType: function(type, settings)
+		{
+			var config;
+
+			if (type === BX.UI.EntityConfigType.COLUMN)
+			{
+				config = BX.UI.EntityConfigColumn.create(settings);
+			}
+			else if (type === BX.UI.EntityConfigType.SECTION)
+			{
+				config = BX.UI.EntityConfigSection.create(settings);
+			}
+			else if (type === BX.UI.EntityConfigType.INCLUDED_AREA)
+			{
+				config = BX.UI.EntityConfigIncludedArea.create(settings);
+			}
+			else
+			{
+				config = BX.UI.EntityConfigField.create(settings);
+			}
+
+			return config;
+		}
+	};
+}
+
 if(typeof BX.UI.EntityConfig === "undefined")
 {
 	BX.UI.EntityConfig = function()
@@ -37,14 +77,8 @@ if(typeof BX.UI.EntityConfig === "undefined")
 			{
 				var item = this._data[i];
 				var type = BX.prop.getString(item, "type", "");
-				if(type === "section")
-				{
-					this._items.push(BX.UI.EntityConfigSection.create({ data: item }));
-				}
-				else
-				{
-					this._items.push(BX.UI.EntityConfigField.create({ data: item }));
-				}
+				var config = BX.UI.EntityConfigFactory.createByType(type, {data: item});
+				this._items.push(config);
 			}
 
 			this._options = BX.prop.getObject(this._settings, "options", {});
@@ -84,10 +118,9 @@ if(typeof BX.UI.EntityConfig === "undefined")
 		},
 		addSchemeElementAt: function(schemeElement, index)
 		{
-			var data = schemeElement.createConfigItem();
-			var item = schemeElement.getType() === "section"
-				? BX.UI.EntityConfigSection.create({ data: data })
-				: BX.UI.EntityConfigField.create({ data: data });
+			var item = BX.UI.EntityConfigFactory.createByType(schemeElement.getType(), {
+				data: schemeElement.createConfigItem()
+			});
 
 			if(index >= 0 && index < this._items.length)
 			{
@@ -135,7 +168,7 @@ if(typeof BX.UI.EntityConfig === "undefined")
 		{
 			var index;
 			var parentElement = schemeElement.getParent();
-			if(parentElement)
+			if(parentElement && parentElement.getType() === 'section')
 			{
 				var parentItem = this.findItemByName(parentElement.getName());
 				if(parentItem)
@@ -143,10 +176,10 @@ if(typeof BX.UI.EntityConfig === "undefined")
 					index = parentItem.findFieldIndexByName(schemeElement.getName());
 					if(index >= 0)
 					{
-						parentItem.setField(
-							BX.UI.EntityConfigField.create({ data: schemeElement.createConfigItem() }),
-							index
-						);
+						var config = BX.UI.EntityConfigFactory.createByType(BX.UI.EntityConfigType.FIELD, {
+							data: schemeElement.createConfigItem()
+						});
+						parentItem.setField(config, index);
 						this._isChanged = true;
 					}
 				}
@@ -156,14 +189,9 @@ if(typeof BX.UI.EntityConfig === "undefined")
 				index = this.findItemIndexByName(schemeElement.getName());
 				if(index >= 0)
 				{
-					if(schemeElement.getType() === "section")
-					{
-						this._items[index] = BX.UI.EntityConfigSection.create({ data: schemeElement.createConfigItem() });
-					}
-					else
-					{
-						this._items[index] = BX.UI.EntityConfigField.create({ data: schemeElement.createConfigItem() });
-					}
+					this._items[index] = BX.UI.EntityConfigFactory.createByType(schemeElement.getType(), {
+						data: schemeElement.createConfigItem()
+					});
 					this._isChanged = true;
 				}
 			}
@@ -417,6 +445,118 @@ if(typeof BX.UI.EntityConfigItem === "undefined")
 	};
 }
 
+if(typeof BX.UI.EntityConfigColumn === "undefined")
+{
+	BX.UI.EntityConfigColumn = function()
+	{
+		BX.UI.EntityConfigColumn.superclass.constructor.apply(this);
+		this._sections = [];
+	};
+	BX.extend(BX.UI.EntityConfigColumn, BX.UI.EntityConfigItem);
+
+	BX.UI.EntityConfigColumn.prototype.doInitialize = function()
+	{
+		var elements = BX.prop.getArray(this._data, "elements", []);
+
+		for (var i = 0, length = elements.length; i < length; i++)
+		{
+			if (elements[i].type === "section" || elements[i].type === "included_area")
+			{
+				var config = BX.UI.EntityConfigFactory.createByType(elements[i].type, {data: elements[i]});
+				this.addSection(config);
+			}
+		}
+	};
+	BX.UI.EntityConfigColumn.prototype.getType = function()
+	{
+		return BX.UI.EntityConfigType.COLUMN;
+	};
+	BX.UI.EntityConfigColumn.prototype.getSections = function()
+	{
+		return this._sections;
+	};
+	BX.UI.EntityConfigColumn.prototype.findSectionByName = function(name)
+	{
+		var index = this.findSectionIndexByName(name);
+
+		return index >= 0 ? this._sections[index] : null;
+	};
+	BX.UI.EntityConfigColumn.prototype.findSectionIndexByName = function(name)
+	{
+		for(var i = 0, length = this._sections.length; i < length; i++)
+		{
+			var section = this._sections[i];
+			if(section.getName() === name)
+			{
+				return i;
+			}
+		}
+
+		return -1;
+	};
+	BX.UI.EntityConfigColumn.prototype.findFieldByName = function(name)
+	{
+		var index = this.findFieldIndexByName(name);
+
+		return index >= 0 ? this._sections[index] : null;
+	};
+	BX.UI.EntityConfigColumn.prototype.findFieldIndexByName = function(name)
+	{
+		for (var i = 0, length = this._sections.length; i < length; i++)
+		{
+			var field = this._sections[i];
+
+			if (field.getName() === name)
+			{
+				return i;
+			}
+		}
+
+		return -1;
+	};
+	BX.UI.EntityConfigColumn.prototype.addSection = function(section)
+	{
+		this._sections.push(section);
+	};
+	BX.UI.EntityConfigColumn.prototype.setSection = function(section, index)
+	{
+		this._sections[index] = section;
+	};
+	BX.UI.EntityConfigColumn.prototype.removeSectionByIndex = function(index)
+	{
+		if (index < 0 || index >= this._sections.length)
+		{
+			return false;
+		}
+
+		this._sections.splice(index, 1);
+
+		return true;
+	};
+	BX.UI.EntityConfigColumn.prototype.toJSON = function()
+	{
+		var result = {
+			name: this._name,
+			type: this.getType(),
+			data: BX.prop.getObject(this._data, "data", {}),
+			elements: []
+		};
+
+		for (var i = 0, length = this._sections.length; i < length; i++)
+		{
+			result.elements.push(this._sections[i].toJSON());
+		}
+
+		return result;
+	};
+	BX.UI.EntityConfigColumn.create = function(settings)
+	{
+		var self = new BX.UI.EntityConfigColumn();
+		self.initialize(settings);
+		return self;
+	};
+}
+
 if(typeof BX.UI.EntityConfigSection === "undefined")
 {
 	BX.UI.EntityConfigSection = function()
@@ -439,7 +579,7 @@ if(typeof BX.UI.EntityConfigSection === "undefined")
 	};
 	BX.UI.EntityConfigSection.prototype.getType = function()
 	{
-		return "section";
+		return BX.UI.EntityConfigType.SECTION;
 	};
 	BX.UI.EntityConfigSection.prototype.getFields = function()
 	{
@@ -483,7 +623,13 @@ if(typeof BX.UI.EntityConfigSection === "undefined")
 	};
 	BX.UI.EntityConfigSection.prototype.toJSON = function()
 	{
-		var result = { name: this._name, title: this._title, type: "section", elements: [] };
+		var result = {
+			name: this._name,
+			title: this._title,
+			type: this.getType(),
+			data: BX.prop.getObject(this._data, "data", {}),
+			elements: []
+		};
 		for(var i = 0, length = this._fields.length; i < length; i++)
 		{
 			result.elements.push(this._fields[i].toJSON());
@@ -493,6 +639,40 @@ if(typeof BX.UI.EntityConfigSection === "undefined")
 	BX.UI.EntityConfigSection.create = function(settings)
 	{
 		var self = new BX.UI.EntityConfigSection();
+		self.initialize(settings);
+		return self;
+	};
+}
+
+if(typeof BX.UI.EntityConfigIncludedArea === "undefined")
+{
+	BX.UI.EntityConfigIncludedArea = function()
+	{
+		BX.UI.EntityConfigIncludedArea.superclass.constructor.apply(this);
+		this._params = {};
+	};
+	BX.extend(BX.UI.EntityConfigIncludedArea, BX.UI.EntityConfigItem);
+
+	BX.UI.EntityConfigIncludedArea.prototype.doInitialize = function()
+	{
+		this._params = BX.prop.getObject(this._data, "data", {});
+	};
+	BX.UI.EntityConfigIncludedArea.prototype.getType = function()
+	{
+		return BX.UI.EntityConfigType.INCLUDED_AREA;
+	};
+	BX.UI.EntityConfigIncludedArea.prototype.toJSON = function()
+	{
+		return {
+			name: this._name,
+			title: this._title,
+			data: this._params,
+			type: this.getType()
+		};
+	};
+	BX.UI.EntityConfigIncludedArea.create = function(settings)
+	{
+		var self = new BX.UI.EntityConfigIncludedArea();
 		self.initialize(settings);
 		return self;
 	};
@@ -519,10 +699,8 @@ if(typeof BX.UI.EntityConfigField === "undefined")
 		{
 			result["title"] = this._title;
 		}
-		if(this._optionFlags > 0)
-		{
-			result["optionFlags"] = this._optionFlags;
-		}
+
+		result["optionFlags"] = this._optionFlags;
 		return result;
 	};
 	BX.UI.EntityConfigField.prototype.getIndex = function()

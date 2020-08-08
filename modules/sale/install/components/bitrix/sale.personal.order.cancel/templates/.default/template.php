@@ -3,7 +3,7 @@
 <a href="<?=$arResult["URL_TO_LIST"]?>"><?=GetMessage("SALE_RECORDS_LIST")?></a>
 
 <div class="bx_my_order_cancel">
-	<?if(strlen($arResult["ERROR_MESSAGE"])<=0):?>
+	<?if($arResult["ERROR_MESSAGE"] == ''):?>
 		<form method="post" action="<?=POST_FORM_ACTION_URI?>">
 			
 			<input type="hidden" name="CANCEL" value="Y">

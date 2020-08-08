@@ -44,7 +44,7 @@ class Checkbox extends Base
 				"TYPE" => "NUMBER"
 			),
 			$params["PARAMS"]["PRICE"]
-		).(strlen($currency) > 0 ? " (".$currency.")" : "");
+		).($currency <> '' ? " (".$currency.")" : "");
 	}
 
 	public function setOperatingCurrency($currency)

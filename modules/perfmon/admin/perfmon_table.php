@@ -1,11 +1,13 @@
 <?
+use Bitrix\Main\Loader;
+
 define("ADMIN_MODULE_NAME", "perfmon");
 define("PERFMON_STOP", true);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 /** @global CMain $APPLICATION */
 /** @global CDatabase $DB */
 /** @global CUser $USER */
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/include.php");
+Loader::includeModule('perfmon');
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/prolog.php");
 
 IncludeModuleLangFile(__FILE__);
@@ -80,10 +82,14 @@ if ($lAdmin->GroupAction() && $RIGHT >= "W")
 					$strSql = "delete from ".$table_name." WHERE 1=1 ";
 					foreach ($arRowPK as $column => $value)
 					{
-						if (strlen($value))
+						if($value <> '')
+						{
 							$strSql .= " AND ".$column."='".$DB->ForSQL($value)."'";
+						}
 						else
+						{
 							$strSql .= " AND (".$column."='".$DB->ForSQL($value)."' or ".$column." is null)";
+						}
 					}
 					$DB->Query($strSql);
 					break;
@@ -114,13 +120,13 @@ foreach ($arFields as $FIELD_NAME => $FIELD_TYPE)
 	{
 		if (
 			isset($find_type) && $find_type == $FIELD_NAME
-			&& isset($find) && strlen($find)
+			&& isset($find) && mb_strlen($find)
 		)
 		{
 			$filterValue = $find;
 		}
 		elseif (
-			isset($GLOBALS["find_".$FIELD_NAME]) && strlen($GLOBALS["find_".$FIELD_NAME])
+			isset($GLOBALS["find_".$FIELD_NAME]) && mb_strlen($GLOBALS["find_".$FIELD_NAME])
 		)
 		{
 			$filterValue = $GLOBALS["find_".$FIELD_NAME];
@@ -137,7 +143,7 @@ foreach ($arFields as $FIELD_NAME => $FIELD_TYPE)
 		if ($filterValue === $op["FIELD"])
 			$op["OPERATOR"] = "%=";
 		else
-			$op["OPERATOR"] = substr($filterValue, 0, strlen($filterValue) - strlen($op["FIELD"]));
+			$op["OPERATOR"] = mb_substr($filterValue, 0, mb_strlen($filterValue) - mb_strlen($op["FIELD"]));
 
 		if ($op["OPERATION"] === "B" || $op["OPERATION"] === "NB")
 			$op["FIELD"] = array_map('trim', explode(",", $op["FIELD"], 2));
@@ -221,7 +227,7 @@ while ($arRes = $rsData->Fetch()):
 	$arRowPK = array();
 	foreach ($arFields as $FIELD_NAME => $FIELD_TYPE)
 	{
-		if (strlen($arRes[$FIELD_NAME]) > 0)
+		if ($arRes[$FIELD_NAME] <> '')
 		{
 			if ($FIELD_TYPE == "int")
 			{
@@ -307,12 +313,12 @@ $lAdmin->AddFooter(
 $aContext = array();
 
 $sLastTables = CUserOptions::GetOption("perfmon", "last_tables", "");
-if (strlen($sLastTables) > 0)
+if ($sLastTables <> '')
 	$arLastTables = array_flip(explode(",", $sLastTables));
 else
 	$arLastTables = array();
-unset($arLastTables[strtolower($table_name)]);
-$arLastTables[strtolower($table_name)] = true;
+unset($arLastTables[mb_strtolower($table_name)]);
+$arLastTables[mb_strtolower($table_name)] = true;
 if (count($arLastTables) > 10)
 	array_shift($arLastTables);
 CUserOptions::SetOption("perfmon", "last_tables", implode(",", array_keys($arLastTables)));
@@ -467,14 +473,14 @@ echo BeginNote();
 echo '
 	<ul>
 	<li>= Identical</li>
-	<li>&amp;gt; Greater</li>
-	<li>&amp;gt;= Greater or Equal</li>
-	<li>&amp;lt; Less</li>
-	<li>&amp;lt;= Less or Equal</li>
+	<li>&gt; Greater</li>
+	<li>&gt;= Greater or Equal</li>
+	<li>&lt; Less</li>
+	<li>&lt;= Less or Equal</li>
 	<li>% Substring</li>
 	<li>? Logic</li>
-	<li>&amp;gt;&amp;lt;MIN,MAX Between</li>
-	<li>&amp;#64;N1,N2,...,NN IN</li>
+	<li>&gt;lt;MIN,MAX Between</li>
+	<li>#64;N1,N2,...,NN IN</li>
 	<li>NULL Empty</li>
 	<li>! Negate any of above</li>
 	</ul>

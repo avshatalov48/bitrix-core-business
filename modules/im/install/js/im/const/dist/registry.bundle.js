@@ -9,7 +9,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 *
 	 * @package bitrix
 	 * @subpackage im
-	 * @copyright 2001-2019 Bitrix
+	 * @copyright 2001-2020 Bitrix
 	 */
 	var DateFormat = Object.freeze({
 	  groupTitle: 'groupTitle',
@@ -27,7 +27,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 *
 	 * @package bitrix
 	 * @subpackage im
-	 * @copyright 2001-2019 Bitrix
+	 * @copyright 2001-2020 Bitrix
 	 */
 	var DeviceType = Object.freeze({
 	  mobile: 'mobile',
@@ -44,7 +44,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 *
 	 * @package bitrix
 	 * @subpackage im
-	 * @copyright 2001-2019 Bitrix
+	 * @copyright 2001-2020 Bitrix
 	 */
 	var MutationType = Object.freeze({
 	  none: 'none',
@@ -66,7 +66,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 *
 	 * @package bitrix
 	 * @subpackage im
-	 * @copyright 2001-2019 Bitrix
+	 * @copyright 2001-2020 Bitrix
 	 */
 	var RestMethod = Object.freeze({
 	  imMessageAdd: 'im.message.add',
@@ -89,7 +89,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  imDiskFolderGet: 'im.disk.folder.get',
 	  imDiskFileUpload: 'disk.folder.uploadfile',
 	  imDiskFileCommit: 'im.disk.file.commit',
-	  mobileBrowserConstGet: 'mobile.browser.const.get'
+	  mobileBrowserConstGet: 'mobile.browser.const.get',
+	  imRecentGet: 'im.recent.get',
+	  imRecentList: 'im.recent.list'
 	});
 	var RestMethodHandler = Object.freeze({
 	  imChatGet: 'im.chat.get',
@@ -103,7 +105,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  imDiskFileCommit: 'im.disk.file.commit',
 	  imUserGet: 'im.user.get',
 	  imUserListGet: 'im.user.list.get',
-	  mobileBrowserConstGet: 'mobile.browser.const.get'
+	  mobileBrowserConstGet: 'mobile.browser.const.get',
+	  imRecentGet: 'im.recent.get',
+	  imRecentList: 'im.recent.list'
 	});
 
 	/**
@@ -112,7 +116,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 *
 	 * @package bitrix
 	 * @subpackage im
-	 * @copyright 2001-2019 Bitrix
+	 * @copyright 2001-2020 Bitrix
 	 */
 	var EventType = Object.freeze({
 	  dialog: {
@@ -134,7 +138,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 *
 	 * @package bitrix
 	 * @subpackage im
-	 * @copyright 2001-2019 Bitrix
+	 * @copyright 2001-2020 Bitrix
 	 */
 	var DialogType = Object.freeze({
 	  private: 'private',
@@ -164,7 +168,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 *
 	 * @package bitrix
 	 * @subpackage im
-	 * @copyright 2001-2019 Bitrix
+	 * @copyright 2001-2020 Bitrix
 	 */
 	var FileStatus = Object.freeze({
 	  upload: 'upload',
@@ -185,7 +189,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 *
 	 * @package bitrix
 	 * @subpackage im
-	 * @copyright 2001-2019 Bitrix
+	 * @copyright 2001-2020 Bitrix
 	 */
 	var MessageType = Object.freeze({
 	  self: 'self',
@@ -193,7 +197,34 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  system: 'system'
 	});
 
-	exports.EventType = EventType;
+	/**
+	 * Bitrix Messenger
+	 * Call constants
+	 *
+	 * @package bitrix
+	 * @subpackage im
+	 * @copyright 2001-2020 Bitrix
+	 */
+	var CallLimit = Object.freeze({
+	  userLimitForHd: 5
+	});
+	var CallStateType = Object.freeze({
+	  preparation: 'preparation',
+	  call: 'call'
+	});
+	var CallErrorCode = Object.freeze({
+	  noSignalFromCamera: 'noSignalFromCamera'
+	});
+	var CallApplicationErrorCode = Object.freeze({
+	  userLimitReached: 'userLimitReached',
+	  detectIntranetUser: 'detectIntranetUser',
+	  bitrix24only: 'bitrix24only',
+	  kickedFromCall: 'kickedFromCall',
+	  unsupportedBrowser: 'unsupportedBrowser',
+	  missingMicrophone: 'missingMicrophone',
+	  unsafeConnection: 'unsafeConnection'
+	});
+
 	exports.DateFormat = DateFormat;
 	exports.DeviceType = DeviceType;
 	exports.DeviceOrientation = DeviceOrientation;
@@ -201,12 +232,17 @@ this.BX.Messenger = this.BX.Messenger || {};
 	exports.StorageLimit = StorageLimit;
 	exports.RestMethod = RestMethod;
 	exports.RestMethodHandler = RestMethodHandler;
+	exports.EventType = EventType;
 	exports.DialogType = DialogType;
 	exports.DialogCrmType = DialogCrmType;
 	exports.DialogReferenceClassName = DialogReferenceClassName;
 	exports.FileStatus = FileStatus;
 	exports.FileType = FileType;
 	exports.MessageType = MessageType;
+	exports.CallStateType = CallStateType;
+	exports.CallLimit = CallLimit;
+	exports.CallErrorCode = CallErrorCode;
+	exports.CallApplicationErrorCode = CallApplicationErrorCode;
 
 }((this.BX.Messenger.Const = this.BX.Messenger.Const || {})));
 //# sourceMappingURL=registry.bundle.js.map

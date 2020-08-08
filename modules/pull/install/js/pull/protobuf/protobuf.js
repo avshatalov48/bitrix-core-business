@@ -8704,5 +8704,9 @@ BufferWriter.prototype.string = function write_string_buffer(value) {
 
 },{"39":39,"42":42}]},{},[19])
 
-})(typeof window==="object"&&window||typeof self==="object"&&self||this);
+})(
+	typeof window==="object" && window
+	|| typeof self==="object" && self
+	|| this
+);
 

@@ -4,7 +4,7 @@
  *
  * @package bitrix
  * @subpackage im
- * @copyright 2001-2019 Bitrix
+ * @copyright 2001-2020 Bitrix
  */
 
 export const DialogType = Object.freeze({

@@ -5,8 +5,8 @@
 			 data-autoplay="true"
 			 data-slides-show="3"
 			 data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-45 g-height-45 g-font-size-40 g-color-white g-bg-primary"
-			 data-arrow-left-classes="fa fa-angle-left g-left-minus-25"
-			 data-arrow-right-classes="fa fa-angle-right g-right-minus-25"
+			 data-arrow-left-classes="fa fa-angle-left g-left-minus-15"
+			 data-arrow-right-classes="fa fa-angle-right g-right-minus-15"
 			 data-responsive='[{
                  "breakpoint": 1200,
                  "settings": {
@@ -43,19 +43,19 @@
 							<span class="landing-block-node-card-icon-container g-color-primary g-font-size-22 g-mr-10">
 								<i class="landing-block-node-card-icon fa fa-calendar"></i>
 							</span>
-							<div class="landing-block-node-card-subtitle d-inline-block text-uppercase g-font-weight-700 g-font-size-12 g-color-white g-mb-10">
+							<div class="landing-block-node-card-subtitle landing-semantic-subtitle-image-small d-inline-block text-uppercase font-weight-bold g-font-size-12 g-color-white g-mb-10">
 								<p>Duration, 3 Months.</p>
 							</div>
 						</div>
-						<h2 class="landing-block-node-card-title text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-10">
+						<h2 class="landing-block-node-card-title landing-semantic-title-image-small text-uppercase g-line-height-1 font-weight-bold g-font-size-40 g-mb-10">
 							Dance courses
 						</h2>
-						<div class="landing-block-node-card-text g-font-size-default g-color-white-opacity-0_8 g-mb-30">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-font-size-default g-color-white-opacity-0_8 g-mb-30">
 							<p>Curabitur eget tortor sed urna
 								faucibus iaculis id et nulla.</p>
 						</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button btn btn-xl text-uppercase u-btn-primary g-font-weight-700 g-font-size-13 g-bg-transparent--hover g-brd-3 rounded-0 g-py-15 g-px-25"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn btn-xl text-uppercase u-btn-primary font-weight-bold g-font-size-13 g-bg-transparent--hover g-brd-3 rounded-0 g-py-15 g-px-25"
 							   href="#">Learn More</a>
 						</div>
 					</header>
@@ -76,19 +76,19 @@
 							<span class="landing-block-node-card-icon-container g-color-primary g-font-size-22 g-mr-10">
 								<i class="landing-block-node-card-icon fa fa-calendar"></i>
 							</span>
-							<div class="landing-block-node-card-subtitle d-inline-block text-uppercase g-font-weight-700 g-font-size-12 g-color-white g-mb-10">
+							<div class="landing-block-node-card-subtitle landing-semantic-subtitle-image-small d-inline-block text-uppercase font-weight-bold g-font-size-12 g-color-white g-mb-10">
 								<p>Duration, 4 Months.</p>
 							</div>
 						</div>
-						<h2 class="landing-block-node-card-title text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-10">
+						<h2 class="landing-block-node-card-title landing-semantic-title-image-small text-uppercase g-line-height-1 font-weight-bold g-font-size-40 g-mb-10">
 							Creative photos
 						</h2>
-						<div class="landing-block-node-card-text g-font-size-default g-color-white-opacity-0_8 g-mb-30">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-font-size-default g-color-white-opacity-0_8 g-mb-30">
 							<p>Curabitur eget tortor sed urna
 								faucibus iaculis id et nulla.</p>
 						</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button btn btn-xl text-uppercase u-btn-primary g-font-weight-700 g-font-size-13 g-bg-transparent--hover g-brd-3 rounded-0 g-py-15 g-px-25"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn btn-xl text-uppercase u-btn-primary font-weight-bold g-font-size-13 g-bg-transparent--hover g-brd-3 rounded-0 g-py-15 g-px-25"
 							   href="#">Learn More</a>
 						</div>
 					</header>
@@ -109,19 +109,19 @@
 							<span class="landing-block-node-card-icon-container g-color-primary g-font-size-22 g-mr-10">
 								<i class="landing-block-node-card-icon fa fa-calendar"></i>
 							</span>
-							<div class="landing-block-node-card-subtitle d-inline-block text-uppercase g-font-weight-700 g-font-size-12 g-color-white g-mb-10">
+							<div class="landing-block-node-card-subtitle landing-semantic-subtitle-image-small d-inline-block text-uppercase font-weight-bold g-font-size-12 g-color-white g-mb-10">
 								<p>Duration, 10 Months.</p>
 							</div>
 						</div>
-						<h2 class="landing-block-node-card-title text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-10">
+						<h2 class="landing-block-node-card-title landing-semantic-title-image-small text-uppercase g-line-height-1 font-weight-bold g-font-size-40 g-mb-10">
 							Art for all
 						</h2>
-						<div class="landing-block-node-card-text g-font-size-default g-color-white-opacity-0_8 g-mb-30">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-font-size-default g-color-white-opacity-0_8 g-mb-30">
 							<p>Curabitur eget tortor sed urna
 								faucibus iaculis id et nulla.</p>
 						</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button btn btn-xl text-uppercase u-btn-primary g-font-weight-700 g-font-size-13 g-bg-transparent--hover g-brd-3 rounded-0 g-py-15 g-px-25"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn btn-xl text-uppercase u-btn-primary font-weight-bold g-font-size-13 g-bg-transparent--hover g-brd-3 rounded-0 g-py-15 g-px-25"
 							   href="#">Learn More</a>
 						</div>
 					</header>
@@ -142,19 +142,19 @@
 							<span class="landing-block-node-card-icon-container g-color-primary g-font-size-22 g-mr-10">
 								<i class="landing-block-node-card-icon fa fa-calendar"></i>
 							</span>
-							<div class="landing-block-node-card-subtitle d-inline-block text-uppercase g-font-weight-700 g-font-size-12 g-color-white g-mb-10">
+							<div class="landing-block-node-card-subtitle landing-semantic-subtitle-image-small d-inline-block text-uppercase font-weight-bold g-font-size-12 g-color-white g-mb-10">
 								<p>Duration, 8 Months.</p>
 							</div>
 						</div>
-						<h2 class="landing-block-node-card-title text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-10">
+						<h2 class="landing-block-node-card-title landing-semantic-title-image-small text-uppercase g-line-height-1 font-weight-bold g-font-size-40 g-mb-10">
 							Painting
 						</h2>
-						<div class="landing-block-node-card-text g-font-size-default g-color-white-opacity-0_8 g-mb-30">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-font-size-default g-color-white-opacity-0_8 g-mb-30">
 							<p>Curabitur eget tortor sed urna
 								faucibus iaculis id et nulla.</p>
 						</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button btn btn-xl text-uppercase u-btn-primary g-font-weight-700 g-font-size-13 g-bg-transparent--hover g-brd-3 rounded-0 g-py-15 g-px-25"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn btn-xl text-uppercase u-btn-primary font-weight-bold g-font-size-13 g-bg-transparent--hover g-brd-3 rounded-0 g-py-15 g-px-25"
 							   href="#">Learn More</a>
 						</div>
 					</header>
@@ -175,19 +175,19 @@
 							<span class="landing-block-node-card-icon-container g-color-primary g-font-size-22 g-mr-10">
 								<i class="landing-block-node-card-icon fa fa-calendar"></i>
 							</span>
-							<div class="landing-block-node-card-subtitle d-inline-block text-uppercase g-font-weight-700 g-font-size-12 g-color-white g-mb-10">
+							<div class="landing-block-node-card-subtitle landing-semantic-subtitle-image-small d-inline-block text-uppercase font-weight-bold g-font-size-12 g-color-white g-mb-10">
 								<p>Duration, 7 Months.</p>
 							</div>
 						</div>
-						<h2 class="landing-block-node-card-title text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-10">
+						<h2 class="landing-block-node-card-title landing-semantic-title-image-small text-uppercase g-line-height-1 font-weight-bold g-font-size-40 g-mb-10">
 							Courses for elderly
 						</h2>
-						<div class="landing-block-node-card-text g-font-size-default g-color-white-opacity-0_8 g-mb-30">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-font-size-default g-color-white-opacity-0_8 g-mb-30">
 							<p>Curabitur eget tortor sed urna
 								faucibus iaculis id et nulla.</p>
 						</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button btn btn-xl text-uppercase u-btn-primary g-font-weight-700 g-font-size-13 g-bg-transparent--hover g-brd-3 rounded-0 g-py-15 g-px-25"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn btn-xl text-uppercase u-btn-primary font-weight-bold g-font-size-13 g-bg-transparent--hover g-brd-3 rounded-0 g-py-15 g-px-25"
 							   href="#">Learn More</a>
 						</div>
 					</header>

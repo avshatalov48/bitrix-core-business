@@ -241,7 +241,7 @@ create table b_sonet_log_comment (
   URL varchar(500) default NULL,
   RATING_TYPE_ID varchar(50) default NULL,
   RATING_ENTITY_ID int(11) default NULL,
-  SHARE_DEST varchar(255) default NULL,
+  SHARE_DEST text default NULL,
   primary key (ID),
   index IX_SONET_LOG_COMMENT_1(ENTITY_TYPE, ENTITY_ID, EVENT_ID),
   index IX_SONET_LOG_COMMENT_2(USER_ID, LOG_DATE, EVENT_ID),

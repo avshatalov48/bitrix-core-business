@@ -1,0 +1,352 @@
+.landing-domain-block-title {
+	border-bottom: 1px solid #e6e9ec;
+	color: #4a4a4a;
+	margin: 10px 0 13px;
+	padding-bottom: 23px;
+	font: 17px/23px "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.landing-domain-block-info {
+	background: #eaf9fe;
+	border-radius: 4px;
+	padding: 20px 23px 17px;
+	margin-bottom: 14px;
+	position: relative;
+}
+
+.landing-domain-block-info-title {
+	font: 21px/28px "OpenSans-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #333;
+	padding-left: 46px;
+	position: relative;
+	margin-bottom: 20px;
+}
+
+.landing-domain-block-info-title:before {
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: -5px;
+	width: 39px;
+	height: 39px;
+	border-radius: 50%;
+	background: #2fc6f6 url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2222%22%20height%3D%2220%22%3E%3Cpath%20fill%3D%22%23FFF%22%20d%3D%22M1.333%2010.654v8c0%20.736.599%201.333%201.334%201.333h6.666v-9.333h-8zM20%205.32h-4.219a5.18%205.18%200%2000.744-.596%202.787%202.787%200%20000-3.923c-1.045-1.054-2.866-1.05-3.91%200-.579.58-2.112%202.941-1.9%204.518h-.096c.21-1.577-1.323-3.938-1.9-4.518-1.046-1.05-2.867-1.05-3.911%200a2.79%202.79%200%2000-.001%203.922c.182.184.442.39.745.596H1.333C.6%205.32%200%205.92%200%206.655v2c0%20.368.299.666.667.666h8.666V6.654H12V9.32h8.667a.667.667%200%2000.666-.666v-2c0-.735-.597-1.333-1.333-1.333zM9.255%205.277s-.056.043-.247.043c-.921%200-2.68-.957-3.255-1.536a1.454%201.454%200%20010-2.042c.271-.272.63-.421%201.011-.421.38%200%20.739.149%201.01.42.898.905%201.791%203.214%201.48%203.536zm3.069.043c-.19%200-.245-.042-.245-.043-.311-.322.582-2.631%201.481-3.535.537-.543%201.477-.546%202.02%200%20.56.563.56%201.48%200%202.042-.575.58-2.333%201.537-3.256%201.537zM12%2010.654v9.333h6.667c.736%200%201.333-.597%201.333-1.333v-8h-8z%22/%3E%3C/svg%3E) no-repeat center;
+	transform: translateY(-50%);
+}
+
+.landing-domain-block-info-text {
+	color: #525c69;
+	margin-bottom: 12px;
+}
+
+.landing-domain-block-info-close {
+	position: absolute;
+	top: 5px;
+	right: 5px;
+	cursor: pointer;
+	width: 20px;
+	height: 20px;
+	opacity: .2;
+	transition: all .2s linear;
+	background: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2210%22%20height%3D%2210%22%3E%3Cpath%20fill%3D%22%23525C69%22%20fill-rule%3D%22evenodd%22%20opacity%3D%221%22%20d%3D%22M9.172%201.765L6.103%204.833l3.235%203.236-1.269%201.269-3.235-3.236-2.831%202.832L.9%207.831l2.831-2.832L.662%201.931%201.931.662%205%203.73%208.069.662z%22/%3E%3C/svg%3E) no-repeat center;
+}
+
+.landing-domain-block-info-close:hover {
+	opacity: .8;
+}
+
+.landing-domain-block-input {
+	display: flex;
+	align-items: flex-end;
+}
+
+.landing-domain-block-input-inner {
+	width: 100%;
+}
+
+.landing-domain-block-label {
+	color: #a8adb4;
+	font-size: 13px;
+	line-height: 22px;
+	margin-bottom: 5px;
+}
+
+.landing-domain-edit-check-btn {
+	margin-left: 12px;
+}
+
+.landing-domain-alert {
+	font-size: 15px;
+	line-height: 21px;
+	margin: 4px 0 35px;
+}
+
+.landing-domain-alert-danger {
+	color: #d0021b;
+}
+
+.landing-domain-alert-success {
+	color: #6ebf00;
+}
+
+.landing-domain-block-available {
+	padding-bottom: 23px;
+	border-bottom: 1px solid #e6e9ec;
+	margin-bottom: 15px;
+}
+
+.landing-domain-block-available-title {
+	font-size: 15px;
+	line-height: 21px;
+	color: #000;
+	font-weight: 700;
+	margin-bottom: 16px;
+}
+
+.landing-domain-block-available-list-wrap {
+	height: 0;
+	overflow: hidden;
+	transition: height .2s linear;
+}
+
+.landing-domain-block-available-list {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+}
+
+.landing-domain-block-available-btn-wrap {
+	margin-top: 20px;
+	overflow: hidden;
+}
+
+.landing-domain-block-available-btn {
+	height: 39px;
+	transition: all .2s linear;
+}
+
+.landing-domain-block-available-btn-hide {
+	height: 0;
+	opacity: 0;
+}
+
+.landing-domain-block-available-item {
+	width: 185px;
+	display: flex;
+	align-items: center;
+	margin: 0 7px 10px 0;
+}
+
+.landing-domain-block-available-label {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	margin-left: 10px;
+}
+
+.landing-domain-edit-agreement {
+	margin: 14px 0 18px;
+}
+
+.landing-domain-block-bitrix24 {
+	display: flex;
+	align-items: center;
+	color: #333;
+}
+
+.landing-domain-block-bitrix24-wrap {
+	margin-bottom: 29px;
+}
+
+.landing-domain-block-prefix {
+	margin-right: 10px;
+}
+
+.landing-domain-block-postfix {
+	font-weight: 700;
+	margin-left: 10px;
+}
+
+.landing-domain-link {
+	color: #9b9b9b;
+	font-size: 13px;
+	transition: color .2s linear;
+}
+
+.landing-domain-link:hover {
+	color: #7b7b7b;
+}
+
+.landing-domain-link .ui-hint-icon {
+	vertical-align: middle;
+	margin-top: -3px;
+}
+
+.landing-domain-block-guide {
+	background: #fffcf8;
+	margin-top: 17px;
+	padding: 22px 19px 15px;
+}
+
+.landing-domain-block-guide-title {
+	color: #525c69;
+	margin-bottom: 16px;
+}
+
+.landing-domain-table-header td {
+	background: #eef2f4;
+	color: #525c69;
+	padding: 10px 0 11px;
+}
+
+.landing-domain-table-header-text {
+	width: 100%;
+	display: block;
+	padding: 0 10px;
+	box-sizing: border-box;
+	border-right: 1px solid #d8dce3;
+}
+
+.landing-domain-table-header td:last-child .landing-domain-table-header-text {
+	border-right: 0;
+}
+
+.landing-domain-block-private {
+	margin-bottom: 20px;
+}
+
+.landing-domain-block-private .landing-domain-alert,
+.landing-domain-block-bitrix24-wrap .landing-domain-alert {
+	margin-bottom: 0;
+}
+
+.landing-domain-table-content td {
+	padding: 13px 10px 14px;
+	color: #000;
+	font-weight: 600;
+	overflow: hidden;
+	word-wrap: break-word;
+	max-width: 230px;
+}
+
+.landing-domain-table {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+.landing-domain-state-title {
+	font: 37px/43px "OpenSans-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #525c69;
+	max-width: 400px;
+	margin: 0 auto 70px;
+}
+
+.landing-domain-state-info {
+	border-radius: 26px;
+	padding: 14px 30px 17px;
+	margin-bottom: 50px;
+}
+
+.landing-domain-state-info-text {
+	font: 16px/22px "OpenSans-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #525c69;
+}
+
+.landing-domain-state {
+	text-align: center;
+	padding: 43px 100px 170px;
+}
+
+.landing-domain-state-image {
+	position: relative;
+	width: 100%;
+	height: 245px;
+	margin-bottom: 56px;
+	background: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22249%22%20height%3D%22246%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cpath%20fill%3D%22%239CE7FF%22%20fill-rule%3D%22nonzero%22%20d%3D%22M124.078%20246c68.501%200%20124.032-55.068%20124.032-123%200-67.931-55.53-123-124.032-123C55.577%200%20.048%2055.069.048%20123c0%2067.932%2055.53%20123%20124.03%20123z%22%20opacity%3D%22.212%22/%3E%3Cpath%20fill%3D%22%23FFF%22%20fill-rule%3D%22nonzero%22%20d%3D%22M124.078%20203c44.65%200%2080.847-35.817%2080.847-80s-36.196-80-80.847-80c-44.65%200-80.846%2035.817-80.846%2080s36.196%2080%2080.846%2080z%22/%3E%3Cpath%20fill%3D%22%23A6EAFE%22%20fill-rule%3D%22nonzero%22%20d%3D%22M226.292%20109.076c.033.05.064.102.092.153%205.295%2040.162-13.576%2081.477-50.972%20103.068-37.432%2021.611-82.699%2017.268-114.837-7.46a2.417%202.417%200%2001-.208-1.72%202.412%202.412%200%20013.222-1.666l-.853-.656c30.77%2024.063%2074.394%2028.408%20110.426%207.605%2035.75-20.64%2053.797-60.132%2048.75-98.526.131-.595.49-1.14%201.042-1.5a2.412%202.412%200%20013.338.702zm-153.88-75.18c36.759-21.223%2081.074-17.416%20113.091%206.148.35.463.537%201.053.482%201.677a2.412%202.412%200%2001-2.608%202.199l-.15-.018-.14-.025-.297-.22c-30.617-22.52-72.984-26.155-108.128-5.864C39.614%2058.028%2021.58%2096.38%2025.64%20134.054a2.408%202.408%200%2001-1.182%201.735%202.413%202.413%200%2001-3.213-.74l-.05-.08-.124-1.18c-3.92-39.149%2014.93-78.871%2051.34-99.893z%22/%3E%3Cpath%20fill%3D%22%23A6EAFE%22%20d%3D%22M57.02%20201.763c-.046-.26-.04-.519.008-.764a2.064%202.064%200%20011.706-2.035l16.252-2.866a2.065%202.065%200%2001.717%204.066l-14.33%202.527%202.58%2014.623a2.063%202.063%200%2011-4.064.717l-2.869-16.268zM188.647%2043.055c.046.261.04.52-.008.764a2.064%202.064%200%2001-1.706%202.036L170.68%2048.72a2.065%202.065%200%2011-.717-4.066l14.33-2.527-2.58-14.623a2.063%202.063%200%20014.064-.717l2.869%2016.268z%22/%3E%3Cpath%20fill%3D%22%232FC6F6%22%20d%3D%22M151.304%20153.464H96.663c-.468%200-.931-.017-1.39-.051C82.924%20153.13%2073%20143.028%2073%20130.606a22.834%2022.834%200%200114.305-21.167%2024.093%2024.093%200%20016.99-18.895%2024.069%2024.069%200%200117.028-7.044c8.18.01%2015.4%204.102%2019.74%2010.348%202.061-.73%204.28-1.128%206.59-1.126%2010.21.012%2018.596%207.799%2019.568%2017.757%209.783%202.134%2017.104%2010.853%2017.095%2021.279-.01%2012.014-9.75%2021.747-21.758%2021.742-.42%200-.84-.012-1.254-.036z%22%20opacity%3D%22.763%22/%3E%3C/g%3E%3C/svg%3E) no-repeat center;
+}
+
+.landing-domain-state-image:before {
+	content: '';
+	background: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22101%22%20height%3D%22171%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cpath%20fill%3D%22%232FC6F6%22%20d%3D%22M83.587%2029.985h-23.29c-.2%200-.397-.008-.593-.022-5.263-.121-9.493-4.451-9.493-9.775a9.813%209.813%200%20012.852-6.916%209.719%209.719%200%20013.245-2.155%2010.354%2010.354%200%20012.98-8.098A10.23%2010.23%200%200166.546%200c3.486.004%206.564%201.758%208.414%204.435a8.338%208.338%200%20012.809-.483c4.352.005%207.926%203.343%208.34%207.61%204.17.915%207.29%204.652%207.287%209.12-.005%205.149-4.156%209.32-9.274%209.318-.18%200-.358-.005-.535-.015z%22%20opacity%3D%22.117%22/%3E%3Cpath%20stroke%3D%22%232FC6F6%22%20d%3D%22M77.843%20169.964H24.22c-.458%200-.913-.017-1.364-.05C10.74%20169.637%201%20159.678%201%20147.434a22.559%2022.559%200%20016.568-15.908%2022.378%2022.378%200%20017.47-4.957%2023.803%2023.803%200%20016.86-18.625A23.566%2023.566%200%200138.608%20101c8.027.01%2015.113%204.044%2019.372%2010.2%202.022-.72%204.2-1.111%206.468-1.11%2010.019.012%2018.248%207.688%2019.202%2017.503%209.6%202.104%2016.784%2010.699%2016.776%2020.975-.01%2011.843-9.568%2021.437-21.352%2021.432-.414%200-.824-.012-1.231-.036h0z%22%20opacity%3D%22.302%22/%3E%3C/g%3E%3C/svg%3E) no-repeat center;
+	width: 100px;
+	height: 170px;
+	position: absolute;
+	top: 51px;
+	left: -10px;
+}
+
+.landing-domain-state-image:after {
+	content: '';
+	background: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2280%22%20height%3D%22142%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cpath%20fill%3D%22%232FC6F6%22%20d%3D%22M71.448%20141.987h-20.04c-.172%200-.342-.007-.51-.02-4.53-.104-8.17-3.857-8.17-8.47a8.536%208.536%200%20012.455-5.995%208.359%208.359%200%20012.792-1.867%209.007%209.007%200%20012.564-7.018A8.772%208.772%200%200156.784%20116c3%20.004%205.649%201.524%207.24%203.844a7.128%207.128%200%20012.417-.419c3.745.005%206.82%202.897%207.177%206.596%203.588.792%206.273%204.031%206.27%207.903-.004%204.463-3.576%208.078-7.98%208.076-.155%200-.308-.005-.46-.013z%22%20opacity%3D%22.117%22/%3E%3Cpath%20stroke%3D%22%232FC6F6%22%20d%3D%22M23.834%2021.99H7.584c-.138%200-.276-.006-.413-.016C3.5%2021.889.548%2018.858.548%2015.132a6.881%206.881%200%20011.99-4.842%206.779%206.779%200%20012.264-1.508%207.26%207.26%200%20012.079-5.668A7.126%207.126%200%200111.944%201a7.128%207.128%200%20015.87%203.104%205.8%205.8%200%20011.96-.338c3.037.004%205.53%202.34%205.82%205.328%202.909.64%205.086%203.256%205.083%206.383-.003%203.605-2.9%206.524-6.47%206.523-.126%200-.25-.004-.373-.01h0z%22%20opacity%3D%22.302%22/%3E%3C/g%3E%3C/svg%3E) no-repeat center;
+	width: 80px;
+	height: 141px;
+	position: absolute;
+	top: 38px;
+	right: 24px;
+}
+
+.landing-domain-state-image-value {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background-repeat: no-repeat;
+	background-size: contain;
+	width: 40px;
+	height: 40px;
+}
+
+.landing-domain-state-success .landing-domain-state-info {
+	background: #eaf8d8;
+}
+
+.landing-domain-state-wait .landing-domain-state-info,
+.landing-domain-state-end .landing-domain-state-info {
+	background: #fefcd6;
+}
+
+.landing-domain-state-success .landing-domain-state-image-value {
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2240%22%20height%3D%2240%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cpath%20fill%3D%22%23FFF%22%20d%3D%22M20.078%2039.559C9.276%2039.559.52%2030.802.52%2020%20.52%209.198%209.276.441%2020.078.441c10.803%200%2019.56%208.757%2019.56%2019.559%200%2010.802-8.757%2019.559-19.56%2019.559z%22/%3E%3Cpath%20fill%3D%22%239DCF00%22%20d%3D%22M17.054%2022.799l-3.986-3.986-3.525%203.525%207.319%207.32.195.188%2014.476-14.475-3.525-3.525z%22/%3E%3C/g%3E%3C/svg%3E);
+}
+
+.landing-domain-state-wait .landing-domain-state-image-value {
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2243%22%20height%3D%2243%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cpath%20fill%3D%22%23FFF%22%20d%3D%22M22.598%2042.366a21.176%2021.176%200%201120.333-21.16c.222%2011.455-8.877%2020.926-20.333%2021.16z%22/%3E%3Cpath%20fill%3D%22%232FC6F6%22%20d%3D%22M19.077%2023.833V7.087h5.315v11.43h7.972v5.316H19.077z%22/%3E%3C/g%3E%3C/svg%3E);
+}
+
+.landing-domain-state-end .landing-domain-state-image-value {
+	background-image: none;
+}
+
+.landing-domain-state-notice {
+	color: #525c69;
+}
+
+.landing-domain-state-free {
+	padding-left: 60px;
+	padding-right: 60px;
+}
+
+.landing-domain-state-free-text {
+	color: #333;
+	font: 17px/22px "OpenSans-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.landing-domain-state-free .landing-domain-state-title {
+	max-width: 100%;
+	margin-bottom: 30px;
+}
+
+.landing-domain-state-free .landing-domain-state-image {
+	margin: 43px 0 44px;
+}
+
+.landing-domain-state-free .landing-domain-state-image {
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20xmlns%3Axlink%3D%22http%3A//www.w3.org/1999/xlink%22%20width%3D%22249%22%20height%3D%22246%22%3E%3Cdefs%3E%3Cfilter%20id%3D%22a%22%20width%3D%22126.8%25%22%20height%3D%22126.8%25%22%20x%3D%22-13.4%25%22%20y%3D%22-9.6%25%22%20filterUnits%3D%22objectBoundingBox%22%3E%3CfeOffset%20dy%3D%222%22%20in%3D%22SourceAlpha%22%20result%3D%22shadowOffsetOuter1%22/%3E%3CfeGaussianBlur%20in%3D%22shadowOffsetOuter1%22%20result%3D%22shadowBlurOuter1%22%20stdDeviation%3D%222%22/%3E%3CfeColorMatrix%20in%3D%22shadowBlurOuter1%22%20values%3D%220%200%200%200%200.0363340004%200%200%200%200%200.282152182%200%200%200%200%200.533372962%200%200%200%200.207167832%200%22/%3E%3C/filter%3E%3Ccircle%20id%3D%22b%22%20cx%3D%2226.156%22%20cy%3D%2226.156%22%20r%3D%2226.156%22/%3E%3C/defs%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cpath%20fill%3D%22%239CE7FF%22%20fill-rule%3D%22nonzero%22%20d%3D%22M124.078%20246c68.501%200%20124.032-55.068%20124.032-123%200-67.931-55.53-123-124.032-123C55.577%200%20.048%2055.069.048%20123c0%2067.932%2055.53%20123%20124.03%20123z%22%20opacity%3D%22.212%22/%3E%3Cpath%20fill%3D%22%23FFF%22%20fill-rule%3D%22nonzero%22%20d%3D%22M124.078%20203c44.65%200%2080.847-35.817%2080.847-80s-36.196-80-80.847-80c-44.65%200-80.846%2035.817-80.846%2080s36.196%2080%2080.846%2080z%22/%3E%3Cpath%20fill%3D%22%23A6EAFE%22%20fill-rule%3D%22nonzero%22%20d%3D%22M226.292%20109.076c.033.05.064.102.092.153%205.295%2040.162-13.576%2081.477-50.972%20103.068-37.432%2021.611-82.699%2017.268-114.837-7.46a2.417%202.417%200%2001-.208-1.72%202.412%202.412%200%20013.222-1.666l-.853-.656c30.77%2024.063%2074.394%2028.408%20110.426%207.605%2035.75-20.64%2053.797-60.132%2048.75-98.526.131-.595.49-1.14%201.042-1.5a2.412%202.412%200%20013.338.702zm-153.88-75.18c36.759-21.223%2081.074-17.416%20113.091%206.148.35.463.537%201.053.482%201.677a2.412%202.412%200%2001-2.608%202.199l-.15-.018-.14-.025-.297-.22c-30.617-22.52-72.984-26.155-108.128-5.864C39.614%2058.028%2021.58%2096.38%2025.64%20134.054a2.408%202.408%200%2001-1.182%201.735%202.413%202.413%200%2001-3.213-.74l-.05-.08-.124-1.18c-3.92-39.149%2014.93-78.871%2051.34-99.893z%22/%3E%3Cpath%20fill%3D%22%23A6EAFE%22%20d%3D%22M57.02%20201.763c-.046-.26-.04-.519.008-.764a2.064%202.064%200%20011.706-2.035l16.252-2.866a2.065%202.065%200%2001.717%204.066l-14.33%202.527%202.58%2014.623a2.063%202.063%200%2011-4.064.717l-2.869-16.268zM188.647%2043.055c.046.261.04.52-.008.764a2.064%202.064%200%2001-1.706%202.036L170.68%2048.72a2.065%202.065%200%2011-.717-4.066l14.33-2.527-2.58-14.623a2.063%202.063%200%20014.064-.717l2.869%2016.268z%22/%3E%3Cg%20transform%3D%22translate%2867%2080%29%22%3E%3Crect%20width%3D%22111%22%20height%3D%2286%22%20fill%3D%22%23B3E600%22%20rx%3D%224%22/%3E%3Crect%20width%3D%2267.5%22%20height%3D%2216%22%20x%3D%2212.5%22%20y%3D%2225%22%20fill%3D%22%23FFF%22%20rx%3D%221%22/%3E%3Crect%20width%3D%2247.5%22%20height%3D%224%22%20x%3D%2212.5%22%20y%3D%2247.5%22%20fill%3D%22%23FFF%22%20rx%3D%221%22/%3E%3Crect%20width%3D%2247.5%22%20height%3D%224%22%20x%3D%2212.5%22%20y%3D%2257.055%22%20fill%3D%22%23FFF%22%20rx%3D%221%22/%3E%3Cpath%20fill%3D%22%239DCF00%22%20d%3D%22M4%200h103a4%204%200%20014%204v9.969H0V4a4%204%200%20014-4z%22/%3E%3Ccircle%20cx%3D%229.299%22%20cy%3D%226.945%22%20r%3D%223.004%22%20fill%3D%22%23FFF%22/%3E%3Ccircle%20cx%3D%2217.17%22%20cy%3D%226.945%22%20r%3D%223.004%22%20fill%3D%22%23FFF%22/%3E%3Ccircle%20cx%3D%2225.17%22%20cy%3D%226.945%22%20r%3D%223.004%22%20fill%3D%22%23FFF%22/%3E%3Cg%20transform%3D%22translate%2867%2028.5%29%22%3E%3Cuse%20fill%3D%22%23000%22%20filter%3D%22url%28%23a%29%22%20xlink%3Ahref%3D%22%23b%22/%3E%3Cuse%20fill%3D%22%23468EE5%22%20xlink%3Ahref%3D%22%23b%22/%3E%3Cpath%20fill%3D%22%23FFF%22%20fill-rule%3D%22nonzero%22%20d%3D%22M26.156%2012.68c7.443%200%2013.477%206.033%2013.477%2013.477%200%207.442-6.034%2013.476-13.477%2013.476-7.443%200-13.477-6.034-13.477-13.476%200-7.444%206.034-13.478%2013.477-13.478zm-.125%2018.245c-.444%200-.819.15-1.124.448a1.482%201.482%200%2000-.458%201.103c0%20.493.158.877.473%201.15.316.275.686.412%201.11.412.409%200%20.77-.139%201.082-.417.312-.277.469-.659.469-1.145a1.5%201.5%200%2000-.448-1.103%201.5%201.5%200%2000-1.104-.448zm.25-12.65c-1.083%200-2.03.222-2.842.666-.812.444-1.43%201.005-1.854%201.681-.423.677-.635%201.345-.635%202.005%200%20.319.134.616.401.89s.595.411.984.411c.66%200%201.107-.392%201.343-1.176.25-.75.555-1.317.916-1.703.361-.385.923-.578%201.687-.578.653%200%201.185.191%201.598.573.413.382.62.85.62%201.406%200%20.284-.068.548-.203.791a2.984%202.984%200%2001-.5.661c-.198.198-.519.491-.963.88-.507.444-.91.828-1.208%201.15a3.842%203.842%200%2000-.718%201.125c-.18.427-.27.932-.27%201.515%200%20.465.122.815.369%201.051.246.236.55.354.91.354.695%200%201.108-.36%201.24-1.082.076-.34.133-.578.171-.714.039-.135.092-.27.162-.406.07-.135.175-.284.317-.447.143-.163.332-.353.568-.568a62.326%2062.326%200%20001.775-1.63c.33-.322.614-.706.854-1.15.24-.444.36-.961.36-1.551%200-.75-.211-1.444-.63-2.082-.42-.639-1.016-1.144-1.786-1.515-.77-.372-1.66-.557-2.666-.557z%22/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E);
+}
+
+.landing-domain-state-detail-text {
+	font-size: 13px;
+	line-height: 18px;
+	color: #858c96;
+	margin: 18px 0 24px;
+}

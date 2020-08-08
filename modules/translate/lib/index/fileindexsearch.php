@@ -131,7 +131,7 @@ class FileIndexSearch
 		}
 
 		$enabledLanguages = Translate\Config::getEnabledLanguages();
-		$languageUpperKeys = array_combine($enabledLanguages, array_map('strtoupper', $enabledLanguages));
+		$languageUpperKeys = array_combine($enabledLanguages, array_map('mb_strtoupper', $enabledLanguages));
 
 		$selectedLanguages = array();
 		foreach ($languageUpperKeys as $langId => $langUpper)
@@ -258,7 +258,7 @@ class FileIndexSearch
 		};
 		$trimSlash = static function(&$val)
 		{
-			if (substr($val, -4) === '.php')
+			if (mb_substr($val, -4) === '.php')
 			{
 				$val = '/'. trim($val, '/');
 			}
@@ -280,7 +280,7 @@ class FileIndexSearch
 				{
 					if (!empty($testPath) && trim($testPath) !== '')
 					{
-						if (strpos($testPath, '/') === false)
+						if (mb_strpos($testPath, '/') === false)
 						{
 							$pathNameIncludes[] = $testPath;
 						}
@@ -297,14 +297,18 @@ class FileIndexSearch
 					array_walk($pathPathIncludes, $trimSlash);
 					$filterOut[] = array(
 						'LOGIC' => 'OR',
-						'=NAME' => $pathNameIncludes,
+						'%=NAME' => $pathNameIncludes,
 						'%=PATH' => $pathPathIncludes,
 					);
 				}
 				elseif (count($pathNameIncludes) > 0)
 				{
 					array_walk($pathNameIncludes, $replaceLangId);
-					$filterOut['=NAME'] = $pathNameIncludes;
+					$filterOut[] = array(
+						'LOGIC' => 'OR',
+						'%=NAME' => $pathNameIncludes,
+						'%=PATH' => $pathNameIncludes,
+					);
 				}
 				elseif (count($pathPathIncludes) > 0)
 				{
@@ -327,7 +331,7 @@ class FileIndexSearch
 				{
 					if (!empty($testPath) && trim($testPath) !== '')
 					{
-						if (strpos($testPath, '/') === false)
+						if (mb_strpos($testPath, '/') === false)
 						{
 							$pathNameExcludes[] = $testPath;
 						}
@@ -344,14 +348,18 @@ class FileIndexSearch
 					array_walk($pathPathExcludes, $trimSlash);
 					$filterOut[] = array(
 						'LOGIC' => 'AND',
-						'!=NAME' => $pathNameExcludes,
+						'!=%NAME' => $pathNameExcludes,
 						'!=%PATH' => $pathPathExcludes,
 					);
 				}
 				elseif (count($pathNameExcludes) > 0)
 				{
 					array_walk($pathNameExcludes, $replaceLangId);
-					$filterOut["!=NAME"] = $pathNameExcludes;
+					$filterOut[] = array(
+						'LOGIC' => 'AND',
+						'!=%NAME' => $pathNameExcludes,
+						'!=%PATH' => $pathNameExcludes,
+					);
 				}
 				elseif (count($pathPathExcludes) > 0)
 				{

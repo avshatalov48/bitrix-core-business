@@ -25,7 +25,7 @@ if (check_bitrix_sessid())
 					if (!$res && $e = $GLOBALS["APPLICATION"]->GetException())
 						$errorMessage = $e->GetString();
 
-					if (strlen($errorMessage) <= 0)
+					if ($errorMessage == '')
 						echo '<script>window.location.reload();</script>';					
 					else
 						echo '<script>alert(\''.CUtil::JSEscape($errorMessage).'\');</script>';

@@ -55,10 +55,10 @@ $runtimeFields = array();
 $filter_order_id_from = intval($filter_order_id_from);
 $filter_order_id_to = intval($filter_order_id_to);
 
-if (strlen($filter_allow_delivery) > 0 && $filter_allow_delivery != 'NOT_REF')
+if ($filter_allow_delivery <> '' && $filter_allow_delivery != 'NOT_REF')
 	$arFilter['ALLOW_DELIVERY'] = $filter_allow_delivery;
 
-if (strlen($filter_deducted) > 0 && $filter_deducted != 'NOT_REF')
+if ($filter_deducted <> '' && $filter_deducted != 'NOT_REF')
 	$arFilter['DEDUCTED'] = $filter_deducted;
 
 if (intval($filter_price_delivery_from) > 0)
@@ -66,7 +66,7 @@ if (intval($filter_price_delivery_from) > 0)
 if (intval($filter_price_delivery_to) > 0)
 	$arFilter['<=PRICE_DELIVERY'] = $filter_price_delivery_to;
 
-if (strlen($filter_delivery_doc_num) > 0)
+if ($filter_delivery_doc_num <> '')
 	$arFilter['DELIVERY_DOC_NUM'] = $filter_delivery_doc_num;
 
 if ($filter_order_id_from > 0)
@@ -79,10 +79,10 @@ if ($filter_shipment_id_from > 0)
 if ($filter_shipment_id_to > 0)
 	$arFilter['<=ID'] = $filter_shipment_id_to;
 
-if (strlen($filter_company_id) > 0 && $filter_company_id != 'NOT_REF')
+if ($filter_company_id <> '' && $filter_company_id != 'NOT_REF')
 	$arFilter['COMPANY_ID'] = intval($filter_company_id);
 
-if (strlen($filter_date_deducted_from) > 0)
+if ($filter_date_deducted_from <> '')
 	$arFilter[">=DATE_DEDUCTED"] = trim($filter_date_deducted_from);
 
 $serviceList = array();
@@ -106,11 +106,11 @@ if (is_array($filter_delivery_id) && count($filter_delivery_id) > 0 && $filter_d
 	}
 }
 
-if (strlen($filter_date_deducted_to) > 0)
+if ($filter_date_deducted_to <> '')
 {
 	if ($arDate = ParseDateTime($filter_date_deducted_to, CSite::GetDateFormat("FULL", $siteId)))
 	{
-		if (strlen($filter_date_deducted_to) < 11)
+		if (mb_strlen($filter_date_deducted_to) < 11)
 		{
 			$arDate["HH"] = 23;
 			$arDate["MI"] = 59;
@@ -131,22 +131,22 @@ if (isset($filter_status) && is_array($filter_status) && count($filter_status) >
 	foreach ($filter_status as $key => $status)
 	{
 		$filter_status[$key] = trim($status);
-		if (strlen($filter_status[$key]) > 0)
+		if ($filter_status[$key] <> '')
 			$arFilter["=STATUS_ID"][] = $filter_status[$key];
 	}
 }
 
-if (strlen($filter_account_num) > 0)
+if ($filter_account_num <> '')
 	$arFilter['ORDER.ACCOUNT_NUMBER'] = $filter_account_num;
 
-if (strlen($filter_user_login)>0)
+if ($filter_user_login <> '')
 	$arFilter["ORDER.USER.LOGIN"] = trim($filter_user_login);
-if (strlen($filter_user_email)>0)
+if ($filter_user_email <> '')
 	$arFilter["ORDER.USER.EMAIL"] = trim($filter_user_email);
-if (IntVal($filter_user_id)>0)
-	$arFilter["ORDER.USER_ID"] = IntVal($filter_user_id);
+if (intval($filter_user_id)>0)
+	$arFilter["ORDER.USER_ID"] = intval($filter_user_id);
 
-if (strlen($filter_is_delivery_request_failed) > 0)
+if ($filter_is_delivery_request_failed <> '')
 {
 	if($filter_is_delivery_request_failed == 'Y')
 		$arFilter["!=DELIVERY_REQUEST_SHIPMENT.ERROR_DESCRIPTION"] = false;
@@ -154,7 +154,7 @@ if (strlen($filter_is_delivery_request_failed) > 0)
 		$arFilter["=DELIVERY_REQUEST_SHIPMENT.ERROR_DESCRIPTION"] = false;
 }
 
-if (strlen($filter_is_delivery_request_sent) > 0)
+if ($filter_is_delivery_request_sent <> '')
 {
 	if($filter_is_delivery_request_sent == 'Y')
 		$arFilter["!=DELIVERY_REQUEST_SHIPMENT.REQUEST_ID"] = false;
@@ -262,7 +262,7 @@ if($arID = $lAdmin->GroupAction())
 
 		foreach ($ids as $id)
 		{
-			if (strlen($id) <= 0)
+			if ($id == '')
 				continue;
 
 			/** @var \Bitrix\Sale\Shipment $shipment */
@@ -366,8 +366,8 @@ $arFilter['!=SYSTEM'] = 'Y';
 
 if(in_array('IS_DELIVERY_REQUEST_FAILED', $visibleHeaders)
 	|| in_array('DELIVERY_REQUEST_ID', $visibleHeaders)
-	|| strlen($filter_is_delivery_request_failed) > 0
-	|| strlen($filter_is_delivery_request_sent) > 0)
+	|| $filter_is_delivery_request_failed <> ''
+	|| $filter_is_delivery_request_sent <> '')
 {
 	$runtimeFields[] = new \Bitrix\Main\Entity\ReferenceField(
 		'DELIVERY_REQUEST_SHIPMENT',
@@ -494,7 +494,7 @@ while ($shipment = $dbResultList->Fetch())
 		$row->AddField("DELIVERY_REQUEST_ID", intval($shipment["DELIVERY_REQUEST_ID"]) > 0 ? '<a href="/bitrix/admin/sale_delivery_request_view.php?lang='.LANGUAGE_ID.'&ID='.$shipment["DELIVERY_REQUEST_ID"].'">'.$shipment["DELIVERY_REQUEST_ID"].'</a>' : '');
 
 	if(in_array("IS_DELIVERY_REQUEST_FAILED", $visibleHeaders))
-		$row->AddField("IS_DELIVERY_REQUEST_FAILED", strlen($shipment["DELIVERY_REQUEST_SHIPMENT_ERROR_DESCRIPTION"]) > 0 ? GetMessage("SHIPMENT_ORDER_YES") : GetMessage("SHIPMENT_ORDER_NO"));
+		$row->AddField("IS_DELIVERY_REQUEST_FAILED", $shipment["DELIVERY_REQUEST_SHIPMENT_ERROR_DESCRIPTION"] <> '' ? GetMessage("SHIPMENT_ORDER_YES") : GetMessage("SHIPMENT_ORDER_NO"));
 
 	$status = '';
 	if ($shipment['STATUS_COLOR'])

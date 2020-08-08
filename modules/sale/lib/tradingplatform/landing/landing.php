@@ -61,7 +61,7 @@ class Landing extends Sale\TradingPlatform\Platform
 	 */
 	protected function getSiteId()
 	{
-		return (int)substr($this->getCode(), strrpos($this->getCode(), '_') + 1);
+		return (int)mb_substr($this->getCode(), mb_strrpos($this->getCode(), '_') + 1);
 	}
 
 	/**

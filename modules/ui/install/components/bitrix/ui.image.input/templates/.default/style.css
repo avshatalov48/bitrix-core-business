@@ -1,0 +1,232 @@
+.catalog-product-variation-grid .main-grid-cell-content,
+.catalog-product-variation-grid .main-grid-editor-container {
+	margin-top: 19px;
+	margin-bottom: 21px;
+}
+
+.ui-image-input-img-add {
+	cursor: pointer;
+	border-radius: 50%;
+	width: 26px;
+	height: 26px;
+	display: inline-block;
+	vertical-align: top;
+	box-sizing: border-box;
+	transition: all .2s linear;
+	border: 1px solid #c8cacd;
+	opacity: .5;
+	background: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2212%22%20height%3D%2212%22%3E%3Cpath%20fill%3D%22%23525C69%22%20fill-rule%3D%22evenodd%22%20d%3D%22M7.2%200l-.001%204.799L12%204.8v2.4l-4.801-.001L7.2%2012H4.8V7.199L0%207.2V4.8l4.8-.001V0h2.4z%22%20opacity%3D%221%22/%3E%3C/svg%3E) no-repeat center;
+}
+
+.ui-image-input-img-block, .ui-image-input-container {
+	 display: flex;
+	 align-items: center;
+}
+
+.ui-image-input-img-item {
+	position: relative;
+	z-index: 1;
+	display: inline-block;
+}
+
+.ui-image-input-img-item:before,
+.ui-image-input-img-item:after {
+	box-shadow: 0 0 0 1px #e2e2e4;
+	content: none;
+	position: absolute;
+}
+
+.ui-image-input-img-item:before {
+	z-index: -1;
+	top: 0;
+	bottom: 3px;
+	left: 3px;
+	right: 0;
+	transform: rotate(5deg);
+	background: #fff;
+	border-radius: 1px;
+}
+
+.ui-image-input-img-item:after {
+	z-index: -2;
+	top: 0;
+	bottom: 1px;
+	left: 7px;
+	right: -3px;
+	transform: rotate(9deg);
+	border-radius: 1px;
+}
+
+.ui-image-input-img {
+	max-width: 90px;
+	max-height: 110px;
+	border-radius: 2px;
+	border: 1px solid #e2e2e4;
+	cursor: pointer;
+	box-sizing: border-box;
+ }
+
+.ui-image-input-img-block-double .ui-image-input-img-item:before {
+	content: '';
+}
+
+.ui-image-input-img-block-multiple .ui-image-input-img-item:before,
+.ui-image-input-img-block-multiple .ui-image-input-img-item:after {
+	content: '';
+}
+
+.ui-image-input-img-block-inner {
+	width: 90px;
+	margin-right: 36px;
+	text-align: center;
+}
+
+.ui-image-input-img-add:hover {
+	opacity: .8;
+}
+
+.adm-fileinput-drag-area,
+.adm-fileinput-wrapper-single .adm-fileinput-drag-area {
+	border-radius: 2px;
+	border: 1px dashed rgba(47, 198, 246, .6);
+	transition: border-color .2s linear;
+	width: 90px;
+	height: 110px;
+	min-height: auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	padding: 0;
+	background: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2223%22%20height%3D%2223%22%3E%3Cpath%20fill%3D%22%23A8ADB4%22%20fill-rule%3D%22evenodd%22%20d%3D%22M2.706%200h17.588A2.706%202.706%200%200123%202.706v17.588A2.706%202.706%200%200120.294%2023H2.706A2.706%202.706%200%20010%2020.294V2.706A2.706%202.706%200%20012.706%200zm0%2020.294h17.588v-1.353l-4.69-5.412-2.345%202.707L7.396%209.47l-4.69%205.411v5.412zM16.912%208.118a2.03%202.03%200%20100-4.06%202.03%202.03%200%20000%204.06z%22%20opacity%3D%22.761%22/%3E%3C/svg%3E) no-repeat center;
+}
+
+.adm-fileinput-drag-area-hint,
+.adm-fileinput-item-panel,
+.bx-panel-tooltip,
+.adm-fileinput-btn-panel,
+.ui-image-input-wrapper .adm-fileinput-item-wrapper:not(:first-child) {
+	display: none !important;
+}
+
+div.adm-fileinput-item div.adm-fileinput-item-preview:before {
+	height: 110px;
+}
+
+.adm-fileinput-drag-area:hover {
+	border: 1px dashed rgba(47, 198, 246, 1);
+}
+
+.ui-image-input-wrapper .adm-fileinput-drag-area,
+div.adm-fileinput-item div.adm-fileinput-item-preview {
+	border: none;
+	width: 90px;
+	height: 110px;
+	box-sizing: border-box;
+	background: transparent;
+	box-shadow: none;
+}
+
+div.adm-fileinput-item,
+.adm-fileinput-area-container div.adm-fileinput-item-wrapper {
+	width: auto;
+	height: auto;
+	padding: 0;
+	margin: 0;
+	box-shadow: none;
+	box-sizing: border-box;
+}
+
+div.adm-fileinput-item {
+	background: transparent;
+	overflow: visible;
+}
+
+input.adm-fileinput-drag-area-input {
+	height: 100%;
+	bottom: 0 !important;
+	top: 0 !important;
+}
+
+.ui-image-input-wrapper {
+	position: relative;
+	margin-right: 12px;
+}
+
+.adm-fileinput-wrapper-single.ui-image-input-wrapper {
+	margin-right: 0;
+}
+
+.ui-image-input-wrapper .adm-fileinput-area {
+	position: relative;
+	z-index: 1;
+	overflow: visible;
+	width: auto;
+	height: auto;
+}
+
+.ui-image-input-img-block-empty .ui-image-input-img-item {
+	background: #fff url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2223%22%20height%3D%2223%22%3E%3Cpath%20fill%3D%22%23A8ADB4%22%20fill-rule%3D%22evenodd%22%20d%3D%22M2.706%200h17.588A2.706%202.706%200%200123%202.706v17.588A2.706%202.706%200%200120.294%2023H2.706A2.706%202.706%200%20010%2020.294V2.706A2.706%202.706%200%20012.706%200zm0%2020.294h17.588v-1.353l-4.69-5.412-2.345%202.707L7.396%209.47l-4.69%205.411v5.412zM16.912%208.118a2.03%202.03%200%20100-4.06%202.03%202.03%200%20000%204.06z%22%20opacity%3D%22.761%22/%3E%3C/svg%3E) no-repeat center;
+	width: 90px;
+	height: 110px;
+	border: 1px solid #e2e2e4;
+	box-sizing: border-box;
+}
+
+.ui-image-input-img-block-empty .ui-image-input-img {
+	border: none;
+}
+
+.ui-entity-editor-content-block .ui-image-input-img-block,
+.ui-entity-editor-content-block .ui-image-input-container {
+	margin: 12px 0;
+}
+
+.ui-entity-editor-content-block .ui-image-input-img-block {
+	justify-content: flex-start;
+}
+
+.adm-fileinput-item-preview canvas {
+	box-sizing: border-box;
+	border-radius: 2px;
+	border: 1px solid #d1d4d8;
+}
+
+.ui-image-item-shadow {
+	position: absolute;
+	z-index: -1;
+	bottom: 8px;
+	right: -2px;
+	top: 50%;
+	left: 52%;
+	transform: translate(-50%, -50%);
+}
+
+.ui-image-item-shadow:before, .ui-image-item-shadow:after {
+	position: absolute;
+	z-index: -1;
+	transform: rotate(6deg);
+	background: #fff;
+	box-shadow: 0 0 0 1px #e2e2e4;
+	content: none;
+	width: 100%;
+	height: 100%;
+	border-radius: 1px;
+}
+
+.ui-image-item-shadow:after {
+	transform: rotate(9deg);
+	z-index: -2;
+	top: 0;
+	right: -3px;
+	height: 101%;
+}
+
+.ui-image-input-wrapper-double .ui-image-item-shadow:before {
+	content: '';
+}
+
+.ui-image-input-wrapper-multiple .ui-image-item-shadow:before,
+.ui-image-input-wrapper-multiple .ui-image-item-shadow:after {
+	content: '';
+}

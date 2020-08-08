@@ -17,13 +17,13 @@ class Order extends DataSource implements \Iterator
 
 	public function __construct($params)
 	{
-		if(!isset($params["FEED_TYPE"]) || strlen($params["FEED_TYPE"]) <= 0)
+		if(!isset($params["FEED_TYPE"]) || $params["FEED_TYPE"] == '')
 			throw new ArgumentNullException("FEED_TYPE");
 
 		$this->remotePath = "/store/".$params["FEED_TYPE"]."/output/".date('M-d-Y', time());
 		$this->orderLatest = "/store/".$params["FEED_TYPE"]."/output/order-latest";
 
-		if(!isset($params["SITE_ID"]) || strlen($params["SITE_ID"]) <= 0)
+		if(!isset($params["SITE_ID"]) || $params["SITE_ID"] == '')
 			throw new ArgumentNullException("SITE_ID");
 
 		$this->siteId = $params["SITE_ID"];
@@ -32,15 +32,15 @@ class Order extends DataSource implements \Iterator
 
 	public function setStartPosition($startPos = "")
 	{
-		if(strlen($startPos) > 0)
+		if($startPos <> '')
 			$this->startFileIdx = $startPos;
 	}
 
 	public function current()
 	{
 		$content = file_get_contents($this->dataFiles[$this->currentFileIdx]);
-		$skipLength = strtolower(SITE_CHARSET) != 'utf-8' ? 3 : 1;
-		$content = substr($content, $skipLength);
+		$skipLength = mb_strtolower(SITE_CHARSET) != 'utf-8' ? 3 : 1;
+		$content = mb_substr($content, $skipLength);
 		$content = "<?xml version='1.0' encoding='UTF-8'?>".$content;
 		return $content;
 	}

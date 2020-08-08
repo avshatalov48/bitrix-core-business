@@ -30,7 +30,7 @@ final class Helper extends CommonHelper
 		$toTable = $dbHelper->forSql(trim($toTable));
 		$fromTable = $dbHelper->forSql(trim($fromTable));
 
-		if(!strlen($toTable) || !strlen($toTable) || !is_array($fldMap) || empty($fldMap) || empty($fldCondition))
+		if(!mb_strlen($toTable) || !mb_strlen($toTable) || !is_array($fldMap) || empty($fldMap) || empty($fldCondition))
 			return false;
 
 		// update tab1, tab2 set tab1.aa = tab2.bb, tab1.cc = tab2.dd where tab1.ee = tab2.ff 
@@ -62,7 +62,7 @@ final class Helper extends CommonHelper
 		$indexName = trim($indexName);
 		$tableName = $dbHelper->forSql(trim($tableName));
 
-		if(!strlen($indexName) || !strlen($tableName))
+		if(!mb_strlen($indexName) || !mb_strlen($tableName))
 			return false;
 
 		$res = $dbConnection->query("show index from ".$tableName);
@@ -84,7 +84,7 @@ final class Helper extends CommonHelper
 		$indexName = $dbHelper->forSql(trim($indexName));
 		$tableName = $dbHelper->forSql(trim($tableName));
 
-		if(!strlen($indexName) || !strlen($tableName))
+		if(!mb_strlen($indexName) || !mb_strlen($tableName))
 			return false;
 
 		if(!static::checkIndexNameExists($indexName, $tableName))
@@ -110,7 +110,7 @@ final class Helper extends CommonHelper
 	public static function resetAutoIncrement($tableName, $startIndex = 1)
 	{
 		$startIndex = intval($startIndex);
-		if($startIndex <= 0 || !strlen($tableName))
+		if($startIndex <= 0 || !mb_strlen($tableName))
 			return false;
 
 		$dbConnection = Main\HttpApplication::getConnection();

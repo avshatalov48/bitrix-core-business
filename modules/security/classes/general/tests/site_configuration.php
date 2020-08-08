@@ -211,7 +211,7 @@ class CSecuritySiteConfigurationTest
 		}
 		else
 		{
-			if($password == strtolower($password))
+			if($password == mb_strtolower($password))
 			{
 				$this->addUnformattedDetailError("SECURITY_SITE_CHECKER_DB_SAME_REGISTER_PASS", CSecurityCriticalLevel::HIGHT);
 			}
@@ -223,7 +223,7 @@ class CSecuritySiteConfigurationTest
 			{
 				$this->addUnformattedDetailError("SECURITY_SITE_CHECKER_DB_NO_DIT_PASS", CSecurityCriticalLevel::HIGHT);
 			}
-			if (strlen($password)<8)
+			if (mb_strlen($password) < 8)
 			{
 				$this->addUnformattedDetailError("SECURITY_SITE_CHECKER_DB_MIN_LEN_PASS", CSecurityCriticalLevel::HIGHT);
 			}

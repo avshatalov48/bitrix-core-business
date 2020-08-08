@@ -145,7 +145,7 @@ class PersonTypePreparer
 		}
 
 		$siteId = trim($siteId);
-		if (strlen($siteId) !== 2)
+		if (mb_strlen($siteId) !== 2)
 		{
 			throw new Main\ArgumentException();
 		}

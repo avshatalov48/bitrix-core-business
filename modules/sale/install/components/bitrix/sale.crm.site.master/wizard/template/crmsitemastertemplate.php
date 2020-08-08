@@ -51,7 +51,7 @@ class CrmSiteMasterTemplate extends \CWizardTemplate
 				}
 			}
 
-			if (strlen($strError) > 0)
+			if ($strError <> '')
 			{
 				if (method_exists($obStep, "showExtendedErrors"))
 				{

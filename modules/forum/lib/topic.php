@@ -482,6 +482,7 @@ class Topic extends \Bitrix\Forum\Internals\Entity
 				$result->setData(["MESSAGE_ID" => $result->getId(), "TOPIC_ID" => $topic->getId()]);
 				$message = MessageTable::getDataById($result->getId());
 				//region Update statistic & Seacrh
+				TopicTable::update($topic->getId(), ["LAST_MESSAGE_ID" => $message["ID"], "ABS_LAST_MESSAGE_ID" => $message["ID"]]);
 				User::getById($message["AUTHOR_ID"])->incrementStatistic($message);
 				$forum->incrementStatistic($message);
 				\Bitrix\Forum\Integration\Search\Message::index($forum, $topic, $message);

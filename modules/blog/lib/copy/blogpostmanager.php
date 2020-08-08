@@ -6,6 +6,7 @@ use Bitrix\Blog\Copy\Implement\BlogPost as BlogPostImplementer;
 use Bitrix\Main\Copy\Container;
 use Bitrix\Main\Copy\ContainerCollection;
 use Bitrix\Main\Copy\EntityCopier;
+use Bitrix\Main\Result;
 
 class BlogPostManager
 {
@@ -15,10 +16,15 @@ class BlogPostManager
 	private $features = [];
 	private $changedRights = [];
 
+	private $result;
+	private $mapIdsCopiedPosts = [];
+
 	public function __construct($executiveUserId, array $blogPostIdsToCopy)
 	{
 		$this->executiveUserId = $executiveUserId;
 		$this->blogPostIdsToCopy = $blogPostIdsToCopy;
+
+		$this->result = new Result();
 	}
 
 	/**
@@ -43,7 +49,15 @@ class BlogPostManager
 		$blogPostImplementer = $this->getBlogPostImplementer();
 		$blogPostCopier = $this->getBlogPostCopier($blogPostImplementer);
 
-		return $blogPostCopier->copy($containerCollection);
+		$this->result = $blogPostCopier->copy($containerCollection);
+		$this->mapIdsCopiedPosts = $blogPostCopier->getMapIdsCopiedEntity();
+
+		return $this->result;
+	}
+
+	public function getMapIdsCopiedPosts()
+	{
+		return $this->mapIdsCopiedPosts;
 	}
 
 	private function getContainerCollection()

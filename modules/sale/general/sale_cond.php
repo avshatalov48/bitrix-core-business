@@ -160,11 +160,11 @@ class CSaleBasketFilter
 						$result = true;
 					break;
 				case BT_COND_LOGIC_CONT:
-					if (strpos($row['VALUE'], $parameters['VALUE']) !== false)
+					if (mb_strpos($row['VALUE'], $parameters['VALUE']) !== false)
 						$result = true;
 					break;
 				case BT_COND_LOGIC_NOT_CONT:
-					if (strpos($row['VALUE'], $parameters['VALUE']) === false)
+					if (mb_strpos($row['VALUE'], $parameters['VALUE']) === false)
 						$result = true;
 					break;
 			}

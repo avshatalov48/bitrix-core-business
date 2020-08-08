@@ -6,6 +6,8 @@ use Bitrix\Main\Config\Option;
 
 class Topic extends \Bitrix\Main\Update\Stepper
 {
+	protected static $moduleId = "forum";
+
 	public static function getTitle()
 	{
 		return "Reindex topic";

@@ -462,7 +462,7 @@ class QueryBuilder
 		{
 			foreach ($value as $val)
 			{
-				if (strlen($val) > 0)
+				if ($val <> '')
 				{
 					if ($lookup)
 					{
@@ -475,7 +475,7 @@ class QueryBuilder
 				}
 			}
 		}
-		elseif (strlen($value) > 0)
+		elseif ($value <> '')
 		{
 			if ($lookup)
 			{

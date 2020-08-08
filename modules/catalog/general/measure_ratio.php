@@ -14,7 +14,7 @@ class CCatalogMeasureRatioAll
 		/** @global CMain $APPLICATION */
 		global $APPLICATION;
 
-		$action = strtoupper($action);
+		$action = mb_strtoupper($action);
 		if ($action != 'UPDATE' && $action != 'ADD')
 		{
 			$APPLICATION->ThrowException(Loc::getMessage('CATALOG_MEASURE_RATIO_BAD_ACTION'));

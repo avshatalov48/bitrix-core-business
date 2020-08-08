@@ -26,7 +26,7 @@ if (!\Bitrix\Main\Loader::includeModule('iblock'))
 
 $result = false;
 
-if (isset($arResult["ERROR"]) && strlen($arResult["ERROR"]) > 0)
+if (isset($arResult["ERROR"]) && $arResult["ERROR"] <> '')
 {
 	$arResult["RESULT"] = "ERROR";
 	$arResult["ERRORS_CRITICAL"] = Vk\Journal::getCriticalErrorsMessage($exportId, $arResult["ERROR"]);
@@ -79,7 +79,7 @@ elseif ($APPLICATION->GetGroupRight("sale") >= "W" && check_bitrix_sessid())
 
 //			check not critical errors
 			$errorsNormal = $logger->getErrorsList(false);
-			if (strlen($errorsNormal) > 0)
+			if ($errorsNormal <> '')
 				$arResult['ERRORS_NORMAL'] = $errorsNormal;
 			
 			$arResult['STATS_ALBUMS'] = Vk\Journal::getStatisticText('ALBUMS', $exportId);
@@ -90,7 +90,7 @@ elseif ($APPLICATION->GetGroupRight("sale") >= "W" && check_bitrix_sessid())
 			{
 				Vk\Journal::stopProcessParams($exportId);
 				$errorsCritical = $logger->getErrorsList(true);
-				if (strlen($errorsCritical) > 0)
+				if ($errorsCritical <> '')
 					$arResult['ERRORS_CRITICAL'] = Vk\Journal::getCriticalErrorsMessage($exportId, $errorsCritical);
 				else
 					$arResult['ERRORS_CRITICAL'] = false;
@@ -134,17 +134,17 @@ elseif ($APPLICATION->GetGroupRight("sale") >= "W" && check_bitrix_sessid())
 }
 else
 {
-	if (strlen($arResult["ERROR"]) <= 0){
+	if ($arResult["ERROR"] == ''){
 		$arResult["RESULT"] = "ERROR";
 		$arResult["ERROR"] = Loc::getMessage("SALE_VK_ACCESS_DENIED_ERROR");
 		$arResult["ERRORS_CRITICAL"].= Vk\Journal::getCriticalErrorsMessage($exportId, $arResult["ERROR"]);
 	}
 }
 
-if (!isset($arResult["ERROR"]) && strlen($arResult["RESULT"]) <= 0)
+if (!isset($arResult["ERROR"]) && $arResult["RESULT"] == '')
 	$arResult["RESULT"] = "OK";
 
-if (strtolower(SITE_CHARSET) != 'utf-8')
+if (mb_strtolower(SITE_CHARSET) != 'utf-8')
 	$arResult = $APPLICATION->ConvertCharsetArray($arResult, SITE_CHARSET, 'utf-8');
 
 header('Content-Type: application/json');

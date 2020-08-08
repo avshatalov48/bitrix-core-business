@@ -32,7 +32,7 @@ $arIds = array();
 		if(!$bChecked && isset($arResult["CHECKED"]))
 			$bChecked = in_array($value, $arResult["CHECKED"]) || $bChecked ? true : false;
 
-		if(strlen(trim($name)) <= 0)
+		if(trim($name) == '')
 			$name = $arResult["NAME"];
 
 		$checked = $bChecked ? " checked" : "";
@@ -49,7 +49,7 @@ $arIds = array();
 						<tr>
 							<td>
 								<span class="inputcheckbox">
-									<input type="checkbox" id="<?=$id?>" name="<?=$name?>"<?=$checked?><?=strlen($value) > 0 ? ' value="'.$value.'"' : ''?>>
+									<input type="checkbox" id="<?=$id?>" name="<?=$name?>"<?=$checked?><?=$value <> '' ? ' value="'.$value.'"' : ''?>>
 								</span>
 							</td>
 							<td><label for="<?=$id?>"><span><?=$text?></span></label></td>

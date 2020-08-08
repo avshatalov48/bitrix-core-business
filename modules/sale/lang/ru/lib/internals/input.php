@@ -56,3 +56,4 @@ $MESS['INPUT_DATE_SELECT'] = 'Выбрать дату';
 
 $MESS['INPUT_LOCATION'] = 'Местоположение';
 $MESS['INPUT_LOCATION_TEMPLATE'] = 'Шаблон';
+$MESS['INPUT_ADDRESS'] = 'Адрес';

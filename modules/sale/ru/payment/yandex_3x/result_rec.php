@@ -4,7 +4,7 @@ use Bitrix\Sale\Order;
 
 $request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
 
-$entityId = IntVal($request->get("orderNumber"));
+$entityId = intval($request->get("orderNumber"));
 list($orderId, $paymentId) = \Bitrix\Sale\PaySystem\Manager::getIdsByPayment($entityId);
 
 if ($orderId > 0)

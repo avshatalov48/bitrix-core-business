@@ -1,6 +1,10 @@
 import LocalStorageCache from '../../../src/lib/cache/local-storage-cache';
 
 describe('core/cache/local-storage-cache', () => {
+	beforeEach(() => {
+		localStorage.removeItem('BX.Cache.Storage.LsStorage.stack');
+	});
+
 	it('Should be exported as function', () => {
 		assert.ok(typeof LocalStorageCache === 'function', 'LocalStorageCache is not a function');
 	});

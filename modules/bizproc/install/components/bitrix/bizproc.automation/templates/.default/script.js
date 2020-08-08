@@ -319,6 +319,21 @@
 		{
 			return getAjaxUrl(this.data.AJAX_URL);
 		},
+
+		getLimits: function()
+		{
+			var limit = this.data['ROBOTS_LIMIT'];
+			if (limit <= 0)
+			{
+				return false;
+			}
+
+			var triggersCnt = this.triggerManager.countAllTriggers();
+			var robotsCnt = this.templateManager.countAllRobots();
+
+			return (triggersCnt + robotsCnt > limit) ? [limit, triggersCnt, robotsCnt] : false;
+		},
+
 		saveAutomation: function(callback)
 		{
 			if (this.savingAutomation)
@@ -326,7 +341,29 @@
 				return;
 			}
 
-			this.savingAutomation = true;
+			var limits = this.getLimits();
+
+			if (limits)
+			{
+				if (top.BX.UI && top.BX.UI.InfoHelper)
+				{
+					top.BX.UI.InfoHelper.show('limit_crm_robots');
+					return;
+				}
+
+				BX.UI.Dialogs.MessageBox.show({
+					title: BX.message('BIZPROC_AUTOMATION_ROBOTS_LIMIT_ALERT_TITLE'),
+					message: BX.message('BIZPROC_AUTOMATION_ROBOTS_LIMIT_SAVE_ALERT')
+								.replace('#LIMIT#', limits[0])
+								.replace('#SUM#', limits[1] + limits[2])
+								.replace('#TRIGGERS#', limits[1])
+								.replace('#ROBOTS#', limits[2]),
+					modal: true,
+					buttons: BX.UI.Dialogs.MessageBoxButtons.OK,
+					okCaption: BX.message('BIZPROC_AUTOMATION_CLOSE_CAPTION')
+				});
+				return;
+			}
 
 			var me = this, data = {
 				ajax_action: 'save_automation',
@@ -335,6 +372,7 @@
 				templates: this.templateManager.serialize(),
 			};
 
+			this.savingAutomation = true;
 			return BX.ajax({
 				method: 'POST',
 				dataType: 'json',
@@ -524,6 +562,16 @@
 			}
 
 			return templates;
+		},
+		countAllRobots: function()
+		{
+			var cnt = 0;
+
+			this.templates.forEach(function(template)
+			{
+				cnt += template.robots.length;
+			});
+			return cnt;
 		},
 		getTemplateByColumnNode: function(node)
 		{
@@ -1168,7 +1216,11 @@
 
 			this.initRobotSettingsControls(robot, form);
 
-			if (robot.data.Type === 'CrmSendEmailActivity' || robot.data.Type === 'MailActivity')
+			if (
+				robot.data.Type === 'CrmSendEmailActivity'
+				|| robot.data.Type === 'MailActivity'
+				|| robot.data.Type === 'RpaApproveActivity'
+			)
 			{
 				popupMinWidth += 124;
 				if (popupWidth < popupMinWidth)
@@ -1232,7 +1284,7 @@
 									{
 										saveCallback(robot);
 									}
-								}, this));
+								}, this), this.buttonNode);
 							}
 						}
 					}),
@@ -1384,13 +1436,6 @@
 					value: delay.workTime ? 1 : 0
 				}
 			});
-			// var delayLocalTimeNode = BX.create("input", {
-			// 	attrs: {
-			// 		type: "hidden",
-			// 		name: "delay_localtime",
-			// 		value: delay.localTime ? 1 : 0
-			// 	}
-			// });
 
 			var delayIntervalLabelNode = BX.create("span", {
 				attrs: {
@@ -1401,6 +1446,7 @@
 			var basisFields = [];
 
 			var docFields = this.component ? this.component.data['DOCUMENT_FIELDS'] : this.data['DOCUMENT_FIELDS'];
+			var minLimitM = this.component ? this.component.data['DELAY_MIN_LIMIT_M'] : this.data['DELAY_MIN_LIMIT_M'];
 
 			if (BX.type.isArray(docFields))
 			{
@@ -1419,15 +1465,14 @@
 				labelNode: delayIntervalLabelNode,
 				onchange: function(delay)
 				{
-
 					delayTypeNode.value = delay.type;
 					delayValueNode.value = delay.value;
 					delayValueTypeNode.value = delay.valueType;
 					delayBasisNode.value = delay.basis;
 					delayWorkTimeNode.value = delay.workTime ? 1 : 0;
-					// delayLocalTimeNode.value = delay.localTime ? 1 : 0;
 				},
-				basisFields: basisFields
+				basisFields: basisFields,
+				minLimitM: minLimitM
 			});
 
 			var executeAfterPreviousBlock = null;
@@ -1552,37 +1597,16 @@
 		 */
 		setConditionSettingsFromForm: function(formFields,  robot)
 		{
-			var i, conditionGroup = new ConditionGroup();
-
-			if (BX.type.isArray(formFields['condition_field']))
-			{
-				for (i = 0; i < formFields['condition_field'].length; ++i)
-				{
-					if (formFields['condition_field'][i] === '')
-					{
-						continue;
-					}
-
-					var condition = new Condition();
-					condition.setField(formFields['condition_field'][i]);
-					condition.setOperator(formFields['condition_operator'][i]);
-					condition.setValue(formFields['condition_value'][i]);
-
-					var joiner = ConditionGroup.Joiner.And;
-					if (formFields['condition_joiner'] && formFields['condition_joiner'][i] === ConditionGroup.Joiner.Or)
-					{
-						joiner = ConditionGroup.Joiner.Or;
-					}
-
-					conditionGroup.addItem(condition, joiner);
-				}
-			}
-
-			robot.setCondition(conditionGroup);
+			robot.setCondition(ConditionGroup.createFromForm(formFields));
 			return this;
 		},
-		saveRobotSettings: function(form, robot, callback)
+		saveRobotSettings: function(form, robot, callback, btnNode)
 		{
+			if (btnNode)
+			{
+				btnNode.classList.add('popup-window-button-wait');
+			}
+
 			this.onBeforeSaveRobotSettings();
 			var me = this, formData = BX.ajax.prepareForm(form);
 
@@ -1600,6 +1624,11 @@
 				},
 				onsuccess: function(response)
 				{
+					if (btnNode)
+					{
+						btnNode.classList.remove('popup-window-button-wait');
+					}
+
 					if (response.SUCCESS)
 					{
 						robot.updateData(response.DATA.robot);
@@ -2050,7 +2079,6 @@
 				titleBar: BX.message('BIZPROC_AUTOMATION_CMP_ROBOT_NAME'),
 				content: form,
 				closeIcon: true,
-				zIndex: -100,
 				offsetLeft: 0,
 				offsetTop: 0,
 				closeByEsc: true,
@@ -2360,9 +2388,11 @@
 						var field = description['RETURN'][fieldId];
 						fields.push({
 							Id: fieldId,
+							ParentId: this.getId(),
 							Name: field['NAME'],
 							Type: field['TYPE'],
-							Expression: '{{~'+this.getId()+':'+fieldId+' # '+this.getTitle()+': '+field['NAME']+'}}'
+							Expression: '{{~'+this.getId()+':'+fieldId+' # '+this.getTitle()+': '+field['NAME']+'}}',
+							SystemExpression: '{='+this.getId()+':'+fieldId+'}'
 						});
 
 						//generate printable version
@@ -2401,6 +2431,7 @@
 								var field = props[addProperty][fieldId];
 								fields.push({
 									Id: fieldId,
+									ParentId: this.getId(),
 									Name: field['Name'],
 									Type: field['Type'],
 									Expression: '{{~'+this.getId()+':'+fieldId+' # '+this.getTitle()+': '+field['Name']+'}}'
@@ -2680,6 +2711,20 @@
 
 			return triggers;
 		},
+		countAllTriggers: function()
+		{
+			var cnt = 0;
+			this.triggers.forEach(function(trigger)
+			{
+				if (!trigger.deleted)
+				{
+					++cnt;
+				}
+			});
+
+			return cnt;
+		},
+
 		getTriggerName: function(code)
 		{
 			for (var i = 0; i < this.availableTriggers.length; ++i)
@@ -3046,7 +3091,6 @@
 				titleBar: title,
 				content: form,
 				closeIcon: true,
-				zIndex: -100,
 				offsetLeft: 0,
 				offsetTop: 0,
 				closeByEsc: true,
@@ -3184,33 +3228,7 @@
 		 */
 		setConditionSettingsFromForm: function(formFields,  trigger)
 		{
-			var i, conditionGroup = new ConditionGroup();
-
-			if (BX.type.isArray(formFields['condition_field']))
-			{
-				for (i = 0; i < formFields['condition_field'].length; ++i)
-				{
-					if (formFields['condition_field'][i] === '')
-					{
-						continue;
-					}
-
-					var condition = new Condition();
-					condition.setField(formFields['condition_field'][i]);
-					condition.setOperator(formFields['condition_operator'][i]);
-					condition.setValue(formFields['condition_value'][i]);
-
-					var joiner = ConditionGroup.Joiner.And;
-					if (formFields['condition_joiner'] && formFields['condition_joiner'][i] === ConditionGroup.Joiner.Or)
-					{
-						joiner = ConditionGroup.Joiner.Or;
-					}
-
-					conditionGroup.addItem(condition, joiner);
-				}
-			}
-
-			trigger.setCondition(conditionGroup);
+			trigger.setCondition(ConditionGroup.createFromForm(formFields));
 			return this;
 		},
 		onRestAppInstall: function(installed, eventResult)
@@ -3725,7 +3743,8 @@
 		this.labelFile = config.labelFile || 'File';
 		this.labelDisk = config.labelDisk || 'Disk';
 
-		this.setFileFields(robot.component.data['DOCUMENT_FIELDS']);
+		var templateRobots = robot.template ? robot.template.robots : [];
+		this.setFileFields(robot.component.data['DOCUMENT_FIELDS'], templateRobots);
 		this.createDom();
 
 		if (config.selected && config.selected.length > 0)
@@ -3738,9 +3757,10 @@
 
 	FileSelector.prototype =
 	{
-		setFileFields: function(documentFields)
+		setFileFields: function(documentFields, templateRobots)
 		{
 			var fields = [];
+			var labels = {};
 			for (var i = 0; i < documentFields.length; ++i)
 			{
 				if (documentFields[i]['Type'] === 'file')
@@ -3748,7 +3768,30 @@
 					fields.push(documentFields[i]);
 				}
 			}
+
+			if (BX.type.isArray(templateRobots))
+			{
+				templateRobots.forEach(function(robot)
+				{
+					robot.getReturnFieldsDescription().forEach(function(field)
+					{
+						if (field['Type'] === 'file')
+						{
+							var expression = '{{~'+robot.getId()+':'+field['Id']+'}}';
+							fields.push({
+								Id: expression,
+								Name: robot.getTitle() + ': ' + field['Name'],
+								Type: 'file',
+								Expression: expression
+							});
+							labels[expression] = robot.getTitle() + ': ' + field['Name'];
+						}
+					});
+				});
+			}
+
 			this.fileFields = fields;
+			this.fileLabels = labels;
 			return this;
 		},
 
@@ -4050,6 +4093,12 @@
 		},
 		createFileItemNode: function(item)
 		{
+			var label = item.name || '';
+			if (this.fileLabels[label])
+			{
+				label = this.fileLabels[label];
+			}
+
 			return BX.create('span', {
 				attrs: {
 					className: 'bizproc-automation-popup-autocomplete-item',
@@ -4061,7 +4110,7 @@
 						attrs: {
 							className: 'bizproc-automation-popup-autocomplete-name'
 						},
-						text: item.name || ''
+						text: label
 					}),
 					BX.create('span', {
 						attrs: {
@@ -4171,7 +4220,7 @@
 				me.onFieldSelect(item.field);
 			};
 
-			var menuItems = [], menuGroups = {'ROOT': {
+			var menuItems = [], fileFields = [], menuGroups = {'ROOT': {
 				text: this.component ? this.component.data['ENTITY_NAME'] : API.documentName,
 				items: []
 			}};
@@ -4209,8 +4258,13 @@
 					};
 				}
 
+				if (field['Type'] === 'file')
+				{
+					fileFields.push(field);
+				}
+
 				menuGroups[groupKey]['items'].push({
-					text: fieldName || field['Id'],
+					text: BX.util.htmlspecialchars(fieldName || field['Id']),
 					field: field,
 					onclick: itemClickHandler
 				});
@@ -4228,6 +4282,11 @@
 					var fields = [];
 					robot.getReturnFieldsDescription().forEach(function(field)
 					{
+						if (field['Type'] === 'file')
+						{
+							fileFields.push(field);
+						}
+
 						fields.push({
 							text: field['Name'] || field['Id'],
 							field: field,
@@ -4249,6 +4308,14 @@
 				menuGroups['__RESULT'] = {
 					text: BX.message('BIZPROC_AUTOMATION_CMP_ROBOT_LIST'),
 					items: robotResults
+				};
+			}
+
+			if (fileFields.length)
+			{
+				menuGroups['__FILES'] = {
+					text: BX.message('BIZPROC_AUTOMATION_CMP_FILES_LINKS'),
+					items: this.prepareFilesMenu(fileFields)
 				};
 			}
 
@@ -4371,6 +4438,33 @@
 			);
 			this.menu = BX.PopupMenu.currentItem;
 		},
+		prepareFilesMenu: function(fileFields)
+		{
+			var me = this;
+			var itemClickHandler = function(e, item)
+			{
+				(this.getRootMenuWindow() || this.popupWindow).close();
+				me.onFieldSelect(item.field);
+			};
+
+			var menu = [];
+			fileFields.forEach(function(field)
+			{
+				menu.push({
+					text: BX.util.htmlspecialchars(field['Name'] || field['Id']),
+					field: {
+						Id: field['Id'] + '_shortlink',
+						Name: field['Name'],
+						Type: 'string',
+						Expression: field['ParentId'] === 'Document' ?
+							'{{'+field['Name']+' > shortlink}}'
+							: '{{~'+field['ParentId']+':'+field['Id']+' > shortlink}}'
+					},
+					onclick: itemClickHandler
+				});
+			});
+			return menu;
+		},
 		onFieldSelect: function(field)
 		{
 			if (this.replaceOnWrite)
@@ -4463,17 +4557,13 @@
 
 			this.documentFields.forEach(function(field)
 			{
+				field.ParentId = 'Document';
+
 				var custom = (field['BaseType'] === 'string' && field['Type'] !== 'string');
 
 				if (!custom)
 				{
 					fields.push(field);
-				}
-
-				if (fieldType === 'file')
-				{
-					//don`t need printable version, break this iteration
-					return;
 				}
 
 				//generate printable version
@@ -4759,6 +4849,7 @@
 			if (BX.type.isArray(options.basisFields))
 				this.basisFields = options.basisFields;
 			this.onchange = options.onchange;
+			this.minLimitM = options.minLimitM;
 		}
 	};
 	DelayIntervalSelector.prototype =
@@ -4882,43 +4973,7 @@
 					workTimeHelpNode
 				]
 			}));
-/*
-			var localTimeRadio = BX.create("input", {
-				attrs: {
-					type: "checkbox",
-					id: uid + "localtime",
-					name: "localtime",
-					value: '1',
-					style: 'vertical-align: middle'
-				},
-				props: {
-					checked: delay.localTime
-				}
-			});
 
-			var localTimeHelpNode = BX.create('span', {
-				attrs: {
-					className: "bizproc-automation-status-help bizproc-automation-status-help-right",
-					'data-hint': BX.message('BIZPROC_AUTOMATION_CMP_DELAY_LOCALTIME_HELP')
-				}
-			});
-
-			form.appendChild(BX.create("br"));
-			form.appendChild(BX.create("div", {
-				attrs: { className: "bizproc-automation-popup-settings-title" },
-				children: [
-					localTimeRadio,
-					BX.create("label", {
-						attrs: {
-							className: "bizproc-automation-popup-settings-lbl",
-							for: uid + "localtime"
-						},
-						text: BX.message('BIZPROC_AUTOMATION_CMP_LOCAL_TIME')
-					}),
-					localTimeHelpNode
-				]
-			}));
-*/
 			//init modern Help tips
 			BX.UI.Hint.init(form);
 			var popup = new BX.PopupWindow(Component.generateUniqueId(), this.labelNode, {
@@ -4985,15 +5040,26 @@
 					if (this.useAfterBasis)
 						this.delay.setBasis(formData['basis_after']);
 					else
+					{
 						this.delay.setBasis(DelayInterval.Basis.CurrentDateTime);
+						if (
+							this.delay.valueType === 'i'
+							&& this.minLimitM > 0
+							&& this.delay.value < this.minLimitM
+						)
+						{
+							BX.UI.Notification.Center.notify({
+								content: BX.message('BIZPROC_AUTOMATION_DELAY_MIN_LIMIT_LABEL')
+							});
+							this.delay.setValue(this.minLimitM);
+						}
+					}
 				}
 				else
 					this.delay.setBasis(formData['basis_before']);
 			}
 
 			this.delay.setWorkTime(formData['worktime']);
-			// this.delay.setLocalTime(formData['localtime']);
-
 			this.setLabelText();
 
 			if (this.onchange)
@@ -5026,7 +5092,7 @@
 					className: 'bizproc-automation-popup-settings-input'
 				},
 				props: {
-					value: delay.type === DelayInterval.Type.After && delay.value ? delay.value : '5'
+					value: delay.type === DelayInterval.Type.After && delay.value ? delay.value : (this.minLimitM || 5)
 				}
 			});
 
@@ -5130,7 +5196,7 @@
 					className: 'bizproc-automation-popup-settings-input'
 				},
 				props: {
-					value: delay.type === DelayInterval.Type.Before && delay.value ? delay.value : '5'
+					value: delay.type === DelayInterval.Type.Before && delay.value ? delay.value : (this.minLimitM || 5)
 				}
 			});
 
@@ -5407,7 +5473,7 @@
 			for (i = 0; i < this.basisFields.length; ++i)
 			{
 				menuItems.push({
-					text: this.basisFields[i].Name,
+					text: BX.util.htmlspecialchars(this.basisFields[i].Name),
 					field: this.basisFields[i],
 					onclick: function(e, item)
 					{
@@ -5628,6 +5694,46 @@
 
 		return new DelayInterval(params);
 	};
+
+	DelayInterval.fromMinutes = function(minutes)
+	{
+		var value, type;
+		if (minutes % 1440 === 0)
+		{
+			value = minutes / 1440;
+			type = 'd';
+		}
+		else if (minutes % 60 === 0)
+		{
+			value = minutes / 60;
+			type = 'h';
+		}
+		else
+		{
+			value = minutes;
+			type = 'i';
+		}
+
+		return [value, type];
+	}
+
+	DelayInterval.toMinutes = function(value, valueType)
+	{
+		var result = 0;
+		switch (valueType)
+		{
+			case 'i':
+				result = value;
+				break;
+			case 'h':
+				result = value * 60;
+				break;
+			case 'd':
+				result = value * 60 * 24;
+				break;
+		}
+		return result;
+	}
 
 	DelayInterval.prototype = {
 		setType: function(type)
@@ -5860,6 +5966,40 @@
 		}
 	};
 
+	ConditionGroup.createFromForm = function(formFields, prefix)
+	{
+		var i, conditionGroup = new ConditionGroup();
+		if (!prefix)
+		{
+			prefix = 'condition_';
+		}
+
+		if (BX.type.isArray(formFields[prefix + 'field']))
+		{
+			for (i = 0; i < formFields[prefix + 'field'].length; ++i)
+			{
+				if (formFields[prefix + 'field'][i] === '')
+				{
+					continue;
+				}
+
+				var condition = new Condition();
+				condition.setField(formFields[prefix + 'field'][i]);
+				condition.setOperator(formFields[prefix + 'operator'][i]);
+				condition.setValue(formFields[prefix + 'value'][i]);
+
+				var joiner = ConditionGroup.Joiner.And;
+				if (formFields[prefix + 'joiner'] && formFields[prefix + 'joiner'][i] === ConditionGroup.Joiner.Or)
+				{
+					joiner = ConditionGroup.Joiner.Or;
+				}
+
+				conditionGroup.addItem(condition, joiner);
+			}
+		}
+		return conditionGroup;
+	}
+
 	ConditionGroup.prototype = {
 		/**
 		 * @param {Condition} condition
@@ -5894,11 +6034,17 @@
 	{
 		this.conditionGroup = conditionGroup;
 		this.fields = [];
+		this.fieldPrefix = 'condition_';
+
 		if (BX.type.isPlainObject(options))
 		{
 			if (BX.type.isArray(options.fields))
 			{
 				this.fields = options.fields;
+			}
+			if (options.fieldPrefix)
+			{
+				this.fieldPrefix = options.fieldPrefix;
 			}
 		}
 	};
@@ -5912,7 +6058,8 @@
 			{
 				var conditionSelector = new ConditionSelector(item[0], {
 					fields: fields,
-					joiner: item[1]
+					joiner: item[1],
+					fieldPrefix: me.fieldPrefix
 				});
 
 				conditionNodes.push(conditionSelector.createNode());
@@ -5939,7 +6086,8 @@
 		addItem: function(buttonNode)
 		{
 			var conditionSelector = new ConditionSelector(new Condition(), {
-				fields: this.fields
+				fields: this.fields,
+				fieldPrefix: this.fieldPrefix
 			});
 
 			buttonNode.parentNode.insertBefore(conditionSelector.createNode(), buttonNode);
@@ -5952,6 +6100,7 @@
 		this.condition = condition;
 		this.fields = [];
 		this.joiner = ConditionGroup.Joiner.And;
+		this.fieldPrefix = 'condition_';
 		if (BX.type.isPlainObject(options))
 		{
 			if (BX.type.isArray(options.fields))
@@ -5962,6 +6111,10 @@
 			{
 				this.joiner = ConditionGroup.Joiner.Or;
 			}
+			if (options.fieldPrefix)
+			{
+				this.fieldPrefix = options.fieldPrefix;
+			}
 		}
 	};
 	ConditionSelector.prototype =
@@ -5971,21 +6124,21 @@
 			var conditionFieldNode = this.fieldNode = BX.create("input", {
 				attrs: {
 					type: "hidden",
-					name: "condition_field[]",
+					name: this.fieldPrefix + "field[]",
 					value: this.condition.field
 				}
 			});
 			var conditionOperatorNode = this.operatorNode = BX.create("input", {
 				attrs: {
 					type: "hidden",
-					name: "condition_operator[]",
+					name: this.fieldPrefix + "operator[]",
 					value: this.condition.operator
 				}
 			});
 			var conditionValueNode = this.valueNode = BX.create("input", {
 				attrs: {
 					type: "hidden",
-					name: "condition_value[]",
+					name: this.fieldPrefix + "value[]",
 					value: this.condition.value
 				}
 			});
@@ -5993,7 +6146,7 @@
 			var conditionJoinerNode = this.joinerNode = BX.create("input", {
 				attrs: {
 					type: "hidden",
-					name: "condition_joiner[]",
+					name: this.fieldPrefix + "joiner[]",
 					value: this.joiner
 				}
 			});
@@ -6178,8 +6331,7 @@
 							click: function() {
 								me.condition.setField(fieldSelect.value);
 								me.condition.setOperator(operatorWrapper.firstChild.value);
-
-								var valueInput = valueWrapper.querySelector('[name="condition_value"]');
+								var valueInput = valueWrapper.querySelector('[name^="'+me.fieldPrefix+'value"]');
 
 								if (valueInput)
 								{
@@ -6271,7 +6423,7 @@
 			}
 			return field;
 		},
-		getOperators: function(fieldType)
+		getOperators: function(fieldType, multiple)
 		{
 			var list = {
 				'!empty': BX.message('BIZPROC_AUTOMATION_ROBOT_CONDITION_NOT_EMPTY'),
@@ -6282,6 +6434,8 @@
 			switch (fieldType)
 			{
 				case 'file':
+				case 'UF:crm':
+				case 'UF:resourcebooking':
 					list = {
 						'!empty': BX.message('BIZPROC_AUTOMATION_ROBOT_CONDITION_NOT_EMPTY'),
 						'empty': BX.message('BIZPROC_AUTOMATION_ROBOT_CONDITION_EMPTY')
@@ -6289,6 +6443,15 @@
 					break;
 				case 'bool':
 				case 'select':
+					if (multiple)
+					{
+						list['contain'] = BX.message('BIZPROC_AUTOMATION_ROBOT_CONDITION_CONTAIN');
+					}
+					else
+					{
+						//TODO: render multiple select in value selector
+						//list['in'] = BX.message('BIZPROC_AUTOMATION_ROBOT_CONDITION_IN');
+					}
 					break;
 				case 'user':
 					list['in'] = BX.message('BIZPROC_AUTOMATION_ROBOT_CONDITION_IN');
@@ -6327,6 +6490,8 @@
 					|| type == 'text'
 					|| type == 'user'
 					|| type == 'UF:money'
+					|| type == 'UF:crm'
+					|| type == 'UF:resourcebooking'
 				)
 				{
 					filtered.push(this.fields[i]);
@@ -6338,13 +6503,15 @@
 			}
 			return filtered;
 		},
-		createValueNode: function(field, value)
+		createValueNode: function(docField, value)
 		{
 			var docType = Designer.component ? Designer.component.documentType : API.documentType;
+			var field = BX.clone(docField);
+			field.Multiple = false;
 			return BX.Bizproc.FieldType.renderControl(
 				docType,
 				field,
-				'condition_value',
+				this.fieldPrefix + 'value',
 				value
 			);
 		},
@@ -6354,7 +6521,7 @@
 				attrs: {className: 'bizproc-automation-popup-settings-dropdown'}
 			});
 
-			var operatorList = this.getOperators(field['Type']);
+			var operatorList = this.getOperators(field['Type'], field['Multiple']);
 			for (var operatorId in operatorList)
 			{
 				if (!operatorList.hasOwnProperty(operatorId))
@@ -6563,4 +6730,7 @@
 	BX.Bizproc.Automation.Component = Component;
 	BX.Bizproc.Automation.Designer = Designer;
 	BX.Bizproc.Automation.API = API;
+	BX.Bizproc.Automation.ConditionGroup = ConditionGroup;
+	BX.Bizproc.Automation.ConditionGroupSelector = ConditionGroupSelector;
+
 })(window.BX || window.top.BX);

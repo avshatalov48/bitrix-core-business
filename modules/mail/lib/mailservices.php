@@ -4,6 +4,7 @@ namespace Bitrix\Mail;
 
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization;
+use Bitrix\Main\ORM;
 
 Localization\Loc::loadMessages(__FILE__);
 
@@ -301,7 +302,7 @@ class MailServicesTable extends Entity\DataManager
 					return array(
 						function ($value)
 						{
-							return strtolower($value);
+							return mb_strtolower($value);
 						}
 					);
 				},
@@ -310,7 +311,7 @@ class MailServicesTable extends Entity\DataManager
 					return array(
 						function ($value)
 						{
-							return strtolower($value);
+							return mb_strtolower($value);
 						}
 					);
 				},
@@ -347,13 +348,25 @@ class MailServicesTable extends Entity\DataManager
 			new Entity\StringField('SMTP_SERVER'),
 			new Entity\IntegerField('SMTP_PORT'),
 			new Entity\BooleanField('SMTP_LOGIN_AS_IMAP', [
-				'values' => array('Y', 'N'),
+				'values' => array('N', 'Y'),
 				'default_value' => 'N',
 			]),
 			new Entity\BooleanField('SMTP_PASSWORD_AS_IMAP', [
-				'values' => array('Y', 'N'),
+				'values' => array('N', 'Y'),
 				'default_value' => 'N',
 			]),
+			new ORM\Fields\BooleanField(
+				'SMTP_ENCRYPTION',
+				array(
+					'values' => array('N', 'Y'),
+				)
+			),
+			new ORM\Fields\BooleanField(
+				'UPLOAD_OUTGOING',
+				array(
+					'values' => array('N', 'Y'),
+				)
+			),
 		);
 	}
 

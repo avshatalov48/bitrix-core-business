@@ -16,9 +16,7 @@ Class security extends CModule
 	{
 		$arModuleVersion = array();
 
-		$path = str_replace("\\", "/", __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen("/index.php"));
-		include($path."/version.php");
+		include(__DIR__.'/version.php');
 
 		$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 		$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
@@ -110,7 +108,7 @@ Class security extends CModule
 		// Database tables creation
 		if(!$DB->Query("SELECT 'x' FROM b_sec_iprule WHERE 1=0", true))
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/install/db/".strtolower($DB->type)."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/install/db/".mb_strtolower($DB->type)."/install.sql");
 		}
 
 
@@ -185,7 +183,7 @@ Class security extends CModule
 
 		if(!array_key_exists("save_tables", $arParams) || $arParams["save_tables"] != "Y")
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/install/db/".strtolower($DB->type)."/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
 			$this->UnInstallTasks();
 		}
 
@@ -254,7 +252,7 @@ Class security extends CModule
 		$SEC_RIGHT = $APPLICATION->GetGroupRight("security");
 		if($SEC_RIGHT >= "W")
 		{
-			$step = IntVal($step);
+			$step = intval($step);
 			if($step < 2)
 			{
 				$APPLICATION->IncludeAdminFile(GetMessage("SEC_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/install/step1.php");
@@ -278,7 +276,7 @@ Class security extends CModule
 		$SEC_RIGHT = $APPLICATION->GetGroupRight("security");
 		if($SEC_RIGHT >= "W")
 		{
-			$step = IntVal($step);
+			$step = intval($step);
 			if($step < 2)
 			{
 				$APPLICATION->IncludeAdminFile(GetMessage("SEC_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/install/unstep1.php");

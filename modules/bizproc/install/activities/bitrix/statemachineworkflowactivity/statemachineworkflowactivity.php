@@ -170,7 +170,7 @@ class CBPStateMachineWorkflowActivity
 	{
 		$sender->RemoveStatusChangeHandler(self::ClosedEvent, $this);
 
-		if (array_key_exists("NextStateName", $arEventParameters) && strlen($arEventParameters["NextStateName"]) > 0)
+		if (array_key_exists("NextStateName", $arEventParameters) && $arEventParameters["NextStateName"] <> '')
 		{
 			$nextStateActivity = $this->GetStateActivityByName($arEventParameters["NextStateName"]);
 			if ($nextStateActivity == null)
@@ -227,7 +227,7 @@ class CBPStateMachineWorkflowActivity
 		$child = "CBP".$childActivity;
 
 		$bCorrect = false;
-		while (strlen($child) > 0)
+		while ($child <> '')
 		{
 			if ($child == "CBPStateActivity")
 			{

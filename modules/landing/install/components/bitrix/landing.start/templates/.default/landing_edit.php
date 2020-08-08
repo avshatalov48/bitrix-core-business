@@ -28,7 +28,7 @@ $arParams['DEMO_TYPE'] = ($arParams['STRICT_TYPE'] == 'Y')
 						: 'PAGE';
 ?>
 
-<?if ($arResult['VARS']['landing_edit']):?>
+<?if ($arResult['VARS']['landing_edit'] > 0):?>
 
 	<?$APPLICATION->IncludeComponent(
 		'bitrix:landing.landing_edit',

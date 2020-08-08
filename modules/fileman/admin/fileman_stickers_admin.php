@@ -50,25 +50,25 @@ if($REQUEST_METHOD=="POST" && $_POST['saveperm'] == 'Y' && check_bitrix_sessid()
 	{
 		$tid = ${"TASKS_".$group["ID"]};
 		if ($tid)
-			$arTaskPerm[$group["ID"]] = intVal($tid);
+			$arTaskPerm[$group["ID"]] = intval($tid);
 	}
 	CSticker::SaveAccessPermissions($arTaskPerm);
-	COption::SetOptionString('fileman', 'stickers_default_access', intVal($_REQUEST['st_default_access']));
-	$defaultAccess = intVal($_REQUEST['st_default_access']);
+	COption::SetOptionString('fileman', 'stickers_default_access', intval($_REQUEST['st_default_access']));
+	$defaultAccess = intval($_REQUEST['st_default_access']);
 }
 
 $arTaskPerm = CSticker::GetAccessPermissions();
 
 $strTaskOpt = "";
 foreach ($arTasks as $id => $task)
-	$strTaskOpt .= '<option value="'.$id.'">'.(strlen($task['letter']) > 0 ? '['.$task['letter'].'] ' : '').$task['title'].'</option>';
+	$strTaskOpt .= '<option value="'.$id.'">'.($task['letter'] <> '' ? '['.$task['letter'].'] ' : '').$task['title'].'</option>';
 
 $strGroupsOpt = '<option value="">('.GetMessage('FM_ST_SELECT_GROUP').')</option>';
 $arGroupIndex = array();
 foreach ($arGroups as $group)
 {
 	$arGroupIndex[$group['ID']] = $group['NAME'];
-	$strGroupsOpt .= '<option value="'.$group['ID'].'">'.htmlspecialcharsex($group['NAME']).' ['.intVal($group['ID']).']</option>';
+	$strGroupsOpt .= '<option value="'.$group['ID'].'">'.htmlspecialcharsex($group['NAME']).' ['.intval($group['ID']).']</option>';
 }
 ?>
 
@@ -170,7 +170,7 @@ $tabControl->Begin();
 				<select name="st_default_access" id="st_default_access">
 				<?foreach ($arTasks as $id => $task):?>
 					<option value="<?= $id?>" <? if($id == $defaultAccess){echo 'selected';}?>>
-					<? echo(strlen($task['letter']) > 0 ? '['.$task['letter'].'] ' : '').$task['title']; ?></option>
+					<? echo($task['letter'] <> '' ? '['.$task['letter'].'] ' : '').$task['title']; ?></option>
 				<?endforeach;?>
 				</select></td>
 		</tr>
@@ -182,7 +182,7 @@ $tabControl->Begin();
 				<select name="TASKS_<?= $group_id?>" id="TASKS_<?= $group_id?>">
 					<option value="">&lt;  <?= GetMessage('FM_ST_ACCESS_DEFAULT')?> &gt;</option>
 					<?foreach ($arTasks as $id => $task):?>
-						<option value="<?= $id?>" <?if ($task_id == $id){ echo" selected";}?>><?= htmlspecialcharsex((strlen($task['letter']) > 0 ? '['.$task['letter'].'] ' : '').$task['title'])?></option>
+						<option value="<?= $id?>" <?if ($task_id == $id){ echo" selected";}?>><?= htmlspecialcharsex(($task['letter'] <> '' ? '['.$task['letter'].'] ' : '').$task['title'])?></option>
 					<?endforeach;?>
 				</select>
 			</td>
@@ -210,7 +210,7 @@ $tabControl->Begin();
 		<div style="display: none;">
 		<select id="bxst_group_sel"><?= $strGroupsOpt?></select>
 		<select id="bxst_task_sel">
-			<option value=""><?= '< '.strtolower(GetMessage('FM_ST_ACCESS_DEFAULT')).' >'?></option>
+			<option value=""><?= '< '.mb_strtolower(GetMessage('FM_ST_ACCESS_DEFAULT')).' >'?></option>
 			<?= $strTaskOpt?>
 		</select>
 		</div>

@@ -1,4 +1,4 @@
-<header class="landing-block landing-block-menu g-bg-white u-header u-header--floating u-header--floating-relative">
+<header class="landing-block landing-semantic-background-color g-bg-white u-header u-header--sticky u-header--relative">
 	<div class="u-header__section u-header__section--light g-transition-0_3 g-py-7 g-py-23--md"
 		 data-header-fix-moment-exclude="g-py-23--md"
 		 data-header-fix-moment-classes="g-py-17--md">
@@ -15,31 +15,31 @@
 				<div class="collapse navbar-collapse align-items-center flex-sm-row" id="navBar">
 					<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav text-uppercase g-letter-spacing-1 g-font-size-12 g-pt-20 g-pt-0--lg ml-auto">
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
-							<a href="#home-section" class="landing-block-node-menu-list-item-link nav-link p-0">Home
+							<a href="#home-section" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Home
 								</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#about-section"
-							   class="landing-block-node-menu-list-item-link nav-link p-0">About</a>
+							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">About</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
-							<a href="#portfolio-section" class="landing-block-node-menu-list-item-link nav-link p-0">Portfolio</a>
+							<a href="#portfolio-section" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Portfolio</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
-							<a href="#pricing-section" class="landing-block-node-menu-list-item-link nav-link p-0">Pricing</a>
+							<a href="#pricing-section" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Pricing</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
-							<a href="#team-section" class="landing-block-node-menu-list-item-link nav-link p-0">Team</a>
+							<a href="#team-section" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Team</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
-							<a href="#blog-section" class="landing-block-node-menu-list-item-link nav-link p-0">Blog</a>
+							<a href="#blog-section" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Blog</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
-							<a href="#contact-section" class="landing-block-node-menu-list-item-link nav-link p-0">Contact</a>
+							<a href="#contact-section" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Contact</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#"
-							   class="landing-block-node-menu-list-item-link nav-link p-0">Main</a>
+							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Main</a>
 						</li>
 					</ul>
 				</div>

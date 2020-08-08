@@ -41,13 +41,13 @@ class Agent extends ClassConstant
 			$string = Context::getCurrent()->getRequest()->getUserAgent();
 		}
 
-		$string = strtolower($string);
+		$string = mb_strtolower($string);
 		$rules = self::getRules();
 		foreach ($rules as $id => $searchList)
 		{
 			foreach ($searchList as $search)
 			{
-				if (strpos($string, $search) === false)
+				if (mb_strpos($string, $search) === false)
 				{
 					continue;
 				}

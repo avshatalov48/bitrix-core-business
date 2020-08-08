@@ -2,6 +2,7 @@
 
 namespace Bitrix\Bizproc\BaseType;
 
+use Bitrix\Main;
 use Bitrix\Bizproc\FieldType;
 use Bitrix\Main\Localization\Loc;
 
@@ -31,6 +32,16 @@ class File extends Base
 		$formats = parent::getFormats();
 		$formats['src'] = [
 			'callable'  => 'formatValueSrc',
+			'separator' => ', ',
+		];
+
+		$formats['publink'] = [
+			'callable'  => 'formatValuePublicLink',
+			'separator' => ', ',
+		];
+
+		$formats['shortlink'] = [
+			'callable'  => 'formatValueShortLink',
 			'separator' => ', ',
 		];
 
@@ -93,6 +104,37 @@ class File extends Base
 		{
 			return $file['SRC'];
 		}
+		return '';
+	}
+
+	/**
+	 * @param FieldType $fieldType
+	 * @param $value
+	 * @return string
+	 */
+	protected static function formatValuePublicLink(FieldType $fieldType, $value)
+	{
+		$fileId = (int) $value;
+		if ($fileId)
+		{
+			return \Bitrix\Bizproc\Controller\File::getPublicLink($fileId);
+		}
+		return '';
+	}
+
+	/**
+	 * @param FieldType $fieldType
+	 * @param $value
+	 * @return string
+	 */
+	protected static function formatValueShortLink(FieldType $fieldType, $value)
+	{
+		$pubLink = static::formatValuePublicLink($fieldType, $value);
+		if ($pubLink)
+		{
+			return Main\Engine\UrlManager::getHostUrl().\CBXShortUri::getShortUri($pubLink);
+		}
+		return '';
 	}
 
 	/**
@@ -317,7 +359,7 @@ HTML;
 			}
 			else
 			{
-				if (!array_key_exists('MODULE_ID', $value) || strlen($value['MODULE_ID']) <= 0)
+				if (!array_key_exists('MODULE_ID', $value) || $value['MODULE_ID'] == '')
 					$value['MODULE_ID'] = 'bizproc';
 
 				$value = \CFile::saveFile($value, 'bizproc_wf', true);

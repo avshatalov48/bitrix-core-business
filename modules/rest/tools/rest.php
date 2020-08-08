@@ -4,6 +4,8 @@ define("NOT_CHECK_PERMISSIONS", true);
 require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/prolog_before.php");
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Uri;
+use Bitrix\Main\Application;
 
 Loc::loadMessages(__FILE__);
 
@@ -200,12 +202,28 @@ if($request->isPost() && check_bitrix_sessid() && \Bitrix\Main\Loader::includeMo
 
 									\Bitrix\Rest\AppTable::install($appId);
 
+									$uriString = \CRestUtil::getApplicationPage($appId);
+									$uri = new Uri($uriString);
+									$request = Application::getInstance()->getContext()->getRequest();
+									$ver = intVal($request->getPost("version"));
+									$check_hash = $request->getPost("check_hash");
+									$install_hash = $request->getPost("install_hash");
+									$uri->addParams(
+										[
+											'ver' => $ver,
+											'check_hash' => $check_hash,
+											'install_hash' => $install_hash
+
+										]
+									);
+									$redirect = $uri->getUri();
+
 									$result = array(
 										'success' => 1,
 										'id' => $appId,
 										'open' => $appDetailInfo["OPEN_API"] !== "Y",
 										'installed' => $appFields['INSTALLED'] === 'Y',
-										'redirect' => \CRestUtil::getApplicationPage($appId),
+										'redirect' => $redirect,
 									);
 								}
 								else
@@ -281,11 +299,7 @@ if($request->isPost() && check_bitrix_sessid() && \Bitrix\Main\Loader::includeMo
 						if($checkResult->isEmpty() && \Bitrix\Rest\AppTable::getAppType($appInfo['CODE']) == \Bitrix\Rest\AppTable::TYPE_CONFIGURATION)
 						{
 							$result = [
-								'sliderUrl' => \Bitrix\Main\Config\Option::get(
-									'rest',
-									'application_import_rollback_tpl',
-									\Bitrix\Rest\Marketplace\Url::getConfigurationImportRollbackUrl()
-								)
+								'sliderUrl' => \Bitrix\Rest\Marketplace\Url::getConfigurationImportRollbackUrl($appInfo['CODE'])
 							];
 						}
 					}

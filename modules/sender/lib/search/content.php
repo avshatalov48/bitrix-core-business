@@ -31,7 +31,7 @@ class Content
 	 */
 	public static function encodeText($text)
 	{
-		return str_rot13(strtoupper(trim($text)));
+		return str_rot13(mb_strtoupper(trim($text)));
 	}
 
 	/**
@@ -145,7 +145,7 @@ class Content
 		$text = trim($text);
 		if($length > 0)
 		{
-			$text = substr($text, 0, $length);
+			$text = mb_substr($text, 0, $length);
 		}
 
 		if($text !== '' && !in_array($text, $this->data))

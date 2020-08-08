@@ -1,0 +1,20 @@
+<?
+$MESS["BUTTON_CLEAR_HTML"] = "Очистить служебные данные";
+$MESS["FORUM_SORT_ORDER_ASC"] = "по убыванию";
+$MESS["FORUM_SORT_ORDER_DESC"] = "по возрастанию";
+$MESS["FORUM_DELETE_CONFIRM"] = "Удалить форум безвозможности восстановления?";
+$MESS["FORUM_ADD_BUTTON"] = "Добавить форум";
+$MESS["FORUM_COLUMN_NAME"] = "Название форума";
+$MESS["FORUM_COLUMN_DESCRIPTION"] = "Описание форума";
+$MESS["FORUM_COLUMN_FORUM_GROUP_ID"] = "Группа";
+$MESS["FORUM_COLUMN_SORT"] = "Сорт.";
+$MESS["FORUM_COLUMN_ACTIVE"] = "Акт.";
+$MESS["FORUM_COLUMN_SITES"] = "Сайт";
+$MESS["FORUM_COLUMN_PERMISSIONS"] = "Доступ";
+$MESS["FORUM_COLUMN_MODERATION"] = "Модерируемый";
+$MESS["FORUM_COLUMN_INDEXATION"] = "Индексируемый";
+$MESS["FORUM_COLUMN_ORDER_BY"] = "Сортировка тем";
+$MESS["FORUM_COLUMN_ORDER_DIRECTION"] = "Направление сортировки тем";
+$MESS["FORUM_COLUMN_TOPICS"] = "Тем";
+$MESS["FORUM_COLUMN_POSTS"] = "Ответов";
+$MESS["FORUM_COLUMN_UNAPPROVED_POSTS"] = "Неодобренных ответов";

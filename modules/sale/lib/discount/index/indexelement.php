@@ -114,7 +114,7 @@ final class IndexElementTable extends DataManager
 				list($prefix, $values) = $sqlHelper->prepareInsert($tableName, $item);
 
 				$query .= ($query ? ', ' : ' ') . '(' . $values . ')';
-				if(strlen($query) > self::MAX_LENGTH_BATCH_MYSQL_QUERY)
+				if(mb_strlen($query) > self::MAX_LENGTH_BATCH_MYSQL_QUERY)
 				{
 					$connection->queryExecute("INSERT INTO {$tableName} ({$prefix}) VALUES {$query}");
 					$query = '';

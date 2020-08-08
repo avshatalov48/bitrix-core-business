@@ -41,7 +41,7 @@ foreach ($arParsedPath["AR_PATH"] as $chainLevel)
 	$adminChain->AddItem(
 		array(
 			"TEXT" => htmlspecialcharsex($chainLevel["TITLE"]),
-			"LINK" => ((strlen($chainLevel["LINK"]) > 0) ? $chainLevel["LINK"] : ""),
+			"LINK" => (($chainLevel["LINK"] <> '') ? $chainLevel["LINK"] : ""),
 		)
 	);
 }
@@ -53,7 +53,7 @@ if(!$USER->CanDoFileOperation('fm_view_file', $arPath))
 	$strWarning = GetMessage("ACCESS_DENIED");
 else if(!$io->FileExists($abs_path))
 	$strWarning = GetMessage("FILEMAN_FILENOT_FOUND");
-elseif(!($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', $arPath)) && (HasScriptExtension($path) || substr(CFileman::GetFileName($path), 0, 1)=="."))
+elseif(!($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', $arPath)) && (HasScriptExtension($path) || mb_substr(CFileman::GetFileName($path), 0, 1) == "."))
 	$strWarning = GetMessage("FILEMAN_FILEVIEW_PHPERROR");
 
 $limit_php_access = ($USER->CanDoFileOperation('fm_lpa',$arPath) && !$USER->CanDoOperation('edit_php'));
@@ -63,7 +63,7 @@ $fileTypeParent = $arFilemanPredifinedFileTypes[CFileMan::GetFileTypeEx($path)][
 ?>
 <?CAdminMessage::ShowMessage($strWarning);?>
 
-<?if(strlen($strWarning) <= 0):?>
+<?if($strWarning == ''):?>
 	<?
 	$aMenu = Array();
 	if($fileTypeParent == "text")
@@ -96,7 +96,7 @@ $fileTypeParent = $arFilemanPredifinedFileTypes[CFileMan::GetFileTypeEx($path)][
 		}
 	}
 
-	if(($USER->CanDoFileOperation('fm_download_file', $arPath) && !(HasScriptExtension($path) || substr(CFileman::GetFileName($path), 0, 1)==".")) || $USER->CanDoOperation('edit_php'))
+	if(($USER->CanDoFileOperation('fm_download_file', $arPath) && !(HasScriptExtension($path) || mb_substr(CFileman::GetFileName($path), 0, 1) == ".")) || $USER->CanDoOperation('edit_php'))
 	{
 		$aMenu[] = array(
 			"TEXT" => GetMessage("FILEMAN_FILEVIEW_DOWNLOAD"),
@@ -105,7 +105,7 @@ $fileTypeParent = $arFilemanPredifinedFileTypes[CFileMan::GetFileTypeEx($path)][
 		);
 	}
 
-	$folder_path = substr($path, 0, strrpos($path, "/"));
+	$folder_path = mb_substr($path, 0, mb_strrpos($path, "/"));
 	$id = GetFileName($path);
 	if($USER->CanDoFileOperation('fm_rename_file', $arPath))
 	{
@@ -185,25 +185,25 @@ $fileTypeParent = $arFilemanPredifinedFileTypes[CFileMan::GetFileTypeEx($path)][
 				for ($n = 0; $n < $l; $n++)
 				{
 					$start = $arPHP[$n][0];
-					$new_filesrc .= substr($filesrc, $end, $start-$end);
+					$new_filesrc .= mb_substr($filesrc, $end, $start - $end);
 					$end = $arPHP[$n][1];
 
 					//Trim php tags
 					$src = $arPHP[$n][2];
-					if (SubStr($src, 0, 5) == "<?"."php")
-						$src = SubStr($src, 5);
+					if (mb_substr($src, 0, 5) == "<?"."php")
+						$src = mb_substr($src, 5);
 					else
-						$src = SubStr($src, 2);
-					$src = SubStr($src, 0, -2);
+						$src = mb_substr($src, 2);
+					$src = mb_substr($src, 0, -2);
 
 					//If it's Component 2, keep the php code. If it's component 1 or ordinary PHP - than replace code by #PHPXXXX#
 					$comp2_begin = '$APPLICATION->INCLUDECOMPONENT(';
-					if (strtoupper(substr($src,0, strlen($comp2_begin))) == $comp2_begin)
+					if (mb_strtoupper(mb_substr($src, 0, mb_strlen($comp2_begin))) == $comp2_begin)
 						$new_filesrc .= $arPHP[$n][2];
 					else
 						$new_filesrc .= '#PHP'.str_pad(++$php_count, 4, "0", STR_PAD_LEFT).'#';
 				}
-				$new_filesrc .= substr($filesrc, $end);
+				$new_filesrc .= mb_substr($filesrc, $end);
 				highlight_string($new_filesrc);
 			}
 			else

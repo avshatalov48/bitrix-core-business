@@ -54,6 +54,10 @@ $arClasses = array(
 	"CBitrixSeoTransport" => "classes/general/bitrixseo.php",
 	"CSocServMailRu2" => "classes/general/mailru2.php",
 	"CMailRu2Interface" => "classes/general/mailru2.php",
+	"CSocServApple" => "classes/general/apple.php",
+	"CAppleInterface" => "classes/general/apple.php",
+	"CSocServZoom" => "classes/general/zoom.php",
+	"CZoomInterface" => "classes/general/zoom.php",
 	"socialservices" => "install/index.php",
 );
 

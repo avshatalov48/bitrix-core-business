@@ -974,7 +974,7 @@ abstract class CAllMain
 
 	// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	// COMPONENTS 2.0 >>>>>
-	public function IncludeComponent($componentName, $componentTemplate, $arParams = array(), $parentComponent = null, $arFunctionParams = array())
+	public function IncludeComponent($componentName, $componentTemplate, $arParams = array(), $parentComponent = null, $arFunctionParams = array(), $returnResult = false)
 	{
 		/** @global CMain $APPLICATION */
 		global $APPLICATION, $USER;
@@ -1036,7 +1036,7 @@ abstract class CAllMain
 					$obAjax = new CComponentAjax($componentName, $componentTemplate, $arParams, $parentComponent);
 
 				$this->__componentStack[] = $component;
-				$result = $component->IncludeComponent($componentTemplate, $arParams, $parentComponent);
+				$result = $component->IncludeComponent($componentTemplate, $arParams, $parentComponent, $returnResult);
 
 				array_pop($this->__componentStack);
 			}
@@ -2828,6 +2828,7 @@ abstract class CAllMain
 		if(COption::GetOptionString("main", "ALLOW_SPREAD_COOKIE", "Y")=="Y")
 		{
 			$response = Main\Context::getCurrent()->getResponse();
+			$request = Main\Context::getCurrent()->getRequest();
 
 			if(isset($_SESSION['SPREAD_COOKIE']) && is_array($_SESSION['SPREAD_COOKIE']))
 			{
@@ -2861,8 +2862,10 @@ abstract class CAllMain
 				}
 				$salt = $_SERVER["REMOTE_ADDR"]."|".@filemtime($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/version.php")."|".LICENSE_KEY;
 				$params = "s=".urlencode(base64_encode($params))."&k=".urlencode(md5($params.$salt));
+
 				$arrDomain = array();
-				$arrDomain[] = $_SERVER["HTTP_HOST"];
+				$arrDomain[] = $request->getHttpHost();
+
 				$v1 = "sort";
 				$v2 = "asc";
 				$rs = CSite::GetList($v1, $v2, array("ACTIVE" => "Y"));
@@ -2895,8 +2898,8 @@ abstract class CAllMain
 							$arUniqDomains[] = $domain1;
 					}
 
-					$protocol = (CMain::IsHTTPS()) ? "https://" : "http://";
-					$arrCurUrl = parse_url($protocol.$_SERVER["HTTP_HOST"]."/".$_SERVER["REQUEST_URI"]);
+					$protocol = ($request->isHttps()? "https://" : "http://");
+					$arrCurUrl = parse_url($protocol.$request->getHttpHost()."/");
 					foreach($arUniqDomains as $domain)
 					{
 						if(strlen(trim($domain))>0)
@@ -3418,46 +3421,14 @@ abstract class CAllMain
 		}
 
 		//session expander
-		if(COption::GetOptionString("main", "session_expand", "Y") <> "N" && (!defined("BX_SKIP_SESSION_EXPAND") || BX_SKIP_SESSION_EXPAND === false))
+		if ((!defined('PUBLIC_AJAX_MODE') || PUBLIC_AJAX_MODE !== true) && (!defined("BX_SKIP_SESSION_EXPAND") || BX_SKIP_SESSION_EXPAND === false))
 		{
-			//only for authorized
-			if(COption::GetOptionString("main", "session_auth_only", "Y") <> "Y" || $USER->IsAuthorized())
+			if(COption::GetOptionString("main", "session_expand", "Y") <> "N")
 			{
-				$arPolicy = $USER->GetSecurityPolicy();
-
-				$phpSessTimeout = ini_get("session.gc_maxlifetime");
-				if($arPolicy["SESSION_TIMEOUT"] > 0)
+				//only for authorized
+				if(COption::GetOptionString("main", "session_auth_only", "Y") <> "Y" || $USER->IsAuthorized())
 				{
-					$sessTimeout = min($arPolicy["SESSION_TIMEOUT"]*60, $phpSessTimeout);
-				}
-				else
-				{
-					$sessTimeout = $phpSessTimeout;
-				}
-
-				if (!defined('PUBLIC_AJAX_MODE') || PUBLIC_AJAX_MODE !== true)
-				{
-					$cookie_prefix = COption::GetOptionString('main', 'cookie_name', 'BITRIX_SM');
-					$salt = $_COOKIE[$cookie_prefix.'_UIDH']."|".$USER->GetID()."|".$_SERVER["REMOTE_ADDR"]."|".@filemtime($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/version.php")."|".LICENSE_KEY."|".CMain::GetServerUniqID();
-					$key = md5(bitrix_sessid().$salt);
-
-					$bShowMess = ($USER->IsAuthorized() && COption::GetOptionString("main", "session_show_message", "Y") <> "N");
-
-					CUtil::InitJSCore(array('ajax', 'ls'));
-
-					$jsMsg = '<script type="text/javascript">'."\n".
-							 ($bShowMess ? 'bxSession.mess.messSessExpired = \''.CUtil::JSEscape(GetMessage("MAIN_SESS_MESS", array("#TIMEOUT#" => round($sessTimeout / 60)))).'\';'."\n" : '').
-							 'bxSession.Expand('.$sessTimeout.', \''.bitrix_sessid().'\', '.($bShowMess ? 'true' : 'false').', \''.$key.'\');'."\n".
-							 '</script>';
-
-					$APPLICATION->AddHeadScript('/bitrix/js/main/session.js');
-					$APPLICATION->AddAdditionalJS($jsMsg);
-				}
-
-				$_SESSION["BX_SESSION_COUNTER"] = intval($_SESSION["BX_SESSION_COUNTER"]) + 1;
-				if(!defined("BX_SKIP_SESSION_TERMINATE_TIME"))
-				{
-					$_SESSION["BX_SESSION_TERMINATE_TIME"] = time()+$sessTimeout;
+					Main\UI\SessionExpander::init();
 				}
 			}
 		}
@@ -3488,25 +3459,34 @@ abstract class CAllMain
 
 	public static function FinalActions($response = "")
 	{
+		//this is the last point of output - all output below will be ignored
 		\Bitrix\Main\Context::getCurrent()->getResponse()->flush($response);
+
 		self::RunFinalActionsInternal();
 	}
 
 	public static function RunFinalActionsInternal()
 	{
-		self::EpilogActions();
+		global $DB;
 
 		if (!defined('BX_WITH_ON_AFTER_EPILOG'))
 		{
 			define('BX_WITH_ON_AFTER_EPILOG', true);
 		}
 
-		foreach(GetModuleEvents("main", "OnAfterEpilog", true) as $arEvent)
+		$arAllEvents = GetModuleEvents("main", "OnAfterEpilog", true);
+
+		define("START_EXEC_EVENTS_1", microtime());
+
+		self::EpilogActions();
+
+		define("START_EXEC_EVENTS_2", microtime());
+
+		foreach($arAllEvents as $arEvent)
 		{
 			ExecuteModuleEventEx($arEvent);
 		}
 
-		global $DB;
 		$DB->Disconnect();
 
 		self::ForkActions();
@@ -3523,9 +3503,6 @@ abstract class CAllMain
 		{
 			CEvent::CheckEvents();
 		}
-
-		//files cleanup
-		CMain::FileAction();
 
 		if (
 			(

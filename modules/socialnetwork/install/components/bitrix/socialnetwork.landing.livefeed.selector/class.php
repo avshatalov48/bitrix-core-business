@@ -59,8 +59,8 @@ class LivefeedSelector extends Component\EntitySelector
 			$name = (isset($params['name']) ? $params['name'] : false);
 
 			if (
-				strlen($code) <= 0
-				|| strlen($name) <= 0
+				$code == ''
+				|| $name == ''
 			)
 			{
 				continue;
@@ -231,33 +231,26 @@ class LivefeedSelector extends Component\EntitySelector
 			}
 		}
 
+		$this->arResult["URL_GROUP_CREATE"] = '';
+
 		$createPageSiteId = (\Bitrix\Main\Application::getInstance()->getContext()->getRequest()->isAdminSection() ? \CSite::getDefSite() : $this->arParams["SITE_ID"]);
-
 		$userPage = \Bitrix\Main\Config\Option::get('socialnetwork', 'user_page', '', $createPageSiteId);
-		if (empty($userPage))
+
+		if (!empty($userPage))
 		{
-			$siteDir = '/';
-			$res = \CSite::getById($this->arParams["SITE_ID"]);
-			if ($siteFields = $res->fetch())
-			{
-				$siteDir = $siteFields['DIR'];
-			}
-			$userPage = $siteDir.'company/personal/';
+			$uri = new Main\Web\Uri(\CComponentEngine::makePathFromTemplate(
+				$userPage.'user/#user_id#/groups/create/',
+				[
+					"user_id" => $this->arResult["CURRENT_USER_ID"]
+				]
+			));
+			$uri->addParams([
+				'preset' => 'group-landing',
+				'refresh' => 'N',
+				'lid' => $this->arParams["SITE_ID"]
+			]);
+			$this->arResult["URL_GROUP_CREATE"] = $uri->getUri();
 		}
-
-
-		$uri = new Main\Web\Uri(\CComponentEngine::makePathFromTemplate(
-			$userPage.'user/#user_id#/groups/create/',
-			[
-				"user_id" => $this->arResult["CURRENT_USER_ID"]
-			]
-		));
-		$uri->addParams([
-			'preset' => 'group-landing',
-			'refresh' => 'N',
-			'lid' => $this->arParams["SITE_ID"]
-		]);
-		$this->arResult["URL_GROUP_CREATE"] = $uri->getUri();
 	}
 
 	protected function getWorkgroupDataByCode($code = '')

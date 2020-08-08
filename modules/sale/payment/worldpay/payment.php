@@ -9,13 +9,13 @@ $strYourInstId = CSalePaySystemAction::GetParamValue("SHOP_ID");
 		<td align="center" class="tablebody" colspan="2">
 			<font class="tablebodytext">
 			<input type="hidden" name="instId" value="<?= $strYourInstId ?>">
-			<input type="hidden" name="cartId" value="<?= IntVal($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"]) ?>">
+			<input type="hidden" name="cartId" value="<?= intval($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"]) ?>">
 			<input type="hidden" name="amount" value="<?= htmlspecialcharsbx($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["SHOULD_PAY"]) ?>">
 			<input type="hidden" name="currency" value="<?= htmlspecialcharsbx($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["CURRENCY"]) ?>">
-			<?if (IntVal($iTestTransaction) > 0):?>
+			<?if (intval($iTestTransaction) > 0):?>
 				<input type="hidden" name="testMode" value="<?= $iTestTransaction ?>">
 			<?endif;?>
-			<input type="hidden" name="desc" value="Order #<?= IntVal($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"]) ?>">
+			<input type="hidden" name="desc" value="Order #<?= intval($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"]) ?>">
 
 			<!--  order properties codes ->  -->
 			<?
@@ -32,7 +32,7 @@ $strYourInstId = CSalePaySystemAction::GetParamValue("SHOP_ID");
 			}
 			?>
 
-			<input type="hidden" name="MC_CurrentStep" value="<?= IntVal($GLOBALS["CurrentStep"]) ?>">
+			<input type="hidden" name="MC_CurrentStep" value="<?= intval($GLOBALS["CurrentStep"]) ?>">
 			<input type="submit" value="Submit to WorldPay for Payment Now" class="inputbutton">
 			</font>
 		</td>

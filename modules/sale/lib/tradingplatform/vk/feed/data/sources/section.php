@@ -40,7 +40,7 @@ class Section extends DataSource implements \Iterator
 		if (!$this->vk->isActive())
 			throw new SystemException("Vk is not active!" . __METHOD__);
 
-		if (!isset($exportId) || strlen($exportId) <= 0)
+		if (!isset($exportId) || $exportId == '')
 			throw new ArgumentNullException("EXPORT_ID");
 
 		if (!Loader::includeModule('iblock'))

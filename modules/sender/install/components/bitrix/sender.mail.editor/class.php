@@ -1,20 +1,24 @@
 <?
 
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Loader;
+use Bitrix\Fileman\Block;
 use Bitrix\Main\Error;
 use Bitrix\Main\ErrorCollection;
-
-use Bitrix\Sender\Security;
-use Bitrix\Sender\PostingRecipientTable;
-use Bitrix\Sender\TemplateTable;
-use Bitrix\Sender\Internals\QueryController as Controller;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Sender\Internals\CommonAjax;
-
-use Bitrix\Fileman\Block;
+use Bitrix\Sender\Internals\QueryController as Controller;
+use Bitrix\Sender\PostingRecipientTable;
+use Bitrix\Sender\Security;
+use Bitrix\Sender\TemplateTable;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
+	die();
+}
+
+if (!Bitrix\Main\Loader::includeModule('sender'))
+{
+	ShowError('Module `sender` not installed');
 	die();
 }
 
@@ -156,7 +160,7 @@ class SenderMessageEditorMailComponent extends CBitrixComponent
 	public function executeComponent()
 	{
 		$this->errors = new \Bitrix\Main\ErrorCollection();
-		if (!Loader::includeModule('sender'))
+		if (!Bitrix\Main\Loader::includeModule('sender'))
 		{
 			$this->errors->setError(new Error('Module `sender` is not installed.'));
 			$this->printErrors();

@@ -71,7 +71,7 @@ if($REQUEST_METHOD=="POST" && $_REQUEST['save'] == 'Y')
 	<?if (isset($target) && $target == 'editor') die('</script>');?>
 	ShowWaitWindow();
 
-	<?if (strlen($back_url) > 0):?>
+	<?if ($back_url <> ''):?>
 	window.location.href = '<?=CUtil::JSEscape($back_url);?>';
 	<?else:?>
 	var new_href = top.location.href;
@@ -97,7 +97,7 @@ if (!$bCreate && !isset($_REQUEST['save']))
 	if ($size > 20)
 	{
 		$contents = fread($handle, 20);
-		if (strtolower(substr($contents, 0, 5)) != "<?xml")
+		if (mb_strtolower(mb_substr($contents, 0, 5)) != "<?xml")
 			$bIncorrectFormat = true;
 	}
 
@@ -110,33 +110,33 @@ if (!$bCreate && !isset($_REQUEST['save']))
 		$bIncorrectFormat = true;
 
 		$ch = $arTree->children;
-		if (count($ch) > 0 && strtolower($ch[0]->name) == 'playlist')
+		if (count($ch) > 0 && mb_strtolower($ch[0]->name) == 'playlist')
 		{
 			$bIncorrectFormat = false;
 			$pl = $ch[0];
 			$tls = $pl->children;
 			for ($i_ = 0, $l_ = count($tls); $i_ < $l_; $i_++)
 			{
-				if (strtolower($tls[$i_]->name) != 'tracklist')
+				if (mb_strtolower($tls[$i_]->name) != 'tracklist')
 					continue;
 				$tracks = $tls[$i_]->children;
 				for ($i = 0, $l = count($tracks); $i < $l; $i++)
 				{
 					$track = $tracks[$i];
-					if (strtolower($track->name) == 'track')
+					if (mb_strtolower($track->name) == 'track')
 					{
 						$arTrack = Array('title' => '', 'author' => '', 'location' => '', 'image' => '', 'duration' => '');
 						for ($j = 0, $n = count($track->children); $j < $n; $j++)
 						{
 							$prop = $track->children[$j];
-							if (strtolower($prop->name) == 'title')
+							if (mb_strtolower($prop->name) == 'title')
 							// TODO: Maybe using xmlspecialcharsback - is bogus
 								$arTrack['title'] = $objXML->xmlspecialcharsback($prop->content);
 							//if (strtolower($prop->name) == 'creator')
 								//$arTrack['author'] = $objXML->xmlspecialcharsback($prop->content);
-							if (strtolower($prop->name) == 'location')
+							if (mb_strtolower($prop->name) == 'location')
 								$arTrack['location'] = $objXML->xmlspecialcharsback($prop->content);
-							if (strtolower($prop->name) == 'image')
+							if (mb_strtolower($prop->name) == 'image')
 								$arTrack['image'] = $objXML->xmlspecialcharsback($prop->content);
 							//if (strtolower($prop->name) == 'duration')
 								//$arTrack['duration'] = $objXML->xmlspecialcharsback($prop->content);
@@ -174,7 +174,7 @@ function getListVal($val)
 
 function displayInputRow($id, $val, $i, $width, $fd = false)
 {
-	$width = intVal($width);
+	$width = intval($width);
 	$js_fd_par = $fd ? ', true' : '';
 	?>
 <td valign="top">
@@ -210,7 +210,7 @@ $DESCRIPTION = GetMessage('PLAYLIST_TITLE_DESCRIPTION');
 $back_url = $_GET["back_url"];
 
 // Clear all pathes which not begining from '/'
-if ($back_url != '' && (substr($back_url, 0, 1) != '/' || strpos($back_url, ':') !== false))
+if ($back_url != '' && (mb_substr($back_url, 0, 1) != '/' || mb_strpos($back_url, ':') !== false))
 	$back_url = '';
 
 $obJSPopup = new CJSPopup('',

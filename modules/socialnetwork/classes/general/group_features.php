@@ -14,13 +14,13 @@ class CAllSocNetFeatures
 	{
 		global $APPLICATION, $DB, $arSocNetAllowedEntityTypes;
 
-		if ($ACTION != "ADD" && IntVal($ID) <= 0)
+		if ($ACTION != "ADD" && intval($ID) <= 0)
 		{
 			$APPLICATION->ThrowException("System error 870164", "ERROR");
 			return false;
 		}
 
-		if ((is_set($arFields, "ENTITY_TYPE") || $ACTION=="ADD") && StrLen($arFields["ENTITY_TYPE"]) <= 0)
+		if ((is_set($arFields, "ENTITY_TYPE") || $ACTION=="ADD") && $arFields["ENTITY_TYPE"] == '')
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_GF_EMPTY_ENTITY_TYPE"), "EMPTY_ENTITY_TYPE");
 			return false;
@@ -34,7 +34,7 @@ class CAllSocNetFeatures
 			}
 		}
 
-		if ((is_set($arFields, "ENTITY_ID") || $ACTION=="ADD") && IntVal($arFields["ENTITY_ID"]) <= 0)
+		if ((is_set($arFields, "ENTITY_ID") || $ACTION=="ADD") && intval($arFields["ENTITY_ID"]) <= 0)
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_GF_EMPTY_ENTITY_ID"), "EMPTY_ENTITY_ID");
 			return false;
@@ -52,7 +52,7 @@ class CAllSocNetFeatures
 				if ($arRe)
 					$type = $arRe["ENTITY_TYPE"];
 			}
-			if (StrLen($type) <= 0)
+			if ($type == '')
 			{
 				$APPLICATION->ThrowException(GetMessage("SONET_GF_ERROR_CALC_ENTITY_TYPE"), "ERROR_CALC_ENTITY_TYPE");
 				return false;
@@ -83,14 +83,14 @@ class CAllSocNetFeatures
 			}
 		}
 
-		if ((is_set($arFields, "FEATURE") || $ACTION=="ADD") && StrLen($arFields["FEATURE"]) <= 0)
+		if ((is_set($arFields, "FEATURE") || $ACTION=="ADD") && $arFields["FEATURE"] == '')
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_GF_EMPTY_FEATURE_ID"), "EMPTY_FEATURE");
 			return false;
 		}
 		elseif (is_set($arFields, "FEATURE"))
 		{
-			$arFields["FEATURE"] = strtolower($arFields["FEATURE"]);
+			$arFields["FEATURE"] = mb_strtolower($arFields["FEATURE"]);
 			$arSocNetFeaturesSettings = CSocNetAllowed::GetAllowedFeatures();
 
 			if (!array_key_exists($arFields["FEATURE"], $arSocNetFeaturesSettings))
@@ -130,7 +130,7 @@ class CAllSocNetFeatures
 		if (!CSocNetGroup::__ValidateID($ID))
 			return false;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$bSuccess = True;
 
 		$db_events = GetModuleEvents("socialnetwork", "OnBeforeSocNetFeatures");
@@ -172,7 +172,7 @@ class CAllSocNetFeatures
 		if (!CSocNetGroup::__ValidateID($userID))
 			return false;
 
-		$userID = IntVal($userID);
+		$userID = intval($userID);
 
 		$dbResult = CSocNetFeatures::GetList(array(), array("ENTITY_TYPE" => "U", "ENTITY_ID" => $userID), false, false, array("ID"));
 		while ($arResult = $dbResult->Fetch())
@@ -196,7 +196,7 @@ class CAllSocNetFeatures
 		if (!CSocNetGroup::__ValidateID($ID))
 			return false;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$arFields1 = \Bitrix\Socialnetwork\Util::getEqualityFields($arFields);
 
@@ -211,7 +211,7 @@ class CAllSocNetFeatures
 		$strUpdate = $DB->PrepareUpdate("b_sonet_features", $arFields);
 		\Bitrix\Socialnetwork\Util::processEqualityFieldsToUpdate($arFields1, $strUpdate);
 
-		if (strlen($strUpdate) > 0)
+		if ($strUpdate <> '')
 		{
 			$strSql =
 				"UPDATE b_sonet_features SET ".
@@ -246,21 +246,21 @@ class CAllSocNetFeatures
 		global $arSocNetAllowedEntityTypes, $APPLICATION, $DB, $CACHE_MANAGER;
 
 		$type = Trim($type);
-		if ((StrLen($type) <= 0) || !in_array($type, $arSocNetAllowedEntityTypes))
+		if (($type == '') || !in_array($type, $arSocNetAllowedEntityTypes))
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_GF_ERROR_NO_ENTITY_TYPE"), "ERROR_EMPTY_TYPE");
 			return false;
 		}
 
-		$id = IntVal($id);
+		$id = intval($id);
 		if ($id <= 0)
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_GF_EMPTY_ENTITY_ID"), "ERROR_EMPTY_ENTITY_ID");
 			return false;
 		}
 
-		$feature = StrToLower(Trim($feature));
-		if (StrLen($feature) <= 0)
+		$feature = mb_strtolower(Trim($feature));
+		if ($feature == '')
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_GF_EMPTY_FEATURE_ID"), "ERROR_EMPTY_FEATURE_ID");
 			return false;
@@ -354,7 +354,7 @@ class CAllSocNetFeatures
 			$errorMessage = "";
 			if ($e = $APPLICATION->GetException())
 				$errorMessage = $e->GetString();
-			if (StrLen($errorMessage) <= 0)
+			if ($errorMessage == '')
 				$errorMessage = GetMessage("SONET_GF_ERROR_SET").".";
 
 			$APPLICATION->ThrowException($errorMessage, "ERROR_SET_RECORD");
@@ -374,7 +374,7 @@ class CAllSocNetFeatures
 		if (!CSocNetGroup::__ValidateID($ID))
 			return false;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$dbResult = CSocNetFeatures::GetList(Array(), Array("ID" => $ID));
 		if ($arResult = $dbResult->GetNext())
@@ -393,14 +393,14 @@ class CAllSocNetFeatures
 		global $arSocNetAllowedEntityTypes, $APPLICATION;
 
 		$type = Trim($type);
-		if ((StrLen($type) <= 0) || !in_array($type, $arSocNetAllowedEntityTypes))
+		if (($type == '') || !in_array($type, $arSocNetAllowedEntityTypes))
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_GF_ERROR_NO_ENTITY_TYPE"), "ERROR_EMPTY_TYPE");
 			return false;
 		}
 
-		$feature = StrToLower(Trim($feature));
-		if (StrLen($feature) <= 0)
+		$feature = mb_strtolower(Trim($feature));
+		if ($feature == '')
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_GF_EMPTY_FEATURE_ID"), "ERROR_EMPTY_FEATURE_ID");
 			return false;
@@ -483,7 +483,7 @@ class CAllSocNetFeatures
 		}
 		else // not array
 		{
-			$id = IntVal($id);
+			$id = intval($id);
 			if ($id <= 0)
 			{
 				$APPLICATION->ThrowException(GetMessage("SONET_GF_EMPTY_ENTITY_ID"), "ERROR_EMPTY_ENTITY_ID");
@@ -571,13 +571,13 @@ class CAllSocNetFeatures
 		global $arSocNetAllowedEntityTypes, $APPLICATION, $CACHE_MANAGER;
 
 		$type = Trim($type);
-		if ((StrLen($type) <= 0) || !in_array($type, $arSocNetAllowedEntityTypes))
+		if (($type == '') || !in_array($type, $arSocNetAllowedEntityTypes))
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_GF_ERROR_NO_ENTITY_TYPE"), "ERROR_EMPTY_TYPE");
 			return false;
 		}
 
-		$id = IntVal($id);
+		$id = intval($id);
 		if ($id <= 0)
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_GF_EMPTY_ENTITY_ID"), "ERROR_EMPTY_ENTITY_ID");
@@ -640,13 +640,13 @@ class CAllSocNetFeatures
 		global $arSocNetAllowedEntityTypes, $APPLICATION;
 
 		$type = Trim($type);
-		if ((StrLen($type) <= 0) || !in_array($type, $arSocNetAllowedEntityTypes))
+		if (($type == '') || !in_array($type, $arSocNetAllowedEntityTypes))
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_GF_ERROR_NO_ENTITY_TYPE"), "ERROR_EMPTY_TYPE");
 			return false;
 		}
 
-		$id = IntVal($id);
+		$id = intval($id);
 		if ($id <= 0)
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_GF_EMPTY_ENTITY_ID"), "ERROR_EMPTY_ENTITY_ID");

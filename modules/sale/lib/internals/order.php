@@ -118,6 +118,14 @@ class OrderTable extends Main\Entity\DataManager
 					'default_value' => 'N'
 				)
 			),
+			
+			new Main\Entity\BooleanField(
+				'IS_SYNC_B24',
+				array(
+					'values' => array('N', 'Y'),
+					'default_value' => 'N'
+				)
+			),
 
 			new Main\Entity\DatetimeField('DATE_PAYED'),
 

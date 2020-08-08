@@ -53,16 +53,16 @@ $lAdmin->InitFilter($arFilterFields);
 
 $arFilter = array();
 
-if (strlen($filter_date_from)>0)
+if ($filter_date_from <> '')
 {
 	$arFilter["DATE_FROM"] = Trim($filter_date_from);
 }
 
-if (strlen($filter_date_to)>0)
+if ($filter_date_to <> '')
 {
 	if ($arDate = ParseDateTime($filter_date_to, CSite::GetDateFormat("FULL", SITE_ID)))
 	{
-		if (StrLen($filter_date_to) < 11)
+		if (mb_strlen($filter_date_to) < 11)
 		{
 			$arDate["HH"] = 23;
 			$arDate["MI"] = 59;
@@ -77,7 +77,7 @@ if (strlen($filter_date_to)>0)
 		$filter_date_to = "";
 	}
 }
-if (strlen($filter_by)>0)
+if ($filter_by <> '')
 	$filter_by = Trim($filter_by);
 else
 	$filter_by = "week";
@@ -93,9 +93,9 @@ $arCurUsed = Array();
 $minDate = 0;
 $maxDate = 0;
 
-if(strlen($filter_date_from) > 0)
+if($filter_date_from <> '')
 	$minDate = MakeTimeStamp($filter_date_from);
-if(strlen($filter_date_to) > 0)
+if($filter_date_to <> '')
 	$maxDate = MakeTimeStamp($filter_date_to);
 else
 	$maxDate = mktime(0, 0, 0, date("n"), date("j")+1, date("Y"));
@@ -261,9 +261,9 @@ function bxStatSort($a, $b)
 			$k = "PAYED";
 		else
 			$k = "ALLOW_DELIVERY";
-		if(IntVal($a[$k]) == IntVal($b[$k]) && IntVal($b[$k]) == 0)
+		if(intval($a[$k]) == intval($b[$k]) && intval($b[$k]) == 0)
 			return 0;
-		elseif(IntVal($a[$k]) > 0 && IntVal($b[$k]) > 0)
+		elseif(intval($a[$k]) > 0 && intval($b[$k]) > 0)
 		{
 			if(DoubleVal($a[$k]*100/$a["COUNT"]) > DoubleVal($b[$k]*100/$b["COUNT"]))
 				return ($order == "DESC") ? -1 : 1;
@@ -272,67 +272,67 @@ function bxStatSort($a, $b)
 			else
 				return 0;
 		}
-		elseif(IntVal($a[$k]) > 0 && IntVal($b[$k]) <= 0)
+		elseif(intval($a[$k]) > 0 && intval($b[$k]) <= 0)
 			return ($order == "DESC") ? -1 : 1;
-		elseif(IntVal($a[$k]) <= 0 && IntVal($b[$k]) > 0)
+		elseif(intval($a[$k]) <= 0 && intval($b[$k]) > 0)
 			return ($order == "DESC") ? 1 : -1;
 		else
 			return 0;
 	}
 	elseif(
-			strpos($by, "STATUS_") !== false || strpos($by, "STATUS_PRICE_") !== false ||
-			strpos($by, "PRICE_DELIVERY_") !== false || strpos($by, "TAX_VALUE_") !== false || strpos($by, "DISCOUNT_VALUE_") !== false ||
-			strpos($by, "PRICE_") !== false || strpos($by, "PRICE_PAYED_") !== false || strpos($by, "PRICE_ALLOW_DELIVERY_") !== false || strpos($by, "PRICE_CANCELED_") !== false
+		mb_strpos($by, "STATUS_") !== false || mb_strpos($by, "STATUS_PRICE_") !== false ||
+		mb_strpos($by, "PRICE_DELIVERY_") !== false || mb_strpos($by, "TAX_VALUE_") !== false || mb_strpos($by, "DISCOUNT_VALUE_") !== false ||
+		mb_strpos($by, "PRICE_") !== false || mb_strpos($by, "PRICE_PAYED_") !== false || mb_strpos($by, "PRICE_ALLOW_DELIVERY_") !== false || mb_strpos($by, "PRICE_CANCELED_") !== false
 		)
 	{
-		if(strpos($by, "STATUS_PRICE_") !== false)
+		if(mb_strpos($by, "STATUS_PRICE_") !== false)
 		{
-			$k = substr($by, strlen("STATUS_PRICE_"));
+			$k = mb_substr($by, mb_strlen("STATUS_PRICE_"));
 			$v = "STATUS_PRICE";
 		}
-		elseif(strpos($by, "STATUS_") !== false)
+		elseif(mb_strpos($by, "STATUS_") !== false)
 		{
-			$k = substr($by, strlen("STATUS_"));
+			$k = mb_substr($by, mb_strlen("STATUS_"));
 			$v = "STATUS";
 		}
-		elseif(strpos($by, "PRICE_DELIVERY_") !== false)
+		elseif(mb_strpos($by, "PRICE_DELIVERY_") !== false)
 		{
-			$k = substr($by, strlen("PRICE_DELIVERY_"));
+			$k = mb_substr($by, mb_strlen("PRICE_DELIVERY_"));
 			$v = "PRICE_DELIVERY";
 		}
-		elseif(strpos($by, "TAX_VALUE_") !== false)
+		elseif(mb_strpos($by, "TAX_VALUE_") !== false)
 		{
-			$k = substr($by, strlen("TAX_VALUE_"));
+			$k = mb_substr($by, mb_strlen("TAX_VALUE_"));
 			$v = "TAX_VALUE";
 		}
-		elseif(strpos($by, "DISCOUNT_VALUE_") !== false)
+		elseif(mb_strpos($by, "DISCOUNT_VALUE_") !== false)
 		{
-			$k = substr($by, strlen("DISCOUNT_VALUE_"));
+			$k = mb_substr($by, mb_strlen("DISCOUNT_VALUE_"));
 			$v = "DISCOUNT_VALUE";
 		}
-		elseif(strpos($by, "PRICE_PAYED_") !== false)
+		elseif(mb_strpos($by, "PRICE_PAYED_") !== false)
 		{
-			$k = substr($by, strlen("PRICE_PAYED_"));
+			$k = mb_substr($by, mb_strlen("PRICE_PAYED_"));
 			$v = "PRICE_PAYED";
 		}
-		elseif(strpos($by, "PRICE_CANCELED_") !== false)
+		elseif(mb_strpos($by, "PRICE_CANCELED_") !== false)
 		{
-			$k = substr($by, strlen("PRICE_CANCELED_"));
+			$k = mb_substr($by, mb_strlen("PRICE_CANCELED_"));
 			$v = "PRICE_CANCELED";
 		}
-		elseif(strpos($by, "PRICE_ALLOW_DELIVERY_") !== false)
+		elseif(mb_strpos($by, "PRICE_ALLOW_DELIVERY_") !== false)
 		{
-			$k = substr($by, strlen("PRICE_ALLOW_DELIVERY_"));
+			$k = mb_substr($by, mb_strlen("PRICE_ALLOW_DELIVERY_"));
 			$v = "PRICE_ALLOW_DELIVERY";
 		}
 		else
 		{
-			$k = substr($by, strlen("PRICE_"));
+			$k = mb_substr($by, mb_strlen("PRICE_"));
 			$v = "PRICE";
 		}
-		if(IntVal($a[$v][$k]) == IntVal($b[$v][$k]))
+		if(intval($a[$v][$k]) == intval($b[$v][$k]))
 			return 0;
-		elseif(IntVal($a[$v][$k]) > IntVal($b[$v][$k]))
+		elseif(intval($a[$v][$k]) > intval($b[$v][$k]))
 			return ($order == "DESC") ? -1 : 1;
 		else
 			return ($order == "DESC") ? 1 : -1;
@@ -423,7 +423,7 @@ while ($arResult = $dbResult->GetNext())
 		$row->AddViewField("ALLOW_DELIVERY_PROC", roundEx($arResult["ALLOW_DELIVERY"]*100/$arResult["COUNT"], 0));
 		$row->AddViewField("CANCELED_PROC", roundEx($arResult["CANCELED"]*100/$arResult["COUNT"], 0));
 		foreach($arStatus as $k => $v)
-			$row->AddViewField("STATUS_".$k, IntVal($arResult["STATUS"][$k]));
+			$row->AddViewField("STATUS_".$k, intval($arResult["STATUS"][$k]));
 		foreach($arCurUsed as $k)
 		{
 			$row->AddViewField("PRICE_".$k, number_format(roundEx($arResult["PRICE"][$k], SALE_VALUE_PRECISION), SALE_VALUE_PRECISION, '.', ''));

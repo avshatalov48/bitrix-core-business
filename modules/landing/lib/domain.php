@@ -53,7 +53,7 @@ class Domain extends \Bitrix\Landing\Internals\BaseTable
 	 */
 	public static function getBitrix24Subdomain($domainName)
 	{
-		$re = '/^([a-z0-9]+)\.(' . implode('|', self::B24_DOMAINS) . ')$/i';
+		$re = '/^([^\.]+)\.(' . implode('|', self::B24_DOMAINS) . ')$/i';
 		if (preg_match($re, $domainName, $matches))
 		{
 			return $matches[1];

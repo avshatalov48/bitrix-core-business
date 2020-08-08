@@ -4,10 +4,6 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 if(!CModule::IncludeModule("socialnetwork"))
 	return false;
 
-/*
-if (!array_key_exists("SHOW_FEATURES", $arGadgetParams) || strlen($arGadgetParams["SHOW_FEATURES"]) <= 0 || $arGadgetParams["SHOW_FEATURES"] != "Y")
-	$arGadgetParams["SHOW_FEATURES"] = "N";
-*/
 $arGadgetParams["SHOW_FEATURES"] = "Y";
 
 ?><?=htmlspecialcharsback($arGadgetParams["IMAGE"])?><br /><?

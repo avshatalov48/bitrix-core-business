@@ -26,7 +26,7 @@ if($USER->IsAuthorized() && check_bitrix_sessid())
 
 	if ($saleModulePermissions == 'D')
 	{
-		$arFilter['USER_ID'] = IntVal($USER->GetID());
+		$arFilter['USER_ID'] = intval($USER->GetID());
 	}
 	elseif ($saleModulePermissions != 'W')
 	{

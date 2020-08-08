@@ -1,10 +1,10 @@
 <?
-if (StrLen($pathInMessage) > 0)
+if ($pathInMessage <> '')
 {
 	$pathInMessage = Str_Replace("\\", "/", $pathInMessage);
 	$pathInMessage = "/".Trim(Trim($pathInMessage), "\\/")."/";
 }
-$strCorectPath = ((StrLen($pathInMessage) <= 0) ? "/club/" : $pathInMessage);
+$strCorectPath = (($pathInMessage == '') ? "/club/" : $pathInMessage);
 
 $langs = CLanguage::GetList(($b=""), ($o=""));
 while ($lang = $langs->Fetch())

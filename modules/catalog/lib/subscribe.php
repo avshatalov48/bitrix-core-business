@@ -588,7 +588,7 @@ class SubscribeTable extends Entity\DataManager
 		/* Compatibility with the sale subscribe option */
 		$notifyOption = Option::get('sale', 'subscribe_prod');
 		$notify = array();
-		if(strlen($notifyOption) > 0)
+		if($notifyOption <> '')
 			$notify = unserialize($notifyOption);
 		if(is_array($notify))
 		{
@@ -655,7 +655,7 @@ class SubscribeTable extends Entity\DataManager
 		foreach($listSubscribe as $key => $subscribeData)
 		{
 			$pageUrl = self::getPageUrl($subscribeData, $detailPageUrlGroupByItemId);
-			if (!strlen($pageUrl))
+			if ($pageUrl == '')
 			{
 				continue;
 			}
@@ -735,7 +735,7 @@ class SubscribeTable extends Entity\DataManager
 
 		if ($protocol = Option::get('main', 'mail_link_protocol'))
 		{
-			if (strrpos($protocol, '://') === false)
+			if (mb_strrpos($protocol, '://') === false)
 				$protocol .= '://';
 		}
 		else

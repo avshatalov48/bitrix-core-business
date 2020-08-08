@@ -7,32 +7,32 @@ if (!CModule::IncludeModule("socialnetwork"))
 	return;
 }
 
-$arParams["GROUP_ID"] = IntVal($arParams["GROUP_ID"]);
+$arParams["GROUP_ID"] = intval($arParams["GROUP_ID"]);
 
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 $bAutoSubscribe = (array_key_exists("USE_AUTOSUBSCRIBE", $arParams) && $arParams["USE_AUTOSUBSCRIBE"] == "N" ? false : true);
 
-if (strLen($arParams["USER_VAR"]) <= 0)
+if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
-if (strLen($arParams["GROUP_VAR"]) <= 0)
+if ($arParams["GROUP_VAR"] == '')
 	$arParams["GROUP_VAR"] = "group_id";
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if (strlen($arParams["PATH_TO_USER"]) <= 0)
+if ($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 $arParams["PATH_TO_GROUP"] = trim($arParams["PATH_TO_GROUP"]);
-if (strlen($arParams["PATH_TO_GROUP"]) <= 0)
+if ($arParams["PATH_TO_GROUP"] == '')
 	$arParams["PATH_TO_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#");
 $arParams["PATH_TO_GROUP_REQUESTS"] = trim($arParams["PATH_TO_GROUP_REQUESTS"]);
-if(strlen($arParams["PATH_TO_GROUP_REQUESTS"])<=0)
+if($arParams["PATH_TO_GROUP_REQUESTS"] == '')
 	$arParams["PATH_TO_GROUP_REQUESTS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_requests&".$arParams["GROUP_VAR"]."=#group_id#");
 $arParams["PATH_TO_GROUP_REQUEST_SEARCH"] = trim($arParams["PATH_TO_GROUP_REQUEST_SEARCH"]);
-if (strlen($arParams["PATH_TO_GROUP_REQUEST_SEARCH"]) <= 0)
+if ($arParams["PATH_TO_GROUP_REQUEST_SEARCH"] == '')
 	$arParams["PATH_TO_GROUP_REQUEST_SEARCH"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_request_search&".$arParams["GROUP_VAR"]."=#group_id#");
 
-$arParams["ITEMS_COUNT"] = IntVal($arParams["ITEMS_COUNT"]);
+$arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
 if ($arParams["ITEMS_COUNT"] <= 0)
 	$arParams["ITEMS_COUNT"] = 30;
 
@@ -126,26 +126,26 @@ else
 					$arNavParams = array("nPageSize" => $arParams["ITEMS_COUNT"], "bDescPageNumbering" => false);
 					$arNavigation = CDBResult::GetNavParams($arNavParams);
 
-					if ($_SERVER["REQUEST_METHOD"]=="POST" && (strlen($_POST["save"]) > 0 || strlen($_POST["reject"]) > 0) && check_bitrix_sessid())
+					if ($_SERVER["REQUEST_METHOD"]=="POST" && ($_POST["save"] <> '' || $_POST["reject"] <> '') && check_bitrix_sessid())
 					{
 						$errorMessage = "";
 
 						$arIDs = array();
-						if (strlen($errorMessage) <= 0)
+						if ($errorMessage == '')
 						{
-							for ($i = 0; $i <= IntVal($_POST["max_count"]); $i++)
+							for ($i = 0; $i <= intval($_POST["max_count"]); $i++)
 							{
 								if ($_POST["checked_".$i] == "Y")
-									$arIDs[] = IntVal($_POST["id_".$i]);
+									$arIDs[] = intval($_POST["id_".$i]);
 							}
 
 							if (count($arIDs) <= 0)
 								$errorMessage .= GetMessage("SONET_C12_NOT_SELECTED").". ";
 						}
 
-						if (strlen($errorMessage) <= 0)
+						if ($errorMessage == '')
 						{
-							if (strlen($_POST["save"]) > 0)
+							if ($_POST["save"] <> '')
 							{
 								if (
 									!CSocNetUserToGroup::ConfirmRequestToBeMember($GLOBALS["USER"]->GetID(), $arResult["Group"]["ID"], $arIDs, $bAutoSubscribe)
@@ -153,7 +153,7 @@ else
 								)
 									$errorMessage .= $e->GetString();
 							}
-							elseif (strlen($_POST["reject"]) > 0)
+							elseif ($_POST["reject"] <> '')
 							{
 								if (
 									!CSocNetUserToGroup::RejectRequestToBeMember($GLOBALS["USER"]->GetID(), $arResult["Group"]["ID"], $arIDs)
@@ -163,7 +163,7 @@ else
 							}
 						}
 
-						if (strlen($errorMessage) > 0)
+						if ($errorMessage <> '')
 							$arResult["ErrorMessage"] = $errorMessage;
 					}
 

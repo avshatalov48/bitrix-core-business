@@ -19,7 +19,10 @@ class CRestMarketplaceCategoryComponent extends \CBitrixComponent  implements \B
 	private $items = array();
 	private $topItems = array();
 	private $newItems = array();
+	private $saleItems = array();
 	private $ajaxMode = false;
+	private $pageSizeDefault = 20;
+	private $bannerTypeFeedback = 'FEEDBACK';
 
 	public function onPrepareComponentParams($arParams)
 	{
@@ -98,6 +101,12 @@ class CRestMarketplaceCategoryComponent extends \CBitrixComponent  implements \B
 					"id"    => "DATE",
 					"name"  => Loc::getMessage("MARKETPLACE_FILTER_DATE_PUBLIC"),
 					"type"  => "date"
+				],
+				[
+					"id"    => "SALE_OUT",
+					"name"  => Loc::getMessage("MARKETPLACE_FILTER_SALE_OUT"),
+					"type"  => "checkbox",
+					"default" => true
 				],
 			],
 			"DATA" => []
@@ -191,7 +200,30 @@ class CRestMarketplaceCategoryComponent extends \CBitrixComponent  implements \B
 			$filterQuery["mobile_compatible"] = $filterData["MOBILE_COMPATIBLE"] == "Y" ? "Y" : "N";
 		}
 
+		if (isset($filterData["SALE_OUT"]))
+		{
+			$filterQuery["sale"] = $filterData["SALE_OUT"] == "Y" ? "Y" : "N";
+		}
+
 		return $filterQuery;
+	}
+
+	protected function getPageSize()
+	{
+		$size = $this->pageSizeDefault;
+		if(isset($this->arParams['BLOCK_COUNT']) && $this->arParams['BLOCK_COUNT'] > 0)
+		{
+			$size = intVal($this->arParams['BLOCK_COUNT']);
+		}
+
+		return $size;
+	}
+
+	protected function setDefaultPageSize($size)
+	{
+		$this->pageSizeDefault = $size;
+
+		return true;
 	}
 
 	private function getItemsByTag($tag)
@@ -212,14 +244,14 @@ class CRestMarketplaceCategoryComponent extends \CBitrixComponent  implements \B
 		{
 			if(isset($this->arParams['SHOW_LAST_BLOCK']) && $this->arParams['SHOW_LAST_BLOCK'] == 'Y')
 			{
-				$count = (isset($this->arParams['BLOCK_COUNT']) && $this->arParams['BLOCK_COUNT'] > 0)
-					? intVal($this->arParams['BLOCK_COUNT']) : 4;
-				$this->items = \Bitrix\Rest\Marketplace\Client::getLastByTag($tag, $count);
+				$this->setDefaultPageSize(4);
+				$count = $this->getPageSize();
+				$this->items = \Bitrix\Rest\Marketplace\Client::getLastByTag($tag, $this->curPage, $count);
 			}
 			else
 			{
-				$count = (isset($this->arParams['BLOCK_COUNT']) && $this->arParams['BLOCK_COUNT'] > 0)
-					? intVal($this->arParams['BLOCK_COUNT']) : 18;
+				$this->setDefaultPageSize(18);
+				$count = $this->getPageSize();
 				$this->items = \Bitrix\Rest\Marketplace\Client::getByTag($tag, $this->curPage, $count);
 			}
 
@@ -240,8 +272,9 @@ class CRestMarketplaceCategoryComponent extends \CBitrixComponent  implements \B
 				else
 				{
 					$tag = [ 'crm' ];
-					$this->items = \Bitrix\Rest\Marketplace\Client::getLastByTag($tag, $count);
+					$this->items = \Bitrix\Rest\Marketplace\Client::getLastByTag($tag, $this->curPage, $count);
 				}
+				$this->items['PAGES'] = 0;
 
 				if(is_array($this->items['ITEMS']))
 				{
@@ -281,11 +314,37 @@ class CRestMarketplaceCategoryComponent extends \CBitrixComponent  implements \B
 		}
 		else
 		{
-			$count = (isset($this->arParams['BLOCK_COUNT']) && $this->arParams['BLOCK_COUNT'] > 0)
-				? intVal($this->arParams['BLOCK_COUNT']) : 8;
+			$this->setDefaultPageSize(8);
+			$count = $this->getPageSize();
 			$this->topItems = \Bitrix\Rest\Marketplace\Client::getTop(\Bitrix\Rest\Marketplace\Transport::METHOD_GET_BEST, array("onPageSize" => $count));
 			$this->newItems = \Bitrix\Rest\Marketplace\Client::getTop(\Bitrix\Rest\Marketplace\Transport::METHOD_GET_LAST, array("onPageSize" => $count));
+			$this->saleItems = \Bitrix\Rest\Marketplace\Client::getTop(\Bitrix\Rest\Marketplace\Transport::METHOD_GET_SALE_OUT, array("onPageSize" => $count));
 		}
+	}
+
+	private function prepareBannerList($itemList)
+	{
+		if(is_array($itemList))
+		{
+			foreach ($itemList as $k => $item)
+			{
+				if(!empty($item['URL']))
+				{
+					$itemList[$k]['ONCLICK'] = "window.open('" . $item['URL'] . "', '_blank')";
+				}
+
+				if($item['TYPE'] == $this->bannerTypeFeedback)
+				{
+					$itemList[$k][$this->bannerTypeFeedback] = 'Y';
+				}
+				else
+				{
+					unset($itemList[$k]);
+				}
+			}
+		}
+
+		return $itemList;
 	}
 
 	private function prepareItems(&$items)
@@ -339,7 +398,7 @@ class CRestMarketplaceCategoryComponent extends \CBitrixComponent  implements \B
 	{
 		$nav = new \Bitrix\Main\UI\PageNavigation("nav");
 		$nav->allowAllRecords(false)
-			->setPageSize(20)
+			->setPageSize($this->getPageSize())
 			->initFromUri();
 		$this->curPage = $nav->getCurrentPage();
 
@@ -357,6 +416,16 @@ class CRestMarketplaceCategoryComponent extends \CBitrixComponent  implements \B
 		{
 			$this->getItemsByTag($this->arParams["TAG"]);
 		}
+		elseif ($this->request->get("tag"))
+		{
+			$tag = $this->request->get("tag");
+			if(!is_array($tag))
+			{
+				$tag = [ $tag ];
+			}
+			$this->arParams["TAG"] = $tag;
+			$this->getItemsByTag($this->arParams["TAG"]);
+		}
 		else
 		{
 			unset($this->arParams["TAG"]);
@@ -370,9 +439,18 @@ class CRestMarketplaceCategoryComponent extends \CBitrixComponent  implements \B
 			if(is_array($this->arResult["ITEMS"]))
 			{
 				$this->prepareItems($this->arResult["ITEMS"]);
+
+				if(
+					!empty($this->items['BANNER'])
+					&& (!isset($this->arParams['HOLD_BANNER_ITEMS']) || $this->arParams['HOLD_BANNER_ITEMS'] != 'Y')
+				)
+				{
+					$bannerList = $this->prepareBannerList($this->items['BANNER']);
+					$this->arResult["ITEMS"] = $this->mergeBanner($this->arResult["ITEMS"], $bannerList);
+				}
 			}
 
-			$nav->setRecordCount(intval($this->items["PAGES"]) * 20);
+			$nav->setRecordCount(intval($this->items["PAGES"]) * $this->getPageSize());
 
 			$this->arResult["NAV"] = $nav;
 			$this->arResult["PAGE_COUNT"] = $nav->getPageCount();
@@ -380,11 +458,37 @@ class CRestMarketplaceCategoryComponent extends \CBitrixComponent  implements \B
 			$this->arResult["CURRENT_PAGE"] = $nav->getCurrentPage();
 		}
 	}
+
+	private function mergeBanner($itemList, $bannerList)
+	{
+		if(is_array($bannerList))
+		{
+			$bannerGroupList = [
+				'BEFORE' => [],
+				'AFTER' => []
+			];
+			foreach ($bannerList  as $item)
+			{
+				$bannerGroupList[$item['POSITION']][] = $item;
+			}
+			$itemList = array_merge($bannerGroupList['BEFORE'], $itemList, $bannerGroupList['AFTER']);
+		}
+
+		return $itemList;
+	}
+
 	public function executeComponent()
 	{
 		$this->titleName = Loc::getMessage("MARKETPLACE_ALL_APPS");
 
 		$this->collectItems();
+
+		if (!empty($this->saleItems))
+		{
+			$this->prepareItems($this->saleItems['ITEMS']);
+			$this->arResult["SALE_OUT_ITEMS"] = $this->saleItems['ITEMS'];
+			$this->arResult["SALE_OUT_NAME"] = (!empty($this->saleItems['NAME'])) ? $this->saleItems['NAME'] : '';
+		}
 
 		if (!empty($this->topItems))
 		{
@@ -392,6 +496,8 @@ class CRestMarketplaceCategoryComponent extends \CBitrixComponent  implements \B
 			$this->arResult["TOP_ITEMS_PAID"] = $this->topItems["ITEMS"]["PAID"];
 			$this->prepareItems($this->topItems["ITEMS"]["FREE"]);
 			$this->arResult["TOP_ITEMS_FREE"] = $this->topItems["ITEMS"]["FREE"];
+			$this->prepareItems($this->topItems["ITEMS"]["SUBSCRIPTION"]);
+			$this->arResult["TOP_ITEMS_SUBSCRIPTION"] = $this->topItems["ITEMS"]["SUBSCRIPTION"];
 		}
 
 		if (!empty($this->newItems))
@@ -400,6 +506,8 @@ class CRestMarketplaceCategoryComponent extends \CBitrixComponent  implements \B
 			$this->arResult["NEW_ITEMS_PAID"] = $this->newItems["ITEMS"]["PAID"];
 			$this->prepareItems($this->newItems["ITEMS"]["FREE"]);
 			$this->arResult["NEW_ITEMS_FREE"] = $this->newItems["ITEMS"]["FREE"];
+			$this->prepareItems($this->newItems["ITEMS"]["SUBSCRIPTION"]);
+			$this->arResult["NEW_ITEMS_SUBSCRIPTION"] = $this->newItems["ITEMS"]["SUBSCRIPTION"];
 		}
 
 		if($this->arParams["SET_TITLE"] !== "N")
@@ -411,6 +519,7 @@ class CRestMarketplaceCategoryComponent extends \CBitrixComponent  implements \B
 		\CJSCore::Init(array("marketplace"));
 		$this->includeComponentTemplate();
 	}
+
 	public function configureActions()
 	{
 		return [];
@@ -419,7 +528,10 @@ class CRestMarketplaceCategoryComponent extends \CBitrixComponent  implements \B
 	protected function listKeysSignedParameters()
 	{
 		return [
-			"DETAIL_URL_TPL"
+			"DETAIL_URL_TPL",
+			"SHOW_LAST_BLOCK",
+			"BLOCK_COUNT",
+			"HOLD_BANNER_ITEMS"
 		];
 	}
 

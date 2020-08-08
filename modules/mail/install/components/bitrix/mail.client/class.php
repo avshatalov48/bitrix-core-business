@@ -15,14 +15,26 @@ class CMailClientComponent extends CBitrixComponent
 	{
 		global $USER, $APPLICATION;
 
+		$userPage = \Bitrix\Main\Config\Option::get('socialnetwork', 'user_page', '/company/personal/', SITE_ID);
+
 		if (empty($this->arParams['PATH_TO_USER_TASKS_TASK']))
 		{
 			$this->arParams['PATH_TO_USER_TASKS_TASK'] = \Bitrix\Main\Config\Option::get(
 				'tasks',
 				'paths_task_user_action',
-				'/company/personal/user/#user_id#/tasks/task/#action#/#task_id#/',
+				$userPage . 'user/#user_id#/tasks/task/#action#/#task_id#/',
 				SITE_ID
 			);
+		}
+
+		if (empty($this->arParams['PATH_TO_USER_BLOG_POST']))
+		{
+			$this->arParams['PATH_TO_USER_BLOG_POST'] = $userPage . 'user/#user_id#/blog/#post_id#/';
+		}
+
+		if (empty($this->arParams['PATH_TO_USER_BLOG_POST_EDIT']))
+		{
+			$this->arParams['PATH_TO_USER_BLOG_POST_EDIT'] = $userPage . 'user/#user_id#/blog/edit/post/#post_id#/';
 		}
 
 		$componentPage = '';
@@ -31,27 +43,29 @@ class CMailClientComponent extends CBitrixComponent
 		if ($this->arParams['SEF_MODE'] == 'Y')
 		{
 			$defaultUrlTemplates = array(
-				'home'      => '',
-				'config'    => 'config/#act#',
-				'msg_new'   => 'message/new',
-				'blacklist' => 'blacklist',
-				'signatures' => 'signatures',
-				'signature' => 'signature/#id#',
-				'msg_view'  => 'message/#id#',
-				'msg_list'  => 'list/#id#',
+				'home'        => '',
+				'config'      => 'config/#act#',
+				'msg_new'     => 'message/new',
+				'blacklist'   => 'blacklist',
+				'signatures'  => 'signatures',
+				'signature'   => 'signature/#id#',
+				'msg_view'    => 'message/#id#',
+				'msg_list'    => 'list/#id#',
+				'config_dirs' => 'config/dirs',
 			);
 		}
 		else
 		{
 			$defaultUrlTemplates = array(
-				'home'      => '',
-				'config'    => 'page=config&act=#act#',
-				'msg_new'   => 'page=msg_new',
-				'blacklist' => 'page=blacklist',
-				'signatures' => 'page=signatures',
-				'signature' => 'page=signature&id=#id#',
-				'msg_view'  => 'page=msg_view&id=#id#',
-				'msg_list'  => 'page=msg_list&id=#id#',
+				'home'        => '',
+				'config'      => 'page=config&act=#act#',
+				'msg_new'     => 'page=msg_new',
+				'blacklist'   => 'page=blacklist',
+				'signatures'  => 'page=signatures',
+				'signature'   => 'page=signature&id=#id#',
+				'msg_view'    => 'page=msg_view&id=#id#',
+				'msg_list'    => 'page=msg_list&id=#id#',
+				'config_dirs' => 'page=config_dirs',
 			);
 		}
 
@@ -62,7 +76,7 @@ class CMailClientComponent extends CBitrixComponent
 
 			foreach ($urlTemplates as $page => $path)
 			{
-				$this->arResult['PATH_TO_MAIL_'.strtoupper($page)] = $this->arParams['SEF_FOLDER'] . $path;
+				$this->arResult['PATH_TO_MAIL_'.mb_strtoupper($page)] = $this->arParams['SEF_FOLDER'] . $path;
 			}
 		}
 		else
@@ -74,7 +88,7 @@ class CMailClientComponent extends CBitrixComponent
 
 			foreach ($defaultUrlTemplates as $page => $path)
 			{
-				$this->arResult['PATH_TO_MAIL_'.strtoupper($page)] = $APPLICATION->getCurPage() . '?' . $path;
+				$this->arResult['PATH_TO_MAIL_'.mb_strtoupper($page)] = $APPLICATION->getCurPage() . '?' . $path;
 			}
 		}
 
@@ -85,6 +99,16 @@ class CMailClientComponent extends CBitrixComponent
 
 		$this->arResult['PATH_TO_USER_TASKS_TASK'] = \CComponentEngine::makePathFromTemplate(
 			$this->arParams['PATH_TO_USER_TASKS_TASK'],
+			array('user_id' => $USER->getId())
+		);
+
+		$this->arResult['PATH_TO_USER_BLOG_POST'] = \CComponentEngine::makePathFromTemplate(
+			$this->arParams['PATH_TO_USER_BLOG_POST'],
+			array('user_id' => $USER->getId())
+		);
+
+		$this->arResult['PATH_TO_USER_BLOG_POST_EDIT'] = \CComponentEngine::makePathFromTemplate(
+			$this->arParams['PATH_TO_USER_BLOG_POST_EDIT'],
 			array('user_id' => $USER->getId())
 		);
 

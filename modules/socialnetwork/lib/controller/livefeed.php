@@ -1,6 +1,7 @@
 <?
 namespace Bitrix\Socialnetwork\Controller;
 
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Error;
 use Bitrix\Socialnetwork\ComponentHelper;
@@ -37,7 +38,7 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 
 	public function getRawEntryDataAction(array $params = [])
 	{
-		$entityType = (isset($params['entityType']) && strlen($params['entityType']) > 0 ? preg_replace("/[^a-z0-9_]/i", '', $params['entityType']) : false);
+		$entityType = (isset($params['entityType']) && $params['entityType'] <> '' ? preg_replace("/[^a-z0-9_]/i", '', $params['entityType']) : false);
 		$entityId = (isset($params['entityId']) && intval($params['entityId']) > 0 ? intval($params['entityId']) : false);
 		$logId = (isset($params['logId']) && intval($params['logId']) > 0 ? intval($params['logId']) : false);
 		$additionalParams = (isset($params['additionalParams']) && is_array($params['additionalParams']) ? $params['additionalParams'] : []);
@@ -61,11 +62,20 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 			return null;
 		}
 
-		$result = array(
+		$returnFields = [ 'TITLE', 'DESCRIPTION', 'DISK_OBJECTS', 'GROUPS_AVAILABLE', 'LIVEFEED_URL', 'SUFFIX', 'LOG_ID' ];
+		if (
+			isset($additionalParams['returnFields'])
+			&& is_array($additionalParams['returnFields'])
+		)
+		{
+			$returnFields = array_intersect($returnFields, $additionalParams['returnFields']);
+		}
+
+		$result = [
 			'TITLE' => $provider->getSourceTitle(),
 			'DESCRIPTION' => $provider->getSourceDescription(),
 			'DISK_OBJECTS' => $provider->getSourceDiskObjects()
-		);
+		];
 
 		if (
 			isset($additionalParams['getSonetGroupAvailable'])
@@ -92,6 +102,24 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 		)
 		{
 			$result['LIVEFEED_URL'] = $provider->getLiveFeedUrl();
+			if (
+				isset($additionalParams['absoluteUrl'])
+				&& $additionalParams['absoluteUrl'] == 'Y'
+			)
+			{
+				$serverName = Option::get('main', 'server_name', $_SERVER['SERVER_NAME']);
+				$res = \CSite::getById(SITE_ID);
+				if (
+					($siteFields = $res->fetch())
+					&& $siteFields['SERVER_NAME'] <> ''
+				)
+				{
+					$serverName = $siteFields['SERVER_NAME'];
+				}
+
+				$protocol = (\CMain::IsHTTPS() ? "https" : "http");
+				$result['LIVEFEED_URL'] = $protocol."://".$serverName.$result['LIVEFEED_URL'];
+			}
 		}
 
 		if ($provider->getType() == \Bitrix\Socialnetwork\Livefeed\Provider::TYPE_COMMENT)
@@ -99,18 +127,22 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 			$result['SUFFIX'] = $provider->getSuffix();
 		}
 
-		if ($logId = $provider->getLogId())
+		if (($logId = $provider->getLogId()))
 		{
 			$result['LOG_ID'] = $logId;
 		}
+
+		$result = array_filter($result, function($key) use($returnFields) {
+			return in_array($key, $returnFields);
+		}, ARRAY_FILTER_USE_KEY);
 
 		return $result;
 	}
 
 	public function createTaskCommentAction(array $params = [])
 	{
-		$postEntityType = (isset($params['postEntityType']) && strlen($params['postEntityType']) > 0 ? preg_replace('/[^a-z0-9_]/i', '', $params['postEntityType']) : false);
-		$entityType = (isset($params['entityType']) && strlen($params['entityType']) > 0 ? preg_replace("/[^a-z0-9_]/i", '', $params['entityType']) : false);
+		$postEntityType = (isset($params['postEntityType']) && $params['postEntityType'] <> '' ? preg_replace('/[^a-z0-9_]/i', '', $params['postEntityType']) : false);
+		$entityType = (isset($params['entityType']) && $params['entityType'] <> '' ? preg_replace("/[^a-z0-9_]/i", '', $params['entityType']) : false);
 		$entityId = (isset($params['entityId']) && intval($params['entityId']) > 0 ? intval($params['entityId']) : false);
 		$taskId = (isset($params['taskId']) && intval($params['taskId']) > 0 ? intval($params['taskId']) : false);
 		$logId = (isset($params['logId']) && intval($params['logId']) > 0 ? intval($params['logId']) : false);
@@ -267,6 +299,20 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 		return $result;
 	}
 
+	public function readNoTasksNotificationAction()
+	{
+		$result = [
+			'success' => false
+		];
+
+		if (\CUserOptions::setOption('socialnetwork', '~log_notasks_notification_read', 'Y'))
+		{
+			$result['success'] = true;
+		}
+
+		return $result;
+	}
+
 	public function mobileLogErrorAction($message, $url, $lineNumber)
 	{
 		if (!\Bitrix\Main\ModuleManager::isModuleInstalled("bitrix24"))
@@ -294,5 +340,54 @@ class Livefeed extends \Bitrix\Main\Engine\Controller
 			'TARGET' => 'postContent',
 		]);
 	}
-}
 
+	public static function isAdmin()
+	{
+		global $USER;
+		return (
+			$USER->isAdmin()
+			|| (
+				Loader::includeModule('bitrix24')
+				&& \CBitrix24::isPortalAdmin($USER->getId())
+			)
+		);
+	}
+	
+	private function getComponentReturnWhiteList()
+	{
+		return [ 'LAST_TS', 'LAST_ID', 'EMPTY' ];
+	}
+
+	public function getNextPageAction(array $params = [])
+	{
+		$componentParameters = $this->getUnsignedParameters();
+		$requestParameters = [
+			'TARGET' => 'page',
+			'PAGE_NUMBER' => (isset($params['PAGE_NUMBER']) && intval($params['PAGE_NUMBER']) >= 1 ? intval($params['PAGE_NUMBER']) : 1),
+			'LAST_LOG_TIMESTAMP' => (isset($params['LAST_LOG_TIMESTAMP']) && intval($params['LAST_LOG_TIMESTAMP']) > 0 ? intval($params['LAST_LOG_TIMESTAMP']) : 0),
+			'PREV_PAGE_LOG_ID' => (isset($params['PREV_PAGE_LOG_ID']) ? $params['PREV_PAGE_LOG_ID'] : ''),
+			'useBXMainFilter' =>  (isset($params['useBXMainFilter']) ? $params['useBXMainFilter'] : 'N'),
+			'siteTemplateId' =>  (isset($params['siteTemplateId']) ? $params['siteTemplateId'] : 'bitrix24')
+		];
+
+		$componentResponse = new \Bitrix\Main\Engine\Response\Component('bitrix:socialnetwork.log.ex', '', array_merge($componentParameters, $requestParameters), [], $this->getComponentReturnWhiteList());
+
+		return $componentResponse;
+	}
+
+	public function refreshAction(array $params = [])
+	{
+		$componentParameters = $this->getUnsignedParameters();
+		$requestParameters = [
+			'TARGET' => 'page',
+			'PAGE_NUMBER' => 1,
+			'RELOAD' => 'Y',
+			'useBXMainFilter' =>  (isset($params['useBXMainFilter']) ? $params['useBXMainFilter'] : 'N'),
+			'siteTemplateId' =>  (isset($params['siteTemplateId']) ? $params['siteTemplateId'] : 'bitrix24')
+		];
+
+		$componentResponse = new \Bitrix\Main\Engine\Response\Component('bitrix:socialnetwork.log.ex', '', array_merge($componentParameters, $requestParameters), [], $this->getComponentReturnWhiteList());
+
+		return $componentResponse;
+	}
+}	

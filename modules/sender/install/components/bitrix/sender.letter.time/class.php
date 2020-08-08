@@ -1,21 +1,25 @@
 <?
 
-use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Context;
 use Bitrix\Main\Error;
 use Bitrix\Main\ErrorCollection;
-use Bitrix\Main\Web\Uri;
-use Bitrix\Main\Context;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type;
-use Bitrix\Main\Loader;
-
+use Bitrix\Main\Web\Uri;
 use Bitrix\Sender\Dispatch;
 use Bitrix\Sender\Entity;
-use Bitrix\Sender\Security;
 use Bitrix\Sender\Integration;
 use Bitrix\Sender\Internals\PrettyDate;
+use Bitrix\Sender\Security;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
+	die();
+}
+
+if (!Bitrix\Main\Loader::includeModule('sender'))
+{
+	ShowError('Module `sender` not installed');
 	die();
 }
 
@@ -53,12 +57,12 @@ class SenderLetterTimeComponent extends CBitrixComponent
 			?
 			$this->arParams['CAN_EDIT']
 			:
-			Security\Access::current()->canModifyLetters();
+			Security\Access::getInstance()->canModifyLetters();
 		$this->arParams['CAN_VIEW'] = isset($this->arParams['CAN_VIEW'])
 			?
 			$this->arParams['CAN_VIEW']
 			:
-			Security\Access::current()->canViewLetters();
+			Security\Access::getInstance()->canViewLetters();
 	}
 
 	protected function preparePost()
@@ -271,7 +275,7 @@ class SenderLetterTimeComponent extends CBitrixComponent
 	public function executeComponent()
 	{
 		$this->errors = new \Bitrix\Main\ErrorCollection();
-		if (!Loader::includeModule('sender'))
+		if (!Bitrix\Main\Loader::includeModule('sender'))
 		{
 			$this->errors->setError(new Error('Module `sender` is not installed.'));
 			$this->printErrors();

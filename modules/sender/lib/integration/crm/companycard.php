@@ -90,7 +90,7 @@ class CompanyCard
 		$result = array();
 		foreach ($data as $key => $value)
 		{
-			if (substr($key, 0, 3) == 'RQ_')
+			if (mb_substr($key, 0, 3) == 'RQ_')
 			{
 				$result[$key] = $value;
 			}

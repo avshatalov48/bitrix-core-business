@@ -180,7 +180,7 @@ class Status extends Controller
 		{
 			$r->addError(new Error(Loc::getMessage('CONTROLLER_ERROR_STATUS_TYPE_ID_EMPTY'), 201350000004));
 		}
-		elseif(strlen($fields['ID'])>2)
+		elseif(mb_strlen($fields['ID']) > 2)
 		{
 			$r->addError(new Error(Loc::getMessage('CONTROLLER_ERROR_STATUS_TYPE_STRLEN'), 201350000005));
 		}

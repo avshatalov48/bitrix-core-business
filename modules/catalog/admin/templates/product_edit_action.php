@@ -70,7 +70,7 @@ if ($USER->CanDoOperation('catalog_price'))
 							"QUANTITY_TO" => $arCatalogBasePrices[$i]["QUANTITY_TO"]
 						);
 
-						if (strlen($arCatalogPrice_tmp[$i]["CURRENCY"]) <= 0)
+						if ($arCatalogPrice_tmp[$i]["CURRENCY"] == '')
 						{
 							$arCatalogPrice_tmp[$i]["CURRENCY"] = $arCatalogBasePrices[$i]["CURRENCY"];
 						}
@@ -274,13 +274,31 @@ if ($USER->CanDoOperation('catalog_price'))
 				$USER_FIELD_MANAGER->EditFormAddFields(Catalog\ProductTable::getUfId(), $arFields);
 
 				$iterator = Catalog\Model\Product::getList(array(
-					'select' => ['ID'],
+					'select' => ['ID', 'TYPE'],
 					'filter' => ['=ID' => $arFields['ID']]
 				));
 				$row = $iterator->fetch();
 				unset($iterator);
 				if (!empty($row))
 				{
+					if (
+						$row['TYPE'] == Catalog\ProductTable::TYPE_EMPTY_SKU
+					)
+					{
+						$catalogInfo = \CCatalogSku::GetInfoByIBlock($IBLOCK_ID);
+						if (
+							!empty($catalogInfo)
+							&& (
+								$catalogInfo['CATALOG_TYPE'] == \CCatalogSku::TYPE_FULL
+								|| $catalogInfo['CATALOG_TYPE'] == \CCatalogSku::TYPE_CATALOG
+							)
+						)
+						{
+							$arFields['TYPE'] = Catalog\ProductTable::TYPE_PRODUCT;
+						}
+						unset($catalogInfo);
+					}
+
 					$productResult = CCatalogProduct::Update($arFields['ID'], $arFields);
 				}
 				else
@@ -368,7 +386,7 @@ if ($USER->CanDoOperation('catalog_price'))
 				$intCountBasePrice = count($arCatalogBasePrices);
 				for ($i = 0; $i < $intCountBasePrice; $i++)
 				{
-					if (strlen($arCatalogBasePrices[$i]["PRICE"]) > 0)
+					if ($arCatalogBasePrices[$i]["PRICE"] <> '')
 					{
 						$arCatalogFields = array(
 							"EXTRA_ID" => false,
@@ -412,7 +430,7 @@ if ($USER->CanDoOperation('catalog_price'))
 					$intCountPrice = count($arCatalogPrice_tmp);
 					for ($i = 0; $i < $intCountPrice; $i++)
 					{
-						if (strlen($arCatalogPrice_tmp[$i]["PRICE"]) > 0)
+						if ($arCatalogPrice_tmp[$i]["PRICE"] <> '')
 						{
 							$arCatalogFields = array(
 								"EXTRA_ID" => ($arCatalogPrice_tmp[$i]["EXTRA_ID"] > 0 ? $arCatalogPrice_tmp[$i]["EXTRA_ID"] : false),
@@ -473,7 +491,7 @@ if ($USER->CanDoOperation('catalog_price'))
 
 					$arAvailContentGroups = array();
 					$availContentGroups = COption::GetOptionString("catalog", "avail_content_groups");
-					if (strlen($availContentGroups) > 0)
+					if ($availContentGroups <> '')
 						$arAvailContentGroups = explode(",", $availContentGroups);
 
 					$dbGroups = CGroup::GetList(

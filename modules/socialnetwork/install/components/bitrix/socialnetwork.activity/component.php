@@ -7,24 +7,24 @@ if (!CModule::IncludeModule("socialnetwork"))
 	return;
 }
 
-if (strLen($arParams["USER_VAR"]) <= 0)
+if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
-if (strLen($arParams["GROUP_VAR"]) <= 0)
+if ($arParams["GROUP_VAR"] == '')
 	$arParams["GROUP_VAR"] = "group_id";
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if (strlen($arParams["PATH_TO_USER"]) <= 0)
+if ($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_GROUP"] = trim($arParams["PATH_TO_GROUP"]);
-if (strlen($arParams["PATH_TO_GROUP"]) <= 0)
+if ($arParams["PATH_TO_GROUP"] == '')
 	$arParams["PATH_TO_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]);
 
-$arParams["USER_ID"] = IntVal($arParams["USER_ID"]);
+$arParams["USER_ID"] = intval($arParams["USER_ID"]);
 if ($arParams["USER_ID"] <= 0)
 {
 	ShowError(GetMessage("SONET_ACTIVITY_NO_USER"));
@@ -41,13 +41,13 @@ $bUseLogin = $arParams["SHOW_LOGIN"] != "N" ? true : false;
 
 $arSocNetFeaturesSettings = CSocNetAllowed::GetAllowedFeatures();
 
-$arParams["LOG_DATE_DAYS"] = IntVal($arParams["LOG_DATE_DAYS"]);
+$arParams["LOG_DATE_DAYS"] = intval($arParams["LOG_DATE_DAYS"]);
 if ($arParams["LOG_DATE_DAYS"] <= 0)
 	$arParams["LOG_DATE_DAYS"] = 7;
 
-$arParams["AUTH"] = ((StrToUpper($arParams["AUTH"]) == "Y") ? "Y" : "N");
+$arParams["AUTH"] = ((mb_strtoupper($arParams["AUTH"]) == "Y") ? "Y" : "N");
 
-$arParams["EVENT_ID"] = (array_key_exists("EVENT_ID", $arParams) && strlen($arParams["EVENT_ID"]) > 0 ? $arParams["EVENT_ID"] : false);
+$arParams["EVENT_ID"] = (array_key_exists("EVENT_ID", $arParams) && $arParams["EVENT_ID"] <> '' ? $arParams["EVENT_ID"] : false);
 
 $arParams["LOG_CNT"] = (array_key_exists("LOG_CNT", $arParams) && intval($arParams["LOG_CNT"]) > 0 ? $arParams["LOG_CNT"] : 0);
 
@@ -130,14 +130,14 @@ if ($arUser = $dbUser->Fetch())
 			$arFilter[">=LOG_DATE"] = ConvertTimeStamp($stmp, "FULL");
 		}
 		
-		if (strlen($arParams["EVENT_ID"]) > 0)
+		if ($arParams["EVENT_ID"] <> '')
 		{
 			$arFilter["EVENT_ID"] = $arParams["EVENT_ID"];
 			if ($arFilter["EVENT_ID"] == "blog")
 				$arFilter["EVENT_ID"] = array("blog", "blog_post", "blog_comment", "blog_post_micro");
 		}
 		
-		if (StrLen($_REQUEST["flt_event_id"]) > 0 && $_REQUEST["flt_event_id"] != "all")
+		if ($_REQUEST["flt_event_id"] <> '' && $_REQUEST["flt_event_id"] != "all")
 		{
 			$arFilter["EVENT_ID"] = $_REQUEST["flt_event_id"];
 			if ($arFilter["EVENT_ID"] == "blog")
@@ -285,16 +285,16 @@ if ($arUser = $dbUser->Fetch())
 			}
 
 			$arDateTmp = ParseDateTime($arEvents["LOG_DATE"], CSite::GetDateFormat('FULL'));
-			$day = IntVal($arDateTmp["DD"]);
-			$month = IntVal($arDateTmp["MM"]);
-			$year = IntVal($arDateTmp["YYYY"]);
+			$day = intval($arDateTmp["DD"]);
+			$month = intval($arDateTmp["MM"]);
+			$year = intval($arDateTmp["YYYY"]);
 			$dateFormated = $day.' '.ToLower(GetMessage('MONTH_'.$month.'_S')).' '.$year;
 			$timeFormated = $arDateTmp["HH"].':'.$arDateTmp["MI"].':'.$arDateTmp["SS"];
 
 			$arEvents["MESSAGE_FORMAT"] = htmlspecialcharsback($arEvents["MESSAGE"]);
-			if (StrLen($arEvents["CALLBACK_FUNC"]) > 0)
+			if ($arEvents["CALLBACK_FUNC"] <> '')
 			{
-				if (StrLen($arEvents["MODULE_ID"]) > 0)
+				if ($arEvents["MODULE_ID"] <> '')
 					CModule::IncludeModule($arEvents["MODULE_ID"]);
 					$arEvents["MESSAGE_FORMAT"] = call_user_func($arEvents["CALLBACK_FUNC"], $arEvents);
 			}

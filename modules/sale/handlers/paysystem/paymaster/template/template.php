@@ -26,6 +26,6 @@ Loc::loadMessages(__FILE__);
 		<input type="hidden" name="LMI_FAIL_METHOD" value="1">
 		<input type="hidden" name="BX_HANDLER" value="PAYMASTER">
 		<input type="hidden" name="BX_PAYSYSTEM_CODE" value="<?=$params['BX_PAYSYSTEM_CODE'];?>">
-		<input type="submit" class="btn btn-primary pl-4 pr-4" value="<?=Loc::getMessage('SALE_HPS_PAYMASTER_TEMPLATE_BUTTON_PAID');?>">
+		<input type="submit" class="btn btn-lg btn-success pl-4 pr-4" style="border-radius: 32px;" value="<?=Loc::getMessage('SALE_HPS_PAYMASTER_TEMPLATE_BUTTON_PAID');?>">
 	</form>
 </div>

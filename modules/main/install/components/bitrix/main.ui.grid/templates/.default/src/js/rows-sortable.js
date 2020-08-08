@@ -215,6 +215,7 @@
 
 		_onDragStart: function()
 		{
+			this.moved = false;
 			this.dragItem = jsDD.current_node;
 			this.targetItem = this.dragItem;
 			this.additionalDragItems = this.getAdditionalDragItems(this.dragItem);
@@ -366,6 +367,7 @@
 						this.checkError(this.dragEvent);
 						this.updateProperties(this.dragItem, this.targetItem);
 						this.isDragetToTop = true;
+						this.moved = true;
 					}
 
 					if (this.isDragToBottom(current, index) && !this.isMovedToBottom(current))
@@ -378,6 +380,11 @@
 						this.checkError(this.dragEvent);
 						this.updateProperties(this.dragItem, this.targetItem);
 						this.isDragetToTop = false;
+
+						if (this.targetItem)
+						{
+							this.moved = true;
+						}
 					}
 
 					if (this.isDragToBack(current, index) && this.isMoved(current))
@@ -389,6 +396,8 @@
 						{
 							this.targetItem = this.findNextVisible(this.list, index);
 						}
+
+						this.moved = true;
 
 						this.dragEvent.setEventName('BX.Main.grid:rowDragMove');
 						this.dragEvent.setTargetItem(this.targetItem);
@@ -540,7 +549,7 @@
 			{
 				target.parentNode.insertBefore(current, target);
 			}
-			else
+			else if (this.moved)
 			{
 				current.parentNode.appendChild(current);
 			}
@@ -558,6 +567,7 @@
 
 		setDefaultProps: function()
 		{
+			this.moved = false;
 			this.dragItem = null;
 			this.targetItem = null;
 			this.dragRect = null;

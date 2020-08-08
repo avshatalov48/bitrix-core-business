@@ -32,10 +32,10 @@ class Bpt extends BasePacker
 		$documentFieldsAliasesMap = CBPDocument::getDocumentFieldsAliasesMap($documentFieldsTmp);
 
 		$documentFields = [];
-		$len = strlen("_PRINTABLE");
+		$len = mb_strlen("_PRINTABLE");
 		foreach ($documentFieldsTmp as $k => $v)
 		{
-			if (strtoupper(substr($k, -$len)) != "_PRINTABLE")
+			if (mb_strtoupper(mb_substr($k, -$len)) != "_PRINTABLE")
 			{
 				$documentFields[$k] = $v;
 			}
@@ -207,7 +207,7 @@ class Bpt extends BasePacker
 
 	private static function ConvertValueCharset($s, $direction)
 	{
-		if ("utf-8" == strtolower(LANG_CHARSET))
+		if ("utf-8" == mb_strtolower(LANG_CHARSET))
 			return $s;
 
 		if (is_numeric($s))

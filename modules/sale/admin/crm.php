@@ -39,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $do_create_link == "Y" && $saleModul
 	{
 		$arCrmUrl = parse_url($_POST["CRM_URL_SERVER"]);
 		$crmUrlHost = $arCrmUrl["host"] ? $arCrmUrl["host"] : $arCrmUrl["path"];
-		$crmUrlScheme = $arCrmUrl["scheme"] ? strtolower($arCrmUrl["scheme"]) : strtolower($_POST["CRM_URL_SCHEME"]);
+		$crmUrlScheme = $arCrmUrl["scheme"]? mb_strtolower($arCrmUrl["scheme"]) : mb_strtolower($_POST["CRM_URL_SCHEME"]);
 		$crmUrlPort = $arCrmUrl["port"] ? intval($arCrmUrl["port"]) : intval($_POST["CRM_URL_PORT"]);
 		switch ($crmUrlScheme)
 		{
@@ -66,9 +66,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $do_create_link == "Y" && $saleModul
 	$crmLogin = $_POST["CRM_LOGIN"];
 	$crmPassword = $_POST["CRM_PASSWORD"];
 
-	if (strlen($crmLogin) <= 0)
+	if ($crmLogin == '')
 		$errorMessage .= GetMessage("SPTEN_SCRM_NO_LOGIN")."<br />";
-	if (strlen($crmPassword) <= 0)
+	if ($crmPassword == '')
 		$errorMessage .= GetMessage("SPTEN_SCRM_NO_PWD")."<br />";
 
 	$createNewSaleUser = ($_POST["CRM_BUS_USER_SET_C"] == "Y");
@@ -76,7 +76,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $do_create_link == "Y" && $saleModul
 	{
 		$saleLogin = $_POST["CRM_BUS_USER_LOGIN"];
 		$salePassword = $_POST["CRM_BUS_USER_PASSWORD"];
-		if (strlen($saleLogin) <= 0)
+		if ($saleLogin == '')
 		{
 			$errorMessage .= GetMessage("SPTEN_SCRM_NO_SALE_LOGIN")."<br />";
 		}
@@ -86,7 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $do_create_link == "Y" && $saleModul
 			if (!$arSaleLoginUser = $dbSaleLoginUser->Fetch())
 				$errorMessage .= GetMessage("SPTEN_SCRM_WRONG_SALE_LOGIN")."<br />";
 		}
-		if (strlen($salePassword) <= 0)
+		if ($salePassword == '')
 			$errorMessage .= GetMessage("SPTEN_SCRM_NO_SALE_PWD")."<br />";
 	}
 
@@ -163,7 +163,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $do_create_link == "Y" && $saleModul
 			$userId = $user->Add($arUserFields);
 			$userId = intval($userId);
 			if ($userId <= 0)
-				$errorMessage .= GetMessage("SPTEN_SCRM_ERR_REG").((strlen($user->LAST_ERROR) > 0) ? ": ".$user->LAST_ERROR : "");
+				$errorMessage .= GetMessage("SPTEN_SCRM_ERR_REG").(($user->LAST_ERROR <> '') ? ": ".$user->LAST_ERROR : "");
 		}
 
 		if (empty($errorMessage))
@@ -185,12 +185,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $do_create_link == "Y" && $saleModul
 			$groupId = $group->Add($arGroupFields);
 			$groupId = intval($groupId);
 			if ($groupId <= 0)
-				$errorMessage .= GetMessage("SPTEN_SCRM_ERR_GRP").((strlen($group->LAST_ERROR) > 0) ? ": ".$group->LAST_ERROR : "");
+				$errorMessage .= GetMessage("SPTEN_SCRM_ERR_GRP").(($group->LAST_ERROR <> '') ? ": ".$group->LAST_ERROR : "");
 		}
 	}
 
 	function __CrmSaleQuery($crmUrlScheme, $crmUrlHost, $crmUrlPort, $crmLogin, $crmPassword, $head, $body, &$errorMessage)
 	{
+		// remove last slash from $crmUrlHost, eg. site.ru/
+		if (mb_strpos($crmUrlHost, '/') === (mb_strlen($crmUrlHost) - 1))
+		{
+			$crmUrlHost = mb_substr($crmUrlHost, 0, -1);
+		}
+
 		$hServer = @fsockopen($crmUrlScheme.$crmUrlHost, $crmUrlPort, $errno, $errstr, 20);
 		if (!$hServer)
 			$errorMessage .= sprintf("[%s] %s", $errno, $errstr)."<br />";
@@ -204,7 +210,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $do_create_link == "Y" && $saleModul
 			$buffer .= sprintf("Host: %s:%s\r\n", $crmUrlHost, $crmUrlPort);
 			$buffer .= "Content-type: application/x-www-form-urlencoded; charset=UTF-8\r\n";
 			$buffer .= sprintf("Authorization: Basic %s\r\n", base64_encode($crmLogin.":".$crmPassword));
-			$buffer .= sprintf("Content-length: %s\r\n", ((function_exists('mb_strlen') ? mb_strlen($body, 'latin1') : strlen($body))));
+			$buffer .= sprintf("Content-length: %s\r\n", ((function_exists('mb_strlen')? mb_strlen($body, 'latin1') : mb_strlen($body))));
 			$buffer .= $head;
 			$buffer .= "\r\n";
 			$buffer .= $body;
@@ -249,7 +255,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $do_create_link == "Y" && $saleModul
 				while ($lb > 0)
 				{
 					$responseBody .= fread($hServer, $lb);
-					$lb = $contentLength - ((function_exists('mb_strlen') ? mb_strlen($responseBody, 'latin1') : strlen($responseBody)));
+					$lb = $contentLength - ((function_exists('mb_strlen')? mb_strlen($responseBody, 'latin1') : mb_strlen($responseBody)));
 				}
 			}
 			else
@@ -259,9 +265,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $do_create_link == "Y" && $saleModul
 				while (!feof($hServer))
 				{
 					$responseBody .= fread($hServer, 4096);
-					if (substr($responseBody, -9) == "\r\n\r\n0\r\n\r\n")
+					if (mb_substr($responseBody, -9) == "\r\n\r\n0\r\n\r\n")
 					{
-						$responseBody = substr($responseBody, 0, -9);
+						$responseBody = mb_substr($responseBody, 0, -9);
 						break;
 					}
 				}
@@ -300,12 +306,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $do_create_link == "Y" && $saleModul
 			$responseBody = CharsetConverter::ConvertCharset($responseBody, SITE_CHARSET, "CP1251");
 		}
 
-		if (strpos($responseBody, "bsid=") !== false)
+		if (mb_strpos($responseBody, "bsid=") !== false)
 		{
-			$p1 = strpos($responseBody, "bsid=");
-			$p2 = strpos($responseBody, ";", $p1);
+			$p1 = mb_strpos($responseBody, "bsid=");
+			$p2 = mb_strpos($responseBody, ";", $p1);
 
-			$body["sessid"] = substr($responseBody, $p1 + 5, $p2 - $p1 - 5);
+			$body["sessid"] = mb_substr($responseBody, $p1 + 5, $p2 - $p1 - 5);
 			$body1 = http_build_query($body);
 			if (!defined("BX_UTF"))
 				$body1 = CharsetConverter::ConvertCharset($body1, SITE_CHARSET, "UTF-8");
@@ -313,11 +319,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $do_create_link == "Y" && $saleModul
 			$head1 = "";
 			foreach ($arResponseHeaders as $h)
 			{
-				$p1 = strpos($h, "PHPSESSID=");
+				$p1 = mb_strpos($h, "PHPSESSID=");
 				if ($p1 !== false)
 				{
-					$p2 = strpos($h, ";", $p1);
-					$head1 .= "Cookie: PHPSESSID=".(($p2 !== false) ? substr($h, $p1 + 10, $p2 - $p1 - 10) : substr($h, $p1 + 10))."\r\n";
+					$p2 = mb_strpos($h, ";", $p1);
+					$head1 .= "Cookie: PHPSESSID=".(($p2 !== false)? mb_substr($h, $p1 + 10, $p2 - $p1 - 10) : mb_substr($h, $p1 + 10))."\r\n";
 					break;
 				}
 			}
@@ -336,19 +342,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $do_create_link == "Y" && $saleModul
 		if(!defined("BX_UTF"))
 			$responseBody = $APPLICATION->ConvertCharset($responseBody, "UTF-8", LANG_CHARSET);
 
-		if (($statusCode == 401) || (strpos($responseBody, "form_auth") !== false) || (strpos($responseBody, "Permission denied") !== false))
+		if (($statusCode == 401) || (mb_strpos($responseBody, "form_auth") !== false) || (mb_strpos($responseBody, "Permission denied") !== false))
 		{
 			$errorMessage .= GetMessage("SPTEN_SCRM_ERR_AUTH")."<br />";
 		}
 		else
 		{
-			$rcode = ToUpper(substr($responseBody, 0, 2));
+			$rcode = ToUpper(mb_substr($responseBody, 0, 2));
 			if ($rcode == "ER")
-				$errorMessage .= substr($responseBody, 2)."<br />";
+				$errorMessage .= mb_substr($responseBody, 2)."<br />";
 			elseif ($rcode != "OK")
 				$errorMessage .= GetMessage("SPTEN_SCRM_ERR_ANSWER")."<br />";
 			else
-				$crmUrl4Import = trim(substr($responseBody, 2));
+				$crmUrl4Import = trim(mb_substr($responseBody, 2));
 		}
 	}
 
@@ -487,14 +493,14 @@ if ($_REQUEST["success"] == "Y")
 {
 	$crmIntegrationUrl = htmlspecialcharsbx($_REQUEST["crm_url"]);
 	$crmIntegrationImpUrl = htmlspecialcharsbx($_REQUEST["crm_imp_url"]);
-	
+
 	$find = "/^(http:\/\/|https:\/\/|ssl:\/\/)/i";
 	if(!preg_match($find, $crmIntegrationUrl, $res) && !empty($_REQUEST["crm_url"]))
 		$crmIntegrationUrl = "http://".$crmIntegrationUrl;
-	
+
 	if(!preg_match($find, $crmIntegrationImpUrl, $res) && !empty($_REQUEST["crm_imp_url"]))
 		$crmIntegrationImpUrl = "http://".$crmIntegrationImpUrl;
-	
+
 	$successMessage = GetMessage(
 		"SPTEN_SCRM_SUCCESS_MESS",
 		array(
@@ -503,7 +509,7 @@ if ($_REQUEST["success"] == "Y")
 			"#IMP#" => !empty($crmIntegrationImpUrl) ? $crmIntegrationImpUrl : $crmIntegrationUrl."/crm/configs/external_sale/",
 		)
 	);
-	
+
 	$successMessage .= '<br /><br /><div class="crm-admin-buttons" id="id_new_crm_btns">
 		<span class="crm-admin-button-wrap">
 			<a target="_blank" href="'.(!empty($crmIntegrationImpUrl) ? $crmIntegrationImpUrl : $crmIntegrationUrl."/crm/configs/external_sale/").'" class="adm-btn adm-btn-green">'.GetMessage("SPTEN_SCRM_CRM_BTN").'</a>

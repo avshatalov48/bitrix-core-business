@@ -27,7 +27,7 @@ $arChildParams = array(
 );
 
 foreach ($arParams as $key => $val)
-	if(strpos($key, "STATUS_COLOR_") !== false && strpos($key, "~") !== 0)
+	if(mb_strpos($key, "STATUS_COLOR_") !== false && mb_strpos($key, "~") !== 0)
 		$arChildParams[$key] = $val;
 
 $APPLICATION->IncludeComponent(

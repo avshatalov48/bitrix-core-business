@@ -5,22 +5,12 @@ class Notify
 {
 	public static function getRealCounter($chatId): int
 	{
-		$chatId = intval($chatId);
-		if (!$chatId)
-		{
-			return 0;
-		}
+		return self::getCounters($chatId, true)[$chatId];
+	}
 
-		$query = "
-			SELECT COUNT(1) COUNTER
-			FROM b_im_message
-			WHERE CHAT_ID = {$chatId} AND NOTIFY_READ <> 'Y'
-		";
-
-		$result = \Bitrix\Main\Application::getInstance()->getConnection()->query($query)->fetch();
-		$counter = $result? $result['COUNTER']: 0;
-
-		return $counter;
+	public static function getRealCounters($chatId)
+	{
+		return self::getCounters($chatId, true);
 	}
 
 	public static function getCounter($chatId): int
@@ -28,7 +18,7 @@ class Notify
 		return self::getCounters($chatId)[$chatId];
 	}
 
-	public static function getCounters($chatId)
+	public static function getCounters($chatId, $isReal = false)
 	{
 		$result = Array();
 		$chatList = Array();
@@ -62,11 +52,25 @@ class Notify
 			return false;
 		}
 
-		$query = "
-			SELECT CHAT_ID, COUNTER 
-			FROM b_im_relation
-			WHERE CHAT_ID ".($isMulti? ' IN ('.implode(',', $chatList).')': ' = '.$chatList[0])."
-		";
+		if ($isReal)
+		{
+			$query = "
+				SELECT CHAT_ID, COUNT(1) COUNTER
+				FROM b_im_message
+				WHERE CHAT_ID ".($isMulti? ' IN ('.implode(',', $chatList).')': ' = '.$chatList[0])."
+					  AND NOTIFY_READ <> 'Y'
+				GROUP BY CHAT_ID
+			";
+		}
+		else
+		{
+			$query = "
+				SELECT CHAT_ID, COUNTER 
+				FROM b_im_relation
+				WHERE CHAT_ID ".($isMulti? ' IN ('.implode(',', $chatList).')': ' = '.$chatList[0])."
+			";
+		}
+
 		$orm = \Bitrix\Main\Application::getInstance()->getConnection()->query($query);
 		while($row = $orm->fetch())
 		{

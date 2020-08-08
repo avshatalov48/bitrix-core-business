@@ -1,5 +1,9 @@
+import {Type} from 'main.core';
+import 'main.polyfill.intersectionobserver';
+
 const LazyLoad = {
-	images: [],
+	observer: null,
+	images: {},
 	imageStatus: {
 		hidden: -2,
 		error: -1,
@@ -12,44 +16,132 @@ const LazyLoad = {
 		background: 2
 	},
 
+	initObserver: function()
+	{
+		this.observer = new IntersectionObserver(this.onIntersection.bind(this), {
+			rootMargin: '20% 0% 20% 0%',
+			threshold: 0.10
+		});
+	},
+
+	onIntersection: function(entries)
+	{
+		entries.forEach(function (entry) {
+			if (entry.isIntersecting)
+			{
+				this.showImage(entry.target);
+			}
+		}.bind(this));
+	},
+
 	registerImage: function(id, isImageVisibleCallback, options)
 	{
+		if (this.observer === null)
+		{
+			this.initObserver();
+		}
+
 		options = options || {};
 
-		if (BX.type.isNotEmptyString(id))
+		if (!Type.isStringFilled(id))
 		{
-			this.images.push({
-				id: id,
-				node: null,
-				src: null,
-				dataSrcName: options.dataSrcName || 'src',
-				type: null,
-				func: BX.type.isFunction(isImageVisibleCallback) ? isImageVisibleCallback : null,
-				status: this.imageStatus.undefined
-			});
+			return;
 		}
+
+		if (Type.isObject(this.images[id]))
+		{
+			return;
+		}
+
+		const element = document.getElementById(id);
+		if (!Type.isDomNode(element))
+		{
+			return;
+		}
+
+		this.observer.observe(element);
+
+		this.images[id] = {
+			id: id,
+			node: null,
+			src: null,
+			dataSrcName: options.dataSrcName || 'src',
+			type: null,
+			func: Type.isFunction(isImageVisibleCallback) ? isImageVisibleCallback : null,
+			status: this.imageStatus.undefined
+		};
 	},
 
 	registerImages: function(ids, isImageVisibleCallback, options)
 	{
-		if (BX.type.isArray(ids))
+		if (Type.isArray(ids))
 		{
-			for (var i = 0, length = ids.length; i < length; i++)
+			for (let i = 0, length = ids.length; i < length; i++)
 			{
 				this.registerImage(ids[i], isImageVisibleCallback, options);
 			}
 		}
 	},
 
+	showImage: function(imageNode)
+	{
+		const imageNodeId = imageNode.id;
+		if (!Type.isStringFilled(imageNodeId))
+		{
+			return;
+		}
+
+		let image = this.images[imageNodeId];
+		if (!Type.isPlainObject(image))
+		{
+			return;
+		}
+
+		if (image.status == this.imageStatus.undefined)
+		{
+			this.initImage(image);
+		}
+
+		if (image.status !== this.imageStatus.inited)
+		{
+			return;
+		}
+
+		if (
+			!image.node
+			|| !image.node.parentNode
+		)
+		{
+			image.node = null;
+			image.status = this.imageStatus.error;
+			return;
+		}
+
+		if (image.type == this.imageTypes.image)
+		{
+			image.node.src = image.src;
+		}
+		else
+		{
+			image.node.style.backgroundImage = "url('" + image.src + "')";
+		}
+
+		image.node.dataset[image.dataSrcName] = "";
+		image.status = this.imageStatus.loaded;
+	},
+
 	showImages: function(checkOwnVisibility)
 	{
-		var image = null;
-		var isImageVisible = false;
-
 		checkOwnVisibility = (checkOwnVisibility !== false);
-		for (var i = 0, length = this.images.length; i < length; i++)
+
+		for (let id in this.images)
 		{
-			image = this.images[i];
+			if (!this.images.hasOwnProperty(id))
+			{
+				continue;
+			}
+
+			let image = this.images[id];
 
 			if (image.status == this.imageStatus.undefined)
 			{
@@ -71,8 +163,11 @@ const LazyLoad = {
 				continue;
 			}
 
-			isImageVisible = true;
-			if (checkOwnVisibility && image.func)
+			let isImageVisible = true;
+			if (
+				checkOwnVisibility
+				&& Type.isFunction(image.func)
+			)
 			{
 				isImageVisible = image.func(image);
 			}
@@ -100,60 +195,63 @@ const LazyLoad = {
 	initImage: function(image)
 	{
 		image.status = this.imageStatus.error;
-		var node = BX(image.id);
-		if (node)
+		const node = document.getElementById(image.id);
+
+		if (!Type.isDomNode(node))
 		{
-			var src = node.dataset[image.dataSrcName];
-			if (BX.type.isNotEmptyString(src))
-			{
-				image.node = node;
-				image.src = src;
-				image.status = this.imageStatus.inited;
-				image.type = (image.node.tagName.toLowerCase() == "img"
-						? this.imageTypes.image
-						: this.imageTypes.background
-				);
-			}
+			return;
+		}
+
+		const src = node.dataset[image.dataSrcName];
+		if (Type.isStringFilled(src))
+		{
+			image.node = node;
+			image.src = src;
+			image.status = this.imageStatus.inited;
+			image.type = (image.node.tagName.toLowerCase() == "img"
+					? this.imageTypes.image
+					: this.imageTypes.background
+			);
 		}
 	},
 
 	isElementVisibleOnScreen: function (element)
 	{
-		var coords = this.getElementCoords(element);
-
-		var windowTop = window.pageYOffset || document.documentElement.scrollTop;
-		var windowBottom = windowTop + document.documentElement.clientHeight;
+		const coords = this.getElementCoords(element);
+		const windowTop = window.pageYOffset || document.documentElement.scrollTop;
+		const windowBottom = windowTop + document.documentElement.clientHeight;
 
 		coords.bottom = coords.top + element.offsetHeight;
 
-		var topVisible = coords.top > windowTop && coords.top < windowBottom;
-		var bottomVisible = coords.bottom < windowBottom && coords.bottom > windowTop;
-
-		return topVisible || bottomVisible;
+		return (
+			(coords.top > windowTop && coords.top < windowBottom) // topVisible
+			|| (coords.bottom < windowBottom && coords.bottom > windowTop) // bottomVisible
+		);
 	},
 
 	isElementVisibleOn2Screens: function(element)
 	{
-		var coords = this.getElementCoords(element);
+		const windowHeight = document.documentElement.clientHeight;
 
-		var windowHeight = document.documentElement.clientHeight;
+
 		var windowTop = window.pageYOffset || document.documentElement.scrollTop;
 		var windowBottom = windowTop + windowHeight;
+		var coords = this.getElementCoords(element);
 
 		coords.bottom = coords.top + element.offsetHeight;
 
 		windowTop -= windowHeight;
 		windowBottom += windowHeight;
 
-		var topVisible = coords.top > windowTop && coords.top < windowBottom;
-		var bottomVisible = coords.bottom < windowBottom && coords.bottom > windowTop;
-
-		return topVisible || bottomVisible;
+		return (
+			(coords.top > windowTop && coords.top < windowBottom) // topVisible
+			|| (coords.bottom < windowBottom && coords.bottom > windowTop) // bottomVisible
+		);
 	},
 
 	getElementCoords: function(element)
 	{
-		var box = element.getBoundingClientRect();
+		const box = element.getBoundingClientRect();
 
 		return {
 			originTop: box.top,
@@ -165,7 +263,6 @@ const LazyLoad = {
 
 	onScroll: function()
 	{
-		BX.LazyLoad.showImages();
 	},
 
 	clearImages: function ()

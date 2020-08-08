@@ -11,7 +11,7 @@ use Bitrix\Main\Update\Stepper;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI;
 
-\Bitrix\Main\UI\Extension::load("ui.fonts.opensans");
+\Bitrix\Main\UI\Extension::load(["ui.fonts.opensans", "ui.icons.b24"]);
 
 UI\Extension::load("socialnetwork.common");
 
@@ -19,9 +19,9 @@ $bodyClass = $APPLICATION->GetPageProperty("BodyClass");
 $bodyClass = $bodyClass ? $bodyClass." no-paddings" : "no-paddings";
 $APPLICATION->SetPageProperty("BodyClass", $bodyClass);
 
-if(strlen($arResult["FatalError"])>0)
+if($arResult["FatalError"] <> '')
 {
-	?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?
+	?><span class="sonet-groups-menu-errortext"><?=$arResult["FatalError"]?></span><br /><br /><?
 }
 else
 {
@@ -63,9 +63,9 @@ else
 			array("HIDE_ICONS" => "Y")
 		);
 
-		if(strlen($arResult["ErrorMessage"])>0)
+		if($arResult["ErrorMessage"] <> '')
 		{
-			?><span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br /><?
+			?><span class="sonet-groups-menu-errortext"><?=$arResult["ErrorMessage"]?></span><br /><br /><?
 		}
 
 		if (
@@ -120,10 +120,10 @@ else
 						"bitrix:search.tags.cloud",
 						"",
 						Array(
-							"FONT_MAX" => (IntVal($arParams["FONT_MAX"]) >0 ? $arParams["FONT_MAX"] : 20),
-							"FONT_MIN" => (IntVal($arParams["FONT_MIN"]) >0 ? $arParams["FONT_MIN"] : 10),
-							"COLOR_NEW" => (strlen($arParams["COLOR_NEW"]) >0 ? $arParams["COLOR_NEW"] : "3f75a2"),
-							"COLOR_OLD" => (strlen($arParams["COLOR_OLD"]) >0 ? $arParams["COLOR_OLD"] : "8D8D8D"),
+							"FONT_MAX" => (intval($arParams["FONT_MAX"]) >0 ? $arParams["FONT_MAX"] : 20),
+							"FONT_MIN" => (intval($arParams["FONT_MIN"]) >0 ? $arParams["FONT_MIN"] : 10),
+							"COLOR_NEW" => ($arParams["COLOR_NEW"] <> '' ? $arParams["COLOR_NEW"] : "3f75a2"),
+							"COLOR_OLD" => ($arParams["COLOR_OLD"] <> '' ? $arParams["COLOR_OLD"] : "8D8D8D"),
 							"ANGULARITY" => $arParams["ANGULARITY"],
 							"PERIOD_NEW_TAGS" => $arResult["PERIOD_NEW_TAGS"],
 							"SHOW_CHAIN" => "N",
@@ -148,7 +148,7 @@ else
 				}
 				else
 				{
-					echo "<br /><span class='errortext'>".GetMessage("SONET_C36_T_NO_SEARCH_MODULE")."</span><br /><br />";
+					echo '<br /><span class="sonet-groups-menu-errortext">".GetMessage("SONET_C36_T_NO_SEARCH_MODULE")."</span><br /><br />';
 				}
 			}
 		}
@@ -197,7 +197,7 @@ else
 		<div class="sonet-groups-content-sort-container"><?
 			?><span id="bx-sonet-groups-sort"><?
 				?><?=GetMessage('SONET_C33_T_F_SORT')?><?
-				?><span class="sonet-groups-content-sort-btn" id="bx-sonet-groups-sort-value"><?=GetMessage('SONET_C33_T_F_SORT_'.strtoupper($arResult["ORDER_KEY"]))?></span><?
+				?><span class="sonet-groups-content-sort-btn" id="bx-sonet-groups-sort-value"><?=GetMessage('SONET_C33_T_F_SORT_'.mb_strtoupper($arResult["ORDER_KEY"]))?></span><?
 			?></span><?
 			?><span class="sonet-groups-search"><?
 				$APPLICATION->IncludeComponent(
@@ -263,7 +263,9 @@ else
 						}/**/
 
 						?><div class="sonet-groups-group-block"><?
-							?><span class="sonet-groups-group-img"<?=($group["GROUP_PHOTO_RESIZED_COMMON"] ? " style=\"background:#fff url('".$group["GROUP_PHOTO_RESIZED_COMMON"]["src"]."') no-repeat; background-size: cover;\"" : "")?>></span><?
+							?><span class="ui-icon ui-icon-common-user-group sonet-groups-group-img">
+								<i <?=($group["GROUP_PHOTO_RESIZED_COMMON"] ? " style=\"background:#fff url('".$group["GROUP_PHOTO_RESIZED_COMMON"]["src"]."') no-repeat; background-size: cover;\"" : "")?>></i>
+							</span><?
 							?><span class="sonet-groups-group-text"><?
 								?><span class="sonet-groups-group-title<?=($group["IS_EXTRANET"] == "Y" ? " sonet-groups-group-title-extranet" : "")?>"><?
 									?><span class="sonet-groups-group-title-text"><?
@@ -308,7 +310,7 @@ else
 										});
 									</script><?
 								?></span><?
-								?><?=(strlen($group["GROUP_DESCRIPTION_FULL"]) > 0 ? '<span class="sonet-groups-group-description">'.$group["GROUP_DESCRIPTION_FULL"].'</span>' : "")?><?
+								?><?=($group["GROUP_DESCRIPTION_FULL"] <> '' ? '<span class="sonet-groups-group-description">'.$group["GROUP_DESCRIPTION_FULL"].'</span>' : "")?><?
 								$membersCount = $group["NUMBER_OF_MEMBERS"];
 								$suffix = (
 									($membersCount % 100) > 10
@@ -390,7 +392,7 @@ else
 
 				if ($notEmptyList)
 				{
-					if (StrLen($arResult["NAV_STRING"]) > 0)
+					if ($arResult["NAV_STRING"] <> '')
 					{
 						?><div id="sonet-groups-nav-container"><?=$arResult["NAV_STRING"]?></div><br /><br /><?
 					}
@@ -441,12 +443,14 @@ else
 					foreach ($arResult["SIDEBAR_GROUPS"] as $group)
 					{
 						?><div class="sonet-groups-group-block"><?
-							?><span class="sonet-groups-group-img"<?=($group["IMAGE_RESIZED"] ? " style=\"background:#fff url('".$group["IMAGE_RESIZED"]["src"]."') no-repeat; background-size: cover;\"" : "") ?>></span><?
+							?><span class="ui-icon ui-icon-common-user-group sonet-groups-group-img">
+								<i <?=($group["IMAGE_RESIZED"] ? " style=\"background:#fff url('".$group["IMAGE_RESIZED"]["src"]."') no-repeat; background-size: cover;\"" : "") ?>></i>
+							</span><?
 							?><span class="sonet-groups-group-text"><?
 								?><span class="sonet-groups-group-title<?=($group["IS_EXTRANET"] == "Y" ? " sonet-groups-group-title-extranet" : "") ?>"><?
 									?><a href="<?=$group["URL"]?>" class="sonet-groups-group-link"><?=$group["NAME"] ?></a><?
 								?></span><?
-								?><span class="sonet-groups-group-description"><?=(strlen($group["DESCRIPTION"]) > 0 ? $group["DESCRIPTION"] : "&nbsp;") ?></span><?
+								?><span class="sonet-groups-group-description"><?=($group["DESCRIPTION"] <> '' ? $group["DESCRIPTION"] : "&nbsp;") ?></span><?
 							?></span><?
 						?></div><?
 					}

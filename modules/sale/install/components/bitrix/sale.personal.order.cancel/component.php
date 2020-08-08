@@ -19,19 +19,19 @@ if (!$USER->IsAuthorized())
 $id = urldecode(urldecode($arParams["ID"]));
 
 $arParams["PATH_TO_LIST"] = Trim($arParams["PATH_TO_LIST"]);
-if (strlen($arParams["PATH_TO_LIST"]) <= 0)
+if ($arParams["PATH_TO_LIST"] == '')
 	$arParams["PATH_TO_LIST"] = htmlspecialcharsbx($APPLICATION->GetCurPage());
 
 $arParams["PATH_TO_DETAIL"] = Trim($arParams["PATH_TO_DETAIL"]);
-if (strlen($arParams["PATH_TO_DETAIL"]) <= 0)
+if ($arParams["PATH_TO_DETAIL"] == '')
 	$arParams["PATH_TO_DETAIL"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?"."ID=#ID#");
 
-if (strlen($id) <= 0 && $arParams["PATH_TO_LIST"] != htmlspecialcharsbx($APPLICATION->GetCurPage()))
+if ($id == '' && $arParams["PATH_TO_LIST"] != htmlspecialcharsbx($APPLICATION->GetCurPage()))
 {
 	LocalRedirect($arParams["PATH_TO_LIST"]);
 }
 
-if (strlen($id) <= 0)
+if ($id == '')
 {
 	$arResult["URL_TO_LIST"] = $arParams['PATH_TO_LIST'];
 	$arResult["ERROR_MESSAGE"] = GetMessage("SPOC_EMPTY_ORDER_ID");
@@ -72,7 +72,7 @@ elseif ($order->isCanceled())
 else
 {
 	$request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
-	if ($request->get("CANCEL") == "Y" && $request->isPost() && strlen($request->get("action")) > 0 && check_bitrix_sessid())
+	if ($request->get("CANCEL") == "Y" && $request->isPost() && $request->get("action") <> '' && check_bitrix_sessid())
 	{
 		if ($order->isPaid() || $order->isShipped())
 		{

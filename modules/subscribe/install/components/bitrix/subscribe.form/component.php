@@ -12,7 +12,7 @@ if(!isset($arParams["CACHE_TIME"]))
 if($arParams["CACHE_TYPE"] == "N" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "N"))
 	$arParams["CACHE_TIME"] = 0;
 
-if(!isset($arParams["PAGE"]) || strlen($arParams["PAGE"])<=0)
+if(!isset($arParams["PAGE"]) || $arParams["PAGE"] == '')
 	$arParams["PAGE"] = COption::GetOptionString("subscribe", "subscribe_section")."subscr_edit.php";
 $arParams["SHOW_HIDDEN"] = $arParams["SHOW_HIDDEN"]=="Y";
 $arParams["USE_PERSONALIZATION"] = $arParams["USE_PERSONALIZATION"]!="N";
@@ -71,9 +71,9 @@ if(count($arRubrics)<=0)
 
 $arResult["FORM_ACTION"] = htmlspecialcharsbx(str_replace("#SITE_DIR#", LANG_DIR, $arParams["PAGE"]));
 
-if(strlen($_REQUEST["sf_EMAIL"])>0)
+if($_REQUEST["sf_EMAIL"] <> '')
 	$arResult["EMAIL"] = htmlspecialcharsbx($_REQUEST["sf_EMAIL"]);
-elseif(strlen($arSubscription["EMAIL"])>0)
+elseif($arSubscription["EMAIL"] <> '')
 	$arResult["EMAIL"] = htmlspecialcharsbx($arSubscription["EMAIL"]);
 else
 	$arResult["EMAIL"] = "";

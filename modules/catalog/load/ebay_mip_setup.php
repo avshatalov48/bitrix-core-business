@@ -50,7 +50,7 @@ if ($STEP>1)
 		}
 	}
 
-	if (strlen($SETUP_FILE_NAME)<=0)
+	if ($SETUP_FILE_NAME == '')
 	{
 		$arSetupErrors[] = GetMessage("CET_ERROR_NO_FILENAME");
 	}
@@ -113,13 +113,13 @@ if ($STEP>1)
 	$arCatalog = CCatalogSKU::GetInfoByIBlock($IBLOCK_ID);
 	if (CCatalogSKU::TYPE_PRODUCT == $arCatalog['CATALOG_TYPE'] || CCatalogSKU::TYPE_FULL == $arCatalog['CATALOG_TYPE'])
 	{
-		if (strlen($XML_DATA) <= 0)
+		if ($XML_DATA == '')
 		{
 			$arSetupErrors[] = GetMessage('YANDEX_ERR_SKU_SETTINGS_ABSENT');
 		}
 	}
 
-	if (($ACTION=="EXPORT_SETUP" || $ACTION=="EXPORT_EDIT" || $ACTION=="EXPORT_COPY") && strlen($SETUP_PROFILE_NAME)<=0)
+	if (($ACTION=="EXPORT_SETUP" || $ACTION=="EXPORT_EDIT" || $ACTION=="EXPORT_COPY") && $SETUP_PROFILE_NAME == '')
 		$arSetupErrors[] = GetMessage("CET_ERROR_NO_PROFILE_NAME");
 
 	if (!empty($arSetupErrors))
@@ -393,19 +393,19 @@ if ($STEP==1)
 		}
 		</script>
 		<input type="button" onclick="showDetailPopup(); return false;" value="<? echo GetMessage('CAT_DETAIL_PROPS_RUN'); ?>">
-		<input type="hidden" id="XML_DATA" name="XML_DATA" value="<? echo (strlen($XML_DATA) > 0 ? $XML_DATA : ''); ?>" />
+		<input type="hidden" id="XML_DATA" name="XML_DATA" value="<? echo ($XML_DATA <> '' ? $XML_DATA : ''); ?>" />
 	</td>
 </tr>
 <tr>
 	<td width="40%"><?echo GetMessage("CET_SERVER_NAME");?></td>
 	<td width="60%">
-		<input type="text" name="SETUP_SERVER_NAME" value="<?echo (strlen($SETUP_SERVER_NAME)>0) ? htmlspecialcharsbx($SETUP_SERVER_NAME) : '' ?>" size="50" /> <input type="button" onclick="this.form['SETUP_SERVER_NAME'].value = window.location.host;" value="<?echo htmlspecialcharsbx(GetMessage('CET_SERVER_NAME_SET_CURRENT'))?>" />
+		<input type="text" name="SETUP_SERVER_NAME" value="<?echo ($SETUP_SERVER_NAME <> '') ? htmlspecialcharsbx($SETUP_SERVER_NAME) : '' ?>" size="50" /> <input type="button" onclick="this.form['SETUP_SERVER_NAME'].value = window.location.host;" value="<?echo htmlspecialcharsbx(GetMessage('CET_SERVER_NAME_SET_CURRENT'))?>" />
 	</td>
 </tr>
 <tr>
 	<td width="40%"><?echo GetMessage("CET_SAVE_FILENAME");?></td>
 	<td width="60%">
-		<b><? echo htmlspecialcharsbx(COption::GetOptionString("catalog", "export_default_path", "/bitrix/catalog_export/"));?></b><input type="text" name="SETUP_FILE_NAME" value="<?echo (strlen($SETUP_FILE_NAME)>0) ? htmlspecialcharsbx($SETUP_FILE_NAME) : "ebay_product_feed_".mktime().".xml" ?>" size="50" />
+		<b><? echo htmlspecialcharsbx(COption::GetOptionString("catalog", "export_default_path", "/bitrix/catalog_export/"));?></b><input type="text" name="SETUP_FILE_NAME" value="<?echo ($SETUP_FILE_NAME <> '') ? htmlspecialcharsbx($SETUP_FILE_NAME) : "ebay_product_feed_".mktime().".xml" ?>" size="50" />
 	</td>
 </tr>
 <?
@@ -427,7 +427,7 @@ $tabControl->BeginNextTab();
 if ($STEP==2)
 {
 	$SETUP_FILE_NAME = $strAllowExportPath.$SETUP_FILE_NAME;
-	if (strlen($XML_DATA) > 0)
+	if ($XML_DATA <> '')
 	{
 		$XML_DATA = base64_decode($XML_DATA);
 	}

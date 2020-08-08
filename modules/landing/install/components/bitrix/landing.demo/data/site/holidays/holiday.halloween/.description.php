@@ -20,7 +20,6 @@ return array(
 	'show_in_list' => 'Y',
 //	'type' => 'page',
 	'version' => 2,
-	'sort' => \LandingSiteDemoComponent::checkActivePeriod(10,10,10,31) ? 51 : -161,
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(
 			'B24BUTTON_CODE' => $buttons[0],
@@ -28,7 +27,10 @@ return array(
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'THEME_CODE' => 'shipping',
-			'THEME_CODE_TYPO' => 'shipping',
+			'THEMEFONTS_CODE' => 'g-font-open-sans',
+'THEMEFONTS_CODE_H' => 'g-font-open-sans',
+'THEMEFONTS_SIZE' => '1',
+'THEMEFONTS_USE' => 'Y',
 			'SETTINGS_HIDE_NOT_AVAILABLE' => 'L',
 			'SETTINGS_HIDE_NOT_AVAILABLE_OFFERS' => 'N',
 			'SETTINGS_PRODUCT_SUBSCRIPTION' => 'Y',

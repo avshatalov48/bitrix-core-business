@@ -13,7 +13,7 @@ return array(
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(
 			'THEME_CODE' => 'courses',
-			'THEME_CODE_TYPO' => 'courses',
+
 			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/courses/preview.jpg',
 			'METAOG_TITLE' => Loc::getMessage('LANDING_DEMO_COURSES_TITLE'),
 			'METAOG_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_COURSES_DESCRIPTION'),
@@ -27,7 +27,7 @@ return array(
 				'CODE' => '0.menu_10_courses',
 				'SORT' => '-100',
 				'CONTENT' => '
-<header class="landing-block landing-block-menu g-bg-white u-header u-header--floating g-z-index-9999" >
+<header class="landing-block landing-block-menu g-bg-white u-header u-header--sticky u-header--float g-z-index-9999" >
 	<div class="u-header__section u-header__section--light u-shadow-v27 g-transition-0_3 g-py-17" data-header-fix-moment-exclude="g-py-17" data-header-fix-moment-classes="g-py-12">
 		<nav class="navbar navbar-expand-lg g-py-0 g-px-10">
 			<div class="container">

@@ -100,7 +100,7 @@ final class CSVReader extends \CCSVData
 			$prev = trim($line[$k]);
 
 			// keep for charset conversion
-			if(strpos($fld, 'NAME') !== false)
+			if(mb_strpos($fld, 'NAME') !== false)
 				$langFields[] = &$prev;
 
 			$result = array_merge_recursive($result, $resLine);
@@ -165,7 +165,7 @@ final class CSVReader extends \CCSVData
 
 	public function ReadBlock($file, &$bytesRead = false, $lineLimit = false)
 	{
-		if(strpos($file, $_SERVER['DOCUMENT_ROOT']) != 0) // not found or somwhere else
+		if(mb_strpos($file, $_SERVER['DOCUMENT_ROOT']) != 0) // not found or somwhere else
 			$file = $_SERVER['DOCUMENT_ROOT'].$file;
 
 		if(!file_exists($file) || !is_readable($file))

@@ -21,12 +21,12 @@ foreach ($arResult["ITEMS"] as $arItem)
 		$bFolded = false;
 
 	$itemHtml = '
-			<div id="mobile-list-item-'.$arItem["ID"].'" class="mapp_itemlist_item_container';
+			<div id="mobile-list-item-'.htmlspecialcharsbx($arItem["ID"]).'" class="mapp_itemlist_item_container';
 
 	if($bFolded || !isset($arItem["TITLE_COLOR"]) || !$arItem["TITLE_COLOR"])
 		$itemHtml .= ' mapp_item_folded';
 	elseif(isset($arItem["TITLE_COLOR"]) && $arItem["TITLE_COLOR"])
-		$itemHtml .= ' item_'.strtolower($arItem["TITLE_COLOR"]);
+		$itemHtml .= ' item_'.mb_strtolower($arItem["TITLE_COLOR"]);
 	else
 		$itemHtml .= ' mapp_item_gray';
 
@@ -50,7 +50,7 @@ foreach ($arResult["ITEMS"] as $arItem)
 				$itemHtml .= '<div class="mapp_itemlist_item_';
 
 				if(isset($arRow["TYPE"]))
-					$itemHtml .= strtolower($arRow["TYPE"]);
+					$itemHtml .= mb_strtolower($arRow["TYPE"]);
 				else
 					$itemHtml .= 'BULLET';
 
@@ -95,7 +95,7 @@ foreach ($arResult["ITEMS"] as $arItem)
 
 	if(isset($arItem['TOGGLABLE']) && $arItem['TOGGLABLE'] == true)
 		$itemHtml .= '<script type="text/javascript">'.
-						'BX.ready(function(){ mobileAppList.makeFastButton("mobile-list-item-'.$arItem["ID"].'");})'.
+						'BX.ready(function(){ mobileAppList.makeFastButton("mobile-list-item-'.CUtil::JSEscape($arItem["ID"]).'");})'.
 					'</script>';
 
 	if($arResult["AJAX_MODE"])

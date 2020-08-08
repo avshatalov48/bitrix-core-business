@@ -19,7 +19,6 @@ return array(
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'THEME_CODE' => 'travel',
-			'THEME_CODE_TYPO' => 'travel',
 		),
 	),
 	'layout' => array(
@@ -46,13 +45,13 @@ return array(
 			),
 			'style' => array(
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-mb-minus-10 g-color-black g-font-montserrat g-text-transform-none g-font-size-40',
+					0 => 'landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-mb-minus-10 g-color-black g-text-transform-none g-font-size-40',
 				),
 				'.landing-block-node-subtitle' => array(
 					0 => 'landing-block-node-subtitle g-font-weight-700 g-font-size-12 g-color-primary g-mb-15',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text g-pb-1 g-font-open-sans g-font-size-16 g-color-black-opacity-0_9',
+					0 => 'landing-block-node-text g-pb-1 g-color-black-opacity-0_9',
 				),
 				'.landing-block-node-inner' => array(
 					0 => 'landing-block-node-inner text-uppercase u-heading-v2-4--bottom g-brd-primary',
@@ -85,10 +84,10 @@ return array(
 					0 => 'landing-block-node-text-container js-animation slideInLeft col-md-6 g-pb-20 g-pb-0--md animated',
 				),
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title g-font-weight-700 mb-0 g-mb-15 g-text-transform-none g-font-size-30 g-font-montserrat',
+					0 => 'landing-block-node-title g-font-weight-700 mb-0 g-mb-15 g-text-transform-none g-font-size-30',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text g-font-open-sans g-font-size-14 g-color-black-opacity-0_9',
+					0 => 'landing-block-node-text g-font-size-14 g-color-black-opacity-0_9',
 				),
 				'.landing-block-node-img' => array(
 					0 => 'landing-block-node-img js-animation slideInRight img-fluid animated',
@@ -121,10 +120,11 @@ return array(
 					0 => 'landing-block-node-text-container js-animation slideInRight col-md-6 animated',
 				),
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title g-font-weight-700 mb-0 g-mb-15 g-text-transform-none g-font-montserrat g-font-size-30',
+					0 => 'landing-block-node-title g-font-weight-700 mb-0 g-mb-15 g-text-transform-none
+					 g-font-size-30',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text g-font-open-sans g-font-size-14 g-color-black-opacity-0_9',
+					0 => 'landing-block-node-text g-font-size-14 g-color-black-opacity-0_9',
 				),
 				'.landing-block-node-img' => array(
 					0 => 'landing-block-node-img js-animation slideInLeft img-fluid animated',
@@ -157,10 +157,10 @@ return array(
 					0 => 'landing-block-node-text-container js-animation slideInLeft col-md-6 g-pb-20 g-pb-0--md animated',
 				),
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title g-font-weight-700 mb-0 g-mb-15 g-font-montserrat g-text-transform-none g-font-size-30',
+					0 => 'landing-block-node-title g-font-weight-700 mb-0 g-mb-15 g-text-transform-none g-font-size-30',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text g-font-open-sans g-font-size-14 g-color-black-opacity-0_9',
+					0 => 'landing-block-node-text g-font-size-14 g-color-black-opacity-0_9',
 				),
 				'.landing-block-node-img' => array(
 					0 => 'landing-block-node-img js-animation slideInRight img-fluid animated',

@@ -18,10 +18,10 @@ class Results extends DataSource implements \Iterator
 
 	public function __construct($params)
 	{
-		if(!isset($params["SITE_ID"]) || strlen($params["SITE_ID"]) <= 0)
+		if(!isset($params["SITE_ID"]) || $params["SITE_ID"] == '')
 			throw new ArgumentNullException("SITE_ID");
 
-		if(!isset($params["REMOTE_PATH_TMPL"]) || strlen($params["REMOTE_PATH_TMPL"]) <= 0)
+		if(!isset($params["REMOTE_PATH_TMPL"]) || $params["REMOTE_PATH_TMPL"] == '')
 			throw new ArgumentNullException("REMOTE_PATH_TMPL");
 
 		if(!isset($params["FILTER"]))
@@ -116,7 +116,7 @@ class Results extends DataSource implements \Iterator
 
 		foreach($files as $file)
 		{
-			if(!strstr($file, $feedData["FILENAME"]))
+			if(!mb_strstr($file, $feedData["FILENAME"]))
 				continue;
 
 			if($sftp->downloadFile($remotePath."/".$file, $tmpDir.$file))

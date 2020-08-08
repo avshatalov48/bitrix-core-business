@@ -160,7 +160,7 @@ if ($bAutocomplete)
 }
 else
 {
-	if ($return_url != '' && strtolower(substr($return_url, strlen($APPLICATION->GetCurPage())))==strtolower($APPLICATION->GetCurPage()))
+	if ($return_url != '' && mb_strtolower(mb_substr($return_url, mb_strlen($APPLICATION->GetCurPage()))) == mb_strtolower($APPLICATION->GetCurPage()))
 		$return_url = '';
 	if ($return_url == '')
 	{
@@ -361,7 +361,7 @@ do{ //one iteration loop
 	$arIBTYPE["EDIT_FILE_AFTER"] = (string)$arIBTYPE["EDIT_FILE_AFTER"];
 	if (
 		$arIBlock["EDIT_FILE_AFTER"] != ''
-		&& (substr($arIBlock["EDIT_FILE_AFTER"], -4) == '.php')
+		&& (mb_substr($arIBlock["EDIT_FILE_AFTER"], -4) == '.php')
 		&& is_file($_SERVER["DOCUMENT_ROOT"].$arIBlock["EDIT_FILE_AFTER"])
 	)
 	{
@@ -370,7 +370,7 @@ do{ //one iteration loop
 	}
 	elseif (
 		$arIBTYPE["EDIT_FILE_AFTER"] != ''
-		&& (substr($arIBTYPE["EDIT_FILE_AFTER"], -4) == '.php')
+		&& (mb_substr($arIBTYPE["EDIT_FILE_AFTER"], -4) == '.php')
 		&& is_file($_SERVER["DOCUMENT_ROOT"].$arIBTYPE["EDIT_FILE_AFTER"])
 	)
 	{
@@ -645,12 +645,12 @@ do{ //one iteration loop
 
 		function _prop_value_id_cmp($a, $b)
 		{
-			if(substr($a, 0, 1)==="n")
+			if(mb_substr($a, 0, 1) === "n")
 			{
-				$a = (int)substr($a, 1);
-				if(substr($b, 0, 1)==="n")
+				$a = (int)mb_substr($a, 1);
+				if(mb_substr($b, 0, 1) === "n")
 				{
-					$b = (int)substr($b, 1);
+					$b = (int)mb_substr($b, 1);
 					if($a < $b)
 						return -1;
 					elseif($a > $b)
@@ -665,7 +665,7 @@ do{ //one iteration loop
 			}
 			else
 			{
-				if(substr($b, 0, 1)==="n")
+				if(mb_substr($b, 0, 1) === "n")
 				{
 					return -1;
 				}
@@ -710,7 +710,7 @@ do{ //one iteration loop
 		$arIBTYPE["EDIT_FILE_BEFORE"] = (string)$arIBTYPE["EDIT_FILE_BEFORE"];
 		if(
 			$arIBlock["EDIT_FILE_BEFORE"] != ''
-			&& (substr($arIBlock["EDIT_FILE_BEFORE"], -4) == '.php')
+			&& (mb_substr($arIBlock["EDIT_FILE_BEFORE"], -4) == '.php')
 			&& is_file($_SERVER["DOCUMENT_ROOT"].$arIBlock["EDIT_FILE_BEFORE"])
 		)
 		{
@@ -718,7 +718,7 @@ do{ //one iteration loop
 		}
 		elseif(
 			$arIBTYPE["EDIT_FILE_BEFORE"] != ''
-			&& (substr($arIBTYPE["EDIT_FILE_BEFORE"], -4) == '.php')
+			&& (mb_substr($arIBTYPE["EDIT_FILE_BEFORE"], -4) == '.php')
 			&& is_file($_SERVER["DOCUMENT_ROOT"].$arIBTYPE["EDIT_FILE_BEFORE"])
 		)
 		{
@@ -731,7 +731,7 @@ do{ //one iteration loop
 			&& $historyId <= 0
 			&& $ID > 0
 			&& $_SERVER['REQUEST_METHOD'] == "GET"
-			&& isset($_REQUEST["stop_bizproc"]) && strlen($_REQUEST["stop_bizproc"]) > 0
+			&& isset($_REQUEST["stop_bizproc"]) && $_REQUEST["stop_bizproc"] <> ''
 			&& check_bitrix_sessid()
 		)
 		{
@@ -876,7 +876,7 @@ do{ //one iteration loop
 					{
 						foreach ($arDocumentStates as $arDocumentState)
 						{
-							if (strlen($arDocumentState["ID"]) <= 0)
+							if ($arDocumentState["ID"] == '')
 							{
 								$arErrorsTmp = array();
 
@@ -1159,7 +1159,7 @@ do{ //one iteration loop
 					{
 						foreach ($arDocumentStates as $arDocumentState)
 						{
-							if (strlen($arDocumentState["ID"]) <= 0)
+							if ($arDocumentState["ID"] == '')
 							{
 								$arErrorsTmp = array();
 
@@ -1190,9 +1190,9 @@ do{ //one iteration loop
 								$bpTemplateId = intval($_REQUEST["bizproc_template_id_".$i]);
 								$bpEvent = trim($_REQUEST["bizproc_event_".$i]);
 
-								if (strlen($bpEvent) > 0)
+								if ($bpEvent <> '')
 								{
-									if (strlen($bpId) > 0)
+									if ($bpId <> '')
 									{
 										if (!array_key_exists($bpId, $arDocumentStates))
 											continue;
@@ -1257,7 +1257,7 @@ do{ //one iteration loop
 
 				$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $ID));
 
-				if(strlen($apply) <= 0 && strlen($save_and_add) <= 0)
+				if($apply == '' && $save_and_add == '')
 				{
 					if ($bAutocomplete)
 					{
@@ -1282,9 +1282,9 @@ do{ //one iteration loop
 							</script><?
 						}
 					}
-					elseif(strlen($return_url) > 0)
+					elseif($return_url <> '')
 					{
-						if(strpos($return_url, "#")!==false)
+						if(mb_strpos($return_url, "#") !== false)
 						{
 							$rsElement = CIBlockElement::GetList(array(), array(
 								"ID" => $ID,
@@ -1321,12 +1321,12 @@ do{ //one iteration loop
 						LocalRedirect($saveUrl);
 					}
 				}
-				elseif(strlen($save_and_add) > 0)
+				elseif($save_and_add <> '')
 				{
 					$params = array(
 						"WF" => ($WF=="Y"? "Y": null),
 						"find_section_section" => $find_section_section,
-						"return_url" => (strlen($return_url) > 0? $return_url: null),
+						"return_url" => ($return_url <> ''? $return_url: null),
 					);
 					if ($IBLOCK_SECTION_ID > 0)
 					{
@@ -1375,7 +1375,7 @@ do{ //one iteration loop
 					$applyUrl = $selfFolderUrl.CIBlock::GetAdminElementEditLink($IBLOCK_ID, $ID, array(
 						"WF" => ($WF=="Y"? "Y": null),
 						"find_section_section" => $find_section_section,
-						"return_url" => (strlen($return_url) > 0 ? $return_url: null),
+						"return_url" => ($return_url <> '' ? $return_url: null),
 						"lookup" => $bAutocomplete ? $strLookup : null,
 					), "&".$tabControl->ActiveTabParam());
 					$applyUrl = $adminSidePanelHelper->setDefaultQueryParams($applyUrl);
@@ -1389,7 +1389,7 @@ do{ //one iteration loop
 			if($bWorkflow)
 				CIBlockElement::WF_UnLock($ID);
 
-			if(strlen($return_url)>0)
+			if($return_url <> '')
 			{
 				if ($bAutocomplete)
 				{
@@ -1885,7 +1885,7 @@ else
 
 	$bFileman = Loader::includeModule("fileman");
 	$arTranslit = $arIBlock["FIELDS"]["CODE"]["DEFAULT_VALUE"];
-	$bLinked = (!strlen($str_TIMESTAMP_X) || $bCopy) && $_POST["linked_state"]!=='N';
+	$bLinked = (!mb_strlen($str_TIMESTAMP_X) || $bCopy) && $_POST["linked_state"]!=='N';
 
 if($customFormFile):
 	include($_SERVER["DOCUMENT_ROOT"].$customFormFile);
@@ -2117,7 +2117,7 @@ $tabControl->EndCustomField("ID", '');
 $tabControl->BeginCustomField("DATE_CREATE", GetMessage("IBLOCK_FIELD_CREATED").":");
 if ($ID > 0 && !$bCopy)
 {
-	if (strlen($str_DATE_CREATE) > 0):?>
+	if ($str_DATE_CREATE <> ''):?>
 		<tr>
 			<td width="40%"><? echo $tabControl->GetCustomLabelHTML() ?></td>
 			<td width="60%"><? echo $str_DATE_CREATE ?><?
@@ -2801,7 +2801,7 @@ $tabControl->EndCustomField("DETAIL_TEXT",
 					$strPath = "";
 					while($arChain = $rsChain->GetNext())
 						$strPath .= $arChain["NAME"]."&nbsp;/&nbsp;";
-					if(strlen($strPath) > 0)
+					if($strPath <> '')
 					{
 						?><tr>
 							<td nowrap><?echo $strPath?></td>
@@ -3009,7 +3009,7 @@ $tabControl->EndCustomField("DETAIL_TEXT",
 					$strPath = "";
 					while($arChain = $rsChain->GetNext())
 						$strPath .= $arChain["NAME"]."&nbsp;/&nbsp;";
-					if(strlen($strPath) > 0)
+					if($strPath <> '')
 					{
 						?><tr>
 							<td><?echo $strPath?></td>
@@ -3222,13 +3222,13 @@ if ($arShowTabs['product_group'])
 	CCatalogAdminProductSetEdit::showEditForm($arSets);
 
 	?></td></tr><?
-	$tabControl->EndCustomField('PRODUCT_SET', '');
+	$tabControl->EndCustomField('PRODUCT_GROUP', '');
 }
 if($arShowTabs['workflow']):?>
 <?
 	$tabControl->BeginNextFormTab();
 	$tabControl->BeginCustomField("WORKFLOW_PARAMS", GetMessage("IBLOCK_EL_TAB_WF_TITLE"));
-	if(strlen($pr["DATE_CREATE"])>0):
+	if($pr["DATE_CREATE"] <> ''):
 	?>
 		<tr id="tr_WF_CREATED">
 			<td width="40%"><?echo GetMessage("IBLOCK_CREATED")?></td>
@@ -3239,7 +3239,7 @@ if($arShowTabs['workflow']):?>
 			?></td>
 		</tr>
 	<?endif;?>
-	<?if(strlen($str_TIMESTAMP_X) > 0 && !$bCopy):?>
+	<?if($str_TIMESTAMP_X <> '' && !$bCopy):?>
 	<tr id="tr_WF_MODIFIED">
 		<td><?echo GetMessage("IBLOCK_LAST_UPDATE")?></td>
 		<td><?echo $str_TIMESTAMP_X?><?
@@ -3249,7 +3249,7 @@ if($arShowTabs['workflow']):?>
 		?></td>
 	</tr>
 	<?endif?>
-	<?if($WF=="Y" && strlen($prn_WF_DATE_LOCK)>0):?>
+	<?if($WF=="Y" && $prn_WF_DATE_LOCK <> ''):?>
 	<tr id="tr_WF_LOCKED">
 		<td><?echo GetMessage("IBLOCK_DATE_LOCK")?></td>
 		<td><?echo $prn_WF_DATE_LOCK?><?
@@ -3334,7 +3334,7 @@ if ($arShowTabs['bizproc']):
 	foreach ($arDocumentStates as $arDocumentState)
 	{
 		$bizProcIndex++;
-		if (strlen($arDocumentState["ID"]) > 0)
+		if ($arDocumentState["ID"] <> '')
 		{
 			$canViewWorkflow = CBPDocument::CanUserOperateDocument(
 				CBPCanUserOperateOperation::ViewWorkflow,
@@ -3358,7 +3358,7 @@ if ($arShowTabs['bizproc']):
 		<tr class="heading">
 			<td colspan="2">
 				<?= htmlspecialcharsbx($arDocumentState["TEMPLATE_NAME"]) ?>
-				<?if (strlen($arDocumentState["ID"]) > 0 && strlen($arDocumentState["WORKFLOW_STATUS"]) > 0):?>
+				<?if ($arDocumentState["ID"] <> '' && $arDocumentState["WORKFLOW_STATUS"] <> ''):?>
 					(<a href="<?echo htmlspecialcharsbx($selfFolderUrl.CIBlock::GetAdminElementEditLink($IBLOCK_ID, $ID, array(
 						"WF"=>$WF,
 						"find_section_section" => $find_section_section,
@@ -3377,20 +3377,20 @@ if ($arShowTabs['bizproc']):
 			<td width="60%"><?= htmlspecialcharsbx($arDocumentState["TEMPLATE_DESCRIPTION"]) ?></td>
 		</tr>
 		<?endif?>
-		<?if (strlen($arDocumentState["STATE_MODIFIED"]) > 0):?>
+		<?if ($arDocumentState["STATE_MODIFIED"] <> ''):?>
 		<tr>
 			<td width="40%"><?echo GetMessage("IBEL_BIZPROC_DATE")?></td>
 			<td width="60%"><?= $arDocumentState["STATE_MODIFIED"] ?></td>
 		</tr>
 		<?endif;?>
-		<?if (strlen($arDocumentState["STATE_NAME"]) > 0):?>
+		<?if ($arDocumentState["STATE_NAME"] <> ''):?>
 		<tr>
 			<td width="40%"><?echo GetMessage("IBEL_BIZPROC_STATE")?></td>
-			<td width="60%"><?if (strlen($arDocumentState["ID"]) > 0):?><a href="<?=$selfFolderUrl?>bizproc_log.php?ID=<?= $arDocumentState["ID"] ?>&back_url=<?= urlencode($APPLICATION->GetCurPageParam("", array())) ?>"><?endif;?><?= strlen($arDocumentState["STATE_TITLE"]) > 0 ? $arDocumentState["STATE_TITLE"] : $arDocumentState["STATE_NAME"] ?><?if (strlen($arDocumentState["ID"]) > 0):?></a><?endif;?></td>
+			<td width="60%"><?if ($arDocumentState["ID"] <> ''):?><a href="<?=$selfFolderUrl?>bizproc_log.php?ID=<?= $arDocumentState["ID"] ?>&back_url=<?= urlencode($APPLICATION->GetCurPageParam("", array())) ?>"><?endif;?><?= $arDocumentState["STATE_TITLE"] <> '' ? $arDocumentState["STATE_TITLE"] : $arDocumentState["STATE_NAME"] ?><?if ($arDocumentState["ID"] <> ''):?></a><?endif;?></td>
 		</tr>
 		<?endif;?>
 		<?
-		if (strlen($arDocumentState["ID"]) <= 0)
+		if ($arDocumentState["ID"] == '')
 		{
 			CBPDocument::StartWorkflowParametersShow(
 				$arDocumentState["TEMPLATE_ID"],
@@ -3431,7 +3431,7 @@ if ($arShowTabs['bizproc']):
 			<?
 		}
 
-		if (strlen($arDocumentState["ID"]) > 0)
+		if ($arDocumentState["ID"] <> '')
 		{
 			$arTasks = CBPDocument::GetUserTasksForWorkflow($USER->GetID(), $arDocumentState["ID"]);
 			if (!empty($arTasks))
@@ -3649,7 +3649,7 @@ if (
 	echo
 		BeginNote(),
 		GetMessage("IBEL_E_IBLOCK_MANAGE_HINT"),
-		' <a href="'.$selfFolderUrl.'iblock_edit.php?type='.htmlspecialcharsbx($type).'&amp;lang='.LANGUAGE_ID.'&amp;ID='.$IBLOCK_ID.'&amp;admin=Y&amp;return_url='.urlencode($selfFolderUrl.CIBlock::GetAdminElementEditLink($IBLOCK_ID, $ID, array("WF" => ($WF=="Y"? "Y": null), "find_section_section" => $find_section_section, "IBLOCK_SECTION_ID" => $find_section_section, "return_url" => (strlen($return_url)>0? $return_url: null)))).'">',
+		' <a href="'.$selfFolderUrl.'iblock_edit.php?type='.htmlspecialcharsbx($type).'&amp;lang='.LANGUAGE_ID.'&amp;ID='.$IBLOCK_ID.'&amp;admin=Y&amp;return_url='.urlencode($selfFolderUrl.CIBlock::GetAdminElementEditLink($IBLOCK_ID, $ID, array("WF" => ($WF=="Y"? "Y": null), "find_section_section" => $find_section_section, "IBLOCK_SECTION_ID" => $find_section_section, "return_url" => ($return_url <> ''? $return_url: null)))).'">',
 		GetMessage("IBEL_E_IBLOCK_MANAGE_HINT_HREF"),
 		'</a>',
 		EndNote()

@@ -13,7 +13,7 @@ return array(
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(
 			'THEME_CODE' => 'spa',
-			'THEME_CODE_TYPO' => 'spa',
+
 		    'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/holidays/holiday.23february.2/preview.jpg',
 			'METAOG_TITLE' => Loc::getMessage('LANDING_DEMO_23FEB2_TITLE'),
 			'METAOG_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_23FEB2_DESCRIPTION'),
@@ -21,7 +21,6 @@ return array(
 			'METAMAIN_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_23FEB2_DESCRIPTION')
 		)
 	),
-	'sort' => \LandingSiteDemoComponent::checkActivePeriod(2,2,2,23) ? 102 : -112,
 	'active' => \LandingSiteDemoComponent::checkActive(array(
 		'ONLY_IN' => array('ru', 'kz', 'by'),
 		'EXCEPT' => array()
@@ -31,7 +30,7 @@ return array(
 			array (
 				'CODE' => '0.menu_04',
 				'SORT' => '-100',
-				'CONTENT' => '<header class="landing-block landing-block-menu landing-ui-pattern-transparent u-header u-header--floating">
+				'CONTENT' => '<header class="landing-block landing-block-menu u-header u-header--sticky u-header--float">
 	<div class="u-header__section g-bg-black-opacity-0_4 g-transition-0_3 g-py-8 g-py-17--md" data-header-fix-moment-exclude="g-bg-black-opacity-0_4 g-py-17--md" data-header-fix-moment-classes="u-header__section--light u-theme-architecture-shadow-v1 g-bg-white g-py-10--md">
 		<nav class="navbar navbar-expand-lg p-0 g-px-15">
 			<div class="container">
@@ -585,15 +584,15 @@ return array(
 				'CODE' => '24.2.image_carousel_6_cols_fix_3',
 				'SORT' => '5500',
 				'CONTENT' => '<section class="landing-block landing-block-node-bgimg js-animation g-bg-img-hero u-bg-overlay g-bg-primary-opacity-0_9--after g-pt-60 g-pb-80 fadeIn" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/1920x350/img3.jpg\');" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb">
-	<div class="container u-bg-overlay__inner text-center">
+	<div class="container u-bg-overlay__inner text-center g-px-35 g-px-0--md">
 		<div class="js-carousel"
 			 data-autoplay="true"
 			 data-pause-hover="true"
 			 data-infinite="true"
 			 data-slides-show="6"
 			 data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-45 g-height-45 g-font-size-30 g-color-white"
-			 data-arrow-left-classes="fa fa-angle-left g-left-minus-20"
-			 data-arrow-right-classes="fa fa-angle-right g-right-minus-20"
+			 data-arrow-left-classes="fa fa-angle-left g-left-minus-35"
+			 data-arrow-right-classes="fa fa-angle-right g-right-minus-35"
 			 data-responsive=\'[{
                  "breakpoint": 1200,
                  "settings": {

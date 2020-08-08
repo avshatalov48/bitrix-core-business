@@ -221,17 +221,17 @@ class YandexHandler
 			$data['CODE'] = 200;
 		}
 
-		$dateISO = date("Y-m-d\TH:i:s").substr(date("O"), 0, 3).":".substr(date("O"), -2, 2);
+		$dateISO = date("Y-m-d\TH:i:s").mb_substr(date("O"), 0, 3).":".mb_substr(date("O"), -2, 2);
 		header("Content-Type: text/xml");
 		header("Pragma: no-cache");
 		$text = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 
-		if (strlen($data['HEAD']) > 0)
+		if ($data['HEAD'] <> '')
 		{
 			$text .= "<".$data['HEAD']." performedDatetime=\"".$dateISO."\"";
 			$text .= " code=\"".$data['CODE']."\" shopId=\"".$data['SHOP_ID']."\" invoiceId=\"".$data['INVOICE_ID']."\"";
 
-			if (strlen($data['TECH_MESSAGE']) > 0)
+			if ($data['TECH_MESSAGE'] <> '')
 				$text .= " techMessage=\"".$data['TECH_MESSAGE']."\"";
 
 			$text .= "/>";
@@ -310,11 +310,11 @@ class YandexHandler
 		}
 
 		$fields = array(
-			"PS_STATUS_CODE" => substr($data['HEAD'], 0, 5),
+			"PS_STATUS_CODE" => mb_substr($data['HEAD'], 0, 5),
 			"PS_STATUS_DESCRIPTION" => $description,
 			"PS_STATUS_MESSAGE" => $modeList[$request->get('paymentType')],
 			"PS_SUM" => $request->get('orderSumAmount'),
-			"PS_CURRENCY" => substr($request->get('orderSumCurrencyPaycash'), 0, 3),
+			"PS_CURRENCY" => mb_substr($request->get('orderSumCurrencyPaycash'), 0, 3),
 			"PS_RESPONSE_DATE" => new DateTime(),
 			"PS_INVOICE_ID" => $request->get('invoiceId')
 		);

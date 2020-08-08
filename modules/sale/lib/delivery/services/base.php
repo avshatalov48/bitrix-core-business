@@ -40,6 +40,7 @@ abstract class Base
 	protected $trackingClass = "";
 	/** @var Requests\HandlerBase  */
 	protected $deliveryRequestHandler = null;
+
 	protected $extraServices = array();
 	protected $trackingParams = array();
 	protected $allowEditShipment = array();
@@ -286,7 +287,7 @@ abstract class Base
 		if($strError != "")
 			throw new SystemException($strError);
 
-		if(strpos($fields['CLASS_NAME'], '\\') !== 0)
+		if(mb_strpos($fields['CLASS_NAME'], '\\') !== 0)
 		{
 			$fields['CLASS_NAME'] = '\\'.$fields['CLASS_NAME'];
 		}
@@ -534,6 +535,15 @@ abstract class Base
 	public static function whetherAdminExtraServicesShow()
 	{
 		return self::$whetherAdminExtraServicesShow;
+	}
+
+	/**
+	 * @param array $fields
+	 * @return \Bitrix\Main\Result
+	 */
+	public static function onBeforeAdd(array &$fields = array()): \Bitrix\Main\Result
+	{
+		return new \Bitrix\Main\Result();
 	}
 
 	/**

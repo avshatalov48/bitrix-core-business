@@ -13,7 +13,7 @@ return [
 		'ui.vue',
 		'ui.dexie',
 		'main.md5',
-		'ui.vuex',
+		'ui.vue.vuex',
 	],
 	'skip_core' => true,
 ];

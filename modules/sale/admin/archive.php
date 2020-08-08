@@ -52,14 +52,20 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["archive"]=="Y" && check_bi
 		}
 	}
 
-	if (strlen($_POST['archive_payed']))
+	if($_POST['archive_payed'] <> '')
+	{
 		$filter["=PAYED"] = $_POST['archive_payed'];
+	}
 
-	if (strlen($_POST['archive_canceled']))
+	if($_POST['archive_canceled'] <> '')
+	{
 		$filter["=CANCELED"] = $_POST['archive_canceled'];
+	}
 
-	if (strlen($_POST['archive_deducted']))
+	if($_POST['archive_deducted'] <> '')
+	{
 		$filter["=DEDUCTED"] = $_POST['archive_deducted'];
+	}
 
 	if (isset($_POST['archive_site']))
 	{
@@ -114,7 +120,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["archive"]=="Y" && check_bi
 
 	$count = (int)$dataResult['count'];
 
-	if (strlen($_POST['countArchived']))
+	if($_POST['countArchived'] <> '')
 	{
 		$count += (int)$_POST['countArchived'];
 	}

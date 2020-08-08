@@ -365,7 +365,7 @@ class MailBlacklistListComponent extends CBitrixComponent implements Controllera
 	private function checkMail($email)
 	{
 		$mailToCheck = $email;
-		if (strpos($email, '@') === false)
+		if (mb_strpos($email, '@') === false)
 		{
 			$mailToCheck = sprintf('email@%s', $email);
 		}

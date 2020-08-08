@@ -79,6 +79,9 @@ class FinishStep extends \FinishStep
 
 			// enable composite
 			SitePatcher::enableComposite();
+
+			// enable crm shop
+			SitePatcher::crmShopEnable();
 		}
 
 		ob_start();
@@ -140,7 +143,7 @@ class FinishStep extends \FinishStep
 
 		$firstStep = Option::get(
 			"main",
-			"wizard_first".substr($wizard->GetID(), 7)."_".$this->siteId,
+			"wizard_first".mb_substr($wizard->GetID(), 7)."_".$this->siteId,
 			false,
 			$this->siteId
 		);
@@ -181,18 +184,8 @@ class FinishStep extends \FinishStep
 			);
 		}
 
-		Option::set(
-			"main",
-			"wizard_first".substr($wizard->GetID(), 7)."_".$this->siteId,
-			"Y",
-			$this->siteId
-		);
-
-		Option::set(
-			"main",
-			"wizard_solution",
-			$wizard->GetID(),
-			$this->siteId
-		);
+		Option::set("main", "wizard_first".mb_substr($wizard->GetID(), 7)."_".$this->siteId, "Y", $this->siteId);
+		Option::set("main", "~wizard_id", mb_substr($wizard->GetID(), 7), $this->siteId);
+		Option::set("main", "wizard_solution", $wizard->GetID(), $this->siteId);
 	}
 }

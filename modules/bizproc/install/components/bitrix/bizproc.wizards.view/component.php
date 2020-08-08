@@ -15,43 +15,43 @@ $arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
 if ($arParams["ITEMS_COUNT"] <= 0)
 	$arParams["ITEMS_COUNT"] = 20;
 
-if (strlen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if (strlen($arParams["TASK_VAR"]) <= 0)
+if ($arParams["TASK_VAR"] == '')
 	$arParams["TASK_VAR"] = "task_id";
-if (strlen($arParams["BLOCK_VAR"]) <= 0)
+if ($arParams["BLOCK_VAR"] == '')
 	$arParams["BLOCK_VAR"] = "block_id";
-if (strlen($arParams["ELEM_VAR"]) <= 0)
+if ($arParams["ELEM_VAR"] == '')
 	$arParams["BP_VAR"] = "bp_id";
 
 $arParams["PATH_TO_INDEX"] = trim($arParams["PATH_TO_INDEX"]);
-if (strlen($arParams["PATH_TO_INDEX"]) <= 0)
+if ($arParams["PATH_TO_INDEX"] == '')
 	$arParams["PATH_TO_INDEX"] = $APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=index";
 
 $arParams["PATH_TO_LIST"] = trim($arParams["PATH_TO_LIST"]);
-if (strlen($arParams["PATH_TO_LIST"]) <= 0)
+if ($arParams["PATH_TO_LIST"] == '')
 	$arParams["PATH_TO_LIST"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=list&".$arParams["BLOCK_VAR"]."=#block_id#");
 
 $arParams["PATH_TO_TASK"] = trim($arParams["PATH_TO_TASK"]);
-if (strlen($arParams["PATH_TO_TASK"]) <= 0)
+if ($arParams["PATH_TO_TASK"] == '')
 	$arParams["PATH_TO_TASK"] = $APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=task&".$arParams["BLOCK_VAR"]."=#block_id#&".$arParams["TASK_VAR"]."=#task_id#";
-$arParams["PATH_TO_TASK"] = $arParams["PATH_TO_TASK"].((strpos($arParams["PATH_TO_TASK"], "?") === false) ? "?" : "&").bitrix_sessid_get();
+$arParams["PATH_TO_TASK"] = $arParams["PATH_TO_TASK"].((mb_strpos($arParams["PATH_TO_TASK"], "?") === false) ? "?" : "&").bitrix_sessid_get();
 
 $arParams["PATH_TO_BP"] = trim($arParams["PATH_TO_BP"]);
-if (strlen($arParams["PATH_TO_BP"]) <= 0)
+if ($arParams["PATH_TO_BP"] == '')
 	$arParams["PATH_TO_BP"] = $APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=bp&".$arParams["BLOCK_VAR"]."=#block_id#";
-$arParams["PATH_TO_BP"] = $arParams["PATH_TO_BP"].((strpos($arParams["PATH_TO_BP"], "?") === false) ? "?" : "&").bitrix_sessid_get();
+$arParams["PATH_TO_BP"] = $arParams["PATH_TO_BP"].((mb_strpos($arParams["PATH_TO_BP"], "?") === false) ? "?" : "&").bitrix_sessid_get();
 
 $arParams["PATH_TO_SETVAR"] = trim($arParams["PATH_TO_SETVAR"]);
-if (strlen($arParams["PATH_TO_SETVAR"]) <= 0)
+if ($arParams["PATH_TO_SETVAR"] == '')
 	$arParams["PATH_TO_SETVAR"] = $APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=setvar&".$arParams["BLOCK_VAR"]."=#block_id#";
-$arParams["PATH_TO_SETVAR"] = $arParams["PATH_TO_SETVAR"].((strpos($arParams["PATH_TO_SETVAR"], "?") === false) ? "?" : "&").bitrix_sessid_get();
+$arParams["PATH_TO_SETVAR"] = $arParams["PATH_TO_SETVAR"].((mb_strpos($arParams["PATH_TO_SETVAR"], "?") === false) ? "?" : "&").bitrix_sessid_get();
 
 $arResult["FatalErrorMessage"] = "";
 $arResult["ErrorMessage"] = "";
 
 $arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
-if (strlen($arParams["IBLOCK_TYPE"]) <= 0)
+if ($arParams["IBLOCK_TYPE"] == '')
 	$arResult["FatalErrorMessage"] .= GetMessage("BPWC_WLC_EMPTY_IBLOCK_TYPE").". ";
 
 $arParams["BLOCK_ID"] = intval($arParams["BLOCK_ID"]);
@@ -73,7 +73,7 @@ $arResult["PATH_TO_LOG"] = CComponentEngine::MakePathFromTemplate($arParams["PAT
 $documentType = array("bizproc", "CBPVirtualDocument", "type_".$arParams["BLOCK_ID"]);
 $arResult["DocumentType"] = $documentType;
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	$arResult["BlockType"] = null;
 	$ar = CIBlockType::GetByIDLang($arParams["IBLOCK_TYPE"], LANGUAGE_ID, true);
@@ -83,7 +83,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 		$arResult["FatalErrorMessage"] .= GetMessage("BPWC_WLC_WRONG_IBLOCK_TYPE").". ";
 }
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	$arResult["Block"] = null;
 	$db = CIBlock::GetList(array(), array("ID" => $arParams["BLOCK_ID"], "TYPE" => $arParams["IBLOCK_TYPE"], "ACTIVE" => "Y"));
@@ -93,9 +93,9 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 		$arResult["Block"]["FILTERABLE_FIELDS"] = array();
 		$arResult["Block"]["VISIBLE_FIELDS"] = array();
 
-		if (strlen($ar["~DESCRIPTION"]) > 0 && substr($ar["~DESCRIPTION"], 0, strlen("v2:")) == "v2:")
+		if ($ar["~DESCRIPTION"] <> '' && mb_substr($ar["~DESCRIPTION"], 0, mb_strlen("v2:")) == "v2:")
 		{
-			$v1 = @unserialize(substr($ar["~DESCRIPTION"], 3));
+			$v1 = @unserialize(mb_substr($ar["~DESCRIPTION"], 3));
 			if (is_array($v1))
 			{
 				$arResult["Block"]["DESCRIPTION"] = htmlspecialcharsbx($v1["DESCRIPTION"]);
@@ -123,7 +123,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 }
 */
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 /*	$arWorkflowTemplate = CBPWorkflowTemplateLoader::GetTemplateState($workflowTemplateId);
 
@@ -136,14 +136,14 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 /*	$arResult["AllowCreate"] = ($arResult["AllowAdmin"] || (is_array($arResult["AllowableOperations"]) && in_array("create", $arResult["AllowableOperations"]) || is_array($arWorkflowTemplate["STATE_PERMISSIONS"]["create"]) && in_array("author", $arWorkflowTemplate["STATE_PERMISSIONS"]["create"])));*/
 }
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
-	if ($_SERVER["REQUEST_METHOD"] == "GET" && strlen($_REQUEST["process_state_event"]) > 0 && check_bitrix_sessid())
+	if ($_SERVER["REQUEST_METHOD"] == "GET" && $_REQUEST["process_state_event"] <> '' && check_bitrix_sessid())
 	{
 		$bizprocId = trim($_REQUEST["bizproc_id"]);
 		$bizprocEvent = trim($_REQUEST["bizproc_event"]);
 
-		if (strlen($bizprocEvent) > 0)
+		if ($bizprocEvent <> '')
 		{
 			$arState = CBPStateService::GetWorkflowState($bizprocId);
 			if (count($arState) > 0)
@@ -186,13 +186,13 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 				$arResult["FatalErrorMessage"] .= GetMessage("BPWC_WLC_MISSING_DOCUMENT").". ";
 			}
 
-			if (strlen($arResult["FatalErrorMessage"]) <= 0)
+			if ($arResult["FatalErrorMessage"] == '')
 				LocalRedirect($APPLICATION->GetCurPageParam("", array("sessid", "stop_bizproc_id", "process_state_event", "bizproc_event", "bizproc_id", "delete_bizproc_id")));
 		}
 	}
 }
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	$arSelectFields = array();
 
@@ -203,7 +203,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 	$arResult["DocumentFields"] = $arDocumentFields = $documentService->GetDocumentFields($documentType);
 	foreach ($arDocumentFields as $key => $value)
 	{
-		if (strpos($key, 'PROPERTY_') === false)
+		if (mb_strpos($key, 'PROPERTY_') === false)
 			$arSelectFields[] = $key;
 	}
 
@@ -247,7 +247,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 				$arRecord[$key] = "";
 				foreach ($ar as $val)
 				{
-					if (strlen($arRecord[$key]) > 0)
+					if ($arRecord[$key] <> '')
 						$arRecord[$key] .= ", ";
 					$arRecord[$key] .= $val;
 				}
@@ -266,7 +266,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 	}
 }
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	$arCurrentUserGroups = $GLOBALS["USER"]->GetUserGroupArray();
 	if ("user_".$GLOBALS["USER"]->GetID() == $arResult["BP"]["CREATED_BY"])
@@ -298,14 +298,14 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 			$arResult["ShowTasks"] = true;
 
 		$arResult["BP"]["CancelUrl"] = "";
-		if ($arResult["AllowAdmin"] && strlen($arDocumentState["ID"]) > 0 && strlen($arDocumentState["WORKFLOW_STATUS"]) > 0)
+		if ($arResult["AllowAdmin"] && $arDocumentState["ID"] <> '' && $arDocumentState["WORKFLOW_STATUS"] <> '')
 			$arResult["BP"]["CancelUrl"] = $APPLICATION->GetCurPageParam("stop_bizproc_id=".$arDocumentState["ID"]."&".bitrix_sessid_get(), array("sessid", "stop_bizproc_id"));
 	}
 }
 
 $this->IncludeComponentTemplate();
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	if ($arParams["SET_TITLE"] == "Y")
 		$APPLICATION->SetTitle(GetMessage("BPABL_PAGE_TITLE").": ".$arResult["BP"]["NAME"]);

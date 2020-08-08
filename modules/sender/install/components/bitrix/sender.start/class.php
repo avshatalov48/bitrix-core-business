@@ -1,30 +1,37 @@
 <?
 
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ErrorCollection;
-use Bitrix\Main\Web\Uri;
-use Bitrix\Main\Loader;
 use Bitrix\Main\Error;
-
-use Bitrix\Sender\Message;
-use Bitrix\Sender\Security;
+use Bitrix\Main\ErrorCollection;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Uri;
+use Bitrix\Sender\Access\ActionDictionary;
+use Bitrix\Sender\Access\Map\AdsAction;
+use Bitrix\Sender\Access\Map\MailingAction;
+use Bitrix\Sender\Access\Map\RcAction;
 use Bitrix\Sender\Integration;
+use Bitrix\Sender\Message;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
+if (!Bitrix\Main\Loader::includeModule('sender'))
+{
+	ShowError('Module `sender` not installed');
+	die();
+}
+
 Loc::loadMessages(__FILE__);
 
-class SenderStartComponent extends CBitrixComponent
+class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 {
 	/** @var ErrorCollection $errors Errors. */
 	protected $errors;
 
 	protected function checkRequiredParams()
 	{
-		if (!Loader::includeModule('sender'))
+		if (!Bitrix\Main\Loader::includeModule('sender'))
 		{
 			$this->errors->setError(new Error('Module `sender` is not installed.'));
 			return false;
@@ -46,6 +53,9 @@ class SenderStartComponent extends CBitrixComponent
 			$this->arParams['PATH_TO_RC_ADD']
 			:
 			str_replace('letter', 'rc', $this->arParams['PATH_TO_LETTER_ADD']);
+
+		$this->arParams['PATH_TO_TOLOKA_ADD'] = $this->arParams['PATH_TO_TOLOKA_ADD']??
+			str_replace('letter', 'toloka', $this->arParams['PATH_TO_LETTER_ADD']);
 	}
 
 	protected function getSenderMessageIcon(Message\Adapter $message)
@@ -66,6 +76,7 @@ class SenderStartComponent extends CBitrixComponent
 			Integration\Seo\Ads\MessageBase::CODE_ADS_LOOKALIKE_VK => 'ui-icon-service-vk',
 			Integration\Crm\ReturnCustomer\MessageBase::CODE_RC_DEAL => 'ui-icon-service-deal',
 			Integration\Crm\ReturnCustomer\MessageBase::CODE_RC_LEAD => 'ui-icon-service-lead',
+			Message\iBase::CODE_TOLOKA => 'ui-icon-service-ya-toloka',
 		];
 
 		return 'ui-icon ' . $map[$code];
@@ -88,10 +99,16 @@ class SenderStartComponent extends CBitrixComponent
 		$uri->addParams(array('code' => '#code#'));
 		$pathToRcAdd = $uri->getLocator();
 
+		$pathToTolokaAdd = $this->arParams['PATH_TO_TOLOKA_ADD'];
+		$uri = new Uri($pathToTolokaAdd);
+		$uri->addParams(array('code' => '#code#'));
+		$pathToTolokaAdd = $uri->getLocator();
+
 		$list = [];
 		foreach ($messages as $message)
 		{
 			$message = new Message\Adapter($message);
+
 			if ($message->isHidden())
 			{
 				continue;
@@ -105,9 +122,13 @@ class SenderStartComponent extends CBitrixComponent
 			{
 				$pathToAdd = $pathToRcAdd;
 			}
-			else
+			elseif($message->isMailing())
 			{
 				$pathToAdd = $pathToLetterAdd;
+			}
+			else
+			{
+				$pathToAdd = $pathToTolokaAdd;
 			}
 
 			$list[] = array(
@@ -171,6 +192,23 @@ class SenderStartComponent extends CBitrixComponent
 		);
 	}
 
+	private function filterMessages($messages, $map): array
+	{
+		$result = [];
+		foreach ($messages as $message)
+		{
+			if(!$this->getAccessController()->check(
+				$map[$message::CODE]
+			))
+			{
+				continue;
+			}
+			$result[] = $message;
+		}
+
+		return $result;
+	}
+
 	protected function prepareResult()
 	{
 		/* Set title */
@@ -180,33 +218,39 @@ class SenderStartComponent extends CBitrixComponent
 			$GLOBALS['APPLICATION']->SetTitle(Loc::getMessage('SENDER_START_TITLE'));
 		}
 
-		if (!Security\Access::current()->canViewStart())
-		{
-			Security\AccessChecker::addError($this->errors);
-			return false;
-		}
+		$mailingMessages = $this->filterMessages(Message\Factory::getMailingMessages(), MailingAction::getMap());
+		$adsMessages = $this->filterMessages(Message\Factory::getAdsMessages(), AdsAction::getMap());
+		$rcMessages = $this->filterMessages(Message\Factory::getReturnCustomerMessages(), RcAction::getMap());
+		$tolokaMessages = $this->filterMessages(Message\Factory::getTolokaMessages(), RcAction::getMap());
 
 		$this->arResult['MESSAGES'] = array(
 			'MAILING' =>  $this->getSenderMessages(
-				Security\Access::current()->canModifyLetters()
+				$this->getAccessController()->check(ActionDictionary::ACTION_MAILING_VIEW)
 				?
-				Message\Factory::getMailingMessages()
+					$mailingMessages
 				:
 				[]
 			),
 			'ADS' =>  $this->getSenderMessages(
-				Security\Access::current()->canModifyAds()
+				$this->getAccessController()->check(ActionDictionary::ACTION_ADS_VIEW)
 				?
-				Message\Factory::getAdsMessages()
+					$adsMessages
 				:
 				[]
 			),
 			'RC' =>  $this->getSenderMessages(
-				Security\Access::current()->canModifyRc()
-				?
-				Message\Factory::getReturnCustomerMessages()
-				:
-				[]
+				$this->getAccessController()->check(ActionDictionary::ACTION_RC_VIEW)
+					?
+					$rcMessages
+					:
+					[]
+			),
+			'TOLOKA' =>  $this->getSenderMessages(
+				$this->getAccessController()->check(ActionDictionary::ACTION_RC_VIEW)
+					?
+					$tolokaMessages
+					:
+					[]
 			),
 		);
 
@@ -245,20 +289,17 @@ class SenderStartComponent extends CBitrixComponent
 
 	public function executeComponent()
 	{
-		$this->errors = new ErrorCollection();
-		$this->initParams();
-		if (!$this->checkRequiredParams())
-		{
-			$this->printErrors();
-			return;
-		}
+		parent::executeComponent();
+		parent::prepareResultAndTemplate();
+	}
 
-		if (!$this->prepareResult())
-		{
-			$this->printErrors();
-			return;
-		}
+	public function getEditAction()
+	{
+		return ActionDictionary::ACTION_START_VIEW;
+	}
 
-		$this->includeComponentTemplate();
+	public function getViewAction()
+	{
+		return ActionDictionary::ACTION_START_VIEW;
 	}
 }

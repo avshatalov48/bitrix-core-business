@@ -42,11 +42,11 @@ class GlobalConstTable extends Main\ORM\Data\DataManager
 
 			'IS_REQUIRED' => [
 				'data_type' => 'boolean',
-				'values' => ['Y', 'N']
+				'values' => ['N', 'Y']
 			],
 			'IS_MULTIPLE' => [
 				'data_type' => 'boolean',
-				'values' => ['Y', 'N']
+				'values' => ['N', 'Y']
 			],
 
 			'PROPERTY_OPTIONS' => [

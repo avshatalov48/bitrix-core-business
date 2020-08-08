@@ -161,6 +161,7 @@ $lAdmin->AddHeaders(array(
 	array("id"=>"IS_PERIOD", "content"=>GetMessage("MAIN_AGENT_LIST_PERIODICAL"), "sort"=>"IS_PERIOD"),
 	array("id"=>"DATE_CHECK", "content"=>GetMessage("MAIN_AGENT_LIST_DATE_CHECK"), "sort"=>"DATE_CHECK"),
 	array("id"=>"RUNNING", "content"=>GetMessage("MAIN_AGENT_LIST_RUNNING")),
+	array("id"=>"RETRY_COUNT", "content"=>GetMessage("MAIN_AGENT_LIST_RETRY_COUNT")),
 ));
 while($db_res = $rsData->NavNext(true, "a_"))
 {
@@ -177,6 +178,7 @@ while($db_res = $rsData->NavNext(true, "a_"))
 	$row->AddField("IS_PERIOD", ($a_IS_PERIOD == "Y"? GetMessage("MAIN_AGENT_LIST_PERIODICAL_TIME") : GetMessage("MAIN_AGENT_LIST_PERIODICAL_INTERVAL")));
 	$row->AddField("DATE_CHECK", $a_DATE_CHECK);
 	$row->AddField("RUNNING", ($a_RUNNING == "Y"? GetMessage("MAIN_AGENT_ACTIVE_YES") : GetMessage("MAIN_AGENT_ACTIVE_NO")));
+	$row->AddField("RETRY_COUNT", $a_RETRY_COUNT);
 
 	$arActions = array();
 	$arActions[] = array(

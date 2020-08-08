@@ -2,6 +2,7 @@
 
 use Bitrix\Main;
 use Bitrix\Sale\Cashbox;
+use Bitrix\Sale\Cashbox\Logger;
 use Bitrix\Sale\Cashbox\ReportManager;
 
 define('NOT_CHECK_PERMISSIONS', true);
@@ -32,8 +33,7 @@ if ($hash)
 
 if ($accessDenied)
 {
-	if (Cashbox\Manager::DEBUG_MODE === true)
-		Cashbox\Internals\CashboxErrLogTable::add(array('MESSAGE' => '403 Forbidden', 'DATE_INSERT' => new Main\Type\DateTime()));
+	Logger::addDebugInfo("403 Forbidden");
 
 	CHTTP::SetStatus("403 Forbidden");
 	$APPLICATION->FinalActions();
@@ -47,8 +47,7 @@ $json = file_get_contents('php://input');
 
 if ($json)
 {
-	if (Cashbox\Manager::DEBUG_MODE === true)
-		Cashbox\Internals\CashboxErrLogTable::add(array('MESSAGE' => $json, 'DATE_INSERT' => new Main\Type\DateTime()));
+	Logger::addDebugInfo($json);
 
 	$data = Main\Web\Json::decode($json);
 }
@@ -146,16 +145,14 @@ if (isset($data['kkm']) && count($data['kkm']) > 0)
 		}
 		else
 		{
-			if (Cashbox\Manager::DEBUG_MODE === true)
-				Cashbox\Internals\CashboxErrLogTable::add(array('MESSAGE' => 'enabled cashbox was not found', 'DATE_INSERT' => new Main\Type\DateTime()));
+			Logger::addDebugInfo("enabled cashbox was not found");
 			$error = true;
 		}
 	}
 }
 else
 {
-	if (Cashbox\Manager::DEBUG_MODE === true)
-		Cashbox\Internals\CashboxErrLogTable::add(array('MESSAGE' => 'empty kkm list', 'DATE_INSERT' => new Main\Type\DateTime()));
+	Logger::addDebugInfo("empty kkm list");
 	$error = true;
 }
 

@@ -21,10 +21,10 @@ if(!$USER->CanDoFileOperation('fm_download_file', $arPath))
 	$strWarning = GetMessage("ACCESS_DENIED");
 else if(!$io->FileExists($arFile["tmp_name"]))
 	$strWarning = GetMessage("FILEMAN_FILENOT_FOUND")." ";
-elseif(!$USER->CanDoOperation('edit_php') && (HasScriptExtension($path) || substr(CFileman::GetFileName($path), 0, 1) == "."))
+elseif(!$USER->CanDoOperation('edit_php') && (HasScriptExtension($path) || mb_substr(CFileman::GetFileName($path), 0, 1) == "."))
 	$strWarning .= GetMessage("FILEMAN_FILE_DOWNLOAD_PHPERROR")."\n";
 
-if(strlen($strWarning) <= 0)
+if($strWarning == '')
 {
 	$fileName = str_replace(array("\r", "\n"), "", $arFile["name"]);
 	$flTmp = $io->GetFile($arFile["tmp_name"]);

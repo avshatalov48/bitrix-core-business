@@ -67,7 +67,7 @@ class PropertyToField
 				$refIblock = Iblock::wakeUp($property->getLinkIblockId());
 				$refIblock->fill('API_CODE');
 
-				if (strlen($refIblock->getApiCode()))
+				if($refIblock->getApiCode() <> '')
 				{
 					$refEntityName = $refIblock->getEntityDataClass();
 

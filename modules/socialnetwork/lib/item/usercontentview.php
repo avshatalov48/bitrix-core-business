@@ -7,6 +7,7 @@
  */
 namespace Bitrix\Socialnetwork\Item;
 
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Entity\ExpressionField;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
@@ -112,7 +113,8 @@ class UserContentView
 			'USER_LAST_NAME' => 'USER.LAST_NAME',
 			'USER_SECOND_NAME' => 'USER.SECOND_NAME',
 			'USER_LOGIN' => 'USER.LOGIN',
-			'USER_PERSONAL_PHOTO' => 'USER.PERSONAL_PHOTO'
+			'USER_PERSONAL_PHOTO' => 'USER.PERSONAL_PHOTO',
+			'USER_PERSONAL_GENDER' => 'USER.PERSONAL_GENDER'
 		];
 
 		$extranetInstalled = $mailInstalled = false;
@@ -154,6 +156,23 @@ class UserContentView
 		while ($fields = $res->fetch())
 		{
 			$photoSrc = '';
+
+			if (intval($fields['USER_PERSONAL_PHOTO']) <= 0)
+			{
+				switch ($fields['USER_PERSONAL_GENDER'])
+				{
+					case "M":
+						$suffix = "male";
+						break;
+					case "F":
+						$suffix = "female";
+						break;
+					default:
+						$suffix = "unknown";
+				}
+				$fields['USER_PERSONAL_PHOTO'] = Option::get('socialnetwork', 'default_user_picture_'.$suffix, false, SITE_ID);
+			}
+
 			if (
 				!empty($fields['USER_PERSONAL_PHOTO'])
 				&& intval($fields['USER_PERSONAL_PHOTO']) > 0
@@ -205,7 +224,7 @@ class UserContentView
 					"user_id" => $fields["USER_ID"],
 					"USER_ID" => $fields["USER_ID"]
 				])),
-				'PHOTO_SRC' => $photoSrc,
+				'PHOTO_SRC' => \CHTTP::urnEncode($photoSrc),
 				'FULL_NAME' => \CUser::formatName(\CSite::getNameFormat(), $userFields, true, true),
 				'DATE_VIEW' => $dateView,
 				'DATE_VIEW_FORMATTED' => (!empty($dateView) ? \CComponentUtil::getDateTimeFormatted(MakeTimeStamp($dateView), "FULL", $timeZoneOffset) : '')
@@ -285,5 +304,33 @@ class UserContentView
 		}
 
 		return $result;
+	}
+
+	public static function finalize($params = [])
+	{
+		$userId = (!empty($params['userId']) ? intval($params['userId']) : 0);
+
+		if (!$userId)
+		{
+			return false;
+		}
+
+		if (ModuleManager::isModuleInstalled('tasks'))
+		{
+			$taskIdList = \Bitrix\Socialnetwork\Integration\Forum\TaskComment::getViewedCommentsTasksList();
+			if (!empty($taskIdList))
+			{
+				$event = new \Bitrix\Main\Event(
+					'socialnetwork', 'onContentFinalizeView',
+					[
+						'userId' => $userId,
+						'commentsTaskIdList' => $taskIdList
+					]
+				);
+				$event->send();
+			}
+		}
+
+		return true;
 	}
 }

@@ -45,8 +45,8 @@ class filemanMedialibUpload
 			? "/[^\p{L}L0-9!\p{Z}\$&\(\)\[\]\{\}\-\.;=@\^_\~]/uis"
 			: "/[^A-Za-zÀ-ß¨à-ÿ¸0-9!\s\$&\(\)\[\]\{\}\-\.;=@\^_\~]/is";
 		$name = trim(preg_replace($pattern, "", $name));
-		if (strlen(trim(substr($name, 0, strpos($name, '.')))) <= 0)
-			$name = substr(md5(uniqid(rand(), true)), 0, 8).trim($name);
+		if (trim(mb_substr($name, 0, mb_strpos($name, '.'))) == '')
+			$name = mb_substr(md5(uniqid(rand(), true)), 0, 8).trim($name);
 		$res = CMedialibItem::Edit(array(
 			'file' => (array_key_exists("files", $file) ? $file["files"]["default"] : $file),
 			'arFields' => array(
@@ -83,8 +83,8 @@ if ($action == 'uploadhtml5' && is_object($uploader))
 }
 else if ($action == 'upload')
 {
-	$collectionId = intVal($_POST['collection_id']);
-	$fileCount = intVal($_POST['FileCount']);
+	$collectionId = intval($_POST['collection_id']);
+	$fileCount = intval($_POST['FileCount']);
 	$firstId = false;
 
 	if (!CMedialib::CanDoOperation("medialib_new_item", $collectionId)) // Check access
@@ -103,8 +103,8 @@ else if ($action == 'upload')
 				continue;
 
 			$name = trim(preg_replace("/[^a-zA-Z0-9!\$&\(\)\[\]\{\}\-\.;=@\^_\~]/is", "", $name));
-			if (strlen(trim(substr($name, 0, strpos($name, '.')))) <= 0)
-				$name = substr(md5(uniqid(rand(), true)), 0, 8).trim($name);
+			if (trim(mb_substr($name, 0, mb_strpos($name, '.'))) == '')
+				$name = mb_substr(md5(uniqid(rand(), true)), 0, 8).trim($name);
 
 			$res = CMedialibItem::Edit(array(
 				'file' => $_FILES['SourceFile_'.$i],
@@ -137,8 +137,8 @@ elseif($action == 'redirect')  //Redirect after files uploading
 	$menu = new CAdminContextMenu($aContext);
 	$menu->Show();
 
-	$firstId = intVal($_GET['first_id']);
-	$colId = intVal($_GET['col_id']);
+	$firstId = intval($_GET['first_id']);
+	$colId = intval($_GET['col_id']);
 
 
 	// Get all items with id > $firstId
@@ -151,7 +151,7 @@ elseif($action == 'redirect')  //Redirect after files uploading
 
 	if ($len > 0)
 	{
-		$res = CMedialib::GetCollectionTree(array('checkByType' => true, 'typeId' => intVal($_GET['ml_type'])));
+		$res = CMedialib::GetCollectionTree(array('checkByType' => true, 'typeId' => intval($_GET['ml_type'])));
 		$strSel = '<option value="0">'.GetMessage('ML_COL_SELECT').'</option>'.CMedialib::_BuildCollectionsSelectOptions($res['Collections'], $res['arColTree']);
 		$module_id="fileman";
 		$thumbWidth = COption::GetOptionInt($module_id, "ml_thumb_width", 140);
@@ -346,7 +346,7 @@ elseif($action == 'redirect')  //Redirect after files uploading
 }
 elseif($action == 'postsave')
 {
-	$itemsCount = intVal($_POST['items_count']);
+	$itemsCount = intval($_POST['items_count']);
 
 	if ($itemsCount > 0)
 	{
@@ -354,7 +354,7 @@ elseif($action == 'postsave')
 		{
 			if (isset($_POST['item_del_'.$i]) && $_POST['item_del_'.$i])
 			{
-				CMedialib::DelItem(intVal($_POST['item_id_'.$i]));
+				CMedialib::DelItem(intval($_POST['item_id_'.$i]));
 				continue;
 			}
 
@@ -362,15 +362,15 @@ elseif($action == 'postsave')
 			$arCols = array();
 			for ($j = 0, $n = count($arCols_); $j < $n; $j++)
 			{
-				if (intVal($arCols_[$j]) > 0 && CMedialib::CanDoOperation("medialib_edit_item", $arCols_[$j])) // Check access
-					$arCols[] = intVal($arCols_[$j]);
+				if (intval($arCols_[$j]) > 0 && CMedialib::CanDoOperation("medialib_edit_item", $arCols_[$j])) // Check access
+					$arCols[] = intval($arCols_[$j]);
 			}
 
 			if (count($arCols) > 0)
 			{
 				$res = CMedialibItem::Edit(array(
 					'arFields' => array(
-						'ID' => intVal($_POST['item_id_'.$i]),
+						'ID' => intval($_POST['item_id_'.$i]),
 						'NAME' => $_POST['item_name_'.$i],
 						'DESCRIPTION' => $_POST['item_desc_'.$i],
 						'KEYWORDS' => $_POST['item_keys_'.$i]
@@ -390,8 +390,8 @@ $APPLICATION->AddHeadScript('/bitrix/js/fileman/medialib/medialib_admin.js');
 $APPLICATION->SetTitle(GetMessage('FM_ML_UPL_TITLE1'));
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
-$trees = CMedialib::GetCollectionTree(array('checkByType' => true, 'typeId' => intVal($_GET['type'])));
-$select = CMedialib::_BuildCollectionsSelectOptions($trees['Collections'], $trees['arColTree'], 0, intVal($_GET['col_id']));
+$trees = CMedialib::GetCollectionTree(array('checkByType' => true, 'typeId' => intval($_GET['type'])));
+$select = CMedialib::_BuildCollectionsSelectOptions($trees['Collections'], $trees['arColTree'], 0, intval($_GET['col_id']));
 
 $menu = new CAdminContextMenu(array(
 	array(

@@ -177,7 +177,7 @@ class Price extends Entity
 		}
 
 		if ($fields['TMP_ID'] !== null)
-			$fields['TMP_ID'] = substr($fields['TMP_ID'], 0, 40);
+			$fields['TMP_ID'] = mb_substr($fields['TMP_ID'], 0, 40);
 
 		static::checkQuantityRange($result, $fields);
 
@@ -320,7 +320,7 @@ class Price extends Entity
 		}
 
 		if (isset($fields['TMP_ID']))
-			$fields['TMP_ID'] = substr($fields['TMP_ID'], 0, 40);
+			$fields['TMP_ID'] = mb_substr($fields['TMP_ID'], 0, 40);
 
 		$existQuantityFrom = array_key_exists('QUANTITY_FROM', $fields);
 		$existQuantityTo = array_key_exists('QUANTITY_TO', $fields);

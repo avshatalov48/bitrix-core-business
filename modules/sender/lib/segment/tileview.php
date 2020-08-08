@@ -210,7 +210,7 @@ class TileView
 				'data' => array(
 					'last' => $segment[$fieldDateUse],
 					'freq' => (int) $segment[$fieldUseCount],
-					'case' => substr($segment['CODE'], 0, 5) == 'case_',
+					'case' => mb_substr($segment['CODE'], 0, 5) == 'case_',
 					'hidden' => $segment['HIDDEN'] == 'Y',
 					'system' => $segment['IS_SYSTEM'] == 'Y',
 					'count' => array()

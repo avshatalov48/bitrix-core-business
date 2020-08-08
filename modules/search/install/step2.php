@@ -23,7 +23,7 @@ else
 $msg->Show();
 
 
-if (strlen($_REQUEST["public_dir"]) > 0):
+if ($_REQUEST["public_dir"] <> ''):
 ?>
 <p><?=GetMessage("SEARCH_DEMO_DIR")?></p>
 <table border="0" cellspacing="0" cellpadding="0" class="internal">
@@ -39,7 +39,7 @@ if (strlen($_REQUEST["public_dir"]) > 0):
 		<tr>
 			<td width="0%"><p><?echo htmlspecialcharsEx('['.$site["ID"].'] '.$site["NAME"])?></p></td>
 			<td width="0%"><p><a href="<? echo htmlspecialcharsbx(
-				(strlen($site["SERVER_NAME"])? "http://".$site["SERVER_NAME"]: "").
+				($site["SERVER_NAME"] <> ''? "http://".$site["SERVER_NAME"] : "").
 				$site["DIR"].$_REQUEST["public_dir"].
 				"/"
 			)?>"><?echo htmlspecialcharsEx($site["DIR"].$_REQUEST["public_dir"])?>/</a></p></td>

@@ -85,7 +85,7 @@ else
 	unset($row, $iterator);
 }
 
-if (!$bReadOnly && 'POST' == $_SERVER['REQUEST_METHOD'] && (strlen($save)>0 || strlen($apply)>0) && check_bitrix_sessid())
+if (!$bReadOnly && 'POST' == $_SERVER['REQUEST_METHOD'] && ($save <> '' || $apply <> '') && check_bitrix_sessid())
 {
 	$adminSidePanelHelper->decodeUriComponent();
 
@@ -182,12 +182,12 @@ if (!$bReadOnly && 'POST' == $_SERVER['REQUEST_METHOD'] && (strlen($save)>0 || s
 		}
 		else
 		{
-			if (strlen($save) > 0)
+			if ($save <> '')
 			{
 				$adminSidePanelHelper->localRedirect($listUrl);
 				LocalRedirect($listUrl);
 			}
-			elseif (strlen($apply) > 0)
+			elseif ($apply <> '')
 			{
 				$applyUrl = $selfFolderUrl."cat_group_edit.php?lang=".$lang."&ID=".$ID;
 				$applyUrl = $adminSidePanelHelper->setDefaultQueryParams($applyUrl);

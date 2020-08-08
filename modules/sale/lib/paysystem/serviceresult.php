@@ -3,6 +3,8 @@
 namespace Bitrix\Sale\PaySystem;
 
 use Bitrix\Main\Entity\Result;
+use Bitrix\Main;
+use Bitrix\Sale\Internals;
 
 /**
  * Class ServiceResult
@@ -17,6 +19,7 @@ class ServiceResult extends Result
 	private $resultApplied = true;
 	private $operationType = null;
 	private $template = '';
+	private $paymentUrl = '';
 
 	/**
 	 * @param array $psData
@@ -81,5 +84,67 @@ class ServiceResult extends Result
 	public function setTemplate($template)
 	{
 		$this->template = $template;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPaymentUrl(): string
+	{
+		return $this->paymentUrl;
+	}
+
+	/**
+	 * @param $paymentUrl
+	 */
+	public function setPaymentUrl($paymentUrl): void
+	{
+		$this->paymentUrl = $paymentUrl;
+	}
+
+	/**
+	 * @return Error[]
+	 */
+	public function getBuyerErrors(): array
+	{
+		$errors = [];
+
+		/** @var Main\Error $error */
+		foreach ($this->getBuyerErrorIterator() as $error)
+		{
+			$errors[] = $error;
+		}
+
+		return $errors;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getBuyerErrorMessages(): array
+	{
+		$messages = [];
+
+		/** @var Main\Error $error */
+		foreach ($this->getBuyerErrorIterator() as $error)
+		{
+			$messages[] = $error->getMessage();
+		}
+
+		return $messages;
+	}
+
+	/**
+	 * @return Internals\CollectionFilterIterator
+	 */
+	public function getBuyerErrorIterator(): Internals\CollectionFilterIterator
+	{
+		$callback = function (Main\Error $error)
+		{
+			return $error instanceof Error
+				&& $error->isVisibleForBuyer();
+		};
+
+		return new Internals\CollectionFilterIterator(new \ArrayIterator($this->getErrors()), $callback);
 	}
 }

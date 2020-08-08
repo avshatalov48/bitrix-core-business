@@ -15,7 +15,7 @@ foreach($arResult["IBLOCKS"] as $arIBlock):
 			{
 				$sImagePath = $arItem["PREVIEW_PICTURE"]["SRC"];
 			}
-			elseif(strpos($arItem["PREVIEW_PICTURE"]["SRC"], "http") !== 0)
+			elseif(mb_strpos($arItem["PREVIEW_PICTURE"]["SRC"], "http") !== 0)
 			{
 				$sImagePath = "http://".$arResult["SERVER_NAME"].$arItem["PREVIEW_PICTURE"]["SRC"];
 			}
@@ -49,7 +49,7 @@ foreach($arResult["IBLOCKS"] as $arIBlock):
 		<?if($arItem["PREVIEW_PICTURE"]):?>
 		<a href="<?echo $arItem["DETAIL_PAGE_URL"]?>"><img hspace='5' vspace='5' align='left' border='0' src="<?echo $sImagePath?>" width="<?echo $width?>" height="<?echo $height?>" alt="<?echo $arItem["PREVIEW_PICTURE"]["ALT"]?>"  title="<?echo $arItem["NAME"]?>"></a>
 		<?endif;?>
-		<?if(strlen($arItem["DATE_ACTIVE_FROM"])>0):?>
+		<?if($arItem["DATE_ACTIVE_FROM"] <> ''):?>
 			<font class="newsdata"><?echo $arItem["DATE_ACTIVE_FROM"]?></font><br>
 		<?endif;?>
 		<a href="<?echo $arItem["DETAIL_PAGE_URL"]?>"><b><?echo $arItem["NAME"]?></b></a><br>

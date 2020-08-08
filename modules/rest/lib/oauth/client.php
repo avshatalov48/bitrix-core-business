@@ -42,7 +42,7 @@ class Client
 	const METHOD_APPLICATION_UNINSTALL = 'application.uninstall';
 	const METHOD_APPLICATION_STAT = 'application.stat';
 	const METHOD_APPLICATION_LIST = 'application.list';
-	const METHOD_APPLICATION_USAGE = 'application.usage';
+	const METHOD_APPLICATION_USAGE = 'application.usage.add';
 
 	const METHOD_APPLICATION_VERSION_UPDATE = 'application.version.update';
 	const METHOD_APPLICATION_VERSION_DELETE = 'application.version.delete';
@@ -262,10 +262,9 @@ class Client
 		return $this->call(static::METHOD_APPLICATION_LIST);
 	}
 
-	public function sendApplicationUsage($clientId, array $usage)
+	public function sendApplicationUsage(array $usage)
 	{
 		return $this->call(static::METHOD_APPLICATION_USAGE, array(
-			"CLIENT_ID" => $clientId,
 			"USAGE" => $usage,
 		));
 	}

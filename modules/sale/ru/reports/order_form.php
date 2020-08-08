@@ -30,7 +30,7 @@ table.blank td {
 
 <body bgcolor=white lang=RU style='tab-interval:35.4pt'>
 <?
-$page = IntVal($page);
+$page = intval($page);
 if ($page<=0) $page = 1;
 ?>
 <table height="920" align="center" border="0" cellpadding="0" cellspacing="0">
@@ -69,7 +69,7 @@ if ($page<=0) $page = 1;
 						}
 						else
 						{
-							if(strlen($arParams["BUYER_COMPANY_NAME"]) > 0)
+							if($arParams["BUYER_COMPANY_NAME"] <> '')
 								$userName = $arParams["BUYER_COMPANY_NAME"];
 							else
 								$userName = $arParams["BUYER_LAST_NAME"]." ".$arParams["BUYER_FIRST_NAME"]." ".$arParams["BUYER_SECOND_NAME"];
@@ -193,7 +193,7 @@ if ($page<=0) $page = 1;
 									{
 										foreach($arBasket["PROPS"] as $vv)
 										{
-											if(strlen($vv["VALUE"]) > 0 && $vv["CODE"] != "CATALOG.XML_ID" && $vv["CODE"] != "PRODUCT.XML_ID")
+											if($vv["VALUE"] <> '' && $vv["CODE"] != "CATALOG.XML_ID" && $vv["CODE"] != "PRODUCT.XML_ID")
 												echo "<div style=\"font-size:8pt\">".$vv["NAME"].": ".$vv["VALUE"]."</div>";
 										}
 									}

@@ -137,7 +137,7 @@ class CBPGetUserInfoActivity
 
 		foreach (array_keys($this->userFields) as $uf)
 		{
-			if (strpos($uf, 'USER_') !== 0)
+			if (mb_strpos($uf, 'USER_') !== 0)
 			{
 				continue;
 			}

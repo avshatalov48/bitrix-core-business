@@ -46,8 +46,12 @@ if (Bitrix\Main\Loader::includeModule("sale"))
 				/** @var Bitrix\Sale\Payment $payment */
 				$payment = $paymentCollection->getItemById($paymentId);
 
-				$initResult = $service->initiatePay($payment, $request, Bitrix\Sale\PaySystem\BaseServiceHandler::STRING);
+				if ($returnUrl = $request->get("RETURN_URL"))
+				{
+					$service->getContext()->setUrl($returnUrl);
+				}
 
+				$initResult = $service->initiatePay($payment, $request, Bitrix\Sale\PaySystem\BaseServiceHandler::STRING);
 				if ($initResult->isSuccess())
 				{
 					$result = [
@@ -61,6 +65,7 @@ if (Bitrix\Main\Loader::includeModule("sale"))
 					$result = [
 						'status' => 'error',
 						'errors' => $initResult->getErrorMessages(),
+						'buyerErrors' => $initResult->getBuyerErrorMessages(),
 					];
 				}
 			}

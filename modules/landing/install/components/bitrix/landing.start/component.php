@@ -45,7 +45,6 @@ if (Loader::includeModule('crm'))
 }
 
 // refresh block repo
-Manager::checkRepositoryVersion();
 Block::getRepository();
 $arParams['TYPE'] = isset($arParams['TYPE']) ? $arParams['TYPE'] : '';
 $arParams['STRICT_TYPE'] = isset($arParams['STRICT_TYPE']) ? $arParams['STRICT_TYPE'] : 'N';
@@ -91,6 +90,8 @@ $defaultUrlTemplates404 = array(
 	'sites' => '',
 	'site_show' => 'site/#site_show#/',
 	'site_edit' => 'site/edit/#site_edit#/',
+	'site_domain' => 'site/domain/#site_edit#/',
+	'site_domain_switch' => 'site/domain_switch/#site_edit#/',
 	'landing_edit' => 'site/#site_show#/edit/#landing_edit#/',
 	'landing_view' => 'site/#site_show#/view/#landing_edit#/',
 	'domains' => 'domains/',
@@ -121,6 +122,8 @@ $utlTpls = array(
 	'sites' => array(),
 	'site_show' => array('site_show'),
 	'site_edit' => array('site_edit'),
+	'site_domain' => array('site_edit'),
+	'site_domain_switch' => array('site_edit'),
 	'landing_edit' => array('landing_edit', 'site_show'),
 	'landing_view' => array('landing_edit', 'site_show'),
 	'domains' => array(),
@@ -139,6 +142,7 @@ $landingTypes = \Bitrix\Landing\Site::getTypes();
 
 // template vars
 $arResult['AGREEMENT'] = array();
+$arResult['AGREEMENT_ACCEPTED'] = false;
 $arResult['CHECK_FEATURE_PERM'] = Manager::checkFeature(
 	Manager::FEATURE_PERMISSIONS_AVAILABLE
 );
@@ -200,7 +204,7 @@ if ($arParams['SEF_MODE'] == 'Y')
 	// build urls by rules
 	foreach ($utlTpls as $code => $var)
 	{
-		$arParams['PAGE_URL_' . strtoupper($code)] = $arParams['SEF_FOLDER'] . $urlTemplates[$code];
+		$arParams['PAGE_URL_'.mb_strtoupper($code)] = $arParams['SEF_FOLDER'] . $urlTemplates[$code];
 	}
 }
 else
@@ -257,7 +261,7 @@ else
 	// build urls by rules
 	foreach ($utlTpls as $code => $var)
 	{
-		$paramCode = 'PAGE_URL_' . strtoupper($code);
+		$paramCode = 'PAGE_URL_'.mb_strtoupper($code);
 		$uri = new Uri($uriString);
 		$uri->deleteParams($deleteUrl);
 		if (empty($var))
@@ -373,6 +377,7 @@ if (
 }
 
 $currentLang = LANGUAGE_ID;
+$currentZone = Manager::getZone();
 $agreementCode = 'landing_agreement';
 $agreementsId = array();
 $agreements = array(
@@ -388,19 +393,35 @@ $virtualLangs = array(
 	'la' => 'es'
 );
 
+// lang zone is in CIS
+$cis = $currentZone == 'by' || $currentZone == 'kz';
+
 // actual from lang-file
 foreach ($agreements as $lng => $item)
 {
-	if (file_exists(__DIR__ . '/lang/' . $lng . '/component.php'))
+	if ($cis)
 	{
-		include __DIR__ . '/lang/' . $lng . '/component.php';
+		$mess = Loc::loadLanguageFile(
+			__DIR__ . '/component_' . $currentZone . '.php',
+			'ru'
+		);
+	}
+	else
+	{
+		$mess = Loc::loadLanguageFile(
+			__FILE__,
+			LANGUAGE_ID
+		);
+	}
+	if ($mess)
+	{
 		$agreements[$lng] = array(
 			'ID' => 0,
-			'NAME' => isset($MESS['LANDING_CMP_AGREEMENT_NAME'])
-						? $MESS['LANDING_CMP_AGREEMENT_NAME']
+			'NAME' => isset($mess['LANDING_CMP_AGREEMENT_NAME'])
+						? $mess['LANDING_CMP_AGREEMENT_NAME']
 						: '',
-			'TEXT' => isset($MESS['LANDING_CMP_AGREEMENT_TEXT2'])
-						? $MESS['LANDING_CMP_AGREEMENT_TEXT2']
+			'TEXT' => isset($mess['LANDING_CMP_AGREEMENT_TEXT3'])
+						? $mess['LANDING_CMP_AGREEMENT_TEXT3']
 						: '',
 			'LANGUAGE_ID' => $lng
 		);
@@ -507,7 +528,7 @@ elseif (
 }
 else
 {
-	$redirectIfUnAcept = true;
+	$redirectIfUnAccept = true;
 }
 
 // check accepted
@@ -519,8 +540,8 @@ $res = ConsentTable::getList(array(
 ));
 if ($res->fetch())
 {
-	$redirectIfUnAcept = false;
-	$arResult['AGREEMENT'] = array();
+	$redirectIfUnAccept = false;
+	$arResult['AGREEMENT_ACCEPTED'] = true;
 }
 
 // accept
@@ -538,8 +559,8 @@ if (
 
 // if not accept and don't exist agreement
 if (
-	isset($redirectIfUnAcept) &&
-	$redirectIfUnAcept === true
+	isset($redirectIfUnAccept) &&
+	$redirectIfUnAccept === true
 )
 {
 	LocalRedirect(SITE_DIR, true);

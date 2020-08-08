@@ -14,9 +14,9 @@ ClearVars();
 $errorMessage = "";
 $bVarsFromForm = false;
 
-$ID = IntVal($ID);
+$ID = intval($ID);
 
-if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions>="W" && check_bitrix_sessid())
+if ($REQUEST_METHOD=="POST" && $Update <> '' && $saleModulePermissions>="W" && check_bitrix_sessid())
 {
 	$arFields = array(
 		"NAME" => $NAME,
@@ -38,7 +38,7 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions>="W" 
 		$arFields["PERSON_TYPE_ID"] = $PERSON_TYPE_ID;
 
 		$ID = CSaleOrderPropsGroup::Add($arFields);
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if ($ID <= 0)
 		{
 			if ($ex = $APPLICATION->GetException())
@@ -52,9 +52,9 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions>="W" 
 		}
 	}
 
-	if (strlen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
-		if (strlen($apply) <= 0)
+		if ($apply == '')
 			LocalRedirect("/bitrix/admin/sale_order_props_group.php?lang=".LANG.GetFilterParams("filter_", false));
 	}
 	else
@@ -169,7 +169,7 @@ $tabControl->BeginNextTab();
 	<tr>
 		<td><?echo GetMessage("SOPGEN_SORT")?>:</td>
 		<td>
-			<input type="text" name="SORT" value="<?= IntVal($str_SORT) ?>">
+			<input type="text" name="SORT" value="<?= intval($str_SORT) ?>">
 		</td>
 	</tr>
 

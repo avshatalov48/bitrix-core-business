@@ -1,5 +1,4 @@
-<?php
-
+<?
 namespace Bitrix\Translate;
 
 \Bitrix\Main\Loader::registerAutoLoadClasses(
@@ -44,6 +43,7 @@ const IGNORE_FS_NAMES = array(
 	'.hg',
 	'.git',
 	'.svn',
+	'.vs',
 	'.idea',
 	'.DS_Store',
 	'.htaccess',
@@ -77,8 +77,6 @@ const IGNORE_MODULE_NAMES = array(
 
 const SUPD_LANG_DATE_MARK = '/main/lang/#LANG_ID#/supd_lang_date.dat';
 
-const WORKING_DIR = '/bitrix/updates/_langs/';
-
 const COLLECT_CUSTOM_LIST = '/bitrix/modules/langs.txt';
 
 const ASSIGNMENT_TYPES = array(
@@ -100,7 +98,8 @@ const ASSIGNMENT_TYPES = array(
 );
 
 
-\CJSCore::RegisterExt('translate_process', array(
+
+\CJSCore::RegisterExt('translate.process', array(
 	'js' => array(
 		'/bitrix/js/translate/process/dialog.js',
 		'/bitrix/js/translate/process/process.js',
@@ -108,4 +107,3 @@ const ASSIGNMENT_TYPES = array(
 	'css' => '/bitrix/js/translate/process/css/dialog.css',
 	'rel' => array('main.popup', 'ui.progressbar', 'ui.buttons')
 ));
-

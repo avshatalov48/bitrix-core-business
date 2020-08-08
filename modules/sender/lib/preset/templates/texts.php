@@ -168,11 +168,11 @@ class Texts
 			),
 		);
 
-		$isHot = strpos($code, 'hot_') === 0;
-		$iconPath = $isHot ? substr($code, 4) : $code;
+		$isHot = mb_strpos($code, 'hot_') === 0;
+		$iconPath = $isHot? mb_substr($code, 4) : $code;
 		$iconPath = BX_ROOT . self::IMAGE_DIR . $iconPath . '.png';
 
-		$code = strtoupper($code);
+		$code = mb_strtoupper($code);
 		$result = array(
 			'CODE' => $code,
 			'NAME' => Loc::getMessage('SENDER_PRESET_TEMPLATE_' . $code . '_NAME'),
@@ -192,10 +192,10 @@ class Texts
 			foreach ($keys as $key)
 			{
 				$msgId = 'SENDER_PRESET_' . $type . '_' . $code . '_' . $key;
-				$result['TYPES'][$type][$key] = self::getMessage(strtoupper($msgId));
+				$result['TYPES'][$type][$key] = self::getMessage(mb_strtoupper($msgId));
 			}
 		}
 
-		return (strlen($result['NAME']) && !empty($result['TYPES'])) ? $result : null;
+		return (mb_strlen($result['NAME']) && !empty($result['TYPES'])) ? $result : null;
 	}
 }

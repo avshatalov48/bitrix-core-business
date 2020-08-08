@@ -26,7 +26,7 @@ if (CModule::IncludeModule("sale"))
 	}
 	else
 	{
-		$debugInfo = implode("\n", $request->toArray());
+		$debugInfo = http_build_query($request->toArray(), "", "\n");
 		if (empty($debugInfo))
 		{
 			$debugInfo = file_get_contents('php://input');

@@ -35,7 +35,7 @@ if (Loader::includeModule('catalog'))
 	);
 
 	$siteId = isset($_REQUEST['src_site']) && is_string($_REQUEST['src_site']) ? $_REQUEST['src_site'] : '';
-	$siteId = substr(preg_replace('/[^a-z0-9_]/i', '', $siteId), 0, 2);
+	$siteId = mb_substr(preg_replace('/[^a-z0-9_]/i', '', $siteId), 0, 2);
 	if (!empty($siteId) && is_string($siteId))
 	{
 		$parameters['select']['SITE_ID'] = 'IBLOCK_SITE.SITE_ID';

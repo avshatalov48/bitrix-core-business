@@ -5,14 +5,15 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 use \Bitrix\Main\Localization\Loc;
+use Bitrix\Landing\Manager;
 
-return [
+$result = [
 	'facebook' => [
 		'name' => '<i class="fa fa-facebook"></i> Facebook',
 		'html' => '
-			<li class="landing-block-card-social list-inline-item g-mr-10 g-mr-0--last"
+			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="facebook">
-				<a class="landing-block-card-social-icon-link u-icon-v3 g-width-35 g-height-35 g-font-size-default g-theme-color-gray-light-v2 g-color-white--hover g-theme-bg-gray-light-v3 g-bg-primary--hover g-rounded-50x g-transition-0_2 g-transition--ease-in"
+				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://facebook.com">
 					<i class="landing-block-card-social-icon fa fa-facebook"></i>
 				</a>
@@ -32,7 +33,7 @@ return [
 	'instagram' => [
 		'name' => '<i class="fa fa-instagram"></i> Instagram',
 		'html' => '
-			<li class="landing-block-card-social list-inline-item g-mr-10 g-mr-0--last"
+			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="instagram">
 				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://instagram.com">
@@ -54,7 +55,7 @@ return [
 	'twitter' => [
 		'name' => '<i class="fa fa-twitter"></i> Twitter',
 		'html' => '
-			<li class="landing-block-card-social list-inline-item g-mr-10 g-mr-0--last"
+			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="twitter">
 				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://twitter.com">
@@ -76,7 +77,7 @@ return [
 	'youtube' => [
 		'name' => '<i class="fa fa-youtube"></i> Youtube',
 		'html' => '
-			<li class="landing-block-card-social list-inline-item g-mr-10 g-mr-0--last"
+			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="youtube">
 				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://youtube.com">
@@ -98,7 +99,7 @@ return [
 	'telegram' => [
 		'name' => '<i class="fa fa-telegram"></i> Telegram',
 		'html' => '
-			<li class="landing-block-card-social list-inline-item g-mr-10 g-mr-0--last"
+			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="telegram">
 				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://telegram.com">
@@ -120,7 +121,7 @@ return [
 	'pinterest' => [
 		'name' => '<i class="fa fa-pinterest"></i> Pinterest',
 		'html' => '
-			<li class="landing-block-card-social list-inline-item g-mr-10 g-mr-0--last"
+			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="pinterest">
 				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://pinterest.com">
@@ -142,7 +143,7 @@ return [
 	'skype' => [
 		'name' => '<i class="fa fa-skype"></i> Skype',
 		'html' => '
-			<li class="landing-block-card-social list-inline-item g-mr-10 g-mr-0--last"
+			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="skype">
 				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://skype.com">
@@ -164,7 +165,7 @@ return [
 	'dribbble' => [
 		'name' => '<i class="fa fa-dribbble"></i> Dribbble',
 		'html' => '
-			<li class="landing-block-card-social list-inline-item g-mr-10 g-mr-0--last"
+			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="dribbble">
 				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://dribbble.com">
@@ -186,7 +187,7 @@ return [
 	'linkedin' => [
 		'name' => '<i class="fa fa-linkedin"></i> Linkedin',
 		'html' => '
-			<li class="landing-block-card-social list-inline-item g-mr-10 g-mr-0--last"
+			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="linkedin">
 				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://linkedin.com">
@@ -208,7 +209,7 @@ return [
 	'vk' => [
 		'name' => '<i class="fa fa-vk"></i> '.Loc::getMessage('LANDING_BLOCK_MENU10__SOCIALS__PRESET_VK'),
 		'html' => '
-			<li class="landing-block-card-social list-inline-item g-mr-10 g-mr-0--last"
+			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="vk">
 				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://vk.com">
@@ -230,7 +231,7 @@ return [
 	'odnoklassniki' => [
 		'name' => '<i class="fa fa-odnoklassniki"></i> '.Loc::getMessage('LANDING_BLOCK_MENU10__SOCIALS__PRESET_OK'),
 		'html' => '
-			<li class="landing-block-card-social list-inline-item g-mr-10 g-mr-0--last"
+			<li class="landing-block-card-social list-inline-item g-ma-3"
 				data-card-preset="odnoklassniki">
 				<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 				   href="https://odnoklassniki.com">
@@ -249,3 +250,11 @@ return [
 		'disallow' => ['.landing-block-card-social-icon'],
 	],
 ];
+
+
+if (!in_array(Manager::getZone(), ['ru', 'kz', 'by']))
+{
+	unset($result['vk'], $result['odnoklassniki']);
+}
+
+return $result;

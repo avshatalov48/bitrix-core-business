@@ -44,7 +44,7 @@ else
 	$ID = 0;
 }
 
-if ($REQUEST_METHOD == "POST" && (strlen($save) > 0 || strlen($apply) > 0) && $MOD_RIGHT == "W" && check_bitrix_sessid())
+if ($REQUEST_METHOD == "POST" && ($save <> '' || $apply <> '') && $MOD_RIGHT == "W" && check_bitrix_sessid())
 {
 	$ICON = $_FILES['ICON'];
 	$ICON['old_file'] = $str_ICON;
@@ -84,7 +84,7 @@ if ($REQUEST_METHOD == "POST" && (strlen($save) > 0 || strlen($apply) > 0) && $M
 	}
 	else
 	{
-		if (strlen($save) > 0)
+		if ($save <> '')
 			LocalRedirect("mail_mailservice_admin.php?lang=".LANG);
 		else
 			LocalRedirect($APPLICATION->GetCurPage()."?lang=".LANG."&ID=".$ID);

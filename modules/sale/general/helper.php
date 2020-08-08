@@ -67,7 +67,7 @@ class CSaleHelper
 	{
 		$arField["VALUE"] = CSaleDeliveryHelper::getConfValue($arField);
 		$resultHtml = '';
-		$name = htmlspecialcharsbx($fieldName.(strlen($fieldId) > 0 ? '['.$fieldId.']' : ''));
+		$name = htmlspecialcharsbx($fieldName.($fieldId <> '' ? '['.$fieldId.']' : ''));
 
 		if(isset($arField['PRE_TEXT']))
 			$resultHtml = $arField['PRE_TEXT'].' ';
@@ -262,7 +262,7 @@ class CSaleHelper
 	{
 		$arResult = array();
 
-		if(strlen(trim($optName)) >= 0)
+		if(trim($optName) !== '')
 		{
 			$optValue = COption::GetOptionString('sale', $optName, '', $siteId);
 			$arOptValue = unserialize($optValue);
@@ -301,7 +301,7 @@ class CSaleHelper
 			$locId = COption::GetOptionString('sale', 'location', '');
 			$locZip = COption::GetOptionString('sale', 'location_zip', '');
 
-			if(strlen($locId) <= 0)
+			if($locId == '')
 			{
 				static $defSite = null;
 				if (!isset($defSite))
@@ -337,7 +337,7 @@ class CSaleHelper
 		{
 			$locParams = self::getShopLocationParams($siteId);
 
-			if(isset($locParams['ID']) && strlen($locParams['ID']) > 0)
+			if(isset($locParams['ID']) && $locParams['ID'] <> '')
 				$shopLocationId[$siteId] = $locParams['ID'];
 		}
 
@@ -348,11 +348,11 @@ class CSaleHelper
 	{
 		static $shopLocationZip = '';
 
-		if(strlen($shopLocationZip) <= 0)
+		if($shopLocationZip == '')
 		{
 			$locParams = self::getShopLocationParams();
 
-			if(isset($locParams['ZIP']) && strlen($locParams['ZIP']) > 0)
+			if(isset($locParams['ZIP']) && $locParams['ZIP'] <> '')
 				$shopLocationZip = strval($locParams['ZIP']);
 		}
 
@@ -417,7 +417,7 @@ class CSaleHelper
 			$arVal = array();
 			if (!is_array($value))
 			{
-				if (strpos($value, ",") !== false)
+				if (mb_strpos($value, ",") !== false)
 					$arVal = explode(",", $value);
 				else
 					$arVal[] = $value;
@@ -431,14 +431,14 @@ class CSaleHelper
 				{
 					if ($propData["PROPERTY_TYPE"] == "F")
 					{
-						if (strlen($res) > 0)
+						if ($res <> '')
 							$res .= "<br/> ".CSaleHelper::getFileInfo(trim($val), $arSize);
 						else
 							$res = CSaleHelper::getFileInfo(trim($val), $arSize);
 					}
 					else
 					{
-						if (strlen($res) > 0)
+						if ($res <> '')
 							$res .= ", ".$val;
 						else
 							$res = $val;

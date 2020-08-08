@@ -1,0 +1,69 @@
+.ui-ears-wrapper {
+	overflow: hidden;
+	position: relative;
+}
+
+.ui-ear {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	z-index: 11;
+	width: 49px;
+	height: 100%;
+	background-repeat: no-repeat;
+	background-position: center;
+	opacity: 0;
+	cursor: pointer;
+	transition: all .3s linear;
+}
+
+.ui-ear-left {
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2249%22%20height%3D%2294%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%20opacity%3D%221%22%3E%3Cpath%20fill%3D%22%23525C69%22%20d%3D%22M2%200c25.957%200%2047%2021.043%2047%2047S27.957%2094%202%2094c-.67%200-1.337-.014-2-.042V.042C.663.014%201.33%200%202%200z%22/%3E%3Cpath%20fill%3D%22%23FFF%22%20d%3D%22M11.838%2045.462l11.618-11.618a1%201%200%20011.414%200l1.71%201.71a1%201%200%20010%201.414l-9.247%209.246%209.247%209.248a1%201%200%20010%201.414l-1.71%201.71a1%201%200%2001-1.414%200L11.838%2046.968a.996.996%200%2001-.29-.648v-.21a.996.996%200%2001.29-.648z%22/%3E%3C/g%3E%3C/svg%3E);
+	left: 0;
+	margin-left: -50px;
+}
+
+.ui-ear-right {
+	right: 0;
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2249%22%20height%3D%2294%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%20opacity%3D%221%22%3E%3Cpath%20fill%3D%22%23525C69%22%20d%3D%22M49%2093.958c-.663.028-1.33.042-2%20.042C21.043%2094%200%2072.957%200%2047S21.043%200%2047%200c.67%200%201.337.014%202%20.042v93.916z%22/%3E%3Cpath%20fill%3D%22%23FFF%22%20d%3D%22M31.667%2046.215l-9.247%209.247a1%201%200%20000%201.414l1.71%201.71a1%201%200%20001.414%200l11.618-11.618a.997.997%200%2000.292-.753.997.997%200%2000-.292-.753L25.544%2033.844a1%201%200%2000-1.414%200l-1.71%201.71a1%201%200%20000%201.414l9.247%209.247z%22/%3E%3C/g%3E%3C/svg%3E);
+	margin-right: -50px;
+}
+
+.ui-ear:hover {
+	opacity: .3;
+}
+
+.ui-ear-show {
+	opacity: .18;
+}
+
+.ui-ear-right.ui-ear-show {
+	margin-right: 0;
+}
+
+.ui-ear-left.ui-ear-show {
+	margin-left: 0;
+}
+
+.ui-ears-wrapper-sm .ui-ear {
+	width: 37px;
+}
+
+.ui-ears-wrapper-sm .ui-ear-left,
+.ui-ears-wrapper-sm .ui-ear-right {
+	background-size: 37px 71px;
+}
+
+.ui-ear-container {
+	overflow: auto;
+	white-space: nowrap;
+}
+
+.ui-ear-container-no-scrollbar::-webkit-scrollbar {
+	display: none;
+}
+
+.ui-ear-container-no-scrollbar {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}

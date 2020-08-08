@@ -175,11 +175,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_REQUEST["PostAction"]) && ch
 
 //new or existing subscription?
 //ID==0 indicates new subscription
-if(strlen($_REQUEST["sf_EMAIL"]) > 0 || $ID > 0 || $USER->IsAuthorized())
+if($_REQUEST["sf_EMAIL"] <> '' || $ID > 0 || $USER->IsAuthorized())
 {
 	if($ID > 0)
 		$rsSubscription = CSubscription::GetByID($ID);
-	elseif(strlen($_REQUEST["sf_EMAIL"]) > 0)
+	elseif($_REQUEST["sf_EMAIL"] <> '')
 		$rsSubscription = CSubscription::GetByEmail($_REQUEST["sf_EMAIL"], intval($USER->GetID()));
 	else
 		$rsSubscription = CSubscription::GetList(array(), array("USER_ID" => $USER->GetID()));
@@ -378,7 +378,7 @@ if(is_array($_REQUEST["sf_RUB_ID"]))
 $arResult["REQUEST"]["RUBRICS_PARAM"] = htmlspecialcharsbx($sRub);
 $arResult["REQUEST"]["CONFIRM_CODE"] = htmlspecialcharsbx($_REQUEST["CONFIRM_CODE"]);
 $arResult["REQUEST"]["EMAIL"] = htmlspecialcharsbx($_REQUEST["sf_EMAIL"]);
-if(strlen($arResult["REQUEST"]["EMAIL"])<=0 && $USER->IsAuthorized())
+if($arResult["REQUEST"]["EMAIL"] == '' && $USER->IsAuthorized())
 	$arResult["REQUEST"]["EMAIL"] = htmlspecialcharsbx($USER->GetEmail());
 $arResult["REQUEST"]["PASSWORD"] = htmlspecialcharsbx($_REQUEST["PASSWORD"]);
 $arResult["REQUEST"]["LOGIN"] = htmlspecialcharsbx((isset($_REQUEST["LOGIN"])? $_REQUEST["LOGIN"]:$sLastLogin));

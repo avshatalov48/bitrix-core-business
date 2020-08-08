@@ -29,13 +29,3 @@ small,
 .small {
   font-size: 0.71429rem;
 }
-
-/* Revolution slider */
-.tp-caption.NotGeneric-Title,
-.NotGeneric-Title,
-.tp-caption.NotGeneric-SubTitle,
-.NotGeneric-SubTitle,
-.tp-caption.NotGeneric-CallToAction,
-.NotGeneric-CallToAction {
-  font-family: "Open Sans", sans-serif;
-}

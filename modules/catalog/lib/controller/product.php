@@ -7,9 +7,35 @@ namespace Bitrix\Catalog\Controller;
 use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
+use Bitrix\Main\Engine\Action;
+use Bitrix\Main\Engine\ActionFilter\ClosureWrapper;
+use Bitrix\Main\Engine\ActionFilter\Scope;
+use Bitrix\Main\SystemException;
 
 final class Product extends Controller
 {
+	public function configureActions()
+	{
+		return [
+			'getFields' => [
+				'+prefilters' => [
+					function()
+					{
+						/** @var ClosureWrapper $this */
+						/** @var Action $action */
+						$action = $this->getAction();
+						if($action->getController()->getScope() !== \Bitrix\Main\Engine\Controller::SCOPE_REST)
+						{
+							throw new SystemException('the method is only available in the rest service');
+						}
+					}
+				],
+			],
+			'addProperty' => [
+				'+prefilters' => [new Scope(Scope::AJAX)]
+			]
+		];
+	}
 	//region Actions
 	public function getFieldsByFilterAction($filter)
 	{
@@ -611,7 +637,7 @@ final class Product extends Controller
 
 	protected function checkPermissionEntity($name, $arguments=[])
 	{
-		$name = strtolower($name); //for ajax mode
+		$name = mb_strtolower($name); //for ajax mode
 
 		if($name == 'getfieldsbyfilter'
 			|| $name == 'download'
@@ -681,6 +707,41 @@ final class Product extends Controller
 		return false;
 	}
 
+	public function addPropertyAction($fields)
+	{
+		$r = $this->checkPermissionIBlockModify($fields['IBLOCK_ID']);
+		if(!$r->isSuccess())
+		{
+			$this->addErrors($r->getErrors());
+			return null;
+		}
+
+		$iblockProperty = new \CIBlockProperty();
+
+		$propertyFields = array(
+			'ACTIVE' => 'Y',
+			'IBLOCK_ID' => $fields['IBLOCK_ID'],
+			'NAME' => $fields['NAME'],
+			'SORT' => $fields['SORT'] ?? 100,
+			'CODE' => $fields['CODE'] ?? '',
+			'MULTIPLE' => ($fields['MULTIPLE'] === 'Y') ? 'Y' : 'N',
+			'IS_REQUIRED'=> ($fields['IS_REQUIRED'] === 'Y') ? 'Y' : 'N',
+			'SECTION_PROPERTY'=> 'N',
+		);
+
+		$newID = (int)($iblockProperty->Add($propertyFields));
+		if ($newID === 0)
+		{
+			$this->addError(new \Bitrix\Main\Error($iblockProperty->LAST_ERROR));
+			return null;
+		}
+
+		return [
+			'ID' => $newID,
+			'CONTROL_ID' => 'PROPERTY_'.$newID
+		];
+	}
+
 	//region checkPermissionController
 	protected function checkModifyPermissionEntity()
 	{
@@ -710,6 +771,23 @@ final class Product extends Controller
 	{
 		$iblockId = \CIBlockElement::GetIBlockByID($elementId);
 		return $this->checkPermissionIBlockElementModify($iblockId, $elementId);
+	}
+
+	protected function checkPermissionIBlockModify($iblockId)
+	{
+		$r = new Result();
+
+		$arIBlock = \CIBlock::GetArrayByID($iblockId);
+		if($arIBlock)
+			$bBadBlock = !\CIBlockRights::UserHasRightTo($iblockId, $iblockId, self::IBLOCK_EDIT);
+		else
+			$bBadBlock = true;
+
+		if($bBadBlock)
+		{
+			$r->addError(new Error('Access Denied', 200040300040));
+		}
+		return $r;
 	}
 
 	protected function checkPermissionIBlockElementModify($iblockId, $elementId)

@@ -18,9 +18,9 @@ ClearVars();
 $errorMessage = "";
 $bVarsFromForm = false;
 
-$ID = IntVal($ID);
+$ID = intval($ID);
 
-if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions>="W" && check_bitrix_sessid())
+if ($REQUEST_METHOD=="POST" && $Update <> '' && $saleModulePermissions>="W" && check_bitrix_sessid())
 {
 	$adminSidePanelHelper->decodeUriComponent();
 
@@ -63,7 +63,7 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions>="W" 
 		else
 		{
 			$ID = CSalePersonType::Add($arFields);
-			$ID = IntVal($ID);
+			$ID = intval($ID);
 			if ($ID > 0)
 			{
 				$propsGroupId = CSaleOrderPropsGroup::Add([
@@ -102,10 +102,10 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions>="W" 
 		}
 	}
 
-	if (strlen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
 		$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $ID));
-		if (strlen($apply) <= 0)
+		if ($apply == '')
 		{
 			$adminSidePanelHelper->localRedirect($listUrl);
 			LocalRedirect($listUrl);
@@ -136,7 +136,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 if ($saleModulePermissions < "W")
 	$errorMessage .= GetMessage("SPTEN_NO_PERMS2ADD").".<br>";
 
-if(IntVal($ID) > 0)
+if(intval($ID) > 0)
 {
 	$personType = \Bitrix\Sale\Internals\PersonTypeTable::getRowById($ID);
 
@@ -198,7 +198,7 @@ $context = new CAdminContextMenu($aMenu);
 $context->Show();
 ?>
 
-<?if(strlen($errorMessage)>0)
+<?if($errorMessage <> '')
 	echo CAdminMessage::ShowMessage(Array("DETAILS"=>$errorMessage, "TYPE"=>"ERROR", "MESSAGE"=>GetMessage("SPTEN_ERROR"), "HTML"=>true));?>
 <?
 $actionUrl = $APPLICATION->GetCurPage();
@@ -260,7 +260,7 @@ $tabControl->BeginNextTab();
 	<tr>
 		<td><?echo GetMessage("SPTEN_SORT")?>:</td>
 		<td>
-			<input type="text" name="SORT" value="<?= IntVal($personType['SORT']) ?>">
+			<input type="text" name="SORT" value="<?= intval($personType['SORT']) ?>">
 		</td>
 	</tr>
 	<tr>

@@ -76,7 +76,14 @@ class Consent
 		$addResult = Internals\ConsentTable::add($parameters);
 		if ($addResult->isSuccess())
 		{
-			return $addResult->getId();
+			$userConsentId = $addResult->getId();
+
+			if (isset($params['ITEMS']) && is_array($params['ITEMS']))
+			{
+				Internals\UserConsentItemTable::addItems($userConsentId, $params['ITEMS']);
+			}
+
+			return $userConsentId;
 		}
 		else
 		{
@@ -183,6 +190,47 @@ class Consent
 				'NAME' => $name,
 				'URL' => $url
 			);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Get items data.
+	 *
+	 * @param string $originatorId Originator ID.
+	 * @param array $items Source Items.
+	 * @return string|null
+	 */
+	public static function getItems($originatorId, $items = [])
+	{
+		$list = self::getList();
+		foreach ($list as $provider)
+		{
+			if ($provider['CODE'] != $originatorId)
+			{
+				continue;
+			}
+
+			$values = [];
+
+			if ($items)
+			{
+				foreach ($items as $item)
+				{
+					if (!isset($item['VALUE']))
+					{
+						return null;
+					}
+					$values[] = $provider['ITEMS']($item['VALUE']);
+				}
+			}
+			else
+			{
+				return null;
+			}
+
+			return implode(', ', $values);
 		}
 
 		return null;

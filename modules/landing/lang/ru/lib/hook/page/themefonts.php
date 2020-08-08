@@ -1,0 +1,8 @@
+<?php
+$MESS['LNDNGHOOK_THEMEFONTS_USE'] = 'Переопределить шрифты';
+$MESS['LNDNGHOOK_THEMEFONTS_FONT_BASE'] = 'Шрифт текста';
+$MESS['LNDNGHOOK_THEMEFONTS_FONT_H'] = 'Шрифт заголовков';
+$MESS['LNDNGHOOK_THEMEFONTS_FONT_SIZE'] = 'Размер текста';
+$MESS['LNDNGHOOK_THEMEFONTS_FONT_12'] = 'Мелкий';
+$MESS['LNDNGHOOK_THEMEFONTS_FONT_14'] = 'Средний';
+$MESS['LNDNGHOOK_THEMEFONTS_FONT_16'] = 'Крупный';

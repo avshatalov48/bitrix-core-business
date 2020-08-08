@@ -3,13 +3,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 {
 	$bCorrectPayment = True;
 
-	if (!($arOrder = CSaleOrder::GetByID(IntVal($_POST["pci_wmtid"]))))
+	if (!($arOrder = CSaleOrder::GetByID(intval($_POST["pci_wmtid"]))))
 		$bCorrectPayment = False;
 
 	$CNST_PAYEE_PURSE = CSalePaySystemAction::GetParamValue("ACC_NUMBER");
 	$CNST_SECRET_KEY = CSalePaySystemAction::GetParamValue("CNST_SECRET_KEY");
 
-	if(strlen($CNST_SECRET_KEY) <=0 )
+	if($CNST_SECRET_KEY == '' )
 		$bCorrectPayment = False;
 
 	if($_POST["LMI_PREREQUEST"] == "1")
@@ -29,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 		$SERVER_NAME_tmp = "";
 		if (defined("SITE_SERVER_NAME"))
 			$SERVER_NAME_tmp = SITE_SERVER_NAME;
-		if (strlen($SERVER_NAME_tmp)<=0)
+		if ($SERVER_NAME_tmp == '')
 			$SERVER_NAME_tmp = COption::GetOptionString("main", "server_name", "");
 
 	/*
@@ -63,7 +63,7 @@ $strPayPath .= "&desc=Order_".IntVal($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"
 		if ($bCorrectPayment)
 		{
 			$strPS_STATUS_DESCRIPTION = "";
-			if (strlen($_POST["pci_mode"]) > 0)
+			if ($_POST["pci_mode"] <> '')
 				$strPS_STATUS_DESCRIPTION .= "тестовый режим, реально деньги не переводились; ";
 			$strPS_STATUS_DESCRIPTION .= "кошелек продавца - ".$_POST["pci_pursedest"]."; ";
 			$strPS_STATUS_DESCRIPTION .= "номер операции - ".$_POST["pci_wmtid"]."; ";

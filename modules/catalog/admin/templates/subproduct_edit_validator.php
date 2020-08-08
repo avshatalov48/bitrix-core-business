@@ -49,7 +49,7 @@ if ($USER->CanDoOperation('catalog_price'))
 
 			if (intval(${"SUBCAT_BASE_QUANTITY_FROM_".$i}) > 0
 				|| intval(${"SUBCAT_BASE_QUANTITY_TO_".$i}) > 0
-				|| strlen(${"SUBCAT_BASE_PRICE_".$i}) > 0
+				|| ${"SUBCAT_BASE_PRICE_".$i} <> ''
 				|| ${"SUBCAT_PRICE_EXIST_".$i} == 'Y'
 			)
 			{

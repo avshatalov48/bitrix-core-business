@@ -18,6 +18,7 @@ class CMain extends CAllMain
 		return "`CONDITION`";
 	}
 
+	/** @deprecated Will be removed soon  */
 	public static function FileAction()
 	{
 	}

@@ -52,7 +52,7 @@ if ($USER->CanDoOperation('catalog_price'))
 
 			if (intval(${"CAT_BASE_QUANTITY_FROM_".$i}) > 0
 				|| intval(${"CAT_BASE_QUANTITY_TO_".$i}) > 0
-				|| strlen(${"CAT_BASE_PRICE_".$i}) > 0
+				|| ${"CAT_BASE_PRICE_".$i} <> ''
 				|| ${"CAT_PRICE_EXIST_".$i} == 'Y'
 			)
 			{

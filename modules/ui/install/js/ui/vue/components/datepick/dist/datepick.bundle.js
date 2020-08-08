@@ -730,5 +730,5 @@ this.BX.UI.Vue = this.BX.UI.Vue || {};
 
 	exports.DatePick = DatePick;
 
-}((this.BX.UI.Vue.Components = this.BX.UI.Vue.Components || {}),BX,BX,BX));
+}((this.BX.UI.Vue.Components = this.BX.UI.Vue.Components || {}),BX,BX.Main,BX));
 //# sourceMappingURL=datepick.bundle.js.map

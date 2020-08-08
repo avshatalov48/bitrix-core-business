@@ -86,7 +86,7 @@ class ImportCriterionOneCCml2 extends ImportCriterionBase
 		}
 
 		if(($entity->getField('VERSION_1C') != $fields['VERSION_1C']) ||
-			(strlen($entity->getField('VERSION_1C'))<=0 || strlen($fields['VERSION_1C'])<=0)
+			($entity->getField('VERSION_1C') == '' || $fields['VERSION_1C'] == '')
 		)
 		{
 			return true;
@@ -336,7 +336,7 @@ class CriterionProfile extends ImportCriterionOneCCml2
         }
 
         if(($entity->getField('USER_PROFILE_VERSION') != $fields['VERSION_1C']) ||
-            (strlen($entity->getField('USER_PROFILE_VERSION'))<=0 || strlen($fields['VERSION_1C'])<=0)
+            ($entity->getField('USER_PROFILE_VERSION') == '' || $fields['VERSION_1C'] == '')
         )
         {
             return true;

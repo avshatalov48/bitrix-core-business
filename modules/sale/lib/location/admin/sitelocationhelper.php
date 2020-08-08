@@ -108,7 +108,7 @@ class SiteLocationHelper extends Helper
 		}
 		elseif($page == 'detail')
 		{
-			$id = strlen($_REQUEST['id']) ? self::tryParseSiteId($_REQUEST['id']) : false;
+			$id = $_REQUEST['id'] <> ''? self::tryParseSiteId($_REQUEST['id']) : false;
 
 			if($id)
 				$request['filter']['=LID'] = $id;
@@ -182,6 +182,6 @@ class SiteLocationHelper extends Helper
 
 	public static function tryParseSiteId($sid)
 	{
-		return htmlspecialcharsbx(substr($sid, 0, 2));
+		return htmlspecialcharsbx(mb_substr($sid, 0, 2));
 	}
 }

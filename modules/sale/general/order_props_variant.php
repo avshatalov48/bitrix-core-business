@@ -5,7 +5,7 @@ class CAllSaleOrderPropsVariant
 {
 	function GetByValue($PropID, $Value)
 	{
-		$PropID = IntVal($PropID);
+		$PropID = intval($PropID);
 		$db_res = CSaleOrderPropsVariant::GetList(($by="SORT"), ($order="ASC"), Array("ORDER_PROPS_ID"=>$PropID, "VALUE"=>$Value));
 		if ($res = $db_res->Fetch())
 		{
@@ -18,7 +18,7 @@ class CAllSaleOrderPropsVariant
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$strSql =
 			"SELECT * ".
 			"FROM b_sale_order_props_variant ".
@@ -36,17 +36,17 @@ class CAllSaleOrderPropsVariant
 	{
 		global $DB, $USER;
 
-		if ((is_set($arFields, "VALUE") || $ACTION=="ADD") && strlen($arFields["VALUE"]) <= 0)
+		if ((is_set($arFields, "VALUE") || $ACTION=="ADD") && $arFields["VALUE"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGOPV_EMPTY_VAR"), "ERROR_NO_VALUE");
 			return false;
 		}
-		if ((is_set($arFields, "NAME") || $ACTION=="ADD") && strlen($arFields["NAME"]) <= 0)
+		if ((is_set($arFields, "NAME") || $ACTION=="ADD") && $arFields["NAME"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGOPV_EMPTY_NAME"), "ERROR_NO_NAME");
 			return false;
 		}
-		if ((is_set($arFields, "ORDER_PROPS_ID") || $ACTION=="ADD") && IntVal($arFields["ORDER_PROPS_ID"])<=0)
+		if ((is_set($arFields, "ORDER_PROPS_ID") || $ACTION=="ADD") && intval($arFields["ORDER_PROPS_ID"])<=0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGOPV_EMPTY_CODE"), "ERROR_NO_ORDER_PROPS_ID");
 			return false;
@@ -68,7 +68,7 @@ class CAllSaleOrderPropsVariant
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		
 		if (!CSaleOrderPropsVariant::CheckFields("UPDATE", $arFields, $ID))
 			return false;
@@ -84,14 +84,14 @@ class CAllSaleOrderPropsVariant
 	function Delete($ID)
 	{
 		global $DB;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		return $DB->Query("DELETE FROM b_sale_order_props_variant WHERE ID = ".$ID."", true);
 	}
 
 	function DeleteAll($ID)
 	{
 		global $DB;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		return $DB->Query("DELETE FROM b_sale_order_props_variant WHERE ORDER_PROPS_ID = ".$ID."", true);
 	}
 }

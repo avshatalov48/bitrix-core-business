@@ -1,6 +1,6 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
-if(strlen($arResult["FatalError"])>0)
+if($arResult["FatalError"] <> '')
 {
 	?>
 	<span class='errortext'><?=$arResult["FatalError"]?></span><br /><br />
@@ -8,7 +8,7 @@ if(strlen($arResult["FatalError"])>0)
 }
 else
 {
-	if(strlen($arResult["ErrorMessage"])>0)
+	if($arResult["ErrorMessage"] <> '')
 	{
 		?>
 		<span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br />
@@ -23,7 +23,7 @@ else
 		?><form method="post" name="form1" action="<?=POST_FORM_ACTION_URI?>" enctype="multipart/form-data"><?
 	endif;
 	?>
-	<?if (StrLen($arResult["NAV_STRING"]) > 0):?>
+	<?if ($arResult["NAV_STRING"] <> ''):?>
 		<?=$arResult["NAV_STRING"]?><br /><br />
 	<?endif;?>
 	<div class="sonet-cntnr-user-friends">
@@ -98,10 +98,10 @@ else
 								, array("HIDE_ICONS" => "Y")
 							);
 
-							if (StrLen($friend["REQUEST_GROUP_LINK"]) > 0 || $friend["CAN_ADD2FRIENDS"] || $friend["CAN_DELETE_FRIEND"])							
+							if ($friend["REQUEST_GROUP_LINK"] <> '' || $friend["CAN_ADD2FRIENDS"] || $friend["CAN_DELETE_FRIEND"])							
 							{
 								?><div class="desc-div"><?
-								if (StrLen($friend["REQUEST_GROUP_LINK"]) > 0)
+								if ($friend["REQUEST_GROUP_LINK"] <> '')
 									echo "<br><a href=\"".$friend["REQUEST_GROUP_LINK"]."\" class=\"action-link\"><b>".GetMessage("SONET_C33_T_INVITE")."</b></a>";
 								?></div><?
 							}
@@ -130,13 +130,13 @@ else
 					echo GetMessage("SONET_C33_T_FR_UNAVAIL");
 				?>
 				<?if ($arResult["CurrentUserPerms"]["IsCurrentUser"]):?>
-					<a href="<?= $arResult["Urls"]["Search"] ?>"><?= (StrLen($friend["REQUEST_GROUP_LINK"]) > 0) ? GetMessage("SONET_C33_T_ADD_FRIEND1") : GetMessage("SONET_C33_T_ADD_FRIEND") ?></a>
+					<a href="<?= $arResult["Urls"]["Search"] ?>"><?= ($friend["REQUEST_GROUP_LINK"] <> '') ? GetMessage("SONET_C33_T_ADD_FRIEND1") : GetMessage("SONET_C33_T_ADD_FRIEND") ?></a>
 				<?endif;?>
 			</td>
 		</tr>
 	</table>
 	</div>
-	<?if (StrLen($arResult["NAV_STRING"]) > 0):?>
+	<?if ($arResult["NAV_STRING"] <> ''):?>
 		<br><?=$arResult["NAV_STRING"]?><br /><br />
 	<?endif;?>
 	<?

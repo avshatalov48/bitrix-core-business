@@ -1,9 +1,10 @@
-import {Dom, Cache, Tag, Type, Text} from 'main.core';
+import {Dom, Cache, Tag, Type, Text, Event} from 'main.core';
 import {Loader} from 'main.loader';
 import {Content} from 'landing.ui.panel.content';
 import {Loc} from 'landing.loc';
 import {Backend} from 'landing.backend';
 import {Env} from 'landing.env';
+import {SliderHacks} from 'landing.sliderhacks';
 import 'translit';
 import './css/style.css';
 
@@ -124,18 +125,16 @@ export class CreatePage extends Content
 			.replace('#site_show#', siteId)
 			.replace('#landing_edit#', id);
 
-		return this.cache.remember('successMessage', () => {
-			return Tag.render`
-				<div class="landing-ui-panel-create-page-success">
-					<div class="landing-ui-panel-create-page-success-header">
-						${Loc.getMessage('LANDING_CREATE_PAGE_PANEL_SUCCESS_MESSAGE_TITLE')}
-					</div>
-					<div class="landing-ui-panel-create-page-actions">
-						<a href="${editLink}" target="_blank">${Loc.getMessage('LANDING_CONTENT_PANEL_TITLE')}</a> &nbsp;
-					</div>
+		return Tag.render`
+			<div class="landing-ui-panel-create-page-success">
+				<div class="landing-ui-panel-create-page-success-header">
+					${Loc.getMessage('LANDING_CREATE_PAGE_PANEL_SUCCESS_MESSAGE_TITLE')}
 				</div>
-			`;
-		});
+				<div class="landing-ui-panel-create-page-actions">
+					<a href="${editLink}" target="_blank">${Loc.getMessage('LANDING_CONTENT_PANEL_TITLE')}</a> &nbsp;
+				</div>
+			</div>
+		`;
 	}
 
 	getFailMessage()
@@ -181,7 +180,24 @@ export class CreatePage extends Content
 
 				if (Type.isNumber(result))
 				{
-					Dom.append(this.getSuccessMessage(result), this.content);
+					const successMessage = this.getSuccessMessage(result);
+
+					if (
+						Env.getInstance().getType() === 'KNOWLEDGE'
+						|| Env.getInstance().getType() === 'GROUP'
+					)
+					{
+						const link = successMessage.querySelector('a');
+						if (link)
+						{
+							Event.bind(link, 'click', (event) => {
+								event.preventDefault();
+								void SliderHacks.reloadSlider(link.href, window.parent);
+							});
+						}
+					}
+
+					Dom.append(successMessage, this.content);
 
 					const value = {
 						href: `#landing${result}`,

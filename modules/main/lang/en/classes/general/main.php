@@ -73,7 +73,6 @@ $MESS['MAIN_NAME_SMITH_J'] = "Smith J.";
 $MESS['MAIN_NAME_SMITH_JOHN'] = "Smith John";
 $MESS['MAIN_NAME_SMITH_JOHN_LLOYD'] = "Smith John Lloyd";
 $MESS['MAIN_NAME_SMITH_J_L'] = "Smith J.L.";
-$MESS['MAIN_SESS_MESS'] = "Your session has been terminated due to inactivity for #TIMEOUT# min. The new information on this page will not be saved. Please copy your data before closing or refreshing the page.";
 $MESS['MAIN_SITE_LATIN'] = "The website ID may only include Latin characters and digits.";
 $MESS['MAIN_TEMPLATE_AUTH'] = "Authorization form.";
 $MESS['MAIN_TEMPLATE_AUTH_REG'] = "Authorization and registration templates on one page.";

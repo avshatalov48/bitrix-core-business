@@ -224,7 +224,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	 */
 	protected function getFormProductFieldId()
 	{
-		return strtolower($this->getFormProductFieldName().'_ID');
+		return mb_strtolower($this->getFormProductFieldName().'_ID');
 	}
 
 	/**
@@ -233,7 +233,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	 */
 	protected function getFormRowFieldName(string $field)
 	{
-		return self::FIELD_NAME_PREFIX.strtoupper($field);
+		return self::FIELD_NAME_PREFIX.mb_strtoupper($field);
 	}
 
 	/**
@@ -242,7 +242,7 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	 */
 	protected function getFormRowFieldId(string $field)
 	{
-		return self::FIELD_ID_PREFIX.strtolower($field).'_id';
+		return self::FIELD_ID_PREFIX.mb_strtolower($field).'_id';
 	}
 
 	/**

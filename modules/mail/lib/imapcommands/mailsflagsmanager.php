@@ -46,14 +46,14 @@ class MailsFlagsManager extends SyncInternalManager
 	private function setMessagesFlag($flag)
 	{
 		$result = new Main\Result();
-		$helper = $this->getMailClientHelper();
+
 		if ($flag === static::FLAG_SEEN)
 		{
-			$result = $helper->markSeen($this->messages);
+			$result = $this->mailboxHelper->markSeen($this->messages);
 		}
 		elseif ($flag === static::FLAG_UNSEEN)
 		{
-			$result = $helper->markUnseen($this->messages);
+			$result = $this->mailboxHelper->markUnseen($this->messages);
 		}
 
 		if ($result->isSuccess())

@@ -34,8 +34,8 @@ if (
 }
 
 if (
-	!isset($arParams["IND"]) 
-	|| strlen($arParams["IND"]) <= 0
+	!isset($arParams["IND"])
+	|| $arParams["IND"] == ''
 )
 {
 	$arParams["IND"] = RandString(8);
@@ -76,7 +76,7 @@ if (isset($arParams["CURRENT_PAGE_DATE"]))
 
 $bCurrentUserIsAdmin = CSocNetUser::IsCurrentUserModuleAdmin();
 
-$arParams["COMMENT_ID"] = IntVal($arParams["COMMENT_ID"]);
+$arParams["COMMENT_ID"] = intval($arParams["COMMENT_ID"]);
 
 $arResult["TZ_OFFSET"] = CTimeZone::GetOffset();
 $arResult["LAST_LOG_TS"] = intval($arParams["LAST_LOG_TS"]);
@@ -96,7 +96,7 @@ $arResult["bTasksAvailable"] = (
 		!Loader::includeModule('bitrix24')
 		|| CBitrix24BusinessTools::isToolAvailable($USER->getId(), "tasks")
 	)
-	&& CSocNetFeaturesPerms::CurrentUserCanPerformOperation(SONET_ENTITY_USER, $USER->getId(), "tasks", "create_tasks")
+	&& \Bitrix\Tasks\Access\TaskAccessController::can($USER->getid(), \Bitrix\Tasks\Access\ActionDictionary::ACTION_TASK_CREATE)
 );
 
 $arResult["Event"] = false;
@@ -410,6 +410,9 @@ if ($arEvent)
 				&& ($handler = $handlerManager->getHandlerByPostText($arCommentTmp['EVENT_FORMATTED']['MESSAGE']))
 			)
 			{
+				$arCommentTmp["AUX"] = $handler->getType();
+				$arCommentTmp["CAN_DELETE"] = ($handler->canDelete() ? 'Y' : 'N');
+
 				if ($handler->checkRecalcNeeded($arCommentTmp['EVENT'], array(
 					'bPublicPage' => $arResult["bPublicPage"]
 				)))
@@ -428,8 +431,7 @@ if ($arEvent)
 						'suffix' => (!empty($arParams['COMMENT_ENTITY_SUFFIX']) ? $arParams['COMMENT_ENTITY_SUFFIX'] : ''),
 						'logId' => $arParams["LOG_ID"],
 					));
-					$arCommentTmp['EVENT_FORMATTED']['FULL_MESSAGE_CUT']  = $handler->getText();
-					$arCommentTmp["AUX"] = $handler->getType();
+					$arCommentTmp['EVENT_FORMATTED']['FULL_MESSAGE_CUT']  = nl2br($handler->getText());
 				}
 			}
 
@@ -491,7 +493,7 @@ if ($arEvent)
 		if(
 			!empty($arCommentID)
 			&& $arParams["SHOW_RATING"] == "Y"
-			&& strlen($rating_entity_type) > 0
+			&& $rating_entity_type <> ''
 		)
 		{
 			$arResult["RATING_COMMENTS"] = CRatings::GetRatingVoteResult($rating_entity_type, $arCommentID);
@@ -557,6 +559,11 @@ $arResult["Event"] = $arEvent;
 $arResult["WORKGROUPS_PAGE"] = COption::GetOptionString("socialnetwork", "workgroups_page", "/workgroups/", SITE_ID);
 
 $arResult["GET_COMMENTS"] = ($bGetComments ? "Y" : "N");
+
+$arResult["isCurrentUserEventOwner"] = (
+		($arEvent['EVENT']['USER_ID'] == $USER->getId())
+		|| \CSocNetUser::isCurrentUserModuleAdmin(SITE_ID, false)
+);
 
 $this->IncludeComponentTemplate();
 ?>

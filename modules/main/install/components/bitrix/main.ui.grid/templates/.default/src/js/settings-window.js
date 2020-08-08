@@ -589,7 +589,7 @@
 		 */
 		enableWait: function(buttonNode)
 		{
-			BX.addClass(buttonNode, 'webform-small-button-wait');
+			BX.addClass(buttonNode, 'ui-btn-wait');
 			BX.removeClass(buttonNode, 'popup-window-button');
 		},
 
@@ -600,7 +600,7 @@
 		 */
 		disableWait: function(buttonNode)
 		{
-			BX.removeClass(buttonNode, 'webform-small-button-wait');
+			BX.removeClass(buttonNode, 'ui-btn-wait');
 			BX.addClass(buttonNode, 'popup-window-button');
 		},
 

@@ -663,31 +663,59 @@ function __blogPostSetFollow(log_id)
 		window['obj'] = this;
 		this.wait('show');
 		var data = {
-			options : [{ post_id : this.postId, name : "BLOG_POST_IMPRTNT", value : "Y"}],
-			sessid : BX.bitrix_sessid()},
-			url = this.node.getAttribute('bx-url');
+			options: [
+				{
+					post_id: this.postId,
+					name: 'BLOG_POST_IMPRTNT',
+					value : 'Y'
+				}
+			],
+			sessid: BX.bitrix_sessid()
+		};
+		BX.onCustomEvent(this.node, 'onSend', [ data ]);
 
-		BX.onCustomEvent(this.node, "onSend", [data]);
-		data = BX.ajax.prepareData(data);
-		if (data)
-		{
-			url += (url.indexOf('?') !== -1 ? "&" : "?") + data;
-			data = '';
-		}
+		BX.ajax.runAction('socialnetwork.api.livefeed.blogpost.important.vote', {
+			data: {
+				params: {
+					POST_ID : this.postId
+				}
+			},
+		}).then(function (response) {
+			if (
+				!BX.type.isNotEmptyString(response.data.success)
+				|| response.data.success != 'Y'
+			)
+			{
+				return false;
+			}
 
-		BX.ajax({
-			'method': 'GET',
-			'url': url,
-			'dataType': 'json',
-			'onsuccess': BX.delegate(function(data){
-				this.busy = false;
-				this.wait('hide');
-				this.showClick();
-				BX.onCustomEvent(this.node, "onUserVote", [data]);
-				BX.onCustomEvent("onImportantPostRead", [this.postId, this.CID]);
-			}, this),
-			'onfailure': BX.delegate(function(data){ this.busy = false; this.wait('hide');}, this)
-		});
+			this.busy = false;
+			this.wait('hide');
+			this.showClick();
+			BX.onCustomEvent("onImportantPostRead", [this.postId, this.CID]);
+
+			BX.ajax.runAction('socialnetwork.api.livefeed.blogpost.important.getUsers', {
+				data: {
+					params: {
+						POST_ID: this.postId,
+						NAME: 'BLOG_POST_IMPRTNT',
+						VALUE: 'Y',
+						PAGE_NUMBER: data.iNumPage,
+						PATH_TO_USER: data.PATH_TO_USER,
+						NAME_TEMPLATE: data.NAME_TEMPLATE
+					}
+				}
+			}).then(function(response) {
+				var resultData = response.data;
+				BX.onCustomEvent(this.node, "onUserVote", [ resultData ]);
+			}.bind(this), function(response) {
+
+			}.bind(this));
+
+		}.bind(this), function (response) {
+			this.busy = false;
+			this.wait('hide');
+		}.bind(this));
 	};
 
 	top.SBPImpPostCounter = function(node, postId, params) {
@@ -869,6 +897,9 @@ function __blogPostSetFollow(log_id)
 				this.node.firstChild.innerHTML = resultData['RecordCount'];
 				this.node.setAttribute('status', 'ready');
 			}.bind(this), function(response) {
+				if (!!this.popup) {
+					this.popup.close();
+				}
 				this.node.setAttribute('status', 'ready');
 			}.bind(this));
 		}
@@ -1123,114 +1154,160 @@ window.closeSharing = function()
 window.sharingPost = function()
 {
 	var postId = BX('sharePostId').value;
-	var userId = BX('shareUserId').value;
 	var shareForm = BX('blogShare');
-	var actUrl = socBPDest.shareUrl.replace(/#post_id#/, postId).replace(/#user_id#/, userId);
-
-	actUrl = BX.util.remove_url_param(actUrl, [ 'b24statAction' ]);
-	actUrl = BX.util.add_url_param(actUrl, {
-		b24statAction: "sharePost"
-	});
 
 	if (BX('sharePostSubmitButton'))
 	{
 		BX.addClass(BX('sharePostSubmitButton'), 'ui-btn-clock');
 	}
 
-	shareForm.action = actUrl;
-	shareForm.target = '';
+	var i = 0,
+		name = '',
+		matches = null,
+		multiple = null,
+		key = null,
+		s = {
+			postId: postId,
+			pathToUser: oSBPostManager.pathToUser,
+			pathToPost: oSBPostManager.pathToPost,
+			readOnly: oSBPostManager.readOnly
+		};
 
-	var i, s = "";
-	var n = shareForm.elements.length;
-
-	var delim = '';
-	for(i=0; i<n; i++)
+	for(i = 0; i < shareForm.elements.length; i++)
 	{
-		if (s != '') delim = '&';
 		var el = shareForm.elements[i];
+
 		if (el.disabled)
+		{
 			continue;
+		}
+
+		name = el.name;
+		multiple = false;
+		matches = /^(.*)\[(.*)\]$/.exec(name);
+		if (matches)
+		{
+			name = matches[1];
+			multiple = true;
+			key = (BX.type.isNotEmptyString(matches[2]) ? matches[2] : false);
+		}
 
 		switch(el.type.toLowerCase())
 		{
 			case 'text':
 			case 'hidden':
-				s += delim + el.name + '=' + BX.util.urlencode(el.value);
+				if (multiple)
+				{
+					if (typeof s[name] == 'undefined')
+					{
+						s[name] = (key ? {} : []);
+					}
+					if (BX.type.isArray(s[name]))
+					{
+						s[name].push(el.value);
+					}
+					else if (key)
+					{
+						s[name][key] = el.value;
+					}
+				}
+				else
+				{
+					s[name] = el.value;
+				}
 				break;
 			default:
 				break;
 		}
 	}
-	s += "&save=Y&MODE=RECORD&AJAX_POST=Y&ENTITY_XML_ID=BLOG_" + postId;
 
 	var newNodes = renderSharingPost(postId);
 
-	BX.ajax({
-		method: 'POST',
-		dataType: 'json',
-		url: actUrl,
-		data: s,
-		onsuccess: function(data)
-		{
-			if (
-				typeof data == 'undefined'
-				|| typeof data.status == 'undefined'
-				|| data.status != 'success'
-			)
-			{
-				hideRenderedSharingNodes(newNodes);
-				if (
-					typeof data.status != 'undefined'
-					&& data.status == 'error'
-					&& typeof data.errorMessage != 'undefined'
-				)
-				{
-					var errorPopup = new BX.PopupWindow('error_popup', BX('blg-post-inform-' + postId), {
-						lightShadow : true,
-						offsetTop: -10,
-						offsetLeft: 100,
-						autoHide: true,
-						closeByEsc: true,
-						closeIcon: {
-							right : "5px",
-							top : "5px"
-						},
-						draggable: {
-							restrict:true
-						},
-						contentColor : 'white',
-						contentNoPaddings: true,
-						bindOptions: {position: "bottom"},
-						content : BX.create('DIV', {
-							props: {
-								className: 'feed-create-task-popup-content'
-							},
-							children: [
-								BX.create('DIV', {
-									props: {
-										className: 'feed-create-task-popup-description'
-									},
-									text: data.errorMessage
-								})
-							]
-						})
-					});
-
-					errorPopup.show();
-				}
-			}
-			else
-			{
-				var true_data = data;
-				BX.onCustomEvent(window, 'OnUCAfterRecordAdd', ['BLOG_' + postId, data, true_data]);
-			}
+	BX.ajax.runAction('socialnetwork.api.livefeed.blogpost.share', {
+		data: {
+			params: s,
+			MODE: 'RECORD', // main.post.list
+			ENTITY_XML_ID: 'BLOG_' + postId,
+			AJAX_POST: 'Y'
 		},
-		onfailure: function(data)
+		analyticsLabel: {
+			b24statAction: 'sharePost'
+		}
+	}).then(function(data) {
+
+		if (
+			!BX.type.isNotEmptyObject(data)
+			|| !BX.type.isNotEmptyString(data.status)
+			|| data.status != 'success'
+		)
 		{
 			hideRenderedSharingNodes(newNodes);
+
+			if (
+				!BX.type.isNotEmptyString(data.status)
+				&& data.status == 'error'
+				&& !!BX.type.isNotEmptyString(data.errorMessage)
+			)
+			{
+				sharingPostError({
+					postId: postId,
+					errorMessage: data.errorMessage
+				});
+			}
+
 		}
+		else
+		{
+			var true_data = data;
+			BX.onCustomEvent(window, 'OnUCAfterRecordAdd', ['BLOG_' + postId, data, true_data]);
+		}
+
+	}, function(response) {
+		sharingPostError({
+			postId: postId,
+			errorMessage: response.errors[0].message
+		});
+
+		hideRenderedSharingNodes(newNodes);
 	});
+
 	closeSharing();
+};
+
+window.sharingPostError = function(params)
+{
+	var errorPopup = new BX.PopupWindow('error_popup', BX('blg-post-inform-' + params.postId), {
+		lightShadow : true,
+		offsetTop: -10,
+		offsetLeft: 100,
+		autoHide: true,
+		closeByEsc: true,
+		closeIcon: {
+			right : "5px",
+			top : "5px"
+		},
+		draggable: {
+			restrict:true
+		},
+		contentColor : 'white',
+		contentNoPaddings: true,
+		bindOptions: {position: "bottom"},
+		content : BX.create('DIV', {
+			props: {
+				className: 'feed-create-task-popup-content'
+			},
+			children: [
+				BX.create('DIV', {
+					props: {
+						className: 'feed-create-task-popup-description'
+					},
+					text: params.errorMessage
+				})
+			]
+		})
+	});
+
+	errorPopup.show();
 };
 
 window.renderSharingPost = function(postId)
@@ -1344,11 +1421,17 @@ window.hideRenderedSharingNodes = function(newNodes)
 	BX.SBPostManager = function() {
 		this.inited = false;
 		this.tagLinkPattern = '';
+		this.readOnly = 'N';
+		this.pathToUser = '';
+		this.pathToPost = '';
 	};
 
 	BX.SBPostManager.prototype.init = function(params) {
 		this.tagLinkPattern = (BX.type.isNotEmptyString(params.tagLinkPattern) ? params.tagLinkPattern : '');
 		this.inited = true;
+		this.readOnly = (BX.type.isNotEmptyString(params.readOnly) && params.readOnly == 'Y' ? 'Y' : 'N');
+		this.pathToUser = (BX.type.isNotEmptyString(params.pathToUser) ? params.pathToUser : '');
+		this.pathToPost = (BX.type.isNotEmptyString(params.pathToPost) ? params.pathToPost : '');
 	};
 
 	BX.SBPostManager.prototype.clickTag = function(tagValue)

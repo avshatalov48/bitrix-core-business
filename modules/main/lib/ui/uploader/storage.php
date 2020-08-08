@@ -270,36 +270,49 @@ class CloudStorage extends Storage implements Storable
 	public function copy($path, array $file)
 	{
 		$result = parent::copy($path, $file);
-		if ($result->isSuccess() && !array_key_exists('start', $file))
+		if ($result->isSuccess())
 		{
-			$res = $result->getData();
-			$file["tmp_name"] = $res["tmp_name"];
-			$file["size"] = $res["size"];
-			$file["type"] = $res["type"];
-			$img = \CFile::GetImageSize($file["tmp_name"]);
-			$file["width"] = $img[0];
-			$file["height"] = $img[1];
-			if ($bucket = $this->findBucket($file))
+			if (!array_key_exists('start', $file))
 			{
-				unset($file["count"]);
-				if (($r = $this->moveIntoCloud($bucket, $file["tmp_name"], $file)) && $r->isSuccess())
+				$res = $result->getData();
+				$file["tmp_name"] = $res["tmp_name"];
+				$file["size"] = $res["size"];
+				$file["type"] = $res["type"];
+				$img = \CFile::GetImageSize($file["tmp_name"]);
+				$file["width"] = $img[0];
+				$file["height"] = $img[1];
+				if ($bucket = $this->findBucket($file))
 				{
-					$res = $r->getData();
-					$result->setData(array(
-						"size" => $file["size"],
-						"file_size" => $file["size"],
-						"tmp_name" => $res["tmp_name"],
-						"type" => $file["type"],
-						"width" => $file["width"],
-						"height" => $file["height"],
-						"bucketId" => $bucket->ID
-					));
+					unset($file["count"]);
+					if (($r = $this->moveIntoCloud($bucket, $file["tmp_name"], $file)) && $r->isSuccess())
+					{
+						$res = $r->getData();
+						$result->setData(array(
+							"size" => $file["size"],
+							"file_size" => $file["size"],
+							"tmp_name" => $res["tmp_name"],
+							"type" => $file["type"],
+							"width" => $file["width"],
+							"height" => $file["height"],
+							"bucketId" => $bucket->ID
+						));
+					}
+					if ($r->getErrors())
+					{
+						$result->addErrors($r->getErrors());
+					}
+					@unlink($path);
 				}
-				if ($r->getErrors())
+			}
+			else if ($file["start"] <= 0)
+			{
+				$res = $result->getData();
+				if ($img = \CFile::GetImageSize($file["tmp_name"]))
 				{
-					$result->addErrors($r->getErrors());
+					$file["width"] = $img[0];
+					$file["height"] = $img[1];
+					$result->setData(array_merge($res, ["width" => $file["width"], "height" => $file["height"]]));
 				}
-				@unlink($path);
 			}
 		}
 		return $result;
@@ -311,51 +324,6 @@ class CloudStorage extends Storage implements Storable
 	 */
 	public function copyChunk($path, array $file)
 	{
-		$res = "";
-		if (substr($file["~type"], 0, 6) == "image/")
-		{
-			$result = parent::copyChunk($path, $file);
-
-			if ($result->isSuccess())
-			{
-				$file["chunks"][$file["chunkId"]] = "does not matter"; // if picture is already uploaded
-				if (count($file["chunks"]) == $file["count"])
-				{
-					parent::__destruct();
-					$file["type"] = $file["~type"];
-					$file["tmp_name"] = $path;
-					$file["size"] = filesize($path);
-					$img = \CFile::GetImageSize($file["tmp_name"]);
-					$file["width"] = $img[0];
-					$file["height"] = $img[1];
-
-					if ($bucket = $this->findBucket($file))
-					{
-						unset($file["count"]);
-						if (($r = $this->moveIntoCloud($bucket, $path, $file)) && $r->isSuccess())
-						{
-							$res = $r->getData();
-							$result->setData(array(
-								"size" => $file["size"],
-								"file_size" => $file["size"],
-								"tmp_name" => $res["tmp_name"],
-								"type" => $file["type"],
-								"width" => $file["width"],
-								"height" => $file["height"],
-								"bucketId" => $bucket->ID
-							));
-						}
-						else
-						{
-							$result->addError($r->getErrorCollection()->current());
-						}
-						@unlink($path);
-					}
-				}
-			}
-			return $result;
-		}
-
 		if ($bucket = $this->findBucket(array(
 			"name" => $file["~name"],
 			"size" => $file["~size"],

@@ -24,8 +24,9 @@ ob_start();
 ?>
 <!--RCRD_#FULL_ID#-->
 <a id="com#ID#" name="com#ID#" bx-mpl-full-id="#FULL_ID#"></a>
-<div id="record-#FULL_ID#" class="post-comment-block post-comment-block-#NEW# post-comment-block-#APPROVED# #RATING_NONEMPTY_CLASS#" <?=($arResult["ajax_comment"] == $comment["ID"] ? ' data-send="Y"' : '')?> <?
+<div id="record-#FULL_ID#" class="post-comment-block post-comment-block-#NEW# post-comment-block-#APPROVED# #RATING_NONEMPTY_CLASS# mobile-longtap-menu#CLASSNAME#" <?=($arResult["ajax_comment"] == $comment["ID"] ? ' data-send="Y"' : '')?> <?
 	?>bx-mpl-id="#FULL_ID#" <?
+	?>bx-mpl-menu-show="#SHOW_MENU#" <?
 	?>bx-mpl-reply-show="#SHOW_POST_FORM#" <?
 	?>bx-mpl-view-url="#VIEW_URL###ID#" bx-mpl-view-show="#VIEW_SHOW#" <?
 	?>bx-mpl-edit-url="#EDIT_URL#" bx-mpl-edit-show="#EDIT_SHOW#" <?
@@ -35,7 +36,9 @@ ob_start();
 	?>bx-mpl-post-entity-type="#POST_ENTITY_TYPE#" <?
 	?>bx-mpl-comment-entity-type="#COMMENT_ENTITY_TYPE#" <?
 	?>bx-mpl-vote-id="#VOTE_ID#" <?
-	?>onclick="return mobileShowActions('#ENTITY_XML_ID#', '#ID#', arguments[0])" <?
+	?>bx-longtap-menu-eventname="BX.MPL:onGetMenuItems" <?
+	?>bx-mpl-entity-xml-id="#ENTITY_XML_ID#" <?
+	?>bx-mpl-comment-id="#ID#" <?
 ?>>
 	#BEFORE_RECORD#
 	<script>
@@ -46,7 +49,7 @@ ob_start();
 	</script>
 	<div class="ui-icon ui-icon-common-user post-comment-block-avatar"><i style="#AUTHOR_AVATAR_BG#"></i></div>
 	<div class="post-comment-detail">
-		<div class="post-comment-balloon">
+		<div class="post-comment-balloon" onclick="mobileShowActions('#ENTITY_XML_ID#', '#ID#', arguments[0])">
 			#BEFORE_HEADER#
 			<!--/noindex-->
 			<div class="post-comment-cont">
@@ -71,9 +74,16 @@ ob_start();
 			if (
 				!isset($arParams["SHOW_POST_FORM"])
 				|| $arParams["SHOW_POST_FORM"] != 'N'
+				|| !empty($arParams["REPLY_ACTION"])
 			)
 			{
-				?><div class="post-comment-control-item" id="record-#FULL_ID#-reply-action" onclick="return mobileReply('#ENTITY_XML_ID#', event)" <?
+				$action = (
+					!isset($arParams["SHOW_POST_FORM"])
+					|| $arParams["SHOW_POST_FORM"] != 'N'
+						? "return mobileReply('#ENTITY_XML_ID#', event)"
+						: $arParams["REPLY_ACTION"]
+				);
+				?><div class="post-comment-control-item" id="record-#FULL_ID#-reply-action" onclick="<?=$action?>" <?
 					?>bx-mpl-author-id="#AUTHOR_ID#" <?
 					?>bx-mpl-author-name="#AUTHOR_NAME#"><?
 					?><?=Loc::getMessage('BLOG_C_REPLY')?><?
@@ -108,6 +118,14 @@ ob_start();
 		</div>
 		<div class="post-comment-control-box">
 			<div class="post-comment-control-item"><?=Loc::getMessage('BLOG_C_REPLY')?></div>
+		</div>
+		<div class="post-comment-publication">
+			<div class="post-comment-publication-icon"></div>
+			<div class="post-comment-publication-text"><?=Loc::getMessage('MPL_MOBILE_PUBLISHING')?></div>
+		</div>
+		<div class="post-comment-error">
+			<div class="post-comment-error-icon"></div>
+			<div class="post-comment-error-text"></div>
 		</div>
 	</div>
 </div><?
@@ -149,59 +167,7 @@ $thumb = preg_replace(array(
 		($avatar ? "background-image:url('".$avatar["src"]."')" : ''),
 		htmlspecialcharsbx($name)
 	), ob_get_clean());
-ob_start();
 
-?><div class="post-comment-block">
-	<div class="ui-icon ui-icon-common-user post-comment-block-avatar"><i style="#AUTHOR_AVATAR_BG#"></i></div>
-	<div class="post-comment-detail">
-		<div class="post-comment-balloon">
-			<!--/noindex-->
-			<div class="post-comment-cont">
-				<div class="post-comment-author">#AUTHOR_NAME#</div>
-				<div class="post-comment-time">#DATE#</div>
-			</div>
-			<!--/noindex-->
-			<div class="post-comment-wrap-outer">
-				<div class="post-comment-wrap">
-					<div class="post-comment-text" id="record-#FULL_ID#-text">#TEXT#</div>
-				</div>
-				<div class="post-comment-more" onclick="mobileExpand(this, event)"><div class="post-comment-more-but"></div></div>
-			</div>
-			<div class="post-comment-files">
-				<div class="comment-loading">
-					<div class="newpost-progress-label"></div>
-					<div id="record-#FULL_ID#-ind" class="newpost-progress-indicator"></div>
-				</div>
-			</div>
-		</div>
-		<div class="post-comment-control-box">
-			<div class="post-comment-control-item"><?=Loc::getMessage('BLOG_C_REPLY')?></div>
-		</div>
-		<script>
-			BX.ready(function()
-			{
-				BX.addClass(BX("record-#FULL_ID#-ind"), "animate");
-			});
-		</script>
-	</div>
-</div><?
-
-$thumbFile = preg_replace(array(
-		"/[\t\n]/",
-		"/\\#AUTHOR_ID\\#/",
-		"/\\#AUTHOR_AVATAR_IS\\#/",
-		"/\\#AUTHOR_AVATAR\\#/",
-		"/\\#AUTHOR_AVATAR_BG\\#/",
-		"/\\#AUTHOR_NAME\\#/"
-
-	), array(
-		"",
-		$USER->getId(),
-		($avatar ? "Y" : "N"),
-		($avatar ? $avatar["src"] : ""),
-		($avatar ? "background-image:url('".$avatar["src"]."')" : ''),
-		htmlspecialcharsbx($name),
-	), ob_get_clean());
 ?><div id="<?=$eventNodeId?>"><?
 if (empty($arParams["RECORDS"]))
 {
@@ -277,6 +243,7 @@ if ($this->__component->__parent instanceof \Bitrix\Main\Engine\Contract\Control
 	$ajaxParams = [
 			"componentName" => $this->__component->__parent->getName(),
 			"processComment" => method_exists($this->__component->__parent, "processCommentAction"),
+			"navigateComment" => method_exists($this->__component->__parent, "navigateCommentAction"),
 			"readComment" => method_exists($this->__component->__parent, "readCommentAction"),
 			"params" => $this->__component->__parent->getSignedParameters()
 	];
@@ -327,7 +294,8 @@ if ($this->__component->__parent instanceof \Bitrix\Main\Engine\Contract\Control
 				LAZYLOAD : '<?=$arParams["LAZYLOAD"]?>',
 
 				SHOW_POST_FORM : '<?=CUtil::JSEscape($arParams["SHOW_POST_FORM"])?>',
-				BIND_VIEWER : '<?=$arParams["BIND_VIEWER"]?>'
+				BIND_VIEWER : '<?=$arParams["BIND_VIEWER"]?>',
+				USE_LIVE : <?=(isset($arParams["USE_LIVE"]) && !$arParams["USE_LIVE"] ? 'false' : 'true')?>
 			},
 			{
 				id : '<?=CUtil::JSEscape($arParams["FORM"]["ID"])?>',

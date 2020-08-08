@@ -991,7 +991,7 @@ abstract class Entity extends \CBitrixComponent implements Main\Engine\Contract\
 
 		$sorting = $this->gridConfig->getSorting(['sort' => $result]);
 
-		$order = strtolower(reset($sorting['sort']));
+		$order = mb_strtolower(reset($sorting['sort']));
 		if ($order !== 'asc')
 			$order = 'desc';
 		$field = key($sorting['sort']);

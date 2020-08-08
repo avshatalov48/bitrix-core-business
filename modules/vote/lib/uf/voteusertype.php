@@ -324,11 +324,19 @@ final class VoteUserType
 		}
 		else
 		{
-			$uniqType = ($userField["SETTINGS"]["UNIQUE"] ? $userField["SETTINGS"]["UNIQUE"] : (\Bitrix\Vote\Vote\EventLimits::BY_USER_AUTH|\Bitrix\Vote\Vote\EventLimits::BY_USER_ID));
-			if (is_array($userField["SETTINGS"]["UNIQUE"]))
+			$uniqType = \Bitrix\Vote\Vote\EventLimits::BY_USER_AUTH|\Bitrix\Vote\Vote\EventLimits::BY_USER_ID;
+			if (is_array($userField) && array_key_exists("SETTINGS", $userField) && array_key_exists("UNIQUE", $userField["SETTINGS"]))
 			{
-				foreach ( $userField["SETTINGS"]["UNIQUE"] as $res)
-					$uniqType |= $res;
+				$uniqType = 0;
+				if (is_array($userField["SETTINGS"]["UNIQUE"]))
+				{
+					foreach ( $userField["SETTINGS"]["UNIQUE"] as $res)
+						$uniqType |= $res;
+				}
+				else
+				{
+					$uniqType = intval($userField["SETTINGS"]["UNIQUE"]);
+				}
 			}
 		}
 		if ($uniqType&\Bitrix\Vote\Vote\EventLimits::BY_USER_AUTH)
@@ -632,7 +640,7 @@ final class VoteUserType
 				throw new \Bitrix\Main\AccessDeniedException(Loc::getMessage("VOTE_EDIT_ACCESS_IS_DENIED"));
 
 			$data["OPTIONS"] = (is_array($data["OPTIONS"]) ? array_sum($data["OPTIONS"]) : 0);
-			$data["UNIQUE_TYPE"] = ($userField["SETTINGS"]["UNIQUE"] & \Bitrix\Vote\Vote\EventLimits::BY_USER_AUTH ? $userField["SETTINGS"]["UNIQUE"] | \Bitrix\Vote\Vote\EventLimits::BY_USER_ID : $userField["SETTINGS"]["UNIQUE"]);
+			$data["UNIQUE_TYPE"] = intval($userField["SETTINGS"]["UNIQUE"] & \Bitrix\Vote\Vote\EventLimits::BY_USER_AUTH ? $userField["SETTINGS"]["UNIQUE"] | \Bitrix\Vote\Vote\EventLimits::BY_USER_ID : $userField["SETTINGS"]["UNIQUE"]);
 			$interval = intval($userField["SETTINGS"]["UNIQUE_IP_DELAY"]["DELAY"]);
 			$interval = in_array($userField["SETTINGS"]["UNIQUE_IP_DELAY"]["DELAY_TYPE"], array("S", "M", "H")) ? "PT".$interval.$userField["SETTINGS"]["UNIQUE_IP_DELAY"]["DELAY_TYPE"] : "P".$interval."D";
 			$data["KEEP_IP_SEC"] = (new \DateTime("@0"))->add(new \DateInterval($interval))->getTimestamp();

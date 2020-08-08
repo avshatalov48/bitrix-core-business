@@ -43,9 +43,13 @@ return [
 			'name' => Loc::getMessage('LANDING_BLOCK_40_8_TITLE'),
 			'type' => ['typo', 'border-color', 'border-width'],
 		],
+		'.landing-block-card-border-right' => [
+			'name' => Loc::getMessage('LANDING_BLOCK_40_8_SEPARATOR'),
+			'type' => ['border-color', 'border-width'],
+		],
 		'.landing-block-card-title-right' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_40_8_TITLE'),
-			'type' => ['typo', 'border-color', 'border-width'],
+			'type' => ['typo'],
 		],
 		'.landing-block-card-text-left' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_40_8_TEXT'),

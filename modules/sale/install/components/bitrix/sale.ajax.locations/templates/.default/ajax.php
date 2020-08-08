@@ -5,10 +5,10 @@ $SITE_ID = '';
 if(
 	isset($_REQUEST["SITE_ID"])
 	&& is_string($_REQUEST["SITE_ID"])
-	&& strlen($_REQUEST["SITE_ID"]) > 0
+	&& $_REQUEST["SITE_ID"] <> ''
 )
 {
-	$SITE_ID = substr(preg_replace("/[^a-z0-9_]/i", "", $_REQUEST["SITE_ID"]), 0, 2);
+	$SITE_ID = mb_substr(preg_replace("/[^a-z0-9_]/i", "", $_REQUEST["SITE_ID"]), 0, 2);
 	define("SITE_ID", $SITE_ID);
 }
 

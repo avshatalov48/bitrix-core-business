@@ -92,6 +92,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 		$DB->Query("delete from b_catalog_discount2product where DISCOUNT_ID = ".$ID);
 		Catalog\DiscountRestrictionTable::deleteByDiscount($ID);
 		Catalog\DiscountModuleTable::deleteByDiscount($ID);
+		Catalog\DiscountEntityTable::deleteByDiscount($ID);
 		Catalog\DiscountCouponTable::deleteByDiscount($ID);
 
 		$DB->Query("delete from b_catalog_discount where ID = ".$ID." and TYPE = ".self::ENTITY_ID);
@@ -143,6 +144,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 	 * @param array $arField
 	 * @param array $arFilter
 	 * @return bool|string
+	 * @noinspection PhpUnusedParameterInspection
 	 */
 	public static function PrepareSection4Where($val, $key, $operation, $negative, $field, $arField, $arFilter)
 	{
@@ -184,7 +186,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 	 * @param array $arSelectFields
 	 * @return bool|CDBResult
 	 */
-	public function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function GetList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
 
@@ -714,6 +716,8 @@ class CCatalogDiscount extends CAllCatalogDiscount
 	 * @deprecated deprecated since catalog 12.0.0
 	 *
 	 * @return void
+	 *
+	 * @noinspection PhpDeprecationInspection
 	 */
 	public function SaveFilterOptions()
 	{

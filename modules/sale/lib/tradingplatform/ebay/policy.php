@@ -23,10 +23,10 @@ class Policy
 
 	public function __construct($authToken, $siteId)
 	{
-		if(!strlen($authToken))
+		if($authToken == '')
 			throw new ArgumentNullException("authToken");
 
-		if(!strlen($siteId))
+		if($siteId == '')
 			throw new ArgumentNullException("siteId");
 
 		$this->authToken = $authToken;
@@ -81,9 +81,9 @@ class Policy
 		{
 			if(
 				isset($policy["profileName"])
-				&& strlen($policy["profileName"]) > 0
+				&& $policy["profileName"] <> ''
 				&& isset($policy["profileId"])
-				&& strlen($policy["profileId"]) > 0
+				&& $policy["profileId"] <> ''
 			)
 			{
 				$result[$policy["profileId"]] = $policy["profileName"];
@@ -112,7 +112,7 @@ class Policy
 		$this->http->setHeader("X-EBAY-SOA-RESPONSE-DATA-FORMAT", "XML");
 		$this->http->setHeader("X-EBAY-SOA-SECURITY-TOKEN", $this->authToken);
 
-		if(strtolower(SITE_CHARSET) != 'utf-8')
+		if(mb_strtolower(SITE_CHARSET) != 'utf-8')
 			$data = Encoding::convertEncodingArray($data, SITE_CHARSET, 'UTF-8');
 
 		$result = $this->http->post(self::URL, $data);
@@ -134,7 +134,7 @@ class Policy
 			if ($status != 200)
 				Ebay::log(Logger::LOG_LEVEL_INFO, "EBAY_POLICY_REQUEST_HTTP_ERROR", $operationName, 'HTTP error code: '.$status, $this->siteId);
 
-			if(strtolower(SITE_CHARSET) != 'utf-8')
+			if(mb_strtolower(SITE_CHARSET) != 'utf-8')
 				$result = Encoding::convertEncodingArray($result, 'UTF-8', SITE_CHARSET);
 		}
 

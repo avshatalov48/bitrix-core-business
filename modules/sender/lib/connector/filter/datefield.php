@@ -305,7 +305,7 @@ class DateField extends AbstractField
 		$uf = explode('.', $filterKey);
 		foreach ($uf as $item)
 		{
-			if (strpos($item, 'UF_') !== 0)
+			if (mb_strpos($item, 'UF_') !== 0)
 			{
 				continue;
 			}

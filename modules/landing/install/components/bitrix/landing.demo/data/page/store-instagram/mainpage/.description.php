@@ -26,7 +26,7 @@ return array(
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'THEME_CODE' => '1construction',
-			'THEME_CODE_TYPO' => '3corporate',
+
 		),
 	),
 	'layout' => array(
@@ -59,10 +59,10 @@ return array(
 					0 => 'landing-block-node-container container g-max-width-800 js-animation fadeInDown text-center u-bg-overlay__inner',
 				),
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title text-uppercase g-line-height-1 g-font-weight-700 g-color-white g-mb-20 g-mt-20 g-font-montserrat g-font-size-60',
+					0 => 'landing-block-node-title text-uppercase g-line-height-1 g-font-weight-700 g-color-white g-mb-20 g-mt-20 g-font-size-60',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text g-mb-35 g-font-size-27 g-color-white-opacity-0_9 g-font-montserrat',
+					0 => 'landing-block-node-text g-mb-35 g-font-size-27 g-color-white-opacity-0_9',
 				),
 				'#wrapper' => array(
 					0 => 'landing-block landing-block-node-img u-bg-overlay g-flex-centered g-bg-img-hero g-bg-black-opacity-0_5--after g-min-height-50vh g-pt-80 g-pb-80 g-mt-0',
@@ -86,7 +86,7 @@ return array(
 					0 => 'landing-block-node-subtitle h6 g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20',
 				),
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-mb-minus-10 g-font-montserrat text-uppercase g-color-black-opacity-0_9 g-font-size-25',
+					0 => 'landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-mb-minus-10 text-uppercase g-color-black-opacity-0_9 g-font-size-25',
 				),
 				'.landing-block-node-inner' => array(
 					0 => 'landing-block-node-inner text-uppercase text-center u-heading-v2-4--bottom g-brd-primary',
@@ -131,7 +131,7 @@ return array(
 					0 => 'landing-block-node-subtitle h6 g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20',
 				),
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-mb-minus-10 g-font-montserrat text-uppercase g-color-black-opacity-0_9 g-font-size-25',
+					0 => 'landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-mb-minus-10 text-uppercase g-color-black-opacity-0_9 g-font-size-25',
 				),
 				'.landing-block-node-inner' => array(
 					0 => 'landing-block-node-inner text-uppercase text-center u-heading-v2-4--bottom g-brd-primary',

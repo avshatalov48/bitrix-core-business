@@ -125,7 +125,8 @@ class Storage
 	 */
 	public static function getObjectByAttachment(array $attachment, $create = false)
 	{
-		$object = reset(static::getObjectsByFileId($attachment['FILE_ID'], 1));
+		$list = static::getObjectsByFileId($attachment['FILE_ID'], 1);
+		$object = reset($list);
 
 		if (empty($object) && $create)
 		{

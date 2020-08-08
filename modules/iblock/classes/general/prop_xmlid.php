@@ -18,6 +18,9 @@ class CIBlockPropertyXmlID
 			"GetAdminListViewHTML" => array(__CLASS__, "GetAdminListViewHTML"),
 			"GetPropertyFieldHtml" => array(__CLASS__, "GetPropertyFieldHtml"),
 			"GetSettingsHTML" => array(__CLASS__, "GetSettingsHTML"),
+			'GetUIEntityEditorProperty' => array(__CLASS__, 'GetUIEntityEditorProperty'),
+			'GetUIEntityEditorPropertyEditHtml' => array(__CLASS__, 'GetUIEntityEditorPropertyEditHtml'),
+			'GetUIEntityEditorPropertyViewHtml' => array(__CLASS__, 'GetUIEntityEditorPropertyViewHtml'),
 		);
 	}
 
@@ -28,7 +31,7 @@ class CIBlockPropertyXmlID
 		{
 			return $value["VALUE"];
 		}
-		elseif(strlen($value["VALUE"])>0)
+		elseif($value["VALUE"] <> '')
 		{
 			if(!isset($cache[$value["VALUE"]]))
 			{
@@ -70,7 +73,7 @@ class CIBlockPropertyXmlID
 	public static function GetAdminListViewHTML($arProperty, $value, $strHTMLControlName)
 	{
 		static $cache = array();
-		if(strlen($value["VALUE"])>0)
+		if($value["VALUE"] <> '')
 		{
 			if(!array_key_exists($value["VALUE"], $cache))
 			{
@@ -111,11 +114,11 @@ class CIBlockPropertyXmlID
 	public static function GetPropertyFieldHtml($arProperty, $value, $strHTMLControlName)
 	{
 		$ar_res = false;
-		if(strlen($value["VALUE"]))
+		if($value["VALUE"] <> '')
 		{
 			$db_res = CIBlockElement::GetList(
 				array(),
-				array("=XML_ID"=>$value["VALUE"], "SHOW_HISTORY"=>"Y"),
+				array("=XML_ID" => $value["VALUE"], "SHOW_HISTORY" => "Y"),
 				false,
 				false,
 				array("ID", "IBLOCK_ID", "NAME")
@@ -140,5 +143,36 @@ class CIBlockPropertyXmlID
 			"HIDE" => array("ROW_COUNT", "COL_COUNT", "WITH_DESCRIPTION"),
 		);
 		return '';
+	}
+
+	public static function GetUIEntityEditorProperty($settings, $value)
+	{
+		return [
+			'type' => 'custom',
+		];
+	}
+
+	public static function GetUIEntityEditorPropertyEditHtml(array $params = []) : string
+	{
+		$settings = $params['SETTINGS'] ?? [];
+		$value = $params['VALUE'] ?? '';
+		$paramsHTMLControl = [
+			'MODE' => 'iblock_element_admin',
+			'VALUE' => $params['FIELD_NAME'] ?? '',
+		];
+		return self::GetPropertyFieldHtml($settings, $value, $paramsHTMLControl);
+	}
+
+	public static function GetUIEntityEditorPropertyViewHtml(array $params = []) : string
+	{
+		$settings = $params['SETTINGS'] ?? [];
+		$value = [
+			'VALUE' => $params['VALUE'] ?? ''
+		];
+		$paramsHTMLControl = [
+			'MODE' => 'iblock_element_admin',
+			'VALUE' => $params['FIELD_NAME'] ?? '',
+		];
+		return static::GetPublicViewHTML($settings, $value, $paramsHTMLControl);
 	}
 }

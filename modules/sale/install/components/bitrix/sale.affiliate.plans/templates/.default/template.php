@@ -10,7 +10,7 @@ if (count($arResult) > 0)
 		?>
 		<li><b><?=$arPlan["NAME"]?></b><br />
 		<?
-		if (StrLen($arPlan["DESCRIPTION"]) > 0)
+		if ($arPlan["DESCRIPTION"] <> '')
 		{
 		?>
 			<small><?=$arPlan["DESCRIPTION"]?></small><br />

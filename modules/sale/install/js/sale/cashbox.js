@@ -336,6 +336,11 @@
 
 		reloadSettings: function()
 		{
+			if (BX('TEST_BUTTON'))
+			{
+				BX.hide(BX('TEST_BUTTON'));
+			}
+
 			var kkmId = BX('KKM_ID');
 			kkmId = (kkmId) ? kkmId.value : '';
 			
@@ -362,6 +367,11 @@
 						else
 						{
 							BX('sale-cashbox-models-container').innerHTML = '';
+						}
+						
+						if (result.hasOwnProperty('OFD'))
+						{
+							BX('OFD').value = result.OFD;
 						}
 
 						if (result.hasOwnProperty('GENERAL_REQUIRED_FIELDS'))
@@ -420,6 +430,49 @@
 						BX.closeWait();
 						if (result && result.hasOwnProperty('HTML'))
 							BX('sale-cashbox-ofd-settings-container').innerHTML = result.HTML;
+					}, this
+				),
+				onfailure: function() {BX.debug('onfailure: reloadOfdSettings');}
+			});
+		},
+		
+		testConnection: function(cashboxId)
+		{
+			BX.ajax({
+				data: {
+					action: 'test_connect',
+					cashboxId: cashboxId,
+					sessid: BX.bitrix_sessid(),
+				},
+				method: 'POST',
+				dataType: 'json',
+				url: this.ajaxUrl,
+				onsuccess: BX.delegate(function(result)
+					{
+						BX.closeWait();
+
+						if (result && result.hasOwnProperty('STATUS'))
+						{
+							var popup = new BX.Main.Popup({
+								content: result.STATUS,
+								titleBar: BX.message('CASHBOX_CHECK_CONNECTION_TITLE'),
+								width: 400,
+								height: 200,
+								buttons:[
+									new BX.UI.Button({
+										text: BX.message('CASHBOX_CHECK_CONNECTION_TITLE_POPUP_CLOSE'),
+										size: BX.UI.Button.Size.SMALL,
+										color: BX.UI.Button.Color.PRIMARY,
+										onclick: function(button, event) {
+											popup.close();
+										}
+									})
+								]
+						
+							});
+						
+							popup.show();
+						}
 					}, this
 				),
 				onfailure: function() {BX.debug('onfailure: reloadOfdSettings');}

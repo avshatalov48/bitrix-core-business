@@ -13,7 +13,7 @@ if ($arResult["NEED_AUTH"] == "Y")
 	</div>
 <?
 }
-elseif (strlen($arResult["FatalError"])>0)
+elseif ($arResult["FatalError"] <> '')
 {
 	?>
 	<div class="socnet-chat-warning">
@@ -23,7 +23,7 @@ elseif (strlen($arResult["FatalError"])>0)
 }
 else
 {
-	if (strlen($arResult["ErrorMessage"]) > 0)
+	if ($arResult["ErrorMessage"] <> '')
 	{
 		?>
 		<div class="socnet-chat-warning">
@@ -101,7 +101,7 @@ var sonetChatReplyMesageId = '<?= $arResult["REPLY_MESSAGE_ID"]; ?>';
 var sonetSoundOn = <?= ($arResult["USER_OPTIONS"]["sound"] == "Y"? "true":"false")?>;
 var sonetReplyPathTemplate = '<?= CUtil::JSEscape($arParams["PATH_TO_MESSAGE_FORM_MESS"])?>';
 </script>
-<script type="text/javascript" src="/bitrix/components/bitrix/player/mediaplayer/flvscript.js<?echo (strpos($_SERVER["HTTP_USER_AGENT"], "Opera") !== false? '':'?v='.filemtime($_SERVER['DOCUMENT_ROOT'].'/bitrix/components/bitrix/player/mediaplayer/flvscript.js'))?>"></script>
+<script type="text/javascript" src="/bitrix/components/bitrix/player/mediaplayer/flvscript.js<?echo (mb_strpos($_SERVER["HTTP_USER_AGENT"], "Opera") !== false? '':'?v='.filemtime($_SERVER['DOCUMENT_ROOT'].'/bitrix/components/bitrix/player/mediaplayer/flvscript.js'))?>"></script>
 
 <div style="position:absolute; top:-1000px; left:-1000px;">
 <div id="bx_flv_player_incoming_div" style="display:none">
@@ -215,8 +215,8 @@ foreach($arResult["PrintSmilesList"] as $res)
 {
 	$strTYPING = strtok($res['TYPING'], " ");
 	$res_str .= "<img src=\"".$arParams["PATH_TO_SMILE"].$res['IMAGE']."\" alt=\"".$res['NAME']."\" title=\"".$res['NAME']."\" border=\"0\"";
-	if (IntVal($res['IMAGE_WIDTH'])>0) {$res_str .= " width=\"".$res['IMAGE_WIDTH']."\"";}
-	if (IntVal($res['IMAGE_HEIGHT'])>0) {$res_str .= " height=\"".$res['IMAGE_HEIGHT']."\"";}
+	if (intval($res['IMAGE_WIDTH'])>0) {$res_str .= " width=\"".$res['IMAGE_WIDTH']."\"";}
+	if (intval($res['IMAGE_HEIGHT'])>0) {$res_str .= " height=\"".$res['IMAGE_HEIGHT']."\"";}
 	$res_str .= " class=\"chat-smile\"  id=\"".$strTYPING."\" ";
 	$res_str .= "/>";
 }

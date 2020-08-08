@@ -88,7 +88,7 @@ class InternalSelect extends Select
 		$fields = $documentService->getDocumentFields($fieldType->getDocumentType());
 		foreach ($fields as $key => $field)
 		{
-			if ($field['Type'] == 'select' && substr($key, -10) != '_PRINTABLE')
+			if ($field['Type'] == 'select' && mb_substr($key, -10) != '_PRINTABLE')
 			{
 				$result[$key] = $field;
 				if (isset($field['Alias']) && !$ignoreAliases)

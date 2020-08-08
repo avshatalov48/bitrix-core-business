@@ -115,6 +115,30 @@
 
 
 		/**
+		 * Try create image preview, if service can
+		 */
+		getEmbedPreview: function ()
+		{
+			if (typeof this.previewURL === "string")
+			{
+				var result = this.previewURL;
+				var matchedUrl = this.url.match(this.matcher);
+
+				[].slice.call(matchedUrl).forEach(function (value, index)
+				{
+					result = result.replace(new RegExp("\\$" + index, "g"), value);
+				});
+
+				return result;
+			}
+			else
+			{
+				return false;
+			}
+		},
+
+
+		/**
 		 * Gets embed Element
 		 * @return {HTMLIFrameElement}
 		 */

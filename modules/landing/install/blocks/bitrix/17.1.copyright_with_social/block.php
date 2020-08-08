@@ -1,9 +1,9 @@
-<section class="landing-block js-animation animation-none g-bg-gray-dark-v3 g-brd-top g-brd-gray-dark-v2 ">
+<section class="landing-block js-animation animation-none g-bg-gray-dark-v3 g-brd-top g-brd-gray-dark-v2 landing-semantic-background-color">
 	<div class="text-center text-md-left g-py-40 g-color-gray-dark-v5 container">
 		<div class="row">
 			<div class="col-md-6 d-flex align-items-center g-mb-15 g-mb-0--md w-100 mb-0">
-				<div class="landing-block-node-text js-animation animation-none mr-1">
-					&copy; 2018 All rights reserved.
+				<div class="landing-block-node-text landing-semantic-text-medium js-animation animation-none mr-1">
+					&copy; 2020 All rights reserved.
 				</div>
 			</div>
 

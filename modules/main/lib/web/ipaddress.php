@@ -61,4 +61,25 @@ class IpAddress
 	{
 		return (filter_var($this->ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false);
 	}
+
+	/**
+	 * Check IPv4 address is within an IP range
+	 *
+	 * @param string $cidr a valid IPv4 subnet[/mask]
+	 * @return bool
+	 */
+	public function matchRange(string $cidr): bool
+	{
+		if (strpos($cidr,'/') !== false)
+		{
+			[$subnet, $mask] = explode('/', $cidr);
+		}
+		else
+		{
+			$subnet = $cidr;
+			$mask = 32;
+		}
+
+		return (ip2long($this->ip) & ~((1 << (32 - $mask)) - 1)) === ip2long($subnet);
+	}
 }

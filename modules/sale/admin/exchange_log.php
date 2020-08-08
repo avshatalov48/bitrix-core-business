@@ -61,13 +61,13 @@ if(isset($filter_entity_type_id) && is_array($filter_entity_type_id) && count($f
 	for ($i = 0; $i < $countFilter; $i++)
 	{
 		$filter_entity_type_id[$i] = trim($filter_entity_type_id[$i]);
-		if(strlen($filter_entity_type_id[$i]) > 0)
+		if($filter_entity_type_id[$i] <> '')
 			$filter["=ENTITY_TYPE_ID"][] = $filter_entity_type_id[$i];
 	}
 }
 
 
-if (strlen($filter_date_insert_from)>0)
+if ($filter_date_insert_from <> '')
 {
 	$filter[">=DATE_INSERT"] = trim($filter_date_insert_from);
 }
@@ -78,11 +78,11 @@ elseif($set_filter!="Y" && $del_filter != "Y")
 	$filter[">=DATE_INSERT"] = new \Bitrix\Main\Type\Date();
 }
 
-if (strlen($filter_date_insert_to)>0)
+if ($filter_date_insert_to <> '')
 {
 	if($arDate = ParseDateTime($filter_date_insert_to, CSite::GetDateFormat("FULL", SITE_ID)))
 	{
-		if(strlen($filter_date_insert_to) < 11)
+		if(mb_strlen($filter_date_insert_to) < 11)
 		{
 			$arDate["HH"] = 23;
 			$arDate["MI"] = 59;
@@ -103,8 +103,8 @@ if((int)($filter_entity_id_to)>0) $filter["<=ENTITY_ID"] = (int)($filter_entity_
 if((int)($filter_parent_id_from)>0) $filter[">=PARENT_ID"] = (int)($filter_parent_id_from);
 if((int)($filter_parent_id_to)>0) $filter["<=PARENT_ID"] = (int)($filter_parent_id_to);
 
-if (strlen($filter_xml_id) > 0) $filter["=XML_ID"] = trim($filter_xml_id);
-if (strlen($filter_direction_id) > 0)
+if ($filter_xml_id <> '') $filter["=XML_ID"] = trim($filter_xml_id);
+if ($filter_direction_id <> '')
     $filter["=DIRECTION"] = trim($filter_direction_id);
 
 if ($del_filter !== 'Y')

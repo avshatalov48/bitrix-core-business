@@ -17,7 +17,7 @@ IncludeModuleLangFile(__FILE__);
 
 CModule::IncludeModule('socialnetwork');
 
-if ($REQUEST_METHOD=="GET" && strlen($RestoreDefaults)>0 && $SONET_RIGHT=="W" && check_bitrix_sessid())
+if ($REQUEST_METHOD=="GET" && $RestoreDefaults <> '' && $SONET_RIGHT=="W" && check_bitrix_sessid())
 {
 	COption::RemoveOption("socialnetwork");
 	$z = CGroup::GetList($v1="id",$v2="asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
@@ -109,7 +109,7 @@ if (!empty($arRes))
 {
 	foreach ($arRes as $key => $val)
 	{
-		$arTooltipProperties[$val["FIELD_NAME"]] = (strLen($val["EDIT_FORM_LABEL"]) > 0 ? $val["EDIT_FORM_LABEL"] : $val["FIELD_NAME"]);
+		$arTooltipProperties[$val["FIELD_NAME"]] = ($val["EDIT_FORM_LABEL"] <> '' ? $val["EDIT_FORM_LABEL"] : $val["FIELD_NAME"]);
 	}
 }
 
@@ -217,7 +217,7 @@ if (IsModuleInstalled("im"))
 	$arAllOptionsCommon[] = array("use_workgroup_chat", GetMessage("SONET_USE_WORKGROUP_CHAT"), "Y", Array("checkbox"));
 }
 
-if(strtolower($DB->type) == 'mysql')
+if($DB->type == 'MYSQL')
 {
 	$fulltextIndexExists = $DB->IndexExists("b_sonet_log_index", array("CONTENT"));
 	$arAllOptionsCommon[] = array("use_lf_fulltext_index", GetMessage("SONET_USE_LF_FULLTEXT_INDEX"), ($fulltextIndexExists ? "Y" : "N"), array("checkbox"));
@@ -382,7 +382,7 @@ $arAllOptionsGroupsGender[] = array("default_group_picture", GetMessage("SONET_G
 $strWarning = "";
 if (
 	$REQUEST_METHOD == "POST"
-	&& strlen($Update) > 0
+	&& $Update <> ''
 	&& $SONET_RIGHT == "W"
 	&& check_bitrix_sessid()
 )
@@ -417,7 +417,7 @@ if (
 			if ($arAllOptionsCommon[$i][0] == 'use_lf_fulltext_index')
 			{
 				if (
-					strtolower($DB->type) == 'mysql'
+					$DB->type == 'MYSQL'
 					&& $val == 'Y'
 				)
 				{
@@ -585,10 +585,10 @@ if (
 
 				$checkRes = CFile::CheckImageFile($arPICTURE, 0, 0, 0);
 
-				if (strlen($checkRes) <= 0)
+				if ($checkRes == '')
 				{
 					$fid = CFile::SaveFile($arPICTURE, "socialnetwork");
-					if ($arPICTURE["del"] == "Y" || strlen($_FILES[$name]["name"]) > 0)
+					if ($arPICTURE["del"] == "Y" || $_FILES[$name]["name"] <> '')
 						COption::SetOptionInt("socialnetwork", $arAllOptionsUsersGender[$gender][$i][0], intval($fid), $arAllOptionsUsersGender[$gender][$i][1], $arSite["ID"]);
 				}
 				else
@@ -658,10 +658,10 @@ if (
 
 			$checkRes = CFile::CheckImageFile($arPICTURE, 0, 0, 0);
 
-			if (strlen($checkRes) <= 0)
+			if ($checkRes == '')
 			{
 				$fid = CFile::SaveFile($arPICTURE, "socialnetwork");
-				if ($arPICTURE["del"] == "Y" || strlen($_FILES[$name]["name"]) > 0)
+				if ($arPICTURE["del"] == "Y" || $_FILES[$name]["name"] <> '')
 					COption::SetOptionInt("socialnetwork", $arAllOptionsGroupsGender[$i][0], intval($fid), $arAllOptionsGroupsGender[$i][1], $arSite["ID"]);
 			}
 			else
@@ -787,7 +787,7 @@ if (
 	CBitrixComponent::clearComponentCache("bitrix:menu");
 }
 
-if (strlen($strWarning) > 0)
+if ($strWarning <> '')
 {
 	CAdminMessage::ShowMessage($strWarning);
 }

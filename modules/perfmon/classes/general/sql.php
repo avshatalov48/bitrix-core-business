@@ -33,8 +33,8 @@ class CAllPerfomanceSQL
 		$arQueryOrder = array();
 		foreach ($arOrder as $strColumn => $strDirection)
 		{
-			$strColumn = strtoupper($strColumn);
-			$strDirection = strtoupper($strDirection) == "ASC"? "ASC": "DESC";
+			$strColumn = mb_strtoupper($strColumn);
+			$strDirection = mb_strtoupper($strDirection) == "ASC"? "ASC": "DESC";
 			switch ($strColumn)
 			{
 			case "ID":
@@ -78,7 +78,7 @@ class CAllPerfomanceSQL
 		$arQuerySelect = array();
 		foreach ($arSelect as $strColumn)
 		{
-			$strColumn = strtoupper($strColumn);
+			$strColumn = mb_strtoupper($strColumn);
 			switch ($strColumn)
 			{
 			case "ID":
@@ -102,7 +102,7 @@ class CAllPerfomanceSQL
 			case "SUM_QUERY_TIME":
 				if ($bGroup)
 				{
-					$arQuerySelect[$strColumn] = substr($strColumn, 0, 3)."(s.".substr($strColumn, 4).") ".$strColumn;
+					$arQuerySelect[$strColumn] = mb_substr($strColumn, 0, 3)."(s.".mb_substr($strColumn, 4).") ".$strColumn;
 				}
 				break;
 			case "COUNT":
@@ -239,12 +239,12 @@ class CAllPerfomanceSQL
 		if (preg_match("/.*WHERE(.+)\\s(ORDER BY|GROUP BY|HAVING|$)/is", $strSql." ", $arMatch))
 		{
 			$strWhere = $arMatch[1];
-			$len = strlen($strWhere);
+			$len = mb_strlen($strWhere);
 			$res = "";
 			$group = 0;
 			for ($i = 0; $i < $len; $i++)
 			{
-				$char = substr($strWhere, $i, 1);
+				$char = mb_substr($strWhere, $i, 1);
 				if ($char == "(")
 					$group++;
 				elseif ($char == ")")
@@ -252,10 +252,10 @@ class CAllPerfomanceSQL
 				elseif ($group == 0)
 				{
 					$match = array();
-					if (preg_match("/^(\\s)(AND|OR|NOT)([\\s(])/is", substr($strWhere, $i), $match))
+					if (preg_match("/^(\\s)(AND|OR|NOT)([\\s(])/is", mb_substr($strWhere, $i), $match))
 					{
 						$char = "\n    ".$match[2];
-						$i += strlen($match[1].$match[2]) - 1;
+						$i += mb_strlen($match[1].$match[2]) - 1;
 					}
 				}
 				$res .= $char;
@@ -266,12 +266,12 @@ class CAllPerfomanceSQL
 		if (preg_match("/.*?SELECT(.+)\\s(FROM)/is", $strSql." ", $arMatch))
 		{
 			$strWhere = $arMatch[1];
-			$len = strlen($strWhere);
+			$len = mb_strlen($strWhere);
 			$res = "";
 			$group = 0;
 			for ($i = 0; $i < $len; $i++)
 			{
-				$char = substr($strWhere, $i, 1);
+				$char = mb_substr($strWhere, $i, 1);
 				if ($char == "(")
 					$group++;
 				elseif ($char == ")")
@@ -288,12 +288,12 @@ class CAllPerfomanceSQL
 		if (preg_match("/.*?UPDATE\\s.+?\\sSET\\s(.+?)WHERE/is", $strSql." ", $arMatch))
 		{
 			$strWhere = $arMatch[1];
-			$len = strlen($strWhere);
+			$len = mb_strlen($strWhere);
 			$res = "";
 			$group = 0;
 			for ($i = 0; $i < $len; $i++)
 			{
-				$char = substr($strWhere, $i, 1);
+				$char = mb_substr($strWhere, $i, 1);
 				if ($char == "(")
 					$group++;
 				elseif ($char == ")")

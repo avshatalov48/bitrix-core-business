@@ -61,8 +61,8 @@ final class CSecurityEventMessageFormatter
 		else
 			$this->userInfoFormat = self::getDefaultUserInfoFormat();
 
-		$this->isUserInfoNeeded = strpos($messageFormat, self::USER_INFO) !== false;
-		$this->isB64MessageNeeded = strpos($messageFormat, self::VARIABLE_VALUE_BASE64) !== false;
+		$this->isUserInfoNeeded = mb_strpos($messageFormat, self::USER_INFO) !== false;
+		$this->isB64MessageNeeded = mb_strpos($messageFormat, self::VARIABLE_VALUE_BASE64) !== false;
 
 		if (!defined("ADMIN_SECTION") || ADMIN_SECTION != true)
 			$this->siteId = SITE_ID;
@@ -117,7 +117,7 @@ final class CSecurityEventMessageFormatter
 	 */
 	public function format($auditType, $itemName, $itemDescription)
 	{
-		$description = substr($itemDescription,0,2000);
+		$description = mb_substr($itemDescription, 0, 2000);
 
 		$replacement = array(
 			self::AUDIT_TYPE => $auditType,

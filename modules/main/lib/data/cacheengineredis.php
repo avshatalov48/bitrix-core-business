@@ -6,88 +6,121 @@ use Bitrix\Main\Config;
 class CacheEngineRedis implements ICacheEngine
 {
 	protected static $redis = null;
-	private static $isConnected = false;
+	protected static $locks = [];
+	protected static $isConnected = false;
 
 	private static $baseDirVersion = [];
-	protected $sid = "BX";
+	private static $host = '127.0.0.1';
+	private static $port = 6379;
 
+	protected $sid = "BX";
 	protected $useLock = false;
 	protected $ttlMultiplier = 2;
-	protected static $locks = [];
 	protected $old = false;
+	protected $serializer = \Redis::SERIALIZER_IGBINARY;
+	protected $persistent = true;
 
 	/**
 	 * CacheEngineRedis constructor.
 	 * @param array $options Cache options.
 	 */
-	function __construct($options = [])
+	public function __construct($options = [])
 	{
-		$config = Config\Configuration::getValue("cache");
+		$this->configure();
 
 		if (!empty($options))
 		{
 			if (isset($options['HOST']))
 			{
-				$config['redis']['host'] = $options['HOST'];
+				self::$host = $options['HOST'];
 			}
 
 			if (isset($options['PORT']))
 			{
-				$config['redis']['port'] = $options['PORT'];
-			}
-
-			if (isset($options['SID']))
-			{
-				$config['sid'] = $options['SID'];
+				self::$port = $options['PORT'];
 			}
 		}
 
 		if (self::$redis == null)
 		{
 			self::$redis = new \Redis();
-			$v = (isset($config['redis'])) ? $config['redis'] : null;
 
-			if ($v != null && isset($v['host']) && $v['host'] != '')
+			if ($this->persistent && self::$redis->connect(self::$host, self::$port))
 			{
-				if ($v != null && isset($v['port']))
-				{
-					$port = intval($v['port']);
-				}
-				else
-				{
-					$port = 6379;
-				}
+				self::$isConnected = true;
 
-				// TODO add settings pconnect or connect
-				if (self::$redis->pconnect($v['host'], $port))
-				{
-					self::$redis->setOption(\Redis::OPT_SERIALIZER, \Redis::SERIALIZER_IGBINARY);
-					self::$isConnected = true;
-				}
+			}
+			elseif (self::$redis->connect(self::$host, self::$port))
+			{
+				self::$isConnected = true;
+			}
+
+			if (self::$isConnected)
+			{
+				self::$redis->setOption(\Redis::OPT_SERIALIZER, $this->serializer);
+			}
+		}
+	}
+
+	protected function configure()
+	{
+		$config = Config\Configuration::getValue("cache");
+
+		if (!$config || !is_array($config))
+		{
+			return false;
+		}
+
+		$v = (isset($config["redis"])) ? $config["redis"] : null;
+		if ($v != null && isset($v["host"]) && $v["host"] != '')
+		{
+			if ($v != null && isset($v["port"]))
+			{
+				self::$port = (int) $v["port"];
+			}
+
+			self::$host = $v["host"];
+		}
+
+		if (isset($config["use_lock"]))
+		{
+			$this->useLock = (bool) $config["use_lock"];
+		}
+
+		if (isset($config["sid"]) && ($config["sid"] != ""))
+		{
+			$this->sid = $config["sid"];
+		}
+
+		if (isset($config["serializer"]))
+		{
+			if ($config["serializer"] == 0)
+			{
+				$this->serializer = \Redis::SERIALIZER_NONE;
+			}
+			elseif ($config["serializer"] == 1)
+			{
+				$this->serializer = \Redis::SERIALIZER_PHP;
+			}
+			elseif ($config["serializer"] == 2)
+			{
+				$this->serializer = \Redis::SERIALIZER_IGBINARY;
 			}
 		}
 
-		if ($config && is_array($config))
+		if (isset($config["persistent"]) && $config["persistent"] == 0)
 		{
-			if (isset($config["use_lock"]))
-			{
-				$this->useLock = (bool)$config["use_lock"];
-			}
-
-			if (isset($config["sid"]) && ($config["sid"] != ""))
-			{
-				$this->sid = $config["sid"];
-			}
-
-			if (isset($config["ttl_multiplier"]) && $this->useLock)
-			{
-				$this->ttlMultiplier = (integer)$config["ttl_multiplier"];
-			}
+			$this->persistent = false;
 		}
 
-		if (!empty($options) && isset($options['actual_data']))
+		if (isset($config["ttl_multiplier"]) && $this->useLock)
 		{
-			$this->useLock = !((bool) $options['actual_data']);
+			$this->ttlMultiplier = (int) $config["ttl_multiplier"];
+		}
+
+		if (!empty($options) && isset($options["actual_data"]))
+		{
+			$this->useLock = !((bool) $options["actual_data"]);
 		}
 
 		if ($this->useLock)
@@ -99,6 +132,8 @@ class CacheEngineRedis implements ICacheEngine
 			$this->sid .= 3;
 			$this->ttlMultiplier = 1;
 		}
+
+		return $config;
 	}
 
 	/**
@@ -120,7 +155,7 @@ class CacheEngineRedis implements ICacheEngine
 	 *
 	 * @return bool
 	 */
-	function isAvailable()
+	public function isAvailable()
 	{
 		return self::$isConnected;
 	}
@@ -177,7 +212,7 @@ class CacheEngineRedis implements ICacheEngine
 			}
 			else
 			{
-				self::$redis->delete($key);
+				self::$redis->del($key);
 			}
 
 			unset(self::$locks[$baseDir][$initDir][$key]);
@@ -214,7 +249,7 @@ class CacheEngineRedis implements ICacheEngine
 	 *
 	 * @return void
 	 */
-	function clean($baseDir, $initDir = false, $filename = false)
+	public function clean($baseDir, $initDir = false, $filename = false)
 	{
 		if(!self::isAvailable())
 		{
@@ -286,7 +321,7 @@ class CacheEngineRedis implements ICacheEngine
 	 *
 	 * @return boolean
 	 */
-	function read(&$allVars, $baseDir, $initDir, $filename, $ttl)
+	public function read(&$allVars, $baseDir, $initDir, $filename, $ttl)
 	{
 		$this->getBaseDirVersion($baseDir);
 
@@ -350,7 +385,7 @@ class CacheEngineRedis implements ICacheEngine
 	 *
 	 * @return void
 	 */
-	function write($allVars, $baseDir, $initDir, $filename, $ttl)
+	public function write($allVars, $baseDir, $initDir, $filename, $ttl)
 	{
 		if (!isset(self::$baseDirVersion[$baseDir]))
 		{
@@ -400,7 +435,7 @@ class CacheEngineRedis implements ICacheEngine
 	 *
 	 * @return boolean
 	 */
-	function isCacheExpired($path)
+	public function isCacheExpired($path)
 	{
 		return false;
 	}
@@ -412,7 +447,7 @@ class CacheEngineRedis implements ICacheEngine
 	 * @param bool $skipOld Return cleaned value.
 	 * @return array|bool|string
 	 */
-	function getInitDirVersion($baseDir, $initDir = false, $skipOld = false)
+	protected function getInitDirVersion($baseDir, $initDir = false, $skipOld = false)
 	{
 		if ($initDir !== false)
 		{
@@ -451,7 +486,7 @@ class CacheEngineRedis implements ICacheEngine
 	 *
 	 * @return void
 	 */
-	function getBaseDirVersion($baseDir, $skipOld = false)
+	protected function getBaseDirVersion($baseDir, $skipOld = false)
 	{
 		$baseDirKey = $this->sid.$baseDir;
 		if (!isset(self::$baseDirVersion[$baseDir]))

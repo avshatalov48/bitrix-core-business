@@ -41,9 +41,9 @@ class TemplateTable extends Entity\DataManager
 					return array(
 						function ($value)
 						{
-							if (substr($value, 0, 1) == '#')
+							if (mb_substr($value, 0, 1) == '#')
 							{
-								$langCode = substr(substr($value, 1), 0, -1);
+								$langCode = mb_substr(mb_substr($value, 1), 0, -1);
 								$mess = Loc::getMessage('LANDING_TABLE_TPL_' . $langCode);
 								if ($mess)
 								{

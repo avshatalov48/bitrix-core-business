@@ -58,12 +58,12 @@ class CBitrixPlayer extends CBitrixComponent
 
 	protected static function getFileExtension ($path)
 	{
-		return strtolower(GetFileExtension($path));
+		return mb_strtolower(GetFileExtension($path));
 	}
 
 	public function getComponentId ()
 	{
-		return substr(md5(serialize($this->arParams)), 10).$this->randString();
+		return mb_substr(md5(serialize($this->arParams)), 10).$this->randString();
 	}
 
 	// fix 0084070
@@ -155,7 +155,7 @@ class CBitrixPlayer extends CBitrixComponent
 			"xml" => "application/xml",
 		);
 		$ext = self::getFileExtension($src);
-		if (empty($ext) || strpos($ext, 'php') === 0)
+		if (empty($ext) || mb_strpos($ext, 'php') === 0)
 		{
 			$type = 'application/octet-stream';
 		}
@@ -181,7 +181,7 @@ class CBitrixPlayer extends CBitrixComponent
 	protected function findCorrectFile($path, &$type = null, $warning = false)
 	{
 		// skip search if type is correct
-		if ((strpos($type, 'video') === 0) || (strpos($type, 'audio') === 0) || (strpos($type, 'rtmp') === 0))
+		if ((mb_strpos($type, 'video') === 0) || (mb_strpos($type, 'audio') === 0) || (mb_strpos($type, 'rtmp') === 0))
 			return $path;
 		static $rewriteCondition = '';
 		$uri = new \Bitrix\Main\Web\Uri($path);
@@ -209,7 +209,7 @@ class CBitrixPlayer extends CBitrixComponent
 			// remove host
 			$discPath = $uri->getPathQuery();
 			// is it short uri ?
-			$shortUri = \CBXShortUri::GetUri(substr($discPath, 1));
+			$shortUri = \CBXShortUri::GetUri(mb_substr($discPath, 1));
 			if($shortUri)
 			{
 				$discPath = $shortUri['URI'];
@@ -234,9 +234,9 @@ class CBitrixPlayer extends CBitrixComponent
 				}
 			}
 		}
-		if (strlen($uri->getHost()) > 0)
+		if ($uri->getHost() <> '')
 		{
-			if (strpos($uri->getHost(), 'xn--') === false)
+			if (mb_strpos($uri->getHost(), 'xn--') === false)
 			{
 				$arErrors = array();
 				if(defined("BX_UTF"))
@@ -380,35 +380,35 @@ class CBitrixPlayer extends CBitrixComponent
 		$arTracks = false;
 
 		$ch = $arTree->children;
-		if(is_array($ch) && count($ch) > 0 && strtolower($ch[0]->name) == 'playlist')
+		if(is_array($ch) && count($ch) > 0 && mb_strtolower($ch[0]->name) == 'playlist')
 		{
 			$pl = $ch[0];
 			$tracklist = $pl->children;
 			for ($i = 0, $l = count($tracklist); $i < $l; $i++)
 			{
-				if (strtolower($tracklist[$i]->name) != 'tracklist')
+				if (mb_strtolower($tracklist[$i]->name) != 'tracklist')
 					continue;
 				$arTracks = array();
 				$tracks = $tracklist[$i]->children;
 				for ($i = 0, $l = count($tracks); $i < $l; $i++)
 				{
 					$track = $tracks[$i];
-					if (strtolower($track->name) == 'track')
+					if (mb_strtolower($track->name) == 'track')
 					{
 						$arTrack = array();
 						for ($j = 0, $n = count($track->children); $j < $n; $j++)
 						{
 							$prop = $track->children[$j];
-							if (strtolower($prop->name) == 'location')
+							if (mb_strtolower($prop->name) == 'location')
 							{
 								$arTrack['src'] = $objXML->xmlspecialcharsback($prop->content);
 							}
-							if (strtolower($prop->name) == 'image')
+							if (mb_strtolower($prop->name) == 'image')
 							{
 								if ($objXML->xmlspecialcharsback($prop->content) != '-')
 									$arTrack['thumbnail'] = self::findCorrectFile($objXML->xmlspecialcharsback($prop->content));
 							}
-							if (strtolower($prop->name) == 'title')
+							if (mb_strtolower($prop->name) == 'title')
 								$arTrack['title'] = $objXML->xmlspecialcharsback($prop->content);
 						}
 						if (!empty($arTrack['src']))
@@ -453,13 +453,13 @@ class CBitrixPlayer extends CBitrixComponent
 		}
 
 		$arParams['VOLUME'] = intval($arParams['VOLUME']);
-		$arParams['PREVIEW'] = (strlen($arParams['PREVIEW'])) ? $this->findCorrectFile($arParams['PREVIEW']) : '';
-		$arParams['LOGO'] = (strlen($arParams['LOGO']) > 0) ? $this->findCorrectFile($arParams['LOGO']) : '';
+		$arParams['PREVIEW'] = (mb_strlen($arParams['PREVIEW'])) ? $this->findCorrectFile($arParams['PREVIEW']) : '';
+		$arParams['LOGO'] = ($arParams['LOGO'] <> '') ? $this->findCorrectFile($arParams['LOGO']) : '';
 		$arParams['LOGO_LINK'] = trim($arParams['LOGO_LINK']) != "" ? $arParams['LOGO_LINK'] : GetMessage("ABOUT_LINK");
 		$arParams['CONTROLBAR'] = !empty($arParams['CONTROLBAR']) ? $arParams['CONTROLBAR'] : 'bottom';
 		$arParams['SKIN_PATH'] = rtrim($arParams['SKIN_PATH'], "/")."/";
 		$arParams['PLAYER_ID'] = htmlspecialcharsbx ($arParams['PLAYER_ID']);
-		$arParams["START_TIME"] = intval ($arParams["START_TIME"]);
+		$arParams["START_TIME"] = intval($arParams["START_TIME"]);
 
 		if (empty($arParams['VOLUME']))
 			$arParams['VOLUME'] = 90;
@@ -517,7 +517,7 @@ class CBitrixPlayer extends CBitrixComponent
 			return false;
 		}
 		CJSCore::Init(['ajax']);
-		if (isset($this->arParams['PLAYER_ID']) && strlen($this->arParams['PLAYER_ID']) > 0)
+		if (isset($this->arParams['PLAYER_ID']) && $this->arParams['PLAYER_ID'] <> '')
 			$this->arResult['ID'] = $this->arParams['PLAYER_ID'];
 		else
 			$this->arResult['ID'] = "bx_".$this->playerType."_player_".$this->getComponentId();
@@ -778,7 +778,7 @@ class CBitrixPlayer extends CBitrixComponent
 		for ($j = 0, $n = count($arWmvVars); $j < $n; $j++)
 		{
 			$pair = explode("=", trim($arWmvVars[$j]));
-			if (count($pair) == 2 && strlen($pair[0]) > 0 && strlen($pair[1]) > 0)
+			if (count($pair) == 2 && $pair[0] <> '' && $pair[1] <> '')
 				$this->addJsVar($this->conf, $pair[0], $pair[1]);
 		}
 		if ($this->arParams['WMODE_WMV'] == 'windowless')
@@ -830,7 +830,7 @@ class CBitrixPlayer extends CBitrixComponent
 		}
 		else
 		{
-			if (strpos($this->path, "youtu"))
+			if(mb_strpos($this->path, "youtu"))
 			{
 				$this->jwConfig['flashplayer'] = $this->jwFlashPath;
 			}
@@ -860,7 +860,7 @@ class CBitrixPlayer extends CBitrixComponent
 
 		// Skining
 		$skinExt = self::getFileExtension($this->arParams['SKIN']);
-		$skinName = substr($this->arParams['SKIN'], 0, -strlen($skinExt) - 1);
+		$skinName = mb_substr($this->arParams['SKIN'], 0, -mb_strlen($skinExt) - 1);
 
 		if ($this->arParams['SKIN'] != '' && $this->arParams['SKIN'] != 'default')
 		{
@@ -876,7 +876,7 @@ class CBitrixPlayer extends CBitrixComponent
 				}
 				else
 				{
-					$fname = substr($this->arParams['SKIN'], 0, strrpos($this->arParams['SKIN'], '.'));
+					$fname = mb_substr($this->arParams['SKIN'], 0, mb_strrpos($this->arParams['SKIN'], '.'));
 					if ($skinExt == 'swf' && file_exists($_SERVER['DOCUMENT_ROOT'] . $this->arParams['SKIN_PATH'] . $fname . '.zip'))
 						$skin = $this->arParams['SKIN_PATH'] . $fname . '.zip';
 					else
@@ -909,19 +909,19 @@ class CBitrixPlayer extends CBitrixComponent
 			// Append plugins vars
 			for ($i = 0, $l = count($this->arParams['PLUGINS']); $i < $l; $i++)
 			{
-				if (strlen($this->arParams['PLUGINS'][$i]) <= 0)
+				if ($this->arParams['PLUGINS'][$i] == '')
 					continue;
 
 				$plArray = array();
 				$pluginName = preg_replace("/[^a-zA-Z0-9_-]/i", "_", trim($this->arParams['PLUGINS'][$i]));
 
-				if (isset($this->arParams['PLUGINS_' . strtoupper($pluginName)]))
+				if (isset($this->arParams['PLUGINS_'.mb_strtoupper($pluginName)]))
 				{
-					$arFlashVars = explode("\n", trim($this->arParams['PLUGINS_' . strtoupper($pluginName)]));
+					$arFlashVars = explode("\n", trim($this->arParams['PLUGINS_'.mb_strtoupper($pluginName)]));
 					for ($j = 0, $n = count($arFlashVars); $j < $n; $j++)
 					{
 						$pair = explode("=", trim($arFlashVars[$j]));
-						if (count($pair) < 2 || strlen($pair[0]) <= 0 || strlen($pair[1]) <= 0)
+						if (count($pair) < 2 || $pair[0] == '' || $pair[1] == '')
 							continue;
 						$this->addFlashVar($plArray, $pair[0], $pair[1]);
 					}
@@ -934,7 +934,7 @@ class CBitrixPlayer extends CBitrixComponent
 		for ($j = 0, $n = count($arFlashVars); $j < $n; $j++)
 		{
 			$pair = explode("=", trim($arFlashVars[$j]));
-			if (count($pair) < 2 || strlen($pair[0]) <= 0 || strlen($pair[1]) <= 0)
+			if (count($pair) < 2 || $pair[0] == '' || $pair[1] == '')
 				continue;
 			$this->addFlashVar($this->jwConfig, $pair[0], $pair[1]);
 		}
@@ -945,7 +945,7 @@ class CBitrixPlayer extends CBitrixComponent
 		if ($this->arParams['USE_PLAYLIST'] !== 'Y')
 			$this->addFlashVar($this->jwConfig, 'provider', $this->arParams['PROVIDER']);
 
-		if (strlen($this->arParams['STREAMER']) > 0)
+		if ($this->arParams['STREAMER'] <> '')
 			$this->addFlashVar($this->jwConfig, 'streamer', $this->arParams['STREAMER']);
 
 		$this->addFlashVar($this->jwConfig, 'abouttext', GetMessage('ABOUT_TEXT'), '');
@@ -1013,7 +1013,7 @@ class CBitrixPlayer extends CBitrixComponent
 			return $arTrack;
 		}
 		$arTrack['src'] = $this->findCorrectFile($arTrack['src'], $arTrack['type']);
-		if (self::isAudioSource($arTrack['src']) || (strpos($arTrack['type'], 'audio') === 0))
+		if (self::isAudioSource($arTrack['src']) || (mb_strpos($arTrack['type'], 'audio') === 0))
 		{
 			if ($this->arResult['YOUTUBE'] || $this->arResult['COMMON_VIDEO'])
 			{
@@ -1021,7 +1021,7 @@ class CBitrixPlayer extends CBitrixComponent
 				return false;
 			}
 
-			if (strpos($arTrack['type'], 'audio') !== 0)
+			if (mb_strpos($arTrack['type'], 'audio') !== 0)
 				$arTrack['type'] = self::GetContentType($arTrack['src']);
 
 			$this->arResult['AUDIO_FILE'] = true;
@@ -1034,11 +1034,11 @@ class CBitrixPlayer extends CBitrixComponent
 			}
 			$this->arResult['WMV'] = true;
 		}
-		elseif (strpos($arTrack['type'], 'rtmp') === 0)
+		elseif (mb_strpos($arTrack['type'], 'rtmp') === 0)
 		{
 			$this->arResult['FLASH'] = $this->arResult['STREAM'] = true;
 		}
-		elseif (strpos($arTrack['type'], 'video') === 0)
+		elseif (mb_strpos($arTrack['type'], 'video') === 0)
 		{
 			if ($this->arResult['AUDIO_FILE'])
 			{
@@ -1071,7 +1071,7 @@ class CBitrixPlayer extends CBitrixComponent
 		if($this->arParams['SKIN'] != '' && $this->arParams['SKIN'] != 'default')
 		{
 			$skinExt = self::getFileExtension($this->arParams['SKIN']);
-			$this->arResult['SKIN_NAME'] = substr($this->arParams['SKIN'], 0, -strlen($skinExt) - 1);
+			$this->arResult['SKIN_NAME'] = mb_substr($this->arParams['SKIN'], 0, -mb_strlen($skinExt) - 1);
 
 			if ($skinExt == 'css')
 			{
@@ -1149,7 +1149,7 @@ class CBitrixPlayer extends CBitrixComponent
 
 		//Icons
 		$bShowIcon = $USER->IsAuthorized();
-		if ($bShowIcon && strlen($this->path) > 0)
+		if ($bShowIcon && $this->path <> '')
 		{
 			$playlist_edit_url = $APPLICATION->GetPopupLink(
 				array(

@@ -12,15 +12,15 @@ class CSearchStatistic
 	function __construct($phrase = "", $tags = "")
 	{
 		$phrase = ToLower(trim($phrase, " \t\n\r"));
-		if ($l = strlen($phrase))
+		if ($l = mb_strlen($phrase))
 		{
 			if ($l > 250)
 			{
-				$p = strrpos($phrase, ' ');
+				$p = mb_strrpos($phrase, ' ');
 				if ($p === false)
-					$this->_phrase = substr($phrase, 0, 250);
+					$this->_phrase = mb_substr($phrase, 0, 250);
 				else
-					$this->_phrase = substr($phrase, 0, $p);
+					$this->_phrase = mb_substr($phrase, 0, $p);
 			}
 			else
 			{
@@ -122,8 +122,8 @@ class CSearchStatistic
 		$arQueryOrder = array();
 		foreach ($arOrder as $strColumn => $strDirection)
 		{
-			$strColumn = strtoupper($strColumn);
-			$strDirection = strtoupper($strDirection) == "ASC"? "ASC": "DESC";
+			$strColumn = mb_strtoupper($strColumn);
+			$strDirection = mb_strtoupper($strDirection) == "ASC"? "ASC": "DESC";
 			if (in_array($strColumn, $arDefSelect))
 			{
 				$arSelect[] = $strColumn;
@@ -143,7 +143,7 @@ class CSearchStatistic
 		$arQuerySelect = array();
 		foreach ($arSelect as $strColumn)
 		{
-			$strColumn = strtoupper($strColumn);
+			$strColumn = mb_strtoupper($strColumn);
 			if (in_array($strColumn, $arDefSelect))
 			{
 				if ($strColumn == "TIMESTAMP_X")
@@ -314,7 +314,7 @@ class CSearchStatistic
 		$res .= $host;
 
 		$port = intval($_SERVER["SERVER_PORT"]);
-		if ($port > 0 && $port != 80 && $port != 443 && strpos($host, ":") === false)
+		if ($port > 0 && $port != 80 && $port != 443 && mb_strpos($host, ":") === false)
 			$res .= ":".$port;
 
 		$url = preg_replace("/\\?sphrase_id=\\d+&/", "?", $_SERVER["REQUEST_URI"]);

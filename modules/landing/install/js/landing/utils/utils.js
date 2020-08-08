@@ -1306,12 +1306,6 @@
 						BX.fireEvent(selectedItem.layout.item, "click");
 						return;
 					}
-
-					if (selectedItem.hasSubMenu())
-					{
-						selectedItem.showSubMenu();
-						return;
-					}
 				}
 
 				unselectItems(currentMenu.menuItems);

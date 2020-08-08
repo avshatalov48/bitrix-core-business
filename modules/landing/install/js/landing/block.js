@@ -220,6 +220,7 @@
 		this.changeTimeout = null;
 		this.access = options.access;
 		this.anchor = options.anchor;
+		this.savedAnchor = options.anchor;
 		this.requiredUserActionOptions = options.requiredUserAction;
 		this.dynamicParams = options.dynamicParams || {};
 
@@ -3879,6 +3880,7 @@
 		{
 			this.panels.get("content_edit").hide();
 			this.tmpContent.innerHTML = "";
+			this.anchor = this.savedAnchor;
 		},
 
 
@@ -3969,7 +3971,7 @@
 			};
 
 			var blockForm = new BaseForm({
-				title: options.formName || BX.Landing.Loc.getMessage("BLOCK_HEADER"),
+				title: options.formName || BX.Landing.Loc.getMessage("BLOCK_ELEMENTS"),
 				description: this.manifest.block.formDescription,
 				type: "content",
 				code: this.id,
@@ -4245,6 +4247,8 @@
 			{
 				baseUrl = top.location.origin + baseUrl;
 			}
+
+			this.savedAnchor = (this.anchor || this.node.id);
 
 			var previewText = join(baseUrl, "#", (this.anchor || this.node.id));
 			var anchorField = fieldFactory.create({

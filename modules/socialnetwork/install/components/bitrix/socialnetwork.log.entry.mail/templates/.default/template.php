@@ -19,7 +19,7 @@
 								<td align="left" valign="middle" style="border-collapse: collapse;border-spacing: 0;padding: 3px 10px 8px 0;text-align: left;"><?
 									$src = (
 										isset($arResult["LOG_ENTRY"]["AVATAR_SRC"])
-										&& strlen($arResult["LOG_ENTRY"]["AVATAR_SRC"]) > 0
+										&& $arResult["LOG_ENTRY"]["AVATAR_SRC"] <> ''
 											? $arResult["LOG_ENTRY"]["AVATAR_SRC"]
 											: $this->getFolder().'/images/userpic.gif'
 									);

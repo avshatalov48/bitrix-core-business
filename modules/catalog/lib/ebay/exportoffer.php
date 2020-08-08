@@ -229,18 +229,18 @@ class ExportOffer implements \Iterator
 
 		if($arIblock)
 		{
-			if (strlen($serverName) <= 0)
+			if ($serverName == '')
 			{
-				if (strlen($arIblock['SERVER_NAME']) <= 0)
+				if ($arIblock['SERVER_NAME'] == '')
 				{
 					$b = "sort";
 					$o = "asc";
 					$rsSite = \CSite::GetList($b, $o, array("LID" => $arIblock["LID"]));
 					if($arSite = $rsSite->Fetch())
 						$arIblock["SERVER_NAME"] = $arSite["SERVER_NAME"];
-					if(strlen($arIblock["SERVER_NAME"])<=0 && defined("SITE_SERVER_NAME"))
+					if($arIblock["SERVER_NAME"] == '' && defined("SITE_SERVER_NAME"))
 						$arIblock["SERVER_NAME"] = SITE_SERVER_NAME;
-					if(strlen($arIblock["SERVER_NAME"])<=0)
+					if($arIblock["SERVER_NAME"] == '')
 						$arIblock["SERVER_NAME"] = \COption::GetOptionString("main", "server_name", "");
 				}
 			}
@@ -387,7 +387,7 @@ class ExportOffer implements \Iterator
 
 	protected function getDetailPageUrl($detailPageUrl)
 	{
-		if (strlen($detailPageUrl) <= 0)
+		if ($detailPageUrl == '')
 			$detailPageUrl = '/';
 		else
 			$detailPageUrl = str_replace(' ', '%20', $detailPageUrl);
@@ -403,7 +403,7 @@ class ExportOffer implements \Iterator
 
 		if ($file = \CFile::GetFileArray($pictNo))
 		{
-			if(substr($file["SRC"], 0, 1) == "/")
+			if(mb_substr($file["SRC"], 0, 1) == "/")
 				$strFile = "http://".$this->arIblock['SERVER_NAME'].implode("/", array_map("rawurlencode", explode("/", $file["SRC"])));
 			elseif(preg_match("/^(http|https):\\/\\/(.*?)\\/(.*)\$/", $file["SRC"], $match))
 				$strFile = "http://".$match[2].'/'.implode("/", array_map("rawurlencode", explode("/", $match[3])));
@@ -426,10 +426,10 @@ class ExportOffer implements \Iterator
 		foreach($arProperties as $key => $arProperty)
 		{
 			$arUserTypeFormat[$arProperty["ID"]] = false;
-			if (strlen($arProperty["USER_TYPE"]))
+			if($arProperty["USER_TYPE"] <> '')
 			{
 				$arUserType = \CIBlockProperty::GetUserType($arProperty["USER_TYPE"]);
-				if (array_key_exists("GetPublicViewHTML", $arUserType))
+				if(array_key_exists("GetPublicViewHTML", $arUserType))
 				{
 					$arUserTypeFormat[$arProperty["ID"]] = $arUserType["GetPublicViewHTML"];
 					$arProperties[$key]['PROPERTY_TYPE'] = 'USER_TYPE';
@@ -544,7 +544,7 @@ class ExportOffer implements \Iterator
 						{
 							if ($ar_file = \CFile::GetFileArray($intValue))
 							{
-								if(substr($ar_file["SRC"], 0, 1) == "/")
+								if(mb_substr($ar_file["SRC"], 0, 1) == "/")
 									$strFile = "http://".$this->arIblock["SERVER_NAME"].implode("/", array_map("rawurlencode", explode("/", $ar_file["SRC"])));
 								elseif(preg_match("/^(http|https):\\/\\/(.*?)\\/(.*)\$/", $ar_file["SRC"], $match))
 									$strFile = "http://".$match[2].'/'.implode("/", array_map("rawurlencode", explode("/", $match[3])));

@@ -24,6 +24,9 @@ class CIBlockPropertySectionAutoComplete extends CIBlockPropertyElementAutoCompl
 			"PrepareSettings" => array(__CLASS__,'PrepareSettings'),
 			"AddFilterFields" => array(__CLASS__,'AddFilterFields'),
 			"GetPublicFilterHTML" => array(__CLASS__,'GetPublicFilterHTML'),
+			'GetUIEntityEditorProperty' => array(__CLASS__, 'GetUIEntityEditorProperty'),
+			'GetUIEntityEditorPropertyEditHtml' => array(__CLASS__, 'GetUIEntityEditorPropertyEditHtml'),
+			'GetUIEntityEditorPropertyViewHtml' => array(__CLASS__, 'GetUIEntityEditorPropertyViewHtml'),
 		);
 	}
 
@@ -485,16 +488,16 @@ class CIBlockPropertySectionAutoComplete extends CIBlockPropertyElementAutoCompl
 
 		$strBannedSymbols = trim(isset($arFields['USER_TYPE_SETTINGS']['BAN_SYM']) ? $arFields['USER_TYPE_SETTINGS']['BAN_SYM'] : ',;');
 		$strBannedSymbols = str_replace(' ','',$strBannedSymbols);
-		if (false === strpos($strBannedSymbols,','))
+		if (false === mb_strpos($strBannedSymbols, ','))
 			$strBannedSymbols .= ',';
-		if (false === strpos($strBannedSymbols,';'))
+		if (false === mb_strpos($strBannedSymbols, ';'))
 			$strBannedSymbols .= ';';
 
 		$strOtherReplaceSymbol = '';
 		$strReplaceSymbol = (isset($arFields['USER_TYPE_SETTINGS']['REP_SYM']) ? $arFields['USER_TYPE_SETTINGS']['REP_SYM'] : ' ');
 		if (BT_UT_AUTOCOMPLETE_REP_SYM_OTHER == $strReplaceSymbol)
 		{
-			$strOtherReplaceSymbol = (isset($arFields['USER_TYPE_SETTINGS']['OTHER_REP_SYM']) ? substr($arFields['USER_TYPE_SETTINGS']['OTHER_REP_SYM'],0,1) : '');
+			$strOtherReplaceSymbol = (isset($arFields['USER_TYPE_SETTINGS']['OTHER_REP_SYM'])? mb_substr($arFields['USER_TYPE_SETTINGS']['OTHER_REP_SYM'], 0, 1) : '');
 			if ((',' == $strOtherReplaceSymbol) || (';' == $strOtherReplaceSymbol))
 				$strOtherReplaceSymbol = '';
 			if (('' == $strOtherReplaceSymbol) || in_array($strOtherReplaceSymbol,static::GetReplaceSymList()))

@@ -87,7 +87,6 @@ class Archive extends \Bitrix\Main\HttpResponse
 	{
 		if (!$this->isEmpty())
 		{
-			$this->disableCompression();
 			$this->setContentDispositionHeader();
 			$this->setContent(
 				$this->getFileList()
@@ -95,16 +94,5 @@ class Archive extends \Bitrix\Main\HttpResponse
 		}
 
 		parent::send();
-	}
-
-	/**
-	 * Disable compression of module compression.
-	 */
-	protected function disableCompression()
-	{
-		if (Loader::includeModule('compression'))
-		{
-			\CCompress::disableCompression();
-		}
 	}
 }

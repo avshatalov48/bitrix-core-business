@@ -37,7 +37,11 @@
 }
 
 .landing-ui-form-menuitem .landing-ui-form-header-title {
-
+	max-width: 350px;
+	white-space: nowrap;
+	overflow: hidden;
+	-o-text-overflow: ellipsis;
+	   text-overflow: ellipsis;
 }
 
 .landing-ui-form-menuitem .landing-ui-form-header-drag-button {

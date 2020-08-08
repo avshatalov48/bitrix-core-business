@@ -6,9 +6,7 @@ this.BX.Sale = this.BX.Sale || {};
 	/**
 	 * Check if barcode exist
 	 */
-	var Checker =
-	/*#__PURE__*/
-	function () {
+	var Checker = /*#__PURE__*/function () {
 	  function Checker() {
 	    babelHelpers.classCallCheck(this, Checker);
 	  }
@@ -64,9 +62,7 @@ this.BX.Sale = this.BX.Sale || {};
 	  return data;
 	}
 
-	var Barcode =
-	/*#__PURE__*/
-	function () {
+	var Barcode = /*#__PURE__*/function () {
 	  function Barcode(props) {
 	    babelHelpers.classCallCheck(this, Barcode);
 	    this._id = props.id || 0;
@@ -153,9 +149,7 @@ this.BX.Sale = this.BX.Sale || {};
 	  return data;
 	}
 
-	var Markingcode =
-	/*#__PURE__*/
-	function () {
+	var Markingcode = /*#__PURE__*/function () {
 	  function Markingcode(props) {
 	    babelHelpers.classCallCheck(this, Markingcode);
 	    this._id = props.id || 0;
@@ -208,9 +202,7 @@ this.BX.Sale = this.BX.Sale || {};
 	  return data;
 	}
 
-	var Widget =
-	/*#__PURE__*/
-	function () {
+	var Widget = /*#__PURE__*/function () {
 	  function Widget(props) {
 	    babelHelpers.classCallCheck(this, Widget);
 	    this._headData = props.headData;

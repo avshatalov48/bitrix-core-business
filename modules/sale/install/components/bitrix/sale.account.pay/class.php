@@ -41,7 +41,7 @@ class SaleAccountPay extends \CBitrixComponent
 			return $params;
 		}
 
-		if ((!isset($params["VAR"]) || strlen($params["VAR"])<=0))
+		if ((!isset($params["VAR"]) || $params["VAR"] == ''))
 		{
 			$params["VAR"] = "buyMoney";
 		}
@@ -56,7 +56,7 @@ class SaleAccountPay extends \CBitrixComponent
 			$params['PERSON_TYPE'] = 1;
 		}
 
-		if (strlen($params["PATH_TO_PAYMENT"]) <= 0)
+		if ($params["PATH_TO_PAYMENT"] == '')
 		{
 			$params["PATH_TO_PAYMENT"] = "/personal/order/payment";
 		}
@@ -65,7 +65,7 @@ class SaleAccountPay extends \CBitrixComponent
 			$params["PATH_TO_PAYMENT"] = trim($params["PATH_TO_PAYMENT"]);
 		}
 
-		if (strlen($params["PATH_TO_BASKET"]) <= 0)
+		if ($params["PATH_TO_BASKET"] == '')
 		{
 			$params["PATH_TO_BASKET"] = "/personal/cart";
 		}
@@ -90,7 +90,7 @@ class SaleAccountPay extends \CBitrixComponent
 				$params["SELL_USER_INPUT"] = "Y";
 			}
 
-			if (strlen($params["PRODUCT_PROVIDER_CLASS"])<=0)
+			if ($params["PRODUCT_PROVIDER_CLASS"] == '')
 			{
 				$params["PRODUCT_PROVIDER_CLASS"] = "\\Bitrix\\Sale\\ProviderAccountPay";
 			}
@@ -113,7 +113,7 @@ class SaleAccountPay extends \CBitrixComponent
 		}
 		else
 		{
-			if (strlen($params["CALLBACK_NAME"])<=0)
+			if ($params["CALLBACK_NAME"] == '')
 			{
 				$params["CALLBACK_NAME"] = "PayUserAccountDeliveryOrderCallback";
 			}
@@ -187,7 +187,7 @@ class SaleAccountPay extends \CBitrixComponent
 		foreach ($this->arResult["PAY_ACCOUNT_AMOUNT"] as $key => $value)
 		{
 			$tmp = $value;
-			if (strlen($this->arParams["SELL_CURRENCY"]) > 0)
+			if ($this->arParams["SELL_CURRENCY"] <> '')
 			{
 				if ($value["CURRENCY"] != $this->arParams["SELL_CURRENCY"])
 				{
@@ -325,7 +325,7 @@ class SaleAccountPay extends \CBitrixComponent
 				{
 					$this->fillArrayResultOld();
 
-					if (strlen($request[$this->arParams["VAR"]]) > 0)
+					if ($request[$this->arParams["VAR"]] <> '')
 					{
 						$this->sendToBasketOld($request);
 					}

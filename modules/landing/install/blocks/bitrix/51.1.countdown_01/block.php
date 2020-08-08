@@ -1,12 +1,12 @@
 <section class="landing-block g-pt-70 g-pb-70">
 	<div class="landing-block-node-container container g-max-width-800">
 		<div class="text-center g-mb-20">
-			<h2 class="landing-block-node-title g-font-weight-300">Upcoming event</h2>
+			<h2 class="landing-block-node-title">Upcoming event</h2>
 		</div>
 
 		<div class="row">
-			<div class="landing-block-node-date mx-auto js-countdown u-countdown text-center text-uppercase g-font-weight-300 g-line-height-1-2"
-				 data-end-date="1586678580000"
+			<div class="landing-block-node-date mx-auto js-countdown u-countdown text-center text-uppercase g-line-height-1-2"
+				 data-end-date="1618214400000"
 				 data-days-format="%D"
 				 data-hours-format="%H"
 				 data-minutes-format="%M"

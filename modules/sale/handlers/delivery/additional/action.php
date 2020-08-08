@@ -88,7 +88,7 @@ class Action
 		{
 			$value = Option::get('sale', self::EXECUTED_OPTION, '');
 
-			if(strlen($value) > 0)
+			if($value <> '')
 				$value .= ',';
 
 			$value .= $id;

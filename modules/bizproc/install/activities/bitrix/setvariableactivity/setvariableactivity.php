@@ -133,12 +133,12 @@ class CBPSetVariableActivity
 			return false;
 		}
 
-		$l = strlen("variable_field_");
+		$l = mb_strlen("variable_field_");
 		foreach ($arCurrentValues as $key => $varCode)
 		{
-			if (substr($key, 0, $l) === "variable_field_")
+			if (mb_substr($key, 0, $l) === "variable_field_")
 			{
-				$ind = substr($key, $l);
+				$ind = mb_substr($key, $l);
 				if ($ind."!" === intval($ind)."!")
 				{
 					if (array_key_exists($varCode, $arWorkflowVariables))

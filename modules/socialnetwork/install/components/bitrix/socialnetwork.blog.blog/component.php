@@ -51,8 +51,8 @@ if (empty($arParams["SORT"])){
 	$arParams["SORT"][$arParams["SORT_BY2"]] = (empty($arParams["SORT_ORDER2"]) ? "DESC" : $arParams["SORT_ORDER2"]);
 }
 /************** Page settings **************************************/
-$arParams["MESSAGE_COUNT"] = IntVal($arParams["MESSAGE_COUNT"])>0 ? IntVal($arParams["MESSAGE_COUNT"]): 20;
-$arParams["NAV_TEMPLATE"] = (strlen($arParams["NAV_TEMPLATE"])>0 ? $arParams["NAV_TEMPLATE"] : "");
+$arParams["MESSAGE_COUNT"] = intval($arParams["MESSAGE_COUNT"])>0 ? intval($arParams["MESSAGE_COUNT"]): 20;
+$arParams["NAV_TEMPLATE"] = ($arParams["NAV_TEMPLATE"] <> '' ? $arParams["NAV_TEMPLATE"] : "");
 $arParams["PAGE_SETTINGS"] = (!empty($arParams["PAGE_SETTINGS"]) ? $arParams["PAGE_SETTINGS"] :
 	array("bDescPageNumbering" => true, "nPageSize" => $arParams["MESSAGE_COUNT"], "bShowAll" => false));
 $arParams["PAGE_SETTINGS"]["bShowAll"] = false;
@@ -102,7 +102,7 @@ global $CACHE_MANAGER, $USER_FIELD_MANAGER;
 $cache_path = CComponentEngine::MakeComponentPath("bitrix:socialnetwork.blog.blog");
 $user_id = intval($USER->GetID());
 $userHash = md5($user_id);
-$cache_path .= '/'.substr($userHash, 0, 2).'/'.substr($userHash, 2, 2);
+$cache_path .= '/'.mb_substr($userHash, 0, 2).'/'.mb_substr($userHash, 2, 2);
 $bGroupMode = ($arParams["SOCNET_GROUP_ID"] > 0);
 $feature = "blog";
 
@@ -291,7 +291,7 @@ if($arParams["USER_ID"] > 0 && $arParams["USER_ID"] == $user_id) // in own profi
 elseif($arParams["USER_ID"] > 0 && $arParams["USER_ID"] != $user_id) // in other user profile
 {
 	$arFilter["AUTHOR_ID"] = $arParams["USER_ID"];
-	$arFilter["FOR_USER"] = IntVal($user_id);
+	$arFilter["FOR_USER"] = intval($user_id);
 }
 elseif($arParams["SOCNET_GROUP_ID"]) // socialnetwork group
 {
@@ -464,7 +464,7 @@ if (empty($arResult["NAV_RESULT"]) && CModule::IncludeModule("blog"))
 
 	while ($arPost = $dbPost->GetNext())
 	{
-		if(IntVal($arPost["AUTHOR_ID"]) > 0)
+		if(intval($arPost["AUTHOR_ID"]) > 0)
 		{
 			$arIdToGet[] = $arPost["AUTHOR_ID"];
 		}
@@ -508,7 +508,7 @@ if (empty($arResult["NAV_RESULT"]) && CModule::IncludeModule("blog"))
 		$arPost["perms"] = $arResult["perms"];
 		if(!$bGroupMode && $arParams["USER_ID"] == $user_id && (empty($arParams["4ME"]) || $arPost["AUTHOR_ID"] == $user_id))
 			$arPost["perms"] = BLOG_PERMS_FULL;
-		elseif((!$bGroupMode && $arParams["USER_ID"] != $user_id) || strlen($arParams["4ME"]) > 0)
+		elseif((!$bGroupMode && $arParams["USER_ID"] != $user_id) || $arParams["4ME"] <> '')
 			$arPost["perms"] = CBlogPost::GetSocNetPostPerms($arPost["ID"], true);
 
 		$arUser = $arResult["userCache"][$arPost["AUTHOR_ID"]];
@@ -553,9 +553,9 @@ if (empty($arResult["NAV_RESULT"]) && CModule::IncludeModule("blog"))
 			{
 				foreach ($arParams["FILTER"] as $key => $val)
 				{
-					if (strpos($key, "POST_PARAM_") !== false)
+					if (mb_strpos($key, "POST_PARAM_") !== false)
 					{
-						$tag = substr($key, (strpos($key, "POST_PARAM_") + 11));
+						$tag = mb_substr($key, (mb_strpos($key, "POST_PARAM_") + 11));
 						foreach ($arResult["POST"] as $post_id => $arPost)
 						{
 							if ($val["USER_ID"] > 0)

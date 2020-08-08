@@ -1,0 +1,57 @@
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" id="svg_wrapper" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 1200 100%" preserveAspectRatio="xMinYMin meet" style="width: 100%; height: 1200px">
+    <svg height="1200px">
+        <rect fill="#EEF2F4" width="100%" height="1200"/>
+        <rect fill="#fff"    width="100%" height="511" x="20" y="73"/>
+        <rect fill="#EEF2F4" width="20" height="1200" x="100%" transform="translate(-20, 0)"/>
+    </svg>
+
+    <svg id="title" x="0" y="0">
+        <rect fill="#DEE2E6" rx="2" ry="2" width="318" height="13" x="28" y="31"/>
+    </svg>
+
+    <svg id="post" x="0" y="0">
+        <circle cx="60" cy="113" r="20" fill="#ECEDEF"/>
+        <rect fill="#ECEDEF" rx="2" ry="2" width="118" height="9" x="96" y="99"/>
+        <rect fill="#ECEDEF" rx="2" ry="2" width="118" height="9" x="96" y="114"/>
+        <rect fill="#ECEDEF" rx="2" ry="2" width="394" height="9" x="96" y="136"/>
+
+        <rect fill="#ECEDEF" rx="2" ry="2" width="598" height="9" x="96" y="170"/>
+        <rect fill="#ECEDEF" rx="2" ry="2" width="598" height="9" x="96" y="188"/>
+        <rect fill="#ECEDEF" rx="2" ry="2" width="598" height="9" x="96" y="206"/>
+        <rect fill="#ECEDEF" rx="2" ry="2" width="598" height="9" x="96" y="224"/>
+        <rect fill="#ECEDEF" rx="2" ry="2" width="598" height="9" x="96" y="242"/>
+        <rect fill="#ECEDEF" rx="2" ry="2" width="598" height="9" x="96" y="260"/>
+        <rect fill="#ECEDEF" rx="2" ry="2" width="598" height="9" x="96" y="278"/>
+        <rect fill="#ECEDEF" rx="2" ry="2" width="598" height="9" x="96" y="296"/>
+        <rect fill="#ECEDEF" rx="2" ry="2" width="598" height="9" x="96" y="314"/>
+        <rect fill="#ECEDEF" rx="2" ry="2" width="598" height="9" x="96" y="332"/>
+        <rect fill="#ECEDEF" rx="2" ry="2" width="598" height="9" x="96" y="350"/>
+        <rect fill="#ECEDEF" rx="2" ry="2" width="598" height="9" x="96" y="368"/>
+        <rect fill="#ECEDEF" rx="2" ry="2" width="598" height="9" x="96" y="386"/>
+        <rect fill="#ECEDEF" rx="2" ry="2" width="350" height="9" x="96" y="404"/>
+
+        <rect fill="#ECEDEF" rx="2" ry="2" width="598" height="1" x="96" y="456"/>
+        <rect fill="#ECEDEF" rx="2" ry="2" width="90" height="9" x="96" y="474"/>
+        <rect fill="#ECEDEF" rx="2" ry="2" width="90" height="9" x="205" y="474"/>
+        <rect fill="#ECEDEF" rx="2" ry="2" width="90" height="9" x="314" y="474"/>
+        <rect fill="#ECEDEF" rx="2" ry="2" width="90" height="9" x="423" y="474"/>
+
+        <circle cx="115" cy="523" r="20" fill="#ECEDEF" />
+        <rect stroke="#ECEDEF" fill="transparent" rx="19" ry="19" width="417" height="38" x="144" y="507" />
+    </svg>
+
+    <rect id="msk1" width="100%" fill="url(#msk_gd)" mask="url(#mask)" height="1200"/>
+
+    <mask id="mask" fill="white">
+        <use xlink:href="#post"/>
+        <use xlink:href="#title"/>
+    </mask>
+
+    <linearGradient x1="66.6%" y1="50%" x2="33.3%" y2="50%" id="msk_gd">
+        <stop stop-color="#000" stop-opacity="0" offset="0%"/>
+        <stop stop-color="#000" stop-opacity="0.07" offset="50%"/>
+        <stop stop-color="#000" stop-opacity="0" offset="100%"/>
+    </linearGradient>
+
+    <animate xlink:href="#msk1" attributeName="x" from="-100%" to="100%" dur="1s" begin="0s" repeatCount="indefinite"/>
+</svg>

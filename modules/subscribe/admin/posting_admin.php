@@ -179,17 +179,17 @@ function CheckDateFilter(CAdminList $lAdmin, $date_from, $date_to)
 {
 	$date_from = trim($date_from);
 	$date_to = trim($date_to);
-	if (strlen($date_from) > 0 || strlen($date_to) > 0)
+	if ($date_from <> '' || $date_to <> '')
 	{
 		$date_1_ok = false;
 		$date1_stm = MkDateTime(FmtDate($date_from,"D.M.Y"),"d.m.Y");
 		$date2_stm = MkDateTime(FmtDate($date_to,"D.M.Y")." 23:59","d.m.Y H:i");
-		if (!$date1_stm && strlen(trim($date_from))>0)
+		if (!$date1_stm && trim($date_from) <> '')
 			$lAdmin->AddFilterError(GetMessage("POST_WRONG_TIMESTAMP_FROM"));
 		else $date_1_ok = true;
-		if (!$date2_stm && strlen(trim($date_to))>0)
+		if (!$date2_stm && trim($date_to) <> '')
 			$lAdmin->AddFilterError(GetMessage("POST_WRONG_TIMESTAMP_TILL"));
-		elseif ($date_1_ok && $date2_stm <= $date1_stm && strlen($date2_stm)>0)
+		elseif ($date_1_ok && $date2_stm <= $date1_stm && $date2_stm <> '')
 			$lAdmin->AddFilterError(GetMessage("POST_FROM_TILL_TIMESTAMP"));
 	}
 	return count($lAdmin->arFilterErrors) == 0;
@@ -249,7 +249,7 @@ if($lAdmin->EditAction() && $POST_RIGHT=="W")
 		if(!$lAdmin->IsUpdated($ID))
 			continue;
 		$DB->StartTransaction();
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$ob = new CPosting;
 		if(!$ob->Update($ID, $arFields))
 		{
@@ -272,9 +272,9 @@ if(($arID = $lAdmin->GroupAction()) && $POST_RIGHT=="W")
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		switch($_REQUEST['action'])
 		{
 		case "delete":
@@ -363,7 +363,7 @@ $arVisibleColumns = $lAdmin->GetVisibleHeaderColumns();
 if($_REQUEST["mode"] == "excel")
 	$arNavParams = false;
 else
-	$arNavParams = array("nPageSize"=>CAdminUiResult::GetNavSize($sTableID));
+	$arNavParams = array("nPageSize"=>CAdminResult::GetNavSize($sTableID));
 
 $cData = new CPosting;
 $rsData = $cData->GetList(array($by=>$order), $arFilter, $arVisibleColumns, $arNavParams);

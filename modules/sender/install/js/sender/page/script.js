@@ -1,6 +1,5 @@
 ;(function (window)
 {
-
 	BX.namespace('BX.Sender');
 	if (BX.Sender.Page)
 	{
@@ -90,16 +89,22 @@
 			{
 				return;
 			}
-
-			BX.Bitrix24.PageSlider.bindAnchors({
-				rules: [
-					{
-						condition: params.condition,
-						loader: params.loader,
-						stopParameters: []
-					}
-				]
-			});
+			if (
+				typeof BX.Bitrix24 !== "undefined" &&
+				typeof BX.Bitrix24.PageSlider !== "undefined"
+			)
+			{
+				BX.Bitrix24.PageSlider.bindAnchors({
+					rules: [
+						{
+							condition: params.condition,
+							loader: params.loader,
+							stopParameters: [],
+							options: params.options
+						}
+					],
+				});
+			}
 		},
 		getSlider: function ()
 		{
@@ -206,6 +211,21 @@
 	};
 
 	BX.Sender.Page = new Page();
+	BX.Sender.Page.slider.init({
+		condition: ["/marketing/config/role/"],
+		options: {
+			cacheable: false,
+			events: {
+				onOpen: function () {
+					var manager = BX.Main.interfaceButtonsManager;
+					for (var menuId in manager.data)
+					{
+						manager.data[menuId].closeSubmenu();
+					}
+				}
+			}
+		}
+	});
 
 
 })(window);

@@ -103,9 +103,9 @@ class CBPCalendarActivity
 			$arErrors[] = array("code" => "NotExist", "parameter" => "CalendarUser", "message" => GetMessage("BPSNMA_EMPTY_CALENDARUSER"));
 		if (!array_key_exists("CalendarName", $arTestProperties) || count($arTestProperties["CalendarName"]) <= 0)
 			$arErrors[] = array("code" => "NotExist", "parameter" => "CalendarName", "message" => GetMessage("BPSNMA_EMPTY_CALENDARNAME"));
-		if (!array_key_exists("CalendarFrom", $arTestProperties) || strlen($arTestProperties["CalendarFrom"]) <= 0)
+		if (!array_key_exists("CalendarFrom", $arTestProperties) || $arTestProperties["CalendarFrom"] == '')
 			$arErrors[] = array("code" => "NotExist", "parameter" => "CalendarFrom", "message" => GetMessage("BPSNMA_EMPTY_CALENDARFROM"));
-		if (!array_key_exists("CalendarTo", $arTestProperties) || strlen($arTestProperties["CalendarTo"]) <= 0)
+		if (!array_key_exists("CalendarTo", $arTestProperties) || $arTestProperties["CalendarTo"] == '')
 			$arErrors[] = array("code" => "NotExist", "parameter" => "CalendarTo", "message" => GetMessage("BPSNMA_EMPTY_CALENDARTO"));
 
 		return array_merge($arErrors, parent::ValidateProperties($arTestProperties, $user));

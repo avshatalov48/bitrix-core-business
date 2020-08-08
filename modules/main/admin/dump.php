@@ -43,6 +43,14 @@ elseif (!CModule::IncludeModule('clouds'))
 	$strBXError = GetMessage('ERR_NO_CLOUDS');
 }
 
+
+if($bBitrixCloud)
+{
+	$backup = CBitrixCloudBackup::getInstance();
+	$arFiles = $backup->listFiles();
+	$backup->saveToOptions();
+}
+
 if (function_exists('mb_internal_encoding'))
 	mb_internal_encoding('ISO-8859-1');
 
@@ -1271,9 +1279,8 @@ function getTableSize()
 		<td class="adm-detail-valign-top" width="40%"><?=GetMessage('DUMP_MAIN_BITRIX_CLOUD_DESC')?><span class="required"><sup>1</sup></span>:</td>
 		<td width="60%">
 		<?
-			$backup = CBitrixCloudBackup::getInstance();
-			$arFiles = $backup->listFiles();
-			$backup->saveToOptions();
+		if(is_object($backup))
+		{
 			CAdminMessage::ShowMessage(array(
 				"TYPE" => "PROGRESS",
 				"DETAILS" => GetMessage("BCL_BACKUP_USAGE", array(
@@ -1284,6 +1291,7 @@ function getTableSize()
 				"PROGRESS_TOTAL" => $quota,
 				"PROGRESS_VALUE" => $usage,
 			));
+		}
 		?>
 		</td>
 	</tr>

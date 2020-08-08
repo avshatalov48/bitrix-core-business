@@ -695,7 +695,7 @@ class Helper
 
 		if (function_exists("IsModuleInstalled"))
 		{
-			$arOptions["COMPRESS"] = IsModuleInstalled('compression');
+			$arOptions["COMPRESS"] = false;
 			$arOptions["STORE_PASSWORD"] = \COption::GetOptionString("main", "store_password", "Y");
 			$cookie_prefix = \COption::GetOptionString('main', 'cookie_name', 'BITRIX_SM');
 			$arOptions["COOKIE_LOGIN"] = $cookie_prefix.'_LOGIN';

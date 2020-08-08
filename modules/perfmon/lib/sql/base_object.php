@@ -96,7 +96,7 @@ abstract class BaseObject
 		elseif ($this->name[0] == '[')
 			return $this->name;
 		else
-			return strtolower($this->name);
+			return mb_strtolower($this->name);
 	}
 
 	/**
@@ -116,7 +116,7 @@ abstract class BaseObject
 		elseif ($name[0] == '[')
 			return $name;
 		else
-			return strtoupper($name);
+			return mb_strtoupper($name);
 	}
 
 	/**

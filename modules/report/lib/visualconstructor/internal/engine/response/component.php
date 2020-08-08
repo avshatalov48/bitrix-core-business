@@ -16,12 +16,12 @@ use Bitrix\Main\Web\HttpHeaders;
 final class Component extends Json implements Errorable
 {
 	const STATUS_SUCCESS = 'success';
-	const STATUS_DENIED  = 'denied';
-	const STATUS_ERROR   = 'error';
+	const STATUS_DENIED = 'denied';
+	const STATUS_ERROR = 'error';
 
-	private $jsPathList = array();
-	private $cssPathList = array();
-	private $stringPathList = array();
+	private $jsPathList = [];
+	private $cssPathList = [];
+	private $asset;
 
 	/**
 	 * @var string
@@ -32,7 +32,6 @@ final class Component extends Json implements Errorable
 	 * @var ErrorCollection
 	 */
 	private $errorCollection;
-
 
 	/**
 	 * Component constructor.
@@ -45,8 +44,12 @@ final class Component extends Json implements Errorable
 	 * @param string $status
 	 * @param ErrorCollection|null $errorCollection
 	 */
-	public function __construct($componentName, $templateName = '', $params = array(), $additionalResponseParams = array(), $parentComponent = array(), $functionParams = array(), $status = self::STATUS_SUCCESS, ErrorCollection $errorCollection = null)
+	public function __construct($componentName, $templateName = '', $params = [], $additionalResponseParams = [], $parentComponent = [], $functionParams = [], $status = self::STATUS_SUCCESS, ErrorCollection $errorCollection = null)
 	{
+		$this->asset = Asset::getInstance();
+		$this->asset->disableOptimizeCss();
+		$this->asset->disableOptimizeJs();
+
 		$this->setHeaders(new HttpHeaders());
 		global $APPLICATION;
 		ob_start();
@@ -63,29 +66,27 @@ final class Component extends Json implements Errorable
 		$this->errorCollection = $errorCollection?: new ErrorCollection;
 
 		$this->collectAssetsPathList();
-
-
-
-		$this->setData(array(
+		$this->setData([
 			'status' => $this->status,
 			'data' => $componentContent,
-			'assets' => array(
+			'assets' => [
 				'js' => $this->getJsList(),
 				'css' => $this->getCssList(),
 				'string' => $this->getStringList()
-			),
+			],
 			'additionalParams' => $additionalResponseParams,
 			'errors' => $this->getErrorsToResponse(),
-		));
+		]);
 	}
 
 	private function collectAssetsPathList()
 	{
-		Asset::getInstance()->getJs();
-		Asset::getInstance()->getCss();
+		$this->asset->getJs();
+		$this->asset->getCss();
+		$this->asset->getStrings();
 
-		$this->jsPathList = Asset::getInstance()->getTargetList('JS');
-		$this->cssPathList = Asset::getInstance()->getTargetList('CSS');
+		$this->jsPathList = $this->asset->getTargetList('JS');
+		$this->cssPathList = $this->asset->getTargetList('CSS');
 	}
 
 	/**
@@ -93,11 +94,11 @@ final class Component extends Json implements Errorable
 	 */
 	private function getJsList()
 	{
-		$jsList = array();
+		$jsList = [];
 
 		foreach($this->jsPathList as $targetAsset)
 		{
-			$assetInfo = Asset::getInstance()->getAssetInfo($targetAsset['NAME'], AssetMode::ALL);
+			$assetInfo = $this->asset->getAssetInfo($targetAsset['NAME'], AssetMode::ALL);
 			if (!empty($assetInfo['JS']))
 			{
 				$jsList = array_merge($jsList, $assetInfo['JS']);
@@ -112,11 +113,11 @@ final class Component extends Json implements Errorable
 	 */
 	private function getCssList()
 	{
-		$cssList = array();
+		$cssList = [];
 
 		foreach($this->cssPathList as $targetAsset)
 		{
-			$assetInfo = Asset::getInstance()->getAssetInfo($targetAsset['NAME'], AssetMode::ALL);
+			$assetInfo = $this->asset->getAssetInfo($targetAsset['NAME'], AssetMode::ALL);
 			if (!empty($assetInfo['CSS']))
 			{
 				$cssList = array_merge($cssList, $assetInfo['CSS']);
@@ -131,10 +132,10 @@ final class Component extends Json implements Errorable
 	 */
 	private function getStringList()
 	{
-		$stringList = array();
+		$stringList = [];
 		foreach($this->cssPathList as $targetAsset)
 		{
-			$assetInfo = Asset::getInstance()->getAssetInfo($targetAsset['NAME'], AssetMode::ALL);
+			$assetInfo = $this->asset->getAssetInfo($targetAsset['NAME'], AssetMode::ALL);
 			if (!empty($assetInfo['STRINGS']))
 			{
 				$stringList = array_merge($stringList, $assetInfo['STRINGS']);
@@ -143,12 +144,13 @@ final class Component extends Json implements Errorable
 
 		foreach($this->jsPathList as $targetAsset)
 		{
-			$assetInfo = Asset::getInstance()->getAssetInfo($targetAsset['NAME'], AssetMode::ALL);
+			$assetInfo = $this->asset->getAssetInfo($targetAsset['NAME'], AssetMode::ALL);
 			if (!empty($assetInfo['STRINGS']))
 			{
 				$stringList = array_merge($stringList, $assetInfo['STRINGS']);
 			}
 		}
+
 		return $stringList;
 	}
 
@@ -157,14 +159,14 @@ final class Component extends Json implements Errorable
 	 */
 	protected function getErrorsToResponse()
 	{
-		$errors = array();
+		$errors = [];
 		foreach ($this->errorCollection as $error)
 		{
 			/** @var Error $error */
-			$errors[] = array(
+			$errors[] = [
 				'message' => $error->getMessage(),
 				'code' => $error->getCode(),
-			);
+			];
 		}
 
 		return $errors;

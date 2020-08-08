@@ -56,7 +56,7 @@ class CGoogleMessage extends CPushMessage
 			$maxTextLength = $nTextLen = CUtil::BinStrlen($text) - ($payloadLength - self::DEFAULT_PAYLOAD_MAXIMUM_SIZE);
 			if ($maxTextLength > 0)
 			{
-				while (CUtil::BinStrlen($text = substr($text, 0, --$nTextLen)) > $maxTextLength) ;
+				while (CUtil::BinStrlen($text = mb_substr($text, 0, --$nTextLen)) > $maxTextLength) ;
 				if($useSenderText)
 				{
 					$this->setCustomProperty("senderMessage", $text);
@@ -105,7 +105,7 @@ class CGooglePush extends CPushService
 
 		$batch = $this->getBatchWithModifier($arGroupedMessages, ";3;");
 
-		if (strlen($batch) == 0)
+		if ($batch == '')
 		{
 			return $batch;
 		}

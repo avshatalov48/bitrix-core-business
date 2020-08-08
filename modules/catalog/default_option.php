@@ -71,5 +71,6 @@ $catalog_default_option = array(
 	'default_product_vat_included' => 'N',
 	'subscribe_repeated_notify' => 'Y',
 	'enable_processing_deprecated_events' => 'N',
-	'landing_product_limit' => 0
+	'landing_product_limit' => 0,
+	'product_card_slider_enabled' => 'N'
 );

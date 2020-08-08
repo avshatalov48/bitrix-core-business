@@ -35,7 +35,7 @@ catch (Exception $e)
 if (!$canWrite || !check_bitrix_sessid())
 {
 	ShowError(GetMessage("ACCESS_DENIED"));
-	die();
+	\Bitrix\Main\Application::getInstance()->terminate();
 }
 
 if ($_POST["save"] == "Y")
@@ -67,7 +67,7 @@ if ($_POST["save"] == "Y")
 			'arWorkflowGlobalConstants' => \Bitrix\Bizproc\Workflow\Type\GlobalConst::getAll(),
 			'error_message' => $errorMessage
 	], false);
-	die();
+	\Bitrix\Main\Application::getInstance()->terminate();
 }
 
 $APPLICATION->ShowTitle(GetMessage("BIZPROC_WFS_TITLE"));
@@ -135,6 +135,8 @@ function WFSStart()
 	}
 	document.getElementById('WFStemplate_name').value = workflowTemplateName;
 	document.getElementById('WFStemplate_description').value = workflowTemplateDescription;
+	document.getElementById('WFStemplate_is_system').checked = workflowTemplateIsSystem === 'Y';
+	document.getElementById('WFStemplate_sort').value = workflowTemplateSort || 10;
 
 	if (workflowTemplateAutostart < 8)
 	{
@@ -234,6 +236,8 @@ function WFSSaveOK(response)
 	arWorkflowVariables = WFSAllData['V'];
 	workflowTemplateName = document.getElementById('WFStemplate_name').value;
 	workflowTemplateDescription = document.getElementById('WFStemplate_description').value;
+	workflowTemplateIsSystem = (document.getElementById('WFStemplate_is_system').checked ? 'Y' : 'N');
+	workflowTemplateSort = document.getElementById('WFStemplate_sort').value;
 
 	if (workflowTemplateAutostart < 8)
 	{
@@ -712,6 +716,18 @@ $tabControl->BeginNextTab();
 </tr>
 <?
 endif;
+?>
+<tr>
+	<td valign="top"></td>
+	<td>
+		<input type="checkbox" id="WFStemplate_is_system" value="Y"><label for="WFStemplate_is_system"><?echo GetMessage("BIZPROC_WFS_PAR_IS_SYSTEM_Y")?></label>
+	</td>
+</tr>
+<tr>
+	<td valign="top"><?echo GetMessage("BIZPROC_WFS_PAR_SORT")?></td>
+	<td><input type="text" id="WFStemplate_sort" value="<?=htmlspecialcharsbx($_POST['workflowTemplateSort'] ?? 10)?>" size="5"></td>
+</tr>
+<?
 if (!($_POST['workflowTemplateAutostart'] & 8)):
 $tabControl->BeginNextTab(['className' => 'bizproc-wf-settings-tab-content bizproc-wf-settings-tab-content-variables']);
 ?>

@@ -245,7 +245,7 @@ class CPullOptions
 
 	public static function SetPublishUrl($path = "")
 	{
-		if (strlen($path)<=0)
+		if ($path == '')
 		{
 			$path = self::GetDefaultOption('path_to_publish');
 		}
@@ -255,7 +255,7 @@ class CPullOptions
 
 	public static function GetListenUrl($channelId = "")
 	{
-		if (!is_array($channelId) && strlen($channelId) > 0)
+		if (!is_array($channelId) && $channelId <> '')
 			$channelId = Array($channelId);
 		else if (!is_array($channelId))
 			$channelId = Array();
@@ -269,7 +269,7 @@ class CPullOptions
 
 	public static function SetListenUrl($path = "")
 	{
-		if (strlen($path)<=0)
+		if ($path == '')
 		{
 			$path = self::GetDefaultOption('path_to_modern_listener');
 		}
@@ -284,7 +284,7 @@ class CPullOptions
 
 	public static function GetPublishWebUrl($channelId = "")
 	{
-		if (!is_array($channelId) && strlen($channelId) > 0)
+		if (!is_array($channelId) && $channelId <> '')
 			$channelId = Array($channelId);
 		else if (!is_array($channelId))
 			$channelId = Array();
@@ -297,7 +297,7 @@ class CPullOptions
 
 	public static function SetPublishWebUrl($path = "")
 	{
-		if (strlen($path)<=0)
+		if ($path == '')
 		{
 			$path = self::GetDefaultOption('path_to_publish_web');
 		}
@@ -308,7 +308,7 @@ class CPullOptions
 
 	public static function GetPublishWebSecureUrl($channelId = "")
 	{
-		if (!is_array($channelId) && strlen($channelId) > 0)
+		if (!is_array($channelId) && $channelId <> '')
 			$channelId = Array($channelId);
 		else if (!is_array($channelId))
 			$channelId = Array();
@@ -321,7 +321,7 @@ class CPullOptions
 
 	public static function SetPublishWebSecureUrl($path = "")
 	{
-		if (strlen($path)<=0)
+		if ($path == '')
 		{
 			$path = self::GetDefaultOption('path_to_publish_web_secure');
 		}
@@ -332,7 +332,7 @@ class CPullOptions
 
 	public static function GetListenSecureUrl($channelId = "")
 	{
-		if (!is_array($channelId) && strlen($channelId) > 0)
+		if (!is_array($channelId) && $channelId <> '')
 			$channelId = Array($channelId);
 		else if (!is_array($channelId))
 			$channelId = Array();
@@ -346,7 +346,7 @@ class CPullOptions
 
 	public static function SetListenSecureUrl($path = "")
 	{
-		if (strlen($path)<=0)
+		if ($path == '')
 		{
 			$path = self::GetDefaultOption('path_to_modern_listener_secure');
 		}
@@ -413,7 +413,7 @@ class CPullOptions
 
 	public static function GetWebSocketUrl($channelId = "")
 	{
-		if (!is_array($channelId) && strlen($channelId) > 0)
+		if (!is_array($channelId) && $channelId <> '')
 			$channelId = Array($channelId);
 		else if (!is_array($channelId))
 			$channelId = Array();
@@ -424,7 +424,7 @@ class CPullOptions
 
 	public static function SetWebSocketUrl($path = "")
 	{
-		if (strlen($path)<=0)
+		if ($path == '')
 		{
 			$path = self::GetDefaultOption('path_to_websocket');
 		}
@@ -435,7 +435,7 @@ class CPullOptions
 
 	public static function GetWebSocketSecureUrl($channelId = "")
 	{
-		if (!is_array($channelId) && strlen($channelId) > 0)
+		if (!is_array($channelId) && $channelId <> '')
 			$channelId = Array($channelId);
 		else if (!is_array($channelId))
 			$channelId = Array();
@@ -446,7 +446,7 @@ class CPullOptions
 
 	public static function SetWebSocketSecureUrl($path = "")
 	{
-		if (strlen($path)<=0)
+		if ($path == '')
 		{
 			$path = self::GetDefaultOption('path_to_websocket_secure');
 		}

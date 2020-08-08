@@ -19,7 +19,7 @@ if ($arResult["NEED_AUTH"] == "Y")
 {
 	$APPLICATION->AuthForm("");
 }
-elseif (strlen($arResult["FatalError"])>0)
+elseif ($arResult["FatalError"] <> '')
 {
 	?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?
 }
@@ -37,7 +37,7 @@ else
 	$APPLICATION->SetAdditionalCSS("/bitrix/components/bitrix/main.post.form/templates/.default/style.css");
 	$APPLICATION->SetAdditionalCSS("/bitrix/components/bitrix/socialnetwork.blog.post.edit/templates/.default/style.css");
 
-	?><div id="sonet_group_create_error_block" class="ui-alert ui-alert-xs ui-alert-danger ui-alert-icon-danger<?=(strlen($arResult["ErrorMessage"]) > 0 ? "" : " sonet-ui-form-error-block-invisible")?>"><?=$arResult["ErrorMessage"]?></div><?
+	?><div id="sonet_group_create_error_block" class="ui-alert ui-alert-xs ui-alert-danger ui-alert-icon-danger<?=($arResult["ErrorMessage"] <> '' ? "" : " sonet-ui-form-error-block-invisible")?>"><?=$arResult["ErrorMessage"]?></div><?
 
 	if ($arResult["ShowForm"] == "Input")
 	{
@@ -103,7 +103,7 @@ else
 				SONET_GCE_T_TAG_ADD: '<?=GetMessageJS("SONET_GCE_T_TAG_ADD")?>',
 				SONET_GCE_T_AJAX_ERROR:  '<?=GetMessageJS('SONET_GCE_T_AJAX_ERROR')?>'
 				<?
-				if (array_key_exists("POST", $arResult) && array_key_exists("NAME", $arResult["POST"]) && strlen($arResult["POST"]["NAME"]) > 0)
+				if (array_key_exists("POST", $arResult) && array_key_exists("NAME", $arResult["POST"]) && $arResult["POST"]["NAME"] <> '')
 				{
 					?>
 					, SONET_GROUP_TITLE : '<?=CUtil::JSEscape($arResult["POST"]["NAME"])?>'
@@ -225,7 +225,7 @@ else
 								<div class="social-group-create-info-panel-title">
 									<input type="text" id="GROUP_NAME_input"
 											name="GROUP_NAME"
-											value="<?=(strlen($arResult["POST"]["NAME"]) > 0 ? $arResult["POST"]["NAME"] : '');?>"
+											value="<?=($arResult["POST"]["NAME"] <> '' ? $arResult["POST"]["NAME"] : '');?>"
 											placeholder="<?=Loc::getMessage($arResult["POST"]["PROJECT"] == "Y" ? "SONET_GCE_T_NAME2_PROJECT" : "SONET_GCE_T_NAME2");?>"
 									/>
 								</div>
@@ -235,7 +235,7 @@ else
 									<textarea name="GROUP_DESCRIPTION"
 												class="social-group-create-description"
 												cols="30" rows="10"
-									><?=(strlen($arResult["POST"]["DESCRIPTION"]) > 0 ? $arResult["POST"]["DESCRIPTION"] : '');?></textarea>
+									><?=($arResult["POST"]["DESCRIPTION"] <> '' ? $arResult["POST"]["DESCRIPTION"] : '');?></textarea>
 									<div class="social-group-create-separator-line"></div>
 								</div>
 							</div>
@@ -478,7 +478,7 @@ else
 							if (
 								$arResult["bExtranetInstalled"]
 								&& Loader::includeModule("intranet")
-								&& strlen(COption::GetOptionString("extranet", "extranet_site")) > 0
+								&& COption::GetOptionString("extranet", "extranet_site") <> ''
 								&& (
 									empty($arResult["TAB"])
 									|| (
@@ -534,7 +534,7 @@ else
 												)?></div><?
 												?><div id="sonet_group_create_popup_action_block_invite" style="display: <?=(isset($arResult["POST"]["EXTRANET_INVITE_ACTION"]) && $arResult["POST"]["EXTRANET_INVITE_ACTION"] == "add" ? "none" : "block")?>;"><?
 
-													if(strlen($arResult["WarningMessage"]) > 0)
+													if($arResult["WarningMessage"] <> '')
 													{
 														?><div class='errortext'><?=$arResult["WarningMessage"]?></div><?
 													}
@@ -553,7 +553,7 @@ else
 																		class="invite-dialog-inv-form-textarea"
 																		onblur="if(this.value == ''){BX.removeClass(this, 'invite-dialog-inv-form-textarea-active'); this.value = this.value.replace(new RegExp(/^$/), '<?=GetMessage("SONET_GCE_T_EMAILS_DESCR")?>')}"
 																		onfocus="BX.addClass(this, 'invite-dialog-inv-form-textarea-active'); this.value = this.value.replace('<?=GetMessage("SONET_GCE_T_EMAILS_DESCR")?>', '')"
-																><?=(strlen($arResult["POST"]["EMAILS"]) > 0 ? htmlspecialcharsbx($arResult["POST"]["EMAILS"]) : GetMessage("SONET_GCE_T_EMAILS_DESCR"));?></textarea>
+																><?=($arResult["POST"]["EMAILS"] <> '' ? htmlspecialcharsbx($arResult["POST"]["EMAILS"]) : GetMessage("SONET_GCE_T_EMAILS_DESCR"));?></textarea>
 															</td>
 														</tr>
 													</table>
@@ -585,14 +585,14 @@ else
 																<input type="text" name="ADD_LAST_NAME" id="ADD_LAST_NAME" class="invite-dialog-inv-form-inp" value="<?echo htmlspecialcharsbx($_POST["ADD_LAST_NAME"])?>">
 															</td>
 														</tr>
-														<tr class="invite-dialog-inv-form-footer">
-															<td class="invite-dialog-inv-form-l">&nbsp;</td>
-															<td class="invite-dialog-inv-form-r">
-																<div class="invite-dialog-inv-form-checkbox-wrap">
-																	<input type="checkbox" name="ADD_SEND_PASSWORD" id="ADD_SEND_PASSWORD" value="Y" class="invite-dialog-inv-form-checkbox"><label class="invite-dialog-inv-form-checkbox-label" for="ADD_SEND_PASSWORD"><?echo GetMessage("SONET_GCE_T_DEST_EXTRANET_ADD_SEND_PASSWORD_TITLE")?></label>
-																</div>
-															</td>
-														</tr>
+															<tr class="invite-dialog-inv-form-footer">
+																<td class="invite-dialog-inv-form-l">&nbsp;</td>
+																<td class="invite-dialog-inv-form-r">
+																	<div class="invite-dialog-inv-form-checkbox-wrap">
+																		<input type="checkbox" name="ADD_SEND_PASSWORD" id="ADD_SEND_PASSWORD" value="Y" class="invite-dialog-inv-form-checkbox"><label class="invite-dialog-inv-form-checkbox-label" for="ADD_SEND_PASSWORD"><?echo Loc::getMessage($arResult['bitrix24Installed'] ? 'SONET_GCE_T_DEST_EXTRANET_ADD_WO_CONFIRMATION_TITLE' : 'SONET_GCE_T_DEST_EXTRANET_ADD_SEND_PASSWORD_TITLE')?></label>
+																	</div>
+																</td>
+															</tr>
 													</table><?
 
 												?></div>
@@ -687,7 +687,7 @@ else
 															$customTitle = false;
 															$featureTitle = $featureTitleOriginal = (
 																isset($arResult["arSocNetFeaturesSettings"][$feature]["title"])
-																&& strlen($arResult["arSocNetFeaturesSettings"][$feature]["title"]) > 0
+																&& $arResult["arSocNetFeaturesSettings"][$feature]["title"] <> ''
 																	? $arResult["arSocNetFeaturesSettings"][$feature]["title"]
 																	: Loc::getMessage("SONET_FEATURES_".$feature."_GROUP")
 															);
@@ -697,7 +697,7 @@ else
 																$featureTitle = $featureTitleOriginal = Loc::getMessage("SONET_FEATURES_".$feature);
 															}
 
-															if (strlen($arResult["POST"]["FEATURES"][$feature]["FeatureName"]) > 0)
+															if ($arResult["POST"]["FEATURES"][$feature]["FeatureName"] <> '')
 															{
 																$customTitle = ($arResult["POST"]["FEATURES"][$feature]["FeatureName"] != $featureTitle);
 																$featureTitle = $arResult["POST"]["FEATURES"][$feature]["FeatureName"];
@@ -807,7 +807,7 @@ else
 										foreach($tagsList as $val)
 										{
 											$val = trim($val);
-											if(strlen($val) > 0)
+											if($val <> '')
 											{
 												$tags .= '<span class="js-id-tdp-mem-sel-is-items social-group-create-sliders-h-invisible" data-tag="'.htmlspecialcharsbx($val).'">'.
 													'<span class="js-id-tdp-mem-sel-is-item social-group-create-form-field-item">'.
@@ -1080,7 +1080,7 @@ else
 								}
 								else
 								{
-									?><button class="ui-btn ui-btn-link" id="sonet_group_create_popup_form_button_step_2_cancel"><?=Loc::getMessage("SONET_GCE_T_T_CANCEL")?></button><?
+									?><button class="ui-btn ui-btn-link" id="sonet_group_create_popup_form_button_step_2_cancel" bx-url="<?=htmlspecialcharsbx($arResult["Urls"]["Group"])?>"><?=Loc::getMessage("SONET_GCE_T_T_CANCEL")?></button><?
 								}
 
 							?></span><? // class="popup-window-buttons"

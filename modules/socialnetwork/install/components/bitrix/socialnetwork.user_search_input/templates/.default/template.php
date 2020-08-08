@@ -28,7 +28,7 @@ function SonetSearchButtonClick_<?=$arResult["ID"]?>()
 			var name = obj.value;
 			<?=$arResult["FUNCTION"]?>(name);
 			obj.value = "";
-			o1 = <?= ((StrLen($arResult["FUNCTION"]) > 0) ? "document.getElementById('id_".$arResult["NAME"]."_button')" : "null")?>;
+			o1 = <?= (($arResult["FUNCTION"] <> '') ? "document.getElementById('id_".$arResult["NAME"]."_button')" : "null")?>;
 			if (o1)
 				o1.disabled = true;
 		}
@@ -61,8 +61,8 @@ function SonetStopPost_<?=$arResult["ID"]?>(e)
 
 function SonetPageLoadUSI()
 {
-	o1 = <?= ((StrLen($arResult["FUNCTION"]) > 0) ? "document.getElementById('id_".$arResult["NAME"]."_button')" : "null")?>;
-	bFirstLoadStateTmpUSI = <?= (StrLen($arResult["VALUE"]) > 0) ? "false" : "true"?>;
+	o1 = <?= (($arResult["FUNCTION"] <> '') ? "document.getElementById('id_".$arResult["NAME"]."_button')" : "null")?>;
+	bFirstLoadStateTmpUSI = <?= ($arResult["VALUE"] <> '') ? "false" : "true"?>;
 	oObj = document.getElementById('<?=$arResult["ID"]?>');
 	if (typeof window.oObject[oObj.id] != 'object')
 		window.oObject[oObj.id] = new SonetJsTc(oObj, '<?=$arParams["ADDITIONAL_VALUES"]?>', null, o1, bFirstLoadStateTmpUSI);
@@ -76,9 +76,9 @@ if ($arParams["SILENT"] == "Y")
 	return;
 ?>
 
-<nobr><input name="<?=$arResult["NAME"]?>" id="<?=$arResult["ID"]?>" value="<?=(StrLen($arResult["VALUE"]) > 0 ? $arResult["VALUE"] : GetMessage("SONET_T8761_PROMT"))?>" class="search-tags<?=(strlen($arParams["CLASS_NAME"]) > 0 ? " ".$arParams["CLASS_NAME"] : "")?>" type="text" autocomplete="off" <?=$arResult["TEXT"]?> onkeypress="SonetStopPost_<?=$arResult["ID"]?>(event)" /><input type="button" value="..." onclick="SonetTTTButtonPress(document.getElementById('<?=$arResult["ID"]?>'));"></nobr>
-<?if (StrLen($arResult["FUNCTION"]) > 0):?>
-	<input type="button" name="<?=$arResult["NAME"]?>_button" id="id_<?=$arResult["NAME"]?>_button" value="<?= GetMessage("SONET_T876_SELECT") ?>" <?=(StrLen($arResult["VALUE"]) > 0 ? "" : "disabled")?> onclick="SonetSearchButtonClick_<?=$arResult["ID"]?>()">
+<nobr><input name="<?=$arResult["NAME"]?>" id="<?=$arResult["ID"]?>" value="<?=($arResult["VALUE"] <> '' ? $arResult["VALUE"] : GetMessage("SONET_T8761_PROMT"))?>" class="search-tags<?=($arParams["CLASS_NAME"] <> '' ? " ".$arParams["CLASS_NAME"] : "")?>" type="text" autocomplete="off" <?=$arResult["TEXT"]?> onkeypress="SonetStopPost_<?=$arResult["ID"]?>(event)" /><input type="button" value="..." onclick="SonetTTTButtonPress(document.getElementById('<?=$arResult["ID"]?>'));"></nobr>
+<?if ($arResult["FUNCTION"] <> ''):?>
+	<input type="button" name="<?=$arResult["NAME"]?>_button" id="id_<?=$arResult["NAME"]?>_button" value="<?= GetMessage("SONET_T876_SELECT") ?>" <?=($arResult["VALUE"] <> '' ? "" : "disabled")?> onclick="SonetSearchButtonClick_<?=$arResult["ID"]?>()">
 <?endif;?>
 <?
 if (false && $arParams["TMPL_IFRAME"] != "N"):

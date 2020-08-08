@@ -76,4 +76,14 @@ abstract class Connection
 	{
 		return $this->configuration;
 	}
+
+	/**
+	 * Returns max packet length to send to or receive from the database server.
+	 *
+	 * @return int
+	 */
+	public function getMaxAllowedPacket()
+	{
+		return PHP_INT_MAX;
+	}
 }

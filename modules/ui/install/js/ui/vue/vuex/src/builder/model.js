@@ -11,7 +11,7 @@ import {VuexBuilderDatabaseIndexedDB} from "./database/indexeddb.js";
 import {VuexBuilderDatabaseLocalStorage} from "./database/localstorage.js";
 import {VuexBuilderDatabaseJnSharedStorage} from "./database/jnsharedstorage.js";
 import {VuexBuilder} from "./builder.js";
-import {VuexVendor} from "ui.vuex";
+import {VuexVendor} from "ui.vue.vuex";
 
 export class VuexBuilderModel
 {
@@ -134,7 +134,7 @@ export class VuexBuilderModel
 	{
 		if (!(typeof variables === 'object' && variables))
 		{
-			console.error('VuexBuilderModel.setVars: passed variables is not a Object', store);
+			this.logger('error', 'VuexBuilderModel.setVars: passed variables is not a Object', store);
 			return this;
 		}
 
@@ -286,7 +286,7 @@ export class VuexBuilderModel
 				namespace = this.namespace? this.namespace: this.getName();
 				if (!namespace && this.withNamespace)
 				{
-					console.error('VuexModel.getStore: current model can not be run in Vuex modules mode', this.getState());
+					this.logger('error', 'VuexModel.getStore: current model can not be run in Vuex modules mode', this.getState());
 					reject();
 				}
 			}
@@ -346,11 +346,11 @@ export class VuexBuilderModel
 
 		if (this.saveStateTimeout)
 		{
-			console.log('wait save...', this.getName());
+			this.logger('log', 'VuexModel.saveState: wait save...', this.getName());
 			return true;
 		}
 
-		console.log('Start saving', this.getName());
+		this.logger('log', 'VuexModel.saveState: start saving', this.getName());
 
 		let timeout = this.getSaveTimeout();
 		if (typeof this.databaseConfig.timeout === 'number')
@@ -360,7 +360,7 @@ export class VuexBuilderModel
 
 		this.saveStateTimeout = setTimeout(() =>
 		{
-			console.log('save!', this.getName());
+			this.logger('log', 'VuexModel.saveState: saved!', this.getName());
 			let lastState = this.lastSaveState;
 			if (typeof lastState === 'function')
 			{
@@ -496,7 +496,7 @@ export class VuexBuilderModel
 	{
 		if (!(store instanceof VuexVendor.Store))
 		{
-			console.error('VuexBuilderModel.setStore: passed store is not a Vuex.Store', store);
+			this.logger('error', 'VuexBuilderModel.setStore: passed store is not a Vuex.Store', store);
 			return this;
 		}
 
@@ -510,7 +510,7 @@ export class VuexBuilderModel
 		return new Promise((resolve) =>
 		{
 			this.cacheTimeout = setTimeout(() => {
-				console.warn('Cache loading timeout', this.getName());
+				this.logger('warn', 'VuexModel.getStoreFromDatabase: Cache loading timeout', this.getName());
 				resolve(this.getState());
 			}, 1000);
 
@@ -648,5 +648,31 @@ export class VuexBuilderModel
 		}
 
 		return result;
+	}
+
+	logger(type, ...args)
+	{
+		if (type === 'error')
+		{
+			console.error(...args);
+			return undefined;
+		}
+		else if (typeof BX.VueDevTools === 'undefined')
+		{
+			return undefined;
+		}
+
+		if (type === 'log')
+		{
+			console.log(...args);
+		}
+		else if (type === 'info')
+		{
+			console.info(...args);
+		}
+		else if (type === 'warn')
+		{
+			console.warn(...args);
+		}
 	}
 }

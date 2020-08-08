@@ -33,7 +33,7 @@ class ProtobufTransport
 		foreach ($requestBatches as $requestBatch)
 		{
 			$urlWithSignature = $queueServerUrl;
-			$httpClient = new HttpClient(["waitResponse" => false]);
+			$httpClient = new HttpClient(["streamTimeout" => 1]);
 			$bodyStream = $requestBatch->toStream();
 			if(\CPullOptions::IsServerShared())
 			{
@@ -42,7 +42,7 @@ class ProtobufTransport
 			}
 
 			$httpClient->disableSslVerification();
-			$httpClient->post($urlWithSignature, $bodyStream);
+			$httpClient->query(HttpClient::HTTP_POST, $urlWithSignature, $bodyStream);
 		}
 
 		return true;
@@ -194,6 +194,10 @@ class ProtobufTransport
 			'params' => $event['params'] ?: [],
 			'extra' => $extra
 		));
+
+		// for statistics
+		$messageType = "{$event['module_id']}_{$event['command']}";
+		$messageType = preg_replace("/[^\w]/", "", $messageType);
 		
 		$maxChannelsPerRequest = \CPullOptions::GetMaxChannelsPerRequest();
 		$receivers = [];
@@ -208,8 +212,9 @@ class ProtobufTransport
 			{
 				$message = new Protobuf\IncomingMessage();
 				$message->setReceiversList(new MessageCollection($receivers));
-				$message->setExpiry($event['expire']);
+				$message->setExpiry($event['expiry']);
 				$message->setBody($body);
+				$message->setType($messageType); // for statistics
 
 				$result[] = $message;
 				$receivers = [];
@@ -220,7 +225,7 @@ class ProtobufTransport
 		{
 			$message = new Protobuf\IncomingMessage();
 			$message->setReceiversList(new MessageCollection($receivers));
-			$message->setExpiry($event['expire']);
+			$message->setExpiry($event['expiry']);
 			$message->setBody($body);
 
 			$result[] = $message;

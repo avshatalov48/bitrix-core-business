@@ -11,8 +11,8 @@
 		this.contentContainer = this.scope.querySelector('.report-analytics-content');
 		this.currentItem = this.menuScope.querySelector('.report-analytics-sidebar-submenu-item.report-analytics-sidebar-submenu-item-active');
 		this.currentSelectedContainer = this.menuScope.querySelector('.report-analytics-sidebar-menu-item.report-analytics-sidebar-menu-item-active');
-		this.pageTitle = document.getElementById('pagetitle');
-		this.pageTitleWrap = document.querySelector('.pagetitle-wrap');
+		this.pageTitle = document.querySelector('.ui-side-panel-wrap-title-name');
+		this.pageTitleWrap = document.querySelector('.ui-side-panel-wrap-title-wrap');
 		this.pageControlsContainer = document.querySelector('.pagetitle-container.pagetitle-align-right-container');
 
 		this.defaultBoardKey = options.defaultBoardKey;

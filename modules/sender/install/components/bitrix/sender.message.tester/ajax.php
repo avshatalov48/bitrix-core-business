@@ -4,15 +4,14 @@ define('BX_SECURITY_SHOW_MESSAGE', true);
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
 
-use Bitrix\Main\Loader;
 use Bitrix\Main\HttpRequest;
 use Bitrix\Main\Mail\Address;
-use Bitrix\Sender\Internals\QueryController as Controller;
-use Bitrix\Sender\Internals\CommonAjax;
 use Bitrix\Sender\Entity;
+use Bitrix\Sender\Internals\CommonAjax;
+use Bitrix\Sender\Internals\QueryController as Controller;
 use Bitrix\Sender\Security;
 
-if (!Loader::includeModule('sender'))
+if (!Bitrix\Main\Loader::includeModule('sender'))
 {
 	return;
 }
@@ -116,7 +115,7 @@ $actions[] = Controller\Action::create('test')->setHandler(
 				$result->getErrors(),
 				function ($prev, $error)  // get first error code
 				{
-					return strlen($prev) ? $prev : $error->getCode();
+					return $prev <> ''? $prev : $error->getCode();
 				},
 				''
 			)

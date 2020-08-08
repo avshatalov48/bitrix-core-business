@@ -35,13 +35,13 @@ $arGadgetParams["NUMBER_OF_MEMBERS"] = (isset($arGadgetParams["NUMBER_OF_MEMBERS
 		<td colspan="2"><b><?= GetMessage("GD_SONET_GROUP_DESC_ARCHIVE") ?></b></td>
 	</tr>
 <?endif;?>
-<?if(strlen($arGadgetParams["SUBJECT_NAME"])>0):?>
+<?if($arGadgetParams["SUBJECT_NAME"] <> ''):?>
 	<tr>
 		<td width="25%"><?= GetMessage("GD_SONET_GROUP_DESC_SUBJECT_NAME") ?>:</td>
 		<td width="75%"><?=$arGadgetParams["SUBJECT_NAME"]?></td>
 	</tr>
 <?endif;?>
-<?if(strlen($arGadgetParams["DESCRIPTION"])>0):?>
+<?if($arGadgetParams["DESCRIPTION"] <> ''):?>
 	<tr>
 		<td width="25%" valign="top"><?= GetMessage('GD_SONET_GROUP_DESC_DESCRIPTION') ?>:</td>
 		<td valign="top" width="75%"><?=$arGadgetParams["DESCRIPTION"]?></td>
@@ -65,7 +65,7 @@ $arGadgetParams["NUMBER_OF_MEMBERS"] = (isset($arGadgetParams["NUMBER_OF_MEMBERS
 <?
 if (array_key_exists("PROPERTIES_SHOW", $arGadgetParams) && $arGadgetParams["PROPERTIES_SHOW"] == "Y"):
 	foreach ($arGadgetParams["PROPERTIES_DATA"] as $fieldName => $arUserField):
-		if (is_array($arUserField["VALUE"]) && count($arUserField["VALUE"]) > 0 || !is_array($arUserField["VALUE"]) && StrLen($arUserField["VALUE"]) > 0):
+		if (is_array($arUserField["VALUE"]) && count($arUserField["VALUE"]) > 0 || !is_array($arUserField["VALUE"]) && $arUserField["VALUE"] <> ''):
 			?><tr>
 				<td width="25%"><?=$arUserField["EDIT_FORM_LABEL"]?>:</td>
 				<td width="75%"><?

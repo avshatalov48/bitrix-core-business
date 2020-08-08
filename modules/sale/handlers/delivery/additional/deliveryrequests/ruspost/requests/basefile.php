@@ -46,7 +46,7 @@ abstract class BaseFile extends Base
 
 		$row = $res->fetch();
 
-		if(!$row || strlen($row['EXTERNAL_ID']) <= 0)
+		if(!$row || $row['EXTERNAL_ID'] == '')
 		{
 			$result->addError(
 				new Main\Error(
@@ -118,7 +118,7 @@ abstract class BaseFile extends Base
 			$headers = $this->httpClient->getHeaders();
 			$fileName = $headers->getFilename();
 
-			if(strlen($fileName) > 0)
+			if($fileName <> '')
 			{
 				$ext = '';
 				$contentType = $headers->getContentType();
@@ -132,7 +132,7 @@ abstract class BaseFile extends Base
 					$ext = 'pdf';
 				}
 
-				if(strlen($ext) > 0)
+				if($ext <> '')
 				{
 					$fileName .= '.'.$ext;
 				}

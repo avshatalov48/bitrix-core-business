@@ -1,5 +1,8 @@
 import Type from './type';
 
+/**
+ * @memberOf BX
+ */
 export default class Reflection
 {
 	/**

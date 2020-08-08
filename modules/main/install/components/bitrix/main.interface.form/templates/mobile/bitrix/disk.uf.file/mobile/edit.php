@@ -91,12 +91,6 @@ foreach ($arResult['FILES'] as $file)
 	{
 		var fileIDs = <?=json_encode($lazyLoadFileIDs)?>;
 		BX.LazyLoad.registerImages(fileIDs);
-		window.addEventListener("scroll", BX.throttle(function ()
-		{
-			BX.LazyLoad.showImages(true);
-		}, 80));
-		BX.LazyLoad.showImages(true);
-
 		BX.Disk.UFMobile.add({
 			UID: '<?=$arResult['UID']?>',
 			controlName: '<?= CUtil::JSEscape($arResult['controlName'])?>'

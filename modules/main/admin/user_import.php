@@ -24,9 +24,6 @@ if(!$USER->CanDoOperation('edit_php'))
 $filename = $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/admin/sample.csv";
 if(isset($_REQUEST["getSample"]) && $_REQUEST["getSample"] == "csv" && is_file($filename))
 {
-	if(CModule::IncludeModule("compression"))
-		Ccompress::DisableCompression();
-
 	$file = @fopen($filename, "rb");
 	$contents = @fread($file, filesize($filename));
 	fclose($file);

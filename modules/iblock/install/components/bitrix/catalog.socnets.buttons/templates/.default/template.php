@@ -20,7 +20,7 @@ if ($arResult["FB_USE"])
 			var js, fjs = d.getElementsByTagName(s)[0];
 			if (d.getElementById(id)) return;
 			js = d.createElement(s); js.id = id;
-			js.src = "//connect.facebook.net/<?=(strtolower(LANGUAGE_ID)."_".strtoupper(LANGUAGE_ID))?>/all.js#xfbml=1";
+			js.src = "//connect.facebook.net/<?=(mb_strtolower(LANGUAGE_ID)."_".mb_strtoupper(LANGUAGE_ID))?>/all.js#xfbml=1";
 			fjs.parentNode.insertBefore(js, fjs);
 		}(document, 'script', 'facebook-jssdk'));
 	</script><div class="fb-like" data-href="<?=$arResult["URL_TO_LIKE"]?>" data-colorscheme="light" data-layout="button_count" data-action="like" data-show-faces="false" data-send="false" style="float:left;"></div></div><?
@@ -60,10 +60,10 @@ if ($arResult["VK_USE"])
 		var div = document.getElementById("vk-shared-button-<?$this->randString()?>");
 		var button = VK.Share.button({
 				url: "<?=$arResult["URL_TO_LIKE"]?>"<?
-				if(strlen($arResult["TITLE"]) > 0 )
+				if($arResult["TITLE"] <> '' )
 					echo ','.PHP_EOL.'title: "'.$arResult["TITLE"].'"';
 
-				if(strlen($arResult["IMAGE"]) > 0 )
+				if($arResult["IMAGE"] <> '' )
 					echo ','.PHP_EOL.'image: "'.$arResult["IMAGE"].'"';?>
 			},
 			{

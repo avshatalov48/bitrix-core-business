@@ -1442,14 +1442,10 @@ class CComponentUtil
 
 	public static function GetDateTimeFormatted($timestamp, $dateTimeFormat = false, $offset = 0, $hideToday = false)
 	{
-		global $DB;
-
 		if (is_array($timestamp))
 		{
 			$params = $timestamp;
 			$timestamp = (isset($params['TIMESTAMP']) ? $params['TIMESTAMP'] : false);
-			$dateTimeFormat = (isset($params['DATETIME_FORMAT']) ? $params['DATETIME_FORMAT'] : false);
-			$dateTimeFormatWOYear = (!empty($params['DATETIME_FORMAT_WITHOUT_YEAR']) ? $params['DATETIME_FORMAT_WITHOUT_YEAR'] : false);
 			$offset = (isset($params['TZ_OFFSET']) ? intval($params['TZ_OFFSET']) : 0);
 			$hideToday = (isset($params['HIDE_TODAY']) ? $params['HIDE_TODAY'] : false);
 		}
@@ -1459,38 +1455,10 @@ class CComponentUtil
 			return '';
 		}
 
-		static $arFormatWOYear = array();
-		static $arFormatTime = array();
-		static $defaultDateTimeFormat = false;
-
-		if (
-			empty($dateTimeFormat)
-			|| $dateTimeFormat == "FULL"
-		)
-		{
-			if (!$defaultDateTimeFormat)
-			{
-				$defaultDateTimeFormat = $DB->DateFormatToPHP(FORMAT_DATETIME);
-			}
-			$dateTimeFormat = $defaultDateTimeFormat;
-		}
-		$dateTimeFormat = preg_replace('/[\/.,\s:][s]/', '', $dateTimeFormat);
-
-		if (!$dateTimeFormatWOYear)
-		{
-			if (empty($arFormatWOYear[$dateTimeFormat]))
-			{
-				$arFormatWOYear[$dateTimeFormat] = preg_replace('/[\/.,\s-][Yyo]/', '', $dateTimeFormat);
-			}
-			$dateTimeFormatWOYear = $arFormatWOYear[$dateTimeFormat];
-		}
-
-		if (empty($arFormatTime[$dateTimeFormatWOYear]))
-		{
-			$arFormatTime[$dateTimeFormatWOYear] = preg_replace(array('/[dDjlFmMnYyo]/', '/^[\/.,\s\-]+/', '/[\/.,\s\-]+$/'), '', $dateTimeFormatWOYear);
-		}
-
-		$timeFormat = $arFormatTime[$dateTimeFormatWOYear];
+		$culture = \Bitrix\Main\Context::getCurrent()->getCulture();
+		$timeFormat = $culture->getShortTimeFormat();
+		$dateTimeFormat = $culture->getLongDateFormat().' '.$timeFormat;
+		$dateTimeFormatWOYear = $culture->getDayMonthFormat().' '.$timeFormat;
 
 		$arFormat = array(
 			"tomorrow" => "tomorrow, ".$timeFormat,
@@ -1503,11 +1471,6 @@ class CComponentUtil
 			)
 		);
 
-		return (
-			strcasecmp(LANGUAGE_ID, 'EN') !== 0
-			&& strcasecmp(LANGUAGE_ID, 'DE') !== 0
-				? ToLower(FormatDate($arFormat, $timestamp, (time() + $offset)))
-				: FormatDate($arFormat, $timestamp, (time() + $offset))
-		);
+		return FormatDate($arFormat, $timestamp, (time() + $offset));
 	}
 }

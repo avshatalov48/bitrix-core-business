@@ -8389,7 +8389,7 @@ var SecondaryToolbar = function () {
 
     this.toolbar = options.toolbar;
     this.toggleButton = options.toggleButton;
-    this.toolbarButtonContainer = options.toolbarButtonContainer;
+    this.buttonContainer = options.toolbarButtonContainer;
     this.buttons = [{
       element: options.presentationModeButton,
       eventName: 'presentationmode',
@@ -8573,7 +8573,7 @@ var SecondaryToolbar = function () {
       if (this.containerHeight === this.previousContainerHeight) {
         return;
       }
-      this.toolbarButtonContainer.setAttribute('style', 'max-height: ' + (this.containerHeight - _ui_utils.SCROLLBAR_PADDING) + 'px;');
+      this.buttonContainer.setAttribute('style', 'max-height: ' + (this.containerHeight - _ui_utils.SCROLLBAR_PADDING) + 'px;');
       this.previousContainerHeight = this.containerHeight;
     }
   }, {

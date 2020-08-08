@@ -269,7 +269,7 @@ class Step4 extends CWizardStep
 						foreach ($arCorrespondence as $key => $value)
 						{
 							$defVars[$v1."_".$key."_".$k]  = $value["TYPE"];
-							if(strlen($value["TYPE"]) > 0)
+							if($value["TYPE"] <> '')
 								$defVars["VALUE1_".$v1."_".$key."_".$k] = str_replace("'", "\'", $value["VALUE"]);
 							else
 								$defVars["VALUE2_".$v1."_".$key."_".$k] = str_replace("'", "\'", $value["VALUE"]);
@@ -291,7 +291,7 @@ class Step4 extends CWizardStep
 			foreach($varNames as $varName)
 			{
 				$imgID = $this->SaveFile($varName."_img");
-				if(IntVal($imgID)>0)
+				if(intval($imgID)>0)
 					$wizard->SetVar($varName, CFile::GetPath($imgID));
 				else
 					$wizard->SetVar($varName, $wizard->GetDefaultVar($varName));
@@ -387,12 +387,12 @@ class Step4 extends CWizardStep
 				);
 			while ($arOrderProps = $dbOrderProps->GetNext())
 			{
-				$arFieldsList["PROPERTY"][$arOrderProps["PERSON_TYPE_ID"]][((strlen($arOrderProps["CODE"])>0) ? $arOrderProps["CODE"] : $arOrderProps["ID"])] = $arOrderProps["NAME"];
+				$arFieldsList["PROPERTY"][$arOrderProps["PERSON_TYPE_ID"]][(($arOrderProps["CODE"] <> '') ? $arOrderProps["CODE"] : $arOrderProps["ID"])] = $arOrderProps["NAME"];
 
 				if ($arOrderProps["TYPE"] == "LOCATION")
 				{
-					$arFieldsList["PROPERTY"][$arOrderProps["PERSON_TYPE_ID"]][((strlen($arOrderProps["CODE"])>0) ? $arOrderProps["CODE"] : $arOrderProps["ID"])."_COUNTRY"] = $arOrderProps["NAME"]." (".GetMessage("SPS_JCOUNTRY").")";
-					$arFieldsList["PROPERTY"][$arOrderProps["PERSON_TYPE_ID"]][((strlen($arOrderProps["CODE"])>0) ? $arOrderProps["CODE"] : $arOrderProps["ID"])."_CITY"] = $arOrderProps["NAME"]." (".GetMessage("SPS_JCITY").")";
+					$arFieldsList["PROPERTY"][$arOrderProps["PERSON_TYPE_ID"]][(($arOrderProps["CODE"] <> '') ? $arOrderProps["CODE"] : $arOrderProps["ID"])."_COUNTRY"] = $arOrderProps["NAME"]." (".GetMessage("SPS_JCOUNTRY").")";
+					$arFieldsList["PROPERTY"][$arOrderProps["PERSON_TYPE_ID"]][(($arOrderProps["CODE"] <> '') ? $arOrderProps["CODE"] : $arOrderProps["ID"])."_CITY"] = $arOrderProps["NAME"]." (".GetMessage("SPS_JCITY").")";
 				}
 			}
 		}
@@ -557,7 +557,7 @@ class Step4 extends CWizardStep
 							${$v1."_".$k2."_".$k} = $wizard->GetVar($v1."_".$k2."_".$k, true);
 
 							$this->content .= "<br />";
-							if(strlen(${$v1."_".$k2."_".$k})>0)
+							if(${$v1."_".$k2."_".$k} <> '')
 							{
 								if(${$v1."_".$k2."_".$k} == "PROPERTY")
 									$arFList = $arFieldsList["PROPERTY"][$k];
@@ -574,7 +574,7 @@ class Step4 extends CWizardStep
 									$this->content .= $this->ShowHiddenField("stamp_img[]", "VALUE2_".$v1."_".$k2."_".$k);
 									$this->content .= $this->ShowFileField("VALUE2_".$v1."_".$k2."_".$k."_img", Array("id" => "VALUE2_".$v1."_".$k2."_".$k, "size" => "20"));
 									$img = $wizard->GetVar("VALUE2_".$v1."_".$k2."_".$k, true);
-									if(strlen($img)>0)
+									if($img <> '')
 									{
 										$this->content .= "<br />".CFile::ShowImage($img, 50, 50, "border=\"0\"", "", true)."<br />";
 									}
@@ -607,7 +607,7 @@ class Step5 extends CWizardStep
 		$wizard = &$this->GetWizard();
 		$dbSaleManagerGroups = $GLOBALS["APPLICATION"]->GetGroupRightList(array("MODULE_ID" => "sale", "G_ACCESS" => "U"));
 		while ($arSaleManagerGroup = $dbSaleManagerGroups->Fetch())
-			$defVars["groupID"][] = IntVal($arSaleManagerGroup["GROUP_ID"]);
+			$defVars["groupID"][] = intval($arSaleManagerGroup["GROUP_ID"]);
 
 		$wizard->SetDefaultVars($defVars);
 	}
@@ -789,16 +789,24 @@ class Step7 extends CWizardStep
 			$password = $wizard->GetVar("password");
 			$password_rep = $wizard->GetVar("password_rep");
 			$email = $wizard->GetVar("email");
-			if (strlen($login))
+			if($login <> '')
 			{
 				if($password != $password_rep)
+				{
 					$this->SetError(GetMessage("WW_STEP7_1"), "password");
-				if(strlen($password)<6)
+				}
+				if(mb_strlen($password) < 6)
+				{
 					$this->SetError(GetMessage("WW_STEP7_2"), "password");
-				if(strlen($login)<3)
+				}
+				if(mb_strlen($login) < 3)
+				{
 					$this->SetError(GetMessage("WW_STEP7_3"), "login");
-				if(strlen($email)<5)
+				}
+				if(mb_strlen($email) < 5)
+				{
 					$this->SetError(GetMessage("WW_STEP7_4"), "email");
+				}
 			}
 		}
 	}
@@ -923,7 +931,7 @@ class Step8 extends CWizardStep
 		);
 		while($arLocation = $dbLocationList->Fetch())
 		{
-			$location[$arLocation["ID"]] = $arLocation["COUNTRY_NAME"].(strlen($arLocation["CITY_NAME"]) > 0 ? " - ".$arLocation["CITY_NAME"] : "");
+			$location[$arLocation["ID"]] = $arLocation["COUNTRY_NAME"].($arLocation["CITY_NAME"] <> '' ? " - ".$arLocation["CITY_NAME"] : "");
 		}
 		$this->content .= GetMessage("WW_STEP8_2")."<br />";
 		$this->content .= $this->ShowSelectField("location", $location);
@@ -1093,7 +1101,7 @@ class Install extends CWizardStep
 							$pathToAction = $_SERVER["DOCUMENT_ROOT"].$arPaySysActionTmp["ACTION_FILE"];
 					}
 
-					if(strlen($pathToAction)>0)
+					if($pathToAction <> '')
 					{
 						$arPSCorrespondence = LocalGetPSActionParams($pathToAction."/.description.php");
 						$arParams = Array();
@@ -1101,7 +1109,7 @@ class Install extends CWizardStep
 						{
 							$typeTmp = $arResult[$pID."_".$k."_".$personID];
 							$valueTmp = $arResult["VALUE1_".$pID."_".$k."_".$personID];
-							if(strlen($valueTmp) <= 0)
+							if($valueTmp == '')
 								$valueTmp = $arResult["VALUE2_".$pID."_".$k."_".$personID];
 
 							$arParams[$k] = Array("TYPE" => $typeTmp, "VALUE" => $valueTmp);
@@ -1113,7 +1121,7 @@ class Install extends CWizardStep
 
 
 
-						if(IntVal($arPaySysAction["ID"])>0)
+						if(intval($arPaySysAction["ID"])>0)
 						{
 							CSalePaySystemAction::Update($arPaySysAction["ID"], $arFields);
 						}
@@ -1172,7 +1180,7 @@ class Install extends CWizardStep
 				if(!in_array($arDelivery["ID"], $arResult["delivery"]))
 					CSaleDelivery::Update($arDelivery["ID"], Array("ACTIVE" => "N"));
 			}
-			if(strlen($arResult["login"])>0)
+			if($arResult["login"] <> '')
 			{
 				$arFields = Array(
 					"LOGIN" => $arResult["login"],
@@ -1183,7 +1191,7 @@ class Install extends CWizardStep
 				$user = new CUser();
 				$ID = $user->Add($arFields);
 
-				if(IntVal($ID)>0)
+				if(intval($ID)>0)
 				{
 					$sGroups = COption::GetOptionString("main", "new_user_registration_def_group", "");
 					CUser::SetUserGroup($ID, array_merge(explode(",", $sGroups), $arResult["1C_GROUP_PERMISSIONS"]));

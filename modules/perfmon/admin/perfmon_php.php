@@ -1,11 +1,13 @@
 <?
+use Bitrix\Main\Loader;
+
 define("ADMIN_MODULE_NAME", "perfmon");
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 /** @global CMain $APPLICATION */
 /** @global CDatabase $DB */
 /** @global CUser $USER */
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/include.php");
+Loader::includeModule('perfmon');
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/prolog.php");
 
 IncludeModuleLangFile(__FILE__);
@@ -55,7 +57,7 @@ $data["tuning"]["ITEMS"][] = array(
 
 
 $open_basedir = ini_get('open_basedir');
-$is_ok = strlen($open_basedir) <= 0;
+$is_ok = $open_basedir == '';
 $data["tuning"]["ITEMS"][] = array(
 	"PARAMETER" => "open_basedir",
 	"IS_OK" => $is_ok,

@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Photogallery\Copy\Integration;
 
+use Bitrix\Main\Config\Option;
 use Bitrix\Photogallery\Copy\Implement\Children\Element as ElementImplementer;
 use Bitrix\Iblock\Copy\Implement\Section as SectionImplementer;
 use Bitrix\Iblock\Copy\Section as SectionCopier;
@@ -60,20 +61,13 @@ class GroupStepper extends Stepper
 				$sectionImplementer->setChild($elementImplementer);
 
 				$sectionCopier = new SectionCopier($sectionImplementer);
-				$result = $sectionCopier->copy($containerCollection);
+				$sectionCopier->copy($containerCollection);
 
-				$resultData = current($result->getData());
-				if (!empty($resultData[$parentSectionId]))
-				{
-					$this->deleteCurrentQueue($queue);
-					$this->deleteQueueOption();
-					return !$this->isQueueEmpty();
-				}
-				return true;
+				$this->deleteQueueOption();
+				return !$this->isQueueEmpty();
 			}
 			else
 			{
-				$this->deleteCurrentQueue($queue);
 				$this->deleteQueueOption();
 				return !$this->isQueueEmpty();
 			}
@@ -84,5 +78,69 @@ class GroupStepper extends Stepper
 			$this->deleteQueueOption();
 			return false;
 		}
+	}
+
+	protected function getQueue(): array
+	{
+		return $this->getOptionData($this->queueName);
+	}
+
+	protected function setQueue(array $queue): void
+	{
+		$queueId = (string) current($queue);
+		$this->checkerName = (strpos($this->checkerName, $queueId) === false ?
+			$this->checkerName.$queueId : $this->checkerName);
+		$this->baseName = (strpos($this->baseName, $queueId) === false ?
+			$this->baseName.$queueId : $this->baseName);
+		$this->errorName = (strpos($this->errorName, $queueId) === false ?
+			$this->errorName.$queueId : $this->errorName);
+	}
+
+	protected function getQueueOption()
+	{
+		return $this->getOptionData($this->baseName);
+	}
+
+	protected function saveQueueOption(array $data)
+	{
+		Option::set(static::$moduleId, $this->baseName, serialize($data));
+	}
+
+	protected function deleteQueueOption()
+	{
+		$queue = $this->getQueue();
+		$this->setQueue($queue);
+		$this->deleteCurrentQueue($queue);
+		Option::delete(static::$moduleId, ["name" => $this->checkerName]);
+		Option::delete(static::$moduleId, ["name" => $this->baseName]);
+	}
+
+	protected function deleteCurrentQueue(array $queue): void
+	{
+		$queueId = current($queue);
+		$currentPos = array_search($queueId, $queue);
+		if ($currentPos !== false)
+		{
+			unset($queue[$currentPos]);
+			Option::set(static::$moduleId, $this->queueName, serialize($queue));
+		}
+	}
+
+	protected function isQueueEmpty()
+	{
+		$queue = $this->getOptionData($this->queueName);
+		return empty($queue);
+	}
+
+	protected function getOptionData($optionName)
+	{
+		$option = Option::get(static::$moduleId, $optionName);
+		$option = ($option !== "" ? unserialize($option) : []);
+		return (is_array($option) ? $option : []);
+	}
+
+	protected function deleteOption($optionName)
+	{
+		Option::delete(static::$moduleId, ["name" => $optionName]);
 	}
 }

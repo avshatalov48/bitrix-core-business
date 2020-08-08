@@ -39,13 +39,13 @@ while ($arBann = $rsBanns->Fetch())
 {
 	$banner_ref_id[] = $arBann["ID"];
 	$banner_ref[] = "[".$arBann["ID"]."] ".$arBann["NAME"];
-	if (!in_array($arBann["GROUP_SID"], $group_ref_id) && strlen($arBann["GROUP_SID"])>0)
+	if (!in_array($arBann["GROUP_SID"], $group_ref_id) && $arBann["GROUP_SID"] <> '')
 	{
 		$group_ref_id[] = $arBann["GROUP_SID"];
 		$group_ref[] = $arBann["GROUP_SID"];
 	}
 
-	if (strlen($find_type_sid)>0)
+	if ($find_type_sid <> '')
 	{
 		if ($arBann["TYPE_SID"]==$find_type_sid) $find_banner_id[] = $arBann["ID"];
 	}
@@ -54,7 +54,7 @@ if(empty($banner_ref))
 	$strError = GetMessage("ADV_NO_BANNERS_FOR_DIAGRAM");
 	
 $man = false;
-if ((!isset($_SESSION["SESS_ADMIN"]["AD_STAT_BANNER_DIAGRAM"]) || empty($_SESSION["SESS_ADMIN"]["AD_STAT_BANNER_DIAGRAM"])) && strlen($find_date1)<=0 && strlen($find_date2)<=0 && !is_array($find_banner_id) && !is_array($find_what_show))
+if ((!isset($_SESSION["SESS_ADMIN"]["AD_STAT_BANNER_DIAGRAM"]) || empty($_SESSION["SESS_ADMIN"]["AD_STAT_BANNER_DIAGRAM"])) && $find_date1 == '' && $find_date2 == '' && !is_array($find_banner_id) && !is_array($find_what_show))
 {
 	$find_banner_id = $banner_ref_id;
 	$find_what_show = Array("ctr");
@@ -69,13 +69,13 @@ $FilterArr = Array(
 	"find_banner_id",
 	"find_what_show"
 	);
-if (strlen($set_filter)>0 || $man) 
+if ($set_filter <> '' || $man) 
 	InitFilterEx($FilterArr,"AD_STAT_BANNER_DIAGRAM","set",true); 
 else 
 	InitFilterEx($FilterArr,"AD_STAT_BANNER_DIAGRAM","get",true);
-if (strlen($del_filter)>0) DelFilterEx($FilterArr,"AD_STAT_LIST",true);
+if ($del_filter <> '') DelFilterEx($FilterArr,"AD_STAT_LIST",true);
 
-if((count($find_banner_id)<1 || !is_set($find_what_show)) && strlen($strError)<0)
+if((count($find_banner_id)<1 || !is_set($find_what_show)) && mb_strlen($strError) < 0)
 	$strError = GetMessage("ADV_F_NO_FIELDS");
 
 $arFilter = Array(
@@ -208,8 +208,8 @@ elseif (count($arrLegend)>0) :
 				$i=0;
 				foreach($arShow as $ctype)
 				{
-					$counter_type = strtoupper($ctype);
-					if (${"sum_".strtolower($ctype)}>0)
+					$counter_type = mb_strtoupper($ctype);
+					if (${"sum_".mb_strtolower($ctype)}>0)
 					{
 						$i++;
 						$aTabs[] = array("DIV"=>"ttttab".$i, "TAB"=>GetMessage("AD_".$counter_type."_DIAGRAM"), "TITLE"=>GetMessage("AD_BANNER_DIAGRAM_TITLE"));
@@ -222,8 +222,8 @@ elseif (count($arrLegend)>0) :
 					$viewTabBanner->Begin();
 	
 				foreach($arShow as $ctype) :
-					$counter_type = strtoupper($ctype);
-					if (${"sum_".strtolower($ctype)}>0):
+					$counter_type = mb_strtoupper($ctype);
+					if (${"sum_".mb_strtolower($ctype)}>0):
 					$viewTabBanner->BeginNextTab();
 					?>
 					<div class="graph">
@@ -304,8 +304,8 @@ elseif (count($arrLegend)>0) :
 				$i=0;
 				foreach($arShow as $ctype)
 				{
-					$counter_type = strtoupper($ctype);
-					if (${"sum_".strtolower($counter_type)}>0)
+					$counter_type = mb_strtoupper($ctype);
+					if (${"sum_".mb_strtolower($counter_type)}>0)
 					{
 						$i++;
 						$aTabs[] = array("DIV"=>"tttab".$i, "TAB"=>GetMessage("AD_".$counter_type."_DIAGRAM"), "TITLE"=>GetMessage("AD_GROUP_DIAGRAM_TITLE"));
@@ -318,7 +318,7 @@ elseif (count($arrLegend)>0) :
 					$viewTabGroup->Begin();
 	
 				foreach($arShow as $ctype) :
-					$counter_type = strtoupper($ctype);
+					$counter_type = mb_strtoupper($ctype);
 					if (in_array($ctype, $arShow) && ${"sum_".$ctype}>0):
 						$viewTabGroup->BeginNextTab();
 						?>

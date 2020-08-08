@@ -62,7 +62,7 @@ if($ID>0)
 	}
 }
 
-if(strlen($Test)>0 && $POST_RIGHT=="W" && check_bitrix_sessid())
+if($Test <> '' && $POST_RIGHT=="W" && check_bitrix_sessid())
 {
 	if($DB->IsDate($START_TIME, false, false, "FULL")!==true)
 		$arError[] = array("id"=>"START_TIME", "text"=>GetMessage("rub_wrong_stime"));
@@ -235,7 +235,7 @@ function show(id)
 	<tr>
 		<td align="left"  width="20%" class="left"><?echo $arFieldDescriptions[$key]?></td>
 		<td align="right" width="10%"><?echo htmlspecialcharsbx($key)?></td>
-		<td align="left"  width="70%" class="right"><?echo strlen($value)? htmlspecialcharsbx($value): "&nbsp"?></td>
+		<td align="left"  width="70%" class="right"><?echo $value <> ''? htmlspecialcharsbx($value) : "&nbsp"?></td>
 	</tr>
 	<?endforeach?>
 </table>
@@ -281,7 +281,7 @@ hide("INPUT");
 	<tr>
 		<td align="left"  width="20%" class="left"><?echo $arFieldDescriptions[$key]?></td>
 		<td align="right" width="10%"><?echo htmlspecialcharsbx($key)?></td>
-		<td align="left"  width="70%" class="right"><?echo strlen($value)? $value: "&nbsp"?></td>
+		<td align="left"  width="70%" class="right"><?echo $value <> ''? $value : "&nbsp"?></td>
 	</tr>
 	<?endforeach?>
 </table>

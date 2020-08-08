@@ -7,13 +7,17 @@ Loc::loadMessages(__FILE__);
 
 $isAvailable = PaySystem\Manager::HANDLER_AVAILABLE_TRUE;
 
-$portalZone = Loader::includeModule('intranet') ? CIntranetUtils::getPortalZone() : "";
 $licensePrefix = Loader::includeModule('bitrix24') ? \CBitrix24::getLicensePrefix() : "";
+$portalZone = Loader::includeModule('intranet') ? CIntranetUtils::getPortalZone() : "";
 
-if (
-	(Loader::includeModule('intranet') && $portalZone !== 'ru')
-	|| (Loader::includeModule("bitrix24") && $licensePrefix !== 'ru')
-)
+if (Loader::includeModule("bitrix24"))
+{
+	if ($licensePrefix !== 'ru')
+	{
+		$isAvailable = PaySystem\Manager::HANDLER_AVAILABLE_FALSE;
+	}
+}
+elseif (Loader::includeModule('intranet') && $portalZone !== 'ru')
 {
 	$isAvailable = PaySystem\Manager::HANDLER_AVAILABLE_FALSE;
 }

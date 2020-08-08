@@ -1,4 +1,0 @@
-<?
-$MESS["CATALOG_VIEWED_PRODUCTS_MAIL_TITLE"] = "Блок товаров";
-$MESS["CATALOG_VIEWED_PRODUCTS_MAIL_YET"] = "Подробнее";
-?>

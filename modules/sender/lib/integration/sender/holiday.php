@@ -125,7 +125,7 @@ class Holiday
 	 */
 	public function getCodeUpper()
 	{
-		return strtoupper($this->code);
+		return mb_strtoupper($this->code);
 	}
 
 	/**

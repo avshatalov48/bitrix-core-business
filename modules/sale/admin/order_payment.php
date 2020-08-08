@@ -76,9 +76,9 @@ if ($filter_payment_id_from > 0 && $filter_payment_id_to > 0)
 	$arFilter['><ID'] = array($filter_payment_id_from, $filter_payment_id_to);
 if ($filter_order_id_from > 0 && $filter_order_id_to > 0)
 	$arFilter['><ORDER_ID'] = array($filter_order_id_from, $filter_order_id_to);
-if (strlen($filter_order_paid) > 0 && $filter_order_paid != 'NOT_REF')
+if ($filter_order_paid <> '' && $filter_order_paid != 'NOT_REF')
 	$arFilter['PAID'] = $filter_order_paid;
-if (strlen($filter_site_id) > 0
+if ($filter_site_id <> ''
 	&& $filter_site_id != 'NOT_REF'
 	&& ($saleModulePermissions >= "W" || in_array($filter_site_id, $arAccessibleSites))
 )
@@ -91,30 +91,30 @@ elseif ($saleModulePermissions < "W")
 }
 if (is_array($filter_pay_system_id) && count($filter_pay_system_id) > 0 && $filter_pay_system_id[0] != 'NOT_REF')
 	$arFilter['PAY_SYSTEM_ID'] = $filter_pay_system_id;
-if (strlen($filter_company_id) > 0 && $filter_company_id != 'NOT_REF')
+if ($filter_company_id <> '' && $filter_company_id != 'NOT_REF')
 	$arFilter['COMPANY_ID'] = $filter_company_id;
-if (strlen($filter_account_num) > 0)
+if ($filter_account_num <> '')
 	$arFilter['ORDER.ACCOUNT_NUMBER'] = $filter_account_num;
 if (floatval($filter_sum_from)>0)
 	$arFilter[">=SUM"] = floatval($filter_sum_from);
 if (floatval($filter_sum_to)>0)
 	$arFilter["<=SUM"] = floatval($filter_sum_to);
-if (strlen($filter_currency) > 0 && $filter_currency != 'NOT_REF')
+if ($filter_currency <> '' && $filter_currency != 'NOT_REF')
 	$arFilter['CURRENCY'] = $filter_currency;
-if (strlen($filter_pay_voucher_num) > 0)
+if ($filter_pay_voucher_num <> '')
 	$arFilter['PAY_VOUCHER_NUM'] = $filter_pay_voucher_num;
-if (strlen($filter_user_login)>0)
+if ($filter_user_login <> '')
 	$arFilter["ORDER.USER.LOGIN"] = trim($filter_user_login);
-if (strlen($filter_user_email)>0)
+if ($filter_user_email <> '')
 	$arFilter["ORDER.USER.EMAIL"] = trim($filter_user_email);
-if (IntVal($filter_user_id)>0)
-	$arFilter["ORDER.USER_ID"] = IntVal($filter_user_id);
-if(strlen($filter_date_paid_from)>0) $arFilter[">=DATE_PAID"] = trim($filter_date_paid_from);
-if(strlen($filter_date_paid_to)>0)
+if (intval($filter_user_id)>0)
+	$arFilter["ORDER.USER_ID"] = intval($filter_user_id);
+if($filter_date_paid_from <> '') $arFilter[">=DATE_PAID"] = trim($filter_date_paid_from);
+if($filter_date_paid_to <> '')
 {
 	if($arDate = ParseDateTime($filter_date_paid_to, CSite::GetDateFormat("FULL", SITE_ID)))
 	{
-		if(StrLen($filter_date_paid_to) < 11)
+		if(mb_strlen($filter_date_paid_to) < 11)
 		{
 			$arDate["HH"] = 23;
 			$arDate["MI"] = 59;
@@ -654,7 +654,7 @@ $oFilter->Begin();
 				{
 					$psPt = array();
 					foreach ($ptParams['PARAMS']['PERSON_TYPE_ID'] as $id)
-						$psPt[] = ((strlen($personTypes[$id]['NAME']) > 15) ? substr($personTypes[$id]['NAME'], 0, 6)."...".substr($personTypes[$id]['NAME'], -7) : $personTypes[$id]['NAME'])."/".$personTypes[$id]["LID"]."";
+						$psPt[] = ((mb_strlen($personTypes[$id]['NAME']) > 15) ? mb_substr($personTypes[$id]['NAME'], 0, 6)."...".mb_substr($personTypes[$id]['NAME'], -7) : $personTypes[$id]['NAME'])."/".$personTypes[$id]["LID"]."";
 					if ($psPt)
 						$personTypeString = ' ('.join(', ', $psPt).')';
 				}

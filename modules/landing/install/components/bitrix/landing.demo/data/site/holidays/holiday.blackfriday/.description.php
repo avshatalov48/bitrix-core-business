@@ -20,7 +20,6 @@ return array(
 	'preview_url' => '',
 	'show_in_list' => 'Y',
 	'type' => 'page',
-	'sort' => \LandingSiteDemoComponent::checkActivePeriod(11,01,11,30) ? 31 : -171,
 	'version' => 2,
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(
@@ -29,7 +28,10 @@ return array(
 			'VIEW_TYPE' => 'no',
 			'UP_SHOW' => 'Y',
 			'THEME_CODE' => 'photography',
-			'THEME_CODE_TYPO' => 'photography',
+			'THEMEFONTS_CODE' => 'g-font-roboto',
+'THEMEFONTS_CODE_H' => 'g-font-roboto',
+'THEMEFONTS_SIZE' => '0.92857',
+'THEMEFONTS_USE' => 'Y',
 			'SETTINGS_HIDE_NOT_AVAILABLE' => 'L',
 			'SETTINGS_HIDE_NOT_AVAILABLE_OFFERS' => 'N',
 			'SETTINGS_PRODUCT_SUBSCRIPTION' => 'Y',

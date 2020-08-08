@@ -16,7 +16,7 @@ class SaleCrmSiteMasterAjaxController extends Bitrix\Main\Engine\Controller
 	 */
 	public function updateLicenseKeyAction($key)
 	{
-		$key = strtoupper($key);
+		$key = mb_strtoupper($key);
 		if ($this->isLicenseKey($key))
 		{
 			$this->updateLicenseKey($key);

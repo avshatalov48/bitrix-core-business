@@ -37,14 +37,14 @@ $lAdmin->InitFilter($arFilterFields);
 
 $arFilter = array();
 
-if (strlen($filter_country_name)>0 && $filter_country_name!="%" && $filter_country_name!="%%")
+if ($filter_country_name <> '' && $filter_country_name!="%" && $filter_country_name!="%%")
 	$arFilter["COUNTRY"] = Trim($filter_country_name);
-if (strlen($filter_region_name)>0 && $filter_region_name!="%" && $filter_region_name!="%%")
+if ($filter_region_name <> '' && $filter_region_name!="%" && $filter_region_name!="%%")
 	$arFilter["REGION"] = Trim($filter_region_name);
-if (strlen($filter_city_name)>0 && $filter_city_name!="%" && $filter_city_name!="%%")
+if ($filter_city_name <> '' && $filter_city_name!="%" && $filter_city_name!="%%")
 	$arFilter["CITY"] = Trim($filter_city_name);
-if (IntVal($filter_country)>0)
-	$arFilter["COUNTRY_ID"] = IntVal($filter_country);
+if (intval($filter_country)>0)
+	$arFilter["COUNTRY_ID"] = intval($filter_country);
 $arFilter["LID"] = LANGUAGE_ID;
 
 if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
@@ -65,7 +65,7 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 
 	foreach ($arID as $ID)
 	{
-		if (strlen($ID) <= 0)
+		if ($ID == '')
 			continue;
 
 		switch ($_REQUEST['action'])
@@ -121,8 +121,8 @@ while ($arLocation = $dbResultList->NavNext(true, "f_"))
 
 	$row->AddField("ID", "<b><a href='".$editUrl."' title='".GetMessage("SALE_EDIT_DESCR")."'>".$f_ID."</a>");
 	$row->AddField("COUNTRY_NAME", $f_COUNTRY_NAME_ORIG.(((string)$f_COUNTRY_NAME != "")?" <small>[".$f_COUNTRY_NAME."]</small>":""));
-	$row->AddField("REGION_NAME", $f_REGION_NAME_ORIG.((IntVal($f_REGION_ID)>0) ? " <small>[".$f_REGION_NAME."]</small>" : ""));
-	$row->AddField("CITY_NAME", $f_CITY_NAME_ORIG.((IntVal($f_CITY_ID)>0) ? " <small>[".$f_CITY_NAME."]</small>" : ""));
+	$row->AddField("REGION_NAME", $f_REGION_NAME_ORIG.((intval($f_REGION_ID)>0) ? " <small>[".$f_REGION_NAME."]</small>" : ""));
+	$row->AddField("CITY_NAME", $f_CITY_NAME_ORIG.((intval($f_CITY_ID)>0) ? " <small>[".$f_CITY_NAME."]</small>" : ""));
 	$row->AddField("SORT", $f_SORT);
 
 	$arActions = Array();
@@ -211,7 +211,7 @@ $oFilter->Begin();
 				$db_contList = CSaleLocation::GetCountryList(Array("NAME_LANG"=>"ASC"), Array(), LANG);
 				while ($arContList = $db_contList->Fetch())
 				{
-					?><option value="<?echo $arContList["ID"] ?>"<?if (IntVal($arContList["ID"])==IntVal($filter_country)) echo " selected";?>><?echo htmlspecialcharsbx($arContList["NAME"]) ?> [<?echo htmlspecialcharsbx($arContList["NAME_LANG"]) ?>]</option><?
+					?><option value="<?echo $arContList["ID"] ?>"<?if (intval($arContList["ID"])==intval($filter_country)) echo " selected";?>><?echo htmlspecialcharsbx($arContList["NAME"]) ?> [<?echo htmlspecialcharsbx($arContList["NAME_LANG"]) ?>]</option><?
 				}
 				?>
 			</select>

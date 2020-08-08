@@ -195,8 +195,10 @@ abstract class NameHelper extends Helper
 				{
 					$key = 'find_'.$code.'_'.$lang;
 
-					if(strlen($GLOBALS[$key]))
+					if($GLOBALS[$key] <> '')
+					{
 						$parameters['filter'][static::getFilterModifier($fld['data_type']).'NAME__'.$lang.'.'.$code] = $GLOBALS[$key];
+					}
 				}
 			}
 		}

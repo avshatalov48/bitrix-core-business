@@ -111,6 +111,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      main_core.Dom.append(_this.description, _this.layout);
 	    }
 
+	    if (_this.data.disabled === true) {
+	      _this.disable();
+	    }
+
 	    main_core.Event.bind(_this.input, 'paste', _this.onPaste);
 
 	    _this.init();
@@ -190,13 +194,13 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "enable",
 	    value: function enable() {
 	      main_core.Dom.attr(this.layout, 'disabled', false);
-	      main_core.Dom.removeClass(this.layout, 'landing-ui-disable');
+	      main_core.Dom.removeClass(this.layout, 'landing-ui-disabled');
 	    }
 	  }, {
 	    key: "disable",
 	    value: function disable() {
 	      main_core.Dom.attr(this.layout, 'disabled', true);
-	      main_core.Dom.addClass(this.layout, 'landing-ui-disable');
+	      main_core.Dom.addClass(this.layout, 'landing-ui-disabled');
 	    } // eslint-disable-next-line class-methods-use-this
 
 	  }, {

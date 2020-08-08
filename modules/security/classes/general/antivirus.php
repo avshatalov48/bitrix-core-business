@@ -139,7 +139,7 @@ class CSecurityAntiVirus
 		{
 			$content = ob_get_contents();
 			ob_end_clean();
-			if(strlen($content))
+			if($content <> '')
 			{
 				$Antivirus = new CSecurityAntiVirus("pre");
 				$Antivirus->Analyze($content);
@@ -162,11 +162,13 @@ class CSecurityAntiVirus
 					$SITE_ID = false;
 					do {
 						$SITE_ID = $arInfo["SITE_ID"];
-						if(strlen($arInfo["INFO"]))
+						if($arInfo["INFO"] <> '')
 						{
 							$arEvent = unserialize(base64_decode($arInfo["INFO"]));
 							if(is_array($arEvent))
+							{
 								$DB->Add("b_event_log", $arEvent, array("DESCRIPTION"));
+							}
 						}
 						CSecurityDB::Query("update b_sec_virus set SENT='Y' where ID='".$arInfo["ID"]."'", '');
 					} while ($arInfo = $rsInfo->Fetch());
@@ -212,14 +214,18 @@ class CSecurityAntiVirus
 		if(defined("BX_SECURITY_AV_AFTER_EPILOG"))
 		{
 			$content = ob_get_contents();
-			if(strlen($content))
+			if($content <> '')
 			{
 				ob_end_clean();
 
-				if(substr($content, 0, 6) == "<html>" && preg_match("#</html>\\s*\$#is", $content))
+				if(mb_substr($content, 0, 6) == "<html>" && preg_match("#</html>\\s*\$#is", $content))
+				{
 					$Antivirus = new CSecurityAntiVirus("body");
+				}
 				else
+				{
 					$Antivirus = new CSecurityAntiVirus("post");
+				}
 
 				$Antivirus->Analyze($content);
 				echo $content;
@@ -252,13 +258,13 @@ class CSecurityAntiVirus
 	// function returns 1, if current block is in white list and needs not processing.
 	function isInWhiteList()
 	{
-		if(strpos($this->atributes, 'src="/bitrix/') !== false)
+		if(mb_strpos($this->atributes, 'src="/bitrix/') !== false)
 			return 1;
 
 		if(preg_match('#src="http[s]?://(api-maps\\.yandex|maps\\.google|apis\\.google|stg\\.odnoklassniki)\\.[a-z]{2,3}/#', $this->atributes))
 			return 2;
 
-		if(strpos($this->body, 'BX_DEBUG_INFO') !== false)
+		if(mb_strpos($this->body, 'BX_DEBUG_INFO') !== false)
 			return 3;
 
 		if(preg_match('#(google-analytics\\.com/ga\\.js|openstat\\.net/cnt\\.js|autocontext\\.begun\\.ru/autocontext\\.js|counter\\.yadro\\.ru/hit)#', $this->body))
@@ -273,7 +279,7 @@ class CSecurityAntiVirus
 		if(preg_match('/(addPathRow|MoveProgress|Import|DoNext|JCMenu|AttachFile|CloseDialog|_processData|showComment|ShowWarnings|SWFObject|deliveryCalcProceed|structReload|addForumImagesShow|rsasec_form_bind|BX_YMapAddPolyline|BX_YMapAddPlacemark|CloseWaitWindow|DoChangeExternalSaleId|AjaxSend|readFileChunk|EndDump|createMenu|addProperty)\(/', $this->body))
 			return 7;
 
-		if(strpos($this->body, 'window.operation_success = true;') !== false)
+		if(mb_strpos($this->body, 'window.operation_success = true;') !== false)
 			return 8;
 
 		if(preg_match('/(jsAjaxUtil|jsUtils|jsPopup|elOnline|jsAdminChain|jsEvent|jsAjaxHistory|bxSession|BXHotKeys|oSearchDialog)\./', $this->body))
@@ -282,7 +288,7 @@ class CSecurityAntiVirus
 		if(preg_match('/new\s+(PopupMenu|JCAdminFilter|JCSmartFilter|JCAdminMenu|BXHint|ViewTabControl|BXHTMLEditor|JCTitleSearch|JCWDTitleSearch|BxInterfaceForm|Date|JCEmployeeSelectControl|JCCatalogBigdataProducts|JCCatalogSection|JCCatalogElement|JCCatalogTopSlider|JCCatalogTopSection|JCCatalogSectionRec|JCCatalogSectionViewed|JCCatalogCompareList|JCCatalogItem|JCSaleGiftProduct|B24\.SearchTitle)/', $this->body))
 			return 10;
 
-		if(strpos($this->body, 'document\.write(\'<link href="/bitrix/templates/') !== false)
+		if(mb_strpos($this->body, 'document\.write(\'<link href="/bitrix/templates/') !== false)
 			return 11;
 
 		if(preg_match('/(BX|document\.getElementById)\(\'session_time_result\'\).innerHTML/', $this->body))
@@ -360,7 +366,7 @@ class CSecurityAntiVirus
 		if(preg_match('/^\s*window\.__bxResult\[\'\d+\'\]\s*=\s*\{/', $this->body))
 			return 46;
 
-		if(strpos($this->body, 'showFLVPlayer') !== false)
+		if(mb_strpos($this->body, 'showFLVPlayer') !== false)
 			return 37;
 
 		if(preg_match('/var\s+formSettingsDialogCRM_(LEAD|DEAL|COMPANY|CONTACT)_SHOW/', $this->body))
@@ -409,7 +415,7 @@ class CSecurityAntiVirus
 		global $BX_SECURITY_AV_WHITE_LIST;
 		if(is_array($BX_SECURITY_AV_WHITE_LIST))
 			foreach($BX_SECURITY_AV_WHITE_LIST as $white_substr)
-				if(strpos($this->data, $white_substr) !== false)
+				if(mb_strpos($this->data, $white_substr) !== false)
 					return 34;
 
 		return 0;
@@ -577,7 +583,7 @@ class CSecurityAntiVirus
 			$this->resultrules = array();
 			$this->bodylines = false;
 			$this->atributes = $ret[2];
-			if(strtolower($ret[1]) == 'script')
+			if(mb_strtolower($ret[1]) == 'script')
 			{
 				$this->body = $this->returnscriptbody($this->data);
 				$this->type = 'script';
@@ -985,7 +991,7 @@ class CSecurityAntiVirus
 
 		if(count($this->bodylines) == 1)
 		{
-			$ll = strlen(bin2hex($this->body))/2;
+			$ll = mb_strlen(bin2hex($this->body)) / 2;
 			if($ll > 500)
 			{
 				$val = 9;
@@ -1014,7 +1020,7 @@ class CSecurityAntiVirus
 			$mxl = 0;
 			foreach($this->bodylines as $str)
 			{
-				$ll = strlen(bin2hex($str))/2;
+				$ll = mb_strlen(bin2hex($str)) / 2;
 				if($mxl < $ll)
 					$mxl = $ll;
 			}
@@ -1459,7 +1465,7 @@ class CSecurityAntiVirus
 		if(!$this->bodylines)
 			$this->bodylines = explode("\n", $this->body);
 
-		$ll = strlen(bin2hex($this->body))/2;
+		$ll = mb_strlen(bin2hex($this->body)) / 2;
 		$r = 0;
 		$lstr = count($this->bodylines);
 
@@ -1582,7 +1588,7 @@ class CSecurityAntiVirus
 		$mxs = 0;
 		foreach($rr['s'] as $k=>$v)
 		{
-			$l = strlen(bin2hex($v))/2;
+			$l = mb_strlen(bin2hex($v)) / 2;
 			if($l > $mxs)
 				$mxs = $l;
 		}
@@ -1661,9 +1667,9 @@ class CSecurityAntiVirus
 				$arCharClasses['B'][] = $i;
 
 			$strPunct = "`~!@#$%^&*[]{}();:'\",.\/?\|";
-			$len = strlen($strPunct);
+			$len = mb_strlen($strPunct);
 			for($i = 0; $i < $len; $i++)
-				$arCharClasses['NW'][] = ord(substr($strPunct, $i ,1));
+				$arCharClasses['NW'][] = ord(mb_substr($strPunct, $i, 1));
 		}
 
 		$chars = count_chars($str, 1);
@@ -1735,7 +1741,7 @@ class CSecurityAntiVirus
 
 	function isnormalname($nm, &$l)
 	{
-		$lnm = strtolower($nm);
+		$lnm = mb_strtolower($nm);
 		if($lnm == 'ac_fl_runcontent')
 			return 1;
 		if($lnm == 'innerhtml')

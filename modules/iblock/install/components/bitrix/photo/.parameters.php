@@ -390,7 +390,7 @@ elseif($arCurrentValues["USE_REVIEW"]=="Y")
 		"PARENT" => "REVIEW_SETTINGS",
 		"NAME" => GetMessage("F_MESSAGES_PER_PAGE"),
 		"TYPE" => "STRING",
-		"DEFAULT" => intVal(COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10"))
+		"DEFAULT" => intval(COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10"))
 	);
 	$arComponentParameters["PARAMETERS"]["USE_CAPTCHA"] = Array(
 		"PARENT" => "REVIEW_SETTINGS",

@@ -3,6 +3,9 @@ import Dom from './dom';
 
 const UA = navigator.userAgent.toLowerCase();
 
+/**
+ * @memberOf BX
+ */
 export default class Browser
 {
 	static isOpera()

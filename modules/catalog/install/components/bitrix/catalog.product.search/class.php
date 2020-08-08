@@ -123,6 +123,16 @@ class ProductSearchComponent extends \CBitrixComponent
 		$params['IBLOCK_ID'] = isset($params['IBLOCK_ID']) ? (int)$params['IBLOCK_ID'] : 0;
 		if (!empty($_REQUEST['IBLOCK_ID']))
 			$params['IBLOCK_ID'] = (int)$_REQUEST['IBLOCK_ID'];
+		$params['iblockfix'] = (isset($params['iblockfix']) && $params['iblockfix'] === 'Y' ? 'Y' : 'N');
+		if (isset($_REQUEST['iblockfix']) && $_REQUEST['iblockfix'] === 'Y')
+		{
+			$params['iblockfix'] = 'Y';
+		}
+		if ($params['IBLOCK_ID'] <= 0)
+		{
+			$params['iblockfix'] = 'N';
+		}
+
 		$params['SECTION_ID'] = isset($_REQUEST['SECTION_ID']) ? (int)$_REQUEST['SECTION_ID'] : 0;
 
 		if (!empty($_REQUEST['action']) && $_REQUEST['action'] == 'change_iblock')
@@ -148,7 +158,7 @@ class ProductSearchComponent extends \CBitrixComponent
 			ClearVars('filter_');
 			foreach ($_REQUEST as $key => $value)
 			{
-				if (strpos($key,'filter_') === 0)
+				if (mb_strpos($key, 'filter_') === 0)
 					unset($_REQUEST[$key]);
 			}
 		}
@@ -208,7 +218,7 @@ class ProductSearchComponent extends \CBitrixComponent
 	{
 		foreach ($_REQUEST as $key => $value)
 		{
-			if (strpos($key,'filter_') === 0)
+			if (mb_strpos($key, 'filter_') === 0)
 				return true;
 		}
 		return false;
@@ -267,6 +277,7 @@ class ProductSearchComponent extends \CBitrixComponent
 		if (!is_array($arOrder))
 			$arOrder = array("SORT"=>"ASC");
 
+		//TODO: change to \CIBlockSection::getElementInherentFilter after update will be stable
 		$elementInherentFilter = self::getElementInherentFilter($arFilter);
 
 		$notFound = false;
@@ -378,7 +389,7 @@ class ProductSearchComponent extends \CBitrixComponent
 			if (!empty($elementInherentFilter))
 				$arElementFilter = $arElementFilter + $elementInherentFilter;
 
-			if (strlen($arFilter["SECTION_ID"]) <= 0)
+			if ($arFilter["SECTION_ID"] == '')
 				unset($arElementFilter["SECTION_ID"]);
 
 			if (!is_array($arSelectedFields))
@@ -451,7 +462,7 @@ class ProductSearchComponent extends \CBitrixComponent
 			}
 			unset($props);
 
-			$select = array('NAME',  'ACTIVE', 'CATALOG_QUANTITY');
+			$select = array('NAME',  'ACTIVE', 'QUANTITY', 'TYPE');
 			$visible = $this->getVisibleColumns();
 			if (in_array('PREVIEW_PICTURE', $visible))
 				$select[] = 'PREVIEW_PICTURE';
@@ -665,10 +676,9 @@ class ProductSearchComponent extends \CBitrixComponent
 					}
 				}
 
-				$arSkuTmp["BALANCE"] = $arOffer["CATALOG_QUANTITY"];
-				$arSkuTmp["USER_ID"] = $this->getUserId();
+				$arSkuTmp["BALANCE"] = $arOffer["QUANTITY"];
 				$arSkuTmp["ID"] = $arOffer["ID"];
-				$arSkuTmp["TYPE"] = $arOffer["CATALOG_TYPE"];
+				$arSkuTmp["TYPE"] = $arOffer["TYPE"];
 				$arSkuTmp["NAME"] = $arOffer["NAME"];
 				$arSkuTmp["PRODUCT_NAME"] = $productName;
 				$arSkuTmp["PRODUCT_ID"] = $productId;
@@ -1251,6 +1261,7 @@ class ProductSearchComponent extends \CBitrixComponent
 			["id" => "BALANCE", "content" => $balanceTitle, "default" => true, "align" => "right"],
 			["id" => "CODE", "content" => Loc::getMessage("SPS_FIELD_CODE"), "sort" => "CODE"],
 			["id" => "EXTERNAL_ID", "content" => Loc::getMessage("SPS_FIELD_XML_ID"), "sort" => "XML_ID"],
+			["id" => "SORT", "content" => Loc::getMessage("SPS_FIELD_SORT"), "sort" => "SORT", "align" => "right"],
 			["id" => "SHOW_COUNTER", "content" => Loc::getMessage("SPS_FIELD_SHOW_COUNTER"), "sort" => "SHOW_COUNTER", "align" => "right"],
 			["id" => "SHOW_COUNTER_START", "content" => Loc::getMessage("SPS_FIELD_SHOW_COUNTER_START"), "sort" => "SHOW_COUNTER_START", "align" => "right"],
 			["id" => "PREVIEW_PICTURE", "content" => Loc::getMessage("SPS_FIELD_PREVIEW_PICTURE"), "align" => "right"],
@@ -1267,6 +1278,7 @@ class ProductSearchComponent extends \CBitrixComponent
 			'NAME' => true,
 			'CODE' => true,
 			'EXTERNAL_ID' => true,
+			'SORT' => true,
 			'SHOW_COUNTER' => true,
 			'SHOW_COUNTER_START' => true,
 			'PREVIEW_PICTURE' => true,
@@ -1364,11 +1376,11 @@ class ProductSearchComponent extends \CBitrixComponent
 			{
 				$this->visibleColumns[] = $param["id"];
 
-				if (strpos($param["id"], 'PRICE') === 0)
+				if (mb_strpos($param["id"], 'PRICE') === 0)
 				{
 					$this->visiblePrices[] = (int)str_replace('PRICE', '', $param["id"]);
 				}
-				elseif (strpos($param["id"], 'PROPERTY_') === 0)
+				elseif (mb_strpos($param["id"], 'PROPERTY_') === 0)
 				{
 					$this->visibleProperties[] = (int)str_replace('PROPERTY_', '', $param["id"]);
 				}
@@ -1464,7 +1476,7 @@ class ProductSearchComponent extends \CBitrixComponent
 				elseif (isset($_REQUEST[$filterValueName]))
 				{
 					$value = $_REQUEST[$filterValueName];
-					if (is_array($value) || strlen($value))
+					if (is_array($value) || mb_strlen($value))
 					{
 						if ($value === "NOT_REF")
 							$value = false;
@@ -1502,7 +1514,7 @@ class ProductSearchComponent extends \CBitrixComponent
 				elseif (isset($_REQUEST[$filterValueName]))
 				{
 					$value = $_REQUEST[$filterValueName];
-					if (is_array($value) || strlen($value))
+					if (is_array($value) || mb_strlen($value))
 					{
 						if ($value === "NOT_REF")
 							$value = false;
@@ -1533,7 +1545,7 @@ class ProductSearchComponent extends \CBitrixComponent
 			if (preg_match('#^[0-9\s]+$#', $_REQUEST['QUERY']))
 			{
 				$barcode = preg_replace('#[^0-9]#', '', $_REQUEST['QUERY']);
-				if (strlen($barcode) > 8)
+				if (mb_strlen($barcode) > 8)
 				{
 					$rsBarCode = \CCatalogStoreBarCode::getList(array(), array("BARCODE" => $barcode), false, false, array('PRODUCT_ID'));
 					while ($res = $rsBarCode->Fetch())
@@ -1558,7 +1570,7 @@ class ProductSearchComponent extends \CBitrixComponent
 				$activeSectionId = $this->getSectionId();
 				while ($ar = $obSearch->Fetch())
 				{
-					if (strpos($ar['ITEM_ID'], 'S') === 0)
+					if (mb_strpos($ar['ITEM_ID'], 'S') === 0)
 					{
 						$sectionId = preg_replace('#[^0-9]+#', '', $ar['ITEM_ID']);
 						if ($sectionId != $activeSectionId)
@@ -1690,6 +1702,10 @@ class ProductSearchComponent extends \CBitrixComponent
 			$filter = array();
 			if ($this->getSubscription())
 				$filter['=SUBSCRIPTION'] = 'Y';
+			if ($this->arParams['iblockfix'] === 'Y')
+			{
+				$filter['=IBLOCK_ID'] = $this->arParams['IBLOCK_ID'];
+			}
 
 			$showOffersIBlock = \Bitrix\Main\Config\Option::get('catalog', 'product_form_show_offers_iblock');
 
@@ -1934,7 +1950,7 @@ class ProductSearchComponent extends \CBitrixComponent
 			foreach($filter as $index => $value)
 			{
 				$op = CIBlock::MkOperationFilter($index);
-				$newIndex = strtoupper($op["FIELD"]);
+				$newIndex = mb_strtoupper($op["FIELD"]);
 				if (
 					strncmp($newIndex, "PROPERTY_", 9) == 0
 					|| \CProductQueryBuilder::isValidField($newIndex)
@@ -1960,7 +1976,7 @@ class ProductSearchComponent extends \CBitrixComponent
 			foreach($filter as $index => $value)
 			{
 				$op = CIBlock::MkOperationFilter($index);
-				$newIndex = strtoupper($op["FIELD"]);
+				$newIndex = mb_strtoupper($op["FIELD"]);
 				if (
 					strncmp($newIndex, "PROPERTY_", 9) == 0
 					|| ($catalogIncluded && \CProductQueryBuilder::isRealFilterField($newIndex))

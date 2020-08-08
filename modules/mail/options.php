@@ -26,7 +26,7 @@ $arAllOptions = array(
 
 if($MOD_RIGHT>="W" && check_bitrix_sessid())
 {
-	if ($REQUEST_METHOD=="GET" && strlen($RestoreDefaults)>0)
+	if ($REQUEST_METHOD=="GET" && $RestoreDefaults <> '')
 	{
 		COption::RemoveOption($module_id);
 		$z = CGroup::GetList($v1="id",$v2="asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
@@ -34,7 +34,7 @@ if($MOD_RIGHT>="W" && check_bitrix_sessid())
 			$APPLICATION->DelGroupRight($module_id, array($zr["ID"]));
 	}
 
-	if($REQUEST_METHOD=="POST" && strlen($Update)>0)
+	if($REQUEST_METHOD=="POST" && $Update <> '')
 	{
 		for($i=0; $i<count($arAllOptions); $i++)
 		{
@@ -84,7 +84,7 @@ $tabControl->BeginNextTab();
 	?>
 <?$tabControl->BeginNextTab();?>
 
-<?$val = COption::GetOptionString("mail", "php_path", (StrToUpper(SubStr(PHP_OS, 0, 3)) === "WIN") ? "../apache/php.exe -c ../apache/php.ini" : "authbind php -c /etc/php.ini");?>
+<?$val = COption::GetOptionString("mail", "php_path", (mb_strtoupper(mb_substr(PHP_OS, 0, 3)) === "WIN") ? "../apache/php.exe -c ../apache/php.ini" : "authbind php -c /etc/php.ini");?>
 <script>
 var ss = false;
 function StartSMTPD()

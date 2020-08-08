@@ -70,9 +70,9 @@ Loc::loadMessages(__FILE__);
 			<?=Loc::getMessage('SALE_SLI_STAT_TITLE')?>:
 			<ul class="bx-ui-loc-i-stat-list">
 				<?foreach($arResult['STATISTICS'] as $code => $stat):?>
-					<?if(strlen($stat['NAME'])):?>
-						<li><?=htmlspecialcharsbx($stat['NAME'])?>: <?=intval($stat['CNT'])?></li>
-					<?endif?>
+					<? if($stat['NAME'] <> ''): ?>
+						<li><?= htmlspecialcharsbx($stat['NAME']) ?>: <?= intval($stat['CNT']) ?></li>
+					<? endif?>
 				<?endforeach?>
 				<script type="text/html" data-template-id="bx-ui-loc-i-stat-item">
 					<li>{{type}}: {{count}}</li>

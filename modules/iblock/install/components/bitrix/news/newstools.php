@@ -11,7 +11,7 @@ class CNewsTools
 
 		static $arIBlockCache = array();
 
-		if($arFields["MODULE_ID"] !== "iblock" || substr($arFields["URL"], 0, 1) !== "=")
+		if($arFields["MODULE_ID"] !== "iblock" || mb_substr($arFields["URL"], 0, 1) !== "=")
 			return $arFields["URL"];
 
 		if(!Main\Loader::includeModule('iblock'))
@@ -46,7 +46,7 @@ class CNewsTools
 		$arr = $arIBlockCache[$IBLOCK_ID] + $arr;
 		$arr["LANG_DIR"] = $arFields["DIR"];
 
-		if(substr($arFields["ITEM_ID"], 0, 1) !== 'S')
+		if(mb_substr($arFields["ITEM_ID"], 0, 1) !== 'S')
 			return CIBlock::ReplaceDetailUrl($BX_NEWS_DETAIL_URL, $arr, true, "E");
 		else
 			return CIBlock::ReplaceDetailUrl($BX_NEWS_SECTION_URL, $arr, true, "S");

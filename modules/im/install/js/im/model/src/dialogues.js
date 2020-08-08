@@ -1,19 +1,18 @@
-
 /**
  * Bitrix Messenger
  * Dialogues model (Vuex Builder model)
  *
  * @package bitrix
  * @subpackage im
- * @copyright 2001-2019 Bitrix
+ * @copyright 2001-2020 Bitrix
  */
 
 import {Vue} from 'ui.vue';
 import {VuexBuilderModel} from 'ui.vue.vuex';
 import {StorageLimit} from "im.const";
-import {Utils} from "im.utils";
+import {Utils} from "im.lib.utils";
 
-class DialoguesModel extends VuexBuilderModel
+export class DialoguesModel extends VuexBuilderModel
 {
 	getName()
 	{
@@ -58,6 +57,7 @@ class DialoguesModel extends VuexBuilderModel
 			writingList: [],
 			textareaMessage: "",
 			quoteId: 0,
+			editId: 0,
 			init: false,
 
 			name: "",
@@ -72,6 +72,17 @@ class DialoguesModel extends VuexBuilderModel
 			entityData2: "",
 			entityData3: "",
 			dateCreate: new Date(),
+			restrictions: {
+				avatar: true,
+				extend: true,
+				leave: true,
+				leaveOwner: true,
+				rename: true
+			},
+			public: {
+				code: '',
+				link: ''
+			}
 		};
 	}
 
@@ -118,6 +129,15 @@ class DialoguesModel extends VuexBuilderModel
 				}
 
 				return state.collection[dialogId].quoteId;
+			},
+			getEditId: state => dialogId =>
+			{
+				if (!state.collection[dialogId])
+				{
+					return 0;
+				}
+
+				return state.collection[dialogId].editId;
 			},
 			canSaveChat: state => chatId =>
 			{
@@ -547,6 +567,10 @@ class DialoguesModel extends VuexBuilderModel
 		{
 			result.quoteId = parseInt(fields.quoteId);
 		}
+		if (typeof fields.editId === "number")
+		{
+			result.editId = parseInt(fields.editId);
+		}
 
 		if (typeof fields.counter === "number" || typeof fields.counter === "string")
 		{
@@ -693,7 +717,7 @@ class DialoguesModel extends VuexBuilderModel
 		}
 		if (typeof fields.name === "string" || typeof fields.name === "number")
 		{
-			result.name = fields.name.toString();
+			result.name = Utils.text.htmlspecialcharsback(fields.name.toString());
 		}
 
 		if (typeof fields.owner !== 'undefined')
@@ -802,8 +826,51 @@ class DialoguesModel extends VuexBuilderModel
 			result.dateLastOpen = Utils.date.cast(fields.dateLastOpen);
 		}
 
+		if (typeof fields.restrictions === 'object' && fields.restrictions)
+		{
+			result.restrictions = {};
+
+			if (typeof fields.restrictions.AVATAR === 'boolean')
+			{
+				result.restrictions.avatar = fields.restrictions.AVATAR;
+			}
+
+			if (typeof fields.restrictions.EXTEND === 'boolean')
+			{
+				result.restrictions.extend = fields.restrictions.EXTEND;
+			}
+
+			if (typeof fields.restrictions.LEAVE === 'boolean')
+			{
+				result.restrictions.leave = fields.restrictions.LEAVE;
+			}
+
+			if (typeof fields.restrictions.LEAVE_OWNER === 'boolean')
+			{
+				result.restrictions.leaveOwner = fields.restrictions.LEAVE_OWNER;
+			}
+
+			if (typeof fields.restrictions.RENAME === 'boolean')
+			{
+				result.restrictions.rename = fields.restrictions.RENAME;
+			}
+		}
+
+		if (typeof fields.public === 'object' && fields.public)
+		{
+			result.public = {};
+
+			if (typeof fields.public.code === 'string')
+			{
+				result.public.code = fields.public.code;
+			}
+
+			if (typeof fields.public.link === 'string')
+			{
+				result.public.link = fields.public.link;
+			}
+		}
+
 		return result;
 	}
 }
-
-export {DialoguesModel};

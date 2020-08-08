@@ -48,7 +48,7 @@ class File
 	 */
 	public static function instantiateByPath($path)
 	{
-		if (empty($path) || !is_string($path) || (substr($path, -4) !== '.php') || !preg_match("#.+/lang/[a-z]{2}/.+\.php$#", $path))
+		if (empty($path) || !is_string($path) || (mb_substr($path, -4) !== '.php') || !preg_match("#.+/lang/[a-z]{2}/.+\.php$#", $path))
 		{
 			throw new Main\ArgumentException("Parameter 'path' has a wrong value");
 		}
@@ -310,7 +310,20 @@ class File
 		// encoding
 		$targetEncoding = $this->getOperatingEncoding();
 		$sourceEncoding = $this->getSourceEncoding();
-		$convertEncoding = (strtolower($targetEncoding) != strtolower($sourceEncoding));
+		$convertEncoding = (mb_strtolower($targetEncoding) != mb_strtolower($sourceEncoding));
+		if ($convertEncoding)
+		{
+			$path = Main\Localization\Translation::convertLangPath($this->getPhysicalPath(), $this->getLangId());
+
+			if (Main\Localization\Translation::getDeveloperRepositoryPath() !== null)
+			{
+				$convertEncoding = (stripos($path, Main\Localization\Translation::getDeveloperRepositoryPath()) === 0);
+			}
+			if (!$convertEncoding && Main\Localization\Translation::useTranslationRepository())
+			{
+				$convertEncoding = (stripos($path, Main\Localization\Translation::getTranslationRepositoryPath()) === 0);
+			}
+		}
 
 		$MESS = array();
 		include $this->getPhysicalPath();
@@ -356,12 +369,25 @@ class File
 		// encoding
 		$operatingEncoding = $this->getOperatingEncoding();
 		$sourceEncoding = $this->getSourceEncoding();
-		$convertEncoding = (strtolower($operatingEncoding) != strtolower($sourceEncoding));
+		$convertEncoding = (mb_strtolower($operatingEncoding) != mb_strtolower($sourceEncoding));
+		if ($convertEncoding)
+		{
+			$path = Main\Localization\Translation::convertLangPath($this->getPhysicalPath(), $this->getLangId());
+
+			if (Main\Localization\Translation::getDeveloperRepositoryPath() !== null)
+			{
+				$convertEncoding = (stripos($path, Main\Localization\Translation::getDeveloperRepositoryPath()) === 0);
+			}
+			if (!$convertEncoding && Main\Localization\Translation::useTranslationRepository())
+			{
+				$convertEncoding = (stripos($path, Main\Localization\Translation::getTranslationRepositoryPath()) === 0);
+			}
+		}
 
 		$content = '';
 		foreach ($this->messages as $phraseId => $phrase)
 		{
-			if (empty($phrase))
+			if (empty($phrase) && $phrase !== '0')
 			{
 				// remove empty
 				continue;
@@ -376,9 +402,9 @@ class File
 		}
 		unset($phraseId, $phrase, $row);
 
-		if (strlen($content) > 0)
+		if ($content <> '')
 		{
-			if (parent::putContents('<?'. $content. "\n?". '>') === false)
+			if (parent::putContents('<?php'. $content. "\n") === false)
 			{
 				$filePath = $this->getPath();
 				throw new Main\IO\IoException("Couldn't write language file '{$filePath}'");
@@ -450,7 +476,7 @@ class File
 
 		if (Main\Localization\Translation::useTranslationRepository() && in_array($langId, Translate\Config::getTranslationRepositoryLanguages()))
 		{
-			if (strpos($langFile, Main\Localization\Translation::getTranslationRepositoryPath()) === 0)
+			if (mb_strpos($langFile, Main\Localization\Translation::getTranslationRepositoryPath()) === 0)
 			{
 				$langFile = str_replace(
 					Main\Localization\Translation::getTranslationRepositoryPath(). '/',
@@ -461,7 +487,7 @@ class File
 		}
 		if (Main\Localization\Translation::getDeveloperRepositoryPath() !== null)
 		{
-			if (strpos($langFile, Main\Localization\Translation::getDeveloperRepositoryPath()) === 0)
+			if (mb_strpos($langFile, Main\Localization\Translation::getDeveloperRepositoryPath()) === 0)
 			{
 				$langFile = str_replace(
 					Main\Localization\Translation::getDeveloperRepositoryPath(). '/',
@@ -470,7 +496,7 @@ class File
 				);
 			}
 		}
-		if (strpos($langFile, Main\Application::getDocumentRoot()) === 0)
+		if (mb_strpos($langFile, Main\Application::getDocumentRoot()) === 0)
 		{
 			$langFile = str_replace(
 				Main\Application::getDocumentRoot(). '/',
@@ -708,7 +734,7 @@ class File
 	 */
 	public function sortPhrases()
 	{
-		ksort($this->messages, SORT_STRING);
+		\ksort($this->messages, \SORT_NATURAL);
 		$this->rewind();
 
 		return $this;
@@ -745,7 +771,12 @@ class File
 	{
 		$code = $this->messageCodes[$this->dataPosition];
 
-		return $this->messages[$code] ?: null;
+		if (!isset($this->messages[$code]) || !is_string($this->messages[$code]) || (empty($this->messages[$code]) && $this->messages[$code] !== '0'))
+		{
+			return null;
+		}
+
+		return $this->messages[$code];
 	}
 
 	/**

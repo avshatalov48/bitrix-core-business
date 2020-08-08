@@ -381,11 +381,14 @@
 			if (BX.type.isArray(comment))
 				comment = this.initComment(comment, "", []);
 
-			text = '<div class="feed-add-info-text"><span class="feed-add-info-icon"></span>' +
-					'<b>' + BX.message('FC_ERROR') + '</b><br />' + text + '</div>';
 			if (comment && comment.node)
 			{
-				BX.addClass(comment.node, "feed-com-block-cover-undelivered");
+				comment.node.classList.add('feed-com-block-cover-undelivered');
+				var errorTextNode = comment.node.querySelector('.post-comment-error-text');
+				if (errorTextNode)
+				{
+					errorTextNode.innerHTML = text;
+				}
 
 				var bindUndelivered = (
 					typeof comment.attachments == 'undefined'
@@ -416,26 +419,11 @@
 				{
 					BX.bind(comment.node, 'click', BX.proxy(function(e) {
 						BX.unbindAll(comment.node);
-						BX.removeClass(comment.node, "feed-com-block-cover-undelivered");
+						comment.node.classList.remove('feed-com-block-cover-undelivered');
 						this.handler.comment = comment;
 						this.handler.simpleForm.handleAppData(comment.text, true);
 					}, this));
 				}
-
-/*
-				node = BX.findChild(comment.node, {'tagName' : "DIV", 'className' : "post-comment-text"}, true);
-				if (node)
-					node.innerHTML += text;
-*/
-			}
-			else if (text)
-			{
-/*
-				var container = BX.create("DIV", {
-					attrs : {"className" : ".feed-com-block-cover feed-com-block-cover-error"},
-					html : text});
-				BX.show(node);
-*/
 			}
 		},
 		showNote : function(id, text) {
@@ -503,78 +491,8 @@
 		var node = BX(["record", ENTITY_XML_ID, ID].join("-")),
 			menu = [], action;
 
-		if (node.getAttribute("bx-mpl-reply-show") == "Y")
-			menu.push({
-				title: BX.message('BLOG_C_REPLY'),
-				callback: function() {
-					repo["list"][ENTITY_XML_ID].reply(BX(["record", ENTITY_XML_ID, ID, "reply-action"].join("-")));
-				}
-			});
-		var like;
-		if ((node.getAttribute("bx-mpl-vote-id") != "#VOTE_ID#") && window["RatingLikeComments"] &&
-			(like = window.RatingLikeComments.getById(node.getAttribute('bx-mpl-vote-id'))) && like)
-		{
-			like["__delegatedVoteFunc"] = (like["__delegatedVoteFunc"] || BX.delegate(like.vote, like));
-			menu.push({title: (like.voted ? BX.message("BPC_MES_VOTE2") : BX.message("BPC_MES_VOTE1")),
-				callback: like["__delegatedVoteFunc"]});
-			menu.push({ title: BX.message('BPC_MES_VOTE'),
-				callback: function() { window.RatingLikeComments.List(node.getAttribute('bx-mpl-vote-id'));}});
-		}
+		BX.MPL.addMenuItems(menu, node, ENTITY_XML_ID, ID);
 
-		if (node.getAttribute("bx-mpl-edit-show") == "Y")
-		{
-			menu.push({
-				title: BX.message('BPC_MES_EDIT'),
-				callback: function() { repo["list"][ENTITY_XML_ID].act(node.getAttribute('bx-mpl-edit-url'), ID, 'EDIT'); }
-			});
-		}
-
-		if (node.getAttribute("bx-mpl-moderate-show") == "Y")
-		{
-			var hidden = node.getAttribute('bx-mpl-moderate-approved') == 'hidden';
-			menu.push({
-				title: (hidden ? BX.message("BPC_MES_SHOW") : BX.message("BPC_MES_HIDE")),
-				callback: function() {
-					var moderateUrl = node.getAttribute('bx-mpl-moderate-url').
-						replace("#action#", (hidden ? "show" : "hide")).
-						replace("#ACTION#", (hidden ? "SHOW" : "HIDE"));
-
-					if (BX.type.isNotEmptyString(moderateUrl))
-					{
-						moderateUrl = BX.util.add_url_param(moderateUrl, {
-							b24statAction: (hidden ? "showComment" : "hideComment"),
-							b24statContext: 'mobile'
-						});
-					}
-
-					repo["list"][ENTITY_XML_ID].act(moderateUrl, ID, (hidden ? "SHOW" : "HIDE"));
-				}
-			});
-		}
-		if (node.getAttribute("bx-mpl-delete-show") == "Y")
-			menu.push({
-				title: BX.message('BPC_MES_DELETE'),
-				callback: function() { repo["list"][ENTITY_XML_ID].act(node.getAttribute('bx-mpl-delete-url'), ID, 'DELETE'); }});
-		if (
-			node.getAttribute("bx-mpl-createtask-show") == "Y"
-			&& typeof oMSL != 'undefined'
-		)
-		{
-			var
-				commentEntityType = node.getAttribute('bx-mpl-comment-entity-type'),
-				postEntityType = node.getAttribute('bx-mpl-post-entity-type');
-
-			menu.push({
-				title: BX.message('BPC_MES_CREATETASK'),
-				callback: function() {
-					oMSL.createTask({
-						postEntityType: (BX.type.isNotEmptyString(postEntityType) ? postEntityType : 'BLOG_POST'),
-						entityType: (BX.type.isNotEmptyString(commentEntityType) ? commentEntityType : 'BLOG_COMMENT'),
-						entityId: ID
-					});
-				}
-			});
-		}
 		if (menu.length > 0)
 		{
 			action = new window.BXMobileApp.UI.ActionSheet({ buttons: menu }, "commentSheet" );
@@ -582,6 +500,7 @@
 		}
 		return false;
 	};
+
 	window.mobileReply = function(ENTITY_XML_ID, e) {
 		BX.eventCancelBubble(e);
 		e.preventDefault();
@@ -646,7 +565,7 @@
 			BX.MPL.superclass.constructor.apply(this, arguments);
 
 			this.thumb = BX.message("MPL_RECORD_THUMB");
-			this.thumbForFile = BX.message("MPL_RECORD_THUMB_FILE");
+			this.scope = "mobile";
 
 			BX.removeCustomEvent(window, 'OnUCFormBeforeShow', this.windowEvents['OnUCFormBeforeShow']);
 			BX.removeCustomEvent(window, 'OnUCFormAfterShow', this.windowEvents['OnUCFormAfterShow']);
@@ -708,7 +627,7 @@
 				var html = window.fcParseTemplate(
 					{ messageFields : { FULL_ID : id, POST_MESSAGE_TEXT : text, POST_TIMESTAMP : (new Date().getTime() / 1000) } },
 					{ DATE_TIME_FORMAT : this.params.DATE_TIME_FORMAT, RIGHTS : this.rights },
-					(BX.type.isArray(attachments) && attachments.length > 0 ? this.thumbForFile : this.thumb)), ob;
+					this.thumb), ob;
 
 				ob = BX.processHTML(html, false);
 				container = BX.create("DIV", {
@@ -793,14 +712,14 @@
 				};
 				BX.defer(func, this)();
 			}
-			BX.addClass(container, "feed-com-block-cover-wait");
+			BX.addClass(container, "post-comment-active-progress");
 			message.node = container;
 			return container;
 		};
 		BX.MPL.prototype.clearThumb = function(message) {
 			if (message && BX(message.node))
 			{
-				BX.removeClass(message.node, "feed-com-block-cover-wait");
+				BX.removeClass(message.node, "post-comment-active-progress");
 			}
 		};
 		BX.MPL.prototype.add = function(newId, data) {
@@ -842,6 +761,8 @@
 					BX.removeClass(waiter, "post-comments-button-waiter-active");
 				}
 			}
+			if (window["BitrixMobile"] && window["BitrixMobile"]["LazyLoad"])
+				setTimeout(function() { window.BitrixMobile.LazyLoad.showImages(); }, 1000);
 			BX.MPL.superclass.buildPagenavigation.apply(this, arguments);
 		};
 		BX.MPL.prototype.completePagenavigation = function() {
@@ -858,12 +779,12 @@
 		BX.MPL.prototype.showWait = function(id) {
 			var container = BX('record-' + this.ENTITY_XML_ID + '-' + id + '-cover');
 			if (id > 0 && container)
-				BX.addClass(container, "feed-com-block-cover-wait");
+				BX.addClass(container, "post-comment-active-progress");
 		};
 		BX.MPL.prototype.closeWait = function(id) {
 			var container = BX('record-' + this.ENTITY_XML_ID + '-' + id + '-cover');
 			if (id > 0 && container)
-				BX.removeClass(container, "feed-com-block-cover-wait");
+				BX.removeClass(container, "post-comment-active-progress");
 		};
 
 		BX.MPL.prototype.showError = function(id, text) {
@@ -878,6 +799,203 @@
 		BX.MPL.getInstance = function(entity_xml_id) {
 			return repo['list'][entity_xml_id];
 		};
+
+		BX.MPL.addMenuItems = function(menuItems, commentNode, entityXmlId, id) {
+
+			if (
+				!BX.type.isArray(menuItems)
+				|| !BX.type.isDomNode(commentNode)
+			)
+			{
+				return;
+			}
+
+			if (commentNode.getAttribute('bx-mpl-menu-show') == 'N')
+			{
+				return;
+			}
+
+			if (commentNode.getAttribute('bx-mpl-reply-show') == 'Y')
+			{
+				menuItems.push({
+					title: BX.message('BLOG_C_REPLY'),
+					callback: function() {
+						repo["list"][entityXmlId].reply(BX(['record', entityXmlId, id, 'reply-action'].join('-')));
+					}
+				});
+			}
+
+			var like;
+
+			if (
+				(commentNode.getAttribute('bx-mpl-vote-id') != '#VOTE_ID#')
+				&& window['RatingLikeComments']
+				&& (like = window.RatingLikeComments.getById(commentNode.getAttribute('bx-mpl-vote-id')))
+				&& like
+			)
+			{
+				like['__delegatedVoteFunc'] = (like['__delegatedVoteFunc'] || BX.delegate(like.vote, like));
+				menuItems.push({
+					title: (like.voted ? BX.message('BPC_MES_VOTE2') : BX.message('BPC_MES_VOTE1')),
+					callback: like['__delegatedVoteFunc']
+				});
+				menuItems.push({
+					title: BX.message('BPC_MES_VOTE'),
+					callback: function() {
+						window.RatingLikeComments.List(commentNode.getAttribute('bx-mpl-vote-id'));
+					}
+				});
+			}
+
+			if (commentNode.getAttribute('bx-mpl-edit-show') == 'Y')
+			{
+				menuItems.push({
+					title: BX.message('BPC_MES_EDIT'),
+					callback: function() {
+						repo['list'][entityXmlId].act(commentNode.getAttribute('bx-mpl-edit-url'), id, 'EDIT');
+					}
+				});
+			}
+
+			if (commentNode.getAttribute('bx-mpl-moderate-show') == 'Y')
+			{
+				var hidden = commentNode.getAttribute('bx-mpl-moderate-approved') == 'hidden';
+				menuItems.push({
+					title: (hidden ? BX.message('BPC_MES_SHOW') : BX.message('BPC_MES_HIDE')),
+					callback: function() {
+						var moderateUrl = commentNode.getAttribute('bx-mpl-moderate-url').
+						replace('#action#', (hidden ? 'show' : 'hide')).
+						replace('#ACTION#', (hidden ? 'SHOW' : 'HIDE'));
+
+						if (BX.type.isNotEmptyString(moderateUrl))
+						{
+							moderateUrl = BX.util.add_url_param(moderateUrl, {
+								b24statAction: (hidden ? 'showComment' : 'hideComment'),
+								b24statContext: 'mobile'
+							});
+						}
+
+						repo['list'][entityXmlId].act(moderateUrl, id, (hidden ? 'SHOW' : 'HIDE'));
+					}
+				});
+			}
+
+			if (commentNode.getAttribute('bx-mpl-delete-show') == 'Y')
+			{
+				menuItems.push({
+					title: BX.message('BPC_MES_DELETE'),
+					callback: function() {
+						repo['list'][entityXmlId].act(commentNode.getAttribute('bx-mpl-delete-url'), id, 'DELETE');
+					}
+				});
+			}
+
+			var
+				commentEntityType = commentNode.getAttribute('bx-mpl-comment-entity-type'),
+				postEntityType = commentNode.getAttribute('bx-mpl-post-entity-type');
+
+			if (
+				commentNode.getAttribute('bx-mpl-createtask-show') == 'Y'
+				&& typeof oMSL != 'undefined'
+			)
+			{
+				menuItems.push({
+					title: BX.message('BPC_MES_CREATETASK'),
+					callback: function() {
+						oMSL.createTask({
+							postEntityType: (BX.type.isNotEmptyString(postEntityType) ? postEntityType : 'BLOG_POST'),
+							entityType: (BX.type.isNotEmptyString(commentEntityType) ? commentEntityType : 'BLOG_COMMENT'),
+							entityId: id
+						});
+					}
+				});
+			}
+
+			if (
+				typeof oMSL != "undefined"
+				&& BX.type.isFunction(oMSL.copyLink)
+			)
+			{
+				menuItems.push({
+					title: BX.message('BPC_MES_COPYLINK'),
+					callback: function() {
+						oMSL.copyLink({
+							postEntityType: (BX.type.isNotEmptyString(postEntityType) ? postEntityType : 'BLOG_POST'),
+							entityType: (BX.type.isNotEmptyString(commentEntityType) ? commentEntityType : 'BLOG_COMMENT'),
+							entityId: id
+						});
+					}
+				});
+			}
+		};
+
+		BX.MPL.getMenuItems = function(event) {
+
+			var
+				eventData = event.getData(),
+				menuItems = eventData.menuItems,
+				targetNode = eventData.targetNode,
+				isKeyboardShown = (window.app.enableInVersion(14) && window.platform == "ios")
+					? window.BXMobileAppContext.isKeyboardShown()
+					: inner.keyBoardIsShown;
+
+			if(isKeyboardShown)
+			{
+				return;
+			}
+
+			if (
+				!BX.type.isDomNode(targetNode)
+				|| !BX.type.isArray(menuItems)
+			)
+			{
+				return;
+			}
+
+			if (
+				targetNode.tagName
+				&& (
+					targetNode.tagName.toUpperCase() == 'A'
+					|| (
+						targetNode.tagName.toUpperCase() == 'IMG'
+						&& (BX.type.isNotEmptyString(targetNode.getAttribute('data-bx-image'))) // inline or attached image
+					)
+				)
+			)
+			{
+				return;
+			}
+
+			var commentNode = (
+				targetNode.classList.contains('post-comment-block')
+					? targetNode
+					: BX.findParent(targetNode, { className: 'post-comment-block' })
+			);
+
+			if (!commentNode)
+			{
+				return;
+			}
+
+			var
+				entityXmlId = commentNode.getAttribute('bx-mpl-entity-xml-id'),
+				id = parseInt(commentNode.getAttribute('bx-mpl-comment-id'));
+
+			if (
+				!BX.type.isNotEmptyString(entityXmlId)
+				|| id <= 0
+			)
+			{
+				return;
+			}
+
+			BX.MPL.addMenuItems(menuItems, commentNode, entityXmlId, id);
+		};
+
+		BX.Event.EventEmitter.subscribe(
+			'BX.MPL:onGetMenuItems',
+			BX.MPL.getMenuItems
+		);
 
 		BX.addCustomEvent(window, "OnUCHasBeenDestroyed", function(ENTITY_XML_ID) {
 			delete repo["list"][ENTITY_XML_ID];

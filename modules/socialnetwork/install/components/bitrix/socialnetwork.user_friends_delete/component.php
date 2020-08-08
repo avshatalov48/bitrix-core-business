@@ -7,21 +7,21 @@ if (!CModule::IncludeModule("socialnetwork"))
 	return;
 }
 
-$arParams["ID"] = IntVal($arParams["ID"]);
+$arParams["ID"] = intval($arParams["ID"]);
 if ($arParams["ID"] <= 0)
-	$arParams["ID"] = IntVal($USER->GetID());
+	$arParams["ID"] = intval($USER->GetID());
 
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 
-if (strLen($arParams["USER_VAR"]) <= 0)
+if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if (strlen($arParams["PATH_TO_USER"]) <= 0)
+if ($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
-if (strlen($arParams["NAME_TEMPLATE"]) <= 0)		
+if ($arParams["NAME_TEMPLATE"] == '')
 	$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 $bUseLogin = $arParams['SHOW_LOGIN'] != "N" ? true : false;
 
@@ -85,11 +85,11 @@ else
 			else
 			{
 				$arResult["ShowForm"] = "Input";
-				if ($_SERVER["REQUEST_METHOD"]=="POST" && strlen($_POST["save"]) > 0 && check_bitrix_sessid())
+				if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["save"] <> '' && check_bitrix_sessid())
 				{
 					$errorMessage = "";
 
-					if (strlen($errorMessage) <= 0)
+					if ($errorMessage == '')
 					{
 						if (!CSocNetUserRelations::DeleteRelation($GLOBALS["USER"]->GetID(), $arResult["User"]["ID"]))
 						{
@@ -98,7 +98,7 @@ else
 						}
 					}
 
-					if (strlen($errorMessage) > 0)
+					if ($errorMessage <> '')
 						$arResult["ErrorMessage"] = $errorMessage;
 					else
 						$arResult["ShowForm"] = "Confirm";

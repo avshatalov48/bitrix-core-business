@@ -216,7 +216,7 @@ class OrderCreate extends Base
 
 			$mailType = $deliveryConfig['MAIN']['ITEMS']['OTPRAVKA_RPO']['VALUE'];
 
-			if(strlen($mailType) <=0)
+			if($mailType == '')
 			{
 				$shpResult = new Requests\ShipmentResult($shipmentId);
 				$shpResult->addError(
@@ -257,7 +257,7 @@ class OrderCreate extends Base
 
 			$mailCategory = $rpoCategory[$shipmentParams['DELIVERY_SERVICE_CONFIG']['MAIN']['CATEGORY']];
 
-			if(strlen($mailCategory) <= 0)
+			if($mailCategory == '')
 				$mailCategory = 'ORDINARY';
 
 			$item = array(
@@ -371,7 +371,7 @@ class OrderCreate extends Base
 				if(empty($shipmentParams['LOCATION_TO_TYPES'][$type]))
 					continue;
 
-				if(strlen($address) > 0)
+				if($address <> '')
 					$address .= ', ';
 
 				$address .= $shipmentParams['LOCATION_TO_TYPES'][$type];
@@ -379,7 +379,7 @@ class OrderCreate extends Base
 
 			if(!empty($shipmentParams['ADDRESS']))
 			{
-				if(strlen($address) > 0)
+				if($address <> '')
 					$address .= ', ';
 
 				$address .= $shipmentParams['ADDRESS'];

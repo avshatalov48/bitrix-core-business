@@ -26,11 +26,11 @@ if ($target == 'toolbars' &&  isset($_POST['tlbrset']))
 		$resultString .= $tlbr['docked'].",";
 		$resultString .= "[";
 		foreach($tlbr['position'] as $tlbrpos)
-			$resultString .= (substr($tlbrpos,-2)=="px" ? substr($tlbrpos,0,-2) : $tlbrpos).";";
+			$resultString .= (mb_substr($tlbrpos, -2) == "px"? mb_substr($tlbrpos, 0, -2) : $tlbrpos).";";
 		$resultString .= "]";
 		$resultString .= "||";
 	}
-	$resultString = substr($resultString,0,-2);
+	$resultString = mb_substr($resultString, 0, -2);
 
 	CUserOptions::SetOption("fileman", "toolbar_settings_".$edname, _addslashes($resultString));
 }
@@ -78,7 +78,7 @@ if ($target == 'taskbars')
 
 			$res[$iNum] = array(
 				'show' => $tskbrset['show'] == "true",
-				'size' => intVal($tskbrset['size'])
+				'size' => intval($tskbrset['size'])
 			);
 		}
 
@@ -128,7 +128,7 @@ if ($target == 'get_all')
 		{
 			if ($iNum != 2)
 				$iNum = 3;
-			?>window.arTBSetsSettings["<?= intVal($iNum)?>"] = {show: <?= $tskbrset['show'] ? 'true' : 'false'?>, size: <?= intVal($tskbrset['size'])?>};
+			?>window.arTBSetsSettings["<?= intval($iNum)?>"] = {show: <?= $tskbrset['show'] ? 'true' : 'false'?>, size: <?= intval($tskbrset['size'])?>};
 			<?
 		}
 	}
@@ -171,11 +171,11 @@ function displayJSToolbar($tlbrname,$show,$docked,$arPos)
 	_ar.show = <?echo($show == 'true' ? 'true' : 'false');?>;
 	_ar.docked = <?echo($docked=='true' ? 'true' : 'false');?>;
 	<?if ($docked=='true'):?>
-		_ar.position = [<?= intVal($arPos[0])?>,<?= intVal($arPos[1])?>,<?= intVal($arPos[2])?>];
+		_ar.position = [<?= intval($arPos[0])?>,<?= intval($arPos[1])?>,<?= intval($arPos[2])?>];
 	<?else:?>
 		_ar.position = {
-			x : '<?echo CUtil::JSEscape(substr($arPos[0], -2) == "px" ? substr($arPos[0],0,-2) : $arPos[0]);?>',
-			y : '<?echo CUtil::JSEscape(substr($arPos[1], -2) == "px" ? substr($arPos[1],0,-2) : $arPos[1]);?>'
+			x : '<?echo CUtil::JSEscape(mb_substr($arPos[0], -2) == "px"? mb_substr($arPos[0], 0, -2) : $arPos[0]);?>',
+			y : '<?echo CUtil::JSEscape(mb_substr($arPos[1], -2) == "px"? mb_substr($arPos[1], 0, -2) : $arPos[1]);?>'
 		};
 	<?endif;?>
 	window.arToolbarSettings["<?= CUtil::JSEscape($tlbrname)?>"] = _ar;
@@ -197,7 +197,7 @@ function displayJSTaskbar($tskbrname,$show,$docked,$arPos,$auto)
 
 function _addslashes($str)
 {
-	$pos2 = strpos(strtolower($str), "\n");
+	$pos2 = mb_strpos(mb_strtolower($str), "\n");
 	if ($pos2 !== false)
 	{
 		$str = str_replace("\r","",$str);
@@ -224,7 +224,7 @@ function getToolbarSettings($settings)
 		$tmp2 = explode(",", $tmp[1]);
 		$show = $tmp2[0];
 		$docked = $tmp2[1];
-		$position = explode(";",substr($tmp2[2],1,-1));
+		$position = explode(";", mb_substr($tmp2[2], 1, -1));
 		displayJSToolbar($tlbrname,$show,$docked,$position);
 	}
 }
@@ -246,7 +246,7 @@ function getTaskbarSettings($settings)
 		$tmp2 = explode(",", $tmp[1]);
 		$show = $tmp2[0];
 		$docked = $tmp2[1];
-		$position = explode(";",substr($tmp2[2],1,-1));
+		$position = explode(";", mb_substr($tmp2[2], 1, -1));
 		$auto = ($tmp2[3]) ? $tmp2[3] : '';
 		displayJSTaskbar($tskbrname,$show,$docked,$position,$auto);
 	}

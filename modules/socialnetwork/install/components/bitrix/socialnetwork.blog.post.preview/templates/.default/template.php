@@ -9,7 +9,7 @@ UI\Extension::load("ui.tooltip");
 		<tr>
 			<td>
 				<div class="blog-post-preview-header-icon user-default-avatar">
-					<img src="<?=(isset($arResult["arUser"]["PERSONAL_PHOTO_resized"]["src"]) && strlen($arResult["arUser"]["PERSONAL_PHOTO_resized"]["src"]) > 0 ? $arResult["arUser"]["PERSONAL_PHOTO_resized"]["src"] : "/bitrix/images/1.gif")?>" width="<?=$arParams["AVATAR_SIZE"]?>" height="<?=$arParams["AVATAR_SIZE"]?>">
+					<img src="<?=(isset($arResult["arUser"]["PERSONAL_PHOTO_resized"]["src"]) && $arResult["arUser"]["PERSONAL_PHOTO_resized"]["src"] <> '' ? $arResult["arUser"]["PERSONAL_PHOTO_resized"]["src"] : "/bitrix/images/1.gif")?>" width="<?=$arParams["AVATAR_SIZE"]?>" height="<?=$arParams["AVATAR_SIZE"]?>">
 				</div>
 			</td>
 			<td>

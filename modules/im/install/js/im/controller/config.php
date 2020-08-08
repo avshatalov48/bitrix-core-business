@@ -6,13 +6,21 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 return [
 	'js' => [
-		'/bitrix/js/im/controller/dist/registry.bundle.js',
+		'./dist/controller.bundle.js',
 	],
 	'rel' => [
 		'main.polyfill.core',
-		'im.tools.timer',
+		'pull.client',
+		'rest.client',
+		'ui.vue.vuex',
+		'im.model',
+		'im.provider.pull',
+		'im.provider.rest',
+		'im.lib.timer',
+		'im.lib.utils',
+		'ui.vue',
 		'im.const',
-		'im.utils',
+		'im.lib.logger',
 	],
 	'skip_core' => true,
 ];

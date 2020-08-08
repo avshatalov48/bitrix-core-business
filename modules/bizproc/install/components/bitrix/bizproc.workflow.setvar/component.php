@@ -51,27 +51,27 @@ $arResult['LIST_PAGE_URL'] = $arParams['LIST_PAGE_URL'];
 $arResult["EDIT_PAGE_TEMPLATE"] = $arParams["EDIT_PAGE_TEMPLATE"];
 
 $arResult["BackUrl"] = $_REQUEST["back_url"];
-if (strlen($arResult["BackUrl"]) <= 0)
+if ($arResult["BackUrl"] == '')
 	$arResult["BackUrl"] = $arParams["BACK_URL"];
-if (strlen($arResult["BackUrl"]) <= 0)
+if ($arResult["BackUrl"] == '')
 	$arResult["BackUrl"] = $APPLICATION->GetCurPageParam();
 
 $arResult["FatalErrorMessage"] = "";
 $arResult["ErrorMessage"] = "";
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
-	if (strlen($_REQUEST["cancel_variables"]) > 0)
+	if ($_REQUEST["cancel_variables"] <> '')
 		LocalRedirect($arResult['LIST_PAGE_URL']);
 }
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	$runtime = CBPRuntime::GetRuntime();
 	$runtime->StartRuntime();
 	$arResult["DocumentService"] = $runtime->GetService("DocumentService");
 
-	if ($_SERVER["REQUEST_METHOD"] == "POST" && (strlen($_REQUEST["save_variables"]) > 0 || strlen($_REQUEST["apply_variables"]) > 0) && check_bitrix_sessid())
+	if ($_SERVER["REQUEST_METHOD"] == "POST" && ($_REQUEST["save_variables"] <> '' || $_REQUEST["apply_variables"] <> '') && check_bitrix_sessid())
 	{
 		$errorMessageTmp = "";
 		$arRequest = $_REQUEST;
@@ -119,11 +119,11 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 			}
 		}
 
-		if (strlen($errorMessageTmp) <= 0)
+		if ($errorMessageTmp == '')
 		{
 			CBPWorkflowTemplateLoader::Update($arResult["ID"], array("VARIABLES" => $arResult["VARIABLES"]));
 
-			if (strlen($_REQUEST["save_variables"]) > 0)
+			if ($_REQUEST["save_variables"] <> '')
 				LocalRedirect(CComponentEngine::MakePathFromTemplate($arResult['LIST_PAGE_URL']));
 			else
 				LocalRedirect(CComponentEngine::MakePathFromTemplate($arParams["EDIT_PAGE_TEMPLATE"], array("ID" => $arResult["ID"])));
@@ -137,7 +137,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 
 $this->IncludeComponentTemplate();
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	if ($arParams["SET_TITLE"] == "Y")
 		$APPLICATION->SetTitle(str_replace("#NAME#", $arResult["NAME"], GetMessage("BPWC_WVC_PAGE_TITLE")));

@@ -521,7 +521,7 @@ class Livefeed extends Landing\Source\DataLoader
 						$inlineAttachmentsList[] = [
 							'ID' => $value,
 							'KEY' => ($matches[1][$key] === 'n' ? 'OBJECT_ID' : 'ID'),
-							'POSITION' => strpos($detailTextInOneString, $matches[0][$key])
+							'POSITION' => mb_strpos($detailTextInOneString, $matches[0][$key])
 						];
 					}
 				}
@@ -568,7 +568,7 @@ class Livefeed extends Landing\Source\DataLoader
 				{
 					if (
 						$diskPicturePosition === false
-						|| strpos($detailTextInOneString, $matches[0][0]) < $diskPicturePosition
+						|| mb_strpos($detailTextInOneString, $matches[0][0]) < $diskPicturePosition
 					)
 					{
 						$picture = [
@@ -679,7 +679,7 @@ class Livefeed extends Landing\Source\DataLoader
 
 		if (
 			defined("BX_COMP_MANAGED_CACHE")
-			&& strlen($code) > 0
+			&& $code <> ''
 			&& preg_match('/^SG(\d+)$/i', $code, $matches)
 			&& Main\ModuleManager::isModuleInstalled('landing')
 		)

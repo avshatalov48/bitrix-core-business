@@ -160,7 +160,7 @@ abstract class Base
 					$message = Loc::getMessage('SALE_DLVRS_ADD_DREQ_RBASE_INTERNAL_ERROR');;
 				}
 
-				if(strlen($message) <= 0)
+				if($message == '')
 					$message = $message.' ('.Loc::getMessage('SALE_DLVRS_ADD_DREQ_RBASE_HTTP_STATUS').' '.$status.')';
 
 				$result->addError(new Error($message,'STATUS_'.$status));

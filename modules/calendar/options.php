@@ -103,7 +103,7 @@ if($REQUEST_METHOD=="POST" && strlen($Update.$Apply.$RestoreDefaults)>0 && check
 			'work_time_end' => $_REQUEST['work_time_end'],
 			'year_holidays' => $_REQUEST['year_holidays'],
 			'year_workdays' => $_REQUEST['year_workdays'],
-			'week_holidays' => implode('|',$_REQUEST['week_holidays']),
+			'week_holidays' => is_array($_REQUEST['week_holidays']) ? implode('|',$_REQUEST['week_holidays']) : '',
 			//'week_start' => $_REQUEST['week_start'],
 			'user_name_template' => $_REQUEST['user_name_template'],
 			'sync_by_push' => isset($_REQUEST['sync_by_push']),

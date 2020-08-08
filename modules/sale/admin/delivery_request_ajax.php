@@ -77,7 +77,7 @@ if(empty($arResult["ERRORS"]) && $saleModulePermissions >= "U" && check_bitrix_s
 			$requestId = isset($_REQUEST['requestId']) ? intval($_REQUEST['requestId']): 0;
 			$deliveryId = isset($_REQUEST['deliveryId']) ? intval($_REQUEST['deliveryId']) : 0;
 			$shipmentIds = isset($_REQUEST['shipmentIds']) && is_array($_REQUEST['shipmentIds']) ? $_REQUEST['shipmentIds'] : array();
-			$requestAction = isset($_REQUEST['requestAction']) && strlen($_REQUEST['requestAction']) > 0 ? trim($_REQUEST['requestAction']) : '';
+			$requestAction = isset($_REQUEST['requestAction']) && $_REQUEST['requestAction'] <> '' ? trim($_REQUEST['requestAction']) : '';
 			$requestInputsValues = isset($_REQUEST['requestInputs']) && is_array($_REQUEST['requestInputs']) ? $_REQUEST['requestInputs']: array();
 			$requestInputs = array();
 			$actionsTypesList = Requests\Manager::getDeliveryRequestActions($requestId);
@@ -94,7 +94,7 @@ if(empty($arResult["ERRORS"]) && $saleModulePermissions >= "U" && check_bitrix_s
 					{
 						$content .=
 							'<tr>
-								<td valign="top">'.(strlen($params["TITLE"]) > 0 ? htmlspecialcharsbx($params["TITLE"]).": " : "").'</td>
+								<td valign="top">'.($params["TITLE"] <> '' ? htmlspecialcharsbx($params["TITLE"]).": " : "").'</td>
 								<td>'.\Bitrix\Sale\Internals\Input\Manager::getEditHtml("requestInputs[".$name."]", $params, (isset($params[$name]) ? $params[$name] : null)).'</td>
 							</tr>';
 					}
@@ -134,7 +134,7 @@ if(empty($arResult["ERRORS"]) && $saleModulePermissions >= "U" && check_bitrix_s
 					if($res !== false)
 					{
 						$file = new \Bitrix\Main\IO\File($fileName);
-						$arResult['FILE_PATH'] = substr($tmpDir, strlen(\CTempFile::GetAbsoluteRoot()));
+						$arResult['FILE_PATH'] = mb_substr($tmpDir, mb_strlen(\CTempFile::GetAbsoluteRoot()));
 						$arResult['FILE_NAME'] = $fileName;
 					}
 					else
@@ -336,7 +336,7 @@ if(!empty($arResult["ERRORS"]))
 else
 	$arResult["RESULT"] = "OK";
 
-if(strtolower(SITE_CHARSET) != 'utf-8')
+if(mb_strtolower(SITE_CHARSET) != 'utf-8')
 	$arResult = $APPLICATION->ConvertCharsetArray($arResult, SITE_CHARSET, 'utf-8');
 
 header('Content-Type: application/json');

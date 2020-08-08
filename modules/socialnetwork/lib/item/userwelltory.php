@@ -97,10 +97,10 @@ class UserWelltory
 				'id' => $dataFields['ID'],
 				'date' => $dataFields['DATE_MEASURE'],
 				'value' => intval($dataFields['STRESS']),
-				'type' => (strlen($dataFields['STRESS_TYPE']) > 0 ? $dataFields['STRESS_TYPE'] : ''),
+				'type' => ($dataFields['STRESS_TYPE'] <> '' ? $dataFields['STRESS_TYPE'] : ''),
 				'typeDescription' => ($intranetInstalled ?  : ''),
-				'comment' => (strlen($dataFields['STRESS_COMMENT']) > 0 ? $dataFields['STRESS_COMMENT'] : ''),
-				'hash' => (strlen($dataFields['HASH']) > 0 ? $dataFields['HASH'] : '')
+				'comment' => ($dataFields['STRESS_COMMENT'] <> '' ? $dataFields['STRESS_COMMENT'] : ''),
+				'hash' => ($dataFields['HASH'] <> '' ? $dataFields['HASH'] : '')
 			];
 			$item['typeDescription'] = ($intranetInstalled ? \Bitrix\Intranet\Component\UserProfile\StressLevel::getTypeDescription($item['type'], $item['value']) : '');
 			$result[] = $item;

@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Rest\Api;
 
+use Bitrix\Intranet\Invitation;
 use Bitrix\Main\Entity\ExpressionField;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
@@ -529,6 +530,11 @@ class User extends \IRestService
 						}
 
 						$inviteFields['ID'] = $ID;
+
+						Invitation::add([
+							'USER_ID' => $ID,
+							'TYPE' => Invitation::TYPE_EMAIL
+						]);
 
 						\CIntranetInviteDialog::InviteUser(
 							$inviteFields,

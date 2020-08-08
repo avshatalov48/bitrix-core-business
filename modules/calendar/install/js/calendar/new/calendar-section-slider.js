@@ -20,6 +20,7 @@
 			BX.SidePanel.Instance.open(this.sliderId, {
 				contentCallback: BX.delegate(this.create, this),
 				width: this.SLIDER_WIDTH,
+
 				animationDuration: this.SLIDER_DURATION,
 				events: {
 					onCloseByEsc: BX.proxy(this.escHide, this),
@@ -162,6 +163,7 @@
 			{
 				return section.isCompanyCalendar() && !section.belongsToView();
 			});
+
 			if (sections.length > 0)
 			{
 				this.sectionListWrap.appendChild(BX.create('DIV', {
@@ -184,8 +186,8 @@
 				{
 					return !section.belongsToView()
 						&& section.isSuperposed()
-						&& section.type == 'user'
-						&& section.data.OWNER_ID == user.ID;
+						&& section.type === 'user'
+						&& section.data.OWNER_ID === user.ID;
 				});
 
 				if (sections.length > 0)
@@ -203,7 +205,7 @@
 			// Groups calendars
 			sections = this.sliderSections.filter(function (section)
 			{
-				return !section.belongsToView() && section.type == 'group' && section.isSuperposed();
+				return !section.belongsToView() && section.type === 'group' && section.isSuperposed();
 			});
 			if (sections.length > 0)
 			{
@@ -219,17 +221,20 @@
 
 		createAddButton:function()
 		{
-			this.addButtonOuter = this.titleWrap.appendChild(BX.create('SPAN', {
-				props: {className: 'ui-btn-double ui-btn-light-border'},
-				style: {marginRight: 0}
-			}));
+			if (this.calendar.util.config.perm && this.calendar.util.config.perm.edit_section)
+			{
+				this.addButtonOuter = this.titleWrap.appendChild(BX.create('SPAN', {
+					props: {className: 'ui-btn-split ui-btn-light-border'},
+					style: {marginRight: 0}
+				}));
 
-			this.addButton = this.addButtonOuter.appendChild(BX.create('SPAN', {props: {className: 'ui-btn-main'}, text: BX.message('EC_ADD')}));
-			this.addButtonMore = this.addButtonOuter.appendChild(BX.create('SPAN', {props: {className: 'ui-btn-extra'}}));
+				this.addButton = this.addButtonOuter.appendChild(BX.create('SPAN', {props: {className: 'ui-btn-main'}, text: BX.message('EC_ADD')}));
+				this.addButtonMore = this.addButtonOuter.appendChild(BX.create('SPAN', {props: {className: 'ui-btn-extra'}}));
 
-			this.addButtonMorePopupId = "add_btn_popup_" + this.calendar.id;
-			BX.bind(this.addButtonMore, 'click', BX.proxy(this.showAddBtnPopup, this));
-			BX.bind(this.addButton, 'click', BX.proxy(this.showEditSectionForm, this));
+				this.addButtonMorePopupId = "add_btn_popup_" + this.calendar.id;
+				BX.bind(this.addButtonMore, 'click', BX.proxy(this.showAddBtnPopup, this));
+				BX.bind(this.addButton, 'click', BX.proxy(this.showEditSectionForm, this));
+			}
 		},
 
 		showAddBtnPopup: function(e)
@@ -346,7 +351,8 @@
 					params.sectionList[i].DOM.item = li;
 					params.sectionList[i].DOM.checkbox = checkbox;
 					params.sectionList[i].DOM.title = title;
-					if (sectionId !== 'tasks')
+
+					if (sectionId !== 'tasks' || this.calendar.util.userIsOwner())
 					{
 						actionCont = li.appendChild(BX.create('DIV', {
 							props: {className: 'calendar-list-slider-item-actions-container'},
@@ -410,17 +416,15 @@
 				});
 			}
 
-			//if (el.PERM.edit_section && this.permEx.section_edit && !bSuperpose)
 			if (!this.calendar.util.readOnlyMode() && section.canDo('edit_section') && !section.isPseudo())
 			{
 				menuItems.push({
 					text : BX.message('EC_SEC_EDIT'),
-					onclick: function(){
-						_this.sectionActionMenu.close();
-						_this.showEditSectionForm({
-							section: section
-						});
-					}
+					onclick: BX.delegate(function ()
+					{
+						this.sectionActionMenu.close();
+						this.showEditSectionForm({section: section});
+					}, this)
 				});
 			}
 
@@ -428,11 +432,11 @@
 			{
 				menuItems.push({
 					text : BX.message('EC_SEC_HIDE'),
-					onclick: function()
+					onclick: BX.delegate(function ()
 					{
-						_this.hideSuperposedHandler(section);
-						_this.sectionActionMenu.close();
-					}
+						this.hideSuperposedHandler(section);
+						this.sectionActionMenu.close();
+					}, this)
 				});
 			}
 
@@ -440,11 +444,12 @@
 			{
 				menuItems.push({
 					text : BX.message('EC_SEC_CONNECT_TO_OUTLOOK'),
-					onclick: function(){
-						_this.sectionActionMenu.close();
+					onclick: BX.delegate(function ()
+					{
+						this.sectionActionMenu.close();
 						section.connectToOutlook();
-						_this.close();
-					}
+						this.close();
+					}, this)
 				});
 			}
 
@@ -453,29 +458,25 @@
 				menuItems.push({
 					text: BX.message('EC_ACTION_EXPORT'), onclick: BX.delegate(function ()
 					{
-						_this.sectionActionMenu.close();
-
-						if (!_this.calendar.syncSlider)
+						this.sectionActionMenu.close();
+						if (!this.calendar.syncSlider)
 						{
-							_this.calendar.syncSlider = new window.BXEventCalendar.SyncSlider({
-								calendar: _this.calendar
-							});
+							this.calendar.syncSlider = new window.BXEventCalendar.SyncSlider({calendar: this.calendar});
 						}
-
-						_this.calendar.syncSlider.showICalExportDialog(section);
+						this.calendar.syncSlider.showICalExportDialog(section);
 					}, this)
 				});
 			}
 
-			//if (el.PERM.edit_section  && this.permEx.section_edit && !isGoogle  && !bSuperpose && !isFirstExchange)
 			if (section.canDo('edit_section') && section.belongsToView() && !section.isPseudo())
 			{
 				menuItems.push({
 					text : BX.message('EC_SEC_DELETE'),
-					onclick: function(){
-						_this.sectionActionMenu.close();
+					onclick: BX.delegate(function ()
+					{
+						this.sectionActionMenu.close();
 						section.remove();
-					}
+					}, this)
 				});
 			}
 
@@ -495,10 +496,11 @@
 				{
 					menuItems.push({
 						text : BX.message('EC_ACTION_EXTERNAL_ADJUST'),
-						onclick: function(){
-							_this.sectionActionMenu.close();
-							_this.calendar.syncSlider.showCalDavSyncDialog();
-						}
+						onclick: BX.delegate(function ()
+						{
+							this.sectionActionMenu.close();
+							this.calendar.syncSlider.showCalDavSyncDialog();
+						}, this)
 					});
 				}
 
@@ -508,6 +510,36 @@
 					{
 						this.sectionActionMenu.close();
 						section.hideGoogle();
+					}, this)
+				});
+			}
+
+			if (section.isPseudo())
+			{
+				menuItems.push({
+					text: BX.message('EC_SEC_EDIT'),
+					onclick: BX.delegate(function ()
+					{
+						this.sectionActionMenu.close();
+						this.showEditSectionForm({
+						 	section: section
+						 });
+					}, this)
+				});
+
+				menuItems.push({
+					text : BX.message('EC_SEC_TASK_HIDE'),
+					onclick: BX.delegate(function ()
+					{
+						this.sectionActionMenu.close();
+						BX.userOptions.save('calendar', 'user_settings', 'showTasks', 'N');
+
+						BX.addClass(section.DOM.item, 'calendar-list-slider-item-disappearing');
+						setTimeout(BX.delegate(function()
+						{
+							BX.cleanNode(section.DOM.item, true);
+							BX.reload();
+						}, this), 300);
 					}, this)
 				});
 			}
@@ -534,7 +566,9 @@
 				top.BX.addCustomEvent(this.sectionActionMenu.popupWindow, 'onPopupClose', function()
 				{
 					if (section.DOM.item)
+					{
 						top.BX.removeClass(section.DOM.item, 'active');
+					}
 					_this.allowSliderClose();
 					top.BX.PopupMenu.destroy(menuId);
 					_this.sectionActionMenu = null;
@@ -671,7 +705,7 @@
 				{
 					superposedSections.forEach(function(section)
 					{
-						if (section.type == 'group')
+						if (section.type === 'group')
 						{
 							var groupId = section.data.OWNER_ID;
 							if (!BX.util.in_array(groupId, trackingGroups))
@@ -723,16 +757,23 @@
 				}
 			}
 
-			this.calendar.request({
+			BX.ajax.runAction('calendar.api.calendarajax.setTrackingSections', {
 				data: {
-					action: 'set_tracking_sections',
-					sect: sections
-				},
-				handler: BX.delegate(function(response)
+					sections: sections
+				}
+			})
+			.then(
+				// Success
+				function (response)
 				{
 					BX.reload();
+				},
+				// Failure
+				BX.delegate(function (response)
+				{
+					this.calendar.displayError(response.errors);
 				}, this)
-			});
+			);
 		},
 
 		changeSectionHandler: function(sectionId, params)
@@ -875,11 +916,11 @@
 
 		keyHandler: function(e)
 		{
-			if(e.keyCode == this.calendar.util.KEY_CODES['escape'])
+			if(e.keyCode === this.calendar.util.KEY_CODES['escape'])
 			{
 				this.checkClose();
 			}
-			else if(e.keyCode == this.calendar.util.KEY_CODES['enter'])
+			else if(e.keyCode === this.calendar.util.KEY_CODES['enter'])
 			{
 				this.save();
 			}
@@ -1342,6 +1383,7 @@
 				selectGroups: this.selectGroups,
 				selectUsers: this.selectUsers
 			});
+
 			BX.addCustomEvent('OnDestinationAddNewItem', BX.proxy(this.updateSectionList, this));
 			BX.addCustomEvent('OnDestinationUnselect', BX.proxy(this.updateSectionList, this));
 
@@ -1369,11 +1411,11 @@
 		{
 			var
 				superposedSections = this.calendar.sectionController.getSuperposedSectionList(),
-				sections = [], users = [], id, i;
+				sections = [], id, i;
 
 			for (i = 0; i < superposedSections.length; i++)
 			{
-				if (superposedSections[i].type != 'user')
+				if (superposedSections[i].type !== 'user')
 				{
 					sections.push(parseInt(superposedSections[i].id));
 				}
@@ -1398,18 +1440,25 @@
 			}
 
 			// save tracking users
-			this.calendar.request({
+			BX.ajax.runAction('calendar.api.calendarajax.setTrackingSections', {
 				data: {
-					action: 'set_tracking_sections',
 					codes: this.destinationSelector.getCodes(),
-					sect: sections,
+					sections: sections,
 					type: 'users'
-				},
-				handler: BX.delegate(function(response)
-				{
-					BX.reload();
-				}, this)
-			});
+				}
+			})
+				.then(
+					// Success
+					function (response)
+					{
+						BX.reload();
+					},
+					// Failure
+					BX.delegate(function (response)
+					{
+						this.calendar.displayError(response.errors);
+					}, this)
+				);
 
 			this.close();
 		},
@@ -1435,24 +1484,25 @@
 				return;
 			}
 
-			var codes = this.destinationSelector.getCodes();
 			this.checkInnerWrapHeight();
-			this.calendar.request({
+			BX.ajax.runAction('calendar.api.calendarajax.getTrackingSections', {
 				data: {
-					action: 'get_tracking_sections',
-					codes: codes || [],
+					codes: this.destinationSelector.getCodes() || [],
 					type: 'users'
-				},
-				handler: BX.delegate(function(response)
+				}
+			})
+			.then(
+				// Success
+				BX.delegate(function (response)
 				{
 					BX.cleanNode(this.sectionsWrap);
 					this.sectionIndex = {};
 					this.checkInnerWrapHeight();
 
 					// Users calendars
-					response.users.forEach(function(user)
+					response.data.users.forEach(function(user)
 					{
-						var sections = response.sections.filter(function(section)
+						var sections = response.data.sections.filter(function(section)
 						{
 							return parseInt(section.OWNER_ID) === parseInt(user.ID);
 						});
@@ -1475,9 +1525,13 @@
 								html: '<span class="">' + BX.message('EC_SEC_SLIDER_NO_SECTIONS') + '</span>'}));
 						}
 					}, this);
-
+				}, this),
+				// Failure
+				BX.delegate(function (response)
+				{
+					this.calendar.displayError(response.errors);
 				}, this)
-			});
+			);
 		},
 
 		createSectionBlock: function(params)
@@ -1491,10 +1545,11 @@
 
 				BX.bind(listWrap, 'click', BX.proxy(this.sectionClick, this));
 
-				var i, li, checkbox, title, id;
+				var i, li, checkbox, title, id, section, ownerId;
 				for (i = 0; i < params.sectionList.length; i++)
 				{
-					id = params.sectionList[i].ID.toString();
+					section = params.sectionList[i];
+					id = section.ID.toString();
 					li = listWrap.appendChild(BX.create('LI', {
 						props: {className: 'calendar-list-slider-item'},
 						attrs: {'data-bx-calendar-section': id}
@@ -1502,12 +1557,12 @@
 
 					checkbox = li.appendChild(BX.create('DIV', {
 						props: {className: 'calendar-list-slider-item-checkbox'},
-						style: {backgroundColor: params.sectionList[i].COLOR}
+						style: {backgroundColor: section.COLOR}
 					}));
 
 					title = li.appendChild(BX.create('DIV', {
 						props: {className: 'calendar-list-slider-item-name'},
-						text: params.sectionList[i].NAME
+						text: section.NAME
 					}));
 
 					this.sectionIndex[id] = {
@@ -1515,7 +1570,7 @@
 						checkbox: checkbox
 					};
 
-					if (this.selected[id])
+					if (this.selected[id] || !this.selectedCodes['U' + section.OWNER_ID])
 					{
 						BX.addClass(checkbox, this.CHECKED_CLASS);
 					}
@@ -1639,22 +1694,31 @@
 	TrackingTypesForm.prototype.updateSectionList = function()
 	{
 		this.sectionsWrap.appendChild(BX.adjust(this.calendar.util.getLoader(), {style: {height: '140px'}}));
-		this.calendar.request({
+
+		BX.ajax.runAction('calendar.api.calendarajax.getTrackingSections', {
 			data: {
-				action: 'get_tracking_sections',
 				type: 'company'
-			},
-			handler: BX.delegate(function(response)
+			}
+		})
+		.then(
+			// Success
+			BX.delegate(function (response)
 			{
 				BX.cleanNode(this.sectionsWrap);
 				this.sectionIndex = {};
 				this.createSectionBlock({
-					sectionList: response.sections,
+					sectionList: response.data.sections,
 					wrap: this.sectionsWrap
 				});
 				this.checkInnerWrapHeight();
+			}, this),
+			// Failure
+			BX.delegate(function (response)
+			{
+				this.calendar.displayError(response.errors);
 			}, this)
-		});
+		);
+
 		this.checkInnerWrapHeight();
 	};
 
@@ -1688,16 +1752,23 @@
 		}
 
 		// save tracking users
-		this.calendar.request({
+		BX.ajax.runAction('calendar.api.calendarajax.setTrackingSections', {
 			data: {
-				action: 'set_tracking_sections',
-				sect: sections
-			},
-			handler: BX.delegate(function(response)
-			{
-				BX.reload();
-			}, this)
-		});
+				sections: sections
+			}
+		})
+			.then(
+				// Success
+				function (response)
+				{
+					BX.reload();
+				},
+				// Failure
+				BX.delegate(function (response)
+				{
+					this.calendar.displayError(response.errors);
+				}, this)
+			);
 
 		this.close();
 	};
@@ -1754,43 +1825,58 @@
 		}
 
 		// save tracking users
-		this.calendar.request({
+		BX.ajax.runAction('calendar.api.calendarajax.setTrackingSections', {
 			data: {
-				action: 'set_tracking_sections',
 				codes: this.destinationSelector.getCodes(),
-				sect: sections,
+				sections: sections,
 				type: 'groups'
-			},
-			handler: BX.delegate(function(response)
-			{
-				BX.reload();
-			}, this)
-		});
+			}
+		})
+			.then(
+				// Success
+				function (response)
+				{
+					BX.reload();
+				},
+				// Failure
+				BX.delegate(function (response)
+				{
+					this.calendar.displayError(response.errors);
+				}, this)
+			);
 
 		this.close();
 	};
 
 	TrackingGroupsForm.prototype.updateSectionList = function()
 	{
-		var codes = this.destinationSelector.getCodes();
 		this.sectionsWrap.appendChild(BX.adjust(this.calendar.util.getLoader(), {style: {height: '140px'}}));
-		this.calendar.request({
+
+		BX.ajax.runAction('calendar.api.calendarajax.getTrackingSections', {
 			data: {
-				action: 'get_tracking_sections',
-				codes: codes || [],
+				codes: this.destinationSelector.getCodes() || [],
 				type: 'groups'
-			},
-			handler: BX.delegate(function(response)
-			{
-				BX.cleanNode(this.sectionsWrap);
-				this.sectionIndex = {};
-				this.createSectionBlock({
-					sectionList: response.sections,
-					wrap: this.sectionsWrap
-				});
-				this.checkInnerWrapHeight();
-			}, this)
-		});
+			}
+		})
+			.then(
+				// Success
+				BX.delegate(function (response)
+				{
+					BX.cleanNode(this.sectionsWrap);
+					this.sectionIndex = {};
+					this.createSectionBlock({
+						sectionList: response.data.sections,
+						wrap: this.sectionsWrap
+					});
+					this.checkInnerWrapHeight();
+				}, this),
+				// Failure
+				BX.delegate(function (response)
+				{
+					this.calendar.displayError(response.errors);
+				}, this)
+			);
+
 		this.checkInnerWrapHeight();
 	};
 

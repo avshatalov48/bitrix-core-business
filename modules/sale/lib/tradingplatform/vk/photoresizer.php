@@ -30,7 +30,7 @@ class PhotoResizer
 	 */
 	protected function buildPictureUrl($src, $domain = '')
 	{
-		if (strlen($domain) == 0)
+		if ($domain == '')
 		{
 //			get different variants of domain URL, because in diff site some variants not work
 			$server = Application::getInstance()->getContext()->getServer();
@@ -50,7 +50,7 @@ class PhotoResizer
 		
 		$protocol = \CMain::IsHTTPS() ? "https://" : "http://";
 		// relative path by '/'
-		if (substr($src, 0, 1) == "/")
+		if (mb_substr($src, 0, 1) == "/")
 		{
 			$strFile = $protocol . $domain . implode("/", array_map("rawurlencode", explode("/", $src)));
 		}
@@ -365,7 +365,7 @@ class PhotoResizer
 			$file = \CFile::GetFileArray($file);
 		}
 		
-		if (!is_array($file) || !array_key_exists("FILE_NAME", $file) || strlen($file["FILE_NAME"]) <= 0)
+		if (!is_array($file) || !array_key_exists("FILE_NAME", $file) || $file["FILE_NAME"] == '')
 			return false;
 		
 		if ($resizeType !== BX_RESIZE_IMAGE_EXACT && $resizeType !== BX_RESIZE_IMAGE_PROPORTIONAL_ALT)
@@ -463,7 +463,7 @@ class PhotoResizer
 				
 				if ($bNeedResize && self::ResizeImageFile($sourceImageFile, $cacheImageFileTmp, $arSize, $resizeType, array(), $jpgQuality, $arFilters))
 				{
-					$cacheImageFile = substr($cacheImageFileTmp, strlen($_SERVER["DOCUMENT_ROOT"]));
+					$cacheImageFile = mb_substr($cacheImageFileTmp, mb_strlen($_SERVER["DOCUMENT_ROOT"]));
 					
 					/****************************** QUOTA ******************************/
 					if (\COption::GetOptionInt("main", "disk_space") > 0)

@@ -1,0 +1,28 @@
+.bx-im-element-file-video
+{
+	overflow: hidden;
+	border-radius: 12px;
+	max-width: 280px;
+}
+
+.bx-im-element-file-video-safari {
+	transform: rotate(0.000001deg); /* fix safari video bug */
+}
+
+.bx-im-element-file-video .ui-vue-socialvideo-timers-container {
+	font: 11px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.bx-im-element-file-video .ui-vue-socialvideo-image-source,
+.bx-im-element-file-video .ui-vue-socialvideo-source {
+	max-width: 100%;
+}
+
+.bx-im-element-file-video .ui-vue-socialvideo-info-container {
+	padding-top: 40px;
+}
+
+@media screen and (max-width: 320px) {
+	.bx-im-element-file-video .ui-vue-socialvideo-image-source,
+	.bx-im-element-file-video .ui-vue-socialvideo-source { object-fit: cover; }
+}

@@ -42,7 +42,7 @@ if (!function_exists("convertHistoryToNewFormat"))
 	{
 		foreach ($arFields as $fieldname => $fieldvalue)
 		{
-			if (strlen($fieldvalue) > 0)
+			if ($fieldvalue <> '')
 			{
 				foreach (CSaleOrderChangeFormat::$operationTypes as $code => $arInfo)
 				{

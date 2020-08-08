@@ -15,7 +15,7 @@ class CSaleTaxRate extends CAllSaleTaxRate
 			"VALUES(".$arInsert[1].", ".$DB->GetNowFunction().")";
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-		$ID = IntVal($DB->LastID());
+		$ID = intval($DB->LastID());
 
 		if (is_set($arFields, "TAX_LOCATION"))
 		{
@@ -47,7 +47,7 @@ class CSaleTaxRate extends CAllSaleTaxRate
 			$key = $filter_keys[$i];
 			if ($key[0]=="!")
 			{
-				$key = substr($key, 1);
+				$key = mb_substr($key, 1);
 				$bInvert = true;
 			}
 			else
@@ -56,7 +56,7 @@ class CSaleTaxRate extends CAllSaleTaxRate
 			switch (ToUpper($key))
 			{
 				case "ID":
-					$arSqlSearch[] = "TR.ID ".($bInvert?"<>":"=")." ".IntVal($val)." ";
+					$arSqlSearch[] = "TR.ID ".($bInvert?"<>":"=")." ".intval($val)." ";
 					break;
 				case "LID":
 					$arSqlSearch[] = "T.LID ".($bInvert?"<>":"=")." '".$val."' ";
@@ -65,10 +65,10 @@ class CSaleTaxRate extends CAllSaleTaxRate
 					$arSqlSearch[] = "T.CODE ".($bInvert?"<>":"=")." '".$val."' ";
 					break;
 				case "TAX_ID":
-					$arSqlSearch[] = "TR.TAX_ID ".($bInvert?"<>":"=")." ".IntVal($val)." ";
+					$arSqlSearch[] = "TR.TAX_ID ".($bInvert?"<>":"=")." ".intval($val)." ";
 					break;
 				case "PERSON_TYPE_ID":
-					$arSqlSearch[] = " (TR.PERSON_TYPE_ID ".($bInvert?"<>":"=")." ".IntVal($val)." OR TR.PERSON_TYPE_ID = 0 OR TR.PERSON_TYPE_ID IS NULL) ";
+					$arSqlSearch[] = " (TR.PERSON_TYPE_ID ".($bInvert?"<>":"=")." ".intval($val)." OR TR.PERSON_TYPE_ID = 0 OR TR.PERSON_TYPE_ID IS NULL) ";
 					break;
 				case "CURRENCY":
 					$arSqlSearch[] = "TR.CURRENCY ".($bInvert?"<>":"=")." '".$val."' ";
@@ -83,7 +83,7 @@ class CSaleTaxRate extends CAllSaleTaxRate
 					$arSqlSearch[] = "TR.ACTIVE ".($bInvert?"<>":"=")." '".$val."' ";
 					break;
 				case "APPLY_ORDER":
-					$arSqlSearch[] = "TR.APPLY_ORDER ".($bInvert?"<>":"=")." ".IntVal($val)." ";
+					$arSqlSearch[] = "TR.APPLY_ORDER ".($bInvert?"<>":"=")." ".intval($val)." ";
 					break;
 				case "LOCATION":
 
@@ -102,8 +102,8 @@ class CSaleTaxRate extends CAllSaleTaxRate
 					{
 						$arSqlSearch[] = 
 							"	TR.ID = TR2L.TAX_RATE_ID ".
-							"	AND (TR2L.LOCATION_CODE = ".IntVal($val)." AND TR2L.LOCATION_TYPE = 'L' ".
-							"		OR L2LG.LOCATION_ID = ".IntVal($val)." AND TR2L.LOCATION_TYPE = 'G') ";
+							"	AND (TR2L.LOCATION_CODE = ".intval($val)." AND TR2L.LOCATION_TYPE = 'L' ".
+							"		OR L2LG.LOCATION_ID = ".intval($val)." AND TR2L.LOCATION_TYPE = 'G') ";
 						$arSqlSearchFrom[] = 
 							", b_sale_tax2location TR2L ".
 							"	LEFT JOIN b_sale_location2location_group L2LG ON (TR2L.LOCATION_TYPE = 'G' AND TR2L.LOCATION_CODE = L2LG.LOCATION_GROUP_ID) ";

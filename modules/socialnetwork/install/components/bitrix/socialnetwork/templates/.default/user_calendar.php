@@ -104,7 +104,7 @@ if (CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $ownerId, "calendar"))
 	}
 }
 elseif(
-	strpos(POST_FORM_ACTION_URI, 'bx_enable_calendar=Y') === false
+	mb_strpos(POST_FORM_ACTION_URI, 'bx_enable_calendar=Y') === false
 	&& $ownerId == $USER->getId()
 )
 {
@@ -115,7 +115,7 @@ elseif(
 		in_array(SONET_ENTITY_USER, $arSocNetFeaturesSettings['calendar']["allowed"])
 	)
 	{
-		$url = POST_FORM_ACTION_URI.(strpos(POST_FORM_ACTION_URI, '?') === false ? '?' : '&').'bx_enable_calendar=Y';
+		$url = POST_FORM_ACTION_URI.(mb_strpos(POST_FORM_ACTION_URI, '?') === false ? '?' : '&').'bx_enable_calendar=Y';
 		echo GetMessage('SONET_U_CALENDAR_DIS_MES').' <a href="'.$url.'" title="'.GetMessage('SONET_U_CALENDAR_DIS_TITLE').'">'.GetMessage('SONET_U_CALENDAR_TURN_ON').'</a>';
 	}
 }

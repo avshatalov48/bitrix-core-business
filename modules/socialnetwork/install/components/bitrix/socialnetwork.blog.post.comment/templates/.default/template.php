@@ -28,7 +28,7 @@ else if($arResult["imageUploadFrame"] == "Y")
 			top.bxBlogImageId = '<?=$arResult["Image"]["ID"]?>';
 			top.bxBlogImageIdWidth = '<?=CUtil::JSEscape($arResult["Image"]["WIDTH"])?>';
 			top.bxBlogImageIdSrc = '<?=CUtil::JSEscape($arResult["Image"]["SRC"])?>';
-		<?elseif(strlen($arResult["ERROR_MESSAGE"]) > 0):?>
+		<?elseif($arResult["ERROR_MESSAGE"] <> ''):?>
 			top.bxBlogImageError = '<?=CUtil::JSEscape($arResult["ERROR_MESSAGE"])?>';
 		<?endif;?>
 	</script>

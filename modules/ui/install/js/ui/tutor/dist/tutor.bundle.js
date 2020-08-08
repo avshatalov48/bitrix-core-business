@@ -421,9 +421,12 @@ this.BX.UI = this.BX.UI || {};
 	          main_core.Event.bind(this.layout.imButton, "click", function () {
 	            _this2.emit('clickImButton');
 	          });
+	          var usersPanel = document.querySelector('.bx-im-users-wrap');
 
 	          if (document.querySelector('#bx-im-btn-call')) {
-	            document.querySelector('.bx-im-users-wrap').style.bottom = '120px';
+	            usersPanel.style.bottom = '175px';
+	          } else {
+	            usersPanel.style.bottom = '120px';
 	          }
 	        }
 	      }

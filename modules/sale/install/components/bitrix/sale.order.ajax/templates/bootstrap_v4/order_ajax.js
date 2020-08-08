@@ -305,7 +305,20 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 			}
 			else if (result.order.SHOW_AUTH)
 			{
-				var animation = result.order.OK_MESSAGE && result.order.OK_MESSAGE.length || result.order.SMS_AUTH.TYPE === 'OK' ? 'bx-step-good' : 'bx-step-bad';
+				var animation;
+
+				if (
+					(result.order.OK_MESSAGE && result.order.OK_MESSAGE.length)
+					|| (result.order.SMS_AUTH && result.order.SMS_AUTH.TYPE === 'OK')
+				)
+				{
+					animation = 'bx-step-good';
+				}
+				else
+				{
+					animation = 'bx-step-bad';
+				}
+
 				this.addAnimationEffect(this.authBlockNode, animation);
 				BX.merge(this.result, result.order);
 				this.editAuthBlock();

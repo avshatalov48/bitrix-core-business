@@ -375,13 +375,32 @@ class CSecurityFilter
 		$rule = new CSecurityIPRule;
 
 		CTimeZone::Disable();
+		$startTimestamp = ConvertTimeStamp(false, "FULL");
+		$endTimestamp = ConvertTimeStamp(time()+COption::getOptionInt("security", "filter_duration")*60, "FULL");
+		$ruleList = $rule->GetList(array("ID"), array(
+			"=RULE_TYPE" => "A",
+			"=ACTIVE" => "Y",
+			"=ADMIN_SECTION" => "Y",
+			"=NAME" => getMessage("SECURITY_FILTER_IP_RULE", array("#IP#" => $ip)),
+			"<=ACTIVE_FROM" => $startTimestamp,
+			"<=ACTIVE_TO" => $endTimestamp,
+		), array("ID" => "DESC"));
+		while ($prevRule = $ruleList->Fetch())
+		{
+			if ($rule->Update($prevRule['ID'], array("ACTIVE_TO" => $endTimestamp)))
+			{
+				CTimeZone::Enable();
+				return true;
+			}
+			break;
+		}
 		$added = $rule->Add(array(
 			"RULE_TYPE" => "A",
 			"ACTIVE" => "Y",
 			"ADMIN_SECTION" => "Y",
 			"NAME" => getMessage("SECURITY_FILTER_IP_RULE", array("#IP#" => $ip)),
-			"ACTIVE_FROM" => ConvertTimeStamp(false, "FULL"),
-			"ACTIVE_TO" => ConvertTimeStamp(time()+COption::getOptionInt("security", "filter_duration")*60, "FULL"),
+			"ACTIVE_FROM" => $startTimestamp,
+			"ACTIVE_TO" => $endTimestamp,
 			"INCL_IPS" => array($ip),
 			"INCL_MASKS" => array("/*"),
 		));
@@ -489,7 +508,7 @@ class CSecurityFilter
 		$systemOrder = static::getRequestOrder();
 
 		$_REQUEST = self::getSuperGlobalArray($systemOrder[0]);
-		for($i = 1, $count = strlen($systemOrder); $i < $count; $i ++)
+		for($i = 1, $count = mb_strlen($systemOrder); $i < $count; $i ++)
 		{
 			$targetArray = self::getSuperGlobalArray($systemOrder[$i]);
 			foreach($targetArray as $k => $v)

@@ -1,0 +1,23 @@
+.ui-tile-selector-item.ui-tile-selector-item-mailcontacts {
+	background-color: #ffec91;
+	color: #a26b00!important;
+	padding-left: 32px;
+}
+
+.ui-tile-selector-item.ui-tile-selector-item-mailcontacts::before {
+	background: url(images/sprite_mpf_5.png) no-repeat 0 0;
+	content: "";
+	height: 13px;
+	position: absolute;
+	width: 13px;
+	left: 9px;
+	top: 8px;
+}
+
+.ui-tile-selector-item.ui-tile-selector-item-mailcontacts::before {
+	background-position: -33px -92px;
+}
+
+.ui-tile-selector-item.ui-tile-selector-item-mailcontacts .ui-tile-selector-item-remove {
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%228%22%20height%3D%228%22%20viewBox%3D%220%200%208%208%22%3E%3Cpath%20fill%3D%22%23EC9900%22%20fill-rule%3D%22evenodd%22%20d%3D%22M5.073%203.657l2.12-2.12L5.778.12l-2.12%202.12L1.537.12.12%201.538l2.12%202.12-2.12%202.12%201.417%201.417%202.12-2.12%202.12%202.12%201.417-1.417-2.12-2.12z%22/%3E%3C/svg%3E');
+}

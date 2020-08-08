@@ -78,6 +78,10 @@
 	margin-left: -19px;
 }
 
+.side-panel-darken-close-btn .side-panel-close-btn {
+	opacity: 0.4;
+}
+
 .side-panel-close-btn-inner {
 	position: relative;
 	width: 22px;

@@ -295,19 +295,40 @@ BX.VideoRecorder = {
 	{
 		BX.VideoRecorder.chunks = [];
 		BX.VideoRecorder.videoOverlay.style.display = 'none';
-		var recordOptions = {mimeType: 'video/webm;codecs=vp8'};
-		if(!MediaRecorder.isTypeSupported(recordOptions.mimeType))
-		{
-			recordOptions = {mimeType: 'video/webm;codecs=vp9'};
-			if(!MediaRecorder.isTypeSupported(recordOptions.mimeType))
-			{
-				recordOptions = {mimeType: 'video/webm'};
-			}
-		}
-		try {
-			BX.VideoRecorder.recorder = new MediaRecorder(BX.VideoRecorder.stream, recordOptions);
-		}
-		catch(e)
+		var possibleMimeTypes = [
+            'video/webm;codecs=h264',
+            'video/webm;codecs=vp9',
+            'video/webm;codecs=vp8',
+            'video/webm',
+        ];
+		var mimeTypesCount = possibleMimeTypes.length;
+		var isRecordStarted = false;
+        var typesIterator;
+        var recordOptions;
+        var mimeType;
+		for(typesIterator = 0; typesIterator < mimeTypesCount; typesIterator++)
+        {
+            mimeType = possibleMimeTypes[typesIterator];
+            if(MediaRecorder.isTypeSupported(mimeType))
+            {
+                recordOptions = {mimeType: mimeType};
+                try
+                {
+                    BX.VideoRecorder.recorder = new MediaRecorder(BX.VideoRecorder.stream, recordOptions);
+                    BX.VideoRecorder.recorder.start(BX.VideoRecorder.recorderInterval);
+                    isRecordStarted = true;
+                }
+                catch(e)
+                {
+                    isRecordStarted = false;
+                }
+            }
+            if(isRecordStarted)
+            {
+                break;
+            }
+        }
+		if(!isRecordStarted)
 		{
 			BX.VideoRecorder.showMessage(
 				BX.message('BLOG_VIDEO_RECORD_REQUIREMENTS'),
@@ -317,7 +338,6 @@ BX.VideoRecorder = {
 			BX.VideoRecorder.hideLayout();
 			return;
 		}
-		BX.VideoRecorder.recorder.start(BX.VideoRecorder.recorderInterval);
 		BX.VideoRecorder.recordSize = 0;
 		BX.VideoRecorder.recordLength = 0;
 		BX.VideoRecorder.recorder.ondataavailable = function(e)

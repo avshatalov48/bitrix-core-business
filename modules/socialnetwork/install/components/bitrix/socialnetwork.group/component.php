@@ -21,101 +21,101 @@ if (!CModule::IncludeModule("socialnetwork"))
 	return;
 }
 
-$arParams["GROUP_ID"] = IntVal($arParams["GROUP_ID"]);
+$arParams["GROUP_ID"] = intval($arParams["GROUP_ID"]);
 
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 
-if(strLen($arParams["USER_VAR"])<=0)
+if($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
-if(strLen($arParams["PAGE_VAR"])<=0)
+if($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if(strLen($arParams["GROUP_VAR"])<=0)
+if($arParams["GROUP_VAR"] == '')
 	$arParams["GROUP_VAR"] = "group_id";
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if(strlen($arParams["PATH_TO_USER"])<=0)
+if($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_GROUP"] = trim($arParams["PATH_TO_GROUP"]);
-if (strlen($arParams["PATH_TO_GROUP"]) <= 0)
+if ($arParams["PATH_TO_GROUP"] == '')
 	$arParams["PATH_TO_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_EDIT"] = trim($arParams["PATH_TO_GROUP_EDIT"]);
-if (strlen($arParams["PATH_TO_GROUP_EDIT"]) <= 0)
+if ($arParams["PATH_TO_GROUP_EDIT"] == '')
 	$arParams["PATH_TO_GROUP_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_edit&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_INVITE"] = trim($arParams["PATH_TO_GROUP_INVITE"]);
 if (empty($arParams["PATH_TO_GROUP_INVITE"]))
 {
 	$parent = $this->getParent();
-	if (is_object($parent) && strlen($parent->__name) > 0)
+	if (is_object($parent) && $parent->__name <> '')
 	{
 		$arParams["PATH_TO_GROUP_INVITE"] = $parent->arResult["PATH_TO_GROUP_INVITE"];
 	}
 }
 
 $arParams["PATH_TO_GROUP_CREATE"] = trim($arParams["PATH_TO_GROUP_CREATE"]);
-if (strlen($arParams["PATH_TO_GROUP_CREATE"]) <= 0)
+if ($arParams["PATH_TO_GROUP_CREATE"] == '')
 	$arParams["PATH_TO_GROUP_CREATE"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_create&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_GROUP_REQUEST_SEARCH"] = trim($arParams["PATH_TO_GROUP_REQUEST_SEARCH"]);
-if (strlen($arParams["PATH_TO_GROUP_REQUEST_SEARCH"]) <= 0)
+if ($arParams["PATH_TO_GROUP_REQUEST_SEARCH"] == '')
 	$arParams["PATH_TO_GROUP_REQUEST_SEARCH"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_request_search&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_USER_REQUEST_GROUP"] = trim($arParams["PATH_TO_USER_REQUEST_GROUP"]);
-if (strlen($arParams["PATH_TO_USER_REQUEST_GROUP"]) <= 0)
+if ($arParams["PATH_TO_USER_REQUEST_GROUP"] == '')
 	$arParams["PATH_TO_USER_REQUEST_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_request_group&".$arParams["USER_VAR"]."=#user_id#&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_REQUESTS"] = trim($arParams["PATH_TO_GROUP_REQUESTS"]);
-if (strlen($arParams["PATH_TO_GROUP_REQUESTS"]) <= 0)
+if ($arParams["PATH_TO_GROUP_REQUESTS"] == '')
 	$arParams["PATH_TO_GROUP_REQUESTS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_requests&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_REQUESTS_OUT"] = trim($arParams["PATH_TO_GROUP_REQUESTS_OUT"]);
-if (strlen($arParams["PATH_TO_GROUP_REQUESTS_OUT"]) <= 0)
+if ($arParams["PATH_TO_GROUP_REQUESTS_OUT"] == '')
 	$arParams["PATH_TO_GROUP_REQUESTS_OUT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_requests_out&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_MODS"] = trim($arParams["PATH_TO_GROUP_MODS"]);
-if (strlen($arParams["PATH_TO_GROUP_MODS"]) <= 0)
+if ($arParams["PATH_TO_GROUP_MODS"] == '')
 	$arParams["PATH_TO_GROUP_MODS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_mods&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_USERS"] = trim($arParams["PATH_TO_GROUP_USERS"]);
-if (strlen($arParams["PATH_TO_GROUP_USERS"]) <= 0)
+if ($arParams["PATH_TO_GROUP_USERS"] == '')
 	$arParams["PATH_TO_GROUP_USERS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_users&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_USER_LEAVE_GROUP"] = trim($arParams["PATH_TO_USER_LEAVE_GROUP"]);
-if (strlen($arParams["PATH_TO_USER_LEAVE_GROUP"]) <= 0)
+if ($arParams["PATH_TO_USER_LEAVE_GROUP"] == '')
 	$arParams["PATH_TO_USER_LEAVE_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_leave_group&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_FEATURES"] = trim($arParams["PATH_TO_GROUP_FEATURES"]);
-if (strlen($arParams["PATH_TO_GROUP_FEATURES"]) <= 0)
+if ($arParams["PATH_TO_GROUP_FEATURES"] == '')
 	$arParams["PATH_TO_GROUP_FEATURES"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_features&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_SUBSCRIBE"] = trim($arParams["PATH_TO_GROUP_SUBSCRIBE"]);
-if (strlen($arParams["PATH_TO_GROUP_SUBSCRIBE"]) <= 0)
+if ($arParams["PATH_TO_GROUP_SUBSCRIBE"] == '')
 	$arParams["PATH_TO_GROUP_SUBSCRIBE"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_subscribe&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_DELETE"] = trim($arParams["PATH_TO_GROUP_DELETE"]);
-if (strlen($arParams["PATH_TO_GROUP_DELETE"]) <= 0)
+if ($arParams["PATH_TO_GROUP_DELETE"] == '')
 	$arParams["PATH_TO_GROUP_DELETE"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_delete&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_BAN"] = trim($arParams["PATH_TO_GROUP_BAN"]);
-if (strlen($arParams["PATH_TO_GROUP_BAN"]) <= 0)
+if ($arParams["PATH_TO_GROUP_BAN"] == '')
 	$arParams["PATH_TO_GROUP_BAN"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_ban&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_MESSAGE_TO_GROUP"] = trim($arParams["PATH_TO_MESSAGE_TO_GROUP"]);
-if (strlen($arParams["PATH_TO_MESSAGE_TO_GROUP"]) <= 0)
+if ($arParams["PATH_TO_MESSAGE_TO_GROUP"] == '')
 	$arParams["PATH_TO_MESSAGE_TO_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=message_to_group&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_SEARCH"] = trim($arParams["PATH_TO_SEARCH"]);
-if (strlen($arParams["PATH_TO_SEARCH"]) <= 0)
+if ($arParams["PATH_TO_SEARCH"] == '')
 	$arParams["PATH_TO_SEARCH"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=search");
 
 $arParams["PATH_TO_GROUP_LOG"] = trim($arParams["PATH_TO_GROUP_LOG"]);
-if (strlen($arParams["PATH_TO_GROUP_LOG"]) <= 0)
+if ($arParams["PATH_TO_GROUP_LOG"] == '')
 	$arParams["PATH_TO_GROUP_LOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group-log&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_CONPANY_DEPARTMENT"] = trim($arParams["PATH_TO_CONPANY_DEPARTMENT"]);
-if (strlen($arParams["PATH_TO_CONPANY_DEPARTMENT"]) <= 0)
+if ($arParams["PATH_TO_CONPANY_DEPARTMENT"] == '')
 {
 	$arParams["PATH_TO_CONPANY_DEPARTMENT"] = \Bitrix\Main\Config\Option::get('main', 'TOOLTIP_PATH_TO_CONPANY_DEPARTMENT', SITE_DIR."company/structure.php?set_filter_structure=Y&structure_UF_DEPARTMENT=#ID#");
 }
@@ -123,14 +123,14 @@ if (strlen($arParams["PATH_TO_CONPANY_DEPARTMENT"]) <= 0)
 $arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 $arParams["SHORT_FORM"] = ($arParams["SHORT_FORM"] == "Y");
 
-$arParams["ITEMS_COUNT"] = IntVal($arParams["ITEMS_COUNT"]);
+$arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
 if ($arParams["ITEMS_COUNT"] <= 0)
 	$arParams["ITEMS_COUNT"] = 6;
 	
-if (!array_key_exists("PATH_TO_USER_LOG", $arParams) || strlen($arParams["PATH_TO_USER_LOG"]) <= 0)
+if (!array_key_exists("PATH_TO_USER_LOG", $arParams) || $arParams["PATH_TO_USER_LOG"] == '')
 	$arParams["PATH_TO_USER_LOG"] = $arParams["~PATH_TO_USER_LOG"] = (IsModuleInstalled("intranet") ? "/company/personal/log/" : "/club/log/");
 
-if (!array_key_exists("PATH_TO_POST", $arParams) || strlen($arParams["PATH_TO_POST"]) <= 0)
+if (!array_key_exists("PATH_TO_POST", $arParams) || $arParams["PATH_TO_POST"] == '')
 	$arParams["PATH_TO_POST"] = $arParams["~PATH_TO_POST"] = (IsModuleInstalled("intranet") ? "/company/personal/user/#user_id#/blog/#post_id#/" : "/club/personal/user/#user_id#/blog/#post_id#/");
 
 $arParams["USE_MAIN_MENU"] = (isset($arParams["USE_MAIN_MENU"]) && $arParams["USE_MAIN_MENU"] == "Y" ? $arParams["USE_MAIN_MENU"] : false);
@@ -177,7 +177,7 @@ if (!array_key_exists("SHOW_FIELDS_TOOLTIP", $arParams))
 if (!array_key_exists("USER_PROPERTY_TOOLTIP", $arParams))
 	$arParams["USER_PROPERTY_TOOLTIP"] = unserialize(COption::GetOptionString("socialnetwork", "tooltip_properties", $arTooltipPropertiesDefault));
 
-if (strlen(trim($arParams["SEARCH_TAGS_PAGE_ELEMENTS"])) <= 0)
+if (trim($arParams["SEARCH_TAGS_PAGE_ELEMENTS"]) == '')
 	$arParams["SEARCH_TAGS_PAGE_ELEMENTS"] = 100;
 if (intval(trim($arParams["SEARCH_TAGS_PERIOD"])) <= 0)
 	$arParams["SEARCH_TAGS_PERIOD"] = "";
@@ -185,9 +185,9 @@ if (intval(trim($arParams["SEARCH_TAGS_FONT_MAX"])) <= 0)
 	$arParams["SEARCH_TAGS_FONT_MAX"] = "50";	
 if (intval(trim($arParams["SEARCH_TAGS_FONT_MIN"])) <= 0)
 	$arParams["SEARCH_TAGS_FONT_MIN"] = "10";
-if (strlen(trim($arParams["SEARCH_TAGS_COLOR_NEW"])) <= 0)
+if (trim($arParams["SEARCH_TAGS_COLOR_NEW"]) == '')
 	$arParams["SEARCH_TAGS_COLOR_NEW"] = "3E74E6";
-if (strlen(trim($arParams["SEARCH_TAGS_COLOR_OLD"])) <= 0)
+if (trim($arParams["SEARCH_TAGS_COLOR_OLD"]) == '')
 	$arParams["SEARCH_TAGS_COLOR_OLD"] = "C0C0C0";
 
 $arParams['CAN_OWNER_EDIT_DESKTOP'] = (
@@ -240,7 +240,7 @@ else
 
 			$arFilter = Array(
 				"GROUPS_ID" => array(CExtranet::GetExtranetUserGroupID()),
-				"UF_DEPARTMENT" => false				
+				"UF_DEPARTMENT" => false
 			); 
 
 			$rsUsers = CUser::GetList(($by="ID"), ($order="asc"), $arFilter);
@@ -349,7 +349,7 @@ else
 						continue;
 					}
 
-					$arUserField["EDIT_FORM_LABEL"] = StrLen($arUserField["EDIT_FORM_LABEL"]) > 0 ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
+					$arUserField["EDIT_FORM_LABEL"] = $arUserField["EDIT_FORM_LABEL"] <> '' ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
 					$arUserField["EDIT_FORM_LABEL"] = htmlspecialcharsEx($arUserField["EDIT_FORM_LABEL"]);
 					$arUserField["~EDIT_FORM_LABEL"] = $arUserField["EDIT_FORM_LABEL"];
 					$arUserField["PROPERTY_VALUE_LINK"] = "";
@@ -577,7 +577,7 @@ else
 				if(array_key_exists("blog", $arResult["ActiveFeatures"]) && (CSocNetFeaturesPerms::CanPerformOperation($USER->GetID(), SONET_ENTITY_GROUP, $arResult["Group"]["ID"], "blog", "view_post", CSocNetUser::IsCurrentUserModuleAdmin()) || $APPLICATION->GetGroupRight("forum") >= "W") && CModule::IncludeModule("blog"))
 				{
 					$arResult["BLOG"]["SHOW"] = true;
-					if (StrLen($arResult["ActiveFeatures"]["blog"]) > 0)
+					if ($arResult["ActiveFeatures"]["blog"] <> '')
 					{
 						$arResult["BLOG"]["TITLE"] = $arResult["ActiveFeatures"]["blog"];
 					}
@@ -587,7 +587,7 @@ else
 				if(array_key_exists("forum", $arResult["ActiveFeatures"]) && (CSocNetFeaturesPerms::CanPerformOperation($USER->GetID(), SONET_ENTITY_GROUP, $arResult["Group"]["ID"], "forum", "view", CSocNetUser::IsCurrentUserModuleAdmin()) || $APPLICATION->GetGroupRight("forum") >= "W") && CModule::IncludeModule("forum"))
 				{
 					$arResult["forum"]["SHOW"] = true;
-					if (StrLen($arResult["ActiveFeatures"]["forum"]) > 0)
+					if ($arResult["ActiveFeatures"]["forum"] <> '')
 						$arResult["forum"]["TITLE"] = $arResult["ActiveFeatures"]["forum"];
 				}
 
@@ -595,7 +595,7 @@ else
 				if(array_key_exists("tasks", $arResult["ActiveFeatures"]) && (CSocNetFeaturesPerms::CanPerformOperation($USER->GetID(), SONET_ENTITY_GROUP, $arResult["Group"]["ID"], "tasks", "view", CSocNetUser::IsCurrentUserModuleAdmin()) || $APPLICATION->GetGroupRight("intranet") >= "W") && CModule::IncludeModule("intranet"))
 				{
 					$arResult["tasks"]["SHOW"] = true;
-					if (StrLen($arResult["ActiveFeatures"]["tasks"]) > 0)
+					if ($arResult["ActiveFeatures"]["tasks"] <> '')
 						$arResult["tasks"]["TITLE"] = $arResult["ActiveFeatures"]["tasks"];
 				}
 			}

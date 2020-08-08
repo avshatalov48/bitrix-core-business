@@ -6,4 +6,5 @@ $MESS["MAIN_USER_CONSENT_EDIT_TMPL_DATA_PROVIDER_DEF"] = "(указываетс�
 $MESS["MAIN_USER_CONSENT_EDIT_TMPL_BTN_SAVE"] = "Сохранить";
 $MESS["MAIN_USER_CONSENT_EDIT_TMPL_BTN_APPLY"] = "Применить";
 $MESS["MAIN_USER_CONSENT_EDIT_TMPL_BTN_BACK_TO_LIST"] = "Назад к списку";
+$MESS["MAIN_USER_CONSENT_ADD_BUTTON"] = "Добавить";
 ?>

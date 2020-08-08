@@ -21,7 +21,7 @@ class CAllSocNetLog
 			}
 		}
 
-		if ($ACTION != "ADD" && IntVal($ID) <= 0)
+		if ($ACTION != "ADD" && intval($ID) <= 0)
 		{
 			$APPLICATION->ThrowException("System error 870164", "ERROR");
 			return false;
@@ -29,7 +29,7 @@ class CAllSocNetLog
 
 		$newEntityType = "";
 
-		if ((is_set($arFields, "ENTITY_TYPE") || $ACTION=="ADD") && StrLen($arFields["ENTITY_TYPE"]) <= 0)
+		if ((is_set($arFields, "ENTITY_TYPE") || $ACTION=="ADD") && $arFields["ENTITY_TYPE"] == '')
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_GL_EMPTY_ENTITY_TYPE"), "EMPTY_ENTITY_TYPE");
 			return false;
@@ -45,14 +45,14 @@ class CAllSocNetLog
 			$newEntityType = $arFields["ENTITY_TYPE"];
 		}
 
-		if ((is_set($arFields, "ENTITY_ID") || $ACTION=="ADD") && IntVal($arFields["ENTITY_ID"]) <= 0)
+		if ((is_set($arFields, "ENTITY_ID") || $ACTION=="ADD") && intval($arFields["ENTITY_ID"]) <= 0)
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_GL_EMPTY_ENTITY_ID"), "EMPTY_ENTITY_ID");
 			return false;
 		}
 		elseif (is_set($arFields, "ENTITY_ID"))
 		{
-			if (StrLen($newEntityType) <= 0 && $ID > 0)
+			if ($newEntityType == '' && $ID > 0)
 			{
 				$arRe = CAllSocNetLog::GetByID($ID);
 				if ($arRe)
@@ -60,7 +60,7 @@ class CAllSocNetLog
 					$newEntityType = $arRe["ENTITY_TYPE"];
 				}
 			}
-			if (StrLen($newEntityType) <= 0)
+			if ($newEntityType == '')
 			{
 				$APPLICATION->ThrowException(GetMessage("SONET_GL_ERROR_CALC_ENTITY_TYPE"), "ERROR_CALC_ENTITY_TYPE");
 				return false;
@@ -92,7 +92,7 @@ class CAllSocNetLog
 				!is_set($arFields, "SITE_ID")
 				|| (
 					(is_array($arFields["SITE_ID"]) && count($arFields["SITE_ID"]) <= 0)
-					|| (!is_array($arFields["SITE_ID"]) && StrLen($arFields["SITE_ID"]) <= 0)
+					|| (!is_array($arFields["SITE_ID"]) && $arFields["SITE_ID"] == '')
 				)
 			)
 		)
@@ -121,14 +121,14 @@ class CAllSocNetLog
 			$arFields["TAG"] = array($arFields["TAG"]);
 		}
 
-		if ((is_set($arFields, "EVENT_ID") || $ACTION=="ADD") && StrLen($arFields["EVENT_ID"]) <= 0)
+		if ((is_set($arFields, "EVENT_ID") || $ACTION=="ADD") && $arFields["EVENT_ID"] == '')
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_GL_EMPTY_EVENT_ID"), "EMPTY_EVENT_ID");
 			return false;
 		}
 		elseif (is_set($arFields, "EVENT_ID"))
 		{
-			$arFields["EVENT_ID"] = strtolower($arFields["EVENT_ID"]);
+			$arFields["EVENT_ID"] = mb_strtolower($arFields["EVENT_ID"]);
 			$arEvent = CSocNetLogTools::FindLogEventByID($arFields["EVENT_ID"], $arFields["ENTITY_TYPE"]);
 			if (!$arEvent)
 			{
@@ -153,7 +153,7 @@ class CAllSocNetLog
 			return false;
 		}
 
-		if ((is_set($arFields, "TITLE") || $ACTION=="ADD") && StrLen($arFields["TITLE"]) <= 0)
+		if ((is_set($arFields, "TITLE") || $ACTION=="ADD") && $arFields["TITLE"] == '')
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_GL_EMPTY_TITLE"), "EMPTY_TITLE");
 			return false;
@@ -187,9 +187,9 @@ class CAllSocNetLog
 		{
 			foreach($arSiteWorkgroupsPage as $groups_page)
 			{
-				if (strpos($arFields["URL"], $groups_page) === 0)
+				if (mb_strpos($arFields["URL"], $groups_page) === 0)
 				{
-					$arFields["URL"] = "#GROUPS_PATH#".substr($arFields["URL"], strlen($groups_page), strlen($arFields["URL"])-strlen($groups_page));
+					$arFields["URL"] = "#GROUPS_PATH#".mb_substr($arFields["URL"], mb_strlen($groups_page), mb_strlen($arFields["URL"]) - mb_strlen($groups_page));
 				}
 			}
 		}
@@ -204,7 +204,7 @@ class CAllSocNetLog
 	{
 		global $APPLICATION;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if ($ID <= 0)
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_GL_WRONG_PARAMETER_ID"), "ERROR_NO_ID");
@@ -222,12 +222,12 @@ class CAllSocNetLog
 
 	function MakeTitle($titleTemplate, $title, $url = "", $bHtml = true)
 	{
-		if (StrLen($url) > 0)
+		if ($url <> '')
 			$title = ($bHtml ? "<a href=\"".$url."\">".$title."</a>" : $title." [".$url."]");
 
-		if (StrLen($titleTemplate) > 0)
+		if ($titleTemplate <> '')
 		{
-			if (StrPos($titleTemplate, "#TITLE#") !== false)
+			if (mb_strpos($titleTemplate, "#TITLE#") !== false)
 				return Str_Replace("#TITLE#", $title, $titleTemplate);
 			else
 				return $titleTemplate." \"".$title."\"";
@@ -264,7 +264,7 @@ class CAllSocNetLog
 		{
 			$titleTmp = CSocNetLog::__InitUserTmp($userID);
 
-			if (StrLen($titleTmp) > 0)
+			if ($titleTmp <> '')
 			{
 				if (!$bFirst)
 					$title .= ", ";
@@ -301,7 +301,7 @@ class CAllSocNetLog
 		{
 			$titleTmp = CSocNetLog::__InitGroupTmp($groupID);
 
-			if (StrLen($titleTmp) > 0)
+			if ($titleTmp <> '')
 			{
 				if (!$bFirst)
 					$title .= ", ";
@@ -327,8 +327,8 @@ class CAllSocNetLog
 	{
 		$arSocNetAllowedSubscribeEntityTypesDesc = CSocNetAllowed::GetAllowedEntityTypesDesc();
 
-		$ID = IntVal($ID);
-		$tmp_id = IntVal($tmp_id);
+		$ID = intval($ID);
+		$tmp_id = intval($tmp_id);
 
 		if ($ID <= 0)
 		{
@@ -402,8 +402,8 @@ class CAllSocNetLog
 			&& $arSocNetAllowedSubscribeEntityTypesDesc[$arLog["ENTITY_TYPE"]]["HAS_MY"] == "Y"
 			&& array_key_exists("CLASS_OF", $arSocNetAllowedSubscribeEntityTypesDesc[$arLog["ENTITY_TYPE"]])
 			&& array_key_exists("METHOD_OF", $arSocNetAllowedSubscribeEntityTypesDesc[$arLog["ENTITY_TYPE"]])
-			&& strlen($arSocNetAllowedSubscribeEntityTypesDesc[$arLog["ENTITY_TYPE"]]["CLASS_OF"]) > 0
-			&& strlen($arSocNetAllowedSubscribeEntityTypesDesc[$arLog["ENTITY_TYPE"]]["METHOD_OF"]) > 0
+			&& $arSocNetAllowedSubscribeEntityTypesDesc[$arLog["ENTITY_TYPE"]]["CLASS_OF"] <> ''
+			&& $arSocNetAllowedSubscribeEntityTypesDesc[$arLog["ENTITY_TYPE"]]["METHOD_OF"] <> ''
 			&& method_exists($arSocNetAllowedSubscribeEntityTypesDesc[$arLog["ENTITY_TYPE"]]["CLASS_OF"], $arSocNetAllowedSubscribeEntityTypesDesc[$arLog["ENTITY_TYPE"]]["METHOD_OF"])
 		)
 		{
@@ -441,8 +441,8 @@ class CAllSocNetLog
 				while($arSite = $dbSite->Fetch())
 				{
 					$arSites[$arSite["ID"]] = array(
-						"DIR" => (strlen(trim($arSite["DIR"])) > 0 ? $arSite["DIR"] : "/"),
-						"SERVER_NAME" => (strlen(trim($arSite["SERVER_NAME"])) > 0 ? $arSite["SERVER_NAME"] : COption::GetOptionString("main", "server_name", $_SERVER["HTTP_HOST"]))
+						"DIR" => (trim($arSite["DIR"]) <> '' ? $arSite["DIR"] : "/"),
+						"SERVER_NAME" => (trim($arSite["SERVER_NAME"]) <> '' ? $arSite["SERVER_NAME"] : COption::GetOptionString("main", "server_name", $_SERVER["HTTP_HOST"]))
 					);
 				}
 
@@ -583,12 +583,12 @@ class CAllSocNetLog
 
 						if (
 							array_key_exists("URL_TO_SEND", $arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"])
-							&& strlen($arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["URL_TO_SEND"]) > 0
+							&& $arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["URL_TO_SEND"] <> ''
 						)
 							$link = GetMessage("SONET_GL_SEND_EVENT_LINK").$arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["URL_TO_SEND"];
 						elseif (
 							array_key_exists("URL", $arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"])
-							&& strlen($arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["URL"]) > 0
+							&& $arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["URL"] <> ''
 						)
 							$link = GetMessage("SONET_GL_SEND_EVENT_LINK").$arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["URL"];
 						else
@@ -597,7 +597,7 @@ class CAllSocNetLog
 						$arMessageFields = array(
 							"FROM_USER_ID" => (intval($arLog["USER_ID"]) > 0 ? $arLog["USER_ID"] : 1),
 							"TO_USER_ID" => $arSubscriber["USER_ID"],
-							"MESSAGE" => $arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["TITLE"]." #BR#".$arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["MESSAGE_TO_SEND"].(strlen($link) > 0 ? "#BR# ".$link : ""),
+							"MESSAGE" => $arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["TITLE"]." #BR#".$arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["MESSAGE_TO_SEND"].($link <> '' ? "#BR# ".$link : ""),
 							"=DATE_CREATE" => $GLOBALS["DB"]->CurrentTimeFunction(),
 							"MESSAGE_TYPE" => SONET_MESSAGE_SYSTEM,
 							"IS_LOG" => "Y"
@@ -618,12 +618,12 @@ class CAllSocNetLog
 
 						if (
 							array_key_exists("URL_TO_SEND", $arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"])
-							&& strlen($arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["URL_TO_SEND"]) > 0
+							&& $arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["URL_TO_SEND"] <> ''
 						)
 							$arFields["URL"] = $arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["URL_TO_SEND"];
 						elseif (
 							array_key_exists("URL", $arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"])
-							&& strlen($arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["URL"]) > 0
+							&& $arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["URL"] <> ''
 						)
 							$arFields["URL"] = $arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["URL"];
 						else
@@ -666,9 +666,9 @@ class CAllSocNetLog
 							$siteID = (defined("SITE_ID") ? SITE_ID : $arSubscriber["SITE_ID"]);
 						}
 
-						if (StrLen($siteID) <= 0)
+						if ($siteID == '')
 							$siteID = $arSubscriber["USER_LID"];
-						if (StrLen($siteID) <= 0)
+						if ($siteID == '')
 							break;
 
 						$event = new CEvent;
@@ -750,9 +750,14 @@ class CAllSocNetLog
 		}
 
 		if (
-			!$bForAllAccess
-			|| strtolower($GLOBALS["DB"]->type) != "mysql"
+			$event_id == "tasks"
+			&& !\Bitrix\Socialnetwork\ComponentHelper::checkLivefeedTasksAllowed()
 		)
+		{
+			return false;
+		}
+
+		if (!$bForAllAccess)
 		{
 			$arParams = array(
 				"SET_TIMESTAMP" => "Y"
@@ -883,7 +888,7 @@ class CAllSocNetLog
 
 	function GetSign($url, $userID = false, $site_id = false)
 	{
-		if (!$url || strlen(trim($url)) <= 0)
+		if (!$url || trim($url) == '')
 			return false;
 
 		if (!$userID)
@@ -1035,7 +1040,7 @@ class CAllSocNetLog
 		{
 			list($titleTmp, $messageTmp) = CSocNetLog::InitUserTmp($userID, $arParams, $bCurrentUserIsAdmin, $bRSS);
 
-			if (StrLen($titleTmp) > 0)
+			if ($titleTmp <> '')
 			{
 				if (!$bFirst)
 					$title .= ", ";
@@ -1043,7 +1048,7 @@ class CAllSocNetLog
 				$count++;
 			}
 
-			if (StrLen($messageTmp) > 0)
+			if ($messageTmp <> '')
 			{
 				if (!$bFirst)
 					$message .= " ";
@@ -1095,7 +1100,7 @@ class CAllSocNetLog
 		{
 			list($titleTmp, $messageTmp) = CSocNetLog::InitGroupTmp($groupID, $arParams, $bRSS);
 
-			if (StrLen($titleTmp) > 0)
+			if ($titleTmp <> '')
 			{
 				if (!$bFirst)
 					$title .= ", ";
@@ -1103,7 +1108,7 @@ class CAllSocNetLog
 				$count++;
 			}
 
-			if (StrLen($messageTmp) > 0)
+			if ($messageTmp <> '')
 			{
 				if (!$bFirst)
 					$message .= " ";
@@ -1209,7 +1214,7 @@ class CAllSocNetLog
 	public static function GetSite($log_id)
 	{
 		global $DB;
-		$strSql = "SELECT L.*, LS.* FROM b_sonet_log_site LS, b_lang L WHERE L.LID=LS.SITE_ID AND LS.LOG_ID=".IntVal($log_id);
+		$strSql = "SELECT L.*, LS.* FROM b_sonet_log_site LS, b_lang L WHERE L.LID=LS.SITE_ID AND LS.LOG_ID=".intval($log_id);
 		return $DB->Query($strSql);
 	}
 	

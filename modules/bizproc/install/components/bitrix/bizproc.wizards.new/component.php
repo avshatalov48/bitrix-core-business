@@ -18,34 +18,34 @@ $pathToTemplates = $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/templates_
 
 $arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if (strLen($arParams["BLOCK_VAR"]) <= 0)
+if ($arParams["BLOCK_VAR"] == '')
 	$arParams["BLOCK_VAR"] = "block_id";
 
 $arParams["PATH_TO_NEW"] = trim($arParams["PATH_TO_NEW"]);
-if (strlen($arParams["PATH_TO_NEW"]) <= 0)
+if ($arParams["PATH_TO_NEW"] == '')
 	$arParams["PATH_TO_NEW"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=new");
 
 $arParams["PATH_TO_LIST"] = trim($arParams["PATH_TO_LIST"]);
-if (strlen($arParams["PATH_TO_LIST"]) <= 0)
+if ($arParams["PATH_TO_LIST"] == '')
 	$arParams["PATH_TO_LIST"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=list&".$arParams["BLOCK_VAR"]."=#block_id#");
 
 $arParams["PATH_TO_INDEX"] = trim($arParams["PATH_TO_INDEX"]);
-if (strlen($arParams["PATH_TO_INDEX"]) <= 0)
+if ($arParams["PATH_TO_INDEX"] == '')
 	$arParams["PATH_TO_INDEX"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=index");
 
 $arParams["PATH_TO_TASK"] = trim($arParams["PATH_TO_TASK"]);
-if (strlen($arParams["PATH_TO_TASK"]) <= 0)
+if ($arParams["PATH_TO_TASK"] == '')
 	$arParams["PATH_TO_TASK"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=task&".$arParams["TASK_VAR"]."=#task_id#");
-$arParams["PATH_TO_TASK"] = $arParams["PATH_TO_TASK"].((strpos($arParams["PATH_TO_TASK"], "?") === false) ? "?" : "&").bitrix_sessid_get();
+$arParams["PATH_TO_TASK"] = $arParams["PATH_TO_TASK"].((mb_strpos($arParams["PATH_TO_TASK"], "?") === false) ? "?" : "&").bitrix_sessid_get();
 
 $arParams["PATH_TO_BP"] = trim($arParams["PATH_TO_BP"]);
-if (strlen($arParams["PATH_TO_BP"]) <= 0)
+if ($arParams["PATH_TO_BP"] == '')
 	$arParams["PATH_TO_BP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=bp&".$arParams["BLOCK_VAR"]."=#block_id#");
-$arParams["PATH_TO_BP"] = $arParams["PATH_TO_BP"].((strpos($arParams["PATH_TO_BP"], "?") === false) ? "?" : "&").bitrix_sessid_get();
+$arParams["PATH_TO_BP"] = $arParams["PATH_TO_BP"].((mb_strpos($arParams["PATH_TO_BP"], "?") === false) ? "?" : "&").bitrix_sessid_get();
 
-$arResult["BackUrl"] = urlencode(strlen($_REQUEST["back_url"]) <= 0 ? $APPLICATION->GetCurPageParam() : $_REQUEST["back_url"]);
+$arResult["BackUrl"] = urlencode($_REQUEST["back_url"] == '' ? $APPLICATION->GetCurPageParam() : $_REQUEST["back_url"]);
 
 $arResult["PATH_TO_INDEX"] = htmlspecialcharsbx(CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_INDEX"], array()));
 
@@ -53,12 +53,12 @@ $arResult["FatalErrorMessage"] = "";
 $arResult["ErrorMessage"] = "";
 
 $arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
-if (strlen($arParams["IBLOCK_TYPE"]) <= 0)
+if ($arParams["IBLOCK_TYPE"] == '')
 	$arResult["FatalErrorMessage"] .= GetMessage("BPWC_WNC_EMPTY_IBLOCK_TYPE").". ";
 
 $arParams["BLOCK_ID"] = intval($arParams["BLOCK_ID"]);
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	$arResult["BlockType"] = null;
 	$ar = CIBlockType::GetByIDLang($arParams["IBLOCK_TYPE"], LANGUAGE_ID, true);
@@ -68,13 +68,13 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 		$arResult["FatalErrorMessage"] .= GetMessage("BPWC_WNC_WRONG_IBLOCK_TYPE").". ";
 }
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
-	if (strlen($_REQUEST["doCancel"]) > 0)
+	if ($_REQUEST["doCancel"] <> '')
 		LocalRedirect(CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_INDEX"], array()));
 }
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	$arResult["Step"] = intval($_REQUEST["bp_step"]);
 	if ($arResult["Step"] <= 0)
@@ -123,15 +123,15 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 			$v2 = array();
 			$v3 = array();
 			$v5 = array();
-			if (strlen($ar["DESCRIPTION"]) > 0 && substr($ar["DESCRIPTION"], 0, strlen("v2:")) == "v2:")
+			if ($ar["DESCRIPTION"] <> '' && mb_substr($ar["DESCRIPTION"], 0, mb_strlen("v2:")) == "v2:")
 			{
-				$v4 = @unserialize(substr($ar["DESCRIPTION"], 3));
+				$v4 = @unserialize(mb_substr($ar["DESCRIPTION"], 3));
 				if (is_array($v4))
 				{
 					$v1 = $v4["DESCRIPTION"];
-					$v2 = is_array($v4["FILTERABLE_FIELDS"]) ? $v4["FILTERABLE_FIELDS"] : (strlen($v4["FILTERABLE_FIELDS"]) > 0 ? array($v4["FILTERABLE_FIELDS"]) : array());
-					$v3 = is_array($v4["VISIBLE_FIELDS"]) ? $v4["VISIBLE_FIELDS"] : (strlen($v4["VISIBLE_FIELDS"]) > 0 ? array($v4["VISIBLE_FIELDS"]) : array());
-					$v5 = is_array($v4["COMPONENT_TEMPLATES"]) ? $v4["COMPONENT_TEMPLATES"] : (strlen($v4["COMPONENT_TEMPLATES"]) > 0 ? array($v4["COMPONENT_TEMPLATES"]) : array());
+					$v2 = is_array($v4["FILTERABLE_FIELDS"]) ? $v4["FILTERABLE_FIELDS"] : ($v4["FILTERABLE_FIELDS"] <> '' ? array($v4["FILTERABLE_FIELDS"]) : array());
+					$v3 = is_array($v4["VISIBLE_FIELDS"]) ? $v4["VISIBLE_FIELDS"] : ($v4["VISIBLE_FIELDS"] <> '' ? array($v4["VISIBLE_FIELDS"]) : array());
+					$v5 = is_array($v4["COMPONENT_TEMPLATES"]) ? $v4["COMPONENT_TEMPLATES"] : ($v4["COMPONENT_TEMPLATES"] <> '' ? array($v4["COMPONENT_TEMPLATES"]) : array());
 				}
 			}
 
@@ -168,7 +168,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 			$arResult["NewTemplateType"] = "statemachine";
 			$_REQUEST["bp_template"] = "";
 		}
-		elseif (strlen($_REQUEST["bp_template"]) <= 0)
+		elseif ($_REQUEST["bp_template"] == '')
 		{
 			$arResult["NewTemplateType"] = "sequential";
 		}
@@ -181,8 +181,8 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 			"ElementAdd" => trim($_REQUEST["bp_element_add"]),
 			"UserGroups" => is_array($_REQUEST["bp_user_groups"]) ? $_REQUEST["bp_user_groups"] : array(),
 			"Template" => preg_replace("/[^a-zA-Z0-9_.-]+/i", "", $_REQUEST["bp_template"]),
-			"FilterableFields" => is_array($_REQUEST["bp_filterablefields"]) ? $_REQUEST["bp_filterablefields"] : (strlen($_REQUEST["bp_filterablefields"]) > 0 ? array($_REQUEST["bp_filterablefields"]) : array()),
-			"VisibleFields" => is_array($_REQUEST["bp_visiblefields"]) ? $_REQUEST["bp_visiblefields"] : (strlen($_REQUEST["bp_visiblefields"]) > 0 ? array($_REQUEST["bp_visiblefields"]) : array()),
+			"FilterableFields" => is_array($_REQUEST["bp_filterablefields"]) ? $_REQUEST["bp_filterablefields"] : ($_REQUEST["bp_filterablefields"] <> '' ? array($_REQUEST["bp_filterablefields"]) : array()),
+			"VisibleFields" => is_array($_REQUEST["bp_visiblefields"]) ? $_REQUEST["bp_visiblefields"] : ($_REQUEST["bp_visiblefields"] <> '' ? array($_REQUEST["bp_visiblefields"]) : array()),
 			"ComponentTemplates" => array(
 				"Start" => trim($_REQUEST["bp_start_tpl"]),
 				"List" => trim($_REQUEST["bp_list_tpl"]),
@@ -190,17 +190,17 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 			),
 		);
 
-		if (strlen($arResult["Data"]["Name"]) <= 0)
+		if ($arResult["Data"]["Name"] == '')
 			$errorMessageTmp .= GetMessage("BPWC_WNC_EMPTY_NAME").". ";
 
-		if ($arParams["BLOCK_ID"] <= 0 && strlen($arResult["Data"]["Template"]) > 0)
+		if ($arParams["BLOCK_ID"] <= 0 && $arResult["Data"]["Template"] <> '')
 		{
 			$arResult["Data"]["PathToTemplate"] = $pathToTemplates."/".$arResult["Data"]["Template"];
 			if (!file_exists($arResult["Data"]["PathToTemplate"]) || !is_file($arResult["Data"]["PathToTemplate"]))
 				$errorMessageTmp .= GetMessage("BPWC_WNC_WRONG_TMPL").". ";
 		}
 
-		if (strlen($errorMessageTmp) > 0)
+		if ($errorMessageTmp <> '')
 		{
 			$arResult["ErrorMessage"] .= $errorMessageTmp;
 			$arResult["Step"] = 1;
@@ -211,7 +211,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 	{
 		$bpTemplateObject = null;
 
-		if ($arParams["BLOCK_ID"] > 0 || strlen($arResult["Data"]["Template"]) <= 0)
+		if ($arParams["BLOCK_ID"] > 0 || $arResult["Data"]["Template"] == '')
 		{
 			$arResult["Step"] = 3;
 		}
@@ -356,7 +356,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 			if (intval($arResult["Data"]["Image"]) > 0)
 				CFile::Delete($arResult["Data"]["Image"]);
 
-			if ($arParams["BLOCK_ID"] <= 0 && strlen($arResult["Data"]["Template"]) > 0)
+			if ($arParams["BLOCK_ID"] <= 0 && $arResult["Data"]["Template"] <> '')
 			{
 				$arVariables = false;
 				if (method_exists($bpTemplateObject, "GetVariables"))
@@ -402,7 +402,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 			}
 
 			$redirectPath = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_LIST"], array("block_id" => $iblockId));
-			$redirectPath .= ((strpos($redirectPath, "?") !== false) ? "&" : "?")."template_type=".$arResult["NewTemplateType"];
+			$redirectPath .= ((mb_strpos($redirectPath, "?") !== false) ? "&" : "?")."template_type=".$arResult["NewTemplateType"];
 			LocalRedirect($redirectPath);
 		}
 		else
@@ -413,7 +413,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 	}
 }
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	if ($arResult["Step"] == 1)
 	{
@@ -462,7 +462,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 
 $this->IncludeComponentTemplate();
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	if ($arParams["SET_TITLE"] == "Y")
 		$APPLICATION->SetTitle(str_replace("#NAME#", $arResult["BlockType"]["NAME"], GetMessage("BPWC_WNC_PAGE_TITLE")));

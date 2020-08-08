@@ -1,0 +1,8 @@
+.bx-messenger-list-sidebar.bx-vue-list-wrap
+{
+    height: 618px;
+    max-height: 618px;
+	overflow-y: auto;
+    border: 1px solid #888;
+    margin-right: 10px;
+}

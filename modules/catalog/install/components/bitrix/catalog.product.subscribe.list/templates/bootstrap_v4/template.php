@@ -145,9 +145,9 @@ if(!$arResult['USER_ID'] && !isset($arParams['GUEST_ACCESS'])):?>
 
 if(!empty($_GET['result']) && !empty($_GET['message']))
 {
-	$successNotify = strpos($_GET['result'], 'Ok') ? true : false;
+	$successNotify = mb_strpos($_GET['result'], 'Ok')? true : false;
 	$postfix = $successNotify ? 'Ok' : 'Fail';
-	$popupTitle = Loc::getMessage('CPSL_SUBSCRIBE_POPUP_TITLE_'.strtoupper(str_replace($postfix, '', $_GET['result'])));
+	$popupTitle = Loc::getMessage('CPSL_SUBSCRIBE_POPUP_TITLE_'.mb_strtoupper(str_replace($postfix, '', $_GET['result'])));
 
 	$arJSParams = array(
 		'NOTIFY_USER' => true,

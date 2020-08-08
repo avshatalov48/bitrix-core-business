@@ -47,6 +47,12 @@ body {
 	border-top: 1px rgba(0,0,0,.2) dashed;
 	border-bottom: 1px rgba(0,0,0,.2) dashed;
 	z-index: 301;
+	opacity: 0;
+	transition: 200ms opacity ease;
+}
+
+.block-wrapper:hover::after {
+	opacity: 1;
 }
 
 .block-wrapper [contenteditable="true"],
@@ -81,11 +87,6 @@ body {
 .block-wrapper.landing-ui-hide {
 	visibility: visible;
 	animation: hideBlock 350ms ease both;
-}
-
-
-main .block-wrapper:after {
-	border-top: 0;
 }
 
 
@@ -150,6 +151,10 @@ main > .landing-footer [class~='block-wrapper']:last-of-type {
 	margin-bottom: 40px;
 }
 
+.block-wrapper:hover .landing-ui-panel-create-action {
+	opacity: 1;
+}
+
 main.landing-edit-mode.landing-empty {
 	display: flex;
 	flex-direction: column;
@@ -183,13 +188,6 @@ main .landing-footer.landing-empty {
 main .landing-sidebar:not(.landing-empty) + .landing-main.landing-empty {
 	height: auto;
 	max-height: none;
-}
-
-main .landing-main:not(.landing-empty):not(:hover) [class~='block-wrapper']:not(:last-of-type) .landing-ui-panel-create-action,
-main .landing-sidebar:not(.landing-empty):not(:hover) .landing-ui-panel-create-action,
-main .landing-header:not(.landing-empty):not(:hover) .landing-ui-panel-create-action,
-main .landing-footer:not(.landing-empty):not(:hover) .landing-ui-panel-create-action {
-	opacity: 0;
 }
 
 @keyframes showBlock {
@@ -539,7 +537,7 @@ body[style*="cursor: move;"] .landing-ui-panel-block-card-action {
 
 .landing-ui-disabled {
 	pointer-events: none;
-	opacity: .7;
+	opacity: .5;
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
@@ -847,6 +845,7 @@ main.landing-edit-mode.landing-ui-overlay::after {
 }
 
 .landing-ui-panel-create-action {
+	opacity: 0;
 	transition: width 200ms ease, opacity 200ms ease!important;
 }
 
@@ -955,4 +954,9 @@ only screen and (min-resolution: 2dppx) {
 
 .landing-ui-block-selectable-overlay:hover::after {
 	opacity: 1;
+}
+
+.landing-ui-button-plus.landing-ui-disable {
+	pointer-events: none;
+	opacity: .5;
 }

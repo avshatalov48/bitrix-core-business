@@ -86,12 +86,12 @@ function GetReportsList($strPath2Import)
 			if ($file == "." || $file == "..")
 				continue;
 
-			if ($GLOBALS["DB"]->type != "MYSQL" && substr($file, 0, strlen("commerceml_g_")) == "commerceml_g_")
+			if ($GLOBALS["DB"]->type != "MYSQL" && mb_substr($file, 0, mb_strlen("commerceml_g_")) == "commerceml_g_")
 				continue;
 
-			if (is_file($_SERVER["DOCUMENT_ROOT"].$strPath2Import.$file) && substr($file, strlen($file)-8)=="_run.php")
+			if (is_file($_SERVER["DOCUMENT_ROOT"].$strPath2Import.$file) && mb_substr($file, mb_strlen($file) - 8) == "_run.php")
 			{
-				$import_name = substr($file, 0, strlen($file)-8);
+				$import_name = mb_substr($file, 0, mb_strlen($file) - 8);
 
 				$rep_title = $import_name;
 				$file_handle = fopen($_SERVER["DOCUMENT_ROOT"].$strPath2Import.$file, "rb");
@@ -102,7 +102,7 @@ function GetReportsList($strPath2Import)
 				if (preg_match("#<title[\s]*>([^<]*)</title[\s]*>#i", $file_contents, $arMatches))
 				{
 					$arMatches[1] = Trim($arMatches[1]);
-					if (strlen($arMatches[1]) > 0)
+					if ($arMatches[1] <> '')
 						$rep_title = $arMatches[1];
 				}
 
@@ -136,11 +136,11 @@ $arReportsList = GetReportsList(CATALOG_PATH2IMPORTS);
 if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 {
 	$strActFileName = trim(strval($_REQUEST["ACT_FILE"]));
-	if (strlen($_REQUEST["ACTION"])>0 && strlen($strActFileName)<=0)
+	if ($_REQUEST["ACTION"] <> '' && $strActFileName == '')
 	{
 		$strErrorMessage .= GetMessage("CES_ERROR_NO_FILE")."\n";
 	}
-	elseif (strlen($_REQUEST["ACTION"])<=0 && strlen($strActFileName)>0)
+	elseif ($_REQUEST["ACTION"] == '' && $strActFileName <> '')
 	{
 		$strErrorMessage .= GetMessage("CES_ERROR_NO_ACTION")."\n";
 	}
@@ -149,14 +149,14 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 		$strErrorMessage .= GetMessage("CES_ERROR_BAD_FILENAME2")."\n";
 	}
 
-	if (strlen($strErrorMessage)<=0 && strlen($strActFileName)>0)
+	if ($strErrorMessage == '' && $strActFileName <> '')
 	{
 		if (!file_exists($_SERVER["DOCUMENT_ROOT"].$arReportsList[$strActFileName]["FILE_RUN"])
 			|| !is_file($_SERVER["DOCUMENT_ROOT"].$arReportsList[$strActFileName]["FILE_RUN"])
 			)
 			$strErrorMessage .= GetMessage("CES_ERROR_FILE_NOT_EXIST")." (".$arReportsList[$strActFileName]["FILE_RUN"].").\n";
 
-		if (strlen($strErrorMessage)<=0)
+		if ($strErrorMessage == '')
 		{
 			$PROFILE_ID = intval($_REQUEST["PROFILE_ID"]);
 
@@ -246,7 +246,7 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 
 					if ($bDefaultProfile || $boolNeedEdit)
 					{
-						if (strlen($arReportsList[$strActFileName]["FILE_SETUP"]) > 0)
+						if ($arReportsList[$strActFileName]["FILE_SETUP"] <> '')
 						{
 							$STEP = 0;
 							if (isset($_REQUEST['STEP']))
@@ -388,7 +388,7 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 				}
 				else
 				{
-					if (isset($CUR_LOAD_SESS_ID) && strlen($CUR_LOAD_SESS_ID) > 0 && is_set($_SESSION, $CUR_LOAD_SESS_ID))
+					if (isset($CUR_LOAD_SESS_ID) && $CUR_LOAD_SESS_ID <> '' && is_set($_SESSION, $CUR_LOAD_SESS_ID))
 					{
 						$strImportErrorMessage = $_SESSION[$CUR_LOAD_SESS_ID]["ERROR_MESSAGE"].$strImportErrorMessage;
 						$strImportOKMessage = $_SESSION[$CUR_LOAD_SESS_ID]["OK_MESSAGE"].$strImportOKMessage;
@@ -398,15 +398,15 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 					}
 				}
 
-				if (isset($CUR_LOAD_SESS_ID) && strlen($CUR_LOAD_SESS_ID) > 0 && is_set($_SESSION, $CUR_LOAD_SESS_ID))
+				if (isset($CUR_LOAD_SESS_ID) && $CUR_LOAD_SESS_ID <> '' && is_set($_SESSION, $CUR_LOAD_SESS_ID))
 				{
 					$strImportErrorMessage = $_SESSION[$CUR_LOAD_SESS_ID]["ERROR_MESSAGE"].$strImportErrorMessage;
 					$strImportOKMessage = $_SESSION[$CUR_LOAD_SESS_ID]["OK_MESSAGE"].$strImportOKMessage;
 				}
 
-				if (strlen($strImportErrorMessage)>0)
+				if ($strImportErrorMessage <> '')
 					$strErrorMessage .= $strImportErrorMessage;
-				if (strlen($strImportOKMessage)>0)
+				if ($strImportOKMessage <> '')
 					$strOKMessage .= $strImportOKMessage;
 
 				if ($PROFILE_ID>0)
@@ -431,7 +431,7 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 					));
 				}
 
-				if (strlen($strErrorMessage)<=0)
+				if ($strErrorMessage == '')
 				{
 					$randVal = rand(1, 1000);
 					$_SESSION["COMMERCEML_IMPORT_".$randVal] = $strOKMessage;
@@ -483,7 +483,7 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 						));
 				}
 
-				if (strlen($strErrorMessage)<=0)
+				if ($strErrorMessage == '')
 				{
 					$redirectUrl = "/bitrix/admin/cat_import_setup.php?lang=".urlencode(LANGUAGE_ID)."&success_import=Y";
 					$adminSidePanelHelper->reloadPage($redirectUrl, "save");
@@ -525,12 +525,12 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 					}
 				}
 
-				if (($bDefaultProfile && strlen($arReportsList[$strActFileName]["FILE_SETUP"])>0) || $boolNeedEdit)
+				if (($bDefaultProfile && $arReportsList[$strActFileName]["FILE_SETUP"] <> '') || $boolNeedEdit)
 				{
 					$strErrorMessage .= GetMessage("CES_ERROR_NOT_AGENT")."\n";
 				}
 
-				if (strlen($strErrorMessage)<=0)
+				if ($strErrorMessage == '')
 				{
 					$agent_period = intval($_REQUEST["agent_period"]);
 					if ($agent_period<=0) $agent_period = 24;
@@ -570,7 +570,7 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 					}
 				}
 
-				if (strlen($strErrorMessage)<=0)
+				if ($strErrorMessage == '')
 				{
 					$redirectUrl = "/bitrix/admin/cat_import_setup.php?lang=".urlencode(LANGUAGE_ID)."&success_import=Y";
 					$adminSidePanelHelper->reloadPage($redirectUrl, "save");
@@ -612,30 +612,30 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 					}
 				}
 
-				if (($bDefaultProfile && strlen($arReportsList[$strActFileName]["FILE_SETUP"])>0) || $boolNeedEdit)
+				if (($bDefaultProfile && $arReportsList[$strActFileName]["FILE_SETUP"] <> '') || $boolNeedEdit)
 				{
 					$strErrorMessage .= GetMessage("CES_ERROR_NOT_CRON")."\n";
 				}
 
-				if (strlen($strErrorMessage)<=0)
+				if ($strErrorMessage == '')
 				{
 					$agent_period = intval($_REQUEST["agent_period"]);
 					$agent_hour = Trim($_REQUEST["agent_hour"]);
 					$agent_minute = Trim($_REQUEST["agent_minute"]);
 
-					if ($agent_period<=0 && (strlen($agent_hour)<=0 || strlen($agent_minute)<=0))
+					if ($agent_period<=0 && ($agent_hour == '' || $agent_minute == ''))
 					{
 						$agent_period = 24;
 						$agent_hour = "";
 						$agent_minute = "";
 					}
-					elseif ($agent_period>0 && strlen($agent_hour)>0 && strlen($agent_minute)>0)
+					elseif ($agent_period>0 && $agent_hour <> '' && $agent_minute <> '')
 					{
 						$agent_period = 0;
 					}
 
 					$agent_php_path = Trim($_REQUEST["agent_php_path"]);
-					if (strlen($agent_php_path)<=0) $agent_php_path = "/usr/local/php/bin/php";
+					if ($agent_php_path == '') $agent_php_path = "/usr/local/php/bin/php";
 
 					if (!file_exists($_SERVER["DOCUMENT_ROOT"].CATALOG_PATH2IMPORTS."cron_frame.php"))
 					{
@@ -683,7 +683,7 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 							}
 
 							// add
-							if (strlen($cfg_data)>0) $cfg_data .= "\n";
+							if ($cfg_data <> '') $cfg_data .= "\n";
 							$cfg_data .= $strTime.$agent_php_path." -f ".$_SERVER["DOCUMENT_ROOT"].CATALOG_PATH2IMPORTS."cron_frame.php ".$PROFILE_ID." >".$_SERVER["DOCUMENT_ROOT"].CATALOG_PATH2IMPORTS."logs/".$PROFILE_ID.".txt\n";
 						}
 
@@ -717,7 +717,7 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 								$strTime = intval($agent_minute)." ".intval($agent_hour)." * * * ";
 							}
 
-							if (strlen($cfg_data)>0) $cfg_data .= "\n";
+							if ($cfg_data <> '') $cfg_data .= "\n";
 							$cfg_data .= $strTime.$agent_php_path." -f ".$_SERVER["DOCUMENT_ROOT"].CATALOG_PATH2IMPORTS."cron_frame.php ".$PROFILE_ID." >".$_SERVER["DOCUMENT_ROOT"].CATALOG_PATH2IMPORTS."logs/".$PROFILE_ID.".txt\n";
 						}
 						else
@@ -725,7 +725,7 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 							$strErrorMessage .= GetMessage("CES_ERROR_ADD_PROFILE")."\n";
 						}
 					}
-					if (strlen($strErrorMessage)<=0)
+					if ($strErrorMessage == '')
 					{
 						CheckDirPath($_SERVER["DOCUMENT_ROOT"]."/bitrix/crontab/");
 						$cfg_data = preg_replace("#[\r\n]{2,}#im", "\n", $cfg_data);
@@ -753,7 +753,7 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 					}
 				}
 
-				if (strlen($strErrorMessage)<=0)
+				if ($strErrorMessage == '')
 				{
 					$redirectUrl = "/bitrix/admin/cat_import_setup.php?lang=".urlencode(LANGUAGE_ID)."&success_import=Y";
 					$adminSidePanelHelper->reloadPage($redirectUrl, "save");
@@ -769,7 +769,7 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 				if (!$ar_profile)
 					$strErrorMessage .= GetMessage("CES_ERROR_NO_PROFILE1").$PROFILE_ID." ".GetMessage("CES_ERROR_NO_PROFILE2")."\n";
 
-				if (strlen($strErrorMessage)<=0)
+				if ($strErrorMessage == '')
 				{
 					if ($ar_profile["IN_AGENT"]=="Y")
 					{
@@ -816,7 +816,7 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 			//////////////////////////////////////////////
 			elseif ($bCanEdit && $_REQUEST["ACTION"]=="IMPORT_SETUP")
 			{
-				if (strlen($arReportsList[$strActFileName]["FILE_SETUP"])>0)
+				if ($arReportsList[$strActFileName]["FILE_SETUP"] <> '')
 				{
 					$STEP = intval($_REQUEST["STEP"]);
 					if (isset($_POST['backButton']) && !empty($_POST['backButton'])) $STEP-=2;
@@ -840,7 +840,7 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 					ob_end_clean();
 
 					// Saving import profile
-					if (strlen($SETUP_FIELDS_LIST)<=0) $SETUP_FIELDS_LIST = $_REQUEST["SETUP_FIELDS_LIST"];
+					if ($SETUP_FIELDS_LIST == '') $SETUP_FIELDS_LIST = $_REQUEST["SETUP_FIELDS_LIST"];
 					$arProfileFields = explode(",", $SETUP_FIELDS_LIST);
 					$strSETUP_VARS = "";
 					for ($i = 0, $intCount = count($arProfileFields); $i < $intCount; $i++)
@@ -848,25 +848,25 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 						$arProfileFields[$i] = Trim($arProfileFields[$i]);
 
 						$vValue = ${$arProfileFields[$i]};
-						if (!is_array($vValue) && strlen($vValue)<=0) $vValue = $_REQUEST[$arProfileFields[$i]];
+						if (!is_array($vValue) && $vValue == '') $vValue = $_REQUEST[$arProfileFields[$i]];
 
 						if (is_array($vValue))
 						{
 							foreach ($vValue as $key1 => $value1)
 							{
-								if (strlen($strSETUP_VARS)>0) $strSETUP_VARS .= "&";
+								if ($strSETUP_VARS <> '') $strSETUP_VARS .= "&";
 								$strSETUP_VARS .= $arProfileFields[$i]."[".(is_numeric($key1)?"":"\"").$key1.(is_numeric($key1)?"":"\"")."]=".urlencode($value1);
 							}
 						}
 						else
 						{
-							if (strlen($strSETUP_VARS)>0) $strSETUP_VARS .= "&";
+							if ($strSETUP_VARS <> '') $strSETUP_VARS .= "&";
 							$strSETUP_VARS .= $arProfileFields[$i]."=".urlencode($vValue);
 						}
 					}
 
-					if (strlen($SETUP_PROFILE_NAME)<=0) $SETUP_PROFILE_NAME = $_REQUEST["SETUP_PROFILE_NAME"];
-					if (strlen($SETUP_PROFILE_NAME)<=0) $SETUP_PROFILE_NAME = $arReportsList[$strActFileName]["TITLE"];
+					if ($SETUP_PROFILE_NAME == '') $SETUP_PROFILE_NAME = $_REQUEST["SETUP_PROFILE_NAME"];
+					if ($SETUP_PROFILE_NAME == '') $SETUP_PROFILE_NAME = $arReportsList[$strActFileName]["TITLE"];
 
 					$PROFILE_ID = CCatalogImport::Add(array(
 						"LAST_USE"		=> false,
@@ -889,7 +889,7 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 				{
 					$strErrorMessage .= GetMessage("CES_ERROR_NO_SETUP_FILE")."\n";
 				}
-				if (strlen($strErrorMessage)<=0)
+				if ($strErrorMessage == '')
 				{
 					$redirectUrl = "/bitrix/admin/cat_import_setup.php?lang=".urlencode(LANGUAGE_ID)."&success_import=Y";
 					$adminSidePanelHelper->reloadPage($redirectUrl, "save");
@@ -932,7 +932,7 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 				}
 				if ($boolFlag)
 				{
-					if (strlen($arReportsList[$arProfile['FILE_NAME']]["FILE_SETUP"])>0)
+					if ($arReportsList[$arProfile['FILE_NAME']]["FILE_SETUP"] <> '')
 					{
 						$STEP = intval($_REQUEST["STEP"]);
 						if (isset($_POST['backButton']) && !empty($_POST['backButton'])) $STEP-=2;
@@ -962,7 +962,7 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 						ob_end_clean();
 
 						// Saving import profile
-						if (strlen($SETUP_FIELDS_LIST)<=0) $SETUP_FIELDS_LIST = $_REQUEST["SETUP_FIELDS_LIST"];
+						if ($SETUP_FIELDS_LIST == '') $SETUP_FIELDS_LIST = $_REQUEST["SETUP_FIELDS_LIST"];
 						$arProfileFields = explode(",", $SETUP_FIELDS_LIST);
 						$strSETUP_VARS = "";
 						for ($i = 0, $intCount = count($arProfileFields); $i < $intCount; $i++)
@@ -970,25 +970,25 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 							$arProfileFields[$i] = trim($arProfileFields[$i]);
 
 							$vValue = ${$arProfileFields[$i]};
-							if (!is_array($vValue) && strlen($vValue)<=0) $vValue = $_REQUEST[$arProfileFields[$i]];
+							if (!is_array($vValue) && $vValue == '') $vValue = $_REQUEST[$arProfileFields[$i]];
 
 							if (is_array($vValue))
 							{
 								foreach ($vValue as $key1 => $value1)
 								{
-									if (strlen($strSETUP_VARS)>0) $strSETUP_VARS .= "&";
+									if ($strSETUP_VARS <> '') $strSETUP_VARS .= "&";
 									$strSETUP_VARS .= $arProfileFields[$i]."[".(is_numeric($key1)?"":"\"").$key1.(is_numeric($key1)?"":"\"")."]=".urlencode($value1);
 								}
 							}
 							else
 							{
-								if (strlen($strSETUP_VARS)>0) $strSETUP_VARS .= "&";
+								if ($strSETUP_VARS <> '') $strSETUP_VARS .= "&";
 								$strSETUP_VARS .= $arProfileFields[$i]."=".urlencode($vValue);
 							}
 						}
 
-						if (strlen($SETUP_PROFILE_NAME)<=0) $SETUP_PROFILE_NAME = $_REQUEST["SETUP_PROFILE_NAME"];
-						if (strlen($SETUP_PROFILE_NAME)<=0) $SETUP_PROFILE_NAME = $arReportsList[$strActFileName]["TITLE"];
+						if ($SETUP_PROFILE_NAME == '') $SETUP_PROFILE_NAME = $_REQUEST["SETUP_PROFILE_NAME"];
+						if ($SETUP_PROFILE_NAME == '') $SETUP_PROFILE_NAME = $arReportsList[$strActFileName]["TITLE"];
 
 						if ($_REQUEST["ACTION"]=="IMPORT_EDIT")
 						{
@@ -1026,7 +1026,7 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 						$strErrorMessage .= GetMessage("CES_ERROR_NO_SETUP_FILE")."\n";
 					}
 				}
-				if (strlen($strErrorMessage)<=0)
+				if ($strErrorMessage == '')
 				{
 					$redirectUrl = "/bitrix/admin/cat_import_setup.php?lang=".urlencode(LANGUAGE_ID)."&success_import=Y";
 					$adminSidePanelHelper->reloadPage($redirectUrl, "save");
@@ -1042,15 +1042,15 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 $bWindowsHosting = false;
 if (isset($_GET["NEW_OS"]))
 {
-	if (strlen(trim($_GET["NEW_OS"]))<=0)
+	if (trim($_GET["NEW_OS"]) == '')
 		unset($_SESSION["TMP_MY_NEW_OS"]);
 	else
 		$_SESSION["TMP_MY_NEW_OS"] = $_GET["NEW_OS"];
 }
 $strCurrentOS = PHP_OS;
-if (isset($_SESSION["TMP_MY_NEW_OS"]) && strlen($_SESSION["TMP_MY_NEW_OS"])>0)
+if (isset($_SESSION["TMP_MY_NEW_OS"]) && $_SESSION["TMP_MY_NEW_OS"] <> '')
 	$strCurrentOS = $_SESSION["TMP_MY_NEW_OS"];
-if (strtoupper(substr($strCurrentOS, 0, 3)) === "WIN")
+if (mb_strtoupper(mb_substr($strCurrentOS, 0, 3)) === "WIN")
 {
 	$bWindowsHosting = true;
 }
@@ -1640,14 +1640,14 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 </div>
 </div>
 <?
-if (strlen($strErrorMessage) > 0)
+if ($strErrorMessage <> '')
 	CAdminMessage::ShowMessage(array("MESSAGE"=>GetMessage("CES_ERRORS"), "DETAILS"=>$strErrorMessage));
 
 if ($_GET["success_import"]=="Y")
 {
 	$message_sess_id = (isset($_GET['message_sess_id']) ? (int)$_GET['message_sess_id'] : 0);
 	CAdminMessage::ShowNote(GetMessage("CES_SUCCESS"));
-	if (strlen($_SESSION["COMMERCEML_IMPORT_".$message_sess_id]) > 0)
+	if ($_SESSION["COMMERCEML_IMPORT_".$message_sess_id] <> '')
 	{
 		echo "<p>".$_SESSION["COMMERCEML_IMPORT_".$message_sess_id]."</p>";
 		unset($_SESSION["COMMERCEML_IMPORT_".$message_sess_id]);

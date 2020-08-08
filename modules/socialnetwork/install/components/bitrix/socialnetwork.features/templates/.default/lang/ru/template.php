@@ -13,4 +13,5 @@ $MESS["SONET_C4_INVITE_TITLE_PROJECT"] = "Участники проекта";
 $MESS["SONET_C4_INVITE_OPERATION"] = "Приглашать в группу могут";
 $MESS["SONET_C4_INVITE_OPERATION_PROJECT"] = "Приглашать в проект могут";
 $MESS["SONET_C4_T_ERROR"] = "Произошла ошибка обработки запроса";
+$MESS["SONET_C4_TASK_FEATURE_DISABLED"] = "Настройка прав ограничена для вашего тарифного плана. #LINK_START#Подробнее#LINK_END#";
 ?>

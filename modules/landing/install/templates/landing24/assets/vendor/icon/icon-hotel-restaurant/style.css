@@ -1,0 +1,37 @@
+@charset "UTF-8";
+
+@font-face
+{
+	font-family: "hotel-restaurant";
+	src: url("/bitrix/templates/landing24/assets/vendor/icon/icon-hotel-restaurant/font.woff") format("woff");
+	font-weight: normal;
+	font-style: normal;
+}
+
+[data-icon-hotel-restaurant]:before
+{
+	font-family: "hotel-restaurant" !important;
+	content: attr(data-icon-hotel-restaurant);
+	font-style: normal !important;
+	font-weight: normal !important;
+	font-variant: normal !important;
+	text-transform: none !important;
+	speak: none;
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+[class^="icon-hotel-restaurant"]:before,
+[class*=" icon-hotel-restaurant"]:before
+{
+	font-family: "hotel-restaurant" !important;
+	font-style: normal !important;
+	font-weight: normal !important;
+	font-variant: normal !important;
+	text-transform: none !important;
+	speak: none;
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}

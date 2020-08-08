@@ -13,13 +13,13 @@ if (!CModule::IncludeModule("bizproc"))
 	return;
 }
 
-if (strLen($arParams["TASK_VAR"]) <= 0)
+if ($arParams["TASK_VAR"] == '')
 	$arParams["TASK_VAR"] = "task_id";
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
 
 $arParams["PATH_TO_BIZPROC_EDIT"] = trim($arParams["PATH_TO_BIZPROC_EDIT"]);
-if (strlen($arParams["PATH_TO_BIZPROC_EDIT"]) <= 0)
+if ($arParams["PATH_TO_BIZPROC_EDIT"] == '')
 	$arParams["PATH_TO_BIZPROC_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=bizproc_edit&".$arParams["TASK_VAR"]."=#task_id#");
 
 if (!$GLOBALS["USER"]->IsAuthorized())
@@ -44,8 +44,8 @@ else
 
 	while ($arResultItem = $dbResultList->GetNext())
 	{
-		if (strlen($arResultItem["DESCRIPTION"]) > 100)
-			$arResultItem["DESCRIPTION"] = substr($arResultItem["DESCRIPTION"], 0, 97)."...";
+		if (mb_strlen($arResultItem["DESCRIPTION"]) > 100)
+			$arResultItem["DESCRIPTION"] = mb_substr($arResultItem["DESCRIPTION"], 0, 97)."...";
 		$arResultItem["EditUrl"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_BIZPROC_EDIT"], array("task_id" => $arResultItem["ID"]));
 		$arResult["TASKS"][] = $arResultItem;
 	}
@@ -53,7 +53,7 @@ else
 	$dbTracking = CBPTrackingService::GetList(Array("MODIFIED" => "DESC"), Array("MODIFIED_BY" => $USER->GetID()));
 	while($arTracking = $dbTracking->GetNext())
 	{
-		if (strlen($arTracking["WORKFLOW_ID"]) > 0)
+		if ($arTracking["WORKFLOW_ID"] <> '')
 		{
 			$arTracking["STATE"] = CBPStateService::GetWorkflowState($arTracking["WORKFLOW_ID"]);
 			$arTracking["STATE"]["Url"] = CBPDocument::GetDocumentAdminPage($arTracking["STATE"]["DOCUMENT_ID"]);

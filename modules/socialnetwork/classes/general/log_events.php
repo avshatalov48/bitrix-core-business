@@ -13,13 +13,13 @@ class CAllSocNetLogEvents
 		$arSocNetFeaturesSettings = CSocNetAllowed::GetAllowedFeatures();
 		$arSocNetLogEvents = CSocNetAllowed::GetAllowedLogEvents();
 
-		if ($ACTION != "ADD" && IntVal($ID) <= 0)
+		if ($ACTION != "ADD" && intval($ID) <= 0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException("System error 870164", "ERROR");
 			return false;
 		}
 
-		if ((is_set($arFields, "ENTITY_TYPE") || $ACTION=="ADD") && StrLen($arFields["ENTITY_TYPE"]) <= 0)
+		if ((is_set($arFields, "ENTITY_TYPE") || $ACTION=="ADD") && $arFields["ENTITY_TYPE"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SONET_LE_EMPTY_ENTITY_TYPE"), "EMPTY_ENTITY_TYPE");
 			return false;
@@ -46,7 +46,7 @@ class CAllSocNetLogEvents
 				if ($arRe)
 					$type = $arRe["ENTITY_TYPE"];
 			}
-			if (StrLen($type) <= 0)
+			if ($type == '')
 			{
 				$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SONET_LE_ERROR_CALC_ENTITY_TYPE"), "ERROR_CALC_ENTITY_TYPE");
 				return false;
@@ -75,14 +75,14 @@ class CAllSocNetLogEvents
 			}
 		}
 
-		if ((is_set($arFields, "EVENT_ID") || $ACTION=="ADD") && StrLen($arFields["EVENT_ID"]) <= 0)
+		if ((is_set($arFields, "EVENT_ID") || $ACTION=="ADD") && $arFields["EVENT_ID"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SONET_LE_EMPTY_EVENT_ID"), "EMPTY_EVENT_ID");
 			return false;
 		}
 		elseif (is_set($arFields, "EVENT_ID"))
 		{
-			$arFields["EVENT_ID"] = strtolower($arFields["EVENT_ID"]);
+			$arFields["EVENT_ID"] = mb_strtolower($arFields["EVENT_ID"]);
 			if (
 				!array_key_exists($arFields["EVENT_ID"], $arSocNetFeaturesSettings) 
 				&& $arFields["EVENT_ID"] != "all"
@@ -136,7 +136,7 @@ class CAllSocNetLogEvents
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if ($ID <= 0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SONET_LE_WRONG_PARAMETER_ID"), "ERROR_NO_ID");
@@ -155,7 +155,7 @@ class CAllSocNetLogEvents
 	{
 		global $DB;
 
-		$userID = IntVal($userID);
+		$userID = intval($userID);
 		if ($userID <= 0)
 			return false;
 
@@ -169,7 +169,7 @@ class CAllSocNetLogEvents
 	{
 		global $DB;
 
-		$userID = IntVal($userID);
+		$userID = intval($userID);
 		if ($userID <= 0)
 			return false;
 
@@ -180,7 +180,7 @@ class CAllSocNetLogEvents
 			return false;
 		}
 
-		$entityID = IntVal($entityID);
+		$entityID = intval($entityID);
 		if ($entityID <= 0)
 			return false;
 
@@ -202,7 +202,7 @@ class CAllSocNetLogEvents
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if ($ID <= 0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SONET_LE_WRONG_PARAMETER_ID"), "ERROR_NO_ID");
@@ -279,7 +279,7 @@ class CAllSocNetLogEvents
 		if (intval($user_id) <= 0)
 			return false;
 
-		if ((!defined("DisableSonetLogVisibleSubscr") || DisableSonetLogVisibleSubscr !== true) && $visible && strlen($visible) > 0)
+		if ((!defined("DisableSonetLogVisibleSubscr") || DisableSonetLogVisibleSubscr !== true) && $visible && $visible <> '')
 		{
 			$key_res = CSocNetGroup::GetFilterOperation($visible);
 			$strField = $key_res["FIELD"];
@@ -293,7 +293,7 @@ class CAllSocNetLogEvents
 		{
 			$visibleFilter = "";			
 
-			if ($transport && strlen($transport) > 0)
+			if ($transport && $transport <> '')
 			{
 				$key_res = CSocNetGroup::GetFilterOperation($transport);
 				$strField = $key_res["FIELD"];
@@ -506,7 +506,7 @@ class CAllSocNetLogEvents
 		{
 			foreach ($strMyEntities as $entity_type_tmp	=> $strMyEntity)
 			{
-				$strSQL .= (strlen($strMyEntity) > 0 ?	"
+				$strSQL .= ($strMyEntity <> '' ?	"
 						(
 							".$strMyEntity."
 							AND
@@ -687,7 +687,7 @@ class CAllSocNetLogEvents
 			
 		if (is_array($transport) && count($transport) > 0)
 			$strTransport = "AND LE.TRANSPORT IN ('".implode("', '", $transport)."')";
-		elseif(!is_array($transport) && strlen($transport) > 0)
+		elseif(!is_array($transport) && $transport <> '')
 			$strTransport = "AND LE.TRANSPORT = '".$transport."'";		
 		else
 			$strTransport = "";

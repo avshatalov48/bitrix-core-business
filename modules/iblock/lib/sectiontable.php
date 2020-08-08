@@ -1,7 +1,7 @@
 <?php
 namespace Bitrix\Iblock;
 
-use Bitrix\Main\Entity;
+use Bitrix\Main\ORM;
 use Bitrix\Main\Localization\Loc;
 Loc::loadMessages(__FILE__);
 
@@ -42,7 +42,7 @@ Loc::loadMessages(__FILE__);
  * @package Bitrix\Iblock
  **/
 
-class SectionTable extends Entity\DataManager
+class SectionTable extends ORM\Data\DataManager
 {
 	/**
 	 * Returns DB table name for entity
@@ -196,7 +196,7 @@ class SectionTable extends Entity\DataManager
 	public static function validateName()
 	{
 		return array(
-			new Entity\Validator\Length(null, 255),
+			new ORM\Fields\Validators\LengthValidator(null, 255),
 		);
 	}
 
@@ -208,7 +208,7 @@ class SectionTable extends Entity\DataManager
 	public static function validateCode()
 	{
 		return array(
-			new Entity\Validator\Length(null, 255),
+			new ORM\Fields\Validators\LengthValidator(null, 255),
 		);
 	}
 
@@ -220,7 +220,7 @@ class SectionTable extends Entity\DataManager
 	public static function validateXmlId()
 	{
 		return array(
-			new Entity\Validator\Length(null, 255),
+			new ORM\Fields\Validators\LengthValidator(null, 255),
 		);
 	}
 
@@ -232,7 +232,53 @@ class SectionTable extends Entity\DataManager
 	public static function validateTmpId()
 	{
 		return array(
-			new Entity\Validator\Length(null, 40),
+			new ORM\Fields\Validators\LengthValidator(null, 40),
 		);
+	}
+
+	/**
+	 * Add iblock section.
+	 *
+	 * @param array $data			Section data.
+	 * @return ORM\Data\AddResult
+	 */
+	public static function add(array $data)
+	{
+		$result = new ORM\Data\AddResult();
+		$result->addError(new ORM\EntityError(
+			Loc::getMessage('IBLOCK_SECTION_ENTITY_MESS_ADD_BLOCKED')
+		));
+		return $result;
+	}
+
+	/**
+	 * Updates iblock section by primary key.
+	 *
+	 * @param mixed $primary		Section primary key.
+	 * @param array $data			Section data.
+	 * @return ORM\Data\UpdateResult
+	 */
+	public static function update($primary, array $data)
+	{
+		$result = new ORM\Data\UpdateResult();
+		$result->addError(new ORM\EntityError(
+			Loc::getMessage('IBLOCK_SECTION_ENTITY_MESS_UPDATE_BLOCKED')
+		));
+		return $result;
+	}
+
+	/**
+	 * Deletes iblock section by primary key.
+	 *
+	 * @param mixed $primary		Section primary key.
+	 * @return ORM\Data\DeleteResult
+	 */
+	public static function delete($primary)
+	{
+		$result = new ORM\Data\DeleteResult();
+		$result->addError(new ORM\EntityError(
+			Loc::getMessage('IBLOCK_SECTION_ENTITY_MESS_DELETE_BLOCKED')
+		));
+		return $result;
 	}
 }

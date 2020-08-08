@@ -18,7 +18,7 @@ try
 	{
 		foreach ($arID as $ID)
 		{
-			if (strlen($ID) <= 0)
+			if ($ID == '')
 				continue;
 			$ID = intval($ID);
 			switch ($_REQUEST['action'])
@@ -37,7 +37,7 @@ try
 	{
 		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/backup.php");
 		$backup_secret_key = CPasswordStorage::Get('backup_secret_key');
-		if (strlen($backup_secret_key) <= 0)
+		if ($backup_secret_key == '')
 		{
 			$backup_secret_key = randString(10);
 			CPasswordStorage::Set('backup_secret_key', $backup_secret_key);

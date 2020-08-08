@@ -66,7 +66,7 @@ if (!$bBadBlock)
 		"SHOW_NEW" => "Y"
 	);
 
-	if (intval($filter_section) < 0 || strlen($filter_section) <= 0)
+	if (intval($filter_section) < 0 || $filter_section == '')
 		unset($arFilter["SECTION_ID"]);
 	elseif ($filter_subsections=="Y")
 	{
@@ -153,17 +153,17 @@ function SelEl(id, name, url)
 		el = eval("window.opener.document.<?= $form_name ?>.<?= $field_name ?>");
 		if(el)
 			el.value = id;
-		<?if (strlen($field_name_name) > 0):?>
+		<?if ($field_name_name <> ''):?>
 			el = eval("window.opener.document.<?= $form_name ?>.<?= $field_name_name ?>");
 			if(el)
 				el.value = name;
 		<?endif;?>
-		<?if (strlen($field_name_url) > 0):?>
+		<?if ($field_name_url <> ''):?>
 			el = eval("window.opener.document.<?= $form_name ?>.<?= $field_name_url ?>");
 			if(el)
 				el.value = url;
 		<?endif;?>
-		<?if (strlen($alt_name) > 0):?>
+		<?if ($alt_name <> ''):?>
 			el = window.opener.document.getElementById("<?= $alt_name ?>");
 			if(el)
 				el.innerHTML = name;

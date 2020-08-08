@@ -880,7 +880,7 @@ class CAdminList
 						switch ($v["type"])
 						{
 							case 'button':
-								$buttons .= '<input type="button" name="" value="'.htmlspecialcharsbx($v['name']).'" onclick="'.(!empty($v["action"])? htmlspecialcharsbx($v['action']) : 'document.getElementById(\''.$this->table_id.'_action_button\').=\''.htmlspecialcharsbx($v["value"]).'\'; '.htmlspecialcharsbx($this->ActionPost()).'').'" title="'.htmlspecialcharsbx($v["title"]).'" />';
+								$buttons .= '<input type="button" name="" value="'.htmlspecialcharsbx($v['name']).'" onclick="'.(!empty($v["action"])? htmlspecialcharsbx($v['action']) : 'document.forms[\'form_'.$this->table_id.'\'].elements[\'action_button\'].value=\''.htmlspecialcharsbx($v["value"]).'\'; '.htmlspecialcharsbx($this->ActionPost()).'').'" title="'.htmlspecialcharsbx($v["title"]).'" />';
 								break;
 							case 'html':
 								$html .= '<span class="adm-list-footer-ext">'.$v["value"].'</span>';
@@ -1065,19 +1065,20 @@ BX.adminChain.addItems("<?=$tbl?>_navchain_div");
 			{
 ?>
 <html><head></head><body><?=$string?><script type="text/javascript">
-top.bxcompajaxframeonload = function() {
-	top.BX.adminPanel.closeWait();
-	top.<?=$this->table_id?>.Destroy(false);
-	top.<?=$this->table_id?>.Init();
+	var topWindow = (window.BX||window.parent.BX).PageObject.getRootWindow();
+	topWindow.bxcompajaxframeonload = function() {
+	topWindow.BX.adminPanel.closeWait();
+	topWindow.<?=$this->table_id?>.Destroy(false);
+	topWindow.<?=$this->table_id?>.Init();
 <?
 				if(isset($this->onLoadScript)):
 ?>
-	top.BX.evalGlobal('<?=CUtil::JSEscape($this->onLoadScript)?>');
+	topWindow.BX.evalGlobal('<?=CUtil::JSEscape($this->onLoadScript)?>');
 <?
 				endif;
 ?>
 };
-top.BX.ajax.UpdatePageData({});
+topWindow.BX.ajax.UpdatePageData({});
 </script></body></html>
 <?
 			}
@@ -1226,6 +1227,21 @@ class CAdminListRow
 		if($arAttributes!==false)
 		{
 			$this->aFields[$id]["edit"] = array("type"=>"calendar", "attributes"=>$arAttributes, "useTime" => $useTime);
+			$this->pList->bCanBeEdited = true;
+		}
+	}
+
+		/**
+	 * @param string $id
+	 * @param array|boolean $currencies
+	 * @param array|boolean $arAttributes
+	 * @return void
+	 */
+	function AddMoneyField($id, $arAttributes = [])
+	{
+		if($arAttributes!==false)
+		{
+			$this->aFields[$id]["edit"] = Array("type"=>"money", "attributes"=>$arAttributes);
 			$this->pList->bCanBeEdited = true;
 		}
 	}

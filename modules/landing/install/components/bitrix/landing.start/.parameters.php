@@ -120,6 +120,16 @@ $arComponentParameters = Array(
 				'DEFAULT' => 'site/edit/#site_edit#/',
 				'VARIABLES' => array('site_edit')
 			),
+			'site_domain' => array(
+				'NAME' => getMessage('LANDING_CMP_PAR_SM_SITE_DOMAIN'),
+				'DEFAULT' => 'site/domain/#site_edit#/',
+				'VARIABLES' => array('site_edit')
+			),
+			'site_domain_switch' => array(
+				'NAME' => getMessage('LANDING_CMP_PAR_SM_SITE_DOMAIN_SWITCH'),
+				'DEFAULT' => 'site/domain_switch/#site_edit#/',
+				'VARIABLES' => array('site_edit')
+			),
 			'landing_edit' => array(
 				'NAME' => getMessage('LANDING_CMP_PAR_SM_LANDING_EDIT'),
 				'DEFAULT' => 'site/#site_show#/edit/#landing_edit#/',

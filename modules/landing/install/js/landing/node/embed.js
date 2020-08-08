@@ -38,15 +38,30 @@
 		getValue: function()
 		{
 			return {
-				src: this.node.src,
-				source: data(this.node, "data-source")
+				src: this.node.src ? this.node.src : data(this.node, "data-src"),
+				source: data(this.node, "data-source"),
+				preview: data(this.node, "data-preview")
 			};
 		},
 
 		setValue: function(value, preventSave, preventHistory)
 		{
-			this.node.src = value.src;
+			// if iframe or preview-div
+			if(this.node.src)
+			{
+				this.node.src = value.src;
+			}
+			else
+			{
+				data(this.node, "data-src", value.src)
+			}
+
 			data(this.node, "data-source", value.source);
+			if(value.preview)
+			{
+				data(this.node, "data-preview", value.preview);
+				this.node.style.backgroundImage = "url(\""+value.preview+"\")";
+			}
 
 			if (this.isChanged())
 			{

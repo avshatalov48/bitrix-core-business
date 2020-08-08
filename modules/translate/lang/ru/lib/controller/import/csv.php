@@ -6,6 +6,5 @@ $MESS["TR_IMPORT_ACTION_CANCEL"] = "Загрузка данных отменен
 $MESS["TR_IMPORT_VOID"] = "Отсутствуют данные для загрузки";
 $MESS["TR_IMPORT_COMPLETED"] = "Загрузка файла импорта завершена.";
 $MESS["TR_IMPORT_ACTION_STATS"] = "Загружено фраз: #PROCESSED_PHRASES# из #TOTAL_PHRASES#.";
-$MESS["TR_INDEX_COMPLETED"] = "Индексация загруженных фраз завершена.";
 $MESS["TR_INDEX_ACTION_STATS"] = "Проиндексировано файлов:  #PROCESSED_FILES# из #TOTAL_FILES#.";
 ?>

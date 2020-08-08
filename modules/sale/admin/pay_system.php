@@ -20,7 +20,7 @@ $instance = \Bitrix\Main\Application::getInstance();
 $context = $instance->getContext();
 $request = $context->getRequest();
 
-$oSort = new CAdminSorting($sTableID, "ID", "asc");
+$oSort = new CAdminUiSorting($sTableID, "ID", "asc");
 $lAdmin = new CAdminUiList($sTableID, $oSort);
 
 $listPersonType = array();
@@ -144,7 +144,7 @@ if (($ids = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 $filter['ENTITY_REGISTRY_TYPE'] = \Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER;
 
 $params = array(
-	'select' => array('ID', 'NAME', 'SORT', 'DESCRIPTION', 'ACTIVE', 'ACTION_FILE', 'LOGOTIP'),
+	'select' => array('ID', 'NAME', 'SORT', 'DESCRIPTION', 'ACTIVE', 'ACTION_FILE', 'LOGOTIP', 'PS_MODE'),
 	'filter' => $filter
 );
 
@@ -267,7 +267,7 @@ while ($arCCard = $dbRes->NavNext(false))
 
 	$row->AddField("LID", $pSite);
 
-	$description = \Bitrix\Sale\PaySystem\Manager::getHandlerDescription($arCCard["ACTION_FILE"]);
+	$description = \Bitrix\Sale\PaySystem\Manager::getHandlerDescription($arCCard["ACTION_FILE"], $arCCard["PS_MODE"]);
 	$row->AddField("ACTION_FILE", $description['NAME']);
 
 	$arActions = array(

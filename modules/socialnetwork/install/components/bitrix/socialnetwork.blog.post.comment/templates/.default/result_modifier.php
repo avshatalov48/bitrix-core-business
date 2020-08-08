@@ -196,7 +196,7 @@ if(
 
 		if (intval($arResult["ajax_comment"]) == intval($comment["ID"]))
 		{
-			if ($this->__component->prepareMobileData)
+			if ($this->__component->prepareMobileData && function_exists("socialnetworkBlogPostCommentMobile"))
 			{
 				$arResult["RECORDS"][$comment["ID"]]["MOBILE"] = socialnetworkBlogPostCommentMobile(
 					$comment,
@@ -215,7 +215,7 @@ if(
 					// parse inline disk object ids
 					if (preg_match_all("#\\[disk file id=(n\\d+)\\]#is".BX_UTF_PCRE_MODIFIER, $comment['POST_TEXT'], $matches))
 					{
-						$inlineDiskObjectIdList = array_map(function($a) { return intval(substr($a, 1)); }, $matches[1]);
+						$inlineDiskObjectIdList = array_map(function($a) { return intval(mb_substr($a, 1)); }, $matches[1]);
 					}
 
 					// parse inline disk attached object ids

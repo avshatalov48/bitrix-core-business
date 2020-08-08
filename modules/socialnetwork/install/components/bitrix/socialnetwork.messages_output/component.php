@@ -7,34 +7,34 @@ if (!CModule::IncludeModule("socialnetwork"))
 	return;
 }
 
-$arParams["USER_ID"] = IntVal($arParams["USER_ID"]);
+$arParams["USER_ID"] = intval($arParams["USER_ID"]);
 
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 
-if (strLen($arParams["USER_VAR"]) <= 0)
+if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if (strlen($arParams["PATH_TO_USER"]) <= 0)
+if ($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_MESSAGE_FORM"] = trim($arParams["PATH_TO_MESSAGE_FORM"]);
-if (strlen($arParams["PATH_TO_MESSAGE_FORM"]) <= 0)
+if ($arParams["PATH_TO_MESSAGE_FORM"] == '')
 	$arParams["PATH_TO_MESSAGE_FORM"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=message_form&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_MESSAGES_OUTPUT"] = trim($arParams["PATH_TO_MESSAGES_OUTPUT"]);
-if (strlen($arParams["PATH_TO_MESSAGES_OUTPUT"]) <= 0)
+if ($arParams["PATH_TO_MESSAGES_OUTPUT"] == '')
 	$arParams["PATH_TO_MESSAGES_OUTPUT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=messages_output");
 
 $arParams["PATH_TO_MESSAGES_OUTPUT_USER"] = trim($arParams["PATH_TO_MESSAGES_OUTPUT_USER"]);
-if (strlen($arParams["PATH_TO_MESSAGES_OUTPUT_USER"]) <= 0)
+if ($arParams["PATH_TO_MESSAGES_OUTPUT_USER"] == '')
 	$arParams["PATH_TO_MESSAGES_OUTPUT_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=messages_output_user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]);
 
-$arParams["ITEMS_COUNT"] = IntVal($arParams["ITEMS_COUNT"]);
+$arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
 if ($arParams["ITEMS_COUNT"] <= 0)
 	$arParams["ITEMS_COUNT"] = 6;
 
@@ -84,37 +84,37 @@ else
 	$arNavigation = CDBResult::GetNavParams($arNavParams);
 
 	/***********************  ACTIONS  *******************************/
-	if ($_REQUEST["action"] == "delete" && check_bitrix_sessid() && IntVal($_REQUEST["eventID"]) > 0)
+	if ($_REQUEST["action"] == "delete" && check_bitrix_sessid() && intval($_REQUEST["eventID"]) > 0)
 	{
 		$errorMessage = "";
 
-		if (!CSocNetMessages::DeleteMessage(IntVal($_REQUEST["eventID"]), $GLOBALS["USER"]->GetID()))
+		if (!CSocNetMessages::DeleteMessage(intval($_REQUEST["eventID"]), $GLOBALS["USER"]->GetID()))
 		{
 			if ($e = $APPLICATION->GetException())
 				$errorMessage .= $e->GetString();
 		}
 
-		if (strlen($errorMessage) > 0)
+		if ($errorMessage <> '')
 			$arResult["ErrorMessage"] = $errorMessage;
 	}
-	if ($_SERVER["REQUEST_METHOD"]=="POST" && (strlen($_POST["do_delete"]) > 0) && check_bitrix_sessid())
+	if ($_SERVER["REQUEST_METHOD"]=="POST" && ($_POST["do_delete"] <> '') && check_bitrix_sessid())
 	{
 		$errorMessage = "";
 
 		$arIDs = array();
-		if (strlen($errorMessage) <= 0)
+		if ($errorMessage == '')
 		{
-			for ($i = 0; $i <= IntVal($_POST["max_count"]); $i++)
+			for ($i = 0; $i <= intval($_POST["max_count"]); $i++)
 			{
 				if ($_POST["checked_".$i] == "Y")
-					$arIDs[] = IntVal($_POST["id_".$i]);
+					$arIDs[] = intval($_POST["id_".$i]);
 			}
 
 			if (count($arIDs) <= 0)
 				$errorMessage .= GetMessage("SONET_C28_NOT_SELECTED").". ";
 		}
 
-		if (strlen($errorMessage) <= 0)
+		if ($errorMessage == '')
 		{
 			if (!CSocNetMessages::DeleteMessageMultiple($GLOBALS["USER"]->GetID(), $arIDs))
 			{
@@ -123,7 +123,7 @@ else
 			}
 		}
 
-		if (strlen($errorMessage) > 0)
+		if ($errorMessage <> '')
 			$arResult["ErrorMessage"] = $errorMessage;
 	}
 	/*********************  END ACTIONS  *****************************/

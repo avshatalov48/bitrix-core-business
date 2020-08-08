@@ -109,12 +109,12 @@ class CAllSaleLocationGroup
 			for($i=0; $i < $countFieldKey; $i++)
 			{
 				$val = $DB->ForSql($arFilter[$filter_keys[$i]]);
-				if (strlen($val)<=0) continue;
+				if ($val == '') continue;
 
 				$key = $filter_keys[$i];
 				if ($key[0]=="!")
 				{
-					$key = substr($key, 1);
+					$key = mb_substr($key, 1);
 					$bInvert = true;
 				}
 				else
@@ -123,10 +123,10 @@ class CAllSaleLocationGroup
 				switch(ToUpper($key))
 				{
 				case "LOCATION_ID":
-					$arSqlSearch[] = "LOCATION_ID ".($bInvert?"<>":"=")." ".IntVal($val)." ";
+					$arSqlSearch[] = "LOCATION_ID ".($bInvert?"<>":"=")." ".intval($val)." ";
 					break;
 				case "LOCATION_GROUP_ID":
-					$arSqlSearch[] = "LOCATION_GROUP_ID ".($bInvert?"<>":"=")." ".IntVal($val)." ";
+					$arSqlSearch[] = "LOCATION_GROUP_ID ".($bInvert?"<>":"=")." ".intval($val)." ";
 					break;
 				}
 			}
@@ -155,7 +155,7 @@ class CAllSaleLocationGroup
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$strSql =
 			"SELECT ID, LOCATION_GROUP_ID, LID, NAME ".
 			"FROM b_sale_location_group_lang ".
@@ -174,7 +174,7 @@ class CAllSaleLocationGroup
 	{
 		global $DB;
 
-		if (is_set($arFields, "SORT") && IntVal($arFields["SORT"])<=0)
+		if (is_set($arFields, "SORT") && intval($arFields["SORT"])<=0)
 			$arFields["SORT"] = 100;
 
 		if (is_set($arFields, "LOCATION_ID") && (!is_array($arFields["LOCATION_ID"]) || count($arFields["LOCATION_ID"])<=0))
@@ -189,7 +189,7 @@ class CAllSaleLocationGroup
 				$coountarFieldLang = count($arFields["LANG"]);
 				for ($i = 0; $i < $coountarFieldLang; $i++)
 				{
-					if ($arFields["LANG"][$i]["LID"]==$arLang["LID"] && strlen($arFields["LANG"][$i]["NAME"])>0)
+					if ($arFields["LANG"][$i]["LID"]==$arLang["LID"] && $arFields["LANG"][$i]["NAME"] <> '')
 					{
 						$bFound = True;
 					}
@@ -206,7 +206,7 @@ class CAllSaleLocationGroup
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if (!CSaleLocationGroup::CheckFields("UPDATE", $arFields))
 			return false;
 
@@ -274,7 +274,7 @@ class CAllSaleLocationGroup
 	function Delete($ID)
 	{
 		global $DB;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$db_events = GetModuleEvents("sale", "OnBeforeLocationGroupDelete");
 		while ($arEvent = $db_events->Fetch())

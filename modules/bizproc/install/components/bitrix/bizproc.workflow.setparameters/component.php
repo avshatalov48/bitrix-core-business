@@ -51,27 +51,27 @@ $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 $arResult["EDIT_PAGE_TEMPLATE"] = $arParams["EDIT_PAGE_TEMPLATE"];
 
 $arResult["BackUrl"] = $_REQUEST["back_url"];
-if (strlen($arResult["BackUrl"]) <= 0)
+if ($arResult["BackUrl"] == '')
 	$arResult["BackUrl"] = $arParams["BACK_URL"];
-if (strlen($arResult["BackUrl"]) <= 0)
+if ($arResult["BackUrl"] == '')
 	$arResult["BackUrl"] = $APPLICATION->GetCurPageParam();
 
 $arResult["FatalErrorMessage"] = "";
 $arResult["ErrorMessage"] = "";
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
-	if (strlen($_REQUEST["cancel_action"]) > 0)
+	if ($_REQUEST["cancel_action"] <> '')
 		LocalRedirect($arResult['BackUrl']);
 }
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	$runtime = CBPRuntime::GetRuntime();
 	$runtime->StartRuntime();
 	$arResult["DocumentService"] = $runtime->GetService("DocumentService");
 
-	if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_REQUEST["save_action"]) > 0 && check_bitrix_sessid())
+	if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["save_action"] <> '' && check_bitrix_sessid())
 	{
 		$errorMessageTmp = "";
 		$arRequest = $_REQUEST;
@@ -125,7 +125,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 			if (empty($arErrorsTmp))
 			{
 				$required = !(!$arResult["PARAMETERS"][$variableKey]['Required'] || is_int($arResult["PARAMETERS"][$variableKey]['Required'])
-					&& ($arResult["PARAMETERS"][$variableKey]['Required'] == 0) || (strtoupper($arResult["PARAMETERS"][$variableKey]['Required']) == "N"));
+					&& ($arResult["PARAMETERS"][$variableKey]['Required'] == 0) || (mb_strtoupper($arResult["PARAMETERS"][$variableKey]['Required']) == "N"));
 
 				if ($required
 					&& (is_array($arResult["PARAMETERS"][$variableKey]["Default"]) && count($arResult["PARAMETERS"][$variableKey]["Default"]) <= 0
@@ -139,7 +139,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 
 		$errorMessageTmp = trim($errorMessageTmp);
 
-		if (strlen($errorMessageTmp) <= 0)
+		if ($errorMessageTmp == '')
 		{
 			CBPWorkflowTemplateLoader::Update($arResult["ID"], array("PARAMETERS" => $arResult["PARAMETERS"]));
 			LocalRedirect($arResult['BackUrl']);
@@ -153,7 +153,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 
 $this->IncludeComponentTemplate();
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	if ($arParams["SET_TITLE"] == "Y")
 		$APPLICATION->SetTitle(str_replace("#NAME#", $arResult["NAME"], GetMessage("BPWFSP_PAGE_TITLE")));

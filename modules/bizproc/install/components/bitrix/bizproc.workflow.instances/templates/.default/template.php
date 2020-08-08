@@ -6,7 +6,7 @@ if (!empty($_REQUEST['action_button_'.$arResult["GRID_ID"]]))
 	unset($_REQUEST['bxajaxid'], $_REQUEST['AJAX_CALL']);
 }
 
-if (strlen($arResult["FatalErrorMessage"]) > 0)
+if ($arResult["FatalErrorMessage"] <> '')
 {
 	?>
 	<div class="bp-errortext">
@@ -47,7 +47,7 @@ else
 	</div>
 	<?
 
-	if (strlen($arResult["ErrorMessage"]) > 0)
+	if ($arResult["ErrorMessage"] <> '')
 	{
 		?>
 		<div class="bp-errortext">

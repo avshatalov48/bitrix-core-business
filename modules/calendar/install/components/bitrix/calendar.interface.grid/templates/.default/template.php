@@ -50,14 +50,14 @@ if($isBitrix24Template)
 	$this->SetViewTarget("below_pagetitle");
 }
 ?>
+<? if ($arParams["SHOW_TOP_VIEW_SWITCHER"]):?>
+	<div id="<?= $arParams['ID']?>-view-switcher-container" class="calendar-view-switcher-list"></div>
+<? endif;?>
 
 <? if ($arParams["SHOW_FILTER"]):?>
 	<div id="<?= $arParams['ID']?>-counter-container" class="pagetitle-container" style="overflow: hidden;"></div>
 <? endif;?>
 
-<? if ($arParams["SHOW_TOP_VIEW_SWITCHER"]):?>
-<div id="<?= $arParams['ID']?>-view-switcher-container" class="calendar-view-switcher pagetitle-align-right-container"></div>
-<? endif;?>
 <?
 if($isBitrix24Template)
 {
@@ -90,7 +90,7 @@ $config = array(
 	'collapsedLabelMessage' => isset($arParams["COLLAPSED_ENTRIES_NAME"]) ? $arParams["COLLAPSED_ENTRIES_NAME"] : '',
 	'showSectionSelector' => $arParams["SHOW_SECTION_SELECTOR"],
 	'showSettingsButton' => $arParams["SHOW_SETTINGS_BUTTON"],
-	'userSettings' => CCalendarUserSettings::Get(),
+	'userSettings' => \Bitrix\Calendar\UserSettings::get(),
 	'user' => array(
 		'id' => $currentUserId,
 		'name' => CCalendar::GetUserName($currentUserId),

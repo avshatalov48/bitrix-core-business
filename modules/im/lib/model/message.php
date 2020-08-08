@@ -246,6 +246,13 @@ class MessageTable extends Main\Entity\DataManager
 	 */
 	public static function indexRecord($id)
 	{
+		$indexEnabled = \Bitrix\Main\Config\Option::get('im', 'message_history_index');
+
+		if (!$indexEnabled)
+		{
+			return;
+		}
+
 		$message = parent::getByPrimary($id)->fetch();
 		if (!is_array($message))
 		{

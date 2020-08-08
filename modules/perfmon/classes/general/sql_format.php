@@ -1,6 +1,7 @@
 <?php
-if (!defined("T_KEYWORD"))
-	define("T_KEYWORD", 400);
+if (!defined("T_KEYWORD")) define("T_KEYWORD", 400);
+if (!defined("T_BAD_CHARACTER")) define("T_BAD_CHARACTER", 401);
+if (!defined("T_CHARACTER")) define("T_CHARACTER", 402);
 
 class CSqlFormatFormatter
 {
@@ -197,13 +198,13 @@ class CSqlTokenizer
 		{
 		case T_STRING:
 			if (preg_match("/^($keywords)\$/i", $token[1]))
-				$token = array(T_KEYWORD, strtoupper($token[1]));
+				$token = array(T_KEYWORD, mb_strtoupper($token[1]));
 			elseif (preg_match("/^($functions)\$/i", $token[1]))
 				$token = array(T_FUNCTION, $token[1]);
 			break;
 		case T_LOGICAL_AND:
 		case T_LOGICAL_OR:
-			$token = array(T_KEYWORD, strtoupper($token[1]));
+			$token = array(T_KEYWORD, mb_strtoupper($token[1]));
 			break;
 		case T_AS:
 			$token = array(T_KEYWORD, $token[1]);

@@ -18,7 +18,7 @@ class CSearchTags
 		$bJoinSearchContent = false;
 		foreach ($arSelect as $key => $value)
 		{
-			$value = strtoupper($value);
+			$value = mb_strtoupper($value);
 			switch ($value)
 			{
 			case "NAME":
@@ -50,7 +50,7 @@ class CSearchTags
 		$strTag = "";
 		foreach ($arFilter as $key => $value)
 		{
-			$key = strtoupper($key);
+			$key = mb_strtoupper($key);
 			switch ($key)
 			{
 			case "SITE_ID":
@@ -107,7 +107,7 @@ class CSearchTags
 				foreach ($arFilterEvents as $arEvent)
 				{
 					$sql = ExecuteModuleEventEx($arEvent, array("sc.", $key, $value));
-					if (strlen($sql))
+					if($sql <> '')
 					{
 						$arQueryWhere[] = "(".$sql.")";
 						$bJoinSearchContent = true;
@@ -126,8 +126,8 @@ class CSearchTags
 			);
 		foreach ($arOrder as $key => $value)
 		{
-			$key = strtoupper($key);
-			$value = strtoupper($value) == "DESC"? "DESC": "ASC";
+			$key = mb_strtoupper($key);
+			$value = mb_strtoupper($value) == "DESC"? "DESC": "ASC";
 			switch ($key)
 			{
 			case "NAME":
@@ -175,14 +175,14 @@ class CSearchTags
 			$strSql = str_replace("/*TOP*/", "", $strSql);
 		}
 
-		if ((CACHED_b_search_tags !== false) && ($limit !== false) && (strlen($strTag) <= CACHED_b_search_tags_len))
+		if ((CACHED_b_search_tags !== false) && ($limit !== false) && (mb_strlen($strTag) <= CACHED_b_search_tags_len))
 		{
 			global $CACHE_MANAGER;
 			$path = "b_search_tags";
-			while (strlen($strTag) > 0)
+			while ($strTag <> '')
 			{
-				$path .= "/_".ord(substr($strTag, 0, 1));
-				$strTag = substr($strTag, 1);
+				$path .= "/_".ord(mb_substr($strTag, 0, 1));
+				$strTag = mb_substr($strTag, 1);
 			}
 			$cache_id = "search_tags:".md5($strSql);
 			if ($CACHE_MANAGER->Read(CACHED_b_search_tags, $cache_id, $path))
@@ -232,8 +232,8 @@ class CSearchTags
 				$arPath = array();
 				foreach ($arTags as $tag)
 				{
-					if (strlen($tag) > 0)
-						$path = "b_search_tags/_".ord(substr($tag, 0, 1));
+					if ($tag <> '')
+						$path = "b_search_tags/_".ord(mb_substr($tag, 0, 1));
 					else
 						$path = "b_search_tags";
 					$arPath[$path] = true;

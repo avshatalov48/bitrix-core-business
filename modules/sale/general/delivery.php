@@ -32,7 +32,7 @@ class CAllSaleDelivery
 		try
 		{
 			$class = self::CONN_ENTITY_NAME.'Table';
-			return $field." in (".$class::getConnectedEntitiesQuery(IntVal($val), 'id', array('select' => array('ID'))).")";
+			return $field." in (".$class::getConnectedEntitiesQuery(intval($val), 'id', array('select' => array('ID'))).")";
 		}
 		catch(Exception $e)
 		{
@@ -52,7 +52,7 @@ class CAllSaleDelivery
 	 */
 	static function DoProcessOrder(&$arOrder, $deliveryCode, &$arErrors)
 	{
-		if(strlen($deliveryCode) <= 0 || $deliveryCode == '0')
+		if($deliveryCode == '' || $deliveryCode == '0')
 			return false;
 
 		if(CSaleDeliveryHandler::isSidNew($deliveryCode))
@@ -273,7 +273,7 @@ class CAllSaleDelivery
 			{
 				$oldDeliveryId = self::getCodeById($loc['DELIVERY_ID']);
 
-				if(strlen($oldDeliveryId) <= 0)
+				if($oldDeliveryId == '')
 					continue;
 
 				$loc['DELIVERY_ID'] = $oldDeliveryId;
@@ -298,13 +298,13 @@ class CAllSaleDelivery
 	{
 		global $DB;
 
-		if ((is_set($arFields, "NAME") || $ACTION=="ADD") && strlen($arFields["NAME"]) <= 0)
+		if ((is_set($arFields, "NAME") || $ACTION=="ADD") && $arFields["NAME"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGD_EMPTY_DELIVERY"), "ERROR_NO_NAME");
 			return false;
 		}
 
-		if ((is_set($arFields, "LID") || $ACTION=="ADD") && strlen($arFields["LID"]) <= 0)
+		if ((is_set($arFields, "LID") || $ACTION=="ADD") && $arFields["LID"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGD_EMPTY_SITE"), "ERROR_NO_SITE");
 			return false;
@@ -312,7 +312,7 @@ class CAllSaleDelivery
 
 		if (is_set($arFields, "ACTIVE") && $arFields["ACTIVE"] != "Y")
 			$arFields["ACTIVE"] = "N";
-		if ((is_set($arFields, "SORT") || $ACTION=="ADD") && IntVal($arFields["SORT"]) <= 0)
+		if ((is_set($arFields, "SORT") || $ACTION=="ADD") && intval($arFields["SORT"]) <= 0)
 			$arFields["SORT"] = 100;
 
 		if (is_set($arFields, "PRICE"))
@@ -323,7 +323,7 @@ class CAllSaleDelivery
 		if ((is_set($arFields, "PRICE") || $ACTION=="ADD") && DoubleVal($arFields["PRICE"]) < 0)
 			return false;
 
-		if ((is_set($arFields, "CURRENCY") || $ACTION=="ADD") && strlen($arFields["CURRENCY"]) <= 0)
+		if ((is_set($arFields, "CURRENCY") || $ACTION=="ADD") && $arFields["CURRENCY"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGD_EMPTY_CURRENCY"), "ERROR_NO_CURRENCY");
 			return false;
@@ -398,7 +398,7 @@ class CAllSaleDelivery
 	 */
 	public static function Update($oldId, $arFields, $arOptions = array())
 	{
-		if(strlen($oldId) <= 0)
+		if($oldId == '')
 			return false;
 
 		$dbRes = Bitrix\Sale\Delivery\Services\Table::getList(array(
@@ -473,7 +473,7 @@ class CAllSaleDelivery
 				$rres = \Bitrix\Sale\Internals\ServiceRestrictionTable::add($rfields);
 		}
 
-		if(isset($arFields["LID"]) && strlen($arFields["LID"]) > 0)
+		if(isset($arFields["LID"]) && $arFields["LID"] <> '')
 		{
 			$rfields = array(
 				"SERVICE_ID" => $newId,
@@ -566,7 +566,7 @@ class CAllSaleDelivery
 
 			if($restrict = $rstrRes->fetch())
 			{
-				if(floatval($arFields["ORDER_PRICE_FROM"]) <= 0 && floatval($arFields["ORDER_PRICE_TO"]) <= 0 && strlen($arFields["ORDER_CURRENCY"]) <= 0)
+				if(floatval($arFields["ORDER_PRICE_FROM"]) <= 0 && floatval($arFields["ORDER_PRICE_TO"]) <= 0 && $arFields["ORDER_CURRENCY"] == '')
 				{
 					$rres = \Bitrix\Sale\Internals\ServiceRestrictionTable::delete($restrict["ID"]);
 				}
@@ -654,7 +654,7 @@ class CAllSaleDelivery
 	{
 		$ID = trim($ID);
 
-		if (strlen($ID) <= 0 || !is_array($arFields) || empty($arFields))
+		if ($ID == '' || !is_array($arFields) || empty($arFields))
 			return false;
 
 		if ($arFields[0] == "")
@@ -856,7 +856,7 @@ class CAllSaleDelivery
 				$fieldInFilter = self::isFieldInFilter2("ORDER_CURRENCY", $filter);
 				$value = self::getFilterValue("ORDER_CURRENCY", $filter);
 
-				if($fieldInFilter && strlen($value) > 0 && strlen($restriction["PARAMS"]["CURRENCY"]) > 0)
+				if($fieldInFilter && $value <> '' && $restriction["PARAMS"]["CURRENCY"] <> '')
 				{
 					$result = ($value == $restriction["PARAMS"]["CURRENCY"]);
 
@@ -870,7 +870,7 @@ class CAllSaleDelivery
 				$fieldInFilter = self::isFieldInFilter2("LOCATION", $filter);
 				$value = self::getFilterValue("LOCATION", $filter);
 
-				if($fieldInFilter && strlen($value) > 0 && $restriction['SERVICE_ID'] > 0)
+				if($fieldInFilter && $value <> '' && $restriction['SERVICE_ID'] > 0)
 				{
 					try
 					{
@@ -1013,7 +1013,7 @@ class CAllSaleDelivery
 				$arFilter["+>=WEIGHT_TO"] = $arFilter["WEIGHT"];
 		}
 
-		if (isset($arFilter["ORDER_PRICE"]) && IntVal($arFilter["ORDER_PRICE"]) > 0)
+		if (isset($arFilter["ORDER_PRICE"]) && intval($arFilter["ORDER_PRICE"]) > 0)
 		{
 			if (!isset($arFilter["ORDER_PRICE_FROM"]) || floatval($arFilter["ORDER_PRICE"]) > floatval($arFilter["ORDER_PRICE_FROM"]))
 				$arFilter["+<=ORDER_PRICE_FROM"] = $arFilter["ORDER_PRICE"];
@@ -1579,7 +1579,7 @@ class CAllSaleDelivery
 			$shipmentItem = $shipmentItemCollection->createItem($item);
 			$shipmentItem->setQuantity($item->getQuantity());
 
-			if(strlen($shipmentItem->getField("DIMENSIONS")))
+			if($shipmentItem->getField("DIMENSIONS") <> '')
 			{
 				$shipmentItem->setField("DIMENSIONS", unserialize($shipmentItem->getField("DIMENSIONS")));
 			}
@@ -1662,7 +1662,7 @@ class CAllSaleDelivery
 
 		$code = \Bitrix\Sale\Delivery\Services\Manager::getCodeById($id);
 
-		if(strlen($code) <= 0)
+		if($code == '')
 			$code = 'new'.strval($id).':profile';
 
 		return $code;

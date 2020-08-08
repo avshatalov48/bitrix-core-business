@@ -150,7 +150,7 @@ class Department
 		$limit = isset($options['LIST']['LIMIT'])? intval($options['LIST']['LIMIT']): 50;
 		$offset = isset($options['LIST']['OFFSET'])? intval($options['LIST']['OFFSET']): 0;
 
-		if (isset($options['FILTER']['SEARCH']) && strlen($options['FILTER']['SEARCH']) > 1)
+		if (isset($options['FILTER']['SEARCH']) && mb_strlen($options['FILTER']['SEARCH']) > 1)
 		{
 			$count = 0;
 			$breakAfterDigit = $offset === 0? $offset: false;
@@ -160,8 +160,8 @@ class Department
 			{
 				$checkField = ToLower($department['FULL_NAME']);
 				if (
-					strpos($checkField, $options['FILTER']['SEARCH']) !== 0
-					&& strpos($checkField, ' '.$options['FILTER']['SEARCH']) === false
+					mb_strpos($checkField, $options['FILTER']['SEARCH']) !== 0
+					&& mb_strpos($checkField, ' '.$options['FILTER']['SEARCH']) === false
 				)
 				{
 					unset($list[$key]);

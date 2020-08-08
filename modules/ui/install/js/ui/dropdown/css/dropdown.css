@@ -74,17 +74,18 @@
 }
 
 .ui-dropdown-item-phone,
-.ui-dropdown-item-email {
+.ui-dropdown-item-email,
+.ui-dropdown-item-web {
 	display: inline-block;
 	font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
 	color: rgba(66,73,86,.5);
 }
 
-.ui-dropdown-item-phone {
+.ui-dropdown-item-phone, .ui-dropdown-item-email {
 	margin: 0 5px 0 0;
 }
 
-.ui-dropdown-contact-info-item:first-child:after {
+.ui-dropdown-contact-info-item:after {
 	content: ',';
 }
 

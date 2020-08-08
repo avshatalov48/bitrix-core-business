@@ -110,12 +110,17 @@ export class MenuForm extends BaseForm
 	{
 		event.preventDefault();
 
+		var content = {
+			text: Loc.getMessage('LANDING_NEW_PAGE_LABEL'),
+			target: '_blank'
+		}; // need create new page from menu only in KB
+		content.href = (Env.getInstance().getType() === 'KNOWLEDGE' || Env.getInstance().getType() === 'GROUP')
+			? '#landing0'
+			: ''
+		;
+
 		const field = new BX.Landing.UI.Field.Link({
-			content: {
-				text: Loc.getMessage('LANDING_NEW_PAGE_LABEL'),
-				href: '#landing0',
-				target: '_blank',
-			},
+			content: content,
 			options: {
 				siteId: Env.getInstance().getSiteId(),
 				landingId: Main.getInstance().id,

@@ -37,7 +37,7 @@ if(!empty($arParams["~AUTH_RESULT"])):
 		<div class="bx-authform-formgroup-container">
 			<div class="bx-authform-label-container"><?echo GetMessage("AUTH_LOGIN_EMAIL")?></div>
 			<div class="bx-authform-input-container">
-				<input type="text" name="USER_LOGIN" maxlength="255" value="<?=$arResult["LAST_LOGIN"]?>" />
+				<input type="text" name="USER_LOGIN" maxlength="255" value="<?=$arResult["USER_LOGIN"]?>" />
 				<input type="hidden" name="USER_EMAIL" />
 			</div>
 			<div class="bx-authform-note-container"><?echo GetMessage("forgot_pass_email_note")?></div>
@@ -47,7 +47,7 @@ if(!empty($arParams["~AUTH_RESULT"])):
 		<div class="bx-authform-formgroup-container">
 			<div class="bx-authform-label-container"><?echo GetMessage("forgot_pass_phone_number")?></div>
 			<div class="bx-authform-input-container">
-				<input type="text" name="USER_PHONE_NUMBER" maxlength="255" value="" />
+				<input type="text" name="USER_PHONE_NUMBER" maxlength="255" value="<?=$arResult["USER_PHONE_NUMBER"]?>" />
 			</div>
 			<div class="bx-authform-note-container"><?echo GetMessage("forgot_pass_phone_number_note")?></div>
 		</div>

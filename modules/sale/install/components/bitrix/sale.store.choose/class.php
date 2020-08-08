@@ -96,7 +96,7 @@ class CSaleStoreChooseComponent extends CBitrixComponent
 		$arStoreLocation = array();
 		$scaleMapParamName = $this->getMapParamScaleName();
 
-		if(strlen($scaleMapParamName) > 0)
+		if($scaleMapParamName <> '')
 			$arStoreLocation = array($scaleMapParamName => 11, "PLACEMARKS" => array());
 
 		foreach($this->arParams["STORES_LIST"] as $storeId => $storeParams)
@@ -127,11 +127,11 @@ class CSaleStoreChooseComponent extends CBitrixComponent
 
 				$arLocationTmp = array();
 				$arLocationTmp["ID"] = $storeParams["ID"];
-				if (strlen($storeParams["GPS_N"]) > 0)
+				if ($storeParams["GPS_N"] <> '')
 					$arLocationTmp["LAT"] = $storeParams["GPS_N"];
-				if (strlen($storeParams["GPS_S"]) > 0)
+				if ($storeParams["GPS_S"] <> '')
 					$arLocationTmp["LON"] = $storeParams["GPS_S"];
-				if (strlen($storeParams["TITLE"]) > 0)
+				if ($storeParams["TITLE"] <> '')
 					$arLocationTmp["TEXT"] = htmlspecialcharsbx($storeParams["TITLE"]."\r\n".$storeParams["DESCRIPTION"]);
 
 				$arStoreLocation["PLACEMARKS"][] = $arLocationTmp;

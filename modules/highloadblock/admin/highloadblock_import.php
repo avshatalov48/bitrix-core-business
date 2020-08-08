@@ -183,11 +183,11 @@ function __prepareArrayFromXml(array $item, $code = false)
 			}
 			if (is_array($value['#']))
 			{
-				$fields[strtoupper($key)] = __prepareArrayFromXml($value);
+				$fields[mb_strtoupper($key)] = __prepareArrayFromXml($value);
 			}
 			else
 			{
-				$fields[strtoupper($key)] = $value['#'];
+				$fields[mb_strtoupper($key)] = $value['#'];
 			}
 		}
 	}
@@ -235,7 +235,7 @@ if (
 	$dataExist = false;
 	$startTime = time();
 	$import = new CXMLFileStream;
-	$filesPath = $server->getDocumentRoot() . substr($NS['url_data_file'], 0, -4) . '_files';
+	$filesPath = $server->getDocumentRoot().mb_substr($NS['url_data_file'], 0, -4) . '_files';
 
 	// get langs
 	$langs = array();
@@ -367,10 +367,10 @@ if (
 							{
 								foreach ($langs as $lng => $lang)
 								{
-									if ($lng !== strtoupper($lng) && isset($field[$code][strtoupper($lng)]))
+									if ($lng !== mb_strtoupper($lng) && isset($field[$code][mb_strtoupper($lng)]))
 									{
-										$field[$code][$lng] = $field[$code][strtoupper($lng)];
-										unset($field[$code][strtoupper($lng)]);
+										$field[$code][$lng] = $field[$code][mb_strtoupper($lng)];
+										unset($field[$code][mb_strtoupper($lng)]);
 									}
 								}
 							}
@@ -531,9 +531,9 @@ if (
 											Loc::getMessage('ADMIN_TOOLS_ERROR_IMPORT_ITEM_UNKNOWN', array('#CODE#' => $key));
 								return;
 							}
-							if (substr($value, 0, 10) == 'serialize#')
+							if (mb_substr($value, 0, 10) == 'serialize#')
 							{
-								$value = unserialize(substr($value, 10));
+								$value = unserialize(mb_substr($value, 10));
 							}
 							// get base type
 							$userFelds[$key]['BASE_TYPE'] = '';

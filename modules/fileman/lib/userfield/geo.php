@@ -31,9 +31,9 @@ class Geo extends \Bitrix\Main\UserField\TypeBase
 	function getDBColumnType($arUserField)
 	{
 		global $DB;
-		switch(strtolower($DB->type))
+		switch($DB->type)
 		{
-			case "mysql":
+			case "MYSQL":
 				return "varchar(100)";
 		}
 	}
@@ -53,7 +53,7 @@ class Geo extends \Bitrix\Main\UserField\TypeBase
 
 	function onBeforeSave($userField, $value)
 	{
-		if(strlen($value) > 0)
+		if($value <> '')
 		{
 			$encodedValue = GeoHash::encode(explode(';', $value));
 			$value = $encodedValue;
@@ -64,7 +64,7 @@ class Geo extends \Bitrix\Main\UserField\TypeBase
 
 	public function onAfterFetch($userfield, $fetched)
 	{
-		if(strlen($fetched['VALUE']) > 0)
+		if($fetched['VALUE'] <> '')
 		{
 			$decodedValue = implode(';', GeoHash::decode($fetched['VALUE']));
 			$fetched['VALUE'] = $decodedValue;
@@ -202,7 +202,7 @@ class Geo extends \Bitrix\Main\UserField\TypeBase
 		$pointList = array();
 		foreach($value as $point)
 		{
-			if(strlen($point) > 0)
+			if($point <> '')
 			{
 				$pointList[] = explode(';', $point);
 			}
@@ -266,7 +266,7 @@ class Geo extends \Bitrix\Main\UserField\TypeBase
 
 		foreach($value as $point)
 		{
-			if(strlen($point) > 0)
+			if($point <> '')
 			{
 				$pointList[] = explode(';', $point);
 			}
@@ -293,7 +293,7 @@ class Geo extends \Bitrix\Main\UserField\TypeBase
 <?
 foreach($value as $point)
 {
-	if(strlen($point) > 0)
+	if($point <> '')
 	{
 ?>
 	<input type="hidden" name="<?=HtmlFilter::encode($fieldName)?>" value="<?=$point?>"/>
@@ -342,7 +342,7 @@ foreach($value as $point)
 		{
 			foreach($value as $point)
 			{
-				if(strlen($point) > 0)
+				if($point <> '')
 				{
 					$c = explode(';', $point);
 					$placemarkList[] = array(

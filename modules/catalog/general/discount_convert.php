@@ -80,10 +80,6 @@ class CCatalogDiscountConvert
 				$strTableName = 'b_catalog_discount';
 				break;
 			case 'MSSQL':
-				$strQueryPriceTypes = 'select CATALOG_GROUP_ID from B_CATALOG_DISCOUNT2CAT where DISCOUNT_ID = #ID#';
-				$strQueryUserGroups = 'select GROUP_ID from B_CATALOG_DISCOUNT2GROUP where DISCOUNT_ID = #ID#';
-				$strTableName = 'B_CATALOG_DISCOUNT';
-				break;
 			case 'ORACLE':
 				$strQueryPriceTypes = 'select CATALOG_GROUP_ID from B_CATALOG_DISCOUNT2CAT where DISCOUNT_ID = #ID#';
 				$strQueryUserGroups = 'select GROUP_ID from B_CATALOG_DISCOUNT2GROUP where DISCOUNT_ID = #ID#';
@@ -511,8 +507,6 @@ class CCatalogDiscountConvert
 				$strTableName = 'b_catalog_discount';
 				break;
 			case 'MSSQL':
-				$strTableName = 'B_CATALOG_DISCOUNT';
-				break;
 			case 'ORACLE':
 				$strTableName = 'B_CATALOG_DISCOUNT';
 				break;
@@ -645,8 +639,6 @@ class CCatalogDiscountConvert
 				$strSql = "SELECT COUNT(*) CNT FROM b_catalog_discount WHERE TYPE=".CCatalogDiscount::ENTITY_ID." AND VERSION=".CCatalogDiscount::OLD_FORMAT;
 				break;
 			case 'MSSQL':
-				$strSql = "SELECT COUNT(*) CNT FROM B_CATALOG_DISCOUNT WHERE TYPE=".CCatalogDiscount::ENTITY_ID." AND VERSION=".CCatalogDiscount::OLD_FORMAT;
-				break;
 			case 'ORACLE':
 				$strSql = "SELECT COUNT(*) CNT FROM B_CATALOG_DISCOUNT WHERE TYPE=".CCatalogDiscount::ENTITY_ID." AND VERSION=".CCatalogDiscount::OLD_FORMAT;
 				break;
@@ -672,4 +664,3 @@ class CCatalogDiscountConvert
 		return CCatalogDiscountConvertTmp::DropTable();
 	}
 }
-?>

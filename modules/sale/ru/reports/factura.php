@@ -472,13 +472,13 @@ width:86pt'>
 		$arVal = CSaleLocation::GetByID($arOrderProps["F_LOCATION"], "ru");
 		echo htmlspecialcharsbx($arVal["COUNTRY_NAME"]." - ".$arVal["CITY_NAME"]);
 		?>
-		<?if (strlen($arOrderProps["F_CITY"])>0) echo ", г. ".$arOrderProps["F_CITY"];?>
-		<?if (strlen($arOrderProps["F_ADDRESS"])>0) echo ", ".$arOrderProps["F_ADDRESS"];?>
+		<?if ($arOrderProps["F_CITY"] <> '') echo ", г. ".$arOrderProps["F_CITY"];?>
+		<?if ($arOrderProps["F_ADDRESS"] <> '') echo ", ".$arOrderProps["F_ADDRESS"];?>
 		<?
 	}
 	else
 	{
-		if(strlen($arParams["BUYER_COMPANY_NAME"]) > 0)
+		if($arParams["BUYER_COMPANY_NAME"] <> '')
 			$buyerName = $arParams["BUYER_COMPANY_NAME"];
 	    else
 			$buyerName = $arParams["BUYER_LAST_NAME"]." ".$arParams["BUYER_FIRST_NAME"]." ".$arParams["BUYER_SECOND_NAME"];
@@ -519,8 +519,8 @@ width:86pt'>
 		echo $arOrderProps["F_INDEX"];
 		$arVal = CSaleLocation::GetByID($arOrderProps["F_LOCATION"], "ru");
 		echo htmlspecialcharsbx($arVal["COUNTRY_NAME"]." - ".$arVal["CITY_NAME"]);
-		if (strlen($arOrderProps["F_CITY"])>0) echo ", г. ".$arOrderProps["F_CITY"];
-		if (strlen($arOrderProps["F_ADDRESS"])>0) echo ", ".$arOrderProps["F_ADDRESS"];
+		if ($arOrderProps["F_CITY"] <> '') echo ", г. ".$arOrderProps["F_CITY"];
+		if ($arOrderProps["F_ADDRESS"] <> '') echo ", ".$arOrderProps["F_ADDRESS"];
 
 	}
 	else
@@ -704,7 +704,7 @@ foreach ($arBasketOrder as $arBasket):
 		{
 			foreach($arBasket["PROPS"] as $vv)
 			{
-				if(strlen($vv["VALUE"]) > 0 && $vv["CODE"] != "CATALOG.XML_ID" && $vv["CODE"] != "PRODUCT.XML_ID")
+				if($vv["VALUE"] <> '' && $vv["CODE"] != "CATALOG.XML_ID" && $vv["CODE"] != "PRODUCT.XML_ID")
 					echo "<div style=\"font-size:8pt\">".$vv["NAME"].": ".$vv["VALUE"]."</div>";
 			}
 		}
@@ -804,9 +804,9 @@ if ($arOrder["DELIVERY_ID"]):
 </tr>
 <tr valign="top">
 	<td colspan=4 class=xl36>Руководитель организации<br> или иное уполномоченное лицо
-		_______________ <input size="16" style="border:0px solid #000000;font-size:14px;font-style:bold;" type="text" value="/ <?echo ((strlen($arParams["DIRECTOR"]) > 0) ? $arParams["DIRECTOR"] : "_______________")?> /"></td>
+		_______________ <input size="16" style="border:0px solid #000000;font-size:14px;font-style:bold;" type="text" value="/ <?echo (($arParams["DIRECTOR"] <> '') ? $arParams["DIRECTOR"] : "_______________")?> /"></td>
 	<td class=xl36 colspan=2 style='mso-ignore:colspan'></td>
-	<td colspan=6 class=xl32 style='mso-ignore:colspan'>Главный бухгалтер<br> или иное уполномоченное лицо _______________ <input size="16" style="border:0px solid #000000;font-size:14px;font-style:bold;" type="text" value="/ <?echo ((strlen($arParams["BUHG"]) > 0) ? $arParams["BUHG"] : "_______________")?> /"></td>
+	<td colspan=6 class=xl32 style='mso-ignore:colspan'>Главный бухгалтер<br> или иное уполномоченное лицо _______________ <input size="16" style="border:0px solid #000000;font-size:14px;font-style:bold;" type="text" value="/ <?echo (($arParams["BUHG"] <> '') ? $arParams["BUHG"] : "_______________")?> /"></td>
 </tr>
 <tr height=0 style='display:none'>
 	<td height=0 colspan=11 class=xl32 style='mso-ignore:colspan'></td>

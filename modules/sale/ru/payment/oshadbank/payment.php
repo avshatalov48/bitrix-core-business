@@ -181,13 +181,13 @@ $arKvit = array(0 => "ПОВІДОМЛЕННЯ", 1 => "КВИТАНЦІЯ");
 				<?
 				$adres = CSalePaySystemAction::GetParamValue("PAYER_FIO");
 
-				if (strlen(CSalePaySystemAction::GetParamValue("PAYER_INDEX")) > 0)
+				if (CSalePaySystemAction::GetParamValue("PAYER_INDEX") <> '')
 					$adres .= ($adres<>""? ", ":"").CSalePaySystemAction::GetParamValue("PAYER_INDEX");
 
-				if (strlen(CSalePaySystemAction::GetParamValue("PAYER_TOWN")) > 0)
+				if (CSalePaySystemAction::GetParamValue("PAYER_TOWN") <> '')
 					$adres .= ($adres<>""? ", ":"")."г.".CSalePaySystemAction::GetParamValue("PAYER_TOWN");
 
-				if (strlen(CSalePaySystemAction::GetParamValue("PAYER_ADRES")) > 0)
+				if (CSalePaySystemAction::GetParamValue("PAYER_ADRES") <> '')
 					$adres .= ($adres<>""? ", ":"").CSalePaySystemAction::GetParamValue("PAYER_ADRES");
 
 				echo $adres;

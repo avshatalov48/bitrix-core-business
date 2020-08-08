@@ -1,0 +1,22 @@
+<?php
+$MESS["SALE_HPS_ADYEN_PROVIDER_NAME"] = "Adyen";
+$MESS["SALE_HPS_ADYEN_MERCHANT_ID"] = "Adyen ID";
+$MESS["SALE_HPS_ADYEN_MERCHANT_ID_DESC"] = "Идентификатор продавца Adyen ID";
+$MESS["SALE_HPS_ADYEN_X_API_KEY"] = "API key";
+$MESS["SALE_HPS_ADYEN_X_API_KEY_DESC"] = "Используется для аутентификации запросов API от вашей учетной записи.";
+$MESS["SALE_HPS_ADYEN_HMAC_KEY"] = "HMAC key";
+$MESS["SALE_HPS_ADYEN_HMAC_KEY_DESC"] = "Чтобы защитить ваш сервер от несанкционированных уведомлений, мы настоятельно рекомендуем вам использовать подпись HMAC на основе хэш-кода.";
+$MESS["SALE_HPS_ADYEN_LIVE_URL_PREFIX"] = "Live URL prefix";
+$MESS["SALE_HPS_ADYEN_LIVE_URL_PREFIX_DESC"] = "Ваш \"Live URL prefix\" из настроек аккаунта";
+$MESS["SALE_HPS_ADYEN_IS_TEST"] = "Тестовый режим";
+$MESS["SALE_HPS_ADYEN_CHANGE_STATUS_PAY"] = "Автоматически оплачивать заказ при получении успешного статуса оплаты";
+$MESS["SALE_HPS_APPLE_PAY_MERCHANT_ID"] = "Merchant ID";
+$MESS["SALE_HPS_APPLE_PAY_MERCHANT_ID_DESC"] = "Идентификатор продавца однозначно идентифицирующий Вас с Apple Pay как продавца, который может принимать платежи. Вы можете использовать один и тот же идентификатор продавца для нескольких веб-приложений.";
+$MESS["SALE_HPS_APPLE_PAY_MERCHANT_DISPLAY_NAME"] = "Название магазина";
+$MESS["SALE_HPS_APPLE_PAY_MERCHANT_DISPLAY_NAME_DESC"] = "Название вашего магазина, использующееся для отображения.";
+$MESS["SALE_HPS_APPLE_PAY_CERT_FILE"] = "Сертификат обработки платежей";
+$MESS["SALE_HPS_APPLE_PAY_CERT_FILE_DESC"] = "Сертификат обработки платежа связан с Вашим идентификатором продавца и используется для шифрования платежной информации. Срок действия платежного сертификата истекает каждые 25 месяцев.";
+$MESS["SALE_HPS_APPLE_PAY_DOMAIN"] = "Домен";
+$MESS["SALE_HPS_APPLE_PAY_DOMAIN_DESC"] = "Домен обрабатывающий транзакции Apple Pay (без протокола https://)";
+$MESS["SALE_HPS_APPLE_PAY_COUNTRY_CODE"] = "Двухбуквенный код страны по стандарту ISO 3166";
+$MESS["SALE_HPS_APPLE_PAY_COUNTRY_CODE_DESC"] = "Укажите двухбуквенный код страны, в которой будет обрабатываться платеж. Проконсультируйтесь с вашим поставщиком платежных услуг (PSP), чтобы определить, какое значение использовать.";

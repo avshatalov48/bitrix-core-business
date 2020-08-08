@@ -71,9 +71,9 @@ class MailContact
 	 */
 	public static function getInitials($email, $name = null, $lastName = null)
 	{
-		if ($lastName && substr($lastName, 0, 1) && $name && substr($name, 0, 1))
+		if ($lastName && mb_substr($lastName, 0, 1) && $name && mb_substr($name, 0, 1))
 		{
-			return strtoupper(substr($name, 0, 1) . substr($lastName, 0, 1));
+			return mb_strtoupper(mb_substr($name, 0, 1).mb_substr($lastName, 0, 1));
 		}
 		$name = explode(' ', $name);
 
@@ -81,14 +81,14 @@ class MailContact
 		{
 			if (isset($name[1]) && $name[1])
 			{
-				return strtoupper(substr($name[0], 0, 1) . substr($name[1], 0, 1));
+				return mb_strtoupper(mb_substr($name[0], 0, 1).mb_substr($name[1], 0, 1));
 			}
 			else
 			{
-				return strtoupper(substr($name[0], 0, 1));
+				return mb_strtoupper(mb_substr($name[0], 0, 1));
 			}
 		}
-		return strtoupper(substr($email, 0, 1));
+		return mb_strtoupper(mb_substr($email, 0, 1));
 	}
 
 	/** returns array of fields and their values for adding to database

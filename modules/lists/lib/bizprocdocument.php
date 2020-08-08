@@ -14,6 +14,7 @@ class BizprocDocument extends CIBlockDocument
 {
 	const DOCUMENT_TYPE_PREFIX = 'iblock_';
 	private static $cachedTasks;
+	private static $elements = [];
 
 	public static function getEntityName()
 	{
@@ -1548,20 +1549,25 @@ class BizprocDocument extends CIBlockDocument
 			)
 			|| !array_key_exists("CreatedBy", $parameters) && !array_key_exists("AllUserGroups", $parameters))
 		{
-			$elementListQuery = CIBlockElement::getList(
-				array(),
-				array("ID" => $documentId, "SHOW_NEW" => "Y", "SHOW_HISTORY" => "Y"),
-				false,
-				false,
-				array("ID", "IBLOCK_ID", "CREATED_BY")
-			);
-			$elements = $elementListQuery->fetch();
+			if (empty(self::$elements[$documentId]))
+			{
+				$elementListQuery = CIBlockElement::getList(
+					array(),
+					array("ID" => $documentId, "SHOW_NEW" => "Y", "SHOW_HISTORY" => "Y"),
+					false,
+					false,
+					array("ID", "IBLOCK_ID", "CREATED_BY")
+				);
+				self::$elements[$documentId] = $elementListQuery->fetch();
+			}
 
-			if (!$elements)
+			if (empty(self::$elements[$documentId]))
 				return false;
 
-			$parameters["IBlockId"] = $elements["IBLOCK_ID"];
-			$parameters["CreatedBy"] = $elements["CREATED_BY"];
+			$element = self::$elements[$documentId];
+
+			$parameters["IBlockId"] = $element["IBLOCK_ID"];
+			$parameters["CreatedBy"] = $element["CREATED_BY"];
 		}
 
 		if (!array_key_exists("IBlockRightsMode", $parameters))
@@ -1569,14 +1575,14 @@ class BizprocDocument extends CIBlockDocument
 
 		if ($parameters["IBlockRightsMode"] === "E")
 		{
-			if ($operation === CBPCanUserOperateOperation::ReadDocument)
+			if (
+				$operation === CBPCanUserOperateOperation::ReadDocument ||
+				$operation === CBPCanUserOperateOperation::ViewWorkflow
+			)
 				return CIBlockElementRights::userHasRightTo($parameters["IBlockId"], $documentId, "element_read");
 			elseif ($operation === CBPCanUserOperateOperation::WriteDocument)
 				return CIBlockElementRights::userHasRightTo($parameters["IBlockId"], $documentId, "element_edit");
-			elseif (
-				$operation === CBPCanUserOperateOperation::StartWorkflow
-				|| $operation === CBPCanUserOperateOperation::ViewWorkflow
-			)
+			elseif ($operation === CBPCanUserOperateOperation::StartWorkflow)
 			{
 				if (CIBlockElementRights::userHasRightTo($parameters["IBlockId"], $documentId, "element_edit"))
 					return true;
@@ -1758,11 +1764,13 @@ class BizprocDocument extends CIBlockDocument
 			elseif ($operation === CBPCanUserOperateOperation::ViewWorkflow
 				|| $operation === CBPCanUserOperateOperation::StartWorkflow)
 			{
-				if (!array_key_exists("WorkflowId", $parameters))
-					return false;
-
 				if ($operation === CBPCanUserOperateOperation::ViewWorkflow)
-					return CIBlockRights::userHasRightTo($parameters["IBlockId"], 0, "element_read");
+				{
+					return (
+						CIBlockRights::userHasRightTo($parameters["IBlockId"], 0, "element_read")
+						|| CIBlockRights::userHasRightTo($parameters["IBlockId"], $parameters["IBlockId"], "iblock_rights_edit")
+					);
+				}
 
 				if ($operation === CBPCanUserOperateOperation::StartWorkflow)
 					return CIBlockSectionRights::userHasRightTo($parameters["IBlockId"], $parameters['sectionId'], "section_element_bind");

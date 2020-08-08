@@ -22,11 +22,11 @@ if ($arGadgetParams['CAN_VIEW_PROFILE'])
 	{
 		foreach ($arGadgetParams['FIELDS_MAIN_DATA'] as $fieldName => $arUserField)
 		{
-			if (StrLen($arUserField["VALUE"]) > 0)
+			if ($arUserField["VALUE"] <> '')
 			{
 				?><tr valign="top">
 					<td width="40%"><?= $arUserField["NAME"] ?>:</td>
-					<td width="60%"><?if (StrLen($arUserField["SEARCH"]) > 0):?><a href="<?= $arUserField["SEARCH"] ?>"><?endif;?><?= $arUserField["VALUE"] ?><?if (StrLen($arUserField["SEARCH"]) > 0):?></a><?endif;?></td>
+					<td width="60%"><?if ($arUserField["SEARCH"] <> ''):?><a href="<?= $arUserField["SEARCH"] ?>"><?endif;?><?= $arUserField["VALUE"] ?><?if ($arUserField["SEARCH"] <> ''):?></a><?endif;?></td>
 				</tr><?
 			}
 		}
@@ -36,7 +36,7 @@ if ($arGadgetParams['CAN_VIEW_PROFILE'])
 	{
 		foreach ($arGadgetParams['PROPERTIES_MAIN_DATA'] as $fieldName => $arUserField)
 		{
-			if (is_array($arUserField["VALUE"]) && count($arUserField["VALUE"]) > 0 || !is_array($arUserField["VALUE"]) && StrLen($arUserField["VALUE"]) > 0)
+			if (is_array($arUserField["VALUE"]) && count($arUserField["VALUE"]) > 0 || !is_array($arUserField["VALUE"]) && $arUserField["VALUE"] <> '')
 			{
 				?><tr valign="top">
 					<td width="40%"><?=$arUserField["EDIT_FORM_LABEL"]?>:</td>
@@ -133,7 +133,7 @@ if ($arGadgetParams['CAN_VIEW_PROFILE'])
 			</tr>
 			<?
 		}
-		elseif (strlen($arGadgetParams['RATING_NAME']) > 0)
+		elseif ($arGadgetParams['RATING_NAME'] <> '')
 		{
 			?><tr valign="top">
 				<td width="40%"><?=$arGadgetParams['RATING_NAME']?>:</td>
@@ -200,11 +200,11 @@ if ($arGadgetParams['CAN_VIEW_PROFILE'])
 		{
 			foreach ($arGadgetParams['FIELDS_CONTACT_DATA'] as $fieldName => $arUserField)
 			{
-				if (StrLen($arUserField["VALUE"]) > 0)
+				if ($arUserField["VALUE"] <> '')
 				{
 					?><tr valign="top">
 						<td width="40%"><?= $arUserField["NAME"] ?>:</td>
-						<td width="60%"><?if (StrLen($arUserField["SEARCH"]) > 0):?><a href="<?= $arUserField["SEARCH"] ?>"><?endif;?><?= $arUserField["VALUE"] ?><?if (StrLen($arUserField["SEARCH"]) > 0):?></a><?endif;?></td>
+						<td width="60%"><?if ($arUserField["SEARCH"] <> ''):?><a href="<?= $arUserField["SEARCH"] ?>"><?endif;?><?= $arUserField["VALUE"] ?><?if ($arUserField["SEARCH"] <> ''):?></a><?endif;?></td>
 					</tr><?
 					$bContactsEmpty = false;
 				}
@@ -215,7 +215,7 @@ if ($arGadgetParams['CAN_VIEW_PROFILE'])
 		{
 			foreach ($arGadgetParams['PROPERTIES_CONTACT_DATA'] as $fieldName => $arUserField)
 			{
-				if (is_array($arUserField["VALUE"]) && count($arUserField["VALUE"]) > 0 || !is_array($arUserField["VALUE"]) && StrLen($arUserField["VALUE"]) > 0)
+				if (is_array($arUserField["VALUE"]) && count($arUserField["VALUE"]) > 0 || !is_array($arUserField["VALUE"]) && $arUserField["VALUE"] <> '')
 				{
 					?><tr valign="top">
 						<td width="40%"><?=$arUserField["EDIT_FORM_LABEL"]?>:</td>
@@ -256,10 +256,10 @@ if ($arGadgetParams['CAN_VIEW_PROFILE'])
 		$bNoPersonalInfo = true;
 		if ($arGadgetParams['FIELDS_PERSONAL_SHOW'] == "Y"):
 			foreach ($arGadgetParams['FIELDS_PERSONAL_DATA'] as $fieldName => $arUserField):
-				if (StrLen($arUserField["VALUE"]) > 0):
+				if ($arUserField["VALUE"] <> ''):
 					?><tr valign="top">
 						<td width="40%"><?= $arUserField["NAME"] ?>:</td>
-						<td width="60%"><?if (StrLen($arUserField["SEARCH"]) > 0):?><a href="<?= $arUserField["SEARCH"] ?>"><?endif;?><?= $arUserField["VALUE"] ?><?if (StrLen($arUserField["SEARCH"]) > 0):?></a><?endif;?></td>
+						<td width="60%"><?if ($arUserField["SEARCH"] <> ''):?><a href="<?= $arUserField["SEARCH"] ?>"><?endif;?><?= $arUserField["VALUE"] ?><?if ($arUserField["SEARCH"] <> ''):?></a><?endif;?></td>
 					</tr><?
 					$bNoPersonalInfo = false;
 				endif;
@@ -267,7 +267,7 @@ if ($arGadgetParams['CAN_VIEW_PROFILE'])
 		endif;
 		if ($arGadgetParams['PROPERTIES_PERSONAL_SHOW'] == "Y"):
 			foreach ($arGadgetParams['PROPERTIES_PERSONAL_DATA'] as $fieldName => $arUserField):
-				if (is_array($arUserField["VALUE"]) && count($arUserField["VALUE"]) > 0 || !is_array($arUserField["VALUE"]) && StrLen($arUserField["VALUE"]) > 0):
+				if (is_array($arUserField["VALUE"]) && count($arUserField["VALUE"]) > 0 || !is_array($arUserField["VALUE"]) && $arUserField["VALUE"] <> ''):
 					?><tr valign="top">
 						<td width="40%"><?=$arUserField["EDIT_FORM_LABEL"]?>:</td>
 						<td width="60%">

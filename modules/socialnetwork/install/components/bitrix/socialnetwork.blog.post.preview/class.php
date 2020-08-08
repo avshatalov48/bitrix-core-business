@@ -34,7 +34,7 @@ class CSocialnetworkBlogPostPreview extends \CBitrixComponent
 	{
 		global $CACHE_MANAGER;
 
-		if (strlen(trim($this->arParams["NAME_TEMPLATE"])) <= 0)
+		if (trim($this->arParams["NAME_TEMPLATE"]) == '')
 			$this->arParams["NAME_TEMPLATE"] = \CSite::GetNameFormat();
 
 		$dbPost = \CBlogPost::GetList(

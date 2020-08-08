@@ -27,7 +27,7 @@
 		this.DATETIME_FORMAT_BX = BX.message("FORMAT_DATETIME");
 		this.DATE_FORMAT = BX.date.convertBitrixFormat(BX.message("FORMAT_DATE"));
 		this.DATETIME_FORMAT = BX.date.convertBitrixFormat(BX.message("FORMAT_DATETIME"));
-		if ((this.DATETIME_FORMAT_BX.substr(0, this.DATE_FORMAT_BX.length) == this.DATE_FORMAT_BX))
+		if ((this.DATETIME_FORMAT_BX.substr(0, this.DATE_FORMAT_BX.length) === this.DATE_FORMAT_BX))
 		{
 			this.TIME_FORMAT = BX.util.trim(this.DATETIME_FORMAT.substr(this.DATE_FORMAT.length));
 			this.TIME_FORMAT_BX = BX.util.trim(this.DATETIME_FORMAT_BX.substr(this.DATE_FORMAT_BX.length));
@@ -650,6 +650,15 @@
 			return Math.round(date.getTime() / 60000) * 60000;
 		},
 
+		getTimeByInt: function(intValue)
+		{
+			intValue = parseInt(intValue);
+			var
+				h = Math.floor(intValue / 60),
+				m = intValue - h * 60;
+			return {hour: h, min: m};
+		},
+
 		getTimeByFraction: function(val, round)
 		{
 			round = round || 5;
@@ -679,26 +688,6 @@
 			var date = new Date();
 			date.setFullYear(origDate.getFullYear(), origDate.getMonth(), 1);
 			return parseInt(BX.date.format('W', origDate.getTime() / 1000)) - parseInt(BX.date.format('W', date.getTime() / 1000));
-		},
-
-		getRemindersList: function()
-		{
-			if (!this.reminderList)
-			{
-				this.reminderList = [
-					{value: 0, label: BX.message("EC_REMIND1_0"), shortLabel: BX.message("EC_REMIND1_SHORT_0")},
-					{value: 5, label: BX.message("EC_REMIND1_5"), shortLabel: BX.message("EC_REMIND1_SHORT_5")},
-					{value: 10, label: BX.message("EC_REMIND1_10"), shortLabel: BX.message("EC_REMIND1_SHORT_10")},
-					{value: 15, label: BX.message("EC_REMIND1_15"), shortLabel: BX.message("EC_REMIND1_SHORT_15")},
-					{value: 30, label: BX.message("EC_REMIND1_30"), shortLabel: BX.message("EC_REMIND1_SHORT_30")},
-					{value: 60, label: BX.message("EC_REMIND1_60"), shortLabel: BX.message("EC_REMIND1_SHORT_60")},
-					{value: 120, label: BX.message("EC_REMIND1_120"), shortLabel: BX.message("EC_REMIND1_SHORT_120")},
-					{value: 1440, label: BX.message("EC_REMIND1_1440"), shortLabel: BX.message("EC_REMIND1_SHORT_1440")},
-					{value: 2880, label: BX.message("EC_REMIND1_2880"), shortLabel: BX.message("EC_REMIND1_SHORT_2880")}
-				];
-			}
-
-			return this.reminderList;
 		},
 
 		getSimpleTimeList: function()
@@ -1080,6 +1069,7 @@
 				for(var id in BX.PopupMenu.Data)
 				{
 					if (BX.PopupMenu.Data.hasOwnProperty(id)
+						&& BX.type.isObject(BX.PopupMenu.Data[id])
 						&& BX.PopupMenu.Data[id].popupWindow
 						&& BX.PopupMenu.Data[id].popupWindow.isShown()
 					)
@@ -1096,6 +1086,7 @@
 			var
 				_this = this,
 				zIndex = 3200;
+
 			BX.addCustomEvent('onPopupShow', function(popupWindow){
 				if (_this.calendar.viewSlider && _this.calendar.viewSlider.isOpened()
 					|| _this.calendar.editSlider && _this.calendar.editSlider.isOpened())
@@ -1130,13 +1121,17 @@
 		isDarkColor: function(color)
 		{
 			color = color.toLowerCase();
-			if ({'#9dcf00':true,'#2FC6F6':true,'#56D1E0':true,'#FFA900':true,'#47E4C2':true,'#F87396':true,'#9985DD':true,'#A8ADB4':true,'#AF7E00':true}[color])
-				return false;
+			if ({'#86b100':true,'#0092cc':true,'#00afc7':true,'#da9100':true,'#00b38c':true,'#de2b24':true,'#bd7ac9':true,'#838fa0':true,'#ab7917':true,'#e97090':true, //current
+				'#9dcf00':true,'#2fc6f6':true,'#56d1e0':true,'#ffa900':true,'#47e4c2':true,'#f87396':true,'#9985dd':true,'#a8adb4':true,'#af7e00':true, // old ones
+			}[color])
+			{
+				return true;
+			}
 
 			if (!color)
 				return false;
 
-			if (color.charAt(0) == "#")
+			if (color.charAt(0) === "#")
 				color = color.substring(1, 7);
 			var
 				r = parseInt(color.substring(0, 2), 16),
@@ -1188,16 +1183,25 @@
 
 		doBxContextFix: function()
 		{
-			if (top !== window)
+			if (window.top !== window)
 			{
 				Object.keys(window.BX.message).forEach(function(key)
 				{
 					var message = {};
 					message[key] = window.BX.message[key];
-					top.BX.message(message);
+					window.top.BX.message(message);
 				});
+
 				window.__BX = window.BX;
-				window.BX = top.BX;
+				if (window.BX.Access && !window.top.BX.Access)
+				{
+					window.top.BX.Access = window.BX.Access;
+				}
+				if (window.BX.SocNetLogDestination && !window.top.BX.SocNetLogDestination)
+				{
+					window.top.BX.SocNetLogDestination = window.BX.SocNetLogDestination;
+				}
+				window.BX = window.top.BX;
 			}
 		},
 
@@ -1210,6 +1214,10 @@
 			}
 		}
 	};
+
+	Util.getSimpleTimeList = Util.prototype.getSimpleTimeList;
+	Util.formatTime = Util.prototype.formatTime;
+	Util.getTimeByInt = Util.prototype.getTimeByInt;
 
 	if (window.BXEventCalendar)
 	{

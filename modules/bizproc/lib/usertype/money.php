@@ -10,7 +10,7 @@ class Money extends UserFieldBase
 	{
 		$value = parent::extractValue($fieldType, $field, $request);
 
-		if ($value && strpos($value, '|') !== false)
+		if ($value && mb_strpos($value, '|') !== false)
 		{
 			list($sum, $currency) = explode('|', $value);
 			$value = doubleval($sum) . '|' . $currency;
@@ -22,7 +22,7 @@ class Money extends UserFieldBase
 	/** @inheritdoc */
 	public static function compareValues($valueA, $valueB)
 	{
-		if (strpos($valueA, '|') === false || strpos($valueB, '|') === false)
+		if (mb_strpos($valueA, '|') === false || mb_strpos($valueB, '|') === false)
 		{
 			return parent::compareValues($valueA, $valueB);
 		}
@@ -88,7 +88,7 @@ class Money extends UserFieldBase
 
 	private static function normalizeCurrencyID($currencyID)
 	{
-		return strtoupper(trim(strval($currencyID)));
+		return mb_strtoupper(trim(strval($currencyID)));
 	}
 
 	private static function convertMoney($sum, $srcCurrencyID, $dstCurrencyID, $srcExchRate = -1)

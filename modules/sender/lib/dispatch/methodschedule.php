@@ -256,7 +256,7 @@ class MethodSchedule implements iMethod
 	public static function parseDaysOfMonth($daysOfMonth)
 	{
 		$result = [];
-		if (strlen($daysOfMonth) > 0)
+		if ($daysOfMonth <> '')
 		{
 			$days = explode(",", $daysOfMonth);
 			$found = [];
@@ -310,7 +310,7 @@ class MethodSchedule implements iMethod
 	 */
 	public static function parseDaysOfWeek($daysOfWeek)
 	{
-		if(strlen($daysOfWeek) <= 0)
+		if($daysOfWeek == '')
 		{
 			return [];
 		}
@@ -346,19 +346,19 @@ class MethodSchedule implements iMethod
 	 */
 	public static function parseMonthsOfYear($monthsOfYear)
 	{
-		if(strlen($monthsOfYear) <= 0)
+		if($monthsOfYear == '')
 		{
 			return [];
 		}
 
 		$result = [];
-		$days = explode(",", $monthsOfYear);
-		foreach($days as $day)
+		$months = explode(",", $monthsOfYear);
+		foreach($months as $month)
 		{
-			$day = trim($day);
+			$month = trim($month);
 			$found = [];
 			if(
-				preg_match("/^(\d)$/", $day, $found)
+				preg_match("/^(\d{1,2})$/", $month, $found)
 				&& $found[1] >= 1
 				&& $found[1] <= 12
 			)
@@ -382,7 +382,7 @@ class MethodSchedule implements iMethod
 	 */
 	public static function parseTimesOfDay($time)
 	{
-		if(strlen($time) <= 0)
+		if($time == '')
 		{
 			return null;
 		}

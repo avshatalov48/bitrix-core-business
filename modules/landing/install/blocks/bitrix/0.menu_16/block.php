@@ -1,11 +1,11 @@
-<header class="landing-block landing-block-menu u-header u-header--floating u-header--floating-relative">
-	<div class="landing-block-node-top-block u-header__section u-header__section--hidden u-header__section--light g-bg-white g-brd-bottom g-brd-gray-light-v4 g-py-10 g-py-20--sm">
+<header class="landing-block u-header u-header--sticky u-header--relative">
+	<div class="landing-block-node-top-block landing-semantic-background-color u-header__section u-header__section--hidden u-header__section--light g-bg-white g-brd-bottom g-brd-gray-light-v4 g-py-10 g-py-20--sm">
 		<div class="container">
 			<div class="row no-gutters flex-lg-row align-items-center justify-content-lg-start">
 				<div class="col-12 col-sm-3 col-lg-2 text-center text-md-left">
 					<!-- Logo -->
 					<a href="#system_mainpage" class="navbar-brand landing-block-node-menu-logo-link g-mb-10 g-mb-0--sm g-mr-0">
-						<img class="landing-block-node-menu-logo img-fluid g-max-width-100x"
+						<img class="landing-block-node-menu-logo img-fluid"
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/logos/real-estate-logo.png"
 							 alt="Logo">
 					</a>
@@ -19,16 +19,16 @@
 								<div class="landing-block-card-menu-contact col-md g-mb-10 g-mb-0--md g-brd-right--md g-brd-gray-light-v4"
 									 data-card-preset="contact-link">
 
-									<a href="tel:+469548521" class="landing-block-node-menu-contactlink-link g-pa-10--md row align-items-center justify-content-center justify-content-sm-start justify-content-md-center justify-content-lg-start g-text-decoration-none--hover">
+									<a href="tel:#PHONE1#" class="landing-block-node-menu-contactlink-link g-pa-10--md row align-items-center justify-content-center justify-content-sm-start justify-content-md-center justify-content-lg-start g-text-decoration-none--hover">
 										<span class="landing-block-node-menu-contact-img-container text-left text-md-center text-lg-left w-auto g-width-100x--md g-width-auto--lg g-font-size-18 g-line-height-1 d-none d-sm-inline-block g-valign-top g-color-primary g-mr-10 g-mr-0--md g-mr-10--lg">
 											<i class="landing-block-node-menu-contact-img icon icon-screen-smartphone"></i>
 										</span>
 										<span class="landing-block-node-menu-contactlink-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block">
-											<span class="landing-block-node-menu-contactlink-title landing-block-node-menu-contact-title-style g-color-main d-block text-uppercase g-font-size-13">
+											<span class="landing-block-node-menu-contactlink-title landing-block-node-menu-contact-title-style landing-semantic-text-medium g-color-main d-block text-uppercase g-font-size-13">
 												Call Us
 											</span>
-											<span class="landing-block-node-menu-contactlink-text landing-block-node-menu-contact-text-style d-block g-color-gray-dark-v2 g-font-weight-700 g-text-decoration-none g-text-underline--hover">
-												+469 548 521
+											<span class="landing-block-node-menu-contactlink-text landing-block-node-menu-contact-text-style landing-semantic-link-small d-block g-color-gray-dark-v2 font-weight-bold g-text-decoration-none g-text-underline--hover">
+												#PHONE1#
 											</span>
 										</span>
 									</a>
@@ -41,10 +41,10 @@
 											<i class="landing-block-node-menu-contact-img icon icon-clock"></i>
 										</div>
 										<div class="landing-block-node-menu-contact-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block">
-											<div class="landing-block-node-menu-contact-title landing-block-node-menu-contact-title-style g-color-main text-uppercase g-font-size-13">
+											<div class="landing-block-node-menu-contact-title landing-block-node-menu-contact-title-style landing-semantic-text-medium g-color-main text-uppercase g-font-size-13">
 												Opening time
 											</div>
-											<div class="landing-block-node-menu-contact-value landing-block-node-menu-contact-text-style g-color-gray-dark-v2 g-font-weight-700">
+											<div class="landing-block-node-menu-contact-value landing-block-node-menu-contact-text-style landing-semantic-link-small g-color-gray-dark-v2 font-weight-bold">
 												Mon-Sat: 08.00 -18.00
 											</div>
 										</div>
@@ -54,16 +54,16 @@
 								<div class="landing-block-card-menu-contact col-md g-mb-10 g-mb-0--md g-brd-right--md g-brd-gray-light-v4"
 									 data-card-preset="contact-link">
 
-									<a href="mailto:info@company24.com" class="landing-block-node-menu-contactlink-link g-pa-10--md row align-items-center justify-content-center justify-content-sm-start justify-content-md-center justify-content-lg-start g-text-decoration-none--hover">
+									<a href="mailto:#EMAIL1#" class="landing-block-node-menu-contactlink-link g-pa-10--md row align-items-center justify-content-center justify-content-sm-start justify-content-md-center justify-content-lg-start g-text-decoration-none--hover">
 										<span class="landing-block-node-menu-contact-img-container text-left text-md-center text-lg-left w-auto g-width-100x--md g-width-auto--lg g-font-size-18 g-line-height-1 d-none d-sm-inline-block g-valign-top g-color-primary g-mr-10 g-mr-0--md g-mr-10--lg">
 											<i class="landing-block-node-menu-contactlink-img icon icon-envelope"></i>
 										</span>
 										<span class="landing-block-node-menu-contactlink-text-container text-center text-sm-left text-md-center text-lg-left d-inline-block">
-											<span class="landing-block-node-menu-contactlink-title  landing-block-node-menu-contact-title-style g-color-main d-block text-uppercase g-font-size-13">
+											<span class="landing-block-node-menu-contactlink-title  landing-block-node-menu-contact-title-style landing-semantic-text-medium g-color-main d-block text-uppercase g-font-size-13">
 												Email us
 											</span>
-											<span class="landing-block-node-menu-contactlink-text landing-block-node-menu-contact-text-style d-block g-color-gray-dark-v2 g-font-weight-700 g-text-decoration-none g-text-underline--hover">
-												info@company24.com
+											<span class="landing-block-node-menu-contactlink-text landing-block-node-menu-contact-text-style landing-semantic-link-small d-block g-color-gray-dark-v2 font-weight-bold g-text-decoration-none g-text-underline--hover">
+												#EMAIL1#
 											</span>
 										</span>
 									</a>
@@ -103,50 +103,50 @@
 		</div>
 	</div>
 
-	<div class="landing-block-node-bottom-block u-header__section g-bg-black g-py-15--lg g-py-10"
+	<div class="landing-block-node-bottom-block landing-semantic-background-color u-header__section g-bg-black g-py-15--lg g-py-10"
 		 data-header-fix-moment-classes="u-shadow-v18">
 		<nav class="navbar navbar-expand-lg py-0 g-px-10">
 			<div class="container">
 				<!-- Navigation -->
 				<div class="collapse navbar-collapse align-items-center flex-sm-row g-mr-40--sm" id="navBar">
-					<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav w-100 g-ml-minus-15--lg text-uppercase g-font-weight-700 g-font-size-13 g-py-10--md">
+					<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav w-100 g-ml-minus-15--lg text-uppercase font-weight-bold g-font-size-13 g-py-10--md">
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#home"
-							   class="landing-block-node-menu-list-item-link nav-link p-0">Home
+							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Home
 							</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#flatsForRent"
-							   class="landing-block-node-menu-list-item-link nav-link p-0">Flats
+							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Flats
 								for rent</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#specialOffers"
-							   class="landing-block-node-menu-list-item-link nav-link p-0">Special offers</a>
+							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Special offers</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#ourHouses"
-							   class="landing-block-node-menu-list-item-link nav-link p-0">Our houses</a>
+							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Our houses</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#gallery"
-							   class="landing-block-node-menu-list-item-link nav-link p-0">Gallery</a>
+							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Gallery</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#agents"
-							   class="landing-block-node-menu-list-item-link nav-link p-0">Agents</a>
+							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Agents</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#discount"
-							   class="landing-block-node-menu-list-item-link nav-link p-0">Discount</a>
+							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Discount</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#testimonials"
-							   class="landing-block-node-menu-list-item-link nav-link p-0">Testimonials</a>
+							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Testimonials</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#contact"
-							   class="landing-block-node-menu-list-item-link nav-link p-0">Contact</a>
+							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Contact</a>
 						</li>
 					</ul>
 				</div>

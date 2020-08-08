@@ -119,7 +119,7 @@ if (!empty($filter_find) && is_array($filter_find))
 
 foreach($filter_site_id as $v)
 {
-	if(strlen($arAvCur[$v]) > 0 && strlen($arCurrencyInfo[$arAvCur[$v]]) > 0)
+	if($arAvCur[$v] <> '' && $arCurrencyInfo[$arAvCur[$v]] <> '')
 	{
 		$arCurrency[$arAvCur[$v]] = $arCurrencyInfo[$arAvCur[$v]];
 

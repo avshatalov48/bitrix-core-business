@@ -10,7 +10,7 @@ class CAllSocNetGroupSubject
 	{
 		global $APPLICATION;
 
-		if ($ACTION != "ADD" && IntVal($ID) <= 0)
+		if ($ACTION != "ADD" && intval($ID) <= 0)
 		{
 			$APPLICATION->ThrowException("System error 870164", "ERROR");
 			return false;
@@ -20,7 +20,7 @@ class CAllSocNetGroupSubject
 			&& (
 				(is_array($arFields["SITE_ID"]) && count($arFields["SITE_ID"]) <= 0)
 				||
-				(!is_array($arFields["SITE_ID"]) && strlen($arFields["SITE_ID"]) <= 0)
+				(!is_array($arFields["SITE_ID"]) && $arFields["SITE_ID"] == '')
 			)
 		)
 		{
@@ -43,14 +43,14 @@ class CAllSocNetGroupSubject
 			}
 		}
 
-		if ((is_set($arFields, "NAME") || $ACTION=="ADD") && strlen($arFields["NAME"]) <= 0)
+		if ((is_set($arFields, "NAME") || $ACTION=="ADD") && $arFields["NAME"] == '')
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_GS_EMPTY_NAME"), "EMPTY_NAME");
 			return false;
 		}
 
 		if (is_set($arFields, "SORT") || $ACTION=="ADD")
-			$arFields["SORT"] = (intVal($arFields["SORT"]) > 0 ? intVal($arFields["SORT"]) : 100);
+			$arFields["SORT"] = (intval($arFields["SORT"]) > 0 ? intval($arFields["SORT"]) : 100);
 		
 		return True;
 	}
@@ -62,7 +62,7 @@ class CAllSocNetGroupSubject
 		if (!CSocNetGroup::__ValidateID($ID))
 			return false;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$bCanDelete = true;
 		$dbResult = CSocNetGroup::GetList(
@@ -102,7 +102,7 @@ class CAllSocNetGroupSubject
 		if (!CSocNetGroup::__ValidateID($ID))
 			return false;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$arFields1 = \Bitrix\Socialnetwork\Util::getEqualityFields($arFields);
 
@@ -131,7 +131,7 @@ class CAllSocNetGroupSubject
 		$strUpdate = $DB->PrepareUpdate("b_sonet_group_subject", $arFields);
 		\Bitrix\Socialnetwork\Util::processEqualityFieldsToUpdate($arFields1, $strUpdate);
 
-		if (strlen($strUpdate) > 0)
+		if ($strUpdate <> '')
 		{
 			$strSql =
 				"UPDATE b_sonet_group_subject SET ".
@@ -175,7 +175,7 @@ class CAllSocNetGroupSubject
 		if (!CSocNetGroup::__ValidateID($ID))
 			return false;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$dbResult = CSocNetGroupSubject::GetList(Array(), Array("ID" => $ID));
 		if ($arResult = $dbResult->GetNext())
@@ -187,7 +187,7 @@ class CAllSocNetGroupSubject
 	public static function GetSite($subject_id)
 	{
 		global $DB;
-		$strSql = "SELECT L.*, SGSS.* FROM b_sonet_group_subject_site SGSS, b_lang L WHERE L.LID=SGSS.SITE_ID AND SGSS.SUBJECT_ID=".IntVal($subject_id);
+		$strSql = "SELECT L.*, SGSS.* FROM b_sonet_group_subject_site SGSS, b_lang L WHERE L.LID=SGSS.SITE_ID AND SGSS.SUBJECT_ID=".intval($subject_id);
 		return $DB->Query($strSql);
 	}
 }

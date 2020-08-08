@@ -5,6 +5,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Error;
 use Bitrix\Main\ModuleManager;
+use Bitrix\ImBot\Bot\Partner24;
 
 Loc::loadMessages(__FILE__);
 
@@ -52,6 +53,12 @@ class CUiInfoHelperComponent extends \CBitrixComponent
 			"user_name" => $APPLICATION->ConvertCharsetArray($USER->GetFirstName(), SITE_CHARSET, 'utf-8'),
 			"user_last_name" => $APPLICATION->ConvertCharsetArray($USER->GetLastName(), SITE_CHARSET, 'utf-8'),
 		];
+		if(Loader::includeModule('imbot'))
+		{
+			$parameters['support_partner_code'] = Partner24::getBotCode();
+			$partnerName = $APPLICATION->ConvertCharsetArray(Partner24::getPartnerName(), SITE_CHARSET, 'utf-8');
+			$parameters['support_partner_name'] = $partnerName;
+		}
 
 		if (!$isBitrix24Cloud)
 		{

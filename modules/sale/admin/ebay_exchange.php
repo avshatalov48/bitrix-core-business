@@ -160,7 +160,7 @@ $APPLICATION->SetTitle(Loc::getMessage("SALE_EBAY_TITLE"));
 
 require_once ($DOCUMENT_ROOT.BX_ROOT."/modules/main/include/prolog_admin_after.php");
 
-if(strlen($errorMsg) > 0)
+if($errorMsg <> '')
 	CAdminMessage::ShowMessage(array("MESSAGE"=>$errorMsg, "TYPE"=>"ERROR", "HTML" => true));
 
 if($bSaved)
@@ -187,7 +187,7 @@ $tabControl->BeginNextTab();
 
 ?>
 	<?foreach(array("PRODUCT", "INVENTORY", "ORDER") as $feedType): //"IMAGE",?>
-		<?$smallFeedType = strtolower($feedType);?>
+		<? $smallFeedType = mb_strtolower($feedType);?>
 		<tr class="heading"><td colspan="2"><?=Loc::getMessage("SALE_EBAY_FEED_".$feedType)?></td></tr>
 		<tr>
 			<td width="40%"><span><?=Loc::getMessage("SALE_EBAY_FEED_INTERVAL")?>:</span></td>
@@ -217,7 +217,7 @@ $tabControl->BeginNextTab();
 					{
 						$tmp = Xml2Array::convert($results[$smallFeedType]["RESULTS"], false);
 
-						if(strpos($results[$smallFeedType]["RESULTS"], "<Errors>") !== false)
+						if(mb_strpos($results[$smallFeedType]["RESULTS"], "<Errors>") !== false)
 						{
 							$feedResMess = '<span style="color: red; font-weight: bold;">'.Loc::getMessage("SALE_EBAY_RES_ERROR").'</span>';
 
@@ -238,9 +238,9 @@ $tabControl->BeginNextTab();
 							}
 						}
 
-						if(strpos($results[$smallFeedType]["RESULTS"], "<Warnings>") !== false)
+						if(mb_strpos($results[$smallFeedType]["RESULTS"], "<Warnings>") !== false)
 						{
-							if(strlen($feedResMess) > 0)
+							if($feedResMess <> '')
 								$feedResMess .= ", ";
 
 							$feedResMess .= '<span style="color: orange; font-weight: bold;">'.Loc::getMessage("SALE_EBAY_RES_WARNING").'</span>';
@@ -273,7 +273,7 @@ $tabControl->BeginNextTab();
 
 			</td>
 		</tr>
-		<?if(strlen($feedResErrDescr) > 0):?>
+		<?if($feedResErrDescr <> ''):?>
 			<tr>
 				<td><span><?=Loc::getMessage("SALE_EBAY_RES_MESSAGES")?>:</span></td>
 				<td>

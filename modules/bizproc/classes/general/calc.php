@@ -109,15 +109,15 @@ class CBPCalc
 	private function GetPolishNotation($text)
 	{
 		$text = trim($text);
-		if (substr($text, 0, 1) === '=')
-			$text = substr($text, 1);
-		if (strpos($text, '{{=') === 0 && substr($text, -2) == '}}')
+		if (mb_substr($text, 0, 1) === '=')
+			$text = mb_substr($text, 1);
+		if (mb_strpos($text, '{{=') === 0 && mb_substr($text, -2) == '}}')
 		{
-			$text = substr($text, 3);
-			$text = substr($text, 0, -2);
+			$text = mb_substr($text, 3);
+			$text = mb_substr($text, 0, -2);
 		}
 
-		if (strlen($text) <= 0)
+		if ($text == '')
 		{
 			$this->SetError(1);
 			return false;
@@ -164,7 +164,7 @@ class CBPCalc
 
 			if (isset($match[1]) && $match[1])
 			{
-				$str = strtolower($str);
+				$str = mb_strtolower($str);
 				list($name, $left) = explode('(', $str);
 				$name = trim($name);
 				if (isset($this->arAvailableFunctions[$name]))
@@ -237,19 +237,19 @@ class CBPCalc
 					array_unshift($arStack, [$str, $this->arPriority[$str]]);
 					break;
 				default:
-					if (substr($str, 0, 1) == '0' || (int) $str)
+					if (mb_substr($str, 0, 1) == '0' || (int) $str)
 					{
 						$arPolishNotation[] = [(float)$str, self::Constant];
 						break;
 					}
-					if (substr($str, 0, 1) == '"' || substr($str, 0, 1) == "'")
+					if (mb_substr($str, 0, 1) == '"' || mb_substr($str, 0, 1) == "'")
 					{
-						$arPolishNotation[] = [substr($str, 1, -1), self::Constant];
+						$arPolishNotation[] = [mb_substr($str, 1, -1), self::Constant];
 						break;
 					}
 					$arPolishNotation[] = [$str, self::Variable];
 			}
-			$text = substr($text, strlen($match[0]));
+			$text = mb_substr($text, mb_strlen($match[0]));
 		}
 		while ($op = array_shift($arStack))
 		{
@@ -571,9 +571,9 @@ class CBPCalc
 
 		$interval = trim($interval);
 		$bMinus = false;
-		if (substr($interval, 0, 1) === "-")
+		if (mb_substr($interval, 0, 1) === "-")
 		{
-			$interval = substr($interval, 1);
+			$interval = mb_substr($interval, 1);
 			$bMinus = true;
 		}
 
@@ -588,12 +588,12 @@ class CBPCalc
 		$arInterval = [];
 		while (preg_match('/\s*([\d]+)\s*([a-z]+)\s*/i', $interval, $match))
 		{
-			$match2 = strtolower($match[2]);
+			$match2 = mb_strtolower($match[2]);
 			if (array_key_exists($match2, $arMap))
 				$arInterval[$arMap[$match2]] = ($bMinus ? -intval($match[1]) : intval($match[1]));
 
-			$p = strpos($interval, $match[0]);
-			$interval = substr($interval, $p + strlen($match[0]));
+			$p = mb_strpos($interval, $match[0]);
+			$interval = mb_substr($interval, $p + mb_strlen($match[0]));
 		}
 
 		$newDate = AddToTimeStamp($arInterval, $date);
@@ -626,9 +626,9 @@ class CBPCalc
 
 		$paramInterval = trim($paramInterval);
 		$multiplier = 1;
-		if (substr($paramInterval, 0, 1) === "-")
+		if (mb_substr($paramInterval, 0, 1) === "-")
 		{
-			$paramInterval = substr($paramInterval, 1);
+			$paramInterval = mb_substr($paramInterval, 1);
 			$multiplier = -1;
 		}
 
@@ -641,12 +641,12 @@ class CBPCalc
 		$interval = 0;
 		while (preg_match('/\s*([\d]+)\s*([a-z]+)\s*/i', $paramInterval, $match))
 		{
-			$match2 = strtolower($match[2]);
+			$match2 = mb_strtolower($match[2]);
 			if (array_key_exists($match2, $intervalMap))
 				$interval += intval($match[1]) * $intervalMap[$match2];
 
-			$p = strpos($paramInterval, $match[0]);
-			$paramInterval = substr($paramInterval, $p + strlen($match[0]));
+			$p = mb_strpos($paramInterval, $match[0]);
+			$paramInterval = mb_substr($paramInterval, $p + mb_strlen($match[0]));
 		}
 
 		if (date('H:i:s', $date) === '00:00:00')
@@ -1119,9 +1119,9 @@ class CBPCalc
 			$pos = 0;
 
 		if ($len != null)
-			return substr($str, $pos, $len);
+			return mb_substr($str, $pos, $len);
 
-		return substr($str, $pos);
+		return mb_substr($str, $pos);
 	}
 
 	private function FunctionStrpos($args)
@@ -1131,7 +1131,7 @@ class CBPCalc
 		$needle = (string)array_shift($ar);
 		$offset = (int)array_shift($ar);
 
-		return strpos($haystack, $needle, $offset);
+		return mb_strpos($haystack, $needle, $offset);
 	}
 
 	private function FunctionStrlen($args)
@@ -1145,7 +1145,7 @@ class CBPCalc
 		}
 
 		$str = (string) $str;
-		return strlen($str);
+		return mb_strlen($str);
 	}
 
 	private function FunctionImplode($args)
@@ -1208,7 +1208,7 @@ class CBPCalc
 		$type = array_shift($ar);
 		$attr = array_shift($ar);
 
-		$type = strtolower($type);
+		$type = mb_strtolower($type);
 		if ($type === 'printableuserb24')
 		{
 			$result = [];

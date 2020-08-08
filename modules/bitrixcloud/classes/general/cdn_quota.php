@@ -82,9 +82,9 @@ class CBitrixCloudCDNQuota
 	 */
 	public static function parseSize($str)
 	{
-		$str = strtolower($str);
+		$str = mb_strtolower($str);
 		$res = doubleval($str);
-		$suffix = substr($str, -1);
+		$suffix = mb_substr($str, -1);
 		if ($suffix === "k")
 			$res*= 1024;
 		elseif ($suffix === "m")

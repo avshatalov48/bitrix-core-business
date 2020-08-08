@@ -19,7 +19,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/prolog.php
 
 ClearVars();
 
-$ID = IntVal($ID);
+$ID = intval($ID);
 $arSysLangs = array();
 $arSysLangNames = array();
 
@@ -34,9 +34,9 @@ while ($arLang = $db_lang->Fetch())
 
 $strErrorMessage = "";
 $bInitVars = false;
-if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $sonetPermissions=="W" && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $sonetPermissions=="W" && check_bitrix_sessid())
 {
-	$SORT = IntVal($SORT);
+	$SORT = intval($SORT);
 	if ($SORT<=0) $SORT = 150;
 
 	if ($SMILE_TYPE!="S" && $SMILE_TYPE!="I")
@@ -45,24 +45,24 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $sonetPe
 	for ($i = 0; $i<count($arSysLangs); $i++)
 	{
 		${"NAME_".$arSysLangs[$i]} = Trim(${"NAME_".$arSysLangs[$i]});
-		if (strlen(${"NAME_".$arSysLangs[$i]})<=0)
+		if (${"NAME_".$arSysLangs[$i]} == '')
 			$strErrorMessage .= GetMessage("ERROR_NO_NAME")." [".$arSysLangs[$i]."] ".$arSysLangNames[$i].". \n";
 	}
 
-	if ($ID<=0 && (!is_set($_FILES, "IMAGE1") || strlen($_FILES["IMAGE1"]["name"])<=0))
+	if ($ID<=0 && (!is_set($_FILES, "IMAGE1") || $_FILES["IMAGE1"]["name"] == ''))
 		$strErrorMessage .= GetMessage("ERROR_NO_IMAGE").". \n";
 
 	$strFileName = "";
-	if (strlen($strErrorMessage)<=0)
+	if ($strErrorMessage == '')
 	{
 		$arOldSmile = false;
 		if ($ID>0) $arOldSmile = CSocNetSmile::GetByID($ID);
 
-		if (is_set($_FILES, "IMAGE1") && strlen($_FILES["IMAGE1"]["name"])>0)
+		if (is_set($_FILES, "IMAGE1") && $_FILES["IMAGE1"]["name"] <> '')
 		{
 			$res = CFile::CheckImageFile($_FILES["IMAGE1"], 0, 0, 0);
 
-			if (strlen($res) > 0)
+			if ($res <> '')
 				$strErrorMessage .= $res."\n";
 			else
 			{
@@ -78,7 +78,7 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $sonetPe
 					$strErrorMessage .= GetMessage("FSE_ERROR_EXT").". \n";
 			}
 
-			if (strlen($strErrorMessage)<=0)
+			if ($strErrorMessage == '')
 			{
 				$strDirName = $_SERVER["DOCUMENT_ROOT"]."/bitrix/images/socialnetwork/";
 				if ($SMILE_TYPE=="I") $strDirName .= "icon";
@@ -112,7 +112,7 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $sonetPe
 							$iIMAGE_HEIGHT = 0;
 						}
 					}
-					if ($arOldSmile && ($arOldSmile["SMILE_TYPE"]!=$SMILE_TYPE || $arOldSmile["IMAGE"]!=$strFileName) && strlen($arOldSmile["IMAGE"])>0)
+					if ($arOldSmile && ($arOldSmile["SMILE_TYPE"]!=$SMILE_TYPE || $arOldSmile["IMAGE"]!=$strFileName) && $arOldSmile["IMAGE"] <> '')
 					{
 						$strDirNameOld = $_SERVER["DOCUMENT_ROOT"]."/bitrix/images/socialnetwork/";
 						if ($arOldSmile["SMILE_TYPE"]=="I") $strDirNameOld .= "icon";
@@ -123,7 +123,7 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $sonetPe
 				}
 			}
 
-			if (strlen($strFileName)<=0)
+			if ($strFileName == '')
 				$strErrorMessage .= GetMessage("ERROR_NO_IMAGE").". \n";
 		}
 		elseif ($arOldSmile && $arOldSmile["SMILE_TYPE"]!=$SMILE_TYPE)
@@ -148,7 +148,7 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $sonetPe
 		}
 	}
 
-	if (strlen($strErrorMessage)<=0)
+	if ($strErrorMessage == '')
 	{
 		$arFields = array(
 		"SORT" => $SORT,
@@ -157,7 +157,7 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $sonetPe
 		"DESCRIPTION" => $DESCRIPTION
 		);
 
-		if (strlen($strFileName)>0)
+		if ($strFileName <> '')
 		{
 			$arFields["IMAGE"] = $strFileName;
 			$arFields["IMAGE_WIDTH"] = $iIMAGE_WIDTH;
@@ -175,20 +175,20 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $sonetPe
 		if ($ID>0)
 		{
 			$ID1 = CSocNetSmile::Update($ID, $arFields);
-			if (IntVal($ID1)<=0)
+			if (intval($ID1)<=0)
 				$strErrorMessage .= GetMessage("ERROR_EDIT_SMILE").". \n";
 		}
 		else
 		{
 			$ID = CSocNetSmile::Add($arFields);
-			if (IntVal($ID)<=0)
+			if (intval($ID)<=0)
 				$strErrorMessage .= GetMessage("ERROR_ADD_SMILE").". \n";
 		}
 	}
 
-	if (strlen($strErrorMessage)>0) $bInitVars = True;
+	if ($strErrorMessage <> '') $bInitVars = True;
 
-	if (strlen($save)>0 && strlen($strErrorMessage)<=0)
+	if ($save <> '' && $strErrorMessage == '')
 		LocalRedirect("socnet_smile.php?lang=".LANG."&".GetFilterParams("filter_", false));
 }
 
@@ -298,9 +298,9 @@ endif;
 	<td class="adm-detail-valign-top"><?echo GetMessage("SONET_IMAGE")?>:<br><small><?echo GetMessage("SONET_IMAGE_NOTE")?></small></td>
 	<td>
 		<input type="file" name="IMAGE1" size="30"><?
-		if (strlen($f_IMAGE)>0)
+		if ($f_IMAGE <> '')
 		{
-			?><div style="padding-top: 10px;"><img src="/bitrix/images/socialnetwork/<?echo ($f_SMILE_TYPE=="I")?"icon":"smile" ?>/<?echo $f_IMAGE?>" border="0" <?echo (IntVal($f_IMAGE_WIDTH)>0) ? "width=\"".$f_IMAGE_WIDTH."\"" : "" ?> <?echo (IntVal($f_IMAGE_WIDTH)>0) ? "height=\"".$f_IMAGE_HEIGHT."\"" : "" ?>></div><?
+			?><div style="padding-top: 10px;"><img src="/bitrix/images/socialnetwork/<?echo ($f_SMILE_TYPE=="I")?"icon":"smile" ?>/<?echo $f_IMAGE?>" border="0" <?echo (intval($f_IMAGE_WIDTH)>0) ? "width=\"".$f_IMAGE_WIDTH."\"" : "" ?> <?echo (intval($f_IMAGE_WIDTH)>0) ? "height=\"".$f_IMAGE_HEIGHT."\"" : "" ?>></div><?
 		}
 	?></td>
 </tr><?

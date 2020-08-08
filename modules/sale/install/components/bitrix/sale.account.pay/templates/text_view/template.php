@@ -29,7 +29,7 @@ else
 		<h3><?=Loc::getMessage("SAP_BUY_MONEY")?></h3>
 		<?
 		$adit="";
-		if(strlen($arResult["CURRENT_PAGE"]) > 0)
+		if($arResult["CURRENT_PAGE"] <> '')
 			$adit = "&CURRENT_PAGE=".$arResult["CURRENT_PAGE"];
 		foreach($arResult["AMOUNT_TO_SHOW"] as $value)
 		{

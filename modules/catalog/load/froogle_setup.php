@@ -33,7 +33,7 @@ if ($STEP>1)
 		$arSetupErrors[] = str_replace('#IBLOCK_ID#',$IBLOCK_ID,GetMessage('CET_ERROR_IBLOCK_PERM'));
 	}
 
-	if (strlen($SETUP_FILE_NAME)<=0)
+	if ($SETUP_FILE_NAME == '')
 	{
 		$arSetupErrors[] = GetMessage("CET_ERROR_NO_FILENAME");
 	}
@@ -74,7 +74,7 @@ if ($STEP>1)
 			$arSetupErrors[] = GetMessage("CET_ERROR_NO_GROUPS");
 	}
 
-	if (($ACTION=="EXPORT_SETUP" || $ACTION == 'EXPORT_EDIT' || $ACTION == 'EXPORT_COPY') && strlen($SETUP_PROFILE_NAME)<=0)
+	if (($ACTION=="EXPORT_SETUP" || $ACTION == 'EXPORT_EDIT' || $ACTION == 'EXPORT_COPY') && $SETUP_PROFILE_NAME == '')
 		$arSetupErrors[] = GetMessage("CET_ERROR_NO_PROFILE_NAME");
 
 	if (!empty($arSetupErrors))
@@ -272,7 +272,7 @@ if ($STEP==1)
 <tr>
 	<td width="40%"><?echo GetMessage("CET_SAVE_FILENAME");?></td>
 	<td width="60%"><b><? echo htmlspecialcharsex($strCatalogDefaultFolder); ?></b>
-		<input type="text" name="SETUP_FILE_NAME" value="<?echo htmlspecialcharsbx(strlen($SETUP_FILE_NAME)>0 ? str_replace($strCatalogDefaultFolder, '', $SETUP_FILE_NAME) : "froogle_".mt_rand(0, 999999).".txt"); ?>" size="50">
+		<input type="text" name="SETUP_FILE_NAME" value="<?echo htmlspecialcharsbx($SETUP_FILE_NAME <> '' ? str_replace($strCatalogDefaultFolder, '', $SETUP_FILE_NAME) : "froogle_".mt_rand(0, 999999).".txt"); ?>" size="50">
 	</td>
 </tr>
 <?
@@ -281,7 +281,7 @@ if ($STEP==1)
 ?><tr>
 	<td width="40%"><?echo GetMessage("CET_PROFILE_NAME");?></td>
 	<td width="60%">
-		<input type="text" name="SETUP_PROFILE_NAME" value="<? echo (strlen($SETUP_PROFILE_NAME) > 0 ? htmlspecialcharsbx($SETUP_PROFILE_NAME) : ''); ?>" size="30">
+		<input type="text" name="SETUP_PROFILE_NAME" value="<? echo ($SETUP_PROFILE_NAME <> '' ? htmlspecialcharsbx($SETUP_PROFILE_NAME) : ''); ?>" size="30">
 	</td>
 </tr><?
 	}

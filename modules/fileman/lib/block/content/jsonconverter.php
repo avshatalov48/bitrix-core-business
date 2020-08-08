@@ -24,12 +24,12 @@ class JsonConverter implements IConverter
 	public static function isValid($string)
 	{
 		$string = trim($string);
-		$char = substr($string, 0, 1);
+		$char = mb_substr($string, 0, 1);
 		if(!in_array($char, array('{', '[')))
 		{
 			return false;
 		}
-		$char = substr($string, -1);
+		$char = mb_substr($string, -1);
 		if(!in_array($char, array('}', ']')))
 		{
 			return false;

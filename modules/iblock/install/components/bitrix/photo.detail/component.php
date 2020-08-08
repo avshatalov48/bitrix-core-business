@@ -61,13 +61,13 @@ $arParams["SECTION_URL"]=trim($arParams["SECTION_URL"]);
 $arParams["DETAIL_URL"]=trim($arParams["DETAIL_URL"]);
 
 $arParams["META_KEYWORDS"]=trim($arParams["META_KEYWORDS"]);
-if(strlen($arParams["META_KEYWORDS"])<=0)
+if($arParams["META_KEYWORDS"] == '')
 	$arParams["META_KEYWORDS"] = "-";
 $arParams["META_DESCRIPTION"]=trim($arParams["META_DESCRIPTION"]);
-if(strlen($arParams["META_DESCRIPTION"])<=0)
+if($arParams["META_DESCRIPTION"] == '')
 	$arParams["META_DESCRIPTION"] = "-";
 $arParams["BROWSER_TITLE"]=trim($arParams["BROWSER_TITLE"]);
-if(strlen($arParams["BROWSER_TITLE"])<=0)
+if($arParams["BROWSER_TITLE"] == '')
 	$arParams["BROWSER_TITLE"] = "-";
 
 $arParams["SET_TITLE"] = $arParams["SET_TITLE"]!="N"; //Turn on by default
@@ -199,7 +199,7 @@ if($arParams["SHOW_WORKFLOW"] || $this->StartResultCache(false, ($arParams["CACH
 				$prop = &$arResult["PROPERTIES"][$pid];
 				if(
 					(is_array($prop["VALUE"]) && count($prop["VALUE"])>0)
-					|| (!is_array($prop["VALUE"]) && strlen($prop["VALUE"])>0)
+					|| (!is_array($prop["VALUE"]) && $prop["VALUE"] <> '')
 				)
 				{
 					$arResult["DISPLAY_PROPERTIES"][$pid] = CIBlockFormatProperties::GetDisplayValue($arResult, $prop, "photo_out");

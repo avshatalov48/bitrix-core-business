@@ -100,7 +100,7 @@ class TriggerCampaign
 		{
 			$list[] = [
 				'id' => $id++,
-				'code' => strtoupper($item['CODE']),
+				'code' => mb_strtoupper($item['CODE']),
 				'name' => $item['TYPE'] . '. ' . $item['NAME'],
 			];
 		}
@@ -189,7 +189,7 @@ class TriggerCampaign
 		foreach ($list['CHAIN'] as $index => $letter)
 		{
 			$letter['TEMPLATE_TYPE'] = Sender\Templates\Type::getCode(Sender\Templates\Type::BASE);
-			$letter['TEMPLATE_ID'] = strtoupper($list['CODE']) . '_' . $index;
+			$letter['TEMPLATE_ID'] = mb_strtoupper($list['CODE']).'_' . $index;
 			$list['CHAIN'][$index] = $letter;
 		}
 
@@ -256,7 +256,7 @@ class TriggerCampaign
 		foreach ($list['CHAIN'] as $index => $letter)
 		{
 			$letter['TEMPLATE_TYPE'] = Sender\Templates\Type::getCode(Sender\Templates\Type::BASE);
-			$letter['TEMPLATE_ID'] = strtoupper($list['CODE']) . '_' . $index;
+			$letter['TEMPLATE_ID'] = mb_strtoupper($list['CODE']).'_' . $index;
 			$list['CHAIN'][$index] = $letter;
 		}
 
@@ -339,7 +339,7 @@ class TriggerCampaign
 		foreach ($list['CHAIN'] as $index => $letter)
 		{
 			$letter['TEMPLATE_TYPE'] = Sender\Templates\Type::getCode(Sender\Templates\Type::BASE);
-			$letter['TEMPLATE_ID'] = strtoupper($list['CODE']) . '_' . $index;
+			$letter['TEMPLATE_ID'] = mb_strtoupper($list['CODE']).'_' . $index;
 			$list['CHAIN'][$index] = $letter;
 		}
 
@@ -408,7 +408,7 @@ class TriggerCampaign
 		foreach ($list['CHAIN'] as $index => $letter)
 		{
 			$letter['TEMPLATE_TYPE'] = Sender\Templates\Type::getCode(Sender\Templates\Type::BASE);
-			$letter['TEMPLATE_ID'] = strtoupper($list['CODE']) . '_' . $index;
+			$letter['TEMPLATE_ID'] = mb_strtoupper($list['CODE']).'_' . $index;
 			$list['CHAIN'][$index] = $letter;
 		}
 
@@ -484,7 +484,7 @@ class TriggerCampaign
 		foreach ($list['CHAIN'] as $index => $letter)
 		{
 			$letter['TEMPLATE_TYPE'] = Sender\Templates\Type::getCode(Sender\Templates\Type::BASE);
-			$letter['TEMPLATE_ID'] = strtoupper($list['CODE']) . '_' . $index;
+			$letter['TEMPLATE_ID'] = mb_strtoupper($list['CODE']).'_' . $index;
 			$list['CHAIN'][$index] = $letter;
 		}
 

@@ -104,7 +104,7 @@ if ($ex = $APPLICATION->GetException())
 	echo CAdminMessage::ShowMessage(array("TYPE" => "ERROR", "MESSAGE" => GetMessage("MOD_INST_ERR"), "HTML" => true, "DETAILS" => $ex->GetString()));
 }
 
-if (strlen($public_dir)>0) :
+if ($public_dir <> '') :
 ?>
 <p><?=GetMessage("MOD_DEMO_DIR")?></p>
 <table border="0" cellspacing="0" cellpadding="3">
@@ -119,7 +119,7 @@ if (strlen($public_dir)>0) :
 		?>
 		<tr>
 			<td width="0%"><p>[<?=htmlspecialcharsbx($site["ID"])?>] <?=htmlspecialcharsbx($site["NAME"])?></p></td>
-			<td width="0%"><p><a href="<?if(strlen($site["SERVER_NAME"])>0) echo "http://".htmlspecialcharsbx($site["SERVER_NAME"]);?><?=htmlspecialcharsbx($site["DIR"]).$public_dir?>/"><?=htmlspecialcharsbx($site["DIR"]).$public_dir?>/</a></p></td>
+			<td width="0%"><p><a href="<?if($site["SERVER_NAME"] <> '') echo "http://".htmlspecialcharsbx($site["SERVER_NAME"]);?><?=htmlspecialcharsbx($site["DIR"]).$public_dir?>/"><?=htmlspecialcharsbx($site["DIR"]).$public_dir?>/</a></p></td>
 		</tr>
 		<?
 	}

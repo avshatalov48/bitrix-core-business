@@ -10,6 +10,7 @@
 		this.dayCount = 7;
 		this.slotHeight = 20;
 		this.eventHolderTopOffset = 25;
+		this.hotkey = 'M';
 
 		this.preBuild();
 	}
@@ -195,9 +196,7 @@
 			date = new Date(viewRange.end.getTime());
 		}
 
-		var
-			currentViewRangeDate = this.calendar.getViewRangeDate(),
-			viewRangeDate = false;
+		var viewRangeDate = false;
 
 		if (date && date.getTime)
 		{
@@ -554,7 +553,7 @@
 						},
 						attrs: {'data-bx-calendar-show-all-events': day.dayCode},
 						style: {
-							top: (this.rowHeight - 42) + 'px',
+							top: (this.rowHeight - 47) + 'px',
 							left: 'calc((100% / ' + this.dayCount + ') * (' + (day.dayOffset + 1) + ' - 1) + 2px)',
 							width: 'calc(100% / ' + this.dayCount + ' - 3px)'
 						}
@@ -600,6 +599,11 @@
 			if (entry.isExternal())
 			{
 				entryClassName += ' calendar-event-line-intranet';
+			}
+
+			if (entry.isExpired())
+			{
+				entryClassName += ' calendar-event-line-past';
 			}
 
 			if (!params.popupMode && this.util.getDayCode(entry.from) !== this.util.getDayCode(from.date))
@@ -687,7 +691,9 @@
 			{
 				timeNode = innerNode.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-line-time'}, text: this.calendar.util.formatTime(entry.from.getHours(), entry.from.getMinutes())}));
 			}
-			nameNode = innerNode.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-line-text'}, text: params.entry.name}));
+			nameNode = innerNode
+				.appendChild(BX.create('SPAN', {props: {className: 'calendar-event-line-text'}}))
+				.appendChild(BX.create('SPAN', {text: params.entry.name}));
 
 			if (entry.isFullDay())
 			{
@@ -875,6 +881,11 @@
 			holder = this.entryHolders[from.holderIndex],
 			section = this.calendar.sectionController.getCurrentSection(),
 			color = section.color;
+
+		if (BX.hasClass(holder, 'shifted'))
+		{
+			return;
+		}
 
 		entryTime = this.entryController.getTimeForNewEntry(from.date);
 		entryName = this.entryController.getDefaultEntryName();

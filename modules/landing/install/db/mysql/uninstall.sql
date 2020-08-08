@@ -18,3 +18,5 @@ drop table if exists b_landing_filter_entity;
 drop table if exists b_landing_filter_block;
 drop table if exists b_landing_view;
 drop table if exists b_landing_binding;
+drop table if exists b_landing_chat;
+drop table if exists b_landing_chat_binding;

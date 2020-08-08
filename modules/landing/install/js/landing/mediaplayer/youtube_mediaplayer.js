@@ -29,7 +29,8 @@
 		}
 
 		iframe.src = addQueryParams(src, {
-			enablejsapi: 1
+			enablejsapi: 1,
+			origin: window.location.protocol + '//' + window.location.host,
 		});
 
 		iframe.onload = function() {

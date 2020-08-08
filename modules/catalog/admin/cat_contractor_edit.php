@@ -34,7 +34,7 @@ $ID = (isset($_REQUEST["ID"]) ? (int)$_REQUEST["ID"] : 0);
 $typeReadOnly = false;
 $userId = (int)$USER->GetID();
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid() && strlen($_REQUEST["Update"]) > 0 && !$bReadOnly)
+if ($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid() && $_REQUEST["Update"] <> '' && !$bReadOnly)
 {
 	$adminSidePanelHelper->decodeUriComponent();
 
@@ -62,14 +62,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid() && strlen($_RE
 		"MODIFIED_BY" => $userId,
 	);
 	$DB->StartTransaction();
-	if (strlen($errorMessage) == 0 && $ID > 0 && $res = CCatalogContractor::update($ID, $arFields))
+	if ($errorMessage == '' && $ID > 0 && $res = CCatalogContractor::update($ID, $arFields))
 	{
 		$ID = $res;
 		$DB->Commit();
 
 		$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $ID));
 
-		if (strlen($_REQUEST["apply"]) <= 0)
+		if ($_REQUEST["apply"] == '')
 		{
 			$adminSidePanelHelper->localRedirect($listUrl);
 			LocalRedirect($listUrl);
@@ -81,14 +81,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid() && strlen($_RE
 			LocalRedirect($applyUrl);
 		}
 	}
-	elseif (strlen($errorMessage) == 0 && $ID == 0 && $res = CCatalogContractor::Add($arFields))
+	elseif ($errorMessage == '' && $ID == 0 && $res = CCatalogContractor::Add($arFields))
 	{
 		$ID = $res;
 		$DB->Commit();
 
 		$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $ID));
 
-		if (strlen($_REQUEST["apply"]) <= 0)
+		if ($_REQUEST["apply"] == '')
 		{
 			$adminSidePanelHelper->localRedirect($listUrl);
 			LocalRedirect($listUrl);

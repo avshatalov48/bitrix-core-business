@@ -1,11 +1,13 @@
 <?
+use Bitrix\Main\Loader;
+
 define("ADMIN_MODULE_NAME", "perfmon");
 define("PERFMON_STOP", true);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 /** @global CMain $APPLICATION */
 /** @global CDatabase $DB */
 /** @global CUser $USER */
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/include.php");
+Loader::includeModule('perfmon');
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/prolog.php");
 
 IncludeModuleLangFile(__FILE__);
@@ -169,7 +171,7 @@ while ($arRes = $rsData->NavNext(true, "f_"))
 	{
 		foreach ($arGrpCols as $col => $prec)
 		{
-			if (strlen($arRes[$func."_".$col]))
+			if($arRes[$func."_".$col] <> '')
 			{
 				$row->AddViewField($func."_".$col, perfmon_NumberFormat($arRes[$func."_".$col], $prec));
 			}

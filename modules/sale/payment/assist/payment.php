@@ -1,7 +1,7 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 
-$entityId = (strlen(CSalePaySystemAction::GetParamValue("PAYMENT_ID")) > 0) ? CSalePaySystemAction::GetParamValue("PAYMENT_ID") : $GLOBALS["SALE_INPUT_PARAMS"]["PAYMENT"]["ID"];
+$entityId = (CSalePaySystemAction::GetParamValue("PAYMENT_ID") <> '') ? CSalePaySystemAction::GetParamValue("PAYMENT_ID") : $GLOBALS["SALE_INPUT_PARAMS"]["PAYMENT"]["ID"];
 list($orderId, $paymentId) = \Bitrix\Sale\PaySystem\Manager::getIdsByPayment($entityId);
 
 /** @var \Bitrix\Sale\Order $order */

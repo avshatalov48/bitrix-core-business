@@ -1,6 +1,6 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
-if(strlen($arResult["FatalError"])>0)
+if($arResult["FatalError"] <> '')
 {
 	?>
 	<span class='errortext'><?=$arResult["FatalError"]?></span><br /><br />
@@ -8,7 +8,7 @@ if(strlen($arResult["FatalError"])>0)
 }
 else
 {
-	if(strlen($arResult["ErrorMessage"])>0)
+	if($arResult["ErrorMessage"] <> '')
 	{
 		?>
 		<span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br />
@@ -26,13 +26,13 @@ else
 					<td colspan="2"><b><?= GetMessage("SONET_C39_ARCHIVE_GROUP") ?></b></td>
 				</tr>
 				<?endif;?>
-				<?if(strlen($arResult["Group"]["SUBJECT_NAME"])>0):?>
+				<?if($arResult["Group"]["SUBJECT_NAME"] <> ''):?>
 				<tr>
 					<td width="25%"><?= GetMessage("SONET_C6_TOPIC") ?>:</td>
 					<td width="75%"><?=$arResult["Group"]["SUBJECT_NAME"]?></td>
 				</tr>
 				<?endif;?>
-				<?if(strlen($arResult["Group"]["DESCRIPTION"])>0):?>
+				<?if($arResult["Group"]["DESCRIPTION"] <> ''):?>
 				<tr>
 					<td width="25%" valign="top"><?= GetMessage("SONET_C6_DESCR") ?>:</td>
 					<td valign="top" width="75%"><?=nl2br($arResult["Group"]["DESCRIPTION"])?></td>
@@ -40,7 +40,7 @@ else
 				<?endif;?>
 				<?if ($arResult["GroupProperties"]["SHOW"] == "Y"):?>
 					<?foreach ($arResult["GroupProperties"]["DATA"] as $fieldName => $arUserField):?>
-						<?if (is_array($arUserField["VALUE"]) && count($arUserField["VALUE"]) > 0 || !is_array($arUserField["VALUE"]) && StrLen($arUserField["VALUE"]) > 0):?>
+						<?if (is_array($arUserField["VALUE"]) && count($arUserField["VALUE"]) > 0 || !is_array($arUserField["VALUE"]) && $arUserField["VALUE"] <> ''):?>
 							<tr>
 								<td width="25%"><?=$arUserField["EDIT_FORM_LABEL"]?>:</td>
 								<td width="75%">

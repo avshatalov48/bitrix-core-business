@@ -35,12 +35,12 @@ $arParams["TASK_EDIT_URL"] = trim($arParams["TASK_EDIT_URL"]);
 if (empty($arParams["TASK_EDIT_URL"]))
 	$arParams["TASK_EDIT_URL"] = $APPLICATION->GetCurPage()."?PAGE_NAME=task_edit&ID=#ID#&back_url=".$arResult["back_url"];
 else
-	$arParams["TASK_EDIT_URL"] .= (strpos($arParams["TASK_EDIT_URL"], "?") === false ? "?" : "&")."back_url=".$arResult["back_url"];
+	$arParams["TASK_EDIT_URL"] .= (mb_strpos($arParams["TASK_EDIT_URL"], "?") === false ? "?" : "&")."back_url=".$arResult["back_url"];
 
 $arParams["~TASK_EDIT_URL"] = $arParams["TASK_EDIT_URL"];
 $arParams["TASK_EDIT_URL"] = htmlspecialcharsbx($arParams["~TASK_EDIT_URL"]);
 
-$arParams["PAGE_ELEMENTS"] = intVal(intVal($arParams["PAGE_ELEMENTS"]) > 0 ? $arParams["PAGE_ELEMENTS"] : 50);
+$arParams["PAGE_ELEMENTS"] = intval(intVal($arParams["PAGE_ELEMENTS"]) > 0 ? $arParams["PAGE_ELEMENTS"] : 50);
 $arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
 $arParams["SHOW_TRACKING"] = ($arParams["SHOW_TRACKING"] == "Y" ? "Y" : "N");
 
@@ -56,7 +56,7 @@ $arResult["NAV_STRING"] = "";
 $arResult["TASKS"] = array();
 $arResult["TRACKING"] = array();
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0 && !$arParams['COUNTERS_ONLY'])
+if ($arResult["FatalErrorMessage"] == '' && !$arParams['COUNTERS_ONLY'])
 {
 	$arResult['ERRORS'] = array();
 	$arResult['USE_SUBORDINATION'] = (bool)CModule::IncludeModule('intranet');
@@ -170,24 +170,24 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0 && !$arParams['COUNTERS_ONLY'])
 	$gridFilter = $gridOptions->GetFilter($arResult["FILTER"]);
 	foreach ($gridFilter as $key => $value)
 	{
-		if (substr($key, -5) == "_from")
+		if (mb_substr($key, -5) == "_from")
 		{
 			$op = ">=";
-			$newKey = substr($key, 0, -5);
+			$newKey = mb_substr($key, 0, -5);
 
-			if (in_array($newKey, array("MODIFIED", "OVERDUE_DATE")) && strlen($value) <= 10)
+			if (in_array($newKey, array("MODIFIED", "OVERDUE_DATE")) && mb_strlen($value) <= 10)
 			{
 				$dt = MakeTimeStamp($value, FORMAT_DATE);
 				$value = FormatDate('FULL', $dt);
 			}
 
 		}
-		elseif (substr($key, -3) == "_to")
+		elseif (mb_substr($key, -3) == "_to")
 		{
 			$op = "<=";
-			$newKey = substr($key, 0, -3);
+			$newKey = mb_substr($key, 0, -3);
 
-			if (in_array($newKey, array("MODIFIED", "OVERDUE_DATE")) && strlen($value) <= 10)
+			if (in_array($newKey, array("MODIFIED", "OVERDUE_DATE")) && mb_strlen($value) <= 10)
 			{
 				$dt = MakeTimeStamp($value, FORMAT_DATE) + 86399;// + 23:59:59
 				$value = FormatDate('FULL', $dt);
@@ -253,9 +253,9 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0 && !$arParams['COUNTERS_ONLY'])
 			$ids = array();
 		if (is_array($ids))
 		{
-			if (strpos($action, 'set_status_') === 0)
+			if (mb_strpos($action, 'set_status_') === 0)
 			{
-				$status = substr($action, strlen('set_status_'));
+				$status = mb_substr($action, mb_strlen('set_status_'));
 				CBPDocument::setTasksUserStatus($targetUserId, $status, $ids, $arResult['ERRORS']);
 			}
 			if ($action == 'delegate_to' && !empty($_REQUEST['ACTION_DELEGATE_TO_ID']))
@@ -359,7 +359,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0 && !$arParams['COUNTERS_ONLY'])
 		$aActions = array(
 			array("ICONCLASS"=>"edit", "DEFAULT" => true, "TEXT"=>GetMessage("BPTL_C_DETAIL"), "ONCLICK"=>"window.location='".$arRecord["URL"]["TASK"]."';"),
 		);
-		if (strlen($arRecord["DOCUMENT_URL"]) > 0)
+		if ($arRecord["DOCUMENT_URL"] <> '')
 			$aActions[] = array("ICONCLASS"=>"", "DEFAULT" => false, "TEXT"=>GetMessage("BPTL_C_DOCUMENT"), "ONCLICK"=>"window.open('".$arRecord["DOCUMENT_URL"]."');");
 
 		$arResult["RECORDS"][] = array("data" => $arRecord, "actions" => $aActions, "columns" => $aCols, "editable" => $arRecord['STATUS'] == CBPTaskStatus::Running);
@@ -418,7 +418,7 @@ if ($arParams["SHOW_TRACKING"] == "Y")
 	);
 	while ($arRecord = $dbRecordsList->GetNext())
 	{
-		if (strlen($arRecord["WORKFLOW_ID"]) > 0)
+		if ($arRecord["WORKFLOW_ID"] <> '')
 		{
 			$arRecord["STATE"] = CBPStateService::GetWorkflowState($arRecord["WORKFLOW_ID"]);
 			$arRecord["DOCUMENT_URL"] = CBPDocument::GetDocumentAdminPage($arRecord["STATE"]["DOCUMENT_ID"]);
@@ -436,7 +436,7 @@ if ($arParams["SHOW_TRACKING"] == "Y")
 		}
 
 		$aActions = array();
-		if (strlen($arRecord["DOCUMENT_URL"]) > 0)
+		if ($arRecord["DOCUMENT_URL"] <> '')
 			$aActions[] = array("ICONCLASS"=>"", "DEFAULT" => false, "TEXT"=>GetMessage("BPTL_C_DOCUMENT"), "ONCLICK"=>"window.open('".$arRecord["DOCUMENT_URL"]."');");
 
 		$arResult["H_RECORDS"][] = array("data" => $arRecord, "actions" => $aActions, "columns" => array(), "editable" => false);
@@ -448,7 +448,7 @@ if ($arParams["SHOW_TRACKING"] == "Y")
 	$arResult["H_NAV_RESULT"] = $dbRecordsList;
 }
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	if (!$arParams['COUNTERS_ONLY'])
 	{

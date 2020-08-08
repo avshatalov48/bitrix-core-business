@@ -62,7 +62,7 @@ class CAllSaleUserAccount
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGU_EMPTY_USER_ID"), "EMPTY_USER_ID");
 			return false;
 		}
-		if ((is_set($arFields, "CURRENCY") || $ACTION=="ADD") && strlen($arFields["CURRENCY"]) <= 0)
+		if ((is_set($arFields, "CURRENCY") || $ACTION=="ADD") && $arFields["CURRENCY"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGU_EMPTY_CURRENCY"), "EMPTY_CURRENCY");
 			return false;
@@ -675,8 +675,8 @@ class CAllSaleUserAccount
 					"DEBIT" => ($sum > 0 ? "Y" : "N"),
 					"ORDER_ID" => ($orderID > 0 ? $orderID : false),
 					"PAYMENT_ID" => ($paymentId > 0 ? $paymentId : false),
-					"DESCRIPTION" => ((strlen($description) > 0) ? $description : null),
-					"NOTES" => ((strlen($notes) > 0) ? $notes : False),
+					"DESCRIPTION" => (($description <> '') ? $description : null),
+					"NOTES" => (($notes <> '') ? $notes : False),
 					"EMPLOYEE_ID" => ($USER->IsAuthorized() ? $USER->GetID() : false)
 				);
 			CTimeZone::Disable();

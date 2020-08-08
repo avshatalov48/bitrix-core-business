@@ -59,8 +59,10 @@ $prepareReply = function($__field) use (&$message, &$rcptList, &$rcptLast)
 				continue;
 			}
 
-			$id = 'U'.md5($item['email']);
-			$type = 'users';
+//			$id = 'U'.md5($item['email']);
+//			$type = 'users';
+			$id = 'MC'.$item['email'];
+			$type = 'mailcontacts';
 
 			$rcptList['emails'][$id] = $rcptList[$type][$id] = array(
 				'id'         => $id,
@@ -145,6 +147,7 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 				'extranetUser'             => false,
 				'isCrmFeed'                => $isCrmEnabled,
 				'CrmTypes'                 => array('CRMCONTACT', 'CRMCOMPANY', 'CRMLEAD'),
+				'enableUsers'              => true,
 				'useClientDatabase'        => true,
 				'allowSearchEmailContacts' => true,
 				'allowAddUser'             => true,
@@ -161,6 +164,7 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 			$APPLICATION->includeComponent(
 				'bitrix:main.mail.form', '',
 				array(
+					'VERSION' => 2,
 					'FORM_ID' => $formId,
 					'LAYOUT_ONLY' => true,
 					'SUBMIT_AJAX' => true,
@@ -259,10 +263,17 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 
 <script type="text/javascript">
 
+<? $emailMaxSize = (int) \Bitrix\Main\Config\Option::get('main', 'max_file_size', 0); ?>
+
 BX.message({
 	MAIL_MESSAGE_AJAX_ERROR: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_AJAX_ERROR')) ?>',
 	MAIL_MESSAGE_NEW_EMPTY_RCPT: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_NEW_EMPTY_RCPT')) ?>',
 	MAIL_MESSAGE_NEW_UPLOADING: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_NEW_UPLOADING')) ?>',
+	MAIL_MESSAGE_MAX_SIZE: <?=$emailMaxSize ?>,
+	MAIL_MESSAGE_MAX_SIZE_EXCEED: '<?=\CUtil::jsEscape(Loc::getMessage(
+		'MAIL_MESSAGE_MAX_SIZE_EXCEED',
+		['#SIZE#' => \CFile::formatSize($emailMaxSize)]
+	)) ?>',
 	MAIL_MESSAGE_SEND_SUCCESS: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_SEND_SUCCESS')) ?>'
 });
 

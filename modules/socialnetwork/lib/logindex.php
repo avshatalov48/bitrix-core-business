@@ -140,7 +140,7 @@ class LogIndexTable extends Entity\DataManager
 		$now = $connection->getSqlHelper()->getCurrentDateTimeFunction();
 		if (
 			!$value
-			|| strtolower($value) == strtolower($now)
+			|| mb_strtolower($value) == mb_strtolower($now)
 		)
 		{
 			$value = new SqlExpression($now);

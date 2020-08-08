@@ -274,7 +274,7 @@ class VoteTable extends Entity\DataManager
 		foreach (["TIMESTAMP_X", "DATE_START", "DATE_END"] as $key)
 		{
 			if (isset($data[$key]) && !($data[$key] instanceof DateTime))
-				$fields[$key] = new DateTime($data[$key]);
+				$fields[$key] = DateTime::createFromUserTime($data[$key]);
 		}
 
 		//region check image
@@ -1150,7 +1150,7 @@ class Vote extends BaseObject implements \ArrayAccess
 			}
 			/*@var \Bitrix\Main\Type\DateTime $event["DATE"] */
 			$row = [
-				"DATE" => $event["DATE"]->format($dateTemplate),
+				"DATE" => $event["DATE"]->toUserTime()->format($dateTemplate),
 				"USER" => $user
 			];
 

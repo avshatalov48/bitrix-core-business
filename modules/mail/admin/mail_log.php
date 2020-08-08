@@ -63,7 +63,7 @@ $log = Bitrix\Mail\MailLogTable::getList(array(
 		'*', 'MAILBOX_NAME' => 'MAILBOX.NAME', 'FILTER_NAME' => 'FILTER.NAME', 'MESSAGE_SUBJECT' => 'MAIL_MESSAGE.SUBJECT'
 	),
 	'filter'      => array_filter($arFilter),
-	'order'       => array(strtoupper($by) => $order, 'ID' => $order),
+	'order'       => array(mb_strtoupper($by) => $order, 'ID' => $order),
 	'offset'      => $nav->getOffset(),
 	'limit'       => $nav->getLimit(),
 	'count_total' => true,
@@ -94,9 +94,9 @@ while($arRes = $log->fetch())
 	$arRes['MESSAGE_TEXT'] = htmlspecialcharsbx($arRes['MESSAGE_TEXT']);
 
 	if($arRes["STATUS_GOOD"]=="Y"):
-		if (strpos($arRes["MESSAGE_TEXT"], "&gt;")===0)
+		if (mb_strpos($arRes["MESSAGE_TEXT"], "&gt;") === 0)
 			$str = '<span style="color:green">'.$arRes["MESSAGE_TEXT"].'</span>';
-		elseif (strpos($arRes["MESSAGE_TEXT"], "&lt;")===0)
+		elseif (mb_strpos($arRes["MESSAGE_TEXT"], "&lt;") === 0)
 			$str = '<span style="color:blue">'.$arRes["MESSAGE_TEXT"].'</span>';
 		else 
 			$str = $arRes["MESSAGE_TEXT"];

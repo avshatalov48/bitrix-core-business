@@ -140,7 +140,7 @@ class PhraseIndexSearch
 		}
 
 		$enabledLanguages = Translate\Config::getEnabledLanguages();
-		$languageUpperKeys = array_combine($enabledLanguages, array_map('strtoupper', $enabledLanguages));
+		$languageUpperKeys = array_combine($enabledLanguages, array_map('mb_strtoupper', $enabledLanguages));
 
 		$selectedLanguages = array();
 		foreach ($languageUpperKeys as $langId => $langUpper)
@@ -214,7 +214,7 @@ class PhraseIndexSearch
 				$useLike = false;
 				foreach ($codes as $code)
 				{
-					if (strpos($code, '%') !== false)
+					if (mb_strpos($code, '%') !== false)
 					{
 						$useLike = true;
 						break;
@@ -240,7 +240,7 @@ class PhraseIndexSearch
 				$useLike = false;
 				foreach ($codes as $code)
 				{
-					if (strpos($code, '%') !== false)
+					if (mb_strpos($code, '%') !== false)
 					{
 						$useLike = true;
 						break;
@@ -284,19 +284,19 @@ class PhraseIndexSearch
 				$runtime[] = new Main\ORM\Fields\ExpressionField('CODE_UPPER', 'UPPER(%s)', 'CODE');
 				if (in_array(self::SEARCH_METHOD_EQUAL, $filterIn['CODE_ENTRY']))
 				{
-					$filterOut['=CODE_UPPER'] = strtoupper($filterIn['PHRASE_CODE']);
+					$filterOut['=CODE_UPPER'] = mb_strtoupper($filterIn['PHRASE_CODE']);
 				}
 				elseif (in_array(self::SEARCH_METHOD_START_WITH, $filterIn['CODE_ENTRY']))
 				{
-					$filterOut['=%CODE_UPPER'] = strtoupper($filterIn['PHRASE_CODE']).'%';
+					$filterOut['=%CODE_UPPER'] = mb_strtoupper($filterIn['PHRASE_CODE']).'%';
 				}
 				elseif (in_array(self::SEARCH_METHOD_END_WITH, $filterIn['CODE_ENTRY']))
 				{
-					$filterOut['=%CODE_UPPER'] = '%'.strtoupper($filterIn['PHRASE_CODE']);
+					$filterOut['=%CODE_UPPER'] = '%'.mb_strtoupper($filterIn['PHRASE_CODE']);
 				}
 				else
 				{
-					$filterOut['=%CODE_UPPER'] = '%'.strtoupper($filterIn['PHRASE_CODE']).'%';
+					$filterOut['=%CODE_UPPER'] = '%'.mb_strtoupper($filterIn['PHRASE_CODE']).'%';
 				}
 			}
 		}
@@ -317,15 +317,15 @@ class PhraseIndexSearch
 		};
 		$trimSlash = function(&$val)
 		{
-			if (strpos($val, '%') === false)
+			if (mb_strpos($val, '%') === false)
 			{
-				if (substr($val, -4) === '.php')
+				if (mb_substr($val, -4) === '.php')
 				{
 					$val = '/'. trim($val, '/');
 				}
 				else
 				{
-						$val = '/'. trim($val, '/'). '/%';
+					$val = '/'. trim($val, '/'). '/%';
 				}
 			}
 		};
@@ -342,7 +342,7 @@ class PhraseIndexSearch
 				{
 					if (!empty($testPath) && trim($testPath) !== '')
 					{
-						if (strpos($testPath, '/') === false)
+						if (mb_strpos($testPath, '/') === false)
 						{
 							$pathNameIncludes[] = $testPath;
 						}
@@ -359,14 +359,18 @@ class PhraseIndexSearch
 					array_walk($pathPathIncludes, $trimSlash);
 					$filterOut[] = array(
 						'LOGIC' => 'OR',
-						'=PATH.NAME' => $pathNameIncludes,
+						'%=PATH.NAME' => $pathNameIncludes,
 						'%=PATH.PATH' => $pathPathIncludes,
 					);
 				}
 				elseif (count($pathNameIncludes) > 0)
 				{
 					array_walk($pathNameIncludes, $replaceLangId);
-					$filterOut['=PATH.NAME'] = $pathNameIncludes;
+					$filterOut[] = array(
+						'LOGIC' => 'OR',
+						'%=PATH.NAME' => $pathNameIncludes,
+						'%=PATH.PATH' => $pathNameIncludes,
+					);
 				}
 				elseif (count($pathPathIncludes) > 0)
 				{
@@ -389,7 +393,7 @@ class PhraseIndexSearch
 				{
 					if (!empty($testPath) && trim($testPath) !== '')
 					{
-						if (strpos($testPath, '/') === false)
+						if (mb_strpos($testPath, '/') === false)
 						{
 							$pathNameExcludes[] = $testPath;
 						}
@@ -406,14 +410,18 @@ class PhraseIndexSearch
 					array_walk($pathPathExcludes, $trimSlash);
 					$filterOut[] = array(
 						'LOGIC' => 'AND',
-						'!=PATH.NAME' => $pathNameExcludes,
+						'!=%PATH.NAME' => $pathNameExcludes,
 						'!=%PATH.PATH' => $pathPathExcludes,
 					);
 				}
 				elseif (count($pathNameExcludes) > 0)
 				{
 					array_walk($pathNameExcludes, $replaceLangId);
-					$filterOut["!=PATH.NAME"] = $pathNameExcludes;
+					$filterOut[] = array(
+						'LOGIC' => 'AND',
+						'!=%PATH.NAME' => $pathNameExcludes,
+						'!=%PATH.PATH' => $pathNameExcludes,
+					);
 				}
 				elseif (count($pathPathExcludes) > 0)
 				{
@@ -478,9 +486,9 @@ class PhraseIndexSearch
 				// use fulltext index to help like operator
 				$textStr = preg_replace("/^\W+/i".BX_UTF_PCRE_MODIFIER, '', $filterIn['PHRASE_TEXT']);
 				$textStr = preg_replace("/\W+$/i".BX_UTF_PCRE_MODIFIER, '', $textStr);
+				$textStr = preg_replace("/\b\w{1,4}\b/i".BX_UTF_PCRE_MODIFIER, '', $textStr);
 				$textStr = preg_replace("/\W+/i".BX_UTF_PCRE_MODIFIER, ' ', $textStr);
-				$textStr = preg_replace("/\w{1,4}/i".BX_UTF_PCRE_MODIFIER, '', $textStr);
-				if (strlen($textStr) > 4)
+				if (mb_strlen($textStr) > 4)
 				{
 					if ($exact)
 					{
@@ -509,21 +517,25 @@ class PhraseIndexSearch
 				{
 					$likeStr = "%%{$str}";
 				}
-				else
+				elseif ($exact)
 				{
 					$likeStr = "%%{$str}%%";
+				}
+				else
+				{
+					$likeStr = "%%". preg_replace("/\W+/i".BX_UTF_PCRE_MODIFIER, "%%", $str). "%%";
 				}
 
 				if ($case)
 				{
 					$binarySensitive = 'BINARY';
-					$regStr = $str;
+					$regStr = preg_replace("/\s+/i".BX_UTF_PCRE_MODIFIER, '.+', $str);
 				}
 				else
 				{
 					$binarySensitive = '';
 					$regStr = '';
-					$regChars = ['?', '*', '|', '[', ']', '(', ')', '-', '+'];
+					$regChars = ['?', '*', '|', '[', ']', '(', ')', '-', '+', '.'];
 					for ($p = 0, $len = Translate\Text\StringHelper::getLength($str); $p < $len; $p++)
 					{
 						$c0 = Translate\Text\StringHelper::getSubstring($str, $p, 1);
@@ -549,25 +561,37 @@ class PhraseIndexSearch
 					}
 				}
 
-				// Exact word match
-				if ($exact)
+				$regExpStart = '';
+				$regExpEnd = '';
+				if (preg_match("/^[[:alnum:]]+/i".BX_UTF_PCRE_MODIFIER, $str))
 				{
-					if ($equal)
-					{
-						$regStr = "^[[:<:]]({$regStr})[[:>:]]$";
-					}
-					elseif ($start)
-					{
-						$regStr = "^[[:<:]]({$regStr})[[:>:]].*";
-					}
-					elseif ($end)
-					{
-						$regStr = ".*[[:<:]]({$regStr})[[:>:]]$";
-					}
-					else
-					{
-						$regStr = "[[:<:]]({$regStr})[[:>:]]";
-					}
+					$regExpStart = '[[:<:]]';
+				}
+				if (preg_match("/[[:alnum:]]+$/i".BX_UTF_PCRE_MODIFIER, $str))
+				{
+					$regExpEnd = '[[:>:]]';
+				}
+
+				// Exact word match
+				if ($equal)
+				{
+					$regStr = "[[:blank:]]*{$regExpStart}({$regStr}){$regExpEnd}[[:blank:]]*";
+				}
+				elseif ($start)
+				{
+					$regStr = "[[:blank:]]*{$regExpStart}({$regStr}){$regExpEnd}.*";
+				}
+				elseif ($end)
+				{
+					$regStr = ".*{$regExpStart}({$regStr}){$regExpEnd}[[:blank:]]*";
+				}
+				elseif ($exact)
+				{
+					$regStr = "[[:blank:]]*{$regExpStart}({$regStr}){$regExpEnd}[[:blank:]]*";
+				}
+				else
+				{
+					$regStr = ".*(". preg_replace("/\s+/i".BX_UTF_PCRE_MODIFIER, ").+(", $regStr). ").*";
 				}
 
 				// regexp binary mode works not exactly we want using like binary to fix it

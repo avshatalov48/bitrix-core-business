@@ -24,44 +24,44 @@ if (!CModule::IncludeModule("socialnetwork"))
 	return;
 }
 
-if(strLen($arParams["BLOG_VAR"])<=0)
+if($arParams["BLOG_VAR"] == '')
 	$arParams["BLOG_VAR"] = "blog";
-if(strLen($arParams["PAGE_VAR"])<=0)
+if($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if(strLen($arParams["POST_VAR"])<=0)
+if($arParams["POST_VAR"] == '')
 	$arParams["POST_VAR"] = "id";
-if(strLen($arParams["USER_VAR"])<=0)
+if($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "id";
 
 $arParams["PATH_TO_DRAFT"] = trim($arParams["PATH_TO_DRAFT"]);
-if(strlen($arParams["PATH_TO_DRAFT"])<=0)
+if($arParams["PATH_TO_DRAFT"] == '')
 	$arParams["PATH_TO_DRAFT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=draft&".$arParams["BLOG_VAR"]."=#blog#");
 
 $arParams["PATH_TO_POST_EDIT"] = trim($arParams["PATH_TO_POST_EDIT"]);
-if(strlen($arParams["PATH_TO_POST_EDIT"]) <= 0)
+if($arParams["PATH_TO_POST_EDIT"] == '')
 {
 	$arParams["PATH_TO_POST_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post_edit&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
 }
 
 $arParams["PATH_TO_MODERATION"] = trim($arParams["PATH_TO_MODERATION"]);
-if(strlen($arParams["PATH_TO_MODERATION"]) <= 0)
+if($arParams["PATH_TO_MODERATION"] == '')
 {
 	$arParams["PATH_TO_MODERATION"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=moderation&".$arParams["BLOG_VAR"]."=#blog#");
 }
 
 $arParams["PATH_TO_TAGS"] = trim($arParams["PATH_TO_TAGS"]);
-if(strlen($arParams["PATH_TO_TAGS"]) <= 0)
+if($arParams["PATH_TO_TAGS"] == '')
 {
 	$arParams["PATH_TO_TAGS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=tags&".$arParams["BLOG_VAR"]."=#blog#");
 }
 
-$arParams["USER_ID"] = IntVal($arParams["USER_ID"]);
+$arParams["USER_ID"] = intval($arParams["USER_ID"]);
 
-$user_id = IntVal($USER->GetID());
-$arParams["SOCNET_GROUP_ID"] = IntVal($arParams["SOCNET_GROUP_ID"]);
+$user_id = intval($USER->GetID());
+$arParams["SOCNET_GROUP_ID"] = intval($arParams["SOCNET_GROUP_ID"]);
 
 $bGroupMode = false;
-if(IntVal($arParams["SOCNET_GROUP_ID"]) > 0)
+if(intval($arParams["SOCNET_GROUP_ID"]) > 0)
 {
 	$bGroupMode = true;
 }
@@ -71,7 +71,7 @@ if(!is_array($arParams["GROUP_ID"]))
 }
 foreach($arParams["GROUP_ID"] as $k=>$v)
 {
-	if(IntVal($v) <= 0)
+	if(intval($v) <= 0)
 	{
 		unset($arParams["GROUP_ID"][$k]);
 	}
@@ -82,7 +82,7 @@ $arResult["PostPerm"] = BLOG_PERMS_DENY;
 
 if($arParams["SET_TITLE"] != "N")
 	$APPLICATION->SetTitle(GetMessage("BM_BLOG_POST"));
-if(IntVal($arParams["USER_ID"]) > 0)
+if(intval($arParams["USER_ID"]) > 0)
 {
 	$dbUser = CUser::GetByID($arParams["USER_ID"]);
 	$arUser = $dbUser->Fetch();
@@ -92,7 +92,7 @@ if(IntVal($arParams["USER_ID"]) > 0)
 		&& CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $arParams["USER_ID"], "blog")
 	)
 	{
-		if (strlen($arParams["NAME_TEMPLATE"]) <= 0)
+		if ($arParams["NAME_TEMPLATE"] == '')
 		{
 			$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 		}
@@ -130,7 +130,7 @@ if(!(
 	|| (
 		$user_id > 0
 		&& (
-			IntVal($arParams["USER_ID"]) == $user_id
+			intval($arParams["USER_ID"]) == $user_id
 			|| CSocNetUser::isCurrentUserModuleAdmin()
 			|| $APPLICATION->getGroupRight("blog") >= "W"
 		)
@@ -168,7 +168,7 @@ if($bGroupMode)
 	}
 }
 elseif(
-	IntVal($arParams["USER_ID"]) > 0
+	intval($arParams["USER_ID"]) > 0
 	&& !empty($arUser)
 	&& CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $arParams["USER_ID"], "blog")
 )
@@ -180,7 +180,7 @@ elseif(
 	if ($arParams["USER_ID"] == $user_id)
 	{
 		$arResult["PATH_TO_4ME"] = $arResult["PATH_TO_MINE"] = $arResult["PATH_TO_4ME_ALL"];
-		$arResult["PATH_TO_4ME"] .= (strpos($arResult["PATH_TO_4ME"], "?") === false ? "?" : "&");
+		$arResult["PATH_TO_4ME"] .= (mb_strpos($arResult["PATH_TO_4ME"], "?") === false ? "?" : "&");
 
 		$arResult["PATH_TO_MINE"] = $arResult["PATH_TO_4ME"]."mine=Y";
 		$arResult["PATH_TO_4ME"] .= "forme=Y";
@@ -188,7 +188,7 @@ elseif(
 
 	$arResult["forme"] = $_REQUEST["forme"];
 
-	if(strlen($_REQUEST["forme"]) <= 0)
+	if($_REQUEST["forme"] == '')
 	{
 		$arResult["forme"] = "ALL";
 	}

@@ -26,40 +26,24 @@ return array(
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'THEME_CODE' => '3corporate',
-			'THEME_CODE_TYPO' => '3corporate',
+
 		),
 	),
 	'layout' => array(),
 	'items' => array(
 		'0' => array(
-			'code' => '35.8.header_logo_and_slogan_row',
+			'code' => '35.9.header_shop_and_phone',
 			'nodes' => array(
-				'.landing-block-node-logo' => array(
-					0 => array(
-						'alt' => 'Logo',
-						'src' => 'https://cdn.bitrix24.site/bitrix/images/landing/logos/chats-store-light-small.png',
-						'src2x' => 'https://cdn.bitrix24.site/bitrix/images/landing/logos/chats-store-light-small.png@2x',
-						'url' => '{"text":"","href":"#system_mainpage","target":"_self","enabled":true}',
-					),
-				),
 			),
 			'style' => array(
-				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text h5 g-font-size-13 mb-0 g-color-gray-dark-v4',
+				'.landing-block-node-title' => array(
+					0 => 'landing-block-node-title text-left g-font-size-24 g-color-black font-weight-bold g-mb-0 g-letter-spacing-0',
+				),
+				'.landing-block-node-phone' => array(
+					0 => 'landing-block-node-phone g-font-size-18 g-color-black-opacity-0_8 g-color-primary--hover',
 				),
 				'#wrapper' => array(
-					0 => 'landing-block landing-block-menu g-pt-20 g-pb-0',
-				),
-			)
-		),
-		'1' => array(
-			'code' => '26.separator',
-			'style' => array(
-				'.landing-block-line' => array(
-					0 => 'landing-block-line g-brd-gray-light-v1 my-0',
-				),
-				'#wrapper' => array(
-					0 => 'landing-block g-pt-10 g-pb-10 g-pl-5 g-pr-5',
+					0 => 'landing-block landing-block-menu g-pt-20 g-pb-20',
 				),
 			)
 		),

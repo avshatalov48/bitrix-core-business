@@ -43,7 +43,7 @@ class Log
 		$userIp = \Bitrix\Main\Context::getCurrent()->getRequest()->getRemoteAddress();
 		if ($device === 'UNKNOWN')
 		{
-			$device = strpos($scriptName, 'desktop_app')? 'DESKTOP': 'BROWSER';
+			$device = mb_strpos($scriptName, 'desktop_app')? 'DESKTOP' : 'BROWSER';
 		}
 
 		$log = "\n------------------------\n";

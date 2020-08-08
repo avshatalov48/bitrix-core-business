@@ -1,5 +1,5 @@
 <?
-$MESS ['MAIN_ADM_CONTROLLER_ERR8'] = "Client site administrator’s privileges are required to add a client site.";
+$MESS ['MAIN_ADM_CONTROLLER_ERR8'] = "Client site administrator's privileges are required to add a client site.";
 $MESS ['MAIN_ADM_CONTROLLER_ERR2'] = "The one-time registration coupon has expired";
 $MESS ['MAIN_ADM_CONTROLLER_ERR3'] = "The controller URL is not specified";
 $MESS ['MAIN_ADM_CONTROLLER_ERR4'] = "The one-time registration coupon is invalid";

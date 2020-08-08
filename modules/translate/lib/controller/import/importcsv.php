@@ -82,7 +82,7 @@ class ImportCsv
 
 		foreach (self::$enabledLanguages as $languageId)
 		{
-			self::$sourceEncoding[$languageId] = strtolower(Main\Localization\Translation::getSourceEncoding($languageId));
+			self::$sourceEncoding[$languageId] = mb_strtolower(Main\Localization\Translation::getSourceEncoding($languageId));
 		}
 
 		parent::__construct($name, $controller, $config);
@@ -228,7 +228,7 @@ class ImportCsv
 					$this->addError(new Main\Error(Loc::getMessage(
 						'TR_IMPORT_ERROR_LINE_FILE_EXT',
 						[
-							'#LINE#' => ($this->seekLine + 1),
+							'#LINE#' => ($currentLine + 1),
 							'#ERROR#' => implode('; ', $rowErrors)
 						]
 					)));
@@ -250,9 +250,8 @@ class ImportCsv
 					}
 
 					$langIndex = $this->columnList[$languageId];
-					if (!isset($csvRow[$langIndex]) || empty($csvRow[$langIndex]))
+					if (!isset($csvRow[$langIndex]) || (empty($csvRow[$langIndex]) && $csvRow[$langIndex] !== '0'))
 					{
-						//$rowErrors[] = Loc::getMessage('TR_IMPORT_ERROR_ROW_LANG_ABSENT', ['#LANG#' => $languageId]);
 						continue;
 					}
 
@@ -278,7 +277,7 @@ class ImportCsv
 						$validPhrase = preg_replace("/[^\x01-\x7F]/", '', $phrase);// remove ASCII characters
 						if ($validPhrase !== $phrase)
 						{
-							$checked = Main\Text\Encoding::detectUtf8($phrase);
+							$checked = Translate\Text\StringHelper::validateUtf8OctetSequences($phrase);
 						}
 						unset($validPhrase);
 					}
@@ -300,7 +299,7 @@ class ImportCsv
 					$this->addError(new Main\Error(Loc::getMessage(
 						'TR_IMPORT_ERROR_LINE_FILE_BIG',
 						[
-							'#LINE#' => ($this->seekLine + 1),
+							'#LINE#' => ($currentLine + 1),
 							'#FILENAME#' => $filePath,
 							'#PHRASE#' => $key,
 							'#ERROR#' => implode('; ', $rowErrors),
@@ -316,7 +315,7 @@ class ImportCsv
 				}
 			}
 
-			if ($csvRow === false)
+			if ($csvRow === null)
 			{
 				$hasFinishedReading = true;
 			}
@@ -371,7 +370,7 @@ class ImportCsv
 						{
 							// import only new messages
 							case Translate\Controller\Import\Csv::METHOD_ADD_ONLY:
-								if (!isset($langFile[$key]) || empty($langFile[$key]))
+								if (!isset($langFile[$key]) || (empty($langFile[$key]) && $langFile[$key] !== '0'))
 								{
 									$langFile[$key] = $phrase;
 									$hasDataToUpdate = true;

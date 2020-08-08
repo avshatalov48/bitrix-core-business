@@ -88,6 +88,10 @@ class LetterTable extends Entity\DataManager
 				'data_type' => 'datetime',
 				'default_value' => new Type\DateTime(),
 			),
+			'DATE_UPDATE' => array(
+				'data_type' => 'datetime',
+				'default_value' => new Type\DateTime(),
+			),
 			'STATUS' => array(
 				'data_type' => 'string',
 				'required' => true,

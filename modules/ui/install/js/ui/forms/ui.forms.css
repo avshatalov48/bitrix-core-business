@@ -56,7 +56,7 @@
 	text-align: left;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	font: 400 14px/calc(var(--ui-field-size) - 2px) "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
 	transition: border .3s ease, background-color .3s ease, color .3s ease, padding .3s ease;
 	-webkit-box-flex: 1;
 	-ms-flex: 1;
@@ -68,10 +68,9 @@
 	appearance: none;
 }
 
-.bx-ie .ui-ctl-element::-ms-expand { display: none; }
+div.ui-ctl-element { line-height: calc( var(--ui-field-size) - 2px);}
 
-/*.ui-ctl-custom*/
-div.ui-ctl-element { line-height: calc(var(--ui-field-size) - 2px); }
+.bx-ie .ui-ctl-element::-ms-expand { display: none; }
 
 .ui-ctl-element:hover {
 	border-color: var(--ui-field-color-primary);
@@ -237,6 +236,11 @@ div.ui-ctl-element { line-height: calc(var(--ui-field-size) - 2px); }
 .ui-ctl-w25 {
 	max-width: 25% !important;
 	width: 25% !important;
+}
+
+.ui-ctl-w10 {
+	max-width: 10% !important;
+	width: 10% !important;
 }
 
 .ui-ctl-wa {
@@ -498,7 +502,9 @@ button.ui-ctl-after:active { background-color: #e0e5ea; }
 .ui-ctl-icon-mail { background-image: url(/bitrix/js/ui/forms/images/mail.svg); }
 
 /*Loader*/
-.ui-ctl-icon-loader { background-image: url(/bitrix/js/ui/forms/images/loader.svg); }
+.ui-ctl-icon-loader {
+	background-image: url(/bitrix/js/ui/forms/images/loader.svg);
+}
 
 /*angel*/
 .ui-ctl-icon-angle { }
@@ -581,6 +587,10 @@ button.ui-ctl-after:active { background-color: #e0e5ea; }
 	align-items: center;
 }
 
+.ui-ctl-row + .ui-ctl-row {
+	margin-top: 12px;
+}
+
 .ui-ctl-column {
 	flex-direction: column;
 	align-content: flex-start;
@@ -599,7 +609,7 @@ button.ui-ctl-after:active { background-color: #e0e5ea; }
 }
 
 /*region Type Dropdown*/
-.ui-ctl-dropdown .ui-ctl-element { }
+.ui-ctl-dropdown div.ui-ctl-element { padding-top: 10px; }
 
 /*endregion*/
 
@@ -669,10 +679,12 @@ button.ui-ctl-after:active { background-color: #e0e5ea; }
 	height: auto;
 }
 
-.ui-ctl-textarea textarea.ui-ctl-element {
+.ui-ctl-textarea textarea.ui-ctl-element,
+.ui-ctl > div.ui-ctl-element[contenteditable] {
 	display: block;
 	overflow: auto;
 	padding-top: 6px;
+	padding-bottom: 6px;
 	min-width: 0;
 	max-width: 100%;
 	max-height: 100%;
@@ -773,6 +785,8 @@ button.ui-ctl-after:active { background-color: #e0e5ea; }
 	width: calc(125px + var(--icon-width-before) + var(--icon-width-after));
 }
 
+.ui-ctl-datetime div.ui-ctl-element { padding-top: 10px; }
+
 /*endregion*/
 
 /*region Date*/
@@ -781,6 +795,8 @@ button.ui-ctl-after:active { background-color: #e0e5ea; }
 	width: calc(80px + var(--icon-width-before) + var(--icon-width-after));
 }
 
+.ui-ctl-date div.ui-ctl-element { padding-top: 10px; }
+
 /*endregion*/
 
 /*region Time*/
@@ -788,6 +804,8 @@ button.ui-ctl-after:active { background-color: #e0e5ea; }
 	max-width: calc(45px + var(--icon-width-before) + var(--icon-width-after));
 	width: calc(45px + var(--icon-width-before) + var(--icon-width-after));
 }
+
+.ui-ctl-time div.ui-ctl-element { padding-top: 10px; }
 
 /*endregion*/
 

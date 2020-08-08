@@ -126,11 +126,11 @@ class CWorkflowStatus
 				}
 				else
 				{
-					if(strlen($val)<=0 || "$val"=="NOT_REF") continue;
+					if($val == '' || "$val"=="NOT_REF") continue;
 				}
 
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				$predicate = "";
 				switch($key)
 				{
@@ -194,7 +194,7 @@ class CWorkflowStatus
 						}
 						break;
 				}
-				if(strlen($predicate) > 0 && $predicate!="0")
+				if($predicate <> '' && $predicate!="0")
 					$arSqlSearch[] = $predicate;
 			}
 		}
@@ -211,8 +211,10 @@ class CWorkflowStatus
 
 		if(count($arSqlSearch_g) > 0)
 		{
-			if(strlen($strSqlSearch))
+			if($strSqlSearch <> '')
+			{
 				$strSqlSearch .= " AND ";
+			}
 			$strSqlSearch .= "(".implode(") and (", $arSqlSearch_g).") ";
 		}
 
@@ -221,16 +223,16 @@ class CWorkflowStatus
 				".implode(", ", $arSqlSelect)."
 			FROM
 				b_workflow_status S
-			".(strlen($strSqlSearch_h) > 0 || array_key_exists("DOCUMENTS", $arSqlSelect)? "LEFT JOIN b_workflow_document D ON (D.STATUS_ID = S.ID)": "")."
+			".($strSqlSearch_h <> '' || array_key_exists("DOCUMENTS", $arSqlSelect)? "LEFT JOIN b_workflow_document D ON (D.STATUS_ID = S.ID)": "")."
 			".(count($arSqlSearch_g) > 0? "LEFT JOIN b_workflow_status2group G ON (G.STATUS_ID = S.ID)": "")."
-			".(strlen($strSqlSearch) > 0? "WHERE ".$strSqlSearch: "")."
+			".($strSqlSearch <> ''? "WHERE ".$strSqlSearch: "")."
 			".($bGroup? "GROUP BY ".implode(", ", $arSqlGroup): "")."
-			".(strlen($strSqlSearch_h) > 0? "HAVING ".$strSqlSearch_h: "")."
+			".($strSqlSearch_h <> ''? "HAVING ".$strSqlSearch_h: "")."
 			$strSqlOrder
 			";
 
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = strlen($strSqlSearch) > 0;
+		$is_filtered = $strSqlSearch <> '';
 		return $res;
 	}
 
@@ -243,7 +245,7 @@ class CWorkflowStatus
 	{
 		global $USER;
 
-		if(strtolower($strOrder) != "asc")
+		if(mb_strtolower($strOrder) != "asc")
 			$strOrder = "desc";
 		else
 			$strOrder = "asc";
@@ -278,7 +280,7 @@ class CWorkflowStatus
 
 		$ID = intval($ID);
 
-		if(($ID <= 0) && (strlen(trim($arFields["TITLE"])) <= 0))
+		if(($ID <= 0) && (trim($arFields["TITLE"]) == ''))
 			$aMsg[] = array("id"=>"TITLE", "text"=> GetMessage("FLOW_FORGOT_TITLE"));
 
 		if(!empty($aMsg))

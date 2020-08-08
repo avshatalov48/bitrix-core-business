@@ -64,12 +64,46 @@ if (is_array($arResult["ITEMS"]))
 }
 elseif (
 	is_array($arResult["NEW_ITEMS_PAID"]) || is_array($arResult["NEW_ITEMS_FREE"])
-	||is_array($arResult["TOP_ITEMS_PAID"]) || is_array($arResult["TOP_ITEMS_FREE"])
+	|| is_array($arResult["TOP_ITEMS_PAID"]) || is_array($arResult["TOP_ITEMS_FREE"])
+	|| is_array($arResult["SALE_OUT_ITEMS"]) || is_array($arResult["NEW_ITEMS_SUBSCRIPTION"])
+	|| is_array($arResult["TOP_ITEMS_SUBSCRIPTION"])
 )
 {
 	?>
 	<div class="mp<? if (isset($_REQUEST["IFRAME"]) && $_REQUEST["IFRAME"] === "Y"): ?> mp-slider<? endif; ?>">
+		<?if (is_array($arResult["SALE_OUT_ITEMS"]) && !empty($arResult["SALE_OUT_ITEMS"])):?>
+			<div class="mp-title">
+				<? if (!empty($arResult["SALE_OUT_NAME"])):?>
+					<?=GetMessage(
+						"MARKETPLACE_TITLE_SALE_OUT_WITH_NAME",
+						[
+							"#ACTION_NAME#" => $arResult["SALE_OUT_NAME"]
+						]
+					)?>
+				<? else:?>
+					<?=GetMessage("MARKETPLACE_TITLE_SALE_OUT")?>
+				<? endif;?>
+				<span
+					class="rest-marketplace-show-all-link"
+					data-role="sale-out"
+					onclick="BX.onCustomEvent('BX.Main.Filter:clickMPAllLink', [this])"
+				>
+					<?=GetMessage("MARKETPLACE_SHOW_ALL_LINK")?>
+				</span>
+			</div>
+			<div class="mp-container">
+				<div class="mp-container" id="mp-sale-out-block"></div>
+			</div>
+		<?endif?>
+
 		<div class="mp-title"><?=GetMessage("MARKETPLACE_TITLE_NEW")?></div>
+
+		<?if (is_array($arResult["NEW_ITEMS_SUBSCRIPTION"]) && !empty($arResult["NEW_ITEMS_SUBSCRIPTION"])):?>
+			<div class="mp-container">
+				<div class="mp-title"><?=GetMessage("MARKETPLACE_PRICE_SUBSCRIPTION")?></div>
+				<div class="mp-container" id="mp-new-block-subscription"></div>
+			</div>
+		<?endif?>
 
 		<?if (is_array($arResult["NEW_ITEMS_PAID"]) && !empty($arResult["NEW_ITEMS_PAID"])):?>
 			<div class="mp-container">
@@ -86,6 +120,13 @@ elseif (
 		<?endif?>
 
 		<div class="mp-title"><?=GetMessage("MARKETPLACE_TITLE_BEST")?></div>
+
+		<?if (is_array($arResult["TOP_ITEMS_SUBSCRIPTION"]) && !empty($arResult["TOP_ITEMS_SUBSCRIPTION"])):?>
+			<div class="mp-container">
+				<div class="mp-title"><?=GetMessage("MARKETPLACE_PRICE_SUBSCRIPTION")?></div>
+				<div class="mp-container" id="mp-top-block-subscription"></div>
+			</div>
+		<?endif?>
 
 		<?if (is_array($arResult["TOP_ITEMS_PAID"]) && !empty($arResult["TOP_ITEMS_PAID"])):?>
 			<div class="mp-container">
@@ -104,6 +145,35 @@ elseif (
 
 	<script>
 		BX.ready(function () {
+
+			<?if (is_array($arResult["SALE_OUT_ITEMS"]) && !empty($arResult["SALE_OUT_ITEMS"])):?>
+			var gridTileNew = new BX.TileGrid.Grid(
+				{
+					id: "mp_category_sale_out",
+					container: document.getElementById("mp-sale-out-block"),
+					items: <?=CUtil::PhpToJSObject($arResult["SALE_OUT_ITEMS"])?>,
+					itemHeight: 105,
+					itemMinWidth: 300,
+					itemType: "BX.Rest.Marketplace.TileGrid.Item"
+				}
+			);
+			gridTileNew.draw();
+			<?endif?>
+
+			<?if (is_array($arResult["NEW_ITEMS_SUBSCRIPTION"]) && !empty($arResult["NEW_ITEMS_SUBSCRIPTION"])):?>
+			var gridTileNew = new BX.TileGrid.Grid(
+				{
+					id: "mp_category_new_subscription",
+					container: document.getElementById("mp-new-block-subscription"),
+					items: <?=CUtil::PhpToJSObject($arResult["NEW_ITEMS_SUBSCRIPTION"])?>,
+					itemHeight: 105,
+					itemMinWidth: 300,
+					itemType: "BX.Rest.Marketplace.TileGrid.Item"
+				}
+			);
+			gridTileNew.draw();
+			<?endif?>
+
 			<?if (is_array($arResult["NEW_ITEMS_PAID"]) && !empty($arResult["NEW_ITEMS_PAID"])):?>
 			var gridTileNew = new BX.TileGrid.Grid(
 				{
@@ -130,6 +200,20 @@ elseif (
 				}
 			);
 			gridTileNew.draw();
+			<?endif?>
+
+			<?if (is_array($arResult["TOP_ITEMS_SUBSCRIPTION"]) && !empty($arResult["TOP_ITEMS_SUBSCRIPTION"])):?>
+			var gridTileTop = new BX.TileGrid.Grid(
+				{
+					id: "mp_category_top_subscription",
+					container: document.getElementById("mp-top-block-subscription"),
+					items: <?=CUtil::PhpToJSObject($arResult["TOP_ITEMS_SUBSCRIPTION"])?>,
+					itemHeight: 105,
+					itemMinWidth: 300,
+					itemType: "BX.Rest.Marketplace.TileGrid.Item"
+				}
+			);
+			gridTileTop.draw();
 			<?endif?>
 
 			<?if (is_array($arResult["TOP_ITEMS_PAID"]) && !empty($arResult["TOP_ITEMS_PAID"])):?>

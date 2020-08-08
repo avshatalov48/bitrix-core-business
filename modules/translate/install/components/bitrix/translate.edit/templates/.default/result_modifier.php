@@ -1,8 +1,13 @@
 <?php
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
-/** @var \CBitrixComponentTemplate $this */
-/** @var \TranslateEditComponent $component */
+/**
+ * @var \CBitrixComponentTemplate $this
+ * @var \TranslateEditComponent $component
+ */
 $component = $this->getComponent();
 
 if($component->hasErrors())

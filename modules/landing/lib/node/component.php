@@ -64,7 +64,7 @@ class Component extends \Bitrix\Landing\Node
 					"\t" . ')' : '') . PHP_EOL .
 					');';
 				$componentCode = str_replace(array('<?', '?>'), array('< ?', '? >'), $componentCode);
-				$content = substr($content, 0, $component['START']) . $componentCode . substr($content, $component['END']);
+				$content = mb_substr($content, 0, $component['START']).$componentCode.mb_substr($content, $component['END']);
 				break;
 			}
 		}
@@ -94,9 +94,9 @@ class Component extends \Bitrix\Landing\Node
 		}
 		else{
 			if (
-				substr($code, 0, 2) == '={' &&
-				substr($code, -1, 1) == '}' &&
-				strlen($code) > 3
+				mb_substr($code, 0, 2) == '={' &&
+				mb_substr($code, -1, 1) == '}' &&
+				mb_strlen($code) > 3
 			)
 			{
 				return true;
@@ -466,7 +466,7 @@ class Component extends \Bitrix\Landing\Node
 							$item['items'][] = array(
 								'name' => $val,
 								'value' => $code,
-								'preview' => '/bitrix/images/landing/catalog_images/preview/' . strtolower($code) . '.svg?v3'
+								'preview' => '/bitrix/images/landing/catalog_images/preview/'.mb_strtolower($code) . '.svg?v3'
 							);
 						}
 					}

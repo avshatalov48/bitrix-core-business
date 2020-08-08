@@ -182,6 +182,13 @@ class OrderEdit
 			);
 		}
 
+		$connectedB24Portal = '';
+
+		if(Loader::includeModule('b24connector'))
+		{
+			$connectedB24Portal = \Bitrix\B24Connector\Connection::getDomain();
+		}
+
 		$curFormat = \CCurrencyLang::GetFormatDescription($currencyId);
 		$currencyLang = preg_replace("/(^|[^&])#/", '$1', $curFormat["FORMAT_STRING"]);
 		$langPhrases = array("SALE_ORDEREDIT_DISCOUNT_UNKNOWN", "SALE_ORDEREDIT_REFRESHING_DATA", "SALE_ORDEREDIT_FIX",
@@ -195,6 +202,7 @@ class OrderEdit
 					BX.Sale.Admin.OrderEditPage.siteId = "'.\CUtil::JSEscape($order->getSiteId()).'";
 					BX.Sale.Admin.OrderEditPage.languageId = "'.LANGUAGE_ID.'";
 					BX.Sale.Admin.OrderEditPage.formId = "'.$formId.'_form";
+					BX.Sale.Admin.OrderEditPage.connectedB24Portal = "'.\CUtil::JSEscape($connectedB24Portal).'";
 					BX.Sale.Admin.OrderEditPage.adminTabControlId = "'.$formId.'";
 					'.(!empty($currencies) ? 'BX.Currency.setCurrencies('.\CUtil::PhpToJSObject($currencies, false, true, true).');' : '').
 					'BX.Sale.Admin.OrderEditPage.currency = "'.\CUtil::JSEscape($currencyId).'";
@@ -255,7 +263,7 @@ class OrderEdit
 	 */
 	public static function getProblemBlockHtml($text, $orderId)
 	{
-		if(strlen($text) <= 0)
+		if($text == '')
 			$result = "";
 		else
 			$result = '
@@ -296,7 +304,7 @@ class OrderEdit
 
 		foreach($items as $anchor => $itemName)
 		{
-			if(strlen($formId) > 0 && strlen($tabId) > 0)
+			if($formId <> '' && $tabId <> '')
 			{
 				$href = 'javascript:void(0);';
 				$onClick = ' onclick="BX.Sale.Admin.OrderEditPage.fastNavigation.onClickItem(\''.$formId.'\', \''.$tabId.'\', \''.$anchor.'\')"';
@@ -420,7 +428,7 @@ class OrderEdit
 	 */
 	public static function createOrderFromForm(array $formData, $creatorUserId, $createUserIfNeed = true, array $files = array(), Result &$opResult)
 	{
-		if(!isset($formData["SITE_ID"]) || strlen($formData["SITE_ID"]) <= 0)
+		if(!isset($formData["SITE_ID"]) || $formData["SITE_ID"] == '')
 			throw new ArgumentNullException('formData["SITE_ID"]');
 
 		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
@@ -502,7 +510,7 @@ class OrderEdit
 				 */
 				if(self::isBasketItemNew($basketCode))
 				{
-					$basketInternalId = intval(substr($basketCode, 1));
+					$basketInternalId = intval(mb_substr($basketCode, 1));
 
 					if($basketInternalId > $maxBasketCodeIdx)
 						$maxBasketCodeIdx = $basketInternalId;
@@ -645,7 +653,7 @@ class OrderEdit
 
 	public static function isBasketItemNew($basketCode)
 	{
-		return (strpos($basketCode, 'n') === 0) && ($basketCode != self::BASKET_CODE_NEW);
+		return (mb_strpos($basketCode, 'n') === 0) && ($basketCode != self::BASKET_CODE_NEW);
 	}
 
 	public static function saveCoupons($userId, $formData)
@@ -659,7 +667,7 @@ class OrderEdit
 		if(!DiscountCouponsManager::isSuccess())
 			throw new UserMessageException(implode(" \n", DiscountCouponsManager::getErrors()));
 
-		if(isset($formData["COUPONS"]) && strlen($formData["COUPONS"]) > 0)
+		if(isset($formData["COUPONS"]) && $formData["COUPONS"] <> '')
 		{
 			$coupons = explode(",", $formData["COUPONS"]);
 
@@ -781,7 +789,7 @@ class OrderEdit
 				 */
 				if(self::isBasketItemNew($basketCode))
 				{
-					$basketInternalId = intval(substr($basketCode, 1));
+					$basketInternalId = intval(mb_substr($basketCode, 1));
 
 					if($basketInternalId > $maxBasketCodeIdx)
 						$maxBasketCodeIdx = $basketInternalId;
@@ -810,7 +818,7 @@ class OrderEdit
 						foreach($res->getErrors() as $error)
 							$errMess .= $error->getMessage()."\n";
 
-						if(strlen($errMess) <= 0)
+						if($errMess == '')
 							$errMess = Loc::getMessage("SALE_ORDEREDIT_BASKET_ITEM_DEL_ERROR");
 
 						$result->addError(new Error($errMess));
@@ -858,7 +866,7 @@ class OrderEdit
 					foreach($res->getErrors() as $error)
 						$errMess .= $error->getMessage()."\n";
 
-					if(strlen($errMess) <= 0)
+					if($errMess == '')
 						$errMess = Loc::getMessage("SALE_ORDEREDIT_BASKET_ITEM_DEL_ERROR");
 
 					$result->addError(new Error($errMess));
@@ -949,11 +957,11 @@ class OrderEdit
 
 					$itemFields = array_intersect_key($productData, array_flip($item::getAvailableFields()));
 
-					if(isset($itemFields["MEASURE_CODE"]) && strlen($itemFields["MEASURE_CODE"]) > 0)
+					if(isset($itemFields["MEASURE_CODE"]) && $itemFields["MEASURE_CODE"] <> '')
 					{
 						$measures = OrderBasket::getCatalogMeasures();
 
-						if(isset($measures[$itemFields["MEASURE_CODE"]]) && strlen($measures[$itemFields["MEASURE_CODE"]]) > 0)
+						if(isset($measures[$itemFields["MEASURE_CODE"]]) && $measures[$itemFields["MEASURE_CODE"]] <> '')
 							$itemFields["MEASURE_NAME"] = $measures[$itemFields["MEASURE_CODE"]];
 					}
 
@@ -1129,7 +1137,7 @@ class OrderEdit
 			}
 		}
 
-		if(isset($formData["STATUS_ID"]) && strlen($formData["STATUS_ID"]) > 0)
+		if(isset($formData["STATUS_ID"]) && $formData["STATUS_ID"] <> '')
 		{
 			$statusesList = \Bitrix\Sale\OrderStatus::getAllowedUserStatuses(
 				$userId,
@@ -1169,7 +1177,7 @@ class OrderEdit
 			$productData = $productsFormData[$basketCode];
 			$isDataNeedUpdate = in_array($basketCode, $needDataUpdate);
 
-			if(isset($productData["PRODUCT_PROVIDER_CLASS"]) && strlen($productData["PRODUCT_PROVIDER_CLASS"]) > 0)
+			if(isset($productData["PRODUCT_PROVIDER_CLASS"]) && $productData["PRODUCT_PROVIDER_CLASS"] <> '')
 			{
 				$item->setField("PRODUCT_PROVIDER_CLASS", trim($productData["PRODUCT_PROVIDER_CLASS"]));
 			}
@@ -1321,7 +1329,7 @@ class OrderEdit
 			 */
 			if($order->getId() <= 0 && (empty($data[$basketCode]) || !self::$isTrustProductFormData || $isDataNeedUpdate))
 			{
-				if(empty($providerData[$basketCode]) && strlen($productData["PRODUCT_PROVIDER_CLASS"]) > 0)
+				if(empty($providerData[$basketCode]) && $productData["PRODUCT_PROVIDER_CLASS"] <> '')
 				{
 					$name = "";
 
@@ -1387,15 +1395,15 @@ class OrderEdit
 
 			$product = array_intersect_key($product, array_flip($item::getAvailableFields()));
 
-			if(isset($product["MEASURE_CODE"]) && strlen($product["MEASURE_CODE"]) > 0)
+			if(isset($product["MEASURE_CODE"]) && $product["MEASURE_CODE"] <> '')
 			{
 				$measures = OrderBasket::getCatalogMeasures();
 
-				if(isset($measures[$product["MEASURE_CODE"]]) && strlen($measures[$product["MEASURE_CODE"]]) > 0)
+				if(isset($measures[$product["MEASURE_CODE"]]) && $measures[$product["MEASURE_CODE"]] <> '')
 					$product["MEASURE_NAME"] = $measures[$product["MEASURE_CODE"]];
 			}
 
-			if(!isset($product["CURRENCY"]) || strlen($product["CURRENCY"]) <= 0)
+			if(!isset($product["CURRENCY"]) || $product["CURRENCY"] == '')
 				$product["CURRENCY"] = $order->getCurrency();
 
 			if($productData["IS_SET_PARENT"] == "Y")
@@ -1451,7 +1459,7 @@ class OrderEdit
 		$result = new Result();
 		$basketCode = $item->getBasketCode();
 
-		if(isset($productData["PRODUCT_PROVIDER_CLASS"]) && strlen($productData["PRODUCT_PROVIDER_CLASS"]) > 0)
+		if(isset($productData["PRODUCT_PROVIDER_CLASS"]) && $productData["PRODUCT_PROVIDER_CLASS"] <> '')
 			$item->setField("PRODUCT_PROVIDER_CLASS", trim($productData["PRODUCT_PROVIDER_CLASS"]));
 
 		$data = array();
@@ -1501,7 +1509,7 @@ class OrderEdit
 		{
 			$data = Provider::getProductData($basket, array("PRICE", "AVAILABLE_QUANTITY"), $item);
 
-			if(empty($data[$basketCode]) && strlen($productData["PRODUCT_PROVIDER_CLASS"]) > 0)
+			if(empty($data[$basketCode]) && $productData["PRODUCT_PROVIDER_CLASS"] <> '')
 			{
 				$name = "";
 
@@ -1563,15 +1571,15 @@ class OrderEdit
 
 		$product = array_intersect_key($product, array_flip($item::getAvailableFields()));
 
-		if(isset($product["MEASURE_CODE"]) && strlen($product["MEASURE_CODE"]) > 0)
+		if(isset($product["MEASURE_CODE"]) && $product["MEASURE_CODE"] <> '')
 		{
 			$measures = OrderBasket::getCatalogMeasures();
 
-			if(isset($measures[$product["MEASURE_CODE"]]) && strlen($measures[$product["MEASURE_CODE"]]) > 0)
+			if(isset($measures[$product["MEASURE_CODE"]]) && $measures[$product["MEASURE_CODE"]] <> '')
 				$product["MEASURE_NAME"] = $measures[$product["MEASURE_CODE"]];
 		}
 
-		if(!isset($product["CURRENCY"]) || strlen($product["CURRENCY"]) <= 0)
+		if(!isset($product["CURRENCY"]) || $product["CURRENCY"] == '')
 			$product["CURRENCY"] = $order->getCurrency();
 
 		if($productData["IS_SET_PARENT"] == "Y")
@@ -1620,7 +1628,7 @@ class OrderEdit
 	{
 		$siteName = "";
 
-		if(strlen($siteId) <= 0)
+		if($siteId == '')
 		{
 			$res = \CSite::GetList($by="id", $order="asc", array("ACTIVE" => "Y", "DEF" => "Y"));
 
@@ -1797,7 +1805,7 @@ class OrderEdit
 						$couponsList[$coupon]["APPLY"] = $couponParams["APPLY"];
 						$couponsList[$coupon]["DISCOUNT_SIZE"] = "";
 
-						if(isset($couponParams["ORDER_DISCOUNT_ID"]) && strlen($couponParams["ORDER_DISCOUNT_ID"]) > 0)
+						if(isset($couponParams["ORDER_DISCOUNT_ID"]) && $couponParams["ORDER_DISCOUNT_ID"] <> '')
 						{
 							$couponsList[$coupon]["ORDER_DISCOUNT_ID"] = $couponParams["ORDER_DISCOUNT_ID"];
 
@@ -1867,13 +1875,13 @@ class OrderEdit
 	 */
 	public static function setProductDetails($productId, $userId, $siteId, array $params)
 	{
-		if(strlen($productId) <= 0)
+		if($productId == '')
 			return;
 
-		if(strlen($userId) <= 0)
+		if($userId == '')
 			$userId = "0";
 
-		if(strlen($siteId) <= 0)
+		if($siteId == '')
 			throw new ArgumentNullException("siteId");
 
 		self::$productsDetails[$productId."_".$userId."_".$siteId] = $params;
@@ -1881,15 +1889,15 @@ class OrderEdit
 
 	public static function getProductDetails($productId, $userId, $siteId)
 	{
-		if(strlen($productId) <= 0)
+		if($productId == '')
 		{
 			throw new ArgumentNullException("productId");
 		}
 
-		if(strlen($userId) <= 0)
+		if($userId == '')
 			$userId = "0";
 
-		if(strlen($siteId) <= 0)
+		if($siteId == '')
 			throw new ArgumentNullException("siteId");
 
 		if(isset(self::$productsDetails[$productId."_".$userId."_".$siteId]))

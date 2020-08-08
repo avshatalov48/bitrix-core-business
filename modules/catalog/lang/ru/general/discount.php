@@ -19,4 +19,5 @@ $MESS["BT_CAT_DISCOUNT_TYPE_PERCENT"] = "В процентах";
 $MESS["BT_CAT_DISCOUNT_TYPE_FIX"] = "Фиксированная сумма";
 $MESS["BT_CAT_DISCOUNT_TYPE_SALE_EXT"] = "Установить цену на товар";
 $MESS["BT_MOD_CATALOG_DISC_ERR_CONDITIONS_TOO_LONG"] = "Слишком большое количество условий. Невозможно сохранить в базе.";
+$MESS["CATALOG_DISCOUNT_REINDEX_MESS"] = "Внимание! Проиндексируйте скидки на товары для улучшения функционирования на <a href=\"/bitrix/admin/settings.php?lang=#LANGUAGE_ID#&mid_menu=1&mid=catalog\">странице настроек</a> модуля Торговый каталог.";
 ?>

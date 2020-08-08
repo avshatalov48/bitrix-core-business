@@ -239,7 +239,7 @@ class CBitrixCloudCDN
 		if (!isset($sites[$siteId]))
 			return;
 
-		self::$ajax = preg_match("/<head>/i", substr($content, 0, 1024)) === 0;
+		self::$ajax = preg_match("/<head>/i", mb_substr($content, 0, 1024)) === 0;
 
 		$arPrefixes = array_map(array(
 			"CBitrixCloudCDN",

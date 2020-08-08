@@ -119,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $currencyRights == "W" && (!empty($_
 
 		foreach ($languageIdList as $languageId)
 		{
-			$locFields = $currencyData[strtoupper($languageId)];
+			$locFields = $currencyData[mb_strtoupper($languageId)];
 
 			$locFields['CURRENCY'] = $currencyId;
 			$locFields['HIDE_ZERO'] = $_POST['hide_zero_' . $languageId] ? 'Y' : 'N';
@@ -194,7 +194,7 @@ if (!empty($errorMessage))
 		<td width="60%">
 			<select id="admin_classifier_currency_id" name="admin_classifier_currency_id" size="10" style="width: 312px">
 				<?foreach ($classifier as $key => $value)
-					echo "<option value=".HtmlFilter::encode($key).">".HtmlFilter::encode($value[strtoupper(LANGUAGE_ID)]['FULL_NAME'])."</option>";?>
+					echo "<option value=".HtmlFilter::encode($key).">".HtmlFilter::encode($value[mb_strtoupper(LANGUAGE_ID)]['FULL_NAME'])."</option>";?>
 			</select>
 		</td>
 	</tr>

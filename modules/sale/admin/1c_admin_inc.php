@@ -88,7 +88,7 @@ $arAllOptions = array(
 
 );
 
-if($REQUEST_METHOD=="POST" && strlen($Update)>0 && $CAT_RIGHT>="W" && check_bitrix_sessid())
+if($REQUEST_METHOD=="POST" && $Update <> '' && $CAT_RIGHT>="W" && check_bitrix_sessid())
 {
 	$allOptionCount = count($arAllOptions);
 	for ($i=0; $i<$allOptionCount; $i++)

@@ -101,7 +101,8 @@ class Favicon extends \Bitrix\Landing\Hook\Page
 					),
 					BX_RESIZE_IMAGE_EXACT
 				);
-				$ext = array_pop(explode('.', $file['src']));
+				$srcExplode = explode('.', $file['src']);
+				$ext = array_pop($srcExplode);
 				$icons .= '<link rel="icon" type="image/' . $ext .
 						  '" href="' . $file['src'] . '" sizes="' . $size . '">';
 			}

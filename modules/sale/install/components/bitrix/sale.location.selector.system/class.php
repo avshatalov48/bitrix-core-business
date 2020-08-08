@@ -205,8 +205,10 @@ class CBitrixLocationSelectorSystemComponent extends CBitrixLocationSelectorSear
 		// get locations to display
 		if($this->locationsFromRequest !== false) // get from request when form save fails or smth
 			$res = self::getEntityListByListOfPrimary(self::LOCATION_ENTITY_NAME, $this->locationsFromRequest, $parameters, $linkFld);
-		elseif(strlen($this->arParams['ENTITY_PRIMARY'])) // get from database, if entity exists
+		elseif(mb_strlen($this->arParams['ENTITY_PRIMARY'])) // get from database, if entity exists
+		{
 			$res = $class::getConnectedLocations($this->arParams['ENTITY_PRIMARY'], $parameters);
+		}
 
 		if($res !== false)
 		{
@@ -288,8 +290,10 @@ class CBitrixLocationSelectorSystemComponent extends CBitrixLocationSelectorSear
 
 			if($this->groupsFromRequest !== false)
 				$res = self::getEntityListByListOfPrimary('Bitrix\Sale\Location\GroupTable', $this->groupsFromRequest, $parameters, $linkFld);
-			elseif(strlen($this->arParams['ENTITY_PRIMARY']))
+			elseif(mb_strlen($this->arParams['ENTITY_PRIMARY']))
+			{
 				$res = $class::getConnectedGroups($this->arParams['ENTITY_PRIMARY'], $parameters);
+			}
 
 			if($res !== false)
 			{
@@ -433,7 +437,7 @@ class CBitrixLocationSelectorSystemComponent extends CBitrixLocationSelectorSear
 							'DISPLAY' => 'NAME.NAME'
 						),
 						'filter' => array(
-							'=NAME.LANGUAGE_ID' => strlen($parameters['filter']['=NAME.LANGUAGE_ID']) ? $parameters['filter']['=NAME.LANGUAGE_ID'] : LANGUAGE_ID
+							'=NAME.LANGUAGE_ID' => $parameters['filter']['=NAME.LANGUAGE_ID'] <> ''? $parameters['filter']['=NAME.LANGUAGE_ID'] : LANGUAGE_ID
 						)
 					));
 
@@ -495,7 +499,7 @@ class CBitrixLocationSelectorSystemComponent extends CBitrixLocationSelectorSear
 			}
 			else
 			{
-				if(!strlen($list[$i]))
+				if($list[$i] == '')
 					unset($list[$i]);
 			}
 		}

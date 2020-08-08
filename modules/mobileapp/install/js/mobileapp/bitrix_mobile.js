@@ -2061,6 +2061,9 @@
 
 					image.node.setAttribute("data-src", "");
 					image.status = this.status.loaded;
+					image.node.onload = function() {
+						BX.onCustomEvent('BX.LazyLoad:ImageLoaded', [ this ]);
+					};
 				}
 			}
 		},
@@ -2658,6 +2661,7 @@
 		this.xhr = null;
 		this.data = null;
 		this.headers = null;
+		this.aborted = null;
 };
 
 	MobileAjaxWrapper.prototype.Init = function (params)
@@ -2712,11 +2716,17 @@
 
 					if (this.xhr.status === 0)
 					{
-						bFailed = true;
+						this.failure_callback();
+						return;
 					}
 					else if (this.type == 'json')
 					{
-						bFailed = (typeof response == 'object' && typeof response.status != 'undefined' && response.status == 'failed');
+						bFailed = (
+							typeof response == 'object'
+							&& response !== null
+							&& typeof response.status != 'undefined'
+							&& response.status == 'failed'
+						);
 					}
 					else if (this.type == 'html')
 					{
@@ -2725,7 +2735,10 @@
 
 					if (bFailed)
 					{
-						this.RepeatRequest();
+						if (!this.aborted)
+						{
+							this.RepeatRequest();
+						}
 					}
 					else
 					{
@@ -2769,157 +2782,206 @@
 
 		if (this.abort_callback != null)
 			BX.bind(this.xhr, "abort", this.abort_callback);
+
+		BX.bind(this.xhr, "abort", function() {
+			this.aborted = true;
+		}.bind(this));
+
 		return this.xhr;
 	};
 
 	MobileAjaxWrapper.prototype.runComponentAction = function(component, action, config, callbacks)
 	{
-		config.onrequeststart = function(requestXhr) {
-			this.xhr = requestXhr;
-		}.bind(this);
+		if (!BX.type.isPlainObject(callbacks))
+		{
+			callbacks = {};
+		}
 
-		BX.ajax.runComponentAction(component, action, config).then(function(response) {
-			if (BX.type.isFunction(callbacks.success))
+		return new Promise(function(resolve, reject) {
+			config.onrequeststart = function(requestXhr) {
+				this.xhr = requestXhr;
+			}.bind(this);
+
+			BX.ajax.runComponentAction(component, action, config).then(function(response) {
+				if (BX.type.isFunction(callbacks.success))
+				{
+					callbacks.success(response);
+				}
+				resolve(response);
+			}.bind(this), function(response) {
+				if (this.xhr.status == 401)
+				{
+					this.repeatComponentAction(component, action, config, callbacks);
+				}
+				else
+				{
+					if (BX.type.isFunction(callbacks.failure))
+					{
+						callbacks.failure(response);
+					}
+					reject(response)
+				}
+			}.bind(this));
+
+			if (BX.type.isFunction(this.progress_callback))
 			{
-				callbacks.success(response);
+				BX.bind(this.xhr, "progress", this.progress_callback);
 			}
-		}.bind(this), function(response) {
-			if (this.xhr.status == 401)
+			if (BX.type.isFunction(this.load_callback))
 			{
-				this.repeatComponentAction(component, action, config, callbacks);
+				BX.bind(this.xhr, "load", this.load_callback);
 			}
-			else if (BX.type.isFunction(callbacks.failure))
+			if (BX.type.isFunction(this.loadstart_callback))
 			{
-				callbacks.failure(response);
+				BX.bind(this.xhr, "loadstart", this.loadstart_callback);
+			}
+			if (BX.type.isFunction(this.loadend_callback))
+			{
+				BX.bind(this.xhr, "loadend", this.loadend_callback);
+			}
+			if (BX.type.isFunction(this.error_callback))
+			{
+				BX.bind(this.xhr, "error", this.error_callback);
+			}
+			if (BX.type.isFunction(this.abort_callback))
+			{
+				BX.bind(this.xhr, "abort", this.abort_callback);
 			}
 		}.bind(this));
-
-		if (BX.type.isFunction(this.progress_callback))
-		{
-			BX.bind(this.xhr, "progress", this.progress_callback);
-		}
-		if (BX.type.isFunction(this.load_callback))
-		{
-			BX.bind(this.xhr, "load", this.load_callback);
-		}
-		if (BX.type.isFunction(this.loadstart_callback))
-		{
-			BX.bind(this.xhr, "loadstart", this.loadstart_callback);
-		}
-		if (BX.type.isFunction(this.loadend_callback))
-		{
-			BX.bind(this.xhr, "loadend", this.loadend_callback);
-		}
-		if (BX.type.isFunction(this.error_callback))
-		{
-			BX.bind(this.xhr, "error", this.error_callback);
-		}
-		if (BX.type.isFunction(this.abort_callback))
-		{
-			BX.bind(this.xhr, "abort", this.abort_callback);
-		}
-
-		return this.xhr;
 	};
 
 	MobileAjaxWrapper.prototype.repeatComponentAction = function(component, action, config, callbacks)
 	{
-		app.BasicAuth({
-			success: function (auth_data)
-			{
-				BX.ajax.runComponentAction(component, action, config).then(function(response) {
-					if (BX.type.isFunction(callbacks.success))
-					{
-						callbacks.success(response);
-					}
-				}.bind(this), function(response) {
+		if (!BX.type.isPlainObject(callbacks))
+		{
+			callbacks = {};
+		}
+
+		return new Promise(function(resolve, reject) {
+			app.BasicAuth({
+				success: function (auth_data)
+				{
+					BX.ajax.runComponentAction(component, action, config).then(function(response) {
+						if (BX.type.isFunction(callbacks.success))
+						{
+							callbacks.success(response);
+						}
+						resolve(response);
+					}.bind(this), function(response) {
+						if (BX.type.isFunction(callbacks.failure))
+						{
+							callbacks.failure(response);
+						}
+						reject(response);
+					}.bind(this));
+				}.bind(this),
+				failture: function ()
+				{
 					if (BX.type.isFunction(callbacks.failure))
 					{
-						callbacks.failure(response);
+						callbacks.failure();
 					}
-				}.bind(this));
-
-			}.bind(this),
-			failture: function ()
-			{
-				this.failure_callback();
-			}.bind(this)
-		});
+					reject();
+				}.bind(this)
+			});
+		}.bind(this));
 	};
 
 	MobileAjaxWrapper.prototype.runAction = function(action, config, callbacks)
 	{
-		config.onrequeststart = function(requestXhr) {
-			this.xhr = requestXhr;
-		}.bind(this);
-
-		BX.ajax.runAction(action, config).then(function(response) {
-			if (BX.type.isFunction(callbacks.success))
-			{
-				callbacks.success(response);
-			}
-		}.bind(this), function(response) {
-			if (this.xhr.status == 401)
-			{
-				this.repeatAction(action, config, callbacks);
-			}
-			else if (BX.type.isFunction(callbacks.failure))
-			{
-				callbacks.failure(response);
-			}
-		}.bind(this));
-
-		if (BX.type.isFunction(this.progress_callback))
+		if (!BX.type.isPlainObject(callbacks))
 		{
-			BX.bind(this.xhr, "progress", this.progress_callback);
-		}
-		if (BX.type.isFunction(this.load_callback))
-		{
-			BX.bind(this.xhr, "load", this.load_callback);
-		}
-		if (BX.type.isFunction(this.loadstart_callback))
-		{
-			BX.bind(this.xhr, "loadstart", this.loadstart_callback);
-		}
-		if (BX.type.isFunction(this.loadend_callback))
-		{
-			BX.bind(this.xhr, "loadend", this.loadend_callback);
-		}
-		if (BX.type.isFunction(this.error_callback))
-		{
-			BX.bind(this.xhr, "error", this.error_callback);
-		}
-		if (BX.type.isFunction(this.abort_callback))
-		{
-			BX.bind(this.xhr, "abort", this.abort_callback);
+			callbacks = {};
 		}
 
-		return this.xhr;
-	};
+		return new Promise(function(resolve, reject) {
+			config.onrequeststart = function(requestXhr) {
+				this.xhr = requestXhr;
+			}.bind(this);
 
-	MobileAjaxWrapper.prototype.repeatAction = function(action, config, callbacks)
-	{
-		app.BasicAuth({
-			success: function (auth_data)
-			{
-				BX.ajax.runAction(action, config).then(function(response) {
-					if (BX.type.isFunction(callbacks.success))
-					{
-						callbacks.success(response);
-					}
-				}.bind(this), function(response) {
+			BX.ajax.runAction(action, config).then(function(response) {
+				if (BX.type.isFunction(callbacks.success))
+				{
+					callbacks.success(response);
+				}
+				resolve(response);
+			}.bind(this), function(response) {
+				if (this.xhr.status == 401)
+				{
+					return this.repeatAction(action, config, callbacks);
+				}
+				else
+				{
 					if (BX.type.isFunction(callbacks.failure))
 					{
 						callbacks.failure(response);
 					}
-				}.bind(this));
+					reject(response)
+				}
+			}.bind(this));
 
-			}.bind(this),
-			failture: function ()
+			if (BX.type.isFunction(this.progress_callback))
 			{
-				this.failure_callback();
-			}.bind(this)
-		});
+				BX.bind(this.xhr, "progress", this.progress_callback);
+			}
+			if (BX.type.isFunction(this.load_callback))
+			{
+				BX.bind(this.xhr, "load", this.load_callback);
+			}
+			if (BX.type.isFunction(this.loadstart_callback))
+			{
+				BX.bind(this.xhr, "loadstart", this.loadstart_callback);
+			}
+			if (BX.type.isFunction(this.loadend_callback))
+			{
+				BX.bind(this.xhr, "loadend", this.loadend_callback);
+			}
+			if (BX.type.isFunction(this.error_callback))
+			{
+				BX.bind(this.xhr, "error", this.error_callback);
+			}
+			if (BX.type.isFunction(this.abort_callback))
+			{
+				BX.bind(this.xhr, "abort", this.abort_callback);
+			}
+		}.bind(this));
+	};
+
+	MobileAjaxWrapper.prototype.repeatAction = function(action, config, callbacks)
+	{
+		if (!BX.type.isPlainObject(callbacks))
+		{
+			callbacks = {};
+		}
+
+		return new Promise(function(resolve, reject) {
+			app.BasicAuth({
+				success: function (auth_data)
+				{
+					BX.ajax.runAction(action, config).then(function(response) {
+						if (BX.type.isFunction(callbacks.success))
+						{
+							callbacks.success(response);
+						}
+						resolve(response);
+					}.bind(this), function(response) {
+						if (BX.type.isFunction(callbacks.failure))
+						{
+							callbacks.failure(response);
+						}
+						reject(response);
+					}.bind(this));
+				}.bind(this),
+				failture: function ()
+				{
+					if (BX.type.isFunction(callbacks.failure))
+					{
+						callbacks.failure();
+					}
+					reject();
+				}.bind(this)
+			});
+		}.bind(this));
 	};
 
 	MobileAjaxWrapper.prototype.RepeatRequest = function ()

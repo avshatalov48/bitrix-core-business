@@ -13,6 +13,9 @@
 
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI\Extension;
+
+Extension::load(["ui.buttons", "main.popup"]);
 
 $getTileTemplate = function () use ($arParams)
 {

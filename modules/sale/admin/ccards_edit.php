@@ -24,25 +24,25 @@ ClearVars();
 $errorMessage = "";
 $bVarsFromForm = false;
 
-$ID = IntVal($ID);
+$ID = intval($ID);
 
-if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions=="W" && check_bitrix_sessid())
+if ($REQUEST_METHOD=="POST" && $Update <> '' && $saleModulePermissions=="W" && check_bitrix_sessid())
 {
-	$USER_ID = IntVal($USER_ID);
+	$USER_ID = intval($USER_ID);
 	if ($USER_ID <= 0)
 		$errorMessage .= GetMessage("SCE_EMPTY_USER").".<br>";
 
-	$PAY_SYSTEM_ACTION_ID = IntVal($PAY_SYSTEM_ACTION_ID);
+	$PAY_SYSTEM_ACTION_ID = intval($PAY_SYSTEM_ACTION_ID);
 	if ($PAY_SYSTEM_ACTION_ID <= 0)
 		$errorMessage .= GetMessage("SCE_EMPTY_PAY_SYS").".<br>";
 
 	$CARD_TYPE = Trim($CARD_TYPE);
 	$CARD_TYPE = ToUpper($CARD_TYPE);
-	if (strlen($CARD_TYPE) <= 0)
+	if ($CARD_TYPE == '')
 		$errorMessage .= GetMessage("SCE_EMPTY_CARD_TYPE").".<br>";
 
 	$CARD_NUM = preg_replace("/[\D]+/", "", $CARD_NUM);
-	if (strlen($CARD_NUM) <= 0)
+	if ($CARD_NUM == '')
 	{
 		$errorMessage .= GetMessage("SCE_EMPTY_CARD_NUM").".<br>";
 	}
@@ -53,15 +53,15 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions=="W" 
 			$errorMessage .= GetMessage("SCE_WRONG_CARD_NUM").".<br>";
 	}
 
-	$CARD_EXP_MONTH = IntVal($CARD_EXP_MONTH);
+	$CARD_EXP_MONTH = intval($CARD_EXP_MONTH);
 	if ($CARD_EXP_MONTH < 1 || $CARD_EXP_MONTH > 12)
 		$errorMessage .= GetMessage("SCE_WRONG_MONTH").".<br>";
 
-	$CARD_EXP_YEAR = IntVal($CARD_EXP_YEAR);
+	$CARD_EXP_YEAR = intval($CARD_EXP_YEAR);
 	if ($CARD_EXP_YEAR < 2000 || $CARD_EXP_YEAR > 2100)
 		$errorMessage .= GetMessage("SCE_WRONG_YEAR").".<br>";
 
-	if (strlen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
 		$CURRENT_BUDGET = str_replace(",", ".", $CURRENT_BUDGET);
 		$CURRENT_BUDGET = DoubleVal($CURRENT_BUDGET);
@@ -70,31 +70,31 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions=="W" 
 		$SUM_MAX = str_replace(",", ".", $SUM_MAX);
 		$SUM_MAX = DoubleVal($SUM_MAX);
 		$ACTIVE = (($ACTIVE == "Y") ? "Y" : "N");
-		$SORT = ((IntVal($SORT) > 0) ? IntVal($SORT) : 100);
+		$SORT = ((intval($SORT) > 0) ? intval($SORT) : 100);
 		$CURRENCY = Trim($CURRENCY);
 		$SUM_CURRENCY = Trim($SUM_CURRENCY);
 
-		if (($SUM_MIN > 0 || $SUM_MAX > 0) && strlen($SUM_CURRENCY) <= 0)
+		if (($SUM_MIN > 0 || $SUM_MAX > 0) && $SUM_CURRENCY == '')
 			$errorMessage .= GetMessage("SCE_EMPTY_CURRENCY").".<br>";
 	}
 
-	if (strlen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
 		$arFields = array(
 				"USER_ID" => $USER_ID,
 				"ACTIVE" => $ACTIVE,
 				"SORT" => $SORT,
 				"PAY_SYSTEM_ACTION_ID" => $PAY_SYSTEM_ACTION_ID,
-				"CURRENCY" => ((strlen($CURRENCY) > 0) ? $CURRENCY : False),
+				"CURRENCY" => (($CURRENCY <> '') ? $CURRENCY : False),
 				"CARD_TYPE" => $CARD_TYPE,
 				"CARD_NUM" => CSaleUserCards::CryptData($CARD_NUM, "E"),
 				"CARD_EXP_MONTH" => $CARD_EXP_MONTH,
 				"CARD_EXP_YEAR" => $CARD_EXP_YEAR,
-				"DESCRIPTION" => ((strlen($DESCRIPTION) > 0) ? $DESCRIPTION : False),
+				"DESCRIPTION" => (($DESCRIPTION <> '') ? $DESCRIPTION : False),
 				"CARD_CODE" => $CARD_CODE,
 				"SUM_MIN" => (($SUM_MIN > 0) ? $SUM_MIN : False),
 				"SUM_MAX" => (($SUM_MAX > 0) ? $SUM_MAX : False),
-				"SUM_CURRENCY" => ((strlen($SUM_CURRENCY) > 0) ? $SUM_CURRENCY : False)
+				"SUM_CURRENCY" => (($SUM_CURRENCY <> '') ? $SUM_CURRENCY : False)
 			);
 
 		if ($ID > 0)
@@ -117,7 +117,7 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions=="W" 
 		}
 		else
 		{
-			if (strlen($apply)<=0)
+			if ($apply == '')
 				LocalRedirect("/bitrix/admin/sale_ccards_admin.php?lang=".LANG.GetFilterParams("filter_", false));
 		}
 	}
@@ -195,7 +195,7 @@ $context->Show();
 if (!CSaleUserCards::CheckPassword())
 	echo CAdminMessage::ShowMessage(Array("DETAILS"=>GetMessage("SCE_NO_VALID_PASSWORD"), "TYPE"=>"ERROR", "MESSAGE"=>GetMessage("SCE_ATTENTION")));
 ?>
-<?if(strlen($errorMessage)>0)
+<?if($errorMessage <> '')
 	echo CAdminMessage::ShowMessage(Array("DETAILS"=>$errorMessage, "TYPE"=>"ERROR", "MESSAGE"=>GetMessage("SCE_ERROR"), "HTML"=>true));?>
 
 
@@ -265,7 +265,7 @@ $tabControl->BeginNextTab();
 					);
 				while ($arPaySysActions = $dbPaySysActions->Fetch())
 				{
-					?><option value="<?= $arPaySysActions["ID"] ?>"<?if (IntVal($str_PAY_SYSTEM_ACTION_ID) == IntVal($arPaySysActions["ID"])) echo " selected";?>><?= htmlspecialcharsEx($arPaySysActions["NAME"]." [".$arPaySysActions["PS_NAME"]." / ".$arPaySysActions["PT_NAME"]."]") ?></option><?
+					?><option value="<?= $arPaySysActions["ID"] ?>"<?if (intval($str_PAY_SYSTEM_ACTION_ID) == intval($arPaySysActions["ID"])) echo " selected";?>><?= htmlspecialcharsEx($arPaySysActions["NAME"]." [".$arPaySysActions["PS_NAME"]." / ".$arPaySysActions["PT_NAME"]."]") ?></option><?
 				}
 				?>
 			</select>
@@ -294,7 +294,7 @@ $tabControl->BeginNextTab();
 	<tr class="adm-detail-required-field">
 		<td><?echo GetMessage("SCE_CARD_NUM")?></td>
 		<td>
-			<input type="text" name="CARD_NUM" size="30" maxlength="30" value="<?= (($saleModulePermissions == "W") ? $str_CARD_NUM : "XXXXXXXXXXX".substr($str_CARD_NUM, strlen($str_CARD_NUM)-4, 4)); ?>">
+			<input type="text" name="CARD_NUM" size="30" maxlength="30" value="<?= (($saleModulePermissions == "W") ? $str_CARD_NUM : "XXXXXXXXXXX".mb_substr($str_CARD_NUM, mb_strlen($str_CARD_NUM) - 4, 4)); ?>">
 		</td>
 	</tr>
 	<tr>
@@ -304,7 +304,7 @@ $tabControl->BeginNextTab();
 				<?
 				for ($i = 1; $i <= 12; $i++)
 				{
-					?><option value="<?= $i ?>"<?if (IntVal($str_CARD_EXP_MONTH) == $i) echo " selected";?>><?= ((strlen($i) < 2) ? "0".$i : $i) ?></option><?
+					?><option value="<?= $i ?>"<?if (intval($str_CARD_EXP_MONTH) == $i) echo " selected";?>><?= ((mb_strlen($i) < 2) ? "0".$i : $i) ?></option><?
 				}
 				?>
 			</select>
@@ -312,7 +312,7 @@ $tabControl->BeginNextTab();
 				<?
 				for ($i = 2005; $i <= 2100; $i++)
 				{
-					?><option value="<?= $i ?>"<?if (IntVal($str_CARD_EXP_YEAR) == $i) echo " selected";?>><?= $i ?></option><?
+					?><option value="<?= $i ?>"<?if (intval($str_CARD_EXP_YEAR) == $i) echo " selected";?>><?= $i ?></option><?
 				}
 				?>
 			</select>

@@ -112,13 +112,13 @@ class CBPRequestInformationOptionalActivity
 		$arParameters["FIELD_TYPES"] = $documentService->GetDocumentFieldTypes($arParameters["DOCUMENT_TYPE"]);
 		$arParameters["REQUEST"] = array();
 		$arParameters["TaskButtonMessage"] = $this->IsPropertyExists("TaskButtonMessage") ? $this->TaskButtonMessage : GetMessage("BPRIOA_ACT_BUTTON1");
-		if (strlen($arParameters["TaskButtonMessage"]) <= 0)
+		if ($arParameters["TaskButtonMessage"] == '')
 			$arParameters["TaskButtonMessage"] = GetMessage("BPRIOA_ACT_BUTTON1");
 		$arParameters["TaskButtonCancelMessage"] = $this->IsPropertyExists("TaskButtonCancelMessage") ? $this->TaskButtonCancelMessage : GetMessage("BPRIOA_ACT_BUTTON2");
-		if (strlen($arParameters["TaskButtonCancelMessage"]) <= 0)
+		if ($arParameters["TaskButtonCancelMessage"] == '')
 			$arParameters["TaskButtonCancelMessage"] = GetMessage("BPRIOA_ACT_BUTTON2");
 		$arParameters["CommentLabelMessage"] = $this->IsPropertyExists("CommentLabelMessage") ? $this->CommentLabelMessage : GetMessage("BPRIOA_ACT_COMMENT");
-		if (strlen($arParameters["CommentLabelMessage"]) <= 0)
+		if ($arParameters["CommentLabelMessage"] == '')
 			$arParameters["CommentLabelMessage"] = GetMessage("BPRIOA_ACT_COMMENT");
 		$arParameters["ShowComment"] = $this->IsPropertyExists("ShowComment") ? $this->ShowComment : "Y";
 		if ($arParameters["ShowComment"] != "Y" && $arParameters["ShowComment"] != "N")
@@ -173,7 +173,7 @@ class CBPRequestInformationOptionalActivity
 
 		if (!$this->IsPropertyExists("SetStatusMessage") || $this->SetStatusMessage == "Y")
 		{
-			$message = ($this->IsPropertyExists("StatusMessage") && strlen($this->StatusMessage) > 0) ? $this->StatusMessage : GetMessage("BPRIOA_ACT_INFO");
+			$message = ($this->IsPropertyExists("StatusMessage") && $this->StatusMessage <> '') ? $this->StatusMessage : GetMessage("BPRIOA_ACT_INFO");
 			$this->SetStatusTitle($message);
 		}
 
@@ -303,7 +303,7 @@ class CBPRequestInformationOptionalActivity
 		$this->WriteToTrackingService(
 			str_replace(
 				array("#PERSON#", "#COMMENT#"),
-				array("{=user:user_".$eventParameters["REAL_USER_ID"]."}", (strlen($eventParameters["COMMENT"]) > 0 ? ": ".$eventParameters["COMMENT"] : "")),
+				array("{=user:user_".$eventParameters["REAL_USER_ID"]."}", ($eventParameters["COMMENT"] <> '' ? ": ".$eventParameters["COMMENT"] : "")),
 				GetMessage($cancel ? 'BPRIOA_ACT_CANCEL_TRACK' : 'BPRIOA_ACT_APPROVE_TRACK')
 			),
 			$eventParameters["REAL_USER_ID"]
@@ -380,7 +380,7 @@ class CBPRequestInformationOptionalActivity
 		{
 			foreach ($arTask["PARAMETERS"]["REQUEST"] as $parameter)
 			{
-				if (strlen($parameter["Name"]) <= 0)
+				if ($parameter["Name"] == '')
 					continue;
 
 				$form .=
@@ -418,7 +418,7 @@ class CBPRequestInformationOptionalActivity
 			$commentText = $arRequest ? $arRequest['task_comment'] : '';
 			$form .=
 				'<tr><td valign="top" width="30%" align="right" class="bizproc-field-name">'
-				.(strlen($arTask["PARAMETERS"]["CommentLabelMessage"]) > 0 ? $arTask["PARAMETERS"]["CommentLabelMessage"] : GetMessage("BPRIOA_ACT_COMMENT"))
+				.($arTask["PARAMETERS"]["CommentLabelMessage"] <> '' ? $arTask["PARAMETERS"]["CommentLabelMessage"] : GetMessage("BPRIOA_ACT_COMMENT"))
 				.$required
 				.':</td>'.
 				'<td valign="top" width="70%" class="bizproc-field-value">'.
@@ -427,8 +427,8 @@ class CBPRequestInformationOptionalActivity
 		}
 
 		$buttons =
-			'<input type="submit" name="approve" value="'.(strlen($arTask["PARAMETERS"]["TaskButtonMessage"]) > 0 ? $arTask["PARAMETERS"]["TaskButtonMessage"] : GetMessage("BPRIOA_ACT_BUTTON1")).'"/>
-			<input type="submit" name="cancel" value="'.(strlen($arTask["PARAMETERS"]["TaskButtonCancelMessage"]) > 0 ? $arTask["PARAMETERS"]["TaskButtonCancelMessage"] : GetMessage("BPRIOA_ACT_BUTTON2")).'"/>';
+			'<input type="submit" name="approve" value="'.($arTask["PARAMETERS"]["TaskButtonMessage"] <> '' ? $arTask["PARAMETERS"]["TaskButtonMessage"] : GetMessage("BPRIOA_ACT_BUTTON1")).'"/>
+			<input type="submit" name="cancel" value="'.($arTask["PARAMETERS"]["TaskButtonCancelMessage"] <> '' ? $arTask["PARAMETERS"]["TaskButtonCancelMessage"] : GetMessage("BPRIOA_ACT_BUTTON2")).'"/>';
 
 		return array($form, $buttons);
 	}
@@ -442,14 +442,14 @@ class CBPRequestInformationOptionalActivity
 					'TARGET_USER_STATUS' => CBPTaskUserStatus::Ok,
 					'NAME'  => 'approve',
 					'VALUE' => 'Y',
-					'TEXT'  => strlen($arTask["PARAMETERS"]["TaskButtonMessage"]) > 0 ? $arTask["PARAMETERS"]["TaskButtonMessage"] : GetMessage("BPAA_ACT_BUTTON1")
+					'TEXT'  => $arTask["PARAMETERS"]["TaskButtonMessage"] <> '' ? $arTask["PARAMETERS"]["TaskButtonMessage"] : GetMessage("BPAA_ACT_BUTTON1")
 				),
 				array(
 					'TYPE'  => 'submit',
 					'TARGET_USER_STATUS' => CBPTaskUserStatus::Cancel,
 					'NAME'  => 'cancel',
 					'VALUE' => 'Y',
-					'TEXT'  => strlen($arTask["PARAMETERS"]["TaskButtonCancelMessage"]) > 0 ? $arTask["PARAMETERS"]["TaskButtonCancelMessage"] : GetMessage("BPAA_ACT_BUTTON2")
+					'TEXT'  => $arTask["PARAMETERS"]["TaskButtonCancelMessage"] <> '' ? $arTask["PARAMETERS"]["TaskButtonCancelMessage"] : GetMessage("BPAA_ACT_BUTTON2")
 				)
 			)
 		);
@@ -547,7 +547,7 @@ class CBPRequestInformationOptionalActivity
 			&& $arTask['PARAMETERS']['CommentRequired'] === 'Y'
 		)
 		{
-			$label = strlen($arTask["PARAMETERS"]["CommentLabelMessage"]) > 0 ? $arTask["PARAMETERS"]["CommentLabelMessage"] : GetMessage("BPAR_ACT_COMMENT");
+			$label = $arTask["PARAMETERS"]["CommentLabelMessage"] <> '' ? $arTask["PARAMETERS"]["CommentLabelMessage"] : GetMessage("BPAR_ACT_COMMENT");
 			throw new CBPArgumentNullException(
 				'task_comment',
 				GetMessage("BPRIOA_ACT_COMMENT_ERROR", array(
@@ -606,7 +606,7 @@ class CBPRequestInformationOptionalActivity
 			$bUsersFieldEmpty = true;
 			foreach ($arTestProperties["Users"] as $userId)
 			{
-				if (!is_array($userId) && (strlen(trim($userId)) > 0) || is_array($userId) && (count($userId) > 0))
+				if (!is_array($userId) && (trim($userId) <> '') || is_array($userId) && (count($userId) > 0))
 				{
 					$bUsersFieldEmpty = false;
 					break;
@@ -617,7 +617,7 @@ class CBPRequestInformationOptionalActivity
 		if ($bUsersFieldEmpty)
 			$arErrors[] = array("code" => "NotExist", "parameter" => "Users", "message" => GetMessage("BPRIOA_ACT_PROP_EMPTY1"));
 
-		if (!array_key_exists("Name", $arTestProperties) || strlen($arTestProperties["Name"]) <= 0)
+		if (!array_key_exists("Name", $arTestProperties) || $arTestProperties["Name"] == '')
 			$arErrors[] = array("code" => "NotExist", "parameter" => "Name", "message" => GetMessage("BPRIOA_ACT_PROP_EMPTY4"));
 
 		if (!array_key_exists("RequestedInformation", $arTestProperties) || !is_array($arTestProperties["RequestedInformation"]) || count($arTestProperties["RequestedInformation"]) <= 0)
@@ -631,7 +631,7 @@ class CBPRequestInformationOptionalActivity
 		$timeoutDuration = ($this->IsPropertyExists("TimeoutDuration") ? $this->TimeoutDuration : 0);
 
 		$timeoutDurationType = ($this->IsPropertyExists("TimeoutDurationType") ? $this->TimeoutDurationType : "s");
-		$timeoutDurationType = strtolower($timeoutDurationType);
+		$timeoutDurationType = mb_strtolower($timeoutDurationType);
 		if (!in_array($timeoutDurationType, array("s", "d", "h", "m")))
 			$timeoutDurationType = "s";
 
@@ -723,7 +723,7 @@ class CBPRequestInformationOptionalActivity
 		{
 			for ($i = 0, $cnt = count($arCurrentValues["requested_information"]) + 1; $i < $cnt; $i++)
 			{
-				if (strlen($arCurrentValues["requested_information"][$i]["Name"]) <= 0)
+				if ($arCurrentValues["requested_information"][$i]["Name"] == '')
 					continue;
 
 				$j++;
@@ -734,15 +734,15 @@ class CBPRequestInformationOptionalActivity
 		}
 
 		$arCurrentValues["requested_information"] = $ar;
-		if (strlen($arCurrentValues['comment_label_message']) <= 0)
+		if ($arCurrentValues['comment_label_message'] == '')
 			$arCurrentValues['comment_label_message'] = GetMessage("BPRIOA_ACT_COMMENT");
-		if (strlen($arCurrentValues['task_button_message']) <= 0)
+		if ($arCurrentValues['task_button_message'] == '')
 			$arCurrentValues['task_button_message'] = GetMessage("BPRIOA_ACT_BUTTON1");
-		if (strlen($arCurrentValues['task_button_cancel_message']) <= 0)
+		if ($arCurrentValues['task_button_cancel_message'] == '')
 			$arCurrentValues['task_button_cancel_message'] = GetMessage("BPRIOA_ACT_BUTTON2");
-		if (strlen($arCurrentValues['status_message']) <= 0)
+		if ($arCurrentValues['status_message'] == '')
 			$arCurrentValues['status_message'] = GetMessage("BPRIOA_ACT_INFO");
-		if (strlen($arCurrentValues["timeout_duration_type"]) <= 0)
+		if ($arCurrentValues["timeout_duration_type"] == '')
 			$arCurrentValues["timeout_duration_type"] = "s";
 
 		$javascriptFunctions = $documentService->GetJSFunctionsForFields($documentType, "objFields", $arDocumentFields, $arFieldTypes);
@@ -807,7 +807,7 @@ class CBPRequestInformationOptionalActivity
 		{
 			foreach ($arProperties["RequestedInformation"] as $arRI)
 			{
-				if (strlen($arRI["Name"]) <= 0)
+				if ($arRI["Name"] == '')
 					continue;
 
 				$j++;

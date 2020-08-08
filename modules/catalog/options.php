@@ -32,6 +32,8 @@ $applyDiscSaveModeList = CCatalogDiscountSave::GetApplyModeList(true);
 
 $saleSettingsUrl = 'settings.php?lang='.LANGUAGE_ID.'&mid=sale&mid_menu=1';
 
+$enabledCommonCatalog = Catalog\Config\Feature::isCommonProductProcessingEnabled();
+
 if ($_SERVER['REQUEST_METHOD'] == 'GET' && !empty($_REQUEST['RestoreDefaults']) && !$bReadOnly && check_bitrix_sessid())
 {
 	$strValTmp = '';
@@ -252,6 +254,10 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['Update']) && !$bReadO
 		'product_form_show_offer_name',
 		'enable_processing_deprecated_events'
 	);
+	if ($enabledCommonCatalog)
+	{
+		$checkboxFields[] = 'product_card_slider_enabled';
+	}
 
 	foreach ($checkboxFields as $oneCheckbox)
 	{
@@ -1210,6 +1216,7 @@ $currentSettings['get_discount_percent_from_base_price'] = (string)Option::get((
 $currentSettings['save_product_with_empty_price_range'] = (string)Option::get('catalog', 'save_product_with_empty_price_range');
 $currentSettings['default_product_vat_included'] = (string)Option::get('catalog', 'default_product_vat_included');
 $currentSettings['enable_processing_deprecated_events'] = (string)Option::get('catalog', 'enable_processing_deprecated_events');
+$currentSettings['product_card_slider_enabled'] = (string)Option::get('catalog', 'product_card_slider_enabled');
 
 $strShowCatalogTab = Option::get('catalog', 'show_catalog_tab_with_offers');
 $strSaveProductWithoutPrice = Option::get('catalog', 'save_product_without_price');
@@ -1298,6 +1305,20 @@ function RestoreDefaults()
 <tr class="heading">
 	<td colspan="2"><? echo Loc::getMessage("CAT_PRODUCT_CARD") ?></td>
 </tr>
+<?php
+if ($enabledCommonCatalog)
+{
+	?>
+	<tr>
+		<td width="40%"><label for="product_card_slider_enabled"><? echo Loc::getMessage("CAT_PRODUCT_CARD_SLIDER_ENABLED"); ?></label></td>
+		<td width="60%">
+			<input type="hidden" name="product_card_slider_enabled" id="product_card_slider_enabled_n" value="N">
+			<input type="checkbox" name="product_card_slider_enabled" id="product_card_slider_enabled_y" value="Y"<?=($currentSettings['product_card_slider_enabled'] == 'Y') ? ' checked' : ''?>>
+		</td>
+	</tr>
+	<?
+}
+?>
 <tr>
 	<td width="40%"><label for="save_product_without_price_y"><? echo Loc::getMessage("CAT_SAVE_PRODUCTS_WITHOUT_PRICE"); ?></label></td>
 	<td width="60%">
@@ -1581,7 +1602,7 @@ for ($i = 0, $intCount = count($arAllOptions); $i < $intCount; $i++)
 	<td width="60%">
 		<?$default_outfile_action = Option::get('catalog', 'default_outfile_action');?>
 		<select name="default_outfile_action">
-			<option value="D" <?if ($default_outfile_action=="D" || strlen($default_outfile_action)<=0) echo "selected" ?>><?echo Loc::getMessage("CAT_DEF_OUTFILE_D") ?></option>
+			<option value="D" <?if ($default_outfile_action=="D" || $default_outfile_action == '') echo "selected" ?>><?echo Loc::getMessage("CAT_DEF_OUTFILE_D") ?></option>
 			<option value="H" <?if ($default_outfile_action=="H") echo "selected" ?>><?=Loc::getMessage("CAT_DEF_OUTFILE_H")?></option>
 			<option value="F" <?if ($default_outfile_action=="F") echo "selected" ?>><?=Loc::getMessage("CAT_DEF_OUTFILE_F")?></option>
 		</select>

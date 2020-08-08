@@ -71,7 +71,7 @@ final class CurrencyClassifier
 		{
 			reset(self::$currencyClassifier);
 			$currentElement = current(self::$currencyClassifier);
-			$upperLanguageId = strtoupper($languageId);
+			$upperLanguageId = mb_strtoupper($languageId);
 
 			if (isset($currentElement[$upperLanguageId]))
 				continue;
@@ -111,7 +111,7 @@ final class CurrencyClassifier
 	 */
 	private static function sort($baseLanguageId)
 	{
-		$baseLanguageId = strtoupper(trim($baseLanguageId));
+		$baseLanguageId = mb_strtoupper(trim($baseLanguageId));
 		if ($baseLanguageId === '')
 			return;
 		if (self::$lastSortLanguage == $baseLanguageId)

@@ -12,12 +12,12 @@ if (array_key_exists("COMPONENT_VERSION", $arParams) && $arParams["COMPONENT_VER
 	}
 
 	$arParams["ID"] = trim($arParams["ID"]);
-	if (strlen($arParams["ID"]) <= 0)
+	if ($arParams["ID"] == '')
 		$arParams["ID"] = trim($_REQUEST["ID"]);
-	if (strlen($arParams["ID"]) <= 0)
+	if ($arParams["ID"] == '')
 		$arParams["ID"] = trim($_REQUEST["id"]);
 
-	if (strlen($arParams["ID"]) <= 0)
+	if ($arParams["ID"] == '')
 		$arResult["FatalErrorMessage"] .= GetMessage("BPABL_INVALID_WF").". ";
 
 	$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y"); //Turn on by default
@@ -29,14 +29,14 @@ if (array_key_exists("COMPONENT_VERSION", $arParams) && $arParams["COMPONENT_VER
 	$arResult["FatalErrorMessage"] = "";
 	$arResult["ErrorMessage"] = "";
 
-	if (strlen($arResult["FatalErrorMessage"]) <= 0)
+	if ($arResult["FatalErrorMessage"] == '')
 	{
 		$arResult["WorkflowState"] = $arWorkflowState = CBPStateService::GetWorkflowState($arParams["ID"]);
 		if (!is_array($arWorkflowState) || count($arWorkflowState) <= 0)
 			$arResult["FatalErrorMessage"] .= GetMessage("BPABL_INVALID_WF").". ";
 	}
 
-	if (strlen($arResult["FatalErrorMessage"]) <= 0)
+	if ($arResult["FatalErrorMessage"] == '')
 	{
 		$documentId = $arWorkflowState["DOCUMENT_ID"];
 		$bCanView = CBPDocument::CanUserOperateDocument(
@@ -49,7 +49,7 @@ if (array_key_exists("COMPONENT_VERSION", $arParams) && $arParams["COMPONENT_VER
 			$arResult["FatalErrorMessage"] .= GetMessage("BPABL_NO_PERMS").". ";
 	}
 
-	if (strlen($arResult["FatalErrorMessage"]) <= 0)
+	if ($arResult["FatalErrorMessage"] == '')
 	{
 		$runtime = CBPRuntime::GetRuntime();
 		$runtime->StartRuntime();
@@ -119,15 +119,15 @@ if (array_key_exists("COMPONENT_VERSION", $arParams) && $arParams["COMPONENT_VER
 				continue;
 			}
 
-			if (substr($key, -5) == "_from")
+			if (mb_substr($key, -5) == "_from")
 			{
 				$op = ">=";
-				$newKey = substr($key, 0, -5);
+				$newKey = mb_substr($key, 0, -5);
 			}
-			elseif (substr($key, -3) == "_to")
+			elseif (mb_substr($key, -3) == "_to")
 			{
 				$op = "<=";
-				$newKey = substr($key, 0, -3);
+				$newKey = mb_substr($key, 0, -3);
 			}
 			else
 			{
@@ -173,7 +173,7 @@ if (array_key_exists("COMPONENT_VERSION", $arParams) && $arParams["COMPONENT_VER
 			$date = $arTrack["MODIFIED"];
 
 			if ($arResult["AdminMode"])
-				$name = (strlen($arTrack["ACTION_TITLE"]) > 0 ? $prefix.$arTrack["ACTION_TITLE"]."<br/>".$prefix."(".$arTrack["ACTION_NAME"].")" : $prefix.$arTrack["ACTION_NAME"]);
+				$name = ($arTrack["ACTION_TITLE"] <> '' ? $prefix.$arTrack["ACTION_TITLE"]."<br/>".$prefix."(".$arTrack["ACTION_NAME"].")" : $prefix.$arTrack["ACTION_NAME"]);
 			else
 				$name = $arTrack["ACTION_TITLE"];
 
@@ -263,7 +263,7 @@ if (array_key_exists("COMPONENT_VERSION", $arParams) && $arParams["COMPONENT_VER
 		}
 	}
 
-	if (strlen($arResult["FatalErrorMessage"]) <= 0)
+	if ($arResult["FatalErrorMessage"] == '')
 	{
 		if ($arParams["SET_TITLE"] == "Y")
 			$APPLICATION->SetTitle(GetMessage("BPABL_PAGE_TITLE").": ".$arResult["WorkflowState"]["TEMPLATE_NAME"]);
@@ -296,12 +296,12 @@ else
 		if ($arParams["ID"] <= 0)
 			$arParams["ID"] = trim($_REQUEST["id"]);
 
-		$arParams["USER_ID"] = intVal($GLOBALS["USER"]->GetID());
+		$arParams["USER_ID"] = intval($GLOBALS["USER"]->GetID());
 		$arParams["WORKFLOW_ID"] = (empty($arParams["WORKFLOW_ID"]) ? $_REQUEST["WORKFLOW_ID"] : $arParams["WORKFLOW_ID"]);
 	//***************** URL ********************************************/
 		$arResult["back_url"] = urlencode(empty($_REQUEST["back_url"]) ? $APPLICATION->GetCurPageParam() : $_REQUEST["back_url"]);
 	/***************** ADDITIONAL **************************************/
-		$arParams["PAGE_ELEMENTS"] = intVal(intVal($arParams["PAGE_ELEMENTS"]) > 0 ? $arParams["PAGE_ELEMENTS"] : 50);
+		$arParams["PAGE_ELEMENTS"] = intval(intVal($arParams["PAGE_ELEMENTS"]) > 0 ? $arParams["PAGE_ELEMENTS"] : 50);
 		$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
 	/***************** STANDART ****************************************/
 		$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y"); //Turn on by default
@@ -311,7 +311,7 @@ else
 
 	$arError = array();
 
-	if (strlen($arParams["ID"]) <= 0)
+	if ($arParams["ID"] == '')
 	{
 		$arError[] = array(
 			"id" => "error",

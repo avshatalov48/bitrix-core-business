@@ -15,6 +15,7 @@ CModule::AddAutoloadClasses(
 		"CPullOptions" => "classes/general/pull_options.php",
 		"CPullTableSchema" => "classes/general/pull_table_schema.php",
 
+		"CPushDescription" => "classes/general/pushservices/services_descriptions.php",
 		"CPullPush" => "classes/general/pull_push.php",
 		"CPushMessage" => "classes/general/pushservices/push_message.php",
 		"CPushService" => "classes/general/pushservices/push_service.php",

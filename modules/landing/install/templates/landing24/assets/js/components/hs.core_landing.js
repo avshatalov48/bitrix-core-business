@@ -26,10 +26,6 @@
         $.HSCore.helpers.detectIE();
       });
 
-      $(window).on('load', function (e) {
-
-      });
-
     },
 
     /**

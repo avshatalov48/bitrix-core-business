@@ -117,7 +117,6 @@ a.process-step-more {
 	height: 43px;
 	border-radius: 50%;
 	margin: auto;
-	vertical-align: middle;
 }
 
 .bp-short-process-step:after {
@@ -302,7 +301,6 @@ a.process-step-more {
 	height: 25px;
 	border-radius: 50%;
 	margin: auto;
-	vertical-align: middle;
 }
 
 .bp-popup-parallel-avatar:after {

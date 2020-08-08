@@ -90,6 +90,12 @@ ob_start();
 	?>
 		<div class="mp_pp_content" style="margin-left: 20px;">
 			<div id="mp_detail_error" style="color: red; margin-bottom: 10px; font-size: 12px;"></div>
+			<? if($arResult['TERMS_OF_SERVICE_LINK']):?>
+				<div style="margin-bottom: 8px;">
+					<input type="checkbox" id="mp_tos_license" value="N">
+					<label for="mp_tos_license"><?=GetMessage("BX24_APP_INSTALL_TERMS_OF_SERVICE_TEXT", ["#LINK#" => $arResult['TERMS_OF_SERVICE_LINK']])?></label>
+				</div>
+			<? endif;?>
 			<?if (LANGUAGE_ID == "ru" || LANGUAGE_ID == "ua" || $arResult["APP"]["EULA_LINK"]):?>
 			<div style="margin-bottom: 8px;">
 				<input type="checkbox" id="mp_detail_license" value="N">

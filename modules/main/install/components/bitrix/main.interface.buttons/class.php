@@ -35,7 +35,13 @@ class CMainInterfaceButtons extends CBitrixComponent
 	 * Component items settings
 	 * @var array
 	 */
-	protected $settings = array();
+	protected $settings = [];
+
+	/**
+	 * User options expanded items
+	 * @var array
+	 */
+	private $expandedLists = [];
 
 
 	/**
@@ -134,17 +140,18 @@ class CMainInterfaceButtons extends CBitrixComponent
 	/**
 	 * Prepares user options
 	 * @param array $userOptions
+	 * @param $userOptionsKey
 	 * @return array User options
 	 */
-	protected function prepareUserOptions($userOptions)
+	protected function prepareUserOptions($userOptions, $userOptionsKey)
 	{
 		$userOptionsSettings = array();
 
 		if (is_array($userOptions) &&
-			isset($userOptions[$this->userOptionsKey]) &&
-			!empty($userOptions[$this->userOptionsKey]))
+			isset($userOptions[$userOptionsKey]) &&
+			!empty($userOptions[$userOptionsKey]))
 		{
-			$userOptionsSettings = json_decode($userOptions[$this->userOptionsKey], true);
+			$userOptionsSettings = json_decode($userOptions[$userOptionsKey], true);
 		}
 
 		return $userOptionsSettings;
@@ -157,8 +164,10 @@ class CMainInterfaceButtons extends CBitrixComponent
 	protected function prepareSettings()
 	{
 		$userOptionsRaw = $this->getUserOptions();
-		$settings = $this->prepareUserOptions($userOptionsRaw);
+		$settings = $this->prepareUserOptions($userOptionsRaw, $this->userOptionsKey);
 		$this->settings = $settings;
+
+		$this->expandedLists = $this->prepareUserOptions($userOptionsRaw, 'expanded_lists');
 	}
 
 
@@ -520,6 +529,30 @@ class CMainInterfaceButtons extends CBitrixComponent
 		}
 
 		$items = $this->sortBySortIndex($items);
+
+		foreach ($items as $key => $item)
+		{
+			$childItems = array_filter($items, function($currentItem) use ($item) {
+				return isset($currentItem['PARENT_ITEM_ID']) && $currentItem['PARENT_ITEM_ID'] === $item['DATA_ID'];
+			});
+
+			$items[$key]['HAS_CHILD'] = is_array($childItems) && count($childItems) > 0;
+
+			if ($items[$key]['HAS_CHILD'] === true)
+			{
+				$items[$key]['EXPANDED'] = true;
+				if (array_key_exists($item['DATA_ID'], $this->expandedLists)
+					&& $this->expandedLists[$item['DATA_ID']] == 'N')
+				{
+					$items[$key]['EXPANDED'] = false;
+				}
+				$items[$key]['CHILD_ITEMS'] = [];
+				foreach ($childItems as $currentItem)
+				{
+					$items[$key]['CHILD_ITEMS'][] = $currentItem;
+				}
+			}
+		}
 
 		return $items;
 	}

@@ -18,14 +18,14 @@ if ($arResult["NEED_AUTH"] == "Y")
 {
 	$APPLICATION->AuthForm("");
 }
-elseif (strlen($arResult["FatalError"])>0)
+elseif ($arResult["FatalError"] <> '')
 {
 	?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?
 }
 else
 {
 	CUtil::InitJSCore(array("tooltip", "popup", "sidepanel"));
-	if(strlen($arResult["ErrorMessage"])>0)
+	if($arResult["ErrorMessage"] <> '')
 	{
 		?><span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br /><?
 	}
@@ -60,7 +60,7 @@ else
 		});
 	</script><?
 
-	?><div id="sonet_group_requests_error_block" class="ui-alert ui-alert-xs ui-alert-danger ui-alert-icon-danger<?=(strlen($arResult["ErrorMessage"]) > 0 ? "" : " sonet-ui-form-error-block-invisible")?>"><?=$arResult["ErrorMessage"]?></div><?
+	?><div id="sonet_group_requests_error_block" class="ui-alert ui-alert-xs ui-alert-danger ui-alert-icon-danger<?=($arResult["ErrorMessage"] <> '' ? "" : " sonet-ui-form-error-block-invisible")?>"><?=$arResult["ErrorMessage"]?></div><?
 
 	if (in_array($arResult['MODE'], array('ALL', 'IN')))
 	{
@@ -99,7 +99,7 @@ else
 								</div>
 								<div class="invite-list-img sonet-group-request-cell">
 									<div class="invite-active-block">
-										<span class="invite-list-img-image" style="<?=(is_array($arRequest["USER_PERSONAL_PHOTO_IMG"]) && strlen($arRequest["USER_PERSONAL_PHOTO_IMG"]["src"]) > 0 ? "background: url('".$arRequest["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></span>
+										<span class="invite-list-img-image" style="<?=(is_array($arRequest["USER_PERSONAL_PHOTO_IMG"]) && $arRequest["USER_PERSONAL_PHOTO_IMG"]["src"] <> '' ? "background: url('".$arRequest["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></span>
 										<div class="sonet-group-request-user-box">
 											<a class="invite-user-link" href="<?=($arRequest["SHOW_PROFILE_LINK"] ? htmlspecialcharsback($arRequest["USER_PROFILE_URL"]) : '')?>" bx-tooltip-user-id="<?=$arRequest["USER_ID"]?>" id="anchor_<?=$tooltip_id?>"><?=$arRequest["USER_NAME_FORMATTED"]?></a>
 											<div class="sonet-group-request-desc"><?=$arRequest["USER_WORK_POSITION"]?></div>
@@ -192,7 +192,7 @@ else
 								</div>
 								<div class="invite-list-img sonet-group-request-cell">
 									<div class="invite-active-block">
-										<span class="invite-list-img-image" style="<?=(is_array($arRequest["USER_PERSONAL_PHOTO_IMG"]) && strlen($arRequest["USER_PERSONAL_PHOTO_IMG"]["src"]) > 0 ? "background: url('".$arRequest["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></span>
+										<span class="invite-list-img-image" style="<?=(is_array($arRequest["USER_PERSONAL_PHOTO_IMG"]) && $arRequest["USER_PERSONAL_PHOTO_IMG"]["src"] <> '' ? "background: url('".$arRequest["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></span>
 										<div class="sonet-group-request-user-box">
 											<a class="invite-user-link" href="<?=($arRequest["SHOW_PROFILE_LINK"] ? htmlspecialcharsback($arRequest["USER_PROFILE_URL"]) : '')?>" bx-tooltip-user-id="<?=$arRequest["USER_ID"]?>" id="anchor_<?=$tooltip_id?>"><?=$arRequest["USER_NAME_FORMATTED"]?></a>
 											<div class="sonet-group-request-desc"><?=$arRequest["USER_WORK_POSITION"]?></div>

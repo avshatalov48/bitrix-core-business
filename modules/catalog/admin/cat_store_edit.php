@@ -52,7 +52,7 @@ $userId = (int)$USER->GetID();
 
 $entityId = "CAT_STORE";
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_REQUEST["Update"]) > 0 && !$bReadOnly && check_bitrix_sessid())
+if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Update"] <> '' && !$bReadOnly && check_bitrix_sessid())
 {
 	$adminSidePanelHelper->decodeUriComponent();
 
@@ -67,11 +67,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_REQUEST["Update"]) > 0 && !
 	if (trim($ADDRESS) == '')
 		$errorMessage .= GetMessage("ADDRESS_EMPTY")."<br>";
 
-	if (strlen($isImage) == 0 && (strlen($arPREVIEW_PICTURE["name"]) > 0 || strlen($arPREVIEW_PICTURE["del"]) > 0))
+	if ($isImage == '' && ($arPREVIEW_PICTURE["name"] <> '' || $arPREVIEW_PICTURE["del"] <> ''))
 	{
 		$fileId = CFile::SaveFile($arPREVIEW_PICTURE, "catalog");
 	}
-	elseif (strlen($isImage) > 0)
+	elseif ($isImage <> '')
 	{
 		$errorMessage .= $isImage."<br>";
 	}
@@ -133,7 +133,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_REQUEST["Update"]) > 0 && !
 	{
 		$DB->Commit();
 
-		if (strlen($_REQUEST["apply"]) <= 0)
+		if ($_REQUEST["apply"] == '')
 		{
 			$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $id));
 			$adminSidePanelHelper->localRedirect($listUrl);

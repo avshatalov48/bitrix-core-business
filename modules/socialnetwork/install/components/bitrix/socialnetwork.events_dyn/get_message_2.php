@@ -8,7 +8,7 @@ define("PUBLIC_AJAX_MODE", true);
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/bx_root.php");
 
-$cuid = IntVal($_REQUEST["cuid"]);
+$cuid = intval($_REQUEST["cuid"]);
 $site_id = (isset($_REQUEST["site"]) && is_string($_REQUEST["site"])) ? trim($_REQUEST["site"]) : "";
 
 if (isset($_REQUEST["is"]))
@@ -62,7 +62,7 @@ if(CModule::IncludeModule("compression"))
 
 if(CModule::IncludeModule("socialnetwork"))
 {
-	$userID = IntVal($_REQUEST["user_id"]);
+	$userID = intval($_REQUEST["user_id"]);
 	$mptr = Trim($_REQUEST["mptr"]);
 	
 	if(isset($_REQUEST["log"]))
@@ -74,9 +74,9 @@ if(CModule::IncludeModule("socialnetwork"))
 	$arParams["PATH_TO_GROUP"] = Trim($GLOBALS["APPLICATION"]->UnJSEscape($_REQUEST["gp"]));
 	$arParams["PATH_TO_MESSAGE_FORM_MESS"] = Trim($GLOBALS["APPLICATION"]->UnJSEscape($_REQUEST["mpm"]));
 		
-	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".strToLower($GLOBALS["DB"]->type)."/favorites.php");
+	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
 			
-	if (strlen(trim($_REQUEST["nt"])) > 0)
+	if (trim($_REQUEST["nt"]) <> '')
 		$arParams["NAME_TEMPLATE"] = Trim($GLOBALS["APPLICATION"]->UnJSEscape($_REQUEST["nt"]));
 	else
 		$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
@@ -102,18 +102,18 @@ if(CModule::IncludeModule("socialnetwork"))
 	{
 		$site_datetime_format = CSite::GetDateFormat("FULL", $site);
 		$date_pos = false;
-		$date_pos = strpos($site_datetime_format, "DD");
+		$date_pos = mb_strpos($site_datetime_format, "DD");
 		if ($date_pos === false)
-			$date_pos = strpos($site_datetime_format, "MM");
+			$date_pos = mb_strpos($site_datetime_format, "MM");
 		if ($date_pos === false)
-			$date_pos = strpos($site_datetime_format, "YY");
+			$date_pos = mb_strpos($site_datetime_format, "YY");
 
 		$time_pos = false;
-		$time_pos = strpos($site_datetime_format, "HH");
+		$time_pos = mb_strpos($site_datetime_format, "HH");
 		if ($time_pos === false)
-			$time_pos = strpos($site_datetime_format, "MI");
+			$time_pos = mb_strpos($site_datetime_format, "MI");
 		if ($time_pos === false)
-			$time_pos = strpos($site_datetime_format, "SS");
+			$time_pos = mb_strpos($site_datetime_format, "SS");
 
 		$last_message_ts = CUserOptions::GetOption('socialnetwork', 'SONET_EVENT_TIMESTAMP', 0);
 
@@ -263,9 +263,9 @@ if(CModule::IncludeModule("socialnetwork"))
 				$arTmpData["DATE_DATETIME_FORMATTED"] = ConvertTimeStamp($arTmpData["DATE_TIMESTAMP"], "FULL", $site);
 
 				if ($time_pos > $date_pos)
-					$arTmpData["DATE_TIME_FORMATTED"] = trim(substr($arTmpData["DATE_DATETIME_FORMATTED"], strlen($arTmpData["DATE_DATE_FORMATTED"])), " ,.;:");
+					$arTmpData["DATE_TIME_FORMATTED"] = trim(mb_substr($arTmpData["DATE_DATETIME_FORMATTED"], mb_strlen($arTmpData["DATE_DATE_FORMATTED"])), " ,.;:");
 				elseif ($date_pos > $time_pos && $time_pos !== false)
-					$arTmpData["DATE_TIME_FORMATTED"] = trim(substr($arTmpData["DATE_DATETIME_FORMATTED"], 0, $date_pos), " ,.;:");
+					$arTmpData["DATE_TIME_FORMATTED"] = trim(mb_substr($arTmpData["DATE_DATETIME_FORMATTED"], 0, $date_pos), " ,.;:");
 				else
 					$arTmpData["DATE_TIME_FORMATTED"] = "";
 
@@ -408,9 +408,9 @@ if(CModule::IncludeModule("socialnetwork"))
 				$arTmpData["DATE_DATETIME_FORMATTED"] = ConvertTimeStamp($arTmpData["DATE_TIMESTAMP"], "FULL", $site);
 
 				if ($time_pos > $date_pos)
-					$arTmpData["DATE_TIME_FORMATTED"] = trim(substr($arTmpData["DATE_DATETIME_FORMATTED"], strlen($arTmpData["DATE_DATE_FORMATTED"])), " ,.;:");
+					$arTmpData["DATE_TIME_FORMATTED"] = trim(mb_substr($arTmpData["DATE_DATETIME_FORMATTED"], mb_strlen($arTmpData["DATE_DATE_FORMATTED"])), " ,.;:");
 				elseif ($date_pos > $time_pos && $time_pos !== false)
-					$arTmpData["DATE_TIME_FORMATTED"] = trim(substr($arTmpData["DATE_DATETIME_FORMATTED"], 0, $date_pos), " ,.;:");
+					$arTmpData["DATE_TIME_FORMATTED"] = trim(mb_substr($arTmpData["DATE_DATETIME_FORMATTED"], 0, $date_pos), " ,.;:");
 				else
 					$arTmpData["DATE_TIME_FORMATTED"] = "";
 
@@ -539,9 +539,9 @@ if(CModule::IncludeModule("socialnetwork"))
 				$arTmpData["DATE_DATETIME_FORMATTED"] = ConvertTimeStamp($arTmpData["DATE_TIMESTAMP"], "FULL", $site);
 
 				if ($time_pos > $date_pos)
-					$arTmpData["DATE_TIME_FORMATTED"] = trim(substr($arTmpData["DATE_DATETIME_FORMATTED"], strlen($arTmpData["DATE_DATE_FORMATTED"])), " ,.;:");
+					$arTmpData["DATE_TIME_FORMATTED"] = trim(mb_substr($arTmpData["DATE_DATETIME_FORMATTED"], mb_strlen($arTmpData["DATE_DATE_FORMATTED"])), " ,.;:");
 				elseif ($date_pos > $time_pos && $time_pos !== false)
-					$arTmpData["DATE_TIME_FORMATTED"] = trim(substr($arTmpData["DATE_DATETIME_FORMATTED"], 0, $date_pos), " ,.;:");
+					$arTmpData["DATE_TIME_FORMATTED"] = trim(mb_substr($arTmpData["DATE_DATETIME_FORMATTED"], 0, $date_pos), " ,.;:");
 				else
 					$arTmpData["DATE_TIME_FORMATTED"] = "";
 

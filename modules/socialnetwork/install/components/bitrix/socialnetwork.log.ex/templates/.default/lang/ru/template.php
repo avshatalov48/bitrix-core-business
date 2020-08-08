@@ -30,4 +30,8 @@ $MESS["SONET_C30_T_RELOAD_ERROR"] = "Ошибка при обновлении ж
 $MESS["SONET_C30_T_LINK_COPIED"] = "Ссылка скопирована";
 $MESS["SONET_C30_T_EMPTY"] = "Сообщений в ленте пока нет";
 $MESS["SONET_C30_T_EMPTY_SEARCH"] = "Сообщения не найдены";
+$MESS["SONET_C30_FEED_NOTIFICATION_NOTASKS_TITLE"] = "Попробуйте новое представление в задачах по активности";
+$MESS["SONET_C30_FEED_NOTIFICATION_NOTASKS_DESC"] = "Теперь задачи не будут отображаться в живой ленте, и вы сможете работать с ними непосредственно из раздела &laquo;Задачи&raquo;. Все уведомления по задачам, как и прежде, будут приходить в виде нотификаций в чате.";
+$MESS["SONET_C30_FEED_NOTIFICATION_NOTASKS_BUTTON_OK"] = "понятно";
+$MESS["SONET_C30_FEED_NOTIFICATION_NOTASKS_BUTTON_MORE"] = "подробнее";
 ?>

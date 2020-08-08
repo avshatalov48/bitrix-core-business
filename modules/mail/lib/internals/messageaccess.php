@@ -9,6 +9,7 @@ class MessageAccessTable extends Entity\DataManager
 	const ENTITY_TYPE_NO_BIND = 'NO_BIND';
 	const ENTITY_TYPE_TASKS_TASK = 'TASKS_TASK';
 	const ENTITY_TYPE_CRM_ACTIVITY = 'CRM_ACTIVITY';
+	const ENTITY_TYPE_BLOG_POST = 'BLOG_POST';
 
 	public static function getFilePath()
 	{
@@ -59,10 +60,10 @@ class MessageAccessTable extends Entity\DataManager
 				'CRM_ACTIVITY',
 				'\Bitrix\Crm\ActivityTable',
 				array(
-					'=this.ENTITY_TYPE' => array('?s', 'CRM_ACTIVITY'),
+					'=this.ENTITY_TYPE' => array('?s', self::ENTITY_TYPE_CRM_ACTIVITY),
 					'=this.ENTITY_ID' => 'ref.ID',
 				)
-			)
+			),
 		);
 	}
 

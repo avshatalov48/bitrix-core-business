@@ -26,6 +26,25 @@ BX.Rest.Markeplace.Category = {
 	{
 		BX.addCustomEvent('BX.Main.Filter:apply', this.onApplyFilter.bind(this));
 		BX.addCustomEvent('BX.Main.Filter:clickMPMenu', this.clickMPMenu.bind(this));
+		BX.addCustomEvent('BX.Main.Filter:clickMPAllLink', this.clickMPAllLink.bind(this));
+	},
+	clickMPAllLink : function(nodeMenu)
+	{
+		var Filter = BX.Main.filterManager.getById(this.filterId);
+		if (!(Filter instanceof BX.Main.Filter))
+		{
+			return;
+		}
+
+		var role = nodeMenu.getAttribute("data-role");
+		var FilterApi = Filter.getApi();
+
+		if (role === 'sale-out')
+		{
+			FilterApi.setFields({ SALE_OUT : 'Y'});
+		}
+
+		FilterApi.apply();
 	},
 	clickMPMenu : function(nodeMenu)
 	{
@@ -172,9 +191,14 @@ BX.Rest.Marketplace.TileGrid.Item = function(options)
 
 	this.title = options.NAME;
 	this.developer = options.PARTNER_NAME;
+	this.shortDesc = options.SHORT_DESC;
+	this.secondaryDesc = options.SECONDARY_DESC;
 	this.image = options.ICON;
+	this.onclick = options.ONCLICK;
+	this.feedback = options.FEEDBACK === 'Y';
 	this.layout = {
 		container: null,
+		secondaryDesc: null,
 		image: null,
 		labels: null,
 		title: null,
@@ -182,7 +206,8 @@ BX.Rest.Marketplace.TileGrid.Item = function(options)
 		company: null,
 		controls: null,
 		buttonAction: null,
-		price: null
+		price: null,
+		feedback: null
 	};
 	this.currency = options.currency;
 	this.period = options.period;
@@ -207,6 +232,20 @@ BX.Rest.Marketplace.TileGrid.Item.prototype =
 		if(this.layout.container)
 			return this.layout.container;
 
+		if(this.feedback)
+		{
+			this.getFeedbackContent();
+		}
+		else
+		{
+			this.getApplicationContent();
+		}
+
+		return this.layout.container;
+	},
+
+	getApplicationContent: function()
+	{
 		this.layout.container = BX.create('div', {
 			props: {
 				className: 'mp-item'
@@ -220,15 +259,43 @@ BX.Rest.Marketplace.TileGrid.Item.prototype =
 					},
 					children: [
 						this.getTitle(),
-						this.getDeveloper(),
+						this.getDesc(),
 						this.getControls()
 					]
 				}),
 				this.getStatus()
 			]
 		});
+	},
 
-		return this.layout.container;
+	getFeedbackContent: function()
+	{
+		this.layout.container = BX.create('div', {
+			props: {
+				className: 'mp-item mp-fb-item'
+			},
+			children: [
+				BX.create('div', {
+					props: {
+						className: 'mp-item-fb-content'
+					},
+					children: [
+						this.getTitle(),
+						this.getDesc(),
+						this.getSecondaryDesc()
+					]
+				}),
+				BX.create('div', {
+					props: {
+						className: 'mp-item-aside'
+					},
+					children: [
+						this.getImage(),
+						this.getControls()
+					]
+				}),
+			]
+		});
 	},
 
 	getStatus: function()
@@ -371,10 +438,29 @@ BX.Rest.Marketplace.TileGrid.Item.prototype =
 		return this.layout.labels;
 	},
 
+	getClickEvent: function()
+	{
+		if (!!this.onclick && this.onclick !== '')
+		{
+			return new Function('', this.onclick);
+		}
+		else
+		{
+			return BX.delegate(
+				function () {
+					BX.SidePanel.Instance.open(this.url);
+				},
+				this
+			);
+		}
+	},
+
 	getTitle: function()
 	{
-		if(this.layout.title)
+		if (this.layout.title)
+		{
 			return this.layout.title;
+		}
 
 		this.layout.title = BX.create('div', {
 			props: {
@@ -386,30 +472,55 @@ BX.Rest.Marketplace.TileGrid.Item.prototype =
 				})
 			],
 			events: {
-				click: function ()
-				{
-					BX.SidePanel.Instance.open(this.url);
-				}.bind(this)
+				click: this.getClickEvent()
 			}
 		});
 
 		return this.layout.title;
 	},
 
-	getDeveloper: function()
+	getDesc: function()
 	{
-		if(this.layout.developer)
-			return this.layout.developer;
+		if(this.layout.desc)
+			return this.layout.desc;
 
-		this.layout.developer = BX.create('div', {
+		this.layout.desc = BX.create('div', {
 			props: {
 				className: 'mp-item-developer'
 			},
-			text: this.developer
+			text: this.shortDesc ? this.shortDesc : this.developer
 		});
 
-		return this.layout.developer;
+		return this.layout.desc;
 	},
+
+	getSecondaryDesc: function()
+	{
+		if(this.layout.secondaryDesc)
+			return this.layout.secondaryDesc;
+
+		this.layout.secondaryDesc = BX.create('div', {
+			props: {
+				className: 'mp-item-desc-box'
+			},
+			children: [
+				BX.create('div', {
+					props: {
+						className: 'mp-item-desc'
+					},
+					text: this.secondaryDesc
+				}),
+				BX.create('div', {
+					props: {
+						className: 'mp-item-desc-icon'
+					}
+				})
+			]
+		});
+
+		return this.layout.secondaryDesc;
+	},
+
 
 	getControls: function()
 	{
@@ -428,24 +539,11 @@ BX.Rest.Marketplace.TileGrid.Item.prototype =
 			children: [
 				this.layout.buttonAction = BX.create('div', {
 					props: {
-						className: 'ui-btn ui-btn-xs ui-btn-light-border ui-btn-round'
+						className: 'ui-btn ui-btn-xs ui-btn-secondary ui-btn-round'
 					},
 					text: this.action,
 					events: {
-						mouseenter: function()
-						{
-							BX.removeClass(this.layout.buttonAction, 'ui-btn ui-btn-xs ui-btn-light-border ui-btn-round');
-							BX.addClass(this.layout.buttonAction, 'ui-btn ui-btn-xs ui-btn-primary ui-btn-hover ui-btn-round')
-						}.bind(this),
-						mouseleave: function()
-						{
-							BX.removeClass(this.layout.buttonAction, 'ui-btn ui-btn-xs ui-btn-primary ui-btn-hover ui-btn-round');
-							BX.addClass(this.layout.buttonAction, 'ui-btn ui-btn-xs ui-btn-light-border ui-btn-round');
-						}.bind(this),
-						click: function ()
-						{
-							BX.SidePanel.Instance.open(this.url);
-						}.bind(this)
+						click: this.getClickEvent()
 					}
 				}),
 				this.layout.price = BX.create('div', {

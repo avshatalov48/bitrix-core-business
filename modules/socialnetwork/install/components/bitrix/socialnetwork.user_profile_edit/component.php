@@ -21,15 +21,15 @@ if (!CModule::IncludeModule("socialnetwork"))
 	return;
 }
 
-$arParams["ID"] = IntVal($arParams["ID"]);
-if(strLen($arParams["USER_VAR"])<=0)
+$arParams["ID"] = intval($arParams["ID"]);
+if($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "id";
-if(strLen($arParams["PAGE_VAR"])<=0)
+if($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if(strlen($arParams["PATH_TO_USER"])<=0)
+if($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
-if(strlen($arParams["PATH_TO_USER_EDIT"])<=0)
+if($arParams["PATH_TO_USER_EDIT"] == '')
 	$arParams["PATH_TO_USER_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#&mode=edit");
 $arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 
@@ -233,7 +233,7 @@ else
 
 	$SONET_USER_ID = $arParams['ID'];//intval($_POST["SONET_USER_ID"]);
 
-	if($arResult['bEdit'] == 'Y' && $_SERVER["REQUEST_METHOD"]=="POST" && strlen($_POST["submit"])>0 && check_bitrix_sessid())
+	if($arResult['bEdit'] == 'Y' && $_SERVER["REQUEST_METHOD"]=="POST" && $_POST["submit"] <> '' && check_bitrix_sessid())
 	{
 		if(CModule::IncludeModule("socialservices"))
 		{
@@ -275,7 +275,7 @@ else
 			$picturesToDelete[] = $_POST['PERSONAL_PHOTO_ID'];
 		}
 		elseif ( //usual template
-			strlen($_FILES["PERSONAL_PHOTO"]["name"]) > 0
+			$_FILES["PERSONAL_PHOTO"]["name"] <> ''
 		)
 		{
 			$arPICTURE = $_FILES["PERSONAL_PHOTO"];
@@ -303,7 +303,7 @@ else
 			$picturesToDelete[] = $_POST['WORK_LOGO_ID'];
 		}
 		elseif ( // usual template
-			strlen($_FILES["WORK_LOGO"]["name"]) > 0 
+			$_FILES["WORK_LOGO"]["name"] <> '' 
 			|| isset($_POST["WORK_LOGO_del"])
 		)
 		{
@@ -399,7 +399,7 @@ else
 		if(isset($_POST['TIME_ZONE']))
 			$arFieldsValue['TIME_ZONE'] = $_POST['TIME_ZONE'];
 
-		if (strlen($arFieldsValue['PASSWORD']) <= 0)
+		if ($arFieldsValue['PASSWORD'] == '')
 		{
 			unset($arFieldsValue['PASSWORD']);
 			unset($arFieldsValue['CONFIRM_PASSWORD']);
@@ -450,7 +450,7 @@ else
 					"SIGNATURE" => $_POST["FORUM_SIGNATURE"]
 				);
 
-				if (strlen($_FILES["FORUM_AVATAR"]["name"]) > 0 || isset($_POST["FORUM_AVATAR_del"]))
+				if ($_FILES["FORUM_AVATAR"]["name"] <> '' || isset($_POST["FORUM_AVATAR_del"]))
 					$arForumFields["AVATAR"] = $_FILES["FORUM_AVATAR"];
 
 				foreach ($arForumFields as $key => $value)
@@ -478,7 +478,7 @@ else
 				}
 			}
 
-			if (strlen($strErrorMessage) <= 0 && $arParams['IS_BLOG'] == 'Y')
+			if ($strErrorMessage == '' && $arParams['IS_BLOG'] == 'Y')
 			{
 				$arBlogFields = Array(
 					"ALIAS" => $_POST['BLOG_ALIAS'],
@@ -486,7 +486,7 @@ else
 					"INTERESTS" => $_POST['BLOG_INTERESTS']
 				);
 
-				if (strlen($_FILES["BLOG_AVATAR"]["name"]) > 0 || isset($_POST["BLOG_AVATAR_del"]))
+				if ($_FILES["BLOG_AVATAR"]["name"] <> '' || isset($_POST["BLOG_AVATAR_del"]))
 					$arBlogFields["AVATAR"] = $_FILES["BLOG_AVATAR"];
 
 				foreach ($arBlogFields as $key => $value)
@@ -522,7 +522,7 @@ else
 			}
 		}
 
-		if(strlen($strErrorMessage)<=0)
+		if($strErrorMessage == '')
 			if ($_REQUEST['backurl'])
 			{
 				LocalRedirect($_REQUEST['backurl']);
@@ -538,22 +538,22 @@ else
 		}
 	}
 	
-	if($arResult['bEdit'] == 'Y' && $_SERVER["REQUEST_METHOD"]=="POST" && (strlen($_POST["submit_fire"])>0 || strlen($_POST["submit_recover"])>0) && check_bitrix_sessid())
+	if($arResult['bEdit'] == 'Y' && $_SERVER["REQUEST_METHOD"]=="POST" && ($_POST["submit_fire"] <> '' || $_POST["submit_recover"] <> '') && check_bitrix_sessid())
 	{
 		if ($CurrentUserPerms["Operations"]["modifyuser_main"] && $SONET_USER_ID != $USER->GetID())		
 		{
-			$arFields = array("ACTIVE" => strlen($_POST["submit_fire"])>0 ? "N" : "Y");		
+			$arFields = array("ACTIVE" => $_POST["submit_fire"] <> '' ? "N" : "Y");		
 			$res = $USER->Update($SONET_USER_ID, $arFields);	
-			$arResult["User"]["ACTIVE"] = strlen($_POST["submit_fire"])>0 ? "N" : "Y";
+			$arResult["User"]["ACTIVE"] = $_POST["submit_fire"] <> '' ? "N" : "Y";
 		}
 	}
 
 	$arResult["User"]["PERSONAL_LOCATION"] = GetCountryByID($arResult["User"]["PERSONAL_COUNTRY"]);
-	if (strlen($arResult["User"]["PERSONAL_LOCATION"])>0 && strlen($arResult["User"]["PERSONAL_CITY"])>0)
+	if ($arResult["User"]["PERSONAL_LOCATION"] <> '' && $arResult["User"]["PERSONAL_CITY"] <> '')
 		$arResult["User"]["PERSONAL_LOCATION"] .= ", ";
 	$arResult["User"]["PERSONAL_LOCATION"] .= $arResult["User"]["PERSONAL_CITY"];
 	$arResult["User"]["WORK_LOCATION"] = GetCountryByID($arResult["User"]["WORK_COUNTRY"]);
-	if (strlen($arResult["User"]["WORK_LOCATION"])>0 && strlen($arResult["User"]["WORK_CITY"])>0)
+	if ($arResult["User"]["WORK_LOCATION"] <> '' && $arResult["User"]["WORK_CITY"] <> '')
 		$arResult["User"]["WORK_LOCATION"] .= ", ";
 	$arResult["User"]["WORK_LOCATION"] .= $arResult["User"]["WORK_CITY"];
 
@@ -572,7 +572,7 @@ else
 		));
 		$mailbox = $dbMailbox->fetch();
 		\Bitrix\Mail\MailboxTable::normalizeEmail($mailbox);
-		if (strpos($mailbox['LOGIN'], '@') !== false)
+		if (mb_strpos($mailbox['LOGIN'], '@') !== false)
 			$arResult['User']['MAILBOX'] = $mailbox['LOGIN'];
 	}
 
@@ -582,7 +582,7 @@ else
 		$rsGroup = CUser::GetUserGroupList($arResult["User"]["ID"]);
 		while ($arGroup = $rsGroup->Fetch())
 		{
-			if (strlen($arGroup["DATE_ACTIVE_FROM"]) <= 0 && strlen($arGroup["DATE_ACTIVE_TO"]) <= 0)
+			if ($arGroup["DATE_ACTIVE_FROM"] == '' && $arGroup["DATE_ACTIVE_TO"] == '')
 				$arResult["User"]["GROUP_ID"][] = $arGroup["GROUP_ID"];
 		}
 
@@ -621,7 +621,7 @@ else
 	$userName = '';
 	if ($arParams["SET_TITLE"] == "Y" || $arParams["SET_NAV_CHAIN"] != "N")
 	{
-		if (strlen($arParams["NAME_TEMPLATE"]) <= 0)
+		if ($arParams["NAME_TEMPLATE"] == '')
 			$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 
 		$arParams["TITLE_NAME_TEMPLATE"] = str_replace(
@@ -650,8 +650,8 @@ else
 		$APPLICATION->AddChainItem(GetMessage("SONET_P_USER_TITLE_VIEW"));
 	}
 
-	if(strlen($arResult["User"]["PERSONAL_WWW"])>0)
-		$arResult["User"]["PERSONAL_WWW"] = ((strpos($arResult["User"]["PERSONAL_WWW"], "http") === false)? "http://" : "").$arResult["User"]["PERSONAL_WWW"];
+	if($arResult["User"]["PERSONAL_WWW"] <> '')
+		$arResult["User"]["PERSONAL_WWW"] = ((mb_strpos($arResult["User"]["PERSONAL_WWW"], "http") === false)? "http://" : "").$arResult["User"]["PERSONAL_WWW"];
 
 	$arResult["User"]["PERSONAL_PHOTO_FILE"] = CFile::GetFileArray($arResult["User"]["PERSONAL_PHOTO"]);
 	if ($arResult["User"]["PERSONAL_PHOTO_FILE"] !== false)

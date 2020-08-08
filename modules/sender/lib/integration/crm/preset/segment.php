@@ -78,7 +78,7 @@ class Segment implements Preset\Installation\iInstallable
 			}
 			catch (SqlQueryException $exception)
 			{
-				if (strpos($exception->getDatabaseMessage(), '(1062)') === false)
+				if (mb_strpos($exception->getDatabaseMessage(), '(1062)') === false)
 				{
 					throw $exception;
 				}
@@ -225,9 +225,9 @@ class Segment implements Preset\Installation\iInstallable
 			foreach ($codes as $code)
 			{
 				$code = "_" . $code;
-				if (substr($key, -strlen($code)) == $code)
+				if (mb_substr($key, -mb_strlen($code)) == $code)
 				{
-					$baseKey = substr($key, 0, -strlen($code));
+					$baseKey = mb_substr($key, 0, -mb_strlen($code));
 					break;
 				}
 			}

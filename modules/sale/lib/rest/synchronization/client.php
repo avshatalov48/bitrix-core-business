@@ -78,7 +78,7 @@ class Client
 
 				if(isset($respons['error']))
 				{
-					$result->addError(new Error($respons['error_description'], strtoupper($respons['error'])));
+					$result->addError(new Error($respons['error_description'], mb_strtoupper($respons['error'])));
 					LoggerDiag::addMessage('CLIENT_CALL_RESULT_ERROR');
 				}
 				else
@@ -171,7 +171,7 @@ class Client
 
 				if(isset($respons['error']))
 				{
-					$result->addError(new Error($respons['error_description'], strtoupper($respons['error'])));
+					$result->addError(new Error($respons['error_description'], mb_strtoupper($respons['error'])));
 					LoggerDiag::addMessage('CLIENT_REFRESH_TOKEN_RESULT_ERROR');
 				}
 				else
@@ -216,7 +216,7 @@ class Client
 				$client = \Bitrix\Rest\OAuthService::getEngine()->getClient();
 				$respons = $client->call('app.info', ['auth' => $accessToken]);
 				if(isset($respons['error']))
-					$result->addError(new Error($respons['error_description'], strtoupper($respons['error'])));
+					$result->addError(new Error($respons['error_description'], mb_strtoupper($respons['error'])));
 			}
 		}
 		return $result;

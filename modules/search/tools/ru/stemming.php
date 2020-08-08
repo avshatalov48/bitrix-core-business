@@ -37,8 +37,8 @@ function stemming_letter_ru()
 }
 function stemming_ru_sort($a, $b)
 {
-	$al = strlen($a);
-	$bl = strlen($b);
+	$al = mb_strlen($a);
+	$bl = mb_strlen($b);
 	if($al == $bl)
 		return 0;
 	elseif($al < $bl)
@@ -48,7 +48,7 @@ function stemming_ru_sort($a, $b)
 }
 function stemming_stop_ru($sWord)
 {
-	if(strlen($sWord) < 2)
+	if(mb_strlen($sWord) < 2)
 		return false;
 	static $stop_list = false;
 	if(!$stop_list)
@@ -69,7 +69,7 @@ function stemming_stop_ru($sWord)
 			foreach(explode(",", STEMMING_STOP_RU) as $word)
 			{
 				$word = trim($word);
-				if(strlen($word)>0)
+				if($word <> '')
 					$stop_list[$word]=0;
 			}
 		}
@@ -119,7 +119,7 @@ function stemming_ru($word, $flags = 0)
 			return array(
 				stemming_ru($word."А"),
 				stemming_ru($word),
-				stemming_ru(substr($word, 0, -2)),
+				stemming_ru(mb_substr($word, 0, -2)),
 			);
 		}
 		$found = array();
@@ -127,7 +127,7 @@ function stemming_ru($word, $flags = 0)
 		{
 			return array(
 				stemming_ru($word),
-				stemming_ru(substr($word, 0, -strlen($found[2]))),
+				stemming_ru(mb_substr($word, 0, -mb_strlen($found[2]))),
 			);
 		}
 	}
@@ -160,10 +160,10 @@ function stemming_ru($word, $flags = 0)
 			case "ЯВ":
 			case "ЯВШИ":
 			case "ЯВШИСЬ":
-				$rv = substr($rv, 0, 1-strlen($found[0]));
+			$rv = mb_substr($rv, 0, 1 - mb_strlen($found[0]));
 				break;
 			default:
-				$rv = substr($rv, 0, -strlen($found[0]));
+				$rv = mb_substr($rv, 0, -mb_strlen($found[0]));
 		}
 	}
 	//Otherwise try and remove a REFLEXIVE ending, and then search in turn for
@@ -176,43 +176,43 @@ function stemming_ru($word, $flags = 0)
 		$rv = preg_replace("/(СЯ|СЬ)$/".BX_UTF_PCRE_MODIFIER, "", $rv);
 		//ADJECTIVAL
 		if(preg_match($STEMMING_RU_ADJECTIVAL1, $rv, $found))
-			$rv = substr($rv, 0, -strlen($found[2]));
+			$rv = mb_substr($rv, 0, -mb_strlen($found[2]));
 		elseif(preg_match($STEMMING_RU_ADJECTIVAL2, $rv, $found))
-			$rv = substr($rv, 0, -strlen($found[0]));
+			$rv = mb_substr($rv, 0, -mb_strlen($found[0]));
 		elseif(preg_match($STEMMING_RU_VERB1, $rv, $found))
-			$rv = substr($rv, 0, -strlen($found[2]));
+			$rv = mb_substr($rv, 0, -mb_strlen($found[2]));
 		elseif(preg_match($STEMMING_RU_VERB2, $rv, $found))
-			$rv = substr($rv, 0, -strlen($found[0]));
+			$rv = mb_substr($rv, 0, -mb_strlen($found[0]));
 		else
 			$rv = preg_replace($STEMMING_RU_NOUN, "", $rv);
 	}
 
 	//Step 2: If the word ends with и (i), remove it.
-	if(substr($rv, -1) == "И")
-		$rv = substr($rv, 0, -1);
+	if(mb_substr($rv, -1) == "И")
+		$rv = mb_substr($rv, 0, -1);
 	//Step 3: Search for a DERIVATIONAL ending in R2 (i.e. the entire ending must lie in R2), and if one is found, remove it.
 	//R1 is the region after the first non-vowel following a vowel, or the end of the word if there is no such non-vowel.
 	if(preg_match("/(ОСТЬ|ОСТ)$/".BX_UTF_PCRE_MODIFIER, $rv))
 	{
 		$R1=0;
-		$rv_len = strlen($rv);
-		while( ($R1<$rv_len) && (strpos($STEMMING_RU_VOWELS, substr($rv,$R1,1))!==false) )
+		$rv_len = mb_strlen($rv);
+		while( ($R1<$rv_len) && (mb_strpos($STEMMING_RU_VOWELS, mb_substr($rv, $R1, 1)) !== false) )
 			$R1++;
 		if($R1 < $rv_len)
 			$R1++;
 		//R2 is the region after the first non-vowel following a vowel in R1, or the end of the word if there is no such non-vowel.
 		$R2 = $R1;
-		while( ($R2<$rv_len) && (strpos($STEMMING_RU_VOWELS, substr($rv,$R2,1))===false) )
+		while( ($R2<$rv_len) && (mb_strpos($STEMMING_RU_VOWELS, mb_substr($rv, $R2, 1)) === false) )
 			$R2++;
-		while( ($R2<$rv_len) && (strpos($STEMMING_RU_VOWELS, substr($rv,$R2,1))!==false) )
+		while( ($R2<$rv_len) && (mb_strpos($STEMMING_RU_VOWELS, mb_substr($rv, $R2, 1)) !== false) )
 			$R2++;
 		if($R2 < $rv_len)
 			$R2++;
 		//"ОСТЬ", "ОСТ"
-		if((substr($rv, -4) == "ОСТЬ") && ($rv_len >= ($R2+4)))
-			$rv = substr($rv, 0, $rv_len - 4);
-		elseif((substr($rv, -3) == "ОСТ") && ($rv_len >= ($R2+3)))
-			$rv = substr($rv, 0, $rv_len - 3);
+		if((mb_substr($rv, -4) == "ОСТЬ") && ($rv_len >= ($R2+4)))
+			$rv = mb_substr($rv, 0, $rv_len - 4);
+		elseif((mb_substr($rv, -3) == "ОСТ") && ($rv_len >= ($R2+3)))
+			$rv = mb_substr($rv, 0, $rv_len - 3);
 	}
 	//Step 4: (1) Undouble н (n), or, (2) if the word ends with a SUPERLATIVE ending, remove it and undouble н (n), or (3) if the word ends ь (') (soft sign) remove it.
 	$rv = preg_replace("/(ЕЙШЕ|ЕЙШ)$/".BX_UTF_PCRE_MODIFIER, "", $rv);

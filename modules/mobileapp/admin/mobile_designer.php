@@ -110,7 +110,7 @@ function __DSGetInitData()
 
 
 
-if (strlen($action) > 0)
+if ($action <> '')
 {
 	$status = false;
 	$data = array();

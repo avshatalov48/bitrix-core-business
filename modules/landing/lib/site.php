@@ -197,7 +197,6 @@ class Site extends \Bitrix\Landing\Internals\BaseTable
 			'PAGE' => Loc::getMessage('LANDING_TYPE_PAGE'),
 			'STORE' => Loc::getMessage('LANDING_TYPE_STORE'),
 			'SMN' => Loc::getMessage('LANDING_TYPE_SMN'),
-			'PREVIEW' => Loc::getMessage('LANDING_TYPE_PREVIEW'),
 			'KNOWLEDGE' => Loc::getMessage('LANDING_TYPE_KNOWLEDGE'),
 			'GROUP' => Loc::getMessage('LANDING_TYPE_GROUP')
 		);
@@ -227,7 +226,7 @@ class Site extends \Bitrix\Landing\Internals\BaseTable
 		{
 			$res = Landing::getList([
 				'select' => [
-					'ID'
+					'ID', 'FOLDER_ID'
 				],
 				'filter' => [
 					'SITE_ID' => $id,
@@ -236,6 +235,12 @@ class Site extends \Bitrix\Landing\Internals\BaseTable
 			]);
 			while ($row = $res->fetch())
 			{
+				if ($row['FOLDER_ID'])
+				{
+					Landing::update($row['ID'], [
+						'FOLDER_ID' => 0
+					]);
+				}
 				$resDel = Landing::delete($row['ID'], true);
 				if (!$resDel->isSuccess())
 				{
@@ -391,18 +396,16 @@ class Site extends \Bitrix\Landing\Internals\BaseTable
 		$siteForExport = intval($siteForExport);
 		$tplsXml = array();
 		$export = array();
-		Landing::setEditMode(
-			isset($params['edit_mode']) && $params['edit_mode'] === 'Y'
-		);
+		$editMode = isset($params['edit_mode']) && $params['edit_mode'] === 'Y';
+
+		Landing::setEditMode($editMode);
+		Hook::setEditMode($editMode);
 
 		if (!is_array($params))
 		{
 			$params = array();
 		}
-		$params['hooks_files'] = array(
-			'METAOG_IMAGE',
-			'BACKGROUND_PICTURE'
-		);
+		$params['hooks_files'] = Hook::HOOKS_CODES_FILES;
 
 		if (isset($params['scope']))
 		{
@@ -504,6 +507,7 @@ class Site extends \Bitrix\Landing\Internals\BaseTable
 								? $params['code']
 								: trim($row['SITE_CODE'], '/'),
 					'code_mainpage' => '',
+					'site_code' => $row['SITE_CODE'],
 					'name' => isset($params['name'])
 								? $params['name']
 								: $row['SITE_TITLE'],
@@ -523,7 +527,7 @@ class Site extends \Bitrix\Landing\Internals\BaseTable
 								? $params['preview_url']
 								: '',
 					'show_in_list' => 'Y',
-					'type' => strtolower($row['SITE_TYPE']),
+					'type' => mb_strtolower($row['SITE_TYPE']),
 					'version' => $version,
 					'fields' => array(
 						'ADDITIONAL_FIELDS' => array(),
@@ -615,7 +619,7 @@ class Site extends \Bitrix\Landing\Internals\BaseTable
 							? $params['preview_url']
 							: '',
 				'show_in_list' => ($pagesCount == 1) ? 'Y' : 'N',
-				'type' => strtolower($row['SITE_TYPE']),
+				'type' => mb_strtolower($row['SITE_TYPE']),
 				'version' => $version,
 				'fields' => array(
 					'TITLE' => (isset($params['name']) && $pagesCount == 1)
@@ -883,6 +887,27 @@ class Site extends \Bitrix\Landing\Internals\BaseTable
 		$hashes[$id] = md5(implode('', $hash));
 
 		return $hashes[$id];
+	}
+
+	/**
+	 * Switch domains between two sites. Returns true on success.
+	 * @param int $siteId1 First site id.
+	 * @param int $siteId2 Second site id.
+	 * @return bool
+	 */
+	public static function switchDomain(int $siteId1, int $siteId2): bool
+	{
+		return \Bitrix\Landing\Internals\SiteTable::switchDomain($siteId1, $siteId2);
+	}
+
+	/**
+	 * Sets new random domain to site. Actual for Bitrix24 only.
+	 * @param int $siteId Site id.
+	 * @return bool
+	 */
+	public static function randomizeDomain(int $siteId): bool
+	{
+		return \Bitrix\Landing\Internals\SiteTable::randomizeDomain($siteId);
 	}
 
 	/**

@@ -11,6 +11,18 @@ use Bitrix\Translate;
 
 class StringHelper
 {
+	// utf8 https://www.w3.org/International/questions/qa-forms-utf-8.en
+	public const UTF8_REGEXP = '/(?:
+		      [\x09\x0A\x0D\x20-\x7E]            # ASCII
+		    | [\xC2-\xDF][\x80-\xBF]             # non-overlong 2-byte
+		    | \xE0[\xA0-\xBF][\x80-\xBF]         # excluding overlongs
+		    | [\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}  # straight 3-byte
+		    | \xED[\x80-\x9F][\x80-\xBF]         # excluding surrogates
+		    | \xF0[\x90-\xBF][\x80-\xBF]{2}      # planes 1-3
+		    | [\xF1-\xF3][\x80-\xBF]{3}          # planes 4-15
+		    | \xF4[\x80-\x8F][\x80-\xBF]{2}      # plane 16
+		)+/xs';
+
 	/**
 	 * Special version of strlen.
 	 * @param string $str String to measure.
@@ -92,7 +104,7 @@ class StringHelper
 			return mb_strtolower($str, $encoding);
 		}
 
-		return strtolower($str);
+		return mb_strtolower($str);
 	}
 
 	/**
@@ -112,7 +124,7 @@ class StringHelper
 			return mb_strtoupper($str, $encoding);
 		}
 
-		return strtoupper($str);
+		return mb_strtoupper($str);
 	}
 
 	/**
@@ -129,5 +141,43 @@ class StringHelper
 			$encoding = Main\Localization\Translation::getCurrentEncoding();
 		}
 		return htmlspecialchars($string, $flags, $encoding, true);
+	}
+
+	/**
+	 * Validates UTF-8 octet sequences:
+	 * 0xxxxxxx
+	 * 110xxxxx 10xxxxxx
+	 * 1110xxxx 10xxxxxx 10xxxxxx
+	 * 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+	 *
+	 * @param string $string
+	 * @return bool
+	 */
+	public static function validateUtf8OctetSequences($string)
+	{
+		$prevBits8and7 = 0;
+		$isUtf = 0;
+		foreach (unpack("C*", $string) as $byte)
+		{
+			$hiBits8and7 = $byte & 0xC0;
+			if ($hiBits8and7 == 0x80)
+			{
+				if ($prevBits8and7 == 0xC0)
+				{
+					$isUtf++;
+				}
+				elseif (($prevBits8and7 & 0x80) == 0x00)
+				{
+					$isUtf--;
+				}
+			}
+			elseif ($prevBits8and7 == 0xC0)
+			{
+				$isUtf--;
+			}
+			$prevBits8and7 = $hiBits8and7;
+		}
+
+		return ($isUtf > 0);
 	}
 }

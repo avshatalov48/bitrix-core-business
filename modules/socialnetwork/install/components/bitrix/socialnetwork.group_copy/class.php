@@ -4,6 +4,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 
 use Bitrix\Blog\Copy\Integration\Group as BlogFeature;
 use Bitrix\Disk\Copy\Integration\Group as DiskFeature;
+use Bitrix\Landing\Copy\Integration\Group as LandingFeature;
 use Bitrix\Lists\Copy\Integration\Group as ListsFeature;
 use Bitrix\Main\AccessDeniedException;
 use Bitrix\Main\Application;
@@ -125,7 +126,7 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 				return null;
 			}
 
-			return $this->getUrlToCopiedGroup(current($groupIdsToCopy), $result->getData());
+			return $this->getUrlToCopiedGroup($copyManager, $groupId);
 		}
 		catch (\Exception $exception)
 		{
@@ -161,6 +162,10 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 			if (array_key_exists("photo", $features) && Loader::includeModule("photogallery"))
 			{
 				$copyManager->setFeature(new PhotoFeature($executiveUserId, $features["photo"]));
+			}
+			if (array_key_exists("landing_knowledge", $features) && Loader::includeModule("landing"))
+			{
+				$copyManager->setFeature(new LandingFeature($executiveUserId));
 			}
 
 			$ufIgnoreList = $this->getUfIgnoreList($features);
@@ -226,8 +231,8 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 		$name = Loc::getMessage("SOCNET_GROUP_COPY_TITLE_BASE");
 		if ($this->arParams["GROUP_ID"])
 		{
-			$name = $name.($this->arParams["IS_PROJECT"] ? Loc::getMessage("SOCNET_GROUP_COPY_TITLE_PROJECT") :
-				Loc::getMessage("SOCNET_GROUP_COPY_TITLE_GROUP"));
+			$name = ($this->arParams["IS_PROJECT"] ? Loc::getMessage("SOCNET_GROUP_COPY_TITLE_BASE_PROJECT") :
+				Loc::getMessage("SOCNET_GROUP_COPY_TITLE_BASE_GROUP"));
 		}
 
 		$APPLICATION->SetTitle($name);
@@ -254,7 +259,7 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 	{
 		$fieldName = null;
 
-		if (strlen($post["name"]) <= 0)
+		if ($post["name"] == '')
 		{
 			$fieldName = "name";
 		}
@@ -344,7 +349,8 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 					"Checked" => false
 				]*/
 			],
-			"photo" => []
+			"photo" => [],
+			"landing_knowledge" => [],
 		];
 
 		$features = [];
@@ -379,7 +385,7 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 
 	private function getFeatureTitle($featureId)
 	{
-		return Loc::getMessage("SOCNET_GROUP_COPY_FEATURE_".strtoupper($featureId));
+		return Loc::getMessage("SOCNET_GROUP_COPY_FEATURE_".mb_strtoupper($featureId));
 	}
 
 	private function getFeaturesFromRequest(array $features)
@@ -424,16 +430,14 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 		return $message;
 	}
 
-	private function getUrlToCopiedGroup($groupId, array $result)
+	private function getUrlToCopiedGroup(GroupManager $copyManager, int $groupId): string
 	{
-		$copiedGroupId = 0;
+		$mapIdsCopiedGroups = $copyManager->getMapIdsCopiedGroups();
 
-		foreach ($result as $value)
+		$copiedGroupId = 0;
+		if (array_key_exists($groupId, $mapIdsCopiedGroups))
 		{
-			if (array_key_exists($groupId, $value))
-			{
-				$copiedGroupId = $value[$groupId];
-			}
+			$copiedGroupId = $mapIdsCopiedGroups[$groupId];
 		}
 
 		return CComponentEngine::makePathFromTemplate($this->arParams["PATH_TO_GROUP"], ["group_id" => $copiedGroupId]);

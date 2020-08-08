@@ -4,7 +4,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 {
 	include(GetLangFileName(dirname(__FILE__)."/", "/result_rec.php"));
 
-	$orderId = IntVal($_POST["orderId"]);
+	$orderId = intval($_POST["orderId"]);
 	$bCorrectPayment = True;
 	$techMessage = "";
 	if(!($arOrder = CSaleOrder::GetByID($orderId)))
@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 
 		$secretKeyB = CSalePaySystemAction::GetParamValue("SECRET_KEY");
 
-		if ($bCorrectPayment && strlen($secretKeyB) > 0)
+		if ($bCorrectPayment && $secretKeyB <> '')
 		{
 			$statusPay = CSalePaySystemAction::GetParamValue("CHANGE_STATUS_PAY");
 			$eshopIdB = CSalePaySystemAction::GetParamValue("ESHOP_ID");

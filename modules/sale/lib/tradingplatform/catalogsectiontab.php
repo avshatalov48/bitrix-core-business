@@ -27,7 +27,7 @@ class CatalogSectionTab
 
 		while($arRes = $res->fetch())
 		{
-			if(strlen($arRes["CATALOG_SECTION_TAB_CLASS_NAME"]) > 0 && class_exists($arRes["CATALOG_SECTION_TAB_CLASS_NAME"]))
+			if($arRes["CATALOG_SECTION_TAB_CLASS_NAME"] <> '' && class_exists($arRes["CATALOG_SECTION_TAB_CLASS_NAME"]))
 			{
 				$tabHandler = new $arRes["CATALOG_SECTION_TAB_CLASS_NAME"];
 
@@ -127,7 +127,7 @@ class CatalogSectionTab
 				$header = '<tr class="heading" id="tr_'.$tradingPlatformCode.'"><td colspan="2">'.$handler->name.'</td></tr>';
 				$body = $handler->showTabSection($divName, $arArgs, $bVarsFromForm);
 
-				if(strlen($body) <= 0)
+				if($body == '')
 					$body = '<tr><td colspan="2">'.Loc::getMessage('SALE_TRADING_PLATFORMS_NOT_ACTIVE').' ('.$siteId = $arArgs["IBLOCK"]["LID"].')</td></tr>';
 
 				$result .= $header.$body;

@@ -185,8 +185,8 @@ class Request
 		if (preg_match('#^[A-Za-z0-9_.,-]*$#D', $value))
 			return $value;
 
-		self::adjustPcreBacktrackLimit($value);
 		$filteredValue = \CSecurityHtmlEntity::decodeString($value);
+		self::adjustPcreBacktrackLimit($filteredValue);
 
 		$isValueChanged = false;
 		foreach($this->auditors as $auditName => $auditor)

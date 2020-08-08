@@ -128,7 +128,7 @@ class CIBlockPropertyHTML
 		if (!is_array($value["VALUE"]))
 			$value = static::ConvertFromDB($arProperty, $value);
 		$ar = $value["VALUE"];
-		if (strtolower($ar["TYPE"]) != "text")
+		if (mb_strtolower($ar["TYPE"]) != "text")
 			$ar["TYPE"] = "html";
 		else
 			$ar["TYPE"] = "text";
@@ -144,7 +144,7 @@ class CIBlockPropertyHTML
 				<?
 				$text_name = preg_replace("/([^a-z0-9])/is", "_", $strHTMLControlName["VALUE"]."[TEXT]");
 				$text_type = preg_replace("/([^a-z0-9])/is", "_", $strHTMLControlName["VALUE"]."[TYPE]");
-				CFileMan::AddHTMLEditorFrame($text_name, htmlspecialcharsBx($ar["TEXT"]), $text_type, strtolower($ar["TYPE"]), $settings['height'], "N", 0, "", "");
+				CFileMan::AddHTMLEditorFrame($text_name, htmlspecialcharsBx($ar["TEXT"]), $text_type, mb_strtolower($ar["TYPE"]), $settings['height'], "N", 0, "", "");
 				?>
 			</td>
 		</tr>
@@ -197,7 +197,7 @@ class CIBlockPropertyHTML
 		)
 		{
 			$text = trim($value["VALUE"]["TEXT"]);
-			$len = strlen($text);
+			$len = mb_strlen($text);
 			if ($len > 0 || $defaultValue)
 			{
 				if ($DB->type === "MYSQL")
@@ -206,7 +206,7 @@ class CIBlockPropertyHTML
 					$limit = 1950;
 
 				if ($len > $limit)
-					$value["VALUE"]["TEXT"] = substr($text, 0, $limit);
+					$value["VALUE"]["TEXT"] = mb_substr($text, 0, $limit);
 
 				$val = static::CheckArray($value["VALUE"], $defaultValue);
 				if (is_array($val))
@@ -231,7 +231,7 @@ class CIBlockPropertyHTML
 			$return = array(
 				"VALUE" => unserialize($value["VALUE"]),
 			);
-			if ($return['VALUE'] === false && strlen($value['VALUE']) > 0)
+			if ($return['VALUE'] === false && $value['VALUE'] <> '')
 			{
 				$return = array(
 					"VALUE" => array(
@@ -269,9 +269,9 @@ class CIBlockPropertyHTML
 
 		if ($return)
 		{
-			if (is_set($return, "TEXT") && ((strlen(trim($return["TEXT"])) > 0) || $defaultValue))
+			if (is_set($return, "TEXT") && ((trim($return["TEXT"]) <> '') || $defaultValue))
 			{
-				$return["TYPE"] = strtoupper($return["TYPE"]);
+				$return["TYPE"] = mb_strtoupper($return["TYPE"]);
 				if (($return["TYPE"] != "TEXT") && ($return["TYPE"] != "HTML"))
 					$return["TYPE"] = "HTML";
 			}
@@ -286,7 +286,7 @@ class CIBlockPropertyHTML
 	public static function GetLength($arProperty, $value)
 	{
 		if(is_array($value) && isset($value["VALUE"]["TEXT"]))
-			return strlen(trim($value["VALUE"]["TEXT"]));
+			return mb_strlen(trim($value["VALUE"]["TEXT"]));
 		else
 			return 0;
 	}
@@ -346,13 +346,13 @@ class CIBlockPropertyHTML
 		$value = (string)$value;
 		if ($value !== '')
 		{
-			$prefix = strtoupper(substr($value, 0, 6));
+			$prefix = mb_strtoupper(mb_substr($value, 0, 6));
 			$isText = $prefix == '[TEXT]';
 			if ($prefix == '[HTML]' || $isText)
 			{
 				if ($isText)
 					$valueType = 'TEXT';
-				$value = substr($value, 6);
+				$value = mb_substr($value, 6);
 			}
 		}
 		if ($getFull)

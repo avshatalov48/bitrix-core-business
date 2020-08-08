@@ -26,7 +26,7 @@ if ($arParams["UI_FILTER"])
 	<?$GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/sale/core_ui_etc.js')?>
 	<?$GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/sale/core_ui_autocomplete.js');?>
 
-	<div id="sls-<?=$arResult['RANDOM_TAG']?>" class="bx-sls <?if(strlen($arResult['MODE_CLASSES'])):?> <?=$arResult['MODE_CLASSES']?><?endif?>">
+	<div id="sls-<?=$arResult['RANDOM_TAG']?>" class="bx-sls <? if($arResult['MODE_CLASSES'] <> ''): ?> <?= $arResult['MODE_CLASSES'] ?><? endif?>">
 
 		<?if(is_array($arResult['DEFAULT_LOCATIONS']) && !empty($arResult['DEFAULT_LOCATIONS'])):?>
 
@@ -88,14 +88,14 @@ if ($arParams["UI_FILTER"])
 		if (!window.BX && top.BX)
 			window.BX = top.BX;
 
-		<?if(strlen($arParams['JS_CONTROL_DEFERRED_INIT'])):?>
-			if(typeof window.BX.locationsDeferred == 'undefined') window.BX.locationsDeferred = {};
-			window.BX.locationsDeferred['<?=$arParams['JS_CONTROL_DEFERRED_INIT']?>'] = function(){
-		<?endif?>
+		<?if($arParams['JS_CONTROL_DEFERRED_INIT'] <> ''):?>
+		if (typeof window.BX.locationsDeferred == 'undefined') window.BX.locationsDeferred = {};
+		window.BX.locationsDeferred['<?=$arParams['JS_CONTROL_DEFERRED_INIT']?>'] = function () {
+			<?endif?>
 
-			<?if(strlen($arParams['JS_CONTROL_GLOBAL_ID'])):?>
-				if(typeof window.BX.locationSelectors == 'undefined') window.BX.locationSelectors = {};
-				window.BX.locationSelectors['<?=$arParams['JS_CONTROL_GLOBAL_ID']?>'] = 
+			<?if($arParams['JS_CONTROL_GLOBAL_ID'] <> ''):?>
+			if (typeof window.BX.locationSelectors == 'undefined') window.BX.locationSelectors = {};
+			window.BX.locationSelectors['<?=$arParams['JS_CONTROL_GLOBAL_ID']?>'] =
 			<?endif?>
 
 			new BX.Sale.component.location.selector.search(<?=CUtil::PhpToJSObject(array(
@@ -136,8 +136,8 @@ if ($arParams["UI_FILTER"])
 
 			), false, false, true)?>);
 
-		<?if(strlen($arParams['JS_CONTROL_DEFERRED_INIT'])):?>
-			};
+		<?if($arParams['JS_CONTROL_DEFERRED_INIT'] <> ''):?>
+		};
 		<?endif?>
 
 	</script>

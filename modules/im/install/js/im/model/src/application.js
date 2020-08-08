@@ -4,13 +4,13 @@
  *
  * @package bitrix
  * @subpackage im
- * @copyright 2001-2019 Bitrix
+ * @copyright 2001-2020 Bitrix
  */
 
 import {DeviceType, DeviceOrientation} from 'im.const';
 import {VuexBuilderModel} from 'ui.vue.vuex';
 
-class ApplicationModel extends VuexBuilderModel
+export class ApplicationModel extends VuexBuilderModel
 {
 	getName()
 	{
@@ -56,6 +56,7 @@ class ApplicationModel extends VuexBuilderModel
 				quoteFromRight: this.getVariable('options.quoteFromRight', true),
 				autoplayVideo: this.getVariable('options.autoplayVideo', true),
 				darkBackground: this.getVariable('options.darkBackground', false),
+				showSmiles: false
 			},
 			error:
 			{
@@ -84,6 +85,14 @@ class ApplicationModel extends VuexBuilderModel
 			{
 				store.commit('set', this.validate(payload));
 			},
+			showSmiles: (store, payload) =>
+			{
+				store.commit('showSmiles')
+			},
+			hideSmiles: (store, payload) =>
+			{
+				store.commit('hideSmiles');
+			}
 		}
 	}
 
@@ -138,6 +147,14 @@ class ApplicationModel extends VuexBuilderModel
 			clearDialogExtraCount(state)
 			{
 				state.dialog.messageExtraCount = 0;
+			},
+			showSmiles(state)
+			{
+				state.options.showSmiles = true;
+			},
+			hideSmiles(state)
+			{
+				state.options.showSmiles = false;
 			}
 		}
 	}
@@ -270,5 +287,3 @@ class ApplicationModel extends VuexBuilderModel
 		return result;
 	}
 }
-
-export {ApplicationModel};

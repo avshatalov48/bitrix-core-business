@@ -304,7 +304,7 @@ function yandex_get_value(
 							{
 								if ($ar_file = CFile::GetFileArray($intValue))
 								{
-									if(substr($ar_file["SRC"], 0, 1) == "/")
+									if(mb_substr($ar_file["SRC"], 0, 1) == "/")
 										$strFile = $options['PROTOCOL'].$options['SITE_NAME'].CHTTP::urnEncode($ar_file['SRC'], 'utf-8');
 									else
 										$strFile = $ar_file["SRC"];
@@ -321,7 +321,7 @@ function yandex_get_value(
 						{
 							if ($ar_file = CFile::GetFileArray($arProperty['VALUE']))
 							{
-								if(substr($ar_file["SRC"], 0, 1) == "/")
+								if(mb_substr($ar_file["SRC"], 0, 1) == "/")
 									$strFile = $options['PROTOCOL'].$options['SITE_NAME'].CHTTP::urnEncode($ar_file['SRC'], 'utf-8');
 								else
 									$strFile = $ar_file["SRC"];
@@ -600,7 +600,7 @@ else
 
 	$ar_iblock['DETAIL_PAGE_URL'] = (string)$ar_iblock['DETAIL_PAGE_URL'];
 	$itemUrlConfig['USE_DOMAIN'] = !(preg_match("/^(http|https):\\/\\//i", $ar_iblock['DETAIL_PAGE_URL']));
-	$itemUrlConfig['REFERRER_SEPARATOR'] = (strpos($ar_iblock['DETAIL_PAGE_URL'], '?') === false ? '?' : '&amp;');
+	$itemUrlConfig['REFERRER_SEPARATOR'] = (mb_strpos($ar_iblock['DETAIL_PAGE_URL'], '?') === false ? '?' : '&amp;');
 }
 
 $SETUP_SERVER_NAME = (isset($SETUP_SERVER_NAME) ? trim($SETUP_SERVER_NAME) : '');
@@ -720,7 +720,7 @@ else
 			else
 			{
 				$offerUrlConfig['USE_DOMAIN'] = !(preg_match("/^(http|https):\\/\\//i", $arOfferIBlock['DETAIL_PAGE_URL']));
-				$offerUrlConfig['REFERRER_SEPARATOR'] = (strpos($arOfferIBlock['DETAIL_PAGE_URL'], '?') === false ? '?' : '&amp;');
+				$offerUrlConfig['REFERRER_SEPARATOR'] = (mb_strpos($arOfferIBlock['DETAIL_PAGE_URL'], '?') === false ? '?' : '&amp;');
 			}
 		}
 		else
@@ -961,7 +961,7 @@ $itemOptions = array(
 
 $sectionFileName = '';
 $itemFileName = '';
-if (strlen($SETUP_FILE_NAME) <= 0)
+if ($SETUP_FILE_NAME == '')
 {
 	$arRunErrors[] = GetMessage("CATI_NO_SAVE_FILE");
 }
@@ -1008,9 +1008,9 @@ if ($firstStep)
 			{
 				if (!$disableReferers)
 				{
-					fwrite($fp, 'if (!isset($_GET["referer1"]) || strlen($_GET["referer1"])<=0) $_GET["referer1"] = "yandext";'."\n");
+					fwrite($fp, 'if (!isset($_GET["referer1"]) || $_GET["referer1"] == "") $_GET["referer1"] = "yandext";'."\n");
 					fwrite($fp, '$strReferer1 = htmlspecialchars($_GET["referer1"]);'."\n");
-					fwrite($fp, 'if (!isset($_GET["referer2"]) || strlen($_GET["referer2"]) <= 0) $_GET["referer2"] = "";'."\n");
+					fwrite($fp, 'if (!isset($_GET["referer2"]) || $_GET["referer2"] == "") $_GET["referer2"] = "";'."\n");
 					fwrite($fp, '$strReferer2 = htmlspecialchars($_GET["referer2"]);'."\n");
 				}
 			}

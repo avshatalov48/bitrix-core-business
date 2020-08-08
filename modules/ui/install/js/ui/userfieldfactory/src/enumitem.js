@@ -3,14 +3,20 @@
  */
 export class EnumItem
 {
-	constructor(value = null)
+	constructor(value = null, id = null)
 	{
 		this.value = value;
+		this.id = id;
 	}
 
 	setNode(node: Element)
 	{
 		this.node = node;
+	}
+
+	getId(): ?number
+	{
+		return this.id;
 	}
 
 	getNode(): ?Element

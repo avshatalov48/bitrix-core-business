@@ -412,7 +412,7 @@
 
 .automation-base-node-edit {
 	float: right;
-	font-family: 'OpenSans-Semibold';
+	font-family: "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-size: 14px;
 	color: #1058d0;
 	text-transform: lowercase;
@@ -420,10 +420,9 @@
 }
 
 .automation-base-node-title {
-	font-family: 'OpenSans-Regular';
+	font: 16px/22px "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
 	float: left;
 	overflow: hidden;
-	font-size: 16px;
 	color: #000;
 }
 
@@ -1168,7 +1167,7 @@
 .bizproc-automation-popup-chk {
 	display: inline-block;
 	vertical-align: middle;
-	margin: 0;
+	margin: 0 2px 0 0;
 }
 
 .bizproc-automation-popup-chk-label {
@@ -1836,4 +1835,8 @@
 .bizproc-automation-condition-joiner {
 	color: #80868e;
 	border-bottom-color: #80868e;
+}
+
+.crm-entity-section .automation-base-button {
+	display: flex;
 }

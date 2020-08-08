@@ -87,14 +87,14 @@ class Schema
 			if (
 				$token->text === $delimiter
 				&& $prevToken
-				&& strpos($prevToken->text, "\n") !== false
+				&& mb_strpos($prevToken->text, "\n") !== false
 			)
 			{
 				$index++;
 				$result[$index] = array();
 			}
 			elseif (
-				strpos($token->text , "\n") !== false
+				mb_strpos($token->text, "\n") !== false
 				&& $prevToken
 				&& $prevToken->text === $delimiter
 			)

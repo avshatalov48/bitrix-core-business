@@ -108,6 +108,6 @@ abstract class Base extends Controller
 			return $string;
 		}
 
-		return strtoupper(StringHelper::camel2snake($string));
+		return mb_strtoupper(StringHelper::camel2snake($string));
 	}
 }

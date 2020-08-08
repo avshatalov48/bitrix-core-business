@@ -24,18 +24,18 @@ if (!function_exists('getSkinsFromDir'))
 			if($f == "." || $f == ".." || $f == ".htaccess" || !is_file($basePath.'/'.$f))
 				continue;
 
-			$ext = strtolower(GetFileExtension($f));
+			$ext = mb_strtolower(GetFileExtension($f));
 			if (in_array($ext, $arSkinExt)) // We find skin
 			{
-				$name = substr($f, 0, - strlen($ext) - 1); // name of the skin
-				if (strlen($name) <= 0)
+				$name = mb_substr($f, 0, -mb_strlen($ext) - 1); // name of the skin
+				if ($name == '')
 					continue;
 
-				if (strpos($name, '.min') !== false)
+				if (mb_strpos($name, '.min') !== false)
 					continue;
 
 				$Skin = array('filename' => $f);
-				$Skin['name'] = strtoupper(substr($name, 0, 1)).strtolower(substr($name, 1));
+				$Skin['name'] = mb_strtoupper(mb_substr($name, 0, 1)).mb_strtolower(mb_substr($name, 1));
 				$Skin['the_path'] = $path;
 
 				// Try to find preview
@@ -83,9 +83,9 @@ if (!function_exists('getSkinsEx'))
 }
 
 $fp = $arCurrentValues["PATH"];
-if ($type == 'auto' && strlen($fp) > 0 && strpos($fp, '.') !== false)
+if ($type == 'auto' && $fp <> '' && mb_strpos($fp, '.') !== false)
 {
-	$ext = strtolower(GetFileExtension($fp));
+	$ext = mb_strtolower(GetFileExtension($fp));
 	$type = (in_array($ext, array('wmv', 'wma'))) ? 'wmv' : 'videojs';
 }
 
@@ -193,7 +193,7 @@ $arParams["PATH"] = Array(
 
 if ($arCurrentValues["USE_PLAYLIST"] == 'Y')
 {
-	$bPlaylistExists = strlen($arCurrentValues['PATH']) > 0 && file_exists($_SERVER["DOCUMENT_ROOT"].Rel2Abs("/", $arCurrentValues['PATH']));
+	$bPlaylistExists = $arCurrentValues['PATH'] <> '' && file_exists($_SERVER["DOCUMENT_ROOT"].Rel2Abs("/", $arCurrentValues['PATH']));
 	$butTitle = $bPlaylistExists ? GetMessage("PC_PAR_EDIT") : GetMessage("PC_PAR_CREATE");
 
 	$arParams["PLAYLIST_DIALOG"] = Array(
@@ -579,7 +579,7 @@ if ($type == 'flv')
 		$pluginTitle = isset($arPluginList[$arPlugins[$j]]['name']) ? $arPluginList[$arPlugins[$j]]['name'] : trim($arPlugins[$j]);
 		$pluginName = preg_replace("/[^a-zA-Z0-9_-]/i", "_", trim($arPlugins[$j]));
 
-		if (strlen($pluginName) <= 0)
+		if ($pluginName == '')
 			continue;
 
 		$defValue = '';
@@ -589,7 +589,7 @@ if ($type == 'flv')
 				$defValue .= $varName.'='.$varVal."\n";
 		}
 
-		$arParams["PLUGINS_".strtoupper($pluginName)] = Array(
+		$arParams["PLUGINS_".mb_strtoupper($pluginName)] = Array(
 			"PARENT" => $addGroupPar,
 			"NAME" => GetMessage("PC_PAR_PLUGIN_NAME", array('#PLUGIN_NAME#' => $pluginTitle)),
 			"ROWS" => 3,

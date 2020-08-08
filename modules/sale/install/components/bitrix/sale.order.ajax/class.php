@@ -217,15 +217,36 @@ class SaleOrderAjax extends \CBitrixComponent
 			'PREPAY_ORDER_PROPS' => [],
 		];
 
-		if (Main\ModuleManager::isModuleInstalled('intranet') && Loader::includeModule('crm'))
+		if (!isset($arParams['IS_LANDING_SHOP']))
 		{
-			$arParams['IS_LANDING_SHOP'] = 'Y';
-			$arParams['ALLOW_AUTO_REGISTER'] = 'Y';
+			if (
+				!empty($arParams['CONTEXT_SITE_ID'])
+				&& Main\ModuleManager::isModuleInstalled('intranet')
+				&& Loader::includeModule('crm')
+			)
+			{
+				$arParams['IS_LANDING_SHOP'] = 'Y';
+			}
+			else
+			{
+				$arParams['IS_LANDING_SHOP'] = 'N';
+			}
+		}
+
+		if (!Loader::includeModule('crm'))
+		{
+			$arParams['IS_LANDING_SHOP'] = 'N';
+		}
+
+		$arParams['IS_LANDING_SHOP'] = $arParams['IS_LANDING_SHOP'] === 'Y' ? 'Y' : 'N';
+
+		if ($arParams['IS_LANDING_SHOP'] === 'Y')
+		{
 			$this->arResult['AUTH']['new_user_registration'] = 'N';
+			$arParams['ALLOW_AUTO_REGISTER'] = 'Y';
 		}
 		else
 		{
-			$arParams['IS_LANDING_SHOP'] = 'N';
 			$this->arResult['AUTH']['new_user_registration'] = Option::get('main', 'new_user_registration', 'Y', $siteId) === 'Y' ? 'Y' : 'N';
 		}
 
@@ -439,9 +460,9 @@ class SaleOrderAjax extends \CBitrixComponent
 
 		foreach ($arParams as $k => $v)
 		{
-			if (strpos($k, 'ADDITIONAL_PICT_PROP_') !== false)
+			if (mb_strpos($k, 'ADDITIONAL_PICT_PROP_') !== false)
 			{
-				$iblockId = intval(substr($k, strlen('ADDITIONAL_PICT_PROP_')));
+				$iblockId = intval(mb_substr($k, mb_strlen('ADDITIONAL_PICT_PROP_')));
 
 				if ($v !== '-')
 				{
@@ -473,12 +494,12 @@ class SaleOrderAjax extends \CBitrixComponent
 
 		foreach ($this->request as $k => $v)
 		{
-			if (strpos($k, "ORDER_PROP_") !== false)
+			if (mb_strpos($k, "ORDER_PROP_") !== false)
 			{
-				if (strpos($k, "[]") !== false)
-					$orderPropId = intval(substr($k, strlen("ORDER_PROP_"), strlen($k) - 2));
+				if (mb_strpos($k, "[]") !== false)
+					$orderPropId = intval(mb_substr($k, mb_strlen("ORDER_PROP_"), mb_strlen($k) - 2));
 				else
-					$orderPropId = intval(substr($k, strlen("ORDER_PROP_")));
+					$orderPropId = intval(mb_substr($k, mb_strlen("ORDER_PROP_")));
 
 				if ($orderPropId > 0)
 					$orderProperties[$orderPropId] = $v;
@@ -487,9 +508,9 @@ class SaleOrderAjax extends \CBitrixComponent
 
 		foreach ($this->request->getFileList() as $k => $arFileData)
 		{
-			if (strpos($k, "ORDER_PROP_") !== false)
+			if (mb_strpos($k, "ORDER_PROP_") !== false)
 			{
-				$orderPropId = intval(substr($k, strlen("ORDER_PROP_")));
+				$orderPropId = intval(mb_substr($k, mb_strlen("ORDER_PROP_")));
 
 				if (is_array($arFileData))
 				{
@@ -499,7 +520,7 @@ class SaleOrderAjax extends \CBitrixComponent
 						{
 							foreach ($value as $nIndex => $val)
 							{
-								if (strlen($arFileData["name"][$nIndex]) > 0)
+								if ($arFileData["name"][$nIndex] <> '')
 								{
 									$orderProperties[$orderPropId][$nIndex][$param_name] = $val;
 								}
@@ -1302,7 +1323,7 @@ class SaleOrderAjax extends \CBitrixComponent
 
 		$this->checkSocServicesAuthForm();
 
-		$arResult['AUTH']['USER_LOGIN'] = strlen($request['USER_LOGIN']) > 0
+		$arResult['AUTH']['USER_LOGIN'] = $request['USER_LOGIN'] <> ''
 			? htmlspecialcharsbx($request['USER_LOGIN'])
 			: htmlspecialcharsbx(${Option::get('main', 'cookie_name', 'BITRIX_SM').'_LOGIN'});
 		$arResult['AUTH']['captcha_registration'] = Option::get('main', 'captcha_registration', 'N') === 'Y' ? 'Y' : 'N';
@@ -1467,7 +1488,7 @@ class SaleOrderAjax extends \CBitrixComponent
 		global $USER;
 		$request = $this->isRequestViaAjax && $this->request->get('save') != 'Y' ? $this->request->get('order') : $this->request;
 
-		if (strlen($request["USER_LOGIN"]) <= 0)
+		if ($request["USER_LOGIN"] == '')
 			$this->addError(Loc::getMessage("STOF_ERROR_AUTH_LOGIN"), self::AUTH_BLOCK);
 
 		if (empty($this->arResult["ERROR"]))
@@ -1475,7 +1496,7 @@ class SaleOrderAjax extends \CBitrixComponent
 			$rememberMe = $request["USER_REMEMBER"] == 'Y' ? 'Y' : 'N';
 			$arAuthResult = $USER->Login($request["USER_LOGIN"], $request["USER_PASSWORD"], $rememberMe);
 			if ($arAuthResult != false && $arAuthResult["TYPE"] == "ERROR")
-				$this->addError(Loc::getMessage("STOF_ERROR_AUTH").(strlen($arAuthResult["MESSAGE"]) > 0 ? ": ".$arAuthResult["MESSAGE"] : ""), self::AUTH_BLOCK);
+				$this->addError(Loc::getMessage("STOF_ERROR_AUTH").($arAuthResult["MESSAGE"] <> '' ? ": ".$arAuthResult["MESSAGE"] : ""), self::AUTH_BLOCK);
 		}
 	}
 
@@ -1485,19 +1506,19 @@ class SaleOrderAjax extends \CBitrixComponent
 		$arResult =& $this->arResult;
 		$request = $this->isRequestViaAjax && $this->request->get('save') != 'Y' ? $this->request->get('order') : $this->request;
 
-		if (strlen($request['NEW_NAME']) <= 0)
+		if ($request['NEW_NAME'] == '')
 		{
 			$this->addError(Loc::getMessage('STOF_ERROR_REG_NAME'), self::AUTH_BLOCK);
 		}
 
-		if (strlen($request['NEW_LAST_NAME']) <= 0)
+		if ($request['NEW_LAST_NAME'] == '')
 		{
 			$this->addError(Loc::getMessage('STOF_ERROR_REG_LASTNAME'), self::AUTH_BLOCK);
 		}
 
 		if (Option::get('main', 'new_user_email_required', '') === 'Y')
 		{
-			if (strlen($request['NEW_EMAIL']) <= 0)
+			if ($request['NEW_EMAIL'] == '')
 			{
 				$this->addError(Loc::getMessage('STOF_ERROR_REG_EMAIL'), self::AUTH_BLOCK);
 			}
@@ -1519,24 +1540,24 @@ class SaleOrderAjax extends \CBitrixComponent
 			}
 			else
 			{
-				if (strlen($request['NEW_LOGIN']) <= 0)
+				if ($request['NEW_LOGIN'] == '')
 				{
 					$this->addError(Loc::getMessage('STOF_ERROR_REG_FLAG'), self::AUTH_BLOCK);
 				}
 
-				if (strlen($request['NEW_PASSWORD']) <= 0)
+				if ($request['NEW_PASSWORD'] == '')
 				{
 					$this->addError(Loc::getMessage('STOF_ERROR_REG_FLAG1'), self::AUTH_BLOCK);
 				}
 
-				if (strlen($request['NEW_PASSWORD']) > 0 && strlen($request['NEW_PASSWORD_CONFIRM']) <= 0)
+				if ($request['NEW_PASSWORD'] <> '' && $request['NEW_PASSWORD_CONFIRM'] == '')
 				{
 					$this->addError(Loc::getMessage('STOF_ERROR_REG_FLAG1'), self::AUTH_BLOCK);
 				}
 
 				if (
-					strlen($request['NEW_PASSWORD']) > 0
-					&& strlen($request['NEW_PASSWORD_CONFIRM']) > 0
+					$request['NEW_PASSWORD'] <> ''
+					&& $request['NEW_PASSWORD_CONFIRM'] <> ''
 					&& $request['NEW_PASSWORD'] != $request['NEW_PASSWORD_CONFIRM']
 				)
 				{
@@ -1568,7 +1589,7 @@ class SaleOrderAjax extends \CBitrixComponent
 
 			if ($arAuthResult != false && $arAuthResult['TYPE'] === 'ERROR')
 			{
-				$this->addError(Loc::getMessage('STOF_ERROR_REG').(strlen($arAuthResult['MESSAGE']) > 0 ? ': '.$arAuthResult['MESSAGE'] : ''), self::AUTH_BLOCK);
+				$this->addError(Loc::getMessage('STOF_ERROR_REG').($arAuthResult['MESSAGE'] <> '' ? ': '.$arAuthResult['MESSAGE'] : ''), self::AUTH_BLOCK);
 			}
 			else
 			{
@@ -1663,15 +1684,15 @@ class SaleOrderAjax extends \CBitrixComponent
 			$newLogin = randString(5).mt_rand(0, 99999);
 		}
 
-		$pos = strpos($newLogin, '@');
+		$pos = mb_strpos($newLogin, '@');
 		if ($pos !== false)
 		{
-			$newLogin = substr($newLogin, 0, $pos);
+			$newLogin = mb_substr($newLogin, 0, $pos);
 		}
 
-		if (strlen($newLogin) > 47)
+		if (mb_strlen($newLogin) > 47)
 		{
-			$newLogin = substr($newLogin, 0, 47);
+			$newLogin = mb_substr($newLogin, 0, 47);
 		}
 
 		$newLogin = str_pad($newLogin, 3, '_');
@@ -1812,7 +1833,7 @@ class SaleOrderAjax extends \CBitrixComponent
 
 		if (intval($addResult) <= 0)
 		{
-			$this->addError(Loc::getMessage('STOF_ERROR_REG').((strlen($user->LAST_ERROR) > 0) ? ': '.$user->LAST_ERROR : ''), self::AUTH_BLOCK);
+			$this->addError(Loc::getMessage('STOF_ERROR_REG').(($user->LAST_ERROR <> '') ? ': '.$user->LAST_ERROR : ''), self::AUTH_BLOCK);
 		}
 		else
 		{
@@ -1973,7 +1994,7 @@ class SaleOrderAjax extends \CBitrixComponent
 			{
 				if (strncmp($value, "PROPERTY_", 9) == 0)
 				{
-					$propCode = substr($value, 9);
+					$propCode = mb_substr($value, 9);
 
 					if ($propCode == '')
 						continue;
@@ -2036,7 +2057,7 @@ class SaleOrderAjax extends \CBitrixComponent
 				// processing iblock properties
 				if (strncmp($value, "PROPERTY_", 9) == 0)
 				{
-					$propCode = substr($value, 9);
+					$propCode = mb_substr($value, 9);
 
 					if ($propCode == '')
 						continue;
@@ -2095,7 +2116,7 @@ class SaleOrderAjax extends \CBitrixComponent
 			$arVal = [];
 			if (!is_array($value))
 			{
-				if (strpos($value, ",") !== false)
+				if (mb_strpos($value, ",") !== false)
 					$arVal = explode(",", $value);
 				else
 					$arVal[] = $value;
@@ -2581,9 +2602,9 @@ class SaleOrderAjax extends \CBitrixComponent
 			{
 				// set formatted value
 				$locationFound = $item;
-				$arProperty["VALUE_FORMATED"] = $item["COUNTRY_NAME"].((strlen($item["CITY_NAME"]) > 0) ? " - " : "").$item["CITY_NAME"];
+				$arProperty["VALUE_FORMATED"] = $item["COUNTRY_NAME"].(($item["CITY_NAME"] <> '') ? " - " : "").$item["CITY_NAME"];
 				$item['SELECTED'] = 'Y';
-				$item['NAME'] = $item["COUNTRY_NAME"].((strlen($item["CITY_NAME"]) > 0) ? " - " : "").$item["CITY_NAME"];
+				$item['NAME'] = $item["COUNTRY_NAME"].(($item["CITY_NAME"] <> '') ? " - " : "").$item["CITY_NAME"];
 
 				// save to variants
 				$arProperty["VARIANTS"][] = $item;
@@ -2909,7 +2930,7 @@ class SaleOrderAjax extends \CBitrixComponent
 			{
 				foreach ($arProductData[$arResultItem["PRODUCT_ID"]] as $key => $value)
 				{
-					if (strpos($key, "PROPERTY_") !== false)
+					if (mb_strpos($key, "PROPERTY_") !== false)
 						$arResultItem[$key] = $value;
 				}
 			}
@@ -2934,7 +2955,7 @@ class SaleOrderAjax extends \CBitrixComponent
 
 					// can be array or string
 					if (
-						(!isset($arResultItem[$fieldVal]) || (isset($arResultItem[$fieldVal]) && strlen($arResultItem[$fieldVal]) == 0))
+						(!isset($arResultItem[$fieldVal]) || (isset($arResultItem[$fieldVal]) && $arResultItem[$fieldVal] == ''))
 						&& (isset($arProductData[$parentId][$fieldVal]) && !empty($arProductData[$parentId][$fieldVal]))
 					)
 					{
@@ -3038,7 +3059,7 @@ class SaleOrderAjax extends \CBitrixComponent
 
 			foreach ($arBasketItem as $tmpKey => $value)
 			{
-				if ((strpos($tmpKey, "PROPERTY_", 0) === 0) && (strrpos($tmpKey, "_VALUE") == strlen($tmpKey) - 6))
+				if ((mb_strpos($tmpKey, "PROPERTY_", 0) === 0) && (mb_strrpos($tmpKey, "_VALUE") == mb_strlen($tmpKey) - 6))
 				{
 					$code = str_replace(["PROPERTY_", "_VALUE"], "", $tmpKey);
 					$propData = $currentProductProperties[$arBasketItem['PRODUCT_ID']][$code];
@@ -4374,7 +4395,7 @@ class SaleOrderAjax extends \CBitrixComponent
 							$arDelivery['DELIVERY_DISCOUNT_PRICE_FORMATED'] = SaleFormatCurrency($arDelivery['DELIVERY_DISCOUNT_PRICE'], $calcOrder->getCurrency());
 						}
 
-						if (strlen($calcResult->getPeriodDescription()) > 0)
+						if ($calcResult->getPeriodDescription() <> '')
 						{
 							$arDelivery['PERIOD_TEXT'] = $calcResult->getPeriodDescription();
 						}
@@ -5328,7 +5349,7 @@ class SaleOrderAjax extends \CBitrixComponent
 				if (!empty($deliveryExtraServices))
 					$arUserResult["DELIVERY_EXTRA_SERVICES"] = $deliveryExtraServices;
 
-				if (strlen($request->get('ORDER_DESCRIPTION')) > 0)
+				if ($request->get('ORDER_DESCRIPTION') <> '')
 				{
 					$arUserResult["~ORDER_DESCRIPTION"] = $request->get('ORDER_DESCRIPTION');
 					$arUserResult["ORDER_DESCRIPTION"] = htmlspecialcharsbx($request->get('ORDER_DESCRIPTION'));
@@ -6120,13 +6141,13 @@ class SaleOrderAjax extends \CBitrixComponent
 								if ($oldHandler !== false && !$paySystemService->isCustom())
 									$arPaySysAction["ACTION_FILE"] = $oldHandler;
 
-								if (strlen($arPaySysAction["ACTION_FILE"]) > 0 && $arPaySysAction["NEW_WINDOW"] != "Y")
+								if ($arPaySysAction["ACTION_FILE"] <> '' && $arPaySysAction["NEW_WINDOW"] != "Y")
 								{
 									$pathToAction = Main\Application::getDocumentRoot().$arPaySysAction["ACTION_FILE"];
 
 									$pathToAction = str_replace("\\", "/", $pathToAction);
-									while (substr($pathToAction, strlen($pathToAction) - 1, 1) == "/")
-										$pathToAction = substr($pathToAction, 0, strlen($pathToAction) - 1);
+									while (mb_substr($pathToAction, mb_strlen($pathToAction) - 1, 1) == "/")
+										$pathToAction = mb_substr($pathToAction, 0, mb_strlen($pathToAction) - 1);
 
 									if (file_exists($pathToAction))
 									{

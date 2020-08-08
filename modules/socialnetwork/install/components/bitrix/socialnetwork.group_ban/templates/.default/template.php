@@ -1,6 +1,6 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
-if(strlen($arResult["FatalError"])>0)
+if($arResult["FatalError"] <> '')
 {
 	?>
 	<span class='errortext'><?=$arResult["FatalError"]?></span><br /><br />
@@ -8,7 +8,7 @@ if(strlen($arResult["FatalError"])>0)
 }
 else
 {
-	if(strlen($arResult["ErrorMessage"])>0)
+	if($arResult["ErrorMessage"] <> '')
 	{
 		?>
 		<span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br />
@@ -18,7 +18,7 @@ else
 	<?if ($arResult["CurrentUserPerms"]["UserCanModerateGroup"]):?>
 		<form method="post" name="form1" action="<?=POST_FORM_ACTION_URI?>" enctype="multipart/form-data">
 	<?endif;?>
-	<?if (StrLen($arResult["NAV_STRING"]) > 0):?>
+	<?if ($arResult["NAV_STRING"] <> ''):?>
 		<?=$arResult["NAV_STRING"]?><br /><br />
 	<?endif;?>
 	<div class="sonet-cntnr-group-ban">
@@ -126,7 +126,7 @@ else
 		</tr>
 	</table>
 	</div>
-	<?if (StrLen($arResult["NAV_STRING"]) > 0):?>
+	<?if ($arResult["NAV_STRING"] <> ''):?>
 		<br><?=$arResult["NAV_STRING"]?><br /><br />
 	<?endif;?>
 	<?if ($arResult["CurrentUserPerms"]["UserCanModerateGroup"]):?>

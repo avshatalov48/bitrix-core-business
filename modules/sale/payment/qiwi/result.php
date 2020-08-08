@@ -6,7 +6,7 @@ use Bitrix\Main\IO\Path;
 
 Loc::loadLanguageFile(Path::combine(__DIR__, "statuses.php"));
 
-$orderID 	= strlen(CSalePaySystemAction::GetParamValue("ORDER_ID")) > 0 ? CSalePaySystemAction::GetParamValue("ORDER_ID") : $GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"];
+$orderID 	= CSalePaySystemAction::GetParamValue("ORDER_ID") <> '' ? CSalePaySystemAction::GetParamValue("ORDER_ID") : $GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"];
 $login 		= CSalePaySystemAction::GetParamValue("API_LOGIN");
 $password 	= CSalePaySystemAction::GetParamValue("API_PASSWORD");
 $shopId		= CSalePaySystemAction::GetParamValue("SHOP_ID");
@@ -50,8 +50,8 @@ elseif(isset($response['bill']))
 	{
 		$paidInfo = array(
 			"PS_STATUS" 		=> $bill['status'] == "paid" ? "Y" : "N",
-			"PS_STATUS_CODE"	=> substr($bill['status'], 0, 10),
-			"PS_STATUS_MESSAGE" => Loc::getMessage("SALE_QWH_STATUS_MESSAGE_" . strtoupper($bill['status'])),
+			"PS_STATUS_CODE"	=> mb_substr($bill['status'], 0, 10),
+			"PS_STATUS_MESSAGE" => Loc::getMessage("SALE_QWH_STATUS_MESSAGE_".mb_strtoupper($bill['status'])),
 			"PS_RESPONSE_DATE"	=> \Bitrix\Main\Type\DateTime::createFromTimestamp(time()),
 			"PS_SUM"			=> (double)$bill['amount'],
 			"PS_CURRENCY"		=> $bill['ccy'],

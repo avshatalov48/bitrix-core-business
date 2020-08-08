@@ -61,7 +61,7 @@ if ($boolFlag)
 	{
 		do
 		{
-			$strCoupon = substr(CatalogGenerateCoupon(), 0, 32);
+			$strCoupon = mb_substr(CatalogGenerateCoupon(), 0, 32);
 			$boolCheck = !CCatalogDiscountCoupon::IsExistCoupon($strCoupon);
 		}
 		while (!$boolCheck);

@@ -72,7 +72,7 @@ class CBitrixSaleLocationReindexComponent extends CBitrixComponent
 		if($parameters['CHECK_CSRF'])
 		{
 			$post = \Bitrix\Main\Context::getCurrent()->getRequest()->getPostList();
-			if(!strlen($post['csrf']) || bitrix_sessid() != $post['csrf'])
+			if(!mb_strlen($post['csrf']) || bitrix_sessid() != $post['csrf'])
 				$errors[] = 'CSRF token is not valid';
 		}
 

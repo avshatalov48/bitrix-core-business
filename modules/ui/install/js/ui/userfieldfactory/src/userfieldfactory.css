@@ -90,10 +90,6 @@
 	font: 400 13px/18px "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-.ui-userfieldfactory-creation-menu-container .hidden {
-	display: none;
-}
-
 .ui-userfieldfactory-configurator {
 	position: relative;
 	padding: 12px 15px;

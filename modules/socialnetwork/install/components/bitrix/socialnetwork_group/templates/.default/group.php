@@ -2,7 +2,9 @@
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 	die();
 
+use Bitrix\Landing\Copy\Integration\Group as LandingGroup;
 use Bitrix\Main\Loader;
+use Bitrix\Blog\Copy\Integration\Group as BlogGroup;
 
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
@@ -22,8 +24,32 @@ if (Loader::includeModule("blog"))
 		"bitrix:socialnetwork.copy.checker",
 		"",
 		[
-			"QUEUE_ID" => $arResult["VARIABLES"]["group_id"],
-			"HELPER" => new Bitrix\Blog\Copy\Integration\Group()
+			"moduleId" => BlogGroup::MODULE_ID,
+			"queueId" => $arResult["VARIABLES"]["group_id"],
+			"stepperClassName" => BlogGroup::STEPPER_CLASS,
+			"checkerOption" => BlogGroup::CHECKER_OPTION,
+			"errorOption" => BlogGroup::ERROR_OPTION,
+			"titleMessage" => GetMessage("BLG_STEPPER_PROGRESS_TITLE"),
+			"errorMessage" => GetMessage("BLG_STEPPER_PROGRESS_ERROR"),
+		],
+		$component,
+		["HIDE_ICONS" => "Y"]
+	);
+}
+
+if (Loader::includeModule("landing"))
+{
+	$APPLICATION->includeComponent(
+		"bitrix:socialnetwork.copy.checker",
+		"",
+		[
+			"moduleId" => LandingGroup::MODULE_ID,
+			"queueId" => $arResult["VARIABLES"]["group_id"],
+			"stepperClassName" => LandingGroup::STEPPER_CLASS,
+			"checkerOption" => LandingGroup::CHECKER_OPTION,
+			"errorOption" => LandingGroup::ERROR_OPTION,
+			"titleMessage" => GetMessage("LANDING_STEPPER_PROGRESS_TITLE"),
+			"errorMessage" => GetMessage("LANDING_STEPPER_PROGRESS_ERROR"),
 		],
 		$component,
 		["HIDE_ICONS" => "Y"]

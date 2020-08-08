@@ -121,7 +121,7 @@ class TileView
 	 */
 	public function addSection($id, $name = null)
 	{
-		$name = $name ?: Loc::getMessage('SENDER_UI_TILEVIEW_SECTION_' . strtoupper($id));
+		$name = $name ?: Loc::getMessage('SENDER_UI_TILEVIEW_SECTION_'.mb_strtoupper($id));
 		$name = $name ?: $id;
 
 		$this->sections[$id] = [

@@ -48,5 +48,5 @@ foreach ($_POST as $key => $value)
 		<input type="text" class="form-control " name="phone" value="<?=$params['BUYER_PERSON_COMPANY_PHONE']?>">
 	</div>
 
-	<input type="submit" class="btn btn-primary pl-4 pr-4" name="send" value="<?=Loc::getMessage('SALE_HPS_YANDEX_INVOICE_SEND');?>">
+	<input type="submit" class="btn btn-lg btn-success pl-4 pr-4" style="border-radius: 32px;" name="send" value="<?=Loc::getMessage('SALE_HPS_YANDEX_INVOICE_SEND');?>">
 </form>

@@ -105,12 +105,12 @@ class CWorkflow extends CAllWorkflow
 		{
 			foreach ($arFilter as $key => $val)
 			{
-				if (strlen($val)<=0 || "$val"=="NOT_REF")
+				if ($val == '' || "$val"=="NOT_REF")
 					continue;
 				if (is_array($val) && count($val)<=0)
 					continue;
 				$match_value_set = (array_key_exists($key."_EXACT_MATCH", $arFilter) ? true : false);
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -342,12 +342,12 @@ class CWorkflow extends CAllWorkflow
 		{
 			foreach ($arFilter as $key => $val)
 			{
-				if (strlen($val)<=0 || "$val"=="NOT_REF")
+				if ($val == '' || "$val"=="NOT_REF")
 					continue;
 				if (is_array($val) && count($val)<=0)
 					continue;
 				$match_value_set = (array_key_exists($key."_EXACT_MATCH", $arFilter)) ? true : false;
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "ID":

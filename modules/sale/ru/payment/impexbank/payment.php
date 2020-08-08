@@ -2,7 +2,7 @@
 $strMerchantID = CSalePaySystemAction::GetParamValue("SHOP_ACCOUNT");
 $strMerchantName = CSalePaySystemAction::GetParamValue("SHOP_NAME");
 
-$ORDER_ID = IntVal($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"]);
+$ORDER_ID = intval($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"]);
 ?>
 <p>Вы хотите оплатить по Смарт-карте &quot;Импэксбанка&quot; через процессинговый центр платежной системы <strong>ИМПЭКСБанка</strong>.</p>
 <p>Cчет № <?= htmlspecialcharsEx($ORDER_ID." от ".$GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["DATE_INSERT"]) ?></p>

@@ -8,11 +8,9 @@ $sum = round($params['SUM'], 2);
 ?>
 
 <div class="mb-4" id="paysystem-yandex">
-	<p><?=Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_DESCRIPTION')." ".SaleFormatCurrency($sum, $params['CURRENCY']);?></p>
-	<div class="d-flex align-items-center mb-3">
-		<div id="payment-widget-form" style="width: 100%"></div>
-	</div>
-	<p><?=Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_WARNING_RETURN');?></p>
+	<p class="mb-4"><?=Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_DESCRIPTION')." ".SaleFormatCurrency($sum, $params['CURRENCY']);?></p>
+	<div id="payment-widget-form"></div>
+	<p class="mb-4"><?=Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_WARNING_RETURN');?></p>
 </div>
 
 <script src="https://kassa.yandex.ru/checkout-ui/v2.js"></script>

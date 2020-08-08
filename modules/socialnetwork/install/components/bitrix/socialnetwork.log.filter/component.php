@@ -14,6 +14,8 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Loader;
 use Bitrix\Main\UI\Filter;
+use Bitrix\Main\Config\Option;
+use Bitrix\Socialnetwork\ComponentHelper;
 
 if (!CModule::IncludeModule("socialnetwork"))
 {
@@ -25,7 +27,8 @@ $arResult = $arParams["arResult"];
 $arParams = $arParams["arParams"];
 
 if (
-	!ModuleManager::isModuleInstalled('tasks')
+	!ComponentHelper::checkLivefeedTasksAllowed()
+	|| !ModuleManager::isModuleInstalled('tasks')
 	|| !$USER->IsAuthorized()
 )
 {
@@ -203,7 +206,7 @@ if ($USER->IsAuthorized())
 
 $arResult["flt_created_by_string"] = "";
 
-if (strlen($_REQUEST["flt_created_by_string"]) > 0)
+if ($_REQUEST["flt_created_by_string"] <> '')
 {
 	$arResult["flt_created_by_string"] = $_REQUEST["flt_created_by_string"];
 }
@@ -318,13 +321,13 @@ if ($_REQUEST["preset_filter_top_id"] == "clearall")
 {
 	$preset_filter_top_id = false;
 }
-elseif(array_key_exists("preset_filter_top_id", $_REQUEST) && strlen($_REQUEST["preset_filter_top_id"]) > 0)
+elseif(array_key_exists("preset_filter_top_id", $_REQUEST) && $_REQUEST["preset_filter_top_id"] <> '')
 {
 	$preset_filter_top_id = $_REQUEST["preset_filter_top_id"];
 }
 
 if (
-	strlen($preset_filter_top_id) > 0
+	$preset_filter_top_id <> ''
 	&& array_key_exists($preset_filter_top_id, $arResult["PresetFiltersTop"])
 	&& is_array($arResult["PresetFiltersTop"][$preset_filter_top_id])
 )
@@ -340,13 +343,13 @@ if ($_REQUEST["preset_filter_id"] == "clearall")
 {
 	$preset_filter_id = false;
 }
-elseif(array_key_exists("preset_filter_id", $_REQUEST) && strlen($_REQUEST["preset_filter_id"]) > 0)
+elseif(array_key_exists("preset_filter_id", $_REQUEST) && $_REQUEST["preset_filter_id"] <> '')
 {
 	$preset_filter_id = $_REQUEST["preset_filter_id"];
 }
 
 if (
-	strlen($preset_filter_id) > 0
+	$preset_filter_id <> ''
 	&& array_key_exists($preset_filter_id, $arResult["PresetFilters"])
 	&& isset($arResult["PresetFilters"][$preset_filter_id]["FILTER"])
 	&& is_array($arResult["PresetFilters"][$preset_filter_id]["FILTER"])
@@ -381,7 +384,10 @@ if (ModuleManager::isModuleInstalled('forum'))
 	$eventIdList['forum'] = Loc::getMessage('SONET_C30_FILTER_EVENT_ID_FORUM');
 }
 
-if (ModuleManager::isModuleInstalled('tasks'))
+if (
+	ComponentHelper::checkLivefeedTasksAllowed()
+	&& ModuleManager::isModuleInstalled('tasks')
+)
 {
 	$eventIdList['tasks'] = Loc::getMessage('SONET_C30_FILTER_EVENT_ID_TASK');
 }

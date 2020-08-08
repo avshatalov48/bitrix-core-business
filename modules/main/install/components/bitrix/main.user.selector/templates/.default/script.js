@@ -45,10 +45,28 @@
 		{
 			if (this.lazyload)
 			{
-				BX.onCustomEvent("BX.Main.SelectorV2:initDialog", [ {
-					selectorId: this.id,
-					openDialogWhenInit: true
-				}]);
+				var initialized = false;
+
+				if (BX.Main.selectorManagerV2)
+				{
+					var selectorInstance = BX.Main.selectorManagerV2.getById(this.id);
+					if (
+						selectorInstance
+						&& selectorInstance.initialized
+					)
+					{
+						BX.Main.User.SelectorController.open(this);
+						initialized = true;
+					}
+				}
+
+				if (!initialized)
+				{
+					BX.onCustomEvent("BX.Main.SelectorV2:initDialog", [ {
+						selectorId: this.id,
+						openDialogWhenInit: true
+					}]);
+				}
 			}
 			else
 			{
@@ -409,7 +427,7 @@
 
 			userSelector.selector.addTile(self.formatName({
 				item: params.item,
-				nameTemplate:  mainSelectorInstance.getOption('nameTemplate')
+				nameTemplate: (mainSelectorInstance ? mainSelectorInstance.getOption('nameTemplate') : '#NAME# #LAST_NAME#')
 			}), data, entityId);
 			userSelector.selector.input.value = '';
 

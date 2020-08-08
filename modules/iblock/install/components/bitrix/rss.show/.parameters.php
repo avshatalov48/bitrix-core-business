@@ -4,7 +4,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 if(!CModule::IncludeModule("iblock"))
 	return;
 
-if(strlen($arCurrentValues["SITE"]) > 0)
+if($arCurrentValues["SITE"] <> '')
 {
 	$url_default = "http://".$arCurrentValues["SITE"];
 
@@ -12,10 +12,10 @@ if(strlen($arCurrentValues["SITE"]) > 0)
 	if($port > 0 && $port != 80)
 		$url_default .= ":".$port;
 
-	if(strlen($arCurrentValues["PATH"]) > 0)
+	if($arCurrentValues["PATH"] <> '')
 		$url_default .= "/".ltrim($arCurrentValues["PATH"], "/");
 
-	if(strlen($arCurrentValues["QUERY_STR"]) > 0)
+	if($arCurrentValues["QUERY_STR"] <> '')
 		$url_default .= "?".ltrim($arCurrentValues["QUERY_STR"], "?");
 }
 else

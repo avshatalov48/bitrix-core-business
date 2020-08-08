@@ -4,7 +4,7 @@ if ($arResult["NEED_AUTH"] == "Y")
 {
 	$APPLICATION->AuthForm("");
 }
-elseif (strlen($arResult["FatalError"])>0)
+elseif ($arResult["FatalError"] <> '')
 {
 	?>
 	<span class='errortext'><?=$arResult["FatalError"]?></span><br /><br />
@@ -12,7 +12,7 @@ elseif (strlen($arResult["FatalError"])>0)
 }
 else
 {
-	if(strlen($arResult["ErrorMessage"])>0)
+	if($arResult["ErrorMessage"] <> '')
 	{
 		?>
 		<span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br />
@@ -68,7 +68,7 @@ else
 						if ($arResult["POST"]["IMAGE_ID_FILE"]):?>
 							<input type="checkbox" name="GROUP_IMAGE_ID_DEL" id="GROUP_IMAGE_ID_DEL" value="Y"<?= ($arResult["POST"]["IMAGE_ID_DEL"] == "Y") ? " checked" : ""?>/>
 							<label for="GROUP_IMAGE_ID_DEL"><?= GetMessage("SONET_C8_IMAGE_DEL") ?></label> <br /><?
-							if (strlen($arResult["POST"]["IMAGE_ID_IMG"]) > 0):?>
+							if ($arResult["POST"]["IMAGE_ID_IMG"] <> ''):?>
 								<?=$arResult["POST"]["IMAGE_ID_IMG"];?><br /><?
 							endif;
 						endif;?>
@@ -111,7 +111,7 @@ else
 						
 						if (
 							CModule::IncludeModule("extranet")
-							&& strlen(COption::GetOptionString("extranet", "extranet_site")) > 0
+							&& COption::GetOptionString("extranet", "extranet_site") <> ''
 							&& !CExtranet::IsExtranetSite()
 						):
 							?><input type="checkbox" value="Y"<?=($arResult["POST"]["IS_EXTRANET_GROUP"] ? " checked" : "")?> name="IS_EXTRANET_GROUP"> <label for="IS_EXTRANET_GROUP"><?= GetMessage("SONET_C8_IS_EXTRANET_GROUP") ?></label><?

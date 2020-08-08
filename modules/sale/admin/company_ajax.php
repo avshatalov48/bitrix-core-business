@@ -59,7 +59,7 @@ if($arResult["ERROR"] === '' && $saleModulePermissions >= "W" && check_bitrix_se
 			foreach ($paramsStructure as $name => $param)
 			{
 				$paramsField .= "<tr>".
-					"<td>".(strlen($param["LABEL"]) > 0 ? $param["LABEL"].": " : "")."</td>".
+					"<td>".($param["LABEL"] <> '' ? $param["LABEL"].": " : "")."</td>".
 					"<td>".\Bitrix\Sale\Internals\Input\Manager::getEditHtml("RULE[".$name."]", $param, (isset($params[$name]) ? $params[$name] : null))."</td>".
 					"</tr>";
 			}
@@ -152,16 +152,16 @@ else
 {
 	if ($request->get('mode') == 'settings')
 		getRuleHtml($request->get('ID'));
-	elseif(strlen($arResult["ERROR"]) <= 0)
+	elseif($arResult["ERROR"] == '')
 		$arResult["ERROR"] = "Error! Access denied";
 }
 
-if(strlen($arResult["ERROR"]) > 0)
+if($arResult["ERROR"] <> '')
 	$arResult["RESULT"] = "ERROR";
 else
 	$arResult["RESULT"] = "OK";
 
-if(strtolower(SITE_CHARSET) != 'utf-8')
+if(mb_strtolower(SITE_CHARSET) != 'utf-8')
 	$arResult = $APPLICATION->ConvertCharsetArray($arResult, SITE_CHARSET, 'utf-8');
 
 header('Content-Type: application/json');

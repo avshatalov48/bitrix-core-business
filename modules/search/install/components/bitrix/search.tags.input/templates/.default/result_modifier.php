@@ -1,7 +1,7 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 // ******************************************************************
 // ******************************************************************
-	if (intVal($arParams["PAGE_ELEMENTS"]) <= 0)
+	if (intval($arParams["PAGE_ELEMENTS"]) <= 0)
 		$arParams["PAGE_ELEMENTS"] = 10;
 	$arParams["SORT"] = "name";
 	if ($arParams["SORT_BY_CNT"] == "Y")

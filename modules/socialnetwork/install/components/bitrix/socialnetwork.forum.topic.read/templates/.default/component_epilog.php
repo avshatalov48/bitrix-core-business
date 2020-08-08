@@ -55,7 +55,7 @@ if ($arParams['AJAX_POST'] == 'Y' && $arParams['ACTION'] == 'REPLY')
 					'message' => $messagePost
 				);
 			}
-			if (strpos($JSResult['message'], "ForumInitSpoiler") !== false)
+			if (mb_strpos($JSResult['message'], "ForumInitSpoiler") !== false)
 			{
 				$fname = $_SERVER["DOCUMENT_ROOT"]."/bitrix/components/bitrix/forum.interface/templates/spoiler/script.js";
 				if (file_exists($fname))
@@ -63,7 +63,7 @@ if ($arParams['AJAX_POST'] == 'Y' && $arParams['ACTION'] == 'REPLY')
 						'<script src="/bitrix/components/bitrix/forum.interface/templates/spoiler/script.js?'.filemtime($fname).'" type="text/javascript"></script>'.
 							"\n".$JSResult['message'];
 			}
-			if (strpos($JSResult['message'], "onForumImageLoad") !== false)
+			if (mb_strpos($JSResult['message'], "onForumImageLoad") !== false)
 			{
 				$SHParser = new CForumSimpleHTMLParser($APPLICATION->GetHeadStrings());
 				$scripts = $SHParser->getInnerHTML('<!--LOAD_SCRIPT-->', '<!--END_LOAD_SCRIPT-->');
@@ -73,14 +73,14 @@ if ($arParams['AJAX_POST'] == 'Y' && $arParams['ACTION'] == 'REPLY')
 			}
 		}
 	}
-	elseif (strlen($arResult["ERROR_MESSAGE"]) < 1)
+	elseif (mb_strlen($arResult["ERROR_MESSAGE"]) < 1)
 	{
 		$messagePreview = $FHParser->getTagHTML('div[class=forum-preview]');
 		$JSResult += array(
 			'status' => true,
 			'previewMessage' => $messagePreview);
 
-		if (strpos($JSResult['previewMessage'], "ForumInitSpoiler") !== false)
+		if (mb_strpos($JSResult['previewMessage'], "ForumInitSpoiler") !== false)
 		{
 			$fname = $_SERVER["DOCUMENT_ROOT"]."/bitrix/components/bitrix/forum.interface/templates/spoiler/script.js";
 			if (file_exists($fname))
@@ -88,7 +88,7 @@ if ($arParams['AJAX_POST'] == 'Y' && $arParams['ACTION'] == 'REPLY')
 					'<script src="/bitrix/components/bitrix/forum.interface/templates/spoiler/script.js?'.filemtime($fname).'" type="text/javascript"></script>'.
 						$JSResult['previewMessage'];
 		}
-		if (strpos($JSResult['previewMessage'], "onForumImageLoad") !== false)
+		if (mb_strpos($JSResult['previewMessage'], "onForumImageLoad") !== false)
 		{
 			$SHParser = new CForumSimpleHTMLParser($APPLICATION->GetHeadStrings());
 			$scripts = $SHParser->getInnerHTML('<!--LOAD_SCRIPT-->', '<!--END_LOAD_SCRIPT-->');

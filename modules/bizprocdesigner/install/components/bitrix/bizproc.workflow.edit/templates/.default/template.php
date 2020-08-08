@@ -195,6 +195,8 @@ $aMenu[] = [
 			'workflowTemplateName=' + encodeURIComponent(workflowTemplateName) + '&' +
 			'workflowTemplateDescription=' + encodeURIComponent(workflowTemplateDescription) + '&' +
 			'workflowTemplateAutostart=' + encodeURIComponent(workflowTemplateAutostart) + '&' +
+			'workflowTemplateIsSystem=' + encodeURIComponent(workflowTemplateIsSystem) + '&' +
+			'workflowTemplateSort=' + encodeURIComponent(workflowTemplateSort) + '&' +
 			JSToPHP(arWorkflowParameters, 'arWorkflowParameters') + '&' +
 			JSToPHP(arWorkflowVariables, 'arWorkflowVariables') + '&' +
 			JSToPHP(arWorkflowConstants, 'arWorkflowConstants') + '&' +
@@ -213,6 +215,8 @@ $aMenu[] = [
 			'content_post': 'workflowTemplateName=' + encodeURIComponent(workflowTemplateName) + '&' +
 				'workflowTemplateDescription=' + encodeURIComponent(workflowTemplateDescription) + '&' +
 				'workflowTemplateAutostart=' + encodeURIComponent(workflowTemplateAutostart) + '&' +
+				'workflowTemplateIsSystem=' + encodeURIComponent(workflowTemplateIsSystem) + '&' +
+				'workflowTemplateSort=' + encodeURIComponent(workflowTemplateSort) + '&' +
 				'document_type=' + encodeURIComponent(document_type) + '&' +
 				'<?= bitrix_sessid_get() ?>' + '&' +
 				JSToPHP(arWorkflowParameters, 'arWorkflowParameters') + '&' +
@@ -297,6 +301,8 @@ $aMenu[] = [
 		var workflowTemplateName = <?=CUtil::PhpToJSObject($arResult['TEMPLATE_NAME'])?>;
 		var workflowTemplateDescription = <?=CUtil::PhpToJSObject($arResult['TEMPLATE_DESC'])?>;
 		var workflowTemplateAutostart = <?=CUtil::PhpToJSObject($arResult['TEMPLATE_AUTOSTART'])?>;
+		var workflowTemplateIsSystem = <?=CUtil::PhpToJSObject($arResult['TEMPLATE_IS_SYSTEM'])?>;
+		var workflowTemplateSort = <?=CUtil::PhpToJSObject($arResult['TEMPLATE_SORT'])?>;
 
 		var document_type = <?=CUtil::PhpToJSObject($arResult['DOCUMENT_TYPE'])?>;
 		var MODULE_ID = <?=CUtil::PhpToJSObject(MODULE_ID)?>;

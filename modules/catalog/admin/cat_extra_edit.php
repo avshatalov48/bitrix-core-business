@@ -36,7 +36,7 @@ $bVarsFromForm = false;
 
 $ID = (isset($_REQUEST['ID']) ? (int)$_REQUEST['ID'] : 0);
 
-if ($_SERVER['REQUEST_METHOD'] == "POST" && strlen($Update) > 0 && !$bReadOnly && check_bitrix_sessid())
+if ($_SERVER['REQUEST_METHOD'] == "POST" && $Update <> '' && !$bReadOnly && check_bitrix_sessid())
 {
 	$adminSidePanelHelper->decodeUriComponent();
 
@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && strlen($Update) > 0 && !$bReadOnly &
 		}
 	}
 
-	if (strlen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
 		if ($adminSidePanelHelper->isAjaxRequest())
 		{

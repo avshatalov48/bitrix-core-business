@@ -25,7 +25,7 @@ $bVarsFromForm = false;
 
 ClearVars();
 
-$ID = IntVal($ID);
+$ID = intval($ID);
 
 $simpleForm = COption::GetOptionString("sale", "lock_catalog", "Y");
 $bSimpleForm = (($simpleForm=="Y") ? True : False);
@@ -46,7 +46,7 @@ if ($bSimpleForm)
 	}
 }
 
-if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions >= "U" && check_bitrix_sessid())
+if ($REQUEST_METHOD=="POST" && $Update <> '' && $saleModulePermissions >= "U" && check_bitrix_sessid())
 {
 	$adminSidePanelHelper->decodeUriComponent();
 
@@ -54,49 +54,49 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions >= "U
 		$errorMessage .= GetMessage("SRE_NO_PERMS2ADD").".<br>";
 
 	$NEXT_DATE = Trim($NEXT_DATE);
-	if (strlen($NEXT_DATE) <= 0)
+	if ($NEXT_DATE == '')
 		$errorMessage .= GetMessage("SRE_EMPTY_NEXT").".<br>";
 
 	if ($saleModulePermissions >= "W")
 	{
-		$USER_ID = IntVal($USER_ID);
+		$USER_ID = intval($USER_ID);
 		if ($USER_ID <= 0)
 			$errorMessage .= GetMessage("SRE_EMPTY_USER").".<br>";
 
 		$MODULE = Trim($MODULE);
-		if (strlen($MODULE) <= 0)
+		if ($MODULE == '')
 			$errorMessage .= GetMessage("SRE_EMPTY_MODULE").".<br>";
 
-		$PRODUCT_ID = IntVal($PRODUCT_ID);
+		$PRODUCT_ID = intval($PRODUCT_ID);
 		if ($PRODUCT_ID <= 0)
 			$errorMessage .= GetMessage("SRE_EMPTY_PRODUCT").".<br>";
 
 		$CALLBACK_FUNC = Trim($CALLBACK_FUNC);
 		$PRODUCT_PROVIDER_CLASS = Trim($PRODUCT_PROVIDER_CLASS);
 
-		if (!(strlen($CALLBACK_FUNC) > 0 || strlen($PRODUCT_PROVIDER_CLASS) > 0))
+		if (!($CALLBACK_FUNC <> '' || $PRODUCT_PROVIDER_CLASS <> ''))
 		{
 			$errorMessage .= GetMessage("SRE_EMPTY_CALLBACK").".<br>";
 		}
 	}
 
-	$ORDER_ID = IntVal($ORDER_ID);
+	$ORDER_ID = intval($ORDER_ID);
 	if ($ORDER_ID <= 0)
 		$errorMessage .= GetMessage("SRE_EMPTY_BASE_ORDER").".<br>";
 
-	if (strlen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
 		$CANCELED = (($CANCELED == "Y") ? "Y" : "N");
 		$PRIOR_DATE = Trim($PRIOR_DATE);
-		$REMAINING_ATTEMPTS = IntVal($REMAINING_ATTEMPTS);
+		$REMAINING_ATTEMPTS = intval($REMAINING_ATTEMPTS);
 		$SUCCESS_PAYMENT = (($SUCCESS_PAYMENT == "Y") ? "Y" : "N");
 
 		$arFields = array(
 				"CANCELED" => $CANCELED,
-				"PRIOR_DATE" => ((strlen($PRIOR_DATE) > 0) ? $PRIOR_DATE : False),
+				"PRIOR_DATE" => (($PRIOR_DATE <> '') ? $PRIOR_DATE : False),
 				"NEXT_DATE" => $NEXT_DATE,
-				"DESCRIPTION" => ((strlen($DESCRIPTION) > 0) ? $DESCRIPTION : False),
-				"CANCELED_REASON" => ((strlen($CANCELED_REASON) > 0) ? $CANCELED_REASON : False),
+				"DESCRIPTION" => (($DESCRIPTION <> '') ? $DESCRIPTION : False),
+				"CANCELED_REASON" => (($CANCELED_REASON <> '') ? $CANCELED_REASON : False),
 				"ORDER_ID" => $ORDER_ID,
 				"REMAINING_ATTEMPTS" => $REMAINING_ATTEMPTS,
 				"SUCCESS_PAYMENT" => $SUCCESS_PAYMENT
@@ -134,7 +134,7 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions >= "U
 		else
 		{
 			$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $ID));
-			if (strlen($apply)<=0)
+			if ($apply == '')
 				LocalRedirect("/bitrix/admin/sale_recurring_admin.php?lang=".LANGUAGE_ID.GetFilterParams("filter_", false));
 		}
 	}
@@ -206,7 +206,7 @@ if ($ID > 0 && $saleModulePermissions >= "U")
 $context = new CAdminContextMenu($aMenu);
 $context->Show();
 
-if(strlen($errorMessage)>0)
+if($errorMessage <> '')
 	echo CAdminMessage::ShowMessage(Array("DETAILS"=>$errorMessage, "TYPE"=>"ERROR", "MESSAGE"=>GetMessage("SRE_ERROR"), "HTML"=>true));?>
 
 <form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?" name="frecurring_edit">

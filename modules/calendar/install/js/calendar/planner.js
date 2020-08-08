@@ -46,7 +46,6 @@ function CalendarPlanner(params, initialUpdateParams)
 	BX.addCustomEvent('OnCalendarPlannerDoSetConfig', BX.proxy(this.DoSetConfig, this));
 	BX.addCustomEvent('OnCalendarPlannerDoUninstall', BX.proxy(this.DoUninstall, this));
 
-
 	//BX.addCustomEvent('OnCalendarPlannerDoProposeTime', BX.proxy(this.DoProposeTime, this));
 	if (initialUpdateParams)
 	{
@@ -423,7 +422,7 @@ CalendarPlanner.prototype =
 			this.entriesListOuterWrap.style.display = 'none';
 		}
 
-		if (this.scaleType == '1day')
+		if (this.scaleType === '1day')
 		{
 			BX.addClass(this.entriesListOuterWrap, 'calendar-planner-no-daytitle');
 		}
@@ -566,7 +565,7 @@ CalendarPlanner.prototype =
 
 		for (var i = 0; i < this.scaleData.length; i++)
 		{
-			if (this.showTimelineDayTitle && this.scaleType != '1day')
+			if (this.showTimelineDayTitle && this.scaleType !== '1day')
 			{
 				if (this.scaleDayTitles[this.scaleData[i].daystamp])
 				{
@@ -608,7 +607,7 @@ CalendarPlanner.prototype =
 				html: this.scaleData[i].title != '' ? '<i>' + this.scaleData[i].title + '</i>' : this.scaleData[i].title
 			}));
 
-			if (this.scaleType != '1day' && this.scaleData[i + 1] && this.scaleData[i + 1].dayStart)
+			if (this.scaleType !== '1day' && this.scaleData[i + 1] && this.scaleData[i + 1].dayStart)
 			{
 				cont.appendChild(BX.create("DIV", {props: {className: 'calendar-planner-timeline-border'}}));
 			}
@@ -665,7 +664,6 @@ CalendarPlanner.prototype =
 		if (!params || typeof params != 'object')
 			params = {};
 
-
 		this.BuildTimeline();
 		this.ClearAccessibilityData();
 		this.UpdateData({accessibility: this.accessibility, entries: this.entries});
@@ -688,8 +686,8 @@ CalendarPlanner.prototype =
 			ts, scaleFrom, scaleTo,
 			time, daystamp, title,
 			curDaystamp = false,
-			timeFrom = this.scaleType == '1day' ? 0 : parseInt(this.shownScaleTimeFrom),
-			timeTo = this.scaleType == '1day' ? 0 : parseInt(this.shownScaleTimeTo);
+			timeFrom = this.scaleType === '1day' ? 0 : parseInt(this.shownScaleTimeFrom),
+			timeTo = this.scaleType === '1day' ? 0 : parseInt(this.shownScaleTimeTo);
 
 		this.scaleDateFrom.setHours(timeFrom, 0, 0, 0);
 		this.scaleDateTo.setHours(timeTo, 0, 0, 0);
@@ -1320,7 +1318,7 @@ CalendarPlanner.prototype =
 				dateFrom.setHours(0, 0, 0,0);
 				dateTo.setHours(0, 0, 0,0);
 
-				if (this.scaleType != '1day')
+				if (this.scaleType !== '1day')
 				{
 					this.SetScaleType('1day');
 					rebuildTimeline = true;
@@ -1415,7 +1413,7 @@ CalendarPlanner.prototype =
 				selector.style.width = (toPos - fromPos) + 'px';
 				if (focus === true)
 				{
-					setTimeout(BX.proxy(this.FocusSelector, this), 200);
+					this.FocusSelector(false, 200, true);
 				}
 				this.CheckSelectorStatus(fromPos);
 			}
@@ -2696,10 +2694,10 @@ CalendarPlanner.prototype =
 		this.FocusSelector(false, 300);
 	},
 
-	FocusSelector: function(animation, timeout)
+	FocusSelector: function(animation, timeout, alignCenter)
 	{
-		var
-			_this = this;
+		var _this = this;
+		alignCenter = alignCenter === true;
 
 		if (this.focusSelectorTimeout)
 			this.focusSelectorTimeout = !!clearTimeout(this.focusSelectorTimeout);
@@ -2709,21 +2707,23 @@ CalendarPlanner.prototype =
 
 		if (timeout)
 		{
-			this.focusSelectorTimeout = setTimeout(function(){_this.FocusSelector(animation, false);}, timeout);
+			this.focusSelectorTimeout = setTimeout(function(){_this.FocusSelector(animation, false, alignCenter);}, timeout);
 		}
 		else
 		{
 			var
 				selectorLeft = parseInt(this.selector.wrap.style.left),
 				selectorWidth = parseInt(this.selector.wrap.style.width),
-				screenDelta = 50,
+				screenDelta = 10,
 				viewWidth = this.timelineFixedWrap.offsetWidth,
 				viewLeft = this.timelineFixedWrap.scrollLeft,
 				viewRight = viewLeft + viewWidth,
 				newScrollLeft = viewLeft;
 
 			if (selectorLeft < viewLeft + screenDelta ||
-				selectorLeft > viewRight - screenDelta)
+				selectorLeft > viewRight - screenDelta
+				|| alignCenter
+			)
 			{
 				// Selector is smaller than view - we puting it in the middle of the view
 				if (selectorWidth <= viewWidth)
@@ -2875,11 +2875,13 @@ CalendarPlanner.prototype =
 
 	DoUpdate: function(params)
 	{
-		if (this.id == params.plannerId)
+		if (this.id === params.plannerId)
 		{
 			var rebuild = false;
 			if (params.selector && params.selector.fullDay)
+			{
 				this.SetFullDayMode(params.selector.fullDay);
+			}
 
 			if (params.config)
 			{

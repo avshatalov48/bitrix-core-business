@@ -22,10 +22,10 @@ if(is_array($arResult["TRANSACTS"]))
 						array("TITLE" => GetMessage("SMOT_SUMM").":", "VALUE" => $arTransact["AMOUNT_PREPARED"])
 					));
 
-		if(strlen($description) > 0)
+		if($description <> '')
 			$arSection["ROWS"][] = array("TITLE" => GetMessage("SMOT_DESCRIPTION").":", "VALUE" => $description);
 
-		if(strlen($arTransact["NOTES"]) > 0)
+		if($arTransact["NOTES"] <> '')
 			$arSection["ROWS"][] = array("TITLE" => GetMessage("SMOT_COMMENTS").":", "VALUE" => htmlspecialcharsbx($arTransact["NOTES"]));
 
 		$mad->addSection($arSection);

@@ -11,8 +11,7 @@ CUtil::InitJSCore(array("ajax", "fx"));
 ********************************************************************/
 /***************** BASE ********************************************/
 $arResult["SHOW_PANEL"]["TAGS"] = ($arParams["SHOW_TAGS"] != "N" ? "Y" : "N");
-//$arParams["FILES_COUNT"] = intVal(intVal($arParams["FILES_COUNT"]) > 0 ? $arParams["FILES_COUNT"] : 5);
-$arParams["IMAGE_SIZE"] = (intVal($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 100);
+$arParams["IMAGE_SIZE"] = (intval($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 100);
 $arParams["form_index"] = $_REQUEST["INDEX"];
 if (!empty($arParams["form_index"]))
 	$arParams["form_index"] = preg_replace("/[^a-z0-9]/is", "_", $arParams["form_index"]);
@@ -59,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_REQUEST['mfi_mode']) && ($_R
 			"FORUM_ID" => $arParams["FID"],
 			"TOPIC_ID" => $arParams["TID"],
 			"MESSAGE_ID" => $arParams["MID"],
-			"USER_ID" => intVal($GLOBALS["USER"]->GetID())
+			"USER_ID" => intval($GLOBALS["USER"]->GetID())
 		));
 }
 ?>

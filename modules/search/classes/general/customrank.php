@@ -13,8 +13,8 @@ class CSearchCustomRank
 		foreach ($aFilter as $key => $val)
 		{
 			$val = $DB->ForSql($val);
-			$key = strtoupper($key);
-			if (strlen($val) <= 0)
+			$key = mb_strtoupper($key);
+			if ($val == '')
 				continue;
 			switch ($key)
 			{
@@ -33,8 +33,8 @@ class CSearchCustomRank
 		$arOrder = array();
 		foreach ($aSort as $key => $val)
 		{
-			$ord = (strtoupper($val) <> "ASC"? "DESC": "ASC");
-			$key = strtoupper($key);
+			$ord = (mb_strtoupper($val) <> "ASC"? "DESC": "ASC");
+			$key = mb_strtoupper($key);
 			switch ($key)
 			{
 			case "SITE_ID":
@@ -107,12 +107,12 @@ class CSearchCustomRank
 	{
 		$this->LAST_ERROR = "";
 
-		if (is_set($arFields, "SITE_ID") && strlen($arFields["SITE_ID"]) == 0)
+		if (is_set($arFields, "SITE_ID") && $arFields["SITE_ID"] == '')
 			$this->LAST_ERROR .= GetMessage("customrank_error_site")."<br>";
-		if (is_set($arFields, "MODULE_ID") && strlen($arFields["MODULE_ID"]) == 0)
+		if (is_set($arFields, "MODULE_ID") && $arFields["MODULE_ID"] == '')
 			$this->LAST_ERROR .= GetMessage("customrank_error_module")."<br>";
 
-		if (strlen($this->LAST_ERROR) > 0)
+		if ($this->LAST_ERROR <> '')
 			return false;
 		else
 			return true;
@@ -316,14 +316,14 @@ class CSearchCustomRank
 	public static function ModulesSelectBox($sFieldName, $sValue, $sDefaultValue = "", $sFuncName = "", $field = "class=\"typeselect\"")
 	{
 		$s = '<select name="'.$sFieldName.'" id="'.$sFieldName.'" '.$field;
-		if (strlen($sFuncName) > 0) $s .= ' OnChange="'.$sFuncName.'"';
+		if ($sFuncName <> '') $s .= ' OnChange="'.$sFuncName.'"';
 		$s .= '>'."\n";
 
 		$s1 = '<option value="main"'.($sValue == "main"? ' selected': '').'>'.GetMessage("customrank_files").'</option>'."\n";
 		foreach (CSearchParameters::GetModulesList() as $module_id => $module_name)
 			$s1 .= '<option value="'.$module_id.'"'.($sValue == $module_id? ' selected': '').'>'.htmlspecialcharsEx($module_name).'</option>'."\n";
 
-		if (strlen($sDefaultValue) > 0)
+		if ($sDefaultValue <> '')
 			$s .= "<option value='NOT_REF'>".htmlspecialcharsEx($sDefaultValue)."</option>";
 
 		return $s.$s1.'</select>';

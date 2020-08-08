@@ -45,7 +45,7 @@ class BoolType extends Base
 	 */
 	protected static function formatValuePrintable(FieldType $fieldType, $value)
 	{
-		return strtoupper($value) != 'N' && !empty($value)
+		return mb_strtoupper($value) != 'N' && !empty($value)
 			? Loc::getMessage('BPDT_BOOL_YES')
 			: Loc::getMessage('BPDT_BOOL_NO');
 	}
@@ -168,9 +168,9 @@ class BoolType extends Base
 			{
 				$value = $value ? 'Y' : 'N';
 			}
-			elseif (is_string($value) && strlen($value) > 0)
+			elseif (is_string($value) && $value <> '')
 			{
-				$value = strtolower($value);
+				$value = mb_strtolower($value);
 				if (in_array($value, array('y', 'yes', 'true', '1')))
 				{
 					$value = 'Y';

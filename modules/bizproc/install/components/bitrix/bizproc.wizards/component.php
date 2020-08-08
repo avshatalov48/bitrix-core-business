@@ -12,7 +12,7 @@ if (!CModule::IncludeModule("iblock"))
 }
 
 $arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
-if (strlen($arParams["IBLOCK_TYPE"]) <= 0)
+if ($arParams["IBLOCK_TYPE"] == '')
 {
 	ShowError(GetMessage("BPWC_WC_EMPTY_TYPE"));
 	return;
@@ -74,7 +74,7 @@ if ($arParams["SEF_MODE"] == "Y")
 	CComponentEngine::InitComponentVariables($componentPage, $arComponentVariables, $arVariableAliases, $arVariables);
 
 	foreach ($arUrlTemplates as $url => $value)
-		$arResult["PATH_TO_".strtoupper($url)] = $arParams["SEF_FOLDER"].$value;
+		$arResult["PATH_TO_".mb_strtoupper($url)] = $arParams["SEF_FOLDER"].$value;
 }
 else
 {
@@ -90,7 +90,7 @@ else
 		$componentPage = "index";
 
 	foreach ($arDefaultUrlTemplatesN404 as $url => $value)
-		$arResult["PATH_TO_".strtoupper($url)] = $GLOBALS["APPLICATION"]->GetCurPageParam($value, $arComponentVariables);
+		$arResult["PATH_TO_".mb_strtoupper($url)] = $GLOBALS["APPLICATION"]->GetCurPageParam($value, $arComponentVariables);
 }
 
 if ($_REQUEST["auth"] == "Y")
@@ -141,9 +141,9 @@ if (isset($arResult["VARIABLES"]["block_id"]))
 		);
 		while ($arIBlock = $dbIBlock->Fetch())
 		{
-			if (strlen($arIBlock["DESCRIPTION"]) > 0 && substr($arIBlock["DESCRIPTION"], 0, strlen("v2:")) == "v2:")
+			if ($arIBlock["DESCRIPTION"] <> '' && mb_substr($arIBlock["DESCRIPTION"], 0, mb_strlen("v2:")) == "v2:")
 			{
-				$v1 = @unserialize(substr($arIBlock["DESCRIPTION"], 3));
+				$v1 = @unserialize(mb_substr($arIBlock["DESCRIPTION"], 3));
 				if (is_array($v1))
 					$arComponentTemplates[$arIBlock["ID"]] = $v1["COMPONENT_TEMPLATES"];
 			}

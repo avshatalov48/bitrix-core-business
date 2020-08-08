@@ -73,6 +73,10 @@ $MESS["UI_ENTITY_EDITOR_UF_DOUBLE_TITLE"] = "Число";
 $MESS["UI_ENTITY_EDITOR_UF_DOUBLE_LEGEND"] = "Для хранения числовой информации, которая в последующем может участвовать в аналитических отчетах.";
 $MESS["UI_ENTITY_EDITOR_UF_CUSTOM_TITLE"] = "Дополнительные поля...";
 $MESS["UI_ENTITY_EDITOR_UF_CUSTOM_LEGEND"] = "Создать поле целое число, привязка к пользователю, привязка к элементам CRM или другого типа.";
+$MESS["UI_ENTITY_EDITOR_NOT_SELECTED"] = "Не выбрано";
+$MESS["UI_ENTITY_EDITOR_EXPAND_SM_HTML"] = "развернуть";
+$MESS["UI_ENTITY_EDITOR_COLLAPSE__SM_HTML"] = "свернуть";
+$MESS["UI_ENTITY_EDITOR_NEW_LIST_ITEM"] = "Новый элемент";
 
 
 

@@ -27,7 +27,8 @@ class CIBlockPropertyDateTime
 			"GetAdminFilterHTML" => array(__CLASS__, "GetAdminFilterHTML"),
 			"GetPublicFilterHTML" => array(__CLASS__, "GetPublicFilterHTML"),
 			"AddFilterFields" => array(__CLASS__, "AddFilterFields"),
-			"GetUIFilterProperty" => array(__CLASS__, "GetUIFilterProperty")
+			"GetUIFilterProperty" => array(__CLASS__, "GetUIFilterProperty"),
+			'GetUIEntityEditorProperty' => array(__CLASS__, 'GetUIEntityEditorProperty'),
 		);
 	}
 
@@ -79,7 +80,7 @@ class CIBlockPropertyDateTime
 			{
 				$dateFormat = Date::convertFormatToPhp(CSite::getDateFormat());
 				$dateParse = date_parse_from_format($dateFormat, $to);
-				if(!strlen($dateParse["hour"]) && !strlen($dateParse["minute"]) && !strlen($dateParse["second"]))
+				if(!mb_strlen($dateParse["hour"]) && !mb_strlen($dateParse["minute"]) && !mb_strlen($dateParse["second"]))
 				{
 					$timeFormat = Date::convertFormatToPhp(CSite::getTimeFormat());
 					$to .= " ".date($timeFormat, mktime(23, 59, 59, 0, 0, 0));
@@ -182,7 +183,7 @@ class CIBlockPropertyDateTime
 
 	public static function GetPublicViewHTML($arProperty, $value, $strHTMLControlName)
 	{
-		if (strlen($value["VALUE"]) > 0)
+		if ($value["VALUE"] <> '')
 		{
 			if (!CheckDateTime($value["VALUE"]))
 				$value = static::ConvertFromDB($arProperty, $value, $strHTMLControlName["DATETIME_FORMAT"]);
@@ -228,7 +229,7 @@ class CIBlockPropertyDateTime
 
 	public static function GetAdminListViewHTML($arProperty, $value, $strHTMLControlName)
 	{
-		if(strlen($value["VALUE"])>0)
+		if($value["VALUE"] <> '')
 		{
 			if(!CheckDateTime($value["VALUE"]))
 				$value = static::ConvertFromDB($arProperty, $value);
@@ -261,7 +262,7 @@ class CIBlockPropertyDateTime
 	public static function CheckFields($arProperty, $value)
 	{
 		$arResult = array();
-		if(strlen($value["VALUE"])>0 && !CheckDateTime($value["VALUE"]))
+		if($value["VALUE"] <> '' && !CheckDateTime($value["VALUE"]))
 			$arResult[] = Loc::getMessage("IBLOCK_PROP_DATETIME_ERROR_NEW", array("#FIELD_NAME#" => $arProperty["NAME"]));
 		return $arResult;
 	}
@@ -273,7 +274,7 @@ class CIBlockPropertyDateTime
 	//DB form of the value
 	public static function ConvertToDB($arProperty, $value)
 	{
-		if (strlen($value["VALUE"]) > 0)
+		if ($value["VALUE"] <> '')
 		{
 			try
 			{
@@ -291,7 +292,7 @@ class CIBlockPropertyDateTime
 
 	public static function ConvertFromDB($arProperty, $value, $format = '')
 	{
-		if (strlen($value["VALUE"]) > 0)
+		if ($value["VALUE"] <> '')
 		{
 			try
 			{
@@ -345,5 +346,16 @@ class CIBlockPropertyDateTime
 			"more" => ">",
 			"less" => "<"
 		);
+	}
+
+	public static function GetUIEntityEditorProperty($settings, $value)
+	{
+		return [
+			'type' => ($settings['MULTIPLE'] === 'Y') ? 'multidatetime' : 'datetime',
+			'data' => [
+				'enableTime' => true,
+				'dateViewFormat' =>  \Bitrix\Main\Context::getCurrent()->getCulture()->getLongDateFormat().' '.\Bitrix\Main\Context::getCurrent()->getCulture()->getShortTimeFormat(),
+			]
+		];
 	}
 }

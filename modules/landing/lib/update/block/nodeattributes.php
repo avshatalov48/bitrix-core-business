@@ -46,7 +46,7 @@ final class NodeAttributes extends Stepper
 			$params = array();
 			foreach (Option::getForModule('landing') as $key => $option)
 			{
-				if (strpos($key, self::OPTION_NAME) === 0 && $key != self::OPTION_STATUS_NAME)
+				if (mb_strpos($key, self::OPTION_NAME) === 0 && $key != self::OPTION_STATUS_NAME)
 				{
 					$option = ($option !== '' ? @unserialize($option) : array());
 					
@@ -127,14 +127,9 @@ final class NodeAttributes extends Stepper
 	
 	public function execute(array &$result)
 	{
-//		dbg
-//		self::log('UPDATER START');
 //		nothing to update
 		$this->loadCurrentStatus();
 
-//		dbg
-		self::log('UPDATER START', $this->status);
-		
 		if (!$this->status['COUNT'])
 		{
 			self::finish();
@@ -145,9 +140,6 @@ final class NodeAttributes extends Stepper
 //		find option. If nothing - we update all
 		$this->status['UPDATER_ID'] = $this->getUpdaterUniqueId();
 
-//		dbg
-//		self::log('unique id', $this->status['UPDATER_ID']);
-		
 		if (!$this->status['UPDATER_ID'])
 		{
 			self::finish();
@@ -163,9 +155,6 @@ final class NodeAttributes extends Stepper
 			$this->finishOption();
 		}
 
-//		dbg
-		self::log('UPDATER before CONTINUE (status)', $this->status);
-		
 		$result['count'] = $this->status['COUNT'];
 		$result['steps'] = $this->status['STEPS'];
 		
@@ -178,9 +167,6 @@ final class NodeAttributes extends Stepper
 	 */
 	private static function finish()
 	{
-//		dbg
-		self::log('UPDATER FINISH');
-		
 		self::clearOptions();
 		self::removeCustomEvents();
 	}
@@ -195,7 +181,7 @@ final class NodeAttributes extends Stepper
 	{
 		foreach (Option::getForModule('landing') as $key => $option)
 		{
-			if (strpos($key, self::OPTION_NAME) === 0)
+			if (mb_strpos($key, self::OPTION_NAME) === 0)
 			{
 				Option::delete('landing', array('name' => $key));
 			}
@@ -215,15 +201,8 @@ final class NodeAttributes extends Stepper
 	
 	private function collectBlocks()
 	{
-//		dbg
-//		self::log('');
-		
 		$this->dataToUpdate = Option::get(self::$moduleId, $this->getOptionName());
 		$this->dataToUpdate = ($this->dataToUpdate !== '' ? @unserialize($this->dataToUpdate) : array());
-
-//		dbg
-		self::log('data to update collected', $this->dataToUpdate);
-		
 		$this->codesToStep = array_unique(array_keys($this->dataToUpdate['BLOCKS']));
 		$this->codesToStep = array_slice($this->codesToStep, 0, self::STEP_PORTION);
 
@@ -271,25 +250,17 @@ final class NodeAttributes extends Stepper
 //			save sites ID for current blocks to reset cache later
 			$this->sitesToUpdate[$row['ID']] = $row['SITE_ID'];
 		}
-
-//		dbg
-//		self::log('blocks to update are found');
 	}
-	
+
 	
 	private function processBlocks()
 	{
-//		dbg
-		self::log('process blocks start');
-		
 		$this->collectBlocks();
 		
 		foreach ($this->blocksToUpdate as $code => $blocks)
 		{
 			foreach ($blocks as $block)
 			{
-//				dbg
-//				self::log('update BLOCK BEFORE (check exist data)', array('code' => $code));
 				if (is_array($this->dataToUpdate['BLOCKS'][$code]) && !empty($this->dataToUpdate['BLOCKS'][$code]))
 				{
 					$this->updateBlock($block);
@@ -313,13 +284,6 @@ final class NodeAttributes extends Stepper
 	
 	private function updateBlock(Block $block)
 	{
-//		dbg
-		self::log('update BLOCK START', array(
-			'code' => $block->getCode(),
-			'id' => $block->getId(),
-			'dataToUpdate' => $this->dataToUpdate['BLOCKS'][$block->getCode()],
-		));
-		
 		$code = $block->getCode();
 		$doc = $block->getDom();
 
@@ -464,7 +428,7 @@ final class NodeAttributes extends Stepper
 				{
 					$innerHtml = $resultNode->getInnerHTML();
 					$innerHtml = preg_replace($rules['REPLACE_CONTENT']['regexp'], $rules['REPLACE_CONTENT']['replace'], $innerHtml);
-					if(strlen($innerHtml) > 0)
+					if($innerHtml <> '')
 					{
 						$resultNode->setInnerHTML($innerHtml);
 					}
@@ -518,9 +482,6 @@ final class NodeAttributes extends Stepper
 				}
 			}
 		}
-
-//		dbg
-//		self::log('update block before save content');
 		$block->saveContent($doc->saveHTML());
 
 //		updates COMPONENTS params
@@ -538,8 +499,6 @@ final class NodeAttributes extends Stepper
 			$this->dataToUpdate['BLOCKS'][$code]['CLEAR_PHP'] == 'Y'
 		)
 		{
-//			dbg
-			self::log('update block before clear PHP');
 			$content = $block->getContent();
 			$content = preg_replace('/<\?.*\?>/s', '', $content);
 			$block->saveContent($content);
@@ -551,28 +510,15 @@ final class NodeAttributes extends Stepper
 			is_numeric($this->dataToUpdate['BLOCKS'][$code]['SET_SORT'])
 		)
 		{
-//			dbg
-			self::log('update block before set sort');
 			$block->setSort($this->dataToUpdate['BLOCKS'][$code]['SET_SORT']);
 		}
 
-//		dbg
-//		self::log('update block before save');
 		$block->save();
-
-//		dbg
-		self::log('update BLOCK FINISH', array('code' => $block->getCode()));
 	}
 	
 	
 	private function finishStep()
 	{
-//		dbg
-		self::log('finish STEP (codes to step)', array(
-			'codesToStep' => $this->codesToStep,
-			'status' => $this->status,
-		));
-
 //		processed blocks must be removed from data
 		foreach ($this->codesToStep as $code)
 		{
@@ -588,17 +534,11 @@ final class NodeAttributes extends Stepper
 //		clean cloud sites cache only if needed
 		$this->updateSites();
 
-//		dbg
-//		self::log('UPDATER FINISH OPTION before', array('optionName' => $this->getOptionName()));
-
 //		finish current updater id, try next
 		Option::delete('landing', array('name' => $this->getOptionName()));
 		$this->status['SITES_TO_UPDATE'] = array();
 		$this->status['UPDATER_ID'] = '';
 		Option::set('landing', self::OPTION_STATUS_NAME, serialize($this->status));
-
-//		dbg
-		self::log('UPDATER FINISH OPTION', array('optionName' => $this->getOptionName(), 'status' => $this->status));
 	}
 	
 	
@@ -787,30 +727,8 @@ final class NodeAttributes extends Stepper
 //	{
 //		return '';
 //	}
-	
-	/**
-	 * Logging some actions.
-	 * @param $name Log item name.
-	 * @param array $data Some data.
-	 * @return void
-	 */
-	private static function log($name, $data = array())
-	{
-		// only for clouds
-		if (!Manager::isB24())
-		{
-			return;
-		}
 
-		\Bitrix\Landing\Debug::log(
-			$name,
-			$data,
-			'LANDING_UPDATER_LOG'
-		);
-	}
-	
-	
 	/**
-	 * Code for updater.php see in landing/dev/updater
+	 * Code for updater.php see in landing/dev/updater/nodeattributesupdaters.pph
 	 */
 }

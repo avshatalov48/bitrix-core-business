@@ -39,11 +39,11 @@ $arResult['USE_PROJECTS'] = (
 		: 'N'
 );
 
-$arParams["USER_ID"] = IntVal($arParams["USER_ID"]);
+$arParams["USER_ID"] = intval($arParams["USER_ID"]);
 $currentUser = false;
 if ($arParams["USER_ID"] <= 0)
 {
-	$arParams["USER_ID"] = IntVal($USER->GetID());
+	$arParams["USER_ID"] = intval($USER->GetID());
 	$currentUser = true;
 }
 
@@ -130,13 +130,13 @@ $user4Groups = $arParams["USER_ID"];
 $user2Request = 0;
 if ($arParams["PAGE"] == "group_request_group_search")
 {
-	$user4Groups = IntVal($USER->GetID());
+	$user4Groups = intval($USER->GetID());
 	$user2Request = $arParams["USER_ID"];
 }
 
 $filtered = false;
 
-if (array_key_exists("filter_name", $_REQUEST) && strlen($_REQUEST["filter_name"]) > 0)
+if (array_key_exists("filter_name", $_REQUEST) && $_REQUEST["filter_name"] <> '')
 {
 	$filtered = true;
 	$arResult["filter_name"] = $_REQUEST["filter_name"];
@@ -381,7 +381,7 @@ if ($arParams["PAGE"] == "groups_list")
 		$arResult["filter_archive"] = "Y";
 	}
 
-	if (array_key_exists("filter_extranet", $_REQUEST) && strlen($_REQUEST["filter_extranet"]) > 0)
+	if (array_key_exists("filter_extranet", $_REQUEST) && $_REQUEST["filter_extranet"] <> '')
 		$arResult["filter_extranet"] = $_REQUEST["filter_extranet"];
 
 	if (
@@ -395,7 +395,7 @@ if ($arParams["PAGE"] == "groups_list")
 
 	if (
 		array_key_exists("filter_favorites", $_REQUEST)
-		&& strlen($_REQUEST["filter_favorites"]) > 0
+		&& $_REQUEST["filter_favorites"] <> ''
 		&& $USER->IsAuthorized()
 	)
 	{
@@ -405,7 +405,7 @@ if ($arParams["PAGE"] == "groups_list")
 	if (
 		!isset($arResult["filter_tags"])
 		&& array_key_exists("filter_tags", $_REQUEST)
-		&& strlen($_REQUEST["filter_tags"]) > 0
+		&& $_REQUEST["filter_tags"] <> ''
 	)
 	{
 		$arResult["filter_tags"] = $_REQUEST["filter_tags"];
@@ -413,7 +413,7 @@ if ($arParams["PAGE"] == "groups_list")
 
 	if (
 		array_key_exists("tags", $_REQUEST)
-		&& strlen($_REQUEST["tags"]) > 0
+		&& $_REQUEST["tags"] <> ''
 	)
 	{
 		$arResult["~tags"] = $_REQUEST["tags"];
@@ -432,52 +432,52 @@ if (
 $arResult["WORKGROUPS_PATH"] = COption::GetOptionString("socialnetwork", "workgroups_list_page", false, SITE_ID);
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 
-if(strLen($arParams["USER_VAR"])<=0)
+if($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
-if(strLen($arParams["GROUP_VAR"])<=0)
+if($arParams["GROUP_VAR"] == '')
 	$arParams["GROUP_VAR"] = "group_id";
-if(strLen($arParams["PAGE_VAR"])<=0)
+if($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if(strlen($arParams["PATH_TO_USER"])<=0)
+if($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_GROUP"] = trim($arParams["PATH_TO_GROUP"]);
-if (strlen($arParams["PATH_TO_GROUP"]) <= 0)
+if ($arParams["PATH_TO_GROUP"] == '')
 	$arParams["PATH_TO_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_EDIT"] = trim($arParams["PATH_TO_GROUP_EDIT"]);
-if (strlen($arParams["PATH_TO_GROUP_EDIT"]) <= 0)
+if ($arParams["PATH_TO_GROUP_EDIT"] == '')
 	$arParams["PATH_TO_GROUP_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_edit&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_CREATE"] = trim($arParams["PATH_TO_GROUP_CREATE"]);
-if (strlen($arParams["PATH_TO_GROUP_CREATE"]) <= 0)
+if ($arParams["PATH_TO_GROUP_CREATE"] == '')
 	$arParams["PATH_TO_GROUP_CREATE"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_create&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_GROUP_SEARCH"] = trim($arParams["PATH_TO_GROUP_SEARCH"]);
-if (strlen($arParams["PATH_TO_GROUP_SEARCH"]) <= 0)
+if ($arParams["PATH_TO_GROUP_SEARCH"] == '')
 	$arParams["PATH_TO_GROUP_SEARCH"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_search");
 
 $arParams["PATH_TO_GROUP_REQUEST_USER"] = trim($arParams["PATH_TO_GROUP_REQUEST_USER"]);
-if (strlen($arParams["PATH_TO_GROUP_REQUEST_USER"]) <= 0)
+if ($arParams["PATH_TO_GROUP_REQUEST_USER"] == '')
 	$arParams["PATH_TO_GROUP_REQUEST_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_request_user&".$arParams["USER_VAR"]."=#user_id#&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_LOG"] = trim($arParams["PATH_TO_LOG"]);
-if (strlen($arParams["PATH_TO_LOG"]) <= 0)
+if ($arParams["PATH_TO_LOG"] == '')
 	$arParams["PATH_TO_LOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=log");
 
-$arParams["ITEMS_COUNT"] = IntVal($arParams["ITEMS_COUNT"]);
+$arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
 if ($arParams["ITEMS_COUNT"] <= 0)
 	$arParams["ITEMS_COUNT"] = 30;
 
 /* obsolete parameter for default template */
-$arParams["COLUMNS_COUNT"] = IntVal($arParams["COLUMNS_COUNT"]);
+$arParams["COLUMNS_COUNT"] = intval($arParams["COLUMNS_COUNT"]);
 if ($arParams["COLUMNS_COUNT"] <= 0)
 	$arParams["COLUMNS_COUNT"] = 3;
 
 $arParams["DATE_TIME_FORMAT"] = Trim($arParams["DATE_TIME_FORMAT"]);
-$arParams["DATE_TIME_FORMAT"] = ((StrLen($arParams["DATE_TIME_FORMAT"]) <= 0) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
+$arParams["DATE_TIME_FORMAT"] = (($arParams["DATE_TIME_FORMAT"] == '') ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 
 /***************** CACHE ****************************************/
 if(!isset($arParams["CACHE_TIME"]))
@@ -504,7 +504,7 @@ if (
 	$arResult["FatalError"] = Loc::getMessage("SONET_C36_NO_USER_ID").". ";
 }
 
-if (StrLen($arResult["FatalError"]) <= 0)
+if ($arResult["FatalError"] == '')
 {
 	if ($arParams["PAGE"] == "group_request_group_search")
 	{
@@ -515,7 +515,7 @@ if (StrLen($arResult["FatalError"]) <= 0)
 	}
 }
 
-if (strlen($arResult["FatalError"]) <= 0)
+if ($arResult["FatalError"] == '')
 {
 	if ($arParams["PAGE"] == "groups_list")
 	{
@@ -547,7 +547,7 @@ if (strlen($arResult["FatalError"]) <= 0)
 }
 
 if (
-	StrLen($arResult["FatalError"]) <= 0
+	$arResult["FatalError"] == ''
 	&& intval($user4Groups) > 0
 )
 {
@@ -560,7 +560,7 @@ if (
 		return false;
 }
 
-if (StrLen($arResult["FatalError"]) <= 0)
+if ($arResult["FatalError"] == '')
 {
 	$arResult["UserRequest"] = false;
 	if ($user2Request > 0)
@@ -575,7 +575,7 @@ if (StrLen($arResult["FatalError"]) <= 0)
 	}
 }
 
-if (StrLen($arResult["FatalError"]) <= 0)
+if ($arResult["FatalError"] == '')
 {
 	$arResult["CurrentUserPerms"] = CSocNetUserPerms::InitUserPerms($USER->GetID(), $arResult["User"]["ID"], CSocNetUser::IsCurrentUserModuleAdmin());
 	$arResult["ALLOW_CREATE_GROUP"] = (CSocNetUser::IsCurrentUserModuleAdmin() || $APPLICATION->GetGroupRight("socialnetwork", false, "Y", "Y", array(SITE_ID, false)) >= "K");
@@ -585,7 +585,7 @@ if (StrLen($arResult["FatalError"]) <= 0)
 
 	foreach ($arResult as $key => $value)
 	{
-		if (substr($key, 0, 7) == "filter_")
+		if (mb_substr($key, 0, 7) == "filter_")
 		{
 			$arCacheKeys[] = $key."_".$value;
 		}
@@ -602,7 +602,7 @@ if (StrLen($arResult["FatalError"]) <= 0)
 
 	$arCacheKeys = array_merge($arCacheKeys, $arNavigation);
 
-	if (array_key_exists("tags", $arResult) && strlen($arResult["tags"]) > 0)
+	if (array_key_exists("tags", $arResult) && $arResult["tags"] <> '')
 	{
 		$arCacheKeys[] = $arResult["tags"];
 	}
@@ -687,7 +687,7 @@ if (StrLen($arResult["FatalError"]) <= 0)
 
 			$arCacheResult["Urls"]["GroupsAdd"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_CREATE"], array("user_id" => $arResult["User"]["ID"]));
 			$arCacheResult["Urls"]["LogGroups"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_LOG"], array());
-			$arCacheResult["Urls"]["LogGroups"] .= ((StrPos($arCacheResult["Urls"]["LogGroups"], "?") !== false) ? "&" : "?")."flt_entity_type=".SONET_ENTITY_GROUP;
+			$arCacheResult["Urls"]["LogGroups"] .= ((mb_strpos($arCacheResult["Urls"]["LogGroups"], "?") !== false) ? "&" : "?")."flt_entity_type=".SONET_ENTITY_GROUP;
 			$arCacheResult["CanViewLog"] = ($arResult["User"]["ID"] == $USER->GetID());
 
 			$arCacheResult["Groups"] = false;
@@ -900,7 +900,7 @@ if (StrLen($arResult["FatalError"]) <= 0)
 
 			if (
 				$arParams["USE_KEYWORDS"] == "Y"
-				&& strlen($arResult["~tags"]) > 0 
+				&& $arResult["~tags"] <> '' 
 			)
 			{
 				$arGroupFilter['Bitrix\Socialnetwork\WorkgroupTag:GROUP.NAME'] = ToLower($arResult["~tags"]);
@@ -973,7 +973,7 @@ if (StrLen($arResult["FatalError"]) <= 0)
 						$USER->IsAdmin()
 						|| CSocNetUser::IsCurrentUserModuleAdmin()
 					)
-					&& (IntVal($USER->GetID()) != $arParams["USER_ID"])
+					&& (intval($USER->GetID()) != $arParams["USER_ID"])
 				)
 				|| $arResult["filter_extranet"] == "Y"
 			)
@@ -1151,7 +1151,7 @@ if (StrLen($arResult["FatalError"]) <= 0)
 						"GROUP_ID" => $arGroup["ID"],
 						"GROUP_NAME" => $arGroup["NAME"],
 						"GROUP_CLOSED" => $arGroup["CLOSED"],
-						"GROUP_DESCRIPTION" => (strlen($arGroup["DESCRIPTION"]) > 50 ? substr($arGroup["DESCRIPTION"], 0, 50)."..." : $arGroup["DESCRIPTION"]),
+						"GROUP_DESCRIPTION" => (mb_strlen($arGroup["DESCRIPTION"]) > 50 ? mb_substr($arGroup["DESCRIPTION"], 0, 50)."..." : $arGroup["DESCRIPTION"]),
 						"GROUP_DESCRIPTION_FULL" => $arGroup["DESCRIPTION"],
 						"GROUP_PHOTO" => $arGroup["IMAGE_ID"],
 						"GROUP_PHOTO_FILE" => $arImage["FILE"],
@@ -1321,7 +1321,7 @@ if (StrLen($arResult["FatalError"]) <= 0)
 
 	if ($arParams["SET_TITLE"] == "Y" || $arParams["SET_NAV_CHAIN"] != "N")
 	{
-		if (strlen($arParams["NAME_TEMPLATE"]) <= 0)
+		if ($arParams["NAME_TEMPLATE"] == '')
 			$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 
 		$arParams["TITLE_NAME_TEMPLATE"] = str_replace(

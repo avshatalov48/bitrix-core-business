@@ -2,7 +2,6 @@
 /**
  * @var string $template
  * @var string $thumb
- * @var string $thumbFile
 */
 ?>
 <script type="text/javascript">
@@ -27,9 +26,9 @@ BX.message({
 	BPC_MES_VOTE2 : "<?=GetMessageJS("BPC_MES_VOTE2")?>",
 	BPC_MES_DELETE : "<?=GetMessageJS("BPC_MES_DELETE")?>",
 	BPC_MES_CREATETASK : "<?=GetMessageJS("BPC_MES_CREATETASK")?>",
+	BPC_MES_COPYLINK : "<?=GetMessageJS("BPC_MES_COPYLINK")?>",
 	MPL_RECORD_TEMPLATE : '<?=CUtil::JSEscape($template)?>',
 	MPL_RECORD_THUMB : '<?=CUtil::JSEscape($thumb)?>',
-	MPL_RECORD_THUMB_FILE : '<?=CUtil::JSEscape($thumbFile)?>',
 	FC_ERROR : '<?=GetMessageJS("B_B_PC_COM_ERROR")?>',
 	BLOG_C_REPLY : '<?=GetMessageJS("BLOG_C_REPLY")?>',
 	BLOG_C_HIDE : '<?=GetMessageJS("BLOG_C_HIDE")?>',

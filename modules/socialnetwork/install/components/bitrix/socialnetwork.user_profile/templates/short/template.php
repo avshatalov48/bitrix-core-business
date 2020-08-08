@@ -4,13 +4,13 @@ if ($arResult["NEED_AUTH"] == "Y")
 {
 	$APPLICATION->AuthForm("");
 }
-elseif (strlen($arResult["FatalError"]) > 0)
+elseif ($arResult["FatalError"] <> '')
 {
 	?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?
 }
 else
 {
-	if(strlen($arResult["ErrorMessage"])>0)
+	if($arResult["ErrorMessage"] <> '')
 	{
 		?><span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br /><?
 	}
@@ -63,7 +63,7 @@ else
 					{
 						foreach ($arResult["UserFieldsMain"]["DATA"] as $fieldName => $arUserField)
 						{
-							if (StrLen($arUserField["VALUE"]) > 0)
+							if ($arUserField["VALUE"] <> '')
 							{
 								?><tr><?
 									?><td width="25%"><?= $arUserField["NAME"] ?>:</td>
@@ -79,7 +79,7 @@ else
 						{
 							if (
 								is_array($arUserField["VALUE"]) && count($arUserField["VALUE"]) > 0 
-								|| !is_array($arUserField["VALUE"]) && StrLen($arUserField["VALUE"]) > 0
+								|| !is_array($arUserField["VALUE"]) && $arUserField["VALUE"] <> ''
 							)
 							{
 								?><tr>

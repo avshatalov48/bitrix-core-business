@@ -141,8 +141,25 @@ class Configuration
 	{
 		$value = $this->get($key, $defaultValue);
 		$option = $this->getOption($key);
+
+		/**
+		 * this decision was made after analysing ConfigurationOption class
+		 */
+		if(!empty($option->getItems()))
+		{
+			foreach ($option->getItems() as $item)
+			{
+				if(!empty($value) && isset($item['code']) && $item['code'] == $value)
+				{
+					return $item['value'];
+				}
+			}
+		}
+
 		if ($option)
+		{
 			return $option->getReadonlyView($value);
+		}
 
 		return $value;
 	}

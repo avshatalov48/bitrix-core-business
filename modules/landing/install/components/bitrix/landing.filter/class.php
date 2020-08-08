@@ -199,9 +199,9 @@ class LandingFilterComponent extends LandingBaseComponent
 						$filter[$code] = [];
 						foreach ((array) $search[$code] as $uid)
 						{
-							$filter[$code][] = (substr($uid, 0, 1) == 'U')
-												? substr($uid, 1)
-												: $uid;
+							$filter[$code][] = (mb_substr($uid, 0, 1) == 'U')
+								? mb_substr($uid, 1)
+								: $uid;
 						}
 					}
 				}
@@ -361,6 +361,7 @@ class LandingFilterComponent extends LandingBaseComponent
 
 		if ($init)
 		{
+			$this->checkParam('TYPE', '');
 			$this->checkParam('FILTER_TYPE', '');
 			$this->checkParam('SETTING_LINK', '');
 			$this->checkParam('DRAFT_MODE', 'N');
@@ -372,6 +373,10 @@ class LandingFilterComponent extends LandingBaseComponent
 			$this->arParams['FILTER_ID'] .= $this->arParams['TYPE'] . '_';
 			$this->arParams['FILTER_ID'] .= $this->arParams['FILTER_TYPE'];
 			$this->arParams['FILTER_ID'] .= self::FILTER_SUFFIX;
+
+			\Bitrix\Landing\Site\Type::setScope(
+				$this->arParams['TYPE']
+			);
 
 			$this->arResult['NAVIGATION_ID'] = $this::NAVIGATION_ID;
 			$this->arResult['CURRENT_PAGE'] = $this->request($this::NAVIGATION_ID);

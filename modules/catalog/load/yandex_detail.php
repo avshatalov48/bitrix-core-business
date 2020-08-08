@@ -39,7 +39,7 @@ if (!$USER->CanDoOperation('catalog_export_edit'))
 	die();
 }
 
-if ((!isset($_REQUEST['IBLOCK_ID'])) || (0 == strlen($_REQUEST['IBLOCK_ID'])))
+if ((!isset($_REQUEST['IBLOCK_ID'])) || ($_REQUEST['IBLOCK_ID'] == ''))
 {
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	ShowError(GetMessage("YANDEX_ERR_NO_IBLOCK_CHOSEN"));
@@ -348,7 +348,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 						if ($boolCheck)
 						{
 							foreach($_POST['SKU_PROP_VALUE_'.$intPropID] as $strValue)
-								if (strlen($strValue) > 0)
+								if ($strValue <> '')
 									$arPropValues[] = $strValue;
 						}
 						if (empty($arPropValues))

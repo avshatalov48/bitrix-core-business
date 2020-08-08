@@ -40,7 +40,7 @@ $supportFinishStamp = mktime(0,0,0, $aSupportFinishDate[1], $aSupportFinishDate[
 $errorMessage = "";
 if(!IsModuleInstalled("intranet"))
 {
-	if ($supportFinishStamp > mktime() || strlen($supportFinishDate) <= 0)
+	if ($supportFinishStamp > mktime() || $supportFinishDate == '')
 	{
 
 		if ($_SERVER["REQUEST_METHOD"] == "POST")
@@ -62,15 +62,15 @@ if(!IsModuleInstalled("intranet"))
 				);
 				$arFields = $APPLICATION->ConvertCharsetArray($arFields, LANG_CHARSET, "windows-1251");
 
-				if (strlen($arFields["DOMAIN"]) <= 0)
+				if ($arFields["DOMAIN"] == '')
 					$errorMessage .= GetMessage("MFD_ER_DOMAIN")."<Br>";
-				if (strlen($arFields["IP"]) <= 0)
+				if ($arFields["IP"] == '')
 					$errorMessage .= GetMessage("MFD_ER_IP")."<Br>";
-				if (strlen($arFields["NAME"]) <= 0)
+				if ($arFields["NAME"] == '')
 					$errorMessage .= GetMessage("MFD_ER_NAME")."<Br>";
-				if (strlen($arFields["EMAIL"]) <= 0)
+				if ($arFields["EMAIL"] == '')
 					$errorMessage .= GetMessage("MFD_ER_EMAIL")."<Br>";
-				if (strlen($arFields["EMAIL"]) > 0 && !check_email($arFields["EMAIL"], true))
+				if ($arFields["EMAIL"] <> '' && !check_email($arFields["EMAIL"], true))
 					$errorMessage .= GetMessage("MFD_ER_EMAIL2")."<Br>";
 				if ($res = $ht->post("https://www.1c-bitrix.ru/buy_tmp/ddos.php", $arFields))
 				{
@@ -88,7 +88,7 @@ if(!IsModuleInstalled("intranet"))
 						}
 					}
 
-					if (strlen($errorMessage) <= 0)
+					if ($errorMessage == '')
 						$errorMessage = GetMessage("MFD_ER_ER");
 				}
 			}
@@ -133,13 +133,6 @@ $APPLICATION->SetTitle(GetMessage("MFD_TITLE"));
 					</div>
 					<span class="ddos-action"><?=GetMessage("MFD_5");?></span>
 					<div class="ddos-conditions">
-						<div class="ddos-conditions-title"><span><?=GetMessage("MFD_6");?></span></div>
-						<div class="ddos-conditions-item">
-							<div class="ddos-icon-container">
-								<img src="/bitrix/images/security/ddos-img1.png" alt="">
-							</div>
-							<span><?=GetMessage("MFD_7");?></span>
-						</div>
 						<div class="ddos-conditions-item">
 							<div class="ddos-icon-container">
 								<img src="/bitrix/images/security/ddos-img2.png" alt="">
@@ -158,7 +151,7 @@ $APPLICATION->SetTitle(GetMessage("MFD_TITLE"));
 						<div class="ddos-info-container-title"><?=GetMessage("MFD_11");?></div>
 						<?=GetMessage("MFD_12");?>
 						<a name="ddf"></a>
-						<?if(strlen($errorMessage) > 0)
+						<?if($errorMessage <> '')
 						{
 							?><div id="error" style="color:red; font-weight: bold;"><?=htmlspecialcharsBack($errorMessage)?></div><?
 						}
@@ -175,22 +168,22 @@ $APPLICATION->SetTitle(GetMessage("MFD_TITLE"));
 									<?=bitrix_sessid_post()?>
 									<input type="hidden" name="DD" value="Y">
 									<div class="ddos-form-field-container"><span class="ddos-input-container"><span class="ddos-label-container"><label for="DOMAIN"><?=GetMessage("MFD_13");?><span class="required">*</span></label></span>
-									<input type="text" placeholder="www.site.ru" name="DOMAIN" id="DOMAIN" value="<?=htmlspecialcharsBx(strlen($_POST["DOMAIN"]) > 0 ? $_POST["DOMAIN"] : $host)?>"></span></div>
+									<input type="text" placeholder="www.site.ru" name="DOMAIN" id="DOMAIN" value="<?=htmlspecialcharsBx($_POST["DOMAIN"] <> '' ? $_POST["DOMAIN"] : $host)?>"></span></div>
 
 									<div class="ddos-form-field-container"><span class="ddos-input-container"><span class="ddos-label-container"><label for="IP"><?=GetMessage("MFD_14");?><span class="required">*</span></label></span>
-									<input type="text" placeholder="0.0.0.0" name="IP" id="IP" value="<?=htmlspecialcharsBx(strlen($_POST["IP"]) > 0 ? $_POST["IP"] : $ip)?>"></span></div>
+									<input type="text" placeholder="0.0.0.0" name="IP" id="IP" value="<?=htmlspecialcharsBx($_POST["IP"] <> '' ? $_POST["IP"] : $ip)?>"></span></div>
 
 									<div class="ddos-form-field-container"><span class="ddos-input-container"><span class="ddos-label-container"><label for="NAME"><?=GetMessage("MFD_15");?><span class="required">*</span></label></span>
-									<input type="text" name="NAME" id="NAME" value="<?=htmlspecialcharsBx(strlen($_POST["NAME"]) > 0 ? $_POST["NAME"] : "")?>"></span></div>
+									<input type="text" name="NAME" id="NAME" value="<?=htmlspecialcharsBx($_POST["NAME"] <> '' ? $_POST["NAME"] : "")?>"></span></div>
 
 									<div class="ddos-form-field-container"><span class="ddos-input-container"><span class="ddos-label-container"><label for="CONTACT_PERSON"><?=GetMessage("MFD_16");?></label></span>
-									<input type="text" name="CONTACT_PERSON" id="CONTACT_PERSON" value="<?=htmlspecialcharsBx(strlen($_POST["CONTACT_PERSON"]) > 0 ? $_POST["CONTACT_PERSON"] : $USER->GetFullName())?>"></span></div>
+									<input type="text" name="CONTACT_PERSON" id="CONTACT_PERSON" value="<?=htmlspecialcharsBx($_POST["CONTACT_PERSON"] <> '' ? $_POST["CONTACT_PERSON"] : $USER->GetFullName())?>"></span></div>
 
 									<div class="ddos-form-field-container"><span class="ddos-input-container"><span class="ddos-label-container"><label for="EMAIL"><?=GetMessage("MFD_17");?><span class="required">*</span></label></span>
-									<input type="text" placeholder="email@site.ru" name="EMAIL" id="EMAIL" value="<?=htmlspecialcharsBx(strlen($_POST["EMAIL"]) > 0 ? $_POST["EMAIL"] : $USER->GetEmail())?>"></span></div>
+									<input type="text" placeholder="email@site.ru" name="EMAIL" id="EMAIL" value="<?=htmlspecialcharsBx($_POST["EMAIL"] <> '' ? $_POST["EMAIL"] : $USER->GetEmail())?>"></span></div>
 
 									<div class="ddos-form-field-container"><span class="ddos-input-container"><span class="ddos-label-container"><label for="PHONE"><?=GetMessage("MFD_18");?></label></span>
-									<input type="text" placeholder="+7 " name="PHONE" id="PHONE" value="<?=htmlspecialcharsBx(strlen($_POST["PHONE"]) > 0 ? $_POST["PHONE"] : "")?>"></span></div>
+									<input type="text" placeholder="+7 " name="PHONE" id="PHONE" value="<?=htmlspecialcharsBx($_POST["PHONE"] <> '' ? $_POST["PHONE"] : "")?>"></span></div>
 
 									<a href="javascript:void(0)" onclick="BX('ddos').submit();" class="ddos-btn"><span class="ddos-btn-main"><?=GetMessage("MFD_19");?></span><span class="ddos-btn-arrow"><span></span></span></a>
 								</form>

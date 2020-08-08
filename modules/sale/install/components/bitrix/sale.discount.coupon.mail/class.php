@@ -113,7 +113,7 @@ class CSaleDiscountCouponMailComponent extends CBitrixComponent
 		$saleDiscountValue = (float) $this->arParams['DISCOUNT_VALUE'];
 		$saleDiscountUnit = (string) $this->arParams['DISCOUNT_UNIT'];
 		$siteId = $this->getSiteId();
-		if (strlen($xmlId) <= 0 && $saleDiscountValue > 0 && strlen($saleDiscountUnit) > 0)
+		if ($xmlId == '' && $saleDiscountValue > 0 && $saleDiscountUnit <> '')
 		{
 			$xmlId = "generatedCouponMail_".$saleDiscountValue."_".$saleDiscountUnit;
 		}
@@ -157,7 +157,7 @@ class CSaleDiscountCouponMailComponent extends CBitrixComponent
 			]
 		];
 
-		if(strlen($xmlId) <= 0)
+		if($xmlId == '')
 		{
 			return null;
 		}

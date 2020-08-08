@@ -13,14 +13,14 @@ if (!CModule::IncludeModule("bizproc"))
 	return;
 }
 
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
 
 $arParams["PATH_TO_BIZPROC"] = trim($arParams["PATH_TO_BIZPROC"]);
-if (strlen($arParams["PATH_TO_BIZPROC"]) <= 0)
+if ($arParams["PATH_TO_BIZPROC"] == '')
 	$arParams["PATH_TO_BIZPROC"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=bizproc");
 
-$arParams["TASK_ID"] = IntVal($arParams["TASK_ID"]);
+$arParams["TASK_ID"] = intval($arParams["TASK_ID"]);
 
 if (!$GLOBALS["USER"]->IsAuthorized())
 {	
@@ -51,7 +51,7 @@ else
 	{
 		$workflowId = trim($_REQUEST["workflow_id"]);
 
-		if (strlen($workflowId) > 0)
+		if ($workflowId <> '')
 		{
 			$dbTask = CBPTaskService::GetList(
 				array(),

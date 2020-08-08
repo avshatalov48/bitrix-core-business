@@ -557,10 +557,14 @@ BX.Finder.initFinderDb = function(obDestination, entities, oContext, version)
 				}
 			}, { entity: entities[i] }));
 		}
+
 		if (!BX.FinderManager.initHandler2Added)
 		{
 			BX.addCustomEvent(oContext, "onFinderAjaxSuccess", BX.Finder.onFinderAjaxSuccess);
-			BX.FinderManager.initHandler2Added = true;
+			if (typeof oContext.finderInitialized != 'undefined')
+			{
+				BX.FinderManager.initHandler2Added[oContext] = true;
+			}
 		}
 
 	}, { entities: entities }));
@@ -620,6 +624,7 @@ BX.Finder.findEntityByName = function(obDestination, obSearch, oParams, oResult)
 
 BX.Finder.onFinderAjaxSuccess = function(data, obDestination, entity)
 {
+console.log('onFinderAjaxSuccess');
 	if (typeof entity == 'undefined')
 	{
 		entity = 'users'
@@ -638,6 +643,7 @@ BX.Finder.onFinderAjaxSuccess = function(data, obDestination, entity)
 					|| obDestination.obClientDbData[entity][oEntity.id].checksum != oEntity.checksum
 				)
 				{
+console.log('update');
 					if (typeof obDestination.obClientDbData[entity] == 'undefined')
 					{
 						obDestination.obClientDbData[entity] = [];

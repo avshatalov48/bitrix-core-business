@@ -12,13 +12,17 @@ function tags_prepare($sText, $site_id = false)
 	foreach($arTags as $tag)
 	{
 		$tag = trim($tag);
-		if(strlen($tag))
+		if($tag <> '')
 		{
 			foreach($arEvents as $arEvent)
+			{
 				$tag = ExecuteModuleEventEx($arEvent, array($tag));
+			}
 
-			if(strlen($tag))
+			if($tag <> '')
+			{
 				$arResult[$tag] = $tag;
+			}
 		}
 	}
 	return $arResult;

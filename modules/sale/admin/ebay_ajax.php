@@ -93,7 +93,7 @@ if(isset($arResult["ERROR"]) <= 0 && $APPLICATION->GetGroupRight("sale") >= "W" 
 }
 else
 {
-	if(strlen($arResult["ERROR"]) <= 0)
+	if($arResult["ERROR"] == '')
 		$arResult["ERROR"] = "Access denied";
 }
 
@@ -102,7 +102,7 @@ if(isset($arResult["ERROR"]))
 else
 	$arResult["RESULT"] = "OK";
 
-if(strtolower(SITE_CHARSET) != 'utf-8')
+if(mb_strtolower(SITE_CHARSET) != 'utf-8')
 	$arResult = $APPLICATION->ConvertCharsetArray($arResult, SITE_CHARSET, 'utf-8');
 
 header('Content-Type: application/json');

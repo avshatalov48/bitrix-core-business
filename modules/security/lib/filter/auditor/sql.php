@@ -60,7 +60,7 @@ class Sql
 			"/{$sqlStart}(fr)(om{$sqlSpace}.+{$sqlExpEnd}lim)(it){$sqlEnd}/is" => $sqlSplitTo3,
 		);
 
-		$dbt = strtolower($DBType);
+		$dbt = mb_strtolower($DBType);
 		if ($dbt === 'mssql')
 		{
 			$filters += array(

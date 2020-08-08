@@ -320,6 +320,12 @@ class CAllBlogPost
 				return false;
 			}
 		}
+
+		if (!empty($arFields["TITLE"]))
+		{
+			$arFields["TITLE"] = \Bitrix\Main\Text\Emoji::encode($arFields["TITLE"]);
+		}
+
 		return True;
 	}
 
@@ -1021,6 +1027,8 @@ class CAllBlogPost
 
 	public static function DeleteLog($postID, $bMicroblog = false)
 	{
+		global $USER_FIELD_MANAGER;
+
 		static $blogPostEventIdList = null;
 
 		if (!CModule::IncludeModule('socialnetwork'))
@@ -1071,7 +1079,20 @@ class CAllBlogPost
 			array("ID")
 		);
 		while ($arRes = $dbRes->Fetch())
+		{
 			CSocNetLog::Delete($arRes["ID"]);
+		}
+
+		$arPostFields = $USER_FIELD_MANAGER->getUserFields('BLOG_POST', $postID, LANGUAGE_ID);
+		if (
+			!empty($arPostFields['UF_GRATITUDE'])
+			&& !empty($arPostFields['UF_GRATITUDE']['VALUE'])
+			&& intval($arPostFields['UF_GRATITUDE']['VALUE']) > 0
+			&& Loader::includeModule('iblock')
+		)
+		{
+			\CIBlockElement::delete(intval($arPostFields['UF_GRATITUDE']['VALUE']));
+		}
 	}
 
 	public static function GetID($code, $blogID)

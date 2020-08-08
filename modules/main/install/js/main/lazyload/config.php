@@ -8,7 +8,8 @@ return [
 	'css' => 'dist/lazyload.bundle.css',
 	'js' => 'dist/lazyload.bundle.js',
 	'rel' => [
-		'main.polyfill.core',
+		'main.core',
+		'main.polyfill.intersectionobserver',
 	],
-	'skip_core' => true,
+	'skip_core' => false,
 ];

@@ -322,7 +322,7 @@ class RestClient
 	{
 		$result = Option::get('sale', static::UNSUCCESSFUL_CALL_OPTION, "");
 
-		if(strlen($result) > 0)
+		if($result <> '')
 			$result = unserialize($result);
 
 		return is_array($result) ? $result : array();

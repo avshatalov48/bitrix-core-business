@@ -13,7 +13,7 @@ if(CModule::IncludeModule("compression"))
 
 if (CModule::IncludeModule("socialnetwork"))
 {
-	$userId = IntVal($_REQUEST["user_id"]);
+	$userId = intval($_REQUEST["user_id"]);
 
 	$mptr = Trim($_REQUEST["mptr"]);
 	$replyMessId = intval($_REQUEST["message_id"]);
@@ -54,7 +54,7 @@ if (CModule::IncludeModule("socialnetwork"))
 					}
 				}
 				
-				if($userId > 0 && $userId == $arMessages["USER_ID"] && StrLen($arMessages["DATE_VIEW"]) <= 0 && $arMessages["WHO"] == "IN")
+				if($userId > 0 && $userId == $arMessages["USER_ID"] && $arMessages["DATE_VIEW"] == '' && $arMessages["WHO"] == "IN")
 					CSocNetMessages::Update($arMessages["ID"], array("=DATE_VIEW" => $DB->CurrentTimeFunction()));
 
 				echo "m".$arMessages["USER_ID"]."\r\n";

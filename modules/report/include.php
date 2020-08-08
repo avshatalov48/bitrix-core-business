@@ -39,6 +39,8 @@ CJSCore::RegisterExt('report_visual_constructor', array(
 		'amcharts_radar',
 		'amcharts_serial',
 		'amcharts_xy',
+		'amcharts4',
+		'amcharts4_theme_animated',
 		'core',
 		'json',
 		'ajax',
@@ -47,3 +49,4 @@ CJSCore::RegisterExt('report_visual_constructor', array(
 ));
 
 \Bitrix\Main\Page\Asset::getInstance()->addJsKernelInfo("report", array("/bitrix/js/report/js/report.js"));
+

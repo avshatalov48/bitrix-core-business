@@ -1,13 +1,14 @@
 <?php
 namespace Bitrix\Calendar\UserField;
 
-use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Type;
 use Bitrix\Calendar\Internals;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Bitrix24;
+use Bitrix\Main\Type\DateTime;
+use Bitrix\Main\Type\Date;
 
 Loc::loadMessages(__FILE__);
 
@@ -628,7 +629,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 
 	function getSettingsHTML($userField = false, $htmlControl = [], $varsFromForm = false)
 	{
-		static::initDisplay(array('userfield_resourcebooking', 'calendar_planner', 'socnetlogdest', 'helper'));
+		\Bitrix\Main\UI\Extension::load(['uf', 'calendar.resourcebookinguserfield', 'calendar_planner', 'socnetlogdest', 'helper', 'main', 'ui', 'ui.selector']);
 
 		if($varsFromForm)
 		{
@@ -662,7 +663,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 			<td></td>
 			<td>
 				<div id="'.HtmlFilter::encode($params['outerWrapId']).'"></div>
-				<script>(function(){new BX.Calendar.UserField.ResourceBooking.AdminSettingsViewer('.
+				<script>(function(){new BX.Calendar.AdminSettingsViewer('.
 			\Bitrix\Main\Web\Json::encode($params).
 		').showLayout();})();</script>
 			</td>
@@ -678,7 +679,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 
 	public static function getPublicEdit($userField, $additionalParams = [])
 	{
-		static::initDisplay(array('userfield_resourcebooking', 'calendar_planner', 'socnetlogdest'));
+		\Bitrix\Main\UI\Extension::load(['uf', 'calendar.resourcebookinguserfield', 'calendar_planner', 'socnetlogdest']);
 
 		$fieldName = static::getFieldName($userField, $additionalParams);
 		$userField['VALUE'] = static::getFieldValue($userField, $additionalParams);
@@ -723,8 +724,13 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 		<script>
 			(function(){
 				'use strict';
-				new BX.Calendar.UserField.ResourceBooking(<?= \Bitrix\Main\Web\Json::encode($params)?>)
-					.showEditLayout();
+				BX.Runtime.loadExtension('calendar.resourcebookinguserfield').then(function(exports)
+				{
+					if (exports && BX.type.isFunction(exports.ResourcebookingUserfield))
+					{
+						exports.ResourcebookingUserfield.initEditFieldController(<?= \Bitrix\Main\Web\Json::encode($params)?>);
+					}
+				});
 			})();
 		</script>
 		<?
@@ -824,7 +830,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 		}
 		else
 		{
-			static::initDisplay(array('userfield_resourcebooking'));
+			\Bitrix\Main\UI\Extension::load(['uf', 'calendar.resourcebookinguserfield']);
 			if (count($users) + count($resourceNames) == 0)
 			{
 				$html = Loc::getMessage("USER_TYPE_RESOURCE_EMPTY");
@@ -1092,39 +1098,6 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 		];
 	}
 
-	public static function getB24LimitationPopupParams()
-	{
-		if (\Bitrix\Main\Loader::includeModule('bitrix24'))
-		{
-			$params = array(
-				"B24_LICENSE_BUTTON_TEXT" => GetMessage("B24_LICENSE_BUTTON"),
-				"B24_TRIAL_BUTTON_TEXT" => GetMessage("B24_TRIAL_BUTTON"),
-				"IS_FULL_DEMO_EXISTS" => \CBitrix24::getLicenseType() != "company" && \Bitrix\Bitrix24\Feature::isEditionTrialable("demo") ? "Y" : "N",
-				"HOST_NAME" => BX24_HOST_NAME,
-				"AJAX_URL" => \CBitrix24::PATH_COUNTER,
-				"LICENSE_ALL_PATH" => \CBitrix24::PATH_LICENSE_ALL,
-				"LICENSE_DEMO_PATH" => \CBitrix24::PATH_LICENSE_DEMO
-			);
-			if (
-				!\Bitrix\Bitrix24\Feature::isEditionTrialable("demo")
-				&& !empty($featureGroupName)
-				&& \Bitrix\Bitrix24\Feature::isEditionTrialable($featureGroupName)
-			)
-			{
-				$params["FEATURE_GROUP_NAME"] = $featureGroupName;
-				$params["AJAX_ACTIONS_URL"] = "/bitrix/tools/b24_actions.php";
-				$params["B24_FEATURE_TRIAL_SUCCESS_TEXT"] = GetMessageJS("B24_FEATURE_TRIAL_SUCCESS_TEXT");
-			}
-
-			$billingCurrency = \CBitrix24::BillingCurrency();
-			$productPrices = \CBitrix24::getPrices($billingCurrency);
-			$params["tfPrice"] = \CBitrix24::ConvertCurrency($productPrices["TF1"]["PRICE"], $billingCurrency);
-
-			return $params;
-		}
-		return null;
-	}
-
 	public static function getBitrx24Limitation()
 	{
 		$limit = -1;
@@ -1227,11 +1200,22 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 		$resultData = [];
 		$curUserId = $USER->GetID();
 
-		$fromTs = (isset($params['from']) && $params['from']) ? \CCalendar::timestamp($params['from']) : time();
-		$from = \CCalendar::date($fromTs, false);
-		$to = (isset($params['to']) && $params['to'])
-			? \CCalendar::date(\CCalendar::timestamp($params['to']), false)
-			: \CCalendar::date($fromTs + \CCalendar::DAY_LENGTH * 60, false);
+		if (isset($params['from']) && $params['from'] instanceof Date
+			&& isset($params['to']) && $params['to'] instanceof Date
+
+		)
+		{
+			$from = $params['from']->toString();
+			$to = $params['to']->toString();
+		}
+		else
+		{
+			$fromTs = (isset($params['from']) && $params['from']) ? \CCalendar::timestamp($params['from']) : time();
+			$from = \CCalendar::date($fromTs, false);
+			$to = (isset($params['to']) && $params['to'])
+				? \CCalendar::date(\CCalendar::timestamp($params['to']), false)
+				: \CCalendar::date($fromTs + \CCalendar::DAY_LENGTH * 60, false);
+		}
 
 		if (isset($params['timezone']))
 		{
@@ -1372,7 +1356,169 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 
 		$resultData['workTimeStart'] = floor(floatVal(\COption::GetOptionString('calendar', 'work_time_start', 9)));
 		$resultData['workTimeEnd'] = ceil(floatVal(\COption::GetOptionString('calendar', 'work_time_end', 19)));
-
 		return $resultData;
+	}
+
+	public static function getFormDateTimeSlots($fieldName = '', $options = [])
+	{
+		$from = (isset($options['from']) && $options['from'] instanceof Date) ? $options['from'] : new Date();
+		if (isset($options['to']) && ($options['to'] instanceof Date))
+		{
+			$to = $options['to'];
+		}
+		else
+		{
+			$to = clone $from;
+			$to->add($options['dateInterval'] ?? 'P5D');
+		}
+
+		$formData = \Bitrix\Calendar\UserField\ResourceBooking::getFillFormData(
+			$options['settingsData'],
+			[
+				'fieldName' => $fieldName,
+				'from' => $from,
+				'to' => $to
+			]
+		);
+
+		// Merge Accessibility
+		$accessibility = [];
+		if ($formData['fieldSettings']['USE_USERS'] === 'Y'
+			&& isset($options['settingsData']['users']['value']))
+		{
+			$selectedUser = $options['settingsData']['users']['value'];
+			if (isset($formData['usersAccessibility'])
+				&& isset($formData['usersAccessibility'][$selectedUser]))
+			{
+				$accessibility = array_merge($accessibility, $formData['usersAccessibility'][$selectedUser]);
+			}
+		}
+
+		if ($formData['fieldSettings']['USE_RESOURCES'] === 'Y'
+			&& isset($options['settingsData']['resources']['value']))
+		{
+			$selectedResource = $options['settingsData']['resources']['value'];
+			if (isset($formData['resourcesAccessibility'])
+				&& isset($formData['resourcesAccessibility'][$selectedResource]))
+			{
+				$accessibility = array_merge($accessibility, $formData['resourcesAccessibility'][$selectedResource]);
+			}
+		}
+
+		$result = null;
+		if ($selectedUser || $selectedResource)
+		{
+			$format = Date::convertFormatToPhp(FORMAT_DATETIME);
+			foreach ($accessibility as $i => $item)
+			{
+				$accessibility[$i]['fromTs'] = (new DateTime($item['dateFrom'], $format))->getTimestamp();
+				$accessibility[$i]['toTs'] = (new DateTime($item['dateTo'], $format))->getTimestamp();
+			}
+
+			$result = self::getAvailableTimeSlots($accessibility, [
+				'from' => $from,
+				'to' => $to,
+				'scale' => $options['settingsData']['time']['scale']
+			]);
+		}
+
+		return $result;
+	}
+
+	private static function getAvailableTimeSlots($accessibility, $options)
+	{
+		$from = (isset($options['from']) && $options['from'] instanceof Date) ? $options['from'] : new Date();
+		$to = (isset($options['to']) && $options['to'] instanceof Date) ? $options['to'] : new Date();
+		$to->add('P1D');
+		$scale = intval($options['scale']) > 0 ? intval($options['scale']) : 60;
+
+		$workTimeStart = intVal(\COption::getOptionString('calendar', 'work_time_start', 9));
+		$workTimeEnd = intVal(\COption::getOptionString('calendar', 'work_time_end', 19));
+
+		$step = 0;
+		$currentDate = new DateTime($from->toString(), Date::convertFormatToPhp(FORMAT_DATETIME));
+		$slots = [];
+
+		while ($currentDate->getTimestamp() < $to->getTimestamp())
+		{
+			$currentDate->setTime($workTimeStart, 0, 0);
+			while (intVal($currentDate->format('H')) < $workTimeEnd)
+			{
+				if ($currentDate->getTimestamp() > time())
+				{
+					$isFree = true;
+					$slotStart = $currentDate->getTimestamp();
+					$slotEnd = $slotStart + $scale * 60;
+
+					foreach ($accessibility as $i => $item)
+					{
+						if ($item['toTs'] > $slotStart && $item['fromTs'] < $slotEnd)
+						{
+							$isFree = false;
+							break;
+						}
+					}
+
+					if ($isFree)
+					{
+						$slots[] = clone $currentDate;
+					}
+				}
+				$currentDate->add('PT'.$scale.'M');
+				$step++;
+			}
+
+			if($step > 1000)
+			{
+				break;
+			}
+			$currentDate->add('P1D');
+		}
+
+		return $slots;
+	}
+
+	public static function prepareFormDateValues($dateFrom = null, $fieldName = '', $options = [])
+	{
+		$result = [];
+		if (!isset($dateFrom) || !($dateFrom instanceof DateTime))
+		{
+			throw new \Bitrix\Main\SystemException('Wrong dateFrom value type. DateTime expected');
+		}
+		if (empty($fieldName))
+		{
+			throw new \Bitrix\Main\SystemException('Wrong fieldName given');
+		}
+
+		$duration = 60;
+		if (!empty($options['settingsData']['duration']['value']))
+		{
+			$duration = $options['settingsData']['duration']['value'];
+		}
+		else if (!empty($options['settingsData']['duration']['defaultValue']))
+		{
+			$duration = $options['settingsData']['duration']['defaultValue'];
+		}
+
+		$r = \CUserTypeEntity::getList(["ID" => "ASC"], ["FIELD_NAME" => $fieldName]);
+		if ($r)
+		{
+			$fieldProperties = $r->fetch();
+			$fieldSettings = $fieldProperties['SETTINGS'];
+
+			if ($fieldSettings['USE_USERS'] === 'Y'
+				&& isset($options['settingsData']['users']['value']))
+			{
+				$result[] = self::prepareValue('user', $options['settingsData']['users']['value'], $dateFrom->toString(), $duration);
+			}
+
+			if ($fieldSettings['USE_RESOURCES'] === 'Y'
+				&& isset($options['settingsData']['resources']['value']))
+			{
+				$result[] = self::prepareValue('resource', $options['settingsData']['resources']['value'], $dateFrom->toString(), $duration);
+			}
+		}
+
+		return $result;
 	}
 }

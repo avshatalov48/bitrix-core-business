@@ -109,7 +109,7 @@ class CBitrixSocialnetworkLogEntryMailComponent extends CBitrixComponent
 		);
 		$arParams["URL"] = (
 			isset($arParams["URL"])
-			&& strlen($arParams["URL"]) > 0
+			&& $arParams["URL"] <> ''
 				? $arParams["URL"]
 				: CComponentEngine::MakePathFromTemplate(
 					'/pub/log_entry.php?log_id=#log_id#',
@@ -369,7 +369,7 @@ class CBitrixSocialnetworkLogEntryMailComponent extends CBitrixComponent
 		{
 			foreach ($arResult["LOG_ENTRY"]["EVENT_FORMATTED"]["DESTINATION"] as $destination)
 			{
-				if (strpos($destination["TYPE"], "CRM") !== 0)
+				if (mb_strpos($destination["TYPE"], "CRM") !== 0)
 				{
 					$arResult["DESTINATIONS"][] = $destination;
 				}

@@ -54,7 +54,7 @@ foreach ($arResult["GRID_VERSIONS"] as $docID => &$oHist)
 			array("id" => "USER", "name" => GetMessage("BPADH_AUTHOR"), "default" => true, "sort" => "user_name"),
 			array("id" => "MODIFIED", "name" => GetMessage("BPADH_MODIFIED"), "default" => true, "sort" => "modified"), 
 		), 
-		"SORT" => array(strtolower($by) => strtolower($order)),
+		"SORT" => array(mb_strtolower($by) => mb_strtolower($order)),
 		"ROWS" => $arResult["GRID_VERSIONS"],
 		"FOOTER" => array(array("title" => GetMessage("BPADH_ALL"), "value" => count($arResult["GRID_VERSIONS"]))),
 		"EDITABLE" => false,

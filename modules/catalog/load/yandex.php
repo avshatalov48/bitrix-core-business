@@ -56,9 +56,9 @@ if (!function_exists("yandex_text2xml"))
 
 $usedProtocol = (CMain::IsHTTPS() ? 'https://' : 'http://');
 
-$strAll = '<?if (!isset($_GET["referer1"]) || strlen($_GET["referer1"])<=0) $_GET["referer1"] = "yandext"?>';
+$strAll = '<?if (!isset($_GET["referer1"]) || $_GET["referer1"] == "") $_GET["referer1"] = "yandext"?>';
 $strAll .= '<? $strReferer1 = htmlspecialchars($_GET["referer1"]); ?>';
-$strAll .= '<?if (!isset($_GET["referer2"]) || strlen($_GET["referer2"])<=0) $_GET["referer2"] = "";?>';
+$strAll .= '<?if (!isset($_GET["referer2"]) || $_GET["referer2"] == "") $_GET["referer2"] = "";?>';
 $strAll .= '<? $strReferer2 = htmlspecialchars($_GET["referer2"]); ?>';
 $strAll .= '<? header("Content-Type: text/xml; charset=windows-1251");?>';
 $strAll.= '<?echo "<?xml version=\"1.0\" encoding=\"windows-1251\"?>"?>';
@@ -165,9 +165,9 @@ while ($arCatalog_list = $db_catalog_list->Fetch())
 			$rsSite = CSite::GetList($b, $o, array("LID" => $arAcc["LID"]));
 			if($arSite = $rsSite->Fetch())
 				$arAcc["SERVER_NAME"] = $arSite["SERVER_NAME"];
-			if(strlen($arAcc["SERVER_NAME"])<=0 && defined("SITE_SERVER_NAME"))
+			if($arAcc["SERVER_NAME"] == '' && defined("SITE_SERVER_NAME"))
 				$arAcc["SERVER_NAME"] = SITE_SERVER_NAME;
-			if(strlen($arAcc["SERVER_NAME"])<=0)
+			if($arAcc["SERVER_NAME"] == '')
 				$arAcc["SERVER_NAME"] = COption::GetOptionString("main", "server_name", "");
 
 			$arSiteServers[$arAcc['LID']] = $arAcc['SERVER_NAME'];
@@ -241,7 +241,7 @@ while ($arCatalog_list = $db_catalog_list->Fetch())
 		}
 
 		$strTmpOff.= "<offer id=\"".$arAcc["ID"]."\"".$str_AVAILABLE.">\n";
-		$strTmpOff.= "<url>".$usedProtocol.$arAcc['SERVER_NAME'].htmlspecialcharsbx($arAcc["~DETAIL_PAGE_URL"]).(strstr($arAcc['DETAIL_PAGE_URL'], '?') === false ? '?' : '&amp;')."r1=<?echo \$strReferer1; ?>&amp;r2=<?echo \$strReferer2; ?></url>\n";
+		$strTmpOff.= "<url>".$usedProtocol.$arAcc['SERVER_NAME'].htmlspecialcharsbx($arAcc["~DETAIL_PAGE_URL"]).(mb_strstr($arAcc['DETAIL_PAGE_URL'], '?') === false ? '?' : '&amp;')."r1=<?echo \$strReferer1; ?>&amp;r2=<?echo \$strReferer2; ?></url>\n";
 
 		$strTmpOff.= "<price>".$minPrice."</price>\n";
 		$strTmpOff.= "<currencyId>".$minPriceCurrency."</currencyId>\n";
@@ -256,7 +256,7 @@ while ($arCatalog_list = $db_catalog_list->Fetch())
 			$arPictInfo = CFile::GetFileArray($pictNo);
 			if (is_array($arPictInfo))
 			{
-				if(substr($arPictInfo["SRC"], 0, 1) == "/")
+				if(mb_substr($arPictInfo["SRC"], 0, 1) == "/")
 					$strFile = $usedProtocol.$arAcc['SERVER_NAME'].CHTTP::urnEncode($arPictInfo["SRC"], 'utf-8');
 				else
 					$strFile = $arPictInfo["SRC"];

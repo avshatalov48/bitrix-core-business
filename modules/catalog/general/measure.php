@@ -23,7 +23,7 @@ class CCatalogMeasureAll
 	{
 		global $APPLICATION;
 
-		$action = strtoupper($action);
+		$action = mb_strtoupper($action);
 		if ($action != 'ADD' && $action != 'UPDATE')
 			return false;
 		$id = (int)$id;

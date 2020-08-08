@@ -14,7 +14,7 @@
 
 		if (this.calendar.showTasks)
 		{
-			var taskSection = new TaskSection(this.calendar, config.sectionCustomization.tasks);
+			var taskSection = new TaskSection(this.calendar, config.sectionCustomization['tasks'+this.calendar.util.ownerId]);
 			this.sections.push(taskSection);
 			this.sectionIndex[taskSection.id] = this.sections.length - 1;
 		}
@@ -72,7 +72,7 @@
 				section = this.getSection(lastUsed);
 				if (!section || !section.name
 					|| !section.canDo('add')
-					|| !section.belongsToView()
+					//|| !section.belongsToView()
 					|| section.isPseudo()
 					|| !section.isActive())
 				{
@@ -117,6 +117,8 @@
 			return result;
 		},
 
+
+
 		getSuperposedSectionList: function()
 		{
 			var i, result = [];
@@ -138,7 +140,7 @@
 			for (i = 0; i < this.sections.length; i++)
 			{
 				if (this.sections[i].canDo('add')
-					&& (!this.sections[i].isSuperposed() || this.sections[i].belongsToView())
+					//&& (!this.sections[i].isSuperposed() || this.sections[i].belongsToView())
 					&& !this.sections[i].isPseudo()
 					&& this.sections[i].isActive())
 				{
@@ -146,6 +148,77 @@
 				}
 			}
 			return result;
+		},
+
+		getSectionGroupList: function()
+		{
+			if (!this.sectionGroups)
+			{
+				this.sectionGroups = [];
+				var title;
+				// 1. Main group - depends from current view
+				if (this.calendar.util.type === 'user')
+				{
+					title = BX.message('EC_SEC_SLIDER_MY_CALENDARS_LIST');
+				}
+				else if (this.calendar.util.type === 'group')
+				{
+					title = BX.message('EC_SEC_SLIDER_GROUP_CALENDARS_LIST');
+				}
+				else if (this.calendar.util.type === 'location')
+				{
+					title = BX.message('EC_SEC_SLIDER_TYPE_LOCATION_LIST');
+				}
+				else if (this.calendar.util.type === 'resource')
+				{
+					title = BX.message('EC_SEC_SLIDER_TYPE_RESOURCE_LIST');
+				}
+				else
+				{
+					title = BX.message('EC_SEC_SLIDER_TITLE_COMP_CAL');
+				}
+				this.sectionGroups.push({
+					title: title,
+					type: this.calendar.util.type,
+					belongsToView: true
+				});
+
+				// 2. Company calendar
+				this.sectionGroups.push({
+					title: BX.message('EC_SEC_SLIDER_TITLE_COMP_CAL'),
+					type: 'company'
+				});
+
+				// 3. Users calendars
+				this.calendar.util.getSuperposedTrackedUsers().forEach(function(user)
+				{
+					this.sectionGroups.push({
+						title: BX.util.htmlspecialchars(user.FORMATTED_NAME),
+						type: 'user',
+						ownerId: parseInt(user.ID)
+					});
+				}, this);
+
+				// 4. Groups calendars
+				this.sectionGroups.push({
+					title: BX.message('EC_SEC_SLIDER_POPUP_MENU_ADD_GROUP'),
+					type: 'group'
+				});
+
+				// 5. Resources calendars
+				this.sectionGroups.push({
+					title: BX.message('EC_SEC_SLIDER_TITLE_RESOURCE_CAL'),
+					type: 'resource'
+				});
+
+				// 6. Location calendars
+				this.sectionGroups.push({
+					title: BX.message('EC_SEC_SLIDER_TITLE_LOCATION_CAL'),
+					type: 'location'
+				});
+			}
+
+			return this.sectionGroups;
 		},
 
 		getSection: function(id)
@@ -352,23 +425,27 @@
 	Section.prototype = {
 		updateData: function(data)
 		{
-			this.data = data || {};
-			this.color = data.COLOR;
-			this.name = data.NAME || '';
-			this.type = data.CAL_TYPE || '';
+			if (!this.data)
+			{
+				this.data = data || {};
+				this.type = data.CAL_TYPE || '';
+				this.ownerId = parseInt(data.OWNER_ID) || 0;
 
-			Object.defineProperties(this, {
-				id: {
-					value: data.ID,
-					writable: false,
-					enumerable : true
-				},
-				color: {
-					value: data.COLOR,
-					writable: true,
-					enumerable : true
-				}
-			});
+				Object.defineProperties(this, {
+					id: {
+						value: data.ID,
+						writable: false
+					},
+					color: {
+						value: data.COLOR,
+						writable: true,
+						enumerable : true
+					}
+				});
+			}
+
+			this.color = this.data.COLOR = data.COLOR;
+			this.name = this.data.NAME = data.NAME;
 		},
 
 		isShown: function()
@@ -501,13 +578,15 @@
 				return false;
 			}
 
-			if (BX.util.in_array(action, ['access','add','edit','edit_section']) && this.isSuperposed() && !this.belongsToView())
-			{
-				return false;
-			}
+			// if (BX.util.in_array(action, ['access','add','edit','edit_section']) && this.isSuperposed() && !this.belongsToView())
+			// {
+			// 	return false;
+			// }
 
 			if (action === 'view_event')
+			{
 				action = 'view_time';
+			}
 
 			return this.data.PERM && this.data.PERM[action];
 		},

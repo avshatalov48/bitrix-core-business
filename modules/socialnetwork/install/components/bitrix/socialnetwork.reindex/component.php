@@ -23,10 +23,10 @@ $arSteps = array(
 );
 
 
-if(strlen($arParams["PATH_TO_GROUP_BLOG"]) && strlen($arParams["PATH_TO_GROUP_BLOG_POST"]))
+if(mb_strlen($arParams["PATH_TO_GROUP_BLOG"]) && mb_strlen($arParams["PATH_TO_GROUP_BLOG_POST"]))
 	$arSteps["group_blogs"] = GetMessage("CC_BSR_STEP_GROUPS_BLOGS");
 
-if(strlen($arParams["PATH_TO_USER_BLOG"]) && strlen($arParams["PATH_TO_USER_BLOG_POST"]))
+if($arParams["PATH_TO_USER_BLOG"] <> '' && $arParams["PATH_TO_USER_BLOG_POST"] <> '')
 	$arSteps["user_blogs"] = GetMessage("CC_BSR_STEP_USERS_BLOGS");
 
 if(intval($arParams["FORUM_ID"]) && CModule::IncludeModule('forum'))
@@ -36,11 +36,15 @@ if(intval($arParams["FORUM_ID"]) && CModule::IncludeModule('forum'))
 		$arWarnings[] = GetMessage("CC_BSR_WARN_FORUM_NOT_FOUND", array("#FORUM_ID#" => htmlspecialcharsbx($arParams["FORUM_ID"])));
 	else if($arForum["INDEXATION"]!=="Y")
 		$arWarnings[] = GetMessage("CC_BSR_WARN_FORUM", array("#href#" => htmlspecialcharsbx(BX_ROOT."/admin/forum_edit.php?lang=".LANGUAGE_ID."&ID=".intval($arForum["ID"]))));
-	
-	if(strlen($arParams["PATH_TO_GROUP_FORUM_MESSAGE"]))
+
+	if($arParams["PATH_TO_GROUP_FORUM_MESSAGE"] <> '')
+	{
 		$arSteps["group_forums"] = GetMessage("CC_BSR_STEP_GROUPS_FORUMS");
-	if(strlen($arParams["PATH_TO_USER_FORUM_MESSAGE"]))
+	}
+	if($arParams["PATH_TO_USER_FORUM_MESSAGE"] <> '')
+	{
 		$arSteps["user_forums"] = GetMessage("CC_BSR_STEP_USERS_FORUMS");
+	}
 }
 else
 	$arWarnings[] = GetMessage("CC_BSR_WARN_FORUM_NOT_SET");
@@ -51,8 +55,10 @@ if(intval($arParams["PHOTO_GROUP_IBLOCK_ID"]) && CModule::IncludeModule('iblock'
 	if($arIBlock["INDEX_ELEMENT"]==="Y" || $arIBlock["INDEX_SECTION"]==="Y")
 		$arWarnings[] = GetMessage("CC_BSR_WARN_PHOTO_GROUP_IBLOCK", array("#href#" => htmlspecialcharsbx(BX_ROOT."/admin/iblock_edit.php?type=".urlencode($arIBlock["IBLOCK_TYPE_ID"])."&lang=".LANGUAGE_ID."&ID=".urlencode($arIBlock["ID"])."&admin=Y&return_url=".urlencode($APPLICATION->GetCurPageParam()))));
 
-	if(strlen($arParams["PATH_TO_GROUP_PHOTO_ELEMENT"]))
+	if($arParams["PATH_TO_GROUP_PHOTO_ELEMENT"] <> '')
+	{
 		$arSteps["group_photos"] = GetMessage("CC_BSR_STEP_GROUPS_PHOTOS");
+	}
 }
 
 if(intval($arParams["PHOTO_USER_IBLOCK_ID"]) && CModule::IncludeModule('iblock'))
@@ -61,8 +67,10 @@ if(intval($arParams["PHOTO_USER_IBLOCK_ID"]) && CModule::IncludeModule('iblock')
 	if($arIBlock["INDEX_ELEMENT"]==="Y" || $arIBlock["INDEX_SECTION"]==="Y")
 		$arWarnings[] = GetMessage("CC_BSR_WARN_PHOTO_USER_IBLOCK", array("#href#" => htmlspecialcharsbx(BX_ROOT."/admin/iblock_edit.php?type=".urlencode($arIBlock["IBLOCK_TYPE_ID"])."&lang=".LANGUAGE_ID."&ID=".urlencode($arIBlock["ID"])."&admin=Y&return_url=".urlencode($APPLICATION->GetCurPageParam()))));
 
-	if(strlen($arParams["PATH_TO_USER_PHOTO_ELEMENT"]))
+	if($arParams["PATH_TO_USER_PHOTO_ELEMENT"] <> '')
+	{
 		$arSteps["user_photos"] = GetMessage("CC_BSR_STEP_USERS_PHOTOS");
+	}
 }
 
 if(array_key_exists("group_photos", $arSteps) || array_key_exists("user_photos", $arSteps))
@@ -85,8 +93,10 @@ if(intval($arParams["CALENDAR_GROUP_IBLOCK_ID"]) && CModule::IncludeModule('iblo
 	if($arIBlock["INDEX_ELEMENT"]==="Y" || $arIBlock["INDEX_SECTION"]==="Y")
 		$arWarnings[] = GetMessage("CC_BSR_WARN_CALENDAR_GROUP_IBLOCK", array("#href#" => htmlspecialcharsbx(BX_ROOT."/admin/iblock_edit.php?type=".urlencode($arIBlock["IBLOCK_TYPE_ID"])."&lang=".LANGUAGE_ID."&ID=".urlencode($arIBlock["ID"])."&admin=Y&return_url=".urlencode($APPLICATION->GetCurPageParam()))));
 
-	if(strlen($arParams["PATH_TO_GROUP_CALENDAR_ELEMENT"]))
+	if($arParams["PATH_TO_GROUP_CALENDAR_ELEMENT"] <> '')
+	{
 		$arSteps["group_calendars"] = GetMessage("CC_BSR_STEP_GROUPS_CALENDARS");
+	}
 }
 
 if (\Bitrix\Main\ModuleManager::isModuleInstalled('tasks'))
@@ -115,8 +125,10 @@ if(intval($arParams["FILES_GROUP_IBLOCK_ID"]) && CModule::IncludeModule('iblock'
 	if($arIBlock["INDEX_ELEMENT"]==="Y" || $arIBlock["INDEX_SECTION"]==="Y")
 		$arWarnings[] = GetMessage("CC_BSR_WARN_FILE_GROUP_IBLOCK", array("#href#" => htmlspecialcharsbx(BX_ROOT."/admin/iblock_edit.php?type=".urlencode($arIBlock["IBLOCK_TYPE_ID"])."&lang=".LANGUAGE_ID."&ID=".urlencode($arIBlock["ID"])."&admin=Y&return_url=".urlencode($APPLICATION->GetCurPageParam()))));
 
-	if(strlen($arParams["PATH_TO_GROUP_FILES_ELEMENT"]))
+	if($arParams["PATH_TO_GROUP_FILES_ELEMENT"] <> '')
+	{
 		$arSteps["group_files"] = GetMessage("CC_BSR_STEP_GROUPS_FILES");
+	}
 }
 
 if (
@@ -139,8 +151,10 @@ if(intval($arParams["FILES_USER_IBLOCK_ID"]) && CModule::IncludeModule('iblock')
 	if($arIBlock["INDEX_ELEMENT"]==="Y" || $arIBlock["INDEX_SECTION"]==="Y")
 		$arWarnings[] = GetMessage("CC_BSR_WARN_FILE_USER_IBLOCK", array("#href#" => htmlspecialcharsbx(BX_ROOT."/admin/iblock_edit.php?type=".urlencode($arIBlock["IBLOCK_TYPE_ID"])."&lang=".LANGUAGE_ID."&ID=".urlencode($arIBlock["ID"])."&admin=Y&return_url=".urlencode($APPLICATION->GetCurPageParam()))));
 
-	if(strlen($arParams["PATH_TO_USER_FILES_ELEMENT"]))
+	if($arParams["PATH_TO_USER_FILES_ELEMENT"] <> '')
+	{
 		$arSteps["user_files"] = GetMessage("CC_BSR_STEP_USERS_FILES");
+	}
 }
 
 if(array_key_exists("group_files", $arSteps) || array_key_exists("user_files", $arSteps))

@@ -25,6 +25,7 @@ if($arResult['ERROR'])
 		'bitrix:rest.configuration.import',
 		'',
 		array(
+			'ROLLBACK_APP' => $arResult['VARIABLES']['APP'],
 			'MODE' => 'ROLLBACK',
 			'SET_TITLE' => 'Y'
 		)

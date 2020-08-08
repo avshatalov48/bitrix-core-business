@@ -60,7 +60,7 @@ class CAdvContract extends CAdvContract_all
 					if ($val == '' || "$val"=="NOT_REF") continue;
 					if (is_array($val) && count($val)<=0) continue;
 					$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys)) ? true : false;
-					$key = strtoupper($key);
+					$key = mb_strtoupper($key);
 					switch($key)
 					{
 						case "ID":
@@ -373,7 +373,7 @@ class CAdvBanner extends CAdvBanner_all
 				if($val == '' || $val == "NOT_REF")
 					continue;
 				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys)) ? true : false;
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -722,7 +722,7 @@ class CAdvBanner extends CAdvBanner_all
 		$new_guest = ($_SESSION["SESS_GUEST_NEW"]=="N") ? "N" : "Y";
 		$url = CAdvBanner::GetCurUri();
 		$arrTime = getdate();
-		$weekday = strtoupper($arrTime["weekday"]);
+		$weekday = mb_strtoupper($arrTime["weekday"]);
 		$hour = intval($arrTime["hours"]);
 		$strUserGroups = $USER->GetUserGroupString();
 

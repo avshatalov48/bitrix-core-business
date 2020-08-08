@@ -34,7 +34,7 @@ AddEventHandler($arParams['MENU_EVENT_MODULE'], $arParams['MENU_EVENT'], functio
 
 		foreach($scriptList as $script)
 		{
-			$itemText = strlen($script['NAME']) > 0
+			$itemText = $script['NAME'] <> ''
 				? $script['NAME']
 				: $script['APP_NAME'];
 

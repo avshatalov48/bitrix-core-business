@@ -50,7 +50,9 @@ CJSCore::registerExt('applayout', array(
 	'css' => '/bitrix/js/rest/css/applayout.css',
 	'lang' => BX_ROOT.'/modules/rest/lang/'.LANGUAGE_ID.'/jsapplayout.php',
 	'lang_additional' => array(
-		'REST_APPLICATION_URL' => \Bitrix\Rest\Marketplace\Url::getApplicationUrl()
+		'REST_APPLICATION_URL' => \Bitrix\Rest\Marketplace\Url::getApplicationUrl(),
+		'REST_APPLICATION_VIEW_URL' => \Bitrix\Rest\Marketplace\Url::getApplicationPlacementViewUrl(),
+		'REST_PLACEMENT_URL' => \Bitrix\Rest\Marketplace\Url::getApplicationPlacementUrl()
 	),
 	'rel' => array('ajax', 'popup', 'sidepanel'),
 ));

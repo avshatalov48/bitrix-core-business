@@ -19,6 +19,7 @@ CREATE TABLE b_im_chat(
 	ENTITY_DATA_3 varchar(255) null,
 	DISK_FOLDER_ID int(18) null,
 	MESSAGE_COUNT int(18) DEFAULT 0,
+	USER_COUNT int(18) DEFAULT 0,
 	PREV_MESSAGE_ID int(18) null,
 	LAST_MESSAGE_ID int(18) null,
 	LAST_MESSAGE_STATUS varchar(50) DEFAULT 'received',
@@ -109,6 +110,7 @@ CREATE TABLE b_im_status
 	MOBILE_LAST_DATE datetime null,
 	EVENT_ID int(18) null,
 	EVENT_UNTIL_DATE datetime null,
+	INVITED char(1) default 'N',
 	PRIMARY KEY (USER_ID),
 	INDEX IX_IM_STATUS_EUD (EVENT_UNTIL_DATE)
 );
@@ -148,6 +150,7 @@ CREATE TABLE b_im_recent(
 	ITEM_RID int(18) DEFAULT 0,
 	ITEM_OLID int(18) DEFAULT 0,
 	PINNED char(1) DEFAULT 'N',
+	UNREAD char(1) DEFAULT 'N',
 	DATE_UPDATE datetime null,
 	PRIMARY KEY (USER_ID, ITEM_TYPE, ITEM_ID),
 	KEY IX_IM_REC_1 (ITEM_TYPE, ITEM_ID),
@@ -307,17 +310,21 @@ CREATE TABLE b_im_call
 	TYPE int,
 	INITIATOR_ID int,
 	IS_PUBLIC char(1) not null default 'N',
-	PUBLIC_ID varchar(128),
-	PROVIDER varchar(128),
+	PUBLIC_ID varchar(32),
+	PROVIDER varchar(32),
 	ENTITY_TYPE varchar(32),
-	ENTITY_ID varchar(255),
+	ENTITY_ID varchar(32),
 	PARENT_ID int,
 	STATE varchar(50),
 	START_DATE datetime,
 	END_DATE datetime,
+	CHAT_ID int,
+	LOG_URL varchar(2000),
 
 	PRIMARY KEY PK_B_IM_CALL(ID),
-	UNIQUE KEY IX_B_IM_CALL_PID(PUBLIC_ID)
+	UNIQUE KEY IX_B_IM_CALL_PID(PUBLIC_ID),
+	INDEX IX_B_IM_CALL_ENT_ID(ENTITY_TYPE, ENTITY_ID, TYPE, PROVIDER, END_DATE, ID),
+	INDEX IX_B_IM_CALL_CHAT_ID(CHAT_ID)
 );
 
 CREATE TABLE b_im_call_user
@@ -326,6 +333,7 @@ CREATE TABLE b_im_call_user
 	USER_ID int not null,
 	STATE varchar(50),
 	LAST_SEEN datetime,
+	IS_MOBILE char(1),
 
 	PRIMARY KEY PK_B_IM_CALL_USER(CALL_ID, USER_ID)
 );
@@ -368,4 +376,11 @@ CREATE TABLE b_im_permission_log (
 	PRIMARY KEY PK_B_IM_PERMISSION_LOG (ID),
 	KEY IX_IM_PERM_LOG_1 (CHAT_ID, USER_ID),
 	KEY IX_IM_PERM_LOG_2 (DATE_CREATE)
+);
+
+CREATE TABLE b_im_block_user(
+	ID int(18) not null auto_increment,
+	CHAT_ID int(18) not null,
+	USER_ID int(18) not null,
+	PRIMARY KEY PK_B_IM_BLOCK_USER (ID)
 );

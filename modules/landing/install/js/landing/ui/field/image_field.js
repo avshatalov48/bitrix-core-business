@@ -234,6 +234,8 @@
 			dimensions: this.dimensions,
 			sizes: ['1x', '2x']
 		});
+
+		this.adjustEditButtonState();
 	};
 
 
@@ -386,10 +388,7 @@
 		var field = new BX.Landing.UI.Button.BaseButton("edit", {
 			text: BX.Landing.Loc.getMessage("LANDING_FIELD_IMAGE_EDIT_BUTTON"),
 			className: "landing-ui-field-image-action-button",
-			// disabled: true
 		});
-
-		// field.layout.disabled = true;
 
 		return field;
 	}
@@ -772,6 +771,7 @@
 			}
 
 			this.adjustPreviewBackgroundSize();
+			this.adjustEditButtonState();
 			this.hideLoader();
 
 			this.onValueChangeHandler(this);
@@ -784,6 +784,18 @@
 			this.emit('change', event);
 		},
 
+		adjustEditButtonState: function()
+		{
+			var value = this.getValue();
+			if (BX.Type.isStringFilled(value.src))
+			{
+				this.editButton.enable();
+			}
+			else
+			{
+				this.editButton.disable();
+			}
+		},
 
 		reset: function()
 		{

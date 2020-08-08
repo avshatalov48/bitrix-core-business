@@ -1962,7 +1962,7 @@ class DiscountCouponsManagerBase
 			{
 				if (is_array($filterValue) && isset($filterValue['LOGIC']))
 				{
-					$logic = strtolower($filterValue['LOGIC']);
+					$logic = mb_strtolower($filterValue['LOGIC']);
 					if ($logic != 'and' && $logic != 'or')
 						break 2;
 					unset($filterValue['LOGIC']);
@@ -1972,7 +1972,7 @@ class DiscountCouponsManagerBase
 					foreach ($filterValue as $subfilterKey => $subfilterValue)
 					{
 						$invert = strncmp($subfilterKey, '!', 1) == 0;
-						$fieldName = ($invert ? substr($subfilterKey, 1) : $subfilterKey);
+						$fieldName = ($invert? mb_substr($subfilterKey, 1) : $subfilterKey);
 						if (!isset($data[$fieldName]))
 						{
 							break 3;
@@ -1999,7 +1999,7 @@ class DiscountCouponsManagerBase
 				else
 				{
 					$invert = strncmp($filterKey, '!', 1) == 0;
-					$fieldName = ($invert ? substr($filterKey, 1) : $filterKey);
+					$fieldName = ($invert? mb_substr($filterKey, 1) : $filterKey);
 					if (!isset($data[$fieldName]))
 					{
 						break 2;
@@ -2044,7 +2044,7 @@ class DiscountCouponsManagerBase
 			{
 				if (is_array($filterValue) && isset($filterValue['LOGIC']))
 				{
-					$logic = strtolower($filterValue['LOGIC']);
+					$logic = mb_strtolower($filterValue['LOGIC']);
 					if ($logic != 'and' && $logic != 'or')
 						break 2;
 					unset($filterValue['LOGIC']);
@@ -2054,7 +2054,7 @@ class DiscountCouponsManagerBase
 					foreach ($filterValue as $subfilterKey => $subfilterValue)
 					{
 						$invert = strncmp($subfilterKey, '!', 1) == 0;
-						$fieldName = ($invert ? substr($subfilterKey, 1) : $subfilterKey);
+						$fieldName = ($invert? mb_substr($subfilterKey, 1) : $subfilterKey);
 						if (!isset($data[$fieldName]))
 						{
 							break 3;
@@ -2081,7 +2081,7 @@ class DiscountCouponsManagerBase
 				else
 				{
 					$invert = strncmp($filterKey, '!', 1) == 0;
-					$fieldName = ($invert ? substr($filterKey, 1) : $filterKey);
+					$fieldName = ($invert? mb_substr($filterKey, 1) : $filterKey);
 					if (!isset($data[$fieldName]))
 					{
 						break 2;

@@ -1,10 +1,12 @@
 <?
+use Bitrix\Main,
+	Bitrix\Main\Loader;
 define("ADMIN_MODULE_NAME", "perfmon");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 /** @global CMain $APPLICATION */
 /** @global CDatabase $DB */
 /** @global CUser $USER */
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/include.php");
+Loader::includeModule('perfmon');
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/prolog.php");
 IncludeModuleLangFile(__FILE__);
 
@@ -20,6 +22,14 @@ $arEngines = array(
 $sTableID = "t_perfmon_all_tables";
 $oSort = new CAdminSorting($sTableID, "TABLE_NAME", "asc");
 $lAdmin = new CAdminList($sTableID, $oSort);
+
+if (
+	isset($_GET['orm']) && $_GET['orm'] === 'y'
+	&& Main\Config\Option::get('perfmon', 'enable_tablet_generator') !== 'Y'
+)
+{
+	Main\Config\Option::set('perfmon', 'enable_tablet_generator', 'Y', '');
+}
 
 if (($arTABLES = $lAdmin->GroupAction()) && $RIGHT >= "W")
 {
@@ -40,11 +50,12 @@ if (($arTABLES = $lAdmin->GroupAction()) && $RIGHT >= "W")
 		}
 	}
 
-	$to = strtoupper($_REQUEST["to"]);
+	$to = mb_strtoupper($_REQUEST["to"]);
 
 	foreach ($arTABLES as $table_name)
 	{
-		if (strlen($table_name) <= 0)
+		$table_name = (string)$table_name;
+		if ($table_name === '')
 			continue;
 
 		$res = $DB->Query("show table status like '".$DB->ForSql($table_name)."'", false);
@@ -55,7 +66,7 @@ if (($arTABLES = $lAdmin->GroupAction()) && $RIGHT >= "W")
 		switch ($_REQUEST['action'])
 		{
 		case "convert":
-			if ($to != strtoupper($arStatus["Engine"]))
+			if ($to != mb_strtoupper($arStatus["Engine"]))
 			{
 				if ($to == "MYISAM")
 					$res = $DB->Query("alter table ".CPerfomanceTable::escapeTable($table_name)." ENGINE = MyISAM", false);
@@ -73,15 +84,13 @@ if (($arTABLES = $lAdmin->GroupAction()) && $RIGHT >= "W")
 			$DB->Query("optimize table ".CPerfomanceTable::escapeTable($table_name)."", false);
 			break;
 		case "orm":
-			$_GET["orm"] = "y";
-
 			$tableParts = explode("_", $table_name);
 			array_shift($tableParts);
 			$moduleNamespace = ucfirst($tableParts[0]);
-			$moduleName = strtolower($tableParts[0]);
+			$moduleName = mb_strtolower($tableParts[0]);
 			if (count($tableParts) > 1)
 				array_shift($tableParts);
-			$className = \Bitrix\Main\ORM\Entity::snake2camel(implode("_", $tableParts));
+			$className = \Bitrix\Main\Text\StringHelper::snake2camel(implode("_", $tableParts));
 
 			$obTable = new CPerfomanceTable;
 			$obTable->Init($table_name);
@@ -105,14 +114,293 @@ if (($arTABLES = $lAdmin->GroupAction()) && $RIGHT >= "W")
 			$arValidators = array();
 			$arMessages = array();
 
-			echo "File: /bitrix/modules/".$moduleName."/lib/".strtolower($className).".php";
+			$shortAliases = Main\Config\Option::get('perfmon', 'tablet_short_aliases') == 'Y';
+			$objectSettings = Main\Config\Option::get('perfmon', 'tablet_object_settings') == 'Y';
+			$useMapIndex = Main\Config\Option::get('perfmon', 'tablet_use_map_index') == 'Y';
+
+			$dateFunctions = array(
+				'curdate' => true,
+				'current_date' => true,
+				'current_time' => true,
+				'current_timestamp' => true,
+				'curtime' => true,
+				'localtime' => true,
+				'localtimestamp' => true,
+				'now' => true
+			);
+
+			$descriptions = array();
+			$fields = array();
+			$fieldClassPrefix = '';
+			$validatorPrefix = '';
+			$referencePrefix = '';
+			$datetimePrefix = '';
+			$aliases = array(
+				'Bitrix\Main\Localization\Loc',
+				'Bitrix\Main\ORM\Data\DataManager'
+			);
+			if (!$shortAliases)
+			{
+				$fieldClassPrefix = 'Fields\\';
+				$validatorPrefix = $fieldClassPrefix.'Validators\\';
+				$referencePrefix = $fieldClassPrefix.'Relations\\';
+				$datetimePrefix = 'Type\\';
+				$aliases[] = 'Bitrix\Main\ORM\Fields';
+			}
+
+			$fieldClasses = array(
+				'integer' => 'IntegerField',
+				'float' => 'FloatField',
+				'boolean' => 'BooleanField',
+				'string' => 'StringField',
+				'text' => 'TextField',
+				'enum' => 'EnumField',
+				'date' => 'DateField',
+				'datetime' => 'DatetimeField'
+			);
+
+			foreach ($arFields as $columnName => $columnInfo)
+			{
+				$type = $columnInfo["orm_type"];
+				if ($shortAliases)
+				{
+					$aliases[] = 'Bitrix\Main\ORM\Fields\\'.$fieldClasses[$type];
+				}
+
+				$match = array();
+				if (
+					preg_match("/^(.+)_TYPE\$/", $columnName, $match)
+					&& $columnInfo["length"] == 4
+					&& isset($arFields[$match[1]])
+				)
+				{
+					$columnInfo["nullable"] = true;
+					$columnInfo["orm_type"] = "enum";
+					$columnInfo["enum_values"] = array("'text'", "'html'");
+					$columnInfo["length"] = "";
+				}
+
+				$columnInfo["default"] = (string)$columnInfo["default"];
+				if ($columnInfo["default"] !== '')
+				{
+					$columnInfo["nullable"] = true;
+				}
+
+				switch ($type)
+				{
+					case 'integer':
+					case 'float':
+						break;
+					case 'boolean':
+						if ($columnInfo["default"] !== '')
+						{
+							$columnInfo["default"] = "'".$columnInfo["default"]."'";
+						}
+						$columnInfo["type"] = "bool";
+						$columnInfo["length"] = "";
+						$columnInfo["enum_values"] = array("'N'", "'Y'");
+						break;
+					case 'string':
+					case 'text':
+						$columnInfo["type"] = $columnInfo["orm_type"];
+						if ($columnInfo["default"] !== '')
+						{
+							$columnInfo["default"] = "'".$columnInfo["default"]."'";
+						}
+						break;
+					case 'enum':
+						if ($columnInfo["default"] !== '' && !is_numeric($columnInfo["default"]))
+						{
+							$columnInfo["default"] = "'".$columnInfo["default"]."'";
+						}
+						break;
+					case 'date':
+					case 'datetime':
+					if ($columnInfo["default"] !== '' && !is_numeric($columnInfo["default"]))
+						{
+							$defaultValue = mb_strtolower($columnInfo["default"]);
+							if (mb_strlen($defaultValue) > 2)
+							{
+								if (substr_compare($defaultValue, '()', -2, 2, true) === 0)
+									$defaultValue = mb_substr($defaultValue, 0, -2);
+							}
+							if (isset($dateFunctions[$defaultValue]))
+							{
+								if ($type == 'date')
+								{
+									if ($shortAliases)
+									{
+										$aliases[] = 'Bitrix\Main\Type\Date';
+									}
+									else
+									{
+										$aliases[] = 'Bitrix\Main\Type';
+									}
+									$columnInfo["default_text"] = 'current date';
+									$columnInfo["default"] = "function()\n"
+										."\t\t\t\t\t{\n"
+										."\t\t\t\t\t\treturn new ".$datetimePrefix."Date();\n"
+										."\t\t\t\t\t}";
+								}
+								else
+								{
+									if ($shortAliases)
+									{
+										$aliases[] = 'Bitrix\Main\Type\DateTime';
+									}
+									else
+									{
+										$aliases[] = 'Bitrix\Main\Type';
+									}
+									$columnInfo["default_text"] = 'current datetime';
+									$columnInfo["default"] = "function()\n"
+										."\t\t\t\t\t{\n"
+										."\t\t\t\t\t\treturn new ".$datetimePrefix."DateTime();\n"
+										."\t\t\t\t\t}";
+								}
+							}
+							else
+							{
+								$columnInfo["default"] = "'".$columnInfo["default"]."'";
+							}
+						}
+						break;
+				}
+
+				$primary = false;
+				foreach ($arUniqueIndexes as $arColumns)
+				{
+					if (in_array($columnName, $arColumns))
+					{
+						$primary = true;
+						break;
+					}
+				}
+
+				$messageId = mb_strtoupper(implode("_", $tableParts)."_ENTITY_".$columnName."_FIELD");
+				$arMessages[$messageId] = "";
+
+				$descriptions[$columnName] = " * &lt;li&gt; ".$columnName
+					." ".$columnInfo["type"].($columnInfo["length"] != '' ? "(".$columnInfo["length"].")": "")
+					.($columnInfo["orm_type"] === "enum" || $columnInfo["orm_type"] === "boolean" ?
+						" (".implode(", ", $columnInfo["enum_values"]).")"
+						: ""
+					)
+					." ".($columnInfo["nullable"] ? "optional": "mandatory")
+					.($columnInfo["default"] !== ''
+						? " default ".(isset($columnInfo["default_text"])
+							? $columnInfo["default_text"]
+							: $columnInfo["default"]
+						)
+						: ""
+					)
+					."\n";
+
+				$validateFunctionName = '';
+				if ($columnInfo["orm_type"] == "string" && $columnInfo["length"] > 0)
+				{
+					if ($shortAliases)
+					{
+						$aliases[] = 'Bitrix\Main\ORM\Fields\Validators\LengthValidator';
+					}
+					$validateFunctionName = "validate".Main\Text\StringHelper::snake2camel($columnName);
+					$arValidators[$validateFunctionName] = array(
+						"length" => $columnInfo["length"],
+						"field" => $columnName,
+					);
+				}
+
+				if ($objectSettings)
+				{
+					$offset = ($useMapIndex ? "\t\t\t\t" : "\t\t\t");
+					$fields[$columnName] = "\t\t\t"
+						.($useMapIndex ? "'".$columnName."' => " : "")
+						."(new ".$fieldClassPrefix.$fieldClasses[$type]."('".$columnName."',\n"
+						.($validateFunctionName !== ''
+							? $offset."\t[\n"
+								.$offset."\t\t'validation' => [_"."_CLASS_"."_, '".$validateFunctionName."']\n"
+								.$offset."\t]\n"
+							: $offset."\t[]\n"
+						)
+						.$offset."))->configureTitle(Loc::getMessage('".$messageId."'))\n"
+						.($primary ? $offset."\t\t->configurePrimary(true)\n" : "")
+						.($columnInfo["increment"] ? $offset."\t\t->configureAutocomplete(true)\n" : "")
+						.(!$primary && $columnInfo["nullable"] === false ? $offset."\t\t->configureRequired(true)\n" : "")
+						.($columnInfo["orm_type"] === "boolean"
+							? $offset."\t\t->configureValues(".implode(", ", $columnInfo["enum_values"]).")\n"
+							: ""
+						)
+						.($columnInfo["orm_type"] === "enum"
+							? $offset."\t\t->configureValues([".implode(", ", $columnInfo["enum_values"])."])\n"
+							: ""
+						)
+						.($columnInfo["default"] !== '' ? $offset."\t\t->configureDefaultValue(".$columnInfo["default"].")\n" : "");
+					$fields[$columnName] = mb_substr($fields[$columnName], 0, -1).",\n";
+				}
+				else
+				{
+					$fields[$columnName] = "\t\t\t"
+						.($useMapIndex ? "'".$columnName."' => " : "")
+						."new ".$fieldClassPrefix.$fieldClasses[$type]."(\n"
+						."\t\t\t\t'".$columnName."',\n"
+						."\t\t\t\t[\n"
+						.($primary ? "\t\t\t\t\t'primary' => true,\n" : "")
+						.($columnInfo["increment"] ? "\t\t\t\t\t'autocomplete' => true,\n" : "")
+						.(!$primary && $columnInfo["nullable"] === false ? "\t\t\t\t\t'required' => true,\n" : "")
+						.($columnInfo["orm_type"] === "boolean" || $columnInfo["orm_type"] === "enum"
+							? "\t\t\t\t\t'values' => array(".implode(", ", $columnInfo["enum_values"])."),\n"
+							: ""
+						)
+						.($columnInfo["default"] !== '' ? "\t\t\t\t\t'default' => ".$columnInfo["default"].",\n" : "")
+						.($validateFunctionName !== '' ? "\t\t\t\t\t'validation' => [_"."_CLASS_"."_, '".$validateFunctionName."'],\n" : "")
+						."\t\t\t\t\t'title' => Loc::getMessage('".$messageId."')\n"
+						."\t\t\t\t]\n"
+						."\t\t\t),\n";
+				}
+			}
+			foreach ($arParents as $columnName => $parentInfo)
+			{
+				if ($shortAliases)
+				{
+					$aliases[] = 'Bitrix\Main\ORM\Fields\Relations\Reference';
+				}
+
+				$parentTableParts = explode("_", $parentInfo["PARENT_TABLE"]);
+				array_shift($parentTableParts);
+				$parentModuleNamespace = ucfirst($parentTableParts[0]);
+				$parentClassName = \Bitrix\Main\Text\StringHelper::snake2camel(implode("_", $parentTableParts));
+
+				$columnNameEx = preg_replace("/_ID\$/", "", $columnName);
+				if (isset($descriptions[$columnNameEx]))
+				{
+					$columnNameEx = mb_strtoupper($parentClassName);
+				}
+				$descriptions[$columnNameEx] = " * &lt;li&gt; ".$columnName
+					." reference to {@link \\Bitrix\\".$parentModuleNamespace
+					."\\".$parentClassName."Table}"
+					."\n";
+
+				$fields[$columnNameEx] = "\t\t\t"
+					.($useMapIndex ? "'".$columnNameEx."' => " : "")
+					."new ".$referencePrefix."Reference(\n"
+					."\t\t\t\t'".$columnNameEx."',\n"
+					."\t\t\t\t'\Bitrix\\".$parentModuleNamespace."\\".$parentClassName."',\n"
+					."\t\t\t\t['=this.".$columnName."' => 'ref.".$parentInfo["PARENT_COLUMN"]."'],\n"
+					."\t\t\t\t['join_type' => 'LEFT']\n"
+					."\t\t\t),\n";
+			}
+
+			$aliases = array_unique($aliases);
+			sort($aliases);
+
+			echo "\n\nFile: /bitrix/modules/".$moduleName."/lib/".mb_strtolower($className)."table.php";
 			echo "<hr>";
 			echo "<pre>";
 			echo "&lt;", "?", "php\n";
 			echo "namespace Bitrix\\".$moduleNamespace.";\n";
 			echo "\n";
-			echo "use Bitrix\\Main,\n";
-			echo "	Bitrix\\Main\\Localization\\Loc;\n";
+			echo "use ".implode(",\n\t", $aliases).";\n";
+			echo "\n";
 			echo "Loc::loadMessages(_"."_FILE_"."_);\n";
 			echo "\n";
 			echo "/"."**\n";
@@ -120,68 +408,13 @@ if (($arTABLES = $lAdmin->GroupAction()) && $RIGHT >= "W")
 			echo " * \n";
 			echo " * Fields:\n";
 			echo " * &lt;ul&gt;\n";
-			foreach ($arFields as $columnName => $columnInfo)
-			{
-				if ($columnInfo["orm_type"] === "boolean")
-				{
-					$columnInfo["nullable"] = true;
-					$columnInfo["type"] = "bool";
-					$columnInfo["length"] = "";
-					$columnInfo["enum_values"] = array("'N'", "'Y'");
-				}
-
-				if (
-					$columnInfo["type"] === "int"
-					&& ($columnInfo["default"] > 0)
-					&& !$columnInfo["nullable"]
-				)
-				{
-					$columnInfo["nullable"] = true;
-				}
-
-				$match = array();
-				if (
-					preg_match("/^(.+)_TYPE\$/", $columnName, $match)
-					&& array_key_exists($match[1], $arFields)
-					&& $columnInfo["length"] == 4
-				)
-				{
-					$columnInfo["nullable"] = true;
-					$columnInfo["type"] = "enum";
-					$columnInfo["enum_values"] = array("'text'", "'html'");
-					$columnInfo["length"] = "";
-				}
-
-				$default = $columnInfo["default"];
-				if (!is_numeric($default) && $default != "")
-					$default = "'".$default."'";
-
-				echo " * &lt;li&gt; ".$columnName
-					." ".$columnInfo["type"].($columnInfo["length"]? "(".$columnInfo["length"].")": "")
-					.($columnInfo["type"] === "enum"? " (".implode(", ", $columnInfo["enum_values"]).")": "")
-					." ".($columnInfo["nullable"]? "optional": "mandatory")
-					.($default? " default ".$default: "")
-					."\n";
-			}
-			foreach ($arParents as $columnName => $parentInfo)
-			{
-				$parentTableParts = explode("_", $parentInfo["PARENT_TABLE"]);
-				array_shift($parentTableParts);
-				$parentModuleNamespace = ucfirst($parentTableParts[0]);
-				$parentClassName = \Bitrix\Main\ORM\Entity::snake2camel(implode("_", $parentTableParts));
-
-				$columnName = preg_replace("/_ID\$/", "", $columnName);
-				echo " * &lt;li&gt; ".$columnName
-					." reference to {@link \\Bitrix\\".$parentModuleNamespace
-					."\\".$parentClassName."Table}"
-					."\n";
-			}
+			echo implode('', $descriptions);
 			echo " * &lt;/ul&gt;\n";
 			echo " *\n";
 			echo " * @package Bitrix\\".$moduleNamespace."\n";
 			echo " *"."*/\n";
 			echo "\n";
-			echo "class ".$className."Table extends Main\\Entity\\DataManager\n";
+			echo "class ".$className."Table extends DataManager\n";
 			echo "{\n";
 			echo "\t/**\n";
 			echo "\t * Returns DB table name for entity.\n";
@@ -200,113 +433,27 @@ if (($arTABLES = $lAdmin->GroupAction()) && $RIGHT >= "W")
 			echo "\t */\n";
 			echo "\tpublic static function getMap()\n";
 			echo "\t{\n";
-			echo "\t\treturn array(\n";
-			foreach ($arFields as $columnName => $columnInfo)
-			{
-				if ($columnInfo["orm_type"] === "boolean")
-				{
-					$columnInfo["nullable"] = true;
-					$columnInfo["type"] = "bool";
-					$columnInfo["length"] = "";
-					$columnInfo["enum_values"] = array("'N'", "'Y'");
-				}
-
-				if (
-					$columnInfo["type"] === "int"
-					&& ($columnInfo["default"] > 0)
-					&& !$columnInfo["nullable"]
-				)
-				{
-					$columnInfo["nullable"] = true;
-				}
-
-				$match = array();
-				if (
-					preg_match("/^(.+)_TYPE\$/", $columnName, $match)
-					&& array_key_exists($match[1], $arFields)
-					&& $columnInfo["length"] == 4
-				)
-				{
-					$columnInfo["nullable"] = true;
-					$columnInfo["orm_type"] = "enum";
-					$columnInfo["enum_values"] = array("'text'", "'html'");
-				}
-
-				$default = $columnInfo["default"];
-				if (!is_numeric($default) && $default != "")
-					$default = "'".$default."'";
-
-				echo "\t\t\t'".$columnName."' => array(\n";
-				echo "\t\t\t\t'data_type' => '".$columnInfo["orm_type"]."',\n";
-				$primary = false;
-				foreach ($arUniqueIndexes as $indexName => $arColumns)
-				{
-					if (in_array($columnName, $arColumns))
-					{
-						echo "\t\t\t\t'primary' => true,\n";
-						$primary = true;
-						break;
-					}
-				}
-				if ($columnInfo["increment"])
-				{
-					echo "\t\t\t\t'autocomplete' => true,\n";
-				}
-				if (!$primary && $columnInfo["nullable"] === false)
-				{
-					echo "\t\t\t\t'required' => true,\n";
-				}
-				if ($columnInfo["orm_type"] === "boolean" || $columnInfo["orm_type"] === "enum")
-				{
-					echo "\t\t\t\t'values' => array(".implode(", ", $columnInfo["enum_values"])."),\n";
-				}
-				if ($columnInfo["length"] > 0 && $columnInfo["orm_type"] == "string")
-				{
-					$validateFunctionName = "validate".\Bitrix\Main\ORM\Entity::snake2camel($columnName);
-					echo "\t\t\t\t'validation' => array(_"."_CLASS_"."_, '".$validateFunctionName."'),\n";
-					$arValidators[$validateFunctionName] = array(
-						"length" => $columnInfo["length"],
-						"field" => $columnName,
-					);
-				}
-				$messageId = strtoupper(implode("_", $tableParts)."_ENTITY_".$columnName."_FIELD");
-				$arMessages[$messageId] = "";
-				echo "\t\t\t\t'title' => Loc::getMessage('".$messageId."'),\n";
-				echo "\t\t\t),\n";
-			}
-			foreach ($arParents as $columnName => $parentInfo)
-			{
-				$parentTableParts = explode("_", $parentInfo["PARENT_TABLE"]);
-				array_shift($parentTableParts);
-				$parentModuleNamespace = ucfirst($parentTableParts[0]);
-				$parentClassName = \Bitrix\Main\ORM\Entity::snake2camel(implode("_", $parentTableParts));
-
-				$columnNameEx = preg_replace("/_ID\$/", "", $columnName);
-
-				echo "\t\t\t'".$columnNameEx."' => array(\n";
-				echo "\t\t\t\t'data_type' => 'Bitrix\\".$parentModuleNamespace."\\".$parentClassName."',\n";
-				echo "\t\t\t\t'reference' => array('=this.".$columnName."' => 'ref.".$parentInfo["PARENT_COLUMN"]."'),\n";
-				echo "\t\t\t),\n";
-			}
-			echo "\t\t);\n";
+			echo "\t\treturn [\n";
+			echo implode('', $fields);
+			echo "\t\t];\n";
 			echo "\t}\n";
 			foreach ($arValidators as $validateFunctionName => $validator)
 			{
-				echo "\t/**\n";
+				echo "\n\t/**\n";
 				echo "\t * Returns validators for ".$validator["field"]." field.\n";
 				echo "\t *\n";
 				echo "\t * @return array\n";
 				echo "\t */\n";
 				echo "\tpublic static function ".$validateFunctionName."()\n";
 				echo "\t{\n";
-				echo "\t\treturn array(\n";
-				echo "\t\t\tnew Main\\Entity\\Validator\\Length(null, ".$validator["length"]."),\n";
-				echo "\t\t);\n";
+				echo "\t\treturn [\n";
+				echo "\t\t\tnew ".$validatorPrefix."LengthValidator(null, ".$validator["length"]."),\n";
+				echo "\t\t];\n";
 				echo "\t}\n";
 			}
 			echo "}\n";
 			echo "</pre>";
-			echo "File: /bitrix/modules/".$moduleName."/lang/ru/lib/".strtolower($className).".php";
+			echo "File: /bitrix/modules/".$moduleName."/lang/ru/lib/".mb_strtolower($className)."table.php";
 			echo "<hr>";
 			echo "<pre>";
 			echo "&lt;", "?\n";
@@ -326,7 +473,7 @@ $lAdmin->BeginPrologContent();
 <h4><? echo GetMessage("PERFMON_TABLES_ALL") ?></h4>
 <script>
 	hrefs = "";
-	rows = new Array();
+	rows = [];
 	prev = '';
 </script>
 <?
@@ -392,6 +539,8 @@ $rsData = new CDBResult;
 $rsData->InitFromArray($arAllTables);
 $rsData = new CAdminResult($rsData, $sTableID);
 
+$generateOrm = (string)Main\Config\Option::get('perfmon', 'enable_tablet_generator') == 'Y';
+
 while ($arRes = $rsData->GetNext())
 {
 	$row =& $lAdmin->AddRow($arRes["TABLE_NAME"], $arRes);
@@ -404,7 +553,7 @@ while ($arRes = $rsData->GetNext())
 		{
 			foreach ($arEngines as $id => $ar)
 			{
-				if (strtoupper($arRes["ENGINE_TYPE"]) != $id)
+				if (mb_strtoupper($arRes["ENGINE_TYPE"]) != $id)
 					$arActions[] = array(
 						"ICON" => "edit",
 						"DEFAULT" => false,
@@ -420,7 +569,7 @@ while ($arRes = $rsData->GetNext())
 			"ACTION" => $lAdmin->ActionDoGroup($arRes["TABLE_NAME"], "optimize"),
 		);
 	}
-	if ($_GET["orm"] === "y")
+	if ($generateOrm)
 	{
 		$arActions[] = array(
 			"DEFAULT" => false,
@@ -428,7 +577,7 @@ while ($arRes = $rsData->GetNext())
 			"ACTION" => $lAdmin->ActionDoGroup($arRes["TABLE_NAME"], "orm"),
 		);
 	}
-	if (count($arActions))
+	if (!empty($arActions))
 		$row->AddActions($arActions);
 }
 
@@ -478,7 +627,7 @@ $APPLICATION->SetTitle(GetMessage("PERFMON_TABLES_TITLE"));
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
 $strLastTables = CUserOptions::GetOption("perfmon", "last_tables");
-if (strlen($strLastTables) > 0)
+if ($strLastTables <> '')
 {
 	$arLastTables = explode(",", $strLastTables);
 	if (count($arLastTables) > 0)
@@ -602,14 +751,10 @@ if (strlen($strLastTables) > 0)
 		}
 		var pattern = '^.+_' + needleParts.join('.+_') + '.+$';
 		var expr = new RegExp(pattern, 'i');
-		if (haystack.match(expr))
-			return true;
-
-		return false;
+		return !!haystack.match(expr);
 	}
 </script>
 <?
 $lAdmin->DisplayList();
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
-?>

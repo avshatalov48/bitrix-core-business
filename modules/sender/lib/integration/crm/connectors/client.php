@@ -7,21 +7,21 @@
  */
 namespace Bitrix\Sender\Integration\Crm\Connectors;
 
+use Bitrix\Crm\Category\DealCategory;
+use Bitrix\Crm\CompanyTable as CrmCompanyTable;
+use Bitrix\Crm\ContactTable as CrmContactTable;
+use Bitrix\Crm\PhaseSemantics;
 use Bitrix\Main\Application;
 use Bitrix\Main\DB\SqlExpression;
+use Bitrix\Main\Entity;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Entity;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\UI\Filter\AdditionalDateType;
 use Bitrix\Sender\Connector\BaseFilter as ConnectorBaseFilter;
 use Bitrix\Sender\Connector\ResultView;
 use Bitrix\Sender\Integration\Sender\Holiday;
-use Bitrix\Crm\ContactTable as CrmContactTable;
-use Bitrix\Crm\CompanyTable as CrmCompanyTable;
-use Bitrix\Crm\PhaseSemantics;
-use Bitrix\Crm\Category\DealCategory;
 use Bitrix\Sender\Recipient\Type;
 
 Loc::loadMessages(__FILE__);
@@ -39,6 +39,10 @@ class Client extends ConnectorBaseFilter
 	const PRODUCT_SOURCE_DEALS_PROCESS = "DEALS_PROCESS";
 	const PRODUCT_SOURCE_DEALS_SUCCESS = "DEALS_SUCCESS";
 	const PRODUCT_SOURCE_DEALS_FAILURE = "DEALS_FAILURE";
+	const API_VERSION = 3;
+	const YES = 'Y';
+	const NO = 'N';
+	const DEAL_CATEGORY_ID = "DEAL_CATEGORY_ID";
 
 	private $crmEntityFilter = null;
 
@@ -145,7 +149,7 @@ class Client extends ConnectorBaseFilter
 
 		foreach ($docTypes as $docType)
 		{
-			$refClassName = "\\Bitrix\\Crm\\" . ucfirst(strtolower($docType)) . "Table";
+			$refClassName = "\\Bitrix\\Crm\\" . ucfirst(mb_strtolower($docType)) . "Table";
 			if (!class_exists($refClassName))
 			{
 				continue;
@@ -165,14 +169,9 @@ class Client extends ConnectorBaseFilter
 			}
 
 			$runtimeFieldName = "SGT_$docType";
-			$query->registerRuntimeField(null, new Entity\ReferenceField(
-				$runtimeFieldName,
-				$refClassName,
-				$ref,
-				array('join_type' => 'INNER')
-			));
-
 			$filter = $this->getCrmReferencedEntityFilter($docType);
+
+			$joinType = 'INNER';
 			foreach ($filter as $key => $value)
 			{
 				$pattern = "/^[\W]{0,2}$docType\./";
@@ -181,8 +180,48 @@ class Client extends ConnectorBaseFilter
 					$key = str_replace("$docType.", "$runtimeFieldName.", $key);
 				}
 
-				$query->addFilter($key, $value);
+				if(is_array($value))
+				{
+					foreach ($value as $val)
+					{
+						if(is_null($val))
+						{
+							$joinType = 'LEFT';
+							break;
+						}
+					}
+				}elseif (is_null($value))
+				{
+					$joinType = 'LEFT';
+				}
+
+				if($joinType !== 'LEFT')
+				{
+					$query->addFilter($key, $value);
+					continue;
+				}
+				$key = str_replace('=', '', $key);
+
+				if(is_array($value))
+				{
+					$filter = [
+						[$key, '=', null],
+						[$key, 'in', $value]
+					];
+				}
+
+				$query->where(\Bitrix\Main\Entity\Query::filter()
+					->logic('or')
+					->where($filter)
+				);
 			}
+
+			$query->registerRuntimeField(null, new Entity\ReferenceField(
+				$runtimeFieldName,
+				$refClassName,
+				$ref,
+				array('join_type' => $joinType)
+			));
 
 			$runtime = Helper::getRuntimeByEntity($docType);
 			foreach ($runtime as $item)
@@ -202,7 +241,7 @@ class Client extends ConnectorBaseFilter
 			}
 		}
 
-		$entityTypeName = strtoupper($query->getEntity()->getName());
+		$entityTypeName = mb_strtoupper($query->getEntity()->getName());
 		$runtime = Helper::getRuntimeByEntity($entityTypeName);
 		foreach ($runtime as $item)
 		{
@@ -407,7 +446,7 @@ class Client extends ConnectorBaseFilter
 			return [$query];
 		}
 
-		$query->whereIn('PROD_DEAL.PRODUCT_ROW.PRODUCT_ID', $productIds);
+		$query->whereIn('SGT_DEAL.PRODUCT_ROW.PRODUCT_ID', $productIds);
 		$semantics = [];
 
 		if (is_array($productSource))
@@ -437,7 +476,7 @@ class Client extends ConnectorBaseFilter
 		}
 
 		$query->registerRuntimeField(new Entity\ReferenceField(
-			'PROD_DEAL',
+			'SGT_DEAL',
 			'\Bitrix\Crm\DealTable',
 			$dealRef,
 			array('join_type' => 'LEFT')
@@ -662,6 +701,16 @@ class Client extends ConnectorBaseFilter
 		return Helper::getPersonalizeList();
 	}
 
+	public static function getDealCategoryList()
+	{
+		return Loader::includeModule('crm') ? DealCategory::getSelectListItems(true) : [];
+	}
+
+	public static function getDealCategoryStageList()
+	{
+		return Loader::includeModule('crm') ? DealCategory::getFullStageList() : [];
+	}
+
 	/**
 	 * Get filter fields.
 	 *
@@ -732,12 +781,13 @@ class Client extends ConnectorBaseFilter
 			"default" => true
 		);
 
+		$stageList = self::getDealCategoryStageList();
 		$list[] = array(
 			"id" => "DEAL_STAGE_ID",
 			"name" => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_DEAL_STATUS_ID'),
 			"type" => "list",
-			'params' => array('multiple' => 'Y'),
-			"items" => DealCategory::getFullStageList(),
+			'params' => array('multiple' => self::YES),
+			"items" => $stageList,
 			"default" => true
 		);
 
@@ -745,7 +795,7 @@ class Client extends ConnectorBaseFilter
 			"id" => "CONTACT_SOURCE_ID",
 			"name" => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_CONTACT_SOURCE_ID'),
 			"type" => "list",
-			'params' => array('multiple' => 'Y'),
+			'params' => array('multiple' => self::YES),
 			"items" => \CCrmStatus::GetStatusList('SOURCE'),
 			"default" => true
 		);
@@ -753,7 +803,7 @@ class Client extends ConnectorBaseFilter
 		$list[] = array(
 			'id' => 'CLIENT_COMMUNICATION_TYPE',
 			"name" => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_COMMUNICATION_TYPE'),
-			'params' => array('multiple' => 'Y'),
+			'params' => array('multiple' => self::YES),
 			'default' => true,
 			'type' => 'list',
 			'items' => \CCrmFieldMulti::PrepareListItems(array(
@@ -790,22 +840,22 @@ class Client extends ConnectorBaseFilter
 				'type' => 'dest_selector',
 				'partial' => true,
 				'params' => array(
-					'multiple' => 'Y',
-					'apiVersion' => 3,
+					'multiple' => self::YES,
+					'apiVersion' => self::API_VERSION,
 					'context' => 'SENDER_FILTER_PRODUCT_ID',
 					'contextCode' => 'CRM',
-					'useClientDatabase' => 'N',
-					'enableAll' => 'N',
-					'enableDepartments' => 'N',
-					'enableUsers' => 'N',
-					'enableSonetgroups' => 'N',
-					'allowEmailInvitation' => 'N',
-					'allowSearchEmailUsers' => 'N',
-					'departmentSelectDisable' => 'Y',
-					'addTabCrmProducts' => 'Y',
-					'enableCrm' => 'Y',
-					'enableCrmProducts' => 'Y',
-					'convertJson' => 'Y'
+					'useClientDatabase' => self::NO,
+					'enableAll' => self::NO,
+					'enableDepartments' => self::NO,
+					'enableUsers' => self::NO,
+					'enableSonetgroups' => self::NO,
+					'allowEmailInvitation' => self::NO,
+					'allowSearchEmailUsers' => self::NO,
+					'departmentSelectDisable' => self::YES,
+					'addTabCrmProducts' => self::YES,
+					'enableCrm' => self::YES,
+					'enableCrmProducts' => self::YES,
+					'convertJson' => self::YES
 				),
 			);
 
@@ -815,7 +865,7 @@ class Client extends ConnectorBaseFilter
 				'default' => true,
 				'type' => 'list',
 				'params' => array(
-					'multiple' => 'Y',
+					'multiple' => self::YES,
 				),
 				'items' => [
 					"" => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_PRODUCT_SOURCE_ANY'),
@@ -837,22 +887,22 @@ class Client extends ConnectorBaseFilter
 				'type' => 'dest_selector',
 				'partial' => true,
 				'params' => array(
-					'multiple' => 'Y',
-					'apiVersion' => 3,
+					'multiple' => self::YES,
+					'apiVersion' => self::API_VERSION,
 					'context' => 'SENDER_FILTER_PRODUCT_ID',
 					'contextCode' => 'CRM',
-					'useClientDatabase' => 'N',
-					'enableAll' => 'N',
-					'enableDepartments' => 'N',
-					'enableUsers' => 'N',
-					'enableSonetgroups' => 'N',
-					'allowEmailInvitation' => 'N',
-					'allowSearchEmailUsers' => 'N',
-					'departmentSelectDisable' => 'Y',
-					'addTabCrmProducts' => 'Y',
-					'enableCrm' => 'Y',
-					'enableCrmProducts' => 'Y',
-					'convertJson' => 'Y'
+					'useClientDatabase' => self::NO,
+					'enableAll' => self::NO,
+					'enableDepartments' => self::NO,
+					'enableUsers' => self::NO,
+					'enableSonetgroups' => self::NO,
+					'allowEmailInvitation' => self::NO,
+					'allowSearchEmailUsers' => self::NO,
+					'departmentSelectDisable' => self::YES,
+					'addTabCrmProducts' => self::YES,
+					'enableCrm' => self::YES,
+					'enableCrmProducts' => self::YES,
+					'convertJson' => self::YES
 				)
 			);
 		}
@@ -864,7 +914,7 @@ class Client extends ConnectorBaseFilter
 				'id' => 'DEAL_STAGE_SEMANTIC_ID',
 				"name" => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_DEAL_STATUS_SEMANTIC_ID'),
 				'default' => true,
-				'params' => array('multiple' => 'Y')
+				'params' => array('multiple' => self::YES)
 			),
 			true
 		);
@@ -873,7 +923,7 @@ class Client extends ConnectorBaseFilter
 			"id" => "CONTACT_POST",
 			'type' => 'string',
 			"name" => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_CONTACT_POST'),
-			'params' => array('multiple' => 'Y'),
+			'params' => array('multiple' => self::YES),
 			"default" => false
 		);
 
@@ -883,14 +933,14 @@ class Client extends ConnectorBaseFilter
 			'type' => 'dest_selector',
 			'params' => array(
 				'context' => 'SENDER_FILTER_ASSIGNED_BY_ID',
-				'multiple' => 'Y',
+				'multiple' => self::YES,
 				'contextCode' => 'U',
-				'enableAll' => 'N',
-				'enableSonetgroups' => 'N',
-				'allowEmailInvitation' => 'N',
-				'allowSearchEmailUsers' => 'N',
-				'departmentSelectDisable' => 'Y',
-				'isNumeric' => 'Y',
+				'enableAll' => self::NO,
+				'enableSonetgroups' => self::NO,
+				'allowEmailInvitation' => self::NO,
+				'allowSearchEmailUsers' => self::NO,
+				'departmentSelectDisable' => self::YES,
+				'isNumeric' => self::YES,
 				'prefix' => 'U'
 			),
 			"sender_segment_filter" => false,
@@ -908,14 +958,14 @@ class Client extends ConnectorBaseFilter
 				'type' => 'dest_selector',
 				'params' => array(
 					'context' => 'SENDER_FILTER_ASSIGNED_BY_ID',
-					'multiple' => 'Y',
+					'multiple' => self::YES,
 					'contextCode' => 'U',
-					'enableAll' => 'N',
-					'enableSonetgroups' => 'N',
-					'allowEmailInvitation' => 'N',
-					'allowSearchEmailUsers' => 'N',
-					'departmentSelectDisable' => 'Y',
-					'isNumeric' => 'Y',
+					'enableAll' => self::NO,
+					'enableSonetgroups' => self::NO,
+					'allowEmailInvitation' => self::NO,
+					'allowSearchEmailUsers' => self::NO,
+					'departmentSelectDisable' => self::YES,
+					'isNumeric' => self::YES,
 					'prefix' => 'U'
 				),
 				//"sender_segment_filter" => false,
@@ -938,20 +988,23 @@ class Client extends ConnectorBaseFilter
 			"default" => false,
 		);
 
+		//we need to filter able deals
 		$list[] = array(
-			'id' => 'DEAL_CATEGORY_ID',
+			'id' => self::DEAL_CATEGORY_ID,
 			'name' => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_DEAL_CATEGORY_ID'),
-			'params' => array('multiple' => 'Y'),
-			'default' => false,
+			'params' => array('multiple' => self::YES),
+			'default' => true,
 			'type' => 'list',
-			'items' => DealCategory::getSelectListItems(true)
+			'required' => true,
+			'valueRequired' => true,
+			'items' => self::getDealCategoryList()
 		);
 
 		$list[] = array(
 			"id" => "DEAL_TYPE_ID",
 			"name" => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_DEAL_TYPE_ID'),
 			"type" => "list",
-			'params' => array('multiple' => 'Y'),
+			'params' => array('multiple' => self::YES),
 			"items" => \CCrmStatus::GetStatusList('DEAL_TYPE'),
 			"default" => false
 		);
@@ -981,7 +1034,7 @@ class Client extends ConnectorBaseFilter
 		$list[] = array(
 			'id' => 'COMPANY_COMPANY_TYPE',
 			'name' => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_COMPANY_TYPE'),
-			'params' => array('multiple' => 'Y'),
+			'params' => array('multiple' => self::YES),
 			'default' => false,
 			'type' => 'list',
 			'items' => \CCrmStatus::GetStatusList('COMPANY_TYPE'),
@@ -990,7 +1043,7 @@ class Client extends ConnectorBaseFilter
 		$list[] = array(
 			'id' => 'CONTACT_TYPE_ID',
 			'name' => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_CONTACT_TYPE'),
-			'params' => array('multiple' => 'Y'),
+			'params' => array('multiple' => self::YES),
 			'default' => false,
 			'type' => 'list',
 			'items' => \CCrmStatus::GetStatusList('CONTACT_TYPE'),
@@ -999,7 +1052,7 @@ class Client extends ConnectorBaseFilter
 		$list[] = array(
 			'id' => 'CONTACT_HONORIFIC',
 			'name' => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_CONTACT_HONORIFIC'),
-			'params' => array('multiple' => 'Y'),
+			'params' => array('multiple' => self::YES),
 			'default' => false,
 			'type' => 'list',
 			'items' => \CCrmStatus::GetStatusList('HONORIFIC'),
@@ -1008,7 +1061,7 @@ class Client extends ConnectorBaseFilter
 		$list[] = array(
 			'id' => 'COMPANY_INDUSTRY',
 			'name' => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_FIELD_COMPANY_INDUSTRY'),
-			'params' => array('multiple' => 'Y'),
+			'params' => array('multiple' => self::YES),
 			'default' => false,
 			'type' => 'list',
 			'items' => \CCrmStatus::GetStatusList('INDUSTRY'),
@@ -1066,7 +1119,7 @@ class Client extends ConnectorBaseFilter
 				'name' => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_PRESET_ALL'),
 				'sender_segment_name' => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_CLIENT_PRESET_SEGMENT_ALL'),
 				'fields' => array(
-					self::FIELD_FOR_PRESET_ALL => 'Y',
+					self::FIELD_FOR_PRESET_ALL => self::YES,
 				)
 			),
 			'crm_client_deal_in_work' => array(
@@ -1171,11 +1224,13 @@ class Client extends ConnectorBaseFilter
 		return
 			array_reduce(
 				\CCatalogSKU::getOffersList($productIds),
-				function($ids, $items) {
+				function($ids, $items)
+				{
 					$ids = array_merge(
 						$ids,
 						array_map(
-							function($item) {
+							function($item)
+							{
 								return $item['ID'];
 							},
 						$items)

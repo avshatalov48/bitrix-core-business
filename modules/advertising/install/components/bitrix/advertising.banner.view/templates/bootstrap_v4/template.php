@@ -17,24 +17,24 @@ $arParams['PROPS']['HEADING_FONT_SIZE'] = intval($arParams['PROPS']['HEADING_FON
 $arParams['PROPS']['ANNOUNCEMENT_FONT_SIZE'] = intval($arParams['PROPS']['ANNOUNCEMENT_FONT_SIZE']);
 $arParams['PROPS']['HEADING_BG_OPACITY'] = isset($arParams['PROPS']['HEADING_BG_OPACITY']) ? intval($arParams['PROPS']['HEADING_BG_OPACITY']) : 100;
 
-$arParams['PROPS']['OVERLAY_COLOR'] = hexdec(substr($arParams['PROPS']['OVERLAY_COLOR'],0,2)).','
-	.hexdec(substr($arParams['PROPS']['OVERLAY_COLOR'],2,2)).','
-	.hexdec(substr($arParams['PROPS']['OVERLAY_COLOR'],4,2)).','
+$arParams['PROPS']['OVERLAY_COLOR'] = hexdec(mb_substr($arParams['PROPS']['OVERLAY_COLOR'], 0, 2)).','
+	.hexdec(mb_substr($arParams['PROPS']['OVERLAY_COLOR'], 2, 2)).','
+	.hexdec(mb_substr($arParams['PROPS']['OVERLAY_COLOR'], 4, 2)).','
 	.abs(100 - intval($arParams['PROPS']['OVERLAY_OPACITY']))/100;
 
-$arParams['PROPS']['HEADING_BG_COLOR'] = hexdec(substr($arParams['PROPS']['HEADING_BG_COLOR'],0,2)).','
-	.hexdec(substr($arParams['PROPS']['HEADING_BG_COLOR'],2,2)).','
-	.hexdec(substr($arParams['PROPS']['HEADING_BG_COLOR'],4,2)).','
+$arParams['PROPS']['HEADING_BG_COLOR'] = hexdec(mb_substr($arParams['PROPS']['HEADING_BG_COLOR'], 0, 2)).','
+	.hexdec(mb_substr($arParams['PROPS']['HEADING_BG_COLOR'], 2, 2)).','
+	.hexdec(mb_substr($arParams['PROPS']['HEADING_BG_COLOR'], 4, 2)).','
 	.abs(100 - $arParams['PROPS']['HEADING_BG_OPACITY'])/100;
 
-$arParams['PROPS']['ANNOUNCEMENT_BG_COLOR'] = hexdec(substr($arParams['PROPS']['ANNOUNCEMENT_BG_COLOR'],0,2)).','
-	.hexdec(substr($arParams['PROPS']['ANNOUNCEMENT_BG_COLOR'],2,2)).','
-	.hexdec(substr($arParams['PROPS']['ANNOUNCEMENT_BG_COLOR'],4,2)).','
+$arParams['PROPS']['ANNOUNCEMENT_BG_COLOR'] = hexdec(mb_substr($arParams['PROPS']['ANNOUNCEMENT_BG_COLOR'], 0, 2)).','
+	.hexdec(mb_substr($arParams['PROPS']['ANNOUNCEMENT_BG_COLOR'], 2, 2)).','
+	.hexdec(mb_substr($arParams['PROPS']['ANNOUNCEMENT_BG_COLOR'], 4, 2)).','
 	.abs(100 - intval($arParams['PROPS']['ANNOUNCEMENT_BG_OPACITY']))/100;
 
-$arParams['PROPS']['BUTTON_BG_COLOR'] = hexdec(substr($arParams['PROPS']['BUTTON_BG_COLOR'],0,2)).','
-	.hexdec(substr($arParams['PROPS']['BUTTON_BG_COLOR'],2,2)).','
-	.hexdec(substr($arParams['PROPS']['BUTTON_BG_COLOR'],4,2));
+$arParams['PROPS']['BUTTON_BG_COLOR'] = hexdec(mb_substr($arParams['PROPS']['BUTTON_BG_COLOR'], 0, 2)).','
+	.hexdec(mb_substr($arParams['PROPS']['BUTTON_BG_COLOR'], 2, 2)).','
+	.hexdec(mb_substr($arParams['PROPS']['BUTTON_BG_COLOR'], 4, 2));
 
 $arParams['PROPS']['PRESET'] = intval($arParams['PROPS']['PRESET']);
 $animation = $arParams['PROPS']['ANIMATION'] == 'Y' ? ' data-duration="'.intval($arParams['PROPS']['ANIMATION_DURATION']).'" data-delay="'.intval($arParams['PROPS']['ANIMATION_DELAY']).'"' : '';
@@ -44,17 +44,17 @@ $mobileHide = $arParams['PROPS']['ANNOUNCEMENT_MOBILE_HIDE'] == 'Y' ? ' d-none d
 $id = '';
 if ($arParams['PROPS']['BACKGROUND'] == 'stream')
 {
-	if (strpos($arParams['PROPS']['STREAM'], 'watch?') !== false && ($v = strpos($arParams['PROPS']['STREAM'], 'v=')) !== false)
+	if (mb_strpos($arParams['PROPS']['STREAM'], 'watch?') !== false && ($v = mb_strpos($arParams['PROPS']['STREAM'], 'v=')) !== false)
 	{
-		$id = substr($arParams['PROPS']['STREAM'], $v + 2, 11);
+		$id = mb_substr($arParams['PROPS']['STREAM'], $v + 2, 11);
 	}
-	elseif ($v = strpos($arParams['PROPS']['STREAM'], 'youtu.be/'))
+	elseif ($v = mb_strpos($arParams['PROPS']['STREAM'], 'youtu.be/'))
 	{
-		$id = substr($arParams['PROPS']['STREAM'], $v + 9, 11);
+		$id = mb_substr($arParams['PROPS']['STREAM'], $v + 9, 11);
 	}
-	elseif ($v = strpos($arParams['PROPS']['STREAM'], 'embed/'))
+	elseif ($v = mb_strpos($arParams['PROPS']['STREAM'], 'embed/'))
 	{
-		$id = substr($arParams['PROPS']['STREAM'], $v + 6, 11);
+		$id = mb_substr($arParams['PROPS']['STREAM'], $v + 6, 11);
 	}
 }
 
@@ -116,7 +116,10 @@ else
 		<? if ($arParams['PROPS']['HEADING_SHOW'] == 'Y' || $arParams['PROPS']['ANNOUNCEMENT_SHOW'] == 'Y' || $arParams['PROPS']['BUTTON'] == 'Y'): ?>
 			<div class="bx-advertisingbanner-content<?=$playClass?>"<?=$animation?> <? if ($arParams['PROPS']['PRESET']==2 || $arParams['PROPS']['PRESET']==3){echo 'style="background:rgba('.$arParams['PROPS']['HEADING_BG_COLOR'].');"';}?>>
 				<? if ($arParams['PROPS']['HEADING_SHOW'] == 'Y'): ?>
-					<div id='text<?=$rnd?>' class="bx-advertisingbanner-text-title" style="display:inline-block;font-size:<?=$arParams['PROPS']['HEADING_FONT_SIZE']?>px;color:#<?=$arParams['PROPS']['HEADING_FONT_COLOR']?>;<? if ($arParams['PROPS']['PRESET']==1 || $arParams['PROPS']['PRESET']==4){echo 'background:rgba('.$arParams['PROPS']['HEADING_BG_COLOR'].');';}?>"><?=$headingText?></div>
+					<div id='text<?=$rnd?>'
+						 class="bx-advertisingbanner-text-title"
+						 data-fixfont="false"
+						 style="display:inline-block;font-size:<?=$arParams['PROPS']['HEADING_FONT_SIZE']?>px;color:#<?=$arParams['PROPS']['HEADING_FONT_COLOR']?>;<? if ($arParams['PROPS']['PRESET']==1 || $arParams['PROPS']['PRESET']==4){echo 'background:rgba('.$arParams['PROPS']['HEADING_BG_COLOR'].');';}?>"><?=$headingText?></div>
 				<? endif ?>
 
 				<? if ($arParams['PROPS']['ANNOUNCEMENT_SHOW'] == 'Y'): ?>
@@ -153,18 +156,6 @@ else
 	<? /* if ($arParams['PROPS']['LINK_URL'] != '' && !isset($arParams['PREVIEW'])): ?>
 		</a>
 	<? endif */ ?>
-
-	<script>
-		var objList = [];
-		if (BX('text<?=$rnd?>'))
-			objList.push({node : BX('text<?=$rnd?>'), maxFontSize : <?=$arParams['PROPS']['HEADING_FONT_SIZE']?>, smallestValue : false});
-		<? if (!isset($arParams['PREVIEW'])): ?>
-			BX.FixFontSize.init({
-				objList : objList,
-				onresize : true
-			});
-		<? endif ?>
-	</script>
 </div>
 <? else: ?>
 	<? if ($arParams['CASUAL_PROPERTIES']['URL'] != '' && !isset($arParams['PREVIEW'])): ?>

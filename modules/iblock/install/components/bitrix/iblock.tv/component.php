@@ -31,7 +31,7 @@ $arParams["CACHE_TIME"] = isset($arParams["CACHE_TIME"])
 	?intval($arParams["CACHE_TIME"])
 	:3600;
 $arParams["SORT_BY1"] = trim($arParams["SORT_BY1"]);
-if(strlen($arParams["SORT_BY1"])<=0)
+if($arParams["SORT_BY1"] == '')
 	$arParams["SORT_BY1"] = 'SORT';
 if(!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["SORT_ORDER1"]))
 	$arParams["SORT_ORDER1"]='DESC';
@@ -43,11 +43,11 @@ $arParams["STAT_EVENT"] = $arParams["STAT_EVENT"] === "Y";
 if($arParams["STAT_EVENT"])
 {
 	$arParams["STAT_EVENT1"] = trim($arParams["STAT_EVENT1"]);
-	if(strlen($arParams["STAT_EVENT1"]) <= 0)
+	if($arParams["STAT_EVENT1"] == '')
 		$arParams["STAT_EVENT1"] = "player";
 
 	$arParams["STAT_EVENT2"] = trim($arParams["STAT_EVENT2"]);
-	if(strlen($arParams["STAT_EVENT2"]) <= 0)
+	if($arParams["STAT_EVENT2"] == '')
 		$arParams["STAT_EVENT2"] = "start_playing";
 }
 else
@@ -79,7 +79,7 @@ $arFilter = array(
 	"ACTIVE" => 'Y',
 	"IBLOCK_ACTIVE" => 'Y',
 );
-if(strlen($arParams["IBLOCK_TYPE"])>0)
+if($arParams["IBLOCK_TYPE"] <> '')
 	$arFilter["IBLOCK_TYPE"] = $arParams["IBLOCK_TYPE"];
 if($arParams["SECTION_ID"]>0)
 	$arFilter["SECTION_ID"] = $arParams["SECTION_ID"];
@@ -209,7 +209,7 @@ if($this->StartResultCache(false, array(($arParams["CACHE_GROUPS"]==="N"? false:
 			if($FileSize <= 0)
 				$FileSize = "";
 
-			$ext = strtolower(substr($PathToFile, -4));
+			$ext = mb_strtolower(mb_substr($PathToFile, -4));
 			if($ext == ".wmv" || $ext == ".wma")
 				$FileType = "wmv";
 			else
@@ -224,7 +224,7 @@ if($this->StartResultCache(false, array(($arParams["CACHE_GROUPS"]==="N"? false:
 
 			$FileSize = "";
 
-			$ext = strtolower(substr($PathToFile, -4));
+			$ext = mb_strtolower(mb_substr($PathToFile, -4));
 			if($ext == ".wmv" || $ext == "wma")
 				$FileType = "wmv";
 			else
@@ -241,7 +241,7 @@ if($this->StartResultCache(false, array(($arParams["CACHE_GROUPS"]==="N"? false:
 		if (!$arResult['FIRST_WMV_ITEM'] && $FileType == 'wmv')
 			$arResult['FIRST_WMV_ITEM'] = $PathToFile;
 
-		if (strpos($_SERVER['HTTP_HOST'], 'xn--') !== false) // It's cyrilyc site
+		if (mb_strpos($_SERVER['HTTP_HOST'], 'xn--') !== false) // It's cyrilyc site
 		{
 			$PathToFile = CHTTP::URN2URI($PathToFile);
 		}

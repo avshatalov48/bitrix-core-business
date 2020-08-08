@@ -4,7 +4,7 @@ if ($arResult["NEED_AUTH"] == "Y")
 {
 	$APPLICATION->AuthForm("");
 }
-elseif (strlen($arResult["FatalError"]) > 0)
+elseif ($arResult["FatalError"] <> '')
 {
 	?>
 	<span class='errortext'><?=$arResult["FatalError"]?></span><br /><br />
@@ -12,7 +12,7 @@ elseif (strlen($arResult["FatalError"]) > 0)
 }
 else
 {
-	if(strlen($arResult["ErrorMessage"])>0)
+	if($arResult["ErrorMessage"] <> '')
 	{
 		?>
 		<span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br />
@@ -170,7 +170,7 @@ else
 			&& array_key_exists("RatingMultiple", $arResult)
 		)
 			$arDesktopParams["G_SONET_USER_DESC_RATING_MULTIPLE"] = $arResult["RatingMultiple"];
-		elseif (IntVal($arParams["RATING_ID"]) > 0 && array_key_exists("Rating", $arResult))
+		elseif (intval($arParams["RATING_ID"]) > 0 && array_key_exists("Rating", $arResult))
 		{
 			$arDesktopParams["G_SONET_USER_DESC_RATING_NAME"] = $arResult["Rating"]["NAME"];
 			$arDesktopParams["G_SONET_USER_DESC_RATING_VALUE"] = $arResult["User"]["RATING_".$arParams["RATING_ID"]."_CURRENT_VALUE"];

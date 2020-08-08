@@ -6,13 +6,13 @@
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
-if(strlen($arResult["FatalError"])>0)
+if($arResult["FatalError"] <> '')
 {
 	?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?
 }
 else
 {
-	if(strlen($arResult["ErrorMessage"])>0)
+	if($arResult["ErrorMessage"] <> '')
 	{
 		?><span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br /><?
 	}
@@ -22,8 +22,8 @@ else
 		".default",
 		array(
 			"PATH_TO_GROUP" => $arParams["PATH_TO_GROUP"],
-			"PATH_TO_GROUP_EDIT" => htmlspecialcharsback($arResult["Urls"]["Edit"]).(strpos($arResult["Urls"]["Edit"], "?") === false ? "?" : "&")."tab=edit",
-			"PATH_TO_GROUP_INVITE" => htmlspecialcharsback($arResult["Urls"]["Edit"]).(strpos($arResult["Urls"]["Edit"], "?") === false ? "?" : "&")."tab=invite",
+			"PATH_TO_GROUP_EDIT" => htmlspecialcharsback($arResult["Urls"]["Edit"]).(mb_strpos($arResult["Urls"]["Edit"], "?") === false ? "?" : "&")."tab=edit",
+			"PATH_TO_GROUP_INVITE" => htmlspecialcharsback($arResult["Urls"]["Edit"]).(mb_strpos($arResult["Urls"]["Edit"], "?") === false ? "?" : "&")."tab=invite",
 			"ON_GROUP_ADDED" => "BX.DoNothing",
 			"ON_GROUP_CHANGED" => "BX.DoNothing",
 			"ON_GROUP_DELETED" => "BX.DoNothing"

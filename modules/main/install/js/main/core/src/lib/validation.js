@@ -1,3 +1,6 @@
+/**
+ * @memberOf BX
+ */
 export default class Validation
 {
 	/**

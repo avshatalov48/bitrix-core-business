@@ -121,12 +121,13 @@ class User
 	 * Return access instance.
 	 *
 	 * @return Access
+	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public function getAccess()
 	{
 		if (!$this->access)
 		{
-			$this->access = new Access($this);
+			$this->access = Access::getInstance($this);
 		}
 
 		return $this->access;

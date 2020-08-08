@@ -19,12 +19,12 @@ $tmp_site_id = (
 
 if ($tmp_site_id)
 {
-	$tmp_site_id = substr(preg_replace("/[^a-z0-9_]/i", "", $tmp_site_id), 0, 2);
+	$tmp_site_id = mb_substr(preg_replace("/[^a-z0-9_]/i", "", $tmp_site_id), 0, 2);
 
 	$dbSite = CSite::GetByID($tmp_site_id);
 	if ($arSite = $dbSite->Fetch())
 	{
-		$site_dir = (strlen($arSite["DIR"]) > 0 ? trim($arSite["DIR"]) : "/");
+		$site_dir = ($arSite["DIR"] <> '' ? trim($arSite["DIR"]) : "/");
 	}
 
 	$dbSiteTemplate = CSite::GetTemplateList($tmp_site_id);
@@ -43,7 +43,7 @@ $userProp = array();
 if (!empty($arRes))
 {
 	foreach ($arRes as $key => $val)
-		$userProp[$val["FIELD_NAME"]] = (strLen($val["EDIT_FORM_LABEL"]) > 0 ? $val["EDIT_FORM_LABEL"] : $val["FIELD_NAME"]);
+		$userProp[$val["FIELD_NAME"]] = ($val["EDIT_FORM_LABEL"] <> '' ? $val["EDIT_FORM_LABEL"] : $val["FIELD_NAME"]);
 }
 
 $userPropEdit = $userProp1 = CSocNetUser::GetFields(true);
@@ -1019,7 +1019,7 @@ if(CModule::IncludeModule("iblock"))
 			"PARENT" => "WEBDAV_SETTINGS",
 			"NAME" => str_replace("#upload_max_filesize#", ini_get('upload_max_filesize'), GetMessage("SONET_UPLOAD_MAX_FILESIZE")),
 			"TYPE" => "STRING",
-			"DEFAULT" => intVal(ini_get('upload_max_filesize')));
+			"DEFAULT" => intval(ini_get('upload_max_filesize')));
 		$arComponentParameters["PARAMETERS"]["FILES_UPLOAD_MAX_FILE"] = array(
 			"PARENT" => "WEBDAV_SETTINGS",
 			"NAME" => GetMessage("SONET_UPLOAD_MAX_FILE"),
@@ -1045,8 +1045,8 @@ if(CModule::IncludeModule("iblock"))
 					{
 						do
 						{
-							$arForum[intVal($res["ID"])] = $res["NAME"];
-							$fid = intVal($res["ID"]);
+							$arForum[intval($res["ID"])] = $res["NAME"];
+							$fid = intval($res["ID"]);
 						}while ($res = $db_res->GetNext());
 					}
 				}
@@ -1277,7 +1277,7 @@ if (CModule::IncludeModule("forum"))
 		while (($file = readdir($directory)) !== false)
 		{
 			if ($file != "." && $file != ".." && is_dir($dir.$file))
-				$arThemes[$file] = (!empty($arThemesMessages[$file]) ? $arThemesMessages[$file] : strtoupper(substr($file, 0, 1)).strtolower(substr($file, 1)));
+				$arThemes[$file] = (!empty($arThemesMessages[$file]) ? $arThemesMessages[$file] : mb_strtoupper(mb_substr($file, 0, 1)).mb_strtolower(mb_substr($file, 1)));
 		}
 		closedir($directory);
 	endif;
@@ -1634,7 +1634,7 @@ if(!empty($arIBlockType) || CModule::IncludeModule("iblock"))
 			"PARENT" => "PHOTO_SETTINGS",
 			"NAME" => str_replace("#upload_max_filesize#", ini_get('upload_max_filesize'), GetMessage("SONET_UPLOAD_MAX_FILESIZE")),
 			"TYPE" => "STRING",
-			"DEFAULT" => intVal(ini_get('upload_max_filesize')));
+			"DEFAULT" => intval(ini_get('upload_max_filesize')));
 
 		$arComponentParameters["PARAMETERS"]["PHOTO_USE_RATING"] = array(
 			"PARENT" => "PHOTO_SETTINGS",
@@ -1742,8 +1742,8 @@ if(!empty($arIBlockType) || CModule::IncludeModule("iblock"))
 						{
 							do
 							{
-								$arForum[intVal($res["ID"])] = $res["NAME"];
-								$fid = intVal($res["ID"]);
+								$arForum[intval($res["ID"])] = $res["NAME"];
+								$fid = intval($res["ID"]);
 							}while ($res = $db_res->GetNext());
 						}
 					}
@@ -1945,19 +1945,19 @@ if (is_dir($dir) && $directory = opendir($dir)):
 	while (($file = readdir($directory)) !== false)
 	{
 		if ($file != "." && $file != ".." && is_dir($dir.$file))
-			$arSMThemes[$file] = (!empty($arSMThemesMessages[$file]) ? $arSMThemesMessages[$file] : strtoupper(substr($file, 0, 1)).strtolower(substr($file, 1)));
+			$arSMThemes[$file] = (!empty($arSMThemesMessages[$file]) ? $arSMThemesMessages[$file] : mb_strtoupper(mb_substr($file, 0, 1)).mb_strtolower(mb_substr($file, 1)));
 	}
 	closedir($directory);
 endif;
 
-if (strpos($site_template, "bright") === 0)
+if (mb_strpos($site_template, "bright") === 0)
 {
 	$DefaultSMTheme = "grey";
 }
 else
 {
 	$theme_id = ($tmp_site_id && CModule::IncludeModule('extranet') && CExtranet::IsExtranetSite($tmp_site_id) ? COption::GetOptionString("main", "wizard_".$site_template."_theme_id_extranet") : COption::GetOptionString("main", "wizard_".$site_template."_theme_id"));
-	$DefaultSMTheme = (strlen($theme_id) > 0 ? $theme_id : "grey");
+	$DefaultSMTheme = ($theme_id <> '' ? $theme_id : "grey");
 }
 
 $arComponentParameters["PARAMETERS"]["SM_THEME"] = Array(

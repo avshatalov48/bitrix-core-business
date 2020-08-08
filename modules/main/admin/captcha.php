@@ -217,9 +217,6 @@ if($REQUEST_METHOD=="POST" && (strlen($save)>0 || strlen($apply)>0) && check_bit
 
 if(strlen($Preview) > 0)
 {
-	if(CModule::IncludeModule("compression"))
-		CCompress::Disable2048Spaces();
-
 	$cpt = new CCaptcha();
 
 	$result = array();

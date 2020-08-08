@@ -1,5 +1,7 @@
 import Type from '../type';
 import Runtime from '../runtime';
+import EventEmitter from '../event/event-emitter';
+import BaseEvent from '../event/base-event';
 
 type messageParam = string | {[key: string]: string | number};
 
@@ -10,12 +12,10 @@ export default function message(value: messageParam): string | boolean | void
 		if (Type.isNil(message[value]))
 		{
 			// eslint-disable-next-line
-			BX.onCustomEvent(window, 'onBXMessageNotFound', [value]);
+			EventEmitter.emit('onBXMessageNotFound', new BaseEvent({ compatData: [value] }));
 
 			if (Type.isNil(message[value]))
 			{
-				// eslint-disable-next-line
-				BX.onCustomEvent(window, 'onBXMessageNotFound', [value]);
 				Runtime.debug(`message undefined: ${value}`);
 				message[value] = '';
 			}

@@ -4,6 +4,7 @@ $MESS["BIZPROC_AUTOMATION_CMP_ROBOT_LIST"] = "Роботы";
 $MESS["BIZPROC_AUTOMATION_CMP_PARAMETERS_LIST"] = "Параметры";
 $MESS["BIZPROC_AUTOMATION_CMP_CONSTANTS_LIST"] = "Константы";
 $MESS["BIZPROC_AUTOMATION_CMP_GLOB_CONSTANTS_LIST"] = "Глобальные константы";
+$MESS["BIZPROC_AUTOMATION_CMP_FILES_LINKS"] = "Ссылка на файл";
 $MESS["BIZPROC_AUTOMATION_CMP_SAVE"] = "Сохранить";
 $MESS["BIZPROC_AUTOMATION_CMP_CANCEL"] = "Отмена";
 $MESS["BIZPROC_AUTOMATION_CMP_COPY"] = "копировать";
@@ -122,4 +123,8 @@ $MESS["BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT_LOCKED"] = "Редактирован
 Подробнее о тарифах и их возможностях вы можете узнать <a href=\"https://www.bitrix24.ru/prices/index.php\">здесь</a>.";
 $MESS["BIZPROC_AUTOMATION_NOT_SELECTED"] = "[не установлено]";
 $MESS["BIZPROC_AUTOMATION_NO_FIELDS"] = "Нет подходящих полей";
+$MESS["BIZPROC_AUTOMATION_ROBOTS_LIMIT_ALERT_TITLE"] = "Внимание!";
+$MESS["BIZPROC_AUTOMATION_ROBOTS_LIMIT_MAIN_ALERT"] = "На Вашем тарифе установлено ограничение по количеству настраиваемых роботов и триггеров. Доступно <strong>#LIMIT#</strong> (суммарно)";
+$MESS["BIZPROC_AUTOMATION_ROBOTS_LIMIT_SAVE_ALERT"] = "На вашем тарифном плане доступно только <b>#LIMIT#</b> роботов и триггеров.<br><br> Сейчас у вас настроено: <b>#SUM#</b><br><br>Удалите часть роботов и попробуйте сохранить изменения снова.";
+$MESS["BIZPROC_AUTOMATION_CLOSE_CAPTION"] = "Закрыть";
 ?>

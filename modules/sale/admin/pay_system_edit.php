@@ -1,4 +1,5 @@
-<?
+<?php
+use Bitrix\Sale;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Application;
 use Bitrix\Sale\Internals\PaySystemActionTable;
@@ -128,7 +129,7 @@ if ($server->getRequestMethod() == "POST"
 	}
 
 	// temp crutch because of CSalePdf does not support all images
-	if (strpos($actionFile, 'bill') === 0)
+	if (mb_strpos($actionFile, 'bill') === 0)
 	{
 		$consumer = $isNewSystem ? 'PAYSYSTEM_NEW' : 'PAYSYSTEM_'.$id;
 
@@ -208,9 +209,8 @@ if ($server->getRequestMethod() == "POST"
 		$path = PaySystem\Manager::getPathToHandlerFolder($actionFile);
 		if (\Bitrix\Main\IO\File::isFileExists($documentRoot.$path.'/handler.php'))
 		{
-			require_once $documentRoot.$path.'/handler.php';
+			list($className) = PaySystem\Manager::includeHandler($actionFile);
 
-			$className = PaySystem\Manager::getClassNameFromPath($path);
 			$fields['HAVE_PAYMENT'] = 'Y';
 
 			if (is_subclass_of($className, '\Bitrix\Sale\PaySystem\IPrePayable'))
@@ -245,9 +245,7 @@ if ($server->getRequestMethod() == "POST"
 			{
 				if (\Bitrix\Main\IO\File::isFileExists($documentRoot.$path.'/handler.php'))
 				{
-					require_once $documentRoot.$path.'/handler.php';
-
-					$className = PaySystem\Manager::getClassNameFromPath($actionFile);
+					list($className) = PaySystem\Manager::includeHandler($actionFile);
 					$fields["TARIF"] = $className::prepareToField($request->get('TARIF'));
 				}
 			}
@@ -258,6 +256,11 @@ if ($server->getRequestMethod() == "POST"
 		}
 
 		$isConsumerChange = $request->get('ACTION_FILE') != $request->get('PRIOR_ACTION_FILE');
+		if (!$isConsumerChange)
+		{
+			$isConsumerChange = $request->get('PS_MODE') != $request->get('PRIOR_PS_MODE');
+		}
+
 		$file = $request->getFile('LOGOTIP');
 
 		if ($file !== null && $file["error"] == 0)
@@ -308,7 +311,7 @@ if ($server->getRequestMethod() == "POST"
 			}
 		}
 
-		$data = PaySystem\Manager::getHandlerDescription($request->get('ACTION_FILE'));
+		$data = PaySystem\Manager::getHandlerDescription($request->get('ACTION_FILE'), $request->get('PS_MODE'));
 
 		if ($id > 0)
 		{
@@ -386,7 +389,7 @@ if ($server->getRequestMethod() == "POST"
 	{
 		if ($adminSidePanelHelper->isAjaxRequest())
 		{
-			if (strlen($request->get('apply')) > 0)
+			if ($request->get('apply') <> '')
 			{
 				$adminSidePanelHelper->sendSuccessResponse("apply", array("ID" => $id, "reloadUrl" =>
 					$selfFolderUrl."sale_pay_system_edit.php?ID=".$id."&lang=".$context->getLanguage().
@@ -399,7 +402,7 @@ if ($server->getRequestMethod() == "POST"
 		}
 		else
 		{
-			if (strlen($request->get('apply')) > 0)
+			if ($request->get('apply') <> '')
 			{
 				$applyUrl = $selfFolderUrl."sale_pay_system_edit.php?lang=".$context->getLanguage()."&ID=".$id."&".$tabControl->ActiveTabParam();
 				$applyUrl = $adminSidePanelHelper->setDefaultQueryParams($applyUrl);
@@ -566,7 +569,7 @@ $tabControl->BeginNextTab();
 				foreach($handlerList['USER'] as $handler => $title)
 				{
 					// for B24
-					if (strpos($handler, 'quote_') !== false)
+					if (mb_strpos($handler, 'quote_') !== false)
 					{
 						unset($handlerList['USER'][$handler]);
 					}
@@ -606,7 +609,7 @@ $tabControl->BeginNextTab();
 								)
 								|| (
 									IsModuleInstalled('documentgenerator')
-									&& strpos($handler, 'bill') === 0
+									&& mb_strpos($handler, 'bill') === 0
 									&& ToLower($handlerName) !== ToLower($handler)
 								)
 							)
@@ -621,6 +624,7 @@ $tabControl->BeginNextTab();
 				</optgroup>
 			</select>
 			<input type="hidden" value="<?=htmlspecialcharsbx($paySystem['ACTION_FILE'])?>" name="PRIOR_ACTION_FILE">
+			<input type="hidden" value="<?=htmlspecialcharsbx($paySystem['PS_MODE'])?>" name="PRIOR_PS_MODE">
 		</td>
 	</tr>
 	<tbody id="pay_system_ps_mode">
@@ -628,20 +632,13 @@ $tabControl->BeginNextTab();
 		$psMode = ($request->get('PS_MODE') !== null) ? $request->get('PS_MODE') : $paySystem['PS_MODE'];
 
 		/** @var PaySystem\BaseServiceHandler $className */
-		$className = PaySystem\Manager::getClassNameFromPath($handlerName);
-		if (!class_exists($className))
-		{
-			$path = PaySystem\Manager::getPathToHandlerFolder($handler);
-			$fullPath = $documentRoot.$path.'/handler.php';
-			if ($path && \Bitrix\Main\IO\File::isFileExists($fullPath))
-				require_once $fullPath;
-		}
+		list($className) = PaySystem\Manager::includeHandler($handlerName);
 
 		$handlerModeList = array();
 		if (class_exists($className))
 			$handlerModeList = $className::getHandlerModeList();
 
-		$isOrderDocument = strpos($handlerName, 'orderdocument') === 0;
+		$isOrderDocument = mb_strpos($handlerName, 'orderdocument') === 0;
 		if ($handlerModeList || $isOrderDocument):?>
 			<tr>
 				<?
@@ -876,6 +873,34 @@ $tabControl->BeginNextTab();
 			<input type="text" name="XML_ID" value="<?=htmlspecialcharsbx($xmlId);?>" size="40">
 		</td>
 	</tr>
+
+	<?php
+	$entityName = $handlerName;
+	if ($psMode)
+	{
+		$entityName .= $psMode;
+	}
+	$needVerification = PaySystem\Domain\Verification\Manager::needVerification($entityName);
+	?>
+	<tbody id="pay_system_validation_domain" <?=($needVerification ? "" : "style='display:none;'")?>>
+		<tr>
+			<td colspan="2" align="center" class="heading"><?=Loc::getMessage("SPS_VALIDATION_DOMAIN_HEAD")?></td>
+		</tr>
+		<tr>
+			<?php
+			$domainVerificationFormUrl = \CComponentEngine::makeComponentPath('bitrix:sale.domain.verification.form');
+			$domainVerificationFormUrl = getLocalPath('components'.$domainVerificationFormUrl.'/slider.php');
+			$domainVerificationFormUrl = new \Bitrix\Main\Web\Uri($domainVerificationFormUrl);
+			$domainVerificationFormUrl->addParams([
+				'analyticsLabel' => 'paySystemDomainVerification',
+				'entity' => $entityName,
+				'manager' => PaySystem\Domain\Verification\Manager::class,
+			]);
+			?>
+			<td><?=Loc::getMessage("SPS_VALIDATION_DOMAIN_VALIDATION")?></td>
+			<td><a href="javascript:void(0);" id="domain-verification-link" onclick="BX.Sale.PaySystem.openVerificationForm('<?=$domainVerificationFormUrl?>')"><?=Loc::getMessage("SPS_VALIDATION_DOMAIN_FORM")?></a></td>
+		</tr>
+	</tbody>
 	<tr>
 		<td colspan="2" align="center" class="heading">
 			<?=Loc::getMessage('SALE_PSE_BIS_VAL_SETTINGS')?>
@@ -982,8 +1007,10 @@ $tabControl->BeginNextTab();
 							<td colspan="2" style="padding-top: 10px" align="center">
 								<?
 								$message = Loc::getMessage('SALE_PS_RETURN_SETTINGS_YANDEX');
-								if (strpos($message, "/bitrix/admin/"))
+								if(mb_strpos($message, "/bitrix/admin/"))
+								{
 									$message = str_replace("/bitrix/admin/", $selfFolderUrl, $message);
+								}
 								echo $message;
 								$message = $adminSidePanelHelper->editUrlToPublicPage($message);
 								?>
@@ -1014,16 +1041,20 @@ $tabControl->BeginNextTab();
 								if ($yandexInvoiceSettings && $yandexInvoiceSettings['PKEY'] && $yandexInvoiceSettings['PUB_KEY'])
 								{
 									$message = Loc::getMessage('SALE_PSE_YANDEX_INVOICE_SETTINGS_OK', array('#ID#' => $id));
-									if (strpos($message, "/bitrix/admin/"))
+									if(mb_strpos($message, "/bitrix/admin/"))
+									{
 										$message = str_replace("/bitrix/admin/", $selfFolderUrl, $message);
+									}
 									$message = $adminSidePanelHelper->editUrlToPublicPage($message);
 									echo $message;
 								}
 								else
 								{
 									$message = Loc::getMessage('SALE_PSE_YANDEX_INVOICE_SETTINGS', array('#ID#' => $id));
-									if (strpos($message, "/bitrix/admin/"))
+									if(mb_strpos($message, "/bitrix/admin/"))
+									{
 										$message = str_replace("/bitrix/admin/", $selfFolderUrl, $message);
+									}
 									$message = $adminSidePanelHelper->editUrlToPublicPage($message);
 									echo $message;
 								}

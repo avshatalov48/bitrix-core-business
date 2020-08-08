@@ -18,11 +18,11 @@ $bVarsFromForm = false;
 
 ClearVars();
 
-if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions >= "U" && check_bitrix_sessid())
+if ($REQUEST_METHOD=="POST" && $Update <> '' && $saleModulePermissions >= "U" && check_bitrix_sessid())
 {
 	$adminSidePanelHelper->decodeUriComponent();
 
-	$USER_ID = IntVal($USER_ID);
+	$USER_ID = intval($USER_ID);
 	if ($USER_ID <= 0)
 		$errorMessage .= GetMessage("STE_EMPTY_USER").".<br>";
 
@@ -32,14 +32,14 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions >= "U
 		$errorMessage .= GetMessage("STE_EMPTY_SUM").".<br>";
 
 	$CURRENCY = Trim($CURRENCY);
-	if (strlen($CURRENCY) <= 0)
+	if ($CURRENCY == '')
 		$errorMessage .= GetMessage("STE_EMPTY_CURRENCY").".<br>";
 
 	$DEBIT = (($DEBIT == "Y") ? "Y" : "N");
 
-	if (strlen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
-		if (!CSaleUserAccount::UpdateAccount($USER_ID, (($DEBIT == "Y") ? $AMOUNT : -$AMOUNT), $CURRENCY, "MANUAL", IntVal($ORDER_ID), $NOTES))
+		if (!CSaleUserAccount::UpdateAccount($USER_ID, (($DEBIT == "Y") ? $AMOUNT : -$AMOUNT), $CURRENCY, "MANUAL", intval($ORDER_ID), $NOTES))
 		{
 			if ($ex = $APPLICATION->GetException())
 				$errorMessage .= $ex->GetString().".<br>";
@@ -48,7 +48,7 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions >= "U
 		}
 	}
 
-	if (strlen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
 		$adminSidePanelHelper->sendSuccessResponse("base");
 		$adminSidePanelHelper->localRedirect($listUrl);
@@ -83,7 +83,7 @@ $context = new CAdminContextMenu($aMenu);
 $context->Show();
 ?>
 
-<?if(strlen($errorMessage)>0)
+<?if($errorMessage <> '')
 	echo CAdminMessage::ShowMessage(Array("DETAILS"=>$errorMessage, "TYPE"=>"ERROR", "MESSAGE"=>GetMessage("STE_ERROR"), "HTML"=>true));?>
 
 <?

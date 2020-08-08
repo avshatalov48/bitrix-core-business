@@ -53,7 +53,7 @@ if (!function_exists("__get_export_profiles"))
 				$rsProfiles = CCatalogExport::GetList(array("NAME"=>"ASC", "ID"=>"ASC"), array("IN_MENU"=>"Y"));
 				while ($arProfile = $rsProfiles->Fetch())
 				{
-					$strName = (strlen($arProfile["NAME"]) > 0 ? $arProfile["NAME"] : $arProfile["FILE_NAME"]);
+					$strName = ($arProfile["NAME"] <> '' ? $arProfile["NAME"] : $arProfile["FILE_NAME"]);
 					if ('Y' == $arProfile['DEFAULT_PROFILE'])
 					{
 						$arProfileList[] = array(
@@ -106,7 +106,7 @@ if (!function_exists("__get_import_profiles"))
 				$rsProfiles = CCatalogImport::GetList(array("NAME"=>"ASC", "ID"=>"ASC"), array("IN_MENU"=>"Y"));
 				while ($arProfile = $rsProfiles->Fetch())
 				{
-					$strName = (strlen($arProfile["NAME"]) > 0 ? $arProfile["NAME"] : $arProfile["FILE_NAME"]);
+					$strName = ($arProfile["NAME"] <> '' ? $arProfile["NAME"] : $arProfile["FILE_NAME"]);
 					if ('Y' == $arProfile['DEFAULT_PROFILE'])
 					{
 						$arProfileList[] = array(

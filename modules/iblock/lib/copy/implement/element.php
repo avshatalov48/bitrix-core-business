@@ -89,9 +89,9 @@ class Element extends CopyImplementer
 
 		foreach ($inputFields as $fieldId => $fieldValue)
 		{
-			if (substr($fieldId, 0, 9) == "PROPERTY_")
+			if (mb_substr($fieldId, 0, 9) == "PROPERTY_")
 			{
-				$propertyId = substr($fieldId, strlen("PROPERTY_"));
+				$propertyId = mb_substr($fieldId, mb_strlen("PROPERTY_"));
 				$fields["PROPERTY_VALUES"][$propertyId] = $this->getPropertyFieldValue(
 					$container, $fieldId, $fieldValue);
 			}
@@ -151,7 +151,7 @@ class Element extends CopyImplementer
 
 	private function getPropertyFieldValue(Container $container, $fieldId, $fieldValue)
 	{
-		$propertyId = substr($fieldId, strlen("PROPERTY_"));
+		$propertyId = mb_substr($fieldId, mb_strlen("PROPERTY_"));
 		$fieldValue = (is_array($fieldValue) ? $fieldValue : [$fieldValue]);
 
 		$queryObject = \CIBlockProperty::getList([], ["ID" => $propertyId]);
@@ -220,7 +220,7 @@ class Element extends CopyImplementer
 		{
 			foreach ($inputValue as $value)
 			{
-				if (array_key_exists($value, $enumRatio))
+				if ($value && array_key_exists($value, $enumRatio))
 				{
 					$values[] = $enumRatio[$value];
 				}

@@ -291,7 +291,7 @@ class OrderBasketShipment extends OrderBasket
 				elseif (!isset($params["MEASURE_CODE"]))
 					$params["MEASURE_CODE"] = 0;
 
-				if(strlen($basketItem->getField("MEASURE_NAME")) > 0)
+				if($basketItem->getField("MEASURE_NAME") <> '')
 					$params["MEASURE_TEXT"] = $basketItem->getField("MEASURE_NAME");
 				elseif(!isset($params["MEASURE_TEXT"]))
 					$params["MEASURE_TEXT"] = "";
@@ -710,7 +710,7 @@ class OrderBasketShipment extends OrderBasket
 						{
 							foreach ($item['BARCODE'] as $barcode)
 							{
-								if(self::$useStoreControl && ($barcodeCount >= $item['QUANTITY']))
+								if(self::$useStoreControl && ($barcodeCount >= $items['QUANTITY']))
 								{
 									break;
 								}

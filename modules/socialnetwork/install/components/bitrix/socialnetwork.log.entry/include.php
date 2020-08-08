@@ -175,7 +175,7 @@ if (!function_exists('__SLEGetLogRecord'))
 			{
 				if (
 					!is_array($arEvent["FIELDS_FORMATTED"]["CACHED_CSS_PATH"])
-					&& strlen($arEvent["FIELDS_FORMATTED"]["CACHED_CSS_PATH"]) > 0
+					&& $arEvent["FIELDS_FORMATTED"]["CACHED_CSS_PATH"] <> ''
 				)
 				{
 					$APPLICATION->SetAdditionalCSS($arEvent["FIELDS_FORMATTED"]["CACHED_CSS_PATH"]);
@@ -290,7 +290,7 @@ if (!function_exists('__SLEGetLogRecord'))
 							IsModuleInstalled("extranet")
 							|| (
 								is_set($arEvent["URL"])
-								&& (strpos($arEvent["URL"], "#GROUPS_PATH#") !== false)
+								&& (mb_strpos($arEvent["URL"], "#GROUPS_PATH#") !== false)
 							)
 						)
 					)
@@ -561,12 +561,12 @@ if (!function_exists('__SLEGetLogRecord'))
 						)
 						),
 						(
-						stripos($arParams["DATE_TIME_FORMAT"], 'a')
+						mb_stripos($arParams["DATE_TIME_FORMAT"], 'a')
 						|| (
 							$arParams["DATE_TIME_FORMAT"] == 'FULL'
 							&& IsAmPmMode()
 						) !== false
-							? (strpos(FORMAT_DATETIME, 'TT')!==false ? 'H:MI TT' : 'H:MI T')
+							? (mb_strpos(FORMAT_DATETIME, 'TT') !== false ? 'H:MI TT' : 'H:MI T')
 							: 'HH:MI'
 						)
 					);
@@ -606,9 +606,9 @@ if (!function_exists('__SLEGetLogRecord'))
 					}
 
 					$arEvent["MESSAGE_FORMAT"] = htmlspecialcharsback($arEvent["MESSAGE"]);
-					if (StrLen($arEvent["CALLBACK_FUNC"]) > 0)
+					if ($arEvent["CALLBACK_FUNC"] <> '')
 					{
-						if (StrLen($arEvent["MODULE_ID"]) > 0)
+						if ($arEvent["MODULE_ID"] <> '')
 							CModule::IncludeModule($arEvent["MODULE_ID"]);
 
 						$arEvent["MESSAGE_FORMAT"] = call_user_func($arEvent["CALLBACK_FUNC"], $arEvent);
@@ -743,7 +743,7 @@ if (!function_exists('__SLEGetLogRecord'))
 					$feature
 					&& $arCommentEvent
 					&& array_key_exists("OPERATION_ADD", $arCommentEvent)
-					&& strlen($arCommentEvent["OPERATION_ADD"]) > 0
+					&& $arCommentEvent["OPERATION_ADD"] <> ''
 				)
 				{
 					LogList::$canCurrentUserAddComments[$array_key] = (
@@ -905,7 +905,7 @@ if (!function_exists('__SLEGetLogRecord'))
 
 		if (
 			$arParams["SHOW_RATING"] == "Y"
-			&& strlen($arEvent["FIELDS_FORMATTED"]["EVENT"]["RATING_TYPE_ID"]) > 0
+			&& $arEvent["FIELDS_FORMATTED"]["EVENT"]["RATING_TYPE_ID"] <> ''
 			&& intval($arEvent["FIELDS_FORMATTED"]["EVENT"]["RATING_ENTITY_ID"]) > 0
 		)
 		{
@@ -945,12 +945,12 @@ if (!function_exists('__SLEGetLogCommentRecord'))
 
 		$timeFormated = FormatDateFromDB($arComment["LOG_DATE"],
 			(
-				stripos($arParams["DATE_TIME_FORMAT"], 'a')
-				|| (
-					$arParams["DATE_TIME_FORMAT"] == 'FULL'
-					&& IsAmPmMode()
-				) !== false
-					? (strpos(FORMAT_DATETIME, 'TT')!==false ? 'G:MI TT' : 'G:MI T')
+			mb_stripos($arParams["DATE_TIME_FORMAT"], 'a')
+			|| (
+				$arParams["DATE_TIME_FORMAT"] == 'FULL'
+				&& IsAmPmMode()
+			) !== false
+					? (mb_strpos(FORMAT_DATETIME, 'TT') !== false ? 'G:MI TT' : 'G:MI T')
 					: 'HH:MI'
 			)
 		);
@@ -1153,7 +1153,7 @@ if (!function_exists('__SLEGetLogCommentRecord'))
 				'cache' => true
 			));
 
-			$arFIELDS_FORMATTED["EVENT_FORMATTED"]["FULL_MESSAGE_CUT"] = $commentAuxProvider->getText();
+			$arFIELDS_FORMATTED["EVENT_FORMATTED"]["FULL_MESSAGE_CUT"] = nl2br($commentAuxProvider->getText());
 		}
 		else
 		{
@@ -1165,7 +1165,7 @@ if (!function_exists('__SLEGetLogCommentRecord'))
 					: $arTmpCommentEvent["EVENT"]["MESSAGE"]
 			);
 
-			if (strlen($message) > 0)
+			if ($message <> '')
 			{
 				$arFIELDS_FORMATTED["EVENT_FORMATTED"]["FULL_MESSAGE_CUT"] = CSocNetTextParser::closetags(htmlspecialcharsback($message));
 			}
@@ -1322,7 +1322,7 @@ if (!function_exists('__SLEGetLogCommentRecord'))
 
 		foreach($arTmpCommentEvent["EVENT"] as $key => $value)
 		{
-			if (strpos($key, "~") === 0)
+			if (mb_strpos($key, "~") === 0)
 			{
 				unset($arTmpCommentEvent["EVENT"][$key]);
 			}

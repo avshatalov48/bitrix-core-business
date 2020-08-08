@@ -4,6 +4,7 @@ namespace Bitrix\Main\ORM\Query;
 
 use Bitrix\Main;
 use Bitrix\Main\ORM\Entity;
+use Bitrix\Main\ORM\Fields\ArrayField;
 use Bitrix\Main\ORM\Fields\BooleanField;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\ORM\Fields\Field;
@@ -370,6 +371,14 @@ class Query
 		}
 
 		return $this;
+	}
+
+	/**
+	 * @return Filter
+	 */
+	public function getFilterHandler()
+	{
+		return $this->filterHandler;
 	}
 
 	/**
@@ -1215,7 +1224,8 @@ class Query
 				}
 
 				// check for base linking
-				if ($dstField instanceof TextField && $dstEntity->hasField($dstField->getName().'_SINGLE'))
+				if (($dstField instanceof TextField || $dstField instanceof ArrayField)
+						&& $dstEntity->hasField($dstField->getName().'_SINGLE'))
 				{
 					$utmLinkField = $dstEntity->getField($dstField->getName().'_SINGLE');
 
@@ -2734,8 +2744,24 @@ class Query
 						// recursively collect all "build_from" fields
 						if ($chain->getLastElement()->getValue() instanceof ExpressionField)
 						{
-							$this->collectExprChains($chain);
-							$this->buildJoinMap($chain->getLastElement()->getValue()->getBuildFromChains());
+							// here could be one more check "First-level definitions only" for buildFrom elements
+							$buildFromChains = $this->collectExprChains($chain);
+
+							// set same talias to buildFrom elements
+							foreach ($buildFromChains as $buildFromChain)
+							{
+								if ($buildFromChain->getSize() > $chain->getSize())
+								{
+									throw new Main\ArgumentException(sprintf(
+										'Reference chain `%s` is not allowed here. First-level definitions only.',
+										$buildFromChain->getDefinition()
+									));
+								}
+
+								$buildFromChain->getLastElement()->setParameter('talias', $alias_ref);
+							}
+
+							$this->buildJoinMap($buildFromChains);
 						}
 
 						$field_def = $chain->getSqlDefinition();
@@ -2745,7 +2771,7 @@ class Query
 						throw new Main\SystemException(sprintf('Unknown reference value `%s`', $v));
 					}
 
-					$v = new \CSQLWhereExpression('?#', $field_def);
+					$v = new \CSQLWhereExpression($field_def);
 				}
 				else
 				{
@@ -2964,8 +2990,24 @@ class Query
 						// recursively collect all "build_from" fields
 						if ($chain->getLastElement()->getValue() instanceof ExpressionField)
 						{
-							$this->collectExprChains($chain);
-							$this->buildJoinMap($chain->getLastElement()->getValue()->getBuildFromChains());
+							// here could be one more check "First-level definitions only" for buildFrom elements
+							$buildFromChains = $this->collectExprChains($chain);
+
+							// set same talias to buildFrom elements
+							foreach ($buildFromChains as $buildFromChain)
+							{
+								if ($buildFromChain->getSize() > $chain->getSize())
+								{
+									throw new Main\ArgumentException(sprintf(
+										'Reference chain `%s` is not allowed here. First-level definitions only.',
+										$buildFromChain->getDefinition()
+									));
+								}
+
+								$buildFromChain->getLastElement()->setParameter('talias', $alias_ref);
+							}
+
+							$this->buildJoinMap($buildFromChains);
 						}
 
 						$v->setDefinition($absDefinition);
@@ -3052,6 +3094,7 @@ class Query
 	 * @param Chain $chain
 	 * @param array $storages
 	 *
+	 * @return Chain[]
 	 * @throws Main\SystemException
 	 */
 	protected function collectExprChains(Chain $chain, $storages = array('hidden'))
@@ -3061,6 +3104,7 @@ class Query
 
 		$pre_chain = clone $chain;
 		//$pre_chain->removeLastElement();
+		$scopedBuildFrom = [];
 
 		foreach ($bf_chains as $bf_chain)
 		{
@@ -3089,6 +3133,13 @@ class Query
 				$bf_chain->removeLastElement();
 				/** @var Chain $reg_chain */
 				$bf_chain->addElement($reg_chain->getLastElement());
+
+				// return buildFrom elements with original start of chain for this query
+				$scoped_bf_chain = clone $pre_chain;
+				$scoped_bf_chain->removeLastElement();
+				$scoped_bf_chain->addElement($reg_chain->getLastElement());
+
+				$scopedBuildFrom[] = $scoped_bf_chain;
 			}
 
 			// check elements to recursive collect hidden chains
@@ -3100,6 +3151,8 @@ class Query
 				}
 			}
 		}
+
+		return $scopedBuildFrom;
 	}
 
 	/**
@@ -3416,6 +3469,10 @@ class Query
 	public function __clone()
 	{
 		$this->entity = clone $this->entity;
+
+		$this->filterHandler = clone $this->filterHandler;
+		$this->whereHandler = clone $this->whereHandler;
+		$this->havingHandler = clone $this->havingHandler;
 
 		foreach ($this->select as $k => $v)
 		{

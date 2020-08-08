@@ -349,7 +349,6 @@ class Settings extends \Bitrix\Landing\Hook\Page
 			return $settings[$id];
 		}
 
-		$default = self::getComponentsParams();
 		$settings[$id] = array();
 
 		if ($id)
@@ -360,19 +359,15 @@ class Settings extends \Bitrix\Landing\Hook\Page
 			);
 		}
 
-		foreach ($default as $key => $item)
+		foreach (self::$defValues as $key => $defValue)
 		{
 			if (isset($hooks['SETTINGS'][$key]))
 			{
 				$settings[$id][$key] = $hooks['SETTINGS'][$key];
 			}
-			elseif (isset(self::$defValues[$key]))
-			{
-				$settings[$id][$key] = self::$defValues[$key];
-			}
 			else
 			{
-				$settings[$id][$key] = $item['VALUE'];
+				$settings[$id][$key] = $defValue;
 			}
 		}
 

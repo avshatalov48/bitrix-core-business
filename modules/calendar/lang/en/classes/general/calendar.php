@@ -235,7 +235,7 @@ $MESS["EC_EVENT_DUR_LOCK"] = "Lock Duration";
 $MESS["EC_EVENT_ERROR_DEL"] = "Error deleting the item.";
 $MESS["EC_EVENT_LENGTH"] = "Duration";
 $MESS["EC_EVENT_NOT_FOUND"] = "Error! The item was not found.";
-$MESS["EC_EVENT_REMINDER"] = "Reminder for event [B]#EVENT_NAME#[/B], [B]#DATE_FROM#[/B]";
+$MESS["EC_EVENT_REMINDER_1"] = "Reminder for event [url=#URL_VIEW#]#EVENT_NAME#[/url], #DATE_FROM#";
 $MESS["EC_EVENT_REMINDER_DETAIL"] = "[url=#URL_VIEW#]View Details[/url]";
 $MESS["EC_EVENT_REMINDER_IN_COMMON"] = "set in calendar \"#CALENDAR_NAME#\" (#IBLOCK_NAME#)";
 $MESS["EC_EVENT_REMINDER_IN_GROUP"] = "set in calendar \"#CALENDAR_NAME#\" of \"#GROUP_NAME#\"";
@@ -383,7 +383,7 @@ $MESS["EC_MOBILE_HELP_ANDROID"] = "<p>Follow these steps to sync your calendars 
 <li>Open the Settings > Account > Bitrix24 menu.
 If you still don't have a Bitrix24 account, add a new account selecting Bitrix24 from the list.
 <ul>
-	<li>Enter your Bitrix24 address in this format: <i>company.bitrix24.ru</i></li>
+	<li>Enter your Bitrix24 address in this format: <i>company.bitrix24.com</i></li>
 	<li>Enter your login (e-mail).</li>
 	<li>Enter your password.</li>
 </ul>
@@ -468,6 +468,7 @@ $MESS["EC_OPEN_MEETING_TITLE"] = "Attendance doesn't require approval";
 $MESS["EC_OPTION_SHOW_COMPLETED_TASKS"] = "Show completed tasks";
 $MESS["EC_OPTION_SHOW_DECLINED"] = "Show events you have declined";
 $MESS["EC_OPTION_SHOW_TASKS"] = "Show tasks";
+$MESS["EC_OPTION_SYNC_TASKS"] = "Sync task calendar";
 $MESS["EC_OUTL_BAN_ACT"] = "Connect";
 $MESS["EC_OUTL_BAN_CLOSE"] = "Close And Don't Show Again";
 $MESS["EC_OUTL_BAN_SEL_CAL"] = "Select Calendar";
@@ -508,14 +509,14 @@ $MESS["EC_REC_EV_NEXT"] = "This and all subsequent events";
 $MESS["EC_REC_EV_ONLY_THIS_EVENT"] = "Only this event";
 $MESS["EC_REINVITE"] = "Invite again";
 $MESS["EC_REMIND1_VIEW_0"] = "When event starts";
+$MESS["EC_REMIND1_VIEW_5"] = "5 minutes before";
 $MESS["EC_REMIND1_VIEW_10"] = "10 minutes before";
+$MESS["EC_REMIND1_VIEW_15"] = "15 minutes before";
+$MESS["EC_REMIND1_VIEW_30"] = "30 minutes before";
+$MESS["EC_REMIND1_VIEW_60"] = "1 hour before";
 $MESS["EC_REMIND1_VIEW_120"] = "2 hours before";
 $MESS["EC_REMIND1_VIEW_1440"] = "Day before";
-$MESS["EC_REMIND1_VIEW_15"] = "15 minutes before";
 $MESS["EC_REMIND1_VIEW_2880"] = "Two days before";
-$MESS["EC_REMIND1_VIEW_30"] = "30 minutes before";
-$MESS["EC_REMIND1_VIEW_5"] = "5 minutes before";
-$MESS["EC_REMIND1_VIEW_60"] = "1 hour before";
 $MESS["EC_REMIND1_VIEW_DAY_COUNT"] = "#COUNT# day(s) before";
 $MESS["EC_REMIND1_VIEW_HOUR_COUNT"] = "#COUNT# hour(s) before";
 $MESS["EC_REMIND1_VIEW_MIN_COUNT"] = "#COUNT# minite(s) before";
@@ -567,9 +568,9 @@ $MESS["EC_SYNC_PERIOD"] = "Event sync period";
 $MESS["EC_SYNC_PERIOD_FUTURE_12"] = "1 year ahead";
 $MESS["EC_SYNC_PERIOD_FUTURE_24"] = "2 years ahead";
 $MESS["EC_SYNC_PERIOD_FUTURE_36"] = "3 years ahead";
-$MESS["EC_SYNC_PERIOD_PAST_12"] = "1 past year";
 $MESS["EC_SYNC_PERIOD_PAST_3"] = "3 past months ";
 $MESS["EC_SYNC_PERIOD_PAST_6"] = "6 past months";
+$MESS["EC_SYNC_PERIOD_PAST_12"] = "1 past year";
 $MESS["EC_TAB_DAY"] = "Day";
 $MESS["EC_TAB_DAY_TITLE"] = "Show Daily Events";
 $MESS["EC_TAB_MONTH"] = "Month";

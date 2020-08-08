@@ -196,9 +196,16 @@ foreach ($arFields as $GROUP_ID => $arGroupFields):
 						array('HIDE_ICONS' => 'Y')
 					);
 					break;
-			
+
+				case 'LOGIN':
+					?><input type="text" name="<?echo $FIELD?>" value="<?echo $value?>" autocomplete="username" /><?
+					break;
+
 				case 'PASSWORD': 
-				case 'CONFIRM_PASSWORD': 
+					?><input type="password" name="<?echo $FIELD?>" autocomplete="new-password" /><?
+					break;
+
+				case 'CONFIRM_PASSWORD':
 					?><input type="password" name="<?echo $FIELD?>" autocomplete="off" /><?
 					break;
 			
@@ -230,7 +237,7 @@ foreach ($arFields as $GROUP_ID => $arGroupFields):
 					</select><?
 					break;
 				default: 
-					if (substr($FIELD, 0, 3) == 'UF_'):
+					if (mb_substr($FIELD, 0, 3) == 'UF_'):
 						$APPLICATION->IncludeComponent(
 							'bitrix:system.field.edit',
 							$arResult['USER_PROPERTY_ALL'][$FIELD]['USER_TYPE_ID'],
@@ -257,7 +264,7 @@ foreach ($arFields as $GROUP_ID => $arGroupFields):
 	endif;
 endforeach;
 
-if (substr($_REQUEST['backurl'],0,1) != "/")
+if (mb_substr($_REQUEST['backurl'], 0, 1) != "/")
 	$_REQUEST['backurl'] = "/".$_REQUEST['backurl'];
 ?>
 	</div>

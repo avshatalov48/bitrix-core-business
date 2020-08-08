@@ -24,7 +24,7 @@ class Helper
 	{
 		if (preg_match("/\\/(l|t.?)+\$/", $template, $match))
 		{
-			return array(substr($template, 0, -strlen($match[0])), substr($match[0], 1));
+			return array(mb_substr($template, 0, -mb_strlen($match[0])), mb_substr($match[0], 1));
 		}
 		else
 		{
@@ -104,7 +104,7 @@ class Helper
 			else
 			{
 				$TRANSLIT = "Y";
-				$SPACE = substr($mod, 1);
+				$SPACE = mb_substr($mod, 1);
 			}
 		}
 

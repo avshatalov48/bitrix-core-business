@@ -6,6 +6,7 @@ use Bitrix\Main,
 	Bitrix\Main\Localization\LanguageTable,
 	Bitrix\Main\Localization\Loc,
 	Bitrix\Main\ModuleManager,
+	Bitrix\Main\ORM,
 	Bitrix\Main\TaskTable,
 	Bitrix\Main\Text,
 	Bitrix\Catalog,
@@ -36,6 +37,8 @@ final class SystemField
 	private static $languages = [];
 
 	private static $dictionary = [];
+
+	private static $reverseDictionary = [];
 
 	/** @var array */
 	private static $currentFieldSet = null;
@@ -105,7 +108,7 @@ final class SystemField
 			unset($iterator, $userField);
 			if (!empty($row))
 			{
-				self::$currentFieldSet['MARKING_CODE_GROUP'] = self::$storageList[self::CODE_MARKING_CODE_GROUP]['UF_FIELD'];
+				self::$currentFieldSet[self::CODE_MARKING_CODE_GROUP] = self::$storageList[self::CODE_MARKING_CODE_GROUP]['UF_FIELD'];
 			}
 			unset($row);
 
@@ -122,14 +125,16 @@ final class SystemField
 	 */
 	public static function convertRow(array &$row)
 	{
-		if (!isset($row['MARKING_CODE_GROUP']))
+		if (!self::initHighloadBlock())
+			return;
+		if (!isset($row[self::CODE_MARKING_CODE_GROUP]))
 			return;
 		if (!isset(self::$dictionary[self::CODE_MARKING_CODE_GROUP]))
 			self::$dictionary[self::CODE_MARKING_CODE_GROUP] = [];
-		$id = (int)$row['MARKING_CODE_GROUP'];
+		$id = (int)$row[self::CODE_MARKING_CODE_GROUP];
 		if ($id <= 0)
 		{
-			$row['MARKING_CODE_GROUP'] = null;
+			$row[self::CODE_MARKING_CODE_GROUP] = null;
 			return;
 		}
 		if (!isset(self::$dictionary[self::CODE_MARKING_CODE_GROUP][$id]))
@@ -139,7 +144,7 @@ final class SystemField
 			$entity = Highload\HighloadBlockTable::compileEntity($storage['NAME']);
 			$entityDataClass = $entity->getDataClass();
 			$iterator = $entityDataClass::getList([
-				'select' => ['*'],
+				'select' => ['ID', 'UF_XML_ID'],
 				'filter' => ['=ID' => $id]
 			]);
 			$data = $iterator->fetch();
@@ -148,16 +153,63 @@ final class SystemField
 				self::$dictionary[self::CODE_MARKING_CODE_GROUP][$id] = $data['UF_XML_ID'];
 			}
 			unset($data, $iterator);
+			unset($storage);
 		}
 		if (self::$dictionary[self::CODE_MARKING_CODE_GROUP][$id] !== false)
 		{
-			$row['MARKING_CODE_GROUP'] = self::$dictionary[self::CODE_MARKING_CODE_GROUP][$id];
+			$row[self::CODE_MARKING_CODE_GROUP] = self::$dictionary[self::CODE_MARKING_CODE_GROUP][$id];
 		}
 		else
 		{
-			$row['MARKING_CODE_GROUP'] = null;
+			$row[self::CODE_MARKING_CODE_GROUP] = null;
 		}
 		unset($id);
+	}
+
+	public static function prepareRow(array &$row)
+	{
+		self::initStorageList();
+		$fieldList = static::getFieldList();
+		if (
+			isset($fieldList[self::CODE_MARKING_CODE_GROUP])
+			&& array_key_exists(self::CODE_MARKING_CODE_GROUP, $row)
+		)
+		{
+			$value = null;
+			if ($row[self::CODE_MARKING_CODE_GROUP] !== null && self::initHighloadBlock())
+			{
+				$xmlId = $row[self::CODE_MARKING_CODE_GROUP];
+				if (!isset(self::$reverseDictionary[self::CODE_MARKING_CODE_GROUP]))
+				{
+					self::$reverseDictionary[self::CODE_MARKING_CODE_GROUP] = [];
+				}
+				if (!isset(self::$reverseDictionary[self::CODE_MARKING_CODE_GROUP][$xmlId]))
+				{
+					self::$reverseDictionary[self::CODE_MARKING_CODE_GROUP][$xmlId] = false;
+					$storage = self::$storageList[self::CODE_MARKING_CODE_GROUP];
+					$entity = Highload\HighloadBlockTable::compileEntity($storage['NAME']);
+					$entityDataClass = $entity->getDataClass();
+					$iterator = $entityDataClass::getList([
+						'select' => ['ID', 'UF_XML_ID'],
+						'filter' => ['=UF_XML_ID' => $xmlId]
+					]);
+					$data = $iterator->fetch();
+					if (!empty($data) && isset($data['ID']))
+					{
+						self::$reverseDictionary[self::CODE_MARKING_CODE_GROUP][$xmlId] = (int)$data['ID'];
+					}
+					unset($data, $iterator);
+					unset($storage);
+				}
+				if (self::$reverseDictionary[self::CODE_MARKING_CODE_GROUP][$xmlId] !== false)
+				{
+					$value = self::$reverseDictionary[self::CODE_MARKING_CODE_GROUP][$xmlId];
+				}
+			}
+			$row[self::$storageList[self::CODE_MARKING_CODE_GROUP]['UF_FIELD']] = $value;
+
+			unset($row[self::CODE_MARKING_CODE_GROUP]);
+		}
 	}
 
 	/**
@@ -182,6 +234,95 @@ final class SystemField
 	{
 		$value = Main\Context::getCurrent()->getRequest()->get(self::getFormRowFieldName($fieldId));
 		return ($value === null ? null : [$fieldId => $value]);
+	}
+
+	/**
+	 * @param ORM\Event $event
+	 * @return ORM\EventResult
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	public static function handlerHighloadBlockBeforeDelete(ORM\Event $event)
+	{
+		$result = new ORM\EventResult();
+
+		if (self::allowedMarkingCodeGroup())
+		{
+			$primary = $event->getParameter('primary');
+			if (!empty($primary))
+			{
+				$iterator = Highload\HighloadBlockTable::getList([
+					'filter' => $primary
+				]);
+				$row = $iterator->fetch();
+				unset($iterator);
+				if (!empty($row))
+				{
+					if ($row['NAME'] == self::getStorageName(self::CODE_MARKING_CODE_GROUP))
+					{
+						$result->addError(new ORM\EntityError(
+							Loc::getMessage(
+								'BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_CANNOT_DELETE_HIGHLOADBLOCK',
+								['#NAME#' => Loc::getMessage('STORAGE_MARKING_CODE_GROUP_TITLE')]
+							)
+						));
+					}
+				}
+				unset($row);
+			}
+			unset($primary);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param ORM\Event $event
+	 * @return ORM\EventResult
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	public static function handlerHighloadBlockBeforeUpdate(ORM\Event $event)
+	{
+		$result = new ORM\EventResult();
+
+		if (self::allowedMarkingCodeGroup())
+		{
+			$primary = $event->getParameter('primary');
+			$fields = $event->getParameter('fields');
+			if (!empty($primary))
+			{
+				$iterator = Highload\HighloadBlockTable::getList([
+					'filter' => $primary
+				]);
+				$row = $iterator->fetch();
+				unset($iterator);
+				if (!empty($row))
+				{
+					if ($row['NAME'] == self::getStorageName(self::CODE_MARKING_CODE_GROUP))
+					{
+						if (
+							(isset($fields['NAME']) && $row['NAME'] != $fields['NAME'])
+							|| (isset($fields['TABLE_NAME']) && $row['TABLE_NAME'] != $fields['TABLE_NAME'])
+						)
+						{
+							$result->addError(new ORM\EntityError(
+								Loc::getMessage(
+									'BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_CANNOT_UPDATE_HIGHLOADBLOCK',
+									['#NAME#' => Loc::getMessage('STORAGE_MARKING_CODE_GROUP_TITLE')]
+								)
+							));
+						}
+					}
+				}
+				unset($row);
+			}
+			unset($primary);
+		}
+
+		return $result;
 	}
 
 	/**
@@ -327,7 +468,7 @@ final class SystemField
 	 */
 	private static function getStorageTableName(string $code)
 	{
-		return self::STORAGE_TABLE_NAME_PREFIX.''.strtolower($code);
+		return self::STORAGE_TABLE_NAME_PREFIX.''.mb_strtolower($code);
 	}
 
 	/**
@@ -615,7 +756,7 @@ final class SystemField
 				'MANDATORY' => 'Y',
 				'SHOW_FILTER' => 'S',
 				'SHOW_IN_LIST' => 'Y',
-				'EDIT_IN_LIST' => 'N',
+				'EDIT_IN_LIST' => 'Y',
 				'IS_SEARCHABLE' => 'N',
 				'SETTINGS' => $fieldSettings[$fieldId],
 				'EDIT_FORM_LABEL' => $messageList['EDIT_FORM_LABEL'],
@@ -805,7 +946,7 @@ final class SystemField
 
 	private static function getFormRowFieldName(string $field)
 	{
-		return self::FIELD_NAME_PREFIX.strtoupper($field);
+		return self::FIELD_NAME_PREFIX.mb_strtoupper($field);
 	}
 
 	/**
@@ -814,7 +955,7 @@ final class SystemField
 	 */
 	private static function getFormRowFieldId(string $field)
 	{
-		return self::FIELD_ID_PREFIX.strtolower($field).'_id';
+		return self::FIELD_ID_PREFIX.mb_strtolower($field).'_id';
 	}
 
 	/**

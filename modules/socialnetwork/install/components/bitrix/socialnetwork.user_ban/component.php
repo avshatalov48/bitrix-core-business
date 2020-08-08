@@ -7,18 +7,18 @@ if (!CModule::IncludeModule("socialnetwork"))
 	return;
 }
 
-if (strLen($arParams["USER_VAR"]) <= 0)
+if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
 
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if (strlen($arParams["PATH_TO_USER"]) <= 0)
+if ($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["ITEMS_COUNT"] = IntVal($arParams["ITEMS_COUNT"]);
+$arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
 if ($arParams["ITEMS_COUNT"] <= 0)
 	$arParams["ITEMS_COUNT"] = 30;
 
@@ -68,37 +68,37 @@ else
 	$arNavigation = CDBResult::GetNavParams($arNavParams);
 
 	/***********************  ACTIONS  *******************************/
-	if ($_REQUEST["action"] == "clear_ban" && check_bitrix_sessid() && IntVal($_REQUEST["eventID"]) > 0)
+	if ($_REQUEST["action"] == "clear_ban" && check_bitrix_sessid() && intval($_REQUEST["eventID"]) > 0)
 	{
 		$errorMessage = "";
 
-		if (!CSocNetUserRelations::UnBanMember($GLOBALS["USER"]->GetID(), IntVal($_REQUEST["eventID"])))
+		if (!CSocNetUserRelations::UnBanMember($GLOBALS["USER"]->GetID(), intval($_REQUEST["eventID"])))
 		{
 			if ($e = $APPLICATION->GetException())
 				$errorMessage .= $e->GetString();
 		}
 
-		if (strlen($errorMessage) > 0)
+		if ($errorMessage <> '')
 			$arResult["ErrorMessage"] = $errorMessage;
 	}
-	elseif ($_SERVER["REQUEST_METHOD"]=="POST" && strlen($_POST["delete"]) > 0 && check_bitrix_sessid())
+	elseif ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["delete"] <> '' && check_bitrix_sessid())
 	{
 		$errorMessage = "";
 
 		$arIDs = array();
-		if (strlen($errorMessage) <= 0)
+		if ($errorMessage == '')
 		{
-			for ($i = 0; $i <= IntVal($_POST["max_count"]); $i++)
+			for ($i = 0; $i <= intval($_POST["max_count"]); $i++)
 			{
 				if ($_POST["checked_".$i] == "Y")
-					$arIDs[] = IntVal($_POST["id_".$i]);
+					$arIDs[] = intval($_POST["id_".$i]);
 			}
 
 			if (count($arIDs) <= 0)
 				$errorMessage .= GetMessage("SONET_C32_NOT_SELECTED").". ";
 		}
 
-		if (strlen($errorMessage) <= 0)
+		if ($errorMessage == '')
 		{
 			foreach($arIDs as $ban_id)
 			{
@@ -110,7 +110,7 @@ else
 			}
 		}
 
-		if (strlen($errorMessage) > 0)
+		if ($errorMessage <> '')
 			$arResult["ErrorMessage"] = $errorMessage;
 	}
 

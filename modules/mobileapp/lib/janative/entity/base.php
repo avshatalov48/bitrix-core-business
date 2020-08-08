@@ -116,7 +116,7 @@ abstract class Base
 		$relativeExtDir = $ext;
 		$result = [];
 
-		if(strpos($ext,"*") == (strlen($ext)-1))
+		if(mb_strpos($ext, "*") == (mb_strlen($ext) - 1))
 		{
 			$relativeExtDir = str_replace(["/*", "*"], "", $ext);
 			$findChildren = true;

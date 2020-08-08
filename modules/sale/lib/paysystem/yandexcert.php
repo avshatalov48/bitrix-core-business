@@ -146,7 +146,7 @@ class YandexCert
 	{
 		if (!empty($file['name']))
 		{
-			if (substr($file['name'], -4) != '.cer')
+			if (mb_substr($file['name'], -4) != '.cer')
 				self::$errors[]  = Loc::getMessage('YANDEX_CERT_ERR_EXT');
 			elseif ($file['error'] != UPLOAD_ERR_OK)
 				self::$errors[]  = Loc::getMessage('YANDEX_CERT_ERR_LOAD');

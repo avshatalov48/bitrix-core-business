@@ -1,4 +1,5 @@
 <?
+$MESS["LANDING_ERROR_NOT_ALLOW_VIEW_BY_PLAN_KNOWLEDGE"] = "You cannot create more knowledge bases on your current plan. Please upgrade to create a new knowledge base.";
 $MESS["LANDING_TPL_BUY_RENEW"] = "Please #LINK1#renew your license#LINK2#";
 $MESS["LANDING_TPL_PREVIEW_URL"] = "Preview";
 $MESS["LANDING_TPL_PUBLIC_URL"] = "Publish";

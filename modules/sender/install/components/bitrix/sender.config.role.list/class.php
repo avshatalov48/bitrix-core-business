@@ -1,38 +1,40 @@
 <?php
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
-use Bitrix\Main\Loader;
+use Bitrix\Main\ArgumentException;
+use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Error;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Engine\Contract\Controllerable;
-
+use Bitrix\Sender\Access\ActionDictionary;
+use Bitrix\Sender\Access\Service\RolePermissionService;
+use Bitrix\Sender\Access\Service\RolePermissionServiceInterface;
+use Bitrix\Sender\Access\Service\RoleRelationService;
+use Bitrix\Sender\Access\Service\RoleRelationServiceInterface;
 use Bitrix\Sender\Security;
 
-Loc::loadMessages(__FILE__);
-
-class SenderConfigRoleListComponent extends CBitrixComponent implements Controllerable
+if (!Bitrix\Main\Loader::includeModule('sender'))
 {
-	/** @var  ErrorCollection $errors */
-	protected $errors;
+	ShowError('Module `sender` not installed');
+	die();
+}
 
-	protected function checkRequiredParams()
-	{
-		return true;
-	}
+class ConfigRoleListSenderComponent extends Bitrix\Sender\Internals\CommonSenderComponent implements Controllerable
+{
+	/**
+	 * @var RolePermissionServiceInterface;
+	 */
+	private $permissionService;
+	/**
+	 * @var RoleRelationServiceInterface;
+	 */
+	private $roleRelationService;
 
 	protected function initParams()
 	{
-		$this->arParams['PATH_TO_LIST'] = isset($this->arParams['PATH_TO_LIST']) ? $this->arParams['PATH_TO_LIST'] : '';
-		$this->arParams['PATH_TO_USER_PROFILE'] = isset($this->arParams['PATH_TO_USER_PROFILE']) ? $this->arParams['PATH_TO_USER_PROFILE'] : '';
-		$this->arParams['NAME_TEMPLATE'] = empty($this->arParams['NAME_TEMPLATE']) ? \CAllSite::GetNameFormat(false) : str_replace(array("#NOBR#","#/NOBR#"), array("",""), $this->arParams["NAME_TEMPLATE"]);
-
-		$this->arParams['SET_TITLE'] = isset($this->arParams['SET_TITLE']) ? $this->arParams['SET_TITLE'] == 'Y' : true;
-		$this->arParams['CAN_EDIT'] = isset($this->arParams['CAN_EDIT'])
-			?
-			$this->arParams['CAN_EDIT']
-			:
-			Security\Access::current()->canModifySettings();
+		parent::initParams();
+		$this->permissionService = new RolePermissionService();
+		$this->roleRelationService = new RoleRelationService();
 	}
 
 	protected function preparePost()
@@ -77,7 +79,8 @@ class SenderConfigRoleListComponent extends CBitrixComponent implements Controll
 			$this->preparePost();
 		}
 
-		foreach (Security\Role\Manager::getRoleList() as $row)
+		$roleList = $this->permissionService->getRoleList();
+		foreach ($roleList as $row)
 		{
 			$this->arResult['ROLES'][$row['ID']] = [
 				'ID' => $row['ID'],
@@ -86,20 +89,32 @@ class SenderConfigRoleListComponent extends CBitrixComponent implements Controll
 			];
 		}
 
+		$this->configureAccessCodes();
+
+		return true;
+	}
+
+	/**
+	 * configure access code list from database configuration
+	 */
+	private function configureAccessCodes()
+	{
 		$accessCodes = [];
 		$accessCodesToResolve = array();
-		$accessList = Security\Role\Manager::getAccessList([
-			'select' => ['ID', 'ROLE_ID', 'ROLE_NAME' => 'ROLE.NAME', 'ACCESS_CODE'],
-		]);
+		$accessList = $this->roleRelationService->getRelationList(
+			[
+				'select' => ['ID', 'ROLE_ID', 'RELATION']
+			]
+		);
+
 		foreach ($accessList as $row)
 		{
 			$accessCodes[$row['ID']] = [
 				'ID' => $row['ID'],
 				'ROLE_ID' => $row['ROLE_ID'],
-				'ROLE_NAME' => $row['ROLE_NAME'],
-				'ACCESS_CODE' => $row['ACCESS_CODE']
+				'RELATION' => $row['RELATION']
 			];
-			$accessCodesToResolve[] = $row['ACCESS_CODE'];
+			$accessCodesToResolve[] = $row['RELATION'];
 		}
 
 		$accessManager = new \CAccess();
@@ -107,9 +122,9 @@ class SenderConfigRoleListComponent extends CBitrixComponent implements Controll
 
 		foreach ($accessCodes as $id => $roleAccessCode)
 		{
-			if (isset($resolvedAccessCodes[$roleAccessCode['ACCESS_CODE']]))
+			if (isset($resolvedAccessCodes[$roleAccessCode['RELATION']]))
 			{
-				$codeDescription = $resolvedAccessCodes[$roleAccessCode['ACCESS_CODE']];
+				$codeDescription = $resolvedAccessCodes[$roleAccessCode['RELATION']];
 				$accessCodes[$id]['ACCESS_PROVIDER'] = $codeDescription['provider'];
 				$accessCodes[$id]['ACCESS_NAME'] = $codeDescription['name'];
 			}
@@ -118,10 +133,7 @@ class SenderConfigRoleListComponent extends CBitrixComponent implements Controll
 				$accessCodes[$id]['ACCESS_NAME'] = Loc::getMessage('SENDER_CONFIG_ROLE_LIST_COMP_UNKNOWN_ACCESS_CODE');
 			}
 		}
-
 		$this->arResult['ROLE_ACCESS_CODES'] = $accessCodes;
-
-		return true;
 	}
 
 	protected function printErrors()
@@ -152,18 +164,24 @@ class SenderConfigRoleListComponent extends CBitrixComponent implements Controll
 	public function onPrepareComponentParams($arParams)
 	{
 		$this->arParams = $arParams;
-		$this->errors = new \Bitrix\Main\ErrorCollection();
-		if (!Loader::includeModule('sender'))
-		{
-			$this->errors->setError(new Error('Module `sender` is not installed.'));
-			$this->printErrors();
-			return $this->arParams;
-		}
+		$this->errors = new ErrorCollection();
+		$this->userId = Security\User::current()->getId();
 
-		$this->initParams();
 		if (!$this->checkRequiredParams())
 		{
 			$this->printErrors();
+			return;
+		}
+
+		try
+		{
+			static::initParams();
+		}
+		catch (ArgumentException $e)
+		{
+			$this->errors->setError(new Error('Failed to initialize module `sender`'));
+			$this->printErrors();
+			return $this->arParams;
 		}
 
 		/* Set title */
@@ -197,7 +215,17 @@ class SenderConfigRoleListComponent extends CBitrixComponent implements Controll
 		$roleId = (int) $roleId;
 		if($roleId > 0)
 		{
-			Security\Role\Manager::deleteRole($roleId);
+			$this->permissionService->deleteRole($roleId);
 		}
+	}
+
+	public function getEditAction()
+	{
+		return ActionDictionary::ACTION_SETTINGS_EDIT;
+	}
+
+	public function getViewAction()
+	{
+		return ActionDictionary::ACTION_SETTINGS_EDIT;
 	}
 }

@@ -2,9 +2,9 @@
 
 namespace Bitrix\Mail\ImapCommands;
 
-use Bitrix\Mail\Helper\MessageFolder;
+use Bitrix\Mail\Helper\Mailbox;
+use Bitrix\Mail\Internals\MailboxDirectoryTable;
 use Bitrix\Main;
-use Bitrix\Mail;
 use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
@@ -27,6 +27,8 @@ class SyncInternalManager
 	private $isInit;
 	/** @var Repository */
 	protected $repository;
+	/** @var Mailbox */
+	protected $mailboxHelper;
 
 	public function __construct($mailboxId, $messagesIds, $userId = null)
 	{
@@ -38,6 +40,7 @@ class SyncInternalManager
 		$this->messagesIds = $messagesIds;
 		$this->userId = $userId;
 		$this->repository = $this->getRepository();
+		$this->mailboxHelper = $this->getMailClientHelper();
 	}
 
 	public function setUserId($userId)
@@ -52,7 +55,7 @@ class SyncInternalManager
 
 	protected function getMailClientHelper($throwExceptions = true)
 	{
-		return Mail\Helper\Mailbox::createInstance($this->mailboxId, $throwExceptions);
+		return Mailbox::createInstance($this->mailboxId, $throwExceptions);
 	}
 
 	protected function initData($folderType = null)
@@ -63,19 +66,6 @@ class SyncInternalManager
 		}
 		$this->isInit = true;
 		$result = new Main\Result();
-		foreach ($this->messagesIds as $index => $messagesId)
-		{
-			if (strlen($messagesId) !== 32)
-			{
-				return $result->addError(new Main\Error(Loc::getMessage('MAIL_CLIENT_WRONG_PARAMETERS'),
-					'MAIL_CLIENT_WRONG_PARAMETERS'));
-			}
-		}
-		if (!is_numeric($this->mailboxId))
-		{
-			return $result->addError(new Main\Error(Loc::getMessage('MAIL_CLIENT_WRONG_PARAMETERS'),
-				'MAIL_CLIENT_WRONG_PARAMETERS'));
-		}
 
 		$this->mailbox = $this->repository->getMailbox($this->mailboxUserId);
 		if (!$this->mailbox)
@@ -86,10 +76,10 @@ class SyncInternalManager
 
 		if ($folderType)
 		{
-			$folder = $this->getFolderNameByType($folderType);
+			$folder = $this->getDirPathByType($folderType);
 			if (!$folder)
 			{
-				$errorCode = 'MAIL_CLIENT_' . ($folderType == MessageFolder::TRASH ? 'TRASH' : 'SPAM') . '_FOLDER_NOT_SELECTED_ERROR';
+				$errorCode = 'MAIL_CLIENT_' . ($folderType == MailboxDirectoryTable::TYPE_TRASH ? 'TRASH' : 'SPAM') . '_FOLDER_NOT_SELECTED_ERROR';
 				return $result->addError(new Main\Error(
 					Loc::getMessage($errorCode),
 					$errorCode));
@@ -123,9 +113,14 @@ class SyncInternalManager
 		return $result;
 	}
 
-	protected function getFolderNameByType($folderType)
+	protected function getDirPathByType($dirType)
 	{
-		return MessageFolder::getFolderNameByType($folderType, $this->mailbox['OPTIONS']);
+		return $this->mailboxHelper->getDirsHelper()->getDirPathByType($dirType);
+	}
+
+	protected function getDirByPath($path)
+	{
+		return $this->mailboxHelper->getDirsHelper()->getDirByPath($path);
 	}
 
 	protected function fillMessagesEmails()

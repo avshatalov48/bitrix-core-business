@@ -200,7 +200,7 @@ class Service
 
 		if($address = $props->getAddress())
 		{
-			if(strlen($address->getValue()) > 0)
+			if($address->getValue() <> '')
 			{
 				$addressValue = (string)$address->getValue();
 			}
@@ -208,7 +208,7 @@ class Service
 
 		if($payerName = $props->getPayerName())
 		{
-			if(strlen($payerName->getValue()) > 0 )
+			if($payerName->getValue() <> '' )
 			{
 				$fullNameValue = (string)$payerName->getValue();
 			}
@@ -216,13 +216,13 @@ class Service
 
 		if($phone = $props->getPhone())
 		{
-			if(strlen($phone->getValue()) > 0 )
+			if($phone->getValue() <> '' )
 			{
 				$phoneValue = (string)$phone->getValue();
 			}
 		}
 
-		if(strlen($addressValue) <= 0 && strlen($fullNameValue) <= 0 && strlen($phoneValue) <= 0)
+		if($addressValue == '' && $fullNameValue == '' && $phoneValue == '')
 		{
 			return null;
 		}

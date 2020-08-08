@@ -129,7 +129,7 @@ class RoboPackage extends BasePacker
 		foreach ($usedFieldKeys as $fieldKey)
 		{
 			if (
-				strtoupper(substr($fieldKey, -10)) !== '_PRINTABLE'
+				mb_strtoupper(mb_substr($fieldKey, -10)) !== '_PRINTABLE'
 				&&
 				isset($documentFields[$fieldKey])
 			)
@@ -148,7 +148,7 @@ class RoboPackage extends BasePacker
 
 		foreach ($types as $type)
 		{
-			if (strpos($type, 'rest_') === 0)
+			if (mb_strpos($type, 'rest_') === 0)
 			{
 				$apps[] = $type;
 			}

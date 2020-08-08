@@ -13,4 +13,6 @@ $MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_HIGHLOADBLOCK_ID_ABSENT"] = "Отсу�
 $MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_HIGHLOADBLOCK_CREATE_FIELD"] = "Ошибка создания поля #FIELD#: #ERROR#";
 $MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_INTERNAL_ERROR"] = "внутренняя ошибка";
 $MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_DICTIONARY_ITEM_CREATE"] = "Ошибка создания записи с кодом #CODE# в справочнике #DICTIONARY#";
+$MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_CANNOT_DELETE_HIGHLOADBLOCK"] = "Highload-блок #NAME# является системным и не может быть удален";
+$MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_CANNOT_UPDATE_HIGHLOADBLOCK"] = "Highload-блок #NAME# является системным и его параметры не могут меняться";
 ?>

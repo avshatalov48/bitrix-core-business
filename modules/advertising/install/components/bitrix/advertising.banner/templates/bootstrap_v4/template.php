@@ -78,6 +78,20 @@
 		}, false);
 		BX("carousel-<?=$arResult['ID']?>").addEventListener("slide.bs.carousel", function (e)
 		{
+			var nodeToFixFont = e.target && e.target.querySelector(
+				'.carousel-item.active .bx-advertisingbanner-text-title[data-fixfont="false"]'
+			);
+			if (BX.type.isDomNode(nodeToFixFont)) {
+				nodeToFixFont.setAttribute('data-fixfont', 'true');
+				BX.FixFontSize.init({
+					objList: [{
+						node: nodeToFixFont,
+						smallestValue: 10
+					}],
+					onAdaptiveResize: true
+				});
+			}
+
 			var item = e.detail.curSlide.querySelector('.play-caption');
 			if (!!item)
 			{

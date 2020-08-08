@@ -63,9 +63,10 @@ Object.defineProperty(BX.SidePanel, "Instance", {
 	enumerable: false,
 	get: function() {
 
-		if (window.top !== window)
+		var topWindow = BX.PageObject.getRootWindow();
+		if (topWindow !== window)
 		{
-			return window.top.BX.SidePanel.Instance;
+			return topWindow.BX.SidePanel.Instance;
 		}
 
 		if (instance === null)
@@ -104,9 +105,9 @@ BX.SidePanel.Manager = function(options)
 	this.handleWindowScroll = this.handleWindowScroll.bind(this);
 	this.handleTouchMove = this.handleTouchMove.bind(this);
 
-	this.handleSliderOpen = this.handleSliderOpen.bind(this);
+	this.handleSliderOpenStart = this.handleSliderOpenStart.bind(this);
 	this.handleSliderOpenComplete = this.handleSliderOpenComplete.bind(this);
-	this.handleSliderClose = this.handleSliderClose.bind(this);
+	this.handleSliderCloseStart = this.handleSliderCloseStart.bind(this);
 	this.handleSliderCloseComplete = this.handleSliderCloseComplete.bind(this);
 	this.handleSliderLoad = this.handleSliderLoad.bind(this);
 	this.handleSliderDestroy = this.handleSliderDestroy.bind(this);
@@ -212,9 +213,9 @@ BX.SidePanel.Manager.prototype =
 			slider.setZindex(zIndex);
 			slider.setOffset(offset);
 
-			BX.addCustomEvent(slider, "SidePanel.Slider:onOpen", this.handleSliderOpen);
+			BX.addCustomEvent(slider, "SidePanel.Slider:onOpenStart", this.handleSliderOpenStart);
 			BX.addCustomEvent(slider, "SidePanel.Slider:onBeforeOpenComplete", this.handleSliderOpenComplete);
-			BX.addCustomEvent(slider, "SidePanel.Slider:onClose", this.handleSliderClose);
+			BX.addCustomEvent(slider, "SidePanel.Slider:onCloseStart", this.handleSliderCloseStart);
 			BX.addCustomEvent(slider, "SidePanel.Slider:onBeforeCloseComplete", this.handleSliderCloseComplete);
 			BX.addCustomEvent(slider, "SidePanel.Slider:onLoad", this.handleSliderLoad);
 			BX.addCustomEvent(slider, "SidePanel.Slider:onDestroy", this.handleSliderDestroy);
@@ -839,7 +840,7 @@ BX.SidePanel.Manager.prototype =
 	 * @private
 	 * @param {BX.SidePanel.Event} event
 	 */
-	handleSliderOpen: function(event)
+	handleSliderOpenStart: function(event)
 	{
 		if (!event.isActionAllowed())
 		{
@@ -855,12 +856,19 @@ BX.SidePanel.Manager.prototype =
 		if (this.getTopSlider())
 		{
 			this.getTopSlider().hideOverlay();
-			if (this.getTopSlider().getOffset() !== slider.getOffset())
+
+			var sameWidth = (
+				this.getTopSlider().getOffset() === slider.getOffset() &&
+				this.getTopSlider().getWidth() === slider.getWidth() &&
+				this.getTopSlider().getCustomLeftBoundary() === slider.getCustomLeftBoundary()
+			);
+
+			if (!sameWidth)
 			{
 				this.getTopSlider().showShadow();
 			}
 
-			this.getTopSlider().hideCloseBtn();
+			this.getTopSlider().hideOrDarkenCloseBtn();
 			this.getTopSlider().hidePrintBtn();
 		}
 		else
@@ -901,8 +909,13 @@ BX.SidePanel.Manager.prototype =
 	 * @private
 	 * @param {BX.SidePanel.Event} event
 	 */
-	handleSliderClose: function(event)
+	handleSliderCloseStart: function(event)
 	{
+		if (!event.isActionAllowed())
+		{
+			return;
+		}
+
 		if (event.getSlider() && event.getSlider().isDestroyed())
 		{
 			return;
@@ -919,7 +932,7 @@ BX.SidePanel.Manager.prototype =
 		{
 			previousSlider.unhideOverlay();
 			previousSlider.hideShadow();
-			previousSlider.showCloseBtn();
+			previousSlider.showOrLightenCloseBtn();
 
 			if (topSlider)
 			{
@@ -952,8 +965,9 @@ BX.SidePanel.Manager.prototype =
 	{
 		var slider = event.getSlider();
 
-		BX.removeCustomEvent(slider, "SidePanel.Slider:onOpen", this.handleSliderOpen);
+		BX.removeCustomEvent(slider, "SidePanel.Slider:onOpenStart", this.handleSliderOpenStart);
 		BX.removeCustomEvent(slider, "SidePanel.Slider:onBeforeOpenComplete", this.handleSliderOpenComplete);
+		BX.removeCustomEvent(slider, "SidePanel.Slider:onCloseStart", this.handleSliderCloseStart);
 		BX.removeCustomEvent(slider, "SidePanel.Slider:onBeforeCloseComplete", this.handleSliderCloseComplete);
 		BX.removeCustomEvent(slider, "SidePanel.Slider:onLoad", this.handleSliderLoad);
 		BX.removeCustomEvent(slider, "SidePanel.Slider:onDestroy", this.handleSliderDestroy);
@@ -1001,7 +1015,7 @@ BX.SidePanel.Manager.prototype =
 
 		if (this.getTopSlider())
 		{
-			this.getTopSlider().showCloseBtn();
+			this.getTopSlider().showOrLightenCloseBtn();
 			this.getTopSlider().unhideOverlay();
 			this.getTopSlider().hideShadow();
 

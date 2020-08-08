@@ -33,22 +33,15 @@ class CMailbox extends CAllMailBox
 
 class CMailUtil extends CAllMailUtil
 {
-	function IsSizeAllowed($size)
+	public static function IsSizeAllowed($size)
 	{
-		global $DB;
 		global $B_MAIL_MAX_ALLOWED;
-		if($B_MAIL_MAX_ALLOWED===false)
-		{
-			$db_max_allowed = $DB->Query("SHOW VARIABLES LIKE 'MAX_ALLOWED_PACKET'");
-			$ar_max_allowed = $db_max_allowed->Fetch();
-			$B_MAIL_MAX_ALLOWED = IntVal($ar_max_allowed["Value"]);
-		}
 
-		if($B_MAIL_MAX_ALLOWED<=$size)
-		{
-			return false;
-		}
-		return true;
+		$dbConnection = \Bitrix\Main\Application::getConnection();
+
+		$B_MAIL_MAX_ALLOWED = $dbConnection->getMaxAllowedPacket();
+
+		return $B_MAIL_MAX_ALLOWED > $size;
 	}
 }
 

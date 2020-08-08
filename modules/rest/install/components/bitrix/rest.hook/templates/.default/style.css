@@ -1,11 +1,13 @@
-.mp_dt_title_section, .mp_title_section
-{
+.ui-page-slider-wrapper .mp_title_section {
+	margin-left: 12px;
+}
+
+.mp_dt_title_section, .mp_title_section {
 	color: #3a4255;
 	font-size: 25px;
 }
 
-.mp_dt_pp_title_section
-{
+.mp_dt_pp_title_section {
 	font-size: 18px;
 	padding-top: 10px;
 }

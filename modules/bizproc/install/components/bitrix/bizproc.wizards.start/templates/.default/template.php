@@ -1,6 +1,6 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
-if (strlen($arResult["FatalErrorMessage"]) > 0)
+if ($arResult["FatalErrorMessage"] <> '')
 {
 	?>
 	<span class='errortext'><?= $arResult["FatalErrorMessage"] ?></span><br /><br />
@@ -8,7 +8,7 @@ if (strlen($arResult["FatalErrorMessage"]) > 0)
 }
 else
 {
-	if (strlen($arResult["ErrorMessage"]) > 0)
+	if ($arResult["ErrorMessage"] <> '')
 	{
 		?>
 		<font class='errortext'><?= $arResult["ErrorMessage"] ?></font><br /><br />
@@ -76,7 +76,7 @@ else
 					continue;
 				?>
 				<tr>
-					<td align="right" width="40%" valign="top"><?= $arParameter["Required"] ? "<span style=\"color:red\">*</span> " : ""?><?= htmlspecialcharsbx($arParameter["Name"]) ?>:<?if (strlen($arParameter["Description"]) > 0) echo "<br /><small>".htmlspecialcharsbx($arParameter["Description"])."</small><br />";?></td>
+					<td align="right" width="40%" valign="top"><?= $arParameter["Required"] ? "<span style=\"color:red\">*</span> " : ""?><?= htmlspecialcharsbx($arParameter["Name"]) ?>:<?if ($arParameter["Description"] <> '') echo "<br /><small>".htmlspecialcharsbx($arParameter["Description"])."</small><br />";?></td>
 					<td width="60%" valign="top"><?
 						echo $arResult["DocumentService"]->GetFieldInputControl(
 							array("bizproc", "CBPVirtualDocument", "type_".$arParams["BLOCK_ID"]),
@@ -92,7 +92,7 @@ else
 			}
 			?>
 			</table>
-			<input type="submit" name="DoStartParamWorkflow" value="<?= strlen($arResult["CreateTitle"]) > 0 ? $arResult["CreateTitle"] : GetMessage("BPWC_WRCT_SAVE") ?>" />
+			<input type="submit" name="DoStartParamWorkflow" value="<?= $arResult["CreateTitle"] <> '' ? $arResult["CreateTitle"] : GetMessage("BPWC_WRCT_SAVE") ?>" />
 			<input type="submit" name="CancelStartParamWorkflow" value="<?= GetMessage("BPWC_WRCT_CANCEL") ?>" />
 		</form>
 		<?
@@ -106,7 +106,7 @@ else
 				?>
 				<tr>
 					<td colspan="2">
-						<a href="<?= $arWorkflowTemplate["URL"] ?>"><?= $arWorkflowTemplate["NAME"] ?></a><?= strlen($arWorkflowTemplate["DESCRIPTION"]) > 0 ? ":" : "" ?>
+						<a href="<?= $arWorkflowTemplate["URL"] ?>"><?= $arWorkflowTemplate["NAME"] ?></a><?= $arWorkflowTemplate["DESCRIPTION"] <> '' ? ":" : "" ?>
 						<?= $arWorkflowTemplate["DESCRIPTION"] ?>
 					</td>
 				</tr>

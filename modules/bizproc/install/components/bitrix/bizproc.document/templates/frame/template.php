@@ -28,7 +28,7 @@ $workflows = array();
 
 foreach ($arDocumentStates as $arDocumentState)
 {
-	if (intVal($arDocumentState["WORKFLOW_STATUS"]) < 0):
+	if (intval($arDocumentState["WORKFLOW_STATUS"]) < 0):
 		continue;
 	elseif (!CBPDocument::CanUserOperateDocument(
 		CBPCanUserOperateOperation::ViewWorkflow,

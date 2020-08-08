@@ -10,14 +10,14 @@ if (!CModule::IncludeModule("forum"))
 	return 0;
 
 $this->IncludeComponentLang("action.php");
-$action = strtoupper($arParams["ACTION"]);
+$action = mb_strtoupper($arParams["ACTION"]);
 $action = ($action == "SUPPORT" ? "FORUM_MESSAGE2SUPPORT" : $action);
 
 $post = $this->request->getPostList()->toArray();
 if ($post["AJAX_POST"] == "Y")
 	CUtil::decodeURIComponent($post);
 
-if (strLen($action) <= 0)
+if ($action == '')
 {
 }
 elseif (!check_bitrix_sessid())
@@ -38,16 +38,16 @@ elseif ($_REQUEST["MESSAGE_MODE"] == "VIEW")
 	$arResult["MESSAGE_VIEW"]["AUTHOR_NAME"] = ($USER->IsAuthorized() || empty($post["AUTHOR_NAME"]) ? $arResult["USER"]["SHOW_NAME"] : trim($post["AUTHOR_NAME"]));
 	$arResult["MESSAGE_VIEW"]["TEXT"] = $arResult["POST_MESSAGE_VIEW"];
 	$arFields = array(
-		"FORUM_ID" => intVal($arParams["FID"]), 
-		"TOPIC_ID" => intVal($arParams["TID"]), 
-		"MESSAGE_ID" => intVal($arParams["MID"]), 
-		"USER_ID" => intVal($GLOBALS["USER"]->GetID()));
+		"FORUM_ID" => intval($arParams["FID"]),
+		"TOPIC_ID" => intval($arParams["TID"]),
+		"MESSAGE_ID" => intval($arParams["MID"]),
+		"USER_ID" => intval($GLOBALS["USER"]->GetID()));
 	$arFiles = array();
 	$arFilesExists = array();
 	$res = array();
 	
 	foreach ($_FILES as $key => $val):
-		if (substr($key, 0, strLen("FILE_NEW")) == "FILE_NEW" && !empty($val["name"])):
+		if (mb_substr($key, 0, mb_strlen("FILE_NEW")) == "FILE_NEW" && !empty($val["name"])):
 			$arFiles[] = $_FILES[$key];
 		endif;
 	endforeach;
@@ -100,7 +100,7 @@ else
 			$MID = 0;
 			$db_res = CForumMessage::GetList(array("ID"=>"ASC"), array("TOPIC_ID"=>$arParams["TID"]), false, 1);
 			if (($db_res) && ($res = $db_res->Fetch()))
-				$MID = intVal($res["ID"]);
+				$MID = intval($res["ID"]);
 			if ($MID > 0)
 			{
 				$url = ForumAddPageParams(
@@ -141,7 +141,7 @@ else
 					{
 						$res = array();
 						foreach ($_FILES as $key => $val):
-							if (substr($key, 0, strLen("FILE_NEW")) == "FILE_NEW" && !empty($val["name"])):
+							if (mb_substr($key, 0, mb_strlen("FILE_NEW")) == "FILE_NEW" && !empty($val["name"])):
 								$arFiles[] = $_FILES[$key];
 							endif;
 						endforeach;
@@ -160,7 +160,7 @@ else
 				"VOTE" => (($_GET["VOTES_TYPE"]=="U") ? True : False));
 			$url = CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_MESSAGE"], 
 				array("FID" => $arParams["FID"], "TID" => $arParams["TID"], 
-					"MID" => (intVal($_REQUEST["MID"]) > 0 ? $_REQUEST["MID"] : "s")));
+					"MID" => (intval($_REQUEST["MID"]) > 0 ? $_REQUEST["MID"] : "s")));
 			break;
 		case "HIDE":
 		case "SHOW":
@@ -324,7 +324,7 @@ else
 		}
 		else 
 		{
-			$res = intVal($message); $mid = "s";
+			$res = intval($message); $mid = "s";
 			if (is_array($message)):
 				sort($message);
 				$res = array_pop($message);
@@ -343,14 +343,14 @@ else
 	elseif ($action == "REPLY" || $action == "SHOW")
 	{
 		if ($action == "REPLY")
-			$arParams["MID"] = intVal($res);
+			$arParams["MID"] = intval($res);
 
 		$result = CForumMessage::GetByIDEx($arParams["MID"], array("GET_TOPIC_INFO" => "Y"));
 
 		$arResult["MESSAGE"] = $result;
 		if (is_array($result) && !empty($result))
 		{
-			$arParams["TID"] = intVal($result["TOPIC_ID"]);
+			$arParams["TID"] = intval($result["TOPIC_ID"]);
 			if ($arParams["AUTOSAVE"])
 				$arParams["AUTOSAVE"]->Reset();
 			$sText = (COption::GetOptionString("forum", "FILTER", "Y") == "Y" ? $result["POST_MESSAGE_FILTER"] : $result["POST_MESSAGE"]);
@@ -423,7 +423,7 @@ else
 						"RATING_ENTITY_ID" => intval($arParams["TID"])
 					);
 
-					if (intVal($arFirstMessage["AUTHOR_ID"]) > 0)
+					if (intval($arFirstMessage["AUTHOR_ID"]) > 0)
 						$arFieldsForSocnet["USER_ID"] = $arFirstMessage["AUTHOR_ID"];
 					$log_id = CSocNetLog::Add($arFieldsForSocnet, false);
 					if (intval($log_id) > 0)
@@ -484,7 +484,7 @@ else
 
 					if ($bSocNetLogRecordExists)
 					{
-						if (intVal($arResult["MESSAGE"]["AUTHOR_ID"]) > 0)
+						if (intval($arResult["MESSAGE"]["AUTHOR_ID"]) > 0)
 							$arFieldsForSocnet["USER_ID"] = $arResult["MESSAGE"]["AUTHOR_ID"];
 						$log_comment_id = CSocNetLogComments::Add($arFieldsForSocnet, false, false);
 						CSocNetLog::CounterIncrement($log_comment_id, false, false, "LC");
@@ -598,7 +598,7 @@ else
 	if (empty($arError) && !($arParams['AJAX_POST'] == 'Y' && $action == 'REPLY'))
 	{
 		$url = str_replace("#result#", $res, $url);
-		LocalRedirect(ForumAddPageParams($url, array("result" => strtolower($action)), true, false).(!empty($arParams["MID"]) ? "#message".$arParams["MID"] : ""));
+		LocalRedirect(ForumAddPageParams($url, array("result" => mb_strtolower($action)), true, false).(!empty($arParams["MID"]) ? "#message".$arParams["MID"] : ""));
 	}
 }
 if (!empty($arError))

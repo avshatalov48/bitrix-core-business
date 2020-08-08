@@ -1,36 +1,23 @@
 <?
 
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ErrorCollection;
-use Bitrix\Main\Loader;
-use Bitrix\Main\Error;
-
-use Bitrix\Sender\Security;
-use Bitrix\Sender\Integration;
+use Bitrix\Sender\Access\ActionDictionary;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
+if (!Bitrix\Main\Loader::includeModule('sender'))
+{
+	ShowError('Module `sender` not installed');
+	die();
+}
+
 Loc::loadMessages(__FILE__);
 
-class SenderBlacklistComponent extends CBitrixComponent
+class SenderBlacklistComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 {
-	/** @var ErrorCollection $errors */
-	protected $errors;
-
-	protected function checkRequiredParams()
-	{
-		if (!Loader::includeModule('sender'))
-		{
-			$this->errors->setError(new Error('Module `sender` is not installed.'));
-			return false;
-		}
-
-		return true;
-	}
-
 	protected function initParams()
 	{
 		$this->arParams['SEF_MODE'] = isset($this->arParams['SEF_MODE']) ? $this->arParams['SEF_MODE'] : 'Y';
@@ -72,7 +59,7 @@ class SenderBlacklistComponent extends CBitrixComponent
 			CComponentEngine::initComponentVariables($componentPage, $arComponentVariables, $arVariableAliases, $arVariables);
 			foreach ($arUrlTemplates as $url => $value)
 			{
-				$key = 'PATH_TO_'.strtoupper($url);
+				$key = 'PATH_TO_'.mb_strtoupper($url);
 				$this->arResult[$key] = isset($this->arParams[$key][0]) ? $this->arParams[$key] : $this->arParams['SEF_FOLDER'] . $value;
 			}
 
@@ -99,8 +86,8 @@ class SenderBlacklistComponent extends CBitrixComponent
 			global $APPLICATION;
 			foreach ($arDefaultUrlTemplates404 as $url => $value)
 			{
-				$key = 'PATH_TO_'.strtoupper($url);
-				$value = substr($value, 0, -1);
+				$key = 'PATH_TO_'.mb_strtoupper($url);
+				$value = mb_substr($value, 0, -1);
 				$value = str_replace('/', '&ID=', $value);
 				$lang = isset($_REQUEST['lang']) ? $_REQUEST['lang'] : null;
 				$this->arResult[$key] = $APPLICATION->GetCurPage() . "?$value" . ($lang ? "&lang=$lang" : '');
@@ -141,20 +128,17 @@ class SenderBlacklistComponent extends CBitrixComponent
 
 	public function executeComponent()
 	{
-		$this->errors = new \Bitrix\Main\ErrorCollection();
-		$this->initParams();
-		if (!$this->checkRequiredParams())
-		{
-			$this->printErrors();
-			return;
-		}
+		parent::executeComponent();
+		parent::prepareResultAndTemplate($this->arResult['COMPONENT_PAGE']);
+	}
 
-		if (!$this->prepareResult())
-		{
-			$this->printErrors();
-			return;
-		}
+	public function getEditAction()
+	{
+		return ActionDictionary::ACTION_BLACKLIST_EDIT;
+	}
 
-		$this->includeComponentTemplate($this->arResult['COMPONENT_PAGE']);
+	public function getViewAction()
+	{
+		return ActionDictionary::ACTION_BLACKLIST_VIEW;
 	}
 }

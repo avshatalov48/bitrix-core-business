@@ -259,7 +259,7 @@ if (Loader::requireModule('bizproc'))
 
 		protected static function getUserType(FieldType $fieldType)
 		{
-			return \CIBlockProperty::getUserType(substr($fieldType->getType(), 2));
+			return \CIBlockProperty::getUserType(mb_substr($fieldType->getType(), 2));
 		}
 
 	}

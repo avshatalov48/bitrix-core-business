@@ -37,7 +37,7 @@ foreach ($arResult['FILTER_FIELDS'] as $code => $field)
 		$field['items'] = array_flip($field['items']);
 		foreach ($field['items'] as $key => &$title)
 		{
-			$title = Loc::getMessage('LANDING_TPL_FLT_' . $code . '_' . strtoupper($key));
+			$title = Loc::getMessage('LANDING_TPL_FLT_'.$code.'_'.mb_strtoupper($key));
 			if (!$title)
 			{
 				$title = $key;
@@ -52,7 +52,7 @@ unset($code, $field);
 // rewrite filter fields for adding titles
 foreach ($arResult['FILTER_PRESETS'] as $code => &$field)
 {
-	$name = Loc::getMessage('LANDING_TPL_PRS_' . strtoupper($code));
+	$name = Loc::getMessage('LANDING_TPL_PRS_'.mb_strtoupper($code));
 	if (!$name)
 	{
 		$name = $code;

@@ -286,7 +286,7 @@ function fChangeOrderStatus($ID, $STATUS_ID)
 	$errorMessageTmp = "";
 
 	$STATUS_ID = trim($STATUS_ID);
-	if (strlen($STATUS_ID) <= 0)
+	if ($STATUS_ID == '')
 		$errorMessageTmp .= GetMessage("ERROR_NO_STATUS").". ";
 
 	if ('' == $errorMessageTmp)
@@ -584,15 +584,15 @@ function fGetBuyerType($PERSON_TYPE_ID, $LID, $USER_ID = '', $ORDER_ID = 0, $for
 		$locationIndexForm = "";
 		foreach ($_POST as $key => $value)
 		{
-			if (substr($key, 0, strlen("CITY_ORDER_PROP_")) == "CITY_ORDER_PROP_")
+			if (mb_substr($key, 0, mb_strlen("CITY_ORDER_PROP_")) == "CITY_ORDER_PROP_")
 			{
-				$arPropValues[intval(substr($key, strlen("CITY_ORDER_PROP_")))] = htmlspecialcharsbx($value);
-				$locationIndexForm = intval(substr($key, strlen("CITY_ORDER_PROP_")));
+				$arPropValues[intval(mb_substr($key, mb_strlen("CITY_ORDER_PROP_")))] = htmlspecialcharsbx($value);
+				$locationIndexForm = intval(mb_substr($key, mb_strlen("CITY_ORDER_PROP_")));
 			}
-			if (substr($key, 0, strlen("ORDER_PROP_")) == "ORDER_PROP_")
+			if (mb_substr($key, 0, mb_strlen("ORDER_PROP_")) == "ORDER_PROP_")
 			{
-				if ($locationIndexForm != intval(substr($key, strlen("ORDER_PROP_"))) && !is_array($value))
-					$arPropValues[intval(substr($key, strlen("ORDER_PROP_")))] = htmlspecialcharsbx($value);
+				if ($locationIndexForm != intval(mb_substr($key, mb_strlen("ORDER_PROP_"))) && !is_array($value))
+					$arPropValues[intval(mb_substr($key, mb_strlen("ORDER_PROP_")))] = htmlspecialcharsbx($value);
 			}
 		}
 		$userComment = $_POST["USER_DESCRIPTION"];
@@ -701,7 +701,7 @@ function fGetBuyerType($PERSON_TYPE_ID, $LID, $USER_ID = '', $ORDER_ID = 0, $for
 
 		if($arProperties["IS_EMAIL"] == "Y" || $arProperties["IS_PAYER"] == "Y")
 		{
-			if(strlen($arProperties["DEFAULT_VALUE"]) <= 0 && intval($USER_ID) > 0)
+			if($arProperties["DEFAULT_VALUE"] == '' && intval($USER_ID) > 0)
 			{
 				$rsUser = CUser::GetByID($USER_ID);
 				if ($arUser = $rsUser->Fetch())
@@ -710,11 +710,11 @@ function fGetBuyerType($PERSON_TYPE_ID, $LID, $USER_ID = '', $ORDER_ID = 0, $for
 						$arProperties["DEFAULT_VALUE"] = $arUser["EMAIL"];
 					else
 					{
-						if (strlen($arUser["LAST_NAME"]) > 0)
+						if ($arUser["LAST_NAME"] <> '')
 							$arProperties["DEFAULT_VALUE"] .= $arUser["LAST_NAME"];
-						if (strlen($arUser["NAME"]) > 0)
+						if ($arUser["NAME"] <> '')
 							$arProperties["DEFAULT_VALUE"] .= " ".$arUser["NAME"];
-						if (strlen($arUser["SECOND_NAME"]) > 0 AND strlen($arUser["NAME"]) > 0)
+						if ($arUser["SECOND_NAME"] <> '' AND $arUser["NAME"] <> '')
 							$arProperties["DEFAULT_VALUE"] .= " ".$arUser["SECOND_NAME"];
 					}
 				}
@@ -750,15 +750,15 @@ function fGetBuyerType($PERSON_TYPE_ID, $LID, $USER_ID = '', $ORDER_ID = 0, $for
 				$resultHtml .= '>';
 
 				$BREAK_LAST_NAME_TMP = GetMessage('NEWO_BREAK_LAST_NAME');
-				if (isset($_REQUEST["BREAK_LAST_NAME"]) && strlen($_REQUEST["BREAK_LAST_NAME"]) > 0)
+				if (isset($_REQUEST["BREAK_LAST_NAME"]) && $_REQUEST["BREAK_LAST_NAME"] <> '')
 					$BREAK_LAST_NAME_TMP = htmlspecialcharsbx(trim($_REQUEST["BREAK_LAST_NAME"]));
 
 				$NEWO_BREAK_NAME_TMP = GetMessage('NEWO_BREAK_NAME');
-				if (isset($_REQUEST["BREAK_NAME"]) && strlen($_REQUEST["BREAK_NAME"]) > 0)
+				if (isset($_REQUEST["BREAK_NAME"]) && $_REQUEST["BREAK_NAME"] <> '')
 					$NEWO_BREAK_NAME_TMP = htmlspecialcharsbx(trim($_REQUEST["BREAK_NAME"]));
 
 				$BREAK_SECOND_NAME_TMP = GetMessage('NEWO_BREAK_SECOND_NAME');
-				if (isset($_REQUEST["BREAK_SECOND_NAME"]) && strlen($_REQUEST["BREAK_SECOND_NAME"]) > 0)
+				if (isset($_REQUEST["BREAK_SECOND_NAME"]) && $_REQUEST["BREAK_SECOND_NAME"] <> '')
 					$BREAK_SECOND_NAME_TMP = htmlspecialcharsbx(trim($_REQUEST["BREAK_SECOND_NAME"]));
 
 				$resultHtml .= '<div class="fio newo_break_active">'.
@@ -836,7 +836,7 @@ function fGetBuyerType($PERSON_TYPE_ID, $LID, $USER_ID = '', $ORDER_ID = 0, $for
 
 			if (!is_array($curVal))
 			{
-				if (strlen($curVal) > 0 OR $ORDER_ID != "")
+				if ($curVal <> '' OR $ORDER_ID != "")
 					$curVal = explode(",", $curVal);
 				else
 					$curVal = explode(",", $arProperties["DEFAULT_VALUE"]);
@@ -970,7 +970,7 @@ function fGetBuyerType($PERSON_TYPE_ID, $LID, $USER_ID = '', $ORDER_ID = 0, $for
 			$resultHtml .= fShowFilePropertyField("ORDER_PROP_".$arProperties["ID"], $arProperties, $arValues, $arProperties["SIZE1"], $formVarsSubmit);
 		}
 
-		if (strlen($arProperties["DESCRIPTION"]) > 0)
+		if ($arProperties["DESCRIPTION"] <> '')
 		{
 			$resultHtml .= "<br><small>".htmlspecialcharsEx($arProperties["DESCRIPTION"])."</small>";
 		}
@@ -1006,24 +1006,24 @@ function getOrderPropertiesHTML($arOrderProps, $arPropValues = array(), $LID, $U
 		$locationIndexForm = "";
 		foreach ($_POST as $key => $value)
 		{
-			if (substr($key, 0, strlen("CITY_ORDER_PROP_")) == "CITY_ORDER_PROP_")
+			if (mb_substr($key, 0, mb_strlen("CITY_ORDER_PROP_")) == "CITY_ORDER_PROP_")
 			{
-				$arPropValues[intval(substr($key, strlen("CITY_ORDER_PROP_")))] = htmlspecialcharsbx($value);
-				$locationIndexForm = intval(substr($key, strlen("CITY_ORDER_PROP_")));
+				$arPropValues[intval(mb_substr($key, mb_strlen("CITY_ORDER_PROP_")))] = htmlspecialcharsbx($value);
+				$locationIndexForm = intval(mb_substr($key, mb_strlen("CITY_ORDER_PROP_")));
 			}
-			if (substr($key, 0, strlen("ORDER_PROP_")) == "ORDER_PROP_")
+			if (mb_substr($key, 0, mb_strlen("ORDER_PROP_")) == "ORDER_PROP_")
 			{
-				if ($locationIndexForm != intval(substr($key, strlen("ORDER_PROP_"))))
+				if ($locationIndexForm != intval(mb_substr($key, mb_strlen("ORDER_PROP_"))))
 				{
 					if (!is_array($value))
-						$arPropValues[intval(substr($key, strlen("ORDER_PROP_")))] = htmlspecialcharsbx($value);
+						$arPropValues[intval(mb_substr($key, mb_strlen("ORDER_PROP_")))] = htmlspecialcharsbx($value);
 					else
 					{
 						$arValues = array();
 						foreach ($value as $k => $v)
 							$arValues[$key] = htmlspecialcharsbx($v);
 
-						$arPropValues[intval(substr($key, strlen("ORDER_PROP_")))] = $arValues;
+						$arPropValues[intval(mb_substr($key, mb_strlen("ORDER_PROP_")))] = $arValues;
 					}
 				}
 			}
@@ -1069,7 +1069,7 @@ function getOrderPropertiesHTML($arOrderProps, $arPropValues = array(), $LID, $U
 
 			if($arProperties["IS_EMAIL"] == "Y" || $arProperties["IS_PAYER"] == "Y")
 			{
-				if(strlen($arProperties["DEFAULT_VALUE"]) <= 0 && intval($USER_ID) > 0)
+				if($arProperties["DEFAULT_VALUE"] == '' && intval($USER_ID) > 0)
 				{
 					$rsUser = CUser::GetByID($USER_ID);
 					if ($arUser = $rsUser->Fetch())
@@ -1078,11 +1078,11 @@ function getOrderPropertiesHTML($arOrderProps, $arPropValues = array(), $LID, $U
 							$arProperties["DEFAULT_VALUE"] = $arUser["EMAIL"];
 						else
 						{
-							if (strlen($arUser["LAST_NAME"]) > 0)
+							if ($arUser["LAST_NAME"] <> '')
 								$arProperties["DEFAULT_VALUE"] .= $arUser["LAST_NAME"];
-							if (strlen($arUser["NAME"]) > 0)
+							if ($arUser["NAME"] <> '')
 								$arProperties["DEFAULT_VALUE"] .= " ".$arUser["NAME"];
-							if (strlen($arUser["SECOND_NAME"]) > 0 AND strlen($arUser["NAME"]) > 0)
+							if ($arUser["SECOND_NAME"] <> '' AND $arUser["NAME"] <> '')
 								$arProperties["DEFAULT_VALUE"] .= " ".$arUser["SECOND_NAME"];
 						}
 					}
@@ -1118,15 +1118,15 @@ function getOrderPropertiesHTML($arOrderProps, $arPropValues = array(), $LID, $U
 					$resultHtml .= '>';
 
 					$BREAK_LAST_NAME_TMP = GetMessage('NEWO_BREAK_LAST_NAME');
-					if (isset($_REQUEST["BREAK_LAST_NAME"]) && strlen($_REQUEST["BREAK_LAST_NAME"]) > 0)
+					if (isset($_REQUEST["BREAK_LAST_NAME"]) && $_REQUEST["BREAK_LAST_NAME"] <> '')
 						$BREAK_LAST_NAME_TMP = htmlspecialcharsbx(trim($_REQUEST["BREAK_LAST_NAME"]));
 
 					$NEWO_BREAK_NAME_TMP = GetMessage('NEWO_BREAK_NAME');
-					if (isset($_REQUEST["BREAK_NAME"]) && strlen($_REQUEST["BREAK_NAME"]) > 0)
+					if (isset($_REQUEST["BREAK_NAME"]) && $_REQUEST["BREAK_NAME"] <> '')
 						$NEWO_BREAK_NAME_TMP = htmlspecialcharsbx(trim($_REQUEST["BREAK_NAME"]));
 
 					$BREAK_SECOND_NAME_TMP = GetMessage('NEWO_BREAK_SECOND_NAME');
-					if (isset($_REQUEST["BREAK_SECOND_NAME"]) && strlen($_REQUEST["BREAK_SECOND_NAME"]) > 0)
+					if (isset($_REQUEST["BREAK_SECOND_NAME"]) && $_REQUEST["BREAK_SECOND_NAME"] <> '')
 						$BREAK_SECOND_NAME_TMP = htmlspecialcharsbx(trim($_REQUEST["BREAK_SECOND_NAME"]));
 
 					$resultHtml .= '<div class="fio newo_break_active">'.
@@ -1202,7 +1202,7 @@ function getOrderPropertiesHTML($arOrderProps, $arPropValues = array(), $LID, $U
 
 				if (!is_array($curVal))
 				{
-					if (strlen($curVal) > 0 OR $ORDER_ID != "")
+					if ($curVal <> '' OR $ORDER_ID != "")
 						$curVal = explode(",", $curVal);
 					else
 						$curVal = explode(",", $arProperties["DEFAULT_VALUE"]);
@@ -1314,7 +1314,7 @@ function getOrderPropertiesHTML($arOrderProps, $arPropValues = array(), $LID, $U
 				$resultHtml .= fShowFilePropertyField("ORDER_PROP_".$arProperties["ID"], $arProperties, $arValues, $arProperties["SIZE1"], $formVarsSubmit);
 			}
 
-			if (strlen($arProperties["DESCRIPTION"]) > 0)
+			if ($arProperties["DESCRIPTION"] <> '')
 			{
 				$resultHtml .= "<br><small>".htmlspecialcharsEx($arProperties["DESCRIPTION"])."</small>";
 			}
@@ -2096,7 +2096,7 @@ function convertHistoryToNewFormat($arFields)
 {
 	foreach ($arFields as $fieldname => $fieldvalue)
 	{
-		if (strlen($fieldvalue) > 0)
+		if ($fieldvalue <> '')
 		{
 			foreach (CSaleOrderChangeFormat::$operationTypes as $code => $arInfo)
 			{
@@ -2152,7 +2152,7 @@ function getIblockPropInfo($value, $propData, $arSize = array("WIDTH" => 90, "HE
 		$arVal = array();
 		if (!is_array($value))
 		{
-			if (strpos($value, ",") !== false)
+			if (mb_strpos($value, ",") !== false)
 				$arVal = explode(",", $value);
 			else
 				$arVal[] = $value;
@@ -2166,14 +2166,14 @@ function getIblockPropInfo($value, $propData, $arSize = array("WIDTH" => 90, "HE
 			{
 				if ($propData["PROPERTY_TYPE"] == "F")
 				{
-					if (strlen($res) > 0)
+					if ($res <> '')
 						$res .= "<br/> ".showImageOrDownloadLink(trim($val), $orderId, $arSize);
 					else
 						$res = showImageOrDownloadLink(trim($val), $orderId, $arSize);
 				}
 				else
 				{
-					if (strlen($res) > 0)
+					if ($res <> '')
 						$res .= ", ".$val;
 					else
 						$res = $val;
@@ -2189,7 +2189,7 @@ function getIblockPropInfo($value, $propData, $arSize = array("WIDTH" => 90, "HE
 			$res = $value;
 	}
 
-	if (strlen($res) == 0)
+	if ($res == '')
 		$res = "&nbsp";
 
 	return $res;
@@ -2367,8 +2367,8 @@ function getProductDataToFillBasket($productId, $quantity, $userId, $LID, $userC
 		}
 		else
 		{
-			$column = strtoupper($column);
-			$propertyCode = substr($column, 9);
+			$column = mb_strtoupper($column);
+			$propertyCode = mb_substr($column, 9);
 			if ($propertyCode == '')
 			{
 				unset($arUserColumns[$key]);
@@ -2418,7 +2418,7 @@ function getProductDataToFillBasket($productId, $quantity, $userId, $LID, $userC
 		{
 			foreach ($arElement as $key => $value)
 			{
-				if (strncmp($key, 'PROPERTY_', 9) == 0 && substr($key, -6) == "_VALUE")
+				if (strncmp($key, 'PROPERTY_', 9) == 0 && mb_substr($key, -6) == "_VALUE")
 				{
 					$columnCode = str_replace("_VALUE", "", $key);
 					if (!isset($arPropertyInfo[$columnCode]))
@@ -2446,13 +2446,13 @@ function getProductDataToFillBasket($productId, $quantity, $userId, $LID, $userC
 				$fieldVal = $field."_VALUE";
 				$parentId = $arSku2Parent[$productId];
 
-				if ((!isset($arElementInfo[$fieldVal]) || (isset($arElementInfo[$fieldVal]) && strlen($arElementInfo[$fieldVal]) == 0))
+				if ((!isset($arElementInfo[$fieldVal]) || (isset($arElementInfo[$fieldVal]) && $arElementInfo[$fieldVal] == ''))
 					&& (isset($arProductData[$parentId][$fieldVal]) && !empty($arProductData[$parentId][$fieldVal]))) // can be array or string
 				{
 					$arElementInfo[$fieldVal] = $arProductData[$parentId][$fieldVal];
 				}
 			}
-			if (strpos($arElementInfo["~XML_ID"], '#') === false)
+			if (mb_strpos($arElementInfo["~XML_ID"], '#') === false)
 			{
 				$arElementInfo["~XML_ID"] = $arParent['~XML_ID'].'#'.$arElementInfo["~XML_ID"];
 			}

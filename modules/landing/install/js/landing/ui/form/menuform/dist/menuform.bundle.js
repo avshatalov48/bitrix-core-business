@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports, main_core, landing_loc, landing_env, landing_main, landing_ui_form_baseform, landing_ui_form_menuitemform, ui_draganddrop_draggable) {
+(function (exports,main_core,landing_loc,landing_env,landing_main,landing_ui_form_baseform,landing_ui_form_menuitemform,ui_draganddrop_draggable) {
 	'use strict';
 
 	function _templateObject2() {
@@ -127,12 +127,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "onAddButtonClick",
 	    value: function onAddButtonClick(event) {
 	      event.preventDefault();
+	      var content = {
+	        text: landing_loc.Loc.getMessage('LANDING_NEW_PAGE_LABEL'),
+	        target: '_blank'
+	      }; // need create new page from menu only in KB
+
+	      content.href = landing_env.Env.getInstance().getType() === 'KNOWLEDGE' || landing_env.Env.getInstance().getType() === 'GROUP' ? '#landing0' : '';
 	      var field = new BX.Landing.UI.Field.Link({
-	        content: {
-	          text: landing_loc.Loc.getMessage('LANDING_NEW_PAGE_LABEL'),
-	          href: '#landing0',
-	          target: '_blank'
-	        },
+	        content: content,
 	        options: {
 	          siteId: landing_env.Env.getInstance().getSiteId(),
 	          landingId: landing_main.Main.getInstance().id,
@@ -187,5 +189,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.MenuForm = MenuForm;
 
-}(this.BX.Landing.UI.Form = this.BX.Landing.UI.Form || {}, BX, BX.Landing, BX.Landing, BX.Landing, BX.Landing.UI.Form, BX.Landing.UI.Form, BX.UI.DragAndDrop));
+}((this.BX.Landing.UI.Form = this.BX.Landing.UI.Form || {}),BX,BX.Landing,BX.Landing,BX.Landing,BX.Landing.UI.Form,BX.Landing.UI.Form,BX.UI.DragAndDrop));
 //# sourceMappingURL=menuform.bundle.js.map

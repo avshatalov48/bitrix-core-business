@@ -826,7 +826,7 @@ CAdminFileDialog::ShowScript(Array
 	(
 		"event" => "OpenFileBrowserWindImage",
 		"arResultDest" => Array("FUNCTION_NAME" => "SetUrl"),
-		"arPath" => Array("SITE" => $_GET["site"], "PATH" =>(strlen($str_FILENAME)>0 ? GetDirPath($str_FILENAME) : '')),
+		"arPath" => Array("SITE" => $_GET["site"], "PATH" =>($str_FILENAME <> '' ? GetDirPath($str_FILENAME) : '')),
 		"select" => 'F',// F - file only, D - folder only
 		"operation" => 'O',// O - open, S - save
 		"showUploadTab" => true,
@@ -2171,7 +2171,7 @@ CAdminFileDialog::ShowScript(Array
 	(
 		"event" => "OpenFileBrowserWindFlash",
 		"arResultDest" => Array("FUNCTION_NAME" => "SetUrl"),
-		"arPath" => Array("SITE" => $_GET["site"], "PATH" =>(strlen($str_FILENAME)>0 ? GetDirPath($str_FILENAME) : '')),
+		"arPath" => Array("SITE" => $_GET["site"], "PATH" =>($str_FILENAME <> '' ? GetDirPath($str_FILENAME) : '')),
 		"select" => 'F',// F - file only, D - folder only,
 		"operation" => 'O',// O - open, S - save
 		"showUploadTab" => true,

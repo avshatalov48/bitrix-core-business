@@ -41,7 +41,7 @@ CModule::AddAutoloadClasses("vote", array(
 	"bitrix\\vote\\attachment\\controller" => "lib/attachment/controller.php",
 	"bitrix\\vote\\attachment\\defaultconnector" => "lib/attachment/defaultconnector.php",
 	"bitrix\\vote\\attachment\\forummessageconnector" => "lib/attachment/forummessageconnector.php",
-	"bitrix\\vote\\attachment\\storable" => "lib/attachment/storage.php",
+	"bitrix\\vote\\attachment\\storable" => "lib/attachment/storable.php",
 	"bitrix\\vote\\base\\baseobject" => "lib/base/baseobject.php",
 	"bitrix\\vote\\base\\controller" => "lib/base/controller.php",
 	"bitrix\\vote\\base\\diag" => "lib/base/diag.php",

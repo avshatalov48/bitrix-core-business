@@ -21,7 +21,7 @@ final class BasketBuilderRest extends BasketBuilder
 
 	public static function isBasketItemNew($basketCode)
 	{
-		return (strpos($basketCode, 'n') === 0);
+		return (mb_strpos($basketCode, 'n') === 0);
 	}
 	// переопределяем родительский метод,
 	// как временное решение т.к. в админке не поддерживается работа с корзиной в которой одинаковый товар

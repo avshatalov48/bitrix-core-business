@@ -210,7 +210,7 @@ class CDeliveryUaPost
 	{
 		foreach ($arSettings as $key => $value)
 		{
-			if (strlen($value) > 0)
+			if ($value <> '')
 				$arSettings[$key] = $value;
 			else
 				unset($arSettings[$key]);

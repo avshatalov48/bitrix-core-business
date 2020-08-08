@@ -52,8 +52,8 @@ $tabControl = new CAdminForm("form_catalog_edit_".$IBLOCK_ID, $aTabs);
 if(
 	$_SERVER["REQUEST_METHOD"] == "POST"
 	&& (
-		(isset($_REQUEST["save"]) && strlen($_REQUEST["save"]) > 0)
-		|| (isset($_REQUEST["apply"]) && strlen($_REQUEST["apply"]) > 0)
+		(isset($_REQUEST["save"]) && $_REQUEST["save"] <> '')
+		|| (isset($_REQUEST["apply"]) && $_REQUEST["apply"] <> '')
 	)
 	&& check_bitrix_sessid()
 )
@@ -167,7 +167,7 @@ if(
 		}
 
 		$redirectUrl = $selfFolderUrl."cat_catalog_edit.php?lang=".LANGUAGE_ID."&IBLOCK_ID=".$IBLOCK_ID."&".$tabControl->ActiveTabParam();
-		$adminSidePanelHelper->reloadPage($redirectUrl, (strlen($_REQUEST["apply"]) > 0 ? "apply" : "save"));
+		$adminSidePanelHelper->reloadPage($redirectUrl, ($_REQUEST["apply"] <> '' ? "apply" : "save"));
 		$redirectUrl = $adminSidePanelHelper->setDefaultQueryParams($redirectUrl);
 		LocalRedirect($redirectUrl);
 	}

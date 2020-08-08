@@ -6,7 +6,7 @@ class CSecuritySessionMC
 	protected static $sessionId = null;
 	protected static $isReadOnly = false;
 	protected static $isSessionReady = false;
-
+	protected static $hasFailedRead = false;
 	/**
 	 * @return bool
 	 */
@@ -104,7 +104,14 @@ class CSecuritySessionMC
 		self::$isSessionReady = true;
 		$res = self::$connection->get($sid.$id);
 		if($res === false)
+		{
+			if (!self::$hasFailedRead)
+			{
+				AddEventHandler("main", "OnPageStart", array("CSecuritySession", "UpdateSessID"));
+				self::$hasFailedRead = true;
+			}
 			$res = "";
+		}
 
 		return $res;
 	}

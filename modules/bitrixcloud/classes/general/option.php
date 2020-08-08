@@ -173,7 +173,7 @@ abstract class CAllBitrixCloudOption
 	public function getArrayValue()
 	{
 		global $CACHE_MANAGER;
-		if (strlen($this->name) <= 0)
+		if ($this->name == '')
 			return /*.(array[string]string).*/ array();
 
 		if (!isset($this->value))
@@ -229,7 +229,7 @@ abstract class CAllBitrixCloudOption
 	public function setArrayValue($value)
 	{
 		global $CACHE_MANAGER;
-		if (strlen($this->name) > 0)
+		if ($this->name <> '')
 		{
 			$stored = $this->getArrayValue();
 			if ($stored !== $value)

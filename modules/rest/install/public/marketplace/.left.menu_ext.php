@@ -8,7 +8,18 @@ IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/rest/install/pu
 
 $arMenu = array();
 
-if(SITE_TEMPLATE_ID == 'bitrix24' || \Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24'))
+$extranetSite = (
+	\Bitrix\Main\Loader::includeModule('extranet')
+	&& \CExtranet::isExtranetSite(SITE_ID)
+);
+
+if(
+	!$extranetSite
+	&& (
+		SITE_TEMPLATE_ID == 'bitrix24'
+		|| \Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24')
+	)
+)
 {
 	$arMenu[] = Array(
 		GetMessage("MENU_MARKETPLACE_ALL"),
@@ -19,7 +30,10 @@ if(SITE_TEMPLATE_ID == 'bitrix24' || \Bitrix\Main\ModuleManager::isModuleInstall
 	);
 }
 
-if(CModule::IncludeModule("rest"))
+if(
+	!$extranetSite
+	&& CModule::IncludeModule("rest")
+)
 {
 	if (\CRestUtil::isAdmin())
 	{

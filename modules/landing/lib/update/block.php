@@ -171,9 +171,9 @@ class Block extends \Bitrix\Main\Update\Stepper
 	/**
 	 * Execute one step.
 	 * @param array $filter Filter for step.
-	 * @param int $count Updated count.
+	 * @param int &$count Updated count.
 	 * @param int $limit Select limit.
-	 * @param array Additional params.
+	 * @param array $params Additional params.
 	 * @return int Last updated id.
 	 */
 	public static function executeStep(array $filter, &$count = 0, $limit = 0, array $params = [])
@@ -280,8 +280,23 @@ class Block extends \Bitrix\Main\Update\Stepper
 			// update nodes
 			if ($export['nodes'])
 			{
+				foreach ($export['nodes'] as $selector => $node)
+				{
+					if (isset($params[$selector]['update_video_to_lazyload']))
+					{
+						$export['nodes'][$selector] = self::updateVideoToLazyload($node);
+					}
+				}
+
 				$block->updateNodes(
 					$export['nodes']
+				);
+			}
+			// update menu
+			if ($export['menu'])
+			{
+				$block->updateNodes(
+					$export['menu']
 				);
 			}
 			// update attrs
@@ -400,5 +415,29 @@ class Block extends \Bitrix\Main\Update\Stepper
 			UpdateBlock::delete($rowUpdate['ID']);
 			return true;//for check next item in UpdateBlock
 		}
+	}
+
+	protected static function updateVideoToLazyload($nodes)
+	{
+		foreach($nodes as $key => $node)
+		{
+			if($node['src'])
+			{
+				// youtube
+				if (strpos($node['src'], 'www.youtube.com') !== false)
+				{
+					if (!$node['preview'] && $node['source'])
+					{
+						$pattern = "#(youtube\\.com|youtu\\.be|youtube\\-nocookie\\.com)\\/(watch\\?(.*&)?v=|v\\/|u\\/|embed\\/?)?(videoseries\\?list=(.*)|[\\w-]{11}|\\?listType=(.*)&list=(.*))(.*)#";
+						if(preg_match($pattern, $node['source'], $matches))
+						{
+							$nodes[$key]['preview'] = "//img.youtube.com/vi/{$matches[4]}/sddefault.jpg";
+						}
+					}
+				}
+			}
+		}
+
+		return $nodes;
 	}
 }

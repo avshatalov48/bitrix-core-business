@@ -35,9 +35,9 @@ $APPLICATION->IncludeComponent(
 	$this->getComponent()
 );
 
-if(strlen($arParams["PATH_TO_USER_POST"]) <= 0)	
+if($arParams["PATH_TO_USER_POST"] == '')
 	$arParams["PATH_TO_USER_POST"] = "/company/personal/user/#user_id#/blog/#post_id#/";
-if(strlen($arParams["PATH_TO_USER_POST_EDIT"]) <= 0)	
+if($arParams["PATH_TO_USER_POST_EDIT"] == '')
 	$arParams["PATH_TO_USER_POST_EDIT"] = "/company/personal/user/#user_id#/blog/edit/#post_id#/";
 
 $APPLICATION->IncludeComponent(

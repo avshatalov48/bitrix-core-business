@@ -9,18 +9,20 @@ global $APPLICATION;
 
 if(CModule::IncludeModule("statistic"))
 {
-	if(strlen($_REQUEST["site_id"]) <= 0)
+	if($_REQUEST["site_id"] == '')
 	{
 		$site_id = false;
-		$referer_url = strlen($_SERVER["HTTP_REFERER"]) <= 0? $_SESSION["SESS_HTTP_REFERER"]: $_SERVER["HTTP_REFERER"];
-		if(strlen($referer_url))
+		$referer_url = $_SERVER["HTTP_REFERER"] == ''? $_SESSION["SESS_HTTP_REFERER"]: $_SERVER["HTTP_REFERER"];
+		if($referer_url <> '')
 		{
 			$url = @parse_url($referer_url);
 			if($url)
 			{
-				$rs = CSite::GetList($v1="LENDIR", $v2="DESC", Array("ACTIVE"=>"Y", "DOMAIN"=> "%".$url["host"], "IN_DIR"=>$url["path"]));
+				$rs = CSite::GetList($v1 = "LENDIR", $v2 = "DESC", Array("ACTIVE" => "Y", "DOMAIN" => "%".$url["host"], "IN_DIR" => $url["path"]));
 				if($arr = $rs->Fetch())
+				{
 					$site_id = $arr["ID"];
+				}
 			}
 		}
 	}

@@ -7,10 +7,13 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale;
 use Bitrix\Sale\PaySystem;
 
-Loader::registerAutoLoadClasses('sale', array(PaySystem\Manager::getClassNameFromPath('Bill') => 'handlers/paysystem/bill/handler.php'));
-
+PaySystem\Manager::includeHandler('Bill');
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class BillByHandler
+ * @package Sale\Handlers\PaySystem
+ */
 class BillByHandler extends BillHandler
 {
 	/**

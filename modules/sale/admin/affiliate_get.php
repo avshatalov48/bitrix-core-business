@@ -22,7 +22,7 @@ if (!CBXFeatures::IsFeatureEnabled('SaleAffiliate'))
 </head>
 <body><?
 $res = "";
-$ID = IntVal($ID);
+$ID = intval($ID);
 $func_name = preg_replace("/[^a-zA-Z0-9_-]/is", "", $func_name);
 
 if ($ID > 0)

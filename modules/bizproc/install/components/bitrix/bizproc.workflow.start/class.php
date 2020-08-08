@@ -31,22 +31,22 @@ class BizprocWorkflowStart extends \CBitrixComponent
 		$this->arResult["back_url"] = trim($_REQUEST["back_url"]);
 
 		$arError = array();
-		if (strlen($this->arParams["MODULE_ID"]) <= 0)
+		if ($this->arParams["MODULE_ID"] == '')
 			$arError[] = array(
 				"id" => "empty_module_id",
 				"text" => GetMessage("BPATT_NO_MODULE_ID"));
-		if (strlen($this->arParams["ENTITY"]) <= 0)
+		if ($this->arParams["ENTITY"] == '')
 			$arError[] = array(
 				"id" => "empty_entity",
 				"text" => GetMessage("BPABS_EMPTY_ENTITY"));
-		if (strlen($this->arParams["DOCUMENT_TYPE"]) <= 0)
+		if ($this->arParams["DOCUMENT_TYPE"] == '')
 			$arError[] = array(
 				"id" => "empty_document_type",
 				"text" => GetMessage("BPABS_EMPTY_DOC_TYPE"));
 
 		$this->arParams["DOCUMENT_TYPE"] = array($this->arParams["MODULE_ID"], $this->arParams["ENTITY"], $this->arParams["DOCUMENT_TYPE"]);
 
-		if (strlen($this->arParams["DOCUMENT_ID"]) <= 0 && $this->arParams["AUTO_EXECUTE_TYPE"] === null)
+		if ($this->arParams["DOCUMENT_ID"] == '' && $this->arParams["AUTO_EXECUTE_TYPE"] === null)
 			$arError[] = array(
 				"id" => "empty_document_id",
 				"text" => GetMessage("BPABS_EMPTY_DOC_ID"));
@@ -111,14 +111,16 @@ class BizprocWorkflowStart extends \CBitrixComponent
 		$this->arResult["DocumentService"] = $runtime->GetService("DocumentService");
 
 		$dbWorkflowTemplate = CBPWorkflowTemplateLoader::GetList(
-			array(),
-			array(
-				"DOCUMENT_TYPE" => $this->arParams["DOCUMENT_TYPE"], "ACTIVE" => "Y",
+			['SORT' => 'ASC', 'NAME' => 'ASC'],
+			[
+				"DOCUMENT_TYPE" => $this->arParams["DOCUMENT_TYPE"],
+				"ACTIVE" => "Y",
+				'IS_SYSTEM' => 'N',
 				'!AUTO_EXECUTE' => CBPDocumentEventType::Automation
-			),
+			],
 			false,
 			false,
-			array("ID", "NAME", "DESCRIPTION", "MODIFIED", "USER_ID", "PARAMETERS")
+			["ID", "NAME", "DESCRIPTION", "MODIFIED", "USER_ID", "PARAMETERS"]
 		);
 		while ($arWorkflowTemplate = $dbWorkflowTemplate->GetNext())
 		{
@@ -139,7 +141,7 @@ class BizprocWorkflowStart extends \CBitrixComponent
 					Array("workflow_template_id", "sessid")));
 		}
 
-		if ($this->arParams["TEMPLATE_ID"] > 0 && strlen($_POST["CancelStartParamWorkflow"]) <= 0
+		if ($this->arParams["TEMPLATE_ID"] > 0 && $_POST["CancelStartParamWorkflow"] == ''
 			&& array_key_exists($this->arParams["TEMPLATE_ID"], $this->arResult["TEMPLATES"]))
 		{
 			$arWorkflowTemplate = $this->arResult["TEMPLATES"][$this->arParams["TEMPLATE_ID"]];
@@ -152,7 +154,7 @@ class BizprocWorkflowStart extends \CBitrixComponent
 			{
 				$bCanStartWorkflow = true;
 			}
-			elseif ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_POST["DoStartParamWorkflow"]) > 0)
+			elseif ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["DoStartParamWorkflow"] <> '')
 			{
 				$arErrorsTmp = array();
 
@@ -237,7 +239,7 @@ class BizprocWorkflowStart extends \CBitrixComponent
 				else
 				{
 					$this->arResult["SHOW_MODE"] = "StartWorkflowSuccess";
-					if (strlen($this->arResult["back_url"]) > 0):
+					if ($this->arResult["back_url"] <> ''):
 						LocalRedirect(str_replace("#WF#", $wfId, $_REQUEST["back_url"]));
 						die();
 					endif;
@@ -245,7 +247,7 @@ class BizprocWorkflowStart extends \CBitrixComponent
 			}
 			else
 			{
-				$p = ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_POST["DoStartParamWorkflow"]) > 0);
+				$p = ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["DoStartParamWorkflow"] <> '');
 				$keys = array_keys($arWorkflowTemplate["PARAMETERS"]);
 				foreach ($keys as $key)
 				{

@@ -42,7 +42,7 @@ class Search
 		if (!empty(self::$catalogList[$fields['PARAM2']]) && isset($fields['ITEM_ID']))
 		{
 			$fields['PARAMS']['iblock_section'] = array();
-			if (strpos($fields['ITEM_ID'], 'S') === false)
+			if (mb_strpos($fields['ITEM_ID'], 'S') === false)
 			{
 				$sections = Iblock\SectionElementTable::getList(array(
 					'select' => array('IBLOCK_SECTION_ID'),

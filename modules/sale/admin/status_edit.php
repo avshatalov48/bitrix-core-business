@@ -1,7 +1,6 @@
 <?
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/sale/prolog.php');
-require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/sale/include.php');
 
 $readOnly = $APPLICATION->GetGroupRight('sale') < 'W';
 
@@ -115,8 +114,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !$readOnly && check_bitrix_sessid() 
 		'TYPE'   => $statusType,
 		'SORT'   => ($statusSort = intval($_POST['SORT'])) ? $statusSort : 100,
 		'NOTIFY' => $_POST['NOTIFY'] ? 'Y' : 'N',
-		'COLOR' => strlen($_POST['NEW_COLOR']) ? $_POST['NEW_COLOR'] : "",
-		'XML_ID' => strlen($_POST['XML_ID']) ? $_POST['XML_ID'] : StatusTable::generateXmlId(),
+		'COLOR' => $_POST['NEW_COLOR'] <> ''? $_POST['NEW_COLOR'] : "",
+		'XML_ID' => $_POST['XML_ID'] <> ''? $_POST['XML_ID'] : StatusTable::generateXmlId(),
 	);
 
 	$isNew = true;
@@ -494,7 +493,7 @@ if ($errors)
 					<select name="TASK<?=$groupId?>">
 						<?foreach ($tasks as $taskId => $task):?>
 							<option value="<?=$taskId?>" <?=$taskId == $groupTaskId ? 'selected': ''?>>
-								<?=htmlspecialcharsbx(($name = Loc::getMessage('TASK_NAME_'.strtoupper($task['NAME']))) ? $name : $task['NAME'])?>
+								<?=htmlspecialcharsbx(($name = Loc::getMessage('TASK_NAME_'.mb_strtoupper($task['NAME']))) ? $name : $task['NAME'])?>
 							</option>
 						<?endforeach?>
 					</select>

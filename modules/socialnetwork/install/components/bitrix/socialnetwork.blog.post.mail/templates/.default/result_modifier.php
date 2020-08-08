@@ -3,7 +3,7 @@
 $arResult["AUTHOR"]["AVATAR_URL"] = (
 	isset($arResult["AUTHOR"]["PERSONAL_PHOTO_resized"])
 	&& isset($arResult["AUTHOR"]["PERSONAL_PHOTO_resized"]["src"])
-	&& strlen($arResult["AUTHOR"]["PERSONAL_PHOTO_resized"]["src"]) > 0
+	&& $arResult["AUTHOR"]["PERSONAL_PHOTO_resized"]["src"] <> ''
 		? $arResult["AUTHOR"]["PERSONAL_PHOTO_resized"]["src"]
 		: '/bitrix/components/bitrix/socialnetwork.blog.post.mail/templates/.default/images/userpic.gif'
 );

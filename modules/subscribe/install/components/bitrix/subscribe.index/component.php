@@ -23,7 +23,7 @@ if(!CModule::IncludeModule("subscribe"))
 if(!isset($arParams["CACHE_TIME"]))
 	$arParams["CACHE_TIME"] = 3600;
 
-if(!isset($arParams["PAGE"]) || strlen($arParams["PAGE"])<=0)
+if(!isset($arParams["PAGE"]) || $arParams["PAGE"] == '')
 	$arParams["PAGE"] = COption::GetOptionString("subscribe", "subscribe_section")."subscr_edit.php";
 $arParams["SHOW_HIDDEN"]=$arParams["SHOW_HIDDEN"]=="Y";
 $arParams["SHOW_COUNT"]=$arParams["SHOW_COUNT"]=="Y";
@@ -66,7 +66,7 @@ if(count($arRubrics)<=0)
 $arResult["FORM_ACTION"] = htmlspecialcharsbx(str_replace("#SITE_DIR#", LANG_DIR, $arParams["PAGE"]));
 $arResult["SHOW_COUNT"] = $arParams["SHOW_COUNT"];
 
-if(strlen($arSubscription["EMAIL"])>0)
+if($arSubscription["EMAIL"] <> '')
 	$arResult["EMAIL"] = htmlspecialcharsbx($arSubscription["EMAIL"]);
 else
 	$arResult["EMAIL"] = htmlspecialcharsbx($USER->GetParam("EMAIL"));

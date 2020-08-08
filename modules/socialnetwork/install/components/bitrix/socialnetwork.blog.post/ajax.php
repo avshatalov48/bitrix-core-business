@@ -6,7 +6,7 @@ define("NO_AGENT_CHECK", true);
 define("DisableEventsCheck", true);
 
 $siteId = (isset($_POST["siteId"]) && is_string($_POST["siteId"])) ? trim($_POST["siteId"]): "";
-$siteId = substr(preg_replace("/[^a-z0-9_]/i", "", $siteId), 0, 2);
+$siteId = mb_substr(preg_replace("/[^a-z0-9_]/i", "", $siteId), 0, 2);
 
 $action = (isset($_POST["action"]) && is_string($_POST["action"])) ? trim($_POST["action"]): "";
 $postId = (isset($_POST["postId"]) ? intval($_POST["postId"]) : false);

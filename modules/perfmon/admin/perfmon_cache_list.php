@@ -1,11 +1,13 @@
 <?
+use Bitrix\Main\Loader;
+
 define("ADMIN_MODULE_NAME", "perfmon");
 define("PERFMON_STOP", true);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 /** @global CMain $APPLICATION */
 /** @global CDatabase $DB */
 /** @global CUser $USER */
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/include.php");
+Loader::includeModule('perfmon');
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/prolog.php");
 
 IncludeModuleLangFile(__FILE__);
@@ -17,7 +19,7 @@ if ($RIGHT == "D")
 if ($group !== "comp" && $group !== "type" && $group !== "dir" && $group !== "file")
 	$group = "none";
 
-$DOCUMENT_ROOT_LEN = strlen($_SERVER["DOCUMENT_ROOT"]);
+$DOCUMENT_ROOT_LEN = mb_strlen($_SERVER["DOCUMENT_ROOT"]);
 $sTableID = "tbl_perfmon_cache_list_".$group;
 $oSort = new CAdminSorting($sTableID, "NN", "asc");
 $lAdmin = new CAdminList($sTableID, $oSort);
@@ -470,9 +472,9 @@ while ($arRes = $rsData->NavNext(true, "f_"))
 			$f_FILE_PATH = $_SERVER["DOCUMENT_ROOT"].$f_BASE_DIR.$f_INIT_DIR.$f_FILE_NAME;
 		if (
 			file_exists($f_FILE_PATH)
-			&& substr($f_FILE_PATH, 0, $DOCUMENT_ROOT_LEN) === $_SERVER["DOCUMENT_ROOT"]
+			&& mb_substr($f_FILE_PATH, 0, $DOCUMENT_ROOT_LEN) === $_SERVER["DOCUMENT_ROOT"]
 		)
-			$row->AddViewField("FILE_NAME", '<a target="blank" href="/bitrix/admin/fileman_file_view.php?path='.urlencode(substr($f_FILE_PATH, $DOCUMENT_ROOT_LEN)).'&lang='.LANGUAGE_ID.'">'.$f_FILE_NAME.'</a>');
+			$row->AddViewField("FILE_NAME", '<a target="blank" href="/bitrix/admin/fileman_file_view.php?path='.urlencode(mb_substr($f_FILE_PATH, $DOCUMENT_ROOT_LEN)).'&lang='.LANGUAGE_ID.'">'.$f_FILE_NAME.'</a>');
 	}
 	if ($f_OP_MODE == "R")
 		$row->AddViewField("OP_MODE", GetMessage("PERFMON_CACHE_OP_MODE_R"));

@@ -30,7 +30,7 @@ try
 	$itemId = intval($_REQUEST['id']) ? intval($_REQUEST['id']) : false;
 
 	$sTableID = "tbl_entity";
-	$oSort = new CAdminSorting($sTableID, "SORT", "asc");
+	$oSort = new CAdminUiSorting($sTableID, "SORT", "asc");
 	$lAdmin = new CAdminUiList($sTableID, $oSort);
 
 	// get entity fields for columns & filter
@@ -44,7 +44,7 @@ try
 	{
 		if ($lang["DEF"] == "Y")
 		{
-			$quickSearchLangId = strtoupper($lang["LANGUAGE_ID"]);
+			$quickSearchLangId = mb_strtoupper($lang["LANGUAGE_ID"]);
 		}
 	}
 
@@ -278,16 +278,16 @@ else
 {
 	SearchHelper::checkIndexesValid();
 
-	if(strlen($fatal))
+	if($fatal <> '')
 	{
 		$messageParams = array('MESSAGE' => $fatal, 'type' => 'ERROR');
-		if ($publicMode)
+		if($publicMode)
 		{
 			$messageParams["SKIP_PUBLIC_MODE"] = true;
 		}
 		?>
 		<div class="error-message">
-			<?CAdminMessage::ShowMessage($messageParams)?>
+			<? CAdminMessage::ShowMessage($messageParams) ?>
 		</div>
 		<?
 	}

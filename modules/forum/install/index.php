@@ -502,32 +502,39 @@ Class forum extends CModule
 				}
 			}
 		}
-		$fields = array(
-			array(
+
+		$fields = [
+			[
 				"ENTITY_ID" => "FORUM_MESSAGE",
-				"FIELD_NAME" => "UF_FORUM_MES_URL_PRV"
-			),
-		);
+				"FIELD_NAME" => "UF_FORUM_MES_URL_PRV",
+				"USER_TYPE_ID" => "url_preview",
+			],
+			[
+				"ENTITY_ID" => "FORUM_MESSAGE",
+				"FIELD_NAME" => "UF_TASK_COMMENT_TYPE",
+				"USER_TYPE_ID" => "integer",
+			],
+		];
 
 		$uf = new CUserTypeEntity;
 		foreach($fields as $field)
 		{
-			$fieldData = CUserTypeEntity::GetList(array($by=>$order), $field);
-			if(!$fieldData->Fetch())
+			$fieldData = CUserTypeEntity::GetList([], $field);
+			if (!$fieldData->Fetch())
 			{
-				$uf->add(array(
+				$uf->add([
 					"ENTITY_ID" => $field["ENTITY_ID"],
 					"FIELD_NAME" => $field["FIELD_NAME"],
 					"XML_ID" => $field["FIELD_NAME"],
-					"USER_TYPE_ID" => 'url_preview',
+					"USER_TYPE_ID" => $field["USER_TYPE_ID"],
 					"SORT" => 100,
-					"MULTIPLE" => 'N',
+					"MULTIPLE" => "N",
 					"MANDATORY" => "N",
 					"SHOW_FILTER" => "N",
 					"SHOW_IN_LIST" => "N",
 					"EDIT_IN_LIST" => "Y",
 					"IS_SEARCHABLE" => "N"
-				), false);
+				], false);
 			}
 		}
 		return $errors;

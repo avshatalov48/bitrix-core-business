@@ -11,10 +11,10 @@ $STEP = intval($STEP);
 if ($STEP <= 0)
 	$STEP = 1;
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["backButton"]) && strlen($_POST["backButton"]) > 0)
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["backButton"]) && $_POST["backButton"] <> '')
 	$STEP = $STEP - 2;
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["backButton2"]) && strlen($_POST["backButton2"]) > 0)
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["backButton2"]) && $_POST["backButton2"] <> '')
 	$STEP = 1;
 
 $NUM_CATALOG_LEVELS = (int)COption::GetOptionInt('iblock', 'num_catalog_levels');
@@ -24,7 +24,7 @@ $max_execution_time = intval($max_execution_time);
 if ($max_execution_time <= 0)
 	$max_execution_time = 0;
 
-if (isset($_REQUEST["CUR_LOAD_SESS_ID"]) && strlen($_REQUEST["CUR_LOAD_SESS_ID"]) > 0)
+if (isset($_REQUEST["CUR_LOAD_SESS_ID"]) && $_REQUEST["CUR_LOAD_SESS_ID"] <> '')
 	$CUR_LOAD_SESS_ID = $_REQUEST["CUR_LOAD_SESS_ID"];
 else
 	$CUR_LOAD_SESS_ID = "CL".time();
@@ -309,14 +309,14 @@ class CAssocData extends CCSVData
 					{
 						$arGroupsTmp1[$fkey] = array_shift($arRes[$key.$i]);
 					}
-					if ($value["important"] == "Y" && isset($arGroupsTmp1[$fkey]) && strlen($arGroupsTmp1[$fkey]) > 0)
+					if ($value["important"] == "Y" && isset($arGroupsTmp1[$fkey]) && $arGroupsTmp1[$fkey] <> '')
 						$bOK = true;
 				}
 				// drop empty target sections
 				if ($bOK)
 				{
 					// When group does not have name  "<Empty name>"
-					if (strlen($arGroupsTmp1["NAME"]) <= 0)
+					if ($arGroupsTmp1["NAME"] == '')
 						$arGroupsTmp1["NAME"] = GetMessage("IBLOCK_ADM_IMP_NOMAME");
 
 					if (!$stop_processing)
@@ -343,11 +343,11 @@ class CAssocData extends CCSVData
 					"CHECK_PERMISSIONS" => "N",
 				);
 
-				if (isset($arGroup["XML_ID"]) && strlen($arGroup["XML_ID"]))
+				if (isset($arGroup["XML_ID"]) && mb_strlen($arGroup["XML_ID"]))
 				{
 					$arFilter["=XML_ID"] = $arGroup["XML_ID"];
 				}
-				elseif (isset($arGroup["NAME"]) && strlen($arGroup["NAME"]))
+				elseif (isset($arGroup["NAME"]) && mb_strlen($arGroup["NAME"]))
 				{
 					$arFilter["=NAME"] = $arGroup["NAME"];
 				}
@@ -457,7 +457,7 @@ class CAssocData extends CCSVData
 		$j = 0;
 		foreach ($value as $i => $file_name)
 		{
-			if (strlen($file_name) > 0)
+			if ($file_name <> '')
 			{
 				if (preg_match("/^(ftp|ftps|http|https):\\/\\//", $file_name))
 					$arFile = CFile::MakeFileArray($file_name);
@@ -481,7 +481,7 @@ if (($_SERVER['REQUEST_METHOD'] == "POST" || $CUR_FILE_POS > 0) && $STEP > 1 && 
 		$DATA_FILE_NAME = "";
 		if (isset($_FILES["DATA_FILE"]) && is_uploaded_file($_FILES["DATA_FILE"]["tmp_name"]))
 		{
-			if (strtolower(GetFileExtension($_FILES["DATA_FILE"]["name"])) != "csv")
+			if (mb_strtolower(GetFileExtension($_FILES["DATA_FILE"]["name"])) != "csv")
 			{
 				$strError.= GetMessage("IBLOCK_ADM_IMP_NOT_CSV")."<br>";
 			}
@@ -495,16 +495,16 @@ if (($_SERVER['REQUEST_METHOD'] == "POST" || $CUR_FILE_POS > 0) && $STEP > 1 && 
 			}
 		}
 
-		if (strlen($strError) <= 0)
+		if ($strError == '')
 		{
-			if (strlen($DATA_FILE_NAME) <= 0)
+			if ($DATA_FILE_NAME == '')
 			{
-				if (strlen($URL_DATA_FILE) > 0)
+				if ($URL_DATA_FILE <> '')
 				{
 					$URL_DATA_FILE = trim(str_replace("\\", "/", trim($URL_DATA_FILE)) , "/");
 					$FILE_NAME = rel2abs($_SERVER["DOCUMENT_ROOT"], "/".$URL_DATA_FILE);
 					if (
-						(strlen($FILE_NAME) > 1)
+						(mb_strlen($FILE_NAME) > 1)
 						&& ($FILE_NAME === "/".$URL_DATA_FILE)
 						&& $io->FileExists($_SERVER["DOCUMENT_ROOT"].$FILE_NAME)
 						&& ($APPLICATION->GetFileAccessPermission($FILE_NAME) >= "W")
@@ -515,14 +515,14 @@ if (($_SERVER['REQUEST_METHOD'] == "POST" || $CUR_FILE_POS > 0) && $STEP > 1 && 
 				}
 			}
 
-			if (strlen($DATA_FILE_NAME) <= 0)
+			if ($DATA_FILE_NAME == '')
 				$strError.= GetMessage("IBLOCK_ADM_IMP_NO_DATA_FILE_SIMPLE")."<br>";
 
 			if (!CIBlockRights::UserHasRightTo($IBLOCK_ID, $IBLOCK_ID, "element_edit_any_wf_status"))
 				$strError.= GetMessage("IBLOCK_ADM_IMP_NO_IBLOCK")."<br>";
 		}
 
-		if (strlen($strError) <= 0)
+		if ($strError == '')
 		{
 			if ($CUR_FILE_POS > 0 && is_set($_SESSION, $CUR_LOAD_SESS_ID) && is_set($_SESSION[$CUR_LOAD_SESS_ID], "LOAD_SCHEME"))
 			{
@@ -531,7 +531,7 @@ if (($_SERVER['REQUEST_METHOD'] == "POST" || $CUR_FILE_POS > 0) && $STEP > 1 && 
 			}
 		}
 
-		if (strlen($strError) > 0)
+		if ($strError <> '')
 			$STEP = 1;
 		//*****************************************************************//
 
@@ -545,7 +545,7 @@ if (($_SERVER['REQUEST_METHOD'] == "POST" || $CUR_FILE_POS > 0) && $STEP > 1 && 
 			$strError.= GetMessage("IBLOCK_ADM_IMP_NO_FILE_FORMAT")."<br>";
 
 		$arDataFileFields = array();
-		if (strlen($strError) <= 0)
+		if ($strError == '')
 		{
 			$fields_type = (($fields_type == "F") ? "F" : "R");
 			$csvFile->SetFieldsType($fields_type);
@@ -569,17 +569,17 @@ if (($_SERVER['REQUEST_METHOD'] == "POST" || $CUR_FILE_POS > 0) && $STEP > 1 && 
 					break;
 
 				case "OTR":
-					$delimiter_r_char = substr($delimiter_other_r, 0, 1);
+					$delimiter_r_char = mb_substr($delimiter_other_r, 0, 1);
 					break;
 
 				case "TZP":
 					$delimiter_r_char = ";";
 					break;
 				}
-				if (strlen($delimiter_r_char) != 1)
+				if (mb_strlen($delimiter_r_char) != 1)
 					$strError.= GetMessage("IBLOCK_ADM_IMP_NO_DELIMITER")."<br>";
 
-				if (strlen($strError) <= 0)
+				if ($strError == '')
 				{
 					$csvFile->SetDelimiter($delimiter_r_char);
 				}
@@ -588,10 +588,10 @@ if (($_SERVER['REQUEST_METHOD'] == "POST" || $CUR_FILE_POS > 0) && $STEP > 1 && 
 			{
 				$first_names_f = (($first_names_f == "Y") ? "Y" : "N");
 				$csvFile->SetFirstHeader(($first_names_f == "Y") ? true : false);
-				if (strlen($metki_f) <= 0)
+				if ($metki_f == '')
 					$strError.= GetMessage("IBLOCK_ADM_IMP_NO_METKI")."<br>";
 
-				if (strlen($strError) <= 0)
+				if ($strError == '')
 				{
 					$arMetki = array();
 					foreach (preg_split("/[\D]/i", $metki_f) as $metka)
@@ -604,14 +604,14 @@ if (($_SERVER['REQUEST_METHOD'] == "POST" || $CUR_FILE_POS > 0) && $STEP > 1 && 
 					if (!is_array($arMetki) || count($arMetki) < 1)
 						$strError.= GetMessage("IBLOCK_ADM_IMP_NO_METKI")."<br>";
 
-					if (strlen($strError) <= 0)
+					if ($strError == '')
 					{
 						$csvFile->SetWidthMap($arMetki);
 					}
 				}
 			}
 
-			if (strlen($strError) <= 0)
+			if ($strError == '')
 			{
 				$bFirstHeaderTmp = $csvFile->GetFirstHeader();
 				$csvFile->SetFirstHeader(false);
@@ -630,7 +630,7 @@ if (($_SERVER['REQUEST_METHOD'] == "POST" || $CUR_FILE_POS > 0) && $STEP > 1 && 
 			}
 		}
 
-		if (strlen($strError) > 0)
+		if ($strError <> '')
 			$STEP = 2;
 		//*****************************************************************//
 
@@ -641,7 +641,7 @@ if (($_SERVER['REQUEST_METHOD'] == "POST" || $CUR_FILE_POS > 0) && $STEP > 1 && 
 		$bFieldsPres = False;
 		for ($i = 0; $i < $NUM_FIELDS; $i++)
 		{
-			if (strlen(${"field_".$i}) > 0)
+			if (${"field_".$i} <> '')
 			{
 				$bFieldsPres = True;
 				break;
@@ -650,7 +650,7 @@ if (($_SERVER['REQUEST_METHOD'] == "POST" || $CUR_FILE_POS > 0) && $STEP > 1 && 
 		if (!$bFieldsPres)
 			$strError.= GetMessage("IBLOCK_ADM_IMP_NO_FIELDS")."<br>";
 
-		if (strlen($strError) <= 0)
+		if ($strError == '')
 		{
 			$csvFile->SetPos($CUR_FILE_POS);
 			if ($CUR_FILE_POS <= 0 && $bFirstHeaderTmp)
@@ -738,21 +738,27 @@ if (($_SERVER['REQUEST_METHOD'] == "POST" || $CUR_FILE_POS > 0) && $STEP > 1 && 
 					"IBLOCK_ID" => $IBLOCK_ID,
 					"CHECK_PERMISSIONS" => "N",
 				);
-				if (strlen($arLoadProductArray["XML_ID"]))
+				if($arLoadProductArray["XML_ID"] <> '')
+				{
 					$arFilter["=XML_ID"] = $arLoadProductArray["XML_ID"];
-				elseif (strlen($arLoadProductArray["NAME"]))
+				}
+				elseif($arLoadProductArray["NAME"] <> '')
+				{
 					$arFilter["=NAME"] = $arLoadProductArray["NAME"];
+				}
 				else
-					$strErrorR.= GetMessage("IBLOCK_ADM_IMP_LINE_NO")." ".$line_num.". ".GetMessage("IBLOCK_ADM_IMP_NOIDNAME")."<br>";
+				{
+					$strErrorR .= GetMessage("IBLOCK_ADM_IMP_LINE_NO")." ".$line_num.". ".GetMessage("IBLOCK_ADM_IMP_NOIDNAME")."<br>";
+				}
 
-				if (strlen($strErrorR) <= 0)
+				if ($strErrorR == '')
 				{
 					$arLoadProductArray["PROPERTY_VALUES"] = array();
 					foreach ($arRes as $key => $value)
 					{
 						if (strncmp($key, "IP_PROP", 7) == 0)
 						{
-							$cur_prop_id = (int)substr($key, 7);
+							$cur_prop_id = (int)mb_substr($key, 7);
 							if (!array_key_exists($cur_prop_id, $arIBlockProperty))
 							{
 								$res1 = CIBlockProperty::GetByID($cur_prop_id, $IBLOCK_ID);
@@ -775,11 +781,11 @@ if (($_SERVER['REQUEST_METHOD'] == "POST" || $CUR_FILE_POS > 0) && $STEP > 1 && 
 					}
 				}
 
-				if (strlen($strErrorR) <= 0)
+				if ($strErrorR == '')
 				{
 					if (array_key_exists("PREVIEW_PICTURE", $arLoadProductArray))
 					{
-						if (strlen($arLoadProductArray["PREVIEW_PICTURE"]) > 0)
+						if ($arLoadProductArray["PREVIEW_PICTURE"] <> '')
 						{
 							if (preg_match("/^(http|https):\\/\\//", $arLoadProductArray["PREVIEW_PICTURE"]))
 							{
@@ -798,7 +804,7 @@ if (($_SERVER['REQUEST_METHOD'] == "POST" || $CUR_FILE_POS > 0) && $STEP > 1 && 
 
 					if (array_key_exists("DETAIL_PICTURE", $arLoadProductArray))
 					{
-						if (strlen($arLoadProductArray["DETAIL_PICTURE"]) > 0)
+						if ($arLoadProductArray["DETAIL_PICTURE"] <> '')
 						{
 							if (preg_match("/^(http|https):\\/\\//", $arLoadProductArray["DETAIL_PICTURE"]))
 							{
@@ -828,12 +834,12 @@ if (($_SERVER['REQUEST_METHOD'] == "POST" || $CUR_FILE_POS > 0) && $STEP > 1 && 
 						$PRODUCT_ID = $arr["ID"];
 						if ($arr["TMP_ID"] != $tmpid)
 						{
-							if (is_set($arLoadProductArray, "PREVIEW_PICTURE") && IntVal($arr["PREVIEW_PICTURE"]) > 0)
+							if (is_set($arLoadProductArray, "PREVIEW_PICTURE") && intval($arr["PREVIEW_PICTURE"]) > 0)
 							{
 								$arLoadProductArray["PREVIEW_PICTURE"]["old_file"] = $arr["PREVIEW_PICTURE"];
 							}
 
-							if (is_set($arLoadProductArray, "DETAIL_PICTURE") && IntVal($arr["DETAIL_PICTURE"]) > 0)
+							if (is_set($arLoadProductArray, "DETAIL_PICTURE") && intval($arr["DETAIL_PICTURE"]) > 0)
 							{
 								$arLoadProductArray["DETAIL_PICTURE"]["old_file"] = $arr["DETAIL_PICTURE"];
 							}
@@ -854,7 +860,7 @@ if (($_SERVER['REQUEST_METHOD'] == "POST" || $CUR_FILE_POS > 0) && $STEP > 1 && 
 									elseif(
 										$arPropFile["PROPERTY_TYPE"] != "F"
 										&& !array_key_exists($arPropFile["ID"], $arPropsLoaded)
-										&& (is_array($arPropFile["VALUE"]) || strlen($arPropFile["VALUE"]) > 0)
+										&& (is_array($arPropFile["VALUE"]) || $arPropFile["VALUE"] <> '')
 									)
 									{
 										$arLoadProductArray["PROPERTY_VALUES"][$arPropFile["ID"]][$arPropFile["PROPERTY_VALUE_ID"]] = array(
@@ -891,7 +897,7 @@ if (($_SERVER['REQUEST_METHOD'] == "POST" || $CUR_FILE_POS > 0) && $STEP > 1 && 
 					}
 				}
 
-				if (strlen($strErrorR) <= 0)
+				if ($strErrorR == '')
 				{
 					$correct_lines++;
 				}
@@ -1018,7 +1024,7 @@ if (($_SERVER['REQUEST_METHOD'] == "POST" || $CUR_FILE_POS > 0) && $STEP > 1 && 
 			}
 			else
 			{
-				if (strlen($CUR_LOAD_SESS_ID) <= 0)
+				if ($CUR_LOAD_SESS_ID == '')
 					$CUR_LOAD_SESS_ID = "CL".time();
 
 				$_SESSION[$CUR_LOAD_SESS_ID]["tmpid"] = $tmpid;
@@ -1048,7 +1054,7 @@ if (($_SERVER['REQUEST_METHOD'] == "POST" || $CUR_FILE_POS > 0) && $STEP > 1 && 
 				$curFilePos = $csvFile->GetPos();
 			}
 		}
-		if (strlen($strError) > 0)
+		if ($strError <> '')
 		{
 			$strError.= GetMessage("IBLOCK_ADM_IMP_TOTAL_ERRS")." ".$error_lines.".<br>";
 			$strError.= GetMessage("IBLOCK_ADM_IMP_TOTAL_COR1")." ".$correct_lines." ".GetMessage("IBLOCK_ADM_IMP_TOTAL_COR2")."<br>";
@@ -1069,7 +1075,7 @@ require ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_af
 CAdminMessage::ShowMessage($strError);
 if (!$bAllLinesLoaded)
 {
-	$strParams = bitrix_sessid_get()."&CUR_FILE_POS=".$curFilePos."&CUR_LOAD_SESS_ID=".urlencode($CUR_LOAD_SESS_ID)."&STEP=4&URL_DATA_FILE=".urlencode($DATA_FILE_NAME)."&IBLOCK_ID=".$IBLOCK_ID."&fields_type=".urlencode($fields_type)."&max_execution_time=".IntVal($max_execution_time);
+	$strParams = bitrix_sessid_get()."&CUR_FILE_POS=".$curFilePos."&CUR_LOAD_SESS_ID=".urlencode($CUR_LOAD_SESS_ID)."&STEP=4&URL_DATA_FILE=".urlencode($DATA_FILE_NAME)."&IBLOCK_ID=".$IBLOCK_ID."&fields_type=".urlencode($fields_type)."&max_execution_time=".intval($max_execution_time);
 	if ($fields_type == "R")
 		$strParams.= "&delimiter_r=".urlencode($delimiter_r)."&delimiter_other_r=".urlencode($delimiter_other_r)."&first_names_r=".urlencode($first_names_r);
 	else
@@ -1243,7 +1249,7 @@ if ($STEP == 2)
 			</script>
 
 			<input type="radio" name="fields_type" id="fields_type_R" value="R" <?
-	if ($fields_type == "R" || strlen($fields_type) <= 0)
+	if ($fields_type == "R" || $fields_type == '')
 		echo "checked"; ?> onClick="ChangeExtra()"><label for="fields_type_R"><?echo GetMessage("IBLOCK_ADM_IMP_RAZDELITEL"); ?></label><br>
 			<input type="radio" name="fields_type" id="fields_type_F" value="F" <?
 	if ($fields_type == "F")
@@ -1259,7 +1265,7 @@ if ($STEP == 2)
 		<td class="adm-detail-valign-top"><?echo GetMessage("IBLOCK_ADM_IMP_RAZDEL_TYPE"); ?>:</td>
 		<td>
 			<input type="radio" name="delimiter_r" id="delimiter_r_TZP" value="TZP" <?
-	if ($delimiter_r == "TZP" || strlen($delimiter_r) <= 0)
+	if ($delimiter_r == "TZP" || $delimiter_r == '')
 		echo "checked" ?>><label for="delimiter_r_TZP"><?echo GetMessage("IBLOCK_ADM_IMP_TZP"); ?></label><br>
 			<input type="radio" name="delimiter_r" id="delimiter_r_ZPT" value="ZPT" <?
 	if ($delimiter_r == "ZPT")
@@ -1314,12 +1320,12 @@ if ($STEP == 2)
 	<tr>
 		<td align="center" colspan="2">
 			<?$sContent = "";
-	if (strlen($DATA_FILE_NAME) > 0)
+	if ($DATA_FILE_NAME <> '')
 	{
 		$DATA_FILE_NAME = trim(str_replace("\\", "/", trim($DATA_FILE_NAME)) , "/");
 		$FILE_NAME = rel2abs($_SERVER["DOCUMENT_ROOT"], "/".$DATA_FILE_NAME);
 		if (
-			(strlen($FILE_NAME) > 1)
+			(mb_strlen($FILE_NAME) > 1)
 			&& ($FILE_NAME == "/".$DATA_FILE_NAME)
 			&& $APPLICATION->GetFileAccessPermission($FILE_NAME) >= "W"
 		)
@@ -1331,7 +1337,7 @@ if ($STEP == 2)
 			while (($line = fgets($file_id)) !== false)
 			{
 				$sContent .= $line;
-				$lContent += strlen($line);
+				$lContent += mb_strlen($line);
 				if ($lContent > 10000)
 					break;
 			}
@@ -1457,7 +1463,7 @@ if ($STEP == 3)
 	if ($outFileAction == "D")
 		echo "checked"; ?>><label for="outFileAction_D"><?echo GetMessage("IBLOCK_ADM_IMP_OF_DEL"); ?></label><br>
 			<input type="radio" id="outFileAction_F" name="outFileAction" value="F" <?
-	if (strlen($outFileAction) <= 0 || $outFileAction == "F")
+	if ($outFileAction == '' || $outFileAction == "F")
 		echo "checked"; ?>><label for="outFileAction_F"><?echo GetMessage("IBLOCK_ADM_IMP_OF_KEEP"); ?></label>
 		</td>
 	</tr>
@@ -1465,7 +1471,7 @@ if ($STEP == 3)
 		<td class="adm-detail-valign-top"><?echo GetMessage("IBLOCK_ADM_IMP_INACTIVE_PRODS"); ?>:</td>
 		<td>
 			<input type="radio" id="inFileAction_F" name="inFileAction" value="F" <?
-	if (strlen($inFileAction) <= 0 || ($inFileAction == "F"))
+	if ($inFileAction == '' || ($inFileAction == "F"))
 		echo "checked"; ?>><label for="inFileAction_F"><?echo GetMessage("IBLOCK_ADM_IMP_KEEP_AS_IS"); ?></label><br>
 			<input type="radio" id="inFileAction_A" name="inFileAction" value="A" <?
 	if ($inFileAction == "A")
@@ -1486,12 +1492,12 @@ if ($STEP == 3)
 	<tr>
 		<td colspan="2" align="center">
 			<?$sContent = "";
-	if (strlen($DATA_FILE_NAME) > 0)
+	if ($DATA_FILE_NAME <> '')
 	{
 		$DATA_FILE_NAME = trim(str_replace("\\", "/", trim($DATA_FILE_NAME)) , "/");
 		$FILE_NAME = rel2abs($_SERVER["DOCUMENT_ROOT"], "/".$DATA_FILE_NAME);
 		if (
-			(strlen($FILE_NAME) > 1)
+			(mb_strlen($FILE_NAME) > 1)
 			&& ($FILE_NAME == "/".$DATA_FILE_NAME)
 			&& $APPLICATION->GetFileAccessPermission($FILE_NAME) >= "W"
 		)
@@ -1503,7 +1509,7 @@ if ($STEP == 3)
 			while (($line = fgets($file_id)) !== false)
 			{
 				$sContent .= $line;
-				$lContent += strlen($line);
+				$lContent += mb_strlen($line);
 				if ($lContent > 10000)
 					break;
 			}

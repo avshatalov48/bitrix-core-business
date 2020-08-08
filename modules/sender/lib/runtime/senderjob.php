@@ -65,10 +65,19 @@ class SenderJob extends Job
 		}
 
 		$list = LetterTable::getList(array(
-			'select' => ['ID', 'STATUS', 'AUTO_SEND_TIME', 'CAMPAIGN_ACTIVE' => 'CAMPAIGN.ACTIVE'],
+			'select' => ['ID', 'POSTING_ID', 'STATUS', 'AUTO_SEND_TIME', 'CAMPAIGN_ACTIVE' => 'CAMPAIGN.ACTIVE'],
 			'filter' => $filter
 		));
+
+		$strategy = Env::getThreadContext();
+		$data = [];
+
 		foreach ($list as $row)
+		{
+			$data[] = $row;
+		}
+
+		foreach ($data as $row)
 		{
 			$agentName = static::getAgentName($row['ID']);
 			if (!$agentName)
@@ -110,9 +119,11 @@ class SenderJob extends Job
 	 * Get agent name.
 	 *
 	 * @param int $letterId Letter ID.
+	 * @param bool|int $threadId
+	 *
 	 * @return string
 	 */
-	public static function getAgentName($letterId)
+	public static function getAgentName($letterId, $threadId = false)
 	{
 		$letterId = (int) $letterId;
 		if (!$letterId)
@@ -120,6 +131,6 @@ class SenderJob extends Job
 			return '';
 		}
 
-		return '\Bitrix\Sender\MailingManager::chainSend(' . $letterId . ');';
+		return '\Bitrix\Sender\MailingManager::chainSend('. $letterId. ');';
 	}
 }

@@ -28,20 +28,20 @@ if(!$USER->CanDoFileOperation('fm_upload_file',$arPath))
 else
 {
 	$bCan = true;
-	if($REQUEST_METHOD=="POST" && strlen($save) > 0 && check_bitrix_sessid())
+	if($REQUEST_METHOD=="POST" && $save <> '' && check_bitrix_sessid())
 	{
-		$nums = IntVal($nums);
+		$nums = intval($nums);
 		if($nums > 0)
 		{
 			for($i = 1; $i <= $nums; $i++)
 			{
 				$arFile = $_FILES["file_".$i];
-				if(strlen($arFile["name"])<=0 || $arFile["tmp_name"]=="none")
+				if($arFile["name"] == '' || $arFile["tmp_name"]=="none")
 					continue;
 
 				$arFile["name"] = CFileman::GetFileName($arFile["name"]);
 				$filename = ${"filename_".$i};
-				if(strlen($filename) <= 0)
+				if($filename == '')
 					$filename = $arFile["name"];
 
 				$pathto = Rel2Abs($path, $filename);
@@ -61,7 +61,7 @@ else
 				{
 					$strWarning .= GetMessage("FILEMAN_FILEUPLOAD_FILE_EXISTS1")." \"".$pathto."\" ".GetMessage("FILEMAN_FILEUPLOAD_FILE_EXISTS2").".\n";
 				}
-				elseif(!$USER->IsAdmin() && (HasScriptExtension($pathto) || substr(CFileman::GetFileName($pathto), 0, 1)=="."))
+				elseif(!$USER->IsAdmin() && (HasScriptExtension($pathto) || mb_substr(CFileman::GetFileName($pathto), 0, 1) == "."))
 				{
 					$strWarning .= GetMessage("FILEMAN_FILEUPLOAD_PHPERROR")." \"".$pathto."\".\n";
 				}
@@ -89,7 +89,7 @@ else
 						$module_id = 'fileman';
 						if(COption::GetOptionString($module_id, "log_page", "Y")=="Y")
 						{
-							$res_log['path'] = substr($pathto, 1);
+							$res_log['path'] = mb_substr($pathto, 1);
 							CEventLog::Log(
 								"content",
 								"FILE_ADD",
@@ -105,7 +105,7 @@ else
 			}
 		}
 
-		if(strlen($strWarning) <= 0)
+		if($strWarning == '')
 		{
 			if (!empty($_POST["apply"]))
 				LocalRedirect("/bitrix/admin/fileman_file_upload.php?".$addUrl."&site=".$site."&path=".UrlEncode($path));
@@ -120,7 +120,7 @@ foreach ($arParsedPath["AR_PATH"] as $chainLevel)
 	$adminChain->AddItem(
 		array(
 			"TEXT" => htmlspecialcharsex($chainLevel["TITLE"]),
-			"LINK" => ((strlen($chainLevel["LINK"]) > 0) ? $chainLevel["LINK"] : ""),
+			"LINK" => (($chainLevel["LINK"] <> '') ? $chainLevel["LINK"] : ""),
 		)
 	);
 }
@@ -131,7 +131,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 
 <?CAdminMessage::ShowMessage($strWarning);?>
 
-<?if(strlen($strWarning) <= 0 || $bCan):?>
+<?if($strWarning == '' || $bCan):?>
 	<script>
 	function NewFileName(ob)
 	{

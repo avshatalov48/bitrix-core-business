@@ -59,7 +59,7 @@ else
 			<td valign="top"><?=$val["MODIFIED"]?></td>
 			<td><?=$val["ACTION_NOTE"]?></td>
 			<td valign="top">
-				<?if(strlen($val["STATE"]["Url"]) > 0):?>
+				<?if($val["STATE"]["Url"] <> ''):?>
 					<a href="<?=$val["STATE"]["Url"]?>" title="<?=GetMessage("SONET_BP_VIEW_DOCUMENT")?>"><?=$val["STATE"]["DOCUMENT_ID"][2]?></a>
 				<?else:?>
 					<?=$val["STATE"]["DOCUMENT_ID"][2]?>

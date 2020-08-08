@@ -489,12 +489,13 @@ class LandingViewComponent extends LandingBaseComponent
 	 */
 	protected function onLandingView()
 	{
-		$type = strtoupper($this->arParams['TYPE']);
+		$type = mb_strtoupper($this->arParams['TYPE']);
 		$landing = $this->arResult['LANDING'];
+		$site = $this->arResult['SITE'];
 		$params = $this->arParams;
 		$eventManager = EventManager::getInstance();
 		$eventManager->addEventHandler('landing', 'onLandingView',
-			function(\Bitrix\Main\Event $event) use ($type, $params, $landing)
+			function(\Bitrix\Main\Event $event) use ($type, $params, $landing, $site)
 			{
 				/** @var \Bitrix\Landing\Landing $landing */
 				$result = new \Bitrix\Main\Entity\EventResult;
@@ -513,6 +514,14 @@ class LandingViewComponent extends LandingBaseComponent
 					$options['params']['editor'] = [
 						'externalUrlTarget' => '_blank'
 					];
+				}
+				if (!$site['TPL_CODE'] && mb_strpos($site['XML_ID'], '|'))
+				{
+					[, $site['TPL_CODE']] = explode('|', $site['XML_ID']);
+				}
+				if ($site['TPL_CODE'])
+				{
+					$options['theme'] = $this->getThemeManifest($site['TPL_CODE']);
 				}
 				$options['sites_count'] = $this->getSitesCount();
 				$options['pages_count'] = $this->getPagesCount($landing->getSiteId());
@@ -743,7 +752,7 @@ class LandingViewComponent extends LandingBaseComponent
 						$placementType = ($row['PLACEMENT'] == 'LANDING_IMAGE')
 										? 'image'
 										: 'blocks';
-						$row['PLACEMENT'] = strtolower(substr($row['PLACEMENT'], 14));
+						$row['PLACEMENT'] = mb_strtolower(mb_substr($row['PLACEMENT'], 14));
 						if (!isset($options['placements'][$placementType][$row['PLACEMENT']]))
 						{
 							$options['placements'][$placementType][$row['PLACEMENT']] = array();

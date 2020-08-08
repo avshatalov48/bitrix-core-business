@@ -64,7 +64,7 @@ foreach ($arEvents as $eventId)
 
 	$msg = GetMessage("SMOP_EVNT_".$eventId);
 
-	if(strlen($msg) > 0)
+	if($msg <> '')
 	{
 		$arResult["EVENTS"][$eventId] = array(
 			"TITLE" => $msg,

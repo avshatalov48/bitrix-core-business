@@ -34,7 +34,7 @@ class CCurrencyMoneyInputComponent extends \CBitrixComponent
 		$params['CONTROL_ID'] = !empty($params['CONTROL_ID']) ? trim($params['CONTROL_ID']) : 'bxme_'.(\Bitrix\Main\Security\Random::getString(5));
 		$params['FIELD_NAME'] = !empty($params['FIELD_NAME']) ? trim($params['FIELD_NAME']) : 'money_'.(\Bitrix\Main\Security\Random::getString(5));
 		$params['FIELD_NAME_CURRENCY'] = !empty($params['FIELD_NAME_CURRENCY']) ? trim($params['FIELD_NAME']) : '';
-		$params['VALUE'] = strlen($params['VALUE']) > 0 ? trim($params['VALUE']) : '';
+		$params['VALUE'] = $params['VALUE'] <> '' ? trim($params['VALUE']) : '';
 
 		$params['EXTENDED_CURRENCY_SELECTOR'] = $params['EXTENDED_CURRENCY_SELECTOR'] === 'Y' ? 'Y' : 'N';
 
@@ -77,7 +77,7 @@ class CCurrencyMoneyInputComponent extends \CBitrixComponent
 		$this->arResult['VALUE_NUMBER'] = '';
 		$this->arResult['VALUE_CURRENCY'] = '';
 
-		if(strlen($this->arParams['VALUE']) > 0)
+		if($this->arParams['VALUE'] <> '')
 		{
 			list($this->arResult['VALUE_NUMBER'], $this->arResult['VALUE_CURRENCY']) = explode('|', $this->arParams['VALUE']);
 

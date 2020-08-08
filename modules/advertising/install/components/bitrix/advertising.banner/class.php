@@ -147,7 +147,7 @@ class AdvertisingBanner extends \CBitrixComponent
 				else
 				{
 					$templateExists = false;
-					if (strlen($this->arParams['DEFAULT_TEMPLATE']) > 0)
+					if ($this->arParams['DEFAULT_TEMPLATE'] <> '')
 					{
 						$arTemplates = CComponentUtil::GetTemplatesList('bitrix:advertising.banner.view');
 						if (is_array($arTemplates) && !empty($arTemplates))

@@ -10,6 +10,8 @@ namespace Bitrix\Sender\Message;
 
 class ConfigurationOption
 {
+	const TYPE_DATE_TIME = 'datetime';
+	const TYPE_NUMBER = 'number';
 	const TYPE_CUSTOM = 'custom';
 	const TYPE_PRESET_STRING = 'preset-string';
 	const TYPE_STRING = 'string';
@@ -67,6 +69,9 @@ class ConfigurationOption
 
 	/** @var boolean $showInFilter Show option value in filter. */
 	protected $showInFilter = false;
+
+	/** @var int $maxLength max length of string field */
+	protected $maxLength;
 
 	/**
 	 * Configuration constructor.
@@ -126,6 +131,10 @@ class ConfigurationOption
 		{
 			$this->setShowInFilter($data['show_in_filter']);
 		}
+		if (isset($data['max_length']))
+		{
+			$this->setMaxLength($data['max_length']);
+		}
 	}
 
 	/**
@@ -146,6 +155,7 @@ class ConfigurationOption
 			'required' => $this->isRequired(),
 			'templated' => $this->isTemplated(),
 			'hint' => $this->getHint(),
+			'max_length' => $this->getMaxLength(),
 		);
 	}
 
@@ -398,6 +408,15 @@ class ConfigurationOption
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getMaxLength()
+	{
+		return $this->maxLength;
+	}
+
+
+	/**
 	 * Get show in list or not.
 	 *
 	 * @return bool
@@ -449,4 +468,13 @@ class ConfigurationOption
 	{
 		$this->showInFilter = $showInFilter;
 	}
+
+	/**
+	 * @param int $maxLength
+	 */
+	public function setMaxLength(int $maxLength)
+	{
+		$this->maxLength = $maxLength;
+	}
+
 }

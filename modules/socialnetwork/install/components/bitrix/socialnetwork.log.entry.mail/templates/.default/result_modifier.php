@@ -4,7 +4,7 @@ $mailModuleInstalled = \Bitrix\Main\Loader::includeModule('mail');
 
 $arResult["AUTHOR"]["AVATAR_URL"] = (
 isset($arResult["LOG_ENTRY"]["AVATAR_SRC"])
-&& strlen($arResult["LOG_ENTRY"]["AVATAR_SRC"]) > 0
+&& $arResult["LOG_ENTRY"]["AVATAR_SRC"] <> ''
 	? $arResult["LOG_ENTRY"]["AVATAR_SRC"]
 	: '/bitrix/components/bitrix/socialnetwork.log.entry.mail/templates/.default/images/userpic.gif'
 );

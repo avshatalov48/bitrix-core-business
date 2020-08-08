@@ -202,7 +202,7 @@ function GetPropertyInfo($strPrefix, $ID, $boolUnpack = true, $arHiddenPropField
 	if (!is_array($arHiddenPropFields))
 		return $arResult;
 
-	if (isset($_POST[$strPrefix.$ID.'_NAME']) && (0 < strlen($_POST[$strPrefix.$ID.'_NAME'])) && isset($_POST[$strPrefix.$ID.'_PROPINFO']))
+	if (isset($_POST[$strPrefix.$ID.'_NAME']) && ($_POST[$strPrefix.$ID.'_NAME'] <> '') && isset($_POST[$strPrefix.$ID.'_PROPINFO']))
 	{
 		$strEncodePropInfo = $_POST[$strPrefix.$ID.'_PROPINFO'];
 		$strPropInfo = base64_decode($strEncodePropInfo);
@@ -221,7 +221,7 @@ function GetPropertyInfo($strPrefix, $ID, $boolUnpack = true, $arHiddenPropField
 
 			if (isset($_POST[$strPrefix.$ID."_PROPERTY_TYPE"]))
 			{
-				if (false !== strpos($_POST[$strPrefix.$ID."_PROPERTY_TYPE"], ":"))
+				if (false !== mb_strpos($_POST[$strPrefix.$ID."_PROPERTY_TYPE"], ":"))
 				{
 					list($arResult["PROPERTY_TYPE"], $arResult["USER_TYPE"]) = explode(':', $_POST[$strPrefix.$ID."_PROPERTY_TYPE"], 2);
 				}
@@ -252,7 +252,7 @@ function GetPropertyInfo($strPrefix, $ID, $boolUnpack = true, $arHiddenPropField
 				$arResult['SEARCHABLE'] = ('Y' == $arResult['SEARCHABLE'] ? 'Y' : 'N');
 				$arResult['SECTION_PROPERTY'] = ('N' == $arResult['SECTION_PROPERTY'] ? 'N' : 'Y');
 				$arResult['SMART_FILTER'] = ('Y' == $arResult['SMART_FILTER'] ? 'Y' : 'N');
-				$arResult['DISPLAY_TYPE'] = substr($arResult['DISPLAY_TYPE'], 0, 1);
+				$arResult['DISPLAY_TYPE'] = mb_substr($arResult['DISPLAY_TYPE'], 0, 1);
 				$arResult['DISPLAY_EXPANDED'] = ('Y' == $arResult['DISPLAY_EXPANDED'] ? 'Y' : 'N');
 				$arResult['MULTIPLE_CNT'] = (int)$arResult['MULTIPLE_CNT'];
 				if (0 >= $arResult['MULTIPLE_CNT'])
@@ -511,7 +511,7 @@ if(
 	$_SERVER["REQUEST_METHOD"] == "POST"
 	&& check_bitrix_sessid()
 	&& CIBlockRights::UserHasRightTo($ID, $ID, "iblock_edit")
-	&& strlen($_POST["Update"]) > 0
+	&& $_POST["Update"] <> ''
 	&& !isset($_POST["propedit"])
 )
 {
@@ -527,7 +527,6 @@ if(
 	if ($RSS_ACTIVE != "Y") $RSS_ACTIVE = "N";
 	if ($RSS_FILE_ACTIVE != "Y") $RSS_FILE_ACTIVE = "N";
 	if ($RSS_YANDEX_ACTIVE != "Y") $RSS_YANDEX_ACTIVE = "N";
-	if (!strlen($API_CODE)) $API_CODE = false;
 
 	$ib = new CIBlock();
 	$arFields = array(
@@ -559,30 +558,6 @@ if(
 		"ELEMENT_EDIT"=>$ELEMENT_EDIT,
 		"ELEMENT_DELETE"=>$ELEMENT_DELETE,
 	);
-
-	// check API_CODE
-	if (strlen($API_CODE))
-	{
-		if (!preg_match('/^[a-z][a-z0-9]{0,49}$/i', $API_CODE))
-		{
-			$strWarning .= Loc::getMessage("IB_E_API_CODE_FORMAT_ERROR").'<br>';
-			$bVarsFromForm = true;
-		}
-		else
-		{
-			// check for uniqueness
-			$count = Iblock\IblockTable::getCount(Main\ORM\Query\Query::filter()
-				->where('API_CODE', $API_CODE)
-				->whereNot('ID', $ID)
-			);
-
-			if ($count > 0)
-			{
-				$strWarning .= Loc::getMessage("IB_E_API_CODE_UNIQUE_ERROR").'<br>';
-				$bVarsFromForm = true;
-			}
-		}
-	}
 
 	if($arIBTYPE["SECTIONS"]=="Y")
 	{
@@ -685,7 +660,7 @@ if(
 			$bSectionProperty = true;
 		if ('' != $arProperty['CODE'])
 		{
-			$strPropertyCode = strtoupper($arProperty['CODE']);
+			$strPropertyCode = mb_strtoupper($arProperty['CODE']);
 			if (!isset($arProperty['DEL']) || $arProperty['DEL'] == 'N')
 			{
 				if (isset($arPropertyCodes[$strPropertyCode]))
@@ -785,7 +760,7 @@ if(
 			if ($RSS_FILE_ACTIVE == "Y")
 			{
 				CAgent::RemoveAgent("CIBlockRSS::PreGenerateRSS(".$ID.", false);", "iblock");
-				CAgent::AddAgent("CIBlockRSS::PreGenerateRSS(".$ID.", false);", "iblock", "N", IntVal($RSS_TTL)*60*60, "", "Y");
+				CAgent::AddAgent("CIBlockRSS::PreGenerateRSS(".$ID.", false);", "iblock", "N", intval($RSS_TTL)*60*60, "", "Y");
 			}
 			else
 			{
@@ -795,7 +770,7 @@ if(
 			if ($RSS_YANDEX_ACTIVE == "Y")
 			{
 				CAgent::RemoveAgent("CIBlockRSS::PreGenerateRSS(".$ID.", true);", "iblock");
-				CAgent::AddAgent("CIBlockRSS::PreGenerateRSS(".$ID.", true);", "iblock", "N", IntVal($RSS_TTL)*60*60, "", "Y");
+				CAgent::AddAgent("CIBlockRSS::PreGenerateRSS(".$ID.", true);", "iblock", "N", intval($RSS_TTL)*60*60, "", "Y");
 			}
 			else
 			{
@@ -850,16 +825,13 @@ if(
 				\CIBlock::clearIblockTagCache($ID);
 			/*******************************************/
 
-			if(!CIBlockSectionPropertyLink::HasIBlockLinks($ID))
-				CIBlockSectionPropertyLink::DeleteByIBlock($ID);
-
 			if(!$bVarsFromForm && $arIBTYPE["IN_RSS"]=="Y")
 			{
 				CIBlockRSS::Delete($ID);
 				$arNodesRSS = CIBlockRSS::GetRSSNodes();
 				foreach($arNodesRSS as $key => $val)
 				{
-					if(strlen(${"RSS_NODE_VALUE_".$key}) > 0)
+					if(${"RSS_NODE_VALUE_".$key} <> '')
 						CIBlockRSS::Add($ID, $val, ${"RSS_NODE_VALUE_".$key});
 				}
 			}
@@ -1320,6 +1292,11 @@ if(
 				}
 			}
 
+			if (!$bVarsFromForm)
+			{
+				CIBlockSectionPropertyLink::CleanIBlockLinks($ID);
+			}
+
 			if(!$bVarsFromForm)
 			{
 				if(
@@ -1342,11 +1319,11 @@ if(
 						$intYandexExport = CCatalog::GetList(array(),array('YANDEX_EXPORT' => 'Y'),array());
 						CAgent::RemoveAgent("CCatalog::PreGenerateXML(\"yandex\");", "catalog");
 						if (0 < $intYandexExport)
-							CAgent::AddAgent("CCatalog::PreGenerateXML(\"yandex\");", "catalog", "N", IntVal(COption::GetOptionString("catalog", "yandex_xml_period", "24"))*60*60, "", "Y");
+							CAgent::AddAgent("CCatalog::PreGenerateXML(\"yandex\");", "catalog", "N", intval(COption::GetOptionString("catalog", "yandex_xml_period", "24"))*60*60, "", "Y");
 					}
 				}
 
-				$reloadUrl = "/bitrix/admin/iblock_edit.php?type=".$type."&tabControl_active_tab=".urlencode($tabControl_active_tab)."&lang=".LANGUAGE_ID."&ID=".$ID."&admin=".($_REQUEST["admin"]=="Y"? "Y": "N").(strlen($_REQUEST["return_url"])>0? "&return_url=".urlencode($_REQUEST["return_url"]): "");
+				$reloadUrl = "/bitrix/admin/iblock_edit.php?type=".$type."&tabControl_active_tab=".urlencode($tabControl_active_tab)."&lang=".LANGUAGE_ID."&ID=".$ID."&admin=".($_REQUEST["admin"]=="Y"? "Y": "N").($_REQUEST["return_url"] <> ''? "&return_url=".urlencode($_REQUEST["return_url"]): "");
 				if ($adminSidePanelHelper->isAjaxRequest())
 				{
 					$reloadUrl .= "&IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER";
@@ -1355,9 +1332,9 @@ if(
 				else
 				{
 					$ob = new CAutoSave();
-					if(strlen($apply)<=0)
+					if($apply == '')
 					{
-						if(strlen($_REQUEST["return_url"])>0)
+						if($_REQUEST["return_url"] <> '')
 							LocalRedirect($_REQUEST["return_url"]);
 						else
 							LocalRedirect("/bitrix/admin/iblock_admin.php?type=".$type."&lang=".LANGUAGE_ID."&admin=".($_REQUEST["admin"]=="Y"? "Y": "N"));
@@ -1686,7 +1663,7 @@ foreach ($arCellAttr as $key => $value)
 <?endif?>
 <input type="hidden" name="Update" value="Y">
 <input type="hidden" name="ID" value="<?echo $ID?>">
-<?if(strlen($_REQUEST["return_url"])>0):?><input type="hidden" name="return_url" value="<?=htmlspecialcharsbx($_REQUEST["return_url"])?>"><?endif?>
+<?if($_REQUEST["return_url"] <> ''):?><input type="hidden" name="return_url" value="<?=htmlspecialcharsbx($_REQUEST["return_url"])?>"><?endif?>
 <?CAdminMessage::ShowOldStyleError($strWarning);?>
 <?
 $bTab3 = ($arIBTYPE["IN_RSS"]=="Y");
@@ -4328,7 +4305,7 @@ if($bTab3):
 					<td><?echo GetMessage("IB_E_RSS_TEMPL")?></td>
 				</tr>
 				<?
-				$arCurNodesRSS = CIBlockRSS::GetNodeList(IntVal($ID));
+				$arCurNodesRSS = CIBlockRSS::GetNodeList(intval($ID));
 				$arNodesRSS = CIBlockRSS::GetRSSNodes();
 				foreach($arNodesRSS as $key => $val):
 					if($bVarsFromForm)

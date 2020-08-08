@@ -111,4 +111,10 @@
 	background: #9dcf00;
 	content: '';
 }
+
+.rest-market-partners-price {
+	font-size: 14px;
+	color: #525C69;
+	font-family: "OpenSans-SemiBold", Helvetica, Arial, sans-serif;
+}
 /* END OF BANNER */

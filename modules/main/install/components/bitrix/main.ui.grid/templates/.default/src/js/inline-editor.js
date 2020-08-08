@@ -1,3 +1,6 @@
+import {Event} from "main.core";
+import {EventEmitter} from "main.core.events";
+
 ;(function() {
 	'use strict';
 
@@ -96,6 +99,16 @@
 				}
 			}
 
+			if (BX.type.isNotEmptyString(editObject.PLACEHOLDER))
+			{
+				attrs.placeholder = BX.util.htmlspecialchars(editObject.PLACEHOLDER);
+			}
+
+			if (editObject.DISABLED)
+			{
+				attrs.disabled = true;
+			}
+
 			className = [this.parent.settings.get('classEditor'), className].join(' ');
 
 			return BX.create('input', {
@@ -121,6 +134,112 @@
 				},
 				html: editObject.VALUE || ""
 			});
+		},
+
+		createMoney: function(editObject)
+		{
+			const value = editObject.VALUE;
+			const fieldChildren = [];
+
+			const priceObject = value.PRICE || {};
+			fieldChildren.push(this.createMoneyPrice(priceObject));
+
+			const currencyObject = value.CURRENCY || {};
+			currencyObject.DATA = {
+				ITEMS: editObject.CURRENCY_LIST
+			};
+			fieldChildren.push(this.createMoneyCurrency(currencyObject));
+
+			if (BX.type.isNotEmptyObject(value.HIDDEN))
+			{
+				for (let fieldName in value.HIDDEN)
+				{
+					if (BX.type.isNotEmptyString(fieldName))
+					{
+						const hidden = this.createInput({
+							NAME: fieldName,
+							VALUE: value['HIDDEN'][fieldName],
+							TYPE: this.types.TEXT,
+						});
+						hidden.type = 'hidden';
+						fieldChildren.push(hidden);
+					}
+				}
+			}
+
+			let className = this.parent.settings.get('classEditorMoney');
+			className = [this.parent.settings.get('classEditor'), className].join(' ');
+			const attrs = value.ATTRIBUTES || {};
+			attrs['data-name'] = editObject.NAME;
+
+			return BX.create('div', {
+				props: {
+					className: className
+				},
+				attrs: attrs,
+				children: fieldChildren,
+			});
+		},
+
+		createMoneyPrice: function(priceObject)
+		{
+			priceObject.TYPE = this.types.NUMBER;
+			priceObject.PLACEHOLDER = "0";
+			const priceInput = this.createInput(priceObject);
+			priceInput.classList.add('main-grid-editor-money-price');
+			Event.bind(priceInput, 'change', (event) => {
+				const fieldNode = event.target.parentNode;
+				const currencyDropdown = fieldNode.querySelector('.main-grid-editor-money-currency');
+				const eventData = {
+					field: fieldNode,
+					values: {
+						price: event.target.value || '',
+						currency: currencyDropdown.dataset.value || '',
+					}
+				};
+
+				EventEmitter.emit('Grid.MoneyField::change', eventData);
+			});
+			return priceInput;
+		},
+
+		createMoneyCurrency: function(currencyObject)
+		{
+			const currencyBlock = this.createDropdown(currencyObject);
+			currencyBlock.dataset.menuOffsetLeft = 15;
+			currencyBlock.dataset.menuMaxHeight = 200;
+			currencyBlock.classList.add('main-grid-editor-money-currency');
+			if (currencyObject.DISABLED === true)
+			{
+				currencyBlock.classList.remove('main-dropdown');
+				currencyBlock.dataset.disabled = true;
+			}
+
+			EventEmitter.subscribe('Dropdown::change', (event) => {
+				const [controlId] = event.getData();
+				if (!BX.type.isNotEmptyString(controlId))
+				{
+					return;
+				}
+
+				const dropdownObject = BX.Main.dropdownManager.getById(controlId);
+				if (dropdownObject.dropdown && dropdownObject.dropdown.classList.contains('main-grid-editor-money-currency'))
+				{
+					const fieldNode = dropdownObject.dropdown.parentNode;
+					const priceField = fieldNode.querySelector('.main-grid-editor-money-price')
+					const eventData = {
+						field: fieldNode,
+						values: {
+							price: priceField.value || '',
+							currency: dropdownObject.dropdown.dataset.value || '',
+						}
+					};
+
+					EventEmitter.emit('Grid.MoneyField::change', eventData);
+				}
+			});
+
+			return currencyBlock;
 		},
 
 		createOutput: function(editObject)
@@ -162,12 +281,13 @@
 				},
 				attrs: {
 					name: editObject.NAME,
+					tabindex: '0',
 					'data-items': JSON.stringify(editObject.DATA.ITEMS),
 					'data-value': valueItem.VALUE
 				},
 				children: [BX.create('span', {
 					props: {className: 'main-dropdown-inner'},
-					html: valueItem.NAME
+					text: valueItem.NAME
 				})]
 			});
 
@@ -286,13 +406,21 @@
 						break;
 					}
 
+					case this.types.MONEY : {
+						control = this.createMoney(editObject);
+						BX.bind(control, 'keydown', BX.delegate(this._onControlKeydown, this));
+						break;
+					}
+
 					case this.types.CUSTOM : {
 						control = this.createCustom(editObject);
 
 						requestAnimationFrame(function() {
-							if (editObject.HTML)
+							const html = editObject.HTML || editObject.VALUE || null;
+
+							if (html)
 							{
-								var res = BX.processHTML(editObject.HTML);
+								const res = BX.processHTML(html);
 
 								res.SCRIPT.forEach(function(item) {
 									if (item.isInternal && item.JS)
@@ -304,6 +432,7 @@
 						});
 
 						BX.bind(control, 'click', function(event) { event.stopPropagation(); });
+						BX.bind(control, 'keydown', BX.delegate(this._onControlKeydown, this));
 						break;
 					}
 

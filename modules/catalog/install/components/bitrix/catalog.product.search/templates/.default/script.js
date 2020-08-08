@@ -320,7 +320,10 @@ BX.Catalog.ProductSearchDialog = (function () {
 				title = data[i].NAME;
 			}
 		}
-		this.popup.SetTitle(BX.util.htmlspecialcharsback(title));
+		if (this.popup !== null)
+		{
+			this.popup.SetTitle(BX.util.htmlspecialcharsback(title));
+		}
 		BX(this.tableId+'_breadcrumbs').innerHTML = arHtml.join('<span class="adm-navchain-delimiter"></span>');
 		this.openBranchByPath(arPath);
 	};

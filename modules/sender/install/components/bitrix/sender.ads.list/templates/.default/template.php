@@ -15,9 +15,13 @@ foreach ($arResult['ERRORS'] as $error)
 	ShowError($error);
 }
 
+$canEdit = $arParams['CAN_EDIT'];
+$canPauseStartStop = $arParams['CAN_PAUSE_START_STOP'];
+$canViewClient = $arParams['CAN_VIEW_CLIENT'];
+$canEditAdv = $arParams['CAN_EDIT_ADV'];
+
 foreach ($arResult['ROWS'] as $index => $data)
 {
-	$canEdit = $arParams['CAN_EDIT'];
 
 	// user
 	if ($data['USER'] && $data['USER_PATH'])
@@ -121,7 +125,7 @@ foreach ($arResult['ROWS'] as $index => $data)
 		$buttonAction = htmlspecialcharsbx($buttonAction);
 		?>
 		<div class="sender-letter-list-block-flexible">
-			<?if ($buttonCaption):?>
+			<?if ($buttonCaption && $canPauseStartStop):?>
 			<div onclick="<?=$buttonAction?> event.stopPropagation(); return false;" class="sender-letter-list-button sender-letter-list-button-<?=$buttonColor?>" title="<?=htmlspecialcharsbx($buttonTitle)?>">
 				<span class="sender-letter-list-button-icon sender-letter-list-button-icon-<?=$buttonIcon?>"></span>
 					<span class="sender-letter-list-button-name">
@@ -216,7 +220,7 @@ foreach ($arResult['ROWS'] as $index => $data)
 
 	// statistics
 	ob_start();
-	if ($data['POSTING_ID'])
+	if ($data['POSTING_ID'] && $canViewClient)
 	{
 
 		?>

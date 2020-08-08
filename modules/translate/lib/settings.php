@@ -42,7 +42,7 @@ class Settings
 		}
 
 		$file = null;
-		if (substr($fullPath, -5) === '/lang' || substr($fullPath, -6) === '/lang/')
+		if (mb_substr($fullPath, -5) === '/lang' || mb_substr($fullPath, -6) === '/lang/')
 		{
 			$file = new static($fullPath. '/'. self::OPTION_FILE_NAME);
 		}
@@ -103,7 +103,7 @@ class Settings
 		}
 		else
 		{
-			if (strpos($langPath, '/') !== false)
+			if (mb_strpos($langPath, '/') !== false)
 			{
 				$parts = explode('/', $langPath);
 				$path = '';
@@ -173,7 +173,7 @@ class Settings
 			$content = str_replace(["\r\n", "\r"], ["\n", ''], $content);
 		}
 
-		if (strlen($content) > 0)
+		if ($content <> '')
 		{
 			if (parent::putContents("<". "?php\nreturn ". $content. "\n?". '>') === false)
 			{

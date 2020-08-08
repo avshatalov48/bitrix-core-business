@@ -145,7 +145,7 @@ DrawCoordinatGrid($arrayX, $arrayY, $width, $height, $ImageHandle);
 reset($arrLegend);
 while(list($keyL, $arrS) = each($arrLegend)) 
 {
-	if (strlen($keyL)>0)
+	if ($keyL <> '')
 	{
 		if (in_array("ctr", $arShow)) 
 		{

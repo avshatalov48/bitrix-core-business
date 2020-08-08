@@ -4,7 +4,7 @@ if ($arResult["NEED_AUTH"] == "Y")
 {
 	$APPLICATION->AuthForm("");
 }
-elseif (strlen($arResult["FatalError"])>0)
+elseif ($arResult["FatalError"] <> '')
 {
 	?>
 	<span class='errortext'><?=$arResult["FatalError"]?></span><br /><br />
@@ -12,7 +12,7 @@ elseif (strlen($arResult["FatalError"])>0)
 }
 else
 {
-	if(strlen($arResult["ErrorMessage"])>0)
+	if($arResult["ErrorMessage"] <> '')
 	{
 		?>
 		<span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br />
@@ -35,7 +35,7 @@ else
 					<td align="right" valign="top" width="40%"><?= GetMessage("BPAT_DESCR") ?>:</td>
 					<td width="60%" valign="top"><?= nl2br($arResult["arTask"]["DESCRIPTION"]) ?></td>
 				</tr>
-				<?if (strlen($arResult["arTask"]["PARAMETERS"]["DOCUMENT_URL"]) > 0):?>
+				<?if ($arResult["arTask"]["PARAMETERS"]["DOCUMENT_URL"] <> ''):?>
 				<tr>
 					<td align="right" valign="top" width="40%">&nbsp;</td>
 					<td width="60%" valign="top"><a href="<?= $arResult["arTask"]["PARAMETERS"]["DOCUMENT_URL"] ?>" target="_blank"><?= GetMessage("BPAT_GOTO_DOC") ?></a></td>

@@ -309,6 +309,11 @@ class CCatalogProductAvailable extends CCatalogStepOperations
 	private $existIdsByType = array();
 	private $measureRatios = array();
 	private $currencyReference = array();
+	private $measureIds = [
+		'DEFAULT' => null,
+		'BASE' => null
+	];
+
 	/** @deprecated  */
 	protected $useSets = false;
 	/** @deprecated  */
@@ -556,6 +561,7 @@ class CCatalogProductAvailable extends CCatalogStepOperations
 			'CHECK_PRICES' => false,
 			'CHECK_SETS' => Catalog\Config\Feature::isProductSetsEnabled(),
 			'CHECK_MEASURE_RATIO' => false,
+			'CHECK_MEASURE' => false,
 			'UPDATE_ONLY' => false
 		);
 	}
@@ -570,6 +576,7 @@ class CCatalogProductAvailable extends CCatalogStepOperations
 	protected function initReferences()
 	{
 		$this->initCurrencyReference();
+		$this->initMeasures();
 	}
 
 	private function initCurrencyReference()
@@ -583,6 +590,30 @@ class CCatalogProductAvailable extends CCatalogStepOperations
 		while ($row = $iterator->fetch())
 			$this->currencyReference[$row['CURRENCY']] = (float)$row['CURRENT_BASE_RATE'];
 		unset($row, $iterator);
+	}
+
+	private function initMeasures()
+	{
+		$measure = CCatalogMeasure::getDefaultMeasure();
+		if (!empty($measure))
+		{
+			if ($measure['ID'] > 0)
+				$this->measureIds['DEFAULT'] = $measure['ID'];
+		}
+		$iterator = CCatalogMeasure::getList(
+			array(),
+			array('=CODE' => CCatalogMeasure::DEFAULT_MEASURE_CODE),
+			false,
+			false,
+			array('ID', 'CODE')
+		);
+		$measure = $iterator->Fetch();
+		unset($iterator);
+		if (!empty($measure))
+		{
+			$this->measureIds['BASE'] = $measure['ID'];
+		}
+		unset($measure);
 	}
 
 	/** @deprecated */
@@ -616,6 +647,7 @@ class CCatalogProductAvailable extends CCatalogStepOperations
 		$select['QUANTITY_TRACE'] = 'PRODUCT.QUANTITY_TRACE';
 		$select['CAN_BUY_ZERO'] = 'PRODUCT.CAN_BUY_ZERO';
 		$select['TYPE'] = 'PRODUCT.TYPE';
+		$select['MEASURE'] = 'PRODUCT.MEASURE';
 
 		if ($this->lastID > 0)
 			$filter['>ID'] = $this->lastID;
@@ -928,6 +960,12 @@ class CCatalogProductAvailable extends CCatalogStepOperations
 		if (empty($this->currentIdsList))
 			return;
 
+		$checkMeasure = (
+			$this->config['CHECK_MEASURE']
+			&& $this->iblockData['CATALOG_TYPE'] != CCatalogSku::TYPE_PRODUCT
+			&& (isset($this->iblockData['SUBSCRIPTION']) && $this->iblockData['SUBSCRIPTION'] != 'Y')
+		);
+
 		foreach ($this->currentIdsList as $id)
 		{
 			$product = $this->currentList[$id];
@@ -960,6 +998,23 @@ class CCatalogProductAvailable extends CCatalogStepOperations
 						: Catalog\ProductTable::STATUS_NO
 					);
 				}
+				if ($checkMeasure)
+				{
+					if ($fields['TYPE'] == Catalog\ProductTable::TYPE_SET)
+					{
+						if ($this->measureIds['BASE'] !== null)
+						{
+							$fields['MEASURE'] = $this->measureIds['BASE'];
+						}
+					}
+					else
+					{
+						if ((int)$product['MEASURE'] <= 0 && $this->measureIds['DEFAULT'] !== null)
+						{
+							$fields['MEASURE'] = $this->measureIds['DEFAULT'];
+						}
+					}
+				}
 
 				if ($product['PRODUCT_EXISTS'])
 				{
@@ -980,15 +1035,19 @@ class CCatalogProductAvailable extends CCatalogStepOperations
 				else
 				{
 					$product['SUCCESS'] = false;
-					$errorId = 'BX_CATALOG_REINDEX_ERR_PRODUCT_UPDATE_FAIL';
+					$errorId = 'BX_CATALOG_REINDEX_ERR_PRODUCT_UPDATE_FAIL_EXT';
 					if (
 						$product['TYPE'] == Catalog\ProductTable::TYPE_OFFER
 						|| $product['TYPE'] == Catalog\ProductTable::TYPE_FREE_OFFER
 					)
-						$errorId = 'BX_CATALOG_REINDEX_ERR_OFFER_UPDATE_FAIL';
+						$errorId = 'BX_CATALOG_REINDEX_ERR_OFFER_UPDATE_FAIL_EXT';
 					$this->addError(Loc::getMessage(
 						$errorId,
-						['#ID#' => $id, '#NAME#' => $product['NAME']]
+						[
+							'#ID#' => $id,
+							'#NAME#' => $product['NAME'],
+							'#ERROR#' => implode('; ', $productResult->getErrorMessages())
+						]
 					));
 					unset($errorId);
 				}
@@ -1045,6 +1104,7 @@ class CCatalogProductAvailable extends CCatalogStepOperations
 		}
 
 		$success = true;
+		$errorMessage = [];
 		foreach (array_keys($this->prices[$id]) as $rowId)
 		{
 			$row = $this->prices[$id][$rowId];
@@ -1061,6 +1121,7 @@ class CCatalogProductAvailable extends CCatalogStepOperations
 			if (!$rowResult->isSuccess())
 			{
 				$success = false;
+				$errorMessage = $rowResult->getErrorMessages();
 				break;
 			}
 		}
@@ -1070,19 +1131,23 @@ class CCatalogProductAvailable extends CCatalogStepOperations
 
 		if (!$success)
 		{
-			$errorId = 'BX_CATALOG_REINDEX_ERR_PRODUCT_PRICE_UPDATE_FAIL';
+			$errorId = 'BX_CATALOG_REINDEX_ERR_PRODUCT_PRICE_UPDATE_FAIL_EXT';
 			if (
 				$product['TYPE'] == Catalog\ProductTable::TYPE_OFFER
 				|| $product['TYPE'] == Catalog\ProductTable::TYPE_FREE_OFFER
 			)
-				$errorId = 'BX_CATALOG_REINDEX_ERR_OFFER_PRICE_UPDATE_FAIL';
+				$errorId = 'BX_CATALOG_REINDEX_ERR_OFFER_PRICE_UPDATE_FAIL_EXT';
 			$this->addError(Loc::getMessage(
 				$errorId,
-				['#ID#' => $id, '#NAME#' => $product['NAME']]
+				[
+					'#ID#' => $id,
+					'#NAME#' => $product['NAME'],
+					'#ERROR#' => implode('; ', $errorMessage)
+				]
 			));
 			unset($errorId);
 		}
-		unset($success);
+		unset($errorMessage, $success);
 	}
 
 	private function updateSkuPrices($id, array $product)
@@ -1093,6 +1158,7 @@ class CCatalogProductAvailable extends CCatalogStepOperations
 			return;
 
 		$success = true;
+		$errorMessage = [];
 		if (!empty($this->calculatePrices[$id]))
 		{
 			foreach (array_keys($this->calculatePrices[$id]) as $resultPriceType)
@@ -1118,13 +1184,14 @@ class CCatalogProductAvailable extends CCatalogStepOperations
 				if (!$rowResult->isSuccess())
 				{
 					$success = false;
+					$errorMessage = $rowResult->getErrorMessages();
 					break;
 				}
 			}
 		}
 		unset($this->calculatePrices[$id]);
 
-		if (!empty($this->existPriceIds[$id]))
+		if ($success && !empty($this->existPriceIds[$id]))
 		{
 			$conn = Main\Application::getConnection();
 			$helper = $conn->getSqlHelper();
@@ -1141,11 +1208,15 @@ class CCatalogProductAvailable extends CCatalogStepOperations
 		if (!$success)
 		{
 			$this->addError(Loc::getMessage(
-				'BX_CATALOG_REINDEX_ERR_PRODUCT_UPDATE_FAIL',
-				['#ID#' => $id, '#NAME#' => $product['NAME']]
+				'BX_CATALOG_REINDEX_ERR_PRODUCT_UPDATE_FAIL_EXT',
+				[
+					'#ID#' => $id,
+					'#NAME#' => $product['NAME'],
+					'#ERROR#' => implode('; ', $errorMessage)
+				]
 			));
 		}
-		unset($success);
+		unset($errorMessage, $success);
 	}
 
 	private function updateMeasureRatios($id, array $product)
@@ -1157,7 +1228,14 @@ class CCatalogProductAvailable extends CCatalogStepOperations
 			return;
 
 		$action = '';
-		if (
+		if (isset($this->iblockData['SUBSCRIPTION']) && $this->iblockData['SUBSCRIPTION'] == 'Y')
+		{
+			if (!empty($this->measureRatios[$id]['RATIOS']))
+				$action = 'set';
+			else
+				$action = 'create';
+		}
+		elseif (
 			$product['TYPE'] == Catalog\ProductTable::TYPE_PRODUCT
 			|| $product['TYPE'] == Catalog\ProductTable::TYPE_OFFER
 			|| $product['TYPE'] == Catalog\ProductTable::TYPE_FREE_OFFER
@@ -1297,6 +1375,7 @@ class CCatalogProductAvailable extends CCatalogStepOperations
 					case Catalog\ProductTable::TYPE_PRODUCT:
 					case Catalog\ProductTable::TYPE_SET:
 						$fields['AVAILABLE'] = Catalog\ProductTable::calculateAvailable($product);
+						$fields['TYPE'] = (int)$product['TYPE'];
 						break;
 					default:
 						$fields = Catalog\ProductTable::getDefaultAvailableSettings();
@@ -1333,6 +1412,7 @@ class CCatalogProductAvailable extends CCatalogStepOperations
 				case Catalog\ProductTable::TYPE_PRODUCT:
 				case Catalog\ProductTable::TYPE_SET:
 					$fields['AVAILABLE'] = Catalog\ProductTable::calculateAvailable($product);
+					$fields['TYPE'] = (int)$product['TYPE'];
 					break;
 				default:
 					$fields = array(
@@ -1659,6 +1739,7 @@ class CCatalogIblockReindex extends CCatalogProductAvailable
 	{
 		parent::initConfig();
 		$this->config['CHECK_MEASURE_RATIO'] = true;
+		$this->config['CHECK_MEASURE'] = true;
 		$this->config['CHECK_PRICES'] = true;
 	}
 
@@ -1706,6 +1787,7 @@ class CCatalogIblockReindex extends CCatalogProductAvailable
 			$ratios[$row['ID']] = $row;
 		}
 		unset($row, $iterator);
+
 		if (empty($ratios))
 		{
 			$ratioResult = Catalog\MeasureRatioTable::add(array(

@@ -21,7 +21,7 @@ if($USER->IsAuthorized() && check_bitrix_sessid() && !isset($arResult["ERROR"]))
 				$arFields = isset($_REQUEST['fields']) ? $_REQUEST['fields'] : array();
 				$filterId = isset($_REQUEST['filter_id']) ? $_REQUEST['filter_id'] : '';
 
-				if(strlen($filterId) >0 && !empty($arFields))
+				if($filterId <> '' && !empty($arFields))
 				{
 
 					$arFieldsToSave = array();

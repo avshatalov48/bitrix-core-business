@@ -315,7 +315,7 @@ abstract class Base
 		$personalizeListTmp = $this->getPersonalizeList();
 		foreach($personalizeListTmp as $tag)
 		{
-			if(strlen($tag['CODE']) > 0)
+			if($tag['CODE'] <> '')
 			{
 				$personalizeList[] = $tag['CODE'];
 			}

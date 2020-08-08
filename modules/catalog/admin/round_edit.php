@@ -29,7 +29,7 @@ $rawReturnUrl = (string)$request->get('return_url');
 if ($rawReturnUrl != '')
 {
 	$currentUrl = $APPLICATION->GetCurPage();
-	if (strtolower(substr($rawReturnUrl, strlen($currentUrl))) != strtolower($currentUrl))
+	if (mb_strtolower(mb_substr($rawReturnUrl, mb_strlen($currentUrl))) != mb_strtolower($currentUrl))
 		$returnUrl = $rawReturnUrl;
 }
 unset($rawReturnUrl);

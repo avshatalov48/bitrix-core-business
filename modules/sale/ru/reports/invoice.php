@@ -87,44 +87,44 @@ if(empty($arParams))
 	$arUser = $db_user->Fetch();
 	echo htmlspecialcharsbx($arUser["NAME"])." ".htmlspecialcharsbx($arUser["LAST_NAME"]);
 
-	if (strlen($arOrderProps["F_INN"])>0) echo "<br>ИНН: ".$arOrderProps["F_INN"];?>
+	if ($arOrderProps["F_INN"] <> '') echo "<br>ИНН: ".$arOrderProps["F_INN"];?>
 	<br>Адрес:
 	<?
-	if (strlen($arOrderProps["F_INDEX"])>0) echo $arOrderProps["F_INDEX"].",";
+	if ($arOrderProps["F_INDEX"] <> '') echo $arOrderProps["F_INDEX"].",";
 
 	$arVal = CSaleLocation::GetByID($arOrderProps["F_LOCATION"], "ru");
-	if(strlen($arVal["COUNTRY_NAME"])>0 && strlen($arVal["CITY_NAME"])>0)
+	if($arVal["COUNTRY_NAME"] <> '' && $arVal["CITY_NAME"] <> '')
 		echo htmlspecialcharsbx($arVal["COUNTRY_NAME"]." - ".$arVal["CITY_NAME"]);
-	elseif(strlen($arVal["COUNTRY_NAME"])>0 || strlen($arVal["CITY_NAME"])>0)
+	elseif($arVal["COUNTRY_NAME"] <> '' || $arVal["CITY_NAME"] <> '')
 		echo htmlspecialcharsbx($arVal["COUNTRY_NAME"].$arVal["CITY_NAME"]);
 
-	if (strlen($arOrderProps["F_CITY"])>0) echo ", г. ".$arOrderProps["F_CITY"];
-	if (strlen($arOrderProps["F_ADDRESS"])>0 && strlen($arOrderProps["F_CITY"])>0)
+	if ($arOrderProps["F_CITY"] <> '') echo ", г. ".$arOrderProps["F_CITY"];
+	if ($arOrderProps["F_ADDRESS"] <> '' && $arOrderProps["F_CITY"] <> '')
 		echo ", ".$arOrderProps["F_ADDRESS"];
-	elseif(strlen($arOrderProps["F_ADDRESS"])>0)
+	elseif($arOrderProps["F_ADDRESS"] <> '')
 		echo $arOrderProps["F_ADDRESS"];
 
-	if (strlen($arOrderProps["F_EMAIL"])>0) echo "<br>E-Mail: ".$arOrderProps["F_EMAIL"];?>
+	if ($arOrderProps["F_EMAIL"] <> '') echo "<br>E-Mail: ".$arOrderProps["F_EMAIL"];?>
 	<br>Контактное лицо: <?echo $arOrderProps["F_NAME"];?>
 	<?
-	if (strlen($arOrderProps["F_PHONE"])>0)
+	if ($arOrderProps["F_PHONE"] <> '')
 		echo "<br>Телефон: ".$arOrderProps["F_PHONE"];
 
 }
 else
 {
-	if(strlen($arParams["BUYER_COMPANY_NAME"]) > 0)
+	if($arParams["BUYER_COMPANY_NAME"] <> '')
 		echo $arParams["BUYER_COMPANY_NAME"];
 	else
 		echo $arParams["BUYER_LAST_NAME"]." ".$arParams["BUYER_FIRST_NAME"]." ".$arParams["BUYER_SECOND_NAME"];
 
-	if (strlen($arParams["BUYER_INN"])>0) echo "<br>ИНН/КПП: ".$arParams["BUYER_INN"]." / ".$arParams["BUYER_KPP"];
+	if ($arParams["BUYER_INN"] <> '') echo "<br>ИНН/КПП: ".$arParams["BUYER_INN"]." / ".$arParams["BUYER_KPP"];
 
 	echo "<br>Адрес: ".$arParams["BUYER_COUNTRY"].", ".$arParams["BUYER_INDEX"].", г. ".$arParams["BUYER_CITY"].", ".$arParams["BUYER_ADDRESS"];
 
-	if (strlen($arParams["BUYER_CONTACT"])>0) echo "<br>Контактное лицо: ".$arParams["BUYER_CONTACT"];
+	if ($arParams["BUYER_CONTACT"] <> '') echo "<br>Контактное лицо: ".$arParams["BUYER_CONTACT"];
 
-	if (strlen($arParams["BUYER_PHONE"])>0)
+	if ($arParams["BUYER_PHONE"] <> '')
 		echo "<br>Телефон: ".$arParams["BUYER_PHONE"];
 
 }
@@ -269,7 +269,7 @@ $currency = preg_replace('/(^|[^&])#/', '${1}', $arCurFormat['FORMAT_STRING']);
 					{
 						foreach($arBasket["PROPS"] as $vv)
 						{
-							if(strlen($vv["VALUE"]) > 0 && $vv["CODE"] != "CATALOG.XML_ID" && $vv["CODE"] != "PRODUCT.XML_ID")
+							if($vv["VALUE"] <> '' && $vv["CODE"] != "CATALOG.XML_ID" && $vv["CODE"] != "PRODUCT.XML_ID")
 								echo "<div style=\"font-size:8pt\">".$vv["NAME"].": ".$vv["VALUE"]."</div>";
 						}
 					}
@@ -417,7 +417,7 @@ $currency = preg_replace('/(^|[^&])#/', '${1}', $arCurFormat['FORMAT_STRING']);
 <p class=MsoNormal>Руководитель организации:</p>
 </td>
 <td width="80%">
-<p class=MsoNormal>_______________ <input size="55" style="border:0px solid #000000;font-size:14px;font-style:bold;" type="text" value="/ <?echo ((strlen($arParams["DIRECTOR"]) > 0) ? $arParams["DIRECTOR"] : "______________________________")?> /"></p>
+<p class=MsoNormal>_______________ <input size="55" style="border:0px solid #000000;font-size:14px;font-style:bold;" type="text" value="/ <?echo (($arParams["DIRECTOR"] <> '') ? $arParams["DIRECTOR"] : "______________________________")?> /"></p>
 </td>
 </tr>
 <tr>
@@ -441,7 +441,7 @@ $currency = preg_replace('/(^|[^&])#/', '${1}', $arCurFormat['FORMAT_STRING']);
 <p class=MsoNormal>Гл. бухгалтер:</p>
 </td>
 <td>
-<p class=MsoNormal>_______________ <input size="45" style="border:0px solid #000000;font-size:14px;font-style:bold;" type="text" value="/ <?echo ((strlen($arParams["BUHG"]) > 0) ? $arParams["BUHG"] : "______________________________")?> /"></p>
+<p class=MsoNormal>_______________ <input size="45" style="border:0px solid #000000;font-size:14px;font-style:bold;" type="text" value="/ <?echo (($arParams["BUHG"] <> '') ? $arParams["BUHG"] : "______________________________")?> /"></p>
 </td>
 </tr>
 </table>

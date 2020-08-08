@@ -30,7 +30,8 @@
 			params.message +
 			'</span></div>',
 			confirm: BX.message('LANDING_TPL_JS_PAY_TARIFF'),
-			contentColor: 'grey'
+			contentColor: 'grey',
+			type: params.type || null
 		});
 		promise
 			.then(function()

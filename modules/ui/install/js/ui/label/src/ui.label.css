@@ -1,0 +1,129 @@
+:root {
+	--ui-label-height: 21px;
+	--ui-label-background-color: #c2c5ca;
+	--ui-label-background-color-hover: var(--ui-label-background-color);
+	--ui-label-color: #fff;
+	--ui-label-link-dashed-color: rgba(255, 255, 255, 0.51);
+	--ui-label-font: "OpenSans-Semibold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.ui-label {
+	display: inline-flex;
+	align-items: center;
+	max-width: 100%;
+	background-color: transparent;
+	padding: 0 8px;
+	margin-right: 10px;
+	height: var(--ui-label-height);
+	border-radius: calc(var(--ui-label-height) / 2);
+	border: 1px solid var(--ui-label-background-color);
+	transition: 250ms linear all;
+	box-sizing: border-box;
+}
+
+.ui-label-inner {
+	/*font: 12px/calc(var(--ui-label-height) - 2px) var(--ui-label-font);*/
+	font: 12px/14px var(--ui-label-font);
+	vertical-align: middle;
+	color: var(--ui-label-color);
+	transition: 250ms linear all;
+	max-width: 100%;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+a.ui-label:hover,
+.ui-label-link:hover {
+	background-color: var(--ui-label-background-color-hover);
+	cursor: pointer;
+}
+
+a.ui-label .ui-label-inner,
+.ui-label-link .ui-label-inner {
+	border-bottom: 1px dashed transparent;
+}
+
+a.ui-label:hover .ui-label-inner,
+.ui-label-link:hover .ui-label-inner {
+	border-bottom: 1px dashed var(--ui-label-link-dashed-color);
+}
+
+.ui-label.ui-label-fill {
+	background-color: var(--ui-label-background-color);
+	border-color: transparent !important;
+}
+
+.ui-label:not(.ui-label-fill) {
+	--ui-label-color: #757c87;
+	--ui-label-link-dashed-color: rgba(51, 51, 51, 0.4);
+}
+
+a.ui-label:not(.ui-label-fill):hover,
+.ui-label-link:not(.ui-label-fill):hover {
+	--ui-label-background-color-hover: #f5f5f5;
+	border-color: var(--ui-label-background-color);
+}
+
+/*region Colors*/
+.ui-label-default {
+	--ui-label-background-color: #C2C5CA;
+	--ui-label-background-color-hover: #B0B5BB;
+}
+
+.ui-label-danger {
+	--ui-label-background-color: #FF7975;
+	--ui-label-background-color-hover: #ff5752;
+}
+
+.ui-label-success {
+	--ui-label-background-color: #A6CA34;
+	--ui-label-background-color-hover: #8fbc00;
+}
+
+.ui-label-warning {
+	--ui-label-background-color: #F8B934;
+	--ui-label-background-color-hover: #f7a700;
+}
+
+.ui-label-primary {
+	--ui-label-background-color: #59D1F8;
+	--ui-label-background-color-hover: #2fc6f6;
+}
+
+.ui-label-secondary {
+	--ui-label-background-color: #3CD8D0;
+	--ui-label-background-color-hover: #19d2c8;
+}
+
+.ui-label-light {
+	--ui-label-background-color: rgba(168, 173, 180, 0.24);
+	--ui-label-background-color-hover: rgba(168, 173, 180, 0.91);
+	--ui-label-color: rgba(51, 51, 51, 0.7);
+	--ui-label-link-dashed-color: rgba(51, 51, 51, 0.51);
+}
+
+.ui-label-tag-light {
+	--ui-label-background-color: #EAEBED;
+	--ui-label-background-color-hover: #DCDEE1;
+	--ui-label-color: #525C69;
+	--ui-label-font: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.ui-label-tag-secondary {
+	--ui-label-background-color: #bcedfc;
+	--ui-label-background-color-hover: #bcedfc;
+	--ui-label-color: #333;
+	--ui-label-font: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/*endregion*/
+
+/*region Size*/
+.ui-label-lg {--ui-label-height: 25px;}
+
+.ui-label-md {--ui-label-height: 21px;}
+
+.ui-label-sm {--ui-label-height: 18px;}
+
+/*endregion*/

@@ -40,6 +40,8 @@ class Mail
 	protected $trackClickLink;
 	protected $trackClickUrlParams;
 	protected $bitrixDirectory;
+	protected $trackReadAvailable;
+	protected $trackClickAvailable;
 
 	protected $contentTransferEncoding = '8bit';
 	protected $to;
@@ -112,6 +114,16 @@ class Mail
 		}
 
 		$this->initSettings();
+
+		if (!$this->trackReadAvailable)
+		{
+			$this->trackReadLink = null;
+		}
+
+		if (!$this->trackClickAvailable)
+		{
+			$this->trackClickLink = null;
+		}
 
 		if (isset($mailParams['GENERATE_TEXT_VERSION']))
 		{
@@ -266,6 +278,9 @@ class Mail
 		$this->settingMailAdditionalParameters = Config\Option::get("main", "mail_additional_parameters", "");
 
 		$this->bitrixDirectory = Application::getInstance()->getPersonalRoot();
+
+		$this->trackReadAvailable = Config\Option::get('main', 'track_outgoing_emails_read', 'Y') == 'Y';
+		$this->trackClickAvailable = Config\Option::get('main', 'track_outgoing_emails_click', 'Y') == 'Y';
 	}
 
 	/**

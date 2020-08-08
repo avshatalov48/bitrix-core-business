@@ -33,19 +33,19 @@ $arPossibleActions = array(
 	"F" => GetMessage("SAC_ACTION_CALC")
 );
 
-if ($REQUEST_METHOD=="GET" && strlen($Update)>0 && $saleModulePermissions>="W" && check_bitrix_sessid())
+if ($REQUEST_METHOD=="GET" && $Update <> '' && $saleModulePermissions>="W" && check_bitrix_sessid())
 {
-	if (StrLen($SUM_TODO) <= 0 || !array_key_exists($SUM_TODO, $arPossibleActions))
+	if ($SUM_TODO == '' || !array_key_exists($SUM_TODO, $arPossibleActions))
 		$errorMessage = GetMessage("SAC_ERROR_NO_ACTION");
 
-	if (StrLen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
-		if (strlen($curLoadSessID) <= 0)
+		if ($curLoadSessID == '')
 			$curLoadSessID = "CLS".time();
 
-		$max_execution_time = IntVal($max_execution_time);
-		$numAffiliatesCalc = IntVal($numAffiliatesCalc);
-		$numAffiliatesPay = IntVal($numAffiliatesPay);
+		$max_execution_time = intval($max_execution_time);
+		$numAffiliatesCalc = intval($numAffiliatesCalc);
+		$numAffiliatesPay = intval($numAffiliatesPay);
 
 		$arFilter = array(
 			"ACTIVE" => "Y",
@@ -57,7 +57,7 @@ if ($REQUEST_METHOD=="GET" && strlen($Update)>0 && $saleModulePermissions>="W" &
 			$countOid = count($OID);
 			for ($i = 0; $i < $countOid; $i++)
 			{
-				$OID[$i] = IntVal($OID[$i]);
+				$OID[$i] = intval($OID[$i]);
 				if ($OID[$i] > 0)
 					$arAffiliateID[] = $OID[$i];
 			}
@@ -68,7 +68,7 @@ if ($REQUEST_METHOD=="GET" && strlen($Update)>0 && $saleModulePermissions>="W" &
 
 		if (!isset($affiliates_calculated))
 			$affiliates_calculated = 0;
-		$affiliates_calculated = IntVal($affiliates_calculated);
+		$affiliates_calculated = intval($affiliates_calculated);
 
 		$bAllAffiliatesCalc = True;
 
@@ -77,17 +77,17 @@ if ($REQUEST_METHOD=="GET" && strlen($Update)>0 && $saleModulePermissions>="W" &
 			$arFilterTmp = $arFilter;
 
 			$arFilterTmp["ORDER_ALLOW_DELIVERY"] = "Y";
-			if (StrLen($DATE_CALC_FROM) > 0)
+			if ($DATE_CALC_FROM <> '')
 				$arFilterTmp[">=ORDER_DATE_ALLOW_DELIVERY"] = $DATE_CALC_FROM;
 
-			if (StrLen($DATE_CALC_TO) <= 0)
+			if ($DATE_CALC_TO == '')
 				$DATE_CALC_TO = date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL")), time()+CTimeZone::GetOffset());
-			if (StrLen($DATE_CALC_TO) > 0)
+			if ($DATE_CALC_TO <> '')
 				$arFilterTmp["<ORDER_DATE_ALLOW_DELIVERY"] = $DATE_CALC_TO;
-			if (StrLen($DATE_PLAN_TO) <= 0)
+			if ($DATE_PLAN_TO == '')
 				$DATE_PLAN_TO = date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL")), time()+CTimeZone::GetOffset());
 
-			$LAST_AFFILIATE_ID = IntVal($LAST_AFFILIATE_ID);
+			$LAST_AFFILIATE_ID = intval($LAST_AFFILIATE_ID);
 			if ($LAST_AFFILIATE_ID > 0)
 				$arFilterTmp[">ID"] = $LAST_AFFILIATE_ID;
 
@@ -129,7 +129,7 @@ if ($REQUEST_METHOD=="GET" && strlen($Update)>0 && $saleModulePermissions>="W" &
 				$LAST_AFFILIATE_ID = $arAffiliates["ID"];
 				$numAffiliatesCalc++;
 
-				if (StrLen($errorMessageTmp) > 0)
+				if ($errorMessageTmp <> '')
 					$errorMessage .= $errorMessageTmp;
 
 				if ($max_execution_time > 0 && (getmicrotime()-START_EXEC_TIME) > $max_execution_time)
@@ -148,7 +148,7 @@ if ($REQUEST_METHOD=="GET" && strlen($Update)>0 && $saleModulePermissions>="W" &
 		if ($affiliates_calculated > 0 && $SUM_TODO != "F")
 		{
 			$arFilterTmp = $arFilter;
-			$LAST_AFFILIATE_ID1 = IntVal($LAST_AFFILIATE_ID1);
+			$LAST_AFFILIATE_ID1 = intval($LAST_AFFILIATE_ID1);
 			if ($LAST_AFFILIATE_ID1 > 0)
 				$arFilterTmp[">ID"] = $LAST_AFFILIATE_ID1;
 
@@ -192,7 +192,7 @@ if ($REQUEST_METHOD=="GET" && strlen($Update)>0 && $saleModulePermissions>="W" &
 				if ($paySum > 0)
 					$numAffiliatesPay++;
 
-				if (StrLen($errorMessageTmp) > 0)
+				if ($errorMessageTmp <> '')
 					$errorMessage .= $errorMessageTmp;
 
 				if ($max_execution_time > 0 && (getmicrotime()-START_EXEC_TIME) > $max_execution_time)
@@ -275,16 +275,16 @@ $context->Show();
 ?>
 
 <?
-if (StrLen($curLoadSessID) > 0 && array_key_exists($curLoadSessID, $_SESSION) && is_array($_SESSION[$curLoadSessID]) && array_key_exists("ERROR_MESSAGE", $_SESSION[$curLoadSessID]))
+if ($curLoadSessID <> '' && array_key_exists($curLoadSessID, $_SESSION) && is_array($_SESSION[$curLoadSessID]) && array_key_exists("ERROR_MESSAGE", $_SESSION[$curLoadSessID]))
 	$errorMessage = $_SESSION[$curLoadSessID]["ERROR_MESSAGE"].$errorMessage;
-if (StrLen($curLoadSessID) > 0 && array_key_exists($curLoadSessID, $_SESSION) && is_array($_SESSION[$curLoadSessID]) && array_key_exists("OK_MESSAGE", $_SESSION[$curLoadSessID]))
+if ($curLoadSessID <> '' && array_key_exists($curLoadSessID, $_SESSION) && is_array($_SESSION[$curLoadSessID]) && array_key_exists("OK_MESSAGE", $_SESSION[$curLoadSessID]))
 	$okMessage = $_SESSION[$curLoadSessID]["OK_MESSAGE"].$okMessage;
 
-if (strlen($errorMessage) > 0)
+if ($errorMessage <> '')
 {
 	echo CAdminMessage::ShowMessage(Array("DETAILS"=>$errorMessage, "TYPE"=>"ERROR", "MESSAGE"=>GetMessage("SAC_ERROR_TITLE"), "HTML"=>true));
 }
-elseif (strlen($okMessage) > 0)
+elseif ($okMessage <> '')
 {
 	echo CAdminMessage::ShowMessage(Array("DETAILS"=>$okMessage, "TYPE"=>"OK", "MESSAGE"=>GetMessage("SAC_SUCCESS_TITLE"), "HTML"=>true));
 }
@@ -320,7 +320,7 @@ $tabControl->BeginNextTab();
 				$countOid = count($OID);
 				for ($i = 0; $i < $countOid; $i++)
 				{
-					$OID[$i] = IntVal($OID[$i]);
+					$OID[$i] = intval($OID[$i]);
 					if ($OID[$i] > 0)
 						$arAffiliateID[] = $OID[$i];
 				}
@@ -342,7 +342,7 @@ $tabControl->BeginNextTab();
 							<?
 							do
 							{
-								?><option value="<?= IntVal($arAffiliates["ID"]) ?>" selected><?= htmlspecialcharsex("[".$arAffiliates["ID"]."] ".$arAffiliates["USER_NAME"]." ".$arAffiliates["USER_LAST_NAME"]." (".$arAffiliates["USER_LOGIN"].")") ?></option><?
+								?><option value="<?= intval($arAffiliates["ID"]) ?>" selected><?= htmlspecialcharsex("[".$arAffiliates["ID"]."] ".$arAffiliates["USER_NAME"]." ".$arAffiliates["USER_LAST_NAME"]." (".$arAffiliates["USER_LOGIN"].")") ?></option><?
 							}
 							while ($arAffiliates = $dbAffiliates->Fetch());
 							?>
@@ -382,7 +382,7 @@ $tabControl->BeginNextTab();
 			foreach ($arPossibleActions as $key => $value)
 			{
 				?>
-				<input type="radio" name="SUM_TODO" id="ID_SUM_TODO_<?= $key ?>" value="<?= $key ?>"<?if ($SUM_TODO == $key || StrLen($SUM_TODO) <= 0 && $key == "U") echo " checked";?>>
+				<input type="radio" name="SUM_TODO" id="ID_SUM_TODO_<?= $key ?>" value="<?= $key ?>"<?if ($SUM_TODO == $key || $SUM_TODO == '' && $key == "U") echo " checked";?>>
 				<label for="ID_SUM_TODO_<?= $key ?>"><?= $value ?></label><br>
 				<?
 			}
@@ -392,7 +392,7 @@ $tabControl->BeginNextTab();
 	<tr>
 		<td width="40%" valign="top"><?echo GetMessage("SAC_STEP")?></td>
 		<td width="60%" valign="top">
-			<input type="text" name="max_execution_time" value="<?= IntVal($max_execution_time) ?>" size="5"> <?echo GetMessage("SAC_SEC")?><br>
+			<input type="text" name="max_execution_time" value="<?= intval($max_execution_time) ?>" size="5"> <?echo GetMessage("SAC_SEC")?><br>
 			<small><?echo GetMessage("SAC_SEC_0")?></small>
 		</td>
 	</tr>

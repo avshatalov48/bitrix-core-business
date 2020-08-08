@@ -18,7 +18,7 @@ CUtil::InitJSCore(array('tooltip'));
 ********************************************************************/
 $arParams["iIndex"] = $iIndex = rand();
 $message = ($_SERVER['REQUEST_METHOD'] == "POST" ? $_POST["message_id"] : $_GET["message_id"]);
-$action = strToUpper($_SERVER['REQUEST_METHOD'] == "POST" ? $_POST["ACTION"] : $_GET["ACTION"]);
+$action = mb_strtoupper($_SERVER['REQUEST_METHOD'] == "POST"? $_POST["ACTION"] : $_GET["ACTION"]);
 $message = (is_array($message) ? $message : array($message));
 
 $res = false;
@@ -28,7 +28,7 @@ if (
 	&& $USER->IsAuthorized()
 )
 {
-	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".strToLower($DB->type)."/favorites.php");
+	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($DB->type)."/favorites.php");
 	$arUserSettings = CUserOptions::GetOption("forum", "default_template", "");
 	$arUserSettings = (CheckSerializedData($arUserSettings) ? @unserialize($arUserSettings) : array());
 	$arUserSettings["first_post"] = ($arUserSettings["first_post"] == "hide" ? "hide" : "show");
@@ -287,7 +287,7 @@ if ($arResult["VIEW"] == "Y")
 		);
 	});
 	<?
-	if (intVal($arParams["MID"]) > 0)
+	if (intval($arParams["MID"]) > 0)
 	{
 		?>
 		location.hash = 'message<?=$arParams["MID"]?>';

@@ -433,7 +433,7 @@ if (typeof BX.Bizproc.WorkflowFaces === 'undefined')
 
 				var tpl = [
 					'<a>',
-					'<span class="bp-popup-parallel-avatar '+cls+'"><span>'+(task.USERS[k].PHOTO_SRC? '<img src="'+task.USERS[k].PHOTO_SRC+'" alt="">':'')+'</span></span>',
+					'<span class="bp-popup-parallel-avatar '+cls+'"><span class="ui-icon ui-icon-common-user">'+(task.USERS[k].PHOTO_SRC? '<i style="background-image: url('+task.USERS[k].PHOTO_SRC+')" alt=""></i>':'<i></i>')+'</span></span>',
 					'<span class="bp-popup-parallel-name" title="'+task.USERS[k].FULL_NAME+'">'+task.USERS[k].FULL_NAME+'</span>',
 					'</a>'
 				];
@@ -452,7 +452,7 @@ if (typeof BX.Bizproc.WorkflowFaces === 'undefined')
 
 				var taskHead = [
 					'<a class="'+(uContent.length > 1 || simple ? 'bp-popup-parallel-parent' : '')+'">',
-					!simple? '<span class="bp-popup-parallel-avatar '+cls+'"><span>'+(task.USERS[0].PHOTO_SRC? '<img src="'+task.USERS[0].PHOTO_SRC+'" alt="">':'')+'</span></span>' : '',
+					!simple? '<span class="bp-popup-parallel-avatar '+cls+'"><span class="ui-icon ui-icon-common-user">'+(task.USERS[0].PHOTO_SRC? '<i style="background-image:url('+task.USERS[0].PHOTO_SRC+')" alt=""></i>':'<i></i>')+'</span></span>' : '',
 					'<span class="bp-popup-parallel-name" title="'+task.NAME+'">'+(!simple? task.USERS[0].FULL_NAME : task.NAME)+'</span>',
 					'</a>'
 				];

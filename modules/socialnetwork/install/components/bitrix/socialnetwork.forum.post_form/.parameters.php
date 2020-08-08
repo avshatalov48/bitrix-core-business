@@ -7,7 +7,7 @@ if ($db_res && ($res = $db_res->GetNext()))
 {
 	do
 	{
-		$arForum[intVal($res["ID"])] = $res["NAME"];
+		$arForum[intval($res["ID"])] = $res["NAME"];
 	}while ($res = $db_res->GetNext());
 }
 

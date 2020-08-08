@@ -45,7 +45,7 @@ $compositeStub = (isset($arResult['COMPOSITE_STUB']) && $arResult['COMPOSITE_STU
 			}
 
 			$pathToAuthorize = $arParams['PATH_TO_AUTHORIZE'];
-			$pathToAuthorize .= (stripos($pathToAuthorize, '?') === false ? '?' : '&');
+			$pathToAuthorize .= (mb_stripos($pathToAuthorize, '?') === false ? '?' : '&');
 			$pathToAuthorize .= 'login=yes&backurl='.$currentUrl;
 			?>
 			<a class="basket-line-block-icon-profile" href="<?=$pathToAuthorize?>"><?=GetMessage('TSB1_LOGIN')?></a>
@@ -53,7 +53,7 @@ $compositeStub = (isset($arResult['COMPOSITE_STUB']) && $arResult['COMPOSITE_STU
 			if ($arParams['SHOW_REGISTRATION'] === 'Y')
 			{
 				$pathToRegister = $arParams['PATH_TO_REGISTER'];
-				$pathToRegister .= (stripos($pathToRegister, '?') === false ? '?' : '&');
+				$pathToRegister .= (mb_stripos($pathToRegister, '?') === false ? '?' : '&');
 				$pathToRegister .= 'register=yes&backurl='.$currentUrl;
 				?>
 				<a style="margin-right: 0;" href="<?=$pathToRegister?>"><?=GetMessage('TSB1_REGISTER')?></a>

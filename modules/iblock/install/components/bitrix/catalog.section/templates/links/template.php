@@ -41,7 +41,7 @@ $this->setFrameMode(true);
 		$trimmed = trim($arElement["DISPLAY_PROPERTIES"]["URL"]["VALUE"]);
 		if ($trimmed !== '')
 		{
-			if (strpos(strtolower($trimmed), "http") !== 0)
+			if (mb_strpos(mb_strtolower($trimmed), "http") !== 0)
 			{
 				$trimmed = 'http://'.$trimmed;
 			}

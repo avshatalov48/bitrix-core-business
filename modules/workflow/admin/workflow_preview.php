@@ -52,7 +52,7 @@ if($ID > 0 && check_bitrix_sessid())
 		$z = CWorkflow::GetByID($ID);
 		$zr = $z->Fetch();
 		$prolog = $zr["PROLOG"];
-		if (strlen($prolog)>0)
+		if ($prolog <> '')
 		{
 			$title = $zr["TITLE"];
 			$prolog = SetPrologTitle($prolog, $title);

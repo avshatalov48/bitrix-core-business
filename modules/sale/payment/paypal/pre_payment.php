@@ -30,23 +30,23 @@ class CSalePaySystemPrePayment
 		$this->testMode = (CSalePaySystemAction::GetParamValue("PS_IS_TEST") == "Y");
 		$this->notifyUrl = CSalePaySystemAction::GetParamValue("PAYPAL_NOTIFY_URL");
 
-		if(strlen($this->currency) <= 0)
+		if($this->currency == '')
 			$this->currency = CSaleLang::GetLangCurrency(SITE_ID);
 
 		if($this->testMode)
 			$this->domain = "sandbox.";
-		if(strlen($_REQUEST["token"]) > 0)
+		if($_REQUEST["token"] <> '')
 			$this->token = $_REQUEST["token"];
-		if(strlen($_REQUEST["PayerID"]) > 0)
+		if($_REQUEST["PayerID"] <> '')
 			$this->payerId = $_REQUEST["PayerID"];
 		$this->version = "98.0";
 
 		$dbSite = CSite::GetByID(SITE_ID);
 		$arSite = $dbSite->Fetch();
 		$this->serverName = $arSite["SERVER_NAME"];
-		if (strLen($this->serverName) <=0)
+		if ($this->serverName == '')
 		{
-			if (defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME)>0)
+			if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '')
 				$this->serverName = SITE_SERVER_NAME;
 			else
 				$this->serverName = COption::GetOptionString("main", "server_name", "www.bitrixsoft.com");
@@ -54,7 +54,7 @@ class CSalePaySystemPrePayment
 		
 		$this->serverName = (CMain::IsHTTPS() ? "https" : "http")."://".$this->serverName;
 
-		if(strlen($this->username) <= 0 || strlen($this->username) <= 0 || strlen($this->username) <= 0)
+		if($this->username == '' || $this->username == '' || $this->username == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException("CSalePaySystempaypal: init error", "CSalePaySystempaypal_init_error");
 			return false;
@@ -107,14 +107,14 @@ class CSalePaySystemPrePayment
 				}
 			}
 
-			$arFields["RETURNURL"] .= ((strpos($arFields["RETURNURL"], "?") === false) ? "?" : "&")."paypal=Y";
+			$arFields["RETURNURL"] .= ((mb_strpos($arFields["RETURNURL"], "?") === false) ? "?" : "&")."paypal=Y";
 
 			$ht = new \Bitrix\Main\Web\HttpClient(array("version" => "1.1"));
 			if($res = @$ht->post($url, $arFields))
 			{
 				$result = $this->parseResult($res);
 
-				if(strlen($result["TOKEN"]) > 0)
+				if($result["TOKEN"] <> '')
 				{
 					$url = "https://www.".$this->domain."paypal.com/webscr?cmd=_express-checkout&token=".$result["TOKEN"];
 					if($orderData["ORDER_REQUEST"] == "Y")
@@ -145,14 +145,14 @@ class CSalePaySystemPrePayment
 			<input type=\"hidden\" name=\"PayerID\" value=\"".htmlspecialcharsbx($this->payerId)."\">
 		";
 
-		if(strlen($this->token) > 0)
+		if($this->token <> '')
 			$result .= "<span style='color: green'>".GetMessage("PPL_PREAUTH_TEXT")."<br /><br /></span>";
 		return $result;
 	}
 
 	function isAction()
 	{
-		if($_REQUEST["paypal"] == "Y" && strlen($this->token) > 0)
+		if($_REQUEST["paypal"] == "Y" && $this->token <> '')
 			return true;
 		return false;
 	}
@@ -167,7 +167,7 @@ class CSalePaySystemPrePayment
 		{
 			list($key,$val) = explode("=", $res2);
 			$keyarray[urldecode($key)] = urldecode($val);
-			if(strlen($this->encoding) > 0)
+			if($this->encoding <> '')
 				$keyarray[urldecode($key)] = $APPLICATION->ConvertCharset($keyarray[urldecode($key)], $this->encoding, SITE_CHARSET);
 		}
 		return $keyarray;
@@ -176,7 +176,7 @@ class CSalePaySystemPrePayment
 
 	function getProps()
 	{
-		if(strlen($this->token) > 0)
+		if($this->token <> '')
 		{
 			$url = "https://api-3t.".$this->domain."paypal.com/nvp";
 			$arFields = array(
@@ -214,7 +214,7 @@ class CSalePaySystemPrePayment
 
 	function payOrder($orderData = array())
 	{
-		if(strlen($this->token) > 0)
+		if($this->token <> '')
 		{
 			global $APPLICATION;
 			$url = "https://api-3t.".$this->domain."paypal.com/nvp";
@@ -273,7 +273,7 @@ class CSalePaySystemPrePayment
 						}
 					}
 
-					if(strlen($this->notifyUrl) > 0)
+					if($this->notifyUrl <> '')
 						$arFields["PAYMENTREQUEST_0_NOTIFYURL"] = $this->notifyUrl;
 
 					if($res2 = $ht->Post($url, $arFields))

@@ -155,7 +155,7 @@ $arResult["Group"]["IS_EXTRANET_GROUP"] = (
 $arResult["Group"]["KEYWORDS_LIST"] = array();
 if (
 	isset($arResult["Group"]["KEYWORDS"])
-	&& strlen($arResult["Group"]["KEYWORDS"]) > 0
+	&& $arResult["Group"]["KEYWORDS"] <> ''
 )
 {
 	$arResult["Group"]["KEYWORDS_LIST"] = explode(',', $arResult["Group"]["KEYWORDS"]);
@@ -174,7 +174,7 @@ if (
 }
 
 $arParams["PATH_TO_GROUPS_LIST"] = ComponentHelper::getWorkgroupSEFUrl();
-$arParams["PATH_TO_GROUP_TAG"] = $arParams["PATH_TO_GROUPS_LIST"].(strpos($arParams["PATH_TO_GROUPS_LIST"], '?') !== false ? '&' : '?')."TAG=#tag#&apply_filter=Y";
+$arParams["PATH_TO_GROUP_TAG"] = $arParams["PATH_TO_GROUPS_LIST"].(mb_strpos($arParams["PATH_TO_GROUPS_LIST"], '?') !== false ? '&' : '?')."TAG=#tag#&apply_filter=Y";
 
 if (empty($arResult["Urls"]["GroupsList"]))
 {
@@ -185,3 +185,11 @@ if (empty($arResult["Urls"]["GroupsList"]))
 }
 
 $arParams['USER_LIMIT'] = 17;
+
+if (
+	!empty($arResult['Group'])
+	&& !empty($arResult['Group']['DESCRIPTION'])
+)
+{
+	$arResult['Group']['DESCRIPTION'] = str_replace("\n", "<br />", $arResult['Group']['DESCRIPTION']);
+}

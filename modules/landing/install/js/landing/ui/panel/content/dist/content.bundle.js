@@ -241,7 +241,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    _this.content = Content.createContent();
 	    _this.closeButton = new BX.Landing.UI.Button.BaseButton('close', {
 	      className: 'landing-ui-panel-content-close',
-	      onClick: _this.hide.bind(babelHelpers.assertThisInitialized(_this)),
+	      onClick: function onClick() {
+	        void _this.hide();
+
+	        _this.emit('onCancel');
+	      },
 	      attrs: {
 	        title: BX.Landing.Loc.getMessage('LANDING_TITLE_OF_SLIDER_CLOSE')
 	      }
@@ -293,7 +297,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this2 = this;
 
 	      main_core.Dom.append(this.overlay, document.body);
-	      main_core.Event.bind(this.overlay, 'click', this.hide.bind(this));
+	      main_core.Event.bind(this.overlay, 'click', function () {
+	        _this2.emit('onCancel');
+
+	        void _this2.hide();
+	      });
 	      main_core.Event.bind(this.layout, 'mouseenter', this.onMouseEnter);
 	      main_core.Event.bind(this.layout, 'mouseleave', this.onMouseLeave);
 	      main_core.Event.bind(this.content, 'mouseenter', this.onMouseEnter);
@@ -341,6 +349,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "onKeyDown",
 	    value: function onKeyDown(event) {
 	      if (event.keyCode === 27) {
+	        this.emit('onCancel');
 	        void this.hide();
 	      }
 	    }

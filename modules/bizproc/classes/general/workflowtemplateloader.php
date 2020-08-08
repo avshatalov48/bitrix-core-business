@@ -137,7 +137,7 @@ class CAllBPWorkflowTemplateLoader
 		if (is_set($arFields, "NAME") || $addMode)
 		{
 			$arFields["NAME"] = trim($arFields["NAME"]);
-			if (strlen($arFields["NAME"]) <= 0)
+			if ($arFields["NAME"] == '')
 				throw new CBPArgumentNullException("NAME");
 		}
 
@@ -211,6 +211,9 @@ class CAllBPWorkflowTemplateLoader
 
 		if(is_set($arFields, "ACTIVE") && $arFields["ACTIVE"] != 'N')
 			$arFields["ACTIVE"] = 'Y';
+
+		if(is_set($arFields, "IS_SYSTEM") && $arFields["IS_SYSTEM"] != 'Y')
+			$arFields["IS_SYSTEM"] = 'N';
 
 		if(is_set($arFields, "IS_MODIFIED") && $arFields["IS_MODIFIED"] != 'N')
 			$arFields["IS_MODIFIED"] = 'Y';
@@ -360,7 +363,7 @@ class CAllBPWorkflowTemplateLoader
 
 		$arStates = array();
 		foreach ($arWorkflowTemplate[0]["Children"] as $state)
-			$arStates[$state["Name"]] = (strlen($state["Properties"]["Title"]) > 0 ? $state["Properties"]["Title"] : $state["Name"]);
+			$arStates[$state["Name"]] = ($state["Properties"]["Title"] <> '' ? $state["Properties"]["Title"] : $state["Name"]);
 
 		return $arStates;
 	}
@@ -390,7 +393,7 @@ class CAllBPWorkflowTemplateLoader
 			throw new CBPArgumentTypeException("arWorkflowTemplate");
 
 		$stateName = trim($stateName);
-		if (strlen($stateName) <= 0)
+		if ($stateName == '')
 			throw new CBPArgumentNullException("stateName");
 
 		$arTransfers = array();
@@ -429,7 +432,7 @@ class CAllBPWorkflowTemplateLoader
 
 		$type = "CBP".$arWorkflowTemplate[0]["Type"];
 		$bStateMachine = false;
-		while (strlen($type) > 0)
+		while ($type <> '')
 		{
 			if ($type == "CBPStateMachineWorkflowActivity")
 			{
@@ -809,9 +812,6 @@ class CAllBPWorkflowTemplateLoader
 
 	public static function ImportTemplate($id, $documentType, $autoExecute, $name, $description, $datum, $systemCode = null, $systemImport = false)
 	{
-		$id = intval($id);
-		if ($id <= 0)
-			$id = 0;
 
 		$packer = new \Bitrix\Bizproc\Workflow\Template\Packer\Bpt();
 		$unpackResult = $packer->unpack($datum);
@@ -822,6 +822,16 @@ class CAllBPWorkflowTemplateLoader
 		}
 
 		$templateFields = $unpackResult->getTpl()->collectValues();
+		$templateFields['DOCUMENT_FIELDS'] = $unpackResult->getDocumentFields();
+
+		return self::importTemplateFromArray($id, $documentType, $autoExecute, $name, $description, $templateFields, $systemCode, $systemImport);
+	}
+
+	public static function importTemplateFromArray($id, $documentType, $autoExecute, $name, $description, $templateFields, $systemCode = null, $systemImport = false)
+	{
+		$id = intval($id);
+		if ($id <= 0)
+			$id = 0;
 
 		if (!$systemImport)
 		{
@@ -865,25 +875,24 @@ class CAllBPWorkflowTemplateLoader
 		else
 			$id = self::Add($templateData, $systemImport);
 
-		$documentFields = $unpackResult->getDocumentFields();
-		if ($documentFields)
+		if ($templateFields['DOCUMENT_FIELDS'])
 		{
 			$documentService = CBPRuntime::GetRuntime(true)->getDocumentService();
 			$currentDocumentFields = $documentService->GetDocumentFields($documentType, true);
 
-			\Bitrix\Main\Type\Collection::sortByColumn($documentFields, "sort");
-			$len = strlen("_PRINTABLE");
+			\Bitrix\Main\Type\Collection::sortByColumn($templateFields['DOCUMENT_FIELDS'], "sort");
+			$len = mb_strlen("_PRINTABLE");
 
-			foreach ($documentFields as $code => $field)
+			foreach ($templateFields['DOCUMENT_FIELDS'] as $code => $field)
 			{
 				//skip printable
-				if (strtoupper(substr($code, -$len)) == "_PRINTABLE")
+				if (mb_strtoupper(mb_substr($code, -$len)) == "_PRINTABLE")
 				{
 					continue;
 				}
 
 				//skip references
-				if (strpos($code, '.') !== false)
+				if (mb_strpos($code, '.') !== false)
 				{
 					continue;
 				}
@@ -924,7 +933,11 @@ class CAllBPWorkflowTemplateLoader
 		global $DB;
 
 		if (count($arSelectFields) <= 0)
-			$arSelectFields = array("ID", "MODULE_ID", "ENTITY", "DOCUMENT_TYPE", "DOCUMENT_STATUS", "AUTO_EXECUTE", "NAME", "DESCRIPTION", "TEMPLATE", "PARAMETERS", "VARIABLES", "CONSTANTS", "MODIFIED", "USER_ID", "ACTIVE", "IS_MODIFIED");
+		{
+			$arSelectFields = ["ID", "MODULE_ID", "ENTITY", "DOCUMENT_TYPE", "DOCUMENT_STATUS", "AUTO_EXECUTE",
+				"NAME", "DESCRIPTION", "TEMPLATE", "PARAMETERS", "VARIABLES", "CONSTANTS", "MODIFIED", "USER_ID",
+				"ACTIVE", "IS_MODIFIED", "IS_SYSTEM", 'SORT'];
+		}
 
 		if (count(array_intersect($arSelectFields, array("MODULE_ID", "ENTITY", "DOCUMENT_TYPE"))) > 0)
 		{
@@ -982,6 +995,8 @@ class CAllBPWorkflowTemplateLoader
 			"SYSTEM_CODE" => Array("FIELD" => "T.SYSTEM_CODE", "TYPE" => "string"),
 			"ACTIVE" => Array("FIELD" => "T.ACTIVE", "TYPE" => "string"),
 			"IS_MODIFIED" => Array("FIELD" => "T.IS_MODIFIED", "TYPE" => "string"),
+			"IS_SYSTEM" => Array("FIELD" => "T.IS_SYSTEM", "TYPE" => "string"),
+			"SORT" => Array("FIELD" => "T.SORT", "TYPE" => "int"),
 
 			"USER_NAME" => Array("FIELD" => "U.NAME", "TYPE" => "string", "FROM" => "LEFT JOIN b_user U ON (T.USER_ID = U.ID)"),
 			"USER_LAST_NAME" => Array("FIELD" => "U.LAST_NAME", "TYPE" => "string", "FROM" => "LEFT JOIN b_user U ON (T.USER_ID = U.ID)"),
@@ -999,9 +1014,9 @@ class CAllBPWorkflowTemplateLoader
 				"SELECT ".$arSqls["SELECT"]." ".
 				"FROM b_bp_workflow_template T ".
 				"	".$arSqls["FROM"]." ";
-			if (strlen($arSqls["WHERE"]) > 0)
+			if ($arSqls["WHERE"] <> '')
 				$strSql .= "WHERE ".$arSqls["WHERE"]." ";
-			if (strlen($arSqls["GROUPBY"]) > 0)
+			if ($arSqls["GROUPBY"] <> '')
 				$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
@@ -1017,29 +1032,29 @@ class CAllBPWorkflowTemplateLoader
 			"SELECT ".$arSqls["SELECT"]." ".
 			"FROM b_bp_workflow_template T ".
 			"	".$arSqls["FROM"]." ";
-		if (strlen($arSqls["WHERE"]) > 0)
+		if ($arSqls["WHERE"] <> '')
 			$strSql .= "WHERE ".$arSqls["WHERE"]." ";
-		if (strlen($arSqls["GROUPBY"]) > 0)
+		if ($arSqls["GROUPBY"] <> '')
 			$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
-		if (strlen($arSqls["ORDERBY"]) > 0)
+		if ($arSqls["ORDERBY"] <> '')
 			$strSql .= "ORDER BY ".$arSqls["ORDERBY"]." ";
 
-		if (is_array($arNavStartParams) && IntVal($arNavStartParams["nTopCount"]) <= 0)
+		if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"]) <= 0)
 		{
 			$strSql_tmp =
 				"SELECT COUNT('x') as CNT ".
 				"FROM b_bp_workflow_template T ".
 				"	".$arSqls["FROM"]." ";
-			if (strlen($arSqls["WHERE"]) > 0)
+			if ($arSqls["WHERE"] <> '')
 				$strSql_tmp .= "WHERE ".$arSqls["WHERE"]." ";
-			if (strlen($arSqls["GROUPBY"]) > 0)
+			if ($arSqls["GROUPBY"] <> '')
 				$strSql_tmp .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
 			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$cnt = 0;
-			if (strlen($arSqls["GROUPBY"]) <= 0)
+			if ($arSqls["GROUPBY"] == '')
 			{
 				if ($arRes = $dbRes->Fetch())
 					$cnt = $arRes["CNT"];
@@ -1054,7 +1069,7 @@ class CAllBPWorkflowTemplateLoader
 		}
 		else
 		{
-			if (is_array($arNavStartParams) && IntVal($arNavStartParams["nTopCount"]) > 0)
+			if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"]) > 0)
 				$strSql .= "LIMIT ".intval($arNavStartParams["nTopCount"]);
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
@@ -1136,7 +1151,7 @@ class CBPWorkflowTemplateResult extends CDBResult
 
 	private function GetFromSerializedForm($value)
 	{
-		if (strlen($value) > 0)
+		if ($value <> '')
 		{
 			if ($this->useGZipCompression)
 			{
@@ -1239,12 +1254,23 @@ class CBPWorkflowTemplateUser
 
 	public function isAdmin()
 	{
-		return $this->isAdmin;
+		return ($this->isAdmin || self::isBpAdmin($this->userId));
 	}
 
 	public function getFullName()
 	{
 		return $this->fullName;
+	}
+
+	private static function isBpAdmin(int $userId): bool
+	{
+		static $ids;
+		if ($ids === null)
+		{
+			$idsString = \Bitrix\Main\Config\Option::get('bizproc', 'wtu_admins');
+			$ids = array_map('intval', explode(',', $idsString));
+		}
+		return $userId && in_array($userId, $ids, true);
 	}
 }
 

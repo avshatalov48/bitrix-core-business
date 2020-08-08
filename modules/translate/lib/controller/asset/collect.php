@@ -84,10 +84,24 @@ class Collect
 	/**
 	 * Runs controller action.
 	 *
+	 * @param string $path Stating path.
+	 * @param boolean $runBefore Flag to run onBeforeRun event handler.
 	 * @return array
 	 */
-	public function run()
+	public function run($path = '', $runBefore = false)
 	{
+		if ($runBefore)
+		{
+			$this->onBeforeRun();
+		}
+
+		if (empty($path))
+		{
+			$path = Grabber::START_PATH;
+		}
+
+		$path = '/'. trim($path, '/.\\');
+
 		if ($this->isNewProcess)
 		{
 			$this->clearProgressParameters();
@@ -154,12 +168,12 @@ class Collect
 					$this->encoding = $encodingOut = 'utf-8';
 				}
 
-				$this->convertEncoding = (strtolower($encodingIn) !== strtolower($encodingOut));
+				$this->convertEncoding = (mb_strtolower($encodingIn) !== mb_strtolower($encodingOut));
 			}
 
 			// assembly date
 			$assemblyDate = $this->controller->getRequest()->get('assemblyDate');
-			if ($assemblyDate !== null && preg_replace("/[\D]+/", "", $assemblyDate) && strlen($assemblyDate) == 8)
+			if ($assemblyDate !== null && preg_replace("/[\D]+/", "", $assemblyDate) && mb_strlen($assemblyDate) == 8)
 			{
 				$this->assemblyDate = $assemblyDate;
 			}
@@ -175,13 +189,29 @@ class Collect
 
 			if (!$this->hasErrors())
 			{
-				$tempDir = Translate\IO\Directory::generateTemporalDirectory('translate');
-				$tempDir = $tempDir->createSubdirectory($this->languageId);
+				$exportFolder = Translate\Config::getExportFolder();
+				if (!empty($exportFolder))
+				{
+					$tempDir = new Translate\IO\Directory($exportFolder.'/'.$this->languageId);
+					if ($tempDir->isExists())
+					{
+						$tempDir->wipe();
+					}
+					else
+					{
+						$tempDir->create();
+					}
+				}
+				else
+				{
+					$tempDir = Translate\IO\Directory::generateTemporalDirectory('translate');
+					$tempDir = $tempDir->createSubdirectory($this->languageId);
+				}
 				$this->tmpFolderPath = $tempDir->getPhysicalPath(). '/';
 				if (!$tempDir->isExists())
 				{
 					$this->addError(
-						new Error(Loc::getMessage('TR_ERROR_CREATE_TARGET_FOLDER', array('#PATH#' => $this->tmpFolderPath)))
+						new Error(Loc::getMessage('TR_ERROR_CREATE_TEMP_FOLDER', array('#PATH#' => $this->tmpFolderPath)))
 					);
 				}
 			}
@@ -202,7 +232,7 @@ class Collect
 				}
 			}
 
-			$this->totalItems = (int)Index\Internals\PathLangTable::getCount(array('=%PATH' => Grabber::START_PATH.'%'));
+			$this->totalItems = (int)Index\Internals\PathLangTable::getCount(array('=%PATH' => $path.'%'));
 			$this->processedItems = 0;
 
 			$this->saveProgressParameters();
@@ -235,24 +265,34 @@ class Collect
 			$this->seekPathLangId = $progressParams['seekPathLangId'];
 		}
 
-		return $this->performStep('runCollecting');
+		return $this->performStep('runCollecting', array('path' => $path));
 	}
 
 
 	/**
 	 * Copying lang files.
 	 *
+	 * @param array $params Parameters.
 	 * @return array
 	 */
-	private function runCollecting()
+	private function runCollecting(array $params = [])
 	{
 		if ($this->convertEncoding)
 		{
 			$sourceEncoding = Main\Localization\Translation::getSourceEncoding($this->languageId);
 		}
 
+		if (isset($params['path']))
+		{
+			$path = $params['path'];
+		}
+		else
+		{
+			$path = Grabber::START_PATH;
+		}
+
 		$pathFilter = array(
-			'=%PATH' => Grabber::START_PATH.'%'
+			'=%PATH' => $path.'%'
 		);
 		if (!empty($this->seekPathLangId))
 		{
@@ -338,7 +378,7 @@ class Collect
 
 			$messagePlaceholders = array(
 				'#TOTAL_FILES#' => $this->totalFileCount,
-				'#LANG#' => strtoupper($this->languageId),
+				'#LANG#' => mb_strtoupper($this->languageId),
 				'#PATH#' => '~tmp~',
 			);
 			$result['SUMMARY'] = Loc::getMessage('TR_LANGUAGE_COLLECTED_FOLDER', $messagePlaceholders);
@@ -380,7 +420,7 @@ class Collect
 					continue;
 				}
 
-				if ((substr($name, -4) === '.php') && is_file($fullPath))
+				if ((mb_substr($name, -4) === '.php') && is_file($fullPath))
 				{
 					$files[$storeFolderRelPath.'/'.$name] = $fullPath;
 				}

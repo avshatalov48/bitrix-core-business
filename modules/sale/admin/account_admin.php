@@ -14,7 +14,7 @@ IncludeModuleLangFile(__FILE__);
 
 $sTableID = "tbl_sale_account";
 
-$oSort = new CAdminSorting($sTableID, "ID", "asc");
+$oSort = new CAdminUiSorting($sTableID, "ID", "asc");
 
 $lAdmin = new CAdminUiList($sTableID, $oSort);
 
@@ -86,7 +86,7 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "U")
 
 	foreach ($arID as $ID)
 	{
-		if (strlen($ID) <= 0)
+		if ($ID == '')
 			continue;
 
 		switch ($_REQUEST['action'])
@@ -198,8 +198,8 @@ while ($arAccount = $dbResultList->NavNext(false))
 	}
 	$fieldValue = "[<a href=\"".$urlToUser."\" title=\"".GetMessage("SAA_USER_INFO")."\">".$arAccount["USER_ID"]."</a>] ";
 
-	$fieldValue .= htmlspecialcharsEx($arAccount["USER_NAME"].((strlen($arAccount["USER_NAME"])<=0 ||
-		strlen($arAccount["USER_LAST_NAME"])<=0) ? "" : " ").$arAccount["USER_LAST_NAME"])."<br>";
+	$fieldValue .= htmlspecialcharsEx($arAccount["USER_NAME"].(($arAccount["USER_NAME"] == '' ||
+		$arAccount["USER_LAST_NAME"] == '') ? "" : " ").$arAccount["USER_LAST_NAME"])."<br>";
 	$fieldValue .= htmlspecialcharsEx($arAccount["USER_LOGIN"])."&nbsp;&nbsp;&nbsp; ";
 	$fieldValue .= "<a href=\"mailto:".htmlspecialcharsbx($arAccount["USER_EMAIL"])."\" title=\"".
 		GetMessage("SAA_MAILTO")."\">".htmlspecialcharsEx($arAccount["USER_EMAIL"])."</a>";
@@ -219,7 +219,7 @@ while ($arAccount = $dbResultList->NavNext(false))
 			),
 			array()
 		);
-		if (IntVal($numTrans) > 0)
+		if (intval($numTrans) > 0)
 		{
 			$urlToTransact = "sale_transact_admin.php?lang=".LANGUAGE_ID;
 			if ($publicMode)
@@ -234,7 +234,7 @@ while ($arAccount = $dbResultList->NavNext(false))
 				)
 			);
 			$fieldValue .= "<a href=\"".$urlToTransact."\" title=\"".GetMessage("SAA_TRANS_TITLE")."\">";
-			$fieldValue .= IntVal($numTrans);
+			$fieldValue .= intval($numTrans);
 			$fieldValue .= "</a>";
 		}
 		else

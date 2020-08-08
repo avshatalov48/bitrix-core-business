@@ -192,7 +192,7 @@ class ConverterDocumentOrder extends Converter
 					break;
 				case 'CURRENCY':
 					$replaceCurrency = $settings->getReplaceCurrency();
-					$value = substr($replaceCurrency<>'' ? $replaceCurrency:$traits[$k], 0, 3);
+					$value = mb_substr($replaceCurrency <> ''? $replaceCurrency : $traits[$k], 0, 3);
 					break;
 				case 'CURRENCY_RATE':
 					$value = self::CURRENCY_RATE_DEFAULT;
@@ -690,7 +690,7 @@ class ConverterDocumentOrder extends Converter
 				);
 				while ($store = $res->Fetch())
 				{
-					if(strlen($store["XML_ID"]) <= 0)
+					if($store["XML_ID"] == '')
 						$store["XML_ID"] = $store["ID"];
 
 					$stories[$store["ID"]] = $store;

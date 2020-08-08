@@ -1,6 +1,7 @@
 DROP TABLE if exists b_sender_list;
 DROP TABLE if exists b_sender_contact;
 DROP TABLE if exists b_sender_contact_list;
+DROP TABLE if exists b_sender_group_deal_category;
 DROP TABLE if exists b_sender_group;
 DROP TABLE if exists b_sender_group_connector;
 DROP TABLE if exists b_sender_group_counter;
@@ -28,3 +29,6 @@ DROP TABLE if exists b_sender_role;
 DROP TABLE if exists b_sender_role_permission;
 DROP TABLE if exists b_sender_role_access;
 DROP TABLE if exists b_sender_counter;
+DROP TABLE if exists b_sender_permission;
+DROP TABLE if exists b_sender_role_relation;
+DROP TABLE if exists b_sender_posting_thread;

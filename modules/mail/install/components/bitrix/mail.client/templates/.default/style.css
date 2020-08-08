@@ -133,7 +133,7 @@
 	color: #fff !important;
 }
 
-.bitrix24-light-theme .mail-msg-counter-number.
+.bitrix24-light-theme .mail-msg-counter-number,
 .bitrix24-light-theme .mail-msg-counter-container:hover .mail-msg-counter-inner:after
 {
 	border: 1px solid rgba(255,255,255,.4);
@@ -171,6 +171,7 @@
 }
 
 .mail-msg-title-icon-income {
+	min-width: 50px;
 	background-position: 0 -234px;
 }
 

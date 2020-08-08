@@ -21,7 +21,7 @@ class App
 	public static function register(array $fields)
 	{
 		$moduleId = $fields['MODULE_ID'];
-		if (strlen($moduleId) <= 0)
+		if ($moduleId == '')
 		{
 			return false;
 		}
@@ -37,7 +37,7 @@ class App
 			$check = parse_url($fields['IFRAME']);
 			if (!isset($check['scheme']) && !isset($check['host']))
 			{
-				if (strpos($fields['IFRAME'], '/desktop_app/iframe/') !== 0)
+				if (mb_strpos($fields['IFRAME'], '/desktop_app/iframe/') !== 0)
 				{
 					return false;
 				}
@@ -71,7 +71,7 @@ class App
 		$iconFileId = intval($fields['ICON_ID']);
 
 		$botId = isset($fields['BOT_ID'])? intval($fields['BOT_ID']): 0;
-		$hash = isset($fields['HASH']) && !empty($fields['HASH'])? substr($fields['HASH'], 0, 32): md5($botId.$fields['CODE'].\CMain::GetServerUniqID());
+		$hash = isset($fields['HASH']) && !empty($fields['HASH'])? mb_substr($fields['HASH'], 0, 32) : md5($botId.$fields['CODE'].\CMain::GetServerUniqID());
 		$context = isset($fields['CONTEXT'])? $fields['CONTEXT']: 'ALL';
 		$registered = isset($fields['REGISTERED']) && $fields['REGISTERED'] == 'N'? 'N': 'Y';
 		$hidden = isset($fields['HIDDEN']) && $fields['HIDDEN'] == 'Y'? 'Y': 'N';
@@ -172,7 +172,7 @@ class App
 				{
 					\Bitrix\Im\Model\AppLangTable::add(array(
 						'APP_ID' => $appId,
-						'LANGUAGE_ID' => strtolower($lang['LANGUAGE_ID']),
+						'LANGUAGE_ID' => mb_strtolower($lang['LANGUAGE_ID']),
 						'TITLE' => $lang['TITLE'],
 						'DESCRIPTION' => $lang['DESCRIPTION'],
 						'COPYRIGHT' => $lang['COPYRIGHT']
@@ -202,10 +202,10 @@ class App
 			if (!isset($icons[$appId]))
 				return false;
 
-			if (strlen($moduleId) > 0 && $icons[$appId]['MODULE_ID'] != $moduleId)
+			if ($moduleId <> '' && $icons[$appId]['MODULE_ID'] != $moduleId)
 				return false;
 
-			if (strlen($restAppId) > 0 && $icons[$appId]['APP_ID'] != $restAppId)
+			if ($restAppId <> '' && $icons[$appId]['APP_ID'] != $restAppId)
 				return false;
 		}
 
@@ -251,10 +251,10 @@ class App
 		if (!isset($apps[$appId]))
 			return false;
 
-		if (strlen($moduleId) > 0 && $apps[$appId]['MODULE_ID'] != $moduleId)
+		if ($moduleId <> '' && $apps[$appId]['MODULE_ID'] != $moduleId)
 			return false;
 
-		if (strlen($restAppId) > 0 && $apps[$appId]['APP_ID'] != $restAppId)
+		if ($restAppId <> '' && $apps[$appId]['APP_ID'] != $restAppId)
 			return false;
 
 		if (isset($updateFields['LANG']) && $apps[$appId]['MODULE_ID'] == 'rest')
@@ -278,7 +278,7 @@ class App
 				{
 					\Bitrix\Im\Model\AppLangTable::add(array(
 						'APP_ID' => $appId,
-						'LANGUAGE_ID' => strtolower($lang['LANGUAGE_ID']),
+						'LANGUAGE_ID' => mb_strtolower($lang['LANGUAGE_ID']),
 						'TITLE' => $lang['TITLE'],
 						'DESCRIPTION' => $lang['DESCRIPTION'],
 						'COPYRIGHT' => $lang['COPYRIGHT']
@@ -312,7 +312,7 @@ class App
 			$check = parse_url($updateFields['IFRAME']);
 			if (!isset($check['scheme']) && !isset($check['host']))
 			{
-				if (strpos($updateFields['IFRAME'], '/desktop_app/iframe/') !== 0)
+				if (mb_strpos($updateFields['IFRAME'], '/desktop_app/iframe/') !== 0)
 				{
 					return false;
 				}
@@ -451,17 +451,17 @@ class App
 		if (!isset($apps[$appId]))
 			return false;
 
-		if (strlen($moduleId) > 0 && $apps[$appId]['MODULE_ID'] != $moduleId)
+		if ($moduleId <> '' && $apps[$appId]['MODULE_ID'] != $moduleId)
 			return false;
 
-		if (strlen($restAppId) > 0 && $apps[$appId]['APP_ID'] != $restAppId)
+		if ($restAppId <> '' && $apps[$appId]['APP_ID'] != $restAppId)
 			return false;
 
 		$botId = intval($apps[$appId]['BOT_ID']);
 
 		if (Common::isChatId($messageFields['DIALOG_ID']))
 		{
-			$relations = \CIMChat::GetRelationById(substr($messageFields['DIALOG_ID'], 4));
+			$relations = \CIMChat::GetRelationById(mb_substr($messageFields['DIALOG_ID'], 4));
 		}
 		else
 		{
@@ -485,7 +485,7 @@ class App
 
 		if (Common::isChatId($messageFields['DIALOG_ID']))
 		{
-			$chatId = intval(substr($messageFields['DIALOG_ID'], 4));
+			$chatId = intval(mb_substr($messageFields['DIALOG_ID'], 4));
 			if ($chatId <= 0)
 				return false;
 

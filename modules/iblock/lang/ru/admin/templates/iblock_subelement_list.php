@@ -66,6 +66,7 @@ $MESS["IBEL_CATALOG_WIDTH"] = "Ширина (мм)";
 $MESS["IBEL_CATALOG_LENGTH"] = "Длина (мм)";
 $MESS["IBEL_CATALOG_HEIGHT"] = "Высота (мм)";
 $MESS["IBEL_CATALOG_VAT_INCLUDED"] = "НДС включен в цену";
+$MESS["IBEL_CATALOG_VAT_ID"] = "Ставка НДС";
 $MESS["IBEL_CATALOG_PURCHASING_PRICE"] = "Закупочная цена";
 $MESS["IBEL_CATALOG_BAR_CODE"] = "Штрихкод";
 $MESS["IBLOCK_FIELD_SUBSCRIPTIONS"] = "Количество подписок";
@@ -100,4 +101,5 @@ $MESS["IBLOCK_RED_ALT"] = "временно заблокирована (реда
 $MESS["IBLOCK_SUBELEMENT_LIST_SELECTED"] = "Выбрано:";
 $MESS["IBLOCK_SUBELEMENT_LIST_CHECKED"] = "Отмечено:";
 $MESS["IBLOCK_SUBELEMENT_LIST_ACTION_DELETE"] = "Удалить";
+$MESS["IBEL_CATALOG_EMPTY_VALUE"] = "не выбрано";
 ?>

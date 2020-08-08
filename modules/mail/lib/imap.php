@@ -87,8 +87,10 @@ class Imap
 	protected function disconnect()
 	{
 		if (!is_null($this->stream))
+		{
 			@fclose($this->stream);
-		unset($this->stream);
+			unset($this->stream);
+		}
 	}
 
 	protected function reset()
@@ -117,7 +119,7 @@ class Imap
 	{
 		$error = null;
 
-		if ($this->sessState)
+		if (!empty($this->sessState))
 			return true;
 
 		$resource = @stream_socket_client(
@@ -246,6 +248,7 @@ class Imap
 			return true;
 
 		$mech = false;
+		$token = null;
 
 		if (preg_match('/ \x20 AUTH=XOAUTH2 ( \x20 | \r\n ) /ix', $this->sessCapability))
 		{
@@ -280,7 +283,7 @@ class Imap
 		{
 			$response = $this->executeCommand('AUTHENTICATE XOAUTH2', $error);
 
-			if (strpos($response, '+') !== 0)
+			if (mb_strpos($response, '+') !== 0)
 			{
 				$error = $error == Imap::ERR_COMMAND_REJECTED ? Imap::ERR_AUTH_MECH : $error;
 				$error = $this->errorMessage(array(Imap::ERR_AUTH, $error), $response);
@@ -292,14 +295,14 @@ class Imap
 				"user=%s\x01auth=Bearer %s\x01\x01", $this->options['login'], $token
 			)), $error);
 
-			if (strpos($response, '+') === 0)
+			if (mb_strpos($response, '+') === 0)
 				$response = $this->exchange("\r\n", $error);
 		}
 		elseif ($mech == 'plain')
 		{
 			$response = $this->executeCommand('AUTHENTICATE PLAIN', $error);
 
-			if (strpos($response, '+') !== 0)
+			if (mb_strpos($response, '+') !== 0)
 			{
 				$error = $error == Imap::ERR_COMMAND_REJECTED ? Imap::ERR_AUTH_MECH : $error;
 				$error = $this->errorMessage(array(Imap::ERR_AUTH, $error), $response);
@@ -490,11 +493,12 @@ class Imap
 			{
 				$result = false;
 
+				// #120949
 				$regex = sprintf(
 					'/^
 						(
 							[a-z0-9]+ (?: \. [a-z0-9]+ )*
-							(?: \[ (?: [a-z0-9]+ (?: \. [a-z0-9]+ )* (?: \x20 %s )* )? \] )?
+							(?: \[ (?: [a-z0-9]+ (?: \. [a-z0-9]* )* (?: \x20 %s )* )? \] )?
 							(?: < \d+ > )?
 						)
 						\x20
@@ -585,6 +589,12 @@ class Imap
 
 					$item = BinaryString::getSubstring($item, BinaryString::getLength($matches[0]));
 				}
+				else if (preg_match(sprintf('/^ %s /ix', $tail), $item, $matches))
+				{
+					$result = '';
+
+					$item = BinaryString::getSubstring($item, BinaryString::getLength($matches[0]));
+				}
 
 				return $result;
 			};
@@ -626,7 +636,7 @@ class Imap
 					{
 						if (($value = $shiftValue($item[1][2])) !== false)
 						{
-							if (in_array(strtoupper($name), array('BODY', 'BODYSTRUCTURE')))
+							if (in_array(mb_strtoupper($name), array('BODY', 'BODYSTRUCTURE')))
 							{
 								$value = $bodystructure($value);
 							}
@@ -822,6 +832,7 @@ class Imap
 				\( (?<flags> ( \x5c? %1$s ( \x20 \x5c? %1$s )* )? ) \) \x20
 				(?<delim> NIL | " ( %2$s ) " ) \x20
 				(?<name> \{ \d+ \} | " ( %2$s )* " | %3$s ) \r\n
+				(?<ext> .* )
 			/ix',
 			self::$atomRegex, self::$qcharRegex, self::$astringRegex
 		);
@@ -840,7 +851,7 @@ class Imap
 
 			if (preg_match('/^ \{ ( \d+ ) \} $/ix', $sname, $literal))
 			{
-				$sname = \CUtil::binSubstr($item, \CUtil::binStrlen($matches[0]), $literal[1]);
+				$sname = \CUtil::binSubstr($matches['ext'], 0, $literal[1]);
 			}
 			else if (preg_match('/^ " ( .* ) " $/ix', $sname, $quoted))
 			{
@@ -850,12 +861,12 @@ class Imap
 			$sname = $this->decodeUtf7Imap($sname);
 
 			// #79498
-			if (strtoupper($sdelim) != 'NIL')
+			if (mb_strtoupper($sdelim) != 'NIL')
 				$sname = rtrim($sname, $sdelim);
 
 			$list[] = array(
 				'name'  => $sname,
-				'delim' => strtoupper($sdelim) == 'NIL' ? null : $sdelim,
+				'delim' => mb_strtoupper($sdelim) == 'NIL' ? null : $sdelim,
 				'flags' => preg_split('/\s+/i', $sflags, -1, PREG_SPLIT_NO_EMPTY),
 			);
 		}
@@ -1411,6 +1422,7 @@ class Imap
 	public function updateMessageFlags($mailbox, $id, $flags, &$error)
 	{
 		$error = null;
+		$response = '';
 
 		if (!$this->select($mailbox, $error))
 		{
@@ -1470,9 +1482,9 @@ class Imap
 	{
 		$error = null;
 
-		$section = strtoupper($section);
+		$section = mb_strtoupper($section);
 
-		if (!in_array(strtoupper($section), array('HEADER', 'TEXT')))
+		if (!in_array(mb_strtoupper($section), array('HEADER', 'TEXT')))
 		{
 			$section = '';
 		}
@@ -1485,6 +1497,20 @@ class Imap
 		$response = $this->fetch(false, $mailbox, (int) $id, sprintf('BODY.PEEK[%s]', $section), $error);
 
 		return $response[sprintf('BODY[%s]', $section)];
+	}
+
+	public function isExistsDir($mailbox, &$error)
+	{
+		$error = null;
+
+		$dirs = $this->listex('', $mailbox, $error);
+
+		if (is_array($dirs) && empty($dirs))
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	public function ensureEmpty($mailbox, &$error)
@@ -1602,6 +1628,7 @@ class Imap
 	protected function executeCommand($command, &$error)
 	{
 		$error = null;
+		$response = false;
 
 		$chunks = explode("\x00", sprintf('%s %s', $this->getTag(true), $command));
 
@@ -1612,7 +1639,7 @@ class Imap
 
 			$response = $this->exchange($chunk, $error);
 
-			if ($k > 0 && strpos($response, '+') !== 0)
+			if ($k > 0 && mb_strpos($response, '+') !== 0)
 				break;
 		}
 
@@ -1780,10 +1807,10 @@ class Imap
 			if ($line === false)
 				return false;
 
-			if (strpos($line, '*') === 0)
+			if (mb_strpos($line, '*') === 0)
 				$this->sessUntagged[] = $line;
 		}
-		while (strpos($line, '*') === 0);
+		while (mb_strpos($line, '*') === 0);
 
 		if ('select' == $this->sessState)
 		{
@@ -1901,7 +1928,9 @@ class Imap
 		$error = join(': ', $errors);
 		if ($details)
 		{
-			$error .= sprintf(' (%s)', join(': ', $details));
+			$error .= sprintf(' (IMAP: %s)', join(': ', $details));
+
+			$this->errors->setError(new Main\Error('IMAP', -1));
 			foreach ($details as $item)
 			{
 				$this->errors->setError(new Main\Error((string) $item, -1));

@@ -8,9 +8,9 @@ class ResponseParser
 	{
 		$uIds = [];
 		$dirUidValidity = '';
-		if ($responseLine = stristr($copyUid, 'COPYUID'))
+		if ($responseLine = mb_stristr($copyUid, 'COPYUID'))
 		{
-			$data = explode(' ', stristr($copyUid, 'COPYUID'));
+			$data = explode(' ', mb_stristr($copyUid, 'COPYUID'));
 			if (isset($data[1]) && isset($data[2]) && isset($data[3]))
 			{
 				$dirUidValidity = $data[1];

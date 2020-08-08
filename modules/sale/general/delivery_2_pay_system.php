@@ -251,7 +251,7 @@ class CSaleDelivery2PaySystem
 	}
 	public static function isPaySystemApplicable($paySystemId, $deliveryId)
 	{
-		if(strlen($deliveryId) <= 0)
+		if($deliveryId == '')
 			return true;
 
 		$result = false;
@@ -296,7 +296,7 @@ class CSaleDelivery2PaySystem
 
 	public static function UpdateDelivery($ID, $arFields)
 	{
-		if(!is_array($arFields) || strlen($ID) <= 0)
+		if(!is_array($arFields) || $ID == '')
 			return false;
 
 		$arFilterFields["DELIVERY_ID"] = $ID;
@@ -331,7 +331,7 @@ class CSaleDelivery2PaySystem
 		$ID = trim($ID);
 		$arUpdateFields = array("PAYSYSTEM_ID" => $ID);
 
-		if (strlen($ID) <= 0 || !is_array($arFields) || empty($arFields))
+		if ($ID == '' || !is_array($arFields) || empty($arFields))
 			return false;
 
 		if ($arFields[0] == "")
@@ -374,23 +374,23 @@ class CSaleDelivery2PaySystem
 
 		$code = "";
 
-		if(isset($arFilter["DELIVERY_ID"]) && strlen($arFilter["DELIVERY_ID"]) > 0)
+		if(isset($arFilter["DELIVERY_ID"]) && $arFilter["DELIVERY_ID"] <> '')
 		{
 			$code .= $arFilter["DELIVERY_ID"];
 
-			if(isset($arFilter["DELIVERY_PROFILE_ID"]) && strlen($arFilter["DELIVERY_PROFILE_ID"]) > 0)
+			if(isset($arFilter["DELIVERY_PROFILE_ID"]) && $arFilter["DELIVERY_PROFILE_ID"] <> '')
 				$code .= ":".$arFilter["DELIVERY_PROFILE_ID"];
 		}
 
 		$deliveryId = 0;
 
-		if(strlen($code) > 0)
+		if($code <> '')
 			$deliveryId = \CSaleDelivery::getIdByCode($code);
 
 		if(intval($deliveryId) > 0)
 			$delParams .= "DELIVERY_ID=".intval($deliveryId);
 
-		if(strlen($delParams) > 0)
+		if($delParams <> '')
 			$con->queryExecute("DELETE FROM ".DeliveryPaySystemTable::getTableName()." WHERE ".$delParams);
 
 		return new CDBResult();
@@ -400,7 +400,7 @@ class CSaleDelivery2PaySystem
 	{
 		if(!isset($arFields["DELIVERY_ID"])
 			||
-			strlen(trim($arFields["DELIVERY_ID"])) <=0
+			trim($arFields["DELIVERY_ID"]) == ''
 			||
 			!isset($arFields["PAYSYSTEM_ID"])
 			||
@@ -410,7 +410,7 @@ class CSaleDelivery2PaySystem
 			return false;
 		}
 
-		if(isset($arFields["DELIVERY_PROFILE_ID"]) && strlen($arFields["DELIVERY_PROFILE_ID"]) > 0)
+		if(isset($arFields["DELIVERY_PROFILE_ID"]) && $arFields["DELIVERY_PROFILE_ID"] <> '')
 		{
 			$arFields["DELIVERY_ID"] .= ":".$arFields["DELIVERY_PROFILE_ID"];
 			unset($arFields["DELIVERY_PROFILE_ID"]);

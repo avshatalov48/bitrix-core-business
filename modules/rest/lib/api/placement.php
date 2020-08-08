@@ -4,6 +4,7 @@ namespace Bitrix\Rest\Api;
 
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ArgumentNullException;
+use Bitrix\Main\Entity\ExpressionField;
 use Bitrix\Rest\AccessException;
 use Bitrix\Rest\AppTable;
 use Bitrix\Rest\AuthTypeException;
@@ -142,6 +143,33 @@ class Placement extends \IRestService
 			if(!empty($params['GROUP_NAME']))
 			{
 				$placementBind['GROUP_NAME'] = trim($params['GROUP_NAME']);
+			}
+
+			if($placementInfo['max_count'] > 0)
+			{
+				$res = PlacementTable::getList(
+					[
+						'filter' => [
+							'=APP_ID' => $placementBind['APP_ID'],
+							'=PLACEMENT' => $placementBind['PLACEMENT']
+						],
+						'select' => array('COUNT'),
+						'runtime' => array(
+							new ExpressionField('COUNT', 'COUNT(*)')
+						)
+					]
+				);
+
+				if($result = $res->fetch())
+				{
+					if($result['COUNT'] >= $placementInfo['max_count'])
+					{
+						throw new RestException(
+							'Placement max count: '.$placementInfo['max_count'],
+							PlacementTable::ERROR_PLACEMENT_MAX_COUNT
+						);
+					}
+				}
 			}
 
 			$result = PlacementTable::add($placementBind);

@@ -25,7 +25,7 @@ if (
 $arResult["PATH_TO_GROUP_INVITE"] = (
 	!empty($arParams["PATH_TO_GROUP_INVITE"])
 		? CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_INVITE"], array("group_id" => $arResult["Group"]["ID"]))
-		: $arResult["Urls"]["GroupEdit"].(strpos($arResult["Urls"]["GroupEdit"], "?") === false ? "?" : "&")."tab=invite"
+		: $arResult["Urls"]["GroupEdit"].(mb_strpos($arResult["Urls"]["GroupEdit"], "?") === false ? "?" : "&")."tab=invite"
 );
 
 ?>

@@ -81,7 +81,7 @@ $aMenu = array(
 	array(
 		"TEXT"	=> Loc::getMessage("notification_edit_list"),
 		"LINK"	=> "log_notifications.php?lang=".LANGUAGE_ID,
-		"TITLE"	=> Loc::getMessage(Loc::getMessage("notification_edit_list_title")),
+		"TITLE"	=> Loc::getMessage("notification_edit_list_title"),
 		"ICON"	=> "btn_list"
 	)
 );

@@ -6,13 +6,13 @@ class CAllCatalogExport
 		global $DB;
 		global $USER;
 
-		$ACTION = strtoupper($ACTION);
+		$ACTION = mb_strtoupper($ACTION);
 		if ('UPDATE' != $ACTION && 'ADD' != $ACTION)
 			return false;
 
-		if ((is_set($arFields, "FILE_NAME") || $ACTION=="ADD") && strlen($arFields["FILE_NAME"])<=0)
+		if ((is_set($arFields, "FILE_NAME") || $ACTION=="ADD") && $arFields["FILE_NAME"] == '')
 			return false;
-		if ((is_set($arFields, "NAME") || $ACTION=="ADD") && strlen($arFields["NAME"])<=0)
+		if ((is_set($arFields, "NAME") || $ACTION=="ADD") && $arFields["NAME"] == '')
 			return false;
 
 		if ((is_set($arFields, "IN_MENU") || $ACTION=="ADD") && $arFields["IN_MENU"]!="Y")
@@ -108,49 +108,49 @@ class CAllCatalogExport
 		for ($i = 0, $intCount = count($filter_keys); $i < $intCount; $i++)
 		{
 			$val = $DB->ForSql($arFilter[$filter_keys[$i]]);
-			if (strlen($val)<=0)
+			if ($val == '')
 				continue;
 
 			$bInvert = false;
 			$key = $filter_keys[$i];
-			if (substr($key,0,1) == "!")
+			if (mb_substr($key, 0, 1) == "!")
 			{
-				$key = substr($key, 1);
+				$key = mb_substr($key, 1);
 				$bInvert = true;
 			}
 
-			switch(strtoupper($key))
+			switch(mb_strtoupper($key))
 			{
-			case "ID":
-				$arSqlSearch[] = "CE.ID ".($bInvert?"<>":"=")." ".intval($val)."";
-				break;
-			case "FILE_NAME":
-				$arSqlSearch[] = "CE.FILE_NAME ".($bInvert?"<>":"=")." '".$val."'";
-				break;
-			case "NAME":
-				$arSqlSearch[] = "CE.NAME ".($bInvert?"<>":"=")." '".$val."'";
-				break;
-			case "DEFAULT_PROFILE":
-				$arSqlSearch[] = "CE.DEFAULT_PROFILE ".($bInvert?"<>":"=")." '".$val."'";
-				break;
-			case "IN_MENU":
-				$arSqlSearch[] = "CE.IN_MENU ".($bInvert?"<>":"=")." '".$val."'";
-				break;
-			case "IN_AGENT":
-				$arSqlSearch[] = "CE.IN_AGENT ".($bInvert?"<>":"=")." '".$val."'";
-				break;
-			case "IN_CRON":
-				$arSqlSearch[] = "CE.IN_CRON ".($bInvert?"<>":"=")." '".$val."'";
-				break;
-			case 'NEED_EDIT':
-				$arSqlSearch[] = "CE.NEED_EDIT ".($bInvert?"<>":"=")." '".$val."'";
-				break;
-			case 'CREATED_BY':
-				$arSqlSearch[] = "CE.CREATED_BY ".($bInvert?"<>":"=")." '".intval($val)."'";
-				break;
-			case 'MODIFIED_BY':
-				$arSqlSearch[] = "CE.MODIFIED_BY ".($bInvert?"<>":"=")." '".intval($val)."'";
-				break;
+				case "ID":
+					$arSqlSearch[] = "CE.ID ".($bInvert? "<>" : "=")." ".intval($val)."";
+					break;
+				case "FILE_NAME":
+					$arSqlSearch[] = "CE.FILE_NAME ".($bInvert? "<>" : "=")." '".$val."'";
+					break;
+				case "NAME":
+					$arSqlSearch[] = "CE.NAME ".($bInvert? "<>" : "=")." '".$val."'";
+					break;
+				case "DEFAULT_PROFILE":
+					$arSqlSearch[] = "CE.DEFAULT_PROFILE ".($bInvert? "<>" : "=")." '".$val."'";
+					break;
+				case "IN_MENU":
+					$arSqlSearch[] = "CE.IN_MENU ".($bInvert? "<>" : "=")." '".$val."'";
+					break;
+				case "IN_AGENT":
+					$arSqlSearch[] = "CE.IN_AGENT ".($bInvert? "<>" : "=")." '".$val."'";
+					break;
+				case "IN_CRON":
+					$arSqlSearch[] = "CE.IN_CRON ".($bInvert? "<>" : "=")." '".$val."'";
+					break;
+				case 'NEED_EDIT':
+					$arSqlSearch[] = "CE.NEED_EDIT ".($bInvert? "<>" : "=")." '".$val."'";
+					break;
+				case 'CREATED_BY':
+					$arSqlSearch[] = "CE.CREATED_BY ".($bInvert? "<>" : "=")." '".intval($val)."'";
+					break;
+				case 'MODIFIED_BY':
+					$arSqlSearch[] = "CE.MODIFIED_BY ".($bInvert? "<>" : "=")." '".intval($val)."'";
+					break;
 			}
 		}
 
@@ -195,8 +195,8 @@ class CAllCatalogExport
 		$arOrderKeys = array();
 		foreach ($arOrder as $by=>$order)
 		{
-			$by = strtoupper($by);
-			$order = strtoupper($order);
+			$by = mb_strtoupper($by);
+			$order = mb_strtoupper($order);
 			if ($order!="ASC") $order = "DESC";
 			if (!in_array($by, $arOrderKeys))
 			{

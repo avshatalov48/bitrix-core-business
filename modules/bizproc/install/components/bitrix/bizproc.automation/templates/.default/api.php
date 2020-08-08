@@ -40,5 +40,6 @@ if (isset($arParams['~MESSAGES']) && is_array($arParams['MESSAGES']))
 		BX.Bizproc.Automation.API.documentName = '<?=htmlspecialcharsbx($arResult['DOCUMENT_NAME'])?>';
 		BX.Bizproc.Automation.API.documentSigned = <?=\Bitrix\Main\Web\Json::encode($arResult['DOCUMENT_SIGNED'])?>;
 		BX.Bizproc.Automation.API.documentFields = <?=\Bitrix\Main\Web\Json::encode($arResult['DOCUMENT_FIELDS'])?>;
+		BX.Bizproc.Automation.API.documentUserGroups = <?=\Bitrix\Main\Web\Json::encode($arResult['DOCUMENT_USER_GROUPS'])?>;
 	});
 </script>

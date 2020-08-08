@@ -38,7 +38,7 @@ foreach ($arResult['ROWS'] as $index => $data)
 			continue;
 		}
 
-		if (substr($dataKey, 0, 1) === '~')
+		if (mb_substr($dataKey, 0, 1) === '~')
 		{
 			continue;
 		}

@@ -6,7 +6,7 @@ $controller = "BX('file-selectdialog-".$uid."')";
 $controlName = $arParams['INPUT_NAME'];
 $controlNameFull = $controlName . (($arParams['MULTIPLE'] == 'Y') ? '[]' : '');
 $arValue = $arResult['FILES'];
-$addClass = ((strpos($_SERVER['HTTP_USER_AGENT'], 'Mac OS') !== false) ? 'file-filemacos' : '');
+$addClass = ((mb_strpos($_SERVER['HTTP_USER_AGENT'], 'Mac OS') !== false) ? 'file-filemacos' : '');
 
 if (!function_exists('mfi_format_line'))
 {

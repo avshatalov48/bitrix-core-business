@@ -2,6 +2,8 @@
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 	die();
 
+use Bitrix\Photogallery\Copy\Integration\Group;
+
 $pageId = "group_photo";
 include("util_group_menu.php");
 
@@ -19,22 +21,17 @@ if ($arParams["FATAL_ERROR"] == "Y"):
 	return false;
 endif;
 
-$helper = new Bitrix\Socialnetwork\Copy\Integration\StepperHelper();
-$helper->setStepper('Bitrix\Photogallery\Copy\Stepper\Section');
-$helper->setModuleId("photogallery");
-$helper->setQueueOption("SectionGroupQueue");
-$helper->setCheckerOption("SectionGroupChecker_");
-$helper->setStepperOption("SectionGroupStepper_");
-$helper->setErrorOption("SectionGroupError_");
-$helper->setTitle(GetMessage("PHOTO_STEPPER_PROGRESS_TITLE"));
-$helper->setError(GetMessage("PHOTO_STEPPER_PROGRESS_ERROR"));
-
 $APPLICATION->includeComponent(
 	"bitrix:socialnetwork.copy.checker",
 	"",
 	[
-		"QUEUE_ID" => $arResult["VARIABLES"]["SECTION_ID"],
-		"HELPER" => $helper
+		"moduleId" => Group::MODULE_ID,
+		"queueId" => $arResult["VARIABLES"]["SECTION_ID"],
+		"stepperClassName" => Group::STEPPER_CLASS,
+		"checkerOption" => Group::CHECKER_OPTION,
+		"errorOption" => Group::ERROR_OPTION,
+		"titleMessage" => GetMessage("PHOTO_STEPPER_PROGRESS_TITLE"),
+		"errorMessage" => GetMessage("PHOTO_STEPPER_PROGRESS_ERROR"),
 	],
 	$component,
 	["HIDE_ICONS" => "Y"]
@@ -121,7 +118,7 @@ $APPLICATION->includeComponent(
 	array("HIDE_ICONS" => "Y")
 );?><?
 // DETAIL LIST
-if ($result && intVal($result["ELEMENTS_CNT"]) > 0)
+if ($result && intval($result["ELEMENTS_CNT"]) > 0)
 {
 if ($arParams["PHOTO"]["ALL"]["USE_RATING"] == "Y"):
 	$arParams["PHOTO"]["ALL"]["PROPERTY_CODE"][] = "PROPERTY_vote_count";
@@ -232,7 +229,7 @@ div.photo-page-section div.photo-info-box-photo-list {
 endif;
 }
 // SECTIONS LIST
-if (intVal($result["SECTIONS_CNT"]) > 0)
+if (intval($result["SECTIONS_CNT"]) > 0)
 {
 ?>
 <div class="photo-info-box photo-info-box-section-list">

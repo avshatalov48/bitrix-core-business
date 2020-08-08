@@ -31,7 +31,7 @@ elseif($arResult["DATA"]["TYPE"] == "SECTIONS_SECTION")
 	{
 		$path = $sectId;
 
-		if(strlen($arResult["PATH"]) > 0)
+		if($arResult["PATH"] <> '')
 			$path = $arResult["PATH"].'/'.$path;
 
 		$path = urlencode($path);

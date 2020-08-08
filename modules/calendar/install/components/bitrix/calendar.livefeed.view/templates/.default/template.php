@@ -2,10 +2,11 @@
 <?
 $id = $arResult['ID'];
 $event = $arResult['EVENT'];
+$emptyAvatarSrc = "/bitrix/images/1.gif";
 ?>
 <div class="feed-event-view" id="feed-event-view-cont-<?= $id?>">
 	<div class="feed-calendar-view-icon">
-		<a class="feed-calendar-view-icon-fake-link" id="feed-event-view-icon-link-<?= $id?>" href="#"><img src="/bitrix/images/1.gif"></a>
+		<a class="feed-calendar-view-icon-fake-link" id="feed-event-view-icon-link-<?= $id?>" href="#"><img src="<?= $emptyAvatarSrc?>"></a>
 		<div class="feed-calendar-view-icon-day"><?= $event['FROM_WEEK_DAY']?></div>
 		<div class="feed-calendar-view-icon-date"><?= $event['FROM_MONTH_DAY']?></div>
 	</div>
@@ -44,56 +45,11 @@ $event = $arResult['EVENT'];
 			</tr>
 
 			<?if (isset($event['RRULE']) && $event['RRULE'] !== ''):?>
-			<?
-			$repeatHTML = '';
-			$RRULE = CCalendarEvent::ParseRRULE($event['RRULE']);
-			switch ($RRULE['FREQ'])
-			{
-				case 'DAILY':
-					if ($RRULE['INTERVAL'] == 1)
-						$repeatHTML = GetMessage('EC_RRULE_EVERY_DAY');
-					else
-						$repeatHTML = GetMessage('EC_RRULE_EVERY_DAY_1', array('#DAY#' => $RRULE['INTERVAL']));
-					break;
-				case 'WEEKLY':
-
-					$daysList = array();
-					foreach ($RRULE['BYDAY'] as $day)
-						$daysList[] = GetMessage('EC_'.$day);
-					$daysList = implode(', ', $daysList);
-					if ($RRULE['INTERVAL'] == 1)
-						$repeatHTML = GetMessage('EC_RRULE_EVERY_WEEK', array('#DAYS_LIST#' => $daysList));
-					else
-						$repeatHTML = GetMessage('EC_RRULE_EVERY_WEEK_1', array('#WEEK#' => $RRULE['INTERVAL'], '#DAYS_LIST#' => $daysList));
-					break;
-				case 'MONTHLY':
-					if ($RRULE['INTERVAL'] == 1)
-						$repeatHTML = GetMessage('EC_RRULE_EVERY_MONTH');
-					else
-						$repeatHTML = GetMessage('EC_RRULE_EVERY_MONTH_1', array('#MONTH#' => $RRULE['INTERVAL']));
-					break;
-				case 'YEARLY':
-					if ($RRULE['INTERVAL'] == 1)
-						$repeatHTML = GetMessage('EC_RRULE_EVERY_YEAR', array('#DAY#' => 0, '#MONTH#' => 0));
-					else
-						$repeatHTML = GetMessage('EC_RRULE_EVERY_YEAR_1', array('#YEAR#' => $RRULE['INTERVAL'], '#DAY#' => 0, '#MONTH#' => 0));
-					break;
-			}
-
-			if($RRULE['COUNT'] > 0)
-			{
-				$repeatHTML .= ', '.GetMessage('EC_RRULE_COUNT', array('#COUNT#' => $RRULE['COUNT']));
-			}
-			elseif ($RRULE['UNTIL'] != '' && $RRULE['UNTIL'] != CCalendar::GetMaxDate())
-			{
-				$repeatHTML .= '<br>'.GetMessage('EC_RRULE_UNTIL', array('#UNTIL_DATE#' => CCalendar::Date(CCalendar::Timestamp($RRULE['UNTIL']), false)));
-			}
-			?>
 			<tr>
 				<td class="feed-calendar-view-text-cell-l"><?=GetMessage('EC_T_REPEAT')?>:</td>
-				<td class="feed-calendar-view-text-cell-r"><?= $repeatHTML?></td>
+				<td class="feed-calendar-view-text-cell-r"><?= CCalendarEvent::GetRRULEDescription($event, true)?></td>
 			</tr>
-			<?endif;/*if ($event['RRULE'] !== '')*/?>
+			<?endif;?>
 
 
 			<?if (!empty($event['LOCATION'])):?>
@@ -128,9 +84,10 @@ $event = $arResult['EVENT'];
 						{
 							?><a title="<?= htmlspecialcharsbx($attendee['DISPLAY_NAME'])?>" href="<?= $attendee['URL']?>" target="_blank" class="bxcal-att-popup-img"><?
 								?><span class="bxcal-att-popup-avatar"><?
-									if ($attendee['AVATAR'])
+									if ($attendee['AVATAR'] && $attendee['AVATAR'] != $emptyAvatarSrc)
 									{
-										?><img src="<?= $attendee['AVATAR']?>" width="<?= $arParams['AVATAR_SIZE']?>" height="<?= $arParams['AVATAR_SIZE']?>" class="bxcal-att-popup-img-not-empty" /><?
+										?><img src="<?= $attendee['AVATAR']?>" width="<?= $arParams['AVATAR_SIZE']?>"
+											   height="<?= $arParams['AVATAR_SIZE']?>" class="bxcal-att-popup-img-not-empty1" /><?
 									}
 								?></span><?
 							?></a><?
@@ -172,7 +129,7 @@ $event = $arResult['EVENT'];
 							{
 								?><a title="<?= htmlspecialcharsbx($attendee['DISPLAY_NAME'])?>" href="<?= $attendee['URL']?>" target="_blank" class="bxcal-att-popup-img"><?
 									?><span class="bxcal-att-popup-avatar"><?
-										if($attendee['AVATAR'])
+										if($attendee['AVATAR'] && $attendee['AVATAR'] != $emptyAvatarSrc)
 										{
 											?><img src="<?= $attendee['AVATAR']?>" width="<?= $arParams['AVATAR_SIZE']?>" height="<?= $arParams['AVATAR_SIZE']?>" class="bxcal-att-popup-img-not-empty" /><?
 										}

@@ -12,7 +12,7 @@ use Bitrix\Mail;
 class Recipient
 {
 	/**
-	 * Builds unique code for BX.SocNetLogDestination selector.
+	 * Builds unique code for BX.UI.Selector selector.
 	 *
 	 * @param string $email Email.
 	 *
@@ -20,7 +20,8 @@ class Recipient
 	 */
 	public static function buildUniqueEmailCode($email)
 	{
-		return 'U' . md5($email);
+//		return 'U' . md5($email);
+		return 'MC' . $email;
 	}
 
 	/**
@@ -29,7 +30,7 @@ class Recipient
 	 * @param string $emailTo Add this email to the result list.
 	 * @param integer $limit Limit list length.
 	 *
-	 * @return array Data preformed for BX.SocNetLogDestination selector with email only mode enabled.
+	 * @return array Data preformed for BX.UI.Selector selector with email only mode enabled.
 	 *
 	 * @throws Main\SystemException
 	 */
@@ -108,7 +109,7 @@ class Recipient
 	 * @param array $filter Filter.
 	 * @param integer $limit Limit list length.
 	 *
-	 * @return array  Data preformed for BX.SocNetLogDestination selector with email only mode enabled.
+	 * @return array  Data preformed for BX.UI.Selector selector with email only mode enabled.
 	 *
 	 * @throws Main\SystemException
 	 */
@@ -180,7 +181,7 @@ class Recipient
 	 * @param array $filter Filter.
 	 * @param integer $limit Limit list length.
 
-	 * @return array  Data preformed for BX.SocNetLogDestination selector with email only mode enabled.
+	 * @return array  Data preformed for BX.UI.Selector selector with email only mode enabled.
 	 *
 	 * @throws Main\LoaderException
 	 */

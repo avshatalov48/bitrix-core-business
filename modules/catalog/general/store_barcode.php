@@ -10,7 +10,7 @@ class CAllCatalogStoreBarCode
 			return false;
 		}
 
-		if((($action == 'ADD') || isset($arFields["BARCODE"])) && strlen($arFields["BARCODE"]) <= 0)
+		if((($action == 'ADD') || isset($arFields["BARCODE"])) && $arFields["BARCODE"] == '')
 		{
 			return false;
 		}

@@ -213,7 +213,7 @@ $getSenderItemContainer = function (array $letter = []) use ($arParams)
 			<span class="sender-mailing-group-container-title">
 				<span>
 					<?
-					if(strlen($arResult['ROW']['TRIGGER_FIELDS']['END']['NAME']) > 0)
+					if($arResult['ROW']['TRIGGER_FIELDS']['END']['NAME'] <> '')
 						echo htmlspecialcharsbx($arResult['ROW']['TRIGGER_FIELDS']['END']['NAME']);
 					else
 						echo Loc::getMessage("SENDER_TRIGGER_CHAIN_TRIGGER_NAME_DEFAULT");

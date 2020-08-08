@@ -39,7 +39,7 @@
 			if (!this.menu)
 			{
 				this.menu = new Menu({
-					id: "change-tag-name-menu",
+					id: "change-tag-name-menu-" + BX.Text.getRandom(),
 					bindElement: this.layout,
 					zIndex: -678,
 					items: [

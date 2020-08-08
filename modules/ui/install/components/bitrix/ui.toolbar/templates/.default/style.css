@@ -66,14 +66,12 @@
 }
 
 .pagetitle-toolbar-field-view .ui-toolbar-star {
-	-webkit-box-flex: 1;
-	-ms-flex: 1 0 auto;
-	flex: 1 0 auto;
 	background-size: 20px auto;
-}
-
-.pagetitle-toolbar-field-view .ui-toolbar-star {
 	margin-bottom: 2px;
+	width: 20px;
+	min-width: 20px;
+	max-width: 20px;
+	/*margin-right: 20px;*/
 }
 
 .ui-toolbar-star:hover {

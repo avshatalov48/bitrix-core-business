@@ -706,6 +706,8 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(ButtonIcon, "CLOUD", 'ui-btn-icon-cloud');
 	babelHelpers.defineProperty(ButtonIcon, "EDIT", 'ui-btn-icon-edit');
 	babelHelpers.defineProperty(ButtonIcon, "SHARE", 'ui-btn-icon-share');
+	babelHelpers.defineProperty(ButtonIcon, "ANGLE_UP", 'ui-btn-icon-angle-up');
+	babelHelpers.defineProperty(ButtonIcon, "ANGLE_DOWN", 'ui-btn-icon-angle-down');
 
 	/**
 	 * @namespace {BX.UI}

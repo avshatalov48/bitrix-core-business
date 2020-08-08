@@ -43,11 +43,11 @@ $lAdmin->InitFilter($arFilterFields);
 
 $arFilter = array();
 
-if (IntVal($filter_affiliate_id) > 0) $arFilter["AFFILIATE_ID"] = IntVal($filter_affiliate_id);
-if (strlen($filter_user) > 0) $arFilter["%USER_USER"] = $filter_user;
-if (strlen($filter_currency) > 0) $arFilter["CURRENCY"] = $filter_currency;
-if (strlen($filter_transact_date_from)>0) $arFilter[">=TRANSACT_DATE"] = Trim($filter_transact_date_from);
-if (strlen($filter_transact_date_to)>0) $arFilter["<=TRANSACT_DATE"] = Trim($filter_transact_date_to);
+if (intval($filter_affiliate_id) > 0) $arFilter["AFFILIATE_ID"] = intval($filter_affiliate_id);
+if ($filter_user <> '') $arFilter["%USER_USER"] = $filter_user;
+if ($filter_currency <> '') $arFilter["CURRENCY"] = $filter_currency;
+if ($filter_transact_date_from <> '') $arFilter[">=TRANSACT_DATE"] = Trim($filter_transact_date_from);
+if ($filter_transact_date_to <> '') $arFilter["<=TRANSACT_DATE"] = Trim($filter_transact_date_to);
 
 
 $dbTransactList = CSaleAffiliateTransact::GetList(
@@ -82,7 +82,7 @@ while ($arTransact = $dbTransactList->NavNext(true, "f_"))
 	$row->AddField("TRANSACT_DATE", $f_TRANSACT_DATE);
 
 	$fieldValue  = "[<a href=\"/bitrix/admin/sale_affiliate_edit.php?ID=".$f_AFFILIATE_ID."&lang=".LANG."\" title=\"".GetMessage("SAT2_AFF_PROFILE")."\">".$f_AFFILIATE_ID."</a>] ";
-	$fieldValue .= htmlspecialcharsEx($arTransact["USER_NAME"].((strlen($arTransact["USER_NAME"])<=0 || strlen($arTransact["USER_LAST_NAME"])<=0) ? "" : " ").$arTransact["USER_LAST_NAME"])."<br>";
+	$fieldValue .= htmlspecialcharsEx($arTransact["USER_NAME"].(($arTransact["USER_NAME"] == '' || $arTransact["USER_LAST_NAME"] == '') ? "" : " ").$arTransact["USER_LAST_NAME"])."<br>";
 	$fieldValue .= htmlspecialcharsEx($arTransact["AFFILIATE_SITE_ID"])."&nbsp;&nbsp;&nbsp; ";
 	$fieldValue .= htmlspecialcharsEx($arTransact["USER_LOGIN"])."&nbsp;&nbsp;&nbsp; ";
 	$fieldValue .= "<a href=\"mailto:".htmlspecialcharsbx($arTransact["USER_EMAIL"])."\" title=\"".GetMessage("SAT2_MAIL")."\">".htmlspecialcharsEx($arTransact["USER_EMAIL"])."</a>";
@@ -100,14 +100,14 @@ while ($arTransact = $dbTransactList->NavNext(true, "f_"))
 	if (in_array("DESCR", $arVisibleColumns))
 	{
 		$fieldValue .= "<small>";
-		if (IntVal($arTransact["EMPLOYEE_ID"]) > 0)
+		if (intval($arTransact["EMPLOYEE_ID"]) > 0)
 		{
 			if (!isset($LOCAL_TRANS_USER_CACHE[$arTransact["EMPLOYEE_ID"]])
 				|| !is_array($LOCAL_TRANS_USER_CACHE[$arTransact["EMPLOYEE_ID"]]))
 			{
 				$dbUser = CUser::GetByID($arTransact["EMPLOYEE_ID"]);
 				if ($arUser = $dbUser->Fetch())
-					$LOCAL_TRANS_USER_CACHE[$arTransact["EMPLOYEE_ID"]] = htmlspecialcharsEx($arUser["NAME"].((strlen($arUser["NAME"])<=0 || strlen($arUser["LAST_NAME"])<=0) ? "" : " ").$arUser["LAST_NAME"]." (".$arUser["LOGIN"].")");
+					$LOCAL_TRANS_USER_CACHE[$arTransact["EMPLOYEE_ID"]] = htmlspecialcharsEx($arUser["NAME"].(($arUser["NAME"] == '' || $arUser["LAST_NAME"] == '') ? "" : " ").$arUser["LAST_NAME"]." (".$arUser["LOGIN"].")");
 			}
 			$fieldValue .= "[<a href=\"/bitrix/admin/user_edit.php?ID=".$arTransact["EMPLOYEE_ID"]."&lang=".LANG."\" title=\"".GetMessage("SAT2_USER_PROFILE")."\">".$arTransact["EMPLOYEE_ID"]."</a>] ";
 			$fieldValue .= $LOCAL_TRANS_USER_CACHE[$arTransact["EMPLOYEE_ID"]];

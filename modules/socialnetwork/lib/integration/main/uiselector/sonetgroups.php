@@ -115,7 +115,7 @@ class SonetGroups extends \Bitrix\Main\UI\Selector\EntityBase
 			if (!empty($options['feature']))
 			{
 				$feature = $options['feature'];
-				if (strlen(trim($feature)) > 0)
+				if (trim($feature) <> '')
 				{
 					$operations = self::getFeatureOperations($feature);
 					if (!empty($operations))
@@ -162,7 +162,7 @@ class SonetGroups extends \Bitrix\Main\UI\Selector\EntityBase
 			if (!empty($options['feature']))
 			{
 				$feature = $options['feature'];
-				if (strlen(trim($feature)) > 0)
+				if (trim($feature) <> '')
 				{
 					$operations = self::getFeatureOperations($feature);
 					if (!empty($operations))
@@ -308,7 +308,7 @@ class SonetGroups extends \Bitrix\Main\UI\Selector\EntityBase
 			if (!empty($entityOptions['feature']))
 			{
 				$feature = $entityOptions['feature'];
-				if (strlen(trim($feature)) > 0)
+				if (trim($feature) <> '')
 				{
 					$operations = self::getFeatureOperations($feature);
 					if (!empty($operations))

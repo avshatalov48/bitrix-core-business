@@ -25,12 +25,13 @@ class Helper
 	 *
 	 * @param string $phrase
 	 * @param string $wildcard '*' or '' actually
+	 * @param int    $minTokenSize
 	 *
 	 * @return string
 	 */
-	public static function matchAgainstWildcard($phrase, $wildcard = '*')
+	public static function matchAgainstWildcard($phrase, $wildcard = '*', $minTokenSize = null)
 	{
-		$ftMinTokenSize = static::getMinTokenSize();
+		$ftMinTokenSize = $minTokenSize ?: static::getMinTokenSize();
 
 		$orValues = array();
 

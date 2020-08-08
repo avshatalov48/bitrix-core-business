@@ -65,7 +65,7 @@ $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 if(!isset($arFilter["USER_ID"]))
 {
 	if ($saleModulePermissions == "D")
-		$arFilter["USER_ID"] = IntVal($USER->GetID());
+		$arFilter["USER_ID"] = intval($USER->GetID());
 	elseif ($saleModulePermissions != "W")
 	{
 		$arFilter["STATUS_PERMS_GROUP_ID"] = $GLOBALS["USER"]->GetUserGroupArray();

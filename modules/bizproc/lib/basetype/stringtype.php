@@ -48,7 +48,7 @@ class StringType extends Base
 		switch ($type)
 		{
 			case FieldType::BOOL:
-				$value = strtolower((string)$value);
+				$value = mb_strtolower((string)$value);
 				$value = in_array($value, array('y', 'yes', 'true', '1')) ? 'Y' : 'N';
 				break;
 			case FieldType::DATE:
@@ -81,8 +81,8 @@ class StringType extends Base
 				break;
 			case FieldType::USER:
 				$value = trim($value);
-				if (strpos($value, 'user_') === false
-					&& strpos($value, 'group_') === false
+				if (mb_strpos($value, 'user_') === false
+					&& mb_strpos($value, 'group_') === false
 					&& !preg_match('#^[0-9]+$#', $value)
 				)
 				{

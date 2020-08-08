@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,main_popup,main_loader,main_core) {
+(function (exports, main_popup, main_core, main_loader) {
 	'use strict';
 
 	var defaultOptions = {
@@ -462,6 +462,13 @@ this.BX = this.BX || {};
 	      proxy = _ref.proxy;
 	  return new Promise(function (resolve, reject) {
 	    var imageSrc = function () {
+	      var srcUri = new main_core.Uri(src);
+	      var srcHost = srcUri.getHost();
+
+	      if (srcHost === '' || srcHost === window.location.host || srcHost === window.location.hostname) {
+	        return src;
+	      }
+
 	      if (main_core.Type.isString(proxy)) {
 	        return main_core.Uri.addParam(proxy, {
 	          sessid: BX.bitrix_sessid(),
@@ -814,5 +821,5 @@ this.BX = this.BX || {};
 
 	exports.ImageEditor = ImageEditor;
 
-}((this.BX.Main = this.BX.Main || {}),BX,BX,BX));
+}(this.BX.Main = this.BX.Main || {}, BX.Main, BX, BX));
 //# sourceMappingURL=imageeditor.bundle.js.map

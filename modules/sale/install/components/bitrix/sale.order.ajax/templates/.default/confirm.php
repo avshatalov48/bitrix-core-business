@@ -67,7 +67,7 @@ if ($arParams["SET_TITLE"] == "Y")
 								</tr>
 								<tr>
 									<td>
-										<? if (strlen($arPaySystem["ACTION_FILE"]) > 0 && $arPaySystem["NEW_WINDOW"] == "Y" && $arPaySystem["IS_CASH"] != "Y"): ?>
+										<? if ($arPaySystem["ACTION_FILE"] <> '' && $arPaySystem["NEW_WINDOW"] == "Y" && $arPaySystem["IS_CASH"] != "Y"): ?>
 											<?
 											$orderAccountNumber = urlencode(urlencode($arResult["ORDER"]["ACCOUNT_NUMBER"]));
 											$paymentAccountNumber = $payment["ACCOUNT_NUMBER"];

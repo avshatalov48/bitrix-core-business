@@ -21,7 +21,7 @@ class SitePatcher
 	const CONFIG_1C = "~CONFIG_1C";
 	const FORCE_ENABLE_SELF_HOSTED_COMPOSITE = "force_enable_self_hosted_composite";
 
-	private static $instance = null;
+	private static $instance;
 
 	private $siteId;
 	private $sitePath;
@@ -45,18 +45,12 @@ class SitePatcher
 		Main\Loader::includeModule("iblock");
 		Main\Loader::includeModule("catalog");
 
-		$this->siteId = $this->getCrmSiteId();
+		$this->siteId = self::getCrmSiteId();
 		$this->initSiteFields();
 	}
 
 	/**
 	 * @return SitePatcher
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\LoaderException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
 	public static function getInstance()
 	{
@@ -1488,5 +1482,13 @@ class SitePatcher
 		}
 
 		return true;
+	}
+
+	/**
+	 * @throws Main\ArgumentOutOfRangeException
+	 */
+	public static function crmShopEnable()
+	{
+		Option::set("crm", "crm_shop_enabled", "Y");
 	}
 }

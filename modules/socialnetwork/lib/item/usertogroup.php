@@ -88,7 +88,8 @@ class UserToGroup
 				self::addInfoToChat(array(
 					'group_id' => $groupId,
 					'user_id' => $userId,
-					'action' => self::CHAT_ACTION_IN
+					'action' => self::CHAT_ACTION_IN,
+					'role' => $addFields['ROLE']
 				));
 			}
 		}
@@ -141,7 +142,8 @@ class UserToGroup
 				self::addInfoToChat(array(
 					'group_id' => $groupId,
 					'user_id' => $userId,
-					'action' => self::CHAT_ACTION_IN
+					'action' => self::CHAT_ACTION_IN,
+					'role' => (isset($params['ROLE']) ? isset($params['ROLE']) : false)
 				));
 			}
 		}
@@ -480,6 +482,8 @@ class UserToGroup
 
 		$groupId = intval($params['group_id']);
 		$userId = intval($params['user_id']);
+		$role = (isset($params['role']) ? $params['role'] : false);
+
 		$sendMessage = (
 			!isset($params['sendMessage'])
 			|| $params['sendMessage']
@@ -536,6 +540,10 @@ class UserToGroup
 			case self::CHAT_ACTION_IN:
 				if ($chat->addUser($chatId, $userId, false, true, true))
 				{
+					if (in_array($role, [ UserToGroupTable::ROLE_USER ]))
+					{
+						\Bitrix\Im\Chat::mute($chatId, true, $userId);
+					}
 					$chatMessage = str_replace('#USER_NAME#', $userName, Loc::getMessage("SOCIALNETWORK_ITEM_USERTOGROUP_CHAT_USER_ADD".$projectSuffix.$genderSuffix));
 				}
 				else

@@ -62,6 +62,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && $_REQUEST["Update"].$_REQUEST["Apply"].
 	if($_REQUEST["RestoreDefaults"] != "")
 	{
 		COption::RemoveOption($module_id);
+		CSecurityRedirect::ReSeed();
 	}
 	else
 	{

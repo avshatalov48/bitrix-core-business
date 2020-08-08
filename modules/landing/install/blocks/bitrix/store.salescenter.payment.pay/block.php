@@ -4,14 +4,15 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 ?>
-<section class="landing-block g-pt-50 g-pb-50">
+<section class="landing-block">
 	<div class="landing-block-container">
 		<?$APPLICATION->IncludeComponent(
 			'bitrix:salescenter.payment.pay',
 			'.default',
 			[
 				'ALLOW_SELECT_PAY_SYSTEM' => 'Y',
-				'TEMPLATE_MODE' => 'lightmode'
+				'TEMPLATE_MODE' => 'lightmode',
+				'ALLOW_PAYMENT_REDIRECT' => 'Y',
 			]
 		);?>
 	</div>

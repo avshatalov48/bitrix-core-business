@@ -154,4 +154,9 @@ final class OrderBuilderExist implements IOrderBuilderDelegate
 
 		return $shipment;
 	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function recalculateDeliveryPrice(int $orderPropsCountBefore, Order $order) {}
 }

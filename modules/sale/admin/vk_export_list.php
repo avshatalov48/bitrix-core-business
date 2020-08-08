@@ -39,7 +39,7 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 {
 	foreach ($arID as $id)
 	{
-		if (strlen($id) <= 0)
+		if ($id == '')
 			continue;
 
 		switch ($_REQUEST['action'])

@@ -16,11 +16,11 @@ class CssBlock extends \Bitrix\Landing\Hook\Page
 	{
 		return array(
 			'USE' => new Field\Checkbox('USE', array(
-				'title' => Loc::getMessage('LANDING_HOOK_HEADBLOCK_USE')
+				'title' => Loc::getMessage('LANDING_HOOK_CSSLOCK_USE')
 			)),
 			'CODE' => new Field\Textarea('CODE', array(
 				'title' => Loc::getMessage('LANDING_HOOK_HEADBLOCK_CSS_CODE'),
-				'help' => Loc::getMessage('LANDING_HOOK_HEADBLOCK_CSS_CODE_HELP'),
+				'help' => Loc::getMessage('LANDING_HOOK_HEADBLOCK_CSS_CODE_HELP2'),
 				'placeholder' => '* {display: none;}'
 			)),
 			'FILE' => new Field\Textarea('FILE', array(

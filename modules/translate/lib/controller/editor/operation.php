@@ -202,7 +202,7 @@ class Operation
 						continue;
 					}
 
-					if ((substr($name, -4) === '.php') && is_file($fullPath))
+					if ((mb_substr($name, -4) === '.php') && is_file($fullPath))
 					{
 						$files[$langPath.'/'.$name][$langId] = $fullPath;
 					}

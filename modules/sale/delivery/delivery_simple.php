@@ -75,7 +75,7 @@ class CDeliverySimple
 	{
 		foreach ($arSettings as $key => $value) 
 		{
-			if (strlen($value) > 0)
+			if ($value <> '')
 				$arSettings[$key] = doubleval($value);
 			else
 				unset($arSettings[$key]);
@@ -93,7 +93,7 @@ class CDeliverySimple
 			if (
 				array_key_exists('price_'.$arLocationGroup["LOCATION_GROUP_ID"], $arConfig) 
 				&& 
-				strlen($arConfig['price_'.$arLocationGroup["LOCATION_GROUP_ID"]]["VALUE"]) > 0
+				$arConfig['price_'.$arLocationGroup["LOCATION_GROUP_ID"]]["VALUE"] <> ''
 			)
 			{
 				return $arConfig['price_'.$arLocationGroup["LOCATION_GROUP_ID"]]["VALUE"];

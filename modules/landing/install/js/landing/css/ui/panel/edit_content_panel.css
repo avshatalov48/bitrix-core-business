@@ -10,7 +10,7 @@
 	background: #ffffff;
 }
 
-.landing-ui-panel-content-edit .landing-ui-form:last-child {
+.landing-ui-panel-content-edit .landing-ui-panel-content > .landing-ui-form:last-child {
 	margin-bottom: 160px;
 }
 

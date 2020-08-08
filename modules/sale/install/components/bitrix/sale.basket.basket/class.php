@@ -295,9 +295,9 @@ class CBitrixBasketComponent extends CBitrixComponent
 
 		foreach ($params as $k => $v)
 		{
-			if (strpos($k, 'ADDITIONAL_PICT_PROP_') !== false)
+			if (mb_strpos($k, 'ADDITIONAL_PICT_PROP_') !== false)
 			{
-				$iblockId = intval(substr($k, strlen('ADDITIONAL_PICT_PROP_')));
+				$iblockId = intval(mb_substr($k, mb_strlen('ADDITIONAL_PICT_PROP_')));
 
 				if ($v !== '-')
 				{
@@ -975,7 +975,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 			{
 				if (strncmp($value, 'PROPERTY_', 9) === 0)
 				{
-					$propCode = ToUpper(substr($value, 9));
+					$propCode = ToUpper(mb_substr($value, 9));
 
 					if ($propCode == '')
 					{
@@ -1071,7 +1071,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 
 				if (strncmp($value, 'PROPERTY_', 9) === 0)
 				{
-					$propCode = substr($value, 9);
+					$propCode = mb_substr($value, 9);
 
 					if ($propCode == '')
 						continue;
@@ -1915,7 +1915,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 					if ($value === null)
 						continue;
 
-					if (strpos($code, 'PROPERTY_') !== false || $code === 'PREVIEW_PICTURE' || $code === 'DETAIL_PICTURE')
+					if (mb_strpos($code, 'PROPERTY_') !== false || $code === 'PREVIEW_PICTURE' || $code === 'DETAIL_PICTURE')
 					{
 						$item[$code] = $value;
 					}
@@ -1928,7 +1928,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 			{
 				foreach ($this->arCustomSelectFields as $field)
 				{
-					$fieldVal = (substr($field, -6) === '_VALUE' ? $field : $field.'_VALUE');
+					$fieldVal = (mb_substr($field, -6) === '_VALUE' ? $field : $field.'_VALUE');
 
 					// can be array or string
 					if (
@@ -1982,7 +1982,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 			// format property values
 			foreach ($item as $key => $value)
 			{
-				if ((strpos($key, 'PROPERTY_', 0) === 0) && (strrpos($key, '_VALUE') == strlen($key) - 6))
+				if ((mb_strpos($key, 'PROPERTY_', 0) === 0) && (mb_strrpos($key, '_VALUE') == mb_strlen($key) - 6))
 				{
 					$iblockId = $productsData[$productId]['IBLOCK_ID'];
 					$code = ToUpper(str_replace(['PROPERTY_', '_VALUE'], '', $key));
@@ -2337,7 +2337,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 
 				if (strncmp($value, 'PROPERTY_', 9) === 0)
 				{
-					$propCode = substr($value, 9);
+					$propCode = mb_substr($value, 9);
 
 					if ($propCode == '')
 						continue;
@@ -3439,9 +3439,9 @@ class CBitrixBasketComponent extends CBitrixComponent
 
 		foreach ($postList as $key => $value)
 		{
-			if (strpos($key, 'QUANTITY_') !== false)
+			if (mb_strpos($key, 'QUANTITY_') !== false)
 			{
-				$id = (int)substr($key, 9);
+				$id = (int)mb_substr($key, 9);
 
 				if (!isset($itemsData[$id]))
 				{
@@ -3450,9 +3450,9 @@ class CBitrixBasketComponent extends CBitrixComponent
 
 				$itemsData[$id]['POST_QUANTITY'] = $value;
 			}
-			elseif (strpos($key, 'DELETE_') !== false)
+			elseif (mb_strpos($key, 'DELETE_') !== false)
 			{
-				$id = (int)substr($key, 7);
+				$id = (int)mb_substr($key, 7);
 
 				if (!isset($itemsData[$id]))
 				{
@@ -3461,9 +3461,9 @@ class CBitrixBasketComponent extends CBitrixComponent
 
 				$itemsData[$id]['POST_DELETE'] = $value === 'Y';
 			}
-			elseif (strpos($key, 'RESTORE_') !== false)
+			elseif (mb_strpos($key, 'RESTORE_') !== false)
 			{
-				$id = (int)substr($key, 8);
+				$id = (int)mb_substr($key, 8);
 
 				if (!isset($itemsData[$id]))
 				{
@@ -3472,9 +3472,9 @@ class CBitrixBasketComponent extends CBitrixComponent
 
 				$itemsData[$id]['POST_RESTORE'] = $value;
 			}
-			elseif (strpos($key, 'DELAY_') !== false)
+			elseif (mb_strpos($key, 'DELAY_') !== false)
 			{
-				$id = (int)substr($key, 6);
+				$id = (int)mb_substr($key, 6);
 
 				if (!isset($itemsData[$id]))
 				{
@@ -3483,9 +3483,9 @@ class CBitrixBasketComponent extends CBitrixComponent
 
 				$itemsData[$id]['POST_DELAY'] = $value === 'Y' ? 'Y' : 'N';
 			}
-			elseif (strpos($key, 'MERGE_OFFER_') !== false)
+			elseif (mb_strpos($key, 'MERGE_OFFER_') !== false)
 			{
-				$id = (int)substr($key, 12);
+				$id = (int)mb_substr($key, 12);
 
 				if (!isset($itemsData[$id]))
 				{
@@ -3494,9 +3494,9 @@ class CBitrixBasketComponent extends CBitrixComponent
 
 				$itemsData[$id]['POST_MERGE_OFFER'] = $value === 'Y';
 			}
-			elseif (strpos($key, 'OFFER_') !== false)
+			elseif (mb_strpos($key, 'OFFER_') !== false)
 			{
-				$id = (int)substr($key, 6);
+				$id = (int)mb_substr($key, 6);
 
 				if (!isset($itemsData[$id]))
 				{
@@ -3851,7 +3851,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 		}
 		else
 		{
-			if (strpos($newProduct['XML_ID'], '#') === false)
+			if (mb_strpos($newProduct['XML_ID'], '#') === false)
 			{
 				$parentData = Iblock\ElementTable::getList([
 					'select' => ['ID', 'XML_ID'],

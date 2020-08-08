@@ -186,7 +186,7 @@ final class ButtonAttributes implements \ArrayAccess, \IteratorAggregate, \Count
 	 */
 	public function offsetExists($offset)
 	{
-		$offset = strtolower($offset);
+		$offset = mb_strtolower($offset);
 
 		$asAttribute = isset($this->attributes[$offset]) || array_key_exists($offset, $this->attributes);
 		if ($asAttribute)
@@ -217,7 +217,7 @@ final class ButtonAttributes implements \ArrayAccess, \IteratorAggregate, \Count
 	 */
 	public function &offsetGet($offset)
 	{
-		$offset = strtolower($offset);
+		$offset = mb_strtolower($offset);
 		if (isset($this->attributes[$offset]) || array_key_exists($offset, $this->attributes))
 		{
 			return $this->attributes[$offset];
@@ -259,7 +259,7 @@ final class ButtonAttributes implements \ArrayAccess, \IteratorAggregate, \Count
 		}
 		else
 		{
-			$offset = strtolower($offset);
+			$offset = mb_strtolower($offset);
 			if (self::hasDataPrefix($offset))
 			{
 				$this->dataAttributes[self::deleteDataPrefix($offset)] = $value;
@@ -284,7 +284,7 @@ final class ButtonAttributes implements \ArrayAccess, \IteratorAggregate, \Count
 	 */
 	public function offsetUnset($offset)
 	{
-		$offset = strtolower($offset);
+		$offset = mb_strtolower($offset);
 		if (isset($this->attributes[$offset]) || array_key_exists($offset, $this->attributes))
 		{
 			unset($this->attributes[$offset]);
@@ -405,14 +405,14 @@ final class ButtonAttributes implements \ArrayAccess, \IteratorAggregate, \Count
 
 	protected static function hasDataPrefix($name)
 	{
-		return is_string($name) && substr($name, 0, 5) === 'data-';
+		return is_string($name) && mb_substr($name, 0, 5) === 'data-';
 	}
 
 	protected static function deleteDataPrefix($name)
 	{
 		if (self::hasDataPrefix($name))
 		{
-			return substr($name, 5);
+			return mb_substr($name, 5);
 		}
 
 		return $name;
@@ -434,10 +434,10 @@ final class ButtonAttributes implements \ArrayAccess, \IteratorAggregate, \Count
 		$anotherAttributes = $dataAttributes = [];
 		foreach ($attributes as $name => $attribute)
 		{
-			$name = strtolower($name);
+			$name = mb_strtolower($name);
 			if (self::hasDataPrefix($name))
 			{
-				$dataAttributes[substr($name, 5)] = $attribute;
+				$dataAttributes[mb_substr($name, 5)] = $attribute;
 			}
 			else
 			{

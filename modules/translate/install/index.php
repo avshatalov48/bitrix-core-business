@@ -24,9 +24,7 @@ class translate extends \CModule
 	{
 		$arModuleVersion = array();
 
-		$path = str_replace("\\", '/', __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen('/index.php'));
-		include($path.'/version.php');
+		include(__DIR__.'/version.php');
 
 		if (is_array($arModuleVersion) && array_key_exists('VERSION', $arModuleVersion))
 		{
@@ -50,8 +48,8 @@ class translate extends \CModule
 			$errors = $DB->runSqlBatch(sprintf(
 				'%s/bitrix/modules/%s/install/db/%s/install.sql',
 				$_SERVER['DOCUMENT_ROOT'],
-				strtolower($this->MODULE_ID),
-				strtolower($DB->type)
+				mb_strtolower($this->MODULE_ID),
+				mb_strtolower($DB->type)
 			));
 			if($errors !== false)
 			{
@@ -63,8 +61,8 @@ class translate extends \CModule
 			$errors = $DB->runSqlBatch(sprintf(
 				'%s/bitrix/modules/%s/install/db/%s/install_ft.sql',
 				$_SERVER['DOCUMENT_ROOT'],
-				strtolower($this->MODULE_ID),
-				strtolower($DB->type)
+				mb_strtolower($this->MODULE_ID),
+				mb_strtolower($DB->type)
 			));
 			if($errors !== false)
 			{
@@ -76,40 +74,7 @@ class translate extends \CModule
 
 		Main\ModuleManager::registerModule($this->MODULE_ID);
 
-		$eventManager = Main\EventManager::getInstance();
-		$eventManager->registerEventHandlerCompatible('main', 'OnPanelCreate', $this->MODULE_ID, '\\Bitrix\\Translate\\Ui\\Panel', 'onPanelCreate');
-		$eventManager->registerEventHandlerCompatible('perfmon', 'OnGetTableSchema', $this->MODULE_ID, 'translate', 'onGetTableSchema');
-
-		return true;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function UnInstallDB()
-	{
-		global $APPLICATION, $DB;
-
-		$errors = $DB->runSqlBatch(sprintf(
-			'%s/bitrix/modules/%s/install/db/%s/uninstall.sql',
-			$_SERVER['DOCUMENT_ROOT'],
-			strtolower($this->MODULE_ID),
-			strtolower($DB->type)
-		));
-		if($errors !== false)
-		{
-			$APPLICATION->ThrowException(implode("<br>", $errors));
-			return false;
-		}
-
-
-		\COption::RemoveOption($this->MODULE_ID);
-
-		$eventManager = Main\EventManager::getInstance();
-		$eventManager->unRegisterEventHandler('main', 'OnPanelCreate', $this->MODULE_ID, '\\Bitrix\\Translate\\Ui\\Panel', 'onPanelCreate');
-		$eventManager->unRegisterEventHandler('perfmon', 'OnGetTableSchema', $this->MODULE_ID, 'translate', 'getTableSchema');
-
-		Main\ModuleManager::unRegisterModule($this->MODULE_ID);
+		$this->InstallEvents();
 
 		return true;
 	}
@@ -119,6 +84,43 @@ class translate extends \CModule
 	 */
 	public function InstallEvents()
 	{
+		$eventManager = Main\EventManager::getInstance();
+		$eventManager->registerEventHandlerCompatible('main', 'OnPanelCreate', $this->MODULE_ID, '\\Bitrix\\Translate\\Ui\\Panel', 'onPanelCreate');
+		$eventManager->registerEventHandlerCompatible('perfmon', 'OnGetTableSchema', $this->MODULE_ID, 'translate', 'onGetTableSchema');
+
+		return true;
+	}
+
+	/**
+	 * @param array $params
+	 * @return bool
+	 */
+	public function UnInstallDB($params = array())
+	{
+		global $APPLICATION, $DB;
+
+		if (!isset($params['savedata']) || $params['savedata'] !== true)
+		{
+			$errors = $DB->runSqlBatch(sprintf(
+				'%s/bitrix/modules/%s/install/db/%s/uninstall.sql',
+				$_SERVER['DOCUMENT_ROOT'],
+				mb_strtolower($this->MODULE_ID),
+				mb_strtolower($DB->type)
+			));
+			if ($errors !== false)
+			{
+				$APPLICATION->ThrowException(implode("<br>", $errors));
+
+				return false;
+			}
+		}
+
+		\COption::RemoveOption($this->MODULE_ID);
+
+		$this->UnInstallEvents();
+
+		Main\ModuleManager::unRegisterModule($this->MODULE_ID);
+
 		return true;
 	}
 
@@ -127,6 +129,10 @@ class translate extends \CModule
 	 */
 	public function UnInstallEvents()
 	{
+		$eventManager = Main\EventManager::getInstance();
+		$eventManager->unRegisterEventHandler('main', 'OnPanelCreate', $this->MODULE_ID, '\\Bitrix\\Translate\\Ui\\Panel', 'onPanelCreate');
+		$eventManager->unRegisterEventHandler('perfmon', 'OnGetTableSchema', $this->MODULE_ID, 'translate', 'getTableSchema');
+
 		return true;
 	}
 
@@ -180,12 +186,28 @@ class translate extends \CModule
 	public function DoUninstall()
 	{
 		global $APPLICATION;
-		$this->UnInstallFiles();
-		$this->UnInstallDB();
-		$APPLICATION->IncludeAdminFile(Loc::getMessage('TRANSLATE_UNINSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/translate/install/unstep.php');
+
+		$step = (int)$_REQUEST['step'];
+
+		if ($step < 2)
+		{
+			$APPLICATION->IncludeAdminFile(Loc::getMessage('TRANSLATE_UNINSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/translate/install/unstep1.php');
+		}
+		elseif ($step == 2)
+		{
+			$this->UnInstallFiles();
+
+			$this->UnInstallDB(array(
+				'savedata' => ($_REQUEST['savedata'] === 'Y'),
+			));
+
+			$APPLICATION->IncludeAdminFile(Loc::getMessage('TRANSLATE_UNINSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/translate/install/unstep2.php');
+		}
 	}
 
 	/**
+	 * Event handler 'perfmon::OnGetTableSchema'.
+	 * @see \CPerfomanceSchema::Init
 	 * @return array
 	 */
 	function OnGetTableSchema()

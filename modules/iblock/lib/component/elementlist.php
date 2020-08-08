@@ -211,7 +211,7 @@ abstract class ElementList extends Base
 		{
 			$params[$order] = (isset($default['ORDER']) ? $default['ORDER'] : 'SORT');
 		}
-		$params[$order] = strtoupper($params[$order]);
+		$params[$order] = mb_strtoupper($params[$order]);
 
 		if ($params[$order] === 'ID' && !empty($params[$direction]) && is_array($params[$direction]))
 		{
@@ -627,7 +627,7 @@ abstract class ElementList extends Base
 				if ($value == '')
 					continue;
 
-				$paramName = strtolower($linkParams[1][$key]);
+				$paramName = mb_strtolower($linkParams[1][$key]);
 
 				if ($paramName === 'href')
 				{
@@ -653,13 +653,13 @@ abstract class ElementList extends Base
 				{
 					$realUrl = $url;
 
-					$pos = strpos($url, '#');
+					$pos = mb_strpos($url, '#');
 					if ($pos !== false)
 					{
-						$realUrl = substr($realUrl, 0, $pos);
+						$realUrl = mb_substr($realUrl, 0, $pos);
 					}
 
-					$realUrl .= strpos($url, '?') === false ? '?' : '&';
+					$realUrl .= mb_strpos($url, '?') === false ? '?' : '&';
 					$realUrl .= $addParam;
 
 					$arData[$i] = \CAjax::GetLinkEx($realUrl, $url, $match[2], 'comp_'.$this->arParams['AJAX_ID'], $strAdditional);
@@ -678,7 +678,7 @@ abstract class ElementList extends Base
 	private function checkPcreLimit($data)
 	{
 		$pcreBacktrackLimit = (int)ini_get('pcre.backtrack_limit');
-		$textLen = function_exists('mb_strlen') ? mb_strlen($data, 'latin1') : strlen($data);
+		$textLen = function_exists('mb_strlen')? mb_strlen($data, 'latin1') : mb_strlen($data);
 		$textLen++;
 
 		if ($pcreBacktrackLimit > 0 && $pcreBacktrackLimit < $textLen)
@@ -695,19 +695,19 @@ abstract class ElementList extends Base
 		if (preg_match('/^(#|mailto:|javascript:|callto:)/', $url))
 			return false;
 
-		if (strpos($url, '://') !== false)
+		if (mb_strpos($url, '://') !== false)
 			return false;
 
 		$url = preg_replace('/#.*/', '', $url);
 
-		if (strpos($url, '?') !== false)
+		if (mb_strpos($url, '?') !== false)
 		{
-			$url = substr($url, 0, strpos($url, '?'));
+			$url = mb_substr($url, 0, mb_strpos($url, '?'));
 		}
 
-		if (substr($url, -4) != '.php')
+		if (mb_substr($url, -4) != '.php')
 		{
-			if (substr($url, -1) != '/')
+			if (mb_substr($url, -1) != '/')
 			{
 				$url .= '/';
 			}
@@ -717,14 +717,14 @@ abstract class ElementList extends Base
 
 		$currentUrl = $this->arParams['CURRENT_BASE_PAGE'];
 
-		if (strpos($currentUrl, '?') !== false)
+		if (mb_strpos($currentUrl, '?') !== false)
 		{
-			$currentUrl = substr($currentUrl, 0, strpos($currentUrl, '?'));
+			$currentUrl = mb_substr($currentUrl, 0, mb_strpos($currentUrl, '?'));
 		}
 
-		if (substr($currentUrl, -4) != '.php')
+		if (mb_substr($currentUrl, -4) != '.php')
 		{
-			if (substr($currentUrl, -1) != '/')
+			if (mb_substr($currentUrl, -1) != '/')
 			{
 				$currentUrl .= '/';
 			}
@@ -940,36 +940,67 @@ abstract class ElementList extends Base
 
 	protected function getSort()
 	{
-		$sortFields = array();
-
-		if (
-			(
-				$this->isIblockCatalog
-				|| (
-					$this->isMultiIblockMode()
-					|| (!$this->isMultiIblockMode() && $this->offerIblockExist($this->arParams['IBLOCK_ID']))
+		$sortFields = $this->getCustomSort();
+		if (empty($sortFields))
+		{
+			if (
+				(
+					$this->isIblockCatalog
+					|| (
+						$this->isMultiIblockMode()
+						|| (!$this->isMultiIblockMode() && $this->offerIblockExist($this->arParams['IBLOCK_ID']))
+					)
 				)
+				&& $this->arParams['HIDE_NOT_AVAILABLE'] === 'L'
 			)
-			&& $this->arParams['HIDE_NOT_AVAILABLE'] === 'L'
-		)
-		{
-			$sortFields['AVAILABLE'] = 'desc,nulls';
-		}
+			{
+				$sortFields['AVAILABLE'] = 'desc,nulls';
+			}
 
-		$field = strtoupper($this->arParams['ELEMENT_SORT_FIELD']);
-		if (!isset($sortFields[$field]))
-		{
-			$sortFields[$field] = $this->arParams['ELEMENT_SORT_ORDER'];
-		}
+			$field = mb_strtoupper($this->arParams['ELEMENT_SORT_FIELD']);
+			if (!isset($sortFields[$field]))
+			{
+				$sortFields[$field] = $this->arParams['ELEMENT_SORT_ORDER'];
+			}
 
-		$field = strtoupper($this->arParams['ELEMENT_SORT_FIELD2']);
-		if (!isset($sortFields[$field]))
-		{
-			$sortFields[$field] = $this->arParams['ELEMENT_SORT_ORDER2'];
+			$field = mb_strtoupper($this->arParams['ELEMENT_SORT_FIELD2']);
+			if (!isset($sortFields[$field]))
+			{
+				$sortFields[$field] = $this->arParams['ELEMENT_SORT_ORDER2'];
+			}
+			unset($field);
 		}
-		unset($field);
 
 		return $sortFields;
+	}
+
+	protected function getCustomSort(): array
+	{
+		$result = [];
+
+		if (!empty($this->arParams['CUSTOM_ELEMENT_SORT']) && is_array($this->arParams['CUSTOM_ELEMENT_SORT']))
+		{
+			foreach ($this->arParams['CUSTOM_ELEMENT_SORT'] as $field => $value)
+			{
+				if (!is_string($value))
+				{
+					continue;
+				}
+				$field = strtoupper($field);
+				if (isset($result[$field]))
+				{
+					continue;
+				}
+				if (!preg_match(self::SORT_ORDER_MASK, $value))
+				{
+					continue;
+				}
+				$result[$field] = $value;
+			}
+			unset($field, $value);
+		}
+
+		return $result;
 	}
 
 	protected function getElementList($iblockId, $products)

@@ -15,7 +15,7 @@ class CMailDomainRegistrar
 
 		if ($result !== false)
 		{
-			if (isset($result['domains'][0]['dname']) && strtolower($result['domains'][0]['dname']) == strtolower($domain))
+			if (isset($result['domains'][0]['dname']) && mb_strtolower($result['domains'][0]['dname']) == mb_strtolower($domain))
 			{
 				$result = $result['domains'][0];
 				if ($result['result'] == 'Available')
@@ -93,7 +93,7 @@ class CMailDomainRegistrar
 
 		if ($result !== false)
 		{
-			if (isset($result['dname']) && strtolower($result['dname']) == strtolower($domain))
+			if (isset($result['dname']) && mb_strtolower($result['dname']) == mb_strtolower($domain))
 				return true;
 			else
 				$error = 'unknown';
@@ -111,7 +111,7 @@ class CMailDomainRegistrar
 
 		if ($result !== false)
 		{
-			if (isset($result['dname']) && strtolower($result['dname']) == strtolower($domain))
+			if (isset($result['dname']) && mb_strtolower($result['dname']) == mb_strtolower($domain))
 				return $result;
 			else
 				$error = 'unknown';
@@ -129,7 +129,7 @@ class CMailDomainRegistrar
 
 		if ($result !== false)
 		{
-			if (isset($result['dname']) && strtolower($result['dname']) == strtolower($domain))
+			if (isset($result['dname']) && mb_strtolower($result['dname']) == mb_strtolower($domain))
 				return true;
 			else
 				$error = 'unknown';
@@ -141,19 +141,36 @@ class CMailDomainRegistrar
 
 	public static function updateDns($user, $password, $domain, $params, &$error)
 	{
-		foreach ($params as &$record)
+		$domain = \Bitrix\Main\Text\Encoding::convertEncoding($domain, SITE_CHARSET, 'UTF-8');
+		$params = \Bitrix\Main\Text\Encoding::convertEncoding($params, SITE_CHARSET, 'UTF-8');
+
+		foreach ($params as $k => $record)
 		{
 			switch ($record['type'])
 			{
+				case 'a':
+					$params[$k] = array(
+						'action' => 'add_alias',
+						'subdomain' => '@',
+						'ipaddr' => $record['value']
+					);
+					break;
+				case 'alias':
+					$params[$k] = array(
+						'action' => 'add_alias',
+						'subdomain' => $record['name'],
+						'ipaddr' => $record['value']
+					);
+					break;
 				case 'cname':
-					$record = array(
+					$params[$k] = array(
 						'action'         => 'add_cname',
 						'subdomain'      => $record['name'],
 						'canonical_name' => $record['value']
 					);
 					break;
 				case 'mx':
-					$record = array(
+					$params[$k] = array(
 						'action'      => 'add_mx',
 						'subdomain'   => $record['name'],
 						'mail_server' => $record['value'],
@@ -167,7 +184,7 @@ class CMailDomainRegistrar
 
 		if ($result !== false)
 		{
-			if (isset($result['dname']) && strtolower($result['dname']) == strtolower($domain))
+			if (isset($result['dname']) && mb_strtolower($result['dname']) == mb_strtolower($domain))
 			{
 				if (isset($result['result']) && $result['result'] == 'success')
 					return true;

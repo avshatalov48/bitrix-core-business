@@ -41,7 +41,7 @@ class LandingBindingMenuComponent extends LandingBaseComponent
 	 */
 	protected function actionUnbind($id)
 	{
-		if (strpos($id, '_') !== false)
+		if (mb_strpos($id, '_') !== false)
 		{
 			$binding = new Binding\Menu($this->arParams['MENU_ID']);
 			list($type, $id) = explode('_', $id);

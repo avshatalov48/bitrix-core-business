@@ -10,7 +10,6 @@ return array(
 	'block' => array(
 		'name' => Loc::getMessage('LANDING_BLOCK_MENU_22-NAME'),
 		'section' => array('sidebar', 'menu'),
-		'type' => ['knowledge', 'group'],
 		'dynamic' => false,
 		'subtype' => 'menu',
 		'subtype_params' => array(
@@ -23,14 +22,14 @@ return array(
 			'item' => '.landing-block-node-menu-item',
 			'name' => Loc::getMessage('LANDING_BLOCK_MENU_22-NAVBAR'),
 			'root' => [
-				'ulClassName' => 'landing-block-node-menu navbar-nav g-menu-multilevel flex-column list-unstyled js-scroll-nav',
-				'liClassName' => 'landing-block-node-menu-item nav-item g-mb-14',
-				'aClassName' => 'landing-block-node-menu-link justify-content-between u-link-v5 mb-3',
+				'ulClassName' => 'landing-block-node-menu navbar-nav w-100 g-menu-multilevel flex-column list-unstyled js-scroll-nav',
+				'liClassName' => 'landing-block-node-menu-item nav-item',
+				'aClassName' => 'landing-block-node-menu-link nav-link u-link-v5 d-block g-pa-0 g-py-7',
 			],
 			'children' => [
 				'ulClassName' => 'landing-block-node-menu navbar-nav g-menu-sublevel g-ml-20 flex-column list-unstyled js-scroll-nav',
-				'liClassName' => 'landing-block-node-menu-item nav-item g-mt-14',
-				'aClassName' => 'landing-block-node-menu-link justify-content-between u-link-v5 mb-3',
+				'liClassName' => 'landing-block-node-menu-item nav-item',
+				'aClassName' => 'landing-block-node-menu-link nav-link u-link-v5 d-block g-pa-0 g-py-7',
 			],
 			'nodes' => [
 				'.landing-block-node-menu-link' => [
@@ -47,7 +46,7 @@ return array(
 		'nodes' => array(
 			'.landing-block-node-navbar' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_MENU_22-NAVBAR'),
-				'type' => ['navbar'],
+				'type' => ['navbar-color', 'navbar-color-hover', 'typo-simple'],
 			),
 		),
 	),

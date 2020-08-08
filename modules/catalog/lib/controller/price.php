@@ -325,7 +325,7 @@ final class Price extends Controller
 	//region checkPermissionController
 	protected function checkPermissionEntity($name, $arguments=[])
 	{
-		$name = strtolower($name); //for ajax mode
+		$name = mb_strtolower($name); //for ajax mode
 
 		if($name == 'modify')
 		{

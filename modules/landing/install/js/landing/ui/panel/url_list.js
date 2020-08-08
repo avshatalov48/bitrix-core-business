@@ -153,15 +153,18 @@
 				options.filter = {};
 			}
 
-			if (BX.Type.isNil(options.filter.ID))
+			var env = BX.Landing.Env.getInstance();
+			if (BX.Type.isNil(options.filter.ID) && env.getType() === 'GROUP')
 			{
-				options.filter.ID =	BX.Landing.Env.getInstance().getSiteId();
+				options.filter.ID =	env.getSiteId();
 			}
 
 			if (options.filter.ID === -1)
 			{
 				delete options.filter.ID;
 			}
+
+			options.filter.SPECIAL = 'N';
 
 			void BX.Landing.Backend.getInstance()
 				.getSites(options).then(function(sites) {

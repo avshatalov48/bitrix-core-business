@@ -1,35 +1,27 @@
 <?
 
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Error;
-use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Context;
-use Bitrix\Main\Loader;
-
+use Bitrix\Main\Error;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Sender\Entity;
-use Bitrix\Sender\Security;
 use Bitrix\Sender\PostingRecipientTable;
+use Bitrix\Sender\Security;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
+if (!Bitrix\Main\Loader::includeModule('sender'))
+{
+	ShowError('Module `sender` not installed');
+	die();
+}
+
 Loc::loadMessages(__FILE__);
 
-class SenderTriggerStatComponent extends CBitrixComponent
+class SenderTriggerStatComponent extends \Bitrix\Sender\Internals\CommonSenderComponent
 {
-	/** @var ErrorCollection $errors */
-	protected $errors;
-
-	/** @var Entity\TriggerCampaign $campaignEntity */
-	protected $campaignEntity;
-
-	protected function checkRequiredParams()
-	{
-		return true;
-	}
-
 	protected function initParams()
 	{
 		$request = Context::getCurrent()->getRequest();
@@ -51,7 +43,7 @@ class SenderTriggerStatComponent extends CBitrixComponent
 			$GLOBALS['APPLICATION']->SetTitle(Loc::getMessage('SENDER_TRIGGER_STAT_COMP_TITLE'));
 		}
 
-		if (!Security\Access::current()->canViewLetters())
+		if (!Security\Access::getInstance()->canViewLetters())
 		{
 			Security\AccessChecker::addError($this->errors);
 			return false;
@@ -196,7 +188,7 @@ class SenderTriggerStatComponent extends CBitrixComponent
 	public function executeComponent()
 	{
 		$this->errors = new \Bitrix\Main\ErrorCollection();
-		if (!Loader::includeModule('sender'))
+		if (!Bitrix\Main\Loader::includeModule('sender'))
 		{
 			$this->errors->setError(new Error('Module `sender` is not installed.'));
 			$this->printErrors();
@@ -217,5 +209,15 @@ class SenderTriggerStatComponent extends CBitrixComponent
 		}
 
 		$this->includeComponentTemplate();
+	}
+
+	public function getEditAction()
+	{
+		return \Bitrix\Sender\Access\ActionDictionary::ACTION_MAILING_VIEW;
+	}
+
+	public function getViewAction()
+	{
+		return \Bitrix\Sender\Access\ActionDictionary::ACTION_MAILING_VIEW;
 	}
 }

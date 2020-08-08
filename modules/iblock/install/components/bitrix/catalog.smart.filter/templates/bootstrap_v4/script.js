@@ -284,6 +284,9 @@ JCSmartFilter.prototype.gatherInputsValues = function (values, elements)
 				case 'textarea':
 				case 'password':
 				case 'hidden':
+				case 'number':
+				case 'phone':
+				case 'email':
 				case 'select-one':
 					if(el.value.length)
 						values[values.length] = {name : el.name, value : el.value};

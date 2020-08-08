@@ -18,7 +18,7 @@ class CSearchTitle extends CAllSearchTitle
 				if ($last && !preg_match("/[\\n\\r \\t]$/", $phrase))
 				{
 					$last = false;
-					if (strlen($word) >= $this->minLength)
+					if (mb_strlen($word) >= $this->minLength)
 						$s = $sqlWords[] = "ct.WORD like '".$DB->ForSQL($word)."%'";
 					else
 						$s = "";

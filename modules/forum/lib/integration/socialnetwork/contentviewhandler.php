@@ -4,6 +4,7 @@ namespace Bitrix\Forum\Integration\Socialnetwork;
 
 use Bitrix\Main\Loader;
 use Bitrix\Forum\MessageTable;
+use Bitrix\Main\Event;
 
 /**
  * Class for content view event handlers
@@ -17,9 +18,9 @@ final class ContentViewHandler
 
 	final static function getContentTypeIdList()
 	{
-		return array(
+		return [
 			self::CONTENT_TYPE_ID_COMMENT
-		);
+		];
 	}
 
 	/**
@@ -28,7 +29,7 @@ final class ContentViewHandler
 	 * @param \Bitrix\Main\Event $event Event.
 	 * @return int|false
 	 */
-	public static function onContentViewed(\Bitrix\Main\Event $event)
+	public static function onContentViewed(Event $event)
 	{
 		$userId = intval($event->getParameter('userId'));
 		$contentTypeId = $event->getParameter('typeId');
@@ -38,26 +39,37 @@ final class ContentViewHandler
 			$userId <= 0
 			|| !in_array($contentTypeId, self::getContentTypeIdList())
 			|| $contentEntityId <= 0
-			|| !Loader::includeModule('im')
 		)
 		{
 			return false;
 		}
 
-		$subTagList = array();
+		$subTagList = [];
 		if ($contentTypeId == self::CONTENT_TYPE_ID_COMMENT)
 		{
-			$res = MessageTable::getList(array(
-				'filter' => array(
+			$res = MessageTable::getList([
+				'filter' => [
 					'=ID' => $contentEntityId
-				),
-				'select' => array('XML_ID')
-			));
+				],
+				'select' => [ 'XML_ID' ]
+			]);
 			if ($message = $res->fetch())
 			{
 				if (preg_match("/^TASK_(.+)\$/", $message["XML_ID"], $match))
 				{
-					$subTagList[] = "TASKS|COMMENT|".intval($match[1]).'|'.$userId.'|'.$contentEntityId.'|TASK_UPDATE';
+					$taskId = intval($match[1]);
+
+					$event = new Event(
+						'forum', 'onTaskCommentContentViewed',
+						[
+							'userId' => $userId,
+							'taskId' => $taskId,
+							'commentId' => $contentEntityId
+						]
+					);
+					$event->send();
+
+					$subTagList[] = "TASKS|COMMENT|".$taskId.'|'.$userId.'|'.$contentEntityId.'|TASK_UPDATE';
 				}
 				else
 				{
@@ -66,7 +78,10 @@ final class ContentViewHandler
 			}
 		}
 
-		if (!empty($subTagList))
+		if (
+			Loader::includeModule('im')
+			&& !empty($subTagList)
+		)
 		{
 			$CIMNotify = new \CIMNotify();
 			$CIMNotify->markNotifyReadBySubTag($subTagList);

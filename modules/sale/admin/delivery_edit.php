@@ -45,18 +45,18 @@ $bInitVars = false;
 
 $lpEnabled = !!CSaleLocation::isLocationProEnabled();
 
-if ((strlen($save)>0 || strlen($apply)>0) && $_SERVER['REQUEST_METHOD']=="POST" && $saleModulePermissions=="W" && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $_SERVER['REQUEST_METHOD']=="POST" && $saleModulePermissions=="W" && check_bitrix_sessid())
 {
 	$store = "";
 	if (isset($_POST["STORE"]) && count($_POST["STORE"]) > 0)
 		$store = serialize($_POST["STORE"]);
 
 	$LID = Trim($LID);
-	if (strlen($LID)<=0)
+	if ($LID == '')
 		$strError .= GetMessage("ERROR_NO_LID")."<br>";
 
 	$NAME = Trim($NAME);
-	if (strlen($NAME)<=0)
+	if ($NAME == '')
 		$strError .= GetMessage("ERROR_NO_NAME")."<br>";
 
 	$PRICE = str_replace(",", ".", $PRICE);
@@ -65,13 +65,13 @@ if ((strlen($save)>0 || strlen($apply)>0) && $_SERVER['REQUEST_METHOD']=="POST" 
 		$strError .= GetMessage("ERROR_NO_PRICE")."<br>";
 
 	$CURRENCY = Trim($CURRENCY);
-	if (strlen($CURRENCY)<=0)
+	if ($CURRENCY == '')
 		$strError .= GetMessage("ERROR_NO_CURRENCY")."<br>";
 
 	$ORDER_PRICE_FROM = str_replace(",", ".", $ORDER_PRICE_FROM);
 	$ORDER_PRICE_TO = str_replace(",", ".", $ORDER_PRICE_TO);
 	$ORDER_CURRENCY = Trim($ORDER_CURRENCY);
-	if ((DoubleVal($ORDER_PRICE_FROM)>0 || DoubleVal($ORDER_PRICE_TO)>0) && strlen($ORDER_CURRENCY)<=0)
+	if ((DoubleVal($ORDER_PRICE_FROM)>0 || DoubleVal($ORDER_PRICE_TO)>0) && $ORDER_CURRENCY == '')
 		$strError .= GetMessage("ERROR_PRICE_NO_CUR")."<br>";
 
 	if ($ACTIVE!="Y") $ACTIVE = "N";
@@ -82,11 +82,15 @@ if ((strlen($save)>0 || strlen($apply)>0) && $_SERVER['REQUEST_METHOD']=="POST" 
 	$arLocation = array();
 	if($lpEnabled)
 	{
-		if(strlen($_REQUEST['LOCATION']['L']))
+		if($_REQUEST['LOCATION']['L'] <> '')
+		{
 			$LOCATION1 = explode(':', $_REQUEST['LOCATION']['L']);
+		}
 
-		if(strlen($_REQUEST['LOCATION']['G']))
+		if($_REQUEST['LOCATION']['G'] <> '')
+		{
 			$LOCATION2 = explode(':', $_REQUEST['LOCATION']['G']);
+		}
 	}
 
 	if (isset($LOCATION1) && is_array($LOCATION1) && count($LOCATION1)>0)
@@ -94,7 +98,7 @@ if ((strlen($save)>0 || strlen($apply)>0) && $_SERVER['REQUEST_METHOD']=="POST" 
 		$locationCount = count($LOCATION1);
 		for ($i = 0; $i<$locationCount; $i++)
 		{
-			if (strlen($LOCATION1[$i]))
+			if($LOCATION1[$i] <> '')
 			{
 				$arLocation[] = array(
 					"LOCATION_ID" => $LOCATION1[$i],
@@ -109,7 +113,7 @@ if ((strlen($save)>0 || strlen($apply)>0) && $_SERVER['REQUEST_METHOD']=="POST" 
 		$locationCount = count($LOCATION2);
 		for ($i = 0; $i<$locationCount; $i++)
 		{
-			if (strlen($LOCATION2[$i])>0)
+			if ($LOCATION2[$i] <> '')
 			{
 				$arLocation[] = array(
 					"LOCATION_ID" => $LOCATION2[$i],
@@ -189,7 +193,7 @@ if ((strlen($save)>0 || strlen($apply)>0) && $_SERVER['REQUEST_METHOD']=="POST" 
 	}
 	else
 	{
-		if (strlen($apply) > 0)
+		if ($apply <> '')
 			LocalRedirect("sale_delivery_edit.php?ID=".$ID."&lang=".LANG."&".$tabControl->ActiveTabParam());
 		else
 			LocalRedirect("sale_delivery.php?lang=".LANG);
@@ -254,7 +258,7 @@ $context = new CAdminContextMenu($aMenu);
 $context->Show();
 ?>
 
-<?if(strlen($strError)>0)
+<?if($strError <> '')
 	echo CAdminMessage::ShowMessage(Array("DETAILS"=>$strError, "TYPE"=>"ERROR", "MESSAGE"=>GetMessage("SDEN_ERROR"), "HTML"=>true));?>
 
 <form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?" name="form1" enctype="multipart/form-data">
@@ -374,7 +378,7 @@ if (!empty($arStoreList))
 	$str_STORE = $arList["STORE"];
 
 	$arStore = array();
-	if (strlen($str_STORE) > 0)
+	if ($str_STORE <> '')
 		$arStore = unserialize($str_STORE);
 ?>
 	<tr>
@@ -384,7 +388,7 @@ if (!empty($arStoreList))
 			<?
 			foreach ($arStoreList as $items):
 
-				$siteInfo = (strlen($items["SITE_ID"]) > 0) ? " [".$items["SITE_ID"]."]" : "";
+				$siteInfo = ($items["SITE_ID"] <> '') ? " [".$items["SITE_ID"]."]" : "";
 			?>
 				<option value="<?=$items["ID"]?>" <?=(in_array($items["ID"], $arStore)?"selected":"")?> ><?=htmlspecialcharsbx($items["TITLE"].$siteInfo)?></option>
 			<?
@@ -466,20 +470,20 @@ if (!empty($arStoreList))
 					<?while ($vars = $db_vars->Fetch()):
 						$locationName = $vars["COUNTRY_NAME"];
 
-						if (strlen($vars["REGION_NAME"]) > 0)
+						if ($vars["REGION_NAME"] <> '')
 						{
-							if (strlen($locationName) > 0)
+							if ($locationName <> '')
 								$locationName .= " - ";
 							$locationName .= $vars["REGION_NAME"];
 						}
-						if (strlen($vars["CITY_NAME"]) > 0)
+						if ($vars["CITY_NAME"] <> '')
 						{
-							if (strlen($locationName) > 0)
+							if ($locationName <> '')
 								$locationName .= " - ";
 							$locationName .= $vars["CITY_NAME"];
 						}
 					?>
-						<option value="<?echo $vars["ID"]?>"<?if (is_array($arLOCATION1) && in_array(IntVal($vars["ID"]), $arLOCATION1)) echo " selected"?>><?echo htmlspecialcharsbx($locationName)?></option>
+						<option value="<?echo $vars["ID"]?>"<?if (is_array($arLOCATION1) && in_array(intval($vars["ID"]), $arLOCATION1)) echo " selected"?>><?echo htmlspecialcharsbx($locationName)?></option>
 					<?endwhile;?>
 				</select>
 			</td>
@@ -507,7 +511,7 @@ if (!empty($arStoreList))
 					}
 					?>
 					<?while ($vars = $db_vars->Fetch()):?>
-						<option value="<?echo $vars["ID"]?>"<?if (is_array($arLOCATION2) && in_array(IntVal($vars["ID"]), $arLOCATION2)) echo " selected"?>><?echo htmlspecialcharsbx($vars["NAME"])?></option>
+						<option value="<?echo $vars["ID"]?>"<?if (is_array($arLOCATION2) && in_array(intval($vars["ID"]), $arLOCATION2)) echo " selected"?>><?echo htmlspecialcharsbx($vars["NAME"])?></option>
 					<?endwhile;?>
 				</select>
 			</td>
@@ -538,7 +542,7 @@ $tabControl->BeginNextTab();
 				array("ID", "NAME", "ACTIVE", "SORT", "LID")
 			);
 			while ($arPayType = $dbResultList->Fetch()):
-				$name = (strlen($arPayType["LID"]) > 0) ? htmlspecialcharsbx($arPayType["NAME"]). " (".$arPayType["LID"].")" : htmlspecialcharsbx($arPayType["NAME"]);
+				$name = ($arPayType["LID"] <> '') ? htmlspecialcharsbx($arPayType["NAME"]). " (".$arPayType["LID"].")" : htmlspecialcharsbx($arPayType["NAME"]);
 			?>
 				<option value="<?=intval($arPayType["ID"]);?>" <?=(in_array($arPayType["ID"], $arPaySystemId) || empty($arPaySystemId) ? "selected":"")?>><?=$name?></option>
 			<?endwhile;?>

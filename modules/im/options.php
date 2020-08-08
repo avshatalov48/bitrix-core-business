@@ -55,9 +55,9 @@ $aTabs = array(
 );
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
-if(strlen($_POST['Update'].$_GET['RestoreDefaults'])>0 && check_bitrix_sessid() && $MOD_RIGHT >= 'W')
+if($_POST['Update'].$_GET['RestoreDefaults'] <> '' && check_bitrix_sessid() && $MOD_RIGHT >= 'W')
 {
-	if(strlen($_GET['RestoreDefaults'])>0)
+	if($_GET['RestoreDefaults'] <> '')
 	{
 		COption::RemoveOption("im", "turn_server_self");
 		COption::RemoveOption("im", "turn_server");
@@ -98,7 +98,7 @@ if(strlen($_POST['Update'].$_GET['RestoreDefaults'])>0 && check_bitrix_sessid() 
 			}
 		}
 	}
-	elseif(strlen($_POST['Update'])>0)
+	elseif($_POST['Update'] <> '')
 	{
 		foreach($arSites as $site)
 		{
@@ -205,7 +205,7 @@ if(strlen($_POST['Update'].$_GET['RestoreDefaults'])>0 && check_bitrix_sessid() 
 			COption::SetOptionString("im", "general_chat_message_leave", isset($_POST['GENERAL_CHAT_MESSAGE_LEAVE']));
 		}
 
-		if(strlen($Update)>0 && strlen($_REQUEST["back_url_settings"])>0)
+		if($Update <> '' && $_REQUEST["back_url_settings"] <> '')
 		{
 			LocalRedirect($_REQUEST["back_url_settings"]);
 		}
@@ -404,7 +404,7 @@ foreach ($arSites as $site)
 		{
 ?>
 		<tr>
-			<td align="right"><?php echo Loc::getMessage("IM_OPTIONS_".strtoupper($key))?>:</td>
+			<td align="right"><?php echo Loc::getMessage("IM_OPTIONS_".mb_strtoupper($key))?>:</td>
 			<td><input type="text" size="40" value="<?=htmlspecialcharsbx(COption::GetOptionString("im", $key, $value, $site["LID"]))?>" name="<?php echo $key?>_<?php echo $site["LID"]?>"></td>
 		</tr>
 

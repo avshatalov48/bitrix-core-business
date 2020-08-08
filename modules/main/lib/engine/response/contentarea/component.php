@@ -1,11 +1,15 @@
 <?php
 namespace Bitrix\Main\Engine\Response\ContentArea;
 
-class Component implements ContentAreaInterface
+class Component implements ContentAreaInterface, DataSectionInterface
 {
 	private $componentName = null;
 	private $componentTemplate = null;
 	private $componentParams = [];
+	private $componentResult = [];
+
+	/** @var array|callable  */
+	private $dataKeys = [];
 	private $parentComponent = null;
 	private $functionParams = [];
 
@@ -15,11 +19,13 @@ class Component implements ContentAreaInterface
 	 * @param $componentName
 	 * @param string $componentTemplate
 	 * @param array $componentParams
+	 * @param mixed $dataKeys
 	 */
-	public function __construct($componentName, $componentTemplate = '', array $componentParams = [])
+	public function __construct($componentName, $componentTemplate = '', array $componentParams = [], $dataKeys = [])
 	{
 		$this->componentName = $componentName;
 		$this->componentTemplate = $componentTemplate;
+		$this->dataKeys = $dataKeys;
 		$this->setParameters($componentParams);
 	}
 
@@ -67,14 +73,45 @@ class Component implements ContentAreaInterface
 		global $APPLICATION;
 
 		ob_start();
-		$APPLICATION->IncludeComponent(
+		$this->componentResult = $APPLICATION->IncludeComponent(
 			$this->componentName,
 			$this->componentTemplate,
 			$this->componentParams,
 			$this->parentComponent,
-			$this->functionParams
+			$this->functionParams,
+			!empty($this->dataKeys) // returnResult
 		);
 
 		return ob_get_clean();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getSectionName(): string
+	{
+		return 'componentResult';
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getSectionData()
+	{
+		$result = [];
+
+		if (
+			is_array($this->dataKeys)
+			&& !empty($this->dataKeys)
+		)
+		{
+			$result = array_intersect_key($this->componentResult, array_combine($this->dataKeys, $this->dataKeys));
+		}
+		elseif (is_callable($this->dataKeys))
+		{
+			$result = call_user_func_array($this->dataKeys, [ $this->componentResult ]);
+		}
+
+		return $result;
 	}
 }

@@ -248,25 +248,25 @@ class CPostingGeneral
 
 		if(array_key_exists("FROM_FIELD", $arFields))
 		{
-			if(strlen($arFields["FROM_FIELD"])<3 || !check_email($arFields["FROM_FIELD"]))
+			if(mb_strlen($arFields["FROM_FIELD"]) < 3 || !check_email($arFields["FROM_FIELD"]))
 				$aMsg[] = array("id"=>"FROM_FIELD", "text"=>GetMessage("class_post_err_email"));
 		}
 
 		if(!array_key_exists("DIRECT_SEND", $arFields) || $arFields["DIRECT_SEND"]=="N")
 		{
-			if(array_key_exists("TO_FIELD", $arFields) && strlen($arFields["TO_FIELD"])<=0)
+			if(array_key_exists("TO_FIELD", $arFields) && $arFields["TO_FIELD"] == '')
 				$aMsg[] = array("id"=>"TO_FIELD", "text"=>GetMessage("class_post_err_to"));
 		}
 
 		if(array_key_exists("SUBJECT", $arFields))
 		{
-			if(strlen($arFields["SUBJECT"])<=0)
+			if($arFields["SUBJECT"] == '')
 				$aMsg[] = array("id"=>"SUBJECT", "text"=>GetMessage("class_post_err_subj"));
 		}
 
 		if(array_key_exists("BODY", $arFields))
 		{
-			if(strlen($arFields["BODY"])<=0)
+			if($arFields["BODY"] == '')
 				$aMsg[] = array("id"=>"BODY", "text"=>GetMessage("class_post_err_text"));
 		}
 
@@ -527,8 +527,8 @@ class CPostingGeneral
 
 		if(
 			$check_charset
-			&& (strlen($post_arr["MSG_CHARSET"]) > 0)
-			&& (strtoupper($post_arr["MSG_CHARSET"]) != strtoupper(LANG_CHARSET))
+			&& ($post_arr["MSG_CHARSET"] <> '')
+			&& (mb_strtoupper($post_arr["MSG_CHARSET"]) != mb_strtoupper(LANG_CHARSET))
 		)
 		{
 			return "CONTINUE";
@@ -539,7 +539,7 @@ class CPostingGeneral
 			if($e = $APPLICATION->GetException())
 			{
 				$this->LAST_ERROR .= GetMessage("class_post_err_lock")."<br>".$e->GetString();
-				if(strpos($this->LAST_ERROR, "PLS-00201") !== false && strpos($this->LAST_ERROR, "'DBMS_LOCK'") !== false)
+				if(mb_strpos($this->LAST_ERROR, "PLS-00201") !== false && mb_strpos($this->LAST_ERROR, "'DBMS_LOCK'") !== false)
 					$this->LAST_ERROR .= "<br>".GetMessage("class_post_err_lock_advice");
 				$APPLICATION->ResetException();
 				return false;
@@ -552,21 +552,21 @@ class CPostingGeneral
 
 		if($post_arr["VERSION"] <> '2')
 		{
-			if(is_string($post_arr["BCC_TO_SEND"]) && strlen($post_arr["BCC_TO_SEND"])>0)
+			if(is_string($post_arr["BCC_TO_SEND"]) && $post_arr["BCC_TO_SEND"] <> '')
 			{
 				$a =  explode(",", $post_arr["BCC_TO_SEND"]);
 				foreach($a as $e)
 					$DB->Query("INSERT INTO b_posting_email (POSTING_ID, STATUS, EMAIL) VALUES (".$ID.", 'Y', '".$DB->ForSQL($e)."')");
 			}
 
-			if(is_string($post_arr["ERROR_EMAIL"]) && strlen($post_arr["ERROR_EMAIL"])>0)
+			if(is_string($post_arr["ERROR_EMAIL"]) && $post_arr["ERROR_EMAIL"] <> '')
 			{
 				$a =  explode(",", $post_arr["ERROR_EMAIL"]);
 				foreach($a as $e)
 					$DB->Query("INSERT INTO b_posting_email (POSTING_ID, STATUS, EMAIL) VALUES (".$ID.", 'E', '".$DB->ForSQL($e)."')");
 			}
 
-			if(is_string($post_arr["SENT_BCC"]) && strlen($post_arr["SENT_BCC"])>0)
+			if(is_string($post_arr["SENT_BCC"]) && $post_arr["SENT_BCC"] <> '')
 			{
 				$a =  explode(",", $post_arr["SENT_BCC"]);
 				foreach($a as $e)
@@ -583,7 +583,7 @@ class CPostingGeneral
 			$post_arr["BODY"] = $tools->ReplaceImages($post_arr["BODY"]);
 		}
 
-		if(strlen($post_arr["CHARSET"]) > 0)
+		if($post_arr["CHARSET"] <> '')
 		{
 			$from_charset = $post_arr["MSG_CHARSET"]? $post_arr["MSG_CHARSET"]: SITE_CHARSET;
 			$post_arr["BODY"] = $APPLICATION->ConvertCharset($post_arr["BODY"], $from_charset, $post_arr["CHARSET"]);
@@ -644,7 +644,7 @@ class CPostingGeneral
 
 			foreach($tools->aMatches as $attachment)
 			{
-				if(strlen($post_arr["CHARSET"]) > 0)
+				if($post_arr["CHARSET"] <> '')
 				{
 					$from_charset = $post_arr["MSG_CHARSET"]? $post_arr["MSG_CHARSET"]: SITE_CHARSET;
 					$attachment["DEST"] = $APPLICATION->ConvertCharset($attachment["DEST"], $from_charset, $post_arr["CHARSET"]);
@@ -702,7 +702,7 @@ class CPostingGeneral
 
 			foreach ($arFiles as $arFile)
 			{
-				if(strlen($post_arr["CHARSET"]) > 0)
+				if($post_arr["CHARSET"] <> '')
 				{
 					$from_charset = $post_arr["MSG_CHARSET"]? $post_arr["MSG_CHARSET"]: SITE_CHARSET;
 					$file_name = $APPLICATION->ConvertCharset($arFile["ORIGINAL_NAME"], $from_charset, $post_arr["CHARSET"]);
@@ -922,8 +922,8 @@ class CPostingGeneral
 						AND S.CONFIRMED = 'Y'
 						AND S.ACTIVE = 'Y'
 						AND (U.ID IS NULL OR U.ACTIVE = 'Y')
-						".(strlen($post_arr["SUBSCR_FORMAT"]) <= 0 || $post_arr["SUBSCR_FORMAT"]==="NOT_REF" ? "": "AND S.FORMAT='".($post_arr["SUBSCR_FORMAT"]=="text"? "text": "html")."'")."
-						".(strlen($post_arr["EMAIL_FILTER"]) <= 0 || $post_arr["EMAIL_FILTER"]==="NOT_REF" ? "": "AND ".GetFilterQuery("S.EMAIL", $post_arr["EMAIL_FILTER"], "Y", array("@", ".", "_")))."
+						".($post_arr["SUBSCR_FORMAT"] == '' || $post_arr["SUBSCR_FORMAT"]==="NOT_REF" ? "": "AND S.FORMAT='".($post_arr["SUBSCR_FORMAT"]=="text"? "text": "html")."'")."
+						".($post_arr["EMAIL_FILTER"] == '' || $post_arr["EMAIL_FILTER"]==="NOT_REF" ? "": "AND ".GetFilterQuery("S.EMAIL", $post_arr["EMAIL_FILTER"], "Y", array("@", ".", "_")))."
 				");
 				$DB->Query("
 					DELETE pe
@@ -947,7 +947,7 @@ class CPostingGeneral
 							b_user U
 						WHERE
 							U.ACTIVE = 'Y'
-							".(strlen($post_arr["EMAIL_FILTER"]) <= 0 || $post_arr["EMAIL_FILTER"]==="NOT_REF" ? "": "AND ".GetFilterQuery("U.EMAIL", $post_arr["EMAIL_FILTER"], "Y", array("@", ".", "_")))."
+							".($post_arr["EMAIL_FILTER"] == '' || $post_arr["EMAIL_FILTER"]==="NOT_REF" ? "": "AND ".GetFilterQuery("U.EMAIL", $post_arr["EMAIL_FILTER"], "Y", array("@", ".", "_")))."
 							and U.EMAIL not in (SELECT EMAIL FROM b_posting_email WHERE POSTING_ID = ".$ID.")
 						GROUP BY U.EMAIL
 					");
@@ -967,7 +967,7 @@ class CPostingGeneral
 							and (UG.DATE_ACTIVE_FROM is null or UG.DATE_ACTIVE_FROM <= ".$DB->CurrentTimeFunction().")
 							and (UG.DATE_ACTIVE_TO is null or UG.DATE_ACTIVE_TO >= ".$DB->CurrentTimeFunction().")
 							and U.ACTIVE = 'Y'
-							".(strlen($post_arr["EMAIL_FILTER"]) <= 0 || $post_arr["EMAIL_FILTER"]==="NOT_REF" ? "": "AND ".GetFilterQuery("U.EMAIL", $post_arr["EMAIL_FILTER"], "Y", array("@", ".", "_")))."
+							".($post_arr["EMAIL_FILTER"] == '' || $post_arr["EMAIL_FILTER"]==="NOT_REF" ? "": "AND ".GetFilterQuery("U.EMAIL", $post_arr["EMAIL_FILTER"], "Y", array("@", ".", "_")))."
 							and U.EMAIL not in (SELECT EMAIL FROM b_posting_email WHERE POSTING_ID = ".$ID.")
 						GROUP BY PG.POSTING_ID, U.EMAIL
 					");
@@ -1053,9 +1053,9 @@ class CMailTools
 
 	public static function IsEightBit($str)
 	{
-		$len = strlen($str);
+		$len = mb_strlen($str);
 		for($i=0; $i<$len; $i++)
-			if(ord(substr($str, $i, 1))>>7)
+			if(ord(mb_substr($str, $i, 1))>>7)
 				return true;
 		return false;
 	}
@@ -1065,16 +1065,16 @@ class CMailTools
 		if(!CMailTools::IsEightBit($text))
 			return $text;
 
-		$maxl = intval((76 - strlen($charset) + 7)*0.4);
+		$maxl = intval((76 - mb_strlen($charset) + 7)*0.4);
 
 		$res = "";
 		$eol = \Bitrix\Main\Mail\Mail::getMailEol();
-		$len = strlen($text);
+		$len = mb_strlen($text);
 		for($i=0; $i<$len; $i=$i+$maxl)
 		{
 			if($i>0)
 				$res .= $eol."\t";
-			$res .= "=?".$charset."?B?".base64_encode(substr($text, $i, $maxl))."?=";
+			$res .= "=?".$charset."?B?".base64_encode(mb_substr($text, $i, $maxl))."?=";
 		}
 		return $res;
 	}
@@ -1149,7 +1149,7 @@ class CMailTools
 	{
 		if($this->pcre_backtrack_limit === false)
 			$this->pcre_backtrack_limit = intval(ini_get("pcre.backtrack_limit"));
-		$text_len = defined("BX_UTF")? mb_strlen($text, 'latin1'): strlen($text);
+		$text_len = defined("BX_UTF")? mb_strlen($text, 'latin1') : mb_strlen($text);
 		$text_len++;
 		if($this->pcre_backtrack_limit < $text_len)
 		{
@@ -1174,7 +1174,7 @@ class CMailTools
 	{
 		if($this->pcre_backtrack_limit === false)
 			$this->pcre_backtrack_limit = intval(ini_get("pcre.backtrack_limit"));
-		$text_len = defined("BX_UTF")? mb_strlen($text, 'latin1'): strlen($text);
+		$text_len = defined("BX_UTF")? mb_strlen($text, 'latin1') : mb_strlen($text);
 		$text_len++;
 		if($this->pcre_backtrack_limit < $text_len)
 		{

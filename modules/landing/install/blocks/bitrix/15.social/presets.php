@@ -5,8 +5,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 use \Bitrix\Main\Localization\Loc;
+use Bitrix\Landing\Manager;
 
-return [
+$result = [
 	'facebook' => [
 		'name' => '<span class="fa fa-facebook"></span> Facebook',
 		'html' => '<li class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
@@ -280,3 +281,10 @@ return [
 		],
 	],
 ];
+
+if (!in_array(Manager::getZone(), ['ru', 'kz', 'by']))
+{
+	unset($result['vk'], $result['odnoklassniki']);
+}
+
+return $result;

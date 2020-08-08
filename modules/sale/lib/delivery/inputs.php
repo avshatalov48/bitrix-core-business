@@ -347,7 +347,7 @@ class LocationMulti extends Input\Base
 			"",
 			array(
 				"ENTITY_PRIMARY" => $input["DELIVERY_ID"],
-				"LINK_ENTITY_NAME" => substr(static::$d2LClass, 0, -5),
+				"LINK_ENTITY_NAME" => mb_substr(static::$d2LClass, 0, -5),
 				"INPUT_NAME" => $name
 			),
 			false
@@ -522,9 +522,9 @@ class ButtonSelector extends Input\Base
 		if(!is_array($values))
 			throw new ArgumentTypeException('values', 'array');
 
-		$itemName = (strlen($values['NAME']) > 0 ? htmlspecialcharsbx($values['NAME']) : '');
+		$itemName = ($values['NAME'] <> '' ? htmlspecialcharsbx($values['NAME']) : '');
 
-		if(strlen($itemName) <= 0 && strlen($input['NAME_DEFAULT']) > 0)
+		if($itemName == '' && $input['NAME_DEFAULT'] <> '')
 		{
 			$itemName = htmlspecialcharsbx($input['NAME_DEFAULT']);
 		}
@@ -540,16 +540,16 @@ class ButtonSelector extends Input\Base
 		if(!isset($input["VALUE"]))
 			$input["VALUE"] = '';
 
-		$itemName = (strlen($values['NAME']) > 0 ? htmlspecialcharsbx($values['NAME']) : '');
+		$itemName = ($values['NAME'] <> '' ? htmlspecialcharsbx($values['NAME']) : '');
 
-		if(strlen($itemName) <= 0 && strlen($input['NAME_DEFAULT']) > 0)
+		if($itemName == '' && $input['NAME_DEFAULT'] <> '')
 		{
 			$itemName = htmlspecialcharsbx($input['NAME_DEFAULT']);
 		}
 
-		$itemValue = (strlen($values['VALUE']) > 0 ? htmlspecialcharsbx($values['VALUE']) : '');
+		$itemValue = ($values['VALUE'] <> '' ? htmlspecialcharsbx($values['VALUE']) : '');
 
-		if(strlen($itemName) <= 0 && strlen($input['VALUE_DEFAULT']) > 0)
+		if($itemName == '' && $input['VALUE_DEFAULT'] <> '')
 		{
 			$itemValue = htmlspecialcharsbx($input['VALUE_DEFAULT']);
 		}

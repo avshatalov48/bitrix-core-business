@@ -34,7 +34,7 @@ $APPLICATION->IncludeComponent(
 	$this->getComponent()
 );
 
-$arResult["PATH_TO_BLOG_CATEGORY"] = $arResult["PATH_TO_USER_BLOG"].(strpos($arResult["PATH_TO_USER_BLOG"], "?") === false ? "?" : "&")."category=#category_id#";
+$arResult["PATH_TO_BLOG_CATEGORY"] = $arResult["PATH_TO_USER_BLOG"].(mb_strpos($arResult["PATH_TO_USER_BLOG"], "?") === false ? "?" : "&")."category=#category_id#";
 
 $arComponentParams = [
 	"MESSAGE_COUNT" => "25",

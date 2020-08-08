@@ -8,5 +8,11 @@ return array(
 			'defaultNamespace' => '\\Bitrix\\Mail\\Controller',
 		),
 		'readonly' => true,
-	)
+	),
+	'ui.selector' => [
+		'value' => [
+			'mail.selector'
+		],
+		'readonly' => true,
+	]
 );

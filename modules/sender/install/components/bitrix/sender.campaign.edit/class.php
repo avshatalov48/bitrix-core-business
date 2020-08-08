@@ -1,25 +1,27 @@
 <?
 
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Context;
+use Bitrix\Main\ErrorCollection;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Uri;
-use Bitrix\Main\Loader;
-use Bitrix\Main\Error;
-
 use Bitrix\Sender\Entity;
 use Bitrix\Sender\Security;
 use Bitrix\Sender\UI;
-
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
+if (!Bitrix\Main\Loader::includeModule('sender'))
+{
+	ShowError('Module `sender` not installed');
+	die();
+}
+
 Loc::loadMessages(__FILE__);
 
-class SenderCampaignEditComponent extends \CBitrixComponent
+class SenderCampaignEditComponent extends \Bitrix\Sender\Internals\CommonSenderComponent
 {
 	/** @var ErrorCollection $errors */
 	protected $errors;
@@ -42,7 +44,7 @@ class SenderCampaignEditComponent extends \CBitrixComponent
 			?
 			$this->arParams['CAN_EDIT']
 			:
-			Security\Access::current()->canModifyLetters();
+			Security\Access::getInstance()->canModifyLetters();
 
 		if (!isset($this->arParams['ID']))
 		{
@@ -95,7 +97,7 @@ class SenderCampaignEditComponent extends \CBitrixComponent
 			);
 		}
 
-		if (!Security\Access::current()->canViewLetters())
+		if (!Security\Access::getInstance()->canViewLetters())
 		{
 			Security\AccessChecker::addError($this->errors);
 			return false;
@@ -155,28 +157,17 @@ class SenderCampaignEditComponent extends \CBitrixComponent
 
 	public function executeComponent()
 	{
-		$this->errors = new \Bitrix\Main\ErrorCollection();
-		if (!Loader::includeModule('sender'))
-		{
-			$this->errors->setError(new Error('Module `sender` is not installed.'));
-			$this->printErrors();
-			return;
-		}
+		parent::executeComponent();
+		parent::prepareResultAndTemplate();
+	}
 
-		$this->initParams();
-		if (!$this->checkRequiredParams())
-		{
-			$this->printErrors();
-			return;
-		}
+	public function getEditAction()
+	{
+		return null;
+	}
 
-		if (!$this->prepareResult())
-		{
-			$this->printErrors();
-			return;
-		}
-
-		$this->printErrors();
-		$this->includeComponentTemplate();
+	public function getViewAction()
+	{
+		return \Bitrix\Sender\Access\ActionDictionary::ACTION_MAILING_VIEW;
 	}
 }

@@ -113,6 +113,7 @@ if ( check_bitrix_sessid() &&
 		)
 	);
 
+	CMain::FinalActions();
 	die();
 }
 ?>

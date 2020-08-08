@@ -31,7 +31,7 @@ class CSelectSiteWizardStep extends CWizardStep
 			$siteFolder = str_replace(array("\\", "///", "//"), "/", "/".$wizard->GetVar("siteFolder")."/");
 			$siteNewID = $wizard->GetVar("siteNewID");
 			$createSite = $wizard->GetVar("createSite");
-			
+
 			if ($createSite == "Y")
 			{
 				if (strlen($siteNewID) != 2)
@@ -56,10 +56,10 @@ class CSelectSiteWizardStep extends CWizardStep
 					}
 				}
 				if ($bError)
-					return; 
+					return;
 				$wizard->SetVar("siteID", $siteNewID);
-				$wizard->SetVar("siteCreate", "Y"); 
-				$wizard->SetVar("siteFolder", $siteFolder); 
+				$wizard->SetVar("siteCreate", "Y");
+				$wizard->SetVar("siteFolder", $siteFolder);
 			}
 			elseif (strlen($siteID) > 0)
 			{
@@ -80,23 +80,23 @@ class CSelectSiteWizardStep extends CWizardStep
 	{
 		$wizard =& $this->GetWizard();
 
-		$arSites = array(); 
-		$arSitesSelect = array(); 
+		$arSites = array();
+		$arSitesSelect = array();
 		$db_res = CSite::GetList($by="sort", $order="desc", array("ACTIVE" => "Y"));
 		if ($db_res && $res = $db_res->GetNext())
 		{
-			do 
+			do
 			{
-				$arSites[$res["ID"]] = $res; 
+				$arSites[$res["ID"]] = $res;
 				$arSitesSelect[$res["ID"]] = '['.$res["ID"].'] '.$res["NAME"];
-			} while ($res = $db_res->GetNext()); 
+			} while ($res = $db_res->GetNext());
 		}
-		
-		$createSite = $wizard->GetVar("createSite"); 
-		$createSite = ($createSite == "Y" ? "Y" : "N"); 
-		
-		
-$this->content = 
+
+		$createSite = $wizard->GetVar("createSite");
+		$createSite = ($createSite == "Y" ? "Y" : "N");
+
+
+$this->content =
 '<script type="text/javascript">
 function SelectCreateSite(element, solutionId)
 {
@@ -116,43 +116,43 @@ function SelectCreateSite(element, solutionId)
 </script>';
 		$this->content .= '<div id="solutions-container">';
 			$this->content .= "<div onclick=\"SelectCreateSite(this, 'N');\" ";
-				$this->content .= 'class="solution-item'.($createSite != "Y" ? " solution-item-selected" : "").'">'; 
-				$this->content .= '<b class="r3"></b><b class="r1"></b><b class="r1"></b>'; 
-				$this->content .= '<div class="solution-inner-item">'; 
-					$this->content .= $this->ShowRadioField("createSite", "N", (array("id" => "createSiteN", "class" => "solution-radio") + 
-						($createSite != "Y" ? array("checked" => "checked") : array()))); 
-					$this->content .= '<h4>'.GetMessage("wiz_site_existing").'</h4>'; 
+				$this->content .= 'class="solution-item'.($createSite != "Y" ? " solution-item-selected" : "").'">';
+				$this->content .= '<b class="r3"></b><b class="r1"></b><b class="r1"></b>';
+				$this->content .= '<div class="solution-inner-item">';
+					$this->content .= $this->ShowRadioField("createSite", "N", (array("id" => "createSiteN", "class" => "solution-radio") +
+						($createSite != "Y" ? array("checked" => "checked") : array())));
+					$this->content .= '<h4>'.GetMessage("wiz_site_existing").'</h4>';
 				if (count($arSites) < 2)
-					$this->content .= '<p>'.GetMessage("wiz_site_existing_title").' '.implode("", $arSitesSelect).'</p>'; 
+					$this->content .= '<p>'.GetMessage("wiz_site_existing_title").' '.implode("", $arSitesSelect).'</p>';
 				else
 				{
 					$this->content .= '<p>'.GetMessage("wiz_site_existing_title");
 					$this->content .= "<br />". $this->ShowSelectField("siteID", $arSitesSelect)."</p>";
 				}
-				$this->content .= '</div>'; 
-				$this->content .= '<b class="r1"></b><b class="r1"></b><b class="r3"></b>'; 
+				$this->content .= '</div>';
+				$this->content .= '<b class="r1"></b><b class="r1"></b><b class="r3"></b>';
 			$this->content .= '</div>';
 		if (count($arSites) < COption::GetOptionInt("main", "PARAM_MAX_SITES", 100) || COption::GetOptionInt("main", "PARAM_MAX_SITES", 100) <= 0)
 		{
 			$this->content .= "<div onclick=\"SelectCreateSite(this, 'Y');\" ";
-				$this->content .= 'class="solution-item'.($createSite == "Y" ? " solution-item-selected" : "").'">'; 
-				$this->content .= '<b class="r3"></b><b class="r1"></b><b class="r1"></b>'; 
-				$this->content .= '<div class="solution-inner-item">'; 
-					$this->content .= $this->ShowRadioField("createSite", "Y", (array("id" => "createSiteY", "class" => "solution-radio") + 
-						($createSite == "Y" ? array("checked" => "checked") : array()))); 
-					$this->content .= '<h4>'.GetMessage("wiz_site_new").'</h4>'; 
+				$this->content .= 'class="solution-item'.($createSite == "Y" ? " solution-item-selected" : "").'">';
+				$this->content .= '<b class="r3"></b><b class="r1"></b><b class="r1"></b>';
+				$this->content .= '<div class="solution-inner-item">';
+					$this->content .= $this->ShowRadioField("createSite", "Y", (array("id" => "createSiteY", "class" => "solution-radio") +
+						($createSite == "Y" ? array("checked" => "checked") : array())));
+					$this->content .= '<h4>'.GetMessage("wiz_site_new").'</h4>';
 					$this->content .= '<p>';
 						$this->content .= str_replace(
 							array(
-								"#SITE_ID#", 
-								"#SITE_DIR#"), 
+								"#SITE_ID#",
+								"#SITE_DIR#"),
 							array(
-								$this->ShowInputField("text", "siteNewID", array("size" => 2, "maxlength" => 2, "id" => "siteNewID")), 
-								$this->ShowInputField("text", "siteFolder", array("id" => "siteFolder"))), 
-							GetMessage("wiz_site_new_title")); 
-					$this->content .= '</p>'; 
-				$this->content .= '</div>'; 
-				$this->content .= '<b class="r1"></b><b class="r1"></b><b class="r3"></b>'; 
+								$this->ShowInputField("text", "siteNewID", array("size" => 2, "maxlength" => 2, "id" => "siteNewID")),
+								$this->ShowInputField("text", "siteFolder", array("id" => "siteFolder"))),
+							GetMessage("wiz_site_new_title"));
+					$this->content .= '</p>';
+				$this->content .= '</div>';
+				$this->content .= '<b class="r1"></b><b class="r1"></b><b class="r3"></b>';
 			$this->content .= '</div>';
 		}
 		$this->content .= '</div>';
@@ -174,8 +174,8 @@ class CSelectTemplateWizardStep extends CWizardStep
 		}
 		else
 		{
-			$wizard =& $this->GetWizard(); 
-			$wizard->SetVar("siteID", WIZARD_DEFAULT_SITE_ID); 
+			$wizard =& $this->GetWizard();
+			$wizard->SetVar("siteID", WIZARD_DEFAULT_SITE_ID);
 		}
 
 		$this->SetNextStep("select_theme");
@@ -210,13 +210,13 @@ class CSelectTemplateWizardStep extends CWizardStep
 
 		$templateID = $wizard->GetVar("templateID");
 		if(isset($templateID) && array_key_exists($templateID, $arTemplates)){
-		
+
 			$defaultTemplateID = $templateID;
 			$wizard->SetDefaultVar("templateID", $templateID);
-			
+
 		} else {
-		
-			$defaultTemplateID = COption::GetOptionString("main", "wizard_template_id", "", $wizard->GetVar("siteID")); 
+
+			$defaultTemplateID = COption::GetOptionString("main", "wizard_template_id", "", $wizard->GetVar("siteID"));
 			if (!(strlen($defaultTemplateID) > 0 && array_key_exists($defaultTemplateID, $arTemplates)))
 			{
 				if (strlen($defaultTemplateID) > 0 && array_key_exists($defaultTemplateID, $arTemplates))
@@ -248,8 +248,8 @@ class CSelectTemplateWizardStep extends CWizardStep
 			$this->content .= "</div>";
 
 		}
-		
-		$this->content .= '</div>'; 
+
+		$this->content .= '</div>';
 	}
 }
 
@@ -302,8 +302,8 @@ class CSelectThemeWizardStep extends CWizardStep
 			$defaultThemeID = $ThemeID;
 			$wizard->SetDefaultVar($themeVarName, $ThemeID);
 		} else {
-			$defaultThemeID = COption::GetOptionString("main", "wizard_".$templateID."_theme_id", "", $wizard->GetVar("siteID")); 
-	
+			$defaultThemeID = COption::GetOptionString("main", "wizard_".$templateID."_theme_id", "", $wizard->GetVar("siteID"));
+
 			if (!(strlen($defaultThemeID) > 0 && array_key_exists($defaultThemeID, $arThemes)))
 			{
 				$defaultThemeID = COption::GetOptionString("main", "wizard_".$templateID."_theme_id", "");
@@ -314,7 +314,7 @@ class CSelectThemeWizardStep extends CWizardStep
 			}
 		}
 
-		$this->content = 
+		$this->content =
 '<script type="text/javascript">
 function SelectTheme(element, solutionId, imageUrl)
 {
@@ -350,7 +350,7 @@ function SelectTheme(element, solutionId, imageUrl)
 '<div id="html_container">'.
 '<div class="inst-template-color-block" id="solutions-container">';
 		$ii = 0;
-		$arDefaultTheme = array(); 
+		$arDefaultTheme = array();
 		foreach ($arThemes as $themeID => $arTheme)
 		{
 			if ($defaultThemeID == "")
@@ -368,9 +368,9 @@ function SelectTheme(element, solutionId, imageUrl)
 						<span class="inst-templ-color-name">'.$ii.'. '.$arTheme["NAME"].'</span>
 					</span>';
 		}
-		
-		$this->content .= $this->ShowHiddenField($themeVarName, $defaultThemeID, array("id" => "selected-solution"));  
-		$this->content .= 
+
+		$this->content .= $this->ShowHiddenField($themeVarName, $defaultThemeID, array("id" => "selected-solution"));
+		$this->content .=
 			'</div>'.
 			'<div id="solution-preview">'.
 				'<b class="r3"></b><b class="r1"></b><b class="r1"></b>'.
@@ -398,8 +398,8 @@ class CSiteSettingsWizardStep extends CWizardStep
 
 		if(defined("WIZARD_DEFAULT_SITE_ID"))
 		{
-			$wizard =& $this->GetWizard(); 
-			$wizard->SetVar("siteID", WIZARD_DEFAULT_SITE_ID); 
+			$wizard =& $this->GetWizard();
+			$wizard->SetVar("siteID", WIZARD_DEFAULT_SITE_ID);
 		}
 
 		$WIZARD_SITE_ROOT_PATH = $_SERVER["DOCUMENT_ROOT"];
@@ -433,14 +433,14 @@ class CSiteSettingsWizardStep extends CWizardStep
 	function GetFileContent($filename, $default_value)
 	{
 		if(!file_exists($filename))
-			return $default_value; 
+			return $default_value;
 		$f = fopen($filename, "rb");
 		if(!$f)
-			return $default_value; 
+			return $default_value;
 
 		if(filesize($filename) > 0)
 			$res = fread($f, filesize($filename));
-		else 
+		else
 			$res = '';
 
 		fclose($f);
@@ -505,7 +505,7 @@ class CDataInstallWizardStep extends CWizardStep
 				<div id="error_notice">
 					<div class="inst-note-block inst-note-block-red">
 						<div class="inst-note-block-icon"></div>
-						<div class="inst-note-block-label">'.GetMessage("INST_ERROR_OCCURED").'</div><br />
+						<div class="inst-note-block-label">'.GetMessage("INST_ERROR_OCCURED").'</div><br style="clear:both" />
 						<div class="inst-note-block-text">'.GetMessage("INST_ERROR_NOTICE").'<div id="error_text"></div></div>
 					</div>
 				</div>
@@ -546,9 +546,9 @@ class CDataInstallWizardStep extends CWizardStep
 			$defSiteName = GetMessage("wiz_site_name");
 		elseif($wizard->wizardName!="")
 			$defSiteName = $wizard->wizardName;
-		
+
 		$res = false;
-		$site_id = $wizard->GetVar("siteID"); 
+		$site_id = $wizard->GetVar("siteID");
 		if($site_id!="")
 		{
 			$db_res = CSite::GetList($by="sort", $order="desc", array("LID" => $site_id));
@@ -604,7 +604,7 @@ class CDataInstallWizardStep extends CWizardStep
 				if (!$result)
 				{
 					echo $obSite->LAST_ERROR;
-					die(); 
+					die();
 				}
 			}
 			$wizard->SetVar("siteCreate", "N");
@@ -618,7 +618,7 @@ class CDataInstallWizardStep extends CWizardStep
 			$templateID = $wizard->GetVar("templateID");
 			$themeVarName = $templateID."_themeID";
 			$themeID = $wizard->GetVar($themeVarName);
-			
+
 			$templatesPath = WizardServices::GetTemplatesPath($wizard->GetPath()."/site");
 			$arTemplates = WizardServices::GetTemplates($templatesPath);
 
@@ -626,7 +626,7 @@ class CDataInstallWizardStep extends CWizardStep
 			$arThemes = WizardServices::GetThemes($templatesPath."/".$templateID."/themes", $templatesPath."/".$templateID);
 
 			$siteNemNew = $defSiteName . ": " . $arTemplates[$templateID]["NAME"]  . ' (' . $arThemes[$themeID]["NAME"] . ')';
-			
+
 			$obSite = new CSite;
 			$obSite->Update($site_id, Array("NAME"=>$siteNemNew, "SITE_NAME"=>$siteNemNew));
 		}
@@ -658,7 +658,7 @@ class CDataInstallWizardStep extends CWizardStep
 				$arMenuTypes['top'] = GetMessage("WIZ_MENU_TOP");
 
 			if(!$arMenuTypes['bottom'])
-				$arMenuTypes['bottom'] = GetMessage("WIZ_MENU_BOTTOM");		
+				$arMenuTypes['bottom'] = GetMessage("WIZ_MENU_BOTTOM");
 		}
 
 		SetMenuTypes($arMenuTypes, $site_id);
@@ -672,7 +672,7 @@ class CDataInstallWizardStep extends CWizardStep
 		else
 			$success = $this->InstallService($serviceID, $serviceStage);
 
-		if (!$this->repeatCurrentService) 
+		if (!$this->repeatCurrentService)
 		{
 			list($nextService, $nextServiceStage, $stepsComplete, $status) = $this->GetNextStep($arServices, $serviceID, $serviceStage);
 		}
@@ -700,7 +700,7 @@ class CDataInstallWizardStep extends CWizardStep
 		$wizard =& $this->GetWizard();
 
 		$siteID = WizardServices::GetCurrentSiteID($wizard->GetVar("siteID"));
-	
+
 		define("WIZARD_SITE_ID", $siteID);
 
 		$WIZARD_SITE_ROOT_PATH = $_SERVER["DOCUMENT_ROOT"];
@@ -835,24 +835,24 @@ class CFinishWizardStep extends CWizardStep
 	function ShowStep()
 	{
 		$wizard =& $this->GetWizard();
-		
+
 		$siteID = WizardServices::GetCurrentSiteID($wizard->GetVar("siteID"));
 		$rsSites = CSite::GetByID($siteID);
-		$siteDir = "/"; 
+		$siteDir = "/";
 		if ($arSite = $rsSites->Fetch())
-			$siteDir = $arSite["DIR"]; 
+			$siteDir = $arSite["DIR"];
 
 		$wizard->SetFormActionScript(str_replace("//", "/", $siteDir."/?finish"));
 
 		$this->CreateNewIndex();
-		
-		COption::SetOptionString("main", "wizard_solution", $wizard->solutionName, false, $siteID); 
-		
+
+		COption::SetOptionString("main", "wizard_solution", $wizard->solutionName, false, $siteID);
+
 		$this->content .= GetMessage("FINISH_STEP_CONTENT");
-		
+
 		if ($wizard->GetVar("installDemoData") == "Y")
-			$this->content .= GetMessage("FINISH_STEP_REINDEX");		
-		
+			$this->content .= GetMessage("FINISH_STEP_REINDEX");
+
 	}
 
 	function CreateNewIndex()

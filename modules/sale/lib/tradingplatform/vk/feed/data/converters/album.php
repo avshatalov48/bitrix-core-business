@@ -23,7 +23,7 @@ class Album extends DataConverter
 	 */
 	public function __construct($exportId)
 	{
-		if (!isset($exportId) || strlen($exportId) <= 0)
+		if (!isset($exportId) || $exportId == '')
 			throw new ArgumentNullException("EXPORT_ID");
 		
 		$this->exportId = $exportId;
@@ -82,9 +82,9 @@ class Album extends DataConverter
 	{
 		$newTitle = $title;
 		
-		if (strlen($title) > self::TITLE_LENGHT_MAX)
+		if (mb_strlen($title) > self::TITLE_LENGHT_MAX)
 		{
-			$newTitle = substr($title, 0, self::TITLE_LENGHT_MAX - 1);
+			$newTitle = mb_substr($title, 0, self::TITLE_LENGHT_MAX - 1);
 			if ($logger)
 				$logger->addError('ALBUM_LONG_TITLE', $this->result["ID"]);
 		}

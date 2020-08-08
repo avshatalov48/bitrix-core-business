@@ -7,124 +7,137 @@ Loc::loadMessages(__FILE__);
 
 $isAvailable = PaySystem\Manager::HANDLER_AVAILABLE_TRUE;
 
-$portalZone = Loader::includeModule('intranet') ? CIntranetUtils::getPortalZone() : "";
-$licensePrefix = Loader::includeModule('bitrix24') ? \CBitrix24::getLicensePrefix() : "";
+$licensePrefix = Loader::includeModule('bitrix24') ? \CBitrix24::getLicensePrefix() : '';
+$portalZone = Loader::includeModule('intranet') ? CIntranetUtils::getPortalZone() : '';
 
-if (
-	(Loader::includeModule('intranet') && $portalZone !== 'ru')
-	|| (Loader::includeModule("bitrix24") && $licensePrefix !== 'ru')
-)
+if (Loader::includeModule('bitrix24'))
+{
+	if ($licensePrefix !== 'ru')
+	{
+		$isAvailable = PaySystem\Manager::HANDLER_AVAILABLE_FALSE;
+	}
+}
+elseif (Loader::includeModule('intranet') && $portalZone !== 'ru')
 {
 	$isAvailable = PaySystem\Manager::HANDLER_AVAILABLE_FALSE;
 }
 
-$data = array(
+$request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
+$protocol = $request->isHttps() ? 'https' : 'http';
+
+$data = [
 	'NAME' => Loc::getMessage('SALE_HPS_WEBMONEY'),
 	'SORT' => 500,
 	'IS_AVAILABLE' => $isAvailable,
-	'CODES' => array(
-		"WEBMONEY_SHOP_ACCT" => array(
-			"NAME" => Loc::getMessage("SALE_HPS_WEBMONEY_NUMBER"),
-			"SORT" => 100,
+	'CODES' => [
+		'WEBMONEY_SHOP_ACCT' => [
+			'NAME' => Loc::getMessage('SALE_HPS_WEBMONEY_NUMBER'),
+			'SORT' => 100,
 			'GROUP' => 'CONNECT_SETTINGS_WEBMONEY',
-		),
-		"PS_IS_TEST" => array(
-			"NAME" => Loc::getMessage("SALE_HPS_WEBMONEY_TEST"),
-			"SORT" => 200,
+		],
+		'PS_IS_TEST' => [
+			'NAME' => Loc::getMessage('SALE_HPS_WEBMONEY_TEST'),
+			'SORT' => 200,
 			'GROUP' => 'GENERAL_SETTINGS',
-			"INPUT" => array(
+			'INPUT' => [
 				'TYPE' => 'Y/N'
-			)
-		),
-		"WEBMONEY_CNST_SECRET_KEY" => array(
-			"NAME" => Loc::getMessage("SALE_HPS_WEBMONEY_KEY"),
-			"SORT" => 300,
+			]
+		],
+		'WEBMONEY_CNST_SECRET_KEY' => [
+			'NAME' => Loc::getMessage('SALE_HPS_WEBMONEY_KEY'),
+			'SORT' => 300,
 			'GROUP' => 'CONNECT_SETTINGS_WEBMONEY'
-		),
-		"WEBMONEY_HASH_ALGO" => array(
-			"NAME" => Loc::getMessage("SALE_HPS_WEBMONEY_HASH_ALGO"),
-			"SORT" => 400,
-			"TYPE" => "SELECT",
+		],
+		'WEBMONEY_HASH_ALGO' => [
+			'NAME' => Loc::getMessage('SALE_HPS_WEBMONEY_HASH_ALGO'),
+			'SORT' => 400,
+			'TYPE' => 'SELECT',
 			'GROUP' => 'CONNECT_SETTINGS_WEBMONEY',
-			"INPUT" => array(
+			'INPUT' => [
 				'TYPE' => 'ENUM',
-				'OPTIONS' => array(
-					"md5" => 'md5',
-					"sha256" => 'sha256'
-				)
-			)
-		),
-		"PAYMENT_ID" => array(
-			"NAME" => Loc::getMessage("SALE_HPS_WEBMONEY_PAYMENT_ID"),
-			"SORT" => 500,
+				'OPTIONS' => [
+					'md5' => 'md5',
+					'sha256' => 'sha256'
+				]
+			]
+		],
+		'PAYMENT_ID' => [
+			'NAME' => Loc::getMessage('SALE_HPS_WEBMONEY_PAYMENT_ID'),
+			'SORT' => 500,
 			'GROUP' => 'PAYMENT',
-			'DEFAULT' => array(
+			'DEFAULT' => [
 				'PROVIDER_KEY' => 'PAYMENT',
 				'PROVIDER_VALUE' => 'ID'
-			)
-		),
-		"PAYMENT_DATE_INSERT" => array(
-			"NAME" => Loc::getMessage("SALE_HPS_WEBMONEY_DATE"),
-			"SORT" => 600,
+			]
+		],
+		'PAYMENT_DATE_INSERT' => [
+			'NAME' => Loc::getMessage('SALE_HPS_WEBMONEY_DATE'),
+			'SORT' => 600,
 			'GROUP' => 'PAYMENT',
-			'DEFAULT' => array(
+			'DEFAULT' => [
 				'PROVIDER_KEY' => 'PAYMENT',
 				'PROVIDER_VALUE' => 'DATE_BILL'
-			)
-		),
-		"PAYMENT_SHOULD_PAY" => array(
-			"NAME" => Loc::getMessage("SALE_HPS_WEBMONEY_SUMMA"),
-			"SORT" => 700,
-			'DEFAULT' => array(
+			]
+		],
+		'PAYMENT_SHOULD_PAY' => [
+			'NAME' => Loc::getMessage('SALE_HPS_WEBMONEY_SUMMA'),
+			'SORT' => 700,
+			'DEFAULT' => [
 				'PROVIDER_KEY' => 'PAYMENT',
 				'PROVIDER_VALUE' => 'SUM'
-			),
+			],
 			'GROUP' => 'PAYMENT'
-		),
-		"WEBMONEY_RESULT_URL" => array(
-			"NAME" => Loc::getMessage("SALE_HPS_WEBMONEY_URL"),
-			"SORT" => 800,
+		],
+		'WEBMONEY_RESULT_URL' => [
+			'NAME' => Loc::getMessage('SALE_HPS_WEBMONEY_URL'),
+			'SORT' => 800,
 			'GROUP' => 'CONNECT_SETTINGS_WEBMONEY',
-		),
-		"WEBMONEY_SUCCESS_URL" => array(
-			"NAME" => Loc::getMessage("SALE_HPS_WEBMONEY_URL_OK"),
-			"SORT" => 900,
+			'DEFAULT' => [
+				'PROVIDER_KEY' => 'VALUE',
+				'PROVIDER_VALUE' => $protocol.'://'.$request->getHttpHost().'/bitrix/tools/sale_ps_result.php',
+			]
+		],
+		'WEBMONEY_SUCCESS_URL' => [
+			'NAME' => Loc::getMessage('SALE_HPS_WEBMONEY_URL_OK'),
+			'DESCRIPTION' => Loc::getMessage('SALE_HPS_WEBMONEY_URL_OK_DESC'),
+			'SORT' => 900,
 			'GROUP' => 'CONNECT_SETTINGS_WEBMONEY',
-		),
-		"WEBMONEY_FAIL_URL" => array(
-			"NAME" => Loc::getMessage("SALE_HPS_WEBMONEY_URL_ERROR"),
-			"SORT" => 1000,
+		],
+		'WEBMONEY_FAIL_URL' => [
+			'NAME' => Loc::getMessage('SALE_HPS_WEBMONEY_URL_ERROR'),
+			'DESCRIPTION' => Loc::getMessage('SALE_HPS_WEBMONEY_URL_ERROR_DESC'),
+			'SORT' => 1000,
 			'GROUP' => 'CONNECT_SETTINGS_WEBMONEY',
-		),
-		"BUYER_PERSON_PHONE" => array(
-			"NAME" => Loc::getMessage("SALE_HPS_WEBMONEY_PHONE"),
+		],
+		'BUYER_PERSON_PHONE' => [
+			'NAME' => Loc::getMessage('SALE_HPS_WEBMONEY_PHONE'),
 			'GROUP' => 'BUYER_PERSON',
-			"SORT" => 1100,
-			"DEFAULT" => array(
+			'SORT' => 1100,
+			'DEFAULT' => [
 				'PROVIDER_KEY' => 'PROPERTY',
 				'PROVIDER_VALUE' => 'PHONE'
-			)
-		),
-		"BUYER_PERSON_EMAIL" => array(
-			"NAME" => Loc::getMessage("SALE_HPS_WEBMONEY_MAIL"),
+			]
+		],
+		'BUYER_PERSON_EMAIL' => [
+			'NAME' => Loc::getMessage('SALE_HPS_WEBMONEY_MAIL'),
 			'GROUP' => 'BUYER_PERSON',
-			"SORT" => 1200,
-			"DEFAULT" => array(
+			'SORT' => 1200,
+			'DEFAULT' => [
 				'PROVIDER_KEY' => 'PROPERTY',
 				'PROVIDER_VALUE' => 'EMAIL'
-			)
-		),
-		"PS_CHANGE_STATUS_PAY" => array(
-			"NAME" => Loc::getMessage("SALE_HPS_WEBMONEY_CHANGE_STATUS_PAY"),
-			"SORT" => 1300,
+			]
+		],
+		'PS_CHANGE_STATUS_PAY' => [
+			'NAME' => Loc::getMessage('SALE_HPS_WEBMONEY_CHANGE_STATUS_PAY'),
+			'SORT' => 1300,
 			'GROUP' => 'GENERAL_SETTINGS',
-			"INPUT" => array(
+			'INPUT' => [
 				'TYPE' => 'Y/N'
-			),
-			'DEFAULT' => array(
-				"PROVIDER_KEY" => "INPUT",
-				"PROVIDER_VALUE" => "Y",
-			)
-		)
-	)
-);
+			],
+			'DEFAULT' => [
+				'PROVIDER_KEY' => 'INPUT',
+				'PROVIDER_VALUE' => 'Y',
+			]
+		]
+	]
+];

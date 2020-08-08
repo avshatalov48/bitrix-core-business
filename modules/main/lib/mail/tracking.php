@@ -324,6 +324,11 @@ class Tracking
 	 */
 	public static function click(array $data)
 	{
+		if (Main\Config\Option::get('main', 'track_outgoing_emails_click', 'Y') != 'Y')
+		{
+			return false;
+		}
+
 		if(array_key_exists('MODULE_ID', $data))
 			$filter = array($data['MODULE_ID']);
 		else
@@ -408,6 +413,11 @@ class Tracking
 	 */
 	public static function read(array $data)
 	{
+		if (Main\Config\Option::get('main', 'track_outgoing_emails_read', 'Y') != 'Y')
+		{
+			return false;
+		}
+
 		if(array_key_exists('MODULE_ID', $data))
 			$filter = array($data['MODULE_ID']);
 		else

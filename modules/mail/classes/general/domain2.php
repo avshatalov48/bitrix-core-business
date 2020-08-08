@@ -109,8 +109,8 @@ class CMailDomain2
 
 	public static function addUser($token, $domain, $login, $password, &$error)
 	{
-		$domain = trim(strtolower($domain));
-		$login  = trim(strtolower($login));
+		$domain = trim(mb_strtolower($domain));
+		$login  = trim(mb_strtolower($login));
 
 		if (empty($domain))
 		{
@@ -194,7 +194,7 @@ class CMailDomain2
 	{
 		global $DB;
 
-		$domain = trim(strtolower($domain));
+		$domain = trim(mb_strtolower($domain));
 		$users = array();
 
 		if (empty($domain))
@@ -233,7 +233,7 @@ class CMailDomain2
 				{
 					list($login, $emailDomain) = explode('@', $email['login'], 2);
 					if ($emailDomain == $domain)
-						$users[] = trim(strtolower($login));
+						$users[] = trim(mb_strtolower($login));
 				}
 			}
 			while ($result['total'] > $per_page*$page);
@@ -332,8 +332,8 @@ class CMailDomain2
 
 	public static function deleteUser($token, $domain, $login, &$error)
 	{
-		$domain = trim(strtolower($domain));
-		$login  = trim(strtolower($login));
+		$domain = trim(mb_strtolower($domain));
+		$login  = trim(mb_strtolower($login));
 
 		if (empty($domain))
 		{

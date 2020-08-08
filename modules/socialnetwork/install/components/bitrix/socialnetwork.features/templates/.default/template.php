@@ -18,14 +18,14 @@ if ($arResult["NEED_AUTH"] == "Y")
 {
 	$APPLICATION->AuthForm("");
 }
-elseif (strlen($arResult["FatalError"]) > 0)
+elseif ($arResult["FatalError"] <> '')
 {
 	?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?
 }
 else
 {
 	if (
-		strlen($arResult["ErrorMessage"]) > 0
+		$arResult["ErrorMessage"] <> ''
 		&& $arResult["ShowForm"] != "Input"
 	)
 	{
@@ -46,7 +46,7 @@ else
 			});
 		</script>
 
-		<div id="sonet_features_error_block" class="ui-alert ui-alert-xs ui-alert-danger ui-alert-icon-danger<?=(strlen($arResult["ErrorMessage"]) > 0 ? "" : " sonet-ui-form-error-block-invisible")?>"><?=$arResult["ErrorMessage"]?></div><?
+		<div id="sonet_features_error_block" class="ui-alert ui-alert-xs ui-alert-danger ui-alert-icon-danger<?=($arResult["ErrorMessage"] <> '' ? "" : " sonet-ui-form-error-block-invisible")?>"><?=$arResult["ErrorMessage"]?></div><?
 
 		$uri = new Bitrix\Main\Web\Uri(POST_FORM_ACTION_URI);
 		if (!empty($arResult["groupTypeCode"]))
@@ -104,17 +104,35 @@ else
 					)
 					{
 						$hasActiveFeatures = true;
+						$featureBlockClass = 'sn-features-row';
+						$featureSubTitleText = '';
+
+						if (
+							$feature == 'tasks'
+							&& $arResult['tasksLimitExceeded']
+						)
+						{
+							$APPLICATION->IncludeComponent('bitrix:ui.info.helper', '', []);
+
+							$featureBlockClass .= ' sn-features-lock';
+							$featureSubTitleText = Loc::getMessage('SONET_C4_TASK_FEATURE_DISABLED', [
+								'#LINK_START#' => '<a href="#" onclick="BX.UI.InfoHelper.show(\'limit_tasks_access_permissions\');">',
+								'#LINK_END#' => '</a>',
+							]);
+						}
 
 						$featureName = (
 								array_key_exists("title", $arResult["arSocNetFeaturesSettings"][$feature])
-								&& strlen($arResult["arSocNetFeaturesSettings"][$feature]["title"]) > 0
+								&& $arResult["arSocNetFeaturesSettings"][$feature]["title"] <> ''
 									? $arResult["arSocNetFeaturesSettings"][$feature]["title"]
 									: Loc::getMessage("SONET_FEATURES_".$feature)
 						);
 
-						?><div class="sn-features-row">
-							<h4 class="sn-features-title"><?=$featureName?></h4><?
-
+						?><div class="<?=$featureBlockClass?>">
+							<div class="sn-features-title-box">
+								<h4 class="sn-features-title"><?=$featureName?></h4>
+								<span class="sn-features-subtitle"><?=$featureSubTitleText?></span>
+							</div><?
 							if (
 								$arResult["ENTITY_TYPE"] == "U"
 								&& !(
@@ -187,7 +205,7 @@ else
 											$title = (
 												array_key_exists("operation_titles", $arResult["arSocNetFeaturesSettings"][$feature])
 												&& array_key_exists($operation, $arResult["arSocNetFeaturesSettings"][$feature]["operation_titles"])
-												&& strlen($arResult["arSocNetFeaturesSettings"][$feature]["operation_titles"][$operation]) > 0
+												&& $arResult["arSocNetFeaturesSettings"][$feature]["operation_titles"][$operation] <> ''
 													? $arResult["arSocNetFeaturesSettings"][$feature]["operation_titles"][$operation]
 													: Loc::getMessage("SONET_FEATURES_".$feature."_".$operation)
 											);
@@ -230,7 +248,7 @@ else
 					<?=bitrix_sessid_post()?>
 					<span class="sonet-ui-btn-cont sonet-ui-btn-cont-center"><?
 						?><button class="ui-btn ui-btn-success" id="sonet_group_features_form_button_submit"><?=Loc::getMessage("SONET_C4_SUBMIT") ?></button><?
-						?><button class="ui-btn ui-btn-light-border" id="sonet_group_features_form_button_cancel"><?=Loc::getMessage("SONET_C4_T_CANCEL") ?></button><?
+						?><button class="ui-btn ui-btn-light-border" id="sonet_group_features_form_button_cancel" bx-url="<?=htmlspecialcharsbx($arResult["ENTITY_TYPE"] == "G" ? $arResult["Urls"]["Group"] : $arResult["Urls"]["User"])?>"><?=Loc::getMessage("SONET_C4_T_CANCEL") ?></button><?
 					?></span><? // class="sonet-ui-btn-cont"
 				?></div><? // sonet-slider-footer-fixed
 			}

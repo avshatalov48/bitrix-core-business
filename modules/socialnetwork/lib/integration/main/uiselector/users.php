@@ -232,7 +232,8 @@ class Users extends \Bitrix\Main\UI\Selector\EntityBase
 				}
 
 				$items[$entityType] = array_merge((is_array($items[$entityType]) ? $items[$entityType] : array()), \CSocNetLogDestination::getUsers(array(
-					'id' => $lastUserList
+					'id' => $lastUserList,
+					'ONLY_WITH_EMAIL' => (isset($options['onlyWithEmail']) && $options['onlyWithEmail'] == 'Y' ? 'Y' : '')
 				)));
 				foreach($items[$entityType] as $item)
 				{

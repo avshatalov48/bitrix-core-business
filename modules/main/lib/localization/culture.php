@@ -92,7 +92,23 @@ class CultureTable extends Data\DataManager
 			),
 			'DAY_MONTH_FORMAT' => array(
 				'data_type' => 'string',
+				'default_value' => "F j",
+			),
+			'DAY_SHORT_MONTH_FORMAT' => array(
+				'data_type' => 'string',
 				'default_value' => "M j",
+			),
+			'DAY_OF_WEEK_MONTH_FORMAT' => array(
+				'data_type' => 'string',
+				'default_value' => "l, F j",
+			),
+			'SHORT_DAY_OF_WEEK_MONTH_FORMAT' => array(
+				'data_type' => 'string',
+				'default_value' => "D, F j",
+			),
+			'SHORT_DAY_OF_WEEK_SHORT_MONTH_FORMAT' => array(
+				'data_type' => 'string',
+				'default_value' => "D, M j",
 			),
 			'SHORT_TIME_FORMAT' => array(
 				'data_type' => 'string',

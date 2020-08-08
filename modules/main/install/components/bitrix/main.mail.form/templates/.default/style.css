@@ -57,7 +57,7 @@
 }
 
 .main-mail-form-field-spacer {
-	height: 38px;
+	height: 39px;
 }
 
 .main-mail-form-field-spacer-25 {
@@ -78,10 +78,10 @@
 	flex-wrap: wrap;
 	box-sizing: border-box;
 	background: #fff;
-	border: 1px solid rgba(83,92,105,.2);
+	border: 1px solid #c6cdd3;
 	border-radius: 2px;
 	padding: 3px;
-	min-height: 38px;
+	min-height: 39px;
 }
 
 .main-mail-form-field-value-short .main-mail-form-field-value-wrapper {
@@ -147,9 +147,9 @@
 	outline: none;
 	border: none;
 	padding: 0 5px;
-	height: 30px;
+	height: 31px;
 	width: 100%;
-	font: 15px/30px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px/31px "Helvetica Neue", Arial, Helvetica, sans-serif;
 	vertical-align: middle;
 }
 
@@ -486,3 +486,7 @@
 	background-position: -113px -61px;
 }
 /* version = 1 patch end */
+
+.main-mail-form-field-value-rcpt .ui-tile-selector-selector-wrap {
+	padding: 2px 2px;
+}

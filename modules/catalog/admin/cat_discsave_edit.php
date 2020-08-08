@@ -38,7 +38,7 @@ function __cmpRange($a,$b)
 function __GetRangeInfo($ID,$strPrefix)
 {
 	$arResult = false;
-	if ((true == isset($_POST[$strPrefix.$ID.'_SUMM'])) && (0 < strlen($_POST[$strPrefix.$ID.'_SUMM'])))
+	if ((true == isset($_POST[$strPrefix.$ID.'_SUMM'])) && ($_POST[$strPrefix.$ID.'_SUMM'] <> ''))
 	{
 		$arResult['RANGE_FROM'] = doubleval(str_replace(',','.',$_POST[$strPrefix.$ID.'_SUMM']));
 		$arResult['VALUE'] = 0;
@@ -132,7 +132,7 @@ if(
 
 	if (isset($_POST['ACTION_PERIOD']))
 	{
-		$ACTION_PERIOD = substr(trim($_POST['ACTION_PERIOD']),0,1);
+		$ACTION_PERIOD = mb_substr(trim($_POST['ACTION_PERIOD']), 0, 1);
 		if ('D' == $ACTION_PERIOD)
 		{
 			if (empty($_POST['ACTIVE_FROM']) && empty($_POST['ACTIVE_TO']))
@@ -188,7 +188,7 @@ if(
 
 	if (isset($_POST['COUNT_PERIOD']))
 	{
-		$COUNT_PERIOD = substr(trim($_POST['COUNT_PERIOD']),0,1);
+		$COUNT_PERIOD = mb_substr(trim($_POST['COUNT_PERIOD']), 0, 1);
 		if ('D' == $COUNT_PERIOD)
 		{
 			if (empty($_POST['COUNT_FROM']) && empty($_POST['COUNT_TO']))

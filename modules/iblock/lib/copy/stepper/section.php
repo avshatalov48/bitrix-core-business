@@ -39,12 +39,14 @@ class Section extends Entity
 
 			$sectionId = ($queueOption["sectionId"] ?: 0);
 			$copiedSectionId = ($queueOption["copiedSectionId"] ?: 0);
+			$errorOffset = ($queueOption["errorOffset"] ?: 0);
 
 			$limit = 5;
-			$offset = $this->getOffset($copiedSectionId);
+			$offset = $this->getOffset($copiedSectionId) + $errorOffset;
 
 			$enumRatio = ($queueOption["enumRatio"] ?: []);
 			$sectionsRatio = ($queueOption["sectionsRatio"] ?: []);
+			$mapIdsCopiedElements = ($queueOption["mapIdsCopiedElements"] ?: []);
 
 			if ($sectionId)
 			{
@@ -52,11 +54,18 @@ class Section extends Entity
 
 				$elementCopier = $this->getElementCopier();
 				$containerCollection = $this->getContainerCollection($elementIds, $sectionsRatio, $enumRatio);
-				$elementCopier->copy($containerCollection);
+				$result = $elementCopier->copy($containerCollection);
+				if (!$result->isSuccess())
+				{
+					$queueOption["errorOffset"] += $this->getErrorOffset($elementCopier);
+				}
+
+				$mapIdsCopiedElements = $elementCopier->getMapIdsCopiedEntity() + $mapIdsCopiedElements;
+				$queueOption["mapIdsCopiedElements"] = $mapIdsCopiedElements;
+				$this->saveQueueOption($queueOption);
 
 				if ($selectedRowsCount < $limit)
 				{
-					$this->deleteCurrentQueue($queue);
 					$this->deleteQueueOption();
 					return !$this->isQueueEmpty();
 				}
@@ -68,7 +77,6 @@ class Section extends Entity
 			}
 			else
 			{
-				$this->deleteCurrentQueue($queue);
 				$this->deleteQueueOption();
 				return !$this->isQueueEmpty();
 			}

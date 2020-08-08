@@ -40,11 +40,11 @@ class CBPSaveHistoryActivity
 			return CBPActivityExecutionStatus::Closed;
 
 		$name = $this->Name;
-		if ($name == null || strlen($name) <= 0)
+		if ($name == null || $name == '')
 		{
-			if (array_key_exists("NAME", $arDocument) && is_string($arDocument["NAME"]) && strlen($arDocument["NAME"]) > 0)
+			if (array_key_exists("NAME", $arDocument) && is_string($arDocument["NAME"]) && $arDocument["NAME"] <> '')
 				$name = $arDocument["NAME"];
-			elseif (array_key_exists("TITLE", $arDocument) && is_string($arDocument["TITLE"]) && strlen($arDocument["TITLE"]) > 0)
+			elseif (array_key_exists("TITLE", $arDocument) && is_string($arDocument["TITLE"]) && $arDocument["TITLE"] <> '')
 				$name = $arDocument["TITLE"];
 			else
 				$name = Date("Y-m-d H:i:s");

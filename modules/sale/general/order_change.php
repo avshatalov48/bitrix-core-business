@@ -5,19 +5,19 @@ class CAllSaleOrderChange
 {
 	function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
-		if ((is_set($arFields, "ORDER_ID") || $ACTION=="ADD") && strlen($arFields["ORDER_ID"]) <= 0)
+		if ((is_set($arFields, "ORDER_ID") || $ACTION=="ADD") && (int)$arFields["ORDER_ID"] === 0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SOC_EMPTY_ORDER_ID"), "SOC_ADD_EMPTY_ORDER_ID");
 			return false;
 		}
 
-		if ((is_set($arFields, "USER_ID") || $ACTION=="ADD") && strlen($arFields["USER_ID"]) < 0)
+		if ((is_set($arFields, "USER_ID") || $ACTION=="ADD") && (int)$arFields["USER_ID"] === 0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SOC_EMPTY_USER_ID"), "SOC_ADD_EMPTY_USER_ID");
 			return false;
 		}
 
-		if ((is_set($arFields, "TYPE") || $ACTION=="ADD") && strlen($arFields["TYPE"]) <= 0)
+		if ((is_set($arFields, "TYPE") || $ACTION=="ADD") && (string)$arFields["TYPE"] === '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SOC_EMPTY_TYPE"), "SOC_ADD_EMPTY_TYPE");
 			return false;
@@ -30,7 +30,7 @@ class CAllSaleOrderChange
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$strSql =
 			"SELECT O.*, ".
@@ -51,7 +51,7 @@ class CAllSaleOrderChange
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if ($ID <= 0)
 			return False;
 
@@ -173,7 +173,7 @@ class CAllSaleOrderChange
 			if (is_array($val))
 				continue;
 
-			if (!array_key_exists($key, $arOldFields) || (array_key_exists($key, $arOldFields) && strlen($val) > 0 && $val != $arOldFields[$key]) && !in_array($key, $arDeleteFields))
+			if (!array_key_exists($key, $arOldFields) || (array_key_exists($key, $arOldFields) && $val <> '' && $val != $arOldFields[$key]) && !in_array($key, $arDeleteFields))
 			{
 				$arRecord = CSaleOrderChange::MakeRecordFromField($key, $arNewFields, $entityName, $entity);
 				if ($arRecord)
@@ -1061,7 +1061,7 @@ class CSaleOrderChangeFormat
 
 	public static function FormatOrderMarked($data)
 	{
-		if (is_array($data) && isset($data["REASON_MARKED"]) && strlen($data["REASON_MARKED"]) > 0)
+		if (is_array($data) && isset($data["REASON_MARKED"]) && $data["REASON_MARKED"] <> '')
 		{
 			$info = GetMessage("SOC_ORDER_MARKED_INFO");
 
@@ -1219,7 +1219,7 @@ class CSaleOrderChangeFormat
 				{
 					if (!array_key_exists('DELIVERY_NAME', $data) && strval($data['DELIVERY_NAME']) != '')
 					{
-						if (strpos($value, ":") !== false)
+						if (mb_strpos($value, ":") !== false)
 						{
 							$arId = explode(":", $value);
 							$dbDelivery = CSaleDeliveryHandler::GetBySID($arId[0]);
@@ -1487,7 +1487,7 @@ class CSaleOrderChangeFormat
 	public static function FormatShipmentMarked($data)
 	{
 		$info = "";
-		if (is_array($data) && isset($data["REASON_MARKED"]) && strlen($data["REASON_MARKED"]) > 0)
+		if (is_array($data) && isset($data["REASON_MARKED"]) && $data["REASON_MARKED"] <> '')
 		{
 			$info = GetMessage("SOC_SHIPMENT_MARKED_INFO");
 			$info = static::doProcessLogMessage($info, $data);
@@ -1703,7 +1703,7 @@ class CSaleOrderChangeFormat
 				{
 					foreach ($data as $param => $value)
 					{
-						if (strpos($param, "OLD_") === 0)
+						if (mb_strpos($param, "OLD_") === 0)
 							continue;
 
 						$info .=(strval($info) != "" ? "; " : ""). $param.": ".$value;
@@ -1767,7 +1767,7 @@ class CSaleOrderChangeFormat
 				{
 					foreach ($data as $param => $value)
 					{
-						if (strpos($param, "OLD_") === 0)
+						if (mb_strpos($param, "OLD_") === 0)
 							continue;
 
 						$info .=(strval($info) != "" ? "; " : ""). $param.": ".$value;

@@ -146,7 +146,7 @@ abstract class Ofd
 	 * @param $settings
 	 * @return Result
 	 */
-	public static function validateSettings($settings)
+	public function validate()
 	{
 		return new Result();
 	}

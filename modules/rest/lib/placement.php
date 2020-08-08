@@ -26,6 +26,7 @@ class PlacementTable extends Main\Entity\DataManager
 	const PLACEMENT_DEFAULT = 'DEFAULT';
 
 	const ERROR_PLACEMENT_NOT_FOUND = 'ERROR_PLACEMENT_NOT_FOUND';
+	const ERROR_PLACEMENT_MAX_COUNT = 'ERROR_PLACEMENT_MAX_COUNT';
 
 	const CACHE_TTL = 86400;
 	const CACHE_DIR = 'rest/placement';

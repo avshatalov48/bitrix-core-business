@@ -16,9 +16,7 @@ Class mail extends CModule
 	{
 		$arModuleVersion = array();
 
-		$path = str_replace("\\", "/", __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen("/index.php"));
-		include($path."/version.php");
+		include(__DIR__.'/version.php');
 
 		if (is_array($arModuleVersion) && array_key_exists("VERSION", $arModuleVersion))
 		{
@@ -43,7 +41,7 @@ Class mail extends CModule
 		// Database tables creation
 		if(!$DB->Query("SELECT 'x' FROM b_mail_mailbox WHERE 1=0", true))
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/install/db/".strtolower($DB->type)."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/install/db/".mb_strtolower($DB->type)."/install.sql");
 
 			if (\Bitrix\Main\Entity\CryptoField::cryptoAvailable())
 			{
@@ -71,16 +69,21 @@ Class mail extends CModule
 			$eventManager->registerEventHandlerCompatible('main', 'OnUserTypeBuildList', 'mail', 'Bitrix\Mail\MessageUserType', 'getUserTypeDescription');
 			$eventManager->registerEventHandlerCompatible('main', 'OnMailEventMailRead', 'mail', 'Bitrix\Mail\Helper\MessageEventManager', 'onMailEventMailRead');
 
+			$eventManager->registerEventHandler('main', 'OnUISelectorGetProviderByEntityType', 'mail', '\Bitrix\Mail\Integration\Main\UISelector\Handler', 'OnUISelectorGetProviderByEntityType');
+			$eventManager->registerEventHandler('main', 'OnUISelectorFillLastDestination', 'mail', '\Bitrix\Mail\Integration\Main\UISelector\Handler', 'OnUISelectorFillLastDestination');
+
+			$eventManager->registerEventHandlerCompatible('im', 'OnGetNotifySchema', 'mail', '\Bitrix\Mail\Integration\Im\Notification', 'getSchema');
+
 			RegisterModule("mail");
 
 			if (CModule::IncludeModule("mail"))
 			{
-				if (strtolower($DB->type) == 'mysql')
+				if (mb_strtolower($DB->type) == 'mysql')
 				{
 					$errors = $DB->runSqlBatch(sprintf(
 						'%s/bitrix/modules/mail/install/db/%s/install_ft.sql',
 						$_SERVER['DOCUMENT_ROOT'],
-						strtolower($DB->type)
+						mb_strtolower($DB->type)
 					));
 					if ($errors === false)
 					{
@@ -149,7 +152,7 @@ Class mail extends CModule
 					}
 					if (!empty($arTasksID))
 					{
-						CGroup::SetTasks($groupID, $arTasksID, true);
+						CGroup::SetTasks($groupID, $arTasksID);
 					}
 
 					if (!file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bitrix24"))
@@ -168,10 +171,10 @@ Class mail extends CModule
 
 								$documentRoot = $_SERVER["DOCUMENT_ROOT"];
 								$filePath = rtrim($filePath, "/");
-								$position = strrpos($filePath, "/");
+								$position = mb_strrpos($filePath, "/");
 
-								$pathFile = substr($filePath, $position+1);
-								$pathDir = substr($filePath, 0, $position);
+								$pathFile = mb_substr($filePath, $position + 1);
+								$pathDir = mb_substr($filePath, 0, $position);
 
 								$PERM = array();
 								if (file_exists($documentRoot.$pathDir."/.access.php"))
@@ -194,7 +197,6 @@ Class mail extends CModule
 			}
 
 			CAgent::AddAgent("CMailbox::CleanUp();", "mail", "N", 60*60*24);
-			CAgent::addAgent('Bitrix\Mail\Helper::resyncDomainUsersAgent();', 'mail', 'N', 60*60*24);
 
 			return true;
 		}
@@ -217,28 +219,100 @@ Class mail extends CModule
 		{
 			$mailServices = array(
 				'gmail' => array(
-					'SERVER' => 'imap.gmail.com', 'PORT' => 993, 'ENCRYPTION' => 'Y', 'LINK' => 'https://mail.google.com/', 'SMTP_SERVER' => 'smtp.gmail.com', 'SMTP_PORT' => 465, 'SMTP_LOGIN_AS_IMAP' => true, 'SMTP_PASSWORD_AS_IMAP' => true,
+					'SERVER' => 'imap.gmail.com',
+					'PORT' => 993,
+					'ENCRYPTION' => 'Y',
+					'LINK' => 'https://mail.google.com/',
+					'SMTP_SERVER' => 'smtp.gmail.com',
+					'SMTP_PORT' => 465,
+					'SMTP_ENCRYPTION' => 'Y',
+					'SMTP_LOGIN_AS_IMAP' => 'Y',
+					'SMTP_PASSWORD_AS_IMAP' => 'Y',
+					'UPLOAD_OUTGOING' => 'N',
 				),
 				'icloud' => array(
-					'SERVER' => 'imap.mail.me.com', 'PORT' => 993, 'ENCRYPTION' => 'Y', 'LINK' => 'https://www.icloud.com/#mail', 'SMTP_SERVER' => 'smtp.mail.me.com', 'SMTP_PORT' => 587, 'SMTP_LOGIN_AS_IMAP' => true, 'SMTP_PASSWORD_AS_IMAP' => true,
+					'SERVER' => 'imap.mail.me.com',
+					'PORT' => 993,
+					'ENCRYPTION' => 'Y',
+					'LINK' => 'https://www.icloud.com/#mail',
+					'SMTP_SERVER' => 'smtp.mail.me.com',
+					'SMTP_PORT' => 587,
+					'SMTP_ENCRYPTION' => 'N',
+					'SMTP_LOGIN_AS_IMAP' => 'Y',
+					'SMTP_PASSWORD_AS_IMAP' => 'Y',
+					'UPLOAD_OUTGOING' => 'Y',
 				),
 				'outlook.com' => array(
-					'SERVER' => 'imap-mail.outlook.com', 'PORT' => 993, 'ENCRYPTION' => 'Y', 'LINK' => 'https://www.outlook.com/owa', 'SMTP_SERVER' => 'smtp-mail.outlook.com', 'SMTP_PORT' => 587, 'SMTP_LOGIN_AS_IMAP' => true, 'SMTP_PASSWORD_AS_IMAP' => true,
+					'SERVER' => 'imap-mail.outlook.com',
+					'PORT' => 993,
+					'ENCRYPTION' => 'Y',
+					'LINK' => 'https://www.outlook.com/owa',
+					'SMTP_SERVER' => 'smtp-mail.outlook.com',
+					'SMTP_PORT' => 587,
+					'SMTP_ENCRYPTION' => 'N',
+					'SMTP_LOGIN_AS_IMAP' => 'Y',
+					'SMTP_PASSWORD_AS_IMAP' => 'Y',
+					'UPLOAD_OUTGOING' => 'Y',
 				),
 				'office365' => array(
-					'SERVER' => 'outlook.office365.com', 'PORT' => 993, 'ENCRYPTION' => 'Y', 'LINK' => 'http://mail.office365.com/', 'SMTP_SERVER' => 'smtp.office365.com', 'SMTP_PORT' => 587, 'SMTP_LOGIN_AS_IMAP' => true, 'SMTP_PASSWORD_AS_IMAP' => true,
+					'SERVER' => 'outlook.office365.com',
+					'PORT' => 993,
+					'ENCRYPTION' => 'Y',
+					'LINK' => 'http://mail.office365.com/',
+					'SMTP_SERVER' => 'smtp.office365.com',
+					'SMTP_PORT' => 587,
+					'SMTP_ENCRYPTION' => 'N',
+					'SMTP_LOGIN_AS_IMAP' => 'Y',
+					'SMTP_PASSWORD_AS_IMAP' => 'Y',
+					'UPLOAD_OUTGOING' => 'N',
 				),
 				'yahoo' => array(
-					'SERVER' => 'imap.mail.yahoo.com', 'PORT' => 993, 'ENCRYPTION' => 'Y', 'LINK' => 'http://mail.yahoo.com/', 'SMTP_SERVER' => 'smtp.mail.yahoo.com', 'SMTP_PORT' => 465, 'SMTP_LOGIN_AS_IMAP' => true, 'SMTP_PASSWORD_AS_IMAP' => true,
+					'SERVER' => 'imap.mail.yahoo.com',
+					'PORT' => 993,
+					'ENCRYPTION' => 'Y',
+					'LINK' => 'http://mail.yahoo.com/',
+					'SMTP_SERVER' => 'smtp.mail.yahoo.com',
+					'SMTP_PORT' => 465,
+					'SMTP_ENCRYPTION' => 'Y',
+					'SMTP_LOGIN_AS_IMAP' => 'Y',
+					'SMTP_PASSWORD_AS_IMAP' => 'Y',
+					'UPLOAD_OUTGOING' => 'N',
 				),
 				'aol' => array(
-					'SERVER' => 'imap.aol.com', 'PORT' => 993, 'ENCRYPTION' => 'Y', 'LINK' => 'http://mail.aol.com/', 'SMTP_SERVER' => 'smtp.aol.com', 'SMTP_PORT' => 465, 'SMTP_LOGIN_AS_IMAP' => true, 'SMTP_PASSWORD_AS_IMAP' => true,
+					'SERVER' => 'imap.aol.com',
+					'PORT' => 993,
+					'ENCRYPTION' => 'Y',
+					'LINK' => 'http://mail.aol.com/',
+					'SMTP_SERVER' => 'smtp.aol.com',
+					'SMTP_PORT' => 465,
+					'SMTP_ENCRYPTION' => 'Y',
+					'SMTP_LOGIN_AS_IMAP' => 'Y',
+					'SMTP_PASSWORD_AS_IMAP' => 'Y',
+					'UPLOAD_OUTGOING' => 'Y',
 				),
 				'yandex' => array(
-					'SERVER' => 'imap.yandex.ru', 'PORT' => 993, 'ENCRYPTION' => 'Y', 'LINK' => 'https://mail.yandex.ru/', 'SMTP_SERVER' => 'smtp.yandex.ru', 'SMTP_PORT' => 465, 'SMTP_LOGIN_AS_IMAP' => true, 'SMTP_PASSWORD_AS_IMAP' => true,
+					'SERVER' => 'imap.yandex.ru',
+					'PORT' => 993,
+					'ENCRYPTION' => 'Y',
+					'LINK' => 'https://mail.yandex.ru/',
+					'SMTP_SERVER' => 'smtp.yandex.ru',
+					'SMTP_PORT' => 465,
+					'SMTP_ENCRYPTION' => 'Y',
+					'SMTP_LOGIN_AS_IMAP' => 'Y',
+					'SMTP_PASSWORD_AS_IMAP' => 'Y',
+					'UPLOAD_OUTGOING' => 'Y',
 				),
 				'mail.ru' => array(
-					'SERVER' => 'imap.mail.ru', 'PORT' => 993, 'ENCRYPTION' => 'Y', 'LINK' => 'http://e.mail.ru/','SMTP_SERVER' => 'smtp.mail.ru', 'SMTP_PORT' => 465, 'SMTP_LOGIN_AS_IMAP' => true, 'SMTP_PASSWORD_AS_IMAP' => true,
+					'SERVER' => 'imap.mail.ru',
+					'PORT' => 993,
+					'ENCRYPTION' => 'Y',
+					'LINK' => 'http://e.mail.ru/',
+					'SMTP_SERVER' => 'smtp.mail.ru',
+					'SMTP_PORT' => 465,
+					'SMTP_ENCRYPTION' => 'Y',
+					'SMTP_LOGIN_AS_IMAP' => 'Y',
+					'SMTP_PASSWORD_AS_IMAP' => 'Y',
+					'UPLOAD_OUTGOING' => 'Y',
 				),
 				'exchange' => array(),
 				'other' => array(),
@@ -343,7 +417,7 @@ Class mail extends CModule
 
 		if(!array_key_exists("savedata", $arParams) || $arParams["savedata"] != "Y")
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/install/db/".strtolower($DB->type)."/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
 
 			if (\Bitrix\Main\Loader::includeModule('mail'))
 			{
@@ -363,6 +437,11 @@ Class mail extends CModule
 
 		$eventManager->unRegisterEventHandler('main', 'OnUserTypeBuildList', 'mail', 'Bitrix\\Mail\\MessageUserType', 'getUserTypeDescription');
 		$eventManager->unRegisterEventHandler('main', 'OnMailEventMailRead', 'mail', 'Bitrix\\Mail\\Helper\\MessageEventManager', 'onMailEventMailRead');
+
+		$eventManager->unRegisterEventHandler('main', 'OnUISelectorGetProviderByEntityType', 'mail', '\Bitrix\Mail\Integration\Main\UISelector\Handler', 'OnUISelectorGetProviderByEntityType');
+		$eventManager->unRegisterEventHandler('main', 'OnUISelectorFillLastDestination', 'mail', '\Bitrix\Mail\Integration\Main\UISelector\Handler', 'OnUISelectorFillLastDestination');
+
+		$eventManager->unRegisterEventHandler('im', 'OnGetNotifySchema', 'mail', '\Bitrix\Mail\Integration\Im\Notification', 'getSchema');
 
 		//delete agents
 		CAgent::RemoveModuleAgents("mail");
@@ -398,6 +477,7 @@ Class mail extends CModule
 			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/install/themes", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes", true, true);
 			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/install/templates", $_SERVER["DOCUMENT_ROOT"]."/bitrix/templates", true, true);
 			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
+			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/install/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js", true, true);
 		}
 		return true;
 	}

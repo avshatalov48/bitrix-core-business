@@ -13,26 +13,6 @@ $sTableID = "tbl_rubric";
 $oSort = new CAdminSorting($sTableID, "ID", "desc");
 $lAdmin = new CAdminList($sTableID, $oSort);
 
-function CheckFilter()
-{
-	global $FilterArr, $lAdmin;
-	foreach ($FilterArr as $f) global $$f;
-	if (strlen(trim($find_last_executed_1))>0 || strlen(trim($find_last_executed_2))>0)
-	{
-		$date_1_ok = false;
-		$date1_stm = MkDateTime(FmtDate($find_last_executed_1,"D.M.Y"),"d.m.Y");
-		$date2_stm = MkDateTime(FmtDate($find_last_executed_2,"D.M.Y")." 23:59","d.m.Y H:i");
-		if (!$date1_stm && strlen(trim($find_last_executed_1))>0)
-			$lAdmin->AddFilterError(GetMessage("rub_wrong_generation_from"));
-		else $date_1_ok = true;
-		if (!$date2_stm && strlen(trim($find_last_executed_2))>0)
-			$lAdmin->AddFilterError(GetMessage("rub_wrong_generation_till"));
-		elseif ($date_1_ok && $date2_stm <= $date1_stm && strlen($date2_stm)>0)
-			$lAdmin->AddFilterError(GetMessage("rub_wrong_generation_from_till"));
-	}
-	return count($lAdmin->arFilterErrors)==0;
-}
-
 $FilterArr = Array(
 	"find",
 	"find_type",
@@ -47,18 +27,15 @@ $FilterArr = Array(
 
 $lAdmin->InitFilter($FilterArr);
 
-if (CheckFilter())
-{
-	$arFilter = Array(
-		"ID" => ($find!="" && $find_type == "id"? $find:$find_id),
-		"NAME" => ($find!="" && $find_type == "name"? $find:$find_name),
-		"LID" => $find_lid,
-		"ACTIVE" => $find_active,
-		"VISIBLE" => $find_visible,
-		"AUTO" => $find_auto,
-		"CODE" => $find_code,
-	);
-}
+$arFilter = Array(
+	"ID" => ($find!="" && $find_type == "id"? $find:$find_id),
+	"NAME" => ($find!="" && $find_type == "name"? $find:$find_name),
+	"LID" => $find_lid,
+	"ACTIVE" => $find_active,
+	"VISIBLE" => $find_visible,
+	"AUTO" => $find_auto,
+	"CODE" => $find_code,
+);
 
 if($lAdmin->EditAction() && $POST_RIGHT=="W")
 {
@@ -67,7 +44,7 @@ if($lAdmin->EditAction() && $POST_RIGHT=="W")
 		if(!$lAdmin->IsUpdated($ID))
 			continue;
 		$DB->StartTransaction();
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$cData = new CRubric;
 		if(($rsData = $cData->GetByID($ID)) && ($arData = $rsData->Fetch()))
 		{
@@ -100,9 +77,9 @@ if(($arID = $lAdmin->GroupAction()) && $POST_RIGHT=="W")
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		switch($_REQUEST['action'])
 		{
 		case "delete":
@@ -217,7 +194,7 @@ while($arRes = $rsData->NavNext(true, "f_")):
 
 	$arActions[] = array("SEPARATOR"=>true);
 
-	if (strlen($f_TEMPLATE)>0 && $f_AUTO=="Y")
+	if ($f_TEMPLATE <> '' && $f_AUTO=="Y")
 		$arActions[] = array(
 			"ICON"=>"",
 			"TEXT"=>GetMessage("rub_check"),

@@ -401,7 +401,8 @@ $grid_sort = $grid_options->GetSorting(array("sort"=>array("name"=>"asc")));
 if($arResult["IBLOCK"]["BIZPROC"]=="Y" && CModule::IncludeModule('bizproc') && CBPRuntime::isFeatureEnabled())
 {
 	$arDocumentTemplates = CBPDocument::GetWorkflowTemplatesForDocumentType(
-		BizProcDocument::generateDocumentComplexType($arParams["IBLOCK_TYPE_ID"], $arResult["IBLOCK_ID"])
+		BizProcDocument::generateDocumentComplexType($arParams["IBLOCK_TYPE_ID"], $arResult["IBLOCK_ID"]),
+		false
 	);
 	$arResult["BIZPROC"] = "Y";
 }
@@ -661,7 +662,7 @@ if (!$arResult["ANY_SECTION"])
 
 $arResult["ELEMENTS_ROWS"] = array();
 $arResult["SHOW_SECTION_GRID"] = CUserOptions::getOption("lists_show_section_grid", $arResult["GRID_ID"], "N");
-if ($arResult["SHOW_SECTION_GRID"] == "Y")
+if ($arResult["SHOW_SECTION_GRID"] == "Y" && !array_key_exists("*SEARCHABLE_CONTENT", $arFilter))
 {
 	foreach($arResult["SECTIONS"] as $section)
 	{
@@ -747,6 +748,15 @@ else
 	$arDocumentStatesForBP = array();
 }
 
+if ($arResult["PROCESSES"])
+{
+	$arResult["USE_COMMENTS"] = (bool) CModule::includeModule("forum");
+	$processesWithComments = ($arResult["PROCESSES"] && $arResult["USE_COMMENTS"]);
+}
+
+$isBizprocActive = $arResult["BIZPROC"] == "Y";
+$userId = $USER->GetID();
+
 $listValues = array();
 while($obElement = $rsElements->GetNextElement())
 {
@@ -755,6 +765,26 @@ while($obElement = $rsElements->GetNextElement())
 	$data = $obElement->GetFields();
 	if(!is_array($data))
 		continue;
+
+	if ($isBizprocActive)
+	{
+		$documentComplexType = BizprocDocument::generateDocumentComplexType($arIBlock["IBLOCK_TYPE_ID"], $arIBlock["ID"]);
+		$documentComplexId = BizprocDocument::getDocumentComplexId($arIBlock["IBLOCK_TYPE_ID"], $data["ID"]);
+
+		$canStartBizproc = CBPDocument::canUserOperateDocument(
+			CBPCanUserOperateOperation::StartWorkflow,
+			$userId,
+			$documentComplexId,
+			[
+				"IBlockId" => $arIBlock["ID"],
+				"AllUserGroups" => $arUserGroupsForBPTmp,
+				"DocumentStates" => $arDocumentStatesForBP,
+				"WorkflowId" => $arWorkflowTemplate["ID"]
+			]
+		);
+
+		$documentStates = CBPDocument::getDocumentStates($documentComplexType, $documentComplexId);
+	}
 
 	if(!is_array($listValues[$data["ID"]]))
 		$listValues[$data["ID"]] = array();
@@ -824,20 +854,11 @@ while($obElement = $rsElements->GetNextElement())
 	}
 
 	$arBPStart = array();
-	if ($arResult["BIZPROC"] == "Y")
+	if ($isBizprocActive)
 	{
-		if ($arResult["PROCESSES"])
+		if ($arResult["PROCESSES"] && $arResult["USE_COMMENTS"])
 		{
-			$arResult["USE_COMMENTS"] = (bool)CModule::includeModule("forum");
-		}
-
-		$documentStates = CBPDocument::getDocumentStates(
-			BizprocDocument::generateDocumentComplexType($arIBlock["IBLOCK_TYPE_ID"], $arIBlock["ID"]),
-			BizprocDocument::getDocumentComplexId($arIBlock["IBLOCK_TYPE_ID"], $data["ID"])
-		);
-		if($arResult["PROCESSES"] && $arResult["USE_COMMENTS"])
-		{
-			if(!empty($documentStates))
+			if (!empty($documentStates))
 			{
 				$stateTemporary = current($documentStates);
 				$data["WORKFLOW_ID"] = $stateTemporary["ID"];
@@ -855,13 +876,7 @@ while($obElement = $rsElements->GetNextElement())
 			$arUserGroupsForBPTmp[] = "Author";
 		foreach($arDocumentTemplates as $arWorkflowTemplate)
 		{
-			if (CBPDocument::CanUserOperateDocument(
-				CBPCanUserOperateOperation::StartWorkflow,
-				$USER->GetID(),
-				BizprocDocument::getDocumentComplexId($arParams["IBLOCK_TYPE_ID"], intval($data["~ID"])),
-				array("IBlockId" => $arIBlock["ID"], "AllUserGroups" => $arUserGroupsForBPTmp,
-					"DocumentStates" => $arDocumentStatesForBP, "WorkflowId" => $arWorkflowTemplate["ID"])
-			))
+			if ($canStartBizproc)
 			{
 				$url = CHTTP::urlAddParams(str_replace(
 					array("#list_id#", "#section_id#", "#element_id#", "#workflow_template_id#", "#group_id#"),
@@ -880,17 +895,13 @@ while($obElement = $rsElements->GetNextElement())
 		/* Fields BIZPROC and COMMENTS */
 		$ii = 0;
 		$html = "";
-		$proccesses = false;
-		$workflows = array();
-		if($arResult["PROCESSES"] && $arResult["USE_COMMENTS"])
-			$proccesses = true;
-
+		$workflows = [];
 		foreach ($documentStates as $kk => $vv)
 		{
 			if(!$vv["ID"])
 				continue;
 
-			if($proccesses && !empty($data["WORKFLOW_ID"]))
+			if($processesWithComments && !empty($data["WORKFLOW_ID"]))
 				$workflows[] = 'WF_'.$vv["ID"];
 
 			$canViewWorkflow = BizprocDocument::canUserOperateDocument(
@@ -925,7 +936,7 @@ while($obElement = $rsElements->GetNextElement())
 					$vv["STATE_TITLE"] : $vv["STATE_NAME"])."</a><br />";
 		}
 
-		if ($proccesses)
+		if ($processesWithComments)
 		{
 			$workflows = array_unique($workflows);
 			if ($workflows)
@@ -1009,7 +1020,7 @@ while($obElement = $rsElements->GetNextElement())
 		);
 	}
 
-	if ($arResult["BIZPROC"] == "Y")
+	if ($isBizprocActive)
 	{
 		if(count($arBPStart) && !$arResult["IS_SOCNET_GROUP_CLOSED"] && ($lists_perm >= CListPermissions::CAN_BIZPROC
 				|| CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $data["~ID"], "element_bizproc_start")))
@@ -1035,7 +1046,7 @@ while($obElement = $rsElements->GetNextElement())
 				$canViewWorkflow = CBPDocument::CanUserOperateDocument(
 					CBPCanUserOperateOperation::ViewWorkflow,
 					$GLOBALS["USER"]->GetID(),
-					BizprocDocument::getDocumentComplexId($arIBlock["IBLOCK_TYPE_ID"], $data["ID"]),
+					$documentComplexId,
 					array(
 						"AllUserGroups" => $currentUserGroups,
 						"DocumentStates" => $documentStates,
@@ -1051,7 +1062,7 @@ while($obElement = $rsElements->GetNextElement())
 					if (CBPDocument::CanUserOperateDocument(
 						CBPCanUserOperateOperation::StartWorkflow,
 						$GLOBALS["USER"]->GetID(),
-						BizprocDocument::getDocumentComplexId($arIBlock["IBLOCK_TYPE_ID"], $data["ID"]),
+						$documentComplexId,
 						array("UserGroups" => $currentUserGroups))
 					)
 					{
@@ -1068,7 +1079,7 @@ while($obElement = $rsElements->GetNextElement())
 					if (CBPDocument::CanUserOperateDocument(
 						CBPCanUserOperateOperation::CreateWorkflow,
 						$GLOBALS["USER"]->GetID(),
-						BizprocDocument::getDocumentComplexId($arIBlock["IBLOCK_TYPE_ID"], $data["ID"]),
+						$documentComplexId,
 						array("UserGroups" => $currentUserGroups))
 					)
 					{
@@ -1080,7 +1091,7 @@ while($obElement = $rsElements->GetNextElement())
 					}
 				}
 				/* Tasks workflow */
-				if(strlen($documentState["ID"]))
+				if(strlen($documentState["ID"]) && $documentState['WORKFLOW_STATUS'])
 				{
 					$tasks = CBPDocument::getUserTasksForWorkflow($GLOBALS["USER"]->GetID(), $documentState["ID"]);
 					if(!empty($tasks))

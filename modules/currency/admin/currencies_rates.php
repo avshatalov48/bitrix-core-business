@@ -68,13 +68,13 @@ $orderConvert = array(
 );
 if (!isset($by))
 	$by = 'DATE_RATE';
-$by = strtoupper($by);
+$by = mb_strtoupper($by);
 if (isset($orderConvert[$by]))
 	$by = $orderConvert[$by];
 
 if (!isset($order))
 	$order = 'DESC';
-$order = strtoupper($order);
+$order = mb_strtoupper($order);
 $rateOrder = array($by => $order);
 
 if ($CURRENCY_RIGHT=="W" && $adminList->EditAction())

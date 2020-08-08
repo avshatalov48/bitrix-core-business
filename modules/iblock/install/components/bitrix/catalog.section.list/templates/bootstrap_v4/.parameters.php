@@ -26,7 +26,7 @@ $arTemplateParameters = array(
 	),
 );
 
-if (isset($arCurrentValues['VIEW_MODE']) && 'TILE' == $arCurrentValues['VIEW_MODE'])
+if (isset($arCurrentValues['VIEW_MODE']) && $arCurrentValues['VIEW_MODE'] == 'TILE')
 {
 	$arTemplateParameters['HIDE_SECTION_NAME'] = array(
 		'PARENT' => 'VISUAL',
@@ -35,4 +35,24 @@ if (isset($arCurrentValues['VIEW_MODE']) && 'TILE' == $arCurrentValues['VIEW_MOD
 		'DEFAULT' => 'N'
 	);
 }
-?>
+
+if (
+	isset($arCurrentValues['VIEW_MODE'])
+	&& ($arCurrentValues['VIEW_MODE'] == 'TEXT' || $arCurrentValues['VIEW_MODE'] == 'TILE')
+)
+{
+	$arTemplateParameters['LIST_COLUMNS_COUNT'] = array(
+		'PARENT' => 'VISUAL',
+		'NAME' => GetMessage('CPT_BCSL_LIST_COLUMNS_COUNT'),
+		'TYPE' => 'LIST',
+		'VALUES' => array(
+			'1' => '1',
+			'2' => '2',
+			'3' => '3',
+			'4' => '4',
+			'6' => '6',
+			'12' => '12'
+		),
+		'DEFAULT' => '6'
+	);
+}

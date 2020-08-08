@@ -692,7 +692,7 @@ $tabControl->BeginNextTab();
 if ($STEP==2)
 {
 	$SETUP_FILE_NAME = $strAllowExportPath.$SETUP_FILE_NAME;
-	if (strlen($XML_DATA) > 0)
+	if ($XML_DATA <> '')
 	{
 		$XML_DATA = base64_decode($XML_DATA);
 	}

@@ -115,6 +115,10 @@ $arResult['ATTENDEES_INDEX'] = [];
 $arResult['EVENT']['ACCEPTED_ATTENDEES'] = [];
 $arResult['EVENT']['DECLINED_ATTENDEES'] = [];
 
+$arResult['ATTENDEES_INDEX'] = [];
+$arResult['EVENT']['ACCEPTED_ATTENDEES'] = [];
+$arResult['EVENT']['DECLINED_ATTENDEES'] = [];
+
 if ($arResult['EVENT']['IS_MEETING'])
 {
 	if (is_array($arResult['EVENT']['ATTENDEE_LIST']))
@@ -128,11 +132,11 @@ if ($arResult['EVENT']['IS_MEETING'])
 					"STATUS" => $attendee['status']
 				];
 
-				if ($attendee['STATUS'] == "Y")
+				if ($attendee['status'] == "Y" || $attendee['status'] == "H")
 				{
 					$arResult['EVENT']['ACCEPTED_ATTENDEES'][] = $userIndex[$attendee["id"]];
 				}
-				elseif($attendee['STATUS'] == "N")
+				elseif($attendee['status'] == "N")
 				{
 					$arResult['EVENT']['DECLINED_ATTENDEES'][] = $userIndex[$attendee["id"]];
 				}

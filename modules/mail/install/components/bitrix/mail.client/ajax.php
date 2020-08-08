@@ -77,18 +77,38 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 		}
 	}
 
-	/**
-	 * Mark messages as unseen.
-	 * @param string[] $ids
-	 */
-	public function markAsUnseenAction($ids)
+	protected function markMessages($ids, $seen = true)
 	{
+		$method = ($seen ? 'markMailsSeen' : 'markMailsUnseen');
+
+		if (!empty($ids['for_all']))
+		{
+			list($mailboxId, $dir) = explode('-', $ids['for_all']);
+
+			$ids = array();
+
+			$res = Mail\MailMessageUidTable::getList(array(
+				'select' => array('ID'),
+				'filter' => array(
+					'=MAILBOX_ID' => $mailboxId,
+					'=DIR_MD5' => md5($dir),
+					'>MESSAGE_ID' => 0,
+					'@IS_SEEN' => $seen ? array('N', 'U') : array('Y', 'S'),
+					'=DELETE_TIME' => 'IS NULL',
+				),
+			));
+			while ($item = $res->fetch())
+			{
+				$ids[] = "{$item['ID']}-{$mailboxId}";
+			}
+		}
+
 		$result = $this->getIds($ids);
 		if ($result->isSuccess())
 		{
 			$data = $result->getData();
 			$mailMarkerManager = new MailsFlagsManager($data['mailboxId'], $data['messagesIds']);
-			$result = $mailMarkerManager->markMailsUnseen();
+			$result = $mailMarkerManager->$method();
 			if (!$result->isSuccess())
 			{
 				$errors = $result->getErrors();
@@ -98,23 +118,21 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 	}
 
 	/**
+	 * Mark messages as unseen.
+	 * @param string[] $ids
+	 */
+	public function markAsUnseenAction($ids)
+	{
+		$this->markMessages($ids, false);
+	}
+
+	/**
 	 * Mark messages as seen.
 	 * @param string[] $ids
 	 */
 	public function markAsSeenAction($ids)
 	{
-		$result = $this->getIds($ids);
-		if ($result->isSuccess())
-		{
-			$data = $result->getData();
-			$mailMarkerManager = new MailsFlagsManager($data['mailboxId'], $data['messagesIds']);
-			$result = $mailMarkerManager->markMailsSeen();
-			if (!$result->isSuccess())
-			{
-				$errors = $result->getErrors();
-				$this->addError($errors[0]);
-			}
-		}
+		$this->markMessages($ids, true);
 	}
 
 	/**
@@ -194,13 +212,10 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 			return $result->addError(new \Bitrix\Main\Error('validation'));
 		}
 		$mailboxIds = $messIds = [];
-		foreach ($ids as $index => $id)
+		foreach ($ids as $id)
 		{
-			list($messId, $mailboxId) = $this->parseMessageId($id);
-			if (!$this->validateId($messId) || !is_numeric($mailboxId))
-			{
-				continue;
-			}
+			list($messId, $mailboxId) = explode('-', $id, 2);
+
 			$mailboxIds[$mailboxId] = $mailboxId;
 			$messIds[$messId] = $messId;
 		}
@@ -222,16 +237,6 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 		]);
 
 		return $result;
-	}
-
-	/**
-	 * @param $id
-	 *
-	 * @return array
-	 */
-	private function parseMessageId($id)
-	{
-		return explode('-', $id);
 	}
 
 	/**
@@ -264,17 +269,6 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 	}
 
 	/**
-	 * Validate message Id.
-	 * @param string $id
-	 *
-	 * @return bool
-	 */
-	private function validateId($id)
-	{
-		return strlen($id) == 32;
-	}
-
-	/**
 	 * Gets host name.
 	 *
 	 * @return string
@@ -300,16 +294,22 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 
 	/**
 	 * @param $id
+	 * @param $dir
+	 * @param $onlySyncCurrent
 	 *
 	 * @return array
 	 * @throws Exception
 	 */
-	public function syncMailboxAction($id)
+	public function syncMailboxAction($id, $dir, $onlySyncCurrent = false)
 	{
+		$sessionId = md5(uniqid(''));
+
 		$response = array(
-			'new' => 0,
-			'complete' => false,
+			'complete' => -1,
 			'status' => -1,
+			'sessid' => $sessionId,
+			'timestamp' => microtime(true),
+			'final' => true,
 		);
 
 		if ($mailbox = \Bitrix\Mail\MailboxTable::getUserMailbox($id))
@@ -319,19 +319,57 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 			$mailboxHelper = \Bitrix\Mail\Helper\Mailbox::createInstance($id);
 			$mailboxHelper->setSyncParams(array(
 				'full' => true,
+				'currentDir' => $dir,
+				'sessid' => $sessionId,
 			));
 
-			$result = $mailboxHelper->sync();
+			$mailboxSyncManager = new Mail\Helper\Mailbox\MailboxSyncManager($mailbox['USER_ID']);
+			$mailboxSyncManager->setSyncStartedData($id);
+
+			$result = $mailboxHelper->syncDir($dir);
+
+			$response['timestamp'] = microtime(true);
 
 			if ($result === false)
 			{
-				$this->errorCollection->add($mailboxHelper->getErrors()->toArray());
+				$mailboxSyncManager->setSyncStatus($id, false, time());
+				$this->errorCollection->add($mailboxHelper->getWarnings()->toArray());
 			}
 			else
 			{
-				$response['new'] = $result;
-				$response['complete'] = $mailboxHelper->getMailbox()['SYNC_LOCK'] < 0;
+				if (null !== $result)
+				{
+					$response['new'] = $result;
+
+					$lastSyncResult = $mailboxHelper->getLastSyncResult();
+
+					$response['updated'] = -$lastSyncResult['updatedMessages'];
+					$response['deleted'] = -$lastSyncResult['deletedMessages'];
+
+					$mailboxHelper->resyncDir($dir);
+
+					$lastSyncResult = $mailboxHelper->getLastSyncResult();
+
+					$response['updated'] += $lastSyncResult['updatedMessages'];
+					$response['deleted'] += $lastSyncResult['deletedMessages'];
+
+					$response['complete'] = true;
+
+					$response['timestamp'] = microtime(true);
+				}
+
 				$response['status'] = $mailboxHelper->getSyncStatus();
+
+				$onlySyncCurrent = filter_var($onlySyncCurrent, FILTER_VALIDATE_BOOLEAN);
+				if (!$onlySyncCurrent && count($mailboxHelper->getDirsHelper()->getSyncDirs()) > 1)
+				{
+					$mailboxHelper->sync();
+				}
+				else
+				{
+					$mailboxSyncManager->setSyncStatus($id, true, time());
+					$mailboxHelper->notifyNewMessages();
+				}
 			}
 		}
 		else
@@ -442,7 +480,7 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 							if ($this->isCrmEnable)
 							{
 								// crm only
-								if (strpos($item['id'], 'CRM') === 0)
+								if (mb_strpos($item['id'], 'CRM') === 0)
 								{
 									$crmCommunication[] = $item;
 								}
@@ -494,6 +532,7 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 
 		$outgoingBody = $messageBody;
 
+		$totalSize = 0;
 		$attachments = array();
 		$attachmentIds = array();
 		if (!empty($data['__diskfiles']) && is_array($data['__diskfiles']) && Main\Loader::includeModule('disk'))
@@ -517,6 +556,8 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 					continue;
 				}
 
+				$totalSize += $diskFile->getSize();
+
 				$attachmentIds[] = $id;
 
 				$contentId = sprintf(
@@ -538,6 +579,16 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 					$outgoingBody
 				);
 			}
+		}
+
+		$maxSize = (int) Main\Config\Option::get('main', 'max_file_size', 0);
+		if ($maxSize > 0 && $maxSize <= ceil($totalSize / 3) * 4) // base64 coef.
+		{
+			$this->errorCollection[] = new \Bitrix\Main\Error(Loc::getMessage(
+				'MAIL_MESSAGE_MAX_SIZE_EXCEED',
+				['#SIZE#' => \CFile::formatSize($maxSize)]
+			));
+			return;
 		}
 
 		// @TODO: improve mailbox detection
@@ -878,7 +929,7 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 	 */
 	private function appendMailContacts($addressList, $fromField = '')
 	{
-		$fromField = strtoupper($fromField);
+		$fromField = mb_strtoupper($fromField);
 		if (
 			!in_array(
 				$fromField,
@@ -901,7 +952,7 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 		 */
 		foreach ($addressList as $address)
 		{
-			$allEmails[] = strtolower($address->getEmail());
+			$allEmails[] = mb_strtolower($address->getEmail());
 			$contactsData[] = array(
 				'USER_ID' => $this->getCurrentUser()->getId(),
 				'NAME' => $address->getName(),

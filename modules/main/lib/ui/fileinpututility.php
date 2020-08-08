@@ -85,16 +85,24 @@ class FileInputUtility
 		$result = array();
 
 		$request = Context::getCurrent()->getRequest();
-		if(isset($request[$deletedRequestName]) && is_array($request[$deletedRequestName]))
+		$requestValues = $request->getValues();
+
+		// HACK for correct use file delete from BX.UI.ComponentAjax.doSubmit
+		if (isset($requestValues['data']) && is_array($requestValues['data']))
 		{
-			foreach($request[$deletedRequestName] as $deletedFile)
+			$requestValues = $requestValues['data'];
+		}
+
+		if(isset($requestValues[$deletedRequestName]) && is_array($requestValues[$deletedRequestName]))
+		{
+			foreach($requestValues[$deletedRequestName] as $deletedFile)
 			{
 				if(
 					in_array($deletedFile, $arSessionFilesList)
 					&& \CFile::SaveFile(array(
-					'old_file' => $deletedFile,
-					'del' => 'Y',
-				), ''))
+						'old_file' => $deletedFile,
+						'del' => 'Y',
+					), ''))
 				{
 					$result[] = $deletedFile;
 				}

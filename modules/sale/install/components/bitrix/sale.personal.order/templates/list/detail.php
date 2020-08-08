@@ -18,7 +18,7 @@ $arDetParams = array(
 	);
 foreach($arParams as $key => $val)
 {
-	if(strpos($key, "PROP_") !== false)
+	if(mb_strpos($key, "PROP_") !== false)
 		$arDetParams[$key] = $val;
 }
 

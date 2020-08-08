@@ -1,5 +1,5 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();?><?
-$ORDER_ID = IntVal($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"]);
+$ORDER_ID = intval($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"]);
 ?>
 <form method=post action=http://www.kreditpilot.com/servlets/com.kreditpilot.server.FirstStep target="_blank">
 	<input type=hidden name=BillNumber value="<?echo $ORDER_ID?>">

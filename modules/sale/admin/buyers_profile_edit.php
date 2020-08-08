@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $saleModulePermissions >= "U" && che
 {
 	$adminSidePanelHelper->decodeUriComponent();
 	$CODE_PROFILE_NAME = trim($_REQUEST["CODE_PROFILE_NAME"]);
-	if (strlen($CODE_PROFILE_NAME) > 0)
+	if ($CODE_PROFILE_NAME <> '')
 		$profileName = $CODE_PROFILE_NAME;
 
 	$arOrderPropsValues = array();
@@ -112,10 +112,10 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $saleModulePermissions >= "U" && che
 			($arOrderProps["IS_LOCATION"]=="Y" || $arOrderProps["IS_LOCATION4TAX"]=="Y")
 			&& empty($_REQUEST["LOCATION_".$arOrderProps["ID"]])
 			||
-			($arOrderProps["IS_ZIP"] == "Y" && strlen($curVal) <= 0)
+			($arOrderProps["IS_ZIP"] == "Y" && $curVal == '')
 			||
 			($arOrderProps["IS_PROFILE_NAME"]=="Y" || $arOrderProps["IS_PAYER"]=="Y")
-			&& strlen($curVal) <= 0
+			&& $curVal == ''
 			||
 			$arOrderProps["REQUIED"]=="Y"
 			&& $arOrderProps["TYPE"]=="LOCATION"
@@ -123,11 +123,11 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $saleModulePermissions >= "U" && che
 			||
 			$arOrderProps["REQUIED"]=="Y"
 			&& ($arOrderProps["TYPE"]=="TEXT" || $arOrderProps["TYPE"]=="TEXTAREA" || $arOrderProps["TYPE"]=="RADIO" || $arOrderProps["TYPE"]=="SELECT")
-			&& strlen($curVal) <= 0
+			&& $curVal == ''
 			||
 			($arOrderProps["REQUIED"]=="Y"
 			&& $arOrderProps["TYPE"]=="MULTISELECT"
-			&& strlen($curVal) <= 0)
+			&& $curVal == '')
 			)
 		{
 			$arErrors[] = str_replace("#NAME#", $arOrderProps["NAME"], GetMessage("BUYER_PE_EMPTY_PROPS"));
@@ -150,14 +150,14 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $saleModulePermissions >= "U" && che
 		$adminSidePanelHelper->sendSuccessResponse("base");
 	}
 
-	if (isset($_REQUEST["save"]) && strlen($_REQUEST["save"]) > 0 && empty($arErrors))
+	if (isset($_REQUEST["save"]) && $_REQUEST["save"] <> '' && empty($arErrors))
 	{
 		$saveUrl = $selfFolderUrl."sale_buyers_profile.php?lang=".LANGUAGE_ID."&USER_ID=".$USER_ID;
 		$saveUrl = $adminSidePanelHelper->editUrlToPublicPage($saveUrl);
 		$adminSidePanelHelper->localRedirect($saveUrl);
 		LocalRedirect($saveUrl);
 	}
-	elseif (isset($_REQUEST["apply"]) && strlen($_REQUEST["apply"]) > 0 && empty($arErrors))
+	elseif (isset($_REQUEST["apply"]) && $_REQUEST["apply"] <> '' && empty($arErrors))
 	{
 		$applyUrl = $selfFolderUrl."sale_buyers_profile_edit.php?id=".$ID."&lang=".LANGUAGE_ID;
 		$applyUrl = $adminSidePanelHelper->setDefaultQueryParams($applyUrl);
@@ -176,9 +176,9 @@ if($USER_ID > 0)
 	if($arUser = $dbUser->Fetch())
 	{
 		$userFIO = $arUser["NAME"];
-		if (strlen($arUser["LAST_NAME"]) > 0)
+		if ($arUser["LAST_NAME"] <> '')
 		{
-			if (strlen($userFIO) > 0)
+			if ($userFIO <> '')
 				$userFIO .= " ";
 			$userFIO .= $arUser["LAST_NAME"];
 		}
@@ -349,7 +349,7 @@ if(!empty($arProfile) && !empty($arUser))
 					}
 					else
 					{
-						if (strlen($fieldValue) > 0)
+						if ($fieldValue <> '')
 						{
 							$curVal = explode(",", $fieldValue);
 

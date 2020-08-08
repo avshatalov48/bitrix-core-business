@@ -300,10 +300,14 @@
 	        this.loading = false;
 	        this.loaded = true;
 	      } else if (eventName === 'timeupdate') {
+	        if (!this.source()) {
+	          return;
+	        }
+
 	        this.timeCurrent = this.source().currentTime;
 	        this.setProgress(Math.round(100 / this.timeTotal * this.timeCurrent));
 
-	        if (this.timeCurrent >= this.timeTotal) {
+	        if (this.state === _State.play && this.timeCurrent >= this.timeTotal) {
 	          this.playNext();
 	        }
 	      } else if (eventName === 'pause') {

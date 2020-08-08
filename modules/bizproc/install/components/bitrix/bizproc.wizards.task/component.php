@@ -15,28 +15,28 @@ $arResult["ErrorMessage"] = "";
 $arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if (strLen($arParams["TASK_VAR"]) <= 0)
+if ($arParams["TASK_VAR"] == '')
 	$arParams["TASK_VAR"] = "task_id";
-if (strlen($arParams["BLOCK_VAR"]) <= 0)
+if ($arParams["BLOCK_VAR"] == '')
 	$arParams["BLOCK_VAR"] = "block_id";
 
 $arParams["PATH_TO_INDEX"] = trim($arParams["PATH_TO_INDEX"]);
-if (strlen($arParams["PATH_TO_INDEX"]) <= 0)
+if ($arParams["PATH_TO_INDEX"] == '')
 	$arParams["PATH_TO_INDEX"] = $APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=index";
 
 $arParams["PATH_TO_LIST"] = trim($arParams["PATH_TO_LIST"]);
-if (strlen($arParams["PATH_TO_LIST"]) <= 0)
+if ($arParams["PATH_TO_LIST"] == '')
 	$arParams["PATH_TO_LIST"] = $APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=list&".$arParams["BLOCK_VAR"]."=#block_id#";
 
 $arParams["PATH_TO_TASK"] = trim($arParams["PATH_TO_TASK"]);
-if (strlen($arParams["PATH_TO_TASK"]) <= 0)
+if ($arParams["PATH_TO_TASK"] == '')
 	$arParams["PATH_TO_TASK"] = $APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=task&".$arParams["BLOCK_VAR"]."=#block_id#&".$arParams["TASK_VAR"]."=#task_id#";
-$arParams["PATH_TO_TASK"] = $arParams["PATH_TO_TASK"].((strpos($arParams["PATH_TO_TASK"], "?") === false) ? "?" : "&").bitrix_sessid_get();
+$arParams["PATH_TO_TASK"] = $arParams["PATH_TO_TASK"].((mb_strpos($arParams["PATH_TO_TASK"], "?") === false) ? "?" : "&").bitrix_sessid_get();
 
 $arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
-if (strlen($arParams["IBLOCK_TYPE"]) <= 0)
+if ($arParams["IBLOCK_TYPE"] == '')
 	$arResult["FatalErrorMessage"] .= GetMessage("BPWC_WTC_EMPTY_IBLOCK_TYPE").". ";
 
 $arParams["BLOCK_ID"] = intval($arParams["BLOCK_ID"]);
@@ -51,7 +51,7 @@ $arResult["BackUrl"] = empty($_REQUEST["back_url"]) ? $arResult["PATH_TO_LIST"] 
 if (!check_bitrix_sessid())
 	$arResult["FatalErrorMessage"] .= str_replace("#URL#", $arResult["PATH_TO_LIST"], GetMessage("BPWC_WTC_PERMS_ERROR")).". ";
 
-$taskId = $arParams["TASK_ID"] = IntVal($arParams["TASK_ID"]);
+$taskId = $arParams["TASK_ID"] = intval($arParams["TASK_ID"]);
 
 $arResult["Task"] = false;
 
@@ -71,7 +71,7 @@ if (!$arResult["Task"] && !empty($_REQUEST["workflow_id"]))
 {
 	$workflowId = trim($_REQUEST["workflow_id"]);
 
-	if (strlen($workflowId) > 0)
+	if ($workflowId <> '')
 	{
 		$dbTask = CBPTaskService::GetList(
 			array(),
@@ -87,7 +87,7 @@ if (!$arResult["Task"] && !empty($_REQUEST["workflow_id"]))
 if (!$arResult["Task"])
 	$arResult["FatalErrorMessage"] .= GetMessage("BPWC_WTC_WRONG_TASK").". ";
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	$arResult["BlockType"] = null;
 	$ar = CIBlockType::GetByIDLang($arParams["IBLOCK_TYPE"], LANGUAGE_ID, true);
@@ -97,7 +97,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 		$arResult["FatalErrorMessage"] .= GetMessage("BPWC_WTC_WRONG_IBLOCK_TYPE").". ";
 }
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	$arResult["Block"] = null;
 	$db = CIBlock::GetList(array(), array("ID" => $arParams["BLOCK_ID"], "TYPE" => $arParams["IBLOCK_TYPE"], "ACTIVE" => "Y"));
@@ -107,7 +107,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 		$arResult["FatalErrorMessage"] .= GetMessage("BPWC_WTC_WRONG_IBLOCK").". ";
 }
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	$arResult["ShowType"] = "Form";
 
@@ -130,7 +130,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 			else
 				$backUrl = $arResult["BackUrl"];
 
-			if (strlen($backUrl) > 0)
+			if ($backUrl <> '')
 			{
 				LocalRedirect($backUrl);
 				die();
@@ -144,7 +144,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 	}
 }
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	list($taskForm, $taskFormButtons) = array("", "");
 	if ($arResult["ShowType"] != "Success")
@@ -173,7 +173,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 $this->IncludeComponentTemplate();
 
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	if ($arParams["SET_TITLE"] == "Y")
 		$APPLICATION->SetTitle(str_replace("#NAME#", $arResult["Task"]["NAME"], GetMessage("BPWC_WTC_PAGE_TITLE")));

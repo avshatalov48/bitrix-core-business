@@ -35,7 +35,7 @@ if($arResult["CanUserComment"])
 				{
 					if (!in_array($FIELD_NAME, $arParams["COMMENT_PROPERTY"]))
 						continue;
-					$arPostField["EDIT_FORM_LABEL"] = strLen($arPostField["EDIT_FORM_LABEL"]) > 0 ? $arPostField["EDIT_FORM_LABEL"] : $arPostField["FIELD_NAME"];
+					$arPostField["EDIT_FORM_LABEL"] = $arPostField["EDIT_FORM_LABEL"] <> '' ? $arPostField["EDIT_FORM_LABEL"] : $arPostField["FIELD_NAME"];
 					$arPostField["~EDIT_FORM_LABEL"] = $arPostField["EDIT_FORM_LABEL"];
 					$arPostField["EDIT_FORM_LABEL"] = htmlspecialcharsEx($arPostField["EDIT_FORM_LABEL"]);
 					$arResult["COMMENT_PROPERTIES"]["DATA"][$FIELD_NAME] = $arPostField;

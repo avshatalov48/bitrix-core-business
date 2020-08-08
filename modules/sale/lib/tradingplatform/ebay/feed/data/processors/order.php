@@ -24,7 +24,7 @@ class Order extends DataProcessor
 
 	public function __construct($params)
 	{
-		if(!isset($params["SITE_ID"]) || strlen($params["SITE_ID"]) <= 0)
+		if(!isset($params["SITE_ID"]) || $params["SITE_ID"] == '')
 			throw new ArgumentNullException("SITE_ID");
 
 		$this->siteId = $params["SITE_ID"];
@@ -90,7 +90,7 @@ class Order extends DataProcessor
 		$result = "";
 		$sku = explode("_", $ebaySku);
 
-		if(isset($sku[1]) && strlen($sku[1]) > 0)
+		if(isset($sku[1]) && $sku[1] <> '')
 			$result = $sku[1];
 
 		return $result;
@@ -102,7 +102,7 @@ class Order extends DataProcessor
 
 		$sku = explode("_", $ebaySku);
 
-		if(isset($sku[2]) && strlen($sku[2]) > 0)
+		if(isset($sku[2]) && $sku[2] <> '')
 			$result = $sku[2];
 
 		return $result;
@@ -292,7 +292,7 @@ class Order extends DataProcessor
 			{
 				$ebaySku = $isVariation ? $this->getSkuVariation($transactionItem["SKU"]) : $this->getSku($transactionItem["SKU"]);
 
-				if(strlen($ebaySku) <=0)
+				if($ebaySku == '')
 				{
 					Ebay::log(Logger::LOG_LEVEL_INFO, "EBAY_DATA_PROCESSOR_ORDER_PROCESSING_TRANSACTION_ITEM_SKU_NOT_FOUND", $transaction["OrderLineItemID"], print_r($transaction,true), $this->siteId);
 					continue;
@@ -442,7 +442,7 @@ class Order extends DataProcessor
 		}
 
 		// order status
-		if(strlen($settings[$this->siteId]["STATUS_MAP"][$orderEbay["OrderStatus"]]) > 0)
+		if($settings[$this->siteId]["STATUS_MAP"][$orderEbay["OrderStatus"]] <> '')
 		{
 			switch($settings[$this->siteId]["STATUS_MAP"][$orderEbay["OrderStatus"]])
 			{

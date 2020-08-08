@@ -12,7 +12,7 @@ class CBPCodeActivity
 
 	public function Execute()
 	{
-		if (strlen($this->ExecuteCode) > 0)
+		if ($this->ExecuteCode <> '')
 			@eval($this->ExecuteCode);
 
 		return CBPActivityExecutionStatus::Closed;
@@ -30,7 +30,7 @@ class CBPCodeActivity
 			);
 		}
 
-		if (strlen($arTestProperties["ExecuteCode"]) <= 0)
+		if ($arTestProperties["ExecuteCode"] == '')
 		{
 			$arErrors[] = array(
 				"code" => "emptyCode",

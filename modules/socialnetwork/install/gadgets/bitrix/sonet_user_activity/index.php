@@ -40,7 +40,7 @@ elseif ($arGadgetParams["EVENT_ID"] == "files")
 else
 	$sTitle = "";
 
-if (strlen($arGadgetParams["EVENT_ID"]) > 0)
+if ($arGadgetParams["EVENT_ID"] <> '')
 	$arGadget["TITLE"] .= " [".$sTitle."]";
 	
 if($arGadgetParams["SHOW_TITLE"] == "Y"):
@@ -91,11 +91,11 @@ $APPLICATION->IncludeComponent(
 );
 ?></span><?
 
-if(strlen($arGadgetParams["LIST_URL"])>0):
+if($arGadgetParams["LIST_URL"] <> ''):
 	?><br /><br />
 	<?
 	$list_url = htmlspecialcharsbx($arGadgetParams["LIST_URL"]);
-	$list_url .= (strpos($list_url, "?") !== false ? "&" : "?")."flt_created_by_id=".$arParams["USER_ID"]."&skip_subscribe=Y&flt_comments=Y";
+	$list_url .= (mb_strpos($list_url, "?") !== false ? "&" : "?")."flt_created_by_id=".$arParams["USER_ID"]."&skip_subscribe=Y&flt_comments=Y";
 	?>
 	<div align="right"><a href="<?=$list_url?>"><?echo GetMessage("GD_ACTIVITY_MORE")?></a> <a href="<?=$list_url?>"><img width="7" height="7" border="0" src="/bitrix/images/socialnetwork/icons/arrows.gif" /></a>
 	<br />

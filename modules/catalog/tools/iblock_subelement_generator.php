@@ -360,7 +360,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !$bReadOnly && check_bitrix_sessid()
 
 	$arIBlockElement = $dbIBlockElement->Fetch();
 
-	if(strlen($_POST['save']) > 0)
+	if($_POST['save'] <> '')
 	{
 		$parentElementId = (0 < $subPropValue ? $subPropValue : -$subTmpId);
 		$parentElement = new \Bitrix\Iblock\Template\Entity\Element($parentElementId);

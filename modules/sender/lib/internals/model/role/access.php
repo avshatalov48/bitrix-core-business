@@ -44,8 +44,7 @@ class AccessTable extends Entity\DataManager
 				'required' => true,
 			)),
 			'ROLE' => new Entity\ReferenceField(
-				'ROLE',
-				'Bitrix\Sender\Internals\Model\Role\Role',
+				'ROLE', 'Bitrix\Sender\Access\Role\Role',
 				array('=this.ROLE_ID' => 'ref.ID'),
 				array('join_type' => 'INNER')
 			)

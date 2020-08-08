@@ -18,7 +18,7 @@ $arC = array(
 );
 
 $arVariableConditionCount = array(1);
-if (array_key_exists("variable_condition_count", $arCurrentValues) && strlen($arCurrentValues["variable_condition_count"]) > 0)
+if (array_key_exists("variable_condition_count", $arCurrentValues) && $arCurrentValues["variable_condition_count"] <> '')
 	$arVariableConditionCount = explode(",", $arCurrentValues["variable_condition_count"]);
 
 $arCurrentValues["variable_condition_count"] = "";
@@ -30,7 +30,7 @@ foreach ($arVariableConditionCount as $i)
 		continue;
 
 	$i = intval($i);
-	if (strlen($arCurrentValues["variable_condition_count"]) > 0)
+	if ($arCurrentValues["variable_condition_count"] <> '')
 	{
 		$arCurrentValues["variable_condition_count"] .= ",";
 		?>
@@ -56,7 +56,7 @@ foreach ($arVariableConditionCount as $i)
 				<?if ($arProperties):?><optgroup label="<?=GetMessage('BPFC_PD_PARAMS')?>"><?endif;
 				foreach ($arProperties as $key => $value)
 				{
-					if (strlen($defaultFieldValue) <= 0)
+					if ($defaultFieldValue == '')
 						$defaultFieldValue = $key;
 					?><option value="<?= htmlspecialcharsbx($key) ?>"<?= ($arCurrentValues["variable_condition_field_".$i] == $key) ? " selected" : "" ?>><?= htmlspecialcharsbx($value["Name"]) ?></option><?
 				}
@@ -65,7 +65,7 @@ foreach ($arVariableConditionCount as $i)
 				if ($arVariables):?><optgroup label="<?=GetMessage('BPFC_PD_VARS')?>"><?endif;
 				foreach ($arVariables as $key => $value)
 				{
-					if (strlen($defaultFieldValue) <= 0)
+					if ($defaultFieldValue == '')
 						$defaultFieldValue = $key;
 					?><option value="<?= htmlspecialcharsbx($key) ?>"<?= ($arCurrentValues["variable_condition_field_".$i] == $key) ? " selected" : "" ?>><?= htmlspecialcharsbx($value["Name"]) ?></option><?
 				}

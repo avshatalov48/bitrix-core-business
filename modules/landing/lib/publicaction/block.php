@@ -4,6 +4,7 @@ namespace Bitrix\Landing\PublicAction;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\File;
 use \Bitrix\Landing\Landing;
+use \Bitrix\Landing\Hook;
 use \Bitrix\Landing\Block as BlockCore;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Landing\PublicActionResult;
@@ -36,16 +37,16 @@ class Block
 			if (isset($blocks[$block]))
 			{
 				// action with card  of block
-				if (strpos($selector, '@') !== false)
+				if (mb_strpos($selector, '@') !== false)
 				{
-					list($selector, $position) = explode('@', $selector);
+					[$selector, $position] = explode('@', $selector);
 				}
 				else
 				{
 					$position = -1;
 				}
 				if (
-					strtolower($action) == 'clonecard' &&
+					mb_strtolower($action) == 'clonecard' &&
 					isset($params['content'])
 				)
 				{
@@ -196,9 +197,9 @@ class Block
 		// collect selectors in right array
 		foreach ($data as $selector => $value)
 		{
-			if (strpos($selector, '@') !== false)
+			if (mb_strpos($selector, '@') !== false)
 			{
-				list($selector, $position) = explode('@', $selector);
+				[$selector, $position] = explode('@', $selector);
 			}
 			else
 			{
@@ -330,30 +331,37 @@ class Block
 			{
 				if ($blockCurrent = $landing->getBlockById($block))
 				{
-					// get dynamic data from request or from block
-					if (isset($data['dynamicParams']))
+					$manifest = $blockCurrent->getManifest();
+					if (
+						!isset($manifest['block']['dynamic']) ||
+						$manifest['block']['dynamic'] !== false
+					)
 					{
-						$dynamicParams = $data['dynamicParams'];
-						unset($data['dynamicParams']);
-					}
-					else
-					{
-						$dynamicParams = $blockCurrent->getDynamicParams();
-					}
-					// if some dynamic is off
-					if (isset($data['dynamicState']))
-					{
-						foreach ((array) $data['dynamicState'] as $selector => $flag)
+						// get dynamic data from request or from block
+						if (isset($data['dynamicParams']))
 						{
-							if (!Utils::isTrue($flag) && isset($dynamicParams[$selector]))
+							$dynamicParams = $data['dynamicParams'];
+							unset($data['dynamicParams']);
+						}
+						else
+						{
+							$dynamicParams = $blockCurrent->getDynamicParams();
+						}
+						// if some dynamic is off
+						if (isset($data['dynamicState']))
+						{
+							foreach ((array) $data['dynamicState'] as $selector => $flag)
 							{
-								unset($dynamicParams[$selector]);
+								if (!Utils::isTrue($flag) && isset($dynamicParams[$selector]))
+								{
+									unset($dynamicParams[$selector]);
+								}
 							}
 						}
+						$blockCurrent->saveDynamicParams(
+							$dynamicParams
+						);
 					}
-					$blockCurrent->saveDynamicParams(
-						$dynamicParams
-					);
 					$result->setResult(true);
 				}
 				else
@@ -377,9 +385,9 @@ class Block
 		// collect selectors in right array
 		foreach ($data as $selector => $value)
 		{
-			if (strpos($selector, '@') !== false)
+			if (mb_strpos($selector, '@') !== false)
 			{
-				list($selector, $position) = explode('@', $selector);
+				[$selector, $position] = explode('@', $selector);
 			}
 			else
 			{
@@ -391,7 +399,7 @@ class Block
 			}
 			if (isset($value['attrs']) && count($value) == 1)
 			{
-				if (strpos($selector, ':') !== false)
+				if (mb_strpos($selector, ':') !== false)
 				{
 					$components[$selector] = $value['attrs'];
 				}
@@ -575,10 +583,10 @@ class Block
 	{
 		foreach ($data as $selector => $value)
 		{
-			if (strpos($selector, '@') !== false)
+			if (mb_strpos($selector, '@') !== false)
 			{
 				unset($data[$selector]);
-				list($selector, $pos) = explode('@', $selector);
+				[$selector, $pos] = explode('@', $selector);
 				if (
 					!isset($data[$selector]) ||
 					!is_array($data[$selector])
@@ -608,6 +616,7 @@ class Block
 		if ($editMode)
 		{
 			Landing::setEditMode();
+			Hook::setEditMode();
 		}
 
 		$landing = Landing::createInstance($lid, [
@@ -863,7 +872,7 @@ class Block
 	{
 		$result = new PublicActionResult();
 
-		if (strpos($code, ':') === false)
+		if (mb_strpos($code, ':') === false)
 		{
 			$code = 'bitrix:' . $code;
 		}

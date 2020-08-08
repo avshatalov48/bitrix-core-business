@@ -1,316 +1,85 @@
-<?
-IncludeModuleLangFile(__FILE__);
+<?php
+use Bitrix\Main\UserField\Types\DoubleType;
+use Bitrix\Main\Loader;
+use Bitrix\Main\UserField\TypeBase;
 
-class CUserTypeDouble extends \Bitrix\Main\UserField\TypeBase
+/**
+ * Class CUserTypeDouble
+ * @deprecated deprecated since main 20.0.700
+ */
+
+class CUserTypeDouble extends TypeBase
 {
-	const USER_TYPE_ID = 'double';
+	const USER_TYPE_ID = DoubleType::USER_TYPE_ID;
 
-	function GetUserTypeDescription()
+	function getUserTypeDescription()
 	{
-		return array(
-			"USER_TYPE_ID" => static::USER_TYPE_ID,
-			"CLASS_NAME" => __CLASS__,
-			"DESCRIPTION" => GetMessage("USER_TYPE_DOUBLE_DESCRIPTION"),
-			"BASE_TYPE" => \CUserTypeManager::BASE_TYPE_DOUBLE,
-			"EDIT_CALLBACK" => array(__CLASS__, 'GetPublicEdit'),
-			"VIEW_CALLBACK" => array(__CLASS__, 'GetPublicView'),
-		);
+		return DoubleType::getUserTypeDescription();
 	}
 
-	function GetDBColumnType($arUserField)
+	function getSettingsHtml($userField, $additionalSettings, $varsFromForm)
 	{
-		global $DB;
-		switch(strtolower($DB->type))
-		{
-			case "mysql":
-				return "double";
-			case "oracle":
-				return "number";
-			case "mssql":
-				return "float";
-		}
-		return null;
+		return DoubleType::renderSettings($userField, $additionalSettings, $varsFromForm);
 	}
 
-	function PrepareSettings($arUserField)
+	function getEditFormHtml($userField, $additionalSettings)
 	{
-		$prec = intval($arUserField["SETTINGS"]["PRECISION"]);
-		$size = intval($arUserField["SETTINGS"]["SIZE"]);
-		$min = doubleval($arUserField["SETTINGS"]["MIN_VALUE"]);
-		$max = doubleval($arUserField["SETTINGS"]["MAX_VALUE"]);
-
-		return array(
-			"PRECISION" => ($prec < 0? 0: ($prec > 12? 12: $prec)),
-			"SIZE" =>  ($size <= 1? 20: ($size > 255? 225: $size)),
-			"MIN_VALUE" => $min,
-			"MAX_VALUE" => $max,
-			"DEFAULT_VALUE" => strlen($arUserField["SETTINGS"]["DEFAULT_VALUE"])>0? doubleval($arUserField["SETTINGS"]["DEFAULT_VALUE"]): "",
-		);
+		return DoubleType::renderEditForm($userField, $additionalSettings);
 	}
 
-	function GetSettingsHTML($arUserField = false, $arHtmlControl, $bVarsFromForm)
+	function getFilterHtml($userField, $additionalSettings)
 	{
-		$result = '';
-		if($bVarsFromForm)
-			$value = intval($GLOBALS[$arHtmlControl["NAME"]]["PRECISION"]);
-		elseif(is_array($arUserField))
-			$value = intval($arUserField["SETTINGS"]["PRECISION"]);
-		else
-			$value = 4;
-		$result .= '
-		<tr>
-			<td>'.GetMessage("USER_TYPE_DOUBLE_PRECISION").':</td>
-			<td>
-				<input type="text" name="'.$arHtmlControl["NAME"].'[PRECISION]" size="20"  maxlength="225" value="'.$value.'">
-			</td>
-		</tr>
-		';
-		if($bVarsFromForm)
-			$value = doubleval($GLOBALS[$arHtmlControl["NAME"]]["DEFAULT_VALUE"]);
-		elseif(is_array($arUserField))
-			$value = doubleval($arUserField["SETTINGS"]["DEFAULT_VALUE"]);
-		else
-			$value = "";
-		$result .= '
-		<tr>
-			<td>'.GetMessage("USER_TYPE_DOUBLE_DEFAULT_VALUE").':</td>
-			<td>
-				<input type="text" name="'.$arHtmlControl["NAME"].'[DEFAULT_VALUE]" size="20"  maxlength="225" value="'.$value.'">
-			</td>
-		</tr>
-		';
-		if($bVarsFromForm)
-			$value = intval($GLOBALS[$arHtmlControl["NAME"]]["SIZE"]);
-		elseif(is_array($arUserField))
-			$value = intval($arUserField["SETTINGS"]["SIZE"]);
-		else
-			$value = 20;
-		$result .= '
-		<tr>
-			<td>'.GetMessage("USER_TYPE_DOUBLE_SIZE").':</td>
-			<td>
-				<input type="text" name="'.$arHtmlControl["NAME"].'[SIZE]" size="20"  maxlength="20" value="'.$value.'">
-			</td>
-		</tr>
-		';
-		if($bVarsFromForm)
-			$value = doubleval($GLOBALS[$arHtmlControl["NAME"]]["MIN_VALUE"]);
-		elseif(is_array($arUserField))
-			$value = doubleval($arUserField["SETTINGS"]["MIN_VALUE"]);
-		else
-			$value = 0;
-		$result .= '
-		<tr>
-			<td>'.GetMessage("USER_TYPE_DOUBLE_MIN_VALUE").':</td>
-			<td>
-				<input type="text" name="'.$arHtmlControl["NAME"].'[MIN_VALUE]" size="20"  maxlength="20" value="'.$value.'">
-			</td>
-		</tr>
-		';
-		if($bVarsFromForm)
-			$value = doubleval($GLOBALS[$arHtmlControl["NAME"]]["MAX_VALUE"]);
-		elseif(is_array($arUserField))
-			$value = doubleval($arUserField["SETTINGS"]["MAX_VALUE"]);
-		else
-			$value = 0;
-		$result .= '
-		<tr>
-			<td>'.GetMessage("USER_TYPE_DOUBLE_MAX_VALUE").':</td>
-			<td>
-				<input type="text" name="'.$arHtmlControl["NAME"].'[MAX_VALUE]" size="20"  maxlength="20" value="'.$value.'">
-			</td>
-		</tr>
-		';
-		return $result;
+		return DoubleType::renderFilter($userField, $additionalSettings);
 	}
 
-	function GetEditFormHTML($arUserField, $arHtmlControl)
+	function getAdminListViewHtml($userField, $additionalSettings)
 	{
-		if($arUserField["ENTITY_VALUE_ID"]<1 && strlen($arUserField["SETTINGS"]["DEFAULT_VALUE"])>0)
-			$arHtmlControl["VALUE"] = $arUserField["SETTINGS"]["DEFAULT_VALUE"];
-		if(strlen($arHtmlControl["VALUE"])>0)
-			$arHtmlControl["VALUE"] = round(doubleval($arHtmlControl["VALUE"]), $arUserField["SETTINGS"]["PRECISION"]);
-		$arHtmlControl["VALIGN"] = "middle";
-		return '<input type="text" '.
-			'name="'.$arHtmlControl["NAME"].'" '.
-			'size="'.$arUserField["SETTINGS"]["SIZE"].'" '.
-			'value="'.$arHtmlControl["VALUE"].'" '.
-			($arUserField["EDIT_IN_LIST"]!="Y"? 'disabled="disabled" ': '').
-			'>';
+		return DoubleType::renderAdminListView($userField, $additionalSettings);
 	}
 
-	function GetFilterHTML($arUserField, $arHtmlControl)
+	function getAdminListEditHtml($userField, $additionalSettings)
 	{
-		if(strlen($arHtmlControl["VALUE"]))
-			$value = round(doubleval($arHtmlControl["VALUE"]), $arUserField["SETTINGS"]["PRECISION"]);
-		else
-			$value = "";
-
-		return '<input type="text" '.
-			'name="'.$arHtmlControl["NAME"].'" '.
-			'size="'.$arUserField["SETTINGS"]["SIZE"].'" '.
-			'value="'.$value.'" '.
-			'>';
+		return DoubleType::renderAdminListEdit($userField, $additionalSettings);
 	}
 
-	function GetFilterData($arUserField, $arHtmlControl)
+	public static function getPublicView($userField, $arAdditionalParameters = array())
 	{
-		return array(
-			"id" => $arHtmlControl["ID"],
-			"name" => $arHtmlControl["NAME"],
-			"type" => "number",
-			"filterable" => ""
-		);
+		return DoubleType::renderView($userField, $arAdditionalParameters);
 	}
 
-	function GetAdminListViewHTML($arUserField, $arHtmlControl)
+	public function getPublicEdit($userField, $arAdditionalParameters = array())
 	{
-		if(strlen($arHtmlControl["VALUE"])>0)
-			return round(doubleval($arHtmlControl["VALUE"]), $arUserField["SETTINGS"]["PRECISION"]);
-		else
-			return '&nbsp;';
+		return DoubleType::renderEdit($userField, $arAdditionalParameters);
 	}
 
-	function GetAdminListEditHTML($arUserField, $arHtmlControl)
+	function getDbColumnType($userField)
 	{
-		return '<input type="text" '.
-			'name="'.$arHtmlControl["NAME"].'" '.
-			'size="'.$arUserField["SETTINGS"]["SIZE"].'" '.
-			'value="'.round(doubleval($arHtmlControl["VALUE"]), $arUserField["SETTINGS"]["PRECISION"]).'" '.
-			'>';
+		return DoubleType::getDbColumnType();
 	}
 
-	function CheckFields($arUserField, $value)
+	function getFilterData($userField, $additionalSettings)
 	{
-		$aMsg = array();
-
-		$value = str_replace(array(',', ' '), array('.', ''), $value);
-
-		if(strlen($value)>0 && $arUserField["SETTINGS"]["MIN_VALUE"]!=0 && doubleval($value)<$arUserField["SETTINGS"]["MIN_VALUE"])
-		{
-			$aMsg[] = array(
-				"id" => $arUserField["FIELD_NAME"],
-				"text" => GetMessage("USER_TYPE_DOUBLE_MIN_VALUE_ERROR",
-					array(
-						"#FIELD_NAME#"=>$arUserField["EDIT_FORM_LABEL"],
-						"#MIN_VALUE#"=>$arUserField["SETTINGS"]["MIN_VALUE"]
-					)
-				),
-			);
-		}
-		if(strlen($value)>0 && $arUserField["SETTINGS"]["MAX_VALUE"]<>0 && doubleval($value)>$arUserField["SETTINGS"]["MAX_VALUE"])
-		{
-			$aMsg[] = array(
-				"id" => $arUserField["FIELD_NAME"],
-				"text" => GetMessage("USER_TYPE_DOUBLE_MAX_VALUE_ERROR",
-					array(
-						"#FIELD_NAME#"=>$arUserField["EDIT_FORM_LABEL"],
-						"#MAX_VALUE#"=>$arUserField["SETTINGS"]["MAX_VALUE"]
-					)
-				),
-			);
-		}
-		return $aMsg;
+		return DoubleType::getFilterData($userField, $additionalSettings);
 	}
 
-	function OnSearchIndex($arUserField)
+	function prepareSettings($userField)
 	{
-		if(is_array($arUserField["VALUE"]))
-			return implode("\r\n", $arUserField["VALUE"]);
-		else
-			return $arUserField["VALUE"];
+		return DoubleType::prepareSettings($userField);
 	}
 
-	function OnBeforeSave($arUserField, $value)
+	function checkFields($userField, $value)
 	{
-		$value = str_replace(array(',', ' '), array('.', ''), $value);
-		if(strlen($value)>0)
-		{
-			return "".round(doubleval($value), $arUserField["SETTINGS"]["PRECISION"]);
-		}
-		return null;
+		return DoubleType::checkFields($userField, $value);
 	}
 
-
-	public static function GetPublicView($arUserField, $arAdditionalParameters = array())
+	function onBeforeSave($userField, $value)
 	{
-		$value = static::normalizeFieldValue($arUserField["VALUE"]);
-
-		$html = '';
-		$first = true;
-		foreach($value as $res)
-		{
-			if(!$first)
-			{
-				$html .= static::getHelper()->getMultipleValuesSeparator();
-			}
-			$first = false;
-
-			if(strlen($arUserField['PROPERTY_VALUE_LINK']) > 0)
-			{
-				$res = '<a href="'.htmlspecialcharsbx(str_replace('#VALUE#', urlencode($res), $arUserField['PROPERTY_VALUE_LINK'])).'">'.$res.'</a>';
-			}
-
-			$html .= static::getHelper()->wrapSingleField($res);
-		}
-
-		static::initDisplay();
-
-		return static::getHelper()->wrapDisplayResult($html);
+		return DoubleType::onBeforeSave($userField, $value);
 	}
 
-
-	public function getPublicEdit($arUserField, $arAdditionalParameters = array())
+	function onSearchIndex($userField)
 	{
-		$fieldName = static::getFieldName($arUserField, $arAdditionalParameters);
-		$value = static::getFieldValue($arUserField, $arAdditionalParameters);
-
-		$html = '';
-
-		foreach($value as $res)
-		{
-			$attrList = array();
-
-			if($arUserField["EDIT_IN_LIST"] != "Y")
-			{
-				$attrList['disabled'] = 'disabled';
-			}
-
-			if($arUserField["SETTINGS"]["SIZE"] > 0)
-			{
-				$attrList['size'] = intval($arUserField["SETTINGS"]["SIZE"]);
-			}
-
-			if(array_key_exists('attribute', $arAdditionalParameters))
-			{
-				$attrList = array_merge($attrList, $arAdditionalParameters['attribute']);
-			}
-
-			if(isset($attrList['class']) && is_array($attrList['class']))
-			{
-				$attrList['class'] = implode(' ', $attrList['class']);
-			}
-
-			$attrList['class'] = static::getHelper()->getCssClassName().(isset($attrList['class']) ? ' '.$attrList['class'] : '');
-
-			$attrList['name'] = $fieldName;
-
-			$attrList['type'] = 'text';
-			$attrList['tabindex'] = '0';
-			$attrList['value'] = $res;
-
-			$html .= static::getHelper()->wrapSingleField('<input '.static::buildTagAttributes($attrList).'/>');
-		}
-
-		if($arUserField["MULTIPLE"] == "Y" && $arAdditionalParameters["SHOW_BUTTON"] != "N")
-		{
-			$html .= static::getHelper()->getCloneButton($fieldName);
-		}
-
-		static::initDisplay();
-
-		return static::getHelper()->wrapDisplayResult($html);
+		return DoubleType::onSearchIndex($userField);
 	}
-
 
 }

@@ -8,7 +8,7 @@ define('BX_SECURITY_SESSION_READONLY', true);
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
 global $USER, $APPLICATION;
 
-if(!check_bitrix_sessid())
+if(!$USER->IsAuthorized() || !check_bitrix_sessid())
 	die();
 
 if($_REQUEST['action'] === 'attachUrlPreview')

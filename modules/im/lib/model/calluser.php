@@ -15,16 +15,19 @@ class CallUserTable extends Entity\DataManager
 
 	public static function getMap()
 	{
-		return array(
-			new Entity\IntegerField('CALL_ID', array(
+		return [
+			new Entity\IntegerField('CALL_ID', [
 				'primary' => true
-			)),
-			new Entity\IntegerField('USER_ID', array(
+			]),
+			new Entity\IntegerField('USER_ID', [
 				'primary' => true
-			)),
+			]),
 			new Entity\StringField('STATE'),
-			new Entity\DatetimeField('LAST_SEEN')
-		);
+			new Entity\DatetimeField('LAST_SEEN'),
+			new Entity\BooleanField('IS_MOBILE', [
+				'values' => ['N', 'Y']
+			]),
+		];
 	}
 
 	/**

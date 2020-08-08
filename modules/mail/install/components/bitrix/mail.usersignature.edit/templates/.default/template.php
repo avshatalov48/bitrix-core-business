@@ -96,7 +96,7 @@ if ($isIframe)
 		<span class="mail-signature-edit-sender-text"><?=Loc::getMessage('MAIL_USERSIGNATURE_SENDER_SELECT') ?></span>
 		<label class="mail-set-singleselect mail-set-singleselect-line" data-checked="mail_user_signature_sender_type_<?=$arResult['senderType'];?>">
 			<input id="mail_user_signature_sender_type_0" type="radio" name="sender_type" value="0">
-			<label for="mail_user_signature_sender_type_0"><?=Loc::getMessage('MAIL_USERSIGNATURE_SENDER_TYPE_'.strtoupper($arResult['senderType'])) ?></label>
+			<label for="mail_user_signature_sender_type_0"><?=Loc::getMessage('MAIL_USERSIGNATURE_SENDER_TYPE_'.mb_strtoupper($arResult['senderType'])) ?></label>
 			<div class="mail-set-singleselect-wrapper">
 				<input type="radio" name="sender_type" value="<?=UserSignatureTable::TYPE_SENDER;?>" id="mail_user_signature_sender_type_<?=UserSignatureTable::TYPE_SENDER;?>" onchange="BX.Mail.UserSignature.Edit.showList('<?=UserSignatureTable::TYPE_SENDER;?>');"<?
 				if($arResult['senderType'] != UserSignatureTable::TYPE_ADDRESS)

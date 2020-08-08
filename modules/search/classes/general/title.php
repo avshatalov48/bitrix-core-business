@@ -92,10 +92,10 @@ class CAllSearchTitle extends CDBResult
 			$r["DIR"] = $arSite[$site_id]["DIR"];
 			$r["SERVER_NAME"] = $arSite[$site_id]["SERVER_NAME"];
 
-			if (strlen($r["SITE_URL"]) > 0)
+			if ($r["SITE_URL"] <> '')
 				$r["URL"] = $r["SITE_URL"];
 
-			if (substr($r["URL"], 0, 1) == "=")
+			if (mb_substr($r["URL"], 0, 1) == "=")
 			{
 				foreach (GetModuleEvents("search", "OnSearchGetURL", true) as $arEvent)
 					$r["URL"] = ExecuteModuleEventEx($arEvent, array($r));
@@ -128,9 +128,9 @@ class CAllSearchTitle extends CDBResult
 				{
 					for ($j = $c - 1; $j >= 0; $j--)
 					{
-						$prefix = substr($r["NAME"], 0, $arMatches[2][$j][1]);
-						$instr = substr($r["NAME"], $arMatches[2][$j][1], strlen($arMatches[2][$j][0]));
-						$suffix = substr($r["NAME"], $arMatches[2][$j][1] + strlen($arMatches[2][$j][0]));
+						$prefix = mb_substr($r["NAME"], 0, $arMatches[2][$j][1]);
+						$instr = mb_substr($r["NAME"], $arMatches[2][$j][1], mb_strlen($arMatches[2][$j][0]));
+						$suffix = mb_substr($r["NAME"], $arMatches[2][$j][1] + mb_strlen($arMatches[2][$j][0]));
 						$r["NAME"] = $prefix."<b>".$instr."</b>".$suffix;
 					}
 				}

@@ -257,7 +257,7 @@ class Statistics
 	protected static function formatNumber($number, $num = 1)
 	{
 		$formatted = number_format($number, $num, '.', ' ');
-		$formatted = substr($formatted, -($num + 1)) == '.' . str_repeat('0', $num) ? substr($formatted, 0, -2) : $formatted;
+		$formatted = mb_substr($formatted, -($num + 1)) == '.'.str_repeat('0', $num)? mb_substr($formatted, 0, -2) : $formatted;
 		return $formatted;
 	}
 
@@ -445,7 +445,7 @@ class Statistics
 		$list = [];
 		foreach ($item as $name => $value)
 		{
-			if (substr($name, 0, 4) == 'SEND')
+			if (mb_substr($name, 0, 4) == 'SEND')
 			{
 				$base = $item['SEND_ALL'];
 			}
@@ -582,7 +582,7 @@ class Statistics
 				'CNT' => 0,
 				'CNT_DISPLAY' => 0,
 				'DAY_HOUR' => $i,
-				'DAY_HOUR_DISPLAY' => (strlen($i) == 1 ? '0' : '') . $i . ':00',
+				'DAY_HOUR_DISPLAY' => (mb_strlen($i) == 1 ? '0' : '') . $i . ':00',
 			);
 		}
 

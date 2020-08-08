@@ -44,7 +44,7 @@ return array(
 	),
 	'style' => array(
 		'block' => array(
-			'type' => array('display'),
+			'type' => array('display', 'header-position'),
 		),
 		'nodes' => array(
 			'.landing-block-node-menu-list-item-link' => array(
@@ -57,9 +57,9 @@ return array(
 			),
 		),
 	),
-	'assets' => array(
-		'ext' => array('landing_menu'),
-	),
+	'assets' => [
+		'ext' => ['landing_header', 'landing_menu'],
+	],
 	'groups' => array(
 		'logo' => Loc::getMessage('LANDING_BLOCK_0.MENU_1_NODES_LANDINGBLOCKNODEMENULOGO'),
 	),

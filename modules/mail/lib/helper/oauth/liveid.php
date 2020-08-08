@@ -99,7 +99,7 @@ if (Main\Loader::includeModule('socialservices'))
 				{
 					$result = \Bitrix\Main\Web\Json::decode($result);
 				}
-				catch (Exception $e)
+				catch (\Exception $e)
 				{
 					$result = null;
 				}

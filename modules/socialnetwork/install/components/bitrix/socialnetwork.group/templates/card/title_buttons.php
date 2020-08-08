@@ -36,14 +36,14 @@ if (Loader::includeModule('bitrix24'))
 		SGCSPathToRequestUser: '<?=CUtil::JSUrlEscape(
 			!empty($arResult["Urls"]["Invite"])
 				? $arResult["Urls"]["Invite"]
-				: $arResult["Urls"]["Edit"].(strpos($arResult["Urls"]["Edit"], "?") !== false ? "&" : '?')."tab=invite"
+				: $arResult["Urls"]["Edit"].(mb_strpos($arResult["Urls"]["Edit"], "?") !== false ? "&" : '?')."tab=invite"
 		)?>',
 		SGCSPathToUserRequestGroup: '<?=CUtil::JSUrlEscape($arResult["Urls"]["UserRequestGroup"])?>',
 		SGCSPathToUserLeaveGroup: '<?=CUtil::JSUrlEscape($arResult["Urls"]["UserLeaveGroup"])?>',
 		SGCSPathToRequests: '<?=CUtil::JSUrlEscape($arResult["Urls"]["GroupRequests"])?>',
 		SGCSPathToRequestsOut: '<?=CUtil::JSUrlEscape($arResult["Urls"]["GroupRequestsOut"])?>',
 		SGCSPathToMembers: '<?=CUtil::JSUrlEscape($arResult["Urls"]["GroupUsers"])?>',
-		SGCSPathToEdit: '<?=CUtil::JSUrlEscape($arResult["Urls"]["Edit"].(strpos($arResult["Urls"]["Edit"], "?") !== false ? "&" : '?')."tab=edit")?>',
+		SGCSPathToEdit: '<?=CUtil::JSUrlEscape($arResult["Urls"]["Edit"].(mb_strpos($arResult["Urls"]["Edit"], "?") !== false ? "&" : '?')."tab=edit")?>',
 		SGCSPathToDelete: '<?=CUtil::JSUrlEscape($arResult["Urls"]["Delete"])?>',
 		SGCSPathToFeatures: '<?=CUtil::JSUrlEscape($arResult["Urls"]["Features"])?>',
 		SGCSPathToCopy: '<?=CUtil::JSUrlEscape($arResult["Urls"]["Copy"])?>'

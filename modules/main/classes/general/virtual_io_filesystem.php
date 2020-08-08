@@ -1,4 +1,7 @@
 <?
+/**
+ * @deprecated Use \Bitrix\Main\IO
+ */
 class CBXVirtualIoFileSystem
 	implements IBXVirtualIO, IBXGetErrors
 {
@@ -197,8 +200,8 @@ class CBXVirtualIoFileSystem
 
 		$res = preg_replace($pattern, "/", $path);
 
-		if (($p = strpos($res, "\0")) !== false)
-			$res = substr($res, 0, $p);
+		if (strpos($res, "\0") !== false)
+			throw new \Bitrix\Main\IO\InvalidPathException($path);
 
 		$arPath = explode('/', $res);
 		$nPath = count($arPath);
@@ -513,6 +516,9 @@ class CBXVirtualIoFileSystem
 	}
 }
 
+/**
+ * @deprecated Use \Bitrix\Main\IO
+ */
 class CBXVirtualFileFileSystem
 	extends CBXVirtualFile
 {
@@ -670,6 +676,9 @@ class CBXVirtualFileFileSystem
 	}
 }
 
+/**
+ * @deprecated Use \Bitrix\Main\IO
+ */
 class CBXVirtualDirectoryFileSystem
 	extends CBXVirtualDirectory
 {

@@ -15,34 +15,42 @@ $lAdmin = new CAdminList($sTableID, $oSort);
 
 function CheckFilter()
 {
-	global $FilterArr, $lAdmin;
-	foreach ($FilterArr as $f) global $$f;
-	if (strlen(trim($find_update_1))>0 || strlen(trim($find_update_2))>0)
+	global $lAdmin, $find_update_1, $find_update_2, $find_insert_1, $find_insert_2;
+
+	if (trim($find_update_1) <> '' || trim($find_update_2) <> '')
 	{
 		$date_1_ok = false;
 		$date1_stm = MkDateTime(FmtDate($find_update_1,"D.M.Y"),"d.m.Y");
 		$date2_stm = MkDateTime(FmtDate($find_update_2,"D.M.Y")." 23:59","d.m.Y H:i");
-		if (!$date1_stm && strlen(trim($find_update_1))>0)
+
+		if (!$date1_stm && trim($find_update_1) <> '')
 			$lAdmin->AddFilterError(GetMessage("POST_WRONG_UPDATE_FROM"));
-		else $date_1_ok = true;
-		if (!$date2_stm && strlen(trim($find_update_2))>0)
+		else
+			$date_1_ok = true;
+
+		if (!$date2_stm && trim($find_update_2) <> '')
 			$lAdmin->AddFilterError(GetMessage("POST_WRONG_UPDATE_TILL"));
-		elseif ($date_1_ok && $date2_stm <= $date1_stm && strlen($date2_stm)>0)
+		elseif ($date_1_ok && $date2_stm <= $date1_stm && $date2_stm <> '')
 			$lAdmin->AddFilterError(GetMessage("POST_FROM_TILL_UPDATE"));
 	}
-	if (strlen(trim($find_insert_1))>0 || strlen(trim($find_insert_2))>0)
+
+	if (trim($find_insert_1) <> '' || trim($find_insert_2) <> '')
 	{
 		$date_1_ok = false;
 		$date1_stm = MkDateTime(FmtDate($find_insert_1,"D.M.Y"),"d.m.Y");
 		$date2_stm = MkDateTime(FmtDate($find_insert_2,"D.M.Y")." 23:59","d.m.Y H:i");
-		if (!$date1_stm && strlen(trim($find_insert_1))>0)
+
+		if (!$date1_stm && trim($find_insert_1) <> '')
 			$lAdmin->AddFilterError(GetMessage("POST_WRONG_INSERT_FROM"));
-		else $date_1_ok = true;
-		if (!$date2_stm && strlen(trim($find_insert_2))>0)
+		else
+			$date_1_ok = true;
+
+		if (!$date2_stm && trim($find_insert_2) <> '')
 			$lAdmin->AddFilterError(GetMessage("POST_WRONG_INSERT_TILL"));
-		elseif ($date_1_ok && $date2_stm <= $date1_stm && strlen($date2_stm)>0)
+		elseif ($date_1_ok && $date2_stm <= $date1_stm && $date2_stm <> '')
 			$lAdmin->AddFilterError(GetMessage("POST_FROM_TILL_INSERT"));
 	}
+
 	return count($lAdmin->arFilterErrors)==0;
 }
 
@@ -92,7 +100,7 @@ if($lAdmin->EditAction() && $POST_RIGHT=="W")
 		if(!$lAdmin->IsUpdated($ID))
 			continue;
 		$DB->StartTransaction();
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$ob = new CSubscription;
 		if(!$ob->Update($ID, $arFields))
 		{
@@ -117,9 +125,9 @@ if(($arID = $lAdmin->GroupAction()) && $POST_RIGHT=="W")
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		switch($_REQUEST['action'])
 		{
 		case "delete":

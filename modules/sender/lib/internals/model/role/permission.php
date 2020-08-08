@@ -5,6 +5,7 @@ namespace Bitrix\Sender\Internals\Model\Role;
 use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Entity;
+use Bitrix\Sender\Access\Role\Role;
 
 /**
  * Class PermissionTable
@@ -54,8 +55,7 @@ class PermissionTable extends Entity\DataManager
 				array('join_type' => 'INNER')
 			),
 			'ROLE' => new Entity\ReferenceField(
-				'ROLE',
-				'Bitrix\Sender\Internals\Model\Role\Role',
+				'ROLE', 'Bitrix\Sender\Access\Role\Role',
 				array('=this.ROLE_ID' => 'ref.ID'),
 				array('join_type' => 'INNER')
 			),

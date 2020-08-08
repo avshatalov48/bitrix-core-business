@@ -49,7 +49,7 @@ class CFileInput
 		self::$minPreviewWidth = min((isset($showInfo['MIN_SIZE']['W']) ? $showInfo['MIN_SIZE']['W'] : 120), 500);
 		self::$minPreviewHeight = min((isset($showInfo['MIN_SIZE']['H']) ? $showInfo['MIN_SIZE']['H'] : 100), 500);
 
-		self::$jsId = 'bx_file_'.strtolower(preg_replace("/[^a-z0-9]/i", "_", $inputName));
+		self::$jsId = 'bx_file_'.mb_strtolower(preg_replace("/[^a-z0-9]/i", "_", $inputName));
 	}
 
 /**
@@ -136,7 +136,7 @@ class CFileInput
 		{
 			if (is_array($fileId))
 				continue;
-			if (strlen($fileId) <= 1 && intVal($fileId) === 0)
+			if (mb_strlen($fileId) <= 1 && intval($fileId) === 0)
 				continue;
 
 			self::$bFileExists = true;
@@ -251,7 +251,7 @@ class CFileInput
 
 		foreach($values as $inputName => $fileId)
 		{
-			if (strlen($fileId) <= 1 && intVal($fileId) === 0)
+			if (mb_strlen($fileId) <= 1 && intval($fileId) === 0)
 				continue;
 
 			self::$bFileExists = true;
@@ -329,7 +329,7 @@ class CFileInput
 		$sImagePath = isset($arFile["PATH"]) ? $arFile["PATH"] : $arFile["SRC"];
 		if(
 			$arFile["HANDLER_ID"]
-			|| (defined("BX_IMG_SERVER") && substr($sImagePath, 0, strlen(BX_IMG_SERVER)) === BX_IMG_SERVER)
+			|| (defined("BX_IMG_SERVER") && mb_substr($sImagePath, 0, mb_strlen(BX_IMG_SERVER)) === BX_IMG_SERVER)
 			|| $io->FileExists($_SERVER["DOCUMENT_ROOT"].$sImagePath)
 		)
 		{
@@ -337,7 +337,7 @@ class CFileInput
 			$arFile["IS_IMAGE"] = $arFile["WIDTH"] > 0 && $arFile["HEIGHT"] > 0 && self::$showInfo['IMAGE'] != 'N';
 
 			//Mantis:#65168
-			if ($arFile["CONTENT_TYPE"] && $arFile["IS_IMAGE"] && strpos($arFile["CONTENT_TYPE"], 'application') !== false)
+			if ($arFile["CONTENT_TYPE"] && $arFile["IS_IMAGE"] && mb_strpos($arFile["CONTENT_TYPE"], 'application') !== false)
 			{
 				$arFile["IS_IMAGE"] = false;
 			}
@@ -416,7 +416,10 @@ class CFileInput
 				foreach(self::$curFiles as $ind => $arFile)
 					self::DisplayFile($arFile, $ind);
 		?>
-		<script type="text/javascript">(top.BX.file_input) ? new top.BX.file_input(<?= CUtil::PHPToJSObject($arConfig)?>) : new BX.file_input(<?= CUtil::PHPToJSObject($arConfig)?>)</script>
+		<script type="text/javascript">
+			var topWindow = BX.PageObject.getRootWindow();
+			(topWindow.BX.file_input) ? new topWindow.BX.file_input(<?= CUtil::PHPToJSObject($arConfig)?>) : new BX.file_input(<?= CUtil::PHPToJSObject($arConfig)?>)
+		</script>
 		</div>
 		<?/* Used to refresh form content - workaround for IE bug (mantis:37969) */?>
 	<div id="<?= self::$jsId.'_ie_bogus_container'?>"><input type="hidden" value="" /></div>
@@ -514,8 +517,8 @@ class CFileInput
 		{
 		?>
 		<script type="text/javascript">
-			new top.BX.CHint({
-				parent: top.BX("<?= $hintId?>"),
+			new (BX.PageObject.getRootWindow()).BX.CHint({
+				parent: (BX.PageObject.getRootWindow()).BX("<?= $hintId?>"),
 				show_timeout: 10,
 				hide_timeout: 200,
 				dx: 2,
@@ -553,8 +556,8 @@ class CFileInput
 	{
 		if ($type == "")
 			return $inputName;
-		$p = strpos($inputName, "[");
-		return  ($p > 0) ? substr($inputName, 0, $p).$type.substr($inputName, $p) : $inputName.$type;
+		$p = mb_strpos($inputName, "[");
+		return  ($p > 0) ? mb_substr($inputName, 0, $p).$type.mb_substr($inputName, $p) : $inputName.$type;
 	}
 
 	private static function IsViewMode()

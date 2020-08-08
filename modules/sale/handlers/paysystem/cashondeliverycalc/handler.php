@@ -269,7 +269,7 @@ class CashOnDeliveryCalcHandler extends PaySystem\BaseServiceHandler implements 
 	 */
 	public function getCMTarifsByRegionFromCsv($regionNameLang)
 	{
-		if(strlen(trim($regionNameLang)) <= 0)
+		if(trim($regionNameLang) == '')
 			return false;
 
 		$csvFile = \CSaleHelper::getCsvObject(__DIR__.'/lang/ru/cm_tarif.csv');
@@ -279,7 +279,7 @@ class CashOnDeliveryCalcHandler extends PaySystem\BaseServiceHandler implements 
 
 		while ($arRes = $csvFile->Fetch())
 		{
-			if(strtoupper(trim($regionNameLang)) === $arRes[$COL_REG_NAME])
+			if(mb_strtoupper(trim($regionNameLang)) === $arRes[$COL_REG_NAME])
 			{
 				$arTarifs = $arRes;
 				break;

@@ -386,7 +386,7 @@ abstract class CBPActivity
 		$stateService = $this->workflow->GetService("StateService");
 
 		$mainTitle = $stateService->GetStateTitle($this->GetWorkflowInstanceId());
-		$mainTitle .= ((strpos($mainTitle, ": ") !== false) ? ", " : ": ").$title;
+		$mainTitle .= ((mb_strpos($mainTitle, ": ") !== false) ? ", " : ": ").$title;
 
 		$stateService->SetStateTitle($this->GetWorkflowInstanceId(), $mainTitle);
 	}
@@ -411,13 +411,13 @@ abstract class CBPActivity
 			$a = trim($a);
 			if ($a != $title)
 			{
-				if (strlen($newTitle) > 0)
+				if ($newTitle <> '')
 					$newTitle .= ", ";
 				$newTitle .= $a;
 			}
 		}
 
-		$result = $ar1[0].(strlen($newTitle) > 0 ? ": " : "").$newTitle;
+		$result = $ar1[0].($newTitle <> '' ? ": " : "").$newTitle;
 
 		$stateService->SetStateTitle($this->GetWorkflowInstanceId(), $result);
 	}
@@ -498,7 +498,7 @@ abstract class CBPActivity
 					$documentType = $this->GetDocumentType();
 
 					$typesMap = $documentService->getTypesMap($documentType);
-					$convertToType = strtolower($convertToType);
+					$convertToType = mb_strtolower($convertToType);
 					if (isset($typesMap[$convertToType]))
 					{
 						$typeClass = $typesMap[$convertToType];
@@ -573,9 +573,9 @@ abstract class CBPActivity
 			$documentFields = $documentService->GetDocumentFields($documentType);
 			//check aliases
 			$documentFieldsAliasesMap = CBPDocument::getDocumentFieldsAliasesMap($documentFields);
-			if (!isset($document[$fieldName]) && strtoupper(substr($fieldName, -strlen('_PRINTABLE'))) == '_PRINTABLE')
+			if (!isset($document[$fieldName]) && mb_strtoupper(mb_substr($fieldName, -mb_strlen('_PRINTABLE'))) == '_PRINTABLE')
 			{
-				$fieldName = substr($fieldName, 0, -strlen('_PRINTABLE'));
+				$fieldName = mb_substr($fieldName, 0, -mb_strlen('_PRINTABLE'));
 				if (!in_array('printable', $modifiers))
 					$modifiers[] = 'printable';
 			}
@@ -589,7 +589,7 @@ abstract class CBPActivity
 			if (isset($document[$fieldName]))
 			{
 				$result = $document[$fieldName];
-				if (is_array($result) && strtoupper(substr($fieldName, -strlen('_PRINTABLE'))) == '_PRINTABLE')
+				if (is_array($result) && mb_strtoupper(mb_substr($fieldName, -mb_strlen('_PRINTABLE'))) == '_PRINTABLE')
 					$result = implode(", ", CBPHelper::MakeArrayFlat($result));
 
 				$property = isset($documentFields[$fieldName]) ? $documentFields[$fieldName] : null;
@@ -599,9 +599,9 @@ abstract class CBPActivity
 		{
 			$rootActivity = $this->GetRootActivity();
 
-			if (substr($fieldName, -strlen("_printable")) == "_printable")
+			if (mb_substr($fieldName, -mb_strlen("_printable")) == "_printable")
 			{
-				$fieldName = substr($fieldName, 0, strlen($fieldName) - strlen("_printable"));
+				$fieldName = mb_substr($fieldName, 0, mb_strlen($fieldName) - mb_strlen("_printable"));
 				$modifiers = array('printable');
 			}
 
@@ -643,7 +643,7 @@ abstract class CBPActivity
 
 			$result = null;
 			$property = array('Type' => 'datetime');
-			$systemField = strtolower($fieldName);
+			$systemField = mb_strtolower($fieldName);
 			if ($systemField === 'now')
 			{
 				$result = new Bizproc\BaseType\Value\DateTime();
@@ -717,7 +717,7 @@ abstract class CBPActivity
 		$typesMap = $documentService->getTypesMap($documentType);
 		foreach ($modifiers as $m)
 		{
-			$m = strtolower($m);
+			$m = mb_strtolower($m);
 			if (isset($typesMap[$m]))
 			{
 				$typeName = $m;
@@ -891,9 +891,9 @@ abstract class CBPActivity
 
 	protected function getObjectSourceType($objectName, $fieldName)
 	{
-		if (substr($fieldName, -10) === '_printable')
+		if (mb_substr($fieldName, -10) === '_printable')
 		{
-			$fieldName = substr($fieldName, 0, -10);
+			$fieldName = mb_substr($fieldName, 0, -10);
 		}
 
 		if ($objectName === 'Document')
@@ -1003,12 +1003,12 @@ abstract class CBPActivity
 
 	public static function Load($stream)
 	{
-		if (strlen($stream) <= 0)
+		if ($stream == '')
 			throw new Exception("stream");
 
-		$pos = strpos($stream, ";");
-		$strUsedActivities = substr($stream, 0, $pos);
-		$stream = substr($stream, $pos + 1);
+		$pos = mb_strpos($stream, ";");
+		$strUsedActivities = mb_substr($stream, 0, $pos);
+		$stream = mb_substr($stream, $pos + 1);
 
 		$runtime = CBPRuntime::GetRuntime();
 		$arUsedActivities = explode(",", $strUsedActivities);
@@ -1023,7 +1023,7 @@ abstract class CBPActivity
 
 	protected function GetACNames()
 	{
-		return array(substr(get_class($this), 3));
+		return array(mb_substr(get_class($this), 3));
 	}
 
 	private static function SearchUsedActivities(CBPActivity $activity, &$arUsedActivities)

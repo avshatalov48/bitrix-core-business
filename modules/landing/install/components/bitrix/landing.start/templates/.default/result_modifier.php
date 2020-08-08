@@ -4,6 +4,12 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 	die();
 }
 
+if (in_array($this->getPageName(), ['site_domain', 'site_domain_switch']))
+{
+	\Bitrix\Landing\Manager::getApplication()->restartBuffer();
+	return;
+}
+
 $context = \Bitrix\Main\Application::getInstance()->getContext();
 $request = $context->getRequest();
 
@@ -143,6 +149,21 @@ elseif (in_array($this->getPageName(), array('template', 'site_show')))
 			unset($linkSett, $uriSettCatalog);
 		}
 	}
+	// add site import button
+	else if ($arResult['ACCESS_SITE_NEW'] == 'Y')
+	{
+		$importUrl = \Bitrix\Landing\Transfer\Import\Site::getUrl(
+			$arParams['TYPE']
+		);
+		if ($importUrl)
+		{
+			$settingsLink[] = ['TITLE' => '', 'LINK' => ''];
+			$settingsLink[] = [
+				'TITLE' => Loc::getMessage('LANDING_TPL_IMPORT_SITE_' . $arParams['TYPE']),
+				'LINK' => $importUrl
+			];
+		}
+	}
 
 	$APPLICATION->IncludeComponent(
 		'bitrix:landing.filter',
@@ -170,13 +191,14 @@ elseif (in_array($this->getPageName(), array('template', 'site_show')))
 	unset($settingsLink);
 }
 
+include __DIR__ . '/popups/agreement.php';
+
 if (
 	$request->get('agreement') == 'Y' &&
 	!$request->get('landing_mode') &&
 	\Bitrix\Landing\Manager::isB24()
 )
 {
-	include __DIR__ . '/popups/agreement.php';
 	?>
 	<script type="text/javascript">
 		BX.ready(function()
@@ -188,4 +210,10 @@ if (
 		});
 	</script>
 	<?
+}
+
+// backward compatibility
+if ($arResult['AGREEMENT_ACCEPTED'])
+{
+	$arResult['AGREEMENT'] = [];
 }

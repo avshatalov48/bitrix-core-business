@@ -117,7 +117,7 @@ class CDeliveryRusPost
 		$shopPrevLocationId = Option::get('sale', 'delivery_rus_post_prev_loc', "", $siteId);
 
 		/* if shop's location was changed */
-		if(strlen($shopPrevLocationId) <= 0 || $shopPrevLocationId != $shopLocationId)
+		if($shopPrevLocationId == '' || $shopPrevLocationId != $shopLocationId)
 		{
 			Option::set('sale', 'delivery_rus_post_prev_loc', $shopLocationId, $siteId);
 			Option::delete('sale', array('name' => 'delivery_regs_to_zones', 'site_id' => $siteId));
@@ -158,7 +158,7 @@ class CDeliveryRusPost
 		foreach ($arRegions as $regId => $regName)
 		{
 			$codeByName = self::getRegionCodeByOldName($regName); // old location
-			$code = strlen($codeByName) > 0 ? $codeByName : $regId;
+			$code = $codeByName <> '' ? $codeByName : $regId;
 
 			if(isset($arRegsToZones[$code]))
 			{
@@ -345,14 +345,14 @@ class CDeliveryRusPost
 		if(isset($_REQUEST["RESET_HANDLER_SETTINGS"]) && $_REQUEST["RESET_HANDLER_SETTINGS"] == "Y" && !isset($_REQUEST["apply"]))
 		{
 			foreach($result as $key => $value)
-				if(substr($key, 0, 4) == 'REG_')
+				if(mb_substr($key, 0, 4) == 'REG_')
 					unset($result[$key]);
 		}
 
 		if(isset($_REQUEST["RESET_TARIF_SETTINGS"]) && $_REQUEST["RESET_TARIF_SETTINGS"] == "Y" && !isset($_REQUEST["apply"]))
 		{
 			foreach($result as $key => $value)
-				if(substr($key, 0, 5) == 'ZONE_' || substr($key, 0, 6) == 'tarif_' || substr($key, 0, 8) == 'service_')
+				if(mb_substr($key, 0, 5) == 'ZONE_' || mb_substr($key, 0, 6) == 'tarif_' || mb_substr($key, 0, 8) == 'service_')
 					unset($result[$key]);
 		}
 
@@ -373,7 +373,7 @@ class CDeliveryRusPost
 
 		foreach ($arSettings as $key => $value)
 		{
-			if (strlen($value) > 0 && (substr($key, 0, 4) != 'REG_' || $value != '0'))
+			if ($value <> '' && (mb_substr($key, 0, 4) != 'REG_' || $value != '0'))
 				$arSettings[$key] = $value;
 			else
 				unset($arSettings[$key]);
@@ -462,7 +462,7 @@ class CDeliveryRusPost
 
 		$locationToCode = CSaleHelper::getLocationByIdHitCached($arOrder['LOCATION_TO']);
 
-		if(strlen(self::getLocationToCode($locationToCode)) <= 0)
+		if(self::getLocationToCode($locationToCode) == '')
 			$profiles = array();
 
 		$arRes = array();
@@ -602,8 +602,8 @@ class CDeliveryRusPost
 		while ($arRes = $csvFile->Fetch())
 		{
 			if(
-				(strlen($regionCodeFromCode) > 0 && in_array($regionCodeFromCode, $arRes))
-				|| (strlen($regionCodeFromName) > 0 && in_array($regionCodeFromName, $arRes))
+				($regionCodeFromCode <> '' && in_array($regionCodeFromCode, $arRes))
+				|| ($regionCodeFromName <> '' && in_array($regionCodeFromName, $arRes))
 			)
 			{
 				$tarifNumber = $arRes[$COL_TARIF_NUM];
@@ -668,7 +668,7 @@ class CDeliveryRusPost
 	{
 		$code = self::getRegionCodeByOldName($arLocationTo['REGION_NAME_LANG']); // old location
 
-		if(strlen($code) <= 0 && CSaleLocation::isLocationProMigrated())
+		if($code == '' && CSaleLocation::isLocationProMigrated())
 		{
 			$dbRes = Location\LocationTable::getList(array(
 				'filter' => array(
@@ -697,7 +697,7 @@ class CDeliveryRusPost
 
 		$code = self::getLocationToCode($arLocationTo);
 
-		if(strlen($code) <= 0)
+		if($code == '')
 			throw new \Bitrix\Main\SystemException(GetMessage("SALE_DH_RP_ERROR_LOCATION_NOT_FOUND"));
 
 		$zoneTo = self::getConfValue($arConfig, 'REG_'.$code);
@@ -769,7 +769,7 @@ class CDeliveryRusPost
 
 	protected static function getRegionCodeByOldName($regionLangName)
 	{
-		if(strlen($regionLangName) <= 0)
+		if($regionLangName == '')
 			return "";
 
 		static $data = array();

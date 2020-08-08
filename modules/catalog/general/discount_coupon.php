@@ -31,7 +31,7 @@ class CAllCatalogDiscountCoupon
 	{
 		global $DB, $APPLICATION, $USER;
 
-		$ACTION = strtoupper($ACTION);
+		$ACTION = mb_strtoupper($ACTION);
 		if ('UPDATE' != $ACTION && 'ADD' != $ACTION)
 			return false;
 
@@ -64,7 +64,7 @@ class CAllCatalogDiscountCoupon
 			return false;
 		}
 
-		if ((is_set($arFields, "COUPON") || $ACTION=="ADD") && strlen($arFields["COUPON"]) <= 0)
+		if ((is_set($arFields, "COUPON") || $ACTION=="ADD") && $arFields["COUPON"] == '')
 		{
 			$APPLICATION->ThrowException(Loc::getMessage("KGDC_EMPTY_COUPON"), "EMPTY_COUPON");
 			return false;
@@ -72,7 +72,7 @@ class CAllCatalogDiscountCoupon
 		elseif(is_set($arFields, "COUPON"))
 		{
 			$currentId = ($ACTION == 'UPDATE' ? $ID : 0);
-			$arFields['COUPON'] = substr($arFields['COUPON'], 0, 32);
+			$arFields['COUPON'] = mb_substr($arFields['COUPON'], 0, 32);
 			if (self::$existCouponsManager)
 			{
 				$existCoupon = DiscountCouponsManager::isExist($arFields['COUPON']);

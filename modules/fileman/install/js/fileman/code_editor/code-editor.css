@@ -107,8 +107,8 @@ font-family: consolas, monospace!important;font-size:12px!important;line-height:
 	background: transparent;
 	font-family: monospace !important;
 	font-size: 13px!important;
-	white-space: pre;
-	word-wrap: normal;
+	white-space: pre!important;
+	word-wrap: normal!important;
 	line-height: 15px!important;
 	color: inherit;
 	text-align: left;

@@ -181,7 +181,7 @@ final class WordTable extends Entity\DataManager implements \Serializable
 			$word = ToUpper(trim($word));
 			$word = str_replace('%', '', $word);
 
-			if(!strlen($word))
+			if($word == '')
 				continue;
 
 			$result[] = $word;
@@ -264,10 +264,12 @@ final class WordTable extends Entity\DataManager implements \Serializable
 		$cnt = 0;
 		while($item = $res->fetch())
 		{
-			if(strlen($item['NAME']))
+			if($item['NAME'] <> '')
 			{
 				if($this->procData['CURRENT_LOCATION'] != $item['LOCATION_ID'])
+				{
 					$this->procData['CURRENT_LOCATION_WORDS'] = array();
+				}
 
 				$this->procData['CURRENT_LOCATION'] = $item['LOCATION_ID'];
 
@@ -358,7 +360,7 @@ final class WordTable extends Entity\DataManager implements \Serializable
 
 	public static function getIdByWord($word)
 	{
-		if(!strlen($word))
+		if($word == '')
 			return false;
 
 		$dbConnection = Main\HttpApplication::getConnection();

@@ -2,7 +2,7 @@
 $MESS["SONET_EXT_COMMON_AJAX_ERROR"] = "Error processing request.";
 $MESS["SONET_EXT_COMMON_B24_SONET_GROUP_FEATURES_TEXT"] = "<p>Access permissions provide an easy and convenient way to streamline workflow in a workgroup. You will be able to select the tools your employees can or cannot access.<p>Access permissions are available on major plans only.";
 $MESS["SONET_EXT_COMMON_B24_SONET_GROUP_FEATURES_TITLE"] = "Get more options for your Bitrix24";
-$MESS["SONET_EXT_COMMON_GROUP_MENU_COPY"] = "Copy";
+$MESS["SONET_EXT_COMMON_GROUP_MENU_COPY"] = "Copy workgroup";
 $MESS["SONET_EXT_COMMON_GROUP_MENU_COPY_PROJECT"] = "Copy project";
 $MESS["SONET_EXT_COMMON_GROUP_MENU_DELETE"] = "Delete Workgroup";
 $MESS["SONET_EXT_COMMON_GROUP_MENU_DELETE_PROJECT"] = "Delete Project";

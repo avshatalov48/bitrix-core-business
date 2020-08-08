@@ -14,8 +14,8 @@ $compositeStub = (isset($arResult['COMPOSITE_STUB']) && $arResult['COMPOSITE_STU
 			$name = trim($USER->GetFullName());
 			if (! $name)
 				$name = trim($USER->GetLogin());
-			if (strlen($name) > 15)
-				$name = substr($name, 0, 12).'...';
+			if (mb_strlen($name) > 15)
+				$name = mb_substr($name, 0, 12).'...';
 			?>
 			<a href="<?=$arParams['PATH_TO_PROFILE']?>"><?=htmlspecialcharsbx($name)?></a>
 			&nbsp;
@@ -48,7 +48,7 @@ $compositeStub = (isset($arResult['COMPOSITE_STUB']) && $arResult['COMPOSITE_STU
 			}
 			
 			$pathToAuthorize = $arParams['PATH_TO_AUTHORIZE'];
-			$pathToAuthorize .= (stripos($pathToAuthorize, '?') === false ? '?' : '&');
+			$pathToAuthorize .= (mb_stripos($pathToAuthorize, '?') === false ? '?' : '&');
 			$pathToAuthorize .= 'login=yes&backurl='.$currentUrl;
 			?>
 			<a href="<?=$pathToAuthorize?>">
@@ -58,7 +58,7 @@ $compositeStub = (isset($arResult['COMPOSITE_STUB']) && $arResult['COMPOSITE_STU
 			if ($arParams['SHOW_REGISTRATION'] === 'Y')
 			{
 				$pathToRegister = $arParams['PATH_TO_REGISTER'];
-				$pathToRegister .= (stripos($pathToRegister, '?') === false ? '?' : '&');
+				$pathToRegister .= (mb_stripos($pathToRegister, '?') === false ? '?' : '&');
 				$pathToRegister .= 'register=yes&backurl='.$currentUrl;
 				?>
 				<a href="<?=$pathToRegister?>">

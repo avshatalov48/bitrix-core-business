@@ -1,6 +1,17 @@
-<?
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
+<?require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
+use \Bitrix\Main\Localization\Loc;
+
 \Bitrix\Main\Loader::includeModule("forum");
+$userOpt = \CUserOptions::getOption("admin_panel", "forum");
+if ($userOpt["forum_admin"] != "old")
+{
+	require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+	?><?$APPLICATION->IncludeComponent("bitrix:forum.admin.forums", ".default", []);?><?
+	?><?=BeginNote();?><a href="javascript:void(0);" onclick="BX.userOptions.save('admin_panel', 'forum', 'forum_admin', 'old');BX.reload();return false;"><?
+	?><?=Loc::getMessage("FORUM_ADMIN_GO_BACK_TO_OLD_VIEW")?></a><?=EndNote();
+	require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+	return;
+}
 
 $forumModulePermissions = $APPLICATION->GetGroupRight("forum");
 if ($forumModulePermissions == "D"):
@@ -390,6 +401,7 @@ $oFilter->End();
 </form>
 <?=\Bitrix\Main\Update\Stepper::getHtml("forum");?><?
 $lAdmin->DisplayList();
+?><?=BeginNote();?><a href="javascript:void(0);" onclick="BX.userOptions.save('admin_panel', 'forum', 'forum_admin', 'new');BX.reload();return false;"><?=Loc::getMessage("FORUM_ADMIN_GO_TO_NEW_VIEW")?></a><?=EndNote();
 ?>
 <style>
 dl, dd, dt { margin: 0; }

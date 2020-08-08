@@ -54,6 +54,12 @@ class LogCommentTable extends Entity\DataManager
 			'SHARE_DEST' => array(
 				'data_type' => 'string',
 			),
+			'RATING_TYPE_ID' => array(
+				'data_type' => 'string',
+			),
+			'RATING_ENTITY_ID' => array(
+				'data_type' => 'integer',
+			),
 		);
 
 		return $fieldsMap;

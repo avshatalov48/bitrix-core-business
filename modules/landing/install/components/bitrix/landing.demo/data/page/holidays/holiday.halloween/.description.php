@@ -18,13 +18,12 @@ return array(
 	'show_in_list' => 'Y',
 	'type' => 'page',
 	'version' => 2,
-	'sort' => \LandingSiteDemoComponent::checkActivePeriod(10,10,10,31) ? 51 : -161,
 	'fields' => array(
 		'TITLE' => Loc::getMessage("LANDING_DEMO___HALLOWEEN-TITLE"),
 		'RULE' => null,
 		'ADDITIONAL_FIELDS' => array(
 			'THEME_CODE' => 'shipping',
-			'THEME_CODE_TYPO' => 'shipping',
+
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'SETTINGS_HIDE_NOT_AVAILABLE' => 'L',

@@ -210,7 +210,7 @@ else
 			$arParams = array(
 				'id' => $arItems['ID'],
 				'type' => $arCatalogProduct['TYPE'],
-				'name' => htmlspecialcharsbx($arItems['NAME'])
+				'name' => $arItems['NAME']
 			);
 			$jsClick = $tableId.'_helper.SelEl('.CUtil::PhpToJSObject($arParams, false, true, true).', this);';
 			if ($arResult['CALLER'] == 'discount' || $arResult['ALLOW_SELECT_PARENT'] == 'Y')
@@ -264,7 +264,7 @@ else
 				$arParams = array(
 					'id' => $val["ID"],
 					'type' => $val["TYPE"],
-					'name' => htmlspecialcharsbx($val['NAME']),
+					'name' => $val['NAME'],
 					'full_quantity' => $val['QUANTITY'],
 					'measureRatio' => (isset($val['MEASURE_RATIO']) ? $val['MEASURE_RATIO'] : 1),
 					'measure' => (isset($val['MEASURE']['~SYMBOL_RUS']) ? htmlspecialcharsbx($val['MEASURE']['~SYMBOL_RUS']) : ''),
@@ -317,7 +317,7 @@ else
 				$arParams = array(
 					'id' => $arItems["ID"],
 					'type' => $arCatalogProduct["TYPE"],
-					'name' => htmlspecialcharsbx($arItems['NAME']),
+					'name' => $arItems['NAME'],
 					'full_quantity' => $arCatalogProduct['QUANTITY'],
 					'measureRatio' => (isset($arCatalogProduct['MEASURE_RATIO']) ? $arCatalogProduct['MEASURE_RATIO'] : 1),
 					'measure' => (isset($arCatalogProduct['MEASURE']['~SYMBOL_RUS']) ? htmlspecialcharsbx($arCatalogProduct['MEASURE']['~SYMBOL_RUS']) : ''),

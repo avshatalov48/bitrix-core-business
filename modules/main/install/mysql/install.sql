@@ -53,7 +53,11 @@ create table b_culture
 	MEDIUM_DATE_FORMAT varchar(50) null default 'M j, Y',
 	LONG_DATE_FORMAT varchar(50) null default 'F j, Y',
 	FULL_DATE_FORMAT varchar(50) null default 'l, F j, Y',
-	DAY_MONTH_FORMAT varchar(50) null default 'M j',
+	DAY_MONTH_FORMAT varchar(50) null default 'F j',
+	DAY_SHORT_MONTH_FORMAT varchar(50) null default 'M j',
+	DAY_OF_WEEK_MONTH_FORMAT varchar(50) null default 'l, F j',
+	SHORT_DAY_OF_WEEK_MONTH_FORMAT varchar(50) null default 'D, F j',
+	SHORT_DAY_OF_WEEK_SHORT_MONTH_FORMAT varchar(50) null default 'D, M j',
 	SHORT_TIME_FORMAT varchar(50) null default 'g:i a',
 	LONG_TIME_FORMAT varchar(50) null default 'g:i:s a',
 	AM_VALUE varchar(20) null default 'am',
@@ -243,14 +247,18 @@ CREATE TABLE b_user_index
 	SECOND_NAME varchar(50),
 	WORK_POSITION varchar(255),
 	UF_DEPARTMENT_NAME varchar(255),
-	PRIMARY KEY (USER_ID)
+	PRIMARY KEY (USER_ID),
+	fulltext index IXF_B_USER_INDEX_1 (SEARCH_USER_CONTENT),
+	fulltext index IXF_B_USER_INDEX_2 (SEARCH_DEPARTMENT_CONTENT),
+	fulltext index IXF_B_USER_INDEX_3 (SEARCH_ADMIN_CONTENT)
 );
 
 CREATE TABLE b_user_index_selector
 (
 	USER_ID int(11) not null,
 	SEARCH_SELECTOR_CONTENT text null,
-	PRIMARY KEY (USER_ID)
+	PRIMARY KEY (USER_ID),
+	fulltext index IXF_B_USER_INDEX_SELECTOR_1 (SEARCH_SELECTOR_CONTENT)
 );
 
 CREATE TABLE b_user_group
@@ -337,6 +345,7 @@ CREATE TABLE b_agent
 	IS_PERIOD char(1) default 'Y',
 	USER_ID INT(18),
 	RUNNING char(1) not null default 'N',
+	RETRY_COUNT int,
 	PRIMARY KEY (ID),
 	INDEX ix_act_next_exec(ACTIVE, NEXT_EXEC),
 	INDEX ix_agent_user_id(USER_ID),
@@ -1244,6 +1253,9 @@ CREATE TABLE b_consent_agreement
   AGREEMENT_TEXT LONGTEXT DEFAULT NULL,
   LABEL_TEXT VARCHAR(4000) DEFAULT NULL,
   SECURITY_CODE varchar(32) DEFAULT NULL,
+  USE_URL CHAR(1) NOT NULL DEFAULT 'N',
+  URL varchar(255) DEFAULT NULL,
+  IS_AGREEMENT_TEXT_HTML CHAR(1) NOT NULL DEFAULT 'N',
   PRIMARY KEY (ID),
   INDEX IX_B_CONSENT_AGREEMENT_CODE (CODE)
 );
@@ -1256,6 +1268,15 @@ CREATE TABLE b_consent_field
   VALUE TEXT NOT NULL,
   PRIMARY KEY (ID),
   INDEX IX_B_CONSENT_FIELD_AG_ID (AGREEMENT_ID)
+);
+
+CREATE TABLE b_consent_user_consent_item
+(
+	ID INT(18) NOT NULL AUTO_INCREMENT,
+	USER_CONSENT_ID INT(18) NOT NULL,
+	VALUE VARCHAR(50) NOT NULL,
+	PRIMARY KEY (ID),
+	INDEX IX_B_CONSENT_USER_ITEM_AG_ID (USER_CONSENT_ID)
 );
 
 CREATE TABLE b_composite_page
@@ -1390,6 +1411,17 @@ CREATE TABLE b_user_phone_auth
 	DATE_SENT datetime,
 	PRIMARY KEY (USER_ID),
 	UNIQUE INDEX ix_user_phone_auth_number(PHONE_NUMBER)
+);
+
+CREATE TABLE b_user_auth_code
+(
+	USER_ID int not null,
+	CODE_TYPE varchar(20) not null default 'email',
+	OTP_SECRET text,
+	ATTEMPTS int default 0,
+	DATE_SENT datetime,
+	DATE_RESENT datetime,
+	PRIMARY KEY (USER_ID, CODE_TYPE)
 );
 
 CREATE TABLE b_sms_template

@@ -44,7 +44,7 @@ class CCatalogViewedProductsMailComponent extends CCatalogViewedProductsComponen
 			// parse comma
 			foreach ($params['LIST_ITEM_ID'] as $id)
 			{
-				if (strpos($id, ','))
+				if(mb_strpos($id, ','))
 				{
 					// clean values
 					$tmp = explode(',', $id);
@@ -53,7 +53,7 @@ class CCatalogViewedProductsMailComponent extends CCatalogViewedProductsComponen
 
 					$ids = array_merge($ids, $tmp);
 				}
-				elseif (!empty($id))
+				elseif(!empty($id))
 				{
 					$ids[] = $id;
 				}

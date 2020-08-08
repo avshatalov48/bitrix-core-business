@@ -16,7 +16,7 @@ if (IsModuleInstalled('crm'))
 	\Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/crm/common.js');
 }
 
-if (strlen($arResult["FatalErrorMessage"]) > 0)
+if ($arResult["FatalErrorMessage"] <> '')
 {
 	?>
 	<div class="bp-errortext">
@@ -63,7 +63,7 @@ else
 	<?
 	endif;
 
-	if (strlen($arResult["ErrorMessage"]) > 0)
+	if ($arResult["ErrorMessage"] <> '')
 	{
 		?>
 		<div class="bp-errortext">
@@ -91,7 +91,7 @@ else
 				$attrs = 'href="'.$taskHref.'"';
 			}
 
-			if (strlen($record['data']["DOCUMENT_URL"]) > 0 && strlen($record['data']["DOCUMENT_NAME"]) > 0)
+			if ($record['data']["DOCUMENT_URL"] <> '' && $record['data']["DOCUMENT_NAME"] <> '')
 			{
 				$arResult["RECORDS"][$key]['data']['DOCUMENT_NAME'] = '<a href="'.$record['data']["DOCUMENT_URL"].'" class="bp-folder-title-link">'.$record['data']['DOCUMENT_NAME'].'</a>';
 			}
@@ -279,3 +279,26 @@ else
 	}
 }
 ?>
+<script>
+	BX.ready(function()
+	{
+		<?php
+		\Bitrix\Main\UI\Extension::load(['sidepanel']);
+		?>
+		BX.SidePanel.Instance.bindAnchors({
+			rules:
+				[
+					{
+						condition: [
+							"/rpa/task/",
+						],
+						options: {
+							width: 580,
+							cacheable: false,
+							allowChangeHistory: false
+						},
+					}
+				]
+		});
+	});
+</script>

@@ -75,7 +75,7 @@ class CAllSiteMap extends CDBResult
 		if ($arSite = $rsSite->Fetch())
 		{
 			$SERVER_NAME = trim($arSite["SERVER_NAME"]);
-			if (strlen($SERVER_NAME) <= 0)
+			if ($SERVER_NAME == '')
 			{
 				$this->m_error = GetMessage("SEARCH_ERROR_SERVER_NAME", array("#SITE_ID#" => '<a href="site_edit.php?LID='.urlencode($site_id).'&lang='.urlencode(LANGUAGE_ID).'">'.htmlspecialcharsbx($site_id).'</a>'))."<br>";
 				return false;
@@ -106,7 +106,7 @@ class CAllSiteMap extends CDBResult
 				$f = fopen($arSite["ABS_DOC_ROOT"].$arSite["DIR"]."sitemap_".sprintf("%03d", $NS["FILE_ID"]).".xml", "w");
 				$strBegin = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.sitemaps.org/schemas/sitemap/0.9\" xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n";
 				fwrite($f, $strBegin);
-				$NS["FILE_SIZE"] += strlen($strBegin);
+				$NS["FILE_SIZE"] += mb_strlen($strBegin);
 
 			}
 			else
@@ -126,7 +126,7 @@ class CAllSiteMap extends CDBResult
 			{
 				$record_limit--;
 				$NS["ID"] = $ar["ID"];
-				if (strlen($ar["URL"]) < 1)
+				if (mb_strlen($ar["URL"]) < 1)
 					continue;
 
 				if ($bForumTopicsOnly && ($ar["MODULE_ID"] == "forum"))
@@ -148,7 +148,7 @@ class CAllSiteMap extends CDBResult
 
 				if ($bBlogNoComments && ($ar["MODULE_ID"] == "blog"))
 				{
-					if (substr($ar["ITEM_ID"], 0, 1) === "C")
+					if (mb_substr($ar["ITEM_ID"], 0, 1) === "C")
 						continue;
 				}
 
@@ -162,7 +162,7 @@ class CAllSiteMap extends CDBResult
 
 				$strToWrite = "\t<url>\n\t\t<loc>".$strURL."</loc>\n\t\t<lastmod>".$strTime."</lastmod>\n\t</url>\n";
 
-				if (strlen($strURL) > 2048)
+				if (mb_strlen($strURL) > 2048)
 				{
 					fwrite($e, $strToWrite);
 					$NS["ERROR_CNT"]++;
@@ -171,7 +171,7 @@ class CAllSiteMap extends CDBResult
 				{
 					fwrite($f, $strToWrite);
 					$NS["CNT"]++;
-					$NS["FILE_SIZE"] += strlen($strToWrite);
+					$NS["FILE_SIZE"] += mb_strlen($strToWrite);
 					$NS["FILE_URL_CNT"]++;
 				}
 				//Next File on file size or url count limit
@@ -252,10 +252,10 @@ class CAllSiteMap extends CDBResult
 		$r = parent::Fetch();
 		if ($r)
 		{
-			if (strlen($r["SITE_URL"]) > 0)
+			if ($r["SITE_URL"] <> '')
 				$r["URL"] = $r["SITE_URL"];
 
-			if (substr($r["URL"], 0, 1) == "=")
+			if (mb_substr($r["URL"], 0, 1) == "=")
 			{
 				foreach ($this->m_events as $arEvent)
 					$r["URL"] = ExecuteModuleEventEx($arEvent, array($r));
@@ -274,9 +274,9 @@ class CAllSiteMap extends CDBResult
 			}
 
 			//Remove anchor otherwise Google will ignore this link
-			$p = strpos($r["URL"], "#");
+			$p = mb_strpos($r["URL"], "#");
 			if ($p !== false)
-				$r["URL"] = substr($r["URL"], 0, $p);
+				$r["URL"] = mb_substr($r["URL"], 0, $p);
 		}
 		return $r;
 	}

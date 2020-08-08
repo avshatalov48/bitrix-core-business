@@ -68,7 +68,7 @@ return array(
 	),
 	'style' => array(
 		'block' => array(
-			'type' => array('display'),
+			'type' => array('display', 'header-position'),
 		),
 		'nodes' => array(
 			'.landing-block-node-menu-list-item-link' => array(
@@ -82,6 +82,6 @@ return array(
 		),
 	),
 	'assets' => array(
-		'ext' => array('landing_menu'),
+		'ext' => array('landing_menu', 'landing_header'),
 	),
 );

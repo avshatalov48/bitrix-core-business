@@ -47,7 +47,7 @@ class Enum extends Base
 			return $params;
 
 		foreach($params["PARAMS"]["PRICES"] as $id => $price)
-			if(strlen($price["TITLE"]) <= 0)
+			if($price["TITLE"] == '')
 				unset($params["PARAMS"]["PRICES"][$id]);
 
 		return $params;
@@ -91,7 +91,7 @@ class Enum extends Base
 		return Loc::getMessage("DELIVERY_EXTRA_SERVICE_ENUM_NAME").
 			':&nbsp;<input name="'.$name.'[PARAMS][PRICES]['.$id.'][TITLE]" value="'.htmlspecialcharsbx($title).'">&nbsp;&nbsp;'.
 			Loc::getMessage("DELIVERY_EXTRA_SERVICE_ENUM_PRICE").
-			':&nbsp;<input name="'.$name.'[PARAMS][PRICES]['.$id.'][PRICE]" value="'.$price.'">'.(strlen($currency) > 0 ? " (".$currency.")" : "");
+			':&nbsp;<input name="'.$name.'[PARAMS][PRICES]['.$id.'][PRICE]" value="'.$price.'">'.($currency <> '' ? " (".$currency.")" : "");
 	}
 
 	protected static function getJSPrice(array $prices)
@@ -130,7 +130,7 @@ class Enum extends Base
 
 		foreach($this->params["PRICES"] as $key => $price)
 		{
-			if(strlen($price["TITLE"]) <= 0)
+			if($price["TITLE"] == '')
 				continue;
 
 			$priceVal = floatval($price["PRICE"]);

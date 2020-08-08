@@ -9,12 +9,14 @@ namespace Bitrix\Socialnetwork\Item;
 
 use Bitrix\Main;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Socialnetwork\WorkgroupTable;
 use Bitrix\Socialnetwork\UserToGroupTable;
-use Bitrix\Intranet\Internals\UserSubordinationTable;
+use Bitrix\Socialnetwork\FeatureTable;
+use Bitrix\Socialnetwork\FeaturePermTable;
 
 Loc::loadMessages(__FILE__);
 
@@ -214,7 +216,7 @@ class Workgroup
 			$groupSiteId = \CSocNetGroup::getDefaultSiteId($groupFields["ID"], $groupFields["SITE_ID"]);
 			$workgroupsPage = Option::get("socialnetwork", "workgroups_page", "/workgroups/", SITE_ID);
 			$groupUrlTemplate = Option::get("socialnetwork", "group_path_template", "/workgroups/group/#group_id#/", SITE_ID);
-			$groupUrlTemplate = "#GROUPS_PATH#".substr($groupUrlTemplate, strlen($workgroupsPage), strlen($groupUrlTemplate) - strlen($workgroupsPage));
+			$groupUrlTemplate = "#GROUPS_PATH#".mb_substr($groupUrlTemplate, mb_strlen($workgroupsPage), mb_strlen($groupUrlTemplate) - mb_strlen($workgroupsPage));
 
 			$cache[$groupFields["ID"]] = array(
 				'URL_TEMPLATE' => $groupUrlTemplate ,
@@ -236,23 +238,14 @@ class Workgroup
 			);
 
 			$groupUrl = $tmp["URLS"]["GROUP_URL"];
-			$serverName = (strpos($groupUrl, "http://") === 0 || strpos($groupUrl, "https://") === 0 ? "" : $tmp["SERVER_NAME"]);
-			$domainName = (strpos($groupUrl, "http://") === 0 || strpos($groupUrl, "https://") === 0 ? "" : (isset($tmp["DOMAIN"]) && !empty($tmp["DOMAIN"]) ? "//".$tmp["DOMAIN"] : ""));
+			$serverName = (mb_strpos($groupUrl, "http://") === 0 || mb_strpos($groupUrl, "https://") === 0 ? "" : $tmp["SERVER_NAME"]);
+			$domainName = (mb_strpos($groupUrl, "http://") === 0 || mb_strpos($groupUrl, "https://") === 0 ? "" : (isset($tmp["DOMAIN"]) && !empty($tmp["DOMAIN"]) ? "//".$tmp["DOMAIN"] : ""));
 		}
 
 		return array(
 			'URL' => $groupUrl,
 			'SERVER_NAME' => $serverName,
 			'DOMAIN' => $domainName
-		);
-	}
-
-	private static function getDelayedSubordination()
-	{
-		return (
-			Loader::includeModule('intranet')
-			&& method_exists('Bitrix\Intranet\Internals\UserSubordinationTable', 'getDelay')
-			&& UserSubordinationTable::getDelayed()
 		);
 	}
 
@@ -268,7 +261,6 @@ class Workgroup
 				isset($section['ACTIVE'])
 				&& $section['ACTIVE'] == 'N'
 			)
-			|| self::getDelayedSubordination()
 		)
 		{
 			return true;
@@ -301,7 +293,6 @@ class Workgroup
 			|| !isset($section['IBLOCK_ID'])
 			|| intval($section['IBLOCK_ID']) <= 0
 			|| $section['IBLOCK_ID'] != Option::get('intranet', 'iblock_structure', 0)
-			|| self::getDelayedSubordination()
 		)
 		{
 			return true;
@@ -374,7 +365,6 @@ class Workgroup
 				isset($section['ACTIVE'])
 				&& $section['ACTIVE'] == 'N'
 			)
-			|| self::getDelayedSubordination()
 		)
 		{
 			return true;
@@ -407,7 +397,6 @@ class Workgroup
 			|| !isset($section['IBLOCK_ID'])
 			|| intval($section['IBLOCK_ID']) <= 0
 			|| $section['IBLOCK_ID'] != Option::get('intranet', 'iblock_structure', 0)
-			|| self::getDelayedSubordination()
 		)
 		{
 			return true;
@@ -471,7 +460,7 @@ class Workgroup
 		{
 			$extranetInstalled = (
 				ModuleManager::isModuleInstalled('extranet')
-				&& strlen(Option::get("extranet", "extranet_site")) > 0
+				&& Option::get("extranet", "extranet_site") <> ''
 			);
 		}
 
@@ -955,6 +944,165 @@ class Workgroup
 		}
 
 		$result = false;
+
+		return $result;
+	}
+
+
+	/**
+	 * returns array of workgroups filtered by access permissions of a user, only for the current site
+	 * @param array $params
+	 * @return array
+	 */
+	public static function getByFeatureOperation(array $params = []): array
+	{
+		global $USER;
+
+		$result = [];
+
+		$feature = (isset($params['feature']) ? $params['feature'] : '');
+		$operation = (isset($params['operation']) ? $params['operation'] : '');
+		$userId = (isset($params['userId']) ? intval($params['userId']) : (is_object($USER) && $USER instanceof \CUser ? $USER->getId() : 0));
+
+		if (
+			$feature == ''
+			|| $operation == ''
+			|| $userId <= 0
+		)
+		{
+			return $result;
+		}
+
+		$featuresSettings = \CSocNetAllowed::getAllowedFeatures();
+		if (
+			empty($featuresSettings)
+			|| empty($featuresSettings[$feature])
+			|| empty($featuresSettings[$feature]['allowed'])
+			|| !in_array(FeatureTable::FEATURE_ENTITY_TYPE_GROUP, $featuresSettings[$feature]['allowed'])
+			|| empty($featuresSettings[$feature]['operations'])
+			|| empty($featuresSettings[$feature]['operations'][$operation])
+			|| empty($featuresSettings[$feature]['operations'][$operation][FeatureTable::FEATURE_ENTITY_TYPE_GROUP])
+		)
+		{
+			return $result;
+		}
+
+		$defaultRole = $featuresSettings[$feature]['operations'][$operation][FeatureTable::FEATURE_ENTITY_TYPE_GROUP];
+
+		$query = new \Bitrix\Main\Entity\Query(WorkgroupTable::getEntity());
+		$query->addFilter('=ACTIVE', 'Y');
+		if (Option::get('socialnetwork', 'work_with_closed_groups', 'N') != 'Y')
+		{
+			$query->addFilter('!=CLOSED', 'Y');
+		}
+
+		$query->addSelect('ID');
+
+		$query->registerRuntimeField(
+			'',
+			new \Bitrix\Main\Entity\ReferenceField('F',
+				FeatureTable::getEntity(),
+				[
+					'=ref.ENTITY_TYPE' => new SqlExpression('?s', FeatureTable::FEATURE_ENTITY_TYPE_GROUP),
+					'=ref.ENTITY_ID' => 'this.ID',
+					'=ref.FEATURE' => new SqlExpression('?s', $feature),
+				],
+				[ 'join_type' => 'LEFT' ]
+			)
+		);
+		$query->addSelect('F.ID', 'FEATURE_ID');
+
+		$query->registerRuntimeField(
+			'',
+			new \Bitrix\Main\Entity\ReferenceField('FP',
+				FeaturePermTable::getEntity(),
+				[
+					'=ref.FEATURE_ID' => 'this.FEATURE_ID',
+					'=ref.OPERATION_ID' => new SqlExpression('?s', $operation),
+				],
+				[ 'join_type' => 'LEFT' ]
+			)
+		);
+
+		$query->registerRuntimeField(new \Bitrix\Main\Entity\ExpressionField(
+			'PERM_ROLE_CALCULATED',
+			'CASE WHEN %s IS NULL THEN \''.$defaultRole.'\' ELSE %s END',
+			[ 'FP.ROLE', 'FP.ROLE' ]
+		));
+
+		$query->registerRuntimeField(
+			'',
+			new \Bitrix\Main\Entity\ReferenceField('UG',
+				UserToGroupTable::getEntity(),
+				[
+					'=ref.GROUP_ID' => 'this.ID',
+					'=ref.USER_ID' => new \Bitrix\Main\DB\SqlExpression($userId),
+				],
+				[ 'join_type' => 'LEFT' ]
+			)
+		);
+/*
+		$query->registerRuntimeField(new \Bitrix\Main\Entity\ExpressionField(
+			'IS_OWNER',
+			'CASE WHEN %s = \''.\Bitrix\Socialnetwork\UserToGroupTable::ROLE_OWNER.'\' THEN \'Y\' ELSE \'N\' END',
+			[ 'UG.ROLE' ]
+		));
+
+		$query->registerRuntimeField(new \Bitrix\Main\Entity\ExpressionField(
+			'IS_MODERATOR',
+			'CASE WHEN %s IN (\''.\Bitrix\Socialnetwork\UserToGroupTable::ROLE_OWNER.'\', \''.\Bitrix\Socialnetwork\UserToGroupTable::ROLE_MODERATOR.'\') THEN \'Y\' ELSE \'N\' END',
+			[ 'UG.ROLE' ]
+		));
+
+		$query->registerRuntimeField(new \Bitrix\Main\Entity\ExpressionField(
+			'IS_USER',
+			'CASE WHEN %s IN (\''.\Bitrix\Socialnetwork\UserToGroupTable::ROLE_OWNER.'\', \''.\Bitrix\Socialnetwork\UserToGroupTable::ROLE_MODERATOR.'\', \''.\Bitrix\Socialnetwork\UserToGroupTable::ROLE_USER.'\') THEN \'Y\' ELSE \'N\' END',
+			[ 'UG.ROLE' ]
+		));
+
+		$query->registerRuntimeField(new \Bitrix\Main\Entity\ExpressionField(
+			'HAS_ACCESS',
+			'CASE 
+				WHEN %s = \''.FeaturePermTable::PERM_OWNER.'\' AND %s = \'Y\' THEN \'Y\' 
+				WHEN %s = \''.FeaturePermTable::PERM_MODERATOR.'\' AND %s = \'Y\' THEN \'Y\'
+				WHEN %s = \''.FeaturePermTable::PERM_USER.'\' AND %s = \'Y\' THEN \'Y\'
+				WHEN %s IN (\''.FeaturePermTable::PERM_AUTHORIZED.'\', \''.FeaturePermTable::PERM_ALL.'\') THEN \'Y\'
+				ELSE \'N\' 
+			END',
+			[
+				'PERM_ROLE_CALCULATED',  'IS_OWNER',
+				'PERM_ROLE_CALCULATED',  'IS_MODERATOR',
+				'PERM_ROLE_CALCULATED',  'IS_USER',
+				'PERM_ROLE_CALCULATED'
+			]
+		));
+*/
+		$query->registerRuntimeField(new \Bitrix\Main\Entity\ExpressionField(
+			'HAS_ACCESS',
+			'CASE 
+				WHEN 
+					(
+						%s NOT IN (\''.FeaturePermTable::PERM_OWNER.'\', \''.FeaturePermTable::PERM_MODERATOR.'\', \''.FeaturePermTable::PERM_USER.'\')
+						OR %s <= %s
+					) THEN \'Y\' 
+					ELSE \'N\' 
+			END',
+			[
+				'PERM_ROLE_CALCULATED',
+				'PERM_ROLE_CALCULATED', 'UG.ROLE'
+			]
+		));
+
+		$query->addFilter('=HAS_ACCESS', 'Y');
+
+		$res = $query->exec();
+
+		while ($row = $res->fetch())
+		{
+			$result[] = [
+				'ID' => (int) $row['ID']
+			];
+		}
 
 		return $result;
 	}

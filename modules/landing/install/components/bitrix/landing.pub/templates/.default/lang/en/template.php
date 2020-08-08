@@ -1,4 +1,9 @@
 <?
+$MESS["LANDING_ERROR_NOT_ALLOW_VIEW_BY_PLAN_KNOWLEDGE"] = "You cannot create more knowledge bases on your current plan. Please upgrade to create a new knowledge base.";
+$MESS["LANDING_TPL_ACCESS_ASK_DESCRIPTION_KNOWLEDGE"] = "Send a request to one of the users for read access to this knowledge base.";
+$MESS["LANDING_TPL_ACCESS_ASK_HEADER_KNOWLEDGE"] = "This knowledge base is private";
+$MESS["LANDING_TPL_ACCESS_ASK_SEND_KNOWLEDGE"] = "Request access";
+$MESS["LANDING_TPL_ACCESS_ASK_TITLE_KNOWLEDGE"] = "Access request";
 $MESS["LANDING_TPL_COPY_FULL"] = "Powered by #LOGO# &mdash; Free websites and CRM.";
 $MESS["LANDING_TPL_COPY_FULL2"] = "Powered by <linklogo>#LOGO#</linklogo> &mdash; <linksite>Free websites</linksite> and <linkcrm>CRM</linkcrm>. <linkcreate>Create your site</linkcreate>";
 $MESS["LANDING_TPL_COPY_LINK"] = "Create Your Site";
@@ -10,6 +15,12 @@ $MESS["LANDING_TPL_COPY_REVIEW"] = "Free websites and CRM.";
 $MESS["LANDING_TPL_EDIT_PAGE"] = "Edit page";
 $MESS["LANDING_TPL_EDIT_PAGE_GROUP"] = "Edit article";
 $MESS["LANDING_TPL_EDIT_PAGE_KNOWLEDGE"] = "Edit article";
+$MESS["LANDING_TPL_ERROR_NOT_ALLOWED_ASK"] = "Send request";
+$MESS["LANDING_TPL_ERROR_NOT_ALLOWED_GROUP"] = "View workgroup";
+$MESS["LANDING_TPL_ERROR_NOT_ALLOWED_NOTE_GROUP"] = "Become a workgroup member or send a membership request on the #LINK1#workgroup profile page#LINK2#.";
+$MESS["LANDING_TPL_ERROR_NOT_ALLOWED_NOTE_KNOWLEDGE"] = "Send a request to one of the users for access to this knowledge base.";
+$MESS["LANDING_TPL_ERROR_NOT_FOUND_NOTE"] = "No luck, we still can't find it. Please check your address again.";
+$MESS["LANDING_TPL_ERROR_NOT_FOUND_NOTE_KNOWLEDGE"] = "Try and find a knowledge base you need in #LINK1#the list#LINK2#";
 $MESS["LANDING_TPL_SETTINGS_BUTTON_TITLE"] = "Settings";
 $MESS["LANDING_TPL_SITES"] = "My sites";
 $MESS["LANDING_TPL_SITES_GROUP"] = "Knowledge bases";

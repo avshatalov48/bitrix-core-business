@@ -7,46 +7,46 @@ if (!CModule::IncludeModule("socialnetwork"))
 	return;
 }
 
-$arParams["ID"] = IntVal($arParams["ID"]);
+$arParams["ID"] = intval($arParams["ID"]);
 if ($arParams["ID"] <= 0)
-	$arParams["ID"] = IntVal($USER->GetID());
+	$arParams["ID"] = intval($USER->GetID());
 
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 
-if (strLen($arParams["USER_VAR"]) <= 0)
+if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if (strlen($arParams["PATH_TO_USER"]) <= 0)
+if ($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_USER_FRIENDS_ADD"] = trim($arParams["PATH_TO_USER_FRIENDS_ADD"]);
-if (strlen($arParams["PATH_TO_USER_FRIENDS_ADD"]) <= 0)
+if ($arParams["PATH_TO_USER_FRIENDS_ADD"] == '')
 	$arParams["PATH_TO_USER_FRIENDS_ADD"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_friends_add&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_SEARCH"] = trim($arParams["PATH_TO_SEARCH"]);
-if (strlen($arParams["PATH_TO_SEARCH"]) <= 0)
+if ($arParams["PATH_TO_SEARCH"] == '')
 	$arParams["PATH_TO_SEARCH"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=search");
 
 $arParams["PATH_TO_USER_FRIENDS_DELETE"] = trim($arParams["PATH_TO_USER_FRIENDS_DELETE"]);
-if (strlen($arParams["PATH_TO_USER_FRIENDS_DELETE"]) <= 0)
+if ($arParams["PATH_TO_USER_FRIENDS_DELETE"] == '')
 	$arParams["PATH_TO_USER_FRIENDS_DELETE"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_friends_delete&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["GROUP_ID"] = IntVal($arParams["GROUP_ID"]);
-if (strLen($arParams["GROUP_VAR"]) <= 0)
+$arParams["GROUP_ID"] = intval($arParams["GROUP_ID"]);
+if ($arParams["GROUP_VAR"] == '')
 	$arParams["GROUP_VAR"] = "group_id";
 
 $arParams["PATH_TO_GROUP_REQUEST_USER"] = trim($arParams["PATH_TO_GROUP_REQUEST_USER"]);
-if (strlen($arParams["PATH_TO_GROUP_REQUEST_USER"]) <= 0)
+if ($arParams["PATH_TO_GROUP_REQUEST_USER"] == '')
 	$arParams["PATH_TO_GROUP_REQUEST_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_request_user&".$arParams["USER_VAR"]."=#user_id#&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_LOG"] = trim($arParams["PATH_TO_LOG"]);
-if (strlen($arParams["PATH_TO_LOG"]) <= 0)
+if ($arParams["PATH_TO_LOG"] == '')
 	$arParams["PATH_TO_LOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=log");
 
-$arParams["ITEMS_COUNT"] = IntVal($arParams["ITEMS_COUNT"]);
+$arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
 if ($arParams["ITEMS_COUNT"] <= 0)
 	$arParams["ITEMS_COUNT"] = 30;
 
@@ -107,7 +107,7 @@ else
 
 			if ($arParams["SET_TITLE"] == "Y" || $arParams["SET_NAV_CHAIN"] != "N")
 			{
-				if (strlen($arParams["NAME_TEMPLATE"]) <= 0)		
+				if ($arParams["NAME_TEMPLATE"] == '')
 					$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 				
 				$arParams["TITLE_NAME_TEMPLATE"] = str_replace(
@@ -136,24 +136,24 @@ else
 				$APPLICATION->AddChainItem(GetMessage("SONET_C33_PAGE_TITLE"));
 			}
 
-			if ($_SERVER["REQUEST_METHOD"]=="POST" && strlen($_POST["delete"]) > 0 && $arResult["CurrentUserPerms"]["IsCurrentUser"] && check_bitrix_sessid())
+			if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["delete"] <> '' && $arResult["CurrentUserPerms"]["IsCurrentUser"] && check_bitrix_sessid())
 			{
 				$errorMessage = "";
 
 				$arIDs = array();
-				if (strlen($errorMessage) <= 0)
+				if ($errorMessage == '')
 				{
-					for ($i = 0; $i <= IntVal($_POST["max_count"]); $i++)
+					for ($i = 0; $i <= intval($_POST["max_count"]); $i++)
 					{
 						if ($_POST["checked_".$i] == "Y")
-							$arIDs[] = IntVal($_POST["id_".$i]);
+							$arIDs[] = intval($_POST["id_".$i]);
 					}
 
 					if (count($arIDs) <= 0)
 						$errorMessage .= GetMessage("SONET_C33_NOT_SELECTED").". ";
 				}
 
-				if (strlen($errorMessage) <= 0)
+				if ($errorMessage == '')
 				{
 					foreach($arIDs as $user_id)
 					{
@@ -165,7 +165,7 @@ else
 					}
 				}
 
-				if (strlen($errorMessage) > 0)
+				if ($errorMessage <> '')
 					$arResult["ErrorMessage"] = $errorMessage;
 			}
 
@@ -177,7 +177,7 @@ else
 				$arResult["Urls"]["Search"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_SEARCH"], array());
 
 				$arResult["Urls"]["LogUsers"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_LOG"], array());
-				$arResult["Urls"]["LogUsers"] .= ((StrPos($arResult["Urls"]["LogUsers"], "?") !== false) ? "&" : "?")."flt_entity_type=".SONET_ENTITY_USER;
+				$arResult["Urls"]["LogUsers"] .= ((mb_strpos($arResult["Urls"]["LogUsers"], "?") !== false) ? "&" : "?")."flt_entity_type=".SONET_ENTITY_USER;
 				$arResult["CanViewLog"] = ($arParams["GROUP_ID"] <= 0 && $arResult["User"]["ID"] == $GLOBALS["USER"]->GetID());
 
 				$arResult["Friends"] = false;
@@ -191,7 +191,7 @@ else
 						if ($arResult["Friends"]["List"] == false)
 							$arResult["Friends"]["List"] = array();
 
-						$pref = ((IntVal($arResult["User"]["ID"]) == $arFriends["FIRST_USER_ID"]) ? "SECOND" : "FIRST");
+						$pref = ((intval($arResult["User"]["ID"]) == $arFriends["FIRST_USER_ID"]) ? "SECOND" : "FIRST");
 
 						$pu = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $arFriends[$pref."_USER_ID"]));
 						$canViewProfile = CSocNetUserPerms::CanPerformOperation($GLOBALS["USER"]->GetID(), $arFriends[$pref."_USER_ID"], "viewprofile", CSocNetUser::IsCurrentUserModuleAdmin());

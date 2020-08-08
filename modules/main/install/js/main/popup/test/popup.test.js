@@ -70,6 +70,11 @@ describe('BX.Main.Popup', () => {
 			assert.equal(this, popup);
 		});
 
+		const onCloseOld2 = sinon.stub().callsFake(function(arg) {
+			assert.equal(arg, popup);
+			assert.equal(this, popup);
+		});
+
 		const onCloseNew = sinon.stub().callsFake(function(event: BaseEvent) {
 			assert.equal(event.getTarget(), popup);
 		});
@@ -84,12 +89,15 @@ describe('BX.Main.Popup', () => {
 			}
 		});
 
+		BX.addCustomEvent(popup, 'onPopupClose', onCloseOld2);
+
 		popup.show();
 
 		assert.equal(popup.isCompatibleMode(), true);
-		assert.equal(onShowOld.callCount, 1);
 		assert.equal(onShowNew.callCount, 1);
+		assert.equal(onShowOld.callCount, 1);
 		assert.equal(onCloseOld.callCount, 0);
+		assert.equal(onCloseOld2.callCount, 0);
 		assert.equal(onCloseNew.callCount, 0);
 		assert.equal(popup.isDestroyed(), false);
 
@@ -97,6 +105,7 @@ describe('BX.Main.Popup', () => {
 		popup.show();
 
 		assert.equal(onCloseOld.callCount, 1);
+		assert.equal(onCloseOld2.callCount, 1);
 		assert.equal(onCloseNew.callCount, 1);
 		assert.equal(onShowOld.callCount, 2);
 		assert.equal(onShowNew.callCount, 2);

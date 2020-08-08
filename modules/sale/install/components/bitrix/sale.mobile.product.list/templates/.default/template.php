@@ -48,7 +48,7 @@ foreach ($arResult["BASKET"] as $product)
 			<ul>
 				<?
 						foreach($product["PROPS"] as $vv)
-							if(strlen($vv["VALUE"]) > 0)
+							if($vv["VALUE"] <> '')
 								echo "<li>".$vv["NAME"].": ".$vv["VALUE"]."</li>";
 				?>
 			</ul>

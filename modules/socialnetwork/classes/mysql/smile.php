@@ -16,7 +16,7 @@ class CSocNetSmile extends CAllSocNetSmile
 			"INSERT INTO b_sonet_smile(".$arInsert[0].") ".
 			"VALUES(".$arInsert[1].")";
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		$ID = IntVal($DB->LastID());
+		$ID = intval($DB->LastID());
 
 		$cnt = count($arFields["LANG"]);
 		for ($i = 0; $i<$cnt; $i++)
@@ -35,7 +35,7 @@ class CSocNetSmile extends CAllSocNetSmile
 	function Update($ID, $arFields)
 	{
 		global $DB, $CACHE_MANAGER;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if ($ID<=0) return False;
 
 		if (!CSocNetSmile::CheckFields("UPDATE", $arFields))
@@ -83,10 +83,10 @@ class CSocNetSmile extends CAllSocNetSmile
 				"IMAGE_WIDTH" => array("FIELD" => "B.IMAGE_WIDTH", "TYPE" => "int"),
 				"IMAGE_HEIGHT" => array("FIELD" => "B.IMAGE_HEIGHT", "TYPE" => "int"),
 
-				"LANG_ID" => array("FIELD" => "BL.ID", "TYPE" => "int", "FROM" => "LEFT JOIN b_sonet_smile_lang BL ON (B.ID = BL.SMILE_ID".((isset($arFilter["LANG_LID"]) && strlen($arFilter["LANG_LID"]) > 0) ? " AND BL.LID = '".$arFilter["LANG_LID"]."'" : "").")"),
-				"LANG_SMILE_ID" => array("FIELD" => "BL.SMILE_ID", "TYPE" => "int", "FROM" => "LEFT JOIN b_sonet_smile_lang BL ON (B.ID = BL.SMILE_ID".((isset($arFilter["LANG_LID"]) && strlen($arFilter["LANG_LID"]) > 0) ? " AND BL.LID = '".$arFilter["LANG_LID"]."'" : "").")"),
-				"LANG_LID" => array("FIELD" => "BL.LID", "TYPE" => "string", "FROM" => "LEFT JOIN b_sonet_smile_lang BL ON (B.ID = BL.SMILE_ID".((isset($arFilter["LANG_LID"]) && strlen($arFilter["LANG_LID"]) > 0) ? " AND BL.LID = '".$arFilter["LANG_LID"]."'" : "").")"),
-				"LANG_NAME" => array("FIELD" => "BL.NAME", "TYPE" => "string", "FROM" => "LEFT JOIN b_sonet_smile_lang BL ON (B.ID = BL.SMILE_ID".((isset($arFilter["LANG_LID"]) && strlen($arFilter["LANG_LID"]) > 0) ? " AND BL.LID = '".$arFilter["LANG_LID"]."'" : "").")"),
+				"LANG_ID" => array("FIELD" => "BL.ID", "TYPE" => "int", "FROM" => "LEFT JOIN b_sonet_smile_lang BL ON (B.ID = BL.SMILE_ID".((isset($arFilter["LANG_LID"]) && $arFilter["LANG_LID"] <> '') ? " AND BL.LID = '".$arFilter["LANG_LID"]."'" : "").")"),
+				"LANG_SMILE_ID" => array("FIELD" => "BL.SMILE_ID", "TYPE" => "int", "FROM" => "LEFT JOIN b_sonet_smile_lang BL ON (B.ID = BL.SMILE_ID".((isset($arFilter["LANG_LID"]) && $arFilter["LANG_LID"] <> '') ? " AND BL.LID = '".$arFilter["LANG_LID"]."'" : "").")"),
+				"LANG_LID" => array("FIELD" => "BL.LID", "TYPE" => "string", "FROM" => "LEFT JOIN b_sonet_smile_lang BL ON (B.ID = BL.SMILE_ID".((isset($arFilter["LANG_LID"]) && $arFilter["LANG_LID"] <> '') ? " AND BL.LID = '".$arFilter["LANG_LID"]."'" : "").")"),
+				"LANG_NAME" => array("FIELD" => "BL.NAME", "TYPE" => "string", "FROM" => "LEFT JOIN b_sonet_smile_lang BL ON (B.ID = BL.SMILE_ID".((isset($arFilter["LANG_LID"]) && $arFilter["LANG_LID"] <> '') ? " AND BL.LID = '".$arFilter["LANG_LID"]."'" : "").")"),
 			);
 		// <-- FIELDS
 
@@ -100,9 +100,9 @@ class CSocNetSmile extends CAllSocNetSmile
 				"SELECT ".$arSqls["SELECT"]." ".
 				"FROM b_sonet_smile B ".
 				"	".$arSqls["FROM"]." ";
-			if (strlen($arSqls["WHERE"]) > 0)
+			if ($arSqls["WHERE"] <> '')
 				$strSql .= "WHERE ".$arSqls["WHERE"]." ";
-			if (strlen($arSqls["GROUPBY"]) > 0)
+			if ($arSqls["GROUPBY"] <> '')
 				$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
@@ -118,29 +118,29 @@ class CSocNetSmile extends CAllSocNetSmile
 			"SELECT ".$arSqls["SELECT"]." ".
 			"FROM b_sonet_smile B ".
 			"	".$arSqls["FROM"]." ";
-		if (strlen($arSqls["WHERE"]) > 0)
+		if ($arSqls["WHERE"] <> '')
 			$strSql .= "WHERE ".$arSqls["WHERE"]." ";
-		if (strlen($arSqls["GROUPBY"]) > 0)
+		if ($arSqls["GROUPBY"] <> '')
 			$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
-		if (strlen($arSqls["ORDERBY"]) > 0)
+		if ($arSqls["ORDERBY"] <> '')
 			$strSql .= "ORDER BY ".$arSqls["ORDERBY"]." ";
 
-		if (is_array($arNavStartParams) && IntVal($arNavStartParams["nTopCount"])<=0)
+		if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"])<=0)
 		{
 			$strSql_tmp =
 				"SELECT COUNT('x') as CNT ".
 				"FROM b_sonet_smile B ".
 				"	".$arSqls["FROM"]." ";
-			if (strlen($arSqls["WHERE"]) > 0)
+			if ($arSqls["WHERE"] <> '')
 				$strSql_tmp .= "WHERE ".$arSqls["WHERE"]." ";
-			if (strlen($arSqls["GROUPBY"]) > 0)
+			if ($arSqls["GROUPBY"] <> '')
 				$strSql_tmp .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
 			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$cnt = 0;
-			if (strlen($arSqls["GROUPBY"]) <= 0)
+			if ($arSqls["GROUPBY"] == '')
 			{
 				if ($arRes = $dbRes->Fetch())
 					$cnt = $arRes["CNT"];
@@ -159,8 +159,8 @@ class CSocNetSmile extends CAllSocNetSmile
 		}
 		else
 		{
-			if (is_array($arNavStartParams) && IntVal($arNavStartParams["nTopCount"]) > 0)
-				$strSql .= "LIMIT ".IntVal($arNavStartParams["nTopCount"]);
+			if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"]) > 0)
+				$strSql .= "LIMIT ".intval($arNavStartParams["nTopCount"]);
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 

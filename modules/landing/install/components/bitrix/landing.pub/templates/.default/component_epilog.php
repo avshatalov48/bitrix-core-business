@@ -13,17 +13,18 @@ if (!isset($arResult['LANDING']))
 
 // set meta og:image
 $metaOG = Manager::getPageView('MetaOG');
-if (strpos($metaOG, '"og:image"') === false)
+if (mb_strpos($metaOG, '"og:image"') === false)
 {
 	Manager::setPageView(
 		'MetaOG',
-		'<meta property="og:image" content="' . $arResult['LANDING']->getPreview() . '" />'
+		'<meta property="og:image" content="' . $arResult['LANDING']->getPreview() . '" />' .
+		'<meta property="twitter:image" content="' . $arResult['LANDING']->getPreview() . '" />'
 	);
 }
 
 // we set canonical, only if user no setup it before
 $headBlock = \Bitrix\Landing\Hook\Page\HeadBlock::getLastInsertedCode();
-if (strpos($headBlock, '"canonical"') === false)
+if (mb_strpos($headBlock, '"canonical"') === false)
 {
 	$component->setCanonical($arResult['LANDING']);
 }

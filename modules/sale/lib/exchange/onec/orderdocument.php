@@ -479,6 +479,14 @@ class OrderDocument extends DocumentBase
 								//endregion
 							)
 						),
+						'MARKING_GROUP' => array(
+							'TYPE' => 'array',
+							'FIELDS' => array(
+								'CODE' => array(
+									'TYPE' => 'string'
+								)
+							)
+						),
 						//region export fields items
 						'PRICE_PER_ITEM' => array(
 							'TYPE' => 'float'

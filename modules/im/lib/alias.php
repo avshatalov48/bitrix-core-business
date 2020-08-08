@@ -6,6 +6,8 @@ class Alias
 	const ENTITY_TYPE_USER = 'USER';
 	const ENTITY_TYPE_CHAT = 'CHAT';
 	const ENTITY_TYPE_OPEN_LINE = 'LINES';
+	const ENTITY_TYPE_LIVECHAT = 'LIVECHAT';
+	const ENTITY_TYPE_VIDEOCONF = 'VIDEOCONF';
 	const ENTITY_TYPE_OTHER = 'OTHER';
 
 	const CACHE_TTL = 31536000;
@@ -44,7 +46,7 @@ class Alias
 
 	public static function addUnique(array $fields)
 	{
-		$alias = \Bitrix\Im\Alias::prepareAlias(substr(uniqid(),-6));
+		$alias = \Bitrix\Im\Alias::prepareAlias(self::generateUnique());
 		$fields['ALIAS'] = $alias;
 
 		$id = self::add($fields);
@@ -55,7 +57,8 @@ class Alias
 
 		return Array(
 			'ID' => $id,
-			'ALIAS' => $alias
+			'ALIAS' => $alias,
+			'LINK' => self::getPublicLink($fields['ENTITY_TYPE'], $alias)
 		);
 	}
 
@@ -93,7 +96,6 @@ class Alias
 		return true;
 	}
 
-
 	public static function delete($id, $filter = self::FILTER_BY_ID)
 	{
 		if ($filter == self::FILTER_BY_ALIAS)
@@ -120,18 +122,69 @@ class Alias
 			return false;
 		}
 
-		$orm = \Bitrix\Im\Model\AliasTable::getList(Array(
+		$result = \Bitrix\Im\Model\AliasTable::getList(Array(
 			'filter' => Array('=ALIAS' => $alias)
-		));
+		))->fetch();
 
-		return $orm->fetch();
+		if (!$result)
+		{
+			return false;
+		}
+
+		$result['LINK'] = self::getPublicLink($result['ENTITY_TYPE'], $result['ALIAS']);
+
+		return $result;
+	}
+
+	public static function getByEntity($entityType, $entityId)
+	{
+		$result = \Bitrix\Im\Model\AliasTable::getList(Array(
+			'filter' => ['=ENTITY_TYPE' => $entityType, '=ENTITY_ID' => $entityId]
+		))->fetch();
+
+		if (!$result)
+		{
+			return false;
+		}
+
+		$result['LINK'] = self::getPublicLink($result['ENTITY_TYPE'], $result['ALIAS']);
+
+		return $result;
 	}
 
 	public static function prepareAlias($alias)
 	{
 		$alias = preg_replace("/[^\.\-0-9a-zA-Z]+/", "", $alias);
-		$alias = substr($alias, 0, 255);
+		$alias = mb_substr($alias, 0, 255);
 
 		return $alias;
+	}
+
+	public static function getPublicLink($type, $alias)
+	{
+		$path = '/online/';
+
+		if ($type === self::ENTITY_TYPE_VIDEOCONF)
+		{
+			$path = '/video/';
+		}
+		else if ($type === self::ENTITY_TYPE_LIVECHAT)
+		{
+			return '';
+		}
+
+		return \Bitrix\Im\Common::getPublicDomain() . $path . $alias;
+	}
+
+	public static function generateUnique()
+	{
+		if (\Bitrix\Main\Loader::includeModule('security'))
+		{
+			return \Bitrix\Main\Security\Random::getString(8, true);
+		}
+		else
+		{
+			return mb_substr(uniqid(),-8);
+		}
 	}
 }

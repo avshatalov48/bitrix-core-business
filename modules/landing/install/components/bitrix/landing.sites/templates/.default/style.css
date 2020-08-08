@@ -286,6 +286,7 @@
 }
 
 .landing-item-cover-img {
+	object-fit: cover;
 	display: block;
 	height: 100%;
 	width: 100%;
@@ -903,6 +904,7 @@ body > a[style*="background: highlight"] {
 }
 
 .landing-item-area-icon-without_left_1,
+.landing-item-area-icon-header_only_1,
 .landing-item-area-icon-header_footer_1,
 .landing-item-area-icon-without_right_1 {
 	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2227%22%20height%3D%2227%22%3E%3Cpath%20fill%3D%22%232FC6F6%22%20fill-rule%3D%22evenodd%22%20d%3D%22M23%200a4%204%200%20014%204v19a4%204%200%2001-4%204H4a4%204%200%2001-4-4V4a4%204%200%20014-4h19zm1%202H3a1%201%200%2000-.993.883L2%203v21a1%201%200%2000.883.993L3%2025h21a1%201%200%2000.993-.883L25%2024V3a1%201%200%2000-1-1zm-2%202a1%201%200%20011%201v7a1%201%200%2001-1%201H5a1%201%200%2001-1-1V5a1%201%200%20011-1h17z%22/%3E%3C/svg%3E);

@@ -346,7 +346,7 @@ class User
 				if (Main\Loader::includeModule('im'))
 				{
 					$title = trim($messageFields['SUBJECT']);
-					if (strlen($title) <= 0)
+					if ($title == '')
 					{
 						$title = trim($messageFields['CONTENT']);
 						$title = preg_replace("/\[ATTACHMENT\s*=\s*[^\]]*\]/is".BX_UTF_PCRE_MODIFIER, "", $title);

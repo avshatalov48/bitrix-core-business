@@ -26,7 +26,10 @@ class CIBlockPropertyElementAutoComplete
 			"PrepareSettings" => array(__CLASS__,'PrepareSettings'),
 			"AddFilterFields" => array(__CLASS__,'AddFilterFields'),
 			"GetPublicFilterHTML" => array(__CLASS__,'GetPublicFilterHTML'),
-			"GetUIFilterProperty" => array(__CLASS__, 'GetUIFilterProperty')
+			"GetUIFilterProperty" => array(__CLASS__, 'GetUIFilterProperty'),
+			'GetUIEntityEditorProperty' => array(__CLASS__, 'GetUIEntityEditorProperty'),
+			'GetUIEntityEditorPropertyEditHtml' => array(__CLASS__, 'GetUIEntityEditorPropertyEditHtml'),
+			'GetUIEntityEditorPropertyViewHtml' => array(__CLASS__, 'GetUIEntityEditorPropertyViewHtml'),
 		);
 	}
 
@@ -549,16 +552,16 @@ class CIBlockPropertyElementAutoComplete
 
 		$strBannedSymbols = trim(isset($arFields['USER_TYPE_SETTINGS']['BAN_SYM']) ? $arFields['USER_TYPE_SETTINGS']['BAN_SYM'] : ',;');
 		$strBannedSymbols = str_replace(' ','',$strBannedSymbols);
-		if (strpos($strBannedSymbols,',') === false)
+		if (mb_strpos($strBannedSymbols, ',') === false)
 			$strBannedSymbols .= ',';
-		if (strpos($strBannedSymbols,';') === false)
+		if (mb_strpos($strBannedSymbols, ';') === false)
 			$strBannedSymbols .= ';';
 
 		$strOtherReplaceSymbol = '';
 		$strReplaceSymbol = (isset($arFields['USER_TYPE_SETTINGS']['REP_SYM']) ? $arFields['USER_TYPE_SETTINGS']['REP_SYM'] : ' ');
 		if ($strReplaceSymbol == BT_UT_AUTOCOMPLETE_REP_SYM_OTHER)
 		{
-			$strOtherReplaceSymbol = (isset($arFields['USER_TYPE_SETTINGS']['OTHER_REP_SYM']) ? substr($arFields['USER_TYPE_SETTINGS']['OTHER_REP_SYM'],0,1) : '');
+			$strOtherReplaceSymbol = (isset($arFields['USER_TYPE_SETTINGS']['OTHER_REP_SYM'])? mb_substr($arFields['USER_TYPE_SETTINGS']['OTHER_REP_SYM'], 0, 1) : '');
 			if ((',' == $strOtherReplaceSymbol) || (';' == $strOtherReplaceSymbol))
 				$strOtherReplaceSymbol = '';
 			if (('' == $strOtherReplaceSymbol) || in_array($strOtherReplaceSymbol, static::GetReplaceSymList()))
@@ -899,6 +902,65 @@ class CIBlockPropertyElementAutoComplete
 	{
 		//TODO: need use \CAdminPage::getSelfFolderUrl, but in general it is impossible now
 		return (defined('SELF_FOLDER_URL') ? SELF_FOLDER_URL : '/bitrix/admin/').'iblock_element_search.php';
+	}
+
+	public static function GetUIEntityEditorProperty($settings, $value)
+	{
+		return [
+			'type' => 'custom'
+		];
+	}
+
+	public static function GetUIEntityEditorPropertyEditHtml(array $params = []) : string
+	{
+		$settings = $params['SETTINGS'] ?? [];
+		$paramsHTMLControl = [
+			'VALUE' => $params['FIELD_NAME'] ?? '',
+		];
+		if ($settings['MULTIPLE'] === 'Y')
+		{
+			$value = [];
+			if (is_array($params['VALUE']))
+			{
+				foreach ($params['VALUE'] as $element)
+				{
+					$value[] = ['VALUE' => $element];
+				}
+			}
+			return static::GetPropertyFieldHtmlMulty($settings, $value, $paramsHTMLControl);
+		}
+
+		$value = [
+			'VALUE' => $params['VALUE'] ?? ''
+		];
+		return static::GetPropertyFieldHtml($settings, $value, $paramsHTMLControl);
+	}
+
+	public static function GetUIEntityEditorPropertyViewHtml(array $params = []) : string
+	{
+		$settings = $params['SETTINGS'] ?? [];
+		$paramsHTMLControl = [
+			'VALUE' => $params['FIELD_NAME'] ?? '',
+		];
+
+		if ($settings['MULTIPLE'] === 'Y')
+		{
+			$multipleResult = '';
+			if (is_array($params['VALUE']))
+			{
+				foreach ($params['VALUE'] as $element)
+				{
+					$value = ['VALUE' => $element];
+					$multipleResult .=  static::GetPublicViewHTML($settings, $value, $paramsHTMLControl) . '<br>';
+				}
+			}
+			return $multipleResult;
+		}
+
+		$value = [
+			'VALUE' => $params['VALUE'] ?? ''
+		];
+		return static::GetPublicViewHTML($settings, $value, $paramsHTMLControl);
 	}
 }
 

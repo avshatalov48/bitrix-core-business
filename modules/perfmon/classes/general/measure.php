@@ -339,9 +339,9 @@ class CPerfAccel
 
 	public static function unformat($str)
 	{
-		$str = strtolower($str);
+		$str = mb_strtolower($str);
 		$res = intval($str);
-		$suffix = substr($str, -1);
+		$suffix = mb_substr($str, -1);
 		if ($suffix == "k")
 			$res *= 1024;
 		elseif ($suffix == "m")
@@ -360,10 +360,10 @@ class CPerfAccelZend extends CPerfAccel
 		$zend_mtime = ini_get('zend_optimizerplus.validate_timestamps');
 
 		parent::__construct(
-			strtolower($zend_enable) == "on" || $zend_enable == "1",
+			mb_strtolower($zend_enable) == "on" || $zend_enable == "1",
 			-1,
 			-1,
-			strtolower($zend_mtime) == "on" || $zend_mtime == "1",
+			mb_strtolower($zend_mtime) == "on" || $zend_mtime == "1",
 			intval(ini_get('zend_optimizerplus.memory_consumption')) * 1024 * 1024,
 			-1
 		);
@@ -425,11 +425,11 @@ class CPerfAccelAPC extends CPerfAccel
 
 	function __construct()
 	{
-		$apc_enabled = strtolower(ini_get('apc.enabled'));
+		$apc_enabled = mb_strtolower(ini_get('apc.enabled'));
 		$this->is_enabled = !($apc_enabled == "0" || $apc_enabled == "off");
-		$apc_cache_by_default = strtolower(ini_get('apc.cache_by_default'));
+		$apc_cache_by_default = mb_strtolower(ini_get('apc.cache_by_default'));
 		$this->is_cache_by_default = !($apc_cache_by_default == "0" || $apc_cache_by_default == "off");
-		$apc_stat = strtolower(ini_get('apc.stat'));
+		$apc_stat = mb_strtolower(ini_get('apc.stat'));
 		$this->num_files_hint = intval(ini_get('apc.num_files_hint'));
 		$this->user_entries_hint = intval(ini_get('apc.user_entries_hint'));
 
@@ -505,8 +505,8 @@ class CPerfAccelAPC extends CPerfAccel
 			),
 		);
 
-		$enable_opcode_cache = strtolower(ini_get('apc.enable_opcode_cache'));
-		if (strlen($enable_opcode_cache) > 0)
+		$enable_opcode_cache = mb_strtolower(ini_get('apc.enable_opcode_cache'));
+		if ($enable_opcode_cache <> '')
 		{
 			$result["enabled"][] = array(
 				"PARAMETER" => 'apc.enable_opcode_cache',
@@ -530,7 +530,7 @@ class CPerfAccelXCache extends CPerfAccel
 			ini_get('xcache.cacher') != "0",
 			intval(ini_get('xcache.ttl')),
 			-1,
-			!($xcache_stat == "0" || strtolower($xcache_stat) == "off"),
+			!($xcache_stat == "0" || mb_strtolower($xcache_stat) == "off"),
 			static::unformat(ini_get('xcache.size')),
 			-1
 		);
@@ -593,7 +593,7 @@ class CPerfAccelWinCache extends CPerfAccel
 		$memory = wincache_ocache_meminfo();
 
 		parent::__construct(
-			!($wincache_enabled == "0" || strtolower($wincache_enabled) == "off"),
+			!($wincache_enabled == "0" || mb_strtolower($wincache_enabled) == "off"),
 			-1,
 			-1,
 			true, //Because there is no way to turn on check file mtime we'll assume it's ok

@@ -46,6 +46,7 @@
 	transition: .2s;
 	font-weight: bold;
 	cursor: pointer;
+	overflow: hidden;
 }
 
 .ui-tile-selector-input {
@@ -160,7 +161,7 @@
 /*** SEARCHER ***/
 
 .ui-tile-selector-searcher {
-	padding: 9px;
+	padding: 9px 9px 0 9px;
 }
 
 .ui-tile-selector-searcher-title {
@@ -216,7 +217,7 @@
 
 .ui-tile-selector-searcher-sidebar {
 	flex: 1;
-	padding: 16px 0 0 16px;
+	padding: 0 0 0 16px;
 	margin: 0 0 7px 0;
 	border-left: 1px solid rgba(216,216,216,.38);
 }

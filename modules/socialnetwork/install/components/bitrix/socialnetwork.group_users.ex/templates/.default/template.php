@@ -9,12 +9,9 @@
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI;
 
-UI\Extension::load("ui.buttons.icons");
-UI\Extension::load("ui.alerts");
-UI\Extension::load("ui.tooltip");
-UI\Extension::load("socialnetwork.common");
+UI\Extension::load(["socialnetwork.common", "ui.icons.b24", "ui.buttons.icons", "ui.alerts", "ui.tooltip"]);
 
-if(strlen($arResult["FatalError"]) > 0)
+if($arResult["FatalError"] <> '')
 {
 	?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?
 }
@@ -22,7 +19,7 @@ else
 {
 	CUtil::InitJSCore(array("popup", "sidepanel"));
 
-	if(strlen($arResult["ErrorMessage"])>0)
+	if($arResult["ErrorMessage"] <> '')
 	{
 		?><span class="errortext"><?=$arResult["ErrorMessage"]?></span><br /><br /><?
 	}
@@ -80,7 +77,7 @@ else
 			GUEPathToGroupInvite: '<?=(
 				!empty($arResult["Urls"]["GroupInvite"])
 					? htmlspecialcharsback($arResult["Urls"]["GroupInvite"])
-					: htmlspecialcharsback($arResult["Urls"]["GroupEdit"]).(strpos($arResult["Urls"]["GroupEdit"], "?") === false ? "?" : "&")."tab=invite"
+					: htmlspecialcharsback($arResult["Urls"]["GroupEdit"]).(mb_strpos($arResult["Urls"]["GroupEdit"], "?") === false ? "?" : "&")."tab=invite"
 			)?>'
 		});
 
@@ -110,10 +107,10 @@ else
 				"PATH_TO_GROUP_INVITE" => (
 					!empty($arResult["Urls"]["GroupInvite"])
 						? htmlspecialcharsback($arResult["Urls"]["GroupInvite"])
-						: htmlspecialcharsback($arResult["Urls"]["GroupEdit"]).(strpos($arResult["Urls"]["GroupEdit"], "?") === false ? "?" : "&")."tab=invite"
+						: htmlspecialcharsback($arResult["Urls"]["GroupEdit"]).(mb_strpos($arResult["Urls"]["GroupEdit"], "?") === false ? "?" : "&")."tab=invite"
 				),
-				"PATH_TO_GROUP_EDIT" => htmlspecialcharsback($arResult["Urls"]["GroupEdit"]).(strpos($arResult["Urls"]["GroupEdit"], "?") === false ? "?" : "&")."tab=edit",
-				"PATH_TO_GROUP_FEATURES" => htmlspecialcharsback($arResult["Urls"]["GroupEdit"]).(strpos($arResult["Urls"]["GroupEdit"], "?") === false ? "?" : "&")."tab=features",
+				"PATH_TO_GROUP_EDIT" => htmlspecialcharsback($arResult["Urls"]["GroupEdit"]).(mb_strpos($arResult["Urls"]["GroupEdit"], "?") === false ? "?" : "&")."tab=edit",
+				"PATH_TO_GROUP_FEATURES" => htmlspecialcharsback($arResult["Urls"]["GroupEdit"]).(mb_strpos($arResult["Urls"]["GroupEdit"], "?") === false ? "?" : "&")."tab=features",
 				"ON_GROUP_ADDED" => "BX.DoNothing",
 				"ON_GROUP_CHANGED" => "BX.DoNothing",
 				"ON_GROUP_DELETED" => "BX.DoNothing"
@@ -130,7 +127,7 @@ else
 			echo \Bitrix\Main\Update\Stepper::getHtml(array('socialnetwork' => array("Bitrix\Socialnetwork\Update\WorkgroupDeptSync")), Loc::getMessage('SONET_GUE_T_STEPPER_TITLE'));
 		}
 
-		?><div id="sonet_group_users_error_block" class="ui-alert ui-alert-xs ui-alert-danger ui-alert-icon-danger<?=(strlen($arResult["ErrorMessage"]) > 0 ? "" : " sonet-ui-form-error-block-invisible")?>"><?=$arResult["ErrorMessage"]?></div><?
+		?><div id="sonet_group_users_error_block" class="ui-alert ui-alert-xs ui-alert-danger ui-alert-icon-danger<?=($arResult["ErrorMessage"] <> '' ? "" : " sonet-ui-form-error-block-invisible")?>"><?=$arResult["ErrorMessage"]?></div><?
 
 		if (!empty($arResult["Owner"]))
 		{
@@ -218,7 +215,9 @@ else
 
 					?><span class="sonet-members-member-block" id="sonet-members-member-block-owner"><?
 						?><span class="sonet-members-member-img-wrap"><?
-							?><span class="sonet-members-member-img" style="<?=(is_array($arResult["Owner"]["USER_PERSONAL_PHOTO_IMG"]) && strlen($arResult["Owner"]["USER_PERSONAL_PHOTO_IMG"]["src"]) > 0 ? "background: url('".$arResult["Owner"]["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></span><?
+							?><span class="ui-icon ui-icon-common-user sonet-members-member-img">
+									<i style="<?=(is_array($arResult["Owner"]["USER_PERSONAL_PHOTO_IMG"]) && $arResult["Owner"]["USER_PERSONAL_PHOTO_IMG"]["src"] <> '' ? "background: url('".$arResult["Owner"]["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></i>
+								</span><?
 						?></span><?
 
 						?><span class="sonet-members-member-text"><?
@@ -238,7 +237,7 @@ else
 								?><span class="sonet-members-member-description"><?=$arResult["Owner"]["USER_WORK_POSITION"]?><?
 									if ($arResult["Owner"]["USER_ACTIVE"] != "Y")
 									{
-										?><?=(strlen($arResult["Owner"]["USER_WORK_POSITION"]) > 0 ? ", " : "").Loc::getMessage("SONET_GUE_T_FIRED2".(in_array($arResult["Owner"]["USER_PERSONAL_GENDER"], array("M", "F")) ? "_".$arResult["Owner"]["USER_PERSONAL_GENDER"] : ""))?><?
+										?><?=($arResult["Owner"]["USER_WORK_POSITION"] <> '' ? ", " : "").Loc::getMessage("SONET_GUE_T_FIRED2".(in_array($arResult["Owner"]["USER_PERSONAL_GENDER"], array("M", "F")) ? "_".$arResult["Owner"]["USER_PERSONAL_GENDER"] : ""))?><?
 									}
 								?></span><?
 							}
@@ -349,7 +348,9 @@ else
 							}
 
 							?><span class="sonet-members-member-img-wrap"><?
-								?><span class="sonet-members-member-img" style="<?=(is_array($arMember["USER_PERSONAL_PHOTO_IMG"]) && strlen($arMember["USER_PERSONAL_PHOTO_IMG"]["src"]) > 0 ? "background: url('".$arMember["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></span><?
+								?><span class="ui-icon ui-icon-common-user sonet-members-member-img">
+									<i style="<?=(is_array($arMember["USER_PERSONAL_PHOTO_IMG"]) && $arMember["USER_PERSONAL_PHOTO_IMG"]["src"] <> '' ? "background: url('".$arMember["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></i>
+								</span><?
 							?></span><?
 
 							if ($canExclude)
@@ -373,7 +374,7 @@ else
 									?><span class="sonet-members-member-description"><?=$arMember["USER_WORK_POSITION"]?><?
 									if ($arMember["USER_ACTIVE"] != "Y")
 									{
-										?><?=(strlen($arMember["USER_WORK_POSITION"]) > 0 ? ", " : "").GetMessage("SONET_GUE_T_FIRED2".(in_array($arMember["USER_PERSONAL_GENDER"], array("M", "F")) ? "_".$arMember["USER_PERSONAL_GENDER"] : ""))?><?
+										?><?=($arMember["USER_WORK_POSITION"] <> '' ? ", " : "").GetMessage("SONET_GUE_T_FIRED2".(in_array($arMember["USER_PERSONAL_GENDER"], array("M", "F")) ? "_".$arMember["USER_PERSONAL_GENDER"] : ""))?><?
 									}
 									?></span><?
 								}
@@ -386,7 +387,7 @@ else
 					}
 				?></div><?
 
-				if (StrLen($arResult["Moderators"]["NAV_STRING"]) > 0):
+				if ($arResult["Moderators"]["NAV_STRING"] <> ''):
 					?><div class="sonet-members-nav"><?=$arResult["Moderators"]["NAV_STRING"]?></div><?
 				endif;
 
@@ -423,7 +424,9 @@ else
 								?><span class="sonet-members-close"><span class="sonet-members-close-item"></span></span><?
 							}
 							?><span class="sonet-members-member-img-wrap"><?
-								?><span class="sonet-members-member-img" style="<?=(is_array($arMember["USER_PERSONAL_PHOTO_IMG"]) && strlen($arMember["USER_PERSONAL_PHOTO_IMG"]["src"]) > 0 ? "background: url('".$arMember["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></span><?
+								?><span class="ui-icon ui-icon-common-user sonet-members-member-img">
+									<i style="<?=(is_array($arMember["USER_PERSONAL_PHOTO_IMG"]) && $arMember["USER_PERSONAL_PHOTO_IMG"]["src"] <> '' ? "background: url('".$arMember["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></i>
+								</span><?
 							?></span><?
 							if ($canUnban)
 							{
@@ -445,7 +448,7 @@ else
 									?><span class="sonet-members-member-description"><?=$arMember["USER_WORK_POSITION"]?><?
 									if ($arMember["USER_ACTIVE"] != "Y")
 									{
-										?><?=(strlen($arMember["USER_WORK_POSITION"]) > 0 ? ", " : "").GetMessage("SONET_GUE_T_FIRED2".(in_array($arMember["USER_PERSONAL_GENDER"], array("M", "F")) ? "_".$arMember["USER_PERSONAL_GENDER"] : ""))?><?
+										?><?=($arMember["USER_WORK_POSITION"] <> '' ? ", " : "").GetMessage("SONET_GUE_T_FIRED2".(in_array($arMember["USER_PERSONAL_GENDER"], array("M", "F")) ? "_".$arMember["USER_PERSONAL_GENDER"] : ""))?><?
 									}
 									?></span><?
 								}
@@ -454,7 +457,7 @@ else
 					}
 				?></div><?
 
-				if (StrLen($arResult["Ban"]["NAV_STRING"]) > 0):
+				if ($arResult["Ban"]["NAV_STRING"] <> ''):
 					?><div class="sonet-members-nav"><?=$arResult["Ban"]["NAV_STRING"]?></div><?
 				endif;
 
@@ -496,7 +499,11 @@ else
 								?><span class="sonet-members-close"><span class="sonet-members-close-item"></span></span><?
 							}
 
-							?><span class="sonet-members-member-img-wrap"><span class="sonet-members-member-img"></span></span><?
+							?><span class="sonet-members-member-img-wrap">
+								<span class="ui-icon ui-icon-common-user sonet-members-member-img">
+									<i></i>
+								</span>
+							</span><?
 
 							if ($canUnconnect)
 							{
@@ -537,7 +544,7 @@ else
 						?><a href="<?=
 							!empty($arResult["Urls"]["GroupInvite"])
 								? htmlspecialcharsbx($arResult["Urls"]["GroupInvite"])
-								: htmlspecialcharsback($arResult["Urls"]["GroupEdit"]).(strpos($arResult["Urls"]["GroupEdit"], "?") === false ? "?" : "&")."tab=invite"
+								: htmlspecialcharsback($arResult["Urls"]["GroupEdit"]).(mb_strpos($arResult["Urls"]["GroupEdit"], "?") === false ? "?" : "&")."tab=invite"
 						?>" class="sonet-members-item-menu-title">+&nbsp;<?=Loc::getMessage("SONET_GUE_T_ACTIONLINK_INVITE")?></a>
 					</div><?
 				}
@@ -569,7 +576,9 @@ else
 							}
 
 							?><span class="sonet-members-member-img-wrap"><?
-								?><span class="sonet-members-member-img" style="<?=(is_array($arMember["USER_PERSONAL_PHOTO_IMG"]) && strlen($arMember["USER_PERSONAL_PHOTO_IMG"]["src"]) > 0 ? "background: url('".$arMember["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></span><?
+								?><span class="ui-icon ui-icon-common-user sonet-members-member-img">
+									<i style="<?=(is_array($arMember["USER_PERSONAL_PHOTO_IMG"]) && $arMember["USER_PERSONAL_PHOTO_IMG"]["src"] <> '' ? "background: url('".$arMember["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></i>
+								</span><?
 							?></span><?
 
 							if ($canExclude)
@@ -593,7 +602,7 @@ else
 									?><span class="sonet-members-member-description"><?=$arMember["USER_WORK_POSITION"]?><?
 									if ($arMember["USER_ACTIVE"] != "Y")
 									{
-										?><?=(strlen($arMember["USER_WORK_POSITION"]) > 0 ? ", " : "").GetMessage("SONET_GUE_T_FIRED2".(in_array($arMember["USER_PERSONAL_GENDER"], array("M", "F")) ? "_".$arMember["USER_PERSONAL_GENDER"] : ""))?><?
+										?><?=($arMember["USER_WORK_POSITION"] <> '' ? ", " : "").GetMessage("SONET_GUE_T_FIRED2".(in_array($arMember["USER_PERSONAL_GENDER"], array("M", "F")) ? "_".$arMember["USER_PERSONAL_GENDER"] : ""))?><?
 									}
 									?></span><?
 								}
@@ -606,7 +615,7 @@ else
 					}
 				?></div><?
 
-				if (StrLen($arResult["Users"]["NAV_STRING"]) > 0):
+				if ($arResult["Users"]["NAV_STRING"] <> ''):
 					?><div class="sonet-members-nav"><?=$arResult["Users"]["NAV_STRING"]?></div><?
 				endif;
 
@@ -637,7 +646,10 @@ else
 
 						?><span class="sonet-members-member-block"><?
 							?><span class="sonet-members-member-img-wrap"><?
-							?><span class="sonet-members-member-img" style="<?=(is_array($arMember["USER_PERSONAL_PHOTO_IMG"]) && strlen($arMember["USER_PERSONAL_PHOTO_IMG"]["src"]) > 0 ? "background: url('".$arMember["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></span></span><?
+							?><span class="ui-icon ui-icon-common-user sonet-members-member-img">
+								<i style="<?=(is_array($arMember["USER_PERSONAL_PHOTO_IMG"]) && $arMember["USER_PERSONAL_PHOTO_IMG"]["src"] <> '' ? "background: url('".$arMember["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></i>
+							</span>
+							</span><?
 							?><span class="sonet-members-member-text"><?
 								?><span class="sonet-members-member-title<?=($arMember["USER_IS_EXTRANET"] == "Y" ? " sonet-members-member-title-extranet" : "")?>"><?
 									if ($arMember["SHOW_PROFILE_LINK"])
@@ -654,7 +666,7 @@ else
 									?><span class="sonet-members-member-description"><?=$arMember["USER_WORK_POSITION"]?><?
 									if ($arMember["USER_ACTIVE"] != "Y")
 									{
-										?><?=(strlen($arMember["USER_WORK_POSITION"]) > 0 ? ", " : "").GetMessage("SONET_GUE_T_FIRED2".(in_array($arMember["USER_PERSONAL_GENDER"], array("M", "F")) ? "_".$arMember["USER_PERSONAL_GENDER"] : ""))?><?
+										?><?=($arMember["USER_WORK_POSITION"] <> '' ? ", " : "").GetMessage("SONET_GUE_T_FIRED2".(in_array($arMember["USER_PERSONAL_GENDER"], array("M", "F")) ? "_".$arMember["USER_PERSONAL_GENDER"] : ""))?><?
 									}
 									?></span><?
 								}
@@ -663,7 +675,7 @@ else
 					}
 				?></div><?
 
-				if (StrLen($arResult["UsersAuto"]["NAV_STRING"]) > 0):
+				if ($arResult["UsersAuto"]["NAV_STRING"] <> ''):
 					?><div class="sonet-members-nav"><?=$arResult["UsersAuto"]["NAV_STRING"]?></div><?
 				endif;
 

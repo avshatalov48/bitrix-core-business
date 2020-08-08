@@ -35,7 +35,6 @@
 			>
 			</div>
 
-
 			<!--			for resource booking-->
 			<div class="g-bg-gray-dark-v5"
 				 data-form-style-bg-as-text="1"
@@ -60,6 +59,14 @@
 				 data-form-style-light-bg="1"
 			>
 			</div>
+			<p class="landing-semantic-text-medium"
+			   data-form-style-main-font-weight="1"
+			   data-form-style-header-text-font-size="1"
+			   data-form-style-label-font-weight="1"
+			   data-form-style-label-font-size="1"
+			   data-form-style-second-font-color="1"
+			>
+			</p>
 		</div>
 
 		<div class="row">
@@ -70,7 +77,9 @@
 					 data-b24form=""
 					 data-b24form-use-style="Y"
 					 data-b24form-show-header="N"
-				></div>
+				>
+					<div class="g-landing-alert">MESS[LANDING_BLOCK_WEBFORM_PRELOADER]</div>
+				</div>
 			</div>
 		</div>
 	</div>

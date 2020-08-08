@@ -1,18 +1,14 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
-
+<?php
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 /**
  * @var array $arParams
  * @var array $arResult
  * @global \CMain $APPLICATION
- * @global \CUser $USER
- * @global \CDatabase $DB
  * @var \CBitrixComponentTemplate $this
- * @var string $templateName
- * @var string $templateFile
- * @var string $templateFolder
- * @var string $componentPath
- * @var \TranslateListComponent|\CBitrixComponent $component
+ * @var \TranslateListComponent $component
  */
 
 use Bitrix\Main;
@@ -29,8 +25,20 @@ if (!$isAjax)
 {
 	?>
 	<div class="adm-toolbar-panel-container">
+		<?
+		if (count($arResult['INIT_FOLDERS']) > 1)
+		{
+			?>
+			<div class="adm-toolbar-panel-align-left" title="<?= Loc::getMessage('TR_STARTING_PATH') ?>">
+				<button id="bx-translate-init-folder" class="ui-btn ui-btn-default ui-btn-dropdown ui-btn-split ui-btn-icon-lock">
+					<?//= htmlspecialcharsbx($arResult['STARTING_PATH']) ?>
+				</button>
+			</div>
+			<?
+		}
+		?>
 		<div class="adm-toolbar-panel-flexible-space">
-	<?
+		<?
 
 	$APPLICATION->IncludeComponent(
 		'bitrix:main.ui.filter',
@@ -93,7 +101,7 @@ if (!$isAjax)
 
 	foreach ($arResult['FILTER_DEFINITION'] as $fieldName => $fieldDef)
 	{
-		if ($fieldDef['type'] == 'list' && isset($fieldDef['group_values']))
+		if ($fieldDef['type'] === 'list' && isset($fieldDef['group_values']))
 		{
 			?>
 			<script type="text/javascript">
@@ -203,11 +211,12 @@ if (!$isAjax)
 				"tabId" => (string)$arParams['TAB_ID'],
 				"gridId" => $arParams['GRID_ID'],
 				"filterId" => $arParams['FILTER_ID'],
-				'mode' => ((defined('ADMIN_SECTION') && ADMIN_SECTION == true) ? 'admin' : 'public'),
+				'mode' => ((defined('ADMIN_SECTION') && ADMIN_SECTION === true) ? 'admin' : 'public'),
 				"actionMode" => $arResult['ACTION'],
 				'relUrl' => $arParams['LIST_PATH'],
 				'defaults' => [
-					'path' => $arParams['DEFAULT_PATH'],
+					'initFolders' => $arResult['INIT_FOLDERS'],
+					'startingPath' => $arResult['STARTING_PATH'],
 				],
 				'messages' => [
 					'AuthError' => Loc::getMessage('main_include_decode_pass_sess'),
@@ -234,7 +243,7 @@ if (!$isAjax)
 						'text' => Loc::getMessage("TR_LIST_IMPORT_CSV"),
 						'onclick' => "BX.Translate.ProcessManager.getInstance('import').showDialog();",
 					],
-				]
+				],
 			))?>);
 
 			BX.Translate.PathList.ExportMenuSelector = function()
@@ -257,11 +266,11 @@ if (!$isAjax)
 			if (BX.Translate.PathList.getFilter())
 			{
 				BX.Translate.PathList.getFilter().getSearch().setInputPlaceholder("<?= Loc::getMessage('TRANS_PATH_SEARCH') ?>");
-				BX.Translate.PathList.getFilter().getSearch().input.value = "<?= \CUtil::JSEscape($arResult['PATH']); ?>";
+				BX.Translate.PathList.getFilter().getSearch().input.value = "<?= \CUtil::JSEscape($arResult['PATH']) ?>";
 			}
 			if (BX.Translate.PathList.getGrid())
 			{
-				BX.Translate.PathList.getGrid().baseUrl = "<?= \CUtil::JSEscape($arParams['LIST_PATH']); ?>";
+				BX.Translate.PathList.getGrid().baseUrl = "<?= \CUtil::JSEscape($arParams['LIST_PATH']) ?>";
 			}
 
 			// clearEthalon
@@ -311,7 +320,7 @@ if (!$isAjax)
 					function (state, result)
 					{
 						/** @type {BX.Translate.Process} this */
-						if (state == this.STATUSES.completed)
+						if (state === this.STATUSES.completed)
 						{
 							BX.Translate.PathList.reloadGrid();
 							this.closeDialog();
@@ -324,12 +333,11 @@ if (!$isAjax)
 				function(pathList)
 				{
 					pathList = pathList.filter(function (p){
-						return p != null && p != "";
+						return p !== null && p !== "";
 					});
 					var process = BX.Translate.ProcessManager.getInstance('clearEthalon');
 					process
 						.setParam('pathList', pathList.join("\r\n"))
-						//.setHandler('dialogClosed', function(){ BX.Translate.PathList.reloadGrid(); })
 						.showDialog();
 				}
 			);
@@ -449,7 +457,7 @@ if (!$isAjax)
 						'name' => 'convertEncoding',
 						'type' => 'checkbox',
 						'title' => Loc::getMessage('TR_EXPORT_CSV_PARAM_CONVERT_UTF8'),
-						'value' => (Main\Localization\Translation::useTranslationRepository() ? 'Y' : 'N'),
+						'value' => ((Main\Localization\Translation::useTranslationRepository() || Translate\Config::isUtfMode()) ? 'Y' : 'N'),
 					],
 					'languages' => [
 						'name' => 'languages',
@@ -474,10 +482,10 @@ if (!$isAjax)
 				function(pathList, codeList)
 				{
 					pathList = pathList.filter(function (p){
-						return p != null && p != "";
+						return p !== null && p !== "";
 					});
 					codeList = codeList.filter(function (c){
-						return c != null && c != "";
+						return c !== null && c !== "";
 					});
 					var process = BX.Translate.ProcessManager.getInstance('export');
 					process
@@ -529,7 +537,7 @@ if (!$isAjax)
 						'name' => 'convertEncoding',
 						'type' => 'checkbox',
 						'title' => Loc::getMessage('TR_EXPORT_CSV_PARAM_CONVERT_UTF8'),
-						'value' => (Main\Localization\Translation::useTranslationRepository() ? 'Y' : 'N'),
+						'value' => ((Main\Localization\Translation::useTranslationRepository() || Translate\Config::isUtfMode()) ? 'Y' : 'N'),
 					],
 					'languages' => [
 						'name' => 'languages',

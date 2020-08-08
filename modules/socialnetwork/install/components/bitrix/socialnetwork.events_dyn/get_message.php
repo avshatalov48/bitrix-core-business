@@ -1,7 +1,7 @@
 <?
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/bx_root.php");
 
-$cuid = IntVal($_REQUEST["cuid"]);
+$cuid = intval($_REQUEST["cuid"]);
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 
@@ -37,7 +37,7 @@ if(CModule::IncludeModule("compression"))
 
 if(CModule::IncludeModule("socialnetwork"))
 {
-	$userID = IntVal($_REQUEST["user_id"]);
+	$userID = intval($_REQUEST["user_id"]);
 	$mptr = Trim($_REQUEST["mptr"]);
 
 	$arParams["PATH_TO_USER"] = Trim($GLOBALS["APPLICATION"]->UnJSEscape($_REQUEST["up"]));
@@ -52,9 +52,9 @@ if(CModule::IncludeModule("socialnetwork"))
 		$arParams["POPUP_TEMPLATE"] = false;
 
 	if ($arParams["POPUP"] == "Y")
-		require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".strToLower($GLOBALS["DB"]->type)."/favorites.php");
+		require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
 
-	if (strlen(trim($_REQUEST["nt"])) > 0)
+	if (trim($_REQUEST["nt"]) <> '')
 		$arParams['NAME_TEMPLATE'] = Trim($GLOBALS["APPLICATION"]->UnJSEscape($_REQUEST["nt"]));
 	else
 		$arParams['NAME_TEMPLATE'] = CSite::GetNameFormat();

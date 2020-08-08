@@ -47,7 +47,7 @@ if (($arID = $lAdmin->GroupAction()) && $sonetModulePermissions >= "W")
 
 	foreach ($arID as $ID)
 	{
-		if (strlen($ID) <= 0)
+		if ($ID == '')
 			continue;
 
 		switch ($_REQUEST['action'])
@@ -131,7 +131,7 @@ while ($arSocNet = $dbResultList->NavNext(true, "f_"))
 	$row->AddField("NAME", $fieldShow);
 
 	$row->AddField("TYPING", $f_TYPING);
-	$row->AddField("ICON", "<img src=\"/bitrix/images/socialnetwork/".(($f_SMILE_TYPE=="I")?"icon":"smile")."/".$f_IMAGE."\" border=\"0\" ".((IntVal($f_IMAGE_WIDTH) > 0) ? "width=\"".$f_IMAGE_WIDTH."\"" : "")." ".((IntVal($f_IMAGE_WIDTH) > 0) ? "height=\"".$f_IMAGE_HEIGHT."\"" : "" ).">");
+	$row->AddField("ICON", "<img src=\"/bitrix/images/socialnetwork/".(($f_SMILE_TYPE=="I")?"icon":"smile")."/".$f_IMAGE."\" border=\"0\" ".((intval($f_IMAGE_WIDTH) > 0) ? "width=\"".$f_IMAGE_WIDTH."\"" : "")." ".((intval($f_IMAGE_WIDTH) > 0) ? "height=\"".$f_IMAGE_HEIGHT."\"" : "" ).">");
 
 	$arActions = Array();
 	if ($sonetModulePermissions >= "R")

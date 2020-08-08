@@ -3,9 +3,9 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 ?>
 
 <?
-if (strlen($arCurrentValues["mail_charset"]) <= 0)
+if ($arCurrentValues["mail_charset"] == '')
 	$arCurrentValues["mail_charset"] = SITE_CHARSET;
-if (strlen($arCurrentValues["mail_message_type"]) <= 0)
+if ($arCurrentValues["mail_message_type"] == '')
 	$arCurrentValues["mail_message_type"] = "plain";
 
 if ($arCurrentValues["mail_message_encoded"])
@@ -23,6 +23,14 @@ $file = $map['File'];
 		<?=CBPDocument::ShowParameterField("string", 'mail_user_from', $arCurrentValues['mail_user_from'], Array('size'=> 50))?>
 	</td>
 </tr>
+<?if (isModuleInstalled('bitrix24')):?>
+<tr>
+	<td align="right" width="40%"></td>
+	<td width="60%" valign="top">
+		<?= GetMessage("BPMA_PD_FROM_LIMITATION") ?>
+	</td>
+</tr>
+<?endif;?>
 <tr>
 	<td align="right" width="40%"><span class="adm-required-field"><?= GetMessage("BPMA_PD_TO") ?>:</span></td>
 	<td width="60%">

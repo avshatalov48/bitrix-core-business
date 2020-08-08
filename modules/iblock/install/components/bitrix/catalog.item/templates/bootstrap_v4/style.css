@@ -47,16 +47,16 @@
 		right: 0;
 		border: 1px solid transparent;
 		box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
-		padding-left:0;
-		padding-right:0;
+		padding-left: 0;
+		padding-right: 0;
 	}
 	100% {
 		border: 1px solid transparent;
 		box-shadow: 0 7px 15px 0 rgba(0, 0, 0, .19);
 		left: -15px;
 		right: -15px;
-		padding-left:15px;
-		padding-right:15px;
+		padding-left: 15px;
+		padding-right: 15px;
 	}
 }
 
@@ -67,16 +67,16 @@
 		right: 0;
 		border: 1px solid transparent;
 		box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
-		padding-left:0;
-		padding-right:0;
+		padding-left: 0;
+		padding-right: 0;
 	}
 	100% {
 		border: 1px solid transparent;
 		box-shadow: 0 7px 15px 0 rgba(0, 0, 0, .19);
 		left: -15px;
 		right: -15px;
-		padding-left:15px;
-		padding-right:15px;
+		padding-left: 15px;
+		padding-right: 15px;
 	}
 }
 
@@ -542,12 +542,23 @@
 	text-align: center;
 }
 
-.product-item-amount-field-container { }
+.product-item-amount-field-container {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
+	align-items: center;
+	position: relative;
+	max-width: 150px;
+	margin: 0 auto 15px;
+}
+
 
 .product-item-amount-field-btn-plus,
 .product-item-amount-field-btn-minus {
 	position: relative;
-	display: inline-block;
+	display: block;
 	min-width: 22px;
 	height: 22px;
 	border-radius: 2px;
@@ -601,11 +612,16 @@
 .product-item-amount-field-btn-plus:hover:after,
 .product-item-amount-field-btn-minus:hover:after { opacity: 1; }
 
+.product-item-amount-field-block {
+	-webkit-box-flex: 1;
+	-ms-flex: 1;
+	flex: 1;
+}
+
 .product-item-amount-field {
-	display: inline-block;
+	display: block;
 	padding: 0;
-	max-width: 50px;
-	width: auto;
+	width: 100%;
 	height: 22px;
 	border: 1px solid transparent;
 	border-radius: 2px;
@@ -630,13 +646,16 @@
 }
 
 .product-item-amount-description-container {
-	display: block;
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
 	color: #a5a5a5;
 	white-space: nowrap;
 	font-size: 12px;
 }
 
-.product-item-big-card .product-item-amount-field-container { text-align: left; }
+/*.product-item-big-card .product-item-amount-field-container { text-align: left; }*/
 
 .product-item-amount-description-container strong {
 	color: #333;

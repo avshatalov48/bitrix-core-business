@@ -47,7 +47,7 @@ class Finder
 		$types = Option::get('sale', self::SALE_LOCATION_INDEXED_TYPES_OPT, '', '');
 		$typesFromDb = static::getTypesFromDb();
 
-		if(!strlen($types)) // means "all"
+		if($types == '') // means "all"
 			return array_keys($typesFromDb);
 
 		$types = explode(':', $types);
@@ -91,7 +91,7 @@ class Finder
 		$langs = Option::get('sale', self::SALE_LOCATION_INDEXED_LANGUAGES_OPT, '', '');
 		$langsFromDb = static::getLangsFromDb();
 
-		if(!strlen($langs))
+		if($langs == '')
 			return array_keys($langsFromDb);
 
 		$result = array();
@@ -264,10 +264,14 @@ class Finder
 				$found = array();
 				preg_match("#^(=?)(.+)#", $field, $found);
 
-				if(strlen($found[1]))
+				if($found[1] <> '')
+				{
 					$op = $found[1];
+				}
 				else
+				{
 					$op = '=';
+				}
 
 				if(!isset(static::$allowedOperations[$op]))
 					throw new Main\ArgumentException('Unknown modifier in the filter');
@@ -275,7 +279,7 @@ class Finder
 				$fieldParsed = $found[2];
 
 				$parsed[$fieldParsed] = array(
-					'OP' => strlen($op) ? $op : '=',
+					'OP' => $op <> ''? $op : '=',
 					'VALUE' => $value
 				);
 			}
@@ -293,7 +297,7 @@ class Finder
 
 		$filter = static::parseFilter($parameters['filter']);
 
-		$filterByPhrase = isset($filter['PHRASE']) && strlen($filter['PHRASE']['VALUE']);
+		$filterByPhrase = isset($filter['PHRASE']) && mb_strlen($filter['PHRASE']['VALUE']);
 
 		if($filterByPhrase) // filter by phrase
 		{
@@ -327,7 +331,7 @@ class Finder
 		}
 
 		// site link search
-		if(strlen($filter['SITE_ID']['VALUE']) && SiteLinkTable::checkTableExists())
+		if(mb_strlen($filter['SITE_ID']['VALUE']) && SiteLinkTable::checkTableExists())
 		{
 			$query['JOIN'][] = "inner join ".SiteLinkTable::getTableName()." SL on SL.LOCATION_ID = ".$mainTableJoinCondition." and SL.SITE_ID = '".$dbHelper->forSql($filter['SITE_ID']['VALUE'])."'";
 		}
@@ -491,15 +495,15 @@ class Finder
 
 		$filter = static::parseFilter($parameters['filter']);
 
-		if(strlen($filter['SITE_ID']['VALUE']))
+		if($filter['SITE_ID']['VALUE'] <> '')
 		{
-			$filterSite = $dbHelper->forSql(substr($filter['SITE_ID']['VALUE'], 0, 2));
+			$filterSite = $dbHelper->forSql(mb_substr($filter['SITE_ID']['VALUE'], 0, 2));
 
 			$hasLocLinks = Location\SiteLocationTable::checkLinkUsage($filterSite, Location\SiteLocationTable::DB_LOCATION_FLAG);
 			$hasGrpLinks = Location\SiteLocationTable::checkLinkUsage($filterSite, Location\SiteLocationTable::DB_GROUP_FLAG);
 			$doFilterBySite = true;
 		}
-		if(strlen($filter['PHRASE']['VALUE']))
+		if($filter['PHRASE']['VALUE'] <> '')
 		{
 			$doFilterByName = true;
 
@@ -533,12 +537,14 @@ class Finder
 		}
 
 		$doFilterByLang = true;
-		if(strlen($filter['NAME.LANGUAGE_ID']['VALUE']))
+		if($filter['NAME.LANGUAGE_ID']['VALUE'] <> '')
 		{
-			$filterLang = $dbHelper->forSql(substr($filter['NAME.LANGUAGE_ID']['VALUE'], 0, 2));
+			$filterLang = $dbHelper->forSql(mb_substr($filter['NAME.LANGUAGE_ID']['VALUE'], 0, 2));
 		}
 		else
+		{
 			$filterLang = LANGUAGE_ID;
+		}
 
 		if(isset($filter['PARENT_ID']) && intval($filter['PARENT_ID']['VALUE']) >= 0)
 		{

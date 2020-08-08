@@ -34,7 +34,7 @@ if(is_array($arCloudParams["arrFILTER"]))
 		{
 			$arCloudParams["arrFILTER_forum"] = $arParams["arrFILTER_forum"];
 		}
-		elseif(strpos($strFILTER,"iblock_")===0)
+		elseif(mb_strpos($strFILTER, "iblock_") === 0)
 		{
 			foreach($arParams["arrFILTER_".$strFILTER] as $strIBlock)
 				$arCloudParams["arrFILTER_".$strFILTER] = $arParams["arrFILTER_".$strFILTER];

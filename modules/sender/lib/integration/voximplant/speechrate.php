@@ -68,7 +68,7 @@ class SpeechRate
 	 */
 	public function getDuration()
 	{
-		return strlen($this->text) * $this->getRatioPerChar();
+		return mb_strlen($this->text) * $this->getRatioPerChar();
 	}
 
 	private function getRatioPerChar()

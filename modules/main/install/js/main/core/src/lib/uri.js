@@ -7,6 +7,7 @@ const map = new WeakMap();
 
 /**
  * Implements interface for works with URI
+ * @memberOf BX
  */
 export default class Uri
 {

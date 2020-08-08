@@ -16,6 +16,6 @@ Loc::loadMessages(__FILE__);
 	<form action="<?= $params['URL']?>" method="post">
 		<input type="hidden" name="operation_xml" value="<?=$params['OPERATION_XML']?>" />
 		<input type="hidden" name="signature" value="<?=$params['SIGNATURE'];?>" />
-		<input type="submit" value="<?= GetMessage("PAYMENT_PAY")?>" class="btn btn-primary pl-4 pr-4"/>
+		<input type="submit" value="<?= GetMessage("PAYMENT_PAY")?>" class="btn btn-lg btn-success pl-4 pr-4" style="border-radius: 32px;"/>
 	</form>
 </div>

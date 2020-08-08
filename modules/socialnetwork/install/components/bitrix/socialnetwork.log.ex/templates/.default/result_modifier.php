@@ -1,4 +1,7 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+
+global $USER;
+
 if (IsModuleInstalled('tasks'))
 {
 	$userPage = \Bitrix\Main\Config\Option::get('socialnetwork', 'user_page', SITE_DIR.'company/personal/');
@@ -45,3 +48,33 @@ $arResult['TOP_RATING_DATA'] = (
 
 $arResult["FORM_TARGET_ID"] = $formTargetId;
 $arResult["INFORMER_TARGET_ID"] = $informerTargetId;
+
+$arResult["EMPTY_AJAX_FEED"] = (
+	$arResult["AJAX_CALL"]
+	&& (
+		!$arResult["Events"]
+		|| !is_array($arResult["Events"])
+		|| empty($arResult["Events"])
+	)
+);
+
+$arResult['PAGE_MODE'] = 'first';
+if ($arResult["bReload"])
+{
+	$arResult['PAGE_MODE'] = 'refresh';
+}
+elseif ($arResult["AJAX_CALL"])
+{
+	$arResult['PAGE_MODE'] = 'next';
+}
+
+$arResult["SHOW_NOTIFICATION_NOTASKS"] = false;
+if (
+	$arParams["IS_CRM"] != "Y"
+	&& $USER->isAuthorized()
+	&& !\Bitrix\Socialnetwork\ComponentHelper::checkLivefeedTasksAllowed()
+	&& \Bitrix\Main\ModuleManager::isModuleInstalled('tasks')
+)
+{
+	$arResult["SHOW_NOTIFICATION_NOTASKS"] = (\CUserOptions::getOption('socialnetwork', '~log_notasks_notification_read', 'N') != 'Y');
+}

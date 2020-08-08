@@ -41,12 +41,12 @@ class ModuleInstallStep extends \CWizardStep
 		if (isset($steps["NEXT_STEP"]))
 		{
 			$this->SetNextStep($steps["NEXT_STEP"]);
-			$this->SetNextCaption(Loc::getMessage("SALE_CSM_WIZARD_".strtoupper($shortClassName)."_NEXT"));
+			$this->SetNextCaption(Loc::getMessage("SALE_CSM_WIZARD_".mb_strtoupper($shortClassName)."_NEXT"));
 		}
 		if (isset($steps["PREV_STEP"]))
 		{
 			$this->SetPrevStep($steps["PREV_STEP"]);
-			$this->SetPrevCaption(Loc::getMessage("SALE_CSM_WIZARD_".strtoupper($shortClassName)."_PREV"));
+			$this->SetPrevCaption(Loc::getMessage("SALE_CSM_WIZARD_".mb_strtoupper($shortClassName)."_PREV"));
 		}
 	}
 
@@ -349,7 +349,7 @@ class ModuleInstallStep extends \CWizardStep
 		/** @noinspection PhpVariableNamingConventionInspection */
 		global $DB, $APPLICATION;
 
-		if (strtolower($DB->type) == "mysql" && defined("MYSQL_TABLE_TYPE") && strlen(MYSQL_TABLE_TYPE)>0)
+		if ($DB->type == "MYSQL" && defined("MYSQL_TABLE_TYPE") && MYSQL_TABLE_TYPE <> '')
 		{
 			$res = $DB->Query("SET storage_engine = '".MYSQL_TABLE_TYPE."'", true);
 			if(!$res)
@@ -395,7 +395,7 @@ class ModuleInstallStep extends \CWizardStep
 			}
 
 			$DB->RunSQLBatch(
-				$_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/'.$moduleId.'/install/db/'.strtolower($DB->type).'/install.sql'
+				$_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/'.$moduleId.'/install/db/'.mb_strtolower($DB->type).'/install.sql'
 			);
 
 			if ($this->checkModuleTables($moduleId) === false)

@@ -6,9 +6,7 @@ this.BX = this.BX || {};
 	 * @memberOf BX.Main.Popup
 	 * @deprecated use BX.UI.Button
 	 */
-	var Button =
-	/*#__PURE__*/
-	function () {
+	var Button = /*#__PURE__*/function () {
 	  function Button(params) {
 	    babelHelpers.classCallCheck(this, Button);
 	    this.popupWindow = null;
@@ -250,9 +248,7 @@ this.BX = this.BX || {};
 	 * @memberof BX.Main
 	 */
 
-	var Popup =
-	/*#__PURE__*/
-	function (_EventEmitter) {
+	var Popup = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(Popup, _EventEmitter);
 	  babelHelpers.createClass(Popup, null, [{
 	    key: "setOptions",
@@ -377,6 +373,7 @@ this.BX = this.BX || {};
 	    _this.handleResize = _this.handleResize.bind(babelHelpers.assertThisInitialized(_this));
 	    _this.handleMove = _this.handleMove.bind(babelHelpers.assertThisInitialized(_this));
 	    _this.onTitleMouseDown = _this.onTitleMouseDown.bind(babelHelpers.assertThisInitialized(_this));
+	    _this.handleFullScreen = _this.handleFullScreen.bind(babelHelpers.assertThisInitialized(_this));
 
 	    _this.subscribeFromOptions(params.events);
 
@@ -407,7 +404,7 @@ this.BX = this.BX || {};
 	      _this.closeIcon = main_core.Tag.render(_templateObject2(), className, _this.handleCloseIconClick.bind(babelHelpers.assertThisInitialized(_this)));
 
 	      if (main_core.Type.isPlainObject(params.closeIcon)) {
-	        main_core.Dom.adjust(_this.closeIcon, params.closeIcon);
+	        main_core.Dom.style(_this.closeIcon, params.closeIcon);
 	      }
 	    }
 	    /**
@@ -1664,12 +1661,17 @@ this.BX = this.BX || {};
 	          document.webkitCancelFullScreen();
 	        }
 	      } else {
-	        if (main_core.Browser.isChrome() || main_core.Browser.isSafari()) {
-	          this.contentContainer.webkitRequestFullScreen(this.contentContainer.ALLOW_KEYBOARD_INPUT);
-	          main_core.Event.bind(window, 'webkitfullscreenchange', this.fullscreenBind = this.eventFullScreen.bind(this));
-	        } else if (main_core.Browser.isFirefox()) {
-	          this.contentContainer.mozRequestFullScreen(this.contentContainer.ALLOW_KEYBOARD_INPUT);
-	          main_core.Event.bind(window, 'mozfullscreenchange', this.fullscreenBind = this.eventFullScreen.bind(this));
+	        if (this.contentContainer.requestFullScreen) {
+	          this.contentContainer.requestFullScreen();
+	          main_core.Event.bind(window, 'fullscreenchange', this.handleFullScreen);
+	        } else if (this.contentContainer.mozRequestFullScreen) {
+	          this.contentContainer.mozRequestFullScreen();
+	          main_core.Event.bind(window, 'mozfullscreenchange', this.handleFullScreen);
+	        } else if (this.contentContainer.webkitRequestFullScreen) {
+	          this.contentContainer.webkitRequestFullScreen();
+	          main_core.Event.bind(window, 'webkitfullscreenchange', this.handleFullScreen);
+	        } else {
+	          console.log('fullscreen mode is not supported');
 	        }
 	      }
 	    }
@@ -1678,26 +1680,27 @@ this.BX = this.BX || {};
 	     */
 
 	  }, {
-	    key: "eventFullScreen",
-	    value: function eventFullScreen(event) {
+	    key: "handleFullScreen",
+	    value: function handleFullScreen(event) {
 	      if (Popup.fullscreenStatus) {
-	        if (main_core.Browser.isChrome() || main_core.Browser.isSafari()) {
-	          main_core.Event.unbind(window, 'webkitfullscreenchange', this.fullscreenBind);
-	        } else if (main_core.Browser.isFirefox()) {
-	          main_core.Event.unbind(window, 'mozfullscreenchange', this.fullscreenBind);
-	        }
-
-	        main_core.Dom.removeClass(this.contentContainer, 'popup-window-fullscreen', [this.contentContainer]);
+	        main_core.Event.unbind(window, 'fullscreenchange', this.handleFullScreen);
+	        main_core.Event.unbind(window, 'webkitfullscreenchange', this.handleFullScreen);
+	        main_core.Event.unbind(window, 'mozfullscreenchange', this.handleFullScreen);
 	        Popup.fullscreenStatus = false;
-	        this.emit('onFullscreenLeave');
-	        this.adjustPosition();
+
+	        if (!this.isDestroyed()) {
+	          main_core.Dom.removeClass(this.contentContainer, 'popup-window-fullscreen');
+	          this.emit('onFullscreenLeave');
+	          this.adjustPosition();
+	        }
 	      } else {
-	        main_core.Dom.addClass(this.contentContainer, 'popup-window-fullscreen');
 	        Popup.fullscreenStatus = true;
-	        this.emit('onFullscreenEnter', new main_core_events.BaseEvent({
-	          compatData: [this.contentContainer]
-	        }));
-	        this.adjustPosition();
+
+	        if (!this.isDestroyed()) {
+	          main_core.Dom.addClass(this.contentContainer, 'popup-window-fullscreen');
+	          this.emit('onFullscreenEnter');
+	          this.adjustPosition();
+	        }
 	      }
 	    }
 	    /**
@@ -1938,9 +1941,7 @@ this.BX = this.BX || {};
 	  }
 	}
 
-	var PopupManager =
-	/*#__PURE__*/
-	function () {
+	var PopupManager = /*#__PURE__*/function () {
 	  function PopupManager() {
 	    babelHelpers.classCallCheck(this, PopupManager);
 	    throw new Error('You cannot make an instance of PopupManager.');
@@ -2103,9 +2104,7 @@ this.BX = this.BX || {};
 	};
 	main_core_events.EventEmitter.registerAliases(aliases$1);
 
-	var MenuItem =
-	/*#__PURE__*/
-	function (_EventEmitter) {
+	var MenuItem = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(MenuItem, _EventEmitter);
 
 	  function MenuItem(options) {
@@ -2606,9 +2605,7 @@ this.BX = this.BX || {};
 	/**
 	 * @memberof BX.Main
 	 */
-	var Menu =
-	/*#__PURE__*/
-	function () {
+	var Menu = /*#__PURE__*/function () {
 	  function Menu(options) {
 	    babelHelpers.classCallCheck(this, Menu);
 
@@ -2937,13 +2934,16 @@ this.BX = this.BX || {};
 
 	      return -1;
 	    }
+	  }, {
+	    key: "getMenuContainer",
+	    value: function getMenuContainer() {
+	      return this.getPopupWindow().getPopupContainer();
+	    }
 	  }]);
 	  return Menu;
 	}();
 
-	var MenuManager =
-	/*#__PURE__*/
-	function () {
+	var MenuManager = /*#__PURE__*/function () {
 	  /**
 	   * @private
 	   */
@@ -3044,9 +3044,7 @@ this.BX = this.BX || {};
 	 * @deprecated use Popup class instead: import { Popup } from 'main.popup'
 	 */
 
-	var PopupWindow =
-	/*#__PURE__*/
-	function (_Popup) {
+	var PopupWindow = /*#__PURE__*/function (_Popup) {
 	  babelHelpers.inherits(PopupWindow, _Popup);
 
 	  function PopupWindow() {
@@ -3061,9 +3059,7 @@ this.BX = this.BX || {};
 	 * @deprecated use BX.UI.Button
 	 */
 
-	var PopupWindowButton =
-	/*#__PURE__*/
-	function (_Button) {
+	var PopupWindowButton = /*#__PURE__*/function (_Button) {
 	  babelHelpers.inherits(PopupWindowButton, _Button);
 
 	  function PopupWindowButton() {
@@ -3078,9 +3074,7 @@ this.BX = this.BX || {};
 	 * @deprecated use BX.UI.Button
 	 */
 
-	var ButtonLink =
-	/*#__PURE__*/
-	function (_Button) {
+	var ButtonLink = /*#__PURE__*/function (_Button) {
 	  babelHelpers.inherits(ButtonLink, _Button);
 
 	  function ButtonLink(params) {
@@ -3106,9 +3100,7 @@ this.BX = this.BX || {};
 	 * @deprecated use BX.UI.Button
 	 */
 
-	var PopupWindowButtonLink =
-	/*#__PURE__*/
-	function (_ButtonLink) {
+	var PopupWindowButtonLink = /*#__PURE__*/function (_ButtonLink) {
 	  babelHelpers.inherits(PopupWindowButtonLink, _ButtonLink);
 
 	  function PopupWindowButtonLink() {
@@ -3123,9 +3115,7 @@ this.BX = this.BX || {};
 	 * @deprecated use BX.UI.Button
 	 */
 
-	var CustomButton =
-	/*#__PURE__*/
-	function (_Button) {
+	var CustomButton = /*#__PURE__*/function (_Button) {
 	  babelHelpers.inherits(CustomButton, _Button);
 
 	  function CustomButton(params) {
@@ -3151,9 +3141,7 @@ this.BX = this.BX || {};
 	 * @deprecated use BX.UI.Button
 	 */
 
-	var PopupWindowCustomButton =
-	/*#__PURE__*/
-	function (_CustomButton) {
+	var PopupWindowCustomButton = /*#__PURE__*/function (_CustomButton) {
 	  babelHelpers.inherits(PopupWindowCustomButton, _CustomButton);
 
 	  function PopupWindowCustomButton() {
@@ -3168,9 +3156,7 @@ this.BX = this.BX || {};
 	 * @deprecated use Menu class instead: import { Menu } from 'main.popup'
 	 */
 
-	var PopupMenuWindow =
-	/*#__PURE__*/
-	function (_Menu) {
+	var PopupMenuWindow = /*#__PURE__*/function (_Menu) {
 	  babelHelpers.inherits(PopupMenuWindow, _Menu);
 
 	  function PopupMenuWindow() {
@@ -3185,9 +3171,7 @@ this.BX = this.BX || {};
 	 * @deprecated use Menu.Item class instead: import { MenuItem } from 'main.popup'
 	 */
 
-	var PopupMenuItem =
-	/*#__PURE__*/
-	function (_MenuItem) {
+	var PopupMenuItem = /*#__PURE__*/function (_MenuItem) {
 	  babelHelpers.inherits(PopupMenuItem, _MenuItem);
 
 	  function PopupMenuItem() {
@@ -3202,9 +3186,7 @@ this.BX = this.BX || {};
 	 * @deprecated
 	 */
 
-	var InputPopup =
-	/*#__PURE__*/
-	function () {
+	var InputPopup = /*#__PURE__*/function () {
 	  function InputPopup(params) {
 	    babelHelpers.classCallCheck(this, InputPopup);
 	    this.id = params.id || 'bx-inp-popup-' + Math.round(Math.random() * 1000000);

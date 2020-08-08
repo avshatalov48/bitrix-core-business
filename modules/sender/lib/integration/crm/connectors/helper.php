@@ -8,23 +8,21 @@
 
 namespace Bitrix\Sender\Integration\Crm\Connectors;
 
+use Bitrix\Crm\CompanyTable;
+use Bitrix\Crm\ContactTable;
+use Bitrix\Crm\LeadTable;
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\DB\SqlExpression;
+use Bitrix\Main\Entity;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Entity;
 use Bitrix\Main\Orm;
-use Bitrix\Main\UI\Filter\Type as UiFilterType;
 use Bitrix\Main\UI\Filter\AdditionalDateType;
-
-use Bitrix\Crm\CompanyTable;
-use Bitrix\Crm\LeadTable;
-use Bitrix\Crm\ContactTable;
-
-use Bitrix\Sender\Recipient;
+use Bitrix\Main\UI\Filter\Type as UiFilterType;
 use Bitrix\Sender\Connector;
 use Bitrix\Sender\Integration;
+use Bitrix\Sender\Recipient;
 
 Loc::loadMessages(__FILE__);
 
@@ -171,17 +169,17 @@ class Helper
 			],
 			Recipient\Type::CRM_CONTACT_ID => [
 				'name' => 'CONTACT_ID',
-				'operator' => '>',
-				'value' => 0
+				'operator' => null,
+				'value' => null
 			],
 			Recipient\Type::CRM_COMPANY_ID => [
 				'name' => 'COMPANY_ID',
-				'operator' => '>',
-				'value' => 0
+				'operator' => null,
+				'value' => null
 			],
 		);
 
-		$entityName = strtoupper($query->getEntity()->getName());
+		$entityName = mb_strtoupper($query->getEntity()->getName());
 
 		if ($dataTypeId)
 		{
@@ -191,6 +189,11 @@ class Helper
 			}
 
 			$field = $map[$dataTypeId];
+
+			if($field['operator'] === null)
+			{
+				return $query;
+			}
 
 			if ($dataTypeId == Recipient\Type::CRM_COMPANY_ID && in_array($entityName, ['CONTACT']))
 			{
@@ -208,6 +211,10 @@ class Helper
 			$filter = Entity\Query::filter();
 			foreach ($map as $dataTypeId => $field)
 			{
+				if($field['operator'] === null)
+				{
+					continue;
+				}
 				if ($dataTypeId === Recipient\Type::IM)
 				{
 					$filter->where(
@@ -241,7 +248,7 @@ class Helper
 			$codes = array('livechat', 'network');
 		}
 
-		$entityTypeName = strtoupper($query->getEntity()->getName());
+		$entityTypeName = mb_strtoupper($query->getEntity()->getName());
 		$filterImolSql = "SELECT FM.VALUE " .
 			"FROM b_crm_field_multi FM " .
 			"WHERE FM.ENTITY_ID = '$entityTypeName' AND FM.ELEMENT_ID = ?#.ID " .
@@ -341,14 +348,14 @@ class Helper
 			foreach ($map as $prefix => $entityTypes)
 			{
 				$search = $prefix . '_';
-				if (strpos($id, $search) !== 0)
+				if (mb_strpos($id, $search) !== 0)
 				{
 					continue;
 				}
 
 				foreach ($entityTypes as $entityTypeName)
 				{
-					$filterKey = "$entityTypeName." . substr($id, strlen($search));
+					$filterKey = "$entityTypeName.".mb_substr($id, mb_strlen($search));
 					if (!self::isFieldTypeFilter($field['type']))
 					{
 						$filterKey = "=$filterKey";
@@ -440,7 +447,20 @@ class Helper
 
 			$id = $field['id'];
 			$value = $values[$id];
-			$value = $isMultiple && !is_array($value) ? array($value) : $value;
+			$value = $isMultiple && !is_array($value) ? array($value) :
+				($value === "" ? null:$value);
+
+			if($isMultiple)
+			{
+				foreach($value as &$val)
+				{
+					if($val === "")
+					{
+						$val = null;
+					}
+				}
+			}
+
 			$field['value'] = $value;
 
 			if ($field['filter_callback'])
@@ -505,13 +525,13 @@ class Helper
 			UiFilterType::NUMBER,
 			UiFilterType::DEST_SELECTOR
 		);
-		return in_array(strtoupper($type), $types);
+		return in_array(mb_strtoupper($type), $types);
 	}
 
 	protected static function setFieldTypeFilter($filterKey, array $fieldData, &$filter)
 	{
 		$fieldData['filter-key'] = $filterKey;
-		switch (strtoupper($fieldData['type']))
+		switch(mb_strtoupper($fieldData['type']))
 		{
 			case UiFilterType::DATE:
 				Connector\Filter\DateField::create($fieldData)->applyFilter($filter);

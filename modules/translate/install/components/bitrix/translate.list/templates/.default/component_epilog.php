@@ -13,9 +13,11 @@ else
 	$APPLICATION->SetAdditionalCSS('/bitrix/css/main/grid/webform-button.css');
 }
 
-
-\CUtil::InitJSCore(array('translate_process'));
-
-\Bitrix\Main\UI\Extension::load(['ui.buttons', 'ui.icons', 'ui.buttons.icons', 'ui.alerts', 'ui.notification']);
-
-
+\Bitrix\Main\UI\Extension::load([
+	'ui.buttons',
+	'ui.icons',
+	'ui.buttons.icons',
+	'ui.alerts',
+	'ui.notification',
+	'translate.process',
+]);

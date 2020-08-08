@@ -133,7 +133,7 @@ class CSocServVKontakte extends CSocServAuth
 
 			$arFields["PERSONAL_WWW"] = self::getProfileUrl($arVkUser['response']['0']['id']);
 
-			if (strlen(SITE_ID) > 0)
+			if (SITE_ID <> '')
 			{
 				$arFields["SITE_ID"] = SITE_ID;
 			}
@@ -181,7 +181,7 @@ class CSocServVKontakte extends CSocServAuth
 			{
 				foreach ($aRemove as $param)
 				{
-					if (strpos($value, $param . "=") === 0)
+					if (mb_strpos($value, $param."=") === 0)
 					{
 						unset($arUrlQuery[$key]);
 						break;
@@ -201,7 +201,7 @@ class CSocServVKontakte extends CSocServAuth
 			$url = (isset($urlPath)) ? $urlPath . '?auth_service_id=' . self::ID . '&auth_service_error=' . $bSuccess : $GLOBALS['APPLICATION']->GetCurPageParam(('auth_service_id=' . self::ID . '&auth_service_error=' . $bSuccess), $aRemove);
 		}
 
-		if (CModule::IncludeModule("socialnetwork") && strpos($url, "current_fieldset=") === false)
+		if (CModule::IncludeModule("socialnetwork") && mb_strpos($url, "current_fieldset=") === false)
 		{
 			$url = (preg_match("/\?/", $url)) ? $url . "&current_fieldset=SOCSERV" : $url . "?current_fieldset=SOCSERV";
 		}
@@ -277,12 +277,15 @@ class CVKontakteOAuthInterface extends CSocServOAuthTransport
 {
 	const SERVICE_ID = "VKontakte";
 
+	// https://vk.com/dev/constant_version_updates
 	const AUTH_URL = "https://oauth.vk.com/authorize";
 	const TOKEN_URL = "https://oauth.vk.com/access_token";
 	const CONTACTS_URL = "https://api.vk.com/method/users.get";
 	const FRIENDS_URL = "https://api.vk.com/method/friends.get";
 	const MESSAGE_URL = "https://api.vk.com/method/messages.send";
 	const APP_URL = "https://api.vk.com/method/apps.get";
+	// https://vk.com/dev/versions
+	const API_VERSION = "5.107";
 
 	protected $userID = false;
 	protected $userEmail = false;
@@ -362,7 +365,7 @@ class CVKontakteOAuthInterface extends CSocServOAuthTransport
 
 		foreach ($arResult as $key => $value)
 		{
-			if (strpos($key, 'access_token_') === 0)
+			if (mb_strpos($key, 'access_token_') === 0)
 			{
 				$this->access_token = $value;
 				$this->userID = null;
@@ -400,7 +403,7 @@ class CVKontakteOAuthInterface extends CSocServOAuthTransport
 		));
 
 
-		$result = $h->get(self::CONTACTS_URL . '?v=5.8&fields=uid,first_name,last_name,nickname,screen_name,sex,bdate,city,country,timezone,photo,photo_medium,photo_max_orig,photo_rec,email&access_token=' . urlencode($this->access_token));
+		$result = $h->get(self::CONTACTS_URL . '?v='.self::API_VERSION.'&fields=uid,first_name,last_name,nickname,screen_name,sex,bdate,city,country,timezone,photo,photo_medium,photo_max_orig,photo_rec,email&access_token=' . urlencode($this->access_token));
 
 		try
 		{
@@ -421,7 +424,7 @@ class CVKontakteOAuthInterface extends CSocServOAuthTransport
 		$h = new \Bitrix\Main\Web\HttpClient();
 		$h->setTimeout($this->httpTimeout);
 
-		$result = $h->get(self::APP_URL . '?v=5.8&fields=id&access_token=' . urlencode($this->access_token));
+		$result = $h->get(self::APP_URL . '?v='.self::API_VERSION.'&fields=id&access_token=' . urlencode($this->access_token));
 
 		try
 		{
@@ -431,7 +434,7 @@ class CVKontakteOAuthInterface extends CSocServOAuthTransport
 			$result = array();
 		}
 
-		return $result['response'];
+		return $result['response']['items'][0];
 	}
 
 	public function GetCurrentUserEmail()
@@ -446,7 +449,7 @@ class CVKontakteOAuthInterface extends CSocServOAuthTransport
 			return false;
 		}
 
-		$url = self::FRIENDS_URL . '?v=5.8&uids=' . $this->userID . '&fields=uid,first_name,last_name,nickname,screen_name,photo_200_orig,contacts,email&access_token=' . urlencode($this->access_token);
+		$url = self::FRIENDS_URL . '?v='.self::API_VERSION.'&uids=' . $this->userID . '&fields=uid,first_name,last_name,nickname,screen_name,photo_200_orig,contacts,email&access_token=' . urlencode($this->access_token);
 
 		if ($limit > 0)
 		{

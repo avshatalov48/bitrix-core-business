@@ -24,6 +24,9 @@ class CIBlockPropertyElementList
 			"PrepareSettings" =>array(__CLASS__, "PrepareSettings"),
 			"GetSettingsHTML" =>array(__CLASS__, "GetSettingsHTML"),
 			"GetExtendedValue" => array(__CLASS__,  "GetExtendedValue"),
+			'GetUIEntityEditorProperty' => array(__CLASS__, 'GetUIEntityEditorProperty'),
+			'GetUIEntityEditorPropertyEditHtml' => array(__CLASS__, 'GetUIEntityEditorPropertyEditHtml'),
+			'GetUIEntityEditorPropertyViewHtml' => array(__CLASS__, 'GetUIEntityEditorPropertyViewHtml'),
 		);
 	}
 
@@ -163,7 +166,7 @@ class CIBlockPropertyElementList
 		}
 		else
 		{
-			if(end($values) != "" || substr(key($values), 0, 1) != "n")
+			if(end($values) != "" || mb_substr(key($values), 0, 1) != "n")
 				$values["n".($max_n+1)] = "";
 
 			$name = $strHTMLControlName["VALUE"]."VALUE";
@@ -436,7 +439,7 @@ class CIBlockPropertyElementList
 	public static function GetExtendedValue($arProperty, $value)
 	{
 		$html = self::GetPublicViewHTML($arProperty, $value, array('MODE' => 'SIMPLE_TEXT'));
-		if (strlen($html))
+		if($html <> '')
 		{
 			$text = htmlspecialcharsback($html);
 			return array(
@@ -509,5 +512,37 @@ class CIBlockPropertyElementList
 			}
 		}
 		return $cache[$IBLOCK_ID];
+	}
+
+	public static function GetUIEntityEditorProperty($settings, $value)
+	{
+		return [
+			'type' => 'custom'
+		];
+	}
+
+	public static function GetUIEntityEditorPropertyEditHtml(array $params = []) : string
+	{
+		$settings = $params['SETTINGS'] ?? [];
+		$value = $params['VALUE'] ?? '';
+		$paramsHTMLControl = [
+			'MODE' => 'iblock_element_admin',
+			'VALUE' => $params['FIELD_NAME'] ?? '',
+		];
+		return self::GetPropertyFieldHtml($settings, $value, $paramsHTMLControl);
+	}
+
+	public static function GetUIEntityEditorPropertyViewHtml(array $params = []) : string
+	{
+		$settings = $params['SETTINGS'] ?? [];
+		$value = $params['VALUE'] ?? '';
+		return self::GetPublicViewHTML(
+			$settings,
+			['VALUE' => $value],
+			[
+				'MODE' => 'FORM_FILL',
+				'VALUE' => $params['FIELD_NAME'] ?? '',
+			]
+		);
 	}
 }

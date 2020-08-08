@@ -49,7 +49,7 @@ use Bitrix\Highloadblock as HL;
 // select data
 $rsData = HL\HighloadBlockTable::getList(array(
 	"select" => $lAdmin->GetVisibleHeaderColumns(),
-	"order" => array($by => strtoupper($order))
+	"order" => array($by => mb_strtoupper($order))
 ));
 
 $rsData = new CAdminResult($rsData, $sTableID);

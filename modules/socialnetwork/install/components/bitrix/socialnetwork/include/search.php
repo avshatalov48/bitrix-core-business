@@ -2,14 +2,14 @@
 <?
 $arParams["SEARCH_FILTER_NAME"] = (
 	isset($arParams["SEARCH_FILTER_NAME"])
-	&& strlen($arParams["SEARCH_FILTER_NAME"]) > 0
+	&& $arParams["SEARCH_FILTER_NAME"] <> ''
 		? $arParams["SEARCH_FILTER_NAME"]
 		: "sonet_search_filter"
 );
 
 $arParams["SEARCH_FILTER_DATE_NAME"] = (
 	isset($arParams["SEARCH_FILTER_DATE_NAME"])
-	&& strlen($arParams["SEARCH_FILTER_DATE_NAME"]) > 0
+	&& $arParams["SEARCH_FILTER_DATE_NAME"] <> ''
 		? $arParams["SEARCH_FILTER_DATE_NAME"]
 		: "sonet_search_filter_date"
 );
@@ -30,7 +30,7 @@ $arParams["SEARCH_USE_LANGUAGE_GUESS"] = (
 
 global ${$arParams["SEARCH_FILTER_NAME"]}, $sonet_search_settings;
 $sonet_search_filter = array();
-$EntityType = (strpos($componentPage, "group_content_search") !== false ? SONET_ENTITY_GROUP : SONET_ENTITY_USER);
+$EntityType = (mb_strpos($componentPage, "group_content_search") !== false ? SONET_ENTITY_GROUP : SONET_ENTITY_USER);
 
 $sFilterDateTo = $_REQUEST[$arParams["SEARCH_FILTER_DATE_NAME"]."_to"];
 if ($arr = ParseDateTime($_REQUEST[$arParams["SEARCH_FILTER_DATE_NAME"]."_to"]))
@@ -50,11 +50,11 @@ if ($arr = ParseDateTime($_REQUEST[$arParams["SEARCH_FILTER_DATE_NAME"]."_to"]))
 	}
 }
 
-if (strlen($_REQUEST[$arParams["SEARCH_FILTER_NAME"]]) > 0)
+if ($_REQUEST[$arParams["SEARCH_FILTER_NAME"]] <> '')
 	$sonet_search_filter["SONET_FEATURE"] = $_REQUEST[$arParams["SEARCH_FILTER_NAME"]];
-if (strlen($_REQUEST[$arParams["SEARCH_FILTER_DATE_NAME"]."_from"]) > 0)
+if ($_REQUEST[$arParams["SEARCH_FILTER_DATE_NAME"]."_from"] <> '')
 	$sonet_search_filter[">=DATE_CHANGE"] = $_REQUEST[$arParams["SEARCH_FILTER_DATE_NAME"]."_from"];
-if (strlen($sFilterDateTo) > 0)
+if ($sFilterDateTo <> '')
 	$sonet_search_filter["<=DATE_CHANGE"] = $sFilterDateTo;
 
 $sonet_search_settings = array(
@@ -91,14 +91,14 @@ class CSocNetSearchComponent
 					case "photo":
 						$iblock_type = $GLOBALS["sonet_search_settings"]["PHOTO_IBLOCK_TYPE"];
 						$iblock_id = $GLOBALS["sonet_search_settings"]["PHOTO_IBLOCK_ID"];
-						if (strlen($iblock_type) > 0 && intval($iblock_id) > 0)
+						if ($iblock_type <> '' && intval($iblock_id) > 0)
 							return " ".$strSearchContentAlias."MODULE_ID = 'socialnetwork' AND ".$strSearchContentAlias."PARAM1 = '".$iblock_type."' AND ".$strSearchContentAlias."PARAM2 = ".$iblock_id;
 						else
 							return " 1=0";
 					case "files":
 						$iblock_type = $GLOBALS["sonet_search_settings"]["FILES_IBLOCK_TYPE"];
 						$iblock_id = $GLOBALS["sonet_search_settings"]["FILES_IBLOCK_ID"];
-						if (strlen($iblock_type) > 0 && intval($iblock_id) > 0)
+						if ($iblock_type <> '' && intval($iblock_id) > 0)
 							return " ".$strSearchContentAlias."MODULE_ID = 'socialnetwork' AND ".$strSearchContentAlias."PARAM1 = '".$iblock_type."' AND ".$strSearchContentAlias."PARAM2 = ".$iblock_id;
 						else
 							return " 1=0";
@@ -114,7 +114,7 @@ class CSocNetSearchComponent
 	}
 }
 
-if (strpos($componentPage, "user_content_search") === false)
+if (mb_strpos($componentPage, "user_content_search") === false)
 {
 	$arGroup = CSocNetGroup::GetByID($arResult["VARIABLES"]["group_id"]);
 	$APPLICATION->AddChainItem($arGroup["NAME"], CComponentEngine::MakePathFromTemplate(htmlspecialcharsbx($arResult["PATH_TO_GROUP"]), array("group_id" => $arGroup["ID"])));
@@ -124,7 +124,7 @@ else
 	$dbUser = CUser::GetByID($arResult["VARIABLES"]["user_id"]);
 	$arUser = $dbUser->Fetch();
 	
-	if (strlen($arParams["NAME_TEMPLATE"]) <= 0)		
+	if ($arParams["NAME_TEMPLATE"] == '')
 		$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 				
 	$arParams["TITLE_NAME_TEMPLATE"] = str_replace(
@@ -140,10 +140,10 @@ else
 }
 
 $feature = "search";
-$arEntityActiveFeatures = CSocNetFeatures::GetActiveFeaturesNames(((strpos($componentPage, "user_content_search") === false) ? SONET_ENTITY_GROUP : SONET_ENTITY_USER), ((strpos($componentPage, "user_content_search") === false) ? $arResult["VARIABLES"]["group_id"] : $arResult["VARIABLES"]["user_id"]));		
-$strFeatureTitle = ((array_key_exists($feature, $arEntityActiveFeatures) && StrLen($arEntityActiveFeatures[$feature]) > 0) ? $arEntityActiveFeatures[$feature] : GetMessage("SONET_CONTENT_SEARCH_CHAIN"));
+$arEntityActiveFeatures = CSocNetFeatures::GetActiveFeaturesNames(((mb_strpos($componentPage, "user_content_search") === false) ? SONET_ENTITY_GROUP : SONET_ENTITY_USER), ((mb_strpos($componentPage, "user_content_search") === false) ? $arResult["VARIABLES"]["group_id"] : $arResult["VARIABLES"]["user_id"]));
+$strFeatureTitle = ((array_key_exists($feature, $arEntityActiveFeatures) && $arEntityActiveFeatures[$feature] <> '') ? $arEntityActiveFeatures[$feature] : GetMessage("SONET_CONTENT_SEARCH_CHAIN"));
 
-if (strpos($componentPage, "user_content_search") === false)
+if (mb_strpos($componentPage, "user_content_search") === false)
 	$url = CComponentEngine::MakePathFromTemplate(htmlspecialcharsbx($arResult["PATH_TO_GROUP_CONTENT_SEARCH"]), array("group_id" => $arResult["VARIABLES"]["group_id"]));
 else
 	$url = CComponentEngine::MakePathFromTemplate(htmlspecialcharsbx($arResult["PATH_TO_USER_CONTENT_SEARCH"]), array("user_id" => $arResult["VARIABLES"]["user_id"]));

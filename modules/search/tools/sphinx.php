@@ -845,7 +845,7 @@ class CSearchSphinx extends CSearchFullText
 
 		foreach($arFilter as $field=>$val)
 		{
-			$field = strtoupper($field);
+			$field = mb_strtoupper($field);
 			if(
 				is_array($val)
 				&& count($val) == 1
@@ -889,15 +889,15 @@ class CSearchSphinx extends CSearchFullText
 					$arWhere[] = "param2_id <> ".sprintf("%u", crc32($val));
 				break;
 			case "DATE_CHANGE":
-				if(strlen($val) > 0)
+				if($val <> '')
 					$arWhere[] = "date_change >= ".intval(MakeTimeStamp($val)-CTimeZone::GetOffset());
 				break;
 			case "<=DATE_CHANGE":
-				if(strlen($val) > 0)
+				if($val <> '')
 					$arWhere[] = "date_change <= ".intval(MakeTimeStamp($val)-CTimeZone::GetOffset());
 				break;
 			case ">=DATE_CHANGE":
-				if(strlen($val) > 0)
+				if($val <> '')
 					$arWhere[] = "date_change >= ".intval(MakeTimeStamp($val)-CTimeZone::GetOffset());
 				break;
 			case "SITE_ID":
@@ -974,7 +974,7 @@ class CSearchSphinx extends CSearchFullText
 				}
 				else
 				{
-					AddMessage2Log("field: $field; val: ".print_r($val, 1));
+					//AddMessage2Log("field: $field; val: ".print_r($val, 1));
 				}
 				break;
 			}
@@ -1027,8 +1027,8 @@ class CSearchSphinx extends CSearchFullText
 		$this->flagsUseRatingSort = 0;
 		foreach($aSort as $key => $ord)
 		{
-			$ord = strtoupper($ord) <> "ASC"? "DESC": "ASC";
-			$key = strtolower($key);
+			$ord = mb_strtoupper($ord) <> "ASC"? "DESC": "ASC";
+			$key = mb_strtolower($key);
 			switch($key)
 			{
 				case "date_change":
@@ -1143,7 +1143,7 @@ class CSearchSphinx extends CSearchFullText
 		{
 			$result = mysqli_init();
 
-			if (strpos($connectionIndex, ":") !== false)
+			if (mb_strpos($connectionIndex, ":") !== false)
 			{
 				list($host, $port) = explode(":", $connectionIndex, 2);
 			}
@@ -1270,31 +1270,58 @@ class CSearchSphinxFormatter extends CSearchFormatter
 	function formatRow($r)
 	{
 		$DB = CDatabase::GetModuleConnection('search');
-		$rs = $DB->Query("
-			select
-				sc.ID
-				,sc.MODULE_ID
-				,sc.ITEM_ID
-				,sc.TITLE
-				,sc.TAGS
-				,sc.BODY
-				,sc.PARAM1
-				,sc.PARAM2
-				,sc.UPD
-				,sc.DATE_FROM
-				,sc.DATE_TO
-				,sc.URL
-				,sc.CUSTOM_RANK
-				,".$DB->DateToCharFunction("sc.DATE_CHANGE")." as FULL_DATE_CHANGE
-				,".$DB->DateToCharFunction("sc.DATE_CHANGE", "SHORT")." as DATE_CHANGE
-				,scsite.SITE_ID
-				,scsite.URL SITE_URL
-				".(BX_SEARCH_VERSION > 1? ",sc.USER_ID": "")."
-			from b_search_content sc
-			INNER JOIN b_search_content_site scsite ON sc.ID=scsite.SEARCH_CONTENT_ID
-			where ID = ".$r["id"]."
-			and scsite.SITE_ID = '".$DB->ForSql($this->sphinx->SITE_ID)."'
-		");
+		if ($this->sphinx->SITE_ID)
+		{
+			$rs = $DB->Query("
+				select
+					sc.ID
+					,sc.MODULE_ID
+					,sc.ITEM_ID
+					,sc.TITLE
+					,sc.TAGS
+					,sc.BODY
+					,sc.PARAM1
+					,sc.PARAM2
+					,sc.UPD
+					,sc.DATE_FROM
+					,sc.DATE_TO
+					,sc.URL
+					,sc.CUSTOM_RANK
+					,".$DB->DateToCharFunction("sc.DATE_CHANGE")." as FULL_DATE_CHANGE
+					,".$DB->DateToCharFunction("sc.DATE_CHANGE", "SHORT")." as DATE_CHANGE
+					,scsite.SITE_ID
+					,scsite.URL SITE_URL
+					".(BX_SEARCH_VERSION > 1? ",sc.USER_ID": "")."
+				from b_search_content sc
+				INNER JOIN b_search_content_site scsite ON sc.ID=scsite.SEARCH_CONTENT_ID
+				where ID = ".$r["id"]."
+				and scsite.SITE_ID = '".$DB->ForSql($this->sphinx->SITE_ID)."'
+			");
+		}
+		else
+		{
+			$rs = $DB->Query("
+				select
+					sc.ID
+					,sc.MODULE_ID
+					,sc.ITEM_ID
+					,sc.TITLE
+					,sc.TAGS
+					,sc.BODY
+					,sc.PARAM1
+					,sc.PARAM2
+					,sc.UPD
+					,sc.DATE_FROM
+					,sc.DATE_TO
+					,sc.URL
+					,sc.CUSTOM_RANK
+					,".$DB->DateToCharFunction("sc.DATE_CHANGE")." as FULL_DATE_CHANGE
+					,".$DB->DateToCharFunction("sc.DATE_CHANGE", "SHORT")." as DATE_CHANGE
+					".(BX_SEARCH_VERSION < 1? ",sc.LID as SITE_ID": "")."
+				from b_search_content sc
+				where ID = ".$r["id"]."
+			");
+		}
 		$r = $rs->Fetch();
 		if ($r)
 		{

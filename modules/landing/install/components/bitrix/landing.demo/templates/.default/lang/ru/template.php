@@ -10,4 +10,6 @@ $MESS["LANDING_TPL_EMPTY_REPO_SERVICE"] = "Сервис демо-шаблоно�
 $MESS["LANDING_TPL_EMPTY_REPO_EXPIRED"] = "Лицензия вашего продукта закончилась";
 $MESS["LANDING_TPL_EMPTY_REPO_EXPIRED_LINK"] = "Пожалуйста, #LINK1#продлите лицензию#LINK2#";
 $MESS["LANDING_TPL_LOAD_APP_TEMPLATE"] = "<span>Загрузить</span> шаблон из Приложения24";
+$MESS["LANDING_TPL_LABEL_NEW"] = "новое";
+$MESS["LANDING_TPL_DESIGNED_BY"] = "Сделано в компании &laquo;#DESIGNER#&raquo;";
 ?>

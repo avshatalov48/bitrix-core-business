@@ -27,18 +27,18 @@ $db = CBPWorkflowTemplateLoader::GetList(
 if ($ar = $db->Fetch())
 	$workflowTemplateId = intval($ar["ID"]);
 
-if (strLen($arResult["ALIASES"]["page"]) <= 0)
+if ($arResult["ALIASES"]["page"] == '')
 	$arResult["ALIASES"]["page"] = "page";
-if (strLen($arResult["ALIASES"]["block_id"]) <= 0)
+if ($arResult["ALIASES"]["block_id"] == '')
 	$arResult["ALIASES"]["block_id"] = "block_id";
 
 $pathToBP = trim($arResult["PATH_TO_BP"]);
-if (strlen($pathToBP) <= 0)
+if ($pathToBP == '')
 	$pathToBP = $APPLICATION->GetCurPage()."?".$arResult["ALIASES"]["page"]."=bp&".$arResult["ALIASES"]["block_id"]."=#block_id#";
-$pathToBP = $pathToBP.((strpos($pathToBP, "?") === false) ? "?" : "&").bitrix_sessid_get();
+$pathToBP = $pathToBP.((mb_strpos($pathToBP, "?") === false) ? "?" : "&").bitrix_sessid_get();
 
 $pathToList = trim($arResult["PATH_TO_LIST"]);
-if (strlen($pathToList) <= 0)
+if ($pathToList == '')
 	$pathToList = $APPLICATION->GetCurPage()."?".$arResult["ALIASES"]["page"]."=list&".$arResult["ALIASES"]["block_id"]."=#block_id#";
 
 $APPLICATION->IncludeComponent(

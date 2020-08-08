@@ -5,255 +5,156 @@ use Bitrix\Currency\CurrencyManager;
 use Bitrix\Currency\Helpers\Editor;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Security\Random;
+use Bitrix\Currency\UserField\Types\MoneyType;
 use Bitrix\Main\UserField\TypeBase;
 
 Loc::loadLanguageFile(__FILE__);
 
+/**
+ * Class Money
+ * @package Bitrix\Currency\UserField
+ * @deprecated
+ */
+
 class Money extends TypeBase
 {
-	const USER_TYPE_ID = 'money';
-	const DB_SEPARATOR = '|';
+	const USER_TYPE_ID = MoneyType::USER_TYPE_ID;
+	const DB_SEPARATOR = MoneyType::DB_SEPARATOR;
 
+	/**
+	 * @return array
+	 */
 	public static function getUserTypeDescription()
 	{
-		return array(
-			"USER_TYPE_ID" => static::USER_TYPE_ID,
-			"CLASS_NAME" => __CLASS__,
-			"DESCRIPTION" => Loc::getMessage("USER_TYPE_MONEY_DESCRIPTION"),
-			"BASE_TYPE" => 'string',//\CUserTypeManager::BASE_TYPE_STRING,
-			"EDIT_CALLBACK" => array(__CLASS__, 'GetPublicEdit'),
-			"VIEW_CALLBACK" => array(__CLASS__, 'GetPublicView'),
-		);
+		return MoneyType::getUserTypeDescription();
 	}
 
-	public static function GetDBColumnType($userField)
+	/**
+	 * @param $userField
+	 * @param array $additionalParameters
+	 * @return string
+	 */
+	public static function getPublicView($userField, $additionalParameters = [])
 	{
-		global $DB;
-		switch(strtolower($DB->type))
-		{
-			case "mysql":
-				return "varchar(200)";
-			case "oracle":
-				return "varchar2(200 char)";
-			case "mssql":
-				return "varchar(200)";
-		}
-		return '';
+		return MoneyType::renderView($userField, $additionalParameters);
 	}
 
-	public static function OnBeforeSave($userField, $value)
+	/**
+	 * @param $userField
+	 * @param array $additionalParameters
+	 * @return string
+	 */
+	public static function getPublicEdit($userField, $additionalParameters = [])
 	{
-		list($value, $currency) = static::unFormatFromDB($value);
-		if($value !== '')
-			return static::formatToDB($value, $currency);
-		else
-			return '';
+		return MoneyType::renderEdit($userField, $additionalParameters);
 	}
 
-	public static function PrepareSettings($userField)
+	/**
+	 * @param array|bool $userField
+	 * @param $additionalParameters
+	 * @param $fromForm
+	 * @return string
+	 */
+	public static function getSettingsHtml($userField = false, $additionalParameters, $fromForm)
 	{
-		list($value, $currency) = static::unFormatFromDB($userField["SETTINGS"]["DEFAULT_VALUE"]);
-		if ($value !== '')
-		{
-			if ($currency === '')
-				$currency = CurrencyManager::getBaseCurrency();
-			$value = static::formatToDB($value, $currency);
-		}
-
-		return array(
-			"DEFAULT_VALUE" => $value
-		);
+		return MoneyType::renderSettings($userField, $additionalParameters, $fromForm);
 	}
 
-	public static function GetSettingsHTML($userField = false, $control, $fromForm)
+	/**
+	 * @param $userField
+	 * @param $additionalParameters
+	 * @return string
+	 */
+	public static function getEditFormHtml($userField, $additionalParameters)
 	{
-		$currencyList = Editor::getListCurrency();
-
-		$result = '';
-		if ($fromForm)
-		{
-			$value = $GLOBALS[$control["NAME"]]["DEFAULT_VALUE"];
-		}
-		elseif (is_array($userField))
-		{
-			$value = $userField["SETTINGS"]["DEFAULT_VALUE"];
-		}
-		else
-		{
-			$defaultValue = '';
-			$defaultCurrency = '';
-			foreach($currencyList as $currencyInfo)
-			{
-				if($currencyInfo['BASE'] == 'Y')
-				{
-					$defaultCurrency = $currencyInfo['CURRENCY'];
-				}
-			}
-
-			$value = static::formatToDB($defaultValue, $defaultCurrency);
-		}
-
-		$result .= '
-		<tr>
-			<td>'.GetMessage("USER_TYPE_MONEY_DEFAULT_VALUE").':</td>
-			<td>'.static::getInput($userField, $control["NAME"].'[DEFAULT_VALUE]', $value).'</td>
-		</tr>
-		';
-
-		static::initDisplay(array('core_uf_money'));
-
-		return $result;
+		return MoneyType::renderEditForm($userField, $additionalParameters);
 	}
 
-	public static function getEditFormHTML($userField, $control)
+	/**
+	 * @param $userField
+	 * @param $additionalParameters
+	 * @return string
+	 */
+	public static function getAdminListViewHtml($userField, $additionalParameters)
 	{
-		return static::GetPublicEdit($userField, array());
+		return MoneyType::renderAdminListView($userField, $additionalParameters);
 	}
 
-	public static function getEditFormHTMLMulty($userField, $control)
+	/**
+	 * @param $userField
+	 * @param $additionalParameters
+	 * @return string
+	 */
+	public static function getAdminListEditHtml($userField, $additionalParameters)
 	{
-		return static::GetPublicEdit($userField, array());
+		return MoneyType::renderAdminListEdit($userField, $additionalParameters);
 	}
 
-	public static function GetAdminListViewHTML($userField, $control)
-	{
-		$explode = static::unFormatFromDB($control['VALUE']);
-		$currentValue = $explode[0] ? $explode[0] : '';
-		$currentCurrency = $explode[1] ? $explode[1] : '';
-
-		if(!$currentCurrency)
-		{
-			return intval($currentValue) ? $currentValue : '';
-		}
-
-		if(!empty($controlSettings['MODE']))
-		{
-			switch($controlSettings['MODE'])
-			{
-				case 'CSV_EXPORT':
-					return $control['VALUE'];
-				case 'SIMPLE_TEXT':
-					return $currentValue;
-				case 'ELEMENT_TEMPLATE':
-					return $currentValue;
-			}
-		}
-
-		return \CCurrencyLang::CurrencyFormat($currentValue, $currentCurrency, true);
-	}
-
-	public static function getPublicEdit($userField, $additionalParameters = array())
-	{
-		$fieldName = static::getFieldName($userField, $additionalParameters);
-		$value = static::getFieldValue($userField, $additionalParameters);
-
-		$html = '';
-
-		$first = true;
-		foreach($value as $res)
-		{
-			if(!$first)
-			{
-				$html .= static::getHelper()->getMultipleValuesSeparator();
-			}
-			$first = false;
-
-			$res = static::getInput($userField, $fieldName, $res);
-			$html .= static::getHelper()->wrapSingleField($res);
-		}
-
-		if($userField["MULTIPLE"] == "Y" && $additionalParameters["SHOW_BUTTON"] != "N")
-		{
-			$html .= static::getHelper()->getCloneButton($fieldName);
-		}
-
-		static::initDisplay(array('core_uf_money'));
-
-		return static::getHelper()->wrapDisplayResult($html);
-	}
-
-	public static function getPublicView($userField, $additionalParameters = array())
-	{
-		$value = static::normalizeFieldValue($userField["VALUE"]);
-
-		$html = '';
-		$first = true;
-		foreach($value as $res)
-		{
-			if(!$first)
-			{
-				$html .= static::getHelper()->getMultipleValuesSeparator();
-			}
-			$first = false;
-
-			$explode = static::unFormatFromDB($res);
-			$currentValue = strlen($explode[0]) > 0 ? doubleval($explode[0]) : '';
-			$currentCurrency = $explode[1] ? $explode[1] : '';
-
-			$format = \CCurrencyLang::GetFormatDescription($currentCurrency);
-
-			$currentValue = number_format((float)$currentValue, $format['DECIMALS'], $format['DEC_POINT'], $format['THOUSANDS_SEP']);
-			$currentValue = \CCurrencyLang::applyTemplate($currentValue, $format['FORMAT_STRING']);
-
-			if(strlen($userField['PROPERTY_VALUE_LINK']) > 0)
-			{
-				$res = '<a href="'.htmlspecialcharsbx(str_replace('#VALUE#', urlencode($res), $userField['PROPERTY_VALUE_LINK'])).'">'.$currentValue.'</a>';
-			}
-			else
-			{
-				$res = $currentValue;
-			}
-
-			$html .= static::getHelper()->wrapSingleField($res);
-		}
-
-		return static::getHelper()->wrapDisplayResult($html);
-	}
-
+	/**
+	 * @param $userField
+	 * @return string
+	 */
 	public static function getPublicText($userField)
 	{
-		$value = static::normalizeFieldValue($userField['VALUE']);
-
-		$text = '';
-		$first = true;
-		foreach ($value as $res)
-		{
-			if(!$first)
-				$text .= ', ';
-			$first = false;
-
-			$explode = static::unformatFromDB($res);
-			$currentValue = strlen($explode[0]) > 0 ? doubleval($explode[0]) : '';
-			$currentCurrency = $explode[1] ? $explode[1] : '';
-
-			$format = \CCurrencyLang::GetFormatDescription($currentCurrency);
-
-			$currentValue = number_format((float)$currentValue, $format['DECIMALS'], $format['DEC_POINT'], $format['THOUSANDS_SEP']);
-			$currentValue = \CCurrencyLang::applyTemplate($currentValue, $format['FORMAT_STRING']);
-
-			$text .= $currentValue;
-		}
-
-		return $text;
+		return MoneyType::renderText($userField);
 	}
 
+	/**
+	 * @param $userField
+	 * @return string
+	 */
+	public static function GetDBColumnType($userField)
+	{
+		return MoneyType::getDbColumnType();
+	}
+
+	/**
+	 * @param $userField
+	 * @param $value
+	 * @return string
+	 */
+	public static function OnBeforeSave($userField, $value)
+	{
+		return MoneyType::onBeforeSave($userField, $value);
+	}
+
+	/**
+	 * @param $userField
+	 * @return array
+	 */
+	public static function PrepareSettings($userField)
+	{
+		return MoneyType::prepareSettings($userField);
+	}
+
+	/**
+	 * @param $value
+	 * @param $currency
+	 * @return string
+	 */
 	protected static function formatToDB($value, $currency)
 	{
-		$value = $value === '' ? '' : doubleval($value);
-
-		if($value === '')
-		{
-			return '';
-		}
-		else
-		{
-			return $value.static::DB_SEPARATOR.trim($currency);
-		}
+		return MoneyType::formatToDb($value, $currency);
 	}
 
+	/**
+	 * @param $value
+	 * @return array
+	 */
 	protected static function unFormatFromDB($value)
 	{
-		return explode(static::DB_SEPARATOR, $value);
+		return MoneyType::unFormatFromDb($value);
+	}
+
+	/**
+	 * @param $userField
+	 * @param $control
+	 * @return string
+	 * @deprecated
+	 */
+	public static function getEditFormHtmlMulty($userField, $control)
+	{
+		return MoneyType::renderEditForm($userField, $additionalParameters);
 	}
 
 	/**
@@ -266,6 +167,13 @@ class Money extends TypeBase
 		return Editor::getListCurrency();
 	}
 
+	/**
+	 * @param $userField
+	 * @param $fieldName
+	 * @param $dbValue
+	 * @return false|string
+	 * @deprecated
+	 */
 	protected static function getInput($userField, $fieldName, $dbValue)
 	{
 		global $APPLICATION;

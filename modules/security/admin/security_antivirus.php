@@ -135,7 +135,7 @@ $tabControl->BeginNextTab();
 		</td>
 	</tr>
 <?endif?>
-<?if(strlen($warningMessage) > 0):?>
+<?if($warningMessage <> ''):?>
 	<tr>
 		<td colspan="2" align="left">
 			<?

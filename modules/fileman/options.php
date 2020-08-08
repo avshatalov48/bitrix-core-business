@@ -24,7 +24,7 @@ function isValidLang($lang)
 	return $is_valid_lang;
 }
 
-if ($REQUEST_METHOD=="GET" && $USER->CanDoOperation('fileman_edit_all_settings') && strlen($RestoreDefaults)>0 && check_bitrix_sessid())
+if ($REQUEST_METHOD=="GET" && $USER->CanDoOperation('fileman_edit_all_settings') && $RestoreDefaults <> '' && check_bitrix_sessid())
 {
 	COption::RemoveOption("fileman");
 	$z = CGroup::GetList($v1="id",$v2="asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
@@ -39,7 +39,7 @@ IncludeModuleLangFile(__FILE__);
 //Default file extensions;
 $script_files_default = "php,php3,php4,php5,php6,phtml,pl,asp,aspx,cgi,exe,ico,shtm,shtml";
 
-if($REQUEST_METHOD == "POST" && strlen($Update)>0 && $USER->CanDoOperation('fileman_edit_all_settings') && check_bitrix_sessid())
+if($REQUEST_METHOD == "POST" && $Update <> '' && $USER->CanDoOperation('fileman_edit_all_settings') && check_bitrix_sessid())
 {
 	if($default_edit!="html" && $default_edit!="php")
 		$default_edit="text";
@@ -216,8 +216,8 @@ if($REQUEST_METHOD == "POST" && strlen($Update)>0 && $USER->CanDoOperation('file
 	$arMLExt_ = array();
 	for ($i = 0, $l = count($arMLExt); $i < $l; $i++)
 	{
-		$ext = strtolower(trim($arMLExt[$i], ' .'));
-		if (strlen($ext) > 0)
+		$ext = mb_strtolower(trim($arMLExt[$i], ' .'));
+		if ($ext <> '')
 			$arMLExt_[] = $ext;
 	}
 	$medialib_ext = implode(',', $arMLExt_);
@@ -281,8 +281,8 @@ if($REQUEST_METHOD == "POST" && strlen($Update)>0 && $USER->CanDoOperation('file
 	$arAvExt = array();
 	for ($i = 0, $l = count($arExt_); $i < $l; $i++)
 	{
-		$ext = strtolower(trim($arExt_[$i], ' .'));
-		if (strlen($ext) > 0 && !in_array($ext, $arAvExt))
+		$ext = mb_strtolower(trim($arExt_[$i], ' .'));
+		if ($ext <> '' && !in_array($ext, $arAvExt))
 			$arAvExt[] = $ext;
 	}
 	$strAvExt = implode(',', $arAvExt);
@@ -316,14 +316,14 @@ if($REQUEST_METHOD == "POST" && strlen($Update)>0 && $USER->CanDoOperation('file
 			$armt = Array();
 			for($i=0; $i<${"menutypes_".$siteList_ID[$j]["ID"]."_count"}; $i++)
 			{
-				if(strlen(${"menutypes_".$siteList_ID[$j]["ID"]."_".$i."_type"})>0)
+				if(${"menutypes_".$siteList_ID[$j]["ID"]."_".$i."_type"} <> '')
 					$armt[${"menutypes_".$siteList_ID[$j]["ID"]."_".$i."_type"}] = ${"menutypes_".$siteList_ID[$j]["ID"]."_".$i."_name"};
 			}
 
-			if(strlen(${"menutypes_".$siteList_ID[$j]["ID"]."_new_type"})>0 && $USER->CanDoOperation('fileman_edit_menu_types'))
+			if(${"menutypes_".$siteList_ID[$j]["ID"]."_new_type"} <> '' && $USER->CanDoOperation('fileman_edit_menu_types'))
 				$armt[${"menutypes_".$siteList_ID[$j]["ID"]."_new_type"}] = ${"menutypes_".$siteList_ID[$j]["ID"]."_new_name"};
 
-			if (strlen(addslashes(serialize($armt))) <= 2000)
+			if (mb_strlen(addslashes(serialize($armt))) <= 2000)
 				SetMenuTypes($armt, $siteList_ID[$j]["ID"]);
 			else
 				$addError = GetMessage("FILEMAN_OPTION_ADD_ERROR_MENU").'<br />';
@@ -331,10 +331,10 @@ if($REQUEST_METHOD == "POST" && strlen($Update)>0 && $USER->CanDoOperation('file
 			$arPT = Array();
 			for($i=0; $i<${"propstypes_".$siteList_ID[$j]["ID"]."_count"}; $i++)
 			{
-				if(strlen(${"propstypes_".$siteList_ID[$j]["ID"]."_".$i."_type"})>0)
+				if(${"propstypes_".$siteList_ID[$j]["ID"]."_".$i."_type"} <> '')
 					$arPT[${"propstypes_".$siteList_ID[$j]["ID"]."_".$i."_type"}] = ${"propstypes_".$siteList_ID[$j]["ID"]."_".$i."_name"};
 			}
-			if(strlen(${"propstypes_".$siteList_ID[$j]["ID"]."_new_type"})>0)
+			if(${"propstypes_".$siteList_ID[$j]["ID"]."_new_type"} <> '')
 				$arPT[${"propstypes_".$siteList_ID[$j]["ID"]."_new_type"}] = ${"propstypes_".$siteList_ID[$j]["ID"]."_new_name"};
 
 			if(!CFileMan::SetPropstypes($arPT, false, $siteList_ID[$j]["ID"]))
@@ -351,13 +351,13 @@ if($REQUEST_METHOD == "POST" && strlen($Update)>0 && $USER->CanDoOperation('file
 		$menutypes = "";
 		for($i=0; $i<$menutypes_count; $i++)
 		{
-			if(strlen(${"menutypes_".$i."_type"})>0)
+			if(${"menutypes_".$i."_type"} <> '')
 				$armt[${"menutypes_".$i."_type"}] = ${"menutypes_".$i."_name"};
 		}
-		if(strlen($menutypes_new_type)>0 && $USER->CanDoOperation('fileman_edit_menu_types'))
+		if($menutypes_new_type <> '' && $USER->CanDoOperation('fileman_edit_menu_types'))
 			$armt[$menutypes_new_type] = $menutypes_new_name;
 
-		if (strlen(addslashes(serialize($armt))) <= 2000)
+		if (mb_strlen(addslashes(serialize($armt))) <= 2000)
 			SetMenuTypes($armt, $siteList_ID[$j]["ID"]);
 		else
 			$addError = GetMessage("FILEMAN_OPTION_ADD_ERROR_MENU").'<br />';
@@ -366,10 +366,10 @@ if($REQUEST_METHOD == "POST" && strlen($Update)>0 && $USER->CanDoOperation('file
 		$arPT = Array();
 		for($i=0; $i<$propstypes_count; $i++)
 		{
-			if(strlen(${"propstypes_".$i."_type"})>0)
+			if(${"propstypes_".$i."_type"} <> '')
 				$arPT[${"propstypes_".$i."_type"}] = ${"propstypes_".$i."_name"};
 		}
-		if(strlen($propstypes_new_type)>0)
+		if($propstypes_new_type <> '')
 			$arPT[$propstypes_new_type] = $propstypes_new_name;
 
 		if(!CFileMan::SetPropstypes($arPT))
@@ -387,17 +387,17 @@ if($REQUEST_METHOD == "POST" && strlen($Update)>0 && $USER->CanDoOperation('file
 	}
 
 	// Search
-	$search_max_open_file_size = intVal($_POST['search_max_open_file_size']);
+	$search_max_open_file_size = intval($_POST['search_max_open_file_size']);
 	if ($search_max_open_file_size <= 0)
 		$search_max_open_file_size = 1024;
 	COption::SetOptionString($module_id, "search_max_open_file_size", $search_max_open_file_size);
 
-	$search_max_res_count = intVal($_POST['search_max_res_count']);
+	$search_max_res_count = intval($_POST['search_max_res_count']);
 	if ($search_max_res_count <= 0)
 		$search_max_res_count = '';
 	COption::SetOptionString($module_id, "search_max_res_count", $search_max_res_count);
 
-	$search_time_step = intVal($_POST['search_time_step']);
+	$search_time_step = intval($_POST['search_time_step']);
 
 	if ($search_time_step <= 0)
 		$search_time_step = 5;
@@ -427,7 +427,7 @@ if($REQUEST_METHOD == "POST" && strlen($Update)>0 && $USER->CanDoOperation('file
 			$sGroups .= ($sGroups <> ''? ',':'').intval($gr);
 	COption::SetOptionString('fileman', 'default_edit_groups', $sGroups);
 
-	$archive_step_time = intVal($_POST['archive_step_time']);
+	$archive_step_time = intval($_POST['archive_step_time']);
 	if ($archive_step_time <= 0)
 		$archive_step_time = 30;
 	COption::SetOptionString($module_id, "archive_step_time", $archive_step_time);
@@ -1060,8 +1060,8 @@ $aMess = array_keys($aMess);
 IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/fileman/admin/fileman_js.php');
 $l = count($aMess);
 for($i = 0; $i < $l; $i++)
-	if(substr($aMess[$i], 0, strlen("FILEMAN_JS_"))=="FILEMAN_JS_")
-		$sMess .= "'".substr($aMess[$i], strlen("FILEMAN_JS_"))."': '".CUtil::addslashes(GetMessage($aMess[$i]))."',";
+	if(mb_substr($aMess[$i], 0, mb_strlen("FILEMAN_JS_")) == "FILEMAN_JS_")
+		$sMess .= "'".mb_substr($aMess[$i], mb_strlen("FILEMAN_JS_"))."': '".CUtil::addslashes(GetMessage($aMess[$i]))."',";
 
 $sMess = rtrim($sMess,',');
 

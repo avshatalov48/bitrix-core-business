@@ -9,10 +9,10 @@ if ($this->__page == "user_files_menu" || $this->__page == "group_files_menu" ||
 {
 	return true;
 }
-elseif (strpos($this->__page, "user_files") !== false || strpos($this->__page, "group_files") !== false)
+elseif (mb_strpos($this->__page, "user_files") !== false || mb_strpos($this->__page, "group_files") !== false)
 {
-	$prefix = (strpos($this->__page, "user_files") !== false ? "user_files" : "group_files"); 
-	$page_name = substr($this->__page, strlen($prefix) + 1); 
+	$prefix = (mb_strpos($this->__page, "user_files") !== false ? "user_files" : "group_files");
+	$page_name = mb_substr($this->__page, mb_strlen($prefix) + 1);
 	
 	$this->__component->__count_chain_item = count($APPLICATION->arAdditionalChain); 
 	$this->__component->__buffer_template = false; 

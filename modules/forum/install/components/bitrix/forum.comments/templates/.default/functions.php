@@ -40,6 +40,7 @@ function forumCommentsCommentWeb(
 		"AFTER_RECORD" => "",
 		"AUX" => (!empty($comment["AUX"]) ? $comment["AUX"] : ''),
 		"AUX_LIVE_PARAMS" => (!empty($comment["AUX_LIVE_PARAMS"]) ? $comment["AUX_LIVE_PARAMS"] : array()),
+		"CAN_DELETE" => (!empty($comment["CAN_DELETE"]) ? $comment["CAN_DELETE"] : "Y"),
 	);
 
 	if (!empty($res["FILES"]))

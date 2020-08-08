@@ -81,7 +81,7 @@ final class SonetGroup extends Base
 					if ($groupSiteID)
 					{
 						$tmp = \CSocNetLogTools::processPath(array("GROUP_URL" => $link), $USER->getId(), $groupSiteID);
-						$link = (strlen($tmp["URLS"]["GROUP_URL"]) > 0 ? $tmp["SERVER_NAME"].$tmp["URLS"]["GROUP_URL"] : $link);
+						$link = ($tmp["URLS"]["GROUP_URL"] <> '' ? $tmp["SERVER_NAME"].$tmp["URLS"]["GROUP_URL"] : $link);
 					}
 
 					$result['link'] = $link;

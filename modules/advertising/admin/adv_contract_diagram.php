@@ -49,7 +49,7 @@ if(empty($contract_ref))
 	$strError = GetMessage("ADV_NO_CONTRACTS_FOR_DIAGRAM");
 	
 $man = false;
-if ((!isset($_SESSION["SESS_ADMIN"]["AD_STAT_CONTRACT_DIAGRAM"]) || empty($_SESSION["SESS_ADMIN"]["AD_STAT_CONTRACT_DIAGRAM"])) && strlen($find_date1)<=0 && strlen($find_date2)<=0 && !is_array($find_contract_id) && !is_array($find_what_show))
+if ((!isset($_SESSION["SESS_ADMIN"]["AD_STAT_CONTRACT_DIAGRAM"]) || empty($_SESSION["SESS_ADMIN"]["AD_STAT_CONTRACT_DIAGRAM"])) && $find_date1 == '' && $find_date2 == '' && !is_array($find_contract_id) && !is_array($find_what_show))
 {
 	$find_contract_id = $contract_ref_id;
 	$find_what_show = Array("ctr");
@@ -62,11 +62,11 @@ $FilterArr = Array(
 	"find_contract_id",
 	"find_what_show"
 	);
-if (strlen($set_filter)>0 || $man) 
+if ($set_filter <> '' || $man)
 	InitFilterEx($FilterArr,"AD_STAT_CONTRACT_DIAGRAM","set",true); 
 else 
 	InitFilterEx($FilterArr,"AD_STAT_CONTRACT_DIAGRAM","get",true);
-if (strlen($del_filter)>0) DelFilterEx($FilterArr,"AD_STAT_LIST",true);
+if ($del_filter <> '') DelFilterEx($FilterArr,"AD_STAT_LIST",true);
 
 if((!is_set($find_contract_id) && !is_set($find_what_show)) || (!is_set($find_what_show) && is_set($find_contract_id)) || (is_set($find_what_show) && !is_set($find_contract_id)))
 	$strError = GetMessage("ADV_F_NO_FIELDS");
@@ -188,8 +188,8 @@ elseif (count($arrLegend)>0) :
 				$i=0;
 				foreach($arShow as $ctype)
 				{
-					$counter_type = strtoupper($ctype);
-					if (${"sum_".strtolower($counter_type)}>0)
+					$counter_type = mb_strtoupper($ctype);
+					if (${"sum_".mb_strtolower($counter_type)}>0)
 					{
 						$i++;
 						$aTabs[] = array("DIV"=>"ttab".$i, "TAB"=>GetMessage("AD_".$counter_type."_DIAGRAM"), "TITLE"=>GetMessage("AD_CONTRACT_DIAGRAM_TITLE"));
@@ -201,8 +201,8 @@ elseif (count($arrLegend)>0) :
 				if(count($aTabs)>0)
 					$viewTabContract->Begin();
 				foreach($arShow as $ctype) :
-					$counter_type = strtoupper($ctype);
-					if ( ${"sum_".strtolower($counter_type)}>0):
+					$counter_type = mb_strtoupper($ctype);
+					if ( ${"sum_".mb_strtolower($counter_type)}>0):
 						?>
 						<?$viewTabContract->BeginNextTab();?>
 						<div class="graph">

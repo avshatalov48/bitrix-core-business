@@ -49,7 +49,7 @@ class Subscription
 		}
 		else
 		{
-			$result = $urlPage.(strpos($urlPage, "?")===false ? "?" : "&").'sender_subscription=confirm&tag='.urlencode($tag);
+			$result = $urlPage.(mb_strpos($urlPage, "?") === false ? "?" : "&").'sender_subscription=confirm&tag='.urlencode($tag);
 		}
 
 		return $result;
@@ -342,7 +342,7 @@ class Subscription
 		$unSubDb = MailingSubscriptionTable::getUnSubscriptionList(array(
 			'select' => array('MAILING_ID'),
 			'filter' => array(
-				'=CONTACT.EMAIL' => trim(strtolower($data['EMAIL'])),
+				'=CONTACT.EMAIL' => trim(mb_strtolower($data['EMAIL'])),
 				'=MAILING.SITE_ID' => $mailing['SITE_ID']
 			)
 		));
@@ -354,7 +354,7 @@ class Subscription
 		$receiveMailingDb = PostingRecipientTable::getList(array(
 			'select' => array('MAILING_ID' => 'POSTING.MAILING.ID'),
 			'filter' => array(
-				'=EMAIL' => trim(strtolower($data['EMAIL'])),
+				'=EMAIL' => trim(mb_strtolower($data['EMAIL'])),
 				'=POSTING.MAILING.ACTIVE' => 'Y',
 				'=POSTING.MAILING.SITE_ID' => $mailing['SITE_ID']
 			),
@@ -369,7 +369,7 @@ class Subscription
 		$subscribedMailingDb = MailingSubscriptionTable::getSubscriptionList(array(
 			'select' => array('MAILING_ID'),
 			'filter' => array(
-				'=CONTACT.EMAIL' => trim(strtolower($data['EMAIL'])),
+				'=CONTACT.EMAIL' => trim(mb_strtolower($data['EMAIL'])),
 				'=MAILING.ACTIVE' => 'Y',
 				'=MAILING.SITE_ID' => $mailing['SITE_ID']
 			)

@@ -19,6 +19,7 @@
 			this.paymentId = params.paymentId;
 			this.paySystemId = params.paySystemId;
 			this.isAllowedSubmitting = true;
+			this.returnUrl = params.returnUrl;
 
 			this.bindEvents();
 		},
@@ -51,7 +52,8 @@
 			data = {
 				sessid: BX.bitrix_sessid(),
 				PAYMENT_ID: this.paymentId,
-				PAYSYSTEM_ID: this.paySystemId
+				PAYSYSTEM_ID: this.paySystemId,
+				RETURN_URL: this.returnUrl,
 			};
 
 			for (i in formData)
@@ -76,8 +78,8 @@
 					else if (result.status === 'error')
 					{
 						this.isAllowedSubmitting = true;
-						this.showErrorTemplate();
-						BX.onCustomEvent('onPaySystemAjaxError');
+						this.showErrorTemplate(result.buyerErrors);
+						BX.onCustomEvent('onPaySystemAjaxError', [result.buyerErrors]);
 					}
 				}, this)
 			});
@@ -101,24 +103,30 @@
 
 		updateTemplateHtml: function (html)
 		{
-			var data = BX.processHTML(html);
-			BX.loadCSS(data['STYLE']);
-			this.paysystemBlockNode.innerHTML = data['HTML'];
-
-			for (var i in data['SCRIPT'])
-			{
-				if (data['SCRIPT'].hasOwnProperty(i))
-				{
-					BX.evalGlobal(data['SCRIPT'][i]['JS']);
-				}
-			}
+			BX.html(this.paysystemBlockNode, html)
 		},
 
-		showErrorTemplate: function()
+		showErrorTemplate: function(errors)
 		{
+			var errorsList = [
+				BX.message('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_ERROR_MESSAGE_HEADER'),
+			];
+			if (errors)
+			{
+				for (var error in errors)
+				{
+					if (errors.hasOwnProperty(error))
+					{
+						errorsList.push(errors[error]);
+					}
+				}
+			}
+
+			errorsList.push(BX.message('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_ERROR_MESSAGE_FOOTER'));
+
 			var resultDiv = BX.create('div', {
 				props: {className: 'alert alert-danger'},
-				text: BX.message('SALE_HANDLERS_PAY_SYSTEM_YANDEX_CHECKOUT_ERROR_MESSAGE')
+				html: errorsList.join('<br />'),
 			});
 
 			this.paysystemBlockNode.innerHTML = '';

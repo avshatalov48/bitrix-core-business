@@ -3,15 +3,15 @@
 use Bitrix\Main\Localization\Loc;
 
 /**
- * @global CMain $APPLICATION
- * @var array $arParams
- * @var array $arResult
- * @var CatalogSectionComponent $component
- * @var CBitrixComponentTemplate $this
- * @var string $templateName
- * @var string $componentPath
- * @var string $templateFolder
- */
+* @global CMain $APPLICATION
+* @var array $arParams
+* @var array $arResult
+* @var CatalogSectionComponent $component
+* @var CBitrixComponentTemplate $this
+* @var string $templateName
+* @var string $componentPath
+* @var string $templateFolder
+*/
 
 $this->setFrameMode(true);
 
@@ -158,8 +158,6 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 
 $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_THEME'] : '';
 ?>
-
-
 <div class="bx-catalog-element<?=$themeClass?>" id="<?=$itemIds['ID']?>" itemscope itemtype="http://schema.org/Product">
 	<?
 	if ($arParams['DISPLAY_NAME'] === 'Y')
@@ -175,7 +173,7 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 			<div class="product-item-detail-slider-container" id="<?=$itemIds['BIG_SLIDER_ID']?>">
 				<span class="product-item-detail-slider-close" data-entity="close-popup"></span>
 				<div class="product-item-detail-slider-block
-					<?=($arParams['IMAGE_RESOLUTION'] === '1by1' ? 'product-item-detail-slider-block-square' : '')?>"
+				<?=($arParams['IMAGE_RESOLUTION'] === '1by1' ? 'product-item-detail-slider-block-square' : '')?>"
 					data-entity="images-slider-block">
 					<span class="product-item-detail-slider-left" data-entity="slider-control-left" style="display: none;"></span>
 					<span class="product-item-detail-slider-right" data-entity="slider-control-right" style="display: none;"></span>
@@ -309,132 +307,132 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 				<?
 				if ($showBlockWithOffersAndProps)
 				{
-				?>
-				<div class="col-lg-5">
-					<?
-					foreach ($arParams['PRODUCT_INFO_BLOCK_ORDER'] as $blockName)
-					{
-						switch ($blockName)
+					?>
+					<div class="col-lg-5">
+						<?
+						foreach ($arParams['PRODUCT_INFO_BLOCK_ORDER'] as $blockName)
 						{
-							case 'sku':
-								if ($showOffersBlock)
-								{
-									?>
-									<div class="mb-3" id="<?=$itemIds['TREE_ID']?>">
-										<?
-										foreach ($arResult['SKU_PROPS'] as $skuProperty)
-										{
-											if (!isset($arResult['OFFERS_PROP'][$skuProperty['CODE']]))
-												continue;
+							switch ($blockName)
+							{
+								case 'sku':
+									if ($showOffersBlock)
+									{
+										?>
+										<div class="mb-3" id="<?=$itemIds['TREE_ID']?>">
+											<?
+											foreach ($arResult['SKU_PROPS'] as $skuProperty)
+											{
+												if (!isset($arResult['OFFERS_PROP'][$skuProperty['CODE']]))
+													continue;
 
-											$propertyId = $skuProperty['ID'];
-											$skuProps[] = array(
-												'ID' => $propertyId,
-												'SHOW_MODE' => $skuProperty['SHOW_MODE'],
-												'VALUES' => $skuProperty['VALUES'],
-												'VALUES_COUNT' => $skuProperty['VALUES_COUNT']
-											);
-											?>
-											<div data-entity="sku-line-block" class="mb-3">
-												<div class="product-item-scu-container-title"><?=htmlspecialcharsEx($skuProperty['NAME'])?></div>
-												<div class="product-item-scu-container">
-													<div class="product-item-scu-block">
-														<div class="product-item-scu-list">
-															<ul class="product-item-scu-item-list">
-																<?
-																foreach ($skuProperty['VALUES'] as &$value)
-																{
-																	$value['NAME'] = htmlspecialcharsbx($value['NAME']);
-
-																	if ($skuProperty['SHOW_MODE'] === 'PICT')
+												$propertyId = $skuProperty['ID'];
+												$skuProps[] = array(
+													'ID' => $propertyId,
+													'SHOW_MODE' => $skuProperty['SHOW_MODE'],
+													'VALUES' => $skuProperty['VALUES'],
+													'VALUES_COUNT' => $skuProperty['VALUES_COUNT']
+												);
+												?>
+												<div data-entity="sku-line-block" class="mb-3">
+													<div class="product-item-scu-container-title"><?=htmlspecialcharsEx($skuProperty['NAME'])?></div>
+													<div class="product-item-scu-container">
+														<div class="product-item-scu-block">
+															<div class="product-item-scu-list">
+																<ul class="product-item-scu-item-list">
+																	<?
+																	foreach ($skuProperty['VALUES'] as &$value)
 																	{
-																		?>
-																		<li class="product-item-scu-item-color-container" title="<?=$value['NAME']?>"
-																			data-treevalue="<?=$propertyId?>_<?=$value['ID']?>"
-																			data-onevalue="<?=$value['ID']?>">
-																			<div class="product-item-scu-item-color-block">
-																				<div class="product-item-scu-item-color" title="<?=$value['NAME']?>"
-																					style="background-image: url('<?=$value['PICT']['SRC']?>');">
+																		$value['NAME'] = htmlspecialcharsbx($value['NAME']);
+
+																		if ($skuProperty['SHOW_MODE'] === 'PICT')
+																		{
+																			?>
+																			<li class="product-item-scu-item-color-container" title="<?=$value['NAME']?>"
+																				data-treevalue="<?=$propertyId?>_<?=$value['ID']?>"
+																				data-onevalue="<?=$value['ID']?>">
+																				<div class="product-item-scu-item-color-block">
+																					<div class="product-item-scu-item-color" title="<?=$value['NAME']?>"
+																						style="background-image: url('<?=$value['PICT']['SRC']?>');">
+																					</div>
 																				</div>
-																			</div>
-																		</li>
-																		<?
+																			</li>
+																			<?
+																		}
+																		else
+																		{
+																			?>
+																			<li class="product-item-scu-item-text-container" title="<?=$value['NAME']?>"
+																				data-treevalue="<?=$propertyId?>_<?=$value['ID']?>"
+																				data-onevalue="<?=$value['ID']?>">
+																				<div class="product-item-scu-item-text-block">
+																					<div class="product-item-scu-item-text"><?=$value['NAME']?></div>
+																				</div>
+																			</li>
+																			<?
+																		}
 																	}
-																	else
-																	{
-																		?>
-																		<li class="product-item-scu-item-text-container" title="<?=$value['NAME']?>"
-																			data-treevalue="<?=$propertyId?>_<?=$value['ID']?>"
-																			data-onevalue="<?=$value['ID']?>">
-																			<div class="product-item-scu-item-text-block">
-																				<div class="product-item-scu-item-text"><?=$value['NAME']?></div>
-																			</div>
-																		</li>
-																		<?
-																	}
-																}
-																?>
-															</ul>
-															<div style="clear: both;"></div>
+																	?>
+																</ul>
+																<div style="clear: both;"></div>
+															</div>
 														</div>
 													</div>
 												</div>
-											</div>
-											<?
-										}
-										?>
-									</div>
-									<?
-								}
-
-								break;
-
-							case 'props':
-								if ($showPropsBlock)
-								{
-									?>
-									<div class="mb-3">
-										<?
-										if (!empty($mainBlockProperties))
-										{
-											?>
-											<ul class="product-item-detail-properties">
 												<?
-												foreach ($mainBlockProperties as $property)
-												{
-													?>
-													<li class="product-item-detail-properties-item">
-														<span class="product-item-detail-properties-name text-muted"><?=$property['NAME']?></span>
-														<span class="product-item-detail-properties-dots"></span>
-														<span class="product-item-detail-properties-value"><?=(is_array($property['DISPLAY_VALUE'])
-																? implode(' / ', $property['DISPLAY_VALUE'])
-																: $property['DISPLAY_VALUE'])?>
-														</span>
-													</li>
-													<?
-												}
-												?>
-											</ul>
-											<?
-										}
-
-										if ($arResult['SHOW_OFFERS_PROPS'])
-										{
+											}
 											?>
-											<ul class="product-item-detail-properties" id="<?=$itemIds['DISPLAY_MAIN_PROP_DIV']?>"></ul>
-											<?
-										}
-										?>
-									</div>
-									<?
-								}
+										</div>
+										<?
+									}
 
-								break;
+									break;
+
+								case 'props':
+									if ($showPropsBlock)
+									{
+										?>
+										<div class="mb-3">
+											<?
+											if (!empty($mainBlockProperties))
+											{
+												?>
+												<ul class="product-item-detail-properties">
+													<?
+													foreach ($mainBlockProperties as $property)
+													{
+														?>
+														<li class="product-item-detail-properties-item">
+															<span class="product-item-detail-properties-name text-muted"><?=$property['NAME']?></span>
+															<span class="product-item-detail-properties-dots"></span>
+															<span class="product-item-detail-properties-value"><?=(is_array($property['DISPLAY_VALUE'])
+																	? implode(' / ', $property['DISPLAY_VALUE'])
+																	: $property['DISPLAY_VALUE'])?>
+													</span>
+														</li>
+														<?
+													}
+													?>
+												</ul>
+												<?
+											}
+
+											if ($arResult['SHOW_OFFERS_PROPS'])
+											{
+												?>
+												<ul class="product-item-detail-properties" id="<?=$itemIds['DISPLAY_MAIN_PROP_DIV']?>"></ul>
+												<?
+											}
+											?>
+										</div>
+										<?
+									}
+
+									break;
+							}
 						}
-					}
-					?>
-				</div>
-				<?
+						?>
+					</div>
+					<?
 				}
 				?>
 				<div class="<?=($showBlockWithOffersAndProps ? "col-lg-7" : "col-lg"); ?>">
@@ -485,7 +483,7 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 											?>
 											<div class="product-item-detail-price-old mb-1"
 												id="<?=$itemIds['OLD_PRICE_ID']?>"
-												<?=($showDiscount ? '' : 'style="display: none;"')?>;><?=($showDiscount ? $price['PRINT_RATIO_BASE_PRICE'] : '')?></div>
+												<?=($showDiscount ? '' : 'style="display: none;"')?>><?=($showDiscount ? $price['PRINT_RATIO_BASE_PRICE'] : '')?></div>
 											<?
 										}
 										?>
@@ -499,10 +497,10 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 											<div class="product-item-detail-economy-price mb-1"
 												id="<?=$itemIds['DISCOUNT_PRICE_ID']?>"
 												<?=($showDiscount ? '' : 'style="display: none;"')?>><?
-													if ($showDiscount)
-													{
-														echo Loc::getMessage('CT_BCE_CATALOG_ECONOMY_INFO2', array('#ECONOMY#' => $price['PRINT_RATIO_DISCOUNT']));
-													}
+												if ($showDiscount)
+												{
+													echo Loc::getMessage('CT_BCE_CATALOG_ECONOMY_INFO2', array('#ECONOMY#' => $price['PRINT_RATIO_DISCOUNT']));
+												}
 												?></div>
 											<?
 										}
@@ -527,11 +525,11 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 												<div class="product-item-detail-info-container-title text-center">
 													<?= $arParams['MESS_PRICE_RANGES_TITLE'] ?>
 													<span data-entity="price-ranges-ratio-header">
-													(<?= (Loc::getMessage(
+												(<?= (Loc::getMessage(
 															'CT_BCE_CATALOG_RATIO_PRICE',
 															array('#RATIO#' => ($useRatio ? $measureRatio : '1').' '.$actualItem['ITEM_MEASURE']['TITLE'])
 														)) ?>)
-												</span>
+											</span>
 												</div>
 												<?
 											}
@@ -558,26 +556,26 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 															{
 																?>
 																<li class="product-item-detail-properties-item">
-																	<span class="product-item-detail-properties-name text-muted">
-																		<?
-																		echo Loc::getMessage(
-																				'CT_BCE_CATALOG_RANGE_FROM',
-																				array('#FROM#' => $range['SORT_FROM'].' '.$actualItem['ITEM_MEASURE']['TITLE'])
-																			).' ';
+																<span class="product-item-detail-properties-name text-muted">
+																	<?
+																	echo Loc::getMessage(
+																			'CT_BCE_CATALOG_RANGE_FROM',
+																			array('#FROM#' => $range['SORT_FROM'].' '.$actualItem['ITEM_MEASURE']['TITLE'])
+																		).' ';
 
-																		if (is_infinite($range['SORT_TO']))
-																		{
-																			echo Loc::getMessage('CT_BCE_CATALOG_RANGE_MORE');
-																		}
-																		else
-																		{
-																			echo Loc::getMessage(
-																				'CT_BCE_CATALOG_RANGE_TO',
-																				array('#TO#' => $range['SORT_TO'].' '.$actualItem['ITEM_MEASURE']['TITLE'])
-																			);
-																		}
-																		?>
-																	</span>
+																	if (is_infinite($range['SORT_TO']))
+																	{
+																		echo Loc::getMessage('CT_BCE_CATALOG_RANGE_MORE');
+																	}
+																	else
+																	{
+																		echo Loc::getMessage(
+																			'CT_BCE_CATALOG_RANGE_TO',
+																			array('#TO#' => $range['SORT_TO'].' '.$actualItem['ITEM_MEASURE']['TITLE'])
+																		);
+																	}
+																	?>
+																</span>
 																	<span class="product-item-detail-properties-dots"></span>
 																	<span class="product-item-detail-properties-value"><?=($useRatio ? $itemPrice['PRINT_RATIO_PRICE'] : $itemPrice['PRINT_PRICE'])?></span>
 																</li>
@@ -621,24 +619,24 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 												<div class="mb-3 text-center" id="<?=$itemIds['QUANTITY_LIMIT']?>">
 													<span class="product-item-detail-info-container-title"><?=$arParams['MESS_SHOW_MAX_QUANTITY']?>:</span>
 													<span class="product-item-quantity" data-entity="quantity-limit-value">
-														<?
-														if ($arParams['SHOW_MAX_QUANTITY'] === 'M')
+													<?
+													if ($arParams['SHOW_MAX_QUANTITY'] === 'M')
+													{
+														if ((float)$actualItem['PRODUCT']['QUANTITY'] / $measureRatio >= $arParams['RELATIVE_QUANTITY_FACTOR'])
 														{
-															if ((float)$actualItem['PRODUCT']['QUANTITY'] / $measureRatio >= $arParams['RELATIVE_QUANTITY_FACTOR'])
-															{
-																echo $arParams['MESS_RELATIVE_QUANTITY_MANY'];
-															}
-															else
-															{
-																echo $arParams['MESS_RELATIVE_QUANTITY_FEW'];
-															}
+															echo $arParams['MESS_RELATIVE_QUANTITY_MANY'];
 														}
 														else
 														{
-															echo $actualItem['PRODUCT']['QUANTITY'].' '.$actualItem['ITEM_MEASURE']['TITLE'];
+															echo $arParams['MESS_RELATIVE_QUANTITY_FEW'];
 														}
-														?>
-													</span>
+													}
+													else
+													{
+														echo $actualItem['PRODUCT']['QUANTITY'].' '.$actualItem['ITEM_MEASURE']['TITLE'];
+													}
+													?>
+												</span>
 												</div>
 												<?
 											}
@@ -656,7 +654,7 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 											if (Loc::getMessage('CATALOG_QUANTITY'))
 											{
 												?>
-													<div class="product-item-detail-info-container-title text-center"><?= Loc::getMessage('CATALOG_QUANTITY') ?></div>
+												<div class="product-item-detail-info-container-title text-center"><?= Loc::getMessage('CATALOG_QUANTITY') ?></div>
 												<?
 											}
 											?>
@@ -664,12 +662,14 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 											<div class="product-item-amount">
 												<div class="product-item-amount-field-container">
 													<span class="product-item-amount-field-btn-minus no-select" id="<?=$itemIds['QUANTITY_DOWN_ID']?>"></span>
-													<input class="product-item-amount-field" id="<?=$itemIds['QUANTITY_ID']?>" type="number" value="<?=$price['MIN_QUANTITY']?>">
-													<span class="product-item-amount-field-btn-plus no-select" id="<?=$itemIds['QUANTITY_UP_ID']?>"></span>
-													<span class="product-item-amount-description-container">
+													<div class="product-item-amount-field-block">
+														<input class="product-item-amount-field" id="<?=$itemIds['QUANTITY_ID']?>" type="number" value="<?=$price['MIN_QUANTITY']?>">
+														<span class="product-item-amount-description-container">
 														<span id="<?=$itemIds['QUANTITY_MEASURE']?>"><?=$actualItem['ITEM_MEASURE']['TITLE']?></span>
 														<span id="<?=$itemIds['PRICE_TOTAL']?>"></span>
 													</span>
+													</div>
+													<span class="product-item-amount-field-btn-plus no-select" id="<?=$itemIds['QUANTITY_UP_ID']?>"></span>
 												</div>
 											</div>
 										</div>
@@ -772,39 +772,42 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 		if ($arResult['OFFER_GROUP'])
 		{
 			?>
-				<div class="row">
-					<div class="col">
-						<?
-						foreach ($arResult['OFFER_GROUP_VALUES'] as $offerId)
-						{
-							?>
-							<span id="<?=$itemIds['OFFER_GROUP'].$offerId?>" style="display: none;">
-								<?
-								$APPLICATION->IncludeComponent('bitrix:catalog.set.constructor', 'bootstrap_v4', array(
-										'CUSTOM_SITE_ID' => isset($arParams['CUSTOM_SITE_ID']) ? $arParams['CUSTOM_SITE_ID'] : null,
-										'IBLOCK_ID' => $arResult['OFFERS_IBLOCK'],
-										'ELEMENT_ID' => $offerId,
-										'PRICE_CODE' => $arParams['PRICE_CODE'],
-										'BASKET_URL' => $arParams['BASKET_URL'],
-										'OFFERS_CART_PROPERTIES' => $arParams['OFFERS_CART_PROPERTIES'],
-										'CACHE_TYPE' => $arParams['CACHE_TYPE'],
-										'CACHE_TIME' => $arParams['CACHE_TIME'],
-										'CACHE_GROUPS' => $arParams['CACHE_GROUPS'],
-										'TEMPLATE_THEME' => $arParams['~TEMPLATE_THEME'],
-										'CONVERT_CURRENCY' => $arParams['CONVERT_CURRENCY'],
-										'CURRENCY_ID' => $arParams['CURRENCY_ID'],
-										'DETAIL_URL' => $arParams['~DETAIL_URL']
-									),
-									$component,
-									array('HIDE_ICONS' => 'Y')
-								);
-								?>
-							</span>
-							<?
-						}
+			<div class="row">
+				<div class="col">
+					<?
+					foreach ($arResult['OFFER_GROUP_VALUES'] as $offerId)
+					{
 						?>
-					</div>
+						<span id="<?=$itemIds['OFFER_GROUP'].$offerId?>" style="display: none;">
+							<?
+							$APPLICATION->IncludeComponent(
+								'bitrix:catalog.set.constructor',
+								'bootstrap_v4',
+								array(
+									'CUSTOM_SITE_ID' => isset($arParams['CUSTOM_SITE_ID']) ? $arParams['CUSTOM_SITE_ID'] : null,
+									'IBLOCK_ID' => $arResult['OFFERS_IBLOCK'],
+									'ELEMENT_ID' => $offerId,
+									'PRICE_CODE' => $arParams['PRICE_CODE'],
+									'BASKET_URL' => $arParams['BASKET_URL'],
+									'OFFERS_CART_PROPERTIES' => $arParams['OFFERS_CART_PROPERTIES'],
+									'CACHE_TYPE' => $arParams['CACHE_TYPE'],
+									'CACHE_TIME' => $arParams['CACHE_TIME'],
+									'CACHE_GROUPS' => $arParams['CACHE_GROUPS'],
+									'TEMPLATE_THEME' => $arParams['~TEMPLATE_THEME'],
+									'CONVERT_CURRENCY' => $arParams['CONVERT_CURRENCY'],
+									'CURRENCY_ID' => $arParams['CURRENCY_ID'],
+									'DETAIL_URL' => $arParams['~DETAIL_URL']
+								),
+								$component,
+								array('HIDE_ICONS' => 'Y')
+							);
+							?>
+						</span>
+						<?
+					}
+					?>
 				</div>
+			</div>
 			<?
 		}
 	}
@@ -813,27 +816,30 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 		if ($arResult['MODULES']['catalog'] && $arResult['OFFER_GROUP'])
 		{
 			?>
-				<div class="row">
-					<div class="col">
-						<? $APPLICATION->IncludeComponent('bitrix:catalog.set.constructor', 'bootstrap_v4',array(
-								'CUSTOM_SITE_ID' => isset($arParams['CUSTOM_SITE_ID']) ? $arParams['CUSTOM_SITE_ID'] : null,
-								'IBLOCK_ID' => $arParams['IBLOCK_ID'],
-								'ELEMENT_ID' => $arResult['ID'],
-								'PRICE_CODE' => $arParams['PRICE_CODE'],
-								'BASKET_URL' => $arParams['BASKET_URL'],
-								'CACHE_TYPE' => $arParams['CACHE_TYPE'],
-								'CACHE_TIME' => $arParams['CACHE_TIME'],
-								'CACHE_GROUPS' => $arParams['CACHE_GROUPS'],
-								'TEMPLATE_THEME' => $arParams['~TEMPLATE_THEME'],
-								'CONVERT_CURRENCY' => $arParams['CONVERT_CURRENCY'],
-								'CURRENCY_ID' => $arParams['CURRENCY_ID']
-							),
-							$component,
-							array('HIDE_ICONS' => 'Y')
-						);
-						?>
-					</div>
+			<div class="row">
+				<div class="col">
+					<? $APPLICATION->IncludeComponent(
+						'bitrix:catalog.set.constructor',
+						'bootstrap_v4',
+						array(
+							'CUSTOM_SITE_ID' => isset($arParams['CUSTOM_SITE_ID']) ? $arParams['CUSTOM_SITE_ID'] : null,
+							'IBLOCK_ID' => $arParams['IBLOCK_ID'],
+							'ELEMENT_ID' => $arResult['ID'],
+							'PRICE_CODE' => $arParams['PRICE_CODE'],
+							'BASKET_URL' => $arParams['BASKET_URL'],
+							'CACHE_TYPE' => $arParams['CACHE_TYPE'],
+							'CACHE_TIME' => $arParams['CACHE_TIME'],
+							'CACHE_GROUPS' => $arParams['CACHE_GROUPS'],
+							'TEMPLATE_THEME' => $arParams['~TEMPLATE_THEME'],
+							'CONVERT_CURRENCY' => $arParams['CONVERT_CURRENCY'],
+							'CURRENCY_ID' => $arParams['CURRENCY_ID']
+						),
+						$component,
+						array('HIDE_ICONS' => 'Y')
+					);
+					?>
 				</div>
+			</div>
 			<?
 		}
 	}
@@ -935,7 +941,7 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 													? implode(' / ', $property['DISPLAY_VALUE'])
 													: $property['DISPLAY_VALUE']
 												)?>
-											</span>
+										</span>
 										</li>
 										<?
 									}
@@ -1015,11 +1021,14 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 			</div>
 		</div>
 		<?
-			if ($arParams['BRAND_USE'] === 'Y')
-			{
-		?>
+		if ($arParams['BRAND_USE'] === 'Y')
+		{
+			?>
 			<div class="col-sm-4 col-md-3">
-				<? $APPLICATION->IncludeComponent('bitrix:catalog.brandblock', 'bootstrap_v4', array(
+				<? $APPLICATION->IncludeComponent(
+					'bitrix:catalog.brandblock',
+					'bootstrap_v4',
+					array(
 						'IBLOCK_TYPE' => $arParams['IBLOCK_TYPE'],
 						'IBLOCK_ID' => $arParams['IBLOCK_ID'],
 						'ELEMENT_ID' => $arResult['ID'],
@@ -1036,8 +1045,8 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 				);
 				?>
 			</div>
-		<?
-			}
+			<?
+		}
 		?>
 	</div>
 
@@ -1089,87 +1098,87 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 
 					CBitrixComponent::includeComponentClass('bitrix:sale.products.gift');
 					$APPLICATION->IncludeComponent('bitrix:sale.products.gift', 'bootstrap_v4', array(
-							'CUSTOM_SITE_ID' => isset($arParams['CUSTOM_SITE_ID']) ? $arParams['CUSTOM_SITE_ID'] : null,
-							'PRODUCT_ID_VARIABLE' => $arParams['PRODUCT_ID_VARIABLE'],
-							'ACTION_VARIABLE' => $arParams['ACTION_VARIABLE'],
+						'CUSTOM_SITE_ID' => isset($arParams['CUSTOM_SITE_ID']) ? $arParams['CUSTOM_SITE_ID'] : null,
+						'PRODUCT_ID_VARIABLE' => $arParams['PRODUCT_ID_VARIABLE'],
+						'ACTION_VARIABLE' => $arParams['ACTION_VARIABLE'],
 
-							'PRODUCT_ROW_VARIANTS' => "",
-							'PAGE_ELEMENT_COUNT' => 0,
-							'DEFERRED_PRODUCT_ROW_VARIANTS' => \Bitrix\Main\Web\Json::encode(
-								SaleProductsGiftComponent::predictRowVariants(
-									$arParams['GIFTS_DETAIL_PAGE_ELEMENT_COUNT'],
-									$arParams['GIFTS_DETAIL_PAGE_ELEMENT_COUNT']
-								)
-							),
-							'DEFERRED_PAGE_ELEMENT_COUNT' => $arParams['GIFTS_DETAIL_PAGE_ELEMENT_COUNT'],
-
-							'SHOW_DISCOUNT_PERCENT' => $arParams['GIFTS_SHOW_DISCOUNT_PERCENT'],
-							'DISCOUNT_PERCENT_POSITION' => $arParams['DISCOUNT_PERCENT_POSITION'],
-							'SHOW_OLD_PRICE' => $arParams['GIFTS_SHOW_OLD_PRICE'],
-							'PRODUCT_DISPLAY_MODE' => 'Y',
-							'PRODUCT_BLOCKS_ORDER' => $arParams['GIFTS_PRODUCT_BLOCKS_ORDER'],
-							'SHOW_SLIDER' => $arParams['GIFTS_SHOW_SLIDER'],
-							'SLIDER_INTERVAL' => isset($arParams['GIFTS_SLIDER_INTERVAL']) ? $arParams['GIFTS_SLIDER_INTERVAL'] : '',
-							'SLIDER_PROGRESS' => isset($arParams['GIFTS_SLIDER_PROGRESS']) ? $arParams['GIFTS_SLIDER_PROGRESS'] : '',
-
-							'TEXT_LABEL_GIFT' => $arParams['GIFTS_DETAIL_TEXT_LABEL_GIFT'],
-
-							'LABEL_PROP_'.$arParams['IBLOCK_ID'] => array(),
-							'LABEL_PROP_MOBILE_'.$arParams['IBLOCK_ID'] => array(),
-							'LABEL_PROP_POSITION' => $arParams['LABEL_PROP_POSITION'],
-
-							'ADD_TO_BASKET_ACTION' => (isset($arParams['ADD_TO_BASKET_ACTION']) ? $arParams['ADD_TO_BASKET_ACTION'] : ''),
-							'MESS_BTN_BUY' => $arParams['~GIFTS_MESS_BTN_BUY'],
-							'MESS_BTN_ADD_TO_BASKET' => $arParams['~GIFTS_MESS_BTN_BUY'],
-							'MESS_BTN_DETAIL' => $arParams['~MESS_BTN_DETAIL'],
-							'MESS_BTN_SUBSCRIBE' => $arParams['~MESS_BTN_SUBSCRIBE'],
-
-							'SHOW_PRODUCTS_'.$arParams['IBLOCK_ID'] => 'Y',
-							'PROPERTY_CODE_'.$arParams['IBLOCK_ID'] => $arParams['LIST_PROPERTY_CODE'],
-							'PROPERTY_CODE_MOBILE'.$arParams['IBLOCK_ID'] => $arParams['LIST_PROPERTY_CODE_MOBILE'],
-							'PROPERTY_CODE_'.$arResult['OFFERS_IBLOCK'] => $arParams['OFFER_TREE_PROPS'],
-							'OFFER_TREE_PROPS_'.$arResult['OFFERS_IBLOCK'] => $arParams['OFFER_TREE_PROPS'],
-							'CART_PROPERTIES_'.$arResult['OFFERS_IBLOCK'] => $arParams['OFFERS_CART_PROPERTIES'],
-							'ADDITIONAL_PICT_PROP_'.$arParams['IBLOCK_ID'] => (isset($arParams['ADD_PICT_PROP']) ? $arParams['ADD_PICT_PROP'] : ''),
-							'ADDITIONAL_PICT_PROP_'.$arResult['OFFERS_IBLOCK'] => (isset($arParams['OFFER_ADD_PICT_PROP']) ? $arParams['OFFER_ADD_PICT_PROP'] : ''),
-
-							'HIDE_NOT_AVAILABLE' => 'Y',
-							'HIDE_NOT_AVAILABLE_OFFERS' => 'Y',
-							'PRODUCT_SUBSCRIPTION' => $arParams['PRODUCT_SUBSCRIPTION'],
-							'TEMPLATE_THEME' => $arParams['TEMPLATE_THEME'],
-							'PRICE_CODE' => $arParams['PRICE_CODE'],
-							'SHOW_PRICE_COUNT' => $arParams['SHOW_PRICE_COUNT'],
-							'PRICE_VAT_INCLUDE' => $arParams['PRICE_VAT_INCLUDE'],
-							'CONVERT_CURRENCY' => $arParams['CONVERT_CURRENCY'],
-							'BASKET_URL' => $arParams['BASKET_URL'],
-							'ADD_PROPERTIES_TO_BASKET' => $arParams['ADD_PROPERTIES_TO_BASKET'],
-							'PRODUCT_PROPS_VARIABLE' => $arParams['PRODUCT_PROPS_VARIABLE'],
-							'PARTIAL_PRODUCT_PROPERTIES' => $arParams['PARTIAL_PRODUCT_PROPERTIES'],
-							'USE_PRODUCT_QUANTITY' => 'N',
-							'PRODUCT_QUANTITY_VARIABLE' => $arParams['PRODUCT_QUANTITY_VARIABLE'],
-							'CACHE_GROUPS' => $arParams['CACHE_GROUPS'],
-							'POTENTIAL_PRODUCT_TO_BUY' => array(
-								'ID' => isset($arResult['ID']) ? $arResult['ID'] : null,
-								'MODULE' => isset($arResult['MODULE']) ? $arResult['MODULE'] : 'catalog',
-								'PRODUCT_PROVIDER_CLASS' => isset($arResult['~PRODUCT_PROVIDER_CLASS']) ? $arResult['~PRODUCT_PROVIDER_CLASS'] : '\Bitrix\Catalog\Product\CatalogProvider',
-								'QUANTITY' => isset($arResult['QUANTITY']) ? $arResult['QUANTITY'] : null,
-								'IBLOCK_ID' => isset($arResult['IBLOCK_ID']) ? $arResult['IBLOCK_ID'] : null,
-
-								'PRIMARY_OFFER_ID' => isset($arResult['OFFERS'][$arResult['OFFERS_SELECTED']]['ID'])
-									? $arResult['OFFERS'][$arResult['OFFERS_SELECTED']]['ID']
-									: null,
-								'SECTION' => array(
-									'ID' => isset($arResult['SECTION']['ID']) ? $arResult['SECTION']['ID'] : null,
-									'IBLOCK_ID' => isset($arResult['SECTION']['IBLOCK_ID']) ? $arResult['SECTION']['IBLOCK_ID'] : null,
-									'LEFT_MARGIN' => isset($arResult['SECTION']['LEFT_MARGIN']) ? $arResult['SECTION']['LEFT_MARGIN'] : null,
-									'RIGHT_MARGIN' => isset($arResult['SECTION']['RIGHT_MARGIN']) ? $arResult['SECTION']['RIGHT_MARGIN'] : null,
-								),
-							),
-
-							'USE_ENHANCED_ECOMMERCE' => $arParams['USE_ENHANCED_ECOMMERCE'],
-							'DATA_LAYER_NAME' => $arParams['DATA_LAYER_NAME'],
-							'BRAND_PROPERTY' => $arParams['BRAND_PROPERTY']
+						'PRODUCT_ROW_VARIANTS' => "",
+						'PAGE_ELEMENT_COUNT' => 0,
+						'DEFERRED_PRODUCT_ROW_VARIANTS' => \Bitrix\Main\Web\Json::encode(
+							SaleProductsGiftComponent::predictRowVariants(
+								$arParams['GIFTS_DETAIL_PAGE_ELEMENT_COUNT'],
+								$arParams['GIFTS_DETAIL_PAGE_ELEMENT_COUNT']
+							)
 						),
+						'DEFERRED_PAGE_ELEMENT_COUNT' => $arParams['GIFTS_DETAIL_PAGE_ELEMENT_COUNT'],
+
+						'SHOW_DISCOUNT_PERCENT' => $arParams['GIFTS_SHOW_DISCOUNT_PERCENT'],
+						'DISCOUNT_PERCENT_POSITION' => $arParams['DISCOUNT_PERCENT_POSITION'],
+						'SHOW_OLD_PRICE' => $arParams['GIFTS_SHOW_OLD_PRICE'],
+						'PRODUCT_DISPLAY_MODE' => 'Y',
+						'PRODUCT_BLOCKS_ORDER' => $arParams['GIFTS_PRODUCT_BLOCKS_ORDER'],
+						'SHOW_SLIDER' => $arParams['GIFTS_SHOW_SLIDER'],
+						'SLIDER_INTERVAL' => isset($arParams['GIFTS_SLIDER_INTERVAL']) ? $arParams['GIFTS_SLIDER_INTERVAL'] : '',
+						'SLIDER_PROGRESS' => isset($arParams['GIFTS_SLIDER_PROGRESS']) ? $arParams['GIFTS_SLIDER_PROGRESS'] : '',
+
+						'TEXT_LABEL_GIFT' => $arParams['GIFTS_DETAIL_TEXT_LABEL_GIFT'],
+
+						'LABEL_PROP_'.$arParams['IBLOCK_ID'] => array(),
+						'LABEL_PROP_MOBILE_'.$arParams['IBLOCK_ID'] => array(),
+						'LABEL_PROP_POSITION' => $arParams['LABEL_PROP_POSITION'],
+
+						'ADD_TO_BASKET_ACTION' => (isset($arParams['ADD_TO_BASKET_ACTION']) ? $arParams['ADD_TO_BASKET_ACTION'] : ''),
+						'MESS_BTN_BUY' => $arParams['~GIFTS_MESS_BTN_BUY'],
+						'MESS_BTN_ADD_TO_BASKET' => $arParams['~GIFTS_MESS_BTN_BUY'],
+						'MESS_BTN_DETAIL' => $arParams['~MESS_BTN_DETAIL'],
+						'MESS_BTN_SUBSCRIBE' => $arParams['~MESS_BTN_SUBSCRIBE'],
+
+						'SHOW_PRODUCTS_'.$arParams['IBLOCK_ID'] => 'Y',
+						'PROPERTY_CODE_'.$arParams['IBLOCK_ID'] => $arParams['LIST_PROPERTY_CODE'],
+						'PROPERTY_CODE_MOBILE'.$arParams['IBLOCK_ID'] => $arParams['LIST_PROPERTY_CODE_MOBILE'],
+						'PROPERTY_CODE_'.$arResult['OFFERS_IBLOCK'] => $arParams['OFFER_TREE_PROPS'],
+						'OFFER_TREE_PROPS_'.$arResult['OFFERS_IBLOCK'] => $arParams['OFFER_TREE_PROPS'],
+						'CART_PROPERTIES_'.$arResult['OFFERS_IBLOCK'] => $arParams['OFFERS_CART_PROPERTIES'],
+						'ADDITIONAL_PICT_PROP_'.$arParams['IBLOCK_ID'] => (isset($arParams['ADD_PICT_PROP']) ? $arParams['ADD_PICT_PROP'] : ''),
+						'ADDITIONAL_PICT_PROP_'.$arResult['OFFERS_IBLOCK'] => (isset($arParams['OFFER_ADD_PICT_PROP']) ? $arParams['OFFER_ADD_PICT_PROP'] : ''),
+
+						'HIDE_NOT_AVAILABLE' => 'Y',
+						'HIDE_NOT_AVAILABLE_OFFERS' => 'Y',
+						'PRODUCT_SUBSCRIPTION' => $arParams['PRODUCT_SUBSCRIPTION'],
+						'TEMPLATE_THEME' => $arParams['TEMPLATE_THEME'],
+						'PRICE_CODE' => $arParams['PRICE_CODE'],
+						'SHOW_PRICE_COUNT' => $arParams['SHOW_PRICE_COUNT'],
+						'PRICE_VAT_INCLUDE' => $arParams['PRICE_VAT_INCLUDE'],
+						'CONVERT_CURRENCY' => $arParams['CONVERT_CURRENCY'],
+						'BASKET_URL' => $arParams['BASKET_URL'],
+						'ADD_PROPERTIES_TO_BASKET' => $arParams['ADD_PROPERTIES_TO_BASKET'],
+						'PRODUCT_PROPS_VARIABLE' => $arParams['PRODUCT_PROPS_VARIABLE'],
+						'PARTIAL_PRODUCT_PROPERTIES' => $arParams['PARTIAL_PRODUCT_PROPERTIES'],
+						'USE_PRODUCT_QUANTITY' => 'N',
+						'PRODUCT_QUANTITY_VARIABLE' => $arParams['PRODUCT_QUANTITY_VARIABLE'],
+						'CACHE_GROUPS' => $arParams['CACHE_GROUPS'],
+						'POTENTIAL_PRODUCT_TO_BUY' => array(
+							'ID' => isset($arResult['ID']) ? $arResult['ID'] : null,
+							'MODULE' => isset($arResult['MODULE']) ? $arResult['MODULE'] : 'catalog',
+							'PRODUCT_PROVIDER_CLASS' => isset($arResult['~PRODUCT_PROVIDER_CLASS']) ? $arResult['~PRODUCT_PROVIDER_CLASS'] : '\Bitrix\Catalog\Product\CatalogProvider',
+							'QUANTITY' => isset($arResult['QUANTITY']) ? $arResult['QUANTITY'] : null,
+							'IBLOCK_ID' => isset($arResult['IBLOCK_ID']) ? $arResult['IBLOCK_ID'] : null,
+
+							'PRIMARY_OFFER_ID' => isset($arResult['OFFERS'][$arResult['OFFERS_SELECTED']]['ID'])
+								? $arResult['OFFERS'][$arResult['OFFERS_SELECTED']]['ID']
+								: null,
+							'SECTION' => array(
+								'ID' => isset($arResult['SECTION']['ID']) ? $arResult['SECTION']['ID'] : null,
+								'IBLOCK_ID' => isset($arResult['SECTION']['IBLOCK_ID']) ? $arResult['SECTION']['IBLOCK_ID'] : null,
+								'LEFT_MARGIN' => isset($arResult['SECTION']['LEFT_MARGIN']) ? $arResult['SECTION']['LEFT_MARGIN'] : null,
+								'RIGHT_MARGIN' => isset($arResult['SECTION']['RIGHT_MARGIN']) ? $arResult['SECTION']['RIGHT_MARGIN'] : null,
+							),
+						),
+
+						'USE_ENHANCED_ECOMMERCE' => $arParams['USE_ENHANCED_ECOMMERCE'],
+						'DATA_LAYER_NAME' => $arParams['DATA_LAYER_NAME'],
+						'BRAND_PROPERTY' => $arParams['BRAND_PROPERTY']
+					),
 						$component,
 						array('HIDE_ICONS' => 'Y')
 					);
@@ -1192,7 +1201,8 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 						<?
 					}
 
-					$APPLICATION->IncludeComponent('bitrix:sale.gift.main.products', 'bootstrap_v4', array(
+					$APPLICATION->IncludeComponent('bitrix:sale.gift.main.products', 'bootstrap_v4',
+						array(
 							'CUSTOM_SITE_ID' => isset($arParams['CUSTOM_SITE_ID']) ? $arParams['CUSTOM_SITE_ID'] : null,
 							'PAGE_ELEMENT_COUNT' => $arParams['GIFTS_MAIN_PRODUCT_DETAIL_PAGE_ELEMENT_COUNT'],
 							'LINE_ELEMENT_COUNT' => $arParams['GIFTS_MAIN_PRODUCT_DETAIL_PAGE_ELEMENT_COUNT'],
@@ -1475,11 +1485,11 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 			$offerPrice = $offer['ITEM_PRICES'][$offer['ITEM_PRICE_SELECTED']];
 			?>
 			<span itemprop="offers" itemscope itemtype="http://schema.org/Offer">
-				<meta itemprop="sku" content="<?=htmlspecialcharsbx(implode('/', $currentOffersList))?>" />
-				<meta itemprop="price" content="<?=$offerPrice['RATIO_PRICE']?>" />
-				<meta itemprop="priceCurrency" content="<?=$offerPrice['CURRENCY']?>" />
-				<link itemprop="availability" href="http://schema.org/<?=($offer['CAN_BUY'] ? 'InStock' : 'OutOfStock')?>" />
-			</span>
+			<meta itemprop="sku" content="<?=htmlspecialcharsbx(implode('/', $currentOffersList))?>" />
+			<meta itemprop="price" content="<?=$offerPrice['RATIO_PRICE']?>" />
+			<meta itemprop="priceCurrency" content="<?=$offerPrice['CURRENCY']?>" />
+			<link itemprop="availability" href="http://schema.org/<?=($offer['CAN_BUY'] ? 'InStock' : 'OutOfStock')?>" />
+		</span>
 			<?
 		}
 
@@ -1489,10 +1499,10 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 	{
 		?>
 		<span itemprop="offers" itemscope itemtype="http://schema.org/Offer">
-			<meta itemprop="price" content="<?=$price['RATIO_PRICE']?>" />
-			<meta itemprop="priceCurrency" content="<?=$price['CURRENCY']?>" />
-			<link itemprop="availability" href="http://schema.org/<?=($actualItem['CAN_BUY'] ? 'InStock' : 'OutOfStock')?>" />
-		</span>
+		<meta itemprop="price" content="<?=$price['RATIO_PRICE']?>" />
+		<meta itemprop="priceCurrency" content="<?=$price['CURRENCY']?>" />
+		<link itemprop="availability" href="http://schema.org/<?=($actualItem['CAN_BUY'] ? 'InStock' : 'OutOfStock')?>" />
+	</span>
 		<?
 	}
 	?>
@@ -1524,9 +1534,9 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 					foreach ($jsOffer['DISPLAY_PROPERTIES'] as $property)
 					{
 						$current = '<li class="product-item-detail-properties-item">
-						<span class="product-item-detail-properties-name">'.$property['NAME'].'</span>
-						<span class="product-item-detail-properties-dots"></span>
-						<span class="product-item-detail-properties-value">'.(
+					<span class="product-item-detail-properties-name">'.$property['NAME'].'</span>
+					<span class="product-item-detail-properties-dots"></span>
+					<span class="product-item-detail-properties-value">'.(
 							is_array($property['VALUE'])
 								? implode(' / ', $property['VALUE'])
 								: $property['VALUE']

@@ -83,7 +83,7 @@ class CSaleDeliveryHelper
 				$key = 'CODE';
 			}
 
-			if($key == 'CODE' && strlen($arRegionList['CODE']) <= 0)
+			if($key == 'CODE' && $arRegionList['CODE'] == '')
 			{
 				continue;
 			}
@@ -101,7 +101,7 @@ class CSaleDeliveryHelper
 
 		$dId = $dpId = false;
 
-		if (strpos($deliveryId, ":") !== false)
+		if (mb_strpos($deliveryId, ":") !== false)
 		{
 			$arId = explode(":", $deliveryId);
 			$dId = $arId[0];
@@ -423,7 +423,7 @@ class CSaleDeliveryHelper
 	{
 		$arBoxes = array();
 
-		if(is_array($arConfig) && strlen($profile) > 0)
+		if(is_array($arConfig) && $profile <> '')
 		{
 			foreach ($arConfig as $key => $value)
 			{
@@ -433,8 +433,8 @@ class CSaleDeliveryHelper
 				if(!isset($value['MCS_ID']))
 					continue;
 
-				$boxId = substr($value['MCS_ID'], 4);
-				$subKey = substr($key, 0, 8);
+				$boxId = mb_substr($value['MCS_ID'], 4);
+				$subKey = mb_substr($key, 0, 8);
 
 				if($subKey == 'BOX_AV_C')
 					$arBoxes[$boxId]['NAME'] = $value['TITLE'];
@@ -497,7 +497,7 @@ class CSaleDeliveryHelper
 			$error = GetMessage("SALE_DHLP_FIELD")." \"".$name.
 					"\" ".GetMessage("SALE_DHLP_CONTAIN")." \"".$locale["decimal_point"]."\"";
 
-			if(strlen($locale["thousands_sep"]) > 0)
+			if($locale["thousands_sep"] <> '')
 				$error .= " ".GetMessage("SALE_DHLP_SEPARATOR")." \"".$locale["thousands_sep"]."\"";
 			$error .= "<br>\n";
 		}

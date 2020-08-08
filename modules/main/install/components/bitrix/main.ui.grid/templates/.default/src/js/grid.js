@@ -63,6 +63,7 @@
 		messageTypes
 	)
 	{
+		BX.Event.EventEmitter.makeObservable(this, 'BX.Main.Grid');
 		this.settings = null;
 		this.containerId = '';
 		this.container = null;
@@ -86,6 +87,7 @@
 		this.pinPanel = null;
 		this.arParams = null;
 		this.resize = null;
+		this.editableRows = [];
 
 		this.init(
 			containerId,
@@ -466,7 +468,7 @@
 
 		editSelectedSave: function()
 		{
-			var data = {'FIELDS': this.getRows().getEditSelectedValues()};
+			var data = {'FIELDS': this.getRows().getEditSelectedValues(true)};
 
 			if (this.getParam("ALLOW_VALIDATE"))
 			{
@@ -737,8 +739,12 @@
 					});
 				}
 
+				var filteredRows = rows.filter(function(row) {
+					return BX.Dom.attr(row, 'data-id') !== 'template_0';
+				});
+
 				if (!BX.hasClass(document.documentElement, 'bx-ie') &&
-					BX.type.isArray(rows) && rows.length === 1 &&
+					BX.type.isArray(rows) && filteredRows.length === 1 &&
 					BX.hasClass(rows[0], this.settings.get('classEmptyRows')))
 				{
 					var gridRect = BX.pos(this.getContainer());
@@ -1411,13 +1417,13 @@
 				return row.isShown();
 			}).length;
 
-			if (total === selected)
+			if (total > 0 && selected > 0 && total === selected)
 			{
 				this.selectAllCheckAllCheckboxes();
 			}
 			else
 			{
-				this.unselectAllCheckAllCheckboxes()
+				this.unselectAllCheckAllCheckboxes();
 			}
 
 			if (selected > 0 && selected < total)
@@ -2192,6 +2198,182 @@
 					BX.fireEvent(cancelButton, 'click');
 				}
 			}
-		}
+		},
+
+		/**
+		 * @private
+		 * @return {Element | any}
+		 */
+		getEmptyStub: function()
+		{
+			return this.getTable().querySelector('.main-grid-row-empty');
+		},
+
+		/**
+		 * @private
+		 */
+		showEmptyStub: function()
+		{
+			const stub = this.getEmptyStub();
+			if (stub)
+			{
+				BX.Dom.attr(stub, 'hidden', null);
+			}
+		},
+
+		/**
+		 * @private
+		 */
+		hideEmptyStub: function()
+		{
+			const stub = this.getEmptyStub();
+			if (stub)
+			{
+				BX.Dom.attr(stub, 'hidden', true);
+			}
+		},
+
+		/**
+		 * @private
+		 * @return {BX.Grid.Row}
+		 */
+		getTemplateRow: function()
+		{
+			const templateRow = BX.Runtime.clone(
+				this.getRows().getBodyChild(true).find((row) => {
+					return row.getId() === 'template_0';
+				}),
+			);
+			const cloned = BX.Runtime.clone(templateRow.getNode());
+			BX.Dom.prepend(cloned, this.getBody());
+
+			const checkbox = cloned.querySelector('[type="checkbox"]');
+			if (checkbox)
+			{
+				BX.Dom.attr(checkbox, 'disabled', null);
+				BX.Dom.attr(checkbox, 'data-disabled', null);
+			}
+
+			return new BX.Grid.Row(this, cloned);
+		},
+
+		/**
+		 * @private
+		 * @return {{}[]}
+		 */
+		getRowEditorValue: function(withTemplate)
+		{
+			this.rows = null;
+			return this.getRows().getSelected(withTemplate).map((row) => {
+				return row.getEditorValue();
+			});
+		},
+
+		/**
+		 * @private
+		 * @return {HTMLElement|HTMLBodyElement}
+		 */
+		getRowEditorActionPanel: function()
+		{
+			if (!this.rowEditorActionPanel)
+			{
+				this.rowEditorActionPanel = BX.Dom.create({
+					tag: 'div',
+					props: {className: 'main-ui-grid-row-editor-actions-panel'},
+					children: [
+						BX.Dom.create({
+							tag: 'span',
+							props: {className: 'ui-btn ui-btn-success'},
+							text: this.arParams.SAVE_BUTTON_LABEL,
+							events: {
+								click: this.saveRows.bind(this),
+							},
+						}),
+						BX.Dom.create({
+							tag: 'span',
+							props: {className: 'ui-btn ui-btn-link'},
+							text: this.arParams.CANCEL_BUTTON_LABEL,
+							events: {
+								click: this.hideRowsEditor.bind(this),
+							},
+						}),
+					],
+				});
+			}
+
+			return this.rowEditorActionPanel;
+		},
+
+		/**
+		 * @private
+		 */
+		showRowEditorActionsPanel: function()
+		{
+			const panel = this.getRowEditorActionPanel();
+			BX.Dom.append(panel, this.actionPanel.getPanel());
+		},
+
+		/**
+		 * @private
+		 */
+		hideRowEditorActionsPanel: function()
+		{
+			BX.Dom.remove(this.getRowEditorActionPanel());
+		},
+
+		/**
+		 * @return {BX.Grid.Row}
+		 */
+		prependRowEditor: function()
+		{
+			BX.Dom.style(this.getTable(), 'min-height', null);
+			const templateRow = this.getTemplateRow();
+			this.editableRows.push(templateRow);
+
+			templateRow.prependTo(this.getBody());
+			templateRow.show();
+			templateRow.select();
+			templateRow.edit();
+
+			this.hideEmptyStub();
+
+			return templateRow;
+		},
+
+		hideRowsEditor: function()
+		{
+			this.editableRows.forEach((row) => {
+				BX.Dom.remove(row.getNode());
+			});
+			this.editableRows = [];
+		},
+
+		saveRows: function()
+		{
+			const value = this.getRowEditorValue(true);
+
+			this.emitAsync('onAddRowsAsync', {rows: value})
+				.then((result) => {
+					result.forEach((rowData, rowIndex) => {
+						const row = this.editableRows[rowIndex];
+						if (row)
+						{
+							row.editCancel();
+							row.unselect();
+							row.makeCountable();
+
+							row.setId(rowData.id);
+							row.setActions(rowData.actions);
+							row.setCellsContent(rowData.columns);
+						}
+					});
+
+					this.bindOnRowEvents();
+					this.updateCounterDisplayed();
+					this.updateCounterSelected();
+
+					this.editableRows = [];
+				});
+		},
 	};
 })();

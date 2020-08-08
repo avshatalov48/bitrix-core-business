@@ -26,7 +26,7 @@ class Product extends DataConverter
 	 */
 	public function __construct($exportId)
 	{
-		if (!isset($exportId) || strlen($exportId) <= 0)
+		if (!isset($exportId) || $exportId == '')
 			throw new ArgumentNullException("EXPORT_ID");
 		
 		$this->exportId = $exportId;
@@ -83,7 +83,7 @@ class Product extends DataConverter
 		}
 
 //		if exist offers descriptions - add title for them
-		if (strlen($offersDescription) > 0)
+		if ($offersDescription <> '')
 			$this->result["description"] .= "\n\n" . Loc::getMessage("SALE_VK_PRODUCT_VARIANTS") . "\n" . $offersDescription;
 
 //		sorted photos array in right order
@@ -171,14 +171,14 @@ class Product extends DataConverter
 	{
 		$newDesc = $desc;
 		
-		if (strlen($desc) < self::DESCRIPTION_LENGHT_MIN)
+		if (mb_strlen($desc) < self::DESCRIPTION_LENGHT_MIN)
 		{
 			$newDesc = $this->result['NAME'] . ': ' . $desc;
-			if (strlen($newDesc) < self::DESCRIPTION_LENGHT_MIN)
+			if (mb_strlen($newDesc) < self::DESCRIPTION_LENGHT_MIN)
 			{
 				$newDesc = self::mb_str_pad($newDesc, self::DESCRIPTION_LENGHT_MIN, self::PAD_STRING);
 //				ending space trim fix
-				if ($newDesc[strlen($newDesc) - 1] == ' ')
+				if ($newDesc[mb_strlen($newDesc) - 1] == ' ')
 				{
 					$newDesc .= self::PAD_STRING;
 				}
@@ -189,9 +189,9 @@ class Product extends DataConverter
 			}
 		}
 		
-		if (strlen($newDesc) > self::DESCRIPTION_LENGHT_MAX)
+		if (mb_strlen($newDesc) > self::DESCRIPTION_LENGHT_MAX)
 		{
-			$newDesc = substr($newDesc, 0 ,self::DESCRIPTION_LENGHT_MAX) . '...';
+			$newDesc = mb_substr($newDesc, 0, self::DESCRIPTION_LENGHT_MAX).'...';
 		}
 		
 		return $newDesc;
@@ -346,7 +346,7 @@ class Product extends DataConverter
 			$result["DESCRIPTION_PROPERTIES"] = implode("; ", $propertyDescriptions);
 
 //		adding MAIN DESCRIPTION
-		$description = strip_tags(strlen($data["~DETAIL_TEXT"]) > 0 ? $data["~DETAIL_TEXT"] : $data["~PREVIEW_TEXT"]);
+		$description = strip_tags($data["~DETAIL_TEXT"] <> '' ? $data["~DETAIL_TEXT"] : $data["~PREVIEW_TEXT"]);
 		if ($description)
 			$result["DESCRIPTION"] .= $description;
 
@@ -354,7 +354,7 @@ class Product extends DataConverter
 		$result['PRICE'] = $data["PRICES"]["MIN_RUB"];
 
 //		adding PHOTOS
-		$photoId = (strlen($data["DETAIL_PICTURE"]) > 0) ? $data["DETAIL_PICTURE"] : $data["PREVIEW_PICTURE"];
+		$photoId = ($data["DETAIL_PICTURE"] <> '') ? $data["DETAIL_PICTURE"] : $data["PREVIEW_PICTURE"];
 		if ($photoId)
 			$result["PHOTOS"] = array($photoId => array("PHOTO_BX_ID" => $photoId));
 
@@ -395,11 +395,11 @@ class Product extends DataConverter
 //		todo: DELETED should depended by AVAILABLE
 		$result["deleted"] = 0;
 		$result["PRICE"] = $data["PRICES"]["MIN_RUB"];    // price converted in roubles
-		$result["description"] = strlen($data["~DETAIL_TEXT"]) > 0 ? $data["~DETAIL_TEXT"] : $data["~PREVIEW_TEXT"];
+		$result["description"] = $data["~DETAIL_TEXT"] <> '' ? $data["~DETAIL_TEXT"] : $data["~PREVIEW_TEXT"];
 		$result["description"] = trim(preg_replace('/\s{2,}/', "\n", $result["description"]));
 //		get main photo from preview or detail
-		$photoMainBxId = strlen($data["DETAIL_PICTURE"]) > 0 ? $data["DETAIL_PICTURE"] : $data["PREVIEW_PICTURE"];
-		$photoMainUrl = strlen($data["DETAIL_PICTURE_URL"]) > 0 ? $data["DETAIL_PICTURE_URL"] : $data["PREVIEW_PICTURE_URL"];
+		$photoMainBxId = $data["DETAIL_PICTURE"] <> '' ? $data["DETAIL_PICTURE"] : $data["PREVIEW_PICTURE"];
+		$photoMainUrl = $data["DETAIL_PICTURE_URL"] <> '' ? $data["DETAIL_PICTURE_URL"] : $data["PREVIEW_PICTURE_URL"];
 		if ($photoMainBxId && $photoMainUrl)
 			$result["PHOTO_MAIN"] = array(
 				$photoMainBxId => array(

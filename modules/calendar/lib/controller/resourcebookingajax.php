@@ -5,6 +5,7 @@ use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Error;
 use \Bitrix\Main\Engine\Response;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Json;
 
 Loc::loadMessages(__FILE__);
 
@@ -19,9 +20,12 @@ class ResourceBookingAjax extends \Bitrix\Main\Engine\Controller
 		return [
 			'getFillFormData' => [
 				'-prefilters' => [
-					\Bitrix\Main\Engine\ActionFilter\Authentication::class
-					//\Bitrix\Main\Engine\ActionFilter\Csrf::class
-				]
+					\Bitrix\Main\Engine\ActionFilter\Authentication::class,
+					\Bitrix\Main\Engine\ActionFilter\Csrf::class
+				],
+				'+postfilters' => [
+					new \Bitrix\Main\Engine\ActionFilter\Cors()
+				],
 			]
 		];
 	}
@@ -44,11 +48,6 @@ class ResourceBookingAjax extends \Bitrix\Main\Engine\Controller
 	public function getDefaultUserfieldSettingsAction()
 	{
 		return \Bitrix\Calendar\UserField\ResourceBooking::prepareSettings();
-	}
-
-	public function initB24LimitationAction()
-	{
-		return \Bitrix\Calendar\UserField\ResourceBooking::getB24LimitationPopupParams();
 	}
 
 	public function getBitrix24LimitationAction()
@@ -78,8 +77,16 @@ class ResourceBookingAjax extends \Bitrix\Main\Engine\Controller
 	public function getFillFormDataAction()
 	{
 		$request = $this->getRequest();
+		$settingsData = $request['settingsData'];
+
+		if (is_string($settingsData) && $settingsData)
+		{
+			$settingsData = Encoding::convertEncoding($settingsData, SITE_CHARSET, 'UTF-8');
+			$settingsData = Json::decode($settingsData);
+		}
+
 		return \Bitrix\Calendar\UserField\ResourceBooking::getFillFormData(
-			$request['settingsData'],
+			$settingsData,
 			[
 				'fieldName' => $request['fieldName'],
 				'from' => $request['from'],

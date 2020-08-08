@@ -26,7 +26,7 @@ CSocNetTools::InitGlobalExtranetArrays();
 $arResult["LAST_GROUPS"] = array();
 $arGroupsFilter = array("SITE_ID" => SITE_ID);
 $arPopupOptions = CUserOptions::GetOption("socialnetwork", "groups_popup", array());
-if (is_array($arPopupOptions) && strlen($arPopupOptions["last_selected"]) > 0)
+if (is_array($arPopupOptions) && $arPopupOptions["last_selected"] <> '')
 {
 	$arFilter = array("SITE_ID" => SITE_ID, "ID" => array_unique(explode(',', $arPopupOptions["last_selected"])));
 	if(!CSocNetUser::IsCurrentUserModuleAdmin())

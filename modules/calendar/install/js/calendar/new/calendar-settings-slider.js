@@ -102,6 +102,7 @@
 				this.DOM.crmSelect = top.BX(this.uid + '_crm_section');
 				this.DOM.showDeclined = top.BX(this.uid + '_show_declined');
 				this.DOM.showTasks = top.BX(this.uid + '_show_tasks');
+				this.DOM.syncTasks = top.BX(this.uid + '_sync_tasks');
 				this.DOM.showCompletedTasks = top.BX(this.uid + '_show_completed_tasks');
 				this.DOM.timezoneSelect = top.BX(this.uid + '_set_tz_sel');
 
@@ -167,7 +168,6 @@
 						if (!crmSection)
 						{
 							crmSection = section.id;
-
 						}
 						selected = crmSection === parseInt(section.id);
 						this.DOM.crmSelect.options.add(new Option(section.name, section.id, selected, selected));
@@ -177,19 +177,39 @@
 
 			if(this.DOM.showDeclined)
 			{
-				this.DOM.showDeclined.checked = !!parseInt(this.calendar.util.getUserOption('showDeclined'));
+				this.DOM.showDeclined.checked = this.calendar.util.getUserOption('showDeclined');
 			}
+
+			var showTasks = this.calendar.util.getUserOption('showTasks') === 'Y';
 			if(this.DOM.showTasks)
 			{
-				this.DOM.showTasks.checked = this.calendar.util.getUserOption('showTasks') === 'Y';
+				this.DOM.showTasks.checked = showTasks;
+				BX.Event.bind(this.DOM.showTasks, 'click', function(){
+					if(this.DOM.showCompletedTasks)
+					{
+						this.DOM.showCompletedTasks.disabled = !this.DOM.showTasks.checked;
+					}
+					if(this.DOM.syncTasks)
+					{
+						this.DOM.syncTasks.disabled = !this.DOM.showTasks.checked;
+						this.DOM.syncTasks.checked = this.DOM.syncTasks.checked && this.DOM.showTasks.checked;
+					}
+				}.bind(this));
 			}
 			if(this.DOM.showCompletedTasks)
 			{
 				this.DOM.showCompletedTasks.checked = this.calendar.util.getUserOption('showCompletedTasks') === 'Y';
+				this.DOM.showCompletedTasks.disabled = !showTasks;
 			}
+			if(this.DOM.syncTasks)
+			{
+				this.DOM.syncTasks.checked = this.calendar.util.getUserOption('syncTasks') === 'Y';
+				this.DOM.syncTasks.disabled = !showTasks;
+			}
+
 			if (this.DOM.denyBusyInvitation)
 			{
-				this.DOM.denyBusyInvitation.checked = !!parseInt(this.calendar.util.getUserOption('denyBusyInvitation'));
+				this.DOM.denyBusyInvitation.checked = this.calendar.util.getUserOption('denyBusyInvitation');
 			}
 
 			if (this.DOM.showWeekNumbers)
@@ -249,6 +269,10 @@
 			{
 				userSettings.showTasks = this.DOM.showTasks.checked ? 'Y' : 'N';
 			}
+			if (this.DOM.syncTasks)
+			{
+				userSettings.syncTasks = this.DOM.syncTasks.checked ? 'Y' : 'N';
+			}
 			if (this.DOM.showCompletedTasks)
 			{
 				userSettings.showCompletedTasks = this.DOM.showCompletedTasks.checked ? 'Y' : 'N';
@@ -283,14 +307,6 @@
 				userSettings.syncPeriodFuture = this.DOM.syncPeriodFuture.value;
 			}
 
-			// Save settings
-			//var postData = this.GetReqData('save_settings',
-			//	{
-			//		user_settings: this.calendar.util.config.userSettings,
-			//		user_timezone_name: this.arConfig.userTimezoneName
-			//	});
-
-			//this.settings.work_time_start = D.CAL.DOM.WorkTimeStart.value;
 			var data = {
 				action: 'save_settings',
 				user_settings: userSettings,
@@ -323,7 +339,7 @@
 			this.calendar.request({
 				type: 'post',
 				data: data,
-				handler: BX.delegate(function(response)
+				handler: BX.delegate(function()
 				{
 					BX.reload();
 				}, this)

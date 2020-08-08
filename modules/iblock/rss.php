@@ -4,9 +4,9 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.ph
 header("Content-Type: text/xml");
 CModule::IncludeModule("iblock");
 
-if (IntVal($ID)>0)
+if (intval($ID)>0)
 {
-	$ID = IntVal($ID);
+	$ID = intval($ID);
 }
 else
 {
@@ -14,7 +14,7 @@ else
 }
 $LANG = Trim($_REQUEST["LANG"]);
 $TYPE = Trim($TYPE);
-$LIMIT = IntVal($LIMIT);
+$LIMIT = intval($LIMIT);
 
 CIBlockRSS::GetRSS($ID, $LANG, $TYPE, $LIMIT, false, false);
 ?>

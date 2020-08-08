@@ -22,11 +22,28 @@ class CRestConfigurationActionComponent extends CBitrixComponent
 		$result = [];
 		$isAdmin = \CRestUtil::isAdmin();
 		$result['ITEMS'] = [];
+
 		if ($this->arParams['PATH_TO_IMPORT'])
 		{
+			if($isAdmin)
+			{
+				if(!empty($this->arParams['MANIFEST_CODE']) && !empty($this->arParams['PATH_TO_IMPORT_MANIFEST']))
+				{
+					$importPath = str_replace('#MANIFEST_CODE#', $this->arParams['MANIFEST_CODE'], $this->arParams['PATH_TO_IMPORT_MANIFEST']);
+				}
+				else
+				{
+					$importPath = $this->arParams['PATH_TO_IMPORT'];
+				}
+			}
+			else
+			{
+				$importPath = '#';
+			}
+
 			$result['ITEMS'][] = [
 				'title' => Loc::getMessage('REST_CONFIGURATION_ACTION_TITLE_IMPORT'),
-				'link' => $isAdmin ? $this->arParams['PATH_TO_IMPORT'] : '#',
+				'link' => $importPath,
 				'icon' => '/bitrix/images/rest/configuration/rest-market-site-import.svg',
 				'disabled' => !$isAdmin
 			];

@@ -15,7 +15,7 @@ return array(
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(
 			'THEME_CODE' => '1construction',
-			'THEME_CODE_TYPO' => '1construction',
+
 			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/construction/preview.jpg',
 			'METAOG_TITLE' => Loc::getMessage('LANDING_DEMO_CONSTRUCTION_TITLE'),
 			'METAOG_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_CONSTRUCTION_DESCRIPTION'),
@@ -29,7 +29,7 @@ return array(
 				'CODE' => '0.menu_07_construction',
 				'SORT' => '-100',
 				'CONTENT' => '
-<header class="landing-block landing-block-menu g-bg-white u-header u-header--floating u-header--floating-relative g-z-index-9999">
+<header class="landing-block landing-block-menu g-bg-white u-header u-header--sticky u-header--relative g-z-index-9999">
 	<div class="u-header__section u-header__section--light g-transition-0_3 g-py-12 g-py-20--md" data-header-fix-moment-exclude="g-py-20--md" data-header-fix-moment-classes="u-shadow-v27 g-py-15--md">
 		<nav class="navbar navbar-expand-lg g-py-0 g-px-10">
 			<div class="container">
@@ -177,7 +177,7 @@ return array(
 					</div>
                 </div>
 
-                <div class="col-md-7">
+                <div class="col-md-7 g-mb-15 g-mb-0--md">
                     <div aria-multiselectable="true">
                         <div class="landing-block-card-accordeon-element card g-brd-none js-animation fadeInUp animated ">
                             <div class="card-header u-accordion__header g-bg-transparent g-brd-none rounded-0 p-0">
@@ -433,7 +433,7 @@ return array(
 						</h2>
                     </div>
                     <img class="landing-block-node-img img-fluid g-mb-20 flex-shrink-0" src="https://cdn.bitrix24.site/bitrix/images/landing/business/1000x565/img1.jpg" alt="" />
-                    <div class="landing-block-node-text g-line-height-1_8 g-font-size-default g-color-white-opacity-0_8 g-mb-40 g-font-size-14">
+                    <div class="landing-block-node-text g-line-height-1_8 g-font-size-default g-color-white-opacity-0_8 g-mb-40">
 						<p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur, sunt in culpa qui officia deserunt mollit
 							anim id est laborum.</p>
 					</div>
@@ -454,7 +454,7 @@ return array(
 						</h2>
                     </div>
                     <img class="landing-block-node-img img-fluid g-mb-20 flex-shrink-0" src="https://cdn.bitrix24.site/bitrix/images/landing/business/1000x565/img2.jpg" alt="" />
-                    <div class="landing-block-node-text g-line-height-1_8 g-font-size-default g-color-white-opacity-0_8 g-mb-40 g-font-size-14">
+                    <div class="landing-block-node-text g-line-height-1_8 g-font-size-default g-color-white-opacity-0_8 g-mb-40">
 						<p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur, sunt in culpa qui officia deserunt mollit
 							anim id est laborum.</p>
 					</div>
@@ -475,7 +475,7 @@ return array(
 						</h2>
                     </div>
                     <img class="landing-block-node-img img-fluid g-mb-20 flex-shrink-0" src="https://cdn.bitrix24.site/bitrix/images/landing/business/1000x565/img3.jpg" alt="" />
-                    <div class="landing-block-node-text g-line-height-1_8 g-font-size-default g-color-white-opacity-0_8 g-mb-40 g-font-size-14">
+                    <div class="landing-block-node-text g-line-height-1_8 g-font-size-default g-color-white-opacity-0_8 g-mb-40">
 						<p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur, sunt in culpa qui officia deserunt mollit
 							anim id est laborum.</p>
 					</div>
@@ -644,16 +644,17 @@ return array(
 			array (
 				'CODE' => '24.2.image_carousel_6_cols_fix_3',
 				'SORT' => '6000',
-				'CONTENT' => '<section class="landing-block js-animation landing-block-node-bgimg g-bg-img-hero u-bg-overlay g-pt-60 g-py-80 fadeIn animated g-bg-primary-opacity-0_8--after" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x350/img1.jpg);">
-	<div class="container u-bg-overlay__inner text-center">
-		<div class="js-carousel"
+				'CONTENT' => '<section class="landing-block js-animation fadeIn landing-block-node-bgimg g-bg-img-hero u-bg-overlay g-bg-primary-opacity-0_9--after g-pt-60 g-pb-80"
+		style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x350/img1.jpg);">
+	<div class="container u-bg-overlay__inner text-center g-px-35 g-px-0--md">
+		<div class="js-carousel row"
 			 data-autoplay="true"
 			 data-pause-hover="true"
 			 data-infinite="true"
 			 data-slides-show="6"
 			 data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-45 g-height-45 g-font-size-30 g-color-white"
-			 data-arrow-left-classes="fa fa-angle-left g-left-minus-20"
-			 data-arrow-right-classes="fa fa-angle-right g-right-minus-20"
+			 data-arrow-left-classes="fa fa-angle-left g-left-minus-35"
+			 data-arrow-right-classes="fa fa-angle-right g-right-minus-35"
 			 data-responsive=\'[{
                  "breakpoint": 1200,
                  "settings": {
@@ -674,52 +675,67 @@ return array(
                  "settings": {
                    "slidesToShow": 1
                  }
-               }]\'>
-			<div class="landing-block-card-carousel-element js-slide g-mx-15 g-pt-20">
+               }]\'
+			 data-init-classes-exclude=\'[{
+				 "selector": ".landing-block-card-carousel-element",
+				 "class": "col-12 col-sm-3 col-lg-2"
+			   }, {
+				 "selector": ".js-carousel",
+				 "class": "row"
+			   }]\'>
+			<div class="landing-block-card-carousel-element js-slide g-mx-15 g-pt-20 d-flex justify-content-center col-12 col-sm-3 col-lg-2">
 				<a href="#" class="landing-block-card-logo-link">
-					<img class="landing-block-node-img mx-auto g-width-120" src="https://cdn.bitrix24.site/bitrix/images/landing/business/250x200/img1.png" alt="" />
+					<img class="landing-block-node-img mx-auto g-width-120"
+						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/250x200/img1.png" alt="">
 				</a>
 			</div>
 
-			<div class="landing-block-card-carousel-element js-slide g-mx-15 g-pt-20">
+			<div class="landing-block-card-carousel-element js-slide g-mx-15 g-pt-20 d-flex justify-content-center col-12 col-sm-3 col-lg-2">
 				<a href="#" class="landing-block-card-logo-link">
-					<img class="landing-block-node-img mx-auto g-width-120" src="https://cdn.bitrix24.site/bitrix/images/landing/business/250x200/img2.png" alt="" />
+					<img class="landing-block-node-img mx-auto g-width-120"
+						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/250x200/img2.png" alt="">
 				</a>
 			</div>
 
-			<div class="landing-block-card-carousel-element js-slide g-mx-15 g-pt-20">
+			<div class="landing-block-card-carousel-element js-slide g-mx-15 g-pt-20 d-flex justify-content-center col-12 col-sm-3 col-lg-2">
 				<a href="#" class="landing-block-card-logo-link">
-					<img class="landing-block-node-img mx-auto g-width-120" src="https://cdn.bitrix24.site/bitrix/images/landing/business/250x200/img3.png" alt="" />
+					<img class="landing-block-node-img mx-auto g-width-120"
+						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/250x200/img3.png" alt="">
 				</a>
 			</div>
 
-			<div class="landing-block-card-carousel-element js-slide g-mx-15 g-pt-20">
+			<div class="landing-block-card-carousel-element js-slide g-mx-15 g-pt-20 d-flex justify-content-center col-12 col-sm-3 col-lg-2">
 				<a href="#" class="landing-block-card-logo-link">
-					<img class="landing-block-node-img mx-auto g-width-120" src="https://cdn.bitrix24.site/bitrix/images/landing/business/250x200/img4.png" alt="" />
+					<img class="landing-block-node-img mx-auto g-width-120"
+						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/250x200/img4.png" alt="">
 				</a>
 			</div>
 
-			<div class="landing-block-card-carousel-element js-slide g-mx-15 g-pt-20">
+			<div class="landing-block-card-carousel-element js-slide g-mx-15 g-pt-20 d-flex justify-content-center col-12 col-sm-3 col-lg-2">
 				<a href="#" class="landing-block-card-logo-link">
-					<img class="landing-block-node-img mx-auto g-width-120" src="https://cdn.bitrix24.site/bitrix/images/landing/business/250x200/img5.png" alt="" />
+					<img class="landing-block-node-img mx-auto g-width-120"
+						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/250x200/img5.png" alt="">
 				</a>
 			</div>
 
-			<div class="landing-block-card-carousel-element js-slide g-mx-15 g-pt-20">
+			<div class="landing-block-card-carousel-element js-slide g-mx-15 g-pt-20 d-flex justify-content-center col-12 col-sm-3 col-lg-2">
 				<a href="#" class="landing-block-card-logo-link">
-					<img class="landing-block-node-img mx-auto g-width-120" src="https://cdn.bitrix24.site/bitrix/images/landing/business/250x200/img6.png" alt="" />
+					<img class="landing-block-node-img mx-auto g-width-120"
+						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/250x200/img6.png" alt="">
 				</a>
 			</div>
 
-			<div class="landing-block-card-carousel-element js-slide g-mx-15 g-pt-20">
+			<div class="landing-block-card-carousel-element js-slide g-mx-15 g-pt-20 d-flex justify-content-center col-12 col-sm-3 col-lg-2">
 				<a href="#" class="landing-block-card-logo-link">
-					<img class="landing-block-node-img mx-auto g-width-120" src="https://cdn.bitrix24.site/bitrix/images/landing/business/250x200/img7.png" alt="" />
+					<img class="landing-block-node-img mx-auto g-width-120"
+						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/250x200/img7.png" alt="">
 				</a>
 			</div>
 
-			<div class="landing-block-card-carousel-element js-slide g-mx-15 g-pt-20">
+			<div class="landing-block-card-carousel-element js-slide g-mx-15 g-pt-20 d-flex justify-content-center col-12 col-sm-3 col-lg-2">
 				<a href="#" class="landing-block-card-logo-link">
-					<img class="landing-block-node-img mx-auto g-width-120" src="https://cdn.bitrix24.site/bitrix/images/landing/business/250x200/img8.png" alt="" />
+					<img class="landing-block-node-img mx-auto g-width-120"
+						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/250x200/img8.png" alt="">
 				</a>
 			</div>
 		</div>

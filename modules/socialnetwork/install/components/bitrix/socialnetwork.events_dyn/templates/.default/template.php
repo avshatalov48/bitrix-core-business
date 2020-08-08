@@ -41,9 +41,9 @@ $ajax_page = $APPLICATION->GetCurPageParam("", array("bxajaxid", "logout"));
 		sonetDynevMsgGetPath: '<?=CUtil::JSEscape('/bitrix/components/bitrix/socialnetwork.events_dyn/get_message_2.php')?>',
 		sonetDynevMsgSetPath: '<?=CUtil::JSEscape('/bitrix/components/bitrix/socialnetwork.events_dyn/set_message_2.php')?>',
 		sonetDynevSessid: '<?=bitrix_sessid_get()?>',
-		sonetDynevUserId: <?=CUtil::JSEscape(IntVal($GLOBALS["USER"]->GetID()))?>,
+		sonetDynevUserId: <?=CUtil::JSEscape(intval($GLOBALS["USER"]->GetID()))?>,
 		sonetDynevSiteId: '<?=CUtil::JSEscape(SITE_ID)?>',
-		sonetDynevTimeout: <?=IntVal($arParams["AJAX_LONG_TIMEOUT"])?>,
+		sonetDynevTimeout: <?=intval($arParams["AJAX_LONG_TIMEOUT"])?>,
 		sonetDynevPath2User: '<?=CUtil::JSEscape($arParams["PATH_TO_USER"])?>',
 		sonetDynevPath2Group: '<?=CUtil::JSEscape($arParams["PATH_TO_GROUP"])?>',
 		sonetDynevPath2MessageMess: '<?=CUtil::JSEscape($arParams["PATH_TO_MESSAGE_FORM_MESS"])?>',
@@ -106,6 +106,6 @@ $ajax_page = $APPLICATION->GetCurPageParam("", array("bxajaxid", "logout"));
 if (isset($arParams["JAVASCRIPT_ONLY"]) && $arParams["JAVASCRIPT_ONLY"] == "Y")
 	return;
 
-if (strlen(trim($arParams["UNREAD_CNT_ID"])) > 0)
+if (trim($arParams["UNREAD_CNT_ID"]) <> '')
 	echo '<i id="'.$arParams["UNREAD_CNT_ID"].'">'.(array_key_exists("ITEMS_TOTAL", $arResult) && intval($arResult["ITEMS_TOTAL"]) > 0 ? $arResult["ITEMS_TOTAL"] : "").'</i>';
 ?>

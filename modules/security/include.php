@@ -18,8 +18,9 @@ CModule::AddAutoloadClasses(
 		"CSecuritySessionDB" => "classes/general/session_db.php",
 		"CSecuritySessionMC" => "classes/general/session_mc.php",
 		"CSecuritySessionRedis" => "classes/general/session_redis.php",
+		"CSecuritySessionHandler" => "classes/general/session_handler.php",
 		"CSecuritySession" => "classes/general/session.php",
-		"CSecurityDB" => "classes/".strtolower($DB->type)."/database.php",
+		"CSecurityDB" => "classes/".mb_strtolower($DB->type)."/database.php",
 		"CSecurityUser" => "classes/general/user.php",
 		"CSecurityRedirect" => "classes/general/redirect.php",
 		"CSecurityAntiVirus" => "classes/general/antivirus.php",
@@ -44,4 +45,3 @@ CModule::AddAutoloadClasses(
 		"CSecurityRequirementsException" => "classes/general/requirements_exception.php"
 	)
 );
-

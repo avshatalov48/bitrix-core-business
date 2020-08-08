@@ -116,7 +116,7 @@ class CBPCreateWorkGroup
 				array(
 					"USER_ID" => $user,
 					"GROUP_ID" => $groupId,
-					"ROLE" => SONET_ROLES_USER,
+					"ROLE" => \Bitrix\Socialnetwork\UserToGroupTable::ROLE_USER,
 					"=DATE_CREATE" => $DB->CurrentTimeFunction(),
 					"=DATE_UPDATE" => $DB->CurrentTimeFunction(),
 					"INITIATED_BY_TYPE" => SONET_INITIATED_BY_GROUP,
@@ -129,7 +129,8 @@ class CBPCreateWorkGroup
 					'group_id' => $groupId,
 					'user_id' => $user,
 					'action' => \Bitrix\Socialnetwork\Item\UserToGroup::CHAT_ACTION_IN,
-					'sendMessage' => false
+					'sendMessage' => false,
+					'role' => \Bitrix\Socialnetwork\UserToGroupTable::ROLE_USER
 				));
 			}
 		}
@@ -140,7 +141,7 @@ class CBPCreateWorkGroup
 	public static function ValidateProperties($arTestProperties = array(), CBPWorkflowTemplateUser $user = null)
 	{
 		$arErrors = array();
-		if (!array_key_exists("GroupName", $arTestProperties) || strlen($arTestProperties["GroupName"]) <= 0)
+		if (!array_key_exists("GroupName", $arTestProperties) || $arTestProperties["GroupName"] == '')
 			$arErrors[] = array("code" => "NotExist", "parameter" => "GroupName", "message" => GetMessage("BPCWG_EMPTY_GROUP_NAME"));
 		if (!array_key_exists("OwnerId", $arTestProperties) || count($arTestProperties["OwnerId"]) <= 0)
 			$arErrors[] = array("code" => "NotExist", "parameter" => "OwnerId", "message" => GetMessage("BPCWG_EMPTY_OWNER"));
@@ -237,7 +238,7 @@ class CBPCreateWorkGroup
 			$arProperties[$value] = $arCurrentValues[$key];
 		}
 
-		if (strlen($arProperties["GroupSite"]) <= 0)
+		if ($arProperties["GroupSite"] == '')
 		{
 			$arProperties["GroupSite"] = $arCurrentValues["group_site_x"];
 		}

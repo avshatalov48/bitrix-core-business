@@ -200,7 +200,7 @@ function BXSetFilter(currentFilterNew)
 <br><br>
 </noindex>
 
-<?if (strlen($arResult["ERROR_MESSAGE"]) <= 0):?>
+<?if ($arResult["ERROR_MESSAGE"] == ''):?>
 	<?if (count($arResult["SEARCH_RESULT"]) > 0):?>
 		<br />
 		<?if ($arResult['CURRENT_VIEW'] == "list"):?>
@@ -245,7 +245,7 @@ function BXSetFilter(currentFilterNew)
 							<div class="bx-user-properties">
 								<?if ($v["UserFieldsMain"]["SHOW"] == "Y"):?>
 									<?foreach ($v["UserFieldsMain"]["DATA"] as $fieldName => $arUserField):?>
-										<?if (StrLen($arUserField["VALUE"]) > 0):?>
+										<?if ($arUserField["VALUE"] <> ''):?>
 											<?= $arUserField["NAME"] ?>:
 											<?= $arUserField["VALUE"] ?>
 											<br />
@@ -254,7 +254,7 @@ function BXSetFilter(currentFilterNew)
 								<?endif;?>
 								<?if ($v["UserPropertiesMain"]["SHOW"] == "Y"):?>
 									<?foreach ($v["UserPropertiesMain"]["DATA"] as $fieldName => $arUserField):?>
-										<?if ((is_array($arUserField["VALUE"]) && count($arUserField["VALUE"]) > 0) || (!is_array($arUserField["VALUE"]) && StrLen($arUserField["VALUE"]) > 0)):?>
+										<?if ((is_array($arUserField["VALUE"]) && count($arUserField["VALUE"]) > 0) || (!is_array($arUserField["VALUE"]) && $arUserField["VALUE"] <> '')):?>
 											<?=$arUserField["EDIT_FORM_LABEL"]?>:
 											<?
 											if ($arUserField["FIELD_NAME"] == "UF_DEPARTMENT")
@@ -409,7 +409,7 @@ function BXSetFilter(currentFilterNew)
 			</div>
 		<?endif;?>
 
-		<?if (strlen($arResult["NAV_STRING"]) > 0):?>
+		<?if ($arResult["NAV_STRING"] <> ''):?>
 			<p><?=$arResult["NAV_STRING"]?></p>
 		<?endif;?>
 	

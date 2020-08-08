@@ -162,18 +162,18 @@ border-top:none;padding:0cm 2.0pt 0cm 2.0pt;height:9.0pt'>
 	$arUser = $db_user->Fetch();
 	echo htmlspecialcharsbx($arUser["NAME"])." ".htmlspecialcharsbx($arUser["LAST_NAME"]).", ";
 
-	if (strlen($arOrderProps["F_INDEX"])>0) echo $arOrderProps["F_INDEX"].",";
+	if ($arOrderProps["F_INDEX"] <> '') echo $arOrderProps["F_INDEX"].",";
 
 	$arVal = CSaleLocation::GetByID($arOrderProps["F_LOCATION"], "ru");
-	if(strlen($arVal["COUNTRY_NAME"])>0 && strlen($arVal["CITY_NAME"])>0)
+	if($arVal["COUNTRY_NAME"] <> '' && $arVal["CITY_NAME"] <> '')
 		echo htmlspecialcharsbx($arVal["COUNTRY_NAME"]." - ".$arVal["CITY_NAME"]);
-	elseif(strlen($arVal["COUNTRY_NAME"])>0 || strlen($arVal["CITY_NAME"])>0)
+	elseif($arVal["COUNTRY_NAME"] <> '' || $arVal["CITY_NAME"] <> '')
 		echo htmlspecialcharsbx($arVal["COUNTRY_NAME"].$arVal["CITY_NAME"]);
 
-	if (strlen($arOrderProps["F_CITY"])>0) echo ", г. ".$arOrderProps["F_CITY"];
-	if (strlen($arOrderProps["F_ADDRESS"])>0 && strlen($arOrderProps["F_CITY"])>0)
+	if ($arOrderProps["F_CITY"] <> '') echo ", г. ".$arOrderProps["F_CITY"];
+	if ($arOrderProps["F_ADDRESS"] <> '' && $arOrderProps["F_CITY"] <> '')
 		echo ", ".$arOrderProps["F_ADDRESS"];
-	elseif(strlen($arOrderProps["F_ADDRESS"])>0)
+	elseif($arOrderProps["F_ADDRESS"] <> '')
 		echo $arOrderProps["F_ADDRESS"];
 
 	if (strval($arOrderProps["PHONE"]) != "")
@@ -184,12 +184,12 @@ border-top:none;padding:0cm 2.0pt 0cm 2.0pt;height:9.0pt'>
 }
 else
 {
-	if(strlen($arParams["BUYER_COMPANY_NAME"]) > 0)
+	if($arParams["BUYER_COMPANY_NAME"] <> '')
 		echo $arParams["BUYER_COMPANY_NAME"];
 	else
 		echo $arParams["BUYER_LAST_NAME"]." ".$arParams["BUYER_FIRST_NAME"]." ".$arParams["BUYER_SECOND_NAME"];
 
-	if (strlen($arParams["BUYER_INN"])>0) echo " ИНН/КПП: ".$arParams["BUYER_INN"]." / ".$arParams["BUYER_KPP"];
+	if ($arParams["BUYER_INN"] <> '') echo " ИНН/КПП: ".$arParams["BUYER_INN"]." / ".$arParams["BUYER_KPP"];
 
 	echo ", ".$arParams["BUYER_COUNTRY"].", ".$arParams["BUYER_INDEX"].", г. ".$arParams["BUYER_CITY"].", ".$arParams["BUYER_ADDRESS"].", р/с ".$arParams["BUYER_RSCH"]." в ".$arParams["BUYER_RSCH_BANK"]." г. ".$arParams["BUYER_RSCH_CITY"].", к/с ".$arParams["BUYER_KSCH"].", БИК ".$arParams["BUYER_BIK"];
 
@@ -255,20 +255,20 @@ if(empty($arParams))
 	$arUser = $db_user->Fetch();
 	echo htmlspecialcharsbx($arUser["NAME"])." ".htmlspecialcharsbx($arUser["LAST_NAME"]).", ";
 
-	if (strlen($arOrderProps["F_INN"])>0) echo "ИНН: ".$arOrderProps["F_INN"];
+	if ($arOrderProps["F_INN"] <> '') echo "ИНН: ".$arOrderProps["F_INN"];
 
-	if (strlen($arOrderProps["F_INDEX"])>0) echo $arOrderProps["F_INDEX"].",";
+	if ($arOrderProps["F_INDEX"] <> '') echo $arOrderProps["F_INDEX"].",";
 
 	$arVal = CSaleLocation::GetByID($arOrderProps["F_LOCATION"], "ru");
-	if(strlen($arVal["COUNTRY_NAME"])>0 && strlen($arVal["CITY_NAME"])>0)
+	if($arVal["COUNTRY_NAME"] <> '' && $arVal["CITY_NAME"] <> '')
 		echo htmlspecialcharsbx($arVal["COUNTRY_NAME"]." - ".$arVal["CITY_NAME"]);
-	elseif(strlen($arVal["COUNTRY_NAME"])>0 || strlen($arVal["CITY_NAME"])>0)
+	elseif($arVal["COUNTRY_NAME"] <> '' || $arVal["CITY_NAME"] <> '')
 		echo htmlspecialcharsbx($arVal["COUNTRY_NAME"].$arVal["CITY_NAME"]);
 
-	if (strlen($arOrderProps["F_CITY"])>0) echo ", г. ".$arOrderProps["F_CITY"];
-	if (strlen($arOrderProps["F_ADDRESS"])>0 && strlen($arOrderProps["F_CITY"])>0)
+	if ($arOrderProps["F_CITY"] <> '') echo ", г. ".$arOrderProps["F_CITY"];
+	if ($arOrderProps["F_ADDRESS"] <> '' && $arOrderProps["F_CITY"] <> '')
 		echo ", ".$arOrderProps["F_ADDRESS"];
-	elseif(strlen($arOrderProps["F_ADDRESS"])>0)
+	elseif($arOrderProps["F_ADDRESS"] <> '')
 		echo $arOrderProps["F_ADDRESS"];
 
 	if (strval($arOrderProps["PHONE"]) != "")
@@ -278,12 +278,12 @@ if(empty($arParams))
 }
 else
 {
-	if(strlen($arParams["BUYER_COMPANY_NAME"]) > 0)
+	if($arParams["BUYER_COMPANY_NAME"] <> '')
 		echo $arParams["BUYER_COMPANY_NAME"];
 	else
 		echo $arParams["BUYER_LAST_NAME"]." ".$arParams["BUYER_FIRST_NAME"]." ".$arParams["BUYER_SECOND_NAME"];
 
-	if (strlen($arParams["BUYER_INN"])>0) echo " ИНН/КПП: ".$arParams["BUYER_INN"]." / ".$arParams["BUYER_KPP"];
+	if ($arParams["BUYER_INN"] <> '') echo " ИНН/КПП: ".$arParams["BUYER_INN"]." / ".$arParams["BUYER_KPP"];
 
 	echo ", ".$arParams["BUYER_COUNTRY"].", ".$arParams["BUYER_INDEX"].", г. ".$arParams["BUYER_CITY"].", ".$arParams["BUYER_ADDRESS"].", р/с ".$arParams["BUYER_RSCH"]." в ".$arParams["BUYER_RSCH_BANK"]." г. ".$arParams["BUYER_RSCH_CITY"].", к/с ".$arParams["BUYER_KSCH"].", БИК ".$arParams["BUYER_BIK"];
 
@@ -837,7 +837,7 @@ padding:0cm 2.0pt 0cm 2.0pt;height:9.0pt;width:200px;'>
 	{
 		foreach($arBasket["PROPS"] as $vv)
 		{
-			if(strlen($vv["VALUE"]) > 0 && $vv["CODE"] != "CATALOG.XML_ID" && $vv["CODE"] != "PRODUCT.XML_ID")
+			if($vv["VALUE"] <> '' && $vv["CODE"] != "CATALOG.XML_ID" && $vv["CODE"] != "PRODUCT.XML_ID")
 				echo "<div style=\"font-size:8pt\">".$vv["NAME"].": ".$vv["VALUE"]."</div>";
 		}
 	}
@@ -1264,10 +1264,10 @@ line-height:133%'><?=CCurrencyLang::CurrencyFormat($total_sum, $arOrder["CURRENC
 <?
 function PrintRussian($num, $ext)
 {
-	if(strlen($num)>1 && substr($num,strlen($num)-2,1)=="1")
+	if(mb_strlen($num) > 1 && mb_substr($num, mb_strlen($num) - 2, 1) == "1")
 		return $ext[2];
 
-	$c=IntVal(substr($num,strlen($num)-1,1));
+	$c=intval(mb_substr($num, mb_strlen($num) - 1, 1));
 	if($c==0 || ($c>=5 && $c<=9))
 		return $ext[2];
 

@@ -7,7 +7,7 @@ if (!CModule::IncludeModule("socialnetwork"))
 }
 
 $arParams["PATH_TO_GROUP"] = trim($arParams["PATH_TO_GROUP"]);
-$arParams["IFRAME_POPUP_VAR_NAME"] = array_key_exists("IFRAME_POPUP_VAR_NAME", $arParams) && strlen($arParams["IFRAME_POPUP_VAR_NAME"]) > 0 
+$arParams["IFRAME_POPUP_VAR_NAME"] = array_key_exists("IFRAME_POPUP_VAR_NAME", $arParams) && $arParams["IFRAME_POPUP_VAR_NAME"] <> '' 
 									? CUtil::JSEscape($arParams["IFRAME_POPUP_VAR_NAME"]) : "sonetGroupIFramePopup";
 
 $this->IncludeComponentTemplate();

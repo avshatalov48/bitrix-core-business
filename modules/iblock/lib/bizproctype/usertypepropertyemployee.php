@@ -56,7 +56,7 @@ if (Loader::requireModule('bizproc'))
 				case FieldType::STRING:
 				case FieldType::TEXT:
 				case FieldType::USER:
-					if (strpos($value, 'user_') === false)
+					if (mb_strpos($value, 'user_') === false)
 					{
 						$value = null;
 					}

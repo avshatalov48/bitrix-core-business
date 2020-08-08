@@ -93,8 +93,8 @@ class User extends Base
 			case FieldType::DOUBLE:
 			case FieldType::INT:
 				$value = (string)$value;
-				if (strpos($value, 'user_') === 0)
-					$value = substr($value, strlen('user_'));
+				if (mb_strpos($value, 'user_') === 0)
+					$value = mb_substr($value, mb_strlen('user_'));
 				$value = (int)$value;
 				break;
 			case FieldType::STRING:
@@ -171,7 +171,7 @@ class User extends Base
 				$config['groups'] = [];
 				foreach ($groups as $id => $groupName)
 				{
-					if (!$groupName || strpos($id, 'group_') === 0)
+					if (!$groupName || mb_strpos($id, 'group_') === 0)
 					{
 						continue;
 					}
@@ -244,7 +244,7 @@ HTML;
 		$value = parent::extractValue($fieldType, $field, $request);
 		$result = null;
 
-		if (is_string($value) && strlen($value) > 0)
+		if (is_string($value) && $value <> '')
 		{
 			$errors = array();
 			$result = \CBPHelper::usersStringToArray($value, $fieldType->getDocumentType(), $errors);

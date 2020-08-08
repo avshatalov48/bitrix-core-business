@@ -52,7 +52,7 @@ class CALLSaleProduct
 							$boolArr = is_array($prop["VALUE"]);
 							if(
 								($boolArr && !empty($prop["VALUE"]))
-								|| (!$boolArr && strlen($prop["VALUE"]) > 0)
+								|| (!$boolArr && $prop["VALUE"] <> '')
 							)
 							{
 								$displayProperty = CIBlockFormatProperties::GetDisplayValue($arElement, $prop, '');
@@ -207,7 +207,7 @@ class CALLSaleProduct
 				{
 					break;
 				}
-				elseif (strlen($CURRENCY) > 0)
+				elseif ($CURRENCY <> '')
 				{
 					$arPrice["PRICE"]["PRICE"] = CCurrencyRates::ConvertCurrency($arPrice["PRICE"]["PRICE"], $arPrice["PRICE"]["CURRENCY"], $CURRENCY);
 					if ($arPrice["DISCOUNT_PRICE"] > 0)
@@ -315,7 +315,7 @@ class CALLSaleProduct
 
 				if (count($arPrice["DISCOUNT"]) > 0)
 				{
-					$discountPercent = IntVal($arPrice["DISCOUNT"]["VALUE"]);
+					$discountPercent = intval($arPrice["DISCOUNT"]["VALUE"]);
 
 					$arSkuTmp["DISCOUNT_PRICE"] = $arPrice["DISCOUNT_PRICE"];
 					$arSkuTmp["DISCOUNT_PRICE_FORMATED"] = CCurrencyLang::CurrencyFormat($arPrice["DISCOUNT_PRICE"], $arPrice["PRICE"]["CURRENCY"], false);
@@ -581,7 +581,7 @@ class CAllSaleViewedProduct
 			$strUpdateSql .= ", DATE_VISIT = ".$DB->GetNowFunction()." ";
 		}
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$strUpdate = $DB->PrepareUpdate("b_sale_viewed_product", $arFields);
 
 		$strSql = "UPDATE b_sale_viewed_product SET ".

@@ -93,6 +93,12 @@ class PushTable extends Main\Entity\DataManager
 				'validation' => array(__CLASS__, 'validateDeviceToken'),
 				'title' => Loc::getMessage('PUSH_ENTITY_DEVICE_TOKEN_FIELD'),
 			),
+			'VOIP_TYPE' => array(
+				'data_type' => 'string',
+			),
+			'VOIP_TOKEN' => array(
+				'data_type' => 'string',
+			),
 			'DATE_CREATE' => array(
 				'data_type' => 'datetime',
 				'required' => true,

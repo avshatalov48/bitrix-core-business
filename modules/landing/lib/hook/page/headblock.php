@@ -24,11 +24,11 @@ class HeadBlock extends \Bitrix\Landing\Hook\Page
 	{
 		return array(
 			'USE' => new Field\Checkbox('USE', array(
-				'title' => Loc::getMessage('LANDING_HOOK_HEADBLOCK_USE')
+				'title' => Loc::getMessage('LANDING_HOOK_HEADBLOCK_USE2')
 			)),
 			'CODE' => new Field\Textarea('CODE', array(
 				'title' => Loc::getMessage('LANDING_HOOK_HEADBLOCK_CODE'),
-				'help' => Loc::getMessage('LANDING_HOOK_HEADBLOCK_CODE_HELP2'),
+				'help' => Loc::getMessage('LANDING_HOOK_HEADBLOCK_CODE_HELP3'),
 				'placeholder' => '<script>
 	var googletag = googletag || {};
 	googletag.cmd = googletag.cmd || [];

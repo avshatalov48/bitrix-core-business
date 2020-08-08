@@ -17,13 +17,13 @@ $this->setFrameMode(true);
 <?
 if(is_array($arResult["item"])):
 foreach($arResult["item"] as $arItem):?>
-	<?if(strlen($arItem["enclosure"]["url"])>0):?>
+	<?if($arItem["enclosure"]["url"] <> ''):?>
 		<img src="<?=$arItem["enclosure"]["url"]?>" alt="<?=$arItem["enclosure"]["url"]?>" /><br />
 	<?endif;?>
-	<?if(strlen($arItem["pubDate"])>0):?>
+	<?if($arItem["pubDate"] <> ''):?>
 		<p><?=CIBlockRSS::XMLDate2Dec($arItem["pubDate"], FORMAT_DATE)?></p>
 	<?endif;?>
-	<?if(strlen($arItem["link"])>0):?>
+	<?if($arItem["link"] <> ''):?>
 		<a href="<?=$arItem["link"]?>"><?=$arItem["title"]?></a>
 	<?else:?>
 		<?=$arItem["title"]?>

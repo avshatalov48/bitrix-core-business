@@ -3,6 +3,17 @@ namespace Bitrix\Forum;
 
 use Bitrix\Main\Entity;
 use \Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Event;
+use Bitrix\Main\ORM\Fields\BooleanField;
+use Bitrix\Main\ORM\Fields\DatetimeField;
+use Bitrix\Main\ORM\Fields\EnumField;
+use Bitrix\Main\ORM\Fields\IntegerField;
+use Bitrix\Main\ORM\Fields\Relations\Reference;
+use Bitrix\Main\ORM\Fields\StringField;
+use Bitrix\Main\ORM\Fields\TextField;
+use Bitrix\Main\ORM\Query\Join;
+use Bitrix\Main\Type\DateTime;
+
 Loc::loadMessages(__FILE__);
 
 /**
@@ -60,6 +71,7 @@ Loc::loadMessages(__FILE__);
  * <li> EVENT3 string(255)
 
  * <li> XML_ID varchar(255)
+ * <li> HTML text
  * </ul>
  *
  * @package Bitrix\Forum
@@ -93,235 +105,75 @@ class ForumTable extends \Bitrix\Main\Entity\DataManager
 	 */
 	public static function getMap()
 	{
-		return array(
-			'ID' => array(
-				'data_type' => 'integer',
-				'primary' => true,
-				'autocomplete' => true,
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_ID'),
-			),
-			'FORUM_GROUP_ID' => array(
-				'data_type' => 'integer',
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_FORUM_GROUP_ID'),
-			),
-			'NAME' => array(
-				'data_type' => 'string',
-				'required' => true,
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_NAME'),
-				'size' => 255
-			),
-			'DESCRIPTION' => array(
-				'data_type' => 'string',
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_DESCRIPTION'),
-			),
-			'SORT' => array(
-				'data_type' => 'integer',
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_SORT'),
-			),
-			'ACTIVE' => array(
-				'data_type' => 'boolean',
-				'values' => array('N','Y'),
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_ACTIVE'),
-			),
-			'ALLOW_HTML' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_ALLOW_HTML')
-			),
-			'ALLOW_ANCHOR' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_ALLOW_ANCHOR')
-			),
-			'ALLOW_BIU' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_ALLOW_BIU')
-			),
-			'ALLOW_IMG' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_ALLOW_IMG')
-			),
-			'ALLOW_VIDEO' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_ALLOW_VIDEO')
-			),
-			'ALLOW_LIST' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_ALLOW_LIST')
-			),
-			'ALLOW_QUOTE' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_ALLOW_QUOTE')
-			),
-			'ALLOW_CODE' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_ALLOW_CODE')
-			),
-			'ALLOW_FONT' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_ALLOW_FONT')
-			),
-			'ALLOW_SMILES' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_ALLOW_SMILES')
-			),
-			'ALLOW_TABLE' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_ALLOW_TABLE')
-			),
-			'ALLOW_ALIGN' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_ALLOW_ALIGN')
-			),
-			'ALLOW_UPLOAD' => array(
-				'data_type' => 'boolean',
-				'values' => array('Y', 'F', 'A'),
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_ALLOW_UPLOAD')
-			),
-			'ALLOW_UPLOAD_EXT' => array(
-				'data_type' => 'string',
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_ALLOW_UPLOAD'),
-				'size' => 255
-			),
-			'ALLOW_MOVE_TOPIC' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_ALLOW_MOVE_TOPIC')
-			),
-			'ALLOW_TOPIC_TITLED' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_ALLOW_TOPIC_TITLED')
-			),
-			'ALLOW_NL2BR' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_ALLOW_NL')
-			),
-			'ALLOW_SIGNATURE' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_ALLOW_SIGNATURE')
-			),
-			'ASK_GUEST_EMAIL' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_ASK_GUEST_EMAIL')
-			),
-			'USE_CAPTCHA' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_USE_CAPTCHA')
-			),
-			'INDEXATION' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_INDEXATION')
-			),
-			'DEDUPLICATION' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_DEDUPLICATION')
-			),
-			'MODERATION' => array(
-				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_MODERATION')
-			),
-			'ORDER_BY' =>  array(
-				'data_type' => 'enum',
-				'values' => self::$topicSort,
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_ORDER_BY')
-			),
-			'ORDER_DIRECTION' =>  array(
-				'data_type' => 'enum',
-				'values' => array('ASC', 'DESC'),
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_ORDER_BY')
-			),
-			'TOPICS' => array(
-				'data_type' => 'integer',
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_TOPICS'),
-			),
-			'POSTS' => array(
-				'data_type' => 'integer',
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_POSTS'),
-			),
-			'LAST_POSTER_ID' => array(
-				'data_type' => 'integer',
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_'),
-			),
-			'LAST_POSTER_NAME' => array(
-				'data_type' => 'string',
-				'required' => true,
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_LAST_POSTER_NAME'),
-			),
-			'LAST_POST_DATE' => array(
-				'data_type' => 'datetime',
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_LAST_POST_DATE'),
-			),
-			'LAST_MESSAGE_ID' => array(
-				'data_type' => 'integer',
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_'),
-			),
-			'POSTS_UNAPPROVED' => array(
-				'data_type' => 'integer',
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_'),
-			),
-			'ABS_LAST_POSTER_ID' => array(
-				'data_type' => 'integer',
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_'),
-			),
-			'ABS_LAST_POSTER_NAME' => array(
-				'data_type' => 'string',
-				'required' => true,
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_ABS_LAST_POSTER_NAME'),
-			),
-			'ABS_LAST_POST_DATE' => array(
-				'data_type' => 'datetime',
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_ABS_LAST_POST_DATE'),
-			),
-			'ABS_LAST_MESSAGE_ID' => array(
-				'data_type' => 'integer',
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_'),
-			),
-			'EVENT1' => array(
-				'data_type' => 'string',
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_EVENT1'),
-			),
-			'EVENT2' => array(
-				'data_type' => 'string',
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_EVENT2'),
-			),
-			'EVENT3' => array(
-				'data_type' => 'string',
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_EVENT3'),
-			),
-			'XML_ID' => array(
-				'data_type' => 'string',
-				'title' => Loc::getMessage('FORUM_TABLE_FIELD_EVENT3'),
-				'size' => 255
-			),
-			'PERMISSION' => array(
-				'data_type' => 'Bitrix\Forum\Permission',
-				'reference' => array('=this.ID' => 'ref.FORUM_ID')
-			),
-			'SITE' => array(
-				'data_type' => 'Bitrix\Forum\ForumSite',
-				'reference' => array('=this.ID' => 'ref.FORUM_ID')
-			),
-		);
+		return [
+			(new IntegerField("ID", ["primary" => true, "autocomplete" => true])),
+			(new IntegerField("FORUM_GROUP_ID")),
+			(new StringField("NAME", ["required" => true, "size" => 255])),
+			(new TextField("DESCRIPTION")),
+			(new IntegerField("SORT", ["default_value" => 150])),
+			(new BooleanField("ACTIVE", ["values" => ["N", "Y"], "default_value" => "Y"])),
+			(new BooleanField("ALLOW_HTML", ["values" => ["N", "Y"], "default_value" => "N"])),
+			(new BooleanField("ALLOW_ANCHOR", ["values" => ["N", "Y"], "default_value" => "Y"])),
+			(new BooleanField("ALLOW_BIU", ["values" => ["N", "Y"], "default_value" => "Y"])),
+			(new BooleanField("ALLOW_IMG", ["values" => ["N", "Y"], "default_value" => "Y"])),
+			(new BooleanField("ALLOW_VIDEO", ["values" => ["N", "Y"], "default_value" => "Y"])),
+			(new BooleanField("ALLOW_LIST", ["values" => ["N", "Y"], "default_value" => "Y"])),
+			(new BooleanField("ALLOW_QUOTE", ["values" => ["N", "Y"], "default_value" => "Y"])),
+			(new BooleanField("ALLOW_CODE", ["values" => ["N", "Y"], "default_value" => "Y"])),
+			(new BooleanField("ALLOW_FONT", ["values" => ["N", "Y"], "default_value" => "Y"])),
+			(new BooleanField("ALLOW_SMILES", ["values" => ["N", "Y"], "default_value" => "Y"])),
+			(new BooleanField("ALLOW_TABLE", ["values" => ["N", "Y"], "default_value" => "Y"])),
+			(new BooleanField("ALLOW_ALIGN", ["values" => ["N", "Y"], "default_value" => "Y"])),
+			(new BooleanField("ALLOW_NL2BR", ["values" => ["N", "Y"], "default_value" => "Y"])),
+
+			(new EnumField("ALLOW_UPLOAD", ["values" => ["Y", "F", "A"], "default_value" => "F"])),
+			(new StringField("ALLOW_UPLOAD_EXT", ["size" => 255])),
+
+			(new BooleanField("ALLOW_MOVE_TOPIC", ["values" => ["N", "Y"], "default_value" => "Y"])),
+			(new BooleanField("ALLOW_TOPIC_TITLED", ["values" => ["N", "Y"], "default_value" => "Y"])),
+
+			(new BooleanField("ALLOW_SIGNATURE", ["values" => ["N", "Y"], "default_value" => "Y"])),
+			(new BooleanField("ASK_GUEST_EMAIL", ["values" => ["N", "Y"], "default_value" => "N"])),
+			(new BooleanField("USE_CAPTCHA", ["values" => ["N", "Y"], "default_value" => "Y"])),
+
+			(new BooleanField("INDEXATION", ["values" => ["N", "Y"], "default_value" => "Y"])),
+			(new BooleanField("DEDUPLICATION", ["values" => ["N", "Y"], "default_value" => "N"])),
+			(new BooleanField("MODERATION", ["values" => ["N", "Y"], "default_value" => "N"])),
+			(new EnumField("ORDER_BY", ["values" => self::$topicSort, "default_value" => "P"])),
+			(new EnumField("ORDER_DIRECTION", ["values" => ["ASC", "DESC"], "default_value" => "DESC"])),
+
+			(new IntegerField("TOPICS")),
+			(new IntegerField("POSTS")),
+			(new IntegerField("POSTS_UNAPPROVED")),
+
+			(new IntegerField("LAST_POSTER_ID")),
+			(new StringField("LAST_POSTER_NAME", ["size" => 255])),
+			(new DatetimeField("LAST_POST_DATE", ["default_value" => function(){return new DateTime();}])),
+			(new IntegerField("LAST_MESSAGE_ID")),
+
+			(new IntegerField("ABS_LAST_POSTER_ID")),
+			(new StringField("ABS_LAST_POSTER_NAME", ["size" => 255])),
+			(new DatetimeField("ABS_LAST_POST_DATE", ["default_value" => function(){return new DateTime();}])),
+			(new IntegerField("ABS_LAST_MESSAGE_ID")),
+
+			(new StringField("EVENT1")),
+			(new StringField("EVENT2")),
+			(new StringField("EVENT3")),
+			(new StringField("XML_ID", ["size" => 255])),
+			(new StringField("HTML", ["size" => 255])),
+
+			(new Reference("PERMISSION", \Bitrix\Forum\PermissionTable::class, Join::on("this.ID", "ref.FORUM_ID"))),
+			(new Reference("SITE", \Bitrix\Forum\ForumSiteTable::class, Join::on("this.ID", "ref.FORUM_ID"))),
+			(new Reference("GROUP", \Bitrix\Forum\GroupTable::class, Join::on("this.FORUM_GROUP_ID", "ref.ID")))
+		];
 	}
 
+	private static function getFilteredFields()
+	{
+		return [
+			"LAST_POSTER_NAME"
+		];
+	}
 	/*
 	 * Returns main data
 	 * @return array|null
@@ -351,6 +203,44 @@ class ForumTable extends \Bitrix\Main\Entity\DataManager
 		}
 		self::bindOldKernelEvents();
 		return self::$cache[$forumId];
+	}
+
+	public static function onBeforeUpdate(\Bitrix\Main\ORM\Event $event)
+	{
+		$result = new \Bitrix\Main\ORM\EventResult();
+		/** @var array $data */
+		$data = $event->getParameter("fields");
+		$id = $event->getParameter("id");
+		$id = $id["ID"];
+		$forum = self::getById($id)->fetch();
+
+		if (\Bitrix\Main\Config\Option::get("forum", "FILTER", "Y") == "Y")
+		{
+			$filteredFields = self::getFilteredFields();
+			if (!empty(array_intersect($filteredFields, array_keys($data))))
+			{
+				$res = [];
+				foreach ($filteredFields as $key)
+				{
+					$res[$key] = $val = array_key_exists($key, $data) ? $data[$key] : $forum[$key];
+					if (!empty($val))
+					{
+						$res[$key] = \CFilterUnquotableWords::Filter($val);
+						if (empty($res[$key]))
+						{
+							$res[$key] = "*";
+						}
+					}
+				}
+				$data["HTML"] = serialize($res);
+			}
+		}
+
+		if ($data != $event->getParameter("fields"))
+		{
+			$result->modifyFields($data);
+		}
+		return $result;
 	}
 
 	public static function onAfterAdd(\Bitrix\Main\ORM\Event $event)

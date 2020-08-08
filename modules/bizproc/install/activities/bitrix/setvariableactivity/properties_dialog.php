@@ -16,7 +16,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 			{
 				if (!array_key_exists($variableKey, $arVariables))
 					continue;
-				if (strlen($defaultFieldValue) <= 0)
+				if ($defaultFieldValue == '')
 					$defaultFieldValue = $variableKey;
 				$ind++;
 				?>

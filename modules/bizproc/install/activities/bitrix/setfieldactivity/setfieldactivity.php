@@ -60,7 +60,14 @@ class CBPSetFieldActivity
 			$resultFields[$key] = $value;
 		}
 
-		$documentService->UpdateDocument($documentId, $resultFields, $this->ModifiedBy);
+		try
+		{
+			$documentService->UpdateDocument($documentId, $resultFields, $this->ModifiedBy);
+		}
+		catch (Exception $e)
+		{
+			$this->WriteToTrackingService($e->getMessage(), 0, CBPTrackingType::Error);
+		}
 
 		return CBPActivityExecutionStatus::Closed;
 	}
@@ -151,7 +158,7 @@ class CBPSetFieldActivity
 					continue;
 				}
 
-				if (strpos($key, 'document_field_') !== 0)
+				if (mb_strpos($key, 'document_field_') !== 0)
 					continue;
 
 				if (!isset($arDocumentFieldsTmp[$fieldKey]) || !$arDocumentFieldsTmp[$fieldKey]["Editable"])
@@ -177,7 +184,7 @@ class CBPSetFieldActivity
 				continue;
 
 			$arDocumentFields[$key] = $value;
-			if (strlen($defaultFieldValue) <= 0)
+			if ($defaultFieldValue == '')
 				$defaultFieldValue = $key;
 		}
 
@@ -251,7 +258,7 @@ class CBPSetFieldActivity
 
 		foreach ($arCurrentValues as $key => $value)
 		{
-			if (strpos($key, 'document_field_') !== 0)
+			if (mb_strpos($key, 'document_field_') !== 0)
 				continue;
 
 			$fieldKey = array_key_exists($value, $arNewFieldsMap) ? $arNewFieldsMap[$value]['Code'] : $value;

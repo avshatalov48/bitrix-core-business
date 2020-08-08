@@ -25,6 +25,7 @@ global $adminPage;
 /** @global CAdminSidePanelHelper $adminSidePanelHelper */
 global $adminSidePanelHelper;
 
+$publicMode = $adminSidePanelHelper->isSidePanelFrame();
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 
 /*
@@ -104,6 +105,11 @@ define("MODULE_ID", "iblock");
 define("ENTITY", "CIBlockDocument");
 define("DOCUMENT_TYPE", "iblock_".$intSubIBlockID);
 
+$currentUser = array(
+	'ID' => $USER->GetID(),
+	'GROUPS' => $USER->GetUserGroupArray()
+);
+
 /** @var CIBlockDocument $iblockDocument */
 $iblockDocument = null;
 if ($boolSubBizproc)
@@ -161,7 +167,7 @@ if (!isset($by))
 	$by = 'ID';
 if (!isset($order))
 	$order = 'asc';
-$by = strtoupper($by);
+$by = mb_strtoupper($by);
 if ($by == 'CATALOG_TYPE')
 	$by = 'TYPE';
 
@@ -359,6 +365,27 @@ if ($boolSubCatalog)
 		"content" => Loc::getMessage("IBEL_CATALOG_VAT_INCLUDED"),
 		"align" => "right",
 	);
+	$arHeader[] = array(
+		"id" => "VAT_ID",
+		"content" => GetMessage('IBEL_CATALOG_VAT_ID'),
+		"title" => "",
+		"align" => "right",
+	);
+	$vatList = array(
+		0 => GetMessage('IBEL_CATALOG_EMPTY_VALUE')
+	);
+	$vatIterator = Catalog\VatTable::getList([
+		'select' => ['ID', 'NAME', 'SORT'],
+		'filter' => ['=ACTIVE' => 'Y'],
+		'order' => ['SORT' => 'ASC', 'ID' => 'ASC']
+	]);
+	while ($vat = $vatIterator->fetch())
+	{
+		$vat['ID'] = (int)$vat['ID'];
+		$vatList[$vat['ID']] = $vat['NAME'];
+	}
+	unset($vat, $vatIterator);
+
 	if ($boolCatalogPurchasInfo)
 	{
 		$arHeader[] = array(
@@ -680,12 +707,12 @@ if (defined('B_ADMIN_SUBELEMENTS_LIST') && true === B_ADMIN_SUBELEMENTS_LIST)
 			{
 				$bCanWrite = $iblockDocument->CanUserOperateDocument(
 					CBPCanUserOperateOperation::WriteDocument,
-					$USER->GetID(),
+					$currentUser['ID'],
 					$subID,
 					array(
 						"IBlockId" => $intSubIBlockID,
 						'IBlockRightsMode' => $arSubIBlock['RIGHTS_MODE'],
-						'UserGroups' => $USER->GetUserGroupArray(),
+						'UserGroups' => $currentUser['GROUPS'],
 					)
 				);
 
@@ -711,7 +738,7 @@ if (defined('B_ADMIN_SUBELEMENTS_LIST') && true === B_ADMIN_SUBELEMENTS_LIST)
 					&& strncmp($k, "PROPERTY_", 9) == 0
 				)
 				{
-					$prop_id = substr($k, 9);
+					$prop_id = mb_substr($k, 9);
 					$arFields["PROPERTY_VALUES"][$prop_id] = $v;
 					unset($arFields[$k]);
 					$bFieldProps[$prop_id]=true;
@@ -763,7 +790,7 @@ if (defined('B_ADMIN_SUBELEMENTS_LIST') && true === B_ADMIN_SUBELEMENTS_LIST)
 					$arFields["IBLOCK_SECTION"][] = $arSection["ID"];
 			}
 
-			$arFields["MODIFIED_BY"] = $USER->GetID();
+			$arFields["MODIFIED_BY"] = $currentUser['ID'];
 			$ib = new CIBlockElement();
 			$DB->StartTransaction();
 
@@ -796,6 +823,10 @@ if (defined('B_ADMIN_SUBELEMENTS_LIST') && true === B_ADMIN_SUBELEMENTS_LIST)
 
 					if (isset($arFields['CATALOG_VAT_INCLUDED']) && !empty($arFields['CATALOG_VAT_INCLUDED']))
 						$arCatalogProduct['VAT_INCLUDED'] = $arFields['CATALOG_VAT_INCLUDED'];
+					if (isset($arFields['VAT_ID']) && is_string($arFields['VAT_ID']))
+					{
+						$arCatalogProduct['VAT_ID'] = ((int)$arFields['VAT_ID'] > 0 ? $arFields['VAT_ID'] : false);
+					}
 					if (isset($arFields['CATALOG_QUANTITY_TRACE']) && !empty($arFields['CATALOG_QUANTITY_TRACE']))
 						$arCatalogProduct['QUANTITY_TRACE'] = $arFields['CATALOG_QUANTITY_TRACE'];
 					if (isset($arFields['CAN_BUY_ZERO']) && !empty($arFields['CAN_BUY_ZERO']))
@@ -1121,12 +1152,12 @@ if (defined('B_ADMIN_SUBELEMENTS_LIST') && true === B_ADMIN_SUBELEMENTS_LIST)
 				{
 					$bCanWrite = $iblockDocument->CanUserOperateDocument(
 						CBPCanUserOperateOperation::WriteDocument,
-						$USER->GetID(),
+						$currentUser['ID'],
 						$subID,
 						array(
 							"IBlockId" => $intSubIBlockID,
 							'IBlockRightsMode' => $arSubIBlock['RIGHTS_MODE'],
-							'UserGroups' => $USER->GetUserGroupArray(),
+							'UserGroups' => $currentUser['GROUPS'],
 						)
 					);
 
@@ -1201,7 +1232,7 @@ if (defined('B_ADMIN_SUBELEMENTS_LIST') && true === B_ADMIN_SUBELEMENTS_LIST)
 										$obE = new CIBlockElement();
 										$res = $obE->Update($subID, array(
 											"WF_STATUS_ID" => $new_status,
-											"MODIFIED_BY" => $USER->GetID(),
+											"MODIFIED_BY" => $currentUser['ID'],
 										), true);
 										if (!$res)
 											$lAdmin->AddGroupError(Loc::getMessage("IBEL_A_SAVE_ERROR", array("#ID#" => $subID, "#ERROR_TEXT#" => $obE->LAST_ERROR)), $subID);
@@ -1526,17 +1557,17 @@ if (!(false == B_ADMIN_SUBELEMENTS_LIST && $bCopy))
 
 		$row->AddViewField("ID", $itemId);
 
-		if ($adminSidePanelHelper->isPublicSidePanel())
+		if ($publicMode)
 		{
-			$contentLockedUserName = $arRes['LOCKED_USER_NAME'];
-			$contentUserName = $arRes['USER_NAME'];
-			$contentCreatedUserName = $arRes['CREATED_USER_NAME'];
+			$contentLockedUserName = '['.$arRes['WF_LOCKED_BY'].']&nbsp;'.$arRes['LOCKED_USER_NAME'];
+			$contentUserName = '['.$arRes['MODIFIED_BY'].']&nbsp;'.$arRes['USER_NAME'];
+			$contentCreatedUserName = '['.$arRes['CREATED_BY'].']&nbsp;'.$arRes['CREATED_USER_NAME'];
 		}
 		else
 		{
-			$contentLockedUserName = '<a href="'.$selfFolderUrl.'user_edit.php?lang='.LANGUAGE_ID.'&ID='.$arRes['WF_LOCKED_BY'].'" title="'.Loc::getMessage("IBEL_A_USERINFO").'">'.$arRes['LOCKED_USER_NAME'].'</a>';
-			$contentUserName = '<a href="'.$selfFolderUrl.'user_edit.php?lang='.LANGUAGE_ID.'&ID='.$arRes['MODIFIED_BY'].'" title="'.Loc::getMessage("IBEL_A_USERINFO").'">'.$arRes['USER_NAME'].'</a>';
-			$contentCreatedUserName = '<a href="'.$selfFolderUrl.'user_edit.php?lang='.LANGUAGE_ID.'&ID='.$arRes['CREATED_BY'].'" title="'.Loc::getMessage("IBEL_A_USERINFO").'">'.$arRes['CREATED_USER_NAME'].'</a>';
+			$contentLockedUserName = '[<a href="'.$selfFolderUrl.'user_edit.php?lang='.LANGUAGE_ID.'&ID='.$arRes['WF_LOCKED_BY'].'" title="'.Loc::getMessage("IBEL_A_USERINFO").'">'.$arRes['WF_LOCKED_BY'].'</a>]&nbsp;'.$arRes['LOCKED_USER_NAME'];
+			$contentUserName = '[<a href="'.$selfFolderUrl.'user_edit.php?lang='.LANGUAGE_ID.'&ID='.$arRes['MODIFIED_BY'].'" title="'.Loc::getMessage("IBEL_A_USERINFO").'">'.$arRes['MODIFIED_BY'].'</a>]&nbsp;'.$arRes['USER_NAME'];
+			$contentCreatedUserName = '[<a href="'.$selfFolderUrl.'user_edit.php?lang='.LANGUAGE_ID.'&ID='.$arRes['CREATED_BY'].'" title="'.Loc::getMessage("IBEL_A_USERINFO").'">'.$arRes['CREATED_BY'].'</a>]&nbsp;'.$arRes['CREATED_USER_NAME'];
 		}
 		if (isset($arRes['LOCKED_USER_NAME']) && $arRes['LOCKED_USER_NAME'] != '')
 			$row->AddViewField("LOCKED_USER_NAME", $contentLockedUserName);
@@ -1599,6 +1630,7 @@ if (!(false == B_ADMIN_SUBELEMENTS_LIST && $bCopy))
 								"DESCRIPTION" => $DESCR_NAME,
 								"MODE"=>"iblock_element_admin",
 								"FORM_NAME"=>"form_".$sTableID,
+								"GRID" => ($publicMode ? "PUBLIC" : "ADMIN")
 							),
 						));
 				}
@@ -1637,7 +1669,7 @@ if (!(false == B_ADMIN_SUBELEMENTS_LIST && $bCopy))
 						{
 							$arViewHTML[] = $arSection['NAME'].
 							' [<a href="'.
-							htmlspecialcharsbx(CIBlock::GetAdminSectionEditLink($arSection['IBLOCK_ID'], $arSection['ID'])).
+							htmlspecialcharsbx($selfFolderUrl.CIBlock::GetAdminSectionEditLink($arSection['IBLOCK_ID'], $arSection['ID'], array("replace_script_name" => true))).
 							'" title="'.Loc::getMessage("IBEL_A_SEC_EDIT").'">'.$arSection['ID'].'</a>]';
 						}
 					}
@@ -1647,8 +1679,8 @@ if (!(false == B_ADMIN_SUBELEMENTS_LIST && $bCopy))
 					if ($t = GetElementName($prop["VALUE"]))
 					{
 						$arViewHTML[] = $t['NAME'].
-						' [<a href="'.htmlspecialcharsbx(CIBlock::GetAdminElementEditLink($t['IBLOCK_ID'], $t['ID'], array(
-						'WF' => 'Y'
+						' [<a href="'.htmlspecialcharsbx($selfFolderUrl.CIBlock::GetAdminElementEditLink($t['IBLOCK_ID'], $t['ID'], array(
+						'WF' => 'Y', 'replace_script_name' => true
 						))).'" title="'.Loc::getMessage("IBEL_A_EL_EDIT").'">'.$t['ID'].'</a>]';
 					}
 				}
@@ -1958,8 +1990,8 @@ if (!(false == B_ADMIN_SUBELEMENTS_LIST && $bCopy))
 				array("iblock", "CIBlockDocument", $itemId)
 			);
 
-			$arRes["CURRENT_USER_GROUPS"] = $USER->GetUserGroupArray();
-			if ($arRes["CREATED_BY"] == $USER->GetID())
+			$arRes["CURRENT_USER_GROUPS"] = $currentUser['GROUPS'];
+			if ($arRes["CREATED_BY"] == $currentUser['ID'])
 				$arRes["CURRENT_USER_GROUPS"][] = "Author";
 			$row->arRes["CURRENT_USER_GROUPS"] = $arRes["CURRENT_USER_GROUPS"];
 
@@ -1969,7 +2001,7 @@ if (!(false == B_ADMIN_SUBELEMENTS_LIST && $bCopy))
 			{
 				$canViewWorkflow = $iblockDocument->CanUserOperateDocument(
 					CBPCanUserOperateOperation::ViewWorkflow,
-					$USER->GetID(),
+					$currentUser['ID'],
 					$itemId,
 					array("AllUserGroups" => $arRes["CURRENT_USER_GROUPS"], "DocumentStates" => $arDocumentStates, "WorkflowId" => $kk)
 				);
@@ -1977,11 +2009,11 @@ if (!(false == B_ADMIN_SUBELEMENTS_LIST && $bCopy))
 					continue;
 
 				$arStr1[$vv["TEMPLATE_ID"]] = $vv["TEMPLATE_NAME"];
-				$arStr[$vv["TEMPLATE_ID"]] .= "<a href=\"".$selfFolderUrl."bizproc_log.php?ID=".$kk."\">".(strlen($vv["STATE_TITLE"]) > 0 ? $vv["STATE_TITLE"] : $vv["STATE_NAME"])."</a><br />";
+				$arStr[$vv["TEMPLATE_ID"]] .= "<a href=\"".$selfFolderUrl."bizproc_log.php?ID=".$kk."\">".($vv["STATE_TITLE"] <> '' ? $vv["STATE_TITLE"] : $vv["STATE_NAME"])."</a><br />";
 
-				if (strlen($vv["ID"]) > 0)
+				if ($vv["ID"] <> '')
 				{
-					$arTasks = CBPDocument::GetUserTasksForWorkflow($USER->GetID(), $vv["ID"]);
+					$arTasks = CBPDocument::GetUserTasksForWorkflow($currentUser['ID'], $vv["ID"]);
 					foreach ($arTasks as $arTask)
 					{
 						$arStr[$vv["TEMPLATE_ID"]] .= Loc::getMessage("IBEL_A_BP_TASK").":<br /><a href=\"".$selfFolderUrl."bizproc_task.php?id=".$arTask["ID"]."\" title=\"".$arTask["DESCRIPTION"]."\">".$arTask["NAME"]."</a><br /><br />";
@@ -1993,7 +2025,7 @@ if (!(false == B_ADMIN_SUBELEMENTS_LIST && $bCopy))
 			foreach ($arStr as $k => $v)
 			{
 				$row->AddViewField("WF_".$k, $v);
-				$str .= "<b>".(strlen($arStr1[$k]) > 0 ? $arStr1[$k] : Loc::getMessage("IBEL_A_BP_PROC"))."</b>:<br />".$v."<br />";
+				$str .= "<b>".($arStr1[$k] <> '' ? $arStr1[$k] : Loc::getMessage("IBEL_A_BP_PROC"))."</b>:<br />".$v."<br />";
 			}
 
 			$row->AddViewField("BIZPROC", $str);
@@ -2216,6 +2248,7 @@ if (!empty($arRows))
 				$row->AddInputField('CATALOG_HEIGHT');
 				$row->AddInputField('CATALOG_LENGTH');
 				$row->AddCheckField("CATALOG_VAT_INCLUDED");
+				$row->AddSelectField('VAT_ID', $vatList);
 				if ($boolCatalogPurchasInfo)
 				{
 					$price = '&nbsp;';
@@ -2260,6 +2293,7 @@ if (!empty($arRows))
 				$row->AddInputField('CATALOG_HEIGHT', false);
 				$row->AddInputField('CATALOG_LENGTH', false);
 				$row->AddCheckField("CATALOG_VAT_INCLUDED", false);
+				$row->AddSelectField('VAT_ID', $vatList, false);
 				if ($boolCatalogPurchasInfo)
 				{
 					$price = '&nbsp;';
@@ -2299,6 +2333,7 @@ if (!empty($arRows))
 				$row->AddInputField('CATALOG_HEIGHT', false);
 				$row->AddInputField('CATALOG_LENGTH', false);
 				$row->AddCheckField("CATALOG_VAT_INCLUDED", false);
+				$row->AddSelectField('VAT_ID', $vatList, false);
 				if ($boolCatalogPurchasInfo)
 				{
 					$price = '&nbsp;';
@@ -2477,7 +2512,7 @@ if (!empty($arRows))
 		{
 			$bWritePermission = $iblockDocument->CanUserOperateDocument(
 				CBPCanUserOperateOperation::WriteDocument,
-				$USER->GetID(),
+				$currentUser['ID'],
 				$itemId,
 				array(
 					"IBlockId" => $intSubIBlockID,
@@ -2488,7 +2523,7 @@ if (!empty($arRows))
 
 			$bStartWorkflowPermission = $iblockDocument->CanUserOperateDocument(
 				CBPCanUserOperateOperation::StartWorkflow,
-				$USER->GetID(),
+				$currentUser['ID'],
 				$itemId,
 				array(
 					"IBlockId" => $intSubIBlockID,
@@ -2770,7 +2805,7 @@ if (!empty($arRows))
 		$actionList[] = ActionType::ACTIVATE;
 		$actionList[] = ActionType::DEACTIVATE;
 		$actionList[] = ActionType::CLEAR_COUNTER;
-		if ($USER->CanDoOperation('catalog_price'))
+		if ($boolCatalogPrice)
 		{
 			$elementEditPrice = false;
 			foreach($arElementOps as $id => $arOps)

@@ -48,8 +48,8 @@ class CPerfCluster
 		$arQueryOrder = array();
 		foreach ($arOrder as $strColumn => $strDirection)
 		{
-			$strColumn = strtoupper($strColumn);
-			$strDirection = strtoupper($strDirection) == "ASC"? "ASC": "DESC";
+			$strColumn = mb_strtoupper($strColumn);
+			$strDirection = mb_strtoupper($strDirection) == "ASC"? "ASC": "DESC";
 			switch ($strColumn)
 			{
 			case "ID":
@@ -62,7 +62,7 @@ class CPerfCluster
 		$arQuerySelect = array();
 		foreach ($arSelect as $strColumn)
 		{
-			$strColumn = strtoupper($strColumn);
+			$strColumn = mb_strtoupper($strColumn);
 			switch ($strColumn)
 			{
 			case "ID":
@@ -176,7 +176,7 @@ class CPerfCluster
 						{
 							$request = str_replace("#thread#", $j, $strRequest);
 							if (isset($arCookie[$j]))
-								$request .= "Cookie: ".implode(';', $arCookie[$j])."\n";
+								$request .= "Cookie: ".implode(';', $arCookie[$j])."\r\n";
 							$request .= "\r\n";
 
 							stream_set_blocking($socket, true);

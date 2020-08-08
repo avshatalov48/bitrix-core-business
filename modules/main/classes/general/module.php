@@ -33,16 +33,6 @@ class CModule
 		return true;
 	}
 
-	public static function AutoloadClassDefined($className)
-	{
-		return \Bitrix\Main\Loader::isAutoLoadClassRegistered($className);
-	}
-
-	public static function RequireAutoloadClass($className)
-	{
-		\Bitrix\Main\Loader::autoLoad($className);
-	}
-
 	public static function _GetCache()
 	{
 		return \Bitrix\Main\ModuleManager::getInstalledModules();

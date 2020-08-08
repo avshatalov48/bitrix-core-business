@@ -40,6 +40,10 @@
 		this.types = null;
 		this.lastActivated = [];
 		this.init(parent, actions, types);
+		this.button = [];
+		this.elements = [];
+		this.buttonOnChange = [];
+		this.buttonData = {};
 	};
 
 	BX.Grid.ActionPanel.prototype = {
@@ -312,23 +316,69 @@
 
 		createButton: function(data, relative)
 		{
-			var container = this.createContainer(data.ID, relative);
-			var button = BX.create('button', {
+			this.buttonOnChange = (data.ONCHANGE || []);
+			this.buttonData = data;
+
+			this.button = this.createButtonNode(data);
+
+			BX.removeCustomEvent(window, 'Grid::unselectRow', BX.proxy(this.prepareButton, this));
+			BX.removeCustomEvent(window, 'Grid::selectRow', BX.proxy(this.prepareButton, this));
+			BX.removeCustomEvent(window, 'Grid::allRowsSelected', BX.proxy(this.prepareButton, this));
+			BX.removeCustomEvent(window, 'Grid::allRowsUnselected', BX.proxy(this.prepareButton, this));
+
+			if (
+				this.buttonData.SETTINGS
+				&& data.ID === this.buttonData.SETTINGS.buttonId
+			)
+			{
+				BX.addCustomEvent(window, 'Grid::unselectRow', BX.proxy(this.prepareButton, this));
+				BX.addCustomEvent(window, 'Grid::selectRow', BX.proxy(this.prepareButton, this));
+				BX.addCustomEvent(window, 'Grid::allRowsSelected', BX.proxy(this.prepareButton, this));
+				BX.addCustomEvent(window, 'Grid::allRowsUnselected', BX.proxy(this.prepareButton, this));
+			}
+
+			this.prepareButton();
+
+			let container = this.createContainer(data.ID, relative);
+			container.appendChild(this.button);
+
+			return container;
+		},
+
+		createButtonNode: function(data)
+		{
+			return BX.create('button', {
 				props: {
 					className: 'main-grid-buttons' + (data.CLASS ? ' ' + data.CLASS : ''),
-					id: data.id + '_control',
+					id: data.ID + '_control',
 					title: BX.type.isNotEmptyString(data.TITLE) ? data.TITLE : ''
 				},
 				attrs: {
-					name: data.NAME || '',
-					'data-onchange': JSON.stringify(data.ONCHANGE || [])
+					name: data.NAME || ''
 				},
 				html: data.TEXT
 			});
+		},
 
-			container.appendChild(button);
+		prepareButton: function()
+		{
+			if (this.isSetButtonDisabled())
+			{
+				BX.Dom.attr(this.button, 'data-onchange', []);
+				BX.Dom.addClass(this.button, 'ui-btn ui-btn-disabled');
+			}
+			else
+			{
+				BX.Dom.attr(this.button, 'data-onchange', this.buttonOnChange);
+				BX.Dom.removeClass(this.button, 'ui-btn ui-btn-disabled');
+			}
+		},
 
-			return container;
+		isSetButtonDisabled: function()
+		{
+			return !!(this.buttonData.SETTINGS
+				&& this.buttonData.SETTINGS.minSelectedRows
+				&& (this.getSelectedIds().length < this.buttonData.SETTINGS.minSelectedRows));
 		},
 
 		/**

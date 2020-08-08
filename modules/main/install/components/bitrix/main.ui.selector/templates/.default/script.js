@@ -13,7 +13,8 @@
 
 			return null;
 		},
-		controls: {}
+		controls: {},
+		loadedEntities: {}
 	};
 
 	/**
@@ -147,7 +148,8 @@
 				bindOptions: {
 					node: this.bindNode,
 					offsetTop: 5,
-					offsetLeft: 15
+					offsetLeft: 15,
+					zIndex: (parseInt(this.getOption('popupZIndex')) > 0 ? parseInt(this.getOption('popupZIndex')) : 1200)
 				},
 				callback: this.callback,
 				callbackBefore: this.callbackBefore
@@ -595,19 +597,21 @@
 
 		loadAll: function(params)
 		{
+			var
+				entity = (BX.type.isNotEmptyString(params.entity) ? params.entity.toUpperCase() : 'USERS');
+
 			if (
 				BX.type.isNotEmptyObject(params)
 				&& BX.type.isFunction(params.callback)
-				&& (
-					BX.type.isNotEmptyString(params.entity)
-					|| params.entity == 'users'
-				)
+				&& !BX.Main.selectorManagerV2.loadedEntities[entity]
 			)
 			{
+				BX.Main.selectorManagerV2.loadedEntities[entity] = true;
+
 				BX.ajax.runComponentAction('bitrix:main.ui.selector', 'loadAll', {
 					mode: 'ajax',
 					data: {
-						entityType: (BX.type.isNotEmptyString(params.entity) ? params.entity.toUpperCase() : '')
+						entityType: entity
 					}
 				}).then(function (response) {
 					if (BX.type.isNotEmptyObject(response.data))

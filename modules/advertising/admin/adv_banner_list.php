@@ -247,7 +247,7 @@ while ($ar = $rs->Fetch())
 
 while($arRes = $rsData->NavNext(true, "f_"))
 {
-	$lamp_alt = GetMessage("AD_".strtoupper($f_LAMP)."_ALT");
+	$lamp_alt = GetMessage("AD_".mb_strtoupper($f_LAMP)."_ALT");
 	$lamp = '<div class="lamp-'.$f_LAMP.'" title="'.$lamp_alt.'"></div>';
 	$arrUserPerm = is_array($arrPERM[$f_CONTRACT_ID]) ? $arrPERM[$f_CONTRACT_ID] : array();
 	$canAddbanner = in_array("ADD", $arrUserPerm) ? true : false;

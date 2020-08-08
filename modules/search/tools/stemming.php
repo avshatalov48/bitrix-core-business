@@ -53,7 +53,7 @@ function stemming_init($sLang="ru")
 		else
 			$abc = "";
 
-		if(strlen($abc) <= 0)
+		if($abc == '')
 			$abc = stemming_letter_default();
 
 		$arStemFunc[$sLang] = array(
@@ -95,15 +95,16 @@ function stemming_split($sText, $sLang="ru")
 	$words = array();
 
 	$tok = " ";
-	$sText = preg_replace("/[^".$arStemFunc["pcre_letters"]."]/".BX_UTF_PCRE_MODIFIER, $tok, ToUpper($sText));
+	$sText = stemming_upper($sText, $sLang);
+	$sText = preg_replace("/[^".$arStemFunc["pcre_letters"]."]/".BX_UTF_PCRE_MODIFIER, $tok, $sText);
 
 	$word = strtok($sText, $tok);
 	while($word !== false)
 	{
-		$word = substr($word, 0, 100);
+		$word = mb_substr($word, 0, 100);
 
 		if(!isset($words[$word]))
-			$words[$word] = strpos($sText, $word);
+			$words[$word] = mb_strpos($sText, $word);
 
 		$word = strtok($tok);
 	}
@@ -132,15 +133,15 @@ function stemming($sText, $sLang="ru", $bIgnoreStopWords = false, $bReturnPositi
 
 	//Delimiter of the words
 	$tok = " ";
-
+	$sText = stemming_upper($sText, $sLang);
 	if($bReturnPositions)
 	{
-		$sText = preg_replace("/[^".$arStemInfo[$sLang]["pcre_letters"].".!?]+/".BX_UTF_PCRE_MODIFIER, $tok, ToUpper($sText));
+		$sText = preg_replace("/[^".$arStemInfo[$sLang]["pcre_letters"].".!?]+/".BX_UTF_PCRE_MODIFIER, $tok, $sText);
 		$sText = preg_replace("/[!?]+/".BX_UTF_PCRE_MODIFIER, ".", $sText);
 	}
 	else
 	{
-		$sText = preg_replace("/[^".$arStemInfo[$sLang]["pcre_letters"]."]+/".BX_UTF_PCRE_MODIFIER, $tok, ToUpper($sText));
+		$sText = preg_replace("/[^".$arStemInfo[$sLang]["pcre_letters"]."]+/".BX_UTF_PCRE_MODIFIER, $tok, $sText);
 	}
 
 	//Parse text
@@ -155,13 +156,13 @@ function stemming($sText, $sLang="ru", $bIgnoreStopWords = false, $bReturnPositi
 
 		foreach($words as $i => $word)
 		{
-			$word = substr($word, 0, 50);
+			$word = mb_substr($word, 0, 50);
 
 			if($bReturnPositions)
 			{
 				if($i > 0)
 					$pos += 5; //Sentence distance
-				if(!strlen($word))
+				if($word == '')
 					continue;
 			}
 
@@ -180,7 +181,7 @@ function stemming($sText, $sLang="ru", $bIgnoreStopWords = false, $bReturnPositi
 			{
 				//Do the best to detect correct one
 				$guess = stemming_detect($word, $arStemInfo, $sLang);
-				if(strlen($guess[0]))
+				if($guess[0] <> '')
 				{
 					$stem = $guess[0];
 					$stop_lang = $guess[1];
@@ -276,7 +277,7 @@ function stemming_default($sText)
 }
 function stemming_stop_default($sWord)
 {
-	if(strlen($sWord) < 2)
+	if(mb_strlen($sWord) < 2)
 		return false;
 	else
 		return true;

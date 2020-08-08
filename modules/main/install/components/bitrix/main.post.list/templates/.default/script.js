@@ -16,6 +16,7 @@
 		this.exemplarId = params["EXEMPLAR_ID"]/* || BX.util.getRandomString(20)*/; // To identify myself
 		this.ENTITY_XML_ID = params["ENTITY_XML_ID"]; // like groupId for lists
 		this.template = params["template"]; //html message
+		this.scope = "web";
 		this.node = {
 			main : params["mainNode"],
 			navigation : params["navigationNode"], // container for pagination,
@@ -60,7 +61,7 @@
 					return;
 				}
 				this.setOperationId(params["OPERATION_ID"]);
-				this.add(id, data);
+				this.add(id, data, null, null, { live: true });
 
 				if (this.params["NOTIFY_TAG"] && this.params["NOTIFY_TEXT"])
 				{
@@ -319,12 +320,19 @@
 					BX.addCustomEvent(this.eventNode, ii, this.privateEvents[ii]);
 				}
 			}
-			for (ii in this.windowEvents)
+
+			if (
+				!BX.type.isBoolean(this.params["USE_LIVE"])
+				|| this.params["USE_LIVE"]
+			)
 			{
-				if (this.windowEvents.hasOwnProperty(ii))
+				for (ii in this.windowEvents)
 				{
-					BX.Event.EventEmitter.incrementMaxListeners(ii);
-					BX.addCustomEvent(window, ii, this.windowEvents[ii]);
+					if (this.windowEvents.hasOwnProperty(ii))
+					{
+						BX.Event.EventEmitter.incrementMaxListeners(ii);
+						BX.addCustomEvent(window, ii, this.windowEvents[ii]);
+					}
 				}
 			}
 		},
@@ -398,11 +406,13 @@
 					this.node[ii] = null;
 				}
 			}
+			this.unreadComments.clear();
+			this.comments.clear();
 			BX.onCustomEvent(window, "OnUCHasBeenDestroyed", [this.ENTITY_XML_ID, this]);
 			repo.listById.delete(this.exemplarId);
 		},
 		checkAndDestroy : function(exemplarId) {
-			if (this.exemplarId === exemplarId)
+			if (this.exemplarId === exemplarId || !document.body.contains(this.eventNode))
 			{
 				this.destroy();
 			}
@@ -580,27 +590,46 @@
 		sendPagenavigation : function() {
 			this.status = "busy";
 			BX.addClass(this.node.navigation, "feed-com-all-hover");
-			var data = BX.ajax.prepareData({
+			var data = {
 					AJAX_POST : "Y",
 					ENTITY_XML_ID : this.ENTITY_XML_ID,
 					EXEMPLAR_ID : this.exemplarId,
 					MODE : "LIST",
 					FILTER : (this.order == "ASC" ? {">ID" : this.mid} : {"<ID" : this.mid}),
-					sessid : BX.bitrix_sessid() } ),
+					sessid : BX.bitrix_sessid() },
 				url = BX.util.htmlspecialcharsback(this.node.navigation.getAttribute("href"));
 				url = (url.indexOf('#') !== -1 ? url.substr(0, url.indexOf('#')) : url);
 			var result = {url : url, data : data};
 			BX.onCustomEvent(this, "OnUCListHasToBeEnlarged", [this, result]);
 			url = result.url;
 			data = result.data;
-			BX.ajax({
-				url: (url + (url.indexOf('?') !== -1 ? "&" : "?") + data),
-				method: "GET",
-				dataType: "json",
-				data: "",
-				onsuccess: BX.proxy(this.buildPagenavigation, this),
-				onfailure: BX.proxy(this.completePagenavigation, this)
-			});
+			data.scope = this.scope;
+			var onsuccess = this.buildPagenavigation.bind(this);
+			var onfailure = this.completePagenavigation.bind(this);
+			if (this.ajax["navigateComment"] === true)
+			{
+				url = (url.indexOf("?") >= 0 ? url.substr(url.indexOf("?") + 1) : "");
+				url.split("&").forEach(function (val) {
+					var val1 = val.split("=");
+					data[val1[0]] = val1[1];
+				});
+				BX.ajax.runComponentAction(this.ajax.componentName, "navigateComment", {
+					mode: "class",
+					data: data,
+					signedParameters: this.ajax.params
+				}).then(onsuccess, onfailure);
+			}
+			else
+			{
+				BX.ajax({
+					url: (url + (url.indexOf('?') !== -1 ? "&" : "?") + BX.ajax.prepareData(data)),
+					method: "GET",
+					dataType: "json",
+					data: "",
+					onsuccess: onsuccess,
+					onfailure: onfailure
+				});
+			}
 		},
 		buildPagenavigation : function(data) {
 			if (data["status"] !== "success")
@@ -864,7 +893,7 @@
 			}
 			return this.node[messageId];
 		},
-		add : function(messageId, data, edit, animation) {
+		add : function(messageId, data, edit, animation, options) {
 			if (!messageId || !messageId[1] || !BX.type.isPlainObject(data))
 			{
 				return false;
@@ -895,7 +924,8 @@
 						AUTHOR_URL_PARAMS : this.params.AUTHOR_URL_PARAMS,
 
 						NAME_TEMPLATE : this.params.NAME_TEMPLATE,
-						SHOW_LOGIN : this.params.SHOW_LOGIN
+						SHOW_LOGIN : this.params.SHOW_LOGIN,
+						CLASSNAME : BX.type.isPlainObject(options) && options.live ? 'feed-com-block-live' : ''
 					},
 					this.getTemplate()
 				)),
@@ -1006,9 +1036,15 @@
 					BX.remove(containerForRemove);
 				}, 1000);
 			}
+
 			if (
 				animation !== "simple"
 				&& typeof BXMobileApp == "undefined" // non-mobile
+				&& !( // if it is not a slider over
+					window.top === window &&
+					BX.getClass('BX.SidePanel.Instance') &&
+					BX.SidePanel.Instance.isOpen()
+				)
 			)
 			{
 				var curPos = BX.pos(container),
@@ -1027,10 +1063,10 @@
 							window.scrollTo(0, scroll.scrollTop + state.height);
 						}
 					},
-
 					complete : function(){
 						container.style.cssText = "";
-					}
+						BX.onCustomEvent(this, "OnUCRecordWasShown", [this.ENTITY_XML_ID, id, container]);
+					}.bind(this)
 				})).animate();
 			}
 			else
@@ -1095,10 +1131,6 @@
 			this.showWait(id);
 
 			// act in ["EDIT", "DELETE", "GET", "SHOW", "HIDE"]
-			if (act === "SHOW" || act === "HIDE")
-			{
-				act = "MODERATE";
-			}
 			id = parseInt(id);
 			var data = {
 				sessid : BX.bitrix_sessid(),
@@ -1109,7 +1141,9 @@
 				ACTION : (act === "EDIT" ? "GET" : act),
 				ID : id,
 				ENTITY_XML_ID : this.ENTITY_XML_ID,
-				OPERATION_ID : this.getOperationId()
+				OPERATION_ID : this.getOperationId(),
+				EXEMPLAR_ID: this.exemplarId,
+				scope: this.scope,
 			};
 			url = (url.indexOf('#') !== -1 ? url.substr(0, url.indexOf('#')) : url);
 
@@ -1302,17 +1336,24 @@
 				moreButtonBlock.style.display = "block";
 			}
 
-
+			var ii = null;
 			var onLoadImageList = BX.findChildren(bodyBlock, { attr: { "data-bx-onload" : "Y" } },true);
 			var funcOnLoad = function(){this.recalcMoreButtonComment(id);}.bind(this);
 			if (BX.type.isArray(onLoadImageList))
 			{
-				for (var ii = 0; ii < onLoadImageList.length; ii++)
+				for (ii = 0; ii < onLoadImageList.length; ii++)
 				{
 					onLoadImageList[ii].addEventListener("load", funcOnLoad);
 					onLoadImageList[ii].setAttribute("data-bx-onload", "N");
 				}
 			}
+
+			var onLoadVideoList = bodyBlock.querySelectorAll('video');
+			for (ii = 0; ii < onLoadVideoList.length; ii++)
+			{
+				onLoadVideoList[ii].addEventListener("loadedmetadata", funcOnLoad);
+			}
+
 			if (!commentNode.hasOwnProperty("__boundOnForumSpoilerToggle"))
 			{
 				commentNode.__boundOnForumSpoilerToggle = true;
@@ -1326,7 +1367,11 @@
 			}
 
 			var pos = BX.pos(this.node.main);
-			if (pos.top > screenPosition.bottom || pos.bottom < screenPosition.top)
+			if (
+				pos.top > screenPosition.bottom
+				|| pos.bottom < screenPosition.top
+				|| (pos.top === 0 && pos.bottom === 0)
+			)
 			{
 				return;
 			}
@@ -1374,7 +1419,12 @@
 				BX.removeClass(node1, "feed-com-block-pointer-to-new feed-com-block-new");
 				BX.addClass(node1, "feed-com-block-read");
 			}
-			BX.onCustomEvent(window, "OnUCCommentWasRead", [this.getXmlId(), [this.getXmlId(), id]]);
+
+			var node2 = BX.findChild(node, {className: "feed-com-block"}, true);
+			BX.onCustomEvent(window, "OnUCCommentWasRead", [this.getXmlId(), [this.getXmlId(), id], {
+					live: (node2 && node2.classList.contains('feed-com-block-live')),
+					new: (!node1 || !node1.classList.contains('feed-com-block-old'))
+			}]);
 		},
 		sendCommentAsRead : function(id) {
 			if (this.ajax["readComment"] !== true)
@@ -1699,17 +1749,29 @@
 					panels[ii]["className"] = "blog-comment-popup-menu";
 				}
 			}
+
+			var popupParams = {
+				offsetLeft: -18,
+				offsetTop: 2,
+				lightShadow: false,
+				angle: {position: "top", offset: 50},
+				events : {
+					onPopupClose : function() { this.destroy();BX.PopupMenu.Data["action-" + linkId] = null; }
+				}
+			};
+
+			if (BX.getClass('BX.SidePanel.Instance'))
+			{
+				var slider = BX.SidePanel.Instance.getTopSlider();
+				if (slider && slider.isSelfContained())
+				{
+					popupParams.zIndex = slider.getZindex();
+				}
+			}
+			BX.onCustomEvent("OnUCCommentActionsShown", [eventNode, ID, panels, popupParams]);
 			BX.PopupMenu.show("action-" + linkId, el,
 				panels,
-				{
-					offsetLeft: -18,
-					offsetTop: 2,
-					lightShadow: false,
-					angle: {position: "top", offset: 50},
-					events : {
-						onPopupClose : function() { this.destroy();BX.PopupMenu.Data["action-" + linkId] = null; }
-					}
-				}
+				popupParams
 			);
 		}
 	};
@@ -1876,6 +1938,7 @@
 				"AUTHOR_NAME" : "",
 				"AUTHOR_EXTRANET_STYLE" : "",
 				"SHOW_POST_FORM" : "Y",
+				"SHOW_MENU" : "Y",
 				"VOTE_ID" : "",
 				"AUTHOR_TOOLTIP_PARAMS" : "",
 				"background:url('') no-repeat center;" : "",
@@ -1939,7 +2002,7 @@
 					true
 				),
 				"TEXT" : commentText,
-				"CLASSNAME" : (res["CLASSNAME"] ? " " + res["CLASSNAME"] : ""),
+				"CLASSNAME" : (res["CLASSNAME"] ? " " + res["CLASSNAME"] : "") + (BX.type.isNotEmptyString(params["CLASSNAME"]) ? ' ' + params["CLASSNAME"] : ''),
 				"VIEW_URL" : params["VIEW_URL"].replace("#ID#", res["ID"]).replace("#id#", res["ID"]),
 				"VIEW_SHOW" : (params["VIEW_URL"] !== "" ? "Y" : "N"),
 				"EDIT_URL" : params["EDIT_URL"].replace("#ID#", res["ID"]).replace("#id#", res["ID"]),

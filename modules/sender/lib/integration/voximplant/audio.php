@@ -80,25 +80,25 @@ class Audio
 	 */
 	public function withJsonString($json)
 	{
-		if (strlen($json))
+		if($json <> '')
 		{
 			try
 			{
 				$params = Json::decode($json);
-				if ($params['type'] == self::AUDIO_TYPE_PRESET)
+				if($params['type'] == self::AUDIO_TYPE_PRESET)
 				{
 					$this->withPreset($params['preset']);
 				}
-				if ($params['type'] == self::AUDIO_TYPE_FILE)
+				if($params['type'] == self::AUDIO_TYPE_FILE)
 				{
 					$this->withFile($params['fileId']);
 				}
-				if ($params['duration'])
+				if($params['duration'])
 				{
 					$this->duration = $params['duration'];
 				}
 			}
-			catch (ArgumentException $e)
+			catch(ArgumentException $e)
 			{
 			}
 		}
@@ -278,8 +278,8 @@ class Audio
 	 */
 	private function getPresetCode()
 	{
-		return strpos($this->getPreset(), $this->getMessageCode()) === 0 ?
-			substr($this->getPreset(), strlen($this->getMessageCode()) + 1) : $this->getPreset();
+		return mb_strpos($this->getPreset(), $this->getMessageCode()) === 0?
+			mb_substr($this->getPreset(), mb_strlen($this->getMessageCode()) + 1) : $this->getPreset();
 	}
 
 	/**

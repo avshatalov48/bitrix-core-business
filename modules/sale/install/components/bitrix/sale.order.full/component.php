@@ -8,19 +8,19 @@ if (!CModule::IncludeModule("sale"))
 }
 
 $arParams["PATH_TO_BASKET"] = Trim($arParams["PATH_TO_BASKET"]);
-if (strlen($arParams["PATH_TO_BASKET"]) <= 0)
+if ($arParams["PATH_TO_BASKET"] == '')
 	$arParams["PATH_TO_BASKET"] = "basket.php";
 
 $arParams["PATH_TO_PERSONAL"] = Trim($arParams["PATH_TO_PERSONAL"]);
-if (strlen($arParams["PATH_TO_PERSONAL"]) <= 0)
+if ($arParams["PATH_TO_PERSONAL"] == '')
 	$arParams["PATH_TO_PERSONAL"] = "index.php";
 
 $arParams["PATH_TO_PAYMENT"] = Trim($arParams["PATH_TO_PAYMENT"]);
-if (strlen($arParams["PATH_TO_PAYMENT"]) <= 0)
+if ($arParams["PATH_TO_PAYMENT"] == '')
 	$arParams["PATH_TO_PAYMENT"] = "payment.php";
 
 $arParams["PATH_TO_AUTH"] = Trim($arParams["PATH_TO_AUTH"]);
-if (strlen($arParams["PATH_TO_AUTH"]) <= 0)
+if ($arParams["PATH_TO_AUTH"] == '')
 	$arParams["PATH_TO_AUTH"] = "/auth.php";
 
 $arParams["ALLOW_PAY_FROM_ACCOUNT"] = (($arParams["ALLOW_PAY_FROM_ACCOUNT"] == "N") ? "N" : "Y");
@@ -52,9 +52,9 @@ if($arParams["SET_TITLE"] == "Y")
 		$APPLICATION->SetTitle(GetMessage("STOF_AUTH"));
 }
 
-if(strlen($arResult["POST"]["ORDER_PRICE"])>0)
+if($arResult["POST"]["ORDER_PRICE"] <> '')
 	$arResult["ORDER_PRICE"]  = doubleval($arResult["POST"]["ORDER_PRICE"]);
-if(strlen($arResult["POST"]["ORDER_WEIGHT"])>0)
+if($arResult["POST"]["ORDER_WEIGHT"] <> '')
 	$arResult["ORDER_WEIGHT"] = doubleval($arResult["POST"]["ORDER_WEIGHT"]);
 
 $arResult["WEIGHT_UNIT"] = htmlspecialcharsbx(COption::GetOptionString('sale', 'weight_unit', "", SITE_ID));
@@ -90,56 +90,56 @@ $arResult["SKIP_SECOND_STEP"] = (($arResult["POST"]["SKIP_SECOND_STEP"] == "Y") 
 $arResult["SKIP_THIRD_STEP"] = (($arResult["POST"]["SKIP_THIRD_STEP"] == "Y") ? "Y" : "N");
 $arResult["SKIP_FORTH_STEP"] = (($arResult["POST"]["SKIP_FORTH_STEP"] == "Y") ? "Y" : "N");
 
-if(strlen($arResult["POST"]["PERSON_TYPE"])>0)
-	$arResult["PERSON_TYPE"] = IntVal($arResult["POST"]["PERSON_TYPE"]);
-if(strlen($arResult["POST"]["PROFILE_ID"])>0)
+if($arResult["POST"]["PERSON_TYPE"] <> '')
+	$arResult["PERSON_TYPE"] = intval($arResult["POST"]["PERSON_TYPE"]);
+if($arResult["POST"]["PROFILE_ID"] <> '')
 {
-	$arResult["PROFILE_ID"] = IntVal($arResult["POST"]["PROFILE_ID"]);
+	$arResult["PROFILE_ID"] = intval($arResult["POST"]["PROFILE_ID"]);
 	$dbUserProfiles = CSaleOrderUserProps::GetList(
 			array("DATE_UPDATE" => "DESC"),
 			array(
 					"PERSON_TYPE_ID" => $arResult["PERSON_TYPE"],
-					"USER_ID" => IntVal($USER->GetID()),
+					"USER_ID" => intval($USER->GetID()),
 					"ID" => $arResult["PROFILE_ID"],
 				)
 		);
 	if(!$dbUserProfiles->GetNext())
 		$arResult["PROFILE_ID"] = 0;
 }
-if(strlen($arResult["POST"]["DELIVERY_ID"])>0)
+if($arResult["POST"]["DELIVERY_ID"] <> '')
 {
-	if (strpos($arResult["POST"]["DELIVERY_ID"], ":") === false)
-		$arResult["DELIVERY_ID"] = IntVal($arResult["POST"]["DELIVERY_ID"]);
+	if (mb_strpos($arResult["POST"]["DELIVERY_ID"], ":") === false)
+		$arResult["DELIVERY_ID"] = intval($arResult["POST"]["DELIVERY_ID"]);
 	else
 		$arResult["DELIVERY_ID"] = explode(":", $arResult["POST"]["DELIVERY_ID"]);
 }
-if(strlen($arResult["POST"]["PAY_SYSTEM_ID"])>0)
-	$arResult["PAY_SYSTEM_ID"] = IntVal($arResult["POST"]["PAY_SYSTEM_ID"]);
-if(strlen($arResult["POST"]["PAY_CURRENT_ACCOUNT"])>0)
+if($arResult["POST"]["PAY_SYSTEM_ID"] <> '')
+	$arResult["PAY_SYSTEM_ID"] = intval($arResult["POST"]["PAY_SYSTEM_ID"]);
+if($arResult["POST"]["PAY_CURRENT_ACCOUNT"] <> '')
 	$arResult["PAY_CURRENT_ACCOUNT"] = $arResult["POST"]["PAY_CURRENT_ACCOUNT"];
 else
 	$arResult["PAY_CURRENT_ACCOUNT"] = "N";
-if(strlen($arResult["POST"]["TAX_EXEMPT"])>0)
+if($arResult["POST"]["TAX_EXEMPT"] <> '')
 	$arResult["TAX_EXEMPT"] = $arResult["POST"]["TAX_EXEMPT"];
-if(strlen($arResult["POST"]["ORDER_DESCRIPTION"])>0)
+if($arResult["POST"]["ORDER_DESCRIPTION"] <> '')
 	$arResult["ORDER_DESCRIPTION"] = trim($arResult["POST"]["ORDER_DESCRIPTION"]);
 
 if ($_REQUEST["CurrentStep"] == 7 || ($_SERVER["REQUEST_METHOD"] == "POST" && ($arParams["DELIVERY_NO_SESSION"] == "N" || check_bitrix_sessid())))
 {
-	if(strlen($_REQUEST["ORDER_ID"])>0)
+	if($_REQUEST["ORDER_ID"] <> '')
 		$ID = urldecode(urldecode($_REQUEST["ORDER_ID"]));
-	if(IntVal($_REQUEST["CurrentStep"])>0)
-		$arResult["CurrentStep"] = IntVal($_REQUEST["CurrentStep"]);
-	if(IntVal($_REQUEST["CurrentStep"])>0)
-		$CurrentStepTmp = IntVal($_REQUEST["CurrentStep"]);
-	elseif(IntVal($arResult["POST"]["CurrentStep"])>0)
-		$CurrentStepTmp = IntVal($arResult["POST"]["CurrentStep"]);
+	if(intval($_REQUEST["CurrentStep"])>0)
+		$arResult["CurrentStep"] = intval($_REQUEST["CurrentStep"]);
+	if(intval($_REQUEST["CurrentStep"])>0)
+		$CurrentStepTmp = intval($_REQUEST["CurrentStep"]);
+	elseif(intval($arResult["POST"]["CurrentStep"])>0)
+		$CurrentStepTmp = intval($arResult["POST"]["CurrentStep"]);
 }
 
 
 $arResult["BACK"] = (($arResult["POST"]["BACK"] == "Y") ? "Y" : "");
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_REQUEST["backButton"]) > 0 && ($arParams["DELIVERY_NO_SESSION"] == "N" || check_bitrix_sessid()))
+if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["backButton"] <> '' && ($arParams["DELIVERY_NO_SESSION"] == "N" || check_bitrix_sessid()))
 {
 	if($arResult["POST"]["CurrentStep"] == 6 && $arResult["SKIP_FORTH_STEP"] == "Y")
 		$arResult["CurrentStepTmp"] = 3;
@@ -150,7 +150,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_REQUEST["backButton"]) > 0 
 	if($arResult["POST"]["CurrentStepTmp"] <= 3 && $arResult["SKIP_SECOND_STEP"] == "Y")
 		$arResult["CurrentStepTmp"] = 1;
 
-	if(IntVal($arResult["CurrentStepTmp"])>0)
+	if(intval($arResult["CurrentStepTmp"])>0)
 		$arResult["CurrentStep"] = $arResult["CurrentStepTmp"];
 	else
 		$arResult["CurrentStep"] = $arResult["CurrentStep"] - 2;
@@ -165,7 +165,7 @@ $arResult["ERROR_MESSAGE"] = "";
 /*******************************************************************************/
 if (!$USER->IsAuthorized())
 {
-	$arResult["USER_LOGIN"] = ((strlen($arResult["POST"]["USER_LOGIN"]) > 0) ? $arResult["POST"]["USER_LOGIN"] : htmlspecialcharsbx(${COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_LOGIN"}));
+	$arResult["USER_LOGIN"] = (($arResult["POST"]["USER_LOGIN"] <> '') ? $arResult["POST"]["USER_LOGIN"] : htmlspecialcharsbx(${COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_LOGIN"}));
 	$arResult["AUTH"]["captcha_registration"] = ((COption::GetOptionString("main", "captcha_registration", "N") == "Y") ? "Y" : "N");
 	if($arResult["AUTH"]["captcha_registration"] == "Y")
 		$arResult["AUTH"]["capCode"] = htmlspecialcharsbx($APPLICATION->CaptchaGetCode());
@@ -175,14 +175,14 @@ if (!$USER->IsAuthorized())
 	{
 		if ($arResult["POST"]["do_authorize"] == "Y")
 		{
-			if (strlen($arResult["POST"]["USER_LOGIN"]) <= 0)
+			if ($arResult["POST"]["USER_LOGIN"] == '')
 				$arResult["ERROR_MESSAGE"] .= GetMessage("STOF_ERROR_AUTH_LOGIN").".<br />";
 
-			if (strlen($arResult["ERROR_MESSAGE"]) <= 0)
+			if ($arResult["ERROR_MESSAGE"] == '')
 			{
 				$arAuthResult = $USER->Login($arResult["POST"]["~USER_LOGIN"], $arResult["POST"]["~USER_PASSWORD"], "N");
 				if ($arAuthResult != False && $arAuthResult["TYPE"] == "ERROR")
-					$arResult["ERROR_MESSAGE"] .= GetMessage("STOF_ERROR_AUTH").((strlen($arAuthResult["MESSAGE"]) > 0) ? ": ".$arAuthResult["MESSAGE"] : ".<br />" );
+					$arResult["ERROR_MESSAGE"] .= GetMessage("STOF_ERROR_AUTH").(($arAuthResult["MESSAGE"] <> '') ? ": ".$arAuthResult["MESSAGE"] : ".<br />" );
 				else
 					LocalRedirect($arParams["PATH_TO_ORDER"]);
 
@@ -190,13 +190,13 @@ if (!$USER->IsAuthorized())
 		}
 		elseif ($arResult["POST"]["do_register"] == "Y" && $arResult["AUTH"]["new_user_registration"] == "Y")
 		{
-			if (strlen($arResult["POST"]["NEW_NAME"]) <= 0)
+			if ($arResult["POST"]["NEW_NAME"] == '')
 				$arResult["ERROR_MESSAGE"] .= GetMessage("STOF_ERROR_REG_NAME").".<br />";
 
-			if (strlen($arResult["POST"]["NEW_LAST_NAME"]) <= 0)
+			if ($arResult["POST"]["NEW_LAST_NAME"] == '')
 				$arResult["ERROR_MESSAGE"] .= GetMessage("STOF_ERROR_REG_LASTNAME").".<br />";
 
-			if (strlen($arResult["POST"]["NEW_EMAIL"]) <= 0)
+			if ($arResult["POST"]["NEW_EMAIL"] == '')
 				$arResult["ERROR_MESSAGE"] .= GetMessage("STOF_ERROR_REG_EMAIL").".<br />";
 			elseif (!check_email($arResult["POST"]["NEW_EMAIL"]))
 				$arResult["ERROR_MESSAGE"] .= GetMessage("STOF_ERROR_REG_BAD_EMAIL").".<br />";
@@ -205,17 +205,17 @@ if (!$USER->IsAuthorized())
 			{
 				$arResult["POST"]["~NEW_LOGIN"] = $arResult["POST"]["~NEW_EMAIL"];
 
-				$pos = strpos($arResult["POST"]["~NEW_LOGIN"], "@");
+				$pos = mb_strpos($arResult["POST"]["~NEW_LOGIN"], "@");
 				if ($pos !== false)
-					$arResult["POST"]["~NEW_LOGIN"] = substr($arResult["POST"]["~NEW_LOGIN"], 0, $pos);
+					$arResult["POST"]["~NEW_LOGIN"] = mb_substr($arResult["POST"]["~NEW_LOGIN"], 0, $pos);
 
-				if (strlen($arResult["POST"]["~NEW_LOGIN"]) > 47)
-					$arResult["POST"]["~NEW_LOGIN"] = substr($arResult["POST"]["~NEW_LOGIN"], 0, 47);
+				if (mb_strlen($arResult["POST"]["~NEW_LOGIN"]) > 47)
+					$arResult["POST"]["~NEW_LOGIN"] = mb_substr($arResult["POST"]["~NEW_LOGIN"], 0, 47);
 
-				if (strlen($arResult["POST"]["~NEW_LOGIN"]) < 3)
+				if (mb_strlen($arResult["POST"]["~NEW_LOGIN"]) < 3)
 					$arResult["POST"]["~NEW_LOGIN"] .= "_";
 
-				if (strlen($arResult["POST"]["~NEW_LOGIN"]) < 3)
+				if (mb_strlen($arResult["POST"]["~NEW_LOGIN"]) < 3)
 					$arResult["POST"]["~NEW_LOGIN"] .= "_";
 
 				$dbUserLogin = CUser::GetByLogin($arResult["POST"]["~NEW_LOGIN"]);
@@ -272,26 +272,26 @@ if (!$USER->IsAuthorized())
 			}
 			else
 			{
-				if (strlen($arResult["POST"]["NEW_LOGIN"]) <= 0)
+				if ($arResult["POST"]["NEW_LOGIN"] == '')
 					$arResult["ERROR_MESSAGE"] .= GetMessage("STOF_ERROR_REG_FLAG").".<br />";
 
-				if (strlen($arResult["POST"]["NEW_PASSWORD"]) <= 0)
+				if ($arResult["POST"]["NEW_PASSWORD"] == '')
 					$arResult["ERROR_MESSAGE"] .= GetMessage("STOF_ERROR_REG_FLAG1").".<br />";
 
-				if (strlen($arResult["POST"]["NEW_PASSWORD"]) > 0 && strlen($arResult["POST"]["NEW_PASSWORD_CONFIRM"]) <= 0)
+				if ($arResult["POST"]["NEW_PASSWORD"] <> '' && $arResult["POST"]["NEW_PASSWORD_CONFIRM"] == '')
 					$arResult["ERROR_MESSAGE"] .= GetMessage("STOF_ERROR_REG_FLAG1").".<br />";
 
-				if (strlen($arResult["POST"]["NEW_PASSWORD"]) > 0
-					&& strlen($arResult["POST"]["NEW_PASSWORD_CONFIRM"]) > 0
+				if ($arResult["POST"]["NEW_PASSWORD"] <> ''
+					&& $arResult["POST"]["NEW_PASSWORD_CONFIRM"] <> ''
 					&& $arResult["POST"]["NEW_PASSWORD"] != $arResult["POST"]["NEW_PASSWORD_CONFIRM"])
 					$arResult["ERROR_MESSAGE"] .= GetMessage("STOF_ERROR_REG_PASS").".<br />";
 			}
 
-			if (strlen($arResult["ERROR_MESSAGE"]) <= 0)
+			if ($arResult["ERROR_MESSAGE"] == '')
 			{
 				$arAuthResult = $USER->Register($arResult["POST"]["~NEW_LOGIN"], $arResult["POST"]["~NEW_NAME"], $arResult["POST"]["~NEW_LAST_NAME"], $arResult["POST"]["~NEW_PASSWORD"], $arResult["POST"]["~NEW_PASSWORD_CONFIRM"], $arResult["POST"]["~NEW_EMAIL"], LANG, $arResult["POST"]["~captcha_word"], $arResult["POST"]["~captcha_sid"]);
 				if ($arAuthResult != False && $arAuthResult["TYPE"] == "ERROR")
-					$arResult["ERROR_MESSAGE"] .= GetMessage("STOF_ERROR_REG").((strlen($arAuthResult["MESSAGE"]) > 0) ? ": ".$arAuthResult["MESSAGE"] : ".<br />" );
+					$arResult["ERROR_MESSAGE"] .= GetMessage("STOF_ERROR_REG").(($arAuthResult["MESSAGE"] <> '') ? ": ".$arAuthResult["MESSAGE"] : ".<br />" );
 				else
 				{
 					if ($USER->IsAuthorized())
@@ -476,7 +476,7 @@ else
 			}
 		}
 
-		if (strlen($arResult["ERROR_MESSAGE"]) <= 0 && $arResult["CurrentStep"] > 1)
+		if ($arResult["ERROR_MESSAGE"] == '' && $arResult["CurrentStep"] > 1)
 		{
 			// <***************** AFTER 1 STEP
 			if ($arResult["PERSON_TYPE"] <= 0)
@@ -485,11 +485,11 @@ else
 			if (($arResult["PERSON_TYPE"] > 0) && !($arPersType = CSalePersonType::GetByID($arResult["PERSON_TYPE"])))
 				$arResult["ERROR_MESSAGE"] .= GetMessage("SALE_PERS_TYPE_NOT_FOUND")."<br />";
 
-			if (strlen($arResult["ERROR_MESSAGE"]) > 0)
+			if ($arResult["ERROR_MESSAGE"] <> '')
 				$arResult["CurrentStep"] = 1;
 		}
 
-		if (strlen($arResult["ERROR_MESSAGE"]) <= 0 && $arResult["CurrentStep"] > 2)
+		if ($arResult["ERROR_MESSAGE"] == '' && $arResult["CurrentStep"] > 2)
 		{
 			// <***************** AFTER 2 STEP
 			if ($arResult["PROFILE_ID"] > 0 && $USER->IsAuthorized())
@@ -535,36 +535,36 @@ else
 				if ($arOrderProps["TYPE"]=="LOCATION" && ($arOrderProps["IS_LOCATION"]=="Y" || $arOrderProps["IS_LOCATION4TAX"]=="Y"))
 				{
 					if ($arOrderProps["IS_LOCATION"]=="Y")
-						$arResult["DELIVERY_LOCATION"] = IntVal($curVal);
+						$arResult["DELIVERY_LOCATION"] = intval($curVal);
 					if ($arOrderProps["IS_LOCATION4TAX"]=="Y")
-						$arResult["TAX_LOCATION"] = IntVal($curVal);
+						$arResult["TAX_LOCATION"] = intval($curVal);
 
-					if (IntVal($curVal)<=0) $bErrorField = True;
+					if (intval($curVal)<=0) $bErrorField = True;
 				}
 				elseif ($arOrderProps["IS_PROFILE_NAME"]=="Y" || $arOrderProps["IS_PAYER"]=="Y" || $arOrderProps["IS_EMAIL"]=="Y" || $arOrderProps["IS_ZIP"]=="Y")
 				{
 					if ($arOrderProps["IS_PROFILE_NAME"]=="Y")
 					{
 						$arResult["PROFILE_NAME"] = Trim($curVal);
-						if (strlen($arResult["PROFILE_NAME"])<=0)
+						if ($arResult["PROFILE_NAME"] == '')
 							$bErrorField = True;
 					}
 					if ($arOrderProps["IS_PAYER"]=="Y")
 					{
 						$arResult["PAYER_NAME"] = Trim($curVal);
-						if (strlen($arResult["PAYER_NAME"])<=0)
+						if ($arResult["PAYER_NAME"] == '')
 							$bErrorField = True;
 					}
 					if ($arOrderProps["IS_EMAIL"]=="Y")
 					{
 						$arResult["USER_EMAIL"] = Trim($curVal);
-						if (strlen($arResult["USER_EMAIL"])<=0 || !check_email($arResult["USER_EMAIL"]))
+						if ($arResult["USER_EMAIL"] == '' || !check_email($arResult["USER_EMAIL"]))
 							$bErrorField = True;
 					}
 					if($arOrderProps["IS_ZIP"]=="Y")
 					{
 						$arResult["DELIVERY_LOCATION_ZIP"] = $curVal;
-						if (strlen($arResult["DELIVERY_LOCATION_ZIP"])<=0)
+						if ($arResult["DELIVERY_LOCATION_ZIP"] == '')
 							$bErrorField = True;
 					}
 				}
@@ -572,12 +572,12 @@ else
 				{
 					if ($arOrderProps["TYPE"]=="TEXT" || $arOrderProps["TYPE"]=="TEXTAREA" || $arOrderProps["TYPE"]=="RADIO" || $arOrderProps["TYPE"]=="SELECT" || $arOrderProps["TYPE"] == "CHECKBOX")
 					{
-						if (strlen($curVal)<=0)
+						if ($curVal == '')
 							$bErrorField = True;
 					}
 					elseif ($arOrderProps["TYPE"]=="LOCATION")
 					{
-						if (IntVal($curVal)<=0)
+						if (intval($curVal)<=0)
 							$bErrorField = True;
 					}
 					elseif ($arOrderProps["TYPE"]=="MULTISELECT")
@@ -592,11 +592,11 @@ else
 			}
 
 
-			if (strlen($arResult["ERROR_MESSAGE"]) > 0)
+			if ($arResult["ERROR_MESSAGE"] <> '')
 				$arResult["CurrentStep"] = 2;
 		}
 
-		if (strlen($arResult["ERROR_MESSAGE"]) <= 0 && $arResult["CurrentStep"] > 3)
+		if ($arResult["ERROR_MESSAGE"] == '' && $arResult["CurrentStep"] > 3)
 		{
 			// <***************** AFTER 3 STEP
 			$arResult["TaxExempt"] = array();
@@ -607,9 +607,9 @@ else
 				$dbTaxExemptList = CSaleTax::GetExemptList(array("GROUP_ID" => $arUserGroups));
 				while ($TaxExemptList = $dbTaxExemptList->Fetch())
 				{
-					if (!in_array(IntVal($TaxExemptList["TAX_ID"]), $arResult["TaxExempt"]))
+					if (!in_array(intval($TaxExemptList["TAX_ID"]), $arResult["TaxExempt"]))
 					{
-						$arResult["TaxExempt"][] = IntVal($TaxExemptList["TAX_ID"]);
+						$arResult["TaxExempt"][] = intval($TaxExemptList["TAX_ID"]);
 					}
 				}
 			}
@@ -645,7 +645,7 @@ else
 					$arResult["DELIVERY_PRICE"] = roundEx(CCurrencyRates::ConvertCurrency($arDeliv["PRICE"], $arDeliv["CURRENCY"], $arResult["BASE_LANG_CURRENCY"]), SALE_VALUE_PRECISION);
 			}
 
-			if (strlen($arResult["ERROR_MESSAGE"]) > 0)
+			if ($arResult["ERROR_MESSAGE"] <> '')
 				$arResult["CurrentStep"] = 3;
 		}
 
@@ -668,12 +668,12 @@ else
 							"LID" => SITE_ID,
 							"PERSON_TYPE_ID" => $arResult["PERSON_TYPE"],
 							"ACTIVE" => "Y",
-							"LOCATION" => IntVal($arResult["TAX_LOCATION"])
+							"LOCATION" => intval($arResult["TAX_LOCATION"])
 						)
 				);
 			while ($arTaxRate = $dbTaxRate->GetNext())
 			{
-				if (!in_array(IntVal($arTaxRate["TAX_ID"]), $arResult["TaxExempt"]))
+				if (!in_array(intval($arTaxRate["TAX_ID"]), $arResult["TaxExempt"]))
 				{
 					$arResult["arTaxList"][] = $arTaxRate;
 				}
@@ -741,13 +741,13 @@ else
 
 		}
 
-		if (strlen($arResult["ERROR_MESSAGE"]) <= 0 && $arResult["CurrentStep"] >= 4)
+		if ($arResult["ERROR_MESSAGE"] == '' && $arResult["CurrentStep"] >= 4)
 		{
 			// <***************** AFTER 4 STEP
 			// PAY_SYSTEM
 			if($arResult["CurrentStep"] > 4)
 			{
-				$arResult["PAY_SYSTEM_ID"] = IntVal($_REQUEST["PAY_SYSTEM_ID"]);
+				$arResult["PAY_SYSTEM_ID"] = intval($_REQUEST["PAY_SYSTEM_ID"]);
 				if ($arResult["PAY_SYSTEM_ID"] <= 0)
 					$arResult["ERROR_MESSAGE"] .= GetMessage("SALE_NO_PAY_SYS")."<br />";
 				if (($arResult["PAY_SYSTEM_ID"] > 0) && !($arPaySys = CSalePaySystem::GetByID($arResult["PAY_SYSTEM_ID"], $arResult["PERSON_TYPE"])))
@@ -756,17 +756,17 @@ else
 			//if ($arResult["PAY_CURRENT_ACCOUNT"] != "Y")
 				//$arResult["PAY_CURRENT_ACCOUNT"] = "N";
 
-			if (strlen($arResult["ERROR_MESSAGE"]) > 0)
+			if ($arResult["ERROR_MESSAGE"] <> '')
 				$arResult["CurrentStep"] = 4;
 		}
 
-		if (strlen($arResult["ERROR_MESSAGE"]) <= 0 && $arResult["CurrentStep"] > 5)
+		if ($arResult["ERROR_MESSAGE"] == '' && $arResult["CurrentStep"] > 5)
 		{
 
-			if (strlen($arResult["ERROR_MESSAGE"]) > 0)
+			if ($arResult["ERROR_MESSAGE"] <> '')
 				$arResult["CurrentStep"] = 5;
 
-			if (strlen($arResult["ERROR_MESSAGE"]) <= 0)
+			if ($arResult["ERROR_MESSAGE"] == '')
 			{
 				$totalOrderPrice = $arResult["ORDER_PRICE"] + $arResult["DELIVERY_PRICE"] + $arResult["TAX_PRICE"] - $arResult["DISCOUNT_PRICE"];
 
@@ -778,7 +778,7 @@ else
 						"STATUS_ID" => "N",
 						"PRICE" => $totalOrderPrice,
 						"CURRENCY" => $arResult["BASE_LANG_CURRENCY"],
-						"USER_ID" => IntVal($USER->GetID()),
+						"USER_ID" => intval($USER->GetID()),
 						"PAY_SYSTEM_ID" => $arResult["PAY_SYSTEM_ID"],
 						"DELIVERY_ID" => is_array($arResult["DELIVERY_ID"]) ? implode(":", $arResult["DELIVERY_ID"]) : ($arResult["DELIVERY_ID"] > 0 ? $arResult["DELIVERY_ID"] : false),
 						"DISCOUNT_VALUE" => $arResult["DISCOUNT_PRICE"],
@@ -835,7 +835,7 @@ else
 				\Bitrix\Sale\Notify::setNotifyDisable(true);
 
 				$arResult["ORDER_ID"] = CSaleOrder::Add($arFields);
-				$arResult["ORDER_ID"] = IntVal($arResult["ORDER_ID"]);
+				$arResult["ORDER_ID"] = intval($arResult["ORDER_ID"]);
 
 				if ($arResult["ORDER_ID"] <= 0)
 				{
@@ -850,7 +850,7 @@ else
 				}
 			}
 
-			if (strlen($arResult["ERROR_MESSAGE"]) <= 0)
+			if ($arResult["ERROR_MESSAGE"] == '')
 			{
 				CSaleBasket::OrderBasket($arResult["ORDER_ID"], CSaleBasket::GetBasketUserID(), SITE_ID, false);
 
@@ -875,7 +875,7 @@ else
 				CSaleOrder::Update($arResult["ORDER_ID"], Array("PRICE" => $totalOrderPrice));
 			}
 
-			if (strlen($arResult["ERROR_MESSAGE"]) <= 0)
+			if ($arResult["ERROR_MESSAGE"] == '')
 			{
 				//if($arResult["bUsingVat"] != "Y")
 				//{
@@ -938,12 +938,12 @@ else
 						}
 					}
 
-					if ($arOrderProperties["TYPE"] == "CHECKBOX" && strlen($curVal) <= 0 && $arOrderProperties["REQUIED"] != "Y")
+					if ($arOrderProperties["TYPE"] == "CHECKBOX" && $curVal == '' && $arOrderProperties["REQUIED"] != "Y")
 					{
 						$curVal = "N";
 					}
 
-					if (strlen($curVal) > 0)
+					if ($curVal <> '')
 					{
 						$arFields = array(
 								"ORDER_ID" => $arResult["ORDER_ID"],
@@ -953,21 +953,21 @@ else
 								"VALUE" => $curVal
 							);
 						CSaleOrderPropsValue::Add($arFields);
-						if ( $arOrderProperties["USER_PROPS"] == "Y" && IntVal($arResult["PROFILE_ID"]) <= 0 && IntVal($arResult["USER_PROPS_ID"])<=0)
+						if ( $arOrderProperties["USER_PROPS"] == "Y" && intval($arResult["PROFILE_ID"]) <= 0 && intval($arResult["USER_PROPS_ID"])<=0)
 						{
-							if (strlen($arResult["PROFILE_NAME"]) <= 0)
+							if ($arResult["PROFILE_NAME"] == '')
 								$arResult["PROFILE_NAME"] = GetMessage("SALE_PROFILE_NAME")." ".Date("Y-m-d");
 
 							$arFields = array(
 									"NAME" => $arResult["PROFILE_NAME"],
-									"USER_ID" => IntVal($USER->GetID()),
+									"USER_ID" => intval($USER->GetID()),
 									"PERSON_TYPE_ID" => $arResult["PERSON_TYPE"]
 								);
 							$arResult["USER_PROPS_ID"] = CSaleOrderUserProps::Add($arFields);
-							$arResult["USER_PROPS_ID"] = IntVal($arResult["USER_PROPS_ID"]);
+							$arResult["USER_PROPS_ID"] = intval($arResult["USER_PROPS_ID"]);
 						}
 
-						if (IntVal($arResult["PROFILE_ID"]) <= 0 && $arOrderProperties["USER_PROPS"] == "Y" && $arResult["USER_PROPS_ID"] > 0)
+						if (intval($arResult["PROFILE_ID"]) <= 0 && $arOrderProperties["USER_PROPS"] == "Y" && $arResult["USER_PROPS_ID"] > 0)
 						{
 							$arFields = array(
 									"USER_PROPS_ID" => $arResult["USER_PROPS_ID"],
@@ -982,7 +982,7 @@ else
 			}
 
 			// mail message
-			if (strlen($arResult["ERROR_MESSAGE"]) <= 0)
+			if ($arResult["ERROR_MESSAGE"] == '')
 			{
 				$strOrderList = "";
 				$dbBasketItems = CSaleBasket::GetList(
@@ -1001,7 +1001,7 @@ else
 				$arFields = Array(
 					"ORDER_ID" => $arOrder["ACCOUNT_NUMBER"],
 					"ORDER_DATE" => Date($DB->DateFormatToPHP(CLang::GetDateFormat("SHORT", SITE_ID))),
-					"ORDER_USER" => ( (strlen($arResult["PAYER_NAME"]) > 0) ? $arResult["PAYER_NAME"] : $USER->GetFormattedName(false) ),
+					"ORDER_USER" => ( ($arResult["PAYER_NAME"] <> '') ? $arResult["PAYER_NAME"] : $USER->GetFormattedName(false) ),
 					"PRICE" => SaleFormatCurrency($totalOrderPrice, $arResult["BASE_LANG_CURRENCY"]),
 					"BCC" => COption::GetOptionString("sale", "order_email", "order@".$SERVER_NAME),
 					"EMAIL" => $arResult["USER_EMAIL"],
@@ -1026,12 +1026,12 @@ else
 			}
 
 			\Bitrix\Sale\Notify::setNotifyDisable(false);
-			if (strlen($arResult["ERROR_MESSAGE"]) <= 0)
+			if ($arResult["ERROR_MESSAGE"] == '')
 			{
 				LocalRedirect($arParams["PATH_TO_ORDER"]."?CurrentStep=7&ORDER_ID=".urlencode(urlencode($arOrder["ACCOUNT_NUMBER"])));
 			}
 
-			if (strlen($arResult["ERROR_MESSAGE"]) > 0)
+			if ($arResult["ERROR_MESSAGE"] <> '')
 				$arResult["CurrentStep"] = 5;
 		}
 	}
@@ -1061,7 +1061,7 @@ if ($USER->IsAuthorized())
 				break;
 
 			if ($curOnePersonType <= 0)
-				$curOnePersonType = IntVal($arPersonTypesList["ID"]);
+				$curOnePersonType = intval($arPersonTypesList["ID"]);
 		}
 
 		if ($numPersonTypes < 2)
@@ -1074,7 +1074,7 @@ if ($USER->IsAuthorized())
 
 	if ($arResult["CurrentStep"] < 3)
 	{
-		if ($arResult["SKIP_THIRD_STEP"] != "Y" && IntVal($arResult["PERSON_TYPE"]) > 0)
+		if ($arResult["SKIP_THIRD_STEP"] != "Y" && intval($arResult["PERSON_TYPE"]) > 0)
 		{
 			$arResult["SKIP_THIRD_STEP"] = "N";
 
@@ -1093,7 +1093,7 @@ if ($USER->IsAuthorized())
 				$arResult["SKIP_THIRD_STEP"] = "Y";
 		}
 
-		if($arResult["SKIP_SECOND_STEP"] != "Y" && IntVal($arResult["PERSON_TYPE"]) > 0)
+		if($arResult["SKIP_SECOND_STEP"] != "Y" && intval($arResult["PERSON_TYPE"]) > 0)
 		{
 			$arFilter = array("PERSON_TYPE_ID" => $arResult["PERSON_TYPE"], "ACTIVE" => "Y", "UTIL" => "N");
 			if(!empty($arParams["PROP_".$arResult["PERSON_TYPE"]]))
@@ -1126,7 +1126,7 @@ if ($USER->IsAuthorized())
 	}
 	if ($arResult["CurrentStep"] == 3)
 	{
-		if (IntVal($arResult["DELIVERY_LOCATION"]) > 0)
+		if (intval($arResult["DELIVERY_LOCATION"]) > 0)
 		{
 			// if your custom services needs something else, ex. cart content, you may put it here or get it from your services using API
 			$arFilter = array(
@@ -1245,7 +1245,7 @@ if ($USER->IsAuthorized())
 							foreach($val[$deliv] as $v)
 								$arFilter["ID"][] = $v;
 						}
-						elseif(IntVal($val[$deliv]) > 0)
+						elseif(intval($val[$deliv]) > 0)
 							$arFilter["ID"][] = $val[$deliv];
 					}
 				}
@@ -1332,7 +1332,7 @@ if ($USER->IsAuthorized())
 		$bFirst = True;
 		while ($arPersonType = $dbPersonType->GetNext())
 		{
-			if (IntVal($arResult["POST"]["PERSON_TYPE"]) == IntVal($arPersonType["ID"]) || IntVal($arResult["POST"]["PERSON_TYPE"]) <= 0 && $bFirst)
+			if (intval($arResult["POST"]["PERSON_TYPE"]) == intval($arPersonType["ID"]) || intval($arResult["POST"]["PERSON_TYPE"]) <= 0 && $bFirst)
 				$arPersonType["CHECKED"] = "Y";
 			$arResult["PERSON_TYPE_INFO"][] = $arPersonType;
 			$bFirst = False;
@@ -1371,7 +1371,7 @@ if ($USER->IsAuthorized())
 				array("DATE_UPDATE" => "DESC"),
 				array(
 						"PERSON_TYPE_ID" => $arResult["PERSON_TYPE"],
-						"USER_ID" => IntVal($USER->GetID())
+						"USER_ID" => intval($USER->GetID())
 					)
 			);
 		if ($arUserProfiles = $dbUserProfiles->GetNext())
@@ -1379,7 +1379,7 @@ if ($USER->IsAuthorized())
 			$bFillProfileFields = True;
 			do
 			{
-				if (IntVal($arResult["PROFILE_ID"])==IntVal($arUserProfiles["ID"]) || !isset($arResult["PROFILE_ID"]) && $bFirstProfile)
+				if (intval($arResult["PROFILE_ID"])==intval($arUserProfiles["ID"]) || !isset($arResult["PROFILE_ID"]) && $bFirstProfile)
 					$arUserProfiles["CHECKED"] = "Y";
 				$bFirstProfile = False;
 				$arUserProfiles["USER_PROPS_VALUES"] = Array();
@@ -1420,15 +1420,15 @@ if ($USER->IsAuthorized())
 								$arUserPropsValues["VALUE_FORMATED"] .= htmlspecialcharsEx($arLocation["CITY_NAME"]);
 								*/
 
-								$locationName .= ((strlen($arLocation["COUNTRY_NAME"])<=0) ? "" : $arLocation["COUNTRY_NAME"]);
+								$locationName .= (($arLocation["COUNTRY_NAME"] == '') ? "" : $arLocation["COUNTRY_NAME"]);
 
-								if (strlen($arLocation["COUNTRY_NAME"])>0 && strlen($arLocation["REGION_NAME"])>0)
+								if ($arLocation["COUNTRY_NAME"] <> '' && $arLocation["REGION_NAME"] <> '')
 									$locationName .= " - ".$arLocation["REGION_NAME"];
-								elseif (strlen($arLocation["REGION_NAME"])>0)
+								elseif ($arLocation["REGION_NAME"] <> '')
 									$locationName .= $arLocation["REGION_NAME"];
-								if (strlen($arLocation["COUNTRY_NAME"])>0 || strlen($arLocation["REGION_NAME"])>0)
+								if ($arLocation["COUNTRY_NAME"] <> '' || $arLocation["REGION_NAME"] <> '')
 									$locationName .= " - ".$arLocation["CITY_NAME"];
-								elseif (strlen($arLocation["CITY_NAME"])>0)
+								elseif ($arLocation["CITY_NAME"] <> '')
 									$locationName .= $arLocation["CITY_NAME"];
 							}
 
@@ -1443,7 +1443,7 @@ if ($USER->IsAuthorized())
 			}
 			while ($arUserProfiles = $dbUserProfiles->GetNext());
 
-			if (isset($arResult["PROFILE_ID"]) && IntVal($arResult["PROFILE_ID"]) > 0 && $bFirstProfile)
+			if (isset($arResult["PROFILE_ID"]) && intval($arResult["PROFILE_ID"]) > 0 && $bFirstProfile)
 				$arResult["USER_PROFILES_0"] = "Y";
 
 		}
@@ -1451,7 +1451,7 @@ if ($USER->IsAuthorized())
 		if ($bFillProfileFields)
 		{
 			$arResult["USER_PROFILES_TO_FILL"] = "Y";
-			if(isset($arResult["PROFILE_ID"]) && IntVal($arResult["PROFILE_ID"]) > 0 && $bFirstProfile)
+			if(isset($arResult["PROFILE_ID"]) && intval($arResult["PROFILE_ID"]) > 0 && $bFirstProfile)
 				$arResult["USER_PROFILES_TO_FILL_VALUE"] = "Y";
 		}
 
@@ -1482,7 +1482,7 @@ if ($USER->IsAuthorized())
 				$curVal = $arResult["POST"]["ORDER_PROP_".$arProperties["ID"]];
 
 			$arProperties["FIELD_NAME"] = "ORDER_PROP_".$arProperties["ID"];
-			if (IntVal($arProperties["PROPS_GROUP_ID"]) != $propertyGroupID || $propertyUSER_PROPS != $arProperties["USER_PROPS"])
+			if (intval($arProperties["PROPS_GROUP_ID"]) != $propertyGroupID || $propertyUSER_PROPS != $arProperties["USER_PROPS"])
 				$arProperties["SHOW_GROUP_NAME"] = "Y";
 			$propertyGroupID = $arProperties["PROPS_GROUP_ID"];
 			$propertyUSER_PROPS = $arProperties["USER_PROPS"];
@@ -1494,13 +1494,13 @@ if ($USER->IsAuthorized())
 			{
 				if ($curVal=="Y" || !isset($curVal) && $arProperties["DEFAULT_VALUE"]=="Y")
 					$arProperties["CHECKED"] = "Y";
-				$arProperties["SIZE1"] = ((IntVal($arProperties["SIZE1"]) > 0) ? $arProperties["SIZE1"] : 30);
+				$arProperties["SIZE1"] = ((intval($arProperties["SIZE1"]) > 0) ? $arProperties["SIZE1"] : 30);
 			}
 			elseif ($arProperties["TYPE"] == "TEXT")
 			{
-				if (strlen($curVal) <= 0)
+				if ($curVal == '')
 				{
-					if(strlen($arProperties["DEFAULT_VALUE"])>0 && !isset($curVal))
+					if($arProperties["DEFAULT_VALUE"] <> '' && !isset($curVal))
 						$arProperties["VALUE"] = $arProperties["DEFAULT_VALUE"];
 					elseif ($arProperties["IS_EMAIL"] == "Y")
 						$arProperties["VALUE"] = $USER->GetEmail();
@@ -1511,11 +1511,11 @@ if ($USER->IsAuthorized())
 						$fio = "";
 						if ($arUser = $rsUser->Fetch())
 						{
-							if (strlen($arUser["LAST_NAME"]) > 0)
+							if ($arUser["LAST_NAME"] <> '')
 								$fio .= $arUser["LAST_NAME"];
-							if (strlen($arUser["NAME"]) > 0)
+							if ($arUser["NAME"] <> '')
 								$fio .= " ".$arUser["NAME"];
-							if (strlen($arUser["SECOND_NAME"]) > 0 AND strlen($arUser["NAME"]) > 0)
+							if ($arUser["SECOND_NAME"] <> '' AND $arUser["NAME"] <> '')
 								$fio .= " ".$arUser["SECOND_NAME"];
 						}
 						$arProperties["VALUE"] = $fio;
@@ -1527,7 +1527,7 @@ if ($USER->IsAuthorized())
 			}
 			elseif ($arProperties["TYPE"] == "SELECT")
 			{
-				$arProperties["SIZE1"] = ((IntVal($arProperties["SIZE1"]) > 0) ? $arProperties["SIZE1"] : 1);
+				$arProperties["SIZE1"] = ((intval($arProperties["SIZE1"]) > 0) ? $arProperties["SIZE1"] : 1);
 				$arProperties["VARIANTS"] = array();
 				$dbVariants = CSaleOrderPropsVariant::GetList(
 						array("SORT" => "ASC"),
@@ -1547,7 +1547,7 @@ if ($USER->IsAuthorized())
 			elseif ($arProperties["TYPE"] == "MULTISELECT")
 			{
 				$arProperties["FIELD_NAME"] = "ORDER_PROP_".$arProperties["ID"].'[]';
-				$arProperties["SIZE1"] = ((IntVal($arProperties["SIZE1"]) > 0) ? $arProperties["SIZE1"] : 5);
+				$arProperties["SIZE1"] = ((intval($arProperties["SIZE1"]) > 0) ? $arProperties["SIZE1"] : 5);
 				$arDefVal = explode(",", $arProperties["DEFAULT_VALUE"]);
 				$countDefVal = count($arDefVal);
 				for ($i = 0; $i < $countDefVal; $i++)
@@ -1569,14 +1569,14 @@ if ($USER->IsAuthorized())
 			}
 			elseif ($arProperties["TYPE"] == "TEXTAREA")
 			{
-				$arProperties["SIZE2"] = ((IntVal($arProperties["SIZE2"]) > 0) ? $arProperties["SIZE2"] : 4);
-				$arProperties["SIZE1"] = ((IntVal($arProperties["SIZE1"]) > 0) ? $arProperties["SIZE1"] : 40);
+				$arProperties["SIZE2"] = ((intval($arProperties["SIZE2"]) > 0) ? $arProperties["SIZE2"] : 4);
+				$arProperties["SIZE1"] = ((intval($arProperties["SIZE1"]) > 0) ? $arProperties["SIZE1"] : 40);
 				$arProperties["VALUE"] = ((isset($curVal)) ? $curVal : $arProperties["DEFAULT_VALUE"]);
 			}
 			elseif ($arProperties["TYPE"] == "LOCATION")
 			{
 				$locationFound = false;
-				$arProperties["SIZE1"] = ((IntVal($arProperties["SIZE1"]) > 0) ? $arProperties["SIZE1"] : 1);
+				$arProperties["SIZE1"] = ((intval($arProperties["SIZE1"]) > 0) ? $arProperties["SIZE1"] : 1);
 				$arProperties["VARIANTS"] = array();
 				$dbVariants = CSaleLocation::GetList(
 						array("SORT" => "ASC", "COUNTRY_NAME_LANG" => "ASC", "CITY_NAME_LANG" => "ASC"),
@@ -1587,22 +1587,22 @@ if ($USER->IsAuthorized())
 					);
 				while ($arVariants = $dbVariants->GetNext())
 				{
-					if (IntVal($arVariants["ID"]) == IntVal($curVal) || !isset($curVal) && IntVal($arVariants["ID"]) == IntVal($arProperties["DEFAULT_VALUE"]))
+					if (intval($arVariants["ID"]) == intval($curVal) || !isset($curVal) && intval($arVariants["ID"]) == intval($arProperties["DEFAULT_VALUE"]))
 					{
 						$arVariants["SELECTED"] = "Y";
 						$locationFound = true;
 					}
-					$arVariants["NAME"] = $arVariants["COUNTRY_NAME"].((strlen($arVariants["CITY_NAME"]) > 0) ? " - " : "").$arVariants["CITY_NAME"];
+					$arVariants["NAME"] = $arVariants["COUNTRY_NAME"].(($arVariants["CITY_NAME"] <> '') ? " - " : "").$arVariants["CITY_NAME"];
 					$arProperties["VARIANTS"][] = $arVariants;
 				}
 
 				// this is not a COUNTRY, REGION or CITY, but must appear in $arProperties["VARIANTS"]
-				if(CSaleLocation::isLocationProMigrated() && !$locationFound && IntVal($curVal))
+				if(CSaleLocation::isLocationProMigrated() && !$locationFound && intval($curVal))
 				{
 					$item = CSaleLocation::GetById($curVal);
 					if($item)
 					{
-						$item['NAME'] = $arVariants["COUNTRY_NAME"].((strlen($arVariants["CITY_NAME"]) > 0) ? " - " : "").$arVariants["CITY_NAME"];
+						$item['NAME'] = $arVariants["COUNTRY_NAME"].(($arVariants["CITY_NAME"] <> '') ? " - " : "").$arVariants["CITY_NAME"];
 						$item['SELECTED'] = 'Y';
 						$arProperties["VARIANTS"][] = $item;
 					}
@@ -1620,7 +1620,7 @@ if ($USER->IsAuthorized())
 					);
 				while ($arVariants = $dbVariants->GetNext())
 				{
-					if ($arVariants["VALUE"] == $curVal || (strlen($curVal)<=0 && $arVariants["VALUE"] == $arProperties["DEFAULT_VALUE"]))
+					if ($arVariants["VALUE"] == $curVal || ($curVal == '' && $arVariants["VALUE"] == $arProperties["DEFAULT_VALUE"]))
 						$arVariants["CHECKED"]="Y";
 
 					$arProperties["VARIANTS"][] = $arVariants;
@@ -1684,16 +1684,16 @@ if ($USER->IsAuthorized())
 		while ($arDelivery = $dbDelivery->GetNext())
 		{
 			$arDelivery["FIELD_NAME"] = "DELIVERY_ID";
-			if (IntVal($arResult["DELIVERY_ID"]) == IntVal($arDelivery["ID"])
-				|| IntVal($arResult["DELIVERY_ID"]) <= 0 && $bFirst)
+			if (intval($arResult["DELIVERY_ID"]) == intval($arDelivery["ID"])
+				|| intval($arResult["DELIVERY_ID"]) <= 0 && $bFirst)
 				$arDelivery["CHECKED"] = "Y";
-			if (IntVal($arDelivery["PERIOD_FROM"]) > 0 || IntVal($arDelivery["PERIOD_TO"]) > 0)
+			if (intval($arDelivery["PERIOD_FROM"]) > 0 || intval($arDelivery["PERIOD_TO"]) > 0)
 			{
 				$arDelivery["PERIOD_TEXT"] = GetMessage("SALE_DELIV_PERIOD");
-				if (IntVal($arDelivery["PERIOD_FROM"]) > 0)
-					$arDelivery["PERIOD_TEXT"] .= " ".GetMessage("SALE_FROM")." ".IntVal($arDelivery["PERIOD_FROM"]);
-				if (IntVal($arDelivery["PERIOD_TO"]) > 0)
-					$arDelivery["PERIOD_TEXT"] .= " ".GetMessage("SALE_TO")." ".IntVal($arDelivery["PERIOD_TO"]);
+				if (intval($arDelivery["PERIOD_FROM"]) > 0)
+					$arDelivery["PERIOD_TEXT"] .= " ".GetMessage("SALE_FROM")." ".intval($arDelivery["PERIOD_FROM"]);
+				if (intval($arDelivery["PERIOD_TO"]) > 0)
+					$arDelivery["PERIOD_TEXT"] .= " ".GetMessage("SALE_TO")." ".intval($arDelivery["PERIOD_TO"]);
 				if ($arDelivery["PERIOD_TYPE"] == "H")
 					$arDelivery["PERIOD_TEXT"] .= " ".GetMessage("SALE_PER_HOUR")." ";
 				elseif ($arDelivery["PERIOD_TYPE"]=="M")
@@ -1726,7 +1726,7 @@ if ($USER->IsAuthorized())
 					);
 
 					if ($arResult['DELIVERY_ID'])
-						if(strpos($deliv, ":") !== false &&
+						if(mb_strpos($deliv, ":") !== false &&
 							$deliv == $delivery_id.":".$profile_id
 							|| empty($arResult["DELIVERY_ID"]) && $bFirst
 						)
@@ -1823,7 +1823,7 @@ if ($USER->IsAuthorized())
 					foreach($val[$deliv] as $v)
 						$arFilter["ID"][] = $v;
 				}
-				elseif(IntVal($val[$deliv]) > 0)
+				elseif(intval($val[$deliv]) > 0)
 					$arFilter["ID"][] = $val[$deliv];
 			}
 		}
@@ -1851,7 +1851,7 @@ if ($USER->IsAuthorized())
 				if ($arPaySystem["PSA_LOGOTIP"] > 0)
 					$arPaySystem["PSA_LOGOTIP"] = CFile::GetFileArray($arPaySystem["PSA_LOGOTIP"]);
 
-				if (IntVal($arResult["PAY_SYSTEM_ID"]) == IntVal($arPaySystem["ID"]) || IntVal($arResult["PAY_SYSTEM_ID"]) <= 0 && $bFirst)
+				if (intval($arResult["PAY_SYSTEM_ID"]) == intval($arPaySystem["ID"]) || intval($arResult["PAY_SYSTEM_ID"]) <= 0 && $bFirst)
 					$arPaySystem["CHECKED"] = "Y";
 				$arPaySystem["PSA_NAME"] = htmlspecialcharsEx($arPaySystem["PSA_NAME"]);
 				$arResult["PAY_SYSTEM"][] = $arPaySystem;
@@ -1869,12 +1869,12 @@ if ($USER->IsAuthorized())
 						"PERSON_TYPE_ID" => $PERSON_TYPE,
 						"IS_IN_PRICE" => "N",
 						"ACTIVE" => "Y",
-						"LOCATION" => IntVal($TAX_LOCATION)
+						"LOCATION" => intval($TAX_LOCATION)
 					)
 				);
 			while ($arTaxRateList = $dbTaxRateList->GetNext())
 			{
-				if (in_array(IntVal($arTaxRateList["TAX_ID"]), $arResult["TaxExempt"]))
+				if (in_array(intval($arTaxRateList["TAX_ID"]), $arResult["TaxExempt"]))
 				{
 					$arResult["HaveTaxExempts"] = "Y";
 					break;
@@ -1925,7 +1925,7 @@ if ($USER->IsAuthorized())
 			);
 		while ($arProperties = $dbProperties->GetNext())
 		{
-			if (IntVal($arProperties["PROPS_GROUP_ID"]) != $propertyGroupID)
+			if (intval($arProperties["PROPS_GROUP_ID"]) != $propertyGroupID)
 			{
 				$arProperties["SHOW_GROUP_NAME"] = "Y";
 				$propertyGroupID = $arProperties["PROPS_GROUP_ID"];
@@ -1977,16 +1977,16 @@ if ($USER->IsAuthorized())
 				}
 				else
 				{
-					$locationName .= ((strlen($arVal["COUNTRY_NAME"])<=0) ? "" : $arVal["COUNTRY_NAME"]);
+					$locationName .= (($arVal["COUNTRY_NAME"] == '') ? "" : $arVal["COUNTRY_NAME"]);
 
-					if (strlen($arVal["COUNTRY_NAME"])>0 && strlen($arVal["REGION_NAME"])>0)
+					if ($arVal["COUNTRY_NAME"] <> '' && $arVal["REGION_NAME"] <> '')
 						$locationName .= " - ".$arVal["REGION_NAME"];
-					elseif (strlen($arVal["REGION_NAME"])>0)
+					elseif ($arVal["REGION_NAME"] <> '')
 						$locationName .= $arVal["REGION_NAME"];
 
-					if (strlen($arVal["COUNTRY_NAME"])>0 || strlen($arVal["REGION_NAME"])>0)
+					if ($arVal["COUNTRY_NAME"] <> '' || $arVal["REGION_NAME"] <> '')
 						$locationName .= " - ".$arVal["CITY_NAME"];
-					elseif (strlen($arVal["CITY_NAME"])>0)
+					elseif ($arVal["CITY_NAME"] <> '')
 						$locationName .= $arVal["CITY_NAME"];
 				}
 
@@ -2019,24 +2019,24 @@ if ($USER->IsAuthorized())
 				$arResult["DELIVERY_PRICE"] = roundEx($arDeliveryPrice["VALUE"], SALE_VALUE_PRECISION);
 
 		}
-		elseif ((IntVal($arResult["DELIVERY_ID"]) > 0) && ($arDeliv = CSaleDelivery::GetByID($arResult["DELIVERY_ID"])))
+		elseif ((intval($arResult["DELIVERY_ID"]) > 0) && ($arDeliv = CSaleDelivery::GetByID($arResult["DELIVERY_ID"])))
 		{
 			$arDeliv["NAME"] = htmlspecialcharsEx($arDeliv["NAME"]);
 			$arResult["DELIVERY"] = $arDeliv;
 			$arResult["DELIVERY_PRICE"] = roundEx(CCurrencyRates::ConvertCurrency($arDeliv["PRICE"], $arDeliv["CURRENCY"], $arResult["BASE_LANG_CURRENCY"]), SALE_VALUE_PRECISION);
 		}
-		elseif (IntVal($DELIVERY_ID)>0)
+		elseif (intval($DELIVERY_ID)>0)
 		{
 			$arResult["DELIVERY"] = "ERROR";
 		}
 
-		if ((IntVal($arResult["PAY_SYSTEM_ID"]) > 0) && ($arPaySys = CSalePaySystem::GetByID($arResult["PAY_SYSTEM_ID"], $arResult["PERSON_TYPE"])))
+		if ((intval($arResult["PAY_SYSTEM_ID"]) > 0) && ($arPaySys = CSalePaySystem::GetByID($arResult["PAY_SYSTEM_ID"], $arResult["PERSON_TYPE"])))
 		{
 			$arResult["PAY_SYSTEM"] = $arPaySys;
 			$arResult["PAY_SYSTEM"]["PSA_NAME"] = htmlspecialcharsEx($arResult["PAY_SYSTEM"]["PSA_NAME"]);
 			$arResult["PAY_SYSTEM"]["~PSA_NAME"] = $arResult["PAY_SYSTEM"]["PSA_NAME"];
 		}
-		elseif (IntVal($arResult["PAY_SYSTEM_ID"]) > 0)
+		elseif (intval($arResult["PAY_SYSTEM_ID"]) > 0)
 		{
 			$arResult["PAY_SYSTEM"] = "ERROR";
 		}
@@ -2105,7 +2105,7 @@ if ($USER->IsAuthorized())
 			}
 		}
 
-		if(IntVal($arResult["DELIVERY_PRICE"])>0)
+		if(intval($arResult["DELIVERY_PRICE"])>0)
 			$arResult["DELIVERY_PRICE_FORMATED"] = SaleFormatCurrency($arResult["DELIVERY_PRICE"], $arResult["BASE_LANG_CURRENCY"]);
 		$orderTotalSum = $arResult["ORDER_PRICE"] + $arResult["DELIVERY_PRICE"] + $arResult["TAX_PRICE"] - $arResult["DISCOUNT_PRICE"];
 		$arResult["ORDER_TOTAL_PRICE_FORMATED"] = SaleFormatCurrency($orderTotalSum, $arResult["BASE_LANG_CURRENCY"]);
@@ -2160,7 +2160,7 @@ if ($USER->IsAuthorized())
 				array("DATE_UPDATE" => "DESC"),
 				array(
 					"LID" => SITE_ID,
-					"USER_ID" => IntVal($USER->GetID()),
+					"USER_ID" => intval($USER->GetID()),
 					"ACCOUNT_NUMBER" => $ID
 				)
 			);
@@ -2177,7 +2177,7 @@ if ($USER->IsAuthorized())
 				array("DATE_UPDATE" => "DESC"),
 				array(
 					"LID" => SITE_ID,
-					"USER_ID" => IntVal($USER->GetID()),
+					"USER_ID" => intval($USER->GetID()),
 					"ID" => $ID
 				)
 			);
@@ -2187,7 +2187,7 @@ if ($USER->IsAuthorized())
 
 		if ($arOrder)
 		{
-			if (IntVal($arOrder["PAY_SYSTEM_ID"]) > 0)
+			if (intval($arOrder["PAY_SYSTEM_ID"]) > 0)
 			{
 				$dbPaySysAction = CSalePaySystemAction::GetList(
 						array(),
@@ -2202,7 +2202,7 @@ if ($USER->IsAuthorized())
 				if ($arPaySysAction = $dbPaySysAction->Fetch())
 				{
 					$arPaySysAction["NAME"] = htmlspecialcharsEx($arPaySysAction["NAME"]);
-					if (strlen($arPaySysAction["ACTION_FILE"]) > 0)
+					if ($arPaySysAction["ACTION_FILE"] <> '')
 					{
 						if ($arPaySysAction["NEW_WINDOW"] != "Y")
 						{
@@ -2211,8 +2211,8 @@ if ($USER->IsAuthorized())
 							$pathToAction = $_SERVER["DOCUMENT_ROOT"].$arPaySysAction["ACTION_FILE"];
 
 							$pathToAction = str_replace("\\", "/", $pathToAction);
-							while (substr($pathToAction, strlen($pathToAction) - 1, 1) == "/")
-								$pathToAction = substr($pathToAction, 0, strlen($pathToAction) - 1);
+							while (mb_substr($pathToAction, mb_strlen($pathToAction) - 1, 1) == "/")
+								$pathToAction = mb_substr($pathToAction, 0, mb_strlen($pathToAction) - 1);
 
 							if (file_exists($pathToAction))
 							{
@@ -2222,7 +2222,7 @@ if ($USER->IsAuthorized())
 								$arPaySysAction["PATH_TO_ACTION"] = $pathToAction;
 							}
 
-							if(strlen($arPaySysAction["ENCODING"]) > 0)
+							if($arPaySysAction["ENCODING"] <> '')
 							{
 								define("BX_SALE_ENCODING", $arPaySysAction["ENCODING"]);
 								AddEventHandler("main", "OnEndBufferContent", "ChangeEncoding");

@@ -258,7 +258,7 @@ if($this->StartResultCache(false, array($USER->GetGroups(), $bVoted)))
 		$arResult["VOTE_NAMES"] = array();
 		foreach($arParams["VOTE_NAMES"] as $k=>$v)
 		{
-			if(strlen($v)>0)
+			if($v <> '')
 				$arResult["VOTE_NAMES"][]=htmlspecialcharsbx($v);
 			if(count($arResult["VOTE_NAMES"])>=$arParams["MAX_VOTE"])
 				break;

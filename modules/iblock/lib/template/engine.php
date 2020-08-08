@@ -286,7 +286,7 @@ class NodeRoot extends NodeBase
 				$modifierFunction = Functions\Fabric::createInstance("lower");
 			else
 				$modifierFunction = Functions\Fabric::createInstance("translit", array(
-					"replace_space" => substr($mod, 1),
+					"replace_space" => mb_substr($mod, 1),
 				));
 			$this->modifiers[] = $modifierFunction;
 		}
@@ -375,7 +375,7 @@ class NodeEntityField extends NodeBase
 	 */
 	function __construct($entityField = "")
 	{
-		$this->entityField = strtolower($entityField);
+		$this->entityField = mb_strtolower($entityField);
 	}
 
 	/**
@@ -420,7 +420,7 @@ class NodeFunction extends NodeBase
 	 */
 	public function __construct($functionName = "")
 	{
-		$this->functionName = strtolower($functionName);
+		$this->functionName = mb_strtolower($functionName);
 	}
 
 	/**

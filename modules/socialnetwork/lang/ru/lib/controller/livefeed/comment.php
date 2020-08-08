@@ -1,0 +1,5 @@
+<?
+$MESS["SONET_CONTROLLER_LIVEFEED_COMMENT_COMMENT_EMPTY"] = "Не передано значение ID комментария.";
+$MESS["SONET_CONTROLLER_LIVEFEED_COMMENT_COMMENT_NOT_FOUND"] = "Комментарий не найден.";
+$MESS["SONET_CONTROLLER_LIVEFEED_COMMENT_POST_NOT_FOUND"] = "Сообщение не найдено.";
+?>

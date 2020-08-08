@@ -1,10 +1,8 @@
 <?
 
-use Bitrix\Main\Loader;
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Error;
-
+use Bitrix\Main\ErrorCollection;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Sender\Message;
 use Bitrix\Sender\Recipient;
 use Bitrix\Sender\Security;
@@ -38,7 +36,7 @@ class SenderMessageTestComponent extends CBitrixComponent
 			?
 			$this->arParams['CAN_EDIT']
 			:
-			Security\Access::current()->canModifyLetters();
+			Security\Access::getInstance()->canModifyLetters();
 	}
 
 	protected function prepareResult()
@@ -70,7 +68,7 @@ class SenderMessageTestComponent extends CBitrixComponent
 
 		$this->arResult['TYPE_ID'] = $message->getTester()->getRecipientType();
 		$this->arResult['TYPE_CODE'] = Recipient\Type::getCode($this->arResult['TYPE_ID']);
-		$this->arResult['TYPE_CODE'] = strtolower($this->arResult['TYPE_CODE']);
+		$this->arResult['TYPE_CODE'] = mb_strtolower($this->arResult['TYPE_CODE']);
 
 			// dict
 		$this->arResult['TYPES'] = array(
@@ -115,7 +113,7 @@ class SenderMessageTestComponent extends CBitrixComponent
 	public function executeComponent()
 	{
 		$this->errors = new \Bitrix\Main\ErrorCollection();
-		if (!Loader::includeModule('sender'))
+		if (!Bitrix\Main\Loader::includeModule('sender'))
 		{
 			$this->errors->setError(new Error('Module `sender` is not installed.'));
 			$this->printErrors();

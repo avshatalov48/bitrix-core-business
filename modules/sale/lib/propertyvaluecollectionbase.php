@@ -477,7 +477,7 @@ abstract class PropertyValueCollectionBase extends Internals\EntityCollection
 
 	/**
 	 * @param $orderPropertyId
-	 * @return PropertyValueBase
+	 * @return PropertyValueBase|null
 	 */
 	public function getItemByOrderPropertyId($orderPropertyId)
 	{
@@ -491,6 +491,55 @@ abstract class PropertyValueCollectionBase extends Internals\EntityCollection
 		}
 
 		return null;
+	}
+
+	/**
+	 * @param string $propertyCode
+	 * @return PropertyValueBase[]
+	 */
+	public function getItemsByOrderPropertyCode(string $propertyCode)
+	{
+		return $this->getItemsByFilter(
+			function ($propertyValue) use ($propertyCode)
+			{
+				return (
+					$propertyValue->getField('CODE') == $propertyCode
+				);
+			}
+		);
+	}
+
+	/**
+	 * @param string $propertyCode
+	 * @return PropertyValueBase|null
+	 */
+	public function getItemByOrderPropertyCode(string $propertyCode)
+	{
+		$items = $this->getItemsByOrderPropertyCode($propertyCode);
+
+		return empty($items) ? null : current($items);
+	}
+
+	/**
+	 * @param callable $filter
+	 * @return PropertyValueBase[]
+	 */
+	public function getItemsByFilter(callable $filter)
+	{
+		$results = [];
+
+		/** @var PropertyValueBase $propertyValue */
+		foreach ($this->collection as $propertyValue)
+		{
+			if (!$filter($propertyValue))
+			{
+				continue;
+			}
+
+			$results[] = $propertyValue;
+		}
+
+		return $results;
 	}
 
 	/**

@@ -113,7 +113,7 @@ class CAllSaleDeliveryHandler
 			unset($result["ID"]);
 		}
 
-		if(strlen($sid) > 0)
+		if($sid <> '')
 		{
 			if(self::isSidNew($sid))
 			{
@@ -215,11 +215,11 @@ class CAllSaleDeliveryHandler
 
 		if(isset($arFilter["SITE_ID"]))
 		{
-			if(is_string($arFilter["SITE_ID"]) && strlen($arFilter["SITE_ID"]) > 0)
+			if(is_string($arFilter["SITE_ID"]) && $arFilter["SITE_ID"] <> '')
 			{
 				if($arFilter["SITE_ID"] == "ALL")
 					unset($arFilter["SITE_ID"]);
-				elseif(strpos($arFilter["SITE_ID"], ",") !== false)
+				elseif(mb_strpos($arFilter["SITE_ID"], ",") !== false)
 					$arFilter["SITE_ID"] = explode(",", $arFilter["SITE_ID"]);
 				else
 					$arFilter["SITE_ID"] = array($arFilter["SITE_ID"]);
@@ -275,7 +275,7 @@ class CAllSaleDeliveryHandler
 				}
 			}
 
-			if(strlen($service['CODE']) > 0)
+			if($service['CODE'] <> '')
 			{
 				$srv = \Bitrix\Sale\Delivery\Services\Automatic::convertNewServiceToOld($service);
 			}
@@ -975,9 +975,9 @@ class CAllSaleDeliveryHandler
 		{
 			foreach($arData["PROFILES"] as $profileCode => $profileData)
 			{
-				if(strlen($profileData["TITLE"]) > 0)
+				if($profileData["TITLE"] <> '')
 					$name = $profileData["TITLE"];
-				elseif(strlen($handlers[$code]['PROFILES'][$profileCode]['TITLE']) > 0)
+				elseif($handlers[$code]['PROFILES'][$profileCode]['TITLE'] <> '')
 					$name = $handlers[$code]['PROFILES'][$profileCode]['TITLE'];
 				else
 					$name = "-";
@@ -998,12 +998,12 @@ class CAllSaleDeliveryHandler
 						"CLASS_NAME" => '\Bitrix\Sale\Delivery\Services\AutomaticProfile',
 						"PROFILE_ID" => $profileCode
 					),
-					strlen($siteId) > 0 ? $siteId : ""
+					$siteId <> '' ? $siteId : ""
 				);
 			}
 		}
 
-		if(strlen($siteId) > 0)
+		if($siteId <> '')
 		{
 			if(!self::saveRestrictionBySiteId($id, $siteId, $update))
 			{
@@ -1202,13 +1202,13 @@ class CAllSaleDeliveryHandler
 		if($result->isNextStep())
 			$oldResult["RESULT"] = "NEXT_STEP";
 
-		if($result->isSuccess() && strlen($result->getDescription()) > 0)
+		if($result->isSuccess() && $result->getDescription() <> '')
 			$oldResult["RESULT"] = "NOTE";
 
 		if(intval($result->getPacksCount()) > 0)
 			$oldResult["PACKS_COUNT"] = $result->getPacksCount();
 
-		if($result->isNextStep()  && strlen($result->getTmpData()) > 0)
+		if($result->isNextStep()  && $result->getTmpData() <> '')
 			$oldResult["TEMP"] = CUtil::JSEscape($result->getTmpData());
 
 		$oldResult = self::__executeCalculateEvents($sidAndProfile["SID"], $sidAndProfile["PROFILE"], $oldOrder, $oldResult);
@@ -1244,7 +1244,7 @@ class CAllSaleDeliveryHandler
 		{
 			$arResult = CSaleDeliveryHandler::Calculate(++$STEP, $SID, $profile, $arOrder, $currency, $TMP, $SITE_ID);
 
-			if ($arResult["RESULT"] == "NEXT_STEP" && strlen($arResult["TEMP"]) > 0)
+			if ($arResult["RESULT"] == "NEXT_STEP" && $arResult["TEMP"] <> '')
 				$TMP = $arResult["TEMP"];
 
 			$bFinish = $arResult["RESULT"] == "OK" || $arResult["RESULT"] == "ERROR";
@@ -1521,7 +1521,7 @@ class CAllSaleDeliveryHandler
 
 		while($delivery = $deliveryRes->fetch())
 		{
-			if(strlen($delivery["HID"]) <= 0)
+			if($delivery["HID"] == '')
 			{
 				//$result->addError( new \Bitrix\Main\Entity\EntityError("Can't find delivery HID. ID: \"".$delivery["ID"]."\""));
 				continue;
@@ -1541,7 +1541,7 @@ class CAllSaleDeliveryHandler
 				continue;
 			}
 
-			if(strlen($delivery["PROFILES"]) > 0) //get from base
+			if($delivery["PROFILES"] <> '') //get from base
 				$delivery["PROFILES"] = unserialize($delivery["PROFILES"]);
 			else //or default.
 				$delivery["PROFILES"] = $handlers[$delivery["HID"]]["PROFILES"];
@@ -1570,7 +1570,7 @@ class CAllSaleDeliveryHandler
 			unset($delivery["ID"]);
 			$delivery["CONFIG"] = array();
 
-			if (strlen($delivery["SETTINGS"]) > 0)
+			if ($delivery["SETTINGS"] <> '')
 			{
 				if(isset($handlers[$delivery["HID"]]["DBGETSETTINGS"]) && is_callable($handlers[$delivery["HID"]]["DBGETSETTINGS"]))
 					$delivery["CONFIG"] = call_user_func($handlers[$delivery["HID"]]["DBGETSETTINGS"], $delivery["SETTINGS"]);
@@ -1581,7 +1581,7 @@ class CAllSaleDeliveryHandler
 			{
 				$config = call_user_func(
 					$handlers[$delivery["HID"]]["GETCONFIG"],
-					strlen($delivery["LID"]) > 0 ? $delivery["LID"] : false
+					$delivery["LID"] <> '' ? $delivery["LID"] : false
 				);
 
 				foreach($config["CONFIG"] as $key => $arConfig)
@@ -1606,7 +1606,7 @@ class CAllSaleDeliveryHandler
 			$id = \CSaleDeliveryHandler::Set(
 				$delivery["HID"],
 				$delivery,
-				strlen($delivery["LID"]) > 0 ? $delivery["LID"] : false
+				$delivery["LID"] <> '' ? $delivery["LID"] : false
 			);
 
 			if(intval($id) <= 0)
@@ -1615,7 +1615,7 @@ class CAllSaleDeliveryHandler
 					new \Bitrix\Main\Entity\EntityError(
 						"Can't convert delivery handler with hid: ".
 						$delivery["HID"].
-						(strlen($delivery["LID"]) > 0 ? " for site: ".$delivery["LID"] : "")
+						($delivery["LID"] <> '' ? " for site: ".$delivery["LID"] : "")
 					)
 				);
 

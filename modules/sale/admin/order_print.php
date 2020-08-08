@@ -13,7 +13,7 @@ IncludeModuleLangFile(__FILE__);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
 ClearVars();
-$ID = IntVal($ID);
+$ID = intval($ID);
 if ($ID <= 0)
 	LocalRedirect("sale_order.php?lang=".LANG.GetFilterParams("filter_", false));
 
@@ -44,7 +44,7 @@ if(in_array($str_STATUS_ID, $allowedStatusesUpdate))
 
 $errorMessage = "";
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($Print)>0 && check_bitrix_sessid() && $bUserCanViewOrder)
+if ($_SERVER["REQUEST_METHOD"] == "POST" && $Print <> '' && check_bitrix_sessid() && $bUserCanViewOrder)
 {
 	if(count($REPORT_ID) > 0)
 	{
@@ -54,16 +54,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($Print)>0 && check_bitrix_ses
 		$countBasketId = count($BASKET_IDS);
 		for ($i = 0; $i < $countBasketId; $i++)
 		{
-			if (IntVal($BASKET_IDS[$i])<=0)
+			if (intval($BASKET_IDS[$i])<=0)
 				continue;
-			$sBasket .= ($bFirst? "": ",").IntVal($BASKET_IDS[$i]);
-			$sQuantity .= ($bFirst? "": ",").${"QUANTITY_".IntVal($BASKET_IDS[$i])};
+			$sBasket .= ($bFirst? "": ",").intval($BASKET_IDS[$i]);
+			$sQuantity .= ($bFirst? "": ",").${"QUANTITY_".intval($BASKET_IDS[$i])};
 			$bFirst = false;
 		}
 
 		$urlParams = "BASKET_IDS=".urlencode($sBasket)."&QUANTITIES=".urlencode($sQuantity);
 
-		$PROPS_ENABLE = (!isset($_POST["PROPS_ENABLE"]) || $_POST["PROPS_ENABLE"] == N) ? "N" : "Y";
+		$PROPS_ENABLE = (!isset($_POST["PROPS_ENABLE"]) || $_POST["PROPS_ENABLE"] == 'N') ? "N" : "Y";
 
 		?>
 		<script language="JavaScript">
@@ -228,7 +228,7 @@ else
 									);
 								while ($arBasketProps = $dbBasketProps->GetNext())
 								{
-									if(strlen($arBasketProps["VALUE"]) > 0 && $arBasketProps["CODE"] != "CATALOG.XML_ID" && $arBasketProps["CODE"] != "PRODUCT.XML_ID")
+									if($arBasketProps["VALUE"] <> '' && $arBasketProps["CODE"] != "CATALOG.XML_ID" && $arBasketProps["CODE"] != "PRODUCT.XML_ID")
 										echo "<div style=\"font-size:8pt\">".$arBasketProps["NAME"].": ".$arBasketProps["VALUE"]."</div>";
 								}
 
@@ -315,7 +315,7 @@ else
 								if ($file == "." || $file == ".." || $file == ".access.php")
 									continue;
 
-								if (is_file($_SERVER["DOCUMENT_ROOT"]."/bitrix/admin/reports/".$file) && ToUpper(substr($file, -4))==".PHP")
+								if (is_file($_SERVER["DOCUMENT_ROOT"]."/bitrix/admin/reports/".$file) && ToUpper(mb_substr($file, -4))==".PHP")
 								{
 									$rep_title = $file;
 									$file_contents = file_get_contents($_SERVER["DOCUMENT_ROOT"]."/bitrix/admin/reports/".$file);
@@ -325,18 +325,18 @@ else
 									if (preg_match("#<title([\s]+langs[\s]*=[\s]*\"([^\"]*)\"|)[\s]*>([^<]*)</title[\s]*>#i", $file_contents, $arMatches))
 									{
 										$arMatches[3] = Trim($arMatches[3]);
-										if (strlen($arMatches[3])>0) $rep_title = $arMatches[3];
+										if ($arMatches[3] <> '') $rep_title = $arMatches[3];
 										$arMatches[2] = Trim($arMatches[2]);
-										if (strlen($arMatches[2])>0) $rep_langs = $arMatches[2];
+										if ($arMatches[2] <> '') $rep_langs = $arMatches[2];
 									}
 
-									if (strlen($rep_langs)>0)
+									if ($rep_langs <> '')
 									{
 										$bContinue = True;
 										$countarSys = count($arSysLangs);
 										for ($ic = 0; $ic < $countarSys; $ic++)
 										{
-											if (strpos($rep_langs, $arSysLangs[$ic])!==false)
+											if (mb_strpos($rep_langs, $arSysLangs[$ic]) !== false)
 											{
 												$bContinue = False;
 												break;
@@ -361,7 +361,7 @@ else
 								continue;
 
 							if (is_file($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/reports/".$file)
-								&& ToUpper(substr($file, -4))==".PHP"
+								&& ToUpper(mb_substr($file, -4))==".PHP"
 							)
 							{
 								$rep_title = $file;
@@ -379,18 +379,18 @@ else
 								if (preg_match("#<title([\s]+langs[\s]*=[\s]*\"([^\"]*)\"|)[\s]*>([^<]*)</title[\s]*>#i", $file_contents, $arMatches))
 								{
 									$arMatches[3] = Trim($arMatches[3]);
-									if (strlen($arMatches[3])>0) $rep_title = $arMatches[3];
+									if ($arMatches[3] <> '') $rep_title = $arMatches[3];
 									$arMatches[2] = Trim($arMatches[2]);
-									if (strlen($arMatches[2])>0) $rep_langs = $arMatches[2];
+									if ($arMatches[2] <> '') $rep_langs = $arMatches[2];
 								}
 
-								if (strlen($rep_langs)>0)
+								if ($rep_langs <> '')
 								{
 									$bContinue = True;
 									$countArSysLang = count($arSysLangs);
 									for ($ic = 0; $ic < $countArSysLang; $ic++)
 									{
-										if (strpos($rep_langs, $arSysLangs[$ic])!==false)
+										if (mb_strpos($rep_langs, $arSysLangs[$ic]) !== false)
 										{
 											$bContinue = False;
 											break;
@@ -407,7 +407,7 @@ else
 					closedir($handle);
 
 					foreach ($arReports as $file => $title):?>
-						<option value="<?echo substr($file, 0, strlen($file)-4); ?>"><?=$title;?></option>
+						<option value="<? echo mb_substr($file, 0, mb_strlen($file) - 4); ?>"><?=$title;?></option>
 					<?endforeach;?>
 				</select>
 			</td>

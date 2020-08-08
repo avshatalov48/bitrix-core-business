@@ -1,4 +1,4 @@
-<header class="landing-block landing-block-menu landing-ui-pattern-transparent u-header u-header--floating">
+<header class="landing-block u-header u-header--sticky u-header--float">
 	<div class="u-header__section g-bg-black-opacity-0_5 g-bg-transparent--lg g-transition-0_3 g-py-15"
 		 data-header-fix-moment-exclude="g-bg-black-opacity-0_5 g-bg-transparent--lg g-py-15"
 		 data-header-fix-moment-classes="u-header__section--light u-shadow-v27 g-bg-white g-py-12">
@@ -20,30 +20,30 @@
 
 				<!-- Navigation -->
 				<div class="collapse navbar-collapse align-items-center flex-sm-row" id="navBar">
-					<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav text-uppercase g-font-weight-700 g-font-size-11 g-pt-20 g-pt-0--lg ml-auto">
+					<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav text-uppercase font-weight-bold g-font-size-11 g-pt-20 g-pt-0--lg ml-auto">
 						<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mb-7 g-mb-0--lg">
-							<a href="#home" class="landing-block-node-menu-list-item-link nav-link p-0">Home</a>
+							<a href="#home" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Home</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mb-7 g-mb-0--lg">
-							<a href="#yourHelp" class="landing-block-node-menu-list-item-link nav-link p-0">Your help</a>
+							<a href="#yourHelp" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Your help</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mb-7 g-mb-0--lg">
-							<a href="#ourProjects" class="landing-block-node-menu-list-item-link nav-link p-0">Our projects</a>
+							<a href="#ourProjects" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Our projects</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mb-7 g-mb-0--lg">
-							<a href="#successStories" class="landing-block-node-menu-list-item-link nav-link p-0">Success stories</a>
+							<a href="#successStories" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Success stories</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mb-7 g-mb-0--lg">
-							<a href="#donators" class="landing-block-node-menu-list-item-link nav-link p-0">Donators</a>
+							<a href="#donators" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Donators</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mb-7 g-mb-0--lg">
-							<a href="#events" class="landing-block-node-menu-list-item-link nav-link p-0">Events</a>
+							<a href="#events" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Events</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mb-7 g-mb-0--lg">
-							<a href="#blogAndNews" class="landing-block-node-menu-list-item-link nav-link p-0">Blog&news</a>
+							<a href="#blogAndNews" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Blog&news</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mb-7 g-mb-0--lg">
-							<a href="#subscription" class="landing-block-node-menu-list-item-link nav-link p-0">Subscription</a>
+							<a href="#subscription" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Subscription</a>
 						</li>
 					</ul>
 				</div>

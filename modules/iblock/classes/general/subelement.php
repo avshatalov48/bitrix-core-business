@@ -24,9 +24,9 @@ class CAdminSubSorting extends CAdminSorting
 		$ord = "asc";
 		$class = "";
 		$title = GetMessage("admin_lib_sort_title")." ".($alt_title?$alt_title:$text);
-		if(strtolower($this->field) == strtolower($sort_by))
+		if(mb_strtolower($this->field) == mb_strtolower($sort_by))
 		{
-			if(strtolower($this->order) == "desc")
+			if(mb_strtolower($this->order) == "desc")
 			{
 				$class = "-down";
 				$title .= " ".GetMessage("admin_lib_sort_down");
@@ -40,7 +40,7 @@ class CAdminSubSorting extends CAdminSorting
 		}
 
 		$path = $this->list_url;
-		$sep = (false === strpos($path,'?') ? '?' : '&');
+		$sep = (false === mb_strpos($path, '?') ? '?' : '&');
 		$url = $path.$sep.$this->by_name."=".$sort_by."&".$this->ord_name."=".($class <> ""? $ord:"");
 
 		return 'class="'.$baseCssClass.' adm-list-table-cell-sort'.$class.'" onclick="'.$this->table_id.'.Sort(\''.htmlspecialcharsbx(CUtil::addslashes($url)).'\', '.($class <> ""? "false" : "true").', arguments);" title="'.$title.'"';
@@ -166,7 +166,7 @@ class CAdminSubList extends CAdminList
 			foreach ($this->arListUrlParams as $key => $value)
 				$this->strListUrlParams .= $key.'='.$value.'&';
 			unset($key, $value);
-			$this->strListUrlParams = substr($this->strListUrlParams,0,-1);
+			$this->strListUrlParams = mb_substr($this->strListUrlParams, 0, -1);
 		}
 	}
 
@@ -220,11 +220,11 @@ class CAdminSubList extends CAdminList
 
 	function __ParseListUrl($boolClear = false)
 	{
-		$mxPos = strpos($this->strListUrl, '?');
+		$mxPos = mb_strpos($this->strListUrl, '?');
 		if (false !== $mxPos)
 		{
-			$this->__SetListUrlParams(substr($this->strListUrl,$mxPos+1),$boolClear);
-			$this->strListUrl = substr($this->strListUrl,0,$mxPos);
+			$this->__SetListUrlParams(mb_substr($this->strListUrl, $mxPos + 1), $boolClear);
+			$this->strListUrl = mb_substr($this->strListUrl, 0, $mxPos);
 		}
 	}
 
@@ -613,7 +613,7 @@ echo '<table class="adm-list-table" id="'.$this->table_id.'">
 						switch ($v["type"])
 						{
 							case 'button':
-								$buttons .= '<input type="button" name="" value="'.htmlspecialcharsbx($v['name']).'" onclick="'.(!empty($v["action"])? htmlspecialcharsbx($v['action']) : 'document.getElementById(\''.$this->table_id.'_action_button\').=\''.htmlspecialcharsbx($v["value"]).'\'; '.htmlspecialcharsbx($this->ActionPost()).'').'" title="'.htmlspecialcharsbx($v["title"]).'" />';
+								$buttons .= '<input type="button" name="" value="'.htmlspecialcharsbx($v['name']).'" onclick="'.(!empty($v["action"])? htmlspecialcharsbx($v['action']) : 'document.getElementById(\''.$this->table_id.'_action_button\').value=\''.htmlspecialcharsbx($v["value"]).'\'; '.htmlspecialcharsbx($this->ActionPost()).'').'" title="'.htmlspecialcharsbx($v["title"]).'" />';
 								break;
 							case 'html':
 								$html .= '<span class="adm-list-footer-ext">'.$v["value"].'</span>';
@@ -1252,11 +1252,11 @@ class CAdminSubListRow extends CAdminListRow
 
 	function AddFieldNames($strFieldName,$strFieldType = 'HIDDEN')
 	{
-		if (0 < strlen($strFieldName))
+		if ($strFieldName <> '')
 		{
 			if (false == isset($this->arFieldNames[$strFieldName]))
 			{
-				if (0 == strlen($strFieldType))
+				if ($strFieldType == '')
 					$strFieldType = 'HIDDEN';
 				$this->arFieldNames[$strFieldName] = ToUpper($strFieldType);
 			}
@@ -1372,7 +1372,7 @@ class CAdminSubContextMenuList extends CAdminSubContextMenu
 
 	function GetClassByID($icon_id)
 	{
-		if (substr($icon_id, 0, 7) == 'btn_sub_new')
+		if (mb_substr($icon_id, 0, 7) == 'btn_sub_new')
 			return 'adm-btn-save adm-btn-add';
 		else
 			return parent::GetClassByID($icon_id);
@@ -1380,7 +1380,7 @@ class CAdminSubContextMenuList extends CAdminSubContextMenu
 
 	function GetActiveClassByID($icon_id)
 	{
-		if (substr($icon_id, 0, 7) == 'btn_sub_new')
+		if (mb_substr($icon_id, 0, 7) == 'btn_sub_new')
 			return 'adm-btn-save-active';
 		else
 			return parent::GetActiveClassByID($icon_id);
@@ -1496,7 +1496,7 @@ class CAdminSubForm extends CAdminForm
 		{
 			foreach ($this->arListUrlParams as $key => $value)
 				$this->strListUrlParams .= $key.'='.$value.'&';
-			$this->strListUrlParams = substr($this->strListUrlParams,0,-1);
+			$this->strListUrlParams = mb_substr($this->strListUrlParams, 0, -1);
 		}
 	}
 
@@ -1550,11 +1550,11 @@ class CAdminSubForm extends CAdminForm
 
 	private function __ParseListUrl($boolClear = false)
 	{
-		$mxPos = strpos($this->strListUrl,'?');
+		$mxPos = mb_strpos($this->strListUrl, '?');
 		if (false !== $mxPos)
 		{
-			$this->__SetListUrlParams(substr($this->strListUrl,$mxPos+1),$boolClear);
-			$this->strListUrl = substr($this->strListUrl,0,$mxPos);
+			$this->__SetListUrlParams(mb_substr($this->strListUrl, $mxPos + 1), $boolClear);
+			$this->strListUrl = mb_substr($this->strListUrl, 0, $mxPos);
 		}
 	}
 
@@ -1565,7 +1565,7 @@ class CAdminSubForm extends CAdminForm
 		{
 			foreach ($this->arListPostParams as $key => $value)
 				$this->strListPostParams .= $key.'='.$value.'&';
-			$this->strListPostParams = substr($this->strListPostParams,0,-1);
+			$this->strListPostParams = mb_substr($this->strListPostParams, 0, -1);
 		}
 	}
 
@@ -1790,11 +1790,11 @@ class CAdminSubResult extends CAdminResult
 	{
 		$this->list_url = $list_url;
 		$this->list_url_params = '';
-		$intPos = strpos($this->list_url, '?');
+		$intPos = mb_strpos($this->list_url, '?');
 		if (false !== $intPos)
 		{
-			$this->list_url_params = substr($this->list_url, $intPos+1);
-			$this->list_url = substr($this->list_url, 0, $intPos);
+			$this->list_url_params = mb_substr($this->list_url, $intPos + 1);
+			$this->list_url = mb_substr($this->list_url, 0, $intPos);
 		}
 		parent::__construct($res, $table_id);
 	}

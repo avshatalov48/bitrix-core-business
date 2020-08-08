@@ -90,7 +90,7 @@ class SectionPath extends Base
 			{
 				//TODO $uf["USER_TYPE"]["BASE_TYPE"] == "enum"
 				$propertyCode = $id;
-				$fieldCode = "property.".strtolower(substr($id, 3));
+				$fieldCode = "property.".mb_strtolower(mb_substr($id, 3));
 				$this->fieldMap[$fieldCode] = $propertyCode;
 				if (is_array($uf["VALUE"]))
 				{

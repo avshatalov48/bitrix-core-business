@@ -4,9 +4,9 @@ Loc::loadMessages(__FILE__);
 
 class CAllCatalogVat
 {
-/*
-* @deprecated deprecated since catalog 12.5.6
-*/
+	/**
+	 * @deprecated deprecated since catalog 12.5.6
+	 */
 	public static function err_mess()
 	{
 		return "<br>Module: catalog<br>Class: CCatalogVat<br>File: ".__FILE__;
@@ -18,7 +18,7 @@ class CAllCatalogVat
 		$arMsg = array();
 		$boolResult = true;
 
-		$ACTION = strtoupper($ACTION);
+		$ACTION = mb_strtoupper($ACTION);
 		if ('INSERT' == $ACTION)
 			$ACTION = 'ADD';
 
@@ -98,15 +98,27 @@ class CAllCatalogVat
 		return $boolResult;
 	}
 
+	/**
+	 * @deprecated deprecated since catalog 20.0.200
+	 * @see \Bitrix\Catalog\VatTable::getById()
+	 *
+	 * @param int $ID
+	 * @return CDBResult|false
+	 */
 	public static function GetByID($ID)
 	{
 		return CCatalogVat::GetListEx(array(), array('ID' => $ID));
 	}
 
-/*
-* @deprecated deprecated since catalog 12.5.6
-* @see CCatalogVat::GetListEx()
-*/
+	/**
+	 * @deprecated deprecated since catalog 12.5.6
+	 * @see CCatalogVat::GetListEx()
+	 *
+	 * @param array $arOrder
+	 * @param array $arFilter
+	 * @param array $arFields
+	 * @return CDBResult|false
+	 */
 	public static function GetList($arOrder = array('SORT' => 'ASC'), $arFilter = array(), $arFields = array())
 	{
 		if (is_array($arFilter))
@@ -124,11 +136,14 @@ class CAllCatalogVat
 		return CCatalogVat::GetListEx($arOrder, $arFilter, false, false, $arFields);
 	}
 
-/*
-* @deprecated deprecated since catalog 12.5.6
-* @see CCatalogVat::Add()
-* @see CCatalogVat::Update()
-*/
+	/**
+	 * @deprecated deprecated since catalog 12.5.6
+	 * @see CCatalogVat::Add()
+	 * @see CCatalogVat::Update()
+	 *
+	 * @param array $arFields
+	 * @return int|false
+	*/
 	public static function Set($arFields)
 	{
 		if (isset($arFields['ID']) && intval($arFields['ID']) > 0)

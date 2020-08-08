@@ -18,13 +18,23 @@
 			{
 				this.id = params.id;
 				this.signedParameters = params.signedParameters;
-
+				this.fileMaxSize = params.fileMaxSize;
+				var file = BX(this.id + '-file-upload');
 				BX.bind(
-					BX(this.id + '-file-upload'),
+					file,
 					'change',
 					BX.delegate(
 						function (event) {
-							this.submitForm(event);
+							if(file.files.length > 0 && file.files[0]['size'] < this.fileMaxSize)
+							{
+								this.submitForm(event);
+							}
+							else
+							{
+								BX.UI.Notification.Center.notify({
+									content: BX.message('REST_CONFIGURATION_IMPORT_ERRORS_MAX_FILE_SIZE')
+								});
+							}
 						},
 						this
 					)

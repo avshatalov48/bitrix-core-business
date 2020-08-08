@@ -53,8 +53,8 @@ class Executer
 	public function __call($methodName, $arguments)
 	{
 //		prepare METHOD name
-		$methodName = strtolower($methodName);
-		if (strpos($methodName, 'execute') == 0)
+		$methodName = mb_strtolower($methodName);
+		if (mb_strpos($methodName, 'execute') == 0)
 		{
 			$methodName = str_replace("execute", "", $methodName);
 		}
@@ -87,7 +87,7 @@ class Executer
 				$value = Json::encode($value);
 				$value = $this->decodeMultibyteUnicode($value);    //vkscript dont understand \uXXXX format, decoding
 			}
-			$script = str_replace('%' . strtoupper($key) . '%', $value, $script);
+			$script = str_replace('%'.mb_strtoupper($key) . '%', $value, $script);
 		}
 
 		return $script;

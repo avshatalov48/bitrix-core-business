@@ -100,7 +100,7 @@ class CBPSocNetMessageActivity
 			"MESSAGE_TYPE" => IM_MESSAGE_SYSTEM,
 			"MESSAGE_OUT" => CBPHelper::ConvertTextForMail($messageText),
 			"ATTACH" => $attach,
-			'NOTIFY_TAG' => 'ROBOT|'.implode('|', array_map('strtoupper', $documentId))	.'|'.$tagSalt
+			'NOTIFY_TAG' => 'ROBOT|'.implode('|', array_map('mb_strtoupper', $documentId))	.'|'.$tagSalt
 		);
 
 		if ($arMessageUserFrom)
@@ -128,7 +128,7 @@ class CBPSocNetMessageActivity
 		{
 			$arErrors[] = array("code" => "NotExist", "parameter" => "MessageUserTo", "message" => GetMessage("BPSNMA_EMPTY_TO"));
 		}
-		if (!array_key_exists("MessageText", $arTestProperties) || strlen($arTestProperties["MessageText"]) <= 0)
+		if (!array_key_exists("MessageText", $arTestProperties) || $arTestProperties["MessageText"] == '')
 		{
 			$arErrors[] = array("code" => "NotExist", "parameter" => "MessageText", "message" => GetMessage("BPSNMA_EMPTY_MESSAGE"));
 		}

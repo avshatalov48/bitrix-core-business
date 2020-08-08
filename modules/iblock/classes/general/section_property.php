@@ -1,4 +1,6 @@
 <?
+use Bitrix\Main\Loader;
+
 IncludeModuleLangFile(__FILE__);
 
 class CIBlockSectionPropertyLink
@@ -68,7 +70,7 @@ class CIBlockSectionPropertyLink
 				else
 					$strUpdate = "";
 
-				if (strlen($strUpdate) > 0)
+				if ($strUpdate <> '')
 				{
 					$DB->Query("
 						UPDATE b_iblock_section_property
@@ -129,7 +131,7 @@ class CIBlockSectionPropertyLink
 				else
 					$strUpdate = "";
 
-				if (strlen($strUpdate) > 0)
+				if ($strUpdate <> '')
 				{
 					$DB->Query("
 						UPDATE b_iblock_section_property
@@ -195,7 +197,7 @@ class CIBlockSectionPropertyLink
 	public static function DeleteByIBlock($IBLOCK_ID)
 	{
 		global $DB;
-		$IBLOCK_ID = intval($IBLOCK_ID);
+		$IBLOCK_ID = (int)$IBLOCK_ID;
 		$DB->Query("DELETE FROM b_iblock_section_property WHERE IBLOCK_ID = ".$IBLOCK_ID);
 		$DB->Query("UPDATE b_iblock SET SECTION_PROPERTY = 'N' WHERE ID = ".$IBLOCK_ID);
 		\Bitrix\Iblock\PropertyIndex\Manager::deleteIndex($IBLOCK_ID);
@@ -225,10 +227,20 @@ class CIBlockSectionPropertyLink
 		$DB->Query("DELETE FROM b_iblock_section_property WHERE PROPERTY_ID = ".$PROPERTY_ID);
 	}
 
+	/**
+	 * @param int $IBLOCK_ID
+	 * @return bool
+	 */
 	public static function HasIBlockLinks($IBLOCK_ID)
 	{
 		global $DB;
-		$IBLOCK_ID = intval($IBLOCK_ID);
+
+		$result = false;
+
+		$IBLOCK_ID = (int)$IBLOCK_ID;
+		if ($IBLOCK_ID <= 0)
+			return $result;
+
 		$rs = $DB->Query($DB->TopSQL("
 			SELECT
 				1
@@ -239,12 +251,61 @@ class CIBlockSectionPropertyLink
 			WHERE
 				B.ID = ".$IBLOCK_ID."
 				AND (
-					BSP.SECTION_ID IS NULL
-					OR BSP.SECTION_ID > 0
+					BSP.SECTION_ID IS NOT NULL
 					OR BSP.SMART_FILTER = 'Y'
 				)
 		", 1));
-		return is_array($rs->Fetch());
+		$row = $rs->Fetch();
+		unset($rs);
+		if (!empty($row))
+			$result = true;
+		unset($row);
+
+		if (!$result)
+		{
+			if (Loader::includeModule('catalog'))
+			{
+				$catalog = CCatalogSku::GetInfoByProductIBlock($IBLOCK_ID);
+				if (!empty($catalog))
+				{
+					$rs = $DB->Query($DB->TopSQL("
+						SELECT
+							1
+						FROM
+							b_iblock B
+							INNER JOIN b_iblock_property BP ON BP.IBLOCK_ID = B.ID
+							LEFT JOIN b_iblock_section_property BSP ON BSP.IBLOCK_ID = ".$IBLOCK_ID." AND BSP.PROPERTY_ID = BP.ID
+						WHERE
+							B.ID = ".$catalog['IBLOCK_ID']."
+							AND (
+								BSP.SECTION_ID IS NOT NULL
+								OR BSP.SMART_FILTER = 'Y'
+							)
+					", 1));
+					$row = $rs->Fetch();
+					unset($rs);
+					if (!empty($row))
+						$result = true;
+					unset($row);
+				}
+				unset($catalog);
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param int $iblockId
+	 * @return void
+	 */
+	public static function CleanIBlockLinks(int $iblockId)
+	{
+		if ($iblockId <= 0)
+			return;
+
+		if (!static::HasIBlockLinks($iblockId))
+			static::DeleteByIBlock($iblockId);
 	}
 
 	public static function GetArray($IBLOCK_ID, $SECTION_ID = 0, $bNewSection = false)
@@ -287,7 +348,7 @@ class CIBlockSectionPropertyLink
 
 			if ($ar["SECTION_PROPERTY"] === "Y")
 			{
-				if (strlen($ar["LINK_ID"]))
+				if($ar["LINK_ID"] <> '')
 				{
 					$result[$ar["PROPERTY_ID"]] = array(
 						"PROPERTY_ID" => $ar["PROPERTY_ID"],

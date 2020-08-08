@@ -1,0 +1,20 @@
+/* GENERAL WRAPPER */
+.bx-mobilechat {
+	display: block;
+	width: 100%;
+	height: 300px;
+	border: 1px solid #2a2a2a;
+	background-color: #fbfbfb;
+	background-image: url(images/light_gray_v1.svg);
+	background-attachment: fixed;
+}
+
+.bx-mobilechat-dialog-title {
+	position: absolute;
+	border-right: 1px solid #2a2a2a;
+	border-bottom: 1px solid #2a2a2a;
+    background: rgba(255, 255, 255, 0.62);
+    padding: 10px;
+    border-radius: 0 0 10px 0;
+    z-index: 1000;
+}

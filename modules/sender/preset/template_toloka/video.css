@@ -1,0 +1,14 @@
+.url-to-video{
+	width:100%;
+	height: 20px;
+	display: table-cell
+}
+
+.task{
+	width:150px;
+	height: 150px;
+	padding: 10px;
+	background: #fff;
+	display: table;
+	text-align: center;
+}

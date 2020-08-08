@@ -39,7 +39,8 @@ class Comment extends BaseObject
 			"USE_SMILES" => ($params["USE_SMILES"] == "Y" ? "Y" : "N"),
 			"APPROVED" => $this->topic["APPROVED"],
 			"XML_ID" => $this->getEntity()->getXmlId(),
-			"AUX" => isset($params["AUX"]) ? $params["AUX"] : 'N',
+			"AUX" => ($params["AUX"] ?? 'N'),
+			"AUX_DATA" => ($params["AUX_DATA"] ?? ''),
 		);
 		if (array_key_exists("POST_DATE", $params))
 		{
@@ -132,7 +133,8 @@ class Comment extends BaseObject
 	 */
 	public function add(array $params)
 	{
-		$aux = (isset($params['AUX']) && $params['AUX'] == "Y");
+		$aux = (isset($params['AUX']) && $params['AUX'] === "Y");
+		$auxData = ($params['AUX_DATA'] ?? '');
 
 		$params = array(
 			"SOURCE_ID" => $params["SOURCE_ID"],
@@ -150,7 +152,8 @@ class Comment extends BaseObject
 			"AUTHOR_REAL_IP" => "<no address>",
 			"GUEST_ID" => $_SESSION["SESS_GUEST_ID"],
 
-			"AUX" => $params["AUX"]
+			"AUX" => $params["AUX"],
+			"AUX_DATA" => $auxData,
 		);
 
 		if ($this->prepareFields($params, $this->errorCollection))
@@ -179,7 +182,10 @@ class Comment extends BaseObject
 
 				$this->setComment($mid);
 
-				if (!$aux)
+				if (
+					!$aux // create task from livefeed
+					|| strlen($auxData) > 0 // tasks commentposter, add to livefeed
+				)
 				{
 					$event = new Event("forum", "OnAfterCommentAdd", array(
 							$this->getEntity()->getType(),
@@ -188,7 +194,8 @@ class Comment extends BaseObject
 								"TOPIC_ID" => $this->topic["ID"],
 								"MESSAGE_ID" => $mid,
 								"PARAMS" => $params,
-								"MESSAGE" => $this->getComment()
+								"MESSAGE" => $this->getComment(),
+								"AUX_DATA" => $auxData
 							))
 					);
 					$event->send();
@@ -277,6 +284,9 @@ class Comment extends BaseObject
 				if ($result->isSuccess())
 				{
 					$mid = $this->message["ID"];
+					unset($GLOBALS["FORUM_CACHE"]["MESSAGE"][$mid]);
+					unset($GLOBALS["FORUM_CACHE"]["MESSAGE_FILTER"][$mid]);
+
 					if ($params["AUTHOR_ID"] != $this->getUser()->getId() || Option::get("forum", "LOGS", "Q") < "U")
 					{
 						$resLog = array();

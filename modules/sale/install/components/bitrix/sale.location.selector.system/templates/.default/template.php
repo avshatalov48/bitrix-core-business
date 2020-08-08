@@ -329,8 +329,10 @@ if (!is_object($adminSidePanelHelper))
 	<?
 	// todo: i dont like it, refactor later (may be with strong assistance of parse_url() and $_SERVER['REQUEST_URI'])
 	$urlComponents = array();
-	if(strlen($arParams['ENTITY_PRIMARY']))
+	if($arParams['ENTITY_PRIMARY'] <> '')
+	{
 		$urlComponents[] = $arParams['ENTITY_VARIABLE_NAME'].'='.$arParams['ENTITY_PRIMARY'];
+	}
 
 	$urlComponents[] = $arParams['EDIT_MODE_SWITCH'].'=1';
 
@@ -342,14 +344,14 @@ if (!is_object($adminSidePanelHelper))
 		if (!window.BX && top.BX)
 			window.BX = top.BX;
 
-		<?if(strlen($arParams['JS_CONTROL_DEFERRED_INIT'])):?>
-			if(typeof window.BX.locationsDeferred == 'undefined') window.BX.locationsDeferred = {};
-			window.BX.locationsDeferred['<?=$arParams['JS_CONTROL_DEFERRED_INIT']?>'] = function(){
-		<?endif?>
+		<?if($arParams['JS_CONTROL_DEFERRED_INIT'] <> ''):?>
+		if (typeof window.BX.locationsDeferred == 'undefined') window.BX.locationsDeferred = {};
+		window.BX.locationsDeferred['<?=$arParams['JS_CONTROL_DEFERRED_INIT']?>'] = function () {
+			<?endif?>
 
-			<?if(strlen($arParams['JS_CONTROL_GLOBAL_ID'])):?>
-				if(typeof window.BX.locationSelectors == 'undefined') window.BX.locationSelectors = {};
-				window.BX.locationSelectors['<?=$arParams['JS_CONTROL_GLOBAL_ID']?>'] = 
+			<?if($arParams['JS_CONTROL_GLOBAL_ID'] <> ''):?>
+			if (typeof window.BX.locationSelectors == 'undefined') window.BX.locationSelectors = {};
+			window.BX.locationSelectors['<?=$arParams['JS_CONTROL_GLOBAL_ID']?>'] =
 			<?endif?>
 
 				new BX.Sale.component.location.selector.system(<?=CUtil::PhpToJSObject(array(
@@ -400,8 +402,8 @@ if (!is_object($adminSidePanelHelper))
 
 				), false, false, true)?>);
 
-		<?if(strlen($arParams['JS_CONTROL_DEFERRED_INIT'])):?>
-			};
+		<?if($arParams['JS_CONTROL_DEFERRED_INIT'] <> ''):?>
+		};
 		<?endif?>
 
 	</script>

@@ -267,7 +267,7 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 			{
 				throw new Main\ObjectNotFoundException('Entity "ShipmentCollection" not found');
 			}
-			
+
 			$orderStatus = null;
 
 			if ($oldValue == "N")
@@ -439,7 +439,7 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 			{
 				return $result;
 			}
-			
+
 			/** @var ShipmentCollection $shipmentCollection */
 			if (!$shipmentCollection = $shipment->getCollection())
 			{
@@ -1282,13 +1282,9 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 				return $result;
 			}
 
-			if ($this->getId() == 0 && !$this->isMathActionOnly())
+			if ($this->getId() === 0 && !$this->isMathActionOnly())
 			{
-				$shipmentCollection = $this->getShipmentCollection();
-
-				$r = $shipmentCollection->refreshData();
-				if (!$r->isSuccess())
-					$result->addErrors($r->getErrors());
+				return $this->getShipmentCollection()->onBasketModify($action, $basketItem, $name, $oldValue, $value);
 			}
 		}
 		elseif ($name === 'WEIGHT')
@@ -1574,10 +1570,11 @@ class Order extends OrderBase implements \IShipmentOrder, \IPaymentOrder, IBusin
 		return $orderStatus = $optionClassName::get('sale', 'status_on_paid', '');
 	}
 
-	/**
-	 * @return mixed
-	 * @throws Main\ArgumentException
-	 */
+    /**
+     * @return mixed
+     * @throws Main\ArgumentException
+     * @throws Main\SystemException
+     */
 	protected function getStatusOnPartialPaid()
 	{
 		$registry = Registry::getInstance(static::getRegistryType());

@@ -37,6 +37,8 @@ abstract class Base extends \CBitrixComponent
 	/** @var ErrorCollection */
 	protected $errorCollection;
 
+	protected $separateLoading = false;
+
 	protected $selectFields = array();
 	protected $filterFields = array();
 	protected $sortFields = array();
@@ -219,6 +221,23 @@ abstract class Base extends \CBitrixComponent
 	}
 
 	/**
+	 * @param $state
+	 * @return void
+	 */
+	protected function setSeparateLoading($state)
+	{
+		$this->separateLoading = (bool)$state;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isSeparateLoading()
+	{
+		return $this->separateLoading;
+	}
+
+	/**
 	 * Return settings script path with modified time postfix.
 	 *
 	 * @param string $componentPath		Path to component.
@@ -230,7 +249,9 @@ abstract class Base extends \CBitrixComponent
 		if ($settingsName === 'filter_conditions')
 		{
 			if (Loader::includeModule('catalog'))
+			{
 				\CJSCore::Init(['core_condtree']);
+			}
 		}
 		$path = $componentPath.'/settings/'.$settingsName.'/script.js';
 		$file = new Main\IO\File(Main\Application::getDocumentRoot().$path);
@@ -1648,16 +1669,93 @@ abstract class Base extends \CBitrixComponent
 		if (!empty($this->globalFilter))
 			$globalFilter = $this->convertFilter($this->globalFilter);
 
-		$elementIterator = \CIBlockElement::GetList(
-			$this->sortFields,
-			array_merge($globalFilter, $filterFields),
-			false,
-			$this->navParams,
-			$selectFields
-		);
+		$iteratorParams = [
+			'select' => $selectFields,
+			'filter' => array_merge($globalFilter, $filterFields),
+			'order' => $this->sortFields,
+			'navigation' => $this->navParams
+		];
+		if ($this->isSeparateLoading() && $iblockId > 0)
+		{
+			$elementIterator = $this->getSeparateList($iteratorParams);
+		}
+		else
+		{
+			$elementIterator = $this->getFullIterator($iteratorParams);
+		}
+		unset($iteratorParams);
+
 		$elementIterator->SetUrlTemplates($this->arParams['DETAIL_URL']);
 
 		return $elementIterator;
+	}
+
+	/**
+	 * @param array $params
+	 * @return \CIBlockResult
+	 */
+	protected function getSeparateList(array $params)
+	{
+		$list = [];
+
+		$selectFields = ['ID', 'IBLOCK_ID'];
+		if (!empty($params['order']))
+		{
+			$selectFields = array_unique(array_merge(
+				$selectFields,
+				array_keys($params['order'])
+			));
+		}
+
+		$iterator = \CIBlockElement::GetList(
+			$params['order'],
+			$params['filter'],
+			false,
+			$params['navigation'],
+			$selectFields
+		);
+		while ($row = $iterator->Fetch())
+		{
+			$id = (int)$row['ID'];
+			$list[$id] = $row;
+		}
+		unset($row);
+
+		if (!empty($list))
+		{
+			$fullIterator = \CIBlockElement::GetList(
+				[],
+				['IBLOCK_ID' => $params['filter']['IBLOCK_ID'], 'ID' => array_keys($list), 'SITE_ID' => $this->getSiteId()],
+				false,
+				false,
+				$params['select']
+			);
+			while ($row = $fullIterator->Fetch())
+			{
+				$id = (int)$row['ID'];
+				$list[$id] = $list[$id] + $row;
+			}
+			unset($row, $fullIterator);
+
+			$iterator->InitFromArray(array_values($list));
+		}
+
+		return $iterator;
+	}
+
+	/**
+	 * @param array $params
+	 * @return \CIBlockResult
+	 */
+	protected function getFullIterator(array $params)
+	{
+		return \CIBlockElement::GetList(
+			$params['order'],
+			$params['filter'],
+			false,
+			$params['navigation'],
+			$params['select']
+		);
 	}
 
 	/**
@@ -1776,7 +1874,7 @@ abstract class Base extends \CBitrixComponent
 		if (!empty($order))
 		{
 			foreach (array_keys($order) as $field)
-				$select[] = strtoupper($field);
+				$select[] = mb_strtoupper($field);
 			unset($field);
 		}
 		if (!empty($select))
@@ -2025,7 +2123,7 @@ abstract class Base extends \CBitrixComponent
 		{
 			$name = $conditionNameMap[$condition['CLASS_ID']];
 		}
-		elseif (strpos($condition['CLASS_ID'], 'CondIBProp') !== false)
+		elseif (mb_strpos($condition['CLASS_ID'], 'CondIBProp') !== false)
 		{
 			$name = $condition['CLASS_ID'];
 		}
@@ -2099,10 +2197,10 @@ abstract class Base extends \CBitrixComponent
 				}
 				else
 				{
-					if (($ind = strpos($name, 'CondIBProp')) !== false)
+					if (($ind = mb_strpos($name, 'CondIBProp')) !== false)
 					{
 						list($prefix, $iblock, $propertyId) = explode(':', $name);
-						$operator = $ind > 0 ? substr($prefix, 0, $ind) : '';
+						$operator = $ind > 0? mb_substr($prefix, 0, $ind) : '';
 
 						$catalogInfo = \CCatalogSku::GetInfoByIBlock($iblock);
 						if (!empty($catalogInfo))
@@ -3605,7 +3703,7 @@ abstract class Base extends \CBitrixComponent
 			$checkFields = array();
 			foreach (array_keys($offersOrder) as $code)
 			{
-				$code = strtoupper($code);
+				$code = mb_strtoupper($code);
 				if ($code == 'ID' || $code == 'AVAILABLE')
 					continue;
 				$checkFields[] = $code;
@@ -3869,8 +3967,8 @@ abstract class Base extends \CBitrixComponent
 	protected function getOffersSort()
 	{
 		$offersOrder = array(
-			strtoupper($this->arParams['OFFERS_SORT_FIELD']) => $this->arParams['OFFERS_SORT_ORDER'],
-			strtoupper($this->arParams['OFFERS_SORT_FIELD2']) => $this->arParams['OFFERS_SORT_ORDER2']
+			mb_strtoupper($this->arParams['OFFERS_SORT_FIELD']) => $this->arParams['OFFERS_SORT_ORDER'],
+			mb_strtoupper($this->arParams['OFFERS_SORT_FIELD2']) => $this->arParams['OFFERS_SORT_ORDER2']
 		);
 		if (!isset($offersOrder['ID']))
 			$offersOrder['ID'] = 'DESC';
@@ -4077,7 +4175,7 @@ abstract class Base extends \CBitrixComponent
 		}
 		else
 		{
-			$action = strtoupper($this->request->get($this->arParams['ACTION_VARIABLE']));
+			$action = mb_strtoupper($this->request->get($this->arParams['ACTION_VARIABLE']));
 		}
 
 		$productId = (int)$this->request->get($this->arParams['PRODUCT_ID_VARIABLE']);
@@ -5152,7 +5250,12 @@ abstract class Base extends \CBitrixComponent
 		);
 	}
 
-	protected function getEmptyPriceMatrix()
+	/**
+	 * Returns old price result format for product with price ranges. Do not use this method.
+	 *
+	 * @return array
+	 */
+	protected function getEmptyPriceMatrix(): array
 	{
 		return array(
 			'ROWS' => array(),

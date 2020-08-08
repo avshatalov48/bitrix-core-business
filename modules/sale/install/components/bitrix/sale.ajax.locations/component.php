@@ -14,14 +14,14 @@ $arParams["COUNTRY"] = intval($arParams["COUNTRY"]);
 $arParams["REGION"] = intval($arParams["REGION"]);
 $arParams["LOCATION_VALUE"] = intval($arParams["LOCATION_VALUE"]);
 $arParams["ALLOW_EMPTY_CITY"] = $arParams["ALLOW_EMPTY_CITY"] == "N" ? "N" : "Y";
-$arParams["ZIPCODE"] = IntVal($arParams["ZIPCODE"]);
+$arParams["ZIPCODE"] = intval($arParams["ZIPCODE"]);
 $arParams["SHOW_QUICK_CHOOSE"] = $arParams["SHOW_QUICK_CHOOSE"] == "N" ? "N" : "Y";
 $arParams["ADMIN_SECTION"] = (defined('ADMIN_SECTION') && ADMIN_SECTION === true)? "Y" : "N";
 
 
 if ($arParams["ADMIN_SECTION"] != "Y")
 {
-	if (strlen($arParams["SITE_ID"]) <= 0)
+	if ($arParams["SITE_ID"] == '')
 		$arParams["SITE_ID"] = SITE_ID;
 }
 
@@ -30,7 +30,7 @@ if ($arParams["ZIPCODE"] > 0)
 	$arZip = CSaleLocation::GetByZIP($arParams["ZIPCODE"]);
 	if (is_array($arZip) && count($arZip) > 1)
 	{
-		$arParams["LOCATION_VALUE"] = IntVal($arZip["ID"]);
+		$arParams["LOCATION_VALUE"] = intval($arZip["ID"]);
 	}
 }
 
@@ -129,7 +129,7 @@ SalesZone::setSelectedIds($arParams["SITE_ID"], $cachedData['ZONE_IDS']);
 $arResult["SINGLE_CITY"] = "N";
 $citiesIds = SalesZone::getCitiesIds($arParams["SITE_ID"]);
 
-if(count($citiesIds) == 1 && strlen($citiesIds[0]) > 0)
+if(count($citiesIds) == 1 && $citiesIds[0] <> '')
 {
 	$rsLocationsList = CSaleLocation::GetList(
 		array(),
@@ -200,15 +200,15 @@ foreach($cachedData['DEFAULT_LOCS'] as $arLocDefault)
 	)
 	{
 		$nameDefault = "";
-		$nameDefault .= ((strlen($arLocDefault["COUNTRY_NAME"])<=0) ? "" : $arLocDefault["COUNTRY_NAME"]);
-		if (strlen($arLocDefault["COUNTRY_NAME"])>0 && strlen($arLocDefault["REGION_NAME"])>0)
+		$nameDefault .= (($arLocDefault["COUNTRY_NAME"] == '') ? "" : $arLocDefault["COUNTRY_NAME"]);
+		if ($arLocDefault["COUNTRY_NAME"] <> '' && $arLocDefault["REGION_NAME"] <> '')
 			$nameDefault .= " - ".$arLocDefault["REGION_NAME"];
-		elseif (strlen($arLocDefault["REGION_NAME"])>0)
+		elseif ($arLocDefault["REGION_NAME"] <> '')
 			$nameDefault .= $arLocDefault["REGION_NAME"];
 
-		if ((strlen($arLocDefault["COUNTRY_NAME"])>0 || strlen($arLocDefault["REGION_NAME"])>0) && strlen($arLocDefault["CITY_NAME"])>0)
+		if (($arLocDefault["COUNTRY_NAME"] <> '' || $arLocDefault["REGION_NAME"] <> '') && $arLocDefault["CITY_NAME"] <> '')
 			$nameDefault .= " - ".$arLocDefault["CITY_NAME"];
-		elseif (strlen($arLocDefault["CITY_NAME"])>0)
+		elseif ($arLocDefault["CITY_NAME"] <> '')
 			$nameDefault .= $arLocDefault["CITY_NAME"];
 
 		$arLocDefault["LOC_DEFAULT_NAME"] = $nameDefault;
@@ -258,7 +258,7 @@ while ($arCountry = $rsCountryList->GetNext())
 		$arCountry["NAME_LANG"] = $arCountry["COUNTRY_NAME_LANG"];
 
 	$arResult["COUNTRY_LIST"][] = $arCountry;
-	if ($arCountry["ID"] == $arParams["COUNTRY"] && strlen($arCountry["NAME_LANG"]) > 0)
+	if ($arCountry["ID"] == $arParams["COUNTRY"] && $arCountry["NAME_LANG"] <> '')
 		$locationString .= $arCountry["NAME_LANG"];
 }
 
@@ -269,11 +269,11 @@ elseif (count($arResult["COUNTRY_LIST"]) == 1)
 
 //select region
 $arResult["REGION_LIST"] = array();
-if (($arParams["COUNTRY"] > 0 || count($arResult["COUNTRY_LIST"]) <= 0) && (strlen($arParams["REGION_INPUT_NAME"]) > 0 || $arParams["ZIPCODE"] > 0))
+if (($arParams["COUNTRY"] > 0 || count($arResult["COUNTRY_LIST"]) <= 0) && ($arParams["REGION_INPUT_NAME"] <> '' || $arParams["ZIPCODE"] > 0))
 {
 	$arRegionFilter = array("LID" => LANGUAGE_ID, "!REGION_ID" => "NULL", "!REGION_ID" => "0");
 	if ($arParams["COUNTRY"] > 0)
-		$arRegionFilter["COUNTRY_ID"] = IntVal($arParams["COUNTRY"]);
+		$arRegionFilter["COUNTRY_ID"] = intval($arParams["COUNTRY"]);
 
 	if ($arResult["EMPTY_CITY"] == "Y")
 	{
@@ -299,7 +299,7 @@ if (($arParams["COUNTRY"] > 0 || count($arResult["COUNTRY_LIST"]) <= 0) && (strl
 		$arResult["REGION_LIST"][$arRegion['ID']] = $arRegion;
 		$regionSortIndex[$arRegion['SORT']][$arRegion['NAME_LANG']] = $arRegion['ID'];
 
-		if ($arRegion["ID"] == $arParams["REGION"] && strlen($arRegion["NAME_LANG"]) > 0)
+		if ($arRegion["ID"] == $arParams["REGION"] && $arRegion["NAME_LANG"] <> '')
 			$locationString = $arRegion["NAME_LANG"].", ".$locationString;
 	}
 
@@ -308,7 +308,7 @@ if (($arParams["COUNTRY"] > 0 || count($arResult["COUNTRY_LIST"]) <= 0) && (strl
 	{
 		$filter = array("LID" => LANGUAGE_ID, "REGION_ID" => "NULL");
 		if ($arParams["COUNTRY"] > 0)
-			$filter["COUNTRY_ID"] = IntVal($arParams["COUNTRY"]);
+			$filter["COUNTRY_ID"] = intval($arParams["COUNTRY"]);
 		$res = CSaleLocation::GetList(array("SORT" => "ASC", "NAME_LANG" => "ASC"), $filter, false, false);//, array("ID", "CITY_ID", "CITY_NAME_LANG"));
 		while($item = $res->fetch())
 		{
@@ -403,8 +403,8 @@ if (
 			);
 			if ($arCity["ID"] == $arParams["CITY"])
 			{
-				$locationString = (strlen($arCity["CITY_NAME"]) > 0 ? $arCity["CITY_NAME"].", " : "").$locationString;
-				if(IntVal($arParams["LOCATION_VALUE"]) <= 0)
+				$locationString = ($arCity["CITY_NAME"] <> '' ? $arCity["CITY_NAME"].", " : "").$locationString;
+				if(intval($arParams["LOCATION_VALUE"]) <= 0)
 					$arParams["LOCATION_VALUE"] = $arCity["ID"];
 				$arResult["LOCATION_DEFAULT"] = $arCity["ID"];
 			}
@@ -421,7 +421,7 @@ if($arParams["REGION"] < 0)
 
 	$city = $arResult["REGION_LIST"][$arParams["REGION"]];
 	$city['ID'] = abs($city['ID']);
-	$locationString = (strlen($city["NAME"]) > 0 ? $city["NAME"].", " : "").$locationString;
+	$locationString = ($city["NAME"] <> '' ? $city["NAME"].", " : "").$locationString;
 
 	$arResult["CITY_LIST"][] = $city;
 
@@ -433,7 +433,7 @@ elseif(intval($arParams["CITY"]) && isset($arResult['REGION_LIST'][-$arParams["C
 
 	$city = $arResult["REGION_LIST"][$arParams["REGION"]];
 	$city['ID'] = abs($city['ID']);
-	$locationString = (strlen($city["NAME"]) > 0 ? $city["NAME"].", " : "").$locationString;
+	$locationString = ($city["NAME"] <> '' ? $city["NAME"].", " : "").$locationString;
 
 	$arResult["CITY_LIST"][] = $city;
 
@@ -487,7 +487,7 @@ $arTmpParams = array(
 $arResult["JS_PARAMS"] = CUtil::PhpToJsObject($arTmpParams);
 
 $serverName = COption::GetOptionString("main", "server_name", "");
-if (strlen($serverName) > 0)
+if ($serverName <> '')
 	$arParams["SERVER_NAME"] = "http://".$serverName;
 
 $arResult["ADDITIONAL_VALUES"] = "siteId:".$arParams["SITE_ID"];

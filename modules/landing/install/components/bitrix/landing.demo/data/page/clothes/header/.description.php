@@ -19,7 +19,6 @@ return array(
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'THEME_CODE' => 'travel',
-			'THEME_CODE_TYPO' => 'travel',
 		),
 	),
 	'layout' => array(
@@ -127,7 +126,7 @@ return array(
 			),
 			'style' => array(
 				'#wrapper' => array(
-					0 => 'landing-block landing-block-menu g-bg-white u-header u-header--fixed',
+					0 => 'landing-block landing-block-menu g-bg-white u-header u-header--static u-header--relative',
 				),
 			),
 			'attrs' => array(),

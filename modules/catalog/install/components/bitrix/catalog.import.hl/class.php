@@ -99,7 +99,7 @@ class CBitrixCatalogImportHl extends CBitrixComponent
 		{
 			$result = Bitrix\Highloadblock\HighloadBlockTable::add(array(
 				'NAME' => $highBlockName,
-				'TABLE_NAME' => 'b_'.strtolower($highBlockName),
+				'TABLE_NAME' => 'b_'.mb_strtolower($highBlockName),
 			));
 			if (!$result->isSuccess())
 			{
@@ -152,7 +152,7 @@ class CBitrixCatalogImportHl extends CBitrixComponent
 				$len = "(50)";
 			else
 				$len = "";
-			$DB->Query("create index IX_HLBLOCK_".$highBlockID."_XML_ID on b_".strtolower($highBlockName)."(UF_XML_ID$len)");
+			$DB->Query("create index IX_HLBLOCK_".$highBlockID."_XML_ID on b_".mb_strtolower($highBlockName)."(UF_XML_ID$len)");
 		}
 
 		return $highBlockID;
@@ -182,7 +182,7 @@ class CBitrixCatalogImportHl extends CBitrixComponent
 			$this->error = GetMessage("CC_BCIH_XML_PARSE_ERROR", array("#CODE#" => 220));
 			return 0;
 		}
-		$id = substr("UF_".strtoupper($id), 0, 20);
+		$id = mb_substr("UF_".mb_strtoupper($id), 0, 20);
 
 		$name = $xmlArray[GetMessage("CC_BCIH_XML_FIELD")]["#"][GetMessage("CC_BCIH_XML_NAME")][0]["#"];
 		if (!is_string($name) || $name === "")
@@ -307,7 +307,7 @@ class CBitrixCatalogImportHl extends CBitrixComponent
 				$xmlValueId = "DESCRIPTION";
 
 			$xmlValueId = $this->xml2id($xmlValueId);
-			$xmlValueId = substr("UF_".strtoupper($xmlValueId), 0, 20);
+			$xmlValueId = mb_substr("UF_".mb_strtoupper($xmlValueId), 0, 20);
 
 			switch ($this->NS["FM"][$xmlValueId])
 			{

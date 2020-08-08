@@ -177,7 +177,9 @@ class Cookie
 			return $domain;
 		}
 
-		$server = \Bitrix\Main\Context::getCurrent()->getServer();
+		$request = \Bitrix\Main\Context::getCurrent()->getRequest();
+
+		$httpHost = $request->getHttpHost();
 
 		$cacheFlags = Config\Configuration::getValue("cache_flags");
 		$cacheTtl = (isset($cacheFlags["site_domain"]) ? $cacheFlags["site_domain"] : 0);
@@ -189,7 +191,7 @@ class Cookie
 
 			$sql = "SELECT DOMAIN ".
 				"FROM b_lang_domain ".
-				"WHERE '".$sqlHelper->forSql('.'.$server->getHttpHost())."' like ".$sqlHelper->getConcatFunction("'%.'", "DOMAIN")." ".
+				"WHERE '".$sqlHelper->forSql('.'.$httpHost)."' like ".$sqlHelper->getConcatFunction("'%.'", "DOMAIN")." ".
 				"ORDER BY ".$sqlHelper->getLengthFunction("DOMAIN")." ";
 			$recordset = $connection->query($sql);
 			if ($record = $recordset->fetch())
@@ -228,7 +230,7 @@ class Cookie
 
 			foreach ($arLangDomain["DOMAIN"] as $record)
 			{
-				if (strcasecmp(substr('.'.$server->getHttpHost(), -(strlen($record['DOMAIN']) + 1)), ".".$record['DOMAIN']) == 0)
+				if (strcasecmp(substr('.'.$httpHost, -(strlen($record['DOMAIN']) + 1)), ".".$record['DOMAIN']) == 0)
 				{
 					$domain = $record['DOMAIN'];
 					break;

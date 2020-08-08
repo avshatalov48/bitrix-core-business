@@ -19,33 +19,33 @@ if (!CModule::IncludeModule("socialnetwork"))
 
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if (strLen($arParams["USER_VAR"]) <= 0)
+if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if (strlen($arParams["PATH_TO_USER"]) <= 0)
+if ($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_SEARCH"] = trim($arParams["PATH_TO_SEARCH"]);
-if (strlen($arParams["PATH_TO_SEARCH"]) <= 0)
+if ($arParams["PATH_TO_SEARCH"] == '')
 	$arParams["PATH_TO_SEARCH"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=search");
 
 $arParams["PATH_TO_SEARCH_INNER"] = trim($arParams["PATH_TO_SEARCH_INNER"]);
-if (strlen($arParams["PATH_TO_SEARCH_INNER"]) <= 0)
+if ($arParams["PATH_TO_SEARCH_INNER"] == '')
 	$arParams["PATH_TO_SEARCH_INNER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=search");
 
 $arParams["PATH_TO_USER_FRIENDS_ADD"] = trim($arParams["PATH_TO_USER_FRIENDS_ADD"]);
-if(strlen($arParams["PATH_TO_USER_FRIENDS_ADD"])<=0)
+if($arParams["PATH_TO_USER_FRIENDS_ADD"] == '')
 	$arParams["PATH_TO_USER_FRIENDS_ADD"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_friends_add&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_MESSAGE_FORM"] = trim($arParams["PATH_TO_MESSAGE_FORM"]);
-if (strlen($arParams["PATH_TO_MESSAGE_FORM"]) <= 0)
+if ($arParams["PATH_TO_MESSAGE_FORM"] == '')
 	$arParams["PATH_TO_MESSAGE_FORM"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=message_form&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_MESSAGES_CHAT"] = trim($arParams["PATH_TO_MESSAGES_CHAT"]);
-if (strlen($arParams["PATH_TO_MESSAGES_CHAT"]) <= 0)
+if ($arParams["PATH_TO_MESSAGES_CHAT"] == '')
 	$arParams["PATH_TO_MESSAGES_CHAT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=messages_chat&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["SHOW_USERS_WITHOUT_FILTER_SET"] = ($arParams["SHOW_USERS_WITHOUT_FILTER_SET"] == "Y" ? "Y" : "N");
@@ -56,16 +56,16 @@ if(!isset($arParams["CACHE_TIME"]))
 if ($arParams['CACHE_TYPE'] == 'A')
 	$arParams['CACHE_TYPE'] = COption::GetOptionString("main", "component_cache_on", "Y");
 
-$arParams["ITEMS_COUNT"] = IntVal($arParams["ITEMS_COUNT"]);
+$arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
 if ($arParams["ITEMS_COUNT"] <= 0)
 	$arParams["ITEMS_COUNT"] = 20;
 
 $arParams['SHOW_YEAR'] = $arParams['SHOW_YEAR'] == 'Y' ? 'Y' : ($arParams['SHOW_YEAR'] == 'M' ? 'M' : 'N');
 
 $arParams["DATE_TIME_FORMAT"] = Trim($arParams["DATE_TIME_FORMAT"]);
-$arParams["DATE_TIME_FORMAT"] = ((StrLen($arParams["DATE_TIME_FORMAT"]) <= 0) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
+$arParams["DATE_TIME_FORMAT"] = (($arParams["DATE_TIME_FORMAT"] == '') ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 
-if (strlen($arParams["NAME_TEMPLATE"]) <= 0)
+if ($arParams["NAME_TEMPLATE"] == '')
 	$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 $bUseLogin = $arParams['SHOW_LOGIN'] != "N" ? true : false;
 
@@ -120,16 +120,16 @@ if ($arParams["SET_NAV_CHAIN"] != "N")
 
 $arResult["Urls"]["UserSearch"] = (\Bitrix\Main\ModuleManager::isModuleInstalled('intranet') ? $APPLICATION->GetCurPage() : CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_SEARCH_INNER"], array()));
 $arResult["Params"]["UserSearch"] = array();
-if (StrPos($arResult["Urls"]["UserSearch"], "?") !== false)
+if (mb_strpos($arResult["Urls"]["UserSearch"], "?") !== false)
 {
-	$str = SubStr($arResult["Urls"]["UserSearch"], StrPos($arResult["Urls"]["UserSearch"], "?") + 1);
+	$str = mb_substr($arResult["Urls"]["UserSearch"], mb_strpos($arResult["Urls"]["UserSearch"], "?") + 1);
 	$arStr = Explode("&", $str);
 	foreach ($arStr as $str)
 	{
 		$str = Trim($str);
-		$p = StrPos($str, "=");
-		if (StrLen($str) > 0 && $p !== false)
-			$arResult["Params"]["UserSearch"][htmlspecialcharsbx(SubStr($str, 0, $p))] = htmlspecialcharsbx(SubStr($str, $p + 1));
+		$p = mb_strpos($str, "=");
+		if ($str <> '' && $p !== false)
+			$arResult["Params"]["UserSearch"][htmlspecialcharsbx(mb_substr($str, 0, $p))] = htmlspecialcharsbx(mb_substr($str, $p + 1));
 	}
 }
 $arResult["Urls"]["ViewList"] = htmlspecialcharsbx($APPLICATION->GetCurPageParam("current_view=list", array("current_view")));
@@ -219,18 +219,18 @@ if (!empty($arResTmp))
 	foreach ($arResTmp as $key => $value)
 	{
 		if (in_array($value["FIELD_NAME"], $arParams["USER_PROPERTY_SEARCHABLE"]))
-			$arUserCustomProps[StrToUpper($value["FIELD_NAME"])] = $value;
+			$arUserCustomProps[mb_strtoupper($value["FIELD_NAME"])] = $value;
 	}
 }
 
 foreach ($_REQUEST as $key => $value)
 {
-	if (StrToLower(SubStr($key, 0, 4)) != "flt_")
+	if (mb_strtolower(mb_substr($key, 0, 4)) != "flt_")
 		continue;
-	if (!is_array($value) && StrLen($value) <= 0 || is_array($value) && count($value) <= 0)
+	if (!is_array($value) && $value == '' || is_array($value) && count($value) <= 0)
 		continue;
 
-	$keyTmp = StrToUpper(SubStr($key, 4));
+	$keyTmp = mb_strtoupper(mb_substr($key, 4));
 	if (array_key_exists($keyTmp, $arUserProps))
 	{
 		if (in_array($keyTmp, $arParams["USER_FIELDS_SEARCHABLE"]))
@@ -263,7 +263,7 @@ if (count($arParams["USER_FIELDS_SEARCH_SIMPLE"]) > 0 || count($arParams["USER_F
 			&& (in_array($userFieldName, $arParams["USER_FIELDS_SEARCH_SIMPLE"])
 				|| in_array($userFieldName, $arParams["USER_FIELDS_SEARCH_ADV"])))
 		{
-			$requestName = StrToLower("FLT_".$userFieldName);
+			$requestName = mb_strtolower("FLT_".$userFieldName);
 			$arVal = array(
 				"VALUE" => htmlspecialcharsex(array_key_exists($requestName, $_REQUEST) ? $_REQUEST[$requestName] : ""),
 				"NAME" => $requestName,
@@ -314,11 +314,11 @@ if (count($arParams["USER_PROPERTIES_SEARCH_SIMPLE"]) > 0 || count($arParams["US
 	{
 		if (in_array($fieldName, $arParams["USER_PROPERTY_SEARCHABLE"]))
 		{
-			$arUserField["EDIT_FORM_LABEL"] = StrLen($arUserField["EDIT_FORM_LABEL"]) > 0 ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
+			$arUserField["EDIT_FORM_LABEL"] = $arUserField["EDIT_FORM_LABEL"] <> '' ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
 			$arUserField["EDIT_FORM_LABEL"] = htmlspecialcharsEx($arUserField["EDIT_FORM_LABEL"]);
 			$arUserField["~EDIT_FORM_LABEL"] = $arUserField["EDIT_FORM_LABEL"];
-			$arUserField["FIELD_NAME"] = StrToLower("FLT_".$fieldName);
-			$arUserField["~FIELD_NAME"] = StrToLower("FLT_".$fieldName);
+			$arUserField["FIELD_NAME"] = mb_strtolower("FLT_".$fieldName);
+			$arUserField["~FIELD_NAME"] = mb_strtolower("FLT_".$fieldName);
 			if (in_array($fieldName, $arParams["USER_PROPERTIES_SEARCH_SIMPLE"]))
 				$arResult["UserPropertiesSearchSimple"][$fieldName] = $arUserField;
 			if (in_array($fieldName, $arParams["USER_PROPERTIES_SEARCH_ADV"]))
@@ -333,7 +333,7 @@ $bFilter = false;
 
 foreach ($_REQUEST as $key => $value)
 {
-	if (StrToLower(SubStr($key, 0, 4)) != "flt_")
+	if (mb_strtolower(mb_substr($key, 0, 4)) != "flt_")
 		continue;
 	if (Is_Array($value))
 	{
@@ -360,7 +360,7 @@ foreach ($_REQUEST as $key => $value)
 			
 			if (
 				(Is_Array($val) && Count($val) > 0)
-				|| (!Is_Array($val) && StrLen($val) > 0)
+				|| (!Is_Array($val) && $val <> '')
 			)
 				$value[] = $val;
 		}
@@ -371,11 +371,11 @@ foreach ($_REQUEST as $key => $value)
 	else
 	{
 		$value = preg_replace('#[\(\)]#', '', $value);
-		if (StrLen($value) <= 0)
+		if ($value == '')
 			continue;
 	}
 
-	$keyTmp = StrToUpper(SubStr($key, 4));
+	$keyTmp = mb_strtoupper(mb_substr($key, 4));
 	if ($keyTmp == "FIO")
 	{
 		$arFilter["NAME"] = $value;
@@ -561,16 +561,16 @@ if ($arResult["ShowResults"])
 						switch ($userFieldName)
 						{
 							case 'EMAIL':
-								if (StrLen($val) > 0)
+								if ($val <> '')
 									$val = '<a href="mailto:'.$val.'">'.$val.'</a>';
 								break;
 
 							case 'PERSONAL_WWW':
 							case 'WORK_WWW':
-								if (StrLen($val) > 0)
+								if ($val <> '')
 								{
 									$valLink = $val;
-									if (StrToLower(SubStr($val, 0, StrLen("http://"))) != "http://")
+									if (mb_strtolower(mb_substr($val, 0, mb_strlen("http://"))) != "http://")
 										$valLink = "http://".$val;
 									$val = '<a href="'.$valLink.'" target="_blank">'.$val.'</a>';
 								}
@@ -578,12 +578,12 @@ if ($arResult["ShowResults"])
 
 							case 'PERSONAL_COUNTRY':
 							case 'WORK_COUNTRY':
-								if (StrLen($val) > 0)
+								if ($val <> '')
 									$val = GetCountryByID($val);
 								break;
 
 							case 'PERSONAL_ICQ':
-								if (StrLen($val) > 0)
+								if ($val <> '')
 									$val = $val.' <img src="http://web.icq.com/whitepages/online?icq='.$val.'&img=5" alt="" />';
 								break;
 
@@ -592,7 +592,7 @@ if ($arResult["ShowResults"])
 							case 'PERSONAL_MOBILE':
 							case 'WORK_PHONE':
 							case 'WORK_FAX':
-								if (StrLen($val) > 0)
+								if ($val <> '')
 								{
 									$valEncoded = preg_replace('/[^\d\+]+/', '', $val);
 									$val = '<a href="callto:'.$valEncoded.'">'.$val.'</a>';
@@ -604,7 +604,7 @@ if ($arResult["ShowResults"])
 								break;
 
 							case 'PERSONAL_BIRTHDAY':
-								if (StrLen($val) > 0)
+								if ($val <> '')
 								{
 									$arBirthdayTmp = CSocNetTools::Birthday($val, $arUser['PERSONAL_GENDER'], $arParams['SHOW_YEAR']);
 									$val = $arBirthdayTmp["DATE"];
@@ -632,7 +632,7 @@ if ($arResult["ShowResults"])
 				{
 					if (in_array($fieldName, $arParams["USER_PROPERTY_LIST"]))
 					{
-						$arUserField["EDIT_FORM_LABEL"] = StrLen($arUserField["EDIT_FORM_LABEL"]) > 0 ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
+						$arUserField["EDIT_FORM_LABEL"] = $arUserField["EDIT_FORM_LABEL"] <> '' ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
 						$arUserField["EDIT_FORM_LABEL"] = htmlspecialcharsEx($arUserField["EDIT_FORM_LABEL"]);
 						$arUserField["~EDIT_FORM_LABEL"] = $arUserField["EDIT_FORM_LABEL"];
 						$arUser["UserPropertiesMain"]["DATA"][$fieldName] = $arUserField;

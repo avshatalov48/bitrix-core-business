@@ -403,7 +403,7 @@ class CIBlockParameters
 				{
 					$result["properties"]["MENU"][] = array(
 						"TEXT" => $property["FIELD_NAME"],
-						"ONCLICK" => "$action_function('{=this.property.".strtolower(substr($property["FIELD_NAME"], 3))."}', '$menuID', '$inputID')",
+						"ONCLICK" => "$action_function('{=this.property.".mb_strtolower(mb_substr($property["FIELD_NAME"], 3))."}', '$menuID', '$inputID')",
 					);
 				}
 			}

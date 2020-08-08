@@ -45,7 +45,8 @@ BX.UI.Selector.Search.prototype.beforeSearchHandler = function(params)
 		event.stopPropagation();
 		return event.preventDefault();
 	}
-	else if (
+	else if
+	(
 		event.keyCode == 17 // ctrl
 		|| event.keyCode == 224 // cmd
 		|| event.keyCode == 91 // left cmd
@@ -58,6 +59,22 @@ BX.UI.Selector.Search.prototype.beforeSearchHandler = function(params)
 
 	this.selectorManager.statuses.searchStarted = true;
 
+	var navigationKeys = this.selectorInstance.getNavigationInstance().keys;
+
+	if (
+		this.selectorInstance.isSearchOpen() &&
+		(
+			event.keyCode == navigationKeys.up
+			|| event.keyCode == navigationKeys.down
+			|| event.keyCode == navigationKeys.left
+			|| event.keyCode == navigationKeys.right
+		)
+	)
+	{
+		event.stopPropagation();
+		event.preventDefault();
+		return false;
+	}
 	return true;
 };
 
@@ -849,7 +866,7 @@ BX.UI.Selector.Search.prototype.runSearch = function(params)
 			{
 				if (
 					this.selectorInstance.popups.search != null
-					&& this.selectorInstance.popups.isShown
+					&& this.selectorInstance.popups.search.isShown()
 				)
 				{
 					if (BX(this.selectorInstance.nodes.searchContent))
@@ -867,7 +884,10 @@ BX.UI.Selector.Search.prototype.runSearch = function(params)
 				}
 				else
 				{
-					this.selectorInstance.popups.search.destroy();
+					if (this.selectorInstance.popups.search != null)
+					{
+						this.selectorInstance.popups.search.destroy();
+					}
 					this.selectorInstance.openSearch({
 						itemsList: itemsList
 					});

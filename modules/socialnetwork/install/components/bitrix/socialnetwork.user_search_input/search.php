@@ -18,7 +18,7 @@ if (
 					Array_Walk($item, '__UnEscapeTmp');
 				else
 				{
-					if (StrPos($item, "%u") !== false)
+					if (mb_strpos($item, "%u") !== false)
 						$item = $GLOBALS["APPLICATION"]->UnJSEscape($item);
 				}
 			}
@@ -32,10 +32,10 @@ if (
 			list($key, $val) = Explode(":", $param);
 			$arParams[$key] = $val;
 		}
-		$arParams["pe"] = IntVal($arParams["pe"]);
+		$arParams["pe"] = intval($arParams["pe"]);
 		if ($arParams["pe"] <= 0 || $arParams["pe"] > 50)
 			$arParams["pe"] = 10;
-		$arParams["gf"] = IntVal($arParams["gf"]);
+		$arParams["gf"] = intval($arParams["gf"]);
 
 		$signer = new \Bitrix\Main\Security\Sign\Signer;
 

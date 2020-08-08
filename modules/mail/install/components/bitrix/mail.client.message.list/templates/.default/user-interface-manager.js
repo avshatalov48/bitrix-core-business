@@ -8,37 +8,29 @@
 		this.userHasCrmActivityPermission = options.userHasCrmActivityPermission;
 		this.spamDir = options.spamDir;
 		this.outcomeDir = options.outcomeDir;
+		this.inboxDir = options.inboxDir;
 		this.trashDir = options.trashDir;
-		this.taskViewUrlTemplate = options.taskViewUrlTemplate;
-		this.taskViewUrlIdForReplacement = options.taskViewUrlIdForReplacement;
+		this.PATH_TO_USER_TASKS_TASK = options.PATH_TO_USER_TASKS_TASK;
+		this.PATH_TO_USER_BLOG_POST = options.PATH_TO_USER_BLOG_POST;
 		this.ENTITY_TYPE_NO_BIND = options.ENTITY_TYPE_NO_BIND;
 		this.ENTITY_TYPE_CRM_ACTIVITY = options.ENTITY_TYPE_CRM_ACTIVITY;
 		this.ENTITY_TYPE_TASKS_TASK = options.ENTITY_TYPE_TASKS_TASK;
-		this.mailboxMenu = options.mailboxMenu;
+		this.ENTITY_TYPE_BLOG_POST = options.ENTITY_TYPE_BLOG_POST;
 		this.settingsMenu = options.settingsMenu;
-		this.unreadCounterSelector = '[data-role="unreadCounter"]';
-		this.emptyCountersTitleSelector = '[data-role="emptyCountersTitle"]';
 		this.readActionBtnRole = 'read-action';
 		this.spamActionBtnRole = 'spam-action';
 		this.crmActionBtnRole = 'crm-action';
 		this.hideClassName = 'main-ui-hide';
-		this.countersBlock = document.querySelector('#mail-msg-counter-title');
 		this.mailboxMenuToggle = document.querySelector('[data-role="mailbox-current-title"]');
 		this.settingsToggle = document.querySelector('[data-role="mail-list-settings-menu-popup-toggle"]');
-		this.totalUnseen = document.querySelector('[data-role="unseen-total"]');
-		this.mailboxesUnseen = {};
-		for (var i = 0; i < this.mailboxMenu.length; i++)
-		{
-			if (!(this.mailboxMenu[i] && this.mailboxMenu[i].dataset))
-			{
-				continue;
-			}
-			this.mailboxesUnseen[this.mailboxMenu[i].dataset.mailboxId] = this.mailboxMenu[i].dataset.unseen;
-		}
+		this.mailboxMenuCurrentUnseenCounter = document.querySelector('[data-role="unseen-total"]');
+		this.mailboxPopupMenuId = 'mail-msg-list-mailbox-menu';
 		this.UNREAD_COUNTER_TYPE = 'unread';
 		this.isCurrentFolderSpam = false;
 		this.isCurrentFolderTrash = false;
 		this.isCurrentFolderOutcome = false;
+		this.setLastDir();
+		this.initMailboxes(options.mailboxMenu);
 		this.setCurrentFolderFlags(this.getFilterInstance());
 		this.addEventHandlers();
 		this.updateLeftMenuCounter();
@@ -46,6 +38,22 @@
 	};
 
 	BX.Mail.Client.Message.List.UserInterfaceManager.prototype = {
+		initMailboxes: function (mailboxMenu)
+		{
+			this.mailboxMenu = mailboxMenu;
+
+			this.mailboxesUnseen = {};
+			for (var i = 0; i < this.mailboxMenu.length; i++)
+			{
+				if (!(this.mailboxMenu[i] && this.mailboxMenu[i].dataset))
+				{
+					continue;
+				}
+				this.mailboxesUnseen[this.mailboxMenu[i].dataset.mailboxId] = this.mailboxMenu[i].dataset.unseen;
+			}
+
+			BX.Main.MenuManager.destroy(this.mailboxPopupMenuId);
+		},
 		addEventHandlers: function ()
 		{
 			if (this.mailboxMenuToggle)
@@ -167,11 +175,25 @@
 						{
 							case this.ENTITY_TYPE_TASKS_TASK:
 								bindNode = BX.create('a', {
-									attrs: {href: this.taskViewUrlTemplate.replace(new RegExp(this.taskViewUrlIdForReplacement, 'g'), params.entityId)},
+									attrs: {href: this.PATH_TO_USER_TASKS_TASK.replace('#action#', 'view').replace('#task_id#', params.entityId)},
 									children: [
 										BX.create('span', {
 											dataset: {type: params.entityType},
 											text: BX.message('MAIL_MESSAGE_LIST_COLUMN_BIND_TASKS_TASK')
+										})
+									]
+								});
+								break;
+							case this.ENTITY_TYPE_BLOG_POST:
+								bindNode = BX.create('a', {
+									attrs: {
+										'href': this.PATH_TO_USER_BLOG_POST.replace('#post_id#', params.entityId),
+										'onclick': 'top.BX.SidePanel.Instance.open(this.href, {loader: \'socialnetwork:userblogpost\'}); return false; '
+									},
+									children: [
+										BX.create('span', {
+											'dataset': {'type': params.entityType},
+											'text': BX.message('MAIL_MESSAGE_LIST_COLUMN_BIND_BLOG_POST')
 										})
 									]
 								});
@@ -224,69 +246,73 @@
 				return;
 			}
 
-			var gridHeaderCheckbox = this.getGridHeaderCheckbox();
-			if (!gridHeaderCheckbox)
-			{
-				return;
-			}
-
 			var gridInstance = BX.Main.gridManager.getById(this.gridId).instance;
 
-			var gridHeaderCheckboxClone = gridHeaderCheckbox.cloneNode(true);
-
-			var checkboxCloneInput = BX.findChildByClassName(gridHeaderCheckboxClone, 'main-grid-check-all', true);
-			checkboxCloneInput.removeAttribute('id');
-
-			BX.bind(
-				checkboxCloneInput,
-				'change',
-				gridInstance._clickOnCheckAll.bind(gridInstance)
-				//gridInstance.getRows()[this.checked?'selectAll':'unselectAll']();
+			var checkbox = BX.create(
+				'input',
+				{
+					'props': {
+						'type': 'checkbox',
+						'disabled': gridInstance.getRows().getCountDisplayed() == 0
+					},
+					'style': {
+						'verticalAlign': 'middle'
+					}
+				}
 			);
 
-			var updateCloneState = function (row, grid)
-			{
-				if (grid === gridInstance)
+			var container = BX.create(
+				'span',
 				{
-					checkboxCloneInput.checked = grid.getRows().getBodyChild().length > 0 && grid.getRows().isAllSelected();
+					'style': {
+						'display': 'inline-block',
+						'height': '100%',
+						'paddingLeft': '10px'
+					},
+					'children': [
+						checkbox,
+						BX.create(
+							'span',
+							{
+								'style': {
+									'display': 'inline-block',
+									'height': '100%',
+									'verticalAlign': 'middle'
+								}
+							}
+						)
+					]
 				}
+			);
+
+			var getCheckAllCheckboxes = gridInstance.getCheckAllCheckboxes.bind(gridInstance);
+			gridInstance.getCheckAllCheckboxes = function ()
+			{
+				var list = getCheckAllCheckboxes();
+
+				list.push(new BX.Grid.Element(checkbox));
+
+				return list;
 			};
 
-			BX.addCustomEvent('Grid::selectRow', updateCloneState);
-			BX.addCustomEvent('Grid::unselectRow', updateCloneState);
-
-			BX.addCustomEvent(
-				'BX.UI.ActionPanel:hidePanel',
-				function ()
-				{
-					setTimeout(updateCloneState.bind(null, null, gridInstance), 0);
-				}
-			);
-
-			BX.addCustomEvent(
-				'Grid::disabled',
-				function (grid)
-				{
-					if (grid === gridInstance)
+			var enableCheckAllCheckboxes = gridInstance.enableCheckAllCheckboxes.bind(gridInstance);
+			gridInstance.enableCheckAllCheckboxes = function ()
+			{
+				setTimeout(
+					function ()
 					{
-						checkboxCloneInput.checked = false;
-						checkboxCloneInput.disabled = true;
-					}
-				}
-			);
+						if (gridInstance.getRows().getCountDisplayed() > 0)
+						{
+							enableCheckAllCheckboxes();
+						}
+					},
+					0
+				);
+			};
 
-			BX.addCustomEvent(
-				'Grid::enabled',
-				function (grid)
-				{
-					if (grid === gridInstance)
-					{
-						checkboxCloneInput.disabled = false;
-					}
-				}
-			);
+			gridInstance.bindOnCheckAll();
 
-			targetNode.insertBefore(gridHeaderCheckboxClone, targetNode.firstChild);
+			targetNode.insertBefore(container, targetNode.firstChild);
 		},
 		getGridHeaderCheckbox: function ()
 		{
@@ -450,8 +476,8 @@
 		},
 		onMailboxMenuClick: function ()
 		{
-			var popup = BX.PopupMenu.create(
-				'mail-msg-list-mailbox-menu',
+			var popup = BX.Main.MenuManager.create(
+				this.mailboxPopupMenuId,
 				this.mailboxMenuToggle,
 				this.mailboxMenu,
 				{
@@ -463,16 +489,42 @@
 
 			popup.popupWindow.isShown() ? popup.close() : popup.show();
 		},
-		updateUnreadCounters: function (readNumber)
+		closeMailboxMenu: function ()
 		{
-			this.updateCounter(this.UNREAD_COUNTER_TYPE, readNumber);
-			this.updateMailboxUnseenCounter(readNumber);
-			this.updateTotalUnseenCounter(readNumber);
+			var popup = BX.Main.MenuManager.getMenuById(this.mailboxPopupMenuId);
+
+			if (popup)
+			{
+				popup.close();
+			}
+		},
+		updateUnreadCounters: function (seenNumber)
+		{
+			var currentFolder = this.getCurrentFolder();
+			this.updateTotalUnseenCounter(seenNumber);
+
+			if ([this.spamDir, this.trashDir].includes(currentFolder))
+			{
+				this.updateMailboxMenuUnseenCounter(seenNumber, false);
+				this.updateQuickFilterUnseenCounter(seenNumber);
+				return
+			}
+
+			this.updateMailboxMenuCurrentUnseenCounter();
+			this.updateMailboxMenuUnseenCounter(seenNumber);
+			this.updateQuickFilterUnseenCounter(seenNumber);
+			this.updateLeftMenuCounter();
+		},
+		updateTotalUnreadCounters: function (count, gridCount)
+		{
+			this.setTotalUnseenCounter(count);
+			this.setMailboxMenuCurrentUnseenCounter(count);
+			this.setQuickFilterUnseenCounter(gridCount);
 			this.updateLeftMenuCounter();
 		},
 		updateLeftMenuCounter: function ()
 		{
-			var unseen = this.getTotalUnseen();
+			var unseen = this.getTotalUnseenCounter();
 			if (typeof top.B24 === "object" && typeof top.B24.updateCounters === "function" && unseen > 0)
 			{
 				top.B24.updateCounters({mail_unseen: unseen});
@@ -489,99 +541,30 @@
 				}
 			}
 		},
-		updateTotalUnseenCounter: function (readNumber)
+		updateTotalUnseenCounter: function (seenNumber)
 		{
-			this.totalUnseen.textContent = parseInt(this.totalUnseen.textContent) + readNumber;
-			if (this.totalUnseen.textContent > 0)
-			{
-				this.showElement(this.totalUnseen);
-			}
-			else
-			{
-				this.hideElement(this.totalUnseen);
-			}
+			var currentUnseen = this.getTotalUnseenCounter();
+			var count = parseInt(currentUnseen) + parseInt(seenNumber);
+			this.setTotalUnseenCounter(count);
 		},
 		updateMailboxUnseenCounter: function (seenNumber)
 		{
-			var currentMailbox = document.querySelector('[data-role="mailbox-current-title"]');
-			if (currentMailbox && currentMailbox.dataset && currentMailbox.dataset.mailboxId)
-			{
-				var currentUnseen = this.mailboxesUnseen[currentMailbox.dataset.mailboxId];
-				this.mailboxesUnseen[currentMailbox.dataset.mailboxId] = parseInt(currentUnseen) + parseInt(seenNumber);
-				for (var i = 0; i < this.mailboxMenu.length; i++)
-				{
-					if (this.mailboxMenu[i] && this.mailboxMenu[i].text && this.mailboxMenu[i].dataset
-						&& this.mailboxMenu[i].dataset.mailboxId == currentMailbox.dataset.mailboxId)
-					{
-						this.mailboxMenu[i].text = this.mailboxMenu[i].text.replace(
-							/[0-9]+<\/span>/g,
-							this.mailboxesUnseen[currentMailbox.dataset.mailboxId].toString() + '</span>'
-						);
-						if (this.mailboxesUnseen[currentMailbox.dataset.mailboxId] > 0)
-						{
-							this.mailboxMenu[i].text = this.mailboxMenu[i].text.replace(
-								/main-ui-hide/g,
-								'js-unseen-mailbox'
-							);
-						}
-						else
-						{
-							this.mailboxMenu[i].text = this.mailboxMenu[i].text.replace(
-								/js-unseen-mailbox/g,
-								this.hideClassName
-							);
-						}
-						break;
-					}
-				}
-			}
+			this.updateMailboxMenuUnseenCounter(seenNumber);
 		},
 		getTotalUnseen: function ()
 		{
-			var unseen = this.totalUnseen;
-			if (unseen)
-			{
-				return unseen.textContent;
-			}
-			return 0;
+			return this.getTotalUnseenCounter();
+		},
+		getTotalUnseenCounter: function ()
+		{
+			var currentMailboxId = this.getCurrentMailboxId();
+			return this.mailboxesUnseen[currentMailboxId] || 0;
 		},
 		updateCounter: function (type, changedNumber)
 		{
-			var cntNumberSelector = null, cntBlockSelector;
 			if (type === this.UNREAD_COUNTER_TYPE)
 			{
-				cntNumberSelector = '[data-role="unread-counter-number"]';
-				cntBlockSelector = this.unreadCounterSelector;
-			}
-
-			var counter = document.querySelector(cntNumberSelector);
-			if (counter)
-			{
-				var currentNumber = counter.textContent;
-				var newAmount = parseInt(currentNumber) + parseInt(changedNumber);
-				if (newAmount > 0)
-				{
-					counter.textContent = newAmount.toString();
-					this.showElement(document.querySelector(cntBlockSelector));
-				}
-				else
-				{
-					counter.textContent = '0';
-					this.hideElement(document.querySelector(cntBlockSelector));
-				}
-				this.updateCountersBlock();
-			}
-		},
-		updateCountersBlock: function ()
-		{
-			var unread = document.querySelector(this.unreadCounterSelector);
-			if (this.isVisible(unread))
-			{
-				this.hideElement(document.querySelector(this.emptyCountersTitleSelector));
-			}
-			else
-			{
-				this.showElement(document.querySelector(this.emptyCountersTitleSelector));
+				this.updateQuickFilterUnseenCounter(changedNumber)
 			}
 		},
 		changeMessageRead: function (selectedIds, params)
@@ -616,6 +599,7 @@
 		},
 		handleGridSelectItem: function ()
 		{
+			this.updateSeenAllBtn();
 			this.updateSeenBtn();
 			this.updateCrmBtn();
 			this.updateSpamBtn();
@@ -630,22 +614,23 @@
 		},
 		activateBtn: function (activatingBtnRole, show)
 		{
-			var activeBtnTitles = document.querySelectorAll('[data-role^="' + activatingBtnRole + '"]');
-			Array.prototype.slice.call(activeBtnTitles, 0).forEach(function (btnTitle)
-			{
-				var activeBtn = BX.findParent(btnTitle, {className: "ui-action-panel-item"});
-				activeBtn = activeBtn ? activeBtn : BX.findParent(btnTitle, {className: 'main-grid-row'});
-				show === undefined || show === true ? this.showElement(activeBtn) : this.hideElement(activeBtn);
+			show = show === undefined || show === true;
 
-			}.bind(this));
+			this.toggleButton(activatingBtnRole, show);
+			this.toggleButton('not-' + activatingBtnRole, !show);
+		},
+		toggleButton: function(role, show)
+		{
+			var buttons = document.querySelectorAll('[data-role^="' + role + '"]');
 
-			var inactiveBtnTitles = document.querySelectorAll('[data-role^="not-' + activatingBtnRole + '"]');
-			Array.prototype.slice.call(inactiveBtnTitles, 0).forEach(function (btnTitle)
-			{
-				var inactiveBtn = BX.findParent(btnTitle, {className: "ui-action-panel-item"});
-				inactiveBtn = inactiveBtn ? inactiveBtn : BX.findParent(btnTitle, {className: 'main-grid-row'});
-				show === undefined || show === true ? this.hideElement(inactiveBtn) : this.showElement(inactiveBtn);
-			}.bind(this));
+			Array.prototype.slice.call(buttons, 0).forEach(
+				function (title)
+				{
+					var button = BX.findParent(title, {className: "ui-action-panel-item"});
+					button = button ? button : BX.findParent(title, {className: 'main-grid-row'});
+					show ? this.showElement(button) : this.hideElement(button);
+				}.bind(this)
+			);
 		},
 		updateCrmBtn: function ()
 		{
@@ -693,9 +678,23 @@
 				this.disActivateBtn(this.readActionBtnRole);
 			}
 		},
-		setDefaultBtnTitles: function ()
+		updateSeenAllBtn: function ()
 		{
-			this.activateBtn(this.readActionBtnRole);
+			this.toggleButton('read-all-action', this.getGridInstance().getRows().getSelected().length == 0);
+		},
+		setDefaultBtnTitles: function (panel)
+		{
+			if (panel && document.querySelectorAll('[data-role^="read-all-action"]').length == 0)
+			{
+				panel.buildPanelByGroup();
+			}
+
+			var popup = BX.Main.MenuManager.getMenuById('ui-action-panel-item-popup-menu');
+			popup && popup.close();
+
+			this.toggleButton('read-all-action', true);
+			this.toggleButton(this.readActionBtnRole, false);
+			this.toggleButton('not-' + this.readActionBtnRole, false);
 			this.activateBtn(this.crmActionBtnRole);
 			this.updateSpamBtn();
 
@@ -755,6 +754,220 @@
 					(filterInstance.getFilterFieldsValues() && filterInstance.getFilterFieldsValues()['DIR'] === this.outcomeDir)
 				)
 			);
+		},
+		getLastDir: function ()
+		{
+			return this.lastDir;
+		},
+		setLastDir: function ()
+		{
+			this.lastDir = this.getCurrentFolder();
+		},
+		getCurrentFolder: function ()
+		{
+			var filter = this.getFilterInstance();
+			var dir = filter.getFilterFieldsValues()['DIR'];
+
+			return dir || this.inboxDir;
+		},
+		getCurrentMailboxId: function ()
+		{
+			var currentMailbox = document.querySelector('[data-role="mailbox-current-title"]');
+			return currentMailbox && currentMailbox.dataset && currentMailbox.dataset.mailboxId ? currentMailbox.dataset.mailboxId : null;
+		},
+		setTotalUnseenCounter: function (count)
+		{
+			var currentMailboxId = this.getCurrentMailboxId();
+			this.mailboxesUnseen[currentMailboxId] = count;
+		},
+		updateMailboxMenuCurrentUnseenCounter: function ()
+		{
+			var unseen = this.getTotalUnseenCounter();
+			this.setMailboxMenuCurrentUnseenCounter(unseen);
+		},
+		updateMailboxMenuUnseenCounter: function (seenNumber, updateTitleMenu)
+		{
+			if (typeof updateTitleMenu == 'undefined')
+			{
+				updateTitleMenu = true;
+			}
+
+			var currentMailboxId = this.getCurrentMailboxId();
+			var currentUnseen = this.getTotalUnseenCounter();
+
+			if (!currentMailboxId)
+			{
+				return;
+			}
+
+			for (var i = 0; i < this.mailboxMenu.length; i++)
+			{
+				if (this.mailboxMenu[i] && this.mailboxMenu[i].text && this.mailboxMenu[i].dataset
+					&& this.mailboxMenu[i].dataset.mailboxId == currentMailboxId)
+				{
+					this.mailboxMenu[i] = this.updateMailboxMenuItemUnseenCounter(
+						this.mailboxMenu[i],
+						seenNumber,
+						currentUnseen,
+						updateTitleMenu
+					);
+
+					BX.Main.MenuManager.destroy(this.mailboxPopupMenuId);
+					break;
+				}
+			}
+		},
+		updateQuickFilterUnseenCounter: function (seenNumber)
+		{
+			var currentUnseen = this.getQuickFilterUnseenCounter();
+			var count = parseInt(currentUnseen) + parseInt(seenNumber);
+			this.setQuickFilterUnseenCounter(count);
+		},
+		setQuickFilterUnseenCounter: function (count)
+		{
+			var counter = document.querySelector('[data-role="unread-counter-number"]');
+			var containerSelector = document.querySelector('[data-role="unreadCounter"]');
+			var emptyContainerSelector = document.querySelector('[data-role="emptyCountersTitle"]');
+
+			if (!counter)
+			{
+				return;
+			}
+
+			if (count > 0)
+			{
+				counter.textContent = count;
+				this.showElement(containerSelector);
+				this.hideElement(emptyContainerSelector);
+			}
+			else
+			{
+				counter.textContent = '0';
+				this.hideElement(containerSelector);
+				this.showElement(emptyContainerSelector);
+			}
+		},
+		getQuickFilterUnseenCounter: function ()
+		{
+			var counter = document.querySelector('[data-role="unread-counter-number"]');
+
+			return counter ? counter.textContent : 0;
+		},
+		setMailboxMenuCurrentUnseenCounter: function (count)
+		{
+			this.mailboxMenuCurrentUnseenCounter.textContent = count;
+
+			if (count > 0)
+			{
+				this.showElement(this.mailboxMenuCurrentUnseenCounter);
+			}
+			else
+			{
+				this.hideElement(this.mailboxMenuCurrentUnseenCounter);
+			}
+		},
+		updateMailboxMenuItemUnseenCounter: function (mailboxMenu, seenNumber, count, updateTitleMenu)
+		{
+			if (updateTitleMenu)
+			{
+				mailboxMenu = this.setMailboxTitleMenuUnseenCounter(
+					mailboxMenu,
+					count
+				);
+			}
+
+			if (!mailboxMenu.items)
+			{
+				return mailboxMenu;
+			}
+
+			mailboxMenu.items = this.updateMailboxSubMenuUnseenCounter(
+				mailboxMenu.items,
+				seenNumber
+			);
+
+			return mailboxMenu;
+		},
+		setMailboxTitleMenuUnseenCounter: function (mailboxMenu, count)
+		{
+			var className = this.hideClassName;
+			if (count > 0)
+			{
+				className = '';
+
+				if (typeof mailboxMenu.dataset.path != 'undefined')
+				{
+					if (mailboxMenu.unseen == 0)
+					{
+						className += ' mail-msg-list-menu-child-counter';
+					}
+
+					if (!mailboxMenu.dataset.isCounted)
+					{
+						className += ' mail-msg-list-menu-fake-counter';
+					}
+				}
+			}
+
+			var find = /<span class="(main-buttons-item-counter)[\w -]*">[0-9]+<\/span>/g;
+			var replace = '<span class="main-buttons-item-counter ' + className + '">' + count + '</span>';
+
+			if (mailboxMenu.text.match(find))
+			{
+				mailboxMenu.text = mailboxMenu.text.replace(
+					find,
+					replace
+				);
+			}
+			else
+			{
+				mailboxMenu.text += '&nbsp;' + replace;
+			}
+
+			mailboxMenu.dataset.unseen = count;
+
+			return mailboxMenu;
+		},
+		updateMailboxSubMenuUnseenCounter: function (mailboxSubMenu, seenNumber)
+		{
+			var currentFolder = this.getCurrentFolder();
+			for (var j = 0; j < mailboxSubMenu.length; j++)
+			{
+				var subMenuId = mailboxSubMenu[j].id;
+				var delimiter = mailboxSubMenu[j].dataset.delimiter || '';
+
+				if (delimiter && currentFolder.indexOf(subMenuId + delimiter) === 0
+					|| currentFolder.localeCompare(subMenuId) === 0)
+				{
+					if (currentFolder.localeCompare(subMenuId) === 0)
+					{
+						mailboxSubMenu[j].unseen += parseInt(seenNumber);
+					}
+					else
+					{
+						mailboxSubMenu[j].items_unseen += parseInt(seenNumber);
+					}
+
+					var totalUnseen = parseInt(mailboxSubMenu[j].unseen) + parseInt(mailboxSubMenu[j].items_unseen);
+
+					mailboxSubMenu[j] = this.setMailboxTitleMenuUnseenCounter(
+						mailboxSubMenu[j],
+						totalUnseen
+					);
+
+					if (!mailboxSubMenu[j].items)
+					{
+						continue;
+					}
+
+					mailboxSubMenu[j].items = this.updateMailboxSubMenuUnseenCounter(
+						mailboxSubMenu[j].items,
+						seenNumber
+					);
+				}
+			}
+
+			return mailboxSubMenu;
 		},
 		isVisible: function (element)
 		{

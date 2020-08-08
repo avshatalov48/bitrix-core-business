@@ -167,7 +167,10 @@ $fieldPrefix = 'CONFIGURATION_';
 			$inputDisplay = '';
 			$isEditor = false;
 			$isCustomCaption = false;
-			$optionType = strlen($inputView) == 0 ? $option['type'] : ConOpt::TYPE_CUSTOM;
+			$loadHtml = false;
+			$maxLength = isset($option['max_length']) ? "maxlength='".$option['max_length']."'":"";
+
+			$optionType = $inputView == '' ? $option['type'] : ConOpt::TYPE_CUSTOM;
 			switch ($optionType)
 			{
 				case ConOpt::TYPE_FILE:
@@ -189,6 +192,18 @@ $fieldPrefix = 'CONFIGURATION_';
 						"cloud" => true
 					)
 					))->show($fileParameters);
+				break;
+				case ConOpt::TYPE_DATE_TIME:
+					$inputHtml = "<input type='text' id='".$inputName."' name='".$inputName."' 
+					class='bx-sender-form-control' value='".$inputValue."'
+					onclick=\"BX.calendar({node: this, field: this, bTime: true,bHideTime:false});\"
+					".$option["required"]."
+					/>";
+				break;
+				case ConOpt::TYPE_NUMBER:
+					$inputHtml = "<input type='number' step='1' id='".$inputName."' name='".$inputName."'
+					class='bx-sender-form-control' value='".$inputValue."'/>";
+				break;
 
 					/*
 					ob_start();
@@ -260,6 +275,7 @@ $fieldPrefix = 'CONFIGURATION_';
 					);
 					$inputHtml = ob_get_clean();
 					$isEditor = true;
+					$loadHtml = true;
 					break;
 
 				case ConOpt::TYPE_SMS_EDITOR:
@@ -317,7 +333,7 @@ $fieldPrefix = 'CONFIGURATION_';
 					break;
 
 				case ConOpt::TYPE_TEXT:
-					$inputHtml = "<textarea id=\"$inputId\" name=\"$inputName\" placeholder=\"$placeholder\" class=\"bx-sender-form-control bx-sender-message-editor-field-text\">";
+					$inputHtml = "<textarea id=\"$inputId\" name=\"$inputName\" placeholder=\"$placeholder\" class=\"bx-sender-form-control bx-sender-message-editor-field-text\" $maxLength>";
 					$inputHtml .= $inputValue;
 					$inputHtml .= "</textarea>";
 					break;
@@ -334,11 +350,10 @@ $fieldPrefix = 'CONFIGURATION_';
 
 				case ConOpt::TYPE_STRING:
 				default:
-					$inputHtml = "<input type=\"text\" id=\"$inputId\"  name=\"$inputName\" value=\"$inputValue\" class=\"bx-sender-form-control bx-sender-message-editor-field-input\">";
+					$inputHtml = "<input type=\"text\" id=\"$inputId\"  name=\"$inputName\" value=\"$inputValue\" class=\"bx-sender-form-control bx-sender-message-editor-field-input\" $maxLength>";
 					break;
 			}
-
-			?>
+				?>
 			<div data-bx-field="<?=$inputId?>" class="bx-sender-message-editor-field <?=$inputDisplay?>">
 				<div class="bx-sender-caption sender-message-title">
 					<?if (!$isCustomCaption):?>
@@ -346,7 +361,25 @@ $fieldPrefix = 'CONFIGURATION_';
 					<?endif;?>
 				</div>
 				<div data-role="editor-field" class="bx-sender-value">
-					<?=$inputHtml?>
+					<?if($arParams['CAN_EDIT']):?>
+						<?=$inputHtml?>
+					<?elseif($loadHtml):?>
+						<div data-role="bx-sender-view-loader" class="bx-sender-insert-loader">
+							<div class="bx-faceid-tracker-user-loader">
+								<div class="bx-faceid-tracker-user-loader-item">
+									<div class="bx-faceid-tracker-loader">
+										<svg class="bx-faceid-tracker-circular" viewBox="25 25 50 50">
+											<circle class="bx-faceid-tracker-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"></circle>
+										</svg>
+									</div>
+								</div>
+							</div>
+						</div>
+						<iframe data-role="bx-sender-template-iframe" class="bx-sender-message-iframe-full"  height="400"
+								src></iframe>
+					<?else:?>
+						<?=str_replace("<input", "<input disabled", $inputHtml)?>
+					<?endif;?>
 
 					<?if ($hint):?>
 						<?=$hint?>

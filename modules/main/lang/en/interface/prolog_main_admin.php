@@ -12,9 +12,9 @@ $MESS["TRIAL_ATTENTION_TEXT1_1c_bitrix_eduportal"] = "This is trial version of 1
 $MESS["TRIAL_ATTENTION_TEXT1_1c_bitrix_gosportal"] = "This is trial version of 1C-Bitrix Government Portal product.";
 $MESS["TRIAL_ATTENTION_TEXT1_1c_bitrix_gossite"] = "This is trial version of 1C-Bitrix Government Site product.";
 $MESS["TRIAL_ATTENTION_TEXT1_1c_bitrix_portal"] = "This is trial version of 1C-Bitrix Intranet product.";
-$MESS["TRIAL_ATTENTION_TEXT1_ua_bitrix_portal"] = "This is trial version of Bitrix Intranet product.";
 $MESS["TRIAL_ATTENTION_TEXT1_bitrix"] = "This is trial version of Bitrix Site Manager product.";
 $MESS["TRIAL_ATTENTION_TEXT1_bitrix_portal"] = "This is trial version of Bitrix24 product.";
+$MESS["TRIAL_ATTENTION_TEXT1_ua_bitrix_portal"] = "This is trial version of Bitrix Intranet product.";
 $MESS["TRIAL_ATTENTION_TEXT2"] = "Evaluation period expires in";
 $MESS["TRIAL_ATTENTION_TEXT3"] = "days";
 $MESS["TRIAL_ATTENTION_TEXT4_1c_bitrix"] = "Trial period of the Bitrix Site Manager product has expired. This site will completely stop working in two weeks. ";
@@ -22,17 +22,17 @@ $MESS["TRIAL_ATTENTION_TEXT4_1c_bitrix_eduportal"] = "Trial period of the 1C-Bit
 $MESS["TRIAL_ATTENTION_TEXT4_1c_bitrix_gosportal"] = "Trial period of the 1C-Bitrix Government Portal product has expired. This site will completely stop working in two weeks. ";
 $MESS["TRIAL_ATTENTION_TEXT4_1c_bitrix_gossite"] = "Trial period of the 1C-Bitrix Government Site product has expired. This site will completely stop working in two weeks. ";
 $MESS["TRIAL_ATTENTION_TEXT4_1c_bitrix_portal"] = "Trial period of the Bitrix24 product has expired. This site will completely stop working in two weeks.";
-$MESS["TRIAL_ATTENTION_TEXT4_ua_bitrix_portal"] = "Trial period of the Bitrix24 product has expired. This site will completely stop working in two weeks.";
 $MESS["TRIAL_ATTENTION_TEXT4_bitrix"] = "Trial period of the Bitrix Site Manager product has expired. This site will completely stop working in two weeks. ";
 $MESS["TRIAL_ATTENTION_TEXT4_bitrix_portal"] = "Trial period of the Bitrix24 product has expired. This site will completely stop working in two weeks. ";
+$MESS["TRIAL_ATTENTION_TEXT4_ua_bitrix_portal"] = "Trial period of the Bitrix24 product has expired. This site will completely stop working in two weeks.";
 $MESS["TRIAL_ATTENTION_TEXT5_1c_bitrix"] = "You can purchase the full version of Bitrix Site Manager from the <a href=\"http://www.bitrixsoft.com/buy/\">http://www.bitrixsoft.com/buy/</a> page.";
 $MESS["TRIAL_ATTENTION_TEXT5_1c_bitrix_eduportal"] = "You can purchase the full version of 1C-Bitrix Education Portal from the <a href=\"http://www.bitrixsoft.com/buy/\">http://www.bitrixsoft.com/buy/</a> page.";
 $MESS["TRIAL_ATTENTION_TEXT5_1c_bitrix_gosportal"] = "You can purchase the full version of 1C-Bitrix Government Portal from the <a href=\"http://www.bitrixsoft.com/buy/\">http://www.bitrixsoft.com/buy/</a> page.";
 $MESS["TRIAL_ATTENTION_TEXT5_1c_bitrix_gossite"] = "You can purchase the full version of 1C-Bitrix Government Site from the <a href=\"http://www.bitrixsoft.com/buy/\">http://www.bitrixsoft.com/buy/</a> page.";
 $MESS["TRIAL_ATTENTION_TEXT5_1c_bitrix_portal"] = "You can purchase the full version of 1C-Bitrix Intranet from the <a href=\"http://www.bitrixsoft.com/buy/\">http://www.bitrixsoft.com/buy/</a> page.";
-$MESS["TRIAL_ATTENTION_TEXT5_ua_bitrix_portal"] = "You can purchase the full version of 1C-Bitrix Intranet from the <a href=\"https://www.bitrix.ua/buy/intranet.php\">https://www.bitrix.ua/</a> page.";
 $MESS["TRIAL_ATTENTION_TEXT5_bitrix"] = "You can purchase the full version of Bitrix Site Manager from the <a href=\"http://www.bitrixsoft.com/buy/\">http://www.bitrixsoft.com/buy/</a> page.";
 $MESS["TRIAL_ATTENTION_TEXT5_bitrix_portal"] = "You can purchase the full version of Bitrix24 from the <a href=\"https://www.bitrix24.com/prices/self-hosted.php\">https://www.bitrix24.com/prices/self-hosted.php</a> page.";
+$MESS["TRIAL_ATTENTION_TEXT5_ua_bitrix_portal"] = "You can purchase the full version of 1C-Bitrix Intranet from the <a href=\"https://www.bitrix.ua/buy/intranet.php\">https://www.bitrix.ua/</a> page.";
 $MESS["admin_panel_browser"] = "Control Panel doesn't support Internet Explorer 7 or below. Please install a modern browser: <a href=\"http://www.firefox.com\">Firefox</a>, <a href=\"http://www.google.com/chrome/\">Chrome</a>, <a href=\"http://www.opera.com\">Opera</a> or <a href=\"http://www.microsoft.com/windows/internet-explorer/\">Microsoft Edge</a>.";
 $MESS["main_prolog_help"] = "Help";
 $MESS["prolog_admin_headers_sent"] = "Attention! Invalid characters have been detected in the following system file: #FILE#, line #LINE#.";
@@ -43,10 +43,13 @@ $MESS["prolog_main_more_buttons"] = "Enlarge buttons";
 $MESS["prolog_main_show_menu"] = "Show menu";
 $MESS["prolog_main_support1"] = "<span class=\"required\">Attention!</span> Your techsupport and update subscription <b>will expire</b> on #FINISH_DATE#, #DAYS_AGO#. You can buy <a href=\"http://www.bitrixsoft.com/support/key_info.php?license_key=#LICENSE_KEY#\" target=\"_blank\">Early subscription renewal</a> within one month after expiration date.";
 $MESS["prolog_main_support11"] = "<span class=\"required\">Attention!</span> Your techsupport and update subscription <b>will expire</b> on #FINISH_DATE#, #DAYS_AGO#.#WHAT_IS_IT#";
+$MESS["prolog_main_support11_l"] = "<span class=\"required\">Attention!</span> Your license will <b>expire</b> on #FINISH_DATE#, #DAYS_AGO#.#WHAT_IS_IT#<br />Extend your license to receive updates and technical support.";
 $MESS["prolog_main_support2"] = "<span class=\"required\">Attention!</span> Your techsupport and update subscription <b>has expired</b> on #FINISH_DATE#, <b>#DAYS_AGO#&nbsp;days</b> ago. You can buy <a href=\\http://www.bitrixsoft.com/support/key_info.php?license_key=#LICENSE_KEY#\" target=\"_blank\">Early subscription renewal</a> within one month after expiration date.";
 $MESS["prolog_main_support21"] = "<span class=\"required\">Attention!</span> Your techsupport and update subscription has expired on #FINISH_DATE#, <b>#DAYS_AGO#&nbsp;</b> days ago.#WHAT_IS_IT#<br />Your early renewal grace period will end on #SUP_FINISH_DATE#.";
+$MESS["prolog_main_support21_l"] = "<span class=\"required\">Attention!</span> Your license <b>has expired</b> on #FINISH_DATE#, <b>#DAYS_AGO#&nbsp;days</b> ago.#WHAT_IS_IT#<br />Extend your license today to receive updates and technical support.";
 $MESS["prolog_main_support3"] = "<span class=\"required\">Attention!</span> Your techsupport and update subscription <b>has expired</b> on #FINISH_DATE#. You can buy <a href=\"http://www.bitrixsoft.com/support/key_info.php?license_key=#LICENSE_KEY#\" target=\"_blank\">Late subscription renewal</a>.";
 $MESS["prolog_main_support31"] = "<span class=\"required\"><span class=\"required\">Attention!</span> Your techsupport and update subscription has expired on #FINISH_DATE#.#WHAT_IS_IT#<br />You can now renew your subscription.";
+$MESS["prolog_main_support31_l"] = "<span class=\"required\">Attention!</span> Your license <b>has expired</b> on #FINISH_DATE#.#WHAT_IS_IT#<br />Extend your license today to receive update and technical support.";
 $MESS["prolog_main_support_button_no_prolong"] = "No, thanks";
 $MESS["prolog_main_support_button_no_prolong2"] = "Remind me later";
 $MESS["prolog_main_support_button_prolong"] = "Renew Subscription";
@@ -75,6 +78,18 @@ For older product editions (\"InfoPace\", \"TeamPace\", \"BizPace\", \"BizPace E
 <br /><br />
 For more details, please feel free to refer to the <a href=\"https://store.bitrix24.com/help/licensing-policy.php\">Licensing Policy</a> page.
 ";
+$MESS["prolog_main_support_wit_descr2_l"] = "When your commercial license expires, there will be certain restrictions imposed on the Update System, some of the system features and technical support availability.<br /><br />
+After expiration, no platform updates can be installed; you won't be able to get new product versions, install Marketplace solutions or extend their subscription. Cloud services like CDN or Cloud Backup will be unavailable.<br /><br />
+No technical support will be available.<br /><br />
+You have to extend your license to continue using all the features the full commercial license provides.<br /><br />
+Notice that you can still continue using the product under the terms of a limited commercial license.<br /><br />
+For details, please refer to the <a href=\"https://store.bitrix24.com/help/licensing-policy.php\" target=\"_blank\">License Agreement</a>.";
+$MESS["prolog_main_support_wit_descr2_l_cp"] = "When your commercial license expires, there will be certain restrictions imposed on the Update System, some of the system features and technical support availability.<br /><br />
+After expiration, no platform updates can be installed; you won't be able to get new product versions, install Marketplace solutions or extend their subscription. The Cloud Backup service will be unavailable.<br /><br />
+No technical support will be available.<br /><br />
+You have to extend your license to continue using all the features the full commercial license provides.<br /><br />
+Notice that you can still continue using the product under the terms of a limited commercial license.<br /><br />
+For details, please refer to the <a href=\"https://store.bitrix24.com/help/licensing-policy.php\" target=\"_blank\">License Agreement</a>.";
 $MESS["prolog_main_timelimit11"] = "<span class=\"required\">Attention!</span> The current license will expire #DAYS_AGO_TXT#. You have to renew your annual license until #FINISH_DATE# to ensure
 your product copy is running without interruption. Please contact <a href=\"mailto:sales@bitrix24.com\">Bitrix24 Sales Department</a>. ";
 $MESS["prolog_main_timelimit12"] = "<span class=\"required\">Attention!</span> The current license has expired on

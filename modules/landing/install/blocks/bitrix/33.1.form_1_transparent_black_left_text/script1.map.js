@@ -1,0 +1,1 @@
+{"version":3,"sources":["script1.js"],"names":["BX","addCustomEvent","t","e","setTimeout","console","log","Bitrix24FormLoader","setFrameHeight","type","id"],"mappings":"CAAA,WAEC,aAEAA,GAAG,WAEFA,GAAGC,eAAe,kBAAmBC,KAGtC,SAASA,EAAEC,GAIVC,WAAW,WACVC,QAAQC,IAAI,QACZC,mBAAmBC,eAAeL,EAAEM,KAAO,IAAMN,EAAEO,GAAI,MACrD,OAhBL","file":"script1.map.js"}

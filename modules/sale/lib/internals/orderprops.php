@@ -175,7 +175,7 @@ class OrderPropsTable extends DataManager
 	public static function validateValue($value, $primary, array $row, $field)
 	{
 		$maxlength = 500;
-		$length = strlen(self::modifyValueForSave($value, $row));
+		$length = mb_strlen(self::modifyValueForSave($value, $row));
 		return $length > $maxlength
 			? Loc::getMessage('SALE_ORDER_PROPS_DEFAULT_ERROR', array('#PROPERTY_NAME#'=> $row['NAME'],'#FIELD_LENGTH#' => $length, '#MAX_LENGTH#' => $maxlength))
 			: true;
@@ -196,20 +196,24 @@ class OrderPropsTable extends DataManager
 	}
 	public static function modifyValueForFetch($value, $query, $property, $alias)
 	{
-		if (strlen($value))
+		if($value <> '')
 		{
-			if (CheckSerializedData($value)
+			if(CheckSerializedData($value)
 				&& ($v = @unserialize($value)) !== false)
 				//&& is_array($v)) TODO uncomment after a while)
 			{
 				$value = $v;
 			}
-			elseif (isset($property['MULTIPLE']) && $property['MULTIPLE'] == 'Y') // compatibility
+			elseif(isset($property['MULTIPLE']) && $property['MULTIPLE'] == 'Y') // compatibility
 			{
-				switch ($property['TYPE'])
+				switch($property['TYPE'])
 				{
-					case 'ENUM': $value = explode(',', $value); break;
-					case 'FILE': $value = explode(', ', $value); break;
+					case 'ENUM':
+						$value = explode(',', $value);
+						break;
+					case 'FILE':
+						$value = explode(', ', $value);
+						break;
 				}
 			}
 		}
@@ -237,7 +241,7 @@ class OrderPropsTable extends DataManager
 	public static function validateSettings($value)
 	{
 		$maxlength = 500;
-		$length = strlen(self::modifySettingsForSave($value));
+		$length = mb_strlen(self::modifySettingsForSave($value));
 		return $length > $maxlength
 			? Loc::getMessage('SALE_ORDER_PROPS_SETTINGS_ERROR', array('#LENGTH#' => $length, '#MAXLENGTH#' => $maxlength))
 			: true;

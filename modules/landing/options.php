@@ -189,7 +189,7 @@ if ($postRight >= 'R'):
 
 	// post save
 	if (
-		strlen($Update . $Apply) > 0 &&
+		$Update . $Apply <> '' &&
 		($postRight=='W' || $postRight=='X') &&
 		\check_bitrix_sessid()
 	)
@@ -207,7 +207,7 @@ if ($postRight >= 'R'):
 				$val = '';
 				for ($j = 0; $j < count($$name); $j++)
 				{
-					if (strlen(trim(${$name}[$j])) > 0)
+					if (trim(${$name}[$j]) <> '')
 					{
 						$val .= ($val <> '' ? ',':'') . trim(${$name}[$j]);
 					}
@@ -223,11 +223,14 @@ if ($postRight >= 'R'):
 			)
 			{
 				$val = '';
-				for ($j=0; $j<count($$name); $j++)
+				if (isset($$name))
 				{
-					if (strlen(trim(${$name}[$j])) > 0)
+					for ($j=0; $j<count($$name); $j++)
 					{
-						$val .= ($val <> '' ? ',':'') . trim(${$name}[$j]);
+						if (trim(${$name}[$j]) <> '')
+						{
+							$val .= ($val <> '' ? ',':'') . trim(${$name}[$j]);
+						}
 					}
 				}
 			}
@@ -316,7 +319,7 @@ if ($postRight >= 'R'):
 		require_once($docRoot . '/bitrix/modules/main/admin/group_rights.php');
 		ob_end_clean();
 
-		if (strlen($Update)>0 && strlen($backUrl)>0)
+		if ($Update <> '' && $backUrl <> '')
 		{
 			\LocalRedirect($backUrl);
 		}
@@ -450,7 +453,7 @@ if ($postRight >= 'R'):
 	?>
 	<input <?if ($postRight < 'W') echo 'disabled="disabled"' ?> type="submit" name="Update" value="<?= Loc::getMessage('MAIN_SAVE')?>" title="<?= Loc::getMessage('MAIN_OPT_SAVE_TITLE')?>" />
 	<input <?if ($postRight < 'W') echo 'disabled="disabled"' ?> type="submit" name="Apply" value="<?= Loc::getMessage('MAIN_OPT_APPLY')?>" title="<?= Loc::getMessage('MAIN_OPT_APPLY_TITLE')?>" />
-	<?if (strlen($backUrl) > 0):?>
+	<?if ($backUrl <> ''):?>
 		<input <?if ($postRight < 'W') echo 'disabled="disabled"' ?> type="button" name="Cancel" value="<?= Loc::getMessage('MAIN_OPT_CANCEL')?>" title="<?= Loc::getMessage('MAIN_OPT_CANCEL_TITLE')?>" onclick="window.location='<?echo \htmlspecialcharsbx(CUtil::addslashes($backUrl))?>'" />
 		<input type="hidden" name="back_url_settings" value="<?=\htmlspecialcharsbx($backUrl)?>" />
 	<?endif?>

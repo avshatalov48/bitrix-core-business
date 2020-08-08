@@ -132,7 +132,7 @@ BX.ready(function()
 		{
 			BX.bind(item, 'click', function(event) {
 
-				if(event.target.classList.contains('landing-item-desc-open'))
+				if(event.target.classList.contains('landing-item-desc-open') || event.target.classList.contains('landing-item-designed'))
 				{
 					return;
 				}

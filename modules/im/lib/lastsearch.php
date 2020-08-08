@@ -37,7 +37,7 @@ class LastSearch
 
 		if (\Bitrix\Im\Common::isChatId($dialogId))
 		{
-			$chatId = substr($dialogId, 4);
+			$chatId = mb_substr($dialogId, 4);
 			$relations = Chat::getRelation($chatId);
 			if (!$relations[$userId])
 			{
@@ -191,7 +191,7 @@ class LastSearch
 			));
 			while ($row = $orm->fetch())
 			{
-				$isUser = strpos($row['DIALOG_ID'], 'chat') !== 0;
+				$isUser = mb_strpos($row['DIALOG_ID'], 'chat') !== 0;
 				$id = $row['DIALOG_ID'];
 
 				$item = Array(
@@ -210,7 +210,7 @@ class LastSearch
 				else
 				{
 					$avatar = \CIMChat::GetAvatarImage($row['CHAT_AVATAR'], 100, false);
-					$color = strlen($row['CHAT_COLOR']) > 0? Color::getColor($row['CHAT_COLOR']): Color::getColorByNumber($row['ITEM_ID']);
+					$color = $row['CHAT_COLOR'] <> ''? Color::getColor($row['CHAT_COLOR']): Color::getColorByNumber($row['ITEM_ID']);
 					$chatType = \Bitrix\Im\Chat::getType($row);
 
 					if ($generalChatId == $row['ITEM_ID'])
@@ -328,7 +328,7 @@ class LastSearch
 							{
 								$value[$subKey] = date('c', $subValue->getTimestamp());
 							}
-							else if (is_string($subValue) && $subValue && in_array($subKey, Array('URL', 'AVATAR')) && strpos($subValue, 'http') !== 0)
+							else if (is_string($subValue) && $subValue && in_array($subKey, Array('URL', 'AVATAR')) && mb_strpos($subValue, 'http') !== 0)
 							{
 								$value[$subKey] = \Bitrix\Im\Common::getPublicDomain().$subValue;
 							}

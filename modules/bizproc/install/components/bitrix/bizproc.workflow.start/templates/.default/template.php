@@ -54,7 +54,7 @@ elseif ($arResult["SHOW_MODE"] == "WorkflowParameters")
 				<label class="bizproc-field-name">
 					<?=($arParameter["Required"] ? "<span class=\"required\">*</span> " : "")?>
 						<span class="bizproc-field-title"><?=htmlspecialcharsbx($arParameter["Name"])?></span><?
-					if (strlen($arParameter["Description"]) > 0):
+					if ($arParameter["Description"] <> ''):
 						?><span class="bizproc-field-description"> (<?=htmlspecialcharsbx($arParameter["Description"])?>)</span><?
 					endif;
 					?>:
@@ -90,7 +90,7 @@ elseif ($arResult["SHOW_MODE"] == "WorkflowParameters")
 elseif ($arResult["SHOW_MODE"] == "SelectWorkflow" && count($arResult["TEMPLATES"]) > 0)
 {
 	foreach($_GET as $key => $val):
-		if (in_array(strtolower($key), array("sessid", "workflow_template_id")))
+		if (in_array(mb_strtolower($key), array("sessid", "workflow_template_id")))
 			continue;
 	endforeach;
 	$bFirst = true;
@@ -101,7 +101,7 @@ elseif ($arResult["SHOW_MODE"] == "SelectWorkflow" && count($arResult["TEMPLATES
 				<div class="bizproc-item-title">
 					<a href="<?=$arResult["TEMPLATES"][$arWorkflowTemplate["ID"]]["URL"]?>"><?=$arWorkflowTemplate["NAME"]?></a>
 				</div>
-				<?if (strlen($arWorkflowTemplate["DESCRIPTION"]) > 0):?>
+				<?if ($arWorkflowTemplate["DESCRIPTION"] <> ''):?>
 				<div class="bizproc-item-description">
 					<?= $arWorkflowTemplate["DESCRIPTION"] ?>
 				</div>

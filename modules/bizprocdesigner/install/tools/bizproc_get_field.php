@@ -10,8 +10,12 @@ if (empty($_REQUEST['DocumentType']) || !is_array($_REQUEST['DocumentType']))
 	die();
 }
 
-if (!CBPDocument::CanUserOperateDocumentType(CBPCanUserOperateOperation::CreateWorkflow, $GLOBALS["USER"]->GetID(), $_REQUEST['DocumentType']))
+$user = new \CBPWorkflowTemplateUser(\CBPWorkflowTemplateUser::CurrentUser);
+
+if (!$user->isAdmin() && !CBPDocument::CanUserOperateDocumentType(CBPCanUserOperateOperation::ViewWorkflow, $user->getId(), $_REQUEST['DocumentType']))
+{
 	die();
+}
 
 CUtil::DecodeUriComponent($_REQUEST);
 CUtil::DecodeUriComponent($_POST);

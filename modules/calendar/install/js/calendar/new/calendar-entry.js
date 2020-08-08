@@ -121,6 +121,8 @@
 			url += '&markMeeting=' + (this.checkMeetingByCodes(data.attendeesCodes) ? 'Y' : 'N');
 			url += '&markRrule=NONE&markCrm=N';
 
+			BX.userOptions.save('calendar', 'user_settings', 'lastUsedSection', parseInt(data.section));
+
 			this.calendar.request({
 				url: url,
 				type: 'post',
@@ -142,6 +144,8 @@
 				},
 				handler: BX.delegate(function(response)
 				{
+					var entry = response.entries.find(function(el){return el.ID == response.id;});
+
 					if (response.location_busy_warning)
 					{
 						alert(BX.message('EC_LOCATION_RESERVE_ERROR'));
@@ -149,9 +153,7 @@
 						this.handleEntriesList(response.entries);
 						this.calendar.getView().displayEntries();
 
-						var
-							reload = true,
-							entry = response.entries.find(function(el){return el.ID == response.id;});
+						var reload = true;
 
 						if (entry)
 						{
@@ -179,6 +181,11 @@
 					{
 						this.handleEntriesList(response.entries);
 						this.calendar.getView().displayEntries();
+					}
+
+					if (entry && entry.ID && BX.Calendar.EntryManager)
+					{
+						BX.Calendar.EntryManager.showNewEntryNotification(parseInt(entry.ID));
 					}
 				}, this)
 			});
@@ -590,9 +597,10 @@
 		{
 			if (entries && entries.length)
 			{
-				var i,
+				var
+					i,
 					smartId,
-					showDeclined = parseInt(this.calendar.util.getUserOption('showDeclined'));
+					showDeclined = this.calendar.util.getUserOption('showDeclined');
 
 				for (i = 0; i < entries.length; i++)
 				{
@@ -799,7 +807,6 @@
 
 		this.fullDay = data.DT_SKIP_TIME === 'Y';
 		this.parentId = data.PARENT_ID || 0;
-		this.textColor = data.TEXT_COLOR;
 		this.accessibility = data.ACCESSIBILITY;
 		this.important = data.IMPORTANCE === 'high';
 		this.private = !!data.PRIVATE_EVENT;
@@ -825,11 +832,6 @@
 			color: {
 				get: function(){return color;},
 				set: function(value){color = value;}
-			},
-			textColor: {
-				value: data.TEXT_COLOR,
-				writable: true,
-				enumerable : true
 			},
 			location: {
 				value: data.LOCATION,
@@ -1183,6 +1185,11 @@
 				to = new Date(this.to.getFullYear(), this.to.getMonth(), this.to.getDate(), 0, 0, 0);
 
 			return Math.round((to.getTime() - from.getTime()) / this.calendar.util.dayLength) + 1;
+		},
+
+		getColor: function()
+		{
+			return this.color;
 		}
 	};
 

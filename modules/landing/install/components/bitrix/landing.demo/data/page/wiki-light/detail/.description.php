@@ -9,7 +9,7 @@ use \Bitrix\Main\Localization\Loc;
 return [
 	'old_id' => '230',
 	'code' => 'wiki-light/detail',
-	//'name' => Loc::getMessage("LANDING_DEMO_WIKI_LIGHT_DETAIL_TITLE"),
+	'name' => Loc::getMessage("LANDING_DEMO_WIKI_LIGHT_DETAIL_TITLE"),
 	'description' => Loc::getMessage("LANDING_DEMO_WIKI_LIGHT_DETAIL_DESCRIPTION"),
 	'preview' => '',
 	'preview2x' => '',
@@ -22,8 +22,6 @@ return [
 		'TITLE' => Loc::getMessage("LANDING_DEMO_WIKI_LIGHT_DETAIL_TITLE"),
 		'RULE' => null,
 		'ADDITIONAL_FIELDS' => [
-			'THEME_CODE' => '3corporate',
-			'THEME_CODE_TYPO' => 'app',
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'METAMAIN_USE' => 'N',
@@ -54,7 +52,7 @@ return [
 			'access' => 'X',
 			'nodes' => [
 				'.landing-block-node-title' => [
-					0 => '<span style="font-weight: bold;">Kanban for tasks & projects</span>',
+					0 => '<span style="font-weight: bold;">#TITLE#</span>',
 				],
 			],
 			'style' => [
@@ -62,7 +60,7 @@ return [
 					0 => 'landing-block js-animation fadeInUp g-pb-auto container g-max-width-container g-pt-50 g-pl-10',
 				],
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title g-font-weight-400 g-my-0 text-left g-font-size-38 g-color-black g-font-montserrat font-weight-bold g-max-width-100x',
+					0 => 'landing-block-node-title g-font-weight-400 g-my-0 text-left g-font-size-38 g-color-black font-weight-bold g-max-width-100x',
 				],
 			],
 		],
@@ -80,7 +78,7 @@ return [
 					0 => 'landing-block js-animation fadeInUp g-pt-auto g-pb-8',
 				],
 				'.landing-block-node-text' => [
-					0 => 'landing-block-node-text g-pb-1 container g-pa-0 g-max-width-container text-left g-font-open-sans g-color-black-opacity-0_5 g-font-size-16 g-pl-10',
+					0 => 'landing-block-node-text g-pb-1 container g-pa-0 g-max-width-container text-left g-color-black g-font-size-16 g-pl-10',
 				],
 			],
 		],
@@ -117,10 +115,10 @@ return [
 					0 => 'landing-block-node-img g-width-60 g-height-60 g-object-fit-cover g-rounded-50x',
 				],
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title g-letter-spacing-inherit g-line-height-2 g-font-open-sans font-weight-bold g-color-primary g-mb-auto g-font-size-16',
+					0 => 'landing-block-node-title g-letter-spacing-inherit g-line-height-2 font-weight-bold g-color-primary g-mb-auto g-font-size-16',
 				],
 				'.landing-block-node-subtitle' => [
-					0 => 'landing-block-node-subtitle g-font-open-sans g-color-gray-dark-v4 g-font-size-12 g-letter-spacing-inherit',
+					0 => 'landing-block-node-subtitle g-color-black g-font-size-12 g-letter-spacing-inherit',
 				],
 			],
 		],
@@ -155,7 +153,7 @@ return [
 					0 => 'landing-block container js-animation fadeInUp g-pb-9 g-pr-65 g-pl-auto g-pt-20',
 				],
 				'.landing-block-node-text' => [
-					0 => 'landing-block-node-text g-pb-1 text-left g-color-main g-font-open-sans g-font-size-18 g-max-width-100x g-line-height-2',
+					0 => 'landing-block-node-text g-pb-1 text-left g-color-black g-font-size-18 g-max-width-100x g-line-height-2',
 				],
 			],
 		],
@@ -173,7 +171,7 @@ return [
 					0 => 'landing-block container js-animation fadeInUp g-pr-60 g-pt-30 g-pb-30 g-pl-auto',
 				],
 				'.landing-block-node-text' => [
-					0 => 'landing-block-node-text g-pb-1 text-left g-color-deeporange g-line-height-1_4 g-font-open-sans g-font-size-28',
+					0 => 'landing-block-node-text g-pb-1 text-left g-color-deeporange g-line-height-1_4 g-font-size-28',
 				],
 			],
 		],
@@ -191,7 +189,7 @@ return [
 					0 => 'landing-block container js-animation fadeInUp g-pl-auto g-pb-9 g-pr-65 g-pt-25',
 				],
 				'.landing-block-node-text' => [
-					0 => 'landing-block-node-text g-pb-1 text-left g-color-main g-font-open-sans g-line-height-1_8 g-font-size-18',
+					0 => 'landing-block-node-text g-pb-1 text-left g-color-black g-line-height-1_8 g-font-size-18',
 				],
 			],
 		],
@@ -200,6 +198,11 @@ return [
 			'code' => '32.2.img_one_big',
 			'access' => 'X',
 			'nodes' => [
+				'.landing-block-node-img' => [
+					0 => [
+						'src' => 'https://cdn.bitrix24.site/bitrix/images/landing/business/1110x624/img1.jpg',
+					],
+				],
 			],
 			'style' => [
 				'#wrapper' => [
@@ -224,7 +227,7 @@ return [
 					0 => 'landing-block js-animation fadeInUp g-pb-auto container g-max-width-container g-pt-55 g-pl-auto',
 				],
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title g-font-weight-400 g-my-0 text-left g-line-height-0 g-letter-spacing-0_5 g-font-montserrat g-font-size-27 g-color-black-opacity-0_7',
+					0 => 'landing-block-node-title g-font-weight-400 g-my-0 text-left g-line-height-0 g-letter-spacing-0_5 g-font-size-27 g-color-black',
 				],
 			],
 		],
@@ -239,7 +242,7 @@ return [
 			],
 			'style' => [
 				'.landing-block-node-text' => [
-					0 => 'landing-block-node-text g-pb-1 g-pa-0 text-left g-font-open-sans g-color-black-opacity-0_8 g-font-size-16 g-max-width-100x',
+					0 => 'landing-block-node-text g-pb-1 g-pa-0 text-left g-color-black g-font-size-16 g-max-width-100x',
 				],
 				'#wrapper' => [
 					0 => 'landing-block js-animation fadeInUp g-pb-20 g-pt-20 g-pl-20 g-pr-65',
@@ -257,7 +260,7 @@ return [
 			],
 			'style' => [
 				'.landing-block-node-text' => [
-					0 => 'landing-block-node-text g-pb-1 g-pa-0 text-left g-font-open-sans g-font-size-14 g-color-black-opacity-0_6 g-max-width-100x',
+					0 => 'landing-block-node-text g-pb-1 g-pa-0 text-left g-color-black g-max-width-100x',
 				],
 				'#wrapper' => [
 					0 => 'landing-block js-animation fadeInUp g-pb-50 g-pt-auto g-pr-45 g-pl-20',

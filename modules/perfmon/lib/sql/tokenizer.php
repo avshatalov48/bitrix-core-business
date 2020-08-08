@@ -28,7 +28,7 @@ class Token
 	{
 		$this->type = $type;
 		$this->text = $text;
-		$this->upper = strtoupper($this->text);
+		$this->upper = mb_strtoupper($this->text);
 	}
 
 	/**
@@ -43,7 +43,7 @@ class Token
 	function setText($text)
 	{
 		$this->text = $text;
-		$this->upper = strtoupper($this->text);
+		$this->upper = mb_strtoupper($this->text);
 	}
 
 	/**
@@ -58,7 +58,7 @@ class Token
 	function appendText($text)
 	{
 		$this->text .= $text;
-		$this->upper = strtoupper($this->text);
+		$this->upper = mb_strtoupper($this->text);
 	}
 }
 
@@ -295,7 +295,7 @@ class Tokenizer
 				if (
 					$rawToken === "'"
 					&& preg_match("/(\\\\)*'\$/", $prevToken->text, $match)
-					&& (strlen($match[0]) % 2) === 1
+					&& (mb_strlen($match[0]) % 2) === 1
 				)
 				{
 					$isInSingleQuote = false;
@@ -307,7 +307,7 @@ class Tokenizer
 				if (
 					$rawToken === "\""
 					&& preg_match("/(\\\\)*\"\$/", $prevToken->text, $match)
-					&& (strlen($match[0]) % 2) === 1
+					&& (mb_strlen($match[0]) % 2) === 1
 				)
 				{
 					$isInDoubleQuote = false;
@@ -328,7 +328,7 @@ class Tokenizer
 			{
 				$this->tokens[$tokenCount++] = new Token(Token::T_COMMENT, $rawToken);
 			}
-			elseif (strlen($rawToken) == 1 && strpos($chars, $rawToken) !== false)
+			elseif (mb_strlen($rawToken) == 1 && mb_strpos($chars, $rawToken) !== false)
 			{
 				$this->tokens[$tokenCount++] = new Token(Token::T_CHAR, $rawToken);
 			}

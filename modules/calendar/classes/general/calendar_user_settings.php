@@ -1,4 +1,9 @@
 <?
+/**
+ * Class COAuthCode
+ *
+ * @deprecated
+ */
 class CCalendarUserSettings
 {
 	private static
@@ -217,33 +222,12 @@ class CCalendarUserSettings
 
 		if (class_exists('CUserOptions') && $userId > 0)
 		{
-			//CUserOptions::DeleteOption("calendar", "hidden_sections");
 			$res = CUserOptions::GetOption("calendar", "hidden_sections", false, $userId);
 			if ($res !== false && is_array($res) && isset($res['hidden_sections']))
 				$res = explode(',', $res['hidden_sections']);
 		}
 		if (!is_array($res))
 			$res = array();
-
-		return $res;
-	}
-
-	public static function getSectionCustomization($userId = false)
-	{
-		$res = array(
-//			'tasks' => array(
-//				'name' => 'awdawd',
-//				'color' => '#FF0000'
-//			)
-		);
-
-		if (class_exists('CUserOptions') && $userId > 0)
-		{
-			//CUserOptions::DeleteOption("calendar", "hidden_sections");
-//			$res = CUserOptions::GetOption("calendar", "hidden_sections", false, $userId);
-//			if ($res !== false && is_array($res) && isset($res['hidden_sections']))
-//				$res = explode(',', $res['hidden_sections']);
-		}
 
 		return $res;
 	}

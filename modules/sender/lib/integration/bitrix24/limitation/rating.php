@@ -294,7 +294,7 @@ class Rating
 	 */
 	public static function getNotifyText($code)
 	{
-		$code = strtoupper($code);
+		$code = mb_strtoupper($code);
 		return Loc::getMessage("SENDER_INTEGRATION_BITRIX24_RATING_{$code}1");
 	}
 }

@@ -922,6 +922,23 @@ class CAdminUiList extends CAdminList
 						case "html":
 							$editValue = $field["edit"]["value"];
 							break;
+						case "money":
+							$moneyAttributes = $field["edit"]["attributes"];
+							$editValue = [
+								'PRICE' => $moneyAttributes['PRICE'],
+								'CURRENCY' => $moneyAttributes['CURRENCY'],
+								'ATTRIBUTES' => $moneyAttributes['ATTRIBUTES'],
+							];
+
+							if (is_array($moneyAttributes['HIDDEN']))
+							{
+								$editValue['HIDDEN'] = [];
+								foreach ($moneyAttributes['HIDDEN'] as $hiddenItem)
+								{
+									$editValue['HIDDEN'][$hiddenItem['NAME']] = $hiddenItem['VALUE'];
+								}
+							}
+							break;
 					}
 				}
 				else
@@ -1071,6 +1088,12 @@ class CAdminUiList extends CAdminList
 				break;
 			case "html":
 				$editable = array("TYPE" => Types::CUSTOM, "HTML" => $field["edit"]["value"]);
+				break;
+			case "money":
+				$editable = array(
+					"TYPE" => Types::MONEY,
+					"CURRENCY_LIST" => $field["edit"]["attributes"]["CURRENCY_LIST"],
+				);
 				break;
 			default:
 				$editable = array("TYPE" => Types::TEXT);
@@ -1652,6 +1675,11 @@ class CAdminUiListRow extends CAdminListRow
 			if (isset($action["SEPARATOR"]))
 				continue;
 
+			if (empty($action["ACTION"]) && !empty($action["ONCLICK"]))
+			{
+				$action["ACTION"] = $action["ONCLICK"];
+			}
+
 			if (!empty($action["LINK"]) && empty($action["ACTION"]))
 			{
 				$action["href"] = $action["LINK"];
@@ -1915,7 +1943,7 @@ class CAdminUiContextMenu extends CAdminContextMenu
 			}
 			if (!empty($items)):?>
 				<? if (!empty($firstItem["ONCLICK"])): ?>
-					<div class="ui-btn-double ui-btn-primary">
+					<div class="ui-btn-split ui-btn-primary">
 						<button onclick="<?=HtmlFilter::encode($firstItem["ONCLICK"])?>" class="ui-btn-main">
 							<?=HtmlFilter::encode($firstItem["TEXT"])?>
 						</button>
@@ -1923,14 +1951,14 @@ class CAdminUiContextMenu extends CAdminContextMenu
 					</div>
 				<? else: ?>
 					<? if (isset($firstItem["DISABLE"])): ?>
-						<div class="ui-btn-double ui-btn-primary">
+						<div class="ui-btn-split ui-btn-primary">
 							<button onclick="<?=$menuUrl?>" class="ui-btn-main">
 								<?=HtmlFilter::encode($firstItem["TEXT"])?>
 							</button>
 							<button onclick="<?=$menuUrl?>" class="ui-btn-extra"></button>
 						</div>
 					<? else: ?>
-						<div class="ui-btn-double ui-btn-primary">
+						<div class="ui-btn-split ui-btn-primary">
 							<a href="<?=HtmlFilter::encode($firstItem["LINK"])?>" class="ui-btn-main">
 								<?=HtmlFilter::encode($firstItem["TEXT"])?>
 							</a>

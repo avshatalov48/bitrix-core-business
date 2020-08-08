@@ -120,6 +120,7 @@ $MESS["IBLIST_A_CATALOG_PURCHASING_PRICE"] = "Закупочная цена";
 $MESS["IBLIST_A_CATALOG_BAR_CODE"] = "Штрихкод";
 $MESS["IBLIST_A_CATALOG_BAR_CODE_MULTI"] = "множественный";
 $MESS["IBLIST_A_CATALOG_VAT_INCLUDED"] = "НДС включен в цену";
+$MESS["IBLIST_A_CATALOG_VAT_ID"] = "Ставка НДС";
 $MESS["IBLIST_A_CATALOG_TYPE"] = "Тип товара";
 $MESS["IBLIST_A_CATALOG_TYPE_TITLE"] = "Тип товара";
 $MESS["IBLIST_A_CATALOG_TYPE_MESS_GROUP"] = "набор";
@@ -155,4 +156,6 @@ $MESS["IBLIST_A_CATALOG_EXTRA_DESCRIPTION"] = "Наценка #VALUE# к баз�
 $MESS["IBLIST_A_ERR_PRODUCT_LIMIT"] = "Превышено ограничение на количество товаров, используемых в лендингах. В каталоге найдено #COUNT# таких товаров (лимит - #LIMIT#).";
 $MESS["IBLIST_PRODUCTS_INSTAGRAM"] = "Товары Instagram";
 $MESS["IBLIST_A_CATALOG_SKU_PRICE"] = "от #PRICE#";
+$MESS["IBLIST_A_CATALOG_EMPTY_VALUE"] = "не выбрано";
+$MESS["IBLIST_A_ERR_BUILDER_ADSENT"] = "Не найден генератор ссылок.";
 ?>

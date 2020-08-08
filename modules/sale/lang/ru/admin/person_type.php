@@ -11,6 +11,7 @@ $MESS ['SALE_F_DEL'] = "Сбросить";
 $MESS ['LANG_ALL'] = "(Все)";
 $MESS ['PERS_TYPE_NAV'] = "Типы плательщика";
 $MESS ['PERS_TYPE_NAME'] = "Название";
+$MESS ['PERS_TYPE_CODE'] = "Код";
 $MESS ['PERS_TYPE_LID'] = "Сайт";
 $MESS ['PERS_TYPE_SORT'] = "Сорт.";
 $MESS ['PERS_TYPE_DEL'] = "Удалить";

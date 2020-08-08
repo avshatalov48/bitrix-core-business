@@ -24,7 +24,7 @@ if ($arParams['VIDEO_ALLOW_VIDEO'] != 'N')
 		'maxHeight' => $arParams['VIDEO_MAX_HEIGHT'],
 		'WMode' => $arParams['VIDEO_WMODE'],
 		'windowless' => $arParams['VIDEO_WINDOWLESS'] != 'N',
-		'bufferLength' => intVal($arParams['VIDEO_BUFFER']),
+		'bufferLength' => intval($arParams['VIDEO_BUFFER']),
 		'skin' => $arParams['VIDEO_SKIN'],
 		'logo' => $arParams['VIDEO_LOGO']
 	);

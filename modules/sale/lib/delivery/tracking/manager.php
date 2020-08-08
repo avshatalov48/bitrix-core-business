@@ -192,10 +192,10 @@ class Manager
 			return $result;
 		}
 
-		if(strlen($trackingNumber) > 0 && $trackingNumber != $shipment['TRACKING_NUMBER'])
+		if($trackingNumber <> '' && $trackingNumber != $shipment['TRACKING_NUMBER'])
 			$shipment['TRACKING_NUMBER'] = $trackingNumber;
 
-		if(strlen($shipment['TRACKING_NUMBER']) <= 0)
+		if($shipment['TRACKING_NUMBER'] == '')
 			return $result;
 
 		$result = $this->getStatus($shipment);
@@ -285,7 +285,7 @@ class Manager
 
 		$class = $deliveryService->getTrackingClass();
 
-		if(strlen($class) > 0)
+		if($class <> '')
 		{
 			$result = $this->createTrackingObject(
 				$class,
@@ -307,7 +307,7 @@ class Manager
 	 */
 	protected function createTrackingObject($className, array $params, Services\Base $deliveryService)
 	{
-		if(strlen($className) <= 0)
+		if($className == '')
 			throw new ArgumentNullException('className');
 
 		if(!class_exists($className))
@@ -422,7 +422,7 @@ class Manager
 			if(!isset($shipmentsData[$shipment['DELIVERY_ID']]))
 				$shipmentsData[$shipment['DELIVERY_ID']] = array();
 
-			if(strlen($shipment['TRACKING_NUMBER']) <= 0)
+			if($shipment['TRACKING_NUMBER'] == '')
 				continue;
 
 			$shipmentsData[$shipment['DELIVERY_ID']][$shipment['TRACKING_NUMBER']] = array(
@@ -562,7 +562,7 @@ class Manager
 
 		foreach($params as $param)
 		{
-			if(intval($param->status) <= 0 && strlen($param->description) <= 0)
+			if(intval($param->status) <= 0 && $param->description == '')
 				continue;
 
 			$mappedStatuses = $this->getMappedStatuses();
@@ -678,7 +678,7 @@ class Manager
 				$userEmail = $data['EMAIL'];
 
 			if(empty($userName))
-				$userName = $data["USER_NAME"].((strlen($data["USER_NAME"])<=0 || strlen($data["USER_LAST_NAME"])<=0) ? "" : " ").$data["USER_LAST_NAME"];
+				$userName = $data["USER_NAME"].(($data["USER_NAME"] == '' || $data["USER_LAST_NAME"] == '') ? "" : " ").$data["USER_LAST_NAME"];
 
 			$siteFields = \CAllEvent::GetSiteFieldsArray($data['SITE_ID']);
 
@@ -713,7 +713,7 @@ class Manager
 
 			$deliveryTrackingUrl = '';
 
-			if(strlen($trackingUrl) > 0)
+			if($trackingUrl <> '')
 			{
 				$deliveryTrackingUrl = Loc::getMessage(
 					'SALE_DTM_SHIPMENT_STATUS_TRACKING_URL',

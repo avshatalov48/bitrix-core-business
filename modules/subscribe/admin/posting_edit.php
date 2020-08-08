@@ -52,7 +52,7 @@ if($REQUEST_METHOD == "POST" && ($save.$apply.$Send.$Resend.$Continue!="") && $P
 	if($ID>0)
 	{
 		$res = $posting->Update($ID, $arFields);
-		if(strlen($Resend)>0)
+		if($Resend <> '')
 			$STATUS="W";
 		if($res && $STATUS<>"")
 			$res = $posting->ChangeStatus($ID, $STATUS);
@@ -120,7 +120,7 @@ if($REQUEST_METHOD == "POST" && ($save.$apply.$Send.$Resend.$Continue!="") && $P
 				{
 					if(
 						is_array($file)
-						&& strlen($file["tmp_name"]) > 0
+						&& $file["tmp_name"] <> ''
 						&& $APPLICATION->GetFileAccessPermission($file["tmp_name"]) >= "W"
 					)
 					{
@@ -132,7 +132,7 @@ if($REQUEST_METHOD == "POST" && ($save.$apply.$Send.$Resend.$Continue!="") && $P
 
 		foreach($arFiles as $file)
 		{
-			if(strlen($file["name"])>0 and intval($file["size"])>0)
+			if($file["name"] <> '' and intval($file["size"])>0)
 			{
 				if (!$posting->SaveFile($ID, $file))
 				{
@@ -202,10 +202,14 @@ if($bVarsFromForm)
 }
 elseif($ID > 0)
 {
-	if(strlen($str_AUTO_SEND_TIME))
+	if($str_AUTO_SEND_TIME <> '')
+	{
 		$str_AUTO_SEND_FLAG = "Y";
+	}
 	else
+	{
 		$str_AUTO_SEND_FLAG = "N";
+	}
 }
 
 $APPLICATION->SetTitle(($ID>0 && !$bCopy? GetMessage("post_title_edit").$ID : GetMessage("post_title_add")));
@@ -275,7 +279,7 @@ $tabControl->BeginNextTab();
 		<td><?echo GetMessage("post_date_upd")?></td>
 		<td><?echo $str_TIMESTAMP_X;?></td>
 	</tr>
-	<?if(strlen($str_DATE_SENT)>0):?>
+	<?if($str_DATE_SENT <> ''):?>
 	<tr>
 		<td><?echo GetMessage("post_date_sent")?></td>
 		<td><?echo $str_DATE_SENT;?></td>
@@ -649,7 +653,7 @@ EnableAutoSend();
 //-->
 </script>
 	<?else:
-	$str_AUTO_SEND_FLAG = strlen($str_AUTO_SEND_TIME)? "Y": "N";
+	$str_AUTO_SEND_FLAG = $str_AUTO_SEND_TIME <> ''? "Y" : "N";
 	?>
 	<tr>
 		<td><?echo GetMessage("post_send_flag")?></td>

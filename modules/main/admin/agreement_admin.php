@@ -18,13 +18,11 @@ if(!$canEdit && !$canView)
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 }
 
-require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/prolog_admin_after.php");
-$APPLICATION->SetAdditionalCSS('/bitrix/css/main/grid/webform-button.css');
+global $adminPage;
+$adminPage->hideTitle();
 
-?>
-<a href="<?=BX_ROOT?>/admin/agreement_edit.php?ID=0&lang=<?=LANGUAGE_ID?>" class="adm-btn adm-btn-save adm-btn-add"><?=Loc::getMessage('MAIN_ADMIN_MENU_ADD')?></a>
-<br>
-<?
+require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/prolog_admin_after.php");
+
 
 $APPLICATION->IncludeComponent(
 	"bitrix:main.userconsent.list",
@@ -33,8 +31,10 @@ $APPLICATION->IncludeComponent(
 		'PATH_TO_LIST' => BX_ROOT . '/admin/agreement_admin.php?lang=' . LANGUAGE_ID,
 		'PATH_TO_ADD' => BX_ROOT . '/admin/agreement_edit.php?ID=0&lang=' . LANGUAGE_ID,
 		'PATH_TO_EDIT' => BX_ROOT . '/admin/agreement_edit.php?ID=#id#&lang=' . LANGUAGE_ID,
-		'PATH_TO_CONSENT_LIST' => BX_ROOT . '/admin/agreement_consents.php?AGREEMENT_ID=#id#&apply_filter=Y&lang=' . LANGUAGE_ID,
-		'CAN_EDIT' => $canEdit
+		'PATH_TO_CONSENT_LIST' => BX_ROOT .
+			'/admin/agreement_consents.php?AGREEMENT_ID=#id#&apply_filter=Y&lang=' . LANGUAGE_ID,
+		'CAN_EDIT' => $canEdit,
+		'ADMIN_MODE' => true
 	)
 );
 

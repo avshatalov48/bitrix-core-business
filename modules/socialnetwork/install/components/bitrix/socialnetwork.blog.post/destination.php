@@ -13,7 +13,7 @@
 
 $arResult["SELECTOR_VERSION"] = (!empty($arParams["SELECTOR_VERSION"]) ? intval($arParams["SELECTOR_VERSION"]) : 1);
 
-$user_id = IntVal($USER->GetID());
+$user_id = intval($USER->GetID());
 
 $arResult["FEED_DESTINATION"] = array();
 

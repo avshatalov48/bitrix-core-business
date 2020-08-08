@@ -130,7 +130,7 @@ class CEbayCategoriesLink extends CBitrixComponent
 		else
 			$this->arResult["SITE_ID"] = "";
 
-		if(strlen($this->arResult["EBAY_CATEGORY_ID"]) > 0)
+		if($this->arResult["EBAY_CATEGORY_ID"] <> '')
 		{
 			$this->arResult["CATEGORY_AND_PARENTS_INFO"] = $this->getCategoryAndParentsInfo($this->arResult["EBAY_CATEGORY_ID"]);
 

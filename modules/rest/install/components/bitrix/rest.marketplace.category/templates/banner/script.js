@@ -23,6 +23,7 @@
 		this.description = options.description;
 		this.icon = options.icon;
 		this.link = options.link;
+		this.payment = options.price;
 		this.infoHelperCode = options.infoHelperCode;
 
 		this.layout = {
@@ -129,10 +130,9 @@
 
 			if(this.infoHelperCode !== false)
 			{
-				action = BX.create('a', {
+				action = BX.create('span', {
 					props: {
 						className: 'ui-btn ui-btn-sm ui-btn-primary ui-btn-round',
-						href: 'javascript:void(0)'
 					},
 					events: {
 						click: BX.delegate(function(){
@@ -149,7 +149,13 @@
 					className: 'rest-market-partner-link-wrapper'
 				},
 				children: [
-					action
+					action,
+					this.payment ? BX.create('span', {
+						props: {
+							className: 'rest-market-partners-price'
+						},
+						text: this.payment
+					}) : null
 				]
 			})
 		},
@@ -179,9 +185,42 @@
 			}
 		},
 
+		clipTitle: function()
+		{
+			if(!this.layout.title)
+			{
+				return;
+			}
+			BX.cleanNode(this.layout.title);
+			var wrapper = BX.create("span", {
+				text: this.title
+			});
+
+			this.layout.title.appendChild(wrapper);
+
+			var nodeHeight = this.layout.title.offsetHeight;
+			var text = this.title;
+
+			var a = 0;
+			while (nodeHeight <= wrapper.offsetHeight && text.length > a)
+			{
+				a = a + 2;
+				wrapper.innerText = text.slice(0, -a) + '...';
+			}
+		},
+
 		afterRender: function()
 		{
-			this.clipDescription()
+			if(this.description)
+			{
+				this.clipDescription()
+			}
+
+			if(this.title)
+			{
+				this.clipTitle();
+
+			}
 		}
 	};
 })();

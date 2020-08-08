@@ -2,6 +2,7 @@
 
 namespace Bitrix\Sale;
 
+use Bitrix\Location\Entity\Address;
 use Bitrix\Sale\Internals\Input;
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
@@ -147,13 +148,49 @@ abstract class PropertyBase
 
 	/**
 	 * @param $value
-	 * @return array
+	 * @return array|mixed|string|null
+	 * @throws Main\ArgumentException
+	 * @throws Main\LoaderException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
 	 */
 	public function normalizeValue($value)
 	{
 		if ($this->fields['TYPE'] === 'FILE')
 		{
 			return Input\File::loadInfo($value);
+		}
+		elseif ($this->fields['TYPE'] === 'ADDRESS' && Main\Loader::includeModule('location'))
+		{
+			if (is_array($value))
+			{
+				/**
+				 * Already normalized
+				 */
+				return $value;
+			}
+			elseif (is_numeric($value))
+			{
+				/**
+				 * DB value
+				 */
+				$address = Address::load((int)$value);
+
+				$value = ($address instanceof Address) ? $address->toArray() : null;
+			}
+			elseif (is_string($value) && !empty($value))
+			{
+				/**
+				 * JSON most likely
+				 */
+				return Main\Web\Json::decode(
+					Main\Text\Encoding::convertEncoding(
+						$value,
+						SITE_CHARSET,
+						'UTF-8'
+					)
+				);
+			}
 		}
 		elseif ($this->fields['TYPE'] === "STRING")
 		{
@@ -263,9 +300,9 @@ abstract class PropertyBase
 			{
 				foreach ($row as $key => $value)
 				{
-					if (($value === "Y") && (substr($key, 0, 3) === "IS_"))
+					if (($value === "Y") && (mb_substr($key, 0, 3) === "IS_"))
 					{
-						$result[substr($key, 3)] = $request[$row["ID"]];
+						$result[mb_substr($key, 3)] = $request[$row["ID"]];
 					}
 				}
 			}
@@ -429,6 +466,21 @@ abstract class PropertyBase
 			)
 			{
 				\CFile::Delete($fileId);
+			}
+		}
+		elseif ($this->getType() == 'ADDRESS'  && Main\Loader::includeModule('location'))
+		{
+			if (is_array($value))
+			{
+				$address = Address::fromArray($value);
+
+				$result = $address->save();
+				if (!$result->isSuccess())
+				{
+					return null;
+				}
+
+				return (int)$result->getId();
 			}
 		}
 

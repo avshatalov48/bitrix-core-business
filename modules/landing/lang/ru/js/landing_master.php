@@ -23,7 +23,7 @@ $MESS["LANDING_IMAGE_TITLE"] = "Title";
 $MESS["BLOCK_SAVE"] = "Сохранить";
 $MESS["BLOCK_CANCEL"] = "Отменить";
 $MESS["BLOCK_CONTINUE"] = "Продолжить";
-$MESS["BLOCK_HEADER"] = "Шапка блока";
+$MESS["BLOCK_ELEMENTS"] = "Элементы блока";
 $MESS["BLOCK_SETTINGS"] = "Настройки";
 $MESS["BLOCK_SETTINGS_ANCHOR_FIELD"] = "Якорь блока";
 $MESS["BLOCK_SETTINGS_ANCHOR_FIELD_VALIDATE_ERROR"] = "Якорь должен быть уникальным";
@@ -381,4 +381,8 @@ $MESS['LANDING_ACTION_BUTTON_PUBLISH'] = 'Опубликовать';
 $MESS['LANDING_LINK_PLACEHOLDER_NEW_PAGE'] = 'Новая страница';
 $MESS['LANDING_LINK_NEW_PAGE_LABEL'] = 'НОВАЯ';
 $MESS['LANDING_LINK_NEW_PAGE_SAVE_BUTTON_LABEL'] = 'Создать';
-$MESS['LANDING_LINK_NEW_PAGE_CANCEL_BUTTON_LABEL'] = 'Отменить';
+
+$MESS['LANDING_EMBED_FIELD_DESCRIPTION'] = 'Пример: https://www.youtube.com/watch?v=q4d8g9Dn3ww';
+$MESS['LANDING_EMBED_FIELD_PLACEHOLDER'] = 'Ссылка на видео';
+$MESS['LANDING_EMBED_ERROR_TEXT'] = 'Укажите ссылку на страницу с видео. Код и другие способы вставки не поддерживаются.';
+

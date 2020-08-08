@@ -1,15 +1,19 @@
 <section class="landing-block text-center g-pt-30 g-pb-30">
 	<div class="container g-max-width-800">
-		<div class="row g-flex-centered">
-			<div class="landing-block-node-button-container text-center col-md-4 col-lg-4 js-animation fadeInUp">
+		<div class="landing-block-cards row g-flex-centered js-animation fadeInUp">
+			<div class="landing-block-node-card col-md-3 col-lg-3 g-py-10"
+				 data-card-preset="app-store">
 				<a href="#" class="landing-block-node-button">
-					<img class="landing-block-node-button-img g-height-42" src="https://cdn.bitrix24.site/bitrix/images/landing/app-store-badge.svg"
+					<img class="landing-block-node-button-img g-height-42"
+						 src="https://cdn.bitrix24.site/bitrix/images/landing/app-store-badge.svg"
 						 alt="Download app from App Store">
 				</a>
 			</div>
-			<div class="landing-block-node-button-container text-center col-md-4 col-lg-4 js-animation fadeInUp">
+			<div class="landing-block-node-card col-md-3 col-lg-3 g-py-10"
+				 data-card-preset="play-market">
 				<a href="#" class="landing-block-node-button">
-					<img class="landing-block-node-button-img g-height-42" src="https://cdn.bitrix24.site/bitrix/images/landing/google-play-badge.svg"
+					<img class="landing-block-node-button-img g-height-42"
+						 src="https://cdn.bitrix24.site/bitrix/images/landing/google-play-badge.svg"
 						 alt="Download app from Play Market">
 				</a>
 			</div>

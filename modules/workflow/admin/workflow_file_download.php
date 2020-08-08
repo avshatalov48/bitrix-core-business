@@ -35,7 +35,7 @@ if($USER->IsAdmin() || !in_array(GetFileExtension($fname), GetScriptFileExt()))
 else
 	$strError = GetMessage("FLOW_ACCESS_DENIED_PHP_DOWNLOAD");
 
-if(strlen($strError)<=0)
+if($strError == '')
 {
 	$fsize=filesize($path);
 	header("Content-Type: application/force-download; name=\"".$filename."\"");

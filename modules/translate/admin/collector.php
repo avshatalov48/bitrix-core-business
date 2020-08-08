@@ -38,9 +38,13 @@ $APPLICATION->SetTitle(Loc::getMessage('TRANS_TITLE'));
 
 require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
 
-
-\CUtil::InitJSCore(array('translate_process', 'loader'));
-Main\UI\Extension::load(['ui.buttons', 'ui.alerts', 'ui.notification']);
+Main\UI\Extension::load([
+	'main.loader',
+	'ui.buttons',
+	'ui.alerts',
+	'ui.notification',
+	'translate.process',
+]);
 
 //endregion
 
@@ -63,8 +67,9 @@ $updatePublic = false;
 const ACTION_EXTRACT = 'extract';
 const ACTION_COLLECT = 'collect';
 
-$currentAction = $request->get('tabControl_active_tab') === ACTION_EXTRACT ? ACTION_EXTRACT : ACTION_COLLECT;
+$request = \Bitrix\Main\Context::getCurrent()->getRequest();
 
+$currentAction = $request->get('tabControl_active_tab') === ACTION_EXTRACT ? ACTION_EXTRACT : ACTION_COLLECT;
 
 $aTabs = array(
 	array(
@@ -412,12 +417,18 @@ BX.ready(function(){
 				'controller' => 'bitrix:translate.controller.asset.grabber',
 				'title' => Loc::getMessage('TR_COLLECT_COLLECT', ['#NUM#' => 2, '#LEN#' => 3]),
 				'progressBarTitle' => Loc::getMessage('TR_COLLECT_COLLECT_PROGRESS'),
+				'params' => [
+					'path' => \Bitrix\Translate\Controller\Asset\Grabber::START_PATH
+				]
 			],
 			[
 				'action' => \Bitrix\Translate\Controller\Asset\Grabber::ACTION_PACK,
 				'controller' => 'bitrix:translate.controller.asset.grabber',
 				'title' => Loc::getMessage('TR_COLLECT_PACK', ['#NUM#' => 3, '#LEN#' => 3]),
 				'progressBarTitle' => Loc::getMessage('TR_COLLECT_PACK_PROGRESS'),
+				'params' => [
+					'path' => \Bitrix\Translate\Controller\Asset\Grabber::START_PATH
+				]
 			],
 			[
 				'action' => \Bitrix\Translate\Controller\Asset\Grabber::ACTION_FINALIZE,

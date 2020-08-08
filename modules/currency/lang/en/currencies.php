@@ -15,7 +15,6 @@ $MESS["currency_sort"] = "Sort";
 $MESS["currency_sort_ex"] = "Sorting index";
 $MESS["currency_actions"] = "Actions";
 $MESS["currency_empty"] = "Currency List is empty";
-$MESS["currency_title"] = "Currencies";
 $MESS["currency_add"] = "Add new currency";
 $MESS["currency_curr"] = "Currency";
 $MESS["currency_curr_settings"] = "Currency settings";

@@ -7,7 +7,7 @@ use Bitrix\Main\Localization\Loc;
 </div>
 
 <?
-if(strlen($arResult["ID"])>0)
+if($arResult["ID"] <> '')
 {
 	ShowError($arResult["ERROR_MESSAGE"]);
 	CJSCore::Init(array('date'));
@@ -53,7 +53,7 @@ if(strlen($arResult["ID"])>0)
 					$currentValue = $arResult["ORDER_PROPS_VALUES"][$name];
 					$alignTop = ($property["TYPE"] === "LOCATION" && $arParams['USE_AJAX_LOCATIONS'] === 'Y') ? "vertical-align-top" : "";
 					?>
-					<div class="form-group sale-personal-profile-detail-property-<?=strtolower($property["TYPE"])?>">
+					<div class="form-group sale-personal-profile-detail-property-<?= mb_strtolower($property["TYPE"])?>">
 						<label class="sale-personal-profile-detail-form-label col-md-3 text-md-right <?=$alignTop?>" for="sppd-property-<?=$key?>">
 							<?= $property["NAME"]?>:
 							<?
@@ -331,7 +331,7 @@ if(strlen($arResult["ID"])>0)
 								<?
 							}
 
-							if (strlen($property["DESCRIPTION"]) > 0)
+							if ($property["DESCRIPTION"] <> '')
 							{
 								?>
 								<br /><small><?= $property["DESCRIPTION"] ?></small>

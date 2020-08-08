@@ -10,20 +10,20 @@ if (!CModule::IncludeModule("socialnetwork"))
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 $bAutoSubscribe = (array_key_exists("USE_AUTOSUBSCRIBE", $arParams) && $arParams["USE_AUTOSUBSCRIBE"] == "N" ? false : true);
 
-if (strLen($arParams["USER_VAR"]) <= 0)
+if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if (strlen($arParams["PATH_TO_USER"]) <= 0)
+if ($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_MESSAGE_FORM"] = trim($arParams["PATH_TO_MESSAGE_FORM"]);
-if (strlen($arParams["PATH_TO_MESSAGE_FORM"]) <= 0)
+if ($arParams["PATH_TO_MESSAGE_FORM"] == '')
 	$arParams["PATH_TO_MESSAGE_FORM"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=message_form&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["ITEMS_COUNT"] = IntVal($arParams["ITEMS_COUNT"]);
+$arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
 if ($arParams["ITEMS_COUNT"] <= 0)
 	$arParams["ITEMS_COUNT"] = 30;
 
@@ -75,13 +75,13 @@ if (!$GLOBALS["USER"]->IsAuthorized())
 else
 {
 	/***********************  ACTIONS  *******************************/
-	if ($_REQUEST["EventType"] == "FriendRequest" && check_bitrix_sessid() && IntVal($_REQUEST["eventID"]) > 0)
+	if ($_REQUEST["EventType"] == "FriendRequest" && check_bitrix_sessid() && intval($_REQUEST["eventID"]) > 0)
 	{
 		$errorMessage = "";
 
 		if ($_REQUEST["action"] == "add")
 		{
-			if (!CSocNetUserRelations::ConfirmRequestToBeFriend($GLOBALS["USER"]->GetID(), IntVal($_REQUEST["eventID"]), $bAutoSubscribe))
+			if (!CSocNetUserRelations::ConfirmRequestToBeFriend($GLOBALS["USER"]->GetID(), intval($_REQUEST["eventID"]), $bAutoSubscribe))
 			{
 				if ($e = $APPLICATION->GetException())
 					$errorMessage .= $e->GetString();
@@ -89,26 +89,26 @@ else
 		}
 		elseif ($_REQUEST["action"] == "reject")
 		{
-			if (!CSocNetUserRelations::RejectRequestToBeFriend($GLOBALS["USER"]->GetID(), IntVal($_REQUEST["eventID"])))
+			if (!CSocNetUserRelations::RejectRequestToBeFriend($GLOBALS["USER"]->GetID(), intval($_REQUEST["eventID"])))
 			{
 				if ($e = $APPLICATION->GetException())
 					$errorMessage .= $e->GetString();
 			}
 		}
 
-		if (strlen($errorMessage) > 0)
+		if ($errorMessage <> '')
 			$arResult["ErrorMessage"] = $errorMessage;
 
-		if (strlen($_REQUEST["action"]) > 0 && strlen($_REQUEST["backurl"]) > 0 && strlen($arResult["ErrorMessage"]) <= 0)
+		if ($_REQUEST["action"] <> '' && $_REQUEST["backurl"] <> '' && $arResult["ErrorMessage"] == '')
 			LocalRedirect($_REQUEST["backurl"]);
 	}
-	elseif ($_REQUEST["EventType"] == "GroupRequest" && check_bitrix_sessid() && IntVal($_REQUEST["eventID"]) > 0)
+	elseif ($_REQUEST["EventType"] == "GroupRequest" && check_bitrix_sessid() && intval($_REQUEST["eventID"]) > 0)
 	{
 		$errorMessage = "";
 
 		if ($_REQUEST["action"] == "add")
 		{
-			if (!CSocNetUserToGroup::UserConfirmRequestToBeMember($GLOBALS["USER"]->GetID(), IntVal($_REQUEST["eventID"]), $bAutoSubscribe))
+			if (!CSocNetUserToGroup::UserConfirmRequestToBeMember($GLOBALS["USER"]->GetID(), intval($_REQUEST["eventID"]), $bAutoSubscribe))
 			{
 				if ($e = $APPLICATION->GetException())
 					$errorMessage .= $e->GetString();
@@ -116,17 +116,17 @@ else
 		}
 		elseif ($_REQUEST["action"] == "reject")
 		{
-			if (!CSocNetUserToGroup::UserRejectRequestToBeMember($GLOBALS["USER"]->GetID(), IntVal($_REQUEST["eventID"])))
+			if (!CSocNetUserToGroup::UserRejectRequestToBeMember($GLOBALS["USER"]->GetID(), intval($_REQUEST["eventID"])))
 			{
 				if ($e = $APPLICATION->GetException())
 					$errorMessage .= $e->GetString();
 			}
 		}
 
-		if (strlen($errorMessage) > 0)
+		if ($errorMessage <> '')
 			$arResult["ErrorMessage"] = $errorMessage;
 			
-		if (strlen($_REQUEST["action"]) > 0 && strlen($_REQUEST["backurl"]) > 0 && strlen($arResult["ErrorMessage"]) <= 0)
+		if ($_REQUEST["action"] <> '' && $_REQUEST["backurl"] <> '' && $arResult["ErrorMessage"] == '')
 			LocalRedirect($_REQUEST["backurl"]);
 	}
 	/*********************  END ACTIONS  *****************************/

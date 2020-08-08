@@ -43,7 +43,7 @@ class CCatalogRecommendedProductsComponent extends CCatalogViewedProductsCompone
 		else
 			$params['IBLOCK_ID'] = -1;
 
-		if(!isset($params['PROPERTY_LINK']) || !strlen($params['PROPERTY_LINK']) )
+		if(!isset($params['PROPERTY_LINK']) || !mb_strlen($params['PROPERTY_LINK']) )
 		{
 			$params['PROPERTY_LINK'] = 'RECOMMEND';
 		}
@@ -52,7 +52,7 @@ class CCatalogRecommendedProductsComponent extends CCatalogViewedProductsCompone
 			$params['PROPERTY_LINK'] = trim($params['PROPERTY_LINK']);
 		}
 
-		if(!isset($params['OFFERS_PROPERTY_LINK']) || !strlen($params['OFFERS_PROPERTY_LINK']) )
+		if(!isset($params['OFFERS_PROPERTY_LINK']) || !mb_strlen($params['OFFERS_PROPERTY_LINK']) )
 		{
 			$params['OFFERS_PROPERTY_LINK'] = 'RECOMMEND';
 		}

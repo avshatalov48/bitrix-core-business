@@ -71,7 +71,7 @@ function __forum_default_template_show_message($arMessages, $message, $arResult,
 	{
 		$iNumber++;
 
-		if ($arParams["SHOW_VOTE"] == "Y" && $res["PARAM1"] == "VT" && intVal($res["PARAM2"]) > 0 && IsModuleInstalled("vote"))
+		if ($arParams["SHOW_VOTE"] == "Y" && $res["PARAM1"] == "VT" && intval($res["PARAM2"]) > 0 && IsModuleInstalled("vote"))
 		{
 			?><div class="forum-info-box forum-post-vote">
 				<div class="forum-info-box-inner">
@@ -135,7 +135,7 @@ function __forum_default_template_show_message($arMessages, $message, $arResult,
 
 						?><div class="forum-user-additional"><?
 
-							if (intVal($res["NUM_POSTS"]) > 0)
+							if (intval($res["NUM_POSTS"]) > 0)
 							{
 								?><span><?=GetMessage("F_NUM_MESS")?> <span><?=$res["NUM_POSTS"]?></span></span><?
 							}
@@ -228,7 +228,7 @@ function __forum_default_template_show_message($arMessages, $message, $arResult,
 								$voteEntityId = $res['NEW_TOPIC'] == "Y" ? $res['TOPIC_ID'] : $res['ID'];
 
 								$voteId = $voteEntityType.'_'.$voteEntityId.'-'.(time()+rand(0, 1000));
-								$emotion = (!empty($arRatingVote[$voteEntityType][$voteEntityId]["USER_REACTION"]) ? strtoupper($arRatingVote[$voteEntityType][$voteEntityId]["USER_REACTION"]) : 'LIKE');
+								$emotion = (!empty($arRatingVote[$voteEntityType][$voteEntityId]["USER_REACTION"])? mb_strtoupper($arRatingVote[$voteEntityType][$voteEntityId]["USER_REACTION"]) : 'LIKE');
 
 								$likeTemplate = (
 									$isIntranetInstalled
@@ -370,7 +370,7 @@ function __forum_default_template_show_message($arMessages, $message, $arResult,
 							?></div><?
 						}
 
-						if (strLen($res["SIGNATURE"]) > 0)
+						if ($res["SIGNATURE"] <> '')
 						{
 							?><div class="forum-user-signature">
 								<div class="forum-signature-line"></div>
@@ -454,7 +454,7 @@ function __forum_default_template_show_message($arMessages, $message, $arResult,
 							<?
 							if (
 								$arParams["SHOW_MAIL"] == "Y"
-								&& strlen($res["EMAIL"]) > 0
+								&& $res["EMAIL"] <> ''
 							)
 							{
 								?>

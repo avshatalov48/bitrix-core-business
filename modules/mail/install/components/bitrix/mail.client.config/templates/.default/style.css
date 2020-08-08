@@ -654,6 +654,10 @@
 	border-color: #ff5752;
 }
 
+.mail-connect-form-item-warning .mail-connect-form-input {
+	border-color: #d5a933;
+}
+
 .mail-connect-form-error {
 	display: none;
 	font-size: 12px;
@@ -661,7 +665,12 @@
 	margin-top: 5px;
 }
 
-.mail-connect-form-item-error .mail-connect-form-error {
+.mail-connect-form-item-warning .mail-connect-form-error {
+	color: #d5a933;
+}
+
+.mail-connect-form-item-error .mail-connect-form-error,
+.mail-connect-form-item-warning .mail-connect-form-error {
 	display: block;
 }
 

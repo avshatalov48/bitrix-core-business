@@ -50,7 +50,7 @@ class CBPCodeCondition
 	{
 		$arErrors = array();
 
-		if (!array_key_exists("php_code_condition", $arCurrentValues) || strlen($arCurrentValues["php_code_condition"]) <= 0)
+		if (!array_key_exists("php_code_condition", $arCurrentValues) || $arCurrentValues["php_code_condition"] == '')
 		{
 			$arErrors[] = array(
 				"code" => "",

@@ -73,15 +73,15 @@ class CFileChecker
 				if (!is_file($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$file))
 					continue;
 
-				if (substr($file, 0, strlen("serverfilelog-")) != "serverfilelog-")
+				if (mb_substr($file, 0, mb_strlen("serverfilelog-")) != "serverfilelog-")
 					continue;
-				if (substr($file, -4) != ".dat")
+				if (mb_substr($file, -4) != ".dat")
 					continue;
-				if (substr($file, -8) === "_tmp.dat")
+				if (mb_substr($file, -8) === "_tmp.dat")
 					continue;
 
-				$ts = substr($file, strlen("serverfilelog-"));
-				$ts = substr($ts, 0, -4);
+				$ts = mb_substr($file, mb_strlen("serverfilelog-"));
+				$ts = mb_substr($ts, 0, -4);
 				if (intval($ts) <= 0)
 					continue;
 
@@ -111,8 +111,8 @@ class CFileChecker
 		foreach ($arCollectedExtensions as $ext)
 		{
 			$ext = trim($ext);
-			if (strlen($ext) > 0)
-				$this->arCollectedExtensions[] = strtolower($ext);
+			if ($ext <> '')
+				$this->arCollectedExtensions[] = mb_strtolower($ext);
 		}
 	}
 
@@ -120,13 +120,13 @@ class CFileChecker
 	{
 		$this->startPath = "";
 
-		if (strlen($startPath) > 0)
+		if ($startPath <> '')
 		{
-			if (intval(substr($startPath, 0, 1)) == $region)
+			if (intval(mb_substr($startPath, 0, 1)) == $region)
 			{
-				$startPath = str_replace("\\", "/", substr($startPath, 1));
+				$startPath = str_replace("\\", "/", mb_substr($startPath, 1));
 				$startPath = trim(trim($startPath, "/\\"));
-				if (strlen($startPath) > 0)
+				if ($startPath <> '')
 					$this->startPath = "/".$startPath;
 			}
 		}
@@ -146,27 +146,27 @@ class CFileChecker
 	{
 		$path = str_replace("\\", "/", $path);
 		$path = trim(trim($path, "/\\"));
-		if (strlen($path) > 0)
+		if ($path <> '')
 			$path = "/".$path;
 
 		$startPathPart = "";
 		$le = false;
-		if (strlen($this->startPath) > 0)
+		if ($this->startPath <> '')
 		{
-			if (strlen($path) <= 0
-				|| strlen($this->startPath) >= strlen($path) && substr($this->startPath, 0, strlen($path)) == $path)
+			if ($path == ''
+				|| mb_strlen($this->startPath) >= mb_strlen($path) && mb_substr($this->startPath, 0, mb_strlen($path)) == $path)
 			{
-				if (strlen($path) > 0)
-					$startPath = substr($this->startPath, strlen($path) + 1);
+				if ($path <> '')
+					$startPath = mb_substr($this->startPath, mb_strlen($path) + 1);
 				else
 					$startPath = $this->startPath;
 
-				$pos = strpos($startPath, "/");
+				$pos = mb_strpos($startPath, "/");
 				$le = (($pos === false) ? false : true);
 				if ($pos === false)
 					$startPathPart = $startPath;
 				else
-					$startPathPart = substr($startPath, 0, $pos);
+					$startPathPart = mb_substr($startPath, 0, $pos);
 			}
 		}
 
@@ -179,7 +179,7 @@ class CFileChecker
 				if ($file == "." || $file == "..")
 					continue;
 
-				if (strlen($startPathPart) > 0 && ($le && $startPathPart > $file || !$le && $startPathPart >= $file))
+				if ($startPathPart <> '' && ($le && $startPathPart > $file || !$le && $startPathPart >= $file))
 					continue;
 
 				if (count($arSkipPaths) > 0)
@@ -187,7 +187,7 @@ class CFileChecker
 					$bSkip = False;
 					for ($i = 0, $count = count($arSkipPaths); $i < $count; $i++)
 					{
-						if (strpos($path."/".$file, $arSkipPaths[$i]) === 0)
+						if (mb_strpos($path."/".$file, $arSkipPaths[$i]) === 0)
 						{
 							$bSkip = True;
 							break;
@@ -218,7 +218,7 @@ class CFileChecker
 			{
 				if (count($this->arCollectedExtensions) > 0)
 				{
-					$fileExt = strtolower(GetFileExtension($arFiles[$i]));
+					$fileExt = mb_strtolower(GetFileExtension($arFiles[$i]));
 					if (!in_array($fileExt, $this->arCollectedExtensions))
 						continue;
 				}
@@ -675,7 +675,7 @@ class CFileCheckerLog
 	function __Crypt($pwdString)
 	{
 		$fileString = file_get_contents($_SERVER["DOCUMENT_ROOT"].str_replace("\\", "/", $this->serverLogTmp));
-		$fileString = substr($fileString, strpos($fileString, "\n") + 1);
+		$fileString = mb_substr($fileString, mb_strpos($fileString, "\n") + 1);
 
 		$fileStringNew = CFileCheckerUtil::Encrypt($fileString, $pwdString);
 
@@ -722,11 +722,11 @@ class CFileCheckerLog
 		$this->__SetLogFileNames();
 
 		$fileString = file_get_contents($_SERVER["DOCUMENT_ROOT"].str_replace("\\", "/", $this->serverLog));
-		$pos = strpos($fileString, "\n");
-		$descr = substr($fileString, 0, $pos);
+		$pos = mb_strpos($fileString, "\n");
+		$descr = mb_substr($fileString, 0, $pos);
 
 		$fileStringNew = CFileCheckerUtil::Decrypt($fileString, $pwdString, $pos + 1);
-		if (substr($fileStringNew, 0, 1) != "/")
+		if (mb_substr($fileStringNew, 0, 1) != "/")
 			return false;
 
 		$this->serverLogTmpHandle = fopen($_SERVER["DOCUMENT_ROOT"].$this->serverLogTmp, "w");
@@ -754,9 +754,9 @@ class CFileCheckerLog
 
 	function __ReadDescriptionFromString()
 	{
-		$pos = strpos($this->logText, "\n");
-		$line = substr($this->logText, 0, $pos);
-		$this->logText = substr($this->logText, $pos + 1);
+		$pos = mb_strpos($this->logText, "\n");
+		$line = mb_substr($this->logText, 0, $pos);
+		$this->logText = mb_substr($this->logText, $pos + 1);
 
 		$line = trim($line);
 		$arLine = explode("|", $line);
@@ -770,19 +770,19 @@ class CFileCheckerLog
 	{
 		$pos = -1;
 		do {
-			$pos = strpos($this->logText, $filename, $pos+1);
+			$pos = mb_strpos($this->logText, $filename, $pos + 1);
 			if ($pos === false)
 			{
 				return false;
 			}
-		} while (($pos > 0) && (substr($this->logText, $pos-1, 1) !== "\n"));
+		} while (($pos > 0) && (mb_substr($this->logText, $pos - 1, 1) !== "\n"));
 		//check if it's begin of file or line
 
-		$pos1 = strpos($this->logText, "\n", $pos);
+		$pos1 = mb_strpos($this->logText, "\n", $pos);
 
-		$line = substr($this->logText, $pos, $pos1 - $pos);
+		$line = mb_substr($this->logText, $pos, $pos1 - $pos);
 
-		$this->logText = substr($this->logText, 0, $pos).substr($this->logText, $pos1 + 1);
+		$this->logText = mb_substr($this->logText, 0, $pos).mb_substr($this->logText, $pos1 + 1);
 
 		$arLine = explode("*", $line);
 
@@ -795,9 +795,9 @@ class CFileCheckerLog
 
 	function ReadLine()
 	{
-		$pos = strpos($this->logText, "\n");
-		$line = substr($this->logText, 0, $pos);
-		$this->logText = substr($this->logText, $pos + 1);
+		$pos = mb_strpos($this->logText, "\n");
+		$line = mb_substr($this->logText, 0, $pos);
+		$this->logText = mb_substr($this->logText, $pos + 1);
 
 		return $line;
 	}
@@ -876,7 +876,7 @@ class CFileCheckerLog
 			while (!feof($hFile))
 			{
 				$buffer = fgets($hFile, 4096);
-				if (strlen($buffer) > 0)
+				if ($buffer <> '')
 					gzwrite($zp_file, $buffer);
 			}
 			gzclose($zp_file);
@@ -951,9 +951,9 @@ class CFileCheckerErrorLog
 
 	function ReadLine()
 	{
-		$pos = strpos($this->logText, "\n");
-		$line = substr($this->logText, 0, $pos);
-		$this->logText = substr($this->logText, $pos + 1);
+		$pos = mb_strpos($this->logText, "\n");
+		$line = mb_substr($this->logText, 0, $pos);
+		$this->logText = mb_substr($this->logText, $pos + 1);
 
 		return $line;
 	}
@@ -978,11 +978,11 @@ class CFileCheckerSubscriber
 	public static function IsSubscribed($fileName)
 	{
 		$fileName = trim($fileName);
-		if (strlen($fileName) <= 0)
+		if ($fileName == '')
 			return false;
 
 		$fileString = file_get_contents($_SERVER["DOCUMENT_ROOT"].str_replace("\\", "/", $fileName));
-		if (strlen($fileString) <= 0)
+		if ($fileString == '')
 			return false;
 
 		return preg_match("#<"."\?[\s]*define\(\"BX_INTEGRITY_VALUE\",[\s]*'([^']*?)'\);?[\s]*\?".">#i", $fileString);
@@ -991,21 +991,21 @@ class CFileCheckerSubscriber
 	public static function Subscribe($fileName, $pwdString, $keyString, &$arErrors)
 	{
 		$fileName = trim($fileName);
-		if (strlen($fileName) <= 0)
+		if ($fileName == '')
 		{
 			$arErrors[] = GetMessage("MFC1_FILE_NOT_SET").". ";
 			return false;
 		}
 
 		$pwdString = trim($pwdString);
-		if (strlen($pwdString) <= 0)
+		if ($pwdString == '')
 		{
 			$arErrors[] = GetMessage("MFC1_PWD_NOT_SET").". ";
 			return false;
 		}
 
 		$keyString = trim($keyString);
-		if (strlen($keyString) <= 0)
+		if ($keyString == '')
 		{
 			$arErrors[] = GetMessage("MFC1_KEY_NOT_SET").". ";
 			return false;
@@ -1018,13 +1018,13 @@ class CFileCheckerSubscriber
 		}
 
 		$fileString = file_get_contents($_SERVER["DOCUMENT_ROOT"].str_replace("\\", "/", $fileName));
-		if (strlen($fileString) <= 0)
+		if ($fileString == '')
 		{
 			$arErrors[] = GetMessage("MFC1_EMPTY_FILE").". ";
 			return false;
 		}
 
-		if(substr($fileString, 0, 4) === "Zend")
+		if(mb_substr($fileString, 0, 4) === "Zend")
 		{
 			$arErrors[] = GetMessage("MFC1_ZEND_FILE").". ";
 			return false;
@@ -1058,21 +1058,21 @@ class CFileCheckerSubscriber
 	public static function Verify($fileName, $pwdString, &$keyString, &$arErrors)
 	{
 		$fileName = trim($fileName);
-		if (strlen($fileName) <= 0)
+		if ($fileName == '')
 		{
 			$arErrors[] = GetMessage("MFC1_FILE_NOT_SET").". ";
 			return false;
 		}
 
 		$pwdString = trim($pwdString);
-		if (strlen($pwdString) <= 0)
+		if ($pwdString == '')
 		{
 			$arErrors[] = GetMessage("MFC1_PWD_NOT_SET").". ";
 			return false;
 		}
 
 		$fileString = file_get_contents($_SERVER["DOCUMENT_ROOT"].str_replace("\\", "/", $fileName));
-		if (strlen($fileString) <= 0)
+		if ($fileString == '')
 		{
 			$arErrors[] = GetMessage("MFC1_EMPTY_FILE").". ";
 			return false;
@@ -1081,7 +1081,7 @@ class CFileCheckerSubscriber
 		if (preg_match("#<"."\\?[\\s]*define\\(\"BX_INTEGRITY_VALUE\",[\\s]*'([^']*?)'\\);?[\\s]*\\?".">#i", $fileString, $arMatches))
 		{
 			$data = $arMatches[1];
-			if (strlen($data) > 0)
+			if ($data <> '')
 			{
 				$fileString = preg_replace("#<"."\\?[\\s]*define\\(\"BX_INTEGRITY_VALUE\",[\\s]*'[^']*?'\\);?[\\s]*\\?".">#i", "", $fileString);
 				$currentCRC = sprintf("%u", crc32($fileString));
@@ -1121,7 +1121,7 @@ class CFileCheckerSubscriber
 
 	public static function __GetIntegrityParams($data, $password)
 	{
-		if (strlen($data) <= 0)
+		if ($data == '')
 			return False;
 
 		$dataNew = CFileCheckerUtil::Decrypt($data, $password);
@@ -1174,7 +1174,7 @@ class CFileCheckerUtil
 
 	protected static function __CryptData($data, $pwdString, $type, $startPosition = 0)
 	{
-		$type = strtoupper($type);
+		$type = mb_strtoupper($type);
 		if ($type != "D")
 			$type = "E";
 
@@ -1183,11 +1183,11 @@ class CFileCheckerUtil
 
 		$key[] = "";
 		$box[] = "";
-		$pwdLength = strlen($pwdString);
+		$pwdLength = mb_strlen($pwdString);
 
 		for ($i = 0; $i <= 255; $i++)
 		{
-			$key[$i] = ord(substr($pwdString, ($i % $pwdLength), 1));
+			$key[$i] = ord(mb_substr($pwdString, ($i % $pwdLength), 1));
 			$box[$i] = $i;
 		}
 		$x = 0;
@@ -1203,7 +1203,7 @@ class CFileCheckerUtil
 		$cipher = "";
 		$a = 0;
 		$j = 0;
-		$data_len = defined("BX_UTF")? mb_strlen($data, 'latin1'): strlen($data);
+		$data_len = defined("BX_UTF")? mb_strlen($data, 'latin1') : mb_strlen($data);
 		for ($i = $startPosition; $i < $data_len; $i++)
 		{
 			$a = ($a + 1) % 256;
@@ -1213,7 +1213,7 @@ class CFileCheckerUtil
 			$box[$j] = $temp;
 			$k = $box[(($box[$a] + $box[$j]) % 256)];
 			$cipherby = ord(
-				defined("BX_UTF")? mb_substr($data, $i, 1, 'latin1'): substr($data, $i, 1)
+					defined("BX_UTF")? mb_substr($data, $i, 1, 'latin1') : mb_substr($data, $i, 1)
 			) ^ $k;
 			$cipher .= chr($cipherby);
 		}
@@ -1383,10 +1383,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $tabStep == 2 && check_bitrix_sessid
 		$errorMessageTmp = "";
 		$okMessageTmp = "";
 
-		if (strlen($_REQUEST["crc_password"]) <= 0)
+		if ($_REQUEST["crc_password"] == '')
 			$errorMessageTmp .= GetMessage("MFC1_ERR_NO_PWD").". ";
 
-		if (strlen($errorMessageTmp) <= 0)
+		if ($errorMessageTmp == '')
 		{
 			$keyString = "";
 			$arErrors = array();
@@ -1396,12 +1396,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $tabStep == 2 && check_bitrix_sessid
 				$okMessageTmp = str_replace("#KEY#", $keyString, GetMessage("MFC1_OK_VERIFY"));
 		}
 
-		if (strlen($errorMessageTmp) > 0)
+		if ($errorMessageTmp <> '')
 		{
 			$errorMessage = $errorMessageTmp;
 			$tabStep = 1;
 		}
-		if (strlen($okMessageTmp) > 0)
+		if ($okMessageTmp <> '')
 			$okMessage = $okMessageTmp;
 	}
 	elseif ($canSign)
@@ -1409,19 +1409,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $tabStep == 2 && check_bitrix_sessid
 		$errorMessageTmp = "";
 		$okMessageTmp = "";
 
-		if (strlen($_REQUEST["crc_password"]) <= 0)
+		if ($_REQUEST["crc_password"] == '')
 			$errorMessageTmp .= GetMessage("MFC1_ERR_C_PWD").". ";
 
-		if (strlen($errorMessageTmp) <= 0 && $_REQUEST["crc_password"] != $_REQUEST["crc_password_check"])
+		if ($errorMessageTmp == '' && $_REQUEST["crc_password"] != $_REQUEST["crc_password_check"])
 			$errorMessageTmp .= GetMessage("MFC1_ERR_C_PWD_CHECK").". ";
 
-		if (strlen($errorMessageTmp) <= 0 && strlen($_REQUEST["crc_key"]) <= 0)
+		if ($errorMessageTmp == '' && $_REQUEST["crc_key"] == '')
 			$errorMessageTmp .= GetMessage("MFC1_ERR_C_KEY").". ";
 
-		if (strlen($errorMessageTmp) <= 0 && $_REQUEST["crc_key"] == $_REQUEST["crc_password"])
+		if ($errorMessageTmp == '' && $_REQUEST["crc_key"] == $_REQUEST["crc_password"])
 			$errorMessageTmp .= GetMessage("MFC1_ERR_C_PWD_KEY").". ";
 
-		if (strlen($errorMessageTmp) <= 0)
+		if ($errorMessageTmp == '')
 		{
 			$keyString = "";
 			$arErrors = array();
@@ -1431,12 +1431,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $tabStep == 2 && check_bitrix_sessid
 				$okMessageTmp = GetMessage("MFC1_ERR_C_SUCCESS").".";
 		}
 
-		if (strlen($errorMessageTmp) > 0)
+		if ($errorMessageTmp <> '')
 		{
 			$errorMessage = $errorMessageTmp;
 			$tabStep = 1;
 		}
-		if (strlen($okMessageTmp) > 0)
+		if ($okMessageTmp <> '')
 			$okMessage = $okMessageTmp;
 	}
 	else
@@ -1490,10 +1490,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $tabStep == 4 && check_bitrix_sessid
 		if ($region <= 0)
 			$errorMessageTmp .= GetMessage("MFC1_ERR_C_NO_REG").". ";
 
-		if (strlen($errorMessageTmp) <= 0 && strlen($_REQUEST['checker_pwd']) <= 0)
+		if ($errorMessageTmp == '' && $_REQUEST['checker_pwd'] == '')
 			$errorMessageTmp .= GetMessage("MFC1_ERR_C_NO_PWD1").". ";
 
-		if (strlen($errorMessageTmp) > 0)
+		if ($errorMessageTmp <> '')
 		{
 			$errorMessage = $errorMessageTmp;
 			$tabStep = 3;
@@ -1515,7 +1515,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $tabStep == 4 && check_bitrix_sessid
 				while (!gzeof($zp_file))
 				{
 					$buffer = gzread($zp_file, 4096);
-					if (strlen($buffer) > 0)
+					if ($buffer <> '')
 						fwrite($hFile, $buffer);
 				}
 				gzclose($zp_file);
@@ -1548,7 +1548,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $tabStep == 4 && check_bitrix_sessid
 		if ($cf_select_dfile <= 0)
 			$errorMessageTmp .= GetMessage("MFC1_ERR_V_FILE").". ";
 
-		if (strlen($errorMessageTmp) > 0)
+		if ($errorMessageTmp <> '')
 		{
 			$errorMessage = $errorMessageTmp;
 			$tabStep = 3;
@@ -1563,10 +1563,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $tabStep == 5 && check_bitrix_sessid
 		$errorMessageTmp = "";
 		$okMessageTmp = "";
 
-		if (strlen($_REQUEST['checker_pwd']) <= 0)
+		if ($_REQUEST['checker_pwd'] == '')
 			$errorMessageTmp .= GetMessage("MFC1_ERR_V_PWD1").". ";
 
-		if (strlen($errorMessageTmp) > 0)
+		if ($errorMessageTmp <> '')
 		{
 			$errorMessage = $errorMessageTmp;
 			$tabStep = 4;
@@ -2132,7 +2132,7 @@ elseif ($tabStep == 3 && $_REQUEST["action"] == "verify")
 elseif ($tabStep == 4 && $_REQUEST["action"] == "verify")
 	$legend = GetMessage("MFCW_LEGEND_4_verify");
 
-if (strlen($legend) > 0)
+if ($legend <> '')
 	echo BeginNote().$legend.EndNote();
 ?>
 

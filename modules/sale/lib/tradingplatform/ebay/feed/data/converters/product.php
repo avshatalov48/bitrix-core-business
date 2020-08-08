@@ -17,7 +17,7 @@ class Product extends DataConverter
 
 	public function __construct($params)
 	{
-		if(!isset($params["SITE_ID"]) || strlen($params["SITE_ID"]) <= 0)
+		if(!isset($params["SITE_ID"]) || $params["SITE_ID"] == '')
 			throw new ArgumentNullException("SITE_ID");
 
 		$this->siteId = $params["SITE_ID"];
@@ -71,10 +71,10 @@ class Product extends DataConverter
 			$result .= "\t\t\t</Attributes>\n";
 		}
 
-		if(strlen($data["DETAIL_PICTURE_URL"]) > 0 || strlen($data["PREVIEW_PICTURE_URL"]) > 0)
+		if($data["DETAIL_PICTURE_URL"] <> '' || $data["PREVIEW_PICTURE_URL"] <> '')
 		{
 			$result .= "\t\t\t<PictureUrls>\n";
-			$result .= "\t\t\t\t<PictureUrl>".(strlen($data["DETAIL_PICTURE_URL"]) > 0 ? $data["DETAIL_PICTURE_URL"] : $data["PREVIEW_PICTURE_URL"] )."</PictureUrl>\n";
+			$result .= "\t\t\t\t<PictureUrl>".($data["DETAIL_PICTURE_URL"] <> '' ? $data["DETAIL_PICTURE_URL"] : $data["PREVIEW_PICTURE_URL"] )."</PictureUrl>\n";
 			$result .= "\t\t\t</PictureUrls>\n";
 		}
 
@@ -114,7 +114,7 @@ class Product extends DataConverter
 		$result .= "\t\t\t<Description>\n";
 		$result .= "\t\t\t\t<ProductDescription>\n";
 		$result .= "<![CDATA[\n";
-		$result .= strlen($data["~PREVIEW_TEXT"]) > 0 ? $data["~PREVIEW_TEXT"] : $data["~DETAIL_TEXT"]."\n";
+		$result .= $data["~PREVIEW_TEXT"] <> '' ? $data["~PREVIEW_TEXT"] : $data["~DETAIL_TEXT"]."\n";
 		$result .= "]]>\n";
 		$result .= "</ProductDescription>\n";
 		$result .= "\t\t\t</Description>\n";
@@ -137,7 +137,7 @@ class Product extends DataConverter
 		}
 
 		$result .= "\t\t\t<PictureUrls>\n";
-		$result .= "\t\t\t\t<PictureUrl>".(strlen($data["DETAIL_PICTURE_URL"]) > 0 ? $data["DETAIL_PICTURE_URL"] : $data["PREVIEW_PICTURE_URL"] )."</PictureUrl>\n";
+		$result .= "\t\t\t\t<PictureUrl>".($data["DETAIL_PICTURE_URL"] <> '' ? $data["DETAIL_PICTURE_URL"] : $data["PREVIEW_PICTURE_URL"] )."</PictureUrl>\n";
 		$result .= "\t\t\t</PictureUrls>\n";
 		$result .= "<ConditionInfo>
 						<Condition>NEW</Condition>
@@ -192,7 +192,7 @@ class Product extends DataConverter
 		$result .= "\t\t\t\t<Description>\n";
 		$result .= "\t\t\t\t\t<ProductDescription>\n";
 		$result .= "<![CDATA[\n";
-		$result .= strlen($data["~PREVIEW_TEXT"]) > 0 ? $data["~PREVIEW_TEXT"] : $data["~DETAIL_TEXT"]."\n";
+		$result .= $data["~PREVIEW_TEXT"] <> '' ? $data["~PREVIEW_TEXT"] : $data["~DETAIL_TEXT"]."\n";
 		$result .= "]]>\n";
 		$result .= "</ProductDescription>\n";
 		$result .= "\t\t\t\t</Description>\n";
@@ -218,7 +218,7 @@ class Product extends DataConverter
 		}
 
 		$result .= "\t\t\t\t<PictureUrls>\n";
-		$result .= "\t\t\t\t\t<PictureUrl>".(strlen($data["DETAIL_PICTURE_URL"]) > 0 ? $data["DETAIL_PICTURE_URL"] : $data["PREVIEW_PICTURE_URL"] )."</PictureUrl>\n";
+		$result .= "\t\t\t\t\t<PictureUrl>".($data["DETAIL_PICTURE_URL"] <> '' ? $data["DETAIL_PICTURE_URL"] : $data["PREVIEW_PICTURE_URL"] )."</PictureUrl>\n";
 		$result .= "\t\t\t\t</PictureUrls>\n";
 		$result .= "\t\t\t\t<Categories>\n";
 
@@ -395,13 +395,13 @@ class Product extends DataConverter
 						$policyPaymentId = $categoryParams["PARAMS"]["POLICY"]["PAYMENT"];
 				}
 
-				if(strlen($policyReturnId) <= 0 && !empty($siteSettings["POLICY"]["RETURN"]["DEFAULT"]))
+				if($policyReturnId == '' && !empty($siteSettings["POLICY"]["RETURN"]["DEFAULT"]))
 					$policyReturnId = $siteSettings["POLICY"]["RETURN"]["DEFAULT"];
 
-				if(strlen($policyShippingId) <= 0 && !empty($siteSettings["POLICY"]["SHIPPING"]["DEFAULT"]))
+				if($policyShippingId == '' && !empty($siteSettings["POLICY"]["SHIPPING"]["DEFAULT"]))
 					$policyShippingId = $siteSettings["POLICY"]["SHIPPING"]["DEFAULT"];
 
-				if(strlen($policyPaymentId) <= 0 && !empty($siteSettings["POLICY"]["PAYMENT"]["DEFAULT"]))
+				if($policyPaymentId == '' && !empty($siteSettings["POLICY"]["PAYMENT"]["DEFAULT"]))
 					$policyPaymentId = $siteSettings["POLICY"]["PAYMENT"]["DEFAULT"];
 
 				if($policyReturnId != "" && !empty($siteSettings["POLICY"]["RETURN"]["LIST"][$policyReturnId]))

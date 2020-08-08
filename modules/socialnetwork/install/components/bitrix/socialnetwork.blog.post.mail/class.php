@@ -93,7 +93,7 @@ class CBitrixSocialnetworkBlogPostMailComponent extends CBitrixComponent
 		$arParams["AVATAR_SIZE"] = (isset($arParams["AVATAR_SIZE"]) ? intval($arParams["AVATAR_SIZE"]) : 58);
 		$arParams["URL"] = (
 			isset($arParams["URL"])
-			&& strlen($arParams["URL"]) > 0
+			&& $arParams["URL"] <> ''
 				? $arParams["URL"]
 				: CComponentEngine::MakePathFromTemplate(
 					'/pub/post.php?post_id=#post_id#',

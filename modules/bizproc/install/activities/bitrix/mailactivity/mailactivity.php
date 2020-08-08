@@ -3,7 +3,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 use Bitrix\Main;
 use Bitrix\Main\Loader;
-use Bitrix\Main\Mail;
+use Bitrix\Mail;
 use Bitrix\Disk;
 
 class CBPMailActivity extends CBPActivity
@@ -67,17 +67,17 @@ class CBPMailActivity extends CBPActivity
 			global $APPLICATION;
 
 			$strMailUserTo = $APPLICATION->ConvertCharset($strMailUserTo, SITE_CHARSET, $charset);
-			$strMailUserTo = Mail\Mail::encodeMimeString($strMailUserTo, $charset);
+			$strMailUserTo = Main\Mail\Mail::encodeMimeString($strMailUserTo, $charset);
 
 			$mailSubject = $APPLICATION->ConvertCharset($this->MailSubject, SITE_CHARSET, $charset);
 
 			$mailText = $APPLICATION->ConvertCharset(CBPHelper::ConvertTextForMail($mailText), SITE_CHARSET, $charset);
 
-			$context = new Mail\Context();
-			$context->setCategory(Mail\Context::CAT_EXTERNAL);
-			$context->setPriority(Mail\Context::PRIORITY_LOW);
+			$context = new Main\Mail\Context();
+			$context->setCategory(Main\Mail\Context::CAT_EXTERNAL);
+			$context->setPriority(Main\Mail\Context::PRIORITY_LOW);
 
-			Mail\Mail::send([
+			Main\Mail\Mail::send([
 				'CHARSET'      => $charset,
 				'CONTENT_TYPE' => $this->MailMessageType == "html" ? "html" : "plain",
 				'ATTACHMENT'   => $this->getAttachments(),
@@ -98,7 +98,7 @@ class CBPMailActivity extends CBPActivity
 			{
 				$siteId = $this->MailSite;
 			}
-			if (strlen($siteId) <= 0)
+			if ($siteId == '')
 			{
 				$siteId = SITE_ID;
 			}
@@ -125,23 +125,23 @@ class CBPMailActivity extends CBPActivity
 	{
 		$arErrors = array();
 
-		if ((!array_key_exists("MailUserFrom", $arTestProperties) || strlen($arTestProperties["MailUserFrom"]) <= 0)
+		if ((!array_key_exists("MailUserFrom", $arTestProperties) || $arTestProperties["MailUserFrom"] == '')
 			&& (!array_key_exists("MailUserFromArray", $arTestProperties) || count($arTestProperties["MailUserFromArray"]) <= 0))
 			$arErrors[] = array("code" => "NotExist", "parameter" => "MailUserFrom", "message" => GetMessage("BPMA_EMPTY_PROP1"));
 
-		if ((!array_key_exists("MailUserTo", $arTestProperties) || strlen($arTestProperties["MailUserTo"]) <= 0)
+		if ((!array_key_exists("MailUserTo", $arTestProperties) || $arTestProperties["MailUserTo"] == '')
 			&& (!array_key_exists("MailUserToArray", $arTestProperties) || count($arTestProperties["MailUserToArray"]) <= 0))
 			$arErrors[] = array("code" => "NotExist", "parameter" => "MailUserTo", "message" => GetMessage("BPMA_EMPTY_PROP2"));
 
-		if (!array_key_exists("MailSubject", $arTestProperties) || strlen($arTestProperties["MailSubject"]) <= 0)
+		if (!array_key_exists("MailSubject", $arTestProperties) || $arTestProperties["MailSubject"] == '')
 			$arErrors[] = array("code" => "NotExist", "parameter" => "MailSubject", "message" => GetMessage("BPMA_EMPTY_PROP3"));
-		if (!array_key_exists("MailCharset", $arTestProperties) || strlen($arTestProperties["MailCharset"]) <= 0)
+		if (!array_key_exists("MailCharset", $arTestProperties) || $arTestProperties["MailCharset"] == '')
 			$arErrors[] = array("code" => "NotExist", "parameter" => "MailCharset", "message" => GetMessage("BPMA_EMPTY_PROP4"));
 		if (!array_key_exists("MailMessageType", $arTestProperties))
 			$arErrors[] = array("code" => "NotExist", "parameter" => "MailMessageType", "message" => GetMessage("BPMA_EMPTY_PROP5"));
 		elseif (!in_array($arTestProperties["MailMessageType"], array("plain", "html")))
 			$arErrors[] = array("code" => "NotInRange", "parameter" => "MailMessageType", "message" => GetMessage("BPMA_EMPTY_PROP6"));
-		if (!array_key_exists("MailText", $arTestProperties) || strlen($arTestProperties["MailText"]) <= 0)
+		if (!array_key_exists("MailText", $arTestProperties) || $arTestProperties["MailText"] == '')
 			$arErrors[] = array("code" => "NotExist", "parameter" => "MailText", "message" => GetMessage("BPMA_EMPTY_PROP7"));
 
 		return array_merge($arErrors, parent::ValidateProperties($arTestProperties, $user));
@@ -294,20 +294,20 @@ class CBPMailActivity extends CBPActivity
 				? $arCurrentValues["file"] : $arCurrentValues["file_text"];
 		}
 
-		if (strlen($properties["MailSite"]) <= 0)
+		if ($properties["MailSite"] == '')
 			$properties["MailSite"] = $arCurrentValues["mail_site_x"];
 
 		$properties["MailSeparator"] = trim($properties["MailSeparator"]);
-		if (strlen($properties["MailSeparator"]) <= 0)
+		if ($properties["MailSeparator"] == '')
 			$properties["MailSeparator"] = static::DEFAULT_SEPARATOR;
 
-		list($mailUserFromArray, $mailUserFrom) = CBPHelper::UsersStringToArray($arCurrentValues["mail_user_from"], $documentType, $arErrors, array(__CLASS__, "CheckEmailUserValue"));
+		[$mailUserFromArray, $mailUserFrom] = CBPHelper::UsersStringToArray($arCurrentValues["mail_user_from"], $documentType, $arErrors, array(__CLASS__, "CheckEmailUserValue"));
 		if (count($arErrors) > 0)
 			return false;
 		$properties["MailUserFrom"] = implode(", ", $mailUserFrom);
 		$properties["MailUserFromArray"] = $mailUserFromArray;
 
-		list($mailUserToArray, $mailUserTo) = CBPHelper::UsersStringToArray($arCurrentValues["mail_user_to"], $documentType, $arErrors, array(__CLASS__, "CheckEmailUserValue"));
+		[$mailUserToArray, $mailUserTo] = CBPHelper::UsersStringToArray($arCurrentValues["mail_user_to"], $documentType, $arErrors, array(__CLASS__, "CheckEmailUserValue"));
 		if (count($arErrors) > 0)
 			return false;
 		$properties["MailUserTo"] = implode(", ", $mailUserTo);
@@ -434,7 +434,7 @@ class CBPMailActivity extends CBPActivity
 			$name = str_replace(array('\\', '"', '<', '>'), array('/', '\'', '(', ')'), $name);
 			return sprintf(
 				'%s <%s>',
-				Mail\Mail::encodeSubject($name, $charset),
+				Main\Mail\Mail::encodeSubject($name, $charset),
 				$email
 			);
 		}
@@ -505,7 +505,7 @@ class CBPMailActivity extends CBPActivity
 				)];
 			}
 
-			if (strlen($arCurrentActivity["Properties"][$k]) > 0)
+			if ($arCurrentActivity["Properties"][$k] <> '')
 				$result[] = $arCurrentActivity["Properties"][$k];
 			return $compatible ? implode(', ', array_filter($result)) : $result;
 		};
@@ -515,7 +515,7 @@ class CBPMailActivity extends CBPActivity
 	{
 		$fromList = [];
 
-		list($mailUserFromArray, $mailUserFromArrayString) = static::extractEmails($this->MailUserFromArray);
+		[$mailUserFromArray, $mailUserFromArrayString] = static::extractEmails($this->MailUserFromArray);
 
 		$arMailUserFromArray = CBPHelper::ExtractUsers($mailUserFromArray, $this->GetDocumentId(), false);
 		foreach ($arMailUserFromArray as $user)
@@ -526,7 +526,7 @@ class CBPMailActivity extends CBPActivity
 				$userName = '';
 				$userEmail = preg_replace("#[\r\n]+#", "", $arUser["EMAIL"]);
 
-				if (strlen($arUser["NAME"]) > 0 || strlen($arUser["LAST_NAME"]) > 0)
+				if ($arUser["NAME"] <> '' || $arUser["LAST_NAME"] <> '')
 				{
 					$userName = preg_replace(
 						"#['\r\n]+#",
@@ -543,9 +543,9 @@ class CBPMailActivity extends CBPActivity
 		}
 
 		$mailUserFromTmp = str_replace(', ', $separator, $this->MailUserFrom);
-		if (strlen($mailUserFromTmp) > 0)
+		if ($mailUserFromTmp <> '')
 		{
-			$address = new Mail\Address($mailUserFromTmp);
+			$address = new Main\Mail\Address($mailUserFromTmp);
 			if ($address->validate())
 			{
 				$fromList[] = [
@@ -559,7 +559,7 @@ class CBPMailActivity extends CBPActivity
 		{
 			foreach ($mailUserFromArrayString as $s)
 			{
-				$address = new Mail\Address($s);
+				$address = new Main\Mail\Address($s);
 				if ($address->validate())
 				{
 					$fromList[] = [
@@ -570,14 +570,87 @@ class CBPMailActivity extends CBPActivity
 			}
 		}
 
-		return $fromList;
+		return $this->filterFromList($fromList);
+	}
+
+	private function filterFromList(array $fromList): array
+	{
+		if (!Loader::includeModule('bitrix24'))
+		{
+			return $fromList;
+		}
+
+		$confirmedEmails = $this->getConfirmedEmails(array_column($fromList, 'email'));
+
+		foreach ($fromList as $i => $item)
+		{
+			if (!in_array($item['email'], $confirmedEmails))
+			{
+				unset($fromList[$i]);
+			}
+		}
+
+		return array_values($fromList);
+	}
+
+	private function getConfirmedEmails(array $emailsToCheck): array
+	{
+		$result = [];
+		$emailsToCheck = array_filter($emailsToCheck);
+
+		if (!$emailsToCheck)
+		{
+			return $result;
+		}
+
+		$crmAddress = new Main\Mail\Address(Main\Config\Option::get('crm', 'mail', ''));
+		if ($crmAddress->validate())
+		{
+			$result[] = $crmAddress->getEmail();
+		}
+
+		if (Loader::includeModule('mail'))
+		{
+			$res = Mail\MailboxTable::getList(array(
+				'filter' => array(
+					array(
+						'LOGIC' => 'OR',
+						'@EMAIL' => $emailsToCheck,
+						'@NAME' => $emailsToCheck,
+						'@LOGIN' => $emailsToCheck,
+					),
+					'=ACTIVE' => 'Y',
+					'=SERVER_TYPE' => 'imap',
+				),
+			));
+
+			while ($mailbox = $res->fetch())
+			{
+				Mail\MailboxTable::normalizeEmail($mailbox);
+				$result[] = $mailbox['EMAIL'];
+			}
+		}
+
+		$res = Main\Mail\Internal\SenderTable::getList(array(
+			'filter' => array(
+				'IS_CONFIRMED' => true,
+				'@EMAIL' => $emailsToCheck
+			)
+		));
+
+		while ($item = $res->fetch())
+		{
+			$result[] = mb_strtolower($item['EMAIL']);
+		}
+
+		return array_unique($result);
 	}
 
 	private function getMailUserTo($separator = self::DEFAULT_SEPARATOR)
 	{
 		$strMailUserTo = "";
 
-		list($MailUserToArray, $MailUserToArrayString) = static::extractEmails($this->MailUserToArray);
+		[$MailUserToArray, $MailUserToArrayString] = static::extractEmails($this->MailUserToArray);
 
 		$arMailUserToArray = CBPHelper::ExtractUsers($MailUserToArray, $this->GetDocumentId(), false);
 		foreach ($arMailUserToArray as $user)
@@ -585,7 +658,7 @@ class CBPMailActivity extends CBPActivity
 			$dbUser = CUser::GetList(($b = ""), ($o = ""), array("ID_EQUAL_EXACT" => $user));
 			if ($arUser = $dbUser->Fetch())
 			{
-				if (strlen($strMailUserTo) > 0)
+				if ($strMailUserTo <> '')
 				{
 					$strMailUserTo .= $separator;
 				}
@@ -594,9 +667,9 @@ class CBPMailActivity extends CBPActivity
 		}
 
 		$mailUserToTmp = str_replace(', ', $separator, $this->MailUserTo);
-		if (strlen($mailUserToTmp) > 0)
+		if ($mailUserToTmp <> '')
 		{
-			if (strlen($strMailUserTo) > 0)
+			if ($strMailUserTo <> '')
 				$strMailUserTo .= $separator;
 			$strMailUserTo .= preg_replace("#[\r\n]+#", "", $mailUserToTmp);
 		}
@@ -605,7 +678,7 @@ class CBPMailActivity extends CBPActivity
 		{
 			foreach ($MailUserToArrayString as $s)
 			{
-				if (strlen($strMailUserTo) > 0)
+				if ($strMailUserTo <> '')
 					$strMailUserTo .= $separator;
 				$strMailUserTo .= $s;
 			}
@@ -633,9 +706,9 @@ class CBPMailActivity extends CBPActivity
 
 	public static function decodeMailText($text)
 	{
-		if (strpos($text, 'base64,') === 0)
+		if (mb_strpos($text, 'base64,') === 0)
 		{
-			$text = substr($text, 7);
+			$text = mb_substr($text, 7);
 			return base64_decode($text);
 		}
 		//compatible encode type

@@ -4,7 +4,6 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-
 /**
  * Bitrix vars
  *
@@ -15,6 +14,17 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
  * @global CMain $APPLICATION
  * @global CUser $USER
  */
+
+if($arParams['IS_SLIDER'])
+{
+	$bodyClass = $APPLICATION->getPageProperty("BodyClass", false);
+	$bodyClasses = "app-layout-subscribe-slider-modifier";
+	if($arParams['USE_PADDING'] != 'N')
+	{
+		$bodyClasses .= " app-layout-subscribe-renew-modifier-75";
+	}
+	$APPLICATION->setPageProperty("BodyClass", trim(sprintf("%s %s", $bodyClass, $bodyClasses)));
+}
 
 if($arResult['APP_STATUS']['PAYMENT_NOTIFY'] == 'Y')
 {
@@ -110,8 +120,11 @@ if($arParams['PLACEMENT'] !== \Bitrix\Rest\PlacementTable::PLACEMENT_DEFAULT)
 	$formHtml = ob_get_clean();
 }
 ?>
-<div id="appframe_layout_<?=$arResult['APP_SID']?>" <? if(!empty($frameStyle)) echo ' style="'.implode(';', $frameStyle).'"' ?> class="app-frame-layout">
-	<iframe id="appframe_<?=$arResult['APP_SID']?>" name="<?=htmlspecialcharsbx($frameName)?>" frameborder="0" class="app-frame app-loading" style="height: 100%; width: 100%;" allow="geolocation *; microphone *; camera *"></iframe>
+<div
+	id="appframe_layout_<?=$arResult['APP_SID']?>" <? if(!empty($frameStyle)) echo ' style="'.implode(';', $frameStyle).'"' ?>
+	class="app-frame-layout<?=($arParams['PLACEMENT'] === \Bitrix\Rest\PlacementTable::PLACEMENT_DEFAULT) ? ' app-frame-layout-default' : ''?>"
+>
+	<iframe id="appframe_<?=$arResult['APP_SID']?>" name="<?=htmlspecialcharsbx($frameName)?>" frameborder="0" class="app-frame app-loading" allow="geolocation *; microphone *; camera *"></iframe>
 	<div id="appframe_loading_<?=$arResult['APP_SID']?>" class="app-loading-msg" <?if($arParams['SHOW_LOADER'] === 'N'):?> style="display: none;"<?endif;?>>
 		<?=GetMessage('REST_LOADING', array('#APP_NAME#' =>  htmlspecialcharsbx($arResult['APP_NAME'])))?>
 	</div>
@@ -145,6 +158,7 @@ BX.rest.AppLayout.set(
 		staticHtml: <?=$arResult['APP_STATIC'] ? 'true' : 'false'?>,
 		appOptions: <?=\CUtil::PhpToJsObject($arResult['APP_OPTIONS'])?>,
 		userOptions: <?=\CUtil::PhpToJsObject($arResult['USER_OPTIONS'])?>,
+		placementId: '<?=($arParams['PLACEMENT_ID'] > 0) ? intVal($arParams['PLACEMENT_ID']) : 0; ?>',
 		placementOptions: <?=\CUtil::PhpToJsObject($arParams['PLACEMENT_OPTIONS'])?>
 
 	}

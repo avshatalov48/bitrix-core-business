@@ -29,7 +29,7 @@ if(is_array($arID))
 {
 	foreach($arID as $ID)
 	{
-		if(strlen($ID) <= 0 || intval($ID) <= 0)
+		if($ID == '' || intval($ID) <= 0)
 			continue;
 
 		switch($action)

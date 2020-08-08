@@ -206,6 +206,12 @@
 	Sender.prototype.createMenu = function (popupId, button, items, params)
 	{
 		params = params || {};
+
+		if(BX.PopupMenu.getMenuById(popupId) !== null)
+		{
+			return BX.PopupMenu.getMenuById(popupId);
+		}
+
 		return BX.PopupMenu.create(
 			popupId,
 			button,

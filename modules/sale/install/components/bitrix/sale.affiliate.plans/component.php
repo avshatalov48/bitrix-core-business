@@ -5,7 +5,7 @@ if(!CBXFeatures::IsFeatureEnabled('SaleAffiliate'))
 
 if (CModule::IncludeModule("sale"))
 {
-	if (strlen($arParams["SET_TITLE"]) <= 0) $arParams["SET_TITLE"] = "Y";
+	if ($arParams["SET_TITLE"] == '') $arParams["SET_TITLE"] = "Y";
 	
 	if ($arParams["SET_TITLE"] == "Y")
 		$APPLICATION->SetTitle(GetMessage("SPCAT1_TARIF_PLANS"));
@@ -25,7 +25,7 @@ if (CModule::IncludeModule("sale"))
 	while ($arPlan = $dbPlan->Fetch())
 	{
 		$arPlan["BASE_RATE_FORMAT"] = (($arPlan["BASE_RATE_TYPE"] == "P") ? round($arPlan["BASE_RATE"], SALE_VALUE_PRECISION)."%" : SaleFormatCurrency($arPlan["BASE_RATE"], $arPlan["BASE_RATE_CURRENCY"]));
-		$arPlan["MIN_PLAN_VALUE_FORMAT"] = (($affiliatePlanType == "N") ? str_replace("#NUM#", IntVal($arPlan["MIN_PLAN_VALUE"]), GetMessage("SPCAT1_LIMIT1")) : str_replace("#SUM#", SaleFormatCurrency($arPlan["MIN_PLAN_VALUE"], $affiliateCurrency), GetMessage("SPCAT1_LIMIT2")));
+		$arPlan["MIN_PLAN_VALUE_FORMAT"] = (($affiliatePlanType == "N") ? str_replace("#NUM#", intval($arPlan["MIN_PLAN_VALUE"]), GetMessage("SPCAT1_LIMIT1")) : str_replace("#SUM#", SaleFormatCurrency($arPlan["MIN_PLAN_VALUE"], $affiliateCurrency), GetMessage("SPCAT1_LIMIT2")));
 		$arPlan["DESCRIPTION"] = htmlspecialcharsex($arPlan["DESCRIPTION"]);
 		$arPlan["NAME"] = htmlspecialcharsex($arPlan["NAME"]);
 		$arResult[] = $arPlan;

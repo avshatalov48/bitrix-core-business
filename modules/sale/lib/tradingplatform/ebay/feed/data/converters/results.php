@@ -16,7 +16,7 @@ class Results extends DataConverter
 
 		$result["ARRAY"]= \Bitrix\Sale\TradingPlatform\Xml2Array::convert($data["CONTENT"]);
 		$result["RESULT_ID"] = $data["RESULT_ID"];
-		$result["XML"] = strlen($data["CONTENT"]) > 0 ? $data["CONTENT"] : "<?xml version='1.0' encoding='UTF-8'?>";
+		$result["XML"] = $data["CONTENT"] <> '' ? $data["CONTENT"] : "<?xml version='1.0' encoding='UTF-8'?>";
 
 		return $result;
 	}

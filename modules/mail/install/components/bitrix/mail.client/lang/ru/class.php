@@ -13,10 +13,16 @@ $MESS["MAIL_CLIENT_DENIED"] = "Доступ запрещен";
 $MESS['MAIL_CLIENT_MAILBOX_ADD'] = "Подключить новый";
 
 $MESS['MAIL_CLIENT_MAILBOX_SYNC_BAR'] = "Синхронизация";
+$MESS['MAIL_CLIENT_MAILBOX_SYNC_BAR_COMPLETED'] = "Синхронизация завершена";
+$MESS['MAIL_CLIENT_MAILBOX_SYNC_BAR_INTERRUPTED'] = "Синхронизация прервана";
 $MESS['MAIL_CLIENT_MAILBOX_INDEX_BAR'] = "Индексация";
+
+$MESS["MAIL_DISK_ACTION_SAVE_TO_OWN_FILES"] = "Сохранить на Битрикс24.Диск";
+$MESS["MAIL_DISK_FILE_DOWNLOAD_ARCHIVE"] = "Скачать все файлы одним архивом";
 
 $MESS["MAIL_MESSAGE_NEW_EMPTY_RCPT"] = "Пожалуйста, укажите получателей в поле 'Кому'";
 $MESS["MAIL_MESSAGE_NEW_UPLOADING"] = "Пожалуйста, дождитесь окончания загрузки вложений";
+$MESS["MAIL_MESSAGE_MAX_SIZE_EXCEED"] = "Превышен максимальный размер вложений (#SIZE#)";
 
 $MESS["MAIL_MESSAGE_SENT"] = "отправлено #DATETIME#";
 $MESS["MAIL_MESSAGE_RECEIVED"] = "получено #DATETIME#";
@@ -63,6 +69,7 @@ $MESS["MAIL_MESSAGE_CREATE_EVENT_BTN"] = "Создать событие";
 $MESS["MAIL_MESSAGE_CREATE_CRM_EXCLUDE_BTN"] = "Исключить из CRM";
 
 $MESS["MAIL_MESSAGE_TASK_TITLE"] = "Письмо: #SUBJECT#";
+$MESS["MAIL_MESSAGE_POST_TITLE"] = "Письмо: #SUBJECT#";
 
 $MESS["MAIL_MESSAGE_SYNC_BTN_HINT"] = "Синхронизация";
 $MESS["MAIL_MESSAGE_NEW_BTN"] = "Написать";
@@ -83,6 +90,8 @@ $MESS['MAIL_MESSAGE_EXT_BIND_CRM_TITLE'] = "CRM";
 $MESS['MAIL_MESSAGE_EXT_BIND_CRM_EMPTY_TITLE'] = "Элемент";
 $MESS['MAIL_MESSAGE_EXT_BIND_TASKS_TITLE'] = "Задачи";
 $MESS['MAIL_MESSAGE_EXT_BIND_TASKS_EMPTY_TITLE'] = "Задача";
+$MESS['MAIL_MESSAGE_EXT_BIND_POSTS_TITLE'] = "Сообщения";
+$MESS['MAIL_MESSAGE_EXT_BIND_POSTS_EMPTY_TITLE'] = "Сообщение";
 
 $MESS["MAIL_MESSAGE_LIST_COLUMN_FROM"] = "От кого";
 $MESS["MAIL_MESSAGE_LIST_COLUMN_SUBJECT"] = "Тема";
@@ -95,9 +104,11 @@ $MESS['MAIL_MESSAGE_LIST_BTN_DELETE'] = "Удалить";
 $MESS['MAIL_MESSAGE_LIST_BTN_SPAM'] = "Это спам";
 $MESS['MAIL_MESSAGE_LIST_BTN_NOT_SPAM'] = "Не спам";
 $MESS['MAIL_MESSAGE_LIST_BTN_SEEN'] = "Прочитано";
+$MESS['MAIL_MESSAGE_LIST_BTN_SEEN_ALL'] = "Все прочитано";
 $MESS['MAIL_MESSAGE_LIST_BTN_UNSEEN'] = "Не прочитано";
 $MESS['MAIL_MESSAGE_LIST_COLUMN_BIND_TASKS_TASK'] = "Задача";
 $MESS['MAIL_MESSAGE_LIST_COLUMN_BIND_CRM_ACTIVITY'] = "CRM";
+$MESS['MAIL_MESSAGE_LIST_COLUMN_BIND_BLOG_POST'] = "Сообщение";
 $MESS['MAIL_MESSAGE_LIST_COLUMN_BIND_LF'] = "Живая лента";
 $MESS['MAIL_MESSAGE_LIST_COLUMN_BIND_IM'] = "Чат";
 $MESS['MAIL_MESSAGE_LIST_COLUMN_BIND_EVENT'] = "Событие";
@@ -123,6 +134,7 @@ $MESS['MAIL_MESSAGE_LIST_FILTER_PRESET_OUTCOME'] = "Отправленные";
 $MESS['MAIL_MESSAGE_LIST_FILTER_PRESET_TRASH'] = "Удаленные";
 $MESS['MAIL_MESSAGE_LIST_FILTER_PRESET_BIND_TASK'] = "Задачи";
 $MESS['MAIL_MESSAGE_LIST_FILTER_PRESET_BIND_CRM'] = "CRM";
+$MESS['MAIL_MESSAGE_LIST_FILTER_PRESET_BIND_POST'] = "Сообщения";
 
 $MESS['MAIL_MESSAGE_LIST_SETTINGS_LINK'] = "Настройки ящика";
 $MESS['MAIL_MESSAGE_LIST_BLACKLIST_LINK'] = "Черный список";
@@ -132,10 +144,16 @@ $MESS['MAIL_MESSAGE_LIST_CONFIRM_DELETE'] = "Письма будут безво�
 $MESS['MAIL_MESSAGE_LIST_CONFIRM_TITLE'] = "Подтвердите действие";
 $MESS['MAIL_MESSAGE_LIST_CONFIRM_DELETE_BTN'] = "Удалить";
 $MESS['MAIL_MESSAGE_LIST_CONFIRM_CANCEL_BTN'] = "Отменить";
+$MESS['MAIL_MESSAGE_LIST_CONFIRM_READ_ALL'] = "Вы действительно хотите отметить прочитанными все письма в папке?";
 $MESS['MAIL_MESSAGE_LIST_NOTIFY_ADDED_TO_CRM'] = "Письмо сохранено в CRM";
 $MESS['MAIL_MESSAGE_LIST_NOTIFY_ADD_TO_CRM_ERROR'] = "Ошибка сохранения письма в CRM";
 $MESS['MAIL_MESSAGE_LIST_NOTIFY_EXCLUDED_FROM_CRM'] = "Письмо исключено из CRM";
 $MESS['MAIL_MESSAGE_LIST_NOTIFY_SUCCESS'] = "Успешно";
+
+$MESS['MAIL_MESSAGE_LIST_CONFIRM_MOVE_ALL'] = "Вы действительно хотите переместить все письма?";
+$MESS['MAIL_MESSAGE_LIST_CONFIRM_SPAM_ALL'] = "Вы действительно хотите отметить все письма как спам?";
+$MESS['MAIL_MESSAGE_LIST_CONFIRM_TRASH_ALL'] = "Вы действительно хотите переместить все письма в корзину?";
+$MESS['MAIL_MESSAGE_LIST_CONFIRM_DELETE_ALL'] = "Вы действительно хотите удалить все письма?<br>Они будут безвозвратно удалены. Вы никак не сможете их восстановить.";
 
 $MESS['MAIL_MESSAGE_LIST_ATTACH_ICON_HINT'] = "Письмо с вложениями";
 
@@ -148,3 +166,7 @@ $MESS["MAIL_CLIENT_CANCELATION_WARNING_3"] = "На вашем тарифе си�
 Письма, связанные с Задачами, сохранятся. Остальные письма будут удалены.<br>
 Переходите на <a href=\"/settings/license_all.php\" target=\"_blank\">расширенный тариф</a>, чтобы подключить почту и пользоваться другими удобными инструментами.
 Выбирайте тариф, который подходит именно вашей компании.";
+
+$MESS["MAIL_CLIENT_CONFIG_DIRS_SYNC_EMPTY_WARNING"] = "Выберите пожалуйста папки для синхронизации с почтовым сервисом.";
+
+$MESS["MAIL_CLIENT_BUTTON_LOADING"] = "Загрузка...";

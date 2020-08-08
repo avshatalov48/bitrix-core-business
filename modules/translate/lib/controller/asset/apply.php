@@ -157,7 +157,7 @@ class Apply
 						$encodingOut = Main\Localization\Translation::getCurrentEncoding();
 					}
 				}
-				$this->convertEncoding = (strtolower($encodingIn) !== strtolower($encodingOut));
+				$this->convertEncoding = (mb_strtolower($encodingIn) !== mb_strtolower($encodingOut));
 				$this->encodingIn = $encodingIn;
 				$this->encodingOut = $encodingOut;
 			}
@@ -264,9 +264,13 @@ class Apply
 					}
 					else
 					{
-						if (!@copy($source->getPhysicalPath(), $target->getPhysicalPath()))
+						if (function_exists('error_clear_last'))
 						{
-							$error = error_get_last();
+							\error_clear_last();
+						}
+						if (\copy($source->getPhysicalPath(), $target->getPhysicalPath()) !== true)
+						{
+							$error = \error_get_last();
 							$this->addError(new Main\Error($error['message'], $error['type']));
 							continue;
 						}
@@ -359,7 +363,7 @@ class Apply
 					continue;
 				}
 
-				if ((substr($name, -4) === '.php') && is_file($fullPath))
+				if ((mb_substr($name, -4) === '.php') && is_file($fullPath))
 				{
 					$files[$langFolderRelPath.'/'.$name] = $fullPath;
 				}

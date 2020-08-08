@@ -85,10 +85,10 @@ class LandingEditComponent extends LandingBaseFormComponent
 					$picture = parse_url($pictureUrl);
 					if (
 						isset($picture['path']) &&
-						in_array(substr($picture['path'], -4), array('.png', '.jpg'))
+						in_array(mb_substr($picture['path'], -4), array('.png', '.jpg'))
 					)
 					{
-						if (substr($pictureUrl, 0, 1) == '/')
+						if (mb_substr($pictureUrl, 0, 1) == '/')
 						{
 							if (file_exists($docRoot . $pictureUrl))
 							{
@@ -157,7 +157,7 @@ class LandingEditComponent extends LandingBaseFormComponent
 				{
 					if (isset($fields[$code]))
 					{
-						$meta[strtolower($code)] = $fields[$code]->getValue();
+						$meta[mb_strtolower($code)] = $fields[$code]->getValue();
 					}
 				}
 			}
@@ -170,7 +170,7 @@ class LandingEditComponent extends LandingBaseFormComponent
 				{
 					if (isset($fields[$code]))
 					{
-						$meta['og:' . strtolower($code)] = $fields[$code]->getValue();
+						$meta['og:'.mb_strtolower($code)] = $fields[$code]->getValue();
 					}
 				}
 			}
@@ -292,9 +292,14 @@ class LandingEditComponent extends LandingBaseFormComponent
 				$this->arResult['SITES'] = $sites = $this->getSites();
 
 				// types mismatch
+				$availableType = [$this->arParams['TYPE']];
+				if ($this->arParams['TYPE'] == 'STORE')
+				{
+					$availableType[] = 'SMN';
+				}
 				if (
 					!isset($sites[$this->arParams['SITE_ID']]) ||
-					$sites[$this->arParams['SITE_ID']]['TYPE'] != $this->arParams['TYPE']
+					!in_array($sites[$this->arParams['SITE_ID']]['TYPE'], $availableType)
 				)
 				{
 					\localRedirect($this->getRealFile());
@@ -338,7 +343,7 @@ class LandingEditComponent extends LandingBaseFormComponent
 				{
 					foreach (explode(',', $tplRef) as $ref)
 					{
-						if (strpos($ref, ':') !== false)
+						if (mb_strpos($ref, ':') !== false)
 						{
 							list($a, $lid) = explode(':', $ref);
 							$data[$a] = $lid;

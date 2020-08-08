@@ -63,17 +63,17 @@ require_once($DOCUMENT_ROOT . BX_ROOT . "/modules/main/include/prolog_admin_afte
 $errorRequiredFields = array();
 if (isset($request["VK"]))
 {
-	if (!isset($request["VK"]["DESCRIPTION"]) || strlen($request["VK"]["DESCRIPTION"]) <= 0)
+	if (!isset($request["VK"]["DESCRIPTION"]) || $request["VK"]["DESCRIPTION"] == '')
 	{
 		$errorRequiredFields[] = Loc::getMessage("SALE_VK_SETTINGS_NO_NAME");
 	}
 	
-	if (!isset($request["VK"]["VK_SETTINGS"]["APP_ID"]) || strlen($request["VK"]["VK_SETTINGS"]["APP_ID"]) <= 0)
+	if (!isset($request["VK"]["VK_SETTINGS"]["APP_ID"]) || $request["VK"]["VK_SETTINGS"]["APP_ID"] == '')
 	{
 		$errorRequiredFields[] = Loc::getMessage("SALE_VK_SETTINGS_NO_APP_ID");
 	}
 	
-	if (!isset($request["VK"]["VK_SETTINGS"]["SECRET"]) || strlen($request["VK"]["VK_SETTINGS"]["SECRET"]) <= 0)
+	if (!isset($request["VK"]["VK_SETTINGS"]["SECRET"]) || $request["VK"]["VK_SETTINGS"]["SECRET"] == '')
 	{
 		$errorRequiredFields[] = Loc::getMessage("SALE_VK_SETTINGS_NO_SECRET");
 	}
@@ -142,7 +142,7 @@ if (isset($request["code"]) && !empty($request["code"]) && $exportId)
 	$responseStr = $http->get($tokenUrl);
 
 //	check answer from VK
-	if (strlen($responseStr) <= 0)
+	if ($responseStr == '')
 	{
 //		logger my throw exception
 		try
@@ -203,10 +203,10 @@ if (isset($request["VK"]) && is_array($request["VK"]) && ($_POST['save'] || $_PO
 			$vkSettings["DESCRIPTION"] = $request["VK"]["DESCRIPTION"];
 
 //		adding "-"
-		if (strlen($request["VK"]["VK_SETTINGS"]["GROUP_ID"]) > 1)
+		if (mb_strlen($request["VK"]["VK_SETTINGS"]["GROUP_ID"]) > 1)
 		{
 			$vkSettings["VK_SETTINGS"]["GROUP_ID"] =
-				substr($request["VK"]["VK_SETTINGS"]["GROUP_ID"], 0, 1) != "-" ?
+				mb_substr($request["VK"]["VK_SETTINGS"]["GROUP_ID"], 0, 1) != "-" ?
 					"-" . intval($request["VK"]["VK_SETTINGS"]["GROUP_ID"]) :
 					intval($request["VK"]["VK_SETTINGS"]["GROUP_ID"]);
 		}
@@ -406,10 +406,10 @@ $tabControl = new CAdminTabControl("tabControl", $arrTabs);
 //	check error log - show if not empty
 	$logger = new Vk\Logger($exportId);
 	$errorsCritical = $logger->getErrorsList(true);
-	if (strlen($errorsCritical) > 0)
+	if ($errorsCritical <> '')
 	{
 		$errorsCriticalString = Vk\Journal::getCriticalErrorsMessage($exportId, $errorsCritical);
-		echo strlen($errorsCriticalString) > 0 ? $errorsCriticalString : '';
+		echo $errorsCriticalString <> '' ? $errorsCriticalString : '';
 	}
 	?>
 </div>
@@ -492,7 +492,7 @@ foreach (array('ALBUMS', 'PRODUCTS') as $type1)
 	<td colspan="2">
 		<?php $errorsNormal = $logger->getErrorsList(false); ?>
 		<div id="vk_export_notify__error_normal"
-			 style="display:<?= (strlen($errorsNormal) > 0) ? 'block' : 'none' ?>">
+			 style="display:<?= ($errorsNormal <> '') ? 'block' : 'none' ?>">
 			<? echo BeginNote(); ?>
 			<span id="vk_export_notify__error_normal__msg"><?= $errorsNormal ?></span>
 			<span id="vk_export_notify__error_normal__button">
@@ -595,7 +595,7 @@ $tabControl->BeginNextTab();
 	<? endif; ?>
 	
 	
-	<? if ($exportId && strlen($vkGroupsSelector) > 0): ?>
+	<? if ($exportId && $vkGroupsSelector <> ''): ?>
 		<tr class="heading">
 			<td colspan="2"><?= Loc::getMessage("SALE_VK_SETTINGS_VK_SETTINGS") ?></td>
 		</tr>
@@ -614,7 +614,7 @@ $tabControl->BeginNextTab();
 	<?endif; //group selector?>
 	
 	
-	<?php if ($exportId && strlen($vkCategorySelector) > 0): ?>
+	<?php if ($exportId && $vkCategorySelector <> ''): ?>
 		<!--		CATEGORIES mapping-->
 		<tr class="heading">
 			<td colspan="2"><?= Loc::getMessage("SALE_VK_SETTINGS_CATEGORIES") ?></td>

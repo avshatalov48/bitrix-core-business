@@ -80,19 +80,19 @@ $arFilterFields = array(
 $lAdmin->InitFilter($arFilterFields);
 
 $filter_lang = trim($filter_lang);
-if (strlen($filter_lang) > 0)
+if ($filter_lang <> '')
 {
 	if (!in_array($filter_lang, $arAccessibleSites) && $saleModulePermissions < "W")
 		$filter_lang = "";
 }
 
 
-if (strlen($filter_lang)>0 && $filter_lang!="NOT_REF")
+if ($filter_lang <> '' && $filter_lang!="NOT_REF")
 	$arFilter["=LID"] = trim($filter_lang);	
 	
 if($saleModulePermissions < "W")
 {
-	if(strlen($filter_lang) <= 0 && count($arAccessibleSites) > 0)
+	if($filter_lang == '' && count($arAccessibleSites) > 0)
 		$arFilter["=LID"] = $arAccessibleSites;
 }
 
@@ -121,13 +121,13 @@ if ((int)($filter_order_id_from)>0)
 	$arFilter[">=ORDER_ID"] = (int)($filter_order_id_from);
 if ((int)($filter_order_id_to)>0)
 	$arFilter["<=ORDER_ID"] = (int)($filter_order_id_to);
-if (strlen($filter_date_from)>0)
+if ($filter_date_from <> '')
 	$arFilter[">=DATE_INSERT"] = trim($filter_date_from);
-if (strlen($filter_date_to)>0)
+if ($filter_date_to <> '')
 {
 	if ($arDate = ParseDateTime($filter_date_to, CSite::GetDateFormat("FULL", SITE_ID)))
 	{
-		if (strlen($filter_date_to) < 11)
+		if (mb_strlen($filter_date_to) < 11)
 		{
 			$arDate["HH"] = 23;
 			$arDate["MI"] = 59;
@@ -143,13 +143,13 @@ if (strlen($filter_date_to)>0)
 	}
 }
 
-if (strlen($filter_date_archived_from)>0)
+if ($filter_date_archived_from <> '')
 	$arFilter[">=DATE_ARCHIVED"] = trim($filter_date_archived_from);
-if (strlen($filter_date_archived_to)>0)
+if ($filter_date_archived_to <> '')
 {
 	if ($arDate = ParseDateTime($filter_date_archived_to, CSite::GetDateFormat("FULL", SITE_ID)))
 	{
-		if (strlen($filter_date_archived_to) < 11)
+		if (mb_strlen($filter_date_archived_to) < 11)
 		{
 			$arDate["HH"] = 23;
 			$arDate["MI"] = 59;
@@ -190,7 +190,7 @@ if ((float)($filter_price_from)>0)
 	$arFilter[">=PRICE"] = (float)($filter_price_from);
 if ((float)($filter_price_to)>0)
 	$arFilter["<PRICE"] = (float)($filter_price_to);
-if (strlen($filter_account_number)>0)
+if ($filter_account_number <> '')
 	$arFilter["ACCOUNT_NUMBER"] = trim($filter_account_number);
 
 if (!empty($_REQUEST['OID']) && is_array($_REQUEST['OID']))
@@ -220,7 +220,7 @@ if (!empty($filter_product_id))
 	}
 }
 
-if (isset($filter_status) && !is_array($filter_status) && strlen($filter_status) > 0)
+if (isset($filter_status) && !is_array($filter_status) && $filter_status <> '')
 	$filter_status = array($filter_status);
 if (isset($filter_status) && is_array($filter_status) && count($filter_status) > 0)
 {
@@ -228,7 +228,7 @@ if (isset($filter_status) && is_array($filter_status) && count($filter_status) >
 	for ($i = 0; $i < $countFilter; $i++)
 	{
 		$filter_status[$i] = trim($filter_status[$i]);
-		if (strlen($filter_status[$i]) > 0)
+		if ($filter_status[$i] <> '')
 			$arFilter["=STATUS_ID"][] = $filter_status[$i];
 	}
 }
@@ -261,13 +261,13 @@ if($saleModulePermissions < "W")
 	}
 }
 
-if (strlen($filter_payed)>0) $arFilter["=PAYED"] = trim($filter_payed);
-if (strlen($filter_canceled)>0) $arFilter["=CANCELED"] = trim($filter_canceled);
-if (strlen($filter_deducted)>0) $arFilter["=DEDUCTED"] = trim($filter_deducted);
+if ($filter_payed <> '') $arFilter["=PAYED"] = trim($filter_payed);
+if ($filter_canceled <> '') $arFilter["=CANCELED"] = trim($filter_canceled);
+if ($filter_deducted <> '') $arFilter["=DEDUCTED"] = trim($filter_deducted);
 if ((int)($filter_user_id)>0) $arFilter["=USER_ID"] = (int)($filter_user_id);
-if (strlen($filter_user_login)>0) $arFilter["USER.LOGIN"] = trim($filter_user_login);
-if (strlen($filter_user_email)>0) $arFilter["USER.EMAIL"] = trim($filter_user_email);
-if (strlen($filter_xml_id)>0) $arFilter["%XML_ID"] = trim($filter_xml_id);
+if ($filter_user_login <> '') $arFilter["USER.LOGIN"] = trim($filter_user_login);
+if ($filter_user_email <> '') $arFilter["USER.EMAIL"] = trim($filter_user_email);
+if ($filter_xml_id <> '') $arFilter["%XML_ID"] = trim($filter_xml_id);
 
 if (isset($filter_person_type) && is_array($filter_person_type) && count($filter_person_type) > 0)
 {
@@ -366,13 +366,13 @@ $bNeedProps = false;
 $bNeedBasket = false;
 foreach ($arVisibleColumns as $visibleColumn)
 {
-	if (!$bNeedProps && substr($visibleColumn, 0, strlen("PROP_")) == "PROP_")
+	if (!$bNeedProps && mb_substr($visibleColumn, 0, mb_strlen("PROP_")) == "PROP_")
 		$bNeedProps = true;
 	if (
 		!$bNeedBasket
 		&& $visibleColumn != 'BASKET_DISCOUNT_COUPON'
 		&& $visibleColumn != 'BASKET_DISCOUNT_NAME'
-		&& strpos($visibleColumn, "BASKET") !== false
+		&& mb_strpos($visibleColumn, "BASKET") !== false
 	)
 		$bNeedBasket = true;
 
@@ -404,7 +404,7 @@ if (!empty($by) && in_array($by, $arSelectFields))
 {
 	if (!isset($order))
 		$order = "DESC";
-	$filterOrderSelection[strtoupper($by)] = $order;
+	$filterOrderSelection[mb_strtoupper($by)] = $order;
 }
 
 $ordersIds = array();
@@ -728,7 +728,7 @@ if (!empty($orderList) && is_array($orderList))
 				$fieldValue .= "[".$arItem["PRODUCT_ID"]."] ";
 
 				$fieldValue .= htmlspecialcharsbx($arItem["NAME"]);
-				if(strlen($arItem["DETAIL_PAGE_URL"]) > 0)
+				if($arItem["DETAIL_PAGE_URL"] <> '')
 					$fieldValue .= "</a>";
 
 				$fieldValue .= " <nobr>(".Sale\BasketItem::formatQuantity($arItem["QUANTITY"])." ".$measure.")</nobr>";
@@ -746,32 +746,32 @@ if (!empty($orderList) && is_array($orderList))
 
 				$fieldValue .= "</div>";
 
-				if(strlen($arItem["NAME"]) > 0)
+				if($arItem["NAME"] <> '')
 				{
 					$fieldName .= "<nobr>";
-					if(strlen($arItem["DETAIL_PAGE_URL"]) > 0)
+					if($arItem["DETAIL_PAGE_URL"] <> '')
 						$fieldName .= '<a href="'.$url.'">';
 					$fieldName .= htmlspecialcharsbx($arItem["NAME"]);
-					if(strlen($arItem["DETAIL_PAGE_URL"]) > 0)
+					if($arItem["DETAIL_PAGE_URL"] <> '')
 						$fieldName .= "</a>";
 					$fieldName .= "</nobr>";
 				}
 				else
 					$fieldName .= "<br />";
 
-				if(strlen($arItem["QUANTITY"]) > 0)
+				if($arItem["QUANTITY"] <> '')
 					$fieldQuantity .= htmlspecialcharsbx(Sale\BasketItem::formatQuantity($arItem["QUANTITY"]))." ".$measure;
 				else
 					$fieldQuantity .= "<br />";
-				if(strlen($arItem["PRODUCT_ID"]) > 0)
+				if($arItem["PRODUCT_ID"] <> '')
 					$fieldProductID .= htmlspecialcharsbx($arItem["PRODUCT_ID"]);
 				else
 					$fieldProductID .= "<br />";
-				if(strlen($arItem["PRICE"]) > 0)
+				if($arItem["PRICE"] <> '')
 					$fieldPrice .= "<nobr>".htmlspecialcharsbx(SaleFormatCurrency($arItem["PRICE"], $arItem["CURRENCY"]))."</nobr>";
 				else
 					$fieldPrice .= "<br />";
-				if(strlen($arItem["WEIGHT"]) > 0)
+				if($arItem["WEIGHT"] <> '')
 				{
 					if((float)$WEIGHT_KOEF[$arOrder["LID"]] > 0)
 						$fieldWeightCalc = (float)($arItem["WEIGHT"]/$WEIGHT_KOEF[$arOrder["LID"]]);
@@ -786,7 +786,7 @@ if (!empty($orderList) && is_array($orderList))
 				else
 					$fieldWeight .= "<br />";
 
-				if(strlen($arItem["PRODUCT_XML_ID"]) > 0)
+				if($arItem["PRODUCT_XML_ID"] <> '')
 					$fieldProductXML .= $arItem["PRODUCT_XML_ID"];
 				else
 					$fieldProductXML .= "<br />";

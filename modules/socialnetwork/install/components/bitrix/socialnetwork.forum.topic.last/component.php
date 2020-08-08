@@ -16,12 +16,12 @@ endif;
 ********************************************************************/
 /***************** BASE ********************************************/
 /***************** BASE ********************************************/
-	$arParams["FID"] = intVal((intVal($arParams["FID"]) <= 0 ? $_REQUEST["FID"] : $arParams["FID"]));
-	$arParams["SOCNET_GROUP_ID"] = intVal($arParams["SOCNET_GROUP_ID"]);
+	$arParams["FID"] = intval((intval($arParams["FID"]) <= 0 ? $_REQUEST["FID"] : $arParams["FID"]));
+	$arParams["SOCNET_GROUP_ID"] = intval($arParams["SOCNET_GROUP_ID"]);
 	$arParams["MODE"] = ($arParams["SOCNET_GROUP_ID"] > 0 ? "GROUP" : "USER");
-	$arParams["USER_ID"] = intVal(intVal($arParams["USER_ID"]) > 0 ? $arParams["USER_ID"] : $USER->GetID());
+	$arParams["USER_ID"] = intval(intval($arParams["USER_ID"]) > 0 ? $arParams["USER_ID"] : $USER->GetID());
 	$arParams["SORT_BY"] = (empty($arParams["SORT_BY"]) ? "LAST_POST_DATE" : $arParams["SORT_BY"]);
-	$arParams["SORT_ORDER"] = strToUpper($arParams["SORT_ORDER"] == "ASC" ? "ASC" : "DESC");
+$arParams["SORT_ORDER"] = mb_strtoupper($arParams["SORT_ORDER"] == "ASC"? "ASC" : "DESC");
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
 		"topic" => "PAGE_NAME=topic&FID=#FID#&TID=#TID#", 
@@ -29,15 +29,15 @@ endif;
 		"user" => "PAGE_NAME=user&UID=#UID#");
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPageParam($URL_VALUE, 
+		if (trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
+			$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPageParam($URL_VALUE,
 				array("PAGE_NAME", "FID", "TID", "UID", "GID", "MID", "ACTION", "sessid", "SEF_APPLICATION_CUR_PAGE_URL", 
 					"AJAX_TYPE", "AJAX_CALL", BX_AJAX_PARAM_ID, "result", "order"));
-		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 // ************************* ADDITIONAL ****************************************************************
-	$arParams["TOPICS_COUNT"] = intVal($arParams["TOPICS_COUNT"]) > 0 ? intVal($arParams["TOPICS_COUNT"]) : 6;
+	$arParams["TOPICS_COUNT"] = intval($arParams["TOPICS_COUNT"]) > 0 ? intval($arParams["TOPICS_COUNT"]) : 6;
 	$arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")):$arParams["DATE_TIME_FORMAT"]);
 // *************************/Input params***************************************************************
@@ -129,9 +129,9 @@ while($arTopic = $db_res->GetNext())
 		array("TID" => $arTopic["ID"], "UID" => $arParams["USER_ID"], "GID" => $arParams["SOCNET_GROUP_ID"]));
 
 	$arTopic["read_last_message"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE"], 
-		array("TID" => $arTopic["ID"], "MID" => intVal($arTopic["LAST_MESSAGE_ID"]), "UID" => $arParams["USER_ID"], "GID" => $arParams["SOCNET_GROUP_ID"]));
+		array("TID" => $arTopic["ID"], "MID" => intval($arTopic["LAST_MESSAGE_ID"]), "UID" => $arParams["USER_ID"], "GID" => $arParams["SOCNET_GROUP_ID"]));
 		
-	if (intVal($arTopic["LAST_POSTER_ID"]) > 0)
+	if (intval($arTopic["LAST_POSTER_ID"]) > 0)
 	{
 		$arTopic["LAST_POSTER_HREF"] = CComponentEngine::MakePathFromTemplate(
 			$arParams["URL_TEMPLATES_USER"], array("UID" => $arTopic["LAST_POSTER_ID"]));
@@ -139,7 +139,7 @@ while($arTopic = $db_res->GetNext())
 	}
 	// ********************************************************************
 	$arTopic["numMessages"] = $arTopic["POSTS"] + 1;
-	if (strLen(trim($arTopic["LAST_POST_DATE"])) > 0)
+	if (trim($arTopic["LAST_POST_DATE"]) <> '')
 	{
 		$arTopic["LAST_POST_DATE"] = CForumFormat::DateFormat($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($arTopic["LAST_POST_DATE"], CSite::GetDateFormat()));
 	}

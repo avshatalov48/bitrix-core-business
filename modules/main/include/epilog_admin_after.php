@@ -21,37 +21,12 @@ global $USER, $APPLICATION, $DB;
 foreach(GetModuleEvents("main", "OnEpilog", true) as $arEvent)
 	ExecuteModuleEventEx($arEvent);
 
-$r = $APPLICATION->EndBufferContentMan();
+$buffer = $APPLICATION->EndBufferContentMan();
+
+//used in debug_info.php
 $main_exec_time = round((getmicrotime()-START_EXEC_TIME), 4);
 
-//it's possible to have no response on update
-$response = \Bitrix\Main\Context::getCurrent()->getResponse();
-if($response)
-{
-	$response->flush($r);
-}
-else
-{
-	echo $r;
-}
-
-if (!defined('BX_WITH_ON_AFTER_EPILOG'))
-{
-	define('BX_WITH_ON_AFTER_EPILOG', true);
-}
-
-$arAllEvents = GetModuleEvents("main", "OnAfterEpilog", true);
-
-define("START_EXEC_EVENTS_1", microtime());
-$GLOBALS["BX_STATE"] = "EV";
-CMain::EpilogActions();
-define("START_EXEC_EVENTS_2", microtime());
-$GLOBALS["BX_STATE"] = "EA";
-
-foreach($arAllEvents as $arEvent)
-	ExecuteModuleEventEx($arEvent);
-
-if(!IsModuleInstalled("compression") && !defined("ADMIN_AJAX_MODE") && ($_REQUEST["mode"] != 'excel'))
+if(!defined("ADMIN_AJAX_MODE") && ($_REQUEST["mode"] != 'excel'))
 {
 	$canEditPHP = $USER->CanDoOperation('edit_php');
 	$bShowTime = ($_SESSION["SESS_SHOW_TIME_EXEC"] == 'Y');
@@ -60,10 +35,18 @@ if(!IsModuleInstalled("compression") && !defined("ADMIN_AJAX_MODE") && ($_REQUES
 
 	if($bShowTime || $bShowStat || $bShowCacheStat)
 	{
+		ob_start();
 		include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/interface/debug_info.php");
+		$buffer .= ob_get_clean();
 	}
 }
 
-$DB->Disconnect();
+//it's possible to have no response on update
+$response = \Bitrix\Main\Context::getCurrent()->getResponse();
+if(!$response)
+{
+	echo $buffer;
+	$buffer = "";
+}
 
-CMain::ForkActions();
+CMain::FinalActions($buffer);

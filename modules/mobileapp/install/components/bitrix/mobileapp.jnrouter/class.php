@@ -25,7 +25,7 @@ class JNRouterComponent extends \CBitrixComponent
 			$namespace = $arParams["namespace"];
 			if (!$namespace)
 			{
-				if (strpos($componentName, ":") > 0)
+				if (mb_strpos($componentName, ":") > 0)
 				{
 					list($namespace, $componentName) = explode(":", $componentName);
 				}

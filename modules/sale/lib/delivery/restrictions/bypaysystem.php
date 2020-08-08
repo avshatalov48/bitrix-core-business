@@ -99,7 +99,7 @@ class ByPaySystem extends Base
 
 		while ($arPayType = $dbResultList->Fetch())
 		{
-			$name = (strlen($arPayType["LID"]) > 0) ? htmlspecialcharsbx($arPayType["NAME"]). " (".$arPayType["LID"].")" : htmlspecialcharsbx($arPayType["NAME"]);
+			$name = ($arPayType["LID"] <> '') ? htmlspecialcharsbx($arPayType["NAME"]). " (".$arPayType["LID"].")" : htmlspecialcharsbx($arPayType["NAME"]);
 			$result[$arPayType["ID"]] = $name;
 		}
 

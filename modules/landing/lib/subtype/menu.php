@@ -107,12 +107,12 @@ class Menu
 					&& isset($manifest['attrs'][$navbarTogglerButton])
 				)
 				{
-					$newId = "navBar" . $block->getId();
+					$newId = 'navBar' . $block->getId();
 					$block->setAttributes(array(
 						$navbarCollapseSection => array('id' => $newId),
 						$navbarTogglerButton => array(
 							'aria-controls' => $newId,
-							'data-target' => "#".$newId,
+							'data-target' => '#' . $newId,
 						),
 					));
 					$needSave = true;
@@ -144,6 +144,7 @@ class Menu
 			return $menuItems;
 		}
 
+		\Bitrix\Landing\Hook::setEditMode(true);
 		$settings = Settings::getDataForSite($siteId);
 		if ($settings['IBLOCK_ID'])
 		{

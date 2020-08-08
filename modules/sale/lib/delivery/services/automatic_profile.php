@@ -41,7 +41,7 @@ class AutomaticProfile extends Base
 
 		$this->parentSid = $this->parentAutomatic->getSid();
 
-		if(strlen($this->parentSid) <= 0)
+		if($this->parentSid == '')
 			throw new SystemException("Can't determine AutomaticProfile's SID. profile id: ".$initParams["ID"]." parent Automatic id: ".$initParams["PARENT_ID"]);
 
 		$this->parentHandlerInitParams = $this->parentAutomatic->getHandlerInitParams($this->parentSid);
@@ -51,18 +51,18 @@ class AutomaticProfile extends Base
 
 		parent::__construct($initParams);
 
-		if(isset($initParams['PROFILE_ID']) && strlen($initParams['PROFILE_ID']) > 0)
+		if(isset($initParams['PROFILE_ID']) && $initParams['PROFILE_ID'] <> '')
 			$this->profileId = $initParams['PROFILE_ID'];
 		elseif(isset($this->config["MAIN"]["PROFILE_ID"]))
 			$this->profileId = $this->config["MAIN"]["PROFILE_ID"];
 
-		if(strlen($this->profileId) > 0 && !array_key_exists($this->profileId, $this->parentHandlerInitParams["PROFILES"]))
+		if($this->profileId <> '' && !array_key_exists($this->profileId, $this->parentHandlerInitParams["PROFILES"]))
 			throw new SystemException("Profile \"".$this->profileId."\" is not part of Automatic delivery service with sid: ".$this->parentSid);
 
-		if(strlen($this->name) <= 0 && isset($this->parentHandlerInitParams['PROFILES'][$this->profileId]['TITLE']))
+		if($this->name == '' && isset($this->parentHandlerInitParams['PROFILES'][$this->profileId]['TITLE']))
 			$this->name = $this->parentHandlerInitParams['PROFILES'][$this->profileId]['TITLE'];
 
-		if(strlen($this->description) <= 0 && isset($this->parentHandlerInitParams['PROFILES'][$this->profileId]['DESCRIPTION']))
+		if($this->description == '' && isset($this->parentHandlerInitParams['PROFILES'][$this->profileId]['DESCRIPTION']))
 			$this->description = $this->parentHandlerInitParams['PROFILES'][$this->profileId]['DESCRIPTION'];
 
 		if(!empty($this->parentHandlerInitParams["PROFILES"][$this->profileId]["TRACKING_CLASS_NAME"]))
@@ -73,10 +73,10 @@ class AutomaticProfile extends Base
 
 	protected function 	inheritParams()
 	{
-		if(strlen($this->name) <= 0) $this->name = $this->parentAutomatic->getName();
+		if($this->name == '') $this->name = $this->parentAutomatic->getName();
 		if(intval($this->logotip) <= 0) $this->logotip = $this->parentAutomatic->getLogotip();
-		if(strlen($this->description) <= 0) $this->description = $this->parentAutomatic->getDescription();
-		if(strlen($this->trackingClass) <= 0) $this->trackingClass = $this->parentAutomatic->getTrackingClass();
+		if($this->description == '') $this->description = $this->parentAutomatic->getDescription();
+		if($this->trackingClass == '') $this->trackingClass = $this->parentAutomatic->getTrackingClass();
 
 		$parentTP = $this->parentAutomatic->getTrackingParams();
 
@@ -148,7 +148,7 @@ class AutomaticProfile extends Base
 			if($id == $this->id)
 				continue;
 
-			if(strlen($fields['CODE']) > 0)
+			if($fields['CODE'] <> '')
 			{
 				if($fields['CODE'] == $this->code)
 					continue;
@@ -191,7 +191,7 @@ class AutomaticProfile extends Base
 			foreach($configStructure as $key => $configSection)
 				$profileConfig[$key] = $this->glueValuesToConfig($configSection, isset($this->config[$key]) ? $this->config[$key] : array());
 
-			if(strlen($this->profileId) > 0)
+			if($this->profileId <> '')
 			{
 				$oldConfig = Automatic::createConfig($this->parentHandlerInitParams, $this->config["MAIN"]["OLD_SETTINGS"]);
 				$newConfig = Automatic::convertOldConfigToNew($oldConfig);
@@ -249,7 +249,7 @@ class AutomaticProfile extends Base
 			$profiles = array("" => "");
 
 			foreach($this->parentHandlerInitParams["PROFILES"] as $profileId => $profileParams)
-				if(strlen($profileParams["TITLE"]) > 0)
+				if($profileParams["TITLE"] <> '')
 					$profiles[$profileId] = $profileParams["TITLE"]." [".$profileId."]";
 		}
 
@@ -306,7 +306,7 @@ class AutomaticProfile extends Base
 
 		$configProfileIds = array_keys($this->parentHandlerInitParams["PROFILES"]);
 
-		if(strlen($this->profileId) > 0 && in_array($this->profileId, $configProfileIds))
+		if($this->profileId <> '' && in_array($this->profileId, $configProfileIds))
 		{
 			$oldAutoConfig = $this->parentAutomatic->getOldConfig();
 

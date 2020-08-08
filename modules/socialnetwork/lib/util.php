@@ -59,7 +59,7 @@ class Util
 			|| intval($fields["logEntryId"]) <= 0
 			|| !isset($fields["userId"])
 			|| !isset($fields["logEntryUrl"])
-			|| strlen($fields["logEntryUrl"]) <= 0
+			|| $fields["logEntryUrl"] == ''
 		)
 		{
 			return false;
@@ -116,7 +116,7 @@ class Util
 
 		if (
 			!isset($fields["type"])
-			|| !in_array(strtoupper($fields["type"]), array("LOG_ENTRY", "LOG_COMMENT"))
+			|| !in_array(mb_strtoupper($fields["type"]), array("LOG_ENTRY", "LOG_COMMENT"))
 		)
 		{
 			$fields["type"] = "LOG_COMMENT";
@@ -137,7 +137,7 @@ class Util
 		$logEntryTitle = str_replace(array("\r\n", "\n"), " ", ($arLogEntry["TITLE"] != '__EMPTY__' ? $arLogEntry["TITLE"] : $arLogEntry["MESSAGE"]));
 		$logEntryTitle = truncateText($logEntryTitle, 100);
 
-		switch (strtoupper($fields["type"]))
+		switch(mb_strtoupper($fields["type"]))
 		{
 			case "LOG_COMMENT":
 				$mailMessageId = "<LOG_COMMENT_".$fields["logCommentId"]."@".$GLOBALS["SERVER_NAME"].">";
@@ -158,7 +158,7 @@ class Util
 
 			if (
 				intval($userId) <= 0
-				&& strlen($email) <= 0
+				&& $email == ''
 			)
 			{
 				continue;
@@ -209,9 +209,9 @@ class Util
 		$fields1 = array();
 		foreach ($fields as $key => $value)
 		{
-			if (substr($key, 0, 1) == "=")
+			if (mb_substr($key, 0, 1) == "=")
 			{
-				$fields1[substr($key, 1)] = $value;
+				$fields1[mb_substr($key, 1)] = $value;
 				unset($fields[$key]);
 			}
 		}
@@ -223,12 +223,12 @@ class Util
 	{
 		foreach ($fields1 as $key => $value)
 		{
-			if (strlen($insert[0]) > 0)
+			if ($insert[0] <> '')
 			{
 				$insert[0] .= ", ";
 			}
 			$insert[0] .= $key;
-			if (strlen($insert[1]) > 0)
+			if ($insert[1] <> '')
 			{
 				$insert[1] .= ", ";
 			}
@@ -240,7 +240,7 @@ class Util
 	{
 		foreach ($fields1 as $key => $value)
 		{
-			if (strlen($update) > 0)
+			if ($update <> '')
 			{
 				$update .= ", ";
 			}

@@ -47,7 +47,7 @@ class ByLocation extends Base
 		if(intval($deliveryId) <= 0)
 			return true;
 
-		if(strlen($locationCode) <= 0)
+		if($locationCode == '')
 			return false;
 
 		try
@@ -105,11 +105,15 @@ class ByLocation extends Base
 
 			if(!!\CSaleLocation::isLocationProEnabled())
 			{
-				if(strlen($params["LOCATION"][$class::DB_LOCATION_FLAG]))
+				if($params["LOCATION"][$class::DB_LOCATION_FLAG] <> '')
+				{
 					$LOCATION1 = explode(':', $params["LOCATION"][$class::DB_LOCATION_FLAG]);
+				}
 
-				if(strlen($params["LOCATION"][$class::DB_GROUP_FLAG]))
+				if($params["LOCATION"][$class::DB_GROUP_FLAG] <> '')
+				{
 					$LOCATION2 = explode(':', $params["LOCATION"][$class::DB_GROUP_FLAG]);
+				}
 			}
 
 			if (isset($LOCATION1) && is_array($LOCATION1) && count($LOCATION1) > 0)
@@ -118,8 +122,10 @@ class ByLocation extends Base
 				$locationCount = count($LOCATION1);
 
 				for ($i = 0; $i<$locationCount; $i++)
-					if (strlen($LOCATION1[$i]))
+					if($LOCATION1[$i] <> '')
+					{
 						$arLocation[$class::DB_LOCATION_FLAG][] = $LOCATION1[$i];
+					}
 			}
 
 			if (isset($LOCATION2) && is_array($LOCATION2) && count($LOCATION2) > 0)
@@ -128,8 +134,10 @@ class ByLocation extends Base
 				$locationCount = count($LOCATION2);
 
 				for ($i = 0; $i<$locationCount; $i++)
-					if (strlen($LOCATION2[$i]))
+					if($LOCATION2[$i] <> '')
+					{
 						$arLocation[$class::DB_GROUP_FLAG][] = $LOCATION2[$i];
+					}
 
 			}
 
@@ -181,7 +189,7 @@ class ByLocation extends Base
 		$shpLocCode = self::extractParams($shipment);
 
 		//if location not defined in shipment
-		if(strlen($shpLocCode) < 0)
+		if($shpLocCode === '')
 			return array_keys($restrictionFields);
 
 		$res = LocationTable::getList(array(

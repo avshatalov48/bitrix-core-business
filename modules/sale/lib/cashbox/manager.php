@@ -54,6 +54,18 @@ final class Manager
 	}
 
 	/**
+	 * @param array $parameters
+	 * @return Main\ORM\Query\Result
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	public static function getList(array $parameters = [])
+	{
+		return CashboxTable::getList($parameters);
+	}
+
+	/**
 	 * @param $id
 	 * @return Cashbox|ICheckable|null
 	 */
@@ -202,17 +214,17 @@ final class Manager
 	/**
 	 * @param $cashboxId
 	 * @param Check $check
-	 * @return Result
+	 * @return array
 	 */
 	public static function buildConcreteCheckQuery($cashboxId, Check $check)
 	{
-		$result = new Result();
-
 		$cashbox = static::getObjectById($cashboxId);
 		if ($cashbox)
+		{
 			return $cashbox->buildCheckQuery($check);
+		}
 
-		return $result;
+		return [];
 	}
 
 	/**
@@ -280,39 +292,6 @@ final class Manager
 		$cacheManager->clean(Manager::CACHE_ID);
 
 		return $deleteResult;
-	}
-
-	/**
-	 * @param $cashboxId
-	 * @param Main\Error $error
-	 * @return void
-	 */
-	public static function writeToLog($cashboxId, Main\Error $error)
-	{
-		if (static::getTraceErrorLevel() === static::LEVEL_TRACE_E_IGNORED)
-			return;
-
-		if ($error instanceof Errors\Error || $error instanceof Errors\Warning)
-		{
-			if (static::DEBUG_MODE === true || $error::LEVEL_TRACE <= static::getTraceErrorLevel())
-			{
-				$data = array(
-					'CASHBOX_ID' => $cashboxId,
-					'MESSAGE' => $error->getMessage(),
-					'DATE_INSERT' => new DateTime()
-				);
-
-				Internals\CashboxErrLogTable::add($data);
-			}
-		}
-	}
-
-	/**
-	 * @return int
-	 */
-	private static function getTraceErrorLevel()
-	{
-		return static::LEVEL_TRACE_E_ERROR;
 	}
 
 	/**
@@ -390,7 +369,14 @@ final class Manager
 				{
 					foreach ($result->getErrors() as $error)
 					{
-						static::writeToLog($cashbox->getField('ID'), $error);
+						if ($error instanceof Errors\Warning)
+						{
+							Logger::addWarning($error->getMessage(), $cashbox->getField('ID'));
+						}
+						else
+						{
+							Logger::addError($error->getMessage(), $cashbox->getField('ID'));
+						}
 					}
 				}
 			}
@@ -399,4 +385,25 @@ final class Manager
 		return static::CHECK_STATUS_AGENT;
 	}
 
+	/**
+	 * @param $cashboxId
+	 * @param Main\Error $error
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\ArgumentTypeException
+	 * @throws Main\ObjectException
+	 *
+	 * @deprecated Use \Bitrix\Sale\Cashbox\Logger instead
+	 */
+	public static function writeToLog($cashboxId, Main\Error $error)
+	{
+		if ($error instanceof Errors\Warning)
+		{
+			Logger::addWarning($error->getMessage(), $cashboxId);
+		}
+		else
+		{
+			Logger::addError($error->getMessage(), $cashboxId);
+		}
+	}
 }

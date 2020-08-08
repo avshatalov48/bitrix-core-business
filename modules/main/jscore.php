@@ -6,6 +6,7 @@ $pathLang = BX_ROOT.'/modules/main';
 //WARNING: Don't use CUserOptions here! CJSCore::Init can be called from php_interface/init.php where no $USER exists
 
 $amChartsPath = '/bitrix/js/main/amcharts/3.21/';
+$amCharts4Path = '/bitrix/js/main/amcharts/4.8.5/';
 
 $arJSCoreConfig = array(
 	'ajax' => array(
@@ -33,7 +34,7 @@ $arJSCoreConfig = array(
 	'autosave' => array(
 		'js' => $pathJS.'/core_autosave.js',
 		'lang' => $pathLang.'/js_core_autosave.php',
-		'rel' => array('ajax'),
+		'rel' => array('ajax', 'main.pageobject'),
 	),
 	'fx' => array(
 		'js' => $pathJS.'/core_fx.js',
@@ -88,7 +89,7 @@ $arJSCoreConfig = array(
 		'js' => $pathJS.'/core_window.js',
 		//'css' => $pathCSS.'/core_window.css',
 		'css' => $pathCSSPanel.'/popup.css',
-		'rel' => array('ajax'),
+		'rel' => array('ajax', 'main.pageobject'),
 	),
 	'access' => array(
 		'js' => $pathJS.'/core_access.js',
@@ -166,11 +167,9 @@ $arJSCoreConfig = array(
 		'lang' => $pathLang.'/js_site_speed.php',
 		'rel' => array('amcharts_serial', 'ajax', "date")
 	),
-	'qrcode' => array(
-		'js' => array(
-			'/bitrix/js/main/qrcode/qrcode.js'
-		)
-	),
+	'qrcode' => [
+		'rel' => ['main.qrcode']
+	],
 	'fileinput' => array(
 		'js' => $pathJS.'/core_fileinput.js',
 		'css' => $pathCSS.'/core_fileinput.css',
@@ -262,7 +261,7 @@ $arJSCoreConfig = array(
 			'/bitrix/js/main/sidepanel/slider.js'
 		),
 		'css' => '/bitrix/js/main/sidepanel/css/sidepanel.css',
-		'rel' => array('ajax', 'fx'),
+		'rel' => array('ajax', 'fx', 'main.pageobject'),
 		'lang' => $pathLang.'/js/sidepanel.php',
 		'bundle_js' => 'sidepanel',
 		'bundle_css' => 'sidepanel'
@@ -424,6 +423,31 @@ $arJSCoreConfig = array(
 		'rel' => array('amcharts'),
 		'skip_core' => true,
 	),
+	'amcharts4_core' => array(
+		'js' => [
+			$amCharts4Path.'core.js',
+			$amCharts4Path.'init.js',
+		],
+		'skip_core' => true,
+	),
+	'amcharts4' => array(
+		'js' => [
+			$amCharts4Path.'charts.js',
+		],
+		'skip_core' => true,
+		'rel' => array('amcharts4_core')
+	),
+	'amcharts4_theme_animated' => array(
+		'js' => [
+			$amCharts4Path.'themes/animated.js',
+		],
+		'skip_core' => true,
+		'rel' => array('amcharts4_core')
+	),
+	'amcharts4_maps' => array(
+		'js' => $amCharts4Path.'maps.js',
+		'skip_core' => true,
+	),
 	'lamejs' => array(
 		'js' => '/bitrix/js/main/recorder/recorder.js'
 	),
@@ -432,6 +456,8 @@ $arJSCoreConfig = array(
 \Bitrix\Main\Page\Asset::getInstance()->addJsKernelInfo(
 	'main',
 	array(
+		'/bitrix/js/main/pageobject/pageobject.js',
+		'/bitrix/js/main/core/core.js',
 		'/bitrix/js/main/core/core_tooltip.js',
 		'/bitrix/js/main/date/main.date.js',
 		'/bitrix/js/main/core/core_date.js',

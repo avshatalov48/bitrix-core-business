@@ -136,7 +136,7 @@ abstract class CommonHelper
 
 	public static function createIndex($tableName, $ixNamePostfix, $columns = array(), $unique = false)
 	{
-		if(!strlen($tableName) || !strlen($ixNamePostfix) || !is_array($columns) || empty($columns))
+		if(!mb_strlen($tableName) || !mb_strlen($ixNamePostfix) || !is_array($columns) || empty($columns))
 			return false;
 
 		$dbConnection = Main\HttpApplication::getConnection();
@@ -148,7 +148,7 @@ abstract class CommonHelper
 
 		$ixName = static::getIndexName($tableName, $ixNamePostfix, $columns);
 
-		if(strlen($ixName) > 30)
+		if(mb_strlen($ixName) > 30)
 			return false;
 
 		if(!static::checkIndexNameExists($ixName, $tableName))

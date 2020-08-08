@@ -50,7 +50,7 @@ if ($adminList->EditAction())
 	foreach ($FIELDS as $ID => $arFields)
 	{
 		$DB->StartTransaction();
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		if(!$adminList->IsUpdated($ID))
 			continue;
@@ -79,7 +79,7 @@ if($arID = $adminList->GroupAction())
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
 
 		switch($_REQUEST['action'])
@@ -238,7 +238,7 @@ while($dbrs = $rsIBlocks->NavNext(true, "f_"))
 			$row =& $adminList->AddRow($f_ID, $dbrs, CIBlock::GetAdminElementListLink($f_ID, array('find_section_section'=>-1)), GetMessage("IBLOCK_ADM_TO_EL_LIST"));
 	}
 
-	if(!strlen($f_SECTIONS_NAME))
+	if($f_SECTIONS_NAME == '')
 		$f_SECTIONS_NAME = $arIBTYPE["SECTION_NAME"]? htmlspecialcharsbx($arIBTYPE["SECTION_NAME"]): GetMessage("IBLOCK_ADM_SECTIONS");
 	if(!$f_ELEMENTS_NAME)
 		$f_ELEMENTS_NAME = $arIBTYPE["ELEMENT_NAME"]? htmlspecialcharsbx($arIBTYPE["ELEMENT_NAME"]): GetMessage("IBLOCK_ADM_ELEMENTS");
@@ -287,7 +287,7 @@ while($dbrs = $rsIBlocks->NavNext(true, "f_"))
 	}
 
 	if($arIBTYPE["SECTIONS"]=="Y" && in_array("SECTION_CNT", $adminList->GetVisibleHeaderColumns()))
-		$row->AddViewField("SECTION_CNT", '<a href="'.htmlspecialcharsbx(CIBlock::GetAdminSectionListLink($f_ID, array())).'" title="'.GetMessage("IBLOCK_ADM_TO_SECTLIST").'">'.IntVal(CIBlockSection::GetCount(array("IBLOCK_ID"=>$f_ID))).'</a>');
+		$row->AddViewField("SECTION_CNT", '<a href="'.htmlspecialcharsbx(CIBlock::GetAdminSectionListLink($f_ID, array())).'" title="'.GetMessage("IBLOCK_ADM_TO_SECTLIST").'">'.intval(CIBlockSection::GetCount(array("IBLOCK_ID"=>$f_ID))).'</a>');
 
 	if(
 		$bBizproc

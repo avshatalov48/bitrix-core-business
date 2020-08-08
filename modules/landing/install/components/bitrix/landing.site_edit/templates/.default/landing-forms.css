@@ -355,6 +355,24 @@
 	height: 115px;
 }
 
+.ui-form-right-cell-fonts .ui-checkbox:checked + .ui-checkbox-hidden-input-inner {
+	height: 270px;
+}
+
+.ui-form-right-cell-fonts .ui-checkbox-hidden-input-inner.opened {
+	height: auto;
+	margin-left: -27px;
+}
+
+.ui-form-right-cell-fonts .ui-checkbox-hidden-input-hook{
+	margin-bottom: 12px;
+}
+
+.ui-form-right-cell-fonts .ui-checkbox-hidden-input-hook label{
+	margin-bottom: 9px;
+	display: block;
+}
+
 .ui-form-right-cell-metrika .ui-checkbox-hidden-input:first-child .ui-checkbox:checked + .ui-checkbox-hidden-input-inner {
 	height: 154px;
 }
@@ -539,6 +557,10 @@
 	background-image: url(/bitrix/images/landing/templates/layout-4.svg);
 }
 
+.landing-form-layout-item-header_only .landing-form-layout-item-img {
+	background-image: url(/bitrix/images/landing/templates/layout-4-1.svg);
+}
+
 .landing-form-layout-item-without_left .landing-form-layout-item-img {
 	background-image: url(/bitrix/images/landing/templates/layout-5.svg);
 }
@@ -557,6 +579,7 @@
 #layout-radio-4:checked ~ .landing-form-list label[for="layout-radio-4"],
 #layout-radio-5:checked ~ .landing-form-list label[for="layout-radio-5"],
 #layout-radio-6:checked ~ .landing-form-list label[for="layout-radio-6"],
+#layout-radio-7:checked ~ .landing-form-list label[for="layout-radio-7"],
 .landing-form-layout-item-selected {
 	border-color: #2fc6f6;
 	border-radius: 7px;
@@ -566,9 +589,11 @@
 #layout-radio-1:checked ~ .landing-form-list .landing-form-layout-item-empty:after,
 #layout-radio-2:checked ~ .landing-form-list .landing-form-layout-item-sidebar_left:after,
 #layout-radio-3:checked ~ .landing-form-list .landing-form-layout-item-sidebar_right:after,
-#layout-radio-4:checked ~ .landing-form-list .landing-form-layout-item-header_footer:after,
-#layout-radio-5:checked ~ .landing-form-list .landing-form-layout-item-without_left:after,
-#layout-radio-6:checked ~ .landing-form-list .landing-form-layout-item-without_right:after, .landing-form-layout-item-selected:after {
+#layout-radio-4:checked ~ .landing-form-list .landing-form-layout-item-header_only:after,
+#layout-radio-5:checked ~ .landing-form-list .landing-form-layout-item-header_footer:after,
+#layout-radio-6:checked ~ .landing-form-list .landing-form-layout-item-without_left:after,
+#layout-radio-7:checked ~ .landing-form-list .landing-form-layout-item-without_right:after,
+.landing-form-layout-item-selected:after {
 	content: url(/bitrix/images/landing/templates/check-icon.svg);
 	width: 40px;
 	height: 40px;
@@ -668,6 +693,10 @@
 	background-image: url(/bitrix/images/landing/templates/layout_detail-3.svg);
 }
 
+.landing-form-layout-img-header_only {
+	background-image: url(/bitrix/images/landing/templates/layout_detail-4-1.svg);
+}
+
 .landing-form-layout-img-header_footer {
 	background-image: url(/bitrix/images/landing/templates/layout_detail-4.svg);
 }
@@ -745,7 +774,7 @@
 }
 
 .landing-form-list-inner-prev {
-	transform: translateX(-125px);
+	transform: translateX(-250px);
 }
 
 

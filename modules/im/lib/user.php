@@ -15,12 +15,15 @@ class User
 
 	const FILTER_LIMIT = 50;
 
-	const PHONE_ANY = 'PHONE_ANY';
+	const PHONE_ANY = 'phone_any';
 	const PHONE_WORK = 'work_phone';
 	const PHONE_PERSONAL = 'personal_phone';
 	const PHONE_MOBILE = 'personal_mobile';
 	const PHONE_INNER = 'uf_phone_inner';
 
+	const SERVICE_ANY = 'service_any';
+	const SERVICE_ZOOM = 'zoom';
+	const SERVICE_SKYPE = 'skype';
 
 	function __construct($userId = null)
 	{
@@ -120,26 +123,7 @@ class User
 			return '';
 		}
 
-		if (array_key_exists('avatar_hr', $fields))
-		{
-			return $fields['avatar_hr'];
-		}
-		else if ($fields['avatar_id'])
-		{
-			$avatar = \CFile::ResizeImageGet(
-				$fields['avatar_id'],
-				array('width' => 200, 'height' => 200),
-				BX_RESIZE_IMAGE_EXACT,
-				false,
-				false,
-				true
-			);
-			$this->userData['user']['avatar_hr'] = $avatar['src'];
-
-			return $avatar['src'];
-		}
-
-		return '';
+		return $fields['avatar'];
 	}
 
 	/**
@@ -313,6 +297,34 @@ class User
 	}
 
 	/**
+	 * @param string $type
+	 * @return string
+	 */
+	public function getService($type = self::PHONE_ANY)
+	{
+		$fields = $this->getServices();
+
+		$result = '';
+		if ($type == self::SERVICE_ANY)
+		{
+			if (isset($fields[self::SERVICE_SKYPE]))
+			{
+				$result = $fields[self::SERVICE_SKYPE];
+			}
+			else if (isset($fields[self::SERVICE_ZOOM]))
+			{
+				$result = $fields[self::SERVICE_ZOOM];
+			}
+		}
+		else if (isset($fields[$type]))
+		{
+			$result = $fields[$type];
+		}
+
+		return $result;
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getColor()
@@ -441,6 +453,16 @@ class User
 	/**
 	 * @return array|null
 	 */
+	public function getServices()
+	{
+		$params = $this->getFields();
+
+		return $params? $params['services']: null;
+	}
+
+	/**
+	 * @return array|null
+	 */
 	public function getDepartments()
 	{
 		$params = $this->getFields();
@@ -449,16 +471,23 @@ class User
 	}
 
 	/**
+	 * Returns an array describing the user.
+	 *
+	 * @param array $options
 	 * @return array|null
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\LoaderException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
-	public function getArray($options = array())
+	public function getArray($options = [])
 	{
 		if (!$this->isExists())
 		{
 			return null;
 		}
 
-		$result = Array(
+		$result = [
 			'ID' => $this->getId(),
 			'NAME' => $this->getFullName(false),
 			'FIRST_NAME' => $this->getName(false),
@@ -480,21 +509,26 @@ class User
 			'DEPARTMENTS' => $this->getDepartments(),
 			'ABSENT' => $this->isAbsent(),
 			'PHONES' => $this->getPhones(),
-		);
+		];
 		if ($options['HR_PHOTO'])
 		{
 			$result['AVATAR_HR'] = $this->getAvatarHr();
 		}
 
-		if ($options['LIVECHAT'])
+		//TODO: Live chat, open lines
+		//Just one call, here: \Bitrix\ImOpenLines\Connector::onStartWriting and \Bitrix\Im\Chat::getMessages
+		if ($options['LIVECHAT'] && !$this->isConnector())
 		{
-			$imolUserData = \Bitrix\ImOpenLines\Queue::getUserData($options['LIVECHAT'], $this->getId(), true);
+			$lineId = \Bitrix\ImOpenLines\Queue::getActualLineId(['LINE_ID' => $options['LIVECHAT'], 'USER_CODE' => $options['USER_CODE']]);
+
+			$imolUserData = \Bitrix\ImOpenLines\Queue::getUserData($lineId, $this->getId());
 			if ($imolUserData)
 			{
 				$result = array_merge($result, $imolUserData);
 				$result['AVATAR_HR'] = $result['AVATAR'];
 			}
 		}
+		//TODO: END: Live chat, open lines
 
 		if ($options['JSON'])
 		{
@@ -504,7 +538,7 @@ class User
 				{
 					$result[$key] = date('c', $value->getTimestamp());
 				}
-				else if (is_string($value) && is_string($key) && in_array($key, ['AVATAR', 'AVATAR_HR']) && is_string($value) && $value && strpos($value, 'http') !== 0)
+				else if (is_string($value) && is_string($key) && in_array($key, ['AVATAR', 'AVATAR_HR']) && is_string($value) && $value && mb_strpos($value, 'http') !== 0)
 				{
 					$result[$key] = \Bitrix\Im\Common::getPublicDomain().$value;
 				}
@@ -704,29 +738,8 @@ class User
 				continue;
 			}
 
-			$tmpFile = \CFile::ResizeImageGet(
-				$user["PERSONAL_PHOTO"],
-				array('width' => 100, 'height' => 100),
-				BX_RESIZE_IMAGE_EXACT,
-				false,
-				false,
-				true
-			);
-
-			if ($params['HR_PHOTO'])
-			{
-				$tmpFileHr = \CFile::ResizeImageGet(
-					$user["PERSONAL_PHOTO"],
-					array('width' => 200, 'height' => 200),
-					BX_RESIZE_IMAGE_EXACT,
-					false,
-					false,
-					true
-				);
-			}
-
 			$color = false;
-			if (isset($user['COLOR']) && strlen($user['COLOR']) > 0)
+			if (isset($user['COLOR']) && $user['COLOR'] <> '')
 			{
 				$color = \Bitrix\Im\Color::getColor($user['COLOR']);
 			}
@@ -742,7 +755,7 @@ class User
 				'LAST_NAME' => $user['LAST_NAME'],
 				'WORK_POSITION' => $user['WORK_POSITION'],
 				'COLOR' => $color,
-				'AVATAR' => !empty($tmpFile['src'])? $tmpFile['src']: '',
+				'AVATAR' => \CIMChat::GetAvatarImage($user["PERSONAL_PHOTO"], 200, false),
 				'GENDER' => $user['PERSONAL_GENDER'] == 'F'? 'F': 'M',
 				'BIRTHDAY' => $user['PERSONAL_BIRTHDAY'] instanceof \Bitrix\Main\Type\Date? $user['PERSONAL_BIRTHDAY']->format('d-m'): false,
 				'EXTRANET' => \CIMContactList::IsExtranet($user),
@@ -759,7 +772,7 @@ class User
 			);
 			if ($params['HR_PHOTO'])
 			{
-				$users[$user["ID"]]['AVATAR_HR'] = !empty($tmpFileHr['src'])? $tmpFileHr['src']: '';
+				$users[$user["ID"]]['AVATAR_HR'] = $users[$user["ID"]]['avatar'];
 			}
 
 			if ($voximplantInstalled)
@@ -804,7 +817,7 @@ class User
 					{
 						$users[$key][$field] = date('c', $value->getTimestamp());
 					}
-					else if (is_string($value) && $value && is_string($field) &&  in_array($field, Array('AVATAR', 'AVATAR_HR')) && strpos($value, 'http') !== 0)
+					else if (is_string($value) && $value && is_string($field) &&  in_array($field, Array('AVATAR', 'AVATAR_HR')) && mb_strpos($value, 'http') !== 0)
 					{
 						$users[$key][$field] = \Bitrix\Im\Common::getPublicDomain().$value;
 					}
@@ -1130,7 +1143,7 @@ class User
 				foreach (['urlPreview', 'urlShow', 'urlDownload'] as $field)
 				{
 					$url = $result['FILES'][$key][$field];
-					if (is_string($url) && $url && strpos($url, 'http') !== 0)
+					if (is_string($url) && $url && mb_strpos($url, 'http') !== 0)
 					{
 						$result['FILES'][$key][$field] = \Bitrix\Im\Common::getPublicDomain().$url;
 					}

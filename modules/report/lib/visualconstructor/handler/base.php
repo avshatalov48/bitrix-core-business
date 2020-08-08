@@ -292,6 +292,23 @@ abstract class Base
 	}
 
 	/**
+	 * Returns value of the form element with given key.
+	 *
+	 * @param string $fieldKey The key of the field.
+	 * @return mixed|null
+	 */
+	public function getFormElementValue($fieldKey)
+	{
+		$formElements = $this->getFormElements();
+		if (isset($formElements[$fieldKey]))
+		{
+			return $formElements[$fieldKey]->getValue();
+		}
+
+		return null;
+	}
+
+	/**
 	 * Find form element by attribute key value pair.
 	 *
 	 * @param string $attributeKey Attribute key to find in form elements list.

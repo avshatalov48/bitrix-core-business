@@ -103,7 +103,7 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 		if(!is_string($arParams['FILTER_SITE_ID']) || empty($arParams['FILTER_SITE_ID']) || $arParams['FILTER_SITE_ID'] == 'current')
 			$arParams['FILTER_SITE_ID'] = SITE_ID; //todo: it looks like a bug for admin pages, where SITE_ID == 'ru'.
 		else
-			$arParams['FILTER_SITE_ID'] = substr(self::tryParseStringStrict($arParams['FILTER_SITE_ID']), 0, 2);
+			$arParams['FILTER_SITE_ID'] = mb_substr(self::tryParseStringStrict($arParams['FILTER_SITE_ID']), 0, 2);
 
 		self::tryParseBoolean($arParams['FILTER_BY_SITE']);
 		self::tryParseBoolean($arParams['SHOW_DEFAULT_LOCATIONS']);
@@ -191,7 +191,7 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 	public static function tryParseString(&$fld, $default = false)
 	{
 		$fld = trim((string)$fld);
-		if(!strlen($fld) && $default !== false)
+		if(!mb_strlen($fld) && $default !== false)
 			$fld = $default;
 
 		$fld = htmlspecialcharsbx($fld);
@@ -208,7 +208,7 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 	public static function tryParseStringStrict(&$fld, $default = false)
 	{
 		$fld = trim((string)$fld);
-		if(!strlen($fld) && $default !== false)
+		if(!mb_strlen($fld) && $default !== false)
 			$fld = $default;
 
 		$fld = preg_replace('#[^a-z0-9_-]#i', '', $fld);
@@ -293,7 +293,7 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 				$toBeFound = true;
 				$res = Location\LocationTable::getPathToNode($this->arParams['ID'], $parameters);
 			}
-			elseif(strlen($this->arParams['CODE']))
+			elseif(mb_strlen($this->arParams['CODE']))
 			{
 				$toBeFound = true;
 				$res = Location\LocationTable::getPathToNodeByCode($this->arParams['CODE'], $parameters);
@@ -614,7 +614,7 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 		//	throw new Main\ArgumentException(Loc::getMessage('SALE_SLS_BAD_QUERY'));
 
 		// phrase should be string and longer than static::START_SEARCH_LEN
-		if(isset($parameters['filter']['=PHRASE']) && (!is_string($parameters['filter']['=PHRASE']) || strlen($parameters['filter']['=PHRASE']) < static::START_SEARCH_LEN))
+		if(isset($parameters['filter']['=PHRASE']) && (!is_string($parameters['filter']['=PHRASE']) || mb_strlen($parameters['filter']['=PHRASE']) < static::START_SEARCH_LEN))
 			throw new Main\ArgumentException(Loc::getMessage('SALE_SLS_BAD_QUERY'));
 
 
@@ -1106,7 +1106,7 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 	 */
 	protected static function processSearchRequestGetLang()
 	{
-		return strlen($_REQUEST['BEHAVIOUR']['LANGUAGE_ID']) ? $_REQUEST['BEHAVIOUR']['LANGUAGE_ID'] : LANGUAGE_ID;
+		return $_REQUEST['BEHAVIOUR']['LANGUAGE_ID'] <> ''? $_REQUEST['BEHAVIOUR']['LANGUAGE_ID'] : LANGUAGE_ID;
 	}
 
 	/**
@@ -1126,8 +1126,10 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 			'LANGUAGE_ID' => $langId
 		);
 
-		if(strlen($rFilter['SITE_ID']))
+		if($rFilter['SITE_ID'] <> '')
+		{
 			$filter['SITE_ID'] = $rFilter['SITE_ID'];
+		}
 
 		if($_REQUEST['BEHAVIOUR']['EXPECT_EXACT'])
 		{
@@ -1136,7 +1138,7 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 			###################################
 
 			// EXPECT_EXACT assumes presence of QUERY key in query. in this case QUERY is being treated as an exact value for ID
-			if(!strlen($rFilter['QUERY']))
+			if($rFilter['QUERY'] == '')
 				throw new Main\SystemException(Loc::getMessage('SALE_SLS_BAD_QUERY'));
 
 			$filter['ID'] = intval($rFilter['QUERY']);
@@ -1147,13 +1149,17 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 			# Non-exact search, there could be a set of matched elements
 			###################################
 
-			if(strlen($rFilter['QUERY']))
+			if($rFilter['QUERY'] <> '')
 			{
-				if(strlen($rFilter['QUERY']) >= static::START_SEARCH_LEN)
+				if(mb_strlen($rFilter['QUERY']) >= static::START_SEARCH_LEN)
+				{
 					$filter['NAME'] = $rFilter['QUERY'];
+				}
 
 				if($_REQUEST['BEHAVIOUR']['SEARCH_BY_PRIMARY'])
+				{
 					$filter['PRIMARY'] = $rFilter['QUERY'];
+				}
 			}
 
 			if(isset($rFilter['PARENT_ID']) && intval($rFilter['PARENT_ID']) >= 0)

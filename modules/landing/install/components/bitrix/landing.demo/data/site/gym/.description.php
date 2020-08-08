@@ -16,7 +16,10 @@ return array(
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(
 			'THEME_CODE' => 'gym',
-			'THEME_CODE_TYPO' => 'gym',
+			'THEMEFONTS_CODE' => 'g-font-roboto',
+			'THEMEFONTS_CODE_H' => 'g-font-roboto',
+			'THEMEFONTS_SIZE' => '1',
+			'THEMEFONTS_USE' => 'Y',
 			'B24BUTTON_CODE' => $buttons[0],
 			'UP_SHOW' => 'Y',
 		)

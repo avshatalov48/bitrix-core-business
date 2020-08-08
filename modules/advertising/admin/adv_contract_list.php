@@ -104,7 +104,7 @@ if($lAdmin->EditAction() && $isAdmin)
 	foreach($FIELDS as $ID=>$arFields)
 	{
 		$DB->StartTransaction();
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		if(!$lAdmin->IsUpdated($ID))
 			continue;
@@ -132,9 +132,9 @@ if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 	foreach($arID as $ID)
 	{
 		$ob = new CAdvContract;
-		if(IntVal($ID)<=0)
+		if(intval($ID)<=0)
 			continue;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		switch($_REQUEST['action'])
 		{
 		case "delete":
@@ -187,7 +187,7 @@ while ($ar = $rs->Fetch())
 	$arrSites[$ar["ID"]] = $ar;
 
 while($arRes = $rsData->NavNext(true, "f_")):
-	$lamp_alt = GetMessage("AD_".strtoupper($f_LAMP)."_ALT");
+	$lamp_alt = GetMessage("AD_".mb_strtoupper($f_LAMP)."_ALT");
 	$lamp = '<div class="lamp-'.$f_LAMP.'" title="'.$lamp_alt.'"></div>';
 	$arrUserPerm = is_array($arrPERM[$f_ID]) ? $arrPERM[$f_ID] : array();
 

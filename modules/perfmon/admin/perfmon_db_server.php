@@ -1,11 +1,13 @@
 <?
+use Bitrix\Main\Loader;
+
 define("ADMIN_MODULE_NAME", "perfmon");
 define("PERFMON_STOP", true);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 /** @global CMain $APPLICATION */
 /** @global CDatabase $DB */
 /** @global CUser $USER */
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/include.php");
+Loader::includeModule('perfmon');
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/prolog.php");
 
 IncludeModuleLangFile(__FILE__);
@@ -547,7 +549,7 @@ if ($statDB->type == "MYSQL")
 			$data[0]["ITEMS"][] = array(
 				"KPI_NAME" => "innodb_flush_log_at_trx_commit",
 				"IS_OK" => $vars['innodb_flush_log_at_trx_commit'] == 2 || $vars['innodb_flush_log_at_trx_commit'] == 0,
-				"KPI_VALUE" => strlen($vars['innodb_flush_log_at_trx_commit'])? $vars['innodb_flush_log_at_trx_commit']: GetMessage("PERFMON_KPI_EMPTY"),
+				"KPI_VALUE" => $vars['innodb_flush_log_at_trx_commit'] <> ''? $vars['innodb_flush_log_at_trx_commit'] : GetMessage("PERFMON_KPI_EMPTY"),
 				"KPI_RECOMMENDATION" => GetMessage("PERFMON_KPI_REC_INNODB_FLUSH_LOG", array(
 					"#GOOD_VALUE#" => 2,
 					"#PARAM_NAME#" => "<span class=\"perfmon_code\">innodb_flush_log_at_trx_commit</span>",
@@ -569,7 +571,7 @@ if ($statDB->type == "MYSQL")
 			$data[0]["ITEMS"][] = array(
 				"KPI_NAME" => "innodb_flush_method",
 				"IS_OK" => $vars['innodb_flush_method'] == "O_DIRECT",
-				"KPI_VALUE" => strlen($vars['innodb_flush_method'])? $vars['innodb_flush_method']: GetMessage("PERFMON_KPI_EMPTY"),
+				"KPI_VALUE" => $vars['innodb_flush_method'] <> ''? $vars['innodb_flush_method'] : GetMessage("PERFMON_KPI_EMPTY"),
 				"KPI_RECOMMENDATION" => GetMessage("PERFMON_KPI_REC_INNODB_FLUSH_METHOD", array(
 					"#GOOD_VALUE#" => "O_DIRECT",
 					"#PARAM_NAME#" => "<span class=\"perfmon_code\">innodb_flush_method</span>",
@@ -578,7 +580,7 @@ if ($statDB->type == "MYSQL")
 			$data[0]["ITEMS"][] = array(
 				"KPI_NAME" => "transaction-isolation",
 				"IS_OK" => $vars['tx_isolation'] == "READ-COMMITTED",
-				"KPI_VALUE" => strlen($vars['tx_isolation'])? $vars['tx_isolation']: GetMessage("PERFMON_KPI_EMPTY"),
+				"KPI_VALUE" => $vars['tx_isolation'] <> ''? $vars['tx_isolation'] : GetMessage("PERFMON_KPI_EMPTY"),
 				"KPI_RECOMMENDATION" => GetMessage("PERFMON_KPI_REC_TX_ISOLATION", array(
 					"#GOOD_VALUE#" => "READ-COMMITTED",
 					"#PARAM_NAME#" => "<span class=\"perfmon_code\">transaction-isolation</span>",
@@ -733,7 +735,7 @@ elseif ($statDB->type == "ORACLE")
 				"WAIT_EVENT" => $ar["WAIT_EVENT"],
 				"WAIT_PCT" => $ar["PCTTOT"]."%",
 				"WAIT_AVERAGE_WAIT_MS" => $ar["AVERAGE_WAIT_MS"],
-				"KPI_RECOMMENDATION" => GetMessage("PERFMON_KPI_ORA_REC_".strtoupper(str_replace(array(" ", ":", "*"), "_", $ar["WAIT_EVENT"]))),
+				"KPI_RECOMMENDATION" => GetMessage("PERFMON_KPI_ORA_REC_".mb_strtoupper(str_replace(array(" ", ":", "*"), "_", $ar["WAIT_EVENT"]))),
 			);
 		$param = array();
 		$rs = $statDB->Query("SELECT NAME,VALUE from v\$parameter", false, "", $queryOptions);

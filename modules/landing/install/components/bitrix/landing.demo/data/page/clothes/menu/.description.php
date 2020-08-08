@@ -19,7 +19,7 @@ return array(
 			'VIEW_USE' => 'Y',
 			'VIEW_TYPE' => 'no',
 			'THEME_CODE' => 'travel',
-			'THEME_CODE_TYPO' => 'travel',
+
 		),
 	),
 	'layout' => array(

@@ -59,7 +59,7 @@ if ($request->getPost("Save") && check_bitrix_sessid())
 			if (openssl_pkey_get_public($publicKey))
 			{
 				$shopId = \Bitrix\Sale\BusinessValue::get('YANDEX_INVOICE_SHOP_ID', 'PAYSYSTEM_'.$id, $personTypeId);
-				if (strlen($shopId) > 0)
+				if ($shopId <> '')
 					\Bitrix\Sale\Internals\YandexSettingsTable::update($shopId, array('PUB_KEY' => $publicKey));
 			}
 			else
@@ -82,7 +82,7 @@ if ($request->get('generate') === 'Y')
 	$personTypeId = $request->get('person_type_id');
 
 	$shopId = \Bitrix\Sale\BusinessValue::get('YANDEX_INVOICE_SHOP_ID', 'PAYSYSTEM_'.$id, $personTypeId);
-	if (strlen($shopId) > 0)
+	if ($shopId <> '')
 	{
 		$dbRes = \Bitrix\Sale\Internals\YandexSettingsTable::getById($shopId);
 		$yandexSettings = $dbRes->fetch();

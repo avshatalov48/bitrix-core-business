@@ -8,6 +8,8 @@
 
 namespace Bitrix\Main;
 
+use Bitrix\Main\DB\SqlExpression;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM;
 use Bitrix\Main\Type;
 
@@ -31,49 +33,171 @@ class UserFieldTable extends ORM\Data\DataManager
 				'autocomplete' => true,
 			),
 			'ENTITY_ID' => array(
-				'data_type' => 'string'
+				'data_type' => 'string',
+				'title' => Loc::getMessage('MAIN_USER_FIELD_TABLE_ENTITY_ID_TITLE'),
 			),
 			'FIELD_NAME' => array(
-				'data_type' => 'string'
+				'data_type' => 'string',
+				'title' => Loc::getMessage('MAIN_USER_FIELD_TABLE_FIELD_NAME_TITLE'),
 			),
 			'USER_TYPE_ID' => array(
-				'data_type' => 'string'
+				'data_type' => 'string',
+				'title' => Loc::getMessage('MAIN_USER_FIELD_TABLE_USER_TYPE_ID_TITLE'),
 			),
 			'XML_ID' => array(
-				'data_type' => 'string'
+				'data_type' => 'string',
 			),
 			'SORT' => array(
-				'data_type' => 'integer'
+				'data_type' => 'integer',
+				'title' => Loc::getMessage('MAIN_USER_FIELD_TABLE_SORT_TITLE'),
 			),
 			'MULTIPLE' => array(
 				'data_type' => 'boolean',
-				'values' => array('N', 'Y')
+				'values' => array('N', 'Y'),
+				'title' => Loc::getMessage('MAIN_USER_FIELD_TABLE_MULTIPLE_TITLE'),
 			),
 			'MANDATORY' => array(
 				'data_type' => 'boolean',
-				'values' => array('N', 'Y')
+				'values' => array('N', 'Y'),
+				'title' => Loc::getMessage('MAIN_USER_FIELD_TABLE_MANDATORY_TITLE'),
 			),
 			'SHOW_FILTER' => array(
 				'data_type' => 'boolean',
-				'values' => array('N', 'Y')
+				'values' => array('N', 'Y'),
+				'title' => Loc::getMessage('MAIN_USER_FIELD_TABLE_SHOW_FILTER_TITLE'),
 			),
 			'SHOW_IN_LIST' => array(
 				'data_type' => 'boolean',
-				'values' => array('N', 'Y')
+				'values' => array('N', 'Y'),
+				'title' => Loc::getMessage('MAIN_USER_FIELD_TABLE_SHOW_IN_LIST_TITLE'),
 			),
 			'EDIT_IN_LIST' => array(
 				'data_type' => 'boolean',
-				'values' => array('N', 'Y')
+				'values' => array('N', 'Y'),
+				'title' => Loc::getMessage('MAIN_USER_FIELD_TABLE_EDIT_IN_LIST_TITLE'),
 			),
 			'IS_SEARCHABLE' => array(
 				'data_type' => 'boolean',
-				'values' => array('N', 'Y')
+				'values' => array('N', 'Y'),
+				'title' => Loc::getMessage('MAIN_USER_FIELD_TABLE_IS_SEARCHABLE_TITLE'),
 			),
 			'SETTINGS' => array(
 				'data_type' => 'text',
-				'serialized' => true
-			)
+				'serialized' => true,
+				'title' => Loc::getMessage('MAIN_USER_FIELD_TABLE_SETTINGS_TITLE'),
+			),
 		);
+	}
+
+	public static function getLabelsReference(string $referenceName = null, string $languageId = null): ORM\Fields\Relations\Reference
+	{
+		if(!$referenceName)
+		{
+			$referenceName = 'LABELS';
+		}
+
+		$filter = [
+			'=this.ID' => 'ref.USER_FIELD_ID',
+		];
+
+		if($languageId)
+		{
+			$filter['=ref.LANGUAGE_ID'] = new SqlExpression('?s', $languageId);
+		}
+
+		return new ORM\Fields\Relations\Reference(
+			$referenceName,
+			UserFieldLangTable::class,
+			$filter
+		);
+	}
+
+	public static function getLabelFields(): array
+	{
+		return [
+			'LANGUAGE_ID',
+			'EDIT_FORM_LABEL',
+			'LIST_COLUMN_LABEL',
+			'LIST_FILTER_LABEL',
+			'ERROR_MESSAGE',
+			'HELP_MESSAGE',
+		];
+	}
+
+	public static function getLabelsSelect(string $referenceName = null): array
+	{
+		if(!$referenceName)
+		{
+			$referenceName = 'LABELS';
+		}
+
+		$result = [];
+		foreach(static::getLabelFields() as $labelField)
+		{
+			$result[$labelField] = $referenceName . '.' . $labelField;
+		}
+
+		return $result;
+	}
+
+	public static function getFieldData(int $id): ?array
+	{
+		$labelFields = static::getLabelFields();
+		$field = [];
+		$list = static::getList([
+			'select' => array_merge(['*'], UserFieldTable::getLabelsSelect()),
+			'filter' => [
+				'=ID' => $id,
+			],
+			'runtime' => [
+				static::getLabelsReference(),
+			]
+		]);
+		foreach($list as $data)
+		{
+			if(empty($field))
+			{
+				$field = $data;
+				unset(
+					$field['LANGUAGE_ID'],
+					$field['EDIT_FORM_LABEL'],
+					$field['LIST_COLUMN_LABEL'],
+					$field['LIST_FILTER_LABEL'],
+					$field['ERROR_MESSAGE'],
+					$field['HELP_MESSAGE'],
+					$field['UALIAS_0']
+				);
+			}
+
+			foreach($labelFields as $labelField)
+			{
+				$field[$labelField][$data['LANGUAGE_ID']] = $data[$labelField];
+			}
+		}
+
+		if(empty($field))
+		{
+			return null;
+		}
+
+		if($field['USER_TYPE_ID'] === 'enumeration')
+		{
+			$field['ENUM'] = [];
+			$enumEntity = new \CUserFieldEnum();
+			$enumList = $enumEntity->GetList(
+				[
+					'SORT' => 'ASC'
+				], [
+					'USER_FIELD_ID' => $field['ID'],
+				]
+			);
+			while($enum = $enumList->Fetch())
+			{
+				$field['ENUM'][] = $enum;
+			}
+		}
+
+		return $field;
 	}
 
 	/**
@@ -112,9 +236,10 @@ class UserFieldTable extends ORM\Data\DataManager
 
 	/**
 	 * @param ORM\Entity $entity
-	 * @param          $ufId
+	 * @param            $ufId
 	 *
 	 * @throws ArgumentException
+	 * @throws SystemException
 	 */
 	public static function attachFields(ORM\Entity $entity, $ufId)
 	{
@@ -145,7 +270,7 @@ class UserFieldTable extends ORM\Data\DataManager
 		if (!empty($utsFields) || !empty($utmFields))
 		{
 			// create uts entity & put fields into it
-			$utsEntity = static::createUtsEntity($entity, $utsFields, $utmFields);
+			$utsEntity = static::createUtsEntity($entity, $utsFields, $utmFields, $ufId);
 
 			// create reference to uts entity
 			$utsReference = new ORM\Fields\Relations\Reference('UTS_OBJECT', $utsEntity->getDataClass(), array(
@@ -205,7 +330,7 @@ class UserFieldTable extends ORM\Data\DataManager
 			if (!empty($utmFields))
 			{
 				// create utm entity & put base fields into it
-				$utmEntity = static::createUtmEntity($entity, $utmFields);
+				$utmEntity = static::createUtmEntity($entity, $utmFields, $ufId);
 
 				// add UF_* aliases
 				foreach ($utmFieldNames as $utmFieldName => $true)
@@ -230,11 +355,13 @@ class UserFieldTable extends ORM\Data\DataManager
 	 * @param ORM\Entity $srcEntity
 	 * @param array      $utsFields
 	 * @param array      $utmFields
+	 * @param null       $ufId
 	 *
 	 * @return ORM\Entity
 	 * @throws ArgumentException
+	 * @throws SystemException
 	 */
-	protected static function createUtsEntity(ORM\Entity $srcEntity, array $utsFields, array $utmFields)
+	protected static function createUtsEntity(ORM\Entity $srcEntity, array $utsFields, array $utmFields, $ufId = null)
 	{
 		global $USER_FIELD_MANAGER;
 
@@ -247,7 +374,7 @@ class UserFieldTable extends ORM\Data\DataManager
 		$utsClass = end($utsClassPath);
 
 		// get table name
-		$utsTable = static::getUtsEntityTableNameBySrcEntity($srcEntity);
+		$utsTable = static::getUtsEntityTableNameBySrcEntity($srcEntity, $ufId);
 
 		// base fields
 		$fieldsMap = array(
@@ -320,17 +447,40 @@ class UserFieldTable extends ORM\Data\DataManager
 
 		if ($fieldAsType instanceof ORM\Fields\DatetimeField)
 		{
-			$entityField->addSaveDataModifier(array(__CLASS__, 'serializeMultipleDatetime'));
-			$entityField->addFetchDataModifier(array(__CLASS__, 'unserializeMultipleDatetime'));
+			if ($entityField instanceof ORM\Fields\ArrayField)
+			{
+				$entityField->configureSerializeCallback([__CLASS__, 'serializeMultipleDatetime']);
+				$entityField->configureUnserializeCallback([__CLASS__, 'unserializeMultipleDatetime']);
+			}
+			else
+			{
+				$entityField->addSaveDataModifier([__CLASS__, 'serializeMultipleDatetime']);
+				$entityField->addFetchDataModifier([__CLASS__, 'unserializeMultipleDatetime']);
+			}
 		}
 		elseif ($fieldAsType instanceof ORM\Fields\DateField)
 		{
-			$entityField->addSaveDataModifier(array(__CLASS__, 'serializeMultipleDate'));
-			$entityField->addFetchDataModifier(array(__CLASS__, 'unserializeMultipleDate'));
+			if ($entityField instanceof ORM\Fields\ArrayField)
+			{
+				$entityField->configureSerializeCallback([__CLASS__, 'serializeMultipleDate']);
+				$entityField->configureUnserializeCallback([__CLASS__, 'unserializeMultipleDate']);
+			}
+			else
+			{
+				$entityField->addSaveDataModifier([__CLASS__, 'serializeMultipleDate']);
+				$entityField->addFetchDataModifier([__CLASS__, 'unserializeMultipleDate']);
+			}
 		}
 		else
 		{
-			$entityField->setSerialized();
+			if ($entityField instanceof ORM\Fields\ArrayField)
+			{
+				$entityField->configureSerializationPhp();
+			}
+			else
+			{
+				$entityField->setSerialized();
+			}
 		}
 	}
 
@@ -359,19 +509,21 @@ class UserFieldTable extends ORM\Data\DataManager
 		return $srcEntity->getFullName().'UtsTable';
 	}
 
-	protected static function getUtsEntityTableNameBySrcEntity(ORM\Entity $srcEntity)
+	protected static function getUtsEntityTableNameBySrcEntity(ORM\Entity $srcEntity, $ufId = null)
 	{
-		return 'b_uts_'.strtolower($srcEntity->getUfId());
+		return 'b_uts_'.strtolower($ufId ?: $srcEntity->getUfId());
 	}
 
 	/**
 	 * @param ORM\Entity $srcEntity
 	 * @param array      $utmFields
+	 * @param null       $ufId
 	 *
 	 * @return ORM\Entity
 	 * @throws ArgumentException
+	 * @throws SystemException
 	 */
-	protected static function createUtmEntity(ORM\Entity $srcEntity, array $utmFields)
+	protected static function createUtmEntity(ORM\Entity $srcEntity, array $utmFields, $ufId = null)
 	{
 		global $USER_FIELD_MANAGER;
 
@@ -383,7 +535,7 @@ class UserFieldTable extends ORM\Data\DataManager
 		$utmClass = end($utmClassPath);
 
 		// get table name
-		$utmTable = static::getUtmEntityTableNameBySrcEntity($srcEntity);
+		$utmTable = static::getUtmEntityTableNameBySrcEntity($srcEntity, $ufId);
 
 		// collect fields
 		$fieldsMap = array(
@@ -488,9 +640,9 @@ class UserFieldTable extends ORM\Data\DataManager
 		return $srcEntity->getFullName().'UtmTable';
 	}
 
-	protected static function getUtmEntityTableNameBySrcEntity(ORM\Entity $srcEntity)
+	protected static function getUtmEntityTableNameBySrcEntity(ORM\Entity $srcEntity, $ufId = null)
 	{
-		return 'b_utm_'.strtolower($srcEntity->getUfId());
+		return 'b_utm_'.strtolower($ufId ?: $srcEntity->getUfId());
 	}
 
 	/**

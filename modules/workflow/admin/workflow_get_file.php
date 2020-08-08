@@ -17,8 +17,8 @@ if ($APPLICATION->GetGroupRight("workflow")>="R")
 {
 	session_write_close();
 	$src = CWorkflow::GetFileContent($did, $fname, $wf_path, $site);
-	$ext = strtolower(GetFileExtension($fname));
-	$arrExt = explode(",", strtolower(CFile::GetImageExtensions()));
+	$ext = mb_strtolower(GetFileExtension($fname));
+	$arrExt = explode(",", mb_strtolower(CFile::GetImageExtensions()));
 	if(in_array($ext, $arrExt))
 	{
 		if ($ext=="jpg") $ext = "jpeg";

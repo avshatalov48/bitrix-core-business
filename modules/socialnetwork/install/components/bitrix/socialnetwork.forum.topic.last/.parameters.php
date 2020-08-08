@@ -8,7 +8,7 @@ if ($db_res && ($res = $db_res->GetNext()))
 {
 	do
 	{
-		$arForum[intVal($res["ID"])] = $res["NAME"];
+		$arForum[intval($res["ID"])] = $res["NAME"];
 	}while ($res = $db_res->GetNext());
 }
 
@@ -74,7 +74,7 @@ $arComponentParameters = Array(
 			"PARENT" => "ADDITIONAL_SETTINGS",
 			"NAME" => GetMessage("F_TOPICS_PER_PAGE"),
 			"TYPE" => "STRING",
-			"DEFAULT" => intVal(COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10")))
+			"DEFAULT" => intval(COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10")))
 	)
 );
 ?>

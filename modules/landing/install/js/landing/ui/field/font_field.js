@@ -146,7 +146,7 @@
 
 				headString = headString
 					.replace("async@load", "all")
-					.replace('data-loadcss="true"', "");
+					.replace(/data-loadcss="true"/g, "");
 
 				BX.Landing.Backend.getInstance()
 					.action("Landing::updateHead", {content: headString});

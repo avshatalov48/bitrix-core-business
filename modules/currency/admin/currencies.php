@@ -31,8 +31,8 @@ if (!isset($by))
 	$by = 'SORT';
 if (!isset($order))
 	$order = 'ASC';
-$by = strtoupper($by);
-$order = strtoupper($order);
+$by = mb_strtoupper($by);
+$order = mb_strtoupper($order);
 
 if ($adminList->EditAction() && $CURRENCY_RIGHT == "W")
 {

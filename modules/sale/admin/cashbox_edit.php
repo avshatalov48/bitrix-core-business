@@ -19,6 +19,10 @@ Loc::loadMessages(__FILE__);
 
 \Bitrix\Main\Loader::includeModule('sale');
 
+\Bitrix\Main\Loader::includeModule('ui');
+\Bitrix\Main\UI\Extension::load('ui.buttons.icons');
+\Bitrix\Main\UI\Extension::load('ui.forms');
+
 $instance = Application::getInstance();
 $context = $instance->getContext();
 $request = $context->getRequest();
@@ -76,34 +80,16 @@ if ($server->getRequestMethod() == "POST"
 	
 	if (class_exists($handler))
 	{
-
 		$cashbox['SETTINGS'] = $handler::extractSettingsFromRequest($request);
-
-		$result = $handler::validateFields($cashbox);
-		if (!$result->isSuccess())
-		{
-			foreach ($result->getErrors() as $error)
-				$errorMessage .= $error->getMessage()."<br>\n";
-		}
 	}
 
-	/** @var Cashbox\Ofd $ofd */
-	$ofd = $cashbox['OFD'];
-	if ($ofd)
+	$cashboxObject = Cashbox\Cashbox::create($cashbox);
+	$result = $cashboxObject->validate();
+	if (!$result->isSuccess())
 	{
-		$ofdList = Cashbox\Ofd::getHandlerList();
-		if (class_exists($ofd) && isset($ofdList[$cashbox['OFD']]))
+		foreach ($result->getErrors() as $error)
 		{
-			$result = $ofd::validateSettings($cashbox['OFD_SETTINGS']);
-			if (!$result->isSuccess())
-			{
-				foreach ($result->getErrors() as $error)
-					$errorMessage .= $error->getMessage()."<br>\n";
-			}
-		}
-		else
-		{
-			$errorMessage .= GetMessage('ERROR_NO_OFD_EXIST')."<br>\n";
+			$errorMessage .= $error->getMessage()."<br>\n";
 		}
 	}
 
@@ -112,12 +98,23 @@ if ($server->getRequestMethod() == "POST"
 		if ($id > 0)
 		{
 			$result = Cashbox\Manager::update($id, $cashbox);
+			if ($result->isSuccess())
+			{
+				$service = Cashbox\Manager::getObjectById($id);
+				AddEventToStatFile('sale', 'updateCashbox', $id, $service::getCode());
+			}
 		}
 		else
 		{
 			$cashbox['ENABLED'] = 'Y';
 			$result = Cashbox\Manager::add($cashbox);
 			$id = $result->getId();
+
+			if ($result->isSuccess())
+			{
+				$service = Cashbox\Manager::getObjectById($id);
+				AddEventToStatFile('sale', 'addCashbox', $id, $service::getCode());
+			}
 		}
 
 		if ($result->isSuccess())
@@ -128,7 +125,7 @@ if ($server->getRequestMethod() == "POST"
 			}
 			else
 			{
-				if (strlen($request->getPost("apply")) == 0)
+				if ($request->getPost("apply") == '')
 				{
 					$adminSidePanelHelper->localRedirect($listUrl);
 					LocalRedirect($listUrl);
@@ -150,6 +147,10 @@ if ($server->getRequestMethod() == "POST"
 	{
 		$adminSidePanelHelper->sendJsonErrorResponse($errorMessage);
 	}
+}
+elseif ($id > 0)
+{
+	$cashboxObject = Cashbox\Manager::getObjectById($id);
 }
 
 require($documentRoot."/bitrix/modules/main/include/prolog_admin_after.php");
@@ -306,6 +307,9 @@ $tabControl->BeginCustomField('HANDLER', GetMessage("SALE_CASHBOX_HANDLER"));
 				}
 				?>
 			</select>
+			<?if ($cashboxObject instanceof Cashbox\ITestConnection):?>
+				<input type="button" id="TEST_BUTTON" value="<?=Loc::getMessage('SALE_CASHBOX_CONNECTION')?>" onclick="BX.Sale.Cashbox.testConnection(<?=$id?>)">
+			<?endif;?>
 		</td>
 	</tr>
 <?
@@ -451,6 +455,8 @@ $tabControl->Show();
 <script language="JavaScript">
 
 	BX.message({
+		CASHBOX_CHECK_CONNECTION_TITLE: '<?=Loc::getMessage("CASHBOX_CHECK_CONNECTION_TITLE")?>',
+		CASHBOX_CHECK_CONNECTION_TITLE_POPUP_CLOSE: '<?=Loc::getMessage("CASHBOX_CHECK_CONNECTION_TITLE_POPUP_CLOSE")?>',
 		SALE_RDL_RESTRICTION: '<?=Loc::getMessage("SALE_CASHBOX_RDL_RESTRICTION")?>',
 		SALE_RDL_SAVE: '<?=Loc::getMessage("SALE_CASHBOX_RDL_SAVE")?>'
 	});

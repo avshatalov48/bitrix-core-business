@@ -1,5 +1,5 @@
 module.exports = {
-	input: './src/registry.js',
-	output: './dist/registry.bundle.js',
-	namespace: 'BX.Messenger.Controller',
+	input: './src/core.js',
+	output: './dist/controller.bundle.js',
+	namespace: 'BX.Messenger',
 };

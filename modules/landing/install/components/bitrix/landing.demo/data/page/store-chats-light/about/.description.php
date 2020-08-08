@@ -21,7 +21,7 @@ return array(
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'THEME_CODE' => '3corporate',
-			'THEME_CODE_TYPO' => '3corporate',
+
 		),
 	),
 	
@@ -72,15 +72,15 @@ return array(
 					1 => 'landing-block-node-card js-animation animation-none col-md-6 col-lg-6 g-mb-40 g-mb-0--last g-px-20',
 				),
 				'.landing-block-node-card-text' => array(
-					0 => 'landing-block-node-card-text mb-0 g-color-gray-dark-v4 g-font-size-14',
-					1 => 'landing-block-node-card-text mb-0 g-color-gray-dark-v4 g-font-size-14',
+					0 => 'landing-block-node-card-text mb-0 g-color-gray-dark-v4',
+					1 => 'landing-block-node-card-text mb-0 g-color-gray-dark-v4',
 				),
 				'.landing-block-node-card-title' => array(
-					0 => 'landing-block-node-card-title h5 font-weight-bold g-color-gray-dark-v1 g-text-transform-none g-font-size-16',
-					1 => 'landing-block-node-card-title h5 font-weight-bold g-color-gray-dark-v1 g-text-transform-none g-font-size-16',
+					0 => 'landing-block-node-card-title h5 font-weight-bold g-color-gray-dark-v1 g-text-transform-none g-font-size-15',
+					1 => 'landing-block-node-card-title h5 font-weight-bold g-color-gray-dark-v1 g-text-transform-none g-font-size-15',
 				),
 				'#wrapper' => array(
-					0 => 'landing-block g-pt-20 g-pb-10 u-block-border u-block-border-margin-md g-rounded-6 g-bg-white',
+					0 => 'landing-block g-pt-20 g-pb-10 u-block-border-none g-bg-white',
 				),
 			),
 		),
@@ -118,7 +118,7 @@ return array(
 					0 => 'landing-block-node-img js-animation animation-none img-fluid',
 				),
 				'#wrapper' => array(
-					0 => 'landing-block g-pt-10 g-pb-20 u-block-border u-block-border-margin-md g-rounded-6 g-bg-white',
+					0 => 'landing-block g-pt-25 g-pb-25 u-block-border-none g-bg-transparent',
 				),
 			),
 		),

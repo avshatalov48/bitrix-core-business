@@ -658,11 +658,11 @@ BXBlockEditor.prototype.showPanel = function(code)
 
 BXBlockEditor.prototype.showPreview = function(panelCode, executePhp)
 {
-	if(executePhp == undefined)
+	if(typeof executePhp === 'undefined')
 	{
 		executePhp = false;
 	}
-	this.preview.show({'content': this.getContent(executePhp)});
+	this.preview.show({'content': this.getContent(executePhp, true)});
 	this.showPanel(panelCode);
 };
 
@@ -825,15 +825,16 @@ BXBlockEditor.prototype.load = function(url, callback)
 };
 
 
-BXBlockEditor.prototype.getSortedBlockListWithReplacedEmptyPlaces = function()
+BXBlockEditor.prototype.createBlockListWithReplacedEmptyPlaces = function()
 {
+	var tempBlocks = [];
 	this.helper.each(this.findBlockPlaces(), function (placeNode, placeCode) {
 		var blockNodes = placeNode.querySelectorAll('[' + this.CONST_ATTR_BLOCK + ']');
 		if (blockNodes.length > 0 )
 		{
 			return;
 		}
-		if (placeNode.children.length != 1)
+		if (placeNode.children.length !== 1)
 		{
 			return;
 		}
@@ -843,11 +844,18 @@ BXBlockEditor.prototype.getSortedBlockListWithReplacedEmptyPlaces = function()
 		{
 			var block = this.addBlockByNode(blockNode, placeNode.children[0], true);
 			block.setContentHtml('');
+			tempBlocks.push(block);
 		}
 
 	}, this);
 
-	return this.getSortedBlockList();
+	return tempBlocks;
+};
+BXBlockEditor.prototype.removeBlockListWithReplacedEmptyPlaces = function(tempBlocks)
+{
+	tempBlocks.forEach(function (block) {
+		this.removeBlock(block, true);
+	}, this);
 };
 
 BXBlockEditor.prototype.getSortedBlockList = function()
@@ -919,9 +927,13 @@ BXBlockEditor.prototype.getContentForSave = function()
 		}
 
 		// save blocks
-		var blockList = this.isFinalSave
+		var tempBlocks = this.createBlockListWithReplacedEmptyPlaces();
+		var blockList = this.getSortedBlockList();
+			/*
+			this.isFinalSave
 			? this.getSortedBlockListWithReplacedEmptyPlaces()
 			: this.getSortedBlockList();
+			*/
 
 		list = list.concat(blockList.map(function(block) {
 			return {
@@ -935,11 +947,13 @@ BXBlockEditor.prototype.getContentForSave = function()
 			};
 		}, this));
 
+		this.removeBlockListWithReplacedEmptyPlaces(tempBlocks);
+
 		return this.content.getString(list);
 	}
 };
 
-BXBlockEditor.prototype.getContent = function(withoutPHP)
+BXBlockEditor.prototype.getContent = function(withoutPHP, fillBlockPlacesByEmptyBlocks)
 {
 	withoutPHP = !!(withoutPHP || null);
 
@@ -980,9 +994,22 @@ BXBlockEditor.prototype.getContent = function(withoutPHP)
 	{
 		var blockPlace = blockPlaceList[j];
 		var blockPlaceBlocks = BX.findChildren(blockPlace, {'attribute': this.CONST_ATTR_BLOCK}, true);
-		if(blockPlaceBlocks.length == 0)
+		if(blockPlaceBlocks.length === 0)
 		{
 			BX.cleanNode(blockPlace);
+			if (fillBlockPlacesByEmptyBlocks)
+			{
+				var blockNode = this.getBlockNodeByType('text');
+				if (blockNode)
+				{
+
+					var blockAnchorNode = doc.createTextNode('');
+					blockPlace.appendChild(blockAnchorNode);
+					var block = this.addBlockByNode(blockNode, blockAnchorNode, true);
+					block.setContentHtml('');
+
+				}
+			}
 		}
 	}
 
@@ -1215,8 +1242,9 @@ BXBlockEditor.prototype.addBlock = function(blockNode)
 	return block;
 };
 
-BXBlockEditor.prototype.removeBlock = function(block)
+BXBlockEditor.prototype.removeBlock = function(block, disableSaving)
 {
+
 	BX.onCustomEvent(this, 'onBlockRemove', [block]);
 
 	for(var i in this.blockList)
@@ -1234,7 +1262,10 @@ BXBlockEditor.prototype.removeBlock = function(block)
 
 	BX.onCustomEvent(this, 'onBlockRemoveAfter', [parentRemovedNode]);
 
-	this.save();
+	if (!disableSaving)
+	{
+		this.save();
+	}
 	this.editDialog.hide();
 };
 

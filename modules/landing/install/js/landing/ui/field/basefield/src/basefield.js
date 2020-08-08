@@ -75,6 +75,11 @@ export class BaseField extends Event.EventEmitter
 			Dom.append(this.description, this.layout);
 		}
 
+		if (this.data.disabled === true)
+		{
+			this.disable();
+		}
+
 		Event.bind(this.input, 'paste', this.onPaste);
 
 		this.init();
@@ -154,13 +159,13 @@ export class BaseField extends Event.EventEmitter
 	enable()
 	{
 		Dom.attr(this.layout, 'disabled', false);
-		Dom.removeClass(this.layout, 'landing-ui-disable');
+		Dom.removeClass(this.layout, 'landing-ui-disabled');
 	}
 
 	disable()
 	{
 		Dom.attr(this.layout, 'disabled', true);
-		Dom.addClass(this.layout, 'landing-ui-disable');
+		Dom.addClass(this.layout, 'landing-ui-disabled');
 	}
 
 	// eslint-disable-next-line class-methods-use-this

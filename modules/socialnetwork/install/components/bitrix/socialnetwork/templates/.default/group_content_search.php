@@ -15,12 +15,12 @@ if (!CSocNetFeaturesPerms::CanPerformOperation($GLOBALS["USER"]->GetID(), SONET_
 <?
 if(
 	isset($arGroupFields["NAME"])
-	&& strlen(trim($arGroupFields["NAME"])) > 0
+	&& trim($arGroupFields["NAME"]) <> ''
 )
 {
 	$feature = "search";
 	$arEntityActiveFeatures = CSocNetFeatures::GetActiveFeaturesNames(SONET_ENTITY_GROUP, $arResult["VARIABLES"]["group_id"]);		
-	$strFeatureTitle = ((array_key_exists($feature, $arEntityActiveFeatures) && StrLen($arEntityActiveFeatures[$feature]) > 0) ? $arEntityActiveFeatures[$feature] : GetMessage("GROUP_CONTENT_SEARCH_TITLE"));
+	$strFeatureTitle = ((array_key_exists($feature, $arEntityActiveFeatures) && $arEntityActiveFeatures[$feature] <> '') ? $arEntityActiveFeatures[$feature] : GetMessage("GROUP_CONTENT_SEARCH_TITLE"));
 
 	$GLOBALS["APPLICATION"]->SetTitle($arGroupFields["NAME"].": ".$strFeatureTitle);
 }
@@ -46,7 +46,7 @@ if(
 		3 => "photo",
 		4 => "files"
 	),
-	"DEFAULT_SORT" => (strlen($_REQUEST["tags"]) > 0 ? "date" : $arParams["SEARCH_DEFAULT_SORT"]),
+	"DEFAULT_SORT" => ($_REQUEST["tags"] <> '' ? "date" : $arParams["SEARCH_DEFAULT_SORT"]),
 	"PAGE_RESULT_COUNT" => $arParams["SEARCH_PAGE_RESULT_COUNT"],
 	"AJAX_MODE" => "N",
 	"AJAX_OPTION_SHADOW" => "Y",

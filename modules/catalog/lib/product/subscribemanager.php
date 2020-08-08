@@ -590,7 +590,7 @@ class SubscribeManager
 		foreach ($requiredParams as $param)
 		{
 			if(!isset($inputParams[$param]) || (!$inputParams[$param] &&
-				!(is_string($inputParams[$param]) && strlen($inputParams[$param]))))
+				!(is_string($inputParams[$param]) && mb_strlen($inputParams[$param]))))
 			{
 				$this->errorCollection->add(array(new Error(Loc::getMessage('ERROR_REQUIRED_PARAMATERS',
 					array('#PARAM#' => $param)), self::ERROR_REQUIRED_PARAMATERS)));

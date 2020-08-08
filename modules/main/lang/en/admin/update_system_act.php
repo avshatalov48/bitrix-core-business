@@ -3,11 +3,11 @@ $MESS ['SUPA_AERR_NAME'] = "Please enter the name of the company that owns the k
 $MESS ['SUPA_AERR_EMAIL'] = "Please enter the contact e-mail";
 $MESS ['SUPA_AERR_EMAIL1'] = "Please check the e-mail address correctness";
 $MESS ['SUPA_AERR_URI'] = "Please enter the address of the site that will be used with the key";
-$MESS ['SUPA_AERR_FNAME'] = "Please enter the first name of a user for whom an account at <a href=\"http://www.bitrixsoft.ru\">www.bitrixsoft.ru</a> will be created";
-$MESS ['SUPA_AERR_LNAME'] = "Please enter the last name of a user for whom an account at <a href=\"http://www.bitrixsoft.ru\">www.bitrixsoft.ru</a> will be created";
-$MESS ['SUPA_AERR_LOGIN'] = "Please enter the login for use at <a href=\"http://www.bitrixsoft.ru\">www.bitrixsoft.ru</a>";
-$MESS ['SUPA_AERR_LOGIN1'] = "Login name at <a href=\"http://www.bitrixsoft.ru\">www.bitrixsoft.ru</a> must contain at least 3 symbols";
-$MESS ['SUPA_AERR_PASSW'] = "Please enter the password for use at <a href=\"http://www.bitrixsoft.ru\">www.bitrixsoft.ru</a>";
+$MESS ['SUPA_AERR_FNAME'] = "Please enter the first name of a user for whom an account at <a href=\"https://www.bitrixsoft.com\">www.bitrixsoft.com</a> will be created";
+$MESS ['SUPA_AERR_LNAME'] = "Please enter the last name of a user for whom an account at <a href=\"https://www.bitrixsoft.com\">www.bitrixsoft.com</a> will be created";
+$MESS ['SUPA_AERR_LOGIN'] = "Please enter the login for use at <a href=\"https://www.bitrixsoft.com\">www.bitrixsoft.com</a>";
+$MESS ['SUPA_AERR_LOGIN1'] = "Login name at <a href=\"https://www.bitrixsoft.com\">www.bitrixsoft.com</a> must contain at least 3 symbols";
+$MESS ['SUPA_AERR_PASSW'] = "Please enter the password for use at <a href=\"https://www.bitrixsoft.com\">www.bitrixsoft.com</a>";
 $MESS ['SUPA_AERR_PASSW_CONF'] = "The password and the password confirmation are different.";
 $MESS ['SUPA_ASE_NO_LIST'] = "Cannot retrieve the list of modules";
 $MESS ['SUPA_ASE_SOURCES'] = "Cannot download the source code";

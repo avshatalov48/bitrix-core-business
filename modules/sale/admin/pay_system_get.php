@@ -12,13 +12,13 @@ if ($saleModulePermissions < "W")
 <?
 IncludeModuleLangFile(__FILE__);
 
-$divInd = IntVal($divInd);
+$divInd = intval($divInd);
 
 $file = str_replace("\\", "/", $file);
-while (strpos($file, "//") !== false)
+while (mb_strpos($file, "//") !== false)
 	$file = str_replace("//", "/", $file);
-while (substr($file, strlen($file) - 1, 1) == "/")
-	$file = substr($file, 0, strlen($file) - 1);
+while (mb_substr($file, mb_strlen($file) - 1, 1) == "/")
+	$file = mb_substr($file, 0, mb_strlen($file) - 1);
 
 
 function LocalGetPSActionParams($fileName)
@@ -39,24 +39,24 @@ $arPSCorrespondence = array();
 
 $path2SystemPSFiles = "/bitrix/modules/sale/payment/";
 $path2UserPSFiles = COption::GetOptionString("sale", "path2user_ps_files", BX_PERSONAL_ROOT."/php_interface/include/sale_payment/");
-if (substr($path2UserPSFiles, strlen($path2UserPSFiles) - 1, 1) != "/")
+if (mb_substr($path2UserPSFiles, mb_strlen($path2UserPSFiles) - 1, 1) != "/")
 	$path2UserPSFiles .= "/";
 
-$bSystemPSFile = (substr($file, 0, strlen($path2SystemPSFiles)) == $path2SystemPSFiles);
+$bSystemPSFile = (mb_substr($file, 0, mb_strlen($path2SystemPSFiles)) == $path2SystemPSFiles);
 
 if (!$bSystemPSFile)
 {
-	if (substr($path2UserPSFiles, strlen($path2UserPSFiles) - 1, 1) != "/")
+	if (mb_substr($path2UserPSFiles, mb_strlen($path2UserPSFiles) - 1, 1) != "/")
 		$path2UserPSFiles .= "/";
-	$bUserPSFile = (substr($file, 0, strlen($path2UserPSFiles)) == $path2UserPSFiles);
+	$bUserPSFile = (mb_substr($file, 0, mb_strlen($path2UserPSFiles)) == $path2UserPSFiles);
 }
 
 if ($bUserPSFile || $bSystemPSFile)
 {
 	if ($bUserPSFile)
-		$fileName = substr($file, strlen($path2UserPSFiles));
+		$fileName = mb_substr($file, mb_strlen($path2UserPSFiles));
 	else
-		$fileName = substr($file, strlen($path2SystemPSFiles));
+		$fileName = mb_substr($file, mb_strlen($path2SystemPSFiles));
 
 	$fileName = preg_replace("#[^A-Za-z0-9_.-]#i", "", $fileName);
 
@@ -69,7 +69,7 @@ if ($bUserPSFile || $bSystemPSFile)
 
 		foreach ($arPSCorrespondence as $key => $value)
 		{
-			if (strlen($fields) > 0)
+			if ($fields <> '')
 				$fields .= ",";
 			$fields .= $key;
 
@@ -77,7 +77,7 @@ if ($bUserPSFile || $bSystemPSFile)
 			{
 				$res .= '<tr><td width="40%">\n';
 				$res .= $value["NAME"];
-				if (strlen($value["DESCR"]) > 0)
+				if ($value["DESCR"] <> '')
 					$res .= "<br><small>".$value["DESCR"]."</small>";
 				$res .= '</td>\n';
 				$res .= '<td width="60%">';
@@ -118,7 +118,7 @@ if ($bUserPSFile || $bSystemPSFile)
 			{
 				$res .= '<tr><td width="40%">\n';
 				$res .= $value["NAME"];
-				if (strlen($value["DESCR"]) > 0)
+				if ($value["DESCR"] <> '')
 					$res .= "<br><small>".$value["DESCR"]."</small>";
 				$res .= '</td>\n';
 				$res .= '<td width="60%">';
@@ -212,7 +212,7 @@ if($exist == "Y")
 	{
 		foreach ($arPSCorrespondence as $key => $value)
 		{
-			if(strlen($value["TYPE"]) > 0)
+			if($value["TYPE"] <> '')
 			{
 				?>
 				window.parent.document.getElementById("TYPE_<?=$key?>_<?=$divInd?>").value = '<?=CUtil::JSEscape($value["TYPE"])?>';
@@ -220,7 +220,7 @@ if($exist == "Y")
 
 				<?
 			}
-			elseif(strlen($value["VALUE"]) > 0)
+			elseif($value["VALUE"] <> '')
 			{
 				?>
 				window.parent.document.getElementById("VALUE2_<?=$key?>_<?=$divInd?>").value = '<?=CUtil::JSEscape($value["VALUE"])?>';
@@ -230,7 +230,7 @@ if($exist == "Y")
 	}
 }
 
-if (strlen($res) <= 0)
+if ($res == '')
 {
 	?>
 	window.parent.document.getElementById("pay_sys_switch_<?= $divInd ?>").innerHTML = "";

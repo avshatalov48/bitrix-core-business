@@ -1941,14 +1941,11 @@ td.bx-cal-view-text-cell-r{
 }
 
 .event-grid-dest-sonetgroups {
-	background-color: #ffd5d5;
-	color: #b54827 !important;
+	background-color: #ade7e4;
+	color: #116f6b!important;
 }
 .event-grid-dest-sonetgroups .feed-event-del-but {
 	background-position: -47px -61px;
-}
-.event-grid-dest-hover.event-grid-dest-sonetgroups {
-	background-color: #ffb0af;
 }
 
 .event-grid-dest-department {
@@ -2238,4 +2235,9 @@ div.bxec-dav-list div.bxec-dav-item-edited div.bxec-dav-item-name,
 
 .bxc-popup-window .bxec-row-reinvite{
 	margin: 10px 0 10px 10px;
+}
+
+.bxc-popup-window .bxec-location-wrap{
+	overflow-y: auto;
+	max-height: 350px;
 }

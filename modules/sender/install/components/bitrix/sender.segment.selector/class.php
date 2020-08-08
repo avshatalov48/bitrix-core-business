@@ -1,21 +1,27 @@
 <?
 
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ErrorCollection;
-
-use Bitrix\Sender\Message;
-use Bitrix\Sender\Segment;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Sender\Access\ActionDictionary;
 use Bitrix\Sender\Dispatch;
+use Bitrix\Sender\Message;
 use Bitrix\Sender\Security;
+use Bitrix\Sender\Segment;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
+if (!Bitrix\Main\Loader::includeModule('sender'))
+{
+	ShowError('Module `sender` not installed');
+	die();
+}
+
 Loc::loadMessages(__FILE__);
 
-class SenderSegmentSelectorComponent extends CBitrixComponent
+class SenderSegmentSelectorComponent extends \Bitrix\Sender\Internals\CommonSenderComponent
 {
 	/** @var ErrorCollection $errors */
 	protected $errors;
@@ -52,7 +58,7 @@ class SenderSegmentSelectorComponent extends CBitrixComponent
 			?
 			$this->arParams['CAN_EDIT']
 			:
-			Security\Access::current()->canModifySegments();
+			Security\Access::getInstance()->canModifySegments();
 	}
 
 	protected function prepareResult()
@@ -101,20 +107,18 @@ class SenderSegmentSelectorComponent extends CBitrixComponent
 
 	public function executeComponent()
 	{
-		$this->errors = new \Bitrix\Main\ErrorCollection();
-		$this->initParams();
-		if (!$this->checkRequiredParams())
-		{
-			$this->printErrors();
-			return;
-		}
+		parent::executeComponent();
+		parent::prepareResultAndTemplate();
+	}
 
-		if (!$this->prepareResult())
-		{
-			$this->printErrors();
-			return;
-		}
 
-		$this->includeComponentTemplate();
+	public function getEditAction()
+	{
+		return ActionDictionary::ACTION_SEGMENT_EDIT;
+	}
+
+	public function getViewAction()
+	{
+		return ActionDictionary::ACTION_SEGMENT_VIEW;
 	}
 }

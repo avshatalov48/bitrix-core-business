@@ -52,7 +52,7 @@ abstract class Field
 	 */
 	public function __construct($code, array $params = array())
 	{
-		$this->code = strtoupper($code);
+		$this->code = mb_strtoupper($code);
 		$this->value = null;
 		$this->id = isset($params['id']) ? $params['id'] : '';
 		$this->title = isset($params['title']) ? $params['title'] : '';
@@ -121,7 +121,7 @@ abstract class Field
 	 */
 	public function setCode($code)
 	{
-		$this->code = strtoupper($code);
+		$this->code = mb_strtoupper($code);
 	}
 
 	/**
@@ -149,7 +149,7 @@ abstract class Field
 	public function getType()
 	{
 		$class = explode('\\', get_called_class());
-		return strtolower(array_pop($class));
+		return mb_strtolower(array_pop($class));
 	}
 
 	/**

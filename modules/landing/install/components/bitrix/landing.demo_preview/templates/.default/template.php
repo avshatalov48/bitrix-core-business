@@ -51,9 +51,7 @@ if ($createStore)
 	$uriSelect = new \Bitrix\Main\Web\Uri($arResult['CUR_URI']);
 	$uriSelect->addParams([
 		'stepper' => 'store',
-		'param' => isset($template['DATA']['parent'])
-			? $template['DATA']['parent']
-			: $template['ID'],
+		'param' => $template['DATA']['parent'] ?? $template['ID'],
 		'sessid' => bitrix_sessid()
 	]);
 }
@@ -62,6 +60,7 @@ else
 	$uriSelect = new \Bitrix\Main\Web\Uri($arResult['CUR_URI']);
 	$uriSelect->addParams([
 		'action' => 'select',
+		'no_redirect' => ($request->get('no_redirect') == 'Y') ? 'Y' : 'N',
 		'param' => isset($template['DATA']['parent'])
 			? $template['DATA']['parent']
 			: $template['ID'],

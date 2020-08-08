@@ -2,7 +2,7 @@
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 if (IsModuleInstalled("im"))
-	LocalRedirect('/?IM_DIALOG='.IntVal($arParams["USER_ID"]), false, "301 Moved permanently");
+	LocalRedirect('/?IM_DIALOG='.intval($arParams["USER_ID"]), false, "301 Moved permanently");
 
 if (!CModule::IncludeModule("socialnetwork"))
 {
@@ -10,43 +10,43 @@ if (!CModule::IncludeModule("socialnetwork"))
 	return;
 }
 
-$arParams["USER_ID"] = IntVal($arParams["USER_ID"]);
+$arParams["USER_ID"] = intval($arParams["USER_ID"]);
 $arParams["GROUP_ID"] = intval($arParams["GROUP_ID"]);
 
-if (strLen($arParams["USER_VAR"]) <= 0)
+if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if(strLen($arParams["GROUP_VAR"])<=0)
+if($arParams["GROUP_VAR"] == '')
 	$arParams["GROUP_VAR"] = "group_id";
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if (strlen($arParams["PATH_TO_USER"]) <= 0)
+if ($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_GROUP"] = trim($arParams["PATH_TO_GROUP"]);
-if (strlen($arParams["PATH_TO_GROUP"]) <= 0)
+if ($arParams["PATH_TO_GROUP"] == '')
 	$arParams["PATH_TO_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_MESSAGES_CHAT"] = trim($arParams["PATH_TO_MESSAGES_CHAT"]);
-if (strlen($arParams["PATH_TO_MESSAGES_CHAT"]) <= 0)
+if ($arParams["PATH_TO_MESSAGES_CHAT"] == '')
 	$arParams["PATH_TO_MESSAGES_CHAT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=messages_chat&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_MESSAGE_FORM_MESS"] = trim($arParams["PATH_TO_MESSAGE_FORM_MESS"]);
-if (strlen($arParams["PATH_TO_MESSAGE_FORM_MESS"]) <= 0)
+if ($arParams["PATH_TO_MESSAGE_FORM_MESS"] == '')
 	$arParams["PATH_TO_MESSAGE_FORM_MESS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=messages_chat&".$arParams["USER_VAR"]."=#user_id#&".$arParams["MESSAGE_VAR"]."=#message_id#");
 	
 $arParams["PATH_TO_VIDEO_CALL"] = trim($arParams["PATH_TO_VIDEO_CALL"]);
-if (strlen($arParams["PATH_TO_VIDEO_CALL"]) <= 0)
+if ($arParams["PATH_TO_VIDEO_CALL"] == '')
 	$arParams["PATH_TO_VIDEO_CALL"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=video_call&".$arParams["USER_VAR"]."=#user_id#");
 	
 $arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]);
 
-$arParams["MESSAGES_COUNT"] = IntVal($arParams["MESSAGES_COUNT"]);
+$arParams["MESSAGES_COUNT"] = intval($arParams["MESSAGES_COUNT"]);
 if ($arParams["MESSAGES_COUNT"] <= 0)
 	$arParams["MESSAGES_COUNT"] = 20;
 
-if (strlen($arParams["NAME_TEMPLATE"]) <= 0)		
+if ($arParams["NAME_TEMPLATE"] == '')
 	$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 $bUseLogin = $arParams['SHOW_LOGIN'] != "N" ? true : false;
 
@@ -186,7 +186,7 @@ else
 					$arResult["FatalError"] = GetMessage("SONET_P_USER_NO_USER").". ";
 		}
 
-		if (StrLen($arResult["FatalError"]) <= 0)
+		if ($arResult["FatalError"] == '')
 		{
 			$dbUser = CUser::GetByID($arParams["USER_ID"]);
 			$arResult["User"] = $dbUser->GetNext();
@@ -202,7 +202,7 @@ else
 				$arResult["FatalError"] = GetMessage("SONET_P_USER_NO_USER").". ";
 		}
 
-		if (StrLen($arResult["FatalError"]) <= 0)
+		if ($arResult["FatalError"] == '')
 		{
 			if ($arParams["SET_TITLE"]=="Y")
 			{
@@ -225,7 +225,7 @@ else
 				$arResult["FatalError"] = GetMessage("SONET_C50_NO_PERMS").". ";
 		}
 
-		if (StrLen($arResult["FatalError"]) <= 0)
+		if ($arResult["FatalError"] == '')
 		{
 			$arResult["Urls"]["User"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $arResult["User"]["ID"]));
 			$arResult["Urls"]["UserMessages"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_MESSAGES_USERS_MESSAGES"], array("user_id" => $arResult["User"]["ID"]));
@@ -274,7 +274,7 @@ else
 		}
 	}
 	//common part
-	if (StrLen($arResult["FatalError"]) <= 0)
+	if ($arResult["FatalError"] == '')
 	{
 		//intranet structure
 		$arResult["Structure"] = false;
@@ -342,7 +342,7 @@ else
 				$arResult["Friends"] = array();
 				while ($arFriends = $dbFriends->GetNext())
 				{
-					$pref = ((IntVal($arResult["UserSelf"]["ID"]) == $arFriends["FIRST_USER_ID"]) ? "SECOND" : "FIRST");
+					$pref = ((intval($arResult["UserSelf"]["ID"]) == $arFriends["FIRST_USER_ID"]) ? "SECOND" : "FIRST");
 					$pu = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $arFriends[$pref."_USER_ID"]));
 					$canViewProfile = CSocNetUserPerms::CanPerformOperation($arResult["UserSelf"]["ID"], $arFriends[$pref."_USER_ID"], "viewprofile", CSocNetUser::IsCurrentUserModuleAdmin());
 
@@ -462,7 +462,7 @@ else
 		$arResult["Now"] = date("Y-m-d H:i:s", $strNow_ts);		
 
 		//user options
-		require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".strtolower($GLOBALS['DB']->type)."/favorites.php");
+		require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS['DB']->type)."/favorites.php");
 		$arResult["USER_OPTIONS"] = CUserOptions::GetOption('socnet', 'chat', array());
 		if($arResult["USER_OPTIONS"]["sound"] <> "N")
 			$arResult["USER_OPTIONS"]["sound"] = "Y";

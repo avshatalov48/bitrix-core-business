@@ -14,7 +14,7 @@
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/play.png"/>
 					</a>
 				</div>
-				<h2 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-26 g-color-white g-mb-20">
+				<h2 class="landing-block-node-card-title text-uppercase font-weight-bold g-font-size-26 g-color-white g-mb-20">
 					You're on my mind official video
 				</h2>
 
@@ -24,7 +24,7 @@
 						congue quam ipsum, non tempor placerat ante volutpat est
 					</p>
 				</div>
-				<a class="landing-block-node-card-link text-uppercase g-font-weight-700 g-font-size-11 g-color-primary"
+				<a class="landing-block-node-card-link text-uppercase font-weight-bold g-font-size-11 g-color-primary"
 				   href="#">View on iTunes</a>
 			</div>
 		</div>
@@ -41,7 +41,7 @@
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/play.png"/>
 					</a>
 				</div>
-				<h2 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-26 g-color-white g-mb-20">
+				<h2 class="landing-block-node-card-title text-uppercase font-weight-bold g-font-size-26 g-color-white g-mb-20">
 					You're on my mind official video
 				</h2>
 
@@ -51,7 +51,7 @@
 						congue quam ipsum, non tempor placerat ante volutpat est
 					</p>
 				</div>
-				<a class="landing-block-node-card-link text-uppercase g-font-weight-700 g-font-size-11 g-color-primary"
+				<a class="landing-block-node-card-link text-uppercase font-weight-bold g-font-size-11 g-color-primary"
 				   href="#">View on iTunes</a>
 			</div>
 		</div>

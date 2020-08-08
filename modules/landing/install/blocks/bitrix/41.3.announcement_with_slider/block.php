@@ -4,8 +4,8 @@
 			 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1281/img1.jpg);">
 			<div class="landing-block-node-container js-animation fadeInUp container g-max-width-750 u-bg-overlay__inner g-mb-60">
 
-				<h2 class="landing-block-node-title text-center text-uppercase h2 g-font-weight-700 g-font-size-60 g-color-white g-mb-30 g-mb-70--md">
-					UI & UX Design 2018</h2>
+				<h2 class="landing-block-node-title landing-semantic-title-image-big text-center text-uppercase h2 font-weight-bold g-font-size-60 g-color-white g-mb-30 g-mb-70--md">
+					UI & UX Design 2020</h2>
 
 				<div class="row g-mx-minus-5">
 					<div class="col-md-4 col-lg-4 g-px-5 g-mb-20 g-mb-0--md">
@@ -15,10 +15,10 @@
 							</div>
 
 							<div class="media-body text-uppercase">
-								<div class="landing-block-node-date-title g-mb-5 g-font-size-14 g-color-white-opacity-0_5">
+								<div class="landing-block-node-date-title landing-semantic-text-image-medium g-mb-5 g-font-size-14 g-color-white-opacity-0_5">
 									<span style="font-weight: bold;">When</span></div>
-								<h3 class="landing-block-node-date-text h3 text-uppercase g-font-size-15 g-color-white mb-0">
-									18:30, 12 Jul, 2018</h3>
+								<h3 class="landing-block-node-date-text landing-semantic-text-image-medium h3 text-uppercase g-font-size-15 g-color-white mb-0">
+									18:30, 12 Jul, 2020</h3>
 							</div>
 						</div>
 					</div>
@@ -30,9 +30,9 @@
 							</div>
 
 							<div class="media-body text-uppercase">
-								<div class="landing-block-node-place-title g-mb-5 g-font-size-14 g-color-white-opacity-0_5">
+								<div class="landing-block-node-place-title landing-semantic-text-image-medium g-mb-5 g-font-size-14 g-color-white-opacity-0_5">
 									<span style="font-weight: bold;">Where</span></div>
-								<h3 class="landing-block-node-place-text h3 text-uppercase g-font-size-15 g-color-white mb-0">
+								<h3 class="landing-block-node-place-text landing-semantic-text-image-medium h3 text-uppercase g-font-size-15 g-color-white mb-0">
 									Concert Hall, Los Angeles,
 									USA</h3>
 							</div>
@@ -40,7 +40,7 @@
 					</div>
 
 					<div class="col-md-3 col-lg-3 text-md-right g-px-5">
-						<a class="landing-block-node-button btn btn-lg text-uppercase u-btn-white g-font-weight-700 g-font-size-11 g-color-white--hover g-bg-primary--hover g-brd-none rounded-0 g-py-18"
+						<a class="landing-block-node-button landing-semantic-link-image-medium btn btn-lg text-uppercase u-btn-white font-weight-bold g-font-size-11 g-color-white--hover g-bg-primary--hover g-brd-none rounded-0 g-py-18"
 						   href="#">Register Now</a>
 					</div>
 				</div>
@@ -62,15 +62,15 @@
 						</div>
 					</div>
 
-					<div class="landing-block-node-inner-block col-md-6 col-lg-6 d-flex g-min-height-50vh g-theme-event-color-gray-dark-v1 g-py-80 g-py-20--md g-px-50">
+					<div class="landing-block-node-inner-block landing-semantic-bg-color-main col-md-6 col-lg-6 d-flex g-min-height-50vh g-theme-event-color-gray-dark-v1 g-py-80 g-py-20--md g-px-50">
 						<div class="align-self-center w-100">
-							<h2 class="landing-block-node-block-title text-uppercase g-font-weight-700 g-font-size-30 g-color-primary g-mb-10">
+							<h2 class="landing-block-node-block-title landing-semantic-title-medium text-uppercase font-weight-bold g-font-size-30 g-color-primary g-mb-10">
 								About The
 								Event</h2>
-							<h3 class="landing-block-node-block-subtitle text-uppercase g-font-weight-500 g-font-size-13 g-color-white g-mb-20">
+							<h3 class="landing-block-node-block-subtitle landing-semantic-subtitle-small text-uppercase g-font-size-13 g-color-white g-mb-20">
 								Fusce pretium
 								augue quis sem consectetur</h3>
-							<div class="landing-block-node-block-text g-font-size-14 mb-0">
+							<div class="landing-block-node-block-text landing-semantic-text-small g-font-size-14 mb-0">
 								<p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in
 									blandit dolor. Vivamus a fringilla lorem, vel faucibus ante.</p>
 								<p>Nunc ullamcorper, justo a iaculis elementum, enim orci viverra eros,

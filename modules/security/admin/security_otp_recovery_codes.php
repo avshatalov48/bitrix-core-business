@@ -46,7 +46,7 @@ if (isset($request['action']) && $request['action'] === 'download')
 	header('Content-Type: text/plain', true);
 	header('Content-Disposition: attachment; filename="recovery_codes.txt"');
 	header('Content-Transfer-Encoding: binary');
-	header(sprintf('Content-Length: %d', strlen($response)));
+	header(sprintf('Content-Length: %d', mb_strlen($response)));
 	echo $response;
 	die;
 }

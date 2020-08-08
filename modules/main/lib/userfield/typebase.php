@@ -1,8 +1,15 @@
 <?php
+
 namespace Bitrix\Main\UserField;
 
 use Bitrix\Main\NotImplementedException;
 use Bitrix\Main\Text\HtmlFilter;
+
+/**
+ * Class TypeBase
+ * @package Bitrix\Main\UserField
+ * @deprecated
+ */
 
 abstract class TypeBase
 {
@@ -41,7 +48,7 @@ abstract class TypeBase
 		$s = '';
 		foreach($attributes as $attribute => $value)
 		{
-			$s .= htmlspecialcharsbx($attribute).'="'.htmlspecialcharsbx($value).'" ';
+			$s .= htmlspecialcharsbx($attribute) . '="' . htmlspecialcharsbx($value) . '" ';
 		}
 
 		return $s;
@@ -97,7 +104,7 @@ abstract class TypeBase
 								: \CDatabase::formatDate($arUserField["SETTINGS"]["DEFAULT_VALUE"]["VALUE"], $full ? '' : "YYYY-MM-DD", \CLang::getDateFormat('SHORT'));
 						}
 
-					break;
+						break;
 					case \CUserTypeEnum::USER_TYPE_ID:
 
 						$value = $arUserField['MULTIPLE'] === 'Y' ? array() : null;
@@ -117,11 +124,11 @@ abstract class TypeBase
 							}
 						}
 
-					break;
+						break;
 					default:
 						$value = $arUserField["SETTINGS"]["DEFAULT_VALUE"];
 
-					break;
+						break;
 				}
 			}
 			else
@@ -141,9 +148,9 @@ abstract class TypeBase
 	{
 		$value = static::normalizeFieldValue($userField['VALUE']);
 
-		return join(', ', array_map(function ($v)
+		return join(', ', array_map(function($v)
 		{
-			return is_null($v) || is_scalar($v) ? (string) $v : '';
+			return is_null($v) || is_scalar($v) ? (string)$v : '';
 		}, $value));
 	}
 

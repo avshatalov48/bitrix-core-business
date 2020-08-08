@@ -107,7 +107,7 @@ if(
 		?>
 		<?
 	}
-	if(strlen($arResult["NAV_STRING"])>0)
+	if($arResult["NAV_STRING"] <> '')
 	{
 		echo $arResult["NAV_STRING"];
 	}

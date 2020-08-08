@@ -105,4 +105,16 @@ CREATE TABLE IF NOT EXISTS b_socialservices_ap
 	INDEX ix_socialservices_ap1 (USER_ID, DOMAIN)
 );
 
-
+CREATE TABLE IF NOT EXISTS b_socialservices_zoom_meeting
+(
+	ID int NOT NULL AUTO_INCREMENT,
+	ENTITY_TYPE_ID varchar(10) NOT NULL,
+	ENTITY_ID int NOT NULL,
+	CONFERENCE_URL varchar(255) NOT NULL,
+	CONFERENCE_EXTERNAL_ID varchar(32) NOT NULL,
+	CONFERENCE_PASSWORD varchar(32) NOT NULL,
+	JOINED varchar(1),
+	CONFERENCE_CREATED datetime,
+	CONFERENCE_ENDED datetime,
+	PRIMARY KEY(ID)
+);

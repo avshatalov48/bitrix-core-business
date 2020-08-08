@@ -40,7 +40,8 @@ function deleteAccessRow(link)
 		{
 			event.stopPropagation();
 
-			if(!this.input.IsWidthSet) {
+			if(!this.input.IsWidthSet)
+			{
 				this.input.style.width = this.label.offsetWidth + this.additionalWidth + 17 + 'px';
 			}
 
@@ -100,6 +101,7 @@ function deleteAccessRow(link)
 		this.removeClassName = this.removeClassName.bind(this);
 
 
+		this.attributeMainOption = 'data-landing-main-option';
 		this.attributeOption = 'data-landing-additional-option';
 		this.attributeDetail = 'data-landing-additional-detail';
 
@@ -121,6 +123,12 @@ function deleteAccessRow(link)
 					BX.fireEvent(section, 'click');
 				}
 			}, this);
+
+			var neededMainOption = this.formInner.querySelector('[' + this.attributeMainOption + '="' + anchor + '"]');
+			if(neededMainOption)
+			{
+				this.highlightSection(neededMainOption);
+			}
 		}
 	};
 	BX.Landing.ToggleFormFields.prototype =
@@ -184,11 +192,15 @@ function deleteAccessRow(link)
 			this.showRows();
 			var id = section.getAttribute(this.attributeOption);
 			var detailNode = this.formInner.querySelector('[' + this.attributeDetail + '="' + id + '"]');
+			this.highlightSection(detailNode);
+		},
 
-			BX.addClass(detailNode, "landing-form-hidden-row-highlight");
+		highlightSection: function(node)
+		{
+			BX.addClass(node, "landing-form-hidden-row-highlight");
 
 			setTimeout(function(){
-				var position = BX.pos(detailNode);
+				var position = BX.pos(node);
 
 				window.scrollTo({
 					top: position.top,
@@ -197,10 +209,9 @@ function deleteAccessRow(link)
 			}, 300);
 
 			setTimeout(function(){
-				BX.removeClass(detailNode, "landing-form-hidden-row-highlight");
+				BX.removeClass(node, "landing-form-hidden-row-highlight");
 			}, 1500);
 		}
-
 	};
 
 	/**

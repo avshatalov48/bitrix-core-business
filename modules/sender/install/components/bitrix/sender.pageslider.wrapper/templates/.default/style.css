@@ -1,11 +1,9 @@
 .sender-slider-frame-popup {
-	background: #eef2f4 !important;
 	padding: 0 15px 0 21px;
 }
 
 #sender-frame-popup-workarea {
 	min-height: calc(100% - 75px);
-	background: #fff;
 }
 
 

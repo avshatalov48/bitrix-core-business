@@ -2,7 +2,7 @@
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 if (IsModuleInstalled("im"))
-	LocalRedirect('/?IM_HISTORY='.IntVal($arParams["USER_ID"]), false, "301 Moved permanently");
+	LocalRedirect('/?IM_HISTORY='.intval($arParams["USER_ID"]), false, "301 Moved permanently");
 
 if (!CModule::IncludeModule("socialnetwork"))
 {
@@ -10,42 +10,42 @@ if (!CModule::IncludeModule("socialnetwork"))
 	return;
 }
 
-$arParams["USER_ID"] = IntVal($arParams["USER_ID"]);
+$arParams["USER_ID"] = intval($arParams["USER_ID"]);
 
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 
-if (strLen($arParams["USER_VAR"]) <= 0)
+if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if (strLen($arParams["MESSAGE_VAR"]) <= 0)
+if ($arParams["MESSAGE_VAR"] == '')
 	$arParams["MESSAGE_VAR"] = "message_id";
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if (strlen($arParams["PATH_TO_USER"]) <= 0)
+if ($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_MESSAGE_FORM"] = trim($arParams["PATH_TO_MESSAGE_FORM"]);
-if (strlen($arParams["PATH_TO_MESSAGE_FORM"]) <= 0)
+if ($arParams["PATH_TO_MESSAGE_FORM"] == '')
 	$arParams["PATH_TO_MESSAGE_FORM"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=message_form&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_MESSAGE_FORM_MESS"] = trim($arParams["PATH_TO_MESSAGE_FORM_MESS"]);
-if (strlen($arParams["PATH_TO_MESSAGE_FORM_MESS"]) <= 0)
+if ($arParams["PATH_TO_MESSAGE_FORM_MESS"] == '')
 	$arParams["PATH_TO_MESSAGE_FORM_MESS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=message_form_mess&".$arParams["USER_VAR"]."=#user_id#&".$arParams["MESSAGE_VAR"]."=#message_id#");
 
 $arParams["PATH_TO_MESSAGES_CHAT"] = trim($arParams["PATH_TO_MESSAGES_CHAT"]);
-if (strlen($arParams["PATH_TO_MESSAGES_CHAT"]) <= 0)
+if ($arParams["PATH_TO_MESSAGES_CHAT"] == '')
 	$arParams["PATH_TO_MESSAGES_CHAT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=messages_chat&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_MESSAGES_USERS"] = trim($arParams["PATH_TO_MESSAGES_USERS"]);
-if (strlen($arParams["PATH_TO_MESSAGES_USERS"]) <= 0)
+if ($arParams["PATH_TO_MESSAGES_USERS"] == '')
 	$arParams["PATH_TO_MESSAGES_USERS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=messages_users");
 
 $arParams["PATH_TO_MESSAGES_USERS_MESSAGES"] = trim($arParams["PATH_TO_MESSAGES_USERS_MESSAGES"]);
-if (strlen($arParams["PATH_TO_MESSAGES_USERS_MESSAGES"]) <= 0)
+if ($arParams["PATH_TO_MESSAGES_USERS_MESSAGES"] == '')
 	$arParams["PATH_TO_MESSAGES_USERS_MESSAGES"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=messages_users_messages&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["ITEMS_COUNT"] = IntVal($arParams["ITEMS_COUNT"]);
+$arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
 if ($arParams["ITEMS_COUNT"] <= 0)
 	$arParams["ITEMS_COUNT"] = 20;
 
@@ -70,66 +70,66 @@ else
 		$arNavigation = CDBResult::GetNavParams($arNavParams);
 
 		/***********************  ACTIONS  *******************************/
-		if ($_REQUEST["action"] == "ban" && check_bitrix_sessid() && IntVal($_REQUEST["userID"]) > 0)
+		if ($_REQUEST["action"] == "ban" && check_bitrix_sessid() && intval($_REQUEST["userID"]) > 0)
 		{
 			$errorMessage = "";
 
-			if (!CSocNetUserRelations::BanUser($GLOBALS["USER"]->GetID(), IntVal($_REQUEST["userID"])))
+			if (!CSocNetUserRelations::BanUser($GLOBALS["USER"]->GetID(), intval($_REQUEST["userID"])))
 			{
 				if ($e = $APPLICATION->GetException())
 					$errorMessage .= $e->GetString();
 			}
 
-			if (strlen($errorMessage) > 0)
+			if ($errorMessage <> '')
 				$arResult["ErrorMessage"] = $errorMessage;
 		}
-		if ($_REQUEST["action"] == "close" && check_bitrix_sessid() && IntVal($_REQUEST["eventID"]) > 0)
+		if ($_REQUEST["action"] == "close" && check_bitrix_sessid() && intval($_REQUEST["eventID"]) > 0)
 		{
 			$errorMessage = "";
 
-			if (!CSocNetMessages::MarkMessageRead($GLOBALS["USER"]->GetID(), IntVal($_REQUEST["eventID"])))
+			if (!CSocNetMessages::MarkMessageRead($GLOBALS["USER"]->GetID(), intval($_REQUEST["eventID"])))
 			{
 				if ($e = $APPLICATION->GetException())
 					$errorMessage .= $e->GetString();
 			}
 
-			if (strlen($errorMessage) > 0)
+			if ($errorMessage <> '')
 				$arResult["ErrorMessage"] = $errorMessage;
 		}
-		if ($_REQUEST["action"] == "delete" && check_bitrix_sessid() && IntVal($_REQUEST["eventID"]) > 0)
+		if ($_REQUEST["action"] == "delete" && check_bitrix_sessid() && intval($_REQUEST["eventID"]) > 0)
 		{
 			$errorMessage = "";
 
-			if (!CSocNetMessages::DeleteMessage(IntVal($_REQUEST["eventID"]), $GLOBALS["USER"]->GetID()))
+			if (!CSocNetMessages::DeleteMessage(intval($_REQUEST["eventID"]), $GLOBALS["USER"]->GetID()))
 			{
 				if ($e = $APPLICATION->GetException())
 					$errorMessage .= $e->GetString();
 			}
 
-			if (strlen($errorMessage) > 0)
+			if ($errorMessage <> '')
 				$arResult["ErrorMessage"] = $errorMessage;
 		}
 	
-		if ($_SERVER["REQUEST_METHOD"]=="POST" && (strlen($_POST["do_read"]) > 0 || strlen($_POST["do_delete"]) > 0 || (array_key_exists("do_delete_all_flag", $_POST) && $_POST["do_delete_all_flag"] == "Y")) && check_bitrix_sessid())
+		if ($_SERVER["REQUEST_METHOD"]=="POST" && ($_POST["do_read"] <> '' || $_POST["do_delete"] <> '' || (array_key_exists("do_delete_all_flag", $_POST) && $_POST["do_delete_all_flag"] == "Y")) && check_bitrix_sessid())
 		{
 			$errorMessage = "";
 
 			$arIDs = array();
-			if (strlen($errorMessage) <= 0 && $_POST["do_delete_all_flag"] != "Y")
+			if ($errorMessage == '' && $_POST["do_delete_all_flag"] != "Y")
 			{
-				for ($i = 0; $i <= IntVal($_POST["max_count"]); $i++)
+				for ($i = 0; $i <= intval($_POST["max_count"]); $i++)
 				{
 					if ($_POST["checked_".$i] == "Y")
-						$arIDs[] = IntVal($_POST["id_".$i]);
+						$arIDs[] = intval($_POST["id_".$i]);
 				}
 
 				if (count($arIDs) <= 0)
 					$errorMessage .= GetMessage("SONET_C31_NOT_SELECTED").". ";
 			}
 
-			if (strlen($errorMessage) <= 0)
+			if ($errorMessage == '')
 			{
-				if (strlen($_POST["do_read"]) > 0)
+				if ($_POST["do_read"] <> '')
 				{
 					if (!CSocNetMessages::MarkMessageReadMultiple($GLOBALS["USER"]->GetID(), $arIDs))
 					{
@@ -137,7 +137,7 @@ else
 							$errorMessage .= $e->GetString();
 					}
 				}
-				elseif (strlen($_POST["do_delete"]) > 0)
+				elseif ($_POST["do_delete"] <> '')
 				{
 					if (!CSocNetMessages::DeleteMessageMultiple($GLOBALS["USER"]->GetID(), $arIDs))
 					{
@@ -155,12 +155,12 @@ else
 				}				
 			}
 
-			if (strlen($errorMessage) > 0)
+			if ($errorMessage <> '')
 				$arResult["ErrorMessage"] = $errorMessage;
 		}
 		/*********************  END ACTIONS  *****************************/
 
-		if (strlen($arParams["NAME_TEMPLATE"]) <= 0)		
+		if ($arParams["NAME_TEMPLATE"] == '')
 			$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 		$bUseLogin = $arParams['SHOW_LOGIN'] != "N" ? true : false;
 
@@ -246,7 +246,7 @@ else
 				"DATE_CREATE" => $arMessages["DATE_CREATE"],
 				"DATE_CREATE_FMT" => $arMessages["DATE_CREATE_FMT"],
 				"DATE_CREATE_FORMAT" => $arMessages["DATE_CREATE_FORMAT"],
-				"IS_READ" => (StrLen($arMessages["DATE_VIEW"]) > 0 || $arMessages["WHO"] == "OUT"),
+				"IS_READ" => ($arMessages["DATE_VIEW"] <> '' || $arMessages["WHO"] == "OUT"),
 				"READ_LINK" => htmlspecialcharsbx($APPLICATION->GetCurUri("eventID=".$arMessages["ID"]."&action=close&".bitrix_sessid_get()."")),
 				"DELETE_LINK" => htmlspecialcharsbx($APPLICATION->GetCurUri("eventID=".$arMessages["ID"]."&action=delete&".bitrix_sessid_get()."")),
 				"MESSAGE" => $parser->convert(

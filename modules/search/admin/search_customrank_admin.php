@@ -11,13 +11,13 @@ $SEARCH_RIGHT = $APPLICATION->GetGroupRight("search");
 if($SEARCH_RIGHT=="D")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-if(strlen($Rebuild)>0)
+if($Rebuild <> '')
 {
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 	$NS = intval($NS)+1;
 	$cCustomRank = new CSearchCustomRank;
 
-	if(strlen($Next) <= 0)
+	if($Next == '')
 		$res = $cCustomRank->StartUpdate();
 
 	$res = $cCustomRank->NextUpdate();
@@ -87,7 +87,7 @@ if ($lAdmin->EditAction() && $SEARCH_RIGHT >= "W" && is_array($FIELDS))
 			continue;
 
 		$searchDB->StartTransaction();
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$cData = new CSearchCustomRank;
 		if (($rsData = $cData->GetByID($ID)) && ($arData = $rsData->Fetch()))
 		{
@@ -122,10 +122,10 @@ if (($arID = $lAdmin->GroupAction()) && $SEARCH_RIGHT == "W")
 	}
 	foreach ($arID as $ID)
 	{
-		if (strlen($ID) <= 0)
+		if ($ID == '')
 			continue;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		switch ($_REQUEST['action'])
 		{
 		case "delete":

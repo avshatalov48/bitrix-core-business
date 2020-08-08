@@ -1,5 +1,4 @@
 <?php
-
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -11,7 +10,6 @@ if (!\Bitrix\Main\Loader::includeModule('translate'))
 
 use Bitrix\Main;
 use Bitrix\Main\Error;
-use Bitrix\Main\Engine;
 use Bitrix\Main\Localization;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Translate;
@@ -20,13 +18,13 @@ Main\Loader::includeModule('translate');
 
 class TranslateEditComponent extends Translate\ComponentBase
 {
-	const VIEW_MODE_UNTRANSLATED = 'Untranslated';
-	const VIEW_MODE_SHOW_ALL = 'ShowAll';
-	const VIEW_MODE_SOURCE_EDIT = 'SourceEdit';
-	const VIEW_MODE_SOURCE_VIEW = 'SourceView';
+	public const VIEW_MODE_UNTRANSLATED = 'Untranslated';
+	public const VIEW_MODE_SHOW_ALL = 'ShowAll';
+	public const VIEW_MODE_SOURCE_EDIT = 'SourceEdit';
+	public const VIEW_MODE_SOURCE_VIEW = 'SourceView';
 
-	const TEMPLATE_SOURCE_EDIT = 'source_edit';
-	const TEMPLATE_SOURCE_VIEW = 'source_view';
+	public const TEMPLATE_SOURCE_EDIT = 'source_edit';
+	public const TEMPLATE_SOURCE_VIEW = 'source_view';
 
 	/** @var string */
 	private $filePath;
@@ -86,12 +84,12 @@ class TranslateEditComponent extends Translate\ComponentBase
 		else
 		{
 			$paramsIn['VIEW_MODE'] = $this->detectViewMode();
-			$paramsIn['SHOW_ALL'] = (self::VIEW_MODE_SHOW_ALL == $this->viewMode);
-			$paramsIn['SHOW_UNTRANSLATED'] = (self::VIEW_MODE_UNTRANSLATED == $this->viewMode);
+			$paramsIn['SHOW_ALL'] = (self::VIEW_MODE_SHOW_ALL === $this->viewMode);
+			$paramsIn['SHOW_UNTRANSLATED'] = (self::VIEW_MODE_UNTRANSLATED === $this->viewMode);
 		}
 	}
-	
-	
+
+
 	/**
 	 * @return void
 	 */
@@ -123,7 +121,7 @@ class TranslateEditComponent extends Translate\ComponentBase
 			$this->includeComponentTemplate(self::TEMPLATE_ERROR);
 			return;
 		}
-		if (!Translate\IO\Path::isLangDir($this->filePath) || (substr($this->filePath, -4) !== '.php'))
+		if (!Translate\IO\Path::isLangDir($this->filePath) || (mb_substr($this->filePath, -4) !== '.php'))
 		{
 			$this->addError(new Error(Loc::getMessage('TR_EDIT_FILE_NOT_LANG', array('#FILE#' => $this->filePath)), self::STATUS_DENIED));
 			$this->includeComponentTemplate(self::TEMPLATE_ERROR);
@@ -187,7 +185,7 @@ class TranslateEditComponent extends Translate\ComponentBase
 			$this->arResult['LANG_SETTINGS'] = $this->langSettings;
 		}
 
-		if ($this->viewMode == self::VIEW_MODE_SOURCE_VIEW || $this->viewMode == self::VIEW_MODE_SOURCE_EDIT)
+		if ($this->viewMode === self::VIEW_MODE_SOURCE_VIEW || $this->viewMode === self::VIEW_MODE_SOURCE_EDIT)
 		{
 			$langRelPath = Translate\IO\Path::replaceLangId($this->filePath, $paramsIn['CURRENT_LANG']);
 			$langFullPath = Translate\IO\Path::tidy($documentRoot.'/'.$langRelPath);
@@ -206,7 +204,7 @@ class TranslateEditComponent extends Translate\ComponentBase
 				$this->arResult['FILE_LANGUAGE'] = $this->arResult['LANGUAGES_TITLE'][$langFile->getLangId()];
 			}
 
-			if ($this->viewMode == self::VIEW_MODE_SOURCE_VIEW)
+			if ($this->viewMode === self::VIEW_MODE_SOURCE_VIEW)
 			{
 				$this->includeComponentTemplate(self::TEMPLATE_SOURCE_VIEW);
 			}
@@ -227,7 +225,7 @@ class TranslateEditComponent extends Translate\ComponentBase
 			}
 
 			// lets get phrases
-			list($this->arResult['MESSAGES'], $this->arResult['DIFFERENCES']) = $this->mergeLangFiles(
+			[$this->arResult['MESSAGES'], $this->arResult['DIFFERENCES']] = $this->mergeLangFiles(
 				$fullPaths,
 				$this->arResult['LANGUAGES'],
 				$encodingOut,
@@ -325,11 +323,14 @@ class TranslateEditComponent extends Translate\ComponentBase
 					$isObligatory = true;
 					if (!empty($this->langSettings['languages']))
 					{
-						$isObligatory = in_array($langId, $this->langSettings['languages']);
+						$isObligatory = in_array($langId, $this->langSettings['languages'], true);
 					}
-					if (empty($phr) && $isObligatory)
+					if (!isset($phr) || !is_string($phr) || (empty($phr) && $phr !== '0'))
 					{
-						continue 2;
+						if ($isObligatory)
+						{
+							continue 2;
+						}
 					}
 				}
 				unset($mergedContent[$code]);
@@ -345,10 +346,10 @@ class TranslateEditComponent extends Translate\ComponentBase
 			$isObligatory = true;
 			if (!empty($this->langSettings['languages']))
 			{
-				$isObligatory = in_array($langId, $this->langSettings['languages']);
+				$isObligatory = in_array($langId, $this->langSettings['languages'], true);
 			}
 
-			if ($langId == $currentLang)
+			if ($langId === $currentLang)
 			{
 				$differences[$currentLang] = array(
 					'TOTAL' => count($ethalonCodes),
@@ -381,8 +382,9 @@ class TranslateEditComponent extends Translate\ComponentBase
 	}
 
 	/**
-	 *  Finds requested path from.
+	 * Finds requested path from.
 	 *
+	 * @param string $inpName Input parameter name.
 	 * @return string
 	 */
 	private function detectPath($inpName = 'file')
@@ -411,7 +413,7 @@ class TranslateEditComponent extends Translate\ComponentBase
 	{
 		$paramsIn =& $this->getParams();
 
-		if (!empty($paramsIn['VIEW_MODE']) && in_array($paramsIn['VIEW_MODE'], array(self::VIEW_MODE_SOURCE_EDIT, self::VIEW_MODE_SOURCE_VIEW)))
+		if (!empty($paramsIn['VIEW_MODE']) && in_array($paramsIn['VIEW_MODE'], array(self::VIEW_MODE_SOURCE_EDIT, self::VIEW_MODE_SOURCE_VIEW), true))
 		{
 			$this->viewMode = $paramsIn['VIEW_MODE'];
 
@@ -422,14 +424,14 @@ class TranslateEditComponent extends Translate\ComponentBase
 		{
 			$viewMode = $this->request->get('viewMode');
 		}
-		elseif (!empty($_SESSION['TRANSLATE_EDIT_MODE']))
+		else
 		{
-			$viewMode = $_SESSION['TRANSLATE_EDIT_MODE'];
+			$viewMode = \CUserOptions::getOption('translate', 'edit_mode', '');
 		}
-		if (!empty($viewMode) && in_array($viewMode, array(self::VIEW_MODE_UNTRANSLATED, self::VIEW_MODE_SHOW_ALL)))
+		if (!empty($viewMode) && in_array($viewMode, array(self::VIEW_MODE_UNTRANSLATED, self::VIEW_MODE_SHOW_ALL), true))
 		{
 			$this->viewMode = $viewMode;
-			$_SESSION['TRANSLATE_EDIT_MODE'] = $this->viewMode;
+			\CUserOptions::setOption('translate', 'edit_mode', $this->viewMode);
 		}
 		if (empty($this->viewMode))
 		{

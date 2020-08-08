@@ -22,7 +22,7 @@ if (!\Bitrix\Main\Loader::includeModule('sale'))
 
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 
-if(strlen($result["ERROR"]) <= 0 && $saleModulePermissions >= "U" && check_bitrix_sessid())
+if($result["ERROR"] == '' && $saleModulePermissions >= "U" && check_bitrix_sessid())
 {
 	$action = isset($_REQUEST['action']) ? trim($_REQUEST['action']): '';
 
@@ -53,7 +53,7 @@ if(strlen($result["ERROR"]) <= 0 && $saleModulePermissions >= "U" && check_bitri
 					{
 						$formFields .=
 							'<tr>
-								<td valign="top">'.(strlen($params["TITLE"]) > 0 ? htmlspecialcharsbx($params["TITLE"]).": " : "").'</td>
+								<td valign="top">'.($params["TITLE"] <> '' ? htmlspecialcharsbx($params["TITLE"]).": " : "").'</td>
 								<td>'.\Bitrix\Sale\Internals\Input\Manager::getEditHtml("requestInputs[".$name."]", $params, (isset($params[$name]) ? $params[$name] : null)).'</td>
 							</tr>';
 					}
@@ -80,7 +80,7 @@ if(strlen($result["ERROR"]) <= 0 && $saleModulePermissions >= "U" && check_bitri
 				$isFinal = true;
 			}
 
-			if(strlen($dialogContent) > 0)
+			if($dialogContent <> '')
 			{
 				$result['DAILOG_PARAMS'] = array(
 					'TITLE' => Loc::getMessage('SALE_SDR_AJAX_CREATE'),
@@ -135,7 +135,7 @@ if(strlen($result["ERROR"]) <= 0 && $saleModulePermissions >= "U" && check_bitri
 					$dialogContent .= '<option value="'.$row['ID'].'">"'.$row['ID'].'" '.$row['DATE'].' ( '.htmlspecialcharsbx($row['EXTERNAL_ID']).' )</option>';
 				}
 
-				if(strlen($dialogContent) > 0)
+				if($dialogContent <> '')
 				{
 					$dialogContent = '<select name="requestId">'.$dialogContent.'</select>';
 					$dialogContent = '<table width="100%"><tr><td>'.Loc::getMessage('SALE_SDR_AJAX_REQUEST_NUMBER').'</td><td>'.$dialogContent.'</td></tr></table>';
@@ -157,7 +157,7 @@ if(strlen($result["ERROR"]) <= 0 && $saleModulePermissions >= "U" && check_bitri
 				}
 			}
 
-			if(strlen($dialogContent) > 0)
+			if($dialogContent <> '')
 			{
 				$result['DAILOG_PARAMS'] = array(
 					'TITLE' => Loc::getMessage('SALE_SDR_AJAX_SHIPMENTS_ADD'),
@@ -175,16 +175,16 @@ if(strlen($result["ERROR"]) <= 0 && $saleModulePermissions >= "U" && check_bitri
 }
 else
 {
-	if(strlen($result["ERROR"]) <= 0)
+	if($result["ERROR"] == '')
 		$result["ERROR"] = "Error! Access denied";
 }
 
-if(strlen($result["ERROR"]) > 0)
+if($result["ERROR"] <> '')
 	$result["RESULT"] = "ERROR";
 else
 	$result["RESULT"] = "OK";
 
-if(strtolower(SITE_CHARSET) != 'utf-8')
+if(mb_strtolower(SITE_CHARSET) != 'utf-8')
 	$result = \Bitrix\Main\Text\Encoding::convertEncoding($result, SITE_CHARSET, 'utf-8');
 
 $APPLICATION->RestartBuffer();

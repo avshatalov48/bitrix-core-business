@@ -27,7 +27,7 @@ class CSaleProxyResult extends CDBResult
 			$found = false;
 			foreach($filter as $condition => $value)
 			{
-				if(strpos($condition, $fld) !== false)
+				if(mb_strpos($condition, $fld) !== false)
 				{
 					$found = true;
 					break;

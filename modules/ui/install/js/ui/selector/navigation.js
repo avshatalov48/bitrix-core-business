@@ -11,6 +11,14 @@ if (!!BX.UI.Selector.Navigation)
 
 BX.UI.Selector.Navigation = function(params)
 {
+	this.keys = {
+		enter: 13,
+		space: 32,
+		left: 37,
+		up: 38,
+		right: 39,
+		down: 40
+	};
 	this.selectorInstance = params.selectorInstance;
 	this.selectorManager = this.selectorInstance.manager;
 };
@@ -26,7 +34,7 @@ BX.UI.Selector.Navigation.prototype.checkKeyboardNavigation = function(params)
 		keyCode = (params.keyCode ? params.keyCode : false),
 		tab = (params.tab ? params.tab : false);
 
-	if (keyCode == 37)
+	if (keyCode == this.keys.left)
 	{
 		this.moveCurrentItem({
 			tab: tab,
@@ -35,7 +43,7 @@ BX.UI.Selector.Navigation.prototype.checkKeyboardNavigation = function(params)
 
 		return 'move';
 	}
-	else if (keyCode == 38)
+	else if (keyCode == this.keys.up)
 	{
 		this.moveCurrentItem({
 			tab: tab,
@@ -44,7 +52,7 @@ BX.UI.Selector.Navigation.prototype.checkKeyboardNavigation = function(params)
 
 		return 'move';
 	}
-	else if (keyCode == 39)
+	else if (keyCode == this.keys.right)
 	{
 		this.moveCurrentItem({
 			tab: tab,
@@ -53,7 +61,7 @@ BX.UI.Selector.Navigation.prototype.checkKeyboardNavigation = function(params)
 
 		return 'move';
 	}
-	else if (keyCode == 40)
+	else if (keyCode == this.keys.down)
 	{
 		this.moveCurrentItem({
 			tab: tab,
@@ -62,7 +70,7 @@ BX.UI.Selector.Navigation.prototype.checkKeyboardNavigation = function(params)
 
 		return 'move';
 	}
-	else if (keyCode == 13)
+	else if (keyCode == this.keys.enter)
 	{
 		this.selectCurrentItem({
 			tab: tab,
@@ -72,16 +80,24 @@ BX.UI.Selector.Navigation.prototype.checkKeyboardNavigation = function(params)
 		return 'enter';
 	}
 	else if (
-		keyCode == 32 // space
+		keyCode == this.keys.space
 		&& tab != 'search'
 	)
 	{
-		this.selectCurrentItem({
-			tab: tab,
-			keyCode: keyCode
-		});
+		if (this.selectorInstance.id.match(/^mention/i))
+		{
+			this.selectorInstance.closeDialog();
+			return false
+		}
+		else
+		{
+			this.selectCurrentItem({
+				tab: tab,
+				keyCode: keyCode
+			});
 
-		return 'space';
+			return 'space';
+		}
 	}
 
 	return false;
@@ -91,7 +107,7 @@ BX.UI.Selector.Navigation.prototype.selectCurrentItem = function(params)
 {
 	var
 		tab = params.tab,
-		closeDialog = (typeof params.keyCode != 'undefined' && params.keyCode == 13);
+		closeDialog = (typeof params.keyCode != 'undefined' && params.keyCode == this.keys.enter);
 
 	if (
 		!this.selectorInstance.popups.search

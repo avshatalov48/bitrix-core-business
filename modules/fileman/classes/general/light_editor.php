@@ -6,7 +6,7 @@ class CLightHTMLEditor // LHE
 	{
 		global $USER, $APPLICATION;
 		$basePath = '/bitrix/js/fileman/light_editor/';
-		$this->Id = (isset($arParams['id']) && strlen($arParams['id']) > 0) ? $arParams['id'] : 'bxlhe'.substr(uniqid(mt_rand(), true), 0, 4);
+		$this->Id = (isset($arParams['id']) && $arParams['id'] <> '') ? $arParams['id'] : 'bxlhe'.mb_substr(uniqid(mt_rand(), true), 0, 4);
 		$this->Id = preg_replace("/[^a-zA-Z0-9_:\.]/is", "", $this->Id);
 
 		$this->cssPath = $basePath."light_editor.css";
@@ -91,7 +91,7 @@ class CLightHTMLEditor // LHE
 
 		// Tables
 		//$this->arJSPath[] = $this->GetActualPath($basePath.'le_table.js');
-		$this->jsObjName = (isset($arParams['jsObjName']) && strlen($arParams['jsObjName']) > 0) ? $arParams['jsObjName'] : 'LightHTMLEditor'.$this->Id;
+		$this->jsObjName = (isset($arParams['jsObjName']) && $arParams['jsObjName'] <> '') ? $arParams['jsObjName'] : 'LightHTMLEditor'.$this->Id;
 		$this->jsObjName = preg_replace("/[^a-zA-Z0-9_:\.]/is", "", $this->jsObjName);
 
 		if ($this->bResizable)
@@ -125,7 +125,7 @@ class CLightHTMLEditor // LHE
 			'bReplaceTabToNbsp' => true,
 			'bSetDefaultCodeView' => isset($arParams['bSetDefaultCodeView']) && $arParams['bSetDefaultCodeView'],
 			'bBBParseImageSize' => isset($arParams['bBBParseImageSize']) && $arParams['bBBParseImageSize'],
-			'smileCountInToolbar' => intVal($arParams['smileCountInToolbar']),
+			'smileCountInToolbar' => intval($arParams['smileCountInToolbar']),
 			'bQuoteFromSelection' => isset($arParams['bQuoteFromSelection']) && $arParams['bQuoteFromSelection'],
 			'bConvertContentFromBBCodes' => isset($arParams['bConvertContentFromBBCodes']) && $arParams['bConvertContentFromBBCodes'],
 			'oneGif' => '/bitrix/images/1.gif',
@@ -136,9 +136,9 @@ class CLightHTMLEditor // LHE
 		if (!isset($this->JSConfig['bSetDefaultCodeView']) && CLightHTMLEditor::IsMobileDevice())
 			$this->JSConfig['bSetDefaultCodeView'] = true;
 
-		if (isset($arParams['width']) && intVal($arParams['width']) > 0)
+		if (isset($arParams['width']) && intval($arParams['width']) > 0)
 			$this->JSConfig['width'] = $arParams['width'];
-		if (isset($arParams['height']) && intVal($arParams['height']) > 0)
+		if (isset($arParams['height']) && intval($arParams['height']) > 0)
 			$this->JSConfig['height'] = $arParams['height'];
 		if (isset($arParams['toolbarConfig']))
 			$this->JSConfig['toolbarConfig'] = $arParams['toolbarConfig'];
@@ -192,8 +192,8 @@ class CLightHTMLEditor // LHE
 		$width = isset($this->JSConfig['width']) && intval($this->JSConfig['width']) > 0 ? $this->JSConfig['width'] : "100%";
 		$height = isset($this->JSConfig['height']) && intval($this->JSConfig['height']) > 0 ? $this->JSConfig['height'] : "100%";
 
-		$widthUnit = strpos($width, "%") === false ? "px" : "%";
-		$heightUnit = strpos($height, "%") === false ? "px" : "%";
+		$widthUnit = mb_strpos($width, "%") === false ? "px" : "%";
+		$heightUnit = mb_strpos($height, "%") === false ? "px" : "%";
 		$width = intval($width);
 		$height = intval($height);
 

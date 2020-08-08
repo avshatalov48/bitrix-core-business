@@ -238,7 +238,7 @@ class SpsrTracking extends \Bitrix\Sale\Delivery\Tracking\Base
 
 	protected static function translateStatus($externalStatus)
 	{
-		if(strlen($externalStatus) <= 0)
+		if($externalStatus == '')
 			return Statuses::UNKNOWN;
 
 		$statusMaps = array(
@@ -277,7 +277,7 @@ class SpsrTracking extends \Bitrix\Sale\Delivery\Tracking\Base
 
 	protected static function utfDecode($str)
 	{
-		if(strtolower(SITE_CHARSET) != 'utf-8')
+		if(mb_strtolower(SITE_CHARSET) != 'utf-8')
 			$str = Encoding::convertEncoding($str, 'UTF-8', SITE_CHARSET);
 
 		return $str;

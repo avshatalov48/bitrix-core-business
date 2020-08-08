@@ -70,7 +70,7 @@ class CSearchMysql extends CSearchFullText
 		$DB = CDatabase::GetModuleConnection('search');
 
 		$queryObject = $aParamsEx["QUERY_OBJECT"];
-		if ($queryObject->m_parsed_query == "( )" || strlen($queryObject->m_parsed_query) <= 0)
+		if ($queryObject->m_parsed_query == "( )" || $queryObject->m_parsed_query == '')
 		{
 			$this->error = GetMessage("SEARCH_ERROR3");
 			$this->errorno = 3;
@@ -93,7 +93,7 @@ class CSearchMysql extends CSearchFullText
 				$strTags = '+(+"'.implode('" +"', $arTags).'")';
 		}
 
-		if ((strlen($strQuery) <= 0) && (strlen($strTags) > 0))
+		if (($strQuery == '') && ($strTags <> ''))
 		{
 			$strQuery = $strTags;
 			$bTagsSearch = true;
@@ -216,8 +216,8 @@ class CSearchMysql extends CSearchFullText
 		{
 			foreach ($aSort as $key => $ord)
 			{
-				$ord = strtoupper($ord) <> "ASC"? "DESC": "ASC";
-				$key = strtoupper($key);
+				$ord = mb_strtoupper($ord) <> "ASC"? "DESC": "ASC";
+				$key = mb_strtoupper($key);
 				switch ($key)
 				{
 				case "DATE_CHANGE":
@@ -239,8 +239,8 @@ class CSearchMysql extends CSearchFullText
 			$this->flagsUseRatingSort = 0;
 			foreach ($aSort as $key => $ord)
 			{
-				$ord = strtoupper($ord) <> "ASC"? "DESC": "ASC";
-				$key = strtoupper($key);
+				$ord = mb_strtoupper($ord) <> "ASC"? "DESC": "ASC";
+				$key = mb_strtoupper($key);
 				switch ($key)
 				{
 				case "DATE_CHANGE":

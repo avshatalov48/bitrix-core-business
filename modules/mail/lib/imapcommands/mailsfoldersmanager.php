@@ -3,7 +3,7 @@
 namespace Bitrix\Mail\ImapCommands;
 
 use Bitrix\Mail;
-use Bitrix\Mail\Helper\MessageFolder;
+use Bitrix\Mail\Internals\MailboxDirectoryTable;
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 
@@ -15,13 +15,13 @@ class MailsFoldersManager extends SyncInternalManager
 {
 	public function deleteMails()
 	{
-		$result = $this->initData(MessageFolder::TRASH);
+		$result = $this->initData(MailboxDirectoryTable::TYPE_TRASH);
 		if (!$result->isSuccess())
 		{
 			return $result;
 		}
 
-		return $this->processDelete($this->getFolderNameByType(MessageFolder::TRASH));
+		return $this->processDelete($this->getDirPathByType(MailboxDirectoryTable::TYPE_TRASH));
 	}
 
 	public function moveMails($folderToMoveName)
@@ -47,22 +47,30 @@ class MailsFoldersManager extends SyncInternalManager
 					'MAIL_CLIENT_MOVE_TO_SELF_FOLDER'));
 			}
 		}
-		$disabled = !empty($this->mailbox['OPTIONS']['imap']['disabled']) ? $this->mailbox['OPTIONS']['imap']['disabled'] : [];
-		if (in_array($folderToMoveName, $disabled, true))
+
+		$dir = $this->getDirByPath($folderToMoveName);
+
+		if (!$dir)
+		{
+			return $result->addError(new Main\Error(Loc::getMessage('MAIL_CLIENT_MAILBOX_NOT_FOUND'),
+				'MAIL_CLIENT_MAILBOX_NOT_FOUND'));
+		}
+
+		if ($dir->isDisabled())
 		{
 			return $result->addError(new Main\Error(Loc::getMessage('MAIL_CLIENT_FOLDER_IS_DISABLED', ['#FOLDER#' => $folderToMoveName]),
 				'MAIL_CLIENT_FOLDER_IS_DISABLED'));
 		}
 
-		if ($folderToMoveName === $this->getFolderNameByType(MessageFolder::SPAM))
+		if ($dir->isSpam())
 		{
 			return $this->sendMailsToSpam();
 		}
-		elseif ($folderToMoveName === $this->getFolderNameByType(MessageFolder::TRASH))
+		elseif ($dir->isTrash())
 		{
 			return $this->deleteMails();
 		}
-		elseif ($folderToMoveName === $this->getFolderNameByType(MessageFolder::INCOME))
+		elseif ($dir->isIncome())
 		{
 			return $this->restoreMailsFromSpam();
 		}
@@ -78,13 +86,13 @@ class MailsFoldersManager extends SyncInternalManager
 
 	public function restoreMailsFromSpam()
 	{
-		$result = $this->initData(MessageFolder::SPAM);
+		$result = $this->initData(MailboxDirectoryTable::TYPE_SPAM);
 		if (!$result->isSuccess())
 		{
 			return $result;
 		}
 
-		$result = $this->moveMailsToFolder($this->getFolderNameByType(MessageFolder::INCOME));
+		$result = $this->moveMailsToFolder($this->getDirPathByType(MailboxDirectoryTable::TYPE_INCOME));
 		if (!$result->isSuccess())
 		{
 			return (new Main\Result())->addError(new Main\Error(Loc::getMessage('MAIL_CLIENT_SYNC_ERROR'), 'MAIL_CLIENT_SYNC_ERROR'));
@@ -105,13 +113,13 @@ class MailsFoldersManager extends SyncInternalManager
 	 */
 	public function sendMailsToSpam()
 	{
-		$result = $this->initData(MessageFolder::SPAM);
+		$result = $this->initData(MailboxDirectoryTable::TYPE_SPAM);
 		if (!$result->isSuccess())
 		{
 			return $result;
 		}
 
-		return $this->processSpam($this->getFolderNameByType(MessageFolder::SPAM));
+		return $this->processSpam($this->getDirPathByType(MailboxDirectoryTable::TYPE_SPAM));
 	}
 
 	private function processDelete($folderTrashName)
@@ -185,9 +193,8 @@ class MailsFoldersManager extends SyncInternalManager
 		{
 			return new Main\Result();
 		}
-		/** @var Mail\Helper\Mailbox\Imap $helper */
-		$helper = $this->getMailClientHelper();
-		$result = $helper->deleteMails($messagesToDelete);
+
+		$result = $this->mailboxHelper->deleteMails($messagesToDelete);
 
 		if ($result->isSuccess())
 		{
@@ -200,7 +207,7 @@ class MailsFoldersManager extends SyncInternalManager
 
 	private function isMailToBeDeleted($messageUid)
 	{
-		$trashFolder = $this->getFolderNameByType(MessageFolder::TRASH);
+		$trashFolder = $this->getDirPathByType(MailboxDirectoryTable::TYPE_TRASH);
 		return md5($trashFolder) === $messageUid['DIR_MD5'];
 	}
 
@@ -223,33 +230,35 @@ class MailsFoldersManager extends SyncInternalManager
 		{
 			return new Main\Result();
 		}
-		/** @var Mail\Helper\Mailbox\Imap $helper */
-		$helper = $this->getMailClientHelper();
-		return $helper->moveMailsToFolder($messagesToMove, $folder);
+
+		return $this->mailboxHelper->moveMailsToFolder($messagesToMove, $folder);
 	}
 
 	private function processSyncMovedMessages($folderCurrentNameEncoded)
 	{
-		$helper = $this->getMailClientHelper(false);
-		if ($helper)
-		{
-			$folderCurrentName = base64_decode($folderCurrentNameEncoded);
-			$count = $helper->syncDir($folderCurrentName);
-			Mail\MailMessageUidTable::deleteList(
-				[
-					'=MAILBOX_ID' => $this->mailboxId,
-					'=DIR_MD5' => md5($folderCurrentName),
-					'=MSG_UID' => 0,
-				]
-			);
-		}
+		$folderCurrentName = base64_decode($folderCurrentNameEncoded);
+		$count = $this->mailboxHelper->syncDir($folderCurrentName);
+		Mail\MailMessageUidTable::deleteList(
+			[
+				'=MAILBOX_ID' => $this->mailboxId,
+				'=DIR_MD5' => md5($folderCurrentName),
+				'=MSG_UID' => 0,
+			]
+		);
 	}
 
 	public static function syncMovedMessages($mailboxId, $mailboxUserId, $folderName)
 	{
-		$mailManager = new static($mailboxId, []);
-		$mailManager->setMailboxUserId($mailboxUserId);
-		$mailManager->processSyncMovedMessages($folderName);
+		try
+		{
+			$mailManager = new static($mailboxId, []);
+			$mailManager->setMailboxUserId($mailboxUserId);
+			$mailManager->processSyncMovedMessages($folderName);
+		}
+		catch (\Exception $e)
+		{
+		}
+
 		return '';
 	}
 

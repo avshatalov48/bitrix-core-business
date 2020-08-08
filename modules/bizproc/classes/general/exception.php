@@ -23,7 +23,7 @@ class CBPArgumentNullException
 {
 	public function __construct($paramName, $message = "")
 	{
-		if (strlen($message) <= 0)
+		if ($message == '')
 			$message = str_replace("#PARAM#", htmlspecialcharsbx($paramName), GetMessage("BPCGERR_NULL_ARG"));
 
 		parent::__construct($message, $paramName);
@@ -39,7 +39,7 @@ class CBPArgumentOutOfRangeException
 
 	public function __construct($paramName, $actualValue = null, $message = "")
 	{
-		if (strlen($message) <= 0)
+		if ($message == '')
 		{
 			if ($actualValue === null)
 				$message = str_replace("#PARAM#", htmlspecialcharsbx($paramName), GetMessage("BPCGERR_INVALID_ARG"));
@@ -66,7 +66,7 @@ class CBPArgumentTypeException
 
 	public function __construct($paramName, $correctType = null, $message = "")
 	{
-		if (strlen($message) <= 0)
+		if ($message == '')
 		{
 			if ($correctType === null)
 				$message = str_replace("#PARAM#", htmlspecialcharsbx($paramName), GetMessage("BPCGERR_INVALID_TYPE"));

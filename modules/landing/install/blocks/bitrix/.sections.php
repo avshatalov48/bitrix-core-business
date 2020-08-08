@@ -34,16 +34,13 @@ return array(
 		'type' => ['page', 'store', 'smn']
 	],
 	
-	'separator' => Loc::getMessage('LD_BLOCK_SECTION_SEPARATOR'),
+	'separator' => Loc::getMessage('LD_BLOCK_SECTION_TRANSITIONS_SEPARATORS'),
 	
 	'menu' => Loc::getMessage('LD_BLOCK_SECTION_MENU_NEW'),
 	'sidebar' => Loc::getMessage('LD_BLOCK_SECTION_SIDEBAR'),
 	'footer' => Loc::getMessage('LD_BLOCK_SECTION_FOOTER'),
 	
-	'forms' => [
-		'name' => Loc::getMessage('LD_BLOCK_SECTION_FORMS'),
-		'type' => ['page', 'store', 'smn']
-	],
+	'forms' => Loc::getMessage('LD_BLOCK_SECTION_FORMS'),
 	'news' => Loc::getMessage('LD_BLOCK_SECTION_NEWS'),
 	'schedule' => Loc::getMessage('LD_BLOCK_SECTION_SCHEDULE'),
 	

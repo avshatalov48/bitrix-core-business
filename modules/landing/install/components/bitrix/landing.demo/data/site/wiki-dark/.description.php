@@ -13,7 +13,7 @@ $buttons = B24button::getButtons();
 $buttons = array_keys($buttons);
 
 return [
-	//'name' => Loc::getMessage("LANDING_DEMO_WIKI_DARK_TITLE"),
+	'name' => Loc::getMessage("LANDING_DEMO_WIKI_DARK_TITLE"),
 	'description' => Loc::getMessage("LANDING_DEMO_WIKI_DARK_DESCRIPTION"),
 	'preview' => '',
 	'preview2x' => '',
@@ -28,7 +28,10 @@ return [
 			'VIEW_TYPE' => 'mobile',
 			'ROBOTS_USE' => 'N',
 			'THEME_CODE' => '3corporate',
-			'THEME_CODE_TYPO' => 'app',
+			'THEMEFONTS_CODE' => 'g-font-roboto',
+			'THEMEFONTS_CODE_H' => 'g-font-montserrat',
+			'THEMEFONTS_SIZE' => '1.14286',
+			'THEMEFONTS_USE' => 'Y',
 			'COPYRIGHT_SHOW' => 'Y',
 			'B24BUTTON_CODE' => $buttons[0],
 			'B24BUTTON_COLOR' => 'site',
@@ -38,7 +41,10 @@ return [
 			'GACOUNTER_USE' => 'N',
 			'GACOUNTER_SEND_CLICK' => 'N',
 			'GACOUNTER_SEND_SHOW' => 'N',
-			'BACKGROUND_USE' => 'N',
+			'BACKGROUND_USE' => 'Y',
+			'BACKGROUND_COLOR' => '#2C2C2C',
+			'BACKGROUND_POSITION' => 'center_repeat_y',
+			'BACKGROUND_PICTURE' => 'https://cdn.bitrix24.site/bitrix/images/landing/bg/wiki-dark.png',
 			'METAYANDEXVERIFICATION_USE' => 'N',
 			'YACOUNTER_USE' => 'N',
 			'GTM_USE' => 'N',
@@ -51,11 +57,19 @@ return [
 		'LANDING_ID_INDEX' => 'wiki-dark/main',
 		'LANDING_ID_404' => '0',
 	],
-	'layout' => [],
+	'layout' => [
+		'code' => 'header_footer',
+		'ref' => array(
+			1 => 'wiki-dark/header',
+			2 => 'wiki-dark/footer',
+		),
+	],
 	'folders' => [],
 	'syspages' => [],
 	'items' => [
 			0 => 'wiki-dark/main',
-			1 => 'wiki-dark/detail',
+			1 => 'wiki-dark/header',
+			2 => 'wiki-dark/footer',
+			3 => 'wiki-dark/detail',
 	],
 ];

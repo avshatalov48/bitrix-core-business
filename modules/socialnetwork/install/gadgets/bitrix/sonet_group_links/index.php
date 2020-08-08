@@ -53,7 +53,7 @@ $arGadgetParams["SHOW_FEATURES"] = "Y";
 			{
 				if ($arGadgetParams["CAN_INITIATE"] && !$arGadgetParams["HIDE_ARCHIVE_LINKS"])
 				{
-					?><li class="bx-icon-invite"><a href="<?=($arGadgetParams["URL_EDIT"].(strpos($arGadgetParams["URL_EDIT"], "?") !== false ? "&" : '?')."tab=invite")?>"><?= GetMessage("GD_SONET_GROUP_LINKS_ACT_REQU") ?></a></li><?
+					?><li class="bx-icon-invite"><a href="<?=($arGadgetParams["URL_EDIT"].(mb_strpos($arGadgetParams["URL_EDIT"], "?") !== false ? "&" : '?')."tab=invite")?>"><?= GetMessage("GD_SONET_GROUP_LINKS_ACT_REQU") ?></a></li><?
 				}
 
 				if (

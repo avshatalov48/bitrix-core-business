@@ -106,7 +106,6 @@ class IntranetNewUser extends Provider
 			if (!empty($pathToLogEntry))
 			{
 				$pathToLogEntry = \CComponentEngine::makePathFromTemplate($pathToLogEntry, array("log_id" => $logId));
-//				$pathToLogEntry .= (strpos($pathToLogEntry, '?') === false ? '?' : '&').'commentId='.$this->getEntityId().'#com'.$this->getEntityId();
 			}
 		}
 		return $pathToLogEntry;

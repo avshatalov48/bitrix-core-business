@@ -8,7 +8,7 @@
 
 		if (event.block.querySelectorAll(selector).length > 0)
 		{
-			if (typeof(window["landingForms"]) == 'undefined')
+			if (typeof window["landingForms"] == 'undefined')
 			{
 				window["landingForms"] = {};
 			}
@@ -26,10 +26,10 @@
 		if (event.block.querySelectorAll(selector).length > 0)
 		{
 			var currentForm = window["landingForms"][event.block.id];
-			if (typeof(event.node) != 'undefined' && typeof(event.data) != 'undefined' && typeof(currentForm) != 'undefined')
+			if (typeof event.node != 'undefined' && typeof event.data != 'undefined' && typeof currentForm != 'undefined')
 			{
 				// recreate styles if needed, Use just first node
-				if(currentForm.readFormStylesFromNode(event.node[0]))
+				if (currentForm.readFormStylesFromNode(event.node[0]))
 				{
 					currentForm.createFormOptions();
 					currentForm.onFormReloadWithDebounce();
@@ -48,7 +48,7 @@
 		if (event.block.querySelectorAll(selector).length > 0)
 		{
 			var currentForm = window["landingForms"][event.block.id];
-			if (typeof(event.data) != 'undefined' && typeof(currentForm) != 'undefined')
+			if (typeof event.data != 'undefined' && typeof currentForm != 'undefined')
 			{
 				for (var attr in event.data)
 				{
@@ -94,11 +94,11 @@
 		if (document.querySelectorAll(selector).length > 0)
 		{
 			var currentForm = window["landingForms"][event.block.id];
-			if (typeof(currentForm) != 'undefined')
+			if (typeof currentForm != 'undefined')
 			{
 				currentForm.onFormRemove();
 			}
-			delete(window["landingForms"][event.block.id]);
+			delete (window["landingForms"][event.block.id]);
 		}
 	});
 
@@ -294,7 +294,7 @@
 		initFormLoader: function (w, d, u, b)
 		{
 			// if first run - init form loader
-			if (typeof(w["Bitrix24FormLoaderInitialised"]) == 'undefined' || w["Bitrix24FormLoaderInitialised"] != true)
+			if (typeof w["Bitrix24FormLoaderInitialised"] == 'undefined' || w["Bitrix24FormLoaderInitialised"] != true)
 			{
 				w['Bitrix24FormObject'] = b;
 				w[b] = w[b] || function ()
@@ -325,7 +325,7 @@
 			}
 
 			// do nothing if domain not set
-			if(!this.domain)
+			if (!this.domain)
 			{
 				this.createErrorDomainMessage();
 				return;
@@ -335,11 +335,15 @@
 			// apply form options only after frame creating
 			BX.addCustomEvent('onFormFrameLoad', BX.proxy(this.onFormFrameLoad, this));
 
+			// clear container to preserve no-js alert
+			var container = document.querySelector(this.selector);
+			container.innerHTML = '';
+
 			this.addFormInLoader();
-			if (typeof(Bitrix24FormLoader) != 'undefined')
+			if (typeof Bitrix24FormLoader != 'undefined')
 			{
 				// init Bitrix24FormLoader only once!
-				if (typeof(Bitrix24FormLoader.forms) == 'undefined' || Object.keys(Bitrix24FormLoader.forms).length == 0)
+				if (typeof Bitrix24FormLoader.forms == 'undefined' || Object.keys(Bitrix24FormLoader.forms).length == 0)
 				{
 					Bitrix24FormLoader.init();
 				}
@@ -353,14 +357,18 @@
 
 		createNoFormMessage: function ()
 		{
-			var formContainer = document.querySelector(this.selector);
+			if (BX.Landing.getMode() == "view")
+			{
+				return;
+			}
 
+			var formContainer = document.querySelector(this.selector);
 			if (
-				typeof(BX.data(formContainer, this.dataAttributeIsConnector)) != 'undefined' &&
-				BX.data(formContainer, this.dataAttributeIsConnector) == 'Y'
+				typeof BX.data(formContainer, this.dataAttributeIsConnector) != 'undefined'
+				&& BX.data(formContainer, this.dataAttributeIsConnector) == 'Y'
 			)
 			{
-				this.createErrorMessage(BX.message('LANDING_BLOCK_WEBFORM_NO_FORM'), BX.message('LANDING_BLOCK_WEBFORM_NO_FORM_BUS'));
+				this.createErrorMessage(BX.message('LANDING_BLOCK_WEBFORM_NO_FORM'), BX.message('LANDING_BLOCK_WEBFORM_NO_FORM_BUS_NEW'));
 			}
 			else
 			{
@@ -383,12 +391,12 @@
 				return;
 			}
 
-			if(title === undefined || title === null || !title)
+			if (title === undefined || title === null || !title)
 			{
 				title = BX.message('LANDING_BLOCK_WEBFORM_ERROR');
 			}
 
-			if(message === undefined || message === null || !message)
+			if (message === undefined || message === null || !message)
 			{
 				message = BX.message('LANDING_BLOCK_WEBFORM_CONNECT_SUPPORT');
 			}
@@ -397,7 +405,7 @@
 			if (formContainer)
 			{
 				alertHtml = '';
-				if(title != '')
+				if (title != '')
 				{
 					var alertHtml = '<h2 class="u-form-alert-title"><i class="fa fa-exclamation-triangle g-mr-15"></i>' +
 						title + '</h2><hr class="u-form-alert-divider">';
@@ -482,7 +490,7 @@
 			if (typeof window.postMessage === 'function' && !ie)
 			{
 				// prepare PARAMS
-				if (typeof(params) != 'object')
+				if (typeof params != 'object')
 				{
 					params = {};
 				}
@@ -517,7 +525,7 @@
 
 		onFormRemove: function ()
 		{
-			if (typeof(Bitrix24FormLoader) != 'undefined')
+			if (typeof Bitrix24FormLoader != 'undefined')
 			{
 				Bitrix24FormLoader.unload(this.formParams);
 			}
@@ -527,7 +535,7 @@
 		onFormReload: function ()
 		{
 			// not need reload duplicate form
-			if (typeof(Bitrix24FormLoader) != 'undefined')
+			if (typeof Bitrix24FormLoader != 'undefined')
 			{
 				Bitrix24FormLoader.unload(this.formParams);
 				Bitrix24FormLoader.preLoad(this.formParams);
@@ -539,7 +547,7 @@
 		 * To preserve overreloading when style changes
 		 * @returns {*}
 		 */
-		onFormReloadWithDebounce: function()
+		onFormReloadWithDebounce: function ()
 		{
 			return BX.debounce(this.onFormReload(), 1000, this);
 		},
@@ -612,7 +620,7 @@
 				var cssStringCurrent = "";
 				this.selectors[selector].forEach(function (style)
 				{
-					if (typeof(this.styles[style]) != 'undefined')
+					if (typeof this.styles[style] != 'undefined')
 					{
 						for (var styleValue in this.styles[style])
 						{
@@ -636,14 +644,14 @@
 		// hide "zaryazheno Bitriks 24"
 		createHideBitrixLabelCss: function (string)
 		{
-			string = (typeof(string) == 'undefined') ? '' : string;
+			string = (typeof string == 'undefined') ? '' : string;
 
 			return string + this.hideBitrixLogoString;
 		},
 
 		createAdditionalCss: function (string)
 		{
-			string = (typeof(string) == 'undefined') ? '' : string;
+			string = (typeof string == 'undefined') ? '' : string;
 
 			return string + this.additionalCssString;
 		},
@@ -653,7 +661,7 @@
 			var node = BX.findChild(this.block, {'attribute': 'data-' + this.dataAttributeUseStyle}, true, false);
 			if (
 				node
-				&& typeof(BX.data(node, this.dataAttributeUseStyle)) != 'undefined'
+				&& typeof BX.data(node, this.dataAttributeUseStyle) != 'undefined'
 				&& BX.data(node, this.dataAttributeUseStyle) == 'N'
 			)
 			{
@@ -667,12 +675,12 @@
 
 		matchShowHeader: function (string)
 		{
-			string = (typeof(string) == 'undefined') ? '' : string;
+			string = (typeof string == 'undefined') ? '' : string;
 
 			var node = BX.findChild(this.block, {'attribute': 'data-' + this.dataAttributeShowHeader}, true, false);
 			if (
 				node
-				&& typeof(BX.data(node, this.dataAttributeShowHeader)) != 'undefined'
+				&& typeof BX.data(node, this.dataAttributeShowHeader) != 'undefined'
 				&& BX.data(node, this.dataAttributeShowHeader) == 'N'
 			)
 			{
@@ -691,14 +699,14 @@
 		 * @param node
 		 * @param style
 		 */
-		readNodeStyles: function(node, style)
+		readNodeStyles: function (node, style)
 		{
 			this.styleParams[style].params.forEach(BX.delegate(function (param)
 			{
 				var value = BX.style(node, param);
 				if (value)
 				{
-					if (typeof(this.styles[style]) == 'undefined')
+					if (typeof this.styles[style] == 'undefined')
 					{
 						this.styles[style] = {};
 					}
@@ -729,14 +737,15 @@
 		 * @param node
 		 * @returns {boolean}
 		 */
-		readFormStylesFromNode: function(node)
+		readFormStylesFromNode: function (node)
 		{
 			// check if node have style attrs
 			var change = false;
 			var attrs = node.attributes;
-			for (var i = 0; i < attrs.length; i++) {
+			for (var i = 0; i < attrs.length; i++)
+			{
 				var attr = attrs[i].name.replace(this.dataAttributePrefix, '');
-				if(typeof(this.styleParams[attr]) !== 'undefined')
+				if (typeof this.styleParams[attr] !== 'undefined')
 				{
 					change = true;
 					this.readNodeStyles(node, attr);

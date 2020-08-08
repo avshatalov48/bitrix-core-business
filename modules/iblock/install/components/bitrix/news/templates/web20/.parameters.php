@@ -97,7 +97,7 @@ if ($arCurrentValues["USE_SHARE"] == "Y")
 		"REFRESH"=> "Y",
 	);
 	
-	if (strlen(trim($arCurrentValues["SHARE_TEMPLATE"])) <= 0)
+	if (trim($arCurrentValues["SHARE_TEMPLATE"]) == '')
 		$shareComponentTemlate = false;
 	else
 		$shareComponentTemlate = trim($arCurrentValues["SHARE_TEMPLATE"]);

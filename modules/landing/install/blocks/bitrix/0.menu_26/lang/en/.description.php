@@ -1,0 +1,7 @@
+<?
+$MESS["LANDING_BLOCK_MENU_26-HAMBURGER"] = "Hamburger menu";
+$MESS["LANDING_BLOCK_MENU_26-LINK"] = "Link";
+$MESS["LANDING_BLOCK_MENU_26-NAME"] = "Collapsed vertical menu";
+$MESS["LANDING_BLOCK_MENU_26-NAVBAR"] = "Menu";
+$MESS["LANDING_BLOCK_MENU_26-TEXT"] = "Text";
+?>

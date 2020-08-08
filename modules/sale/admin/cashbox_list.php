@@ -25,7 +25,7 @@ $context = $instance->getContext();
 $lang = $context->getLanguage();
 $request = $context->getRequest();
 
-$oSort = new CAdminSorting($tableId, "ID", "asc");
+$oSort = new CAdminUiSorting($tableId, "ID", "asc");
 $lAdmin = new CAdminUiList($tableId, $oSort);
 
 $filterFields = array(
@@ -84,6 +84,8 @@ if (($ids = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 					continue 2;
 				}
 
+				$service = Cashbox\Manager::getObjectById($id);
+
 				$result = Cashbox\Manager::delete($id);
 				if (!$result->isSuccess())
 				{
@@ -91,6 +93,10 @@ if (($ids = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 						$lAdmin->AddGroupError(join(', ', $result->getErrorMessages()), $id);
 					else
 						$lAdmin->AddGroupError(GetMessage("SPSAN_ERROR_DELETE"), $id);
+				}
+				else
+				{
+					AddEventToStatFile('sale', 'deleteCashbox', '', $service::getCode());
 				}
 
 				break;

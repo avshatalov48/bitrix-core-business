@@ -13,15 +13,15 @@
 				<span class="sonet-date-time"><?= $arGroup["FULL_DATE_CHANGE_FORMATED"] ?></span>
 				<a href="<?= $arGroup["GROUP_URL"] ?>"><?= $arGroup["NAME"] ?></a><br />
 
-				<?if ($arParams["DISPLAY_DESCRIPTION"] != "N" && StrLen($arGroup["DESCRIPTION"]) > 0):?>
+				<?if ($arParams["DISPLAY_DESCRIPTION"] != "N" && $arGroup["DESCRIPTION"] <> ''):?>
 					<?= $arGroup["DESCRIPTION"] ?><br />
 				<?endif;?>
 
-				<?if ($arParams["DISPLAY_NUMBER_OF_MEMBERS"] != "N" && IntVal($arGroup["NUMBER_OF_MEMBERS"]) > 0):?>
+				<?if ($arParams["DISPLAY_NUMBER_OF_MEMBERS"] != "N" && intval($arGroup["NUMBER_OF_MEMBERS"]) > 0):?>
 					<?= GetMessage("SONET_C68_T_MEMBERS") ?>: <?= $arGroup["NUMBER_OF_MEMBERS"] ?><br />
 				<?endif;?>
 
-				<?if ($arParams["DISPLAY_SUBJECT"] != "N" && StrLen($arGroup["SUBJECT_NAME"]) > 0):?>
+				<?if ($arParams["DISPLAY_SUBJECT"] != "N" && $arGroup["SUBJECT_NAME"] <> ''):?>
 					<?= GetMessage("SONET_C68_T_SUBJ") ?>: <?= $arGroup["SUBJECT_NAME"] ?><br />
 				<?endif;?>
 			</td>

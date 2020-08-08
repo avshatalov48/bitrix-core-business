@@ -1,8 +1,8 @@
-<?
+<?php
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 $arDescription = array(
-	"DISABLED" => IsModuleInstalled('intranet'),
+	"DISABLED" => !\Bitrix\Main\Analytics\SiteSpeed::isRussianSiteManager(),
 	"NAME" => GetMessage("GD_PERFMON_NAME"),
 	"DESCRIPTION" => GetMessage("GD_PERFMON_DESC"),
 	"ICON" => "",

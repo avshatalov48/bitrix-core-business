@@ -32,8 +32,8 @@ while($arRes = $res->Fetch())
 {
 	$name = '';
 	if ($arRes['SYS'])
-		$name = GetMessage(strtoupper($arRes['NAME']));
-	if (strlen($name) == 0)
+		$name = GetMessage(mb_strtoupper($arRes['NAME']));
+	if ($name == '')
 		$name = $arRes['NAME'];
 
 	$arPermTypes[$arRes['ID']] = Array(
@@ -100,7 +100,7 @@ if ($USER->CanDoOperation('edit_subordinate_users') && !$USER->CanDoOperation('e
 	$arSubordGroups = array_values(array_unique($arSubordGroups));
 }
 
-if($REQUEST_METHOD=="POST" && is_array($files) && count($files)>0 && strlen($saveperm)>0 && check_bitrix_sessid() && $USER->CanDoOperation('fileman_admin_folders'))
+if($REQUEST_METHOD=="POST" && is_array($files) && count($files)>0 && $saveperm <> '' && check_bitrix_sessid() && $USER->CanDoOperation('fileman_admin_folders'))
 {
 	$CUR_PERM = GetAccessArrTmp($path);
 	$arPermissions=Array();
@@ -169,7 +169,7 @@ if($REQUEST_METHOD=="POST" && is_array($files) && count($files)>0 && strlen($sav
 
 	if ($e = $APPLICATION->GetException())
 		$strNotice = $e->msg;
-	elseif(strlen($strWarning)<=0 && strlen($apply) <= 0)
+	elseif($strWarning == '' && $apply == '')
 		LocalRedirect("/bitrix/admin/fileman_admin.php?".$addUrl."&site=".$site."&path=".UrlEncode($path));
 }
 
@@ -178,7 +178,7 @@ foreach ($arParsedPath["AR_PATH"] as $chainLevel)
 	$adminChain->AddItem(
 		array(
 			"TEXT" => htmlspecialcharsex($chainLevel["TITLE"]),
-			"LINK" => ((strlen($chainLevel["LINK"]) > 0) ? $chainLevel["LINK"] : ""),
+			"LINK" => (($chainLevel["LINK"] <> '') ? $chainLevel["LINK"] : ""),
 		)
 	);
 }
@@ -200,7 +200,7 @@ $context->Show();
 ?>
 <?CAdminMessage::ShowMessage($strNotice);?>
 <?CAdminMessage::ShowMessage($strWarning);?>
-<?if(strlen($strWarning) <= 0):?>
+<?if($strWarning == ''):?>
 <script>
 function Conf(ob)
 {
@@ -217,7 +217,7 @@ function Conf(ob)
 <input type="hidden" name="lang" value="<?= LANG?>">
 <?=bitrix_sessid_post()?>
 <?for($i = 0; $i < $filesCount; $i++):?>
-	<?$ii = $arFiles[$i];if(strtoupper(LANG_CHARSET) != "UTF-8")$ii = $GLOBALS["APPLICATION"]->ConvertCharset($ii, LANG_CHARSET, "UTF-8");?>
+	<?$ii = $arFiles[$i];if(mb_strtoupper(LANG_CHARSET) != "UTF-8")$ii = $GLOBALS["APPLICATION"]->ConvertCharset($ii, LANG_CHARSET, "UTF-8");?>
 	<input type="hidden" name="files[]" value="<?= htmlspecialcharsbx($ii)?>">
 <?endfor?>
 
@@ -276,9 +276,9 @@ $tabControl->Begin();
 		else
 			$perm = $CUR_PERM[$arFiles[$i]]['*'];
 
-		if (substr($perm,0,2) == 'T_')
-			$taskIdGroupInh = intval(substr($perm,2));
-		elseif(strlen($perm) == 1)
+		if (mb_substr($perm, 0, 2) == 'T_')
+			$taskIdGroupInh = intval(mb_substr($perm, 2));
+		elseif(mb_strlen($perm) == 1)
 			$taskIdGroupInh = CTask::GetIdByLetter($perm,'main','file');
 		else
 			$taskIdGroupInh = 'NOT_REF';
@@ -328,9 +328,9 @@ $tabControl->Begin();
 
 			//echo "!".$perm."!";
 
-			if (substr($perm,0,2) == 'T_')
-				$taskId = intval(substr($perm,2));
-			elseif(strlen($perm) == 1)
+			if (mb_substr($perm, 0, 2) == 'T_')
+				$taskId = intval(mb_substr($perm, 2));
+			elseif(mb_strlen($perm) == 1)
 				$taskId = CTask::GetIdByLetter($perm, 'main','file');
 			else
 				$taskId = 'NOT_REF';

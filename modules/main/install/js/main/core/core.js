@@ -9220,6 +9220,9 @@
 	}
 
 	var objectCtorString = Function.prototype.toString.call(Object);
+	/**
+	 * @memberOf BX
+	 */
 
 	var Type =
 	/*#__PURE__*/
@@ -9585,6 +9588,10 @@
 	  return Type;
 	}();
 
+	/**
+	 * @memberOf BX
+	 */
+
 	var Reflection =
 	/*#__PURE__*/
 	function () {
@@ -9677,6 +9684,9 @@
 	  '&quot;': '"',
 	  '&#34;': '"'
 	};
+	/**
+	 * @memberOf BX
+	 */
 
 	var Text =
 	/*#__PURE__*/
@@ -10147,9 +10157,9 @@
 	 */
 	function loadExtension(extension) {
 	  var extensions = makeIterable(extension);
-	  var isAllInitialized$1 = isAllInitialized(extensions);
+	  var isAllInitialized$$1 = isAllInitialized(extensions);
 
-	  if (isAllInitialized$1) {
+	  if (isAllInitialized$$1) {
 	    var initializedExtensions = extensions.map(getInitialized);
 	    return loadExtensions(initializedExtensions).then(mergeExports);
 	  }
@@ -10290,6 +10300,10 @@
 	  };
 	}
 
+	/**
+	 * @memberOf BX
+	 */
+
 	var Runtime =
 	/*#__PURE__*/
 	function () {
@@ -10392,7 +10406,7 @@
 
 	  }, {
 	    key: "merge",
-	    value: function merge$1() {
+	    value: function merge$$1() {
 	      for (var _len3 = arguments.length, targets = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
 	        targets[_key3] = arguments[_key3];
 	      }
@@ -10424,6 +10438,10 @@
 	babelHelpers.defineProperty(Runtime, "clone", clone);
 
 	var _isError = Symbol.for('BX.BaseError.isError');
+	/**
+	 * @memberOf BX
+	 */
+
 
 	var BaseError =
 	/*#__PURE__*/
@@ -11981,6 +11999,9 @@
 
 	      exports.isReady = true;
 	      break;
+
+	    default:
+	      break;
 	  }
 	}
 	document.addEventListener('readystatechange', function () {
@@ -11989,6 +12010,10 @@
 	    stack = [];
 	  }
 	});
+
+	/**
+	 * @memberOf BX
+	 */
 
 	var Event = function Event() {
 	  babelHelpers.classCallCheck(this, Event);
@@ -12048,6 +12073,10 @@
 	    scrollLeft: scrollLeft
 	  };
 	}
+
+	/**
+	 * @memberOf BX
+	 */
 
 	var Dom =
 	/*#__PURE__*/
@@ -12626,6 +12655,9 @@
 	}();
 
 	var UA = navigator.userAgent.toLowerCase();
+	/**
+	 * @memberOf BX
+	 */
 
 	var Browser =
 	/*#__PURE__*/
@@ -13101,6 +13133,10 @@
 	  return Data;
 	}();
 
+	/**
+	 * @memberOf BX
+	 */
+
 	var Http = function Http() {
 	  babelHelpers.classCallCheck(this, Http);
 	};
@@ -13112,11 +13148,11 @@
 	  if (Type.isString(value)) {
 	    if (Type.isNil(message[value])) {
 	      // eslint-disable-next-line
-	      BX.onCustomEvent(window, 'onBXMessageNotFound', [value]);
+	      EventEmitter.emit('onBXMessageNotFound', new BaseEvent({
+	        compatData: [value]
+	      }));
 
 	      if (Type.isNil(message[value])) {
-	        // eslint-disable-next-line
-	        BX.onCustomEvent(window, 'onBXMessageNotFound', [value]);
 	        Runtime.debug("message undefined: ".concat(value));
 	        message[value] = '';
 	      }
@@ -13140,6 +13176,7 @@
 
 	/**
 	 * Implements interface for works with language messages
+	 * @memberOf BX
 	 */
 
 	var Loc =
@@ -13355,6 +13392,10 @@
 	    return acc;
 	  }, {});
 	}
+	/**
+	 * @memberOf BX
+	 */
+
 
 	var Tag =
 	/*#__PURE__*/
@@ -13610,6 +13651,7 @@
 	var map = new WeakMap();
 	/**
 	 * Implements interface for works with URI
+	 * @memberOf BX
 	 */
 
 	var Uri =
@@ -13889,6 +13931,9 @@
 	  return Uri;
 	}();
 
+	/**
+	 * @memberOf BX
+	 */
 	var Validation =
 	/*#__PURE__*/
 	function () {
@@ -14158,6 +14203,10 @@
 	  return LocalStorageCache;
 	}(BaseCache);
 
+	/**
+	 * @memberOf BX
+	 */
+
 	var Cache = function Cache() {
 	  babelHelpers.classCallCheck(this, Cache);
 	};
@@ -14190,6 +14239,10 @@
 	var getClass = Reflection.getClass,
 	    namespace = Reflection.namespace;
 	var message$1 = message;
+	/**
+	 * @memberOf BX
+	 */
+
 	var replace = Dom.replace,
 	    remove = Dom.remove,
 	    clean = Dom.clean,
@@ -14483,70 +14536,70 @@
 	  Object.assign(global.window.BX, exports);
 	}
 
-	exports.BaseError = BaseError;
-	exports.Browser = Browser;
-	exports.Cache = Cache;
-	exports.Dom = Dom;
-	exports.Event = Event;
-	exports.GetContext = GetContext;
-	exports.GetWindowInnerSize = GetWindowInnerSize;
-	exports.GetWindowScrollPos = GetWindowScrollPos;
-	exports.GetWindowScrollSize = GetWindowScrollSize;
-	exports.GetWindowSize = GetWindowSize;
-	exports.Http = Http;
-	exports.Loc = Loc;
-	exports.Reflection = Reflection;
-	exports.Runtime = Runtime;
-	exports.Tag = Tag;
-	exports.Text = Text;
 	exports.Type = Type;
+	exports.Reflection = Reflection;
+	exports.Text = Text;
+	exports.Dom = Dom;
+	exports.Browser = Browser;
+	exports.Event = Event;
+	exports.Http = Http;
+	exports.Runtime = Runtime;
+	exports.Loc = Loc;
+	exports.Tag = Tag;
 	exports.Uri = Uri;
 	exports.Validation = Validation;
-	exports.addClass = addClass;
-	exports.addCustomEvent = addCustomEvent;
-	exports.adjust = adjust;
-	exports.ajax = ajax;
-	exports.append = append;
-	exports.bind = bind$1;
-	exports.bindOnce = bindOnce$1;
-	exports.browser = browser;
-	exports.clean = clean;
-	exports.cleanNode = cleanNode;
-	exports.clone = clone$1;
-	exports.create = create;
-	exports.debounce = debounce;
-	exports.debug = debug$1;
-	exports.debugEnable = debugEnable;
-	exports.debugEnableFlag = debugEnableFlag;
-	exports.debugStatus = debugStatus;
+	exports.Cache = Cache;
+	exports.BaseError = BaseError;
 	exports.getClass = getClass;
-	exports.getCookie = getCookie;
-	exports.hasClass = hasClass;
-	exports.html = html;
-	exports.insertAfter = insertAfter;
-	exports.insertBefore = insertBefore;
-	exports.isShown = isShown;
-	exports.loadExt = loadExt;
-	exports.message = message$1;
 	exports.namespace = namespace;
-	exports.onCustomEvent = onCustomEvent;
-	exports.pos = pos;
-	exports.prepend = prepend;
-	exports.ready = ready$1;
-	exports.remove = remove;
-	exports.removeAllCustomEvents = removeAllCustomEvents;
-	exports.removeClass = removeClass;
-	exports.removeCustomEvent = removeCustomEvent;
+	exports.message = message$1;
 	exports.replace = replace;
-	exports.setCookie = setCookie;
+	exports.remove = remove;
+	exports.clean = clean;
+	exports.insertBefore = insertBefore;
+	exports.insertAfter = insertAfter;
+	exports.append = append;
+	exports.prepend = prepend;
 	exports.style = style;
-	exports.throttle = throttle;
+	exports.adjust = adjust;
+	exports.create = create;
+	exports.isShown = isShown;
+	exports.addClass = addClass;
+	exports.removeClass = removeClass;
+	exports.hasClass = hasClass;
 	exports.toggleClass = toggleClass;
-	exports.type = type;
+	exports.cleanNode = cleanNode;
+	exports.getCookie = getCookie;
+	exports.setCookie = setCookie;
+	exports.bind = bind$1;
 	exports.unbind = unbind$1;
 	exports.unbindAll = unbindAll$1;
+	exports.bindOnce = bindOnce$1;
+	exports.ready = ready$1;
+	exports.debugEnableFlag = debugEnableFlag;
+	exports.debugStatus = debugStatus;
+	exports.debug = debug$1;
+	exports.debugEnable = debugEnable;
+	exports.clone = clone$1;
+	exports.loadExt = loadExt;
+	exports.debounce = debounce;
+	exports.throttle = throttle;
+	exports.html = html;
+	exports.type = type;
+	exports.browser = browser;
+	exports.ajax = ajax;
+	exports.GetWindowScrollSize = GetWindowScrollSize;
+	exports.GetWindowScrollPos = GetWindowScrollPos;
+	exports.GetWindowInnerSize = GetWindowInnerSize;
+	exports.GetWindowSize = GetWindowSize;
+	exports.GetContext = GetContext;
+	exports.pos = pos;
+	exports.addCustomEvent = addCustomEvent;
+	exports.onCustomEvent = onCustomEvent;
+	exports.removeCustomEvent = removeCustomEvent;
+	exports.removeAllCustomEvents = removeAllCustomEvents;
 
-}(this.BX = this.BX || {}));
+}((this.BX = this.BX || {})));
 
 
 
@@ -17361,7 +17414,7 @@
 		}
 	}
 
-	BX.reload = function(back_url, bAddClearCache)
+	function reloadInternal(back_url, bAddClearCache)
 	{
 		if (back_url === true)
 		{
@@ -17369,7 +17422,8 @@
 			back_url = null;
 		}
 
-		var new_href = back_url || top.location.href;
+		var topWindow = BX.PageObject.getRootWindow();
+		var new_href = back_url || topWindow.location.href;
 
 		var hashpos = new_href.indexOf('#'), hash = '';
 
@@ -17392,7 +17446,23 @@
 			new_href += (new_href.indexOf('?') == -1 ? '?' : '&') + '_r='+Math.round(Math.random()*10000) + hash;
 		}
 
-		top.location.href = new_href;
+		topWindow.location.href = new_href;
+	}
+
+	BX.reload = function(back_url, bAddClearCache)
+	{
+		if (window !== window.top)
+		{
+			BX.Runtime
+				.loadExtension('main.pageobject')
+				.then(function() {
+					reloadInternal(back_url, bAddClearCache);
+				});
+		}
+		else
+		{
+			reloadInternal(back_url, bAddClearCache);
+		}
 	};
 
 	BX.clearCache = function()
@@ -18900,9 +18970,16 @@ BX.ajax = function(config)
 	if (!config.cache && config.method == 'GET')
 		config.url = BX.ajax._uncache(config.url);
 
-	if (config.method == 'POST' && config.preparePost)
+	if (config.method == 'POST')
 	{
-		config.data = BX.ajax.prepareData(config.data);
+		if (config.preparePost)
+		{
+			config.data = BX.ajax.prepareData(config.data);
+		}
+		else if (getLastContentTypeHeader(config.headers) === 'application/json')
+		{
+			config.data = JSON.stringify(config.data);
+		}
 	}
 
 	var bXHR = true;
@@ -19591,6 +19668,19 @@ BX.ajax.loadJSON = function(url, data, callback, callback_failure)
 	});
 };
 
+var getLastContentTypeHeader = function (headers) {
+	if (!BX.Type.isArray(headers))
+	{
+		return null;
+	}
+	var lastHeader = headers
+		.filter(function (header) {
+			return header.name === 'Content-Type';
+		})
+		.pop();
+
+	return lastHeader ? lastHeader.value : null;
+};
 
 var prepareAjaxGetParameters = function(config)
 {
@@ -19634,7 +19724,25 @@ var prepareAjaxConfig = function(config)
 {
 	config = BX.type.isPlainObject(config) ? config : {};
 
-	if (config.data instanceof FormData)
+	if (typeof config.json !== 'undefined')
+	{
+		if (!BX.type.isPlainObject(config.json))
+		{
+			throw new Error('Wrong `config.json`, plain object expected.')
+		}
+
+		config.headers = config.headers || [];
+		config.headers.push({name: 'Content-Type', value: 'application/json'});
+		config.headers.push({name: 'X-Bitrix-Csrf-Token', value: BX.bitrix_sessid()});
+		if (BX.message.SITE_ID)
+		{
+			config.headers.push({name: 'X-Bitrix-Site-Id', value: BX.message.SITE_ID});
+		}
+
+		config.data = config.json;
+		config.preparePost = false;
+	}
+	else if (config.data instanceof FormData)
 	{
 		config.preparePost = false;
 
@@ -19809,7 +19917,6 @@ BX.ajax.runAction = function(action, config)
 	getParameters.action = action;
 
 	var url = '/bitrix/services/main/ajax.php?' + BX.ajax.prepareData(getParameters);
-
 	return buildAjaxPromiseToRestoreCsrf({
 		method: config.method,
 		dataType: 'json',
@@ -20738,11 +20845,12 @@ BX.addCustomEvent('onAjaxFailure', BX.debug);
 
 
 
-(function (exports) {
+(function (exports,main_core) {
 	'use strict';
 
 	var LazyLoad = {
-	  images: [],
+	  observer: null,
+	  images: {},
 	  imageStatus: {
 	    hidden: -2,
 	    error: -1,
@@ -20754,35 +20862,103 @@ BX.addCustomEvent('onAjaxFailure', BX.debug);
 	    image: 1,
 	    background: 2
 	  },
+	  initObserver: function initObserver() {
+	    this.observer = new IntersectionObserver(this.onIntersection.bind(this), {
+	      rootMargin: '20% 0% 20% 0%',
+	      threshold: 0.10
+	    });
+	  },
+	  onIntersection: function onIntersection(entries) {
+	    entries.forEach(function (entry) {
+	      if (entry.isIntersecting) {
+	        this.showImage(entry.target);
+	      }
+	    }.bind(this));
+	  },
 	  registerImage: function registerImage(id, isImageVisibleCallback, options) {
+	    if (this.observer === null) {
+	      this.initObserver();
+	    }
+
 	    options = options || {};
 
-	    if (BX.type.isNotEmptyString(id)) {
-	      this.images.push({
-	        id: id,
-	        node: null,
-	        src: null,
-	        dataSrcName: options.dataSrcName || 'src',
-	        type: null,
-	        func: BX.type.isFunction(isImageVisibleCallback) ? isImageVisibleCallback : null,
-	        status: this.imageStatus.undefined
-	      });
+	    if (!main_core.Type.isStringFilled(id)) {
+	      return;
 	    }
+
+	    if (main_core.Type.isObject(this.images[id])) {
+	      return;
+	    }
+
+	    var element = document.getElementById(id);
+
+	    if (!main_core.Type.isDomNode(element)) {
+	      return;
+	    }
+
+	    this.observer.observe(element);
+	    this.images[id] = {
+	      id: id,
+	      node: null,
+	      src: null,
+	      dataSrcName: options.dataSrcName || 'src',
+	      type: null,
+	      func: main_core.Type.isFunction(isImageVisibleCallback) ? isImageVisibleCallback : null,
+	      status: this.imageStatus.undefined
+	    };
 	  },
 	  registerImages: function registerImages(ids, isImageVisibleCallback, options) {
-	    if (BX.type.isArray(ids)) {
+	    if (main_core.Type.isArray(ids)) {
 	      for (var i = 0, length = ids.length; i < length; i++) {
 	        this.registerImage(ids[i], isImageVisibleCallback, options);
 	      }
 	    }
 	  },
+	  showImage: function showImage(imageNode) {
+	    var imageNodeId = imageNode.id;
+
+	    if (!main_core.Type.isStringFilled(imageNodeId)) {
+	      return;
+	    }
+
+	    var image = this.images[imageNodeId];
+
+	    if (!main_core.Type.isPlainObject(image)) {
+	      return;
+	    }
+
+	    if (image.status == this.imageStatus.undefined) {
+	      this.initImage(image);
+	    }
+
+	    if (image.status !== this.imageStatus.inited) {
+	      return;
+	    }
+
+	    if (!image.node || !image.node.parentNode) {
+	      image.node = null;
+	      image.status = this.imageStatus.error;
+	      return;
+	    }
+
+	    if (image.type == this.imageTypes.image) {
+	      image.node.src = image.src;
+	    } else {
+	      image.node.style.backgroundImage = "url('" + image.src + "')";
+	    }
+
+	    image.node.dataset[image.dataSrcName] = "";
+	    image.status = this.imageStatus.loaded;
+	  },
 	  showImages: function showImages(checkOwnVisibility) {
-	    var image = null;
-	    var isImageVisible = false;
 	    checkOwnVisibility = checkOwnVisibility !== false;
 
-	    for (var i = 0, length = this.images.length; i < length; i++) {
-	      image = this.images[i];
+	    for (var id in this.images) {
+	      if (!this.images.hasOwnProperty(id)) {
+	        continue;
+	      }
+
+	      var image = this.images[id];
 
 	      if (image.status == this.imageStatus.undefined) {
 	        this.initImage(image);
@@ -20798,9 +20974,9 @@ BX.addCustomEvent('onAjaxFailure', BX.debug);
 	        continue;
 	      }
 
-	      isImageVisible = true;
+	      var isImageVisible = true;
 
-	      if (checkOwnVisibility && image.func) {
+	      if (checkOwnVisibility && main_core.Type.isFunction(image.func)) {
 	        isImageVisible = image.func(image);
 	      }
 
@@ -20818,17 +20994,19 @@ BX.addCustomEvent('onAjaxFailure', BX.debug);
 	  },
 	  initImage: function initImage(image) {
 	    image.status = this.imageStatus.error;
-	    var node = BX(image.id);
+	    var node = document.getElementById(image.id);
 
-	    if (node) {
-	      var src = node.dataset[image.dataSrcName];
+	    if (!main_core.Type.isDomNode(node)) {
+	      return;
+	    }
 
-	      if (BX.type.isNotEmptyString(src)) {
-	        image.node = node;
-	        image.src = src;
-	        image.status = this.imageStatus.inited;
-	        image.type = image.node.tagName.toLowerCase() == "img" ? this.imageTypes.image : this.imageTypes.background;
-	      }
+	    var src = node.dataset[image.dataSrcName];
+
+	    if (main_core.Type.isStringFilled(src)) {
+	      image.node = node;
+	      image.src = src;
+	      image.status = this.imageStatus.inited;
+	      image.type = image.node.tagName.toLowerCase() == "img" ? this.imageTypes.image : this.imageTypes.background;
 	    }
 	  },
 	  isElementVisibleOnScreen: function isElementVisibleOnScreen(element) {
@@ -20836,21 +21014,21 @@ BX.addCustomEvent('onAjaxFailure', BX.debug);
 	    var windowTop = window.pageYOffset || document.documentElement.scrollTop;
 	    var windowBottom = windowTop + document.documentElement.clientHeight;
 	    coords.bottom = coords.top + element.offsetHeight;
-	    var topVisible = coords.top > windowTop && coords.top < windowBottom;
-	    var bottomVisible = coords.bottom < windowBottom && coords.bottom > windowTop;
-	    return topVisible || bottomVisible;
+	    return coords.top > windowTop && coords.top < windowBottom || // topVisible
+	    coords.bottom < windowBottom && coords.bottom > windowTop // bottomVisible
+	    ;
 	  },
 	  isElementVisibleOn2Screens: function isElementVisibleOn2Screens(element) {
-	    var coords = this.getElementCoords(element);
 	    var windowHeight = document.documentElement.clientHeight;
 	    var windowTop = window.pageYOffset || document.documentElement.scrollTop;
 	    var windowBottom = windowTop + windowHeight;
+	    var coords = this.getElementCoords(element);
 	    coords.bottom = coords.top + element.offsetHeight;
 	    windowTop -= windowHeight;
 	    windowBottom += windowHeight;
-	    var topVisible = coords.top > windowTop && coords.top < windowBottom;
-	    var bottomVisible = coords.bottom < windowBottom && coords.bottom > windowTop;
-	    return topVisible || bottomVisible;
+	    return coords.top > windowTop && coords.top < windowBottom || // topVisible
+	    coords.bottom < windowBottom && coords.bottom > windowTop // bottomVisible
+	    ;
 	  },
 	  getElementCoords: function getElementCoords(element) {
 	    var box = element.getBoundingClientRect();
@@ -20861,9 +21039,7 @@ BX.addCustomEvent('onAjaxFailure', BX.debug);
 	      left: box.left + window.pageXOffset
 	    };
 	  },
-	  onScroll: function onScroll() {
-	    BX.LazyLoad.showImages();
-	  },
+	  onScroll: function onScroll() {},
 	  clearImages: function clearImages() {
 	    this.images = [];
 	  }
@@ -20871,7 +21047,7 @@ BX.addCustomEvent('onAjaxFailure', BX.debug);
 
 	exports.LazyLoad = LazyLoad;
 
-}((this.BX = this.BX || {})));
+}((this.BX = this.BX || {}),BX));
 
 
 

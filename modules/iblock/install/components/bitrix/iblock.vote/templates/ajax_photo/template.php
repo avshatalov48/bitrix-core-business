@@ -22,12 +22,12 @@ if (!function_exists("__vote_template_default_votes_ending"))
 	function __vote_template_default_votes_ending($count)
 	{
 		$text = GetMessage("T_VOTES");
-		$count = intVal($count);
-		$iCount = intVal($count%100);
+		$count = intval($count);
+		$iCount = intval($count%100);
 
 		if (!(10 < $iCount && $iCount < 20))
 		{
-			$count = intVal($count % 10);
+			$count = intval($count % 10);
 			if ($count == 1)
 				$text = GetMessage("T_VOTE");
 			elseif ($count > 1 && $count < 5)

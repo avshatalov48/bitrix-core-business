@@ -107,7 +107,7 @@ if(($arParams["ID"] > 0) && (intval($arVariables["SECTION_ID"]) <= 0) && CModule
 		"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 	);
 	$rsElements = CIBlockElement::GetList(array(), $arFilter, false, false, $arSelect);
-	if(($arParams["IS_SEF"] === "Y") && (strlen($arParams["DETAIL_PAGE_URL"]) > 0))
+	if(($arParams["IS_SEF"] === "Y") && ($arParams["DETAIL_PAGE_URL"] <> ''))
 		$rsElements->SetUrlTemplates($arParams["SEF_BASE_URL"].$arParams["DETAIL_PAGE_URL"]);
 	while($arElement = $rsElements->GetNext())
 	{

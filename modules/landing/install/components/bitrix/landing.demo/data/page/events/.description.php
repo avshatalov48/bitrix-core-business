@@ -13,7 +13,7 @@ return array(
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(
 			'THEME_CODE' => 'events',
-			'THEME_CODE_TYPO' => 'events',
+
 			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/events/preview.jpg',
 			'METAOG_TITLE' => Loc::getMessage('LANDING_DEMO_EVENTS_TITLE'),
 			'METAOG_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_EVENTS_DESCRIPTION'),
@@ -26,7 +26,7 @@ return array(
 			array (
 				'CODE' => '0.menu_11_event',
 				'SORT' => '-100',
-				'CONTENT' => '<header class="landing-block landing-block u-header landing-ui-pattern-transparent u-header--floating g-z-index-9999">
+				'CONTENT' => '<header class="landing-block landing-block u-header u-header--sticky u-header--float g-z-index-9999">
 	<div class="u-header__section g-bg-darkblue-opacity-0_7 g-transition-0_3 g-py-10" data-header-fix-moment-exclude="g-bg-darkblue-opacity-0_7" data-header-fix-moment-classes="u-header__section--light g-bg-white-opacity-0_9">
 		<nav class="navbar navbar-expand-lg g-py-0 g-px-10">
 			<div class="container">
@@ -183,7 +183,7 @@ return array(
 							<div class="u-heading-v1-4 g-brd-gray-light-v2 w-100 g-mb-20 g-mb-0--sm">
 								<div class="landing-block-node-card-time text-center g-pos-rel g-width-110 g-line-height-1_6 g-font-weight-600 g-color-white g-font-size-14 g-bg-gray-dark-v1 g-bg-primary--parent-hover g-py-5 g-px-10 mx-auto g-ml-0--md g-transition-0_2 g-transition--ease-in">15:30 - 17:30</div>
 							</div>
-							<div class="landing-block-node-card-img-container d-md-flex px-0 u-bg-overlay g-width-120 g-width-170--md g-height-120 g-height-170--md g-bg-black-opacity-0_3--after g-bg-white-opacity-0--after--parent-hover g-overflow-hidden g-rounded-50x g-mr-30--md mx-auto g-mb-15 g-mb-0--md g-transition-0_2 g-transition--ease-in col-auto">
+							<div class="landing-block-node-card-img-container d-md-flex px-0 u-bg-overlay g-width-120 g-width-170--md g-height-120 g-height-170--md g-bg-black-opacity-0_3--after g-bg-white-opacity-0--after--parent-hover g-overflow-hidden g-rounded-50x g-mr-30--md mx-auto g-mb-15 g-mb-0--md g-transition-0_2 g-transition--ease-in col-auto g-pointer-events-before-after-none">
 									<img class="landing-block-node-card-img img-fluid g-rounded-50x" src="https://cdn.bitrix24.site/bitrix/images/landing/business/200x200/img1.jpg" alt="" />
 								</div>
 						</div>
@@ -221,7 +221,7 @@ return array(
 							<div class="u-heading-v1-4 g-brd-gray-light-v2 w-100 g-mb-20 g-mb-0--sm">
 								<div class="landing-block-node-card-time text-center g-pos-rel g-width-110 g-line-height-1_6 g-font-weight-600 g-color-white g-font-size-14 g-bg-gray-dark-v1 g-bg-primary--parent-hover g-py-5 g-px-10 mx-auto g-ml-0--md g-transition-0_2 g-transition--ease-in">17:45 - 18:45</div>
 							</div>
-							<div class="landing-block-node-card-img-container d-md-flex px-0 u-bg-overlay g-width-120 g-width-170--md g-height-120 g-height-170--md g-bg-black-opacity-0_3--after g-bg-white-opacity-0--after--parent-hover g-overflow-hidden g-rounded-50x g-mr-30--md mx-auto g-mb-15 g-mb-0--md g-transition-0_2 g-transition--ease-in col-auto">
+							<div class="landing-block-node-card-img-container d-md-flex px-0 u-bg-overlay g-width-120 g-width-170--md g-height-120 g-height-170--md g-bg-black-opacity-0_3--after g-bg-white-opacity-0--after--parent-hover g-overflow-hidden g-rounded-50x g-mr-30--md mx-auto g-mb-15 g-mb-0--md g-transition-0_2 g-transition--ease-in col-auto g-pointer-events-before-after-none">
 									<img class="landing-block-node-card-img img-fluid g-rounded-50x" src="https://cdn.bitrix24.site/bitrix/images/landing/business/200x200/img2.jpg" alt="" />
 								</div>
 						</div>
@@ -260,7 +260,7 @@ return array(
 							<div class="u-heading-v1-4 g-brd-gray-light-v2 w-100 g-mb-20 g-mb-0--sm">
 								<div class="landing-block-node-card-time text-center g-pos-rel g-width-110 g-line-height-1_6 g-font-weight-600 g-color-white g-font-size-14 g-bg-gray-dark-v1 g-bg-primary--parent-hover g-py-5 g-px-10 mx-auto g-ml-0--md g-transition-0_2 g-transition--ease-in">19:00 - 21:00</div>
 							</div>
-							<div class="landing-block-node-card-img-container d-md-flex px-0 u-bg-overlay g-width-120 g-width-170--md g-height-120 g-height-170--md g-bg-black-opacity-0_3--after g-bg-white-opacity-0--after--parent-hover g-overflow-hidden g-rounded-50x g-mr-30--md mx-auto g-mb-15 g-mb-0--md g-transition-0_2 g-transition--ease-in col-auto">
+							<div class="landing-block-node-card-img-container d-md-flex px-0 u-bg-overlay g-width-120 g-width-170--md g-height-120 g-height-170--md g-bg-black-opacity-0_3--after g-bg-white-opacity-0--after--parent-hover g-overflow-hidden g-rounded-50x g-mr-30--md mx-auto g-mb-15 g-mb-0--md g-transition-0_2 g-transition--ease-in col-auto g-pointer-events-before-after-none">
 									<img class="landing-block-node-card-img img-fluid g-rounded-50x" src="https://cdn.bitrix24.site/bitrix/images/landing/business/200x200/img3.jpg" alt="" />
 								</div>
 						</div>
@@ -299,7 +299,7 @@ return array(
 							<div class="u-heading-v1-4 g-brd-gray-light-v2 w-100 g-mb-20 g-mb-0--sm">
 								<div class="landing-block-node-card-time text-center g-pos-rel g-width-110 g-line-height-1_6 g-font-weight-600 g-color-white g-font-size-14 g-bg-gray-dark-v1 g-bg-primary--parent-hover g-py-5 g-px-10 mx-auto g-ml-0--md g-transition-0_2 g-transition--ease-in">21:15 - 22:00</div>
 							</div>
-							<div class="landing-block-node-card-img-container d-md-flex px-0 u-bg-overlay g-width-120 g-width-170--md g-height-120 g-height-170--md g-bg-black-opacity-0_3--after g-bg-white-opacity-0--after--parent-hover g-overflow-hidden g-rounded-50x g-mr-30--md mx-auto g-mb-15 g-mb-0--md g-transition-0_2 g-transition--ease-in col-auto">
+							<div class="landing-block-node-card-img-container d-md-flex px-0 u-bg-overlay g-width-120 g-width-170--md g-height-120 g-height-170--md g-bg-black-opacity-0_3--after g-bg-white-opacity-0--after--parent-hover g-overflow-hidden g-rounded-50x g-mr-30--md mx-auto g-mb-15 g-mb-0--md g-transition-0_2 g-transition--ease-in col-auto g-pointer-events-before-after-none">
 									<img class="landing-block-node-card-img img-fluid g-rounded-50x" src="https://cdn.bitrix24.site/bitrix/images/landing/business/200x200/img4.jpg" alt="" />
 								</div>
 						</div>

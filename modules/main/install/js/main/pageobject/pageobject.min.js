@@ -1,0 +1,2 @@
+window.BX=BX||{};BX.PageObject={getRootWindow:function(){return BX.PageObject.getTopWindowOfCurrentHost(window)},isCrossOriginObject:function(t){try{void t.location.host}catch(t){return true}return false},getTopWindowOfCurrentHost:function(t){if(!BX.PageObject.isCrossOriginObject(t.parent)&&t.parent!==t&&t.parent.location.host===t.location.host){return BX.PageObject.getTopWindowOfCurrentHost(t.parent)}return t},getParentWindowOfCurrentHost:function(t){if(BX.PageObject.isCrossOriginObject(t.parent)){return t}return t.parent}};
+//# sourceMappingURL=pageobject.map.js

@@ -36,7 +36,7 @@ $arLoadParams = array(
 
 $arLoadResult = saleLocationLoadFile($arLoadParams);
 
-if (strlen($arLoadResult['ERROR']) > 0)
+if ($arLoadResult['ERROR'] <> '')
 {
 	echo $arLoadResult['ERROR'];
 
@@ -50,7 +50,7 @@ elseif (isset($arLoadResult['COMPLETE']) && $arLoadResult['COMPLETE'] === true)
 }
 elseif ($arLoadResult['STEP'] !== false)
 {
-	if(strlen($arLoadResult['MESSAGE']) > 0)
+	if($arLoadResult['MESSAGE'] <> '')
 		echo $arLoadResult['MESSAGE'];
 
 	echo '<script>Run('.$arLoadResult['STEP'].')</script>';

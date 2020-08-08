@@ -126,6 +126,15 @@ class CMailUfMessageComponent extends CBitrixComponent
 			$message['__thread_new'] = (int) $newCount['NEW_COUNT'];
 		}
 
+		if (empty($message['BODY']) && !empty($message['BODY_HTML']))
+		{
+			$message['BODY'] = html_entity_decode(
+				htmlToTxt($message['BODY_HTML']),
+				ENT_QUOTES | ENT_HTML401,
+				LANG_CHARSET
+			);
+		}
+
 		$this->arResult['MESSAGE'] = $message;
 
 		$this->includeComponentTemplate();

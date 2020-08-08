@@ -349,7 +349,7 @@ BX.CCalendarPlannerEventPopup = function(params)
 		}
 	});
 
-	BX.addCustomEvent(this.parent, 'onEventWndShow', BX.delegate(this.onEventWndShow, this))
+	BX.addCustomEvent(this, 'onEventWndShow', this.onEventWndShow.bind(this));
 
 	this.bSkipShow = false;
 	this.isReady = false;

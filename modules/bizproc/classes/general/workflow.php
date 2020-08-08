@@ -66,7 +66,7 @@ class CBPWorkflow
 	*/
 	public function __construct($instanceId, CBPRuntime $runtime)
 	{
-		if (strlen($instanceId) <= 0)
+		if ($instanceId == '')
 			throw new Exception("instanceId");
 		if (!$runtime)
 			throw new Exception("runtime");
@@ -306,7 +306,7 @@ class CBPWorkflow
 	*/
 	public function GetActivityByName($activityName)
 	{
-		if (strlen($activityName) <= 0)
+		if ($activityName == '')
 			throw new Exception("activityName");
 
 		$activity = null;
@@ -468,7 +468,7 @@ class CBPWorkflow
 					//analyse robots - Temporary, it is prototype
 					if ($trackingService->isForcedMode($this->GetInstanceId()))
 					{
-						$activityType = substr(get_class($activity), 3);
+						$activityType = mb_substr(get_class($activity), 3);
 						if (!in_array($activityType, [
 							'SequentialWorkflowActivity',
 							'ParallelActivity',
@@ -548,7 +548,7 @@ class CBPWorkflow
 	{
 		/** @var CBPTaskService $taskService */
 		$taskService = $this->GetService("TaskService");
-		$taskService->DeleteAllWorkflowTasks($this->GetInstanceId());
+		$taskService->DeleteByWorkflow($this->GetInstanceId(), \CBPTaskStatus::Running);
 
 		$this->SetWorkflowStatus(CBPWorkflowStatus::Terminated);
 

@@ -18,6 +18,8 @@ class CAdminPage
 	var $bInit = false;
 	var $publicMode = false;
 
+	private $isHideTitle = false;
+
 	public function __construct()
 	{
 		if (defined("PUBLIC_MODE") && PUBLIC_MODE == 1)
@@ -53,6 +55,16 @@ class CAdminPage
 	{
 		global $APPLICATION;
 		return htmlspecialcharsex($APPLICATION->GetTitle(false, true));
+	}
+
+	public function isHideTitle()
+	{
+		return $this->isHideTitle;
+	}
+
+	public function hideTitle()
+	{
+		$this->isHideTitle = true;
 	}
 
 	function GetJsTitle()

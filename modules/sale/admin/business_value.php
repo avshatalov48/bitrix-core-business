@@ -7,7 +7,6 @@ if ($readOnly)
 	$APPLICATION->AuthForm(GetMessage('ACCESS_DENIED'));
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/sale/prolog.php');
-require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/sale/include.php');
 
 use	Bitrix\Sale\BusinessValue;
 use	Bitrix\Sale\Helpers\Admin\BusinessValueControl;
@@ -15,6 +14,9 @@ use Bitrix\Sale\Internals\BusinessValueTable;
 use Bitrix\Sale\Internals\BusinessValuePersonDomainTable;
 use	Bitrix\Sale\Internals\Input;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Loader;
+
+Loader::includeModule('sale');
 
 Loc::loadMessages(__FILE__);
 
@@ -71,7 +73,7 @@ foreach ($consumerInput["OPTIONS"] as $key => $value)
 }
 
 $sTableID = "tbl_sale_business_value";
-$oSort = new CAdminSorting($sTableID, "ID", "asc");
+$oSort = new CAdminUiSorting($sTableID, "ID", "asc");
 $lAdmin = new CAdminUiList($sTableID, $oSort);
 
 $filterFields = array(

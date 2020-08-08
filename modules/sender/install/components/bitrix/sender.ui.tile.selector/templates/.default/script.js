@@ -762,18 +762,25 @@
 			return;
 		}
 
-		this.popup = BX.PopupWindowManager.create(
+		this.popup = BX.Main.PopupManager.create(
 			this.id,
 			this.context,
 			{
 				width: 620,
-				height: 225,
+				height: 300,
 				autoHide: true,
 				lightShadow: true,
 				closeByEsc: true,
-				closeIcon: true,
+				closeIcon: false,
 				offsetLeft: 40,
-				angle: true
+				angle: true,
+				buttons: [
+					new BX.UI.CloseButton({
+						onclick: function() {
+							this.popup.close();
+						}.bind(this),
+					})
+				]
 			}
 		);
 

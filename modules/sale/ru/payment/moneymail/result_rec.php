@@ -2,10 +2,10 @@
 // Файл принимает параметры, переданные методом GET и только в режиме PAYMENT
 if($mode == "PAYMENT")
 {
-	if(IntVal($issuer_id)>0)
+	if(intval($issuer_id)>0)
 	{
 		$bCorrectPayment = True;
-		if (!($arOrder = CSaleOrder::GetByID(IntVal($issuer_id))))
+		if (!($arOrder = CSaleOrder::GetByID(intval($issuer_id))))
 			$bCorrectPayment = False;
 
 		if ($bCorrectPayment)
@@ -13,7 +13,7 @@ if($mode == "PAYMENT")
 
 		$PASS = CSalePaySystemAction::GetParamValue("PASS");
 
-		if(strlen($PASS) <= 0)
+		if($PASS == '')
 			$bCorrectPayment = False;
 		else
 			$strCheck = md5($PASS."PAYMENT".$invoice.$issuer_id.$payment_id.$payer.$currency.$value.$date.$confirmed);
@@ -30,7 +30,7 @@ if($mode == "PAYMENT")
 			$strPS_STATUS_DESCRIPTION .= "код подтверждения платежа - ".$confirmed."";
 
 			$strPS_STATUS_MESSAGE = "";
-			if (isset($payer) && strlen($payer)>0)
+			if (isset($payer) && $payer <> '')
 				$strPS_STATUS_MESSAGE .= "e-mail покупателя - ".$payer."; ";
 
 			$arFields = array(
@@ -46,7 +46,7 @@ if($mode == "PAYMENT")
 
 			// You can comment this code if you want PAYED flag not to be set automatically
 			if ($arOrder["PRICE"] == $value 
-				&& IntVal($confirmed) == 1)
+				&& intval($confirmed) == 1)
 			{
 				CSaleOrder::PayOrder($arOrder["ID"], "Y");
 			}

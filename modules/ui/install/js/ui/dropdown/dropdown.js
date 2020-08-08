@@ -38,23 +38,41 @@
 		this.isEmbedded = BX.prop.getBoolean(BX.prop.getObject(options, "context", {}), "isEmbedded", false);
 		this.quickForm = document.querySelectorAll('.crm-kanban-quick-form');
 
+		this.ajaxRequestTimer = null;
+		this.autocompleteDelay = BX.prop.getInteger(options, "autocompleteDelay", 0);
+		this.minSearchStringLength = BX.prop.getInteger(options, "minSearchStringLength", 2);
+
 		this.documentClickHandler = BX.delegate(this.onDocumentClick, this);
 
 		this.emptyValueEventHandle = 0;
 
 		this.events = options.events || {};
+		this.bindEvents();
+
 		this.updateItemsList(options.items);
 		this.setDefaultItems(options.items);
 		this.setFooterItems(options.footerItems);
-		// this.init();
 
-		if (this.targetElement !== 'undefined')
+		if (this.targetElement !== 'undefined' && (typeof this.targetElement !== 'undefined'))
 		{
 			this.init();
 		}
 	};
 	BX.UI.Dropdown.prototype =
 		{
+			bindEvents: function()
+			{
+				if (this.events)
+				{
+					for (var eventName in this.events)
+					{
+						if (BX.type.isFunction(this.events[eventName]))
+						{
+							BX.addCustomEvent(this, "BX.UI.Dropdown:" + eventName, this.events[eventName]);
+						}
+					}
+				}
+			},
 			init: function ()
 			{
 				setTimeout(function() {
@@ -153,7 +171,7 @@
 						1000
 					)
 				);
-				
+
 				this.targetElement.addEventListener("keyup", function(e)
 				{
                     if (this.isDisabled)
@@ -250,7 +268,6 @@
 						this.getPopupWindow().show();
 						return;
 					}
-
 					if (e.keyCode === 9 && this.targetElement.value === '' && !this.popupWindow)
 					{
 						this.getPopupWindow().show();
@@ -262,23 +279,10 @@
 						this.destroyPopupWindow();
 					}
 				}.bind(this));
-
-				if (this.events)
-				{
-					for (var eventName in this.events)
-					{
-						if (BX.type.isFunction(this.events[eventName]))
-						{
-							BX.addCustomEvent(this, "BX.UI.Dropdown:" + eventName, this.events[eventName]);
-						}
-					}
-				}
 			},
 			onDocumentClick: function()
 			{
-				if((this.CurrentItem && this.CurrentItem.title.length !== this.targetElement.value.length)
-					|| (!this.CurrentItem && this.targetElement.value.length > 0)
-				)
+				if(this.isTargetElementChanged())
 				{
 					if(!this.enableCreationOnBlur)
 					{
@@ -286,7 +290,7 @@
 						this.setItems(this.getDefaultItems());
 						BX.cleanNode(this.popupAlertContainer);
 						this.newAlertContainer = null;
-						
+
 						return;
 					}
 					else
@@ -294,6 +298,11 @@
 						this.onEmptyValueEvent();
 					}
 				}
+			},
+			isTargetElementChanged: function()
+			{
+				return (this.CurrentItem && this.CurrentItem.title.length !== this.targetElement.value.length)
+					|| (!this.CurrentItem && this.targetElement.value.length > 0);
 			},
 			getDefaultItems: function()
 			{
@@ -341,25 +350,49 @@
 
 					BX.onCustomEvent(this, "BX.UI.Dropdown:onReset", [this]);
 				}
-				else if(this.targetElement.value.length >= 2)
+				else if(this.targetElement.value.length >= this.minSearchStringLength)
 				{
+					BX.onCustomEvent(this, "BX.UI.Dropdown:onBeforeSearchStart", [this, this.targetElement.value]);
 					//this.setItems(this.searchItemsByStr(this.targetElement.value));
-					this.searchItemsByStr(this.targetElement.value).then(
+					clearTimeout(this.ajaxRequestTimer);
+					this.ajaxRequestTimer = setTimeout(this.searchItemsByStrDelayed.bind(this), this.autocompleteDelay);
+
+					loader.classList.add('ui-dropdown-loader-active');
+				}
+			},
+			searchItemsByStrDelayed: function()
+			{
+				var loader = this.getItemsListContainer();
+				var eventData = {
+					searchQuery: this.targetElement.value
+				};
+				BX.onCustomEvent(this, "BX.UI.Dropdown:onSearchStart", [this, eventData]);
+
+				this.searchItemsByStr(eventData.searchQuery)
+					.then(
 						function (items)
 						{
-							if(!this.newAlertContainer && this.enableCreation)
+							BX.onCustomEvent(this, "BX.UI.Dropdown:onSearchComplete", [this, items]);
+							return items;
+						}.bind(this))
+					.then(
+						function (items)
+						{
+							if(!this.newAlertContainer && this.enableCreation &&
+								BX.Type.isDomNode(this.popupAlertContainer))
 							{
-								this.popupAlertContainer.appendChild(this.getNewAlertContainer(items));
+								var newAlertContainer = this.getNewAlertContainer(items);
+								if (BX.Type.isDomNode(newAlertContainer))
+								{
+									this.popupAlertContainer.appendChild(newAlertContainer);
+								}
 								BX.bind(document, "click", this.documentClickHandler);
 							}
 							this.setItems(items);
 							loader.classList.remove('ui-dropdown-loader-active');
 
 						}.bind(this)
-					);
-
-					loader.classList.add('ui-dropdown-loader-active');
-				}
+				);
 			},
 			searchItemsByStr: function(target)
 			{
@@ -585,9 +618,11 @@
 
 					var phones = BX.prop.getArray(attrs, "phone", []);
 					var emails = BX.prop.getArray(attrs, "email", []);
+					var webs = BX.prop.getArray(attrs, "web", []);
 
 					var phone = phones.length > 0 ? phones[0].value : "";
 					var email = emails.length > 0 ? emails[0].value : "";
+					var web = (webs.length > 0 ? webs[0].value : '');
 
 					item.node = BX.create('div', {
 						attrs: {
@@ -623,6 +658,12 @@
 											className: 'ui-dropdown-contact-info-item ui-dropdown-item-email'
 										},
 										text: email
+									}) : null,
+									web !== "" ? BX.create('div', {
+										attrs: {
+											className: 'ui-dropdown-contact-info-item ui-dropdown-item-web'
+										},
+										text: web
 									}) : null
 								]
 							})
@@ -902,7 +943,6 @@
 
 				this.targetElement.addEventListener("keyup", function(e)
 				{
-					console.log("this.targetElement", this.targetElement);
 					var key = e.charCode || e.keyCode;
 
 					if(this.targetElement === document.activeElement)

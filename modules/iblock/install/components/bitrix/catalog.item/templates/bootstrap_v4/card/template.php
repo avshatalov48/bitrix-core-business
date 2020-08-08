@@ -26,9 +26,9 @@ use \Bitrix\Main\Localization\Loc;
 <div class="product-item">
 	<? if ($itemHasDetailUrl): ?>
 	<a class="product-item-image-wrapper" href="<?=$item['DETAIL_PAGE_URL']?>" title="<?=$imgTitle?>"
-			data-entity="image-wrapper">
-	<? else: ?>
-	<span class="product-item-image-wrapper" data-entity="image-wrapper">
+		data-entity="image-wrapper">
+		<? else: ?>
+		<span class="product-item-image-wrapper" data-entity="image-wrapper">
 	<? endif; ?>
 		<span class="product-item-image-slider-slide-container slide" id="<?=$itemIds['PICT_SLIDER']?>"
 			<?=($showSlider ? '' : 'style="display: none;"')?>
@@ -75,7 +75,7 @@ use \Bitrix\Main\Localization\Loc;
 					foreach ($item['LABEL_ARRAY_VALUE'] as $code => $value)
 					{
 						?>
-						<div<?=(!isset($item['LABEL_PROP_MOBILE'][$code]) ? ' class="hidden-xs"' : '')?>>
+						<div<?=(!isset($item['LABEL_PROP_MOBILE'][$code]) ? ' class="d-none d-sm-block"' : '')?>>
 							<span title="<?=$value?>"><?=$value?></span>
 						</div>
 						<?
@@ -110,19 +110,19 @@ use \Bitrix\Main\Localization\Loc;
 			<?
 		}
 		?>
-	<? if ($itemHasDetailUrl): ?>
+			<? if ($itemHasDetailUrl): ?>
 	</a>
-	<? else: ?>
+<? else: ?>
 	</span>
-	<? endif; ?>
+<? endif; ?>
 	<h3 class="product-item-title">
 		<? if ($itemHasDetailUrl): ?>
 		<a href="<?=$item['DETAIL_PAGE_URL']?>" title="<?=$productTitle?>">
-		<? endif; ?>
-		<?=$productTitle?>
-		<? if ($itemHasDetailUrl): ?>
+			<? endif; ?>
+			<?=$productTitle?>
+			<? if ($itemHasDetailUrl): ?>
 		</a>
-		<? endif; ?>
+	<? endif; ?>
 	</h3>
 	<?
 	if (!empty($arParams['PRODUCT_BLOCKS_ORDER']))
@@ -179,9 +179,9 @@ use \Bitrix\Main\Localization\Loc;
 							{
 								?>
 								<div class="product-item-info-container product-item-hidden"
-									 id="<?=$itemIds['QUANTITY_LIMIT']?>"
-									 style="display: none;"
-									 data-entity="quantity-limit-block">
+									id="<?=$itemIds['QUANTITY_LIMIT']?>"
+									style="display: none;"
+									data-entity="quantity-limit-block">
 									<div class="product-item-info-container-title text-muted">
 										<?=$arParams['MESS_SHOW_MAX_QUANTITY']?>:
 										<span class="product-item-quantity text-dark" data-entity="quantity-limit-value"></span>
@@ -241,16 +241,14 @@ use \Bitrix\Main\Localization\Loc;
 								<div class="product-item-amount">
 									<div class="product-item-amount-field-container">
 										<span class="product-item-amount-field-btn-minus no-select" id="<?=$itemIds['QUANTITY_DOWN']?>"></span>
-										<input class="product-item-amount-field" id="<?=$itemIds['QUANTITY']?>" type="number"
-											name="<?=$arParams['PRODUCT_QUANTITY_VARIABLE']?>"
-											value="<?=$measureRatio?>">
-										<span class="product-item-amount-field-btn-plus no-select" id="<?=$itemIds['QUANTITY_UP']?>"></span>
-										<span class="product-item-amount-description-container">
-											<span id="<?=$itemIds['QUANTITY_MEASURE']?>">
-												<?=$actualItem['ITEM_MEASURE']['TITLE']?>
+										<div class="product-item-amount-field-block">
+											<input class="product-item-amount-field" id="<?=$itemIds['QUANTITY']?>" type="number" name="<?=$arParams['PRODUCT_QUANTITY_VARIABLE']?>" value="<?=$measureRatio?>">
+											<span class="product-item-amount-description-container">
+												<span id="<?=$itemIds['QUANTITY_MEASURE']?>"><?=$actualItem['ITEM_MEASURE']['TITLE']?></span>
+												<span id="<?=$itemIds['PRICE_TOTAL']?>"></span>
 											</span>
-											<span id="<?=$itemIds['PRICE_TOTAL']?>"></span>
-										</span>
+										</div>
+										<span class="product-item-amount-field-btn-plus no-select" id="<?=$itemIds['QUANTITY_UP']?>"></span>
 									</div>
 								</div>
 							</div>
@@ -266,14 +264,14 @@ use \Bitrix\Main\Localization\Loc;
 								<div class="product-item-amount">
 									<div class="product-item-amount-field-container">
 										<span class="product-item-amount-field-btn-minus no-select" id="<?=$itemIds['QUANTITY_DOWN']?>"></span>
-										<input class="product-item-amount-field" id="<?=$itemIds['QUANTITY']?>" type="number"
-											name="<?=$arParams['PRODUCT_QUANTITY_VARIABLE']?>"
-											value="<?=$measureRatio?>">
+										<div class="product-item-amount-field-block">
+											<input class="product-item-amount-field" id="<?=$itemIds['QUANTITY']?>" type="number" name="<?=$arParams['PRODUCT_QUANTITY_VARIABLE']?>" value="<?=$measureRatio?>">
+											<span class="product-item-amount-description-container">
+												<span id="<?=$itemIds['QUANTITY_MEASURE']?>"><?=$actualItem['ITEM_MEASURE']['TITLE']?></span>
+												<span id="<?=$itemIds['PRICE_TOTAL']?>"></span>
+											</span>
+										</div>
 										<span class="product-item-amount-field-btn-plus no-select" id="<?=$itemIds['QUANTITY_UP']?>"></span>
-										<span class="product-item-amount-description-container">
-											<span id="<?=$itemIds['QUANTITY_MEASURE']?>"><?=$actualItem['ITEM_MEASURE']['TITLE']?></span>
-											<span id="<?=$itemIds['PRICE_TOTAL']?>"></span>
-										</span>
 									</div>
 								</div>
 							</div>
@@ -294,7 +292,7 @@ use \Bitrix\Main\Localization\Loc;
 								?>
 								<div class="product-item-button-container" id="<?=$itemIds['BASKET_ACTIONS']?>">
 									<button class="btn btn-primary <?=$buttonSizeClass?>" id="<?=$itemIds['BUY_LINK']?>"
-										href="javascript:void(0)" rel="nofollow">
+											href="javascript:void(0)" rel="nofollow">
 										<?=($arParams['ADD_TO_BASKET_ACTION'] === 'BUY' ? $arParams['MESS_BTN_BUY'] : $arParams['MESS_BTN_ADD_TO_BASKET'])?>
 									</button>
 								</div>
@@ -323,7 +321,7 @@ use \Bitrix\Main\Localization\Loc;
 									}
 									?>
 									<button class="btn btn-link <?=$buttonSizeClass?>"
-										id="<?=$itemIds['NOT_AVAILABLE_MESS']?>" href="javascript:void(0)" rel="nofollow">
+											id="<?=$itemIds['NOT_AVAILABLE_MESS']?>" href="javascript:void(0)" rel="nofollow">
 										<?=$arParams['MESS_NOT_AVAILABLE']?>
 									</button>
 								</div>
@@ -355,13 +353,13 @@ use \Bitrix\Main\Localization\Loc;
 									}
 									?>
 									<button class="btn btn-link <?=$buttonSizeClass?>"
-										id="<?=$itemIds['NOT_AVAILABLE_MESS']?>" href="javascript:void(0)" rel="nofollow"
+											id="<?=$itemIds['NOT_AVAILABLE_MESS']?>" href="javascript:void(0)" rel="nofollow"
 										<?=($actualItem['CAN_BUY'] ? 'style="display: none;"' : '')?>>
 										<?=$arParams['MESS_NOT_AVAILABLE']?>
 									</button>
 									<div id="<?=$itemIds['BASKET_ACTIONS']?>" <?=($actualItem['CAN_BUY'] ? '' : 'style="display: none;"')?>>
 										<button class="btn btn-primary <?=$buttonSizeClass?>" id="<?=$itemIds['BUY_LINK']?>"
-											href="javascript:void(0)" rel="nofollow">
+												href="javascript:void(0)" rel="nofollow">
 											<?=($arParams['ADD_TO_BASKET_ACTION'] === 'BUY' ? $arParams['MESS_BTN_BUY'] : $arParams['MESS_BTN_ADD_TO_BASKET'])?>
 										</button>
 									</div>

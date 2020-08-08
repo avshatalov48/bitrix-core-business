@@ -131,7 +131,7 @@ function SignRequest($access_key, $secret_key, $bucket, $file_name, $ContentType
 
 function _hmacsha1($data, $key)
 {
-	if(strlen($key)>64)
+	if(mb_strlen($key) > 64)
 		$key=pack('H*', sha1($key));
 	$key = str_pad($key, 64, chr(0x00));
 	$ipad = str_repeat(chr(0x36), 64);

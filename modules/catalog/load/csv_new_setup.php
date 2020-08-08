@@ -117,7 +117,7 @@ if ($STEP>2)
 				$delimiter_r_char = " ";
 				break;
 			case "OTR":
-				$delimiter_r_char = (isset($delimiter_other_r) ? substr($delimiter_other_r, 0, 1) : '');
+				$delimiter_r_char = (isset($delimiter_other_r)? mb_substr($delimiter_other_r, 0, 1) : '');
 				$delimiter_other_r = $delimiter_r_char;
 				break;
 			case "TZP":
@@ -126,12 +126,12 @@ if ($STEP>2)
 		}
 	}
 
-	if (strlen($delimiter_r_char) != 1)
+	if (mb_strlen($delimiter_r_char) != 1)
 	{
 		$arSetupErrors[] = GetMessage("CATI_NO_DELIMITER");
 	}
 
-	if (!isset($SETUP_FILE_NAME) || strlen($SETUP_FILE_NAME)<=0)
+	if (!isset($SETUP_FILE_NAME) || $SETUP_FILE_NAME == '')
 	{
 		$arSetupErrors[] = GetMessage("CATI_NO_SAVE_FILE");
 	}
@@ -151,7 +151,7 @@ if ($STEP>2)
 
 	if (empty($arSetupErrors))
 	{
-		if (strtolower(substr($SETUP_FILE_NAME, strlen($SETUP_FILE_NAME)-4)) != ".csv")
+		if (mb_strtolower(mb_substr($SETUP_FILE_NAME, mb_strlen($SETUP_FILE_NAME) - 4)) != ".csv")
 			$SETUP_FILE_NAME .= ".csv";
 		if (HasScriptExtension($SETUP_FILE_NAME))
 		{
@@ -198,7 +198,7 @@ if ($STEP>2)
 	if ($maxExecutionTime < 0)
 		$maxExecutionTime = 0;
 
-	if (($ACTION=="EXPORT_SETUP" || $ACTION == 'EXPORT_EDIT' || $ACTION == 'EXPORT_COPY') && (!isset($SETUP_PROFILE_NAME) || strlen($SETUP_PROFILE_NAME)<=0))
+	if (($ACTION=="EXPORT_SETUP" || $ACTION == 'EXPORT_EDIT' || $ACTION == 'EXPORT_COPY') && (!isset($SETUP_PROFILE_NAME) || $SETUP_PROFILE_NAME == ''))
 	{
 		$arSetupErrors[] = GetMessage("CET_ERROR_NO_NAME");
 	}
@@ -661,7 +661,7 @@ if ($STEP == 2)
 	<tr>
 		<td valign="top" width="40%"><?echo GetMessage("CATI_DATA_FILE_NAME1") ?>:</td>
 		<td valign="top" width="60%"><b><? echo htmlspecialcharsex($strCatalogDefaultFolder); ?></b>
-			<input type="text" class="typeinput" name="SETUP_FILE_NAME" size="40" value="<?echo htmlspecialcharsbx(strlen($SETUP_FILE_NAME)>0 ? str_replace($strCatalogDefaultFolder, '', $SETUP_FILE_NAME): "export_file_".mt_rand(0, 999999).".csv");?>"><br>
+			<input type="text" class="typeinput" name="SETUP_FILE_NAME" size="40" value="<?echo htmlspecialcharsbx($SETUP_FILE_NAME <> '' ? str_replace($strCatalogDefaultFolder, '', $SETUP_FILE_NAME): "export_file_".mt_rand(0, 999999).".csv");?>"><br>
 		<small><?echo GetMessage("CATI_DATA_FILE_NAME1_DESC") ?></small>
 		</td>
 	</tr>

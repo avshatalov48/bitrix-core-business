@@ -120,7 +120,7 @@ class Bot
 			}
 		}
 
-		if (strlen($moduleId) <= 0)
+		if ($moduleId == '')
 		{
 			return false;
 		}
@@ -130,7 +130,7 @@ class Bot
 			return false;
 		}
 
-		$botFields['LOGIN'] = substr(self::LOGIN_START.$userCode.'_'.randString(5), 0, 50);
+		$botFields['LOGIN'] = mb_substr(self::LOGIN_START.$userCode.'_'.randString(5), 0, 50);
 		$botFields['PASSWORD'] = md5($botFields['LOGIN'].'|'.rand(1000,9999).'|'.time());
 		$botFields['CONFIRM_PASSWORD'] = $botFields['PASSWORD'];
 		$botFields['EXTERNAL_AUTH_ID'] = self::EXTERNAL_AUTH_ID;
@@ -217,8 +217,7 @@ class Bot
 					$message = '';
 					if ($installType == self::INSTALL_TYPE_USER && \Bitrix\Im\User::getInstance($userId)->isExists())
 					{
-						$userName = \Bitrix\Im\User::getInstance($userId)->getFullName();
-						$userName = '[USER='.$userId.']'.$userName.'[/USER]';
+						$userName = '[USER='.$userId.'][/USER]';
 						$userGender = \Bitrix\Im\User::getInstance($userId)->getGender();
 						$message = Loc::getMessage('BOT_MESSAGE_INSTALL_USER'.($userGender == 'F'? '_F':''), Array('#USER_NAME#' => $userName));
 					}
@@ -266,10 +265,10 @@ class Bot
 		if (!isset($bots[$botId]))
 			return false;
 
-		if (strlen($moduleId) > 0 && $bots[$botId]['MODULE_ID'] != $moduleId)
+		if ($moduleId <> '' && $bots[$botId]['MODULE_ID'] != $moduleId)
 			return false;
 
-		if (strlen($appId) > 0 && $bots[$botId]['APP_ID'] != $appId)
+		if ($appId <> '' && $bots[$botId]['APP_ID'] != $appId)
 			return false;
 
 		\Bitrix\Im\Model\BotTable::delete($botId);
@@ -347,10 +346,10 @@ class Bot
 		if (!isset($bots[$botId]))
 			return false;
 
-		if (strlen($moduleId) > 0 && $bots[$botId]['MODULE_ID'] != $moduleId)
+		if ($moduleId <> '' && $bots[$botId]['MODULE_ID'] != $moduleId)
 			return false;
 
-		if (strlen($appId) > 0 && $bots[$botId]['APP_ID'] != $appId)
+		if ($appId <> '' && $bots[$botId]['APP_ID'] != $appId)
 			return false;
 
 		if (isset($updateFields['PROPERTIES']))
@@ -365,11 +364,11 @@ class Bot
 			unset($update['GROUP_ID']);
 			unset($update['UF_DEPARTMENT']);
 
-			if (isset($update['NAME']) && strlen(trim($update['NAME'])) <= 0)
+			if (isset($update['NAME']) && trim($update['NAME']) == '')
 			{
 				unset($update['NAME']);
 			}
-			if (isset($update['WORK_POSITION']) && strlen(trim($update['WORK_POSITION'])) <= 0)
+			if (isset($update['WORK_POSITION']) && trim($update['WORK_POSITION']) == '')
 			{
 				$update['WORK_POSITION'] = Loc::getMessage('BOT_DEFAULT_WORK_POSITION');
 			}
@@ -633,11 +632,10 @@ class Bot
 
 		if ($joinFields['CHAT_TYPE'] != IM_MESSAGE_PRIVATE && $bot['TYPE'] == self::TYPE_SUPERVISOR)
 		{
-			$botName = \Bitrix\Im\User::getInstance($joinFields['BOT_ID'])->getName();
 			\CIMMessenger::Add(Array(
 				'DIALOG_ID' => $dialogId,
 				'MESSAGE_TYPE' => $joinFields['CHAT_TYPE'],
-				'MESSAGE' => str_replace(Array('#BOT_NAME#'), Array('[USER='.$joinFields['BOT_ID'].']'.$botName.'[/USER]'), $joinFields['ACCESS_HISTORY']? Loc::getMessage('BOT_SUPERVISOR_NOTICE_ALL_MESSAGES'): Loc::getMessage('BOT_SUPERVISOR_NOTICE_NEW_MESSAGES')),
+				'MESSAGE' => str_replace(Array('#BOT_NAME#'), Array('[USER='.$joinFields['BOT_ID'].'][/USER]'), $joinFields['ACCESS_HISTORY']? Loc::getMessage('BOT_SUPERVISOR_NOTICE_ALL_MESSAGES'): Loc::getMessage('BOT_SUPERVISOR_NOTICE_NEW_MESSAGES')),
 				'SYSTEM' => 'Y',
 				'SKIP_COMMAND' => 'Y',
 				'PARAMS' => Array(
@@ -650,7 +648,7 @@ class Bot
 		{
 			call_user_func_array(array($bot["CLASS"], $bot["METHOD_WELCOME_MESSAGE"]), Array($dialogId, $joinFields));
 		}
-		else if (strlen($bot["TEXT_PRIVATE_WELCOME_MESSAGE"]) > 0 && $joinFields['CHAT_TYPE'] == IM_MESSAGE_PRIVATE && $joinFields['FROM_USER_ID'] != $joinFields['BOT_ID'])
+		else if ($bot["TEXT_PRIVATE_WELCOME_MESSAGE"] <> '' && $joinFields['CHAT_TYPE'] == IM_MESSAGE_PRIVATE && $joinFields['FROM_USER_ID'] != $joinFields['BOT_ID'])
 		{
 			if ($bot['TYPE'] == self::TYPE_HUMAN)
 			{
@@ -663,7 +661,7 @@ class Bot
 				'MESSAGE' => str_replace(Array('#USER_NAME#'), Array($userName), $bot["TEXT_PRIVATE_WELCOME_MESSAGE"]),
 			));
 		}
-		else if (strlen($bot["TEXT_CHAT_WELCOME_MESSAGE"]) > 0 && ($joinFields['CHAT_TYPE'] == IM_MESSAGE_CHAT || $joinFields['CHAT_TYPE'] == IM_MESSAGE_OPEN_LINE) && $joinFields['FROM_USER_ID'] != $joinFields['BOT_ID'])
+		else if ($bot["TEXT_CHAT_WELCOME_MESSAGE"] <> '' && ($joinFields['CHAT_TYPE'] == IM_MESSAGE_CHAT || $joinFields['CHAT_TYPE'] == IM_MESSAGE_OPEN_LINE) && $joinFields['FROM_USER_ID'] != $joinFields['BOT_ID'])
 		{
 			if ($bot['TYPE'] == self::TYPE_HUMAN)
 			{
@@ -732,10 +730,10 @@ class Bot
 		if (!isset($bots[$botId]))
 			return false;
 
-		if (strlen($moduleId) > 0 && $bots[$botId]['MODULE_ID'] != $moduleId)
+		if ($moduleId <> '' && $bots[$botId]['MODULE_ID'] != $moduleId)
 			return false;
 
-		if (strlen($appId) > 0 && $bots[$botId]['APP_ID'] != $appId)
+		if ($appId <> '' && $bots[$botId]['APP_ID'] != $appId)
 			return false;
 
 		\CIMMessenger::StartWriting($dialogId, $botId, $userName);
@@ -759,10 +757,10 @@ class Bot
 		if (!isset($bots[$botId]))
 			return false;
 
-		if (strlen($moduleId) > 0 && $bots[$botId]['MODULE_ID'] != $moduleId)
+		if ($moduleId <> '' && $bots[$botId]['MODULE_ID'] != $moduleId)
 			return false;
 
-		if (strlen($appId) > 0 && $bots[$botId]['APP_ID'] != $appId)
+		if ($appId <> '' && $bots[$botId]['APP_ID'] != $appId)
 			return false;
 
 		$isPrivateSystem = false;
@@ -784,7 +782,7 @@ class Bot
 
 		if (Common::isChatId($messageFields['DIALOG_ID']))
 		{
-			$chatId = intval(substr($messageFields['DIALOG_ID'], 4));
+			$chatId = intval(mb_substr($messageFields['DIALOG_ID'], 4));
 			if ($chatId <= 0)
 				return false;
 
@@ -831,7 +829,7 @@ class Bot
 				$fromUserId = intval($messageFields['FROM_USER_ID']);
 				if ($botId > 0)
 				{
-					$messageFields['MESSAGE'] = Loc::getMessage("BOT_MESSAGE_FROM", Array("#BOT_NAME#" => "[USER=".$botId."]".\Bitrix\Im\User::getInstance($botId)->getFullName()."[/USER][BR]")).$messageFields['MESSAGE'];
+					$messageFields['MESSAGE'] = Loc::getMessage("BOT_MESSAGE_FROM", Array("#BOT_NAME#" => "[USER=".$botId."][/USER][BR]")).$messageFields['MESSAGE'];
 				}
 			}
 			else
@@ -888,10 +886,10 @@ class Bot
 		if (!isset($bots[$botId]))
 			return false;
 
-		if (strlen($moduleId) > 0 && $bots[$botId]['MODULE_ID'] != $moduleId)
+		if ($moduleId <> '' && $bots[$botId]['MODULE_ID'] != $moduleId)
 			return false;
 
-		if (strlen($appId) > 0 && $bots[$botId]['APP_ID'] != $appId)
+		if ($appId <> '' && $bots[$botId]['APP_ID'] != $appId)
 			return false;
 
 		$messageId = intval($messageFields['MESSAGE_ID']);
@@ -984,10 +982,10 @@ class Bot
 		if (!isset($bots[$botId]))
 			return false;
 
-		if (strlen($moduleId) > 0 && $bots[$botId]['MODULE_ID'] != $moduleId)
+		if ($moduleId <> '' && $bots[$botId]['MODULE_ID'] != $moduleId)
 			return false;
 
-		if (strlen($appId) > 0 && $bots[$botId]['APP_ID'] != $appId)
+		if ($appId <> '' && $bots[$botId]['APP_ID'] != $appId)
 			return false;
 
 		return \CIMMessenger::Delete($messageId, $botId);
@@ -1013,10 +1011,10 @@ class Bot
 		if (!isset($bots[$botId]))
 			return false;
 
-		if (strlen($moduleId) > 0 && $bots[$botId]['MODULE_ID'] != $moduleId)
+		if ($moduleId <> '' && $bots[$botId]['MODULE_ID'] != $moduleId)
 			return false;
 
-		if (strlen($appId) > 0 && $bots[$botId]['APP_ID'] != $appId)
+		if ($appId <> '' && $bots[$botId]['APP_ID'] != $appId)
 			return false;
 
 		return \CIMMessenger::Like($messageId, $action, $botId);
@@ -1292,7 +1290,7 @@ class Bot
 				$languageId = 'en';
 			}
 
-			$languageId = strtolower($languageId);
+			$languageId = mb_strtolower($languageId);
 
 			$cache->startDataCache();
 			$cache->endDataCache($languageId);

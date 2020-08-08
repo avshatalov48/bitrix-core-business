@@ -1,17 +1,17 @@
 /**
  * Bitrix Messenger
- * Message model (Vuex Builder model)
+ * Messages model (Vuex Builder model)
  *
  * @package bitrix
  * @subpackage im
- * @copyright 2001-2019 Bitrix
+ * @copyright 2001-2020 Bitrix
  */
 
 
 import {Vue} from 'ui.vue';
 import {VuexBuilderModel} from 'ui.vue.vuex';
 import {MutationType, StorageLimit} from 'im.const';
-import {Utils} from "im.utils";
+import {Utils} from "im.lib.utils";
 
 const IntersectionType = {
 	empty: 'empty',
@@ -21,7 +21,7 @@ const IntersectionType = {
 	foundReverse: 'foundReverse',
 };
 
-class MessagesModel extends VuexBuilderModel
+export class MessagesModel extends VuexBuilderModel
 {
 	getName()
 	{
@@ -37,6 +37,7 @@ class MessagesModel extends VuexBuilderModel
 			saveMessageList: {},
 			saveFileList: {},
 			saveUserList: {},
+			host: this.getVariable('host', location.protocol+'//'+location.host),
 		}
 	}
 
@@ -54,7 +55,7 @@ class MessagesModel extends VuexBuilderModel
 			textConverted: "",
 			params: {
 				TYPE : 'default',
-				COMPONENT_ID : 'bx-messenger-message',
+				COMPONENT_ID : 'bx-im-view-message',
 			},
 
 			push: false,
@@ -225,11 +226,11 @@ class MessagesModel extends VuexBuilderModel
 			{
 				if (payload instanceof Array)
 				{
-					payload = payload.map(message => this.prepareMessage(message));
+					payload = payload.map(message => this.prepareMessage(message, {host: store.state.host}));
 				}
 				else
 				{
-					let result = this.prepareMessage(payload);
+					let result = this.prepareMessage(payload, {host: store.state.host});
 					(payload = []).push(result);
 				}
 
@@ -781,9 +782,9 @@ class MessagesModel extends VuexBuilderModel
 		return true;
 	}
 
-	prepareMessage(message)
+	prepareMessage(message, options = {})
 	{
-		let result = this.validate(Object.assign({}, message));
+		let result = this.validate(Object.assign({}, message), options);
 
 		result.params = Object.assign({}, this.getElementState().params, result.params);
 		result.templateId = result.id;
@@ -975,7 +976,7 @@ class MessagesModel extends VuexBuilderModel
 		this.store.dispatch('files/saveState');
 	}
 
-	validate(fields)
+	validate(fields, options)
 	{
 		const result = {};
 
@@ -1082,7 +1083,7 @@ class MessagesModel extends VuexBuilderModel
 
 		if (typeof fields.params === "object" && fields.params !== null)
 		{
-			const params = this.validateParams(fields.params);
+			const params = this.validateParams(fields.params, options);
 			if (params)
 			{
 				result.params = params;
@@ -1122,7 +1123,7 @@ class MessagesModel extends VuexBuilderModel
 		return result;
 	}
 
-	validateParams(params)
+	validateParams(params, options)
 	{
 		const result = {};
 		try
@@ -1151,6 +1152,24 @@ class MessagesModel extends VuexBuilderModel
 				else if (field === 'CHAT_LAST_DATE')
 				{
 					result[field] = Utils.date.cast(params[field]);
+				}
+				else if (field === 'AVATAR')
+				{
+					if (params[field])
+					{
+						result[field] = params[field].startsWith('http') ? params[field] : options.host + params[field];
+					}
+				}
+				else if (field === 'NAME')
+				{
+					if (params[field])
+					{
+						result[field] = params[field];
+					}
+				}
+				else if (field === 'ATTACH')
+				{
+					result[field] = this.decodeAttach(params[field]);
 				}
 				else
 				{
@@ -1290,6 +1309,35 @@ class MessagesModel extends VuexBuilderModel
 		return MessagesModel.decodeBbCode({text, textOnly, enableBigSmile})
 	}
 
+	decodeAttach(item)
+	{
+		if (Array.isArray(item))
+		{
+			item.forEach(arrayElement => {
+				arrayElement = this.decodeAttach(arrayElement);
+			});
+		}
+		else if (typeof item === 'object' && item !== null)
+		{
+			for (const prop in item)
+			{
+				if (item.hasOwnProperty(prop))
+				{
+					item[prop] = this.decodeAttach(item[prop]);
+				}
+			}
+		}
+		else
+		{
+			if (typeof item === 'string')
+			{
+				item = Utils.text.htmlspecialcharsback(item);
+			}
+		}
+
+		return item;
+	}
+
 	static decodeBbCode(params = {})
 	{
 		let {text, textOnly = false, enableBigSmile = true} = params;
@@ -1306,11 +1354,30 @@ class MessagesModel extends VuexBuilderModel
 		text = text.replace(/\[LIKE\]/ig, '<span class="bx-smile bx-im-smile-like"></span>');
 		text = text.replace(/\[DISLIKE\]/ig, '<span class="bx-smile bx-im-smile-dislike"></span>');
 
-		text = text.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/ig, (whole, userId, text) => '<span class="bx-im-mention" data-type="USER" data-value="'+userId+'">'+text+'</span>');
-
+		// this code needs to be ported to im/install/js/im/view/message/body/src/body.js:229
 		text = text.replace(/\[CHAT=(imol\|)?([0-9]{1,})\](.*?)\[\/CHAT\]/ig, (whole, openlines, chatId, text) => openlines? text: '<span class="bx-im-mention" data-type="CHAT" data-value="chat'+chatId+'">'+text+'</span>'); // TODO tag CHAT
 
+		if (false && Utils.device.isMobile())
+		{
+			let replacements = [];
+			text = text.replace(/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/ig, (whole, number, text) => {
+				let index = replacements.length;
+				replacements.push({number, text});
+				return `####REPLACEMENT_MARK_${index}####`;
+			});
+
+			text = text.replace(/[+]{0,1}(?:[-\/. ()\[\]~;#,]*[0-9]){10,}[^\n\r<][-\/. ()\[\]~;#,0-9^]*/g, (number) => {
+				let pureNumber = number.replace(/\D/g, '');
+				return `[CALL=${pureNumber}]${number}[/CALL]`;
+			});
+
+			replacements.forEach((item, index) => {
+				text = text.replace(`####REPLACEMENT_MARK_${index}####`, `[CALL=${item.number}]${item.text}[/CALL]`)
+			});
+		}
+
 		text = text.replace(/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/ig, (whole, number, text) => '<span class="bx-im-mention" data-type="CALL" data-value="'+Utils.text.htmlspecialchars(number)+'">'+text+'</span>'); // TODO tag CHAT
+
 
 		text = text.replace(/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/ig, (whole, historyId, text) => text); // TODO tag PCH
 
@@ -1482,5 +1549,3 @@ class MessagesModel extends VuexBuilderModel
 		return true;
 	};
 }
-
-export {MessagesModel};

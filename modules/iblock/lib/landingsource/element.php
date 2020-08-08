@@ -285,7 +285,7 @@ class Element
 	 * @param int $iblockId
 	 * @return array
 	 */
-	protected function getIblockProperties($iblockId)
+	protected static function getIblockProperties($iblockId)
 	{
 		$result = [];
 
@@ -440,7 +440,7 @@ class Element
 	{
 		if (empty($property['FILE_TYPE']))
 			return false;
-		$property['FILE_TYPE'] = strtolower(str_replace(' ', '', trim($property['FILE_TYPE'])));
+		$property['FILE_TYPE'] = mb_strtolower(str_replace(' ', '', trim($property['FILE_TYPE'])));
 		if (empty($property['FILE_TYPE']))
 			return false;
 		$rawFileTypes = explode(',', $property['FILE_TYPE']);

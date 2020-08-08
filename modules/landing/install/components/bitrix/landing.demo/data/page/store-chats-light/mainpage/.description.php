@@ -7,6 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Main\Localization\Loc;
 
 return array(
+	'parent' => 'store-chats-light',
 	'code' => 'store-chats-light/mainpage',
 	'name' => Loc::getMessage('LANDING_DEMO_STORE_CHATS_LIGHT-MAIN-NAME'),
 	'description' => Loc::getMessage('LANDING_DEMO_STORE_CHATS_LIGHT-MAIN-DESC_NEW'),
@@ -21,7 +22,7 @@ return array(
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'THEME_CODE' => '3corporate',
-			'THEME_CODE_TYPO' => '3corporate',
+
 			'BACKGROUND_USE' => 'Y',
 			'BACKGROUND_POSITION' => 'center',
 			'BACKGROUND_PICTURE' => 'https://cdn.bitrix24.site/bitrix/images/landing/business/1600x1920/img6.jpg',
@@ -37,25 +38,22 @@ return array(
 	
 	'items' => array(
 		'0' => array(
-			'code' => '35.7.header_logo_and_slogan',
+			'code' => '35.10.header_shop_top_and_phone_bottom',
 			'access' => 'X',
 			'nodes' => array(
-				'.landing-block-node-logo' => array(
-					0 => array(
-						'alt' => 'Logo',
-						'src' => 'https://cdn.bitrix24.site/bitrix/images/landing/logos/chats-store-light-big.png',
-					),
-				),
 				'.landing-block-node-text' => array(
 					0 => Loc::getMessage("LANDING_DEMO_STORE_CHATS_LIGHT-MAIN-TEXT5"),
 				),
 			),
 			'style' => array(
+				'.landing-block-node-title' => array(
+					0 => 'landing-block-node-title g-color-black g-font-size-45 g-font-montserrat font-weight-bold',
+				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text h5 mb-0 g-color-gray-dark-v4 g-font-size-22 g-font-montserrat',
+					0 => 'landing-block-node-text g-color-black-opacity-0_8 g-font-size-22 g-font-montserrat',
 				),
 				'#wrapper' => array(
-					0 => 'landing-block landing-block-menu g-pt-100 g-pb-100',
+					0 => 'landing-block g-pt-100 g-pb-100',
 				),
 			),
 		),
@@ -81,6 +79,10 @@ return array(
 							'value' => 0,
 							'type' => 'card',
 						),
+						4 => array(
+							'value' => 0,
+							'type' => 'card',
+						),
 					),
 				),
 			),
@@ -95,10 +97,14 @@ return array(
 						'target' => '_self',
 					),
 					2 => array(
-						'href' => '#landing@landing[store-chats-light/payinfo]',
+						'href' => '#landing@landing[store-chats-light/cutaway]',
 						'target' => '_self',
 					),
 					3 => array(
+						'href' => '#landing@landing[store-chats-light/payinfo]',
+						'target' => '_self',
+					),
+					4 => array(
 						'href' => '#landing@landing[store-chats-light/webform]',
 						'target' => '_self',
 					),
@@ -106,8 +112,9 @@ return array(
 				'.landing-block-node-link-text' => [
 					0 => Loc::getMessage("LANDING_DEMO_STORE_CHATS_LIGHT-MAIN-TEXT1"),
 					1 => Loc::getMessage("LANDING_DEMO_STORE_CHATS_LIGHT-MAIN-TEXT2"),
-					2 => Loc::getMessage("LANDING_DEMO_STORE_CHATS_LIGHT-MAIN-TEXT3"),
-					3 => Loc::getMessage("LANDING_DEMO_STORE_CHATS_LIGHT-MAIN-TEXT4"),
+					2 => Loc::getMessage("LANDING_DEMO_STORE_CHATS_LIGHT-MAIN-TEXT6"),
+					3 => Loc::getMessage("LANDING_DEMO_STORE_CHATS_LIGHT-MAIN-TEXT3"),
+					4 => Loc::getMessage("LANDING_DEMO_STORE_CHATS_LIGHT-MAIN-TEXT4"),
 				],
 			),
 			'style' => array(
@@ -115,19 +122,21 @@ return array(
 					0 => 'landing-block-node-list-container row no-gutters justify-content-center',
 				),
 				'.landing-block-node-list-item' => array(
-					0 => 'landing-block-node-list-item g-brd-bottom g-brd-1 g-py-12 js-animation animation-none landing-card g-brd-gray-light-v5 g-font-size-18',
-					1 => 'landing-block-node-list-item g-brd-bottom g-brd-1 g-py-12 js-animation animation-none landing-card g-brd-gray-light-v5 g-font-size-18',
-					2 => 'landing-block-node-list-item g-brd-bottom g-brd-1 g-py-12 js-animation animation-none landing-card g-brd-gray-light-v5 g-font-size-18',
-					3 => 'landing-block-node-list-item g-brd-bottom g-brd-1 g-py-12 js-animation animation-none landing-card g-brd-gray-light-v5 g-font-size-18',
+					0 => 'landing-block-node-list-item g-brd-bottom g-brd-1 g-py-12 js-animation animation-none landing-card g-brd-gray-light-v5 g-font-size-18 g-pt-18 g-pb-18',
+					1 => 'landing-block-node-list-item g-brd-bottom g-brd-1 g-py-12 js-animation animation-none landing-card g-brd-gray-light-v5 g-font-size-18 g-pt-18 g-pb-18',
+					2 => 'landing-block-node-list-item g-brd-bottom g-brd-1 g-py-12 js-animation animation-none landing-card g-brd-gray-light-v5 g-font-size-18 g-pt-18 g-pb-18',
+					3 => 'landing-block-node-list-item g-brd-bottom g-brd-1 g-py-12 js-animation animation-none landing-card g-brd-gray-light-v5 g-font-size-18 g-pt-18 g-pb-18',
+					4 => 'landing-block-node-list-item g-brd-bottom g-brd-1 g-py-12 js-animation animation-none landing-card g-brd-gray-light-v5 g-font-size-18 g-pt-18 g-pb-18',
 				),
 				'.landing-block-node-link' => array(
 					0 => 'landing-block-node-link row no-gutters justify-content-between align-items-center g-text-decoration-none--hover g-color-primary--hover g-font-size-18 g-color-gray-dark-v1',
 					1 => 'landing-block-node-link row no-gutters justify-content-between align-items-center g-text-decoration-none--hover g-color-primary--hover g-font-size-18 g-color-gray-dark-v1',
 					2 => 'landing-block-node-link row no-gutters justify-content-between align-items-center g-text-decoration-none--hover g-color-primary--hover g-font-size-18 g-color-gray-dark-v1',
 					3 => 'landing-block-node-link row no-gutters justify-content-between align-items-center g-text-decoration-none--hover g-color-primary--hover g-font-size-18 g-color-gray-dark-v1',
+					4 => 'landing-block-node-link row no-gutters justify-content-between align-items-center g-text-decoration-none--hover g-color-primary--hover g-font-size-18 g-color-gray-dark-v1',
 				),
 				'#wrapper' => array(
-					0 => 'landing-block g-pt-10 g-pb-10 g-pl-15 g-pr-15 u-block-border u-block-border-margin-md g-rounded-6 g-bg-white-opacity-0_8',
+					0 => 'landing-block g-pt-10 g-pb-10 g-pl-15 g-pr-15 u-block-border-none g-bg-white-opacity-0_8',
 				),
 			),
 		),

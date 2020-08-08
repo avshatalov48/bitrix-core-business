@@ -78,7 +78,7 @@ else
 		{
 			$arResult["ERRORS"][] = $error;
 
-			if(strlen($arResult["ERROR"]) > 0)
+			if($arResult["ERROR"] <> '')
 			{
 				$arResult["ERROR"] .= "\n";
 			}
@@ -173,7 +173,7 @@ class AjaxProcessor
 
 		global $APPLICATION;
 
-		if(strtolower(SITE_CHARSET) != 'utf-8')
+		if(mb_strtolower(SITE_CHARSET) != 'utf-8')
 			$this->request = $APPLICATION->ConvertCharsetArray($this->request, 'utf-8', SITE_CHARSET);
 
 		try
@@ -219,7 +219,7 @@ class AjaxProcessor
 
 	protected function addResultData($dataKey, $data)
 	{
-		if(strlen($dataKey) <= 0)
+		if($dataKey == '')
 			$this->result->addData($data);
 		else
 			$this->result->addData(array($dataKey => $data));
@@ -272,7 +272,7 @@ class AjaxProcessor
 					'RESPONSIBLE_ID', 'COMPANY_ID', 'STATUS_ID'
 				)
 			));
-			
+
 			if ($orderData = $resOrder->fetch())
 			{
 				/** @var Sale\OrderStatus $orderClass */
@@ -359,20 +359,20 @@ class AjaxProcessor
 
 		if(
 			isset($this->request["replaceBasketCode"])
-			&& strlen($this->request["replaceBasketCode"]) > 0
+			&& $this->request["replaceBasketCode"] <> ''
 			&& isset($this->request["formData"]["PRODUCT"][$this->request["replaceBasketCode"]])
 		)
 		{
 			$this->request["formData"]["PRODUCT"][$this->request["replaceBasketCode"]] = $productParams;
 			$this->request["formData"]["PRODUCT"][$this->request["replaceBasketCode"]]["REPLACED"] = "Y";
 
-			if(strlen($alreadyInBasketCode) > 0)
+			if($alreadyInBasketCode <> '')
 			{
 				unset($this->request["formData"]["PRODUCT"][$alreadyInBasketCode]);
 				$this->request["formData"]["ALREADY_IN_BASKET_CODE"] = $alreadyInBasketCode;
 			}
 		}
-		elseif(strlen($alreadyInBasketCode) <= 0)
+		elseif($alreadyInBasketCode == '')
 		{
 			$this->request["formData"]["PRODUCT"][Admin\OrderEdit::BASKET_CODE_NEW] = $productParams;
 		}
@@ -547,7 +547,7 @@ class AjaxProcessor
 		if(!isset($this->request['orderId']) || intval($this->request['orderId']) <= 0)
 			throw new SystemException("Wrong order id!");
 
-		if(!isset($this->request['statusId']) || strlen($this->request['statusId']) <= 0)
+		if(!isset($this->request['statusId']) || $this->request['statusId'] == '')
 			throw new SystemException("Wrong status id!");
 
 		/** @var Sale\Order $orderClass */
@@ -637,9 +637,6 @@ class AjaxProcessor
 		$formData = isset($this->request["formData"]) ? $this->request["formData"] : array();
 		$additional = isset($this->request["additional"]) ? $this->request["additional"] : array();
 
-		/** @var Sale\Order $orderClass */
-		$orderClass = $this->registry->getOrderClassName();
-
 		/** @var Sale\OrderStatus $orderStatusClass */
 		$orderStatusClass = $this->registry->getOrderStatusClassName();
 
@@ -706,7 +703,7 @@ class AjaxProcessor
 			}
 		}
 
-		if($order->getId() <= 0)
+		if ($order->getId() <= 0)
 		{
 			if(isset($formData['SHIPMENT']) && is_array($formData['SHIPMENT']))
 			{
@@ -977,7 +974,7 @@ class AjaxProcessor
 		if(!isset($this->request['userId']) || intval($this->request['userId']) <= 0)
 			throw new ArgumentNullException("userId");
 
-		$siteId = strlen($this->request['siteId']) > 0 ? $this->request['siteId'] : "";
+		$siteId = $this->request['siteId'] <> '' ? $this->request['siteId'] : "";
 		global $USER;
 
 		$dateResponsible = new \Bitrix\Main\Type\DateTime();
@@ -1012,6 +1009,8 @@ class AjaxProcessor
 		/** @var \Bitrix\Sale\Payment $payment */
 		$payment = $order->getPaymentCollection()->getItemById($this->request['paymentId']);
 		$hasErrors = false;
+
+		$setPaymentFieldsResult = new Result();
 
 		$saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 
@@ -1089,8 +1088,8 @@ class AjaxProcessor
 			{
 				foreach ($this->request['data'] as $key => $value)
 				{
-					$newKey = substr($key, 0, strripos($key, '_'));
-					if (strpos($newKey, 'PAY_VOUCHER') !== false)
+					$newKey = mb_substr($key, 0, mb_strripos($key, '_'));
+					if (mb_strpos($newKey, 'PAY_VOUCHER') !== false)
 						$fields[$newKey] = $value;
 					if ($newKey == 'ORDER_STATUS_ID')
 						$orderStatusId = $value;
@@ -1105,46 +1104,18 @@ class AjaxProcessor
 					return;
 				}
 
+				$setPaymentFieldsResult = $this->setPaymentFields($payment, $fields, $strict);
 			}
 		}
 		else
 		{
 			foreach ($this->request['data'] as $key => $value)
 			{
-				$newKey = substr($key, 0, strripos($key, '_'));
-				if (strpos($newKey, 'PAY_RETURN') !== false)
+				$newKey = mb_substr($key, 0, mb_strripos($key, '_'));
+				if (mb_strpos($newKey, 'PAY_RETURN') !== false)
 					$fields[$newKey] = $value;
 			}
 
-			if (isset($fields['PAY_RETURN_OPERATION_ID']))
-			{
-				/** @var Result $refResult */
-				$refResult = $payment->setReturn($fields['PAY_RETURN_OPERATION_ID']);
-				if (!$refResult->isSuccess())
-				{
-					$this->addResultError(join("\n", $refResult->getErrorMessages()));
-					return;
-				}
-				elseif ($refResult->hasWarnings())
-				{
-					$this->addResultWarning(join("\n", $refResult->getWarningMessages()));
-					return;
-				}
-
-				unset($fields['PAY_RETURN_OPERATION_ID']);
-			}
-			else
-			{
-				$res = $payment->setPaid('N');
-				if (!$res->isSuccess())
-				{
-					$this->addResultError(join("\n", $res->getErrorMessages()));
-				}
-				elseif ($res->hasWarnings())
-				{
-					$this->addResultWarning(join("\n", $res->getWarningMessages()));
-				}
-			}
 			try
 			{
 				$fields['PAY_RETURN_DATE'] = new Date($fields['PAY_RETURN_DATE']);
@@ -1154,17 +1125,49 @@ class AjaxProcessor
 				$this->addResultError(Loc::getMessage('SALE_OA_ERROR_INCORRECT_DATE'));
 				return;
 			}
+
+			$payReturnOperationId = $fields['PAY_RETURN_OPERATION_ID'] ?? null;
+			if ($payReturnOperationId)
+			{
+				unset($fields['PAY_RETURN_OPERATION_ID']);
+			}
+
+			$setPaymentFieldsResult = $this->setPaymentFields($payment, $fields, $strict);
+			if ($setPaymentFieldsResult->isSuccess())
+			{
+				if ($payReturnOperationId)
+				{
+					/** @var Result $refResult */
+					$refResult = $payment->setReturn($payReturnOperationId);
+					if (!$refResult->isSuccess())
+					{
+						$this->addResultError(implode("\n", $refResult->getErrorMessages()));
+						return;
+					}
+					elseif ($refResult->hasWarnings())
+					{
+						$this->addResultWarning(implode("\n", $refResult->getWarningMessages()));
+						return;
+					}
+				}
+				else
+				{
+					$res = $payment->setPaid('N');
+					if (!$res->isSuccess())
+					{
+						$this->addResultError(implode("\n", $res->getErrorMessages()));
+					}
+					elseif ($res->hasWarnings())
+					{
+						$this->addResultWarning(implode("\n", $res->getWarningMessages()));
+					}
+				}
+			}
 		}
 
 		if (!$hasErrors)
 		{
-			$saveResult = $payment->setFields($fields);
-			if ($strict)
-			{
-				$saveResult = $this->removeErrorsForConfirmation($saveResult);
-			}
-
-			if ($saveResult->isSuccess())
+			if ($setPaymentFieldsResult->isSuccess())
 			{
 				if (!empty($orderStatusId))
 				{
@@ -1252,16 +1255,16 @@ class AjaxProcessor
 			}
 			else
 			{
-				$saveResult = $this->convertErrorsToConfirmation($saveResult);
+				$setPaymentFieldsResult = $this->convertErrorsToConfirmation($setPaymentFieldsResult);
 
-				$setResultMessage = $saveResult->getErrorMessages();
+				$setResultMessage = $setPaymentFieldsResult->getErrorMessages();
 				if (!empty($setResultMessage))
 				{
 					$this->addResultError(join("\n", $setResultMessage));
 				}
-				elseif ($saveResult->hasWarnings())
+				elseif ($setPaymentFieldsResult->hasWarnings())
 				{
-					$existSpecialErrors = $saveResult->get('NEED_CONFIRM');
+					$existSpecialErrors = $setPaymentFieldsResult->get('NEED_CONFIRM');
 					if ($existSpecialErrors)
 					{
 						$this->addResultData('NEED_CONFIRM', $existSpecialErrors);
@@ -1269,7 +1272,7 @@ class AjaxProcessor
 						$this->addResultData('CONFIRM_MESSAGE', Loc::getMessage('SALE_ORDER_SHIP_SHIPMENT_NOTICE_MESSAGE'));
 					}
 
-					$this->addResultWarning(join("\n", $saveResult->getWarningMessages()));
+					$this->addResultWarning(join("\n", $setPaymentFieldsResult->getWarningMessages()));
 				}
 			}
 		}
@@ -1278,6 +1281,25 @@ class AjaxProcessor
 		{
 			Sale\Internals\Catalog\Provider::setIgnoreErrors(false);
 		}
+	}
+
+	/**
+	 * @param Sale\Payment $payment
+	 * @param $fields
+	 * @param $strict
+	 * @return Result
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 * @throws \Bitrix\Main\NotSupportedException
+	 */
+	private function setPaymentFields(Sale\Payment $payment , $fields, $strict): Result
+	{
+		$setFieldsResult = $payment->setFields($fields);
+		if ($strict)
+		{
+			$setFieldsResult = $this->removeErrorsForConfirmation($setFieldsResult);
+		}
+
+		return $setFieldsResult;
 	}
 
 	protected function deletePaymentAction()
@@ -2127,7 +2149,7 @@ class AjaxProcessor
 
 		Admin\OrderEdit::initCouponsData($this->request["userId"], $this->request["orderId"]);
 
-		if(strlen($this->request["coupon"]) > 0)
+		if($this->request["coupon"] <> '')
 		{
 			$coupons = explode(",", $this->request["coupon"]);
 
@@ -2135,7 +2157,7 @@ class AjaxProcessor
 			{
 				foreach ($coupons as $coupon)
 				{
-					if (strlen($coupon) > 0)
+					if ($coupon <> '')
 					{
 						/** @var Sale\DiscountCouponsManager $discountCouponsClass */
 						$discountCouponsClass = $this->registry->getDiscountCouponClassName();
@@ -2154,7 +2176,7 @@ class AjaxProcessor
 
 		$barcode = $this->request['barcode'];
 
-		if(strlen($barcode) > 0)
+		if($barcode <> '')
 		{
 			$rsBarCode = \CCatalogStoreBarCode::getList(array(), array("BARCODE" => $barcode), false, false, array('PRODUCT_ID'));
 			$arBarCode = $rsBarCode->Fetch();
@@ -2578,12 +2600,12 @@ class AjaxProcessor
 	{
 		global $APPLICATION, $USER;
 		$shipmentId = !empty($this->request["shipmentId"]) && intval($this->request["shipmentId"]) > 0 ? intval($this->request["shipmentId"]) : 0;
-		$trackingNumber = !empty($this->request["trackingNumber"]) && strlen($this->request["trackingNumber"]) > 0 ? $this->request["trackingNumber"] : '';
+		$trackingNumber = !empty($this->request["trackingNumber"]) && $this->request["trackingNumber"] <> '' ? $this->request["trackingNumber"] : '';
 
 		if($shipmentId <= 0)
 			throw new ArgumentNullException('shipmentId');
 
-		if(strlen($trackingNumber) <= 0)
+		if($trackingNumber == '')
 			return;
 
 		/** @var Sale\Order $orderClass */
@@ -2867,6 +2889,7 @@ class AjaxProcessor
 		$orderId = isset($this->request["orderId"]) ? $this->request["orderId"] : array();
 		$formType = isset($this->request["formType"]) && $this->request["formType"] == "edit" ? "edit" : "view";
 		$idPrefix = isset($this->request["idPrefix"]) ? trim($this->request["idPrefix"]) : "";
+		$factory = Admin\Blocks\FactoryMode::create(Sale\Exchange\Integration\Admin\Link::getInstance()->getType());
 
 		/** @var Sale\Order $orderClass */
 		$orderClass = $this->registry->getOrderClassName();
@@ -2916,11 +2939,11 @@ class AjaxProcessor
 			($formType == 'edit' ? Admin\Blocks\OrderBasket::EDIT_MODE : Admin\Blocks\OrderBasket::VIEW_MODE)
 			);
 		Admin\OrderEdit::initCouponsData($order->getUserId(), $orderId, null);
-		$result["DISCOUNTS_LIST"] = Admin\OrderEdit::getOrderedDiscounts($order, false);
+		$result["DISCOUNTS_LIST"] = $factory::create(Admin\Blocks\BlockType::DISCOUNT)::getOrderedDiscounts($order, false);
 		$result["BASKET"] = $orderBasket->prepareData(
 			array("DISCOUNTS" => $result["DISCOUNTS_LIST"])
 		);
-		$result["ANALYSIS"] = Admin\Blocks\OrderAnalysis::getView($order, $orderBasket);
+		$result["ANALYSIS"] = $factory::create(Admin\Blocks\BlockType::ANALYSIS)->getView($order, $orderBasket);
 		$result["SHIPMENTS"] = "";
 		Admin\Blocks\OrderShipment::setBackUrl($_SERVER['HTTP_REFERER']);
 
@@ -3020,7 +3043,7 @@ class AjaxProcessor
 					}
 				}
 			}
-			
+
 		}
 
 		$r = $order->save();
@@ -3071,8 +3094,8 @@ class AjaxProcessor
 		}
 
 	}
-	
-	
+
+
 	protected function deleteMarkerAction()
 	{
 		global $APPLICATION, $USER;
@@ -3481,7 +3504,7 @@ class AjaxProcessor
 		$order = $orderClass::load($orderId);
 
 		$saleModulePermissions = $APPLICATION->GetGroupRight("sale");
-		
+
 		if ($saleModulePermissions == 'P')
 		{
 			$userId = $USER->GetID();
@@ -3691,7 +3714,7 @@ class AjaxProcessor
 			$result['CASH']['FORMATED_SUM'] = $defaulValue;
 
 			$this->addResultData("FRAME", $result);
-			
+
 			return;
 		}
 

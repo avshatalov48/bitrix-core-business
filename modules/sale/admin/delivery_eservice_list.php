@@ -93,7 +93,7 @@ namespace Bitrix\Sale\Delivery\AdminPage\DeliveryExtraServiceEdit
 		$row->AddField('RIGHTS', $record['RIGHTS']);
 		$row->AddField('ACTIVE', $record['ACTIVE'] == "Y" ? Loc::getMessage('SALE_ESDL_YES') : Loc::getMessage('SALE_ESDL_NO'));
 
-		if(strlen($record['CLASS_NAME']) > 0 && is_callable($record['CLASS_NAME'].'::getClassTitle'))
+		if($record['CLASS_NAME'] <> '' && is_callable($record['CLASS_NAME'].'::getClassTitle'))
 			$className = $record['CLASS_NAME']::getClassTitle();
 		else
 			$className = "";

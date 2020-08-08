@@ -2,10 +2,12 @@
 
 class CAppleMessage extends CPushMessage
 {
-	const DEFAULT_PAYLOAD_MAXIMUM_SIZE = 2048;
-	const APPLE_RESERVED_NAMESPACE = 'aps';
+	protected const DEFAULT_PAYLOAD_MAXIMUM_SIZE = 2048;
+	protected const APPLE_RESERVED_NAMESPACE = 'aps';
+	protected const JSON_OPTIONS = JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE;
 
 	protected $_bAutoAdjustLongPayload = true;
+	protected $payloadMaxSize;
 
 	public function __construct($sDeviceToken = null, $maxPayloadSize = 2048)
 	{
@@ -14,7 +16,7 @@ class CAppleMessage extends CPushMessage
 			$this->addRecipient($sDeviceToken);
 		}
 
-		$this->payloadMaxSize = (intval($maxPayloadSize)>0 ? intval($maxPayloadSize): self::DEFAULT_PAYLOAD_MAXIMUM_SIZE);
+		$this->payloadMaxSize = (int)$maxPayloadSize ?: self::DEFAULT_PAYLOAD_MAXIMUM_SIZE;
 	}
 
 	public function setAutoAdjustLongPayload($bAutoAdjust)
@@ -50,14 +52,14 @@ class CAppleMessage extends CPushMessage
 		if(!empty($alertData))
 		{
 			$aPayload[self::APPLE_RESERVED_NAMESPACE] = [
-				"alert" => $alertData
+				'alert' => $alertData
 			];
 
-			$aPayload[self::APPLE_RESERVED_NAMESPACE]["mutable-content"] = 1;
+			$aPayload[self::APPLE_RESERVED_NAMESPACE]['mutable-content'] = 1;
 		}
 		else
 		{
-			$aPayload[self::APPLE_RESERVED_NAMESPACE]["content-available"] = 1;
+			$aPayload[self::APPLE_RESERVED_NAMESPACE]['content-available'] = 1;
 		}
 
 		if (isset($this->category))
@@ -69,12 +71,10 @@ class CAppleMessage extends CPushMessage
 		{
 			$aPayload[self::APPLE_RESERVED_NAMESPACE]['badge'] = (int)$this->badge;
 		}
-		if (isset($this->sound) && strlen($this->sound) > 0)
+		if (isset($this->sound) && $this->sound <> '')
 		{
 			$aPayload[self::APPLE_RESERVED_NAMESPACE]['sound'] = (string)$this->sound;
 		}
-
-
 
 		if (is_array($this->customProperties))
 		{
@@ -92,46 +92,44 @@ class CAppleMessage extends CPushMessage
 		$sJSONPayload = str_replace(
 			'"' . self::APPLE_RESERVED_NAMESPACE . '":[]',
 			'"' . self::APPLE_RESERVED_NAMESPACE . '":{}',
-			json_encode($this->_getPayload(),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE)
+			json_encode($this->_getPayload(), static::JSON_OPTIONS)
 		);
 		$nJSONPayloadLen = CUtil::BinStrlen($sJSONPayload);
-		if ($nJSONPayloadLen > $this->payloadMaxSize)
+		if ($nJSONPayloadLen <= $this->payloadMaxSize)
 		{
-			if ($this->_bAutoAdjustLongPayload)
-			{
-				$text = $this->text;
-				$useSenderText = false;
-				if(array_key_exists("senderMessage", $this->customProperties))
-				{
-					$useSenderText = true;
-					$text = $this->customProperties["senderMessage"];
-				}
-				$nMaxTextLen = $nTextLen = CUtil::BinStrlen($text) - ($nJSONPayloadLen - $this->payloadMaxSize);
-				if ($nMaxTextLen > 0)
-				{
-					while (CUtil::BinStrlen($text = CUtil::BinSubstr($text, 0, --$nTextLen)) > $nMaxTextLen) ;
-					if($useSenderText)
-					{
-						$this->setCustomProperty("senderMessage", $text);
-					}
-					else
-					{
-						$this->setText($text);
-					}
-					return $this->getPayload();
-				}
-				else
-				{
-					return false;
-				}
-			}
-			else
-			{
-				return false;
-			}
+			return $sJSONPayload;
+		}
+		if (!$this->_bAutoAdjustLongPayload)
+		{
+			return false;
 		}
 
-		return $sJSONPayload;
+		$text = $this->text;
+		$useSenderText = false;
+		if(array_key_exists("senderMessage", $this->customProperties))
+		{
+			$useSenderText = true;
+			$text = $this->customProperties["senderMessage"];
+		}
+		$nMaxTextLen = $nTextLen = CUtil::BinStrlen($text) - ($nJSONPayloadLen - $this->payloadMaxSize);
+		if ($nMaxTextLen <= 0)
+		{
+			return false;
+		}
+
+		while (CUtil::BinStrlen($text) > $nMaxTextLen)
+		{
+			$text = CUtil::BinSubstr($text, 0, --$nTextLen);
+		}
+		if($useSenderText)
+		{
+			$this->setCustomProperty("senderMessage", $text);
+		}
+		else
+		{
+			$this->setText($text);
+		}
+		return $this->getPayload();
 	}
 
 	public function getBatch()
@@ -149,12 +147,18 @@ class CAppleMessage extends CPushMessage
 		for ($i = 0; $i < count($arTokens); $i++)
 		{
 			$sDeviceToken = $arTokens[$i];
-			$nTokenLength = strlen($sDeviceToken);
+			$nTokenLength = mb_strlen($sDeviceToken);
 
-			$sRet = pack('CNNnH*', 1, $this->getCustomIdentifier(), $this->getExpiry() > 0 ? time() + $this->getExpiry() : 0, 32, $sDeviceToken);
+			$sRet = pack('CNNnH*',
+				1,
+				$this->getCustomIdentifier(),
+				$this->getExpiry() > 0 ? time() + $this->getExpiry() : 0,
+				32,
+				$sDeviceToken)
+			;
 			$sRet .= pack('n', $nPayloadLength);
 			$sRet .= $sPayload;
-			if (strlen($totalBatch) > 0)
+			if ($totalBatch <> '')
 			{
 				$totalBatch .= ";";
 			}
@@ -163,6 +167,7 @@ class CAppleMessage extends CPushMessage
 
 		return $totalBatch;
 	}
+
 }
 
 class CApplePush extends CPushService
@@ -196,11 +201,6 @@ class CApplePush extends CPushService
 
 		$batch = $this->getProductionBatch($arGroupedMessages["PRODUCTION"]);
 		$batch .= $this->getSandboxBatch($arGroupedMessages["SANDBOX"]);
-
-		if (strlen($batch) == 0)
-		{
-			return $batch;
-		}
 
 		return $batch;
 	}

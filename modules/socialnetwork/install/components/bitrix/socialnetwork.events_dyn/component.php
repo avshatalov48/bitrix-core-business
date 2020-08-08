@@ -16,48 +16,48 @@ if (IsModuleInstalled("im"))
 	return false;
 }
 
-$arParams["USER_ID"] = IntVal($arParams["USER_ID"]);
+$arParams["USER_ID"] = intval($arParams["USER_ID"]);
 if ($arParams["USER_ID"] <= 0)
-	$arParams["USER_ID"] = IntVal($USER->GetID());
+	$arParams["USER_ID"] = intval($USER->GetID());
 
-if (strLen($arParams["USER_VAR"]) <= 0)
+if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if (strLen($arParams["MESSAGE_VAR"]) <= 0)
+if ($arParams["MESSAGE_VAR"] == '')
 	$arParams["MESSAGE_VAR"] = "message_id";
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if (strlen($arParams["PATH_TO_USER"]) <= 0)
+if ($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_MESSAGE_FORM"] = trim($arParams["PATH_TO_MESSAGE_FORM"]);
-if (strlen($arParams["PATH_TO_MESSAGE_FORM"]) <= 0)
+if ($arParams["PATH_TO_MESSAGE_FORM"] == '')
 	$arParams["PATH_TO_MESSAGE_FORM"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=message_form&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_MESSAGE_FORM_MESS"] = trim($arParams["PATH_TO_MESSAGE_FORM_MESS"]);
-if (strlen($arParams["PATH_TO_MESSAGE_FORM_MESS"]) <= 0)
+if ($arParams["PATH_TO_MESSAGE_FORM_MESS"] == '')
 	$arParams["PATH_TO_MESSAGE_FORM_MESS"] = $APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=message_form_mess&".$arParams["USER_VAR"]."=#user_id#&".$arParams["MESSAGE_VAR"]."=#message_id#";
 
 $arParams["PATH_TO_MESSAGES_CHAT"] = trim($arParams["PATH_TO_MESSAGES_CHAT"]);
-if (strlen($arParams["PATH_TO_MESSAGES_CHAT"]) <= 0)
+if ($arParams["PATH_TO_MESSAGES_CHAT"] == '')
 	$arParams["PATH_TO_MESSAGES_CHAT"] = $APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=messages_chat&".$arParams["USER_VAR"]."=#user_id#";
 
 $arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]);
 
 $arParams["UNREAD_CNT_STR_BEFORE"] = trim($arParams["UNREAD_CNT_STR_BEFORE"]);
-if (strlen($arParams["UNREAD_CNT_STR_BEFORE"]) <= 0)
+if ($arParams["UNREAD_CNT_STR_BEFORE"] == '')
 	$arParams["UNREAD_CNT_STR_BEFORE"] = "";
 
 $arParams["UNREAD_CNT_STR_AFTER"] = trim($arParams["UNREAD_CNT_STR_AFTER"]);
-if (strlen($arParams["UNREAD_CNT_STR_AFTER"]) <= 0)
+if ($arParams["UNREAD_CNT_STR_AFTER"] == '')
 	$arParams["UNREAD_CNT_STR_AFTER"] = "";
 
 $arParams["AJAX_LONG_TIMEOUT"] = intval(trim($arParams["AJAX_LONG_TIMEOUT"]));
 if ($arParams["AJAX_LONG_TIMEOUT"] <= 0)
 	$arParams["AJAX_LONG_TIMEOUT"] = 60;
 
-if (strlen(trim($arParams["NAME_TEMPLATE"])) <= 0)
+if (trim($arParams["NAME_TEMPLATE"]) == '')
 	$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 
 $arParams['SHOW_LOGIN'] = $arParams['SHOW_LOGIN'] != "N" ? "Y" : "N";

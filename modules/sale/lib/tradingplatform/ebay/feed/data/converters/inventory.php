@@ -11,7 +11,7 @@ class Inventory extends DataConverter
 
 	public function __construct($params)
 	{
-		if(!isset($params["SITE_ID"]) || strlen($params["SITE_ID"]) <= 0)
+		if(!isset($params["SITE_ID"]) || $params["SITE_ID"] == '')
 			throw new ArgumentNullException("SITE_ID");
 
 		$ebay = \Bitrix\Sale\TradingPlatform\Ebay\Ebay::getInstance();

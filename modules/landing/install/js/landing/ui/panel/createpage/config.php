@@ -14,6 +14,7 @@ return [
 		'landing.loc',
 		'landing.backend',
 		'landing.env',
+		'landing.sliderhacks',
 		'translit',
 	],
 	'skip_core' => false,

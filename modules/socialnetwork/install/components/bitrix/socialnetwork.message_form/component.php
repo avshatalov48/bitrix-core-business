@@ -7,34 +7,34 @@ if (!CModule::IncludeModule("socialnetwork"))
 	return;
 }
 
-$arParams["USER_ID"] = IntVal($arParams["USER_ID"]);
+$arParams["USER_ID"] = intval($arParams["USER_ID"]);
 if ($arParams["USER_ID"] <= 0)
-	$arParams["USER_ID"] = IntVal($USER->GetID());
+	$arParams["USER_ID"] = intval($USER->GetID());
 
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 
-if (strLen($arParams["USER_VAR"]) <= 0)
+if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if (strlen($arParams["PATH_TO_USER"]) <= 0)
+if ($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_MESSAGES_INPUT"] = trim($arParams["PATH_TO_MESSAGES_INPUT"]);
-if(strlen($arParams["PATH_TO_MESSAGES_INPUT"])<=0)
+if($arParams["PATH_TO_MESSAGES_INPUT"] == '')
 	$arParams["PATH_TO_MESSAGES_INPUT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=messages_input");
 
 $arParams["PATH_TO_MESSAGES_OUTPUT"] = trim($arParams["PATH_TO_MESSAGES_OUTPUT"]);
-if(strlen($arParams["PATH_TO_MESSAGES_OUTPUT"])<=0)
+if($arParams["PATH_TO_MESSAGES_OUTPUT"] == '')
 	$arParams["PATH_TO_MESSAGES_OUTPUT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=messages_output");
 
 $arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]);
 
-$arParams["MESSAGE_ID"] = IntVal($arParams["MESSAGE_ID"]);
+$arParams["MESSAGE_ID"] = intval($arParams["MESSAGE_ID"]);
 
-if (strlen($arParams["NAME_TEMPLATE"]) <= 0)		
+if ($arParams["NAME_TEMPLATE"] == '')
 	$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 $bUseLogin = $arParams['SHOW_LOGIN'] != "N" ? true : false;
 
@@ -96,14 +96,14 @@ else
 		else
 		{
 			$arResult["ShowForm"] = "Input";
-			if ($_SERVER["REQUEST_METHOD"]=="POST" && strlen($_POST["save"]) > 0 && check_bitrix_sessid())
+			if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["save"] <> '' && check_bitrix_sessid())
 			{
 				$errorMessage = "";
 
-				if (strlen($_POST["POST_MESSAGE"]) <= 0)
+				if ($_POST["POST_MESSAGE"] == '')
 					$errorMessage .= GetMessage("SONET_C26_NO_TEXT").". ";
 
-				if (strlen($errorMessage) <= 0)
+				if ($errorMessage == '')
 				{
 					if (CSocNetMessages::CreateMessage($GLOBALS["USER"]->GetID(), $arResult["User"]["ID"], $_POST["POST_MESSAGE"]))
 					{
@@ -117,7 +117,7 @@ else
 					}
 				}
 
-				if (strlen($errorMessage) > 0)
+				if ($errorMessage <> '')
 					$arResult["ErrorMessage"] = $errorMessage;
 				else
 					$arResult["ShowForm"] = "Confirm";

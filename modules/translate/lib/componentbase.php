@@ -285,23 +285,28 @@ abstract class ComponentBase
 	/**
 	 * @return string
 	 */
-	protected function detectStartingPath()
+	protected function detectStartingPath(?string $path = ''): string
 	{
-		static $path;
-		if (empty($path))
+		$home = Translate\Config::getDefaultPath();
+
+		$initPaths = Translate\Config::getInitPath();
+		if (count($initPaths) > 0)
 		{
-			$initPaths = Translate\Config::getInitPath();
-			if (count($initPaths) > 0)
+			$home = $initPaths[0];
+			if (!empty($path))
 			{
-				$path = $initPaths[0];
-			}
-			else
-			{
-				$path = '/'. trim(Translate\Config::getDefaultPath(), '/');
+				foreach ($initPaths as $initPath)
+				{
+					if (mb_strpos($path, $initPath) === 0)
+					{
+						$home = $initPath;
+						break;
+					}
+				}
 			}
 		}
 
-		return $path;
+		return $home;
 	}
 
 

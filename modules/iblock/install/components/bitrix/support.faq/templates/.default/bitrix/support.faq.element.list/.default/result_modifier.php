@@ -18,9 +18,9 @@ foreach($arResult['ITEMS'] as $key=>$val)
 {
 	$arResult['ITEMS'][$key]["DETAIL_TEXT"] = preg_replace_callback("/(<|\[)CODE(>|\])(.+?)(<|\[)\/CODE(>|\])/is",code_replace_func,$arResult['ITEMS'][$key]["DETAIL_TEXT"]);
 
-	if(strtoupper($arResult['ITEMS'][$key]["PREVIEW_TEXT_TYPE"]) == "TEXT")
+	if(mb_strtoupper($arResult['ITEMS'][$key]["PREVIEW_TEXT_TYPE"]) == "TEXT")
 		$arResult['ITEMS'][$key]["PREVIEW_TEXT"] = nl2br($arResult['ITEMS'][$key]["PREVIEW_TEXT"]);
-	if(strtoupper($arResult['ITEMS'][$key]["DETAIL_TEXT_TYPE"]) == "TEXT")
+	if(mb_strtoupper($arResult['ITEMS'][$key]["DETAIL_TEXT_TYPE"]) == "TEXT")
 		$arResult['ITEMS'][$key]["DETAIL_TEXT"] = nl2br($arResult['ITEMS'][$key]["DETAIL_TEXT"]);
 
 	//create button

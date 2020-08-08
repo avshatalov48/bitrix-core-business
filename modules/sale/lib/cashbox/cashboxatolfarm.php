@@ -34,6 +34,8 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 	const CODE_VAT_10 = 'vat10';
 	const CODE_VAT_20 = 'vat20';
 
+	protected const MAX_NAME_LENGTH = 128;
+
 	/**
 	 * @param Check $check
 	 * @return array
@@ -67,7 +69,7 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 		if (is_string($phone))
 		{
 			if ($phone[0] === '7')
-				$phone = substr($phone, 1);
+				$phone = mb_substr($phone, 1);
 		}
 		else
 		{
@@ -106,7 +108,7 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 			$vat = $this->getValueFromSettings('VAT', $item['vat']);
 
 			$result['receipt']['items'][] = array(
-				'name' => $item['name'],
+				'name' => mb_substr($item['name'], 0, self::MAX_NAME_LENGTH),
 				'price' => (float)$item['price'],
 				'sum' => (float)$item['sum'],
 				'quantity' => $item['quantity'],
@@ -271,8 +273,8 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 			}
 		}
 
-		$checkQuery = static::buildCheckQuery($check);
-		$validateResult = $this->validate($checkQuery);
+		$checkQuery = $this->buildCheckQuery($check);
+		$validateResult = $this->validateCheckQuery($checkQuery);
 		if (!$validateResult->isSuccess())
 		{
 			return $validateResult;
@@ -381,7 +383,7 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 	 * @param array $checkData
 	 * @return Result
 	 */
-	protected function validate(array $checkData)
+	protected function validateCheckQuery(array $checkData)
 	{
 		$result = new Result();
 
@@ -420,10 +422,7 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 			$http->disableSslVerification();
 			$data = $this->encode($data);
 
-			if (Manager::DEBUG_MODE === true)
-			{
-				Internals\CashboxErrLogTable::add(array('MESSAGE' => $data, 'DATE_INSERT' => new Main\Type\DateTime()));
-			}
+			Logger::addDebugInfo($data);
 
 			$response = $http->post($url, $data);
 		}
@@ -434,10 +433,7 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 
 		if ($response !== false)
 		{
-			if (Manager::DEBUG_MODE === true)
-			{
-				Internals\CashboxErrLogTable::add(array('MESSAGE' => $response, 'DATE_INSERT' => new Main\Type\DateTime()));
-			}
+			Logger::addDebugInfo($response);
 
 			try
 			{

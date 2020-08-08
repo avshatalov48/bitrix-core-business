@@ -8,7 +8,7 @@ if ($db_res && ($res = $db_res->GetNext()))
 {
 	do
 	{
-		$arForum[intVal($res["ID"])] = $res["NAME"];
+		$arForum[intval($res["ID"])] = $res["NAME"];
 	}while ($res = $db_res->GetNext());
 }
 
@@ -72,7 +72,7 @@ $arComponentParameters = Array(
 			"PARENT" => "ADDITIONAL_SETTINGS",
 			"NAME" => GetMessage("F_PAGEN"),
 			"TYPE" => "STRING",
-			"DEFAULT" => intVal($GLOBALS["NavNum"] + 1)),
+			"DEFAULT" => intval($GLOBALS["NavNum"] + 1)),
 		"PAGE_NAVIGATION_TEMPLATE" => Array(
 			"PARENT" => "ADDITIONAL_SETTINGS",
 			"NAME" => GetMessage("F_PAGE_NAVIGATION_TEMPLATE"),
@@ -88,12 +88,12 @@ $arComponentParameters = Array(
 			"PARENT" => "ADDITIONAL_SETTINGS",
 			"NAME" => GetMessage("F_TOPICS_PER_PAGE"),
 			"TYPE" => "STRING",
-			"DEFAULT" => intVal(COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"))),
+			"DEFAULT" => intval(COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"))),
 		"MESSAGES_PER_PAGE" => Array(
 			"PARENT" => "ADDITIONAL_SETTINGS",
 			"NAME" => GetMessage("F_MESSAGES_PER_PAGE"),
 			"TYPE" => "STRING",
-			"DEFAULT" => intVal(COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10"))),
+			"DEFAULT" => intval(COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10"))),
 		"DATE_FORMAT" => CForumParameters::GetDateFormat(GetMessage("F_DATE_FORMAT"), "ADDITIONAL_SETTINGS"),
 		"DATE_TIME_FORMAT" => CForumParameters::GetDateTimeFormat(GetMessage("F_DATE_TIME_FORMAT"), "ADDITIONAL_SETTINGS"),
 		"WORD_LENGTH" => CForumParameters::GetWordLength(),

@@ -1,4 +1,5 @@
 module.exports = {
-	input: './src/dialog.js',
+	input: './src/component.js',
 	output: './dist/dialog.bundle.js',
+	namespace: 'BX.Messenger',
 };

@@ -71,19 +71,7 @@ else
 	$filter['ID'] = -1;
 }
 
-//for show PREVIEW sites on repo
-if($request->get('type') == 'PREVIEW' && defined('LANDING_IS_REPO') && LANDING_IS_REPO === true)
-{
-	$type = 'PREVIEW';
-	$filter['=TYPE'] = $type;
-	if ($siteId)
-	{
-		$filter['ID'] = $siteId;
-	}
-}
-
 $rights = [];
-
 $res = Site::getList([
 	 'select' => [
 		'ID', 'SMN_SITE_ID'
@@ -115,7 +103,7 @@ else
 			'SMN_SITE_ID' => $site,
 			'TYPE' => $type,
 			'DOMAIN_ID' => !Manager::isB24() ? Domain::getCurrentId() : ' ',
-			'CODE' => strtolower(\randString(10))
+			'CODE' => mb_strtolower(\randString(10))
 		));
 		if ($res->isSuccess())
 		{

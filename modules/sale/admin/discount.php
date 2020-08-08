@@ -29,13 +29,13 @@ Loader::includeModule('sale');
 Loc::loadMessages(__FILE__);
 
 $catalogNamePostfix = ' (' . Loc::getMessage('BT_SALE_DISCOUNT_LIST_MESS_TITLE_CATALOG_ID') . ')';
-$catalogNamePostfixLength = strlen($catalogNamePostfix);
+$catalogNamePostfixLength = mb_strlen($catalogNamePostfix);
 
 $enableDiscountConstructor = Sale\Config\Feature::isDiscountConstructorEnabled();
 
 $adminListTableID = 'tbl_sale_discount';
 
-$adminSort = new CAdminSorting($adminListTableID, 'ID', 'ASC');
+$adminSort = new CAdminUiSorting($adminListTableID, 'ID', 'ASC');
 $adminList = new CAdminUiList($adminListTableID, $adminSort);
 
 $filterSiteList = array();

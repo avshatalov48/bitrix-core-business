@@ -11,7 +11,7 @@ class CPostingTemplate
 		$io = CBXVirtualIo::GetInstance();
 		$arTemplates = array();
 
-		$dir = substr(getLocalPath("php_interface/subscribe/templates", BX_PERSONAL_ROOT), 1); //cut leading slash
+		$dir = mb_substr(getLocalPath("php_interface/subscribe/templates", BX_PERSONAL_ROOT), 1); //cut leading slash
 		$abs_dir = $_SERVER["DOCUMENT_ROOT"]."/".$dir;
 		if ($io->DirectoryExists($abs_dir))
 		{
@@ -53,15 +53,15 @@ class CPostingTemplate
 	{
 		$io = CBXVirtualIo::GetInstance();
 
-		$dir = substr(getLocalPath("php_interface/subscribe/templates", BX_PERSONAL_ROOT), 1);
-		if (strpos($path, $dir."/") === 0)
+		$dir = mb_substr(getLocalPath("php_interface/subscribe/templates", BX_PERSONAL_ROOT), 1);
+		if (mb_strpos($path, $dir."/") === 0)
 		{
-			$template = substr($path, strlen($dir) + 1);
+			$template = mb_substr($path, mb_strlen($dir) + 1);
 			if(
-				strpos($template, "\0") !== false
-				|| strpos($template, "\\") !== false
-				|| strpos($template, "/") !== false
-				|| strpos($template, "..") !== false
+				mb_strpos($template, "\0") !== false
+				|| mb_strpos($template, "\\") !== false
+				|| mb_strpos($template, "/") !== false
+				|| mb_strpos($template, "..") !== false
 			)
 			{
 				return false;
@@ -197,7 +197,7 @@ class CPostingTemplate
 	public static function ParseDaysOfMonth($strDaysOfMonth)
 	{
 		$arResult=array();
-		if(strlen($strDaysOfMonth) > 0)
+		if($strDaysOfMonth <> '')
 		{
 			$arDoM = explode(",", $strDaysOfMonth);
 			$arFound = array();
@@ -229,7 +229,7 @@ class CPostingTemplate
 
 	public static function ParseDaysOfWeek($strDaysOfWeek)
 	{
-		if(strlen($strDaysOfWeek) <= 0)
+		if($strDaysOfWeek == '')
 			return false;
 
 		$arResult = array();
@@ -257,7 +257,7 @@ class CPostingTemplate
 
 	public static function ParseTimesOfDay($strTimesOfDay)
 	{
-		if(strlen($strTimesOfDay) <= 0)
+		if($strTimesOfDay == '')
 			return false;
 
 		$arResult = array();

@@ -34,7 +34,7 @@ if(is_array($arCloudParams["arrFILTER"]))
 		{
 			$arCloudParams["arrFILTER_forum"] = $arParams["arrFILTER_forum"];
 		}
-		elseif(strpos($strFILTER,"iblock_")===0)
+		elseif(mb_strpos($strFILTER, "iblock_") === 0)
 		{
 			foreach($arParams["arrFILTER_".$strFILTER] as $strIBlock)
 				$arCloudParams["arrFILTER_".$strFILTER] = $arParams["arrFILTER_".$strFILTER];
@@ -61,9 +61,9 @@ $APPLICATION->IncludeComponent("bitrix:search.tags.cloud", ".default", $arCloudP
 	<?
 
 	$params_to_kill = array("q", "how", "where", "tags", "clear_cache", "bitrix_include_areas", "show_include_exec_time", "show_page_exec_time", "bitrix_show_mode");
-	if (array_key_exists("FILTER_NAME", $arParams) && strlen($arParams["FILTER_NAME"]) > 0)
+	if (array_key_exists("FILTER_NAME", $arParams) && $arParams["FILTER_NAME"] <> '')
 		$params_to_kill[] = $arParams["FILTER_NAME"];
-	if (array_key_exists("FILTER_DATE_NAME", $arParams) && strlen($arParams["FILTER_DATE_NAME"]) > 0)
+	if (array_key_exists("FILTER_DATE_NAME", $arParams) && $arParams["FILTER_DATE_NAME"] <> '')
 	{
 		$params_to_kill[] = $arParams["FILTER_DATE_NAME"]."_from";
 		$params_to_kill[] = $arParams["FILTER_DATE_NAME"]."_to";
@@ -102,14 +102,14 @@ $APPLICATION->IncludeComponent("bitrix:search.tags.cloud", ".default", $arCloudP
 	<?if(
 		$arParams["SHOW_WHERE"] ||
 		array_key_exists("DROPDOWN_SONET", $arResult) && is_array($arResult["DROPDOWN_SONET"]) && count($arResult["DROPDOWN_SONET"]) > 0 ||
-		array_key_exists("FILTER_DATE_NAME", $arParams) && strlen($arParams["FILTER_DATE_NAME"]) > 0
+		array_key_exists("FILTER_DATE_NAME", $arParams) && $arParams["FILTER_DATE_NAME"] <> ''
 	):
 		?><div class="sonet-search-advanced"><div class="sonet-search-advanced-filter"><a href="#" onclick="document.getElementById('sonet_content_search_filter').style.display = document.getElementById('sonet_content_search_filter').style.display == 'none' ? 'block' : 'none'; return false;"><?=GetMessage("SEARCH_ADDITIONAL_FILTER")?></a></div></div><?
 
 		$default_style = (
-					strlen($GLOBALS[$arParams["FILTER_NAME"]]["SONET_FEATURE"]) > 0 ||
-					strlen($_REQUEST[$arParams["FILTER_DATE_NAME"]."_from"]) > 0 ||
-					strlen($_REQUEST[$arParams["FILTER_DATE_NAME"]."_to"]) > 0 ?
+					$GLOBALS[$arParams["FILTER_NAME"]]["SONET_FEATURE"] <> '' ||
+					$_REQUEST[$arParams["FILTER_DATE_NAME"]."_from"] <> '' ||
+					$_REQUEST[$arParams["FILTER_DATE_NAME"]."_to"] <> '' ?
 					"block" : "none"
 				);
 		?>
@@ -140,7 +140,7 @@ $APPLICATION->IncludeComponent("bitrix:search.tags.cloud", ".default", $arCloudP
 			</tr>
 		<?endif;
 
-		if(array_key_exists("FILTER_DATE_NAME", $arParams) && strlen($arParams["FILTER_DATE_NAME"]) > 0):
+		if(array_key_exists("FILTER_DATE_NAME", $arParams) && $arParams["FILTER_DATE_NAME"] <> ''):
 			?>
 			<tr>
 				<td class="sonet-search-filter-name"><?=GetMessage("SEARCH_ADDITIONAL_FILTER_DATE")?>:</td>
@@ -221,7 +221,7 @@ endif;?>
 		<p><?echo $arItem["BODY_FORMATED"]?></p>
 		<?if (
 			$arParams["SHOW_RATING"] == "Y"
-			&& strlen($arItem["RATING_TYPE_ID"]) > 0
+			&& $arItem["RATING_TYPE_ID"] <> ''
 			&& $arItem["RATING_ENTITY_ID"] > 0
 		):?>
 			<div class="search-item-rate"><?

@@ -36,7 +36,7 @@ class Product extends DataSource implements \Iterator
 			throw new SystemException("Vk is not active!" . __METHOD__);
 
 //		check and set EXPORT ID
-		if (!isset($exportId) || strlen($exportId) <= 0)
+		if (!isset($exportId) || $exportId == '')
 			throw new ArgumentNullException("EXPORT_ID");
 		$this->exportId = $exportId;
 
@@ -89,7 +89,7 @@ class Product extends DataSource implements \Iterator
 
 	protected function setStartPosition($startPosition)
 	{
-		if (strlen($startPosition) > 0)
+		if ($startPosition <> '')
 		{
 //			todo: maybe can use cache from sectionslist
 //			find IblockId for this product ID

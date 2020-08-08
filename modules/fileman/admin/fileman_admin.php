@@ -12,7 +12,7 @@ error_reporting(E_COMPILE_ERROR|E_ERROR|E_CORE_ERROR|E_PARSE);
 // We prevent displaying WAF form and redirecting with JS errors
 define("BX_SECURITY_SHOW_MESSAGE", true);
 
-if($_SERVER["REQUEST_METHOD"]=="POST" && strlen($_POST["perms"])>0 && is_array($_POST["files"]) && count($_POST["files"])>0)
+if($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["perms"] <> '' && is_array($_POST["files"]) && count($_POST["files"])>0)
 {
 	include($_SERVER["DOCUMENT_ROOT"]."/bitrix/admin/fileman_access.php");
 	die();
@@ -34,7 +34,7 @@ $site = $_REQUEST['site'];
 $site = CFileMan::__CheckSite($site);
 $show_perms_for = isset($_REQUEST['show_perms_for']) ? intval($_REQUEST['show_perms_for']) : 0;
 
-if($_SERVER["REQUEST_METHOD"]=="POST" && strlen($_GET["fu_action"]) > 0 && check_bitrix_sessid())
+if($_SERVER["REQUEST_METHOD"]=="POST" && $_GET["fu_action"] <> '' && check_bitrix_sessid())
 {
 	include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/classes/general/fileman_utils.php");
 	CFilemanUtils::Request($_GET["fu_action"], $site);
@@ -76,22 +76,22 @@ if (!$bSearch)
 		global $strError, $find_timestamp_1, $find_timestamp_2, $lAdmin;
 		$str = "";
 
-		if (strlen(trim($find_timestamp_1))>0 || strlen(trim($find_timestamp_2))>0)
+		if (trim($find_timestamp_1) <> '' || trim($find_timestamp_2) <> '')
 		{
 			$date_1_ok = false;
 			$date1_stm = MkDateTime(FmtDate($find_timestamp_1,"D.M.Y"),"d.m.Y");
 			$date2_stm = MkDateTime(FmtDate($find_timestamp_2,"D.M.Y")." 23:59","d.m.Y H:i");
-			if (!$date1_stm && strlen(trim($find_timestamp_1))>0)
+			if (!$date1_stm && trim($find_timestamp_1) <> '')
 				$str.= GetMessage("MAIN_WRONG_DATE_FROM")."<br>";
 			else $date_1_ok = true;
-			if (!$date2_stm && strlen(trim($find_timestamp_2))>0)
+			if (!$date2_stm && trim($find_timestamp_2) <> '')
 				$str.= GetMessage("MAIN_WRONG_DATE_TILL")."<br>";
-			elseif ($date_1_ok && $date2_stm <= $date1_stm && strlen($date2_stm)>0)
+			elseif ($date_1_ok && $date2_stm <= $date1_stm && $date2_stm <> '')
 				$str.= GetMessage("MAIN_FROM_TILL_DATE")."<br>";
 		}
 		$strError .= $str;
 
-		if(strlen($str) > 0)
+		if($str <> '')
 		{
 			$lAdmin->AddFilterError($str);
 			return false;
@@ -126,7 +126,7 @@ if ($bSearch)
 	$addUrl_s .= '&search=Y'.($searchSess ? '&ssess='.$searchSess : '');
 
 $path = $io->CombinePath("/", $path);
-if (strpos($path, '/..') !== false)
+if (mb_strpos($path, '/..') !== false)
 	$path = '';
 
 $absPath = $documentRoot.$path;
@@ -166,7 +166,7 @@ if ($lAdmin->EditAction() && ($USER->CanDoOperation('fileman_admin_files') || $U
 			continue;
 		}
 
-		if (strlen($arFields["NAME"]) <= 0)
+		if ($arFields["NAME"] == '')
 		{
 			$lAdmin->AddGroupError(GetMessage("FILEMAN_RENAME_NEW_NAME")." \"".$ID."\"", $ID);
 		}
@@ -180,7 +180,7 @@ if ($lAdmin->EditAction() && ($USER->CanDoOperation('fileman_admin_files') || $U
 
 			if ($bSearch)
 			{
-				$path_i = substr($ID, 0, strlen($ID) - strlen($prev_name_i)); // substract path from $ID
+				$path_i = mb_substr($ID, 0, mb_strlen($ID) - mb_strlen($prev_name_i)); // substract path from $ID
 				$pathTo = Rel2Abs($path_i, $name_i);
 			}
 			else
@@ -190,7 +190,7 @@ if ($lAdmin->EditAction() && ($USER->CanDoOperation('fileman_admin_files') || $U
 
 			if (!($USER->CanDoFileOperation('fm_rename_file', $arPath_i) || $USER->CanDoFileOperation('fm_rename_file', $arPath_i)))
 				$lAdmin->AddGroupError(GetMessage("FILEMAN_RENAME_ACCESS_ERROR"), $ID);
-			elseif (!$USER->CanDoOperation('edit_php') && (substr($prev_name_i, 0, 1)=="." || substr($name_i, 0, 1)=="." || (!$isPhpFrom && $isPhpTo)))
+			elseif (!$USER->CanDoOperation('edit_php') && (mb_substr($prev_name_i, 0, 1) == "." || mb_substr($name_i, 0, 1) == "." || (!$isPhpFrom && $isPhpTo)))
 				$lAdmin->AddGroupError(GetMessage("FILEMAN_RENAME_TOPHPFILE_ERROR"), $ID);
 			elseif (!$USER->CanDoOperation('edit_php') && $isPhpFrom && !$isPhpTo)
 				$lAdmin->AddGroupError(GetMessage("FILEMAN_RENAME_FROMPHPFILE_ERROR"), $ID);
@@ -199,7 +199,7 @@ if ($lAdmin->EditAction() && ($USER->CanDoOperation('fileman_admin_files') || $U
 				$pathParsed_tmp = CFileMan::ParsePath(Array($site, $pathTo));
 				$strWarningTmp = CFileMan::CreateDir($pathParsed_tmp["PREV"]);
 
-				if (strlen($strWarningTmp) > 0)
+				if ($strWarningTmp <> '')
 				{
 					$lAdmin->AddGroupError($strWarningTmp, $ID);
 				}
@@ -227,7 +227,7 @@ if ($lAdmin->EditAction() && ($USER->CanDoOperation('fileman_admin_files') || $U
 						$module_id = "fileman";
 						if(COption::GetOptionString($module_id, "log_page", "Y")=="Y")
 						{
-							$res_log['path'] = substr($pathTo, 1);
+							$res_log['path'] = mb_substr($pathTo, 1);
 							if (is_dir($documentRoot.$pathTo))
 								CEventLog::Log(
 									"content",
@@ -270,7 +270,7 @@ if (($arID = $lAdmin->GroupAction()) && ($USER->CanDoOperation('fileman_admin_fi
 			for($i = 0, $l = count($searchRes); $i < $l; $i++)
 				$arID[] = $searchRes[$i]['path'];
 		}
-		elseif (!CSite::IsDistinctDocRoots() || strlen($site) > 0 || strlen($path) > 0)
+		elseif (!CSite::IsDistinctDocRoots() || $site <> '' || $path <> '')
 		{
 			$DOC_ROOT = CSite::GetSiteDocRoot($site);
 
@@ -290,7 +290,7 @@ if (($arID = $lAdmin->GroupAction()) && ($USER->CanDoOperation('fileman_admin_fi
 
 	foreach ($arID as $ID)
 	{
-		if (strlen($ID) <= 0 || $ID == '.')
+		if ($ID == '' || $ID == '.')
 			continue;
 
 		// For search results we have full pathes
@@ -308,7 +308,7 @@ if (($arID = $lAdmin->GroupAction()) && ($USER->CanDoOperation('fileman_admin_fi
 				if(COption::GetOptionString($module_id, "log_page", "Y")=="Y")
 				{
 					$res_log['file_name'] = $ID;
-					$res_log['path'] = substr($path, 1);
+					$res_log['path'] = mb_substr($path, 1);
 					if (is_dir($_SERVER['DOCUMENT_ROOT']."/".$res_log['path']."/".$ID))
 					{
 						$res_log['path'] = empty($res_log['path']) ? $ID : $res_log['path']."/".$ID;
@@ -335,7 +335,7 @@ if (($arID = $lAdmin->GroupAction()) && ($USER->CanDoOperation('fileman_admin_fi
 				if ($bSearch)
 					CFilemanSearch::DelFromSearchResult($searchSess, $pathEx);
 
-				if(strlen($strWarning_tmp) > 0)
+				if($strWarning_tmp <> '')
 					$lAdmin->AddGroupError($strWarning_tmp, $ID);
 				break;
 			case "copy":
@@ -359,7 +359,7 @@ if (($arID = $lAdmin->GroupAction()) && ($USER->CanDoOperation('fileman_admin_fi
 				if ($bSearch && $_REQUEST['action'] == "move")
 					CFilemanSearch::DelFromSearchResult($searchSess, $pathEx);
 
-				if (strlen($strWarning_tmp) > 0)
+				if ($strWarning_tmp <> '')
 					$lAdmin->AddGroupError($strWarning_tmp, $ID);
 
 				break;
@@ -377,7 +377,7 @@ if (!$bSearch) // Display files and folders list
 	{
 		CFileMan::GetDirList(Array($site, $path), $arDirs, $arFiles, $arFilter, Array($by => $order), "DF", $logical=='Y',true);
 
-		if(strlen($path) > 0)
+		if($path <> '')
 		{
 			$dname = $path;
 			if($logical=="Y")
@@ -385,7 +385,7 @@ if (!$bSearch) // Display files and folders list
 				if($io->FileExists($absPath."/.section.php"))
 				{
 					@include($io->GetPhysicalName($absPath."/.section.php"));
-					if(strlen($sSectionName)<=0)
+					if($sSectionName == '')
 						$sSectionName = GetMessage("FILEMAN_ADM_UNTITLED");
 					$dname = $sSectionName;
 				}
@@ -494,12 +494,12 @@ $arHeaders[] = array("id"=>"PERMS_B", "content"=>GetMessage('FILEMAN_ADMIN_ACCES
 $lAdmin->AddHeaders($arHeaders);
 
 
-if(IntVal($show_perms_for) > 0)
+if(intval($show_perms_for) > 0)
 	$lAdmin->AddVisibleHeaderColumn("PERMS_B");
 
 $arVisibleColumns = $lAdmin->GetVisibleHeaderColumns();
 
-if(!$bSearch && strlen($path) > 0 && ($logical != "Y" || rtrim($arSite["DIR"], "/") != rtrim($arParsedPath["FULL"], "/")))
+if(!$bSearch && $path <> '' && ($logical != "Y" || rtrim($arSite["DIR"], "/") != rtrim($arParsedPath["FULL"], "/")))
 {
 	$row =& $lAdmin->AddRow(".", array("NAME" => GetMessage("FILEMAN_UP")));
 
@@ -519,7 +519,7 @@ if(!$bSearch && strlen($path) > 0 && ($logical != "Y" || rtrim($arSite["DIR"], "
 	for($i = 0; $i < $cnt_resSites; $i++)
 	{
 		$dir = trim($resSites[$i]["DIR"], "/");
-		if (substr(trim($arParsedPath["PREV"], "/"), 0, strlen($dir)) == $dir)
+		if (mb_substr(trim($arParsedPath["PREV"], "/"), 0, mb_strlen($dir)) == $dir)
 		{
 			$site = $resSites[$i]["ID"];
 			break;
@@ -527,9 +527,9 @@ if(!$bSearch && strlen($path) > 0 && ($logical != "Y" || rtrim($arSite["DIR"], "
 	}
 
 	if($logical == "Y")
-		$showField = "<a href=\"javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".$site."&path=".urlencode(urlencode($arParsedPath["PREV"]))."&show_perms_for=".IntVal($show_perms_for)."', GALCallBack);\"><span class=\"adm-submenu-item-link-icon fileman_icon_folder_up\" alt=\"".GetMessage("FILEMAN_UP")."\"></span>&nbsp;<a href=\"javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".$site."&path=".urlencode(urlencode($arParsedPath["PREV"]))."&show_perms_for=".IntVal($show_perms_for)."', GALCallBack);\">..</a>";
+		$showField = "<a href=\"javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".$site."&path=".urlencode(urlencode($arParsedPath["PREV"]))."&show_perms_for=".intval($show_perms_for)."', GALCallBack);\"><span class=\"adm-submenu-item-link-icon fileman_icon_folder_up\" alt=\"".GetMessage("FILEMAN_UP")."\"></span>&nbsp;<a href=\"javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".$site."&path=".urlencode(urlencode($arParsedPath["PREV"]))."&show_perms_for=".intval($show_perms_for)."', GALCallBack);\">..</a>";
 	else
-		$showField = "<a href=\"javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".$site."&path=".urlencode(urlencode($arParsedPath["PREV"]))."&show_perms_for=".IntVal($show_perms_for)."', GALCallBack);\"><span class=\"adm-submenu-item-link-icon fileman_icon_folder_up\" alt=\"".GetMessage("FILEMAN_UP")."\"></span>&nbsp;<a href=\"javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".$site."&path=".urlencode(urlencode($arParsedPath["PREV"]))."&show_perms_for=".IntVal($show_perms_for)."', GALCallBack);\">..</a>";
+		$showField = "<a href=\"javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".$site."&path=".urlencode(urlencode($arParsedPath["PREV"]))."&show_perms_for=".intval($show_perms_for)."', GALCallBack);\"><span class=\"adm-submenu-item-link-icon fileman_icon_folder_up\" alt=\"".GetMessage("FILEMAN_UP")."\"></span>&nbsp;<a href=\"javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".$site."&path=".urlencode(urlencode($arParsedPath["PREV"]))."&show_perms_for=".intval($show_perms_for)."', GALCallBack);\">..</a>";
 
 	$row->AddField("NAME", $showField);
 	$row->AddField("LOGIC_NAME", $showField);
@@ -548,7 +548,7 @@ if(!$bSearch && strlen($path) > 0 && ($logical != "Y" || rtrim($arSite["DIR"], "
 		"ICON" => "",
 		"TEXT" => GetMessage('FILEMAN_N_OPEN'),
 		"DEFAULT" => true,
-		"ACTION" => "javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".$site."&path=".urlencode($arParsedPath["PREV"])."&show_perms_for=".IntVal($show_perms_for)."', GALCallBack);"
+		"ACTION" => "javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".$site."&path=".urlencode($arParsedPath["PREV"])."&show_perms_for=".intval($show_perms_for)."', GALCallBack);"
 	);
 
 	$row->AddActions($arActions);
@@ -563,7 +563,7 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 	for($i = 0; $i < $cnt_resSites; $i++)
 	{
 		$dir = trim($resSites[$i]["DIR"], "/");
-		if (substr(trim($fpath, "/"), 0, strlen($dir)) == $dir)
+		if (mb_substr(trim($fpath, "/"), 0, mb_strlen($dir)) == $dir)
 		{
 			$site = $resSites[$i]["ID"];
 			break;
@@ -587,8 +587,8 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 	$showFieldText = "";
 	if($Elem["TYPE"] == "D")
 	{
-		$showFieldIcon = "<a href=\"fileman_admin.php?".$addUrl_s."&site=".urlencode($site)."&path=".$fpathUrl."&show_perms_for=".IntVal($show_perms_for)."\" onclick=\"".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".urlencode($site)."&path=".$fpathUrl."&show_perms_for=".IntVal($show_perms_for)."', GALCallBack);return false;\"><span class='adm-submenu-item-link-icon fileman_icon_folder'></span></a>";
-		$showFieldText = "<a href=\"fileman_admin.php?".$addUrl_s."&site=".urlencode($site)."&path=".$fpathUrl."&show_perms_for=".IntVal($show_perms_for)."\" onclick=\"".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".urlencode($site)."&path=".$fpathUrl."&show_perms_for=".IntVal($show_perms_for)."', GALCallBack);return false;\">".$f_NAME."</a>";
+		$showFieldIcon = "<a href=\"fileman_admin.php?".$addUrl_s."&site=".urlencode($site)."&path=".$fpathUrl."&show_perms_for=".intval($show_perms_for)."\" onclick=\"".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".urlencode($site)."&path=".$fpathUrl."&show_perms_for=".intval($show_perms_for)."', GALCallBack);return false;\"><span class='adm-submenu-item-link-icon fileman_icon_folder'></span></a>";
+		$showFieldText = "<a href=\"fileman_admin.php?".$addUrl_s."&site=".urlencode($site)."&path=".$fpathUrl."&show_perms_for=".intval($show_perms_for)."\" onclick=\"".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".urlencode($site)."&path=".$fpathUrl."&show_perms_for=".intval($show_perms_for)."', GALCallBack);return false;\">".$f_NAME."</a>";
 	}
 	else
 	{
@@ -634,13 +634,13 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 	{
 		$showFieldIcon = "";
 		$showFieldText = "";
-		if(strlen($f_LOGIC_NAME)<=0)
+		if($f_LOGIC_NAME == '')
 			$f_LOGIC_NAME = htmlspecialcharsbx(GetMessage("FILEMAN_ADM_UNTITLED"));
 
 		if($Elem["TYPE"] == "D")
 		{
-			$showFieldIcon = "<a href=\"javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".urlencode($site)."&path=".$fpathUrl."&show_perms_for=".IntVal($show_perms_for)."', GALCallBack);\" title=\"".htmlspecialcharsbx($fpath)."\"><span class='adm-submenu-item-link-icon fileman_icon_folder'></span></a>";
-			$showFieldText = "<a href=\"javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".urlencode($site)."&path=".$fpathUrl."&show_perms_for=".IntVal($show_perms_for)."', GALCallBack);\" title=\"".htmlspecialcharsbx($fpath)."\">".$f_LOGIC_NAME."</a>";
+			$showFieldIcon = "<a href=\"javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".urlencode($site)."&path=".$fpathUrl."&show_perms_for=".intval($show_perms_for)."', GALCallBack);\" title=\"".htmlspecialcharsbx($fpath)."\"><span class='adm-submenu-item-link-icon fileman_icon_folder'></span></a>";
+			$showFieldText = "<a href=\"javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".urlencode($site)."&path=".$fpathUrl."&show_perms_for=".intval($show_perms_for)."', GALCallBack);\" title=\"".htmlspecialcharsbx($fpath)."\">".$f_LOGIC_NAME."</a>";
 		}
 		else
 		{
@@ -694,7 +694,7 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 		$showField = "&nbsp;";
 		if(($USER->CanDoOperation('fileman_view_permissions') || $USER->CanDoOperation('fileman_edit_all_settings')) && $USER->CanDoFileOperation('fm_view_permission', $arPath))
 		{
-			$arP = $APPLICATION->GetFileAccessPermission(Array($site, $fpath), ((IntVal($show_perms_for) > 0) ? array($show_perms_for) : false), true);
+			$arP = $APPLICATION->GetFileAccessPermission(Array($site, $fpath), ((intval($show_perms_for) > 0) ? array($show_perms_for) : false), true);
 
 			end($arP);
 			$cur_dir_taskId = current($arP);
@@ -704,8 +704,8 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 				if ($r = $z->Fetch())
 				if ($r['NAME'])
 				{
-					$showField = GetMessage(strtoupper($r['NAME']));
-					if(strlen($showField) <= 0)
+					$showField = GetMessage(mb_strtoupper($r['NAME']));
+					if($showField == '')
 						$showField = $r['NAME'];
 				}
 			}
@@ -783,7 +783,7 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 						$st = '';
 						$sid = '';
 						$WFlink = CWorkFlow::GetEditLink(array($site, $fpath), $sid, $st);
-						if (strlen($WFlink) > 0)
+						if ($WFlink <> '')
 						{
 							$arActions[] = array(
 								"ICON" => "btn_fileman_galka",
@@ -795,7 +795,7 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 					}
 				}
 
-				if($USER->CanDoFileOperation('fm_view_file', $arPath) && ($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', $arPath) || !(HasScriptExtension($f_NAME) || substr($Elem["NAME"], 0, 1) == ".")))
+				if($USER->CanDoFileOperation('fm_view_file', $arPath) && ($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', $arPath) || !(HasScriptExtension($f_NAME) || mb_substr($Elem["NAME"], 0, 1) == ".")))
 				{
 					$arActions[] = array(
 						"ICON" => "btn_fileman_view",
@@ -805,7 +805,7 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 					);
 				}
 
-				if(($USER->CanDoFileOperation('fm_download_file', $arPath) && !(HasScriptExtension($f_NAME) || 	substr($Elem["NAME"], 0, 1) == ".")) || $USER->CanDoOperation('edit_php'))
+				if(($USER->CanDoFileOperation('fm_download_file', $arPath) && !(HasScriptExtension($f_NAME) || mb_substr($Elem["NAME"], 0, 1) == ".")) || $USER->CanDoOperation('edit_php'))
 				{
 					$arActions[] = array(
 						"ICON" => "btn_download",
@@ -825,7 +825,7 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 				"ICON" => "",
 				"TEXT" => GetMessage('FILEMAN_N_OPEN'),
 				"DEFAULT" => true,
-				"ACTION" => "javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl."&site=".urlencode($site)."&path=".$fpathUrl."&show_perms_for=".IntVal($show_perms_for)."', GALCallBack);"
+				"ACTION" => "javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl."&site=".urlencode($site)."&path=".$fpathUrl."&show_perms_for=".intval($show_perms_for)."', GALCallBack);"
 			);
 		}
 
@@ -842,7 +842,7 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 	$type = $Elem["TYPE"] == "F" ? 'file' : 'folder';
 	if ($logical != "Y")
 	{
-		if ($Elem["TYPE"] == "F" && $USER->CanDoFileOperation('fm_view_file', $arPath) && ($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', $arPath) || !(HasScriptExtension($f_NAME) || substr($Elem["NAME"], 0, 1)==".")) || $Elem["TYPE"] == "D" && $USER->CanDoFileOperation('fm_view_listing', $arPath))
+		if ($Elem["TYPE"] == "F" && $USER->CanDoFileOperation('fm_view_file', $arPath) && ($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', $arPath) || !(HasScriptExtension($f_NAME) || mb_substr($Elem["NAME"], 0, 1) == ".")) || $Elem["TYPE"] == "D" && $USER->CanDoFileOperation('fm_view_listing', $arPath))
 		{
 			$arActions[] = array("SEPARATOR" => true);
 			$arActions[] = array(
@@ -873,7 +873,7 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 		}
 
 		// Copy
-		if(($USER->CanDoFileOperation('fm_view_file', $arPath) && ($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', $arPath) || !(HasScriptExtension($f_NAME) || substr($Elem["NAME"], 0, 1)=="."))) && $Elem["TYPE"] == "F" || $Elem["TYPE"] == "D" && $USER->CanDoFileOperation('fm_view_listing', $arPath))
+		if(($USER->CanDoFileOperation('fm_view_file', $arPath) && ($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', $arPath) || !(HasScriptExtension($f_NAME) || mb_substr($Elem["NAME"], 0, 1) == "."))) && $Elem["TYPE"] == "F" || $Elem["TYPE"] == "D" && $USER->CanDoFileOperation('fm_view_listing', $arPath))
 		{
 			$arActions[] = array(
 				"ICON" => "copy",
@@ -885,7 +885,7 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 		// Move
 		if($USER->CanDoOperation('fileman_admin_folders') && $USER->CanDoFileOperation('fm_delete_'.$type, $arPath))
 		{
-			if(($USER->CanDoFileOperation('fm_view_file', $arPath) && ($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', $arPath) || !(HasScriptExtension($f_NAME) || substr($Elem["NAME"], 0, 1)=="."))) && $Elem["TYPE"] == "F" || $Elem["TYPE"] == "D" && $USER->CanDoFileOperation('fm_view_listing', $arPath))
+			if(($USER->CanDoFileOperation('fm_view_file', $arPath) && ($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', $arPath) || !(HasScriptExtension($f_NAME) || mb_substr($Elem["NAME"], 0, 1) == "."))) && $Elem["TYPE"] == "F" || $Elem["TYPE"] == "D" && $USER->CanDoFileOperation('fm_view_listing', $arPath))
 			{
 				$arActions[] = array(
 					"ICON" => "move",
@@ -897,7 +897,7 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 			$arActions[] = array(
 				"ICON" => "delete",
 				"TEXT" => GetMessage("FILEMAN_ADMIN_DELETE"),
-				"ACTION" => "if(confirm('".GetMessage('FILEMAN_ALERT_DELETE')."')) ".$lAdmin->ActionDoGroup(urlencode($f_NAME), "delete", $addUrl."&site=".urlencode($site)."&path=".urlencode($path)."&show_perms_for=".IntVal($show_perms_for))
+				"ACTION" => "if(confirm('".GetMessage('FILEMAN_ALERT_DELETE')."')) ".$lAdmin->ActionDoGroup(urlencode($f_NAME), "delete", $addUrl."&site=".urlencode($site)."&path=".urlencode($path)."&show_perms_for=".intval($show_perms_for))
 			);
 		}
 
@@ -1160,7 +1160,7 @@ ob_start();
 <tr>
 	<td style="padding-left:5px;"><?= GetMessage("FILEMAN_FAST_PATH")?></td>
 	<td style="padding-left:5px;"><input class="bx-quick-path" type="text" name="quick_path" id="quick_path" size="50" value="<?= htmlspecialcharsbx($path)?>" /></td>
-	<td style="padding-left:3px; padding-right:3px;"><input class="form-button" type="button" value="OK" title="<?= GetMessage("FILEMAN_FAST_PATH_BUTTON")?>" OnClick="<?= $sTableID ?>.GetAdminList('fileman_admin.php?<?=$addUrl?>&site=<?= urlencode($site) ?>&path='+jsUtils.urlencode(BX('quick_path').value)+'&show_perms_for=<?= IntVal($show_perms_for) ?>&check_for_file=Y', GALCallBack)"></td>
+	<td style="padding-left:3px; padding-right:3px;"><input class="form-button" type="button" value="OK" title="<?= GetMessage("FILEMAN_FAST_PATH_BUTTON")?>" OnClick="<?= $sTableID ?>.GetAdminList('fileman_admin.php?<?=$addUrl?>&site=<?= urlencode($site) ?>&path='+jsUtils.urlencode(BX('quick_path').value)+'&show_perms_for=<?= intval($show_perms_for) ?>&check_for_file=Y', GALCallBack)"></td>
 </tr>
 </table>
 <script>top.BX.ready(function(){setTimeout(top.InitQuickPath, 100)});</script>
@@ -1181,8 +1181,8 @@ if (isset($_POST['bx_search_file']))
 		'date_from' => $_POST['bx_search_date_from'],
 		'date_to' => $_POST['bx_search_date_to'],
 		'size_sel' => $_POST['bx_search_size_sel'],
-		'size_from' => intVal($_POST['bx_search_size_from']),
-		'size_to' => intVal($_POST['bx_search_size_to']),
+		'size_from' => intval($_POST['bx_search_size_from']),
+		'size_to' => intval($_POST['bx_search_size_to']),
 		'dirs_too' => $_POST['bx_search_dirs_too'] == 'Y',
 		'case_sens' => $_POST['bx_search_case'] == 'Y'
 	));
@@ -1220,8 +1220,8 @@ else
 		$chain->AddItem(
 			array(
 				"TEXT" => htmlspecialcharsex($chainLevel["TITLE"]),
-				"LINK" => ((strlen($chainLevel["LINK"]) > 0) ? $chainLevel["LINK"] : ""),
-				"ONCLICK" => ((strlen($chainLevel["LINK"]) > 0) ? $lAdmin->ActionAjaxReload($chainLevel["LINK"]).';return false;' : ""),
+				"LINK" => (($chainLevel["LINK"] <> '') ? $chainLevel["LINK"] : ""),
+				"ONCLICK" => (($chainLevel["LINK"] <> '') ? $lAdmin->ActionAjaxReload($chainLevel["LINK"]).';return false;' : ""),
 			)
 		);
 	}
@@ -1280,7 +1280,7 @@ window.InitQuickPath = function()
 		posCorrection: {left: 1, top: 20},
 		OnEnterPress: function(res)
 		{
-			<?= $sTableID ?>.GetAdminList('fileman_admin.php?<?=$addUrl?>&site=<?= urlencode($site) ?>&path=' + res.value + '&show_perms_for=<?= IntVal($show_perms_for) ?>&check_for_file=Y', GALCallBack);
+			<?= $sTableID ?>.GetAdminList('fileman_admin.php?<?=$addUrl?>&site=<?= urlencode($site) ?>&path=' + res.value + '&show_perms_for=<?= intval($show_perms_for) ?>&check_for_file=Y', GALCallBack);
 			return false;
 		}
 	});

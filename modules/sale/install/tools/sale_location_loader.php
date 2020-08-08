@@ -17,7 +17,7 @@ $properties = $_REQUEST['PROPERTIES'];
 
 $APPLICATION->IncludeComponent("bitrix:sale.location.selector.".Helper::getWidgetAppearance(), "", array(
 	"ID" => intval($properties['ID']) ? intval($properties['ID']) : '',
-	"CODE" => strlen($properties['CODE']) ? $properties['CODE'] : '',
+	"CODE" => $properties['CODE'] <> ''? $properties['CODE'] : '',
 	"INPUT_NAME" => $properties['INPUT_NAME'],
 	"PROVIDE_LINK_BY" => $properties['PROVIDE_LINK_BY'] == 'id' ? 'id' : 'code',
 

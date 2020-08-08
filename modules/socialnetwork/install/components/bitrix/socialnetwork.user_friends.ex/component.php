@@ -7,30 +7,30 @@ if (!CModule::IncludeModule("socialnetwork"))
 	return;
 }
 
-$arParams["ID"] = IntVal($arParams["ID"]);
+$arParams["ID"] = intval($arParams["ID"]);
 if ($arParams["ID"] <= 0)
-	$arParams["ID"] = IntVal($GLOBALS["USER"]->GetID());
+	$arParams["ID"] = intval($GLOBALS["USER"]->GetID());
 
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 
-if (strLen($arParams["USER_VAR"]) <= 0)
+if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if (strlen($arParams["PATH_TO_USER"]) <= 0)
+if ($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_SEARCH"] = trim($arParams["PATH_TO_SEARCH"]);
-if (strlen($arParams["PATH_TO_SEARCH"]) <= 0)
+if ($arParams["PATH_TO_SEARCH"] == '')
 	$arParams["PATH_TO_SEARCH"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=search");
 
-$arParams["ITEMS_COUNT"] = IntVal($arParams["ITEMS_COUNT"]);
+$arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
 if ($arParams["ITEMS_COUNT"] <= 0)
 	$arParams["ITEMS_COUNT"] = 20;
 
-$arParams["THUMBNAIL_LIST_SIZE"] = IntVal($arParams["THUMBNAIL_LIST_SIZE"]);
+$arParams["THUMBNAIL_LIST_SIZE"] = intval($arParams["THUMBNAIL_LIST_SIZE"]);
 if ($arParams["THUMBNAIL_LIST_SIZE"] <= 0)
 	$arParams["THUMBNAIL_LIST_SIZE"] = 42;
 
@@ -71,7 +71,7 @@ else
 
 			if ($arParams["SET_TITLE"] == "Y" || $arParams["SET_NAV_CHAIN"] != "N")
 			{
-				if (strlen($arParams["NAME_TEMPLATE"]) <= 0)
+				if ($arParams["NAME_TEMPLATE"] == '')
 				{
 					$arParams["NAME_TEMPLATE"] = GetMessage("SONET_UFE_NAME_TEMPLATE_DEFAULT");
 				}
@@ -120,7 +120,7 @@ else
 						if ($arResult["Friends"]["List"] == false)
 							$arResult["Friends"]["List"] = array();
 
-						$pref = ((IntVal($arResult["User"]["ID"]) == $arFriends["FIRST_USER_ID"]) ? "SECOND" : "FIRST");
+						$pref = ((intval($arResult["User"]["ID"]) == $arFriends["FIRST_USER_ID"]) ? "SECOND" : "FIRST");
 
 						$pu = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $arFriends[$pref."_USER_ID"]));
 						$canViewProfile = CSocNetUserPerms::CanPerformOperation($GLOBALS["USER"]->GetID(), $arFriends[$pref."_USER_ID"], "viewprofile", CSocNetUser::IsCurrentUserModuleAdmin());
@@ -193,7 +193,7 @@ else
 							if ($arResult["Banned"]["List"] == false)
 								$arResult["Banned"]["List"] = array();
 
-							$pref = ((IntVal($arResult["User"]["ID"]) == $arBan["FIRST_USER_ID"]) ? "SECOND" : "FIRST");
+							$pref = ((intval($arResult["User"]["ID"]) == $arBan["FIRST_USER_ID"]) ? "SECOND" : "FIRST");
 
 							$pu = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $arBan[$pref."_USER_ID"]));
 							$canViewProfile = CSocNetUserPerms::CanPerformOperation($GLOBALS["USER"]->GetID(), $arBan[$pref."_USER_ID"], "viewprofile", CSocNetUser::IsCurrentUserModuleAdmin());

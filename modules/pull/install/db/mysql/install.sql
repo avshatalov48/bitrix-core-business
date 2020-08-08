@@ -32,6 +32,8 @@ CREATE TABLE b_pull_push (
 	DEVICE_ID varchar(255) null,
 	DEVICE_NAME varchar(50) null,
 	DEVICE_TOKEN varchar(255) not null,
+	VOIP_TYPE varchar(50) null,
+	VOIP_TOKEN varchar(255) null,
 	DATE_CREATE datetime not null,
 	DATE_AUTH datetime null,
 	PRIMARY KEY (ID),

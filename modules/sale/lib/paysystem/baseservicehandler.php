@@ -22,12 +22,12 @@ abstract class BaseServiceHandler
 	const ACTIVE_URL = 'active';
 
 	protected $handlerType = '';
-	
+
 	protected $service = null;
-	
+
 	protected $extraParams = array();
 	protected $initiateMode = self::STREAM;
-	
+
 	/** @var bool */
 	protected $isClone = false;
 
@@ -82,7 +82,7 @@ abstract class BaseServiceHandler
 				$content = require($templatePath);
 
 				$buffer = ob_get_contents();
-				if (strlen($buffer) > 0)
+				if ($buffer <> '')
 					$content = $buffer;
 
 				if ($this->service->getField('ENCODING') != '')
@@ -172,7 +172,13 @@ abstract class BaseServiceHandler
 	 */
 	protected function getBusinessValue(Payment $payment = null, $code)
 	{
-		return BusinessValue::getValueFromProvider($payment, $code, $this->service->getConsumerName());
+		$value = BusinessValue::getValueFromProvider($payment, $code, $this->service->getConsumerName());
+		if (is_string($value))
+		{
+			$value = trim($value);
+		}
+
+		return $value;
 	}
 
 	/**
@@ -184,12 +190,42 @@ abstract class BaseServiceHandler
 		$documentRoot = Application::getDocumentRoot();
 		$dirs = Manager::getHandlerDirectories();
 		$handlerDir = $dirs[$this->handlerType];
-		$file = $documentRoot.$handlerDir.$this->getName().'/.description.php';
+		$file = $documentRoot.$handlerDir.static::getName().'/.description.php';
 
 		if (IO\File::isFileExists($file))
+		{
 			require $file;
+		}
+
+		if (isset($data["CODES"]) && is_array($data["CODES"]))
+		{
+			$data["CODES"] = $this->filterDescriptionCodes($data["CODES"]);
+		}
 
 		return $data;
+	}
+
+	/**
+	 * @param $codes
+	 * @return array
+	 */
+	protected function filterDescriptionCodes($codes)
+	{
+		$psMode = $this->service->getField("PS_MODE");
+		return array_filter($codes, static function ($code) use ($psMode) {
+			if (!isset($code["HANDLER_MODE"]))
+			{
+				return true;
+			}
+
+			if (isset($code["HANDLER_MODE"]) && !is_array($code["HANDLER_MODE"]))
+			{
+				trigger_error("HANDLER_MODE must be an array", E_USER_WARNING);
+				return false;
+			}
+
+			return in_array($psMode, $code["HANDLER_MODE"], true);
+		});
 	}
 
 	/**

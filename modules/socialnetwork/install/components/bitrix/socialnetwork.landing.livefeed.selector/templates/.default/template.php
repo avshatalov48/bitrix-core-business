@@ -43,17 +43,22 @@ Toolbar::addFilter([
 	)
 ]);
 
-$menuButton = new \Bitrix\UI\Buttons\Button([
-	"color" => \Bitrix\UI\Buttons\Color::PRIMARY,
-	"icon" => \Bitrix\UI\Buttons\Icon::ADD,
-	"click" => new \Bitrix\UI\Buttons\JsHandler(
-		"BX.SocialnetworkLandingLivefeedSelector.createWorkgroup",
-		"BX.SocialnetworkLandingLivefeedSelector.Instance"
-	),
-	"text" => Loc::getMessage('SLLS_TEMPLATE_CREATE_GROUP_BUTTON')
-]);
-$menuButton->addAttribute('id', $buttonID);
-Toolbar::addButton($menuButton);
+
+if (!empty($arResult["URL_GROUP_CREATE"]))
+{
+	$menuButton = new \Bitrix\UI\Buttons\Button([
+		"color" => \Bitrix\UI\Buttons\Color::PRIMARY,
+		"icon" => \Bitrix\UI\Buttons\Icon::ADD,
+		"click" => new \Bitrix\UI\Buttons\JsHandler(
+			"BX.SocialnetworkLandingLivefeedSelector.createWorkgroup",
+			"BX.SocialnetworkLandingLivefeedSelector.Instance"
+		),
+		"text" => Loc::getMessage('SLLS_TEMPLATE_CREATE_GROUP_BUTTON')
+	]);
+	$menuButton->addAttribute('id', $buttonID);
+	Toolbar::addButton($menuButton);
+}
+
 Toolbar::deleteFavoriteStar();
 
 if (
@@ -66,9 +71,16 @@ if (
 
 	?><div class="landing-livefeed-selector-content landing-livefeed-selector-content-empty">
 		<div class="landing-livefeed-selector-content-message"><?=Loc::getMessage("SLLS_TEMPLATE_NO_GROUPS")?></div>
-		<div class="landing-livefeed-selector-content-control">
-			<a class="ui-btn ui-btn-md ui-btn-primary ui-btn-icon-add" id="slls_group_create"><?=Loc::getMessage("SLLS_TEMPLATE_CREATE_GROUP")?></a>
-		</div>
+		<?
+		if (!empty($arResult["URL_GROUP_CREATE"]))
+		{
+			?>
+			<div class="landing-livefeed-selector-content-control">
+				<a class="ui-btn ui-btn-md ui-btn-primary ui-btn-icon-add" id="slls_group_create"><?=Loc::getMessage("SLLS_TEMPLATE_CREATE_GROUP")?></a>
+			</div>
+			<?
+		}
+		?>
 	</div>
 	<script>
 		BX.ready(function () {

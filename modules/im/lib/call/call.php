@@ -3,13 +3,18 @@
 namespace Bitrix\Im\Call;
 
 use Bitrix\Im\Call\Integration\EntityFabric;
+use Bitrix\Im\Call\Integration\EntityType;
+use Bitrix\Im\Dialog;
 use Bitrix\Im\Model\CallTable;
 use Bitrix\Im\Model\CallUserTable;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Type\DateTime;
+use Bitrix\Main\Event;
+use Bitrix\Main\Web\JWT;
 
 class Call
 {
@@ -17,6 +22,9 @@ class Call
 	const STATE_INVITING = 'inviting';
 	const STATE_ANSWERED = 'answered';
 	const STATE_FINISHED = 'finished';
+
+	const TYPE_INSTANT = 1;
+	const TYPE_PERMANENT = 2;
 
 	const PROVIDER_PLAIN = 'Plain';
 	const PROVIDER_VOXIMPLANT = 'Voximplant';
@@ -33,6 +41,8 @@ class Call
 	protected $state;
 	protected $startDate;
 	protected $endDate;
+	protected $logUrl;
+	protected $chatId;
 
 	/** @var Integration\AbstractEntity */
 	protected $associatedEntity = null;
@@ -54,7 +64,7 @@ class Call
 	 */
 	public function getId()
 	{
-		return $this->id;
+		return (int)$this->id;
 	}
 
 	/**
@@ -163,16 +173,17 @@ class Call
 
 		foreach ($this->users as $userId => $user)
 		{
-			if($states[$user->getState()])
-			{
-				$states[$user->getState()]++;
-			}
-			else
-			{
-				$states[$user->getState()] = 1;
-			}
+			$userState = $user->getState();
+			$states[$userState] = isset($states[$userState]) ? $states[$userState] + 1 : 1;
 		}
-		return $states[CallUser::STATE_READY] >= 2 || ($states[CallUser::STATE_READY] >= 1 && $states[CallUser::STATE_CALLING] >= 1);
+		if($this->type == static::TYPE_PERMANENT)
+		{
+			 return $states[CallUser::STATE_READY] >= 1;
+		}
+		else
+		{
+			return $states[CallUser::STATE_READY] >= 2 || ($states[CallUser::STATE_READY] >= 1 && $states[CallUser::STATE_CALLING] >= 1);
+		}
 	}
 
 	public function getSignaling()
@@ -232,22 +243,33 @@ class Call
 	/**
 	 * @param string $state
 	 */
-	public function setState($state)
+	public function updateState($state)
 	{
 		if($this->state == $state)
 		{
-			return;
+			return false;
 		}
-
 		$prevState = $this->state;
 		$this->state = $state;
+		$updateResult = CallTable::updateState($this->getId(), $state);
+		if(!$updateResult)
+		{
+			return false;
+		}
+
 		if($this->associatedEntity)
 		{
 			$this->associatedEntity->onStateChange($state, $prevState);
 		}
+		return true;
 	}
 
-	public function finish($code)
+	public function setLogUrl(string $logUrl)
+	{
+		$this->logUrl = $logUrl;
+	}
+
+	public function finish()
 	{
 		if($this->endDate instanceof DateTime)
 		{
@@ -255,10 +277,11 @@ class Call
 		}
 
 		$this->endDate = new DateTime();
-		$this->setState(static::STATE_FINISHED);
-		$this->save();
-
-		$this->signaling->sendFinish();
+		if ($this->updateState(static::STATE_FINISHED))
+		{
+			$this->getSignaling()->sendFinish();
+			$this->saveStat();
+		}
 	}
 
 	public function toArray($currentUserId = 0)
@@ -276,6 +299,8 @@ class Call
 			'STATE' => $this->state,
 			'START_DATE' => $this->startDate,
 			'END_DATE' => $this->endDate,
+			'LOG_URL' => $this->logUrl,
+			'CHAT_ID' => $this->chatId,
 			'ASSOCIATED_ENTITY' => ($this->associatedEntity) ? $this->associatedEntity->toArray($currentUserId) : [],
 		);
 	}
@@ -344,9 +369,125 @@ class Call
 		}
 	}
 
-	protected function getMaxUsers()
+	protected function saveStat()
 	{
-		return $this->provider == static::PROVIDER_VOXIMPLANT ? 10 : 4;
+		$callLength = 0;
+		if ($this->startDate instanceof DateTime && $this->endDate instanceof DateTime)
+		{
+			$callLength = $this->endDate->getTimestamp() - $this->startDate->getTimestamp();
+		}
+		$userCountChat = count($this->users);
+
+		$usersActive = 0;
+		$mobileUsers = 0;
+		foreach ($this->users as $user)
+		{
+			if ($user->getLastSeen() != null)
+			{
+				$usersActive++;
+			}
+			if ($user->isUaMobile())
+			{
+				$mobileUsers++;
+			}
+		}
+
+		$chatType = null;
+		$finishStatus = 'normal';
+		if ($this->entityType == EntityType::CHAT)
+		{
+			if(is_numeric($this->entityId))
+			{
+				$chatType = 'private';
+				// private chat, entity id === other user id
+				$otherUserState = $this->getUser($this->entityId)->getState();
+				if ($otherUserState == CallUser::STATE_DECLINED)
+				{
+					$finishStatus = 'declined';
+				}
+				else if ($otherUserState == CallUser::STATE_BUSY)
+				{
+					$finishStatus = 'busy';
+				}
+				else if ($otherUserState == CallUser::STATE_UNAVAILABLE || $otherUserState == CallUser::STATE_CALLING)
+				{
+					$finishStatus = 'unavailable';
+				}
+			}
+			else
+			{
+				$chatType = 'group';
+			}
+		}
+
+		AddEventToStatFile("im", "im_call_finish", $this->id, $userCountChat, "user_count_chat");
+		AddEventToStatFile("im", "im_call_finish", $this->id, $usersActive, "user_count_call");
+		AddEventToStatFile("im", "im_call_finish", $this->id, $mobileUsers, "user_count_mobile");
+		AddEventToStatFile("im", "im_call_finish", $this->id, $callLength, "call_length");
+		if($chatType)
+		{
+			AddEventToStatFile("im","im_call_finish", $this->id, $chatType, "chat_type");
+		}
+		AddEventToStatFile("im","im_call_finish", $this->id, $finishStatus, "status");
+	}
+
+	public function getMaxUsers()
+	{
+		if ($this->provider == static::PROVIDER_VOXIMPLANT)
+		{
+			return static::getMaxCallServerParticipants();
+		}
+
+		return (int)Option::get('im', 'turn_server_max_users');
+	}
+
+	public function getLogToken(int $userId = 0, int $ttl = 3600) : string
+	{
+		$userId = $userId ?: $this->getCurrentUserId();
+		if(!$userId)
+		{
+			return  '';
+		}
+		if (Loader::includeModule("bitrix24") && defined('BX24_HOST_NAME'))
+		{
+			$portalId = BX24_HOST_NAME;
+		}
+		else if (defined('IM_CALL_LOG_HOST'))
+		{
+			$portalId = IM_CALL_LOG_HOST;
+		}
+		else
+		{
+			return '';
+		}
+		$secret = Option::get('im', 'call_log_secret');
+		if ($secret == '')
+		{
+			return '';
+		}
+		return JWT::encode(
+			[
+				'prt' => $portalId,
+				'call' => $this->getId(),
+				'usr' => $userId,
+				'exp' => (new DateTime())->getTimestamp() + $ttl
+			],
+			$secret
+		);
+	}
+
+	public static function getLogService() : string
+	{
+		return (string)Option::get('im', 'call_log_service');
+	}
+
+	public static function getMaxCallServerParticipants()
+	{
+		if(Loader::includeModule('bitrix24'))
+		{
+			return (int)\Bitrix\Bitrix24\Feature::getVariable('im_max_call_participants');
+		}
+		return (int)Option::get('im', 'call_server_max_users');
 	}
 
 	/**
@@ -365,6 +506,7 @@ class Call
 		$instance->state = static::STATE_NEW;
 
 		$instance->associatedEntity = Integration\EntityFabric::createEntity($instance, $entityType, $entityId);
+		$instance->chatId = $instance->associatedEntity->getChatId();
 
 		$instance->save();
 
@@ -374,13 +516,70 @@ class Call
 			$instance->users[$userId] = CallUser::create([
 				'CALL_ID' => $instance->id,
 				'USER_ID' => $userId,
-				'STATE' => CallUser::STATE_IDLE,
+				'STATE' => CallUser::STATE_UNAVAILABLE,
 				'LAST_SEEN' => null
 			]);
 			$instance->users[$userId]->save();
 		}
 
+		$event = new Event(
+			'im',
+			'onCallCreate',
+			array(
+				'id' => $instance->id,
+				'type' => $instance->type,
+				'initiatorId' => $instance->initiatorId,
+				'provider' => $instance->provider,
+				'entityType' => $instance->entityType,
+				'entityId' => $instance->entityId,
+				'startDate' => $instance->startDate,
+				'publicId' => $instance->publicId,
+				'chatId' => $instance->chatId,
+			)
+		);
+		$event->send();
+
 		return $instance;
+	}
+
+	/**
+	 * @param string $type
+	 * @param string $provider
+	 * @param string $entityType
+	 * @param string $entityId
+	 * @return Call|null
+	 *
+	 * @throws ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public static function searchActive($type, $provider, $entityType, $entityId)
+	{
+		$callFields = CallTable::getRow([
+			'select' => ['*'],
+			'filter' => [
+				'=TYPE' => $type,
+				'=PROVIDER' => $provider,
+				'=ENTITY_TYPE' => $entityType,
+				'=ENTITY_ID' => $entityId,
+				'=END_DATE' => null
+			],
+			'order' => [
+				'ID' => 'desc'
+			],
+		]);
+
+		if(!$callFields)
+		{
+			return null;
+		}
+
+		$instance = static::createWithArray($callFields);
+		if($instance->hasActiveUsers())
+		{
+			return $instance;
+		}
+		return null;
 	}
 
 	/**
@@ -394,7 +593,7 @@ class Call
 		$instance = new static();
 
 		$instance->id = $fields['ID'];
-		$instance->type = $fields['TYPE'];
+		$instance->type = (int)$fields['TYPE'];
 		$instance->initiatorId = $fields['INITIATOR_ID'];
 		$instance->isPublic = $fields['IS_PUBLIC'];
 		$instance->publicId = $fields['PUBLIC_ID'];
@@ -405,6 +604,8 @@ class Call
 		$instance->endDate = $fields['END_DATE'];
 		$instance->parentId = $fields['PARENT_ID'];
 		$instance->state = $fields['STATE'];
+		$instance->logUrl = $fields['LOG_URL'];
+		$instance->chatId = $fields['CHAT_ID'];
 
 		if($instance->entityType && $instance->entityId)
 		{
@@ -441,11 +642,25 @@ class Call
 		}
 	}
 
+	public static function loadWithId($id)
+	{
+		$row = CallTable::getRowById($id);
+
+		if(is_array($row))
+		{
+			return static::createWithArray($row);
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 	public static function isCallServerEnabled()
 	{
 		if(Loader::includeModule("bitrix24"))
 		{
-			return \CBitrix24::getPortalZone() !== 'by';
+			return true;
 		}
 		if(!ModuleManager::isModuleInstalled("voximplant"))
 		{
@@ -455,10 +670,26 @@ class Call
 		return (bool)Option::get("im", "call_server_enabled");
 	}
 
-	protected function getCurrentUserId()
+	protected function getCurrentUserId() : int
 	{
-		global $USER;
+		return $GLOBALS['USER'] ? (int)$GLOBALS['USER']->getId() : 0;
+	}
 
-		return $USER->getId();
+	public static function onVoximplantConferenceFinished(Event $event)
+	{
+		$callId = $event->getParameter('CONFERENCE_CALL_ID');
+		$logUrl = $event->getParameter('LOG_URL');
+		if (!$logUrl)
+		{
+			return;
+		}
+
+		$call = Call::loadWithId($callId);
+		if (!$call)
+		{
+			return;
+		}
+		$call->setLogUrl($logUrl);
+		$call->save();
 	}
 }

@@ -5,7 +5,7 @@ define("NO_LANG_FILES", true);
 define("NOT_CHECK_PERMISSIONS", true);
 
 $site_id = (isset($_POST["site"]) && is_string($_POST["site"])) ? trim($_POST["site"]) : "";
-$site_id = substr(preg_replace("/[^a-z0-9_]/i", "", $site_id), 0, 2);
+$site_id = mb_substr(preg_replace("/[^a-z0-9_]/i", "", $site_id), 0, 2);
 $group_id = (isset($_POST["GROUP_ID"]) ? intval($_POST["GROUP_ID"]) : 0);
 $arUserID = (isset($_POST["USER_ID"]) ? $_POST["USER_ID"] : false);
 $arDepartmentID = (isset($_POST["DEPARTMENT_ID"]) ? $_POST["DEPARTMENT_ID"] : false);
@@ -170,7 +170,8 @@ if (check_bitrix_sessid())
 						'group_id' => $arGroup["ID"],
 						'user_id' => $arUserID[0],
 						'action' => UserToGroup::CHAT_ACTION_IN,
-						'sendMessage' => false
+						'sendMessage' => false,
+						'role' => \Bitrix\Socialnetwork\UserToGroupTable::ROLE_MODERATOR
 					));
 				}
 				else

@@ -45,9 +45,9 @@ else if(!$io->DirectoryExists($abs_path))
 	$strWarning = GetMessage("FILEMAN_FOLDER_NOT_FOUND");
 else
 {
-	if($REQUEST_METHOD=="POST" && strlen($save)>0 && check_bitrix_sessid())
+	if($REQUEST_METHOD=="POST" && $save <> '' && check_bitrix_sessid())
 	{
-		if(strlen($foldername)<=0)
+		if($foldername == '')
 		{
 			$strWarning = GetMessage("FILEMAN_NEWFOLDER_ENTER_NAME");
 		}
@@ -65,7 +65,7 @@ else
 			else
 			{
 				$strWarning = CFileMan::CreateDir(Array($site, $pathto));
-				if(strlen($strWarning)<=0)
+				if($strWarning == '')
 				{
 					if($USER->CanDoFileOperation('fm_add_to_menu',$arPath) &&
 					$USER->CanDoOperation('fileman_add_element_to_menu') &&
@@ -86,7 +86,7 @@ else
 								$mt = COption::GetOptionString("fileman", "menutypes", $default_value, $site);
 								$mt = unserialize(str_replace("\\", "", $mt));
 								$res_log['menu_name'] = $mt[$menutype];
-								$res_log['path'] = substr($path, 1);
+								$res_log['path'] = mb_substr($path, 1);
 								CEventLog::Log(
 									"content",
 									"MENU_EDIT",
@@ -98,11 +98,11 @@ else
 						}
 					}
 
-					if(strlen($sectionname)>0)
+					if($sectionname <> '')
 					{
 						if(COption::GetOptionString($module_id, "log_page", "Y")=="Y")
 						{
-							$res_log['path'] = substr($pathto, 1);
+							$res_log['path'] = mb_substr($pathto, 1);
 							CEventLog::Log(
 								"content",
 								"SECTION_ADD",
@@ -122,16 +122,16 @@ else
 						$mkindex=="Y")
 						{
 							if($toedit=="Y")
-								LocalRedirect("/bitrix/admin/fileman_html_edit.php?".$addUrl."&site=".$site."&template=".Urlencode($template)."&path=".UrlEncode($pathto)."&filename=index.php&new=Y".(strlen($back_url) <=0 ?"":"&back_url=".UrlEncode($back_url)).(strlen($gotonewpage)<=0?"":"&gotonewpage=".UrlEncode($gotonewpage)).(strlen($backnewurl)<=0?"":"&backnewurl=".UrlEncode($backnewurl)));
+								LocalRedirect("/bitrix/admin/fileman_html_edit.php?".$addUrl."&site=".$site."&template=".Urlencode($template)."&path=".UrlEncode($pathto)."&filename=index.php&new=Y".($back_url == '' ?"":"&back_url=".UrlEncode($back_url)).($gotonewpage == ''?"":"&gotonewpage=".UrlEncode($gotonewpage)).($backnewurl == ''?"":"&backnewurl=".UrlEncode($backnewurl)));
 							else
 								$APPLICATION->SaveFileContent($DOC_ROOT.$pathto."/index.php", CFileman::GetTemplateContent($template));
 						}
 					}
 					if ($e = $APPLICATION->GetException())
 						$strNotice = $e->msg;
-					elseif (strlen($apply)<=0 && $strNotice == '')
+					elseif ($apply == '' && $strNotice == '')
 					{
-						if(strlen($back_url)>0)
+						if($back_url <> '')
 							LocalRedirect("/".ltrim($back_url, "/"));
 						else
 						{
@@ -156,7 +156,7 @@ foreach ($arParsedPath["AR_PATH"] as $chainLevel)
 	$adminChain->AddItem(
 		array(
 			"TEXT" => htmlspecialcharsex($chainLevel["TITLE"]),
-			"LINK" => ((strlen($chainLevel["LINK"]) > 0) ? $chainLevel["LINK"] : ""),
+			"LINK" => (($chainLevel["LINK"] <> '') ? $chainLevel["LINK"] : ""),
 		)
 	);
 }
@@ -164,7 +164,7 @@ foreach ($arParsedPath["AR_PATH"] as $chainLevel)
 $APPLICATION->SetTitle(GetMessage("FILEMAN_NEW_FOLDER_TITLE"));
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
-if(strlen($strWarning)<=0)
+if($strWarning == '')
 	$filename = $arParsedPath["LAST"];
 
 $aMenu = array(
@@ -212,7 +212,7 @@ if ($USER->CanDoFileOperation('fm_create_new_folder',$arPath))
 	$rsSiteTemplates = CSite::GetTemplateList($site);
 	while($arSiteTemplate = $rsSiteTemplates->Fetch())
 	{
-		if(strlen($arSiteTemplate["CONDITION"])<=0)
+		if($arSiteTemplate["CONDITION"] == '')
 		{
 			$site_template = $arSiteTemplate["TEMPLATE"];
 			break;
@@ -277,7 +277,7 @@ if ($USER->CanDoFileOperation('fm_create_new_folder',$arPath))
 	$tabControl->Buttons(
 		array(
 			"disabled" => false,
-			"back_url" => (strlen($back_url) > 0 ? $back_url : "fileman_admin.php?".$addUrl."&site=".$site."&path=".UrlEncode($path))
+			"back_url" => ($back_url <> '' ? $back_url : "fileman_admin.php?".$addUrl."&site=".$site."&path=".UrlEncode($path))
 		)
 	);
 	$tabControl->End();

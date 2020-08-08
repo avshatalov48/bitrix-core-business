@@ -19,7 +19,7 @@ if(!CModule::IncludeModule("search"))
 }
 
 $arParams["NAME"] = trim($arParams["NAME"]);
-if(!strlen($arParams["NAME"]))
+if($arParams["NAME"] == '')
 	$arParams["~NAME"] = $arParams["NAME"] = "q";
 
 $arParams["INPUT_SIZE"] = intval($arParams["INPUT_SIZE"]);

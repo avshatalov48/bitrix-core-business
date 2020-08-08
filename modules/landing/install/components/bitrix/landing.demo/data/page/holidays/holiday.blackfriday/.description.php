@@ -17,14 +17,13 @@ return array(
 	'preview_url' => '',
 	'show_in_list' => 'Y',
 	'type' => 'page',
-	'sort' => \LandingSiteDemoComponent::checkActivePeriod(11,01,11,30) ? 31 : -171,
 	'version' => 2,
 	'fields' => array(
 		'TITLE' => Loc::getMessage('LANDING_DEMO_BLACKFRIDAY-TITLE'),
 		'RULE' => null,
 		'ADDITIONAL_FIELDS' => array(
 			'THEME_CODE' => 'photography',
-			'THEME_CODE_TYPO' => 'photography',
+
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'SETTINGS_HIDE_NOT_AVAILABLE' => 'L',

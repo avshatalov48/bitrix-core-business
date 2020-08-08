@@ -22,7 +22,6 @@
 			this.section = [];
 			this.errors = [];
 			this.id = params.id;
-			this.downloadPage = params.downloadPage;
 			this.signedParameters = params.signedParameters;
 
 			BX.bind(
@@ -68,7 +67,40 @@
 						if(response.data.length > 0)
 						{
 							this.section = response.data;
-							this.load(0,0);
+							this.loadManifest(0, '');
+						}
+						else
+						{
+							this.showFatalError();
+						}
+					},
+					this
+				)
+			);
+		},
+
+		loadManifest: function (step, next)
+		{
+			this.sendAjax(
+				'loadManifest',
+				{
+					step: step,
+					next: next
+				},
+				BX.delegate(
+					function (response)
+					{
+						if(!!response.data)
+						{
+							step++;
+							if(response.data.next === false)
+							{
+								this.load(0, 0);
+							}
+							else
+							{
+								this.loadManifest(step, response.data.next);
+							}
 						}
 						else
 						{
@@ -133,8 +165,14 @@
 						var infoContainer = BX.findChildByClassName( BX(this.id),'rest-configuration-info');
 						BX.removeClass(barContainer,'rest-configuration-start-icon-main-zip rest-configuration-start-icon-main-loading');
 
+						var download = '';
+						if(!!response.data && !!response.data.download)
+						{
+							download = response.data.download;
+						}
+
 						var text = '';
-						if(this.errors.length === 0)
+						if(this.errors.length === 0 && download !== '')
 						{
 							text = BX.message("REST_CONFIGURATION_EXPORT_FINISH_DESCRIPTION");
 							BX.addClass(barContainer,'rest-configuration-start-icon-main-success');
@@ -144,6 +182,7 @@
 							text = BX.message("REST_CONFIGURATION_EXPORT_FINISH_ERROR_DESCRIPTION");
 							BX.addClass(barContainer,'rest-configuration-start-icon-main-error');
 						}
+
 						BX.cleanNode(infoContainer);
 						infoContainer.appendChild(
 							BX.create('p', {
@@ -153,16 +192,20 @@
 								text: text
 							})
 						);
-						infoContainer.appendChild(
-							BX.create('a', {
-								attrs: {
-									className: 'ui-btn ui-btn-lg ui-btn-primary start-btn',
-									href: this.downloadPage,
-									'data-slider-ignore-autobinding': 'true'
-								},
-								text: BX.message("REST_CONFIGURATION_DOWNLOAD_BTN")
-							})
-						);
+						if(download !== '')
+						{
+							infoContainer.appendChild(
+								BX.create('a', {
+									attrs: {
+										className: 'ui-btn ui-btn-lg ui-btn-primary start-btn',
+										href: download,
+										'data-slider-ignore-autobinding': 'true'
+									},
+									text: BX.message("REST_CONFIGURATION_DOWNLOAD_BTN")
+								})
+							);
+						}
+
 						if(this.errors.length !== 0)
 						{
 							infoContainer.appendChild(

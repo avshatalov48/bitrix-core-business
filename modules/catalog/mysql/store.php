@@ -136,7 +136,7 @@ class CCatalogStore extends CAllCatalogStore
 		$userField->SetOrder($arOrder);
 
 		$strUfFilter = $userField->GetFilter();
-		$strSqlUfFilter = (strlen($strUfFilter) > 0) ? " (".$strUfFilter.") " : "";
+		$strSqlUfFilter = ($strUfFilter <> '') ? " (".$strUfFilter.") " : "";
 
 
 		$strSqlUfOrder = "";
@@ -146,7 +146,7 @@ class CCatalogStore extends CAllCatalogStore
 			if (empty($field))
 				continue;
 
-			if (strlen($strSqlUfOrder) > 0)
+			if ($strSqlUfOrder <> '')
 				$strSqlUfOrder .= ', ';
 			$strSqlUfOrder .= $field." ".$by;
 		}
@@ -160,9 +160,9 @@ class CCatalogStore extends CAllCatalogStore
 			if (!empty($arSqls["WHERE"]))
 				$strSql .= " WHERE ".$arSqls["WHERE"]." ";
 
-			if (strlen($arSqls["WHERE"]) > 0 && strlen($strSqlUfFilter) > 0)
+			if ($arSqls["WHERE"] <> '' && $strSqlUfFilter <> '')
 				$strSql .= " AND ".$strSqlUfFilter." ";
-			elseif (strlen($arSqls["WHERE"]) == 0 && strlen($strSqlUfFilter) > 0)
+			elseif ($arSqls["WHERE"] == '' && $strSqlUfFilter <> '')
 				$strSql .= " WHERE ".$strSqlUfFilter." ";
 
 			if (!empty($arSqls["GROUPBY"]))
@@ -178,9 +178,9 @@ class CCatalogStore extends CAllCatalogStore
 		if (!empty($arSqls["WHERE"]))
 			$strSql .= " WHERE ".$arSqls["WHERE"]." ";
 
-		if (strlen($arSqls["WHERE"]) > 0 && strlen($strSqlUfFilter) > 0)
+		if ($arSqls["WHERE"] <> '' && $strSqlUfFilter <> '')
 			$strSql .= " AND ".$strSqlUfFilter." ";
-		elseif (strlen($arSqls["WHERE"]) <= 0 && strlen($strSqlUfFilter) > 0)
+		elseif ($arSqls["WHERE"] == '' && $strSqlUfFilter <> '')
 			$strSql .= " WHERE ".$strSqlUfFilter." ";
 
 		if (!empty($arSqls["GROUPBY"]))
@@ -188,7 +188,7 @@ class CCatalogStore extends CAllCatalogStore
 
 		if (!empty($arSqls["ORDERBY"]))
 			$strSql .= " ORDER BY ".$arSqls["ORDERBY"];
-		elseif (strlen($arSqls["ORDERBY"]) <= 0 && strlen($strSqlUfOrder) > 0)
+		elseif ($arSqls["ORDERBY"] == '' && $strSqlUfOrder <> '')
 			$strSql .= " ORDER BY ".$strSqlUfOrder;
 
 		$intTopCount = 0;
@@ -202,9 +202,9 @@ class CCatalogStore extends CAllCatalogStore
 			if (!empty($arSqls["WHERE"]))
 				$strSql_tmp .= " WHERE ".$arSqls["WHERE"];
 
-			if (strlen($arSqls["WHERE"]) > 0 && strlen($strSqlUfFilter) > 0)
+			if ($arSqls["WHERE"] <> '' && $strSqlUfFilter <> '')
 				$strSql_tmp .= " AND ".$strSqlUfFilter." ";
-			elseif (strlen($arSqls["WHERE"]) <= 0 && strlen($strSqlUfFilter) > 0)
+			elseif ($arSqls["WHERE"] == '' && $strSqlUfFilter <> '')
 				$strSql_tmp .= " WHERE ".$strSqlUfFilter." ";
 
 			if (!empty($arSqls["GROUPBY"]))

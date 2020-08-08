@@ -9,11 +9,6 @@ use Bitrix\Main\LoaderException;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Loader;;
 
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
-{
-	die();
-}
-
 Loc::loadMessages(__FILE__);
 
 class RestConfigurationComponent extends CBitrixComponent
@@ -57,6 +52,7 @@ class RestConfigurationComponent extends CBitrixComponent
 				'import' => [],
 				'import_app' => [],
 				'import_rollback' => [],
+				'import_manifest' => [],
 				'export' => [],
 				'export_element' => []
 			];
@@ -68,9 +64,10 @@ class RestConfigurationComponent extends CBitrixComponent
 			'section' => 'section/#MANIFEST_CODE#/',
 			'import' => 'import/',
 			'import_app' => 'import/#APP#/',
-			'import_rollback' => 'import_rollback/',
-			'export' => 'export/#MANIFEST_CODE#/',
-			'export_element' => 'export/#MANIFEST_CODE#/#ITEM_CODE#/'
+			'import_rollback' => 'import_rollback/#APP#/',
+			'import_manifest' => 'import_#MANIFEST_CODE#/',
+			'export' => 'export_#MANIFEST_CODE#/',
+			'export_element' => 'export_#MANIFEST_CODE#/#ITEM_CODE#/'
 		];
 
 		if ($this->arParams['SEF_MODE'] == 'Y')

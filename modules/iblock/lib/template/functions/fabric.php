@@ -343,7 +343,7 @@ class FunctionContrast extends FunctionBase
 		{
 			foreach ($result as $word)
 			{
-				if (strlen($word) > 1)
+				if (mb_strlen($word) > 1)
 					$words[$word]++;
 			}
 			$len = log(max(20, array_sum($words)));

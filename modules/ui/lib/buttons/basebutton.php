@@ -316,7 +316,7 @@ class BaseButton implements Contract\Renderable
 		{
 			$this->counter = null;
 		}
-		else if ((is_int($counter) && $counter > 0) || (is_string($counter) && strlen($counter)))
+		else if ((is_int($counter) && $counter > 0) || (is_string($counter) && mb_strlen($counter)))
 		{
 			$this->counter = $counter;
 		}
@@ -355,7 +355,7 @@ class BaseButton implements Contract\Renderable
 
 	public function addAttribute($name, $value = null)
 	{
-		if (strtolower($name) === 'class')
+		if (mb_strtolower($name) === 'class')
 		{
 			throw new ArgumentException('Could not add "class" attribute. You should use ::addClass()', 'class');
 		}

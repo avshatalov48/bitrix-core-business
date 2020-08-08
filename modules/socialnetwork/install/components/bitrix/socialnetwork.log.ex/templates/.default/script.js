@@ -2,16 +2,12 @@ BX.CLBlock = function(arParams)
 {
 	this.arData = [];
 	this.arData["Subscription"] = [];
-	this.UTPopup = null;
 	this.createTaskPopup = null;
 
 	this.entity_type = null;
 	this.entity_id = null;
 	this.event_id = null;
 	this.event_id_fullset = false;
-	this.cb_id = null;
-	this.t_val = null;
-	this.ind = null;
 	this.type = null;
 };
 
@@ -118,117 +114,6 @@ function __logOnAjaxInsertToNode(params)
 	}
 
 	BX.unbind(BX('sonet_log_counter_2_container'), 'click', __logOnAjaxInsertToNode);
-}
-
-function __logChangeCounter(count)
-{
-	var bZeroCounterFromDB = (parseInt(count) <= 0);
-
-	oCounter = {
-		iCommentsRead: 0
-	};
-	
-	BX.onCustomEvent(window, 'onSonetLogChangeCounter', [oCounter]);
-	count -= oCounter.iCommentsRead;
-	__logChangeCounterAnimate((parseInt(count) > 0), count, bZeroCounterFromDB);
-}
-
-function __logDecrementCounter(iDecrement)
-{
-	if (BX("sonet_log_counter_2"))
-	{
-		iDecrement = parseInt(iDecrement);
-		var oldVal = parseInt(BX("sonet_log_counter_2").innerHTML);
-		var newVal = oldVal - iDecrement;
-		if (newVal > 0)
-			BX("sonet_log_counter_2").innerHTML = newVal;
-		else
-			__logChangeCounterAnimate(false, 0);
-	}
-}
-
-function __logChangeCounterAnimate(bShow, count, bZeroCounterFromDB)
-{
-	var
-		counterNode = null,
-		reloadNode = null;
-
-	if (BX('sonet_log_counter_2_container'))
-	{
-		counterNode = BX.findChild(BX('sonet_log_counter_2_container'), { tag: 'span', className: 'feed-new-message-inf-text' }, false);
-		reloadNode = BX.findChild(BX('sonet_log_counter_2_container'), { tag: 'span', className: 'feed-new-message-inf-text-reload' }, false);
-	}
-
-	bZeroCounterFromDB = !!bZeroCounterFromDB;
-
-	if (oLF.bLockCounterAnimate)
-	{
-		setTimeout(function() {
-			__logChangeCounterAnimate(bShow, count)
-		}, 200);
-		return false;
-	}
-
-	bShow = !!bShow;
-	if (bShow)
-	{
-		if (BX("sonet_log_counter_2"))
-		{
-			BX("sonet_log_counter_2").innerHTML = count;
-		}
-
-		if (BX("sonet_log_counter_2_wrap"))
-		{
-			BX("sonet_log_counter_2_wrap").style.visibility = "visible";
-			BX.addClass(BX("sonet_log_counter_2_wrap"), "feed-new-message-informer-anim");
-		}
-
-		if (
-			BX("sonet_log_counter_2_plus")
-			&& reloadNode
-			&& reloadNode.style.display != 'none'
-			&& counterNode
-		)
-		{
-			reloadNode.style.display = 'none';
-			counterNode.style.display = 'inline-block';
-			BX.removeClass(BX("sonet_log_counter_2_plus"), "feed-new-message-informer-counter-plus-hidden");
-		}
-	}
-	else if (BX("sonet_log_counter_2_wrap"))
-	{
-		if (
-			bZeroCounterFromDB
-			&& BX.hasClass(BX("sonet_log_counter_2_wrap"), "feed-new-message-informer-anim")
-		)
-		{
-			if (
-				counterNode
-				&& reloadNode
-			)
-			{
-				counterNode.style.display = 'none';
-				reloadNode.style.display = 'inline-block';
-
-				var counterNodeWaiter = BX.findChild(counterNode, { tag: 'span', className: 'feed-new-message-icon' }, false);
-				if (counterNodeWaiter)
-				{
-					BX.removeClass(counterNodeWaiter, 'new-message-balloon-icon-rotating');
-				}
-			}
-		}
-		else
-			setTimeout(function() {
-				BX.removeClass(BX("sonet_log_counter_2_wrap"), "feed-new-message-informer-anim");
-				BX("sonet_log_counter_2_wrap").style.visibility = "hidden";
-			}, 400);
-	}
-}
-
-function __logChangeCounterArray(arCount)
-{
-	if (typeof arCount[BX.message('sonetLCounterType')] != 'undefined')
-		__logChangeCounter(arCount[BX.message('sonetLCounterType')]);
 }
 
 function __logShowPostMenu(bindElement, ind, entity_type, entity_id, event_id, fullset_event_id, user_id, log_id, bFavorites, arMenuItemsAdditional)
@@ -781,8 +666,8 @@ window.__socOnUCFormSubmit =  function(obj, post_data) {
 	post_data["p_le"] = BX.message('sonetLEPath');
 	post_data["f_id"] = BX.message('sonetLForumID');
 	post_data["bapc"] = BX.message('sonetLBlogAllowPostCode');
-	post_data["site"] = BX.message('sonetLSiteId');
-	post_data["lang"] = BX.message('sonetLLangId');
+	post_data["site"] = BX.message('SITE_ID');
+	post_data["lang"] = BX.message('LANGUAGE_ID');
 	post_data["nt"] = BX.message('sonetLNameTemplate');
 	post_data["sl"] = BX.message('sonetLShowLogin');
 	post_data["as"] = BX.message('sonetLAvatarSizeComment');
@@ -873,7 +758,7 @@ window.__socOnUCFormResponse = function(obj, data)
 				)
 				{
 					res["PANELS"]["DELETE"] = "Y";
-					res["URL"]["DELETE"] = BX.message('sonetLESetPath') + '?lang=' + BX.message('sonetLLangId') + '&action=delete_comment&delete_comment_id=' + arComm["ID"] + '&post_id=' + arComm["LOG_ID"] + '&site=' + BX.message('sonetLSiteId');
+					res["URL"]["DELETE"] = BX.message('sonetLESetPath') + '?lang=' + BX.message('LANGUAGE_ID') + '&action=delete_comment&delete_comment_id=' + arComm["ID"] + '&post_id=' + arComm["LOG_ID"] + '&site=' + BX.message('SITE_ID');
 				}
 
 			return_data = {
@@ -946,7 +831,6 @@ BitrixLF = function ()
 	this.nextURL = null;
 	this.scrollInitialized = null;
 	this.bStopTrackNextPage = null;
-	this.bLockCounterAnimate = null;
 	this.arMoreButtonID = null;
 	this.logAjaxMode = null;
 	this.nodeTmp1Cap = null;
@@ -959,11 +843,22 @@ BitrixLF = function ()
 	this.filterApi = null;
 	this.tagEntryIdList = [];
 	this.inlineTagNodeList = [];
+	this.signedParameters = '';
+	this.componentName = '';
 };
 
 BitrixLF.prototype.initOnce = function(params)
 {
 	var loaderContainer = BX('feed-loader-container');
+
+	if (BX.type.isNotEmptyString(params.signedParameters))
+	{
+		this.signedParameters = params.signedParameters;
+	}
+	if (BX.type.isNotEmptyString(params.componentName))
+	{
+		this.componentName = params.componentName;
+	}
 
 	if (loaderContainer)
 	{
@@ -1010,13 +905,7 @@ BitrixLF.prototype.initOnce = function(params)
 	)
 	{
 		BX.addCustomEvent("onAfterActivitySave", BX.delegate(function() {
-			this.refresh({
-				sessid: BX.bitrix_sessid(),
-				PARAMS: {
-					ENTITY_TYPE_NAME: params.crmEntityTypeName,
-					ENTITY_ID: parseInt(params.crmEntityId)
-				}
-			});
+			this.refresh();
 		}, this));
 	}
 
@@ -1048,6 +937,19 @@ BitrixLF.prototype.initOnce = function(params)
 			}
 		}
 	}, this), true);
+
+	var
+		noTasksNotificationCloseIcon = BX('feed-notification-notasks-close-btn'),
+		noTasksNotificationReadButton = BX('feed-notification-notasks-read-btn');
+
+	if (noTasksNotificationCloseIcon)
+	{
+		BX.bind(noTasksNotificationCloseIcon, 'click', this.setNoTasksNotificationRead.bind(this));
+	}
+	if (noTasksNotificationReadButton)
+	{
+		BX.bind(noTasksNotificationReadButton, 'click', this.setNoTasksNotificationRead.bind(this));
+	}
 };
 
 BitrixLF.prototype.init = function(params)
@@ -1056,19 +958,20 @@ BitrixLF.prototype.init = function(params)
 	this.nextURL = false;
 	this.scrollInitialized = false;
 	this.bStopTrackNextPage = false;
-	this.bLockCounterAnimate = false;
+	this.counter.bLockCounterAnimate = false;
 	this.arMoreButtonID = [];
 	this.logAjaxMode = false;
 	this.nodeTmp1Cap = false;
 	this.nodeTmp2Cap = false;
 	this.cmdPressed = false;
 	this.nextPageFirst = true;
+	this.useBXMainFilter = 'N';
 
 	if (typeof params != 'undefined')
 	{
 		this.firstPageLastTS = (typeof params.firstPageLastTS != 'undefined' ? params.firstPageLastTS : 0);
 		this.firstPageLastId = (typeof params.firstPageLastId != 'undefined' ? params.firstPageLastId : 0);
-		this.refreshUrl = (typeof params.refreshUrl != 'undefined' ? params.refreshUrl : top.location.href);
+		this.useBXMainFilter = (typeof params.useBXMainFilter != 'undefined' ? params.useBXMainFilter : 'N');
 	}
 };
 
@@ -1174,7 +1077,7 @@ BitrixLF.prototype.getNextPage = function()
 
 	this.bLoadStarted = true;
 
-	this.bLockCounterAnimate = true;
+	this.counter.bLockCounterAnimate = true;
 
 	this.arMoreButtonID = [];
 
@@ -1190,112 +1093,161 @@ BitrixLF.prototype.getNextPage = function()
 		BX.addClass(BX('feed-new-message-inf-wrap-first'), 'feed-new-message-inf-wrap-first-visible');
 	}
 
-	var data = { method: "GET", url: this.nextURL };
-	BX.onCustomEvent("SonetLogBeforeGetNextPage", [ data ]);
-	if(BX.type.isNotEmptyString(data.url))
+	var
+		nextUrl = new BX.Uri(this.nextURL),
+		nextUrlParam = nextUrl.getQueryParams(),
+		pageNumber = 1,
+		prevPageLogId = '',
+		ts = 0,
+		noblog = 'N',
+		found = null;
+
+	for (var key in nextUrlParam)
 	{
-		more_url = data.url;
+		if (!nextUrlParam.hasOwnProperty(key))
+		{
+			continue;
+		}
+
+		found = key.match(/^PAGEN_(\d+)$/i);
+		if (found)
+		{
+			pageNumber = nextUrlParam[key];
+		}
+		else if(key == 'pplogid')
+		{
+			prevPageLogId = decodeURI(nextUrlParam[key]);
+		}
+		else if(key == 'ts')
+		{
+			ts = nextUrlParam[key];
+		}
+		else if(key == 'noblog')
+		{
+			noblog = nextUrlParam[key];
+		}
 	}
 
-	BX.ajax({
-		url: more_url,
-		method: 'GET',
-		dataType: 'json',
-		data: { },
-		onsuccess: function(data)
-		{
-			oLF.bLoadStarted = false;
-
-			if (oNode)
-			{
-				BX.cleanNode(oNode, true);
+	BX.ajax.runAction('socialnetwork.api.livefeed.getNextPage', {
+		signedParameters: this.signedParameters,
+		data: {
+			c: this.componentName,
+			logajax: 'Y', // compatibility with socialnetwork.blog.post.comment
+			noblog: noblog, // compatibility with socialnetwork.blog.post.comment
+			params: {
+				PAGE_NUMBER: pageNumber,
+				LAST_LOG_TIMESTAMP: ts,
+				PREV_PAGE_LOG_ID: prevPageLogId,
+				siteTemplateId: BX.message('sonetLSiteTemplateId'),
+				useBXMainFilter: this.useBXMainFilter
 			}
+		}
+	}).then(function(response) {
+		var responseData = response.data;
 
-			oLF.bLockCounterAnimate = false;
+		this.bLoadStarted = false;
 
-			if (
-				data
-				&& typeof (data.PROPS) != 'undefined'
-				&& typeof (data.PROPS.CONTENT) != 'undefined'
-				&& data.PROPS.CONTENT.length > 0
-				&& typeof data.LAST_TS != 'undefined'
-				&& parseInt(data.LAST_TS) > 0
-				&& (
-					parseInt(oLF.firstPageLastTS) <= 0
-					|| parseInt(data.LAST_TS) < parseInt(oLF.firstPageLastTS)
-					|| (
-						parseInt(data.LAST_TS) == parseInt(oLF.firstPageLastTS)
-						&& typeof data.LAST_ID != 'undefined'
-						&& parseInt(data.LAST_ID) < parseInt(oLF.firstPageLastId)
-					)
+		if (oNode)
+		{
+			BX.cleanNode(oNode, true);
+		}
+
+		this.counter.bLockCounterAnimate = false;
+
+		var
+			lastEntryTimestamp = (typeof responseData.componentResult.LAST_TS != 'undefined' ? parseInt(responseData.componentResult.LAST_TS) : 0),
+			lastEntryId = (typeof responseData.componentResult.LAST_ID != 'undefined' ? parseInt(responseData.componentResult.LAST_ID) : null);
+
+		if (
+			responseData.html.length > 0
+			&& lastEntryTimestamp > 0
+			&& (
+				parseInt(this.firstPageLastTS) <= 0
+				|| lastEntryTimestamp < parseInt(this.firstPageLastTS)
+				|| (
+					lastEntryTimestamp == parseInt(this.firstPageLastTS)
+					&& lastEntryId !== null
+					&& lastEntryId < parseInt(this.firstPageLastId)
 				)
 			)
+		)
+		{
+			BX.onCustomEvent(window, 'OnUCMoreButtonListClear', []);
+
+			var contentBlockId = 'content_block_' + (Math.floor(Math.random() * 1000));
+
+			var pageNode = BX.create('DIV', {
+				props: {
+					id: contentBlockId,
+					className: 'feed-wrap'
+				},
+				style: {
+					display: (this.nextPageFirst ? 'none' : 'block')
+				},
+				html: responseData.html
+			});
+
+			BX('log_internal_container').appendChild(pageNode);
+			BX.Runtime.html(pageNode, responseData.html);
+
+			this.clearContainerExternal(false);
+
+			if (this.nextPageFirst)
 			{
-				BX.onCustomEvent(window, 'OnUCMoreButtonListClear', []);
+				BX('feed-new-message-inf-text-first').style.display = 'block';
+				BX('feed-new-message-inf-loader-first').style.display = 'none';
+				BX.addClass(BX('feed-new-message-inf-wrap-first'), 'feed-new-message-inf-wrap-first-active');
 
-				var contentBlockId = 'content_block_' + (Math.floor(Math.random() * 1000));
-
-				oLF.processAjaxBlock(data.PROPS, contentBlockId, oLF.nextPageFirst);
-				oLF.clearContainerExternal(false);
-
-				if (oLF.nextPageFirst)
-				{
-					BX('feed-new-message-inf-text-first').style.display = 'block';
-					BX('feed-new-message-inf-loader-first').style.display = 'none';
-					BX.addClass(BX('feed-new-message-inf-wrap-first'), 'feed-new-message-inf-wrap-first-active');
-
-					var f = function() {
-						oLF.bStopTrackNextPage = false;
-						if (BX(contentBlockId))
-						{
-							BX(contentBlockId).style.display = 'block';
-						}
-						BX.unbind(BX('sonet_log_more_container_first'), 'click', f);
-						BX('feed-new-message-inf-wrap-first').style.display = 'none';
-						oLF.recalcMoreButton();
-						oLF.registerViewAreaList();
-						oLF.recalcMoreButtonCommentsList();
-					};
-					BX.bind(BX('sonet_log_more_container_first'), 'click', f);
-				}
-				else
-				{
+				var f = function() {
+					this.bStopTrackNextPage = false;
 					if (BX(contentBlockId))
 					{
 						BX(contentBlockId).style.display = 'block';
 					}
-					setTimeout(function() {
-						oLF.bStopTrackNextPage = false;
-					}, 300);
-					setTimeout(function() {
-						oLF.recalcMoreButton();
-						oLF.registerViewAreaList();
-						oLF.recalcMoreButtonCommentsList();
-					}, 1000);
+					BX.unbind(BX('sonet_log_more_container_first'), 'click', f);
+					BX('feed-new-message-inf-wrap-first').style.display = 'none';
+					this.recalcMoreButton();
+					this.registerViewAreaList();
+					this.recalcMoreButtonCommentsList();
+				}.bind(this);
+				BX.bind(BX('sonet_log_more_container_first'), 'click', f);
+			}
+			else
+			{
+				if (BX(contentBlockId))
+				{
+					BX(contentBlockId).style.display = 'block';
 				}
 
-				oLF.nextPageFirst = false;
-			}
-			else if (BX('feed-new-message-inf-wrap-first'))
-			{
-				BX('feed-new-message-inf-wrap-first').style.display = 'none';
-			}
-		},
-		onfailure: function(data)
-		{
-			oLF.bLoadStarted = false;
+				setTimeout(function() {
+					this.bStopTrackNextPage = false;
+				}.bind(this), 300);
 
-			oLF.bStopTrackNextPage = false;
-
-			if (oNode)
-			{
-				oNode.style.display = 'none';
+				setTimeout(function() {
+					this.recalcMoreButton();
+					this.registerViewAreaList();
+					this.recalcMoreButtonCommentsList();
+				}.bind(this), 1000);
 			}
 
-			oLF.bLockCounterAnimate = false;
-			oLF.clearContainerExternal(false);
+			this.nextPageFirst = false;
 		}
-	});
+		else if (BX('feed-new-message-inf-wrap-first'))
+		{
+			BX('feed-new-message-inf-wrap-first').style.display = 'none';
+		}
+	}.bind(this), function(response) {
+		this.bLoadStarted = false;
+		this.bStopTrackNextPage = false;
+
+		if (oNode)
+		{
+			oNode.style.display = 'none';
+		}
+
+		this.counter.bLockCounterAnimate = false;
+		this.clearContainerExternal(false);
+	}.bind(this));
 
 	return false;
 };
@@ -1307,8 +1259,15 @@ BitrixLF.prototype.refresh = function(params, filterPromise)
 		return;
 	}
 
+	params = (
+		BX.type.isNotEmptyObject(params)
+			? params
+			: {}
+	);
+
+	params.siteTemplateId = BX.message('sonetLSiteTemplateId');
+
 	var counterWrap = BX("sonet_log_counter_2_wrap", true);
-	var url = this.refreshUrl;
 
 	this.bLoadStarted = true;
 	this.showRefreshFade();
@@ -1325,15 +1284,6 @@ BitrixLF.prototype.refresh = function(params, filterPromise)
 		BX.onCustomEvent(window, 'BX.Livefeed:refresh', []);
 	}
 
-	if (typeof params != 'undefined')
-	{
-		params = BX.ajax.prepareData(params);
-		if (params)
-		{
-			url += (url.indexOf('?') !== -1 ? "&" : "?") + params;
-		}
-	}
-
 	if (counterWrap)
 	{
 		var reloadNode = BX.findChild(counterWrap, { tag: 'span', className: 'feed-new-message-inf-text-reload' }, true);
@@ -1343,137 +1293,144 @@ BitrixLF.prototype.refresh = function(params, filterPromise)
 		}
 	}
 
-	this.bLockCounterAnimate = true;
-	oLF.bLoadStarted = false;
+	this.counter.bLockCounterAnimate = true;
+	this.bLoadStarted = false;
 
-	BX.ajax({
-		url: url,
-		method: 'GET',
-		dataType: 'json',
-		onsuccess: function(data)
+	BX.ajax.runAction('socialnetwork.api.livefeed.refresh', {
+		signedParameters: this.signedParameters,
+		data: {
+			c: this.componentName,
+			logajax: 'Y', // compatibility
+			RELOAD: 'Y', // compatibility
+			params: params
+		}
+	}).then(function(response) {
+
+		var responseData = response.data;
+
+		this.bLoadStarted = false;
+		this.hideRefreshFade();
+
+		if (filterPromise)
 		{
-			oLF.bLoadStarted = false;
-			oLF.hideRefreshFade();
+			filterPromise.fulfill();
+		}
+
+		var
+			emptyBlock = null,
+			emptyLivefeed = (typeof responseData.componentResult.EMPTY != 'undefined' ? responseData.componentResult.EMPTY : 'N');
+
+		if (
+			emptyLivefeed == 'Y'
+			&& BX('feed-empty-wrap')
+		)
+		{
+			emptyBlock = BX('feed-empty-wrap');
+		}
+
+		var loaderContainer = null;
+		if (BX('feed-loader-container'))
+		{
+			loaderContainer = BX('feed-loader-container');
+		}
+
+		this.counter.bLockCounterAnimate = false;
+		BX.cleanNode('log_internal_container', false);
+
+		if (emptyBlock)
+		{
+			BX('log_internal_container').appendChild(BX.create('DIV', {
+				props: {
+					className: 'feed-wrap'
+				},
+				children: [ emptyBlock ]
+			}));
+			emptyBlock.style.display = 'block';
+			var emptyTextNode = BX.findChild(emptyBlock, { className: 'feed-wrap-empty'});
+			if (emptyTextNode)
+			{
+				emptyTextNode.innerHTML = BX.message('SONET_C30_T_EMPTY_SEARCH');
+			}
+		}
+
+		if (loaderContainer)
+		{
+			BX('log_internal_container').appendChild(loaderContainer);
+		}
+
+		if (responseData.html.length > 0)
+		{
+			this.clearContainerExternal(false);
+			BX.LazyLoad.clearImages();
+
+			var contentBlockId = 'content_block_' + (Math.floor(Math.random() * 1000));
+
+			var pageNode = BX.create('DIV', {
+				props: {
+					id: contentBlockId,
+					className: 'feed-wrap'
+				},
+				style: {
+					display: 'block'
+				},
+				html: responseData.html
+			});
+
+			BX('log_internal_container').appendChild(pageNode);
+			BX.Runtime.html(pageNode, responseData.html);
+
+			setTimeout(function() {
+				this.recalcMoreButton();
+				this.recalcMoreButtonCommentsList();
+			}.bind(this), 1);
+			this.registerViewAreaList();
+
+			this.bStopTrackNextPage = false;
+
+			BX.onCustomEvent(window, 'OnUCMoreButtonListClear', []);
 
 			if (
-				data
-				&& typeof (data.PROPS) != 'undefined'
+				counterWrap
+				&& BX.hasClass(counterWrap, "feed-new-message-informer-fixed")
 			)
 			{
-				if (filterPromise)
+				var upBtn = BX("feed-up-btn-wrap", true);
+				if (upBtn)
 				{
-					filterPromise.fulfill();
+					upBtn.style.display = "none";
+					BX.removeClass(upBtn, 'feed-up-btn-wrap-anim');
 				}
 
-				var emptyBlock = null;
-				if (
-					typeof (data.PROPS.EMPTY) != 'undefined'
-					&& (data.PROPS.EMPTY == 'Y')
-					&& BX('feed-empty-wrap')
-				)
-				{
-					emptyBlock = BX('feed-empty-wrap');
-				}
+				var windowScroll = BX.GetWindowScrollPos();
 
-				var loaderContainer = null;
-				if (BX('feed-loader-container'))
-				{
-					loaderContainer = BX('feed-loader-container');
-				}
-
-				oLF.bLockCounterAnimate = false;
-				BX.cleanNode('log_internal_container', false);
-
-				if (emptyBlock)
-				{
-					BX('log_internal_container').appendChild(BX.create('DIV', {
-						props: {
-							className: 'feed-wrap'
-						},
-						children: [ emptyBlock ]
-					}));
-					emptyBlock.style.display = 'block';
-					var emptyTextNode = BX.findChild(emptyBlock, { className: 'feed-wrap-empty'});
-					if (emptyTextNode)
-					{
-						emptyTextNode.innerHTML = BX.message('SONET_C30_T_EMPTY_SEARCH');
-					}
-				}
-
-				if (loaderContainer)
-				{
-					BX('log_internal_container').appendChild(loaderContainer);
-				}
-
-				if (
-					typeof (data.PROPS.CONTENT) != 'undefined'
-					&& (data.PROPS.CONTENT.length > 0)
-				)
-				{
-					oLF.clearContainerExternal(false);
-					oLF.processAjaxBlock(data.PROPS);
-					setTimeout(BX.proxy(function() {
-						oLF.recalcMoreButton();
-						oLF.recalcMoreButtonCommentsList();
-					}), 1);
-					oLF.registerViewAreaList();
-
-					oLF.bStopTrackNextPage = false;
-
-					BX.onCustomEvent(window, 'OnUCMoreButtonListClear', []);
-
-					if (
-						counterWrap
-						&& BX.hasClass(counterWrap, "feed-new-message-informer-fixed")
-					)
-					{
-						var upBtn = BX("feed-up-btn-wrap", true);
+				(new BX.easing({
+					duration : 500,
+					start : { scroll : windowScroll.scrollTop },
+					finish : { scroll : 0 },
+					transition : BX.easing.makeEaseOut(BX.easing.transitions.quart),
+					step : function(state){
+						window.scrollTo(0, state.scroll);
+					},
+					complete: function() {
 						if (upBtn)
-						{
-							upBtn.style.display = "none";
-							BX.removeClass(upBtn, 'feed-up-btn-wrap-anim');
-						}
-
-						var windowScroll = BX.GetWindowScrollPos();
-
-						(new BX.easing({
-							duration : 500,
-							start : { scroll : windowScroll.scrollTop },
-							finish : { scroll : 0 },
-							transition : BX.easing.makeEaseOut(BX.easing.transitions.quart),
-							step : function(state){
-								window.scrollTo(0, state.scroll);
-							},
-							complete: function() {
-								if (upBtn)
-									upBtn.style.display = "block";
-								BX.onCustomEvent(window, 'onGoUp');
-							}
-						})).animate();
+							upBtn.style.display = "block";
+						BX.onCustomEvent(window, 'onGoUp');
 					}
-				}
+				})).animate();
 			}
-			else
-			{
-				if (filterPromise)
-				{
-					filterPromise.reject();
-				}
-				oLF.showRefreshError();
-			}
-		},
-		onfailure: function(data)
-		{
-			oLF.bLoadStarted = false;
-			if (filterPromise)
-			{
-				filterPromise.reject();
-			}
-
-			oLF.hideRefreshFade();
-			oLF.showRefreshError();
 		}
-	});
+	}.bind(this), function() {
+
+		this.bLoadStarted = false;
+		if (filterPromise)
+		{
+			filterPromise.reject();
+		}
+
+		this.hideRefreshFade();
+		this.showRefreshError();
+
+	}.bind(this));
 
 	return false;
 };
@@ -1653,7 +1610,7 @@ BitrixLF.prototype.recalcMoreButtonCommentsList = function()
 
 BitrixLF.prototype.showRefreshError = function()
 {
-	this.bLockCounterAnimate = false;
+	this.counter.bLockCounterAnimate = false;
 	this.clearContainerExternal(false);
 };
 
@@ -1683,89 +1640,6 @@ BitrixLF.prototype.LazyLoadCheckVisibility = function(image) // to check if expa
 	}
 
 	return true;
-};
-
-BitrixLF.prototype.processAjaxBlock = function(block, nodeId, insertHidden)
-{
-	if (!block)
-	{
-		return;
-	}
-
-	if (!nodeId)
-	{
-		nodeId = 'content_block_' + (Math.floor(Math.random() * 1000));
-	}
-
-	insertHidden = !!insertHidden;
-
-	var htmlWasInserted = false;
-	var scriptsLoaded = false;
-
-	processExternalJS(processInlineJS);
-	processCSS(insertHTML);
-
-	function processCSS(callback)
-	{
-		if (
-			BX.type.isArray(block.CSS)
-			&& block.CSS.length > 0
-		)
-		{
-			BX.load(block.CSS, callback);
-		}
-		else
-		{
-			callback();
-		}
-	}
-
-	function insertHTML()
-	{
-		BX('log_internal_container').appendChild(BX.create('DIV', {
-			props: {
-				id: nodeId,
-				className: 'feed-wrap'
-			},
-			style: {
-				display: (insertHidden ? 'none' : 'block')
-			},
-			html: block.CONTENT
-		}));
-
-		htmlWasInserted = true;
-		if (scriptsLoaded)
-		{
-			processInlineJS();
-		}
-	}
-
-	function processExternalJS(callback)
-	{
-		if (
-			BX.type.isArray(block.JS)
-			&& block.JS.length > 0
-		)
-		{
-			BX.load(block.JS, callback); // to initialize
-		}
-		else
-		{
-			callback();
-		}
-	}
-
-	function processInlineJS()
-	{
-		scriptsLoaded = true;
-		if (htmlWasInserted)
-		{
-			BX.ajax.processRequestData(block.CONTENT, {
-				scriptsRunFirst: false,
-				dataType: "HTML"
-			});
-		}
-	}
 };
 
 BitrixLF.prototype.clearContainerExternal = function(mode)
@@ -2163,6 +2037,165 @@ BitrixLF.prototype.expandPost = function(textBlock)
 			BX.addClass(postBlock, 'feed-post-block-short');
 			BX.addClass(postBlock, 'feed-post-block-separator');
 		}
+	}
+};
+
+BitrixLF.prototype.setNoTasksNotificationRead = function(event)
+{
+	var notificationNode = BX.findParent(event.currentTarget, { className: 'feed-notification-container'}, true);
+	if (notificationNode)
+	{
+		BX.ajax.runAction('socialnetwork.api.livefeed.readNoTasksNotification', {
+			data: {}
+		}).then(function(response) {
+			if (response.data.success)
+			{
+				BX.style( notificationNode, "height", notificationNode.offsetHeight + "px" );
+				setTimeout(function() { notificationNode.classList.add("feed-notification-container-collapsed")}, 10);
+				setTimeout(function() { notificationNode.parentNode.removeChild(notificationNode)}, 250);
+			}
+		}, function(response) {});
+	}
+};
+
+BitrixLF.prototype.counter = {
+
+	decrementStack: 0,
+	value: 0,
+	bLockCounterAnimate: null,
+
+	decrement: function(iDecrement)
+	{
+		iDecrement = parseInt(iDecrement);
+
+		this.decrementStack += iDecrement;
+
+		var counterNode = document.getElementById('sonet_log_counter_2');
+
+		if (BX.type.isDomNode(counterNode))
+		{
+			var
+				counterValue = this.value - this.decrementStack;
+
+			if (counterValue > 0)
+			{
+				counterNode.innerHTML = counterValue;
+			}
+			else
+			{
+				this.changeAnimate(false, 0);
+			}
+		}
+	},
+
+	changeAnimate: function (bShow, count, bZeroCounterFromDB)
+	{
+		bZeroCounterFromDB = !!bZeroCounterFromDB;
+		bShow = !!bShow;
+
+		var
+			counterTextNode = null,
+			reloadNode = null,
+			counterContainerNode = BX('sonet_log_counter_2_container');
+
+		if (counterContainerNode)
+		{
+			counterTextNode = BX.findChild(counterContainerNode, { tag: 'span', className: 'feed-new-message-inf-text' }, false);
+			reloadNode = BX.findChild(counterContainerNode, { tag: 'span', className: 'feed-new-message-inf-text-reload' }, false);
+		}
+
+		if (this.bLockCounterAnimate)
+		{
+			setTimeout(function() {
+				this.changeAnimate(bShow, count)
+			}.bind(this), 200);
+
+			return false;
+		}
+
+		var
+			counterWrapNode = BX('sonet_log_counter_2_wrap');
+
+		if (bShow)
+		{
+			var
+				counterNode = document.getElementById('sonet_log_counter_2'),
+				counterPlusNode = document.getElementById('sonet_log_counter_2_plus');
+
+			if (counterNode)
+			{
+				counterNode.innerHTML = count;
+			}
+
+			if (counterWrapNode)
+			{
+				counterWrapNode.style.visibility = "visible";
+				counterWrapNode.classList.add("feed-new-message-informer-anim");
+			}
+
+			if (
+				counterPlusNode
+				&& reloadNode
+				&& reloadNode.style.display != 'none'
+				&& counterTextNode
+			)
+			{
+				reloadNode.style.display = 'none';
+				counterTextNode.style.display = 'inline-block';
+				counterPlusNode.classList.remove("feed-new-message-informer-counter-plus-hidden");
+			}
+		}
+		else if (counterWrapNode)
+		{
+			if (
+				bZeroCounterFromDB
+				&& counterWrapNode.classList.contains("feed-new-message-informer-anim")
+			)
+			{
+				if (
+					counterTextNode
+					&& reloadNode
+				)
+				{
+					counterTextNode.style.display = 'none';
+					reloadNode.style.display = 'inline-block';
+
+					var counterWaiterNode = BX.findChild(counterTextNode, { tag: 'span', className: 'feed-new-message-icon' }, false);
+					if (counterWaiterNode)
+					{
+						counterWaiterNode.classList.remove('new-message-balloon-icon-rotating');
+					}
+				}
+			}
+			else
+				setTimeout(function() {
+					counterWrapNode.classList.remove("feed-new-message-informer-anim");
+					counterWrapNode.style.visibility = "hidden";
+				}, 400);
+		}
+	},
+
+	changeCounterArray: function (arCount)
+	{
+		if (typeof arCount[BX.message('sonetLCounterType')] != 'undefined')
+		{
+			this.changeCounter(arCount[BX.message('sonetLCounterType')]);
+		}
+	},
+
+	changeCounter: function(count)
+	{
+		count = parseInt(count);
+
+		this.value = count;
+
+		if (count <= 0)
+		{
+			this.decrementStack = 0;
+		}
+
+		var valueToShow = this.value - this.decrementStack;
+		this.changeAnimate((valueToShow > 0), valueToShow, (valueToShow <= 0));
 	}
 };
 

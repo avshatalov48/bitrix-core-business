@@ -22,6 +22,9 @@ $return = [
 					'TEMPLATE_MODE' => [
 						'style' => true,
 					],
+					'ALLOW_PAYMENT_REDIRECT' => [
+						'style' => true,
+					],
 				],
 			],
 		],

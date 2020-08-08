@@ -53,6 +53,14 @@ BX.rest.Marketplace = (function(){
 								}
 
 								if (
+									BX("mp_tos_license") && !BX("mp_tos_license").checked
+								)
+								{
+									BX("mp_detail_error").innerHTML = BX.message("MARKETPLACE_LICENSE_TOS_ERROR");
+									return;
+								}
+
+								if (
 									BX("mp_detail_license") && !BX("mp_detail_license").checked
 									|| BX("mp_detail_confidentiality") && !BX("mp_detail_confidentiality").checked
 								)

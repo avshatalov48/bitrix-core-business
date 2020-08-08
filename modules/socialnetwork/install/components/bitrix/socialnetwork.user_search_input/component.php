@@ -59,10 +59,10 @@ else
 }
 
 
-$arResult["GROUP_ID"] = IntVal($arParams["GROUP_ID"]);
+$arResult["GROUP_ID"] = intval($arParams["GROUP_ID"]);
 $arResult["~GROUP_ID"] = $arParams["GROUP_ID"];
 
-if (strlen($arParams["NAME_TEMPLATE"]) <= 0)		
+if ($arParams["NAME_TEMPLATE"] == '')
 	$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 						
 if (trim($arParams["SHOW_LOGIN"]) != "N")

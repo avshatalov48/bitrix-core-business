@@ -111,6 +111,11 @@ class RestService extends \IRestService
 			'ENTITY_REGISTRY_TYPE' => $params['ENTITY_REGISTRY_TYPE'],
 		];
 
+		if (isset($params['LOGOTIP']))
+		{
+			$fields['LOGOTIP'] = self::saveFile($params['LOGOTIP']);
+		}
+
 		$result = Manager::add($fields);
 		if ($result->isSuccess())
 		{
@@ -247,6 +252,11 @@ class RestService extends \IRestService
 		if (isset($params['FIELDS']['BX_REST_HANDLER']))
 		{
 			$fields['ACTION_FILE'] = $params['FIELDS']['BX_REST_HANDLER'];
+		}
+
+		if (isset($params['FIELDS']['LOGOTIP']))
+		{
+			$fields['LOGOTIP'] = self::saveFile($params['FIELDS']['LOGOTIP']);
 		}
 
 		$result = Manager::update($params['ID'], $fields);
@@ -779,7 +789,7 @@ class RestService extends \IRestService
 		{
 			throw new RestException('Pay invoice is not supported!', self::ERROR_PAY_INVOICE_NOT_SUPPORTED);
 		}
-		
+
 		static::checkOrderPermission();
 
 		$params = self::prepareParams($params);
@@ -1022,5 +1032,17 @@ class RestService extends \IRestService
 				throw new AccessException();
 			}
 		}
+	}
+
+	private static function saveFile($fileContent)
+	{
+		$file = \CRestUtil::saveFile($fileContent);
+		if ($file)
+		{
+			$file['MODULE_ID'] = 'sale';
+			return \CFile::SaveFile($file, 'sale');
+		}
+
+		return null;
 	}
 }

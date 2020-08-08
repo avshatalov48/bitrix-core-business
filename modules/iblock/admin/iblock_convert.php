@@ -5,9 +5,9 @@ CModule::IncludeModule("iblock");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/iblock/prolog.php");
 IncludeModuleLangFile(__FILE__);
 
-$IBLOCK_ID=IntVal($IBLOCK_ID);
-$WAY=IntVal($WAY);
-$STEP=IntVal($STEP);
+$IBLOCK_ID=intval($IBLOCK_ID);
+$WAY=intval($WAY);
+$STEP=intval($STEP);
 $INTERVAL=20;//sec TODO make setting?
 $isSidePanel = (isset($_REQUEST["IFRAME"]) && $_REQUEST["IFRAME"] === "Y");
 
@@ -339,7 +339,7 @@ function NextStep12($arIBlock)
 			if(count($arFields)>0)
 			{
 				$strUpdate = $DB->PrepareUpdateBind("b_iblock_element_prop_s".$arIBlock["ID"], $arFields, "iblock", false, $arBinds);
-				if(strlen($strUpdate)>0)
+				if($strUpdate <> '')
 				{
 					$strSql = "UPDATE b_iblock_element_prop_s".$arIBlock["ID"]." SET ".$strUpdate." WHERE IBLOCK_ELEMENT_ID=".$ELEMENT_ID;
 					$DB->QueryBind($strSql, $arBinds);
@@ -450,9 +450,9 @@ function NextStep21($arIBlock)
 
 		foreach($arElement as $key=>$value)
 		{
-			if(substr($key, 0 ,9)=="PROPERTY_" && strlen($value)>0)
+			if(mb_substr($key, 0, 9) == "PROPERTY_" && $value <> '')
 			{
-				$ID = intval(substr($key, 9));//TODO make conversion and check forsql and bind!!!!
+				$ID = intval(mb_substr($key, 9));//TODO make conversion and check forsql and bind!!!!
 
 				if($ID > 0 && array_key_exists($ID, $_SESSION["BX_IBLOCK_CONV"]["arSingle"]))
 				{

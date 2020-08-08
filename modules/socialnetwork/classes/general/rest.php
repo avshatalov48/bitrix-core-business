@@ -511,598 +511,44 @@ class CSocNetLogRestService extends IRestService
 
 	public static function addBlogPost($arFields)
 	{
-		global $USER, $CACHE_MANAGER;
+		global $APPLICATION;
 
-		$siteId = (
-			is_set($arFields, "SITE_ID")
-			&& !empty($arFields["SITE_ID"])
-				? $arFields["SITE_ID"]
-				: SITE_ID
-		);
-
-		$authorId = (
-			isset($arFields["USER_ID"])
-			&& intval($arFields["USER_ID"]) > 0
-			&& self::isAdmin()
-				? $arFields["USER_ID"]
-				: $USER->getId()
-		);
-
-		if (!Loader::includeModule('blog'))
+		try
 		{
-			throw new Exception('No blog module installed');
-		}
-
-		$blog = \Bitrix\Blog\Item\Blog::getByUser(array(
-			"GROUP_ID" => Option::get("socialnetwork", "userbloggroup_id", false, $siteId),
-			"SITE_ID" => $siteId,
-			"USER_ID" => $authorId,
-			"CREATE" => "Y",
-		));
-
-		if (!$blog)
-		{
-			throw new Exception('No blog found');
-		}
-
-		$connection = \Bitrix\Main\Application::getConnection();
-		$helper = $connection->getSqlHelper();
-
-		$postFields = array(
-			"BLOG_ID" => $blog["ID"],
-			"AUTHOR_ID" => $authorId,
-			"=DATE_CREATE" => $helper->getCurrentDateTimeFunction(),
-			"=DATE_PUBLISH" => $helper->getCurrentDateTimeFunction(),
-			"MICRO" => "N",
-			"TITLE" => (strlen($arFields["POST_TITLE"]) > 0 ? $arFields["POST_TITLE"] : ''),
-			"DETAIL_TEXT" => $arFields["POST_MESSAGE"],
-			"DETAIL_TEXT_TYPE" => "text",
-			"PUBLISH_STATUS" => BLOG_PUBLISH_STATUS_PUBLISH,
-			"HAS_IMAGES" => "N",
-			"HAS_TAGS" => "N",
-			"HAS_SOCNET_ALL" => "N"
-		);
-
-		$emailUserAllowed = (
-			ModuleManager::isModuleInstalled('mail')
-			&& ModuleManager::isModuleInstalled('intranet')
-			&& (
-				!Loader::includeModule('bitrix24')
-				|| \CBitrix24::isEmailConfirmed()
-			)
-		);
-
-		if (
-			!empty($arFields["DEST"])
-			&& is_array($arFields["DEST"])
-		)
-		{
-			$resultFields = array(
-				'ERROR_MESSAGE' => false,
-				'PUBLISH_STATUS' => $postFields['PUBLISH_STATUS']
-			);
-
-			if ($emailUserAllowed)
+			$postId = \Bitrix\Socialnetwork\Item\Helper::addBlogPost($arFields, \Bitrix\Main\Engine\Controller::SCOPE_REST);
+			if ($postId <= 0)
 			{
-				$destinationList = $arFields["DEST"];
-				ComponentHelper::processBlogPostNewMailUserDestinations($destinationList);
-				$arFields["DEST"] = array_unique($destinationList);
-			}
-
-			$postFields["SOCNET_RIGHTS"] = ComponentHelper::checkBlogPostDestinationList(array(
-				'DEST' => $arFields["DEST"],
-				'SITE_ID' => $siteId,
-				'AUTHOR_ID' => $authorId,
-			), $resultFields);
-
-			$postFields["PUBLISH_STATUS"] = $resultFields['PUBLISH_STATUS'];
-			if ($resultFields['ERROR_MESSAGE'])
-			{
-				throw new Exception($resultFields['ERROR_MESSAGE']);
+				$e = $APPLICATION->getException();
+				throw new \Exception($e ? $e->getString() : 'Cannot add blog post');
 			}
 		}
-		elseif (!empty($arFields["SPERM"]))
+		catch (Exception $e)
 		{
-			if ($emailUserAllowed)
-			{
-				$pseudoHttpPostFields = array(
-					'SPERM' => $arFields["SPERM"],
-					'INVITED_USER_NAME' => (!empty($arFields["INVITED_USER_NAME"]) && is_array($arFields["INVITED_USER_NAME"]) ? $arFields["INVITED_USER_NAME"] : array()),
-					'INVITED_USER_LAST_NAME' => (!empty($arFields["INVITED_USER_NAME"]) && is_array($arFields["INVITED_USER_LAST_NAME"]) ? $arFields["INVITED_USER_LAST_NAME"] : array()),
-					'INVITED_USER_CRM_ENTITY' => (!empty($arFields["INVITED_USER_CRM_ENTITY"]) && is_array($arFields["INVITED_USER_CRM_ENTITY"]) ? $arFields["INVITED_USER_CRM_ENTITY"] : array()),
-					'INVITED_USER_CREATE_CRM_CONTACT' => (!empty($arFields["INVITED_USER_CREATE_CRM_CONTACT"]) && is_array($arFields["INVITED_USER_CREATE_CRM_CONTACT"]) ? $arFields["INVITED_USER_CREATE_CRM_CONTACT"] : array()),
-				);
-				$temporaryParams = array(
-					"ALLOW_EMAIL_INVITATION" => true
-				);
-				ComponentHelper::processBlogPostNewMailUser($pseudoHttpPostFields, $temporaryParams);
-				if (!empty($temporaryParams["ERROR_MESSAGE"]))
-				{
-					throw new Exception($temporaryParams["ERROR_MESSAGE"]);
-				}
-
-				$arFields["SPERM"] = $pseudoHttpPostFields['SPERM'];
-			}
-
-			$resultFields = array(
-				'ERROR_MESSAGE' => false,
-				'PUBLISH_STATUS' => $postFields['PUBLISH_STATUS'],
-			);
-
-			$postFields["SOCNET_RIGHTS"] = ComponentHelper::convertBlogPostPermToDestinationList(array(
-				'PERM' => $arFields["SPERM"],
-				'IS_REST' => true,
-				'AUTHOR_ID' => $authorId,
-				'SITE_ID' => $siteId
-			), $resultFields);
-
-			$postFields["PUBLISH_STATUS"] = $resultFields['PUBLISH_STATUS'];
-			if (!empty($resultFields['ERROR_MESSAGE']))
-			{
-				throw new Exception($resultFields['ERROR_MESSAGE']);
-			}
-		}
-		elseif (
-			!Loader::includeModule("extranet")
-			|| \CExtranet::isIntranetUser()
-		)
-		{
-			$postFields["SOCNET_RIGHTS"] = array('UA');
+			throw new \Exception($e->getMessage(), $e->getCode());
 		}
 
-		if (empty($postFields["SOCNET_RIGHTS"]))
-		{
-			throw new Exception('No destination specified');
-		}
-
-		if (strlen($postFields["TITLE"]) <= 0)
-		{
-			$postFields["MICRO"] = "Y";
-			$postFields["TITLE"] = preg_replace(array("/\n+/is".BX_UTF_PCRE_MODIFIER, "/\s+/is".BX_UTF_PCRE_MODIFIER), " ", \blogTextParser::killAllTags($postFields["DETAIL_TEXT"]));
-			$postFields["TITLE"] = trim($postFields["TITLE"], " \t\n\r\0\x0B\xA0");
-		}
-
-		if (
-			isset($arFields["IMPORTANT"])
-			&& $arFields["IMPORTANT"] == "Y"
-		)
-		{
-			$postFields["UF_BLOG_POST_IMPRTNT"] = true;
-
-			if (!empty($arFields["IMPORTANT_DATE_END"]))
-			{
-				$endDate = \CRestUtil::unConvertDate($arFields["IMPORTANT_DATE_END"]);
-				if ($endDate)
-				{
-					$postFields["UF_IMPRTANT_DATE_END"] = \Bitrix\Main\Type\DateTime::createFromUserTime($endDate);
-				}
-			}
-		}
-
-		$result = \CBlogPost::add($postFields);
-
-		if (!$result)
-		{
-			throw new Exception('Blog post hasn\'t been added');
-		}
-
-		if (
-			isset($arFields["IMPORTANT"])
-			&& $arFields["IMPORTANT"] == "Y"
-		)
-		{
-			\CBlogUserOptions::setOption($result, "BLOG_POST_IMPRTNT", "Y", $authorId);
-
-			if (defined("BX_COMP_MANAGED_CACHE"))
-			{
-				$CACHE_MANAGER->ClearByTag('blogpost_important_all');
-			}
-		}
-
-		$inlineTagsList = \Bitrix\Socialnetwork\Util::detectTags($postFields, ($postFields["MICRO"] == 'Y' ? [ 'DETAIL_TEXT' ] : [ 'DETAIL_TEXT', 'TITLE' ]));
-		if (!empty($inlineTagsList))
-		{
-			$inlineTagsList = array_unique(array_map('ToLower', $inlineTagsList));
-
-			$existingCategoriesList = [];
-			$res = CBlogCategory::getList(
-				array(),
-				array(
-					"@NAME" => $inlineTagsList,
-					"BLOG_ID" => $postFields["BLOG_ID"]
-				),
-				false,
-				false,
-				[ 'ID', 'NAME' ]
-			);
-			while ($category = $res->fetch())
-			{
-				$existingCategoriesList[$category['NAME']] = $category['ID'];
-			}
-
-			$categoryIdList = [];
-
-			foreach($inlineTagsList as $tag)
-			{
-				if (array_key_exists($tag, $existingCategoriesList))
-				{
-					$categoryIdList[] = $existingCategoriesList[$tag];
-				}
-				else
-				{
-					$categoryIdList[] = \CBlogCategory::add([
-						"BLOG_ID" => $postFields["BLOG_ID"],
-						"NAME" => $tag
-					]);
-				}
-			}
-
-			foreach($categoryIdList as $categoryId)
-			{
-				\CBlogPostCategory::add([
-					"BLOG_ID" => $postFields["BLOG_ID"],
-					"POST_ID" => $result,
-					"CATEGORY_ID" => $categoryId
-				]);
-			}
-
-			\CBlogPost::update(
-				$result,
-				[
-					"CATEGORY_ID" => implode(",", $categoryIdList),
-					"HAS_TAGS" => "Y"
-				]
-			);
-		}
-
-		if (
-			isset($arFields["FILES"])
-			&& Option::get('disk', 'successfully_converted', false)
-			&& Loader::includeModule('disk')
-			&& ($storage = \Bitrix\Disk\Driver::getInstance()->getStorageByUserId($authorId))
-			&& ($folder = $storage->getFolderForUploadedFiles())
-		)
-		{
-			// upload to storage
-			$filesList = array();
-
-			foreach($arFields["FILES"] as $tmp)
-			{
-				$fileFields = \CRestUtil::saveFile($tmp);
-
-				if(is_array($fileFields))
-				{
-					$file = $folder->uploadFile(
-						$fileFields, // file array
-						array(
-							'NAME' => $fileFields["name"],
-							'CREATED_BY' => $authorId
-						),
-						array(),
-						true
-					);
-
-					if ($file)
-					{
-						$filesList[] = \Bitrix\Disk\Uf\FileUserType::NEW_FILE_PREFIX.$file->getId();
-					}
-				}
-			}
-
-			if (!empty($filesList)) // update post
-			{
-				\CBlogPost::update(
-					$result,
-					array(
-						"HAS_PROPS" => "Y",
-						"UF_BLOG_POST_FILE" => $filesList
-					)
-				);
-			}
-		}
-
-		$pathToPost = Option::get("socialnetwork", "userblogpost_page", false, $siteId);
-
-		$postFields['ID'] = $result;
-
-		$paramsNotify = array(
-			"bSoNet" => true,
-			"allowVideo" => Option::get("blog", "allow_video", "Y"),
-			"PATH_TO_POST" => $pathToPost,
-			"user_id" => $authorId,
-			"NAME_TEMPLATE" => \CSite::getNameFormat(null, $siteId)
-		);
-
-		$logId = \CBlogPost::notify($postFields, $blog, $paramsNotify);
-
-		if ($logId)
-		{
-			if ($post = \Bitrix\Blog\Item\Post::getById($result))
-			{
-				\CSocNetLog::update(intval($logId), [
-					"SOURCE_ID" => $result, // table column field
-					"TAG" => $post->getTags()
-				]);
-			}
-		}
-
-		$postUrl = \CComponentEngine::makePathFromTemplate(htmlspecialcharsBack($pathToPost), array(
-			"post_id" => $result,
-			"user_id" => $blog["OWNER_ID"]
-		));
-
-		if($postFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLISH)
-		{
-			BXClearCache(true, ComponentHelper::getBlogPostCacheDir(array(
-				'TYPE' => 'posts_last',
-				'SITE_ID' => $siteId
-			)));
-
-			preg_match_all("/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/is".BX_UTF_PCRE_MODIFIER, $postFields["DETAIL_TEXT"], $matches);
-			$mentionList = (!empty($matches) ? $matches[1] : array());
-
-			ComponentHelper::notifyBlogPostCreated(array(
-				'post' => array(
-					'ID' => $result,
-					'TITLE' => $postFields["TITLE"],
-					'AUTHOR_ID' => $authorId
-				),
-				'siteId' => $siteId,
-				'postUrl' => $postUrl,
-				'socnetRights' => $postFields["SOCNET_RIGHTS"],
-				'socnetRightsOld' => array(),
-				'mentionListOld' => array(),
-				'mentionList' => $mentionList
-			));
-		}
-		elseif (
-			$postFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_READY
-			&& !empty($postFields["SOCNET_RIGHTS"])
-		)
-		{
-			CBlogPost::NotifyImReady(array(
-				"TYPE" => "POST",
-				"POST_ID" => $result,
-				"TITLE" => $postFields["TITLE"],
-				"POST_URL" => $postUrl,
-				"FROM_USER_ID" => $authorId,
-				"TO_SOCNET_RIGHTS" => $postFields["SOCNET_RIGHTS"]
-			));
-		}
-
-		foreach($postFields["SOCNET_RIGHTS"] as $destination)
-		{
-			if (preg_match('/^SG(\d+)/i', $destination, $matches))
-			{
-				\CSocNetGroup::setLastActivity($matches[1]);
-			}
-		}
-
-		return $result;
+		return $postId;
 	}
 
 	public static function updateBlogPost($arFields)
 	{
-		global $USER, $USER_FIELD_MANAGER;
+		global $APPLICATION;
 
-		$postId = intval($arFields['POST_ID']);
-
-		if($postId <= 0)
+		try
 		{
-			throw new Exception('Wrong post ID');
-		}
-
-		if (!Loader::includeModule('blog'))
-		{
-			throw new Exception('Blog module not installed');
-		}
-
-		$currentUserId = (
-			isset($arFields["USER_ID"])
-			&& intval($arFields["USER_ID"]) > 0
-			&& self::isAdmin()
-				? $arFields["USER_ID"]
-				: $USER->getId()
-		);
-
-		$siteId = (
-			is_set($arFields, "SITE_ID")
-			&& !empty($arFields["SITE_ID"])
-				? $arFields["SITE_ID"]
-				: SITE_ID
-		);
-
-		$currentUserPerm = self::getBlogPostPerm(array(
-			'USER_ID' => $currentUserId,
-			'POST_ID' => $postId
-		));
-
-		if ($currentUserPerm <= \Bitrix\Blog\Item\Permissions::WRITE)
-		{
-			throw new Exception('No write perms');
-		}
-
-		$postFields = \Bitrix\Blog\Item\Post::getById($postId)->getFields();
-		if (empty($postFields))
-		{
-			throw new Exception('No post found');
-		}
-
-		$blog = \Bitrix\Blog\Item\Blog::getByUser(array(
-			"GROUP_ID" => Option::get("socialnetwork", "userbloggroup_id", false, $siteId),
-			"SITE_ID" => $siteId,
-			"USER_ID" => $postFields['AUTHOR_ID']
-		));
-
-		if (!$blog)
-		{
-			throw new Exception('No blog found');
-		}
-
-		$updateFields = array(
-			'PUBLISH_STATUS' => $postFields['PUBLISH_STATUS']
-		);
-
-		if (isset($arFields["POST_TITLE"]))
-		{
-			$updateFields['TITLE'] = $arFields["POST_TITLE"];
-			$updateFields["MICRO"] = "N";
-			if (
-				strlen($updateFields["TITLE"]) <= 0
-				&& isset($arFields["POST_MESSAGE"])
-			)
+			$postId = \Bitrix\Socialnetwork\Item\Helper::updateBlogPost($arFields, \Bitrix\Main\Engine\Controller::SCOPE_REST);
+			if ($postId <= 0)
 			{
-				$updateFields["MICRO"] = "Y";
-				$updateFields["TITLE"] = preg_replace(array("/\n+/is".BX_UTF_PCRE_MODIFIER, "/\s+/is".BX_UTF_PCRE_MODIFIER), " ", \blogTextParser::killAllTags($arFields["POST_MESSAGE"]));
-				$updateFields["TITLE"] = trim($updateFields["TITLE"], " \t\n\r\0\x0B\xA0");
+				$e = $APPLICATION->getException();
+				throw new \Exception($e ? $e->getString() : 'Cannot update blog post');
 			}
 		}
-		if (strlen($arFields["POST_MESSAGE"]) > 0)
+		catch (Exception $e)
 		{
-			$updateFields['DETAIL_TEXT'] = $arFields["POST_MESSAGE"];
+			throw new \Exception($e->getMessage(), $e->getCode());
 		}
 
-		if (!empty($arFields["DEST"]))
-		{
-
-			if (
-				ModuleManager::isModuleInstalled('mail')
-				&& ModuleManager::isModuleInstalled('intranet')
-				&& (
-					!Loader::includeModule('bitrix24')
-					|| \CBitrix24::isEmailConfirmed()
-				)
-			)
-			{
-				$destinationList = $arFields["DEST"];
-				ComponentHelper::processBlogPostNewMailUserDestinations($destinationList);
-				$arFields["DEST"] = array_unique($destinationList);
-			}
-
-			$resultFields = array(
-				'ERROR_MESSAGE' => false,
-				'PUBLISH_STATUS' => $updateFields['PUBLISH_STATUS']
-			);
-
-			$updateFields["SOCNET_RIGHTS"] = ComponentHelper::checkBlogPostDestinationList(array(
-				'DEST' => $arFields["DEST"],
-				'SITE_ID' => $siteId,
-				'AUTHOR_ID' => $postFields['AUTHOR_ID'],
-			), $resultFields);
-
-			$updateFields["PUBLISH_STATUS"] = $resultFields['PUBLISH_STATUS'];
-			if ($resultFields['ERROR_MESSAGE'])
-			{
-				throw new Exception($resultFields['ERROR_MESSAGE']);
-			}
-		}
-
-		if($result = \CBlogPost::update($postId, $updateFields))
-		{
-			if (
-				!empty($arFields["FILES"])
-				&& Option::get('disk', 'successfully_converted', false)
-				&& Loader::includeModule('disk')
-				&& ($storage = \Bitrix\Disk\Driver::getInstance()->getStorageByUserId($postFields['AUTHOR_ID']))
-				&& ($folder = $storage->getFolderForUploadedFiles())
-			)
-			{
-				$filesList = array();
-
-				$postUF = $USER_FIELD_MANAGER->GetUserFields("BLOG_POST", $postId, LANGUAGE_ID);
-				if (
-					!empty($postUF['UF_BLOG_POST_FILE'])
-					&& !empty($postUF['UF_BLOG_POST_FILE']['VALUE'])
-				)
-				{
-					$filesList = array_merge($filesList, $postUF['UF_BLOG_POST_FILE']['VALUE']);
-				}
-
-				$needToDelete = false;
-
-				foreach($arFields["FILES"] as $key => $tmp)
-				{
-					if (
-						$tmp == 'del'
-						&& in_array($key, $filesList)
-					)
-					{
-						foreach($filesList as $i => $v)
-						{
-							if ($v == $key)
-							{
-								unset($filesList[$i]);
-								$needToDelete = true;
-							}
-						}
-					}
-					else
-					{
-						$fileFields = \CRestUtil::saveFile($tmp);
-
-						if(is_array($fileFields))
-						{
-							$file = $folder->uploadFile(
-								$fileFields,
-								array(
-									'NAME' => $fileFields["name"],
-									'CREATED_BY' => $postFields['AUTHOR_ID']
-								),
-								array(),
-								true
-							);
-
-							if ($file)
-							{
-								$filesList[] = \Bitrix\Disk\Uf\FileUserType::NEW_FILE_PREFIX.$file->getId();
-							}
-						}
-					}
-				}
-
-				if (
-					!empty($filesList)
-					|| $needToDelete
-				)
-				{
-					\CBlogPost::update($postId, array("HAS_PROPS" => "Y", "UF_BLOG_POST_FILE" => $filesList));
-				}
-			}
-
-			BXClearCache(true, ComponentHelper::getBlogPostCacheDir(array(
-				'TYPE' => 'post',
-				'POST_ID' => $postId
-			)));
-			BXClearCache(true, ComponentHelper::getBlogPostCacheDir(array(
-				'TYPE' => 'post_general',
-				'POST_ID' => $postId
-			)));
-			BXClearCache(true, ComponentHelper::getBlogPostCacheDir(array(
-				'TYPE' => 'posts_popular',
-				'SITE_ID' => $siteId
-			)));
-
-			$updateFields["AUTHOR_ID"] = $postFields["AUTHOR_ID"];
-			if (
-				$updateFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_DRAFT
-				&& $postFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLISH
-			)
-			{
-				\CBlogPost::deleteLog($postId);
-			}
-			elseif (
-				$updateFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLISH
-				&& $postFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLISH
-			)
-			{
-				\CBlogPost::updateLog($postId, $updateFields, $blog, array(
-					"allowVideo" => Option::get("blog", "allow_video", "Y"),
-					"PATH_TO_SMILE" => false
-				));
-			}
-		}
-
-		return $result;
+		return $postId;
 	}
 
 	public static function deleteBlogPost($arFields)
@@ -1856,7 +1302,7 @@ class CSocNetLogRestService extends IRestService
 		}
 
 
-		if($result = CBlogComment::Delete(IntVal($commentId)))
+		if($result = CBlogComment::Delete(intval($commentId)))
 		{
 			BXClearCache(true, ComponentHelper::getBlogPostCacheDir(array(
 				'TYPE' => 'post_comments',
@@ -2069,53 +1515,7 @@ class CSocNetLogRestService extends IRestService
 
 	private static function getBlogPostPerm($arFields)
 	{
-		global $USER;
-
-		if (!Loader::includeModule('blog'))
-		{
-			throw new Exception('Blog module not installed');
-		}
-
-		$postId = $arFields['POST_ID'];
-
-		$currentUserId = (
-			isset($arFields["USER_ID"])
-			&& intval($arFields["USER_ID"]) > 0
-			&& self::isAdmin()
-				? $arFields["USER_ID"]
-				: $USER->getId()
-		);
-
-		$arPost = self::getBlogPostFields($postId);
-
-		if($arPost["AUTHOR_ID"] == $currentUserId)
-		{
-			$result = Bitrix\Blog\Item\Permissions::FULL;
-		}
-		else
-		{
-			if (CSocNetUser::isUserModuleAdmin($currentUserId, SITE_ID))
-			{
-				$result = Bitrix\Blog\Item\Permissions::FULL;
-			}
-			else
-			{
-				$postItem = \Bitrix\Blog\Item\Post::getById($postId);
-				$permsResult = $postItem->getSonetPerms(array(
-					"CHECK_FULL_PERMS" => true
-				));
-				$result = $permsResult['PERM'];
-				if (
-					$result <= \Bitrix\Blog\Item\Permissions::READ
-					&& $permsResult['READ_BY_OSG']
-				)
-				{
-					$result = Bitrix\Blog\Item\Permissions::READ;
-				}
-			}
-		}
-
-		return $result;
+		return \Bitrix\Socialnetwork\Item\Helper::getBlogPostPerm($arFields);
 	}
 
 	private static function getBlogCommentPerm($arFields)
@@ -2211,31 +1611,7 @@ class CSocNetLogRestService extends IRestService
 
 	private static function getBlogPostFields($postId)
 	{
-		$tzOffset = \CTimeZone::getOffset();
-
-		$cacheTtl = 2592000;
-		$cacheId = 'blog_post_socnet_general_'.$postId.'_'.LANGUAGE_ID.($tzOffset <> 0 ? "_".$tzOffset : "")."_".Bitrix\Main\Context::getCurrent()->getCulture()->getDateTimeFormat()."_rest";
-		$cacheDir = ComponentHelper::getBlogPostCacheDir(array(
-			'TYPE' => 'post_general',
-			'POST_ID' => $postId
-		));
-
-		$obCache = new CPHPCache;
-		if($obCache->InitCache($cacheTtl, $cacheId, $cacheDir))
-		{
-			$arPost = $obCache->getVars();
-			$postItem = new \Bitrix\Blog\Item\Post;
-			$postItem->setFields($arPost);
-		}
-		else
-		{
-			$obCache->StartDataCache();
-			$postItem = \Bitrix\Blog\Item\Post::getById($postId);
-			$arPost = $postItem->getFields();
-			$obCache->EndDataCache($arPost);
-		}
-
-		return $arPost;
+		return \Bitrix\Socialnetwork\Item\Helper::getBlogPostPerm($postId);
 	}
 
 	private static function getBlogCommentFields($commentId)
@@ -2338,7 +1714,7 @@ class CSocNetLogRestService extends IRestService
 			foreach (['urlPreview', 'urlShow', 'urlDownload'] as $field)
 			{
 				$url = $fileData[$key][$field];
-				if (is_string($url) && $url && strpos($url, 'http') !== 0)
+				if (is_string($url) && $url && mb_strpos($url, 'http') !== 0)
 				{
 					$fileData[$key][$field] = self::getPublicDomain().$url;
 				}
@@ -2353,7 +1729,7 @@ class CSocNetLogRestService extends IRestService
 		static $result = null;
 		if ($result === null)
 		{
-			$result = (\Bitrix\Main\Context::getCurrent()->getRequest()->isHttps() ? "https" : "http")."://".((defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME) > 0) ? SITE_SERVER_NAME : \Bitrix\Main\Config\Option::get("main", "server_name", $_SERVER['SERVER_NAME']));
+			$result = (\Bitrix\Main\Context::getCurrent()->getRequest()->isHttps() ? "https" : "http")."://".((defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '') ? SITE_SERVER_NAME : \Bitrix\Main\Config\Option::get("main", "server_name", $_SERVER['SERVER_NAME']));
 		}
 
 		return $result;
@@ -2371,8 +1747,8 @@ class CSocNetLogRestService extends IRestService
 		foreach($arFields as $key => $value)
 		{
 			if (
-				substr($key, 0, 1) == "~"
-				|| substr($key, 0, 1) == "="
+				mb_substr($key, 0, 1) == "~"
+				|| mb_substr($key, 0, 1) == "="
 			)
 			{
 				unset($arFields[$key]);
@@ -2391,7 +1767,7 @@ class CSocNetLogRestService extends IRestService
 
 		if (
 			!is_set($arFields, "SITE_ID")
-			|| strlen($arFields["SITE_ID"]) <= 0
+			|| $arFields["SITE_ID"] == ''
 		)
 		{
 			$arFields["SITE_ID"] = array(SITE_ID);
@@ -2459,8 +1835,8 @@ class CSocNetLogRestService extends IRestService
 		foreach($arFields as $key => $value)
 		{
 			if (
-				substr($key, 0, 1) == "~"
-				|| substr($key, 0, 1) == "="
+				mb_substr($key, 0, 1) == "~"
+				|| mb_substr($key, 0, 1) == "="
 			)
 			{
 				unset($arFields[$key]);
@@ -3109,7 +2485,7 @@ class CSocNetLogRestService extends IRestService
 		}
 
 		if (
-			strlen($feature) <= 0
+			$feature == ''
 			|| !array_key_exists($feature, $arSocNetFeaturesSettings)
 			|| !array_key_exists("allowed", $arSocNetFeaturesSettings[$feature])
 			|| !in_array(SONET_ENTITY_GROUP, $arSocNetFeaturesSettings[$feature]["allowed"])
@@ -3119,7 +2495,7 @@ class CSocNetLogRestService extends IRestService
 		}
 
 		if (
-			strlen($operation) <= 0
+			$operation == ''
 			|| !array_key_exists("operations", $arSocNetFeaturesSettings[$feature])
 			|| !array_key_exists($operation, $arSocNetFeaturesSettings[$feature]["operations"])
 		)
@@ -3158,14 +2534,31 @@ class CSocNetLogRestService extends IRestService
 							case 'DATE_ACTIVITY':
 							case 'DATE_UPDATE':
 								$arFilter[$key] = CRestUtil::unConvertDateTime($value);
-							break;
-
+								break;
+							case 'IS_EXTRANET':
+								$extranetSiteId = false;
+								if (ModuleManager::isModuleInstalled('extranet'))
+								{
+									$extranetSiteId = Option::get("extranet", "extranet_site");
+								}
+								if ($extranetSiteId)
+								{
+									if ($value == 'Y')
+									{
+										$arFilter['=SITE_ID'] = $extranetSiteId;
+									}
+									elseif ($value == 'N')
+									{
+										$arFilter['!=SITE_ID'] = $extranetSiteId;
+									}
+								}
+								unset($arFilter[$key]);
+								break;
 							case 'CHECK_PERMISSIONS':
 								unset($arFilter[$key]);
-							break;
-
+								break;
 							default:
-							break;
+								break;
 						}
 					}
 				}
@@ -3275,8 +2668,8 @@ class CSocNetLogRestService extends IRestService
 		foreach($arFields as $key => $value)
 		{
 			if (
-				substr($key, 0, 1) == "~"
-				|| substr($key, 0, 1) == "="
+				mb_substr($key, 0, 1) == "~"
+				|| mb_substr($key, 0, 1) == "="
 			)
 			{
 				unset($arFields[$key]);
@@ -3416,20 +2809,20 @@ class CSocNetLogBlogPostRestProxy
 			$processedIdList[$appKey] = array();
 		}
 
-		switch (strtolower($eventName))
+		switch(mb_strtolower($eventName))
 		{
 			case 'onlivefeedpostadd':
 			case 'onlivefeedpostupdate':
 			case 'onlivefeedpostdelete':
-				if (in_array(strtolower($eventName), array('onlivefeedpostadd')))
+				if(in_array(mb_strtolower($eventName), array('onlivefeedpostadd')))
 				{
-					$fields = isset($arParams[0]) && is_array($arParams[0]) ? $arParams[0] : array();
-					$id = isset($fields['ID']) ? (int)$fields['ID'] : 0;
+					$fields = isset($arParams[0]) && is_array($arParams[0])? $arParams[0] : array();
+					$id = isset($fields['ID'])? (int)$fields['ID'] : 0;
 				}
-				elseif (in_array(strtolower($eventName), array('onlivefeedpostupdate', 'onlivefeedpostdelete')))
+				elseif(in_array(mb_strtolower($eventName), array('onlivefeedpostupdate', 'onlivefeedpostdelete')))
 				{
-					$id = isset($arParams[0]) ? (int)$arParams[0] : 0;
-					$fields = isset($arParams[1]) && is_array($arParams[1]) ? $arParams[1] : array();
+					$id = isset($arParams[0])? (int)$arParams[0] : 0;
+					$fields = isset($arParams[1]) && is_array($arParams[1])? $arParams[1] : array();
 				}
 
 				if($id <= 0)
@@ -3437,21 +2830,21 @@ class CSocNetLogBlogPostRestProxy
 					throw new RestException("Could not find livefeed entity ID in fields of event \"{$eventName}\"");
 				}
 
-				if (
-					in_array(strtolower($eventName), array('onlivefeedpostupdate'))
+				if(
+					in_array(mb_strtolower($eventName), array('onlivefeedpostupdate'))
 					&& in_array($id, $processedIdList[$appKey])
 				)
 				{
 					throw new RestException("ID {$id} has already been processed");
 				}
 
-				if (in_array(strtolower($eventName), array('onlivefeedpostadd', 'onlivefeedpostupdate')))
+				if(in_array(mb_strtolower($eventName), array('onlivefeedpostadd', 'onlivefeedpostupdate')))
 				{
 					$processedIdList[$appKey][] = $id;
 				}
 
-				if (
-					strtolower($eventName) == 'onlivefeedpostupdate'
+				if(
+					mb_strtolower($eventName) == 'onlivefeedpostupdate'
 					&& (
 						!isset($fields['SOURCE_ID'])
 						|| !isset($fields['EVENT_ID'])
@@ -3465,19 +2858,19 @@ class CSocNetLogBlogPostRestProxy
 						'select' => array('EVENT_ID', 'SOURCE_ID')
 					));
 
-					if ($logFields = $res->fetch())
+					if($logFields = $res->fetch())
 					{
-						$sourceId = isset($logFields['SOURCE_ID']) ? (int)$logFields['SOURCE_ID'] : 0;
-						$logEventId = isset($logFields['EVENT_ID']) ? $logFields['EVENT_ID'] : false;
+						$sourceId = isset($logFields['SOURCE_ID'])? (int)$logFields['SOURCE_ID'] : 0;
+						$logEventId = isset($logFields['EVENT_ID'])? $logFields['EVENT_ID'] : false;
 					}
 				}
 				else
 				{
-					$sourceId = isset($fields['SOURCE_ID']) ? (int)$fields['SOURCE_ID'] : 0;
-					$logEventId = isset($fields['EVENT_ID']) ? $fields['EVENT_ID'] : false;
+					$sourceId = isset($fields['SOURCE_ID'])? (int)$fields['SOURCE_ID'] : 0;
+					$logEventId = isset($fields['EVENT_ID'])? $fields['EVENT_ID'] : false;
 				}
 
-				if (in_array($logEventId, \Bitrix\Blog\Integration\Socialnetwork\Log::getEventIdList()))
+				if(in_array($logEventId, \Bitrix\Blog\Integration\Socialnetwork\Log::getEventIdList()))
 				{
 					if($sourceId <= 0)
 					{
@@ -3513,29 +2906,29 @@ class CSocNetGroupRestProxy
 			$processedIdList[$appKey] = array();
 		}
 
-		switch (strtolower($eventName))
+		switch(mb_strtolower($eventName))
 		{
 			case 'onsonetgroupadd':
 			case 'onsonetgroupupdate':
 			case 'onsonetgroupdelete':
 
-				$id = isset($arParams[0]) ? (int)$arParams[0] : 0;
-				$fields = isset($arParams[1]) && is_array($arParams[1]) ? $arParams[1] : array();
+				$id = isset($arParams[0])? (int)$arParams[0] : 0;
+				$fields = isset($arParams[1]) && is_array($arParams[1])? $arParams[1] : array();
 
 				if($id <= 0)
 				{
 					throw new RestException("Could not find sonet group ID in fields of event \"{$eventName}\"");
 				}
 
-				if (
-					in_array(strtolower($eventName), array('onsonetgroupupdate'))
+				if(
+					in_array(mb_strtolower($eventName), array('onsonetgroupupdate'))
 					&& in_array($id, $processedIdList[$appKey])
 				)
 				{
 					throw new RestException("ID {$id} has already been processed");
 				}
 
-				if (in_array(strtolower($eventName), array('onsonetgroupadd', 'onsonetgroupupdate')))
+				if(in_array(mb_strtolower($eventName), array('onsonetgroupadd', 'onsonetgroupupdate')))
 				{
 					$processedIdList[$appKey][] = $id;
 				}
@@ -3562,29 +2955,29 @@ class CSocNetGroupSubjectRestProxy
 			$processedIdList[$appKey] = array();
 		}
 
-		switch (strtolower($eventName))
+		switch(mb_strtolower($eventName))
 		{
 			case 'onsonetgroupsubjectadd':
 			case 'onsonetgroupsubjectupdate':
 			case 'onsonetgroupsubjectdelete':
 
-				$id = isset($arParams[0]) ? (int)$arParams[0] : 0;
-				$fields = isset($arParams[1]) && is_array($arParams[1]) ? $arParams[1] : array();
+				$id = isset($arParams[0])? (int)$arParams[0] : 0;
+				$fields = isset($arParams[1]) && is_array($arParams[1])? $arParams[1] : array();
 
 				if($id <= 0)
 				{
 					throw new RestException("Could not find sonet group subject ID in fields of event \"{$eventName}\"");
 				}
 
-				if (
-					in_array(strtolower($eventName), array('onsonetgroupsubjectupdate'))
+				if(
+					in_array(mb_strtolower($eventName), array('onsonetgroupsubjectupdate'))
 					&& in_array($id, $processedIdList[$appKey])
 				)
 				{
 					throw new RestException("ID {$id} has already been processed");
 				}
 
-				if (in_array(strtolower($eventName), array('onsonetgroupsubjectadd', 'onsonetgroupsubjectupdate')))
+				if(in_array(mb_strtolower($eventName), array('onsonetgroupsubjectadd', 'onsonetgroupsubjectupdate')))
 				{
 					$processedIdList[$appKey][] = $id;
 				}

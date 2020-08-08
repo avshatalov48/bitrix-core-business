@@ -33,7 +33,7 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 		\Bitrix\Socialnetwork\Util::processEqualityFieldsToUpdate($arFields1, $strUpdate);
 
 		$ID = false;
-		if (strlen($arInsert[0]) > 0)
+		if ($arInsert[0] <> '')
 		{
 			$strSql =
 				"INSERT INTO b_sonet_user2group(".$arInsert[0].") ".
@@ -42,7 +42,7 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 
 			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-			$ID = IntVal($DB->LastID());
+			$ID = intval($DB->LastID());
 		}
 
 		if ($ID)
@@ -88,7 +88,7 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 		if (!CSocNetGroup::__ValidateID($ID))
 			return false;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$arUser2GroupOld = CSocNetUserToGroup::GetByID($ID);
 		if (!$arUser2GroupOld)
@@ -110,7 +110,7 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 		$strUpdate = $DB->PrepareUpdate("b_sonet_user2group", $arFields);
 		\Bitrix\Socialnetwork\Util::processEqualityFieldsToUpdate($arFields1, $strUpdate);
 
-		if (strlen($strUpdate) > 0)
+		if ($strUpdate <> '')
 		{
 			$strSql =
 				"UPDATE b_sonet_user2group SET ".
@@ -255,9 +255,9 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 				"SELECT ".$arSqls["SELECT"]." ".
 				"FROM b_sonet_user2group UG ".
 				"	".$arSqls["FROM"]." ";
-			if (strlen($arSqls["WHERE"]) > 0)
+			if ($arSqls["WHERE"] <> '')
 				$strSql .= "WHERE ".$arSqls["WHERE"]." ";
-			if (strlen($arSqls["GROUPBY"]) > 0)
+			if ($arSqls["GROUPBY"] <> '')
 				$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
@@ -270,29 +270,29 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 			"SELECT ".$arSqls["SELECT"]." ".
 			"FROM b_sonet_user2group UG ".
 			"	".$arSqls["FROM"]." ";
-		if (strlen($arSqls["WHERE"]) > 0)
+		if ($arSqls["WHERE"] <> '')
 			$strSql .= "WHERE ".$arSqls["WHERE"]." ";
-		if (strlen($arSqls["GROUPBY"]) > 0)
+		if ($arSqls["GROUPBY"] <> '')
 			$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
-		if (strlen($arSqls["ORDERBY"]) > 0)
+		if ($arSqls["ORDERBY"] <> '')
 			$strSql .= "ORDER BY ".$arSqls["ORDERBY"]." ";
 
-		if (is_array($arNavStartParams) && IntVal($arNavStartParams["nTopCount"]) <= 0)
+		if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"]) <= 0)
 		{
 			$strSql_tmp =
 				"SELECT COUNT('x') as CNT ".
 				"FROM b_sonet_user2group UG ".
 				"	".$arSqls["FROM"]." ";
-			if (strlen($arSqls["WHERE"]) > 0)
+			if ($arSqls["WHERE"] <> '')
 				$strSql_tmp .= "WHERE ".$arSqls["WHERE"]." ";
-			if (strlen($arSqls["GROUPBY"]) > 0)
+			if ($arSqls["GROUPBY"] <> '')
 				$strSql_tmp .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
 			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$cnt = 0;
-			if (strlen($arSqls["GROUPBY"]) <= 0)
+			if ($arSqls["GROUPBY"] == '')
 			{
 				if ($arRes = $dbRes->Fetch())
 				{
@@ -315,7 +315,7 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 		{
 			if (
 				is_array($arNavStartParams)
-				&& IntVal($arNavStartParams["nTopCount"]) > 0
+				&& intval($arNavStartParams["nTopCount"]) > 0
 			)
 			{
 				$strSql .= "LIMIT ".intval($arNavStartParams["nTopCount"]);

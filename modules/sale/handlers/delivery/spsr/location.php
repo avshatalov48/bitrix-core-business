@@ -40,7 +40,7 @@ final class Location extends Mapper
 		$requestData = '
 			<root xmlns="http://spsr.ru/webapi/Info/GetCities/1.0">
 				<p:Params Name="WAGetCities" Ver="1.0" xmlns:p="http://spsr.ru/webapi/WA/1.0" />
-				<GetCities CityName="'.strtolower($cityName).'" CountryName="'.strtolower($countryName).'" />
+				<GetCities CityName="'.mb_strtolower($cityName).'" CountryName="'.mb_strtolower($countryName).'" />
 			</root>';
 
 		$request = new Request();
@@ -109,7 +109,7 @@ final class Location extends Mapper
 			$subRegionName = !empty($matches[3]) ? trim($matches[3]) : '';
 			$locId = 0;
 
-			if(strlen($cityName) > 0)
+			if($cityName <> '')
 			{
 				$locId = self::getLocationIdByNames($cityName, "", $subRegionName, $loc['RegionName'], "", true);
 

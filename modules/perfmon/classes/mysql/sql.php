@@ -18,7 +18,7 @@ class CPerfomanceSQL extends CAllPerfomanceSQL
 		$arColumnW = array();
 		$arColumns = array('id', 'select_type', 'table', 'type', 'possible_keys', 'key_len', 'ref', 'rows', 'Extra');
 		foreach ($arColumns as $name)
-			$arColumnW[$name] = strlen($name);
+			$arColumnW[$name] = mb_strlen($name);
 
 		foreach ($arResult as $i => $ar)
 		{
@@ -35,8 +35,8 @@ class CPerfomanceSQL extends CAllPerfomanceSQL
 							$arResult[$i][$name][$j] = ' '.$arResult[$i][$name][$j];
 
 					foreach ($arResult[$i][$name] as $key)
-						if (strlen($key) > $l)
-							$l = strlen($key);
+						if (mb_strlen($key) > $l)
+							$l = mb_strlen($key);
 
 					if ($arColumnW[$name] < $l)
 						$arColumnW[$name] = $l;
@@ -46,14 +46,14 @@ class CPerfomanceSQL extends CAllPerfomanceSQL
 					$l = 0;
 					$arResult[$i][$name] = array_map('trim', explode(';', $ar[$name]));
 					foreach ($arResult[$i][$name] as $key)
-						if (strlen($key) > $l)
-							$l = strlen($key);
+						if (mb_strlen($key) > $l)
+							$l = mb_strlen($key);
 
 					if ($arColumnW[$name] < $l)
 						$arColumnW[$name] = $l;
 				}
-				elseif ($arColumnW[$name] < strlen($ar[$name]))
-					$arColumnW[$name] = strlen($ar[$name]);
+				elseif ($arColumnW[$name] < mb_strlen($ar[$name]))
+					$arColumnW[$name] = mb_strlen($ar[$name]);
 			}
 		}
 

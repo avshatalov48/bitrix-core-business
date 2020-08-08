@@ -144,7 +144,7 @@ class SaleAdminPageStub extends \CBitrixComponent
 		$uri = new Main\Web\Uri(Main\Application::getInstance()->getContext()->getRequest()->getRequestUri());
 		foreach ($this->getMap() as $adminPage => $crmPage)
 		{
-			if (strpos($uri->getUri(), $adminPage) !== false)
+			if (mb_strpos($uri->getUri(), $adminPage) !== false)
 			{
 				$this->arResult["admin_page"] = $adminPage;
 				$this->arResult["crm"] = $crmPage;

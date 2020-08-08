@@ -1,0 +1,142 @@
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" id="svg_wrapper" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 1200 100%" preserveAspectRatio="xMinYMin meet" style="width: 100%; height: 1200px">
+    <svg height="1200px">
+        <rect fill="#313131" width="100%" height="1200"/>
+        <rect fill="#3d3d3d"    width="100%" height="67" x="0" y="0"/>
+        <rect fill="#3d3d3d"    width="257" height="1200" x="0" y="0"/>
+    </svg>
+
+    <svg height="1200px"  width="80%" id="postBg" x="257" y="67">
+        <defs>
+            <g id="messageBg4">
+                <rect fill="#3d3d3d" rx="10" ry="10" width="351" height="78" x="45" y="0"/>
+            </g>
+            <g id="messageBg4long">
+                <rect fill="#3d3d3d" rx="10" ry="10" width="516" height="78" x="45" y="0"/>
+            </g>
+            <g id="messageBg3">
+                <rect fill="#3d3d3d" rx="10" ry="10" width="295" height="61" x="45" y="0"/>
+            </g>
+        </defs>
+        <use xlink:href="#messageBg4" y="57" x="57"/>
+        <use xlink:href="#messageBg4long" y="142" x="57"/>
+        <use xlink:href="#messageBg3" y="230" x="57"/>
+        <use xlink:href="#messageBg3" y="344" x="57"/>
+        <use xlink:href="#messageBg3" y="415" x="57"/>
+        <use xlink:href="#messageBg3" y="487" x="57"/>
+        <use xlink:href="#messageBg3" y="595" x="57"/>
+        <use xlink:href="#messageBg3" y="667" x="57"/>
+        <use xlink:href="#messageBg3" y="739" x="57"/>
+        <use xlink:href="#messageBg3" y="811" x="57"/>
+    </svg>
+
+    <svg height="1200px"  width="80%" id="messages" x="257" y="67">
+        <defs>
+            <g id="messageContent4">
+                <circle cx="17" cy="17" r="17" fill="#474747"/>
+                <rect fill="#474747" rx="2" ry="2" width="315" height="7" x="59" y="12"/>
+                <rect fill="#474747" rx="2" ry="2" width="315" height="7" x="59" y="27"/>
+                <rect fill="#474747" rx="2" ry="2" width="315" height="7" x="59" y="42"/>
+                <rect fill="#474747" rx="2" ry="2" width="149" height="7" x="59" y="57"/>
+            </g>
+            <g id="messageContent4long">
+                <circle cx="17" cy="17" r="17" fill="#474747"/>
+                <rect fill="#474747" rx="2" ry="2" width="479" height="7" x="59" y="12"/>
+                <rect fill="#474747" rx="2" ry="2" width="479" height="7" x="59" y="27"/>
+                <rect fill="#474747" rx="2" ry="2" width="479" height="7" x="59" y="42"/>
+                <rect fill="#474747" rx="2" ry="2" width="149" height="7" x="59" y="57"/>
+            </g>
+            <g id="messageContent3">
+                <circle cx="17" cy="17" r="17" fill="#474747"/>
+                <rect fill="#474747" rx="2" ry="2" width="266" height="7" x="59" y="12"/>
+                <rect fill="#474747" rx="2" ry="2" width="266" height="7" x="59" y="27"/>
+                <rect fill="#474747" rx="2" ry="2" width="149" height="7" x="59" y="42"/>
+            </g>
+        </defs>
+        <rect fill="#353535" rx="14" ry="14" width="200" height="28" x="50%" y="13" transform="translate(-150, 0)"/>
+        <use xlink:href="#messageContent4" y="57" x="57"/>
+        <use xlink:href="#messageContent4long" y="142" x="57"/>
+        <use xlink:href="#messageContent3" y="230" x="57"/>
+        <rect fill="#353535" rx="14" ry="14" width="200" height="28" x="50%" y="301" transform="translate(-150, 0)"/>
+        <use xlink:href="#messageContent3" y="344" x="57"/>
+        <use xlink:href="#messageContent3" y="415" x="57"/>
+        <use xlink:href="#messageContent3" y="487" x="57"/>
+        <rect fill="#353535" rx="14" ry="14" width="200" height="28" x="50%" y="558" transform="translate(-150, 0)"/>
+        <use xlink:href="#messageContent3" y="595" x="57"/>
+        <use xlink:href="#messageContent3" y="667" x="57"/>
+        <use xlink:href="#messageContent3" y="739" x="57"/>
+        <use xlink:href="#messageContent3" y="811" x="57"/>
+    </svg>
+
+    <svg id="users" width="100%" x="-43" y="0">
+        <defs>
+            <g id="user">
+                <circle cx="17" cy="17" r="17" fill="#474747"/>
+                <rect fill="#474747" rx="2" ry="2" width="119" height="8" x="44" y="5"/>
+                <rect fill="#474747" rx="2" ry="2" width="79" height="7" x="44" y="21"/>
+            </g>
+            <g id="usersGroup3">
+                <rect fill="#474747" rx="2" ry="2" width="80" height="6" x="0" y="0"/>
+                <use xlink:href="#user" y="22" x="0"/>
+                <use xlink:href="#user" y="68" x="0"/>
+                <use xlink:href="#user" y="114" x="0"/>
+            </g>
+            <g id="usersGroup2">
+                <rect fill="#474747" rx="2" ry="2" width="80" height="6" x="0" y="0"/>
+                <use xlink:href="#user" y="22" x="0"/>
+                <use xlink:href="#user" y="68" x="0"/>
+            </g>
+        </defs>
+        <rect fill="#474747" rx="2" ry="2" width="15" height="15" x="59" y="17"/>
+        <rect fill="#474747" rx="2" ry="2" width="52" height="7" x="86" y="22"/>
+        <rect fill="#474747" rx="2" ry="2" width="15" height="15" x="268" y="17"/>
+        <use xlink:href="#user" y="58" x="57"/>
+        <use xlink:href="#usersGroup3" y="106" x="57"/>
+        <use xlink:href="#usersGroup3" y="272" x="57"/>
+        <use xlink:href="#usersGroup2" y="434" x="57"/>
+        <use xlink:href="#usersGroup2" y="550" x="57"/>
+        <use xlink:href="#usersGroup2" y="666" x="57"/>
+        <use xlink:href="#usersGroup3" y="782" x="57"/>
+        <rect fill="#474747" rx="0" ry="0" width="1" height="1200" x="299" y="0"/>
+    </svg>
+
+    <svg id="topNav" width="100%" x="257" y="0">
+        <defs>
+            <g id="topNavUsers">
+                <circle cx="17" cy="17" r="17" fill="#474747"/>
+                <rect fill="#474747" rx="2" ry="2" width="119" height="8" x="44" y="5"/>
+                <rect fill="#474747" rx="2" ry="2" width="79" height="7" x="44" y="21"/>
+            </g>
+        </defs>
+        <use xlink:href="#topNavUsers" x="16" y="16" />
+        <rect fill="#474747" rx="0" ry="0" width="100%" height="1" x="0" y="67"/>
+    </svg>
+
+    <svg id="topRightBtn" x="0" y="0">
+        <defs>
+            <g id="topRightMenu">
+                <path fill="#474747" d="M13,26 C5.82029825,26 8.79259876e-16,20.1797017 0,13 C-8.79259876e-16,5.82029825 5.82029825,1.31888981e-15 13,0 L125,0 C132.179702,-1.31888981e-15 138,5.82029825 138,13 C138,20.1797017 132.179702,26 125,26 L13,26 Z M125,2 L113.932453,2.00068302 C117.578435,4.30343537 120,8.36892423 120,13 C120,17.6319165 117.577555,21.6980407 113.930468,24.0005709 L125,24 C131.075132,24 136,19.0751322 136,13 C136,6.92486775 131.075132,2 125,2 Z" />
+                <rect fill="#474747" rx="13" ry="13" width="104" height="26" x="155" y="0"/>
+                <circle cx="285" cy="13" r="16" fill="#474747"/>
+            </g>
+        </defs>
+        <use fill="#f00" xlink:href="#topRightMenu" width="285" y="25" x="100%" transform="translate(-310, 0)"/>
+    </svg>
+
+    <rect id="msk1" width="100%" fill="url(#msk_gd)" mask="url(#mask)" height="1200"/>
+
+    <mask id="mask" fill="white">
+        <use xlink:href="#messages"/>
+        <use xlink:href="#menu"/>
+        <use xlink:href="#users"/>
+        <use xlink:href="#topRightBtn"/>
+        <use xlink:href="#topNav"/>
+    </mask>
+
+    <linearGradient x1="66.6%" y1="50%" x2="33.3%" y2="50%" id="msk_gd">
+        <stop stop-color="#fff" stop-opacity="0" offset="0%"/>
+        <stop stop-color="#fff" stop-opacity="0.07" offset="50%"/>
+        <stop stop-color="#fff" stop-opacity="0" offset="100%"/>
+    </linearGradient>
+
+    <animate xlink:href="#msk1" attributeName="x" from="-100%" to="100%" dur="1s" begin="0s" repeatCount="indefinite"/>
+</svg>

@@ -1,1 +1,9 @@
-.app-frame{width:100%;height:100%}.app-frame-layout{width:100%;height:600px;position:relative;z-index:2;opacity:1;background-color:white;-webkit-transition:opacity .25s ease-in;-moz-transition:opacity .25s ease-in;-ms-transition:opacity .25s ease-in;-o-transition:opacity .25s ease-in;transition:opacity .25s ease-in}.app-loading{opacity:0}.app-loading-msg{background:url("/bitrix/js/main/core/images/wait-big.gif") no-repeat scroll center center transparent;color:#555;height:300px;width:100%;font-size:20px;text-align:center;margin-top:-600px;padding-top:100px;position:relative;z-index:1}.app-expand-popup .app-loading-msg{height:100%}.app-loading-popup{background:url("/bitrix/js/main/core/images/wait-big.gif") no-repeat scroll center center transparent;color:#555;height:300px;width:300px;font-size:20px;text-align:center;position:relative;z-index:1}
+.app-frame{width:100%;height:100%}.app-frame-layout{width:100%;height:100%;position:relative;z-index:2;opacity:1;background-color:white;-webkit-transition:opacity .25s ease-in;-moz-transition:opacity .25s ease-in;-ms-transition:opacity .25s ease-in;-o-transition:opacity .25s ease-in;transition:opacity .25s ease-in}.app-loading{opacity:0;}
+
+.app-loading-msg
+{
+	background: url("/bitrix/js/main/core/images/wait-big.gif") no-repeat scroll center center transparent;; color:#555;height:300px;width:100%;font-size:20px;text-align:center;margin-top:-600px;padding-top:100px;position:relative;z-index:1}.app-expand-popup .app-loading-msg{height:100%;}
+
+.app-loading-popup
+{
+	background: url("/bitrix/js/main/core/images/wait-big.gif") no-repeat scroll center center transparent;; color:#555;height:300px;width:300px;font-size:20px;text-align:center;position:relative;z-index:1}.task-switcher-block>.app-frame-layout>.app-frame,.crm-entity-section>.app-frame-layout>.app-frame{min-height:600px}

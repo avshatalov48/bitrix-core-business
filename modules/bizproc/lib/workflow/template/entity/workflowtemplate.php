@@ -64,7 +64,7 @@ class WorkflowTemplateTable extends Main\Entity\DataManager
 			),
 			'IS_MODIFIED' => array(
 				'data_type' => 'boolean',
-				'values' => array('Y', 'N')
+				'values' => ['N', 'Y']
 			),
 			'USER_ID' => array(
 				'data_type' => 'integer'
@@ -74,7 +74,7 @@ class WorkflowTemplateTable extends Main\Entity\DataManager
 			),
 			'ACTIVE' => array(
 				'data_type' => 'boolean',
-				'values' => array('Y', 'N')
+				'values' => ['N', 'Y']
 			),
 			'ORIGINATOR_ID' => array(
 				'data_type' => 'string'
@@ -88,7 +88,15 @@ class WorkflowTemplateTable extends Main\Entity\DataManager
 					'=this.USER_ID' => 'ref.ID'
 				),
 				'join_type' => 'LEFT',
-			)
+			),
+			'IS_SYSTEM' => array(
+				'data_type' => 'boolean',
+				'values' => ['N', 'Y']
+			),
+			'SORT' => array(
+				'data_type' => 'integer',
+				'default_value' => 10
+			),
 		);
 	}
 
@@ -100,7 +108,7 @@ class WorkflowTemplateTable extends Main\Entity\DataManager
 			$useCompression = \CBPWorkflowTemplateLoader::useGZipCompression();
 		}
 
-		if (strlen($value) > 0)
+		if ($value <> '')
 		{
 			if ($useCompression)
 			{

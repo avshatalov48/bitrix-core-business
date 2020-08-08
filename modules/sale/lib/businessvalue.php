@@ -703,7 +703,7 @@ class BusinessValueHandlers
 					if ($providerInstance === null)
 						return $value;
 
-					if (substr($providerValue, 0, 3) == 'UF_')
+					if (mb_substr($providerValue, 0, 3) == 'UF_')
 					{
 						global $USER_FIELD_MANAGER;
 						$value = $USER_FIELD_MANAGER->GetUserFieldValue(Internals\CompanyTable::getUfId(), $providerValue, $providerInstance) ?: null;

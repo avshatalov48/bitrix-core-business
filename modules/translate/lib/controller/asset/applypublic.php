@@ -224,14 +224,15 @@ class ApplyPublic
 				$sourceFolder = new Main\IO\Directory($entry->getPhysicalPath(). $typeSourcePath);
 				if ($sourceFolder->isExists())
 				{
-					$targetFolderPath = str_replace('#BX_ROOT#', self::$documentRoot. '/'. BX_ROOT, self::TARGET_FOLDERS[$type]);
+					$targetFolderPath = str_replace('#BX_ROOT#', self::$documentRoot. ''. BX_ROOT, self::TARGET_FOLDERS[$type]);
 
 					foreach ($this->lookThroughTmpFolder($sourceFolder->getPhysicalPath()) as $filePaths)
 					{
 						foreach ($filePaths as $langFilePath => $sourceFullPath)
 						{
-							$targetPath = $targetFolderPath .'/'.
-										  str_replace($moduleName. $typeSourcePath .'/', '', dirname($langFilePath));
+							$targetPath =
+								$targetFolderPath .'/'.
+								str_replace($moduleName. $typeSourcePath .'/', '', dirname($langFilePath));
 
 							$targetFolder = new Main\IO\Directory($targetPath);
 							if (!$targetFolder->isExists())
@@ -239,7 +240,12 @@ class ApplyPublic
 								$targetFolder->create();
 							}
 
-							$source = new Main\IO\File($sourceFullPath);
+							$moduleSourcePath = self::$documentRoot. ''. BX_ROOT. '/modules/'. $langFilePath;
+							$source = new Main\IO\File($moduleSourcePath);
+							if (!$source->isExists())
+							{
+								continue;
+							}
 
 							$target = new Main\IO\File($targetFolder->getPhysicalPath(). '/'. basename($langFilePath));
 							if ($target->isExists())
@@ -249,9 +255,13 @@ class ApplyPublic
 
 							try
 							{
-								if (!@copy($source->getPhysicalPath(), $target->getPhysicalPath()))
+								if (function_exists('error_clear_last'))
 								{
-									$error = error_get_last();
+									\error_clear_last();
+								}
+								if (\copy($source->getPhysicalPath(), $target->getPhysicalPath()) !== true)
+								{
+									$error = \error_get_last();
 									$this->addError(new Main\Error($error['message'], $error['type']));
 									continue;
 								}
@@ -338,7 +348,7 @@ class ApplyPublic
 					continue;
 				}
 
-				if ((substr($name, -4) === '.php') && is_file($fullPath))
+				if ((mb_substr($name, -4) === '.php') && is_file($fullPath))
 				{
 					$files[$langFolderRelPath.'/'.$name] = $fullPath;
 				}

@@ -10,11 +10,11 @@ global $SUBSCRIBE_TEMPLATE_RUBRIC;
 
 //Handle of parameters
 $arParams["SITE_ID"] = trim($arParams["SITE_ID"]);
-if(strlen($arParams["SITE_ID"]) <= 0)
+if($arParams["SITE_ID"] == '')
 	$arParams["SITE_ID"] = $SUBSCRIBE_TEMPLATE_RUBRIC["SITE_ID"];
 
 $arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
-if(strlen($arParams["IBLOCK_TYPE"]) <= 0)
+if($arParams["IBLOCK_TYPE"] == '')
 	$arParams["IBLOCK_TYPE"] = "news";
 
 $arParams["ID"] = intval($arParams["ID"]);
@@ -76,7 +76,7 @@ while($arIBlock = $rsIBlock->Fetch())
 		$arNews = $obNews->GetFields();
 
 		$arNews["PREVIEW_PICTURE"] = CFile::GetFileArray($arNews["PREVIEW_PICTURE"]);
-		if(strpos($arNews["DETAIL_PAGE_URL"], "http") !== 0)
+		if(mb_strpos($arNews["DETAIL_PAGE_URL"], "http") !== 0)
 			$arNews["DETAIL_PAGE_URL"] = "http://".$arSite["SERVER_NAME"].$arNews["DETAIL_PAGE_URL"];
 
 		$arResult["IBLOCKS"][$arIBlock["ID"]]["ITEMS"][] = $arNews;

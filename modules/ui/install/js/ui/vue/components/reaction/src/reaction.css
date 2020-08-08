@@ -13,6 +13,7 @@
     display: inline-block;
     height: 19px;
     vertical-align: top;
+	line-height: 13px;
 }
 .ui-vue-reaction-result-type {
 	display: inline-block;
@@ -70,6 +71,7 @@
 	border: 1px solid #fff;
 	border-radius: 50%;
 	background-size: cover;
+	vertical-align: top;
 }
 
 .ui-vue-reaction-button-icon.ui-vue-reaction-icon-none {

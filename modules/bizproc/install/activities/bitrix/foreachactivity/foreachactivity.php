@@ -140,7 +140,7 @@ class CBPForEachActivity
 	public static function ValidateProperties($arTestProperties = array(), CBPWorkflowTemplateUser $user = null)
 	{
 		$errors = [];
-		if (strlen($arTestProperties["Variable"]) <= 0)
+		if ($arTestProperties["Variable"] == '')
 		{
 			$errors[] = array(
 				"code" => "emptyVariable",

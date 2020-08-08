@@ -1,18 +1,28 @@
 .ui-button-panel-wrapper {
 	width: 100%;
+	opacity: 1;
 }
+
+.ui-button-panel-wrapper-hide {
+	opacity: 0;
+	pointer-events: none;
+}
+
 .ui-button-panel {
 	text-align: center;
 	padding: 13px;
 	opacity: 1;
 	background: white;
 }
+
 .ui-button-panel.ui-button-panel-align-left {
 	text-align: left;
 }
+
 .ui-button-panel.ui-button-panel-align-right {
 	text-align: right;
 }
+
 .ui-button-panel.ui-button-panel-align-center {
 	text-align: center;
 }
@@ -21,7 +31,7 @@
 	position: absolute;
 	top: 0;
 	right: 0;
-	padding: 20px;
+	padding: 13px;
 	height: 39px;
 	line-height: 39px;
 	vertical-align: middle;

@@ -10,13 +10,13 @@ class CAllSocNetUserPerms
 	{
 		global $DB, $arSocNetUserOperations, $arSocNetAllowedRelationsType;
 
-		if ($ACTION != "ADD" && IntVal($ID) <= 0)
+		if ($ACTION != "ADD" && intval($ID) <= 0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException("System error 870164", "ERROR");
 			return false;
 		}
 
-		if ((is_set($arFields, "USER_ID") || $ACTION=="ADD") && IntVal($arFields["USER_ID"]) <= 0)
+		if ((is_set($arFields, "USER_ID") || $ACTION=="ADD") && intval($arFields["USER_ID"]) <= 0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SONET_GB_EMPTY_USER_ID"), "EMPTY_USER_ID");
 			return false;
@@ -31,7 +31,7 @@ class CAllSocNetUserPerms
 			}
 		}
 
-		if ((is_set($arFields, "OPERATION_ID") || $ACTION=="ADD") && strlen($arFields["OPERATION_ID"]) <= 0)
+		if ((is_set($arFields, "OPERATION_ID") || $ACTION=="ADD") && $arFields["OPERATION_ID"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SONET_GG_EMPTY_OPERATION_ID"), "EMPTY_OPERATION_ID");
 			return false;
@@ -42,7 +42,7 @@ class CAllSocNetUserPerms
 			return false;
 		}
 
-		if ((is_set($arFields, "RELATION_TYPE") || $ACTION=="ADD") && strlen($arFields["RELATION_TYPE"]) <= 0)
+		if ((is_set($arFields, "RELATION_TYPE") || $ACTION=="ADD") && $arFields["RELATION_TYPE"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SONET_GG_EMPTY_RELATION_TYPE"), "EMPTY_RELATION_TYPE");
 			return false;
@@ -70,7 +70,7 @@ class CAllSocNetUserPerms
 		if (!CSocNetGroup::__ValidateID($ID))
 			return false;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$bSuccess = True;
 
 		if ($bSuccess)
@@ -86,7 +86,7 @@ class CAllSocNetUserPerms
 		if (!CSocNetGroup::__ValidateID($userID))
 			return false;
 
-		$userID = IntVal($userID);
+		$userID = intval($userID);
 		$bSuccess = True;
 
 		if ($bSuccess)
@@ -102,7 +102,7 @@ class CAllSocNetUserPerms
 		if (!CSocNetGroup::__ValidateID($ID))
 			return false;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$arFields1 = \Bitrix\Socialnetwork\Util::getEqualityFields($arFields);
 
@@ -112,7 +112,7 @@ class CAllSocNetUserPerms
 		$strUpdate = $DB->PrepareUpdate("b_sonet_user_perms", $arFields);
 		\Bitrix\Socialnetwork\Util::processEqualityFieldsToUpdate($arFields1, $strUpdate);
 
-		if (strlen($strUpdate) > 0)
+		if ($strUpdate <> '')
 		{
 			$strSql =
 				"UPDATE b_sonet_user_perms SET ".
@@ -138,7 +138,7 @@ class CAllSocNetUserPerms
 		if (!CSocNetGroup::__ValidateID($ID))
 			return false;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$dbResult = CSocNetUserPerms::GetList(Array(), Array("ID" => $ID));
 		if ($arResult = $dbResult->GetNext())
@@ -165,12 +165,12 @@ class CAllSocNetUserPerms
 
 		if (!is_array($userID))
 		{
-			$userID = IntVal($userID);
+			$userID = intval($userID);
 			if ($userID <= 0)
 				return false;
 		}
 
-		$operation = StrToLower(Trim($operation));
+		$operation = mb_strtolower(Trim($operation));
 		if (!array_key_exists($operation, $arSocNetUserOperations))
 			return false;
 
@@ -232,11 +232,11 @@ class CAllSocNetUserPerms
 	{
 		global $arSocNetUserOperations;
 
-		$fromUserID = IntVal($fromUserID);
-		$toUserID = IntVal($toUserID);
+		$fromUserID = intval($fromUserID);
+		$toUserID = intval($toUserID);
 		if ($toUserID <= 0)
 			return false;
-		$operation = StrToLower(Trim($operation));
+		$operation = mb_strtolower(Trim($operation));
 		if (!array_key_exists($operation, $arSocNetUserOperations))
 			return false;
 
@@ -283,8 +283,8 @@ class CAllSocNetUserPerms
 
 		$arReturn = array();
 
-		$currentUserID = IntVal($currentUserID);
-		$userID = IntVal($userID);
+		$currentUserID = intval($currentUserID);
+		$userID = intval($userID);
 
 		if ($userID <= 0)
 		{
@@ -363,7 +363,7 @@ class CAllSocNetUserPerms
 
 	public static function SetPerm($userID, $feature, $perm)
 	{
-		$userID = IntVal($userID);
+		$userID = intval($userID);
 		$feature = Trim($feature);
 		$perm = Trim($perm);
 
@@ -388,7 +388,7 @@ class CAllSocNetUserPerms
 			$errorMessage = "";
 			if ($e = $GLOBALS["APPLICATION"]->GetException())
 				$errorMessage = $e->GetString();
-			if (StrLen($errorMessage) <= 0)
+			if ($errorMessage == '')
 				$errorMessage = GetMessage("SONET_GF_ERROR_SET").".";
 
 			$GLOBALS["APPLICATION"]->ThrowException($errorMessage, "ERROR_SET_RECORD");

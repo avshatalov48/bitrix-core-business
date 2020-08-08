@@ -30,7 +30,7 @@ CJSCore::Init(array('date'));
 </div>
 
 <?
-if(strlen($arResult["ID"])>0)
+if($arResult["ID"] <> '')
 {
 	ShowError($arResult["ERROR_MESSAGE"]);
 	?>
@@ -419,7 +419,7 @@ if(strlen($arResult["ID"])>0)
 								</div>
 								<?
 							}
-							if (strlen($property["DESCRIPTION"]) > 0)
+							if ($property["DESCRIPTION"] <> '')
 							{
 								?>
 								<br /><small><?= $property["DESCRIPTION"] ?></small>

@@ -14,7 +14,7 @@ class CIMShare
 		if (is_null($user_id))
 		{
 			global $USER;
-			$this->user_id = IntVal($USER->GetID());
+			$this->user_id = intval($USER->GetID());
 		}
 		else
 		{
@@ -114,7 +114,7 @@ class CIMShare
 
 		$task = new Task(0, $this->user_id);
 
-		$taskTitle = substr(trim(preg_replace(
+		$taskTitle = mb_substr(trim(preg_replace(
 			array("/\n+/is".BX_UTF_PCRE_MODIFIER, '/\s+/is'.BX_UTF_PCRE_MODIFIER),
 			" ",
 			CTextParser::clearAllTags($message['MESSAGE'])
@@ -173,7 +173,7 @@ class CIMShare
 		}
 		else
 		{
-			$results = \Bitrix\Main\Text\DateConverter::decode(CTextParser::clearAllTags($message['MESSAGE']), 1000);
+			$results = \Bitrix\Main\Text\DateConverter::decode(\Bitrix\Im\Text::removeBbCodes($message['MESSAGE']), 1000);
 			if (!empty($results))
 			{
 				$task['DEADLINE'] = $results[0]->getDate();
@@ -221,7 +221,7 @@ class CIMShare
 		}
 		else
 		{
-			$results = \Bitrix\Main\Text\DateConverter::decode(CTextParser::clearAllTags($message['MESSAGE']), 1000);
+			$results = \Bitrix\Main\Text\DateConverter::decode(\Bitrix\Im\Text::removeBbCodes($message['MESSAGE']), 1000);
 			if (!empty($results))
 			{
 				$dateFrom = $results[0]->getDate();
@@ -295,15 +295,28 @@ class CIMShare
 		$messagePost = $this->PrepareText($message)."\n".GetMessage('IM_SHARE_POST_WELCOME');
 
 		$sonetRights = Array();
-		if ($message['MESSAGE_TYPE'] != IM_MESSAGE_PRIVATE)
+		$messageParams = Array();
+		if ($message['CHAT_ID'] == CIMChat::GetGeneralChatId())
 		{
-			$chat = \Bitrix\Im\Model\ChatTable::getById($message['CHAT_ID'])->fetch();
-			if ($chat['ENTITY_TYPE'] == 'SONET_GROUP')
+			if (!\Bitrix\Socialnetwork\ComponentHelper::getAllowToAllDestination($this->user_id))
 			{
-				$sonetRights = Array('SG'.$chat['ENTITY_ID']);
+				$sonetRights[] = "U".$this->user_id;
+				$messageParams = Array('LINK_ACTIVE' => Array((string)$this->user_id));
 			}
 		}
-		if (empty($sonetRights) && $message['CHAT_ID'] != CIMChat::GetGeneralChatId())
+		else
+		{
+			if ($message['MESSAGE_TYPE'] != IM_MESSAGE_PRIVATE)
+			{
+				$chat = \Bitrix\Im\Model\ChatTable::getById($message['CHAT_ID'])->fetch();
+				if ($chat['ENTITY_TYPE'] == 'SONET_GROUP')
+				{
+					$sonetRights = Array('SG'.$chat['ENTITY_ID']);
+				}
+			}
+		}
+
+		if (empty($sonetRights))
 		{
 			$relations = CIMChat::GetRelationById($message['CHAT_ID']);
 			$sonetRights = [];
@@ -363,7 +376,7 @@ class CIMShare
 		$link = str_replace(array("#post_id#", "#user_id#"), Array($postFields["ID"], $this->user_id), $pathToPost);
 		$processed = CSocNetLogTools::ProcessPath(array("BLOG" => $link), $this->user_id, SITE_ID);
 
-		$this->SendMessage('', GetMessage('IM_SHARE_CHAT_POST', Array('#LINK#' => $processed["URLS"]["BLOG"])), $message);
+		$this->SendMessage('', GetMessage('IM_SHARE_CHAT_POST', Array('#LINK#' => $processed["URLS"]["BLOG"])), $message, $messageParams);
 
 		return true;
 	}
@@ -395,7 +408,7 @@ class CIMShare
 		$bRights = false;
 		$rsUser = CUser::GetByID($userId);
 		$arUser = $rsUser->Fetch();
-		if(strlen($arUser["NAME"]."".$arUser["LAST_NAME"]) <= 0)
+		if($arUser["NAME"]."".$arUser["LAST_NAME"] == '')
 		{
 			$arFields["NAME"] = GetMessage("SNBPA_BLOG_NAME")." ".$arUser["LOGIN"];
 		}

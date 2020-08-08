@@ -255,7 +255,7 @@ HTACCESS;
 			$response = self::doRequestToLocalhost($uploadPath);
 			if($response)
 			{
-				if($response != $pText && strpos($response, $pSearch) !== false)
+				if($response != $pText && mb_strpos($response, $pSearch) !== false)
 				{
 					$result = true;
 				}
@@ -365,11 +365,11 @@ HTACCESS;
 			if(is_readable($fileName))
 			{
 				$fileContent = file_get_contents($fileName);
-				if (strpos($fileContent, $sessionSign) === false)
+				if (mb_strpos($fileContent, $sessionSign) === false)
 				{
 					$additionalInfo = getMessage("SECURITY_SITE_CHECKER_COLLECTIVE_SESSION_ADDITIONAL_SIGN", array(
 						"#FILE#" => $fileName,
-						"#FILE_CONTENT#" => htmlspecialcharsbx(substr($fileContent, 0, 1024)),
+						"#FILE_CONTENT#" => htmlspecialcharsbx(mb_substr($fileContent, 0, 1024)),
 						"#SIGN#" => $sessionSign
 					));
 					$isFailed = true;
@@ -593,7 +593,7 @@ HTACCESS;
 		$documentRoot = self::getParam("DOCUMENT_ROOT", $_SERVER["DOCUMENT_ROOT"]);
 		$documentRoot = $io->CombinePath($documentRoot);
 
-		if (strpos($path, $documentRoot) === 0)
+		if (mb_strpos($path, $documentRoot) === 0)
 		{
 			$this->addUnformattedDetailError(
 					"SECURITY_SITE_CHECKER_BITRIX_TMP_DIR",

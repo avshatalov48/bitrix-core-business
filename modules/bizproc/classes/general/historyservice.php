@@ -28,7 +28,7 @@ class CBPAllHistoryService
 		{
 			$arDocumentId = CBPHelper::ParseDocumentId($arFields["DOCUMENT_ID"]);
 			$arFields["MODULE_ID"] = $arDocumentId[0];
-			if (strlen($arFields["MODULE_ID"]) <= 0)
+			if ($arFields["MODULE_ID"] == '')
 				$arFields["MODULE_ID"] = false;
 			$arFields["ENTITY"] = $arDocumentId[1];
 			$arFields["DOCUMENT_ID"] = $arDocumentId[2];
@@ -37,7 +37,7 @@ class CBPAllHistoryService
 		if (is_set($arFields, "NAME") || $addMode)
 		{
 			$arFields["NAME"] = (string) $arFields["NAME"];
-			if (strlen($arFields["NAME"]) <= 0)
+			if ($arFields["NAME"] == '')
 				throw new CBPArgumentNullException("NAME");
 		}
 
@@ -88,12 +88,12 @@ class CBPAllHistoryService
 		$arDocumentId = CBPHelper::ParseDocumentId($documentId);
 
 		$dest = "/bizproc/";
-		if (strlen($arDocumentId[0]) > 0)
+		if ($arDocumentId[0] <> '')
 			$dest .= preg_replace("/[^a-zA-Z0-9._]/i", "_", $arDocumentId[0]);
 		else
 			$dest .= "NA";
 		$documentIdMD5 = md5($arDocumentId[2]);
-		$dest .= "/".preg_replace("/[^a-zA-Z0-9_]/i", "_", $arDocumentId[1])."/".substr($documentIdMD5, 0, 3)."/".$documentIdMD5;
+		$dest .= "/".preg_replace("/[^a-zA-Z0-9_]/i", "_", $arDocumentId[1])."/".mb_substr($documentIdMD5, 0, 3)."/".$documentIdMD5;
 
 		return $dest;
 	}
@@ -162,7 +162,7 @@ class CBPAllHistoryService
 			"DELETE FROM b_bp_history ".
 			"WHERE DOCUMENT_ID = '".$DB->ForSql($arDocumentId[2])."' ".
 			"	AND ENTITY = '".$DB->ForSql($arDocumentId[1])."' ".
-			"	AND MODULE_ID ".((strlen($arDocumentId[0]) > 0) ? "= '".$DB->ForSql($arDocumentId[0])."'" : "IS NULL")." ",
+			"	AND MODULE_ID ".(($arDocumentId[0] <> '') ? "= '".$DB->ForSql($arDocumentId[0])."'" : "IS NULL")." ",
 			true
 		);
 	}
@@ -198,7 +198,7 @@ class CBPAllHistoryService
 
 		list($moduleId, $entity, $documentId) = CBPHelper::ParseDocumentId($arHistory["DOCUMENT_ID"]);
 
-		if (strlen($moduleId) > 0)
+		if ($moduleId <> '')
 			CModule::IncludeModule($moduleId);
 
 		if (class_exists($entity))
@@ -374,9 +374,9 @@ class CBPAllHistoryService
 				"SELECT ".$arSqls["SELECT"]." ".
 				"FROM b_bp_history H ".
 				"	".$arSqls["FROM"]." ";
-			if (strlen($arSqls["WHERE"]) > 0)
+			if ($arSqls["WHERE"] <> '')
 				$strSql .= "WHERE ".$arSqls["WHERE"]." ";
-			if (strlen($arSqls["GROUPBY"]) > 0)
+			if ($arSqls["GROUPBY"] <> '')
 				$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
@@ -390,27 +390,27 @@ class CBPAllHistoryService
 			"SELECT ".$arSqls["SELECT"]." ".
 			"FROM b_bp_history H ".
 			"	".$arSqls["FROM"]." ";
-		if (strlen($arSqls["WHERE"]) > 0)
+		if ($arSqls["WHERE"] <> '')
 			$strSql .= "WHERE ".$arSqls["WHERE"]." ";
-		if (strlen($arSqls["GROUPBY"]) > 0)
+		if ($arSqls["GROUPBY"] <> '')
 			$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
-		if (strlen($arSqls["ORDERBY"]) > 0)
+		if ($arSqls["ORDERBY"] <> '')
 			$strSql .= "ORDER BY ".$arSqls["ORDERBY"]." ";
 
-		if (is_array($arNavStartParams) && IntVal($arNavStartParams["nTopCount"]) <= 0)
+		if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"]) <= 0)
 		{
 			$strSql_tmp =
 				"SELECT COUNT('x') as CNT ".
 				"FROM b_bp_history H ".
 				"	".$arSqls["FROM"]." ";
-			if (strlen($arSqls["WHERE"]) > 0)
+			if ($arSqls["WHERE"] <> '')
 				$strSql_tmp .= "WHERE ".$arSqls["WHERE"]." ";
-			if (strlen($arSqls["GROUPBY"]) > 0)
+			if ($arSqls["GROUPBY"] <> '')
 				$strSql_tmp .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
 			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$cnt = 0;
-			if (strlen($arSqls["GROUPBY"]) <= 0)
+			if ($arSqls["GROUPBY"] == '')
 			{
 				if ($arRes = $dbRes->Fetch())
 					$cnt = $arRes["CNT"];
@@ -426,7 +426,7 @@ class CBPAllHistoryService
 		}
 		else
 		{
-			if (is_array($arNavStartParams) && IntVal($arNavStartParams["nTopCount"]) > 0)
+			if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"]) > 0)
 				$strSql .= "LIMIT ".intval($arNavStartParams["nTopCount"]);
 
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
@@ -449,7 +449,7 @@ class CBPHistoryResult extends CDBResult
 
 	private function GetFromSerializedForm($value)
 	{
-		if (strlen($value) > 0)
+		if ($value <> '')
 		{
 			if ($this->useGZipCompression)
 				$value = gzuncompress($value);

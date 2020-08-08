@@ -1,4 +1,5 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 /** @var array $arParams */
 /** @var array $arResult */
@@ -19,11 +20,40 @@ use Bitrix\Main\UI\Extension;
 	Extension::load(["ui.buttons", "ui.progressbar", "ui.notification", "ui.common", "ui.dialogs.messagebox"]);
 
 Loc::loadMessages(__FILE__);
+$descriptionPreInstallClose = '';
 $containerId = 'rest-configuration-import-install';
-$description = (!empty($arParams['APP']))?'REST_CONFIGURATION_IMPORT_INSTALL_APP_DESCRIPTION':'REST_CONFIGURATION_IMPORT_INSTALL_DESCRIPTION';
-if($arParams['MODE'])
+if($arResult['PRE_INSTALL_APP_MODE'])
 {
-	$description .= '_'.$arParams['MODE'];
+	$appName = empty($arParams['APP']['APP_NAME']) ? "" : htmlspecialcharsbx($arParams['APP']['APP_NAME']);
+	$description = Loc::getMessage(
+		"REST_CONFIGURATION_IMPORT_PRE_INSTALL_APP_DESCRIPTION",
+		[
+			'#APP_NAME#' => $appName
+		]
+	);
+
+	$descriptionPreInstallClose = Loc::getMessage(
+		"REST_CONFIGURATION_IMPORT_PRE_INSTALL_LATER_APP_POPUP_DESCRIPTION",
+		[
+			'#APP_NAME#' => $appName,
+			'#HELP_DESK_LINK#' => '<a href="javascript:void(0);" onclick="top.BX.Helper.show(\'redirect=detail&code=11473330\')">'
+				.Loc::getMessage("REST_CONFIGURATION_IMPORT_PRE_INSTALL_LATER_APP_POPUP_HELP_DESK_LINK_LABEL")
+				.'</a>'
+		]
+	);
+}
+elseif(!empty($arResult['MANIFEST']['IMPORT_DESCRIPTION_START']))
+{
+	$description = $arResult['MANIFEST']['IMPORT_DESCRIPTION_START'];
+}
+else
+{
+	$description = (!empty($arParams['APP']))?'REST_CONFIGURATION_IMPORT_INSTALL_APP_DESCRIPTION':'REST_CONFIGURATION_IMPORT_INSTALL_DESCRIPTION';
+	if($arParams['MODE'])
+	{
+		$description .= '_'.$arParams['MODE'];
+	}
+	$description = Loc::getMessage($description);
 }
 ?>
 <? if(is_array($arResult['NOTIFY'])):?>
@@ -40,16 +70,22 @@ if($arParams['MODE'])
 		<div class="rest-configuration-start-icon-circle"></div>
 	</div>
 	<div class="rest-configuration-controls start_btn_block">
-
-		<span class="ui-btn ui-btn-lg ui-btn-primary start_btn"><?=Loc::getMessage('REST_CONFIGURATION_IMPORT_INSTALL_START_BTN')?></span>
+		<? if($arResult['NEED_START_BTN']): ?>
+			<span class="ui-btn ui-btn-lg ui-btn-primary start_btn"><?=Loc::getMessage('REST_CONFIGURATION_IMPORT_INSTALL_START_BTN')?></span>
+		<? endif;?>
+		<? if($arResult['PRE_INSTALL_APP_MODE']):?>
+			<span class="ui-btn ui-btn-lg ui-btn-default start_later_btn"><?=Loc::getMessage("REST_CONFIGURATION_IMPORT_INSTALL_LATER_BTN") ?></span>
+		<? endif;?>
 	</div>
-	<div class="rest-configuration-info"><?=Loc::getMessage($description)?></div>
+	<div class="rest-configuration-info"><?=htmlspecialcharsbx($description)?></div>
 	<div class="rest-configuration-errors"></div>
 	<script type="text/javascript">
 		BX.ready(function () {
 			BX.Rest.Configuration.Install.init(<?=Json::encode([
 				'id' => $containerId,
-				'signedParameters' => $this->getComponent()->getSignedParameters()
+				'signedParameters' => $this->getComponent()->getSignedParameters(),
+				'needClearFull' => $arResult['NEED_CLEAR_FULL'],
+				'needClearFullConfirm' => $arResult['NEED_CLEAR_FULL_CONFIRM']
 			])?>);
 		});
 		BX.message(<?=Json::encode(
@@ -65,6 +101,8 @@ if($arParams['MODE'])
 					'REST_CONFIGURATION_IMPORT_INSTALL_CONFIRM_POPUP_TEXT' => Loc::getMessage("REST_CONFIGURATION_IMPORT_INSTALL_CONFIRM_POPUP_TEXT"),
 					'REST_CONFIGURATION_IMPORT_INSTALL_CONFIRM_POPUP_CHECKBOX_LABEL' => Loc::getMessage("REST_CONFIGURATION_IMPORT_INSTALL_CONFIRM_POPUP_CHECKBOX_LABEL"),
 
+					'REST_CONFIGURATION_IMPORT_INSTALL_LATER_POPUP_CLOSE_BTN' => Loc::getMessage("REST_CONFIGURATION_IMPORT_INSTALL_LATER_POPUP_CLOSE_BTN"),
+					'REST_CONFIGURATION_IMPORT_PRE_INSTALL_LATER_APP_POPUP_DESCRIPTION' => $descriptionPreInstallClose,
 					'REST_CONFIGURATION_IMPORT_ERRORS_POPUP_TEXT_LABEL' => Loc::getMessage("REST_CONFIGURATION_IMPORT_ERRORS_POPUP_TEXT_LABEL"),
 					'REST_CONFIGURATION_IMPORT_ERRORS_POPUP_TEXT_PLACEHOLDER' => Loc::getMessage("REST_CONFIGURATION_IMPORT_ERRORS_POPUP_TEXT_PLACEHOLDER"),
 					'REST_CONFIGURATION_IMPORT_ERRORS_POPUP_TITLE' => Loc::getMessage("REST_CONFIGURATION_IMPORT_ERRORS_POPUP_TITLE"),

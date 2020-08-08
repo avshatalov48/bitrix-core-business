@@ -6,3 +6,4 @@ $MESS["BIZPROC_AUTOMATION_ACCESS_DENIED"] = "У вас нет доступа к 
 $MESS["BIZPROC_AUTOMATION_NO_EDIT_PERMISSIONS"] = "Недостаточно прав для настройки автоматизации";
 $MESS["BIZPROC_AUTOMATION_NOT_AVAILABLE"] = "Использование роботов недоступно";
 $MESS["BIZPROC_AUTOMATION_TO_HEAD"] = "Руководителю";
+$MESS["BIZPROC_AUTOMATION_DELAY_MIN_LIMIT"] = "Минимальный период ожидания: #VAL#";

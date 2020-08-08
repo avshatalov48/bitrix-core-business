@@ -68,7 +68,7 @@ class BatchOrderAdd extends Base
 						}
 					}
 
-					if(strlen($message) > 0)
+					if($message <> '')
 						$shpResults[$internalId]->addError(new Error($message));
 				}
 			}

@@ -5,17 +5,17 @@ class CAllSaleUserTransact
 {
 	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
-		if ((is_set($arFields, "USER_ID") || $ACTION=="ADD") && IntVal($arFields["USER_ID"]) <= 0)
+		if ((is_set($arFields, "USER_ID") || $ACTION=="ADD") && intval($arFields["USER_ID"]) <= 0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException("Empty user field", "EMPTY_USER_ID");
 			return false;
 		}
-		if ((is_set($arFields, "CURRENCY") || $ACTION=="ADD") && strlen($arFields["CURRENCY"]) <= 0)
+		if ((is_set($arFields, "CURRENCY") || $ACTION=="ADD") && $arFields["CURRENCY"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException("Empty currency field", "EMPTY_CURRENCY");
 			return false;
 		}
-		if ((is_set($arFields, "TRANSACT_DATE") || $ACTION=="ADD") && strlen($arFields["TRANSACT_DATE"]) <= 0)
+		if ((is_set($arFields, "TRANSACT_DATE") || $ACTION=="ADD") && $arFields["TRANSACT_DATE"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException("Empty transaction date field", "EMPTY_TRANSACT_DATE");
 			return false;
@@ -47,7 +47,7 @@ class CAllSaleUserTransact
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if ($ID <= 0)
 			return False;
 
@@ -57,7 +57,7 @@ class CAllSaleUserTransact
 	public static function OnUserDelete($UserID)
 	{
 		global $DB;
-		$UserID = IntVal($UserID);
+		$UserID = intval($UserID);
 
 		return $DB->Query("DELETE FROM b_sale_user_transact WHERE USER_ID = ".$UserID." ", true);
 	}
@@ -65,7 +65,7 @@ class CAllSaleUserTransact
 	public static function DeleteByOrder($OrderID)
 	{
 		global $DB;
-		$OrderID = IntVal($OrderID);
+		$OrderID = intval($OrderID);
 		$DB->Query("Update b_sale_user_transact SET NOTES='ORDER ".$OrderID."' WHERE ORDER_ID = ".$OrderID." ", true);
 		return $DB->Query("Update b_sale_user_transact SET ORDER_ID = NULL WHERE ORDER_ID = ".$OrderID." ", true);
 	}

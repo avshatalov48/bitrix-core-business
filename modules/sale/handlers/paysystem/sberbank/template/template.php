@@ -111,7 +111,7 @@ body {font-size: 10pt;}
 
 					if($params["BUYER_PERSON_CITY"] != '')
 					{
-						$g = substr($params["BUYER_PERSON_CITY"], 0, 2);
+						$g = mb_substr($params["BUYER_PERSON_CITY"], 0, 2);
 						$sAddrFact[] = '<nobr>'.($g<>Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_SBERBANK_SHORT_YEAR') && $g<>ToUpper(Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_SBERBANK_SHORT_YEAR'))? Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_SBERBANK_SHORT_YEAR')." ":"").htmlspecialcharsbx($params["BUYER_PERSON_CITY"]).'</nobr>';
 					}
 
@@ -131,7 +131,7 @@ body {font-size: 10pt;}
 		<table border="0" cellspacing="0" cellpadding="0" style="width:122mm; margin-top:3pt;">
 			<tr>
 				<td><?=Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_SBERBANK_SHOULD_PAY')?>&nbsp;<?
-				if (strpos($params["PAYMENT_SHOULD_PAY"], ".")!==false)
+				if (mb_strpos($params["PAYMENT_SHOULD_PAY"], ".") !== false)
 					$a = explode(".", $params["PAYMENT_SHOULD_PAY"]);
 				else
 					$a = explode(",", $params["PAYMENT_SHOULD_PAY"]);
@@ -255,7 +255,7 @@ body {font-size: 10pt;}
 
 					if($params["BUYER_PERSON_CITY"] != '')
 					{
-						$g = substr($params["BUYER_PERSON_CITY"], 0, 2);
+						$g = mb_substr($params["BUYER_PERSON_CITY"], 0, 2);
 						$sAddrFact[] = '<nobr>'.($g<>Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_SBERBANK_SHORT_YEAR') && $g<>ToUpper(Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_SBERBANK_SHORT_YEAR'))? Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_SBERBANK_SHORT_YEAR')." ":"").htmlspecialcharsbx($params["BUYER_PERSON_CITY"]).'</nobr>';
 					}
 
@@ -275,7 +275,7 @@ body {font-size: 10pt;}
 		<table border="0" cellspacing="0" cellpadding="0" style="width:122mm; margin-top:3pt;">
 			<tr>
 				<td><?=Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_SBERBANK_SHOULD_PAY')?>&nbsp;<?
-				if(strpos($params["PAYMENT_SHOULD_PAY"], ".")!==false)
+				if(mb_strpos($params["PAYMENT_SHOULD_PAY"], ".") !== false)
 					$a = explode(".", $params["PAYMENT_SHOULD_PAY"]);
 				else
 					$a = explode(",", $params["PAYMENT_SHOULD_PAY"]);

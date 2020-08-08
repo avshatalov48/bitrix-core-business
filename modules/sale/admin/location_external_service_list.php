@@ -212,51 +212,56 @@ if(empty($fatal))
 
 <?SearchHelper::checkIndexesValid();?>
 
-<?if(strlen($fatal)):?>
+<? if($fatal <> ''): ?>
 
 	<div class="error-message">
-		<?CAdminMessage::ShowMessage(array('MESSAGE' => $fatal, 'type' => 'ERROR'))?>
+		<? CAdminMessage::ShowMessage(array('MESSAGE' => $fatal, 'type' => 'ERROR')) ?>
 	</div>
 
-<?else:?>
+<? else: ?>
 
-	<form method="GET" action="<?=Helper::getListUrl($itemId ? array('id' => $itemId) : array())?>" name="filter_form">
+	<form method="GET" action="<?= Helper::getListUrl($itemId? array('id' => $itemId) : array()) ?>" name="filter_form">
 
-		<input type="hidden" name="filter" value="Y" />
-		<?if($itemId):?>
-			<input type="hidden" name="id" value="<?=$itemId?>" />
-		<?endif?>
+		<input type="hidden" name="filter" value="Y"/>
+		<? if($itemId): ?>
+			<input type="hidden" name="id" value="<?= $itemId ?>"/>
+		<? endif ?>
 
-		<?$oFilter->Begin();?>
-			<?foreach($columns as $code => $fld):?>
-				<?//if(!in_array($code, $excludedColumns)):?>
-					<tr>
+		<? $oFilter->Begin(); ?>
+		<? foreach($columns as $code => $fld): ?>
+			<? //if(!in_array($code, $excludedColumns)):?>
+			<tr>
 
-						<td><?=htmlspecialcharsbx($fld['title'])?><?if($fld['data_type'] == 'integer'):?> (<?=Loc::getMessage('SALE_LOCATION_L_FROM_AND_TO')?>)<?endif?>:</td>
-						<td>
+				<td><?= htmlspecialcharsbx($fld['title']) ?><? if($fld['data_type'] == 'integer'): ?> (<?= Loc::getMessage('SALE_LOCATION_L_FROM_AND_TO') ?>)<? endif ?>
+					:
+				</td>
+				<td>
 
-							<?if($fld['data_type'] == 'integer'):?>
-								<input type="text" name="find_<?=$code?>_1" value="<?=htmlspecialcharsbx($GLOBALS['find_'.$code.'_1'])?>" />
-								...
-								<input type="text" name="find_<?=$code?>_2" value="<?=htmlspecialcharsbx($GLOBALS['find_'.$code.'_2'])?>" />
-							<?else:?>
-								<input type="text" name="find_<?=$code?>" value="<?=htmlspecialcharsbx($GLOBALS['find_'.$code])?>" />
-							<?endif?>
+					<? if($fld['data_type'] == 'integer'): ?>
+						<input type="text" name="find_<?= $code ?>_1"
+							   value="<?= htmlspecialcharsbx($GLOBALS['find_'.$code.'_1']) ?>"/>
+						...
+						<input type="text" name="find_<?= $code ?>_2"
+							   value="<?= htmlspecialcharsbx($GLOBALS['find_'.$code.'_2']) ?>"/>
+					<? else: ?>
+						<input type="text" name="find_<?= $code ?>"
+							   value="<?= htmlspecialcharsbx($GLOBALS['find_'.$code]) ?>"/>
+					<? endif ?>
 
-						</td>
+				</td>
 
-					</tr>
-				<?//endif?>
-			<?endforeach?>
+			</tr>
+			<? //endif?>
+		<? endforeach ?>
 		<?
-		$oFilter->Buttons(array("table_id"=>$sTableID, "url"=>$APPLICATION->GetCurPageParam(), "form"=>"filter_form"));
+		$oFilter->Buttons(array("table_id" => $sTableID, "url" => $APPLICATION->GetCurPageParam(), "form" => "filter_form"));
 		$oFilter->End();
 		?>
 
 	</form>
 
-	<?$lAdmin->DisplayList();?>
+	<? $lAdmin->DisplayList(); ?>
 
-<?endif?>
+<? endif?>
 
 <?require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>

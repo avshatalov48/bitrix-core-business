@@ -7,7 +7,7 @@ class Common
 	{
 		$schema = \Bitrix\Main\Context::getCurrent()->getRequest()->isHttps()? "https" : "http";
 
-		if (defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME) > 0)
+		if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '')
 		{
 			$domain = SITE_SERVER_NAME;
 		}
@@ -33,7 +33,7 @@ class Common
 				{
 					$value = date('c', $value->getTimestamp());
 				}
-				else if (is_string($key) && in_array($key, ['AVATAR', 'AVATAR_HR']) && is_string($value) && $value && strpos($value, 'http') !== 0)
+				else if (is_string($key) && in_array($key, ['AVATAR', 'AVATAR_HR']) && is_string($value) && $value && mb_strpos($value, 'http') !== 0)
 				{
 					$value = \Bitrix\Im\Common::getPublicDomain().$value;
 				}
@@ -45,7 +45,7 @@ class Common
 
 	public static function getCacheUserPostfix($id)
 	{
-		return '/'.substr(md5($id),2,2).'/'.intval($id);
+		return '/'.mb_substr(md5($id), 2, 2).'/'.intval($id);
 	}
 
 	public static function isChatId($id)
@@ -55,7 +55,7 @@ class Common
 
 	public static function isDialogId($id)
 	{
-		return $id && preg_match('/^[0-9]{1,}|chat[0-9]{1,}$/i', $id);
+		return $id && preg_match('/^([0-9]{1,}|chat[0-9]{1,})$/i', $id);
 	}
 
 	public static function getUserId($userId = null)
@@ -72,6 +72,39 @@ class Common
 		}
 
 		return $userId;
+	}
+
+	public static function toJson($array, $camelCase = true)
+	{
+		$result = [];
+		foreach ($array as $field => $value)
+		{
+			if (is_array($value))
+			{
+				$value = self::toJson($value, $camelCase);
+			}
+			else if ($value instanceof \Bitrix\Main\Type\DateTime)
+			{
+				$value = date('c', $value->getTimestamp());
+			}
+			else if (is_string($value) && $value && is_string($field) && in_array($field, Array('AVATAR')) && mb_strpos($value, 'http') !== 0)
+			{
+				$value = \Bitrix\Im\Common::getPublicDomain().$value;
+			}
+
+			if ($camelCase)
+			{
+				$field = lcfirst(\Bitrix\Main\Text\StringHelper::snake2camel($field));
+			}
+			else
+			{
+				$field = mb_strtolower($field);
+			}
+
+			$result[$field] = $value;
+		}
+
+		return $result;
 	}
 
 	public static function getPullExtra()

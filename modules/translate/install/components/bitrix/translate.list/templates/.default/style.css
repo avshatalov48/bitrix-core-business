@@ -72,6 +72,11 @@
 	top: -4px;
 }
 
+.translate-menu-item .menu-popup-item-text
+{
+	padding-right: 20px;
+}
+
 /* Grid */
 .main-grid-cell.translate-column-path .main-grid-cell-content
 {

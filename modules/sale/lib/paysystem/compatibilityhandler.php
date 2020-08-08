@@ -65,7 +65,7 @@ class CompatibilityHandler extends ServiceHandler implements ICheckable
 			$content = $this->includeFile('payment.php');
 
 			$buffer = ob_get_contents();
-			if (strlen($buffer) > 0)
+			if ($buffer <> '')
 				$content = $buffer;
 
 			$result->setTemplate($content);
@@ -102,7 +102,7 @@ class CompatibilityHandler extends ServiceHandler implements ICheckable
 			$content = $this->includeFile('payment.php');
 
 			$buffer = ob_get_contents();
-			if (strlen($buffer) > 0)
+			if ($buffer <> '')
 				$content = $buffer;
 
 			$result->setTemplate($content);
@@ -341,6 +341,11 @@ class CompatibilityHandler extends ServiceHandler implements ICheckable
 				if ($codes)
 					$data = array('NAME' => $psTitle, 'SORT' => 100, 'CODES' => $codes);
 			}
+		}
+
+		if (isset($data["CODES"]) && is_array($data["CODES"]))
+		{
+			$data["CODES"] = $this->filterDescriptionCodes($data["CODES"]);
 		}
 
 		return $data;

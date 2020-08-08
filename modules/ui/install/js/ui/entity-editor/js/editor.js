@@ -21,6 +21,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		this._userFieldManager = null;
 
 		this._container = null;
+		this._layoutContainer = null;
 		this._buttonContainer = null;
 		this._createSectionButton = null;
 		this._configMenuButton = null;
@@ -66,6 +67,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		this._enableFieldsContextMenu = true;
 
 		this._serviceUrl = "";
+		this._htmlEditorConfigs = null;
 
 		this._pageTitleExternalClickHandler = BX.delegate(this.onPageTitleExternalClick, this);
 		this._pageTitleKeyPressHandler = BX.delegate(this.onPageTitleKeyPress, this);
@@ -93,6 +95,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		this._dragContainerController = null;
 		this._dropHandler = BX.delegate(this.onDrop, this);
 		this._dragConfig = {};
+		this._configurationFieldManager = null;
 	};
 	BX.UI.EntityEditor.prototype =
 	{
@@ -111,6 +114,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			this._isNew = this._entityId <= 0 && this._model.isIdentifiable();
 
 			this._isEmbedded = BX.prop.getBoolean(this._settings, "isEmbedded", false);
+			this._creationFieldPageUrl = BX.prop.getBoolean(this._settings, "creationFieldPageUrl", false);
 
 			this._container = BX(BX.prop.get(this._settings, "containerId"));
 
@@ -124,8 +128,12 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			this._enableVisibilityPolicy = BX.prop.getBoolean(this._settings, "enableVisibilityPolicy", true);
 
 			//region Form
-			this._formElement = BX.create("form", {props: { name: this._id + "_form"}});
+			var formTagName = BX.prop.getString(this._settings, "formTagName", "form");
+			this._formElement = BX.create(formTagName, {props: { name: this._id + "_form"}});
 			this._container.appendChild(this._formElement);
+
+			this._layoutContainer = BX.create("div", {props: { className: "ui-entity-editor-column-wrapper"}});
+			this._formElement.appendChild(this._layoutContainer);
 
 			this._enableRequiredUserFieldCheck = BX.prop.getBoolean(this._settings, "enableRequiredUserFieldCheck", true);
 
@@ -157,6 +165,8 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			this._controls = [];
 			this._activeControls = [];
 			this._modeSwitch = BX.UI.EntityEditorModeSwitch.create(this._id, { editor: this });
+
+			this._htmlEditorConfigs = BX.prop.getObject(this._settings, "htmlEditorConfigs", {});
 			
 			var initialMode = BX.UI.EntityEditorMode.view;
 			if(!this._readOnly)
@@ -272,19 +282,6 @@ if(typeof BX.UI.EntityEditor === "undefined")
 					modes: fieldDragModes
 				};
 
-			if(this.canChangeScheme())
-			{
-				this._dragContainerController = BX.UI.EditorDragContainerController.create(
-					"editor_" + this.getId(),
-					{
-						charge: BX.UI.EditorSectionDragContainer.create({ editor: this }),
-						node: this._formElement
-					}
-				);
-				this._dragContainerController.addDragFinishListener(this._dropHandler);
-			}
-			//endregion
-
 			this.layout();
 			this.attachToEvents();
 
@@ -297,11 +294,24 @@ if(typeof BX.UI.EntityEditor === "undefined")
 					entityId: this._entityId,
 					model: this._model
 				};
+
 			BX.onCustomEvent(window, "BX.UI.EntityEditor:onInit", [ this, eventArgs ]);
 		},
 		initializeManagers: function()
 		{
 			this._userFieldManager = BX.prop.get(this._settings, "userFieldManager", null);
+			this._configurationFieldManager = BX.UI.EntityConfigurationManager.create(
+				this._id,
+				{ editor: this }
+			);
+			var eventArgs = {
+				id: this._id,
+				editor: this,
+				type: 'editor',
+				configurationFieldManager: this._configurationFieldManager,
+			};
+			BX.onCustomEvent(window, "BX.UI.EntityConfigurationManager:onInitialize", [ this, eventArgs ]);
+			this._configurationFieldManager = eventArgs.configurationFieldManager;
 		},
 		initializeCustomEditors: function()
 		{
@@ -567,6 +577,10 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		{
 			return this._isEmbedded;
 		},
+		isEditInViewEnabled: function()
+		{
+			return this._entityId > 0;
+		},
 		getDetailManager: function()
 		{
 			if(typeof(BX.UI.EntityDetailManager) === "undefined")
@@ -576,6 +590,10 @@ if(typeof BX.UI.EntityEditor === "undefined")
 
 			return BX.UI.EntityDetailManager.get(BX.prop.getString(this._settings, "detailManagerId", ""));
 		},
+		getConfigurationFieldManager: function()
+		{
+			return this._configurationFieldManager;
+		},
 		getUserFieldManager: function()
 		{
 			return this._userFieldManager;
@@ -583,6 +601,10 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		getAttributeManager: function()
 		{
 			return null;
+		},
+		getHtmlEditorConfig: function(fieldName)
+		{
+			return BX.prop.getObject(this._htmlEditorConfigs, fieldName, null);
 		},
 		//region Validators
 		createValidator: function(settings)
@@ -621,7 +643,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		createControl: function(type, controlId, settings)
 		{
 			settings["serviceUrl"] = this._serviceUrl;
-			settings["container"] = this._formElement;
+			settings["container"] = this._layoutContainer;
 			settings["model"] = this._model;
 			settings["editor"] = this;
 
@@ -734,7 +756,10 @@ if(typeof BX.UI.EntityEditor === "undefined")
 				{
 					return controls[i];
 				}
-				else if (controls[i] instanceof BX.UI.EntityEditorSection)
+				else if (
+					controls[i] instanceof BX.UI.EntityEditorColumn
+					|| controls[i] instanceof BX.UI.EntityEditorSection
+				)
 				{
 					if(res = this.getControlByIdRecursive(name, controls[i].getChildren()))
 					{
@@ -758,7 +783,10 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			{
 				if (controls[i] instanceof BX.UI.EntityEditorControl)
 				{
-					if (controls[i] instanceof BX.UI.EntityEditorSection)
+					if (
+						controls[i] instanceof BX.UI.EntityEditorColumn
+						|| controls[i] instanceof BX.UI.EntityEditorSection
+					)
 					{
 						if(res = this.getAllControls(controls[i].getChildren()))
 						{
@@ -1043,38 +1071,43 @@ if(typeof BX.UI.EntityEditor === "undefined")
 				excludedCount = excludedNames.length;
 			}
 
-			var elements = this._scheme.getElements();
-			for(var i = 0, elementCount = elements.length; i < elementCount; i++)
+			var columns = this._scheme.getElements();
+			for (var columnsIterator = 0, columnsCount = columns.length; columnsIterator < columnsCount; columnsIterator++)
 			{
-				var element = elements[i];
-				var isExcluded = false;
-				if(excludedCount > 0)
+				var sections = columns[columnsIterator].getElements();
+				for(var sectionsIterator = 0, sectionsCount = sections.length; sectionsIterator < sectionsCount; sectionsIterator++)
 				{
-					var elementName = element.getName();
-					for(var j = 0; j < excludedCount; j++)
+					var section = sections[sectionsIterator];
+					var isExcluded = false;
+					if(excludedCount > 0)
 					{
-						if(excludedNames[j] === elementName)
+						var sectionName = section.getName();
+						for(var j = 0; j < excludedCount; j++)
 						{
-							isExcluded = true;
-							break;
+							if(excludedNames[j] === sectionName)
+							{
+								isExcluded = true;
+								break;
+							}
+						}
+					}
+
+					if(isExcluded)
+					{
+						continue;
+					}
+
+					var childElements = section.getElements();
+					for(var k = 0, childrenCount = childElements.length; k < childrenCount; k++)
+					{
+						if(childElements[k].isTransferable() &&  childElements[k].getName() !== "")
+						{
+							return true;
 						}
 					}
 				}
-
-				if(isExcluded)
-				{
-					continue;
-				}
-
-				var childElements = element.getElements();
-				for(var k = 0, childrenCount = childElements.length; k < childrenCount; k++)
-				{
-					if(childElements[k].isTransferable() &&  childElements[k].getName() !== "")
-					{
-						return true;
-					}
-				}
 			}
+
 			return false;
 		},
 		//endregion
@@ -1241,7 +1274,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 					);
 					this._buttonContainer.appendChild(this._configMenuButton);
 				}
-				}
+			}
 
 			this.adjustButtons();
 		},
@@ -1479,7 +1512,20 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			//Move configuration menu button to last section if bottom panel is hidden.
 			if(this._config.isScopeToggleEnabled() && !this._enableBottomPanel && this._controls.length > 0)
 			{
-				this._controls[this._controls.length - 1].addButtonElement(
+				var control = this._controls[this._controls.length - 1];
+				if(control instanceof BX.UI.EntityEditorColumn)
+				{
+					if(control._sections.length > 0)
+					{
+						control = control._sections[control._sections.length - 1]
+					}
+					else
+					{
+						// nowhere to add
+						return;
+					}
+				}
+				control.addButtonElement(
 					BX.create(
 						"span",
 						{
@@ -1601,6 +1647,8 @@ if(typeof BX.UI.EntityEditor === "undefined")
 				this.releaseActiveControls();
 				this.refreshLayout({ reset: true });
 				this.hideToolPanel();
+
+				BX.onCustomEvent(window, "BX.UI.EntityEditor:onNothingChanged", [ this ]);
 			}
 			else
 			{
@@ -1713,7 +1761,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 
 			for(var i = 0, length = this._controllers.length; i < length; i++)
 			{
-				data = this._controllers[i].onBeforesSaveControl(data);
+				data = this._controllers[i].onBeforeSaveControl(data);
 			}
 
 			BX.ajax(
@@ -1914,7 +1962,12 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		},
 		openCancellationConfirmationDialog: function()
 		{
-			BX.UI.EditorAuxiliaryDialog.create(
+			if (this._confirmationCancelDialog)
+			{
+				return;
+			}
+
+			this._confirmationCancelDialog = BX.UI.EditorAuxiliaryDialog.create(
 				"cancel_confirmation",
 				{
 					title: BX.message("UI_ENTITY_EDITOR_CONFIRMATION"),
@@ -1935,12 +1988,13 @@ if(typeof BX.UI.EntityEditor === "undefined")
 							}
 						]
 				}
-			).open();
+			);
+			this._confirmationCancelDialog.open();
 		},
 		onCancelConfirmButtonClick: function(button)
 		{
 			button.getDialog().close();
-
+			this._confirmationCancelDialog = null;
 			if(button.getId() === "yes")
 			{
 				this.innerCancel();
@@ -2114,7 +2168,6 @@ if(typeof BX.UI.EntityEditor === "undefined")
 				return;
 			}
 
-			//debugger;
 			var entityData = BX.prop.getObject(result, "ENTITY_DATA", null);
 			eventParams["entityData"] = entityData;
 
@@ -2392,19 +2445,36 @@ if(typeof BX.UI.EntityEditor === "undefined")
 				}
 			);
 
-			this.addSchemeElementAt(schemeElement, index);
+			var sectionSettings = {
+				schemeElement: schemeElement,
+				model: this._model,
+			};
+
+			var firstColumn = this.getControlByIndex(0);
+
+			if (!firstColumn)
+			{
+				this.addSchemeElementAt(schemeElement, index);
+				sectionSettings.container = this._formElement;
+			}
 
 			var control = this.createControl(
 				"section",
 				name,
-				{
-					schemeElement: schemeElement,
-					model: this._model,
-					container: this._formElement
-				}
+				sectionSettings
 			);
-			this.addControlAt(control, index);
-			this.saveScheme();
+
+			if (firstColumn)
+			{
+				firstColumn.addChild(control,{
+					enableSaving: false
+				});
+			}
+			else
+			{
+				this.addControlAt(control, 0);
+				this.saveScheme();
+			}
 
 			control.setMode(BX.UI.EntityEditorMode.edit, { notify: false });
 			control.refreshLayout();
@@ -2592,6 +2662,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		},
 		//endregion
 		//region D&D
+		// D&D for sections moved from root editor entity to column entities
 		getDragConfig: function(typeId)
 		{
 			return BX.prop.getObject(this._dragConfig, typeId, {});

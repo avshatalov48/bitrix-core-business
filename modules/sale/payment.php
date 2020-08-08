@@ -1,13 +1,13 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 
-$ORDER_ID = IntVal($ORDER_ID);
+$ORDER_ID = intval($ORDER_ID);
 
 if (CModule::IncludeModule("sale"))
 {
 	$dbOrder = CSaleOrder::GetList(
 			array("DATE_UPDATE" => "DESC"),
-			array("LID" => LANG, "USER_ID" => IntVal($USER->GetID()), "ID" => $ORDER_ID),
+			array("LID" => LANG, "USER_ID" => intval($USER->GetID()), "ID" => $ORDER_ID),
 			false,
 			false,
 			array("*")
@@ -27,7 +27,7 @@ if (CModule::IncludeModule("sale"))
 
 		if ($arPaySysAction = $dbPaySysAction->Fetch())
 		{
-			if (strlen($arPaySysAction["ACTION_FILE"]) > 0)
+			if ($arPaySysAction["ACTION_FILE"] <> '')
 			{
 				$PAYER_NAME = "";
 				$GLOBALS["SALE_INPUT_PARAMS"] = array();
@@ -78,8 +78,8 @@ if (CModule::IncludeModule("sale"))
 				$pathToAction = $_SERVER["DOCUMENT_ROOT"].$arPaySysAction["ACTION_FILE"];
 
 				$pathToAction = str_replace("\\", "/", $pathToAction);
-				while (substr($pathToAction, strlen($pathToAction) - 1, 1) == "/")
-					$pathToAction = substr($pathToAction, 0, strlen($pathToAction) - 1);
+				while (mb_substr($pathToAction, mb_strlen($pathToAction) - 1, 1) == "/")
+					$pathToAction = mb_substr($pathToAction, 0, mb_strlen($pathToAction) - 1);
 
 				if (file_exists($pathToAction))
 				{

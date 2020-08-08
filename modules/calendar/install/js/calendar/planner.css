@@ -74,7 +74,7 @@
 	content: "";
 	position: absolute;
 	top: 15px;
-	height: 2000px;
+	height: 10000px;
 	border-left: 1px solid #dddfe2;
 	z-index: 1;
 }
@@ -103,7 +103,7 @@
 	position: absolute;
 	top: -27px;
 	left: 0;
-	height: 2000px;
+	height: 10000px;
 	border-left: 1px solid #c6c9cd;
 	z-index: 1;
 }
@@ -830,7 +830,7 @@
 	position: absolute;
 	top: 23px;
 	left: 50%;
-	height: 2000px;
+	height: 10000px;
 	border-left: 1px solid rgba(51, 51, 51, .05);
 	z-index: 1;
 }
@@ -1088,7 +1088,7 @@
 	position: absolute;
 	top: 44px;
 	right: 0;
-	height: 2000px;
+	height: 10000px;
 	border-left: 1px solid rgba(51, 51, 51, .1);
 	z-index: 3;
 	width: 10px;
@@ -1113,4 +1113,10 @@
 
 .calendar-planner-entry-icons-only .calendar-planner-user-container-inner {
 	left: 15px;
+}
+
+.calendar-planner-main-loader {
+	position: absolute !important;
+	top: 62px;
+	left: 140px;
 }

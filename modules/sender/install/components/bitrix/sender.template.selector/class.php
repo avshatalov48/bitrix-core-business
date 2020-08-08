@@ -1,22 +1,24 @@
 <?
 
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ErrorCollection;
-use Bitrix\Main\Loader;
-use Bitrix\Main\Error;
-
-use Bitrix\Sender\Templates;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Sender\Message;
-use Bitrix\Sender\Security;
+use Bitrix\Sender\Templates;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
+if (!Bitrix\Main\Loader::includeModule('sender'))
+{
+	ShowError('Module `sender` not installed');
+	die();
+}
+
 Loc::loadMessages(__FILE__);
 
-class SenderTemplateSelectorComponent extends CBitrixComponent
+class SenderTemplateSelectorComponent extends \Bitrix\Sender\Internals\CommonSenderComponent
 {
 	/** @var ErrorCollection $errors */
 	protected $errors;
@@ -37,12 +39,6 @@ class SenderTemplateSelectorComponent extends CBitrixComponent
 
 	protected function prepareResult()
 	{
-		if (!Security\Access::current()->canViewLetters())
-		{
-			Security\AccessChecker::addError($this->errors);
-			return false;
-		}
-
 		$this->arResult['ACTION_URI'] = $this->getPath() . '/ajax.php';
 		$this->arResult['GRID'] = array(
 			'rows'=> array(),
@@ -101,27 +97,17 @@ class SenderTemplateSelectorComponent extends CBitrixComponent
 
 	public function executeComponent()
 	{
-		$this->errors = new \Bitrix\Main\ErrorCollection();
-		if (!Loader::includeModule('sender'))
-		{
-			$this->errors->setError(new Error('Module `sender` is not installed.'));
-			$this->printErrors();
-			return;
-		}
+		parent::executeComponent();
+		parent::prepareResultAndTemplate();
+	}
 
-		$this->initParams();
-		if (!$this->checkRequiredParams())
-		{
-			$this->printErrors();
-			return;
-		}
+	public function getEditAction()
+	{
+		return \Bitrix\Sender\Access\ActionDictionary::ACTION_TEMPLATE_EDIT;
+	}
 
-		if (!$this->prepareResult())
-		{
-			$this->printErrors();
-			return;
-		}
-
-		$this->includeComponentTemplate();
+	public function getViewAction()
+	{
+		return \Bitrix\Sender\Access\ActionDictionary::ACTION_TEMPLATE_VIEW;
 	}
 }

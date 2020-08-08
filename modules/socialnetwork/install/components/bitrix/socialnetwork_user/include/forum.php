@@ -2,9 +2,9 @@
 $UID = ($arResult["VARIABLES"]["user_id"] > 0 ? $arResult["VARIABLES"]["user_id"] : $GLOBALS["USER"]->GetID());
 foreach ($arDefaultUrlTemplates404 as $url => $value)
 {
-	if (strPos($url, "user_forum") === false && strPos($url, "group_forum") === false)
+	if (mb_strpos($url, "user_forum") === false && mb_strpos($url, "group_forum") === false)
 		continue;
-	$arResult["~PATH_TO_".strToUpper($url)] = str_replace(
+	$arResult["~PATH_TO_".mb_strtoupper($url)] = str_replace(
 		array(
 			"#user_id#",
 			"#group_id#",
@@ -17,7 +17,7 @@ foreach ($arDefaultUrlTemplates404 as $url => $value)
 			"#TID#",
 			"#MID#",
 			"#ACTION#"),
-	$arResult["PATH_TO_".strToUpper($url)]);
+	$arResult["PATH_TO_".mb_strtoupper($url)]);
 
 }
 $arResult["~PATH_TO_USER"] = str_replace("#user_id#", "#UID#", (empty($arResult["PATH_TO_USER"]) ? $arParams["PATH_TO_USER"] : $arResult["PATH_TO_USER"]));
@@ -35,41 +35,25 @@ elseif ($componentPage == "group_forum_message_edit")
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$arParams["FID"] = intVal($arParams["FORUM_ID"]);
-/*	$arParams["TID"] = intVal($arParams["TID"]);
-	$arParams["MID"] = intVal($arParams["MID"]);
-	$arParams["PAGE_NAME"] = trim($arParams["PAGE_NAME"]);
-	$arParams["MESSAGE_TYPE"] = strToUpper($arParams["MESSAGE_TYPE"]);
-	$arParams["bVarsFromForm"] = ($arParams["bVarsFromForm"] == "Y" || $arParams["bVarsFromForm"] === true ? "Y" : "N");
-*/
-
+	$arParams["FID"] = intval($arParams["FORUM_ID"]);
 	$arParams["USE_DESC_PAGE"] = ($arParams["USE_DESC_PAGE"] == "N" ? "N" : "Y");
-	$arParams["SOCNET_GROUP_ID"] = intVal($arParams["SOCNET_GROUP_ID"]);
-	$arParams["USER_ID"] = intVal(intVal($arParams["USER_ID"]) > 0 ? $arParams["USER_ID"] : $USER->GetID());
-/***************** URL *********************************************/
-/*	$URL_NAME_DEFAULT = array(
-			"topic_list" => "PAGE_NAME=topic_list&FID=#FID#",
-			"topic" => "PAGE_NAME=topic&FID=#FID#&TID=#TID#",
-			"topic_edit" => "PAGE_NAME=topic_edit&FID=#FID#&TID=#TID#&MID=#MID#&MESSAGE_TYPE=#MESSAGE_TYPE#",
-			"message" => "PAGE_NAME=message&FID=#FID#&TID=#TID#&MID=#MID#",
-			"group" => "PAGE_NAME=group&GID=#GID#", 
-			"user" => "PAGE_NAME=user&UID=#UID#");
-*/
+	$arParams["SOCNET_GROUP_ID"] = intval($arParams["SOCNET_GROUP_ID"]);
+	$arParams["USER_ID"] = intval(intval($arParams["USER_ID"]) > 0 ? $arParams["USER_ID"] : $USER->GetID());
 /***************** ADDITIONAL **************************************/
-	$arParams["PAGEN"] = intVal($GLOBALS["NavNum"] + 1);
+	$arParams["PAGEN"] = intval($GLOBALS["NavNum"] + 1);
 	//$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = "forum"; 
 	$arParams["PAGE_NAVIGATION_WINDOW"] = 5;
 	$arParams["PAGE_NAVIGATION_SHOW_ALL"] = "N";
 
-	$arParams["TOPICS_PER_PAGE"] = intVal($arParams["TOPICS_PER_PAGE"] > 0 ? $arParams["TOPICS_PER_PAGE"] : COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"));
-	$arParams["MESSAGES_PER_PAGE"] = intVal($arParams["MESSAGES_PER_PAGE"] > 0 ? $arParams["MESSAGES_PER_PAGE"] : COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10"));
+	$arParams["TOPICS_PER_PAGE"] = intval($arParams["TOPICS_PER_PAGE"] > 0 ? $arParams["TOPICS_PER_PAGE"] : COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"));
+	$arParams["MESSAGES_PER_PAGE"] = intval($arParams["MESSAGES_PER_PAGE"] > 0 ? $arParams["MESSAGES_PER_PAGE"] : COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10"));
 	$arParams["~DATE_TIME_FORMAT"] = trim($arParams["DATE_TIME_FORMAT"]);
 	$arParams["DATE_TIME_FORMAT"] = (empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 	if (empty($arParams["DATE_FORMAT"]) && !empty($arParams["~DATE_TIME_FORMAT"])) {
 		$res = CComponentUtil::GetDateFormatField();
 		foreach($res["VALUES"] as $date => $k) {
-			if (substr_compare($date, $arParams["~DATE_TIME_FORMAT"], 0, strlen($date), true) == 0) {
+			if (substr_compare($date, $arParams["~DATE_TIME_FORMAT"], 0, mb_strlen($date), true) == 0) {
 				$arParams["DATE_FORMAT"] = $date;
 				break;
 			}
@@ -77,8 +61,8 @@ elseif ($componentPage == "group_forum_message_edit")
 	}
 	$arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
 
-	$arParams["WORD_LENGTH"] = intVal($arParams["WORD_LENGTH"]);
-	$arParams["IMAGE_SIZE"] = (intVal($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 300);
+	$arParams["WORD_LENGTH"] = intval($arParams["WORD_LENGTH"]);
+	$arParams["IMAGE_SIZE"] = (intval($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 300);
 
 	$arParams["AJAX_TYPE"] = ($arParams["AJAX_TYPE"] == "Y" ? "Y" : "N");
 	$arParams["AJAX_CALL"] = (($_REQUEST["AJAX_CALL"] == "Y" && $arParams["AJAX_TYPE"] == "Y") ? "Y" : "N");
@@ -98,7 +82,7 @@ elseif ($componentPage == "group_forum_message_edit")
 /********************************************************************
 				/Input params
 ********************************************************************/
-if (strPos($componentPage, "user_forum") === false && strPos($componentPage, "group_forum") === false)
+if (mb_strpos($componentPage, "user_forum") === false && mb_strpos($componentPage, "group_forum") === false)
 	return 1;
 
 /************** CSS ************************************************/
@@ -137,12 +121,12 @@ else:
 endif;
 /************** Page navigation ************************************/
 $feature = "forum";
-$arEntityActiveFeatures = CSocNetFeatures::GetActiveFeaturesNames(((strpos($componentPage, "user_forum") === false) ? SONET_ENTITY_GROUP : SONET_ENTITY_USER), ((strpos($componentPage, "user_forum") === false) ? $arResult["VARIABLES"]["group_id"] : $arResult["VARIABLES"]["user_id"]));	
-$strFeatureTitle = ((array_key_exists($feature, $arEntityActiveFeatures) && StrLen($arEntityActiveFeatures[$feature]) > 0) ? $arEntityActiveFeatures[$feature] : (strpos($componentPage, "user_forum") === false ? GetMessage("FL_FORUM_GROUP_CHAIN") : GetMessage("FL_FORUM_USER_CHAIN")));
+$arEntityActiveFeatures = CSocNetFeatures::GetActiveFeaturesNames(((mb_strpos($componentPage, "user_forum") === false) ? SONET_ENTITY_GROUP : SONET_ENTITY_USER), ((mb_strpos($componentPage, "user_forum") === false) ? $arResult["VARIABLES"]["group_id"] : $arResult["VARIABLES"]["user_id"]));
+$strFeatureTitle = ((array_key_exists($feature, $arEntityActiveFeatures) && $arEntityActiveFeatures[$feature] <> '') ? $arEntityActiveFeatures[$feature] : (mb_strpos($componentPage, "user_forum") === false ? GetMessage("FL_FORUM_GROUP_CHAIN") : GetMessage("FL_FORUM_USER_CHAIN")));
 $title = $strFeatureTitle;
 
 $url = "";
-if (strpos($componentPage, "user_forum") === false)
+if (mb_strpos($componentPage, "user_forum") === false)
 {
 	$arGroup = CSocNetGroup::GetByID($arResult["VARIABLES"]["group_id"]);
 	$APPLICATION->AddChainItem($arGroup["NAME"], CComponentEngine::MakePathFromTemplate($arResult["~PATH_TO_GROUP"], array("GID" => $arGroup["ID"])));
@@ -155,7 +139,7 @@ else
 	$dbUser = CUser::GetByID($arResult["VARIABLES"]["user_id"]);
 	$arUser = $dbUser->Fetch();
 
-	if (strlen($arParams["NAME_TEMPLATE"]) <= 0)	
+	if ($arParams["NAME_TEMPLATE"] == '')
 		$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 			
 	$arParams["TITLE_NAME_TEMPLATE"] = str_replace(

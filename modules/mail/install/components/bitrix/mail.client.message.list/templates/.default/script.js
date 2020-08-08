@@ -17,6 +17,7 @@
 		this.userInterfaceManager.resetGridSelection = this.resetGridSelection.bind(this);
 		this.userInterfaceManager.isSelectedRowsHaveClass = this.isSelectedRowsHaveClass.bind(this);
 		this.userInterfaceManager.getGridInstance = this.getGridInstance.bind(this);
+		this.cache = {};
 		this.addEventHandlers();
 
 		BX.Mail.Client.Message.List[options.id] = this;
@@ -32,12 +33,162 @@
 				'onSubMenuShow',
 				function ()
 				{
+					var container = this.getMenuWindow().getPopupWindow().getPopupContainer();
+					var id = null;
+
+					if (container)
+					{
+						id = BX.data(container, 'grid-row-id');
+					}
+
 					BX.data(
 						this.getSubMenu().getPopupWindow().getPopupContainer(),
 						'grid-row-id',
-						this.gridRowId || BX.data(this.getMenuWindow().getPopupWindow().getPopupContainer(), 'grid-row-id')
+						this.gridRowId || id
 					);
 				}
+			);
+
+			BX.Event.EventEmitter.subscribe('BX.Main.Menu.Item:onmouseenter', function (event)
+			{
+				var menuItem = event.target;
+
+				if (!menuItem.dataset || !menuItem.getMenuWindow())
+				{
+					return;
+				}
+
+				var menuWindow = menuItem.getMenuWindow();
+				var subMenuItems = menuWindow.getMenuItems();
+
+				var path = menuItem.dataset.path;
+				var hash = menuItem.dataset.dirMd5;
+				var hasChild = menuItem.dataset.hasChild;
+
+				if (!hasChild)
+				{
+					return;
+				}
+
+				for (var i = 0; i < subMenuItems.length; i++)
+				{
+					var item = subMenuItems[i];
+
+					if (item.getId() === path)
+					{
+						var hasSubMenu = item.hasSubMenu();
+
+						if (hasSubMenu)
+						{
+							item.showSubMenu();
+							var subMenu = item.getSubMenu();
+
+							if (subMenu)
+							{
+								var items = subMenu.getMenuItems();
+								var hasLoadingItem = false;
+
+								for (var k = 0; k < items.length; k++)
+								{
+									var subItem = items[k];
+
+									if (subItem.getId() === 'loading')
+									{
+										hasLoadingItem = true;
+									}
+								}
+							}
+
+							if (!hasLoadingItem)
+							{
+								return;
+							}
+						}
+
+						this.loadLevelMenu(item, hash)
+					}
+				}
+			}.bind(this));
+		},
+		loadLevelMenu: function (menuItem, hash)
+		{
+			var menu = this.getCache(menuItem.getId());
+			var popup = BX.Main.PopupManager.getPopupById('menu-popup-popup-submenu-' + menuItem.getId());
+
+			if (popup)
+			{
+				popup.destroy();
+			}
+
+			if (menu)
+			{
+				menuItem.destroySubMenu();
+				menuItem.addSubMenu(menu);
+				menuItem.showSubMenu();
+				return;
+			}
+
+			var subItem = {
+				'id': 'loading',
+				'text': BX.message('MAIL_CLIENT_BUTTON_LOADING'),
+				'disabled': true
+			};
+
+			menuItem.destroySubMenu();
+			menuItem.addSubMenu([subItem]);
+			menuItem.showSubMenu();
+
+			BX.ajax.runComponentAction('bitrix:mail.client.config.dirs', 'level', {
+				mode: 'class',
+				data: {mailboxId: this.mailboxId, dir: {path: menuItem.getId(), dirMd5: hash}}
+			}).then(
+				function (response)
+				{
+					var dirs = response.data.dirs;
+					var items = [];
+
+					for (var i = 0; i < dirs.length; i++)
+					{
+						var hasChild = /(HasChildren)/i.test(dirs[i].FLAGS);
+						var item = {
+							'id': dirs[i].PATH,
+							'text': dirs[i].NAME,
+							'dataset': {
+								'path': dirs[i].PATH,
+								'dirMd5': dirs[i].DIR_MD5,
+								'isDisabled': dirs[i].IS_DISABLED,
+								'hasChild': hasChild,
+							},
+							items: hasChild ? [{
+								id: 'loading',
+								'text': BX.message('MAIL_CLIENT_BUTTON_LOADING'),
+								'disabled': true
+							}] : []
+						};
+
+						items.push(item);
+					}
+
+					this.setCache(menuItem.getId(), items);
+
+					var popup = BX.Main.PopupManager.getPopupById('menu-popup-popup-submenu-' + menuItem.getId());
+					var isShown = menuItem.getMenuWindow().getPopupWindow().isShown();
+
+					if (popup)
+					{
+						popup.destroy();
+					}
+
+					if (isShown)
+					{
+						menuItem.destroySubMenu();
+						menuItem.addSubMenu(items);
+						menuItem.showSubMenu();
+					}
+				}.bind(this),
+				function (response)
+				{
+				}.bind(this)
 			);
 		},
 		showLicensePopup: function (code)
@@ -145,7 +296,8 @@
 			}
 			// @TODO: path
 			BX.SidePanel.Instance.open("/mail/message/" + id, {
-				width: 1080
+				width: 1080,
+				loader: 'view-mail-loader'
 			});
 		},
 		onDeleteClick: function (id)
@@ -157,7 +309,7 @@
 			}
 			if (!this.canDelete)
 			{
-				this.showSettingsSlider();
+				this.showDirsSlider();
 				return;
 			}
 			var options = {
@@ -176,11 +328,29 @@
 			}
 			if (this.userInterfaceManager.isCurrentFolderTrash)
 			{
+				/*
+				BX.UI.Dialogs.MessageBox.show({
+					title: BX.message('MAIL_MESSAGE_LIST_CONFIRM_TITLE'),
+					message: BX.message('MAIL_MESSAGE_LIST_CONFIRM_DELETE_ALL'),
+					onYes: function () { return true; }, // handler.bind(this),
+					buttons: BX.UI.Dialogs.MessageBoxButtons.YES_CANCEL
+				});
+				*/
+
 				var confirmPopup = this.getConfirmDeletePopup(options);
 				confirmPopup.show();
 			}
 			else
 			{
+				/*
+				BX.UI.Dialogs.MessageBox.show({
+					title: BX.message('MAIL_MESSAGE_LIST_CONFIRM_TITLE'),
+					message: BX.message('MAIL_MESSAGE_LIST_CONFIRM_TRASH_ALL'),
+					onYes: function () { return true; }, // handler.bind(this),
+					buttons: BX.UI.Dialogs.MessageBoxButtons.YES_CANCEL
+				});
+				*/
+
 				this.runAction('delete', options);
 			}
 		},
@@ -194,7 +364,7 @@
 				id = BX.data(popupSubmenu, 'grid-row-id');
 			}
 			var isDisabled = JSON.parse(folderOptions.isDisabled);
-			var folderPath = folderOptions.folderPath;
+			var path = folderOptions.path;
 			if ((id === null && this.getGridInstance().getRows().getSelectedIds().length === 0) || isDisabled)
 			{
 				return;
@@ -207,12 +377,22 @@
 				return;
 			}
 			this.resetGridSelection();
+
+			/*
+			BX.UI.Dialogs.MessageBox.show({
+				title: BX.message('MAIL_MESSAGE_LIST_CONFIRM_TITLE'),
+				message: BX.message('MAIL_MESSAGE_LIST_CONFIRM_MOVE_ALL'),
+				onYes: function () { return true; }, // handler.bind(this),
+				buttons: BX.UI.Dialogs.MessageBoxButtons.YES_CANCEL
+			});
+			*/
+
 			this.runAction(
 				'moveToFolder',
 				{
 					ids: resultIds,
 					params: {
-						folder: folderPath
+						folder: path
 					},
 					analyticsLabel: {
 						'groupCount': selected.length,
@@ -228,34 +408,64 @@
 			{
 				return;
 			}
-			var actionName = this.isSelectedRowsHaveClass('mail-msg-list-cell-unseen', id) ? 'markAsSeen' : 'markAsUnseen';
+			var actionName = 'all' == id || this.isSelectedRowsHaveClass('mail-msg-list-cell-unseen', id) ? 'markAsSeen' : 'markAsUnseen';
 			var resultIds = this.filterRowsByClassName('mail-msg-list-cell-unseen', id, actionName !== 'markAsSeen');
 			resultIds = this.filterRowsByClassName(this.disabledClassName, resultIds, true);
 			if (!resultIds.length)
 			{
 				return;
 			}
-			this.userInterfaceManager.onMessagesRead(resultIds, {action: actionName});
-			this.resetGridSelection();
-			if (actionName === 'markAsSeen')
+
+			var handler = function ()
 			{
-				this.userInterfaceManager.updateUnreadCounters(-resultIds.length);
+				this.userInterfaceManager.onMessagesRead(resultIds, {action: actionName});
+				if (actionName === 'markAsSeen')
+				{
+					var count = resultIds.length;
+					if ('all' == id)
+					{
+						count = Math.max(this.userInterfaceManager.getQuickFilterUnseenCounter(), count);
+					}
+					this.userInterfaceManager.updateUnreadCounters(-count);
+				}
+				else
+				{
+					this.userInterfaceManager.updateUnreadCounters(resultIds.length);
+				}
+				this.resetGridSelection();
+
+				if ('all' == id)
+				{
+					resultIds['for_all'] = this.mailboxId + '-' + this.userInterfaceManager.getCurrentFolder();
+				}
+
+				this.runAction(actionName, {
+					ids: resultIds,
+					keepRows: true,
+					successParams: actionName,
+					analyticsLabel: {
+						'groupCount': selected.length,
+						'bindings': this.getRowsBindings(id ? [this.getGridInstance().getRows().getById(id)] : selected)
+					},
+					onSuccess: false
+				});
+
+				return true;
+			};
+
+			if ('all' == id)
+			{
+				BX.UI.Dialogs.MessageBox.show({
+					title: BX.message('MAIL_MESSAGE_LIST_CONFIRM_TITLE'),
+					message: BX.message('MAIL_MESSAGE_LIST_CONFIRM_READ_ALL'),
+					onYes: handler.bind(this),
+					buttons: BX.UI.Dialogs.MessageBoxButtons.YES_CANCEL
+				});
 			}
 			else
 			{
-				this.userInterfaceManager.updateUnreadCounters(resultIds.length);
+				handler.apply(this);
 			}
-
-			this.runAction(actionName, {
-				ids: resultIds,
-				keepRows: true,
-				successParams: actionName,
-				analyticsLabel: {
-					'groupCount': selected.length,
-					'bindings': this.getRowsBindings(id ? [this.getGridInstance().getRows().getById(id)] : selected)
-				},
-				onSuccess: false
-			});
 		},
 		onSpamClick: function (id)
 		{
@@ -266,7 +476,7 @@
 			}
 			if (!this.canMarkSpam)
 			{
-				this.showSettingsSlider();
+				this.showDirsSlider();
 				return;
 			}
 			var actionName = this.isSelectedRowsHaveClass('js-spam', id) ? 'restoreFromSpam' : 'markAsSpam';
@@ -290,65 +500,46 @@
 			{
 				options.ids = [id];
 			}
+
+			/*
+			BX.UI.Dialogs.MessageBox.show({
+				title: BX.message('MAIL_MESSAGE_LIST_CONFIRM_TITLE'),
+				message: BX.message('MAIL_MESSAGE_LIST_CONFIRM_SPAM_ALL'),
+				onYes: function () { return true; }, // handler.bind(this),
+				buttons: BX.UI.Dialogs.MessageBoxButtons.YES_CANCEL
+			});
+			*/
+
 			this.runAction(actionName, options);
 		},
 		getConfirmDeletePopup: function (options)
 		{
-			if (!this.popupConfirm)
-			{
-				var buttons = [
-					new BX.PopupWindowButton({
-						text: BX.message("MAIL_MESSAGE_LIST_CONFIRM_CANCEL_BTN"),
-						className: "popup-window-button-cancel",
-						events: {
-							click: BX.delegate(function ()
-							{
-								this.popupConfirm.close();
-							}, this)
-						}
+			return new BX.UI.Dialogs.MessageBox({
+				title: BX.message('MAIL_MESSAGE_LIST_CONFIRM_TITLE'),
+				message: BX.message('MAIL_MESSAGE_LIST_CONFIRM_DELETE'),
+				buttons: [
+					new BX.UI.Button({
+						color: BX.UI.Button.Color.DANGER,
+						text: BX.message('MAIL_MESSAGE_LIST_CONFIRM_DELETE_BTN'),
+						onclick: (function (button)
+						{
+							this.runAction('delete', options);
+							button.getContext().close();
+						}).bind(this)
 					}),
-					new BX.PopupWindowButton({
-						text: BX.message("MAIL_MESSAGE_LIST_CONFIRM_DELETE_BTN"),
-						className: "popup-window-button-decline",
-						events: {
-							click: BX.delegate(function ()
-							{
-								this.runAction('delete', options);
-								this.popupConfirm.close();
-							}, this)
+					new BX.UI.CancelButton({
+						onclick: function (button)
+						{
+							button.getContext().close();
 						}
-					})];
-				this.popupConfirm = new BX.PopupWindow('bx-mail-message-list-popup-delete-confirm', null, {
-					zIndex: 1000,
-					autoHide: true,
-					buttons: buttons,
-					closeByEsc: true,
-					titleBar: {
-						content: BX.create('div', {
-							html: '<span class="popup-window-titlebar-text">' + BX.message("MAIL_MESSAGE_LIST_CONFIRM_TITLE") + '</span>'
-						})
-					},
-					events: {
-						onPopupClose: function ()
-						{
-							this.destroy()
-						},
-						onPopupDestroy: BX.delegate(function ()
-						{
-							this.popupConfirm = null
-						}, this)
-					},
-					content: BX.create("div", {
-						html: BX.message('MAIL_MESSAGE_LIST_CONFIRM_DELETE')
 					})
-				});
-				this.popupConfirm.selectedIds = options.ids;
-			}
-			return this.popupConfirm;
+				]
+			});
 		},
 		resetGridSelection: function ()
 		{
 			this.getGridInstance().getRows().unselectAll();
+			this.getGridInstance().adjustCheckAllCheckboxes();
 			// todo there is no other way to hide panel for now
 			// please delete this line below
 			BX.onCustomEvent('Grid::updated');
@@ -375,7 +566,16 @@
 		filterRowsByClassName: function (className, ids, isReversed)
 		{
 			var resIds = [];
-			if (Array.isArray(ids))
+			if ('all' == ids)
+			{
+				resIds = this.getGridInstance().getRows().getBodyChild().map(
+					function (current)
+					{
+						return current.getId();
+					}
+				);
+			}
+			else if (Array.isArray(ids))
 			{
 				resIds = ids;
 			}
@@ -419,7 +619,7 @@
 			{
 				selectedIds = options.ids;
 			}
-			if (!selectedIds.length)
+			if (!selectedIds.length && !selectedIds.for_all)
 			{
 				return;
 			}
@@ -502,14 +702,13 @@
 				gridInstance.reloadTable('POST', options);
 			}
 		},
-		showSettingsSlider: function ()
+		showDirsSlider: function ()
 		{
-			// @TODO: path
-			var url = BX.util.add_url_param("/mail/config/edit", {
-				id: this.mailboxId + '#mail-cfg-dirs'
+			var url = BX.util.add_url_param("/mail/config/dirs", {
+				mailboxId: this.mailboxId
 			});
 			BX.SidePanel.Instance.open(url, {
-				width: 760,
+				width: 640,
 				cacheable: false,
 				allowChangeHistory: false
 			});
@@ -523,6 +722,10 @@
 		{
 			this.userInterfaceManager.onUnreadCounterClick();
 		},
+		getCurrentFolder: function ()
+		{
+			return this.userInterfaceManager.getCurrentFolder();
+		},
 		onDirsMenuItemClick: function (el)
 		{
 			if (BX.data(el, 'is-disabled') == 'true')
@@ -534,11 +737,11 @@
 
 			var filterApi = filter.getApi();
 			filterApi.setFields({
-				'DIR': BX.data(el, 'folder-path')
+				'DIR': BX.data(el, 'path')
 			});
 			filterApi.apply();
 
-			this.userInterfaceManager.onMailboxMenuClick();
+			this.userInterfaceManager.closeMailboxMenu();
 		},
 		getGridInstance: function ()
 		{
@@ -551,6 +754,11 @@
 				rows.map(
 					function (row)
 					{
+						if (!row || !row.node)
+						{
+							return null;
+						}
+
 						return Array.prototype.map.call(
 							row.node.querySelectorAll('[class^="js-bind-"] [data-type]'),
 							function (node)
@@ -561,6 +769,19 @@
 					}
 				)
 			));
-		}
+		},
+		getCache: function(key)
+		{
+			if (!key)
+			{
+				return;
+			}
+
+			return this.cache[key] ? this.cache[key] : null;
+		},
+		setCache: function(key, value)
+		{
+			return this.cache[key] = value;
+		},
 	};
 })();

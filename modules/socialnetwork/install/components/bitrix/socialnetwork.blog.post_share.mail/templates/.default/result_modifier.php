@@ -5,7 +5,7 @@ foreach($arResult["AUTHORS"] as $authorId => $arAuthor)
 	$arAuthor["AVATAR_URL"] = (
 		isset($arAuthor["PERSONAL_PHOTO_resized"])
 		&& isset($arAuthor["PERSONAL_PHOTO_resized"]["src"])
-		&& strlen($arAuthor["PERSONAL_PHOTO_resized"]["src"]) > 0
+		&& $arAuthor["PERSONAL_PHOTO_resized"]["src"] <> ''
 			? $arAuthor["PERSONAL_PHOTO_resized"]["src"]
 			: '/bitrix/components/bitrix/socialnetwork.blog.post_share.mail/templates/.default/images/userpic.gif'
 	);
@@ -13,7 +13,7 @@ foreach($arResult["AUTHORS"] as $authorId => $arAuthor)
 	$arAuthor["AVATAR_COMMENT_URL"] = (
 		isset($arAuthor["PERSONAL_PHOTO_resized_30"])
 		&& isset($arAuthor["PERSONAL_PHOTO_resized_30"]["src"])
-		&& strlen($arAuthor["PERSONAL_PHOTO_resized_30"]["src"]) > 0
+		&& $arAuthor["PERSONAL_PHOTO_resized_30"]["src"] <> ''
 			? $arAuthor["PERSONAL_PHOTO_resized_30"]["src"]
 			: '/bitrix/components/bitrix/socialnetwork.blog.post_share.mail/templates/.default/images/userpic.gif'
 	);

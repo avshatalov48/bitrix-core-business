@@ -12,7 +12,7 @@ class CSMTPServer
 
 	function WriteToLog($txt, $level)
 	{
-		$this->logLevel = IntVal(COption::GetOptionString("mail", "smtp_log_level", "4"));
+		$this->logLevel = intval(COption::GetOptionString("mail", "smtp_log_level", "4"));
 
 		if ($this->logLevel < $level)
 			return;
@@ -27,21 +27,21 @@ class CSMTPServer
 			if (File_Exists($_SERVER["DOCUMENT_ROOT"].$this->logFileName))
 			{
 				$logSize = @FileSize($_SERVER["DOCUMENT_ROOT"].$this->logFileName);
-				$logSize = IntVal($logSize);
+				$logSize = intval($logSize);
 
 				if ($logSize > $this->logMaxSize)
 				{
 					if (($fp = @FOpen($_SERVER["DOCUMENT_ROOT"].$this->logFileName, "rb"))
 						&& ($fp1 = @FOpen($_SERVER["DOCUMENT_ROOT"].$this->logFileName."_", "wb")))
 					{
-						$iSeekLen = IntVal($logSize - $this->logMaxSize / 2.0);
+						$iSeekLen = intval($logSize - $this->logMaxSize / 2.0);
 						FSeek($fp, $iSeekLen);
 
 						@FWrite($fp1, "Truncated ".Date("Y-m-d H:i:s")."\n---------------------------------\n");
 						do
 						{
 							$data = FRead($fp, 8192);
-							if (StrLen($data) == 0)
+							if ($data == '')
 								break;
 
 							@FWrite($fp1, $data);
@@ -77,7 +77,7 @@ class CSMTPServer
 			echo trim($txt)."\n---------------------------------\n";
 	}
 
-	function Run()
+	public static function Run()
 	{
 		$var = new CSMTPServer();
 		$var->startTime = time();
@@ -437,7 +437,7 @@ class CSMTPConnection
 
 	function __ParseBuffer()
 	{
-		if(StrLen($this->readBuffer) <= 0)
+		if($this->readBuffer == '')
 			return false;
 
 		if($this->__listenFunc == '__AuthLoginHandler')
@@ -449,16 +449,16 @@ class CSMTPConnection
 		if($this->__listenFunc == '__DataHandler')
 			return $this->__DataHandler();
 
-		if(strpos($this->readBuffer, "\r\n")===false)
+		if(mb_strpos($this->readBuffer, "\r\n") === false)
 			return false;
 
 		$this->readBuffer = Trim($this->readBuffer);
 
 		$res = false;
-		if(($p = strpos($this->readBuffer, " "))!==false)
+		if(($p = mb_strpos($this->readBuffer, " "))!==false)
 		{
-			$command = substr($this->readBuffer, 0, $p);
-			$res = $this->__ProcessCommand($command, substr($this->readBuffer, $p+1));
+			$command = mb_substr($this->readBuffer, 0, $p);
+			$res = $this->__ProcessCommand($command, mb_substr($this->readBuffer, $p + 1));
 		}
 		else
 		{
@@ -512,7 +512,7 @@ class CSMTPConnection
 
 	function __Send($message)
 	{
-		if (StrLen($message) <= 0)
+		if ($message == '')
 			return false;
 
 		$this->WriteToLog("S-> (".$this->id.")\t".$message, 10);
@@ -533,15 +533,15 @@ class CSMTPConnection
 
 	function CheckRelaying($email)
 	{
-		$domains = preg_split('/[\s]+/', strtolower($this->server->arFields['DOMAINS']), -1, PREG_SPLIT_NO_EMPTY);
+		$domains = preg_split('/[\s]+/', mb_strtolower($this->server->arFields['DOMAINS']), -1, PREG_SPLIT_NO_EMPTY);
 		if(count($domains)<=0)
 			return true;
 
 		if(!is_array($this->arMsg["FOR_RELAY"]))
 			$this->arMsg["FOR_RELAY"] = array();
 
-		$p = strpos($email, "@");
-		$email_domain = substr($email, $p+1);
+		$p = mb_strpos($email, "@");
+		$email_domain = mb_substr($email, $p + 1);
 
 		if(in_array($email_domain, $domains))
 		{
@@ -563,171 +563,203 @@ class CSMTPConnection
 	//обработчик команд
 	function __ProcessCommand($command, $arg = '')
 	{
-		switch(strtoupper($command))
+		switch(mb_strtoupper($command))
 		{
-		case "HELO":
-			$this->Send('250', 'domain name should be qualified');
-			if(trim($arg)=='')
-				$this->host = $this->ip;
-			else
-				$this->host = $arg;
-			//500, 501, 504, 421
-			break;
-		case "SEND":
-		case "SOML":
-		case "SAML":
-		case "MAIL":
-			if(!preg_match('#FROM[ ]*:[ ]*(.+)#i', $arg, $arMatches))
-				$this->Send('501', 'Unrecognized parameter '.$arg);
-			elseif($this->arMsg["FROM"])
+			case "HELO":
+				$this->Send('250', 'domain name should be qualified');
+				if(trim($arg) == '')
+				{
+					$this->host = $this->ip;
+				}
+				else
+				{
+					$this->host = $arg;
+				}
+				//500, 501, 504, 421
+				break;
+			case "SEND":
+			case "SOML":
+			case "SAML":
+			case "MAIL":
+				if(!preg_match('#FROM[ ]*:[ ]*(.+)#i', $arg, $arMatches))
+				{
+					$this->Send('501', 'Unrecognized parameter '.$arg);
+				}
+				elseif($this->arMsg["FROM"])
+				{
 					$this->Send('503', 'Sender already specified');
-			else
-			{
-				$email = $arMatches[1];
-				$email = CMailUtil::ExtractMailAddress($email);
-				if($email=='' || !check_email($email))
-					$this->Send('501', '<'.$email.'> Invalid Address');
+				}
 				else
 				{
-					$this->arMsg["FROM"] = $email;
-					$this->arMsg["TO"] = array();
-
-					$this->Send('250', '<'.$email.'> Sender ok');
-				}
-			}
-			//F: 552, 451, 452
-			//E: 500, 501, 421
-			break;
-		case "RCPT":
-			if(!preg_match('#TO[ ]*:[ ]*(.+)#i', $arg, $arMatches))
-				$this->Send('501', 'Unrecognized parameter '.$arg);
-			else
-			{
-				$email = $arMatches[1];
-				$email = CMailUtil::ExtractMailAddress($email);
-				if($email=='' || !check_email($email))
-					$this->Send('501', '<'.$email.'> Invalid Address');
-				elseif(false)
-					$this->Send('550', '<'.$email.'> User unknown');
-				elseif(!$this->CheckRelaying($email))
-					$this->Send('550', '<'.$email.'>... Relaying denied.');
-				elseif(!$this->arMsg["FROM"])
-					$this->Send('503', 'Sender is not specified');
-				else
-				{
-					$this->arMsg["TO"][] = $email;
-					$this->Send('250', '<'.$email.'> ok');
-
-	               //S: 250, 251
-	               //F: 550, 551, 552, 553, 450, 451, 452
-	               //E: 500, 501, 503, 421
-				}
-			}
-			break;
-		case "DATA":
-			if(!$this->arMsg["FROM"] || !$this->arMsg["TO"] || count($this->arMsg["TO"])==0)
-				$this->Send('503');
-			else
-			{
-				$this->Send('354');
-				$this->__listenFunc = '__DataHandler';
-			}
-            // I: 354 -> data -> S: 250
-            //                      F: 552, 554, 451, 452
-            //   F: 451, 554
-            //   E: 500, 501, 503, 421
-			break;
-		case "RSET":
-			$this->Send('250', 'Resetting');
-			$this->arMsg = array('LOCAL_ID'=>md5(uniqid()));
-			//E: 500, 501, 504, 421
-			break;
-		case "QUIT":
-			$this->Send('221');
-			$this->Disconnect();
-            //E: 500
-			break;
-		case "EHLO":
-			if(trim($arg)=='')
-				$this->host = $this->ip;
-			else
-				$this->host = $arg;
-
-			$this->Send('250-ehlo', '');
-			$this->Send('250-AUTH LOGIN PLAIN', '');
-			//$this->Send('250-SIZE', '');
-			$this->Send('250-HELP', '');
-			$this->Send('250', 'EHLO');
-			/*
-			250-mail.company2.tld is pleased to meet you
-			250-DSN
-			250-SIZE
-			250-STARTTLS
-			250-AUTH LOGIN PLAIN CRAM-MD5 DIGEST-MD5 GSSAPI MSN NTLM
-			250-ETRN
-			250-TURN
-			250-ATRN
-			250-NO-SOLICITING
-			250-HELP
-			250-PIPELINING
-			250 EHLO
-			*/
-			break;
-		case "AUTH":
-			if($this->authorized)
-				$this->Send('503', 'Already authorized');
-			elseif(count($this->arMsg)>1)
-				$this->Send('503', 'Mail transaction is active');
-			elseif(!preg_match('#^([A-Z0-9-_]+)[ ]*(\S*)$#i', $arg, $arMatches))
-				$this->Send('501', 'Unrecognized parameter '.$arg);
-			else
-			{
-				switch(strtoupper($arMatches[1]))
-				{
-				case "LOGIN":
-					$this->Send('334', 'VXNlcm5hbWU6');
-					$this->__listenFunc = '__AuthLoginHandler';
-					$this->__login = false;
-					break;
-				case "PLAIN":
-					if($arMatches[2] && trim($arMatches[2])!='')
+					$email = $arMatches[1];
+					$email = CMailUtil::ExtractMailAddress($email);
+					if($email == '' || !check_email($email))
 					{
-						$pwd = base64_decode($arMatches[2]);
-						$this->Authorize($pwd, $pwd);
+						$this->Send('501', '<'.$email.'> Invalid Address');
 					}
 					else
 					{
-						$this->Send('334', '');
-						$this->__listenFunc = '__AuthPlainHandler';
-					}
-					break;
-				default:
-					$this->Send('504', 'Unrecognized authentication type.');
-				}
-			}
+						$this->arMsg["FROM"] = $email;
+						$this->arMsg["TO"] = array();
 
-			break;
-		case "NOOP":
-	        $this->Send('250');
-	        //E: 500, 421
-			break;
-		case "HELP":
-	        //       S: 211, 214
-	        //       E: 500, 501, 502, 504, 421
-			break;
-		case "EXPN":
-			//<string>
-	        //       S: 250
-	        //       F: 550
-	        //       E: 500, 501, 502, 504, 421
-			break;
-		case "VRFY":
-	        //       S: 250, 251
-	        //       F: 550, 551, 553
-	        //       E: 500, 501, 502, 504, 421
-			break;
-		default:
-			$this->Send('500', $command.' command unrecognized');
+						$this->Send('250', '<'.$email.'> Sender ok');
+					}
+				}
+				//F: 552, 451, 452
+				//E: 500, 501, 421
+				break;
+			case "RCPT":
+				if(!preg_match('#TO[ ]*:[ ]*(.+)#i', $arg, $arMatches))
+				{
+					$this->Send('501', 'Unrecognized parameter '.$arg);
+				}
+				else
+				{
+					$email = $arMatches[1];
+					$email = CMailUtil::ExtractMailAddress($email);
+					if($email == '' || !check_email($email))
+					{
+						$this->Send('501', '<'.$email.'> Invalid Address');
+					}
+					elseif(false)
+					{
+						$this->Send('550', '<'.$email.'> User unknown');
+					}
+					elseif(!$this->CheckRelaying($email))
+					{
+						$this->Send('550', '<'.$email.'>... Relaying denied.');
+					}
+					elseif(!$this->arMsg["FROM"])
+					{
+						$this->Send('503', 'Sender is not specified');
+					}
+					else
+					{
+						$this->arMsg["TO"][] = $email;
+						$this->Send('250', '<'.$email.'> ok');
+
+						//S: 250, 251
+						//F: 550, 551, 552, 553, 450, 451, 452
+						//E: 500, 501, 503, 421
+					}
+				}
+				break;
+			case "DATA":
+				if(!$this->arMsg["FROM"] || !$this->arMsg["TO"] || count($this->arMsg["TO"]) == 0)
+				{
+					$this->Send('503');
+				}
+				else
+				{
+					$this->Send('354');
+					$this->__listenFunc = '__DataHandler';
+				}
+				// I: 354 -> data -> S: 250
+				//                      F: 552, 554, 451, 452
+				//   F: 451, 554
+				//   E: 500, 501, 503, 421
+				break;
+			case "RSET":
+				$this->Send('250', 'Resetting');
+				$this->arMsg = array('LOCAL_ID' => md5(uniqid()));
+				//E: 500, 501, 504, 421
+				break;
+			case "QUIT":
+				$this->Send('221');
+				$this->Disconnect();
+				//E: 500
+				break;
+			case "EHLO":
+				if(trim($arg) == '')
+				{
+					$this->host = $this->ip;
+				}
+				else
+				{
+					$this->host = $arg;
+				}
+
+				$this->Send('250-ehlo', '');
+				$this->Send('250-AUTH LOGIN PLAIN', '');
+				//$this->Send('250-SIZE', '');
+				$this->Send('250-HELP', '');
+				$this->Send('250', 'EHLO');
+				/*
+				250-mail.company2.tld is pleased to meet you
+				250-DSN
+				250-SIZE
+				250-STARTTLS
+				250-AUTH LOGIN PLAIN CRAM-MD5 DIGEST-MD5 GSSAPI MSN NTLM
+				250-ETRN
+				250-TURN
+				250-ATRN
+				250-NO-SOLICITING
+				250-HELP
+				250-PIPELINING
+				250 EHLO
+				*/
+				break;
+			case "AUTH":
+				if($this->authorized)
+				{
+					$this->Send('503', 'Already authorized');
+				}
+				elseif(count($this->arMsg) > 1)
+				{
+					$this->Send('503', 'Mail transaction is active');
+				}
+				elseif(!preg_match('#^([A-Z0-9-_]+)[ ]*(\S*)$#i', $arg, $arMatches))
+				{
+					$this->Send('501', 'Unrecognized parameter '.$arg);
+				}
+				else
+				{
+					switch(mb_strtoupper($arMatches[1]))
+					{
+						case "LOGIN":
+							$this->Send('334', 'VXNlcm5hbWU6');
+							$this->__listenFunc = '__AuthLoginHandler';
+							$this->__login = false;
+							break;
+						case "PLAIN":
+							if($arMatches[2] && trim($arMatches[2]) != '')
+							{
+								$pwd = base64_decode($arMatches[2]);
+								$this->Authorize($pwd, $pwd);
+							}
+							else
+							{
+								$this->Send('334', '');
+								$this->__listenFunc = '__AuthPlainHandler';
+							}
+							break;
+						default:
+							$this->Send('504', 'Unrecognized authentication type.');
+					}
+				}
+
+				break;
+			case "NOOP":
+				$this->Send('250');
+				//E: 500, 421
+				break;
+			case "HELP":
+				//       S: 211, 214
+				//       E: 500, 501, 502, 504, 421
+				break;
+			case "EXPN":
+				//<string>
+				//       S: 250
+				//       F: 550
+				//       E: 500, 501, 502, 504, 421
+				break;
+			case "VRFY":
+				//       S: 250, 251
+				//       F: 550, 551, 553
+				//       E: 500, 501, 502, 504, 421
+				break;
+			default:
+				$this->Send('500', $command.' command unrecognized');
 		}
 		return true;
 	}
@@ -752,7 +784,7 @@ class CSMTPConnection
 
 	function __AuthLoginHandler()
 	{
-		if(strpos($this->readBuffer, "\r\n")===false)
+		if(mb_strpos($this->readBuffer, "\r\n") === false)
 			return false;
 
 		$this->readBuffer = trim($this->readBuffer);
@@ -782,7 +814,7 @@ class CSMTPConnection
 
 	function __AuthPlainHandler()
 	{
-		if(strpos($this->readBuffer, "\r\n")===false)
+		if(mb_strpos($this->readBuffer, "\r\n") === false)
 			return false;
 		$this->readBuffer = trim($this->readBuffer);
 		if($this->readBuffer=="*")
@@ -795,7 +827,7 @@ class CSMTPConnection
 			else
 			{
 				$pwd = ltrim($pwd, chr(0));
-				$this->Authorize(substr($pwd, 0, strpos($pwd, chr(0))), substr($pwd, strpos($pwd, chr(0))+1));
+				$this->Authorize(mb_substr($pwd, 0, mb_strpos($pwd, chr(0))), mb_substr($pwd, mb_strpos($pwd, chr(0)) + 1));
 			}
 		}
 
@@ -806,10 +838,10 @@ class CSMTPConnection
 
 	function __DataHandler()
 	{
-		if(strpos($this->readBuffer, "\r\n.\r\n")===false)
+		if(mb_strpos($this->readBuffer, "\r\n.\r\n") === false)
 			return false;
 
-		$this->readBuffer = substr($this->readBuffer, 0, -3);
+		$this->readBuffer = mb_substr($this->readBuffer, 0, -3);
 
 		$this->readBuffer = str_replace("\r\n..", "\r\n.", $this->readBuffer);
 
@@ -819,11 +851,11 @@ class CSMTPConnection
 
 		$this->WriteToLog('['.$this->arMsg["LOCAL_ID"].'] Start processing mail...', 7);
 
-		$p = strpos($message, "\r\n\r\n");
+		$p = mb_strpos($message, "\r\n\r\n");
 		if($p>0)
 		{
-			$message_header = substr($message, 0, $p);
-			$message_text = substr($message, $p+2);
+			$message_header = mb_substr($message, 0, $p);
+			$message_text = mb_substr($message, $p + 2);
 
 			$arLocalTo = Array();
 			foreach($this->arMsg["TO"] as $to)

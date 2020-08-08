@@ -149,15 +149,24 @@ BX.SidePanel.Slider.prototype =
 			return false;
 		}
 
-		if (!this.canOpen() || this.isDestroyed())
+		if (!this.canOpen())
+		{
+			return false;
+		}
+
+		if (this.isDestroyed())
 		{
 			return false;
 		}
 
 		this.createLayout();
+		BX.addClass(this.getOverlay(), "side-panel-overlay-open side-panel-overlay-opening");
 		this.adjustLayout();
 
 		this.opened = true;
+
+		this.fireEvent("onOpenStart");
+
 		this.animateOpening();
 
 		return true;
@@ -180,6 +189,8 @@ BX.SidePanel.Slider.prototype =
 		{
 			return false;
 		}
+
+		this.fireEvent("onCloseStart");
 
 		this.opened = false;
 
@@ -554,6 +565,36 @@ BX.SidePanel.Slider.prototype =
 	hideCloseBtn: function()
 	{
 		this.getLabel().hideCloseBtn();
+	},
+
+	/**
+	 * @public
+	 */
+	showOrLightenCloseBtn: function()
+	{
+		if (BX.Type.isStringFilled(this.getLabel().getText()))
+		{
+			this.getLabel().showCloseBtn();
+		}
+		else
+		{
+			this.getLabel().lightenCloseBtn();
+		}
+	},
+
+	/**
+	 * @public
+	 */
+	hideOrDarkenCloseBtn: function()
+	{
+		if (BX.Type.isStringFilled(this.getLabel().getText()))
+		{
+			this.getLabel().hideCloseBtn();
+		}
+		else
+		{
+			this.getLabel().darkenCloseBtn();
+		}
 	},
 
 	/**
@@ -1008,11 +1049,6 @@ BX.SidePanel.Slider.prototype =
 		return this.label;
 	},
 
-	setLabel: function(options)
-	{
-
-	},
-
 	/**
 	 * @public
 	 * @returns {Element}
@@ -1376,8 +1412,6 @@ BX.SidePanel.Slider.prototype =
 	 */
 	animateOpening: function()
 	{
-		BX.addClass(this.getOverlay(), "side-panel-overlay-open side-panel-overlay-opening");
-
 		if (this.isPrintable())
 		{
 			this.showPrintBtn();
@@ -1537,6 +1571,12 @@ BX.SidePanel.Slider.prototype =
 		}
 
 		return event;
+	},
+
+	fireEvent: function(eventName)
+	{
+		this.firePageEvent(eventName);
+		this.fireFrameEvent(eventName);
 	},
 
 	/**
@@ -2135,17 +2175,17 @@ BX.SidePanel.Label.prototype =
 
 	adjustLayout: function()
 	{
-		var leftBoundary = this.getSlider().getLeftBoundaryOffset();
-		if (leftBoundary <= this.getSlider().getMinLeftBoundary())
+		var maxWidth = this.getSlider().getOverlay().offsetWidth - this.getSlider().getContainer().offsetWidth;
+		if (maxWidth <= this.getSlider().getMinLeftBoundary())
 		{
-			this.getTextContainer().classList.add("side-panel-label-text-hidden");
+			this.hideText();
 		}
 		else
 		{
-			this.getTextContainer().classList.remove("side-panel-label-text-hidden");
+			this.showText();
 		}
 
-		this.getContainer().style.maxWidth = (leftBoundary - BX.SidePanel.Label.MIN_LEFT_OFFSET) + "px";
+		this.getContainer().style.maxWidth = (maxWidth - BX.SidePanel.Label.MIN_LEFT_OFFSET) + "px";
 	},
 
 	/**
@@ -2200,6 +2240,37 @@ BX.SidePanel.Label.prototype =
 	hideCloseBtn: function()
 	{
 		this.getContainer().classList.add("side-panel-hide-close-btn");
+	},
+
+	/**
+	 * @public
+	 */
+	darkenCloseBtn: function()
+	{
+		this.getContainer().classList.add("side-panel-darken-close-btn");
+	},
+
+	/**
+	 * @public
+	 */
+	lightenCloseBtn: function()
+	{
+		this.getContainer().classList.remove("side-panel-darken-close-btn");
+	},
+
+	hideText: function()
+	{
+		this.getTextContainer().classList.add("side-panel-label-text-hidden");
+	},
+
+	showText: function()
+	{
+		this.getTextContainer().classList.remove("side-panel-label-text-hidden");
+	},
+
+	isTextHidden: function()
+	{
+		return this.getTextContainer().classList.contains("side-panel-label-text-hidden");
 	},
 
 	getTextContainer: function()

@@ -12,7 +12,7 @@ if ($arParams['SET_TITLE'] == 'Y')
 	$APPLICATION->SetTitle(Loc::getMessage("SPS_TITLE_ACCOUNT"));
 }
 
-if (strlen($arParams["MAIN_CHAIN_NAME"]) > 0)
+if ($arParams["MAIN_CHAIN_NAME"] <> '')
 {
 	$APPLICATION->AddChainItem(htmlspecialcharsbx($arParams["MAIN_CHAIN_NAME"]), $arResult['SEF_FOLDER']);
 }

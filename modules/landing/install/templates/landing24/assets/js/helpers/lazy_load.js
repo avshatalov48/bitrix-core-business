@@ -2,8 +2,6 @@
 {
 	"use strict";
 
-	console.log("lazy initiate");
-
 	var observerOptions = {
 		// rootMargin: document.documentElement.clientHeight + 'px'
 	};
@@ -30,7 +28,6 @@
 		{
 			if (entry.isIntersecting && !loadedMap.has(entry.target))
 			{
-				console.log("entry " + entry.target.id + " is visible");
 				loadedMap.set(entry.target, true);
 
 				// load <img>

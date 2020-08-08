@@ -2,6 +2,7 @@
 
 use Bitrix\Main;
 use Bitrix\Sale\Cashbox;
+use Bitrix\Sale\Cashbox\Logger;
 
 define('NOT_CHECK_PERMISSIONS', true);
 define("STOP_STATISTICS", true);
@@ -17,8 +18,7 @@ $json = file_get_contents('php://input');
 
 if ($json)
 {
-	if (Cashbox\Manager::DEBUG_MODE === true)
-		Cashbox\Internals\CashboxErrLogTable::add(array('MESSAGE' => $json, 'DATE_INSERT' => new Main\Type\DateTime()));
+	Logger::addDebugInfo($json);
 
 	$data = Main\Web\Json::decode($json);
 }

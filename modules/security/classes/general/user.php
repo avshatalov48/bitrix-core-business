@@ -90,7 +90,7 @@ class CSecurityUser
 				return false;
 			}
 
-			$secret = substr(trim($arFields['SECRET']), 0, 64);
+			$secret = mb_substr(trim($arFields['SECRET']), 0, 64);
 			if (!$secret)
 			{
 				if ($canAdminOtp)
@@ -193,9 +193,6 @@ class CSecurityUser
 					"AGENT_INTERVAL" => 3600,
 					"IS_PERIOD" => "N"
 				));
-				$f = fopen($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/options_user_settings.php", "w");
-				fwrite($f, "<?include(\$_SERVER[\"DOCUMENT_ROOT\"].\"/bitrix/modules/security/options_user_settings_1.php\");?>");
-				fclose($f);
 				COption::SetOptionString('security', 'otp_enabled', 'Y');
 			}
 		}
@@ -206,7 +203,6 @@ class CSecurityUser
 				UnRegisterModuleDependences("main", "OnBeforeUserLogin", "security", "CSecurityUser", "OnBeforeUserLogin");
 				UnRegisterModuleDependences("main", "OnAfterUserLogout", "security", "CSecurityUser", "OnAfterUserLogout");
 				CAgent::RemoveAgent($otpRecheckAgent, "security");
-				unlink($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/options_user_settings.php");
 				COption::SetOptionString('security', 'otp_enabled', 'N');
 			}
 		}

@@ -8,7 +8,7 @@ class CIBlockFormatProperties
 	private static $b24Installed = null;
 	private static $statisticInstalled = null;
 
-	public static function GetDisplayValue($arItem, $arProperty, $event1)
+	public static function GetDisplayValue($arItem, $arProperty, $event1 = '')
 	{
 		if (self::$b24Installed === null)
 			self::$b24Installed = ModuleManager::isModuleInstalled('bitrix24');
@@ -132,14 +132,14 @@ class CIBlockFormatProperties
 			else
 			{
 				$trimmed = trim($val);
-				if (strpos($trimmed, "http") === 0)
+				if (mb_strpos($trimmed, "http") === 0)
 				{
 					if(self::$statisticInstalled)
 						$arDisplayValue[] =  '<a href="'.htmlspecialcharsbx("/bitrix/redirect.php?event1=".urlencode($event1)."&event2=".urlencode($trimmed)."&event3=".urlencode($arItem["NAME"])."&goto=".urlencode($trimmed)).'">'.$trimmed.'</a>';
 					else
 						$arDisplayValue[] =  '<a href="'.htmlspecialcharsbx($trimmed).'">'.$trimmed.'</a>';
 				}
-				elseif (strpos($trimmed, "www") === 0)
+				elseif (mb_strpos($trimmed, "www") === 0)
 				{
 					if(self::$statisticInstalled)
 						$arDisplayValue[] =  '<a href="'.htmlspecialcharsbx("/bitrix/redirect.php?event1=".urlencode($event1)."&event2=".urlencode("http://".$trimmed)."&event3=".urlencode($arItem["NAME"])."&goto=".urlencode("http://".$trimmed)).'">'.$trimmed.'</a>';

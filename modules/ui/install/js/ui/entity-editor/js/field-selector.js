@@ -80,11 +80,6 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 					closeIcon: {},
 					zIndex: 1,
 					titleBar: BX.prop.getString(this._settings, "title", ""),
-					events:
-						{
-							onPopupClose: BX.delegate(this._onPopupClose, this),
-							onPopupDestroy: BX.delegate(this._onPopupDestroy, this)
-						},
 					content: this.prepareContent(),
 					lightShadow : true,
 					contentNoPaddings: true,
@@ -109,7 +104,10 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 									}
 							}
 						)
-					]
+					],
+					events: {
+						onPopupClose: this.onPopupClose.bind(this),
+					}
 				}
 			);
 
@@ -133,88 +131,98 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 				props: { className: "ui-entity-editor-popup-field-selector-list" }
 			});
 
-			var elements = this._scheme.getElements();
-			for(var i = 0, elementCount = elements.length; i < elementCount; i++)
+			var columns = this._scheme.getElements();
+			for(var i = 0, columnCount = columns.length; i < columnCount; i++)
 			{
-				var element = elements[i];
-				if(!this.isSchemeElementEnabled(element))
+				var column = columns[i];
+				if(!this.isSchemeElementEnabled(column))
 				{
 					continue;
 				}
 
-				var effectiveElements = [];
-				var elementChildren = element.getElements();
-				var childElement;
-				for(var j = 0; j < elementChildren.length; j++)
+				var sections = column.getElements();
+				for(var k = 0, sectionCount = sections.length; k < sectionCount; k++)
 				{
-					childElement = elementChildren[j];
-					if(childElement.isTransferable() && childElement.getName() !== "")
+					var section = sections[k];
+					if(!this.isSchemeElementEnabled(section))
 					{
-						effectiveElements.push(childElement);
+						continue;
 					}
-				}
 
-				if(effectiveElements.length === 0)
-				{
-					continue;
-				}
-
-				var parentName = element.getName();
-				var parentTitle = element.getTitle();
-
-				this._contentWrapper.appendChild(
-					BX.create(
-						"div",
+					var effectiveElements = [];
+					var elementChildren = section.getElements();
+					var childElement;
+					for(var j = 0; j < elementChildren.length; j++)
+					{
+						childElement = elementChildren[j];
+						if(childElement.isTransferable() && childElement.getName() !== "")
 						{
-							attrs: { className: "ui-entity-editor-popup-field-selector-list-caption" },
-							text: parentTitle
+							effectiveElements.push(childElement);
 						}
-					)
-				);
+					}
 
-				for(var k = 0; k < effectiveElements.length; k++)
-				{
-					childElement = effectiveElements[k];
+					if(effectiveElements.length === 0)
+					{
+						continue;
+					}
 
-					var childElementName = childElement.getName();
-					var childElementTitle = childElement.getTitle();
+					var parentName = section.getName();
+					var parentTitle = section.getTitle();
 
-					var itemId = parentName + "\\" + childElementName;
-					var itemWrapper = BX.create(
-						"div",
-						{
-							attrs: { className: "ui-entity-editor-popup-field-selector-list-item" }
-						}
-					);
-					container.appendChild(itemWrapper);
-
-					itemWrapper.appendChild(
+					this._contentWrapper.appendChild(
 						BX.create(
-							"input",
+							"div",
 							{
-								attrs:
-									{
-										id: itemId,
-										type: "checkbox",
-										className: "ui-entity-editor-popup-field-selector-list-checkbox"
-									}
+								attrs: { className: "ui-entity-editor-popup-field-selector-list-caption" },
+								text: parentTitle
 							}
 						)
 					);
 
-					itemWrapper.appendChild(
-						BX.create(
-							"label",
+					for(var j = 0; j < effectiveElements.length; j++)
+					{
+						childElement = effectiveElements[j];
+
+						var childElementName = childElement.getName();
+						var childElementTitle = childElement.getTitle();
+
+						var itemId = parentName + "\\" + childElementName;
+						var itemWrapper = BX.create(
+							"div",
 							{
-								attrs:
-									{
-										for: itemId,
-										className: "ui-entity-editor-popup-field-selector-list-label"
-									},
-								text: childElementTitle
+								attrs: { className: "ui-entity-editor-popup-field-selector-list-item" }
 							}
-						)
-					);
+						);
+						container.appendChild(itemWrapper);
+
+						itemWrapper.appendChild(
+							BX.create(
+								"input",
+								{
+									attrs:
+										{
+											id: itemId,
+											type: "checkbox",
+											className: "ui-entity-editor-popup-field-selector-list-checkbox"
+										}
+								}
+							)
+						);
+
+						itemWrapper.appendChild(
+							BX.create(
+								"label",
+								{
+									attrs:
+										{
+											for: itemId,
+											className: "ui-entity-editor-popup-field-selector-list-label"
+										},
+									text: childElementTitle
+								}
+							)
+						);
+					}
 				}
 			}
 

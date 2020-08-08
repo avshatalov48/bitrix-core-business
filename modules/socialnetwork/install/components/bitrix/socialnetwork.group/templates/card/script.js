@@ -110,16 +110,25 @@ SonetGroupCardSlider.prototype = {
 					className: params.styles.users.box
 				}, true);
 
+				var userNode = null;
+				var userId = null;
+
 				for (i = 0, length = userBlockList.length; i < length; i++)
 				{
-					BX(userBlockList[i]).addEventListener('click', BX.delegate(function(e) {
-						var userId = BX.getEventTarget(e).getAttribute('bx-user-id');
+					userBlockList[i].addEventListener('click', function(e) {
+						userNode = e.target;
+
+						if (!userNode.hasAttribute('bx-user-id'))
+						{
+							userNode = BX.findParent(userNode, { className: params.styles.users.item }, BX(this.containerNodeId));
+						}
+						userId = userNode.getAttribute('bx-user-id');
 						if (parseInt(userId) > 0)
 						{
 							this.clickUser(userId);
 						}
 						e.preventDefault();
-					}, this), true);
+					}.bind(this), true);
 				}
 			}
 

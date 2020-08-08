@@ -10,6 +10,7 @@ return [
 	'block' => [
 		'name' => Loc::getMessage("LANDING_BLOCK_16_6_TWO_COLS_MAP--NAME"),
 		'section' => ['contacts'],
+		'dynamic' => false,
 		'version' => '18.5.0', // old param for backward compatibility. Can used for old versions of module via repo. Do not delete!
 		'subtype' => 'map',
 		'subtype_params' =>[

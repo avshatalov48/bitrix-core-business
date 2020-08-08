@@ -7,6 +7,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /**
  * @var StoreOrderBlock $classBlock
  */
+$iblockId = $classBlock->get('IBLOCK_ID') ?? '';
+$skuIblockId = $classBlock->get('SKU_IBLOCK_ID') ?? '';
 ?>
 <section class="landing-block g-pt-100 g-pb-100">
 	<div class="container g-font-size-13">
@@ -29,6 +31,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 				'DELIVERY_NO_SESSION' => 'Y',
 				'COMPATIBLE_MODE' => 'N',
 				'BASKET_POSITION' => 'before',
+				'ADDITIONAL_PICT_PROP_'.$iblockId => 'MORE_PHOTO',
+				'ADDITIONAL_PICT_PROP_'.$skuIblockId => 'MORE_PHOTO',
 				'BASKET_IMAGES_SCALING' => 'adaptive',
 				'SERVICES_IMAGES_SCALING' => 'adaptive',
 				'DISABLE_BASKET_REDIRECT' => 'Y',
@@ -47,7 +51,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 				'USE_CUSTOM_MAIN_MESSAGES' => 'Y',
 				'MESS_REGION_BLOCK_NAME' => $classBlock->get('MESS_REGION_BLOCK_NAME'),
 				'CONTEXT_SITE_ID' => $classBlock->get('SITE_ID'),
-				'SHOW_COUPONS' => 'Y'
+				'SHOW_COUPONS' => 'Y',
+				'IS_LANDING_SHOP' => 'Y',
 			),
 			false
 		);?>

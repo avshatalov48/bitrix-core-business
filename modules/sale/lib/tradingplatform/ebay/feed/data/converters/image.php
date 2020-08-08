@@ -12,7 +12,7 @@ class Image extends DataConverter
 
 	public function __construct($params)
 	{
-		if(!isset($params["SITE_ID"]) || strlen($params["SITE_ID"]) <= 0)
+		if(!isset($params["SITE_ID"]) || $params["SITE_ID"] == '')
 			throw new ArgumentNullException("SITE_ID");
 
 		$this->siteId = $params["SITE_ID"];
@@ -72,11 +72,11 @@ class Image extends DataConverter
 		{
 			$pictureUrl = $this->getPictureUrl($value);
 
-			if(strlen($pictureUrl) > 0)
+			if($pictureUrl <> '')
 				$pictureUrls .= "\t\t<URL>".$pictureUrl."</URL>\n";
 		}
 
-		if(strlen($pictureUrls) <= 0)
+		if($pictureUrls == '')
 			return "";
 
 		$result = "\t<Image>\n".
@@ -93,7 +93,7 @@ class Image extends DataConverter
 
 		if ($file = \CFile::GetFileArray($pictNo))
 		{
-			if(substr($file["SRC"], 0, 1) == "/")
+			if(mb_substr($file["SRC"], 0, 1) == "/")
 				$strFile = "http://".$this->domainName.implode("/", array_map("rawurlencode", explode("/", $file["SRC"])));
 			elseif(preg_match("/^(http|https):\\/\\/(.*?)\\/(.*)\$/", $file["SRC"], $match))
 				$strFile = "http://".$match[2].'/'.implode("/", array_map("rawurlencode", explode("/", $match[3])));

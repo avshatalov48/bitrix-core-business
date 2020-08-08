@@ -17,9 +17,7 @@ Class socialnetwork extends CModule
 	{
 		$arModuleVersion = array();
 
-		$path = str_replace("\\", "/", __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen("/index.php"));
-		include($path."/version.php");
+		include(__DIR__.'/version.php');
 
 		if (is_array($arModuleVersion) && array_key_exists("VERSION", $arModuleVersion))
 		{
@@ -103,7 +101,7 @@ Class socialnetwork extends CModule
 			);
 		}
 
-		$arFilter = (strlen($site_id) > 0 ? array("ID" => $site_id) : array());
+		$arFilter = ($site_id <> '' ? array("ID" => $site_id) : array());
 
 		$dbSites = CSite::GetList(($b = ""), ($o = ""), $arFilter);
 		while ($arSite = $dbSites->Fetch())
@@ -196,6 +194,8 @@ Class socialnetwork extends CModule
 		$eventManager->registerEventHandler('socialnetwork', '\Bitrix\Socialnetwork\Log::'.\Bitrix\Main\Entity\DataManager::EVENT_ON_AFTER_UPDATE, 'socialnetwork', '\Bitrix\Socialnetwork\Item\LogIndex', 'OnAfterLogUpdate');
 		$eventManager->registerEventHandler('bitrix24', 'OnManualModuleAddDelete', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Bitrix24\Bitrix24Event', 'OnManualModuleAddDelete');
 		$eventManager->registerEventHandler('landing', 'OnBuildSourceList', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Landing\Livefeed', 'onBuildSourceListHandler');
+		$eventManager->registerEventHandler('forum', 'onTaskCommentContentViewed', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Forum', 'onTaskCommentContentViewed');
+		$eventManager->registerEventHandler('tasks', 'onTaskUserOptionChanged', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Tasks\Task', 'onTaskUserOptionChanged');
 
 		CAgent::AddAgent("CSocNetMessages::SendEventAgent();", "socialnetwork", "N", 600);
 
@@ -214,7 +214,7 @@ Class socialnetwork extends CModule
 		$this->__SetLogFilter();
 
 		CModule::IncludeModule("socialnetwork");
-		if(strtolower($DB->type) == 'mysql')
+		if($DB->type == 'MYSQL')
 		{
 			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/db/".$DBType."/install_ft.sql");
 			if ($errors === false)
@@ -429,6 +429,8 @@ Class socialnetwork extends CModule
 		$eventManager->unregisterEventHandler('socialnetwork', '\Bitrix\Socialnetwork\Log::'.\Bitrix\Main\Entity\DataManager::EVENT_ON_AFTER_UPDATE, 'socialnetwork', '\Bitrix\Socialnetwork\Item\LogIndex', 'OnAfterLogUpdate');
 		$eventManager->unregisterEventHandler('bitrix24', 'OnManualModuleAddDelete', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Bitrix24\Bitrix24Event', 'OnManualModuleAddDelete');
 		$eventManager->unregisterEventHandler('landing', 'OnBuildSourceList', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Landing\Livefeed', 'onBuildSourceListHandler');
+		$eventManager->unregisterEventHandler('forum', 'onTaskCommentContentViewed', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Forum\TaskComment', 'onViewed');
+		$eventManager->unregisterEventHandler('tasks', 'onTaskUserOptionChanged', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Tasks\Task', 'onTaskUserOptionChanged');
 
 		UnRegisterModule("socialnetwork");
 		return true;
@@ -893,7 +895,7 @@ Class socialnetwork extends CModule
 		if($ar["C"] <= 0)
 		{
 			$pathInMessage = (array_key_exists("public_path", $_REQUEST) ? $_REQUEST["public_path"] : "");
-			if (strlen($pathInMessage) <= 0)
+			if ($pathInMessage == '')
 			{
 				if (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/intranet"))
 					$pathInMessage = "/company/personal/";
@@ -939,7 +941,7 @@ Class socialnetwork extends CModule
 		$dbSites = CSite::GetList(($b = ""), ($o = ""), Array("ACTIVE" => "Y"));
 		while ($arSite = $dbSites->GetNext())
 		{
-			if (strlen($_REQUEST{"install_site_id_".$arSite["ID"]}) > 0)
+			if ($_REQUEST{"install_site_id_".$arSite["ID"]} <> '')
 			{
 				$arInstallParams[$arSite["ID"]]["install_site_id"] = $_REQUEST{"install_site_id_".$arSite["ID"]};
 				$arInstallParams[$arSite["ID"]]["installPath"] = $_REQUEST{"public_path_".$arSite["ID"]};
@@ -976,7 +978,7 @@ Class socialnetwork extends CModule
 	function DoInstall()
 	{
 		global $APPLICATION, $step;
-		$step = IntVal($step);
+		$step = intval($step);
 		if ($step < 2)
 			$APPLICATION->IncludeAdminFile(Loc::getMessage("SONET_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/step1.php");
 		elseif($step==2)
@@ -994,7 +996,7 @@ Class socialnetwork extends CModule
 	function DoUninstall()
 	{
 		global $APPLICATION, $step;
-		$step = IntVal($step);
+		$step = intval($step);
 		if($step<2)
 			$APPLICATION->IncludeAdminFile(Loc::getMessage("SONET_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/unstep1.php");
 		elseif($step==2)

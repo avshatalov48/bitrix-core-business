@@ -34,20 +34,20 @@ $lAdmin->InitFilter($arFilterFields);
 
 $arFilter = array();
 
-if (IntVal($filter_person_type_id)>0) $arFilter["PERSON_TYPE_ID"] = IntVal($filter_person_type_id);
-if (strlen($filter_type)>0) $arFilter["TYPE"] = Trim($filter_type);
-if (strlen($filter_user)>0) $arFilter["USER_PROPS"] = Trim($filter_user);
-if (IntVal($filter_group)>0) $arFilter["PROPS_GROUP_ID"] = IntVal($filter_group);
-if (strlen($filter_code)>0) $arFilter["CODE"] = Trim($filter_code);
-if (strlen($filter_active)>0) $arFilter["ACTIVE"] = Trim($filter_active);
-if (strlen($filter_util)>0) $arFilter["UTIL"] = Trim($filter_util);
+if (intval($filter_person_type_id)>0) $arFilter["PERSON_TYPE_ID"] = intval($filter_person_type_id);
+if ($filter_type <> '') $arFilter["TYPE"] = Trim($filter_type);
+if ($filter_user <> '') $arFilter["USER_PROPS"] = Trim($filter_user);
+if (intval($filter_group)>0) $arFilter["PROPS_GROUP_ID"] = intval($filter_group);
+if ($filter_code <> '') $arFilter["CODE"] = Trim($filter_code);
+if ($filter_active <> '') $arFilter["ACTIVE"] = Trim($filter_active);
+if ($filter_util <> '') $arFilter["UTIL"] = Trim($filter_util);
 
 if ($lAdmin->EditAction() && $saleModulePermissions >= "W")
 {
 	foreach ($FIELDS as $ID => $arFields)
 	{
 		$DB->StartTransaction();
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		if (!$lAdmin->IsUpdated($ID))
 			continue;
@@ -85,7 +85,7 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 
 	foreach ($arID as $ID)
 	{
-		if (strlen($ID) <= 0)
+		if ($ID == '')
 			continue;
 
 		switch ($_REQUEST['action'])
@@ -287,7 +287,7 @@ $oFilter->Begin();
 				<?
 				foreach($arPersonTypeList as $val)
 				{
-					?><option value="<?echo $val["ID"]?>"<?if (IntVal($filter_person_type_id)==IntVal($val["ID"])) echo " selected"?>>[<?echo $val["ID"] ?>] <?echo $val["NAME"]?> (<?echo htmlspecialcharsEx($val["LID"]) ?>)</option><?
+					?><option value="<?echo $val["ID"]?>"<?if (intval($filter_person_type_id)==intval($val["ID"])) echo " selected"?>>[<?echo $val["ID"] ?>] <?echo $val["NAME"]?> (<?echo htmlspecialcharsEx($val["LID"]) ?>)</option><?
 				}
 				?>
 			</select>
@@ -324,7 +324,7 @@ $oFilter->Begin();
 				<?
 				$l = CSaleOrderPropsGroup::GetList(Array("PERSON_TYPE_ID" => "ASC","SORT" => "ASC", "NAME" => "ASC"));
 				while ($arL = $l->Fetch()):
-					?><option value="<?echo $arL["ID"]?>"<?if (IntVal($filter_group)==IntVal($arL["ID"])) echo " selected"?>>[<?echo $arL["ID"] ?>] <?echo htmlspecialcharsbx($arL["NAME"])?> <?if (!empty($arPersonTypeList[$arL["PERSON_TYPE_ID"]])) echo "(".$arPersonTypeList[$arL["PERSON_TYPE_ID"]]["NAME"]." (".htmlspecialcharsEx($arPersonTypeList[$arL["PERSON_TYPE_ID"]]["LID"]).")".")";?></option><?
+					?><option value="<?echo $arL["ID"]?>"<?if (intval($filter_group)==intval($arL["ID"])) echo " selected"?>>[<?echo $arL["ID"] ?>] <?echo htmlspecialcharsbx($arL["NAME"])?> <?if (!empty($arPersonTypeList[$arL["PERSON_TYPE_ID"]])) echo "(".$arPersonTypeList[$arL["PERSON_TYPE_ID"]]["NAME"]." (".htmlspecialcharsEx($arPersonTypeList[$arL["PERSON_TYPE_ID"]]["LID"]).")".")";?></option><?
 				endwhile;
 				?>
 			</select>

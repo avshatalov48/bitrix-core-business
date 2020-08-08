@@ -5,7 +5,7 @@ class CCatalogStoreDocsBarcodeAll
 {
 	protected static function checkFields($action, &$arFields)
 	{
-		if ((($action == 'ADD') || is_set($arFields, "BARCODE")) && (strlen($arFields["BARCODE"]) <= 0))
+		if ((($action == 'ADD') || is_set($arFields, "BARCODE")) && ($arFields["BARCODE"] == ''))
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("CP_EMPTY_BARCODE"));
 			return false;

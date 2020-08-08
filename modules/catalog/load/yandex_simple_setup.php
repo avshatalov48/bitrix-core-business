@@ -36,7 +36,7 @@ if ($STEP > 1)
 	if (empty($YANDEX_EXPORT) || !is_array($YANDEX_EXPORT))
 		$arSetupErrors[] = GetMessage("CET_ERROR_NO_IBLOCKS");
 
-	if (strlen($SETUP_FILE_NAME)<=0)
+	if ($SETUP_FILE_NAME == '')
 	{
 		$arSetupErrors[] = GetMessage("CET_ERROR_NO_FILENAME");
 	}
@@ -56,7 +56,7 @@ if ($STEP > 1)
 	if (!isset($USE_HTTPS) || $USE_HTTPS != 'Y')
 		$USE_HTTPS = 'N';
 
-	if (($ACTION=="EXPORT_SETUP" || $ACTION == 'EXPORT_EDIT' || $ACTION == 'EXPORT_COPY') && strlen($SETUP_PROFILE_NAME)<=0)
+	if (($ACTION=="EXPORT_SETUP" || $ACTION == 'EXPORT_EDIT' || $ACTION == 'EXPORT_COPY') && $SETUP_PROFILE_NAME == '')
 	{
 		$arSetupErrors[] = GetMessage("CET_ERROR_NO_PROFILE_NAME");
 	}
@@ -206,13 +206,13 @@ if ($STEP==1)
 <tr>
 	<td width="40%"><? echo GetMessage("CET_SERVER_NAME");?></td>
 	<td width="60%">
-		<input type="text" name="SETUP_SERVER_NAME" value="<?echo (strlen($SETUP_SERVER_NAME)>0) ? htmlspecialcharsbx($SETUP_SERVER_NAME) : '' ?>" size="50" /> <input type="button" onclick="this.form['SETUP_SERVER_NAME'].value = window.location.host;" value="<?echo GetMessage('CET_SERVER_NAME_SET_CURRENT')?>" />
+		<input type="text" name="SETUP_SERVER_NAME" value="<?echo ($SETUP_SERVER_NAME <> '') ? htmlspecialcharsbx($SETUP_SERVER_NAME) : '' ?>" size="50" /> <input type="button" onclick="this.form['SETUP_SERVER_NAME'].value = window.location.host;" value="<?echo GetMessage('CET_SERVER_NAME_SET_CURRENT')?>" />
 	</td>
 </tr>
 <tr>
 	<td width="40%"><? echo GetMessage("CET_SAVE_FILENAME");?></td>
 	<td width="60%"><b><? echo htmlspecialcharsEx($strCatalogDefaultFolder); ?></b>
-		<input type="text" name="SETUP_FILE_NAME" value="<?echo htmlspecialcharsbx(strlen($SETUP_FILE_NAME)>0 ? str_replace($strCatalogDefaultFolder, '', $SETUP_FILE_NAME) : "yandex_".mt_rand(0, 999999).".php"); ?>" size="50">
+		<input type="text" name="SETUP_FILE_NAME" value="<?echo htmlspecialcharsbx($SETUP_FILE_NAME <> '' ? str_replace($strCatalogDefaultFolder, '', $SETUP_FILE_NAME) : "yandex_".mt_rand(0, 999999).".php"); ?>" size="50">
 	</td>
 </tr>
 <?

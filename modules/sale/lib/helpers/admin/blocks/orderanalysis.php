@@ -6,10 +6,13 @@ use Bitrix\Main;
 use Bitrix\Sale\Company;
 use Bitrix\Sale\Delivery\Requests\ShipmentTable;
 use Bitrix\Sale\Internals;
+use Bitrix\Sale\Exchange\Integration\Admin\Link,
+    Bitrix\Sale\Exchange\Integration\Admin\Registry;
 use	Bitrix\Sale\Order,
 	Bitrix\Sale\Payment,
 	Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Services\Company\Manager;
+use Bitrix\Sale\Shipment;
 
 Loc::loadMessages(__FILE__);
 
@@ -33,14 +36,14 @@ class OrderAnalysis
 		// prepare data
 
 		$orderId   = $order->getId();
-		$data      = $orderBasket->prepareData();
-		$items     = $data['ITEMS'];
+		$data	  = $orderBasket->prepareData();
+		$items	 = $data['ITEMS'];
 		$documents = array();
 		$documentAllowList = array();
 		static $userCompanyList = array();
 		$isUserResponsible = false;
 		$isAllowCompany = false;
-		$itemNo    = 0;
+		$itemNo	= 0;
 
 
 
@@ -166,7 +169,7 @@ class OrderAnalysis
 						?>
 						<tr class="bdb-line">
 							<td class="tac"><?=++$itemNo?></td>
-							<td style="text-align: left;"><a class="fwb" href="<?=htmlspecialcharsbx($item['EDIT_PAGE_URL']);?>"><?=htmlspecialcharsEx($item['NAME']);?></a></td>
+							<td style="text-align: left;"><?=static::renderShipmentItemLink($item)?></td>
 							<td class="tac"><?=$properties;?></td>
 							<td class="tac" style="text-align: right !important;"><?=$quantity.' '.htmlspecialcharsEx($item['MEASURE_TEXT'])?></td>
 							<td class="tac" style="text-align: right !important;;"><?=$shippedQuantity.' '.htmlspecialcharsEx($item['MEASURE_TEXT'])?></td>
@@ -183,12 +186,7 @@ class OrderAnalysis
 						<div class="adm-bus-orderdocs-threelist-block-img adm-bus-orderdocs-threelist-block-img-order"></div>
 						<div class="adm-bus-orderdocs-threelist-block-content">
 							<div class="adm-bus-orderdocs-threelist-block-title">
-								<a class="adm-bus-orderdocs-threelist-block-title-link fwb" href="/bitrix/admin/sale_order_edit.php?lang=ru&ID=<?=$orderId;?>">
-									<?=Loc::getMessage('SALE_OANALYSIS_ORDER_TITLE', array(
-										'#USER_ID#'  => $order->getField('USER_ID'),
-										'#ORDER_ID#' => $orderId)
-									)?>
-								</a>
+								<?=static::renderOrderLink(['order'=>$order])?>
 							</div>
 							<?self::renderBottomBlocks($order->getField('DATE_INSERT'), $order->getField('RESPONSIBLE_ID'))?>
 						</div>
@@ -207,14 +205,8 @@ class OrderAnalysis
 										<?elseif ($document->isReturn()):?>
 											<span class="adm-bus-orderdocs-docstatus"><?=Loc::getMessage('SALE_OANALYSIS_PAYMENT_RETURN')?></span>
 										<?endif?>
-											<? if ($isAllowCompany): ?>
-											<a href="/bitrix/admin/sale_order_payment_edit.php?order_id=<?=$orderId?>&payment_id=<?=$documentId?>" class="adm-bus-orderdocs-threelist-block-title-link">
-											<?=Loc::getMessage('SALE_OANALYSIS_PAYMENT_TITLE', array(
-												'#SYSTEM_NAME#' => htmlspecialcharsbx($document->getField('PAY_SYSTEM_NAME')),
-												'#PAYMENT_ID#'  => $documentId,
-												'#SUM#'         => SaleFormatCurrency($document->getField('SUM'), $document->getField('CURRENCY')),
-											))?>
-											</a>
+											<? if ($isAllowCompany):?>
+												<?=static::renderPaymentEditLink(['payment'=>$document])?>
 											<?else:?>
 												<?= Loc::getMessage('SALE_OANALYSIS_HIDDEN');?>
 											<? endif; ?>
@@ -229,13 +221,7 @@ class OrderAnalysis
 											<span class="adm-bus-orderdocs-docstatus adm-bus-orderdocs-docstatus-shippingallowed"><?=Loc::getMessage('SALE_OANALYSIS_SHIPMENT_ALLOWED')?></span>
 										<?endif?>
 										<? if ($isAllowCompany): ?>
-										<a href="/bitrix/admin/sale_order_shipment_edit.php?order_id=<?=$orderId?>&shipment_id=<?=$documentId?>"
-										   class="adm-bus-orderdocs-threelist-block-title-link<?=$document->isCanceled() ? 'adm-bus-orderdocs-threelist-block-title-link-canceled' : ''?>">
-											<?=Loc::getMessage('SALE_OANALYSIS_SHIPMENT_TITLE', array(
-												'#SHIPMENT_ID#' => $documentId,
-												'#ORDER_ID#'    => $orderId,
-											))?>
-										</a>
+											<?=static::renderShipmentEditLink(['shipment'=>$document])?>
 										<?else:?>
 											<?= Loc::getMessage('SALE_OANALYSIS_HIDDEN');?>
 										<? endif; ?>
@@ -280,9 +266,7 @@ class OrderAnalysis
 					<div class="adm-bus-orderdocs-threelist-block-img adm-bus-orderdocs-threelist-block-img-doc_shipping"></div>
 						<div class="adm-bus-orderdocs-threelist-block-content">
 							<div class="adm-bus-orderdocs-threelist-block-title">
-								<a href="/bitrix/admin/sale_delivery_request_view.php?lang=<?=LANGUAGE_ID?>&ID=<?=$request['REQUEST_ID']?>" class="adm-bus-orderdocs-threelist-block-title-link">
-									<?=Loc::getMessage('SALE_OANALYSIS_DELIVERY_REQUEST', array('#REQUEST_ID#' => $request['REQUEST_ID']))?>
-								</a>
+								<?=static::renderDeliveryRequestView(['ID'=>$request['REQUEST_ID']])?>
 							</div>
 						<div class="adm-bus-orderdocs-threelist-block-date-block">
 							<?=Loc::getMessage('SALE_OANALYSIS_CREATED_AT')?>: <span class="adm-bus-orderdocs-threelist-block-date"><?=$request['REQUEST_DATE']?></span>
@@ -315,11 +299,96 @@ class OrderAnalysis
 		<?if ($userName) :?>
 			<div class="adm-bus-orderdocs-threelist-block-responsible-block">
 				<?=Loc::getMessage('SALE_OANALYSIS_RESPONSIBLE')?>:
-				<a class="adm-bus-orderdocs-threelist-block-responsible-name"
-				   href="/bitrix/admin/user_edit.php?ID=<?=$userId?>"><?=htmlspecialcharsbx($userName)?></a>
+				<?=static::renderResponsibleLink(['RESPONSIBLE_ID'=>$userId, 'RESPONSIBLE'=>$userName])?>
 			</div>
 		<?endif;?>
 		<?
+	}
+	protected static function renderShipmentItemLink($item)
+	{
+		return '<a class="fwb" href="'.htmlspecialcharsbx($item['EDIT_PAGE_URL']).'">'.htmlspecialcharsEx($item['NAME']).'</a>';
+	}
+	protected static function renderOrderLink($data)
+	{
+		/** @var Order $order */
+		$order = $data['order'];
+
+		$url = Link::getInstance()
+			->create()
+			->setPageByType(Registry::SALE_ORDER_EDIT)
+			->setFilterParams(false)
+			->setField('ID', $order->getId())
+			->fill()
+			->build();
+
+		return '<a class="adm-bus-orderdocs-threelist-block-title-link fwb" href="'.$url.'">'.
+			Loc::getMessage('SALE_OANALYSIS_ORDER_TITLE', array(
+					'#USER_ID#'  => $order->getField('USER_ID'),
+					'#ORDER_ID#' => $order->getId())
+			).'</a>';
+	}
+	protected static function renderPaymentEditLink($data)
+	{
+		/** @var Payment $payment */
+		$payment = $data['payment'];
+
+		$url = Link::getInstance()
+			->create()
+			->setPageByType(Registry::SALE_ORDER_PAYMENT_EDIT)
+			->setFilterParams(false)
+			->setLang(false)
+			->setField('order_id', $payment->getOrderId())
+			->setField('payment_id', $payment->getId())
+			->fill()
+			->build();
+
+		return '<a href="'.$url.'" class="adm-bus-orderdocs-threelist-block-title-link">'.Loc::getMessage('SALE_OANALYSIS_PAYMENT_TITLE', array(
+				'#SYSTEM_NAME#' => htmlspecialcharsbx($payment->getField('PAY_SYSTEM_NAME')),
+				'#PAYMENT_ID#'  => $payment->getId(),
+				'#SUM#'		 => SaleFormatCurrency($payment->getField('SUM'), $payment->getField('CURRENCY')),
+			)).'</a>';
+	}
+	protected static function renderShipmentEditLink($data)
+	{
+		/** @var Shipment $shipment */
+		$shipment = $data['shipment'];
+
+		$url = Link::getInstance()
+			->create()
+			->setPageByType(Registry::SALE_ORDER_SHIPMENT_EDIT)
+			->setFilterParams(false)
+			->setLang(false)
+			->setField('order_id', $shipment->getOrder()->getId())
+			->setField('shipment_id', $shipment->getId())
+			->fill()
+			->build();
+
+		return '<a href="'.$url.'" class="adm-bus-orderdocs-threelist-block-title-link'.($shipment->isCanceled() ? "adm-bus-orderdocs-threelist-block-title-link-canceled" : "").'">'.
+			Loc::getMessage('SALE_OANALYSIS_SHIPMENT_TITLE', array(
+				'#SHIPMENT_ID#' => $shipment->getId(),
+				'#ORDER_ID#'	=> $shipment->getOrder()->getId()
+			)).'</a>';
+	}
+	protected static function renderResponsibleLink($data)
+	{
+		return '<a class="adm-bus-orderdocs-threelist-block-responsible-name" href="/bitrix/admin/user_edit.php?ID='.$data['RESPONSIBLE_ID'].'">'.htmlspecialcharsbx($data['RESPONSIBLE']).'</a>';
+	}
+	protected static function renderDeliveryRequestView($data)
+	{
+		$id = $data['ID'];
+
+		$url = Link::getInstance()
+			->create()
+			->setPageByType(Registry::SALE_DELIVERY_REQUEST_VIEW)
+			->setFilterParams(false)
+			->setField('ID', $id)
+			->fill()
+			->build();
+
+		return '<a href="'.$url.'" class="adm-bus-orderdocs-threelist-block-title-link">'.
+			Loc::getMessage('SALE_OANALYSIS_DELIVERY_REQUEST', array(
+				'#REQUEST_ID#' => $id
+			)).'</a>';
 	}
 }
 

@@ -61,7 +61,7 @@ class CBPAbsenceActivity
 		$enableTimeZone = false;
 
 		//if $activeFrom and $activeTo without Time, turn off TimeZone
-		if (strlen($activeFrom) <=10 && strlen($activeTo) <=10 && CTimeZone::Enabled())
+		if (mb_strlen($activeFrom) <= 10 && mb_strlen($activeTo) <= 10 && CTimeZone::Enabled())
 		{
 			CTimeZone::Disable();
 			$enableTimeZone = true;
@@ -103,15 +103,20 @@ class CBPAbsenceActivity
 			$arErrors[] = array("code" => "NotExist", "parameter" => "AbsenceUser", "message" => GetMessage("BPSNMA_EMPTY_ABSENCEUSER"));
 		if (!array_key_exists("AbsenceName", $arTestProperties) || empty($arTestProperties["AbsenceName"]))
 			$arErrors[] = array("code" => "NotExist", "parameter" => "AbsenceName", "message" => GetMessage("BPSNMA_EMPTY_ABSENCENAME"));
-		if (!array_key_exists("AbsenceFrom", $arTestProperties) || strlen($arTestProperties["AbsenceFrom"]) <= 0)
+		if (!array_key_exists("AbsenceFrom", $arTestProperties) || $arTestProperties["AbsenceFrom"] == '')
 			$arErrors[] = array("code" => "NotExist", "parameter" => "AbsenceFrom", "message" => GetMessage("BPSNMA_EMPTY_ABSENCEFROM"));
-		if (!array_key_exists("AbsenceTo", $arTestProperties) || strlen($arTestProperties["AbsenceTo"]) <= 0)
+		if (!array_key_exists("AbsenceTo", $arTestProperties) || $arTestProperties["AbsenceTo"] == '')
 			$arErrors[] = array("code" => "NotExist", "parameter" => "AbsenceTo", "message" => GetMessage("BPSNMA_EMPTY_ABSENCETO"));
 
-		$absenceIblockId = COption::GetOptionInt("intranet", 'iblock_absence', 0);
-		$iblockPerm = CIBlock::GetPermission($absenceIblockId);
-		if ($iblockPerm < "W")
-			$arErrors[] = array("code" => "perm", "message" => GetMessage("BPAA2_NO_PERMS"));
+		if (!$user || !$user->isAdmin())
+		{
+			$absenceIblockId = COption::GetOptionInt("intranet", 'iblock_absence', 0);
+			$iblockPerm = CIBlock::GetPermission($absenceIblockId);
+			if ($iblockPerm < "W")
+			{
+				$arErrors[] = array("code" => "perm", "message" => GetMessage("BPAA2_NO_PERMS"));
+			}
+		}
 
 		return array_merge($arErrors, parent::ValidateProperties($arTestProperties, $user));
 	}

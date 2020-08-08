@@ -1,6 +1,10 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <!DOCTYPE html>
-<html>
+<?php
+\CModule::IncludeModule('im');
+$darkClass = \CIMSettings::GetSetting(CIMSettings::SETTINGS, 'enableDarkTheme')? 'style="background: #313131"': '';
+?>
+<html <?=$darkClass?>>
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=<?=SITE_CHARSET?>"/>
 	<link href="<?=CUtil::GetAdditionalFileURL(SITE_TEMPLATE_PATH."/template_styles.css")?>" type="text/css" rel="stylesheet" />

@@ -10,24 +10,24 @@ $event = $arParams['event'];
 $isSocialnetworkEnabled = $arParams['bSocNet'];
 $isCrmEnabled = \Bitrix\Main\ModuleManager::isModuleInstalled('crm');
 
-$fieldsList = array(
-	'description' => array('title' => Loc::getMessage('EC_EDIT_SLIDER_DESCRIPTION_COLUMN')),
-	'reminder' => array('title' => Loc::getMessage('EC_EDIT_SLIDER_REMINDER_COLUMN')),
-	'rrule' => array('title' => Loc::getMessage('EC_EDIT_SLIDER_RRULE_COLUMN')),
-	'color' => array('title' => Loc::getMessage('EC_EDIT_SLIDER_COLOR_COLUMN')),
-	'section' => array('title' => Loc::getMessage('EC_EDIT_SLIDER_SECTIONS_COLUMN')),
-	'accessibility' => array('title' => Loc::getMessage('EC_EDIT_SLIDER_ACCESSIBILITY_COLUMN')),
-	'location' => array('title' => Loc::getMessage('EC_EDIT_SLIDER_LOCATION_COLUMN')),
-	'private' => array('title' => Loc::getMessage('EC_EDIT_SLIDER_PRIVATE_COLUMN'))
-);
+$fieldsList = [
+	'description' => ['title' => Loc::getMessage('EC_EDIT_SLIDER_DESCRIPTION_COLUMN')],
+	'reminder' => ['title' => Loc::getMessage('EC_EDIT_SLIDER_REMINDER_COLUMN')],
+	'rrule' => ['title' => Loc::getMessage('EC_EDIT_SLIDER_RRULE_COLUMN')],
+	'color' => ['title' => Loc::getMessage('EC_EDIT_SLIDER_COLOR_COLUMN')],
+	'section' => ['title' => Loc::getMessage('EC_EDIT_SLIDER_SECTIONS_COLUMN')],
+	'accessibility' => ['title' => Loc::getMessage('EC_EDIT_SLIDER_ACCESSIBILITY_COLUMN')],
+	'location' => ['title' => Loc::getMessage('EC_EDIT_SLIDER_LOCATION_COLUMN')],
+	'private' => ['title' => Loc::getMessage('EC_EDIT_SLIDER_PRIVATE_COLUMN')]
+];
 
 if (!$isSocialnetworkEnabled)
 {
 	unset($fieldsList['accessibility']);
 	unset($fieldsList['private']);
 }
-
 $UF = CCalendarEvent::GetEventUserFields($event);
+
 if (isset($UF['UF_CRM_CAL_EVENT']))
 {
 	$fieldsList['crm'] = array('title' => Loc::getMessage('EC_EDIT_SLIDER_CRM_COLUMN'));
@@ -90,20 +90,19 @@ if($isSocialnetworkEnabled)
 		<div class="calendar-slider-content">
 			<div id="<?=$id?>_form_wrap" class="calendar-form">
 				<form enctype="multipart/form-data" method="POST" name="calendar_entry_edit" id="<?=$id?>_form">
-					<input id="<?=$id?>_id" type="hidden" value="0" name="id"/>
-					<input id="<?=$id?>_month" type="hidden" value="0" name="month"/>
-					<input id="<?=$id?>_year" type="hidden" value="0" name="year"/>
-					<input id="<?=$id?>_current_date_from" type="hidden" name="current_date_from" value="0"/>
-					<input id="<?=$id?>_rec_edit_mode" type="hidden" name="rec_edit_mode" value="0"/>
+					<input type="hidden" value="0" name="id"/>
+					<input type="hidden" name="location" value=""/>
 					<input id="<?=$id?>_section" type="hidden" name="section" value="0"/>
 					<input id="<?=$id?>_color" type="hidden" name="color" value=""/>
 					<input id="<?=$id?>_event_current_date_from" type="hidden" name="current_date_from" value="0"/>
 					<input id="<?=$id?>_event_rec_edit_mode" type="hidden" name="rec_edit_mode" value="0"/>
+					<input id="<?=$id?>_exclude_users" type="hidden" name="exclude_users" value=""/>
+					<!--
 					<input id="<?=$id?>_location_old" type="hidden" name="location_old" value=""/>
 					<input id="<?=$id?>_location_new" type="hidden" name="location_new" value=""/>
-					<input id="<?=$id?>_exclude_users" type="hidden" name="exclude_users" value=""/>
 					<input name="time_from_real" type="hidden" id="<?=$id?>_time_from_real" value="">
 					<input name="time_to_real" type="hidden" id="<?=$id?>_time_to_real" value="">
+					-->
 
 					<div class="calendar-info pinned">
 						<div class="calendar-info-panel">
@@ -114,9 +113,8 @@ if($isSocialnetworkEnabled)
 							<div class="calendar-info-panel-title"><input name="name" id="<?=$id?>_entry_name" type="text" placeholder="<?= Loc::getMessage('EC_EDIT_SLIDER_NAME_PLACEHOLDER')?>"></div>
 						</div>
 
-						<div data-bx-block-placeholer="description" class="calendar-field-placeholder">
+						<div data-bx-block-placeholer="description" class="calendar-field-placeholder calendar-info-panel-description">
 							<?if ($fieldsList["description"]["pinned"]):?>
-							<div id="<?=$id?>_description_main_wrap" class="calendar-info-panel-description">
 								<div class="js-calendar-field-name" style="display: none;"><?= Loc::getMessage('EC_EDIT_SLIDER_DESCRIPTION_COLUMN')?></div>
 								<?$APPLICATION->IncludeComponent(
 									"bitrix:main.post.form",
@@ -175,7 +173,6 @@ if($isSocialnetworkEnabled)
 									)
 								);?>
 								<span data-bx-fixfield="description" class="calendar-option-fixedbtn" title="<?= Loc::getMessage('EC_EDIT_SLIDER_FIX_FIELD')?>"></span>
-							</div>
 							<?endif;?>
 						</div>
 					</div>
@@ -307,15 +304,7 @@ if($isSocialnetworkEnabled)
 							<div class="calendar-options-item-column-right">
 								<div class="calendar-options-item-column-one">
 									<div class="calendar-field-container calendar-field-container-text">
-										<div class="calendar-field-block">
-											<div class="calendar-text">
-												<span id="<?=$id?>_reminder_inputs_wrap"></span>
-												<span id="<?=$id?>_reminder_values_wrap"></span>
-												<span id="<?=$id?>_reminder_add_button" class="calendar-notification-btn-container calendar-notification-btn-add">
-													<span class="calendar-notification-icon"></span>
-												</span>
-											</div>
-										</div>
+										<div class="calendar-field-block" id="<?=$id?>_reminder"></div>
 									</div>
 								</div>
 							</div>
@@ -542,6 +531,8 @@ if($isSocialnetworkEnabled)
 										'id' => $id.'_slider_planner'
 									));?>
 								</div>
+								<div class="calendar-edit-planner-wrap" id="<?=$id?>_planner_outer_wrap">
+								</div>
 								<div class="calendar-edit-planner-additional-settings-wrap" id="<?=$id?>_more_outer_wrap">
 									<div id="<?=$id?>_more_wrap" class="calendar-edit-planner-additional-settings">
 										<div class="calendar-field-container calendar-field-container-checkbox" style="display: none;">
@@ -709,8 +700,8 @@ if($isSocialnetworkEnabled)
 								</div>
 								<div class="calendar-options-item-column-right">
 									<div class="calendar-options-item-column-one">
-										<div class="calendar-options-uf-crm-cont">
-											<?$APPLICATION->IncludeComponent(
+										<div class="calendar-options-uf-crm-cont" id="<?=$id?>-uf-crm-wrap">
+											<?/*$APPLICATION->IncludeComponent(
 												"bitrix:system.field.edit",
 												$crmUF["USER_TYPE"]["USER_TYPE_ID"],
 												array(
@@ -718,7 +709,7 @@ if($isSocialnetworkEnabled)
 													"arUserField" => $crmUF,
 													"form_name" => 'event_edit_form'
 												), null, array("HIDE_ICONS" => "Y")
-											);?>
+											); */?>
 										</div>
 									</div>
 								</div>

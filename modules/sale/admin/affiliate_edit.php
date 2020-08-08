@@ -24,7 +24,7 @@ ClearVars();
 $errorMessage = "";
 $bVarsFromForm = false;
 
-$ID = IntVal($ID);
+$ID = intval($ID);
 
 $aTabs = array(
 	array("DIV" => "edit1", "TAB" => GetMessage("SAE_AFF_TAB"), "ICON" => "sale", "TITLE" => GetMessage("SAE_AFF_TAB_TITLE")),
@@ -32,15 +32,15 @@ $aTabs = array(
 
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
-if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions>="W" && check_bitrix_sessid())
+if ($REQUEST_METHOD=="POST" && $Update <> '' && $saleModulePermissions>="W" && check_bitrix_sessid())
 {
-	if (StrLen($SITE_ID) <= 0)
+	if ($SITE_ID == '')
 		$errorMessage .= GetMessage("SAE_NO_SITE_PLAN").".<br>";
-	if (IntVal($USER_ID) <= 0)
+	if (intval($USER_ID) <= 0)
 		$errorMessage .= GetMessage("SAE_NO_USER").".<br>";
-	if (IntVal($PLAN_ID) <= 0)
+	if (intval($PLAN_ID) <= 0)
 		$errorMessage .= GetMessage("SAE_NO_PLAN").".<br>";
-	if (StrLen($DATE_CREATE) <= 0)
+	if ($DATE_CREATE == '')
 		$errorMessage .= GetMessage("SAE_NO_DATE_CREATE").".<br>";
 
 	$ACTIVE = (($ACTIVE == "Y") ? "Y" : "N");
@@ -55,26 +55,26 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions>="W" 
 	$PENDING_SUM = str_replace(",", ".", $PENDING_SUM);
 	$PENDING_SUM = DoubleVal($PENDING_SUM);
 
-	if (StrLen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
 		$dbAffiliate = CSaleAffiliate::GetList(array(), array("USER_ID" => $USER_ID, "SITE_ID" => $SITE_ID, "!ID" => $ID));
 		if ($dbAffiliate->Fetch())
 			$errorMessage .= str_replace("#USER_ID#", $USER_ID, str_replace("#SITE_ID#", $SITE_ID, GetMessage("SAE_AFFILIATE_ALREADY_EXISTS"))).".<br>";
 	}
 
-	if (StrLen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
 		$arFields = array(
 			"SITE_ID" => $SITE_ID,
 			"USER_ID" => $USER_ID,
-			"AFFILIATE_ID" => (IntVal($AFFILIATE_ID) > 0 ? $AFFILIATE_ID : false),
+			"AFFILIATE_ID" => (intval($AFFILIATE_ID) > 0 ? $AFFILIATE_ID : false),
 			"PLAN_ID" => $PLAN_ID,
 			"ACTIVE" => $ACTIVE,
 			"DATE_CREATE" => $DATE_CREATE,
 			"PAID_SUM" => $PAID_SUM,
 			"APPROVED_SUM" => $APPROVED_SUM,
 			"PENDING_SUM" => $PENDING_SUM,
-			"LAST_CALCULATE" => (StrLen($LAST_CALCULATE) > 0 ? $LAST_CALCULATE : false),
+			"LAST_CALCULATE" => ($LAST_CALCULATE <> '' ? $LAST_CALCULATE : false),
 			"AFF_SITE" => $AFF_SITE,
 			"AFF_DESCRIPTION" => $AFF_DESCRIPTION,
 			"FIX_PLAN" => $FIX_PLAN
@@ -93,7 +93,7 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions>="W" 
 		else
 		{
 			$ID = CSaleAffiliate::Add($arFields);
-			$ID = IntVal($ID);
+			$ID = intval($ID);
 			if ($ID <= 0)
 			{
 				if ($ex = $APPLICATION->GetException())
@@ -104,9 +104,9 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions>="W" 
 		}
 	}
 
-	if (strlen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
-		if (strlen($apply) <= 0)
+		if ($apply == '')
 			LocalRedirect("/bitrix/admin/sale_affiliate.php?lang=".LANG.GetFilterParams("filter_", false));
 		else
 			LocalRedirect("/bitrix/admin/sale_affiliate_edit.php?lang=".LANG."&ID=".$ID.GetFilterParams("filter_", false));
@@ -167,7 +167,7 @@ $context = new CAdminContextMenu($aMenu);
 $context->Show();
 ?>
 
-<?if(strlen($errorMessage)>0)
+<?if($errorMessage <> '')
 	echo CAdminMessage::ShowMessage(Array("DETAILS"=>$errorMessage, "TYPE"=>"ERROR", "MESSAGE"=>GetMessage("SAE_ERROR_SAVE_AFF"), "HTML"=>true));?>
 
 <script language="JavaScript">

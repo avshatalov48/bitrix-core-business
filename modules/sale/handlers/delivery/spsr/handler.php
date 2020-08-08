@@ -99,14 +99,14 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 
 		$additional['DEFAULT_WEIGHT'] = $this->config['MAIN']['DEFAULT_WEIGHT'];
 
-		if(strlen($sid) > 0)
+		if($sid <> '')
 			$additional['SID'] = $sid;
 
 		foreach($shipment->getExtraServices() as $srvId => $value)
 		{
 			$srvItem = $this->extraServices->getItem($srvId);
 
-			if($srvItem && strlen($srvItem->getCode()) > 0)
+			if($srvItem && $srvItem->getCode() <> '')
 				$additional['EXTRA_SERVICES'][$srvItem->getCode()] = $value;
 		}
 
@@ -141,7 +141,7 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 
 		foreach($res->getData() as $tarffParams)
 		{
-			if(strpos(ToUpper($tarffParams['TariffType']), ToUpper($tariff)) !== false)
+			if(mb_strpos(ToUpper($tarffParams['TariffType']), ToUpper($tariff)) !== false)
 			{
 				$result->setData($res->getData());
 				$result->setDeliveryPrice(
@@ -151,16 +151,16 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 				);
 				$result->setExtraServicesPrice(floatval($tarffParams['Total_DopUsl']));
 
-				if(strlen($tarffParams['DP']) > 0)
+				if($tarffParams['DP'] <> '')
 				{
 					$result->setPeriodDescription($tarffParams['DP'].' ('.Loc::getMessage('SALE_DLV_SRV_SPSR_DAYS').')');
 
-					$hyphenPos = strpos($tarffParams['DP'], '-');
+					$hyphenPos = mb_strpos($tarffParams['DP'], '-');
 
 					if($hyphenPos !== false)
 					{
-						$result->setPeriodFrom(intval(substr($tarffParams['DP'], 0, $hyphenPos)));
-						$result->setPeriodTo(intval(substr($tarffParams['DP'], $hyphenPos+1)));
+						$result->setPeriodFrom(intval(mb_substr($tarffParams['DP'], 0, $hyphenPos)));
+						$result->setPeriodTo(intval(mb_substr($tarffParams['DP'], $hyphenPos + 1)));
 						$result->setPeriodType(CalculationResult::PERIOD_TYPE_DAY);
 					}
 				}
@@ -353,7 +353,7 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 	 */
 	protected static function utfDecode($str)
 	{
-		if(strtolower(SITE_CHARSET) != 'utf-8')
+		if(mb_strtolower(SITE_CHARSET) != 'utf-8')
 			$str = Encoding::convertEncodingArray($str, 'UTF-8', SITE_CHARSET);
 
 		return $str;
@@ -433,14 +433,14 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 		{
 			$result = BusinessValue::get('DELIVERY_SPSR_'.$fieldName, 'DELIVERY_'.$this->getId(), $shipment);
 
-			if(strlen($result) <= 0)
+			if($result == '')
 				$result = $this->config['MAIN'][$fieldName];
 		}
 		else
 		{
 			$result = $this->config['MAIN'][$fieldName];
 
-			if(strlen($result) <= 0 && self::isHoldingUsed())
+			if($result == '' && self::isHoldingUsed())
 				$result = BusinessValue::get('DELIVERY_SPSR_'.$fieldName, 'DELIVERY_'.$this->getId(), $shipment);
 		}
 
@@ -680,7 +680,7 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 			{
 				foreach($profilesList as $id => $name)
 				{
-					if(strpos(ToUpper($tarffParams['TariffType']), ToUpper($name)) !== false)
+					if(mb_strpos(ToUpper($tarffParams['TariffType']), ToUpper($name)) !== false)
 					{
 						$compatibleProfiles[] = $id;
 						break;

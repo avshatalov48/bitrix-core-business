@@ -276,12 +276,12 @@ class VkCategories
 		$vkCategory = $this->getList();
 
 //		todo: why upper case dont work?
-		$defaultItemText = strlen($defaultItemText) > 0 ? $defaultItemText : Loc::getMessage("SALE_CATALOG_CHANGE_VK_CATEGORY");
+		$defaultItemText = $defaultItemText <> '' ? $defaultItemText : Loc::getMessage("SALE_CATALOG_CHANGE_VK_CATEGORY");
 		$strSelect = '<option value="-1">[' . $defaultItemText . ']</option>';
 		
 		foreach ($vkCategory as $vkTreeItem)
 		{
-			$strSelect .= '<option disabled value="0">' . strtoupper($vkTreeItem["NAME"]) . '</option>';
+			$strSelect .= '<option disabled value="0">'.mb_strtoupper($vkTreeItem["NAME"]) . '</option>';
 			
 			foreach ($vkTreeItem["ITEMS"] as $sectionItem)
 			{

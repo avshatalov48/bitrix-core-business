@@ -2,13 +2,13 @@
 <?
 if ($arResult["NEED_AUTH"] == "Y")
 	$APPLICATION->AuthForm("");
-elseif (strlen($arResult["FatalError"])>0)
+elseif ($arResult["FatalError"] <> '')
 {
 	?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?
 }
 else
 {
-	if(strlen($arResult["ErrorMessage"])>0)
+	if($arResult["ErrorMessage"] <> '')
 	{
 		?><span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br /><?
 	}
@@ -59,12 +59,12 @@ else
 						<i><?= $event["MAX_DATE_FORMAT"] ?></i>
 					</td>
 					<td align="center" valign="top"<?= ($event["UNREAD"] > 0 ? " class=\"selected\"" : "") ?>><?
-						if (IntVal($event["TOTAL"]) > 0):
+						if (intval($event["TOTAL"]) > 0):
 							?><a href="<?= $event["USER_MESSAGES_LINK"] ?>"><b><?= $event["TOTAL"]; ?></b></a><?
 						endif;
 					?></td>
 					<td align="center" valign="top"<?= ($event["UNREAD"] > 0 ? " class=\"selected\"" : "") ?>><?
-						if (IntVal($event["UNREAD"]) > 0):
+						if (intval($event["UNREAD"]) > 0):
 							?><a href="<?= $event["USER_MESSAGES_LINK"] ?>"><b><?= $event["UNREAD"]; ?></b></a><?
 						endif;
 					?></td>
@@ -87,7 +87,7 @@ else
 		endif;
 	?></table>
 	</div><?
-	if (StrLen($arResult["NAV_STRING"]) > 0):
+	if ($arResult["NAV_STRING"] <> ''):
 		?><?=$arResult["NAV_STRING"]?><br /><br /><?
 	endif;
 }

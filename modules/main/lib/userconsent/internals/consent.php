@@ -8,6 +8,7 @@
 namespace Bitrix\Main\UserConsent\Internals;
 
 use Bitrix\Main\Entity;
+use Bitrix\Main\ORM\Fields\Relations\OneToMany;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Crm\WebForm\Helper;
@@ -30,6 +31,7 @@ class ConsentTable extends Entity\DataManager
 	 * Get map.
 	 *
 	 * @return array
+	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public static function getMap()
 	{
@@ -80,6 +82,7 @@ class ConsentTable extends Entity\DataManager
 				'data_type' => 'Bitrix\Main\UserTable',
 				'reference' => array('=this.USER_ID' => 'ref.ID'),
 			),
+			(new OneToMany('ITEMS', UserConsentItemTable::class, 'USER_CONSENT'))
 		);
 	}
 }

@@ -59,7 +59,7 @@ class CAllCurrencyLang
 		global $DB, $USER, $APPLICATION;
 
 		$getErrors = ($getErrors === true);
-		$action = strtoupper($action);
+		$action = mb_strtoupper($action);
 		if ($action != 'ADD' && $action != 'UPDATE')
 			return false;
 		if (!is_array($fields))
@@ -416,8 +416,8 @@ class CAllCurrencyLang
 		if ('' != $currency)
 			$strSql .= "where CURL.CURRENCY = '".$DB->ForSql($currency, 3)."' ";
 
-		if (strtolower($by) == "currency") $strSqlOrder = " order by CURL.CURRENCY ";
-		elseif (strtolower($by) == "name") $strSqlOrder = " order by CURL.FULL_NAME ";
+		if (mb_strtolower($by) == "currency") $strSqlOrder = " order by CURL.CURRENCY ";
+		elseif (mb_strtolower($by) == "name") $strSqlOrder = " order by CURL.FULL_NAME ";
 		else
 		{
 			$strSqlOrder = " order BY CURL.LID ";
@@ -684,7 +684,7 @@ class CAllCurrencyLang
 		return false;
 	}
 
-	public static function getParsedCurrencyFormat($currency)
+	public static function getParsedCurrencyFormat(string $currency): ?array
 	{
 		$arCurFormat = (isset(self::$arCurrencyFormat[$currency])
 			? self::$arCurrencyFormat[$currency]
@@ -720,9 +720,57 @@ class CAllCurrencyLang
 		return $result;
 	}
 
+	public static function getPriceControl(string $control, string $currency): string
+	{
+		if ($control === '')
+		{
+			return '';
+		}
+		if (!Currency\CurrencyManager::checkCurrencyID($currency))
+		{
+			return $control;
+		}
+		$format = static::getParsedCurrencyFormat($currency);
+		if (empty($format))
+		{
+			return $control;
+		}
+		$index = array_search('#', $format);
+		if ($index === false)
+		{
+			return $control;
+		}
+		$format[$index] = $control;
+
+		return implode('', $format);
+	}
+
 	protected static function clearFields($value)
 	{
 		return ($value !== null);
+	}
+
+	public static function getUnFormattedValue(string $formattedValue, string $currency, string $lang = LANGUAGE_ID): string
+	{
+		$format = static::GetCurrencyFormat($currency, $lang);
+		return static::unFormatValue($formattedValue, (string)$format['THOUSANDS_SEP'], (string)$format['DEC_POINT']);
+	}
+
+	protected static function unFormatValue(string $formattedValue, string $thousandsSeparator, string $decPoint): string
+	{
+		$result = $formattedValue;
+
+		if($thousandsSeparator !== '')
+		{
+			$result = str_replace($thousandsSeparator, '', $result);
+		}
+
+		if($decPoint !== '.' && $decPoint !== '')
+		{
+			$result = str_replace($decPoint, '.', $result);
+		}
+
+		return $result;
 	}
 }
 

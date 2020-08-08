@@ -6,9 +6,9 @@ if (!function_exists("__bp_sort_in_template_by_modified"))
 	{
 		if ($arr1["STATE_MODIFIED"] == $arr2["STATE_MODIFIED"])
 			return 0;
-		elseif (strlen($arr1["STATE_MODIFIED"]) <= 0 && strlen($arr1["STATE_MODIFIED"]) > 0)
+		elseif ($arr1["STATE_MODIFIED"] == '' && $arr1["STATE_MODIFIED"] <> '')
 			return -1;
-		elseif (strlen($arr1["STATE_MODIFIED"]) > 0 && strlen($arr1["STATE_MODIFIED"]) <= 0)
+		elseif ($arr1["STATE_MODIFIED"] <> '' && $arr1["STATE_MODIFIED"] == '')
 			return 1;
 		$res1 = MakeTimeStamp($arr1["STATE_MODIFIED"]);
 		$res2 = MakeTimeStamp($arr2["STATE_MODIFIED"]);
@@ -32,7 +32,7 @@ $arDocumentStates = CBPDocument::GetDocumentStates(
 	$arParams["DOCUMENT_ID"]);
 $arGroups = CBPDocument::GetAllowableUserGroups($arParams["DOCUMENT_TYPE"]);
 foreach ($arGroups as $key => $val)
-	$arGroups[strtolower($key)] = $val;
+	$arGroups[mb_strtolower($key)] = $val;
 
 $arUsers = array();
 uasort($arDocumentStates, "__bp_sort_in_template_by_modified");
@@ -64,7 +64,7 @@ if ($arParams["StartWorkflowPermission"] == "Y")
 					array("MODULE_ID" => $arParams["DOCUMENT_ID"][0], "ENTITY" => $arParams["DOCUMENT_ID"][1], 
 						"DOCUMENT_ID" => $arParams["DOCUMENT_ID"][2], "DOCUMENT_TYPE" => $arParams["DOCUMENT_TYPE"][2], 
 						"ID" => $arParams["DOCUMENT_ID"][2]));
-	$url .= (strpos($url, "?") === false ? "?" : "&").bitrix_sessid_get()."&back_url=".
+	$url .= (mb_strpos($url, "?") === false ? "?" : "&").bitrix_sessid_get()."&back_url=".
 		urlencode(!empty($arParams["back_url"]) ? $arParams["back_url"] : $APPLICATION->GetCurPageParam("", array("back_url", "result")));
 	
 	
@@ -88,7 +88,7 @@ foreach ($arDocumentStates as $arDocumentState)
 {
 	$bizProcIndex++;
 
-	if (intVal($arDocumentState["WORKFLOW_STATUS"]) < 0 || $arDocumentState["ID"] <= 0):
+	if (intval($arDocumentState["WORKFLOW_STATUS"]) < 0 || $arDocumentState["ID"] <= 0):
 		continue;
 	elseif (!CBPDocument::CanUserOperateDocument(
 		CBPCanUserOperateOperation::ViewWorkflow,
@@ -106,7 +106,7 @@ foreach ($arDocumentStates as $arDocumentState)
 	$arTasks = array();
 	$arDumpWorkflow = array();
 	$arTasks = CBPDocument::GetUserTasksForWorkflow($USER->GetID(), $arDocumentState["ID"]);
-	if (strlen($arDocumentState["WORKFLOW_STATUS"]) > 0)
+	if ($arDocumentState["WORKFLOW_STATUS"] <> '')
 	{
 		$dbDmpWorkflow = CBPTrackingService::GetList(
 			array("ID" => "DESC"),
@@ -139,7 +139,7 @@ foreach ($arDocumentStates as $arDocumentState)
 					$strMessageTemplate = GetMessage("BPABL_TYPE_6");
 			}
 
-			$name = (strlen($track["ACTION_TITLE"]) > 0 ? $track["ACTION_TITLE"] : $track["ACTION_NAME"]);
+			$name = ($track["ACTION_TITLE"] <> '' ? $track["ACTION_TITLE"] : $track["ACTION_NAME"]);
 
 			switch ($track["EXECUTION_STATUS"])
 			{
@@ -183,7 +183,7 @@ foreach ($arDocumentStates as $arDocumentState)
 					$status = GetMessage("BPABL_RES_6");
 			}
 
-			$note = ((strlen($track["ACTION_NOTE"]) > 0) ? ": ".$track["ACTION_NOTE"] : "");
+			$note = (($track["ACTION_NOTE"] <> '') ? ": ".$track["ACTION_NOTE"] : "");
 			$arPattern = array("#ACTIVITY#", "#STATUS#", "#RESULT#", "#NOTE#");
 			$arReplace = array($name, $status, $result, $note);
 			if (!empty($track["ACTION_NAME"]) && !empty($track["ACTION_TITLE"])):
@@ -204,13 +204,13 @@ foreach ($arDocumentStates as $arDocumentState)
 					if (in_array("/\{\=user\:".$user."\}/is", $arPattern))
 						continue;
 					$replace = "";
-					if (array_key_exists(strtolower($user), $arGroups))
-						$replace = $arGroups[strtolower($user)];
-					elseif (array_key_exists(strtoupper($user), $arGroups))
-						$replace = $arGroups[strtoupper($user)];
+					if (array_key_exists(mb_strtolower($user), $arGroups))
+						$replace = $arGroups[mb_strtolower($user)];
+					elseif (array_key_exists(mb_strtoupper($user), $arGroups))
+						$replace = $arGroups[mb_strtoupper($user)];
 					else
 					{
-						$id = intVal(str_replace("user_", "", $user));
+						$id = intval(str_replace("user_", "", $user));
 						if (!array_key_exists($id, $arUsers)):
 							$db_res = CUser::GetByID($id);
 							$arUsers[$id] = false;
@@ -248,7 +248,7 @@ foreach ($arDocumentStates as $arDocumentState)
 	$iCountRow = 0;
 
 ?>
-	<li class="bizproc-list-item bizproc-document-process <?=(strlen($arDocumentState["WORKFLOW_STATUS"]) > 0 ? 
+	<li class="bizproc-list-item bizproc-document-process <?=($arDocumentState["WORKFLOW_STATUS"] <> '' ? 
 				"bizproc-document-inprogress" : 
 				"bizproc-document-finished")?> <?=(empty($arTasks) ? "" : 
 				"bizproc-document-hastasks")
@@ -262,7 +262,7 @@ foreach ($arDocumentStates as $arDocumentState)
 				<div class="bizproc-document-controls">
 				<?
 					$tmp = false;
-					if (strlen($arDocumentState["WORKFLOW_STATUS"]) > 0):
+					if ($arDocumentState["WORKFLOW_STATUS"] <> ''):
 						$tmp = true;?>
 					<span class="bizproc-document-control-first">
 						<a href="<?=$APPLICATION->GetCurPageParam("id=".$arDocumentState["ID"]."&action=stop_bizproc&".bitrix_sessid_get().
@@ -296,7 +296,7 @@ foreach ($arDocumentStates as $arDocumentState)
 		<tr class="<?=(empty($arTasks) && empty($arEvents)&& empty($arDumpWorkflow)? "bizproc-item-row-last" : "")?>">
 			<td class="bizproc-field-name"><?=GetMessage("IBEL_BIZPROC_STATE")?>:</td>
 			<td class="bizproc-field-value">
-				<?=(strlen($arDocumentState["STATE_TITLE"]) > 0 ? $arDocumentState["STATE_TITLE"] : $arDocumentState["STATE_NAME"])?>
+				<?=($arDocumentState["STATE_TITLE"] <> '' ? $arDocumentState["STATE_TITLE"] : $arDocumentState["STATE_NAME"])?>
 			</td>
 		</tr>
 		<?
@@ -344,7 +344,7 @@ foreach ($arDocumentStates as $arDocumentState)
 				foreach ($arTasks as $arTask)
 				{
 					$url = CComponentEngine::MakePathFromTemplate($arParams["TASK_EDIT_URL"], array("ID" => $arTask["ID"]));
-					$url .= (strpos($url, "?") === false ? "?" : "&")."back_url=".urlencode($APPLICATION->GetCurPageParam("", array()));
+					$url .= (mb_strpos($url, "?") === false ? "?" : "&")."back_url=".urlencode($APPLICATION->GetCurPageParam("", array()));
 					$arTask["DESCRIPTION"] = str_replace(array("&amp;quot;", "&quot;"), "", htmlspecialcharsbx($arTask["DESCRIPTION"])); 
 					?><a href="<?=$url?>" title="<?= $arTask["DESCRIPTION"] ?>"><?= $arTask["NAME"] ?></a><br /><?
 				}

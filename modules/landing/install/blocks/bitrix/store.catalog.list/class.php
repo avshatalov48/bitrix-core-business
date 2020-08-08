@@ -149,11 +149,12 @@ class StoreCatalogListBlock extends \Bitrix\Landing\LandingBlock
 		$editMode = \Bitrix\Landing\Landing::getEditMode();
 		$setStatus404 = $editMode ? 'N' : 'Y';
 		$setTitle = $editMode || ($sectionId == $this->params['SECTION_ID']) ? 'N' : 'Y';
+		$siteId = null;
 		if ($editMode && isset($landing))
 		{
 			$siteId = $landing->getSmnSiteId();
 		}
-		else
+		if (!$siteId)
 		{
 			$siteId = \Bitrix\Landing\Manager::getMainSiteId();
 		}

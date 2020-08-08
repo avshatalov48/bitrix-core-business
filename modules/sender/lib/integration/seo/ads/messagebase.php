@@ -51,7 +51,7 @@ abstract class MessageBase implements Message\iBase, Message\iAds
 	 */
 	public function getName()
 	{
-		return Loc::getMessage('SENDER_INTEGRATION_SEO_MESSAGE_NAME_' . strtoupper($this->getCode()));
+		return Loc::getMessage('SENDER_INTEGRATION_SEO_MESSAGE_NAME_'.mb_strtoupper($this->getCode()));
 	}
 
 	public function getCode()

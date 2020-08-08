@@ -4,7 +4,7 @@
 //**    MODIFICATION OF THIS FILE WILL ENTAIL SITE FAILURE            **/
 //**********************************************************************/
 if (!defined("UPDATE_SYSTEM_VERSION"))
-	define("UPDATE_SYSTEM_VERSION", "20.0.100");
+	define("UPDATE_SYSTEM_VERSION", "20.0.1200");
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 define("HELP_FILE", "marketplace/sysupdate.php");
@@ -112,6 +112,40 @@ if (extension_loaded('eaccelerator'))
 	$errorMessage .= "<br>".GetMessage("SUP_CANT_EACCELERATOR").". ";
 }
 
+
+if (!extension_loaded('mbstring') || !function_exists('mb_strlen'))
+{
+	$errorMessage .= "<br>".GetMessage("SUP_NO_MBSTRING_ERROR").". ";
+}
+else
+{
+	$defaultCharset = strtoupper(ini_get("default_charset"));
+	if (empty($defaultCharset))
+	{
+		$errorMessage .= "<br>".GetMessage("SUP_NO_DEFAULT_CHARSET_ERROR").". ";
+	}
+	$internalEncoding = strtoupper(ini_get("mbstring.internal_encoding"));
+	if (!empty($internalEncoding) && $internalEncoding !== $defaultCharset)
+	{
+		$errorMessage .= "<br>".GetMessage("SUP_WRONG_INTERNAL_ENCODING_ERROR").". ";
+	}
+	$mbInternalEncoding = strtoupper(mb_internal_encoding());
+	if (defined("BX_UTF") && ($defaultCharset !== "UTF-8" || $mbInternalEncoding !== "UTF-8"))
+	{
+		$errorMessage .= "<br>".GetMessage("SUP_WRONG_CHARSET_ERROR_HINT1").". ";
+	}
+	if (!defined("BX_UTF") && ($defaultCharset === "UTF-8" || $mbInternalEncoding === "UTF-8"))
+	{
+		$errorMessage .= "<br>".GetMessage("SUP_WRONG_CHARSET_ERROR_HINT2").". ";
+	}
+}
+
+if (function_exists('apache_get_modules') && !in_array('mod_rewrite', apache_get_modules()))
+{
+	$errorMessage .= "<br>".GetMessage("SUP_WRONG_APACHE_MOD_REWRITE").". ";
+}
+
+
 // MySQL 5.0.0, PHP 5.3.0
 if ($DB->type === "MYSQL")
 {
@@ -215,9 +249,9 @@ elseif (($DB->type === "MSSQL") || ($DB->type === "ORACLE"))
 $curPhpVer = PhpVersion();
 
 $minPhpErrorVersion = "7.1.0";
-$minPhpWarningVersion = "0.0.0";
-$minPhpWarningVersionBest = "0.0.0";
-$minPhpWarningVersionDate = "";
+$minPhpWarningVersion = "7.2.0";
+$minPhpWarningVersionBest = "7.4.0";
+$minPhpWarningVersionDate = "2020-08-01";
 
 if (date("Y-m-d") < "2019-09-01")
 {
@@ -229,7 +263,7 @@ if (date("Y-m-d") < "2019-09-01")
 
 if (version_compare($curPhpVer, $minPhpErrorVersion) < 0)
 {
-	$strongSystemMessage .= "<br>".GetMessage("SUP_PHP_LERR_F",
+	$strongSystemMessage .= "<br>".GetMessage("SUP_PHP_LERR_F_NEW",
 			array("#VERS#" => $curPhpVer,
 				"#REQ#" => $minPhpErrorVersion
 			)
@@ -578,7 +612,7 @@ $tabControl->BeginNextTab();
 							<?if($bLicenseNotFound):?>
 									<?= GetMessage("SUP_SUBK_HINT") ?><br><br>
 									<input TYPE="button" NAME="licence_key_btn" value="<?= GetMessage("SUP_SUBK_BUTTON") ?>" onclick="ShowLicenceKeyForm()"><br><br>
-									<a href="http://<?= ((LANGUAGE_ID == "ru") ? "www.bitrixsoft.ru" : "www.bitrixsoft.com") ?>/bsm_register.php" target="_blank"><?= GetMessage("SUP_SUBK_GET_KEY") ?></a>
+									<a href="https://<?= ((LANGUAGE_ID == "ru") ? "www.1c-bitrix.ru" : "www.bitrixsoft.com") ?>/bsm_register.php" target="_blank"><?= GetMessage("SUP_SUBK_GET_KEY") ?></a>
 							<?else:?>
 									<?= GetMessage("SUP_SUBK_HINT_DEMO") ?><br><br>
 									<input TYPE="button" NAME="licence_key_btn" value="<?= GetMessage("SUP_SUBK_BUTTON") ?>" onclick="ShowLicenceKeyForm()">

@@ -13,7 +13,6 @@ return array(
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(
 			'THEME_CODE' => 'real-estate',
-			'THEME_CODE_TYPO' => 'real-estate',
 			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/real-estate/preview.jpg',
 			'METAOG_TITLE' => Loc::getMessage('LANDING_DEMO_REALESTATE_TITLE'),
 			'METAOG_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_REALESTATE_DESCRIPTION'),
@@ -26,7 +25,7 @@ return array(
 			array (
 				'CODE' => '0.menu_16',
 				'SORT' => '-100',
-				'CONTENT' => '<header class="landing-block landing-block-menu u-header u-header--floating u-header--floating-relative">
+				'CONTENT' => '<header class="landing-block landing-block-menu u-header u-header--sticky u-header--relative">
 	<div class="landing-block-node-top-block u-header__section u-header__section--hidden u-header__section--light g-bg-white g-brd-bottom g-brd-gray-light-v4 g-py-10 g-py-20--sm">
 		<div class="container">
 			<div class="row no-gutters flex-lg-row align-items-center justify-content-lg-start">

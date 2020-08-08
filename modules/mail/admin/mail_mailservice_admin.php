@@ -43,9 +43,9 @@ $lAdmin->InitFilter($arFilterFields);
 $arFilter = array(
 	"ID"       => $find_id,
 	"=SITE_ID" => $find_site_id,
-	"ACTIVE"   => strtoupper($find_active),
-	"NAME"     => strtoupper($find_name),
-	"SERVER"   => strtoupper($find_server)
+	"ACTIVE"   => mb_strtoupper($find_active),
+	"NAME"     => mb_strtoupper($find_name),
+	"SERVER"   => mb_strtoupper($find_server)
 );
 
 if ($MOD_RIGHT == "W" && $lAdmin->EditAction())
@@ -72,14 +72,14 @@ if ($MOD_RIGHT == "W" && $arID = $lAdmin->GroupAction())
 {
 	if ($_REQUEST['action_target'] == 'selected')
 	{
-		$rsData = Bitrix\Mail\MailServicesTable::getList(array('filter' => array_filter($arFilter), 'order' => array(strtoupper($by) => $order)));
+		$rsData = Bitrix\Mail\MailServicesTable::getList(array('filter' => array_filter($arFilter), 'order' => array(mb_strtoupper($by) => $order)));
 		while (($arRes = $rsData->fetch()) !== false)
 			$arID[] = $arRes['ID'];
 	}
 
 	foreach ($arID as $ID)
 	{
-		if (strlen($ID) <= 0)
+		if ($ID == '')
 			continue;
 		$ID = intval($ID);
 
@@ -108,7 +108,7 @@ if ($MOD_RIGHT == "W" && $arID = $lAdmin->GroupAction())
 	}
 }
 
-$rsData = Bitrix\Mail\MailServicesTable::getList(array('filter' => array_filter($arFilter), 'order' => array(strtoupper($by) => $order)));
+$rsData = Bitrix\Mail\MailServicesTable::getList(array('filter' => array_filter($arFilter), 'order' => array(mb_strtoupper($by) => $order)));
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
 

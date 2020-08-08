@@ -36,7 +36,7 @@ class Request
 	{
 		$result = new Result();
 
-		if(strtolower(SITE_CHARSET) != 'utf-8')
+		if(mb_strtolower(SITE_CHARSET) != 'utf-8')
 			$requestData = Encoding::convertEncodingArray($requestData, SITE_CHARSET, 'UTF-8');
 
 		$httpRes = $this->httpClient->post(self::$url_https, $requestData);
@@ -106,7 +106,7 @@ class Request
 
 	protected static function utfDecode($str)
 	{
-		if(strtolower(SITE_CHARSET) != 'utf-8')
+		if(mb_strtolower(SITE_CHARSET) != 'utf-8')
 			$str = Encoding::convertEncoding($str, 'UTF-8', SITE_CHARSET);
 
 		return $str;
@@ -116,7 +116,7 @@ class Request
 	{
 		$result = new Result();
 
-		if(strlen($sid) > 0)
+		if($sid <> '')
 			$sidStr =  ' SID="'.$sid.'"';
 		else
 			$sidStr = '';
@@ -226,12 +226,12 @@ class Request
 	{
 		$result = new Result();
 
-		if(strlen($sid) > 0)
+		if($sid <> '')
 			$sidStr =  ' SID="'.$sid.'"';
 		else
 			$sidStr = '';
 
-		if(strlen($sid) > 0)
+		if($sid <> '')
 			$icnStr =  ' ICN="'.$icn.'"';
 		else
 			$icnStr = '';

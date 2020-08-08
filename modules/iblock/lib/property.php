@@ -8,6 +8,7 @@
 
 namespace Bitrix\Iblock;
 
+use Bitrix\Iblock\ORM\ElementEntity;
 use Bitrix\Iblock\ORM\PropertyToField;
 use Bitrix\Iblock\ORM\ValueStorageTable;
 use Bitrix\Main\ORM\Entity;
@@ -27,19 +28,25 @@ class Property extends EO_Property
 	/**
 	 * Generates personal property entity
 	 *
+	 * @param ElementEntity $elementEntity
+	 *
 	 * @return Entity|null
+	 * @throws SystemException
 	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\SystemException
+	 * @throws \Bitrix\Main\ObjectPropertyException
 	 */
-	public function getValueEntity()
+	public function getValueEntity($elementEntity = null)
 	{
 		if ($this->valueEntity === null)
 		{
-			$elementEntity = IblockTable::compileEntity(
-				IblockTable::getByPrimary($this->getIblockId(), [
-					'select' => ['ID', 'API_CODE']
-				])->fetchObject()
-			);
+			if ($elementEntity === null)
+			{
+				$elementEntity = IblockTable::compileEntity(
+					IblockTable::getByPrimary($this->getIblockId(), [
+						'select' => ['ID', 'API_CODE']
+					])->fetchObject()
+				);
+			}
 
 			$valueTableName = $this->getMultiple()
 				? $elementEntity->getMultiValueTableName()
@@ -110,6 +117,14 @@ class Property extends EO_Property
 
 			// set real column name
 			$this->valueEntity->getField('VALUE')->configureColumnName($realValueColumnName);
+
+			// add generic value field
+			if ($realValueColumnName !== 'VALUE')
+			{
+				$this->valueEntity->addField(
+					(new StringField(ValueStorageTable::GENERIC_VALUE_FIELD_NAME))->configureColumnName('VALUE')
+				);
+			}
 
 			// add description
 			if ($this->getWithDescription())

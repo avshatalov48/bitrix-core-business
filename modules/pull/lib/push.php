@@ -35,7 +35,7 @@ class Push
 		$result = Array();
 		foreach ($notifySchema as $moduleId => $module)
 		{
-			if (strlen($module['NAME']) <= 0)
+			if ($module['NAME'] == '')
 			{
 				$info = \CModule::CreateModuleObject($moduleId);
 				$name= $info->MODULE_NAME;

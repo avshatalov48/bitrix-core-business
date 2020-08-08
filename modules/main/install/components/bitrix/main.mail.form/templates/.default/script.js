@@ -927,9 +927,12 @@
 			editor, 'OnIframeClick',
 			function()
 			{
-				BX.SocNetLogDestination.abortSearchRequest();
-				BX.SocNetLogDestination.closeSearch();
-				BX.SocNetLogDestination.closeDialog();
+				if (field.form.options.version < 2)
+				{
+					BX.SocNetLogDestination.abortSearchRequest();
+					BX.SocNetLogDestination.closeSearch();
+					BX.SocNetLogDestination.closeDialog();
+				}
 
 				BX.onCustomEvent(field.form, 'MailForm::editor:click', []);
 			}

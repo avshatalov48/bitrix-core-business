@@ -31,29 +31,29 @@ if (
 )
 	$arGadgetParams["DESCRIPTION_CUT"] = 500;
 
-if (strlen($arGadgetParams["SORT_BY"]) <= 0)
+if ($arGadgetParams["SORT_BY"] == '')
 	$arGadgetParams["SORT_BY"] = "ID";
 
-if (strlen($arGadgetParams["SORT_ORDER"]) <= 0)
+if ($arGadgetParams["SORT_ORDER"] == '')
 	$arGadgetParams["SORT_ORDER"] = "DESC";
 
-if (strlen($arGadgetParams["TITLE_FIELD"]) <= 0)
+if ($arGadgetParams["TITLE_FIELD"] == '')
 	$arGadgetParams["TITLE_FIELD"] = "NAME";
 
-if (strlen($arGadgetParams["DATE_FIELD"]) <= 0)
+if ($arGadgetParams["DATE_FIELD"] == '')
 	$arGadgetParams["DATE_FIELD"] = "DATE_ACTIVE_FROM";
 
-if (strlen($arGadgetParams["PICTURE_FIELD"]) <= 0)
+if ($arGadgetParams["PICTURE_FIELD"] == '')
 	$arGadgetParams["PICTURE_FIELD"] = "PREVIEW_PICTURE";
 
-if (strlen($arGadgetParams["DESCRIPTION_FIELD"]) <= 0)
+if ($arGadgetParams["DESCRIPTION_FIELD"] == '')
 	$arGadgetParams["DESCRIPTION_FIELD"] = "PREVIEW_TEXT";
 
 if (!is_array($arGadgetParams["ADDITIONAL_FIELDS"]) || count($arGadgetParams["ADDITIONAL_FIELDS"]) <= 0)
 	$arGadgetParams["ADDITIONAL_FIELDS"] = array();
 
 if (
-	strlen($arGadgetParams["IBLOCK_TYPE"]) >= 0
+	$arGadgetParams["IBLOCK_TYPE"] <> ''
 	&& intval($arGadgetParams["IBLOCK_ID"]) > 0
 )
 {
@@ -70,7 +70,7 @@ if (
 	{
 		$obParser = new CTextParser;
 
-		if (strlen($arGadgetParams["TITLE_STD"]) <= 0)
+		if ($arGadgetParams["TITLE_STD"] == '')
 			$arGadget["TITLE"] = $arIBlock["NAME"];
 
 		$arSort = array($arGadgetParams["SORT_BY"] => $arGadgetParams["SORT_ORDER"]);
@@ -113,19 +113,19 @@ if (
 				$prop = $arIBlockElement["PROPERTIES"][$pid];
 				if(
 					(is_array($prop["VALUE"]) && count($prop["VALUE"]) > 0)
-					|| (!is_array($prop["VALUE"]) && strlen($prop["VALUE"]) > 0)
+					|| (!is_array($prop["VALUE"]) && $prop["VALUE"] <> '')
 				)
 					$arIBlockElement["DISPLAY_PROPERTIES"][$pid] = CIBlockFormatProperties::GetDisplayValue($arIBlockElement, $prop, "catalog_out");
 			}
 
 			?><div class="bx-gadgets-text" style="clear: both; padding: 0 0 10px 0;"><?
 
-				if (strlen($arGadgetParams["DATE_FIELD"]) > 0)
+				if ($arGadgetParams["DATE_FIELD"] <> '')
 				{
 					$strDate = "";
 					if (
 						array_key_exists($arGadgetParams["DATE_FIELD"], $arIBlockElement)
-						&& strlen($arIBlockElement[$arGadgetParams["DATE_FIELD"]]) > 0
+						&& $arIBlockElement[$arGadgetParams["DATE_FIELD"]] <> ''
 					)
 					{
 						if (in_array($arGadgetParams["DATE_FIELD"], array("DATE_CREATE", "TIMESTAMP_X", "DATE_ACTIVE_FROM", "DATE_ACTIVE_TO")))
@@ -134,31 +134,31 @@ if (
 							$strDate = $arIBlockElement[$arGadgetParams["DATE_FIELD"]];
 					}
 					elseif (
-						strpos($arGadgetParams["DATE_FIELD"], "PROPERTY_") === 0
-						&& array_key_exists(substr($arGadgetParams["DATE_FIELD"], 9), $arIBlockElement["DISPLAY_PROPERTIES"])
-						&& strlen($arIBlockElement["DISPLAY_PROPERTIES"][substr($arGadgetParams["DATE_FIELD"], 9)]["DISPLAY_VALUE"]) > 0
+						mb_strpos($arGadgetParams["DATE_FIELD"], "PROPERTY_") === 0
+						&& array_key_exists(mb_substr($arGadgetParams["DATE_FIELD"], 9), $arIBlockElement["DISPLAY_PROPERTIES"])
+						&& $arIBlockElement["DISPLAY_PROPERTIES"][mb_substr($arGadgetParams["DATE_FIELD"], 9)]["DISPLAY_VALUE"] <> ''
 					)
 					{
-						$val = $arIBlockElement["DISPLAY_PROPERTIES"][substr($arGadgetParams["DATE_FIELD"], 9)]["DISPLAY_VALUE"];
+						$val = $arIBlockElement["DISPLAY_PROPERTIES"][mb_substr($arGadgetParams["DATE_FIELD"], 9)]["DISPLAY_VALUE"];
 						if (is_array($val))
 						{
-							if (in_array(substr($arGadgetParams["DATE_FIELD"], 9), $arIBlockPropertiesDateTime))
+							if (in_array(mb_substr($arGadgetParams["DATE_FIELD"], 9), $arIBlockPropertiesDateTime))
 								array_walk($val, '__GD_AIE_ConvertDateTime');
 							$strDate = implode("&nbsp;/&nbsp;", $val);
 						}
-						elseif(in_array(substr($arGadgetParams["DATE_FIELD"], 9), $arIBlockPropertiesDateTime))
+						elseif(in_array(mb_substr($arGadgetParams["DATE_FIELD"], 9), $arIBlockPropertiesDateTime))
 								$strDate = ToLower(FormatDate("j F Y", MakeTimeStamp($val)));
 						else
 							$strDate = $val;
 					}
 
-					if (strlen($strDate) > 0)
+					if ($strDate <> '')
 					{
 						?><span class="bx-gadget-gray"><?=$strDate?></span><br><?
 					}
 				}
 
-				if (strlen($arGadgetParams["PICTURE_FIELD"]) > 0)
+				if ($arGadgetParams["PICTURE_FIELD"] <> '')
 				{
 					$iPicture = 0;
 					if (
@@ -167,11 +167,11 @@ if (
 					)
 						$iPicture = $arIBlockElement[$arGadgetParams["PICTURE_FIELD"]];
 					elseif (
-						strpos($arGadgetParams["PICTURE_FIELD"], "PROPERTY_") === 0
-						&& array_key_exists(substr($arGadgetParams["PICTURE_FIELD"], 9), $arIBlockElement["DISPLAY_PROPERTIES"])
-						&& intval($arIBlockElement["DISPLAY_PROPERTIES"][substr($arGadgetParams["PICTURE_FIELD"], 9)]["DISPLAY_VALUE"]) > 0
+						mb_strpos($arGadgetParams["PICTURE_FIELD"], "PROPERTY_") === 0
+						&& array_key_exists(mb_substr($arGadgetParams["PICTURE_FIELD"], 9), $arIBlockElement["DISPLAY_PROPERTIES"])
+						&& intval($arIBlockElement["DISPLAY_PROPERTIES"][mb_substr($arGadgetParams["PICTURE_FIELD"], 9)]["DISPLAY_VALUE"]) > 0
 					)
-						$iPicture = $arIBlockElement["DISPLAY_PROPERTIES"][substr($arGadgetParams["PICTURE_FIELD"], 9)]["DISPLAY_VALUE"];
+						$iPicture = $arIBlockElement["DISPLAY_PROPERTIES"][mb_substr($arGadgetParams["PICTURE_FIELD"], 9)]["DISPLAY_VALUE"];
 
 					if (!is_array($iPicture) && intval($iPicture) > 0)
 					{
@@ -188,55 +188,55 @@ if (
 					}
 				}
 
-				if (strlen($arGadgetParams["TITLE_FIELD"]) > 0)
+				if ($arGadgetParams["TITLE_FIELD"] <> '')
 				{
 					$strTitle = "";
 					if (
 						array_key_exists($arGadgetParams["TITLE_FIELD"], $arIBlockElement)
-						&& strlen($arIBlockElement[$arGadgetParams["TITLE_FIELD"]]) > 0
+						&& $arIBlockElement[$arGadgetParams["TITLE_FIELD"]] <> ''
 					)
 						$strTitle = $arIBlockElement[$arGadgetParams["TITLE_FIELD"]];
 					elseif (
-						strpos($arGadgetParams["TITLE_FIELD"], "PROPERTY_") === 0
-						&& array_key_exists(substr($arGadgetParams["TITLE_FIELD"], 9), $arIBlockElement["DISPLAY_PROPERTIES"])
-						&& strlen($arIBlockElement["DISPLAY_PROPERTIES"][substr($arGadgetParams["TITLE_FIELD"], 9)]["DISPLAY_VALUE"]) > 0
+						mb_strpos($arGadgetParams["TITLE_FIELD"], "PROPERTY_") === 0
+						&& array_key_exists(mb_substr($arGadgetParams["TITLE_FIELD"], 9), $arIBlockElement["DISPLAY_PROPERTIES"])
+						&& $arIBlockElement["DISPLAY_PROPERTIES"][mb_substr($arGadgetParams["TITLE_FIELD"], 9)]["DISPLAY_VALUE"] <> ''
 					)
 					{
-						$val = $arIBlockElement["DISPLAY_PROPERTIES"][substr($arGadgetParams["TITLE_FIELD"], 9)]["DISPLAY_VALUE"];
+						$val = $arIBlockElement["DISPLAY_PROPERTIES"][mb_substr($arGadgetParams["TITLE_FIELD"], 9)]["DISPLAY_VALUE"];
 						if (is_array($val))
 							$strTitle = implode("&nbsp;/&nbsp;", $val);
 						else
 							$strTitle = $val;
 					}
 
-					if (strlen($strTitle) > 0)
+					if ($strTitle <> '')
 					{
 						?><a href="/bitrix/admin/iblock_element_edit.php?ID=<?=$arIBlockElement["ID"]?>&type=<?=$arGadgetParams["IBLOCK_TYPE"]?>&IBLOCK_ID=<?=$arGadgetParams["IBLOCK_ID"]?>&lang=<?=LANGUAGE_ID?>"><?=$strTitle?></a><br><?
 					}
 				}
 
-				if (strlen($arGadgetParams["DESCRIPTION_FIELD"]) > 0)
+				if ($arGadgetParams["DESCRIPTION_FIELD"] <> '')
 				{
 					$strDescription = "";
 					if (
 						array_key_exists($arGadgetParams["DESCRIPTION_FIELD"], $arIBlockElement)
-						&& strlen($arIBlockElement[$arGadgetParams["DESCRIPTION_FIELD"]]) > 0
+						&& $arIBlockElement[$arGadgetParams["DESCRIPTION_FIELD"]] <> ''
 					)
 						$strDescription = $arIBlockElement[$arGadgetParams["DESCRIPTION_FIELD"]];
 					elseif (
-						strpos($arGadgetParams["DESCRIPTION_FIELD"], "PROPERTY_") === 0
-						&& array_key_exists(substr($arGadgetParams["DESCRIPTION_FIELD"], 9), $arIBlockElement["DISPLAY_PROPERTIES"])
-						&& strlen($arIBlockElement["DISPLAY_PROPERTIES"][substr($arGadgetParams["DESCRIPTION_FIELD"], 9)]["DISPLAY_VALUE"]) > 0
+						mb_strpos($arGadgetParams["DESCRIPTION_FIELD"], "PROPERTY_") === 0
+						&& array_key_exists(mb_substr($arGadgetParams["DESCRIPTION_FIELD"], 9), $arIBlockElement["DISPLAY_PROPERTIES"])
+						&& $arIBlockElement["DISPLAY_PROPERTIES"][mb_substr($arGadgetParams["DESCRIPTION_FIELD"], 9)]["DISPLAY_VALUE"] <> ''
 					)
 					{
-						$val = $arIBlockElement["DISPLAY_PROPERTIES"][substr($arGadgetParams["DESCRIPTION_FIELD"], 9)]["DISPLAY_VALUE"];
+						$val = $arIBlockElement["DISPLAY_PROPERTIES"][mb_substr($arGadgetParams["DESCRIPTION_FIELD"], 9)]["DISPLAY_VALUE"];
 						if (is_array($val))
 							$strDescription = implode("&nbsp;/&nbsp;", $val);
 						else
 							$strDescription = $val;
 					}
 
-					if (strlen($strDescription) > 0)
+					if ($strDescription <> '')
 					{
 						?><?=$obParser->html_cut($strDescription, $arGadgetParams["DESCRIPTION_CUT"]);?><br><?
 					}
@@ -246,7 +246,7 @@ if (
 				{
 					foreach($arGadgetParams["ADDITIONAL_FIELDS"] as $code)
 					{
-						if (strlen($code) > 0)
+						if ($code <> '')
 						{
 							if (array_key_exists($code, $arIBlockElement))
 							{
@@ -254,18 +254,18 @@ if (
 							}
 
 							if (
-								strpos($code, "PROPERTY_") === 0
+								mb_strpos($code, "PROPERTY_") === 0
 								&& is_array($arIBlockElement["DISPLAY_PROPERTIES"])
-								&& strlen(substr($code, 9)) > 0
-								&& array_key_exists(substr($code, 9), $arIBlockElement["DISPLAY_PROPERTIES"])
+								&& mb_substr($code, 9) <> ''
+								&& array_key_exists(mb_substr($code, 9), $arIBlockElement["DISPLAY_PROPERTIES"])
 								&& (
-									(!is_array($arIBlockElement["DISPLAY_PROPERTIES"][substr($code, 9)]["DISPLAY_VALUE"]) && strlen($arIBlockElement["DISPLAY_PROPERTIES"][substr($code, 9)]["DISPLAY_VALUE"]) > 0)
-									|| (is_array($arIBlockElement["DISPLAY_PROPERTIES"][substr($code, 9)]["DISPLAY_VALUE"]) && count($arIBlockElement["DISPLAY_PROPERTIES"][substr($code, 9)]["DISPLAY_VALUE"]) > 0)
+									(!is_array($arIBlockElement["DISPLAY_PROPERTIES"][mb_substr($code, 9)]["DISPLAY_VALUE"]) && $arIBlockElement["DISPLAY_PROPERTIES"][mb_substr($code, 9)]["DISPLAY_VALUE"] <> '')
+									|| (is_array($arIBlockElement["DISPLAY_PROPERTIES"][mb_substr($code, 9)]["DISPLAY_VALUE"]) && count($arIBlockElement["DISPLAY_PROPERTIES"][mb_substr($code, 9)]["DISPLAY_VALUE"]) > 0)
 								)
 							)
 							{
-								$val = $arIBlockElement["DISPLAY_PROPERTIES"][substr($code, 9)]["DISPLAY_VALUE"];
-								?><?=$arIBlockElement["DISPLAY_PROPERTIES"][substr($code, 9)]["NAME"]?>: <?=(is_array($val)?implode("&nbsp;/&nbsp;", $val):$val)?><br><?
+								$val = $arIBlockElement["DISPLAY_PROPERTIES"][mb_substr($code, 9)]["DISPLAY_VALUE"];
+								?><?=$arIBlockElement["DISPLAY_PROPERTIES"][mb_substr($code, 9)]["NAME"]?>: <?=(is_array($val)?implode("&nbsp;/&nbsp;", $val):$val)?><br><?
 							}
 						}
 					}

@@ -134,6 +134,35 @@ $sPubUrl = ($_SESSION["BACK_URL_PUB"] <> ""?
 	htmlspecialcharsbx($_SESSION["BACK_URL_PUB"]).(strpos($_SESSION["BACK_URL_PUB"], "?") !== false? "&amp;":"?") : '/?').
 	'back_url_admin='.urlencode($APPLICATION->GetCurPage().($params<>""? "?".$params:""));
 
+if (\Bitrix\Main\Config\Option::get("sale", "~IS_SALE_CRM_SITE_MASTER_FINISH") === "Y")
+{
+	$defaultSite = \Bitrix\Main\SiteTable::getList([
+		"select" => ["SERVER_NAME"],
+		"filter" => ["=DEF" => "Y"]
+	])->fetch();
+	if ($defaultSite && isset($defaultSite["SERVER_NAME"]) && !empty($defaultSite["SERVER_NAME"]))
+	{
+		$sPubUrl = ((\Bitrix\Main\Context::getCurrent()->getRequest()->isHttps() ? "https" : "http")."://".$defaultSite["SERVER_NAME"]).$sPubUrl;
+	}
+	elseif ($serverName = \Bitrix\Main\Config\Option::get("main", "server_name"))
+	{
+		$sPubUrl = ((\Bitrix\Main\Context::getCurrent()->getRequest()->isHttps() ? "https" : "http")."://".$serverName).$sPubUrl;
+	}
+}
+elseif (\Bitrix\Main\Config\Option::get("sale", "~IS_SALE_BSM_SITE_MASTER_FINISH") === "Y"
+	&& $additionalSiteId = \Bitrix\Main\Config\Option::get("sale", "~BSM_WIZARD_SITE_ID")
+)
+{
+	$additionalSite = \Bitrix\Main\SiteTable::getList([
+		"select" => ["SERVER_NAME"],
+		"filter" => ["LID" => $additionalSiteId]
+	])->fetch();
+	if ($additionalSite && !empty($additionalSite["SERVER_NAME"]))
+	{
+		$sPubUrl = ((\Bitrix\Main\Context::getCurrent()->getRequest()->isHttps() ? "https" : "http")."://".$additionalSite["SERVER_NAME"]).$sPubUrl;
+	}
+}
+
 $aUserOptGlobal = CUserOptions::GetOption("global", "settings");
 
 if($USER->IsAuthorized())

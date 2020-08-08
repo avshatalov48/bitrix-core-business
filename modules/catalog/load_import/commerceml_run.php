@@ -57,13 +57,13 @@ class XMLNode
 	function &select_nodes($str_node)
 	{
 		$tmp = trim($str_node, "/ \r\n\t\0\x0B");
-		if (!($p = strpos($tmp, "/")))
-			$p = strlen($tmp);
-		$str_node = trim(substr($tmp, 0, $p));
+		if (!($p = mb_strpos($tmp, "/")))
+			$p = mb_strlen($tmp);
+		$str_node = trim(mb_substr($tmp, 0, $p));
 		if('' === $str_node)
 			return $this;
 
-		$tmp = trim(substr($tmp, $p+1));
+		$tmp = trim(mb_substr($tmp, $p + 1));
 		if('' === $tmp)
 			return $this->childs[$str_node];
 
@@ -92,7 +92,7 @@ class XMLParser
 
 	function LoadString(&$text)
 	{
-		if (strlen($text) > 0)
+		if ($text <> '')
 		{
 			$this->parse($text);
 			return true;
@@ -128,30 +128,30 @@ class XMLParser
 	{
 		$data = preg_replace("#<\!--.*?-->#s", "", $data);
 
-		$pb = strpos($data, "<");
+		$pb = mb_strpos($data, "<");
 		while($pb!==false)
 		{
-			$pe = strpos($data, ">", $pb);
+			$pe = mb_strpos($data, ">", $pb);
 			if($pe === false) break;
-			$tag_cont = substr($data, $pb+1, $pe-$pb-1);
-			$pb = strpos($data, "<", $pe);
+			$tag_cont = mb_substr($data, $pb + 1, $pe - $pb - 1);
+			$pb = mb_strpos($data, "<", $pe);
 
-			$check_str = substr($tag_cont, 0, 1);
+			$check_str = mb_substr($tag_cont, 0, 1);
 			if($check_str=="?")
 				continue;
 			elseif($check_str=="!")
 				continue;
 			elseif($check_str=="/")
-				$this->endElement(substr($tag_cont, 1));
+				$this->endElement(mb_substr($tag_cont, 1));
 			else
 			{
 				$p=0;
-				$ltag_cont = strlen($tag_cont);
-				while(($p < $ltag_cont) && (strpos(" \t\n\r", substr($tag_cont, $p, 1))===false))
+				$ltag_cont = mb_strlen($tag_cont);
+				while(($p < $ltag_cont) && (mb_strpos(" \t\n\r", mb_substr($tag_cont, $p, 1)) === false))
 					$p++;
-				$name = substr($tag_cont, 0, $p);
-				$at = substr($tag_cont, $p);
-				if(strpos($at, "&")!==false)
+				$name = mb_substr($tag_cont, 0, $p);
+				$at = mb_substr($tag_cont, $p);
+				if(mb_strpos($at, "&") !== false)
 					$bAmp = true;
 				else
 					$bAmp = false;
@@ -161,7 +161,7 @@ class XMLParser
 				for($i=0, $intCount = count($attrs_tmp[1]); $i < $intCount; $i++)
 					$attrs[$attrs_tmp[1][$i]] = ($bAmp ? $this->unquote($attrs_tmp[2][$i]) : $attrs_tmp[2][$i]);
 				$this->startElement($name, $attrs);
-				if(substr($tag_cont, -1) === "/")
+				if(mb_substr($tag_cont, -1) === "/")
 					$this->endElement($name);
 			}
 		}
@@ -314,9 +314,9 @@ $STT_PRODUCT_ADD = 0;	$STT_PRODUCT_UPDATE = 0;	$STT_PRODUCT_ERROR = 0;
 if (isset($_FILES["FILE_1C"]) && is_uploaded_file($_FILES["FILE_1C"]["tmp_name"]))
 	$DATA_FILE_NAME = $_FILES["FILE_1C"]["tmp_name"];
 
-if (strlen($DATA_FILE_NAME) <= 0)
+if ($DATA_FILE_NAME == '')
 {
-	if (strlen($URL_FILE_1C) > 0)
+	if ($URL_FILE_1C <> '')
 	{
 		$URL_FILE_1C = Rel2Abs("/", $URL_FILE_1C);
 		if (file_exists($_SERVER["DOCUMENT_ROOT"].$URL_FILE_1C) && is_file($_SERVER["DOCUMENT_ROOT"].$URL_FILE_1C))
@@ -324,12 +324,12 @@ if (strlen($DATA_FILE_NAME) <= 0)
 	}
 }
 
-if (strlen($DATA_FILE_NAME)<=0)
+if ($DATA_FILE_NAME == '')
 	$strImportErrorMessage .= GetMessage("CICML_NO_LOAD_FILE")."<br>";
 
 global $IBLOCK_TYPE_ID;
 $IBLOCK_TYPE_ID = trim(strval($IBLOCK_TYPE_ID));
-if (0 < strlen($IBLOCK_TYPE_ID))
+if ($IBLOCK_TYPE_ID <> '')
 {
 	$rsIBlockTypes = CIBlockType::GetByID($IBLOCK_TYPE_ID);
 	if (!($arIBlockType = $rsIBlockTypes->Fetch()))
@@ -337,18 +337,18 @@ if (0 < strlen($IBLOCK_TYPE_ID))
 		$IBLOCK_TYPE_ID = '';
 	}
 }
-if (strlen($IBLOCK_TYPE_ID) <= 0)
+if ($IBLOCK_TYPE_ID == '')
 {
 	$IBLOCK_TYPE_ID = COption::GetOptionString("catalog", "default_catalog_1c", "");
 }
-if (strlen($IBLOCK_TYPE_ID) <= 0)
+if ($IBLOCK_TYPE_ID == '')
 {
 	$iblocks = CIBlockType::GetList(Array('SORT' => 'ASC'));
 	if ($iblocks->ExtractFields("f_"))
 		$IBLOCK_TYPE_ID = $f_ID;
 }
 
-if (strlen($IBLOCK_TYPE_ID) <= 0)
+if ($IBLOCK_TYPE_ID == '')
 	$strImportErrorMessage .= GetMessage("CICML_NO_IBLOCK")."<br>";
 
 if ($outFileAction!="F" && $outFileAction!="H" && $outFileAction!="D")
@@ -362,7 +362,7 @@ if ('' === $strImportErrorMessage)
 	$xml = new XMLParser();
 	$xml_content = file_get_contents($DATA_FILE_NAME);
 
-	if (!$xml_content || strlen($xml_content) <= 0)
+	if (!$xml_content || $xml_content == '')
 		$strImportErrorMessage .= GetMessage("CICML_NO_LOAD_DATA")."<br>";
 }
 
@@ -375,7 +375,7 @@ if ('' === $strImportErrorMessage)
 	{
 		$xml_content = $GLOBALS['APPLICATION']->ConvertCharset($xml_content, $CONVERT_UTF8 == "Y"? "utf-8": "windows-1251", LANG_CHARSET);
 
-		if (!$xml_content || strlen($xml_content) <= 0)
+		if (!$xml_content || $xml_content == '')
 		{
 			if ($ex = $APPLICATION->GetException())
 				$strImportErrorMessage .= $ex->GetString();
@@ -650,7 +650,7 @@ if ('' === $strImportErrorMessage)
 						"IBLOCK_ID" 	=> $IBLOCK_ID
 						);
 					$PROP_ID = $ibp->Add($arFields);
-					$res = (IntVal($PROP_ID)>0);
+					$res = (intval($PROP_ID)>0);
 				}
 
 				if (!$res)
@@ -737,7 +737,7 @@ if ('' === $strImportErrorMessage)
 
 				$PROP = array();
 				$GROUPS_ID = array();
-				if(strlen($PRODUCT_PARENT_XML_ID)>0 && strlen($arGroups[$PRODUCT_PARENT_XML_ID])>0)
+				if($PRODUCT_PARENT_XML_ID <> '' && $arGroups[$PRODUCT_PARENT_XML_ID] <> '')
 					$GROUPS_ID[] = $arGroups[$PRODUCT_PARENT_XML_ID];
 
 				$prod_groups = $xProductNode->select_nodes("/".$nameUTF['CategoryReference']);
@@ -745,7 +745,7 @@ if ('' === $strImportErrorMessage)
 				{
 					$xProductGroupsNode = $prod_groups[$k];
 					$PRODUCT_GROUP_XML_ID = $xProductGroupsNode->GetAttribute($nameUTF['IdInCatalog']);
-					if(strlen($arGroups[$PRODUCT_GROUP_XML_ID])>0)
+					if($arGroups[$PRODUCT_GROUP_XML_ID] <> '')
 						$GROUPS_ID[] = $arGroups[$PRODUCT_GROUP_XML_ID];
 				}
 
@@ -756,11 +756,11 @@ if ('' === $strImportErrorMessage)
 
 					$PROP_VAL_PROPERTY_XML_ID = $xPropertyValueNode->GetAttribute($nameUTF['PropertyId']);
 					$PROP_VAL_VALUE = $xPropertyValueNode->GetAttribute($nameUTF['Value']);
-					if(strlen($arProperties[$PROP_VAL_PROPERTY_XML_ID])>0)
+					if($arProperties[$PROP_VAL_PROPERTY_XML_ID] <> '')
 					{
 						if(is_array($arPropertiesEnum[$PROP_VAL_PROPERTY_XML_ID]))
 						{
-							if(strlen($arPropertiesEnum[$PROP_VAL_PROPERTY_XML_ID][$PROP_VAL_VALUE])>0)
+							if($arPropertiesEnum[$PROP_VAL_PROPERTY_XML_ID][$PROP_VAL_VALUE] <> '')
 								$PROP[$arProperties[$PROP_VAL_PROPERTY_XML_ID]][] = $arPropertiesEnum[$PROP_VAL_PROPERTY_XML_ID][$PROP_VAL_VALUE];
 						}
 						else
@@ -894,7 +894,7 @@ if ('' === $strImportErrorMessage)
 		$IBLOCK_XML_ID = $xOfferListNode->GetAttribute($nameUTF['CatalogID']);
 		$OFFER_LIST_DESC = $xOfferListNode->GetAttribute($nameUTF['Description']);
 		$OFFER_LIST_CURRENCY = $arCurrencies[$xOfferListNode->GetAttribute($nameUTF['Currency'])];
-		if (strlen($OFFER_LIST_CURRENCY)<=0)
+		if ($OFFER_LIST_CURRENCY == '')
 			$OFFER_LIST_CURRENCY = "USD";
 
 		//detect "price type" property
@@ -931,25 +931,25 @@ if ('' === $strImportErrorMessage)
 			if (!isset($arProducts[$PRODUCT_XML_ID]))
 			{
 				if (!isset($arIBlockCacheTmp[$IBLOCK_XML_ID])
-					|| IntVal($arIBlockCacheTmp[$IBLOCK_XML_ID])<=0)
+					|| intval($arIBlockCacheTmp[$IBLOCK_XML_ID])<=0)
 				{
 					$db_res_tmp = CIBlock::GetList(array(), Array("XML_ID"=>$IBLOCK_XML_ID));
 					if ($ar_res_tmp = $db_res_tmp->Fetch())
 					{
-						$arIBlockCacheTmp[$IBLOCK_XML_ID] = IntVal($ar_res_tmp["ID"]);
+						$arIBlockCacheTmp[$IBLOCK_XML_ID] = intval($ar_res_tmp["ID"]);
 					}
 				}
 
 				$db_res_tmp = CIBlockElement::GetList(array(), Array("XML_ID"=>$PRODUCT_XML_ID, "IBLOCK_ID"=>$arIBlockCacheTmp[$IBLOCK_XML_ID]));
 				if ($ar_res_tmp = $db_res_tmp->Fetch())
 				{
-					$PRODUCT_ID = IntVal($ar_res_tmp["ID"]);
+					$PRODUCT_ID = intval($ar_res_tmp["ID"]);
 					$arCatalogsParams[$IBLOCK_XML_ID]["arProducts"][$PRODUCT_XML_ID] = $PRODUCT_ID;
 				}
 			}
 			else
 			{
-				$PRODUCT_ID = IntVal($arProducts[$PRODUCT_XML_ID]);
+				$PRODUCT_ID = intval($arProducts[$PRODUCT_XML_ID]);
 			}
 
 			if ($PRODUCT_ID <= 0)
@@ -959,10 +959,10 @@ if ('' === $strImportErrorMessage)
 
 			$OFFER_PRICE = DoubleVal(str_replace(",", ".", $xOfferNode->GetAttribute($nameUTF['Price'])));
 			$OFFER_UPAK = $xOfferNode->GetAttribute($nameUTF['Package']);
-			$OFFER_QUANTITY = IntVal($xOfferNode->GetAttribute($nameUTF['Amount']));
+			$OFFER_QUANTITY = intval($xOfferNode->GetAttribute($nameUTF['Amount']));
 			$OFFER_UNIT = $xOfferNode->GetAttribute($nameUTF['Unit']);
 			$OFFER_CURRENCY = $arCurrencies[$xOfferNode->GetAttribute($nameUTF['Currency'])];
-			if (strlen($OFFER_CURRENCY)<=0)
+			if ($OFFER_CURRENCY == '')
 				$OFFER_CURRENCY = $OFFER_LIST_CURRENCY;
 
 			$arLoadOfferArray = array(
@@ -1003,7 +1003,7 @@ if ('' === $strImportErrorMessage)
 		{
 			foreach ($valA["arProducts"] as $keyB=>$valB)
 			{
-				$res = $el->Update(IntVal($valB), Array("ACTIVE" => "N"));
+				$res = $el->Update(intval($valB), Array("ACTIVE" => "N"));
 			}
 		}
 	}
@@ -1012,28 +1012,28 @@ if ('' === $strImportErrorMessage)
 	$strImportOKMessage .= str_replace("#NUM#", ($STT_CATALOG_UPDATE + $STT_CATALOG_ADD), GetMessage("CICML_LOAD_CATALOG"))." ";
 	$strImportOKMessage .= str_replace("#NUM_UPD#", $STT_CATALOG_UPDATE, str_replace("#NUM_NEW#", $STT_CATALOG_ADD, GetMessage("CICML_LOAD_NEW_UPD")))." ";
 
-	if (IntVal($STT_CATALOG_ERROR) > 0)
+	if (intval($STT_CATALOG_ERROR) > 0)
 		$strImportOKMessage .= str_replace("#NUM#", $STT_CATALOG_ERROR, GetMessage("CICML_LOAD_ERROR"));
 	$strImportOKMessage .= "<br>";
 
 	$strImportOKMessage .= str_replace("#NUM#", ($STT_GROUP_UPDATE + $STT_GROUP_ADD), GetMessage("CICML_LOAD_GROUP"))." ";
 	$strImportOKMessage .= str_replace("#NUM_UPD#", $STT_GROUP_UPDATE, str_replace("#NUM_NEW#", $STT_GROUP_ADD, GetMessage("CICML_LOAD_GROUP_NEW_UPD")))." ";
 
-	if (IntVal($STT_GROUP_ERROR) > 0)
+	if (intval($STT_GROUP_ERROR) > 0)
 		$strImportOKMessage .= str_replace("#NUM#", $STT_GROUP_ERROR, GetMessage("CICML_LOAD_GROUP_ERROR"));
 	$strImportOKMessage .= "<br>";
 
 	$strImportOKMessage .= str_replace("#NUM#", ($STT_PROP_UPDATE + $STT_PROP_ADD), GetMessage("CICML_LOAD_PROPS"))." ";
 	$strImportOKMessage .= str_replace("#NUM_UPD#", $STT_PROP_UPDATE, str_replace("#NUM_NEW#", $STT_PROP_ADD, GetMessage("CICML_LOAD_PROPS_NEW_UPD")))." ";
 
-	if (IntVal($STT_PROP_ERROR) > 0)
+	if (intval($STT_PROP_ERROR) > 0)
 		$strImportOKMessage .= str_replace("#NUM#", $STT_PROP_ERROR, GetMessage("CICML_LOAD_PROPS_ERROR"));
 	$strImportOKMessage .= "<br>";
 
 	$strImportOKMessage .= str_replace("#NUM#", ($STT_PRODUCT_UPDATE + $STT_PRODUCT_ADD), GetMessage("CICML_LOAD_PROD"))." ";
 	$strImportOKMessage .= str_replace("#NUM_UPD#", $STT_PRODUCT_UPDATE, str_replace("#NUM_NEW#", $STT_PRODUCT_ADD, GetMessage("CICML_LOAD_PROD_NEW_UPD")))." ";
 
-	if (IntVal($STT_PRODUCT_ERROR) > 0)
+	if (intval($STT_PRODUCT_ERROR) > 0)
 		$strImportOKMessage .= str_replace("#NUM#", $STT_PRODUCT_ERROR, GetMessage("CICML_LOAD_PROD_ERROR"));
 	$strImportOKMessage .= "<br>";
 }

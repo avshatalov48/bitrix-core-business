@@ -8,9 +8,7 @@
 	 */
 	BX.namespace('BX.Vote');
 
-	var answer =
-	/*#__PURE__*/
-	function () {
+	var answer = /*#__PURE__*/function () {
 	  function answer(id, data) {
 	    babelHelpers.classCallCheck(this, answer);
 	    this.id = null;
@@ -28,9 +26,9 @@
 
 	    this.data = {
 	      MESSAGE: "",
-	      MESSAGE_TYPE: "text" //		IMAGE_ID : "",
-	      //		FIELD_TYPE : 0,
-	      //		FIELD_WIDTH : 0, //out of date
+	      MESSAGE_TYPE: "text",
+	      //		IMAGE_ID : "",
+	      FIELD_TYPE: 0 //		FIELD_WIDTH : 0, //out of date
 	      //		FIELD_HEIGHT : 0, //out of date
 	      //		FIELD_PARAM : "", //out of date
 	      //		ACTIVE : "Y",
@@ -96,9 +94,7 @@
 	  return item;
 	};
 
-	var entityType =
-	/*#__PURE__*/
-	function () {
+	var entityType = /*#__PURE__*/function () {
 	  function entityType(values) {
 	    babelHelpers.classCallCheck(this, entityType);
 	    this.values = [];
@@ -164,9 +160,7 @@
 	  }
 	};
 
-	var answerEditor =
-	/*#__PURE__*/
-	function () {
+	var answerEditor = /*#__PURE__*/function () {
 	  function answerEditor() {
 	    babelHelpers.classCallCheck(this, answerEditor);
 	    this.id = 'Editor';

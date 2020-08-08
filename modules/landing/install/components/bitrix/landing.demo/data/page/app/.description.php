@@ -14,7 +14,7 @@ return array(
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(
 			'THEME_CODE' => 'app',
-			'THEME_CODE_TYPO' => 'app',
+
 			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/app/preview.jpg',
 			'METAOG_TITLE' => Loc::getMessage('LANDING_DEMO_TITLE'),
 			'METAOG_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_DESCRIPTION'),
@@ -28,7 +28,7 @@ return array(
 				'CODE' => '0.menu_03',
 				'SORT' => '-100',
 				'CONTENT' => '
-<header class="landing-block landing-block-menu g-bg-white u-header u-header--fixed">
+<header class="landing-block landing-block-menu g-bg-white u-header u-header--static u-header--relative">
 	<div class="u-header__section u-header__section--light u-shadow-v27 g-transition-0_3 g-py-12 g-py-20--md">
 		<nav class="navbar navbar-expand-lg py-0 g-px-15">
 			<div class="container">

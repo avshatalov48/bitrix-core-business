@@ -12,6 +12,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /** @global CCacheManager $CACHE_MANAGER */
 /** @global CUserTypeManager $USER_FIELD_MANAGER */
 
+use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Main\Localization\Loc;
@@ -26,32 +27,32 @@ if (!CModule::IncludeModule("socialnetwork"))
 
 $arResult["IS_IFRAME"] = ($_REQUEST["IFRAME"] == "Y");
 
-$arParams["GROUP_ID"] = IntVal($arParams["GROUP_ID"]);
-$arParams["USER_ID"] = IntVal($arParams["USER_ID"]);
+$arParams["GROUP_ID"] = intval($arParams["GROUP_ID"]);
+$arParams["USER_ID"] = intval($arParams["USER_ID"]);
 if ($arParams["USER_ID"] <= 0)
 	$arParams["USER_ID"] = $USER->GetID();
 $arParams["PAGE_ID"] = Trim($arParams["PAGE_ID"]);
-if (StrLen($arParams["PAGE_ID"]) <= 0)
+if ($arParams["PAGE_ID"] == '')
 	$arParams["PAGE_ID"] = "user_features";
 
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 
-if (strLen($arParams["USER_VAR"]) <= 0)
+if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if (strLen($arParams["GROUP_VAR"]) <= 0)
+if ($arParams["GROUP_VAR"] == '')
 	$arParams["GROUP_VAR"] = "group_id";
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if (strlen($arParams["PATH_TO_USER"]) <= 0)
+if ($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_GROUP"] = trim($arParams["PATH_TO_GROUP"]);
-if (strlen($arParams["PATH_TO_GROUP"]) <= 0)
+if ($arParams["PATH_TO_GROUP"] == '')
 	$arParams["PATH_TO_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#");
 
-if (strlen($arParams["NAME_TEMPLATE"]) <= 0)
+if ($arParams["NAME_TEMPLATE"] == '')
 	$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 $bUseLogin = $arParams['SHOW_LOGIN'] != "N" ? true : false;
 
@@ -80,8 +81,13 @@ else
 		$arResult["FatalError"] = GetMessage("SONET_C3_NO_GROUP_ID").".";
 	}
 
-	if (StrLen($arResult["FatalError"]) <= 0)
+	if ($arResult["FatalError"] == '')
 	{
+		$arResult['tasksLimitExceeded'] = (
+			Loader::includeModule('tasks')
+			&& Bitrix\Tasks\Util\Restriction\Bitrix24Restriction\Limit\TaskLimit::isLimitExceeded()
+		);
+
 		if ($arParams["PAGE_ID"] == "group_features")
 		{
 			$arGroup = CSocNetGroup::GetByID($arParams["GROUP_ID"]);
@@ -249,7 +255,7 @@ else
 		}
 	}
 
-	if (StrLen($arResult["FatalError"]) <= 0)
+	if ($arResult["FatalError"] == '')
 	{
 		$arResult["Urls"]["User"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $arParams["USER_ID"]));
 		$arResult["Urls"]["Group"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP"], array("group_id" => $arParams["GROUP_ID"]));
@@ -311,7 +317,7 @@ else
 
 		if (
 			$_SERVER["REQUEST_METHOD"] == "POST"
-			&& strlen($_POST["save"]) > 0
+			&& $_POST["save"] <> ''
 			&& check_bitrix_sessid()
 		)
 		{
@@ -324,7 +330,7 @@ else
 
 			if (
 				$arParams["PAGE_ID"] == "group_features"
-				&& strlen($_POST["GROUP_INITIATE_PERMS"]) > 0
+				&& $_POST["GROUP_INITIATE_PERMS"] <> ''
 				&& in_array($_POST["GROUP_INITIATE_PERMS"], UserToGroupTable::getRolesMember())
 			)
 			{
@@ -344,12 +350,20 @@ else
 					$_REQUEST["blog_active"] = "Y";
 				}
 
+				if (
+					$feature == 'tasks'
+					&& $arResult['tasksLimitExceeded']
+				)
+				{
+					continue;
+				}
+
 				$idTmp = CSocNetFeatures::setFeature(
 					($arParams["PAGE_ID"] == "group_features" ? SONET_ENTITY_GROUP : SONET_ENTITY_USER),
 					($arParams["PAGE_ID"] == "group_features" ? $arResult["Group"]["ID"] : $arResult["User"]["ID"]),
 					$feature,
 					($_REQUEST[$feature."_active"] == "Y"),
-					(strlen($_REQUEST[$feature."_name"]) > 0 ? $_REQUEST[$feature."_name"] : false)
+					($_REQUEST[$feature."_name"] <> '' ? $_REQUEST[$feature."_name"] : false)
 				);
 
 				if (
@@ -388,16 +402,24 @@ else
 			{
 				$APPLICATION->RestartBuffer();
 				echo CUtil::PhpToJsObject(array(
-					'MESSAGE' => (strlen($errorMessage) > 0 ? 'ERROR' : 'SUCCESS'),
-					'ERROR_MESSAGE' => (strlen($errorMessage) > 0 ? $errorMessage : ''),
-					'URL' => (strlen($errorMessage) > 0 ? '' : $arResult["Urls"]["Group"])
+					'MESSAGE' => ($errorMessage <> '' ? 'ERROR' : 'SUCCESS'),
+					'ERROR_MESSAGE' => ($errorMessage <> '' ? $errorMessage : ''),
+					'URL' => (
+						$errorMessage <> ''
+							? ''
+							: (
+								$arParams["PAGE_ID"] == "group_features"
+									? $arResult["Urls"]["Group"]
+									: $arResult["Urls"]["User"]
+							)
+					)
 				));
 				require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");
 				die();
 			}
 			else
 			{
-				if (strlen($errorMessage) > 0)
+				if ($errorMessage <> '')
 				{
 					$arResult["ErrorMessage"] = $errorMessage;
 				}

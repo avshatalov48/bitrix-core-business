@@ -38,7 +38,7 @@ class Automatic extends Base
 	{
 		parent::__construct($initParams);
 
-		if(isset($this->config["MAIN"]["SID"]) && strlen($this->config["MAIN"]["SID"]) > 0)
+		if(isset($this->config["MAIN"]["SID"]) && $this->config["MAIN"]["SID"] <> '')
 		{
 			$initedHandlers = self::getRegisteredHandlers("SID");
 
@@ -56,7 +56,7 @@ class Automatic extends Base
 			if($this->handlerInitParams == false)
 				throw new SystemException("Can't get delivery services init params. Delivery id: ".$this->id.", sid: ".$this->sid);
 
-			if(strlen($this->currency) <= 0 && !empty($this->handlerInitParams["BASE_CURRENCY"]))
+			if($this->currency == '' && !empty($this->handlerInitParams["BASE_CURRENCY"]))
 				$this->currency = $this->handlerInitParams["BASE_CURRENCY"];
 		}
 
@@ -82,7 +82,7 @@ class Automatic extends Base
 		static $jsData = array();
 
 		$initedHandlers = self::getRegisteredHandlers("SID");
-		sortByColumn($initedHandlers, array(strtoupper("NAME") => SORT_ASC));
+		sortByColumn($initedHandlers, array(mb_strtoupper("NAME") => SORT_ASC));
 
 		if($handlers === null)
 		{
@@ -102,7 +102,7 @@ class Automatic extends Base
 			}
 		}
 
-		if(strlen($this->handlerInitParams["SID"]) <= 0 || $this->id <=0)
+		if($this->handlerInitParams["SID"] == '' || $this->id <=0)
 		{
 			$result = array(
 				"MAIN" => array(
@@ -180,7 +180,7 @@ class Automatic extends Base
 			"OPTIONS" => $marginTypes
 		);
 
-		if(strlen($this->sid) > 0)
+		if($this->sid <> '')
 		{
 			$configProfileIds = array_keys($this->handlerInitParams["PROFILES"]);
 		}
@@ -221,10 +221,10 @@ class Automatic extends Base
 		if(!isset($fields["CONFIG"]))
 			return $fields;
 
-		if(!isset($fields["CONFIG"]["MAIN"]["SID"]) || strlen($fields["CONFIG"]["MAIN"]["SID"]) <= 0)
+		if(!isset($fields["CONFIG"]["MAIN"]["SID"]) || $fields["CONFIG"]["MAIN"]["SID"] == '')
 			throw new SystemException(Loc::getMessage("SALE_DLVR_HANDL_AUT_ERROR_HANDLER"));
 
-		if(strlen($this->sid) <= 0)
+		if($this->sid == '')
 			return $fields;
 
 		$fields["CODE"] = $this->sid;
@@ -253,7 +253,7 @@ class Automatic extends Base
 
 		$fields["CONFIG"]["MAIN"]["OLD_SETTINGS"] = $strOldSettings;
 
-		if(isset($this->handlerInitParams["CURRENCY"]) && strlen($this->handlerInitParams["CURRENCY"]) > 0)
+		if(isset($this->handlerInitParams["CURRENCY"]) && $this->handlerInitParams["CURRENCY"] <> '')
 			$fields["CURRENCY"] = $this->handlerInitParams["CURRENCY"];
 
 		return $fields;
@@ -411,7 +411,7 @@ class Automatic extends Base
 
 	public static function getHandlerInitParams($sid)
 	{
-		if(strlen($sid) <= 0)
+		if($sid == '')
 			return false;
 
 		$handlers = self::getRegisteredHandlers("SID");
@@ -443,7 +443,7 @@ class Automatic extends Base
 					if($filename == "." || $filename == ".." || in_array($filename, $arLoadedHandlers))
 						continue;
 
-					if (!is_dir($_SERVER["DOCUMENT_ROOT"].$basePath."/".$filename) && substr($filename, 0, 9) == "delivery_")
+					if (!is_dir($_SERVER["DOCUMENT_ROOT"].$basePath."/".$filename) && mb_substr($filename, 0, 9) == "delivery_")
 					{
 						if(\Bitrix\Main\IO\Path::getExtension($filename) == 'php')
 						{
@@ -475,7 +475,7 @@ class Automatic extends Base
 		{
 			$initParams = ExecuteModuleEventEx($arHandler);
 
-			if(strlen($indexBy) > 0 && isset($initParams[$indexBy]))
+			if($indexBy <> '' && isset($initParams[$indexBy]))
 				$arHandlersList[$indexBy][$initParams[$indexBy]] = $initParams;
 			else
 				$arHandlersList[$indexBy][] = $initParams;
@@ -588,7 +588,7 @@ class Automatic extends Base
 
 		unset($service["CODE"]);
 
-		if(strlen($service["SID"]) > 0 && isset($handlers[$service["SID"]]))
+		if($service["SID"] <> '' && isset($handlers[$service["SID"]]))
 			$result = array_merge($handlers[$service["SID"]], $service);
 		else
 			$result = $service;
@@ -598,7 +598,7 @@ class Automatic extends Base
 
 	public function getOldDbSettings($settings)
 	{
-		if(strlen($settings) <= 0)
+		if($settings == '')
 			return array();
 
 		if(!is_callable($this->handlerInitParams["DBGETSETTINGS"]))
@@ -626,7 +626,7 @@ class Automatic extends Base
 				if(isset($conf["CONFIG_GROUPS"]))
 					$config["CONFIG_GROUPS"] = $conf["CONFIG_GROUPS"];
 
-				if (strlen($settings) > 0 && is_callable($initHandlerParams["DBGETSETTINGS"]))
+				if ($settings <> '' && is_callable($initHandlerParams["DBGETSETTINGS"]))
 				{
 					$settings = unserialize($settings);
 					$arConfigValues = call_user_func($initHandlerParams["DBGETSETTINGS"], $settings);
@@ -680,7 +680,7 @@ class Automatic extends Base
 
 	protected static function getCompatibleProfiles($sid, $compatibilityFunc, array $config, Shipment $shipment)
 	{
-		if(strlen($sid) <= 0)
+		if($sid == '')
 			throw new ArgumentNullException("sid");
 
 		static $result = array();
@@ -809,7 +809,7 @@ class Automatic extends Base
 					}
 					else
 					{
-						if(isset($res["TEXT"]) && strlen($res["TEXT"]) > 0)
+						if(isset($res["TEXT"]) && $res["TEXT"] <> '')
 						{
 							$calcRes->addError(new EntityError(
 								$res["TEXT"],

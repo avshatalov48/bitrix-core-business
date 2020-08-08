@@ -63,7 +63,7 @@ if(count($aSTabs)<1)
 
 $tabControl = new CAdminTabControl("tabControl", $aSTabs);
 
-if($REQUEST_METHOD=="POST" && strlen($Update)>0 && check_bitrix_sessid())
+if($REQUEST_METHOD=="POST" && $Update <> '' && check_bitrix_sessid())
 {
 	foreach($aSTabs as $arTab)
 	{

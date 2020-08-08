@@ -42,7 +42,7 @@ class BlockInserter
 		$this->dbHelper = $this->dbConnection->getSqlHelper();
 
 		$map = array();
-		if(strlen($parameters['entityName']))
+		if($parameters['entityName'] <> '')
 		{
 			$table = $parameters['entityName'];
 
@@ -55,7 +55,9 @@ class BlockInserter
 				foreach($parameters['exactFields'] as $fld)
 				{
 					if(!isset($this->tableMap[$fld]))
+					{
 						throw new Main\SystemException('Field does not exist in ORM class, but present in "exactFields" parameter: '.$fld, 0, __FILE__, __LINE__);
+					}
 
 					$map[] = $fld;
 					$this->fldVector[$fld] = true;
@@ -70,7 +72,7 @@ class BlockInserter
 				}
 			}
 		}
-		elseif(strlen($parameters['tableName']))
+		elseif(mb_strlen($parameters['tableName']))
 		{
 			$this->tableName = $this->dbHelper->forSql($parameters['tableName']);
 			$this->tableMap = $parameters['exactFields'];
@@ -100,7 +102,7 @@ class BlockInserter
 
 		// automatically insert to this field an auto-increment value
 		// beware of TransactSQL`s IDENTITY_INSERT when setting autoIncrementFld to a database-driven auto-increment field
-		if(strlen($parameters['parameters']['autoIncrementFld']))
+		if($parameters['parameters']['autoIncrementFld'] <> '')
 		{
 			$this->autoIncFld = $this->dbHelper->forSql($this->autoIncFld);
 
@@ -136,7 +138,7 @@ class BlockInserter
 	// this method is buggy when table is empty
 	public function initIndexFromField($fld = 'ID')
 	{
-		if(!strlen($fld))
+		if($fld == '')
 			throw new Main\SystemException('Field is not set');
 
 		$fld = $this->dbHelper->forSql($fld);
@@ -210,9 +212,9 @@ class BlockInserter
 		if(defined(SITE_CHARSET) && SITE_CHARSET == 'UTF-8')
 			$len = mb_strlen($nextBuffer);
 		else
-			$len = strlen($nextBuffer);
+			$len = mb_strlen($nextBuffer);
 
-		if(($this->mtu - (strlen($nextBuffer) + 100)) < self::RED_LINE)
+		if(($this->mtu - (mb_strlen($nextBuffer) + 100)) < self::RED_LINE)
 		{
 			$this->flush(); // flushing the previous buffer (now $this->buffer == '')
 			$this->buffer = $this->insertHead.$sql;
@@ -225,7 +227,7 @@ class BlockInserter
 
 	public function flush()
 	{
-		if(!strlen($this->buffer))
+		if($this->buffer == '')
 			return;
 
 		if(isset($this->callbacks['ON_BEFORE_FLUSH']))

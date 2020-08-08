@@ -10,93 +10,93 @@ if (!CModule::IncludeModule("socialnetwork"))
 if (!array_key_exists("MAX_ITEMS", $arParams) || intval($arParams["MAX_ITEMS"]) <= 0)
 	$arParams["MAX_ITEMS"] = 6;
 	
-$arParams["ID"] = IntVal($arParams["ID"]);
+$arParams["ID"] = intval($arParams["ID"]);
 if ($arParams["ID"] <= 0)
-	$arParams["ID"] = IntVal($USER->GetID());
+	$arParams["ID"] = intval($USER->GetID());
 
 $arParams["PAGE_ID"] = Trim($arParams["PAGE_ID"]);
 
-if(strLen($arParams["USER_VAR"])<=0)
+if($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
-if(strLen($arParams["PAGE_VAR"])<=0)
+if($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if(strlen($arParams["PATH_TO_USER"])<=0)
+if($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_USER_FRIENDS"] = trim($arParams["PATH_TO_USER_FRIENDS"]);
-if(strlen($arParams["PATH_TO_USER_FRIENDS"])<=0)
+if($arParams["PATH_TO_USER_FRIENDS"] == '')
 	$arParams["PATH_TO_USER_FRIENDS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_friends&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_USER_FRIENDS_ADD"] = trim($arParams["PATH_TO_USER_FRIENDS_ADD"]);
-if(strlen($arParams["PATH_TO_USER_FRIENDS_ADD"])<=0)
+if($arParams["PATH_TO_USER_FRIENDS_ADD"] == '')
 	$arParams["PATH_TO_USER_FRIENDS_ADD"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_friends_add&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_USER_FRIENDS_DELETE"] = trim($arParams["PATH_TO_USER_FRIENDS_DELETE"]);
-if(strlen($arParams["PATH_TO_USER_FRIENDS_DELETE"])<=0)
+if($arParams["PATH_TO_USER_FRIENDS_DELETE"] == '')
 	$arParams["PATH_TO_USER_FRIENDS_DELETE"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_friends_delete&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_SEARCH"] = trim($arParams["PATH_TO_SEARCH"]);
-if(strlen($arParams["PATH_TO_SEARCH"])<=0)
+if($arParams["PATH_TO_SEARCH"] == '')
 	$arParams["PATH_TO_SEARCH"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=search");
 
 $arParams["PATH_TO_USER_GROUPS"] = trim($arParams["PATH_TO_USER_GROUPS"]);
-if(strlen($arParams["PATH_TO_USER_GROUPS"])<=0)
+if($arParams["PATH_TO_USER_GROUPS"] == '')
 	$arParams["PATH_TO_USER_GROUPS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_groups&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_USER_GROUPS_ADD"] = trim($arParams["PATH_TO_USER_GROUPS_ADD"]);
-if(strlen($arParams["PATH_TO_USER_GROUPS_ADD"])<=0)
+if($arParams["PATH_TO_USER_GROUPS_ADD"] == '')
 	$arParams["PATH_TO_USER_GROUPS_ADD"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_groups_add&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_USER_EDIT"] = trim($arParams["PATH_TO_USER_EDIT"]);
-if(strlen($arParams["PATH_TO_USER_EDIT"])<=0)
+if($arParams["PATH_TO_USER_EDIT"] == '')
 	$arParams["PATH_TO_USER_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#&mode=edit");
 
 $arParams["PATH_TO_MESSAGE_FORM"] = trim($arParams["PATH_TO_MESSAGE_FORM"]);
-if (strlen($arParams["PATH_TO_MESSAGE_FORM"]) <= 0)
+if ($arParams["PATH_TO_MESSAGE_FORM"] == '')
 	$arParams["PATH_TO_MESSAGE_FORM"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=message_form&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_MESSAGES_INPUT"] = trim($arParams["PATH_TO_MESSAGES_INPUT"]);
-if(strlen($arParams["PATH_TO_MESSAGES_INPUT"])<=0)
+if($arParams["PATH_TO_MESSAGES_INPUT"] == '')
 	$arParams["PATH_TO_MESSAGES_INPUT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=messages_input");
 
 $arParams["PATH_TO_USER_BLOG"] = trim($arParams["PATH_TO_USER_BLOG"]);
-if(strlen($arParams["PATH_TO_USER_BLOG"])<=0)
+if($arParams["PATH_TO_USER_BLOG"] == '')
 	$arParams["PATH_TO_USER_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_blog&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_USER_MICROBLOG"] = trim($arParams["PATH_TO_USER_MICROBLOG"]);
-if(strlen($arParams["PATH_TO_USER_MICROBLOG"])<=0)
+if($arParams["PATH_TO_USER_MICROBLOG"] == '')
 	$arParams["PATH_TO_USER_MICROBLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_microblog&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_USER_PHOTO"] = trim($arParams["PATH_TO_USER_PHOTO"]);
-if(strlen($arParams["PATH_TO_USER_PHOTO"])<=0)
+if($arParams["PATH_TO_USER_PHOTO"] == '')
 	$arParams["PATH_TO_USER_PHOTO"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_photo&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_USER_FORUM"] = trim($arParams["PATH_TO_USER_FORUM"]);
-if(strlen($arParams["PATH_TO_USER_FORUM"])<=0)
+if($arParams["PATH_TO_USER_FORUM"] == '')
 	$arParams["PATH_TO_USER_FORUM"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_forum&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_USER_CALENDAR"] = trim($arParams["PATH_TO_USER_CALENDAR"]);
-if (strlen($arParams["PATH_TO_USER_CALENDAR"]) <= 0)
+if ($arParams["PATH_TO_USER_CALENDAR"] == '')
 {
 	$arParams["PATH_TO_USER_CALENDAR"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_calendar&".$arParams["USER_VAR"]."=#user_id#");
 }
 
 $arParams["PATH_TO_USER_TASKS"] = trim($arParams["PATH_TO_USER_TASKS"]);
-if(strlen($arParams["PATH_TO_USER_TASKS"]) <= 0)
+if($arParams["PATH_TO_USER_TASKS"] == '')
 {
 	$arParams["PATH_TO_USER_TASKS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_tasks&".$arParams["USER_VAR"]."=#user_id#");
 }
 
 $arParams["PATH_TO_USER_FILES"] = trim($arParams["PATH_TO_USER_FILES"]);
-if (strlen($arParams["PATH_TO_USER_FILES"]) <= 0)
+if ($arParams["PATH_TO_USER_FILES"] == '')
 {
 	$arParams["PATH_TO_USER_FILES"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_files&".$arParams["USER_VAR"]."=#user_id#");
 }
 
 $arParams["PATH_TO_USER_CONTENT_SEARCH"] = trim($arParams["PATH_TO_USER_CONTENT_SEARCH"]);
-if (strlen($arParams["PATH_TO_USER_CONTENT_SEARCH"]) <= 0)
+if ($arParams["PATH_TO_USER_CONTENT_SEARCH"] == '')
 {
 	$arParams["PATH_TO_USER_CONTENT_SEARCH"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_content_search&".$arParams["USER_VAR"]."=#user_id#");
 }
@@ -256,19 +256,19 @@ else
 		$arResult["CanView"]["forum"] = (array_key_exists("forum", $arResult["ActiveFeatures"]) && CSocNetFeaturesPerms::CanPerformOperation($GLOBALS["USER"]->GetID(), SONET_ENTITY_USER, $arResult["User"]["ID"], "forum", "view", CSocNetUser::IsCurrentUserModuleAdmin()));
 		$arResult["CanView"]["content_search"] = (array_key_exists("search", $arResult["ActiveFeatures"]) && CSocNetFeaturesPerms::CanPerformOperation($GLOBALS["USER"]->GetID(), SONET_ENTITY_USER, $arResult["User"]["ID"], "search", "view", CSocNetUser::IsCurrentUserModuleAdmin()));
 
-		$arResult["Title"]["blog"] = ((array_key_exists("blog", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["blog"]) > 0) ? $arResult["ActiveFeatures"]["blog"] : GetMessage("SONET_UM_STREAM"));
-		$arResult["Title"]["microblog"] = ((array_key_exists("microblog", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["microblog"]) > 0) ? $arResult["ActiveFeatures"]["microblog"] : GetMessage("SONET_UM_MICROBLOG"));
-		$arResult["Title"]["photo"] = ((array_key_exists("photo", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["photo"]) > 0) ? $arResult["ActiveFeatures"]["photo"] : GetMessage("SONET_UM_PHOTO"));
-		$arResult["Title"]["forum"] = ((array_key_exists("forum", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["forum"]) > 0) ? $arResult["ActiveFeatures"]["forum"] : GetMessage("SONET_UM_FORUM"));
-		$arResult["Title"]["calendar"] = ((array_key_exists("calendar", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["calendar"]) > 0) ? $arResult["ActiveFeatures"]["calendar"] : GetMessage("SONET_UM_CALENDAR"));
-		$arResult["Title"]["tasks"] = ((array_key_exists("tasks", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["tasks"]) > 0) ? $arResult["ActiveFeatures"]["tasks"] : GetMessage("SONET_UM_TASKS"));
-		$arResult["Title"]["files"] = ((array_key_exists("files", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["files"]) > 0) ? $arResult["ActiveFeatures"]["files"] : GetMessage("SONET_UM_DISK"));
-		$arResult["Title"]["content_search"] = ((array_key_exists("search", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["search"]) > 0) ? $arResult["ActiveFeatures"]["search"] : GetMessage("SONET_UM_SEARCH"));
+		$arResult["Title"]["blog"] = ((array_key_exists("blog", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["blog"] <> '') ? $arResult["ActiveFeatures"]["blog"] : GetMessage("SONET_UM_STREAM"));
+		$arResult["Title"]["microblog"] = ((array_key_exists("microblog", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["microblog"] <> '') ? $arResult["ActiveFeatures"]["microblog"] : GetMessage("SONET_UM_MICROBLOG"));
+		$arResult["Title"]["photo"] = ((array_key_exists("photo", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["photo"] <> '') ? $arResult["ActiveFeatures"]["photo"] : GetMessage("SONET_UM_PHOTO"));
+		$arResult["Title"]["forum"] = ((array_key_exists("forum", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["forum"] <> '') ? $arResult["ActiveFeatures"]["forum"] : GetMessage("SONET_UM_FORUM"));
+		$arResult["Title"]["calendar"] = ((array_key_exists("calendar", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["calendar"] <> '') ? $arResult["ActiveFeatures"]["calendar"] : GetMessage("SONET_UM_CALENDAR"));
+		$arResult["Title"]["tasks"] = ((array_key_exists("tasks", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["tasks"] <> '') ? $arResult["ActiveFeatures"]["tasks"] : GetMessage("SONET_UM_TASKS"));
+		$arResult["Title"]["files"] = ((array_key_exists("files", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["files"] <> '') ? $arResult["ActiveFeatures"]["files"] : GetMessage("SONET_UM_DISK"));
+		$arResult["Title"]["content_search"] = ((array_key_exists("search", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["search"] <> '') ? $arResult["ActiveFeatures"]["search"] : GetMessage("SONET_UM_SEARCH"));
 
 		$a = array_keys($arResult["Urls"]);
 		foreach ($a as $v)
 		{
-			$arResult["Urls"][strtolower($v)] = $arResult["Urls"][$v];
+			$arResult["Urls"][mb_strtolower($v)] = $arResult["Urls"][$v];
 		}
 
 		$events = GetModuleEvents("socialnetwork", "OnFillSocNetMenu");

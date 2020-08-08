@@ -70,7 +70,7 @@ abstract class CCatalogProductSetAll
 	{
 		self::$arErrors = array();
 
-		$strAction = strtoupper($strAction);
+		$strAction = mb_strtoupper($strAction);
 		if ('ADD' != $strAction && 'UPDATE' != $strAction && 'TEST' != $strAction)
 			return false;
 		if (empty($arFields) || !is_array($arFields))

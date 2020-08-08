@@ -62,7 +62,7 @@ class CSecurityDB
 			return true;
 		}
 
-		if (defined("MYSQL_TABLE_TYPE") && strlen(MYSQL_TABLE_TYPE) > 0)
+		if (defined("MYSQL_TABLE_TYPE") && MYSQL_TABLE_TYPE <> '')
 		{
 			$rs = CSecurityDB::Query("SET storage_engine = '".MYSQL_TABLE_TYPE."'", "Module: security; Class: CSecurityDB; Function: Init; File: ".__FILE__."; Line: ".__LINE__);
 			if (!is_object($rs))

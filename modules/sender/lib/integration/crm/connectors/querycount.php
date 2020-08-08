@@ -62,9 +62,12 @@ class QueryCount
 	 *
 	 * @param Entity\Query $query Query.
 	 * @param integer $dataTypeId Data type ID.
+	 *
 	 * @return array
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
-	private static function exec(Entity\Query $query, $dataTypeId = null)
+	protected static function exec(Entity\Query $query, $dataTypeId = null)
 	{
 		$result = array();
 		$resultDb = Helper::prepareQuery($query, $dataTypeId)->exec();
@@ -118,10 +121,10 @@ class QueryCount
 				continue;
 			}
 
-			$entityName = strtoupper($query->getEntity()->getName());
+			$entityName = mb_strtoupper($query->getEntity()->getName());
 
 			$useEmptyValue = false;
-			if (strpos($field['DATA_COLUMN'], '.') > 0)
+			if (mb_strpos($field['DATA_COLUMN'], '.') > 0)
 			{
 				$refFieldName = array_shift(explode('.', $field['DATA_COLUMN']));
 				if (!array_key_exists($refFieldName, $query->getRuntimeChains()))

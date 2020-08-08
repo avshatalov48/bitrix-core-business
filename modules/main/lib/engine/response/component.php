@@ -10,10 +10,11 @@ final class Component extends HtmlContent
 	 * @param string $componentTemplate
 	 * @param array $componentParams
 	 * @param array $additionalResponseParams
+	 * @param mixed $dataKeys
 	 */
-	public function __construct($componentName, $componentTemplate = '', array $componentParams = [], array $additionalResponseParams = [])
+	public function __construct($componentName, $componentTemplate = '', array $componentParams = [], array $additionalResponseParams = [], $dataKeys = [])
 	{
-		$componentArea = new ContentArea\Component($componentName, $componentTemplate, $componentParams);
+		$componentArea = new ContentArea\Component($componentName, $componentTemplate, $componentParams, $dataKeys);
 		parent::__construct($componentArea, self::STATUS_SUCCESS, null, $additionalResponseParams);
 	}
 }

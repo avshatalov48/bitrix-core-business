@@ -201,7 +201,7 @@ class ConfigMap
 		{
 			foreach ($groups as $group)
 			{
-				if (strpos($paramName, $group) === 0)
+				if (mb_strpos($paramName, $group) === 0)
 				{
 					return $group;
 				}

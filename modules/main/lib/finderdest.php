@@ -214,6 +214,7 @@ class FinderDestTable extends Entity\DataManager
 	}
 
 	/**
+	 * @deprecated isn't used in the kernel already
 	 * Handler for onAfterAjaxActionCreateFolderWithSharing, onAfterAjaxActionAppendSharing and onAfterAjaxActionChangeSharingAndRights events of disk module
 	 * Converts sharings into destination codes and stores them
 	 *

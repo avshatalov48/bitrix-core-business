@@ -1,5 +1,6 @@
 <?php
 $im_default_option = array(
+	'notify_flash_engine_type' => 'session',
 	'general_chat_id' => 0,
 	'general_chat_message_join' => true,
 	'general_chat_message_leave' => false,
@@ -11,7 +12,9 @@ $im_default_option = array(
 	'turn_server_firefox' => '54.217.240.163',
 	'turn_server_login' => 'bitrix',
 	'turn_server_password' => 'bitrix',
+	'turn_server_max_users' => 4,
 	'call_server_enabled' => IsModuleInstalled('bitrix24') ? true : false,
+	'call_server_max_users' => 12,
 	'open_chat_enable' => IsModuleInstalled('intranet')? true: false,
 	'color_enable' => true,
 	'correct_text' => false,
@@ -34,5 +37,18 @@ $im_default_option = array(
 	'contact_list_load' => true,
 	'contact_list_show_all_bus' => false,
 	'path_to_user_profile' => (!IsModuleInstalled("intranet") ? '/club/user/#user_id#/' : ''),
+	'message_history_index' => false,
+	'call_log_service' => '',
+	'call_log_secret' => '',
 );
+
+if (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/php_interface/im_options.php"))
+{
+	$additionalOptions = include($_SERVER["DOCUMENT_ROOT"]."/bitrix/php_interface/im_options.php");
+	if (is_array($additionalOptions))
+	{
+		$im_default_option = array_merge($im_default_option, $additionalOptions);
+	}
+}
+
 ?>

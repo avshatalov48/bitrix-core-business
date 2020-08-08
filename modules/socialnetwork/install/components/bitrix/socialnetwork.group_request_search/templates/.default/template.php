@@ -4,7 +4,7 @@ if ($arResult["NEED_AUTH"] == "Y")
 {
 	$APPLICATION->AuthForm("");
 }
-elseif (strlen($arResult["FatalError"])>0)
+elseif ($arResult["FatalError"] <> '')
 {
 	?>
 	<span class='errortext'><?=$arResult["FatalError"]?></span><br /><br />
@@ -12,7 +12,7 @@ elseif (strlen($arResult["FatalError"])>0)
 }
 else
 {
-	if(strlen($arResult["ErrorMessage"])>0)
+	if($arResult["ErrorMessage"] <> '')
 	{
 		?>
 		<span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br />
@@ -143,7 +143,7 @@ else
 						<?
 						// default invitation message
 						$message = htmlspecialcharsex($_POST["MESSAGE"]);
-						if (strlen($message) <= 0)
+						if ($message == '')
 							$message = str_replace(
 								array("#NAME#"), 
 								array($arResult["Group"]["NAME"]), 
@@ -255,19 +255,19 @@ else
 			<?= GetMessage("SONET_C11_SUCCESS") ?><br><br>
 			<?= GetMessage("SONET_C33_T_SUCCESS_LIST") ?><br>
 			<?foreach ($arResult["SuccessUsers"] as $user):?>
-				<?if (StrLen($user[1]) > 0):?><a href="<?= $user[1] ?>"><?endif;?><?= $user[0] ?><?if (StrLen($user[1]) > 0):?></a><?endif;?><br />
+				<?if ($user[1] <> ''):?><a href="<?= $user[1] ?>"><?endif;?><?= $user[0] ?><?if ($user[1] <> ''):?></a><?endif;?><br />
 			<?endforeach;?>
 			<br />
 		<?endif;?>
 		<?if ($arResult["ErrorUsers"]):?>
 			<?= GetMessage("SONET_C33_T_ERROR_LIST") ?><br>
 			<?foreach ($arResult["ErrorUsers"] as $user):?>
-				<?if (StrLen($user[1]) > 0):?><a href="<?= $user[1] ?>"><?endif;?><?= $user[0] ?><?if (StrLen($user[1]) > 0):?></a><?endif;?><br />
+				<?if ($user[1] <> ''):?><a href="<?= $user[1] ?>"><?endif;?><?= $user[0] ?><?if ($user[1] <> ''):?></a><?endif;?><br />
 			<?endforeach;?>
 			<br />
 		<?endif;?>
 		<?
-		if(strlen($arResult["WarningMessage"])>0)
+		if($arResult["WarningMessage"] <> '')
 		{
 			?>
 			<br /><span class='errortext'><?=$arResult["WarningMessage"]?></span><br /><br />

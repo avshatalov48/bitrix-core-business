@@ -1,0 +1,258 @@
+.catalog-wrapper .ui-entity-editor-section-edit {
+	z-index: 140;
+}
+
+.catalog-wrapper .ui-entity-editor-included-area {
+	z-index: 140;
+}
+
+.ui-entity-editor-column-content + .ui-entity-editor-column-content {
+	padding-left: 5px;
+}
+
+.catalog-entity-wrap {
+	position: relative;
+}
+
+.catalog-entity-section-tabs {
+	display: flex;
+	margin: 0 0 10px;
+	border-top: 1px solid #dce2e6;
+	justify-content: space-between;
+	align-items: flex-start;
+}
+
+.bitrix24-light-theme .catalog-entity-section-tabs {
+	border-top: 1px solid rgba(220, 226, 230, .5);
+}
+
+.catalog-entity-section-status-wrap + .catalog-entity-section-tabs {
+	margin: 10px 0;
+	border-top: none;
+}
+
+.catalog-entity-section-tabs-container {
+	display: flex;
+	flex-direction: row;
+	margin: 0;
+	padding: 15px 0;
+	list-style: none;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: center;
+}
+
+.catalog-entity-section-tab,
+.catalog-entity-section-tab-current {
+	display: inline-block;
+	overflow: hidden;
+	box-sizing: border-box;
+	margin: 2px 0;
+	padding: 0 18px;
+	min-height: 27px;
+	line-height: 27px;
+}
+
+.bitrix24-light-theme .catalog-entity-section-tab,
+.bitrix24-light-theme .catalog-entity-section-tab-current {
+	padding: 0;
+}
+
+.catalog-entity-section-tabs-container .catalog-entity-section-tab:last-child,
+.catalog-entity-section-tabs-container .catalog-entity-section-tab-current:last-child {
+	padding-right: 0;
+}
+
+.catalog-entity-section-tab-link {
+	display: block;
+	overflow: hidden;
+	max-width: 100%;
+	border-bottom: 2px solid transparent;
+	color: #525c68 !important;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font: 600 14px/25px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	cursor: pointer;
+	transition: all 220ms ease;
+}
+
+.bitrix24-light-theme .catalog-entity-section-tab-link {
+	margin-right: 2px;
+	padding: 0 18px;
+	color: #fefefe !important;
+}
+
+.catalog-entity-section-tab .catalog-entity-section-tab-link:hover,
+.catalog-entity-section-tab-current .catalog-entity-section-tab-link {
+	border-bottom-color: #1058d0;
+	color: #1058d0 !important;
+}
+
+.bitrix24-light-theme .catalog-entity-section-tab:hover .catalog-entity-section-tab-link,
+.bitrix24-light-theme .catalog-entity-section-tab-current .catalog-entity-section-tab-link {
+	border-bottom-color: transparent;
+	border-radius: 13.5px;
+	background-color: rgba(255, 255, 255, .2);
+	color: #fff !important;
+}
+
+li.catalog-entity-section-tab-disabled .catalog-entity-section-tab-link,
+li.catalog-entity-section-tab-disabled:hover .catalog-entity-section-tab-link {
+	border-color: transparent !important;
+	color: #9ca2a7 !important;
+	cursor: default;
+}
+
+.catalog-entity-section-tab-content-show,
+.catalog-entity-section-tab-content-hide {
+	position: relative;
+}
+
+.catalog-entity-section-tab-content-show {
+	opacity: 1;
+	transform: translateX(0);
+}
+
+.catalog-entity-section-tab-content-hide {
+	opacity: 0;
+	transform: translateX(100%);
+}
+
+/**/
+.catalog-entity-section-tab-applications-container {
+	padding: 15px 0;
+}
+
+/**/
+.catalog-entity-section-info {
+}
+
+/* catalog-entity-section-control */
+.catalog-entity-section.catalog-entity-section-control {
+	position: fixed;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 900;
+	box-sizing: border-box;
+	padding: 10px 0 0;
+	background-color: #fff;
+	box-shadow: 0 -2px 4px 0 rgba(0, 0, 0, .05);
+	text-align: center;
+	transition: all 300ms ease;
+	transform: translateY(100%);
+}
+
+.catalog-entity-wrap.crm-section-control-active .catalog-entity-section.catalog-entity-section-control {
+	transform: translateY(0);
+}
+
+.catalog-entity-section-control .webform-button-link {
+	position: relative;
+	margin: 0;
+	height: 39px;
+	border: none;
+	color: #535b69;
+	vertical-align: middle;
+	text-align: center;
+	text-transform: uppercase;
+	font: bold 12px/39px "Open Sans", Helvetica, Arial, sans-serif;
+	transition: color .25s ease;
+}
+
+.catalog-entity-section-control .webform-button-link:hover {
+	border: none;
+	color: #80868e;
+}
+
+.catalog-entity-section-control-error-block {
+	overflow: hidden;
+	margin-top: 10px;
+	max-height: 150px;
+	transition: all 300ms ease;
+}
+
+.catalog-entity-section-control-error-text {
+	padding: 20px;
+	width: 100%;
+	background-color: #fae5e8;
+	color: #d0011b;
+	font: 400 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.catalog-dictionary-item {
+	margin-right: 10px;
+	width: 39px;
+	height: 39px;
+	box-sizing: border-box;
+	padding: 0;
+	border-radius: 2px;
+	cursor: pointer;
+	border: 1px solid #d1d4d8;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	transition: border-color .2s linear;
+	text-align: center;
+}
+
+.catalog-dictionary-item-empty {
+	border: 2px dashed rgba(47, 198, 246, .64);
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2223%22%20height%3D%2223%22%3E%3Cpath%20fill%3D%22%23A8ADB4%22%20fill-rule%3D%22evenodd%22%20d%3D%22M2.706%200h17.588A2.706%202.706%200%200123%202.706v17.588A2.706%202.706%200%200120.294%2023H2.706A2.706%202.706%200%20010%2020.294V2.706A2.706%202.706%200%20012.706%200zm0%2020.294h17.588v-1.353l-4.69-5.412-2.345%202.707L7.396%209.47l-4.69%205.411v5.412zM16.912%208.118a2.03%202.03%200%20100-4.06%202.03%202.03%200%20000%204.06z%22%20opacity%3D%22.761%22/%3E%3C/svg%3E);
+	background-size: 19px;
+}
+
+.catalog-dictionary-item-empty:hover {
+	border-color: rgba(47, 198, 246, 1);
+}
+
+.catalog-dictionary-item .input-image-hidden {
+	display: none;
+}
+
+.catalog-dictionary-item img {
+	max-width: 100%;
+	height: 100%;
+	object-fit: scale-down;
+}
+
+.catalog-list-dictionary-select-icon {
+	line-height: 24px;
+	border-radius: 2px;
+	display: inline-block;
+	width: 24px;
+	height: 24px;
+	vertical-align: middle;
+	box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .05);
+	-webkit-background-size: cover;
+	background-size: cover;
+	margin-bottom: -2px;
+}
+
+img.catalog-image {
+	max-width:100%;
+	height:auto;
+	padding: 0 0 10px;
+}
+
+.catalog-entity-wrap .ui-entity-editor-section-header {
+	padding-bottom: 11px;
+	border-bottom: 1px solid #dde2e6;
+}
+
+.catalog-entity-wrap .ui-entity-editor-header-title-text {
+	color: #525c69;
+	text-transform: uppercase;
+	font: 11px/17px "OpenSans-Semibold", Helvetica, Arial, sans-serif;
+	height: auto;
+}
+
+.catalog-entity-overlay {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 120;
+	background-color: rgba(0, 0, 0, .2);
+}

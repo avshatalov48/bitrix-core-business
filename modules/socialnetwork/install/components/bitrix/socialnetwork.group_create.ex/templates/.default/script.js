@@ -536,6 +536,14 @@ BX.BXGCE.init = function(params) {
 					[ currentSlider.getEvent('onClose') ]
 				);
 			}
+			else
+			{
+				var url = e.currentTarget.getAttribute('bx-url');
+				if (BX.type.isNotEmptyString(url))
+				{
+					window.location = url;
+				}
+			}
 
 			window.top.BX.onCustomEvent("BX.Bitrix24.PageSlider:close", [false]);
 			window.top.BX.onCustomEvent('onSonetIframeCancelClick');

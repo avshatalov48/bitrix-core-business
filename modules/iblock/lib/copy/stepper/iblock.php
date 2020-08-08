@@ -39,12 +39,14 @@ class Iblock extends Entity
 
 			$iblockId = ($queueOption["iblockId"] ?: 0);
 			$copiedIblockId = ($queueOption["copiedIblockId"] ?: 0);
+			$errorOffset = ($queueOption["errorOffset"] ?: 0);
 
 			$limit = 5;
-			$offset = $this->getOffset($copiedIblockId);
+			$offset = $this->getOffset($copiedIblockId) + $errorOffset;
 
 			$enumRatio = ($queueOption["enumRatio"] ?: []);
 			$sectionsRatio = ($queueOption["sectionsRatio"] ?: []);
+			$mapIdsCopiedElements = ($queueOption["mapIdsCopiedElements"] ?: []);
 
 			if ($iblockId)
 			{
@@ -53,12 +55,20 @@ class Iblock extends Entity
 				$elementCopier = $this->getElementCopier();
 				$containerCollection = $this->getContainerCollection(
 					$elementIds, $sectionsRatio, $enumRatio, $copiedIblockId);
-				$elementCopier->copy($containerCollection);
+				$result = $elementCopier->copy($containerCollection);
+				if (!$result->isSuccess())
+				{
+					$queueOption["errorOffset"] += $this->getErrorOffset($elementCopier);
+				}
+
+				$mapIdsCopiedElements = $elementCopier->getMapIdsCopiedEntity() + $mapIdsCopiedElements;
+				$queueOption["mapIdsCopiedElements"] = $mapIdsCopiedElements;
+				$this->saveQueueOption($queueOption);
 
 				if ($selectedRowsCount < $limit)
 				{
-					$this->deleteCurrentQueue($queue);
 					$this->deleteQueueOption();
+					$this->onAfterCopy($queueOption);
 					return !$this->isQueueEmpty();
 				}
 				else
@@ -69,7 +79,6 @@ class Iblock extends Entity
 			}
 			else
 			{
-				$this->deleteCurrentQueue($queue);
 				$this->deleteQueueOption();
 				return !$this->isQueueEmpty();
 			}

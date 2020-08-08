@@ -1,0 +1,221 @@
+.mail-config-dirs > .mail-config-dirs-item {
+	padding-left: 0;
+}
+
+.mail-config-dirs-section-block {
+	margin-bottom: 40px;
+}
+
+.mail-config-dirs-title-block {
+	padding-bottom: 10px;
+	margin-bottom: 16px;
+	border-bottom: 1px solid #d8d8d8;
+}
+
+.mail-config-dirs-title {
+	font: 16px/24px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #333;
+}
+
+.mail-config-dirs-item {
+	padding-left: 15px;
+}
+
+.mail-config-dirs-item-input-check {
+	vertical-align: middle;
+	outline: none;
+	border: 1px solid #c6cdd3;
+	border-radius: 2px;
+	margin-left: 5px;
+	margin-right: 5px;
+	color: #535c6a;
+	font-size: 13px;
+}
+
+.child-counter-container {
+	display: none;
+}
+
+.child-counter-container.show {
+	display: inline-block;
+}
+
+.mail-config-dirs-button-select-all {
+	margin-bottom: 10px;
+	align-items: center;
+	flex-direction: row;
+	display: flex;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.mail-config-dirs-button-select {
+	align-items: center;
+	flex-direction: row;
+	cursor: pointer;
+	line-height: 20px;
+	font-size: 11px;
+	color: #a6a6a6;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	margin-left: 10px;
+	display: none;
+}
+
+.mail-config-dirs-button-select label {
+	cursor: pointer;
+}
+
+.mail-config-dirs-item-content:hover .mail-config-dirs-button-select {
+	display: flex;
+}
+
+.mail-config-dirs-item-content .mail-config-dirs-button-select .mail-config-dirs-button-select-input {
+	display: none;
+}
+
+.mail-config-dirs-item-content {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.mail-config-dirs-item-content.hasChild {
+	margin-left: 0;
+}
+
+.mail-config-dirs-item-content {
+	margin-left: 18px;
+	margin-bottom: 5px;
+}
+
+.mail-config-dirs-item-content .mail-connect-form-input {
+	padding: 0;
+}
+
+.mail-config-dirs-item-content .mail-config-dirs-item-input-check {
+
+}
+
+.mail-config-dirs-item-content label {
+	display: inline-block;
+	max-width: 200px;
+	white-space: nowrap;
+	overflow: hidden !important;
+	text-overflow: ellipsis;
+}
+
+.mail-config-dirs-item {
+	display: flex;
+	flex-direction: column;
+	color: #535c6A;
+	font: 13px/22px "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+
+.mail-config-dirs-item:last-child {
+	margin-bottom: 0;
+}
+
+.mail-config-dirs-level-box {
+	position: relative;
+	width: 18px;
+	height: 18px;
+	/* margin-right: 5px; */
+}
+
+.mail-config-dirs-level-button {
+	top: 0 !important;
+	left: 0 !important;
+	cursor: pointer
+}
+
+.mail-config-dirs-plus-icon:hover, .mail-config-dirs-minus-icon:hover {
+	opacity: 1;
+}
+
+.mail-config-dirs-plus-icon:not(.mail-config-dirs-loader-icon),
+.mail-config-dirs-minus-icon:not(.mail-config-dirs-loader-icon) {
+	position: absolute;
+	left: 0;
+	top: 0;
+	border-radius: 10px;
+	height: 16px;
+	/* padding: 0 9px; */
+	width: 16px;
+	border: 1px solid #d5dbdf;
+	opacity: 0.7;
+}
+
+.mail-config-dirs-plus-icon:not(.mail-config-dirs-loader-icon):before {
+	background-image: url('images/plus.svg');
+}
+
+.mail-config-dirs-minus-icon:not(.mail-config-dirs-loader-icon):before {
+	background-image: url('images/minus.svg');
+}
+
+.mail-config-dirs-plus-icon:not(.mail-config-dirs-loader-icon):before,
+.mail-config-dirs-minus-icon:not(.mail-config-dirs-loader-icon):before {
+	display: block;
+	content: "";
+	width: 8px;
+	height: 8px;
+	position: absolute;
+	left: 4px;
+	top: 4px;
+	/* transition: opacity .3s; */
+	/* background-color: green; */
+}
+
+.mail-config-dirs-loader-icon {
+	position: absolute;
+	left: 0;
+	top: 0;
+	border-radius: 0;
+	height: 18px;
+	width: 18px;
+	border: 0;
+	opacity: 1;
+}
+
+.mail-config-dirs-loader-icon:before {
+	display: block;
+	content: "";
+	width: 18px;
+	height: 18px;
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	background-image: url('images/loader.svg');
+	background-repeat: no-repeat;
+	background-origin: content-box;
+	padding: 0;
+	margin: 0;
+}
+
+.mail-config-dirs-singleselect {
+	display: inline-block;
+	border: none;
+	background: transparent;
+	box-shadow: none;
+	padding: 0;
+	width: auto;
+	height: 19px;
+	margin: 0 3px;
+	vertical-align: middle;
+	position: relative;
+	line-height: 17px;
+	color: #1169c3;
+	border-bottom: 1px dashed #88b4e1;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.mail-dirs-menu-disabled {
+	opacity: 0.4;
+}

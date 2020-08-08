@@ -1,8 +1,10 @@
 <?php
+
 namespace Bitrix\Bizproc\UserType;
 
 use Bitrix\Bizproc\BaseType;
 use Bitrix\Bizproc\FieldType;
+use Bitrix\Main\Loader;
 
 class UserFieldBase extends BaseType\Base
 {
@@ -25,11 +27,16 @@ class UserFieldBase extends BaseType\Base
 
 		$sType = static::getUserType($fieldType);
 
+		if ($sType === 'crm')
+		{
+			return self::formatCrmValuePrintable($fieldType, $value);
+		}
+
 		$arUserFieldType = $USER_FIELD_MANAGER->GetUserType($sType);
-		$arUserField = array(
+		$userField = [
 			'ENTITY_ID' => sprintf('%s_%s',
-				strtoupper($fieldType->getDocumentType()[0]),
-				strtoupper($fieldType->getDocumentType()[2])
+				mb_strtoupper($fieldType->getDocumentType()[0]),
+				mb_strtoupper($fieldType->getDocumentType()[2])
 			),
 			'FIELD_NAME' => 'UF_XXXXXXX',
 			'USER_TYPE_ID' => $sType,
@@ -39,36 +46,34 @@ class UserFieldBase extends BaseType\Base
 			'EDIT_FORM_LABEL' => $arUserFieldType['DESCRIPTION'],
 			'VALUE' => $value,
 			'USER_TYPE' => $arUserFieldType
-		);
-		if ($sType == 'iblock_element' || $sType == 'iblock_section')
+		];
+
+		if ($settings = $fieldType->getSettings())
 		{
-			$arUserField['SETTINGS']['IBLOCK_ID'] = $fieldType->getOptions();
+			$userField['SETTINGS'] = $settings;
 		}
-		elseif ($sType == 'crm_status')
-		{
-			$arUserField['SETTINGS']['ENTITY_TYPE'] = $fieldType->getOptions();
-		}
-		elseif ($sType == 'boolean' && ($value === 'Y' || $value === 'N'))
+
+		if ($sType == 'boolean' && ($value === 'Y' || $value === 'N'))
 		{
 			//Convert bizproc boolean values (Y/N) in to UF boolean values (1/0)
-			$arUserField['VALUE'] = $value = ($value === 'Y') ? 1 : 0;
+			$userField['VALUE'] = $value = ($value === 'Y') ? 1 : 0;
 		}
 
 		ob_start();
 		$APPLICATION->IncludeComponent(
 			'bitrix:system.field.view',
 			$sType,
-			array(
-				'arUserField' => $arUserField,
+			[
+				'arUserField' => $userField,
 				'bVarsFromForm' => false,
 				'form_name' => "",
 				'printable' => true,
 				'FILE_MAX_HEIGHT' => 400,
 				'FILE_MAX_WIDTH' => 400,
 				'FILE_SHOW_POPUP' => true
-			),
+			],
 			false,
-			array('HIDE_ICONS' => 'Y')
+			['HIDE_ICONS' => 'Y']
 		);
 
 		return HTMLToTxt(ob_get_clean());
@@ -85,7 +90,8 @@ class UserFieldBase extends BaseType\Base
 		if (is_array($value) && isset($value['VALUE']))
 			$value = $value['VALUE'];
 
-		$value = (string) $value;
+		$value = (string)$value;
+
 		return BaseType\StringType::convertTo($fieldType, $value, $toTypeClass);
 	}
 
@@ -111,10 +117,10 @@ class UserFieldBase extends BaseType\Base
 		global $USER_FIELD_MANAGER, $APPLICATION;
 
 		$selectorValue = null;
-		$typeValue = array();
+		$typeValue = [];
 		if (!is_array($value) || is_array($value) && \CBPHelper::isAssociativeArray($value))
 		{
-			$value = array($value);
+			$value = [$value];
 		}
 
 		foreach ($value as $v)
@@ -134,10 +140,10 @@ class UserFieldBase extends BaseType\Base
 
 		$arUserFieldType = $USER_FIELD_MANAGER->GetUserType($sType);
 
-		$arUserField = array(
-			'ENTITY_ID' =>  sprintf('%s_%s',
-				strtoupper($fieldType->getDocumentType()[0]),
-				strtoupper($fieldType->getDocumentType()[2])
+		$arUserField = [
+			'ENTITY_ID' => sprintf('%s_%s',
+				mb_strtoupper($fieldType->getDocumentType()[0]),
+				mb_strtoupper($fieldType->getDocumentType()[2])
 			),
 			'FIELD_NAME' => static::generateControlName($field),
 			'USER_TYPE_ID' => $sType,
@@ -150,61 +156,39 @@ class UserFieldBase extends BaseType\Base
 			'USER_TYPE' => $arUserFieldType,
 			'SETTINGS' => [],
 			'ENTITY_VALUE_ID' => 1,
-		);
+		];
 
 		if ($sType == 'boolean' && ($arUserField['VALUE'] == "Y" || $arUserField['VALUE'] == "N"))
 		{
 			$arUserField['VALUE'] = ($arUserField['VALUE'] == "Y") ? 1 : 0;
 		}
 
-		if (in_array($sType, ['iblock_element', 'iblock_section', 'crm_status', 'boolean']))
-		{
-			$options = $fieldType->getOptions();
-			if(is_string($options))
-			{
-				if ($sType === 'crm_status')
-				{
-					$arUserField['SETTINGS']['ENTITY_TYPE'] = $options;
-				}
-				else
-				{
-					$arUserField['SETTINGS']['IBLOCK_ID'] = $options;
-				}
-			}
-			elseif(is_array($options))
-			{
-				$arUserField['SETTINGS'] = $options;
-			}
+		$arUserField['SETTINGS'] = $fieldType->getSettings();
 
-			if ($sType !== 'crm_status' && ($renderMode & FieldType::RENDER_MODE_DESIGNER))
-			{
-				//TODO: fix checkboxes values
-				$arUserField['SETTINGS']['DISPLAY'] = 'LIST';
-			}
-		}
-		elseif ($sType == 'crm')
+		if (in_array($sType, ['iblock_element', 'iblock_section', 'boolean']) && ($renderMode & FieldType::RENDER_MODE_DESIGNER))
 		{
-			$arUserField['SETTINGS'] = $fieldType->getOptions();
-			if (empty($arUserField['SETTINGS']))
-			{
-				$arUserField['SETTINGS'] = array('LEAD' => 'Y', 'CONTACT' => 'Y', 'COMPANY' => 'Y', 'DEAL' => 'Y');
-			}
+			//TODO: fix checkboxes values
+			$arUserField['SETTINGS']['DISPLAY'] = 'LIST';
+		}
+		elseif ($sType == 'crm' && empty($arUserField['SETTINGS']))
+		{
+			$arUserField['SETTINGS'] = ['LEAD' => 'Y', 'CONTACT' => 'Y', 'COMPANY' => 'Y', 'DEAL' => 'Y'];
 		}
 
 		ob_start();
 		$APPLICATION->IncludeComponent(
 			'bitrix:system.field.edit',
 			$sType,
-			array(
+			[
 				'arUserField' => $arUserField,
 				'bVarsFromForm' => false,
 				'form_name' => $field['Form'],
 				'FILE_MAX_HEIGHT' => 400,
 				'FILE_MAX_WIDTH' => 400,
 				'FILE_SHOW_POPUP' => true
-			),
+			],
 			false,
-			array('HIDE_ICONS' => 'Y')
+			['HIDE_ICONS' => 'Y']
 		);
 
 		$renderResult = ob_get_clean();
@@ -250,6 +234,54 @@ class UserFieldBase extends BaseType\Base
 
 	protected static function getUserType(FieldType $fieldType)
 	{
-		return substr($fieldType->getType(), 3);
+		return mb_substr($fieldType->getType(), 3);
+	}
+
+	private static function formatCrmValuePrintable(FieldType $fieldType, $value)
+	{
+		if (!Loader::includeModule('crm'))
+		{
+			return '';
+		}
+
+		$defaultTypeName = 'LEAD';
+		foreach ($fieldType->getSettings() as $typeName => $flag)
+		{
+			if ($flag === 'Y')
+			{
+				$defaultTypeName = $typeName;
+				break;
+			}
+		}
+
+		return self::prepareCrmUserTypeValueView($value, $defaultTypeName);
+	}
+
+	private static function prepareCrmUserTypeValueView($value, $defaultTypeName = '')
+	{
+		$typeId = $id = null;
+		$parts = explode('_', $value);
+
+		if (count($parts) > 1)
+		{
+			$typeId = \CCrmOwnerTypeAbbr::ResolveTypeID($parts[0]);
+			$id = $parts[1];
+		}
+		elseif ($defaultTypeName !== '')
+		{
+			$typeId = \CCrmOwnerType::resolveID($defaultTypeName);
+			$id = $value;
+		}
+
+		if (!$typeId || !$id)
+		{
+			return '';
+		}
+
+		$entityName = \CCrmOwnerType::getCaption($typeId, $id, false);
+		$entityDesc = \CCrmOwnerType::GetDescription($typeId);
+		$entityUrl = \CCrmOwnerType::GetDetailsUrl($typeId, $id, false);
+
+		return sprintf('[b]%s:[/b] [url=%s]%s[/url]', $entityDesc, $entityUrl, $entityName);
 	}
 }

@@ -69,7 +69,7 @@
 					this.tiles[i].style.marginTop = obj.margin + 'px';
 				}
 				this.inner.style.marginLeft = (obj.margin * -1) + 'px';
-				this.inner.style.marginTop = (obj.margin * -1) + 'px';
+				this.inner.style.marginTop = (obj.margin * -1) + 7 + 'px';
 			}.bind(this));
 		},
 

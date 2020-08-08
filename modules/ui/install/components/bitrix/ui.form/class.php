@@ -11,6 +11,10 @@ Main\Loader::includeModule('ui');
  */
 class UIFormComponent extends \CBitrixComponent
 {
+	private const COLUMN_TYPE = 'column';
+	private const SECTION_TYPE = 'section';
+	private const INCLUDED_AREA_TYPE = 'included_area';
+
 	/** @var int */
 	protected $userID = 0;
 	/** @var string */
@@ -30,7 +34,14 @@ class UIFormComponent extends \CBitrixComponent
 	public function executeComponent()
 	{
 		$this->initialize();
+		$this->emitOnUIFormInitializeEvent();
 		$this->includeComponentTemplate();
+	}
+
+	protected function emitOnUIFormInitializeEvent()
+	{
+		$event = new Main\Event('ui', 'onUIFormInitialize', ['TEMPLATE' => $this->getTemplateName()]);
+		$event->send();
 	}
 
 	protected function initialize()
@@ -138,9 +149,9 @@ class UIFormComponent extends \CBitrixComponent
 		}
 		elseif(isset($this->arParams['~ENTITY_CONFIG']) && is_array($this->arParams['~ENTITY_CONFIG']))
 		{
-			foreach($this->arParams['~ENTITY_CONFIG'] as $element)
+			foreach($this->arParams['~ENTITY_CONFIG'] as $section)
 			{
-				$defaultConfig[$element['name']] = $element;
+				$defaultConfig[$section['name']] = $section;
 			}
 		}
 
@@ -162,12 +173,19 @@ class UIFormComponent extends \CBitrixComponent
 
 		$requiredFields = array();
 		$hasEmptyRequiredFields = false;
+		$htmlFieldNames = array();
 		foreach($this->arResult['ENTITY_FIELDS'] as $field)
 		{
 			$name = isset($field['name']) ? $field['name'] : '';
 			if($name === '')
 			{
 				continue;
+			}
+
+			$fieldType = $field['type'] ?? '';
+			if($fieldType === 'html')
+			{
+				$htmlFieldNames[] = $name;
 			}
 
 			$availableFields[$name] = $field;
@@ -180,7 +198,6 @@ class UIFormComponent extends \CBitrixComponent
 				}
 
 				//HACK: Skip if user field of type Boolean. Absence of value is treated as equivalent to FALSE.
-				$fieldType = isset($field['type']) ? $field['type'] : '';
 				if($fieldType === 'userField')
 				{
 					$fieldInfo = isset($field['data']) && isset($field['data']['fieldInfo'])
@@ -203,82 +220,100 @@ class UIFormComponent extends \CBitrixComponent
 			}
 		}
 
+		$config = $this->initializeConfigWithColumns($config);
+		$scheme = [];
+
+		$primaryColumnIndex = 0;
 		$primarySectionIndex = 0;
+
+		$serviceColumnIndex = 0;
 		$serviceSectionIndex = -1;
-		$scheme = array();
-		for($i = 0, $configQty = count($config); $i < $configQty; $i++)
+
+		foreach ($config as $j => $column)
 		{
-			$configItem = $config[$i];
-			$type = isset($configItem['type']) ? $configItem['type'] : '';
-			if($type !== 'section')
-			{
-				continue;
-			}
+			$columnScheme = [];
 
-			$sectionName = isset($configItem['name']) ? $configItem['name'] : '';
-			if($sectionName === 'main')
+			foreach ($column['elements'] as $i => $section)
 			{
-				$primarySectionIndex = $i;
-			}
-			elseif($sectionName === 'required')
-			{
-				$serviceSectionIndex = $i;
-			}
+				$type = $section['type'] ?? '';
 
-			if (is_array($defaultConfig[$sectionName]) && !empty($defaultConfig[$sectionName]['data']))
-			{
-				$configItem['data'] = $defaultConfig[$sectionName]['data'];
-			}
-
-			$elements = isset($configItem['elements']) && is_array($configItem['elements'])
-				? $configItem['elements'] : array();
-
-			$schemeElements = array();
-			for($j = 0, $elementQty = count($elements); $j < $elementQty; $j++)
-			{
-				$configElement = $elements[$j];
-				$name = isset($configElement['name']) ? $configElement['name'] : '';
-				if($name === '')
+				if ($type !== self::SECTION_TYPE && $type !== self::INCLUDED_AREA_TYPE)
 				{
 					continue;
 				}
 
-				$schemeElement = $availableFields[$name];
-				$fieldType = isset($schemeElement['type']) ? $schemeElement['type'] : '';
+				$sectionName = $section['name'] ?? '';
 
-				//User fields in common scope must have original names.
-				$title = '';
-				if(isset($configElement['title'])
-					&& !($fieldType === 'userField' && $configScope === UI\Form\EntityEditorConfigScope::COMMON)
-				)
+				if ($sectionName === 'main')
 				{
-					$title = $configElement['title'];
+					$primaryColumnIndex = $j;
+					$primarySectionIndex = $i;
+				}
+				elseif ($sectionName === 'required')
+				{
+					$serviceColumnIndex = $j;
+					$serviceSectionIndex = $i;
 				}
 
-				if($title !== '')
+				if (!empty($defaultConfig[$sectionName]['data']))
 				{
-					if(isset($schemeElement['title']))
+					$section['data'] = $defaultConfig[$sectionName]['data'];
+				}
+
+				$elements = isset($section['elements']) && is_array($section['elements'])
+					? $section['elements'] : [];
+
+				$schemeElements = [];
+
+				foreach ($elements as $element)
+				{
+					$name = $element['name'] ?? '';
+
+					if ($name === '')
 					{
-						$schemeElement['originalTitle'] = $schemeElement['title'];
+						continue;
 					}
-					$schemeElement['title'] = $title;
+
+					$schemeElement = $availableFields[$name];
+					$fieldType = $schemeElement['type'] ?? '';
+
+					//User fields in common scope must have original names.
+					$title = '';
+					if (isset($element['title'])
+						&& !($fieldType === 'userField' && $configScope === UI\Form\EntityEditorConfigScope::COMMON)
+					)
+					{
+						$title = $element['title'];
+					}
+
+					if ($title !== '')
+					{
+						if (isset($schemeElement['title']))
+						{
+							$schemeElement['originalTitle'] = $schemeElement['title'];
+						}
+
+						$schemeElement['title'] = $title;
+					}
+
+					if (isset($element['optionFlags']))
+					{
+						$schemeElement['optionFlags'] = (int)$element['optionFlags'];
+					}
+
+					$schemeElements[] = $schemeElement;
+					unset($availableFields[$name]);
+
+					if (isset($requiredFields[$name]))
+					{
+						unset($requiredFields[$name]);
+					}
 				}
 
-				$optionFlags = isset($configElement['optionFlags']) ? (int)$configElement['optionFlags'] : 0;
-				if($optionFlags > 0)
-				{
-					$schemeElement['optionFlags'] = $optionFlags;
-				}
-
-				$schemeElements[] = $schemeElement;
-				unset($availableFields[$name]);
-
-				if(isset($requiredFields[$name]))
-				{
-					unset($requiredFields[$name]);
-				}
+				$columnScheme[] = array_merge($section, ['elements' => $schemeElements]);
 			}
-			$scheme[] = array_merge($configItem, array('elements' => $schemeElements));
+
+			$scheme[] = array_merge($column, ['elements' => $columnScheme]);
 		}
 
 		//Add section 'Required Fields'
@@ -290,51 +325,55 @@ class UIFormComponent extends \CBitrixComponent
 				$this->arResult['INITIAL_MODE'] = 'edit';
 			}
 
+			// todo check required fields
 			if(!empty($requiredFields))
 			{
 				$schemeElements = array();
 				if($serviceSectionIndex >= 0)
 				{
-					$configItem = $config[$serviceSectionIndex];
-					if(isset($scheme[$serviceSectionIndex]['elements'])
-						&& is_array($scheme[$serviceSectionIndex]['elements'])
+					$section = $config[$serviceColumnIndex][$serviceSectionIndex];
+					if(
+						isset($scheme[$serviceColumnIndex][$serviceSectionIndex]['elements'])
+						&& is_array($scheme[$serviceColumnIndex][$serviceSectionIndex]['elements'])
 					)
 					{
-						$schemeElements = $scheme[$serviceSectionIndex]['elements'];
+						$schemeElements = $scheme[$serviceColumnIndex][$serviceSectionIndex]['elements'];
 					}
 				}
 				else
 				{
-					$configItem = array(
+					$section = array(
 						'name' => 'required',
 						'title' => Main\Localization\Loc::getMessage('UI_FORM_REQUIRED_FIELD_SECTION'),
-						'type' => 'section',
+						'type' => self::SECTION_TYPE,
 						'elements' => array()
 					);
 
+					$serviceColumnIndex = $primaryColumnIndex;
 					$serviceSectionIndex = $primarySectionIndex + 1;
+
 					array_splice(
-						$config,
+						$config[$serviceColumnIndex],
 						$serviceSectionIndex,
 						0,
-						array($configItem)
+						array($section)
 					);
 
 					array_splice(
-						$scheme,
+						$scheme[$serviceColumnIndex],
 						$serviceSectionIndex,
 						0,
-						array(array_merge($configItem, array('elements' => array())))
+						array(array_merge($section, array('elements' => array())))
 					);
 				}
 
 				foreach($requiredFields as $fieldName => $fieldInfo)
 				{
-					$configItem['elements'][] = array('name' => $fieldName);
+					$section['elements'][] = array('name' => $fieldName);
 					$schemeElements[] = $fieldInfo;
 				}
 
-				$scheme[$serviceSectionIndex]['elements'] = $schemeElements;
+				$scheme[$serviceColumnIndex][$serviceSectionIndex]['elements'] = $schemeElements;
 			}
 		}
 
@@ -345,6 +384,7 @@ class UIFormComponent extends \CBitrixComponent
 		$this->arResult['ENTITY_SCHEME'] = $scheme;
 
 		$this->arResult['ENTITY_AVAILABLE_FIELDS'] = array_values($availableFields);
+		$this->arResult['ENTITY_HTML_FIELD_NAMES'] = $htmlFieldNames;
 
 		$this->arResult['ENABLE_AJAX_FORM'] = !isset($this->arParams['~ENABLE_AJAX_FORM'])
 			|| $this->arParams['~ENABLE_AJAX_FORM'];
@@ -417,7 +457,7 @@ class UIFormComponent extends \CBitrixComponent
 		//endregion
 
 		//??
-		$this->optionID = $this->arResult['OPTION_ID'] = strtolower($this->configID).'_opts';
+		$this->optionID = $this->arResult['OPTION_ID'] = mb_strtolower($this->configID).'_opts';
 		$this->arResult['ENTITY_CONFIG_OPTIONS'] = \CUserOptions::GetOption(
 			'ui.entity.editor',
 			$this->optionID,
@@ -425,5 +465,49 @@ class UIFormComponent extends \CBitrixComponent
 		);
 
 		$this->arResult['EDITOR_OPTIONS'] = array('show_always' => 'Y');
+	}
+
+	private function initializeConfigWithColumns(array $config): array
+	{
+		$columns = [];
+		$elementsWithoutColumn = [];
+
+		foreach ($config as $element)
+		{
+			$type = $element['type'] ?? '';
+
+			if ($type === self::COLUMN_TYPE)
+			{
+				if (!isset($element['elements']) || !is_array($element['elements']))
+				{
+					$element['elements'] = [];
+				}
+
+				$columns[] = $element;
+			}
+			else
+			{
+				$elementsWithoutColumn[] = $element;
+			}
+		}
+
+		if (empty($columns))
+		{
+			$columns = [
+				[
+					'name' => 'main',
+					'title' => '',
+					'type' => self::COLUMN_TYPE,
+					'elements' => [],
+				],
+			];
+		}
+
+		if (!empty($elementsWithoutColumn))
+		{
+			$columns[0]['elements'] = array_merge($columns[0]['elements'], $elementsWithoutColumn);
+		}
+
+		return $columns;
 	}
 }

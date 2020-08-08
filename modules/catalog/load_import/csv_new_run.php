@@ -107,14 +107,14 @@ if (!function_exists('CSVCheckTimeout'))
 
 $DATA_FILE_NAME = "";
 
-if (strlen($URL_DATA_FILE) > 0)
+if ($URL_DATA_FILE <> '')
 {
 	$URL_DATA_FILE = Rel2Abs("/", $URL_DATA_FILE);
 	if (file_exists($_SERVER["DOCUMENT_ROOT"].$URL_DATA_FILE) && is_file($_SERVER["DOCUMENT_ROOT"].$URL_DATA_FILE))
 		$DATA_FILE_NAME = $URL_DATA_FILE;
 }
 
-if (strlen($DATA_FILE_NAME) <= 0)
+if ($DATA_FILE_NAME == '')
 	$strImportErrorMessage .= GetMessage("CATI_NO_DATA_FILE")."<br>";
 
 $IBLOCK_ID = intval($IBLOCK_ID);
@@ -188,14 +188,14 @@ if ('' == $strImportErrorMessage)
 				$delimiter_r_char = " ";
 				break;
 			case "OTR":
-				$delimiter_r_char = substr($delimiter_other_r, 0, 1);
+				$delimiter_r_char = mb_substr($delimiter_other_r, 0, 1);
 				break;
 			case "TZP":
 				$delimiter_r_char = ";";
 				break;
 		}
 
-		if (strlen($delimiter_r_char) != 1)
+		if (mb_strlen($delimiter_r_char) != 1)
 			$strImportErrorMessage .= GetMessage("CATI_NO_DELIMITER")."<br>";
 
 		if ('' == $strImportErrorMessage)
@@ -206,7 +206,7 @@ if ('' == $strImportErrorMessage)
 		$first_names_f = (($first_names_f=="Y") ? "Y" : "N" );
 		$csvFile->SetFirstHeader(($first_names_f=="Y") ? true : false);
 
-		if (strlen($metki_f) <= 0)
+		if ($metki_f == '')
 			$strImportErrorMessage .= GetMessage("CATI_NO_METKI")."<br>";
 
 		if ('' == $strImportErrorMessage)
@@ -255,7 +255,7 @@ if ('' == $strImportErrorMessage)
 	$bFieldsPres = false;
 	for ($i = 0; $i < $NUM_FIELDS; $i++)
 	{
-		if (strlen(${"field_".$i})>0)
+		if (${"field_".$i} <> '')
 		{
 			$bFieldsPres = true;
 			break;
@@ -354,6 +354,15 @@ if ('' == $strImportErrorMessage)
 	$bs = new CIBlockSection();
 	$el = new CIBlockElement();
 	$bWasIterations = false;
+
+	$defaultMeasureId = null;
+	$measure = CCatalogMeasure::getDefaultMeasure();
+	if (!empty($measure))
+	{
+		if ($measure['ID'] > 0)
+			$defaultMeasureId = $measure['ID'];
+	}
+	unset($measure);
 
 	Iblock\PropertyIndex\Manager::enableDeferredIndexing();
 	Catalog\Product\Sku::enableDeferredCalculation();
@@ -851,7 +860,7 @@ if ('' == $strImportErrorMessage)
 				{
 					if (0 == strncmp(${"field_".$i}, "IP_PROP", 7))
 					{
-						$cur_prop_id = intval(substr(${"field_".$i}, 7));
+						$cur_prop_id = intval(mb_substr(${"field_".$i}, 7));
 						if (!isset($arIBlockProperty[$cur_prop_id]))
 						{
 							$res1 = CIBlockProperty::GetByID($cur_prop_id, $IBLOCK_ID);
@@ -1052,6 +1061,8 @@ if ('' == $strImportErrorMessage)
 					}
 					if (isset($arLoadOfferArray['fields']['WEIGHT']) && $arLoadOfferArray['fields']['WEIGHT'] === '')
 						unset($arLoadOfferArray['fields']['WEIGHT']);
+					if (empty($arLoadOfferArray['fields']['MEASURE']) && $defaultMeasureId !== null)
+						$arLoadOfferArray['fields']['MEASURE'] = $defaultMeasureId;
 					$productResult = Catalog\Model\Product::add($arLoadOfferArray);
 				}
 				else
@@ -1120,7 +1131,7 @@ if ('' == $strImportErrorMessage)
 						{
 							if (0 == strncmp(${"field_".$j}, $key."_", $value['field_name_size'] + 1))
 							{
-								$strTempKey = intval(substr(${"field_".$j}, $value['field_name_size'] + 1));
+								$strTempKey = intval(mb_substr(${"field_".$j}, $value['field_name_size'] + 1));
 								if (!isset($arFields[$strTempKey]))
 								{
 									$arFields[$strTempKey] = array(
@@ -1180,14 +1191,11 @@ if ('' == $strImportErrorMessage)
 
 								if ($priceId !== null)
 								{
-									$boolEraseClear = false;
-									if ('Y' == $CLEAR_EMPTY_PRICE)
-									{
-										$boolEraseClear = (
-											(isset($value['PRICE']) && '' === $value['PRICE']) &&
-											(isset($value['CURRENCY']) && '' === $value['CURRENCY'])
-										);
-									}
+									$emptyPrice = (
+										(isset($value['PRICE']) && '' === $value['PRICE']) &&
+										(isset($value['CURRENCY']) && '' === $value['CURRENCY'])
+									);
+									$boolEraseClear = ('Y' == $CLEAR_EMPTY_PRICE ? $emptyPrice :false);
 									if ($boolEraseClear)
 									{
 										$priceResult = Catalog\Model\Price::delete($priceId);
@@ -1203,8 +1211,17 @@ if ('' == $strImportErrorMessage)
 									}
 									else
 									{
-										if (isset($value['PRICE']))
-											$value['PRICE'] = str_replace(array(' ', ','), array('', '.'), $value['PRICE']);
+										if (!$emptyPrice)
+										{
+											if (isset($value['PRICE']))
+												$value['PRICE'] = str_replace(array(' ', ','), array('', '.'), $value['PRICE']);
+										}
+										else
+										{
+											$value = [
+												"TMP_ID" => $tmpid
+											];
+										}
 
 										$priceResult = Catalog\Model\Price::update($priceId, $value);
 										if ($priceResult->isSuccess())

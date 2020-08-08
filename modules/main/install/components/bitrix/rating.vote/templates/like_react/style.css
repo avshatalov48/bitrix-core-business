@@ -185,10 +185,6 @@
 	cursor: default;
 }
 
-.post-item-inform-wrap-tree .feed-post-emoji-icon-item {
-	border: 2px solid #fafafa;
-}
-
 .feed-post-emoji-top-panel-box.feed-post-emoji-top-panel-container-active .feed-post-emoji-icon-item,
 .feed-com-block .feed-post-emoji-container .feed-post-emoji-icon-item {
 	cursor: pointer;

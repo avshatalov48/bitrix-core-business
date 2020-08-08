@@ -4,6 +4,7 @@
 	--ui-icon-size-sm: 31px;
 	--ui-icon-size-md: 39px;
 	--ui-icon-size-lg: 47px;
+	--ui-icon-size: 39px;
 }
 
 /*endregion*/
@@ -11,7 +12,7 @@
 .ui-icon {
 	position: relative;
 	display: inline-block;
-	width: var(--ui-icon-size-md);
+	width: var(--ui-icon-size);
 }
 
 .ui-icon > i {
@@ -49,13 +50,13 @@ button.ui-icon > i:active,
 .ui-icon-btn > i:active { opacity: 1; }
 
 /*region Size*/
-.ui-icon-xs { width: var(--ui-icon-size-xs); }
+.ui-icon-xs { --ui-icon-size: var(--ui-icon-size-xs); }
 
-.ui-icon-sm { width: var(--ui-icon-size-sm); }
+.ui-icon-sm { --ui-icon-size: var(--ui-icon-size-sm); }
 
-.ui-icon-md { width: var(--ui-icon-size-md); }
+.ui-icon-md { --ui-icon-size: var(--ui-icon-size-md); }
 
-.ui-icon-lg { width: var(--ui-icon-size-lg); }
+.ui-icon-lg { --ui-icon-size: var(--ui-icon-size-lg); }
 
 /* region Fix for IE*/
 .bx-ie .ui-icon,
@@ -70,32 +71,3 @@ button.ui-icon > i:active,
 /*endregion*/
 
 /*endregion*/
-
-.ui-icon-service-vkontakte > i,
-.ui-icon-service-facebook > i,
-
-.ui-icon-service-office365 > i {
-	background-color: #fff;
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-office365.svg);
-}
-
-.ui-icon-service-yandex > i,
-.ui-icon-service-ya > i {
-	background-color: #fff;
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-ya.svg);
-}
-
-.ui-icon-service-liveid > i {
-	background-color: #fff;
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-liveid.svg);
-}
-
-.ui-icon-service-twitter > i {
-	background-color: #1ea1f2;
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-twitter.svg);
-}
-
-.ui-icon-service-google > i {
-	background-color: #fff;
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-google.svg);
-}

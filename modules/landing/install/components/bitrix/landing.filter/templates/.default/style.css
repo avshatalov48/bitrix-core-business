@@ -38,10 +38,6 @@
 	align-items: center;
 }
 
-.landing-filter-buttons-add-folder {
-	margin-right: 12px;
-}
-
 .landing-filter-folder-input {
 	display:block;
 	-webkit-box-sizing:border-box;
@@ -58,6 +54,6 @@
 	margin-top: 10px;
 }
 
-.landing-recycle-bin-btn {
-	margin-right: 12px;
+.landing-filter-action-link {
+	margin-left: 12px;
 }

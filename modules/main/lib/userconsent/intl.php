@@ -170,6 +170,7 @@ class Intl
 					array(
 						'CODE' => 'COMPANY_NAME',
 						'TYPE' => 'text',
+						'TAB' => 'text',
 					),
 					array(
 						'CODE' => 'COMPANY_ADDRESS',
@@ -179,17 +180,20 @@ class Intl
 						'CODE' => 'PURPOSES',
 						'TYPE' => 'text',
 						'SHOW_BY_CHECKBOX' => true,
+						'TAB' => 'settings',
 					),
 					array(
 						'CODE' => 'THIRD_PARTIES',
 						'TYPE' => 'text',
 						'SHOW_BY_CHECKBOX' => true,
+						'TAB' => 'settings',
 					),
 					array(
 						'CODE' => 'EMAIL',
 						'TYPE' => 'string',
 						'PLACEHOLDER' => $email,
 						'DEFAULT_VALUE' => $email,
+						'TAB' => 'settings',
 					),
 				),
 			),
@@ -199,6 +203,7 @@ class Intl
 					array(
 						'CODE' => 'COMPANY_NAME',
 						'TYPE' => 'text',
+						'TAB' => 'text',
 					),
 				),
 			),
@@ -208,26 +213,31 @@ class Intl
 					array(
 						'CODE' => 'COMPANY_NAME',
 						'TYPE' => 'text',
+						'TAB' => 'text',
 					),
 					array(
 						'CODE' => 'COMPANY_ADDRESS',
 						'TYPE' => 'text',
+						'TAB' => 'text',
 					),
 					array(
 						'CODE' => 'PURPOSES',
 						'TYPE' => 'text',
 						'SHOW_BY_CHECKBOX' => true,
+						'TAB' => 'settings',
 					),
 					array(
 						'CODE' => 'THIRD_PARTIES',
 						'TYPE' => 'text',
 						'SHOW_BY_CHECKBOX' => true,
+						'TAB' => 'settings',
 					),
 					array(
 						'CODE' => 'EMAIL',
 						'TYPE' => 'string',
 						'PLACEHOLDER' => $email,
 						'DEFAULT_VALUE' => $email,
+						'TAB' => 'settings',
 					),
 				),
 			),
@@ -237,26 +247,31 @@ class Intl
 					array(
 						'CODE' => 'COMPANY_NAME',
 						'TYPE' => 'text',
+						'TAB' => 'text',
 					),
 					array(
 						'CODE' => 'COMPANY_ADDRESS',
 						'TYPE' => 'text',
+						'TAB' => 'text',
 					),
 					array(
 						'CODE' => 'PURPOSES',
 						'TYPE' => 'text',
 						'SHOW_BY_CHECKBOX' => true,
+						'TAB' => 'settings',
 					),
 					array(
 						'CODE' => 'THIRD_PARTIES',
 						'TYPE' => 'text',
 						'SHOW_BY_CHECKBOX' => true,
+						'TAB' => 'settings',
 					),
 					array(
 						'CODE' => 'EMAIL',
 						'TYPE' => 'string',
 						'PLACEHOLDER' => $email,
 						'DEFAULT_VALUE' => $email,
+						'TAB' => 'settings',
 					),
 				),
 			)

@@ -20,7 +20,6 @@
 	height: 30px;
 	margin: 21px 21px 21px 0px;
 	white-space: nowrap;
-	overflow: hidden;
 	text-overflow: ellipsis;
 }
 

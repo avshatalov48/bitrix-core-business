@@ -197,11 +197,11 @@ class Img extends \Bitrix\Landing\Node
 						$data[$pos] = [];
 						if ($src)
 						{
-							$data[$pos]['src'] = $src;
+							$data[$pos]['src'] = Manager::getUrlFromFile($src);
 						}
 						if ($src2x)
 						{
-							$data[$pos]['src2x'] = $src2x;
+							$data[$pos]['src2x'] = Manager::getUrlFromFile($src2x);
 						}
 					}
 				}
@@ -217,7 +217,7 @@ class Img extends \Bitrix\Landing\Node
 				);
 				if (preg_match('/[\,\s]*(.*?)\s+2x/is', $srcSet, $matches))
 				{
-					$data[$pos]['src2x'] = $matches[1];
+					$data[$pos]['src2x'] = Manager::getUrlFromFile($matches[1]);
 				}
 			}
 			$dataAtrs = [
@@ -239,7 +239,7 @@ class Img extends \Bitrix\Landing\Node
 
 	/**
 	 * This node may participate in searching.
-	 * @param \Bitrix\Landing\Block &$block Block instance.
+	 * @param \Bitrix\Landing\Block $block Block instance.
 	 * @param string $selector Selector.
 	 * @return array
 	 */

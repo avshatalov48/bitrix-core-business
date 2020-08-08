@@ -27,6 +27,7 @@ class Bind
 
 		self::$messageHandler = new MessageHandler;
 		\Bitrix\Replica\Client\HandlersManager::register(self::$messageHandler);
+		$eventManager->addEventHandler("forum", "onBeforeMessageAdd", array(self::$messageHandler, "onBeforeMessageAdd"));
 		$eventManager->addEventHandler("forum", "onAfterMessageAdd", array(self::$messageHandler, "onAfterMessageAdd"));
 		$eventManager->addEventHandler("forum", "onBeforeMessageUpdate", array(self::$messageHandler, "onBeforeMessageUpdate"));
 		$eventManager->addEventHandler("forum", "onAfterMessageUpdate", array(self::$messageHandler, "onAfterMessageUpdate"));

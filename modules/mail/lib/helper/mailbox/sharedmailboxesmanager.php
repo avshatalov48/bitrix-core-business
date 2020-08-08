@@ -43,7 +43,7 @@ class SharedMailboxesManager
 			// @TODO: departments
 			if (preg_match('#U[0-9]+#', $userAccessCode['ACCESS_CODE']) === 1)
 			{
-				$results[] = substr($userAccessCode['ACCESS_CODE'], 1);
+				$results[] = mb_substr($userAccessCode['ACCESS_CODE'], 1);
 			}
 		}
 		return $results;

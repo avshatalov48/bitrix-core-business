@@ -6,20 +6,20 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 return [
 	'js' => [
-		'/bitrix/js/im/component/dialog/dist/dialog.bundle.js',
+		'./dist/dialog.bundle.js',
 	],
 	'css' => [
-		'/bitrix/js/im/component/dialog/dist/dialog.bundle.css',
+		'./dist/dialog.bundle.css',
 	],
 	'rel' => [
 		'main.polyfill.core',
-		'main.polyfill.intersectionobserver',
 		'ui.vue',
 		'ui.vue.vuex',
-		'im.component.message',
+		'im.lib.logger',
 		'im.const',
-		'im.utils',
-		'im.tools.animation',
+		'im.lib.utils',
+		'im.view.dialog',
+		'im.view.quotepanel',
 	],
 	'skip_core' => true,
 ];

@@ -61,7 +61,7 @@ if ($columns)
 				if ($count >= PROP_COUNT_LIMIT)
 					continue;
 
-				$propCode = substr($columnCode, 9);
+				$propCode = mb_substr($columnCode, 9);
 				if ($propCode == '')
 					continue;
 				$arSelectProps[] = $columnCode;
@@ -123,10 +123,14 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 
 	$order = CSaleOrder::getById($ID);
 	$allowIds = \Bitrix\Main\Config\Option::get("sale", "p2p_status_list", "");
-	if(strlen($allowIds))
+	if($allowIds <> '')
+	{
 		$allowIds = unserialize($allowIds);
+	}
 	else
+	{
 		$allowIds = array();
+	}
 
 	/*
 	* get more product
@@ -138,8 +142,8 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 		$arErrors = array();
 		$LID = (array_key_exists('LID', $_REQUEST))? ($_REQUEST['LID']) : false;
 		$currency = (array_key_exists('currency', $_REQUEST))? ($_REQUEST['currency']) : false;
-		$userId = (array_key_exists('userId', $_REQUEST))? IntVal($_REQUEST['userId']) : false;
-		$fUserId = (array_key_exists('fUserId', $_REQUEST))? IntVal($_REQUEST['fUserId']) : false;
+		$userId = (array_key_exists('userId', $_REQUEST))? intval($_REQUEST['userId']) : false;
+		$fUserId = (array_key_exists('fUserId', $_REQUEST))? intval($_REQUEST['fUserId']) : false;
 		$arProduct = (array_key_exists('arProduct', $_REQUEST))? $_REQUEST['arProduct'] : false;
 
 		$arOrderProduct = CUtil::JsObjectToPhp($arProduct);
@@ -226,9 +230,9 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 	/*
 	 * save comment
 	 */
-	if (array_key_exists('comment', $_REQUEST) && strlen($_REQUEST['comment']) > 0)
+	if (array_key_exists('comment', $_REQUEST) && $_REQUEST['comment'] <> '')
 	{
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$comment = trim($comment);
 
 		$bUserCanEditOrder = CSaleOrder::CanUserUpdateOrder($ID, $arUserGroups);
@@ -248,9 +252,9 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 	/*
 	 * save tracking number
 	 */
-	if (isset($_REQUEST["tracking_number"]) && strlen($_REQUEST["tracking_number"]) >= 0)
+	if (isset($_REQUEST["tracking_number"]) && (string)$_REQUEST["tracking_number"] !== '')
 	{
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$tracking_number = trim($tracking_number);
 
 		$bUserCanEditOrder = CSaleOrder::CanUserUpdateOrder($ID, $arUserGroups);
@@ -279,7 +283,7 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 		if (!$bUserCanCancelOrder)
 			$errorMessageTmp .= GetMessage("SOD_NO_PERMS2CANCEL").". ";
 
-		if (strlen($errorMessageTmp) <= 0)
+		if ($errorMessageTmp == '')
 		{
 			$CANCELED = trim($_REQUEST["CANCELED"]);
 			$REASON_CANCELED = trim($_REQUEST["REASON_CANCELED"]);
@@ -292,7 +296,7 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 
 		}
 
-		if (strlen($errorMessageTmp) <= 0 && !CSaleOrder::IsLocked($ID, $lockedBY, $dateLock))
+		if ($errorMessageTmp == '' && !CSaleOrder::IsLocked($ID, $lockedBY, $dateLock))
 		{
 			if (!CSaleOrder::CancelOrder($ID, $CANCELED, $REASON_CANCELED))
 			{
@@ -313,7 +317,7 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 		}
 
 		$arResult["message"] = "ok";
-		if (strlen($errorMessageTmp) > 0)
+		if ($errorMessageTmp <> '')
 			$arResult["message"] = $errorMessageTmp;
 		elseif (!CSaleOrder::IsLocked($ID, $lockedBY, $dateLock))
 		{
@@ -327,12 +331,12 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 			if ($arOrder = $dbOrder->Fetch())
 			{
 				$arResult["DATE_CANCELED"] = $arOrder["DATE_CANCELED"];
-				if (!$crmMode && IntVal($arOrder["EMP_CANCELED_ID"]) > 0)
+				if (!$crmMode && intval($arOrder["EMP_CANCELED_ID"]) > 0)
 					$arResult["EMP_CANCELED_ID"] = GetFormatedUserName($arOrder["EMP_CANCELED_ID"]);
 			}
 		}
 
-		if (strlen($errorMessageReserve) > 0)
+		if ($errorMessageReserve <> '')
 		{
 			$arResult["reserve_message"] = $errorMessageReserve;
 			$arResult["reserve_date"] = $arResult["DATE_CANCELED"];
@@ -362,7 +366,7 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 		if (!$bUserCanDeductOrder)
 			$errorMessageTmp .= GetMessage("SOD_NO_PERMS2UNDO_DEDUCT").". ";
 
-		if (strlen($errorMessageTmp) <= 0)
+		if ($errorMessageTmp == '')
 		{
 			$UNDO_DEDUCT = (trim($_REQUEST["UNDO_DEDUCT"]) == "Y") ? "N" : "Y"; //reversed logic here
 			$REASON_UNDO_DEDUCTED = trim($_REQUEST["REASON_UNDO_DEDUCTED"]);
@@ -373,7 +377,7 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 				$errorMessageTmp .= GetMessage("SOD_WRONG_DEDUCT_FLAG").". ";
 		}
 
-		if (strlen($errorMessageTmp) <= 0 && !CSaleOrder::IsLocked($ID, $lockedBY, $dateLock))
+		if ($errorMessageTmp == '' && !CSaleOrder::IsLocked($ID, $lockedBY, $dateLock))
 		{
 			if (!CSaleOrder::DeductOrder($ID, $UNDO_DEDUCT, $REASON_UNDO_DEDUCTED, false))
 			{
@@ -394,7 +398,7 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 		}
 
 		$arResult["message"] = "ok";
-		if (strlen($errorMessageTmp) > 0)
+		if ($errorMessageTmp <> '')
 			$arResult["message"] = $errorMessageTmp;
 		elseif (!CSaleOrder::IsLocked($ID, $lockedBY, $dateLock))
 		{
@@ -409,12 +413,12 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 			{
 				$arResult["DATE_DEDUCTED"] = CUtil::JSEscape($arOrder["DATE_DEDUCTED"]);
 				$arResult["REASON_UNDO_DEDUCTED"] = CUtil::JSEscape($arOrder["REASON_UNDO_DEDUCTED"]);
-				if (!$crmMode && IntVal($arOrder["EMP_DEDUCTED_ID"]) > 0)
+				if (!$crmMode && intval($arOrder["EMP_DEDUCTED_ID"]) > 0)
 					$arResult["EMP_DEDUCTED_ID"] = CUtil::JSEscape(GetFormatedUserName($arOrder["EMP_DEDUCTED_ID"]));
 			}
 		}
 
-		if (strlen($errorMessageReserve) > 0)
+		if ($errorMessageReserve <> '')
 		{
 			$arResult["reserve_message"] = $errorMessageReserve;
 			$arResult["reserve_date"] = $arResult["DATE_DEDUCTED"];
@@ -441,7 +445,7 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 		if (!$bUserCanMarkOrder)
 			$errorMessageTmp .= GetMessage("SOD_NO_PERMS2MARK").". ";
 
-		if (strlen($errorMessageTmp) <= 0)
+		if ($errorMessageTmp == '')
 		{
 			$MARKED = trim($_REQUEST["MARKED"]);
 			$REASON_MARKED = trim($_REQUEST["REASON_MARKED"]);
@@ -452,7 +456,7 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 				$errorMessageTmp .= GetMessage("SOD_WRONG_MARK_FLAG").". ";
 		}
 
-		if (strlen($errorMessageTmp) <= 0 && !CSaleOrder::IsLocked($ID, $lockedBY, $dateLock))
+		if ($errorMessageTmp == '' && !CSaleOrder::IsLocked($ID, $lockedBY, $dateLock))
 		{
 			if ($MARKED == "Y")
 				$rs = CSaleOrder::SetMark($ID, $REASON_MARKED, (0 < $intUserID ? $intUserID : 0));
@@ -472,7 +476,7 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 		}
 
 		$arResult["message"] = "ok";
-		if (strlen($errorMessageTmp) > 0)
+		if ($errorMessageTmp <> '')
 			$arResult["message"] = $errorMessageTmp;
 		elseif (!CSaleOrder::IsLocked($ID, $lockedBY, $dateLock))
 		{
@@ -486,7 +490,7 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 			if ($arOrder = $dbOrder->Fetch())
 			{
 				$arResult["DATE_MARKED"] = CUtil::JSEscape($arOrder["DATE_MARKED"]);
-				if (!$crmMode && IntVal($arOrder["EMP_MARKED_ID"]) > 0)
+				if (!$crmMode && intval($arOrder["EMP_MARKED_ID"]) > 0)
 					$arResult["EMP_MARKED_ID"] = CUtil::JSEscape(GetFormatedUserName($arOrder["EMP_CANCELED_ID"]));
 			}
 		}
@@ -508,7 +512,7 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 		if (!$bUserCanDeliverOrder)
 			$errorMessageTmp .= GetMessage("SOD_NO_PERMS2DELIV").". ";
 
-		if (strlen($errorMessageTmp) <= 0)
+		if ($errorMessageTmp == '')
 		{
 			$ALLOW_DELIVERY = trim($_REQUEST["ALLOW_DELIVERY"]);
 			if ($ALLOW_DELIVERY != "Y")
@@ -517,11 +521,11 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 				$errorMessageTmp .= GetMessage("SOD_WRONG_DELIV_FLAG").". ";
 		}
 
-		if (strlen($errorMessageTmp) <= 0 && !CSaleOrder::IsLocked($ID, $lockedBY, $dateLock))
+		if ($errorMessageTmp == '' && !CSaleOrder::IsLocked($ID, $lockedBY, $dateLock))
 		{
 			$arAdditionalFields = array(
-				"DELIVERY_DOC_NUM" => ((strlen($_REQUEST["DELIVERY_DOC_NUM"]) > 0) ? $_REQUEST["DELIVERY_DOC_NUM"] : False),
-				"DELIVERY_DOC_DATE" => ((strlen($_REQUEST["DELIVERY_DOC_DATE"]) > 0) ? $_REQUEST["DELIVERY_DOC_DATE"] : False)
+				"DELIVERY_DOC_NUM" => (($_REQUEST["DELIVERY_DOC_NUM"] <> '') ? $_REQUEST["DELIVERY_DOC_NUM"] : False),
+				"DELIVERY_DOC_DATE" => (($_REQUEST["DELIVERY_DOC_DATE"] <> '') ? $_REQUEST["DELIVERY_DOC_DATE"] : False)
 			);
 
 			if ($change_status_popup == "Y")
@@ -552,7 +556,7 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 
 		$arResult["message"] = "ok";
 		$arResult["ALLOW_DELIVERY"] = $ALLOW_DELIVERY;
-		if (strlen($errorMessageTmp) > 0)
+		if ($errorMessageTmp <> '')
 			$arResult["message"] = $errorMessageTmp;
 		elseif (!CSaleOrder::IsLocked($ID, $lockedBY, $dateLock))
 		{
@@ -572,18 +576,18 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 			{
 
 				$arResult["DATE_ALLOW_DELIVERY"] = $arOrder["DATE_ALLOW_DELIVERY"];
-				if (!$crmMode && IntVal($arOrder["EMP_ALLOW_DELIVERY_ID"]) > 0)
+				if (!$crmMode && intval($arOrder["EMP_ALLOW_DELIVERY_ID"]) > 0)
 					$arResult["EMP_ALLOW_DELIVERY_ID"] = GetFormatedUserName($arOrder["EMP_ALLOW_DELIVERY_ID"], false);
 
 				$arResult["DATE_STATUS"] = $arOrder["DATE_STATUS"];
-				if (!$crmMode && IntVal($arOrder["EMP_STATUS_ID"]) > 0)
+				if (!$crmMode && intval($arOrder["EMP_STATUS_ID"]) > 0)
 					$arResult["EMP_STATUS_ID"] = GetFormatedUserName($arOrder["EMP_STATUS_ID"], false);
 
 				$arResult["STATUS_ID"] = $arOrder["STATUS_ID"];
 			}
 
 			$arResult["DELIVERY_DOC_NUMBER_FORMAT"] = "";
-			if(strlen($_REQUEST["DELIVERY_DOC_NUM"]) > 0 || strlen($_REQUEST["DELIVERY_DOC_DATE"]) > 0)
+			if($_REQUEST["DELIVERY_DOC_NUM"] <> '' || $_REQUEST["DELIVERY_DOC_DATE"] <> '')
 				$arResult["DELIVERY_DOC_NUMBER_FORMAT"] = GetMessage("SOD_DELIV_DOC", Array("#NUM#" => htmlspecialcharsEx($_REQUEST["DELIVERY_DOC_NUM"]), "#DATE#" => htmlspecialcharsEx($_REQUEST["DELIVERY_DOC_DATE"])));
 		}
 
@@ -593,7 +597,7 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 			$arResult = array_merge($arResult, $arResultTmp);
 		}
 
-		if (strlen($errorMessageReserve) > 0)
+		if ($errorMessageReserve <> '')
 		{
 			$arResult["reserve_message"] = $errorMessageReserve;
 			$arResult["reserve_date"] = $arResult["DATE_ALLOW_DELIVERY"];
@@ -613,7 +617,7 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 	 * Execute delivery action
 	 */
 
-	if (isset($_REQUEST["DELIVERY_ACTION"]) && strlen($_REQUEST["DELIVERY_ACTION"]) > 0)
+	if (isset($_REQUEST["DELIVERY_ACTION"]) && $_REQUEST["DELIVERY_ACTION"] <> '')
 	{
 		$arResult = CSaleDeliveryHelper::execHandlerAction($ID, $_REQUEST["DELIVERY_ACTION"]);
 		$result = CUtil::PhpToJSObject($arResult);
@@ -632,7 +636,7 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 		if (!$bUserCanPayOrder)
 			$errorMessageTmp .= GetMessage("SOD_NO_PERMS2PAYFLAG").". ";
 
-		if (strlen($errorMessageTmp) <= 0)
+		if ($errorMessageTmp == '')
 		{
 			$PAYED = trim($_REQUEST["PAYED"]);
 			if ($PAYED != "Y")
@@ -645,11 +649,11 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 
 		}
 
-		if (strlen($errorMessageTmp) <= 0 && !CSaleOrder::IsLocked($ID, $lockedBY, $dateLock))
+		if ($errorMessageTmp == '' && !CSaleOrder::IsLocked($ID, $lockedBY, $dateLock))
 		{
 			$arAdditionalFields = array(
-				"PAY_VOUCHER_NUM" => ((strlen($_REQUEST["PAY_VOUCHER_NUM"]) > 0) ? $_REQUEST["PAY_VOUCHER_NUM"] : False),
-				"PAY_VOUCHER_DATE" => ((strlen($_REQUEST["PAY_VOUCHER_DATE"]) > 0) ? $_REQUEST["PAY_VOUCHER_DATE"] : False)
+				"PAY_VOUCHER_NUM" => (($_REQUEST["PAY_VOUCHER_NUM"] <> '') ? $_REQUEST["PAY_VOUCHER_NUM"] : False),
+				"PAY_VOUCHER_DATE" => (($_REQUEST["PAY_VOUCHER_DATE"] <> '') ? $_REQUEST["PAY_VOUCHER_DATE"] : False)
 			);
 
 			$bWithdraw = true;
@@ -688,7 +692,7 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 		$arResult["PAYED"] = $PAYED;
 		$arResult["BUDGET_ENABLE"] = 'N';
 
-		if (strlen($errorMessageTmp) > 0)
+		if ($errorMessageTmp <> '')
 			$arResult["message"] = $errorMessageTmp;
 		elseif (!CSaleOrder::IsLocked($ID, $lockedBY, $dateLock))
 		{
@@ -704,11 +708,11 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 				$arResult["EMP_STATUS_ID"] = "";
 
 				$arResult["DATE_PAYED"] = trim($arOrder["DATE_PAYED"]);
-				if (!$crmMode && IntVal($arOrder["EMP_PAYED_ID"]) > 0)
+				if (!$crmMode && intval($arOrder["EMP_PAYED_ID"]) > 0)
 					$arResult["EMP_PAYED_ID"] = GetFormatedUserName($arOrder["EMP_PAYED_ID"], false);
 
 				$arResult["DATE_STATUS"] = $arOrder["DATE_STATUS"];
-				if (!$crmMode && IntVal($arOrder["EMP_STATUS_ID"]) > 0)
+				if (!$crmMode && intval($arOrder["EMP_STATUS_ID"]) > 0)
 					$arResult["EMP_STATUS_ID"] = GetFormatedUserName($arOrder["EMP_STATUS_ID"], false);
 
 				$arResult["STATUS_ID"] = $arOrder["STATUS_ID"];
@@ -729,7 +733,7 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 				}
 			}
 
-			if (strlen(trim($_REQUEST["PAY_VOUCHER_NUM"])) > 0)
+			if (trim($_REQUEST["PAY_VOUCHER_NUM"]) <> '')
 				$arResult["PAY_DOC_NUMBER_FORMAT"] = str_replace("#DATE#", $_REQUEST["PAY_VOUCHER_DATE"], str_replace("#NUM#", htmlspecialcharsEx($_REQUEST["PAY_VOUCHER_NUM"]), GetMessage("SOD_PAY_DOC")));
 		}
 
@@ -739,7 +743,7 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 			$arResult = array_merge($arResult, $arResultTmp);
 		}
 
-		if (strlen($errorMessageReserve) > 0)
+		if ($errorMessageReserve <> '')
 		{
 			$arResult["reserve_message"] = $errorMessageReserve;
 			$arResult["reserve_date"] = $arResult["DATE_PAYED"];
@@ -799,7 +803,7 @@ elseif ($saleModulePermissions >= "U" && check_bitrix_sessid() && !array_key_exi
 		}
 		else
 		{
-			if (strlen($errorMessage) <= 0)
+			if ($errorMessage == '')
 			{
 				if ($crmMode)
 					CRMModeOutput($ID);
@@ -816,7 +820,7 @@ elseif ($saleModulePermissions >= "U" && check_bitrix_sessid() && !array_key_exi
 		if (!$arOrder)
 			$errorMessageTmp .= GetMessage("ERROR_NO_ORDER")."<br>";
 
-		if (strlen($errorMessageTmp) <= 0)
+		if ($errorMessageTmp == '')
 		{
 			$psResultFile = "";
 
@@ -824,26 +828,26 @@ elseif ($saleModulePermissions >= "U" && check_bitrix_sessid() && !array_key_exi
 
 			$psActionPath = $_SERVER["DOCUMENT_ROOT"].$arPaySys["PSA_ACTION_FILE"];
 			$psActionPath = str_replace("\\", "/", $psActionPath);
-			while (substr($psActionPath, strlen($psActionPath) - 1, 1) == "/")
-				$psActionPath = substr($psActionPath, 0, strlen($psActionPath) - 1);
+			while (mb_substr($psActionPath, mb_strlen($psActionPath) - 1, 1) == "/")
+				$psActionPath = mb_substr($psActionPath, 0, mb_strlen($psActionPath) - 1);
 
 			if (file_exists($psActionPath) && is_dir($psActionPath))
 			{
 				if (file_exists($psActionPath."/result.php") && is_file($psActionPath."/result.php"))
 					$psResultFile = $psActionPath."/result.php";
 			}
-			elseif (strlen($arPaySys["PSA_RESULT_FILE"]) > 0)
+			elseif ($arPaySys["PSA_RESULT_FILE"] <> '')
 			{
 				if (file_exists($_SERVER["DOCUMENT_ROOT"].$arPaySys["PSA_RESULT_FILE"])
 					&& is_file($_SERVER["DOCUMENT_ROOT"].$arPaySys["PSA_RESULT_FILE"]))
 					$psResultFile = $_SERVER["DOCUMENT_ROOT"].$arPaySys["PSA_RESULT_FILE"];
 			}
 
-			if (strlen($psResultFile) <= 0)
+			if ($psResultFile == '')
 				$errorMessageTmp .= GetMessage("SOD_NO_PS_SCRIPT").". ";
 		}
 
-		if (strlen($errorMessageTmp) <= 0)
+		if ($errorMessageTmp == '')
 		{
 			$ORDER_ID = $ID;
 			CSalePaySystemAction::InitParamArrays($arOrder, $ID, $arPaySys["PSA_PARAMS"]);
@@ -862,14 +866,14 @@ elseif ($saleModulePermissions >= "U" && check_bitrix_sessid() && !array_key_exi
 			}
 		}
 
-		if (strlen($errorMessageTmp) <= 0)
+		if ($errorMessageTmp == '')
 		{
-			$ORDER_ID = IntVal($ORDER_ID);
+			$ORDER_ID = intval($ORDER_ID);
 			$arOrder = CSaleOrder::GetByID($ORDER_ID);
 			if (!$arOrder)
 				$errorMessageTmp .= str_replace("#ID#", $ORDER_ID, GetMessage("SOD_NO_ORDER")).". ";
 		}
-		if (strlen($errorMessageTmp) <= 0)
+		if ($errorMessageTmp == '')
 		{
 			if ($arOrder["PS_STATUS"] == "Y" && $arOrder["PAYED"] == "N")
 			{
@@ -890,12 +894,12 @@ elseif ($saleModulePermissions >= "U" && check_bitrix_sessid() && !array_key_exi
 		if ($errorMessageTmp != "")
 			$errorMessage .= $errorMessageTmp;
 
-		if (strlen($errorMessage) <= 0)
+		if ($errorMessage == '')
 		{
 			if ($crmMode)
 				CRMModeOutput($ID);
 
-			if (strlen($apply) > 0 || $_REQUEST["action"] == "ps_update")
+			if ($apply <> '' || $_REQUEST["action"] == "ps_update")
 				LocalRedirect("sale_order_detail.php?ID=".$ID."&save_order_result=ok_ps&lang=".LANGUAGE_ID.GetFilterParams("filter_", false));
 
 			CSaleOrder::UnLock($ID);
@@ -1096,19 +1100,19 @@ $arHistSort["ID"] = $order;
 
 $arFilterHistory = array("ORDER_ID" => $ID);
 
-if (strlen($filter_type)>0) $arFilterHistory["TYPE"] = trim($filter_type);
-if (IntVal($filter_user)>0) $arFilterHistory["USER_ID"] = intval($filter_user);
+if ($filter_type <> '') $arFilterHistory["TYPE"] = trim($filter_type);
+if (intval($filter_user)>0) $arFilterHistory["USER_ID"] = intval($filter_user);
 
-if (strlen($filters_date_history_from)>0)
+if ($filters_date_history_from <> '')
 {
 	$arFilterHistory["DATE_CREATE_FROM"] = Trim($filters_date_history_from);
 }
 
-if (strlen($filters_date_history_to)>0)
+if ($filters_date_history_to <> '')
 {
 	if ($arDate = ParseDateTime($filters_date_history_to, CSite::GetDateFormat("FULL", SITE_ID)))
 	{
-		if (StrLen($filters_date_history_to) < 11)
+		if (mb_strlen($filters_date_history_to) < 11)
 		{
 			$arDate["HH"] = 23;
 			$arDate["MI"] = 59;
@@ -1287,7 +1291,7 @@ if ($boolLocked)
 
 CAdminMessage::ShowMessage($errorMessage);
 
-if (strlen($save_order_result) > 0)
+if ($save_order_result <> '')
 {
 	$okMessage = "";
 
@@ -1355,7 +1359,7 @@ else
 		CSaleOrder::Lock($ID);
 
 	$customOrderView = COption::GetOptionString("sale", "path2custom_view_order", "");
-	if (strlen($customOrderView) > 0
+	if ($customOrderView <> ''
 		&& file_exists($_SERVER["DOCUMENT_ROOT"].$customOrderView)
 		&& is_file($_SERVER["DOCUMENT_ROOT"].$customOrderView))
 	{
@@ -1625,11 +1629,11 @@ else
 						</td>
 					</tr>
 
-					<?if(strlen($arOrder["DATE_STATUS"]) > 0):?>
+					<?if($arOrder["DATE_STATUS"] <> ''):?>
 						<tr>
 							<td><?=GetMessage('SOD_DATE_STATUS');?>:</td>
 							<td id="date_status_change"><?=$arOrder["DATE_STATUS"]?>
-								<?if (!$crmMode && IntVal($arOrder["EMP_STATUS_ID"]) > 0)
+								<?if (!$crmMode && intval($arOrder["EMP_STATUS_ID"]) > 0)
 									echo GetFormatedUserName($arOrder["EMP_STATUS_ID"], false);
 								?>
 							</td>
@@ -1682,18 +1686,18 @@ else
 							?>
 						</td>
 					</tr>
-					<tr id="date_change_cancel" style="display:<?=(strlen($arOrder["DATE_CANCELED"]) > 0) ? 'table-row' : 'none'?>">
+					<tr id="date_change_cancel" style="display:<?=($arOrder["DATE_CANCELED"] <> '') ? 'table-row' : 'none'?>">
 						<td>
 							<?=GetMessage('SOD_DATE_CANCELED');?>:
 						</td>
 						<td id="date_change_cancel_user">
 							<?=$arOrder["DATE_CANCELED"]?>
-							<?if (!$crmMode && IntVal($arOrder["EMP_CANCELED_ID"]) > 0)
+							<?if (!$crmMode && intval($arOrder["EMP_CANCELED_ID"]) > 0)
 								echo GetFormatedUserName($arOrder["EMP_CANCELED_ID"], false);
 							?>
 						</td>
 					</tr>
-					<tr id="reason_cancel" style="display:<?=(strlen($arOrder["REASON_CANCELED"]) > 0) ? 'table-row' : 'none'?>">
+					<tr id="reason_cancel" style="display:<?=($arOrder["REASON_CANCELED"] <> '') ? 'table-row' : 'none'?>">
 						<td>
 							<?=GetMessage('SOD_CANCEL_REASON_TITLE')?>:
 						</td>
@@ -1822,7 +1826,7 @@ else
 				$tabControl->EndCustomField("ORDER_CANCELED", '');
 
 				$tabControl->BeginCustomField("ORDER_AFFILIATE", GetMessage("P_ORDER_AFFILIATE"));
-					if (IntVal($arOrder["AFFILIATE_ID"]) > 0):
+					if (intval($arOrder["AFFILIATE_ID"]) > 0):
 					?>
 					<tr>
 						<td width="40%"><?echo GetMessage("P_ORDER_AFFILIATE")?>:</td>
@@ -1906,7 +1910,7 @@ else
 							else
 							{
 								$arLocation = CSaleLocation::GetByID($arOrderProps["VALUE"]);
-								if (IntVal($arLocation["CITY_ID"]) <= 0)
+								if (intval($arLocation["CITY_ID"]) <= 0)
 									$arEnableTownProps[$arOrderProps["INPUT_FIELD_LOCATION"]] = true;
 								else
 									$arEnableTownProps[$arOrderProps["INPUT_FIELD_LOCATION"]] = false;
@@ -1919,14 +1923,14 @@ else
 					$locationZip = 0;
 					foreach ($arOrderPropsValue as $arOrderProps)
 					{
-						if ($iGroup != IntVal($arOrderProps["PROPS_GROUP_ID"]))
+						if ($iGroup != intval($arOrderProps["PROPS_GROUP_ID"]))
 						{
 							?>
 							<tr>
 								<td colspan="2" style="text-align:center;font-weight:bold;font-size:14px;color:rgb(75, 98, 103);"><?=htmlspecialcharsEx($arOrderProps["GROUP_NAME"]);?></td>
 							</tr>
 							<?
-							$iGroup = IntVal($arOrderProps["PROPS_GROUP_ID"]);
+							$iGroup = intval($arOrderProps["PROPS_GROUP_ID"]);
 						}
 
 						if (!in_array($arOrderProps["ORDER_PROPS_ID"], $arTownOrderProps) || (in_array($arOrderProps["ORDER_PROPS_ID"], $arTownOrderProps)
@@ -1983,7 +1987,7 @@ else
 								if(CSaleLocation::isLocationProEnabled())
 								{
 									$locationString = \Bitrix\Sale\Location\Admin\LocationHelper::getLocationStringById($arOrderProps['VALUE']);
-									if(!strlen($locationString))
+									if($locationString == '')
 										$locationString = $arOrderProps['VALUE'];
 
 									print(htmlspecialcharsEx($locationString));
@@ -1993,14 +1997,14 @@ else
 									$arVal = CSaleLocation::GetByID($arOrderProps["VALUE"], LANG);
 									$locationString = $arVal["COUNTRY_NAME"];
 
-									if (strlen($arVal["REGION_NAME"]) > 0 && strlen($locationString) > 0)
+									if ($arVal["REGION_NAME"] <> '' && $locationString <> '')
 										$locationString .= " - ".$arVal["REGION_NAME"];
-									elseif (strlen($locationString) <= 0 && strlen($arVal["REGION_NAME"]) > 0)
+									elseif ($locationString == '' && $arVal["REGION_NAME"] <> '')
 										$locationString = $arVal["REGION_NAME"];
 
-									if (strlen($locationString) > 0 && strlen($arVal["CITY_NAME"]) > 0)
+									if ($locationString <> '' && $arVal["CITY_NAME"] <> '')
 										$locationString .= " - ".$arVal["CITY_NAME"];
-									elseif (strlen($locationString) <= 0  && strlen($arVal["CITY_NAME"]) > 0)
+									elseif ($locationString == ''  && $arVal["CITY_NAME"] <> '')
 										$locationString = $arVal["CITY_NAME"];
 
 									echo htmlspecialcharsEx($locationString);
@@ -2011,13 +2015,13 @@ else
 								$rsZipList = CSaleLocation::GetLocationZIP($locationData);
 								if ($arZip = $rsZipList->Fetch())
 								{
-									if (strlen($arZip["ZIP"]) > 0)
+									if ($arZip["ZIP"] <> '')
 										$locationZip = $arZip["ZIP"];
 								}
 							}
 							elseif ($arOrderProps["TYPE"] == "FILE")
 							{
-								if (strpos($arOrderProps["VALUE"], ",") !== false)
+								if (mb_strpos($arOrderProps["VALUE"], ",") !== false)
 								{
 									$arValues = explode(",", $arOrderProps["VALUE"]);
 									foreach ($arValues as $fileId)
@@ -2054,7 +2058,7 @@ else
 								<?
 								$arDeliveryName = array();
 								$arDeliveryData = array();
-								if (strpos($arOrder["DELIVERY_ID"], ":") !== false)
+								if (mb_strpos($arOrder["DELIVERY_ID"], ":") !== false)
 								{
 									$arDeliveryName = explode(":", $arOrder["DELIVERY_ID"]);
 
@@ -2164,15 +2168,15 @@ else
 						<td><?=GetMessage("SOD_DELIVERY_IS_ALLOW")?>:</td>
 						<td><?=GetMessage("SALE_NO")?></td>
 					</tr>
-					<tr id="allow_delivery_number" style="display:<?=((strlen($arOrder["DELIVERY_DOC_NUM"]) > 0 || strlen($arOrder["DELIVERY_DOC_DATE"]))) ? 'table-row' : 'none'?>">
+					<tr id="allow_delivery_number" style="display:<?=(($arOrder["DELIVERY_DOC_NUM"] <> '' || mb_strlen($arOrder["DELIVERY_DOC_DATE"]))) ? 'table-row' : 'none'?>">
 						<td valign="top"><?=GetMessage('SOD_NUMBER_ALLOW_DELIVERY');?>:</td>
 						<td valign="middle" id="allow_delivery_doc_number_format"><?=GetMessage("SOD_DELIV_DOC", Array("#NUM#" => htmlspecialcharsEx($arOrder["DELIVERY_DOC_NUM"]), "#DATE#" => htmlspecialcharsEx($arOrder["DELIVERY_DOC_DATE"]))) ?></td>
 					</tr>
 
-					<tr id="allow_delivery_date" style="display:<?=(strlen($arOrder["DATE_ALLOW_DELIVERY"]) > 0) ? 'table-row' : 'none'?>">
+					<tr id="allow_delivery_date" style="display:<?=($arOrder["DATE_ALLOW_DELIVERY"] <> '') ? 'table-row' : 'none'?>">
 						<td><?=GetMessage('SOD_DATE_ALLOW_DELIVERY');?>:</td>
 						<td id="allow_delivery_date_user"><?=$arOrder["DATE_ALLOW_DELIVERY"]?>
-							<?if (!$crmMode && IntVal($arOrder["EMP_ALLOW_DELIVERY_ID"]) > 0)
+							<?if (!$crmMode && intval($arOrder["EMP_ALLOW_DELIVERY_ID"]) > 0)
 								echo GetFormatedUserName($arOrder["EMP_ALLOW_DELIVERY_ID"], false);
 							?>
 						</td>
@@ -2582,7 +2586,7 @@ else
 				$tabControl->EndCustomField("ORDER_TRACKING_NUMBER", "");
 
 				// additional delivery info (only for automated delivery systems and if delivery price was calculated)
-				if (is_array($arDeliveryData) && !empty($arDeliveryData) && strpos($arOrder["DELIVERY_ID"], ":") !== false && $arOrder["PRICE_DELIVERY"] != 0)
+				if (is_array($arDeliveryData) && !empty($arDeliveryData) && mb_strpos($arOrder["DELIVERY_ID"], ":") !== false && $arOrder["PRICE_DELIVERY"] != 0)
 				{
 					$arDeliveryId = explode(":", $arOrder["DELIVERY_ID"]);
 					$profileId = $arDeliveryId[1];
@@ -2693,7 +2697,7 @@ else
 						<td valign="middle">
 							<span id="payed_name">
 							<?
-							if (IntVal($arOrder["PAY_SYSTEM_ID"]) > 0)
+							if (intval($arOrder["PAY_SYSTEM_ID"]) > 0)
 							{
 								$arPaySys = CSalePaySystem::GetByID($arOrder["PAY_SYSTEM_ID"], $arOrder["PERSON_TYPE_ID"]);
 								if ($arPaySys)
@@ -2717,10 +2721,10 @@ else
 						<td valign="middle"><?=SaleFormatCurrency($arOrder["PRICE"], $arOrder["CURRENCY"])?></td>
 					</tr>
 
-					<tr id="pay_date_pay" style="display:<?=(strlen($arOrder["DATE_PAYED"]) > 0) ? 'table-row' : 'none'?>">
+					<tr id="pay_date_pay" style="display:<?=($arOrder["DATE_PAYED"] <> '') ? 'table-row' : 'none'?>">
 						<td><?=GetMessage('SOD_DATE_ALLOW_PAY_CHANGE');?>:</td>
 						<td id="pay_date_pay_format"><?=$arOrder["DATE_PAYED"]?>
-							<?if (!$crmMode && IntVal($arOrder["EMP_PAYED_ID"]) > 0)
+							<?if (!$crmMode && intval($arOrder["EMP_PAYED_ID"]) > 0)
 								echo GetFormatedUserName($arOrder["EMP_PAYED_ID"], false);
 							?>
 						</td>
@@ -2742,7 +2746,7 @@ else
 						<td><?=GetMessage("SOD_PAYED_IS_ALLOW")?>:</td>
 						<td><?=GetMessage("SALE_NO")?></td>
 					</tr>
-					<tr id="pay_allow_pay" style="display:<?=($arOrder["PAYED"] != "N" && strlen($arOrder["PAY_VOUCHER_NUM"]) > 0) ? 'table-row' : 'none'?>">
+					<tr id="pay_allow_pay" style="display:<?=($arOrder["PAYED"] != "N" && $arOrder["PAY_VOUCHER_NUM"] <> '') ? 'table-row' : 'none'?>">
 						<td><?=GetMessage('SOD_NUMBER_ALLOW_PAY');?>:</td>
 						<td id="payed_doc_number_format"><?= str_replace("#DATE#", $arOrder["PAY_VOUCHER_DATE"], str_replace("#NUM#", htmlspecialcharsEx($arOrder["PAY_VOUCHER_NUM"]), GetMessage("SOD_PAY_DOC"))) ?></td>
 					</tr>
@@ -3008,7 +3012,7 @@ else
 				$tabControl->EndCustomField("ORDER_PAYED", '');
 
 				$arPaySys = CSalePaySystem::GetByID($arOrder["PAY_SYSTEM_ID"], $arOrder["PERSON_TYPE_ID"]);
-				if (strlen($arOrder["PS_STATUS"]) > 0)
+				if ($arOrder["PS_STATUS"] <> '')
 				{
 					$tabControl->AddSection("ps_stat", GetMessage("P_ORDER_PS_STATUS"));
 					$tabControl->BeginCustomField("ORDER_PS_STATUS", GetMessage("P_ORDER_PS_STATUS"));
@@ -3020,7 +3024,7 @@ else
 							echo (($arOrder["PS_STATUS"]=="Y") ? "OK" : "N");
 							if (!$boolLocked)
 							{
-								if (!$crmMode && $arPaySys["PSA_HAVE_RESULT"] == "Y" || strlen($arPaySys["PSA_RESULT_FILE"]) > 0)
+								if (!$crmMode && $arPaySys["PSA_HAVE_RESULT"] == "Y" || $arPaySys["PSA_RESULT_FILE"] <> '')
 								{
 									?>
 									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -3088,7 +3092,7 @@ else
 					<?
 					$tabControl->EndCustomField("ORDER_PS_RESPONSE_DATE", '');
 				}
-				elseif (!$crmMode && $arPaySys["PSA_HAVE_RESULT"] == "Y" || strlen($arPaySys["PSA_RESULT_FILE"]) > 0)
+				elseif (!$crmMode && $arPaySys["PSA_HAVE_RESULT"] == "Y" || $arPaySys["PSA_RESULT_FILE"] <> '')
 				{
 					$tabControl->AddSection("ps_stat", GetMessage("P_ORDER_PS_STATUS"));
 					$tabControl->BeginCustomField("ORDER_PS_STATUS_REC", GetMessage("P_ORDER_PS_STATUS"));
@@ -3137,13 +3141,13 @@ else
 							<span class="order_marked_right"><?=GetMessage("SALE_YES")?></span>
 						</td>
 					</tr>
-					<tr id="date_change_mark" style="display:<?=(strlen($arOrder["DATE_MARKED"]) > 0 && $arOrder["MARKED"] == "Y") ? 'table-row' : 'none'?>">
+					<tr id="date_change_mark" style="display:<?=($arOrder["DATE_MARKED"] <> '' && $arOrder["MARKED"] == "Y") ? 'table-row' : 'none'?>">
 						<td>
 							<?=GetMessage('SOD_DATE_MARKED');?>:
 						</td>
 						<td id="date_change_mark_user">
 							<?=$arOrder["DATE_MARKED"]?>
-							<?if (!$crmMode && IntVal($arOrder["EMP_MARKED_ID"]) > 0)
+							<?if (!$crmMode && intval($arOrder["EMP_MARKED_ID"]) > 0)
 								echo GetFormatedUserName($arOrder["EMP_MARKED_ID"], false);
 							?>
 						</td>
@@ -3270,7 +3274,7 @@ else
 
 				$tabControl->BeginCustomField("ORDER_COMMENTS", GetMessage("SOD_COMMENTS"));
 
-					if (strlen($arOrder["USER_DESCRIPTION"])>0)
+					if ($arOrder["USER_DESCRIPTION"] <> '')
 					{
 						?>
 						<tr>
@@ -3280,7 +3284,7 @@ else
 						<?
 					}
 
-					if (strlen($arOrder["ADDITIONAL_INFO"])>0)
+					if ($arOrder["ADDITIONAL_INFO"] <> '')
 					{
 						?>
 						<tr>
@@ -3387,10 +3391,10 @@ else
 							<?=GetMessage("SALE_NO")?>
 						</td>
 					</tr>
-					<tr id="deduct_date" style="display:<?=(strlen($arOrder["DATE_DEDUCTED"]) > 0) ? 'table-row' : 'none'?>">
+					<tr id="deduct_date" style="display:<?=($arOrder["DATE_DEDUCTED"] <> '') ? 'table-row' : 'none'?>">
 						<td><?=GetMessage('SOD_DATE_DEDUCT_CHANGE');?>:</td>
 						<td id="date_deduct_format"><?=$arOrder["DATE_DEDUCTED"]?>
-							<?if (!$crmMode && IntVal($arOrder["EMP_DEDUCTED_ID"]) > 0)
+							<?if (!$crmMode && intval($arOrder["EMP_DEDUCTED_ID"]) > 0)
 								echo GetFormatedUserName($arOrder["EMP_DEDUCTED_ID"], false);
 							?>
 						</td>
@@ -3613,7 +3617,7 @@ else
 											$fieldVal = $field."_VALUE";
 											$parentId = $arSku2Parent[$key];
 
-											if ((!isset($arRecord[$fieldVal]) || (isset($arRecord[$fieldVal]) && strlen($arRecord[$fieldVal]) == 0))
+											if ((!isset($arRecord[$fieldVal]) || (isset($arRecord[$fieldVal]) && $arRecord[$fieldVal] == ''))
 												&& (isset($arProductData[$parentId][$fieldVal]) && !empty($arProductData[$parentId][$fieldVal]))) // fieldVal can be array or string
 											{
 												$arRecord[$fieldVal] = $arProductData[$parentId][$fieldVal];
@@ -3717,7 +3721,7 @@ else
 											<?
 											$linkClass = (CSaleBasketHelper::isSetItem($arItem)) ? "set-item-link-name" : "";
 
-											if (strlen($arItem["EDIT_PAGE_URL"]) > 0):
+											if ($arItem["EDIT_PAGE_URL"] <> ''):
 											?>
 												<a href="<?echo $arItem["EDIT_PAGE_URL"]?>" class="name-link <?=$linkClass?>" target="_blank">
 											<?
@@ -3725,7 +3729,7 @@ else
 
 											echo trim($arItem["NAME"]);
 
-											if (strlen($arItem["EDIT_PAGE_URL"]) > 0):
+											if ($arItem["EDIT_PAGE_URL"] <> ''):
 											?>
 												</a>
 											<?
@@ -3838,7 +3842,7 @@ else
 										<?
 									}
 
-									if (substr($columnCode, 0, 9) == "PROPERTY_")
+									if (mb_substr($columnCode, 0, 9) == "PROPERTY_")
 									{
 										?>
 										<td class="property_field <?=$columnCode?>">

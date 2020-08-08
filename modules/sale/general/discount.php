@@ -645,12 +645,12 @@ class CAllSaleDiscount
 		$val = (float)$val;
 
 		$baseSiteCurrency = '';
-		if (isset($arFilter["LID"]) && strlen($arFilter["LID"]) > 0)
+		if (isset($arFilter["LID"]) && $arFilter["LID"] <> '')
 			$baseSiteCurrency = CSaleLang::GetLangCurrency($arFilter["LID"]);
-		elseif (isset($arFilter["CURRENCY"]) && strlen($arFilter["CURRENCY"]) > 0)
+		elseif (isset($arFilter["CURRENCY"]) && $arFilter["CURRENCY"] <> '')
 			$baseSiteCurrency = $arFilter["CURRENCY"];
 
-		if (strlen($baseSiteCurrency) <= 0)
+		if ($baseSiteCurrency == '')
 			return false;
 
 		$strSqlSearch = '';
@@ -725,7 +725,7 @@ class CAllSaleDiscount
 		{
 			return false;
 		}
-		$ACTION = strtoupper($ACTION);
+		$ACTION = mb_strtoupper($ACTION);
 		if ('UPDATE' != $ACTION && 'ADD' != $ACTION)
 			return false;
 
@@ -782,7 +782,7 @@ class CAllSaleDiscount
 		if ((is_set($arFields, "SORT") || $ACTION=="ADD") && intval($arFields["SORT"])<=0)
 			$arFields["SORT"] = 100;
 
-		if ((is_set($arFields, "LID") || $ACTION=="ADD") && strlen($arFields["LID"])<=0)
+		if ((is_set($arFields, "LID") || $ACTION=="ADD") && $arFields["LID"] == '')
 			return false;
 
 		if (is_set($arFields, "LID"))
@@ -802,7 +802,7 @@ class CAllSaleDiscount
 			$arFields['CURRENCY'] = CSaleLang::GetLangCurrency($arFields["LID"]);
 		}
 
-		if ((is_set($arFields, "CURRENCY") || $ACTION=="ADD") && strlen($arFields["CURRENCY"])<=0)
+		if ((is_set($arFields, "CURRENCY") || $ACTION=="ADD") && $arFields["CURRENCY"] == '')
 			return false;
 
 		if (is_set($arFields, "CURRENCY"))

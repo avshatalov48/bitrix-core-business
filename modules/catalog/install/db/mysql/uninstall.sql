@@ -11,6 +11,7 @@ drop table if exists b_catalog_product2group;
 drop table if exists b_catalog_discount;
 drop table if exists b_catalog_discount_cond;
 drop table if exists b_catalog_discount_module;
+drop table if exists b_catalog_discount_entity;
 drop table if exists b_catalog_discount2product;
 drop table if exists b_catalog_discount2group;
 drop table if exists b_catalog_discount2cat;

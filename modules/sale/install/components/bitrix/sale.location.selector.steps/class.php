@@ -405,18 +405,20 @@ class CBitrixLocationSelectorStepsComponent extends CBitrixLocationSelectorSearc
 
 		$siteId = $_REQUEST['FILTER']['SITE_ID'];
 
-		if(strlen($siteId))
+		if($siteId <> '')
 		{
 			$points = array();
 			$res = Location\SiteLocationTable::getConnectedLocations($siteId, array('select' => array(
-					'ID' => 'ID',
-					'LEFT_MARGIN' => 'LEFT_MARGIN',
-					'RIGHT_MARGIN' => 'RIGHT_MARGIN'
-				)
+				'ID' => 'ID',
+				'LEFT_MARGIN' => 'LEFT_MARGIN',
+				'RIGHT_MARGIN' => 'RIGHT_MARGIN'
+			)
 			), array('GET_LINKED_THROUGH_GROUPS' => true));
 
 			while($item = $res->fetch())
+			{
 				$points[intval($item['ID'])] = $item;
+			}
 
 			unset($parameters['filter']['SITE_ID']);
 		}
@@ -424,7 +426,7 @@ class CBitrixLocationSelectorStepsComponent extends CBitrixLocationSelectorSearc
 		$result = static::processSearchGetList($parameters);
 		$result = static::processSearchGetAdditional($result);
 
-		if(strlen($siteId) && is_array($result['ITEMS']) && !empty($result['ITEMS']))
+		if(mb_strlen($siteId) && is_array($result['ITEMS']) && !empty($result['ITEMS']))
 		{
 			$res = Location\SiteLocationTable::getLinkStatusForMultipleNodes($result['ITEMS'], $siteId, $points);
 			foreach($result['ITEMS'] as $k => &$item)

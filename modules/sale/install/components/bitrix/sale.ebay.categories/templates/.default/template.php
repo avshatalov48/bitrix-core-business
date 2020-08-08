@@ -32,7 +32,7 @@ Loc::loadMessages(__FILE__);
 
 	<input id="SALE_EBAY_CATEGORY_ID" name="<?=$arParams["CATEGORY_INPUT_NAME"]?>" type="hidden" value="<?=$arResult["EBAY_CATEGORY_ID"]?>">
 	<div style="padding-top: 20px;"><b><?=Loc::getMessage("SALE_EBAY_SEC_PROPERTIES")?></b></div>
-	<div id="<?=$arResult["VARIATIONS_BLOCK_ID"]?>" style="display:<?=(strlen($arResult["EBAY_CATEGORY_ID"]) <= 0 || empty($arResult["EBAY_CATEGORY_VARIATIONS"]) ? 'none' : 'block')?>;">
+	<div id="<?=$arResult["VARIATIONS_BLOCK_ID"]?>" style="display:<?=($arResult["EBAY_CATEGORY_ID"] == '' || empty($arResult["EBAY_CATEGORY_VARIATIONS"]) ? 'none' : 'block')?>;">
 		<?foreach($arResult["VARIATIONS_VALUES"] as $ebayVariationId => $bitrixPropId):?>
 			<div>
 				<select name="<?=$arParams["EBAY_CATEGORY_VARIATIONS_SN"]?>[]">

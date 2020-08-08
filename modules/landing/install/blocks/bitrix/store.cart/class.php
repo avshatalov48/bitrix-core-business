@@ -19,9 +19,18 @@ class StoreCartBlock extends \Bitrix\Landing\LandingBlock
 			$params['site_id']
 		);
 
+		if (\Bitrix\Main\Loader::includeModule('catalog'))
+		{
+			$iblockInfo = \CCatalogSku::GetInfoByIBlock($this->params['IBLOCK_ID']);
+			if (!empty($iblockInfo) && $iblockInfo['IBLOCK_ID'] !== $iblockInfo['PRODUCT_IBLOCK_ID'])
+			{
+				$this->params['SKU_IBLOCK_ID'] = $iblockInfo['IBLOCK_ID'];
+			}
+		}
+
 		if (isset($syspages['catalog']))
 		{
-			$this->params['EMPTY_PATH'] = '#system_catalog';
+			$this->params['EMPTY_PATH'] = '#landing' . $syspages['catalog']['LANDING_ID'];
 		}
 		else
 		{

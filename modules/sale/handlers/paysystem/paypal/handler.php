@@ -68,10 +68,10 @@ class PayPalHandler
 			$paymentId = $request->get('cm');
 		}
 
-		$pos = strpos($paymentId, static::DELIMITER_PAYMENT_ID);
+		$pos = mb_strpos($paymentId, static::DELIMITER_PAYMENT_ID);
 		if ($pos !== false)
 		{
-			return substr($paymentId, 0, $pos);
+			return mb_substr($paymentId, 0, $pos);
 		}
 
 		return Registry::REGISTRY_TYPE_ORDER;
@@ -113,7 +113,7 @@ class PayPalHandler
 			$header = "POST /cgi-bin/webscr HTTP/1.1\r\n";
 			$header .= "Host: ".$host."\r\n";
 			$header .= "Content-Type: application/x-www-form-urlencoded\r\n";
-			$header .= "Content-Length: ".strlen($req)."\r\n";
+			$header .= "Content-Length: ".mb_strlen($req)."\r\n";
 			$header .= "User-Agent: 1C-Bitrix\r\n";
 			$header .= "Connection: Close\r\n\r\n";
 
@@ -155,7 +155,7 @@ class PayPalHandler
 				{
 					return $this->processSuccessAction($payment, $request, $lines);
 				}
-				elseif (strpos($response, "VERIFIED") !== false)
+				elseif (mb_strpos($response, "VERIFIED") !== false)
 				{
 					return $this->processVerifiedAction($payment, $request);
 				}
@@ -352,7 +352,10 @@ class PayPalHandler
 	 */
 	public function initiatePay(Payment $payment, Request $request = null)
 	{
-		$this->setExtraParams(array('URL' => $this->getUrl($payment, 'pay')));
+		$this->setExtraParams([
+			'URL' => $this->getUrl($payment, 'pay'),
+			'PAYPAL_RETURN' => $this->getReturnUrl($payment),
+		]);
 
 		return $this->showTemplate($payment, 'template');
 	}
@@ -400,10 +403,10 @@ class PayPalHandler
 			$paymentId = $request->get('cm');
 		}
 
-		$pos = strpos($paymentId, static::DELIMITER_PAYMENT_ID);
+		$pos = mb_strpos($paymentId, static::DELIMITER_PAYMENT_ID);
 		if ($pos !== false)
 		{
-			return substr($paymentId, $pos+1);
+			return mb_substr($paymentId, $pos + 1);
 		}
 
 		return $paymentId;
@@ -480,7 +483,7 @@ class PayPalHandler
 		$this->prePaymentSetting['SERVER_NAME'] = $arSite["SERVER_NAME"];
 		if ($this->prePaymentSetting['SERVER_NAME'])
 		{
-			if (defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME) > 0)
+			if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '')
 			{
 				$this->prePaymentSetting['SERVER_NAME'] = SITE_SERVER_NAME;
 			}
@@ -635,7 +638,7 @@ class PayPalHandler
 						}
 					}
 
-					if(strlen($this->prePaymentSetting['DELIVERY_PRICE']) > 0)
+					if($this->prePaymentSetting['DELIVERY_PRICE'] <> '')
 					{
 						$arFields["PAYMENTREQUEST_0_NOTIFYURL"] = $this->prePaymentSetting['NOTIFY_URL'];
 					}
@@ -731,7 +734,7 @@ class PayPalHandler
 				}
 			}
 
-			$arFields["RETURNURL"] .= ((strpos($arFields["RETURNURL"], "?") === false) ? "?" : "&")."paypal=Y";
+			$arFields["RETURNURL"] .= ((mb_strpos($arFields["RETURNURL"], "?") === false) ? "?" : "&")."paypal=Y";
 
 			$ht = new \Bitrix\Main\Web\HttpClient(array("version" => "1.1"));
 			if($res = $ht->post($url, $arFields))
@@ -772,5 +775,14 @@ class PayPalHandler
 		{
 			$this->prePaymentSetting = array_merge($this->prePaymentSetting, $orderData);
 		}
+	}
+
+	/**
+	 * @param Payment $payment
+	 * @return mixed|string
+	 */
+	private function getReturnUrl(Payment $payment)
+	{
+		return $this->getBusinessValue($payment, 'PAYPAL_RETURN') ?: $this->service->getContext()->getUrl();
 	}
 }

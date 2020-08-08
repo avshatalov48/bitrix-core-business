@@ -90,7 +90,7 @@ class CSnippets
 				if ($ext != 'snp')
 				{
 					$name = str_replace($ext, "snp", $name);
-					if (strpos($name, ".snp") === false)
+					if (mb_strpos($name, ".snp") === false)
 					{
 						$name = $name.".snp";
 					}
@@ -148,8 +148,8 @@ class CSnippets
 			for ($i=0, $len = count($arK); $i<$len;$i++)
 			{
 				$name = $arK[$i];
-				$pos = strrpos($name,".");
-				$f_name = ($pos !== FALSE) ? substr($name,0,$pos) : $name;
+				$pos = mb_strrpos($name, ".");
+				$f_name = ($pos !== FALSE)? mb_substr($name, 0, $pos) : $name;
 				if ($ar[$f_name.".snp"])
 				{
 					$ar[$f_name.".snp"]['title'] = stripslashes($SNIPPETS[$name]['title']);
@@ -190,7 +190,7 @@ class CSnippets
 		$site = $Params['site'];
 		$code = $Params['code'];
 		$basePath = self::GetBasePath($template);
-		$templatePath = substr($basePath, 0, -9);
+		$templatePath = mb_substr($basePath, 0, -9);
 		$thumb = $Params['thumb'] === false ? false : CFileMan::SecurePathVar($Params['thumb']);
 
 		if (!file_exists($templatePath))
@@ -248,15 +248,15 @@ class CSnippets
 		// 3. Handle thumbnail
 		if ($thumb !== false)
 		{
-			if (substr($thumb,0,1) == '/')
-				$thumb = substr($thumb,1);
+			if (mb_substr($thumb, 0, 1) == '/')
+				$thumb = mb_substr($thumb, 1);
 
-			$pos = strrpos($name,".");
+			$pos = mb_strrpos($name, ".");
 			if ($pos === FALSE)
 				return true;
 
 			//delete existent thumbnail
-			$f_name = substr($name, 0, $pos);
+			$f_name = mb_substr($name, 0, $pos);
 			$img_path1 = BX_PERSONAL_ROOT.'/templates/'.$template.'/snippets/images/'.$path.($path == '' ?  '' : '/').$f_name;
 			$DOC_ROOT = CSite::GetSiteDocRoot($site);
 			$arExt = array("gif", "jpg", "jpeg", "png", "bmp");
@@ -267,7 +267,7 @@ class CSnippets
 					CFileman::DeleteFile(Array($site, $p_));
 			}
 
-			if (empty($thumb) || strrpos($thumb, '.') === FALSE)
+			if (empty($thumb) || mb_strrpos($thumb, '.') === FALSE)
 				return true;
 
 			// Copy Thumbnail
@@ -276,8 +276,8 @@ class CSnippets
 
 			if (file_exists($path_from_1))
 			{
-				$pos = strrpos($thumb,".");
-				$f_ext = ($pos !== FALSE) ? strtolower(substr($thumb, $pos + 1)) : '';
+				$pos = mb_strrpos($thumb, ".");
+				$f_ext = ($pos !== FALSE)? mb_strtolower(mb_substr($thumb, $pos + 1)) : '';
 
 				if (in_array($f_ext, $arExt))
 				{
@@ -639,7 +639,7 @@ window.arSnGroups['<?=$template?>']['<?= $key?>'] =
 			$name = CFileMan::SecurePathVar($params['name']);
 			$template = (isset($params['template']) && $params['template'] !== '') ? CFileMan::SecurePathVar($params['template']) : '.default';
 			$basePath = self::GetBasePath($template);
-			$templatePath = substr($basePath, 0, -9);
+			$templatePath = mb_substr($basePath, 0, -9);
 
 			$io = CBXVirtualIo::GetInstance();
 			if($io->DirectoryExists($templatePath))

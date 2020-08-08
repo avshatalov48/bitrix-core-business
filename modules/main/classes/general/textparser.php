@@ -1248,7 +1248,7 @@ class CTextParser
 		ob_start();
 
 		?><table class="forum-spoiler"><?
-			?><thead onclick="if(this.nextSibling.style.display=='none') { this.nextSibling.style.display=''; BX.addClass(this, 'forum-spoiler-head-open'); } else { this.nextSibling.style.display='none'; BX.removeClass(this, 'forum-spoiler-head-open'); } BX.onCustomEvent('BX.Forum.Spoiler:toggle', [{node: this}]);"><?
+			?><thead onclick="if(this.nextSibling.style.display=='none') { this.nextSibling.style.display=''; BX.addClass(this, 'forum-spoiler-head-open'); } else { this.nextSibling.style.display='none'; BX.removeClass(this, 'forum-spoiler-head-open'); } BX.onCustomEvent('BX.Forum.Spoiler:toggle', [{node: this}]); event.stopPropagation();"><?
 				?><tr><?
 					?><th><?
 						?><div><?=htmlspecialcharsbx($title)?></div><?
@@ -1459,7 +1459,11 @@ class CTextParser
 		}
 
 		$userId = intval($userId);
-		$res = "";
+
+		$renderParams = array(
+			'USER_ID' => $userId,
+			'USER_NAME' => $userName
+		);
 
 		if($userId > 0)
 		{
@@ -1528,9 +1532,9 @@ class CTextParser
 					'entityId' => intval($this->pathToUserEntityId)
 				));
 			}
-
-			$res = $this->render_user($renderParams);
 		}
+
+		$res = $this->render_user($renderParams);
 
 		return $this->defended_tags($res, "replace");
 	}
@@ -1541,6 +1545,11 @@ class CTextParser
 		$pathToUser = (!empty($fields['PATH_TO_USER']) ? $fields['PATH_TO_USER'] : '');
 		$userId = (!empty($fields['USER_ID']) ? $fields['USER_ID'] : '');
 		$userName = (!empty($fields['USER_NAME']) ? $fields['USER_NAME'] : '');
+
+		if (empty($userId))
+		{
+			return "<span class=\"blog-p-user-name\">{$userName}</span>";
+		}
 
 		return '<a class="blog-p-user-name'.$classAdditional.'" href="'.CComponentEngine::MakePathFromTemplate($pathToUser, array("user_id" => $userId)).'" bx-tooltip-user-id="'.(!$this->bMobile ? $userId : '').'"'.(!empty($fields['TOOLTIP_PARAMS']) ? ' bx-tooltip-params="'.htmlspecialcharsbx($fields['TOOLTIP_PARAMS']).'"' : '').'>'.$userName.'</a>';
 	}

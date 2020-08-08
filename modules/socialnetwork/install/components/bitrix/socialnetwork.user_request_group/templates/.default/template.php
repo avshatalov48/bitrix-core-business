@@ -18,14 +18,14 @@ if ($arResult["NEED_AUTH"] == "Y")
 {
 	$APPLICATION->AuthForm("");
 }
-elseif (strlen($arResult["FatalError"])>0)
+elseif ($arResult["FatalError"] <> '')
 {
 	?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?
 }
 else
 {
 	if(
-		strlen($arResult["ErrorMessage"]) > 0
+		$arResult["ErrorMessage"] <> ''
 		&& $arResult["ShowForm"] != "Input"
 	)
 	{
@@ -46,7 +46,7 @@ else
 			});
 		</script><?
 
-		?><div id="sonet_group_user_request_error_block" class="ui-alert ui-alert-xs ui-alert-danger ui-alert-icon-danger<?=(strlen($arResult["ErrorMessage"]) > 0 ? "" : " sonet-ui-form-error-block-invisible")?>"><?=$arResult["ErrorMessage"]?></div><?
+		?><div id="sonet_group_user_request_error_block" class="ui-alert ui-alert-xs ui-alert-danger ui-alert-icon-danger<?=($arResult["ErrorMessage"] <> '' ? "" : " sonet-ui-form-error-block-invisible")?>"><?=$arResult["ErrorMessage"]?></div><?
 
 		?><form method="post" name="form1" id="sonet_group_user_request_form" action="<?=POST_FORM_ACTION_URI?>" enctype="multipart/form-data">
 			<table cellspacing="0">

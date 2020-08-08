@@ -16,9 +16,7 @@ Class perfmon extends CModule
 	{
 		$arModuleVersion = array();
 
-		$path = str_replace("\\", "/", __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen("/index.php"));
-		include($path."/version.php");
+		include(__DIR__.'/version.php');
 
 		$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 		$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
@@ -35,7 +33,7 @@ Class perfmon extends CModule
 		// Database tables creation
 		if(!$DB->Query("SELECT 'x' FROM b_perf_hit WHERE 1=0", true))
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/db/".strtolower($DB->type)."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/db/".mb_strtolower($DB->type)."/install.sql");
 		}
 
 		if($this->errors !== false)
@@ -66,7 +64,7 @@ Class perfmon extends CModule
 
 		if(!array_key_exists("savedata", $arParams) || $arParams["savedata"] != "Y")
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/db/".strtolower($DB->type)."/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
 		}
 
 		UnRegisterModule("perfmon");
@@ -116,7 +114,7 @@ Class perfmon extends CModule
 		$PERF_RIGHT = $APPLICATION->GetGroupRight("perfmon");
 		if($PERF_RIGHT >= "W")
 		{
-			$step = IntVal($step);
+			$step = intval($step);
 			if($step < 2)
 			{
 				$APPLICATION->IncludeAdminFile(GetMessage("PERF_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/step1.php");
@@ -139,7 +137,7 @@ Class perfmon extends CModule
 		$PERF_RIGHT = $APPLICATION->GetGroupRight("perfmon");
 		if($PERF_RIGHT == "W")
 		{
-			$step = IntVal($step);
+			$step = intval($step);
 			if($step < 2)
 			{
 				$APPLICATION->IncludeAdminFile(GetMessage("PERF_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/unstep1.php");

@@ -18,18 +18,97 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)die();
 \Bitrix\Main\UI\Extension::load('ui.entity-editor');
 
 $guid = $arResult['GUID'];
-$prefix = strtolower($guid);
+$prefix = mb_strtolower($guid);
 $containerID = "{$prefix}_container";
 $buttonContainerID = "{$prefix}_buttons";
 $configMenuButtonID = "{$prefix}_config_menu";
 $configIconID = "{$prefix}_config_icon";
 
-?><div class="ui-entity-editor-container" id="<?=htmlspecialcharsbx($containerID)?>"></div>
+$htmlEditorConfigs = [];
+$htmlFieldNames = isset($arResult['ENTITY_HTML_FIELD_NAMES']) && is_array($arResult['ENTITY_HTML_FIELD_NAMES'])
+	? $arResult['ENTITY_HTML_FIELD_NAMES']
+	: [];
+foreach ($htmlFieldNames as $fieldName)
+{
+	$fieldPrefix = $prefix.'_'.strtolower($fieldName);
+	$htmlEditorConfigs[$fieldName] = [
+		'id' => "{$fieldPrefix}_html_editor",
+		'containerId' => "{$fieldPrefix}_html_editor_container",
+	];
+}
+
+if (!empty($htmlEditorConfigs))
+{
+	Bitrix\Main\Loader::includeModule('fileman');
+
+	foreach ($htmlEditorConfigs as $htmlEditorConfig)
+	{
+		?>
+		<div id="<?=htmlspecialcharsbx($htmlEditorConfig['containerId'])?>" style="display:none;">
+			<?php
+			$editor = new CHTMLEditor();
+			$editor->Show(
+				[
+					'name' => $htmlEditorConfig['id'],
+					'id' => $htmlEditorConfig['id'],
+					'siteId' => SITE_ID,
+					'width' => '100%',
+					'minBodyWidth' => 230,
+					'normalBodyWidth' => 530,
+					'height' => 200,
+					'minBodyHeight' => 200,
+					'showTaskbars' => false,
+					'showNodeNavi' => false,
+					'autoResize' => true,
+					'autoResizeOffset' => 10,
+					'bbCode' => false,
+					'saveOnBlur' => false,
+					'bAllowPhp' => false,
+					'lazyLoad' => true,
+					'limitPhpAccess' => false,
+					'setFocusAfterShow' => false,
+					'askBeforeUnloadPage' => false,
+					'useFileDialogs' => false,
+					'controlsMap' => [
+						['id' => 'Bold', 'compact' => true, 'sort' => 10],
+						['id' => 'Italic', 'compact' => true, 'sort' => 20],
+						['id' => 'Underline', 'compact' => true, 'sort' => 30],
+						['id' => 'Strikeout', 'compact' => true, 'sort' => 40],
+						['id' => 'RemoveFormat', 'compact' => false, 'sort' => 50],
+						['id' => 'Color', 'compact' => false, 'sort' => 60],
+						['id' => 'FontSelector', 'compact' => false, 'sort' => 70],
+						['id' => 'FontSize', 'compact' => true, 'sort' => 80],
+						['separator' => true, 'compact' => false, 'sort' => 90],
+						['id' => 'OrderedList', 'compact' => true, 'sort' => 100],
+						['id' => 'UnorderedList', 'compact' => true, 'sort' => 110],
+						['id' => 'AlignList', 'compact' => false, 'sort' => 120],
+						['separator' => true, 'compact' => false, 'sort' => 130],
+						['id' => 'InsertLink', 'compact' => true, 'sort' => 140],
+						['id' => 'Code', 'compact' => false, 'sort' => 180],
+						['id' => 'Quote', 'compact' => false, 'sort' => 190],
+						['separator' => true, 'compact' => false, 'sort' => 200],
+						['id' => 'Fullscreen', 'compact' => true, 'sort' => 210],
+						['id' => 'More', 'compact' => true, 'sort' => 400],
+					],
+				]
+			);
+			?>
+		</div>
+		<?php
+	}
+}
+?>
+<div class="ui-entity-editor-container" id="<?=htmlspecialcharsbx($containerID)?>"></div>
 <div class="ui-entity-editor-section-add-btn-container" id="<?=htmlspecialcharsbx($buttonContainerID)?>"></div>
 <script type="text/javascript">
 	BX.ready(
 		function()
 		{
+			BX.UI.EntityEditorField.messages = {
+				add: "<?=GetMessageJS('UI_FORM_ENTITY_FIELD_ADD')?>",
+				isEmpty: "<?=GetMessageJS('UI_FORM_ENTITY_FIELD_EMPTY')?>"
+			};
+
 			var config = BX.UI.EntityConfig.create(
 				"<?=CUtil::JSEscape($arResult['CONFIG_ID'])?>",
 				{
@@ -85,6 +164,7 @@ $configIconID = "{$prefix}_config_icon";
 						validators: <?=CUtil::PhpToJSObject($arResult['ENTITY_VALIDATORS'])?>,
 						controllers: <?=CUtil::PhpToJSObject($arResult['ENTITY_CONTROLLERS'])?>,
 						detailManagerId: "<?=CUtil::JSEscape($arResult['DETAIL_MANAGER_ID'])?>",
+						fieldCreationPageUrl: "<?=CUtil::JSEscape($arResult['FIELD_CREATION_PAGE_URL'])?>",
 						userFieldManager: userFieldManager,
 						initialMode: "<?=CUtil::JSEscape($arResult['INITIAL_MODE'])?>",
 						enableModeToggle: <?=$arResult['ENABLE_MODE_TOGGLE'] ? 'true' : 'false'?>,
@@ -106,6 +186,7 @@ $configIconID = "{$prefix}_config_icon";
 						buttonContainerId: "<?=CUtil::JSEscape($buttonContainerID)?>",
 						configMenuButtonId: "<?=CUtil::JSEscape($configMenuButtonID)?>",
 						configIconId: "<?=CUtil::JSEscape($configIconID)?>",
+						htmlEditorConfigs: <?=CUtil::PhpToJSObject($htmlEditorConfigs)?>,
 						serviceUrl: "<?=CUtil::JSEscape($arResult['SERVICE_URL'])?>",
 						externalContextId: "<?=CUtil::JSEscape($arResult['EXTERNAL_CONTEXT_ID'])?>",
 						contextId: "<?=CUtil::JSEscape($arResult['CONTEXT_ID'])?>",

@@ -60,7 +60,7 @@ class CSticker
 
 		$arResult = array();
 		while($arRes = $res->Fetch())
-			$arResult[intVal($arRes['GROUP_ID'])] = intVal($arRes['TASK_ID']);
+			$arResult[intval($arRes['GROUP_ID'])] = intval($arRes['TASK_ID']);
 
 		return $arResult;
 	}
@@ -86,8 +86,8 @@ class CSticker
 		{
 			$name = '';
 			if ($arRes['SYS'])
-				$name = GetMessage('TASK_NAME_'.strtoupper($arRes['NAME']));
-			if (strlen($name) == 0)
+				$name = GetMessage('TASK_NAME_'.mb_strtoupper($arRes['NAME']));
+			if ($name == '')
 				$name = $arRes['TITLE'];
 			$arTasks[$arRes['ID']] = Array('title' => $name, 'letter' => $arRes['LETTER']);
 		}
@@ -162,9 +162,9 @@ class CSticker
 			$filter_keys = array_keys($arFilter);
 			for($i=0, $l = count($filter_keys); $i<$l; $i++)
 			{
-				$n = strtoupper($filter_keys[$i]);
+				$n = mb_strtoupper($filter_keys[$i]);
 				$val = $arFilter[$filter_keys[$i]];
-				if(is_string($val)  && strlen($val) <=0)
+				if(is_string($val)  && $val == '')
 					continue;
 
 				if ($n == 'ID')
@@ -180,10 +180,10 @@ class CSticker
 
 		$strOrderBy = '';
 		foreach($arOrder as $by=>$order)
-			if(isset($arFields[strtoupper($by)]))
-				$strOrderBy .= $arFields[strtoupper($by)]["FIELD_NAME"].' '.(strtolower($order)=='desc'?'desc'.(strtoupper($DB->type)=="ORACLE"?" NULLS LAST":""):'asc'.(strtoupper($DB->type)=="ORACLE"?" NULLS FIRST":"")).',';
+			if(isset($arFields[mb_strtoupper($by)]))
+				$strOrderBy .= $arFields[mb_strtoupper($by)]["FIELD_NAME"].' '.(mb_strtolower($order) == 'desc'?'desc'.($DB->type == "ORACLE"?" NULLS LAST":""):'asc'.($DB->type == "ORACLE"?" NULLS FIRST":"")).',';
 
-		if(strlen($strOrderBy) > 0)
+		if($strOrderBy <> '')
 			$strOrderBy = "ORDER BY ".rtrim($strOrderBy, ",");
 
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
@@ -191,7 +191,7 @@ class CSticker
 		{
 			$strColors = "";
 			for($i=0; $i < count($arFilter['COLORS']); $i++)
-				$strColors .= ",".IntVal($arFilter['COLORS'][$i]);
+				$strColors .= ",".intval($arFilter['COLORS'][$i]);
 			$strSqlSearch .= "\n AND COLOR in (".trim($strColors, ", ").")";
 		}
 
@@ -259,7 +259,7 @@ class CSticker
 			array(
 				'arFilter' => array(
 					'USER_ID' => $USER->GetId(),
-					'ID' => intVal($id),
+					'ID' => intval($id),
 				)
 			));
 		if ($res && is_array($res) && count($res) > 0)
@@ -298,7 +298,7 @@ class CSticker
 			where
 				DELETED='N'
 				AND SITE_ID='".$DB->ForSql($site)."'
-				AND ((PERSONAL='Y' AND CREATED_BY=".intVal($userId).") OR PERSONAL='N')
+				AND ((PERSONAL='Y' AND CREATED_BY=".intval($userId).") OR PERSONAL='N')
 			group by PAGE_URL, PAGE_TITLE
 			order by MAX_DATE_UPDATE desc";
 
@@ -339,7 +339,7 @@ class CSticker
 		if($bCache && $CACHE_MANAGER->Read(CACHED_stickers_count, $cacheId, "fileman_stickers_count"))
 			return $CACHE_MANAGER->Get($cacheId);
 
-		$strSqlSearch = "((ST.PERSONAL='Y' AND ST.CREATED_BY=".intVal($userId).") OR ST.PERSONAL='N')";
+		$strSqlSearch = "((ST.PERSONAL='Y' AND ST.CREATED_BY=".intval($userId).") OR ST.PERSONAL='N')";
 		$strSqlSearch .= "\n AND ST.CLOSED='N' AND ST.DELETED='N' AND ST.SITE_ID='".$DB->ForSql($Params['SITE_ID'])."'";
 
 		if ($Params["PAGE_URL"])
@@ -411,7 +411,7 @@ class CSticker
 			$strSql =
 				"UPDATE b_sticker SET ".
 					$strUpdate.
-				" WHERE ID=".IntVal($ID);
+				" WHERE ID=".intval($ID);
 
 			$DB->QueryBind($strSql, Array("CONTENT" => $arFields["CONTENT"], "MARKER_ADJUST" => $arFields["MARKER_ADJUST"]), false,  "File: ".__FILE__."<br>Line: ".__LINE__);
 		}
@@ -447,7 +447,7 @@ class CSticker
 		global $DB;
 		$strIds = "";
 		for($i=0; $i < count($ids); $i++)
-			$strIds .= ",".IntVal($ids[$i]);
+			$strIds .= ",".intval($ids[$i]);
 		$strSql = "DELETE FROM b_sticker WHERE ID in (".trim($strIds, ", ").")";
 
 		if (!$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
@@ -476,7 +476,7 @@ class CSticker
 		global $DB;
 		$strIds = "";
 		for($i=0; $i < count($ids); $i++)
-			$strIds .= ",".IntVal($ids[$i]);
+			$strIds .= ",".intval($ids[$i]);
 
 		$arFields = array("CLOSED" => $bHide ? "Y" : "N");
 		$strUpdate = $DB->PrepareUpdate("b_sticker", $arFields);
@@ -528,7 +528,7 @@ class CSticker
 			"useHotkeys" => COption::GetOptionString('fileman', "stickers_use_hotkeys", "Y") == "Y",
 			"filterParams" => CSticker::GetFilterParams(),
 			"bHideBottom" => COption::GetOptionString("fileman", "stickers_hide_bottom", "Y") == "Y",
-			"focusOnSticker" => isset($_GET['show_sticker'])? intVal($_GET['show_sticker']): 0,
+			"focusOnSticker" => isset($_GET['show_sticker'])? intval($_GET['show_sticker']): 0,
 			"strDate" => FormatDate("j F", time()+CTimeZone::GetOffset()),
 			"curPageCount" => $Params['curPageCount'],
 			"site_id" => SITE_ID
@@ -666,7 +666,7 @@ class CSticker
 	{
 		if (isset($_SESSION["SESS_SHOW_STICKERS"]) && $_SESSION["SESS_SHOW_STICKERS"] == "Y")
 			return true;
-		if (isset($_GET['show_sticker']) && intVal($_GET['show_sticker']) > 0)
+		if (isset($_GET['show_sticker']) && intval($_GET['show_sticker']) > 0)
 			return true;
 		return false;
 	}
@@ -709,8 +709,8 @@ class CSticker
 					$html
 				);
 
-				if (strlen($html) > 40)
-					$html = substr($html, 0, 40)."...";
+				if (mb_strlen($html) > 40)
+					$html = mb_substr($html, 0, 40)."...";
 			}
 			else
 			{

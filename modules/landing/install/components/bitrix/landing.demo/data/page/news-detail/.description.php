@@ -9,6 +9,7 @@ use \Bitrix\Main\Localization\Loc;
 return array(
 	'code' => 'news-detail',
 	'section' => ['dynamic', 'dynamic:detail', 'dynamic:socialnetwork:livefeed'],
+	'type' => ['page', 'knowledge', 'group'],
 	'name' => Loc::getMessage('LANDING_DEMO_NEWS_DETAIL-NAME'),
 	'description' => Loc::getMessage('LANDING_DEMO_NEWS_DETAIL-DESC'),
 	'publication' => true,
@@ -21,7 +22,7 @@ return array(
 			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/news-detail/preview.jpg',
 			'VIEW_USE' => 'N',
 			'THEME_CODE' => '2business',
-			'THEME_CODE_TYPO' => 'app',
+
 			'PIXELFB_USE' => 'N',
 			'GACOUNTER_USE' => 'N',
 			'GACOUNTER_SEND_CLICK' => 'N',

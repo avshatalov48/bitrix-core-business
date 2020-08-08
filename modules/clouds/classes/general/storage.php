@@ -351,7 +351,7 @@ class CCloudStorage
 
 					$tmpFile = $io->GetPhysicalName($callbackData["tmpFile"]);
 					unlink($tmpFile);
-					@rmdir(substr($tmpFile, 0, -strlen(bx_basename($tmpFile))));
+					@rmdir(mb_substr($tmpFile, 0, -mb_strlen(bx_basename($tmpFile))));
 
 					$arCloudImageSizeCache[$cacheImageFile] = $arImageSize;
 
@@ -380,10 +380,10 @@ class CCloudStorage
 
 					$tmpFile = $io->GetPhysicalName($callbackData["tmpFile"]);
 					unlink($tmpFile);
-					@rmdir(substr($tmpFile, 0, -strlen(bx_basename($tmpFile))));
+					@rmdir(mb_substr($tmpFile, 0, -mb_strlen(bx_basename($tmpFile))));
 
 					unlink($cacheImageFileTmp);
-					@rmdir(substr($cacheImageFileTmp, 0, -strlen(bx_basename($cacheImageFileTmp))));
+					@rmdir(mb_substr($cacheImageFileTmp, 0, -mb_strlen(bx_basename($cacheImageFileTmp))));
 
 					// $cacheImageFile not clear what to do
 					return false;
@@ -677,7 +677,7 @@ class CCloudStorage
 			$fileToStore["type"] = $arResizeParams["type"];
 
 		$baseURL = preg_replace("/^https?:/i", "", $obBucket->GetFileSRC("/"));
-		$pathToStore = substr($task["TO_PATH"], strlen($baseURL) - 1);
+		$pathToStore = mb_substr($task["TO_PATH"], mb_strlen($baseURL) - 1);
 		if (!$obBucket->SaveFile(urldecode($pathToStore), $fileToStore))
 		{
 			$DB->Query("
@@ -701,8 +701,8 @@ class CCloudStorage
 		if (!is_array($arSourceFile))
 		{
 			$file = $arSourceFile;
-			if (substr($file, 0, strlen($_SERVER["DOCUMENT_ROOT"])) == $_SERVER["DOCUMENT_ROOT"])
-				$file = ltrim(substr($file, strlen($_SERVER["DOCUMENT_ROOT"])), "/");
+			if (mb_substr($file, 0, mb_strlen($_SERVER["DOCUMENT_ROOT"])) == $_SERVER["DOCUMENT_ROOT"])
+				$file = ltrim(mb_substr($file, mb_strlen($_SERVER["DOCUMENT_ROOT"])), "/");
 
 			if (!preg_match("/^http:\\/\\//", $file))
 				return false;
@@ -711,7 +711,7 @@ class CCloudStorage
 			if (!is_object($bucket))
 				return false;
 
-			$filePath = substr($file, strlen($bucket->GetFileSRC("/")) - 1);
+			$filePath = mb_substr($file, mb_strlen($bucket->GetFileSRC("/")) - 1);
 			$filePath = urldecode($filePath);
 
 			$target = CFile::GetTempName('', bx_basename($filePath));
@@ -738,7 +738,7 @@ class CCloudStorage
 
 			if ($bucket->DownloadToFile($arSourceFile, $target))
 			{
-				$arDestination["name"] = (strlen($arSourceFile['ORIGINAL_NAME']) > 0? $arSourceFile['ORIGINAL_NAME']: $arSourceFile['FILE_NAME']);
+				$arDestination["name"] = ($arSourceFile['ORIGINAL_NAME'] <> ''? $arSourceFile['ORIGINAL_NAME']: $arSourceFile['FILE_NAME']);
 				$arDestination["size"] = $arSourceFile['FILE_SIZE'];
 				$arDestination["type"] = $arSourceFile['CONTENT_TYPE'];
 				$arDestination["description"] = $arSourceFile['DESCRIPTION'];
@@ -829,23 +829,25 @@ class CCloudStorage
 		$filePath = "";
 		$newName = "";
 
-		if (strlen($newPath))
+		if($newPath <> '')
 		{
 			$filePath = "/".trim(str_replace("//", "/", $newPath), "/");
 		}
 		else
 		{
 			$strFileExt = strrchr($arFile["FILE_NAME"], ".");
-			while (true)
+			while(true)
 			{
 				$newName = md5(uniqid(mt_rand(), true)).$strFileExt;
 				$filePath = "/".$arFile["SUBDIR"]."/".$newName;
-				if (!$bucket->FileExists($filePath))
+				if(!$bucket->FileExists($filePath))
+				{
 					break;
+				}
 			}
 		}
 
-		if (!strlen($newPath))
+		if ($newPath == '')
 		{
 			if ($arFile["EXTERNAL_ID"] == "")
 			{
@@ -873,10 +875,10 @@ class CCloudStorage
 				,$copySize
 			);
 
-			if (strlen($newPath))
+			if($newPath <> '')
 			{
 				$arFile["FILE_NAME"] = bx_basename($filePath);
-				$arFile["SUBDIR"] = substr($filePath, 1, -(strlen(bx_basename($filePath)) + 1));
+				$arFile["SUBDIR"] = mb_substr($filePath, 1, -(mb_strlen(bx_basename($filePath)) + 1));
 			}
 			else
 			{
@@ -990,7 +992,7 @@ class CCloudStorage
 							$ar = CFile::MakeFileArray($arFile["ID"]);
 							$fileNameX = $io->GetPhysicalName($ar["tmp_name"]);
 							unlink($fileNameX);
-							@rmdir(substr($fileNameX, 0, -strlen(bx_basename($fileNameX))));
+							@rmdir(mb_substr($fileNameX, 0, -mb_strlen(bx_basename($fileNameX))));
 						}
 
 						return CCloudStorage::FILE_MOVED;
@@ -1036,7 +1038,7 @@ class CCloudStorage
 				if (file_exists($ar["tmp_name"]))
 				{
 					unlink($ar["tmp_name"]);
-					@rmdir(substr($ar["tmp_name"], 0, -strlen(bx_basename($ar["tmp_name"]))));
+					@rmdir(mb_substr($ar["tmp_name"], 0, -mb_strlen(bx_basename($ar["tmp_name"]))));
 				}
 
 				if ($arFile["HANDLER_ID"])
@@ -1047,7 +1049,7 @@ class CCloudStorage
 				if ($arFile["HANDLER_ID"])
 				{
 					unlink($ar["tmp_name"]);
-					@rmdir(substr($ar["tmp_name"], 0, -strlen(bx_basename($ar["tmp_name"]))));
+					@rmdir(mb_substr($ar["tmp_name"], 0, -mb_strlen(bx_basename($ar["tmp_name"]))));
 				}
 			}
 
@@ -1092,8 +1094,8 @@ class CCloudStorage
 			$newName = bx_basename($arFile["tmp_name"]);
 
 			$prefix = $bucket->GetFileSRC("/");
-			$subDir = substr($arFile["tmp_name"], strlen($prefix));
-			$subDir = substr($subDir, 0, -strlen($newName) - 1);
+			$subDir = mb_substr($arFile["tmp_name"], mb_strlen($prefix));
+			$subDir = mb_substr($subDir, 0, -mb_strlen($newName) - 1);
 		}
 		else
 		{
@@ -1122,7 +1124,7 @@ class CCloudStorage
 				while (true)
 				{
 					$dir_add = md5(mt_rand());
-					$dir_add = substr($dir_add, 0, 3)."/".$dir_add;
+					$dir_add = mb_substr($dir_add, 0, 3)."/".$dir_add;
 
 					$subDir = trim($strSavePath, "/")."/".$dir_add;
 					$filePath = "/".$subDir."/".$newName;
@@ -1150,18 +1152,18 @@ class CCloudStorage
 			);
 
 			$targetPath = $bucket->GetFileSRC("/");
-			if (strpos($arFile["tmp_name"], $targetPath) === 0)
+			if (mb_strpos($arFile["tmp_name"], $targetPath) === 0)
 			{
 				$arDbFile = array(
 					"SUBDIR" => "",
-					"FILE_NAME" => substr($arFile["tmp_name"], strlen($targetPath)),
+					"FILE_NAME" => mb_substr($arFile["tmp_name"], mb_strlen($targetPath)),
 					"CONTENT_TYPE" => $arFile["type"],
 				);
 				$copyPath = $bucket->FileCopy($arDbFile, $filePath);
 				if (!$copyPath)
 					return false;
 
-				$copySize = $bucket->GetFileSize("/".urldecode(substr($copyPath, strlen($targetPath))));
+				$copySize = $bucket->GetFileSize("/".urldecode(mb_substr($copyPath, mb_strlen($targetPath))));
 			}
 			else
 			{
@@ -1299,6 +1301,9 @@ class CCloudStorage
 				}
 			}
 		}
+
+		CCloudStorageUpload::CleanUp();
+
 		return "CCloudStorage::CleanUp();";
 	}
 
@@ -1312,7 +1317,7 @@ class CCloudStorage
 				if ($obBucket->Init())
 				{
 					$prefix = $obBucket->GetFileSRC("/");
-					if (substr($file_name, 0, strlen($prefix)) === $prefix)
+					if (mb_substr($file_name, 0, mb_strlen($prefix)) === $prefix)
 						return $obBucket;
 				}
 			}
@@ -1414,7 +1419,7 @@ class CCloudStorage
 			{
 				$ID = "F".$obRow->arRes["NAME"];
 				$file = $obRow->arRes["NAME"];
-				$path = substr($obRow->arRes["ABS_PATH"], 0, -strlen($file));
+				$path = mb_substr($obRow->arRes["ABS_PATH"], 0, -mb_strlen($file));
 
 				$arSubMenu = array();
 				foreach ($clouds as $id => $bucket)
@@ -1479,9 +1484,9 @@ class CCloudStorage
 								CEventLog::Log("WARNING", "CLOUDS_404", "clouds", $_SERVER["REQUEST_URI"], $_SERVER["HTTP_REFERER"]);
 							LocalRedirect($obBucket->GetFileSRC($request_uri), true);
 						}
-						elseif (strpos($request_uri, $upload_dir) === 0)
+						elseif (mb_strpos($request_uri, $upload_dir) === 0)
 						{
-							$check_url = substr($request_uri, strlen($upload_dir) - 1);
+							$check_url = mb_substr($request_uri, mb_strlen($upload_dir) - 1);
 							if ($obBucket->FileExists($check_url))
 							{
 								if (COption::GetOptionString("clouds", "log_404_errors") === "Y")

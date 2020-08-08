@@ -2809,7 +2809,7 @@
 		}
 	}
 
-	BX.reload = function(back_url, bAddClearCache)
+	function reloadInternal(back_url, bAddClearCache)
 	{
 		if (back_url === true)
 		{
@@ -2817,7 +2817,8 @@
 			back_url = null;
 		}
 
-		var new_href = back_url || top.location.href;
+		var topWindow = BX.PageObject.getRootWindow();
+		var new_href = back_url || topWindow.location.href;
 
 		var hashpos = new_href.indexOf('#'), hash = '';
 
@@ -2840,7 +2841,23 @@
 			new_href += (new_href.indexOf('?') == -1 ? '?' : '&') + '_r='+Math.round(Math.random()*10000) + hash;
 		}
 
-		top.location.href = new_href;
+		topWindow.location.href = new_href;
+	}
+
+	BX.reload = function(back_url, bAddClearCache)
+	{
+		if (window !== window.top)
+		{
+			BX.Runtime
+				.loadExtension('main.pageobject')
+				.then(function() {
+					reloadInternal(back_url, bAddClearCache);
+				});
+		}
+		else
+		{
+			reloadInternal(back_url, bAddClearCache);
+		}
 	};
 
 	BX.clearCache = function()

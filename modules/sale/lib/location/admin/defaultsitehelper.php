@@ -66,7 +66,7 @@ class DefaultSiteHelper extends Helper
 		// strip away empty and removed items
 		foreach($data['LOCATION'] as $id => $item)
 		{
-			if($item['REMOVE'] == 1 || !strlen($item['LOCATION_CODE']))
+			if($item['REMOVE'] == 1 || !mb_strlen($item['LOCATION_CODE']))
 				unset($data['LOCATION'][$id]);
 		}
 
@@ -103,7 +103,7 @@ class DefaultSiteHelper extends Helper
 		}
 		elseif($page == 'detail')
 		{
-			$id = strlen($_REQUEST['id']) ? self::tryParseSiteId($_REQUEST['id']) : false;
+			$id = $_REQUEST['id'] <> ''? self::tryParseSiteId($_REQUEST['id']) : false;
 
 			if($id)
 				$request['filter']['=LID'] = $id;
@@ -179,7 +179,7 @@ class DefaultSiteHelper extends Helper
 
 	public static function tryParseSiteId($sid)
 	{
-		return htmlspecialcharsbx(substr($sid, 0, 2));
+		return htmlspecialcharsbx(mb_substr($sid, 0, 2));
 	}
 
 	public static function getDefaultLocationList($siteId)

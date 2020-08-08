@@ -320,27 +320,31 @@ class HttpResponse extends Response
 	{
 		while (@ob_end_clean());
 
-		ob_start();
-
-		echo $content;
-
-		$size = ob_get_length();
-
-		$this
-			->addHeader('Connection', 'close')
-			->addHeader('Content-Encoding', 'none')
-			->addHeader('Content-Length', $size)
-		;
-
-		$this->writeHeaders();
-
-		ob_end_flush();
-		@ob_flush();
-		flush();
-
 		if (function_exists("fastcgi_finish_request"))
 		{
+			$this->writeHeaders();
+			$this->writeBody($content);
 			fastcgi_finish_request();
+		}
+		else
+		{
+			ob_start();
+
+			echo $content;
+
+			$size = ob_get_length();
+
+			$this
+				->addHeader('Connection', 'close')
+				->addHeader('Content-Encoding', 'none')
+				->addHeader('Content-Length', $size)
+			;
+
+			$this->writeHeaders();
+
+			ob_end_flush();
+			@ob_flush();
+			flush();
 		}
 	}
 }

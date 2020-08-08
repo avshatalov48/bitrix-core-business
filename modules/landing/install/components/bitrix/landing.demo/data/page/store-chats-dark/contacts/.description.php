@@ -15,17 +15,16 @@ return array(
 	'fields' => array(
 		'RULE' => null,
 		'ADDITIONAL_FIELDS' => array(
+			'B24BUTTON_CODE' => 'N',
 			'METAOG_TITLE' => Loc::getMessage('LANDING_DEMO_STORE_CHATS_DARK-CONTACTS-RICH_NAME'),
 			'METAOG_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_STORE_CHATS_DARK-CONTACTS-RICH_DESC'),
 			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/store-chats/contacts/preview.jpg',
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'THEME_CODE' => '3corporate',
-			'THEME_CODE_TYPO' => '3corporate',
+
 		),
 	),
-	
-	
 	'items' => array(
 		'0' => array(
 			'code' => '27.one_col_fix_title_and_text_2',
@@ -40,13 +39,13 @@ return array(
 			),
 			'style' => array(
 				'#wrapper' => array(
-					0 => 'landing-block js-animation animation-none g-pt-0 g-pb-5 u-block-border u-block-border-margin-sm animation-none',
+					0 => 'landing-block js-animation animation-none g-pt-25 g-pb-20 u-block-border-none animation-none g-theme-bitrix-bg-dark-v3',
 				),
 				'.landing-block-node-title' => array(
 					0 => 'landing-block-node-title h2 g-color-white text-left g-font-size-27',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text g-pb-1 g-color-white g-font-size-16 text-left',
+					0 => 'landing-block-node-text g-pb-1 g-color-white text-left',
 				),
 			),
 		),
@@ -60,10 +59,10 @@ return array(
 			),
 			'style' => array(
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title h2 g-color-white-opacity-0_7 text-left g-font-size-16 g-mb-5 container g-pl-0 g-pr-0',
+					0 => 'landing-block-node-title h2 g-color-white-opacity-0_8 text-left g-font-size-16 g-mb-5 container g-pl-15 g-pr-15 font-weight-normal',
 				),
 				'#wrapper' => array(
-					0 => 'landing-block js-animation animation-none g-pt-10 g-pb-5 u-block-border-first g-rounded-6 u-block-border-margin-md u-block-border g-theme-bitrix-bg-dark-v1 text-center',
+					0 => 'landing-block js-animation animation-none g-pt-25 g-pb-5 u-block-border-none g-bg-transparent text-center',
 				),
 			),
 		),
@@ -81,7 +80,7 @@ return array(
 					5 => 'landing-block-node-list-item-link d-block g-color-white text-center g-font-size-24 g-pt-10 g-pb-10 g-pl-30 g-pr-30 g-bg-whatsapp--hover g-bg-whatsapp g-mb-10 g-ml-5 g-mr-5',
 				),
 				'#wrapper' => array(
-					0 => 'landing-block u-block-border u-block-border-margin-md g-rounded-6 u-block-border-end g-theme-bitrix-bg-dark-v1',
+					0 => 'landing-block u-block-border-none g-bg-transparent g-pb-20 g-pl-5 g-pr-5',
 				),
 			),
 		),
@@ -90,39 +89,40 @@ return array(
 			'access' => 'X',
 			'nodes' => array(
 				'.landing-block-node-title' => array(
-					0 => Loc::getMessage('LANDING_DEMO_STORE_CHATS_DARK-CONTACTS-TEXT4'),
-				),
-				'.landing-block-node-text' => array(
-					0 => '<a href="tel:+469548521" target="_self">+469 548 521</a>',
+					0 => Loc::getMessage('LANDING_DEMO_STORE_CHATS_DARK-CONTACTS-TEXT8'),
 				),
 				'.landing-block-node-button' => array(
 					0 => array(
-						'href' => 'tel:+469548521',
 						'text' => Loc::getMessage('LANDING_DEMO_STORE_CHATS_DARK-CONTACTS-TEXT7'),
+					),
+				),
+				'.landing-block-node-text' => array(
+					0 => array(
+						'text' => '<a href="tel:#PHONE1#">#PHONE1#</a>',
 					),
 				),
 			),
 			'style' => array(
 				'.landing-block-node-container' => array(
-					0 => 'landing-block-node-container row g-flex-centered align-items-center',
+					0 => 'landing-block-node-container row g-flex-centered align-items-end',
 				),
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title h6 g-color-white-opacity-0_7 g-mb-5 text-left g-font-size-16',
+					0 => 'landing-block-node-title h6 g-color-white-opacity-0_8 g-mb-25 text-left g-font-size-16 font-weight-normal',
 				),
 				'.landing-block-node-text-container' => array(
 					0 => 'landing-block-node-text-container text-left col-8 js-animation animation-none',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text g-color-white g-font-size-16',
+					0 => 'landing-block-node-text g-color-white g-font-size-18',
 				),
 				'.landing-block-node-button-container' => array(
 					0 => 'landing-block-node-button-container text-right col-4 js-animation animation-none d-flex justify-content-end',
 				),
 				'.landing-block-node-button' => array(
-					0 => 'landing-block-node-button btn btn-sm text-uppercase g-px-15 font-weight-bold g-mb-0 g-rounded-15 u-btn-outline-gray g-color-primary',
+					0 => 'landing-block-node-button btn btn-sm g-text-transform-none g-px-15 font-weight-bold g-mb-0 u-theme-bitrix-btn-v6 g-brd-5 g-rounded-20 g-color-white g-font-size-18',
 				),
 				'#wrapper' => array(
-					0 => 'landing-block g-pt-10 g-pb-10 g-theme-bitrix-bg-dark-v1 u-block-border u-block-border-margin-md g-rounded-6',
+					0 => 'landing-block g-pt-20 g-pb-20 g-theme-bitrix-bg-dark-v3 u-block-border-none',
 				),
 			),
 		),
@@ -139,13 +139,13 @@ return array(
 			),
 			'style' => array(
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title h2 g-color-white-opacity-0_7 g-font-size-16 text-left g-mb-5',
+					0 => 'landing-block-node-title h2 g-color-white-opacity-0_8 g-font-size-16 text-left g-mb-5 font-weight-normal',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text g-pb-1 g-color-white g-font-size-16 text-left',
+					0 => 'landing-block-node-text g-pb-1 g-color-white g-font-size-18 text-left',
 				),
 				'#wrapper' => array(
-					0 => 'landing-block js-animation animation-none g-pt-10 g-pb-10 u-block-border-first g-rounded-6 u-block-border-margin-md u-block-border g-theme-bitrix-bg-dark-v1',
+					0 => 'landing-block js-animation animation-none g-pt-25 g-pb-10 u-block-border-none g-bg-transparent',
 				),
 			),
 		),
@@ -154,7 +154,20 @@ return array(
 			'access' => 'X',
 			'style' => array(
 				'#wrapper' => array(
-					0 => 'landing_block g-height-1 g-min-height-50vh u-block-border u-block-border-margin-md g-rounded-6 u-block-border-end g-theme-bitrix-bg-dark-v1 g-pt-10 g-pb-10 g-pl-10 g-pr-10',
+					0 => 'landing_block g-height-1 g-min-height-50vh u-block-border-none g-theme-bitrix-bg-dark-v3 g-pt-10 g-pb-10 g-pl-10 g-pr-10',
+				),
+			),
+		),
+		'6' => array(
+			'code' => '26.separator',
+			'nodes' => array(
+			),
+			'style' => array(
+				'#wrapper' => array(
+					0 => 'landing-block g-bg-transparent g-pt-15 g-pb-10',
+				),
+				'.landing-block-line' => array(
+					0 => 'landing-block-line g-brd-transparent my-0',
 				),
 			),
 		),

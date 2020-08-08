@@ -48,7 +48,7 @@ if(COption::GetOptionString("blog", "socNetNewPerms", "N") == "N" && $USER->IsAd
 }
 
 $bType = "user";
-if(IntVal($arResult["VARIABLES"]["user_id"]) > 0 && $USER->GetID() == $arResult["VARIABLES"]["user_id"])
+if(intval($arResult["VARIABLES"]["user_id"]) > 0 && $USER->GetID() == $arResult["VARIABLES"]["user_id"])
 {
 	if($_REQUEST["forme"] == "Y")
 		$bType = "forme";

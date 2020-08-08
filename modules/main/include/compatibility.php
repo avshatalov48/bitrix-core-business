@@ -70,3 +70,4 @@ class_alias('Bitrix\Main\ORM\EventResult', 'Bitrix\Main\Entity\EventResult');
 );
 
 class_alias('Bitrix\Main\Entity\UField', 'Bitrix\Main\ORM\UField');
+#class_alias('Bitrix\Main\UserField\Types\BaseType', 'Bitrix\Main\UserField\TypeBase');

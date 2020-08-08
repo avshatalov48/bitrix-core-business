@@ -186,15 +186,23 @@ elseif (
 }
 
 $jsParams = array(
-	"ajaxPath" => htmlspecialcharsback(POST_FORM_ACTION_URI),
 	"pageCount" => isset($arResult["PAGE_COUNT"]) ? $arResult["PAGE_COUNT"] : "",
-	"currentPage" => isset($arResult["CURRENT_PAGE"]) ? $arResult["CURRENT_PAGE"] : "",
-	"filterId" => isset($arResult["FILTER"]["FILTER_ID"]) ? $arResult["FILTER"]["FILTER_ID"] : ""
+	"currentPageNumber" => isset($arResult["CURRENT_PAGE"]) ? $arResult["CURRENT_PAGE"] : "",
+	"filter" => (isset($arParams["PLACEMENT"]) ? [
+		"filterMode" => "placement",
+		"filterValue" => $arParams["PLACEMENT"]
+	] : (isset($arParams["TAG"]) ? [
+		"filterMode" => "tag",
+		"filterValue" => $arParams["TAG"]
+	] : [
+		"filterMode" => "default",
+		"filterValue" => ""
+	]))
 );
 ?>
 	<script>
 		BX.ready(function () {
-			BX.Rest.Markeplace.Category.init(<?=CUtil::PhpToJSObject($jsParams)?>);
+			BX.Rest.Markeplace.Category.Items.init(<?=CUtil::PhpToJSObject($jsParams)?>);
 		});
 	</script>
 <?
@@ -220,7 +228,14 @@ $this->setViewTarget("rest.marketplace.category.block");
 		"MARKETPLACE_INSTALLED": "<?=GetMessageJS("MARKETPLACE_INSTALLED")?>",
 		"MARKETPLACE_SALE": "<?=GetMessageJS("MARKETPLACE_SALE")?>"
 	});
-
+	BX.ready(function () {
+		BX.Rest.Markeplace.Category.init(<?=CUtil::PhpToJSObject(
+			[
+				"filterId" => $arResult["FILTER"]["FILTER_ID"],
+				"signedParameters" => $component->getSignedParameters()
+			]
+		)?>);
+	});
 	(function(){
 		var reg = new RegExp("\\/category\\/(\\w+)\\/", "i");
 		if (reg.test(location.href))

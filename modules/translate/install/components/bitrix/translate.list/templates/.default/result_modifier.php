@@ -1,23 +1,17 @@
 <?php
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
-
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 /**
  * @var array $arParams
  * @var array $arResult
- * @global \CMain $APPLICATION
- * @global \CUser $USER
- * @global \CDatabase $DB
  * @var \CBitrixComponentTemplate $this
- * @var string $templateName
- * @var string $templateFile
- * @var string $templateFolder
- * @var string $componentPath
- * @var \TranslateListComponent|\CBitrixComponent $component
+ * @var \TranslateListComponent $component
  */
 
 use Bitrix\Main\Localization\Loc;
 
-/** @var \TranslateListComponent $component */
 $component = $this->getComponent();
 
 if($component->hasErrors())
@@ -100,19 +94,19 @@ if (!empty($arResult['GRID_DATA']))
 	$fileEmptyTitle = Loc::getMessage('TR_INDEX_ERROR_TRANSLATION_FILE_NOT_FOUND');
 	$fileOkTitle = Loc::getMessage('TR_INDEX_TRANSLATION_FILE_OK');
 
-	$formatIconWarning = function ($title)
+	$formatIconWarning = static function ($title)
 	{
 		return '<span class="ui-icon ui-icon-xs translate-icon translate-icon-warning" title="'. $title. '"></span>';
 	};
-	$formatIconError = function ($title)
+	$formatIconError = static function ($title)
 	{
 		return '<span class="ui-icon ui-icon-xs translate-icon translate-icon-error" title="'. $title. '"></span>';
 	};
-	$formatIconOk = function ($title)
+	$formatIconOk = static function ($title)
 	{
 		return '<span class="ui-icon ui-icon-xs translate-icon translate-icon-ok" title="'. $title. '"></span>';
 	};
-	$formatDiff = function ($diff, $isObligatory = true) use ($dataMoreTitle, $dataLessTitle, $dataUselessTitle)
+	$formatDiff = static function ($diff, $isObligatory = true) use ($dataMoreTitle, $dataLessTitle, $dataUselessTitle)
 	{
 		if ($diff > 0 && !$isObligatory)
 		{
@@ -128,7 +122,7 @@ if (!empty($arResult['GRID_DATA']))
 		}
 		return '';
 	};
-	$formatDiffRounded = function ($diff, $isObligatory = true) use ($dataMoreTitle, $dataLessTitle, $dataUselessTitle)
+	$formatDiffRounded = static function ($diff, $isObligatory = true) use ($dataMoreTitle, $dataLessTitle, $dataUselessTitle)
 	{
 		if ($diff > 0 && !$isObligatory)
 		{
@@ -144,7 +138,7 @@ if (!empty($arResult['GRID_DATA']))
 		}
 		return '';
 	};
-	$formatDeficiencyExcessRounded = function ($deficiency, $excess) use ($dataMoreTitle, $dataLessTitle)
+	$formatDeficiencyExcessRounded = static function ($deficiency, $excess) use ($dataMoreTitle, $dataLessTitle)
 	{
 		if ($deficiency > 0 && $excess > 0)
 		{
@@ -166,15 +160,20 @@ if (!empty($arResult['GRID_DATA']))
 		return '';
 	};
 
-	$formatSearchedCode = function($value, $search, $case, $startTag = '<span class="translate-highlight">', $endTag = '</span>')
+	$formatSearchedCode = static function($value, $search, $case, $startTag = '<span class="translate-highlight">', $endTag = '</span>')
 	{
 		$modifier = ($case ? '' : 'i'). BX_UTF_PCRE_MODIFIER;
 		$search = preg_quote($search, '/');
-		$ret = preg_replace('/('.$search.')/'.$modifier, "{$startTag}\\1{$endTag}", $value);
-		return $ret;
+		return preg_replace('/('.$search.')/'.$modifier, "{$startTag}\\1{$endTag}", $value);
 	};
 
-	$formatSearchedPhrase = function($value, $search, $method, $case) use ($formatSearchedCode)
+	$formatSearchedPart = static function($value, $search, $case, $startTag = '<span class="translate-highlight">', $endTag = '</span>')
+	{
+		$modifier = ($case ? '' : 'i'). BX_UTF_PCRE_MODIFIER;
+		$search = preg_quote($search, '/');
+		return preg_replace('/(\b'.$search.'\b)/'.$modifier, "{$startTag}\\1{$endTag}", $value);
+	};
+	$formatSearchedPhrase = static function($value, $search, $method, $case) use ($formatSearchedPart)
 	{
 		$searchParts = explode(' ', $search);
 		$rnd = microtime();
@@ -182,14 +181,10 @@ if (!empty($arResult['GRID_DATA']))
 		$endTag = "<!--/#$rnd#-->";
 		foreach ($searchParts as $searchPart)
 		{
-			if (strlen($searchPart) > 2)
-			{
-				$value = $formatSearchedCode($value, $searchPart, $case, $startTag, $endTag);
-			}
+			$value = $formatSearchedPart($value, $searchPart, $case, $startTag, $endTag);
 		}
-		$ret = str_replace([$startTag, $endTag], ['<span class="translate-highlight">', '</span>'], $value);
 
-		return $ret;
+		return str_replace([$startTag, $endTag], ['<span class="translate-highlight">', '</span>'], $value);
 	};
 
 
@@ -199,7 +194,7 @@ if (!empty($arResult['GRID_DATA']))
 		$styles[$header['id']] = $header['class'];
 	}
 
-	$languageUpperKeys = array_combine($arResult['LANGUAGES'], array_map('strtoupper', $arResult['LANGUAGES']));
+	$languageUpperKeys = array_combine($arResult['LANGUAGES'], array_map('mb_strtoupper', $arResult['LANGUAGES']));
 
 	$id = 1;
 	foreach ($arResult['GRID_DATA'] as &$row)
@@ -326,7 +321,7 @@ if (!empty($arResult['GRID_DATA']))
 				continue;
 			}
 
-			$ethalonExists = !empty($columns[strtoupper($arParams['CURRENT_LANG']). '_LANG']);
+			$ethalonExists = !empty($columns[mb_strtoupper($arParams['CURRENT_LANG']).'_LANG']);
 
 			$settings = !empty($row['settings']) ? $row['settings'] : array();
 
@@ -339,7 +334,7 @@ if (!empty($arResult['GRID_DATA']))
 				$isObligatory = true;
 				if (!empty($settings['languages']))
 				{
-					$isObligatory = in_array($langId, $settings['languages']);
+					$isObligatory = in_array($langId, $settings['languages'], true);
 				}
 
 				$value = !empty($columns[$columnId]) ? $columns[$columnId] : null;
@@ -354,7 +349,7 @@ if (!empty($arResult['GRID_DATA']))
 					{
 						if ($isObligatory)
 						{
-							if ($langId == $arParams['CURRENT_LANG'])
+							if ($langId === $arParams['CURRENT_LANG'])
 							{
 								$columns[$columnId] = $formatIconWarning($dataEmptyEthalonTitle);
 							}
@@ -388,7 +383,7 @@ if (!empty($arResult['GRID_DATA']))
 					{
 						if ($isObligatory)
 						{
-							if ($langId == $arParams['CURRENT_LANG'])
+							if ($langId === $arParams['CURRENT_LANG'])
 							{
 								$columns[$columnId] = $formatIconWarning($dataEmptyEthalonTitle);
 							}
@@ -407,12 +402,9 @@ if (!empty($arResult['GRID_DATA']))
 							}
 						}
 					}
-					else
+					elseif (!$showDiffLinks && $deficiency > 0)
 					{
-						if (!$showDiffLinks && $deficiency > 0)
-						{
-							$columns[$columnId] = $formatDiff(- $deficiency);
-						}
+						$columns[$columnId] = $formatDiff(- $deficiency);
 					}
 				}
 
@@ -484,7 +476,7 @@ if (!empty($arResult['GRID_DATA']))
 		}
 		elseif ($columns['IS_FILE'] === true)
 		{
-			$ethalonExists = !empty($columns[strtoupper($arParams['CURRENT_LANG']). '_LANG']);
+			$ethalonExists = !empty($columns[mb_strtoupper($arParams['CURRENT_LANG']).'_LANG']);
 
 			if ($highlightSearchedCode)
 			{
@@ -507,14 +499,14 @@ if (!empty($arResult['GRID_DATA']))
 				$isObligatory = true;
 				if (!empty($settings['languages']))
 				{
-					$isObligatory = in_array($langId, $settings['languages']);
+					$isObligatory = in_array($langId, $settings['languages'], true);
 				}
 
-				if ($highlightSearchedPhrase)
+				if ($highlightSearchedPhrase || $highlightSearchedCode)
 				{
 					if (empty($value) && $isObligatory)
 					{
-						if ($langId == $arParams['CURRENT_LANG'])
+						if ($langId === $arParams['CURRENT_LANG'])
 						{
 							$columns[$columnId] = $formatIconWarning($dataEmptyEthalonTitle);
 						}
@@ -527,7 +519,7 @@ if (!empty($arResult['GRID_DATA']))
 							$columns[$columnId] = $formatIconError($dataEmptyTitle);
 						}
 					}
-					elseif ($langId == $arResult['PHRASE_SEARCH_LANGUAGE_ID'])
+					elseif ($langId === $arResult['PHRASE_SEARCH_LANGUAGE_ID'])
 					{
 						$columns[$columnId] =
 							$formatSearchedPhrase(
@@ -544,7 +536,7 @@ if (!empty($arResult['GRID_DATA']))
 					{
 						if ($isObligatory)
 						{
-							if ($langId == $arParams['CURRENT_LANG'])
+							if ($langId === $arParams['CURRENT_LANG'])
 							{
 								$columns[$columnId] = $formatIconWarning($dataEmptyEthalonTitle);
 							}
@@ -585,7 +577,7 @@ if (!empty($arResult['GRID_DATA']))
 					{
 						if ($isObligatory)
 						{
-							if ($langId == $arParams['CURRENT_LANG'])
+							if ($langId === $arParams['CURRENT_LANG'])
 							{
 								$columns[$columnId] = $formatIconWarning($dataEmptyEthalonTitle);
 							}
@@ -610,7 +602,7 @@ if (!empty($arResult['GRID_DATA']))
 					{
 						if ($isObligatory)
 						{
-							if ($langId == $arParams['CURRENT_LANG'])
+							if ($langId === $arParams['CURRENT_LANG'])
 							{
 								$columns[$columnId] = $formatIconWarning($dataEmptyEthalonTitle);
 							}
@@ -665,6 +657,7 @@ if (!empty($arResult['GRID_DATA']))
 			}
 		}
 	}
+	unset($row);
 
 	array_unshift(
 		$arResult['GRID_DATA'],

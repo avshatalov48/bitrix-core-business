@@ -364,7 +364,7 @@ class EntityMarker
 							'COMMENT' => $values['COMMENT'],
 						);
 
-						if ($USER && $USER->IsAuthorized())
+						if (is_object($USER) && $USER->IsAuthorized())
 						{
 							$fields['USER_ID'] = $USER->GetID();
 						}

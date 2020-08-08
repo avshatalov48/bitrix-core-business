@@ -2821,9 +2821,9 @@ abstract class ProviderBase
 						$productId = $basketItem->getProductId();
 
 						$resultAvailableQuantityList = $resultData['AVAILABLE_QUANTITY_LIST'];
-						if (substr($providerName, 0, 1) == "\\")
+						if (mb_substr($providerName, 0, 1) == "\\")
 						{
-							$providerName = substr($providerName, 1);
+							$providerName = mb_substr($providerName, 1);
 						}
 
 						if (isset($resultAvailableQuantityList[$providerName]) && isset($resultAvailableQuantityList[$providerName][$productId]))

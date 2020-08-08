@@ -8,6 +8,7 @@
 
 use Bitrix\Main;
 use Bitrix\Main\Authentication\ApplicationPasswordTable;
+use Bitrix\Main\Localization\Loc;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -647,7 +648,7 @@ abstract class CAllUser extends CDBResult
 
 					if($bSave)
 					{
-						$period = time()+60*60*24*30*60;
+						$period = time()+60*60*24*30*12;
 						$spread = Main\Web\Cookie::SPREAD_SITES | Main\Web\Cookie::SPREAD_DOMAIN;
 					}
 					else
@@ -935,7 +936,7 @@ abstract class CAllUser extends CDBResult
 			if($applicationId === null && $arParams["LOGIN"] <> '')
 			{
 				//the cookie is for authentication forms mostly, does not make sense for applications
-				$cookie = new Bitrix\Main\Web\Cookie("LOGIN", $arParams["LOGIN"], time()+60*60*24*30*60);
+				$cookie = new Bitrix\Main\Web\Cookie("LOGIN", $arParams["LOGIN"], time()+60*60*24*30*12);
 				Main\Context::getCurrent()->getResponse()->addCookie($cookie);
 			}
 		}
@@ -1420,7 +1421,7 @@ abstract class CAllUser extends CDBResult
 	/**
 	 * Sends a profile information to email
 	 */
-	public static function SendUserInfo($ID, $SITE_ID, $MSG, $bImmediate=false, $eventName="USER_INFO")
+	public static function SendUserInfo($ID, $SITE_ID, $MSG, $bImmediate=false, $eventName="USER_INFO", $checkword = null)
 	{
 		global $DB;
 
@@ -1437,24 +1438,28 @@ abstract class CAllUser extends CDBResult
 			}
 		}
 
-		// change CHECKWORD
 		$ID = intval($ID);
-		$salt = randString(8);
-		$checkword = md5(CMain::GetServerUniqID().uniqid());
-		$strSql = "UPDATE b_user SET ".
-			"	CHECKWORD = '".$salt.md5($salt.$checkword)."', ".
-			"	CHECKWORD_TIME = ".$DB->CurrentTimeFunction().", ".
-			"	LID = '".$DB->ForSql($SITE_ID, 2)."', ".
-			"   TIMESTAMP_X = TIMESTAMP_X ".
-			"WHERE ID = '".$ID."'".
-			(
-				// $arParams["EXTERNAL_AUTH_ID"] can be changed in the OnBeforeSendUserInfo event
-				$arParams["EXTERNAL_AUTH_ID"] <> ''?
-					"	AND EXTERNAL_AUTH_ID='".$DB->ForSQL($arParams["EXTERNAL_AUTH_ID"])."' " :
-					"	AND (EXTERNAL_AUTH_ID IS NULL OR EXTERNAL_AUTH_ID='') "
-			);
 
-		$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		if($checkword === null)
+		{
+			// change CHECKWORD
+			$salt = randString(8);
+			$checkword = md5(CMain::GetServerUniqID().uniqid());
+			$strSql = "UPDATE b_user SET ".
+				"	CHECKWORD = '".$salt.md5($salt.$checkword)."', ".
+				"	CHECKWORD_TIME = ".$DB->CurrentTimeFunction().", ".
+				"	LID = '".$DB->ForSql($SITE_ID, 2)."', ".
+				"   TIMESTAMP_X = TIMESTAMP_X ".
+				"WHERE ID = '".$ID."'".
+				(
+					// $arParams["EXTERNAL_AUTH_ID"] can be changed in the OnBeforeSendUserInfo event
+					$arParams["EXTERNAL_AUTH_ID"] <> ''?
+						"	AND EXTERNAL_AUTH_ID='".$DB->ForSQL($arParams["EXTERNAL_AUTH_ID"])."' " :
+						"	AND (EXTERNAL_AUTH_ID IS NULL OR EXTERNAL_AUTH_ID='') "
+				);
+
+			$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		}
 
 		$res = $DB->Query(
 			"SELECT u.* ".
@@ -1499,7 +1504,7 @@ abstract class CAllUser extends CDBResult
 		}
 	}
 
-	public static function SendPassword($LOGIN, $EMAIL, $SITE_ID = false, $captcha_word = "", $captcha_sid = 0, $phoneNumber = "")
+	public static function SendPassword($LOGIN, $EMAIL, $SITE_ID = false, $captcha_word = "", $captcha_sid = 0, $phoneNumber = "", $shortCode = false)
 	{
 		/** @global CMain $APPLICATION */
 		global $DB, $APPLICATION;
@@ -1509,6 +1514,7 @@ abstract class CAllUser extends CDBResult
 			"EMAIL" => $EMAIL,
 			"SITE_ID" => $SITE_ID,
 			"PHONE_NUMBER" => $phoneNumber,
+			"SHORT_CODE" => $shortCode,
 		);
 
 		$result_message = array("MESSAGE"=>GetMessage('ACCOUNT_INFO_SENT')."<br>", "TYPE"=>"OK");
@@ -1526,7 +1532,7 @@ abstract class CAllUser extends CDBResult
 			}
 		}
 
-		if($bOk && COption::GetOptionString("main", "captcha_restoring_password", "N") == "Y")
+		if($bOk && $arParams["SHORT_CODE"] == false && COption::GetOptionString("main", "captcha_restoring_password", "N") == "Y")
 		{
 			if (!($APPLICATION->CaptchaCheckCode($captcha_word, $captcha_sid)))
 			{
@@ -1537,64 +1543,33 @@ abstract class CAllUser extends CDBResult
 
 		if($bOk)
 		{
-			$f = false;
+			$found = false;
 			if($arParams["PHONE_NUMBER"] <> '')
 			{
 				//user registered by phone number
-				$number = Main\UserPhoneAuthTable::normalizePhoneNumber($arParams["PHONE_NUMBER"]);
 
-				$select = [
-					"USER_ID" => "USER_ID",
-					"LANGUAGE_ID" => "USER.LANGUAGE_ID",
-				];
-				if($arParams["SITE_ID"] === false)
+				$siteId = ($arParams["SITE_ID"] === false? null : $arParams["SITE_ID"]);
+
+				$result = static::SendPhoneCode($arParams["PHONE_NUMBER"], "SMS_USER_RESTORE_PASSWORD", $siteId);
+
+				if($result->isSuccess())
 				{
-					$select["LID"] = "USER.LID";
-				}
-
-				$row = Main\UserPhoneAuthTable::getList([
-					"select" => $select,
-					"filter" => ["=PHONE_NUMBER" => $number],
-				])->fetch();
-
-				if($row)
-				{
-					$f = true;
-
-					if($arParams["SITE_ID"] === false)
-					{
-						$arParams["SITE_ID"] = CSite::GetDefSite($row["LID"]);
-					}
-
-					list($code, $number) = CUser::GeneratePhoneCode($row["USER_ID"]);
-
-					$sms = new Main\Sms\Event(
-						"SMS_USER_RESTORE_PASSWORD",
-						[
-							"USER_PHONE" => $number,
-							"CODE" => $code,
-						]
-					);
-					$sms->setSite($arParams["SITE_ID"]);
-					if($row["LANGUAGE_ID"] <> '')
-					{
-						//user preferred language
-						$sms->setLanguage($row["LANGUAGE_ID"]);
-					}
-					$smsResult = $sms->send(true);
-
-					if($smsResult->isSuccess())
-					{
-						$result_message = array("MESSAGE"=>GetMessage("main_user_pass_request_sent")."<br>", "TYPE"=>"OK", "TEMPLATE" => "SMS_USER_RESTORE_PASSWORD");
-					}
-					else
-					{
-						$result_message = array("MESSAGE"=>implode("<br>", $smsResult->getErrorMessages()), "TYPE"=>"ERROR");
-					}
+					$found = true;
+					$result_message = array("MESSAGE"=>GetMessage("main_user_pass_request_sent")."<br>", "TYPE"=>"OK", "TEMPLATE" => "SMS_USER_RESTORE_PASSWORD");
 
 					if(COption::GetOptionString("main", "event_log_password_request", "N") === "Y")
 					{
-						CEventLog::Log("SECURITY", "USER_INFO", "main", $row["USER_ID"]);
+						$data = $result->getData();
+						CEventLog::Log("SECURITY", "USER_INFO", "main", $data["USER_ID"]);
+					}
+				}
+				else
+				{
+					if($result->getErrorCollection()->getErrorByCode("ERR_NOT_FOUND") === null)
+					{
+						//user found but there is another error
+						$found = true;
+						$result_message = array("MESSAGE"=>implode("<br>", $result->getErrorMessages()), "TYPE"=>"ERROR");
 					}
 				}
 			}
@@ -1648,11 +1623,30 @@ abstract class CAllUser extends CDBResult
 
 					if($arUser["ACTIVE"] == "Y")
 					{
-						CUser::SendUserInfo($arUser["ID"], $arParams["SITE_ID"], GetMessage("INFO_REQ"), true, 'USER_PASS_REQUEST');
-						$f = true;
+						$found = true;
+
+						if($arParams["SHORT_CODE"] == true)
+						{
+							$result = static::SendEmailCode($arUser["ID"], $arParams["SITE_ID"]);
+
+							if($result->isSuccess())
+							{
+								$result_message = array("MESSAGE"=>GetMessage("main_send_password_email_code")."<br>", "TYPE"=>"OK", "USER_ID" => $arUser["ID"], "RESULT" => $result);
+							}
+							else
+							{
+								$result_message = array("MESSAGE"=>implode("<br>", $result->getErrorMessages()), "TYPE"=>"ERROR", "RESULT" => $result);
+							}
+						}
+						else
+						{
+							static::SendUserInfo($arUser["ID"], $arParams["SITE_ID"], GetMessage("INFO_REQ"), true, 'USER_PASS_REQUEST');
+						}
 					}
 					elseif($confirmation)
 					{
+						$found = true;
+
 						//unconfirmed registration - resend confirmation email
 						$arFields = array(
 							"USER_ID" => $arUser["ID"],
@@ -1669,7 +1663,6 @@ abstract class CAllUser extends CDBResult
 						$event->SendImmediate("NEW_USER_CONFIRM", $arParams["SITE_ID"], $arFields, "Y", "", array(), $arUser["LANGUAGE_ID"]);
 
 						$result_message = array("MESSAGE"=>GetMessage("MAIN_SEND_PASS_CONFIRM")."<br>", "TYPE"=>"OK");
-						$f = true;
 					}
 
 					if(COption::GetOptionString("main", "event_log_password_request", "N") === "Y")
@@ -1678,7 +1671,7 @@ abstract class CAllUser extends CDBResult
 					}
 				}
 			}
-			if(!$f)
+			if(!$found)
 			{
 				return array("MESSAGE"=>GetMessage('DATA_NOT_FOUND1')."<br>", "TYPE"=>"ERROR");
 			}
@@ -3060,6 +3053,8 @@ abstract class CAllUser extends CDBResult
 
 		Main\UserPhoneAuthTable::delete($ID);
 
+		Main\Authentication\ShortCode::deleteByUser($ID);
+
 		$USER_FIELD_MANAGER->Delete("USER", $ID);
 
 		if(COption::GetOptionString("main", "event_log_user_delete", "N") === "Y")
@@ -4245,11 +4240,9 @@ abstract class CAllUser extends CDBResult
 		$row = Main\UserPhoneAuthTable::getRowById($userId);
 		if($row && $row["OTP_SECRET"] <> '')
 		{
-			$secret = base64_decode($row["OTP_SECRET"]);
-
 			$totp = new Main\Security\Mfa\TotpAlgorithm();
 			$totp->setInterval(self::PHONE_CODE_OTP_INTERVAL);
-			$totp->setSecret($secret);
+			$totp->setSecret($row["OTP_SECRET"]);
 
 			$timecode = $totp->timecode(time());
 			$code = $totp->generateOTP($timecode);
@@ -4286,11 +4279,9 @@ abstract class CAllUser extends CDBResult
 				return false;
 			}
 
-			$secret = base64_decode($row["OTP_SECRET"]);
-
 			$totp = new Main\Security\Mfa\TotpAlgorithm();
 			$totp->setInterval(self::PHONE_CODE_OTP_INTERVAL);
-			$totp->setSecret($secret);
+			$totp->setSecret($row["OTP_SECRET"]);
 
 			try
 			{
@@ -4327,6 +4318,115 @@ abstract class CAllUser extends CDBResult
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * @param string $phoneNumber
+	 * @param string $smsTemplate
+	 * @param string|null $siteId
+	 * @return Main\Result
+	 */
+	public static function SendPhoneCode($phoneNumber, $smsTemplate, $siteId = null)
+	{
+		$result = new Main\Result();
+
+		$phoneNumber = Main\UserPhoneAuthTable::normalizePhoneNumber($phoneNumber);
+
+		$select = ["USER_ID", "DATE_SENT", "USER.LANGUAGE_ID"];
+
+		if($siteId === null)
+		{
+			$context = Main\Context::getCurrent();
+			$siteId = $context->getSite();
+
+			if($siteId === null)
+			{
+				$select[] = "USER.LID";
+			}
+		}
+
+		$userPhone = Main\UserPhoneAuthTable::getList([
+			"select" => $select,
+			"filter" =>	[
+				"=PHONE_NUMBER" => $phoneNumber
+			]
+		])->fetchObject();
+
+		if(!$userPhone)
+		{
+			$result->addError(new Main\Error(Loc::getMessage("main_register_no_user"), "ERR_NOT_FOUND"));
+			return $result;
+		}
+
+		//alowed only once in a minute
+		if($userPhone->getDateSent())
+		{
+			$currentDateTime = new Main\Type\DateTime();
+			if(($currentDateTime->getTimestamp() - $userPhone->getDateSent()->getTimestamp()) < static::PHONE_CODE_RESEND_INTERVAL)
+			{
+				$result->addError(new Main\Error(Loc::getMessage("main_register_timeout"), "ERR_TIMEOUT"));
+				return $result;
+			}
+		}
+
+		list($code, $phoneNumber) = static::GeneratePhoneCode($userPhone->getUserId());
+
+		if($siteId === null)
+		{
+			$siteId = CSite::GetDefSite($userPhone->getUser()->getLid());
+		}
+		$language = $userPhone->getUser()->getLanguageId();
+
+		$sms = new Main\Sms\Event(
+			$smsTemplate,
+			[
+				"USER_PHONE" => $phoneNumber,
+				"CODE" => $code,
+			]
+		);
+
+		$sms->setSite($siteId);
+		if($language <> '')
+		{
+			//user preferred language
+			$sms->setLanguage($language);
+		}
+
+		$result = $sms->send(true);
+
+		$result->setData(["USER_ID" => $userPhone->getUserId()]);
+
+		return $result;
+	}
+
+	protected static function SendEmailCode($userId, $siteId)
+	{
+		$result = new Main\Result();
+
+		$context = new Main\Authentication\Context();
+		$context->setUserId($userId);
+
+		$shortCode = new Main\Authentication\ShortCode($context);
+
+		//alowed only once in a minute
+		$check = $shortCode->checkDateSent();
+
+		if($check->isSuccess())
+		{
+			$code = $shortCode->generate();
+
+			static::SendUserInfo($userId, $siteId, "", true, 'USER_CODE_REQUEST', $code);
+
+			$shortCode->saveDateSent();
+		}
+		else
+		{
+			$result->addError(new Main\Error(Loc::getMessage("main_register_timeout"), "ERR_TIMEOUT"));
+		}
+
+		$result->setData($check->getData());
+
+		return $result;
 	}
 }
 

@@ -11,18 +11,11 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\LoaderException;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\SystemException;
-use Bitrix\Socialnetwork\Copy\Integration\Helper as Helper;
 
 // todo Improve the component! Show more informative messages and even give the opportunity to copy the entity again.
 class SocialnetworkCopyChecker extends CBitrixComponent implements Controllerable, Errorable
 {
 	use ErrorableImplementation;
-
-	/**
-	 * @var Helper|null
-	 */
-	private $helper = null;
-	private $moduleId = "";
 
 	public function configureActions()
 	{
@@ -32,7 +25,7 @@ class SocialnetworkCopyChecker extends CBitrixComponent implements Controllerabl
 	protected function listKeysSignedParameters()
 	{
 		return [
-			"QUEUE_ID"
+			"queueId"
 		];
 	}
 
@@ -44,8 +37,15 @@ class SocialnetworkCopyChecker extends CBitrixComponent implements Controllerabl
 
 	public function onPrepareComponentParams($params)
 	{
-		$params["QUEUE_ID"] = (int) ($params["QUEUE_ID"] ?? 0);
-		$params["HELPER"] = ($params["HELPER"] instanceof Helper ? $params["HELPER"] : null);
+		$params["moduleId"] = (string) ($params["moduleId"] ?? "");
+		$params["queueId"] = (int) ($params["queueId"] ?? 0);
+
+		$params["stepperClassName"] = (string) ($params["stepperClassName"] ?? "");
+		$params["checkerOption"] = (string) ($params["checkerOption"] ?? "");
+		$params["errorOption"] = (string) ($params["errorOption"] ?? "");
+
+		$params["titleMessage"] = (string) ($params["titleMessage"] ?? "");
+		$params["errorMessage"] = (string) ($params["errorMessage"] ?? "");
 
 		return $params;
 	}
@@ -55,13 +55,6 @@ class SocialnetworkCopyChecker extends CBitrixComponent implements Controllerabl
 		try
 		{
 			$this->checkModules();
-
-			$this->helper = $this->arParams["HELPER"];
-			if (!$this->helper)
-			{
-				throw new SystemException("System error");
-			}
-			$this->moduleId = $this->helper->getModuleId();
 
 			$this->setResult();
 
@@ -78,11 +71,11 @@ class SocialnetworkCopyChecker extends CBitrixComponent implements Controllerabl
 		$request = Context::getCurrent()->getRequest();
 		$post = $request->getPostList()->toArray();
 
-		if (!empty($post["moduleId"]) && !empty($post["errorOptionName"]))
+		if (!empty($post["moduleId"]) && !empty($post["errorOption"]))
 		{
 			Option::delete(
 				$post["moduleId"],
-				["name" => $post["errorOptionName"].$this->arParams["QUEUE_ID"]]
+				["name" => $post["errorOption"].$this->arParams["queueId"]]
 			);
 		}
 	}
@@ -109,33 +102,45 @@ class SocialnetworkCopyChecker extends CBitrixComponent implements Controllerabl
 	{
 		$this->arResult = [];
 
-		$this->arResult["QUEUE_ID"] = $this->arParams["QUEUE_ID"];
+		$this->arResult["moduleId"] = $this->arParams["moduleId"];
+		$this->arResult["queueId"] = $this->arParams["queueId"];
 
-		$this->arResult["HELPER"] = $this->helper;
+		$this->arResult["stepperClassName"] = $this->arParams["stepperClassName"];
+		$this->arResult["checkerOption"] = $this->arParams["checkerOption"];
+		$this->arResult["errorOption"] = $this->arParams["errorOption"];
 
-		$this->arResult["SHOW_PROGRESS"] = $this->isShowProgress();
-		$this->arResult["IDS_WITH_ERRORS"] = $this->getMapIdsWithErrors();
+		$this->arResult["showProgress"] = $this->isShowProgress();
+		$this->arResult["showError"] = (!empty($this->getErrorIds()));
+
+		$this->arResult["titleMessage"] = $this->arParams["titleMessage"];
+		$this->arResult["errorMessage"] = $this->getErrorMessage();
 	}
 
 	private function isShowProgress()
 	{
 		return (
 			Option::get(
-				$this->moduleId,
-				$this->helper->getOptionNames()["checker"].$this->arParams["QUEUE_ID"],
+				$this->arParams["moduleId"],
+				$this->arParams["checkerOption"].$this->arParams["queueId"],
 				""
 			) == "Y"
 		);
 	}
 
-	private function getMapIdsWithErrors()
+	private function getErrorIds(): array
 	{
 		$option = Option::get(
-			$this->moduleId,
-			$this->helper->getOptionNames()["error"].$this->arParams["QUEUE_ID"],
+			$this->arParams["moduleId"],
+			$this->arResult["errorOption"].$this->arParams["queueId"],
 			""
 		);
 		$option = ($option !== "" ? unserialize($option) : []);
+
 		return (is_array($option) ? $option : []);
+	}
+
+	private function getErrorMessage(): string
+	{
+		return $this->arParams["errorMessage"].implode(", ", $this->getErrorIds());
 	}
 }

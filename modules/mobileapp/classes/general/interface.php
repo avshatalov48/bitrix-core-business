@@ -14,7 +14,7 @@ class CAdminMobileMenu
 		return count(self::$arItems);
 	}
 
-	public function buildMenu($arParams)
+	public static function buildMenu($arParams)
 	{
 		if (!empty(self::$arItems))
 			return self::$arItems;
@@ -43,7 +43,7 @@ class CAdminMobileMenu
 		return self::$arItems;
 	}
 
-	public function getDefaultUrl($arParams)
+	public static function getDefaultUrl($arParams)
 	{
 		if (!self::buildMenu($arParams))
 			return false;
@@ -226,14 +226,14 @@ class CAdminMobileDetail
 
 class CAdminMobileInterface
 {
-	public function getCheckBoxesHtml($arCB, $strTitle = '', $arChecked = array(), $arParams = array())
+	public static function getCheckBoxesHtml($arCB, $strTitle = '', $arChecked = array(), $arParams = array())
 	{
 		if (!is_array($arCB) || empty($arCB))
 			return false;
 
 		$arCBParams["ITEMS"] = $arCB;
 
-		if (strlen($strTitle) > 0)
+		if ($strTitle <> '')
 			$arCBParams["TITLE"] = $strTitle;
 
 		if (!empty($arChecked))
@@ -294,7 +294,7 @@ class CAdminMobileEdit
 			{
 				if(isset($arField[$attrName]))
 				{
-					$strResult .= ' '.strtolower($attrName).'="'.$arField[$attrName].'"';
+					$strResult .= ' '.mb_strtolower($attrName).'="'.$arField[$attrName].'"';
 				}
 			}
 		}
@@ -441,14 +441,14 @@ class CAdminMobileEdit
 								<div class="mapp_edit_input_container">
 									<input '.$someAttribs.' type="text"';
 
-						if(strlen($value) <= 0 && isset($arField["TITLE"]))
+						if($value == '' && isset($arField["TITLE"]))
 						{
 							$resultHtml .= ' onblur="if (this.value==\'\'){this.value=\''.$arField["TITLE"].'\'; BX.addClass(this, \'mapp_edit_input_empty\');}"'.
 								' value="'.$arField["TITLE"].'"'.
 								' onfocus="if (this.value==\''.$arField["TITLE"].'\') {this.value=\'\';  BX.removeClass(this, \'mapp_edit_input_empty\');}"'.
 								' class = "mapp_edit_input_empty"';
 						}
-						elseif(strlen($value) > 0)
+						elseif($value <> '')
 						{
 							$resultHtml .= ' value="'.$value.'"';
 						}

@@ -161,12 +161,15 @@ class CssParser
 		foreach($styleList as $k => $v)
 		{
 			$styleList[$k]['SORT'] = static::getSelectorSort($v['SELECTOR']);
+			$styleList[$k]['SORT'][] = $k;
 		}
 
-		usort($styleList, function ($a, $b)	{
-			$a = $a['SORT'];
-			$b = $b['SORT'];
-			for($i = 0; $i<3; $i++)
+		usort($styleList, function ($first, $second)
+		{
+			$a = $first['SORT'];
+			$b = $second['SORT'];
+
+			for($i = 0; $i < 4; $i++)
 			{
 				if($a[$i] !== $b[$i])
 				{
@@ -174,7 +177,7 @@ class CssParser
 				}
 			}
 
-			return 1; // last class have more priority
+			return -1; // last class have more priority
 		});
 
 		foreach($styleList as $k => $v)

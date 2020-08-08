@@ -23,7 +23,6 @@ return [
 			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/search-result2/preview.jpg',
 			'VIEW_USE' => 'N',
 			'THEME_CODE' => '3corporate',
-			'THEME_CODE_TYPO' => 'app',
 			'PIXELFB_USE' => 'N',
 			'GACOUNTER_USE' => 'N',
 			'GACOUNTER_SEND_CLICK' => 'N',

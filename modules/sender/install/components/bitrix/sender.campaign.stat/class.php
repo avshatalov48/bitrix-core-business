@@ -1,17 +1,22 @@
 <?
 
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ErrorCollection;
+use Bitrix\Fileman\Block\Editor as BlockEditor;
 use Bitrix\Main\Context;
+use Bitrix\Main\ErrorCollection;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
-
-use Bitrix\Sender\Stat\Statistics;
 use Bitrix\Sender\MailingChainTable;
 use Bitrix\Sender\PostingTable;
-use Bitrix\Fileman\Block\Editor as BlockEditor;
+use Bitrix\Sender\Stat\Statistics;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
+	die();
+}
+
+if (!Bitrix\Main\Loader::includeModule('sender'))
+{
+	ShowError('Module `sender` not installed');
 	die();
 }
 

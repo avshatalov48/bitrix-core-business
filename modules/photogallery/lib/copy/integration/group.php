@@ -5,27 +5,23 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Socialnetwork\Copy\Integration\Feature;
-use Bitrix\Socialnetwork\Copy\Integration\Helper;
 
-class Group implements Feature, Helper
+class Group implements Feature
 {
-	private $stepper;
+	const MODULE_ID = "photogallery";
+	const QUEUE_OPTION = "PhotogalleryGroupQueue";
+	const CHECKER_OPTION = "PhotogalleryGroupChecker_";
+	const STEPPER_OPTION = "PhotogalleryGroupStepper_";
+	const STEPPER_CLASS = GroupStepper::class;
+	const ERROR_OPTION = "PhotogalleryGroupError_";
 
 	private $executiveUserId;
 	private $features = [];
-
-	private $moduleId = "photogallery";
-	private $queueOption = "PhotogalleryGroupQueue";
-	private $checkerOption = "PhotogalleryGroupChecker_";
-	private $stepperOption = "PhotogalleryGroupStepper_";
-	private $errorOption = "PhotogalleryGroupError_";
 
 	public function __construct($executiveUserId = 0, array $features = [])
 	{
 		$this->executiveUserId = $executiveUserId;
 		$this->features = $features;
-
-		$this->stepper = GroupStepper::class;
 	}
 
 	public function copy($groupId, $copiedGroupId)
@@ -37,7 +33,7 @@ class Group implements Feature, Helper
 
 		$this->addToQueue($copiedGroupId);
 
-		Option::set($this->moduleId, $this->checkerOption.$copiedGroupId, "Y");
+		Option::set(self::MODULE_ID, self::CHECKER_OPTION.$copiedGroupId, "Y");
 
 		$sectionName = $this->getSectionName($groupId);
 		$parentSectionId = $this->getParentSectionId($groupId, $sectionName);
@@ -52,61 +48,16 @@ class Group implements Feature, Helper
 			"parentSectionId" => $parentSectionId,
 			"newSectionName" => $newSectionName,
 		];
-		Option::set($this->moduleId, $this->stepperOption.$copiedGroupId, serialize($queueOption));
+		Option::set(self::MODULE_ID, self::STEPPER_OPTION.$copiedGroupId, serialize($queueOption));
 
 		$agent = \CAgent::getList([], [
-			"MODULE_ID" => $this->moduleId,
-			"NAME" => $this->stepper."::execAgent();"
+			"MODULE_ID" => self::MODULE_ID,
+			"NAME" => GroupStepper::class."::execAgent();"
 		])->fetch();
 		if (!$agent)
 		{
 			GroupStepper::bind(1);
 		}
-	}
-
-	/**
-	 * Returns a module id for work with options.
-	 * @return string
-	 */
-	public function getModuleId()
-	{
-		return $this->moduleId;
-	}
-
-	/**
-	 * Returns a map of option names.
-	 *
-	 * @return array
-	 */
-	public function getOptionNames()
-	{
-		return [
-			"queue" => $this->queueOption,
-			"checker" => $this->checkerOption,
-			"stepper" => $this->stepperOption,
-			"error" => $this->errorOption
-		];
-	}
-
-	/**
-	 * Returns a link to stepper class.
-	 * @return string
-	 */
-	public function getLinkToStepperClass()
-	{
-		return $this->stepper;
-	}
-
-	/**
-	 * Returns a text map.
-	 * @return array
-	 */
-	public function getTextMap()
-	{
-		return [
-			"title" => Loc::getMessage("GROUP_STEPPER_PROGRESS_TITLE"),
-			"error" => Loc::getMessage("GROUP_STEPPER_PROGRESS_ERROR")
-		];
 	}
 
 	private function getParentSectionId($groupId, $sectionName)
@@ -136,11 +87,11 @@ class Group implements Feature, Helper
 
 	private function addToQueue(int $copiedGroupId)
 	{
-		$option = Option::get($this->moduleId, $this->queueOption, "");
+		$option = Option::get(self::MODULE_ID, self::QUEUE_OPTION, "");
 		$option = ($option !== "" ? unserialize($option) : []);
 		$option = (is_array($option) ? $option : []);
 
 		$option[] = $copiedGroupId;
-		Option::set($this->moduleId, $this->queueOption, serialize($option));
+		Option::set(self::MODULE_ID, self::QUEUE_OPTION, serialize($option));
 	}
 }

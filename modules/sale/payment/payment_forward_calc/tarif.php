@@ -8,7 +8,7 @@ class CSalePaySystemTarifPFC extends CSalePaySystemTarif
 	/* required inhereted methods */
 	public static function getPrice(&$arPaySystem, $orderPrice, $deliveryPrice, $buyerLocationId)
 	{
-		if(!isset($arPaySystem["PSA_TARIF"]) || strlen($arPaySystem["PSA_TARIF"]) <= 0)
+		if(!isset($arPaySystem["PSA_TARIF"]) || $arPaySystem["PSA_TARIF"] == '')
 			return 0;
 
 		$result = 0;
@@ -251,7 +251,7 @@ class CSalePaySystemTarifPFC extends CSalePaySystemTarif
 
 	public static function getCMTarifsByRegionFromCsv($regionNameLang)
 	{
-		if(strlen(trim($regionNameLang)) <= 0)
+		if(trim($regionNameLang) == '')
 			return false;
 
 		$csvFile = CSaleHelper::getCsvObject(__DIR__.'/ru/cm_tarif.csv');
@@ -262,7 +262,7 @@ class CSalePaySystemTarifPFC extends CSalePaySystemTarif
 
 		while ($arRes = $csvFile->Fetch())
 		{
-			if(strtoupper(trim($regionNameLang)) === $arRes[$COL_REG_NAME])
+			if(mb_strtoupper(trim($regionNameLang)) === $arRes[$COL_REG_NAME])
 			{
 				$arTarifs = $arRes;
 				break;

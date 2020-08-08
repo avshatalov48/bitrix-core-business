@@ -11,7 +11,7 @@ IncludeModuleLangFile(__FILE__);
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
-$ID = IntVal($ID);
+$ID = intval($ID);
 
 /// redirect to newer version
 if(CSaleLocation::isLocationProEnabled())
@@ -39,9 +39,9 @@ $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
 $strError = "";
 $bInitVars = false;
-if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $saleModulePermissions=="W" && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $saleModulePermissions=="W" && check_bitrix_sessid())
 {
-	$SORT = IntVal($SORT);
+	$SORT = intval($SORT);
 	if ($SORT<=0) $SORT = 100;
 
 	//$COUNTRY_ID = IntVal($COUNTRY_ID);
@@ -55,13 +55,13 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $saleMod
 	if (($COUNTRY_ID<=0 || $ID>0 && $COUNTRY_ID>0 && $CHANGE_COUNTRY=="Y") && $COUNTRY_ID != "")
 	{
 		$COUNTRY_NAME = Trim($COUNTRY_NAME);
-		if (strlen($COUNTRY_NAME)<=0)
+		if ($COUNTRY_NAME == '')
 			$strError .= GetMessage("ERROR_COUNTRY_NAME")."<br>";
 
 		for ($i = 0, $max = count($arSysLangs); $i < $max; $i++)
 		{
 			${"COUNTRY_NAME_".$arSysLangs[$i]} = Trim(${"COUNTRY_NAME_".$arSysLangs[$i]});
-			if (strlen(${"COUNTRY_NAME_".$arSysLangs[$i]})<=0)
+			if (${"COUNTRY_NAME_".$arSysLangs[$i]} == '')
 				$strError .= GetMessage("ERROR_COUNTRY_NAME_LANG")." [".$arSysLangs[$i]."] ".$arSysLangNames[$i].".<br>";
 		}
 	}
@@ -69,13 +69,13 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $saleMod
 	if ($WITHOUT_CITY!="Y")
 	{
 		$CITY_NAME = Trim($CITY_NAME);
-		if (strlen($CITY_NAME)<=0)
+		if ($CITY_NAME == '')
 			$strError .= GetMessage("ERROR_CITY_NAME")."<br>";
 
 		for ($i = 0, $max = count($arSysLangs); $i < $max; $i++)
 		{
 			${"CITY_NAME_".$arSysLangs[$i]} = Trim(${"CITY_NAME_".$arSysLangs[$i]});
-			if (strlen(${"CITY_NAME_".$arSysLangs[$i]})<=0)
+			if (${"CITY_NAME_".$arSysLangs[$i]} == '')
 				$strError .= GetMessage("ERROR_CITY_NAME_LANG")." [".$arSysLangs[$i]."] ".$arSysLangNames[$i].".<br>";
 		}
 	}
@@ -88,12 +88,12 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $saleMod
 		for ($i = 0, $max = count($arSysLangs); $i < $max; $i++)
 		{
 			${"REGION_NAME_".$arSysLangs[$i]} = Trim(${"REGION_NAME_".$arSysLangs[$i]});
-			if (strlen(${"REGION_NAME_".$arSysLangs[$i]})<=0 && $_POST["REGION_ID"] == 0)
+			if (${"REGION_NAME_".$arSysLangs[$i]} == '' && $_POST["REGION_ID"] == 0)
 				$strError .= GetMessage("ERROR_REGION_NAME_LANG")." [".$arSysLangs[$i]."] ".$arSysLangNames[$i].".<br>";
 		}
 	}
 
-	if (strlen($strError)<=0)
+	if ($strError == '')
 	{
 		$arFields = array(
 			"SORT" => $SORT,
@@ -168,7 +168,7 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $saleMod
 		}
 
 		$arFields["LOC_DEFAULT"] = "N";
-		if (strlen($LOC_DEFAULT) > 0)
+		if ($LOC_DEFAULT <> '')
 			$arFields["LOC_DEFAULT"] = $LOC_DEFAULT;
 
 		if ($ID>0)
@@ -179,21 +179,21 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $saleMod
 		else
 		{
 			$ID = CSaleLocation::Add($arFields);
-			if (IntVal($ID)<=0)
+			if (intval($ID)<=0)
 				$strError .= GetMessage("ERROR_ADD_LOCAT")."<br>";
 		}
 
-		if ($ID > 0 && strlen($strError) <= 0)
+		if ($ID > 0 && $strError == '')
 		{
 			$arZipList = $_REQUEST["ZIP"];
 			CSaleLocation::SetLocationZIP($ID, $arZipList);
 		}
 	}
 
-	if (strlen($strError)>0) $bInitVars = True;
+	if ($strError <> '') $bInitVars = True;
 	else
 	{
-		if (strlen($save)>0)
+		if ($save <> '')
 			LocalRedirect("sale_location_admin.php?lang=".LANG.GetFilterParams("filter_", false));
 		else
 			LocalRedirect("sale_location_edit.php?lang=".LANG."&ID=".$ID.GetFilterParams("filter_", false));
@@ -379,7 +379,7 @@ $tabControl->BeginNextTab();
 				$db_contList = CSaleLocation::GetCountryList(Array("NAME"=>"ASC"), Array(), LANG);
 				while ($arContList = $db_contList->Fetch())
 				{
-					?><option value="<?echo $arContList["ID"] ?>"<?if (IntVal($arContList["ID"])==IntVal($str_COUNTRY_ID)) echo " selected";?>><?echo htmlspecialcharsbx($arContList["NAME_ORIG"]) ?> [<?echo htmlspecialcharsbx($arContList["NAME_LANG"]) ?>]</option><?
+					?><option value="<?echo $arContList["ID"] ?>"<?if (intval($arContList["ID"])==intval($str_COUNTRY_ID)) echo " selected";?>><?echo htmlspecialcharsbx($arContList["NAME_ORIG"]) ?> [<?echo htmlspecialcharsbx($arContList["NAME_LANG"]) ?>]</option><?
 				}
 				?>
 			</select>
@@ -525,7 +525,7 @@ $tabControl->BeginNextTab();
 				$dbRegionList = CSaleLocation::GetRegionList(array("NAME"=>"ASC"), $arFilterRegion, LANG);
 				while ($arRegionList = $dbRegionList->Fetch())
 				{
-					?><option value="<?echo $arRegionList["ID"] ?>"<?if (IntVal($arRegionList["ID"])==IntVal($str_REGION_ID)) echo " selected";?>><?echo htmlspecialcharsbx($arRegionList["NAME_ORIG"]) ?> [<?echo htmlspecialcharsbx($arRegionList["NAME_LANG"]) ?>]</option><?
+					?><option value="<?echo $arRegionList["ID"] ?>"<?if (intval($arRegionList["ID"])==intval($str_REGION_ID)) echo " selected";?>><?echo htmlspecialcharsbx($arRegionList["NAME_ORIG"]) ?> [<?echo htmlspecialcharsbx($arRegionList["NAME_LANG"]) ?>]</option><?
 				}
 				?>
 			</select>
@@ -579,7 +579,7 @@ $tabControl->BeginNextTab();
 		$arRegion = CSaleLocation::GetRegionLangByID($str_REGION_ID, $arSysLangs[$i]);
 		$str_REGION_NAME = htmlspecialcharbx($arRegion["NAME"]);
 		$str_REGION_SHORT_NAME = htmlspecialcharbx($arRegion["SHORT_NAME"]);
-		if ($bInitVars && $str_WITHOUT_CITY == "Y" && IntVal($str_REGION_ID) > 0)
+		if ($bInitVars && $str_WITHOUT_CITY == "Y" && intval($str_REGION_ID) > 0)
 		{
 			$str_REGION_NAME = htmlspecialcharbx(${"REGION_NAME_".$arSysLangs[$i]});
 			$str_REGION_SHORT_NAME = htmlspecialcharbx(${"REGION_SHORT_NAME_".$arSysLangs[$i]});

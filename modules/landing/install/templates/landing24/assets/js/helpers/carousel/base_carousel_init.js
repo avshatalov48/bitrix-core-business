@@ -150,4 +150,20 @@
 		{
 		}
 	});
+
+	/**
+	 * set correct slider width after lazyload image
+	 */
+	BX.addCustomEvent("BX.Landing.Lazyload:loadImage", function (event)
+	{
+		var slider = event.target.querySelector('.js-carousel');
+		if(slider)
+		{
+			var slickObj = $(slider).slick('getSlick');
+			if(slickObj)
+			{
+				slickObj.setPosition();
+			}
+		}
+	});
 })();

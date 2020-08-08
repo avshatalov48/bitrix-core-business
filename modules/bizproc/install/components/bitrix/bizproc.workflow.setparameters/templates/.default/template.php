@@ -6,7 +6,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 ?>
 <div class="bp-setparameters">
 <?
-if (strlen($arResult["FatalErrorMessage"]) > 0)
+if ($arResult["FatalErrorMessage"] <> '')
 {
 	?>
 	<span class="bp-question"><span>!</span><?= htmlspecialcharsbx($arResult["FatalErrorMessage"]) ?></span>
@@ -14,7 +14,7 @@ if (strlen($arResult["FatalErrorMessage"]) > 0)
 }
 else
 {
-	if (strlen($arResult["ErrorMessage"]) > 0)
+	if ($arResult["ErrorMessage"] <> '')
 	{
 		?>
 		<span class="bp-question"><span>!</span><?= htmlspecialcharsbx($arResult["ErrorMessage"]) ?></span>
@@ -38,7 +38,7 @@ else
 		{
 			?>
 			<span class="bp-question-title"><?= htmlspecialcharsbx($arParameter["Name"]) ?>:</span>
-			<?if (strlen($arParameter["Description"]) > 0):?>
+			<?if ($arParameter["Description"] <> ''):?>
 			<p class="hint"><?=htmlspecialcharsbx($arParameter["Description"])?></p>
 			<?endif?>
 			<div class="bp-question-item"><?

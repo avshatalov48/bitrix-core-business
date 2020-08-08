@@ -35,7 +35,7 @@ class CSaleBestsellersComponent extends CCatalogViewedProductsComponent
 				$params["BY"] = "AMOUNT";
 		}
 
-		if(!isset($params["BY"]) || !strlen(trim($params["BY"])))
+		if(!isset($params["BY"]) || !mb_strlen(trim($params["BY"])))
 			$params["BY"] = "AMOUNT";
 
 

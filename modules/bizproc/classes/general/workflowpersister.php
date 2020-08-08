@@ -149,7 +149,7 @@ class CBPAllWorkflowPersister
 	public function LoadWorkflow($instanceId, $silent = false)
 	{
 		$state = $this->RetrieveWorkflow($instanceId, $silent);
-		if (strlen($state) > 0)
+		if ($state <> '')
 			return $this->RestoreFromSerializedForm($state);
 
 		throw new Exception("WorkflowNotFound");
@@ -160,7 +160,7 @@ class CBPAllWorkflowPersister
 		if ($this->useGZipCompression)
 			$buffer = gzuncompress($buffer);
 
-		if (strlen($buffer) <= 0)
+		if ($buffer == '')
 			throw new Exception("EmptyWorkflowInstance");
 
 		$activity = CBPActivity::Load($buffer);

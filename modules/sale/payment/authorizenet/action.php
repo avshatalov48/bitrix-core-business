@@ -25,18 +25,18 @@ include(dirname(__FILE__)."/common.php");
 $strErrorMessage = "";
 
 $INPUT_CARD_NUM = preg_replace("/[\D]+/", "", $INPUT_CARD_NUM);
-if (strlen($INPUT_CARD_NUM) <= 0)
+if ($INPUT_CARD_NUM == '')
 	$strErrorMessage .= GetMessage("AN_CC_NUM")." ";
 
 $INPUT_CARD_CODE = preg_replace("[\D]+", "", $INPUT_CARD_CODE);
 
-$INPUT_CARD_EXP_MONTH = IntVal($INPUT_CARD_EXP_MONTH);
+$INPUT_CARD_EXP_MONTH = intval($INPUT_CARD_EXP_MONTH);
 if ($INPUT_CARD_EXP_MONTH < 1 || $INPUT_CARD_EXP_MONTH > 12)
 	$strErrorMessage .= GetMessage("AN_CC_MONTH")." ";
-elseif (strlen($INPUT_CARD_EXP_MONTH) < 2)
+elseif (mb_strlen($INPUT_CARD_EXP_MONTH) < 2)
 	$INPUT_CARD_EXP_MONTH = "0".$INPUT_CARD_EXP_MONTH;
 
-$INPUT_CARD_EXP_YEAR = IntVal($INPUT_CARD_EXP_YEAR);
+$INPUT_CARD_EXP_YEAR = intval($INPUT_CARD_EXP_YEAR);
 if ($INPUT_CARD_EXP_YEAR < 2005)
 	$strErrorMessage .= GetMessage("AN_CC_YEAR")." ";
 
@@ -46,12 +46,12 @@ if ($INPUT_SUM <= 0)
 	$strErrorMessage .= GetMessage("AN_CC_SUM")." ";
 
 $INPUT_CURRENCY = Trim($INPUT_CURRENCY);
-if (strlen($INPUT_CURRENCY) <= 0)
+if ($INPUT_CURRENCY == '')
 	$strErrorMessage .= GetMessage("AN_CC_CURRENCY")." ";
 
 $OUTPUT_ERROR_MESSAGE = $strErrorMessage;
 
-if (strlen($strErrorMessage) <= 0)
+if ($strErrorMessage == '')
 {
 	// Merchant Account Information
 	$strPostQueryString  = "x_version=3.1";
@@ -120,9 +120,9 @@ if (strlen($strErrorMessage) <= 0)
 	$mass = explode("\|,\|", "|,".$strResult);
 
 	$hashValue = CSalePaySystemAction::GetParamValue("HASH_VALUE");
-	if (strlen($hashValue)>0)
+	if ($hashValue <> '')
 	{
-		if (md5($hashValue.(CSalePaySystemAction::GetParamValue("PS_LOGIN")).$mass[7].$INPUT_SUM) != strtolower($mass[38]))
+		if (md5($hashValue.(CSalePaySystemAction::GetParamValue("PS_LOGIN")).$mass[7].$INPUT_SUM) != mb_strtolower($mass[38]))
 		{
 			$mass = array();
 			$mass[1] = 3;
@@ -132,13 +132,13 @@ if (strlen($strErrorMessage) <= 0)
 		}
 	}
 
-	$OUTPUT_STATUS = ((IntVal($mass[1])==1) ? "Y" : "N");
+	$OUTPUT_STATUS = ((intval($mass[1])==1) ? "Y" : "N");
 	$OUTPUT_STATUS_CODE = $mass[3];
 
 	if ($OUTPUT_STATUS=="Y")
 		$OUTPUT_STATUS_DESCRIPTION = "Approval Code: ".$mass[5].(!empty($mass[7]) ? "; Transaction ID: ".$mass[7] : "");
 	else
-		$OUTPUT_STATUS_DESCRIPTION = (IntVal($mass[1])==2 ? "Declined" : "Error").": ".$mass[4]." (Reason Code ".$mass[3]." / Sub ".$mass[2].")";
+		$OUTPUT_STATUS_DESCRIPTION = (intval($mass[1])==2 ? "Declined" : "Error").": ".$mass[4]." (Reason Code ".$mass[3]." / Sub ".$mass[2].")";
 
 	$OUTPUT_STATUS_MESSAGE = "";
 	if (!empty($mass[6]))

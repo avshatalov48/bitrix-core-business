@@ -90,7 +90,7 @@ class OrderStatus extends Template
 		{
 			$reasonHtml = '
 				<div class="adm-s-select-popup-modal-title">'.Loc::getMessage("SALE_ORDER_STATUS_COMMENT").'</div>
-				<textarea style="width:400px;min-height:100px;" name="FORM_REASON_CANCELED" id="FORM_REASON_CANCELED"  disabled>'.(strlen($reasonCanceled) > 0 ? $reasonCanceled : '').'</textarea>
+				<textarea style="width:400px;min-height:100px;" name="FORM_REASON_CANCELED" id="FORM_REASON_CANCELED"  disabled>'.($reasonCanceled <> '' ? $reasonCanceled : '').'</textarea>
 			';
 		}
 		else

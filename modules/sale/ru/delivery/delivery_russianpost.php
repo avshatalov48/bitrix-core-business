@@ -224,7 +224,7 @@ class CDeliveryRUSSIANPOST
 		}
 
 		$zip = COption::GetOptionString('sale', 'location_zip');
-		if (strlen($zip) > 0)
+		if ($zip <> '')
 			$arLocationFrom["ZIP"] = array(0 => $zip);
 
 		if ($arLocationTo["IS_RUSSIAN"] == 'Y' && count($arLocationTo["ZIP"]) <= 0)
@@ -324,25 +324,27 @@ class CDeliveryRUSSIANPOST
 
 		CDeliveryRUSSIANPOST::__Write2Log($data);
 
-		if (strstr($data, DELIVERY_RUSSIANPOST_VALUE_CAPTHA_STRING))
+		if(mb_strstr($data, DELIVERY_RUSSIANPOST_VALUE_CAPTHA_STRING))
 		{
 			$cResult = preg_match(
-					DELIVERY_RUSSIANPOST_CAPTHA_REGEXP,
-					$data,
-					$matches
+				DELIVERY_RUSSIANPOST_CAPTHA_REGEXP,
+				$data,
+				$matches
 			);
 
 			$arCode = array();
-			$arCode["key"] = IntVal($matches[1]);
+			$arCode["key"] = intval($matches[1]);
 
 			$res = self::sendRequestData($arCode, DELIVERY_RUSSIANPOST_SERVER_METHOD_CAPTHA);
 
-			if (!$res->isSuccess())
+			if(!$res->isSuccess())
 			{
 				$errors = "";
 
 				foreach($res->getErrorMessages() as $message)
+				{
 					$errors .= $message."\n";
+				}
 
 				CDeliveryRUSSIANPOST::__Write2Log($errors);
 
@@ -353,7 +355,7 @@ class CDeliveryRUSSIANPOST
 			}
 		}
 
-		if (strstr($data, DELIVERY_RUSSIANPOST_VALUE_CHECK_STRING))
+		if(mb_strstr($data, DELIVERY_RUSSIANPOST_VALUE_CHECK_STRING))
 		{
 			$bResult = preg_match(
 				DELIVERY_RUSSIANPOST_VALUE_CHECK_REGEXP_RUS,
@@ -362,7 +364,7 @@ class CDeliveryRUSSIANPOST
 			);
 
 			// both regexps must be checked! it's not only for russian and non-russian
-			if (/*$arLocationTo["IS_RUSSIAN"] == "Y" && */!$bResult)
+			if(/*$arLocationTo["IS_RUSSIAN"] == "Y" && */ !$bResult)
 			{
 				$bResult = preg_match(
 					DELIVERY_RUSSIANPOST_VALUE_CHECK_REGEXP,
@@ -371,7 +373,7 @@ class CDeliveryRUSSIANPOST
 				);
 			}
 
-			if ($bResult)
+			if($bResult)
 			{
 				$obCache->StartDataCache();
 
@@ -386,8 +388,10 @@ class CDeliveryRUSSIANPOST
 				);
 
 				// only these delivery types have insurance tax of 3% or 4% from price
-				if (in_array($arConfig["category"]["VALUE"], array(26, 16, 36)))
+				if(in_array($arConfig["category"]["VALUE"], array(26, 16, 36)))
+				{
 					$result += $arOrder["PRICE"] * DELIVERY_RUSSIANPOST_PRICE_TARIFF_1;
+				}
 
 				return array(
 					"RESULT" => "OK",
@@ -403,10 +407,12 @@ class CDeliveryRUSSIANPOST
 			}
 		}
 		else
+		{
 			return array(
 				"RESULT" => "ERROR",
 				"TEXT" => GetMessage('SALE_DH_RUSSIANPOST_ERROR_RESPONSE'),
 			);
+		}
 	}
 
 	function Compability($arOrder, $arConfig)

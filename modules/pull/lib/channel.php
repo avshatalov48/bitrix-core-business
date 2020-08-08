@@ -14,7 +14,7 @@ class Channel
 	{
 		$config['USERS'] = isset($params['USER_ID'])? $params['USER_ID']: self::USER_SELF;
 		$config['TYPE'] = $params['TYPE']? $params['TYPE']: self::TYPE_PRIVATE;
-		$config['JSON'] = $params['JSON'] == 'Y'? 'Y': 'N';
+		$config['JSON'] = $params['JSON'] == 'Y';
 
 		$result = self::getPublicIds($config);
 		if ($result)
@@ -25,14 +25,14 @@ class Channel
 		return $result;
 	}
 
-	public static function getPublicIds($params)
+	public static function getPublicIds($params = [])
 	{
 		if (!\CPullOptions::GetQueueServerStatus() || \CPullOptions::GetQueueServerVersion() < 4)
 			return false;
 
 		$users = isset($params['USERS'])? $params['USERS']: self::USER_SELF;
 		$type = $params['TYPE']? $params['TYPE']: self::TYPE_PRIVATE;
-		$returnJson = $params['JSON'] == 'Y'? true: false;
+		$returnJson = $params['JSON']? true: false;
 
 		$userList = [];
 		if (is_array($users))

@@ -27,17 +27,17 @@ if (typeof(window["<?=$arParams["IFRAME_POPUP_VAR_NAME"]?>"]) == 'undefined')
 			pathToEdit: "<?=CUtil::JSEscape($arParams["PATH_TO_GROUP_EDIT"])?>",
 			pathToInvite: "<?=CUtil::JSEscape($arParams["PATH_TO_GROUP_INVITE"])?>",
 			events: {
-				<? if (strlen($arParams["ON_BEFORE_SHOW"])):?>
-					onBeforeShow: <?=CUtil::JSEscape($arParams["ON_BEFORE_SHOW"])?>,
+				<? if ($arParams["ON_BEFORE_SHOW"] <> ''):?>
+				onBeforeShow: <?=CUtil::JSEscape($arParams["ON_BEFORE_SHOW"])?>,
 				<?endif?>
-				<?if (strlen($arParams["ON_AFTER_SHOW"])):?>
-					onAfterShow: <?=CUtil::JSEscape($arParams["ON_AFTER_SHOW"])?>,
+				<?if ($arParams["ON_AFTER_SHOW"] <> ''):?>
+				onAfterShow: <?=CUtil::JSEscape($arParams["ON_AFTER_SHOW"])?>,
 				<?endif?>
-				<?if (strlen($arParams["ON_BEFORE_HIDE"])):?>
-					onBeforeHide: <?=CUtil::JSEscape($arParams["ON_BEFORE_SHOW"])?>,
+				<?if ($arParams["ON_BEFORE_HIDE"] <> ''):?>
+				onBeforeHide: <?=CUtil::JSEscape($arParams["ON_BEFORE_SHOW"])?>,
 				<?endif?>
-				<?if (strlen($arParams["ON_AFTER_HIDE"])):?>
-					onAfterHide: <?=CUtil::JSEscape($arParams["ON_AFTER_SHOW"])?>,
+				<?if ($arParams["ON_AFTER_HIDE"] <> ''):?>
+				onAfterHide: <?=CUtil::JSEscape($arParams["ON_AFTER_SHOW"])?>,
 				<?endif?>
 				onGroupAdded: <?=CUtil::JSEscape($arParams["ON_GROUP_ADDED"])?>,
 				onGroupChanged: <?=CUtil::JSEscape($arParams["ON_GROUP_CHANGED"])?>,

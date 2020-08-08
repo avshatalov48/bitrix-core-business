@@ -66,7 +66,7 @@ class Sms
 
 			foreach (Texts::getListByType($textMessageCode) as $item)
 			{
-				$code = strtolower($messageCode . "_" . $item['CODE']);
+				$code = mb_strtolower($messageCode."_".$item['CODE']);
 				if($templateId && $code !== $templateId)
 				{
 					continue;

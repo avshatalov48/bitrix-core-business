@@ -347,7 +347,8 @@
 					siteId: BX.Landing.Main.getInstance().options.site_id,
 					landingId: BX.Landing.Main.getInstance().id,
 					filter: {
-						'=TYPE': BX.Landing.Main.getInstance().options.params.type
+						'=TYPE': BX.Landing.Main.getInstance().options.params.type,
+						'SPECIAL': 'N'
 					}
 				};
 

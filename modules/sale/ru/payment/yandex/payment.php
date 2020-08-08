@@ -9,7 +9,7 @@ $Sum = number_format($Sum, 2, ',', '');
 ?>
 <p>Вы хотите оплатить через систему <strong>Яндекс.Деньги</strong>.</p>
 <p>Сумма к оплате по счету: <strong><?=$Sum?> р.</strong></p>
-<?if(strlen(CSalePaySystemAction::GetParamValue("IS_TEST")) > 0):
+<?if(CSalePaySystemAction::GetParamValue("IS_TEST") <> ''):
 	?>
 	<form name="ShopForm" action="https://demomoney.yandex.ru/eshop.xml" method="post" target="_blank">
 <?else:

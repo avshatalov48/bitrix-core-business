@@ -112,6 +112,7 @@ $MESS["IBEL_CATALOG_PURCHASING_PRICE"] = "Закупочная цена";
 $MESS["IBEL_CATALOG_BAR_CODE"] = "Штрихкод";
 $MESS["IBEL_CATALOG_BAR_CODE_MULTI"] = "множественный";
 $MESS["IBEL_CATALOG_VAT_INCLUDED"] = "НДС включен в цену";
+$MESS["IBEL_CATALOG_VAT_ID"] = "Ставка НДС";
 $MESS["IBEL_CATALOG_TYPE"] = "Тип товара";
 $MESS["IBEL_CATALOG_TYPE_TITLE"] = "Тип товара";
 $MESS["IBEL_CATALOG_TYPE_MESS_GROUP"] = "набор";
@@ -135,4 +136,6 @@ $MESS["IBEL_LIST_TITLE"] = "#IBLOCK_NAME#: Список товаров";
 $MESS["IBEL_LIST_ERR_PRODUCT_LIMIT"] = "Превышено ограничение на количество товаров, используемых в лендингах. В каталоге найдено #COUNT# таких товаров (лимит - #LIMIT#).";
 $MESS["IBEL_PRODUCTS_INSTAGRAM"] = "Товары Instagram";
 $MESS["IBEL_CATALOG_SKU_PRICE"] = "от #PRICE#";
+$MESS["IBEL_CATALOG_EMPTY_VALUE"] = "не выбрано";
+$MESS["IBEL_ERR_BUILDER_ADSENT"] = "Не найден генератор ссылок.";
 ?>

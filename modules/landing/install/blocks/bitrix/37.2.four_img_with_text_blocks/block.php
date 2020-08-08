@@ -10,16 +10,16 @@
 						<span class="landing-block-node-card-icon-container d-block g-line-height-1 g-font-size-30 g-color-primary g-mb-20">
 							<i class="landing-block-node-card-icon icon-picture"></i>
 						</span>
-						<h3 class="landing-block-node-card-title text-uppercase g-line-height-1_2 g-font-weight-700 g-color-white g-mb-25">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_2 font-weight-bold g-color-white g-mb-25">
 							Exterior
 							<br> Design</h3>
-						<div class="landing-block-node-card-text g-font-size-13 g-color-white-opacity-0_5 g-mb-30">
+						<div class="landing-block-node-card-text landing-semantic-text-image-small g-font-size-13 g-color-white-opacity-0_5 g-mb-30">
 							<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget
 								dolor. Aenean massa. Omom sociis natoque penatibus.</p>
 						</div>
 						<div class="landing-block-node-card-link-container mt-auto">
 							<a href="#"
-							   class="landing-block-node-card-link text-uppercase g-font-weight-700 g-font-size-11 g-text-underline--none--hover">Read
+							   class="landing-block-node-card-link landing-semantic-link-image-medium text-uppercase font-weight-bold g-font-size-11 g-text-underline--none--hover">Read
 								More</a>
 						</div>
 					</div>
@@ -34,16 +34,16 @@
 						<span class="landing-block-node-card-icon-container d-block g-line-height-1 g-font-size-30 g-color-primary g-mb-20">
 							<i class="landing-block-node-card-icon icon-loop"></i>
 						</span>
-						<h3 class="landing-block-node-card-title text-uppercase g-line-height-1_2 g-font-weight-700 g-color-white g-mb-25">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_2 font-weight-bold g-color-white g-mb-25">
 							Interior
 							<br> Design</h3>
-						<div class="landing-block-node-card-text g-font-size-13 g-color-white-opacity-0_5 g-mb-30">
+						<div class="landing-block-node-card-text landing-semantic-text-image-small g-font-size-13 g-color-white-opacity-0_5 g-mb-30">
 							<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget
 								dolor. Aenean massa. Omom sociis natoque penatibus.</p>
 						</div>
 						<div class="landing-block-node-card-link-container mt-auto">
 							<a href="#"
-							   class="landing-block-node-card-link text-uppercase g-font-weight-700 g-font-size-11 g-text-underline--none--hover">Read
+							   class="landing-block-node-card-link landing-semantic-link-image-medium text-uppercase font-weight-bold g-font-size-11 g-text-underline--none--hover">Read
 								More</a>
 						</div>
 					</div>
@@ -58,16 +58,16 @@
 						<span class="landing-block-node-card-icon-container d-block g-line-height-1 g-font-size-30 g-color-primary g-mb-20">
 							<i class="landing-block-node-card-icon icon-note"></i>
 						</span>
-						<h3 class="landing-block-node-card-title text-uppercase g-line-height-1_2 g-font-weight-700 g-color-white g-mb-25">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_2 font-weight-bold g-color-white g-mb-25">
 							Project
 							<br> Documentation</h3>
-						<div class="landing-block-node-card-text g-font-size-13 g-color-white-opacity-0_5 g-mb-30">
+						<div class="landing-block-node-card-text landing-semantic-text-image-small g-font-size-13 g-color-white-opacity-0_5 g-mb-30">
 							<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget
 								dolor. Aenean massa. Omom sociis natoque penatibus.</p>
 						</div>
 						<div class="landing-block-node-card-link-container mt-auto">
 							<a href="#"
-							   class="landing-block-node-card-link text-uppercase g-font-weight-700 g-font-size-11 g-text-underline--none--hover">Read
+							   class="landing-block-node-card-link landing-semantic-link-image-medium text-uppercase font-weight-bold g-font-size-11 g-text-underline--none--hover">Read
 								More</a>
 						</div>
 					</div>
@@ -82,16 +82,16 @@
 						<span class="landing-block-node-card-icon-container d-block g-line-height-1 g-font-size-30 g-color-primary g-mb-20">
 							<i class="landing-block-node-card-icon icon-map"></i>
 						</span>
-						<h3 class="landing-block-node-card-title text-uppercase g-line-height-1_2 g-font-weight-700 g-color-white g-mb-25">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_2 font-weight-bold g-color-white g-mb-25">
 							Choice of
 							<br> Land</h3>
-						<div class="landing-block-node-card-text g-font-size-13 g-color-white-opacity-0_5 g-mb-30">
+						<div class="landing-block-node-card-text landing-semantic-text-image-small g-font-size-13 g-color-white-opacity-0_5 g-mb-30">
 							<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget
 								dolor. Aenean massa. Omom sociis natoque penatibus.</p>
 						</div>
 						<div class="landing-block-node-card-link-container mt-auto">
 							<a href="#"
-							   class="landing-block-node-card-link text-uppercase g-font-weight-700 g-font-size-11 g-text-underline--none--hover">Read
+							   class="landing-block-node-card-link landing-semantic-link-image-medium text-uppercase font-weight-bold g-font-size-11 g-text-underline--none--hover">Read
 								More</a>
 						</div>
 					</div>

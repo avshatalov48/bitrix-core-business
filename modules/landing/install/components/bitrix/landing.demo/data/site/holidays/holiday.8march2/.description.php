@@ -18,12 +18,14 @@ return array(
 			'B24BUTTON_CODE' => $buttons[0],
 			'UP_SHOW' => 'Y',
 			'THEME_CODE' => 'travel',
-			'THEME_CODE_TYPO' => 'travel',
+			'THEMEFONTS_CODE' => 'g-font-roboto',
+'THEMEFONTS_CODE_H' => 'g-font-roboto',
+'THEMEFONTS_SIZE' => '1',
+'THEMEFONTS_USE' => 'Y',
 		)
 	),
 	'items' => array (
 	),
-	'sort' => \LandingSiteDemoComponent::checkActivePeriod(2,15,3,8) ? 92 : -122,
 	'available' => true,
 	'active' => \LandingSiteDemoComponent::checkActive(array(
 		'ONLY_IN' => array('ru', 'kz', 'by', 'ua'),

@@ -31,18 +31,11 @@ class DateTime extends Date
 				$format = static::getFormat();
 			}
 
-			$parsedValue = date_parse_from_format($format, $time);
-			//Ignore errors when format is longer than date
-			//or date string is longer than format
-			if ($parsedValue['error_count'] > 1)
+			$parsedValue = $this->parse($format, $time);
+
+			if($parsedValue === false)
 			{
-				if (
-					current($parsedValue['errors']) !== 'Trailing data'
-					&& current($parsedValue['errors']) !== 'Data missing'
-				)
-				{
-					throw new Main\ObjectException("Incorrect date/time: ".$time);
-				}
+				throw new Main\ObjectException("Incorrect date/time: ".$time);
 			}
 
 			$microseconds = 0;
@@ -63,6 +56,49 @@ class DateTime extends Date
 				$this->value->add(new \DateInterval("PT".$parsedValue["relative"]["second"]."S"));
 			}
 		}
+	}
+
+	/**
+	 * @param string $format
+	 * @param string $time
+	 * @return array|bool
+	 */
+	protected function parse($format, $time)
+	{
+		$parsedValue = date_parse_from_format($format, $time);
+
+		//Ignore errors when format is longer than date
+		//or date string is longer than format
+		if ($parsedValue['error_count'] > 1)
+		{
+			$error = current($parsedValue['errors']);
+
+			if ($error === 'A two digit second could not be found')
+			{
+				//possibly missed seconds with am/pm format
+				$timestamp = strtotime($time);
+
+				if ($timestamp === false)
+				{
+					return false;
+				}
+
+				return [
+					"year" => date("Y", $timestamp),
+					"month" => date("n", $timestamp),
+					"day" => date("j", $timestamp),
+					"hour" => date("G", $timestamp),
+					"minute" => date("i", $timestamp),
+					"second" => date("s", $timestamp),
+				];
+			}
+			if ($error !== 'Trailing data' && $error !== 'Data missing')
+			{
+				return false;
+			}
+		}
+
+		return $parsedValue;
 	}
 
 	/**

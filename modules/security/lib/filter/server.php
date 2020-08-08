@@ -38,7 +38,7 @@ class Server
 		foreach ($values as $key => &$val)
 		{
 			if (
-				substr($key, 0, 5) === 'HTTP_'
+				mb_substr($key, 0, 5) === 'HTTP_'
 				|| in_array($key, $this->interestingKeys, true)
 			)
 			{

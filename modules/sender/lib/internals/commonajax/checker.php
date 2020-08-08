@@ -82,7 +82,7 @@ class Checker
 	{
 		return function (Result $result)
 		{
-			if (Security\Access::current()->canViewLetters())
+			if (Security\Access::getInstance()->canViewLetters())
 			{
 				return;
 			}
@@ -100,7 +100,7 @@ class Checker
 	{
 		return function (Result $result)
 		{
-			if (Security\Access::current()->canModifyLetters())
+			if (Security\Access::getInstance()->canModifyLetters())
 			{
 				return;
 			}
@@ -118,7 +118,7 @@ class Checker
 	{
 		return function (Result $result)
 		{
-			if (Security\Access::current()->canModifyAbuses())
+			if (Security\Access::getInstance()->canModifyAbuses())
 			{
 				return;
 			}
@@ -136,7 +136,7 @@ class Checker
 	{
 		return function (Result $result)
 		{
-			if (Security\Access::current()->canViewSegments())
+			if (Security\Access::getInstance()->canViewSegments())
 			{
 				return;
 			}
@@ -154,23 +154,23 @@ class Checker
 	{
 		return function (Result $result)
 		{
-			if (Security\Access::current()->canViewSegments())
+			if (Security\Access::getInstance()->canViewSegments())
 			{
 				return;
 			}
-			if (Security\Access::current()->canViewLetters())
+			if (Security\Access::getInstance()->canViewLetters())
 			{
 				return;
 			}
-			if (Security\Access::current()->canViewAds())
+			if (Security\Access::getInstance()->canViewAds())
 			{
 				return;
 			}
-			if (Security\Access::current()->canViewRc())
+			if (Security\Access::getInstance()->canViewRc())
 			{
 				return;
 			}
-			if (Security\Access::current()->canModifySettings())
+			if (Security\Access::getInstance()->canModifySettings())
 			{
 				return;
 			}
@@ -188,7 +188,7 @@ class Checker
 	{
 		return function (Result $result)
 		{
-			if (Security\Access::current()->canModifySegments())
+			if (Security\Access::getInstance()->canModifySegments())
 			{
 				return;
 			}
@@ -206,7 +206,7 @@ class Checker
 	{
 		return function (Result $result)
 		{
-			if (Security\Access::current()->canViewRc())
+			if (Security\Access::getInstance()->canViewRc())
 			{
 				return;
 			}
@@ -224,7 +224,7 @@ class Checker
 	{
 		return function (Result $result)
 		{
-			if (Security\Access::current()->canModifyRc())
+			if (Security\Access::getInstance()->canModifyRc())
 			{
 				return;
 			}
@@ -242,7 +242,7 @@ class Checker
 	{
 		return function (Result $result)
 		{
-			if (Security\Access::current()->canViewBlacklist())
+			if (Security\Access::getInstance()->canViewBlacklist())
 			{
 				return;
 			}
@@ -260,7 +260,7 @@ class Checker
 	{
 		return function (Result $result)
 		{
-			if (Security\Access::current()->canModifyBlacklist())
+			if (Security\Access::getInstance()->canModifyBlacklist())
 			{
 				return;
 			}
@@ -278,7 +278,7 @@ class Checker
 	{
 		return function (Result $result)
 		{
-			if (Security\Access::current()->canViewAds())
+			if (Security\Access::getInstance()->canViewAds())
 			{
 				return;
 			}
@@ -296,7 +296,7 @@ class Checker
 	{
 		return function (Result $result)
 		{
-			if (Security\Access::current()->canModifyAds())
+			if (Security\Access::getInstance()->canModifyAds())
 			{
 				return;
 			}
@@ -314,7 +314,7 @@ class Checker
 	{
 		return function (Result $result)
 		{
-			if (Security\Access::current()->canViewSegments())
+			if (Security\Access::getInstance()->canViewSegments())
 			{
 				return;
 			}
@@ -332,7 +332,7 @@ class Checker
 	{
 		return function (Result $result)
 		{
-			if (Security\Access::current()->canModifySegments())
+			if (Security\Access::getInstance()->canModifySegments())
 			{
 				return;
 			}
@@ -350,7 +350,75 @@ class Checker
 	{
 		return function (Result $result)
 		{
-			if (Security\Access::current()->canModifySettings())
+			if (Security\Access::getInstance()->canModifySettings())
+			{
+				return;
+			}
+
+			$result->addError(new Error(Loc::getMessage('SENDER_COMMON_AJAX_CHECKER_ERROR_NO_WRITE_ACCESS')));
+		};
+	}
+
+	/**
+	 *
+	 * @return callable
+	 */
+	public static function getPauseStopStartLetterPermissionChecker()
+	{
+		return function (Result $result)
+		{
+			if (Security\Access::getInstance()->canPauseStartStopLetter())
+			{
+				return;
+			}
+
+			$result->addError(new Error(Loc::getMessage('SENDER_COMMON_AJAX_CHECKER_ERROR_NO_WRITE_ACCESS')));
+		};
+	}
+
+	/**
+	 *
+	 * @return callable
+	 */
+	public static function getPauseStopStartAdsPermissionChecker()
+	{
+		return function (Result $result)
+		{
+			if (Security\Access::getInstance()->canPauseStartStopAds())
+			{
+				return;
+			}
+
+			$result->addError(new Error(Loc::getMessage('SENDER_COMMON_AJAX_CHECKER_ERROR_NO_WRITE_ACCESS')));
+		};
+	}
+
+	/**
+	 *
+	 * @return callable
+	 */
+	public static function getPauseStopStartRcPermissionChecker()
+	{
+		return function (Result $result)
+		{
+			if (Security\Access::getInstance()->canPauseStartStopRc())
+			{
+				return;
+			}
+
+			$result->addError(new Error(Loc::getMessage('SENDER_COMMON_AJAX_CHECKER_ERROR_NO_WRITE_ACCESS')));
+		};
+	}
+
+	/**
+	 *
+	 * @return callable
+	 */
+	public static function getModifyTemplatePermissionChecker()
+	{
+		return function (Result $result)
+		{
+			if (Security\Access::getInstance()->canModifyTemplates())
 			{
 				return;
 			}

@@ -6,5 +6,4 @@ $MESS['LANDING_DEMO_STORE_CHATS_DARK-ORDER-RICH_DESC'] = 'Информация �
 $MESS['LANDING_DEMO_STORE_CHATS_DARK-ORDER-TEXT1'] = 'Мы находимся здесь';
 $MESS['LANDING_DEMO_STORE_CHATS_DARK-ORDER-TEXT2'] = 'Калининград, Гостиная, 3';
 $MESS['LANDING_DEMO_STORE_CHATS_DARK-ORDER-TEXT3'] = 'Позвонить';
-$MESS['LANDING_DEMO_STORE_CHATS_DARK-ORDER-TEXT4'] = 'Нам можно позвонить';
-$MESS['LANDING_DEMO_STORE_CHATS_DARK-ORDER-TEXT5'] = 'Информация о заказе';
+$MESS['LANDING_DEMO_STORE_CHATS_DARK-ORDER-TEXT5'] = 'Связаться с нами';

@@ -1,8 +1,10 @@
 <?php
+if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
+	die();
 
 use Bitrix\Main\Loader;
+use Bitrix\Disk\Copy\Integration\Group;
 
-if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true) die();
 /** @var array $arParams */
 /** @var array $arResult */
 /** @global CMain $APPLICATION */
@@ -34,8 +36,13 @@ include("util_group_profile.php");
 						"bitrix:socialnetwork.copy.checker",
 						"",
 						[
-							"QUEUE_ID" => $arResult["VARIABLES"]["group_id"],
-							"HELPER" => new Bitrix\Disk\Copy\Integration\Group()
+							"moduleId" => Group::MODULE_ID,
+							"queueId" => $arResult["VARIABLES"]["group_id"],
+							"stepperClassName" => Group::STEPPER_CLASS,
+							"checkerOption" => Group::CHECKER_OPTION,
+							"errorOption" => Group::ERROR_OPTION,
+							"titleMessage" => GetMessage("DISK_STEPPER_PROGRESS_TITLE"),
+							"errorMessage" => GetMessage("DISK_STEPPER_PROGRESS_ERROR"),
 						],
 						$component,
 						["HIDE_ICONS" => "Y"]

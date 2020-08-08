@@ -31,4 +31,6 @@ $MESS["MAIN_ADMIN_LIST_CHECKED"] = "Отмечено:";
 $MESS["MAIN_ADMIN_LIST_DELETE"] = "удалить";
 $MESS["MAIN_ADMIN_LIST_ACTIVATE"] = "активировать";
 $MESS["MAIN_ADMIN_LIST_DEACTIVATE"] = "деактивировать";
+$MESS["FORUM_ADMIN_GO_BACK_TO_OLD_VIEW"] = "Вернуться к прежнему виду";
+$MESS["FORUM_ADMIN_GO_TO_NEW_VIEW"] = "Перейти к новой форме";
 ?>

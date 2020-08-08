@@ -8,11 +8,9 @@ class CSocNetUser extends CAllSocNetUser
 		global $DB;
 
 		$searchString = Trim($searchString);
-		//if (StrLen($searchString) <= 0)
-		//	return false;
 
-		$groupId = IntVal($groupId);
-		$numberOfUsers = IntVal($numberOfUsers);
+		$groupId = intval($groupId);
+		$numberOfUsers = intval($numberOfUsers);
 		if ($numberOfUsers <= 0)
 			$numberOfUsers = 10;
 

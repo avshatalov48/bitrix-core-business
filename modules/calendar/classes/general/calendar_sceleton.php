@@ -8,21 +8,25 @@ class CCalendarSceleton
 	public static function InitJS($config = array(), $data = array(), $additionalParams = array())
 	{
 		global $APPLICATION;
-		CJSCore::Init(array('ajax', 'window', 'popup', 'access', 'date', 'viewer', 'socnetlogdest','color_picker', 'sidepanel', 'clipboard'));
+		\Bitrix\Main\UI\Extension::load(['ajax', 'window', 'popup', 'access', 'date', 'viewer', 'socnetlogdest','color_picker','sidepanel', 'clipboard']);
+		\Bitrix\Main\UI\Extension::load(['ui.alerts','ui.buttons','ui.buttons.icons','ui.tooltip']);
 
-		\Bitrix\Main\UI\Extension::load("ui.alerts");
-		\Bitrix\Main\UI\Extension::load("ui.buttons");
-		\Bitrix\Main\UI\Extension::load("ui.buttons.icons");
-		\Bitrix\Main\UI\Extension::load("ui.tooltip");
+		\Bitrix\Main\UI\Extension::load([
+			'calendar.util',
+			'calendar.entry',
+			'calendar.calendarsection',
+			'calendar.controls',
+			'calendar.sliderloader'
+		]);
 
 		if(\Bitrix\Main\Loader::includeModule('rest'))
 		{
-			CJSCore::Init(array('applayout'));
+			\Bitrix\Main\UI\Extension::load('applayout');
 		}
 
 		if(\Bitrix\Main\Loader::includeModule('webservice'))
 		{
-			CJSCore::Init(array('stssync'));
+			\Bitrix\Main\UI\Extension::load('stssync');
 		}
 
 		if (\Bitrix\Main\Loader::includeModule('bitrix24') && !in_array(\CBitrix24::getLicenseType(), array('company', 'demo', 'edu', 'bis_inc', 'nfr')))

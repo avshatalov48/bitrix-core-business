@@ -46,7 +46,7 @@
 				</p>
 
 				<p class="g-font-size-8" data-form-style-agreement-label-font-size="1"></p>
-				
+
 
 				<h3 class="h4 g-color-white"
 					data-form-style-main-font-color="1"
@@ -93,7 +93,9 @@
 					 data-form-style-input-border-color="1"
 					 data-b24form-use-style="Y"
 					 data-b24form-show-header="N"
-				></div>
+				>
+					<div class="g-landing-alert">MESS[LANDING_BLOCK_WEBFORM_PRELOADER]</div>
+				</div>
 			</div>
 
 		</div>

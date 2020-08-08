@@ -86,16 +86,16 @@ $arTabs = array(
 $tabControl = new CAdminTabControl("tabControl", $arTabs);
 $policy = null;
 
-if(isset($siteSettings["API"]["AUTH_TOKEN"]) && strlen($siteSettings["API"]["AUTH_TOKEN"]) > 0)
+if(isset($siteSettings["API"]["AUTH_TOKEN"]) && $siteSettings["API"]["AUTH_TOKEN"] <> '')
 	$policy = new \Bitrix\Sale\TradingPlatform\Ebay\Policy($siteSettings["API"]["AUTH_TOKEN"], $SITE_ID);
-elseif(!isset($siteSettings["API"]["AUTH_TOKEN"]) || strlen($siteSettings["API"]["AUTH_TOKEN"]) <= 0)
+elseif(!isset($siteSettings["API"]["AUTH_TOKEN"]) || $siteSettings["API"]["AUTH_TOKEN"] == '')
 	$errorMsg = "You must set API token first!\n";
 
 $APPLICATION->SetTitle(Loc::getMessage("SALE_EBAY_TITLE"));
 
 require_once ($DOCUMENT_ROOT.BX_ROOT."/modules/main/include/prolog_admin_after.php");
 
-if(strlen($errorMsg) > 0)
+if($errorMsg <> '')
 	CAdminMessage::ShowMessage(array("MESSAGE"=>$errorMsg, "TYPE"=>"ERROR"));
 
 if($bSaved)

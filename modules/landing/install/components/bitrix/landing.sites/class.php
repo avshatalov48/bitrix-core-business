@@ -9,7 +9,7 @@ use \Bitrix\Landing\Site;
 use \Bitrix\Landing\Landing;
 use \Bitrix\Landing\Rights;
 use \Bitrix\Landing\Manager;
-use \Bitrix\Main\Engine\UrlManager;
+use \Bitrix\Landing\Transfer;
 use \Bitrix\Main\ModuleManager;
 use \Bitrix\Main\Loader;
 use \Bitrix\Main\Config\Option;
@@ -67,11 +67,9 @@ class LandingSitesComponent extends LandingBaseComponent
 		$defaultServerName = Option::get('main', 'server_name');
 
 		// get data
-		$res = \CSite::getList(
-			$by = 'lid',
-			$order = 'desc',
-			$filter
-		);
+		$by = 'lid';
+		$order = 'desc';
+		$res = \CSite::getList($by, $order, $filter);
 		while ($row = $res->fetch())
 		{
 			if (in_array($row['LID'], $disabledSiteIds))
@@ -79,10 +77,12 @@ class LandingSitesComponent extends LandingBaseComponent
 				continue;
 			}
 
+			$row['DOMAIN_NAME'] = $defaultServerName;
 			$row['PUBLIC_URL'] = '//' . $defaultServerName;
 
 			if ($row['SERVER_NAME'])
 			{
+				$row['DOMAIN_NAME'] = $row['SERVER_NAME'];
 				$row['PUBLIC_URL'] = '//' . $row['SERVER_NAME'];
 				$row['PUBLIC_URL'] .= $row['DIR'];
 			}
@@ -95,6 +95,7 @@ class LandingSitesComponent extends LandingBaseComponent
 				}
 				if ($url)
 				{
+					$row['DOMAIN_NAME'] = $url;
 					$row['PUBLIC_URL'] = '//' . $url;
 					$row['PUBLIC_URL'] .= $row['DIR'];
 				}
@@ -128,8 +129,11 @@ class LandingSitesComponent extends LandingBaseComponent
 			$this->checkParam('PAGE_URL_SITE', '');
 			$this->checkParam('PAGE_URL_SITE_EDIT', '');
 			$this->checkParam('PAGE_URL_LANDING_EDIT', '');
+			$this->checkParam('PAGE_URL_SITE_DOMAIN_SWITCH', '');
 			$this->checkParam('DRAFT_MODE', 'N');
 			$this->checkParam('~AGREEMENT', []);
+
+			\Bitrix\Landing\Hook::setEditMode(true);
 
 			\Bitrix\Landing\Site\Type::setScope(
 				$this->arParams['TYPE']
@@ -168,12 +172,14 @@ class LandingSitesComponent extends LandingBaseComponent
 			{
 				$filter['=TYPE'] = $this->arParams['TYPE'];
 			}
+			$this->arResult['EXPORT_DISABLED'] = Manager::checkFeature(Manager::FEATURE_ALLOW_EXPORT) ? 'N' : 'Y';
 			$this->arResult['SMN_SITES'] = $this->getSmnSites();
 			$this->arResult['IS_DELETED'] = LandingFilterComponent::isDeleted();
 			$this->arResult['SITES'] = $this->getSites([
 				'select' => [
 					'*',
-					'DOMAIN_NAME' => 'DOMAIN.DOMAIN'
+					'DOMAIN_NAME' => 'DOMAIN.DOMAIN',
+					'DOMAIN_PROVIDER' => 'DOMAIN.PROVIDER'
 				],
 				'filter' => $filter,
 				'order' => $this->arResult['IS_DELETED']
@@ -262,7 +268,9 @@ class LandingSitesComponent extends LandingBaseComponent
 				}
 				$item['DOMAIN_NAME'] = $puny->decode($item['DOMAIN_NAME']);
 				$item['DOMAIN_B24_NAME'] = Domain::getBitrix24Subdomain($item['DOMAIN_NAME']);
-				$item['EXPORT_URI'] = '#export';
+				$item['EXPORT_URI'] = Transfer\Export\Site::getUrl(
+					$this->arParams['TYPE'], $item['ID']
+				);
 			}
 			unset($item);
 			if ($ids)

@@ -290,6 +290,7 @@
 				});
 			}
 
+			////UserSelectorFieldEditControl
 			this.userSelector = new UserSelector({
 				wrapNode: this.DOM.userListWrap,
 				socnetDestination: this.params.socnetDestination,
@@ -919,22 +920,9 @@
 
 	BX.Calendar.UserField.ResourceBooking.showLimitationPopup = function()
 	{
-		if (window.B24 && B24.licenseInfoPopup)
+		if (top.BX.getClass("BX.UI.InfoHelper"))
 		{
-			BX.ajax.runAction('calendar.api.resourcebookingajax.initb24limitation', {})
-				.then(function (response)
-				{
-					if (BX.type.isPlainObject(response.data))
-					{
-						B24.licenseInfoPopup.init(response.data);
-						B24.licenseInfoPopup.show(
-							'calendar_resourcebooking',
-							BX.message('USER_TYPE_RESOURCE_B24_LIMITATION_TITLE'),
-							BX.message('USER_TYPE_RESOURCE_B24_LIMITATION') +
-								' <a href="javascript:void(0);" onclick="if(top.BX.Helper){top.BX.Helper.show(\'redirect=detail&code=7481073\')}">' +
-							BX.message('USER_TYPE_RESOURCE_B24_LIMITATION_LINK') + '</a>');
-					}
-				});
+			top.BX.UI.InfoHelper.show('limit_crm_booking');
 		}
 	};
 
@@ -1705,7 +1693,7 @@
 		}
 	};
 
-
+	//class UserSelectorFieldEditControl
 	function UserSelector(params)
 	{
 		this.params = params || {};
@@ -3716,6 +3704,7 @@
 				});
 			}
 
+			//UserSelectorFieldEditControl
 			this.userList = new BX.Calendar.UserField.ResourceBooking.UserSelector({
 				shown: fieldSettings.USE_USERS === 'Y',
 				outerWrap: this.userSelectorWrap,

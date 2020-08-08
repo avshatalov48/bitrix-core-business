@@ -74,7 +74,7 @@ class Processor
 	}
 	public function setFilterKey($key = '', $value = false)
 	{
-		if (strlen($key) <= 0)
+		if ($key == '')
 		{
 			return;
 		}
@@ -82,7 +82,7 @@ class Processor
 	}
 	public function unsetFilterKey($key = '')
 	{
-		if (strlen($key) <= 0)
+		if ($key == '')
 		{
 			return;
 		}
@@ -90,7 +90,7 @@ class Processor
 	}
 	public function getFilterKey($key = '')
 	{
-		if (strlen($key) <= 0)
+		if ($key == '')
 		{
 			return false;
 		}
@@ -107,7 +107,7 @@ class Processor
 	}
 	public function getFilterDataKey($key = '')
 	{
-		if (strlen($key) <= 0)
+		if ($key == '')
 		{
 			return false;
 		}
@@ -147,7 +147,7 @@ class Processor
 	}
 	public function setOrderKey($key = '', $value = false)
 	{
-		if (strlen($key) <= 0)
+		if ($key == '')
 		{
 			return;
 		}
@@ -159,7 +159,7 @@ class Processor
 	}
 	public function getOrderKey($key = '')
 	{
-		if (strlen($key) <= 0)
+		if ($key == '')
 		{
 			return false;
 		}
@@ -172,7 +172,7 @@ class Processor
 	}
 	public function setListParamsKey($key = '', $value = false)
 	{
-		if (strlen($key) <= 0)
+		if ($key == '')
 		{
 			return;
 		}
@@ -184,7 +184,7 @@ class Processor
 	}
 	public function getListParamsKey($key = '')
 	{
-		if (strlen($key) <= 0)
+		if ($key == '')
 		{
 			return false;
 		}
@@ -197,7 +197,7 @@ class Processor
 	}
 	public function setEventsListKey($key = '', $value = [])
 	{
-		if (strlen($key) <= 0)
+		if ($key == '')
 		{
 			return;
 		}
@@ -209,7 +209,7 @@ class Processor
 	}
 	public function unsetEventsListKey($key = '')
 	{
-		if (strlen($key) <= 0)
+		if ($key == '')
 		{
 			return;
 		}
@@ -267,8 +267,8 @@ class Processor
 		{
 			if ($params['ENTITY_TYPE'] == SONET_ENTITY_USER)
 			{
-				$rsUser = \CUser::getById($params['USER_ID']);
-				$result['User'] = $rsUser->fetch();
+				$res = \CUser::getById($params['USER_ID']);
+				$result['User'] = $res->fetch();
 			}
 			elseif ($params['ENTITY_TYPE'] == SONET_ENTITY_GROUP)
 			{
@@ -277,7 +277,7 @@ class Processor
 					$result['Group']['OPENED'] == 'Y'
 					&& Util::checkUserAuthorized()
 					&& !$this->getComponent()->getCurrentUserAdmin()
-					&& !in_array(\CSocNetUserToGroup::getUserRole($result['currentUserId'], $result['Group']['ID']), [ \Bitrix\Socialnetwork\UserToGroupTable::getRolesMember() ])
+					&& !in_array(\CSocNetUserToGroup::getUserRole($result['currentUserId'], $result['Group']['ID']), \Bitrix\Socialnetwork\UserToGroupTable::getRolesMember())
 				)
 				{
 					$result['Group']['READ_ONLY'] = 'Y';
@@ -403,16 +403,16 @@ class Processor
 			$this->setFilterKey('ENTITY_TYPE', SONET_ENTITY_USER);
 			$this->setFilterKey('ENTITY_ID',  $params['USER_ID']);
 		}
-		elseif (strLen($params['ENTITY_TYPE']) > 0)
+		elseif ($params['ENTITY_TYPE'] <> '')
 		{
 			$this->setFilterKey('ENTITY_TYPE', $params['ENTITY_TYPE']);
 		}
-		elseif (strlen($params['TAG']) > 0)
+		elseif ($params['TAG'] <> '')
 		{
 			$this->setFilterKey('=TAG', $params['TAG']);
 			$turnFollowModeOff = true;
 		}
-		elseif (strlen($params['FIND']) > 0)
+		elseif ($params['FIND'] <> '')
 		{
 			$operation = \Bitrix\Socialnetwork\LogIndexTable::getEntity()->fullTextIndexEnabled('CONTENT') ? '*' : '*%';
 			$this->setFilterKey($operation.'CONTENT', \Bitrix\Socialnetwork\Item\LogIndex::prepareToken($params['FIND']));
@@ -426,7 +426,7 @@ class Processor
 
 		if (
 			isset($params['!EXACT_EVENT_ID'])
-			&& strlen($params['!EXACT_EVENT_ID']) > 0
+			&& $params['!EXACT_EVENT_ID'] <> ''
 		)
 		{
 			$this->setFilterKey('!EVENT_ID', $params['!EXACT_EVENT_ID']);
@@ -435,7 +435,7 @@ class Processor
 
 		if (
 			isset($params['EXACT_EVENT_ID'])
-			&& strlen($params['EXACT_EVENT_ID']) > 0
+			&& $params['EXACT_EVENT_ID'] <> ''
 		)
 		{
 			$this->setFilterKey('EVENT_ID', [ $params['EXACT_EVENT_ID'] ]);
@@ -458,7 +458,7 @@ class Processor
 				$turnFollowModeOff = true;
 			}
 		}
-		elseif (strLen($params['EVENT_ID']) > 0)
+		elseif ($params['EVENT_ID'] <> '')
 		{
 			$this->setFilterKey('EVENT_ID', \CSocNetLogTools::findFullSetByEventID($params['EVENT_ID']));
 			$turnFollowModeOff = true;
@@ -510,7 +510,7 @@ class Processor
 
 		if (
 			isset($params['LOG_DATE_FROM'])
-			&& strlen($params['LOG_DATE_FROM']) > 0
+			&& $params['LOG_DATE_FROM'] <> ''
 			&& $this->makeTimeStampFromDateTime($params['LOG_DATE_FROM'], 'SHORT') < time() + $result['TZ_OFFSET']
 		)
 		{
@@ -524,7 +524,7 @@ class Processor
 
 		if (
 			isset($params['LOG_DATE_TO'])
-			&& strlen($params['LOG_DATE_TO']) > 0
+			&& $params['LOG_DATE_TO'] <> ''
 			&& $this->makeTimeStampFromDateTime($params['LOG_DATE_TO'], 'SHORT') < time() + $result['TZ_OFFSET']
 		)
 		{
@@ -548,7 +548,7 @@ class Processor
 			}
 
 			if (
-				strlen($params['CRM_ENTITY_TYPE']) > 0
+				$params['CRM_ENTITY_TYPE'] <> ''
 				|| $this->getComponent()->getPresetFilterTopIdValue()
 			)
 			{
@@ -575,6 +575,53 @@ class Processor
 			$result['SHOW_FOLLOW_CONTROL'] = 'N';
 			$result['IS_FILTERED'] = true;
 		}
+
+		if (
+			$params["IS_CRM"] != "Y"
+			&& !\Bitrix\Socialnetwork\ComponentHelper::checkLivefeedTasksAllowed()
+		)
+		{
+			$eventIdFilter = $this->getFilterKey('EVENT_ID');
+			$notEventIdFilter = $this->getFilterKey('!EVENT_ID');
+
+			if (empty($notEventIdFilter))
+			{
+				$notEventIdFilter = [];
+			}
+			elseif(!is_array($notEventIdFilter))
+			{
+				$notEventIdFilter = [ $notEventIdFilter ];
+			}
+
+			if (empty($eventIdFilter))
+			{
+				$eventIdFilter = [];
+			}
+			elseif(!is_array($eventIdFilter))
+			{
+				$eventIdFilter = [ $eventIdFilter ];
+			}
+
+			if (ModuleManager::isModuleInstalled('tasks'))
+			{
+				$notEventIdFilter = array_merge($notEventIdFilter, [ 'tasks' ]);
+				$eventIdFilter = array_filter($eventIdFilter, function($eventId) { return ($eventId != 'tasks'); });
+			}
+			if (
+				ModuleManager::isModuleInstalled('crm')
+				&& Option::get('crm', 'enable_livefeed_merge', 'N') == 'Y'
+			)
+			{
+				$notEventIdFilter = array_merge($notEventIdFilter, [ 'crm_activity_add' ]);
+				$eventIdFilter = array_filter($eventIdFilter, function($eventId) { return ($eventId != 'crm_activity_add'); });
+			}
+
+			if (!empty($notEventIdFilter))
+			{
+				$this->setFilterKey('!EVENT_ID', $notEventIdFilter);
+			}
+			$this->setFilterKey('EVENT_ID', $eventIdFilter);
+		}
 	}
 
 	protected function processMainUIFilterData(&$result)
@@ -583,9 +630,20 @@ class Processor
 		$params = $this->getComponent()->arParams;
 
 		if (
-			defined('SITE_TEMPLATE_ID')
-			&& SITE_TEMPLATE_ID === 'bitrix24'
-			&& $request->get('useBXMainFilter') == 'Y'
+			(
+				(
+					defined('SITE_TEMPLATE_ID')
+					&& SITE_TEMPLATE_ID === 'bitrix24'
+				)
+				|| (
+					isset($params['siteTemplateId'])
+					&& in_array($params['siteTemplateId'], [ 'bitrix24', 'landing24' ])
+				)
+			)
+			&& (
+				$request->get('useBXMainFilter') == 'Y'
+				|| $params['useBXMainFilter'] == 'Y'
+			)
 			&& intval($params['LOG_ID']) <= 0
 		)
 		{
@@ -593,6 +651,22 @@ class Processor
 			$filterOption = new \Bitrix\Main\UI\Filter\Options($result['FILTER_ID']);
 			$filterData = $filterOption->getFilter();
 			$this->setFilterData($filterData);
+
+			if (
+				!empty($filterData['GROUP_ID'])
+				&& preg_match('/^SG(\d+)$/', $filterData['GROUP_ID'], $matches)
+			)
+			{
+				$this->setFilterKey('LOG_RIGHTS', 'SG'.intval($matches[1]));
+			}
+
+			if (
+				!empty($filterData['AUTHOR_ID'])
+				&& preg_match('/^U(\d+)$/', $filterData['AUTHOR_ID'], $matches)
+			)
+			{
+				$this->setFilterKey('USER_ID', intval($matches[1]));
+			}
 
 			if (
 				!empty($filterData['CREATED_BY_ID'])
@@ -773,7 +847,6 @@ class Processor
 			'bSkipPageReset' => true,
 			'nRecordCount' => 1000000
 		]);
-
 		if ($params['LOG_CNT'] > 0)
 		{
 			$this->setNavParams([
@@ -796,6 +869,13 @@ class Processor
 		elseif (intval($request->get('PAGEN_'.($NavNum + 1))) > 0)
 		{
 			$result['PAGE_NUMBER'] = intval($request->get('PAGEN_'.($NavNum + 1)));
+		}
+		elseif (intval($params['PAGE_NUMBER']) > 0)
+		{
+			$result['PAGE_NUMBER'] = intval($params['PAGE_NUMBER']);
+			$navParams = $this->getNavParams();
+			$navParams['iNumPage'] = $result['PAGE_NUMBER'];
+			$this->setNavParams($navParams);
 		}
 	}
 
@@ -847,7 +927,7 @@ class Processor
 		$request = $this->getRequest();
 		$params = $this->getComponent()->arParams;
 
-		$result['LAST_LOG_TS'] = intval($request->get('ts'));
+		$result['LAST_LOG_TS'] = (isset($params['LAST_LOG_TIMESTAMP']) ? intval($params['LAST_LOG_TIMESTAMP']) : intval($request->get('ts')));
 
 		if (
 			$params['LOG_ID'] <= 0
@@ -1139,6 +1219,8 @@ class Processor
 			return;
 		}
 
+		$prevPageLogIdList = $logPageProcessorInstance->getPrevPageLogIdList();
+
 		foreach ($eventsList as $key => $eventFields)
 		{
 			if (
@@ -1149,8 +1231,7 @@ class Processor
 			{
 				$this->unsetEventsListKey($key);
 			}
-
-			elseif (!in_array($eventFields['ID'], $logPageProcessorInstance->getPrevPageLogIdList()))
+			elseif (!in_array($eventFields['ID'], $prevPageLogIdList))
 			{
 				$eventFields['EVENT_ID_FULLSET'] = \CSocNetLogTools::findFullSetEventIDByEventID($eventFields['EVENT_ID']);
 				$this->setEventsListKey($key, $eventFields);

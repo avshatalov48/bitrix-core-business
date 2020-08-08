@@ -30,7 +30,7 @@ class Tracking extends \Bitrix\Main\Engine\Controller
 			return null;
 		}
 
-		if(strlen($trackingNumber) <= 0)
+		if($trackingNumber == '')
 		{
 			$this->addError(new Error(Loc::getMessage('SALE_CONTROLLER_TRACKING_ERROR_DELETE_STATUS')));
 			return null;

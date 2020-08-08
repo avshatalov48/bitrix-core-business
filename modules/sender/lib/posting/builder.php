@@ -396,7 +396,7 @@ class Builder
 				}
 
 				$primary = Recipient\Normalizer::normalize($data[$typeCode], $this->typeId);
-				if (strlen($primary) <= 0)
+				if ($primary == '')
 				{
 					continue;
 				}

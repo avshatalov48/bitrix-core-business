@@ -26,7 +26,7 @@ $arParams["component"] = $component;
 $arParams["SHOW_MAIL"] = (($arParams["SEND_MAIL"] <= "A" || ($arParams["SEND_MAIL"] <= "E" && !$USER->IsAuthorized())) ? "N" : "Y");
 $arParams["SHOW_RSS"] = ($arParams["SHOW_RSS"] == "N" ? "N" : "Y");
 $arParams["SHOW_VOTE"] = ($arParams["SHOW_VOTE"] == "Y" ? "Y" : "N");
-$arParams["VOTE_TEMPLATE"] = (strlen(trim($arParams["VOTE_TEMPLATE"])) > 0 ? trim($arParams["VOTE_TEMPLATE"]) : "light");
+$arParams["VOTE_TEMPLATE"] = (trim($arParams["VOTE_TEMPLATE"]) <> '' ? trim($arParams["VOTE_TEMPLATE"]) : "light");
 $arParams["VOTE_CHANNEL_ID"] = (intval($arParams["VOTE_CHANNEL_ID"]) > 0 ? $arParams["VOTE_CHANNEL_ID"] : 1);
 
 if ($arParams["SHOW_RSS"] == "Y"):

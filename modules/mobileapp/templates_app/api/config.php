@@ -6,7 +6,7 @@ $config = array("appmap" =>
 		"left" => "/#folder#/left.php",
 		"right" => "/#folder#/right.php",
 		"settings" => "/#folder#/settings.php",
-		"hash" => substr($hash, rand(1, strlen($hash)))
+		"hash" => mb_substr($hash, rand(1, mb_strlen($hash)))
 	)
 );
 echo json_encode($config);

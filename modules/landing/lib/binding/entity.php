@@ -197,7 +197,9 @@ abstract class Entity
 				'ENTITY_TYPE',
 				'BINDING_ID',
 				'SITE_TITLE' => 'SITE.TITLE',
-				'LANDING_TITLE' => 'LANDING.TITLE'
+				'LANDING_TITLE' => 'LANDING.TITLE',
+				'SITE_DELETED' => 'SITE.DELETED',
+				'LANDING_DELETED' => 'LANDING.DELETED'
 			],
 			'filter' => $filter,
 			'runtime' => $runtime,
@@ -207,6 +209,13 @@ abstract class Entity
 		]);
 		while ($row = $res->fetch())
 		{
+			if (
+				$row['SITE_DELETED'] == 'Y' ||
+				$row['LANDING_DELETED'] == 'Y'
+			)
+			{
+				continue;
+			}
 			$urls[$row['ENTITY_TYPE']][] = $row['ENTITY_ID'];
 			$title = ($row['ENTITY_TYPE'] == self::ENTITY_TYPE_SITE)
 					? $row['SITE_TITLE']

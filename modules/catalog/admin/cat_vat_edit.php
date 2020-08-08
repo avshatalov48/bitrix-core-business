@@ -20,7 +20,7 @@ $bVarsFromForm = false;
 
 $ID = intval($ID);
 
-if ('POST' == $_SERVER['REQUEST_METHOD'] && strlen($Update)>0 && !$bReadOnly && check_bitrix_sessid())
+if ('POST' == $_SERVER['REQUEST_METHOD'] && $Update <> '' && !$bReadOnly && check_bitrix_sessid())
 {
 	$adminSidePanelHelper->decodeUriComponent();
 
@@ -47,7 +47,7 @@ if ('POST' == $_SERVER['REQUEST_METHOD'] && strlen($Update)>0 && !$bReadOnly && 
 	{
 		$DB->Commit();
 		$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $ID));
-		if (strlen($apply) <= 0)
+		if ($apply == '')
 		{
 			$adminSidePanelHelper->localRedirect($listUrl);
 			LocalRedirect($listUrl);

@@ -1,14 +1,15 @@
 <?
-define("BX_IM_FULLSCREEN", true);
-define("EXTRANET_NO_REDIRECT", true);
-
+define("BX_SKIP_USER_LIMIT_CHECK", true);
 if (isset($_GET['alias']))
 {
+	define("BX_IM_FULLSCREEN", true);
+	define("EXTRANET_NO_REDIRECT", true);
+
 	$widgetUserLangPath = $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/im/lang/';
 	if (
-		isset($_GET['widget_user_lang']) 
-		&& preg_match("/^[a-z]{2,2}$/", $_GET['widget_user_lang']) 
-		&& strlen($_GET['widget_user_lang']) == 2 
+		isset($_GET['widget_user_lang'])
+		&& preg_match("/^[a-z]{2,2}$/", $_GET['widget_user_lang'])
+		&& mb_strlen($_GET['widget_user_lang']) == 2
 		&& @is_dir($widgetUserLangPath . $_GET['widget_user_lang'])
 	)
 	{
@@ -18,7 +19,7 @@ if (isset($_GET['alias']))
 	elseif (
 		isset($_COOKIE['WIDGET_USER_LANG'])
 		&& preg_match("/^[a-z]{2,2}$/", $_COOKIE['WIDGET_USER_LANG'])
-		&& strlen($_COOKIE['WIDGET_USER_LANG']) == 2 
+		&& mb_strlen($_COOKIE['WIDGET_USER_LANG']) == 2
 		&& @is_dir($widgetUserLangPath . $_COOKIE['WIDGET_USER_LANG'])
 	)
 	{

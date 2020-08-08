@@ -13,7 +13,7 @@ class CSecurityRedirect
 
 		if(array_key_exists("LOCAL_REDIRECTS", $_SESSION))
 		{
-			if($_SESSION["LOCAL_REDIRECTS"]["C"] == 0 && strlen($_SESSION["LOCAL_REDIRECTS"]["R"]) == 0)
+			if($_SESSION["LOCAL_REDIRECTS"]["C"] == 0 && $_SESSION["LOCAL_REDIRECTS"]["R"] == '')
 				$_SESSION["LOCAL_REDIRECTS"]["R"] = $_SERVER["HTTP_REFERER"];
 
 			$_SESSION["LOCAL_REDIRECTS"]["C"]++;
@@ -29,11 +29,12 @@ class CSecurityRedirect
 		/** global CMain $APPLICATION */
 		global $APPLICATION;
 
+		$good = true;
 		$url_l = str_replace(array("\r", "\n"), "", $url);
 
 		//In case of absolute url will check if server to be redirected is our
 		$bSkipCheck = false;
-		if(preg_match('~^(?:http|https)://(.*?)(?:\\\\|/|\?|#|$|%252f|%2f)~iD', $url_l, $arMatch))
+		if(preg_match('~^(?:http|https)://(.*?)(\\\\|/|\?|#|$|%252f|%2f)~iD', $url_l, $arMatch))
 		{
 			if(defined("BX24_HOST_NAME"))
 			{
@@ -63,9 +64,9 @@ class CSecurityRedirect
 				foreach($arDomains as $domain)
 				{
 					$domain = trim($domain, " \t\n\r");
-					if(strlen($domain) > 0)
+					if($domain <> '')
 					{
-						if($domain === substr($arMatch[1], -strlen($domain)))
+						if($domain === mb_substr($arMatch[1], -mb_strlen($domain)))
 						{
 							$bSkipCheck = true;
 							break;
@@ -79,12 +80,16 @@ class CSecurityRedirect
 				$host = COption::GetOptionString("main", "server_name", "");
 				$bSkipCheck = $host && $arMatch[1] === $host;
 			}
+
+			if (strpos(strtolower($arMatch[2]), '%2f') === 0)
+			{
+				$good = false;
+				$bSkipCheck = false;
+			}
 		}
 
 		if(!$bSkipCheck && preg_match("/^(http|https|ftp):\\/\\//i", $url_l))
 		{
-			$good = true;
-
 			if($_SESSION["LOCAL_REDIRECTS"]["C"] > 1)
 				$REFERER_TO_CHECK = $_SESSION["LOCAL_REDIRECTS"]["R"];
 			else
@@ -92,19 +97,19 @@ class CSecurityRedirect
 
 			if($good && COption::GetOptionString("security", "redirect_referer_check") == "Y")
 			{
-				$good &= strlen($REFERER_TO_CHECK) > 0;
+				$good &= $REFERER_TO_CHECK <> '';
 			}
 
-			if($good && strlen($REFERER_TO_CHECK) > 0 && COption::GetOptionString("security", "redirect_referer_site_check") == "Y")
+			if($good && $REFERER_TO_CHECK <> '' && COption::GetOptionString("security", "redirect_referer_site_check") == "Y")
 			{
 				$valid_site = ($APPLICATION->IsHTTPS()? "https://": "http://").$_SERVER['HTTP_HOST']."/";
-				$good &= strpos($REFERER_TO_CHECK, $valid_site) === 0;
+				$good &= mb_strpos($REFERER_TO_CHECK, $valid_site) === 0;
 			}
 
 			if($good && COption::GetOptionString("security", "redirect_href_sign") == "Y")
 			{
-				$sid = COption::GetOptionString("security", "redirect_sid").$_SERVER["REMOTE_ADDR"];
-				$good &= md5($sid.":".$url) === $_GET["af"];
+				$sid = static::GetSeed();
+				$good &=  static::Sign($sid, $url) === $_GET["af"];
 			}
 
 			if(!$good)
@@ -131,10 +136,10 @@ class CSecurityRedirect
 						$timeout = 0;
 
 					$mess = COption::GetOptionString("security", "redirect_message_warning_".LANGUAGE_ID);
-					if(strlen($mess) <= 0)
+					if($mess == '')
 						$mess = COption::GetOptionString("security", "redirect_message_warning");
 					$charset = COption::GetOptionString("security", "redirect_message_charset");
-					if(strlen($mess) <= 0)
+					if($mess == '')
 					{
 						$mess = CSecurityRedirect::GetDefaultMessage();
 						$charset = LANG_CHARSET;
@@ -154,7 +159,7 @@ class CSecurityRedirect
 					if (preg_match('~^(http|https)(://)(.*?)(?:\\\\|/|\?|#|$)~iD', $url_c, $arMatch))
 					{
 						$converter = CBXPunycode::GetConverter();
-						$url_e = $arMatch[1].$arMatch[2].$converter->Encode($arMatch[3]).substr($url_c, strlen($arMatch[1].$arMatch[2].$arMatch[3]));
+						$url_e = $arMatch[1].$arMatch[2].$converter->Encode($arMatch[3]).mb_substr($url_c, mb_strlen($arMatch[1].$arMatch[2].$arMatch[3]));
 					}
 					else
 					{
@@ -164,6 +169,7 @@ class CSecurityRedirect
 					$url = htmlspecialcharsbx($url);
 					$html_url = '<nobr><a href="'.htmlspecialcharsbx($url_e).'">'.htmlspecialcharsEx($url_c).'</a></nobr>';
 					$html_mess = str_replace("#URL#", $html_url, $html_mess);
+					CHTTP::SetStatus("404 Not Found");
 					header('X-Frame-Options: DENY');
 					header('X-Robots-Tag: noindex, nofollow');
 		?>
@@ -229,10 +235,14 @@ class CSecurityRedirect
 		else
 		{
 			$mess = IncludeModuleLangFile(__FILE__, $language_id, true);
-			if(strlen($mess["SEC_REDIRECT_DEFAULT_MESSAGE"]))
+			if($mess["SEC_REDIRECT_DEFAULT_MESSAGE"] <> '')
+			{
 				return $mess["SEC_REDIRECT_DEFAULT_MESSAGE"];
+			}
 			else
+			{
 				return GetMessage("SEC_REDIRECT_DEFAULT_MESSAGE");
+			}
 		}
 	}
 
@@ -256,7 +266,7 @@ class CSecurityRedirect
 		if(!$arUrls)
 		{
 			$arUrls = self::GetUrls();
-			$sid = COption::GetOptionString("security", "redirect_sid").$_SERVER["REMOTE_ADDR"];
+			$sid = static::GetSeed();
 			$arDomains = self::GetDomains();
 			foreach($arDomains as $i => $domain)
 				$arDomains[$i] = preg_quote($domain, "/");
@@ -267,7 +277,7 @@ class CSecurityRedirect
 		{
 			if(preg_match("/^(http(?:s){0,1}\\:\\/\\/(?:[a-zA-Z0-9\\.-])+){0,1}".preg_quote($arUrl["URL"], "/")."?.*?".preg_quote($arUrl["PARAMETER_NAME"], "/")."=(http|https|ftp)(:|%3A|&#37;3A)(\\/\\/|%2F%2F|&#37;2F&#37;2F)([^&]+)/im", $matches[3], $match))
 			{
-				if(strlen($match[1]) <= 0 || preg_match($strDomains, $match[1]))
+				if($match[1] == '' || preg_match($strDomains, $match[1]))
 				{
 					$goto = $match[2].$match[3].$match[4].$match[5];
 					$goto = str_replace(
@@ -275,7 +285,7 @@ class CSecurityRedirect
 						array("%", ":", "/"),
 					$goto);
 
-					return $matches[1].$matches[2].$matches[3]."&amp;af=".urlencode(md5($sid.":".urldecode($goto))).$matches[4];
+					return $matches[1].$matches[2].$matches[3]."&amp;af=".static::Sign($sid, urldecode($goto)).$matches[4];
 				}
 			}
 		}
@@ -349,6 +359,28 @@ class CSecurityRedirect
 		return $arDomains;
 	}
 
+	public static function ReSeed()
+	{
+		COption::SetOptionString("security", "redirect_sid", Bitrix\Main\Security\Random::getString(32));
+	}
+
+	public static function GetSeed()
+	{
+		$seed = COption::GetOptionString("security", "redirect_sid");
+		if (!$seed)
+		{
+			static::ReSeed();
+			$seed = COption::GetOptionString("security", "redirect_sid");
+		}
+		return $seed;
+	}
+
+	public static function Sign($seed, $data)
+	{
+		$seed .= $_SERVER["REMOTE_ADDR"];
+		return md5($seed.md5($seed.":".$data));
+	}
+
 	public static function IsActive()
 	{
 		$bActive = false;
@@ -372,7 +404,7 @@ class CSecurityRedirect
 		{
 			if(!CSecurityRedirect::IsActive())
 			{
-				COption::SetOptionString("security", "redirect_sid", Bitrix\Main\Security\Random::getString(32));
+				static::ReSeed();
 				RegisterModuleDependences("main", "OnBeforeLocalRedirect", "security", "CSecurityRedirect", "BeforeLocalRedirect", "1");
 				RegisterModuleDependences("main", "OnEndBufferContent", "security", "CSecurityRedirect", "EndBufferContent", "1");
 			}
@@ -408,7 +440,7 @@ class CSecurityRedirect
 					$param = trim($arUrl["PARAMETER_NAME"]);
 					$key = $url.":".$param;
 
-					if(strlen($url) && strlen($param) && !array_key_exists($key, $added))
+					if(mb_strlen($url) && mb_strlen($param) && !array_key_exists($key, $added))
 					{
 						$arUrl = array(
 							"ID" => 1,

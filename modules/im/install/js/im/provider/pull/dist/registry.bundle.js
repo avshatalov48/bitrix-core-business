@@ -1,22 +1,21 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
-(function (exports,pull_client,ui_vue_vuex,im_const) {
+(function (exports,ui_vue_vuex,im_lib_logger,pull_client,im_const) {
 	'use strict';
 
 	/**
 	 * Bitrix Messenger
-	 * Im pull commands (Pull Command Handler)
+	 * Im base pull commands (Pull Command Handler)
 	 *
 	 * @package bitrix
 	 * @subpackage im
-	 * @copyright 2001-2019 Bitrix
+	 * @copyright 2001-2020 Bitrix
 	 */
-
-	var ImPullCommandHandler =
+	var ImBasePullHandler =
 	/*#__PURE__*/
 	function () {
-	  babelHelpers.createClass(ImPullCommandHandler, null, [{
+	  babelHelpers.createClass(ImBasePullHandler, null, [{
 	    key: "create",
 	    value: function create() {
 	      var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -24,9 +23,9 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	    }
 	  }]);
 
-	  function ImPullCommandHandler() {
+	  function ImBasePullHandler() {
 	    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-	    babelHelpers.classCallCheck(this, ImPullCommandHandler);
+	    babelHelpers.classCallCheck(this, ImBasePullHandler);
 
 	    if (babelHelpers.typeof(params.controller) === 'object' && params.controller) {
 	      this.controller = params.controller;
@@ -43,7 +42,7 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	    }
 	  }
 
-	  babelHelpers.createClass(ImPullCommandHandler, [{
+	  babelHelpers.createClass(ImBasePullHandler, [{
 	    key: "getModuleId",
 	    value: function getModuleId() {
 	      return 'im';
@@ -60,7 +59,7 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 
 	      if (!extra.optionImportant) {
 	        if (this.option.skip) {
-	          console.info('Pull: command skipped while loading messages', params);
+	          im_lib_logger.Logger.info('Pull: command skipped while loading messages', params);
 	          return true;
 	        }
 
@@ -109,6 +108,18 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	        });
 	      }
 
+	      this.store.dispatch('recent/update', {
+	        id: params.dialogId,
+	        fields: {
+	          message: {
+	            id: params.message.id,
+	            text: params.message.text,
+	            date: params.message.date
+	          },
+	          counter: params.counter
+	        }
+	      });
+
 	      if (params.users) {
 	        this.store.dispatch('users/set', ui_vue_vuex.VuexBuilderModel.convertToArray(params.users));
 	      }
@@ -116,7 +127,7 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	      if (params.files) {
 	        var files = ui_vue_vuex.VuexBuilderModel.convertToArray(params.files);
 	        files.forEach(function (file) {
-	          file = _this.controller.prepareFilesBeforeSave(file);
+	          file = _this.controller.application.prepareFilesBeforeSave(file);
 
 	          if (files.length === 1 && params.message.templateFileId && _this.store.state.files.index[params.chatId] && _this.store.state.files.index[params.chatId][params.message.templateFileId]) {
 	            _this.store.dispatch('files/update', {
@@ -124,7 +135,7 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	              chatId: params.chatId,
 	              fields: file
 	            }).then(function () {
-	              _this.controller.emit(im_const.EventType.dialog.scrollToBottom, {
+	              _this.controller.application.emit(im_const.EventType.dialog.scrollToBottom, {
 	                cancelIfScrollChange: true
 	              });
 	            });
@@ -162,12 +173,12 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	            error: false
 	          })
 	        }).then(function () {
-	          _this.controller.emit(im_const.EventType.dialog.scrollToBottom, {
-	            cancelIfScrollChange: params.message.senderId !== _this.controller.getUserId()
+	          _this.controller.application.emit(im_const.EventType.dialog.scrollToBottom, {
+	            cancelIfScrollChange: params.message.senderId !== _this.controller.application.getUserId()
 	          });
 	        });
-	      } else if (this.controller.isUnreadMessagesLoaded()) {
-	        if (this.controller.getChatId() === params.chatId) {
+	      } else if (this.controller.application.isUnreadMessagesLoaded()) {
+	        if (this.controller.application.getChatId() === params.chatId) {
 	          this.store.commit('application/increaseDialogExtraCount');
 	        }
 
@@ -178,12 +189,12 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	        }));
 	      }
 
-	      this.controller.stopOpponentWriting({
+	      this.controller.application.stopOpponentWriting({
 	        dialogId: params.dialogId,
 	        userId: params.message.senderId
 	      });
 
-	      if (params.message.senderId === this.controller.getUserId()) {
+	      if (params.message.senderId === this.controller.application.getUserId()) {
 	        this.store.dispatch('messages/readMessages', {
 	          chatId: params.chatId
 	        }).then(function (result) {
@@ -220,7 +231,7 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	        return false;
 	      }
 
-	      this.controller.stopOpponentWriting({
+	      this.controller.application.stopOpponentWriting({
 	        dialogId: params.dialogId,
 	        userId: params.senderId
 	      });
@@ -234,10 +245,37 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	          blink: true
 	        }
 	      }).then(function () {
-	        _this2.controller.emit(im_const.EventType.dialog.scrollToBottom, {
+	        _this2.controller.application.emit(im_const.EventType.dialog.scrollToBottom, {
 	          cancelIfScrollChange: true
 	        });
 	      });
+	      var recentItem = this.store.getters['recent/get'](params.dialogId);
+
+	      if (command === 'messageUpdate' && recentItem.element && recentItem.element.message.id === params.id) {
+	        this.store.dispatch('recent/update', {
+	          id: params.dialogId,
+	          fields: {
+	            message: {
+	              id: params.id,
+	              text: params.text,
+	              date: recentItem.element.message.date
+	            }
+	          }
+	        });
+	      }
+
+	      if (command === 'messageDelete' && recentItem.element && recentItem.element.message.id === params.id) {
+	        this.store.dispatch('recent/update', {
+	          id: params.dialogId,
+	          fields: {
+	            message: {
+	              id: params.id,
+	              text: 'Message deleted',
+	              date: recentItem.element.message.date
+	            }
+	          }
+	        });
+	      }
 	    }
 	  }, {
 	    key: "handleMessageDeleteComplete",
@@ -250,7 +288,7 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	        id: params.id,
 	        chatId: params.chatId
 	      });
-	      this.controller.stopOpponentWriting({
+	      this.controller.application.stopOpponentWriting({
 	        dialogId: params.dialogId,
 	        userId: params.senderId,
 	        action: false
@@ -303,7 +341,7 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	          params: params.params
 	        }
 	      }).then(function () {
-	        _this3.controller.emit(im_const.EventType.dialog.scrollToBottom, {
+	        _this3.controller.application.emit(im_const.EventType.dialog.scrollToBottom, {
 	          cancelIfScrollChange: true
 	        });
 	      });
@@ -315,7 +353,7 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	        return false;
 	      }
 
-	      this.controller.startOpponentWriting(params);
+	      this.controller.application.startOpponentWriting(params);
 	    }
 	  }, {
 	    key: "handleReadMessage",
@@ -336,6 +374,12 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	            counter: params.counter
 	          }
 	        });
+	      });
+	      this.store.dispatch('recent/update', {
+	        id: params.dialogId,
+	        fields: {
+	          counter: params.counter
+	        }
 	      });
 	    }
 	  }, {
@@ -401,16 +445,166 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	        return false;
 	      }
 
-	      this.store.dispatch('files/set', this.controller.prepareFilesBeforeSave(ui_vue_vuex.VuexBuilderModel.convertToArray({
+	      this.store.dispatch('files/set', this.controller.application.prepareFilesBeforeSave(ui_vue_vuex.VuexBuilderModel.convertToArray({
 	        file: params.fileParams
 	      }))).then(function () {
-	        _this5.controller.emit(im_const.EventType.dialog.scrollToBottom, {
+	        _this5.controller.application.emit(im_const.EventType.dialog.scrollToBottom, {
 	          cancelIfScrollChange: true
 	        });
 	      });
 	    }
+	  }, {
+	    key: "handleChatPin",
+	    value: function handleChatPin(params, extra) {
+	      this.store.dispatch('recent/pin', {
+	        id: params.dialogId,
+	        action: params.active
+	      });
+	    }
+	  }, {
+	    key: "handleChatHide",
+	    value: function handleChatHide(params, extra) {
+	      this.store.dispatch('recent/delete', {
+	        id: params.dialogId
+	      });
+	    }
+	  }, {
+	    key: "handleReadNotifyList",
+	    value: function handleReadNotifyList(params, extra) {
+	      this.store.dispatch('recent/update', {
+	        id: 'notify',
+	        fields: {
+	          counter: params.counter
+	        }
+	      });
+	    }
+	  }, {
+	    key: "handleUserInvite",
+	    value: function handleUserInvite(params, extra) {
+	      if (!params.invited) {
+	        this.store.dispatch('users/update', {
+	          id: params.userId,
+	          fields: params.user
+	        });
+	      }
+	    }
 	  }]);
-	  return ImPullCommandHandler;
+	  return ImBasePullHandler;
+	}();
+
+	/**
+	 * Bitrix Messenger
+	 * Im call pull commands (Pull Command Handler)
+	 *
+	 * @package bitrix
+	 * @subpackage im
+	 * @copyright 2001-2020 Bitrix
+	 */
+	var ImCallPullHandler =
+	/*#__PURE__*/
+	function () {
+	  babelHelpers.createClass(ImCallPullHandler, null, [{
+	    key: "create",
+	    value: function create() {
+	      var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	      return new this(params);
+	    }
+	  }]);
+
+	  function ImCallPullHandler() {
+	    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	    babelHelpers.classCallCheck(this, ImCallPullHandler);
+
+	    if (babelHelpers.typeof(params.application) === 'object' && params.application) {
+	      this.application = params.application;
+	    }
+
+	    if (babelHelpers.typeof(params.controller) === 'object' && params.controller) {
+	      this.controller = params.controller;
+	    }
+
+	    if (babelHelpers.typeof(params.store) === 'object' && params.store) {
+	      this.store = params.store;
+	    }
+
+	    this.option = babelHelpers.typeof(params.store) === 'object' && params.store ? params.store : {};
+	  }
+
+	  babelHelpers.createClass(ImCallPullHandler, [{
+	    key: "getModuleId",
+	    value: function getModuleId() {
+	      return 'im';
+	    }
+	  }, {
+	    key: "getSubscriptionType",
+	    value: function getSubscriptionType() {
+	      return pull_client.PullClient.SubscriptionType.Server;
+	    }
+	  }, {
+	    key: "handleChatUserAdd",
+	    value: function handleChatUserAdd(params) {
+	      var users = Object.values(params.users).map(function (user) {
+	        return babelHelpers.objectSpread({}, user, {
+	          lastActivityDate: new Date()
+	        });
+	      });
+	      this.store.commit('callApplication/common', {
+	        userCount: params.userCount
+	      });
+	      this.store.commit('users/set', users);
+	    }
+	  }, {
+	    key: "handleChatUserLeave",
+	    value: function handleChatUserLeave(params) {
+	      if (params.userId === this.controller.getUserId() && params.dialogId === this.store.state.application.dialog.dialogId) {
+	        this.application.kickFromCall();
+	      }
+
+	      this.store.commit('callApplication/common', {
+	        userCount: params.userCount
+	      });
+	    }
+	  }, {
+	    key: "handleCallUserNameUpdate",
+	    value: function handleCallUserNameUpdate(params) {
+	      this.store.dispatch('users/update', {
+	        id: params.userId,
+	        fields: {
+	          name: params.name,
+	          lastActivityDate: new Date()
+	        }
+	      });
+	    }
+	  }, {
+	    key: "handleVideoconfShareUpdate",
+	    value: function handleVideoconfShareUpdate(params) {
+	      if (params.dialogId === this.store.state.application.dialog.dialogId) {
+	        this.application.changeVideoconfUrl(params.newLink);
+	      }
+	    }
+	  }, {
+	    key: "handleMessageChat",
+	    value: function handleMessageChat(params) {
+	      if (params.chatId === this.application.getChatId() && !this.store.state.callApplication.common.showChat && params.message.senderId !== this.controller.getUserId()) {
+	        var text = '';
+
+	        if (params.message.senderId === 0 || params.message.system === 'Y') {
+	          text = params.message.text;
+	        } else {
+	          var userName = params.users[params.message.senderId].name;
+
+	          if (params.message.text === '' && Object.keys(params.files).length > 0) {
+	            text = "".concat(userName, ": ").concat(this.controller.localize['BX_IM_COMPONENT_CALL_FILE']);
+	          } else if (params.message.text !== '') {
+	            text = "".concat(userName, ": ").concat(params.message.text);
+	          }
+	        }
+
+	        this.application.sendNewMessageNotify(text);
+	      }
+	    }
+	  }]);
+	  return ImCallPullHandler;
 	}();
 
 	/**
@@ -422,7 +616,8 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	 * @copyright 2001-2019 Bitrix
 	 */
 
-	exports.ImPullCommandHandler = ImPullCommandHandler;
+	exports.ImBasePullHandler = ImBasePullHandler;
+	exports.ImCallPullHandler = ImCallPullHandler;
 
-}((this.BX.Messenger.Provider.Pull = this.BX.Messenger.Provider.Pull || {}),BX,BX,BX.Messenger.Const));
+}((this.BX.Messenger.Provider.Pull = this.BX.Messenger.Provider.Pull || {}),BX,BX.Messenger.Lib,BX,BX.Messenger.Const));
 //# sourceMappingURL=registry.bundle.js.map

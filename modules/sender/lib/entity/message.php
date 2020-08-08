@@ -47,7 +47,7 @@ class Message extends Base
 				$value = isset($data[$key]) ? $data[$key] : null;
 				if ($option->getType() === $option::TYPE_FILE)
 				{
-					$value = (strlen($value) > 0) ? explode(',', $value) : $value;
+					$value = ($value <> '') ? explode(',', $value) : $value;
 				}
 
 				$configuration->set($key, $value);

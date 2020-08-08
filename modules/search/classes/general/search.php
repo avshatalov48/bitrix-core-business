@@ -73,10 +73,14 @@ class CAllSearch extends CDBResult
 			foreach ($arTags as $i => $strTag)
 			{
 				$strTag = trim($strTag);
-				if (strlen($strTag))
+				if($strTag <> '')
+				{
 					$arTags[$i] = str_replace("\"", "\\\"", $strTag);
+				}
 				else
+				{
 					unset($arTags[$i]);
+				}
 			}
 
 			if (count($arTags))
@@ -88,15 +92,17 @@ class CAllSearch extends CDBResult
 		$this->strQueryText = $strQuery = trim($arParams["QUERY"]);
 		$this->strTags = $strTags = $arParams["TAGS"];
 
-		if ((strlen($strQuery) <= 0) && (strlen($strTags) > 0))
+		if (($strQuery == '') && ($strTags <> ''))
 		{
 			$strQuery = $strTags;
 			$bTagsSearch = true;
 		}
 		else
 		{
-			if (strlen($strTags))
+			if($strTags <> '')
+			{
 				$strQuery .= " ".$strTags;
+			}
 			$strQuery = preg_replace_callback("/&#(\\d+);/", array($this, "chr"), $strQuery);
 			$bTagsSearch = false;
 		}
@@ -124,7 +130,7 @@ class CAllSearch extends CDBResult
 		}
 		else
 		{
-			if (!$query || strlen(trim($query)) <= 0)
+			if (!$query || trim($query) == '')
 			{
 				if ($bTagsCloud)
 				{
@@ -138,7 +144,7 @@ class CAllSearch extends CDBResult
 				}
 			}
 
-			if (strlen($query) > 2000)
+			if (mb_strlen($query) > 2000)
 			{
 				$this->error = GetMessage("SEARCH_ERROR4");
 				$this->errorno = 4;
@@ -151,8 +157,10 @@ class CAllSearch extends CDBResult
 			$r = "";
 			if ($bTagsSearch)
 			{
-				if (strlen($strTags))
+				if($strTags <> '')
+				{
 					$r = ExecuteModuleEventEx($arEvent, array("tags:".$strTags));
+				}
 			}
 			else
 			{
@@ -213,7 +221,7 @@ class CAllSearch extends CDBResult
 			if ($bStem && count($this->Query->m_stemmed_words))
 			{
 				$arStat = $this->GetFreqStatistics($this->Query->m_lang, $this->Query->m_stemmed_words, $arParams["SITE_ID"]);
-				$this->tf_hwm_site_id = (strlen($arParams["SITE_ID"]) > 0? $arParams["SITE_ID"]: "");
+				$this->tf_hwm_site_id = ($arParams["SITE_ID"] <> ''? $arParams["SITE_ID"]: "");
 
 				//we'll make filter by it's contrast
 				if (!$bTagsCloud && $aParamsEx["USE_TF_FILTER"])
@@ -320,7 +328,7 @@ class CAllSearch extends CDBResult
 				inner join b_search_stem s on s.ID = f.STEM
 				WHERE LANGUAGE_ID = '".$sql_lang_id."'
 				AND s.STEM in ('".implode("','", $sql_stem)."')
-				AND ".(strlen($site_id) > 0? "SITE_ID = '".$sql_site_id."'": "SITE_ID IS NULL")."
+				AND ".($site_id <> ''? "SITE_ID = '".$sql_site_id."'": "SITE_ID IS NULL")."
 				ORDER BY STEM
 			";
 		else
@@ -329,14 +337,14 @@ class CAllSearch extends CDBResult
 				FROM b_search_content_freq
 				WHERE LANGUAGE_ID = '".$sql_lang_id."'
 				AND STEM in ('".implode("','", $sql_stem)."')
-				AND ".(strlen($site_id) > 0? "SITE_ID = '".$sql_site_id."'": "SITE_ID IS NULL")."
+				AND ".($site_id <> ''? "SITE_ID = '".$sql_site_id."'": "SITE_ID IS NULL")."
 				ORDER BY STEM
 			";
 
 		$rs = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		while ($ar = $rs->Fetch())
 		{
-			if (strlen($ar["TF"]) > 0)
+			if ($ar["TF"] <> '')
 				$arResult[$ar["STEM"]] = $ar;
 		}
 
@@ -353,7 +361,7 @@ class CAllSearch extends CDBResult
 					FROM
 						b_search_content_stem st
 						inner join b_search_stem s on s.ID = st.STEM
-						".(strlen($site_id) > 0? "INNER JOIN b_search_content_site scsite ON scsite.SEARCH_CONTENT_ID = st.SEARCH_CONTENT_ID AND scsite.SITE_ID = '".$sql_site_id."'": "")."
+						".($site_id <> ''? "INNER JOIN b_search_content_site scsite ON scsite.SEARCH_CONTENT_ID = st.SEARCH_CONTENT_ID AND scsite.SITE_ID = '".$sql_site_id."'": "")."
 					WHERE st.LANGUAGE_ID = '".$sql_lang_id."'
 					AND s.STEM in ('".implode("','", $arMissed)."')
 					GROUP BY s.ID, s.STEM, floor(st.TF/100)
@@ -364,7 +372,7 @@ class CAllSearch extends CDBResult
 					SELECT st.STEM ID, st.STEM, floor(st.TF*100) BUCKET, sum(st.TF) TF_SUM, count(*) STEM_COUNT
 					FROM
 						b_search_content_stem st
-						".(strlen($site_id) > 0? "INNER JOIN b_search_content_site scsite ON scsite.SEARCH_CONTENT_ID = st.SEARCH_CONTENT_ID AND scsite.SITE_ID = '".$sql_site_id."'": "")."
+						".($site_id <> ''? "INNER JOIN b_search_content_site scsite ON scsite.SEARCH_CONTENT_ID = st.SEARCH_CONTENT_ID AND scsite.SITE_ID = '".$sql_site_id."'": "")."
 					WHERE st.LANGUAGE_ID = '".$sql_lang_id."'
 					AND st.STEM in ('".implode("','", $arMissed)."')
 					GROUP BY st.STEM, floor(st.TF*100)
@@ -394,7 +402,7 @@ class CAllSearch extends CDBResult
 					UPDATE b_search_content_freq
 					SET FREQ=".$FREQ.", TF=".number_format($ar["TF"], 2, ".", "")."
 					WHERE LANGUAGE_ID='".$sql_lang_id."'
-					AND ".(strlen($site_id) > 0? "SITE_ID = '".$sql_site_id."'": "SITE_ID IS NULL")."
+					AND ".($site_id <> ''? "SITE_ID = '".$sql_site_id."'": "SITE_ID IS NULL")."
 					AND STEM='".$DB->ForSQL($ar["ID"])."'
 				";
 				$rsUpdate = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
@@ -404,7 +412,7 @@ class CAllSearch extends CDBResult
 						INSERT INTO b_search_content_freq
 						(STEM, LANGUAGE_ID, SITE_ID, FREQ, TF)
 						VALUES
-						('".$DB->ForSQL($ar["ID"])."', '".$sql_lang_id."', ".(strlen($site_id) > 0? "'".$sql_site_id."'": "NULL").", ".$FREQ.", ".number_format($ar["TF"], 2, ".", "").")
+						('".$DB->ForSQL($ar["ID"])."', '".$sql_lang_id."', ".($site_id <> ''? "'".$sql_site_id."'": "NULL").", ".$FREQ.", ".number_format($ar["TF"], 2, ".", "").")
 					";
 					$rsInsert = $DB->Query($strSql, true);
 				}
@@ -416,7 +424,7 @@ class CAllSearch extends CDBResult
 
 	function Repl($strCond, $strType, $strWh)
 	{
-		$l = strlen($strCond);
+		$l = mb_strlen($strCond);
 
 		if ($this->Query->bStemming)
 		{
@@ -434,54 +442,54 @@ class CAllSearch extends CDBResult
 		$pos = 0;
 		do
 		{
-			$pos = strpos($strWhUpp, $strCondUpp, $pos);
+			$pos = mb_strpos($strWhUpp, $strCondUpp, $pos);
 
 			//Check if we are in the middle of the numeric entity
 			while (
 				$pos !== false &&
-				preg_match("/^[0-9]+;/", substr($strWh, $pos)) &&
-				preg_match("/^[0-9]+#&/", strrev(substr($strWh, 0, $pos + strlen($strCond))))
+				preg_match("/^[0-9]+;/", mb_substr($strWh, $pos)) &&
+				preg_match("/^[0-9]+#&/", strrev(mb_substr($strWh, 0, $pos + mb_strlen($strCond))))
 			)
 			{
-				$pos = strpos($strWhUpp, $strCondUpp, $pos + 1);
+				$pos = mb_strpos($strWhUpp, $strCondUpp, $pos + 1);
 			}
 
 			if ($pos === false) break;
 
 			if ($strType == "STEM")
 			{
-				$lw = strlen($strWhUpp);
+				$lw = mb_strlen($strWhUpp);
 				for ($s = $pos; $s >= 0; $s--)
 				{
-					if (!preg_match("/$pcreLettersClass/".BX_UTF_PCRE_MODIFIER, substr($strWhUpp, $s, 1)))
+					if (!preg_match("/$pcreLettersClass/".BX_UTF_PCRE_MODIFIER, mb_substr($strWhUpp, $s, 1)))
 						break;
 				}
 				$s++;
 				for ($e = $pos; $e < $lw; $e++)
 				{
-					if (!preg_match("/$pcreLettersClass/".BX_UTF_PCRE_MODIFIER, substr($strWhUpp, $e, 1)))
+					if (!preg_match("/$pcreLettersClass/".BX_UTF_PCRE_MODIFIER, mb_substr($strWhUpp, $e, 1)))
 						break;
 				}
 				$e--;
-				$a = stemming(substr($strWhUpp, $s, $e - $s + 1), $this->Query->m_lang, true);
+				$a = stemming(mb_substr($strWhUpp, $s, $e - $s + 1), $this->Query->m_lang, true);
 				foreach ($a as $stem => $cnt)
 				{
 					if ($stem == $strCondUpp)
 					{
-						$strWh = substr($strWh, 0, $pos)."%^%".substr($strWh, $pos, $e - $pos + 1)."%/^%".substr($strWh, $e + 1);
-						$strWhUpp = substr($strWhUpp, 0, $pos)."%^%".str_repeat(" ", $e - $pos + 1)."%/^%".substr($strWhUpp, $e + 1);
+						$strWh = mb_substr($strWh, 0, $pos)."%^%".mb_substr($strWh, $pos, $e - $pos + 1)."%/^%".mb_substr($strWh, $e + 1);
+						$strWhUpp = mb_substr($strWhUpp, 0, $pos)."%^%".str_repeat(" ", $e - $pos + 1)."%/^%".mb_substr($strWhUpp, $e + 1);
 						$pos += 7 + $e - $pos + 1;
 					}
 				}
 			}
 			else
 			{
-				$strWh = substr($strWh, 0, $pos)."%^%".substr($strWh, $pos, $l)."%/^%".substr($strWh, $pos + $l);
-				$strWhUpp = substr($strWhUpp, 0, $pos)."%^%".str_repeat(" ", $l)."%/^%".substr($strWhUpp, $pos + $l);
+				$strWh = mb_substr($strWh, 0, $pos)."%^%".mb_substr($strWh, $pos, $l)."%/^%".mb_substr($strWh, $pos + $l);
+				$strWhUpp = mb_substr($strWhUpp, 0, $pos)."%^%".str_repeat(" ", $l)."%/^%".mb_substr($strWhUpp, $pos + $l);
 				$pos += 7 + $l;
 			}
 			$pos += 1;
-		} while ($pos < strlen($strWhUpp));
+		} while ($pos < mb_strlen($strWhUpp));
 
 		return $strWh;
 	}
@@ -494,7 +502,7 @@ class CAllSearch extends CDBResult
 		{
 			$v = ToUpper($v);
 			$words[$v] = "KAV";
-			if (strpos($v, "\"") !== false)
+			if (mb_strpos($v, "\"") !== false)
 				$words[str_replace("\"", "&QUOT;", $v)] = "KAV";
 		}
 
@@ -602,11 +610,11 @@ class CAllSearch extends CDBResult
 		//Nothing found just cut some text
 		if (empty($arPos))
 		{
-			$str_len = strlen($str);
+			$str_len = mb_strlen($str);
 			$pos_end = 500;
-			while (($pos_end < $str_len) && (strpos(" ,.\n\r", substr($str, $pos_end, 1)) === false))
+			while (($pos_end < $str_len) && (mb_strpos(" ,.\n\r", mb_substr($str, $pos_end, 1)) === false))
 				$pos_end++;
-			return substr($str, 0, $pos_end).($pos_end < $str_len? "...": "");
+			return mb_substr($str, 0, $pos_end).($pos_end < $str_len? "..." : "");
 		}
 
 		sort($arPos);
@@ -625,14 +633,14 @@ class CAllSearch extends CDBResult
 				$pos_beg = $pos_mid - $delta;
 				if ($pos_beg <= 0)
 					$pos_beg = 0;
-				while (($pos_beg > 0) && (strpos(" ,.!?\n\r", CUtil::BinSubstr($str, $pos_beg, 1)) === false))
+				while (($pos_beg > 0) && (mb_strpos(" ,.!?\n\r", CUtil::BinSubstr($str, $pos_beg, 1)) === false))
 					$pos_beg--;
 
 				//Find where sentence ends
 				$pos_end = $pos_mid + $delta;
 				if ($pos_end > $str_len)
 					$pos_end = $str_len;
-				while (($pos_end < $str_len) && (strpos(" ,.!?\n\r", CUtil::BinSubstr($str, $pos_end, 1)) === false))
+				while (($pos_end < $str_len) && (mb_strpos(" ,.!?\n\r", CUtil::BinSubstr($str, $pos_end, 1)) === false))
 					$pos_end++;
 
 				if ($pos_beg <= $last_pos)
@@ -703,10 +711,10 @@ class CAllSearch extends CDBResult
 			$r["DIR"] = $arSite[$site_id]["DIR"];
 			$r["SERVER_NAME"] = $arSite[$site_id]["SERVER_NAME"];
 
-			if (strlen($r["SITE_URL"]) > 0)
+			if ($r["SITE_URL"] <> '')
 				$r["URL"] = $r["SITE_URL"];
 
-			if (substr($r["URL"], 0, 1) == "=")
+			if (mb_substr($r["URL"], 0, 1) == "=")
 			{
 				foreach (GetModuleEvents("search", "OnSearchGetURL", true) as $arEvent)
 				{
@@ -729,20 +737,20 @@ class CAllSearch extends CDBResult
 			$w = $this->Query->m_words;
 			if (count($this->url_add_params))
 			{
-				$p1 = strpos($r["URL"], "?");
+				$p1 = mb_strpos($r["URL"], "?");
 				if ($p1 === false)
 					$ch = "?";
 				else
 					$ch = "&";
 
-				$p2 = strpos($r["URL"], "#", $p1);
+				$p2 = mb_strpos($r["URL"], "#", $p1);
 				if ($p2 === false)
 				{
 					$r["URL"] = $r["URL"].$ch.implode("&", $this->url_add_params);
 				}
 				else
 				{
-					$r["URL"] = substr($r["URL"], 0, $p2).$ch.implode("&", $this->url_add_params).substr($r["URL"], $p2);
+					$r["URL"] = mb_substr($r["URL"], 0, $p2).$ch.implode("&", $this->url_add_params).mb_substr($r["URL"], $p2);
 				}
 			}
 
@@ -792,8 +800,10 @@ class CAllSearch extends CDBResult
 			foreach ($arIncTmp as $mask)
 			{
 				$mask = trim($mask);
-				if (strlen($mask))
+				if($mask <> '')
+				{
 					$arInc[] = "'^".$mask."$'";
+				}
 			}
 
 			$arFullExc = array();
@@ -807,12 +817,16 @@ class CAllSearch extends CDBResult
 			foreach ($arExcTmp as $mask)
 			{
 				$mask = trim($mask);
-				if (strlen($mask))
+				if($mask <> '')
 				{
-					if (preg_match("#^/[a-z0-9_.\\\\]+/#i", $mask))
+					if(preg_match("#^/[a-z0-9_.\\\\]+/#i", $mask))
+					{
 						$arFullExc[] = "'^".$mask."$'".BX_UTF_PCRE_MODIFIER;
+					}
 					else
+					{
 						$arExc[] = "'^".$mask."$'".BX_UTF_PCRE_MODIFIER;
+					}
 				}
 			}
 
@@ -875,7 +889,7 @@ class CAllSearch extends CDBResult
 		$strRequest .= "Host: $SITE\r\n";
 		$strRequest .= "Accept-Language: en\r\n";
 		$strRequest .= "Content-type: application/x-www-form-urlencoded\r\n";
-		$strRequest .= "Content-length: ".strlen($QUERY_STR)."\r\n";
+		$strRequest .= "Content-length: ".mb_strlen($QUERY_STR)."\r\n";
 		$strRequest .= "\r\n";
 		$strRequest .= $QUERY_STR;
 		$strRequest .= "\r\n";
@@ -917,8 +931,8 @@ class CAllSearch extends CDBResult
 			if ($NS_OLD["SITE_ID"] != "") $NS["SITE_ID"] = $NS_OLD["SITE_ID"];
 			if ($NS_OLD["MODULE_ID"] != "") $NS["MODULE_ID"] = $NS_OLD["MODULE_ID"];
 		}
-		$NS["CNT"] = IntVal($NS["CNT"]);
-		if (!$bFull && strlen($NS["SESS_ID"]) != 32)
+		$NS["CNT"] = intval($NS["CNT"]);
+		if (!$bFull && mb_strlen($NS["SESS_ID"]) != 32)
 			$NS["SESS_ID"] = md5(uniqid(""));
 
 		$p1 = getmicrotime();
@@ -982,7 +996,7 @@ class CAllSearch extends CDBResult
 				foreach ($arLangDirs as $path2 => $arR2)
 				{
 					if ($path == $path2) continue;
-					if (substr($path, 0, strlen($path2)) == $path2)
+					if (mb_substr($path, 0, mb_strlen($path2)) == $path2)
 						$dub[] = $path;
 				}
 			}
@@ -999,7 +1013,7 @@ class CAllSearch extends CDBResult
 				if (
 					$max_execution_time > 0
 					&& $NS["MODULE"] == "main"
-					&& substr($NS["ID"]."/", 0, strlen($site_path)) != $site_path
+					&& mb_substr($NS["ID"]."/", 0, mb_strlen($site_path)) != $site_path
 				)
 					continue;
 
@@ -1007,7 +1021,7 @@ class CAllSearch extends CDBResult
 				CSearch::RecurseIndex(Array($site, $path), $max_execution_time, $NS);
 				if (
 					$max_execution_time > 0
-					&& strlen($NS["MODULE"]) > 0
+					&& $NS["MODULE"] <> ''
 				)
 				{
 					$DB->Commit();
@@ -1024,7 +1038,7 @@ class CAllSearch extends CDBResult
 		foreach (GetModuleEvents("search", "OnReindex", true) as $arEvent)
 		{
 			if ($NS["MODULE_ID"] != "" && $NS["MODULE_ID"] != $arEvent["TO_MODULE_ID"]) continue;
-			if ($max_execution_time > 0 && strlen($NS["MODULE"]) > 0 && $NS["MODULE"] != "main" && $NS["MODULE"] != $arEvent["TO_MODULE_ID"]) continue;
+			if ($max_execution_time > 0 && $NS["MODULE"] <> '' && $NS["MODULE"] != "main" && $NS["MODULE"] != $arEvent["TO_MODULE_ID"]) continue;
 			//here we get recordset
 			$oCallBack->MODULE = $arEvent["TO_MODULE_ID"];
 			$oCallBack->CNT = &$NS["CNT"];
@@ -1036,7 +1050,7 @@ class CAllSearch extends CDBResult
 				foreach ($arResult as $arFields)
 				{
 					$ID = $arFields["ID"];
-					if (strlen($ID) > 0)
+					if ($ID <> '')
 					{
 						unset($arFields["ID"]);
 						$NS["CNT"]++;
@@ -1046,7 +1060,7 @@ class CAllSearch extends CDBResult
 			}
 			else  //new method
 			{
-				if ($max_execution_time > 0 && $arResult !== false && strlen(".".$arResult) > 1)
+				if ($max_execution_time > 0 && $arResult !== false && mb_strlen(".".$arResult) > 1)
 				{
 					$DB->Commit();
 					return Array(
@@ -1098,7 +1112,7 @@ class CAllSearch extends CDBResult
 				foreach ($arResult as $arFields)
 				{
 					$ID = $arFields["ID"];
-					if (strlen($ID) > 0)
+					if ($ID <> '')
 					{
 						unset($arFields["ID"]);
 						$NS["CNT"]++;
@@ -1269,7 +1283,7 @@ class CAllSearch extends CDBResult
 		{
 			$ID = $arResult["ID"];
 
-			if ($bTitle && $bBody && strlen($arFields["BODY"]) <= 0 && strlen($arFields["TITLE"]) <= 0)
+			if ($bTitle && $bBody && $arFields["BODY"] == '' && $arFields["TITLE"] == '')
 			{
 				foreach (GetModuleEvents("search", "OnBeforeIndexDelete", true) as $arEvent)
 					ExecuteModuleEventEx($arEvent, array("SEARCH_CONTENT_ID = ".$ID));
@@ -1307,7 +1321,7 @@ class CAllSearch extends CDBResult
 
 			if (!$bOverWrite && $DATE_CHANGE == $arResult["DATE_CHANGE"])
 			{
-				if (strlen($SEARCH_SESS_ID) > 0)
+				if ($SEARCH_SESS_ID <> '')
 					$DB->Query("UPDATE b_search_content SET UPD='".$DB->ForSql($SEARCH_SESS_ID)."' WHERE ID = ".$ID, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 				//$DB->Commit();
 				return $ID;
@@ -1345,7 +1359,7 @@ class CAllSearch extends CDBResult
 				$arFields["SEARCHABLE_CONTENT"] = CSearch::KillEntities(ToUpper($content));
 			}
 
-			if (strlen($SEARCH_SESS_ID) > 0)
+			if ($SEARCH_SESS_ID <> '')
 				$arFields["UPD"] = $SEARCH_SESS_ID;
 
 			if (array_key_exists("TITLE", $arFields))
@@ -1375,7 +1389,7 @@ class CAllSearch extends CDBResult
 		}
 		else
 		{
-			if ($bTitle && $bBody && strlen($arFields["BODY"]) <= 0 && strlen($arFields["TITLE"]) <= 0)
+			if ($bTitle && $bBody && $arFields["BODY"] == '' && $arFields["TITLE"] == '')
 			{
 				//$DB->Commit();
 				return 0;
@@ -1537,7 +1551,7 @@ class CAllSearch extends CDBResult
 		while ($arSite = $rsSites->Fetch())
 		{
 			$site_path = preg_replace("#[\\\\\\/]+#", "/", $arSite["ABS_DOC_ROOT"]."/".$arSite["DIR"]."/");
-			if (strpos($file_abs_path, $site_path) === 0)
+			if (mb_strpos($file_abs_path, $site_path) === 0)
 			{
 				$file_site = $arSite["ID"];
 				break;
@@ -1548,10 +1562,10 @@ class CAllSearch extends CDBResult
 			return 0;
 
 		$item_id = $file_site."|".$file_rel_path;
-		if (strlen($item_id) > 255)
+		if (mb_strlen($item_id) > 255)
 			return 0;
 
-		if (strlen($SEARCH_SESS_ID) > 0)
+		if ($SEARCH_SESS_ID <> '')
 		{
 			$DATE_CHANGE = $DB->CharToDateFunction(
 				FormatDate(
@@ -1584,19 +1598,19 @@ class CAllSearch extends CDBResult
 		if (!is_array($arrFile))
 		{
 			$sFile = $APPLICATION->GetFileContent($file_abs_path);
-			$sHeadEndPos = strpos($sFile, "</head>");
+			$sHeadEndPos = mb_strpos($sFile, "</head>");
 			if ($sHeadEndPos === false)
-				$sHeadEndPos = strpos($sFile, "</HEAD>");
+				$sHeadEndPos = mb_strpos($sFile, "</HEAD>");
 			if ($sHeadEndPos !== false)
 			{
 				//html header detected try to get document charset
 				$arMetaMatch = array();
-				if (preg_match("/<(meta)\\s+([^>]*)(content)\\s*=\\s*(['\"]).*?(charset)\\s*=\\s*(.*?)(\\4)/is", substr($sFile, 0, $sHeadEndPos), $arMetaMatch))
+				if (preg_match("/<(meta)\\s+([^>]*)(content)\\s*=\\s*(['\"]).*?(charset)\\s*=\\s*(.*?)(\\4)/is", mb_substr($sFile, 0, $sHeadEndPos), $arMetaMatch))
 				{
 					$doc_charset = $arMetaMatch[6];
 					if (defined("BX_UTF"))
 					{
-						if (strtoupper($doc_charset) != "UTF-8")
+						if (mb_strtoupper($doc_charset) != "UTF-8")
 							$sFile = $APPLICATION->ConvertCharset($sFile, $doc_charset, "UTF-8");
 					}
 				}
@@ -1606,7 +1620,7 @@ class CAllSearch extends CDBResult
 
 		$title = CSearch::KillTags(trim($arrFile["TITLE"]));
 
-		if (strlen($title) <= 0)
+		if ($title == '')
 			return 0;
 
 		//strip out all the tags
@@ -1677,10 +1691,10 @@ class CAllSearch extends CDBResult
 				//this is not first step and we had stopped here, so go on to reindex
 				if (
 					$max_execution_time <= 0
-					|| strlen($NS["MODULE"]) <= 0
+					|| $NS["MODULE"] == ''
 					|| (
 						$NS["MODULE"] == "main"
-						&& substr($NS["ID"]."/", 0, strlen($site."|".$path_file."/")) == $site."|".$path_file."/"
+						&& mb_substr($NS["ID"]."/", 0, mb_strlen($site."|".$path_file."/")) == $site."|".$path_file."/"
 					)
 				)
 				{
@@ -1700,14 +1714,14 @@ class CAllSearch extends CDBResult
 				//not the first step and we found last file from previous one
 				if (
 					$max_execution_time > 0
-					&& strlen($NS["MODULE"]) > 0
+					&& $NS["MODULE"] <> ''
 					&& $NS["MODULE"] == "main"
 					&& $NS["ID"] == $site."|".$path_file
 				)
 				{
 					$NS["MODULE"] = "";
 				}
-				elseif (strlen($NS["MODULE"]) <= 0)
+				elseif ($NS["MODULE"] == '')
 				{
 					$ID = CSearch::ReindexFile(Array($site, $path_file), $NS["SESS_ID"]);
 					if (intval($ID) > 0)
@@ -1749,7 +1763,7 @@ class CAllSearch extends CDBResult
 						$m = array();
 						if (preg_match('/(\\\\+)$/', $a[$i - 1], $m))
 						{
-							if ((strlen($m[1]) % 2) == 0) //non even slashes
+							if ((mb_strlen($m[1]) % 2) == 0) //non even slashes
 								break;
 						}
 						else
@@ -1767,7 +1781,7 @@ class CAllSearch extends CDBResult
 					{
 						if (preg_match('/(\\\\+)$/', $a[$i - 1], $m))
 						{
-							if ((strlen($m[1]) % 2) == 0) //non even slashes
+							if ((mb_strlen($m[1]) % 2) == 0) //non even slashes
 								break;
 						}
 						else
@@ -1869,7 +1883,7 @@ class CAllSearch extends CDBResult
 		$DB = CDatabase::GetModuleConnection('search');
 		$DB->Query("
 			DELETE FROM b_search_content_right
-			WHERE GROUP_CODE = 'G".IntVal($ID)."'
+			WHERE GROUP_CODE = 'G".intval($ID)."'
 		", false, "File: ".__FILE__."<br>Line: ".__LINE__);
 	}
 
@@ -1885,7 +1899,7 @@ class CAllSearch extends CDBResult
 
 		foreach ($arFilter as $field => $val)
 		{
-			$field = strtoupper($field);
+			$field = mb_strtoupper($field);
 			if (
 				is_array($val)
 				&& count($val) == 1
@@ -1929,7 +1943,7 @@ class CAllSearch extends CDBResult
 				}
 				break;
 			case "DATE_CHANGE":
-				if (strlen($val) > 0)
+				if ($val <> '')
 					$arNewFilter[">=".$field] = $val;
 				break;
 			case "SITE_ID":
@@ -1948,7 +1962,7 @@ class CAllSearch extends CDBResult
 				foreach ($arFilterEvents as $arEvent)
 				{
 					$sql = ExecuteModuleEventEx($arEvent, array($strSearchContentAlias, $field, $val));
-					if (strlen($sql))
+					if($sql <> '')
 					{
 						$arSql[] = "(".$sql.")";
 						break;
@@ -2055,7 +2069,7 @@ class CAllSearch extends CDBResult
 				$strWhere = implode("\nAND ", $arSql);
 		}
 
-		$bIncSites = $bIncSites || strlen($obQueryWhere->GetJoins()) > 0;
+		$bIncSites = $bIncSites || $obQueryWhere->GetJoins() <> '';
 		return $strWhere;
 	}
 
@@ -2069,8 +2083,8 @@ class CAllSearch extends CDBResult
 		{
 			foreach ($aSort as $key => $ord)
 			{
-				$ord = strtoupper($ord) <> "ASC"? "DESC": "ASC";
-				$key = strtoupper($key);
+				$ord = mb_strtoupper($ord) <> "ASC"? "DESC": "ASC";
+				$key = mb_strtoupper($key);
 				switch ($key)
 				{
 				case "DATE_CHANGE":
@@ -2092,8 +2106,8 @@ class CAllSearch extends CDBResult
 			$this->flagsUseRatingSort = 0;
 			foreach ($aSort as $key => $ord)
 			{
-				$ord = strtoupper($ord) <> "ASC"? "DESC": "ASC";
-				$key = strtoupper($key);
+				$ord = mb_strtoupper($ord) <> "ASC"? "DESC": "ASC";
+				$key = mb_strtoupper($key);
 				switch ($key)
 				{
 				case "DATE_CHANGE":
@@ -2250,8 +2264,10 @@ class CAllSearch extends CDBResult
 
 		$arToInsert = array();
 		foreach ($arGroups as $group_code)
-			if (strlen($group_code))
+			if($group_code <> '')
+			{
 				$arToInsert[$group_code] = $group_code;
+			}
 
 		//Read database
 		$rs = $DB->Query("
@@ -2335,17 +2351,19 @@ class CAllSearch extends CDBResult
 			foreach ($arParams as $k1 => $v1)
 			{
 				$name = trim($k1);
-				if (strlen($name))
+				if($name <> '')
 				{
 					$sql_name = "'".$DB->ForSQL($name, 100)."'";
 
-					if (!is_array($v1))
+					if(!is_array($v1))
+					{
 						$v1 = array($v1);
+					}
 
-					foreach ($v1 as $v2)
+					foreach($v1 as $v2)
 					{
 						$value = trim($v2);
-						if (strlen($value))
+						if($value <> '')
 						{
 							$sql_value = "'".$DB->ForSQL($value, 100)."'";
 							$key = md5($sql_name).md5($sql_value);
@@ -2420,7 +2438,7 @@ class CAllSearch extends CDBResult
 			SELECT PARAM_NAME, PARAM_VALUE
 			FROM b_search_content_param
 			WHERE SEARCH_CONTENT_ID = ".$index_id."
-			".($param_name && strlen($param_name) > 0? " AND PARAM_NAME = '".$DB->ForSQL($param_name)."'": "")."
+			".($param_name && $param_name <> ''? " AND PARAM_NAME = '".$DB->ForSQL($param_name)."'": "")."
 		", false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		while ($ar = $rs->Fetch())
 		{
@@ -2531,7 +2549,7 @@ class CAllSearch extends CDBResult
 	{
 		$DB = CDatabase::GetModuleConnection('search');
 		$bIncSites = false;
-		$op = (strpos($ITEM_ID, '%') !== false? '%=': '=');
+		$op = (mb_strpos($ITEM_ID, '%') !== false? '%=': '=');
 
 		if ($PARAM1 !== false && $PARAM2 !== false)
 		{
@@ -2634,7 +2652,7 @@ class CAllSearch extends CDBResult
 		}
 
 		$strUpdate = $DB->PrepareUpdate("b_search_content", $arFields);
-		if (strlen($strUpdate) > 0)
+		if ($strUpdate <> '')
 		{
 			$arBinds = Array();
 			if (is_set($arFields, "BODY"))
@@ -2720,7 +2738,7 @@ class CAllSearch extends CDBResult
 			SELECT sc.ID
 			FROM b_search_content sc
 			".($bIncSites? "INNER JOIN b_search_content_site scsite ON sc.ID=scsite.SEARCH_CONTENT_ID": "")."
-			".(strlen($strSqlWhere) > 0? "WHERE ".$strSqlWhere: "")."
+			".($strSqlWhere <> ''? "WHERE ".$strSqlWhere: "")."
 		";
 		$rs = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		while ($ar = $rs->Fetch())
@@ -2968,7 +2986,7 @@ class CAllSearchQuery
 		}
 		$this->m_parsed_query = $query = $this->ParseQ($query);
 
-		if ($query == "( )" || strlen($query) <= 0)
+		if ($query == "( )" || $query == '')
 		{
 			$this->error = GetMessage("SEARCH_ERROR3");
 			$this->errorno = 3;
@@ -2988,7 +3006,7 @@ class CAllSearchQuery
 			foreach ($arQuotes[2] as $i => $quoted)
 			{
 				$quoted = trim($quoted);
-				if (strlen($quoted))
+				if($quoted <> '')
 				{
 					$repl = $i."cut5";
 					$this->m_kav[$repl] = str_replace("\\\"", "\"", $quoted);
@@ -3008,7 +3026,7 @@ class CAllSearchQuery
 	function ParseQ($q)
 	{
 		$q = trim($q);
-		if (strlen($q) <= 0)
+		if ($q == '')
 			return '';
 
 		$q = $this->ParseStr($q);
@@ -3057,7 +3075,7 @@ class CAllSearchQuery
 		$qwe = preg_replace("/\s*([()])\s*/s".BX_UTF_PCRE_MODIFIER, "\\1", $qwe);
 
 		// default query type is and
-		if (strtolower($this->default_query_type) == 'or')
+		if (mb_strtolower($this->default_query_type) == 'or')
 			$default_op = "|";
 		else
 			$default_op = "&";
@@ -3142,7 +3160,7 @@ class CAllSearchQuery
 		else
 		{
 			$this->bStemming = true;
-			return implode('|', $arrStem);
+			return '('.implode('|', $arrStem).')';
 		}
 	}
 

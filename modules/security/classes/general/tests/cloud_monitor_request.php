@@ -272,7 +272,7 @@ class CSecurityCloudMonitorRequest
 		$sheme = (CMain::IsHTTPS() ? "https" : "http")."://";
 		$serverPort = self::getServerPort();
 		$url = self::getDomainName();
-		$url .= ($serverPort && strpos($url, ":") === false) ? ":".$serverPort : "";
+		$url .= ($serverPort && mb_strpos($url, ":") === false) ? ":".$serverPort : "";
 		return $sheme.$url;
 	}
 

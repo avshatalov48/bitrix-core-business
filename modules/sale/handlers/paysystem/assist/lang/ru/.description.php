@@ -22,7 +22,9 @@ $MESS["SALE_HPS_ASSIST_SHOULD_PAY"] = "Сумма к оплате";
 $MESS["SALE_HPS_ASSIST_CURRENCY"] = "Валюта счета";
 $MESS["SALE_HPS_ASSIST_ORDER_ID"] = "Номер оплаты";
 $MESS["SALE_HPS_ASSIST_SUCCESS_URL"] = "Адрес при успешной оплате";
+$MESS["SALE_HPS_ASSIST_SUCCESS_URL_DESC"] = "Оставьте пустым для автоматического определения адреса, клиент вернется на страницу с которой был выполнен переход на оплату";
 $MESS["SALE_HPS_ASSIST_FAIL_URL"] = "Адрес при ошибке оплаты";
+$MESS["SALE_HPS_ASSIST_FAIL_URL_DESC"] = "Оставьте пустым для автоматического определения адреса, клиент вернется на страницу с которой был выполнен переход на оплату";
 $MESS["SALE_HPS_ASSIST_DATE_INSERT"] = "Дата создания оплаты";
 $MESS["SALE_HPS_ASSIST_MIDDLE_NAME"] = "Отчество покупателя";
 

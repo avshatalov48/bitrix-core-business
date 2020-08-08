@@ -19,7 +19,6 @@ return array(
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'THEME_CODE' => 'travel',
-			'THEME_CODE_TYPO' => 'travel',
 		),
 	),
 	'layout' => array(
@@ -46,7 +45,7 @@ return array(
 					0 => 'landing-block-node-subtitle h6 g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20',
 				),
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-mb-minus-10 g-font-size-40 g-font-montserrat g-text-transform-none',
+					0 => 'landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-mb-minus-10 g-font-size-40 g-text-transform-none',
 				),
 				'#wrapper' => array(
 					0 => 'landing-block js-animation animated g-pb-20 g-pt-40 animation-none',
@@ -105,22 +104,22 @@ return array(
 			),
 			'style' => array(
 				'.landing-block-node-main-title' => array(
-					0 => 'landing-block-node-main-title h3 g-font-weight-700 g-mb-20 g-color-black g-font-montserrat g-text-transform-none g-font-size-30',
+					0 => 'landing-block-node-main-title h3 g-font-weight-700 g-mb-20 g-color-black g-text-transform-none g-font-size-30',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text g-line-height-1_5 text-left g-mb-40 g-font-open-sans g-color-black-opacity-0_9 g-font-size-16',
+					0 => 'landing-block-node-text g-line-height-1_5 text-left g-mb-40 g-color-black-opacity-0_9',
 				),
 				'.landing-block-card-contact-title' => array(
-					0 => 'landing-block-card-contact-title h3 d-block text-uppercase g-font-size-11 mb-0 g-font-open-sans g-color-black-opacity-0_9',
+					0 => 'landing-block-card-contact-title h3 d-block text-uppercase g-font-size-11 mb-0 g-color-black-opacity-0_9',
 				),
 				'.landing-block-card-linkcontact-title' => array(
-					0 => 'landing-block-card-linkcontact-title h3 d-block text-uppercase g-font-size-11 mb-0 g-font-open-sans g-color-black-opacity-0_9',
+					0 => 'landing-block-card-linkcontact-title h3 d-block text-uppercase g-font-size-11 mb-0 g-color-black-opacity-0_9',
 				),
 				'.landing-block-card-contact-text' => array(
-					0 => 'landing-block-card-contact-text g-font-weight-700 g-font-size-11 g-font-open-sans g-color-primary',
+					0 => 'landing-block-card-contact-text g-font-weight-700 g-font-size-11 g-color-primary',
 				),
 				'.landing-block-card-linkcontact-text' => array(
-					0 => 'landing-block-card-linkcontact-text g-font-weight-700 g-font-size-11 g-font-open-sans g-color-primary',
+					0 => 'landing-block-card-linkcontact-text g-font-weight-700 g-font-size-11 g-color-primary',
 				),
 				'#wrapper' => array(
 					0 => 'g-pos-rel landing-block text-center g-pt-100 g-pb-100',

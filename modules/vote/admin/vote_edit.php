@@ -49,7 +49,9 @@ $db_res = \Bitrix\Vote\Channel::getList(array(
 	'group' => array("ID")
 ));
 while ($res = $db_res->GetNext())
+{
 	$channels[$res["ID"]] = $res;
+}
 if (empty($channels))
 {
 	$APPLICATION->SetTitle(GetMessage("VOTE_NEW_RECORD"));
@@ -168,11 +170,7 @@ try
 			}
 		}
 		$ID = isset($vote) ? $vote->getId() : 0;
-		if (!CVote::CheckFields(($ID > 0 ? "UPDATE" : "ADD"), $fields, $ID))
-		{
-			$result = false;
-		}
-		else if ($ID <= 0)
+		if ($ID <= 0)
 		{
 			$fields["AUTHOR_ID"] = $GLOBALS["USER"]->GetId();
 			$result = $ID = CVote::Add($fields);

@@ -180,6 +180,8 @@
 								var smtpLoginField  = BX.findChild(emailBlock, {attr: {'data-name': 'smtp-login'}}, true);
 								var smtpPassField   = BX.findChild(emailBlock, {attr: {'data-name': 'smtp-password'}}, true);
 
+								dlg.formFieldHint(smtpPassField);
+
 								if ('email' == step || 'smtp' == step)
 								{
 									codeField.value = '';
@@ -222,7 +224,24 @@
 										return;
 									}
 
-									if (!(smtpPassField.value.length > 0))
+									if (smtpPassField.value.length > 0)
+									{
+										if (smtpPassField.value.match(/^\^/))
+										{
+											dlg.showNotify(BX.message('MAIN_MAIL_CONFIRM_INVALID_SMTP_PASSWORD_CARET'));
+											return;
+										}
+										else if (smtpPassField.value.match(/\x00/))
+										{
+											dlg.showNotify(BX.message('MAIN_MAIL_CONFIRM_INVALID_SMTP_PASSWORD_NULL'));
+											return;
+										}
+										else if (smtpPassField.value.match(/^\s|\s$/))
+										{
+											dlg.formFieldHint(smtpPassField, 'warning', BX.message('MAIN_MAIL_CONFIRM_SPACE_SMTP_PASSWORD'));
+										}
+									}
+									else
 									{
 										dlg.showNotify(BX.message('MAIN_MAIL_CONFIRM_EMPTY_SMTP_PASSWORD'));
 										return;
@@ -289,12 +308,15 @@
 										{
 											senderId = data.senderId;
 										}
+
 										if (data.result == 'error')
 										{
 											dlg.showNotify(data.error);
 										}
 										else if (('email' == step || 'smtp' == step) && !data.confirmed)
 										{
+											dlg.formFieldHint(smtpPassField);
+
 											dlg.switchBlock('code');
 										}
 										else
@@ -337,8 +359,6 @@
 									var smtpBlock = BX.findChildByClassName(dlg.contentContainer, 'new-from-email-dialog-smtp-block', true);
 
 									dlg.switchBlock(smtpBlock && smtpBlock.offsetHeight > 0 ? 'smtp' : 'email');
-
-									dlg.hideNotify();
 								}
 								else
 								{
@@ -349,6 +369,40 @@
 					})
 				]
 			});
+
+			dlg.formFieldHint = function (field, type, text)
+			{
+				if (!field)
+				{
+					return;
+				}
+
+				var container = BX.findParent(field, {'class': 'new-from-email-dialog-cell'});
+				var hint = BX.findChildByClassName(container, 'new-from-email-dialog-field-hint', true);
+
+				BX.removeClass(container, 'new-from-email-dialog-field-error');
+				BX.removeClass(container, 'new-from-email-dialog-field-warning');
+
+				switch (type)
+				{
+					case 'error':
+						BX.addClass(container, 'new-from-email-dialog-field-error');
+						break;
+					case 'warning':
+						BX.addClass(container, 'new-from-email-dialog-field-warning');
+						break;
+				}
+
+				if (typeof text != 'undefined' && text.length > 0)
+				{
+					BX.adjust(hint, {'html': text});
+					BX.show(hint, 'block');
+				}
+				else
+				{
+					BX.hide(hint, 'block');
+				}
+			};
 
 			dlg.hideNotify = function()
 			{

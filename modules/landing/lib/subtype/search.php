@@ -50,6 +50,11 @@ class Search
 	 */
 	protected static function prepareForm(array $manifest, array $params = [])
 	{
+		if (\Bitrix\Landing\Transfer\AppConfiguration::inProcess())
+		{
+			return $manifest;
+		}
+
 		// necessary params
 		if (!isset($params['resultPage']))
 		{

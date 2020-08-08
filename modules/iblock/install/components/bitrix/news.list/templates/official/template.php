@@ -31,8 +31,8 @@ $this->setFrameMode(true);
 			<?else:?>
 				<img border="0" src="<?=$arItem["PREVIEW_PICTURE"]["SRC"]?>" width="<?=$arItem["PREVIEW_PICTURE"]["WIDTH"]?>" height="<?=$arItem["PREVIEW_PICTURE"]["HEIGHT"]?>" hspace="0" vspace="2" alt="<?=$arItem["NAME"]?>" title="<?=$arItem["NAME"]?>" style="float:left" />
 			<?endif;?>
-		<?elseif(is_array($arItem["DISPLAY_PROPERTIES"]["DOC_TYPE"]) && file_exists($_SERVER['DOCUMENT_ROOT'].$templateFolder."/images/".strtolower($arItem["DISPLAY_PROPERTIES"]["DOC_TYPE"]["VALUE_XML_ID"]).".gif")):?>
-				<a href="<?=$arItem["DETAIL_PAGE_URL"]?>"><img border="0" src="<?=$templateFolder."/images/".strtolower($arItem["DISPLAY_PROPERTIES"]["DOC_TYPE"]["VALUE_XML_ID"]).".gif"?>" width="19" height="19" alt="<?=$arItem["DISPLAY_PROPERTIES"]["DOC_TYPE"]["VALUE_ENUM"]?>" hspace="0" vspace="3" title="<?=$arItem["DISPLAY_PROPERTIES"]["DOC_TYPE"]["VALUE_ENUM"]?>" style="float:left" /></a>
+		<?elseif(is_array($arItem["DISPLAY_PROPERTIES"]["DOC_TYPE"]) && file_exists($_SERVER['DOCUMENT_ROOT'].$templateFolder."/images/".mb_strtolower($arItem["DISPLAY_PROPERTIES"]["DOC_TYPE"]["VALUE_XML_ID"]).".gif")):?>
+				<a href="<?=$arItem["DETAIL_PAGE_URL"]?>"><img border="0" src="<?= $templateFolder."/images/".mb_strtolower($arItem["DISPLAY_PROPERTIES"]["DOC_TYPE"]["VALUE_XML_ID"]).".gif"?>" width="19" height="19" alt="<?=$arItem["DISPLAY_PROPERTIES"]["DOC_TYPE"]["VALUE_ENUM"]?>" hspace="0" vspace="3" title="<?=$arItem["DISPLAY_PROPERTIES"]["DOC_TYPE"]["VALUE_ENUM"]?>" style="float:left" /></a>
 		<?endif?>
 	</td>
 	<td valign="top" width="100%">

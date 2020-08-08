@@ -235,7 +235,7 @@ $tabControl->BeginNextTab();
 		<td><?=GetMessage("FLOW_DOCUMENT_DATE_MODIFY")?></td>
 		<td><?=$zr["DATE_MODIFY"]?>&nbsp;&nbsp;[<a href="user_edit.php?ID=<?=$zr["MODIFIED_BY"]?>&lang=<?=LANG?>"  title="<?=GetMessage('FLOW_USER_ALT')?>"><?=$zr["MODIFIED_BY"]?></a>]&nbsp;<? echo htmlspecialcharsbx($zr["MUSER_NAME"])?></td>
 	</tr>
-	<? if (strlen($zr["DATE_LOCK"])>0) : ?>
+	<? if ($zr["DATE_LOCK"] <> '') : ?>
 	<tr>
 		<td><?=GetMessage("FLOW_DOCUMENT_DATE_LOCK")?></td>
 		<td><?=$zr["DATE_LOCK"]?>&nbsp;&nbsp;[<a href="user_edit.php?ID=<?=$zr["LOCKED_BY"]?>&lang=<?=LANG?>" title="<?=GetMessage('FLOW_USER_ALT')?>"><?=$zr["LOCKED_BY"]?></a>]&nbsp;<? echo htmlspecialcharsbx($zr["LUSER_NAME"])?>&nbsp;<?if ($zr["LOCKED_BY"]==$USER->GetID()):?><span class="required">(!)</span><?endif;?></td>

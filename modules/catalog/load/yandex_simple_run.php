@@ -60,7 +60,7 @@ $strExportErrorMessage = '';
 $usedProtocol = (isset($USE_HTTPS) && $USE_HTTPS == 'Y' ? 'https://' : 'http://');
 
 $SETUP_SERVER_NAME = trim($SETUP_SERVER_NAME);
-if (strlen($SETUP_FILE_NAME)<=0)
+if ($SETUP_FILE_NAME == '')
 {
 	$strExportErrorMessage .= GetMessage("CET_ERROR_NO_FILENAME")."<br>";
 }
@@ -87,7 +87,7 @@ if ($strExportErrorMessage == '')
 	}
 	else
 	{
-		if (!@fwrite($fp, '<?if (!isset($_GET["referer1"]) || strlen($_GET["referer1"])<=0) $_GET["referer1"] = "yandext"?>'))
+		if (!@fwrite($fp, '<?if (!isset($_GET["referer1"]) || $_GET["referer1"] == "") $_GET["referer1"] = "yandext"?>'))
 		{
 			$strExportErrorMessage .= str_replace('#FILE#',$_SERVER["DOCUMENT_ROOT"].$SETUP_FILE_NAME, GetMessage('CET_YAND_RUN_ERR_SETUP_FILE_WRITE'))."\n";
 			@fclose($fp);
@@ -95,7 +95,7 @@ if ($strExportErrorMessage == '')
 		else
 		{
 			fwrite($fp, '<? $strReferer1 = htmlspecialchars($_GET["referer1"]); ?>');
-			fwrite($fp, '<?if (!isset($_GET["referer2"]) || strlen($_GET["referer2"]) <= 0) $_GET["referer2"] = "";?>');
+			fwrite($fp, '<?if (!isset($_GET["referer2"]) || $_GET["referer2"] == "") $_GET["referer2"] = "";?>');
 			fwrite($fp, '<? $strReferer2 = htmlspecialchars($_GET["referer2"]); ?>');
 		}
 	}
@@ -110,7 +110,7 @@ if ($strExportErrorMessage == '')
 	fwrite($fp, "<shop>\n");
 	fwrite($fp, "<name>".$APPLICATION->ConvertCharset(htmlspecialcharsbx(COption::GetOptionString("main", "site_name", "")), LANG_CHARSET, 'windows-1251')."</name>\n");
 	fwrite($fp, "<company>".$APPLICATION->ConvertCharset(htmlspecialcharsbx(COption::GetOptionString("main", "site_name", "")), LANG_CHARSET, 'windows-1251')."</company>\n");
-	fwrite($fp, "<url>".$usedProtocol.htmlspecialcharsbx(strlen($SETUP_SERVER_NAME) > 0 ? $SETUP_SERVER_NAME : COption::GetOptionString("main", "server_name", ""))."</url>\n");
+	fwrite($fp, "<url>".$usedProtocol.htmlspecialcharsbx($SETUP_SERVER_NAME <> '' ? $SETUP_SERVER_NAME : COption::GetOptionString("main", "server_name", ""))."</url>\n");
 	fwrite($fp, "<platform>1C-Bitrix</platform>\n");
 
 	$BASE_CURRENCY = Currency\CurrencyManager::getBaseCurrency();
@@ -219,7 +219,7 @@ if ($strExportErrorMessage == '')
 			while ($arAcc = $res->GetNext())
 			{
 				$cnt++;
-				if (strlen($SETUP_SERVER_NAME) <= 0)
+				if ($SETUP_SERVER_NAME == '')
 				{
 					if (!array_key_exists($arAcc['LID'], $arSiteServers))
 					{
@@ -228,9 +228,9 @@ if ($strExportErrorMessage == '')
 						$rsSite = CSite::GetList($b, $o, array("LID" => $arAcc["LID"]));
 						if($arSite = $rsSite->Fetch())
 							$arAcc["SERVER_NAME"] = $arSite["SERVER_NAME"];
-						if(strlen($arAcc["SERVER_NAME"])<=0 && defined("SITE_SERVER_NAME"))
+						if($arAcc["SERVER_NAME"] == '' && defined("SITE_SERVER_NAME"))
 							$arAcc["SERVER_NAME"] = SITE_SERVER_NAME;
-						if(strlen($arAcc["SERVER_NAME"])<=0)
+						if($arAcc["SERVER_NAME"] == '')
 							$arAcc["SERVER_NAME"] = COption::GetOptionString("main", "server_name", "");
 
 						$arSiteServers[$arAcc['LID']] = $arAcc['SERVER_NAME'];
@@ -316,7 +316,7 @@ if ($strExportErrorMessage == '')
 				}
 
 				$strTmpOff.= "<offer id=\"".$arAcc["ID"]."\"".$str_AVAILABLE.">\n";
-				$strTmpOff.= "<url>".$usedProtocol.$arAcc['SERVER_NAME'].htmlspecialcharsbx($arAcc["~DETAIL_PAGE_URL"]).(strstr($arAcc['DETAIL_PAGE_URL'], '?') === false ? '?' : '&amp;')."r1=<?echo \$strReferer1; ?>&amp;r2=<?echo \$strReferer2; ?></url>\n";
+				$strTmpOff.= "<url>".$usedProtocol.$arAcc['SERVER_NAME'].htmlspecialcharsbx($arAcc["~DETAIL_PAGE_URL"]).(mb_strstr($arAcc['DETAIL_PAGE_URL'], '?') === false ? '?' : '&amp;')."r1=<?echo \$strReferer1; ?>&amp;r2=<?echo \$strReferer2; ?></url>\n";
 
 				$strTmpOff.= "<price>".$minPrice."</price>\n";
 				$strTmpOff.= "<currencyId>".$minPriceCurrency."</currencyId>\n";
@@ -331,7 +331,7 @@ if ($strExportErrorMessage == '')
 					$arPictInfo = CFile::GetFileArray($pictNo);
 					if (is_array($arPictInfo))
 					{
-						if(substr($arPictInfo["SRC"], 0, 1) == "/")
+						if(mb_substr($arPictInfo["SRC"], 0, 1) == "/")
 							$strFile = $usedProtocol.$arAcc['SERVER_NAME'].CHTTP::urnEncode($arPictInfo["SRC"], 'utf-8');
 						else
 							$strFile = $arPictInfo["SRC"];

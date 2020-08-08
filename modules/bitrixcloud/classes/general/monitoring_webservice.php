@@ -43,7 +43,7 @@ class CBitrixCloudMonitoringWebService extends CBitrixCloudWebService
 		if (is_object($node))
 		{
 			$spd = $node->getAttribute("crc_code");
-			if(strlen($spd) > 0)
+			if($spd <> '')
 				CUpdateClient::setSpd($spd);
 		}
 		else
@@ -88,7 +88,7 @@ class CBitrixCloudMonitoringWebService extends CBitrixCloudWebService
 			foreach($emails as $email)
 			{
 				$email = trim($email);
-				if (strlen($email) > 0)
+				if ($email <> '')
 					$this->addStr .= "&ar_emails[]=".urlencode($email);
 			}
 		}
@@ -98,7 +98,7 @@ class CBitrixCloudMonitoringWebService extends CBitrixCloudWebService
 			foreach($tests as $test)
 			{
 				$test = trim($test);
-				if (strlen($test) > 0)
+				if ($test <> '')
 					$this->addStr .= "&ar_tests[]=".urlencode($test);
 			}
 		}

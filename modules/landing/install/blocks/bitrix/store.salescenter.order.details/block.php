@@ -13,15 +13,15 @@ Loc::loadMessages(
  * @var StoreSalesCenterOrderDetails $classBlock
  */
 ?>
-<section class="landing-block g-pt-10 g-pb-10">
+<section class="landing-block">
 	<div class="container g-font-size-13">
 		<?
 		if (\Bitrix\Landing\Landing::getEditMode())
 		{
 			echo '
 			<div class="g-min-height-200 g-flex-centered">
-				<div class="g-pa-10 g-brd-html-dashed g-bg-white-opacity-0_8">
-					' . Loc::getMessage('LANDING_BLOCK_STORE_SALESCENTER_ORDER_DETAIL-ALERT') . '
+				<div class="g-landing-alert">
+					MESS[LANDING_BLOCK_STORE_SALESCENTER_ORDER_DETAIL_ALERT]
 				</div>
 			</div>
 			';
@@ -36,6 +36,7 @@ Loc::loadMessages(
 					'TEMPLATE_MODE' => 'lightmode',
 					'ACTIVE_DATE_FORMAT' => 'd F Y',
 					'ALLOW_SELECT_PAYMENT_PAY_SYSTEM' => 'Y',
+					'SHOW_HEADER' => 'Y',
 				],
 				false
 			);

@@ -107,7 +107,7 @@ class CatalogSectionTabHandler extends TabHandler
 				if (
 					isset($_POST['VK_EXPORT'][$export["ID"]]["TO_ALBUM"]) && $_POST['VK_EXPORT'][$export["ID"]]["TO_ALBUM"] > 0 &&
 					$_POST['VK_EXPORT'][$export["ID"]]["TO_ALBUM"] == $_POST['VK_EXPORT'][$export["ID"]]["TO_ALBUM_CURRENT"] &&
-					strlen($_POST['VK_EXPORT'][$export["ID"]]["TO_ALBUM_ALIAS"]) < 2
+					mb_strlen($_POST['VK_EXPORT'][$export["ID"]]["TO_ALBUM_ALIAS"]) < 2
 				)
 				{
 					$currErrors[] = Loc::getMessage("SALE_VK_EXPORT_SETTINGS__ERROR_EMPTY_ALIAS");

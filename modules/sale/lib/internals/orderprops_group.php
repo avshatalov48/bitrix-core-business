@@ -41,6 +41,10 @@ class OrderPropsGroupTable extends DataManager
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'getNameValidators'),
 			),
+			'CODE' => array(
+				'data_type' => 'string',
+				'validation' => array(__CLASS__, 'getCodeValidators'),
+			),
 			'SORT' => array(
 				'data_type' => 'integer',
 				'format' => '/^[0-9]{1,11}$/',
@@ -53,5 +57,10 @@ class OrderPropsGroupTable extends DataManager
 		return array(
 			new Validator\Length(1, 255),
 		);
+	}
+
+	public static function getCodeValidators()
+	{
+		return array(new Validator\Length(null, 50));
 	}
 }

@@ -137,7 +137,7 @@ class Base
 	{
 		if (!isset($this->fields[$internalName]))
 			$this->fields[$internalName] = $value;
-		$this->fieldMap[strtolower($fieldName)] = $internalName;
+		$this->fieldMap[mb_strtolower($fieldName)] = $internalName;
 	}
 }
 

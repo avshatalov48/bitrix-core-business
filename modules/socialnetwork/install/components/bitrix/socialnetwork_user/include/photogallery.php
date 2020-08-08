@@ -2,7 +2,7 @@
 $file = trim(preg_replace("'[\\\\/]+'", "/", (dirname(__FILE__)."/../lang/".LANGUAGE_ID."/include/photogallery.php")));
 __IncludeLang($file);
 
-$object = (strPos($componentPage, "group_photo")!== false ? "group" : "user");
+$object = (mb_strpos($componentPage, "group_photo") !== false ? "group" : "user");
 
 $arParams["SHOW_LINK_TO_FORUM"] = "N";
 $arParams["PHOTO_PREORDER"] = "Y";
@@ -44,7 +44,7 @@ if ($arParams["SET_NAV_CHAIN"] == "Y" || $arParams["SET_TITLE"] == "Y")
 
 	$feature = "photo";
 	$arEntityActiveFeatures = CSocNetFeatures::GetActiveFeaturesNames((($object == 'group') ? SONET_ENTITY_GROUP : SONET_ENTITY_USER), (($object == 'group') ? $arResult["VARIABLES"]["group_id"] : $arResult["VARIABLES"]["user_id"]));
-	$strFeatureTitle = ((array_key_exists($feature, $arEntityActiveFeatures) && StrLen($arEntityActiveFeatures[$feature]) > 0) ? $arEntityActiveFeatures[$feature] : GetMessage("SONET_PHOTO"));
+	$strFeatureTitle = ((array_key_exists($feature, $arEntityActiveFeatures) && $arEntityActiveFeatures[$feature] <> '') ? $arEntityActiveFeatures[$feature] : GetMessage("SONET_PHOTO"));
 
 	if($object == "group")
 	{
@@ -62,7 +62,7 @@ if ($arParams["SET_NAV_CHAIN"] == "Y" || $arParams["SET_TITLE"] == "Y")
 	}
 	else
 	{
-		if (strlen($arParams["NAME_TEMPLATE"]) <= 0)
+		if ($arParams["NAME_TEMPLATE"] == '')
 			$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 
 		$arParams["TITLE_NAME_TEMPLATE"] = str_replace(
@@ -164,10 +164,10 @@ $arParams["PHOTO"] = array(
 /***************** BASE ********************************************/
 	"USER" => array(
 		"IBLOCK_TYPE" => trim($arParams["PHOTO_USER_IBLOCK_TYPE"]),
-		"IBLOCK_ID" => intVal($arParams["PHOTO_USER_IBLOCK_ID"])),
+		"IBLOCK_ID" => intval($arParams["PHOTO_USER_IBLOCK_ID"])),
 	"GROUP" => array(
 		"IBLOCK_TYPE" => trim($arParams["PHOTO_GROUP_IBLOCK_TYPE"]),
-		"IBLOCK_ID" => intVal($arParams["PHOTO_GROUP_IBLOCK_ID"])),
+		"IBLOCK_ID" => intval($arParams["PHOTO_GROUP_IBLOCK_ID"])),
 
 	"ALL" => array(
 		"GALLERY_GROUPS" => array(2),
@@ -180,8 +180,8 @@ $arParams["PHOTO"] = array(
 		"PROPERTY_CODE" => array(),
 		"MODERATION" => ($arParams["PHOTO_MODERATION"] == "Y" ? "Y" : "N"),
 /***************** ADDITIONAL **************************************/
-		"SECTION_PAGE_ELEMENTS" => (intVal($arParams["PHOTO_SECTION_PAGE_ELEMENTS"]) > 0 ? intVal($arParams["PHOTO_SECTION_PAGE_ELEMENTS"]) : 15),
-		"ELEMENTS_PAGE_ELEMENTS" => (intVal($arParams["PHOTO_ELEMENTS_PAGE_ELEMENTS"]) > 0 ? intVal($arParams["PHOTO_ELEMENTS_PAGE_ELEMENTS"]) : 50),
+		"SECTION_PAGE_ELEMENTS" => (intval($arParams["PHOTO_SECTION_PAGE_ELEMENTS"]) > 0 ? intval($arParams["PHOTO_SECTION_PAGE_ELEMENTS"]) : 15),
+		"ELEMENTS_PAGE_ELEMENTS" => (intval($arParams["PHOTO_ELEMENTS_PAGE_ELEMENTS"]) > 0 ? intval($arParams["PHOTO_ELEMENTS_PAGE_ELEMENTS"]) : 50),
 		"PAGE_NAVIGATION_TEMPLATE" => trim($arParams["PHOTO_PAGE_NAVIGATION_TEMPLATE"]),
 		"ELEMENTS_USE_DESC_PAGE" => "Y",
 		"DATE_TIME_FORMAT_SECTION" => "",
@@ -191,21 +191,21 @@ $arParams["PHOTO"] = array(
 		"GROUP_PERMISSIONS" => array(),
 		"TEMPLATE_LIST" => ($arParams["PHOTO_TEMPLATE_LIST"] == "table" ? "table" : ".default"),
 /***************** UPLOAD ******************************************/
-		"UPLOAD_MAX_FILE_SIZE" => intVal($arParams["PHOTO_UPLOAD_MAX_FILESIZE"]),
-		"UPLOAD_MAX_FILE" => intVal($arParams["PHOTO_UPLOAD_MAX_FILE"]),
+		"UPLOAD_MAX_FILE_SIZE" => intval($arParams["PHOTO_UPLOAD_MAX_FILESIZE"]),
+		"UPLOAD_MAX_FILE" => intval($arParams["PHOTO_UPLOAD_MAX_FILE"]),
 
-		"GALLERY_AVATAR_SIZE" => intVal($arParams["PHOTO_GALLERY_AVATAR_SIZE"]),
-		"GALLERY_AVATAR_THUMBS_SIZE" => intVal($arParams["PHOTO_GALLERY_AVATAR_THUMBS_SIZE"]),
+		"GALLERY_AVATAR_SIZE" => intval($arParams["PHOTO_GALLERY_AVATAR_SIZE"]),
+		"GALLERY_AVATAR_THUMBS_SIZE" => intval($arParams["PHOTO_GALLERY_AVATAR_THUMBS_SIZE"]),
 
-		"ALBUM_PHOTO_THUMBS_SIZE" => intVal($arParams["PHOTO_ALBUM_PHOTO_THUMBS_SIZE"]),
-		"ALBUM_PHOTO_SIZE" => intVal($arParams["PHOTO_ALBUM_PHOTO_SIZE"]),
+		"ALBUM_PHOTO_THUMBS_SIZE" => intval($arParams["PHOTO_ALBUM_PHOTO_THUMBS_SIZE"]),
+		"ALBUM_PHOTO_SIZE" => intval($arParams["PHOTO_ALBUM_PHOTO_SIZE"]),
 
-		"THUMBNAIL_SIZE" => intVal($arParams["PHOTO_THUMBNAIL_SIZE"]),
-		"JPEG_QUALITY1" => intVal($arParams["PHOTO_JPEG_QUALITY1"]),
-		"PREVIEW_SIZE" => intVal($arParams["PHOTO_PREVIEW_SIZE"]),
-		"JPEG_QUALITY2" => intVal($arParams["PHOTO_JPEG_QUALITY2"]),
-		"ORIGINAL_SIZE" => intVal($arParams["PHOTO_ORIGINAL_SIZE"]),
-		"JPEG_QUALITY" => intVal($arParams["PHOTO_JPEG_QUALITY"]),
+		"THUMBNAIL_SIZE" => intval($arParams["PHOTO_THUMBNAIL_SIZE"]),
+		"JPEG_QUALITY1" => intval($arParams["PHOTO_JPEG_QUALITY1"]),
+		"PREVIEW_SIZE" => intval($arParams["PHOTO_PREVIEW_SIZE"]),
+		"JPEG_QUALITY2" => intval($arParams["PHOTO_JPEG_QUALITY2"]),
+		"ORIGINAL_SIZE" => intval($arParams["PHOTO_ORIGINAL_SIZE"]),
+		"JPEG_QUALITY" => intval($arParams["PHOTO_JPEG_QUALITY"]),
 
 		"ADDITIONAL_SIGHTS" => array(),
 		"WATERMARK_RULES" => $arParams["PHOTO_WATERMARK_RULES"],
@@ -217,11 +217,11 @@ $arParams["PHOTO"] = array(
 		"WATERMARK_FILE_ORDER" => $arParams["PHOTO_WATERMARK_FILE_ORDER"],
 		"WATERMARK_POSITION" => $arParams["PHOTO_WATERMARK_POSITION"],
 		"WATERMARK_TRANSPARENCY" => $arParams["PHOTO_WATERMARK_TRANSPARENCY"],
-		"WATERMARK_MIN_PICTURE_SIZE" => intVal($arParams["PHOTO_WATERMARK_MIN_PICTURE_SIZE"]),
+		"WATERMARK_MIN_PICTURE_SIZE" => intval($arParams["PHOTO_WATERMARK_MIN_PICTURE_SIZE"]),
 		"PATH_TO_FONT" => trim($arParams["PHOTO_PATH_TO_FONT"]),
 /***************** RATING ******************************************/
 		"USE_RATING" => ($arParams["PHOTO_USE_RATING"] == "Y" || $arParams["SHOW_RATING"] == "Y" ? "Y" : "N"),
-		"MAX_VOTE" => intVal($arParams["PHOTO_MAX_VOTE"]),
+		"MAX_VOTE" => intval($arParams["PHOTO_MAX_VOTE"]),
 		"VOTE_NAMES" => $arParams["PHOTO_VOTE_NAMES"],
 		"DISPLAY_AS_RATING" => $arParams["SHOW_RATING"] == "Y"? "rating_main": $arParams["PHOTO_DISPLAY_AS_RATING"],
 		"RATING_MAIN_TYPE" => $arParams["SHOW_RATING"] == "Y"? $arParams["RATING_TYPE"]: "",
@@ -242,17 +242,17 @@ $arParams["PHOTO"] = array(
 	"TEMPLATE" => array(
 		"SHOW_PHOTO_USER" => "N",
 		"SHOW_SHOWS" => "",
-		"CELL_COUNT" => intVal($arParams["PHOTO_COUNT_CELL"] > 0 ? $arParams["PHOTO_COUNT_CELL"] : 0),
+		"CELL_COUNT" => intval($arParams["PHOTO_COUNT_CELL"] > 0 ? $arParams["PHOTO_COUNT_CELL"] : 0),
 		"TEMPLATE_LIST" => ($arParams["PHOTO_TEMPLATE_LIST"] == "table" ? "table" : ".default"),
-		"SLIDER_COUNT_CELL" => intVal($arParams["PHOTO_SLIDER_COUNT_CELL"] > 0 ? $arParams["PHOTO_SLIDER_COUNT_CELL"] : 3),
-		"GALLERY_AVATAR_SIZE" => intVal($arParams["PHOTO_GALLERY_AVATAR_SIZE"]),
+		"SLIDER_COUNT_CELL" => intval($arParams["PHOTO_SLIDER_COUNT_CELL"] > 0 ? $arParams["PHOTO_SLIDER_COUNT_CELL"] : 3),
+		"GALLERY_AVATAR_SIZE" => intval($arParams["PHOTO_GALLERY_AVATAR_SIZE"]),
 		"WATERMARK" => ($arParams["PHOTO_SHOW_WATERMARK"] == "N" ? "N" : "Y"),
 		"WATERMARK_COLORS" => array(),
 		)
 	);
 
-	if ($arParams["PHOTO"]["ALL"]["THUMBNAIL_SIZE"] <= 0 && intVal($arParams["PHOTO_THUMBS_SIZE"]) > 0)
-		$arParams["PHOTO"]["ALL"]["THUMBNAIL_SIZE"] = round(intVal($arParams["PHOTO_THUMBS_SIZE"]) * 0.6);
+	if ($arParams["PHOTO"]["ALL"]["THUMBNAIL_SIZE"] <= 0 && intval($arParams["PHOTO_THUMBS_SIZE"]) > 0)
+		$arParams["PHOTO"]["ALL"]["THUMBNAIL_SIZE"] = round(intval($arParams["PHOTO_THUMBS_SIZE"]) * 0.6);
 
 /***************** ADDITIONAL **************************************/
 	if(!isset($arParams["CACHE_TIME"]))
@@ -271,7 +271,7 @@ $arParams["PHOTO"] = array(
 /********************************************************************
 				Default params
 ********************************************************************/
-$arParams["IBLOCK_ID"] = intVal($object == "user" ? $arParams["PHOTO_USER_IBLOCK_ID"] : $arParams["PHOTO_GROUP_IBLOCK_ID"]);
+$arParams["IBLOCK_ID"] = intval($object == "user" ? $arParams["PHOTO_USER_IBLOCK_ID"] : $arParams["PHOTO_GROUP_IBLOCK_ID"]);
 $cache = new CPHPCache;
 /************** Permission *****************************************/
 $arParams["PERMISSION"]	= "D";
@@ -336,7 +336,7 @@ if (empty($user_alias)):
 			{
 				if (preg_match("/[^a-z0-9_]/is", $res["~CODE"]))
 					$res["CODE"] = "";
-				$res["ELEMENTS_CNT"] = intVal(CIBlockSection::GetSectionElementsCount($res["ID"], Array("CNT_ALL"=>"Y")));
+				$res["ELEMENTS_CNT"] = intval(CIBlockSection::GetSectionElementsCount($res["ID"], Array("CNT_ALL"=>"Y")));
 				$res["PICTURE"] = CFile::GetFileArray($res["PICTURE"]);
 				if ($res["UF_DEFAULT"] == "Y" && $res["ACTIVE"] == "Y")
 					$arResult["VARIABLES"]["GALLERY"] = $res;
@@ -390,7 +390,7 @@ if (empty($user_alias)):
 			{
 				$dbUser = CUser::GetByID($USER->GetID());
 				$arResult["USER"] = $dbUser->GetNext();
-				$arResult["USER"]["PERSONAL_PHOTO"] = intVal($arResult["USER"]["PERSONAL_PHOTO"]);
+				$arResult["USER"]["PERSONAL_PHOTO"] = intval($arResult["USER"]["PERSONAL_PHOTO"]);
 
 				if ($arResult["USER"]["PERSONAL_PHOTO"] > 0)
 				{
@@ -546,7 +546,7 @@ elseif ($user_alias != "NEW_ALIAS"):
 			$arFilter, false, array("UF_DEFAULT", "UF_GALLERY_SIZE", "UF_GALLERY_RECALC", "UF_DATE"));
 		if ($db_res && $res = $db_res->GetNext())
 		{
-			$res["ELEMENTS_CNT"] = intVal(CIBlockSection::GetSectionElementsCount($res["ID"], array("CNT_ALL"=>"Y")));
+			$res["ELEMENTS_CNT"] = intval(CIBlockSection::GetSectionElementsCount($res["ID"], array("CNT_ALL"=>"Y")));
 			$res["PICTURE"] = CFile::GetFileArray($res["PICTURE"]);
 			$arResult["VARIABLES"]["GALLERY"] = $res;
 		}
@@ -579,10 +579,10 @@ if (empty($arResult["VARIABLES"]["GALLERY"]))
 ********************************************************************/
 foreach ($arDefaultUrlTemplates404 as $url => $value)
 {
-	if (strPos($url, "user_photo") === false && strPos($url, "group_photo") === false)
+	if (mb_strpos($url, "user_photo") === false && mb_strpos($url, "group_photo") === false)
 		continue;
 
-	$arResult["~PATH_TO_".strToUpper($url)] = str_replace(
+	$arResult["~PATH_TO_".mb_strtoupper($url)] = str_replace(
 		array(
 			"#user_id#",
 			"#group_id#",
@@ -601,7 +601,7 @@ foreach ($arDefaultUrlTemplates404 as $url => $value)
 			"#ELEMENT_ID#",
 			"#ELEMENT_NAME#",
 			"#ACTION#"),
-		$arResult["PATH_TO_".strToUpper($url)]);
+		$arResult["PATH_TO_".mb_strtoupper($url)]);
 }
 $arResult["~PATH_TO_USER_PHOTO"] = $arResult["~PATH_TO_USER_PHOTO_GALLERY"];
 $arResult["~PATH_TO_USER"] = str_replace("#user_id#", "#USER_ID#", (empty($arResult["PATH_TO_USER"]) ? $arParams["PATH_TO_USER"] : $arResult["PATH_TO_USER"]));

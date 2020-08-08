@@ -5,7 +5,7 @@ if (!CModule::IncludeModule("forum")):
 elseif (!CModule::IncludeModule("socialnetwork")):
 	ShowError(GetMessage("SONET_MODULE_NOT_INSTALL"));
 	return false;
-elseif (intVal($arParams["FID"]) <= 0):
+elseif (intval($arParams["FID"]) <= 0):
 	ShowError(GetMessage("F_FID_IS_EMPTY"));
 	return false;
 endif;
@@ -14,16 +14,16 @@ endif;
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$arParams["FID"] = intVal($arParams["FID"]);
-	$arParams["TID"] = intVal(empty($arParams["TID"]) ? $_REQUEST["TID"] : $arParams["TID"]);
-	$arParams["MID"] = intVal(empty($arParams["MID"]) ? $_REQUEST["MID"] : $arParams["MID"]);
+	$arParams["FID"] = intval($arParams["FID"]);
+	$arParams["TID"] = intval(empty($arParams["TID"]) ? $_REQUEST["TID"] : $arParams["TID"]);
+	$arParams["MID"] = intval(empty($arParams["MID"]) ? $_REQUEST["MID"] : $arParams["MID"]);
 
 	$arParams["PAGE_NAME"] = htmlspecialcharsbx(empty($arParams["PAGE_NAME"]) ? $_REQUEST["PAGE_NAME"] : $arParams["PAGE_NAME"]);
-	$arParams["MESSAGE_TYPE"] = (in_array(strToUpper($arParams["MESSAGE_TYPE"]), array("REPLY", "EDIT", "NEW")) ? strToUpper($arParams["MESSAGE_TYPE"]):"NEW");
+	$arParams["MESSAGE_TYPE"] = (in_array(mb_strtoupper($arParams["MESSAGE_TYPE"]), array("REPLY", "EDIT", "NEW"))? mb_strtoupper($arParams["MESSAGE_TYPE"]) : "NEW");
 	$arParams["MID"] = ($arParams["MESSAGE_TYPE"] == "EDIT" ? $arParams["MID"] : 0);
 	$arParams["bVarsFromForm"] = ($arParams["bVarsFromForm"] == "Y" || $arParams["bVarsFromForm"] === true ? "Y" : "N");
 
-	$arParams["SOCNET_GROUP_ID"] = intVal($arParams["SOCNET_GROUP_ID"]);
+	$arParams["SOCNET_GROUP_ID"] = intval($arParams["SOCNET_GROUP_ID"]);
 	$arParams["MODE"] = ($arParams["SOCNET_GROUP_ID"] > 0 ? "GROUP" : "USER");
 	$arParams["USER_ID"] = intval(!empty($arParams["USER_ID"]) ? $arParams["USER_ID"] : $USER->GetID());
 /***************** URL *********************************************/
@@ -34,10 +34,10 @@ endif;
 		"message" => "PAGE_NAME=message&FID=#FID#&TID=#TID#&MID=#MID#");
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		if (trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
+			$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["AJAX_TYPE"] = ($arParams["AJAX_TYPE"] == "Y" ? "Y" : "N");
@@ -45,7 +45,7 @@ endif;
 	$arParams["EDITOR_CODE_DEFAULT"] = ($arParams["EDITOR_CODE_DEFAULT"] == "Y" ? "Y" : "N");
 	$arParams['AJAX_POST'] = ($arParams["AJAX_POST"] == "Y" ? "Y" : "N");
 	
-	$arParams["VOTE_CHANNEL_ID"] = intVal($arParams["VOTE_CHANNEL_ID"]);
+	$arParams["VOTE_CHANNEL_ID"] = intval($arParams["VOTE_CHANNEL_ID"]);
 	$arParams["SHOW_VOTE"] = ($arParams["SHOW_VOTE"] == "Y" && $arParams["VOTE_CHANNEL_ID"] > 0 && IsModuleInstalled("vote") ? "Y" : "N");
 	$arParams["AUTOSAVE"] = CForumAutosave::GetInstance();
 /***************** STANDART ****************************************/
@@ -286,9 +286,9 @@ if ($arParams["MESSAGE_TYPE"] == "EDIT")
 			$arResult["DATA"]["FILES"][$res["FILE_ID"]] = $res;
 		} while ($res = $db_res->Fetch());
 	}
-	if ($arParams["SHOW_VOTE"] == "Y" && $arResult["MESSAGE"]["PARAM1"] == "VT" && intVal($arResult["MESSAGE"]["PARAM2"]) > 0)
+	if ($arParams["SHOW_VOTE"] == "Y" && $arResult["MESSAGE"]["PARAM1"] == "VT" && intval($arResult["MESSAGE"]["PARAM2"]) > 0)
 	{
-		$db_vote = CVote::GetByID(intVal($unreadedMessages["PARAM2"]));
+		$db_vote = CVote::GetByID(intval($unreadedMessages["PARAM2"]));
 		if ($db_vote && $arVote = $db_vote->GetNext())
 			$arResult['DATE_END'] = $arVote['DATE_END'];
 
@@ -312,7 +312,7 @@ if ($arParams["MESSAGE_TYPE"] == "EDIT")
 				{
 					if (is_set($arResult["~QUESTIONS"], $res["QUESTION_ID"])):
 						$arResult["~QUESTIONS"][$res["QUESTION_ID"]]["ANSWERS"][$res["ID"]] = $res;
-						if (intVal($res["FIELD_TYPE"]) == 1):
+						if (intval($res["FIELD_TYPE"]) == 1):
 							$arResult["~QUESTIONS"][$res["QUESTION_ID"]]["MULTI"] = "Y";
 						endif;
 					endif;
@@ -428,15 +428,6 @@ if ($arResult["SHOW_PANEL"]["ATTACH"] == "Y")
 		if (intval($val) > 0)
 			$arResult["DATA"]["FILES"][$key] = CFile::GetFileArray($key);
 	}
-/************** For custom component *******************************/
-/*	$arResult["DATA"]["ATTACH_IMG_FILE"] = false;
-	if (strlen($arResult["DATA"]["ATTACH_IMG"]) > 0)
-	{
-		$arResult["DATA"]["ATTACH_IMG_FILE"] = $arResult["MESSAGE"]["FILES"][$arResult["MESSAGE"]["ATTACH_IMG"]];
-		if ($arResult["DATA"]["ATTACH_IMG_FILE"])
-			$arResult["DATA"]["ATTACH_IMG"] = CFile::ShowImage($arResult["MESSAGE"]["ATTACH_IMG_FILE"], 200, 200, "border=0");
-	}*/
-/************** For custom component/*******************************/
 }
 
 if ($arResult["SHOW_PANEL"]["CAPTCHA"] == "Y")
@@ -444,7 +435,7 @@ if ($arResult["SHOW_PANEL"]["CAPTCHA"] == "Y")
 	include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
 	$cpt = new CCaptcha();
 	$captchaPass = COption::GetOptionString("main", "captcha_password", "");
-	if (strlen($captchaPass) <= 0)
+	if ($captchaPass == '')
 	{
 		$captchaPass = randString(10);
 		COption::SetOptionString("main", "captcha_password", $captchaPass);
@@ -458,7 +449,7 @@ $arResult["URL"] = array(
 		"TID" => $arParams["TID"], "UID" => $arParams["USER_ID"], "GID" => $arParams["SOCNET_GROUP_ID"])), 
 	"READ" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE"], array("FID" => $arParams["FID"], 
 		"TID" => $arParams["TID"], "UID" => $arParams["USER_ID"], "GID" => $arParams["SOCNET_GROUP_ID"], 
-		"MID"=>((intVal($arParams["MID"]) > 0) ? intVal($arParams["MID"]) : "s"))));
+		"MID"=>((intval($arParams["MID"]) > 0) ? intval($arParams["MID"]) : "s"))));
 /************** Submit *********************************************/
 $arResult["SUBMIT"] = $arResult["INFO"]["SUBMIT"];
 /********************************************************************

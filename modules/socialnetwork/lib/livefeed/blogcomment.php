@@ -134,7 +134,7 @@ final class BlogComment extends Provider
 		)
 		{
 			$pathToPost = \CComponentEngine::makePathFromTemplate($pathToPost, array("post_id" => $comment["POST"]["ID"], "user_id" => $comment["POST"]["AUTHOR_ID"]));
-			$pathToPost .= (strpos($pathToPost, '?') === false ? '?' : '&').'commentId='.$comment["ID"].'#com'.$comment["ID"];
+			$pathToPost .= (mb_strpos($pathToPost, '?') === false ? '?' : '&').'commentId='.$comment["ID"].'#com'.$comment["ID"];
 		}
 
 		return $pathToPost;

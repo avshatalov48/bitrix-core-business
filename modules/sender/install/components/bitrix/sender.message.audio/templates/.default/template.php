@@ -1,6 +1,7 @@
 <?
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
 
@@ -17,7 +18,7 @@ $playerId = $id . "player";
 <div class="bx-sender-audio">
 	<div class="bx-sender-audio-player">
 		<?
-		$crmInstalled = CModule::IncludeModule('crm');
+		$crmInstalled = Loader::includeModule('crm');
 
 		$APPLICATION->IncludeComponent(
 			"bitrix:player",

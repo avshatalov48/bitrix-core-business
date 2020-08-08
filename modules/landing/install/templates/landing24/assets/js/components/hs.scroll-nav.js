@@ -352,7 +352,7 @@
    */
   HSScrollNavSection.prototype.changeHash = function() {
     this.section.attr('id', '');
-	window.location.hash = "#"+this.element.attr('href').split("#")[1];
+	// window.location.hash = "#"+this.element.attr('href').split("#")[1];
 	this.section.attr('id', this.element.attr('href').split("#")[1]);
   };
 

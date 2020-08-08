@@ -78,6 +78,7 @@ CModule::AddAutoloadClasses(
 	"sale",
 	array(
 		"sale" => "install/index.php",
+		"CAllSaleDelivery" => "general/delivery.php",
 		"CSaleDelivery" => $DBType."/delivery.php",
 		"CSaleDeliveryHandler" => $DBType."/delivery_handler.php",
 		"CSaleDeliveryHelper" => "general/delivery_helper.php",
@@ -636,6 +637,11 @@ CModule::AddAutoloadClasses(
 	)
 );
 
+\Bitrix\Main\Loader::registerNamespace(
+	'Sale\Handlers\Delivery\Taxi\\',
+	\Bitrix\Main\Loader::getDocumentRoot().'/bitrix/modules/sale/handlers/delivery/taxi'
+);
+
 class_alias('Bitrix\Sale\TradingPlatform\YMarket\YandexMarket', 'Bitrix\Sale\TradingPlatform\YandexMarket');
 class_alias('\Bitrix\Sale\PaySystem\Logger', '\Bitrix\Sale\PaySystem\ErrorLog');
 class_alias('\Bitrix\Sale\Internals\OrderTable', '\Bitrix\Sale\OrderTable');
@@ -772,10 +778,10 @@ function PayUserAccountDeliveryOrderCallback($productID, $userID, $bPaid, $order
 {
 	global $DB;
 
-	$productID = IntVal($productID);
-	$userID = IntVal($userID);
+	$productID = intval($productID);
+	$userID = intval($userID);
 	$bPaid = ($bPaid ? True : False);
-	$orderID = IntVal($orderID);
+	$orderID = intval($orderID);
 
 	if ($userID <= 0)
 		return False;
@@ -840,7 +846,7 @@ function GetFormatedUserName($userId, $bEnableId = true, $createEditLink = true)
 		);
 		while ($arUser = $resUsers->Fetch())
 		{
-			if (strlen($siteNameFormat) == 0)
+			if ($siteNameFormat == '')
 				$siteNameFormat = CSite::GetNameFormat(false);
 			$formattedUsersName[$arUser['ID']] = CUser::FormatName($siteNameFormat, $arUser, true, true);
 		}
@@ -932,7 +938,7 @@ function getMeasures($arBasketItems)
 		$basketLinks = array();
 		foreach ($arBasketItems as $keyBasket => $arItem)
 		{
-			if (isset($arItem['MEASURE_NAME']) && strlen($arItem['MEASURE_NAME']) > 0)
+			if (isset($arItem['MEASURE_NAME']) && $arItem['MEASURE_NAME'] <> '')
 			{
 				$measureText = $arItem['MEASURE_NAME'];
 				$measureCode = intval($arItem['MEASURE_CODE']);
@@ -1121,10 +1127,10 @@ function getProductProps($arElementId, $arSelect)
 	$arSelect = array_filter($arSelect, 'checkProductPropCode');
 	foreach (array_keys($arSelect) as $index)
 	{
-		if (substr($arSelect[$index], 0, 9) === 'PROPERTY_')
+		if (mb_substr($arSelect[$index], 0, 9) === 'PROPERTY_')
 		{
-			if (substr($arSelect[$index], -6) === '_VALUE')
-				$arSelect[$index] = substr($arSelect[$index], 0, -6);
+			if (mb_substr($arSelect[$index], -6) === '_VALUE')
+				$arSelect[$index] = mb_substr($arSelect[$index], 0, -6);
 		}
 	}
 	unset($index);

@@ -18,33 +18,47 @@ class CBPCreateDocumentActivity
 
 	public function Execute()
 	{
-		$rootActivity = $this->GetRootActivity();
-		$documentId = $rootActivity->GetDocumentId();
+		$documentId = $this->GetDocumentId();
+		$documentType = $this->GetDocumentType();
+
 		$fieldValue = $this->Fields;
 
 		$documentService = $this->workflow->GetService("DocumentService");
-
-		$documentFields = $documentService->GetDocumentFields($documentService->GetDocumentType($documentId));
+		$documentFields = $documentService->GetDocumentFields($documentType);
 		$documentFieldsAliasesMap = CBPDocument::getDocumentFieldsAliasesMap($documentFields);
-		if ($documentFieldsAliasesMap)
+
+		$resultFields = [];
+		foreach ($fieldValue as $key => $value)
 		{
-			$fixedFields = array();
-			foreach ($fieldValue as $key => $value)
+			if (!isset($documentFields[$key]) && isset($documentFieldsAliasesMap[$key]))
 			{
-				if (!isset($documentFields[$key]) && isset($documentFieldsAliasesMap[$key]))
-				{
-					$fixedFields[$documentFieldsAliasesMap[$key]] = $value;
-					continue;
-				}
-				$fixedFields[$key] = $value;
+				$key = $documentFieldsAliasesMap[$key];
 			}
-			$fieldValue = $fixedFields;
+
+			if (($property = $documentFields[$key]) && $value)
+			{
+				$fieldTypeObject = $documentService->getFieldTypeObject($documentType, $property);
+				if ($fieldTypeObject)
+				{
+					$fieldTypeObject->setDocumentId($documentId);
+					$value = $fieldTypeObject->externalizeValue('Document', $value);
+				}
+			}
+
+			$resultFields[$key] = $value;
 		}
 
-		$executionKey = $rootActivity->GetWorkflowTemplateId();
+		$executionKey = $this->GetWorkflowTemplateId();
 
 		self::increaseExecutionDepth($executionKey);
-		$documentService->CreateDocument($documentId, $fieldValue);
+		try
+		{
+			$documentService->CreateDocument($documentId, $resultFields);
+		}
+		catch (Exception $e)
+		{
+			$this->WriteToTrackingService($e->getMessage(), 0, CBPTrackingType::Error);
+		}
 		self::resetExecutionDepth($executionKey);
 
 		return CBPActivityExecutionStatus::Closed;
@@ -120,7 +134,7 @@ class CBPCreateDocumentActivity
 				continue;
 
 			$arDocumentFields[$key] = $value;
-			if (strlen($defaultFieldValue) <= 0)
+			if ($defaultFieldValue == '')
 				$defaultFieldValue = $key;
 
 			/*if ($value["BaseType"] == "select" || $value["BaseType"] == "bool")

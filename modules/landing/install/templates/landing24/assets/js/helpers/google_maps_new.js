@@ -2,6 +2,8 @@
 {
 	"use strict";
 
+	var sheduldedMapEvents = [];
+
 	BX.addCustomEvent(window, "BX.Landing.Block:init", function (event)
 	{
 		if (event.block.querySelector("[data-map]"))
@@ -12,9 +14,16 @@
 			}
 			else
 			{
+				if (!sheduldedMapEvents.includes(event))
+				{
+					sheduldedMapEvents.push(event);
+				}
+
 				window.onGoogleMapApiLoaded = function ()
 				{
-					initGmapBlock(event);
+					sheduldedMapEvents.forEach(function(event){
+						initGmapBlock(event)
+					});
 				}
 			}
 		}

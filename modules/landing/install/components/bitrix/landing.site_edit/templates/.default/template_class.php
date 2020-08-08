@@ -27,7 +27,7 @@ class Template
 	 */
 	public function showSimple($code)
 	{
-		$code = strtoupper($code);
+		$code = mb_strtoupper($code);
 		$hooks = isset($this->result['HOOKS'])
 					? $this->result['HOOKS']
 					: array();
@@ -44,7 +44,7 @@ class Template
 					$type = $pageFields[$code . '_USE']->getType();
 					$pageFields[$code . '_USE']->viewForm(array(
 					  	'class' => self::getCssByType($type),
-						'id' => 'checkbox-' . strtolower($code) . '-use',
+						'id' => 'checkbox-'.mb_strtolower($code) . '-use',
 						'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
 					));
 				}
@@ -55,7 +55,7 @@ class Template
 				if (isset($pageFields[$code . '_USE']))
 				{
 					?>
-						<label class="ui-checkbox-label" for="<?= 'checkbox-' . strtolower($code) . '-use';?>">
+						<label class="ui-checkbox-label" for="<?= 'checkbox-'.mb_strtolower($code) . '-use';?>">
 							<?= $pageFields[$code . '_USE']->getLabel();?>
 						</label>
 					<?
@@ -69,7 +69,7 @@ class Template
 								if (typeof BX.Landing.PaymentAlert !== 'undefined')
 								{
 									BX.Landing.PaymentAlert({
-										nodes: [BX('<?= 'checkbox-' . strtolower($code) . '-use';?>')],
+										nodes: [BX('<?= 'checkbox-'.mb_strtolower($code) . '-use';?>')],
 										title: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_HTML_DISABLED_TITLE'));?>',
 										message: '<?= \CUtil::jsEscape($hooks[$code]->getLockedMessage());?>'
 									});
@@ -87,13 +87,13 @@ class Template
 					$type = $field->getType();
 					echo '<div class="ui-checkbox-hidden-input-hook">';
 					echo $field->viewForm(array(
-						'id' => 'field-' . strtolower($key) . '-use',
+						'id' => 'field-'.mb_strtolower($key) . '-use',
 						'class' => self::getCssByType($type),
 						'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
 					));
 					if ($type == 'checkbox')
 					{
-						echo '<label for="field-' . strtolower($key) . '-use">' .
+						echo '<label for="field-'.mb_strtolower($key) . '-use">' .
 								$field->getLabel() .
 							'</label>';
 					}
@@ -107,6 +107,99 @@ class Template
 				?></div><?
 
 			?></div><?
+		}
+	}
+
+	public function showMultiply(string $code, bool $alwaysOpen = false): void
+	{
+		$code = strtoupper($code);
+		$hooks = isset($this->result['HOOKS'])
+			? $this->result['HOOKS']
+			: array();
+
+		if (isset($hooks[$code]))
+		{
+			$pageFields = $hooks[$code]->getPageFields();
+			?>
+
+			<div class="ui-checkbox-hidden-input">
+
+				<?php
+				// use-checkbox
+				if (isset($pageFields[$code . '_USE']))
+				{
+					if($alwaysOpen)
+					{
+						echo '<input type="hidden" name="fields[ADDITIONAL_FIELDS]['. $code . '_USE]" value="Y"/>';
+					}
+					else
+					{
+						$type = $pageFields[$code . '_USE']->getType();
+						$pageFields[$code . '_USE']->viewForm([
+							'class' => self::getCssByType($type),
+							'id' => 'checkbox-' . strtolower($code) . '-use',
+							'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
+						]);
+					}
+				}
+				?>
+
+				<div class="ui-checkbox-hidden-input-inner <?=($alwaysOpen ? 'opened' : '')?>">
+
+					<?php
+					if (isset($pageFields[$code . '_USE']))
+					{ ?>
+						<?php if(!$alwaysOpen): ?>
+							<label class="ui-checkbox-label" for="<?= 'checkbox-' . strtolower($code) . '-use'; ?>">
+								<?= $pageFields[$code . '_USE']->getLabel(); ?>
+							</label>
+							<?php if ($hooks[$code]->isLocked()): ?>
+								<span class="landing-icon-lock"></span>
+								<script type="text/javascript">
+									BX.ready(function ()
+									{
+										if (typeof BX.Landing.PaymentAlert !== 'undefined')
+										{
+											BX.Landing.PaymentAlert({
+												nodes: [BX('<?= 'checkbox-' . strtolower($code) . '-use';?>')],
+												title: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_HTML_DISABLED_TITLE'));?>',
+												message: '<?= \CUtil::jsEscape($hooks[$code]->getLockedMessage());?>'
+											});
+										}
+									});
+								</script>
+							<?php endif; ?>
+						<?php endif; ?>
+						<?php unset($pageFields[$code . '_USE']);
+					}
+					?>
+
+					<?php foreach ($pageFields as $key => $field): ?>
+						<?php $type = $field->getType(); ?>
+						<div class="ui-checkbox-hidden-input-hook">
+							<?php if ($type !== 'checkbox'): ?>
+								<label for="field-<?=strtolower($key)?>-use"><?=$field->getLabel()?></label>
+							<?php endif; ?>
+
+							<?=$field->viewForm([
+								'id' => 'field-' . strtolower($key) . '-use',
+								'class' => self::getCssByType($type),
+								'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
+							])?>
+
+							<?php if ($type === 'checkbox'): ?>
+								<label for="field-<?=strtolower($key)?>-use"><?=$field->getLabel()?></label>
+							<?php endif; ?>
+
+							<?php if ($help = $field->getHelpValue()): ?>
+								<div class="ui-checkbox-hidden-input-hook-help"><?=$help?></div>
+							<?php endif; ?>
+						</div>
+					<?php endforeach; ?>
+
+				</div>
+			</div>
+			<?php
 		}
 	}
 
@@ -125,7 +218,7 @@ class Template
 		}
 
 		$imgId = $field->getValue();
-		$code = strtolower($field->getCode());
+		$code = mb_strtolower($field->getCode());
 		$code = preg_replace('/[^a-z]+/', '', $code);
 		?>
 		<script type="text/javascript">

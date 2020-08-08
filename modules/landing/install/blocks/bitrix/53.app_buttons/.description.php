@@ -11,7 +11,13 @@ return array(
 		'name' => Loc::getMessage('LANDING_BLOCK_53_APP_BUTTONS--NAME'),
 		'section' => array('tiles'),
 	),
-	'cards' => array(),
+	'cards' => array(
+		'.landing-block-node-card' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_53_APP_BUTTONS--BTN'),
+			'label' => array('.landing-block-node-button-img'),
+			'presets' => include __DIR__ . '/presets.php',
+		),
+	),
 	'nodes' => array(
 		'.landing-block-node-button' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_53_APP_BUTTONS--BTN'),
@@ -20,13 +26,16 @@ return array(
 		'.landing-block-node-button-img' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_53_APP_BUTTONS--BTN_IMG'),
 			'type' => 'img',
-			'group' => 'button',
+		),
+		'.landing-block-node-button-img-custom' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_53_APP_BUTTONS--BTN_IMG'),
+			'type' => 'img',
 		),
 	),
 	'style' => array(
-		'.landing-block-node-button-container' => array(
+		'.landing-block-cards' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_53_APP_BUTTONS--BTN'),
-			'type' => array('text-align', 'animation'),
+			'type' => array('row-align', 'animation'),
 		),
 	),
 );

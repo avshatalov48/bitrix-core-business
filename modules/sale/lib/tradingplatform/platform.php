@@ -54,7 +54,7 @@ abstract class Platform
 		if ($platform = $resPltf->fetch())
 		{
 			$this->isActive = $platform["ACTIVE"] == "Y" ? true : false;
-			$this->isNeedCatalogSectionsTab = strlen($platform["CATALOG_SECTION_TAB_CLASS_NAME"]) > 0 ? true : false;
+			$this->isNeedCatalogSectionsTab = $platform["CATALOG_SECTION_TAB_CLASS_NAME"] <> '' ? true : false;
 			
 			if (is_array($platform["SETTINGS"]))
 				$this->settings = $platform["SETTINGS"];
@@ -78,7 +78,7 @@ abstract class Platform
 	 */
 	public static function getInstanceByCode($code)
 	{
-		if (strlen($code) <= 0)
+		if ($code == '')
 			throw new ArgumentNullException("code");
 		
 		if (!isset(self::$instances[$code]))
@@ -232,7 +232,7 @@ abstract class Platform
 		
 		while ($arRes = $res->fetch())
 		{
-			if (strlen($arRes["CATALOG_SECTIONS_TAB_CLASS_NAME"]) > 0)
+			if ($arRes["CATALOG_SECTIONS_TAB_CLASS_NAME"] <> '')
 			{
 				$result = true;
 				break;

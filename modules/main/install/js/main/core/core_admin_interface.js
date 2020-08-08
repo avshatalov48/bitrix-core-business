@@ -2828,7 +2828,7 @@ BX.adminSidePanel.prototype.onMessage = function(SidePanelEvent)
 
 BX.adminSidePanel.onOpenPage = BX.adminSidePanel.prototype.onOpenPage = function(url)
 {
-	if (top.BX.admin.dynamic_mode_show_borders)
+	if (top.BX.admin && top.BX.admin.dynamic_mode_show_borders)
 	{
 		return;
 	}

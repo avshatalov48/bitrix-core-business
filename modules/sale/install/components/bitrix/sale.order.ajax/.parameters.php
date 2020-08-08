@@ -9,7 +9,7 @@ if (!Loader::includeModule('sale'))
 	return;
 
 $siteId = isset($_REQUEST['src_site']) && is_string($_REQUEST['src_site']) ? $_REQUEST['src_site'] : '';
-$siteId = substr(preg_replace('/[^a-z0-9_]/i', '', $siteId), 0, 2);
+$siteId = mb_substr(preg_replace('/[^a-z0-9_]/i', '', $siteId), 0, 2);
 
 $arColumns = array(
 	"PREVIEW_PICTURE" => GetMessage("SOA_PREVIEW_PICTURE"),

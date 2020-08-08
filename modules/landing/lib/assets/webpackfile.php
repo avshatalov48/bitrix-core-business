@@ -4,12 +4,15 @@ namespace Bitrix\Landing\Assets;
 
 use Bitrix\Landing\File;
 use Bitrix\Main;
+use Bitrix\Main\FileTable;
 use Bitrix\Main\Web\WebPacker;
 
 class WebpackFile
 {
 	protected const MODULE_ID = 'landing';
-	
+	protected const CORE_EXTENSION = 'ui.webpacker';
+	protected const LANG_RESOURCE = '/bitrix/js/landing/webpackassets/message_loader.js';
+
 	/**
 	 * @var WebPacker\FileController
 	 */
@@ -22,18 +25,23 @@ class WebpackFile
 	 * @var int - ID of file from b_file
 	 */
 	protected $fileId;
-	
+
 	/**
 	 * @var WebPacker\Resource\Package
 	 */
 	protected $package;
-	
+
+	/**
+	 * @var WebPacker\Resource\Profile
+	 */
+	protected $profile;
+
 	/**
 	 * Name of file. If not set - will be using default
 	 * @var
 	 */
 	protected $filename;
-	
+
 	/**
 	 * WebpackFile constructor.
 	 */
@@ -41,17 +49,18 @@ class WebpackFile
 	{
 		$this->fileController = new WebPacker\FileController();
 		$this->package = new WebPacker\Resource\Package();
+		$this->profile = new WebPacker\Resource\Profile();
 	}
-	
+
 	/**
 	 * Assets created for every landing.
 	 * @param int $lid - id of landing
 	 */
 	public function setLandingId(int $lid): void
 	{
-		$this->landingId = (int)$lid;
+		$this->landingId = $lid;
 	}
-	
+
 	/**
 	 * Set unique name of file. If not set - will be using default
 	 * @param string $name
@@ -65,15 +74,15 @@ class WebpackFile
 	{
 		return $this->filename ?: WebpackBuilder::PACKAGE_NAME . WebpackBuilder::PACKAGE_NAME_SUFFIX . '.js';
 	}
-	
+
 	/**
 	 * @param string $resource Relative path to asset.
 	 */
-	public function addResource($resource): void
+	public function addResource(string $resource): void
 	{
 		$this->package->addAsset(WebPacker\Resource\Asset::create($resource));
 	}
-	
+
 	/**
 	 * Create new or get existing webpack file.
 	 */
@@ -81,7 +90,7 @@ class WebpackFile
 	{
 		$this->configureFile();
 		$this->configureResources();
-		
+
 		// create new file
 		if (!$this->fileId)
 		{
@@ -93,7 +102,7 @@ class WebpackFile
 			}
 		}
 	}
-	
+
 	/**
 	 * Prepare fileController for build
 	 */
@@ -104,7 +113,7 @@ class WebpackFile
 		{
 			$this->fileId = $fileId;
 		}
-		
+
 		$this->fileController->configureFile(
 			$this->fileId,
 			self::MODULE_ID,
@@ -112,44 +121,58 @@ class WebpackFile
 			$this->getFileName()
 		);
 	}
-	
+
 	/**
 	 * Search existing asset file for current landing
 	 * @return bool|int - ID of file or false if not exist
 	 */
 	protected function findExistFile()
 	{
-		if($this->landingId)
+		$fileQuery = FileTable::query()
+			->addSelect('ID')
+			->addSelect('ORIGINAL_NAME')
+			->where('MODULE_ID', self::MODULE_ID)
+			->where('ORIGINAL_NAME', $this->getFileName())
+		;
+		// if have not landing ID - old variant, find something
+		if ($this->landingId)
 		{
-			$files = File::getFilesFromAsset($this->landingId);
-			if (!empty($files))
+			if ($fileIds = File::getFilesFromAsset($this->landingId))
 			{
-				return $files[count($files) - 1];    //last
+				$fileQuery->whereIn('ID', $fileIds);
+			}
+			else
+			{
+				return false;
 			}
 		}
 
-		// old variant - have not landing ID
-		else
+		if ($file = $fileQuery->fetch())
 		{
-			$resFile = \CFile::GetList([], [
-				'ORIGINAL_NAME' => $this->getFileName(),
-				'MODULE_ID' => self::MODULE_ID,
-			]);
-			if($file = $resFile->Fetch())
-			{
-				return $file['ID'];
-			}
+			return $file['ID'];
 		}
 
 		return false;
 	}
 
+	public function setUseLang(): void
+	{
+		$this->profile->useAllLangs(true);
+		$this->addResource(self::LANG_RESOURCE);
+	}
+
 	protected function configureResources(): void
 	{
-		$this->fileController->addExtension('ui.webpacker');    // need core ext always
-		$this->fileController->addModule(new WebPacker\Module(WebpackBuilder::PACKAGE_NAME, $this->package));
+		$this->fileController->addExtension(self::CORE_EXTENSION);    // need core ext always
+		$this->fileController->addModule(
+			new WebPacker\Module(
+				WebpackBuilder::PACKAGE_NAME,
+				$this->package,
+				$this->profile
+			)
+		);
 	}
-	
+
 	/**
 	 * Return JS-string for load assets pack
 	 * File must be builded before
@@ -159,18 +182,16 @@ class WebpackFile
 	{
 		return $this->fileController->getLoader()->getString();
 	}
-	
+
 	/**
 	 * Mark webpack files for landing as "need rebuild", but not delete them. File will be exist until not created new file.
 	 * @param int|[int] $lid - array of landing IDs.
 	 * @throws Main\ArgumentException
-	 * @throws Main\ObjectPropertyException
 	 * @throws Main\SystemException
 	 */
-
 	public static function markToRebuild($lid): void
 	{
-		if(!$lid || empty($lid))
+		if (!$lid || empty($lid))
 		{
 			throw new Main\ArgumentException('LID must be int or array of int', 'lid');
 		}
@@ -180,9 +201,6 @@ class WebpackFile
 
 	/**
 	 * * Mark webpack files for landing as "need rebuild", but not delete them. File will be exist until not created new file.
-	 * @throws Main\ArgumentException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
 	public static function markAllToRebuild(): void
 	{

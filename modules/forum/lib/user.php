@@ -631,7 +631,11 @@ class User {
 		{
 			return false;
 		}
-		if ($this->editOwn && $this->getId() == $topic->getAuthorId())
+		if (
+			($this->getId() == $topic->getAuthorId())
+			&&
+			($this->editOwn || ($topic["POSTS"] <= 0 && $topic["POSTS_UNAPPROVED"] <= 0))
+		)
 		{
 			return true;
 		}
@@ -648,9 +652,17 @@ class User {
 		{
 			return false;
 		}
-		if ($this->editOwn && $this->getId() == $message->getAuthorId())
+		if ($this->getId() == $message->getAuthorId())
 		{
-			return true;
+			if ($this->editOwn)
+			{
+				return true;
+			}
+			$topic = \Bitrix\Forum\Topic::getById($message["TOPIC_ID"]);
+			if ($topic["ABS_LAST_MESSAGE_ID"] == $message->getId())
+			{
+				return true;
+			}
 		}
 		return false;
 	}
@@ -658,6 +670,16 @@ class User {
 	public function canDeleteMessage(\Bitrix\Forum\Message $message)
 	{
 		return $this->canEditMessage($message);
+	}
+
+	public function canEditForum(\Bitrix\Forum\Forum $forum)
+	{
+		return $this->getPermissionOnForum($forum->getId()) >= Permission::FULL_ACCESS;
+	}
+
+	public function canDeleteForum(\Bitrix\Forum\Forum $forum)
+	{
+		return $this->canEditForum($forum);
 	}
 
 	public static function isUserAdmin(array $groups)

@@ -1,18 +1,15 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 /**
  * @var array $arParams
  * @var array $arResult
  * @global \CMain $APPLICATION
- * @global \CUser $USER
- * @global \CDatabase $DB
  * @var \CBitrixComponentTemplate $this
- * @var string $templateName
- * @var string $templateFile
- * @var string $templateFolder
- * @var string $componentPath
- * @var \TranslateEditComponent|\CBitrixComponent $component
+ * @var \TranslateEditComponent $component
  */
 
 use Bitrix\Main;
@@ -38,7 +35,7 @@ if (!$isAjax)
 	{
 		foreach($arResult['CHAIN'] as $i => $chalk)
 		{
-			if ($i == 0)
+			if ($i === 0)
 			{
 				?><a href="<?= $chalk['link'] ?>" title="<?= Loc::getMessage('TRANS_CHAIN_FOLDER_ROOT') ?>">..</a>&nbsp;/&nbsp;<?
 			}
@@ -153,7 +150,7 @@ if (!$isAjax)
 				'id' => 'bx-translate-editor-'. $arParams['TAB_ID'],
 				'controller' => 'bitrix:translate.controller.editor.file',
 				'tabId' => (string)$arParams['TAB_ID'],
-				'mode' => ((defined('ADMIN_SECTION') && ADMIN_SECTION == true) ? 'admin' : 'public'),
+				'mode' => ((defined('ADMIN_SECTION') && ADMIN_SECTION === true) ? 'admin' : 'public'),
 				'filePath' => $arResult['FILE_PATH'],
 				'editLink' => $arResult['LINK_EDIT'],
 				'linkBack' => $arResult['LINK_BACK'],

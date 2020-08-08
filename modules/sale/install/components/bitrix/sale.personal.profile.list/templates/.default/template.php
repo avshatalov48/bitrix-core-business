@@ -3,11 +3,11 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 use Bitrix\Main\Localization\Loc;
 
-if(strlen($arResult["ERROR_MESSAGE"])>0)
+if($arResult["ERROR_MESSAGE"] <> '')
 {
 	ShowError($arResult["ERROR_MESSAGE"]);
 }
-if(strlen($arResult["NAV_STRING"]) > 0)
+if($arResult["NAV_STRING"] <> '')
 {
 	?>
 	<p><?=$arResult["NAV_STRING"]?></p>
@@ -63,7 +63,7 @@ if (is_array($arResult["PROFILES"]) && !empty($arResult["PROFILES"]))
 		}?>
 	</table>
 	<?
-	if(strlen($arResult["NAV_STRING"]) > 0)
+	if($arResult["NAV_STRING"] <> '')
 	{
 		?>
 		<p><?=$arResult["NAV_STRING"]?></p>

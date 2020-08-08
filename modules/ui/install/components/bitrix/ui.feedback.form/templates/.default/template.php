@@ -3,15 +3,15 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\UI\Extension;
-use Bitrix\Main\Localization\Loc;
 
 $this->setFrameMode(true);
 
 Extension::load(['sidepanel', 'ui.buttons', 'ui.feedback.form']);
 $buttonId = $arParams['ID'] . '-button';
 
-$title = $arParams['TITLE'] ?: Loc::getMessage('UI_FEEDBACK_FORM_BUTTON');
-$portal = $arParams['PORTAL_URI'] ?: 'https://landing.bitrix24.ru';
+$title = $arResult['TITLE'];
+$jsParams = $arResult['JS_OBJECT_PARAMS'];
+$jsParams['button'] = $buttonId;
 
 if ($arParams['VIEW_TARGET'])
 {
@@ -23,14 +23,7 @@ if ($arParams['VIEW_TARGET'])
 	<?=htmlspecialcharsbx($title);?>
 </div>
 <script>
-	new BX.UI.Feedback.Form(<?=Json::encode([
-		'id' => $arParams['ID'],
-		'button' => $buttonId,
-		'form' => $arResult['FORM'],
-		'presets' => $arResult['PRESETS'],
-		'title' => $title,
-		'portal' => $portal,
-	])?>);
+	new BX.UI.Feedback.Form(<?=Json::encode($jsParams)?>);
 </script>
 <?
 if ($arParams['VIEW_TARGET'])

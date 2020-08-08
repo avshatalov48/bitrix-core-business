@@ -16,11 +16,11 @@ endif;
 	
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		$arParams[strToUpper($URL)."_URL"] = trim($arParams[strToUpper($URL)."_URL"]);
-		if (empty($arParams[strToUpper($URL)."_URL"]))
-			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[mb_strtoupper($URL)."_URL"] = trim($arParams[mb_strtoupper($URL)."_URL"]);
+		if (empty($arParams[mb_strtoupper($URL)."_URL"]))
+			$arParams[mb_strtoupper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~".mb_strtoupper($URL)."_URL"] = $arParams[mb_strtoupper($URL)."_URL"];
+		$arParams[mb_strtoupper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".mb_strtoupper($URL)."_URL"]);
 	}
 /***************** STANDART ****************************************/
 	$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
@@ -31,15 +31,15 @@ endif;
 
 $arError = array();
 
-if (strlen($arParams["MODULE_ID"]) <= 0)
+if ($arParams["MODULE_ID"] == '')
 	$arError[] = array(
 		"id" => "empty_module_id",
 		"text" => GetMessage("BPATT_NO_MODULE_ID"));
-if (strlen($arParams["ENTITY"]) <= 0)
+if ($arParams["ENTITY"] == '')
 	$arError[] = array(
 		"id" => "empty_entity",
 		"text" => GetMessage("BPATT_NO_ENTITY"));
-if (strlen($arParams["DOCUMENT_ID"]) <= 0)
+if ($arParams["DOCUMENT_ID"] == '')
 	$arError[] = array(
 		"id" => "empty_document_id",
 		"text" => GetMessage("BPATT_NO_DOCUMENT_TYPE"));
@@ -102,7 +102,7 @@ elseif ($_REQUEST['action'] == 'delete')
 		ShowError($e->GetString());
 	}
 }
-elseif (strpos($_REQUEST['action'], "autoload_") !== false)
+elseif (mb_strpos($_REQUEST['action'], "autoload_") !== false)
 {
 	$db_res = CBPWorkflowTemplateLoader::GetList(
 		array('ID' => 'DESC'),
@@ -114,16 +114,16 @@ elseif (strpos($_REQUEST['action'], "autoload_") !== false)
 	{
 		$arFields = array("AUTO_EXECUTE" => $res["AUTO_EXECUTE"]);
 		$tmp = false; 
-		if (strpos($_REQUEST['action'], "create") !== false)
+		if (mb_strpos($_REQUEST['action'], "create") !== false)
 			$tmp = CBPDocumentEventType::Create;
-		elseif (strpos($_REQUEST['action'], "edit") !== false)
+		elseif (mb_strpos($_REQUEST['action'], "edit") !== false)
 			$tmp = CBPDocumentEventType::Edit;
-		elseif (strpos($_REQUEST['action'], "delete") !== false)
+		elseif (mb_strpos($_REQUEST['action'], "delete") !== false)
 			$tmp = CBPDocumentEventType::Delete;
 
 		if ($tmp != false)
 		{
-			if (strpos($_REQUEST['action'], "_n") !== false)
+			if (mb_strpos($_REQUEST['action'], "_n") !== false)
 				$arFields["AUTO_EXECUTE"] = ((($arFields["AUTO_EXECUTE"] & $tmp) != 0) ? $arFields["AUTO_EXECUTE"] ^ $tmp : $arFields["AUTO_EXECUTE"]);
 			else 
 				$arFields["AUTO_EXECUTE"] = ((($arFields["AUTO_EXECUTE"] & $tmp) == 0) ? $arFields["AUTO_EXECUTE"] ^ $tmp : $arFields["AUTO_EXECUTE"]);
@@ -180,11 +180,11 @@ if ($db_res)
 							array("ID" => $res["ID"], "MODULE_ID" => $arParams["MODULE_ID"], 
 								"ENTITY" => $arParams["ENTITY"], "DOCUMENT_ID" => $arParams["DOCUMENT_ID"])),
 			"DELETE" => $adminPage."&ID=".$res["ID"]);
-		if (isset($arParams["~EDIT_VARS_URL"]) && strlen($arParams["~EDIT_VARS_URL"]) > 0)
+		if (isset($arParams["~EDIT_VARS_URL"]) && $arParams["~EDIT_VARS_URL"] <> '')
 			$res["URL"]["VARS"] = CComponentEngine::MakePathFromTemplate($arParams["~EDIT_VARS_URL"], 
 							array("ID" => $res["ID"], "MODULE_ID" => $arParams["MODULE_ID"], 
 								"ENTITY" => $arParams["ENTITY"], "DOCUMENT_ID" => $arParams["DOCUMENT_ID"]));
-		if (isset($arParams["~EDIT_CONSTANTS_URL"]) && strlen($arParams["~EDIT_CONSTANTS_URL"]) > 0)
+		if (isset($arParams["~EDIT_CONSTANTS_URL"]) && $arParams["~EDIT_CONSTANTS_URL"] <> '')
 			$res["URL"]["CONSTANTS"] = CComponentEngine::MakePathFromTemplate($arParams["~EDIT_CONSTANTS_URL"],
 				array("ID" => $res["ID"], "MODULE_ID" => $arParams["MODULE_ID"],
 					"ENTITY" => $arParams["ENTITY"], "DOCUMENT_ID" => $arParams["DOCUMENT_ID"]));

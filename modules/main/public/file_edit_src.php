@@ -62,7 +62,7 @@ if(strlen($new) > 0 && strlen($filename) > 0 && ($io->FileExists($abs_path) || $
 }
 elseif(strlen($new) > 0)
 {
-	if (strlen($filename) < 0)
+	if ($filename == '')
 		$strWarning = GetMessage("FILEMAN_FILEEDIT_FILENAME_EMPTY")." ";
 	$bEdit = false;
 }

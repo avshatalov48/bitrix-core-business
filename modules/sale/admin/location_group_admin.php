@@ -33,7 +33,7 @@ $lAdmin->InitFilter($arFilterFields);
 
 $arFilter = array();
 
-if (IntVal($filter_location)>0) $arFilter["LOCATION"] = IntVal($filter_location);
+if (intval($filter_location)>0) $arFilter["LOCATION"] = intval($filter_location);
 
 if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 {
@@ -51,7 +51,7 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 
 	foreach ($arID as $ID)
 	{
-		if (strlen($ID) <= 0)
+		if ($ID == '')
 			continue;
 
 		switch ($_REQUEST['action'])
@@ -183,7 +183,7 @@ $oFilter->Begin();
 				<option value=""><?echo GetMessage("SALE_ALL")?></option>
 				<?$db_vars = CSaleLocation::GetList(Array("SORT"=>"ASC", "COUNTRY_NAME_LANG"=>"ASC", "CITY_NAME_LANG"=>"ASC"), array(), LANG)?>
 				<?while ($vars = $db_vars->Fetch()):?>
-					<option value="<?echo $vars["ID"]?>"<?if (IntVal($vars["ID"])==IntVal($filter_location)) echo " selected"?>><?echo htmlspecialcharsbx($vars["COUNTRY_NAME"]." - ".$vars["CITY_NAME"])?></option>
+					<option value="<?echo $vars["ID"]?>"<?if (intval($vars["ID"])==intval($filter_location)) echo " selected"?>><?echo htmlspecialcharsbx($vars["COUNTRY_NAME"]." - ".$vars["CITY_NAME"])?></option>
 				<?endwhile;?>
 			</select>
 		</td>

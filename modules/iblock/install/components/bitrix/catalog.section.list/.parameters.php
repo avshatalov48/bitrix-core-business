@@ -96,7 +96,8 @@ $arComponentParameters = array(
 			"NAME" => GetMessage("CP_BCSL_COUNT_ELEMENTS_FILTER"),
 			"TYPE" => "LIST",
 			"VALUES" => $countFilterList,
-			"DEFAULT" => "CNT_ACTIVE"
+			"DEFAULT" => "CNT_ACTIVE",
+			"HIDDEN" => (isset($arCurrentValues['COUNT_ELEMENTS']) && $arCurrentValues['COUNT_ELEMENTS'] == 'N' ? 'Y' : 'N')
 		),
 		"TOP_DEPTH" => array(
 			"PARENT" => "DATA_SOURCE",

@@ -114,7 +114,7 @@ class CBitrixSocialnetworkBlogPostShareMailComponent extends CBitrixComponent
 		);
 		$arParams["URL"] = (
 			isset($arParams["URL"])
-			&& strlen($arParams["URL"]) > 0
+			&& $arParams["URL"] <> ''
 				? $arParams["URL"]
 				: CComponentEngine::MakePathFromTemplate(
 					'/pub/post.php?post_id=#post_id#',

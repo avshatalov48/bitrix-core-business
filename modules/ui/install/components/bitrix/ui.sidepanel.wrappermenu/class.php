@@ -67,7 +67,7 @@ class UISidepanelMenuComponent extends \CBitrixComponent
 
 		foreach ($attributes as $key => $attributeValue)
 		{
-			$newKey = strtolower($key);
+			$newKey = mb_strtolower($key);
 			$newKey = str_replace('_', '-', $newKey);
 
 			if (is_array($attributeValue))

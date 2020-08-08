@@ -7,6 +7,8 @@
 		return;
 	}
 
+	var blankAvatar = '/bitrix/js/im/images/blank.gif';
+
 	BX.Call.Util = {
 		userData: {},
 		usersInProcess: {},
@@ -32,7 +34,7 @@
 					return resolve();
 				}
 
-				BX.rest.callMethod("im.user.list.get", {"ID": usersToUpdate, "AVATAR_HR" : "Y"}).then(function(response)
+				BX.CallEngine.getRestClient().callMethod("im.user.list.get", {"ID": usersToUpdate, "AVATAR_HR" : "Y"}).then(function(response)
 				{
 					var result = response.answer.result;
 
@@ -57,6 +59,39 @@
 				this.usersInProcess[usersToUpdate[i]] = result;
 			}
 			return result;
+		},
+
+		getDateForLog: function()
+		{
+			var d = new Date();
+
+			return d.getFullYear() + "-" + this.lpad(d.getMonth(), 2, '0') + "-" + this.lpad(d.getDate(), 2, '0') + " " + this.lpad(d.getHours(), 2, '0') + ":" + this.lpad(d.getMinutes(), 2, '0') + ":" + this.lpad(d.getSeconds(), 2, '0') + "." + d.getMilliseconds();
+		},
+
+		getTimeForLog: function()
+		{
+			var d = new Date();
+
+			return this.lpad(d.getHours(), 2, '0') + ":" + this.lpad(d.getMinutes(), 2, '0') + ":" + this.lpad(d.getSeconds(), 2, '0') + "." + d.getMilliseconds();
+		},
+
+		lpad: function(str, length, chr)
+		{
+			str = str.toString();
+			chr = chr || ' ';
+
+			if(str.length > length)
+			{
+				return str;
+			}
+
+			var result = '';
+			for(var i = 0; i < length - str.length; i++)
+			{
+				result += chr;
+			}
+
+			return result + str;
 		},
 
 		getUser: function(userId)
@@ -118,22 +153,39 @@
 			{
 				if(self.userData.hasOwnProperty(userId))
 				{
-					return resolve(self.userData[userId].avatar_hr ? self.userData[userId].avatar_hr : '');
+					return resolve(self.userData[userId].avatar_hr && !isBlank(self.userData[userId].avatar_hr) ? self.userData[userId].avatar_hr : '');
 				}
 				else if(self.usersInProcess.hasOwnProperty(userId))
 				{
 					self.usersInProcess[userId].then(function()
 					{
-						return resolve(self.userData[userId].avatar_hr ? self.userData[userId].avatar_hr : '');
+						return resolve(self.userData[userId].avatar_hr && !isBlank(self.userData[userId].avatar_hr) ? self.userData[userId].avatar_hr : '');
 					});
 				}
 				else
 				{
 					self.updateUserData([userId]).then(function()
 					{
-						return resolve(self.userData[userId].avatar_hr ? self.userData[userId].avatar_hr : '');
+						return resolve(self.userData[userId].avatar_hr && !isBlank(self.userData[userId].avatar_hr) ? self.userData[userId].avatar_hr : '');
 					});
 				}
+			});
+		},
+
+		getUserAvatars: function(users)
+		{
+			var self = this;
+			return new Promise(function(resolve, reject)
+			{
+				self.updateUserData(users).then(function()
+				{
+					var result = {};
+					users.forEach(function(userId)
+					{
+						result[userId] = self.userData[userId].avatar_hr && !isBlank(self.userData[userId].avatar_hr) ? self.userData[userId].avatar_hr : ''
+					});
+					return resolve(result);
+				});
 			});
 		},
 
@@ -196,21 +248,25 @@
 			return stream.getVideoTracks().length > 0;
 		},
 
-		findRowCount: function(width, height, userCount)
+		findBestElementSize: function(width, height, userCount)
 		{
-			var result = 0;
 			var bestFilledArea = 0;
 
 			for (var i = 1; i <= userCount; i++)
 			{
-				var candidateArea = this.getFilledArea(width, height, userCount, i);
-				if(candidateArea > bestFilledArea)
+				var area = this.getFilledArea(width, height, userCount, i);
+				if(area.area > bestFilledArea)
 				{
-					result = i;
-					bestFilledArea = candidateArea;
+					bestFilledArea = area.area;
+					var bestWidth = area.elementWidth;
+					var bestHeight = area.elementHeight;
+				}
+				if(area.area < bestFilledArea)
+				{
+					break;
 				}
 			}
-			return result;
+			return {width: bestWidth, height: bestHeight}
 		},
 
 		getFilledArea: function(width, height, userCount, rowCount)
@@ -236,10 +292,160 @@
 				expectedElementHeight = maxElementHeight * (neededRatio / ratio);
 			}
 
-			var expectedArea = expectedElementWidth * expectedElementHeight * userCount;
+			//console.log(expectedElementWidth + 'x' + expectedElementHeight)
+			var area = expectedElementWidth * expectedElementHeight * userCount;
 
-			return expectedArea;
+			return {area: area, elementWidth: expectedElementWidth, elementHeight: expectedElementHeight};
+		},
+
+		isWebRTCSupported: function()
+		{
+			return (typeof webkitRTCPeerConnection != 'undefined' || typeof mozRTCPeerConnection != 'undefined' || typeof RTCPeerConnection != 'undefined');
+		},
+
+		isCallServerAllowed: function()
+		{
+			return BX.message('call_server_enabled') === 'Y'
+		},
+
+		getUserLimit: function()
+		{
+			if (this.isCallServerAllowed())
+			{
+				return parseInt(BX.message('call_server_max_users'));
+			}
+
+			return parseInt(BX.message('turn_server_max_users'));
+		},
+
+		/**
+		 * Returns bitrate cap for the required video quality level
+		 * @param quality
+		 * @returns {number}
+		 */
+		getMaxBitrate: function(quality)
+		{
+			switch (quality)
+			{
+				case BX.Call.Quality.VeryHigh:
+					return 0;
+				case BX.Call.Quality.High:
+					return 1000;
+				case BX.Call.Quality.Medium:
+					return 500;
+				case BX.Call.Quality.Low:
+					return 250;
+				case BX.Call.Quality.VeryLow:
+					return 100;
+			}
+		},
+
+		/**
+		 * Returns max allowed video resolution for the selected quality level
+		 * @param quality
+		 * @param allowHd
+		 * @returns {{width: number, height: number}}
+		 */
+		getMaxResolution: function(quality, allowHd)
+		{
+			switch (quality)
+			{
+				case BX.Call.Quality.VeryHigh:
+					return allowHd ? {width: 1280, height: 720} : {width: 640, height: 360};
+				case BX.Call.Quality.High:
+					return {width: 640, height: 360};
+				case BX.Call.Quality.Medium:
+					return {width: 320, height: 180};
+				case BX.Call.Quality.Low:
+					return {width: 160, height: 90};
+				case BX.Call.Quality.VeryLow:
+					return {width: 160, height: 90};
+			}
+		},
+
+		alterSDP: function(sdp, options)
+		{
+			if(!options)
+			{
+				return;
+			}
+
+			var sdpLines = sdp.split("\n");
+			var codecRtpMaps = [];
+
+			var videoLineIndex = false;
+			for (var i = 0; i < sdpLines.length; i++)
+			{
+				var line = sdpLines[i];
+
+				videoLineIndex = videoLineIndex || (line.match(/m=video/) !== null ? i : false);
+				if(!videoLineIndex)
+				{
+					continue;
+				}
+
+				var match = /a=rtpmap:(\d+)\s(.+)/.exec(line);
+				if (match)
+				{
+					codecRtpMaps.push({
+						rtpmap: match[1],
+						codec: match[2]
+					})
+				}
+			}
+
+			if(!videoLineIndex)
+			{
+				return;
+			}
+
+			sdpLines[videoLineIndex] = sortVideoLine(sdpLines[videoLineIndex], codecRtpMaps, options);
+			return sdpLines.join("\n");
 		}
 	};
+
+	function sortVideoLine(videoLine, rtpMaps, options)
+	{
+		debugger;
+		var parsedVideoLine = videoLine.split(" ");
+		var codecsSlice = parsedVideoLine.slice(3);
+
+		var rtpMapToCodec = {};
+		rtpMaps.forEach(function(rtpMap)
+		{
+			rtpMapToCodec[rtpMap.rtpmap] = rtpMap.codec;
+		});
+
+		codecsSlice.sort(function(a, b)
+		{
+			a = a.trim();
+			b = b.trim();
+
+			var codecA = rtpMapToCodec[a];
+			var codecB = rtpMapToCodec[b];
+
+			if(codecA.substr(0, 4) === "H264" && codecB.substr(0, 4) !== "H264")
+			{
+				return -1;
+			}
+			else if (codecA.substr(0, 4) !== "H264" && codecB.substr(0, 4) === "H264")
+			{
+				return 1;
+			}
+			else
+			{
+				return a - b;
+			}
+		});
+
+		var result = parsedVideoLine.slice(0, 3).concat(codecsSlice);
+
+		return result.join(" ")
+	}
+
+	function isBlank(url)
+	{
+		return typeof (url) !== "string" || url == "" || url.endsWith(blankAvatar);
+	}
 
 })();

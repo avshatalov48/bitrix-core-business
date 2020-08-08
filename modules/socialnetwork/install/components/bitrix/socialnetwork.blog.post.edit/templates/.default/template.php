@@ -134,7 +134,7 @@ else if($arResult["imageUploadFrame"] == "Y") // Frame with file input to ajax u
 		top.bxPostFileIdWidth = '<?=CUtil::JSEscape($arResult["Image"]["source"]["width"])?>';
 		<?
 	}
-	elseif(strlen($arResult["ERROR_MESSAGE"]) > 0)
+	elseif($arResult["ERROR_MESSAGE"] <> '')
 	{
 		?>
 		window.bxPostFileError = top.bxPostFileError = '<?=CUtil::JSEscape($arResult["ERROR_MESSAGE"])?>';
@@ -316,7 +316,7 @@ else
 		$arParams["TOP_TABS_VISIBLE"] == "Y"
 		&& (
 			!isset($arParams["PAGE_ID"])
-			|| !in_array($arParams["PAGE_ID"], [ "user_blog_post_edit_profile", "user_blog_post_edit_grat", "user_grat" ])
+			|| !in_array($arParams["PAGE_ID"], [ "user_blog_post_edit_profile", "user_blog_post_edit_grat", "user_grat", "user_blog_post_edit_post" ])
 		)
 	)
 	{
@@ -338,7 +338,7 @@ else
 		$arJSFiles = array();
 		while ($arFile)
 		{
-			$arJSFiles[strVal($arFile["ID"])] = array(
+			$arJSFiles[strval($arFile["ID"])] = array(
 				"element_id" => $arFile["ID"],
 				"element_name" => $arFile["FILE_NAME"],
 				"element_size" => $arFile["FILE_SIZE"],
@@ -346,7 +346,7 @@ else
 				"element_content_type" => $arFile["CONTENT_TYPE"],
 				"element_thumbnail" => $arFile["SRC"],
 				"element_image" => $arFile["THUMBNAIL"],
-				"isImage" => (substr($arFile["CONTENT_TYPE"], 0, 6) == "image/"),
+				"isImage" => (mb_substr($arFile["CONTENT_TYPE"], 0, 6) == "image/"),
 				"del_url" => $arFile["DEL_URL"]
 			);
 			$title = GetMessage("MPF_INSERT_FILE");
@@ -416,26 +416,32 @@ HTML;
 		});
 	</script><?
 
-	if (
-		in_array('tasks', $arResult['tabs'])
-		&& isset($_SESSION["SL_TASK_ID_CREATED"])
-	)
-	{
-		if (intval($_SESSION["SL_TASK_ID_CREATED"]) > 0)
-		{
-			$dynamicArea = new \Bitrix\Main\Page\FrameStatic("task_created");
-			$dynamicArea->startDynamicArea();
+	$dynamicArea = new \Bitrix\Main\Page\FrameStatic("sbpe_dynamic");
+	$dynamicArea->startDynamicArea();
+	?><script>
+		BX.ready(function() {
+			<?
+			if (
+				in_array('tasks', $arResult['tabs'])
+				&& isset($_SESSION["SL_TASK_ID_CREATED"])
 
-			?><script>
-				BX.ready(function() {
+			)
+			{
+				if (intval($_SESSION["SL_TASK_ID_CREATED"]) > 0)
+				{
+					?>
 					window.SBPEFullForm.getInstance().tasksTaskEvent(<?=intval($_SESSION["SL_TASK_ID_CREATED"])?>);
-				});
-			</script><?
+					<?
+				}
+				unset($_SESSION["SL_TASK_ID_CREATED"]);
+			}
+			?>
+			SBPEFullForm.getInstance().setOption('startVideoRecorder', '<?=($arResult['startVideoRecorder'] ? 'Y' : 'N')?>');
+			SBPEFullForm.getInstance().onShow();
+		});
+	</script><?
+	$dynamicArea->finishDynamicArea();
 
-			$dynamicArea->finishDynamicArea();
-		}
-		unset($_SESSION["SL_TASK_ID_CREATED"]);
-	}
 
 	if ($arResult["SHOW_FULL_FORM"]) // lazyloadmode on + ajax
 	{
@@ -463,18 +469,18 @@ HTML;
 					$arParams["TOP_TABS_VISIBLE"] != "Y"
 					&& (
 						!isset($arParams["PAGE_ID"])
-						|| !in_array($arParams["PAGE_ID"], [ "user_blog_post_edit_profile", "user_blog_post_edit_grat", "user_grat" ])
+						|| !in_array($arParams["PAGE_ID"], [ "user_blog_post_edit_profile", "user_blog_post_edit_grat", "user_grat", "user_blog_post_edit_post" ])
 					)
 				)
 				{
 					?><div class="feed-add-post-form-variants" id="feed-add-post-form-tab"><?
-					echo $strGratVote;
+						echo $strGratVote;
 
-					if ($arParams["SHOW_BLOG_FORM_TARGET"])
-					{
-						$APPLICATION->ShowViewContent("sonet_blog_form");
-					}
-					?><div id="feed-add-post-form-tab-arrow" class="feed-add-post-form-arrow" style="left: 31px;"></div><?
+						if ($arParams["SHOW_BLOG_FORM_TARGET"])
+						{
+							$APPLICATION->ShowViewContent("sonet_blog_form");
+						}
+						?><div id="feed-add-post-form-tab-arrow" class="feed-add-post-form-arrow" style="left: 31px;"></div><?
 					?></div><?
 				}
 
@@ -779,6 +785,23 @@ HTML;
 					</div><?
 					?></div><?
 				}
+
+				if (!empty($arResult['POST_PROPERTIES']['DATA']['UF_MAIL_MESSAGE']['VALUE']))
+				{
+					?>
+					<div id="blog-post-user-fields-UF_MAIL_MESSAGE" style="padding-top: 15px; padding-bottom: 15px; ">
+						<? $APPLICATION->includeComponent(
+							'bitrix:system.field.edit',
+							$arResult['POST_PROPERTIES']['DATA']['UF_MAIL_MESSAGE']['USER_TYPE']['USER_TYPE_ID'],
+							array('arUserField' => $arResult['POST_PROPERTIES']['DATA']['UF_MAIL_MESSAGE']),
+							null,
+							array('HIDE_ICONS' => 'Y')
+						); ?>
+					</div>
+					<div class="blog-clear-float"></div>
+					<?
+				}
+
 				foreach ($arResult["POST_PROPERTIES"]["DATA"] as $FIELD_NAME => $arPostField)
 				{
 					if(in_array($FIELD_NAME, $arParams["POST_PROPERTY_SOURCE"]))
@@ -900,7 +923,8 @@ HTML;
 									'USER_FIELDS',
 									'TEMPLATE'
 								), // change to API call
-								'BACKURL' => $arParams['TASK_SUBMIT_BACKURL']
+								'BACKURL' => $arParams['TASK_SUBMIT_BACKURL'],
+								'ACTION' => 'edit'
 							);
 
 							$APPLICATION->IncludeComponent('bitrix:tasks.task', '',
@@ -974,7 +998,7 @@ HTML;
 
 				if(
 					$arParams["MICROBLOG"] != "Y"
-					&& !in_array($arParams["PAGE_ID"], [ "user_blog_post_edit_profile", "user_blog_post_edit_grat", "user_grat" ])
+					&& !in_array($arParams["PAGE_ID"], [ "user_blog_post_edit_profile", "user_blog_post_edit_grat", "user_grat", "user_blog_post_edit_post" ])
 				)
 				{
 					$arButtons[] = Array(
@@ -997,7 +1021,7 @@ HTML;
 					foreach($arButtons as $val)
 					{
 						$onclick = $val["CLICK"];
-						if(strlen($onclick) <= 0)
+						if($onclick == '')
 							$onclick = "submitBlogPostForm('".$val["NAME"]."'); ";
 						$scriptFunc[$val["NAME"]] = $onclick;
 						if($val["CLEAR_CANCEL"] == "Y")

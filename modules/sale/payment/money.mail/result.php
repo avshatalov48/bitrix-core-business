@@ -2,10 +2,10 @@
 include(GetLangFileName(dirname(__FILE__)."/", "/money_mail.php"));
 
 
-$ORDER_ID = IntVal($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"]);
+$ORDER_ID = intval($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"]);
 $CURRENCY = $GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["CURRENCY"];
 $invoice_number = $GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["PAY_VOUCHER_NUM"];
-$access_key = rawurlencode((strlen(CSalePaySystemAction::GetParamValue("KEY")) > 0) ? CSalePaySystemAction::GetParamValue("KEY") : $GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["KEY"]);
+$access_key = rawurlencode((CSalePaySystemAction::GetParamValue("KEY") <> '') ? CSalePaySystemAction::GetParamValue("KEY") : $GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["KEY"]);
 $status_description=Array(
 		"PAID"=>GetMessage('MM_PAID'),
 		"NEW"=>GetMessage('MM_NEW'),

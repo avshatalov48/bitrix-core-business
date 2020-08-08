@@ -21,10 +21,10 @@ $arParams["SHOW_YEAR"] = $arParams["SHOW_YEAR"]=="Y";
 $arParams["SHOW_TIME"] = $arParams["SHOW_TIME"]=="Y";
 
 $arParams["MONTH_VAR_NAME"] = trim($arParams["MONTH_VAR_NAME"]);
-if(strlen($arParams["MONTH_VAR_NAME"])<=0 || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["MONTH_VAR_NAME"]))
+if($arParams["MONTH_VAR_NAME"] == '' || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["MONTH_VAR_NAME"]))
 	$arParams["MONTH_VAR_NAME"] = "month";
 $arParams["YEAR_VAR_NAME"] = trim($arParams["YEAR_VAR_NAME"]);
-if(strlen($arParams["YEAR_VAR_NAME"])<=0 || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["YEAR_VAR_NAME"]))
+if($arParams["YEAR_VAR_NAME"] == '' || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["YEAR_VAR_NAME"]))
 	$arParams["YEAR_VAR_NAME"] = "year";
 
 $arParams["TITLE_LEN"] = intval($arParams["TITLE_LEN"]);
@@ -57,9 +57,9 @@ $currentYear = intval($_REQUEST[$arParams["YEAR_VAR_NAME"]]);
 if($currentYear<1)
 	$currentYear = intval(date("Y", $today));
 
-$todayYear = IntVal(date("Y", $today));
-$todayMonth = IntVal(date("n", $today));
-$todayDay = IntVal(date("j", $today));
+$todayYear = intval(date("Y", $today));
+$todayMonth = intval(date("n", $today));
+$todayDay = intval(date("j", $today));
 
 if($arParams["TYPE"])
 {	//Do not show future news
@@ -80,7 +80,7 @@ if($this->StartResultCache(false, array($currentMonth, $currentYear, $todayYear,
 	}
 
 	$arParams["MONTH_URL"]=trim($arParams["MONTH_URL"]);
-	if(strlen($arParams["MONTH_URL"])<=0)
+	if($arParams["MONTH_URL"] == '')
 		$arParams["MONTH_URL"] = $APPLICATION->GetCurPageParam($arParams["MONTH_VAR_NAME"]."=#MONTH#&".$arParams["YEAR_VAR_NAME"]."=#YEAR#", array($arParams["MONTH_VAR_NAME"], $arParams["YEAR_VAR_NAME"]));
 
 	$arResult["TITLE"] = GetMessage("IBL_NEWS_CAL_M_".date("n", mktime(0, 0, 0, $currentMonth, 1, $currentYear)))." ".$currentYear;
@@ -317,10 +317,10 @@ if($this->StartResultCache(false, array($currentMonth, $currentYear, $todayYear,
 					if($arParams["SHOW_TIME"])
 					{
 						$arTime = ParseDateTime($dayNews["DATE_ACTIVE_FROM"], CLang::GetDateFormat("FULL"));
-						if(IntVal($arTime["HH"])>0 || $arTime["MI"]>0)
+						if(intval($arTime["HH"])>0 || $arTime["MI"]>0)
 							$eTime = $arTime["HH"].":".$arTime["MI"]."&nbsp;";
 					}
-					if($dayNews["PREVIEW_TEXT_TYPE"] == "text" && strlen($dayNews["PREVIEW_TEXT"])>0)
+					if($dayNews["PREVIEW_TEXT_TYPE"] == "text" && $dayNews["PREVIEW_TEXT"] <> '')
 						$sTitle = TruncateText($dayNews["PREVIEW_TEXT"], 100);
 					else
 						$sTitle = $dayNews["NAME"];
@@ -358,7 +358,7 @@ if($this->StartResultCache(false, array($currentMonth, $currentYear, $todayYear,
 			);
 			if(defined("BX_AJAX_PARAM_ID"))
 			{
-				$p = strpos($url, "?");
+				$p = mb_strpos($url, "?");
 				if($p !== false)
 				{
 					$url .= "&".BX_AJAX_PARAM_ID."=".$arParams['AJAX_ID'];

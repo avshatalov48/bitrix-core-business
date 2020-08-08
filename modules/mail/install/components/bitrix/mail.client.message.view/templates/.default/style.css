@@ -605,6 +605,29 @@
 	max-width: 80px;
 }
 
+.mail-msg-view-file-archive-block {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	width: 100%;
+	margin-top: 10px;
+}
+
+.mail-msg-view-file-archive-link {
+	color: #828B95;
+	border-bottom: 1px solid transparent;
+	-webkit-transition: border-bottom .3s;
+	transition: border-bottom .3s;
+	cursor: pointer;
+}
+
+.mail-msg-view-file-archive-link:hover {
+	color: #828B95;
+	border-bottom-color: #828B95;
+}
+
 .mail-msg-view-reply-panel {
 	display: -webkit-box;
 	display: -ms-flexbox;
@@ -748,4 +771,102 @@
 .mail-msg-view-control-disabled {
 	opacity: 0.3;
 	cursor: default;
+}
+
+.mail-msg-list-cell-flex {
+	display: flex;
+	align-items: center;
+}
+
+.mail-msg-view-rcpt-block .mail-contact-avatar {
+	margin-right: 5px;
+}
+
+
+.mail-msg-view-header-set {
+	display: flex;
+	overflow: hidden;
+	padding: 16px 19px 16px 20px;
+	max-height: 73px;
+	box-sizing: border-box;
+	margin-bottom: -17px;
+	border-bottom: 10px solid #ebf1f4;
+	background: #fff;
+}
+
+.mail-msg-view-header-set-info {
+	flex: 1;
+	display: inline-flex;
+	padding-left: 50px;
+	position: relative;
+}
+
+.mail-msg-view-header-set-icon {
+	position: absolute;
+	left: 7px;
+	top: 0;
+	width: 26px;
+	height: 38px;
+	background: url('data:image/svg+xml;charset=US-ASCII,%0A%3Csvg%20viewBox%3D%220%200%2017%2017%22%20version%3D%221.1%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%20%20%20%20%3Cg%20stroke%3D%22none%22%20stroke-width%3D%221%22%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%0A%20%20%20%20%20%20%20%20%3Cg%20fill%3D%22%232fc6f6%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M2.12069247%2C13.8219119%20L14.8067841%2C13.8219119%20L14.8067841%2C5.06523272%20L2.12069247%2C5.06523272%20L2.12069247%2C13.8219119%20Z%20M13.7496098%2C1.69549924%20L13.7496098%2C2.24670356%20C13.7496098%2C3.15949056%2013.0391887%2C3.90030452%2012.1638475%2C3.90030452%20C11.288508%2C3.90030452%2010.5780869%2C3.15949056%2010.5780869%2C2.24670356%20L10.5780869%2C1.69549924%20L6.34938969%2C1.69549924%20L6.34938969%2C2.24670356%20C6.34938969%2C3.15949056%205.64002449%2C3.90030452%204.76362739%2C3.90030452%20C3.88723029%2C3.90030452%203.17786678%2C3.15949056%203.17786678%2C2.24670356%20L3.17786678%2C1.69549924%20L1.96000106%2C1.69549924%20C0.879569875%2C1.69329796%200.00211518453%2C2.60388129%20-3.55271368e-15%2C3.73053516%20C-3.55271368e-15%2C3.78675687%200.00211518453%2C3.84298018%200.00634386145%2C3.90030452%20L0.00634386145%2C14.9243125%20C0.00634386145%2C15.5328372%200.479957368%2C16.0267132%201.06351817%2C16.0267132%20L15.8639584%2C16.0267132%20C16.4485751%2C16.0267132%2016.9211327%2C15.5328372%2016.9211327%2C14.9243125%20L16.9211327%2C3.90030452%20C16.9412185%2C2.73727162%2016.079621%2C1.76605603%2014.9674739%2C1.69549924%20L13.7496098%2C1.69549924%20Z%20M4.76362739%2C2.83869186%20C5.19284063%2C2.83869186%205.54065142%2C2.47600255%205.54065142%2C2.02842774%20L5.54065142%2C0.815787359%20C5.54276492%2C0.368212557%205.1981269%2C0.00331796334%204.76891366%2C3.77475828e-14%20C4.33970041%2C-0.00219362317%203.98871854%2C0.358290419%203.98660504%2C0.804762583%20L3.98660504%2C0.815787359%20L3.98660504%2C2.02842774%20C3.98660504%2C2.47600255%204.33441414%2C2.83869186%204.76362739%2C2.83869186%20L4.76362739%2C2.83869186%20Z%20M9.14070663%2C6.79945772%20L9.14070663%2C11.5081454%20L7.66904562%2C11.5081454%20L7.66904562%2C8.4391177%20L6.89393502%2C8.6465106%20L6.89393502%2C7.7257571%20L9.00573181%2C6.79945772%20L9.14070663%2C6.79945772%20Z%20M12.1638475%2C0.0804849826%20C12.5687446%2C0.0804849826%2012.8975272%2C0.422230592%2012.8975272%2C0.84555217%20L12.8975272%2C0.84555217%20L12.8975272%2C1.99535662%20C12.8975272%2C2.41757556%2012.5687446%2C2.76042221%2012.1638475%2C2.76042221%20L12.1638475%2C2.76042221%20C11.7568353%2C2.75931957%2011.4301695%2C2.41647292%2011.4301695%2C1.99425399%20L11.4301695%2C1.99425399%20L11.4301695%2C0.84555217%20C11.4301695%2C0.422230592%2011.7589504%2C0.0804849826%2012.1638475%2C0.0804849826%20Z%22%3E%3C/path%3E%0A%20%20%20%20%20%20%20%20%3C/g%3E%0A%20%20%20%20%3C/g%3E%0A%3C/svg%3E') center 4px no-repeat;
+	background-size: 26px 26px;
+}
+
+.mail-msg-view-header-set-param {
+	display: flex;
+	flex-direction: column;
+}
+
+.mail-msg-view-header-set-title,
+.mail-msg-view-header-set-prev {
+	display: block;
+	overflow: hidden;
+	height: 15px;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 14px;
+}
+
+.mail-msg-view-header-set-title {
+	margin-bottom: 3px;
+	font-weight: bold;
+	color: #333;
+	line-height: 15px;
+}
+
+.mail-msg-view-header-set-prev {
+	padding-bottom: 2px;
+	color: #7d808c;
+}
+
+.mail-msg-view-table {
+	margin-bottom: 11px;
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	line-height: 22px;
+}
+
+.mail-msg-view-table td:first-child {
+	padding-right: 25px;
+}
+
+.mail-msg-view-table td {
+	vertical-align: top;
+	padding: 3px 0;
+}
+
+.mail-msg-view-table-title {
+	color: #7d808c;
+}
+
+.mail-msg-view-table-value {
+	color: #333;
+}
+
+.mail-msg-view-table-head {
+	display: inline-block;
+	margin: 10px 0;
+	font-weight: bold;
+	font-size: 15px;
+	color: #333;
 }

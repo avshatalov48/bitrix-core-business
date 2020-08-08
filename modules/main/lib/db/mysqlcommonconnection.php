@@ -348,4 +348,28 @@ abstract class MysqlCommonConnection extends Connection
 	 * @return bool
 	 */
 	abstract public function selectDatabase($database);
+
+	/**
+	 * Returns max packet length to send to or receive from the database server.
+	 *
+	 * @return int
+	 * @throws \Bitrix\Main\Db\SqlQueryException
+	 */
+	public function getMaxAllowedPacket()
+	{
+		static $mtu;
+
+		if (is_null($mtu))
+		{
+			$mtu = 0;
+
+			$res = $this->query("SHOW VARIABLES LIKE 'max_allowed_packet'")->fetch();
+			if ($res['Variable_name'] == 'max_allowed_packet')
+			{
+				$mtu = intval($res['Value']);
+			}
+		}
+
+		return $mtu;
+	}
 }

@@ -220,7 +220,7 @@ class CDeliveryDHLUSA
 		
 		CDeliveryDHLUSA::__Write2Log($data);		
 		
-		if (strlen($data) <= 0)
+		if ($data == '')
 		{
 			return array(
 				"RESULT" => "ERROR",
@@ -228,13 +228,13 @@ class CDeliveryDHLUSA
 			);
 		}
 
-		if (strstr($data, DELIVERY_DHL_USA_VALUE_CHECK_STRING))
+		if(mb_strstr($data, DELIVERY_DHL_USA_VALUE_CHECK_STRING))
 		{
 			// first check string found
-			
-			if (preg_match(
-				DELIVERY_DHL_USA_VALUE_CHECK_REGEXP, 
-				$data, 
+
+			if(preg_match(
+				DELIVERY_DHL_USA_VALUE_CHECK_REGEXP,
+				$data,
 				$matches
 			))
 			{
@@ -247,7 +247,7 @@ class CDeliveryDHLUSA
 
 				$matches = array();
 				$transit_time = 0;
-				if (preg_match(
+				if(preg_match(
 					DELIVERY_DHL_USA_TIME_CHECK_REGEXP,
 					$data,
 					$matches
@@ -255,14 +255,14 @@ class CDeliveryDHLUSA
 				{
 					$transit_time = intval($matches[1]);
 				}
-				
+
 				$obCache->EndDataCache(
 					array(
 						"RESULT" => $result,
 						"TRANSIT" => $transit_time,
 					)
 				);
-				
+
 				return array(
 					"RESULT" => "OK",
 					"VALUE" => $result,

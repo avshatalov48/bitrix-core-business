@@ -4,7 +4,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 CUtil::InitJSCore(
 	['tooltip', 'admin_interface', 'date', 'uploader', 'file_dialog', 'bp_user_selector', 'bp_field_type', 'dnd']
 );
-\Bitrix\Main\UI\Extension::load(['ui.buttons', 'ui.hint']);
+\Bitrix\Main\UI\Extension::load(['ui.buttons', 'ui.hint', 'ui.notification', 'ui.alerts', 'ui.dialogs.messagebox']);
 /**
  * @var array $arResult
  * @var array $arParams
@@ -13,6 +13,7 @@ CUtil::InitJSCore(
 
 $titleView = $arResult['TITLE_VIEW'];
 $titleEdit = $arResult['TITLE_EDIT'];
+$robotsLimit = $arParams['ROBOTS_LIMIT'] ?? 0;
 
 if ($arResult['USE_DISK'])
 {
@@ -51,12 +52,47 @@ $getMessage = function ($messageCode) use ($messages)
 <div class="automation-base<?=(count($arResult['TEMPLATES']) <= 1 ?'automation-base-script-mode':'')?>" data-role="automation-base-node">
 		<?php if ($arParams['HIDE_TOOLBAR'] !== 'Y'):?>
 		<div class="automation-base-node-top">
+			<?
+			if (\Bitrix\Main\Loader::includeModule('intranet'))
+			{
+				$context = [];
+				$type = isset($arResult['DOCUMENT_TYPE'][2]) ? $arResult['DOCUMENT_TYPE'][2] : '';
+				if (mb_strpos($type, 'TASK_PLAN_') === 0)
+				{
+					$context = [
+						'USER_ID' => mb_substr($type, mb_strlen('TASK_PLAN_'))
+					];
+					$type = 'task';
+				}
+				else if (mb_strpos($type, 'TASK_PROJECT_') === 0)
+				{
+					$context = [
+						'GROUP_ID' => mb_substr($type, mb_strlen('TASK_PROJECT_'))
+					];
+					$type = 'task';
+				}
+			}
+			?>
 			<div class="automation-base-node-title"
 				data-role="automation-title"
 				data-title-view="<?=htmlspecialcharsbx($titleView)?>"
 				data-title-edit="<?=htmlspecialcharsbx($titleEdit)?>">
 			</div>
 			<div class="automation-base-button" data-role="automation-base-toolbar">
+				<?
+				if (\Bitrix\Main\Loader::includeModule('intranet'))
+				{
+					$APPLICATION->includeComponent(
+						'bitrix:intranet.binding.menu',
+						'',
+						array(
+							'SECTION_CODE' => 'bizproc_automation',
+							'MENU_CODE' => $type,
+							'CONTEXT' => $context
+						)
+					);
+				}
+				?>
 				<button class="ui-btn ui-btn-light-border ui-btn-themes <?if (!$arResult['CAN_EDIT']):?> ui-btn-disabled<?endif?>" data-role="automation-btn-change-view"
 					data-label-view="<?=$getMessage('BIZPROC_AUTOMATION_CMP_VIEW')?>" data-label-edit="<?=$getMessage('BIZPROC_AUTOMATION_CMP_AUTOMATION_EDIT')?>">
 					<?=$getMessage('BIZPROC_AUTOMATION_CMP_AUTOMATION_EDIT')?>
@@ -64,6 +100,11 @@ $getMessage = function ($messageCode) use ($messages)
 			</div>
 		</div>
 		<?endif;?>
+	<?if ($robotsLimit):?>
+		<div class="ui-alert ui-alert-xs ui-alert-warning ui-alert-icon-warning">
+			<span class="ui-alert-message"><?=GetMessage('BIZPROC_AUTOMATION_ROBOTS_LIMIT_MAIN_ALERT', ['#LIMIT#' => $robotsLimit])?></span>
+		</div>
+	<?endif;?>
 	<div class="automation-base-node">
 		<div class="bizproc-automation-status">
 			<div class="bizproc-automation-status-list">
@@ -72,7 +113,7 @@ $getMessage = function ($messageCode) use ($messages)
 				?>
 				<div class="bizproc-automation-status-list-item">
 					<div class="bizproc-automation-status-title" data-role="automation-status-title" data-bgcolor="<?=$color?>">
-						<?=htmlspecialcharsbx($status['NAME']?:$status['TITLE'])?>
+						<?=htmlspecialcharsbx(isset($status['NAME']) ? $status['NAME'] : $status['TITLE'])?>
 					</div>
 					<div class="bizproc-automation-status-bg" style="background-color: <?='#'.$color?>">
 						<span class="bizproc-automation-status-title-right" style="background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2213%22%20height%3D%2232%22%20viewBox%3D%220%200%2013%2032%22%3E%3Cpath%20fill%3D%22%23<?=$color?>%22%20fill-rule%3D%22evenodd%22%20d%3D%22M0%200h3c2.8%200%204%203%204%203l6%2013-6%2013s-1.06%203-4%203H0V0z%22/%3E%3C/svg%3E); background-color: transparent !important;"></span>
@@ -150,7 +191,8 @@ $getMessage = function ($messageCode) use ($messages)
 			BX.message(<?=\Bitrix\Main\Web\Json::encode($messages)?>);
 			BX.message({
 				BIZPROC_AUTOMATION_YES: '<?=GetMessageJS('MAIN_YES')?>',
-				BIZPROC_AUTOMATION_NO: '<?=GetMessageJS('MAIN_NO')?>'
+				BIZPROC_AUTOMATION_NO: '<?=GetMessageJS('MAIN_NO')?>',
+				BIZPROC_AUTOMATION_DELAY_MIN_LIMIT_LABEL: '<?=CUtil::JSEscape($arResult['DELAY_MIN_LIMIT_LABEL'])?>',
 			});
 
 			var viewMode = BX.Bizproc.Automation.Component.ViewMode.View;
@@ -189,7 +231,10 @@ $getMessage = function ($messageCode) use ($messages)
 					'FRAME_MODE' => $arResult['FRAME_MODE'],
 
 					'MARKETPLACE_ROBOT_CATEGORY' => $arParams['MARKETPLACE_ROBOT_CATEGORY'],
-					'MARKETPLACE_TRIGGER_PLACEMENT' => $arParams['MARKETPLACE_TRIGGER_PLACEMENT']
+					'MARKETPLACE_TRIGGER_PLACEMENT' => $arParams['MARKETPLACE_TRIGGER_PLACEMENT'],
+					'ROBOTS_LIMIT' => $robotsLimit,
+
+					'DELAY_MIN_LIMIT_M' => $arResult['DELAY_MIN_LIMIT_M']
 				))?>, viewMode);
 		}
 	});

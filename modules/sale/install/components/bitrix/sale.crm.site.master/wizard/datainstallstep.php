@@ -202,7 +202,7 @@ class DataInstallStep extends \DataInstallStep
 
 		$firstStep = Option::get(
 			"main",
-			"wizard_first".substr($wizard->GetID(), 7)."_".$siteId,
+			"wizard_first".mb_substr($wizard->GetID(), 7)."_".$siteId,
 			false,
 			$siteId
 		);
@@ -231,9 +231,9 @@ class DataInstallStep extends \DataInstallStep
 			}
 			else
 			{
-				if(substr($arGroupUser["STRING_ID"], -2) == $siteId)
+				if(mb_substr($arGroupUser["STRING_ID"], -2) == $siteId)
 				{
-					define("WIZARD_".substr($arGroupUser["STRING_ID"], 0, -3)."_GROUP", $arGroupUser["ID"]);
+					define("WIZARD_".mb_substr($arGroupUser["STRING_ID"], 0, -3)."_GROUP", $arGroupUser["ID"]);
 				}
 			}
 		}
@@ -297,7 +297,6 @@ class DataInstallStep extends \DataInstallStep
 	 * @throws Main\ArgumentException
 	 * @throws Main\ArgumentNullException
 	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\LoaderException
 	 * @throws Main\ObjectPropertyException
 	 * @throws Main\SystemException
 	 */
@@ -305,7 +304,7 @@ class DataInstallStep extends \DataInstallStep
 	{
 		$sitePatcher = SitePatcher::getInstance();
 
-		$sitePatcher->updateSiteTemplateConditions();
+		SitePatcher::updateSiteTemplateConditions();
 		$sitePatcher->addUrlRewrite();
 		$sitePatcher->deleteFiles();
 

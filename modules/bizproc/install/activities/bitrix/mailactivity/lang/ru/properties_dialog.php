@@ -14,4 +14,5 @@ $MESS["BPMA_PD_MAIL_SITE_OTHER"] = "другой";
 $MESS["BPMA_PD_MAIL_SEPARATOR"] = "Разделитель почтовых адресов";
 $MESS["BPMA_PD_FILE"] = "Вложения";
 $MESS["BPMA_PD_FILE_SELECT"] = "выбрать";
+$MESS["BPMA_PD_FROM_LIMITATION"] = "Не допускается использование E-Mail адресов, не подключенных или не подтвержденных для отправки в Битрикс24";
 ?>

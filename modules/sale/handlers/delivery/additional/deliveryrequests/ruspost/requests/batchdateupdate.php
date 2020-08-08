@@ -82,7 +82,7 @@ class BatchDateUpdate extends Base
 
 		$row = $res->fetch();
 
-		if(!$row || strlen($row['EXTERNAL_ID']) <= 0)
+		if(!$row || $row['EXTERNAL_ID'] == '')
 		{
 			$result->addError( new Main\Error(Loc::getMessage('SALE_DLVRS_ADD_DREQ_RBATCDU_05')));
 			return $result;

@@ -47,7 +47,9 @@ else
 	$ACTIVE = "N";
 }
 
-$exclMasks=array();
+$exclMasks=array(
+	'/bitrix/admin/user_options.php',
+);
 
 foreach(GetModuleEvents("security", "OnIPRuleAdmin", true) as $event)
 {
@@ -75,7 +77,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["save"].$_REQUEST["apply"].
 		$noExclIPS = true;
 		foreach($_POST["EXCL_IPS"] as $ip)
 		{
-			if(strlen(trim($ip)) > 0)
+			if(trim($ip) <> '')
 			{
 				$noExclIPS = false;
 				break;

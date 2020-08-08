@@ -26,8 +26,6 @@ $MESS["BLOG_C_TEXT_TITLE"] = "Send message...";
 $MESS["BLOG_COMMENT_MOBILE_FORMAT_DATE"] = "d F, g:i a";
 $MESS["BLOG_COMMENT_MOBILE_FORMAT_DATE_YEAR"] = "d F Y, g:i a";
 $MESS["BLOG_COMMENT_MOBILE_FORMAT_TIME"] = "g:i a";
-$MESS["BLOG_C_BUTTON_ALL"] = "Show comments <i>·</i> #COMMENTS#";
-$MESS["BLOG_C_BUTTON_OLD"] = "Show comments <i>·</i> #COMMENTS#";
 $MESS["BLOG_C_REPLY"] = "Reply";
 $MESS["BLOG_C_LIKES_LIST"] = "Likes";
 ?>

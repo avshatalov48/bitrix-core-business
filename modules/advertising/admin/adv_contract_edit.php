@@ -66,7 +66,7 @@ if ($action=="view")
 	$isEditRightsMode = false;
 }
 
-if ((strlen($save)>0 || strlen($apply)>0) && check_bitrix_sessid() && $REQUEST_METHOD=="POST")
+if (($save <> '' || $apply <> '') && check_bitrix_sessid() && $REQUEST_METHOD=="POST")
 {
 	$arrWEEKDAY = array(
 		"SUNDAY"	=> $arrSUNDAY,
@@ -103,9 +103,9 @@ if ((strlen($save)>0 || strlen($apply)>0) && check_bitrix_sessid() && $REQUEST_M
 
 	if ($ID = CAdvContract::Set($arFields, $ID))
 	{
-		if (strlen($strError)<=0)
+		if ($strError == '')
 		{
-			if (strlen($save)>0)
+			if ($save <> '')
 				LocalRedirect("adv_contract_list.php?lang=".LANGUAGE_ID);
 			else
 				LocalRedirect("adv_contract_edit.php?ID=".$ID."&lang=".LANGUAGE_ID."&".$tabControl->ActiveTabParam());
@@ -144,9 +144,9 @@ if (!$rsContract || !$rsContract->ExtractFields())
 }
 else
 {
-	if (strlen($strError)<=0)
+	if ($strError == '')
 	{
-		if (strlen($str_KEYWORDS)>0)
+		if ($str_KEYWORDS <> '')
 		{
 			$arrKEYWORDS = preg_split('/[\n\r]+/', $str_KEYWORDS);
 			TrimArr($arrKEYWORDS);
@@ -172,7 +172,7 @@ else
 	}
 }
 
-if (strlen($strError)>0)
+if ($strError <> '')
 {
 	$DB->InitTableVarsForEdit("b_adv_contract", "", "str_");
 	$str_SHOW_PAGE = $SHOW_PAGE;
@@ -270,7 +270,7 @@ $tabControl->BeginNextTab();
 ?>
 	<?
 	if ($ID>0) :
-		$lamp_alt = GetMessage("AD_".strtoupper($str_LAMP)."_ALT");
+		$lamp_alt = GetMessage("AD_".mb_strtoupper($str_LAMP)."_ALT");
 		$lamp = '<div class="lamp-'.$str_LAMP.'" title="'.$lamp_alt.'" style="float:left;"></div>';
 		?>
 		<tr>
@@ -280,7 +280,7 @@ $tabControl->BeginNextTab();
 	<?endif;?>
 
 	<?if ($ID>0):?>
-	<?if (strlen($str_DATE_CREATE)>0):?>
+	<?if ($str_DATE_CREATE <> ''):?>
 	<tr>
 		<td width="40%"><?=GetMessage("AD_CREATED")?></td>
 		<td width="60%"><?=$str_DATE_CREATE?><?
@@ -292,7 +292,7 @@ $tabControl->BeginNextTab();
 		?></td>
 	</tr>
 	<?endif;?>
-	<?if (strlen($str_DATE_MODIFY)>0):?>
+	<?if ($str_DATE_MODIFY <> ''):?>
 	<tr>
 		<td><?=GetMessage("AD_MODIFIED")?></td>
 		<td><?=$str_DATE_MODIFY?><?
@@ -320,10 +320,10 @@ $tabControl->BeginNextTab();
 	<tr>
 		<td><?=GetMessage("AD_SHOW_INTERVAL").":"?></td>
 		<td><?
-			if (strlen($str_DATE_SHOW_FROM)>0) :
+			if ($str_DATE_SHOW_FROM <> '') :
 				echo GetMessage("AD_FROM")?>&nbsp;<b><?=$str_DATE_SHOW_FROM?></b>&nbsp;<?
 			endif;
-			if (strlen($str_DATE_SHOW_TO)>0) :
+			if ($str_DATE_SHOW_TO <> '') :
 				echo GetMessage("AD_TILL")?>&nbsp;<b><?=$str_DATE_SHOW_TO?></b><?
 			endif;
 			?></td>
@@ -637,7 +637,7 @@ $tabControl->BeginNextTab();
 
 				while(list($key,$value)=each($arrWDAY)) :
 					$checked = "";
-					if ($ID<=0 && strlen($strError)<=0) $checked = "checked";
+					if ($ID<=0 && $strError == '') $checked = "checked";
 					if (is_array(${"arr".$key}) && in_array($i,${"arr".$key})) $checked = "checked";
 					?>
 					<td><input id="arr<?=$key?>_<?=$i?>[]" <?=$disabled?> name="arr<?=$key?>[]" type="checkbox" value="<?=$i?>" <?=$checked?>></td>
@@ -861,7 +861,7 @@ $tabControl->End();
 ?>
 </form>
 <?
-if(isset($aTabs[4]) && strlen($str_ADMIN_COMMENTS)<=0 && !$isEditMode):?>
+if(isset($aTabs[4]) && $str_ADMIN_COMMENTS == '' && !$isEditMode):?>
 <script language="JavaScript">
 	<!--
 	tabControl.DisableTab("edit5");

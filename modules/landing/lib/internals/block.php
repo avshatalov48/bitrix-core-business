@@ -45,6 +45,9 @@ class BlockTable extends Entity\DataManager
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_CODE'),
 				'required' => true
 			)),
+			'XML_ID' => new Entity\StringField('XML_ID', array(
+				'title' => Loc::getMessage('LANDING_TABLE_FIELD_XML_ID')
+			)),
 			'INITIATOR_APP_CODE' => new Entity\StringField('INITIATOR_APP_CODE', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_INITIATOR_APP_CODE'),
 				'default_value' => ''
@@ -88,6 +91,9 @@ class BlockTable extends Entity\DataManager
 			'SEARCH_CONTENT' => new Entity\StringField('SEARCH_CONTENT', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_SEARCH_CONTENT')
 			)),
+			'ASSETS' => (new \Bitrix\Main\ORM\Fields\ArrayField('ASSETS', array(
+				'title' => Loc::getMessage('LANDING_TABLE_FIELD_SOURCE_PARAMS')
+			)))->configureSerializationPhp(),
 			'CREATED_BY_ID' => new Entity\IntegerField('CREATED_BY_ID', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_CREATED_BY_ID'),
 				'required' => true
@@ -157,6 +163,7 @@ class BlockTable extends Entity\DataManager
 		{
 			\Bitrix\Landing\File::deleteFromBlock($primary['ID']);
 			\Bitrix\Landing\Source\FilterEntity::removeBlock($primary['ID']);
+			\Bitrix\Landing\Chat\Binding::unbindingBlock($primary['ID']);
 		}
 
 		return $result;

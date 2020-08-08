@@ -1,5 +1,5 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
-<?if(strlen($arResult["NAV_STRING"]) > 0):?>
+<?if($arResult["NAV_STRING"] <> ''):?>
 	<p><?=$arResult["NAV_STRING"]?></p>
 <?endif?>
 <table class="sale_personal_subscr_list data-table">
@@ -18,13 +18,13 @@
 		<tr>
 			<td align="center"><b><?= $val["ID"]?></b></td>
 			<td><?
-				if (strlen($val["PRODUCT_URL"]) > 0)
+				if ($val["PRODUCT_URL"] <> '')
 					echo "<a href=\"".$val["PRODUCT_URL"]."\">";
-				if (strlen($val["PRODUCT_NAME"]) > 0)
+				if ($val["PRODUCT_NAME"] <> '')
 					echo $val["PRODUCT_NAME"];
 				else
 					echo $val["PRODUCT_ID"];
-				if (strlen($val["PRODUCT_URL"]) > 0)
+				if ($val["PRODUCT_URL"] <> '')
 					echo "</a>";
 				?></td>
 			<td><?=$val["SALE_TIME_PERIOD_TYPES"];?></td>
@@ -44,6 +44,6 @@
 		</tr>
 	<?endforeach;?>
 </table>
-<?if(strlen($arResult["NAV_STRING"]) > 0):?>
+<?if($arResult["NAV_STRING"] <> ''):?>
 	<p><?=$arResult["NAV_STRING"]?></p>
 <?endif?>

@@ -152,19 +152,19 @@ class Group extends CopyImplementer
 	 * Starts copying children entities.
 	 *
 	 * @param Container $container
-	 * @param int $entityId Group id.
-	 * @param int $copiedEntityId Copied group id.
+	 * @param int $groupId Group id.
+	 * @param int $copiedGroupId Copied group id.
 	 * @return Result
 	 */
-	public function copyChildren(Container $container, $entityId, $copiedEntityId)
+	public function copyChildren(Container $container, $groupId, $copiedGroupId)
 	{
-		$copiedEntityId = (int) $copiedEntityId;
-		if (!$copiedEntityId)
+		$copiedGroupId = (int) $copiedGroupId;
+		if (!$copiedGroupId)
 		{
 			return new Result();
 		}
 
-		$this->copyUfFields($entityId, $copiedEntityId, "SONET_GROUP");
+		$this->copyUfFields($groupId, $copiedGroupId, "SONET_GROUP");
 
 		foreach ($this->features as $feature)
 		{
@@ -174,8 +174,10 @@ class Group extends CopyImplementer
 			{
 				$feature->setProjectTerm($this->projectTerm);
 			}
-			$feature->copy($entityId, $copiedEntityId);
+			$feature->copy($groupId, $copiedGroupId);
 		}
+
+		$this->copyFeatures($groupId, $copiedGroupId);
 
 		return $this->getResult();
 	}
@@ -322,5 +324,23 @@ class Group extends CopyImplementer
 		}
 
 		return false;
+	}
+
+	private function copyFeatures(int $groupId, int $copiedGroupId): void
+	{
+		$queryObject = \CSocNetFeatures::getList(
+			[],
+			["ENTITY_ID" => $groupId, "ENTITY_TYPE" => SONET_ENTITY_GROUP]
+		);
+		while ($feature = $queryObject->fetch())
+		{
+			\CSocNetFeatures::setFeature(
+				SONET_ENTITY_GROUP,
+				$copiedGroupId,
+				$feature["FEATURE"],
+				($feature["ACTIVE"] == "Y"),
+				false
+			);
+		}
 	}
 }

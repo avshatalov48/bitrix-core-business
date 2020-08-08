@@ -23,7 +23,7 @@ abstract class BaseFilter extends Base
 
 	/** @var string	$filterSettingsUri Filter settings uri. */
 	protected $filterSettingsUri = '';
-	
+
 	/**
 	 * Get form html.
 	 *
@@ -40,7 +40,35 @@ abstract class BaseFilter extends Base
 
 		$filterId = $this->getUiFilterId();
 		$this->clearFilterState($filterId);
+		$filter = static::getFilterFields();
+		return $this->buildUi($filterId, $currentPresetId, $presets, $filter);
+	}
 
+	/**
+	 * Get form html.
+	 *
+	 * @param array $params
+	 *
+	 * @return string
+	 */
+	final public function getCustomForm(array $params)
+	{
+		$presets = $params['presets']??$this->getUiFilterPresets();
+		$currentPresetId = $params['current_preset_id']??$this->getCurrentPresetId();
+		if ($currentPresetId && isset($presets[$currentPresetId]))
+		{
+			$preset[$currentPresetId]['default'] = true;
+		}
+
+		$filterId = $params['filter_id']??$this->getUiFilterId();
+		$this->clearFilterState($filterId);
+		$filter = static::getFilterFields($params['filter']);
+
+		return $this->buildUi($filterId, $currentPresetId, $presets, $filter);
+	}
+
+	private function buildUi($filterId, $currentPresetId, $presets, $filter)
+	{
 		ob_start();
 		/** @var \CAllMain $GLOBALS['APPLICATION'] Application. */
 		$GLOBALS['APPLICATION']->includeComponent(
@@ -50,7 +78,7 @@ abstract class BaseFilter extends Base
 				"FILTER_ID" => $filterId,
 				"CURRENT_PRESET" => $currentPresetId,
 				"FILTER" => array_filter(
-					static::getFilterFields(),
+					$filter,
 					function ($field)
 					{
 						return empty($field['sender_internal']);
@@ -277,11 +305,13 @@ abstract class BaseFilter extends Base
 	/**
 	 * Get Ui filter presets.
 	 *
+	 * @param null $filter
+	 *
 	 * @return array
 	 */
-	private static function getFilterFields()
+	private static function getFilterFields($filter = null)
 	{
-		$fields = static::getUiFilterFields();
+		$fields = $filter??static::getUiFilterFields();
 		$fields = is_array($fields) ? $fields : array();
 		$fields[] = array(
 			"id" => self::FIELD_FOR_PRESET_ALL,

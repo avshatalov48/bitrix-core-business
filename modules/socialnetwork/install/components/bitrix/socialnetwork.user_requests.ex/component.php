@@ -54,21 +54,21 @@ if (!function_exists('getRelatedGroup'))
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 $bAutoSubscribe = (array_key_exists("USE_AUTOSUBSCRIBE", $arParams) && $arParams["USE_AUTOSUBSCRIBE"] == "N" ? false : true);
 
-$arParams["USER_ID"] = IntVal($arParams["USER_ID"]);
+$arParams["USER_ID"] = intval($arParams["USER_ID"]);
 if ($arParams["USER_ID"] < 0)
 	return false;
 
-if (strLen($arParams["USER_VAR"]) <= 0)
+if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if (strlen($arParams["PATH_TO_USER"]) <= 0)
+if ($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_MESSAGE_FORM"] = trim($arParams["PATH_TO_MESSAGE_FORM"]);
-if (strlen($arParams["PATH_TO_MESSAGE_FORM"]) <= 0)
+if ($arParams["PATH_TO_MESSAGE_FORM"] == '')
 	$arParams["PATH_TO_MESSAGE_FORM"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=message_form&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
@@ -142,7 +142,7 @@ else
 
 		$arUserRelationIDs = array();
 		$arGroupRelationIDs = array();
-		if (strlen($errorMessage) <= 0)
+		if ($errorMessage == '')
 		{
 			for ($i = 0; $i <= intval($_POST["max_count"]); $i++)
 			{
@@ -165,7 +165,7 @@ else
 			$errorMessage .= GetMessage("SONET_URE_NOT_SELECTED").". ";
 		}
 
-		if (strlen($errorMessage) <= 0)
+		if ($errorMessage == '')
 		{
 			$type = ($_POST["type"] == "out" ? "out" : "in");
 
@@ -257,7 +257,7 @@ else
 									$errorMessage .= $e->GetString();
 								}
 
-								if (StrLen($errorMessage) <= 0)
+								if ($errorMessage == '')
 								{
 									$errorMessage .= GetMessage("SONET_GRE_CANT_DELETE_INVITATION", array("#RELATION_ID#" => $arRelation["ID"]));
 								}
@@ -285,7 +285,7 @@ else
 									$errorMessage .= $e->GetString();
 								}
 
-								if (StrLen($errorMessage) <= 0)
+								if ($errorMessage == '')
 								{
 									$errorMessage .= GetMessage("SONET_GRE_CANT_DELETE_INVITATION", array("#RELATION_ID#" => $arRelation["ID"]));
 								}
@@ -300,8 +300,8 @@ else
 		{
 			$APPLICATION->RestartBuffer();
 			echo CUtil::PhpToJsObject(array(
-				'MESSAGE' => (strlen($errorMessage) > 0 ? 'ERROR' : 'SUCCESS'),
-				'ERROR_MESSAGE' => (strlen($errorMessage) > 0 ? $errorMessage : ''),
+				'MESSAGE' => ($errorMessage <> '' ? 'ERROR' : 'SUCCESS'),
+				'ERROR_MESSAGE' => ($errorMessage <> '' ? $errorMessage : ''),
 			));
 			require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");
 			die();

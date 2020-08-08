@@ -41,27 +41,27 @@ $lAdmin->InitFilter($arFilterFields);
 
 $arFilter = array();
 
-if ($filter_site_id != "NOT_REF" && StrLen($filter_site_id) > 0)
+if ($filter_site_id != "NOT_REF" && $filter_site_id <> '')
 	$arFilter["SITE_ID"] = $filter_site_id;
 else
 	Unset($arFilter["SITE_ID"]);
 
-if (strlen($filter_user) > 0)
+if ($filter_user <> '')
 	$arFilter["%USER_USER"] = $filter_user;
-if (IntVal($filter_plan_id) > 0)
-	$arFilter["PLAN_ID"] = IntVal($filter_plan_id);
-if (StrLen($filter_active) > 0)
+if (intval($filter_plan_id) > 0)
+	$arFilter["PLAN_ID"] = intval($filter_plan_id);
+if ($filter_active <> '')
 	$arFilter["ACTIVE"] = (($filter_active == "Y") ? "Y" : "N");
-if (StrLen($filter_last_calculate_from) > 0)
+if ($filter_last_calculate_from <> '')
 	$arFilter[">=LAST_CALCULATE"] = $filter_last_calculate_from;
-if (StrLen($filter_last_calculate_to) > 0)
+if ($filter_last_calculate_to <> '')
 	$arFilter["<=LAST_CALCULATE"] = $filter_last_calculate_to;
-if (StrLen($filter_date_create_from) > 0)
+if ($filter_date_create_from <> '')
 	$arFilter[">=DATE_CREATE"] = $filter_date_create_from;
-if (StrLen($filter_date_create_to) > 0)
+if ($filter_date_create_to <> '')
 	$arFilter["<=DATE_CREATE"] = $filter_date_create_to;
-if (IntVal($filter_affiliate_id) > 0)
-	$arFilter["AFFILIATE_ID"] = IntVal($filter_affiliate_id);
+if (intval($filter_affiliate_id) > 0)
+	$arFilter["AFFILIATE_ID"] = intval($filter_affiliate_id);
 
 $arBaseLangCurrencies = array();
 
@@ -70,7 +70,7 @@ if ($lAdmin->EditAction() && $saleModulePermissions >= "W")
 	foreach ($FIELDS as $ID => $arFields)
 	{
 		$DB->StartTransaction();
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		if (!$lAdmin->IsUpdated($ID))
 			continue;
@@ -101,7 +101,7 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 
 	foreach ($arID as $ID)
 	{
-		if (strlen($ID) <= 0)
+		if ($ID == '')
 			continue;
 
 		switch ($_REQUEST['action'])
@@ -234,7 +234,7 @@ while ($arAffiliate = $dbResultList->NavNext(true, "f_"))
 	$row->AddSelectField("SITE_ID", $arSites, array());
 
 	$fieldValue = "[<a href=\"/bitrix/admin/user_edit.php?ID=".$f_USER_ID."&lang=".LANG."\" title=\"".GetMessage("SAA_GOTO_USER")."\">".$f_USER_ID."</a>] ";
-	$fieldValue .= $f_USER_NAME.((strlen($f_USER_NAME)<=0 || strlen($f_USER_LAST_NAME)<=0) ? "" : " ").$f_USER_LAST_NAME."<br>";
+	$fieldValue .= $f_USER_NAME.(($f_USER_NAME == '' || $f_USER_LAST_NAME == '') ? "" : " ").$f_USER_LAST_NAME."<br>";
 	$fieldValue .= $f_USER_LOGIN."&nbsp;&nbsp;&nbsp; ";
 	$fieldValue .= "<a href=\"mailto:".$f_USER_EMAIL."\" title=\"".GetMessage("SAA_USER_EMAIL")."\">".$f_USER_EMAIL."</a>";
 	$row->AddField("USER_ID", $fieldValue);
@@ -441,7 +441,7 @@ $oFilter->Begin();
 	<tr>
 		<td><?echo GetMessage("SAA_PAR_AFFILIATE")?>:</td>
 		<td>
-			<input type="text" name="filter_affiliate_id" value="<?= IntVal($filter_affiliate_id) ?>" size="10" maxlength="10">
+			<input type="text" name="filter_affiliate_id" value="<?= intval($filter_affiliate_id) ?>" size="10" maxlength="10">
 			<IFRAME name="hiddenframe_affiliate" id="id_hiddenframe_affiliate" src="" width="0" height="0" style="width:0px; height:0px; border: 0px"></IFRAME>
 			<input type="button" class="button" name="FindAffiliate" OnClick="window.open('/bitrix/admin/sale_affiliate_search.php?func_name=SetAffiliateID', '', 'scrollbars=yes,resizable=yes,width=800,height=500,top='+Math.floor((screen.height - 500)/2-14)+',left='+Math.floor((screen.width - 400)/2-5));" value="...">
 			<span id="div_affiliate_name"></span>

@@ -15,7 +15,7 @@ $this->setFrameMode(true);
 CJSCore::Init(array("ajax"));
 $firstItemType = 'flv';
 if (isset($arResult['SELECTED_ELEMENT']) && isset($arResult['SELECTED_ELEMENT']['VALUES']['TYPE']))
-	$firstItemType = strtolower($arResult['SELECTED_ELEMENT']['VALUES']['TYPE']);
+	$firstItemType = mb_strtolower($arResult['SELECTED_ELEMENT']['VALUES']['TYPE']);
 ?>
 	<div id="bx_tv_block_<?=$arResult['PREFIX']?>" style="width: <?=$arParams['WIDTH']?>px;">
 		<div id="tv_playerjsPublicTVCollector.tv[<?=$arResult['PREFIX']?>]" class="player_player" style="width: <?=$arParams['WIDTH']?>px; height: <?=$arParams['HEIGHT'] + $arResult['CORRECTION']['FLV']?>px;">

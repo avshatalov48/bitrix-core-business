@@ -40,7 +40,7 @@ $usedProtocol = ($request->isHttps() ? 'https://' : 'http://');
 
 $sTableID = "tbl_sale_basket";
 
-$oSort = new CAdminSorting($sTableID, "DATE_UPDATE_MAX", "DESC");
+$oSort = new CAdminUiSorting($sTableID, "DATE_UPDATE_MAX", "DESC");
 $lAdmin = new CAdminUiList($sTableID, $oSort);
 
 $siteName = Array();
@@ -54,9 +54,9 @@ while ($arSite = $dbSite->Fetch())
 	$serverName[$arSite["LID"]] = $arSite["SERVER_NAME"];
 	$siteName[$arSite["LID"]] = $arSite["NAME"];
 	$listSite[$arSite["LID"]] = $arSite["NAME"]." [".$arSite["LID"]."]";
-	if (strlen($serverName[$arSite["LID"]]) <= 0)
+	if ($serverName[$arSite["LID"]] == '')
 	{
-		if (defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME) > 0)
+		if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '')
 			$serverName[$arSite["LID"]] = SITE_SERVER_NAME;
 		else
 			$serverName[$arSite["LID"]] = COption::GetOptionString("main", "server_name", "");
@@ -231,10 +231,10 @@ if (isset($_REQUEST['action']))
 {
 	if($_REQUEST['action'] == "order_basket")
 	{
-		$fuserID = IntVal($_REQUEST["FUSER_ID"]);
+		$fuserID = intval($_REQUEST["FUSER_ID"]);
 		if($fuserID > 0)
 		{
-			$userID = IntVal($_REQUEST["USER_ID"]);
+			$userID = intval($_REQUEST["USER_ID"]);
 			$siteID = $_REQUEST["SITE_ID"];
 			if ($publicMode)
 			{
@@ -314,7 +314,7 @@ while ($arBasket = $dbResultList->Fetch())
 		}
 		$fieldValue = "[<a href=".$userEditUrl." title=\"".GetMessage("SB_USER_INFO")."\">".$arBasket["USER_ID"]."</a>] ";
 		$fieldValue .= " (".htmlspecialcharsEx($arBasket["USER_LOGIN"]).") ";
-		$fieldValue .= "<a href=\"".$userEditUrl."\" title=\"".GetMessage("SB_FUSER_INFO")."\">".htmlspecialcharsEx($arBasket["USER_NAME"].((strlen($arBasket["USER_NAME"])<=0 || strlen($arBasket["USER_LAST_NAME"])<=0) ? "" : " ").$arBasket["USER_LAST_NAME"])."</a><br />";
+		$fieldValue .= "<a href=\"".$userEditUrl."\" title=\"".GetMessage("SB_FUSER_INFO")."\">".htmlspecialcharsEx($arBasket["USER_NAME"].(($arBasket["USER_NAME"] == '' || $arBasket["USER_LAST_NAME"] == '') ? "" : " ").$arBasket["USER_LAST_NAME"])."</a><br />";
 		$fieldValue .= "<a href=\"mailto:".htmlspecialcharsEx($arBasket["USER_EMAIL"])."\" title=\"".GetMessage("SB_MAILTO")."\">".htmlspecialcharsEx($arBasket["USER_EMAIL"])."</a>";
 	}
 	$row->AddField("USER_ID", $fieldValue);
@@ -369,9 +369,9 @@ while ($arBasket = $dbResultList->Fetch())
 		}
 		$bNeedLine = true;
 
-		if(strlen($arB["DETAIL_PAGE_URL"]) > 0)
+		if($arB["DETAIL_PAGE_URL"] <> '')
 		{
-			if(strpos($arB["DETAIL_PAGE_URL"], "http") === false)
+			if(mb_strpos($arB["DETAIL_PAGE_URL"], "http") === false)
 				$url = $usedProtocol.$serverName[$arB["LID"]].$arB["DETAIL_PAGE_URL"];
 			else
 				$url = $arB["DETAIL_PAGE_URL"];
@@ -393,7 +393,7 @@ while ($arBasket = $dbResultList->Fetch())
 		}
 		$basket .= htmlspecialcharsbx($arB["NAME"]);
 		$basketName .= htmlspecialcharsbx($arB["NAME"]);
-		if(strlen($arB["DETAIL_PAGE_URL"]) > 0)
+		if($arB["DETAIL_PAGE_URL"] <> '')
 		{
 			$basketName .= "</a></nobr>";
 			$basket .= "</a></nobr>";

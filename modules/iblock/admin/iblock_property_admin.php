@@ -41,8 +41,8 @@ $filterFields = array(
 	array(
 		"id" => "NAME",
 		"name" => GetMessage("IBP_ADM_NAME"),
-		"filterable" => "?",
-		"quickSearch" => "",
+		"filterable" => "",
+		"quickSearch" => "?",
 		"default" => true
 	),
 	array(
@@ -119,7 +119,7 @@ $arFilter = array("=IBLOCK_ID" => $arIBlock["ID"]);
 $lAdmin->AddFilter($filterFields, $arFilter);
 
 foreach($arFilter as $key => $value)
-	if(!strlen(trim($value)))
+	if(trim($value) == '')
 		unset($arFilter[$key]);
 if (isset($arFilter['=PROPERTY_TYPE']))
 {
@@ -171,7 +171,7 @@ if($arID = $lAdmin->GroupAction())
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
 
 		switch($_REQUEST['action'])
@@ -303,7 +303,7 @@ $propertyOrder = array();
 if ($by == 'PROPERTY_TYPE')
 	$propertyOrder = array('PROPERTY_TYPE' => $order, 'USER_TYPE' => $order);
 else
-	$propertyOrder = array(strtoupper($by) => strtoupper($order));
+	$propertyOrder = array(mb_strtoupper($by) => mb_strtoupper($order));
 if (!isset($propertyOrder['ID']))
 	$propertyOrder['ID'] = 'ASC';
 

@@ -16,7 +16,7 @@ function handleComp2Tree()
 {
 	$allowed_components = trim(COption::GetOptionString('fileman', "~allowed_components", ''));
 	// Name filter exists
-	if (strlen($allowed_components) > 0)
+	if ($allowed_components <> '')
 	{
 		$arAC = explode("\n",$allowed_components);
 		$arAC = array_unique($arAC);
@@ -29,7 +29,7 @@ function handleComp2Tree()
 			$arAllowedComponents[] = '/^'.$f.'$/';
 		}
 		$components_namespace = 'bitrix';
-		$mask = substr(md5($allowed_components), 2, 6);
+		$mask = mb_substr(md5($allowed_components), 2, 6);
 	}
 	else
 	{
@@ -70,7 +70,7 @@ function handleChildren($arEls, $path)
 {
 	foreach ($arEls as $elName => $arEl)
 	{
-		if (strpos($path, ",")!==false)
+		if (mb_strpos($path, ",") !== false)
 		{
 			if (isset($arEl['*']))
 			{
@@ -106,7 +106,7 @@ function pushElement($path, $name, $title, $isGroup, $icon, $complex, $params = 
 		for ($i = 0; $i < $len; $i++)
 			$sScreenshots .= '\''.CUtil::JSEscape($screenshots[$i]).'\',';
 
-		$sScreenshots = substr($sScreenshots, 0, -1);
+		$sScreenshots = mb_substr($sScreenshots, 0, -1);
 		$sScreenshots .= "]";
 	}
 	else

@@ -17,7 +17,10 @@ return array(
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(
 			'THEME_CODE' => 'agency',
-			'THEME_CODE_TYPO' => 'agency',
+			'THEMEFONTS_CODE' => 'g-font-roboto',
+			'THEMEFONTS_CODE_H' => 'g-font-roboto',
+			'THEMEFONTS_SIZE' => '1',
+			'THEMEFONTS_USE' => 'Y',
 			'B24BUTTON_CODE' => $buttons[0],
 			'UP_SHOW' => 'Y',
 		)

@@ -258,7 +258,7 @@ class CBPTaskUserStatus
 
 	public static function resolveStatus($name)
 	{
-		switch (strtolower((string)$name))
+		switch(mb_strtolower((string)$name))
 		{
 			case '0':
 			case 'waiting':

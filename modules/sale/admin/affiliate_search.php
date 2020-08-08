@@ -48,24 +48,24 @@ $lAdmin->InitFilter($arFilterFields);
 $arFilter = array();
 $func_name = preg_replace("/[^a-zA-Z0-9_-]/is", "", $func_name);
 
-if ($filter_site_id != "NOT_REF" && StrLen($filter_site_id) > 0)
+if ($filter_site_id != "NOT_REF" && $filter_site_id <> '')
 	$arFilter["SITE_ID"] = $filter_site_id;
 else
 	Unset($arFilter["SITE_ID"]);
 
-if (strlen($filter_user) > 0)
+if ($filter_user <> '')
 	$arFilter["%USER_USER"] = $filter_user;
-if (IntVal($filter_plan_id) > 0)
-	$arFilter["PLAN_ID"] = IntVal($filter_plan_id);
-if (StrLen($filter_active) > 0)
+if (intval($filter_plan_id) > 0)
+	$arFilter["PLAN_ID"] = intval($filter_plan_id);
+if ($filter_active <> '')
 	$arFilter["ACTIVE"] = (($filter_active == "Y") ? "Y" : "N");
-if (StrLen($filter_last_calculate_from) > 0)
+if ($filter_last_calculate_from <> '')
 	$arFilter[">=LAST_CALCULATE"] = $filter_last_calculate_from;
-if (StrLen($filter_last_calculate_to) > 0)
+if ($filter_last_calculate_to <> '')
 	$arFilter["<=LAST_CALCULATE"] = $filter_last_calculate_to;
-if (StrLen($filter_date_create_from) > 0)
+if ($filter_date_create_from <> '')
 	$arFilter[">=DATE_CREATE"] = $filter_date_create_from;
-if (StrLen($filter_date_create_to) > 0)
+if ($filter_date_create_to <> '')
 	$arFilter["<=DATE_CREATE"] = $filter_date_create_to;
 
 $dbResultList = CSaleAffiliate::GetList(
@@ -106,7 +106,7 @@ while ($arItems = $dbResultList->NavNext(true, "f_"))
 	$row->AddField("SITE_ID", $f_SITE_ID);
 
 	$fieldValue = "[<a href=\"/bitrix/admin/user_edit.php?ID=".$f_USER_ID."&lang=".LANG."\" target=\"_blank\" title=\"".GetMessage("SAS1_GOTO_USER")."\">".$f_USER_ID."</a>] ";
-	$fieldValue .= $f_USER_NAME.((strlen($f_USER_NAME)<=0 || strlen($f_USER_LAST_NAME)<=0) ? "" : " ").$f_USER_LAST_NAME."<br>";
+	$fieldValue .= $f_USER_NAME.(($f_USER_NAME == '' || $f_USER_LAST_NAME == '') ? "" : " ").$f_USER_LAST_NAME."<br>";
 	$fieldValue .= $f_USER_LOGIN."&nbsp;&nbsp;&nbsp; ";
 	$fieldValue .= "<a href=\"mailto:".$f_USER_EMAIL."\" title=\"".GetMessage("SAS1_GOTO_USER_EMAIL")."\">".$f_USER_EMAIL."</a>";
 	$row->AddField("USER_ID", $fieldValue);

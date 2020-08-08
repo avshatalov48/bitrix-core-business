@@ -46,7 +46,7 @@ class LogViewTable extends Entity\DataManager
 		$result = 'Y';
 
 		$eventId = trim($eventId);
-		if (strlen($eventId))
+		if($eventId <> '')
 		{
 			throw new Main\SystemException("Empty eventId.");
 		}
@@ -77,7 +77,7 @@ class LogViewTable extends Entity\DataManager
 		$userId = intval($userId);
 		$type = ($type == "Y" ? "Y" : "N");
 		$eventId = trim($eventId);
-		if (strlen($eventId) <= 0)
+		if ($eventId == '')
 		{
 			throw new Main\SystemException("Empty eventId.");
 		}

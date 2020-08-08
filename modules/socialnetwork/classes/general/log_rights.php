@@ -242,12 +242,12 @@ class CSocNetLogRights
 		foreach($aFilter as $key=>$val)
 		{
 			$val = $DB->ForSql($val);
-			if(strlen($val) <= 0)
+			if($val == '')
 			{
 				continue;
 			}
 
-			switch(strtoupper($key))
+			switch(mb_strtoupper($key))
 			{
 				case "ID":
 					$arFilter[] = "R.ID=".intval($val);
@@ -264,8 +264,8 @@ class CSocNetLogRights
 		$arOrder = array();
 		foreach($aSort as $key=>$val)
 		{
-			$ord = (strtoupper($val) <> "ASC"?"DESC":"ASC");
-			switch(strtoupper($key))
+			$ord = (mb_strtoupper($val) <> "ASC"?"DESC":"ASC");
+			switch(mb_strtoupper($key))
 			{
 				case "ID":
 					$arOrder[] = "R.ID ".$ord;

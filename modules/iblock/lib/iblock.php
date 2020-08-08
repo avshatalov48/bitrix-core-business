@@ -20,7 +20,7 @@ class Iblock extends EO_Iblock
 	{
 		$code = $this->fillApiCode();
 
-		if (strlen($code))
+		if($code <> '')
 		{
 			return IblockTable::DATA_CLASS_PREFIX.ucfirst($code).'Table';
 		}
@@ -33,7 +33,7 @@ class Iblock extends EO_Iblock
 	{
 		$className = $this->getEntityDataClassName();
 
-		if (strlen($className))
+		if($className <> '')
 		{
 			return '\\'.IblockTable::DATA_CLASS_NAMESPACE.'\\'.$className;
 		}

@@ -350,10 +350,18 @@ BXRL.render = {
 			if (BX.util.in_array(action, ['add', 'change']))
 			{
 				BX(buttonText).innerHTML = BX.message('RATING_LIKE_EMOTION_' + userReaction.toUpperCase() + '_CALC');
+				if (BXRL.manager.mobile)
+				{
+					buttonText.parentElement.className = 'bx-ilike-left-wrap bx-you-like-button bx-you-like-button-' + userReaction.toLowerCase();
+				}
 			}
 			else
 			{
 				BX(buttonText).innerHTML = BX.message('RATING_LIKE_EMOTION_LIKE_CALC');
+				if (BXRL.manager.mobile)
+				{
+					buttonText.parentElement.className = 'bx-ilike-left-wrap';
+				}
 			}
 		}
 	},
@@ -654,7 +662,7 @@ BXRL.render = {
 		e.preventDefault();
 	},
 
-	reactionsPopupMobileHide: function()
+	reactionsPopupMobileHide: function(e)
 	{
 		window.removeEventListener("touchend", BXRL.render.reactionsPopupMobileHide);
 		if (BXRL.render.reactionsPopupLikeId)
@@ -662,6 +670,10 @@ BXRL.render = {
 			BXRL.render.hideReactionsPopup({
 				likeId: BXRL.render.reactionsPopupLikeId
 			});
+			if (e)
+			{
+				e.preventDefault();
+			}
 		}
 	},
 

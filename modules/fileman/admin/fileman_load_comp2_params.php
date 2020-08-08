@@ -76,9 +76,9 @@ function fetchPropsHelp($componentName_)
 	{
 		foreach($MESS as $propName => $tooltip)
 		{
-			if(substr($propName, -4) == '_TIP')
+			if(mb_substr($propName, -4) == '_TIP')
 			{
-			?>arTT["<?=CUtil::JSEscape(substr($propName, 0, -4))?>"] = '<?=CUtil::JSEscape($tooltip);?>';<?
+			?>arTT["<?=CUtil::JSEscape(mb_substr($propName, 0, -4))?>"] = '<?=CUtil::JSEscape($tooltip);?>';<?
 			}
 		}
 	}
@@ -211,7 +211,7 @@ function ShowFileDialogsScripts()
 					'mode' => $arFD[$i]['ONLY_ML'] ? 'medialib' : 'select',
 					'value' => '...',
 					'event' => "BX_FD_".$arFD[$i]['NAME'],
-					'id' => "bx_fd_input_".strtolower($arFD[$i]['NAME']),
+					'id' => "bx_fd_input_".mb_strtolower($arFD[$i]['NAME']),
 					'MedialibConfig' => array(
 						"event" => "bx_ml_event_".$arFD[$i]['NAME'],
 						"arResultDest" => Array("FUNCTION_NAME" => "BX_FD_ONRESULT_".$arFD[$i]['NAME']),
@@ -221,7 +221,7 @@ function ShowFileDialogsScripts()
 				)
 			);
 			?>
-			<script>window._bxMlBrowseButton_<?= strtolower($arFD[$i]['NAME'])?> = '<?= CUtil::JSEscape($MLRes)?>';</script>
+			<script>window._bxMlBrowseButton_<?= mb_strtolower($arFD[$i]['NAME'])?> = '<?= CUtil::JSEscape($MLRes)?>';</script>
 			<?
 		}
 		CAdminFileDialog::ShowScript(Array

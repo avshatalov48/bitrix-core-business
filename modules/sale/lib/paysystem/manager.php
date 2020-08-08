@@ -35,6 +35,9 @@ final class Manager
 	const HANDLER_AVAILABLE_TRUE = true;
 	const HANDLER_AVAILABLE_FALSE = false;
 
+	const HANDLER_INDEPENDENT_TRUE = true;
+	const HANDLER_INDEPENDENT_FALSE = false;
+
 	const EVENT_ON_GET_HANDLER_DESC = 'OnSaleGetHandlerDescription';
 	const CACHE_ID = "BITRIX_SALE_INNER_PS_ID";
 	const TTL = 31536000;
@@ -164,16 +167,9 @@ final class Manager
 			foreach (self::getHandlerDirectories() as $type => $path)
 			{
 				$className = '';
-
 				if (File::isFileExists($documentRoot.$path.$name.'/handler.php'))
 				{
-					$className = static::getClassNameFromPath($item['ACTION_FILE']);
-					if (!class_exists($className))
-						require_once($documentRoot.$path.$name.'/handler.php');
-				}
-				else if (static::isRestHandler($name))
-				{
-					$className = '\Bitrix\Sale\PaySystem\RestHandler';
+					list($className) = self::includeHandler($item['ACTION_FILE']);
 				}
 
 				if (class_exists($className) && is_callable(array($className, 'isMyResponse')))
@@ -195,9 +191,9 @@ final class Manager
 	 */
 	public static function getFolderFromClassName($className)
 	{
-		$pos = strrpos($className, '\\');
+		$pos = mb_strrpos($className, '\\');
 		if ($pos !== false)
-			$className = substr($className, $pos + 1);
+			$className = mb_substr($className, $pos + 1);
 
 		$folder = str_replace('Handler', '', $className);
 		$folder = self::sanitize($folder);
@@ -262,7 +258,7 @@ final class Manager
 
 		while ($item = $items->fetch())
 		{
-			$data = self::getHandlerDescription($item['ACTION_FILE']);
+			$data = self::getHandlerDescription($item['ACTION_FILE'], $item['PS_MODE']);
 			$data['NAME'] = $item['NAME'];
 			$data['GROUP'] = 'PAYSYSTEM';
 			$data['PROVIDERS'] = [
@@ -371,8 +367,9 @@ final class Manager
 						$data = array();
 						$psTitle = '';
 						$isAvailable = null;
+						$isIndependent = null;
 
-						if (strpos($item->getName(), '.description') !== false)
+						if (mb_strpos($item->getName(), '.description') !== false)
 						{
 							$handlerName = $handler->getName();
 
@@ -384,6 +381,11 @@ final class Manager
 								if (isset($data['IS_AVAILABLE']))
 								{
 									$isAvailable = $data['IS_AVAILABLE'];
+								}
+
+								if (isset($data['IS_INDEPENDENT']))
+								{
+									$isIndependent = $data['IS_INDEPENDENT'];
 								}
 							}
 							else
@@ -399,12 +401,19 @@ final class Manager
 
 								$handlerName = str_replace(Path::normalize($documentRoot), '', $handler->getPath());
 							}
-							$group = (strpos($type, 'SYSTEM') !== false) ? 'SYSTEM' : 'USER';
+							$group = (mb_strpos($type, 'SYSTEM') !== false) ? 'SYSTEM' : 'USER';
 
 							if (!isset($result[$group][$handlerName]))
 							{
 								if ($isAvailable !== null
 									&& $isAvailable === static::HANDLER_AVAILABLE_FALSE
+								)
+								{
+									continue(2);
+								}
+
+								if ($isIndependent !== null
+									&& $isIndependent === static::HANDLER_INDEPENDENT_FALSE
 								)
 								{
 									continue(2);
@@ -420,7 +429,7 @@ final class Manager
 
 				if (!$isDescriptionExist)
 				{
-					$group = (strpos($type, 'SYSTEM') !== false) ? 'SYSTEM' : 'USER';
+					$group = (mb_strpos($type, 'SYSTEM') !== false) ? 'SYSTEM' : 'USER';
 					$handlerName = str_replace($documentRoot, '', $handler->getPath());
 					$result[$group][$handlerName] = $handler->getName();
 				}
@@ -438,27 +447,30 @@ final class Manager
 	 */
 	public static function getClassNameFromPath($path)
 	{
-		$pos = strrpos($path, '/');
+		$pos = mb_strrpos($path, '/');
 
-		if ($pos == strlen($path))
+		if ($pos == mb_strlen($path))
 		{
-			$path = substr($path, 0, $pos - 1);
-			$pos = strrpos($path, '/');
+			$path = mb_substr($path, 0, $pos - 1);
+			$pos = mb_strrpos($path, '/');
 		}
 
 		if ($pos !== false)
-			$path = substr($path, $pos+1);
+			$path = mb_substr($path, $pos + 1);
 
 		return "Sale\\Handlers\\PaySystem\\".$path.'Handler';
 	}
 
 	/**
 	 * @param $handler
+	 * @param null $psMode
 	 * @return array
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
 	 */
-	public static function getHandlerDescription($handler)
+	public static function getHandlerDescription($handler, $psMode = null)
 	{
-		$service = new Service(array('ACTION_FILE' => $handler));
+		$service = new Service(array('ACTION_FILE' => $handler, 'PS_MODE' => $psMode));
 		$data = $service->getHandlerDescription();
 
 		$eventParams = array('handler' => $handler);
@@ -484,7 +496,7 @@ final class Manager
 	{
 		$documentRoot = Application::getDocumentRoot();
 
-		if (strpos($folder, '/') !== false)
+		if (mb_strpos($folder, '/') !== false)
 		{
 			return $folder;
 		}
@@ -596,6 +608,8 @@ final class Manager
 	 * @param $folder
 	 * @param int $paySystemId
 	 * @return array|mixed
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
 	 */
 	public static function getTariff($folder, $paySystemId = 0)
 	{
@@ -607,14 +621,11 @@ final class Manager
 		{
 			if (File::isFileExists($documentRoot.$path.'/handler.php'))
 			{
-				require_once $documentRoot.$path.'/handler.php';
-
-				$className = self::getClassNameFromPath($folder);
-				if (class_exists($className))
+				$actionFile = self::getFolderFromClassName(self::getClassNameFromPath($path));
+				[$className] = self::includeHandler($actionFile);
+				if (class_exists($className) && is_subclass_of($className, IPayable::class))
 				{
-					$interfaces = class_implements($className);
-					if (array_key_exists('Bitrix\Sale\PaySystem\IPayable', $interfaces))
-						$result = $className::getStructure($paySystemId);
+					$result = $className::getStructure($paySystemId);
 				}
 			}
 		}
@@ -656,6 +667,10 @@ final class Manager
 			'PAYSYSTEM' => array('NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_PAYSYSTEM'), 'SORT' => 500),
 			'PS_OTHER' => array('NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_PS_OTHER'), 'SORT' => 10000),
 			'CONNECT_SETTINGS_UAPAY' => array('NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_UAPAY'), 'SORT' => 100),
+			'CONNECT_SETTINGS_ADYEN' => array('NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_ADYEN'), 'SORT' => 100),
+			'CONNECT_SETTINGS_APPLE_PAY' => array('NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_APPLE_PAY'), 'SORT' => 200),
+			'CONNECT_SETTINGS_SKB' => array('NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_SKB'), 'SORT' => 100),
+			'CONNECT_SETTINGS_BEPAID' => array('NAME' => Loc::getMessage('SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_BEPAID'), 'SORT' => 100),
 		);
 	}
 
@@ -818,5 +833,58 @@ final class Manager
 	{
 		$dbRes = PaySystemRestHandlersTable::getList(array('filter' => array('CODE' => $handler)));
 		return (bool)$dbRes->fetch();
+	}
+
+	/**
+	 * @param $actionFile
+	 * @return array
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 */
+	public static function includeHandler($actionFile)
+	{
+		$className = '';
+		$handlerType = '';
+
+		$name = self::getFolderFromClassName($actionFile);
+
+		foreach (self::getHandlerDirectories() as $type => $path)
+		{
+			if (File::isFileExists($_SERVER['DOCUMENT_ROOT'].$path.$name.'/handler.php'))
+			{
+				$className = self::getClassNameFromPath($actionFile);
+				if (!class_exists($className))
+					require_once($_SERVER['DOCUMENT_ROOT'].$path.$name.'/handler.php');
+
+				if (class_exists($className))
+				{
+					$handlerType = $type;
+					break;
+				}
+
+				$className = '';
+			}
+		}
+
+		if ($className === '')
+		{
+			if (self::isRestHandler($actionFile))
+			{
+				$className = '\Bitrix\Sale\PaySystem\RestHandler';
+				if (!class_exists($actionFile))
+				{
+					class_alias($className, $actionFile);
+				}
+			}
+			else
+			{
+				$className = '\Bitrix\Sale\PaySystem\CompatibilityHandler';
+			}
+		}
+
+		return [
+			$className,
+			$handlerType,
+		];
 	}
 }

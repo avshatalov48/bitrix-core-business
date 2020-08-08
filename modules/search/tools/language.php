@@ -21,7 +21,7 @@ class CSearchLanguage
 		if(!isset($arLanguages[$sLang]))
 		{
 			$obLanguage = null;
-			$class_name = strtolower("CSearchLanguage".$sLang);
+			$class_name = mb_strtolower("CSearchLanguage".$sLang);
 			if(!class_exists($class_name))
 			{
 				//First try to load customized class
@@ -82,10 +82,10 @@ class CSearchLanguage
 					$ar = explode("\n", $text);
 					foreach($ar as $trigramm)
 					{
-						if(strlen($trigramm) == 3)
+						if(mb_strlen($trigramm) == 3)
 						{
 							$strScanCodesTmp = $this->ConvertToScancode($trigramm, false, true);
-							if(strlen($strScanCodesTmp) == 3)
+							if(mb_strlen($strScanCodesTmp) == 3)
 							{
 								$this->_trigrams[$strScanCodesTmp] = true;
 							}
@@ -166,7 +166,7 @@ class CSearchLanguage
 		$result = "";
 		$keyboard = $this->GetKeyboardLayout();
 		foreach($arScancode as $code)
-			$result .= substr($keyboard["lo"], $code, 1);
+			$result .= mb_substr($keyboard["lo"], $code, 1);
 		return $result;
 	}
 
@@ -175,9 +175,9 @@ class CSearchLanguage
 		if(defined("BX_UTF"))
 		{
 			$result = array();
-			$len = strlen($str);
+			$len = mb_strlen($str);
 			for($i = 0;$i < $len; $i++)
-				$result[] = substr($str, $i, 1);
+				$result[] = mb_substr($str, $i, 1);
 			return $result;
 		}
 		else
@@ -309,7 +309,7 @@ class CSearchLanguage
 
 	public static function GuessLanguage($text, $lang=false)
 	{
-		if(strlen($text) <= 0)
+		if($text == '')
 			return false;
 
 		static $cache = array();
@@ -535,16 +535,16 @@ class CSearchLanguage
 			$result = array();
 			foreach($bigramms as $letter1 => $row)
 			{
-				$p1 = strpos($keyboard_lo, $letter1);
+				$p1 = mb_strpos($keyboard_lo, $letter1);
 				if($p1 === false)
-					$p1 = strpos($keyboard_hi, $letter1);
+					$p1 = mb_strpos($keyboard_hi, $letter1);
 
 				$i = 0;
 				foreach($bigramms as $letter2 => $tmp)
 				{
-					$p2 = strpos($keyboard_lo, $letter2);
+					$p2 = mb_strpos($keyboard_lo, $letter2);
 					if($p2 === false)
-						$p2 = strpos($keyboard_hi, $letter2);
+						$p2 = mb_strpos($keyboard_hi, $letter2);
 
 					$weight = $row[$i];
 					$result["count"] += $weight;

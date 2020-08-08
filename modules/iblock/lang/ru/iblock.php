@@ -82,4 +82,6 @@ $MESS["IBLOCK_SORT_FIELD_ACTIVE_FROM"] = "дата активности (с)";
 $MESS["IBLOCK_SORT_FIELD_ACTIVE_TO"] = "дата активности (по)";
 $MESS["IBLOCK_SORT_FIELD_DEPTH_LEVEL"] = "уровень вложенности раздела";
 $MESS["IBLOCK_FIELD_SUBSCRIPTIONS"] = "Количество подписок";
+$MESS["IBLOCK_FIELD_API_CODE_FORMAT_ERROR"] = "Символьный код API может состоять максимум из 50 латинских букв и цифр и должен начинаться с буквы";
+$MESS["IBLOCK_FIELD_API_CODE_UNIQUE_ERROR"] = "Символьный код API должен быть уникальным, инфоблок с таким кодом уже есть";
 ?>

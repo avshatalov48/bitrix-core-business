@@ -7,7 +7,7 @@ namespace Bitrix\Sale\Internals;
  */
 class CollectionFilterIterator extends \FilterIterator
 {
-	public $callback = null;
+	protected $callback = null;
 
 	/**
 	 * CustomFilterIterator constructor.

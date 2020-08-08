@@ -159,16 +159,16 @@
 
 		initControls: function ()
 		{
-			this.DOM.title = top.BX(this.id + '_title');
-			this.DOM.formWrap = top.BX(this.id + '_form_wrap');
-			this.DOM.form = top.BX(this.id + '_form');
-			this.DOM.importanceCheckbox = top.BX(this.id + '_important');
-			this.DOM.entryName = BX.adjust(top.BX(this.id + '_entry_name'), {events:{click: nameInputClick}});
-			this.DOM.privateCheckbox = top.BX(this.id + '_private');
+			this.DOM.title = BX(this.id + '_title');
+			this.DOM.formWrap = BX(this.id + '_form_wrap');
+			this.DOM.form = BX(this.id + '_form');
+			this.DOM.importanceCheckbox = BX(this.id + '_important');
+			this.DOM.entryName = BX(this.id + '_entry_name');
+			this.DOM.privateCheckbox = BX(this.id + '_private');
 
-			BX.bind(top.BX(this.id + '_save'), 'click', BX.proxy(this.save, this));
-			BX.bind(top.BX(this.id + '_close'), 'click', BX.proxy(this.close, this));
-			top.BX(this.id + '_save_cmd').innerHTML = BX.browser.IsMac() ? '(Cmd+Enter)' : '(Ctrl+Enter)';
+			BX.bind(BX(this.id + '_save'), 'click', BX.proxy(this.save, this));
+			BX.bind(BX(this.id + '_close'), 'click', BX.proxy(this.close, this));
+			BX(this.id + '_save_cmd').innerHTML = BX.browser.IsMac() ? '(Cmd+Enter)' : '(Ctrl+Enter)';
 
 			this.initDateTimeControl();
 			this.initReminderControl();
@@ -236,13 +236,6 @@
 			}, this), 500);
 
 			this.checkLastItemBorder();
-
-			var _this = this;
-			function nameInputClick()
-			{
-				_this.DOM.entryName.select();
-				BX.unbind(_this.DOM.entryName, 'click', nameInputClick);
-			}
 		},
 
 		initDateTimeControl: function ()
@@ -512,10 +505,9 @@
 				selectedValues = this.entry.getReminders();
 			}
 
-			this.reminder = new window.BXEventCalendar.ReminderSelector({
+			this.reminder = new BX.Calendar.Controls.Reminder({
 				id: "reminder-slider-" + this.calendar.id,
 				selectedValues: selectedValues,
-				values: this.calendar.util.getRemindersList(),
 				valuesContainerNode: this.DOM.reminderValuesWrap,
 				addButtonNode: this.DOM.reminderAddButton,
 				zIndex: this.zIndex,
@@ -546,97 +538,29 @@
 
 			var section = this.entry.section;
 			if (!section && this.entry.sectionId)
+			{
 				section = this.calendar.sectionController.getSection(this.entry.sectionId);
-
+			}
 			this.DOM.sectionInput.value = section.id;
 
-			this.DOM.sectionSelect = this.DOM.sectionWrap.appendChild(BX.create('DIV', {
-				props: {className: 'calendar-field calendar-field-select'}
-			}));
-			this.DOM.sectionSelectInner = this.DOM.sectionSelect.appendChild(BX.create('DIV', {
-				props: {className: 'calendar-field-select-icon'},
-				style: {backgroundColor : section.color}
-			}));
-			this.DOM.sectionSelectInnerText = this.DOM.sectionSelect.appendChild(BX.create('SPAN', {text: section.name}));
-
-			BX.bind(this.DOM.sectionSelect, 'click', showPopup);
-
-			var
-				_this = this,
-				sectionList = this.calendar.sectionController.getSectionListForEdit();
-
-			function showPopup()
-			{
-				if (_this.sectionMenu && _this.sectionMenu.popupWindow && _this.sectionMenu.popupWindow.isShown())
-				{
-					return _this.sectionMenu.close();
-				}
-
-				var i, menuItems = [], icon;
-
-				for (i = 0; i < sectionList.length; i++)
-				{
-					menuItems.push({
-						id: 'bx-calendar-section-' + sectionList[i].id,
-						text: BX.util.htmlspecialchars(sectionList[i].name),
-						color: sectionList[i].color,
-						className: 'calendar-add-popup-section-menu-item',
-						onclick: (function (value)
-						{
-							return function ()
-							{
-								var section = _this.calendar.sectionController.getSection(value);
-								_this.calendar.util.setUserOption('lastUsedSection', section.id);
-								_this.DOM.sectionInput.value = section.id;
-								_this.DOM.sectionSelectInner.style.backgroundColor = section.color;
-								_this.setColor(section.color);
-								_this.DOM.sectionSelectInnerText.innerHTML = BX.util.htmlspecialchars(section.name);
-								_this.sectionMenu.close();
-							}
-						})(sectionList[i].id)
-					});
-				}
-
-				_this.sectionMenu = top.BX.PopupMenu.create(
-					"sectionMenuSlider" + _this.calendar.id,
-					_this.DOM.sectionSelect,
-					menuItems,
+			this.sectionSelector = new window.BXEventCalendar.SectionSelector({
+				outerWrap: this.DOM.sectionWrap,
+				sectionList: this.calendar.sectionController.getSectionListForEdit(),
+				sectionGroupList: this.calendar.sectionController.getSectionGroupList(),
+				mode: 'full',
+				zIndex: this.zIndex,
+				getCurrentSection: BX.delegate(function() {
+					return section;
+				}, this),
+				selectCallback: BX.delegate(function(sectionValue) {
+					if (sectionValue)
 					{
-						closeByEsc : true,
-						autoHide : true,
-						zIndex: _this.zIndex,
-						offsetTop: 0,
-						offsetLeft: 0
+						this.calendar.util.setUserOption('lastUsedSection', sectionValue.id);
+						this.DOM.sectionInput.value = sectionValue.id;
+						this.setColor(sectionValue.color);
 					}
-				);
-
-				_this.sectionMenu.popupWindow.contentContainer.style.maxHeight = "300px";
-				_this.sectionMenu.popupWindow.setWidth(_this.DOM.sectionSelect.offsetWidth - 2);
-				_this.sectionMenu.show();
-
-				// Paint round icons for section menu
-				for (i = 0; i < _this.sectionMenu.menuItems.length; i++)
-				{
-					if (_this.sectionMenu.menuItems[i].layout.item)
-					{
-						icon = _this.sectionMenu.menuItems[i].layout.item.querySelector('.menu-popup-item-icon');
-						if (icon)
-						{
-							icon.style.backgroundColor = _this.sectionMenu.menuItems[i].color;
-						}
-					}
-				}
-
-				BX.addClass(_this.DOM.sectionSelect, 'active');
-
-				BX.addCustomEvent(_this.sectionMenu.popupWindow, 'onPopupClose', function()
-				{
-					//_this.popup.setAutoHide(true);
-					BX.removeClass(_this.DOM.sectionSelect, 'active');
-					top.BX.PopupMenu.destroy("sectionMenuSlider" + _this.calendar.id);
-					_this.sectionMenu = null;
-				});
-			}
+				}, this)
+			});
 		},
 
 		initEditorControl: function()
@@ -1671,8 +1595,7 @@
 
 		getNewEntry: function(newEntryData)
 		{
-			if (!newEntryData)
-				newEntryData = {};
+			newEntryData = newEntryData || {};
 			var time = this.calendar.entryController.getTimeForNewEntry(new Date());
 
 			return {
@@ -1687,7 +1610,7 @@
 				attendees: newEntryData.attendees,
 				attendeesCodes: newEntryData.attendeesCodes,
 				attendeesCodesList: newEntryData.attendeesCodesList,
-				meetingNotify: newEntryData.meetingNotify,
+				meetingNotify: true,
 				allowInvite:  newEntryData.allowInvite
 			};
 		},

@@ -20,6 +20,9 @@ $MESS["MAIN_MAIL_CONFIRM_EMPTY_SMTP_SERVER"] = "Enter SMTP server address";
 $MESS["MAIN_MAIL_CONFIRM_GET_CODE"] = "Get code";
 $MESS["MAIN_MAIL_CONFIRM_INVALID_CODE"] = "Incorrect verification code";
 $MESS["MAIN_MAIL_CONFIRM_INVALID_EMAIL"] = "Invalid e-mail address";
+$MESS["MAIN_MAIL_CONFIRM_INVALID_SMTP_PASSWORD"] = "Password cannot start with a \"^\" or contain null bytes";
+$MESS["MAIN_MAIL_CONFIRM_INVALID_SMTP_PASSWORD_CARET"] = "Password cannot start with a \"^\" symbol";
+$MESS["MAIN_MAIL_CONFIRM_INVALID_SMTP_PASSWORD_NULL"] = "Password cannot contain null bytes";
 $MESS["MAIN_MAIL_CONFIRM_INVALID_SMTP_PORT"] = "SMTP server port is invalid";
 $MESS["MAIN_MAIL_CONFIRM_INVALID_SMTP_SERVER"] = "SMTP server address is invalid";
 $MESS["MAIN_MAIL_CONFIRM_MENU"] = "Add sender";
@@ -35,6 +38,7 @@ $MESS["MAIN_MAIL_CONFIRM_SMTP_PORT"] = "Port";
 $MESS["MAIN_MAIL_CONFIRM_SMTP_SERVER"] = "Server";
 $MESS["MAIN_MAIL_CONFIRM_SMTP_SSL"] = "use SSL";
 $MESS["MAIN_MAIL_CONFIRM_SMTP_WARNING"] = "Important! Make sure the SMTP server details you provided are correct. Otherwise, mail will not be delivered.";
+$MESS["MAIN_MAIL_CONFIRM_SPACE_SMTP_PASSWORD"] = "Password starts or ends with a space character";
 $MESS["MAIN_MAIL_CONFIRM_TITLE"] = "Add new address";
 $MESS["MAIN_MAIL_DELETE_SENDER_ERROR"] = "Error deleting sender";
 ?>

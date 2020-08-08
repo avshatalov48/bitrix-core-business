@@ -27,14 +27,14 @@ $arr = Array(
 		'table_operations.js'
 	);
 
-if (isset($_GET['s']) && strlen($_GET['s']) > 0)
+if (isset($_GET['s']) && $_GET['s'] <> '')
 {
 	$s = $_GET['s'];
-	if (strpos($s, 'em') !== false)
+	if (mb_strpos($s, 'em') !== false)
 		$arr[] = "bars_ex.js";
-	if (strpos($s, 'c2') !== false)
+	if (mb_strpos($s, 'c2') !== false)
 		$arr[] = "components2.js";
-	if (strpos($s, 's') !== false)
+	if (mb_strpos($s, 's') !== false)
 		$arr[] = "snippets.js";
 }
 

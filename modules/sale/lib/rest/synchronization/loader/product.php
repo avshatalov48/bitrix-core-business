@@ -58,7 +58,7 @@ class Product extends Entity
 	{
 		$result = '';
 
-		if(strpos($code, '#') !== false)
+		if(mb_strpos($code, '#') !== false)
 		{
 			$code = explode('#', $code);
 			$result = $code[1];

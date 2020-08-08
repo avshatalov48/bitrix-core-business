@@ -5,41 +5,41 @@ class CAllSaleUserCards
 {
 	function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
-		if ((is_set($arFields, "USER_ID") || $ACTION=="ADD") && IntVal($arFields["USER_ID"]) <= 0)
+		if ((is_set($arFields, "USER_ID") || $ACTION=="ADD") && intval($arFields["USER_ID"]) <= 0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException("Empty user field", "EMPTY_USER_ID");
 			return false;
 		}
-		if ((is_set($arFields, "PAY_SYSTEM_ACTION_ID") || $ACTION=="ADD") && IntVal($arFields["PAY_SYSTEM_ACTION_ID"]) <= 0)
+		if ((is_set($arFields, "PAY_SYSTEM_ACTION_ID") || $ACTION=="ADD") && intval($arFields["PAY_SYSTEM_ACTION_ID"]) <= 0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException("Empty pay system field", "EMPTY_PAY_SYSTEM_ACTION_ID");
 			return false;
 		}
-		if ((is_set($arFields, "CARD_TYPE") || $ACTION=="ADD") && strlen($arFields["CARD_TYPE"]) <= 0)
+		if ((is_set($arFields, "CARD_TYPE") || $ACTION=="ADD") && $arFields["CARD_TYPE"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException("Empty card type field", "EMPTY_CARD_TYPE");
 			return false;
 		}
-		if ((is_set($arFields, "CARD_NUM") || $ACTION=="ADD") && strlen($arFields["CARD_NUM"]) <= 0)
+		if ((is_set($arFields, "CARD_NUM") || $ACTION=="ADD") && $arFields["CARD_NUM"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException("Empty card number field", "EMPTY_CARD_NUM");
 			return false;
 		}
-		if ((is_set($arFields, "CARD_EXP_MONTH") || $ACTION=="ADD") && (IntVal($arFields["CARD_EXP_MONTH"]) <= 0 || IntVal($arFields["CARD_EXP_MONTH"]) > 12))
+		if ((is_set($arFields, "CARD_EXP_MONTH") || $ACTION=="ADD") && (intval($arFields["CARD_EXP_MONTH"]) <= 0 || intval($arFields["CARD_EXP_MONTH"]) > 12))
 		{
 			$GLOBALS["APPLICATION"]->ThrowException("Empty card expiration month field", "EMPTY_CARD_EXP_MONTH");
 			return false;
 		}
-		if ((is_set($arFields, "CARD_EXP_YEAR") || $ACTION=="ADD") && (IntVal($arFields["CARD_EXP_YEAR"]) <= 2000 || IntVal($arFields["CARD_EXP_YEAR"]) > 2100))
+		if ((is_set($arFields, "CARD_EXP_YEAR") || $ACTION=="ADD") && (intval($arFields["CARD_EXP_YEAR"]) <= 2000 || intval($arFields["CARD_EXP_YEAR"]) > 2100))
 		{
 			$GLOBALS["APPLICATION"]->ThrowException("Empty card expiration year field", "EMPTY_CARD_EXP_YEAR");
 			return false;
 		}
 
-		if ((is_set($arFields, "SORT") || $ACTION=="ADD") && IntVal($arFields["SORT"]) <= 0)
+		if ((is_set($arFields, "SORT") || $ACTION=="ADD") && intval($arFields["SORT"]) <= 0)
 			$arFields["SORT"] = 100;
 
-		if ($ACTION != "ADD" && IntVal($ID) <= 0)
+		if ($ACTION != "ADD" && intval($ID) <= 0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGUC_NO_ID"), "NO_UC_ID");
 			return false;
@@ -60,7 +60,7 @@ class CAllSaleUserCards
 		if ((is_set($arFields, "SUM_MIN") && $arFields["SUM_MIN"] !== false
 			|| is_set($arFields, "SUM_MAX") && $arFields["SUM_MAX"] !== false))
 		{
-			if ((is_set($arFields, "SUM_CURRENCY") || $ACTION=="ADD") && strlen($arFields["SUM_CURRENCY"]) <= 0)
+			if ((is_set($arFields, "SUM_CURRENCY") || $ACTION=="ADD") && $arFields["SUM_CURRENCY"] == '')
 			{
 				$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGUC_NO_CURRENCY"), "EMPTY_SUM_CURRENCY");
 				return false;
@@ -68,7 +68,7 @@ class CAllSaleUserCards
 			elseif (!is_set($arFields, "SUM_CURRENCY"))
 			{
 				$arUserCard = CSaleUserCard::GetByID($ID);
-				if (strlen($arUserCard["SUM_CURRENCY"]) <= 0)
+				if ($arUserCard["SUM_CURRENCY"] == '')
 				{
 					$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGUC_NO_CURRENCY"), "EMPTY_SUM_CURRENCY");
 					return false;
@@ -114,7 +114,7 @@ class CAllSaleUserCards
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if ($ID <= 0)
 			return False;
 
@@ -124,7 +124,7 @@ class CAllSaleUserCards
 	function OnUserDelete($UserID)
 	{
 		global $DB;
-		$UserID = IntVal($UserID);
+		$UserID = intval($UserID);
 
 		return $DB->Query("DELETE FROM b_sale_user_cards WHERE USER_ID = ".$UserID." ", true);
 	}
@@ -137,7 +137,7 @@ class CAllSaleUserCards
 		if (file_exists($strFileName))
 			include($strFileName);
 
-		if (strlen($pwdString) <= 0)
+		if ($pwdString == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException("Please enter valid password on Sale module global settings page", "EMPTY_PASSWORD");
 			return False;
@@ -159,7 +159,7 @@ class CAllSaleUserCards
 		if (file_exists($strFileName))
 			include($strFileName);
 
-		if (strlen($pwdString) <= 0)
+		if ($pwdString == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException("Please enter valid password on Sale module global settings page", "EMPTY_PASSWORD");
 			return $data;
@@ -188,7 +188,7 @@ class CAllSaleUserCards
 			}
 
 			$keySize = mcrypt_enc_get_key_size($rEncModule);
-			$keyString = substr(md5($pwdString), 0, $keySize);
+			$keyString = mb_substr(md5($pwdString), 0, $keySize);
 
 			mcrypt_generic_init($rEncModule, $keyString, $iv);
 
@@ -212,11 +212,11 @@ class CAllSaleUserCards
 			$key[] = "";
 			$box[] = "";
 			$temp_swap = "";
-			$pwdLength = strlen($pwdString);
+			$pwdLength = mb_strlen($pwdString);
 
 			for ($i = 0; $i <= 255; $i++)
 			{
-				$key[$i] = ord(substr($pwdString, ($i % $pwdLength), 1));
+				$key[$i] = ord(mb_substr($pwdString, ($i % $pwdLength), 1));
 				$box[$i] = $i;
 			}
 			$x = 0;
@@ -234,7 +234,7 @@ class CAllSaleUserCards
 			$cipher = "";
 			$a = 0;
 			$j = 0;
-			$countData = strlen($data);
+			$countData = mb_strlen($data);
 			for ($i = 0; $i < $countData; $i++)
 			{
 				$a = ($a + 1) % 256;
@@ -243,7 +243,7 @@ class CAllSaleUserCards
 				$box[$a] = $box[$j];
 				$box[$j] = $temp;
 				$k = $box[(($box[$a] + $box[$j]) % 256)];
-				$cipherby = ord(substr($data, $i, 1)) ^ $k;
+				$cipherby = ord(mb_substr($data, $i, 1)) ^ $k;
 				$cipher .= chr($cipherby);
 			}
 
@@ -297,20 +297,20 @@ class CAllSaleUserCards
 		}
 
 		$currency = Trim($currency);
-		if (strlen($currency) <= 0)
+		if ($currency == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGUC_EMPTY_CURRENCY"), "EMPTY_SUM_CURRENCY");
 			return false;
 		}
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if ($ID <= 0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGUC_EMPTY_ID"), "EMPTY_ID");
 			return false;
 		}
 
-		$orderID = IntVal($orderID);
+		$orderID = intval($orderID);
 
 		$arUserCard = CSaleUserCards::GetByID($ID);
 		if (!$arUserCard)
@@ -333,7 +333,7 @@ class CAllSaleUserCards
 		}
 
 		$currency = Trim($currency);
-		if (strlen($currency) <= 0)
+		if ($currency == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGUC_EMPTY_CURRENCY"), "EMPTY_SUM_CURRENCY");
 			return false;
@@ -345,7 +345,7 @@ class CAllSaleUserCards
 			return false;
 		}
 
-		$orderID = IntVal($orderID);
+		$orderID = intval($orderID);
 
 		if (DoubleVal($arUserCard["SUM_MAX"]) > 0)
 		{
@@ -396,7 +396,7 @@ class CAllSaleUserCards
 
 		$GLOBALS["SALE_INPUT_PARAMS"] = array();
 
-		$dbUser = CUser::GetByID(IntVal($arUserCard["USER_ID"]));
+		$dbUser = CUser::GetByID(intval($arUserCard["USER_ID"]));
 		if ($arUser = $dbUser->Fetch())
 			$GLOBALS["SALE_INPUT_PARAMS"]["USER"] = $arUser;
 
@@ -446,7 +446,7 @@ class CAllSaleUserCards
 		include($psActionPath."/action.php");
 
 		$INPUT_CARD_NUM = "";
-		if (strlen($OUTPUT_ERROR_MESSAGE) > 0)
+		if ($OUTPUT_ERROR_MESSAGE <> '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException($OUTPUT_ERROR_MESSAGE, "ERROR_MESSAGE");
 			return false;

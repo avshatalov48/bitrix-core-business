@@ -148,16 +148,16 @@ class CSaleStatus
 
 	function CheckFields($ACTION, &$arFields, $statusId = '')
 	{
-		if ((is_set($arFields, "SORT") || $ACTION=="ADD") && IntVal($arFields["SORT"])<= 0)
+		if ((is_set($arFields, "SORT") || $ACTION=="ADD") && intval($arFields["SORT"])<= 0)
 			$arFields["SORT"] = 100;
 
-		if ((is_set($arFields, "ID") || $ACTION=="ADD") && strlen($arFields["ID"])<=0)
+		if ((is_set($arFields, "ID") || $ACTION=="ADD") && $arFields["ID"] == '')
 			return false;
 
-		if (is_set($arFields, "ID") && strlen($statusId)>0 && $statusId!=$arFields["ID"])
+		if (is_set($arFields, "ID") && $statusId <> '' && $statusId!=$arFields["ID"])
 			return false;
 
-		if((is_set($arFields, "ID") && !preg_match("#[A-Za-z]#i", $arFields["ID"])) || (strlen($statusId)>0 && !preg_match("#[A-Za-z]#i", $statusId)))
+		if((is_set($arFields, "ID") && !preg_match("#[A-Za-z]#i", $arFields["ID"])) || ($statusId <> '' && !preg_match("#[A-Za-z]#i", $statusId)))
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(Loc::getMessage("SKGS_ID_NOT_SYMBOL"), "ERROR_ID_NOT_SYMBOL");
 			return false;

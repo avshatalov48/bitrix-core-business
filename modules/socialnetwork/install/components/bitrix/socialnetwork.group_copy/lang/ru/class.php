@@ -2,6 +2,8 @@
 $MESS["SOCNET_GROUP_COPY_TITLE_BASE"] = "Копировать";
 $MESS["SOCNET_GROUP_COPY_TITLE_GROUP"] = " группу";
 $MESS["SOCNET_GROUP_COPY_TITLE_PROJECT"] = " проект";
+$MESS["SOCNET_GROUP_COPY_TITLE_BASE_GROUP"] = "Копировать группу";
+$MESS["SOCNET_GROUP_COPY_TITLE_BASE_PROJECT"] = "Копировать проект";
 $MESS["SOCNET_GROUP_COPY_SPAM_OWNER"] = "Только владелец группы";
 $MESS["SOCNET_GROUP_COPY_SPAM_MOD"] = "Владелец группы и модераторы группы";
 $MESS["SOCNET_GROUP_COPY_SPAM_USER"] = "Все члены группы";
@@ -19,6 +21,7 @@ $MESS["SOCNET_GROUP_COPY_FEATURE_WORKFLOW"] = "Бизнес-процессы";
 $MESS["SOCNET_GROUP_COPY_FEATURE_BLOG"] = "Сообщения в живой ленте";
 $MESS["SOCNET_GROUP_COPY_FEATURE_VOTE_RESULT"] = "Результаты опросов";
 $MESS["SOCNET_GROUP_COPY_FEATURE_PHOTO"] = "Фотогалерея";
+$MESS["SOCNET_GROUP_COPY_FEATURE_LANDING_KNOWLEDGE"] = "База знаний";
 $MESS["SOCNET_GROUP_COPY_FEATURE_USERS"] = "Участники";
 $MESS["SOCNET_GROUP_COPY_FEATURE_DEPARTMENTS"] = "Отделы";
 $MESS["SOCNET_GROUP_COPY_DATE_FORMAT_ERROR"] = "Неверный формат поля даты";

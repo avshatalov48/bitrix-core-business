@@ -63,7 +63,7 @@ class CSecuritySystemInformation
 	 */
 	public static function isRunOnWin()
 	{
-		return (strtoupper(substr(PHP_OS, 0, 3)) === "WIN");
+		return (mb_strtoupper(mb_substr(PHP_OS, 0, 3)) === "WIN");
 	}
 
 	/**

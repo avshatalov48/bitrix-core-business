@@ -96,7 +96,7 @@ class UserTagTable extends Entity\DataManager
 
 		$tagName = (
 			(is_array($params['tagName']) && !empty($params['tagName']))
-			|| (!is_array($params['tagName']) && strlen($params['tagName']) > 0)
+			|| (!is_array($params['tagName']) && $params['tagName'] <> '')
 				? $params['tagName']
 				: false
 		);
@@ -160,7 +160,7 @@ class UserTagTable extends Entity\DataManager
 
 		$tagName = (
 			(is_array($params['tagName']) && !empty($params['tagName']))
-			|| (!is_array($params['tagName']) && strlen($params['tagName']) > 0)
+			|| (!is_array($params['tagName']) && $params['tagName'] <> '')
 				? $params['tagName']
 				: false
 		);

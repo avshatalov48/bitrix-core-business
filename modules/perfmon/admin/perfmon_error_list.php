@@ -1,11 +1,13 @@
 <?
+use Bitrix\Main\Loader;
+
 define("ADMIN_MODULE_NAME", "perfmon");
 define("PERFMON_STOP", true);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 /** @global CMain $APPLICATION */
 /** @global CDatabase $DB */
 /** @global CUser $USER */
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/include.php");
+Loader::includeModule('perfmon');
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/prolog.php");
 
 IncludeModuleLangFile(__FILE__);
@@ -157,7 +159,7 @@ while ($arRes = $rsData->NavNext(true, "f_"))
 	$row->AddViewField("ERRNO", $arErrorCodes[$f_ERRNO]);
 
 	if ($bFileMan)
-		$row->AddViewField("ERRFILE", '<a href="fileman_file_edit.php?lang='.LANGUAGE_ID.'&amp;full_src=Y&amp;site=&amp;set_filter=Y&amp;filter=&amp;path='.urlencode(substr($arRes["ERRFILE"], strlen($_SERVER["DOCUMENT_ROOT"]))).'">'.$f_ERRFILE.'</a>');
+		$row->AddViewField("ERRFILE", '<a href="fileman_file_edit.php?lang='.LANGUAGE_ID.'&amp;full_src=Y&amp;site=&amp;set_filter=Y&amp;filter=&amp;path='.urlencode(mb_substr($arRes["ERRFILE"], mb_strlen($_SERVER["DOCUMENT_ROOT"]))).'">'.$f_ERRFILE.'</a>');
 
 	$row->AddViewField("HIT_ID", '<a href="perfmon_hit_list.php?lang='.LANGUAGE_ID.'&amp;set_filter=Y&amp;find_id='.$f_HIT_ID.'">'.$f_HIT_ID.'</a>');
 

@@ -36,6 +36,9 @@ class MessageUploadQueueTable extends Entity\DataManager
 			'SYNC_LOCK' => array(
 				'data_type' => 'integer',
 			),
+			'ATTEMPTS' => array(
+				'data_type' => 'integer',
+			),
 		);
 	}
 

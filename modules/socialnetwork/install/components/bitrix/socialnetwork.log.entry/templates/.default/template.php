@@ -9,16 +9,19 @@
 use Bitrix\Main\UI;
 use Bitrix\Main\Localization\Loc;
 
-UI\Extension::load("ui.animations");
-UI\Extension::load("ui.tooltip");
-UI\Extension::load("main.rating");
+UI\Extension::load([
+	'ui.animations',
+	'ui.tooltip',
+	'ui.icons.b24',
+	'main.rating'
+]);
 
 if ($arResult["bTasksAvailable"])
 {
 	CJSCore::Init(array('tasks_util_query'));
 }
 
-if (strlen($arResult["FatalError"]) > 0)
+if ($arResult["FatalError"] <> '')
 {
 	?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?
 }
@@ -86,7 +89,7 @@ else
 		<?
 	}
 
-	if(strlen($arResult["ErrorMessage"]) > 0)
+	if($arResult["ErrorMessage"] <> '')
 	{
 		?><span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br /><?
 	}
@@ -156,7 +159,7 @@ else
 		if (
 			array_key_exists("EVENT_FORMATTED", $arEvent)
 			&& array_key_exists("STYLE", $arEvent["EVENT_FORMATTED"])
-			&& strlen($arEvent["EVENT_FORMATTED"]["STYLE"]) > 0
+			&& $arEvent["EVENT_FORMATTED"]["STYLE"] <> ''
 		)
 		{
 			$className .= " feed-".$arEvent["EVENT_FORMATTED"]["STYLE"];
@@ -185,7 +188,7 @@ else
 		if (
 			$arParams["FROM_LOG"] != 'Y'
 			|| in_array($EVENT_ID, array("files", "commondocs", "tasks"))
-			|| strlen($arEvent["EVENT_FORMATTED"]["MESSAGE"]) <= 0
+			|| $arEvent["EVENT_FORMATTED"]["MESSAGE"] == ''
 		)
 		{
 			$className .= " feed-post-block-short";
@@ -213,7 +216,7 @@ else
 			}
 			if (
 				array_key_exists("ENTITY_TYPE", $arEvent["EVENT"])
-				&& strlen($arEvent["EVENT"]["ENTITY_TYPE"]) > 0
+				&& $arEvent["EVENT"]["ENTITY_TYPE"] <> ''
 				&& array_key_exists("ENTITY_ID", $arEvent["EVENT"])
 				&& intval($arEvent["EVENT"]["ENTITY_ID"]) > 0
 			)
@@ -221,14 +224,14 @@ else
 				?> sonet-log-item-where-<?=$arEvent["EVENT"]["ENTITY_TYPE"]?>-<?=intval($arEvent["EVENT"]["ENTITY_ID"])?>-all<?
 				if (
 					array_key_exists("EVENT_ID", $arEvent["EVENT"])
-					&& strlen($arEvent["EVENT"]["EVENT_ID"]) > 0
+					&& $arEvent["EVENT"]["EVENT_ID"] <> ''
 				)
 				{
 					?> sonet-log-item-where-<?=$arEvent["EVENT"]["ENTITY_TYPE"]?>-<?=intval($arEvent["EVENT"]["ENTITY_ID"])?>-<?=str_replace("_", '-', $arEvent["EVENT"]["EVENT_ID"])?><?
 
 					if (
 						array_key_exists("EVENT_ID_FULLSET", $arEvent["EVENT"])
-						&& strlen($arEvent["EVENT"]["EVENT_ID_FULLSET"]) > 0
+						&& $arEvent["EVENT"]["EVENT_ID_FULLSET"] <> ''
 						&& $arEvent["EVENT"]["EVENT_ID_FULLSET"] != $arEvent["EVENT"]["EVENT_ID"]
 					)
 					{
@@ -247,17 +250,18 @@ else
 				}
 
 				$avatar = false;
-				if (isset($arEvent["AVATAR_SRC"]) && strlen($arEvent["AVATAR_SRC"]) > 0)
+				if (isset($arEvent["AVATAR_SRC"]) && $arEvent["AVATAR_SRC"] <> '')
 				{
 					$avatar = $arEvent["AVATAR_SRC"];
 				}
 
-				?>
-				<div class="feed-user-avatar"
-					<? if ($avatar):?>
-						style="background: url('<?=$avatar?>'); background-size: cover;"
-					<? endif ?>
-				></div>
+				?><div class="ui-icon ui-icon-common-user feed-user-avatar">
+					<i
+						<? if ($avatar):?>
+							style="background: url('<?=\CHTTP::urnEncode($avatar)?>'); background-size: cover;"
+						<? endif ?>
+					></i>
+				</div>
 				<div class="feed-post-title-block"><?
 					$strDestination = "";
 
@@ -279,7 +283,7 @@ else
 							foreach($arEvent["EVENT_FORMATTED"]["DESTINATION"] as $arDestination)
 							{
 								$strDestination .= (
-									strlen($arDestination["URL"]) > 0
+									$arDestination["URL"] <> ''
 										? '<a target="_self" href="'.$arDestination["URL"].'" class="feed-add-post-destination feed-add-post-destination-'.$arDestination["STYLE"].'"><span class="feed-add-post-destination-text">'.$arDestination["TITLE"].'</span></a>'
 										: '<span class="feed-add-post-destination feed-add-post-destination-'.$arDestination["STYLE"].'"><span class="feed-add-post-destination-text">'.$arDestination["TITLE"].'</span></span>'
 								);
@@ -329,7 +333,7 @@ else
 									$strDestination .= ' <span class="feed-add-post-destination-prefix'.$classPrefixAdditional.'">'.$arDestination["CRM_PREFIX"].':&nbsp;</span>';
 								}
 
-								$strDestination .= (strlen($arDestination["URL"]) > 0
+								$strDestination .= ($arDestination["URL"] <> ''
 									? '<a class="feed-add-post-destination-new'.$classAdditional.'" href="'.htmlspecialcharsbx($arDestination["URL"]).'">'.$arDestination["TITLE"].'</a>'
 									: '<span class="feed-add-post-destination-new'.$classAdditional.'">'.$arDestination["TITLE"].'</span>'
 								);
@@ -413,7 +417,7 @@ else
 						}
 						elseif (
 							array_key_exists("FORMATTED", $arEvent["CREATED_BY"])
-							&& strlen($arEvent["CREATED_BY"]["FORMATTED"]) > 0
+							&& $arEvent["CREATED_BY"]["FORMATTED"] <> ''
 						)
 						{
 							$strCreatedBy .= '<span class="feed-post-user-name'.(array_key_exists("IS_EXTRANET", $arEvent["CREATED_BY"]) && $arEvent["CREATED_BY"]["IS_EXTRANET"] == "Y" ? " feed-post-user-name-extranet" : "").'">'.$arEvent["CREATED_BY"]["FORMATTED"].'</span>';
@@ -449,7 +453,7 @@ else
 							&& array_key_exists("NAME", $arEvent["ENTITY"]["FORMATTED"])
 						)
 						{
-							if (array_key_exists("URL", $arEvent["ENTITY"]["FORMATTED"]) && strlen($arEvent["ENTITY"]["FORMATTED"]["URL"]) > 0)
+							if (array_key_exists("URL", $arEvent["ENTITY"]["FORMATTED"]) && $arEvent["ENTITY"]["FORMATTED"]["URL"] <> '')
 							{
 								$strCreatedBy .= '<a href="'.$arEvent["ENTITY"]["FORMATTED"]["URL"].'" class="feed-post-user-name'.(isset($arEvent["CREATED_BY"]["IS_EXTRANET"]) && $arEvent["CREATED_BY"]["IS_EXTRANET"] == "Y" ? " feed-post-user-name-extranet" : "").'">'.$arEvent["ENTITY"]["FORMATTED"]["NAME"].'</a>';
 							}
@@ -466,7 +470,7 @@ else
 						&& array_key_exists("NAME", $arEvent["ENTITY"]["FORMATTED"])
 					)
 					{
-						if (array_key_exists("URL", $arEvent["ENTITY"]["FORMATTED"]) && strlen($arEvent["ENTITY"]["FORMATTED"]["URL"]) > 0)
+						if (array_key_exists("URL", $arEvent["ENTITY"]["FORMATTED"]) && $arEvent["ENTITY"]["FORMATTED"]["URL"] <> '')
 						{
 							$strCreatedBy .= '<a href="'.$arEvent["ENTITY"]["FORMATTED"]["URL"].'" class="feed-post-user-name'.(isset($arEvent["CREATED_BY"]["IS_EXTRANET"]) && $arEvent["CREATED_BY"]["IS_EXTRANET"] == "Y" ? " feed-post-user-name-extranet" : "").'">'.$arEvent["ENTITY"]["FORMATTED"]["NAME"].'</a>';
 						}
@@ -671,7 +675,7 @@ else
 								<span class="feed-com-file-icon feed-file-icon-<?=$file_ext?>"></span><?
 								if (
 									array_key_exists("URL", $arEvent["EVENT"])
-									&& strlen($arEvent["EVENT"]["URL"]) > 0
+									&& $arEvent["EVENT"]["URL"] <> ''
 								)
 								{
 									?><span class="feed-com-file-name"><a href="<?=$arEvent["EVENT"]["URL"]?>"><?=$arEvent["EVENT"]["TITLE"]?></a></span><?
@@ -697,7 +701,7 @@ else
 						if ($EVENT_ID == "photo")
 						{
 							$photo_section_id = $arEvent["EVENT"]["SOURCE_ID"];
-							if (strlen($arEvent["EVENT"]["PARAMS"]) > 0)
+							if ($arEvent["EVENT"]["PARAMS"] <> '')
 							{
 								$arEventParams = unserialize(htmlspecialcharsback($arEvent["EVENT"]["PARAMS"]));
 								if (
@@ -717,7 +721,7 @@ else
 								$arPhotoItems = array($arEvent["EVENT"]["SOURCE_ID"]);
 							}
 
-							if (strlen($arEvent["EVENT"]["PARAMS"]) > 0)
+							if ($arEvent["EVENT"]["PARAMS"] <> '')
 							{
 								$arEventParams = unserialize(htmlspecialcharsback($arEvent["EVENT"]["PARAMS"]));
 								if (
@@ -731,7 +735,7 @@ else
 							}
 						}
 
-						if (strlen($arEvent["EVENT"]["PARAMS"]) > 0)
+						if ($arEvent["EVENT"]["PARAMS"] <> '')
 						{
 							$arEventParams = unserialize(htmlspecialcharsback($arEvent["EVENT"]["PARAMS"]));
 
@@ -747,7 +751,7 @@ else
 									&& $arEvent["EVENT"]["ENTITY_TYPE"] == SONET_ENTITY_GROUP
 									&& (
 										IsModuleInstalled("extranet")
-										|| (strpos($photo_detail_url, "#GROUPS_PATH#") !== false)
+										|| (mb_strpos($photo_detail_url, "#GROUPS_PATH#") !== false)
 									)
 								)
 								{
@@ -765,7 +769,7 @@ else
 							}
 
 							if (
-								strlen($photo_iblock_type) > 0
+								$photo_iblock_type <> ''
 								&& intval($photo_iblock_id) > 0
 								&& intval($photo_section_id) > 0
 								&& count($arPhotoItems) > 0
@@ -900,7 +904,7 @@ else
 				}
 				elseif (
 					!in_array($EVENT_ID, array("system", "system_groups", "system_friends"))
-					&& strlen($arEvent["EVENT_FORMATTED"]["MESSAGE"]) > 0
+					&& $arEvent["EVENT_FORMATTED"]["MESSAGE"] <> ''
 				) // all other events
 				{
 					?><div class="feed-post-text-block"><?
@@ -972,8 +976,10 @@ else
 								"bitrix:system.field.view",
 								$arUserField["USER_TYPE"]["USER_TYPE_ID"],
 								array(
+									"arUserField" => $arUserField,
 									"LAZYLOAD" => $arParams["LAZYLOAD"],
-									"arUserField" => $arUserField
+									"GRID" => "Y",
+									"USE_TOGGLE_VIEW" => ($arResult["isCurrentUserEventOwner"] ? 'Y' : 'N')
 								),
 								null,
 								array("HIDE_ICONS"=>"Y")
@@ -1024,12 +1030,12 @@ else
 					$voteId = false;
 					if (
 						$arParams["SHOW_RATING"] == "Y"
-						&& strlen($arEvent["EVENT"]["RATING_TYPE_ID"]) > 0
+						&& $arEvent["EVENT"]["RATING_TYPE_ID"] <> ''
 						&& intval($arEvent["EVENT"]["RATING_ENTITY_ID"]) > 0
 					)
 					{
 						$voteId = $arEvent["EVENT"]["RATING_TYPE_ID"].'_'.$arEvent["EVENT"]["RATING_ENTITY_ID"].'-'.(time()+rand(0, 1000));
-						$emotion = (isset($arEvent["RATING"]) && !empty($arEvent["RATING"]["USER_REACTION"]) ? strtoupper($arEvent["RATING"]["USER_REACTION"]) : 'LIKE');
+						$emotion = (isset($arEvent["RATING"]) && !empty($arEvent["RATING"]["USER_REACTION"])? mb_strtoupper($arEvent["RATING"]["USER_REACTION"]) : 'LIKE');
 
 						if ($arResult["bIntranetInstalled"])
 						{
@@ -1107,7 +1113,7 @@ else
 							$arMenuItemsAdditional = array();
 						}
 
-						$serverName = (CMain::IsHTTPS() ? "https" : "http")."://".Bitrix\Main\Text\HtmlFilter::encode((defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME) > 0) ? SITE_SERVER_NAME : COption::GetOptionString("main", "server_name", ""));
+						$serverName = (CMain::IsHTTPS() ? "https" : "http")."://".Bitrix\Main\Text\HtmlFilter::encode((defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '') ? SITE_SERVER_NAME : COption::GetOptionString("main", "server_name", ""));
 						$strLogEntryURL = $serverName.CComponentEngine::MakePathFromTemplate(
 							$arParams["PATH_TO_LOG_ENTRY"],
 							array(
@@ -1159,7 +1165,7 @@ else
 					if (
 						$arResult["bIntranetInstalled"]
 						&& $arParams["SHOW_RATING"] == "Y"
-						&& strlen($arEvent["EVENT"]["RATING_TYPE_ID"]) > 0
+						&& $arEvent["EVENT"]["RATING_TYPE_ID"] <> ''
 						&& intval($arEvent["EVENT"]["RATING_ENTITY_ID"]) > 0
 					)
 					{
@@ -1244,17 +1250,17 @@ else
 						$arRecords[$commentId] = array(
 							"ID" => $commentId,
 							"NEW" => ($USER->IsAuthorized()
-							&& $arEvent["EVENT"]["FOLLOW"] != "N"
-							&& $arComment["EVENT"]["USER_ID"] != $USER->GetID()
-							&& intval($arResult["LAST_LOG_TS"]) > 0
-							&& $event_date_log_ts > $arResult["LAST_LOG_TS"]
-							&& (
-								$arResult["COUNTER_TYPE"] == "**"
-								|| $arResult["COUNTER_TYPE"] == "CRM_**"
-								|| $arResult["COUNTER_TYPE"] == "blog_post"
-							)
-								? "Y"
-								: "N"
+								&& $arEvent["EVENT"]["FOLLOW"] != "N"
+								&& $arComment["EVENT"]["USER_ID"] != $USER->GetID()
+								&& intval($arResult["LAST_LOG_TS"]) > 0
+								&& $event_date_log_ts > $arResult["LAST_LOG_TS"]
+								&& (
+									$arResult["COUNTER_TYPE"] == "**"
+									|| $arResult["COUNTER_TYPE"] == "CRM_**"
+									|| $arResult["COUNTER_TYPE"] == "blog_post"
+								)
+									? "Y"
+									: "N"
 							),
 							"AUTHOR" => array(
 								"ID" => $arComment["CREATED_BY"]["TOOLTIP_FIELDS"]["ID"],
@@ -1273,11 +1279,12 @@ else
 							"~POST_MESSAGE_TEXT" => "",
 							"AUX" => (!empty($arComment["AUX"]) ? $arComment["AUX"] : ''),
 							"AUX_LIVE_PARAMS" => (!empty($arComment["AUX_LIVE_PARAMS"]) ? $arComment["AUX_LIVE_PARAMS"] : array()),
+							"CAN_DELETE" => (!empty($arComment["CAN_DELETE"]) ? $arComment["CAN_DELETE"] : 'Y'),
 							"CLASSNAME" => ""
 						);
 
 						if (
-							strlen($arComment["EVENT"]["RATING_TYPE_ID"]) > 0
+							$arComment["EVENT"]["RATING_TYPE_ID"] <> ''
 							&& $arComment["EVENT"]["RATING_ENTITY_ID"] > 0
 							&& $arParams["SHOW_RATING"] == "Y"
 						)
@@ -1463,7 +1470,7 @@ else
 								? $arResult["COMMENT_URL"]
 								: (
 									isset($arParams["PATH_TO_LOG_ENTRY"])
-									&& strlen($arParams["PATH_TO_LOG_ENTRY"]) > 0
+									&& $arParams["PATH_TO_LOG_ENTRY"] <> ''
 										? CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_LOG_ENTRY"], array("log_id" => $arEvent["EVENT"]["ID"]))."?commentId=#ID#"
 										: ""
 								)

@@ -207,7 +207,7 @@ class Message
 			}
 		}
 
-		if ($this->type == 'reply' && strpos($text, static::QUOTE_PLACEHOLDER))
+		if ($this->type == 'reply' && mb_strpos($text, static::QUOTE_PLACEHOLDER))
 		{
 			$text = $this->removeReplyHead($text);
 			$text = preg_replace(sprintf('/\s*%s\s*/', preg_quote(static::QUOTE_PLACEHOLDER, '/')), "\n\n", $text);
@@ -339,24 +339,24 @@ class Message
 		{
 			$subject = array(
 				'value'  => $this->subject,
-				'strlen' => strlen($this->subject),
-				'sgnlen' => strlen(trim($this->subject))
+				'strlen' => mb_strlen($this->subject),
+				'sgnlen' => mb_strlen(trim($this->subject))
 			);
 
 			$isHeader = function($key, $value) use (&$subject)
 			{
-				if (strlen(trim($value)) >= 10 && $subject['sgnlen'] >= 10)
+				if (mb_strlen(trim($value)) >= 10 && $subject['sgnlen'] >= 10)
 				{
-					$dist = $subject['strlen']-strlen($value);
+					$dist = $subject['strlen'] - mb_strlen($value);
 
 					if (abs($dist) < 10)
 					{
-						if ($dist >= 0 && strpos($subject['value'], $value) !== false)
+						if ($dist >= 0 && mb_strpos($subject['value'], $value) !== false)
 						{
 							return true;
 						}
 
-						if (max($subject['strlen'], strlen($value)) < 256 && levenshtein($subject['value'], $value) < 10)
+						if (max($subject['strlen'], mb_strlen($value)) < 256 && levenshtein($subject['value'], $value) < 10)
 						{
 							return true;
 						}
@@ -424,7 +424,7 @@ class Message
 	/**
 	 * Returns significant reply text
 	 *
-	 * @param array &$text Reply text.
+	 * @param string|array &$text Reply text.
 	 * @return string
 	 */
 	protected function removeReplyHead(&$text)
@@ -507,7 +507,7 @@ class Message
 	/**
 	 * Returns significant forward text
 	 *
-	 * @param array &$text Forward text.
+	 * @param string|array &$text Forward text.
 	 * @return string
 	 */
 	protected function removeForwardHead(&$text)
@@ -587,7 +587,7 @@ class Message
 	/**
 	 * Returns text without bb-codes
 	 *
-	 * @param array &$text Text.
+	 * @param string|array &$text Text.
 	 * @return string
 	 */
 	protected static function reduceTags(&$text)
@@ -603,7 +603,7 @@ class Message
 	/**
 	 * Returns non-paired bb-codes only
 	 *
-	 * @param array &$text Text.
+	 * @param string|array &$text Text.
 	 * @return string
 	 */
 	public static function reduceHead(&$text)
@@ -617,7 +617,7 @@ class Message
 		{
 			$result = preg_replace('/\[([busi]|img|table|tr|td|th|quote|url|size|color|font|list)(=.+?)?\]\[\/\1\]/is', '', $result, -1, $n2);
 		}
-		while ($n1+$n2 > 0);
+		while ($n2 > 0);
 
 		return $result;
 	}

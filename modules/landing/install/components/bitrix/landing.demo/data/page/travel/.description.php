@@ -14,7 +14,6 @@ return array(
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(
 			'THEME_CODE' => 'travel',
-			'THEME_CODE_TYPO' => 'travel',
 			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/travel/preview.jpg',
 			'METAOG_TITLE' => Loc::getMessage('LANDING_DEMO_TITLE'),
 			'METAOG_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_DESCRIPTION'),
@@ -27,7 +26,7 @@ return array(
 			array (
 				'CODE' => '0.menu_19_travel',
 				'SORT' => '-100',
-				'CONTENT' => '<header class="landing-block landing-ui-pattern-transparent landing-block-menu u-header u-header--floating">
+				'CONTENT' => '<header class="landing-block landing-block-menu u-header u-header--sticky u-header--float">
 	<div class="u-header__section g-bg-black-opacity-0_5 g-bg-transparent--lg g-transition-0_3 g-py-12"
 		 data-header-fix-moment-exclude="g-bg-black-opacity-0_5 g-bg-transparent--lg g-py-12"
 		 data-header-fix-moment-classes="g-theme-travel-bg-black-v1-opacity-0_8 g-py-7">
@@ -101,7 +100,7 @@ return array(
 							Only From
 							<span style="color: #ee4136;">$150.00</span></div>
 						
-						<h3 class="landing-block-node-card-title text-uppercase g-pos-rel g-line-height-1 g-font-weight-700 g-font-size-75 g-font-roboto-slab g-color-white g-mb-10">
+						<h3 class="landing-block-node-card-title text-uppercase g-pos-rel g-line-height-1 g-font-weight-700 g-font-size-75 g-color-white g-mb-10">
 							Karlovy Vary, Czech
 						</h3>
 	
@@ -130,7 +129,7 @@ return array(
 							Only From
 							<span style="color: #ee4136;">$550.00</span></div>
 	
-						<h3 class="landing-block-node-card-title text-uppercase g-pos-rel g-line-height-1 g-font-weight-700 g-font-size-75 g-font-roboto-slab g-color-white g-mb-10">
+						<h3 class="landing-block-node-card-title text-uppercase g-pos-rel g-line-height-1 g-font-weight-700 g-font-size-75 g-color-white g-mb-10">
 							London, Great Britain
 						</h3>
 	
@@ -159,7 +158,7 @@ return array(
 							Only From
 							<span style="color: #ee4136;">$360.00</span></div>
 	
-						<h3 class="landing-block-node-card-title text-uppercase g-pos-rel g-line-height-1 g-font-weight-700 g-font-size-75 g-font-roboto-slab g-color-white g-mb-10">
+						<h3 class="landing-block-node-card-title text-uppercase g-pos-rel g-line-height-1 g-font-weight-700 g-font-size-75 g-color-white g-mb-10">
 							Crete, Greece
 						</h3>
 	
@@ -187,7 +186,7 @@ return array(
 							Only From
 							<span style="color: #ee4136;">$1300.00</span></div>
 	
-						<h3 class="landing-block-node-card-title text-uppercase g-pos-rel g-line-height-1 g-font-weight-700 g-font-size-75 g-font-roboto-slab g-color-white g-mb-10">
+						<h3 class="landing-block-node-card-title text-uppercase g-pos-rel g-line-height-1 g-font-weight-700 g-font-size-75 g-color-white g-mb-10">
 							Langkwai, Malaysia
 						</h3>
 	
@@ -215,7 +214,7 @@ return array(
 							Only From
 							<span style="color: #ee4136;">$1300.00</span></div>
 	
-						<h3 class="landing-block-node-card-title text-uppercase g-pos-rel g-line-height-1 g-font-weight-700 g-font-size-75 g-font-roboto-slab g-color-white g-mb-10">
+						<h3 class="landing-block-node-card-title text-uppercase g-pos-rel g-line-height-1 g-font-weight-700 g-font-size-75 g-color-white g-mb-10">
 							Bavaria, Germany
 						</h3>
 	
@@ -243,7 +242,7 @@ return array(
 							Only From
 							<span style="color: #ee4136;">$610.00</span></div>
 	
-						<h3 class="landing-block-node-card-title text-uppercase g-pos-rel g-line-height-1 g-font-weight-700 g-font-size-75 g-font-roboto-slab g-color-white g-mb-10">
+						<h3 class="landing-block-node-card-title text-uppercase g-pos-rel g-line-height-1 g-font-weight-700 g-font-size-75 g-color-white g-mb-10">
 							Paris, France
 						</h3>
 	
@@ -272,7 +271,7 @@ return array(
 							Only From
 							<span style="color: #ee4136;">$340.00</span></div>
 	
-						<h3 class="landing-block-node-card-title text-uppercase g-pos-rel g-line-height-1 g-font-weight-700 g-font-size-75 g-font-roboto-slab g-color-white g-mb-10">
+						<h3 class="landing-block-node-card-title text-uppercase g-pos-rel g-line-height-1 g-font-weight-700 g-font-size-75 g-color-white g-mb-10">
 							Hong Kong
 						</h3>
 	
@@ -301,7 +300,7 @@ return array(
 							Only From
 							<span style="color: #ee4136;">$2400.00</span></div>
 	
-						<h3 class="landing-block-node-card-title text-uppercase g-pos-rel g-line-height-1 g-font-weight-700 g-font-size-75 g-font-roboto-slab g-color-white g-mb-10">
+						<h3 class="landing-block-node-card-title text-uppercase g-pos-rel g-line-height-1 g-font-weight-700 g-font-size-75 g-color-white g-mb-10">
 							Venice, Italy
 						</h3>
 	
@@ -329,7 +328,7 @@ return array(
 							Only From
 							<span style="color: #ee4136;">$540.00</span></div>
 	
-						<h3 class="landing-block-node-card-title text-uppercase g-pos-rel g-line-height-1 g-font-weight-700 g-font-size-75 g-font-roboto-slab g-color-white g-mb-10">
+						<h3 class="landing-block-node-card-title text-uppercase g-pos-rel g-line-height-1 g-font-weight-700 g-font-size-75 g-color-white g-mb-10">
 							Madrid, Spain
 						</h3>
 	
@@ -357,7 +356,7 @@ return array(
 							Only From
 							<span style="color: #ee4136;">$5240.00</span></div>
 	
-						<h3 class="landing-block-node-card-title text-uppercase g-pos-rel g-line-height-1 g-font-weight-700 g-font-size-75 g-font-roboto-slab g-color-white g-mb-10">
+						<h3 class="landing-block-node-card-title text-uppercase g-pos-rel g-line-height-1 g-font-weight-700 g-font-size-75 g-color-white g-mb-10">
 							New York, USA
 						</h3>
 	
@@ -440,7 +439,7 @@ return array(
 
 				<div class="g-pa-20">
 					<div class="g-mb-20">
-						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
+						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-size-default g-color-white g-mb-5">
 							Crete</h3>
 
 						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
@@ -463,7 +462,7 @@ return array(
 
 				<div class="g-pa-20">
 					<div class="g-mb-20">
-						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
+						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-size-default g-color-white g-mb-5">
 							Langkawi</h3>
 
 						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
@@ -486,7 +485,7 @@ return array(
 
 				<div class="g-pa-20">
 					<div class="g-mb-20">
-						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
+						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-size-default g-color-white g-mb-5">
 							Paris</h3>
 
 						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
@@ -509,7 +508,7 @@ return array(
 
 				<div class="g-pa-20">
 					<div class="g-mb-20">
-						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
+						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-size-default g-color-white g-mb-5">
 							Venice</h3>
 
 						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
@@ -532,7 +531,7 @@ return array(
 
 				<div class="g-pa-20">
 					<div class="g-mb-20">
-						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
+						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-size-default g-color-white g-mb-5">
 							London</h3>
 
 						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
@@ -555,7 +554,7 @@ return array(
 
 				<div class="g-pa-20">
 					<div class="g-mb-20">
-						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
+						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-size-default g-color-white g-mb-5">
 							Rome</h3>
 
 						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
@@ -578,7 +577,7 @@ return array(
 
 				<div class="g-pa-20">
 					<div class="g-mb-20">
-						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
+						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-size-default g-color-white g-mb-5">
 							Crete</h3>
 
 						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
@@ -601,7 +600,7 @@ return array(
 
 				<div class="g-pa-20">
 					<div class="g-mb-20">
-						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
+						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-size-default g-color-white g-mb-5">
 							Langkawi</h3>
 
 						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
@@ -624,7 +623,7 @@ return array(
 
 				<div class="g-pa-20">
 					<div class="g-mb-20">
-						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
+						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-size-default g-color-white g-mb-5">
 							Paris</h3>
 
 						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
@@ -647,7 +646,7 @@ return array(
 
 				<div class="g-pa-20">
 					<div class="g-mb-20">
-						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
+						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-size-default g-color-white g-mb-5">
 							Venice</h3>
 
 						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
@@ -670,7 +669,7 @@ return array(
 
 				<div class="g-pa-20">
 					<div class="g-mb-20">
-						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
+						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-size-default g-color-white g-mb-5">
 							London</h3>
 
 						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
@@ -693,7 +692,7 @@ return array(
 
 				<div class="g-pa-20">
 					<div class="g-mb-20">
-						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
+						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-size-default g-color-white g-mb-5">
 							Rome</h3>
 
 						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
@@ -756,8 +755,8 @@ return array(
 							</div>
 
 							<div class="text-uppercase g-flex-middle-item--bottom g-pointer-events-all">
-								<div class="landing-block-node-card-subtitle g-font-roboto-slab g-line-height-1_2 g-font-weight-700 g-font-size-11 g-color-white g-mb-10">Hong Kong</div>
-								<h3 class="landing-block-node-card-title g-font-roboto-slab h5 g-line-height-1_2 g-font-weight-700 g-font-size-18 g-color-white g-mb-10">
+								<div class="landing-block-node-card-subtitle g-line-height-1_2 g-font-weight-700 g-font-size-11 g-font-roboto-slab g-color-white g-mb-10">Hong Kong</div>
+								<h3 class="landing-block-node-card-title h5 g-line-height-1_2 g-font-weight-700 g-font-size-18 g-color-white g-mb-10">
 									King Way
 								</h3>
 								<div class="landing-block-node-card-text small g-color-white-opacity-0_8">
@@ -789,8 +788,8 @@ return array(
 							</div>
 
 							<div class="text-uppercase g-flex-middle-item--bottom g-pointer-events-all">
-								<div class="landing-block-node-card-subtitle g-font-roboto-slab g-line-height-1_2 g-font-weight-700 g-font-size-11 g-color-white g-mb-10">Venice</div>
-								<h3 class="landing-block-node-card-title g-font-roboto-slab h5 g-line-height-1_2 g-font-weight-700 g-font-size-18 g-color-white g-mb-10">
+								<div class="landing-block-node-card-subtitle g-line-height-1_2 g-font-weight-700 g-font-size-11 g-font-roboto-slab g-color-white g-mb-10">Venice</div>
+								<h3 class="landing-block-node-card-title h5 g-line-height-1_2 g-font-weight-700 g-font-size-18 g-color-white g-mb-10">
 									Relax tour
 								</h3>
 								<div class="landing-block-node-card-text small g-color-white-opacity-0_8">
@@ -822,8 +821,8 @@ return array(
 							</div>
 
 							<div class="text-uppercase g-flex-middle-item--bottom g-pointer-events-all">
-								<div class="landing-block-node-card-subtitle g-font-roboto-slab g-line-height-1_2 g-font-weight-700 g-font-size-11 g-color-white g-mb-10">Karlovy Vary</div>
-								<h3 class="landing-block-node-card-title g-font-roboto-slab h5 g-line-height-1_2 g-font-weight-700 g-font-size-18 g-color-white g-mb-10">
+								<div class="landing-block-node-card-subtitle g-line-height-1_2 g-font-weight-700 g-font-size-11 g-font-roboto-slab g-color-white g-mb-10">Karlovy Vary</div>
+								<h3 class="landing-block-node-card-title h5 g-line-height-1_2 g-font-weight-700 g-font-size-18 g-color-white g-mb-10">
 									Heaven on Earth
 								</h3>
 								<div class="landing-block-node-card-text small g-color-white-opacity-0_8">
@@ -855,8 +854,8 @@ return array(
 							</div>
 
 							<div class="text-uppercase g-flex-middle-item--bottom g-pointer-events-all">
-								<div class="landing-block-node-card-subtitle g-font-roboto-slab g-line-height-1_2 g-font-weight-700 g-font-size-11 g-color-white g-mb-10">Madrid</div>
-								<h3 class="landing-block-node-card-title g-font-roboto-slab h5 g-line-height-1_2 g-font-weight-700 g-font-size-18 g-color-white g-mb-10">
+								<div class="landing-block-node-card-subtitle g-line-height-1_2 g-font-weight-700 g-font-size-11 g-font-roboto-slab g-color-white g-mb-10">Madrid</div>
+								<h3 class="landing-block-node-card-title h5 g-line-height-1_2 g-font-weight-700 g-font-size-18 g-color-white g-mb-10">
 									Lovers tour
 								</h3>
 								<div class="landing-block-node-card-text small g-color-white-opacity-0_8">
@@ -888,8 +887,8 @@ return array(
 							</div>
 
 							<div class="text-uppercase g-flex-middle-item--bottom g-pointer-events-all">
-								<div class="landing-block-node-card-subtitle g-font-roboto-slab g-line-height-1_2 g-font-weight-700 g-font-size-11 g-color-white g-mb-10">Bavaria</div>
-								<h3 class="landing-block-node-card-title g-font-roboto-slab h5 g-line-height-1_2 g-font-weight-700 g-font-size-18 g-color-white g-mb-10">
+								<div class="landing-block-node-card-subtitle g-line-height-1_2 g-font-weight-700 g-font-size-11 g-font-roboto-slab g-color-white g-mb-10">Bavaria</div>
+								<h3 class="landing-block-node-card-title h5 g-line-height-1_2 g-font-weight-700 g-font-size-18 g-color-white g-mb-10">
 									Road of gladiators
 								</h3>
 								<div class="landing-block-node-card-text small g-color-white-opacity-0_8">
@@ -921,8 +920,8 @@ return array(
 							</div>
 
 							<div class="text-uppercase g-flex-middle-item--bottom g-pointer-events-all">
-								<div class="landing-block-node-card-subtitle g-font-roboto-slab g-line-height-1_2 g-font-weight-700 g-font-size-11 g-color-white g-mb-10">New York</div>
-								<h3 class="landing-block-node-card-title g-font-roboto-slab h5 g-line-height-1_2 g-font-weight-700 g-font-size-18 g-color-white g-mb-10">
+								<div class="landing-block-node-card-subtitle g-line-height-1_2 g-font-weight-700 g-font-size-11 g-font-roboto-slab g-color-white g-mb-10">New York</div>
+								<h3 class="landing-block-node-card-title h5 g-line-height-1_2 g-font-weight-700 g-font-size-18 g-color-white g-mb-10">
 									Road of gods
 								</h3>
 								<div class="landing-block-node-card-text small g-color-white-opacity-0_8">
@@ -1000,8 +999,8 @@ return array(
 							</div>
 
 							<div class="text-uppercase g-flex-middle-item--bottom g-pointer-events-all">
-								<div class="landing-block-node-card-subtitle g-font-roboto-slab g-line-height-1_2 g-font-weight-700 g-font-size-11 g-color-white g-mb-10">Hong Kong</div>
-								<h3 class="landing-block-node-card-title g-font-roboto-slab h5 g-line-height-1_2 g-font-weight-700 g-font-size-18 g-color-white g-mb-10">
+								<div class="landing-block-node-card-subtitle g-line-height-1_2 g-font-weight-700 g-font-size-11 g-font-roboto-slab g-color-white g-mb-10">Hong Kong</div>
+								<h3 class="landing-block-node-card-title h5 g-line-height-1_2 g-font-weight-700 g-font-size-18 g-color-white g-mb-10">
 									King Way
 								</h3>
 								<div class="landing-block-node-card-text small g-color-white-opacity-0_8">
@@ -1033,8 +1032,8 @@ return array(
 							</div>
 
 							<div class="text-uppercase g-flex-middle-item--bottom g-pointer-events-all">
-								<div class="landing-block-node-card-subtitle g-font-roboto-slab g-line-height-1_2 g-font-weight-700 g-font-size-11 g-color-white g-mb-10">Venice</div>
-								<h3 class="landing-block-node-card-title g-font-roboto-slab h5 g-line-height-1_2 g-font-weight-700 g-font-size-18 g-color-white g-mb-10">
+								<div class="landing-block-node-card-subtitle g-line-height-1_2 g-font-weight-700 g-font-size-11 g-font-roboto-slab g-color-white g-mb-10">Venice</div>
+								<h3 class="landing-block-node-card-title h5 g-line-height-1_2 g-font-weight-700 g-font-size-18 g-color-white g-mb-10">
 									Relax tour
 								</h3>
 								<div class="landing-block-node-card-text small g-color-white-opacity-0_8">
@@ -1084,7 +1083,7 @@ return array(
 				<img class="landing-block-node-card-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/570x436/img5.jpg" alt="" />
 
 				<div class="text-center g-pa-45 landing-block-node-card-text-container js-animation fadeInUp">
-					<h3 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-default g-font-roboto-slab g-color-white g-mb-15">
+					<h3 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-default g-color-white g-mb-15">
 						Nullam lobortis bibendum eros nec ultricies</h3>
 					<div class="landing-block-node-card-text g-color-white-opacity-0_8 g-mb-35">
 						<p>Cras sit amet varius velit. Maecenas porta
@@ -1103,7 +1102,7 @@ return array(
 				<img class="landing-block-node-card-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/570x436/img6.jpg" alt="" />
 
 				<div class="text-center g-pa-45 landing-block-node-card-text-container js-animation fadeInUp">
-					<h3 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-default g-font-roboto-slab g-color-white g-mb-15">
+					<h3 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-default g-color-white g-mb-15">
 						Aliquam dapibus quis sapien id pharetra</h3>
 					<div class="landing-block-node-card-text g-color-white-opacity-0_8 g-mb-35">
 						<p>In finibus vehicula lorem, in tempor diam convallis
@@ -1122,7 +1121,7 @@ return array(
 				<img class="landing-block-node-card-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/570x436/img7.jpg" alt="" />
 
 				<div class="text-center g-pa-45 landing-block-node-card-text-container js-animation fadeInUp">
-					<h3 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-default g-font-roboto-slab g-color-white g-mb-15">
+					<h3 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-default g-color-white g-mb-15">
 						Duis sagittis purus a pretium tincidunt</h3>
 					<div class="landing-block-node-card-text g-color-white-opacity-0_8 g-mb-35">
 						<p>Cras sit amet varius velit. Maecenas porta
@@ -1141,7 +1140,7 @@ return array(
 				<img class="landing-block-node-card-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/570x436/img8.jpg" alt="" />
 
 				<div class="text-center g-pa-45 landing-block-node-card-text-container js-animation fadeInUp">
-					<h3 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-default g-font-roboto-slab g-color-white g-mb-15">
+					<h3 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-default g-color-white g-mb-15">
 						Nullam lobortis bibendum eros nec ultricies</h3>
 					<div class="landing-block-node-card-text g-color-white-opacity-0_8 g-mb-35">
 						<p>Maecenas tempor arcu eget gravida sagittis. In
@@ -1160,7 +1159,7 @@ return array(
 				<img class="landing-block-node-card-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/570x436/img5.jpg" alt="" />
 
 				<div class="text-center g-pa-45 landing-block-node-card-text-container js-animation fadeInUp">
-					<h3 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-default g-font-roboto-slab g-color-white g-mb-15">
+					<h3 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-default g-color-white g-mb-15">
 						Aliquam dapibus quis sapien id pharetra</h3>
 					<div class="landing-block-node-card-text g-color-white-opacity-0_8 g-mb-35">
 						<p>In finibus vehicula lorem, in tempor diam convallis
@@ -1179,7 +1178,7 @@ return array(
 				<img class="landing-block-node-card-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/570x436/img6.jpg" alt="" />
 
 				<div class="text-center g-pa-45 landing-block-node-card-text-container js-animation fadeInUp">
-					<h3 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-default g-font-roboto-slab g-color-white g-mb-15">
+					<h3 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-default g-color-white g-mb-15">
 						Aliquam dapibus quis sapien id pharetra</h3>
 					<div class="landing-block-node-card-text g-color-white-opacity-0_8 g-mb-35">
 						<p>In finibus vehicula lorem, in tempor diam convallis

@@ -1298,9 +1298,6 @@ arFDPermission['<?=$path_js?>'] = {
 		{
 			global $APPLICATION, $USER;
 
-			if(CModule::IncludeModule("compression"))
-				CCompress::Disable2048Spaces();
-
 			$path = $Params['path'];
 			$path = CFileMan::SecurePathVar($path);
 			$path = Rel2Abs("/", $path);

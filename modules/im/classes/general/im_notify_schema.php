@@ -60,14 +60,14 @@ class CIMNotifySchema
 	{
 		$arNotifySchema = self::GetNotifySchema();
 
-		return (bool)$arNotifySchema[$moduleId]['NOTIFY'][$notifyEvent]['DISABLED'][strtoupper($feature)];
+		return (bool)$arNotifySchema[$moduleId]['NOTIFY'][$notifyEvent]['DISABLED'][mb_strtoupper($feature)];
 	}
 
 	public static function GetDefaultFeature($moduleId, $notifyEvent, $feature)
 	{
 		$arNotifySchema = self::GetNotifySchema();
 
-		return (bool)$arNotifySchema[$moduleId]['NOTIFY'][$notifyEvent][strtoupper($feature)];
+		return (bool)$arNotifySchema[$moduleId]['NOTIFY'][$notifyEvent][mb_strtoupper($feature)];
 	}
 
 	public static function GetLifetime($moduleId, $notifyEvent)
@@ -84,18 +84,18 @@ class CIMNotifySchema
 				"NAME" => GetMessage('IM_NS_IM'),
 				"NOTIFY" => Array(
 					"message" => Array(
-						"NAME" => GetMessage('IM_NS_MESSAGE_2'),
+						"NAME" => GetMessage('IM_NS_MESSAGE_NEW'),
 						"PUSH" => 'Y',
 						"DISABLED" => Array(IM_NOTIFY_FEATURE_SITE, IM_NOTIFY_FEATURE_XMPP)
 					),
 					"chat" => Array(
-						"NAME" => GetMessage('IM_NS_CHAT_2'),
+						"NAME" => GetMessage('IM_NS_CHAT_NEW'),
 						"MAIL" => 'N',
 						"PUSH" => 'Y',
 						"DISABLED" => Array(IM_NOTIFY_FEATURE_SITE, IM_NOTIFY_FEATURE_XMPP, IM_NOTIFY_FEATURE_MAIL)
 					),
 					"openChat" => Array(
-						"NAME" => GetMessage('IM_NS_OPEN'),
+						"NAME" => GetMessage('IM_NS_OPEN_NEW'),
 						"MAIL" => 'N',
 						"PUSH" => 'Y',
 						"DISABLED" => Array(IM_NOTIFY_FEATURE_SITE, IM_NOTIFY_FEATURE_XMPP, IM_NOTIFY_FEATURE_MAIL)

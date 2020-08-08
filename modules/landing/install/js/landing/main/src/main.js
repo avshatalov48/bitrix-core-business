@@ -3,6 +3,7 @@ import {Env} from 'landing.env';
 import {Loc} from 'landing.loc';
 import {Content} from 'landing.ui.panel.content';
 import {SliderHacks} from 'landing.sliderhacks';
+import {PageObject} from 'landing.pageobject';
 import hasBlock from './internal/has-block';
 import hasCreateButton from './internal/has-create-button';
 import onAnimationEnd from './internal/on-animation-end';
@@ -77,7 +78,7 @@ export class Main extends Event.EventEmitter
 			if (!this.blocksPanel)
 			{
 				this.blocksPanel = this.createBlocksPanel();
-				this.onBlocksListCategoryChange('last');
+				this.onBlocksListCategoryChange(this.options.default_section);
 				this.blocksPanel.layout.hidden = true;
 				Dom.append(this.blocksPanel.layout, document.body);
 			}
@@ -333,12 +334,43 @@ export class Main extends Event.EventEmitter
 		this.currentArea = area;
 		this.blocksPanel.show();
 
+		this.disableAddBlockButtons();
+
 		if (!!area && !!button)
 		{
 			this.onCreateButtonMouseout(area, button);
 		}
 	}
 
+	disableAddBlockButtons()
+	{
+		PageObject.getBlocks().forEach((block) => {
+			const panel = block.panels.get('create_action');
+			if (panel)
+			{
+				const button = panel.buttons.get('insert_after');
+				if (button)
+				{
+					button.disable();
+				}
+			}
+		});
+	}
+
+	enableAddBlockButtons()
+	{
+		PageObject.getBlocks().forEach((block) => {
+			const panel = block.panels.get('create_action');
+			if (panel)
+			{
+				const button = panel.buttons.get('insert_after');
+				if (button)
+				{
+					button.enable();
+				}
+			}
+		});
+	}
 
 	/**
 	 * Creates blocks list panel
@@ -353,6 +385,10 @@ export class Main extends Event.EventEmitter
 			title: Loc.getMessage('LANDING_CONTENT_BLOCKS_TITLE'),
 			className: 'landing-ui-panel-block-list',
 			scrollAnimation: true,
+		});
+
+		panel.subscribe('onCancel', () => {
+			this.enableAddBlockButtons();
 		});
 
 		categories.forEach((categoryId) => {
@@ -788,6 +824,7 @@ export class Main extends Event.EventEmitter
 				const p = this.addBlock(res, preventHistory);
 				this.adjustEmptyAreas();
 				void this.hideBlockLoader();
+				this.enableAddBlockButtons();
 				return p;
 			});
 	}

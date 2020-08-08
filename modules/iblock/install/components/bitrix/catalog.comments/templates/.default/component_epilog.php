@@ -75,7 +75,7 @@ if (!$ajaxMode)
 {
 	if (isset($templateData['FB_USE']) && $templateData['FB_USE'] == "Y")
 	{
-		if (isset($arParams["FB_USER_ADMIN_ID"]) && strlen($arParams["FB_USER_ADMIN_ID"]) > 0)
+		if (isset($arParams["FB_USER_ADMIN_ID"]) && $arParams["FB_USER_ADMIN_ID"] <> '')
 		{
 			$APPLICATION->AddHeadString('<meta property="fb:admins" content="'.$arParams["FB_USER_ADMIN_ID"].'"/>');
 		}

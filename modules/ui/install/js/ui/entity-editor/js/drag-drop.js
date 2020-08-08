@@ -840,14 +840,6 @@ if(typeof(BX.UI.EditorSectionDragItem) === "undefined")
 		var wrapperContent = control.getWrapper().querySelector(".ui-entity-editor-section-content");
 		BX.removeClass(control.getWrapper(), "ui-entity-item-ghost");
 		wrapperContent.style = "";
-
-		window.setTimeout(
-			function()
-			{
-				control.getWrapper().scrollIntoView();
-			},
-			150
-		);
 	};
 	BX.UI.EditorSectionDragItem.contextId = "editor_section";
 	BX.UI.EditorSectionDragItem.create = function(settings)
@@ -876,7 +868,7 @@ if(typeof(BX.UI.EditorDragItemController) === "undefined")
 		{
 			throw "UI.EditorDragItemController: The 'charge' parameter is not defined in settings or empty.";
 		}
-		
+
 		this._emitter = new BX.Event.EventEmitter();
 		this._ghostOffset = { x: 0, y: 0 };
 	};
@@ -1079,20 +1071,24 @@ if(typeof(BX.UI.EditorSectionDragContainer) === "undefined")
 	BX.UI.EditorSectionDragContainer = function()
 	{
 		BX.UI.EditorSectionDragContainer.superclass.constructor.apply(this);
-		this._editor = null;
+		this._column = null;
 	};
 	BX.extend(BX.UI.EditorSectionDragContainer, BX.UI.EditorDragContainer);
 	BX.UI.EditorSectionDragContainer.prototype.initialize = function(settings)
 	{
-		this._editor = BX.prop.get(settings, "editor");
-		if(!this._editor)
+		this._column = BX.prop.get(settings, "column");
+		if(!this._column)
 		{
-			throw "UI.EditorSectionDragContainer: The 'editor' parameter is not defined in settings or empty.";
+			throw "UI.EditorSectionDragContainer: The 'column' parameter is not defined in settings or empty.";
 		}
+	};
+	BX.UI.EditorSectionDragContainer.prototype.getColumn = function()
+	{
+		return this._column;
 	};
 	BX.UI.EditorSectionDragContainer.prototype.getEditor = function()
 	{
-		return this._editor;
+		return this.getColumn().getParent();
 	};
 	BX.UI.EditorSectionDragContainer.prototype.getContextId = function()
 	{
@@ -1104,24 +1100,24 @@ if(typeof(BX.UI.EditorSectionDragContainer) === "undefined")
 	};
 	BX.UI.EditorSectionDragContainer.prototype.hasPlaceHolder = function()
 	{
-		return this._editor.hasPlaceHolder();
+		return this._column.hasPlaceHolder();
 	};
 	BX.UI.EditorSectionDragContainer.prototype.createPlaceHolder = function(index)
 	{
-		return this._editor.createPlaceHolder(index);
+		return this._column.createPlaceHolder(index);
 	};
 	BX.UI.EditorSectionDragContainer.prototype.getPlaceHolder = function()
 	{
-		return this._editor.getPlaceHolder();
+		return this._column.getPlaceHolder();
 	};
 	BX.UI.EditorSectionDragContainer.prototype.removePlaceHolder = function()
 	{
-		this._editor.removePlaceHolder();
+		this._column.removePlaceHolder();
 	};
 	BX.UI.EditorSectionDragContainer.prototype.getChildNodes = function()
 	{
 		var nodes = [];
-		var items = this._editor.getControls();
+		var items = this._column.getChildren();
 		for(var i = 0, length = items.length; i < length; i++)
 		{
 			nodes.push(items[i].getWrapper());
@@ -1130,7 +1126,7 @@ if(typeof(BX.UI.EditorSectionDragContainer) === "undefined")
 	};
 	BX.UI.EditorSectionDragContainer.prototype.getChildNodeCount = function()
 	{
-		return this._editor.getControlCount();
+		return this._column.getControlCount();
 	};
 	BX.UI.EditorSectionDragContainer.create = function(settings)
 	{

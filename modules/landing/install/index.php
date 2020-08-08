@@ -4,6 +4,7 @@ use \Bitrix\Landing\Landing as LandingCore;
 use \Bitrix\Landing\Internals\BlockTable;
 use \Bitrix\Landing\Internals\LandingTable;
 use \Bitrix\Landing\Site;
+use \Bitrix\Landing\Domain;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\ModuleManager;
 use \Bitrix\Main\Config\Option;
@@ -25,6 +26,44 @@ class Landing extends \CModule
 	public $MODULE_DESCRIPTION;
 
 	public $docRoot = '';
+	public $eventsData = [
+		'bitrix24' => [
+			'onDomainChange' => ['\Bitrix\Landing\Update\Block\NodeAttributes', 'updateFormDomain']
+		],
+		'intranet' => [
+			'onBuildBindingMenu' => ['\Bitrix\Landing\Connector\Intranet', 'onBuildBindingMenu']
+		],
+		'landing' => [
+			'onBuildSourceList' => ['\Bitrix\Landing\Connector\Landing', 'onSourceBuildHandler']
+		],
+		'main' => [
+			'onBeforeSiteDelete' => ['\Bitrix\Landing\Site', 'onBeforeMainSiteDelete'],
+			'onSiteDelete' => ['\Bitrix\Landing\Site', 'onMainSiteDelete']
+		],
+		'mobile' => [
+			'onMobileMenuStructureBuilt' => ['\Bitrix\Landing\Connector\Mobile', 'onMobileMenuStructureBuilt']
+		],
+		'rest' => [
+			'onRestServiceBuildDescription' => ['\Bitrix\Landing\Publicaction', 'restBase'],
+			'onBeforeApplicationUninstall' => ['\Bitrix\Landing\Publicaction', 'beforeRestApplicationDelete'],
+			'onRestAppDelete' => ['\Bitrix\Landing\Publicaction', 'restApplicationDelete'],
+			// sites transfer
+			'onRestApplicationConfigurationGetManifest' => ['\Bitrix\Landing\Transfer\AppConfiguration', 'getManifestList'],
+			'onRestApplicationConfigurationExport' => ['\Bitrix\Landing\Transfer\AppConfiguration', 'onEventExportController'],
+			'onRestApplicationConfigurationGetManifestSetting' => ['\Bitrix\Landing\Transfer\AppConfiguration', 'onInitManifest'],
+			'onRestApplicationConfigurationEntity' => ['\Bitrix\Landing\Transfer\AppConfiguration', 'getEntityList'],
+			'onRestApplicationConfigurationImport' => ['\Bitrix\Landing\Transfer\AppConfiguration', 'onEventImportController'],
+			'onRestApplicationConfigurationFinish' => ['\Bitrix\Landing\Transfer\AppConfiguration', 'onFinish']
+		],
+		'socialnetwork' => [
+			'onFillSocNetFeaturesList' => ['\Bitrix\Landing\Connector\SocialNetwork', 'onFillSocNetFeaturesList'],
+			'onFillSocNetMenu' => ['\Bitrix\Landing\Connector\SocialNetwork', 'onFillSocNetMenu'],
+			'onSocNetGroupDelete' => ['\Bitrix\Landing\Connector\SocialNetwork', 'onSocNetGroupDelete']
+		],
+		'socialservices' => [
+			'\Bitrix\Socialservices\ApTable::OnAfterAdd' => ['\Bitrix\Landing\Update\Block\NodeAttributes', 'updateFormDomainByConnector']
+		]
+	];
 	public $installDirs = array(
 		'admin' => 'admin',
 		'js' => 'landing',
@@ -46,9 +85,7 @@ class Landing extends \CModule
 		$server = $context->getServer();
 		$this->docRoot = $server->getDocumentRoot();
 
-		$path = str_replace('\\', '/', __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen('/index.php'));
-		include($path . '/version.php');
+		include(__DIR__.'/version.php');
 
 		if (is_array($arModuleVersion) && array_key_exists('VERSION', $arModuleVersion))
 		{
@@ -119,8 +156,8 @@ class Landing extends \CModule
 
 		// db
 		$errors = $DB->runSQLBatch(
-			$this->docRoot . '/bitrix/modules/landing/install/db/' .
-			strtolower($DB->type) . '/install.sql'
+			$this->docRoot.'/bitrix/modules/landing/install/db/'.
+			mb_strtolower($DB->type) . '/install.sql'
 		);
 		if ($errors !== false)
 		{
@@ -133,8 +170,8 @@ class Landing extends \CModule
 
 		// full text
 		$errors = $DB->runSQLBatch(
-			$this->docRoot . '/bitrix/modules/landing/install/db/' .
-			strtolower($DB->type) . '/install_ft.sql'
+			$this->docRoot.'/bitrix/modules/landing/install/db/'.
+			mb_strtolower($DB->type) . '/install_ft.sql'
 		);
 		if ($errors === false)
 		{
@@ -145,99 +182,21 @@ class Landing extends \CModule
 			}
 		}
 
-		// events
+		// install event handlers
 		$eventManager = Bitrix\Main\EventManager::getInstance();
-		$eventManager->registerEventHandler(
-			'rest',
-			'OnRestServiceBuildDescription',
-			$this->MODULE_ID,
-			'\Bitrix\Landing\Publicaction',
-			'restBase'
-		);
-		$eventManager->registerEventHandler(
-			'rest',
-			'onBeforeApplicationUninstall',
-			$this->MODULE_ID,
-			'\Bitrix\Landing\Publicaction',
-			'beforeRestApplicationDelete'
-		);
-		$eventManager->registerEventHandler(
-			'rest',
-			'OnRestAppDelete',
-			$this->MODULE_ID,
-			'\Bitrix\Landing\Publicaction',
-			'restApplicationDelete'
-		);
-		$eventManager->registerEventHandler(
-			'main',
-			'OnBeforeSiteDelete',
-			$this->MODULE_ID,
-			'\Bitrix\Landing\Site',
-			'onBeforeMainSiteDelete'
-		);
-		$eventManager->registerEventHandler(
-			'main',
-			'OnSiteDelete',
-			$this->MODULE_ID,
-			'\Bitrix\Landing\Site',
-			'onMainSiteDelete'
-		);
-		$eventManager->registerEventHandler(
-			'bitrix24',
-			'OnDomainChange',
-			$this->MODULE_ID,
-			'\Bitrix\Landing\Update\Block\NodeAttributes',
-			'updateFormDomain'
-		);
-		$eventManager->registerEventHandler(
-			'socialservices',
-			'\Bitrix\Socialservices\ApTable::OnAfterAdd',
-			$this->MODULE_ID,
-			'\Bitrix\Landing\Update\Block\NodeAttributes',
-			'updateFormDomainByConnector'
-		);
-		$eventManager->registerEventHandler(
-			$this->MODULE_ID,
-			'OnBuildSourceList',
-			$this->MODULE_ID,
-			'\Bitrix\Landing\Connector\Landing',
-			'onSourceBuildHandler'
-		);
-		$eventManager->registerEventHandler(
-			'mobile',
-			'onMobileMenuStructureBuilt',
-			$this->MODULE_ID,
-			'\Bitrix\Landing\Connector\Mobile',
-			'onMobileMenuStructureBuilt'
-		);
-		$eventManager->registerEventHandler(
-			'intranet',
-			'onBuildBindingMenu',
-			$this->MODULE_ID,
-			'\Bitrix\Landing\Connector\Intranet',
-			'onBuildBindingMenu'
-		);
-		$eventManager->registerEventHandler(
-			'socialnetwork',
-			'onFillSocNetFeaturesList',
-			$this->MODULE_ID,
-			'\Bitrix\Landing\Connector\SocialNetwork',
-			'onFillSocNetFeaturesList'
-		);
-		$eventManager->registerEventHandler(
-			'socialnetwork',
-			'onFillSocNetMenu',
-			$this->MODULE_ID,
-			'\Bitrix\Landing\Connector\SocialNetwork',
-			'onFillSocNetMenu'
-		);
-		$eventManager->registerEventHandler(
-			'socialnetwork',
-			'onSocNetGroupDelete',
-			$this->MODULE_ID,
-			'\Bitrix\Landing\Connector\SocialNetwork',
-			'onSocNetGroupDelete'
-		);
+		foreach ($this->eventsData as $module => $events)
+		{
+			foreach ($events as $eventCode => $callback)
+			{
+				$eventManager->registerEventHandler(
+					$module,
+					$eventCode,
+					$this->MODULE_ID,
+					$callback[0],
+					$callback[1]
+				);
+			}
+		}
 
 		// agents
 		\CAgent::addAgent(
@@ -427,8 +386,6 @@ class Landing extends \CModule
 	 */
 	public function setOptions()
 	{
-		Option::set('landing', 'disabled_namespaces', 'bitrix');
-		\Bitrix\Landing\Manager::getRestPath();
 	}
 
 	/**
@@ -454,6 +411,11 @@ class Landing extends \CModule
 								<div class="landing-sidebar g-max-width-100x">#AREA_1#</div>
 								<div class="landing-main g-max-width-100x">#CONTENT#</div>
 							</div>',
+				'area_count' => 1
+			),
+			'header_only' => array(
+				'content' => '<div class="landing-header">#AREA_1#</div> 
+								<div class="landing-main">#CONTENT#</div>',
 				'area_count' => 1
 			),
 			'header_footer' => array(
@@ -500,7 +462,7 @@ class Landing extends \CModule
 				'XML_ID' => $code,
 				'ACTIVE' => 'Y',
 				'SORT' => $i,
-				'TITLE' => '#' . strtoupper($code) . '#',
+				'TITLE' => '#'.mb_strtoupper($code) . '#',
 				'CONTENT' => $tpl['content'],
 				'AREA_COUNT' => $tpl['area_count']
 			);
@@ -596,8 +558,8 @@ class Landing extends \CModule
 		if (isset($arParams['savedata']) && !$arParams['savedata'])
 		{
 			$errors = $DB->runSQLBatch(
-				$this->docRoot . '/bitrix/modules/landing/install/db/' .
-				strtolower($DB->type) . '/uninstall.sql'
+				$this->docRoot.'/bitrix/modules/landing/install/db/'.
+				mb_strtolower($DB->type) . '/uninstall.sql'
 			);
 		}
 		if ($errors !== false)
@@ -610,99 +572,21 @@ class Landing extends \CModule
 		\CAgent::removeModuleAgents($this->MODULE_ID);
 		$this->UnInstallTasks();
 
-		// unregister events
+		// uninstall event handlers
 		$eventManager = Bitrix\Main\EventManager::getInstance();
-		$eventManager->unregisterEventHandler(
-			'rest',
-			'OnRestServiceBuildDescription',
-			$this->MODULE_ID,
-			'\Bitrix\Landing\Publicaction',
-			'restBase'
-		);
-		$eventManager->unregisterEventHandler(
-			'rest',
-			'onBeforeApplicationUninstall',
-			$this->MODULE_ID,
-			'\Bitrix\Landing\Publicaction',
-			'beforeRestApplicationDelete'
-		);
-		$eventManager->unregisterEventHandler(
-			'rest',
-			'OnRestAppDelete',
-			$this->MODULE_ID,
-			'\Bitrix\Landing\Publicaction',
-			'restApplicationDelete'
-		);
-		$eventManager->unregisterEventHandler(
-			'main',
-			'OnBeforeSiteDelete',
-			$this->MODULE_ID,
-			'\Bitrix\Landing\Site',
-			'onBeforeMainSiteDelete'
-		);
-		$eventManager->unregisterEventHandler(
-			'main',
-			'OnSiteDelete',
-			$this->MODULE_ID,
-			'\Bitrix\Landing\Site',
-			'onMainSiteDelete'
-		);
-		$eventManager->unregisterEventHandler(
-			'bitrix24',
-			'OnDomainChange',
-			$this->MODULE_ID,
-			'\Bitrix\Landing\Update\Block\NodeAttributes',
-			'updateFormDomain'
-		);
-		$eventManager->unregisterEventHandler(
-			'socialservices',
-			'\Bitrix\Socialservices\ApTable::OnAfterAdd',
-			$this->MODULE_ID,
-			'\Bitrix\Landing\Update\Block\NodeAttributes',
-			'updateFormDomainByConnector'
-		);
-		$eventManager->unregisterEventHandler(
-			$this->MODULE_ID,
-			'OnBuildSourceList',
-			$this->MODULE_ID,
-			'\Bitrix\Landing\Connector\Landing',
-			'onSourceBuildHandler'
-		);
-		$eventManager->unregisterEventHandler(
-			'mobile',
-			'onMobileMenuStructureBuilt',
-			$this->MODULE_ID,
-			'\Bitrix\Landing\Connector\Mobile',
-			'onMobileMenuStructureBuilt'
-		);
-		$eventManager->unregisterEventHandler(
-			'intranet',
-			'onBuildBindingMenu',
-			$this->MODULE_ID,
-			'\Bitrix\Landing\Connector\Intranet',
-			'onBuildBindingMenu'
-		);
-		$eventManager->unregisterEventHandler(
-			'socialnetwork',
-			'onFillSocNetFeaturesList',
-			$this->MODULE_ID,
-			'\Bitrix\Landing\Connector\SocialNetwork',
-			'onFillSocNetFeaturesList'
-		);
-		$eventManager->unregisterEventHandler(
-			'socialnetwork',
-			'onFillSocNetMenu',
-			$this->MODULE_ID,
-			'\Bitrix\Landing\Connector\SocialNetwork',
-			'onFillSocNetMenu'
-		);
-		$eventManager->unregisterEventHandler(
-			'socialnetwork',
-			'onSocNetGroupDelete',
-			$this->MODULE_ID,
-			'\Bitrix\Landing\Connector\SocialNetwork',
-			'onSocNetGroupDelete'
-		);
+		foreach ($this->eventsData as $module => $events)
+		{
+			foreach ($events as $eventCode => $callback)
+			{
+				$eventManager->unregisterEventHandler(
+					$module,
+					$eventCode,
+					$this->MODULE_ID,
+					$callback[0],
+					$callback[1]
+				);
+			}
+		}
 
 		// module
 		unregisterModule($this->MODULE_ID);
@@ -827,6 +711,7 @@ class Landing extends \CModule
 	 */
 	public function migrateToBox()
 	{
+		// delete some cloud options
 		$keyForDelete = [
 			'shops_limit_count',
 			'site_limit_count',
@@ -836,13 +721,28 @@ class Landing extends \CModule
 			'permissions_available',
 			'google_images_key'
 		];
-
 		foreach ($keyForDelete as $key)
 		{
 			Option::delete(
 				'landing',
 				['name' => $key]
 			);
+		}
+
+		// clear all providers in domains
+		$res = Domain::getList([
+			'select' => [
+				'ID'
+			],
+			'filter' => [
+				'!=PROVIDER' => null
+			]
+		]);
+		while ($row = $res->fetch())
+		{
+			Domain::update($row['ID'], [
+				'PROVIDER' => null
+			]);
 		}
 
 		unset($keyForDelete, $key);

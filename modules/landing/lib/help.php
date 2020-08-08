@@ -42,7 +42,8 @@ class Help
 			'de' => '6630821',
 			'es' => '6529315',
 			'br' => '7014601',
-			'fr' => '8460105'
+			'fr' => '8460105',
+			'pl' => '10187232'
 		),
 		'LANDING_EDIT' => array(
 			'ru' => 's105667',
@@ -51,7 +52,8 @@ class Help
 			'de' => 's95161',
 			'es' => 's95265',
 			'br' => 's119713',
-			'fr' => 's110613'
+			'fr' => 's110613',
+			'pl' => 's127232'
 		),
 		'DOMAIN_EDIT' => array(
 			'ru' => '6624333',
@@ -60,7 +62,14 @@ class Help
 			'de' => '6637101',
 			'es' => '8479199',
 			'br' => '8513557',
-			'fr' => '8460145'
+			'fr' => '8460145',
+			'pl' => '10187266'
+		),
+		'DOMAIN_BITRIX24' => array(
+			'ru' => '11341354'
+		),
+		'DOMAIN_FREE' => array(
+			'ru' => '11341378'
 		),
 		'GMAP_EDIT' => array(
 			'ru' => '8203739',
@@ -73,6 +82,7 @@ class Help
 		),
 		'PIXEL' => array(
 			'ru' => '9022893',
+			'ua' => '9028735',
 			'en' => '9025097',
 			'de' => '9024719',
 			'es' => '9023659',
@@ -104,10 +114,12 @@ class Help
 			'de' => '7920223',
 			'es' => '7993185',
 			'br' => '8828551',
-			'fr' => '9203285'
+			'fr' => '9203285',
+			'pl' => '10187376'
 		),
 		'DYNAMIC_BLOCKS' => array(
 			'ru' => '10104989',
+			'ua' => '10119783',
 			'en' => '10134346',
 			'de' => '10119494',
 			'es' => '10133942',
@@ -120,8 +132,18 @@ class Help
 			'ru' => '7919271'
 		),
 		'SPEED' => array(
+			'ru' => '11565144',
+			'ua' => '11567047'
 		)
 	);
+
+	/**
+	 * Landing's codes.
+	 * @var array
+	 */
+	protected static $helpLanding = [
+		'FREE_DOMAIN_FOR_MONEY' => 'limit_free_domen'
+	];
 
 	/**
 	 * Gets domain's array.
@@ -130,6 +152,20 @@ class Help
 	public static function getDomains()
 	{
 		return self::$domains;
+	}
+
+	/**
+	 * Returns help landing code by inner code.
+	 * @param string $code Inner landing code.
+	 * @return string|null
+	 */
+	public static function getHelpLandingCode(string $code): ?string
+	{
+		if (isset(self::$helpLanding[$code]))
+		{
+			return self::$helpLanding[$code];
+		}
+		return null;
 	}
 
 	/**
@@ -145,6 +181,11 @@ class Help
 		if ($myZone === null)
 		{
 			$myZone = Manager::getZone();
+		}
+
+		if ($myZone == 'by' || $myZone == 'kz')
+		{
+			$myZone = 'ru';
 		}
 
 		$helpId = 0;
@@ -168,8 +209,8 @@ class Help
 		{
 			return 'https://helpdesk.' . self::$domains[$helpZone] .
 					(
-						(substr($helpId, 0, 1) == 's')
-						? ('/section/' . substr($helpId, 1) . '/')
+						(mb_substr($helpId, 0, 1) == 's')
+						? ('/section/'.mb_substr($helpId, 1) . '/')
 						: ('/open/' . $helpId . '/')
 					);
 		}

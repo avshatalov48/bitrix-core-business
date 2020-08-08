@@ -1436,7 +1436,7 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 			{
 				foreach ($offer['TREE'] as $propName => $skuId)
 				{
-					$propId = (int)substr($propName, 5);
+					$propId = (int)mb_substr($propName, 5);
 
 					foreach ($skuProps as $prop)
 					{

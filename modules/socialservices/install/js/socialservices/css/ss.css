@@ -1,42 +1,44 @@
-.bx-ss-icon {background-image:url('icons_v5.png'); width:16px; height:16px; background-repeat:no-repeat;}
-.openid {background-position:0px -192px;}
-.yandex {background-position:0px 0px;}
-.openid-mail-ru {background-position:0px -48px;}
-.livejournal {background-position:0px -16px;}
-.liveinternet {background-position:0px -128px;}
-.blogger {background-position:0px -144px;}
-.rambler {background-position:0px -160px;}
-.liveid {background-position:0px -176px;}
-.facebook {background-position:0px -32px;}
-.twitter {background-position:0px -96px;}
-.vkontakte {background-position:0px -80px;}
-.mymailru {background-position:0px -64px;}
-.google {background-position:0px -112px;}
-.google-plus {background-position:0px -112px;}
-.odnoklassniki {background-position:0px -208px;}
-.bitrix24 {background-position:0px -378px}
-.dropbox {background-position:0px -504px}
-.box {background-position:0px -520px}
-.office365 {background-position:0px -559px}
-.mailru2 {background-position:0px -48px;}
+.bx-ss-icon {background-image:url('icons_v5.png?v=3'); width:16px; height:16px; background-repeat:no-repeat;}
+.openid {background-position: 0 -192px;}
+.yandex {background-position: 0 0;}
+.openid-mail-ru {background-position: 0 -48px;}
+.livejournal {background-position: 0 -16px;}
+.liveinternet {background-position: 0 -128px;}
+.blogger {background-position: 0 -144px;}
+.rambler {background-position: 0 -160px;}
+.liveid {background-position: 0 -176px;}
+.facebook {background-position: 0 -32px;}
+.twitter {background-position: 0 -96px;}
+.vkontakte {background-position: 0 -80px;}
+.mymailru {background-position: 0 -64px;}
+.google {background-position: 0 -112px;}
+.google-plus {background-position: 0 -112px;}
+.odnoklassniki {background-position: 0 -208px;}
+.bitrix24 {background-position: 0 -378px}
+.dropbox {background-position: 0 -504px}
+.box {background-position: 0 -520px}
+.office365 {background-position: 0 -559px}
+.mailru2 {background-position: 0 -48px;}
+.apple {background-position: -74px 0;}
+.zoom {background-position: -74px -18px;}
 
 .bx-ss-button {display:inline-block; background-image:url('icons_v5.png') !important; width:87px !important; height:21px !important; background-repeat:no-repeat; vertical-align:middle !important;}
-.liveid-button {background-position:0px -334px !important;}
-.facebook-button {background-position:0px -224px !important;}
-.twitter-button {background-position:0px -290px !important;}
-.vkontakte-button {background-position:0px -268px !important;}
-.mymailru-button {background-position:0px -246px !important;}
-.google-button {background-position:0px -312px !important;}
-.odnoklassniki-button {background-position:0px -356px !important;}
-.bitrix24net-button {background-position:0px -416px !important;}
+.liveid-button {background-position: 0 -334px !important;}
+.facebook-button {background-position: 0 -224px !important;}
+.twitter-button {background-position: 0 -290px !important;}
+.vkontakte-button {background-position: 0 -268px !important;}
+.mymailru-button {background-position: 0 -246px !important;}
+.google-button {background-position: 0 -312px !important;}
+.odnoklassniki-button {background-position: 0 -356px !important;}
+.bitrix24net-button {background-position: 0 -416px !important;}
 .bitrix24net-button-ru,
 .bitrix24net-button-kz
-{background-position:0px -394px !important;}
-.bitrix24net-button-ua {background-position:0px -438px !important;}
-.dropbox-button {background-position:0px -482px !important;}
-.box-button {background-position:0px -537px !important;}
-.yandex-button {background-position:0px -460px !important;}
-.office365-button {background-position:0px -576px !important;}
+{background-position: 0 -394px !important;}
+.bitrix24net-button-ua {background-position: 0 -438px !important;}
+.dropbox-button {background-position: 0 -482px !important;}
+.box-button {background-position: 0 -537px !important;}
+.yandex-button {background-position: 0 -460px !important;}
+.office365-button {background-position: 0 -576px !important;}
 
 td.to_twitter {text-align:center !important;}
 div.bx-auth {max-width:600px; margin-top:12px; margin-bottom:10px;}
@@ -45,12 +47,12 @@ div.bx-auth-line {border-bottom:1px solid #E3E3E3; padding-bottom:10px;}
 div.bx-auth-title {font-size:140%; border-bottom:solid 2px #E3E3E3; padding-bottom:12px; }
 div.bx-auth-note{margin:18px 0px 6px 0px;}
 
-div.bx-auth-services  {padding:0px; margin:0px; overflow:hidden; zoom:1;}
+div.bx-auth-services  {padding: 0; margin: 0; overflow:hidden; zoom:1;}
 div.bx-auth-services div {display:block; float:left; margin:4px 6px 0px 0px; width:170px;}
 div.bx-auth-services a {display:inline-block; margin:1px; padding:4px 4px 4px 4px; text-decoration:none; color:#646464; outline:none;}
-div.bx-auth-services a:hover {margin:0px; border:1px solid #D9D9D9; text-decoration: none !important;}
-div.bx-auth-services a.bx-ss-selected {margin:0px; border:1px solid #D9D9D9; background-color:#EBEBEB;}
-div.bx-auth-services i {display:inline-block; margin:0px; margin-right:4px; vertical-align:middle; cursor:pointer;}
+div.bx-auth-services a:hover {margin: 0; border:1px solid #D9D9D9; text-decoration: none !important;}
+div.bx-auth-services a.bx-ss-selected {margin: 0; border:1px solid #D9D9D9; background-color:#EBEBEB;}
+div.bx-auth-services i {display:inline-block; margin: 0; margin-right:4px; vertical-align:middle; cursor:pointer;}
 div.bx-auth-services b {vertical-align:middle; font-weight:bold; font-size:12px; font-family:Tahoma,Verdana,Arial,sans-serif;}
 
 div.bx-auth-service-form {color:black; background-color:#EEEEEE; border-bottom:solid 1px #D6D6D6; margin-top:1px; padding:8px; vertical-align:middle; font-size:12px;}
@@ -64,7 +66,7 @@ span.bx-spacer-vert25 {display:inline-block; height:25px;}
 
 div.bx-auth-serv-icons {}
 div.bx-auth-serv-icons a {display:inline-block; margin:1px; text-decoration:none; color:#646464; outline:none;}
-div.bx-auth-serv-icons a:hover {margin:0px; border:1px solid #D9D9D9;}
+div.bx-auth-serv-icons a:hover {margin: 0; border:1px solid #D9D9D9;}
 div.bx-auth-serv-icons i {margin:3px; display:inline-block; vertical-align:middle;  cursor:pointer;}
 div.bx-auth-lbl {margin-top:8px; margin-bottom:4px;}
 

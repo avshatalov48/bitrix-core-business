@@ -14,7 +14,7 @@ return array(
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(
 			'THEME_CODE' => 'gym',
-			'THEME_CODE_TYPO' => 'gym',
+
 			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/gym/preview.jpg',
 			'METAOG_TITLE' => Loc::getMessage('LANDING_DEMO_GYM_TITLE'),
 			'METAOG_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_GYM_DESCRIPTION'),
@@ -27,7 +27,7 @@ return array(
 			array (
 				'CODE' => '0.menu_12_gym',
 				'SORT' => '-100',
-				'CONTENT' => '<header class="landing-block landing-block-menu landing-ui-pattern-transparent u-header u-header--floating g-z-index-9999">
+				'CONTENT' => '<header class="landing-block landing-block-menu u-header u-header--sticky u-header--float g-z-index-9999">
 	<div class="u-header__section g-bg-black-opacity-0_3 g-transition-0_3 g-py-7 g-py-23--md"
 		 data-header-fix-moment-exclude="g-bg-black-opacity-0_3 g-py-23--md"
 		 data-header-fix-moment-classes="g-bg-black-opacity-0_7 g-py-17--md">
@@ -96,34 +96,34 @@ return array(
 	</div>
 
 	<div class="u-bg-overlay__inner g-absolute-centered w-100 g-width-80x--md">
-		<div class="landing-block-node-text-container js-animation fadeIn container text-center g-color-white animated">
-			<h2 class="landing-block-node-subtitle text-uppercase u-heading-v3__title g-letter-spacing-1 g-font-weight-700 g-font-size-18 g-brd-3 g-brd-primary g-pb-5 g-mb-20">
+		<div class="landing-block-node-text-container js-animation fadeIn container text-center animated">
+			<h2 class="landing-block-node-subtitle text-uppercase u-heading-v3__title g-letter-spacing-1 g-font-weight-700 g-color-white g-font-size-18 g-brd-3 g-brd-primary g-pb-5 g-mb-20">
 				Fitness program for everybody</h2>
-			<h3 class="landing-block-node-title text-uppercase g-line-height-1_4 g-letter-spacing-5 g-font-weight-700 g-font-size-40 g-mb-20">
+			<h3 class="landing-block-node-title text-uppercase g-line-height-1_4 g-letter-spacing-5 g-font-weight-700 g-color-white g-font-size-40 g-mb-20">
 				Easy to be perfect</h3>
 
 			<ul class="list-inline g-font-size-16 g-mb-30">
 				<li class="landing-block-node-icon-container landing-block-node-card-list-item list-inline-item g-mx-20 g-mb-10 g-mb-0--md">
 					<i class="landing-block-node-icon fa fa-cutlery g-font-size-24 g-color-primary g-valign-middle g-mr-5"></i>
-					<div class="landing-block-node-icon-text d-inline-block g-font-weight-200 g-valign-middle">
+					<div class="landing-block-node-icon-text d-inline-block g-color-white g-font-weight-200 g-valign-middle">
 						<span style="font-weight: bold;">2150</span> Kkal
 					</div>
 				</li>
 				<li class="landing-block-node-icon-container landing-block-node-card-list-item list-inline-item g-mx-20 g-mb-10 g-mb-0--md">
 					<i class="landing-block-node-icon fa fa-calendar g-font-size-24 g-color-primary g-valign-middle g-mr-5"></i>
-					<div class="landing-block-node-icon-text d-inline-block g-font-weight-200 g-valign-middle">
+					<div class="landing-block-node-icon-text d-inline-block g-color-white g-font-weight-200 g-valign-middle">
 						<span style="font-weight: bold;">7</span> Weeks
 					</div>
 				</li>
 				<li class="landing-block-node-icon-container landing-block-node-card-list-item list-inline-item g-mx-20 g-mb-10 g-mb-0--md">
 					<i class="landing-block-node-icon fa fa-clock-o g-font-size-24 g-color-primary g-valign-middle g-mr-5"></i>
-					<div class="landing-block-node-icon-text d-inline-block g-font-weight-200 g-valign-middle">
+					<div class="landing-block-node-icon-text d-inline-block g-color-white g-font-weight-200 g-valign-middle">
 						<span style="font-weight: bold;">1.5</span> per/day
 					</div>
 				</li>
 				<li class="landing-block-node-icon-container landing-block-node-card-list-item list-inline-item g-mx-20">
 					<i class="landing-block-node-icon fa fa-universal-access g-font-size-24 g-color-primary g-valign-middle g-mr-5"></i>
-					<div class="landing-block-node-icon-text d-inline-block g-font-weight-200 g-valign-middle">
+					<div class="landing-block-node-icon-text d-inline-block g-color-white g-font-weight-200 g-valign-middle">
 						<span style="font-weight: bold;">3</span> times/week
 					</div>
 				</li>
@@ -595,8 +595,8 @@ return array(
 					adipiscing</p>
 
 				<address class="g-mb-20">
-					<div class="landing-block-card-contact g-pos-rel g-pl-20 g-mb-7" data-card-preset="text">
-						<div class="landing-block-node-card-contact-icon-container g-color-gray-dark-v2 g-absolute-centered--y g-left-0">
+					<div class="landing-block-card-contact d-flex g-pos-rel g-mb-7" data-card-preset="text">
+						<div class="landing-block-node-card-contact-icon-container g-color-gray-dark-v2 text-left g-width-20">
 							<i class="landing-block-node-card-contact-icon fa fa-home"></i>
 						</div>
 						<div class="landing-block-node-card-contact-text g-color-gray-dark-v2">
@@ -604,8 +604,8 @@ return array(
 						</div>
 					</div>
 
-					<div class="landing-block-card-contact g-pos-rel g-pl-20 g-mb-7" data-card-preset="text">
-						<div class="landing-block-node-card-contact-icon-container g-color-gray-dark-v2 g-absolute-centered--y g-left-0">
+					<div class="landing-block-card-contact d-flex g-pos-rel g-mb-7" data-card-preset="text">
+						<div class="landing-block-node-card-contact-icon-container g-color-gray-dark-v2 text-left g-width-20">
 							<i class="landing-block-node-card-contact-icon fa fa-phone"></i>
 						</div>
 						<div class="landing-block-node-card-contact-text g-color-gray-dark-v2">
@@ -614,8 +614,8 @@ return array(
 						</div>
 					</div>
 
-					<div class="landing-block-card-contact g-pos-rel g-pl-20 g-mb-7" data-card-preset="link">
-						<div class="landing-block-node-card-contact-icon-container g-color-gray-dark-v2 g-absolute-centered--y g-left-0">
+					<div class="landing-block-card-contact d-flex g-pos-rel g-mb-7" data-card-preset="link">
+						<div class="landing-block-node-card-contact-icon-container g-color-gray-dark-v2 text-left g-width-20">
 							<i class="landing-block-node-card-contact-icon fa fa-envelope"></i>
 						</div>
 						<div>

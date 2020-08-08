@@ -126,16 +126,16 @@ class CDeliveryEMS
 				$arResult = CDeliveryEMS::ConvertCharsetArray($arResult, 'utf-8', LANG_CHARSET);
 			}
 		}
-		elseif (substr($data, 0, 1) == '{') // object
+		elseif (mb_substr($data, 0, 1) == '{') // object
 		{
 			$arResult = array();
 
 			$depth = 0;
 			$end_pos = 0;
 			$arCommaPos = array();
-			for ($i = 1, $len = strlen($data); $i < $len; $i++)
+			for ($i = 1, $len = mb_strlen($data); $i < $len; $i++)
 			{
-				$cur_symbol = substr($data, $i, 1);
+				$cur_symbol = mb_substr($data, $i, 1);
 				if ($cur_symbol == '{' || $cur_symbol == '[')
 					$depth++;
 				elseif ($cur_symbol == ']')
@@ -161,7 +161,7 @@ class CDeliveryEMS
 			if ($end_pos == 0)
 				return false;
 
-			$token = substr($data, 1, $end_pos-1);
+			$token = mb_substr($data, 1, $end_pos - 1);
 
 			$arTokens = array();
 			if (count($arCommaPos) > 0)
@@ -169,10 +169,10 @@ class CDeliveryEMS
 				$prev_index = 0;
 				foreach ($arCommaPos as $pos)
 				{
-					$arTokens[] = substr($token, $prev_index, $pos - $prev_index - 1);
+					$arTokens[] = mb_substr($token, $prev_index, $pos - $prev_index - 1);
 					$prev_index = $pos;
 				}
-				$arTokens[] = substr($token, $prev_index);
+				$arTokens[] = mb_substr($token, $prev_index);
 			}
 			else
 			{
@@ -183,13 +183,13 @@ class CDeliveryEMS
 			{
 				$arTokenData = explode(":", $token, 2);
 
-				if (substr($arTokenData[0], 0, 1) == '"')
-					$arTokenData[0] = substr($arTokenData[0], 1, -1);
+				if (mb_substr($arTokenData[0], 0, 1) == '"')
+					$arTokenData[0] = mb_substr($arTokenData[0], 1, -1);
 
 				$arResult[$arTokenData[0]] = CDeliveryEMS::JsObjectToPhp($arTokenData[1]);
 			}
 		}
-		elseif (substr($data, 0, 1) == '[') // array
+		elseif (mb_substr($data, 0, 1) == '[') // array
 		{
 			$arResult = array();
 
@@ -197,9 +197,9 @@ class CDeliveryEMS
 			$end_pos = 0;
 			$arCommaPos = array();
 
-			for ($i = 1, $len = strlen($data); $i < $len; $i++)
+			for ($i = 1, $len = mb_strlen($data); $i < $len; $i++)
 			{
-				$cur_symbol = substr($data, $i, 1);
+				$cur_symbol = mb_substr($data, $i, 1);
 				if ($cur_symbol == '{' || $cur_symbol == '[')
 					$depth++;
 				elseif ($cur_symbol == '}')
@@ -225,17 +225,17 @@ class CDeliveryEMS
 			if ($end_pos == 0)
 				return false;
 
-			$token = substr($data, 1, $end_pos-1);
+			$token = mb_substr($data, 1, $end_pos - 1);
 
 			if (count($arCommaPos) > 0)
 			{
 				$prev_index = 0;
 				foreach ($arCommaPos as $pos)
 				{
-					$arResult[] = CDeliveryEMS::JsObjectToPhp(substr($token, $prev_index, $pos - $prev_index - 1));
+					$arResult[] = CDeliveryEMS::JsObjectToPhp(mb_substr($token, $prev_index, $pos - $prev_index - 1));
 					$prev_index = $pos;
 				}
-				$arResult[] = CDeliveryEMS::JsObjectToPhp(substr($token, $prev_index));
+				$arResult[] = CDeliveryEMS::JsObjectToPhp(mb_substr($token, $prev_index));
 			}
 			else
 			{
@@ -244,8 +244,8 @@ class CDeliveryEMS
 		}
 		else // scalar
 		{
-			if (substr($data, 0, 1) == '"')
-				$data = substr($data, 1, -1);
+			if (mb_substr($data, 0, 1) == '"')
+				$data = mb_substr($data, 1, -1);
 
 			$arResult = $data;
 		}
@@ -272,9 +272,9 @@ class CDeliveryEMS
 
 		$data = $GLOBALS['APPLICATION']->ConvertCharset($data, 'utf-8', LANG_CHARSET);
 
-		if (($pos = strpos($data, "\n")) !== false)
+		if (($pos = mb_strpos($data, "\n")) !== false)
 		{
-			$data = trim(substr($data, 0, $pos));
+			$data = trim(mb_substr($data, 0, $pos));
 		}
 
 		CDeliveryEMS::__Write2Log($error_number.": ".$error_text);

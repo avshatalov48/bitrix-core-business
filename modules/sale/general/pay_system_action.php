@@ -26,7 +26,7 @@ class CAllSalePaySystemAction
 	{
 		global $DB, $USER;
 
-		if ((is_set($arFields, "NAME") || $ACTION=="ADD") && strlen($arFields["NAME"]) <= 0)
+		if ((is_set($arFields, "NAME") || $ACTION=="ADD") && $arFields["NAME"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGPSA_NO_NAME"), "ERROR_NO_NAME");
 			return false;
@@ -44,7 +44,7 @@ class CAllSalePaySystemAction
 			$arFields["HAVE_PREPAY"] = "N";
 		if (is_set($arFields, "HAVE_RESULT_RECEIVE") && $arFields["HAVE_RESULT_RECEIVE"] != "Y")
 			$arFields["HAVE_RESULT_RECEIVE"] = "N";
-		if (is_set($arFields, "ENCODING") && strlen($arFields["ENCODING"]) <= 0)
+		if (is_set($arFields, "ENCODING") && $arFields["ENCODING"] == '')
 			$arFields["ENCODING"] = false;
 
 		return True;
@@ -130,7 +130,7 @@ class CAllSalePaySystemAction
 		$type = $GLOBALS["SALE_CORRESPONDENCE"][$key]["TYPE"];
 		$value = $GLOBALS["SALE_CORRESPONDENCE"][$key]["VALUE"];
 
-		if (strlen($type) > 0)
+		if ($type <> '')
 		{
 			if (array_key_exists($type, $GLOBALS["SALE_INPUT_PARAMS"])
 				&& is_array($GLOBALS["SALE_INPUT_PARAMS"][$type])
@@ -211,7 +211,7 @@ class CAllSalePaySystemAction
 		{
 			$arOrder = array();
 
-			$orderID = IntVal($orderID);
+			$orderID = intval($orderID);
 			if ($orderID > 0)
 				$arOrderTmp = CSaleOrder::GetByID($orderID);
 			if (!empty($arOrderTmp))
@@ -277,7 +277,7 @@ class CAllSalePaySystemAction
 		if (!empty($payment))
 			$GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["DATE_BILL_DATE"] = ConvertTimeStamp(MakeTimeStamp($payment["DATE_BILL"]), 'SHORT');
 
-		$userID = IntVal($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["USER_ID"]);
+		$userID = intval($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["USER_ID"]);
 		if ($userID > 0)
 		{
 			$dbUser = CUser::GetByID($userID);
@@ -539,7 +539,7 @@ class CAllSalePaySystemAction
 				$select = array();
 				foreach ($arSelectFields as $i => $field)
 				{
-					if (strpos($field, 'PT_') === 0)
+					if (mb_strpos($field, 'PT_') === 0)
 					{
 						continue;
 					}
@@ -554,7 +554,7 @@ class CAllSalePaySystemAction
 			{
 				foreach ($arOrder as $field => $type)
 				{
-					if (strpos($field, 'PT_') === 0)
+					if (mb_strpos($field, 'PT_') === 0)
 					{
 						continue;
 					}
@@ -565,7 +565,7 @@ class CAllSalePaySystemAction
 			$filter = array();
 			foreach ($arFilter as $i => $field)
 			{
-				if (strpos($i, 'PT_') === 0)
+				if (mb_strpos($i, 'PT_') === 0)
 				{
 					continue;
 				}
@@ -590,7 +590,7 @@ class CAllSalePaySystemAction
 				$arGroupBy = !is_array($arGroupBy) ? array($arGroupBy) : $arGroupBy;
 				foreach ($arGroupBy as $field => $order)
 				{
-					if (strpos($field, 'PT_') === 0)
+					if (mb_strpos($field, 'PT_') === 0)
 					{
 						continue;
 					}
@@ -694,7 +694,7 @@ class CAllSalePaySystemAction
 			{
 				$arOrder = strval($arOrder);
 				$arFilter = strval($arFilter);
-				if (strlen($arOrder) > 0 && strlen($arFilter) > 0)
+				if ($arOrder <> '' && $arFilter <> '')
 					$arOrder = array($arOrder => $arFilter);
 				else
 					$arOrder = array();
@@ -749,9 +749,9 @@ class CAllSalePaySystemAction
 					"SELECT ".$arSqls["SELECT"]." ".
 					"FROM b_sale_pay_system_action PSA ".
 					"	".$arSqls["FROM"]." ";
-				if (strlen($arSqls["WHERE"]) > 0)
+				if ($arSqls["WHERE"] <> '')
 					$strSql .= "WHERE ".$arSqls["WHERE"]." ";
-				if (strlen($arSqls["GROUPBY"]) > 0)
+				if ($arSqls["GROUPBY"] <> '')
 					$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
 				//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
@@ -767,27 +767,27 @@ class CAllSalePaySystemAction
 				"SELECT ".$arSqls["SELECT"]." ".
 				"FROM b_sale_pay_system_action PSA ".
 				"	".$arSqls["FROM"]." ";
-			if (strlen($arSqls["WHERE"]) > 0)
+			if ($arSqls["WHERE"] <> '')
 				$strSql .= "WHERE ".$arSqls["WHERE"]." ";
-			if (strlen($arSqls["GROUPBY"]) > 0)
+			if ($arSqls["GROUPBY"] <> '')
 				$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
-			if (strlen($arSqls["ORDERBY"]) > 0)
+			if ($arSqls["ORDERBY"] <> '')
 				$strSql .= "ORDER BY ".$arSqls["ORDERBY"]." ";
 
-			if (is_array($arNavStartParams) && IntVal($arNavStartParams["nTopCount"])<=0)
+			if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"])<=0)
 			{
 				$strSql_tmp =
 					"SELECT COUNT('x') as CNT ".
 					"FROM b_sale_pay_system_action PSA ".
 					"	".$arSqls["FROM"]." ";
-				if (strlen($arSqls["WHERE"]) > 0)
+				if ($arSqls["WHERE"] <> '')
 					$strSql_tmp .= "WHERE ".$arSqls["WHERE"]." ";
-				if (strlen($arSqls["GROUPBY"]) > 0)
+				if ($arSqls["GROUPBY"] <> '')
 					$strSql_tmp .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
 				$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 				$cnt = 0;
-				if (strlen($arSqls["GROUPBY"]) <= 0)
+				if ($arSqls["GROUPBY"] == '')
 				{
 					if ($arRes = $dbRes->Fetch())
 						$cnt = $arRes["CNT"];
@@ -803,8 +803,8 @@ class CAllSalePaySystemAction
 			}
 			else
 			{
-				if (is_array($arNavStartParams) && IntVal($arNavStartParams["nTopCount"])>0)
-					$strSql .= "LIMIT ".IntVal($arNavStartParams["nTopCount"]);
+				if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"])>0)
+					$strSql .= "LIMIT ".intval($arNavStartParams["nTopCount"]);
 				$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			}
 		}
@@ -826,11 +826,11 @@ class CAllSalePaySystemAction
 	private static function getAlias($key)
 	{
 		$prefix = '';
-		$pos = strpos($key, 'PS_');
+		$pos = mb_strpos($key, 'PS_');
 		if ($pos > 0)
 		{
-			$prefix = substr($key, 0, $pos);
-			$key = substr($key, $pos);
+			$prefix = mb_substr($key, 0, $pos);
+			$key = mb_substr($key, $pos);
 		}
 
 		$aliases = self::getAliases();
@@ -996,7 +996,7 @@ class CAllSalePaySystemAction
 				"VALUES(".$arInsert[1].")";
 			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-			$ID = IntVal($DB->LastID());
+			$ID = intval($DB->LastID());
 
 			return $ID;
 		}
@@ -1075,7 +1075,7 @@ class CAllSalePaySystemAction
 			global $DB;
 
 			$arFields = $fields;
-			$ID = IntVal($id);
+			$ID = intval($id);
 			if (!CSalePaySystemAction::CheckFields("UPDATE", $arFields))
 				return false;
 

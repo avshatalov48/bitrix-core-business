@@ -113,6 +113,22 @@ final class Loc
 	{
 		static $langDirCache = array();
 
+		// open_basedir restriction
+		static $openBasedir;
+		if ($openBasedir === null)
+		{
+			$openBasedir = '';
+			$openBasedirTmp = ini_get('open_basedir');
+			if (!empty($openBasedirTmp))
+			{
+				$openBasedirTmp = Path::normalize($openBasedirTmp);
+				if (is_dir($openBasedirTmp))
+				{
+					$openBasedir = $openBasedirTmp;
+				}
+			}
+		}
+
 		$path = Path::getDirectory($file);
 
 		if(isset($langDirCache[$path]))
@@ -128,6 +144,10 @@ final class Loc
 			while(($slashPos = strrpos($filePath, '/')) !== false)
 			{
 				$filePath = substr($filePath, 0, $slashPos);
+				if ($openBasedir !== '' && strpos($filePath, $openBasedir) !== 0)
+				{
+					break;
+				}
 				$langPath = $filePath.'/lang';
 				if(is_dir($langPath))
 				{

@@ -1,6 +1,6 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
-if (strlen($arResult["FatalErrorMessage"]) > 0)
+if ($arResult["FatalErrorMessage"] <> '')
 {
 	?>
 	<span class='errortext'><?= $arResult["FatalErrorMessage"] ?></span><br /><br />
@@ -8,7 +8,7 @@ if (strlen($arResult["FatalErrorMessage"]) > 0)
 }
 else
 {
-	if (strlen($arResult["ErrorMessage"]) > 0)
+	if ($arResult["ErrorMessage"] <> '')
 	{
 		?>
 		<span class='errortext'><?= $arResult["ErrorMessage"] ?></span><br /><br />
@@ -20,8 +20,8 @@ else
 		if ($arResult["AllowCreate"])
 		{
 			$arButtons[] = array(
-				"TEXT"=>(strlen($arResult["CreateTitle"]) > 0 ? $arResult["CreateTitle"] : GetMessage("BPWC_WLCT_NEW")),
-				"TITLE"=>(strlen($arResult["CreateTitle"]) > 0 ? $arResult["CreateTitle"] : GetMessage("BPWC_WLCT_NEW")),
+				"TEXT"=>($arResult["CreateTitle"] <> '' ? $arResult["CreateTitle"] : GetMessage("BPWC_WLCT_NEW")),
+				"TITLE"=>($arResult["CreateTitle"] <> '' ? $arResult["CreateTitle"] : GetMessage("BPWC_WLCT_NEW")),
 				"LINK"=>$arResult["PATH_TO_START"],
 				"ICON"=>"btn-new",
 			);
@@ -88,4 +88,3 @@ else
 
 	<?
 }
-?>

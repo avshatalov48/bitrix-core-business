@@ -107,7 +107,7 @@ $this->setFrameMode(true);
 				foreach($arProperty["VALUE"] as $value)
 					$arCategoryFilter[$value]=true;
 			}
-			elseif(!is_array($arProperty["VALUE"]) && strlen($arProperty["VALUE"])>0)
+			elseif(!is_array($arProperty["VALUE"]) && $arProperty["VALUE"] <> '')
 				$arCategoryFilter[$arProperty["VALUE"]]=true;
 		}
 		$obCache->EndDataCache($arCategoryFilter);

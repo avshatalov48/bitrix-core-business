@@ -25,7 +25,7 @@ switch($_REQUEST['action'])
 	case 'start':
 		$bWindowsHosting = false;
 		$strCurrentOS = PHP_OS;
-		if (StrToUpper(SubStr($strCurrentOS, 0, 3)) === "WIN")
+		if (mb_strtoupper(mb_substr($strCurrentOS, 0, 3)) === "WIN")
 		   $bWindowsHosting = true;
 
 		$phpPath = COption::GetOptionString("mail", "php_path", $bWindowsHosting ? "../apache/php.exe -c ../apache/php.ini" : "authbind php -c /etc/php.ini");
@@ -55,7 +55,7 @@ switch($_REQUEST['action'])
 			$startErrorMessage .= "[".$execReturnVar."] ".$s;
 		}
 */
-		if (strlen($startErrorMessage) <= 0)
+		if ($startErrorMessage == '')
 		{
 			if ($bWindowsHosting)
 			{
@@ -68,7 +68,7 @@ switch($_REQUEST['action'])
 			}
 		}
 
-		if (strlen($startErrorMessage) <= 0)
+		if ($startErrorMessage == '')
 			$res = "success";
 		else
 			$res = $startErrorMessage;

@@ -4,9 +4,9 @@ $installPath = Trim(Trim(Trim($installPath), "\\/"));
 $install404 = ($install404 ? true : false);
 $installRewrite = ($installRewrite ? true : false);
 
-if (StrLen($installSiteID) <= 0)
+if ($installSiteID == '')
 	return;
-if (StrLen($installPath) <= 0)
+if ($installPath == '')
 	return;
 
 $errorString = "";
@@ -58,7 +58,7 @@ if (!function_exists("GetSocNetMessageLocal"))
 			}
 
 			$MESS = array();
-			if (StrLen($langFile) > 0)
+			if ($langFile <> '')
 				include($langFile);
 
 			$arGetSocNetMessageLocalCache[$lang] = $MESS;
@@ -74,9 +74,9 @@ if (!function_exists("GetSocNetMessageLocal"))
 	{
 		$fff = fopen($_SERVER["DOCUMENT_ROOT"]."/~test.tmp", "a");
 		if (is_array($var))
-			fwrite($fff, ((StrLen($name) > 0) ? $name.":\n" : "").print_r($var, true)."\n\n");
+			fwrite($fff, (($name <> '') ? $name.":\n" : "").print_r($var, true)."\n\n");
 		else
-			fwrite($fff, ((StrLen($name) > 0) ? $name."=" : "").$var."\n\n");
+			fwrite($fff, (($name <> '') ? $name."=" : "").$var."\n\n");
 		fclose($fff);
 	}
 }
@@ -105,11 +105,11 @@ if (CModule::IncludeModule("iblock"))
 
 		$iblockType = new CIBlockType;
 		$iblockTypeID = $iblockType->Add($arFields);
-		if (strLen($iblockTypeID) <= 0)
+		if ($iblockTypeID == '')
 			$errorString .= $iblockType->LAST_ERROR;
 	}
 
-	if (StrLen($iblockTypeID) > 0)
+	if ($iblockTypeID <> '')
 	{
 		$iblockCode = "car_catalogue_iblock_demo";
 		$iblockID = 0;
@@ -117,7 +117,7 @@ if (CModule::IncludeModule("iblock"))
 		$dbIBlock = CIBlock::GetList(array(), array("TYPE" => $iblockTypeID, "CODE" => $iblockCode));
 		if ($arIBlock = $dbIBlock->Fetch())
 		{
-			$iblockID = IntVal($arIBlock["ID"]);
+			$iblockID = intval($arIBlock["ID"]);
 		}
 		else
 		{
@@ -356,8 +356,8 @@ if (CModule::IncludeModule("iblock"))
 		}
 	}
 
-	$iblockID = IntVal($iblockID);
-	if (StrLen($iblockTypeID) > 0 && $iblockID > 0)
+	$iblockID = intval($iblockID);
+	if ($iblockTypeID <> '' && $iblockID > 0)
 	{
 		$dbUserField = CUserTypeEntity::GetList(array(), array("ENTITY_ID" => "USER", "FIELD_NAME" => "UF_USER_CAR_DEMO"));
 		if ($arUserField = $dbUserField->Fetch())
@@ -413,7 +413,7 @@ if (CModule::IncludeModule("socialnetwork"))
 	$bSonetError = false;
 
 	$cnt = CSocNetGroupSubject::GetList(array(), array("SITE_ID" => $arSite["SITE_ID"]), array());
-	if (IntVal($cnt) <= 0)
+	if (intval($cnt) <= 0)
 	{
 		$arGroupSubjects = array();
 		$arGroupSubjectsId = array();
@@ -432,7 +432,7 @@ if (CModule::IncludeModule("socialnetwork"))
 			$idTmp = CSocNetGroupSubject::Add($arGroupSubject);
 			if ($idTmp)
 			{
-				$arGroupSubjectsId[$ind] = IntVal($idTmp);
+				$arGroupSubjectsId[$ind] = intval($idTmp);
 			}
 			else
 			{
@@ -581,7 +581,7 @@ if (CModule::IncludeModule("socialnetwork"))
 				$idTmp = CSocNetGroup::Add($arGroup);
 				if ($idTmp)
 				{
-					$arGroupsId[$ind] = IntVal($idTmp);
+					$arGroupsId[$ind] = intval($idTmp);
 				}
 				else
 				{
@@ -658,7 +658,7 @@ if (CModule::IncludeModule("forum"))
 			"ACTIVE" => "Y",
 			"XML_ID" => "car_forum_demo",
 			"MODERATION" => "N",
-			"SITES" => array($arSite["SITE_ID"] => (StrLen($arSite["DIR"]) > 0 ? $arSite["DIR"] : "/")),
+			"SITES" => array($arSite["SITE_ID"] => ($arSite["DIR"] <> '' ? $arSite["DIR"] : "/")),
 			"ALLOW_UPLOAD" => "Y"
 		);
 
@@ -706,11 +706,11 @@ if (CModule::IncludeModule("iblock"))
 
 		$iblockType = new CIBlockType;
 		$photoIBlockTypeID = $iblockType->Add($arFields);
-		if (strLen($photoIBlockTypeID) <= 0)
+		if ($photoIBlockTypeID == '')
 			$errorString .= $iblockType->LAST_ERROR;
 	}
 
-	if (StrLen($photoIBlockTypeID) > 0)
+	if ($photoIBlockTypeID <> '')
 	{
 		$iblockCode = "car_photo_user_demo";
 		$photoUserIBlockID = 0;
@@ -718,7 +718,7 @@ if (CModule::IncludeModule("iblock"))
 		$dbIBlock = CIBlock::GetList(array(), array("SITE_ID" => $arSite["SITE_ID"], "TYPE" => $photoIBlockTypeID, "CODE" => $iblockCode));
 		if ($arIBlock = $dbIBlock->Fetch())
 		{
-			$photoUserIBlockID = IntVal($arIBlock["ID"]);
+			$photoUserIBlockID = intval($arIBlock["ID"]);
 		}
 		else
 		{
@@ -753,7 +753,7 @@ if (CModule::IncludeModule("iblock"))
 		$dbIBlock = CIBlock::GetList(array(), array("SITE_ID" => $arSite["SITE_ID"], "TYPE" => $photoIBlockTypeID, "CODE" => $iblockCode));
 		if ($arIBlock = $dbIBlock->Fetch())
 		{
-			$photoGroupIBlockID = IntVal($arIBlock["ID"]);
+			$photoGroupIBlockID = intval($arIBlock["ID"]);
 		}
 		else
 		{
@@ -797,7 +797,7 @@ if (!function_exists("file_get_contents"))
 	}
 }
 
-if (StrLen($installPath) > 0)
+if ($installPath <> '')
 {
 	$folder = ($install404 ? "SEF" : "NSEF");
 	$lng = ($arSite["LANGUAGE_ID"] == "ru") ? "ru" : (($arSite["LANGUAGE_ID"] == "de") ? "de" : "en");

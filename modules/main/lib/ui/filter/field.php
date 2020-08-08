@@ -578,14 +578,14 @@ class Field
 	 * @param bool $lightweight
 	 * @return array
 	 */
-	public static function destSelector($name, $label = "", $placeholder = "", $multiple = false, $params = array(), $lightweight = false)
+	public static function destSelector($name, $label = "", $placeholder = "", $multiple = false, $params = array(), $lightweight = false, $filterName = '')
 	{
 		\CJSCore::init(array('socnetlogdest'));
 
 		global $APPLICATION;
 
 		$field = array(
-			"ID" => "field_".$name,
+			"ID" => "field_".$name.(strlen($filterName) > 0 ? '_'.$filterName : ''),
 			"TYPE" => Type::DEST_SELECTOR,
 			"NAME" => $name,
 			"LABEL" => $label,

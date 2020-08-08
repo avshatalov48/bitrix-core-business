@@ -146,9 +146,9 @@ class CBPTaskActivity
 			$arErrors[] = array("code" => "NotExist", "parameter" => "TaskAssignedTo", "message" => GetMessage("BPSNMA_EMPTY_TASKASSIGNEDTO"));
 		if (!array_key_exists("TaskName", $arTestProperties) || count($arTestProperties["TaskName"]) <= 0)
 			$arErrors[] = array("code" => "NotExist", "parameter" => "TaskName", "message" => GetMessage("BPSNMA_EMPTY_TASKNAME"));
-		if (!array_key_exists("TaskPriority", $arTestProperties) || strlen($arTestProperties["TaskPriority"]) <= 0)
+		if (!array_key_exists("TaskPriority", $arTestProperties) || $arTestProperties["TaskPriority"] == '')
 			$arErrors[] = array("code" => "NotExist", "parameter" => "TaskPriority", "message" => GetMessage("BPSNMA_EMPTY_TASKPRIORITY"));
-		if (!array_key_exists("TaskType", $arTestProperties) || strlen($arTestProperties["TaskType"]) <= 0)
+		if (!array_key_exists("TaskType", $arTestProperties) || $arTestProperties["TaskType"] == '')
 			$arErrors[] = array("code" => "NotExist", "parameter" => "TaskType", "message" => GetMessage("BPSNMA_EMPTY_TASKTYPE"));
 		//if (!array_key_exists("TaskOwnerId", $arTestProperties) || strlen($arTestProperties["TaskOwnerId"]) <= 0)
 		//	$arErrors[] = array("code" => "NotExist", "parameter" => "TaskOwnerId", "message" => GetMessage("BPSNMA_EMPTY_TASKOWNERID"));

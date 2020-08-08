@@ -48,7 +48,7 @@ final class Analyzer
 	{
 		if(isset($discount['ACTIONS']) && is_string($discount['ACTIONS']))
 		{
-			return strpos($discount['ACTIONS'], \CSaleActionGiftCtrlGroup::getControlID()) !== false;
+			return mb_strpos($discount['ACTIONS'], \CSaleActionGiftCtrlGroup::getControlID()) !== false;
 		}
 		elseif(isset($discount['ACTIONS_LIST']['CHILDREN']) && is_array($discount['ACTIONS_LIST']['CHILDREN']))
 		{
@@ -190,7 +190,7 @@ final class Analyzer
 	{
 		if (isset($discount['ACTIONS']) && is_string($discount['ACTIONS']))
 		{
-			return strpos($discount['ACTIONS'], \CSaleActionCondCtrlBasketFields::CONTROL_ID_APPLIED_DISCOUNT) !== false;
+			return mb_strpos($discount['ACTIONS'], \CSaleActionCondCtrlBasketFields::CONTROL_ID_APPLIED_DISCOUNT) !== false;
 		}
 
 		if (isset($discount['ACTIONS_LIST']))
@@ -198,7 +198,7 @@ final class Analyzer
 			$asString = serialize($discount['ACTIONS_LIST']);
 			if ($asString)
 			{
-				return strpos($asString, \CSaleActionCondCtrlBasketFields::CONTROL_ID_APPLIED_DISCOUNT) !== false;
+				return mb_strpos($asString, \CSaleActionCondCtrlBasketFields::CONTROL_ID_APPLIED_DISCOUNT) !== false;
 			}
 		}
 

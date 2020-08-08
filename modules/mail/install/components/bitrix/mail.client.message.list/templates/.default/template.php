@@ -5,9 +5,7 @@ use Bitrix\Main\Localization\Loc;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
-Main\UI\Extension::load('ui.buttons');
-Main\UI\Extension::load('ui.buttons.icons');
-Main\UI\Extension::load('ui.alerts');
+Main\UI\Extension::load(['ui.buttons', 'ui.buttons.icons', 'ui.alerts', 'ui.dialogs.messagebox', 'ui.hint']);
 
 Main\Page\Asset::getInstance()->addJS('/bitrix/components/bitrix/mail.client.message.list/templates/.default/user-interface-manager.js');
 
@@ -150,6 +148,7 @@ if (SITE_TEMPLATE_ID == 'bitrix24')
 			$filterOptions
 		); ?>
 		<a class="ui-btn ui-btn-themes ui-btn-light-border ui-btn-dropdown"
+			style="min-width: auto; "
 			data-role="mailbox-current-title"
 			data-mailbox-id="<?=intval($arResult['MAILBOX']['ID']) ?>">
 			<span style="display: inline-block; width: 100%; overflow: hidden; text-overflow: ellipsis; ">
@@ -161,10 +160,10 @@ if (SITE_TEMPLATE_ID == 'bitrix24')
 	</div>
 
 	<button class="ui-btn" type="button" style="display: none; "></button>
-	<? if (\Bitrix\Mail\Helper\LicenseManager::isSyncAvailable()): ?>
+	<? if (\Bitrix\Mail\Helper\LicenseManager::isSyncAvailable() && !empty($arResult['CONFIG_SYNC_DIRS'])): ?>
 	<button class="ui-btn ui-btn-themes ui-btn-light-border ui-btn-icon-business" type="button" id="mail-msg-sync-button"
 		style="min-width: 39px; min-width: var(--ui-btn-height); " title="<?=Loc::getMessage('MAIL_MESSAGE_SYNC_BTN_HINT') ?>"
-		onclick="BXMailMailbox.sync(this, BX('mail-msg-sync-stepper'), '<?= CUtil::jsEscape($arResult['GRID_ID']) ?>'); "></button>
+		onclick="BXMailMailbox.sync(BX('mail-msg-sync-stepper'), '<?= CUtil::jsEscape($arResult['GRID_ID']) ?>'); "></button>
 	<? endif ?>
 	<div class="ui-btn ui-btn-themes ui-btn-light-border ui-btn-icon-setting"
 		style="min-width: 39px; min-width: var(--ui-btn-height); "
@@ -212,10 +211,10 @@ else
 			</span>
 		</a>
 		<button class="ui-btn" type="button" style="display: none; "></button>
-		<? if (\Bitrix\Mail\Helper\LicenseManager::isSyncAvailable()): ?>
+		<? if (\Bitrix\Mail\Helper\LicenseManager::isSyncAvailable() && !empty($arResult['CONFIG_SYNC_DIRS'])): ?>
 		<button class="ui-btn ui-btn-themes ui-btn-light-border ui-btn-icon-business" type="button" id="mail-msg-sync-button"
 			style="min-width: 39px; min-width: var(--ui-btn-height); " title="<?=Loc::getMessage('MAIL_MESSAGE_SYNC_BTN_HINT') ?>"
-			onclick="BXMailMailbox.sync(this, BX('mail-msg-sync-stepper'), '<?= CUtil::jsEscape($arResult['GRID_ID']) ?>'); "></button>
+			onclick="BXMailMailbox.sync(BX('mail-msg-sync-stepper'), '<?= CUtil::jsEscape($arResult['GRID_ID']) ?>'); "></button>
 		<? endif ?>
 		<div class="ui-btn ui-btn-themes ui-btn-light-border ui-btn-icon-setting"
 			style="min-width: 39px; min-width: var(--ui-btn-height); "
@@ -234,9 +233,24 @@ $this->setViewTarget('mail-msg-counter-script');
 ?>
 
 <script type="text/javascript">
+(function ()
+{
 
-BX('mail-msg-counter-title').innerHTML = '<?=\CUtil::jsEscape($APPLICATION->getViewContent('mail-msg-counter')) ?>';
+	BX('mail-msg-counter-title').innerHTML = '<?=\CUtil::jsEscape($APPLICATION->getViewContent('mail-msg-counter')) ?>';
+	BX.onCustomEvent('Grid::updated');
 
+	var uiManager = BX.Mail.Client.Message.List['<?=\CUtil::jsEscape($component->getComponentId()) ?>'].userInterfaceManager;
+
+	uiManager.initMailboxes(<?=Main\Web\Json::encode($mailboxMenu) ?>);
+	uiManager.updateTotalUnreadCounters(<?=intval($unseenCount) ?>, <?=intval($arResult['UNSEEN']) ?>);
+
+	if (uiManager.getLastDir() != uiManager.getCurrentFolder())
+	{
+		uiManager.setLastDir();
+		BXMailMailbox.sync(BX('mail-msg-sync-stepper'), '<?=\CUtil::jsEscape($arResult['GRID_ID']) ?>', true);
+	}
+
+})();
 </script>
 
 <?
@@ -272,6 +286,12 @@ if ($arResult['MAILBOX']['SYNC_LOCK'] > 0)
 			<span class="ui-alert-message"><?=Loc::getMessage('MAIL_CLIENT_CANCELATION_WARNING_3') ?></span>
 		</div>
 	</div>
+<? elseif (empty($arResult['CONFIG_SYNC_DIRS'])): ?>
+	<div style="background: #eef2f4; padding-bottom: 1px; margin-bottom: -1px; ">
+		<div class="ui-alert ui-alert-warning ui-alert-icon-warning">
+			<span class="ui-alert-message"><?=Loc::getMessage('MAIL_CLIENT_CONFIG_DIRS_SYNC_EMPTY_WARNING') ?></span>
+		</div>
+	</div>
 <? endif ?>
 
 <div class="mail-msg-list-stepper-wrapper">
@@ -284,6 +304,7 @@ if ($arResult['MAILBOX']['SYNC_LOCK'] > 0)
 				<div class="main-stepper-bar-line" style="width: 0%;"></div>
 			</div>
 			<div class="main-stepper-steps"></div>
+			<div class="main-stepper-error-text"></div>
 		</div>
 	</div>
 
@@ -305,6 +326,22 @@ if ($arResult['MAILBOX']['SYNC_LOCK'] > 0)
 $snippet = new Main\Grid\Panel\Snippet();
 
 $actionPanelActionButtons = [
+	[
+		'TYPE' => \Bitrix\Main\Grid\Panel\Types::BUTTON,
+		'ID' => $arResult['gridActionsData']['readAll']['id'],
+		'ICON' => $arResult['gridActionsData']['readAll']['icon'],
+		'TEXT' => '<span data-role="read-all-action">' . $arResult['gridActionsData']['readAll']['text'] . '</span>',
+		'ONCHANGE' => [
+			[
+				'ACTION' => \Bitrix\Main\Grid\Panel\Actions::CALLBACK,
+				'DATA' => [
+					[
+						'JS' => "BX.Mail.Client.Message.List['" . CUtil::JSEscape($component->getComponentId()) . "'].onReadClick('all')",
+					],
+				],
+			],
+		],
+	],
 	[
 		'TYPE' => \Bitrix\Main\Grid\Panel\Types::BUTTON,
 		'ID' => $arResult['gridActionsData']['read']['id'],
@@ -510,6 +547,67 @@ $actionPanelActionButtons = array_merge($actionPanelActionButtons, [
 
 <div class="mail-msg-list-grid">
 
+<script type="text/javascript">
+	BX.ready(function()
+	{
+		BX.addCustomEvent(
+			'BX.UI.ActionPanel:created',
+			function (panel)
+			{
+				if (panel.params.gridId == '<?=\CUtil::jsEscape($arResult['GRID_ID']); ?>')
+				{
+					var disableItem = panel.disableItem.bind(panel);
+					panel.disableItem = function (item)
+					{
+						if (item)
+						{
+							if (item.id == 'readAll')
+							{
+								var force;
+
+								try
+								{
+									force = BX.Main.gridManager.getInstanceById(panel.params.gridId).getLoader().loader.isShown();
+								}
+								catch (err) {}
+
+								if (!force && document.querySelector('[data-role="unread-counter-number"]').innerHTML > 0)
+								{
+									item.enable();
+
+									return;
+								}
+							}
+
+							disableItem(item);
+						}
+					};
+
+
+					var fixPanel = panel.fixPanel.bind(panel);
+					panel.fixPanel = function()
+					{
+						document.body.appendChild(this.getPanelContainer());
+						fixPanel();
+					};
+
+					var unfixPanel = panel.unfixPanel.bind(panel);
+					panel.unfixPanel = function()
+					{
+						var container = BX.Main.gridManager.getInstanceById(panel.params.gridId).getContainer();
+						container.parentNode.insertBefore(this.getPanelContainer(), container);
+						unfixPanel();
+					};
+
+					setTimeout(panel.unfixPanel.bind(panel));
+
+					//panel.handleOuterClick = function () {};
+				}
+			}
+		);
+	});
+</script>
+
 <?
 
 $APPLICATION->includeComponent(
@@ -521,7 +619,6 @@ $APPLICATION->includeComponent(
 		'AJAX_OPTION_HISTORY' => 'N',
 		'AJAX_OPTION_JUMP' => 'N',
 		'AJAX_OPTION_STYLE' => 'N',
-		//'ALLOW_PIN_HEADER' => true,
 		'TOP_ACTION_PANEL_CLASS' => 'mail-msg-list-action-panel',
 		'TOP_ACTION_PANEL_RENDER_TO' => '.main-grid-header',
 		'SHOW_ACTION_PANEL' => false,
@@ -562,12 +659,12 @@ $APPLICATION->includeComponent(
 <script type="text/javascript">
 	BX.ready(function()
 	{
-		new BX.Mail.Client.Message.List({
+		var mailMessageList = new BX.Mail.Client.Message.List({
 			id: '<?= CUtil::JSEscape($component->getComponentId())?>',
 			gridId: '<?= CUtil::JSEscape($arResult['GRID_ID'])?>',
 			mailboxId: <?= intval($arResult['MAILBOX']['ID']) ?>,
-			taskViewUrlTemplate: '<?= CUtil::JSEscape($arResult['taskViewUrlTemplate']) ?>',
-			taskViewUrlIdForReplacement: '<?= CUtil::JSEscape($arResult['taskViewUrlIdForReplacement']) ?>',
+			PATH_TO_USER_TASKS_TASK: '<?=\CUtil::jsEscape($arParams['PATH_TO_USER_TASKS_TASK']) ?>',
+			PATH_TO_USER_BLOG_POST: '<?=\CUtil::jsEscape($arParams['PATH_TO_USER_BLOG_POST']) ?>',
 			mailboxMenu: <?= Main\Web\Json::encode($mailboxMenu) ?>,
 			settingsMenu: <?= Main\Web\Json::encode($settingsMenu) ?>,
 			moveBtnMailIdPrefix: '<?= CUtil::JSEscape($arResult['gridActionsData']['move']['id']) ?>',
@@ -575,20 +672,24 @@ $APPLICATION->includeComponent(
 			canMarkSpam: <?= CUtil::PhpToJSObject((bool)$arResult['spamDir']); ?>,
 			userHasCrmActivityPermission: <?= \CUtil::PhpToJSObject($arResult['userHasCrmActivityPermission'])?>,
 			outcomeDir: '<?= CUtil::JSEscape($arResult['outcomeDir']) ?>',
+			inboxDir: '<?= CUtil::JSEscape($arResult['inboxDir']) ?>',
 			spamDir: '<?= CUtil::JSEscape($arResult['spamDir']) ?>',
 			trashDir: '<?= CUtil::JSEscape($arResult['trashDir']) ?>',
 			connectedMailboxesLicenseInfo: '<?= CUtil::JSEscape($licenseConnectedMailboxesInfo) ?>',
 			ENTITY_TYPE_NO_BIND: '<?= CUtil::JSEscape(\Bitrix\Mail\Internals\MessageAccessTable::ENTITY_TYPE_NO_BIND) ?>',
 			ENTITY_TYPE_CRM_ACTIVITY: '<?= CUtil::JSEscape(\Bitrix\Mail\Internals\MessageAccessTable::ENTITY_TYPE_CRM_ACTIVITY) ?>',
 			ENTITY_TYPE_TASKS_TASK: '<?= CUtil::JSEscape(\Bitrix\Mail\Internals\MessageAccessTable::ENTITY_TYPE_TASKS_TASK) ?>',
+			ENTITY_TYPE_BLOG_POST: '<?= CUtil::JSEscape(\Bitrix\Mail\Internals\MessageAccessTable::ENTITY_TYPE_BLOG_POST) ?>',
 			ERROR_CODE_CAN_NOT_MARK_SPAM: 'MAIL_CLIENT_SPAM_FOLDER_NOT_SELECTED_ERROR',
 			ERROR_CODE_CAN_NOT_DELETE: 'MAIL_CLIENT_TRASH_FOLDER_NOT_SELECTED_ERROR'
 		});
 		BX.message({
 			MAIL_MESSAGE_LIST_COLUMN_BIND_TASKS_TASK: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_COLUMN_BIND_TASKS_TASK')) ?>',
 			MAIL_MESSAGE_LIST_COLUMN_BIND_CRM_ACTIVITY: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_COLUMN_BIND_CRM_ACTIVITY')) ?>',
+			MAIL_MESSAGE_LIST_COLUMN_BIND_BLOG_POST: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_COLUMN_BIND_BLOG_POST')) ?>',
 			MAIL_CLIENT_AJAX_ERROR: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_AJAX_ERROR')) ?>',
 			MAIL_MESSAGE_LIST_BTN_SEEN: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_BTN_SEEN')) ?>',
+			MAIL_MESSAGE_LIST_BTN_SEEN_ALL: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_BTN_SEEN_ALL')) ?>',
 			MAIL_MESSAGE_LIST_BTN_UNSEEN: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_BTN_UNSEEN')) ?>',
 			MAIL_MESSAGE_LIST_BTN_DELETE: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_BTN_DELETE')) ?>',
 			MAIL_MESSAGE_LIST_BTN_NOT_SPAM: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_BTN_NOT_SPAM')) ?>',
@@ -596,13 +697,22 @@ $APPLICATION->includeComponent(
 			MAIL_MESSAGE_LIST_CONFIRM_DELETE: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_CONFIRM_DELETE')) ?>',
 			MAIL_MESSAGE_LIST_CONFIRM_DELETE_BTN: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_CONFIRM_DELETE_BTN')) ?>',
 			MAIL_MESSAGE_LIST_CONFIRM_TITLE: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_CONFIRM_TITLE')) ?>',
+			MAIL_MESSAGE_LIST_CONFIRM_READ_ALL: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_CONFIRM_READ_ALL')) ?>',
 			MAIL_MESSAGE_LIST_NOTIFY_ADDED_TO_CRM: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_NOTIFY_ADDED_TO_CRM')) ?>',
 			MAIL_MESSAGE_LIST_NOTIFY_ADD_TO_CRM_ERROR: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_NOTIFY_ADD_TO_CRM_ERROR')) ?>',
 			MAIL_MESSAGE_LIST_NOTIFY_EXCLUDED_FROM_CRM: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_NOTIFY_EXCLUDED_FROM_CRM')) ?>',
 			MAIL_MESSAGE_LIST_NOTIFY_SUCCESS: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_NOTIFY_SUCCESS')) ?>',
 			MAIL_MESSAGE_LIST_CONFIRM_CANCEL_BTN: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_CONFIRM_CANCEL_BTN')) ?>',
 			MAIL_MAILBOX_LICENSE_CONNECTED_MAILBOXES_LIMIT_TITLE: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MAILBOX_LICENSE_CONNECTED_MAILBOXES_LIMIT_TITLE')) ?>',
-			MAIL_MESSAGE_SYNC_BTN_HINT: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_SYNC_BTN_HINT')) ?>'
+			MAIL_MESSAGE_SYNC_BTN_HINT: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_SYNC_BTN_HINT')) ?>',
+			MAIL_CLIENT_MAILBOX_SYNC_BAR: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_MAILBOX_SYNC_BAR')) ?>',
+			MAIL_CLIENT_MAILBOX_SYNC_BAR_COMPLETED: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_MAILBOX_SYNC_BAR_COMPLETED')) ?>',
+			MAIL_CLIENT_MAILBOX_SYNC_BAR_INTERRUPTED: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_MAILBOX_SYNC_BAR_INTERRUPTED')) ?>',
+			MAIL_CLIENT_BUTTON_LOADING: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_BUTTON_LOADING')) ?>',
+			MAIL_MESSAGE_LIST_CONFIRM_MOVE_ALL: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_CONFIRM_MOVE_ALL')) ?>',
+			MAIL_MESSAGE_LIST_CONFIRM_SPAM_ALL: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_CONFIRM_SPAM_ALL')) ?>',
+			MAIL_MESSAGE_LIST_CONFIRM_TRASH_ALL: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_CONFIRM_TRASH_ALL')) ?>',
+			MAIL_MESSAGE_LIST_CONFIRM_DELETE_ALL: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_LIST_CONFIRM_DELETE_ALL')) ?>'
 		});
 
 		var mailboxData = <?=Main\Web\Json::encode(array(
@@ -616,43 +726,31 @@ $APPLICATION->includeComponent(
 			'LOGIN'    => $arResult['MAILBOX']['LOGIN'],
 			'LINK'     => $arResult['MAILBOX']['LINK'],
 			'OPTIONS'  => array(
-				'flags' => $arResult['MAILBOX']['OPTIONS']['flags'],
-				'imap'  => $arResult['MAILBOX']['OPTIONS']['imap'],
+				'flags' => !empty($arResult['MAILBOX']['OPTIONS']['flags']) ? $arResult['MAILBOX']['OPTIONS']['flags'] : [],
+				'inboxDir' => $arResult['inboxDir'],
 			),
-		)) ?>;
-
-		// this is to preserve dirs order
-		mailboxData.OPTIONS.imap.dirs = <?=json_encode(array_combine(
-			Main\Text\Encoding::convertEncoding(array_keys($arResult['MAILBOX']['OPTIONS']['imap']['dirs']), SITE_CHARSET, 'UTF-8'),
-			Main\Text\Encoding::convertEncoding(array_values($arResult['MAILBOX']['OPTIONS']['imap']['dirs']), SITE_CHARSET, 'UTF-8')
 		)) ?>;
 
 		BXMailMailbox.init(mailboxData);
 
-		<? if (\Bitrix\Mail\Helper\LicenseManager::isSyncAvailable()): ?>
-		BXMailMailbox.sync(BX('mail-msg-sync-button'), BX('mail-msg-sync-stepper'), '<?=\CUtil::jsEscape($arResult['GRID_ID']) ?>');
+		<? if (\Bitrix\Mail\Helper\LicenseManager::isSyncAvailable() && !empty($arResult['CONFIG_SYNC_DIRS'])): ?>
+		BXMailMailbox.sync(BX('mail-msg-sync-stepper'), '<?=\CUtil::jsEscape($arResult['GRID_ID']) ?>');
 		<? endif ?>
 
-		BX.PULL.extendWatch('mail_mailbox_<?=intval($arResult['MAILBOX']['ID']) ?>');
+		BX.PULL && BX.PULL.extendWatch('mail_mailbox_<?=intval($arResult['MAILBOX']['ID']) ?>');
 		BX.addCustomEvent(
 			'onPullEvent-mail',
 			function (command, params)
 			{
-				if ('mailbox_sync_status' == command)
+				if ('mailbox_sync_status' === command)
 				{
-					if (<?=intval($arResult['MAILBOX']['ID']) ?> == params.id)
+					if (<?=intval($arResult['MAILBOX']['ID']) ?> == params.id && mailMessageList.getCurrentFolder() === params.dir)
 					{
-						if (params.new > 0)
-						{
-							var gridInstance = BX.Main.gridManager.getInstanceById('<?=\CUtil::jsEscape($arResult['GRID_ID']) ?>');
-
-							if (gridInstance.getRows().getCountSelected() == 0)
-							{
-								gridInstance.reload();
-							}
-						}
-
-						BXMailMailbox.updateStepper(BX('mail-msg-sync-stepper'), params.complete, params.status);
+						BXMailMailbox.syncProgress(
+							BX('mail-msg-sync-stepper'),
+							'<?=\CUtil::jsEscape($arResult['GRID_ID']) ?>',
+							params
+						);
 					}
 				}
 			}
@@ -673,7 +771,7 @@ $APPLICATION->includeComponent(
 				if (event.getEventId() == 'mail-mailbox-config-success')
 				{
 					event.data.handled = true;
-					if (event.data.id != <?=intval($arResult['MAILBOX']['ID']) ?> || event.data.changed && event.data.changed.imap_dirs)
+					if (event.data.id != <?=intval($arResult['MAILBOX']['ID']) ?> || event.data.changed)
 					{
 						grid && grid.tableFade();
 						window.location.href = BX.util.add_url_param(
@@ -698,6 +796,17 @@ $APPLICATION->includeComponent(
 				{
 					BX.Mail.Client.Message.List['<?=\CUtil::jsEscape($component->getComponentId()) ?>'].onCreateTaskEvent(event);
 				}
+				else if (event.getEventId() == 'mail-mailbox-config-close')
+				{
+					if (event.data.changed)
+					{
+						grid && grid.tableFade();
+						window.location.href = BX.util.add_url_param(
+							'<?=\CUtil::jsEscape($arParams['PATH_TO_MAIL_HOME']) ?>',
+							urlParams
+						);
+					}
+				}
 			}
 		);
 
@@ -713,6 +822,17 @@ $APPLICATION->includeComponent(
 				'true'
 			);
 		}
+
+		<? if (empty($arResult['CONFIG_SYNC_DIRS'])): ?>
+		var url = '<?=\CUtil::jsEscape(\CHTTP::urlAddParams(
+			$arParams['PATH_TO_MAIL_CONFIG_DIRS'],
+			['mailboxId' => $arResult['MAILBOX']['ID']]
+		)) ?>';
+
+		top.BX.SidePanel.Instance.open(
+			url
+		);
+		<? endif ?>
 	});
 
 </script>

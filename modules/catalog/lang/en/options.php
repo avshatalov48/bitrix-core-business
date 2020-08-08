@@ -90,6 +90,7 @@ $MESS["CAT_PROC_REINDEX_SETS_AVAILABLE_ALERT"] = "Attention! Perform this operat
 $MESS["CAT_PROC_REINDEX_SETS_AVAILABLE_BTN"] = "Update stock";
 $MESS["CAT_PRODUCT_CARD"] = "Product properties";
 $MESS["CAT_PRODUCT_CARD_DEFAULT_VALUES"] = "Default product parameter values";
+$MESS["CAT_PRODUCT_CARD_SLIDER_ENABLED"] = "Enable new product details form";
 $MESS["CAT_PRODUCT_DEFAULT_VAT_INCLUDED"] = "Include Tax in prices of new goods and services";
 $MESS["CAT_PRODUCT_FORM_SETTINGS"] = "Product selection form settings";
 $MESS["CAT_PRODUCT_QUANTITY_DECREASE"] = "Decrease product stock:";

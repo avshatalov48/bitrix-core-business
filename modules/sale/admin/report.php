@@ -151,7 +151,7 @@ if (!$errorMessage)
 
 		foreach ($arID as $ID)
 		{
-			if (strlen($ID) <= 0) continue;
+			if ($ID == '') continue;
 			switch ($_REQUEST['action'])
 			{
 				case "delete":

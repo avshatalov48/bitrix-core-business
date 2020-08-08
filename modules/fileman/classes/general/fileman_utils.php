@@ -719,8 +719,8 @@ CAdminFileDialog::ShowScript(Array
 					"bSubdir" => $_POST['subdir'],
 					"dateFrom" => $_POST['date_from'],
 					"dateTo" => $_POST['date_to'],
-					"sizeFrom" => intVal($_POST['size_from']),
-					"sizeTo" => intVal($_POST['size_to']),
+					"sizeFrom" => intval($_POST['size_from']),
+					"sizeTo" => intval($_POST['size_to']),
 					"entire" => $_POST['entire'],
 					"bCaseSens" => $_POST['case_sens'],
 					"bDirsToo" => $_POST['dirs_too'],
@@ -791,7 +791,7 @@ CAdminFileDialog::ShowScript(Array
 
 				if (isset($_POST["packTo"]))
 				{
-					if (substr($_POST["packTo"], 0, 1) == "/")
+					if (mb_substr($_POST["packTo"], 0, 1) == "/")
 						$pack_to = $_POST["packTo"];
 					else
 						$pack_to = "/".$_POST["packTo"];
@@ -924,7 +924,7 @@ CAdminFileDialog::ShowScript(Array
 
 				if (isset($_POST["packTo"]))
 				{
-					if (substr($_POST["packTo"], 0, 1) == "/")
+					if (mb_substr($_POST["packTo"], 0, 1) == "/")
 						$pack_to = $_POST["packTo"];
 					else
 						$pack_to = "/".$_POST["packTo"];
@@ -1013,8 +1013,8 @@ CAdminFileDialog::ShowScript(Array
 	{
 		if ($docRoot === false)
 			$docRoot = $_SERVER["DOCUMENT_ROOT"];
-		$l = strlen($docRoot);
-		return strlen($path) > $l ? substr($path, $l) : '/';
+		$l = mb_strlen($docRoot);
+		return mb_strlen($path) > $l? mb_substr($path, $l) : '/';
 	}
 
 	function GetLastPathes()
@@ -1064,7 +1064,7 @@ class CFilemanSearch
 		}
 
 		$this->sSess = $this->Params['ssess'] ? $this->Params['ssess'] : false;
-		$this->bReplace = $this->Params['bReplace'] && strlen($this->Params['phrase']) > 0;
+		$this->bReplace = $this->Params['bReplace'] && $this->Params['phrase'] <> '';
 
 		if ($this->bReplace)
 		{
@@ -1194,14 +1194,14 @@ class CFilemanSearch
 		{
 			if (!$this->Params['bCaseSens'])
 			{
-				$name = strtolower($name);
-				$this->Params['fileName'] = strtolower($this->Params['fileName']);
+				$name = mb_strtolower($name);
+				$this->Params['fileName'] = mb_strtolower($this->Params['fileName']);
 			}
 
 			// Simple find in file name
-			if (strpos($this->Params['fileName'], "*") === false)
+			if (mb_strpos($this->Params['fileName'], "*") === false)
 			{
-				if (strpos($name, $this->Params['fileName']) === false)
+				if (mb_strpos($name, $this->Params['fileName']) === false)
 					return;
 			}
 			else // name pattern with "*"
@@ -1251,12 +1251,12 @@ class CFilemanSearch
 			$phrase = $this->Params['phrase'];
 			$fileContent = str_replace("\r\n","\n", $fTmp->GetContents());
 			$origFileContent = $fileContent;
-			$isPHP = CFileman::IsPHP($fileContent) || HasScriptExtension($path) || substr($name, 0, 1) == ".";
+			$isPHP = CFileman::IsPHP($fileContent) || HasScriptExtension($path) || mb_substr($name, 0, 1) == ".";
 
 			if (!$this->Params['bCaseSens'])
 			{
-				$phrase = strtolower($phrase);
-				$fileContent = strtolower($fileContent);
+				$phrase = mb_strtolower($phrase);
+				$fileContent = mb_strtolower($fileContent);
 			}
 
 			$I_PCRE_MODIFIER = $this->Params['bCaseSens'] ? '' : 'i';
@@ -1264,7 +1264,7 @@ class CFilemanSearch
 			// TODO: Add check Entire word
 			//$this->Params['entire']
 
-			if (strpos($fileContent, $phrase) === false)
+			if (mb_strpos($fileContent, $phrase) === false)
 				return;
 
 			if ($this->bReplace) // Replace
@@ -1319,25 +1319,25 @@ class CFilemanSearch
 	{
 		if ($docRoot === false)
 			$docRoot = $_SERVER["DOCUMENT_ROOT"];
-		$l = strlen($docRoot);
-		return strlen($path) > $l ? substr($path, $l) : '/';
+		$l = mb_strlen($docRoot);
+		return mb_strlen($path) > $l? mb_substr($path, $l) : '/';
 	}
 
 	function CheckSearchSess($searchSess)
 	{
 		global $DB;
 
-		switch(strtoupper($DB->type))
+		switch($DB->type)
 		{
 			case "MYSQL":
 				$res = $DB->Query("SELECT * FROM b_file_search WHERE SESS_ID='".$DB->ForSql($searchSess)."' LIMIT 1", false);
-			break;
+				break;
 			case "MSSQL":
 				$res = $DB->Query("SELECT TOP 1 * FROM b_file_search WHERE SESS_ID='".$DB->ForSql($searchSess)."'", false);
-			break;
+				break;
 			case "ORACLE":
 				$res = $DB->Query("SELECT * FROM b_file_search WHERE SESS_ID='".$DB->ForSql($searchSess)."' AND ROWNUM <= 1", false);
-			break;
+				break;
 		}
 
 		return !$res->Fetch();
@@ -1369,10 +1369,10 @@ class CFilemanSearch
 		else
 			$by = false;
 
-		$order = strtolower($arOrder[1]);
+		$order = mb_strtolower($arOrder[1]);
 		if ($by)
 		{
-			$strOrderBy = $by.' '.($order == 'desc' ? 'desc'.(strtoupper($DB->type) == "ORACLE" ? " NULLS LAST" : "") : 'asc'.(strtoupper($DB->type) == "ORACLE" ? " NULLS FIRST":""));
+			$strOrderBy = $by.' '.($order == 'desc' ? 'desc'.($DB->type == "ORACLE" ? " NULLS LAST" : "") : 'asc'.($DB->type == "ORACLE" ? " NULLS FIRST":""));
 		}
 
 		if($strOrderBy != "")
@@ -1555,7 +1555,7 @@ class CFilemanUtilDir
 			{
 				if ($this->startPath == $f)
 					$this->bFound = true;
-				elseif (substr($this->startPath,0,strlen($f)+1) != $f.'/')
+				elseif (mb_substr($this->startPath, 0, mb_strlen($f) + 1) != $f.'/')
 					continue;
 			}
 
@@ -1812,8 +1812,8 @@ class CFilemanCopy
 				$module_id = "fileman";
 				if(COption::GetOptionString($module_id, "log_page", "Y")=="Y" && $log)
 				{
-					$res_log['copy_to'] = substr($pathTo, 1);
-					$res_log['path'] = substr($filePath, 1);
+					$res_log['copy_to'] = mb_substr($pathTo, 1);
+					$res_log['path'] = mb_substr($filePath, 1);
 					if ($Params['bCopy'] == "copy")
 					{
 						if (!$bDir_i)
@@ -1885,11 +1885,11 @@ class CFilemanCopy
 		$io = CBXVirtualIo::GetInstance();
 		for ($i=1; $i <= 9999; $i++)
 		{
-			$dotPos = strpos($name, ".");
+			$dotPos = mb_strpos($name, ".");
 			if ($bDir || $dotPos === false)
 				$new_name = $name."(".$i.")";
 			else
-				$new_name = substr($name, 0, $dotPos)."(".$i.")".substr($name, $dotPos);
+				$new_name = mb_substr($name, 0, $dotPos)."(".$i.")".mb_substr($name, $dotPos);
 
 			if (!$io->FileExists($absPath.$new_name) && !$io->DirectoryExists($absPath.$new_name))
 				break;

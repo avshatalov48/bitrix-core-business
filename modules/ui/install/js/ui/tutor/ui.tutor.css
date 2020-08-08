@@ -405,6 +405,7 @@
 	height: 338px;
 	display: flex;
 	flex-direction: column;
+	align-items: flex-start;
 }
 
 .ui-tutor-popup-help-title {
@@ -1323,22 +1324,33 @@
 	pointer-events: none;
 }
 
-.bx-im-bar .bx-im-users-wrap {
-	bottom: 60px;
-}
-
-@media (max-height: 670px) {
+@media (max-height: 715px) {
 
 	.ui-tutor-popup-content {
-		max-height: 430px;
+		max-height: 470px;
 	}
 
 	.ui-tutor-popup-video {
-		height: 270px;
+		height: 280px;
 	}
 
 	.ui-tutor-popup-help {
-		height: 300px;
+		height: 310px;
+	}
+}
+
+@media (max-height: 645px) {
+
+	.ui-tutor-popup-content {
+		max-height: 420px;
+	}
+
+	.ui-tutor-popup-video {
+		height: 260px;
+	}
+
+	.ui-tutor-popup-help {
+		height: 290px;
 	}
 }
 

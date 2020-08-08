@@ -159,11 +159,11 @@ unset($site);
 			?>
 			<tr class="tr-first">
 				<td class="table-blue-td-name">
-					<?= Loc::getMessage('LANDING_TPL_ADDITIONAL_ENTITY_' . strtoupper($code));?>
+					<?= Loc::getMessage('LANDING_TPL_ADDITIONAL_ENTITY_'.mb_strtoupper($code));?>
 				</td>
 				<td class="table-blue-td-param">
 					<label for="landing-operation-additional-<?= $code;?>">
-						<?= Loc::getMessage('LANDING_TPL_ADDITIONAL_ACTION_' . strtoupper($code));?>
+						<?= Loc::getMessage('LANDING_TPL_ADDITIONAL_ACTION_'.mb_strtoupper($code));?>
 					</label>
 				</td>
 				<td class="table-blue-td-select">

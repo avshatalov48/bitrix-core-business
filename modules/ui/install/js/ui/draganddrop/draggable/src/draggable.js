@@ -1,4 +1,5 @@
-import {Event, Type, Dom, Cache, Runtime, Tag, Text} from 'main.core';
+import {Type, Dom, Cache, Runtime, Tag, Text} from 'main.core';
+import {EventEmitter} from 'main.core.events';
 
 import typeof Sensor from './sensor/sensor';
 import MouseSensor from './sensor/mousesensor/mousesensor';
@@ -48,7 +49,7 @@ const dropzonesKey = Symbol('dropzones');
 /**
  * @namespace BX.UI.DragAndDrop
  */
-export class Draggable extends Event.EventEmitter
+export class Draggable extends EventEmitter
 {
 	static MOVE = 'move';
 	static CLONE = 'clone';
@@ -619,6 +620,7 @@ export class Draggable extends Event.EventEmitter
 		return Text.toNumber(depth.margin) || 20;
 	}
 
+	// eslint-disable-next-line
 	getElementDepth(element: HTMLElement): number
 	{
 		return Text.toNumber(Dom.attr(element, 'data-depth'));

@@ -9,21 +9,20 @@
 namespace Bitrix\Sender\Integration;
 
 use Bitrix\Main;
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Loader;
-use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Entity as MainEntity;
-
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ModuleManager;
 use Bitrix\Sender\ContactTable;
+use Bitrix\Sender\Dispatch;
+use Bitrix\Sender\Entity;
+use Bitrix\Sender\Internals\Model;
 use Bitrix\Sender\Internals\Model\LetterTable;
 use Bitrix\Sender\Message;
-use Bitrix\Sender\Entity;
-use Bitrix\Sender\Dispatch;
+use Bitrix\Sender\PostingRecipientTable;
 use Bitrix\Sender\Security\Agreement;
 use Bitrix\Sender\Security\User;
 use Bitrix\Sender\Templates;
-use Bitrix\Sender\Internals\Model;
-use Bitrix\Sender\PostingRecipientTable;
 
 Loc::loadMessages(__FILE__);
 
@@ -143,7 +142,7 @@ class EventHandler
 					$list[Message\iBase::CODE_MAIL][] = array(
 						'ID' => $letter['TEMPLATE_ID'],
 						'TYPE' => $letter['TEMPLATE_TYPE'],
-						'CATEGORY' => strtoupper($item['CODE']),
+						'CATEGORY' => mb_strtoupper($item['CODE']),
 						'MESSAGE_CODE' => Message\iBase::CODE_MAIL,
 						'VERSION' => 2,
 						'IS_TRIGGER' => true,
@@ -273,6 +272,11 @@ class EventHandler
 			$list[] = 'Bitrix\Sender\Integration\Crm\ReturnCustomer\MessageDeal';
 		}
 
+		if(Bitrix24\Service::isTolokaVisibleInRegion())
+		{
+			$list[] = 'Bitrix\Sender\Integration\Yandex\Toloka\MessageToloka';
+		}
+
 		return $list;
 	}
 
@@ -346,6 +350,8 @@ class EventHandler
 			$list[] = 'Bitrix\Sender\Integration\Crm\ReturnCustomer\TransportLead';
 			$list[] = 'Bitrix\Sender\Integration\Crm\ReturnCustomer\TransportDeal';
 		}
+
+		$list[] = 'Bitrix\Sender\Integration\Yandex\Toloka\TransportToloka';
 
 		return $list;
 	}

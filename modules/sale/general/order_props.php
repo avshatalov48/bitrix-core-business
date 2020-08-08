@@ -46,7 +46,7 @@ class CSaleOrderProps
 			];
 		}
 
-		if (strlen($deliveryId) > 0)
+		if ($deliveryId <> '')
 		{
 			if ($paysystemId > 0)
 			{
@@ -96,7 +96,7 @@ class CSaleOrderProps
 			{
 				$curVal = $arOrderProp["DEFAULT_VALUE"];
 
-				if (!is_array($curVal) && strlen($curVal) <= 0)
+				if (!is_array($curVal) && $curVal == '')
 				{
 					if ($arOrderProp["IS_EMAIL"] == "Y" || $arOrderProp["IS_PAYER"] == "Y")
 					{
@@ -108,7 +108,7 @@ class CSaleOrderProps
 						if ($arOrderProp["IS_EMAIL"] == "Y")
 							$curVal = is_array($arUser) ? $arUser["EMAIL"] : "";
 						elseif ($arOrderProp["IS_PAYER"] == "Y")
-							$curVal = is_array($arUser) ? $arUser["NAME"].(strlen($arUser["NAME"]) <= 0 || strlen($arUser["LAST_NAME"]) <= 0 ? "" : " ").$arUser["LAST_NAME"] : "";
+							$curVal = is_array($arUser) ? $arUser["NAME"].($arUser["NAME"] == '' || $arUser["LAST_NAME"] == '' ? "" : " ").$arUser["LAST_NAME"] : "";
 					}
 				}
 			}
@@ -117,7 +117,7 @@ class CSaleOrderProps
 				$curVal = $arOrderPropsValues[$arOrderProp["ID"]];
 			}
 
-			if ((!is_array($curVal) && strlen($curVal) > 0) || (is_array($curVal) && count($curVal) > 0))
+			if ((!is_array($curVal) && $curVal <> '') || (is_array($curVal) && count($curVal) > 0))
 			{
 				//if ($arOrderProp["TYPE"] == "SELECT" || $arOrderProp["TYPE"] == "MULTISELECT" || $arOrderProp["TYPE"] == "RADIO")
 				if ($arOrderProp["TYPE"] == "SELECT" || $arOrderProp["TYPE"] == "RADIO")
@@ -210,14 +210,14 @@ class CSaleOrderProps
 						$arWarnings[] = array("CODE" => "PARAM", "TEXT" => str_replace(array("#EMAIL#", "#NAME#"), array(htmlspecialcharsbx($curVal), htmlspecialcharsbx($arOrderProp["NAME"])), GetMessage("SALE_GOPE_WRONG_EMAIL")));
 				}
 
-				if (strlen($curVal) <= 0)
+				if ($curVal == '')
 					$bErrorField = true;
 			}
 			elseif ($arOrderProp["REQUIED"] == "Y")
 			{
 				if ($arOrderProp["TYPE"] == "TEXT" || $arOrderProp["TYPE"] == "TEXTAREA" || $arOrderProp["TYPE"] == "RADIO" || $arOrderProp["TYPE"] == "SELECT" || $arOrderProp["TYPE"] == "CHECKBOX")
 				{
-					if (strlen($curVal) <= 0)
+					if ($curVal == '')
 						$bErrorField = true;
 				}
 				elseif ($arOrderProp["TYPE"] == "LOCATION")
@@ -228,7 +228,7 @@ class CSaleOrderProps
 				elseif ($arOrderProp["TYPE"] == "MULTISELECT")
 				{
 					//if (!is_array($curVal) || count($curVal) <= 0)
-					if (strlen($curVal) <= 0)
+					if ($curVal == '')
 						$bErrorField = true;
 				}
 				elseif ($arOrderProp["TYPE"] == "FILE")
@@ -291,7 +291,7 @@ class CSaleOrderProps
 			$arFilter["RELATED"]["TYPE"] = "WITH_NOT_RELATED";
 		}
 
-		if (strlen($deliveryId) > 0)
+		if ($deliveryId <> '')
 		{
 			$arFilter["RELATED"]["DELIVERY_ID"] = $deliveryId;
 			$arFilter["RELATED"]["TYPE"] = "WITH_NOT_RELATED";
@@ -328,7 +328,7 @@ class CSaleOrderProps
 						else
 						{
 							$bModify = false;
-							if (strlen($tmpVal) > 0)
+							if ($tmpVal <> '')
 								$tmpVal .= ", ".$fileData["file_id"];
 							else
 								$tmpVal = $fileData["file_id"];
@@ -337,13 +337,13 @@ class CSaleOrderProps
 					else // new file array
 						$arFile = $fileData;
 
-					if (isset($arFile["name"]) && strlen($arFile["name"]) > 0 && $bModify)
+					if (isset($arFile["name"]) && $arFile["name"] <> '' && $bModify)
 					{
 						$arFile["MODULE_ID"] = "sale";
 						$fid = CFile::SaveFile($arFile, "sale");
 						if (intval($fid) > 0)
 						{
-							if (strlen($tmpVal) > 0)
+							if ($tmpVal <> '')
 								$tmpVal .= ", ".$fid;
 							else
 								$tmpVal = $fid;
@@ -354,7 +354,7 @@ class CSaleOrderProps
 				$curVal = $tmpVal;
 			}
 
-			if (strlen($curVal) > 0)
+			if ($curVal <> '')
 			{
 				$arFields = array(
 					"ORDER_ID" => $orderId,
@@ -386,7 +386,7 @@ class CSaleOrderProps
 		{
 			$arOrder = strval($arOrder);
 			$arFilter = strval($arFilter);
-			if (strlen($arOrder) > 0 && strlen($arFilter) > 0)
+			if ($arOrder <> '' && $arFilter <> '')
 				$arOrder = array($arOrder => $arFilter);
 			else
 				$arOrder = array();
@@ -612,17 +612,17 @@ class CSaleOrderProps
 		if (is_set($arFields, "PERSON_TYPE_ID") && $ACTION != "ADD")
 			UnSet($arFields["PERSON_TYPE_ID"]);
 
-		if ((is_set($arFields, "PERSON_TYPE_ID") || $ACTION=="ADD") && IntVal($arFields["PERSON_TYPE_ID"]) <= 0)
+		if ((is_set($arFields, "PERSON_TYPE_ID") || $ACTION=="ADD") && intval($arFields["PERSON_TYPE_ID"]) <= 0)
 		{
 			$APPLICATION->ThrowException(Loc::getMessage("SKGOP_EMPTY_PERS_TYPE"), "ERROR_NO_PERSON_TYPE");
 			return false;
 		}
-		if ((is_set($arFields, "NAME") || $ACTION=="ADD") && strlen($arFields["NAME"]) <= 0)
+		if ((is_set($arFields, "NAME") || $ACTION=="ADD") && $arFields["NAME"] == '')
 		{
 			$APPLICATION->ThrowException(Loc::getMessage("SKGOP_EMPTY_PROP_NAME"), "ERROR_NO_NAME");
 			return false;
 		}
-		if ((is_set($arFields, "TYPE") || $ACTION=="ADD") && strlen($arFields["TYPE"]) <= 0)
+		if ((is_set($arFields, "TYPE") || $ACTION=="ADD") && $arFields["TYPE"] == '')
 		{
 			$APPLICATION->ThrowException(Loc::getMessage("SKGOP_EMPTY_PROP_TYPE"), "ERROR_NO_TYPE");
 			return false;
@@ -658,7 +658,7 @@ class CSaleOrderProps
 			return false;
 		}
 
-		if ((is_set($arFields, "PROPS_GROUP_ID") || $ACTION=="ADD") && IntVal($arFields["PROPS_GROUP_ID"])<=0)
+		if ((is_set($arFields, "PROPS_GROUP_ID") || $ACTION=="ADD") && intval($arFields["PROPS_GROUP_ID"])<=0)
 		{
 			$APPLICATION->ThrowException(Loc::getMessage("SKGOP_EMPTY_PROP_GROUP"), "ERROR_NO_GROUP");
 			return false;
@@ -748,7 +748,7 @@ class CSaleOrderProps
 
 	function GetRealValue($propertyID, $propertyCode, $propertyType, $value, $lang = false)
 	{
-		$propertyID = IntVal($propertyID);
+		$propertyID = intval($propertyID);
 		$propertyCode = Trim($propertyCode);
 		$propertyType = Trim($propertyType);
 
@@ -757,7 +757,7 @@ class CSaleOrderProps
 
 		$arResult = array();
 
-		$curKey = ((strlen($propertyCode) > 0) ? $propertyCode : $propertyID);
+		$curKey = (($propertyCode <> '') ? $propertyCode : $propertyID);
 
 		if ($propertyType == "SELECT" || $propertyType == "RADIO")
 		{
@@ -788,7 +788,7 @@ class CSaleOrderProps
 			if(CSaleLocation::isLocationProMigrated())
 			{
 				$curValue = '';
-				if(strlen($value))
+				if($value <> '')
 				{
 					$arValue = array();
 
@@ -804,19 +804,29 @@ class CSaleOrderProps
 							{
 								// copy street to STREET property
 								if($types['ID2CODE'][$item['TYPE_ID']] == 'STREET')
+								{
 									$arResult[$curKey."_STREET"] = $item['LNAME'];
+								}
 
 								if($types['ID2CODE'][$item['TYPE_ID']] == 'COUNTRY')
+								{
 									$arValue["COUNTRY_NAME"] = $item['LNAME'];
+								}
 
 								if($types['ID2CODE'][$item['TYPE_ID']] == 'REGION')
+								{
 									$arValue["REGION_NAME"] = $item['LNAME'];
+								}
 
 								if($types['ID2CODE'][$item['TYPE_ID']] == 'CITY')
+								{
 									$arValue["CITY_NAME"] = $item['LNAME'];
+								}
 
 								if($types['ID2CODE'][$item['TYPE_ID']] == 'VILLAGE')
+								{
 									$arResult[$curKey."_VILLAGE"] = $item['LNAME'];
+								}
 
 								$path[] = $item['LNAME'];
 							}
@@ -832,7 +842,7 @@ class CSaleOrderProps
 			else
 			{
 				$arValue = CSaleLocation::GetByID($value, $lang);
-				$curValue = $arValue["COUNTRY_NAME"].((strlen($arValue["COUNTRY_NAME"])<=0 || strlen($arValue["REGION_NAME"])<=0) ? "" : " - ").$arValue["REGION_NAME"].((strlen($arValue["COUNTRY_NAME"])<=0 || strlen($arValue["CITY_NAME"])<=0) ? "" : " - ").$arValue["CITY_NAME"];
+				$curValue = $arValue["COUNTRY_NAME"].(($arValue["COUNTRY_NAME"] == '' || $arValue["REGION_NAME"] == '') ? "" : " - ").$arValue["REGION_NAME"].(($arValue["COUNTRY_NAME"] == '' || $arValue["CITY_NAME"] == '') ? "" : " - ").$arValue["CITY_NAME"];
 			}
 
 			$arResult[$curKey] = $curValue;
@@ -883,7 +893,7 @@ class CSaleOrderProps
 			"FROM b_sale_order_props_relation ".
 			"WHERE 1 = 1";
 
-		if (strlen($strSqlSearch) > 0)
+		if ($strSqlSearch <> '')
 			$strSql .= " ".$strSqlSearch;
 
 		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
@@ -1217,7 +1227,7 @@ final class CSaleOrderPropsAdapter implements FetchAdapter
 
 			foreach ($newProperty as $key => $value)
 			{
-				if (strpos($key, 'IS_') === 0)
+				if (mb_strpos($key, 'IS_') === 0)
 				{
 					$newProperty[$key] = ToUpper($value);
 				}

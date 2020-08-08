@@ -187,16 +187,18 @@ class MessageAudioCall implements Message\iBase, Message\iMailable, Message\iAud
 	{
 		$valueIsCorrect = false;
 
-		if (strlen($newValue))
+		if($newValue <> '')
 		{
 			$audio = (new Audio())
 				->withValue($newValue)
 				->withMessageCode($this->getCode());
 
-			if ($audio->createdFromPreset())
+			if($audio->createdFromPreset())
 			{
-				if ($audio->getFileUrl()) // preset $newValue is really exists
+				if($audio->getFileUrl()) // preset $newValue is really exists
+				{
 					$valueIsCorrect = true;
+				}
 			}
 			else
 			{
@@ -205,14 +207,14 @@ class MessageAudioCall implements Message\iBase, Message\iMailable, Message\iAud
 					->withJsonString($oldValue->getValue())
 					->withMessageCode($this->getCode());
 
-				if ($oldAudio->getFileId() == $newValue) // file wasn't changed
+				if($oldAudio->getFileId() == $newValue) // file wasn't changed
 				{
 					$audio = $oldAudio;
 					$valueIsCorrect = true;
 				}
 				else
 				{
-					if (
+					if(
 						$audio->getDuration() && // check if new file is really mp3
 						FileInputUtility::instance()->checkFiles($optionCode, [$newValue]) // check if file was uploaded by current user
 					)

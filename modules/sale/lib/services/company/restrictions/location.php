@@ -111,11 +111,15 @@ class Location extends Base\Restriction
 
 			if(!!\CSaleLocation::isLocationProEnabled())
 			{
-				if(strlen($params["LOCATION"]['L']))
+				if($params["LOCATION"]['L'] <> '')
+				{
 					$LOCATION1 = explode(':', $params["LOCATION"]['L']);
+				}
 
-				if(strlen($params["LOCATION"]['G']))
+				if($params["LOCATION"]['G'] <> '')
+				{
 					$LOCATION2 = explode(':', $params["LOCATION"]['G']);
+				}
 			}
 
 			if (isset($LOCATION1) && is_array($LOCATION1) && count($LOCATION1) > 0)
@@ -124,8 +128,10 @@ class Location extends Base\Restriction
 				$locationCount = count($LOCATION1);
 
 				for ($i = 0; $i<$locationCount; $i++)
-					if (strlen($LOCATION1[$i]))
+					if($LOCATION1[$i] <> '')
+					{
 						$arLocation["L"][] = $LOCATION1[$i];
+					}
 			}
 
 			if (isset($LOCATION2) && is_array($LOCATION2) && count($LOCATION2) > 0)
@@ -134,8 +140,10 @@ class Location extends Base\Restriction
 				$locationCount = count($LOCATION2);
 
 				for ($i = 0; $i<$locationCount; $i++)
-					if (strlen($LOCATION2[$i]))
+					if($LOCATION2[$i] <> '')
+					{
 						$arLocation["G"][] = $LOCATION2[$i];
+					}
 
 			}
 

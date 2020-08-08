@@ -21,7 +21,7 @@ class CCSVDataSale
 		$this->sFileName = $filename;
 		$file_id = fopen($this->sFileName, "rb");
 		$this->sContent = fread($file_id, filesize($this->sFileName));
-		$this->iFileLength = strlen($this->sContent);
+		$this->iFileLength = mb_strlen($this->sContent);
 		fclose($file_id); 
 	}
 
@@ -32,7 +32,7 @@ class CCSVDataSale
 
 	function SetDelimiter($delimiter = ";")
 	{
-		$this->cDelimiter = (strlen($delimiter)>1) ? substr($delimiter, 0, 1) : $delimiter;
+		$this->cDelimiter = (mb_strlen($delimiter) > 1)? mb_substr($delimiter, 0, 1) : $delimiter;
 	}
 
 	function SetFirstHeader($first_header = false)
@@ -50,7 +50,7 @@ class CCSVDataSale
 		$this->arWidthMap = array();
 		for ($i = 0; $i < count($arMap); $i++)
 		{
-			$this->arWidthMap[$i] = IntVal($arMap[$i]);
+			$this->arWidthMap[$i] = intval($arMap[$i]);
 		}
 	}
 
@@ -62,7 +62,7 @@ class CCSVDataSale
 		while ($this->iCurPos < $this->iFileLength)
 		{
 			//$ch = $this->sContent[$this->iCurPos];
-			$ch = substr($this->sContent, $this->iCurPos, 1);
+			$ch = mb_substr($this->sContent, $this->iCurPos, 1);
 			if ($ch == "\r" || $ch == "\n")
 			{
 				if (!$bInString)
@@ -71,7 +71,7 @@ class CCSVDataSale
 					{
 						$this->iCurPos++;
 						//$ch = $this->sContent[$this->iCurPos];
-						$ch = substr($this->sContent, $this->iCurPos, 1);
+						$ch = mb_substr($this->sContent, $this->iCurPos, 1);
 						if ($ch != "\r" && $ch != "\n") break;
 					}
 					if ($this->bFirstHeader)
@@ -99,7 +99,7 @@ class CCSVDataSale
 				else
 				{
 					//if ($this->sContent[$this->iCurPos+1]=="\"")
-					if (substr($this->sContent, $this->iCurPos+1, 1) == "\"")
+					if (mb_substr($this->sContent, $this->iCurPos + 1, 1) == "\"")
 						$this->iCurPos++;
 					else
 					{
@@ -123,7 +123,7 @@ class CCSVDataSale
 			$this->iCurPos++;
 			$str .= $ch;
 		}
-		if (strlen($str)>0)
+		if ($str <> '')
 		{
 			$res_r[] = $str;
 			return $res_r;
@@ -141,14 +141,14 @@ class CCSVDataSale
 		while ($this->iCurPos < $this->iFileLength)
 		{
 			//$ch = $this->sContent[$this->iCurPos];
-			$ch = substr($this->sContent, $this->iCurPos, 1);
+			$ch = mb_substr($this->sContent, $this->iCurPos, 1);
 			if ($ch == "\r" || $ch == "\n")
 			{
 				while ($this->iCurPos < $this->iFileLength)
 				{
 					$this->iCurPos++;
 					//$ch = $this->sContent[$this->iCurPos];
-					$ch = substr($this->sContent, $this->iCurPos, 1);
+					$ch = mb_substr($this->sContent, $this->iCurPos, 1);
 					if ($ch != "\r" && $ch != "\n") break;
 				}
 				if ($this->bFirstHeader)
@@ -179,7 +179,7 @@ class CCSVDataSale
 			$ind++;
 			$str .= $ch;
 		}
-		if (strlen($str)>0)
+		if ($str <> '')
 		{
 			$res_r[] = $str;
 			return $res_r;
@@ -191,7 +191,7 @@ class CCSVDataSale
 	{
 		if ($this->cFieldsType=="R")
 		{
-			if (strlen($this->cDelimiter)<=0) return false;
+			if ($this->cDelimiter == '') return false;
 			return $this->FetchDelimiter();
 		}
 		else
@@ -213,10 +213,10 @@ class CCSVDataSale
 
 	function SetPos($iCurPos = 0)
 	{
-		$iCurPos = IntVal($iCurPos);
+		$iCurPos = intval($iCurPos);
 		if ($iCurPos<=$this->iFileLength)
 		{
-			$this->iCurPos = IntVal($iCurPos);
+			$this->iCurPos = intval($iCurPos);
 		}
 		else
 		{
@@ -230,16 +230,16 @@ class CCSVDataSale
 
 		if ($this->cFieldsType=="R")
 		{
-			if (strlen($this->cDelimiter)<=0) return false;
+			if ($this->cDelimiter == '') return false;
 
 			$this->sContent = "";
 			for ($i = 0; $i < count($arFields); $i++)
 			{
 				if ($i>0) $this->sContent .= $this->cDelimiter;
-				$pos1 = strpos($arFields[$i], $this->cDelimiter);
-				$pos2 = strpos($arFields[$i], "\"");
-				$pos3 = strpos($arFields[$i], "\n");
-				$pos4 = strpos($arFields[$i], "\r");
+				$pos1 = mb_strpos($arFields[$i], $this->cDelimiter);
+				$pos2 = mb_strpos($arFields[$i], "\"");
+				$pos3 = mb_strpos($arFields[$i], "\n");
+				$pos4 = mb_strpos($arFields[$i], "\r");
 				if ($pos1 !== false || $pos2 !== false || $pos3 !== false || $pos4 !== false)
 				{
 					$this->sContent .= "\"";
@@ -251,7 +251,7 @@ class CCSVDataSale
 					$this->sContent .= $arFields[$i];
 				}
 			}
-			if (strlen($this->sContent)>0)
+			if ($this->sContent <> '')
 			{
 				$this->sContent .= "\n";
 				$file_id = fopen($this->sFileName, "ab");

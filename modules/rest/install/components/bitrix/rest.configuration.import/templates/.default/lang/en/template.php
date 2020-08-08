@@ -1,6 +1,7 @@
 <?
 $MESS["REST_CONFIGURATION_IMPORT_APP_ERROR_TYPE"] = "This application does not have a settings file";
 $MESS["REST_CONFIGURATION_IMPORT_EASY_DELETE_APP"] = "You don't have any available Bitrix24 presets, which is why we have simply deleted the application.";
+$MESS["REST_CONFIGURATION_IMPORT_ERRORS_MAX_FILE_SIZE"] = "Maximum import file size: #SIZE# MB";
 $MESS["REST_CONFIGURATION_IMPORT_ERRORS_POPUP_BTN_COPY"] = "Copy";
 $MESS["REST_CONFIGURATION_IMPORT_ERRORS_POPUP_TEXT_LABEL"] = "Issue description";
 $MESS["REST_CONFIGURATION_IMPORT_ERRORS_POPUP_TEXT_PLACEHOLDER"] = "Issue description text";

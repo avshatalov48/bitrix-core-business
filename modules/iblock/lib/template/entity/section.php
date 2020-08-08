@@ -122,7 +122,7 @@ class Section extends Base
 			$properties = array();
 			foreach ($this->fields as $id => $value)
 			{
-				if (substr($id, 0, 3) === "UF_")
+				if (mb_substr($id, 0, 3) === "UF_")
 					$properties[$id] = $value;
 			}
 			$this->property = new SectionProperty($this->id);

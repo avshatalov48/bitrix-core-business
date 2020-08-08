@@ -6,6 +6,7 @@ use Bitrix\Main\Application;
 use Bitrix\Main\DB\MssqlConnection;
 use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Entity\Validator\RegExp;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Entity;
 use Bitrix\Main\ORM\EntityError;
 use Bitrix\Main\ORM\Event;
@@ -280,10 +281,10 @@ abstract class TypeDataManager extends \Bitrix\Main\ORM\Data\DataManager
 			return new EventResult();
 		}
 
-		$connection = Application::getConnection();
-
-		// drop hl table
-		$connection->dropTable($oldData['TABLE_NAME']);
+		if(Application::getConnection()->isTableExists($oldData['TABLE_NAME']))
+		{
+			Application::getConnection()->dropTable($oldData['TABLE_NAME']);
+		}
 
 		return new EventResult();
 	}
@@ -528,8 +529,9 @@ abstract class TypeDataManager extends \Bitrix\Main\ORM\Data\DataManager
 		{
 			if (Application::getConnection()->isTableExists($checkName))
 			{
-				return GetMessage('HIGHLOADBLOCK_HIGHLOAD_BLOCK_ENTITY_TABLE_NAME_ALREADY_EXISTS',
-					array('#TABLE_NAME#' => $value)
+				Loc::loadLanguageFile(__DIR__.'/highloadblock.php');
+				return Loc::getMessage('HIGHLOADBLOCK_HIGHLOAD_BLOCK_ENTITY_TABLE_NAME_ALREADY_EXISTS',
+					['#TABLE_NAME#' => $value]
 				);
 			}
 		}

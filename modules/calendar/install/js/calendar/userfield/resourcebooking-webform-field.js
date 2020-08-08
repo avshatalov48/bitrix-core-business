@@ -276,7 +276,7 @@
 		this.DOM.outerWrap.className = 'calendar-resbook-webform-wrapper';
 	};
 
-	// region *ResourceBookingViewControlAbstract*
+	// region *+ResourceBookingViewControlAbstract*
 	function ResourceBookingViewControlAbstract(params)
 	{
 		this.name = null;
@@ -414,7 +414,7 @@
 	};
 	//endregion
 
-	// region 'UserSelector'
+	// region '+UserSelector'
 	function ViewFormUsersControl(params)
 	{
 		ViewFormUsersControl.superclass.constructor.apply(this, arguments);
@@ -559,7 +559,7 @@
 	// endregion
 
 
-	// region 'ResourceSelector'
+	// region '+ResourceSelector'
 	function ViewFormResourcesControl(params)
 	{
 		ViewFormResourcesControl.superclass.constructor.apply(this, arguments);

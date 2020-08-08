@@ -20,7 +20,7 @@ if (strlen($arResult["BACKURL"]) > 0)
 	<div style="margin-top: 16px">
 		<div><b><?=GetMessage("sys_forgot_pass_login1")?></b></div>
 		<div>
-			<input type="text" name="USER_LOGIN" value="<?=$arResult["LAST_LOGIN"]?>" />
+			<input type="text" name="USER_LOGIN" value="<?=$arResult["USER_LOGIN"]?>" />
 			<input type="hidden" name="USER_EMAIL" />
 		</div>
 		<div><?echo GetMessage("sys_forgot_pass_note_email")?></div>
@@ -30,7 +30,7 @@ if (strlen($arResult["BACKURL"]) > 0)
 
 	<div style="margin-top: 16px">
 		<div><b><?=GetMessage("sys_forgot_pass_phone")?></b></div>
-		<div><input type="text" name="USER_PHONE_NUMBER" value="" /></div>
+		<div><input type="text" name="USER_PHONE_NUMBER" value="<?=$arResult["USER_PHONE_NUMBER"]?>" /></div>
 		<div><?echo GetMessage("sys_forgot_pass_note_phone")?></div>
 	</div>
 <?endif;?>

@@ -158,9 +158,9 @@ class Duration
 		else
 		{
 			$formatted = \FormatDate('Hdiff', $this->getDate());
-			if (substr($formatted, 0, 1) === '-')
+			if (mb_substr($formatted, 0, 1) === '-')
 			{
-				$formatted = substr($formatted, 1);
+				$formatted = mb_substr($formatted, 1);
 			}
 
 			return $formatted;

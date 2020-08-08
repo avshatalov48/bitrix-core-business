@@ -173,7 +173,7 @@ class Location extends ExternalLocationMap
 			$emptyRegions = array();
 			$other = array();
 
-			if(strtolower(SITE_CHARSET) != 'utf-8')
+			if(mb_strtolower(SITE_CHARSET) != 'utf-8')
 				$data = Encoding::convertEncoding($data, 'UTF-8', SITE_CHARSET, $em);
 
 			$regions = self::getParents(array_keys($data));
@@ -183,7 +183,7 @@ class Location extends ExternalLocationMap
 				$regionCity = ToUpper($regionCity);
 				$regionName = !empty($regions[$regionCity]['REGION']) ? $regions[$regionCity]['REGION'] : '';
 
-				if(strlen($regionName) <= 0)
+				if($regionName == '')
 				{
 					foreach(Replacement::getRegionExceptions() as $cName => $rName)
 					{
@@ -200,11 +200,11 @@ class Location extends ExternalLocationMap
 					$cityName = ToUpper($cityName);
 					$location = array($cityName, $regionName, $cityId);
 
-					if(strpos($cityName, '(') !== false && strpos($cityName, ')') !== false)
+					if(mb_strpos($cityName, '(') !== false && mb_strpos($cityName, ')') !== false)
 						$precised[] = $location;
 					elseif($cityName == $regionCity)
 						$cityRegionSame[] = $location;
-					elseif(strlen($regionCity) <= 0 || $regionCity == '-' || $regionCity == '--')
+					elseif($regionCity == '' || $regionCity == '-' || $regionCity == '--')
 						$emptyRegions = $location;
 					else
 						$other[] = $location;

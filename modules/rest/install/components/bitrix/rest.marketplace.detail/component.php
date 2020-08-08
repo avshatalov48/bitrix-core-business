@@ -14,11 +14,13 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
  * @global CUser $USER
  */
 use \Bitrix\Main\Localization\Loc;
-
+use \Bitrix\Main\Loader;
 if(!CModule::IncludeModule("rest"))
 {
 	return;
 }
+
+$request = \Bitrix\Main\Context::getCurrent()->getRequest();
 
 $arParams['APP'] = !empty($arParams['APP']) ? $arParams['APP'] : $_GET['app'];
 
@@ -53,7 +55,18 @@ if($ver === false && $ar['ACTIVE'] === 'N' && $ar['STATUS'] === \Bitrix\Rest\App
 	$ver = intval($ar['VERSION']);
 }
 
-$arApp = \Bitrix\Rest\Marketplace\Client::getApp($arParams['APP'], $ver, $arResult['CHECK_HASH'], $arResult['INSTALL_HASH']);
+if(
+	($ar['ID'] > 0 && $ar['ACTIVE'] === \Bitrix\Rest\AppTable::ACTIVE && $ar['INSTALLED'] === \Bitrix\Rest\AppTable::INSTALLED)
+	|| ($request->isPost() && $request['install'] && check_bitrix_sessid())
+	|| ($ver > 0 && isset($arResult['CHECK_HASH']) && isset($arResult['INSTALL_HASH']))
+)
+{
+	$arApp = \Bitrix\Rest\Marketplace\Client::getApp($arParams['APP'], $ver, $arResult['CHECK_HASH'], $arResult['INSTALL_HASH']);
+}
+else
+{
+	$arApp = \Bitrix\Rest\Marketplace\Client::getAppPublic($arParams['APP'], $ver, $arResult['CHECK_HASH'], $arResult['INSTALL_HASH']);
+}
 
 if($arApp)
 {
@@ -79,7 +92,7 @@ if($arApp)
 		}
 	}
 
-	if ($arApp["ACTIVE"] == "Y")
+	if ($arApp["ACTIVE"] == "Y" && $arApp['TYPE'] !== \Bitrix\Rest\AppTable::TYPE_CONFIGURATION)
 	{
 		$arApp["UPDATES"] = \Bitrix\Rest\Marketplace\Client::getAvailableUpdate($arApp["CODE"]);
 	}
@@ -116,8 +129,6 @@ if($arApp)
 $arResult["ADMIN"] = \CRestUtil::isAdmin();
 $arResult["CAN_INSTALL"] = $arResult['ADMIN'] || \CRestUtil::canInstallApplication($arApp);
 
-$request = \Bitrix\Main\Context::getCurrent()->getRequest();
-
 if($request->isPost() && $request['install'] && check_bitrix_sessid())
 {
 	$APPLICATION->RestartBuffer();
@@ -146,7 +157,11 @@ if($request->isPost() && $request['install'] && check_bitrix_sessid())
 				}
 			}
 		}
-
+		if(Loader::IncludeModule('bitrix24')
+			&& !in_array(\CBitrix24::getLicensePrefix(), array('ru', 'ua', 'kz', 'by')))
+		{
+			$arResult['TERMS_OF_SERVICE_LINK'] = Loc::getMessage('REST_MARKETPLACE_TERMS_OF_SERVICE_LINK');
+		}
 		$arResult['IS_HTTPS'] = \Bitrix\Main\Context::getCurrent()->getRequest()->isHttps();
 
 		$this->includeComponentTemplate('install');
@@ -175,7 +190,6 @@ else
 	{
 		$url = \Bitrix\Rest\Marketplace\Url::getConfigurationImportAppUrl($arResult['APP']['CODE']);
 
-		$request = Bitrix\Main\Application::getInstance()->getContext()->getRequest();
 		$check_hash = $request->getQuery("check_hash");
 		$install_hash = $request->getQuery("install_hash");
 		if($install_hash && $check_hash)

@@ -152,9 +152,14 @@ export class Manager extends Event.EventEmitter
 					this.emit('clickImButton');
 				});
 
+				let usersPanel = document.querySelector('.bx-im-users-wrap');
 				if (document.querySelector('#bx-im-btn-call'))
 				{
-					document.querySelector('.bx-im-users-wrap').style.bottom = '120px';
+					usersPanel.style.bottom = '175px';
+				}
+				else
+				{
+					usersPanel.style.bottom = '120px';
 				}
 			}
 		}

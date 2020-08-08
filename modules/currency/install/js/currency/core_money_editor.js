@@ -165,17 +165,20 @@
 		{
 			return formattedValue
 				.replace(new RegExp('[' + currentFormat['SEPARATOR'] + ']', 'g'), '')
-				.replace(currentFormat['DEC_POINT'], '.');
+				.replace(currentFormat['DEC_POINT'], '.')
+				.replace(new RegExp('[^0-9\.]', 'g'), '');
 		}
 		else if(currentFormat['SEPARATOR'].length > 1)
 		{
 			return formattedValue
 				.replace(new RegExp(this.escapeRegExp(currentFormat['SEPARATOR']), 'g'), '')
-				.replace(currentFormat['DEC_POINT'], '.');
+				.replace(currentFormat['DEC_POINT'], '.')
+				.replace(new RegExp('[^0-9\.]', 'g'), '');
 		}
 		else
 		{
-			return formattedValue.replace(currentFormat['DEC_POINT'], '.');
+			return formattedValue.replace(currentFormat['DEC_POINT'], '.')
+				.replace(new RegExp('[^0-9\.]', 'g'), '');
 		}
 	};
 

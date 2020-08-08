@@ -21,11 +21,10 @@ return [
 	'type' => ['knowledge', 'group'],
 	'version' => 3,
 	'fields' => [
-		'TITLE' => Loc::getMessage("LANDING_DEMO_WIKI_LIGHT_MAIN_TITLE"),
+		'TITLE' => Loc::getMessage("LANDING_DEMO_WIKI_LIGHT_TITLE"),
 		'RULE' => null,
 		'ADDITIONAL_FIELDS' => [
 			'THEME_CODE' => '3corporate',
-			'THEME_CODE_TYPO' => 'app',
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'METAMAIN_USE' => 'N',
@@ -57,7 +56,7 @@ return [
 			'nodes' => [
 				'.landing-block-node-bgimage' => [
 					0 => [
-						'src' => 'https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1280/img2.jpg',
+						'src' => 'https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1080/img16.jpg',
 					],
 				],
 				'.landing-block-node-title' => [
@@ -69,10 +68,10 @@ return [
 			],
 			'style' => [
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title g-font-weight-300 g-color-white font-weight-bold g-font-montserrat g-font-size-25 g-mb-20 g-text-transform-none',
+					0 => 'landing-block-node-title g-font-weight-300 g-color-white font-weight-bold g-font-size-25 g-mb-20 g-text-transform-none',
 				],
 				'.landing-block-node-text' => [
-					0 => 'landing-block-node-text form-text g-opacity-0_8 g-font-size-14 g-color-white g-font-open-sans',
+					0 => 'landing-block-node-text form-text g-opacity-0_8 g-color-white',
 				],
 				'#wrapper' => [
 					0 => 'landing-block landing-block-node-bgimage g-flex-centered u-bg-overlay g-bg-img-hero g-bg-darkblue-opacity-0_7--after g-mt-auto g-pb-25 g-pl-auto g-pr-auto g-pt-6 g-min-height-80vh',
@@ -90,7 +89,7 @@ return [
 			],
 			'style' => [
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title g-font-weight-400 g-my-0 g-font-montserrat g-font-size-33 text-left',
+					0 => 'landing-block-node-title g-font-weight-400 g-my-0 g-font-size-33 text-left',
 				],
 				'#wrapper' => [
 					0 => 'landing-block container js-animation fadeInUp g-pb-20 g-pt-80',
@@ -130,6 +129,17 @@ return [
 					1 => '<p>You can record video announcements right in Bitrix24 Activity Stream & share it with your team.</p>',
 					2 => '<p>Emoji are ideograms used in electronic messages and web pages to express an idea or an emotion.</p>',
 				],
+				'.landing-block-node-button' => [
+					0 => [
+						'href' => '#landing229',
+					],
+					1 => [
+						'href' => '#landing229',
+					],
+					2 => [
+						'href' => '#landing229',
+					],
+				],
 			],
 			'style' => [
 				'#wrapper' => [
@@ -151,9 +161,9 @@ return [
 					2 => 'landing-block-node-title g-font-size-20 g-color-blue',
 				],
 				'.landing-block-node-text' => [
-					0 => 'landing-block-node-text g-color-black-opacity-0_3',
-					1 => 'landing-block-node-text g-color-black-opacity-0_3',
-					2 => 'landing-block-node-text g-color-black-opacity-0_3',
+					0 => 'landing-block-node-text g-color-black',
+					1 => 'landing-block-node-text g-color-black',
+					2 => 'landing-block-node-text g-color-black',
 				],
 				'.landing-block-node-button' => [
 					0 => 'landing-block-node-button btn u-btn-outline-primary g-font-size-11 text-uppercase',
@@ -173,7 +183,7 @@ return [
 			],
 			'style' => [
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title g-font-weight-400 g-my-0 g-font-montserrat g-font-size-33 text-left',
+					0 => 'landing-block-node-title g-font-weight-400 g-my-0 g-font-size-33 text-left',
 				],
 				'#wrapper' => [
 					0 => 'landing-block container js-animation fadeInUp g-pb-20 g-pt-80',
@@ -183,10 +193,30 @@ return [
 		'#block3418' => [
 			'old_id' => 3418,
 			'code' => '32.10.img_grid_2cols_3',
+			'nodes' => [
+				'.landing-block-node-img' => [
+					0 => [
+						'src' => 'https://cdn.bitrix24.site/bitrix/images/landing/business/1080x1440/img1.jpg',
+					],
+					1 => [
+						'src' => 'https://cdn.bitrix24.site/bitrix/images/landing/business/1080x715/img1.jpg',
+					],
+				],
+			],
 		],
 		'#block3419' => [
 			'old_id' => 3419,
 			'code' => '32.10.img_grid_2cols_3',
+			'nodes' => [
+				'.landing-block-node-img' => [
+					0 => [
+						'src' => 'https://cdn.bitrix24.site/bitrix/images/landing/business/1080x720/img1.jpg',
+					],
+					1 => [
+						'src' => 'https://cdn.bitrix24.site/bitrix/images/landing/business/1080x811/img1.jpg',
+					],
+				],
+			],
 		],
 		'#block3421' => [
 			'old_id' => 3421,
@@ -199,7 +229,7 @@ return [
 			],
 			'style' => [
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title g-font-weight-400 g-my-0 g-font-size-48 text-left g-font-montserrat container g-max-width-100x g-pl-0 g-pr-0',
+					0 => 'landing-block-node-title g-font-weight-400 g-my-0 g-font-size-48 text-left container g-max-width-100x g-pl-0 g-pr-0',
 				],
 				'#wrapper' => [
 					0 => 'landing-block js-animation fadeInUp text-center g-pt-20 g-pb-auto g-pl-7 g-pr-15',
@@ -217,7 +247,7 @@ return [
 			],
 			'style' => [
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title g-font-weight-400 g-my-0 text-left g-font-montserrat g-font-size-38 container g-max-width-100x g-pl-0 g-pr-0',
+					0 => 'landing-block-node-title g-font-weight-400 g-my-0 text-left g-font-size-38 container g-max-width-100x g-pl-0 g-pr-0',
 				],
 				'#wrapper' => [
 					0 => 'landing-block js-animation fadeInUp g-pt-20 g-pb-auto text-center g-pl-7 g-pr-15',
@@ -235,7 +265,7 @@ return [
 			],
 			'style' => [
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title g-font-weight-400 g-my-0 text-left g-font-montserrat g-font-size-30 container g-max-width-100x g-pl-0 g-pr-0',
+					0 => 'landing-block-node-title g-font-weight-400 g-my-0 text-left g-font-size-30 container g-max-width-100x g-pl-0 g-pr-0',
 				],
 				'#wrapper' => [
 					0 => 'landing-block js-animation fadeInUp g-pt-20 g-pb-auto text-center g-pl-7 g-pr-15',
@@ -253,7 +283,7 @@ return [
 			],
 			'style' => [
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title g-font-weight-400 g-my-0 text-left g-font-montserrat g-font-size-22 container g-max-width-100x g-pl-0 g-pr-0',
+					0 => 'landing-block-node-title g-font-weight-400 g-my-0 text-left g-font-size-22 container g-max-width-100x g-pl-0 g-pr-0',
 				],
 				'#wrapper' => [
 					0 => 'landing-block js-animation fadeInUp g-pb-auto g-pt-25 text-center g-pl-7 g-pr-15',
@@ -271,7 +301,7 @@ return [
 			],
 			'style' => [
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title g-font-weight-400 g-my-0 text-left g-font-montserrat g-font-size-17 container g-max-width-100x g-pl-0 g-pr-0',
+					0 => 'landing-block-node-title g-font-weight-400 g-my-0 text-left g-font-size-17 container g-max-width-100x g-pl-0 g-pr-0',
 				],
 				'#wrapper' => [
 					0 => 'landing-block js-animation fadeInUp g-pb-auto g-pt-auto text-center g-pl-7 g-pr-15',
@@ -289,7 +319,7 @@ return [
 			],
 			'style' => [
 				'.landing-block-node-text' => [
-					0 => 'landing-block-node-text g-pb-1 container g-pa-0 text-left g-font-open-sans g-color-black-opacity-0_8 g-font-size-16 g-max-width-100x',
+					0 => 'landing-block-node-text g-pb-1 container g-pa-0 text-left g-color-black g-font-size-16 g-max-width-100x',
 				],
 				'#wrapper' => [
 					0 => 'landing-block js-animation fadeInUp g-pt-4 g-pb-20 g-pl-auto g-pl-7 g-pr-15',
@@ -307,7 +337,7 @@ return [
 			],
 			'style' => [
 				'.landing-block-node-text' => [
-					0 => 'landing-block-node-text g-pb-1 container g-pa-0 text-left g-font-open-sans g-font-size-14 g-color-black-opacity-0_6 g-max-width-100x',
+					0 => 'landing-block-node-text g-pb-1 container g-pa-0 text-left g-color-black g-max-width-100x',
 				],
 				'#wrapper' => [
 					0 => 'landing-block js-animation fadeInUp g-pb-50 g-pt-auto g-pl-auto g-pl-7 g-pr-15',

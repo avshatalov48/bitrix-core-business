@@ -39,7 +39,7 @@ class ExternalTable extends Entity\DataManager
 		{
 			$serivceId = intval($data['SERVICE_ID']);
 
-			if($serivceId && strlen($data['XML_ID']))
+			if($serivceId && mb_strlen($data['XML_ID']))
 			{
 				$res = self::add(array(
 					'SERVICE_ID' => $serivceId,
@@ -73,7 +73,7 @@ class ExternalTable extends Entity\DataManager
 
 			if(isset($existed[$id]))
 			{
-				if(!strlen($data['XML_ID']) || !$serivceId || $data['REMOVE']) // field either empty or prepared to remove
+				if(!mb_strlen($data['XML_ID']) || !$serivceId || $data['REMOVE']) // field either empty or prepared to remove
 					self::delete($id);
 				else
 				{
@@ -87,7 +87,7 @@ class ExternalTable extends Entity\DataManager
 			}
 			else
 			{
-				if($serivceId && strlen($data['XML_ID']))
+				if($serivceId && mb_strlen($data['XML_ID']))
 				{
 					$res = self::add(array(
 						'SERVICE_ID' => $serivceId,
@@ -125,7 +125,7 @@ class ExternalTable extends Entity\DataManager
 	 */
 	public static function deleteMultipleByParentRangeSql($sql)
 	{
-		if(!strlen($sql))
+		if($sql == '')
 			throw new Main\SystemException('Range sql is empty');
 
 		$dbConnection = Main\HttpApplication::getConnection();

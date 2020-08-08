@@ -13,7 +13,6 @@ $MESS["TR_EXPORT_CSV_PARAM_UNTRANSLATED"] = "Выгрузить только н�
 $MESS["TR_EXPORT_CSV_PARAM_CONVERT_UTF8"] = "Сконвертировать кодировку в UTF-8";
 $MESS["TR_EXPORT_CSV_PARAM_LANGUAGES"] = "Выберите языки для выгрузки";
 $MESS["TR_EXPORT_CSV_PARAM_LANGUAGES_ALL"] = "Все";
-$MESS["TR_EXPORT_CSV_PROGRESS"] = "Обработано папок";
 $MESS["TR_EXPORT_DLG_DOWNLOAD"] = "Скачать файл экспорта";
 $MESS["TR_EXPORT_DLG_CLEAR"] = "Удалить файл экспорта";
 $MESS["TR_DLG_BTN_STOP"] = "Остановить";

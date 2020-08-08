@@ -14,7 +14,6 @@ Send your Thanksgiving wishes with special Bitrix24 Thanksgiving Template. Your 
 	'preview_url' => '',
 	'show_in_list' => 'Y',
 	'type' => 'page',
-	'sort' => \LandingSiteDemoComponent::checkActivePeriod(11,01,11,30) ? 41 : -181,
 	'version' => 2,
 	'active' => \LandingSiteDemoComponent::checkActive(array(
 		'ONLY_IN' => array('en'),
@@ -24,7 +23,6 @@ Send your Thanksgiving wishes with special Bitrix24 Thanksgiving Template. Your 
 		'RULE' => null,
 		'ADDITIONAL_FIELDS' => array(
 			'THEME_CODE' => 'real-estate',
-			'THEME_CODE_TYPO' => 'real-estate',
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'SETTINGS_HIDE_NOT_AVAILABLE' => 'L',

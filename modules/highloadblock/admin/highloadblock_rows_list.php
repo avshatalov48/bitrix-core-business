@@ -190,7 +190,7 @@ $lAdmin->AddGroupActionTable($arr);
 
 // select data
 /** @var string $order */
-$order = strtoupper($order);
+$order = mb_strtoupper($order);
 
 $usePageNavigation = true;
 if (isset($_REQUEST['mode']) && $_REQUEST['mode'] == 'excel')

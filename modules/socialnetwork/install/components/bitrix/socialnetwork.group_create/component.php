@@ -7,35 +7,35 @@ if (!CModule::IncludeModule("socialnetwork"))
 	return;
 }
 
-$arParams["GROUP_ID"] = IntVal($arParams["GROUP_ID"]);
+$arParams["GROUP_ID"] = intval($arParams["GROUP_ID"]);
 
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 $bAutoSubscribe = (array_key_exists("USE_AUTOSUBSCRIBE", $arParams) && $arParams["USE_AUTOSUBSCRIBE"] == "N" ? false : true);
 
-if (strLen($arParams["USER_VAR"]) <= 0)
+if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if (strLen($arParams["GROUP_VAR"]) <= 0)
+if ($arParams["GROUP_VAR"] == '')
 	$arParams["GROUP_VAR"] = "group_id";
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if (strlen($arParams["PATH_TO_USER"]) <= 0)
+if ($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_GROUP"] = trim($arParams["PATH_TO_GROUP"]);
-if (strlen($arParams["PATH_TO_GROUP"]) <= 0)
+if ($arParams["PATH_TO_GROUP"] == '')
 	$arParams["PATH_TO_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_EDIT"] = trim($arParams["PATH_TO_GROUP_EDIT"]);
-if (strlen($arParams["PATH_TO_GROUP_EDIT"]) <= 0)
+if ($arParams["PATH_TO_GROUP_EDIT"] == '')
 	$arParams["PATH_TO_GROUP_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_edit&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_CREATE"] = trim($arParams["PATH_TO_GROUP_CREATE"]);
-if (strlen($arParams["PATH_TO_GROUP_CREATE"]) <= 0)
+if ($arParams["PATH_TO_GROUP_CREATE"] == '')
 	$arParams["PATH_TO_GROUP_CREATE"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_create&".$arParams["USER_VAR"]."=#user_id#");
 
-if (strlen($arParams["NAME_TEMPLATE"]) <= 0)		
+if ($arParams["NAME_TEMPLATE"] == '')
 	$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 $bUseLogin = $arParams["SHOW_LOGIN"] != "N" ? true : false;
 
@@ -44,7 +44,7 @@ $arResult["GROUP_PROPERTIES"] = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFields("S
 
 foreach($arResult["GROUP_PROPERTIES"] as $field => $arUserField)
 {
-	$arResult["GROUP_PROPERTIES"][$field]["EDIT_FORM_LABEL"] = StrLen($arUserField["EDIT_FORM_LABEL"]) > 0 ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
+	$arResult["GROUP_PROPERTIES"][$field]["EDIT_FORM_LABEL"] = $arUserField["EDIT_FORM_LABEL"] <> '' ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
 	$arResult["GROUP_PROPERTIES"][$field]["EDIT_FORM_LABEL"] = htmlspecialcharsEx($arResult["GROUP_PROPERTIES"][$field]["EDIT_FORM_LABEL"]);
 	$arResult["GROUP_PROPERTIES"][$field]["~EDIT_FORM_LABEL"] = $arResult["GROUP_PROPERTIES"][$field]["EDIT_FORM_LABEL"];
 }
@@ -158,17 +158,17 @@ else
 	elseif ($arResult["POST"]["OWNER_ID"] != $GLOBALS["USER"]->GetID() && !CSocNetUser::IsCurrentUserModuleAdmin())
 		$arResult["FatalError"] = GetMessage("SONET_C8_ERR_SECURITY").". ";
 
-	if (StrLen($arResult["FatalError"]) <= 0)
+	if ($arResult["FatalError"] == '')
 	{
 		$arResult["ShowForm"] = "Input";
 
-		if ($_SERVER["REQUEST_METHOD"]=="POST" && strlen($_POST["save"]) > 0 && check_bitrix_sessid())
+		if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["save"] <> '' && check_bitrix_sessid())
 		{
 			$errorMessage = "";
 
 			$arImageID = $GLOBALS["HTTP_POST_FILES"]["GROUP_IMAGE_ID"];
 
-			if (StrLen($arImageID["tmp_name"]) > 0)
+			if ($arImageID["tmp_name"] <> '')
 				CFile::ResizeImage($arImageID, array("width" => 300, "height" => 300), BX_RESIZE_IMAGE_PROPORTIONAL);
 			$arImageID["old_file"] = $arResult["POST"]["IMAGE_ID"];
 			$arImageID["del"] = ($_POST["GROUP_IMAGE_ID_DEL"] == "Y" ? "Y" : "N");
@@ -188,19 +188,19 @@ else
 				if (array_key_exists($field, $_POST))
 					$arResult["POST"]["PROPERTIES"][$field] = $_POST[$field];
 
-			if (strlen($_POST["GROUP_NAME"]) <= 0)
+			if ($_POST["GROUP_NAME"] == '')
 				$errorMessage .= GetMessage("SONET_C8_ERR_NAME").".<br />";
-			if (strlen($_POST["GROUP_DESCRIPTION"]) <= 0)
+			if ($_POST["GROUP_DESCRIPTION"] == '')
 				$errorMessage .= GetMessage("SONET_C8_ERR_DESCR").".<br />";
-			if (IntVal($_POST["GROUP_SUBJECT_ID"]) <= 0)
+			if (intval($_POST["GROUP_SUBJECT_ID"]) <= 0)
 				$errorMessage .= GetMessage("SONET_C8_ERR_SUBJECT").".<br />";
-			if (strlen($_POST["GROUP_INITIATE_PERMS"]) <= 0)
+			if ($_POST["GROUP_INITIATE_PERMS"] == '')
 				$errorMessage .= GetMessage("SONET_C8_ERR_PERMS").".<br />";
-			if (strlen($_POST["GROUP_SPAM_PERMS"]) <= 0)
+			if ($_POST["GROUP_SPAM_PERMS"] == '')
 				$errorMessage .= GetMessage("SONET_C8_ERR_SPAM_PERMS").".<br />";
 
 			if (
-				strlen($errorMessage) <= 0
+				$errorMessage == ''
 				&& $arParams["GROUP_ID"] > 0
 				&& $arResult["POST"]["OWNER_ID"] != $GLOBALS["USER"]->GetID() 
 				&& !CSocNetUser::IsCurrentUserModuleAdmin()
@@ -209,7 +209,7 @@ else
 
 			$bCreate = false;
 
-			if (strlen($errorMessage) <= 0)
+			if ($errorMessage == '')
 			{
 				$arFields = array(
 					"NAME" => $_POST["GROUP_NAME"],
@@ -270,21 +270,21 @@ else
 				}
 			}
 
-			if (StrLen($arImageID["tmp_name"]) > 0)
+			if ($arImageID["tmp_name"] <> '')
 				CFile::ResizeImageDeleteCache($arImageID);
 
 			$arResult["POST"]["NAME"] = htmlspecialcharsex($arResult["POST"]["NAME"]);
 			$arResult["POST"]["DESCRIPTION"] = htmlspecialcharsex($arResult["POST"]["DESCRIPTION"]);
 			$arResult["POST"]["KEYWORDS"] = htmlspecialcharsex($arResult["POST"]["KEYWORDS"]);
 
-			if (strlen($errorMessage) > 0)
+			if ($errorMessage <> '')
 			{
 				$arResult["ErrorMessage"] = $errorMessage;
 				$arResult["bVarsFromForm"] = true;
 			}
 			else
 			{
-				if ($bCreate && $arParams["ALLOW_REDIRECT_REQUEST"] == "Y" && strlen($arParams["REDIRECT_REQUEST"]) > 0)
+				if ($bCreate && $arParams["ALLOW_REDIRECT_REQUEST"] == "Y" && $arParams["REDIRECT_REQUEST"] <> '')
 				{
 					$arResult["REDIRECT_REQUEST"] = CComponentEngine::MakePathFromTemplate($arParams["REDIRECT_REQUEST"], array("group_id" => $arResult["MEW_GROUP_ID"]));
 					LocalRedirect($arResult["REDIRECT_REQUEST"]);
@@ -292,7 +292,7 @@ else
 
 				$arResult["ShowForm"] = "Confirm";
 				$arResult["Urls"]["NewGroup"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP"], array("group_id" => $arResult["MEW_GROUP_ID"]));
-				if (strlen($arParams["REDIRECT_CONFIRM"]) > 0)
+				if ($arParams["REDIRECT_CONFIRM"] <> '')
 				{
 					$arResult["REDIRECT_CONFIRM"] = CComponentEngine::MakePathFromTemplate($arParams["REDIRECT_CONFIRM"], array("group_id" => $arResult["MEW_GROUP_ID"]));
 					LocalRedirect($arResult["REDIRECT_CONFIRM"]);
@@ -329,7 +329,7 @@ else
 			$arResult["POST"]["IS_EXTRANET_GROUP"] = false;
 
 			if (
-				intval($arParams["GROUP_ID"]) > 0 
+				intval($arParams["GROUP_ID"]) > 0
 				&& CModule::IncludeModule("extranet") 
 				&& ($extranet_site_id = CExtranet::GetExtranetSiteID())
 				&& in_array($extranet_site_id, $arSites)

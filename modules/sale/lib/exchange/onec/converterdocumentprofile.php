@@ -105,12 +105,12 @@ class ConverterDocumentProfile extends Converter
 		if(!empty($profile["OKPO_CODE"]))
 			$profile["OKPO"] = $profile["OKPO_CODE"];
 
-		if(strlen($profile["OFICIAL_NAME"]) > 0 && empty($profile["FULL_NAME"]))
+		if($profile["OFICIAL_NAME"] <> '' && empty($profile["FULL_NAME"]))
 			$profile["FULL_NAME"] = $profile["OFICIAL_NAME"];
 
-		if(strlen($profile["OFICIAL_NAME"]) > 0 && strlen($profile["INN"]) > 0)
+		if($profile["OFICIAL_NAME"] <> '' && $profile["INN"] <> '')
 			$profile["TYPE"] = "UR";
-		elseif(strlen($profile["INN"]) > 0)
+		elseif($profile["INN"] <> '')
 			$profile["TYPE"] = "IP";
 		else
 			$profile["TYPE"] = "FIZ";
@@ -150,7 +150,7 @@ class ConverterDocumentProfile extends Converter
 					case 'UR_ADDRESS':
 						foreach($value as $nameProperty => $valueProperty)
 						{
-							if(strlen($valueProperty) > 0 && empty($property[$nameProperty]))
+							if($valueProperty <> '' && empty($property[$nameProperty]))
 								$property[$nameProperty] = $valueProperty;
 						}
 						$property["ADDRESS_FULL"] = $value["PRESENTATION"];
@@ -159,7 +159,7 @@ class ConverterDocumentProfile extends Converter
 					case 'ADDRESS':
 						foreach($value as $nameProperty => $valueProperty)
 						{
-							if(strlen($valueProperty) > 0 && empty($property["F_".$nameProperty]))
+							if($valueProperty <> '' && empty($property["F_".$nameProperty]))
 								$property["F_".$nameProperty] = $valueProperty;
 						}
 						$property["F_ADDRESS_FULL"] = $value["PRESENTATION"];
@@ -473,13 +473,13 @@ class ConverterDocumentProfile extends Converter
 	 */
 	private function getXmlId(array $fields)
 	{
-		if(strlen($fields['XML_ID'])>0)
+		if($fields['XML_ID'] <> '')
 		{
 			$result = $fields['XML_ID'];
 		}
 		else
 		{
-			$result = htmlspecialcharsbx(substr($fields["ID"]."#".$fields["LOGIN"]."#".$fields["LAST_NAME"]." ".$fields["NAME"]." ".$fields["SECOND_NAME"], 0, 40));
+			$result = htmlspecialcharsbx(mb_substr($fields["ID"]."#".$fields["LOGIN"]."#".$fields["LAST_NAME"]." ".$fields["NAME"]." ".$fields["SECOND_NAME"], 0, 40));
 			\Bitrix\Sale\Exchange\Entity\UserImportBase::updateEmptyXmlId($fields["ID"], $result);
 		}
 		return $result;

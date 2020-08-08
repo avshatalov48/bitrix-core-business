@@ -10,11 +10,9 @@ namespace Bitrix\Sender;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type as MainType;
-
-use Bitrix\Sender\Posting\Builder as PostingBuilder;
 use Bitrix\Sender\Integration;
 use Bitrix\Sender\Internals\Model;
-
+use Bitrix\Sender\Posting\Builder as PostingBuilder;
 
 Loc::loadMessages(__FILE__);
 
@@ -682,7 +680,7 @@ class PostingRecipientTable extends Entity\DataManager
 		);
 	}
 
-	public static function hasUnprocessed($postingId)
+	public static function hasUnprocessed($postingId, $threadId = null)
 	{
 		return (static::getCount(['=POSTING_ID' => $postingId, '=STATUS' => self::SEND_RESULT_NONE]) > 0);
 	}

@@ -64,6 +64,7 @@ class CListFile
 			}
 
 			$attributes = ItemAttributes::buildByFileData($this->_file, $img_src);
+			$attributes->setTitle($this->_file['FILE_NAME']);
 
 			if ($divId)
 			{

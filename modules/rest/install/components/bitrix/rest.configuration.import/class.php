@@ -8,19 +8,26 @@ use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Text\Encoding;
+use Bitrix\Main\Web\Uri;
 use Bitrix\Main\Error;
-use Bitrix\Main\Web\HttpClient;
+USE Bitrix\Main\IO\File;
 use Bitrix\Main\Web\Json;
 use Bitrix\Rest\AppTable;
+use Bitrix\Rest\Configuration\Manifest;
 use Bitrix\Rest\Configuration\Helper;
+use Bitrix\Rest\Configuration\Setting;
+use Bitrix\Rest\Configuration\Structure;
 use Bitrix\Rest\Marketplace\Client;
 use Bitrix\Rest\AppLogTable;
+use Bitrix\Disk\Driver;
 
 Loc::loadMessages(__FILE__);
 class CRestConfigurationImportComponent extends CBitrixComponent
 {
 	/** @var ErrorCollection $errors */
 	protected $errors;
+	protected $contextPostfix = 'import';
 	protected $type = 'configuration';
 
 	protected function checkRequiredParams()
@@ -33,22 +40,62 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 		return true;
 	}
 
-	private function getTmpFolder($code)
+	protected function getContextPostFix()
 	{
-		$sTmpFolderPath = CTempFile::GetDirectoryName(
-			4,
-			[
-				'rest',
-				uniqid($this->type . '_import_', true),
-				$code
-			]
-		);
-		CheckDirPath($sTmpFolderPath);
-		return $sTmpFolderPath;
+		return $this->contextPostfix.$this->arParams['MANIFEST_CODE'].$this->arParams['APP'];
+	}
+
+	protected function getContext()
+	{
+		return Helper::getInstance()->getContextUser($this->getContextPostFix());
+	}
+
+	protected function prepareConfigurationUrl($url)
+	{
+		if ("UTF-8" !== strtoupper(LANG_CHARSET))
+		{
+			$uri = new Uri($url);
+			$path = $uri->getPath();
+
+			$name = bx_basename($path);
+			$prepareName = Encoding::convertEncoding($name,  LANG_CHARSET, "UTF-8");
+			$prepareName = rawurlencode($prepareName);
+
+			$path = str_replace($name, $prepareName, $path);
+
+			$uri->setPath($path);
+			$url = $uri->getUri();
+		}
+
+		return $url;
 	}
 
 	protected function prepareResult()
 	{
+		$result = [
+			'IMPORT_ACCESS' => false,
+			'IMPORT_FOLDER_FILES' => '',
+			'IMPORT_MANIFEST_FILE' => [],
+			'MANIFEST' => []
+		];
+
+		$result['MAX_FILE_SIZE']['MEGABYTE'] = Helper::getInstance()->getMaxFileSize();
+		$result['MAX_FILE_SIZE']['BYTE'] = round($result['MAX_FILE_SIZE']['MEGABYTE']*1024*1024, 2);
+
+		if(!empty($this->arParams['MANIFEST_CODE']))
+		{
+			$result['MANIFEST'] = Manifest::get($this->arParams['MANIFEST_CODE']);
+			if(is_null($result['MANIFEST']))
+			{
+				$this->errors->setError(new Error(Loc::getMessage('REST_CONFIGURATION_IMPORT_MANIFEST_NOT_FOUND')));
+				return false;
+			}
+			else
+			{
+				$result['MANIFEST_CODE'] = $result['MANIFEST']['CODE'];
+			}
+		}
+
 		if(isset($this->arParams['SET_TITLE']) && $this->arParams['SET_TITLE'] == 'Y')
 		{
 			global $APPLICATION;
@@ -58,80 +105,57 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 			}
 			else
 			{
-				$APPLICATION->SetTitle(Loc::getMessage('REST_CONFIGURATION_IMPORT_TITLE'));
+				if(!empty($result['MANIFEST']['IMPORT_TITLE_PAGE']))
+				{
+					$title = $result['MANIFEST']['IMPORT_TITLE_PAGE'];
+				}
+				else
+				{
+					$title = Loc::getMessage('REST_CONFIGURATION_IMPORT_TITLE');
+				}
+				$APPLICATION->SetTitle($title);
 			}
 		}
 
-		$result = [
-			'IMPORT_ACCESS' => false,
-			'IMPORT_FOLDER_FILES' => '',
-			'IMPORT_MANIFEST_FILE' => []
-		];
-
 		if($this->arParams['MODE'] == 'ROLLBACK')
 		{
-			$expertMode = ($this->request->getQuery('expert') && $this->request->getQuery('expert') == 'Y')? true : false;
+			$expertMode = ($this->request->getQuery('expert') && $this->request->getQuery('expert') == 'Y') ? true : false;
 			$result['ROLLBACK_ITEMS'] = [];
-			$result['USES_APP'] = Helper::getInstance()->getUsesConfigurationApp();
-
-			$storage = Helper::getInstance()->getStorageBackup();
-			if($storage)
+			$appList = Helper::getInstance()->getBasicAppList();
+			$manifestCode = array_search($this->arParams['ROLLBACK_APP'], $appList);
+			if($manifestCode !== false)
 			{
-				$fakeSecurityContext = \Bitrix\Disk\Driver::getInstance()->getFakeSecurityContext();
-				foreach($storage->getChildren($fakeSecurityContext, []) as $child)
+				$storage = Helper::getInstance()->getStorageBackup();
+				if($storage)
 				{
-					if($child instanceof \Bitrix\Disk\Folder)
+					$fakeSecurityContext = Driver::getInstance()->getFakeSecurityContext();
+					foreach($storage->getChildren($fakeSecurityContext, []) as $child)
 					{
-						$createTime = $child->getCreateTime();
-						$result['ROLLBACK_ITEMS'][] = [
-							'ID' => 'DEFAULT_' . $child->getId(),
-							'CODE' => $child->getId(),
-							'NAME' => Loc::getMessage(
-								'REST_CONFIGURATION_ROLLBACK_DEFAULT_TITLE',
-								[
-									'#CREATE_TIME#' => $createTime->toString()
-								]
-							),
-							'IS_DEFAULT' => 'Y'
-						];
+						if($child instanceof \Bitrix\Disk\Folder)
+						{
+							$createTime = $child->getCreateTime();
+							$result['ROLLBACK_ITEMS'][] = [
+								'ID' => 'DEFAULT_' . $child->getId(),
+								'CODE' => $child->getId(),
+								'NAME' => Loc::getMessage(
+									'REST_CONFIGURATION_ROLLBACK_DEFAULT_TITLE',
+									[
+										'#CREATE_TIME#' => $createTime->toString()
+									]
+								),
+								'IS_DEFAULT' => 'Y'
+							];
+						}
 					}
 				}
 			}
 
-			$res = AppTable::getList(
-				[
-					'filter' => [
-						'!=STATUS' => AppTable::STATUS_LOCAL,
-						'=INSTALLED' => AppTable::INSTALLED,
-						'=ACTIVE' => AppTable::ACTIVE,
-					],
-					'select' => [
-						'ID', 'CODE', 'VERSION', 'APP_NAME'
-					]
-				]
-			);
-			while($app = $res->fetch())
-			{
-				if(
-					AppTable::getAppType($app['CODE'], $app['VERSION']) == AppTable::TYPE_CONFIGURATION
-					&& $app['CODE'] != $result['USES_APP']
-				)
-				{
-					$result['ROLLBACK_ITEMS'][] = [
-						'ID' => $app['ID'],
-						'NAME' => $app['APP_NAME'],
-						'CODE' => $app['CODE'],
-						'IS_DEFAULT' => 'N'
-					];
-				}
-			}
-
-			if(empty($result['ROLLBACK_ITEMS']) && $result['USES_APP'] != '')
+			if(empty($result['ROLLBACK_ITEMS']) && $manifestCode !== false)
 			{
 				$res = AppTable::getList(
 					[
 						'filter' => array(
-							"=CODE" => $result['USES_APP'],
+							"=CODE" => $appList[$manifestCode],
 							"!=STATUS" => AppTable::STATUS_LOCAL
 						),
 					]
@@ -149,7 +173,8 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 						];
 						AppTable::update($appInfo['ID'], $appFields);
 						AppLogTable::log($appInfo['ID'], AppLogTable::ACTION_TYPE_UNINSTALL);
-						$result = true;
+						unset($result);
+						$result['DELETE_FINISH'] = true;
 					}
 				}
 			}
@@ -185,14 +210,14 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 				}
 				else
 				{
-					$result['IMPORT_ROLLBACK_DISK_FOLDER_ID'] =$item['CODE'];
+					$result['IMPORT_ROLLBACK_DISK_FOLDER_ID'] = $item['CODE'];
 					$result['IMPORT_ROLLBACK_STORAGE_PARAMS'] = Helper::getInstance()->getStorageBackupParam();
 				}
 			}
 
-			if($result['USES_APP'] != '')
+			if($manifestCode !== false)
 			{
-				$result['UNINSTALL_APP_ON_FINISH'] = $result['USES_APP'];
+				$result['UNINSTALL_APP_ON_FINISH'] = $appList[$manifestCode];
 			}
 		}
 
@@ -214,23 +239,43 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 				if($appInfo)
 				{
 					$appInfo = $appInfo["ITEMS"];
+
 					if($appInfo['TYPE'] === AppTable::TYPE_CONFIGURATION && !empty($appInfo['CONFIG_URL']))
 					{
-						$appConfigurationName = 'app'.$app['CODE'];
-						$sTmpFolderPath = $this->getTmpFolder($appConfigurationName);
-						$filePath = $sTmpFolderPath.$appConfigurationName;
+						$url = $this->prepareConfigurationUrl($appInfo['CONFIG_URL']);
 
-						$httpClient = new HttpClient;
-						$fileContent = $httpClient->get($appInfo['CONFIG_URL']);
-						file_put_contents($filePath, $fileContent);
-						$archive = CBXArchive::GetArchive($filePath, 'TAR.GZ');
-						$res = $archive->Unpack($sTmpFolderPath);
-						if($res)
+						$fileInfo = \CFile::MakeFileArray($url);
+
+						if(!empty($fileInfo['tmp_name']))
 						{
-							$result['APP'] = $app;
-							$result['IMPORT_ACCESS'] = true;
-							$result['IMPORT_FOLDER_FILES'] = $sTmpFolderPath;
-							unlink($filePath);
+							$result['ERRORS_UPLOAD_FILE'] = \CFile::CheckFile(
+								$fileInfo,
+								0,
+								[
+									'application/gzip',
+									'application/x-gzip',
+									'application/zip',
+									'application/x-zip-compressed',
+									'application/x-tar'
+								]
+							);
+
+							if($result['ERRORS_UPLOAD_FILE'] === '')
+							{
+								$context = $this->getContext();
+
+								$setting = new Setting($context);
+								$setting->deleteFull();
+
+								$structure = new Structure($context);
+								if($structure->unpack($fileInfo))
+								{
+									$result['IMPORT_CONTEXT'] = $context;
+									$result['APP'] = $app;
+									$result['IMPORT_FOLDER_FILES'] = $structure->getFolder();
+									$result['IMPORT_ACCESS'] = true;
+								}
+							}
 						}
 					}
 				}
@@ -248,29 +293,31 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 			{
 				$result['ERRORS_UPLOAD_FILE'] = CFile::CheckFile(
 					$_FILES["CONFIGURATION"],
-					0,
+					$result['MAX_FILE_SIZE']['BYTE'],
 					[
 						'application/gzip',
-						'application/x-gzip'
+						'application/x-gzip',
+						'application/zip',
+						'application/x-zip-compressed',
+						'application/x-tar'
 					],
-					'gz,tar'
+					'gz,tar,zip'
 				);
+
 				if($result['ERRORS_UPLOAD_FILE'] === '')
 				{
 					try
 					{
-						$fileContent = file_get_contents($_FILES["CONFIGURATION"]["tmp_name"]);
-						$configurationName = 'app';
-						$sTmpFolderPath = $this->getTmpFolder($configurationName);
-						$filePath = $sTmpFolderPath.$configurationName;
-						file_put_contents($filePath, $fileContent);
+						$context = $this->getContext();
 
-						$archive = CBXArchive::GetArchive( $filePath, 'TAR.GZ');
-						$res = $archive->Unpack($sTmpFolderPath);
-						if ($res)
+						$setting = new Setting($context);
+						$setting->deleteFull();
+
+						$structure = new Structure($context);
+						if($structure->unpack($_FILES["CONFIGURATION"]))
 						{
-							$result['IMPORT_FOLDER_FILES'] = $sTmpFolderPath;
-							unlink($filePath);
+							$result['IMPORT_CONTEXT'] = $context;
+							$result['IMPORT_FOLDER_FILES'] = $structure->getFolder();
 						}
 					}
 					catch (\Exception $e)
@@ -291,10 +338,83 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 				try
 				{
 					$result['IMPORT_MANIFEST_FILE'] = Json::decode($data);
+					if(!empty($result['IMPORT_MANIFEST_FILE']))
+					{
+						if(!empty($result['MANIFEST']))
+						{
+							if($result['IMPORT_MANIFEST_FILE']['CODE'] != $result['MANIFEST']['CODE'])
+							{
+								$this->errors->setError(new Error(Loc::getMessage('REST_CONFIGURATION_IMPORT_MANIFEST_NOT_CURRENT')));
+								return false;
+							}
+							else
+							{
+								$result['MANIFEST_CODE'] = htmlspecialcharsbx($result['IMPORT_MANIFEST_FILE']['CODE']);
+							}
+						}
+						elseif(!empty($result['APP']['ID']))
+						{
+							$result['MANIFEST_CODE'] = htmlspecialcharsbx($result['IMPORT_MANIFEST_FILE']['CODE']);
+						}
+					}
 				}
 				catch(ArgumentException $e)
 				{
 				}
+			}
+			else
+			{
+				$this->errors->setError(new Error(Loc::getMessage('REST_CONFIGURATION_IMPORT_MANIFEST_NOT_CURRENT')));
+				return false;
+			}
+		}
+		elseif($result['IMPORT_ROLLBACK_DISK_FOLDER_ID'] && $result['IMPORT_ROLLBACK_STORAGE_PARAMS'])
+		{
+			try
+			{
+				$storage = Driver::getInstance()->addStorageIfNotExist(
+					$result['IMPORT_ROLLBACK_STORAGE_PARAMS']
+				);
+				if($storage)
+				{
+					$folder = $storage->getChild(
+						[
+							'=ID' => $result['IMPORT_ROLLBACK_DISK_FOLDER_ID']
+						]
+					);
+					if($folder)
+					{
+						$file = $folder->getChild(
+							[
+								'=NAME' => 'manifest.json'
+							]
+						);
+						if($file && $file->getFileId() > 0)
+						{
+							$server = Application::getInstance()->getContext()->getServer();
+							$documentRoot = $server->getDocumentRoot();
+							$filePath = $documentRoot.\CFile::GetPath(
+									$file->getFileId()
+							);
+							if(File::isFileExists($filePath))
+							{
+								$manifestContent =  File::getFileContents($filePath);
+								if($manifestContent != '')
+								{
+									$manifest = Json::decode($manifestContent);
+									if($manifest['CODE'])
+									{
+										$result['MANIFEST_CODE'] = $manifest['CODE'];
+										$result['IMPORT_MANIFEST_FILE'] = $manifest;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			catch (\Exception $e)
+			{
 			}
 		}
 

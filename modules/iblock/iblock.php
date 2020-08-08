@@ -150,6 +150,9 @@ $arClasses = array(
 	'\Bitrix\Iblock\Template\Functions\FunctionDistinct' => "lib/template/functions/fabric.php",
 	'\Bitrix\Iblock\Update\AdminFilterOption' => 'lib/update/adminfilteroption.php',
 	'\Bitrix\Iblock\Update\AdminGridOption' => 'lib/update/admingridoption.php',
+	'\Bitrix\Iblock\Url\AdminPage\BaseBuilder' => 'lib/url/adminpage/basebuilder.php',
+	'\Bitrix\Iblock\Url\AdminPage\BuilderManager' => 'lib/url/adminpage/buildermanager.php',
+	'\Bitrix\Iblock\Url\AdminPage\IblockBuilder' => 'lib/url/adminpage/iblockbuilder.php',
 	'\Bitrix\Iblock\SenderEventHandler' => "lib/senderconnector.php",
 	'\Bitrix\Iblock\SenderConnectorIblock' => "lib/senderconnector.php",
 );
@@ -467,7 +470,7 @@ function _GetIBlockElementListExLang_tmp($lang, $type, $arTypesInc = array(), $a
 		"ACTIVE" => "Y",
 		"CHECK_PERMISSIONS" => "Y",
 	);
-	if ($type != false && strlen($type) > 0)
+	if ($type != false && $type <> '')
 		$filter["IBLOCK_TYPE"] = $type;
 
 	if (is_array($arFilter) && count($arFilter) > 0)
@@ -914,14 +917,14 @@ function ImportXMLFile($file_name, $iblock_type="-", $site_id='', $section_actio
 	global $APPLICATION;
 	$ABS_FILE_NAME = false;
 
-	if(strlen($file_name)>0)
+	if($file_name <> '')
 	{
 		if(
 			file_exists($file_name)
 			&& is_file($file_name)
 			&& (
-				substr($file_name, -4) === ".xml"
-				|| substr($file_name, -7) === ".tar.gz"
+				mb_substr($file_name, -4) === ".xml"
+				|| mb_substr($file_name, -7) === ".tar.gz"
 			)
 		)
 		{
@@ -931,7 +934,7 @@ function ImportXMLFile($file_name, $iblock_type="-", $site_id='', $section_actio
 		{
 			$filename = trim(str_replace("\\", "/", trim($file_name)), "/");
 			$FILE_NAME = rel2abs($_SERVER["DOCUMENT_ROOT"], "/".$filename);
-			if((strlen($FILE_NAME) > 1) && ($FILE_NAME === "/".$filename) && ($APPLICATION->GetFileAccessPermission($FILE_NAME) >= "W"))
+			if((mb_strlen($FILE_NAME) > 1) && ($FILE_NAME === "/".$filename) && ($APPLICATION->GetFileAccessPermission($FILE_NAME) >= "W"))
 			{
 				$ABS_FILE_NAME = $_SERVER["DOCUMENT_ROOT"].$FILE_NAME;
 			}
@@ -941,9 +944,9 @@ function ImportXMLFile($file_name, $iblock_type="-", $site_id='', $section_actio
 	if(!$ABS_FILE_NAME)
 		return GetMessage("IBLOCK_XML2_FILE_ERROR");
 
-	$WORK_DIR_NAME = substr($ABS_FILE_NAME, 0, strrpos($ABS_FILE_NAME, "/")+1);
+	$WORK_DIR_NAME = mb_substr($ABS_FILE_NAME, 0, mb_strrpos($ABS_FILE_NAME, "/") + 1);
 
-	if(substr($ABS_FILE_NAME, -7) == ".tar.gz")
+	if(mb_substr($ABS_FILE_NAME, -7) == ".tar.gz")
 	{
 		include_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/tar_gz.php");
 		$obArchiver = new CArchiver($ABS_FILE_NAME);
@@ -964,7 +967,7 @@ function ImportXMLFile($file_name, $iblock_type="-", $site_id='', $section_actio
 			else
 				return GetMessage("IBLOCK_XML2_FILE_ERROR");
 		}
-		$IMP_FILE_NAME = substr($ABS_FILE_NAME, 0, -7).".xml";
+		$IMP_FILE_NAME = mb_substr($ABS_FILE_NAME, 0, -7).".xml";
 	}
 	else
 	{
@@ -1044,8 +1047,10 @@ function ImportXMLFile($file_name, $iblock_type="-", $site_id='', $section_actio
 
 	if($return_last_error)
 	{
-		if(strlen($obCatalog->LAST_ERROR))
+		if($obCatalog->LAST_ERROR <> '')
+		{
 			return $obCatalog->LAST_ERROR;
+		}
 	}
 
 	if ($return_iblock_id)

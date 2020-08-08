@@ -42,9 +42,18 @@
 	top: -2px;
 }
 
+.mail-msg-list-grid .main-grid-header .main-grid-cell-checkbox .main-grid-cell-head-container {
+	visibility: hidden;
+}
+
 .mail-msg-list-cell-nowrap,
 .mail-msg-list-subject {
 	white-space: nowrap;
+}
+
+.mail-msg-list-cell-flex {
+	display: flex;
+	align-items: center;
 }
 
 .mail-msg-list-cell-unseen {
@@ -57,6 +66,9 @@
 
 .mail-msg-from-title {
 	margin: 0 0 0 10px;
+	max-width: 100%;
+	text-overflow: ellipsis;
+	overflow: hidden;
 }
 
 .mail-bindings-field-popup-wrapper {
@@ -67,31 +79,40 @@
 	height: 45px !important;
 }
 
+.mail-msg-list-grid .ui-action-panel.mail-msg-list-action-panel {
+	top: auto !important;
+	left: auto !important;
+}
+
 .mail-connect-lock-text {
 	vertical-align: middle;
 }
 
-.menu-popup-item.menu-popup-no-icon[data-is-disabled=true] {
+.menu-popup .menu-popup-item[data-is-disabled=true] {
 	cursor: default;
 }
 
-.menu-popup-item.menu-popup-no-icon[data-is-disabled=true] .mail-msg-list-menu-item {
+.menu-popup .menu-popup-item[data-is-disabled=true] .mail-msg-list-menu-item {
 	opacity: 0.4;
 }
 
-.menu-popup-item-text .main-buttons-item-counter.mail-msg-list-menu-fake-counter,
-.menu-popup-item.menu-popup-no-icon[data-is-disabled=true] .main-buttons-item-counter {
+.menu-popup .menu-popup-item .main-buttons-item-counter.mail-msg-list-menu-fake-counter {
 	background: #888;
 }
 
-.mail-msg-list-stepper-wrapper .main-stepper.main-stepper-show,
-.mail-msg-list-stepper-wrapper .main-stepper.main-stepper-hide {
-	animation-duration: 0s;
+.menu-popup-item-text .main-buttons-item-counter.mail-msg-list-menu-child-counter {
+	background: none;
+	border: 1px solid #f54819;
+	color: #f54819;
 }
 
-/* http://jabber.bx/view.php?id=110191 */
-.mail-msg-list-stepper-wrapper .main-stepper.main-stepper-show {
-	height: 42px;
-	opacity: 1;
-	visibility: visible;
+.menu-popup-item-text .main-buttons-item-counter.mail-msg-list-menu-child-counter.mail-msg-list-menu-fake-counter,
+.menu-popup .menu-popup-item[data-is-disabled=true] .main-buttons-item-counter {
+	background: none;
+	border: 1px solid #888;
+	color: #888;
+}
+
+.mail-msg-list-stepper-wrapper .ui-hint .ui-hint-icon {
+	margin: 0;
 }

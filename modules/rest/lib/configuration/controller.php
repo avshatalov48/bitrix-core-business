@@ -11,6 +11,7 @@ class Controller
 	const ON_REST_APP_CONFIGURATION_ENTITY = 'OnRestApplicationConfigurationEntity';
 	const ON_REST_APP_CONFIGURATION_EXPORT = 'OnRestApplicationConfigurationExport';
 	const ON_REST_APP_CONFIGURATION_IMPORT = 'OnRestApplicationConfigurationImport';
+	const ON_REST_APP_CONFIGURATION_FINISH = 'OnRestApplicationConfigurationFinish';
 
 	/**
 	 *	array value: [a-zA-Z0-9_]
@@ -34,7 +35,7 @@ class Controller
 		return array_keys($result);
 	}
 
-	public static function callEventExport($manifestCode, $code, $step = 0, $next = '', $itemCode = '')
+	public static function callEventExport($manifestCode, $code, $step = 0, $next = '', $itemCode = '', $contextUser = false)
 	{
 		$result = [];
 		if($manifestCode == '')
@@ -45,6 +46,8 @@ class Controller
 		$manifest = Manifest::get($manifestCode);
 		if(!is_null($manifest))
 		{
+			$setting = new Setting($contextUser);
+
 			$event = new Event(
 				'rest',
 				static::ON_REST_APP_CONFIGURATION_EXPORT,
@@ -53,7 +56,8 @@ class Controller
 					'STEP' => $step,
 					'NEXT' => $next,
 					'MANIFEST' => $manifest,
-					'ITEM_CODE' => $itemCode
+					'ITEM_CODE' => $itemCode,
+					'SETTING' => $setting->get(Setting::SETTING_MANIFEST)
 				]
 			);
 			EventManager::getInstance()->send($event);
@@ -63,6 +67,7 @@ class Controller
 				$result[] = [
 					'FILE_NAME' => $parameters['FILE_NAME'],
 					'CONTENT' => $parameters['CONTENT'],
+					'FILES' => $parameters['FILES'],
 					'NEXT' => $parameters['NEXT'],
 					'ERROR_MESSAGES' => $parameters['ERROR_MESSAGES'],
 					'ERROR_ACTION' => $parameters['ERROR_ACTION']
@@ -76,9 +81,16 @@ class Controller
 	public static function callEventClear($data)
 	{
 		$result = [
-			'FINISH' => true,
-			'NEXT' => 0
+			'NEXT' => false
 		];
+
+		$data['SETTING'] = null;
+		if(isset($data['CONTEXT_USER']))
+		{
+			$setting = new Setting($data['CONTEXT_USER']);
+			$data['SETTING'] = $setting->get(Setting::SETTING_MANIFEST);
+		}
+
 		$event = new Event(
 			'rest',
 			static::ON_REST_APP_CONFIGURATION_CLEAR,
@@ -92,25 +104,52 @@ class Controller
 				'NEXT' => $parameters['NEXT'],
 				'ERROR_MESSAGES' => $parameters['ERROR_MESSAGES'],
 				'ERROR_ACTION' => $parameters['ERROR_ACTION'],
+				'ERROR_EXCEPTION' => $parameters['ERROR_EXCEPTION']
 			];
+
+			if(is_array($parameters['OWNER_DELETE']))
+			{
+				OwnerEntityTable::deleteMulti($parameters['OWNER_DELETE']);
+			}
 		}
 
 		return $result;
 	}
 
-	public static function callEventImport($code, $content, $ratio, $context = 'external')
+	public static function callEventImport($params)
 	{
 		$result = [];
+		$params['CONTEXT_USER'] = $params['CONTEXT_USER'] ?: false;
+		$setting = new Setting($params['CONTEXT_USER']);
+
+		$app = $setting->get(Setting::SETTING_APP_INFO);
+		if($app['ID'] > 0)
+		{
+			$owner = $app['ID'];
+			$ownerType = OwnerEntityTable::ENTITY_TYPE_APPLICATION;
+		}
+		else
+		{
+			$owner = OwnerEntityTable::ENTITY_EMPTY;
+			$ownerType = OwnerEntityTable::ENTITY_TYPE_EXTERNAL;
+		}
+
 		$event = new Event(
 			'rest',
 			static::ON_REST_APP_CONFIGURATION_IMPORT,
 			[
-				'CODE' => $code,
-				'CONTENT' => $content,
-				'RATIO' => $ratio,
-				'CONTEXT' => $context
+				'CODE' => $params['CODE'],
+				'CONTENT' => $params['CONTENT'],
+				'RATIO' => $params['RATIO'],
+				'CONTEXT' => $params['CONTEXT'],
+				'CONTEXT_USER' => $params['CONTEXT_USER'],
+				'SETTING' => $setting->get(Setting::SETTING_MANIFEST),
+				'MANIFEST_CODE' => $params['MANIFEST_CODE'],
+				'IMPORT_MANIFEST' => $params['IMPORT_MANIFEST'],
+				'APP_ID' => intVal($owner)
 			]
 		);
+
 		EventManager::getInstance()->send($event);
 		foreach ($event->getResults() as $eventResult)
 		{
@@ -118,11 +157,41 @@ class Controller
 			$result[] = [
 				'RATIO' => $parameters['RATIO'],
 				'ERROR_MESSAGES' => $parameters['ERROR_MESSAGES'],
-				'ERROR_ACTION' => $parameters['ERROR_ACTION']
+				'ERROR_ACTION' => $parameters['ERROR_ACTION'],
+				'ERROR_EXCEPTION' => $parameters['ERROR_EXCEPTION']
 			];
+
+			if(is_array($parameters['OWNER_DELETE']))
+			{
+				OwnerEntityTable::deleteMulti($parameters['OWNER_DELETE']);
+			}
+
+			if($parameters['OWNER'])
+			{
+				OwnerEntityTable::saveMulti($owner, $ownerType, $parameters['OWNER']);
+			}
 		}
 
 		return $result;
 	}
 
+	public static function callEventFinish($params)
+	{
+		$result = [];
+		$event = new Event(
+			'rest',
+			static::ON_REST_APP_CONFIGURATION_FINISH,
+			$params
+		);
+		EventManager::getInstance()->send($event);
+		foreach ($event->getResults() as $eventResult)
+		{
+			$parameters = $eventResult->getParameters();
+			$result[] = [
+				'CREATE_DOM_LIST' => $parameters['CREATE_DOM_LIST']
+			];
+		}
+
+		return $result;
+	}
 }

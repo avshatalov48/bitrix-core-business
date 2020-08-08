@@ -39,7 +39,7 @@
 				 "class": "row"
 			   }]'>
 			<div class="landing-block-card-slider-element js-slide align-self-center g-px-15 mb-1 col-12 col-sm-6 col-lg-4">
-				<blockquote class="landing-block-node-element-text u-blockquote-v8 g-font-weight-300 g-font-size-15 rounded g-pa-25 g-mb-25">
+				<blockquote class="landing-block-node-element-text u-blockquote-v8 g-font-size-15 rounded g-pa-25 g-mb-25">
 					Dear Company24 team, I just bought your template some weeks ago. The template is really nice and
 					offers quite a large set of options.
 				</blockquote>
@@ -47,7 +47,7 @@
 					<img class="landing-block-node-element-img g-width-50 g-height-50 g-object-fit-cover d-flex align-self-center g-rounded-50x u-shadow-v19 g-brd-around g-brd-3 g-brd-white mr-3"
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/100x100/img1.jpg" alt="">
 					<div class="media-body align-self-center">
-						<h4 class="landing-block-node-element-title g-font-weight-400 g-font-size-15 g-color-main g-mb-0">Alex
+						<h4 class="landing-block-node-element-title g-font-size-15 g-color-main g-mb-0">Alex
 							Pottorf</h4>
 						<div class="landing-block-node-element-subtitle g-color-main g-font-size-13">
 							<span class="d-block">Reason: Template Quality</span>
@@ -57,7 +57,7 @@
 			</div>
 
 			<div class="landing-block-card-slider-element js-slide align-self-center g-px-15 mb-1 col-12 col-sm-6 col-lg-4">
-				<blockquote class="landing-block-node-element-text u-blockquote-v8 g-font-weight-300 g-font-size-15 rounded g-pa-25 g-mb-25">
+				<blockquote class="landing-block-node-element-text u-blockquote-v8 g-font-size-15 rounded g-pa-25 g-mb-25">
 					Hi there purchased a couple of days ago and the site looks great, big thanks to the Company24
 					guys, they gave me some great help with some fiddly setup issues.
 				</blockquote>
@@ -65,7 +65,7 @@
 					<img class="landing-block-node-element-img g-width-50 g-height-50 g-object-fit-cover d-flex align-self-center g-rounded-50x u-shadow-v19 g-brd-around g-brd-3 g-brd-white mr-3"
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/100x100/img5.jpg" alt="">
 					<div class="media-body align-self-center">
-						<h4 class="landing-block-node-element-title g-font-weight-400 g-font-size-15 g-color-main g-mb-0">Bastien
+						<h4 class="landing-block-node-element-title g-font-size-15 g-color-main g-mb-0">Bastien
 							Rojanawisut</h4>
 						<div class="landing-block-node-element-subtitle g-color-main g-font-size-13">
 							<span class="d-block">Reason: Template Quality</span>
@@ -75,7 +75,7 @@
 			</div>
 
 			<div class="landing-block-card-slider-element js-slide align-self-center g-px-15 mb-1 col-12 col-sm-6 col-lg-4">
-				<blockquote class="landing-block-node-element-text u-blockquote-v8 g-font-weight-300 g-font-size-15 rounded g-pa-25 g-mb-25">
+				<blockquote class="landing-block-node-element-text u-blockquote-v8 g-font-size-15 rounded g-pa-25 g-mb-25">
 					The website package made my life easier. I will advice programmers to buy it even it cost 140$ -
 					because it shorten hunderds of hours in front of your pc designing your layout.
 				</blockquote>
@@ -83,7 +83,7 @@
 					<img class="landing-block-node-element-img g-width-50 g-height-50 g-object-fit-cover d-flex align-self-center g-rounded-50x u-shadow-v19 g-brd-around g-brd-3 g-brd-white mr-3"
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/100x100/img2.jpg" alt="">
 					<div class="media-body align-self-center">
-						<h4 class="landing-block-node-element-title g-font-weight-400 g-font-size-15 g-color-main g-mb-0">
+						<h4 class="landing-block-node-element-title g-font-size-15 g-color-main g-mb-0">
 							Massalha Shady</h4>
 						<div class="landing-block-node-element-subtitle g-color-main g-font-size-13">
 							<span class="d-block">Reason: Code Quality</span>
@@ -93,7 +93,7 @@
 			</div>
 
 			<div class="landing-block-card-slider-element js-slide align-self-center g-px-15 mb-1 col-12 col-sm-6 col-lg-4">
-				<blockquote class="landing-block-node-element-text u-blockquote-v8 g-font-weight-300 g-font-size-15 rounded g-pa-25 g-mb-25">
+				<blockquote class="landing-block-node-element-text u-blockquote-v8 g-font-size-15 rounded g-pa-25 g-mb-25">
 					New website template looks great!. Love the multiple layout examples for Shortcodes and the new
 					Show code Copy code snippet feature is brilliant
 				</blockquote>
@@ -101,7 +101,7 @@
 					<img class="landing-block-node-element-img g-width-50 g-height-50 g-object-fit-cover d-flex align-self-center g-rounded-50x u-shadow-v19 g-brd-around g-brd-3 g-brd-white mr-3"
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/100x100/img4.jpg" alt="">
 					<div class="media-body align-self-center">
-						<h4 class="landing-block-node-element-title g-font-weight-400 g-font-size-15 g-color-main g-mb-0">Mark
+						<h4 class="landing-block-node-element-title g-font-size-15 g-color-main g-mb-0">Mark
 							Mcmanus</h4>
 						<div class="landing-block-node-element-subtitle g-color-main g-font-size-13">
 							<span class="d-block">Reason: Code Quality</span>
@@ -111,7 +111,7 @@
 			</div>
 
 			<div class="landing-block-card-slider-element js-slide align-self-center g-px-15 mb-1 col-12 col-sm-6 col-lg-4">
-				<blockquote class="landing-block-node-element-text u-blockquote-v8 g-font-weight-300 g-font-size-15 rounded g-pa-25 g-mb-25">
+				<blockquote class="landing-block-node-element-text u-blockquote-v8 g-font-size-15 rounded g-pa-25 g-mb-25">
 					Great templates, I'm currently using them for work. It's beautiful and the coding is done
 					quickly and seamlessly. Thank you!
 				</blockquote>
@@ -119,7 +119,7 @@
 					<img class="landing-block-node-element-img g-width-50 g-height-50 g-object-fit-cover d-flex align-self-center g-rounded-50x u-shadow-v19 g-brd-around g-brd-3 g-brd-white mr-3"
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/100x100/img3.jpg" alt="">
 					<div class="media-body align-self-center">
-						<h4 class="landing-block-node-element-title g-font-weight-400 g-font-size-15 g-color-main g-mb-0">Zuza
+						<h4 class="landing-block-node-element-title g-font-size-15 g-color-main g-mb-0">Zuza
 							Muszyska</h4>
 						<div class="landing-block-node-element-subtitle g-color-main g-font-size-13">
 							<span class="d-block">Reason: Company24 Quality</span>

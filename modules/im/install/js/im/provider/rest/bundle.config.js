@@ -1,5 +1,5 @@
 module.exports = {
 	input: './src/registry.js',
 	output: './dist/registry.bundle.js',
-	namespace: 'BX.Messenger.Provider.Pull',
+	namespace: 'BX.Messenger.Provider.Rest',
 };

@@ -97,11 +97,11 @@ final class CustomFieldsController
 	 * @throws Main\ObjectPropertyException
 	 * @throws Main\SystemException
 	 */
-	public function initialize(Entity $entity)
+	public function initialize(Entity $entity) : Entity
 	{
 		if ($entity->getId() <= 0)
 		{
-			return  $entity;
+			return $entity;
 		}
 
 		$dbRes = CustomFieldsTable::getList([
@@ -119,5 +119,68 @@ final class CustomFieldsController
 		}
 
 		return $entity;
+	}
+
+	/**
+	 * @param EntityCollection $collection
+	 * @return EntityCollection
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	public function initializeCollection(EntityCollection $collection) : EntityCollection
+	{
+		$dbRes = CustomFieldsTable::getList([
+			'select' => ['FIELD', 'ENTITY_ID'],
+			'filter' => $this->buildFilter($collection)
+		]);
+
+		while ($data = $dbRes->fetch())
+		{
+			$entity = $collection->getItemById($data['ENTITY_ID']);
+			$entity->markFieldCustom($data['FIELD']);
+		}
+
+		return $collection;
+	}
+
+	/**
+	 * @param EntityCollection $collection
+	 * @return array
+	 * @throws Main\NotImplementedException
+	 */
+	private function buildFilter(EntityCollection $collection)
+	{
+		$filter = [
+			'ENTITY_ID' => [],
+			'ENTITY_TYPE' => [],
+			'ENTITY_REGISTRY_TYPE' => [],
+		];
+
+		/** @var CollectableEntity $entity */
+		foreach ($collection as $entity)
+		{
+			if ((int)$entity->getId() === 0)
+			{
+				continue;
+			}
+
+			if (!in_array($entity->getId(), $filter['ENTITY_ID']))
+			{
+				$filter['ENTITY_ID'][] = $entity->getId();
+			}
+
+			if (!in_array($entity::getRegistryEntity(), $filter['ENTITY_TYPE']))
+			{
+				$filter['ENTITY_TYPE'][] = $entity::getRegistryEntity();
+			}
+
+			if (!in_array($entity::getRegistryType(), $filter['ENTITY_REGISTRY_TYPE']))
+			{
+				$filter['ENTITY_REGISTRY_TYPE'][] = $entity::getRegistryType();
+			}
+		}
+
+		return $filter;
 	}
 }

@@ -38,12 +38,12 @@ endif;
 
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		$arParams[strToUpper($URL)."_URL"] = trim($arParams[strToUpper($URL)."_URL"]);
-		if (empty($arParams[strToUpper($URL)."_URL"])):
-			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPage();
+		$arParams[mb_strtoupper($URL)."_URL"] = trim($arParams[mb_strtoupper($URL)."_URL"]);
+		if (empty($arParams[mb_strtoupper($URL)."_URL"])):
+			$arParams[mb_strtoupper($URL)."_URL"] = $APPLICATION->GetCurPage();
 		endif;
-		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams["~".mb_strtoupper($URL)."_URL"] = $arParams[mb_strtoupper($URL)."_URL"];
+		$arParams[mb_strtoupper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".mb_strtoupper($URL)."_URL"]);
 	}
 /***************** ADDITIONAL **************************************/
 /***************** STANDART ****************************************/
@@ -56,19 +56,19 @@ endif;
 				Main data
 ********************************************************************/
 $arError = array();
-if (strlen($arParams["MODULE_ID"]) <= 0)
+if ($arParams["MODULE_ID"] == '')
 	$arError[] = array(
 		"id" => "empty_module_id",
 		"text" => GetMessage("BPATT_NO_MODULE_ID"));
-if (strlen($arParams["ENTITY"]) <= 0)
+if ($arParams["ENTITY"] == '')
 	$arError[] = array(
 		"id" => "empty_entity",
 		"text" => GetMessage("BPABS_EMPTY_ENTITY"));
-if (strlen($arParams["DOCUMENT_TYPE"]) <= 0)
+if ($arParams["DOCUMENT_TYPE"] == '')
 	$arError[] = array(
 		"id" => "empty_document_type",
 		"text" => GetMessage("BPABS_EMPTY_DOC_TYPE"));
-if (strlen($arParams["DOCUMENT_ID"]) <= 0)
+if ($arParams["DOCUMENT_ID"] == '')
 	$arError[] = array(
 		"id" => "empty_document_id",
 		"text" => GetMessage("BPABS_EMPTY_DOC_ID"));
@@ -207,9 +207,9 @@ else
 			$bpTemplateId = intval($_REQUEST["bizproc_template_id_".$i]);
 			$bpEvent = trim($_REQUEST["bizproc_event_".$i]);
 
-			if (strlen($bpEvent) > 0)
+			if ($bpEvent <> '')
 			{
-				if (strlen($bpId) > 0)
+				if ($bpId <> '')
 				{
 					if (!array_key_exists($bpId, $arDocumentStates))
 						continue;

@@ -163,7 +163,7 @@ if(isset($arCurrentValues["IBLOCK_ID"]) && intval($arCurrentValues["IBLOCK_ID"])
 		)
 	);
 	while ($arr = $rsProp->Fetch())
-		$arProperties[$arr['ID']] = $arr['NAME'].((strlen($arr['CODE'])>0)?' ['.$arr['CODE'].']':'');
+		$arProperties[$arr['ID']] = $arr['NAME'].(($arr['CODE'] <> '')?' ['.$arr['CODE'].']':'');
 
 	//Common properties
 	$arComponentParameters["PARAMETERS"]["PATH_TO_FILE"] = Array(
@@ -220,7 +220,7 @@ if(isset($arCurrentValues["IBLOCK_ID"]) && intval($arCurrentValues["IBLOCK_ID"])
 		array("ID", "CODE", "NAME")
 	);
 	while($arr = $rsPropSec->Fetch())
-		$arSecProperties[$arr['ID']] = $arr['NAME'].((strlen($arr['CODE'])>0)?' ['.$arr['CODE'].']':'');
+		$arSecProperties[$arr['ID']] = $arr['NAME'].(($arr['CODE'] <> '')?' ['.$arr['CODE'].']':'');
 
 	$arComponentParameters["PARAMETERS"]["SECTION_ID"] = Array(
 		"PARENT" => "PREVIEW_TV",
@@ -247,7 +247,7 @@ if(isset($arCurrentValues["IBLOCK_ID"]) && intval($arCurrentValues["IBLOCK_ID"])
 			)
 		);
 		while ($arr = $rsPropEl->Fetch())
-			$arElProperties[$arr['ID']] = $arr['NAME'].((strlen($arr['CODE'])>0)?' ['.$arr['CODE'].']':'');
+			$arElProperties[$arr['ID']] = $arr['NAME'].(($arr['CODE'] <> '')?' ['.$arr['CODE'].']':'');
 
 		//Preview properties
 		$arComponentParameters["PARAMETERS"]["ELEMENT_ID"] = Array(

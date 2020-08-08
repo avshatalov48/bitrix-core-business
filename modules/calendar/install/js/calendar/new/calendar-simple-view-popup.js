@@ -39,7 +39,8 @@
 					resizable: false,
 					lightShadow: true,
 					className: 'calendar-simple-view-popup',
-					content: this.createContent()
+					content: this.createContent(),
+					cacheable: false
 				});
 
 			// Small hack to use transparent titlebar to drag&drop popup
@@ -225,13 +226,14 @@
 			{
 				var status = this.entry.getCurrentStatus();
 
-				if (status == 'Q')
+				if (status === 'Q')
 				{
 					this.DOM.buttonsWrap.appendChild(BX.create('SPAN', {
 						props: {className: 'calendar-right-block-event-info-btn'},
 						text: BX.message('EC_VIEW_DESIDE_BUT_Y'),
 						events: {click: BX.proxy(function(){
-							this.calendar.entryController.setMeetingStatus(this.entry, 'Y');
+							BX.Calendar.EntryManager.setMeetingStatus(this.entry,'Y');
+							//this.calendar.entryController.setMeetingStatus(this.entry, 'Y');
 							this.close({deselectEntry: true});
 						}, this)}
 					}));
@@ -239,29 +241,32 @@
 						props: {className: 'calendar-right-block-event-info-btn'},
 						text: BX.message('EC_VIEW_DESIDE_BUT_N'),
 						events: {click: BX.proxy(function(){
-							this.calendar.entryController.setMeetingStatus(this.entry, 'N');
+							BX.Calendar.EntryManager.setMeetingStatus(this.entry,'N');
+							//this.calendar.entryController.setMeetingStatus(this.entry, 'N');
 							this.close({deselectEntry: true});
 						}, this)}
 					}));
 				}
-				else if(status == 'Y')
+				else if(status === 'Y')
 				{
 					this.DOM.buttonsWrap.appendChild(BX.create('SPAN', {
 						props: {className: 'calendar-right-block-event-info-btn'},
 						text: BX.message('EC_VIEW_DESIDE_BUT_N'),
 						events: {click: BX.proxy(function(){
-							this.calendar.entryController.setMeetingStatus(this.entry, 'N');
+							BX.Calendar.EntryManager.setMeetingStatus(this.entry,'N');
+							//this.calendar.entryController.setMeetingStatus(this.entry, 'N');
 							this.close({deselectEntry: true});
 						}, this)}
 					}));
 				}
-				else if(status == 'N')
+				else if(status === 'N')
 				{
 					this.DOM.buttonsWrap.appendChild(BX.create('SPAN', {
 						props: {className: 'calendar-right-block-event-info-btn'},
 						text: BX.message('EC_VIEW_DESIDE_BUT_Y'),
 						events: {click: BX.proxy(function(){
-							this.calendar.entryController.setMeetingStatus(this.entry, 'Y');
+							BX.Calendar.EntryManager.setMeetingStatus(this.entry,'Y');
+							//this.calendar.entryController.setMeetingStatus(this.entry, 'Y');
 							this.close({deselectEntry: true});
 						}, this)}
 					}));
@@ -273,12 +278,10 @@
 				this.DOM.buttonsWrap.appendChild(BX.create('SPAN', {
 					props: {className: 'calendar-right-block-event-info-btn'},
 					text: BX.message('EC_SEC_EDIT'),
-					events: {click: BX.proxy(function(){
-						this.calendar.entryController.editEntry({
-							entry: this.entry
-						});
+					events: {click: function(){
+						this.calendar.getView().showEditSlider({entry: this.entry});
 						this.close({deselectEntry: true});
-					}, this)}
+					}.bind(this)}
 				}));
 			}
 

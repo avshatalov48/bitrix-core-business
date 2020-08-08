@@ -10,7 +10,7 @@ $sTableID = "tbl_iblock_type";
 
 // Sorting init
 $oSort = new CAdminSorting($sTableID, "ID", "asc");
-$arOrder = (strtoupper($by) === "ID"? array($by => $order): array($by => $order, "ID" => "ASC"));
+$arOrder = (mb_strtoupper($by) === "ID"? array($by => $order): array($by => $order, "ID" => "ASC"));
 // List init
 $lAdmin = new CAdminList($sTableID, $oSort);
 
@@ -74,7 +74,7 @@ if($USER->IsAdmin() && ($arID = $lAdmin->GroupAction()))
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
 
 		switch($_REQUEST['action'])

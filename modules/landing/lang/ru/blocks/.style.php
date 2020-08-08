@@ -6,6 +6,9 @@ $MESS["LANDING_BLOCK_STYLE_BACKGROUND_COLOR"] = "Цвет фона";
 $MESS["LANDING_BLOCK_STYLE_BACKGROUND_GRADIENT"] = "Цвет фона (градиент)";
 $MESS["LANDING_BLOCK_STYLE_BORDER_COLOR"] = "Цвет рамки";
 $MESS["LANDING_BLOCK_STYLE_BORDER_TOP_COLOR"] = "Цвет верхней рамки";
+$MESS["LANDING_BLOCK_STYLE_BORDER_BOTTOM_COLOR"] = "Цвет нижней рамки";
+$MESS["LANDING_BLOCK_STYLE_BORDER_SIDES_COLOR"] = "Цвет боковых рамок";
+$MESS["LANDING_BLOCK_STYLE_ELEMENT_COLOR"] = "Цвет указателей";
 $MESS["LANDING_BLOCK_STYLE_FONT_SIZE"] = "Размер шрифта";
 $MESS["LANDING_BLOCK_STYLE_FONT_FAMILY"] = "Шрифт";
 $MESS["LANDING_BLOCK_STYLE_TEXT_WEIGHT"] = "Начертание";
@@ -59,6 +62,7 @@ $MESS["LANDING_BLOCK_STYLE_BACKGROUND_ATTACHMENT_SCROLL"] = "Прокручив�
 $MESS["LANDING_BLOCK_STYLE_BACKGROUND_SIZE"] = "Отображение картинки";
 $MESS["LANDING_BLOCK_STYLE_BACKGROUND_SIZE_COVER"] = "Заполнение";
 $MESS["LANDING_BLOCK_STYLE_BACKGROUND_SIZE_CONTAIN"] = "По размеру";
+$MESS["LANDING_BLOCK_STYLE_BACKGROUND_SIZE_NONE"] = "Автоматически";
 
 $MESS["LANDING_STYLE_AUTO"] = "Авто";
 
@@ -69,6 +73,24 @@ $MESS["LANDING_BLOCK_STYLE_NAVBAR_COLOR_FIX_MOMENT_HOVER"] = "Цвет акти�
 $MESS["LANDING_BLOCK_STYLE_NAVBAR_ALIGN"] = "Выравнивание ссылок";
 $MESS["LANDING_BLOCK_STYLE_NAVBAR_BG"] = "Фон ссылок";
 $MESS["LANDING_BLOCK_STYLE_NAVBAR_BG_HOVER"] = "Фон активных ссылок";
+$MESS["LANDING_BLOCK_STYLE_NAVBAR_OPEN_TYPE"] = "Тип раскрытия";
+$MESS["LANDING_BLOCK_STYLE_NAVBAR_MODAL"] = "Поверх всех";
+$MESS["LANDING_BLOCK_STYLE_NAVBAR_NO_MODAL"] = "Обычное раскрытие";
+$MESS["LANDING_BLOCK_STYLE_HAMBURGER_SIZE"] = "Размер";
+$MESS["LANDING_BLOCK_STYLE_HAMBURGER_SIZE_SM"] = "Маленький";
+$MESS["LANDING_BLOCK_STYLE_HAMBURGER_SIZE_MD"] = "Стандартный";
+$MESS["LANDING_BLOCK_STYLE_HAMBURGER_SIZE_LG"] = "Увеличинный";
+$MESS["LANDING_BLOCK_STYLE_NAVBAR_MARKER"] = "Маркер списка";
+$MESS["LANDING_BLOCK_STYLE_NAVBAR_MARKER_ARROW"] = "Стрелка";
+$MESS["LANDING_BLOCK_STYLE_NAVBAR_MARKER_NO"] = "Без маркера";
+
+$MESS["LND_BL_STL_HEADER_SCROLL"] = "Поведение меню";
+$MESS["LND_BL_STL_HEADER_SCROLL_STICKY"] = "Фиксируется";
+$MESS["LND_BL_STL_HEADER_SCROLL_STATIC"] = "Прокручивается";
+$MESS["LND_BL_STL_HEADER_POS"] = "Расположить";
+$MESS["LND_BL_STL_HEADER_POS_FLOAT"] = "Поверх нижнего блока";
+$MESS["LND_BL_STL_HEADER_POS_REL"] = "По умолчанию";
+
 
 $MESS["LANDING_STYLE_WEIGHT_BOLD"] = "Полужирный";
 //$MESS["LANDING_STYLE_WEIGHT_LIGHT"] = "Тонкий";

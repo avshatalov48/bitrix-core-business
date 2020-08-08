@@ -7,8 +7,10 @@
  * @copyright 2001-2019 Bitrix
  */
 
-import {ImPullCommandHandler} from "./im.command.handler.js";
+import {ImBasePullHandler} from "./base";
+import {ImCallPullHandler} from "./call";
 
 export {
-	ImPullCommandHandler,
+	ImBasePullHandler,
+	ImCallPullHandler,
 }

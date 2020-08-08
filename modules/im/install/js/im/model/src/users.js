@@ -1,17 +1,17 @@
 /**
  * Bitrix Messenger
- * User model (Vuex Builder model)
+ * Users model (Vuex Builder model)
  *
  * @package bitrix
  * @subpackage im
- * @copyright 2001-2019 Bitrix
+ * @copyright 2001-2020 Bitrix
  */
 
 import {Vue} from 'ui.vue';
 import {VuexBuilderModel} from 'ui.vue.vuex';
-import {Utils} from "im.utils";
+import {Utils} from "im.lib.utils";
 
-class UsersModel extends VuexBuilderModel
+export class UsersModel extends VuexBuilderModel
 {
 	getName()
 	{
@@ -20,9 +20,14 @@ class UsersModel extends VuexBuilderModel
 
 	getState()
 	{
+		this.startOnlineCheckInterval();
+
 		return {
 			host: this.getVariable('host', location.protocol+'//'+location.host),
-			collection: {}
+			collection: {},
+			onlineList: [],
+			mobileOnlineList: [],
+			absentList: []
 		}
 	}
 
@@ -45,6 +50,7 @@ class UsersModel extends VuexBuilderModel
 			avatar: "",
 			gender: "M",
 			birthday: false,
+			isBirthday: false,
 			extranet: false,
 			network: false,
 			bot: false,
@@ -54,7 +60,10 @@ class UsersModel extends VuexBuilderModel
 			idle: false,
 			lastActivityDate: false,
 			mobileLastDate: false,
+			isOnline: false,
+			isMobileOnline: false,
 			absent: false,
+			isAbsent: false,
 			departments: [],
 			phones: {
 				workPhone: "",
@@ -180,12 +189,84 @@ class UsersModel extends VuexBuilderModel
 
 					state.collection[element.id] = element;
 
+					let status = Utils.user.getOnlineStatus(element);
+					if (status.isOnline)
+					{
+						state.collection[element.id].isOnline = true;
+						this.addToOnlineList(state, element.id);
+					}
+
+					let mobileStatus = Utils.user.isMobileActive(element);
+					if (mobileStatus)
+					{
+						state.collection[element.id].isMobileOnline = true;
+						this.addToMobileOnlineList(state, element.id);
+					}
+
+					if (element.birthday)
+					{
+						let today = Utils.date.format(new Date(), "d-m");
+						if (element.birthday === today)
+						{
+							state.collection[element.id].isBirthday = true;
+
+							let timeToNextMidnight = this.getTimeToNextMidnight();
+							setTimeout(() => {
+								state.collection[element.id].isBirthday = false;
+							}, timeToNextMidnight);
+						}
+					}
+
+					if (element.absent)
+					{
+						element.isAbsent = true;
+
+						if (!state.absentList.includes(element.id))
+						{
+							this.addToAbsentList(state, element.id);
+
+							let timeToNextMidnight = this.getTimeToNextMidnight();
+							let timeToNextDay = 1000*60*60*24;
+							setTimeout(() => {
+								setInterval(() => this.startAbsentCheckInterval(state), timeToNextDay);
+							}, timeToNextMidnight);
+						}
+					}
+
 					this.saveState(state);
 				}
 			},
 			update: (state, payload) =>
 			{
 				this.initCollection(state, payload);
+
+				if (typeof payload.fields.lastActivityDate !== 'undefined')
+				{
+					let lastActivityDate = state.collection[payload.id].lastActivityDate.getTime();
+					let newActivityDate = payload.fields.lastActivityDate.getTime();
+					if (newActivityDate > lastActivityDate)
+					{
+						let status = Utils.user.getOnlineStatus(payload.fields);
+						if (status.isOnline)
+						{
+							state.collection[payload.id].isOnline = true;
+							this.addToOnlineList(state, payload.fields.id);
+						}
+					}
+				}
+
+				if (
+					typeof payload.fields.mobileLastDate !== 'undefined'
+					&& state.collection[payload.id].mobileLastDate !== payload.fields.mobileLastDate
+				)
+				{
+					let mobileStatus = Utils.user.isMobileActive(payload.fields);
+					if (mobileStatus)
+					{
+						state.collection[payload.id].isMobileOnline = true;
+						this.addToMobileOnlineList(state, payload.fields.id);
+					}
+				}
 
 				state.collection[payload.id] = Object.assign(
 					state.collection[payload.id],
@@ -305,17 +386,21 @@ class UsersModel extends VuexBuilderModel
 
 		if (typeof fields.first_name !== "undefined")
 		{
-			fields.firstName = fields.first_name;
+			fields.firstName = Utils.text.htmlspecialcharsback(fields.first_name);
 		}
 		if (typeof fields.last_name !== "undefined")
 		{
-			fields.lastName = fields.last_name;
+			fields.lastName = Utils.text.htmlspecialcharsback(fields.last_name);
 		}
 		if (typeof fields.name === "string" || typeof fields.name === "number")
 		{
-			result.name = fields.name.toString();
+			fields.name = Utils.text.htmlspecialcharsback(fields.name.toString());
+			result.name = fields.name;
 
-			if (typeof fields.firstName !== "undefined" && !fields.firstName)
+			if (
+				typeof fields.firstName === "undefined"
+				|| typeof fields.firstName !== "undefined" && !fields.firstName
+			)
 			{
 				let elementsOfName = fields.name.split(' ');
 				if (elementsOfName.length > 1)
@@ -329,7 +414,9 @@ class UsersModel extends VuexBuilderModel
 				}
 			}
 
-			if (typeof fields.lastName !== "undefined" && !fields.lastName)
+			if (
+				typeof fields.lastName === "undefined"
+				|| typeof fields.lastName !== "undefined" && !fields.lastName)
 			{
 				let elementsOfName = fields.name.split(' ');
 				if (elementsOfName.length > 1)
@@ -343,13 +430,13 @@ class UsersModel extends VuexBuilderModel
 			}
 		}
 
-		if (typeof fields.firstName === "string" || typeof fields.name === "number")
+		if (typeof fields.firstName === "string" || typeof fields.firstName === "number")
 		{
-			result.firstName = fields.firstName.toString();
+			result.firstName = Utils.text.htmlspecialcharsback(fields.firstName.toString());
 		}
-		if (typeof fields.lastName === "string" || typeof fields.name === "number")
+		if (typeof fields.lastName === "string" || typeof fields.lastName === "number")
 		{
-			result.lastName = fields.lastName.toString();
+			result.lastName = Utils.text.htmlspecialcharsback(fields.lastName.toString());
 		}
 
 		if (typeof fields.work_position !== "undefined")
@@ -519,6 +606,110 @@ class UsersModel extends VuexBuilderModel
 
 		return result;
 	}
-}
 
-export {UsersModel};
+	addToOnlineList(state, id)
+	{
+		if (!state.onlineList.includes(id))
+		{
+			state.onlineList.push(id);
+		}
+	}
+
+	addToMobileOnlineList(state, id)
+	{
+		if (!state.mobileOnlineList.includes(id))
+		{
+			state.mobileOnlineList.push(id);
+		}
+	}
+
+	addToAbsentList(state, id)
+	{
+		if (!state.absentList.includes(id))
+		{
+			state.absentList.push(id);
+		}
+	}
+
+	getTimeToNextMidnight()
+	{
+		let nextMidnight = new Date(new Date().setHours(24,0,0)).getTime();
+		return nextMidnight - new Date();
+	}
+
+	startAbsentCheckInterval(state)
+	{
+		for (let userId of state.absentList)
+		{
+			let user = state.collection[userId];
+
+			if (!user)
+			{
+				continue;
+			}
+			let currentTime = new Date().getTime();
+			let absentEnd = new Date(state.collection[userId].absent).getTime();
+
+			if (absentEnd <= currentTime)
+			{
+				state.absentList = state.absentList.filter(element => {
+					return element !== userId;
+				});
+				user.isAbsent = false;
+			}
+		}
+	}
+
+	startOnlineCheckInterval()
+	{
+		const intervalTime = 60000;
+
+		setInterval(() => {
+			for (let userId of this.store.state.users.onlineList)
+			{
+				let user = this.store.state.users.collection[userId];
+
+				if (!user)
+				{
+					continue;
+				}
+
+				let status = Utils.user.getOnlineStatus(user);
+				if (status.isOnline)
+				{
+					user.isOnline = true;
+				}
+				else
+				{
+					user.isOnline = false;
+					this.store.state.users.onlineList = this.store.state.users.onlineList.filter(element => {
+						return element !== userId
+					});
+				}
+			}
+
+			for (let userId of this.store.state.users.mobileOnlineList)
+			{
+				let user = this.store.state.users.collection[userId];
+
+				if (!user)
+				{
+					continue;
+				}
+
+				let mobileStatus = Utils.user.isMobileActive(user);
+				if (mobileStatus)
+				{
+					user.isMobileOnline = true;
+				}
+				else
+				{
+					user.isMobileOnline = false;
+					this.store.state.users.mobileOnlineList = this.store.state.users.mobileOnlineList.filter(element => {
+						return element !== userId
+					});
+				}
+			}
+		}, intervalTime);
+	}
+}

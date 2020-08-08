@@ -13,12 +13,12 @@
 $this->setFrameMode(true);
 
 $INPUT_ID = trim($arParams["~INPUT_ID"]);
-if(strlen($INPUT_ID) <= 0)
+if($INPUT_ID == '')
 	$INPUT_ID = "title-search-input";
 $INPUT_ID = CUtil::JSEscape($INPUT_ID);
 
 $CONTAINER_ID = trim($arParams["~CONTAINER_ID"]);
-if(strlen($CONTAINER_ID) <= 0)
+if($CONTAINER_ID == '')
 	$CONTAINER_ID = "title-search";
 $CONTAINER_ID = CUtil::JSEscape($CONTAINER_ID);
 

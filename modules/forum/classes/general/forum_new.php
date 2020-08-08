@@ -1267,61 +1267,49 @@ class CAllForumNew
 		return new _CForumDBResult($db_res, $arAddParams);
 	}
 
-	public static function GetForumRenew($arParams)
+	public static function GetForumRenew($data)
 	{
 		global $DB, $USER;
 
-		$userID = false;
-		if (isset($arParams['USER_ID']) && (intval($arParams['USER_ID']) > 0))
+		$userId = false;
+		if (array_key_exists("USER_ID", $data) && $data["USER_ID"] > 0)
 		{
-			$userID = intval($arParams['USER_ID']);
+			$userId = intval($data["USER_ID"]);
 		}
 		else if ($USER->IsAuthorized())
 		{
-			$userID = $USER->GetID();
+			$userId = $USER->GetID();
 		}
 
-		$arForum = array();
-		if (isset($arParams['FORUM_ID']))
-		{
-			if (!is_array($arParams['FORUM_ID']) && (intval($arParams['FORUM_ID']) > 0))
-				$arParams['FORUM_ID'] = array($arParams['FORUM_ID']);
+		$forums = array_key_exists("FORUM_ID", $data) ? $data["FORUM_ID"] : [];
+		$forums = is_array($forums) ? $forums : [$forums];
+		array_map("intval", $forums);
 
-			if (is_array($arParams['FORUM_ID']))
-			{
-				foreach ($arParams['FORUM_ID'] as $forumID)
-				{
-					$forumID = intval($forumID);
-					if ($forumID > 0)
-						$arForum[] = $forumID;
-				}
-			}
-		}
-
-		if ($userID === false || sizeof($arForum) <= 0)
+		if ($userId === false || sizeof($forums) <= 0)
 		{
 			return false;
 		}
 
 		$sWhere = "(1=1)";
-		if (sizeof($arForum) > 0)
-			$sWhere = '(BF.ID IN ('.implode(" ,",$arForum).'))';
+		if (sizeof($forums) > 0)
+		{
+			$sWhere = '(BF.ID IN ('.implode(", ", $forums).'))';
+		}
 
-
-		$strSql = "
+		$strSql = <<<SQL
 			SELECT BF.ID AS FORUM_ID , COUNT(FT_RENEW.ID) TCRENEW
 			FROM b_forum BF
-			LEFT JOIN b_forum_user_forum FUF ON (FUF.USER_ID = ".$userID." AND FUF.FORUM_ID = BF.ID)
-			LEFT JOIN b_forum_user_forum FUF_ALL ON (FUF_ALL.USER_ID =  ".$userID." AND FUF_ALL.FORUM_ID =  0)
+			LEFT JOIN b_forum_user_forum FUF ON (FUF.USER_ID = {$userId} AND FUF.FORUM_ID = BF.ID)
+			LEFT JOIN b_forum_user_forum FUF_ALL ON (FUF_ALL.USER_ID =  {$userId} AND FUF_ALL.FORUM_ID =  0)
 			LEFT JOIN b_forum_topic FT_RENEW ON
 				(
 					BF.ID = FT_RENEW.FORUM_ID AND FT_RENEW.STATE != 'L' AND
 					(FUF_ALL.LAST_VISIT IS NULL OR FT_RENEW.ABS_LAST_POST_DATE >  FUF_ALL.LAST_VISIT)
 				)
 			LEFT JOIN b_forum_user_topic FUT_RENEW ON (
-					FUT_RENEW.FORUM_ID =  BF.ID AND FUT_RENEW.TOPIC_ID =  FT_RENEW.ID AND FUT_RENEW.USER_ID =  ".$userID.")
+					FUT_RENEW.FORUM_ID =  BF.ID AND FUT_RENEW.TOPIC_ID =  FT_RENEW.ID AND FUT_RENEW.USER_ID = {$userId})
 			WHERE(
-				".$sWhere."
+				{$sWhere}
 				AND
 				(
 					FUT_RENEW.LAST_VISIT IS NULL
@@ -1361,7 +1349,7 @@ class CAllForumNew
 				)
 			)
 			GROUP BY BF.ID
-		";
+SQL;
 		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		return $db_res;
 	}

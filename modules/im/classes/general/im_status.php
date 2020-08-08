@@ -332,7 +332,7 @@ class CIMStatus
 			while ($user = $orm->fetch())
 			{
 				$color = null;
-				if (isset($user['COLOR']) && strlen($user['COLOR']) > 0)
+				if (isset($user['COLOR']) && $user['COLOR'] <> '')
 				{
 					$color = IM\Color::getColor($user['COLOR']);
 				}
@@ -455,7 +455,7 @@ class CIMStatus
 		if (in_array($status['EXTERNAL_AUTH_ID'], $externalUser))
 		{
 			$result['STATUS'] = 'online';
-			$result['STATUS_TEXT'] = GetMessage('IM_STATUS_EAID_'.strtoupper($status['EXTERNAL_AUTH_ID']));
+			$result['STATUS_TEXT'] = GetMessage('IM_STATUS_EAID_'.mb_strtoupper($status['EXTERNAL_AUTH_ID']));
 			$result['LAST_SEEN_TEXT'] = '';
 
 			return $result;
@@ -488,7 +488,7 @@ class CIMStatus
 		else if (in_array($status['STATUS'], Array('dnd', 'away')))
 		{
 			$result['STATUS'] = $status['STATUS'];
-			$result['STATUS_TEXT'] = GetMessage('IM_STATUS_'.strtoupper($status['STATUS']));
+			$result['STATUS_TEXT'] = GetMessage('IM_STATUS_'.mb_strtoupper($status['STATUS']));
 		}
 
 		/** @var \Bitrix\Main\Type\DateTime $idleDate */

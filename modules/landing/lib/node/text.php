@@ -105,7 +105,7 @@ class Text extends \Bitrix\Landing\Node
 
 	/**
 	 * This node may participate in searching.
-	 * @param \Bitrix\Landing\Block &$block Block instance.
+	 * @param \Bitrix\Landing\Block $block Block instance.
 	 * @param string $selector Selector.
 	 * @return array
 	 */

@@ -12,8 +12,9 @@
 	word-wrap: break-word;
 }
 
-.sonet-slider-frame-popup .popup-window-buttons, .sonet-slider-frame-popup .sonet-ui-btn-cont.sonet-ui-btn-cont-center {
-	text-align: left;
+.sonet-slider-frame-popup .popup-window-buttons,
+.sonet-slider-frame-popup .sonet-ui-btn-cont.sonet-ui-btn-cont-center {
+	/*text-align: left;*/
 	padding: 0;
 	position: static;
 }

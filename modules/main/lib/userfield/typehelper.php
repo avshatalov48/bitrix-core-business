@@ -4,6 +4,11 @@ namespace Bitrix\Main\UserField;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
 
+/**
+ * Class Helper
+ * @package Bitrix\Main\UserField
+ * @deprecated
+ */
 class TypeHelper
 {
 	protected $userTypeId;

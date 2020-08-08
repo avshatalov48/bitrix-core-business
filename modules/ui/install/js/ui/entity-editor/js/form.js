@@ -124,6 +124,7 @@ if(typeof(BX.UI.ComponentAjax) === "undefined")
 		this._actionName = "";
 		this._signedParameters = null;
 		this._callbacks = null;
+		this._getParameters = {};
 	};
 	BX.extend(BX.UI.ComponentAjax, BX.UI.Form);
 	BX.UI.ComponentAjax.prototype.doInitialize = function()
@@ -134,15 +135,36 @@ if(typeof(BX.UI.ComponentAjax) === "undefined")
 		this._callbacks = BX.prop.getObject(this._settings, "callbacks", {});
 
 	};
+	BX.UI.ComponentAjax.prototype.addUrlParams = function(params)
+	{
+		if(BX.type.isPlainObject(params) && Object.keys(params).length > 0)
+		{
+			this._getParameters = BX.merge(this._getParameters, params);
+		}
+	};
 	BX.UI.ComponentAjax.prototype.doSubmit = function(options)
 	{
+		var formData = BX.ajax.prepareForm(this._elementNode);
+
+		if (BX.type.isPlainObject(options.data))
+		{
+			for (var i in options.data)
+			{
+				if (options.data.hasOwnProperty(i))
+				{
+					formData.data[i] = options.data[i];
+				}
+			}
+		}
+
 		BX.ajax.runComponentAction(
 			this._className,
 			this._actionName,
 			{
 				mode: "class",
 				signedParameters: this._signedParameters,
-				data: BX.ajax.prepareForm(this._elementNode)
+				data: formData,
+				getParameters: this._getParameters
 			}
 		).then(
 			function(response)

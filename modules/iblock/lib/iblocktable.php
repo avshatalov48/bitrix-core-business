@@ -320,7 +320,7 @@ class IblockTable extends DataManager
 		$iblockNamespace = static::DATA_CLASS_NAMESPACE;
 		$iblockDataClassName = $iblock->getEntityDataClassName();
 
-		if (!strlen($iblockDataClassName))
+		if ($iblockDataClassName == '')
 		{
 			return false;
 		}
@@ -366,7 +366,7 @@ class IblockTable extends DataManager
 			}
 
 			// build property entity with base fields
-			$propertyValueEntity = $property->getValueEntity();
+			$propertyValueEntity = $property->getValueEntity($elementEntity);
 
 			// add custom fields
 			if (!empty($property->getUserType()) && !empty($userTypeList[$property->getUserType()]['GetORMFields']))

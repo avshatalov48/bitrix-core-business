@@ -16,7 +16,7 @@ $arParams['MODULE_ID'] = $arParams['MODULE_ID'] && IsModuleInstalled($arParams['
 if (
 	$arParams['ALLOW_UPLOAD'] != 'I' &&
 	(
-		$arParams['ALLOW_UPLOAD'] != 'F' || strlen($arParams['ALLOW_UPLOAD_EXT']) <= 0
+		$arParams['ALLOW_UPLOAD'] != 'F' || $arParams['ALLOW_UPLOAD_EXT'] == ''
 	)
 )
 	$arParams['ALLOW_UPLOAD'] = 'A';
@@ -61,7 +61,7 @@ if ($_POST['mfi_mode'])
 				$res = CFile::CheckFile($arFile, $max_file_size, false, false);
 			endif;
 
-			if (strlen($res) <= 0)
+			if ($res == '')
 			{
 				$fileID = CFile::SaveFile($arFile, $mid);
 
@@ -146,10 +146,10 @@ if ($_GET['mfi_mode'] === 'down')
 if ($arParams['SILENT'])
 	return;
 
-if (substr($arParams['INPUT_NAME'], -2) == '[]')
-	$arParams['INPUT_NAME'] = substr($arParams['INPUT_NAME'], 0, -2);
-if (substr($arParams['INPUT_NAME_UNSAVED'], -2) == '[]')
-	$arParams['INPUT_NAME_UNSAVED'] = substr($arParams['INPUT_NAME_UNSAVED'], 0, -2);
+if (mb_substr($arParams['INPUT_NAME'], -2) == '[]')
+	$arParams['INPUT_NAME'] = mb_substr($arParams['INPUT_NAME'], 0, -2);
+if (mb_substr($arParams['INPUT_NAME_UNSAVED'], -2) == '[]')
+	$arParams['INPUT_NAME_UNSAVED'] = mb_substr($arParams['INPUT_NAME_UNSAVED'], 0, -2);
 if (!is_array($arParams['INPUT_VALUE']) && intval($arParams['INPUT_VALUE']) > 0)
 	$arParams['INPUT_VALUE'] = array($arParams['INPUT_VALUE']);
 
@@ -172,7 +172,7 @@ $arResult['CONTROL_UID'] = md5(randString(15));
 $_SESSION["MFI_UPLOADED_FILES_".$arResult['CONTROL_UID']] = array();
 $arResult['FILES'] = array();
 
-if (is_array($arParams['INPUT_VALUE']) && strlen(implode(",", $arParams["INPUT_VALUE"])) > 0)
+if (is_array($arParams['INPUT_VALUE']) && implode(",", $arParams["INPUT_VALUE"]) <> '')
 {
 	$dbRes = CFile::GetList(array(), array("@ID" => implode(",", $arParams["INPUT_VALUE"])));
 	while ($arFile = $dbRes->GetNext())

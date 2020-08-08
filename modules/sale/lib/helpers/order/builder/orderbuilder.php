@@ -1,6 +1,8 @@
 <?
 namespace Bitrix\Sale\Helpers\Order\Builder;
 
+use Bitrix\Sale\Property;
+use Bitrix\Sale\PropertyValue;
 use Bitrix\Sale\Shipment;
 use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main\Error;
@@ -307,6 +309,8 @@ abstract class OrderBuilder
 
 	public function buildShipments()
 	{
+		$orderPropsCountBefore = count($this->order->getPropertyCollection());
+
 		if(!isset($this->formData["SHIPMENT"]) || !is_array($this->formData["SHIPMENT"]))
 		{
 			$this->createEmptyShipment();
@@ -327,6 +331,13 @@ abstract class OrderBuilder
 			$shipmentId = intval($item['ID']);
 			$isNew = ($shipmentId <= 0);
 			$deliveryService = null;
+
+			if (!isset($item['DEDUCTED']) || $item['DEDUCTED'] !== 'Y')
+			{
+				$item['DEDUCTED'] = 'N';
+			}
+
+			$extraServices = ($item['EXTRA_SERVICES']) ? $item['EXTRA_SERVICES'] : array();
 
 			$settableShipmentFields = $this->getSettableShipmentFields();
 			if(count($settableShipmentFields)>0)
@@ -381,7 +392,7 @@ abstract class OrderBuilder
 
 						$products[] = array(
 							'AMOUNT' => $systemShipmentItem->getQuantity(),
-							'BASKET_CODE' => $product->getBasketCode()
+							'BASKET_CODE' => $product->getBasketCode(),
 						);
 					}
 				}
@@ -401,15 +412,13 @@ abstract class OrderBuilder
 				}
 			}
 
-			$extraServices = ($item['EXTRA_SERVICES']) ? $item['EXTRA_SERVICES'] : array();
-
 			$shipmentFields = array(
 				'COMPANY_ID' => (isset($item['COMPANY_ID']) && intval($item['COMPANY_ID']) > 0) ? intval($item['COMPANY_ID']) : 0,
 				'DEDUCTED' => $item['DEDUCTED'],
 				'DELIVERY_DOC_NUM' => $item['DELIVERY_DOC_NUM'],
 				'TRACKING_NUMBER' => $item['TRACKING_NUMBER'],
 				'CURRENCY' => $this->order->getCurrency(),
-				'COMMENTS' => $item['COMMENTS']
+				'COMMENTS' => $item['COMMENTS'],
 			);
 
 			if(isset($item['ACCOUNT_NUMBER']) && $item['ACCOUNT_NUMBER']<>'')
@@ -524,7 +533,8 @@ abstract class OrderBuilder
 			$fields = array(
 				'CUSTOM_PRICE_DELIVERY' => $item['CUSTOM_PRICE_DELIVERY'] === 'Y' ? 'Y' : 'N',
 				'ALLOW_DELIVERY' => $item['ALLOW_DELIVERY'],
-				'PRICE_DELIVERY' => (float)str_replace(',', '.', $item['PRICE_DELIVERY'])
+				'PRICE_DELIVERY' => (float)str_replace(',', '.', $item['PRICE_DELIVERY']),
+				'EXPECTED_PRICE_DELIVERY' => isset($item['EXPECTED_PRICE_DELIVERY']) ? (float)$item['EXPECTED_PRICE_DELIVERY'] : null,
 			);
 
 			if(isset($item['BASE_PRICE_DELIVERY']))
@@ -543,6 +553,11 @@ abstract class OrderBuilder
 				}
 			}
 		}
+
+		/**
+		 * Set properties again and recalculate delivery in case we've got new properties available
+		 */
+		$this->delegate->recalculateDeliveryPrice($orderPropsCountBefore, $this->order);
 
 		return $this;
 	}
@@ -658,7 +673,7 @@ abstract class OrderBuilder
 					'AMOUNT' => $items['AMOUNT'],
 					'ORDER_DELIVERY_BASKET_ID' => isset($items['ORDER_DELIVERY_BASKET_ID']) ? $items['ORDER_DELIVERY_BASKET_ID'] : 0,
 					'XML_ID' => $items['XML_ID'],
-					'IS_SUPPORTED_MARKING_CODE' => $items['IS_SUPPORTED_MARKING_CODE']
+					'IS_SUPPORTED_MARKING_CODE' => $items['IS_SUPPORTED_MARKING_CODE'],
 				);
 				$idsFromForm[$basketCode] = array();
 
@@ -675,7 +690,7 @@ abstract class OrderBuilder
 						$tmp['BARCODE'] = array(
 							'ORDER_DELIVERY_BASKET_ID' => $items['ORDER_DELIVERY_BASKET_ID'],
 							'STORE_ID' => $item['STORE_ID'],
-							'QUANTITY' => ($basketItem->isBarcodeMulti() || $basketItem->isSupportedMarkingCode()) ? 1 : $item['QUANTITY']
+							'QUANTITY' => ($basketItem->isBarcodeMulti() || $basketItem->isSupportedMarkingCode()) ? 1 : $item['QUANTITY'],
 						);
 
 						$barcodeCount = 0;
@@ -786,7 +801,7 @@ abstract class OrderBuilder
 						$result->addError(
 							new Error(
 								Loc::getMessage('SALE_HLP_ORDERBUILDER_SHIPMENT_ITEM_ERROR',[
-									'#ID#' => $shippingItem['ORDER_DELIVERY_BASKET_ID']
+									'#ID#' => $shippingItem['ORDER_DELIVERY_BASKET_ID'],
 								])
 							)
 						);
@@ -1264,7 +1279,7 @@ abstract class OrderBuilder
 
 	public function getFormData($fieldName = '')
 	{
-		if(strlen($fieldName) > 0)
+		if($fieldName <> '')
 		{
 			$result = isset($this->formData[$fieldName]) ? $this->formData[$fieldName]:null;
 		}
@@ -1298,7 +1313,7 @@ abstract class OrderBuilder
 
 			$res = \Bitrix\Sale\Internals\PersonTypeTable::getList(array(
 				'order' => array('SORT' => 'ASC', 'NAME' => 'ASC'),
-				'filter' => array('=ACTIVE' => 'Y', '=PERSON_TYPE_SITE.SITE_ID' => $siteId)
+				'filter' => array('=ACTIVE' => 'Y', '=PERSON_TYPE_SITE.SITE_ID' => $siteId),
 			));
 
 			while ($personType = $res->fetch())

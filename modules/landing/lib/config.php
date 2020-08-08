@@ -19,7 +19,31 @@ class Config
 			'disable_namespace' => [],
 			'enable_namespace' => [],
 			'public_wrapper_block' => true,
-			'google_font' => true
+			'icon_src' => '/bitrix/templates/landing24/assets/vendor/icon/',
+			'icon_vendors' => [
+				'fa',
+				'et-icon',
+				'hs-icon',
+				'icon-christmas',
+				'icon-clothes',
+				'icon-communication',
+				'icon-education',
+				'icon-electronics',
+				'icon-finance',
+				'icon-food',
+				'icon-furniture',
+				'icon-hotel-restaurant',
+				'icon-media',
+				'icon-medical',
+				'icon-music',
+				'icon-real-estate',
+				'icon-science',
+				'icon-sport',
+				'icon-transport',
+				'icon-travel',
+				'icon-weather',
+				'icon',
+			],
 		];
 	}
 

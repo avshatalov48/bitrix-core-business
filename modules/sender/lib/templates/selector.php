@@ -7,12 +7,11 @@
  */
 namespace Bitrix\Sender\Templates;
 
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\EventResult;
 use Bitrix\Main\Event;
-
-use Bitrix\Sender\TemplateTable;
+use Bitrix\Main\EventResult;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Sender\Message;
+use Bitrix\Sender\TemplateTable;
 
 Loc::loadMessages(__FILE__);
 
@@ -257,6 +256,7 @@ class Selector
 			array('\Bitrix\Sender\Preset\Templates\Mail', 'onPresetTemplateList'),
 			array('\Bitrix\Sender\Preset\Templates\Sms', 'onPresetTemplateList'),
 			array('\Bitrix\Sender\Preset\Templates\Rc', 'onPresetTemplateList'),
+			array('\Bitrix\Sender\Preset\Templates\Toloka', 'onPresetTemplateList'),
 			array('\Bitrix\Sender\Preset\Templates\AudioCall', 'onPresetTemplateList')
 		);
 		foreach ($providers as $provider)

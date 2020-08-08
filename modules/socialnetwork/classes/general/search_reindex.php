@@ -168,7 +168,7 @@ class CSocNetSearchReindex extends CSocNetSearch
 			return true;
 		unset($arFields["ID"]);
 
-		switch(substr($ID, 0, 1))
+		switch(mb_substr($ID, 0, 1))
 		{
 			case "P":
 				$blog = $this->GetBlog($arFields["PARAM2"]);
@@ -176,7 +176,7 @@ class CSocNetSearchReindex extends CSocNetSearch
 					is_array($blog)
 					&& intval($blog["SOCNET_GROUP_ID"]) <= 0
 					&& intval($blog["OWNER_ID"]) > 0
-					&& strlen($this->_params["PATH_TO_USER_BLOG_POST"]) > 0
+					&& $this->_params["PATH_TO_USER_BLOG_POST"] <> ''
 				)
 				{
 					$paramsTmp = $this->GetSearchParams(
@@ -186,9 +186,13 @@ class CSocNetSearchReindex extends CSocNetSearch
 						'view_post'
 					);
 					if(!empty($arFields["PARAMS"]))
+					{
 						$arFields["PARAMS"] = array_merge($paramsTmp, $arFields["PARAMS"]);
+					}
 					else
+					{
 						$arFields["PARAMS"] = $paramsTmp;
+					}
 
 					foreach($arFields["SITE_ID"] as $site_id => $url)
 					{
@@ -201,7 +205,7 @@ class CSocNetSearchReindex extends CSocNetSearch
 							array(
 								$blog["OWNER_ID"],
 								$blog["SOCNET_GROUP_ID"],
-								substr($ID, 1),
+								mb_substr($ID, 1),
 							),
 							$this->_params["PATH_TO_USER_BLOG_POST"]
 						);
@@ -218,7 +222,7 @@ class CSocNetSearchReindex extends CSocNetSearch
 					is_array($blog)
 					&& intval($blog["SOCNET_GROUP_ID"]) <= 0
 					&& intval($blog["OWNER_ID"]) > 0
-					&& strlen($this->_params["PATH_TO_USER_BLOG_COMMENT"]) > 0
+					&& $this->_params["PATH_TO_USER_BLOG_COMMENT"] <> ''
 				)
 				{
 					$paramsTmp = $this->GetSearchParams(
@@ -228,9 +232,13 @@ class CSocNetSearchReindex extends CSocNetSearch
 						'view_comment'
 					);
 					if(!empty($arFields["PARAMS"]))
+					{
 						$arFields["PARAMS"] = array_merge($paramsTmp, $arFields["PARAMS"]);
+					}
 					else
+					{
 						$arFields["PARAMS"] = $paramsTmp;
+					}
 
 					foreach($arFields["SITE_ID"] as $site_id => $url)
 					{
@@ -244,8 +252,8 @@ class CSocNetSearchReindex extends CSocNetSearch
 							array(
 								$blog["OWNER_ID"],
 								$blog["SOCNET_GROUP_ID"],
-								substr($arFields["PARAM2"], strpos($arFields["PARAM2"], "|")+1),
-								substr($ID, 1),
+								mb_substr($arFields["PARAM2"], mb_strpos($arFields["PARAM2"], "|") + 1),
+								mb_substr($ID, 1),
 							),
 							$this->_params["PATH_TO_USER_BLOG_COMMENT"]
 						);
@@ -279,7 +287,7 @@ class CSocNetSearchReindex extends CSocNetSearch
 		if(!CModule::IncludeModule('blog'))
 			return false;
 
-		if(substr($last_id, 0, 1)=="0")
+		if(mb_substr($last_id, 0, 1) == "0")
 			$last_id = "";
 
 		if($entity_type=="G")
@@ -573,21 +581,25 @@ class CSocNetSearchReindex extends CSocNetSearch
 
 		case "group_forums":
 			$path_template = trim($this->_params["PATH_TO_GROUP_FORUM_MESSAGE"]);
-			if(strlen($path_template))
+			if($path_template <> '')
+			{
 				$last_id = $this->ReindexForum("G", $last_id, $path_template);
+			}
 			break;
 
 		case "user_forums":
 			$path_template = trim($this->_params["PATH_TO_USER_FORUM_MESSAGE"]);
-			if(strlen($path_template))
+			if($path_template <> '')
+			{
 				$last_id = $this->ReindexForum("U", $last_id, $path_template);
+			}
 			break;
 
 		case "group_photos":
 			$path_template = trim($this->_params["PATH_TO_GROUP_PHOTO_ELEMENT"]);
 			$iblock = intval($this->_params["PHOTO_GROUP_IBLOCK_ID"]);
 
-			if(strlen($path_template) && $iblock)
+			if(mb_strlen($path_template) && $iblock)
 				$last_id = $this->ReindexIBlock($iblock, "G", "photo", "view", $path_template, array("PREVIEW_TEXT", "PROPERTY_FORUM_TOPIC_ID"), $last_id);
 			else
 				$last_id = 0;
@@ -597,7 +609,7 @@ class CSocNetSearchReindex extends CSocNetSearch
 			$path_template = trim($this->_params["PATH_TO_USER_PHOTO_ELEMENT"]);
 			$iblock = intval($this->_params["PHOTO_USER_IBLOCK_ID"]);
 
-			if(strlen($path_template) && $iblock)
+			if(mb_strlen($path_template) && $iblock)
 				$last_id = $this->ReindexIBlock($iblock, "U", "photo", "view", $path_template, array("PREVIEW_TEXT", "PROPERTY_FORUM_TOPIC_ID"), $last_id);
 			else
 				$last_id = 0;
@@ -607,7 +619,7 @@ class CSocNetSearchReindex extends CSocNetSearch
 			$path_template = trim($this->_params["PATH_TO_GROUP_CALENDAR_ELEMENT"]);
 			$iblock = intval($this->_params["CALENDAR_GROUP_IBLOCK_ID"]);
 
-			if(strlen($path_template) && $iblock)
+			if(mb_strlen($path_template) && $iblock)
 				$last_id = $this->ReindexIBlock($iblock, "G", "calendar", "view", $path_template, array("DETAIL_TEXT"), $last_id);
 			else
 				$last_id = 0;
@@ -617,12 +629,12 @@ class CSocNetSearchReindex extends CSocNetSearch
 			$path_template = trim($this->_params["PATH_TO_GROUP_FILES_ELEMENT"]);
 			$iblock = intval($this->_params["FILES_GROUP_IBLOCK_ID"]);
 
-			$property = strtoupper(trim($this->_params["FILES_PROPERTY_CODE"]));
-			if(strlen($property) <= 0)
+			$property = mb_strtoupper(trim($this->_params["FILES_PROPERTY_CODE"]));
+			if($property == '')
 				$property = "FILE";
 			$this->_file_property = "PROPERTY_".$property;
 
-			if(strlen($path_template) && $iblock)
+			if(mb_strlen($path_template) && $iblock)
 				$last_id = $this->ReindexIBlock($iblock, "G", "files", "view", $path_template, array($this->_file_property, "PROPERTY_FORUM_TOPIC_ID"), $last_id);
 			else
 				$last_id = 0;
@@ -634,7 +646,7 @@ class CSocNetSearchReindex extends CSocNetSearch
 				$path_template = trim($this->_params["PATH_TO_GROUP"])."wiki/#name#/";
 				$iblock = intval(COption::GetOptionInt("wiki", "socnet_iblock_id"));
 
-				if(strlen($path_template) && $iblock)
+				if(mb_strlen($path_template) && $iblock)
 					$last_id = $this->ReindexIBlock($iblock, "G", "wiki", "view", $path_template, array("DETAIL_TEXT"), $last_id);
 				else
 					$last_id = 0;
@@ -645,12 +657,12 @@ class CSocNetSearchReindex extends CSocNetSearch
 			$path_template = trim($this->_params["PATH_TO_USER_FILES_ELEMENT"]);
 			$iblock = intval($this->_params["FILES_USER_IBLOCK_ID"]);
 
-			$property = strtoupper(trim($this->_params["FILES_PROPERTY_CODE"]));
-			if(strlen($property) <= 0)
+			$property = mb_strtoupper(trim($this->_params["FILES_PROPERTY_CODE"]));
+			if($property == '')
 				$property = "FILE";
 			$this->_file_property = "PROPERTY_".$property;
 
-			if(strlen($path_template) && $iblock)
+			if(mb_strlen($path_template) && $iblock)
 				$last_id = $this->ReindexIBlock($iblock, "U", "files", "view", $path_template, array($this->_file_property, "PROPERTY_FORUM_TOPIC_ID"), $last_id);
 			else
 				$last_id = 0;

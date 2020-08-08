@@ -380,6 +380,11 @@
 	BX.PhoneCallView.prototype.reinit = function()
 	{
 		this.elements = this.getInitialElements();
+
+		window.removeEventListener('beforeunload', this._unloadHandler);
+		BX.removeCustomEvent(window, "onLocalStorageSet", this._externalEventHandler);
+		BX.removeCustomEvent("onPullEvent-crm", this._onPullEventCrmHandler);
+
 		this.init();
 	};
 
@@ -2162,9 +2167,7 @@
 
 	BX.PhoneCallView.prototype.loadRestApp = function(params)
 	{
-		var self = this;
 		var restAppId = params.id;
-		var callId = params.callId;
 		var node = params.node;
 
 		if(this.restAppLayoutLoaded)
@@ -2179,30 +2182,23 @@
 		}
 		this.restAppLayoutLoading = true;
 
-		var data = {
-			'sessid': BX.bitrix_sessid(),
-			'REST_APP_ID': restAppId,
-			'PLACEMENT_OPTIONS': this.getPlacementOptions()
-		};
-
-		BX.ajax({
-			url: '/bitrix/tools/voximplant/rest_app.php',
-			method: 'POST',
-			dataType: 'html',
-			data: data,
-			onsuccess: function(HTML)
-			{
-				if(!self.popup && !self.isDesktop())
-				{
-					return;
-				}
-				node.innerHTML = HTML;
-				self.restAppLayoutLoaded = true;
-				self.restAppLayoutLoading = false;
-				self.restAppInterface = BX.rest.AppLayout.initializePlacement('CALL_CARD');
-				self.initializeAppInterface(self.restAppInterface);
+		BX.ajax.runAction("voximplant.callView.loadRestApp", {
+			data: {
+				'appId': restAppId,
+				'placementOptions': this.getPlacementOptions()
 			}
-		});
+		}).then(function(response)
+		{
+			if(!this.popup && !this.isDesktop())
+			{
+				return;
+			}
+			BX.html(node, response.data.html);
+			this.restAppLayoutLoaded = true;
+			this.restAppLayoutLoading = false;
+			this.restAppInterface = BX.rest.AppLayout.initializePlacement('CALL_CARD');
+			this.initializeAppInterface(this.restAppInterface);
+		}.bind(this));
 	};
 
 	BX.PhoneCallView.prototype.unloadRestApps = function()
@@ -5184,9 +5180,9 @@
 		if(!defaults.callInterceptAllowed)
 		{
 			this.close();
-			if (BX.Voximplant && BX.Voximplant.showLicensePopup)
+			if ('UI' in BX && 'InfoHelper' in BX.UI)
 			{
-				BX.Voximplant.showLicensePopup('call-intercept');
+				BX.UI.InfoHelper.show('limit_contact_center_telephony_intercept');
 			}
 			return;
 		}

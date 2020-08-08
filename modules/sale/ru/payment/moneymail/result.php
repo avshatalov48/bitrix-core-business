@@ -3,7 +3,7 @@ set_time_limit(0);
 
 $issuer_email = CSalePaySystemAction::GetParamValue("ShopEmail");
 $pass = CSalePaySystemAction::GetParamValue("PASS");
-$ORDER_ID = IntVal($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"]);
+$ORDER_ID = intval($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"]);
 
 
 $sHost = "www.moneymail.ru";
@@ -52,10 +52,10 @@ if($sResult <> "")
 			else
 				$str_PS_STATUS_DESCRIPTION = "";
 			$str_PS_STATUS_MESSAGE = "";
-			$str_PS_SUM = doubleval(substr($aFields["value"], 3));
-			$str_PS_CURRENCY = substr($aFields["value"], 0, 3);
+			$str_PS_SUM = doubleval(mb_substr($aFields["value"], 3));
+			$str_PS_CURRENCY = mb_substr($aFields["value"], 0, 3);
 			if($aFields["status"] == "PAID")
-				$str_PS_DATE_STATUS = substr($aFields["paid_date"], 0, 19);
+				$str_PS_DATE_STATUS = mb_substr($aFields["paid_date"], 0, 19);
 			else
 				$str_PS_DATE_STATUS = "";
 			$str_PS_RESPONSE_FULL = $sResult;

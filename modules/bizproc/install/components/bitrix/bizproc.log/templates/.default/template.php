@@ -2,13 +2,13 @@
 
 if (array_key_exists("COMPONENT_VERSION", $arParams) && $arParams["COMPONENT_VERSION"] == 2)
 {
-	if (strlen($arResult["FatalErrorMessage"]) > 0)
+	if ($arResult["FatalErrorMessage"] <> '')
 	{
 		ShowError($arResult["FatalErrorMessage"]);
 	}
 	else
 	{
-		if (strlen($arResult["ErrorMessage"]) > 0)
+		if ($arResult["ErrorMessage"] <> '')
 		{
 			ShowError($arResult["ErrorMessage"]);
 		}
@@ -60,12 +60,12 @@ else
 		</div>
 		<?
 	endif;
-	if (strlen($arResult["arWorkflowState"]["STATE_NAME"]) > 0):
+	if ($arResult["arWorkflowState"]["STATE_NAME"] <> ''):
 	?>
 		<div class="bizproc-item-text bizproc-workflow-state-name">
 			<label><?=GetMessage("BPABL_STATE_NAME")?>:</label>
 			<?
-			if (strlen($arResult["arWorkflowState"]["STATE_TITLE"]) > 0)
+			if ($arResult["arWorkflowState"]["STATE_TITLE"] <> '')
 			{
 				echo htmlspecialcharsbx($arResult["arWorkflowState"]["STATE_TITLE"])." (".htmlspecialcharsbx($arResult["arWorkflowState"]["STATE_NAME"]).")";
 			}
@@ -107,7 +107,7 @@ else
 							$strMessageTemplate = GetMessage("BPABL_TYPE_6");
 					}
 
-					$name = (strlen($track["ACTION_TITLE"]) > 0 ? $track["ACTION_TITLE"]." (".$track["ACTION_NAME"].")" : $track["ACTION_NAME"]);
+					$name = ($track["ACTION_TITLE"] <> '' ? $track["ACTION_TITLE"]." (".$track["ACTION_NAME"].")" : $track["ACTION_NAME"]);
 
 					switch ($track["EXECUTION_STATUS"])
 					{
@@ -151,7 +151,7 @@ else
 							$status = GetMessage("BPABL_RES_6");
 					}
 
-					$note = ((strlen($track["ACTION_NOTE"]) > 0) ? ": ".$track["ACTION_NOTE"] : "");
+					$note = (($track["ACTION_NOTE"] <> '') ? ": ".$track["ACTION_NOTE"] : "");
 					$track["LEVEL"] = intval($track["LEVEL"]);
 					if ($current_level < $track["LEVEL"]):
 	?>

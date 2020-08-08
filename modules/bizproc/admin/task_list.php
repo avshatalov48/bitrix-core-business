@@ -31,15 +31,15 @@ $lAdmin->InitFilter($arFilterFields);
 $arFilter = array('USER_STATUS' => CBPTaskUserStatus::Waiting);
 if (!$allowAdminAccess)
 	$arFilter["USER_ID"] = $USER->GetID();
-elseif (strlen($filter_user_id) > 0)
+elseif ($filter_user_id <> '')
 	$arFilter["USER_ID"] = $filter_user_id;
-if (strlen($filter_modified_1) > 0)
+if ($filter_modified_1 <> '')
 	$arFilter[">=MODIFIED"] = $filter_modified_1;
-if (strlen($filter_modified_2) > 0)
+if ($filter_modified_2 <> '')
 	$arFilter["<=MODIFIED"] = $filter_modified_2;
-if (strlen($filter_name) > 0)
+if ($filter_name <> '')
 	$arFilter["~NAME"] = "%".$filter_name."%";
-if (strlen($filter_descr) > 0)
+if ($filter_descr <> '')
 	$arFilter["~DESCRIPTION"] = "%".$filter_descr."%";
 if (!empty($filter_status))
 {
@@ -61,9 +61,9 @@ if ($allowAdminAccess && !empty($_REQUEST['action']) && check_bitrix_sessid())
 		$errors = array();
 		$action = $_REQUEST['action'];
 		$status = 0;
-		if (strpos($action, 'set_status_') === 0)
+		if (mb_strpos($action, 'set_status_') === 0)
 		{
-			$status = substr($action, strlen('set_status_'));
+			$status = mb_substr($action, mb_strlen('set_status_'));
 			$action = 'set_status';
 		}
 
@@ -144,8 +144,8 @@ while ($arResultItem = $dbResultList->NavNext(true, "f_"))
 	$row->AddField("NAME", $f_NAME);
 
 	$description = $f_DESCRIPTION;
-	if (strlen($description) > 100)
-		$description = substr($description, 0, 97)."...";
+	if (mb_strlen($description) > 100)
+		$description = mb_substr($description, 0, 97)."...";
 
 	$row->AddField("DESCRIPTION", $description);
 	$row->AddField("DESCRIPTION_FULL", $f_DESCRIPTION);

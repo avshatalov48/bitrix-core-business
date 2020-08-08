@@ -11,6 +11,25 @@ if (!function_exists("__mpl_get_avatar"))
 			if ($USER->IsAuthorized())
 			{
 				$u = CUser::GetByID($USER->GetID())->Fetch();
+				if (
+					intVal($u["PERSONAL_PHOTO"]) <= 0
+					&& \Bitrix\Main\ModuleManager::isModuleInstalled('socialnetwork')
+				)
+				{
+					switch ($u["PERSONAL_GENDER"])
+					{
+						case "M":
+							$suffix = "male";
+							break;
+						case "F":
+							$suffix = "female";
+							break;
+						default:
+							$suffix = "unknown";
+					}
+					$u["PERSONAL_PHOTO"] = COption::GetOptionInt("socialnetwork", "default_user_picture_".$suffix, false, SITE_ID);
+				}
+
 				if ($u["PERSONAL_PHOTO"])
 				{
 					$res = CFile::ResizeImageGet(
@@ -22,7 +41,9 @@ if (!function_exists("__mpl_get_avatar"))
 						true
 					);
 					if ($res["src"])
+					{
 						$avatar = $res["src"];
+					}
 				}
 			}
 		}

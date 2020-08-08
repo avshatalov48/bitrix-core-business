@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Bizproc\Automation\Target;
 
+use Bitrix\Bizproc\Automation\Engine\ConditionGroup;
 use Bitrix\Bizproc\Automation\Engine\Runtime;
 use Bitrix\Bizproc\Automation\Trigger\Entity\TriggerTable;
 
@@ -79,6 +80,27 @@ abstract class BaseTarget
 		return $result;
 	}
 
+	public function prepareTriggersToSave(array &$triggers)
+	{
+		foreach ($triggers as $i => $trigger)
+		{
+			if (isset($trigger['DELETED']) && $trigger['DELETED'] === 'Y')
+			{
+				continue;
+			}
+
+			$triggers[$i]['APPLY_RULES'] = $this->prepareApplyRules($trigger['APPLY_RULES']);
+		}
+	}
+
+	public function prepareTriggersToShow(array &$triggers)
+	{
+		foreach ($triggers as $i => $trigger)
+		{
+			$triggers[$i]['APPLY_RULES'] = $this->prepareApplyRules($trigger['APPLY_RULES'], true);
+		}
+	}
+
 	public function setTriggers(array $triggers)
 	{
 		$updatedTriggers = [];
@@ -126,6 +148,30 @@ abstract class BaseTarget
 		}
 
 		return $updatedTriggers;
+	}
+
+	private function prepareApplyRules($rules, $external = false): ?array
+	{
+		if (!is_array($rules))
+		{
+			return null;
+		}
+
+		if (isset($rules['Condition']))
+		{
+			$condition = new ConditionGroup($rules['Condition']);
+			if ($external)
+			{
+				$condition->externalizeValues($this->getDocumentType());
+			}
+			else
+			{
+				$condition->internalizeValues($this->getDocumentType());
+			}
+			$rules['Condition'] = $condition->toArray();
+		}
+
+		return $rules;
 	}
 
 	public function getAvailableTriggers()

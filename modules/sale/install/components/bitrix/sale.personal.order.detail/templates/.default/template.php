@@ -105,7 +105,7 @@ else
 									<div class="sale-order-detail-about-order-inner-container-name-title">
 										<?
 										$userName = $arResult["USER_NAME"];
-										if (strlen($userName) || strlen($arResult['FIO']))
+										if (mb_strlen($userName) || mb_strlen($arResult['FIO']))
 										{
 											echo Loc::getMessage('SPOD_LIST_FIO').':';
 										}
@@ -117,11 +117,11 @@ else
 									</div>
 									<div class="sale-order-detail-about-order-inner-container-name-detail">
 										<?
-										if (strlen($userName))
+										if($userName <> '')
 										{
 											echo htmlspecialcharsbx($userName);
 										}
-										elseif (strlen($arResult['FIO']))
+										elseif(mb_strlen($arResult['FIO']))
 										{
 											echo htmlspecialcharsbx($arResult['FIO']);
 										}
@@ -196,7 +196,7 @@ else
 								</h4>
 								<ul class="sale-order-detail-about-order-inner-container-details-list">
 									<?
-									if (strlen($arResult["USER"]["LOGIN"]) && !in_array("LOGIN", $arParams['HIDE_USER_INFO']))
+									if (mb_strlen($arResult["USER"]["LOGIN"]) && !in_array("LOGIN", $arParams['HIDE_USER_INFO']))
 									{
 										?>
 										<li class="sale-order-detail-about-order-inner-container-list-item">
@@ -207,7 +207,7 @@ else
 										</li>
 										<?
 									}
-									if (strlen($arResult["USER"]["EMAIL"]) && !in_array("EMAIL", $arParams['HIDE_USER_INFO']))
+									if (mb_strlen($arResult["USER"]["EMAIL"]) && !in_array("EMAIL", $arParams['HIDE_USER_INFO']))
 									{
 										?>
 										<li class="sale-order-detail-about-order-inner-container-list-item">
@@ -217,7 +217,7 @@ else
 										</li>
 										<?
 									}
-									if (strlen($arResult["USER"]["PERSON_TYPE_NAME"]) && !in_array("PERSON_TYPE_NAME", $arParams['HIDE_USER_INFO']))
+									if (mb_strlen($arResult["USER"]["PERSON_TYPE_NAME"]) && !in_array("PERSON_TYPE_NAME", $arParams['HIDE_USER_INFO']))
 									{
 										?>
 										<li class="sale-order-detail-about-order-inner-container-list-item">
@@ -271,14 +271,15 @@ else
 									?>
 								</ul>
 								<?
-								if (strlen($arResult["USER_DESCRIPTION"]))
+								if($arResult["USER_DESCRIPTION"] <> '')
 								{
 									?>
 									<h4 class="sale-order-detail-about-order-inner-container-details-title sale-order-detail-about-order-inner-container-comments">
 										<?= Loc::getMessage('SPOD_ORDER_DESC') ?>
 									</h4>
-									<div class="col-xs-12 sale-order-detail-about-order-inner-container-list-item-element">
-										<?=nl2br(htmlspecialcharsbx($arResult["USER_DESCRIPTION"]))?>
+									<div
+										class="col-xs-12 sale-order-detail-about-order-inner-container-list-item-element">
+										<?= nl2br(htmlspecialcharsbx($arResult["USER_DESCRIPTION"])) ?>
 									</div>
 									<?
 								}
@@ -356,7 +357,7 @@ else
 												<div class="row sale-order-detail-payment-options-methods-information-block">
 													<div class="col-md-2 col-sm-5 col-xs-12 sale-order-detail-payment-options-methods-image-container">
 													<span class="sale-order-detail-payment-options-methods-image-element"
-														  style="background-image: url('<?=strlen($payment['PAY_SYSTEM']["SRC_LOGOTIP"]) ? htmlspecialcharsbx($payment['PAY_SYSTEM']["SRC_LOGOTIP"]) : '/bitrix/images/sale/nopaysystem.gif'?>');"></span>
+														  style="background-image: url('<?= $payment['PAY_SYSTEM']["SRC_LOGOTIP"] <> ''? htmlspecialcharsbx($payment['PAY_SYSTEM']["SRC_LOGOTIP"]) : '/bitrix/images/sale/nopaysystem.gif'?>');"></span>
 													</div>
 													<div class="col-md-8 col-sm-7 col-xs-10 sale-order-detail-payment-options-methods-info">
 														<div class="sale-order-detail-payment-options-methods-info-title">
@@ -415,13 +416,13 @@ else
 															foreach ($payment['CHECK_DATA'] as $checkInfo)
 															{
 																$title = Loc::getMessage('SPOD_CHECK_NUM', array('#CHECK_NUMBER#' => $checkInfo['ID']))." - ". htmlspecialcharsbx($checkInfo['TYPE_NAME']);
-																if (strlen($checkInfo['LINK']) > 0)
+																if ($checkInfo['LINK'] <> '')
 																{
 																	$link = $checkInfo['LINK'];
 																	$listCheckLinks .= "<div><a href='$link' target='_blank'>$title</a></div>";
 																}
 															}
-															if (strlen($listCheckLinks) > 0)
+															if ($listCheckLinks <> '')
 															{
 																?>
 																<div class="sale-order-detail-payment-options-methods-info-total-check">
@@ -555,20 +556,21 @@ else
 														<div>
 															<div class="col-md-3 col-sm-5 sale-order-detail-payment-options-shipment-image-container">
 																<?
-																	if (strlen($shipment['DELIVERY']["SRC_LOGOTIP"]))
-																	{
-																		?>
-																		<span class="sale-order-detail-payment-options-shipment-image-element"
-																			  style="background-image: url('<?=htmlspecialcharsbx($shipment['DELIVERY']["SRC_LOGOTIP"])?>')"></span>
-																		<?
-																	}
+																if($shipment['DELIVERY']["SRC_LOGOTIP"] <> '')
+																{
+																	?>
+																	<span
+																		class="sale-order-detail-payment-options-shipment-image-element"
+																		style="background-image: url('<?= htmlspecialcharsbx($shipment['DELIVERY']["SRC_LOGOTIP"]) ?>')"></span>
+																	<?
+																}
 																?>
 															</div>
 															<div class="col-md-7 col-sm-7 sale-order-detail-payment-options-methods-shipment-list">
 																<div class="sale-order-detail-payment-options-methods-shipment-list-item-title">
 																	<?
 																		//change date
-																		if (!strlen($shipment['PRICE_DELIVERY_FORMATED']))
+																		if ($shipment['PRICE_DELIVERY_FORMATED'] == '')
 																		{
 																			$shipment['PRICE_DELIVERY_FORMATED'] = 0;
 																		}
@@ -585,30 +587,36 @@ else
 																	?>
 																</div>
 																<?
-																	if (strlen($shipment["DELIVERY_NAME"]))
-																	{
-																		?>
-																		<div class="sale-order-detail-payment-options-methods-shipment-list-item">
-																			<?= Loc::getMessage('SPOD_ORDER_DELIVERY')?>: <?= htmlspecialcharsbx($shipment["DELIVERY_NAME"])?>
-																		</div>
-																		<?
-																	}
+																if($shipment["DELIVERY_NAME"] <> '')
+																{
+																	?>
+																	<div
+																		class="sale-order-detail-payment-options-methods-shipment-list-item">
+																		<?= Loc::getMessage('SPOD_ORDER_DELIVERY') ?>
+																		: <?= htmlspecialcharsbx($shipment["DELIVERY_NAME"]) ?>
+																	</div>
+																	<?
+																}
 																?>
 																<div class="sale-order-detail-payment-options-methods-shipment-list-item">
 																	<?= Loc::getMessage('SPOD_ORDER_SHIPMENT_STATUS')?>:
 																	<?= htmlspecialcharsbx($shipment['STATUS_NAME'])?>
 																</div>
 																<?
-																	if (strlen($shipment['TRACKING_NUMBER']))
-																	{
-																		?>
-																		<div class="sale-order-detail-payment-options-methods-shipment-list-item">
-																			<span class="sale-order-list-shipment-id-name"><?= Loc::getMessage('SPOD_ORDER_TRACKING_NUMBER')?>:</span>
-																			<span class="sale-order-detail-shipment-id"><?= htmlspecialcharsbx($shipment['TRACKING_NUMBER'])?></span>
-																			<span class="sale-order-detail-shipment-id-icon"></span>
-																		</div>
-																		<?
-																	}
+																if($shipment['TRACKING_NUMBER'] <> '')
+																{
+																	?>
+																	<div
+																		class="sale-order-detail-payment-options-methods-shipment-list-item">
+																		<span
+																			class="sale-order-list-shipment-id-name"><?= Loc::getMessage('SPOD_ORDER_TRACKING_NUMBER') ?>:</span>
+																		<span
+																			class="sale-order-detail-shipment-id"><?= htmlspecialcharsbx($shipment['TRACKING_NUMBER']) ?></span>
+																		<span
+																			class="sale-order-detail-shipment-id-icon"></span>
+																	</div>
+																	<?
+																}
 																?>
 																<div class="sale-order-detail-payment-options-methods-shipment-list-item-link">
 																	<a class="sale-order-detail-show-link"><?= Loc::getMessage('SPOD_LIST_SHOW_ALL')?></a>
@@ -616,16 +624,18 @@ else
 																</div>
 															</div>
 															<?
-																if (strlen($shipment['TRACKING_URL']))
-																{
-																	?>
-																	<div class="col-md-2 col-sm-12 sale-order-detail-payment-options-shipment-button-container">
-																		<a class="sale-order-detail-payment-options-shipment-button-element" href="<?=$shipment['TRACKING_URL']?>">
-																			<?= Loc::getMessage('SPOD_ORDER_CHECK_TRACKING')?>
-																		</a>
-																	</div>
-																	<?
-																}
+															if($shipment['TRACKING_URL'] <> '')
+															{
+																?>
+																<div
+																	class="col-md-2 col-sm-12 sale-order-detail-payment-options-shipment-button-container">
+																	<a class="sale-order-detail-payment-options-shipment-button-element"
+																	   href="<?= $shipment['TRACKING_URL'] ?>">
+																		<?= Loc::getMessage('SPOD_ORDER_CHECK_TRACKING') ?>
+																	</a>
+																</div>
+																<?
+															}
 															?>
 														</div><!--row-->
 														<div class="col-md-9 col-md-offset-3 col-sm-12 sale-order-detail-payment-options-shipment-composition-map">
@@ -675,16 +685,19 @@ else
 																	</div>
 																</div>
 																<?
-																if (strlen($store['ADDRESS']))
+																if($store['ADDRESS'] <> '')
 																{
 																	?>
 																	<div class="row">
-																		<div class="col-md-12 col-sm-12 sale-order-detail-payment-options-shipment-map-address">
+																		<div
+																			class="col-md-12 col-sm-12 sale-order-detail-payment-options-shipment-map-address">
 																			<div class="row">
-																<span class="col-md-2 sale-order-detail-payment-options-shipment-map-address-title">
-																	<?= Loc::getMessage('SPOD_STORE_ADDRESS')?>:</span>
-																	<span class="col-md-10 sale-order-detail-payment-options-shipment-map-address-element">
-																	<?= htmlspecialcharsbx($store['ADDRESS'])?></span>
+																<span
+																	class="col-md-2 sale-order-detail-payment-options-shipment-map-address-title">
+																	<?= Loc::getMessage('SPOD_STORE_ADDRESS') ?>:</span>
+																				<span
+																					class="col-md-10 sale-order-detail-payment-options-shipment-map-address-element">
+																	<?= htmlspecialcharsbx($store['ADDRESS']) ?></span>
 																			</div>
 																		</div>
 																	</div>
@@ -732,14 +745,14 @@ else
 																												<div class="sale-order-detail-order-item-img-block">
 																													<a href="<?=htmlspecialcharsbx($basketItem['DETAIL_PAGE_URL'])?>">
 																														<?
-																															if (strlen($basketItem['PICTURE']['SRC']))
-																															{
-																																$imageSrc = htmlspecialcharsbx($basketItem['PICTURE']['SRC']);
-																															}
-																															else
-																															{
-																																$imageSrc = $this->GetFolder().'/images/no_photo.png';
-																															}
+																														if($basketItem['PICTURE']['SRC'] <> '')
+																														{
+																															$imageSrc = htmlspecialcharsbx($basketItem['PICTURE']['SRC']);
+																														}
+																														else
+																														{
+																															$imageSrc = $this->GetFolder().'/images/no_photo.png';
+																														}
 																														?>
 																														<div class="sale-order-detail-order-item-imgcontainer"
 																															 style="background-image: url(<?=$imageSrc?>);
@@ -835,11 +848,12 @@ else
 													</div>
 												</div>
 												<?
-												if (strlen($arResult["SHOW_DISCOUNT_TAB"]))
+												if($arResult["SHOW_DISCOUNT_TAB"] <> '')
 												{
 													?>
-													<div class="sale-order-detail-order-item-td sale-order-detail-order-item-properties bx-text-right"
-														 style="padding-bottom: 5px;">
+													<div
+														class="sale-order-detail-order-item-td sale-order-detail-order-item-properties bx-text-right"
+														style="padding-bottom: 5px;">
 														<div class="sale-order-detail-order-item-td-title">
 															<?= Loc::getMessage('SPOD_DISCOUNT') ?>
 														</div>
@@ -869,7 +883,7 @@ else
 															<div class="sale-order-detail-order-item-img-block">
 																<a href="<?=$basketItem['DETAIL_PAGE_URL']?>">
 																	<?
-																	if (strlen($basketItem['PICTURE']['SRC']))
+																	if($basketItem['PICTURE']['SRC'] <> '')
 																	{
 																		$imageSrc = $basketItem['PICTURE']['SRC'];
 																	}
@@ -919,24 +933,29 @@ else
 														</div>
 													</div>
 													<?
-													if (strlen($basketItem["DISCOUNT_PRICE_PERCENT_FORMATED"]))
+													if($basketItem["DISCOUNT_PRICE_PERCENT_FORMATED"] <> '')
 													{
 														?>
-														<div class="sale-order-detail-order-item-td sale-order-detail-order-item-properties bx-text-right">
-															<div class="sale-order-detail-order-item-td-title col-xs-7 col-sm-5 visible-xs visible-sm">
+														<div
+															class="sale-order-detail-order-item-td sale-order-detail-order-item-properties bx-text-right">
+															<div
+																class="sale-order-detail-order-item-td-title col-xs-7 col-sm-5 visible-xs visible-sm">
 																<?= Loc::getMessage('SPOD_DISCOUNT') ?>
 															</div>
 															<div class="sale-order-detail-order-item-td-text">
-																<strong class="bx-price"><?= $basketItem['DISCOUNT_PRICE_PERCENT_FORMATED'] ?></strong>
+																<strong
+																	class="bx-price"><?= $basketItem['DISCOUNT_PRICE_PERCENT_FORMATED'] ?></strong>
 															</div>
 														</div>
 														<?
 													}
-													elseif (strlen($arResult["SHOW_DISCOUNT_TAB"]))
+													elseif(mb_strlen($arResult["SHOW_DISCOUNT_TAB"]))
 													{
 														?>
-														<div class="sale-order-detail-order-item-td sale-order-detail-order-item-properties bx-text-right">
-															<div class="sale-order-detail-order-item-td-title col-xs-7 col-sm-5 visible-xs visible-sm">
+														<div
+															class="sale-order-detail-order-item-td sale-order-detail-order-item-properties bx-text-right">
+															<div
+																class="sale-order-detail-order-item-td-title col-xs-7 col-sm-5 visible-xs visible-sm">
 																<?= Loc::getMessage('SPOD_DISCOUNT') ?>
 															</div>
 															<div class="sale-order-detail-order-item-td-text">
@@ -954,7 +973,7 @@ else
 														<div class="sale-order-detail-order-item-td-text">
 														<span><?=$basketItem['QUANTITY']?>&nbsp;
 															<?
-															if (strlen($basketItem['MEASURE_NAME']))
+															if($basketItem['MEASURE_NAME'] <> '')
 															{
 																echo htmlspecialcharsbx($basketItem['MEASURE_NAME']);
 															}
@@ -1006,11 +1025,11 @@ else
 								<?
 							}
 
-							if (strlen($arResult["PRICE_DELIVERY_FORMATED"]))
+							if($arResult["PRICE_DELIVERY_FORMATED"] <> '')
 							{
 								?>
 								<li class="sale-order-detail-total-payment-list-left-item">
-									<?= Loc::getMessage('SPOD_DELIVERY')?>:
+									<?= Loc::getMessage('SPOD_DELIVERY') ?>:
 								</li>
 								<?
 							}
@@ -1042,7 +1061,7 @@ else
 								<?
 							}
 
-							if (strlen($arResult["PRICE_DELIVERY_FORMATED"]))
+							if($arResult["PRICE_DELIVERY_FORMATED"] <> '')
 							{
 								?>
 								<li class="sale-order-detail-total-payment-list-right-item"><?= $arResult["PRICE_DELIVERY_FORMATED"] ?></li>
@@ -1076,7 +1095,8 @@ else
 		"url" => CUtil::JSEscape($this->__component->GetPath().'/ajax.php'),
 		"templateFolder" => CUtil::JSEscape($templateFolder),
 		"templateName" => $this->__component->GetTemplateName(),
-		"paymentList" => $paymentData
+		"paymentList" => $paymentData,
+		"returnUrl" => $arResult['RETURN_URL'],
 	);
 	$javascriptParams = CUtil::PhpToJSObject($javascriptParams);
 	?>

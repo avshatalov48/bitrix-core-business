@@ -22,6 +22,12 @@ $return = [
 					'TEMPLATE_MODE' => [
 						'style' => true,
 					],
+					'SHOW_HEADER' => [
+						'style' => true,
+					],
+					'HEADER_TITLE' => [
+						'style' => true,
+					],
 				],
 			],
 		],

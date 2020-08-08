@@ -228,7 +228,7 @@ if ($arResult["MODE"] == "AJAX")
 
 		if (
 			IsModuleInstalled("extranet")
-			&& strlen(COption::GetOptionString("extranet", "extranet_site")) > 0
+			&& COption::GetOptionString("extranet", "extranet_site") <> ''
 		)
 		{
 			$arResult["CREATED_BY_DEST"]["EXTRANET_ROOT"] = $arResult["TO_DEST"]["EXTRANET_ROOT"] = array(

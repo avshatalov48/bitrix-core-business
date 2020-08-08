@@ -111,7 +111,7 @@ if (is_array($arResult["REMAIN_IMPORTANT_TILL"]))
 	}
 }
 
-$arResult['bVarsFromForm'] = (array_key_exists("POST_MESSAGE", $_REQUEST) || strlen($arResult["ERROR_MESSAGE"]) > 0 || $arResult["needShow"]);
+$arResult['bVarsFromForm'] = (array_key_exists("POST_MESSAGE", $_REQUEST) || $arResult["ERROR_MESSAGE"] <> '' || $arResult["needShow"]);
 $arResult['tabActive'] = ($arResult['bVarsFromForm'] ? $_REQUEST["changePostFormTab"] : "message");
 
 $arResult['tabs'] = array();
@@ -202,7 +202,7 @@ if (
 	array_key_exists("UF_BLOG_POST_VOTE", $arResult["POST_PROPERTIES"]["DATA"])
 	&& (
 		!isset($arParams["PAGE_ID"])
-		|| !in_array($arParams["PAGE_ID"], array("user_blog_post_edit_profile", "user_blog_post_edit_grat"))
+		|| !in_array($arParams["PAGE_ID"], array("user_blog_post_edit_profile", "user_blog_post_edit_grat", "user_blog_post_edit_post"))
 	)
 )
 {
@@ -225,4 +225,17 @@ if (
 )
 {
 	$arResult['tabActive'] = "important";
+}
+
+if ($arParams['ID'] == 0)
+{
+	if (empty($arResult['PostToShow']['TITLE']) && !empty($_GET['TITLE']))
+	{
+		$arResult['PostToShow']['TITLE'] = htmlspecialcharsbx($_GET['TITLE']);
+	}
+
+	if (empty($arResult['POST_PROPERTIES']['DATA']['UF_MAIL_MESSAGE']['VALUE']) && !empty($_GET['UF_MAIL_MESSAGE']))
+	{
+		$arResult['POST_PROPERTIES']['DATA']['UF_MAIL_MESSAGE']['VALUE'] = (int) $_GET['UF_MAIL_MESSAGE'];
+	}
 }

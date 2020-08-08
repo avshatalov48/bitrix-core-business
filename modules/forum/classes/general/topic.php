@@ -240,14 +240,15 @@ class CAllForumTopic
 			$k = (strpos($k, "=") === 0 ? substr($k, 1) : $k);
 			if ($entity->hasField($k))
 			{
+				$field = $entity->getField($k);
 				$data[$k] = $v;
-				if (preg_match("/{$k}\s*\\+\s*(\d+)/", $v, $matches))
+				if ($field instanceof \Bitrix\Main\ORM\Fields\DateField)
+				{
+					$data[$k] = new \Bitrix\Main\Type\DateTime(\Bitrix\Main\Type\DateTime::isCorrect($v) ? $v : null);
+				}
+				else if (preg_match("/{$k}\s*\\+\s*(\d+)/", $v, $matches))
 				{
 					$data[$k] = new \Bitrix\Main\DB\SqlExpression("?# + ".$matches[1], $k);
-				}
-				else if (substr($k, -5) === "_DATE" && is_string($v))
-				{
-					$data[$k] = new \Bitrix\Main\Type\DateTime($v);
 				}
 			}
 		}

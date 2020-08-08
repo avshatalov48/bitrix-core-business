@@ -15,28 +15,28 @@ IncludeModuleLangFile(__FILE__);
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
-$ID = IntVal($ID);
+$ID = intval($ID);
 
 ClearVars();
 
 $strError = "";
 $bInitVars = false;
-if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $saleModulePermissions=="W" && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $saleModulePermissions=="W" && check_bitrix_sessid())
 {
 	$adminSidePanelHelper->decodeUriComponent();
-	if (strlen($NAME)<=0) $strError .= GetMessage("ERROR_EMPTY_NAME")."<br>";
-	if (strlen($LID)<=0) $strError .= GetMessage("ERROR_EMPTY_LANG")."<br>";
+	if ($NAME == '') $strError .= GetMessage("ERROR_EMPTY_NAME")."<br>";
+	if ($LID == '') $strError .= GetMessage("ERROR_EMPTY_LANG")."<br>";
 
-	if (strlen($strError)<=0)
+	if ($strError == '')
 	{
 		$arFields = array(
 			"LID" => $LID,
 			"NAME" => trim($NAME),
-			"CODE" => (strlen($CODE)<=0) ? False : $CODE,
+			"CODE" => ($CODE == '') ? False : $CODE,
 			"DESCRIPTION" => $DESCRIPTION
 			);
 
-		if (IntVal($ID)>0)
+		if (intval($ID)>0)
 		{
 			if (!CSaleTax::Update($ID, $arFields))
 				$strError .= GetMessage("ERROR_EDIT_TAX")."<br>";
@@ -44,12 +44,12 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $saleMod
 		else
 		{
 			$ID = CSaleTax::Add($arFields);
-			if (IntVal($ID)<=0)
+			if (intval($ID)<=0)
 				$strError .= GetMessage("ERROR_ADD_TAX")."<br>";
 		}
 	}
 
-	if (strlen($strError) > 0)
+	if ($strError <> '')
 	{
 		$adminSidePanelHelper->sendJsonErrorResponse($strError);
 		$bInitVars = True;
@@ -57,14 +57,14 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $saleMod
 
 	$adminSidePanelHelper->sendSuccessResponse("base");
 
-	if (strlen($save) > 0 && strlen($strError) <= 0)
+	if ($save <> '' && $strError == '')
 	{
 		$adminSidePanelHelper->localRedirect($listUrl);
 		LocalRedirect($listUrl);
 	}
 }
 
-if (strlen($ID)>0)
+if ($ID <> '')
 {
 	$db_tax = CSaleTax::GetList(Array(), Array("ID" => $ID));
 	$db_tax->ExtractFields("str_");

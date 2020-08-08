@@ -9,6 +9,8 @@
 namespace Bitrix\Sender\Runtime;
 
 use Bitrix\Main\Config\Option;
+use Bitrix\Sender\Posting\ThreadStrategy\IThreadStrategy;
+use Bitrix\Sender\Posting\ThreadStrategy\ThreadStrategyContext;
 
 /**
  * Class Env
@@ -61,5 +63,15 @@ class Env
 		{
 			return (int) Option::get('sender', 'max_emails_per_hit');
 		}
+	}
+
+	/**
+	 * Get execution item limit.
+
+	 * @return IThreadStrategy
+	 */
+	public static function getThreadContext()
+	{
+		return ThreadStrategyContext::buildStrategy(Option::get('sender', 'thread_type'));
 	}
 }

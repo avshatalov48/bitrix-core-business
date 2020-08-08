@@ -1,4 +1,4 @@
-.ui-icon[class*=ui-icon-service-light-]>i{background-color:#ebeff2}.ui-icon-service-bitrix24>i{background-color:#3ac8f5;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-bitrix24.svg); }
+.ui-icon[class*=ui-icon-service-light-]{--ui-icon-service-bg-color:#ebeff2}.ui-icon>i{background-color:var(--ui-icon-service-bg-color)}.ui-icon-service-bitrix24>i{--ui-icon-service-bg-color:#3ac8f5;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-bitrix24.svg); }
 
 .ui-icon-service-light-bitrix24 > i {
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-bitrix24.svg); }
@@ -7,215 +7,225 @@
 	background: no-repeat center url(/bitrix/js/ui/icons/service/images/ui-service-alice.svg), rgb(182, 40, 255); 	background: no-repeat center url(/bitrix/js/ui/icons/service/images/ui-service-alice.svg), -moz-linear-gradient(45deg, rgba(182, 40, 255, 1) 0%, rgba(94, 39, 255, 1) 100%); 	background: no-repeat center url(/bitrix/js/ui/icons/service/images/ui-service-alice.svg), -webkit-linear-gradient(45deg, rgba(182, 40, 255, 1) 0%, rgba(94, 39, 255, 1) 100%); 	background: no-repeat center url(/bitrix/js/ui/icons/service/images/ui-service-alice.svg), linear-gradient(45deg, rgba(182, 40, 255, 1) 0%, rgba(94, 39, 255, 1) 100%); filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#b628ff',endColorstr='#5e27ff',GradientType=1);}
 
 .ui-icon-service-light-alice > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-alice.svg);}.ui-icon-service-instagram>i{background-color:#d56c9a;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-instagram.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-alice.svg);}.ui-icon-service-instagram>i{--ui-icon-service-bg-color:#d56c9a;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-instagram.svg); }
 
 .ui-icon-service-light-instagram > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-instagram.svg);}.ui-icon-service-fb-instagram>i{background-color:#c529a4;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-fb-instagram.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-instagram.svg);}.ui-icon-service-fb-instagram>i{--ui-icon-service-bg-color:#c529a4;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-fb-instagram.svg); }
 
 .ui-icon-service-light-fb-instagram > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-fb-instagram.svg);}.ui-icon-service-vk>i,.ui-icon-service-vkontakte>i{background-color:#3871ba;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-vk.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-fb-instagram.svg);}.ui-icon-service-vk>i,.ui-icon-service-vkontakte>i{--ui-icon-service-bg-color:#3871ba;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-vk.svg); }
 
 .ui-icon-service-light-vk > i,
 .ui-icon-service-light-vkontakte > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-vk.svg);}.ui-icon-service-vk-adds>i{background-color:#3871ba;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-vk-adds.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-vk.svg);}.ui-icon-service-vk-adds>i{--ui-icon-service-bg-color:#3871ba;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-vk-adds.svg); }
 
 .ui-icon-service-light-vk-adds > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-vk-adds.svg);}.ui-icon-service-vk-order>i{background-color:#4a73a5;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-vk-order.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-vk-adds.svg);}.ui-icon-service-vk-order>i{--ui-icon-service-bg-color:#4a73a5;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-vk-order.svg); }
 
 .ui-icon-service-light-vk-order > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-vk-order.svg);}.ui-icon-service-g-assistant>i{background-color:#33cde0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-g-assistant.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-vk-order.svg);}.ui-icon-service-g-assistant>i{--ui-icon-service-bg-color:#33cde0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-g-assistant.svg); }
 
 .ui-icon-service-light-g-assistant > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-g-assistant.svg);}.ui-icon-service-crm>i{background-color:#11bff5;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-crm.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-g-assistant.svg);}.ui-icon-service-crm>i{--ui-icon-service-bg-color:#11bff5;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-crm.svg); }
 
 .ui-icon-service-light-crm > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-crm.svg);}.ui-icon-service-livechat>i{background-color:#ffa900;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-livechat.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-crm.svg);}.ui-icon-service-livechat>i{--ui-icon-service-bg-color:#ffa900;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-livechat.svg); }
 
 .ui-icon-service-light-livechat > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-livechat.svg);}.ui-icon-service-skype>i{background-color:#02aff0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-skype.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-livechat.svg);}.ui-icon-service-skype>i{--ui-icon-service-bg-color:#02aff0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-skype.svg); }
 
 .ui-icon-service-light-skype > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-skype.svg);}.ui-icon-service-fb>i,.ui-icon-service-facebook>i{background-color:#38659f;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-fb.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-skype.svg);}.ui-icon-service-fb>i,.ui-icon-service-facebook>i{--ui-icon-service-bg-color:#38659f;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-fb.svg); }
 
 .ui-icon-service-light-fb > i,
 .ui-icon-service-light-facebook > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-fb.svg);}.ui-icon-service-fb-comments>i{background-color:#38659f;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-fb-comments.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-fb.svg);}.ui-icon-service-fb-comments>i{--ui-icon-service-bg-color:#38659f;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-fb-comments.svg); }
 
 .ui-icon-service-light-fb-comments > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-fb-comments.svg);}.ui-icon-service-fb-messenger>i{background-color:#0183ff;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-fb-messenger.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-fb-comments.svg);}.ui-icon-service-fb-messenger>i{--ui-icon-service-bg-color:#0183ff;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-fb-messenger.svg); }
 
 .ui-icon-service-light-fb-messenger > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-fb-messenger.svg);}.ui-icon-service-viber>i{background-color:#995aca;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-viber.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-fb-messenger.svg);}.ui-icon-service-viber>i{--ui-icon-service-bg-color:#995aca;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-viber.svg); }
 
 .ui-icon-service-light-viber > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-viber.svg);}.ui-icon-service-twilio>i{background-color:#e42e3a;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-twilio.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-viber.svg);}.ui-icon-service-twilio>i{--ui-icon-service-bg-color:#e42e3a;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-twilio.svg); }
 
 .ui-icon-service-light-twilio > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-twilio.svg);}.ui-icon-service-telegram>i{background-color:#2fc6f6;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-telegram.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-twilio.svg);}.ui-icon-service-telegram>i{--ui-icon-service-bg-color:#2fc6f6;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-telegram.svg); }
 
 .ui-icon-service-light-telegram > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-telegram.svg);}.ui-icon-service-microsoft>i{background-color:#06afe5;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-microsoft.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-telegram.svg);}.ui-icon-service-microsoft>i{--ui-icon-service-bg-color:#06afe5;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-microsoft.svg); }
 
 .ui-icon-service-light-microsoft > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-microsoft.svg);}.ui-icon-service-kik>i{background-color:#212121;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-kik.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-microsoft.svg);}.ui-icon-service-kik>i{--ui-icon-service-bg-color:#212121;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-kik.svg); }
 
 .ui-icon-service-light-kik > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-kik.svg);}.ui-icon-service-slack>i{background-color:#776ebd;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-slack.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-kik.svg);}.ui-icon-service-slack>i{--ui-icon-service-bg-color:#776ebd;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-slack.svg); }
 
 .ui-icon-service-light-slack > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-slack.svg);}.ui-icon-service-groupme>i{background-color:#1db0ed;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-groupme.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-slack.svg);}.ui-icon-service-groupme>i{--ui-icon-service-bg-color:#1db0ed;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-groupme.svg); }
 
 .ui-icon-service-light-groupme > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-groupme.svg);}.ui-icon-service-outlook>i{background-color:#0071c5;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-outlook.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-groupme.svg);}.ui-icon-service-outlook>i{--ui-icon-service-bg-color:#0071c5;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-outlook.svg); }
 
 .ui-icon-service-light-outlook > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-outlook.svg);}.ui-icon-service-webchat>i{background-color:#4393d0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-webchat.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-outlook.svg);}.ui-icon-service-webchat>i{--ui-icon-service-bg-color:#4393d0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-webchat.svg); }
 
 .ui-icon-service-light-webchat > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-webchat.svg);}.ui-icon-service-directline>i{background-color:#4393d0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-directline.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-webchat.svg);}.ui-icon-service-directline>i{--ui-icon-service-bg-color:#4393d0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-directline.svg); }
 
 .ui-icon-service-light-directline > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-directline.svg);}.ui-icon-service-callback>i{background-color:#ff5752;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-call.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-directline.svg);}.ui-icon-service-callback>i{--ui-icon-service-bg-color:#ff5752;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-call.svg); }
 
 .ui-icon-service-light-callback > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-call.svg);}.ui-icon-service-call>i{background-color:#54d1e1;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-call.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-call.svg);}.ui-icon-service-call>i{--ui-icon-service-bg-color:#54d1e1;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-call.svg); }
 
 .ui-icon-service-light-call > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-call.svg);}.ui-icon-service-calltracking>i{background-color:#1eae43;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-calltracking.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-call.svg);}.ui-icon-service-calltracking>i{--ui-icon-service-bg-color:#1eae43;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-calltracking.svg); }
 
 .ui-icon-service-light-calltracking > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-calltracking.svg);}.ui-icon-service-envelope>i{background-color:#4393d0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-envelope.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-calltracking.svg);}.ui-icon-service-envelope>i{--ui-icon-service-bg-color:#4393d0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-envelope.svg); }
 
 .ui-icon-service-light-envelope > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-envelope.svg);}.ui-icon-service-email>i{background-color:#90be00;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-email.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-envelope.svg);}.ui-icon-service-email>i{--ui-icon-service-bg-color:#90be00;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-email.svg); }
 
 .ui-icon-service-light-email > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-email.svg);}.ui-icon-service-webform>i{background-color:#00b4ac;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-webform.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-email.svg);}.ui-icon-service-ok>i{--ui-icon-service-bg-color:#ee8208;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-ok.svg); }
+
+.ui-icon-service-light-ok > i {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-ok.svg);}.ui-icon-service-webform>i{--ui-icon-service-bg-color:#00b4ac;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-webform.svg); }
 
 .ui-icon-service-light-webform > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-webform.svg);}.ui-icon-service-apple>i{background-color:#000;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-apple.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-webform.svg);}.ui-icon-service-apple>i{--ui-icon-service-bg-color:#000;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-apple.svg); }
 
 .ui-icon-service-light-apple > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-apple.svg);}.ui-icon-service-imessage>i{background-color:#54d857;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-imessage.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-apple.svg);}.ui-icon-service-imessage>i{--ui-icon-service-bg-color:#54d857;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-imessage.svg); }
 
 .ui-icon-service-light-imessage > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-imessage.svg);}.ui-icon-service-site-b24>i{background-color:#4393d0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-siteb24.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-imessage.svg);}.ui-icon-service-site-b24>i{--ui-icon-service-bg-color:#4393d0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-siteb24.svg); }
 
 .ui-icon-service-light-site-b24 > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-siteb24.svg);}.ui-icon-service-fb-adds>i{background-color:#38659f;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-fb-adds.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-siteb24.svg);}.ui-icon-service-fb-adds>i{--ui-icon-service-bg-color:#38659f;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-fb-adds.svg); }
 
 .ui-icon-service-light-fb-adds > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-fb-adds.svg);}.ui-icon-service-estore i{background-color:#90be00;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-estore.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-fb-adds.svg);}.ui-icon-service-estore i{--ui-icon-service-bg-color:#90be00;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-estore.svg); }
 
 .ui-icon-service-light-estore i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-estore.svg);}.ui-icon-service-site>i{background-color:#d4825a;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-ownsite.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-estore.svg);}.ui-icon-service-site>i{--ui-icon-service-bg-color:#d4825a;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-ownsite.svg); }
 
 .ui-icon-service-light-site > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-ownsite.svg);}.ui-icon-service-call-up i{background-color:#55d0e0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-call-up.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-ownsite.svg);}.ui-icon-service-call-up i{--ui-icon-service-bg-color:#55d0e0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-call-up.svg); }
 
 .ui-icon-service-light-call-up > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-call-up.svg);}.ui-icon-service-organic>i{background-color:#6baf0e;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-organic.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-call-up.svg);}.ui-icon-service-organic>i{--ui-icon-service-bg-color:#6baf0e;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-organic.svg); }
 
 .ui-icon-service-light-organic > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-organic.svg);}.ui-icon-service-common>i{background-color:#55d0e0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-common.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-organic.svg);}.ui-icon-service-common>i{--ui-icon-service-bg-color:#55d0e0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-common.svg); }
 
 .ui-icon-service-light-common > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-common.svg);}.ui-icon-service-universal>i{background-color:#55d0e0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-universal.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-common.svg);}.ui-icon-service-universal>i{--ui-icon-service-bg-color:#55d0e0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-universal.svg); }
 
 .ui-icon-service-light-universal > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-universal.svg);}.ui-icon-service-instagram-fb>i{background-color:#e85998;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-instagram-fb.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-universal.svg);}.ui-icon-service-instagram-fb>i{--ui-icon-service-bg-color:#e85998;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-instagram-fb.svg); }
 
 .ui-icon-service-light-instagram-fb > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-instagram-fb.svg);}.ui-icon-service-1c>i{background-color:#fade39;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-1c.svg?v=1); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-instagram-fb.svg);}.ui-icon-service-1c>i{--ui-icon-service-bg-color:#fade39;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-1c.svg?v=1); }
 
 .ui-icon-service-light-1c > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-1c.svg);}.ui-icon-service-office365>i{background-color:#fff;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-office365.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-1c.svg);}.ui-icon-service-office365>i{--ui-icon-service-bg-color:#fff;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-office365.svg); }
 
 .ui-icon-service-light-office365 > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-office365.svg);}.ui-icon-service-ya>i,.ui-icon-service-yandex>i{background-color:#fff;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-ya.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-office365.svg);}.ui-icon-service-ya>i,.ui-icon-service-yandex>i{--ui-icon-service-bg-color:#fff;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-ya.svg); }
 
 .ui-icon-service-light-ya > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-ya.svg);}.ui-icon-service-ya-dialogs>i{background-color:#3a78db;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-ya-dialogs.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-ya.svg);}.ui-icon-service-ya-dialogs>i{--ui-icon-service-bg-color:#3a78db;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-ya-dialogs.svg); }
 
 .ui-icon-service-light-ya-dialogs > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-ya-dialogs.svg);}.ui-icon-service-ya-direct>i{background-color:#ffce00;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-ya-direct.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-ya-dialogs.svg);}.ui-icon-service-ya-direct>i{--ui-icon-service-bg-color:#ffce00;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-ya-direct.svg);}.ui-icon-service-ya-toloka>i{background-color:#ea8428;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-toloka.svg); }
 
 .ui-icon-service-light-ya-direct > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-ya-direct.svg);}.ui-icon-service-liveid>i{background-color:#fff;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-liveid.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-ya-direct.svg);}.ui-icon-service-liveid>i{--ui-icon-service-bg-color:#fff;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-liveid.svg); }
 
 .ui-icon-service-light-liveid > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-liveid.svg);}.ui-icon-service-twitter>i{background-color:#1ea1f2;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-twitter.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-liveid.svg);}.ui-icon-service-twitter>i{--ui-icon-service-bg-color:#1ea1f2;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-twitter.svg); }
 
 .ui-icon-service-light-twitter > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-twitter.svg);}.ui-icon-service-google>i{background-color:#fff;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-google.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-twitter.svg);}.ui-icon-service-google>i{--ui-icon-service-bg-color:#fff;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-google.svg); }
 
 .ui-icon-service-light-google > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-google.svg);}.ui-icon-service-google-ads>i{background-color:#3889db;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-googleads.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-google.svg);}.ui-icon-service-google-ads>i{--ui-icon-service-bg-color:#3889db;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-googleads.svg); }
 
 .ui-icon-service-light-google-ads > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-googleads.svg);}.ui-icon-service-rest-contact-center>i{background-color:#eb9e06;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-common.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-googleads.svg);}.ui-icon-service-rest-contact-center>i{--ui-icon-service-bg-color:#eb9e06;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-common.svg); }
 
 .ui-icon-service-light-rest-contact-center > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-common.svg);}.ui-icon-service-chatbot>i{background-color:#359fd0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-chatbot.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-common.svg);}.ui-icon-service-chatbot>i{--ui-icon-service-bg-color:#359fd0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-chatbot.svg); }
 
 .ui-icon-service-light-chatbot > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-chatbot.svg);}.ui-icon-service-telephonybot>i{background-color:#af6d4d;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-telephonybot.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-chatbot.svg);}.ui-icon-service-telephonybot>i{--ui-icon-service-bg-color:#af6d4d;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-telephonybot.svg); }
 
 .ui-icon-service-light-telephonybot > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-telephonybot.svg);}.ui-icon-service-campaign>i{background-color:#2bbff0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-campaign.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-telephonybot.svg);}.ui-icon-service-campaign>i{--ui-icon-service-bg-color:#2bbff0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-campaign.svg); }
 
 .ui-icon-service-light-campaign > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-campaign.svg);}.ui-icon-service-sms>i{background-color:#f4769c;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-sms.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-campaign.svg);}.ui-icon-service-sms>i{--ui-icon-service-bg-color:#f4769c;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-sms.svg); }
 
 .ui-icon-service-light-sms > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-sms.svg);}.ui-icon-service-messenger>i{background-color:#97cb13;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-messenger.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-sms.svg);}.ui-icon-service-messenger>i{--ui-icon-service-bg-color:#97cb13;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-messenger.svg); }
 
 .ui-icon-service-light-messenger > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-messenger.svg);}.ui-icon-service-infocall>i{background-color:#349ed0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-infocall.svg);}.ui-icon-service-audio-infocall>i{background-color:#3dc9db;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-audio-infocall.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-messenger.svg);}.ui-icon-service-infocall>i{--ui-icon-service-bg-color:#349ed0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-infocall.svg);}.ui-icon-service-audio-infocall>i{--ui-icon-service-bg-color:#3dc9db;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-audio-infocall.svg); }
 
 .ui-icon-service-light-infocall > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-audio-infocall.svg);}.ui-icon-service-deal>i{background-color:#349ed0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-deal.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-audio-infocall.svg);}.ui-icon-service-deal>i{--ui-icon-service-bg-color:#349ed0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-deal.svg); }
 
 .ui-icon-service-light-deal > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-deal.svg);}.ui-icon-service-lead>i{background-color:#349ed0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-lead.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-deal.svg);}.ui-icon-service-lead>i{--ui-icon-service-bg-color:#349ed0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-lead.svg); }
 
 .ui-icon-service-light-lead > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-lead.svg);}.ui-icon-service-whatsapp>i{background-color:#01e675;background-size:30px;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-whatsapp.svg);}.ui-icon-service-light-whatsapp>i{background-size:30px;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-whatsapp.svg);}.ui-icon-service-wechat>i{background-color:#2ec100;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-wechat.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-lead.svg);}.ui-icon-service-whatsapp>i{--ui-icon-service-bg-color:#01e675;background-size:30px;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-whatsapp.svg);}.ui-icon-service-light-whatsapp>i{background-size:30px;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-whatsapp.svg);}.ui-icon-service-wechat>i{--ui-icon-service-bg-color:#2ec100;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-wechat.svg); }
 
 .ui-icon-service-light-wechat > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-wechat.svg);}.ui-icon-service-avito>i{background-color:#0af;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-avito.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-wechat.svg);}.ui-icon-service-avito>i{--ui-icon-service-bg-color:#0af;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-avito.svg); }
 
 .ui-icon-service-light-avito > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-avito.svg);}.ui-icon-service-mailru>i,.ui-icon-service-mailru2>i{background-color:#005ff9;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-mailru.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-avito.svg);}.ui-icon-service-mailru>i,.ui-icon-service-mailru2>i{--ui-icon-service-bg-color:#005ff9;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-mailru.svg); }
 
 .ui-icon-service-light-mailru > i,
 .ui-icon-service-light-mailru2 > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-mailru.svg);}.ui-icon.ui-icon-service-sbbol>i,.ui-icon.ui-icon-service-sberbank>i{background-color:#289d37;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-sberbank.svg);}.ui-icon.ui-icon-service-green-sberbank>i{background-color:#ebeff2;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-green-sberbank.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-mailru.svg);}.ui-icon.ui-icon-service-sbbol>i,.ui-icon.ui-icon-service-sberbank>i{--ui-icon-service-bg-color:#289d37;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-sberbank.svg);}.ui-icon.ui-icon-service-green-sberbank>i{--ui-icon-service-bg-color:#ebeff2;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-green-sberbank.svg); }
 
 .ui-icon.ui-icon-service-light-sbbol > i,
 .ui-icon.ui-icon-service-light-sberbank > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-sberbank.svg);}.ui-icon.ui-icon-service-import>i{background-color:#6a89b0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-import.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-sberbank.svg);}.ui-icon-service-olx>i{background-color:#5b2b82;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-olx.svg); }
+
+.ui-icon-service-light-olx > i {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-olx.svg);}.ui-icon.ui-icon-service-import>i{--ui-icon-service-bg-color:#6a89b0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-import.svg); }
 
 .ui-icon.ui-icon-service-light-import > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-import.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-import.svg);}.ui-icon.ui-icon-service-zoom>i{--ui-icon-service-bg-color:#4690fb;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-zoom.svg);}.ui-icon.ui-icon-service-blue-zoom>i{--ui-icon-service-bg-color:transparent;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-blue-zoom.svg); }
 
-.ui-icon.ui-icon-service-widget > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-widget.svg); }
+.ui-icon.ui-icon-service-light-zoom > i {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-zoom.svg);}.ui-icon.ui-icon-service-widget>i{--ui-icon-service-bg-color:#333;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-widget.svg); }
 
-.ui-icon.ui-icon-service-wheel > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-wheel.svg); }
+.ui-icon.ui-icon-service-light-widget > i {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-widget.svg);}.ui-icon.ui-icon-service-wheel>i{--ui-icon-service-bg-color:#333;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-wheel.svg); }
 
-.ui-icon.ui-icon-service-play > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-play.svg); }
+.ui-icon.ui-icon-service-light-wheel > i {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-wheel.svg);}.ui-icon.ui-icon-service-play>i{--ui-icon-service-bg-color:#333;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-play.svg); }
 
-.ui-icon.ui-icon-service-other > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-other.svg); }
 
-.ui-icon.ui-icon-service-cart > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-cart.svg); }
+.ui-icon.ui-icon-service-light-play > i {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-play.svg);}.ui-icon.ui-icon-service-other>i{--ui-icon-service-bg-color:#333;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-other.svg); }
 
-.ui-icon.ui-icon-service-add > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-add.svg); }
+.ui-icon.ui-icon-service-light-other > i {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-other.svg);}.ui-icon.ui-icon-service-cart>i{--ui-icon-service-bg-color:#333;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-cart.svg); }
 
-.ui-icon.ui-icon-service-arrows > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-arrows.svg);}
+.ui-icon.ui-icon-service-light-cart > i {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-cart.svg);}.ui-icon.ui-icon-service-add>i{--ui-icon-service-bg-color:#333;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-add.svg); }
+
+.ui-icon.ui-icon-service-light-add > i {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-add.svg);}.ui-icon.ui-icon-service-arrows>i{--ui-icon-service-bg-color:#333;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-arrows.svg); }
+
+.ui-icon.ui-icon-service-light-arrows > i {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-arrows.svg);}

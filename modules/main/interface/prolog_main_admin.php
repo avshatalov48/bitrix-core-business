@@ -86,9 +86,17 @@ $APPLICATION->ShowHeadScripts();
 <script type="text/javascript">
 BX.message({MENU_ENABLE_TOOLTIP: <?=($aUserOptGlobal['start_menu_title'] <> 'N' ? 'true' : 'false')?>});
 BX.InitializeAdmin();
-if (!top.window["adminSidePanel"] || !BX.is_subclass_of(top.window["adminSidePanel"], top.BX.adminSidePanel))
+
+var topWindow = BX.PageObject.getRootWindow();
+if (
+	BX.Reflection.getClass('topWindow.BX.adminSidePanel')
+	&& (
+		!topWindow.window["adminSidePanel"]
+		|| !BX.is_subclass_of(topWindow.window["adminSidePanel"], topWindow.BX.adminSidePanel)
+	)
+)
 {
-	top.window["adminSidePanel"] = new top.BX.adminSidePanel();
+	topWindow.window["adminSidePanel"] = new topWindow.BX.adminSidePanel();
 }
 </script>
 <?
@@ -310,7 +318,7 @@ foreach (GetModuleEvents("main", "OnPrologAdminTitle", true) as $arEvent)
 	ExecuteModuleEventEx($arEvent, $arPageParams);
 }
 
-if ($curPage != "/bitrix/admin/index.php")
+if ($curPage != "/bitrix/admin/index.php" && !$adminPage->isHideTitle())
 {
 	$isFavLink = !defined('BX_ADMIN_SECTION_404') || BX_ADMIN_SECTION_404 != 'Y';
 	if ($adminSidePanelHelper->isPublicSidePanel())
@@ -427,7 +435,7 @@ if($USER->IsAuthorized()):
 
 				if($supportDateDiff >= 0 && $supportDateDiff <= 30)
 				{
-					$sSupportMess = GetMessage("prolog_main_support11", array(
+					$sSupportMess = GetMessage("prolog_main_support11_l", array(
 						'#FINISH_DATE#' => GetTime($supportFinishStamp),
 						'#DAYS_AGO#' => ($supportDateDiff == 0? GetMessage("prolog_main_today") : GetMessage('prolog_main_support_days', array('#N_DAYS_AGO#'=>$supportDateDiff))),
 						'#LICENSE_KEY#' => md5(LICENSE_KEY),
@@ -437,7 +445,7 @@ if($USER->IsAuthorized()):
 				}
 				elseif($supportDateDiff < 0 && $supportDateDiff >= -30)
 				{
-					$sSupportMess = GetMessage("prolog_main_support21", array(
+					$sSupportMess = GetMessage("prolog_main_support21_l", array(
 						'#FINISH_DATE#' => GetTime($supportFinishStamp),
 						'#DAYS_AGO#' => (-$supportDateDiff),
 						'#LICENSE_KEY#' => md5(LICENSE_KEY),
@@ -447,7 +455,7 @@ if($USER->IsAuthorized()):
 				}
 				elseif($supportDateDiff < -30)
 				{
-					$sSupportMess = GetMessage("prolog_main_support31", array(
+					$sSupportMess = GetMessage("prolog_main_support31_l", array(
 						'#FINISH_DATE#' => GetTime($supportFinishStamp),
 						'#LICENSE_KEY#' => md5(LICENSE_KEY),
 						'#WHAT_IS_IT#' => $sSupWIT,
@@ -515,7 +523,7 @@ if($USER->IsAuthorized()):
 							<a href="javascript:void(0)" id="prolongmenu" onclick="showProlongMenu(this)" style="color: #716536;"><?=GetMessage("prolog_main_support_button_no_prolong2")?></a>
 						</div>
 						<?=$sSupportMess;?>
-						<div id="supdescr" style="display: none;"><br /><br /><b><?=GetMessage("prolog_main_support_wit_descr1")?></b><hr><?=GetMessage("prolog_main_support_wit_descr2".(IsModuleInstalled("intranet") ? "_cp" : ""))?></div>
+						<div id="supdescr" style="display: none;"><br /><br /><b><?=GetMessage("prolog_main_support_wit_descr1")?></b><hr><?=GetMessage("prolog_main_support_wit_descr2_l".(IsModuleInstalled("intranet") ? "_cp" : ""))?></div>
 						<?
 						echo EndNote();
 					}

@@ -120,7 +120,8 @@ class LandingTable extends Entity\DataManager
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_SEARCH_CONTENT')
 			)),
 			'VERSION' => new Entity\IntegerField('VERSION', array(
-				'title' => Loc::getMessage('LANDING_TABLE_FIELD_VERSION')
+				'title' => Loc::getMessage('LANDING_TABLE_FIELD_VERSION'),
+				'default_value' => 5
 			)),
 			'CREATED_BY_ID' => new Entity\IntegerField('CREATED_BY_ID', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_CREATED_BY_ID'),
@@ -527,7 +528,7 @@ class LandingTable extends Entity\DataManager
 		// slash in CODE is not allowed
 		if (
 			array_key_exists('CODE', $fields) &&
-			strpos($fields['CODE'], '/') !== false
+			mb_strpos($fields['CODE'], '/') !== false
 		)
 		{
 			$result->setErrors(array(

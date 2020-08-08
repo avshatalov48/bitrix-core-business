@@ -76,11 +76,11 @@ if (!CModule::IncludeModule("socialnetwork"))
 	return;
 }
 
-$arParams["GROUP_ID"] = IntVal($arParams["GROUP_ID"]);
-$arParams["USER_ID"] = IntVal($arParams["USER_ID"]);
+$arParams["GROUP_ID"] = intval($arParams["GROUP_ID"]);
+$arParams["USER_ID"] = intval($arParams["USER_ID"]);
 $arParams["PAGE_ID"] = Trim($arParams["PAGE_ID"]);
 
-if (StrLen($arParams["ENTITY_TYPE"]) <= 0)
+if ($arParams["ENTITY_TYPE"] == '')
 {
 	if ($arParams["PAGE_ID"] == "group_subscribe")
 		$arParams["ENTITY_TYPE"] = SONET_SUBSCRIBE_ENTITY_GROUP;
@@ -96,31 +96,31 @@ if (intval($arParams["ENTITY_ID"]) <= 0)
 		$arParams["ENTITY_ID"] = $arParams["USER_ID"];
 }
 
-if (StrLen($arParams["PAGE_ID"]) <= 0)
+if ($arParams["PAGE_ID"] == '')
 	$arParams["PAGE_ID"] = "user_subscribe";
 
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 
-if (strLen($arParams["USER_VAR"]) <= 0)
+if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if (strLen($arParams["GROUP_VAR"]) <= 0)
+if ($arParams["GROUP_VAR"] == '')
 	$arParams["GROUP_VAR"] = "group_id";
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if (strlen($arParams["PATH_TO_USER"]) <= 0)
+if ($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_GROUP"] = trim($arParams["PATH_TO_GROUP"]);
-if (strlen($arParams["PATH_TO_GROUP"]) <= 0)
+if ($arParams["PATH_TO_GROUP"] == '')
 	$arParams["PATH_TO_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_SUBSCRIBE"] = trim($arParams["PATH_TO_SUBSCRIBE"]);
-if (strlen($arParams["PATH_TO_SUBSCRIBE"]) <= 0)
+if ($arParams["PATH_TO_SUBSCRIBE"] == '')
 	$arParams["PATH_TO_SUBSCRIBE"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=subscribe");
 
-if (strlen($arParams["NAME_TEMPLATE"]) <= 0)		
+if ($arParams["NAME_TEMPLATE"] == '')
 	$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 $bUseLogin = $arParams['SHOW_LOGIN'] != "N" ? true : false;
 				
@@ -137,7 +137,7 @@ else
 	if ($arParams["ENTITY_ID"] <= 0)
 		$arResult["FatalError"] = GetMessage("SONET_C3_NO_ENTITY_ID").".";
 
-	if (StrLen($arResult["FatalError"]) <= 0)
+	if ($arResult["FatalError"] == '')
 	{
 		// get upper level subscription
 		
@@ -463,7 +463,7 @@ else
 		}
 	}
 
-	if (StrLen($arResult["FatalError"]) <= 0)
+	if ($arResult["FatalError"] == '')
 	{
 		
 		$arResult["Urls"]["Entity"] = CComponentEngine::MakePathFromTemplate(
@@ -506,7 +506,7 @@ else
 		
 		$arResult["ShowForm"] = "Input";
 
-		if ($_SERVER["REQUEST_METHOD"]=="POST" && strlen($_POST["save"]) > 0 && check_bitrix_sessid())
+		if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["save"] <> '' && check_bitrix_sessid())
 		{
 			$errorMessage = "";
 			CSocNetLogEvents::DeleteByUserAndEntity($GLOBALS["USER"]->GetID(), $arParams["ENTITY_TYPE"], $arParams["ENTITY_ID"]);
@@ -625,7 +625,7 @@ else
 													array_key_exists("HAS_SITE_ID", $arSocNetAllowedSubscribeEntityTypesDesc[$arParams["ENTITY_TYPE"]])
 													&& $arSocNetAllowedSubscribeEntityTypesDesc[$arParams["ENTITY_TYPE"]]["HAS_SITE_ID"] == "Y"
 													&& defined("SITE_ID") 
-													&& strlen(SITE_ID) > 0 
+													&& SITE_ID <> '' 
 													? 
 														SITE_ID 
 													: 
@@ -659,7 +659,7 @@ else
 								"ENTITY_ID" 	=> ($arParams["ENTITY_TYPE"] == SONET_SUBSCRIBE_ENTITY_GROUP) ? $arResult["Group"]["ID"] : $arResult["User"]["ID"],
 								"ENTITY_CB" 	=> "Y",
 								"EVENT_ID" 		=> $event_id,
-								"SITE_ID" 		=> (($arParams["ENTITY_TYPE"] == SONET_SUBSCRIBE_ENTITY_GROUP && defined("SITE_ID") && strlen(SITE_ID) > 0) ? SITE_ID : false),
+								"SITE_ID" 		=> (($arParams["ENTITY_TYPE"] == SONET_SUBSCRIBE_ENTITY_GROUP && defined("SITE_ID") && SITE_ID <> '') ? SITE_ID : false),
 								"MAIL_EVENT" 	=> ($_REQUEST[$event_id_tmp."_active"] == "M") ? "Y" : "N",
 								"TRANSPORT"		=> $subscribe_transport_cb,
 								"VISIBLE"		=> $subscribe_visible_cb,								
@@ -674,11 +674,11 @@ else
 					}					
 				}
 				
-				if (strlen($errorMessage) > 0)
+				if ($errorMessage <> '')
 					break;
 			}
 
-			if (strlen($errorMessage) > 0)
+			if ($errorMessage <> '')
 				$arResult["ErrorMessage"] = $errorMessage;
 			else
 				$arResult["ShowForm"] = "Confirm";

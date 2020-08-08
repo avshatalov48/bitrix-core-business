@@ -9,7 +9,7 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 	{
 		function __fileman_fmnu_fldr_cmp($a, $b)
 		{
-			return strcmp(strtoupper($a["sSectionName"]), strtoupper($b["sSectionName"]));
+			return strcmp(mb_strtoupper($a["sSectionName"]), mb_strtoupper($b["sSectionName"]));
 		}
 
 		function __fileman_mnu_gen($bLogical, $bFullList, $site, $path, $sShowOnly, $arSiteDirs=Array(), $bCountOnly = false, $arSitesDR_= Array(), $siteList = Array())
@@ -39,7 +39,7 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 
 			$io = CBXVirtualIo::GetInstance();
 
-			if(!$bCountOnly && substr($sShowOnly, 0, strlen($path)) != $path)
+			if(!$bCountOnly && mb_substr($sShowOnly, 0, mb_strlen($path)) != $path)
 				return Array();
 
 			$arFldrs = Array();
@@ -57,7 +57,7 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 				if($bLogical && $arSiteDirs[$path.'/'.$file])
 					continue;
 
-				if(!$bCountOnly && !$bFullList && $sShowOnly != $path && substr($sShowOnly, 0, strlen($path.'/'.$file)) != $path.'/'.$file)
+				if(!$bCountOnly && !$bFullList && $sShowOnly != $path && mb_substr($sShowOnly, 0, mb_strlen($path.'/'.$file)) != $path.'/'.$file)
 					continue;
 
 				if(!$USER->CanDoFileOperation('fm_view_file',Array($site, $path."/".$file)) ||
@@ -71,7 +71,7 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 
 					$sSectionName = "";
 					include($io->GetPhysicalName($DOC_ROOT.$path."/".$file."/.section.php"));
-					if(strlen($sSectionName) <= 0)
+					if($sSectionName == '')
 						$sSectionName = GetMessage("FILEMAN_MNU_WN");
 				}
 				else
@@ -93,7 +93,7 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 				for($ii = 0, $ll = count($siteList); $ii < $ll; $ii++)
 				{
 					$dir = trim($siteList[$ii]["DIR"], "/");
-					if (substr(trim($path.'/'.$file, "/"), 0, strlen($dir)) == $dir)
+					if (mb_substr(trim($path.'/'.$file, "/"), 0, mb_strlen($dir)) == $dir)
 					{
 						$site_ = $siteList[$ii]["ID"];
 						break;
@@ -116,7 +116,7 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 						$site_ = $site;
 						foreach($arSitesDR_ as $k=>$s)
 						{
-							if ($k == substr($DOC_ROOT.$path.'/'.$file,0,strlen($k)))
+							if ($k == mb_substr($DOC_ROOT.$path.'/'.$file, 0, mb_strlen($k)))
 								$site_ = $s;
 						}
 					}
@@ -191,8 +191,8 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 			{
 				if($_REQUEST['admin_mnu_menu_id']=="menu_fileman_site_".$arSites["ID"]."_")
 					$sShowOnly = rtrim($arSites["DIR"], "/");
-				elseif(substr($_REQUEST['admin_mnu_menu_id'], 0, strlen("menu_fileman_site_".$arSites["ID"]."_"))=="menu_fileman_site_".$arSites["ID"]."_")
-					$sShowOnly = substr($_REQUEST['admin_mnu_menu_id'], strlen("menu_fileman_site_".$arSites["ID"]."_"));
+				elseif(mb_substr($_REQUEST['admin_mnu_menu_id'], 0, mb_strlen("menu_fileman_site_".$arSites["ID"]."_")) == "menu_fileman_site_".$arSites["ID"]."_")
+					$sShowOnly = mb_substr($_REQUEST['admin_mnu_menu_id'], mb_strlen("menu_fileman_site_".$arSites["ID"]."_"));
 			}
 			elseif(isset($_REQUEST['path']))
 			{
@@ -303,8 +303,8 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 				{
 					if($_REQUEST['admin_mnu_menu_id']=="menu_fileman_file_".$site_id."_")
 						$sShowOnly = "";
-					elseif(substr($_REQUEST['admin_mnu_menu_id'], 0, strlen("menu_fileman_file_".$site_id."_"))=="menu_fileman_file_".$site_id."_")
-						$sShowOnly = substr($_REQUEST['admin_mnu_menu_id'], strlen("menu_fileman_file_".$site_id."_"));
+					elseif(mb_substr($_REQUEST['admin_mnu_menu_id'], 0, mb_strlen("menu_fileman_file_".$site_id."_")) == "menu_fileman_file_".$site_id."_")
+						$sShowOnly = mb_substr($_REQUEST['admin_mnu_menu_id'], mb_strlen("menu_fileman_file_".$site_id."_"));
 				}
 				elseif(isset($_REQUEST['path']))
 				{
@@ -316,7 +316,7 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 				}
 				$maxl = 60;
 				$arSMenu[] = array(
-						"text" => (strlen($k) <= $maxl ? $k : substr($k, 0, 3).'...'.substr($k, - ($maxl-6))),
+						"text" => (mb_strlen($k) <= $maxl ? $k : mb_substr($k, 0, 3).'...'.mb_substr($k, -($maxl - 6))),
 						"url" => "fileman_admin.php?lang=".LANG.'&site='.$site_id.'&'.$addUrl,
 						"more_url" => array(
 							"fileman_access.php?site=".$site_id.'&'.$addUrl,
@@ -371,8 +371,8 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 			{
 				if($_REQUEST['admin_mnu_menu_id']=="menu_fileman_file_".$site_id."_")
 					$sShowOnly = "";
-				elseif(substr($_REQUEST['admin_mnu_menu_id'], 0, strlen("menu_fileman_file_".$site_id."_"))=="menu_fileman_file_".$site_id."_")
-					$sShowOnly = substr($_REQUEST['admin_mnu_menu_id'], strlen("menu_fileman_file_".$site_id."_"));
+				elseif(mb_substr($_REQUEST['admin_mnu_menu_id'], 0, mb_strlen("menu_fileman_file_".$site_id."_")) == "menu_fileman_file_".$site_id."_")
+					$sShowOnly = mb_substr($_REQUEST['admin_mnu_menu_id'], mb_strlen("menu_fileman_file_".$site_id."_"));
 			}
 			elseif(isset($_REQUEST['path']))
 			{

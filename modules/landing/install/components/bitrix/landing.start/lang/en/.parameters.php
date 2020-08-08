@@ -14,6 +14,7 @@ $MESS["LANDING_CMP_PAR_SM_ROLES"] = "Roles";
 $MESS["LANDING_CMP_PAR_SM_ROLE_EDIT"] = "Role edit page";
 $MESS["LANDING_CMP_PAR_SM_SITE"] = "Site page (list of landings)";
 $MESS["LANDING_CMP_PAR_SM_SITES"] = "Sites";
+$MESS["LANDING_CMP_PAR_SM_SITE_DOMAIN"] = "Site domain edit page";
 $MESS["LANDING_CMP_PAR_SM_SITE_EDIT"] = "Site edit page";
 $MESS["LANDING_CMP_PAR_STRICT_TYPE"] = "Strict match";
 $MESS["LANDING_CMP_PAR_TILE_LANDING_MODE"] = "On page tile click";

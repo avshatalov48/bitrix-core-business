@@ -11,6 +11,10 @@
 	 */
 	if (window.BXMobileApp) return;
 
+	if ( typeof BXMobileAppContext != "undefined" ) {
+		BXMobileAppContext["useNativeWebSocket"] = false;
+	}
+
 	var syncApiObject = function (objectName){
 		this.objectName = objectName;
 

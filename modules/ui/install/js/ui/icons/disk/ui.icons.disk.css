@@ -71,31 +71,3 @@
 /*endregion*/
 
 /*endregion*/
-.ui-icon-service-vkontakte > i,
-.ui-icon-service-facebook > i,
-
-.ui-icon-service-office365 > i {
-	background-color: #fff;
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-office365.svg);
-}
-
-.ui-icon-service-yandex > i,
-.ui-icon-service-ya > i {
-	background-color: #fff;
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-ya.svg);
-}
-
-.ui-icon-service-liveid > i {
-	background-color: #fff;
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-liveid.svg);
-}
-
-.ui-icon-service-twitter > i {
-	background-color: #1ea1f2;
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-twitter.svg);
-}
-
-.ui-icon-service-google > i {
-	background-color: #fff;
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-google.svg);
-}

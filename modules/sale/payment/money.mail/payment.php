@@ -8,7 +8,7 @@ function PrepareParams(&$item)
 $message = "";
 $invoice_number="";
 $arParams = Array();
-$ORDER_ID =(strlen(CSalePaySystemAction::GetParamValue("ORDER_ID")) > 0) ? CSalePaySystemAction::GetParamValue("ORDER_ID") : $GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"];
+$ORDER_ID =(CSalePaySystemAction::GetParamValue("ORDER_ID") <> '') ? CSalePaySystemAction::GetParamValue("ORDER_ID") : $GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"];
 $ORDER = CSaleOrder::GetByID($ORDER_ID);
 
 if ($ORDER['PAY_VOUCHER_NUM']) 
@@ -16,16 +16,20 @@ if ($ORDER['PAY_VOUCHER_NUM'])
 else
 {
 	$SITE_NAME = COption::GetOptionString("main", "server_name", "");
-	$dateInsert = (strlen(CSalePaySystemAction::GetParamValue("DATE_INSERT")) > 0) ? CSalePaySystemAction::GetParamValue("DATE_INSERT") : $GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["DATE_INSERT"];
+	$dateInsert = (CSalePaySystemAction::GetParamValue("DATE_INSERT") <> '') ? CSalePaySystemAction::GetParamValue("DATE_INSERT") : $GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["DATE_INSERT"];
 	$arParams['issuer_id'] = base64_encode($ORDER_ID);
-	$arParams['access_key'] = (strlen(CSalePaySystemAction::GetParamValue("KEY")) > 0) ? CSalePaySystemAction::GetParamValue("KEY") : $GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["KEY"];
-	$arParams['shouldPay'] = (strlen(CSalePaySystemAction::GetParamValue("SHOULD_PAY")) > 0) ? CSalePaySystemAction::GetParamValue("SHOULD_PAY") : $GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["SHOULD_PAY"];
-	$arParams['buyer_email'] = (strlen(CSalePaySystemAction::GetParamValue("BUYER_EMAIL")) > 0) ? CSalePaySystemAction::GetParamValue("BUYER_EMAIL") : $GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["SHOULD_PAY"];
+	$arParams['access_key'] = (CSalePaySystemAction::GetParamValue("KEY") <> '') ? CSalePaySystemAction::GetParamValue("KEY") : $GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["KEY"];
+	$arParams['shouldPay'] = (CSalePaySystemAction::GetParamValue("SHOULD_PAY") <> '') ? CSalePaySystemAction::GetParamValue("SHOULD_PAY") : $GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["SHOULD_PAY"];
+	$arParams['buyer_email'] = (CSalePaySystemAction::GetParamValue("BUYER_EMAIL") <> '') ? CSalePaySystemAction::GetParamValue("BUYER_EMAIL") : $GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["SHOULD_PAY"];
 	//$arParams['currency'] = (strlen(CSalePaySystemAction::GetParamValue("CURRENCY")) > 0) ? CSalePaySystemAction::GetParamValue("CURRENCY") : $GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["CURRENCY"];
-	if (strlen(CSalePaySystemAction::GetParamValue("TEST_MODE")))
+	if(CSalePaySystemAction::GetParamValue("TEST_MODE") <> '')
+	{
 		$arParams['currency'] = CSalePaySystemAction::GetParamValue("TEST_MODE");
+	}
 	else
-		$arParams['currency'] = "RUR";	
+	{
+		$arParams['currency'] = "RUR";
+	}
 
 	$arParams['buyer_ip'] = $_SERVER['REMOTE_ADDR'];
     $arParams['description'] = base64_encode((ToUpper(SITE_CHARSET) != ToUpper('windows-1251')) ? $APPLICATION->ConvertCharset(GetMessage("MM_DESC",Array('#ORDER_ID#' => $ORDER_ID, '#DATE#' => $dateInsert, '#SITE_NAME#' => $SITE_NAME)), SITE_CHARSET, 'windows-1251') : GetMessage("MM_DESC", Array('#ORDER_ID#' => $ORDER_ID, '#DATE#' => $dateInsert, '#SITE_NAME#' => $SITE_NAME)));
@@ -45,7 +49,7 @@ if (is_numeric($invoice_number))
 	
 	$sHost = "merchant.money.mail.ru";
 	$sUrl = "/api/invoice/item/";
-	$access_key = rawurlencode((strlen(CSalePaySystemAction::GetParamValue("KEY")) > 0) ? CSalePaySystemAction::GetParamValue("KEY") : $GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["KEY"]);
+	$access_key = rawurlencode((CSalePaySystemAction::GetParamValue("KEY") <> '') ? CSalePaySystemAction::GetParamValue("KEY") : $GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["KEY"]);
 	$sVars = "key=".$access_key."&invoice_number=".$invoice_number;
 	sleep(1);
 	$CheckStatus = QueryGetData($sHost, 443, $sUrl, $sVars, $errno, $errstr, "GET", "ssl://");
@@ -77,7 +81,7 @@ if (is_numeric($invoice_number))
 	}
 			
 }
-if (strlen($message) <= 0)
+if ($message == '')
 	echo GetMessage('MM_ERROR_TRY_LATER');
 else 
 	echo $message;

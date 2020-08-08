@@ -24,10 +24,16 @@ abstract class ElementEntity extends Entity
 
 	/**
 	 * @param EO_Iblock $iblock
+	 *
+	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public function setIblock($iblock)
 	{
 		$this->iblock = $iblock;
+
+		$this->getField('IBLOCK_ID')->configureDefaultValue(
+			$iblock->getId()
+		);
 	}
 
 	/**

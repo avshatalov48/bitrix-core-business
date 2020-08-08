@@ -23,36 +23,36 @@ if (!CModule::IncludeModule("socialnetwork"))
 
 $arResult["IS_IFRAME"] = ($_REQUEST["IFRAME"] == "Y");
 
-$arParams["GROUP_ID"] = IntVal($arParams["GROUP_ID"]);
+$arParams["GROUP_ID"] = intval($arParams["GROUP_ID"]);
 
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 $arParams["USE_AUTO_MEMBERS"] = ($arParams["USE_AUTO_MEMBERS"] == "Y" ? "Y" : "N");
 
-if (strLen($arParams["USER_VAR"]) <= 0)
+if ($arParams["USER_VAR"] == '')
 {
 	$arParams["USER_VAR"] = "user_id";
 }
-if (strLen($arParams["GROUP_VAR"]) <= 0)
+if ($arParams["GROUP_VAR"] == '')
 {
 	$arParams["GROUP_VAR"] = "group_id";
 }
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 {
 	$arParams["PAGE_VAR"] = "page";
 }
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if (strlen($arParams["PATH_TO_USER"]) <= 0)
+if ($arParams["PATH_TO_USER"] == '')
 {
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 }
 $arParams["PATH_TO_GROUP"] = trim($arParams["PATH_TO_GROUP"]);
-if (strlen($arParams["PATH_TO_GROUP"]) <= 0)
+if ($arParams["PATH_TO_GROUP"] == '')
 {
 	$arParams["PATH_TO_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#");
 }
 $arParams["PATH_TO_GROUP_EDIT"] = trim($arParams["PATH_TO_GROUP_EDIT"]);
-if (strlen($arParams["PATH_TO_GROUP_EDIT"]) <= 0)
+if ($arParams["PATH_TO_GROUP_EDIT"] == '')
 {
 	$arParams["PATH_TO_GROUP_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_edit&".$arParams["GROUP_VAR"]."=#group_id#");
 }
@@ -61,25 +61,25 @@ $arParams["PATH_TO_GROUP_INVITE"] = trim($arParams["PATH_TO_GROUP_INVITE"]);
 if (empty($arParams["PATH_TO_GROUP_INVITE"]))
 {
 	$parent = $this->getParent();
-	if (is_object($parent) && strlen($parent->__name) > 0)
+	if (is_object($parent) && $parent->__name <> '')
 	{
 		$arParams["PATH_TO_GROUP_INVITE"] = $parent->arResult["PATH_TO_GROUP_INVITE"];
 	}
 }
 
 $arParams["PATH_TO_CONPANY_DEPARTMENT"] = trim($arParams["PATH_TO_CONPANY_DEPARTMENT"]);
-if (strlen($arParams["PATH_TO_CONPANY_DEPARTMENT"]) <= 0)
+if ($arParams["PATH_TO_CONPANY_DEPARTMENT"] == '')
 {
 	$arParams["PATH_TO_CONPANY_DEPARTMENT"] = \Bitrix\Main\Config\Option::get('main', 'TOOLTIP_PATH_TO_CONPANY_DEPARTMENT', SITE_DIR."company/structure.php?set_filter_structure=Y&structure_UF_DEPARTMENT=#ID#");
 }
 
-$arParams["ITEMS_COUNT"] = IntVal($arParams["ITEMS_COUNT"]);
+$arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
 if ($arParams["ITEMS_COUNT"] <= 0)
 {
 	$arParams["ITEMS_COUNT"] = 20;
 }
 
-$arParams["THUMBNAIL_LIST_SIZE"] = IntVal($arParams["THUMBNAIL_LIST_SIZE"]);
+$arParams["THUMBNAIL_LIST_SIZE"] = intval($arParams["THUMBNAIL_LIST_SIZE"]);
 if ($arParams["THUMBNAIL_LIST_SIZE"] <= 0)
 	$arParams["THUMBNAIL_LIST_SIZE"] = 42;
 

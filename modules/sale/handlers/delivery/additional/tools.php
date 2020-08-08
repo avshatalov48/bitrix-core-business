@@ -20,7 +20,7 @@ if (!\Bitrix\Main\Loader::includeModule('sale'))
 
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 
-if(strlen($result["ERROR"]) <= 0 && $saleModulePermissions >= "U" && check_bitrix_sessid())
+if($result["ERROR"] == '' && $saleModulePermissions >= "U" && check_bitrix_sessid())
 {
 	$action = isset($_REQUEST['action']) ? trim($_REQUEST['action']): '';
 	\Bitrix\Sale\Delivery\Services\Manager::getHandlersList();
@@ -70,7 +70,7 @@ if(strlen($result["ERROR"]) <= 0 && $saleModulePermissions >= "U" && check_bitri
 			$timeout = isset($_REQUEST['timeout']) ? trim($_REQUEST['timeout']): 24;
 			$progress = isset($_REQUEST['progress']) ? trim($_REQUEST['progress']): 0;
 
-			if(strlen($stage) <= 0)
+			if($stage == '')
 			{
 				$result["ERROR"] = "Error! Wrong stage!";
 				break;
@@ -108,16 +108,16 @@ if(strlen($result["ERROR"]) <= 0 && $saleModulePermissions >= "U" && check_bitri
 }
 else
 {
-	if(strlen($result["ERROR"]) <= 0)
+	if($result["ERROR"] == '')
 		$result["ERROR"] = "Error! Access denied";
 }
 
-if(strlen($result["ERROR"]) > 0)
+if($result["ERROR"] <> '')
 	$result["RESULT"] = "ERROR";
 else
 	$result["RESULT"] = "OK";
 
-if(strtolower(SITE_CHARSET) != 'utf-8')
+if(mb_strtolower(SITE_CHARSET) != 'utf-8')
 	$result = \Bitrix\Main\Text\Encoding::convertEncoding($result, SITE_CHARSET, 'utf-8');
 
 $result = json_encode($result);

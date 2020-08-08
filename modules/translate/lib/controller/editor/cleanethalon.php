@@ -69,7 +69,7 @@ class CleanEthalon
 
 			foreach ($pathList as $testPath)
 			{
-				if (substr($testPath, -4) === '.php')
+				if (mb_substr($testPath, -4) === '.php')
 				{
 					if (Translate\IO\Path::isLangDir($testPath))
 					{
@@ -140,7 +140,7 @@ class CleanEthalon
 			$testPath = $this->pathList[$pos];
 
 			// file
-			if (substr($testPath, -4) === '.php')
+			if (mb_substr($testPath, -4) === '.php')
 			{
 				$this->cleanLangFile($testPath);
 			}
@@ -148,7 +148,7 @@ class CleanEthalon
 			// folder
 			else
 			{
-				if (substr($testPath, -5) === '/lang')
+				if (mb_substr($testPath, -5) === '/lang')
 				{
 					$testPath .= '/#LANG_ID#';
 				}

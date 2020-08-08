@@ -254,7 +254,11 @@ class Entities
 
 	public static function getProviderByEntityType($entityType)
 	{
-		$result = false;
+		$result = Handler::getProviderByEntityType($entityType);
+		if ($result)
+		{
+			return $result;
+		}
 
 		$event = new Event("main", "OnUISelectorGetProviderByEntityType", array(
 			'entityType' => $entityType
@@ -342,7 +346,7 @@ class Entities
 
 			$cache->startDataCache();
 			$filter = array(
-				"USER_ID" => $USER->getId()
+				"USER_ID" => $userId
 			);
 
 			if (
@@ -831,6 +835,7 @@ class Entities
 						));
 					}
 				}
+				$destUList = array_slice($destUList, 0, self::LIST_USER_LIMIT, true);
 
 				$lastDestinationList['USERS'] = array_merge($destUList, $destUEList, $destUCRMList);
 				$tmp = array('USERS' => $lastDestinationList['USERS']);

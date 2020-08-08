@@ -1,32 +1,39 @@
 <?
 
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ErrorCollection;
-use Bitrix\Main\Error;
-use Bitrix\Main\Loader;
+use Bitrix\Fileman;
 use Bitrix\Main\Context;
+use Bitrix\Main\Error;
+use Bitrix\Main\ErrorCollection;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Mail\Address;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Web\Uri;
-
+use Bitrix\Sender\Access\ActionDictionary;
+use Bitrix\Sender\Access\Map\AdsAction;
+use Bitrix\Sender\Access\Map\MailingAction;
 use Bitrix\Sender\Entity;
-use Bitrix\Sender\Security;
-use Bitrix\Sender\Message;
-use Bitrix\Sender\Templates;
 use Bitrix\Sender\Integration;
-use Bitrix\Sender\UI;
-
-use Bitrix\Fileman;
 use Bitrix\Sender\Internals\PostFiles;
+use Bitrix\Sender\Message;
+use Bitrix\Sender\Security;
+use Bitrix\Sender\Templates;
+use Bitrix\Sender\UI;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
+if (!Bitrix\Main\Loader::includeModule('sender'))
+{
+	ShowError('Module `sender` not installed');
+	die();
+}
+
 Loc::loadMessages(__FILE__);
 
-class SenderLetterEditComponent extends CBitrixComponent
+class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 {
 	/** @var ErrorCollection $errors */
 	protected $errors;
@@ -76,17 +83,19 @@ class SenderLetterEditComponent extends CBitrixComponent
 
 		$this->arParams['SET_TITLE'] = isset($this->arParams['SET_TITLE']) ? $this->arParams['SET_TITLE'] == 'Y' : true;
 		$this->arParams['SHOW_SEGMENT_COUNTERS'] = isset($this->arParams['SHOW_SEGMENT_COUNTERS']) ? $this->arParams['SHOW_SEGMENT_COUNTERS'] : true;
-		$this->arParams['CAN_EDIT'] = isset($this->arParams['CAN_EDIT'])
-			?
-			$this->arParams['CAN_EDIT']
-			:
-			Security\Access::current()->canModifyLetters();
 
-		$this->arParams['CAN_VIEW'] = isset($this->arParams['CAN_VIEW'])
-			?
-			$this->arParams['CAN_VIEW']
-			:
-			Security\Access::current()->canViewLetters();
+		$map = MailingAction::getMap();
+		$map = isset($map[$this->arParams['MESSAGE_CODE']]) ? $map : AdsAction::getMap();
+
+		$this->arParams['CAN_EDIT'] = $this->arParams['CAN_EDIT']??
+			$this->getAccessController()->check(
+				$map[$this->arParams['MESSAGE_CODE']]
+			);
+
+		$this->arParams['CAN_VIEW'] = $this->arParams['CAN_VIEW']??
+									$this->getAccessController()->check(
+										ActionDictionary::ACTION_MAILING_VIEW
+										);
 
 		$this->arParams['IS_TRIGGER'] = isset($this->arParams['IS_TRIGGER']) ? (bool) $this->arParams['IS_TRIGGER'] : false;
 		$this->arParams['SHOW_SEGMENTS'] = isset($this->arParams['SHOW_SEGMENTS']) ? (bool) $this->arParams['SHOW_SEGMENTS'] : true;
@@ -377,6 +386,18 @@ class SenderLetterEditComponent extends CBitrixComponent
 			$this->arResult['MESSAGE_ID'] = $message->getId();
 			$this->arResult['MESSAGE_NAME'] = $message->getName();
 			$this->arResult['MESSAGE'] = $message;
+
+			if($message != null && method_exists($message, "getConfiguration"))
+			{
+				foreach ($message->getConfiguration()->getOptions() as $option)
+				{
+					if($option->getCode() == 'CATEGORY_ID')
+					{
+						$option->setItems((new \Bitrix\Sender\Access\Service\RoleDealCategoryService())
+											->getFilteredDealCategories($this->userId, $option->getItems()));
+					}
+				}
+			}
 		}
 		catch (SystemException $exception)
 		{
@@ -431,11 +452,14 @@ class SenderLetterEditComponent extends CBitrixComponent
 			),
 		);
 
-		$this->arResult['USE_TEMPLATES'] = Templates\Selector::create()
+		$this->arResult['USE_TEMPLATES'] = $this->accessController
+				->check(ActionDictionary::ACTION_TEMPLATE_VIEW)
+			&& Templates\Selector::create()
 			->withMessageCode($this->arResult['MESSAGE_CODE'])
 			->hasAny();
 
-		$this->arResult['SHOW_TEMPLATE_SELECTOR'] = !$this->letter->getId() && !$this->request->isPost() && $this->arResult['USE_TEMPLATES'];
+		$this->arResult['SHOW_TEMPLATE_SELECTOR'] =
+			!$this->letter->getId() && !$this->request->isPost() && $this->arResult['USE_TEMPLATES'];
 		$this->arResult['CAN_CHANGE_TEMPLATE'] = $this->letter->canChangeTemplate();
 
 
@@ -552,31 +576,9 @@ class SenderLetterEditComponent extends CBitrixComponent
 
 	public function executeComponent()
 	{
-		$this->errors = new \Bitrix\Main\ErrorCollection();
-		if (!Loader::includeModule('sender'))
-		{
-			$this->errors->setError(new Error('Module `sender` is not installed.'));
-			$this->printErrors();
-			return;
-		}
-
-		$this->initParams();
-		if (!$this->checkRequiredParams())
-		{
-			$this->printErrors();
-			return;
-		}
-
-		if (!$this->prepareResult())
-		{
-			$this->printErrors();
-			return;
-		}
-
-		$this->printErrors();
-
+		parent::executeComponent();
 		$templateName = $this->request->get('showTime') == 'y' ? 'time' : '';
-		$this->includeComponentTemplate($templateName);
+		parent::prepareResultAndTemplate($templateName);
 	}
 
 	public function getLocMessage($messageCode, $replace = [])
@@ -591,5 +593,15 @@ class SenderLetterEditComponent extends CBitrixComponent
 		}
 
 		return str_replace(array_keys($replace), array_values($replace), $message);
+	}
+
+	public function getEditAction()
+	{
+		return $this->getViewAction();
+	}
+
+	public function getViewAction()
+	{
+		return ActionDictionary::ACTION_MAILING_VIEW;
 	}
 }

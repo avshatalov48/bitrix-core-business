@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
-(function (exports, main_core, landing_sliderhacks) {
+(function (exports,main_core,landing_sliderhacks) {
 	'use strict';
 
 	var onEditButtonClick = Symbol('onEditButtonClick');
@@ -58,7 +58,49 @@ this.BX.Landing = this.BX.Landing || {};
 	  return TopPanel;
 	}();
 
-	exports.TopPanel = TopPanel;
+	var SearchResult =
+	/*#__PURE__*/
+	function () {
+	  /**
+	   * Constructor.
+	   */
+	  function SearchResult() {
+	    babelHelpers.classCallCheck(this, SearchResult);
+	    this.scrollToFirstBlock();
+	  }
+	  /**
+	   * Finds first highlight word and scroll to it.
+	   * @return {void}
+	   */
 
-}(this.BX.Landing.Pub = this.BX.Landing.Pub || {}, BX, BX.Landing));
+
+	  babelHelpers.createClass(SearchResult, [{
+	    key: "scrollToFirstBlock",
+	    value: function scrollToFirstBlock() {
+	      var result = document.querySelector('.landing-highlight');
+
+	      if (result) {
+	        var parent = result.parentNode;
+
+	        while (parent) {
+	          if (parent.classList.contains('block-wrapper')) {
+	            window.scrollTo({
+	              top: parent.offsetTop,
+	              behavior: 'smooth'
+	            });
+	            break;
+	          }
+
+	          parent = parent.parentNode;
+	        }
+	      }
+	    }
+	  }]);
+	  return SearchResult;
+	}();
+
+	exports.TopPanel = TopPanel;
+	exports.SearchResult = SearchResult;
+
+}((this.BX.Landing.Pub = this.BX.Landing.Pub || {}),BX,BX.Landing));
 //# sourceMappingURL=script.js.map

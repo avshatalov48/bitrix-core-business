@@ -3,34 +3,33 @@
  * @global CUser $USER
  */
 define("NO_KEEP_STATISTIC", true);
-define("BX_SKIP_SESSION_TERMINATE_TIME", true);
 define("NOT_CHECK_FILE_PERMISSIONS", true);
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 
-if($_SESSION["BX_SESSION_COUNTER"] > 1)
+$status = "SESSION_EXPIRED";
+
+if(check_bitrix_sessid())
 {
-	if(check_bitrix_sessid())
-	{
-		//interval=0 - no user activity
-		//interval>0 - expand session for user activity time
-		$interval = intval($_REQUEST["interval"]);
-		$nextTime = time() + $interval + ($interval>0? 60:0);
-		if($_SESSION["BX_SESSION_TERMINATE_TIME"] < $nextTime)
-			$_SESSION["BX_SESSION_TERMINATE_TIME"] = $nextTime;
-		die("OK");
-	}
+	//still the same session
+	$status = "OK";
 }
 elseif($USER->IsAuthorized())
 {
-	$cookie_prefix = COption::GetOptionString('main', 'cookie_name', 'BITRIX_SM');
-	if($_COOKIE[$cookie_prefix.'_UIDH'] <> '')
+	//the user got a new session, but has authorized by the stored cookie
+	//change the sessid so the user can post a form successfully
+	$request = \Bitrix\Main\Context::getCurrent()->getRequest();
+
+	if($request->getCookie("UIDH") <> '')
 	{
-		$salt = $_COOKIE[$cookie_prefix.'_UIDH']."|".$USER->GetID()."|".$_SERVER["REMOTE_ADDR"]."|".@filemtime($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/version.php")."|".LICENSE_KEY."|".CMain::GetServerUniqID();
-		if($_REQUEST["k"] === md5($_REQUEST["sessid"].$salt))
+		$sessid = \Bitrix\Main\UI\SessionExpander::getSignedValue($request["k"]);
+		if($sessid !== false)
 		{
-			bitrix_sessid_set($_REQUEST['sessid']);
-			die("SESSION_CHANGED");
+			bitrix_sessid_set($sessid);
+			$status = "SESSION_CHANGED";
 		}
 	}
 }
-echo "SESSION_EXPIRED";
+
+echo $status;
+\Bitrix\Main\Application::getInstance()->end();

@@ -12,7 +12,7 @@ class Results extends DataProcessor
 
 	public function __construct($params)
 	{
-		if(!isset($params["SITE_ID"]) || strlen($params["SITE_ID"]) <= 0)
+		if(!isset($params["SITE_ID"]) || $params["SITE_ID"] == '')
 			throw new ArgumentNullException("SITE_ID");
 
 		$this->siteId = $params["SITE_ID"];
@@ -40,9 +40,9 @@ class Results extends DataProcessor
 		if(isset($data["ARRAY"]["ProductResult"]))
 			$message .= $this->getProductsString($data["ARRAY"]["ProductResult"]);
 
-		if(strlen($message) > 0)
+		if($message <> '')
 		{
-			if(strtolower(SITE_CHARSET) != 'utf-8')
+			if(mb_strtolower(SITE_CHARSET) != 'utf-8')
 				$message = \Bitrix\Main\Text\Encoding::convertEncoding($message, 'UTF-8', SITE_CHARSET);
 
 			$message = "RequestId: ".$data["ARRAY"]["RequestDetails"]["RequestID"]."\n".

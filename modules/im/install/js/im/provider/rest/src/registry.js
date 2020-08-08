@@ -7,10 +7,12 @@
  * @copyright 2001-2019 Bitrix
  */
 
-import {BaseRestAnswerHandler} from "./base.answer";
-import {ImRestAnswerHandler} from "./im.rest.handler";
+import {BaseRestHandler} from "./base.rest";
+import {CoreRestHandler} from "./core.rest";
+import {DialogRestHandler} from "./dialog.rest";
 
 export {
-	ImRestAnswerHandler,
-	BaseRestAnswerHandler
+	BaseRestHandler,
+	CoreRestHandler,
+	DialogRestHandler,
 }

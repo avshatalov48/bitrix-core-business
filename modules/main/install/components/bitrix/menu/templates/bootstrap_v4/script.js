@@ -139,12 +139,10 @@ BX.Main.MenuComponent.CatalogHorizontal = (function()
 
 	CatalogHorizontal.prototype.clickInMobile = function(element, event)
 	{
-		if (BX.findParent(element, {className: "bx-aside-nav"}, true))
-			return;
-
-		event.preventDefault();
-		element.onclick = '';
-		return false;
+		if (!BX.hasClass(element, "bx-hover"))
+		{
+			event.preventDefault();
+		}
 	};
 
 	CatalogHorizontal.prototype.toggleInMobile = function(element)

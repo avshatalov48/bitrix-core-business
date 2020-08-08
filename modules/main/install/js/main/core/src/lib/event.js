@@ -6,6 +6,9 @@ import EventEmitter from './event/event-emitter';
 import BaseEvent from './event/base-event';
 import ready from './event/ready';
 
+/**
+ * @memberOf BX
+ */
 export default class Event
 {
 	static bind: bind = bind;

@@ -503,7 +503,7 @@ class Property extends Controller
 		{
 			foreach ($commonSettings['TYPE']['OPTIONS'] as $key => $option)
 			{
-				$commonSettings['TYPE']['OPTIONS'][$key] = substr($option, 0, strpos($option, '[') - 1);
+				$commonSettings['TYPE']['OPTIONS'][$key] = mb_substr($option, 0, mb_strpos($option, '[') - 1);
 			}
 		}
 
@@ -1167,7 +1167,7 @@ class Property extends Controller
 
 	static public function prepareFields(array $fields)
 	{
-		$fields['TYPE'] = strtoupper($fields['TYPE']);
+		$fields['TYPE'] = mb_strtoupper($fields['TYPE']);
 
 		return $fields;
 	}

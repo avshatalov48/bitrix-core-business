@@ -206,7 +206,7 @@ class Reference
 			}
 		}
 
-		if(strlen($result) <= 0)
+		if($result == '')
 			$result = $errorCode;
 
 		return $result;

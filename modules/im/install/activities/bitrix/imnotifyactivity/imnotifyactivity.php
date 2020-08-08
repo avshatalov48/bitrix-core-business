@@ -59,7 +59,7 @@ class CBPIMNotifyActivity
 			$arErrors[] = array("code" => "NotExist", "parameter" => "MessageUserFrom", "message" => GetMessage("BPIMNA_EMPTY_FROM"));
 		if (!array_key_exists("MessageUserTo", $arTestProperties) || count($arTestProperties["MessageUserTo"]) <= 0)
 			$arErrors[] = array("code" => "NotExist", "parameter" => "MessageUserTo", "message" => GetMessage("BPIMNA_EMPTY_TO"));
-		if (!array_key_exists("MessageSite", $arTestProperties) || strlen($arTestProperties["MessageSite"]) <= 0)
+		if (!array_key_exists("MessageSite", $arTestProperties) || $arTestProperties["MessageSite"] == '')
 			$arErrors[] = array("code" => "NotExist", "parameter" => "MessageText", "message" => GetMessage("BPIMNA_EMPTY_MESSAGE"));
 
 		$from = array_key_exists("MessageUserFrom", $arTestProperties) ? $arTestProperties["MessageUserFrom"] : null;

@@ -1,0 +1,3 @@
+<?
+$MESS["CATALOG_IBLOCKSECTIONFIELD_SELECT"] = "select section";
+?>

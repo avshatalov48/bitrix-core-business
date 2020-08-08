@@ -22,78 +22,90 @@
 
 	BX.Main.UF.TypeMoney.prototype.addRow = function(fieldName, thisButton)
 	{
-		var node = thisButton.previousSibling;
+		var node = thisButton.previousElementSibling;
 		var newNode = this.getClone(node, fieldName);
 
 		node.parentNode.insertBefore(newNode, thisButton);
 	};
 
+	BX.Main.UF.TypeMoney.prototype.getCloneBase = BX.Main.UF.BaseType.prototype.getClone;
+
 	BX.Main.UF.TypeMoney.prototype.getClone = function(node, fieldName)
 	{
-		var newNode = BX.Main.UF.TypeMoney.superclass.getClone.apply(this, arguments);
-
-		var nodeList = BX.findChildrenByClassName(newNode, 'money-editor-currency-selector-wrap', true);
-		var wrapNode = nodeList[0];
-		BX.cleanNode(wrapNode);
-
-		var inputList = BX.findChildren(newNode, {
-			tagName: /INPUT|SELECT/i
-		}, true);
-
-		inputList[0].value = '';
-		inputList[1].value = '';
-
-		var currencyList = BX.message('CURRENCY');
-		var currencyItems = [];
-		var defaultValue = null;
-
-		for(var currency in currencyList)
+		if (
+			node.hasAttribute('data-media-type')
+			&&
+			node.getAttribute('data-media-type') === 'mobile'
+		)
 		{
-			if(currencyList.hasOwnProperty(currency))
-			{
-				var item = {NAME: currencyList[currency].NAME, VALUE: currency};
-				currencyItems.push(item);
-
-				if(defaultValue === null)
-				{
-					defaultValue = item;
-				}
-			}
+			return this.getCloneBase(node, fieldName);
 		}
-
-		var inputHandler = new BX.Currency.MoneyInput({
-			controlId: controlId,
-			input: inputList[1],
-			resultInput: inputList[0],
-			currency: defaultValue.VALUE
-		});
-
-		var controlId = Math.random();
-
-		wrapNode.appendChild(BX.decl({
-			block: 'main-ui-select',
-			name: controlId,
-			items: currencyItems,
-			value: defaultValue,
-			params: {
-				fieldName: controlId, isMulti: false
-			},
-			valueDelete: false
-		}));
-
-		BX.addCustomEvent(window, 'UI::Select::change', function(controlObject, value)
+		else
 		{
-			if(controlObject.params.fieldName === controlId)
+			var newNode = BX.Main.UF.TypeMoney.superclass.getClone.apply(this, arguments);
+			var nodeList = BX.findChildrenByClassName(newNode, 'money-editor-currency-selector-wrap', true);
+			var wrapNode = nodeList[0];
+			BX.cleanNode(wrapNode);
+
+			var inputList = BX.findChildren(newNode, {
+				tagName: /INPUT|SELECT/i
+			}, true);
+
+			inputList[0].value = '';
+			inputList[1].value = '';
+
+			var currencyList = BX.message('CURRENCY');
+			var currencyItems = [];
+			var defaultValue = null;
+
+			for (var currency in currencyList)
 			{
-				var currentValue = JSON.parse(controlObject.node.getAttribute('data-value'));
-				if(!!currentValue)
+				if (currencyList.hasOwnProperty(currency))
 				{
-					inputHandler.setCurrency(currentValue.VALUE);
+					var item = {NAME: currencyList[currency].NAME, VALUE: currency};
+					currencyItems.push(item);
+
+					if (defaultValue === null)
+					{
+						defaultValue = item;
+					}
 				}
 			}
-		});
 
-		return newNode;
+			var inputHandler = new BX.Currency.MoneyInput({
+				controlId: controlId,
+				input: inputList[1],
+				resultInput: inputList[0],
+				currency: defaultValue.VALUE
+			});
+
+			var controlId = Math.random();
+
+			wrapNode.appendChild(BX.decl({
+				block: 'main-ui-select',
+				name: controlId,
+				items: currencyItems,
+				value: defaultValue,
+				params: {
+					fieldName: controlId, isMulti: false
+				},
+				valueDelete: false
+			}));
+
+			BX.addCustomEvent(window, 'UI::Select::change', function (controlObject, value)
+			{
+				if (controlObject.params.fieldName === controlId)
+				{
+					var currentValue = JSON.parse(controlObject.node.getAttribute('data-value'));
+					if (!!currentValue)
+					{
+						inputHandler.setCurrency(currentValue.VALUE);
+					}
+				}
+			});
+
+			return newNode;
+		}
 	};
 
 	BX.Main.UF.TypeMoney.prototype.focus = function(field)

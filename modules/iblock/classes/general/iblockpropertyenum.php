@@ -22,7 +22,7 @@ class CIBlockPropertyEnum
 		{
 			if ($key[0] == "!")
 			{
-				$key = substr($key, 1);
+				$key = mb_substr($key, 1);
 				$bInvert = true;
 			}
 			else
@@ -30,7 +30,7 @@ class CIBlockPropertyEnum
 				$bInvert = false;
 			}
 
-			$key = strtoupper($key);
+			$key = mb_strtoupper($key);
 			switch ($key)
 			{
 			case "CODE":
@@ -51,7 +51,7 @@ class CIBlockPropertyEnum
 				$arSqlSearch[] = CIBlock::FilterCreate("BEN.".$key, $val, "string", $bInvert);
 				break;
 			case "PROPERTY_ID":
-				if(is_numeric(substr($val, 0, 1)))
+				if(is_numeric(mb_substr($val, 0, 1)))
 					$arSqlSearch[] = CIBlock::FilterCreate("P.ID", $val, "number", $bInvert);
 				else
 					$arSqlSearch[] = CIBlock::FilterCreate("P.CODE", $val, "string", $bInvert);
@@ -73,8 +73,8 @@ class CIBlockPropertyEnum
 		$arSqlOrder = array();
 		foreach ($arOrder as $by => $order)
 		{
-			$order = strtolower($order) != "asc"? "desc": "asc";
-			$by = strtoupper($by);
+			$order = mb_strtolower($order) != "asc"? "desc": "asc";
+			$by = mb_strtoupper($by);
 			switch ($by)
 			{
 			case "ID":
@@ -126,7 +126,7 @@ class CIBlockPropertyEnum
 	{
 		global $DB, $CACHE_MANAGER;
 
-		if(strlen($arFields["VALUE"])<=0)
+		if($arFields["VALUE"] == '')
 			return false;
 
 		if(CACHED_b_iblock_property_enum !== false)
@@ -155,9 +155,9 @@ class CIBlockPropertyEnum
 	public static function Update($ID, $arFields)
 	{
 		global $DB, $CACHE_MANAGER;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
-		if(is_set($arFields, "VALUE") && strlen($arFields["VALUE"])<=0)
+		if(is_set($arFields, "VALUE") && $arFields["VALUE"] == '')
 			return false;
 
 		if(CACHED_b_iblock_property_enum !== false)
@@ -170,10 +170,10 @@ class CIBlockPropertyEnum
 			$arFields["DEF"]="N";
 
 		$strUpdate = $DB->PrepareUpdate("b_iblock_property_enum", $arFields);
-		if(strlen($strUpdate) > 0)
+		if($strUpdate <> '')
 			$DB->Query("UPDATE b_iblock_property_enum SET ".$strUpdate." WHERE ID=".$ID);
 
-		if (defined("BX_COMP_MANAGED_CACHE") && IntVal($arFields["PROPERTY_ID"]) > 0)
+		if (defined("BX_COMP_MANAGED_CACHE") && intval($arFields["PROPERTY_ID"]) > 0)
 			$CACHE_MANAGER->ClearByTag("iblock_property_enum_".$arFields["PROPERTY_ID"]);
 
 		return true;
@@ -191,7 +191,7 @@ class CIBlockPropertyEnum
 
 		return $DB->Query("
 			DELETE FROM b_iblock_property_enum
-			WHERE PROPERTY_ID=".IntVal($PROPERTY_ID)."
+			WHERE PROPERTY_ID=".intval($PROPERTY_ID)."
 			", $bIgnoreError
 		);
 	}
@@ -205,7 +205,7 @@ class CIBlockPropertyEnum
 
 		$DB->Query("
 			DELETE FROM b_iblock_property_enum
-			WHERE ID=".IntVal($ID)."
+			WHERE ID=".intval($ID)."
 			"
 		);
 

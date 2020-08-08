@@ -4,8 +4,6 @@ img.u-block-hover__main--zoom-v1 {
 	-webkit-transform: scale(1.00);
 }
 
-
-
 /*for logo in menu*/
 .landing-ui-field-input .g-bg-black-opacity-0_1--after {
 	background: rgba(255, 51, 51, 0.2);
@@ -35,7 +33,6 @@ img.u-block-hover__main--zoom-v1 {
 .g-bg-white--before:before {
 	background-color: #fff !important;
 }
-
 
 /*rounded INSET for buttons without class u-btn-inset--rounded*/
 .u-btn-inset.rounded-0::before {
@@ -124,14 +121,7 @@ img.u-block-hover__main--zoom-v1 {
 	.g-min-height-350--xs {
 		min-height: 350px;
 	}
-	
-	.g-bg-size-contain--xs {
-		background-size: contain !important;
-	}
-	
-	.g-bg-size-cover--xs {
-		background-size: cover !important;
-	}
+
 
 	.g-mx-30--xs {
 		margin-left: 2.14286rem !important;
@@ -146,14 +136,7 @@ img.u-block-hover__main--zoom-v1 {
 	.g-min-height-350--sm {
 		min-height: 350px;
 	}
-	
-	.g-bg-size-contain--sm {
-		background-size: contain !important;
-	}
-	
-	.g-bg-size-cover--sm {
-		background-size: cover !important;
-	}
+
 }
 
 /* MD
@@ -163,14 +146,7 @@ img.u-block-hover__main--zoom-v1 {
 	.g-min-height-350--md {
 		min-height: 350px;
 	}
-	
-	.g-bg-size-contain--md {
-		background-size: contain !important;
-	}
-	
-	.g-bg-size-cover--md {
-		background-size: cover !important;
-	}
+
 }
 
 /* LG
@@ -180,14 +156,7 @@ img.u-block-hover__main--zoom-v1 {
 	.g-min-height-350--lg {
 		min-height: 350px;
 	}
-	
-	.g-bg-size-contain--lg {
-		background-size: contain !important;
-	}
-	
-	.g-bg-size-cover--lg {
-		background-size: cover !important;
-	}
+
 }
 
 /* XL
@@ -197,14 +166,7 @@ img.u-block-hover__main--zoom-v1 {
 	.g-min-height-350--xl {
 		min-height: 350px;
 	}
-	
-	.g-bg-size-contain--xl {
-		background-size: contain !important;
-	}
-	
-	.g-bg-size-cover--xl {
-		background-size: cover !important;
-	}
+
 }
 
 
@@ -873,5 +835,4 @@ img.u-block-hover__main--zoom-v1 {
 	font[color="#b71c1c"] * {
 		color: #b71c1c!important;
 	}
-
 }

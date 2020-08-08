@@ -1,8 +1,8 @@
-<?php
+<?php declare(strict_types = 1);
+
 namespace Bitrix\Translate\IO;
 
 use Bitrix\Translate;
-use Bitrix\Main\Text\BinaryString;
 use Bitrix\Main;
 
 
@@ -18,11 +18,11 @@ class File
 	 *
 	 * @param string $prefix Name prefix.
 	 * @param string $suffix Name suffix.
-	 * @param float $timeToLive Hours to keep files alive.
+	 * @param int $timeToLive Hours to keep files alive.
 	 *
 	 * @return static
 	 */
-	public static function generateTemporalFile($prefix, $suffix = '.tmp', $timeToLive = 1)
+	public static function generateTemporalFile(string $prefix, string $suffix = '.tmp', int $timeToLive = 3): self
 	{
 		$tempDir = \CTempFile::GetDirectoryName($timeToLive, array($prefix, uniqid($prefix, true)));
 		Path::checkCreatePath($tempDir.'/');
@@ -38,7 +38,7 @@ class File
 	 *
 	 * @return bool
 	 */
-	public function openLoad()
+	public function openLoad(): bool
 	{
 		if ($this->isExists())
 		{
@@ -53,7 +53,7 @@ class File
 	 *
 	 * @return bool
 	 */
-	public function openWrite()
+	public function openWrite(): bool
 	{
 		$this->open(Main\IO\FileStreamOpenMode::WRITE);
 
@@ -68,7 +68,7 @@ class File
 	 *
 	 * @return string
 	 */
-	public function read($length)
+	public function read(int $length): string
 	{
 		if (feof($this->filePointer))
 		{
@@ -83,24 +83,33 @@ class File
 	 *
 	 * @param string $content Data to write.
 	 *
-	 * @return bool|int
+	 * @return int
+	 * @throws Main\IO\FileNotOpenedException
+	 * @throws Main\IO\IoException
 	 */
-	public function write($content)
+	public function write(string $content): int
 	{
 		if (!is_resource($this->filePointer))
 		{
-			return false;
+			throw new Main\IO\FileNotOpenedException($this->getPath());
 		}
 
-		return fwrite($this->filePointer, $content);
+		$length = fwrite($this->filePointer, $content);
+		if ($length === false)
+		{
+			throw new Main\IO\IoException("Cannot write file");
+		}
+
+		return $length;
 	}
 
 	/**
 	 * Closes the file.
 	 *
 	 * @return void
+	 * @throws Main\IO\FileNotOpenedException
 	 */
-	public function close()
+	public function close(): void
 	{
 		if (!is_resource($this->filePointer))
 		{

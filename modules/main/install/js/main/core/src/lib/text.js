@@ -24,7 +24,9 @@ const unescapeEntities = {
 	'&#34;': '"',
 };
 
-
+/**
+ * @memberOf BX
+ */
 export default class Text
 {
 	/**

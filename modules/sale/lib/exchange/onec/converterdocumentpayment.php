@@ -233,7 +233,7 @@ class ConverterDocumentPayment extends Converter
 					break;
 				case 'CURRENCY':
 					$replaceCurrency = $settings->getReplaceCurrency();
-					$value = substr($replaceCurrency<>'' ? $replaceCurrency:$traits[$k], 0, 3);
+					$value = mb_substr($replaceCurrency <> ''? $replaceCurrency : $traits[$k], 0, 3);
 					break;
 				case 'CURRENCY_RATE':
 					$value = self::CURRENCY_RATE_DEFAULT;

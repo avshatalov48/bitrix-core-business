@@ -1,6 +1,6 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
-if (strlen($arResult["FatalErrorMessage"]) > 0)
+if ($arResult["FatalErrorMessage"] <> '')
 {
 	?>
 	<span class='errortext'><?= $arResult["FatalErrorMessage"] ?></span><br /><br />
@@ -8,7 +8,7 @@ if (strlen($arResult["FatalErrorMessage"]) > 0)
 }
 else
 {
-	if (strlen($arResult["ErrorMessage"]) > 0)
+	if ($arResult["ErrorMessage"] <> '')
 	{
 		?>
 		<span class='errortext'><?= $arResult["ErrorMessage"] ?></span><br /><br />
@@ -60,9 +60,9 @@ else
 						</div>
 						<a href="<?= htmlspecialcharsbx($arBlock["LIST_URL"]) ?>"><b><?= $arBlock["NAME"] ?></b></a><br><br>
 						<?
-						if (strlen($arBlock["START_URL"]) > 0)
+						if ($arBlock["START_URL"] <> '')
 						{
-							?><a href="<?= htmlspecialcharsbx($arBlock["START_URL"]) ?>"><?= (strlen($arBlock["CreateTitle"]) > 0) ? $arBlock["CreateTitle"] : GetMessage("BPWC_WICT_CREATE") ?></a><?
+							?><a href="<?= htmlspecialcharsbx($arBlock["START_URL"]) ?>"><?= ($arBlock["CreateTitle"] <> '') ? $arBlock["CreateTitle"] : GetMessage("BPWC_WICT_CREATE") ?></a><?
 						}
 						?>
 					</div>

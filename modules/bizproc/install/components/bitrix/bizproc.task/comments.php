@@ -7,7 +7,7 @@ global $USER, $APPLICATION;
 
 $SITE_ID = '';
 if (isset($_REQUEST["site_id"]) && is_string($_REQUEST["site_id"]))
-	$SITE_ID = substr(preg_replace("/[^a-z0-9_]/i", "", $_REQUEST["site_id"]), 0, 2);
+	$SITE_ID = mb_substr(preg_replace("/[^a-z0-9_]/i", "", $_REQUEST["site_id"]), 0, 2);
 
 if ($SITE_ID != '')
 	define("SITE_ID", $SITE_ID);

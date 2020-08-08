@@ -8,7 +8,7 @@ if(!defined("CACHED_b_clouds_file_bucket")) define("CACHED_b_clouds_file_bucket"
 if(!defined("CACHED_clouds_file_resize")) define("CACHED_clouds_file_resize", 360000);
 if(!defined("BX_S3_MIN_UPLOAD_PART_SIZE")) define("BX_S3_MIN_UPLOAD_PART_SIZE", 5242880); //5MB
 //if (defined("BX24_IS_STAGE") && BX24_IS_STAGE === true) define("BX_CLOUDS_COUNTERS_DEBUG", "#^/([^/]+/)?(tmp/BXTEMP-|export/|BXTEMP-[0-9-]+/)#");
-$db_type = strtolower($DB->type);
+$db_type = mb_strtolower($DB->type);
 CModule::AddAutoloadClasses(
 	"clouds",
 	array(
@@ -17,20 +17,21 @@ CModule::AddAutoloadClasses(
 		"CCloudStorage" =>  "classes/general/storage.php",
 		"CAllCloudStorageBucket" =>  "classes/".$db_type."/storage_bucket.php",
 		"CCloudStorageBucket" =>  "classes/general/storage_bucket.php",
+		"CCloudStorageUpload" => "classes/general/storage_upload.php",
+		"CCloudTempFile" => "classes/general/temp_file.php",
+		"CCloudFailover" => "classes/general/failover.php",
 		"CCloudStorageService" => "classes/general/storage_service.php",
-		"CCloudStorageService_AmazonS3" =>  "classes/general/storage_service_s3.php",
-		"CCloudStorageService_GoogleStorage" =>  "classes/general/storage_service_google.php",
+		"CCloudStorageService_S3" =>  "classes/general/storage_service_s3.php",
+		"CCloudStorageService_AmazonS3" =>  "classes/general/storage_service_amazon.php",
+		"CCloudStorageService_Yandex" =>  "classes/general/storage_service_yandex.php",
+		"CCloudStorageService_HotBox" =>  "classes/general/storage_service_hotbox.php",
 		"CCloudStorageService_OpenStackStorage" =>  "classes/general/storage_service_openstack.php",
 		"CCloudStorageService_RackSpaceCloudFiles" =>  "classes/general/storage_service_rackspace.php",
 		"CCloudStorageService_ClodoRU" =>  "classes/general/storage_service_clodo.php",
 		"CCloudStorageService_Selectel" =>  "classes/general/storage_service_selectel.php",
-		"CCloudStorageService_HotBox" =>  "classes/general/storage_service_hotbox.php",
-		"CCloudStorageService_Yandex" =>  "classes/general/storage_service_yandex.php",
-		"CCloudStorageUpload" => "classes/general/storage_upload.php",
+		"CCloudStorageService_GoogleStorage" =>  "classes/general/storage_service_google.php",
 		"CCloudSecurityService_AmazonS3" => "classes/general/security_service_s3.php",
 		"CCloudSecurityService_HotBox" => "classes/general/security_service_hotbox.php",
-		"CCloudTempFile" => "classes/general/temp_file.php",
-		"CCloudFailover" => "classes/general/failover.php",
 	)
 );
 

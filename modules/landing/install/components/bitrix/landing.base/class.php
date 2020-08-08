@@ -16,6 +16,22 @@ use \Bitrix\Main\Page\Asset;
 class LandingBaseComponent extends \CBitrixComponent
 {
 	/**
+	 * @deprecated
+	 */
+	const B24_SERVICE_DETECT_IP = 'https://ip.bitrix24.site/getipforzone/?bx24_zone=';
+	const B24_DEFAULT_DNS_IP = '52.59.124.117';
+
+	/**
+	 * Manifest path template.
+	 */
+	const FILE_PATH_SITE_MANIFEST = '/bitrix/components/bitrix/landing.demo/data/site/#code#/.theme.php';
+
+	/**
+	 * Http status OK.
+	 */
+	const ERROR_STATUS_OK = '200 OK';
+
+	/**
 	 * Http status Forbidden.
 	 */
 	const ERROR_STATUS_FORBIDDEN = '403 Forbidden';
@@ -93,6 +109,16 @@ class LandingBaseComponent extends \CBitrixComponent
 	}
 
 	/**
+	 * Returns IP for DNS record for custom domains.
+	 * @return string
+	 */
+	protected function getIpForDNS()
+	{
+		$dnsRecords = \Bitrix\Landing\Domain\Register::getDNSRecords();
+		return $dnsRecords['INA'];
+	}
+
+	/**
 	 * Get preview picture from cloud or not
 	 * @return bool
 	 */
@@ -140,6 +166,15 @@ class LandingBaseComponent extends \CBitrixComponent
 	}
 
 	/**
+	 * Returns true if it is repo sever.
+	 * @return bool
+	 */
+	protected function isRepo(): bool
+	{
+		return defined('LANDING_IS_REPO') && LANDING_IS_REPO === true;
+	}
+
+	/**
 	 * Check var in arParams. If no exists, create with default val.
 	 * @param string|int $var Variable.
 	 * @param mixed $default Default value.
@@ -155,7 +190,7 @@ class LandingBaseComponent extends \CBitrixComponent
 		{
 			$this->arParams[$var] = (int)$this->arParams[$var];
 		}
-		if (substr($var, 0, 1) !== '~')
+		if (mb_substr($var, 0, 1) !== '~')
 		{
 			$this->checkParam('~' . $var, $default);
 		}
@@ -283,16 +318,23 @@ class LandingBaseComponent extends \CBitrixComponent
 
 	/**
 	 * Refresh current page.
-	 * @param array $add New param.
+	 * @param array $add New params.
+	 * @param array $delete Params to remove.
 	 * @return void
 	 */
-	protected function refresh(array $add = array())
+	public function refresh(array $add = [], array $delete = [])
 	{
 		$uriString = $this->currentRequest->getRequestUri();
 		if ($add)
 		{
 			$uriSave = new \Bitrix\Main\Web\Uri($uriString);
 			$uriSave->addParams($add);
+			$uriString = $uriSave->getUri();
+		}
+		if ($delete)
+		{
+			$uriSave = new \Bitrix\Main\Web\Uri($uriString);
+			$uriSave->deleteParams($delete);
 			$uriString = $uriSave->getUri();
 		}
 		\LocalRedirect($uriString);
@@ -303,7 +345,7 @@ class LandingBaseComponent extends \CBitrixComponent
 	 * @param string $var Code of var.
 	 * @return mixed
 	 */
-	protected function request($var)
+	public function request($var)
 	{
 		$result = $this->currentRequest[$var];
 		return ($result !== null ? $result : '');
@@ -510,10 +552,7 @@ class LandingBaseComponent extends \CBitrixComponent
 		$googleImagesKey = \CUtil::jsEscape(
 			(string) $googleImagesKey
 		);
-		$allowKeyChange = !preg_match(
-			'/^[\w]+\.bitrix24\.[a-z]{2,3}$/i',
-			$_SERVER['HTTP_HOST']
-		);
+		$allowKeyChange = true;
 
 		Asset::getInstance()->addString("
 			<script>
@@ -552,9 +591,10 @@ class LandingBaseComponent extends \CBitrixComponent
 
 	/**
 	 * Get actual rest path.
+	 * @deprecated since 20.2.100
 	 * @return string
 	 */
-	public function getRestPath()
+	public function getRestPath(): string
 	{
 		return Manager::getRestPath();
 	}
@@ -601,16 +641,21 @@ class LandingBaseComponent extends \CBitrixComponent
 
 	/**
 	 * Get URI without some external params.
-	 * @param array $add Additional params.
+	 * @param array $add Additional params for adding.
+	 * @param array $remove Additional params for deleting.
 	 * @return string
 	 */
-	protected function getUri(array $add = [])
+	public function getUri(array $add = [], array $remove = [])
 	{
 		$curUri = clone $this->getUriInstance();
 
 		if ($add)
 		{
 			$curUri->addParams($add);
+		}
+		if ($remove)
+		{
+			$curUri->deleteParams($remove);
 		}
 
 		return $curUri->getUri();
@@ -709,7 +754,7 @@ class LandingBaseComponent extends \CBitrixComponent
 			}
 			if (isset($editPage))
 			{
-				$editPage .= '#' . strtolower($matches[1]);
+				$editPage .= '#'.mb_strtolower($matches[1]);
 				unset($params, $matches);
 				return '<a href="' . $editPage . '">' . Loc::getMessage('LANDING_GOTO_EDIT') . '</a>';
 			}
@@ -735,7 +780,7 @@ class LandingBaseComponent extends \CBitrixComponent
 
 		foreach ($tariffsCodes as $code)
 		{
-			if (strpos($errorCode, $code) === 0)
+			if (mb_strpos($errorCode, $code) === 0)
 			{
 				return true;
 			}
@@ -826,6 +871,101 @@ class LandingBaseComponent extends \CBitrixComponent
 		return null;
 	}
 
+	/**
+	 * Returns site theme manifest.
+	 * @param string $tplCode Site template code.
+	 * @return array|null
+	 */
+	protected function getThemeManifest(string $tplCode): ?array
+	{
+		$path = $this::FILE_PATH_SITE_MANIFEST;
+		$path = Manager::getDocRoot() . str_replace('#code#', $tplCode, $path);
+		if (file_exists($path))
+		{
+			$manifest = include $path;
+			if (is_array($manifest))
+			{
+				return $manifest;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Get users from admin group.
+	 * @return array
+	 */
+	protected function getAdmins(): array
+	{
+		$users = [];
+
+		$userQuery = new \Bitrix\Main\Entity\Query(
+			\Bitrix\Main\UserTable::getEntity()
+		);
+		// set select
+		$userQuery->setSelect([
+			'ID', 'LOGIN', 'NAME', 'LAST_NAME',
+			'SECOND_NAME', 'PERSONAL_PHOTO'
+		]);
+		// set runtime for inner group ID=1 (admins)
+		$userQuery->registerRuntimeField(
+			null,
+			new \Bitrix\Main\Entity\ReferenceField(
+				'UG',
+				\Bitrix\Main\UserGroupTable::getEntity(),
+				[
+					'=this.ID' => 'ref.USER_ID',
+					'=ref.GROUP_ID' => new Bitrix\Main\DB\SqlExpression(1)
+				],
+				[
+					'join_type' => 'INNER'
+				]
+			)
+		);
+		// set filter
+		$date = new \Bitrix\Main\Type\DateTime;
+		$userQuery->setFilter([
+			'=ACTIVE' => 'Y',
+			'!ID' => Manager::getUserId(),
+			[
+				'LOGIC' => 'OR',
+				'<=UG.DATE_ACTIVE_FROM' => $date,
+				'UG.DATE_ACTIVE_FROM' => false
+			],
+			[
+				'LOGIC' => 'OR',
+				'>=UG.DATE_ACTIVE_TO' => $date,
+				'UG.DATE_ACTIVE_TO' => false
+			]
+		]);
+		$res = $userQuery->exec();
+		while ($row = $res->fetch())
+		{
+			if ($row['PERSONAL_PHOTO'])
+			{
+				$row['PERSONAL_PHOTO'] = \CFile::ResizeImageGet(
+					$row['PERSONAL_PHOTO'],
+					['width' => 38, 'height' => 38],
+					BX_RESIZE_IMAGE_EXACT
+				);
+				if ($row['PERSONAL_PHOTO'])
+				{
+					$row['PERSONAL_PHOTO'] = $row['PERSONAL_PHOTO']['src'];
+				}
+			}
+			$users[$row['ID']] = [
+				'id' => $row['ID'],
+				'name' => \CUser::formatName(
+					\CSite::getNameFormat(false),
+					$row, true, false
+				),
+				'img' => $row['PERSONAL_PHOTO']
+			];
+		}
+
+		return $users;
+	}
 
 	/**
 	 * Base executable method.
@@ -840,7 +980,6 @@ class LandingBaseComponent extends \CBitrixComponent
 			return;
 		}
 
-		$this->getRestPath();
 		$action = $this->request('action');
 		$param = $this->request('param');
 		$additional = $this->request('additional');

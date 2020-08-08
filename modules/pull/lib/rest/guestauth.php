@@ -60,8 +60,8 @@ class GuestAuth
 			$result = false;
 			foreach (\CRestServer::instance()->getQuery()['cmd'] as $key => $method)
 			{
-				$method = substr($method, 0, strrpos($method, '?'));
-				$result = in_array(strtolower($method), $whiteListMethods);
+				$method = mb_substr($method, 0, mb_strrpos($method, '?'));
+				$result = in_array(mb_strtolower($method), $whiteListMethods);
 				if (!$result)
 				{
 					break;

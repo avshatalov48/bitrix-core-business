@@ -15,6 +15,7 @@ namespace Bitrix\Sender\Message;
 interface iBase
 {
 	const CODE_MAIL = 'mail';
+	const CODE_TOLOKA = 'toloka';
 	const CODE_WEB_HOOK = 'web_hook';
 	const CODE_SMS = 'sms';
 	const CODE_IM = 'im';

@@ -26,6 +26,11 @@ class CAllSaleOrder
 	static function DoCalculateOrder($siteId, $userId, $arShoppingCart, $personTypeId, $arOrderPropsValues,
 		$deliveryId, $paySystemId, $arOptions, &$arErrors, &$arWarnings)
 	{
+		if(!is_array($arErrors))
+		{
+			$arErrors = array();
+		}
+
 		if(!is_array($arOptions))
 		{
 			$arOptions = array();
@@ -252,7 +257,7 @@ class CAllSaleOrder
 
 				}
 
-				if (isset($arItem['CURRENCY']) && strlen($arItem['CURRENCY']) > 0 )
+				if (isset($arItem['CURRENCY']) && $arItem['CURRENCY'] <> '' )
 					$arItem["PRICE_FORMATED"] = SaleFormatCurrency($arItem["PRICE"], $arItem["CURRENCY"]);
 
 				$arResult['ORDER_PRICE'] += CSaleBasketHelper::getFinalPrice($arItem);
@@ -298,7 +303,7 @@ class CAllSaleOrder
 			);
 			while($item = $dbOrderProps->fetch())
 			{
-				if($item['TYPE'] == 'LOCATION' && strlen($orderProps[$item['ID']]))
+				if($item['TYPE'] == 'LOCATION' && mb_strlen($orderProps[$item['ID']]))
 				{
 					$source = $orderProps[$item['ID']];
 					$replace = $direct ? CSaleLocation::getLocationCODEbyID($source) : CSaleLocation::getLocationIDbyCODE($source);
@@ -331,7 +336,7 @@ class CAllSaleOrder
 			"USER_ID" => $arOrder["USER_ID"],
 			"PAY_SYSTEM_ID" => $arOrder["PAY_SYSTEM_ID"],
 			"PRICE_DELIVERY" => $arOrder["DELIVERY_PRICE"],
-			"DELIVERY_ID" => (strlen($arOrder["DELIVERY_ID"]) > 0 ? $arOrder["DELIVERY_ID"] : false),
+			"DELIVERY_ID" => ($arOrder["DELIVERY_ID"] <> '' ? $arOrder["DELIVERY_ID"] : false),
 			"DISCOUNT_VALUE" => $arOrder["DISCOUNT_PRICE"],
 			"TAX_VALUE" => $arOrder["TAX_VALUE"],
 			"TRACKING_NUMBER" => $arOrder["TRACKING_NUMBER"]
@@ -439,8 +444,8 @@ class CAllSaleOrder
 	 */
 	function CanUserViewOrder($ID, $arUserGroups = false, $userID = 0)
 	{
-		$ID = IntVal($ID);
-		$userID = IntVal($userID);
+		$ID = intval($ID);
+		$userID = intval($userID);
 
 		$permList = self::checkUserPermissionOrderList(array($ID), 'view', $arUserGroups, $userID);
 		return (isset($permList[$ID]) && $permList[$ID] === true);
@@ -454,7 +459,7 @@ class CAllSaleOrder
 	 */
 	static function CanUserUpdateOrder($ID, $arUserGroups = false, $siteID = false)
 	{
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		static $cacheGroupAccess = array();
 		$userRights = CMain::GetUserRight("sale", $arUserGroups, "Y", "Y");
@@ -492,7 +497,7 @@ class CAllSaleOrder
 						$cacheGroupAccess[$hashGroupAccess] = $num;
 					}
 
-					if (IntVal($num) > 0)
+					if (intval($num) > 0)
 						return True;
 				}
 			}
@@ -509,8 +514,8 @@ class CAllSaleOrder
 	 */
 	static function CanUserCancelOrder($ID, $arUserGroups = false, $userID = 0)
 	{
-		$ID = IntVal($ID);
-		$userID = IntVal($userID);
+		$ID = intval($ID);
+		$userID = intval($userID);
 
 		$permList = self::checkUserPermissionOrderList(array($ID), 'cancel', $arUserGroups, $userID);
 		return (isset($permList[$ID]) && $permList[$ID] === true);
@@ -524,8 +529,8 @@ class CAllSaleOrder
 	 */
 	function CanUserMarkOrder($ID, $arUserGroups = false, $userID = 0)
 	{
-		$ID = IntVal($ID);
-		$userID = IntVal($userID);
+		$ID = intval($ID);
+		$userID = intval($userID);
 		
 		$permList = self::checkUserPermissionOrderList(array($ID), 'mark', $arUserGroups, $userID);
 		return (isset($permList[$ID]) && $permList[$ID] === true);
@@ -539,7 +544,7 @@ class CAllSaleOrder
 	 */
 	function CanUserChangeOrderFlag($ID, $flag, $arUserGroups = false)
 	{
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$flag = trim($flag);
 
 		$userRights = CMain::GetUserRight("sale", $arUserGroups, "Y", "Y");
@@ -560,7 +565,7 @@ class CAllSaleOrder
 						array()
 					);
 
-				if (IntVal($num) > 0)
+				if (intval($num) > 0)
 				{
 					if ($flag == "P" || $flag == "PERM_PAYMENT")
 						$fieldName = "PERM_PAYMENT";
@@ -595,7 +600,7 @@ class CAllSaleOrder
 	 */
 	function CanUserChangeOrderStatus($ID, $statusID, $arUserGroups = false)
 	{
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$statusID = Trim($statusID);
 
 		$userRights = CMain::GetUserRight("sale", $arUserGroups, "Y", "Y");
@@ -616,7 +621,7 @@ class CAllSaleOrder
 						array()
 					);
 
-				if (IntVal($num) > 0)
+				if (intval($num) > 0)
 				{
 					$dbStatusPerms = CSaleStatus::GetPermissionsList(
 						array(),
@@ -658,8 +663,8 @@ class CAllSaleOrder
 	 */
 	static function CanUserDeleteOrder($ID, $arUserGroups = false, $userID = 0)
 	{
-		$ID = IntVal($ID);
-		$userID = IntVal($userID);
+		$ID = intval($ID);
+		$userID = intval($userID);
 
 		$permList = self::checkUserPermissionOrderList(array($ID), 'delete', $arUserGroups, $userID);
 		return (isset($permList[$ID]) && $permList[$ID] === true);
@@ -671,20 +676,20 @@ class CAllSaleOrder
 	{
 		global $USER_FIELD_MANAGER, $DB, $APPLICATION;
 
-		if (is_set($arFields, "SITE_ID") && strlen($arFields["SITE_ID"]) > 0)
+		if (is_set($arFields, "SITE_ID") && $arFields["SITE_ID"] <> '')
 			$arFields["LID"] = $arFields["SITE_ID"];
 
-		if ((is_set($arFields, "LID") || $ACTION=="ADD") && strlen($arFields["LID"])<=0)
+		if ((is_set($arFields, "LID") || $ACTION=="ADD") && $arFields["LID"] == '')
 		{
 			$APPLICATION->ThrowException(Loc::getMessage("SKGO_EMPTY_SITE"), "EMPTY_SITE_ID");
 			return false;
 		}
-		if ((is_set($arFields, "PERSON_TYPE_ID") || $ACTION=="ADD") && IntVal($arFields["PERSON_TYPE_ID"])<=0)
+		if ((is_set($arFields, "PERSON_TYPE_ID") || $ACTION=="ADD") && intval($arFields["PERSON_TYPE_ID"])<=0)
 		{
 			$APPLICATION->ThrowException(Loc::getMessage("SKGO_EMPTY_PERS_TYPE"), "EMPTY_PERSON_TYPE_ID");
 			return false;
 		}
-		if ((is_set($arFields, "USER_ID") || $ACTION=="ADD") && IntVal($arFields["USER_ID"])<=0)
+		if ((is_set($arFields, "USER_ID") || $ACTION=="ADD") && intval($arFields["USER_ID"])<=0)
 		{
 			$APPLICATION->ThrowException(Loc::getMessage("SKGO_EMPTY_USER_ID"), "EMPTY_USER_ID");
 			return false;
@@ -694,7 +699,7 @@ class CAllSaleOrder
 			$arFields["PAYED"]="N";
 		if (is_set($arFields, "CANCELED") && $arFields["CANCELED"]!="Y")
 			$arFields["CANCELED"]="N";
-		if (is_set($arFields, "STATUS_ID") && strlen($arFields["STATUS_ID"])<=0)
+		if (is_set($arFields, "STATUS_ID") && $arFields["STATUS_ID"] == '')
 			$arFields["STATUS_ID"]="N";
 		if (is_set($arFields, "ALLOW_DELIVERY") && $arFields["ALLOW_DELIVERY"]!="Y")
 			$arFields["ALLOW_DELIVERY"]="N";
@@ -733,7 +738,7 @@ class CAllSaleOrder
 			$arFields["~VERSION"] = "VERSION+0+1";
 		}
 
-		if ((is_set($arFields, "CURRENCY") || $ACTION=="ADD") && strlen($arFields["CURRENCY"])<=0)
+		if ((is_set($arFields, "CURRENCY") || $ACTION=="ADD") && $arFields["CURRENCY"] == '')
 		{
 			$APPLICATION->ThrowException(Loc::getMessage("SKGO_EMPTY_CURRENCY"), "EMPTY_CURRENCY");
 			return false;
@@ -777,16 +782,16 @@ class CAllSaleOrder
 			}
 		}
 
-		if (is_set($arFields, "PAY_SYSTEM_ID") && IntVal($arFields["PAY_SYSTEM_ID"]) > 0)
+		if (is_set($arFields, "PAY_SYSTEM_ID") && intval($arFields["PAY_SYSTEM_ID"]) > 0)
 		{
-			if (!($arPaySystem = CSalePaySystem::GetByID(IntVal($arFields["PAY_SYSTEM_ID"]))))
+			if (!($arPaySystem = CSalePaySystem::GetByID(intval($arFields["PAY_SYSTEM_ID"]))))
 			{
 				$APPLICATION->ThrowException(str_replace("#ID#", $arFields["PAY_SYSTEM_ID"], Loc::getMessage("SKGO_WRONG_PS")), "ERROR_NO_PAY_SYSTEM");
 				return false;
 			}
 		}
 
-		if (is_set($arFields, "DELIVERY_ID") && IntVal($arFields["DELIVERY_ID"]) > 0)
+		if (is_set($arFields, "DELIVERY_ID") && intval($arFields["DELIVERY_ID"]) > 0)
 		{
 			if (!($delivery = \Bitrix\Sale\Delivery\Services\Table::getById($arFields["DELIVERY_ID"])))
 			{
@@ -806,7 +811,7 @@ class CAllSaleOrder
 
 		if (is_set($arFields, "ACCOUNT_NUMBER") && $ACTION=="UPDATE")
 		{
-			if (strlen($arFields["ACCOUNT_NUMBER"]) <= 0)
+			if ($arFields["ACCOUNT_NUMBER"] == '')
 			{
 				$APPLICATION->ThrowException(Loc::getMessage("SKGO_EMPTY_ACCOUNT_NUMBER"), "EMPTY_ACCOUNT_NUMBER");
 				return false;
@@ -840,7 +845,7 @@ class CAllSaleOrder
 	{
 		global $DB, $USER_FIELD_MANAGER;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$bSuccess = True;
 
 		foreach(GetModuleEvents("sale", "OnBeforeOrderDelete", true) as $arEvent)
@@ -984,52 +989,52 @@ class CAllSaleOrder
 	public static function GetFilterOperation($key)
 	{
 		$strNegative = "N";
-		if (substr($key, 0, 1)=="!")
+		if (mb_substr($key, 0, 1) == "!")
 		{
-			$key = substr($key, 1);
+			$key = mb_substr($key, 1);
 			$strNegative = "Y";
 		}
 
 		$strOrNull = "N";
-		if (substr($key, 0, 1)=="+")
+		if (mb_substr($key, 0, 1) == "+")
 		{
-			$key = substr($key, 1);
+			$key = mb_substr($key, 1);
 			$strOrNull = "Y";
 		}
 
-		if (substr($key, 0, 2)==">=")
+		if (mb_substr($key, 0, 2) == ">=")
 		{
-			$key = substr($key, 2);
+			$key = mb_substr($key, 2);
 			$strOperation = ">=";
 		}
-		elseif (substr($key, 0, 1)==">")
+		elseif (mb_substr($key, 0, 1) == ">")
 		{
-			$key = substr($key, 1);
+			$key = mb_substr($key, 1);
 			$strOperation = ">";
 		}
-		elseif (substr($key, 0, 2)=="<=")
+		elseif (mb_substr($key, 0, 2) == "<=")
 		{
-			$key = substr($key, 2);
+			$key = mb_substr($key, 2);
 			$strOperation = "<=";
 		}
-		elseif (substr($key, 0, 1)=="<")
+		elseif (mb_substr($key, 0, 1) == "<")
 		{
-			$key = substr($key, 1);
+			$key = mb_substr($key, 1);
 			$strOperation = "<";
 		}
-		elseif (substr($key, 0, 1)=="@")
+		elseif (mb_substr($key, 0, 1) == "@")
 		{
-			$key = substr($key, 1);
+			$key = mb_substr($key, 1);
 			$strOperation = "IN";
 		}
-		elseif (substr($key, 0, 1)=="~")
+		elseif (mb_substr($key, 0, 1) == "~")
 		{
-			$key = substr($key, 1);
+			$key = mb_substr($key, 1);
 			$strOperation = "LIKE";
 		}
-		elseif (substr($key, 0, 1)=="%")
+		elseif (mb_substr($key, 0, 1) == "%")
 		{
-			$key = substr($key, 1);
+			$key = mb_substr($key, 1);
 			$strOperation = "QUERY";
 		}
 		else
@@ -1068,7 +1073,7 @@ class CAllSaleOrder
 					$strSqlGroupBy .= $arFields[$val]["FIELD"];
 
 					if (isset($arFields[$val]["FROM"])
-						&& strlen($arFields[$val]["FROM"]) > 0
+						&& $arFields[$val]["FROM"] <> ''
 						&& !in_array($arFields[$val]["FROM"], $arAlreadyJoined))
 					{
 						if ($strSqlFrom != '')
@@ -1090,7 +1095,7 @@ class CAllSaleOrder
 		}
 		else
 		{
-			if (isset($arSelectFields) && !is_array($arSelectFields) && is_string($arSelectFields) && strlen($arSelectFields)>0 && array_key_exists($arSelectFields, $arFields))
+			if (isset($arSelectFields) && !is_array($arSelectFields) && is_string($arSelectFields) && $arSelectFields <> '' && array_key_exists($arSelectFields, $arFields))
 				$arSelectFields = array($arSelectFields);
 
 			if (!isset($arSelectFields)
@@ -1128,10 +1133,10 @@ class CAllSaleOrder
 						$strSqlSelect .= $arFields[$arFieldsKeys[$i]]["FIELD"]." as ".$arFieldsKeys[$i];
 
 					if (isset($arFields[$arFieldsKeys[$i]]["FROM"])
-						&& strlen($arFields[$arFieldsKeys[$i]]["FROM"]) > 0
+						&& $arFields[$arFieldsKeys[$i]]["FROM"] <> ''
 						&& !in_array($arFields[$arFieldsKeys[$i]]["FROM"], $arAlreadyJoined))
 					{
-						if (strlen($strSqlFrom) > 0)
+						if ($strSqlFrom <> '')
 							$strSqlFrom .= " ";
 						$strSqlFrom .= $arFields[$arFieldsKeys[$i]]["FROM"];
 						$arAlreadyJoined[] = $arFields[$arFieldsKeys[$i]]["FROM"];
@@ -1146,7 +1151,7 @@ class CAllSaleOrder
 					$key = ToUpper($key);
 					if (array_key_exists($val, $arFields))
 					{
-						if (strlen($strSqlSelect) > 0)
+						if ($strSqlSelect <> '')
 							$strSqlSelect .= ", ";
 
 						if (in_array($key, $arGroupByFunct))
@@ -1174,10 +1179,10 @@ class CAllSaleOrder
 						}
 
 						if (isset($arFields[$val]["FROM"])
-							&& strlen($arFields[$val]["FROM"]) > 0
+							&& $arFields[$val]["FROM"] <> ''
 							&& !in_array($arFields[$val]["FROM"], $arAlreadyJoined))
 						{
-							if (strlen($strSqlFrom) > 0)
+							if ($strSqlFrom <> '')
 								$strSqlFrom .= " ";
 							$strSqlFrom .= $arFields[$val]["FROM"];
 							$arAlreadyJoined[] = $arFields[$val]["FROM"];
@@ -1186,9 +1191,9 @@ class CAllSaleOrder
 				}
 			}
 
-			if (strlen($strSqlGroupBy) > 0)
+			if ($strSqlGroupBy <> '')
 			{
-				if (strlen($strSqlSelect) > 0)
+				if ($strSqlSelect <> '')
 					$strSqlSelect .= ", ";
 				$strSqlSelect .= "COUNT(%%_DISTINCT_%% ".$arFields[$arFieldsKeys[0]]["FIELD"].") as CNT";
 			}
@@ -1316,16 +1321,16 @@ class CAllSaleOrder
 							{
 								if ($arFields[$key]["TYPE"] == "int")
 								{
-									if ((IntVal($val) == 0) && (strpos($strOperation, "=") !== False))
+									if ((intval($val) == 0) && (mb_strpos($strOperation, "=") !== False))
 										$arSqlSearch_tmp[] = "(".$arFields[$key]["FIELD"]." IS ".(($strNegative == "Y") ? "NOT " : "")."NULL) ".(($strNegative == "Y") ? "AND" : "OR")." ".(($strNegative == "Y") ? "NOT " : "")."(".$arFields[$key]["FIELD"]." ".$strOperation." 0)";
 									else
-										$arSqlSearch_tmp[] = (($strNegative == "Y") ? " ".$arFields[$key]["FIELD"]." IS NULL OR NOT " : "")."(".$arFields[$key]["FIELD"]." ".$strOperation." ".IntVal($val)." )";
+										$arSqlSearch_tmp[] = (($strNegative == "Y") ? " ".$arFields[$key]["FIELD"]." IS NULL OR NOT " : "")."(".$arFields[$key]["FIELD"]." ".$strOperation." ".intval($val)." )";
 								}
 								elseif ($arFields[$key]["TYPE"] == "double")
 								{
 									$val = str_replace(",", ".", $val);
 
-									if ((DoubleVal($val) == 0) && (strpos($strOperation, "=") !== False))
+									if ((DoubleVal($val) == 0) && (mb_strpos($strOperation, "=") !== False))
 										$arSqlSearch_tmp[] = "(".$arFields[$key]["FIELD"]." IS ".(($strNegative == "Y") ? "NOT " : "")."NULL) ".(($strNegative == "Y") ? "AND" : "OR")." ".(($strNegative == "Y") ? "NOT " : "")."(".$arFields[$key]["FIELD"]." ".$strOperation." 0)";
 									else
 										$arSqlSearch_tmp[] = (($strNegative == "Y") ? " ".$arFields[$key]["FIELD"]." IS NULL OR NOT " : "")."(".$arFields[$key]["FIELD"]." ".$strOperation." ".DoubleVal($val)." )";
@@ -1338,7 +1343,7 @@ class CAllSaleOrder
 									}
 									else
 									{
-										if ((strlen($val) == 0) && (strpos($strOperation, "=") !== False))
+										if (($val == '') && (mb_strpos($strOperation, "=") !== False))
 											$arSqlSearch_tmp[] = "(".$arFields[$key]["FIELD"]." IS ".(($strNegative == "Y") ? "NOT " : "")."NULL) ".(($strNegative == "Y") ? "AND NOT" : "OR")." (".$DB->Length($arFields[$key]["FIELD"])." <= 0) ".(($strNegative == "Y") ? "AND NOT" : "OR")." (".$arFields[$key]["FIELD"]." ".$strOperation." '".$DB->ForSql($val)."' )";
 										else
 											$arSqlSearch_tmp[] = (($strNegative == "Y") ? " ".$arFields[$key]["FIELD"]." IS NULL OR NOT " : "")."(".$arFields[$key]["FIELD"]." ".$strOperation." '".$DB->ForSql($val)."' )";
@@ -1346,14 +1351,14 @@ class CAllSaleOrder
 								}
 								elseif ($arFields[$key]["TYPE"] == "datetime")
 								{
-									if (strlen($val) <= 0)
+									if ($val == '')
 										$arSqlSearch_tmp[] = ($strNegative=="Y"?"NOT":"")."(".$arFields[$key]["FIELD"]." IS NULL)";
 									else
 										$arSqlSearch_tmp[] = ($strNegative=="Y"?" ".$arFields[$key]["FIELD"]." IS NULL OR NOT ":"")."(".$arFields[$key]["FIELD"]." ".$strOperation." ".$DB->CharToDateFunction($DB->ForSql($val), "FULL").")";
 								}
 								elseif ($arFields[$key]["TYPE"] == "date")
 								{
-									if (strlen($val) <= 0)
+									if ($val == '')
 										$arSqlSearch_tmp[] = ($strNegative=="Y"?"NOT":"")."(".$arFields[$key]["FIELD"]." IS NULL)";
 									else
 										$arSqlSearch_tmp[] = ($strNegative=="Y"?" ".$arFields[$key]["FIELD"]." IS NULL OR NOT ":"")."(".$arFields[$key]["FIELD"]." ".$strOperation." ".$DB->CharToDateFunction($DB->ForSql($val), "SHORT").")";
@@ -1364,10 +1369,10 @@ class CAllSaleOrder
 				}
 
 				if (isset($arFields[$key]["FROM"])
-					&& strlen($arFields[$key]["FROM"]) > 0
+					&& $arFields[$key]["FROM"] <> ''
 					&& !in_array($arFields[$key]["FROM"], $arAlreadyJoined))
 				{
-					if (strlen($strSqlFrom) > 0)
+					if ($strSqlFrom <> '')
 						$strSqlFrom .= " ";
 					$strSqlFrom .= $arFields[$key]["FROM"];
 					$arAlreadyJoined[] = $arFields[$key]["FROM"];
@@ -1383,19 +1388,19 @@ class CAllSaleOrder
 				}
 				if ($strOrNull == "Y")
 				{
-					if (strlen($strSqlSearch_tmp) > 0)
+					if ($strSqlSearch_tmp <> '')
 						$strSqlSearch_tmp .= ($strNegative=="Y" ? " AND " : " OR ");
 					$strSqlSearch_tmp .= "(".$arFields[$key]["FIELD"]." IS ".($strNegative=="Y" ? "NOT " : "")."NULL)";
 
 					if ($arFields[$key]["TYPE"] == "int" || $arFields[$key]["TYPE"] == "double")
 					{
-						if (strlen($strSqlSearch_tmp) > 0)
+						if ($strSqlSearch_tmp <> '')
 							$strSqlSearch_tmp .= ($strNegative=="Y" ? " AND " : " OR ");
 						$strSqlSearch_tmp .= "(".$arFields[$key]["FIELD"]." ".($strNegative=="Y" ? "<>" : "=")." 0)";
 					}
 					elseif ($arFields[$key]["TYPE"] == "string" || $arFields[$key]["TYPE"] == "char")
 					{
-						if (strlen($strSqlSearch_tmp) > 0)
+						if ($strSqlSearch_tmp <> '')
 							$strSqlSearch_tmp .= ($strNegative=="Y" ? " AND " : " OR ");
 						$strSqlSearch_tmp .= "(".$arFields[$key]["FIELD"]." ".($strNegative=="Y" ? "<>" : "=")." '')";
 					}
@@ -1445,10 +1450,10 @@ class CAllSaleOrder
 				$arSqlOrder[] = " ".$arFields[$by]["FIELD"]." ".$order." ";
 
 				if (isset($arFields[$by]["FROM"])
-					&& strlen($arFields[$by]["FROM"]) > 0
+					&& $arFields[$by]["FROM"] <> ''
 					&& !in_array($arFields[$by]["FROM"], $arAlreadyJoined))
 				{
-					if (strlen($strSqlFrom) > 0)
+					if ($strSqlFrom <> '')
 						$strSqlFrom .= " ";
 					$strSqlFrom .= $arFields[$by]["FROM"];
 					$arAlreadyJoined[] = $arFields[$by]["FROM"];
@@ -1466,10 +1471,10 @@ class CAllSaleOrder
 		$countSqlOrder = count($arSqlOrder);
 		for ($i=0; $i < $countSqlOrder; $i++)
 		{
-			if (strlen($strSqlOrderBy) > 0)
+			if ($strSqlOrderBy <> '')
 				$strSqlOrderBy .= ", ";
 
-			$order = (substr($arSqlOrder[$i], -3)=="ASC") ? "ASC" : "DESC";
+			$order = (mb_substr($arSqlOrder[$i], -3) == "ASC") ? "ASC" : "DESC";
 			if (!$nullsLast)
 			{
 				if(ToUpper($DB->type)=="ORACLE")
@@ -1484,7 +1489,7 @@ class CAllSaleOrder
 			}
 			else
 			{
-				$field = substr($arSqlOrder[$i], 0, -strlen($order)-1);
+				$field = mb_substr($arSqlOrder[$i], 0, -mb_strlen($order) - 1);
 				if(ToUpper($DB->type) === "MYSQL")
 				{
 					if($order === 'ASC')
@@ -1637,7 +1642,7 @@ class CAllSaleOrder
 	{
 		global $APPLICATION;
 
-		$userID = IntVal($userID);
+		$userID = intval($userID);
 		if ($userID <= 0)
 		{
 			$APPLICATION->ThrowException("Empty user ID", "EMPTY_USER_ID");
@@ -1670,11 +1675,11 @@ class CAllSaleOrder
 	{
 		global $DB, $USER, $APPLICATION;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$val = (($val != "Y") ? "N" : "Y");
 		$bWithdraw = ($bWithdraw ? True : False);
 		$bPay = ($bPay ? True : False);
-		$recurringID = IntVal($recurringID);
+		$recurringID = intval($recurringID);
 
 		$isOrderConverted = \Bitrix\Main\Config\Option::get("main", "~sale_converted_15", 'Y');
 
@@ -1733,7 +1738,7 @@ class CAllSaleOrder
 			$arFields = array(
 				"PAYED" => $val,
 				"=DATE_PAYED" => $DB->GetNowFunction(),
-				"EMP_PAYED_ID" => ( IntVal($USER->GetID())>0 ? IntVal($USER->GetID()) : false ),
+				"EMP_PAYED_ID" => ( intval($USER->GetID())>0 ? intval($USER->GetID()) : false ),
 				"SUM_PAID" => 0
 			);
 			if (count($arAdditionalFields) > 0)
@@ -1782,7 +1787,7 @@ class CAllSaleOrder
 			if ($NO_CHANGE_STATUS != "Y")
 			{
 				$orderStatus = COption::GetOptionString("sale", "status_on_paid", "");
-				if(strlen($orderStatus) > 0 && $orderStatus != $arOrder["STATUS_ID"])
+				if($orderStatus <> '' && $orderStatus != $arOrder["STATUS_ID"])
 				{
 					$dbStatus = CSaleStatus::GetList(Array("SORT" => "ASC"), Array("LID" => LANGUAGE_ID));
 					while ($arStatus = $dbStatus->GetNext())
@@ -1800,7 +1805,7 @@ class CAllSaleOrder
 			if($arOrderProp = $dbOrderProp->Fetch())
 				$userEMail = $arOrderProp["VALUE"];
 
-			if(strlen($userEMail) <= 0)
+			if($userEMail == '')
 			{
 				$dbUser = CUser::GetByID($arOrder["USER_ID"]);
 				if($arUser = $dbUser->Fetch())
@@ -1872,9 +1877,9 @@ class CAllSaleOrder
 	{
 		global $DB, $USER, $APPLICATION;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$val = (($val != "Y") ? "N" : "Y");
-		$recurringID = IntVal($recurringID);
+		$recurringID = intval($recurringID);
 
 		$isOrderConverted = \Bitrix\Main\Config\Option::get("main", "~sale_converted_15", 'Y');
 
@@ -1913,7 +1918,7 @@ class CAllSaleOrder
 			$arFields = array(
 				"ALLOW_DELIVERY" => $val,
 				"=DATE_ALLOW_DELIVERY" => $DB->GetNowFunction(),
-				"EMP_ALLOW_DELIVERY_ID" => ( IntVal($USER->GetID())>0 ? IntVal($USER->GetID()) : false )
+				"EMP_ALLOW_DELIVERY_ID" => ( intval($USER->GetID())>0 ? intval($USER->GetID()) : false )
 			);
 			if (count($arAdditionalFields) > 0)
 			{
@@ -1949,8 +1954,8 @@ class CAllSaleOrder
 
 		if ($recurringID <= 0)
 		{
-			if (IntVal($arOrder["RECURRING_ID"]) > 0)
-				$recurringID = IntVal($arOrder["RECURRING_ID"]);
+			if (intval($arOrder["RECURRING_ID"]) > 0)
+				$recurringID = intval($arOrder["RECURRING_ID"]);
 		}
 
 		CSaleBasket::OrderDelivery($ID, (($val=="Y") ? True : False), $recurringID);
@@ -1970,7 +1975,7 @@ class CAllSaleOrder
 			if ($NO_CHANGE_STATUS != "Y")
 			{
 				$orderStatus = COption::GetOptionString("sale", "status_on_allow_delivery", "");
-				if(strlen($orderStatus) > 0 && $orderStatus != $arOrder["STATUS_ID"])
+				if($orderStatus <> '' && $orderStatus != $arOrder["STATUS_ID"])
 				{
 					$dbStatus = CSaleStatus::GetList(Array("SORT" => "ASC"), Array("LID" => LANGUAGE_ID), false, false, Array("ID", "SORT"));
 					while ($arStatus = $dbStatus->GetNext())
@@ -1988,7 +1993,7 @@ class CAllSaleOrder
 			if($arOrderProp = $dbOrderProp->Fetch())
 				$userEMail = $arOrderProp["VALUE"];
 
-			if(strlen($userEMail) <= 0)
+			if($userEMail == '')
 			{
 				$dbUser = CUser::GetByID($arOrder["USER_ID"]);
 				if($arUser = $dbUser->Fetch())
@@ -2044,10 +2049,10 @@ class CAllSaleOrder
 	{
 		global $DB, $USER, $APPLICATION;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$val = (($val != "Y") ? "N" : "Y");
 		$description = Trim($description);
-		$recurringID = IntVal($recurringID);
+		$recurringID = intval($recurringID);
 
 		$isOrderConverted = \Bitrix\Main\Config\Option::get("main", "~sale_converted_15", 'Y');
 
@@ -2078,8 +2083,8 @@ class CAllSaleOrder
 
 		if ($recurringID <= 0)
 		{
-			if (IntVal($arOrder["RECURRING_ID"]) > 0)
-				$recurringID = IntVal($arOrder["RECURRING_ID"]);
+			if (intval($arOrder["RECURRING_ID"]) > 0)
+				$recurringID = intval($arOrder["RECURRING_ID"]);
 		}
 
 		$arDeductResult = CSaleBasket::OrderDeduction($ID, (($val == "N") ? true : false), $recurringID, $bAutoDeduction, $arStoreBarcodeOrderFormData);
@@ -2121,7 +2126,7 @@ class CAllSaleOrder
 				{
 					$arFields = array(
 						"DEDUCTED" => "Y",
-						"EMP_DEDUCTED_ID" => ( IntVal($USER->GetID())>0 ? IntVal($USER->GetID()) : false ),
+						"EMP_DEDUCTED_ID" => ( intval($USER->GetID())>0 ? intval($USER->GetID()) : false ),
 						"=DATE_DEDUCTED" => $DB->GetNowFunction()
 					);
 				}
@@ -2129,11 +2134,11 @@ class CAllSaleOrder
 				{
 					$arFields = array(
 						"DEDUCTED" => "N",
-						"EMP_DEDUCTED_ID" => ( IntVal($USER->GetID())>0 ? IntVal($USER->GetID()) : false ),
+						"EMP_DEDUCTED_ID" => ( intval($USER->GetID())>0 ? intval($USER->GetID()) : false ),
 						"=DATE_DEDUCTED" => $DB->GetNowFunction()
 					);
 
-					if (strlen($description) > 0)
+					if ($description <> '')
 						$arFields["REASON_UNDO_DEDUCTED"] = $description;
 				}
 				$res = CSaleOrder::Update($ID, $arFields, false);
@@ -2161,7 +2166,7 @@ class CAllSaleOrder
 	{
 		global $APPLICATION;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$val = (($val != "Y") ? "N" : "Y");
 		$errorMessage = "";
 
@@ -2248,7 +2253,7 @@ class CAllSaleOrder
 
 		$isOrderConverted = \Bitrix\Main\Config\Option::get("main", "~sale_converted_15", 'Y');
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$val = (($val != "Y") ? "N" : "Y");
 		$description = Trim($description);
 
@@ -2345,8 +2350,8 @@ class CAllSaleOrder
 			$arFields = array(
 				"CANCELED" => $val,
 				"=DATE_CANCELED" => $DB->GetNowFunction(),
-				"REASON_CANCELED" => ( strlen($description)>0 ? $description : false ),
-				"EMP_CANCELED_ID" => ( IntVal($USER->GetID())>0 ? IntVal($USER->GetID()) : false )
+				"REASON_CANCELED" => ( $description <> '' ? $description : false ),
+				"EMP_CANCELED_ID" => ( intval($USER->GetID())>0 ? intval($USER->GetID()) : false )
 			);
 			$res = CSaleOrder::Update($ID, $arFields);
 		}
@@ -2372,7 +2377,7 @@ class CAllSaleOrder
 			$dbOrderProp = CSaleOrderPropsValue::GetList(Array(), Array("ORDER_ID" => $ID, "PROP_IS_EMAIL" => "Y"));
 			if($arOrderProp = $dbOrderProp->Fetch())
 				$userEmail = $arOrderProp["VALUE"];
-			if(strlen($userEmail) <= 0)
+			if($userEmail == '')
 			{
 				$dbUser = CUser::GetByID($arOrder["USER_ID"]);
 				if($arUser = $dbUser->Fetch())
@@ -2394,7 +2399,7 @@ class CAllSaleOrder
 
 		$isOrderConverted = \Bitrix\Main\Config\Option::get("main", "~sale_converted_15", 'Y');
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$val = trim($val);
 
 		if ($ID <= 0)
@@ -2419,7 +2424,7 @@ class CAllSaleOrder
 		$arFields = array(
 			"STATUS_ID" => $val,
 			"=DATE_STATUS" => $DB->GetNowFunction(),
-			"EMP_STATUS_ID" => ((isset($USER) && $USER instanceof \CUser) && IntVal($USER->GetID())>0 ? IntVal($USER->GetID()) : false )
+			"EMP_STATUS_ID" => ((isset($USER) && $USER instanceof \CUser) && intval($USER->GetID())>0 ? intval($USER->GetID()) : false )
 		);
 		$res = CSaleOrder::Update($ID, $arFields);
 
@@ -2430,11 +2435,11 @@ class CAllSaleOrder
 
 	function CommentsOrder($ID, $val)
 	{
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$val = Trim($val);
 
 		$arFields = array(
-			"COMMENTS" => ( strlen($val)>0 ? $val : false )
+			"COMMENTS" => ( $val <> '' ? $val : false )
 		);
 		$res = CSaleOrder::Update($ID, $arFields);
 
@@ -2448,7 +2453,7 @@ class CAllSaleOrder
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if ($ID <= 0)
 			return False;
 
@@ -2463,7 +2468,7 @@ class CAllSaleOrder
 
 	function UnLock($ID)
 	{
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if ($ID <= 0)
 			return False;
 
@@ -2491,7 +2496,7 @@ class CAllSaleOrder
 
 	function IsLocked($ID, &$lockedBY, &$dateLock)
 	{
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$lockStatus = CSaleOrder::GetLockStatus($ID, $lockedBY, $dateLock);
 		if ($lockStatus == "red")
@@ -2581,9 +2586,9 @@ class CAllSaleOrder
 						$dbUser = CUser::GetByID($arOrder["USER_ID"]);
 						if ($arUser = $dbUser->Fetch())
 						{
-							if (strlen($payerName) <= 0)
-								$payerName = $arUser["NAME"].((strlen($arUser["NAME"])<=0 || strlen($arUser["LAST_NAME"])<=0) ? "" : " ").$arUser["LAST_NAME"];
-							if (strlen($payerEMail) <= 0)
+							if ($payerName == '')
+								$payerName = $arUser["NAME"].(($arUser["NAME"] == '' || $arUser["LAST_NAME"] == '') ? "" : " ").$arUser["LAST_NAME"];
+							if ($payerEMail == '')
 								$payerEMail = $arUser["EMAIL"];
 						}
 
@@ -2666,7 +2671,7 @@ class CAllSaleOrder
 				$dbres = $DB->Query($strSql, true);
 				if ($arRes = $dbres->GetNext())
 				{
-					if (strlen($arRes["ACCOUNT_NUMBER"]) === strlen(intval($arRes["ACCOUNT_NUMBER"])))
+					if (mb_strlen($arRes["ACCOUNT_NUMBER"]) === mb_strlen(intval($arRes["ACCOUNT_NUMBER"])))
 						$maxLastID = intval($arRes["ACCOUNT_NUMBER"]);
 				}
 
@@ -2953,11 +2958,11 @@ class CAllSaleOrder
 		$arSqls["SELECT"] = str_replace("%%_DISTINCT_%%", "", $arSqls["SELECT"]);
 		$strSql = "SELECT ".$arSqls["SELECT"]." FROM b_sale_order_history V ";
 
-		if (strlen($arSqls["WHERE"]) > 0)
+		if ($arSqls["WHERE"] <> '')
 			$strSql .= "WHERE ".$arSqls["WHERE"]." ";
-		if (strlen($arSqls["GROUPBY"]) > 0)
+		if ($arSqls["GROUPBY"] <> '')
 			$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
-		if (strlen($arSqls["ORDERBY"]) > 0)
+		if ($arSqls["ORDERBY"] <> '')
 			$strSql .= "ORDER BY ".$arSqls["ORDERBY"]." ";
 
 		if (is_array($arGroupBy) && count($arGroupBy) == 0)
@@ -2969,17 +2974,17 @@ class CAllSaleOrder
 				return false;
 		}
 
-		if (is_array($arNavStartParams) && IntVal($arNavStartParams["nTopCount"]) <= 0 )
+		if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"]) <= 0 )
 		{
 			$strSql_tmp = "SELECT COUNT('x') as CNT FROM b_sale_order_history V ";
-			if (strlen($arSqls["WHERE"]) > 0)
+			if ($arSqls["WHERE"] <> '')
 				$strSql_tmp .= "WHERE ".$arSqls["WHERE"]." ";
-			if (strlen($arSqls["GROUPBY"]) > 0)
+			if ($arSqls["GROUPBY"] <> '')
 				$strSql_tmp .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
 			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$cnt = 0;
-			if (strlen($arSqls["GROUPBY"]) <= 0)
+			if ($arSqls["GROUPBY"] == '')
 			{
 				if ($arRes = $dbRes->Fetch())
 					$cnt = $arRes["CNT"];
@@ -3005,11 +3010,11 @@ class CAllSaleOrder
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if ($ID < 0)
 			return false;
 
-		$userID = IntVal($userID);
+		$userID = intval($userID);
 
 		$arFields = array(
 			"MARKED" => "Y",
@@ -3027,11 +3032,11 @@ class CAllSaleOrder
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if ($ID < 0)
 			return false;
 
-		$userID = IntVal($userID);
+		$userID = intval($userID);
 
 		$arFields = array(
 			"MARKED" => "N",

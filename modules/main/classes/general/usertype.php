@@ -17,6 +17,7 @@
  */
 
 use Bitrix\Main\Entity;
+use Bitrix\Main\UserField\Types\DateTimeType;
 
 CModule::AddAutoloadClasses(
 	"main",
@@ -42,32 +43,32 @@ IncludeModuleLangFile(__FILE__);
  * Данный класс используется для управления метаданными пользовательских свойств.
  *
  * <p>Выборки, Удаление Добавление и обновление метаданных таблицы b_user_field.</p>
-* create table b_user_field (
-	* ID		int(11) not null auto_increment,
-	* ENTITY_ID 	varchar(50),
-	* FIELD_NAME	varchar(50),
-	* USER_TYPE_ID	varchar(50),
-	* XML_ID		varchar(255),
-	* SORT		int,
-	* MULTIPLE	char(1) not null default 'N',
-	* MANDATORY	char(1) not null default 'N',
-	* SHOW_FILTER	char(1) not null default 'N',
-	* SHOW_IN_LIST	char(1) not null default 'Y',
-	* EDIT_IN_LIST	char(1) not null default 'Y',
-	* IS_SEARCHABLE	char(1) not null default 'N',
-	* SETTINGS	text,
-	* PRIMARY KEY (ID),
-	* UNIQUE ux_user_type_entity(ENTITY_ID, FIELD_NAME)
-* )
-* ------------------
-* ID
-* ENTITY_ID (example: IBLOCK_SECTION, USER ....)
-* FIELD_NAME (example: UF_EMAIL, UF_SOME_COUNTER ....)
-* SORT -- used to do check in the specified order
-* BASE_TYPE - String, Number, Integer, Enumeration, File, DateTime
-* USER_TYPE_ID
-* SETTINGS (blob) -- to store some settings which may be useful for an field instance
-* [some base settings comon to all types: mandatory or no, etc.]
+ * create table b_user_field (
+ * ID    int(11) not null auto_increment,
+ * ENTITY_ID  varchar(50),
+ * FIELD_NAME  varchar(50),
+ * USER_TYPE_ID  varchar(50),
+ * XML_ID    varchar(255),
+ * SORT    int,
+ * MULTIPLE  char(1) not null default 'N',
+ * MANDATORY  char(1) not null default 'N',
+ * SHOW_FILTER  char(1) not null default 'N',
+ * SHOW_IN_LIST  char(1) not null default 'Y',
+ * EDIT_IN_LIST  char(1) not null default 'Y',
+ * IS_SEARCHABLE  char(1) not null default 'N',
+ * SETTINGS  text,
+ * PRIMARY KEY (ID),
+ * UNIQUE ux_user_type_entity(ENTITY_ID, FIELD_NAME)
+ * )
+ * ------------------
+ * ID
+ * ENTITY_ID (example: IBLOCK_SECTION, USER ....)
+ * FIELD_NAME (example: UF_EMAIL, UF_SOME_COUNTER ....)
+ * SORT -- used to do check in the specified order
+ * BASE_TYPE - String, Number, Integer, Enumeration, File, DateTime
+ * USER_TYPE_ID
+ * SETTINGS (blob) -- to store some settings which may be useful for an field instance
+ * [some base settings comon to all types: mandatory or no, etc.]
  * <p>b_user_field</p>
  * <ul>
  * <li><b>ID</b> int(11) not null auto_increment
@@ -86,16 +87,16 @@ IncludeModuleLangFile(__FILE__);
  * <li>PRIMARY KEY (ID),
  * <li>UNIQUE ux_user_type_entity(ENTITY_ID, FIELD_NAME)
  * </ul>
-* create table b_user_field_lang (
-	* USER_FIELD_ID int(11) REFERENCES b_user_field(ID),
-	* LANGUAGE_ID char(2),
-	* EDIT_FORM_LABEL varchar(255),
-	* LIST_COLUMN_LABEL varchar(255),
-	* LIST_FILTER_LABEL varchar(255),
-	* ERROR_MESSAGE varchar(255),
-	* HELP_MESSAGE varchar(255),
-	* PRIMARY KEY (USER_FIELD_ID, LANGUAGE_ID)
-* )
+ * create table b_user_field_lang (
+ * USER_FIELD_ID int(11) REFERENCES b_user_field(ID),
+ * LANGUAGE_ID char(2),
+ * EDIT_FORM_LABEL varchar(255),
+ * LIST_COLUMN_LABEL varchar(255),
+ * LIST_FILTER_LABEL varchar(255),
+ * ERROR_MESSAGE varchar(255),
+ * HELP_MESSAGE varchar(255),
+ * PRIMARY KEY (USER_FIELD_ID, LANGUAGE_ID)
+ * )
  * <p>b_user_field_lang</p>
  * <ul>
  * <li><b>USER_FIELD_ID</b> int(11) REFERENCES b_user_field(ID)
@@ -117,6 +118,7 @@ class CAllUserTypeEntity extends CDBResult
 	{
 		return true;
 	}
+
 	//must be extended
 	function DropColumnSQL($strTable, $arColumns)
 	{
@@ -139,10 +141,10 @@ class CAllUserTypeEntity extends CDBResult
 
 		if(!array_key_exists($ID, $cache))
 		{
-			$rsUserField = CUserTypeEntity::GetList(array(), array("ID"=>intval($ID)));
+			$rsUserField = CUserTypeEntity::GetList(array(), array("ID" => intval($ID)));
 			if($arUserField = $rsUserField->Fetch())
 			{
-				$rs = $DB->Query("SELECT * FROM b_user_field_lang WHERE USER_FIELD_ID = ".intval($ID), false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+				$rs = $DB->Query("SELECT * FROM b_user_field_lang WHERE USER_FIELD_ID = " . intval($ID), false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
 				while($ar = $rs->Fetch())
 				{
 					foreach($arLabels as $label)
@@ -167,13 +169,13 @@ class CAllUserTypeEntity extends CDBResult
 	 * @return CDBResult
 	 * @static
 	 */
-	public static function GetList($aSort=array(), $aFilter=array())
+	public static function GetList($aSort = array(), $aFilter = array())
 	{
 		global $DB, $CACHE_MANAGER;
 
-		if(CACHED_b_user_field!==false)
+		if(CACHED_b_user_field !== false)
 		{
-			$cacheId = "b_user_type".md5(serialize($aSort).".".serialize($aFilter));
+			$cacheId = "b_user_type" . md5(serialize($aSort) . "." . serialize($aFilter));
 			if($CACHE_MANAGER->Read(CACHED_b_user_field, $cacheId, "b_user_field"))
 			{
 				$arResult = $CACHE_MANAGER->Get($cacheId);
@@ -186,7 +188,7 @@ class CAllUserTypeEntity extends CDBResult
 
 		$bLangJoin = false;
 		$arFilter = array();
-		foreach($aFilter as $key=>$val)
+		foreach($aFilter as $key => $val)
 		{
 			if(is_array($val) || strlen($val) <= 0)
 				continue;
@@ -208,7 +210,7 @@ class CAllUserTypeEntity extends CDBResult
 				case "SHOW_IN_LIST":
 				case "EDIT_IN_LIST":
 				case "IS_SEARCHABLE":
-					$arFilter[] = "UF.".$key." = '".$val."'";
+					$arFilter[] = "UF." . $key . " = '" . $val . "'";
 					break;
 				case "LANG":
 					$bLangJoin = $val;
@@ -217,10 +219,10 @@ class CAllUserTypeEntity extends CDBResult
 		}
 
 		$arOrder = array();
-		foreach($aSort as $key=>$val)
+		foreach($aSort as $key => $val)
 		{
 			$key = strtoupper($key);
-			$ord = (strtoupper($val) <> "ASC"? "DESC": "ASC");
+			$ord = (strtoupper($val) <> "ASC" ? "DESC" : "ASC");
 			switch($key)
 			{
 				case "ID":
@@ -229,7 +231,7 @@ class CAllUserTypeEntity extends CDBResult
 				case "USER_TYPE_ID":
 				case "XML_ID":
 				case "SORT":
-					$arOrder[] = "UF.".$key." ".$ord;
+					$arOrder[] = "UF." . $key . " " . $ord;
 					break;
 			}
 		}
@@ -239,12 +241,12 @@ class CAllUserTypeEntity extends CDBResult
 			$arOrder[] = "UF.ID asc";
 		}
 		DelDuplicateSort($arOrder);
-		$sOrder = "\nORDER BY ".implode(", ", $arOrder);
+		$sOrder = "\nORDER BY " . implode(", ", $arOrder);
 
 		if(count($arFilter) == 0)
 			$sFilter = "";
 		else
-			$sFilter = "\nWHERE ".implode("\nAND ", $arFilter);
+			$sFilter = "\nWHERE " . implode("\nAND ", $arFilter);
 
 		$strSql = "
 			SELECT
@@ -261,28 +263,28 @@ class CAllUserTypeEntity extends CDBResult
 				,UF.EDIT_IN_LIST
 				,UF.IS_SEARCHABLE
 				,UF.SETTINGS
-				".($bLangJoin? "
+				" . ($bLangJoin ? "
 					,UFL.EDIT_FORM_LABEL
 					,UFL.LIST_COLUMN_LABEL
 					,UFL.LIST_FILTER_LABEL
 					,UFL.ERROR_MESSAGE
 					,UFL.HELP_MESSAGE
-				": "")."
+				" : "") . "
 			FROM
 				b_user_field UF
-				".($bLangJoin? "LEFT JOIN b_user_field_lang UFL on UFL.LANGUAGE_ID = '".$bLangJoin."' AND UFL.USER_FIELD_ID = UF.ID": "")."
-			".$sFilter.$sOrder;
+				" . ($bLangJoin ? "LEFT JOIN b_user_field_lang UFL on UFL.LANGUAGE_ID = '" . $bLangJoin . "' AND UFL.USER_FIELD_ID = UF.ID" : "") . "
+			" . $sFilter . $sOrder;
 
-		if(CACHED_b_user_field===false)
+		if(CACHED_b_user_field === false)
 		{
-			$res = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$res = $DB->Query($strSql, false, "FILE: " . __FILE__ . "<br> LINE: " . __LINE__);
 		}
 		else
 		{
 			$arResult = array();
-			$res = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$res = $DB->Query($strSql, false, "FILE: " . __FILE__ . "<br> LINE: " . __LINE__);
 			while($ar = $res->Fetch())
-				$arResult[]=$ar;
+				$arResult[] = $ar;
 
 			/** @noinspection PhpUndefinedVariableInspection */
 			$CACHE_MANAGER->Set($cacheId, $arResult);
@@ -291,7 +293,7 @@ class CAllUserTypeEntity extends CDBResult
 			$res->InitFromArray($arResult);
 		}
 
-		return  new CUserTypeEntity($res);
+		return new CUserTypeEntity($res);
 	}
 
 	/**
@@ -324,38 +326,38 @@ class CAllUserTypeEntity extends CDBResult
 		$aMsg = array();
 		$ID = intval($ID);
 
-		if( ($ID<=0 || array_key_exists("ENTITY_ID", $arFields)) && strlen($arFields["ENTITY_ID"])<=0 )
-			$aMsg[] = array("id"=>"ENTITY_ID", "text"=>GetMessage("USER_TYPE_ENTITY_ID_MISSING"));
+		if(($ID <= 0 || array_key_exists("ENTITY_ID", $arFields)) && strlen($arFields["ENTITY_ID"]) <= 0)
+			$aMsg[] = array("id" => "ENTITY_ID", "text" => GetMessage("USER_TYPE_ENTITY_ID_MISSING"));
 		if(array_key_exists("ENTITY_ID", $arFields))
 		{
-			if(strlen($arFields["ENTITY_ID"])>50)
-				$aMsg[] = array("id"=>"ENTITY_ID", "text"=>GetMessage("USER_TYPE_ENTITY_ID_TOO_LONG1"));
+			if(strlen($arFields["ENTITY_ID"]) > 50)
+				$aMsg[] = array("id" => "ENTITY_ID", "text" => GetMessage("USER_TYPE_ENTITY_ID_TOO_LONG1"));
 			if(!preg_match('/^[0-9A-Z_]+$/', $arFields["ENTITY_ID"]))
-				$aMsg[] = array("id"=>"ENTITY_ID", "text"=>GetMessage("USER_TYPE_ENTITY_ID_INVALID"));
+				$aMsg[] = array("id" => "ENTITY_ID", "text" => GetMessage("USER_TYPE_ENTITY_ID_INVALID"));
 		}
 
-		if( ($ID<=0 || array_key_exists("FIELD_NAME", $arFields)) && strlen($arFields["FIELD_NAME"])<=0 )
-			$aMsg[] = array("id"=>"FIELD_NAME", "text"=>GetMessage("USER_TYPE_FIELD_NAME_MISSING"));
+		if(($ID <= 0 || array_key_exists("FIELD_NAME", $arFields)) && strlen($arFields["FIELD_NAME"]) <= 0)
+			$aMsg[] = array("id" => "FIELD_NAME", "text" => GetMessage("USER_TYPE_FIELD_NAME_MISSING"));
 		if(array_key_exists("FIELD_NAME", $arFields))
 		{
-			if(strlen($arFields["FIELD_NAME"])<4)
-				$aMsg[] = array("id"=>"FIELD_NAME", "text"=>GetMessage("USER_TYPE_FIELD_NAME_TOO_SHORT"));
-			if(strlen($arFields["FIELD_NAME"])>50)
-				$aMsg[] = array("id"=>"FIELD_NAME", "text"=>GetMessage("USER_TYPE_FIELD_NAME_TOO_LONG1"));
-			if(strncmp($arFields["FIELD_NAME"], "UF_", 3)!==0)
-				$aMsg[] = array("id"=>"FIELD_NAME", "text"=>GetMessage("USER_TYPE_FIELD_NAME_NOT_UF"));
+			if(strlen($arFields["FIELD_NAME"]) < 4)
+				$aMsg[] = array("id" => "FIELD_NAME", "text" => GetMessage("USER_TYPE_FIELD_NAME_TOO_SHORT"));
+			if(strlen($arFields["FIELD_NAME"]) > 50)
+				$aMsg[] = array("id" => "FIELD_NAME", "text" => GetMessage("USER_TYPE_FIELD_NAME_TOO_LONG1"));
+			if(strncmp($arFields["FIELD_NAME"], "UF_", 3) !== 0)
+				$aMsg[] = array("id" => "FIELD_NAME", "text" => GetMessage("USER_TYPE_FIELD_NAME_NOT_UF"));
 			if(!preg_match('/^[0-9A-Z_]+$/', $arFields["FIELD_NAME"]))
-				$aMsg[] = array("id"=>"FIELD_NAME", "text"=>GetMessage("USER_TYPE_FIELD_NAME_INVALID"));
+				$aMsg[] = array("id" => "FIELD_NAME", "text" => GetMessage("USER_TYPE_FIELD_NAME_INVALID"));
 		}
 
-		if( ($ID<=0 || array_key_exists("USER_TYPE_ID", $arFields)) && strlen($arFields["USER_TYPE_ID"])<=0 )
-			$aMsg[] = array("id"=>"USER_TYPE_ID", "text"=>GetMessage("USER_TYPE_USER_TYPE_ID_MISSING"));
+		if(($ID <= 0 || array_key_exists("USER_TYPE_ID", $arFields)) && strlen($arFields["USER_TYPE_ID"]) <= 0)
+			$aMsg[] = array("id" => "USER_TYPE_ID", "text" => GetMessage("USER_TYPE_USER_TYPE_ID_MISSING"));
 		if(
 			$bCheckUserType
 			&& array_key_exists("USER_TYPE_ID", $arFields)
 			&& !$USER_FIELD_MANAGER->GetUserType($arFields["USER_TYPE_ID"])
 		)
-			$aMsg[] = array("id"=>"USER_TYPE_ID", "text"=>GetMessage("USER_TYPE_USER_TYPE_ID_INVALID"));
+			$aMsg[] = array("id" => "USER_TYPE_ID", "text" => GetMessage("USER_TYPE_USER_TYPE_ID_INVALID"));
 
 		if(!empty($aMsg))
 		{
@@ -369,12 +371,12 @@ class CAllUserTypeEntity extends CDBResult
 	/**
 	 * Функция добавляет пользовательское свойство.
 	 *
-	* <p>Сначала вызывается метод экземпляра объекта CheckFields (т.е. $this->CheckFields($arFields) ).</p>
-	* <p>Если проверка прошла успешно, выполняется проверка на существование такого поля для данной сущности.</p>
-	* <p>Далее при необходимости создаются таблички вида <b>b_uts_[ENTITY_ID]</b> и <b>b_utm_[ENTITY_ID]</b>.</p>
-	* <p>После чего метаданные сохраняются в БД.</p>
-	* <p>И только после этого <b>изменяется стуктура таблицы b_uts_[ENTITY_ID]</b>.</p>
-	* <p>Массив arFields:</p>
+	 * <p>Сначала вызывается метод экземпляра объекта CheckFields (т.е. $this->CheckFields($arFields) ).</p>
+	 * <p>Если проверка прошла успешно, выполняется проверка на существование такого поля для данной сущности.</p>
+	 * <p>Далее при необходимости создаются таблички вида <b>b_uts_[ENTITY_ID]</b> и <b>b_utm_[ENTITY_ID]</b>.</p>
+	 * <p>После чего метаданные сохраняются в БД.</p>
+	 * <p>И только после этого <b>изменяется стуктура таблицы b_uts_[ENTITY_ID]</b>.</p>
+	 * <p>Массив arFields:</p>
 	 * <ul>
 	 * <li>ENTITY_ID - сущность
 	 * <li>FIELD_NAME - фактически имя столбца в БД в котором будут храниться значения свойства.
@@ -422,10 +424,10 @@ class CAllUserTypeEntity extends CDBResult
 		{
 			$aMsg = array();
 			$aMsg[] = array(
-				"id"=>"FIELD_NAME",
-				"text"=>GetMessage("USER_TYPE_ADD_ALREADY_ERROR", array(
-						"#FIELD_NAME#"=>htmlspecialcharsbx($arFields["FIELD_NAME"]),
-						"#ENTITY_ID#"=>htmlspecialcharsbx($arFields["ENTITY_ID"]),
+				"id" => "FIELD_NAME",
+				"text" => GetMessage("USER_TYPE_ADD_ALREADY_ERROR", array(
+					"#FIELD_NAME#" => htmlspecialcharsbx($arFields["FIELD_NAME"]),
+					"#ENTITY_ID#" => htmlspecialcharsbx($arFields["ENTITY_ID"]),
 				)),
 			);
 			$e = new CAdminException($aMsg);
@@ -435,20 +437,20 @@ class CAllUserTypeEntity extends CDBResult
 
 		unset($arFields["ID"]);
 		if(intval($arFields["SORT"]) <= 0)
-			$arFields["SORT"]=100;
-		if($arFields["MULTIPLE"]!=="Y")
-			$arFields["MULTIPLE"]="N";
-		if($arFields["MANDATORY"]!=="Y")
-			$arFields["MANDATORY"]="N";
+			$arFields["SORT"] = 100;
+		if($arFields["MULTIPLE"] !== "Y")
+			$arFields["MULTIPLE"] = "N";
+		if($arFields["MANDATORY"] !== "Y")
+			$arFields["MANDATORY"] = "N";
 		$arFields["SHOW_FILTER"] = substr($arFields["SHOW_FILTER"], 0, 1);
-		if($arFields["SHOW_FILTER"] == '' || strpos("NIES", $arFields["SHOW_FILTER"])===false)
-			$arFields["SHOW_FILTER"]="N";
-		if($arFields["SHOW_IN_LIST"]!=="N")
-			$arFields["SHOW_IN_LIST"]="Y";
-		if($arFields["EDIT_IN_LIST"]!=="N")
-			$arFields["EDIT_IN_LIST"]="Y";
-		if($arFields["IS_SEARCHABLE"]!=="Y")
-			$arFields["IS_SEARCHABLE"]="N";
+		if($arFields["SHOW_FILTER"] == '' || strpos("NIES", $arFields["SHOW_FILTER"]) === false)
+			$arFields["SHOW_FILTER"] = "N";
+		if($arFields["SHOW_IN_LIST"] !== "N")
+			$arFields["SHOW_IN_LIST"] = "Y";
+		if($arFields["EDIT_IN_LIST"] !== "N")
+			$arFields["EDIT_IN_LIST"] = "Y";
+		if($arFields["IS_SEARCHABLE"] !== "Y")
+			$arFields["IS_SEARCHABLE"] = "N";
 
 		if(!array_key_exists("SETTINGS", $arFields))
 			$arFields["SETTINGS"] = array();
@@ -460,11 +462,11 @@ class CAllUserTypeEntity extends CDBResult
 		 */
 		$commonEventResult = array('PROVIDE_STORAGE' => true);
 
-		foreach (GetModuleEvents("main", "OnBeforeUserTypeAdd", true) as $arEvent)
+		foreach(GetModuleEvents("main", "OnBeforeUserTypeAdd", true) as $arEvent)
 		{
 			$eventResult = ExecuteModuleEventEx($arEvent, array(&$arFields));
 
-			if ($eventResult === false)
+			if($eventResult === false)
 			{
 				if($e = $APPLICATION->GetException())
 				{
@@ -473,10 +475,10 @@ class CAllUserTypeEntity extends CDBResult
 
 				$aMsg = array();
 				$aMsg[] = array(
-					"id"=>"FIELD_NAME",
-					"text"=>GetMessage("USER_TYPE_ADD_ERROR", array(
-						"#FIELD_NAME#"=>htmlspecialcharsbx($arFields["FIELD_NAME"]),
-						"#ENTITY_ID#"=>htmlspecialcharsbx($arFields["ENTITY_ID"]),
+					"id" => "FIELD_NAME",
+					"text" => GetMessage("USER_TYPE_ADD_ERROR", array(
+						"#FIELD_NAME#" => htmlspecialcharsbx($arFields["FIELD_NAME"]),
+						"#ENTITY_ID#" => htmlspecialcharsbx($arFields["ENTITY_ID"]),
 					))
 				);
 
@@ -485,7 +487,7 @@ class CAllUserTypeEntity extends CDBResult
 
 				return false;
 			}
-			elseif (is_array($eventResult))
+			elseif(is_array($eventResult))
 			{
 				$commonEventResult = array_merge($commonEventResult, $eventResult);
 			}
@@ -494,7 +496,7 @@ class CAllUserTypeEntity extends CDBResult
 		if(is_object($USER_FIELD_MANAGER))
 			$USER_FIELD_MANAGER->CleanCache();
 
-		if ($commonEventResult['PROVIDE_STORAGE'])
+		if($commonEventResult['PROVIDE_STORAGE'])
 		{
 			if(!$this->CreatePropertyTables($arFields["ENTITY_ID"]))
 				return false;
@@ -505,10 +507,10 @@ class CAllUserTypeEntity extends CDBResult
 			{
 				$aMsg = array();
 				$aMsg[] = array(
-					"id"=>"FIELD_NAME",
-					"text"=>GetMessage("USER_TYPE_ADD_ERROR", array(
-							"#FIELD_NAME#"=>htmlspecialcharsbx($arFields["FIELD_NAME"]),
-							"#ENTITY_ID#"=>htmlspecialcharsbx($arFields["ENTITY_ID"]),
+					"id" => "FIELD_NAME",
+					"text" => GetMessage("USER_TYPE_ADD_ERROR", array(
+						"#FIELD_NAME#" => htmlspecialcharsbx($arFields["FIELD_NAME"]),
+						"#ENTITY_ID#" => htmlspecialcharsbx($arFields["ENTITY_ID"]),
 					)),
 				);
 				$e = new CAdminException($aMsg);
@@ -516,17 +518,17 @@ class CAllUserTypeEntity extends CDBResult
 				return false;
 			}
 
-			if(!$DB->Query("select ".$arFields["FIELD_NAME"]." from b_uts_".strtolower($arFields["ENTITY_ID"])." where 1=0", true))
+			if(!$DB->Query("select " . $arFields["FIELD_NAME"] . " from b_uts_" . strtolower($arFields["ENTITY_ID"]) . " where 1=0", true))
 			{
-				$ddl = "ALTER TABLE b_uts_".strtolower($arFields["ENTITY_ID"])." ADD ".$arFields["FIELD_NAME"]." ".$strType;
-				if(!$DB->DDL($ddl, true, "FILE: ".__FILE__."<br>LINE: ".__LINE__))
+				$ddl = "ALTER TABLE b_uts_" . strtolower($arFields["ENTITY_ID"]) . " ADD " . $arFields["FIELD_NAME"] . " " . $strType;
+				if(!$DB->DDL($ddl, true, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__))
 				{
 					$aMsg = array();
 					$aMsg[] = array(
-						"id"=>"FIELD_NAME",
-						"text"=>GetMessage("USER_TYPE_ADD_ERROR", array(
-							"#FIELD_NAME#"=>htmlspecialcharsbx($arFields["FIELD_NAME"]),
-							"#ENTITY_ID#"=>htmlspecialcharsbx($arFields["ENTITY_ID"]),
+						"id" => "FIELD_NAME",
+						"text" => GetMessage("USER_TYPE_ADD_ERROR", array(
+							"#FIELD_NAME#" => htmlspecialcharsbx($arFields["FIELD_NAME"]),
+							"#ENTITY_ID#" => htmlspecialcharsbx($arFields["ENTITY_ID"]),
 						))
 					);
 					$e = new CAdminException($aMsg);
@@ -538,7 +540,7 @@ class CAllUserTypeEntity extends CDBResult
 
 		if($ID = $DB->Add("b_user_field", $arFields, array("SETTINGS")))
 		{
-			if(CACHED_b_user_field!==false)
+			if(CACHED_b_user_field !== false)
 				$CACHE_MANAGER->CleanDir("b_user_field");
 
 			$arLabels = array("EDIT_FORM_LABEL", "LIST_COLUMN_LABEL", "LIST_FILTER_LABEL", "ERROR_MESSAGE", "HELP_MESSAGE");
@@ -547,14 +549,14 @@ class CAllUserTypeEntity extends CDBResult
 			{
 				if(isset($arFields[$label]) && is_array($arFields[$label]))
 				{
-					foreach($arFields[$label] as $lang=>$value)
+					foreach($arFields[$label] as $lang => $value)
 					{
 						$arLangs[$lang][$label] = $value;
 					}
 				}
 			}
 
-			foreach($arLangs as $lang=>$arLangFields)
+			foreach($arLangs as $lang => $arLangFields)
 			{
 				$arLangFields["USER_FIELD_ID"] = $ID;
 				$arLangFields["LANGUAGE_ID"] = $lang;
@@ -565,7 +567,7 @@ class CAllUserTypeEntity extends CDBResult
 		// post event
 		$arFields['ID'] = $ID;
 
-		foreach (GetModuleEvents("main", "OnAfterUserTypeAdd", true) as $arEvent)
+		foreach(GetModuleEvents("main", "OnAfterUserTypeAdd", true) as $arEvent)
 		{
 			ExecuteModuleEventEx($arEvent, array($arFields));
 		}
@@ -615,25 +617,25 @@ class CAllUserTypeEntity extends CDBResult
 
 		if(array_key_exists("SETTINGS", $arFields))
 			$arFields["SETTINGS"] = serialize($USER_FIELD_MANAGER->PrepareSettings($ID, $arFields));
-		if(array_key_exists("MANDATORY", $arFields) && $arFields["MANDATORY"]!=="Y")
-			$arFields["MANDATORY"]="N";
+		if(array_key_exists("MANDATORY", $arFields) && $arFields["MANDATORY"] !== "Y")
+			$arFields["MANDATORY"] = "N";
 		if(array_key_exists("SHOW_FILTER", $arFields))
 		{
 			$arFields["SHOW_FILTER"] = substr($arFields["SHOW_FILTER"], 0, 1);
-			if(strpos("NIES", $arFields["SHOW_FILTER"])===false)
-				$arFields["SHOW_FILTER"]="N";
+			if(strpos("NIES", $arFields["SHOW_FILTER"]) === false)
+				$arFields["SHOW_FILTER"] = "N";
 		}
-		if(array_key_exists("SHOW_IN_LIST", $arFields) && $arFields["SHOW_IN_LIST"]!=="N")
-			$arFields["SHOW_IN_LIST"]="Y";
-		if(array_key_exists("EDIT_IN_LIST", $arFields) && $arFields["EDIT_IN_LIST"]!=="N")
-			$arFields["EDIT_IN_LIST"]="Y";
-		if(array_key_exists("IS_SEARCHABLE", $arFields) && $arFields["IS_SEARCHABLE"]!=="Y")
-			$arFields["IS_SEARCHABLE"]="N";
+		if(array_key_exists("SHOW_IN_LIST", $arFields) && $arFields["SHOW_IN_LIST"] !== "N")
+			$arFields["SHOW_IN_LIST"] = "Y";
+		if(array_key_exists("EDIT_IN_LIST", $arFields) && $arFields["EDIT_IN_LIST"] !== "N")
+			$arFields["EDIT_IN_LIST"] = "Y";
+		if(array_key_exists("IS_SEARCHABLE", $arFields) && $arFields["IS_SEARCHABLE"] !== "Y")
+			$arFields["IS_SEARCHABLE"] = "N";
 
 		// events
-		foreach (GetModuleEvents("main", "OnBeforeUserTypeUpdate", true) as $arEvent)
+		foreach(GetModuleEvents("main", "OnBeforeUserTypeUpdate", true) as $arEvent)
 		{
-			if (ExecuteModuleEventEx($arEvent, array(&$arFields))===false)
+			if(ExecuteModuleEventEx($arEvent, array(&$arFields)) === false)
 			{
 				if($e = $APPLICATION->GetException())
 				{
@@ -642,10 +644,10 @@ class CAllUserTypeEntity extends CDBResult
 
 				$aMsg = array();
 				$aMsg[] = array(
-					"id"=>"FIELD_NAME",
-					"text"=>GetMessage("USER_TYPE_UPDATE_ERROR", array(
-						"#FIELD_NAME#"=>htmlspecialcharsbx($arFields["FIELD_NAME"]),
-						"#ENTITY_ID#"=>htmlspecialcharsbx($arFields["ENTITY_ID"]),
+					"id" => "FIELD_NAME",
+					"text" => GetMessage("USER_TYPE_UPDATE_ERROR", array(
+						"#FIELD_NAME#" => htmlspecialcharsbx($arFields["FIELD_NAME"]),
+						"#ENTITY_ID#" => htmlspecialcharsbx($arFields["ENTITY_ID"]),
 					))
 				);
 
@@ -667,7 +669,7 @@ class CAllUserTypeEntity extends CDBResult
 		{
 			if(is_array($arFields[$label]))
 			{
-				foreach($arFields[$label] as $lang=>$value)
+				foreach($arFields[$label] as $lang => $value)
 				{
 					$arLangs[$lang][$label] = $value;
 				}
@@ -683,7 +685,7 @@ class CAllUserTypeEntity extends CDBResult
 
 			if($strUpdate <> "")
 			{
-				$strSql = "UPDATE b_user_field SET ".$strUpdate." WHERE ID = ".$ID;
+				$strSql = "UPDATE b_user_field SET " . $strUpdate . " WHERE ID = " . $ID;
 				if(array_key_exists("SETTINGS", $arFields))
 					$arBinds = array("SETTINGS" => $arFields["SETTINGS"]);
 				else
@@ -693,9 +695,9 @@ class CAllUserTypeEntity extends CDBResult
 
 			if(!empty($arLangs))
 			{
-				$DB->Query("DELETE FROM b_user_field_lang WHERE USER_FIELD_ID = ".$ID, false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+				$DB->Query("DELETE FROM b_user_field_lang WHERE USER_FIELD_ID = " . $ID, false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
 
-				foreach($arLangs as $lang=>$arLangFields)
+				foreach($arLangs as $lang => $arLangFields)
 				{
 					$arLangFields["USER_FIELD_ID"] = $ID;
 					$arLangFields["LANGUAGE_ID"] = $lang;
@@ -703,7 +705,7 @@ class CAllUserTypeEntity extends CDBResult
 				}
 			}
 
-			foreach (GetModuleEvents("main", "OnAfterUserTypeUpdate", true) as $arEvent)
+			foreach(GetModuleEvents("main", "OnAfterUserTypeUpdate", true) as $arEvent)
 			{
 				ExecuteModuleEventEx($arEvent, array($arFields, $ID));
 			}
@@ -719,7 +721,7 @@ class CAllUserTypeEntity extends CDBResult
 	 * <p>Затем из таблички вида <b>b_utm_[ENTITY_ID]</b> удаляются все значения множественных свойств.</p>
 	 * <p>После чего у таблички вида <b>b_uts_[ENTITY_ID]</b> дропается колонка.</p>
 	 * <p>И если это было "последнее" свойство для сущности, то дропаются сами таблички хранившие значения.</p>
-	 * @param array $ID идентификатор свойства
+	 * @param integer $ID идентификатор свойства
 	 * @return CDBResult - результат выполнения последнего запроса функции.
 	 */
 	function Delete($ID)
@@ -727,7 +729,7 @@ class CAllUserTypeEntity extends CDBResult
 		global $DB, $CACHE_MANAGER, $USER_FIELD_MANAGER, $APPLICATION;
 		$ID = intval($ID);
 
-		$rs = $this->GetList(array(), array("ID"=>$ID));
+		$rs = $this->GetList(array(), array("ID" => $ID));
 		if($arField = $rs->Fetch())
 		{
 			/**
@@ -736,11 +738,11 @@ class CAllUserTypeEntity extends CDBResult
 			 */
 			$commonEventResult = array('PROVIDE_STORAGE' => true);
 
-			foreach (GetModuleEvents("main", "OnBeforeUserTypeDelete", true) as $arEvent)
+			foreach(GetModuleEvents("main", "OnBeforeUserTypeDelete", true) as $arEvent)
 			{
 				$eventResult = ExecuteModuleEventEx($arEvent, array(&$arField));
 
-				if ($eventResult ===false)
+				if($eventResult === false)
 				{
 					if($e = $APPLICATION->GetException())
 					{
@@ -749,10 +751,10 @@ class CAllUserTypeEntity extends CDBResult
 
 					$aMsg = array();
 					$aMsg[] = array(
-						"id"=>"FIELD_NAME",
-						"text"=>GetMessage("USER_TYPE_DELETE_ERROR", array(
-							"#FIELD_NAME#"=>htmlspecialcharsbx($arField["FIELD_NAME"]),
-							"#ENTITY_ID#"=>htmlspecialcharsbx($arField["ENTITY_ID"]),
+						"id" => "FIELD_NAME",
+						"text" => GetMessage("USER_TYPE_DELETE_ERROR", array(
+							"#FIELD_NAME#" => htmlspecialcharsbx($arField["FIELD_NAME"]),
+							"#ENTITY_ID#" => htmlspecialcharsbx($arField["ENTITY_ID"]),
 						))
 					);
 
@@ -761,7 +763,7 @@ class CAllUserTypeEntity extends CDBResult
 
 					return false;
 				}
-				elseif (is_array($eventResult))
+				elseif(is_array($eventResult))
 				{
 					$commonEventResult = array_merge($commonEventResult, $eventResult);
 				}
@@ -774,30 +776,30 @@ class CAllUserTypeEntity extends CDBResult
 			//We need special handling of file type properties
 			if($arType)
 			{
-				if($arType["BASE_TYPE"]=="file" && $commonEventResult['PROVIDE_STORAGE'])
+				if($arType["BASE_TYPE"] == "file" && $commonEventResult['PROVIDE_STORAGE'])
 				{
 					// only if we store values
 					if($arField["MULTIPLE"] == "Y")
-						$strSql = "SELECT VALUE_INT VALUE FROM b_utm_".strtolower($arField["ENTITY_ID"])." WHERE FIELD_ID=".$arField["ID"];
+						$strSql = "SELECT VALUE_INT VALUE FROM b_utm_" . strtolower($arField["ENTITY_ID"]) . " WHERE FIELD_ID=" . $arField["ID"];
 					else
-						$strSql = "SELECT ".$arField["FIELD_NAME"]." VALUE FROM b_uts_".strtolower($arField["ENTITY_ID"]);
-					$rsFile = $DB->Query($strSql, false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+						$strSql = "SELECT " . $arField["FIELD_NAME"] . " VALUE FROM b_uts_" . strtolower($arField["ENTITY_ID"]);
+					$rsFile = $DB->Query($strSql, false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
 					while($arFile = $rsFile->Fetch())
 					{
 						CFile::Delete($arFile["VALUE"]);
 					}
 				}
-				elseif($arType["BASE_TYPE"]=="enum")
+				elseif($arType["BASE_TYPE"] == "enum")
 				{
 					$obEnum = new CUserFieldEnum;
 					$obEnum->DeleteFieldEnum($arField["ID"]);
 				}
 			}
 
-			if(CACHED_b_user_field!==false) $CACHE_MANAGER->CleanDir("b_user_field");
-			$rs = $DB->Query("DELETE FROM b_user_field_lang WHERE USER_FIELD_ID = ".$ID, false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+			if(CACHED_b_user_field !== false) $CACHE_MANAGER->CleanDir("b_user_field");
+			$rs = $DB->Query("DELETE FROM b_user_field_lang WHERE USER_FIELD_ID = " . $ID, false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
 			if($rs)
-				$rs = $DB->Query("DELETE FROM b_user_field WHERE ID = ".$ID, false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+				$rs = $DB->Query("DELETE FROM b_user_field WHERE ID = " . $ID, false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
 
 			if($rs && $commonEventResult['PROVIDE_STORAGE'])
 			{
@@ -805,19 +807,19 @@ class CAllUserTypeEntity extends CDBResult
 				$rs = $this->GetList(array(), array("ENTITY_ID" => $arField["ENTITY_ID"]));
 				if($rs->Fetch()) // more than one
 				{
-					foreach($this->DropColumnSQL("b_uts_".strtolower($arField["ENTITY_ID"]), array($arField["FIELD_NAME"])) as $strSql)
-						$DB->Query($strSql, false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
-					$rs = $DB->Query("DELETE FROM b_utm_".strtolower($arField["ENTITY_ID"])." WHERE FIELD_ID = '".$ID."'", false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+					foreach($this->DropColumnSQL("b_uts_" . strtolower($arField["ENTITY_ID"]), array($arField["FIELD_NAME"])) as $strSql)
+						$DB->Query($strSql, false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
+					$rs = $DB->Query("DELETE FROM b_utm_" . strtolower($arField["ENTITY_ID"]) . " WHERE FIELD_ID = '" . $ID . "'", false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
 				}
 				else
 				{
-					$DB->Query("DROP SEQUENCE SQ_B_UTM_".$arField["ENTITY_ID"], true);
-					$DB->Query("DROP TABLE b_uts_".strtolower($arField["ENTITY_ID"]), false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
-					$rs = $DB->Query("DROP TABLE b_utm_".strtolower($arField["ENTITY_ID"]), false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+					$DB->Query("DROP SEQUENCE SQ_B_UTM_" . $arField["ENTITY_ID"], true);
+					$DB->Query("DROP TABLE b_uts_" . strtolower($arField["ENTITY_ID"]), false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
+					$rs = $DB->Query("DROP TABLE b_utm_" . strtolower($arField["ENTITY_ID"]), false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
 				}
 			}
 
-			foreach (GetModuleEvents("main", "OnAfterUserTypeDelete", true) as $arEvent)
+			foreach(GetModuleEvents("main", "OnAfterUserTypeDelete", true) as $arEvent)
 			{
 				ExecuteModuleEventEx($arEvent, array($arField, $ID));
 			}
@@ -840,31 +842,31 @@ class CAllUserTypeEntity extends CDBResult
 		$entity_id = preg_replace("/[^0-9A-Z_]+/", "", $entity_id);
 
 		$rs = true;
-		$rsFields = $this->GetList(array(), array("ENTITY_ID"=>$entity_id));
+		$rsFields = $this->GetList(array(), array("ENTITY_ID" => $entity_id));
 		//We need special handling of file and enum type properties
 		while($arField = $rsFields->Fetch())
 		{
 			$arType = $USER_FIELD_MANAGER->GetUserType($arField["USER_TYPE_ID"]);
-			if($arType && ($arType["BASE_TYPE"]=="file" || $arType["BASE_TYPE"]=="enum"))
+			if($arType && ($arType["BASE_TYPE"] == "file" || $arType["BASE_TYPE"] == "enum"))
 			{
 				$this->Delete($arField["ID"]);
 			}
 		}
 
 		$bDropTable = false;
-		$rsFields = $this->GetList(array(), array("ENTITY_ID"=>$entity_id));
+		$rsFields = $this->GetList(array(), array("ENTITY_ID" => $entity_id));
 		while($arField = $rsFields->Fetch())
 		{
 			$bDropTable = true;
-			$DB->Query("DELETE FROM b_user_field_lang WHERE USER_FIELD_ID = ".$arField["ID"], false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
-			$rs = $DB->Query("DELETE FROM b_user_field WHERE ID = ".$arField["ID"], false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+			$DB->Query("DELETE FROM b_user_field_lang WHERE USER_FIELD_ID = " . $arField["ID"], false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
+			$rs = $DB->Query("DELETE FROM b_user_field WHERE ID = " . $arField["ID"], false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
 		}
 
 		if($bDropTable)
 		{
-			$DB->Query("DROP SEQUENCE SQ_B_UTM_".$entity_id, true);
-			$DB->Query("DROP TABLE b_uts_".strtolower($entity_id), true, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
-			$rs = $DB->Query("DROP TABLE b_utm_".strtolower($entity_id), true, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+			$DB->Query("DROP SEQUENCE SQ_B_UTM_" . $entity_id, true);
+			$DB->Query("DROP TABLE b_uts_" . strtolower($entity_id), true, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
+			$rs = $DB->Query("DROP TABLE b_utm_" . strtolower($entity_id), true, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
 		}
 
 		if(CACHED_b_user_field !== false)
@@ -885,7 +887,7 @@ class CAllUserTypeEntity extends CDBResult
 	function Fetch()
 	{
 		$res = parent::Fetch();
-		if($res && strlen($res["SETTINGS"])>0)
+		if($res && strlen($res["SETTINGS"]) > 0)
 		{
 			$res["SETTINGS"] = unserialize($res["SETTINGS"]);
 		}
@@ -929,6 +931,7 @@ class CUserTypeManager
 		$this->arFieldsCache = array();
 		$this->arUserTypes = false;
 	}
+
 	/**
 	 * Функция возвращает метаданные типа.
 	 *
@@ -974,7 +977,7 @@ class CUserTypeManager
 
 	function getUtsDBColumnType($arUserField)
 	{
-		if ($arUserField['MULTIPLE'] == 'Y')
+		if($arUserField['MULTIPLE'] == 'Y')
 		{
 			$sqlHelper = \Bitrix\Main\Application::getConnection()->getSqlHelper();
 			return $sqlHelper->getColumnTypeByField(new Entity\TextField('TMP'));
@@ -995,7 +998,7 @@ class CUserTypeManager
 		$user_type_id = $arUserField["USER_TYPE_ID"];
 		if($ID > 0)
 		{
-			$rsUserType = CUserTypeEntity::GetList(array(), array("ID"=>$ID));
+			$rsUserType = CUserTypeEntity::GetList(array(), array("ID" => $ID));
 			$arUserType = $rsUserType->Fetch();
 			if($arUserType)
 			{
@@ -1029,7 +1032,7 @@ class CUserTypeManager
 
 	function OnEntityDelete($entity_id)
 	{
-		$obUserField  = new CUserTypeEntity;
+		$obUserField = new CUserTypeEntity;
 		return $obUserField->DropEntity($entity_id);
 	}
 
@@ -1038,32 +1041,29 @@ class CUserTypeManager
 	 *
 	 * <p>Важно! В $arUserField добалено поле ENTITY_VALUE_ID - это идентификатор экземпляра сущности
 	 * позволяющий отделить новые записи от старых и соответсвенно использовать значения по умолчанию.</p>
-	*/
+	 */
 	function GetUserFields($entity_id, $value_id = 0, $LANG = false, $user_id = false)
 	{
 		$entity_id = preg_replace("/[^0-9A-Z_]+/", "", $entity_id);
 		$value_id = intval($value_id);
-		$cacheId = $entity_id . "." . $LANG . '.' . (int) $user_id;
+		$cacheId = $entity_id . "." . $LANG . '.' . (int)$user_id;
 
 		global $DB;
 
 		$result = array();
 		if(!array_key_exists($cacheId, $this->arFieldsCache))
 		{
-			$arFilter = array("ENTITY_ID"=>$entity_id);
+			$arFilter = array("ENTITY_ID" => $entity_id);
 			if($LANG)
-				$arFilter["LANG"]=$LANG;
+				$arFilter["LANG"] = $LANG;
 			$rs = CUserTypeEntity::GetList(array(), $arFilter);
 			while($arUserField = $rs->Fetch())
 			{
 				if($arType = $this->GetUserType($arUserField["USER_TYPE_ID"]))
 				{
-					if(
-						$user_id !== 0
-						&& is_callable(array($arType["CLASS_NAME"], "checkpermission"))
-					)
+					if($user_id !== 0	&& is_callable(array($arType["CLASS_NAME"], "checkpermission")))
 					{
-						if(!call_user_func_array(array($arType["CLASS_NAME"], "checkpermission"), array($arUserField, $user_id)))
+						if(!call_user_func_array(array($arType["CLASS_NAME"], "checkpermission"), [$arUserField, $user_id]))
 							continue;
 					}
 					$arUserField["USER_TYPE"] = $arType;
@@ -1080,7 +1080,7 @@ class CUserTypeManager
 			$result = $this->arFieldsCache[$cacheId];
 		}
 
-		if(count($result)>0 && $value_id>0)
+		if(count($result) > 0 && $value_id > 0)
 		{
 			$values = $this->getUserFieldValuesByEvent($result, $entity_id, $value_id);
 			if(is_array($values))
@@ -1094,7 +1094,7 @@ class CUserTypeManager
 			}
 
 			$select = "VALUE_ID";
-			foreach($result as $FIELD_NAME=>$arUserField)
+			foreach($result as $FIELD_NAME => $arUserField)
 			{
 				$simpleFormat = true;
 				if($arUserField["MULTIPLE"] == "N")
@@ -1103,27 +1103,27 @@ class CUserTypeManager
 					{
 						if(is_callable(array($arType["CLASS_NAME"], "FormatField")))
 						{
-							$select .= ", ".call_user_func_array(array($arType["CLASS_NAME"], "FormatField"), array($arUserField, $FIELD_NAME))." ".$FIELD_NAME;
+							$select .= ", " . call_user_func_array(array($arType["CLASS_NAME"], "FormatField"), array($arUserField, $FIELD_NAME)) . " " . $FIELD_NAME;
 							$simpleFormat = false;
 						}
 					}
 				}
 				if($simpleFormat)
 				{
-					$select .= ", ".$FIELD_NAME;
+					$select .= ", " . $FIELD_NAME;
 				}
 			}
 
-			$rs = $DB->Query("SELECT ".$select." FROM b_uts_".strtolower($entity_id)." WHERE VALUE_ID = ".$value_id, false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+			$rs = $DB->Query("SELECT " . $select . " FROM b_uts_" . strtolower($entity_id) . " WHERE VALUE_ID = " . $value_id, false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
 			if($ar = $rs->Fetch())
 			{
-				foreach($ar as $key=>$value)
+				foreach($ar as $key => $value)
 				{
 					if(array_key_exists($key, $result))
 					{
-						if($result[$key]["MULTIPLE"]=="Y")
+						if($result[$key]["MULTIPLE"] == "Y")
 						{
-							if (substr($value, 0, 1) !== 'a' && $value > 0)
+							if(substr($value, 0, 1) !== 'a' && $value > 0)
 							{
 								$value = $this->LoadMultipleValues($result[$key], $value);
 							}
@@ -1160,32 +1160,29 @@ class CUserTypeManager
 	 */
 	function getUserFieldsWithReadyData($entity_id, $readyData, $LANG = false, $user_id = false, $primaryIdName = 'VALUE_ID')
 	{
-		if ($readyData === null)
+		if($readyData === null)
 		{
 			return $this->GetUserFields($entity_id, null, $LANG, $user_id);
 		}
 
 		$entity_id = preg_replace("/[^0-9A-Z_]+/", "", $entity_id);
-		$cacheId = $entity_id . "." . $LANG . '.' . (int) $user_id;
+		$cacheId = $entity_id . "." . $LANG . '.' . (int)$user_id;
 
 		//global $DB;
 
 		$result = array();
 		if(!array_key_exists($cacheId, $this->arFieldsCache))
 		{
-			$arFilter = array("ENTITY_ID"=>$entity_id);
+			$arFilter = array("ENTITY_ID" => $entity_id);
 			if($LANG)
-				$arFilter["LANG"]=$LANG;
+				$arFilter["LANG"] = $LANG;
 
 			$rs = call_user_func_array(array('CUserTypeEntity', 'GetList'), array(array(), $arFilter));
 			while($arUserField = $rs->Fetch())
 			{
 				if($arType = $this->GetUserType($arUserField["USER_TYPE_ID"]))
 				{
-					if(
-						$user_id !== 0
-						&& is_callable(array($arType["CLASS_NAME"], "checkpermission"))
-					)
+					if($user_id !== 0	&& is_callable(array($arType["CLASS_NAME"], "checkpermission")))
 					{
 						if(!call_user_func_array(array($arType["CLASS_NAME"], "checkpermission"), array($arUserField, $user_id)))
 							continue;
@@ -1202,11 +1199,11 @@ class CUserTypeManager
 		else
 			$result = $this->arFieldsCache[$cacheId];
 
-		foreach ($readyData as $key => $value)
+		foreach($readyData as $key => $value)
 		{
 			if(array_key_exists($key, $result))
 			{
-				if($result[$key]["MULTIPLE"]=="Y" && !is_array($value))
+				if($result[$key]["MULTIPLE"] == "Y" && !is_array($value))
 				{
 					$value = unserialize($value);
 				}
@@ -1219,13 +1216,13 @@ class CUserTypeManager
 		return $result;
 	}
 
-	function GetUserFieldValue($entity_id, $field_id, $value_id, $LANG=false)
+	function GetUserFieldValue($entity_id, $field_id, $value_id, $LANG = false)
 	{
 		global $DB;
 		$entity_id = preg_replace("/[^0-9A-Z_]+/", "", $entity_id);
 		$field_id = preg_replace("/[^0-9A-Z_]+/", "", $field_id);
 		$value_id = intval($value_id);
-		$strTableName = "b_uts_".strtolower($entity_id);
+		$strTableName = "b_uts_" . strtolower($entity_id);
 		$result = false;
 
 		$arFilter = array(
@@ -1233,7 +1230,7 @@ class CUserTypeManager
 			"FIELD_NAME" => $field_id,
 		);
 		if($LANG)
-			$arFilter["LANG"]=$LANG;
+			$arFilter["LANG"] = $LANG;
 		$rs = CUserTypeEntity::GetList(array(), $arFilter);
 		if($arUserField = $rs->Fetch())
 		{
@@ -1264,10 +1261,10 @@ class CUserTypeManager
 					$select = $field_id;
 				}
 
-				$rs = $DB->Query("SELECT ".$select." VALUE FROM ".$strTableName." WHERE VALUE_ID = ".$value_id, false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+				$rs = $DB->Query("SELECT " . $select . " VALUE FROM " . $strTableName . " WHERE VALUE_ID = " . $value_id, false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
 				if($ar = $rs->Fetch())
 				{
-					if($arUserField["MULTIPLE"]=="Y")
+					if($arUserField["MULTIPLE"] == "Y")
 						$result = $this->OnAfterFetch($arUserField, unserialize($ar["VALUE"]));
 					else
 						$result = $this->OnAfterFetch($arUserField, $ar["VALUE"]);
@@ -1284,21 +1281,21 @@ class CUserTypeManager
 	 */
 	function getEntityList()
 	{
-		if ($this->entityList === null)
+		if($this->entityList === null)
 		{
 			$event = new \Bitrix\Main\Event('main', 'onUserTypeEntityOrmMap');
 			$event->send();
 
-			foreach ($event->getResults() as $eventResult)
+			foreach($event->getResults() as $eventResult)
 			{
-				if ($eventResult->getType() == \Bitrix\Main\EventResult::SUCCESS)
+				if($eventResult->getType() == \Bitrix\Main\EventResult::SUCCESS)
 				{
 					$result = $eventResult->getParameters(); // [ENTITY_ID => 'SomeTable']
-					foreach ($result as $entityId => $entityClass)
+					foreach($result as $entityId => $entityClass)
 					{
-						if (substr($entityClass, 0, 1) !== '\\')
+						if(substr($entityClass, 0, 1) !== '\\')
 						{
-							$entityClass = '\\'.$entityClass;
+							$entityClass = '\\' . $entityClass;
 						}
 
 						$this->entityList[$entityId] = $entityClass;
@@ -1314,9 +1311,9 @@ class CUserTypeManager
 	{
 		if(is_callable(array($arUserField["USER_TYPE"]["CLASS_NAME"], "onafterfetch")))
 		{
-			if ($arUserField["MULTIPLE"] == "Y")
+			if($arUserField["MULTIPLE"] == "Y")
 			{
-				if (is_array($result))
+				if(is_array($result))
 				{
 					$resultCopy = $result;
 					$result = array();
@@ -1331,7 +1328,7 @@ class CUserTypeManager
 								),
 							)
 						);
-						if ($convertedValue !== null)
+						if($convertedValue !== null)
 						{
 							$result[] = $convertedValue;
 						}
@@ -1361,13 +1358,13 @@ class CUserTypeManager
 
 		$rs = $DB->Query("
 			SELECT *
-			FROM b_utm_".strtolower($arUserField["ENTITY_ID"])."
-			WHERE VALUE_ID = ".intval($valueId)."
-			AND FIELD_ID = ".$arUserField["ID"]."
-		", false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
-		while ($ar = $rs->Fetch())
+			FROM b_utm_" . strtolower($arUserField["ENTITY_ID"]) . "
+			WHERE VALUE_ID = " . intval($valueId) . "
+			AND FIELD_ID = " . $arUserField["ID"] . "
+		", false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
+		while($ar = $rs->Fetch())
 		{
-			if ($arUserField["USER_TYPE"]["USER_TYPE_ID"] == "date")
+			if($arUserField["USER_TYPE"]["USER_TYPE_ID"] == "date")
 			{
 				$result[] = substr($ar["VALUE_DATE"], 0, 10);
 			}
@@ -1375,19 +1372,19 @@ class CUserTypeManager
 			{
 				switch($arUserField["USER_TYPE"]["BASE_TYPE"])
 				{
-				case "int":
-				case "file":
-				case "enum":
-					$result[] = $ar["VALUE_INT"];
-					break;
-				case "double":
-					$result[] = $ar["VALUE_DOUBLE"];
-					break;
-				case "datetime":
-					$result[] = $ar["VALUE_DATE"];
-					break;
-				default:
-					$result[] = $ar["VALUE"];
+					case "int":
+					case "file":
+					case "enum":
+						$result[] = $ar["VALUE_INT"];
+						break;
+					case "double":
+						$result[] = $ar["VALUE_DOUBLE"];
+						break;
+					case "datetime":
+						$result[] = $ar["VALUE_DATE"];
+						break;
+					default:
+						$result[] = $ar["VALUE"];
 				}
 			}
 		}
@@ -1410,13 +1407,13 @@ class CUserTypeManager
 
 		if($this->GetRights($entity_id) >= "W")
 		{
-			echo "<tr colspan=\"2\"><td align=\"left\"><a href=\"/bitrix/admin/userfield_edit.php?lang=".LANG."&ENTITY_ID=".urlencode($entity_id)."&back_url=".urlencode($APPLICATION->GetCurPageParam("", array("bxpublic"))."&tabControl_active_tab=user_fields_tab")."\">".GetMessage("USER_TYPE_EDIT_TAB_HREF")."</a></td></tr>";
+			echo "<tr colspan=\"2\"><td align=\"left\"><a href=\"/bitrix/admin/userfield_edit.php?lang=" . LANG . "&ENTITY_ID=" . urlencode($entity_id) . "&back_url=" . urlencode($APPLICATION->GetCurPageParam("", array("bxpublic")) . "&tabControl_active_tab=user_fields_tab") . "\">" . GetMessage("USER_TYPE_EDIT_TAB_HREF") . "</a></td></tr>";
 		}
 
 		$arUserFields = $this->GetUserFields($entity_id, $ID, LANGUAGE_ID);
-		if(count($arUserFields)>0)
+		if(count($arUserFields) > 0)
 		{
-			foreach($arUserFields as $FIELD_NAME=>$arUserField)
+			foreach($arUserFields as $FIELD_NAME => $arUserField)
 			{
 				$arUserField["VALUE_ID"] = intval($ID);
 				echo $this->GetEditFormHTML($bVarsFromForm, $GLOBALS[$FIELD_NAME], $arUserField);
@@ -1442,31 +1439,31 @@ class CUserTypeManager
 		$arUserFields = $this->GetUserFields($entity_id);
 		foreach($arUserFields as $arUserField)
 		{
-			if($arUserField["EDIT_IN_LIST"]=="Y")
+			if($arUserField["EDIT_IN_LIST"] == "Y")
 			{
-				if($arUserField["USER_TYPE"]["BASE_TYPE"]=="file")
+				if($arUserField["USER_TYPE"]["BASE_TYPE"] == "file")
 				{
-					if (isset($files[$arUserField["FIELD_NAME"]]))
+					if(isset($files[$arUserField["FIELD_NAME"]]))
 					{
 						if(is_array($files[$arUserField["FIELD_NAME"]]["name"]))
 						{
 							$arFields[$arUserField["FIELD_NAME"]] = array();
 							foreach($files[$arUserField["FIELD_NAME"]]["name"] as $key => $value)
 							{
-								$old_id = $form[$arUserField["FIELD_NAME"]."_old_id"][$key];
+								$old_id = $form[$arUserField["FIELD_NAME"] . "_old_id"][$key];
 								$arFields[$arUserField["FIELD_NAME"]][$key] = array(
 									"name" => $files[$arUserField["FIELD_NAME"]]["name"][$key],
 									"type" => $files[$arUserField["FIELD_NAME"]]["type"][$key],
 									"tmp_name" => $files[$arUserField["FIELD_NAME"]]["tmp_name"][$key],
 									"error" => $files[$arUserField["FIELD_NAME"]]["error"][$key],
 									"size" => $files[$arUserField["FIELD_NAME"]]["size"][$key],
-									"del" => is_array($form[$arUserField["FIELD_NAME"]."_del"]) &&
-											(	in_array($old_id, $form[$arUserField["FIELD_NAME"]."_del"]) ||
-												(
-													array_key_exists($key, $form[$arUserField["FIELD_NAME"]."_del"]) &&
-													$form[$arUserField["FIELD_NAME"]."_del"][$key] == "Y"
-												)
-											),
+									"del" => is_array($form[$arUserField["FIELD_NAME"] . "_del"]) &&
+										(in_array($old_id, $form[$arUserField["FIELD_NAME"] . "_del"]) ||
+											(
+												array_key_exists($key, $form[$arUserField["FIELD_NAME"] . "_del"]) &&
+												$form[$arUserField["FIELD_NAME"] . "_del"][$key] == "Y"
+											)
+										),
 									"old_id" => $old_id
 								);
 							}
@@ -1474,8 +1471,8 @@ class CUserTypeManager
 						else
 						{
 							$arFields[$arUserField["FIELD_NAME"]] = $files[$arUserField["FIELD_NAME"]];
-							$arFields[$arUserField["FIELD_NAME"]]["del"] = $form[$arUserField["FIELD_NAME"]."_del"];
-							$arFields[$arUserField["FIELD_NAME"]]["old_id"] = $form[$arUserField["FIELD_NAME"]."_old_id"];
+							$arFields[$arUserField["FIELD_NAME"]]["del"] = $form[$arUserField["FIELD_NAME"] . "_del"];
+							$arFields[$arUserField["FIELD_NAME"]]["old_id"] = $form[$arUserField["FIELD_NAME"] . "_old_id"];
 						}
 					}
 					else
@@ -1506,7 +1503,7 @@ class CUserTypeManager
 				}
 				else
 				{
-					if (isset($files[$arUserField["FIELD_NAME"]]))
+					if(isset($files[$arUserField["FIELD_NAME"]]))
 					{
 						$arFile = array();
 						CFile::ConvertFilesToPost($files[$arUserField["FIELD_NAME"]], $arFile);
@@ -1546,15 +1543,15 @@ class CUserTypeManager
 	function AdminListAddFilterFields($entityId, &$arFilterFields)
 	{
 		$arUserFields = $this->GetUserFields($entityId);
-		foreach ($arUserFields as $fieldName => $arUserField)
+		foreach($arUserFields as $fieldName => $arUserField)
 		{
-			if ($arUserField['SHOW_FILTER']!='N' && $arUserField['USER_TYPE']['BASE_TYPE']!='file')
+			if($arUserField['SHOW_FILTER'] != 'N' && $arUserField['USER_TYPE']['BASE_TYPE'] != 'file')
 			{
-				$arFilterFields[] = 'find_'.$fieldName;
-				if ($arUserField['USER_TYPE']['BASE_TYPE'] == 'datetime')
+				$arFilterFields[] = 'find_' . $fieldName;
+				if($arUserField['USER_TYPE']['BASE_TYPE'] == 'datetime')
 				{
-					$arFilterFields[] = 'find_'.$fieldName.'_from';
-					$arFilterFields[] = 'find_'.$fieldName.'_to';
+					$arFilterFields[] = 'find_' . $fieldName . '_from';
+					$arFilterFields[] = 'find_' . $fieldName . '_to';
 				}
 			}
 		}
@@ -1563,9 +1560,9 @@ class CUserTypeManager
 	function AdminListAddFilterFieldsV2($entityId, &$arFilterFields)
 	{
 		$arUserFields = $this->GetUserFields($entityId, 0, $GLOBALS["lang"]);
-		foreach ($arUserFields as $fieldName => $arUserField)
+		foreach($arUserFields as $fieldName => $arUserField)
 		{
-			if ($arUserField['SHOW_FILTER']!='N' && $arUserField['USER_TYPE']['BASE_TYPE']!='file')
+			if($arUserField['SHOW_FILTER'] != 'N' && $arUserField['USER_TYPE']['BASE_TYPE'] != 'file')
 			{
 				if(is_callable(array($arUserField['USER_TYPE']['CLASS_NAME'], 'GetFilterData')))
 				{
@@ -1614,48 +1611,48 @@ class CUserTypeManager
 	function AdminListAddFilter($entityId, &$arFilter)
 	{
 		$arUserFields = $this->GetUserFields($entityId);
-		foreach ($arUserFields as $fieldName => $arUserField)
+		foreach($arUserFields as $fieldName => $arUserField)
 		{
-			if (
+			if(
 				$arUserField['SHOW_FILTER'] != 'N' &&
 				$arUserField['USER_TYPE']['BASE_TYPE'] == 'datetime'
 			)
 			{
-				$value1 = $GLOBALS['find_'.$fieldName.'_from'];
-				$value2 = $GLOBALS['find_'.$fieldName.'_to'];
-				if ($this->IsNotEmpty($value1) && \Bitrix\Main\Type\Date::isCorrect($value1))
+				$value1 = $GLOBALS['find_' . $fieldName . '_from'];
+				$value2 = $GLOBALS['find_' . $fieldName . '_to'];
+				if($this->IsNotEmpty($value1) && \Bitrix\Main\Type\Date::isCorrect($value1))
 				{
 					$date = new \Bitrix\Main\Type\Date($value1);
-					$arFilter['>='.$fieldName] = $date;
+					$arFilter['>=' . $fieldName] = $date;
 				}
-				if ($this->IsNotEmpty($value2) && \Bitrix\Main\Type\Date::isCorrect($value2))
+				if($this->IsNotEmpty($value2) && \Bitrix\Main\Type\Date::isCorrect($value2))
 				{
 					$date = new \Bitrix\Main\Type\Date($value2);
-					if ($arUserField['USER_TYPE_ID'] != 'date')
+					if($arUserField['USER_TYPE_ID'] != 'date')
 					{
 						$date->add('+1 day');
 					}
-					$arFilter['<='.$fieldName] = $date;
+					$arFilter['<=' . $fieldName] = $date;
 				}
 				continue;
 			}
 			else
 			{
-				$value = $GLOBALS['find_'.$fieldName];
+				$value = $GLOBALS['find_' . $fieldName];
 			}
-			if (
+			if(
 				$arUserField['SHOW_FILTER'] != 'N'
 				&& $arUserField['USER_TYPE']['BASE_TYPE'] != 'file'
 				&& $this->IsNotEmpty($value)
 			)
 			{
-				if ($arUserField['SHOW_FILTER'] == 'I')
+				if($arUserField['SHOW_FILTER'] == 'I')
 				{
-					$arFilter['='.$fieldName] = $value;
+					$arFilter['=' . $fieldName] = $value;
 				}
-				elseif($arUserField['SHOW_FILTER']=='S')
+				elseif($arUserField['SHOW_FILTER'] == 'S')
 				{
-					$arFilter['%'.$fieldName] = $value;
+					$arFilter['%' . $fieldName] = $value;
 				}
 				else
 				{
@@ -1671,36 +1668,36 @@ class CUserTypeManager
 		$filterData = $filterOption->getFilter($filterFields);
 
 		$arUserFields = $this->GetUserFields($entityId);
-		foreach ($arUserFields as $fieldName => $arUserField)
+		foreach($arUserFields as $fieldName => $arUserField)
 		{
-			if ($arUserField['SHOW_FILTER'] != 'N' && $arUserField['USER_TYPE']['BASE_TYPE'] == 'datetime')
+			if($arUserField['SHOW_FILTER'] != 'N' && $arUserField['USER_TYPE']['BASE_TYPE'] == 'datetime')
 			{
-				$value1 = $filterData[$fieldName.'_from'];
-				$value2 = $filterData[$fieldName.'_to'];
-				if ($this->IsNotEmpty($value1) && \Bitrix\Main\Type\Date::isCorrect($value1))
+				$value1 = $filterData[$fieldName . '_from'];
+				$value2 = $filterData[$fieldName . '_to'];
+				if($this->IsNotEmpty($value1) && \Bitrix\Main\Type\Date::isCorrect($value1))
 				{
 					$date = new \Bitrix\Main\Type\Date($value1);
-					$arFilter['>='.$fieldName] = $date;
+					$arFilter['>=' . $fieldName] = $date;
 				}
-				if ($this->IsNotEmpty($value2) && \Bitrix\Main\Type\Date::isCorrect($value2))
+				if($this->IsNotEmpty($value2) && \Bitrix\Main\Type\Date::isCorrect($value2))
 				{
 					$date = new \Bitrix\Main\Type\Date($value2);
-					if ($arUserField['USER_TYPE_ID'] != 'date')
+					if($arUserField['USER_TYPE_ID'] != 'date')
 					{
 						$date->add('+1 day');
 					}
-					$arFilter['<='.$fieldName] = $date;
+					$arFilter['<=' . $fieldName] = $date;
 				}
 				continue;
 			}
-			elseif ($arUserField['SHOW_FILTER'] != 'N' && $arUserField['USER_TYPE']['BASE_TYPE'] == 'int')
+			elseif($arUserField['SHOW_FILTER'] != 'N' && $arUserField['USER_TYPE']['BASE_TYPE'] == 'int')
 			{
-				switch ($arUserField['USER_TYPE_ID'])
+				switch($arUserField['USER_TYPE_ID'])
 				{
 					case 'boolean':
-						if ($filterData[$fieldName] === 'Y')
+						if($filterData[$fieldName] === 'Y')
 							$filterData[$fieldName] = 1;
-						if ($filterData[$fieldName] === 'N')
+						if($filterData[$fieldName] === 'N')
 							$filterData[$fieldName] = 0;
 						$value = $filterData[$fieldName];
 						break;
@@ -1712,21 +1709,21 @@ class CUserTypeManager
 			{
 				$value = $filterData[$fieldName];
 			}
-			if (
+			if(
 				$arUserField['SHOW_FILTER'] != 'N'
 				&& $arUserField['USER_TYPE']['BASE_TYPE'] != 'file'
 				&& $this->IsNotEmpty($value)
 			)
 			{
-				if ($arUserField['SHOW_FILTER'] == 'I')
+				if($arUserField['SHOW_FILTER'] == 'I')
 				{
 					unset($arFilter[$fieldName]);
-					$arFilter['='.$fieldName] = $value;
+					$arFilter['=' . $fieldName] = $value;
 				}
-				elseif($arUserField['SHOW_FILTER']=='S')
+				elseif($arUserField['SHOW_FILTER'] == 'S')
 				{
 					unset($arFilter[$fieldName]);
-					$arFilter['%'.$fieldName] = $value;
+					$arFilter['%' . $fieldName] = $value;
 				}
 				else
 				{
@@ -1739,22 +1736,22 @@ class CUserTypeManager
 	function AdminListPrepareFields($entity_id, &$arFields)
 	{
 		$arUserFields = $this->GetUserFields($entity_id);
-		foreach($arUserFields as $FIELD_NAME=>$arUserField)
-			if($arUserField["EDIT_IN_LIST"]!="Y")
+		foreach($arUserFields as $FIELD_NAME => $arUserField)
+			if($arUserField["EDIT_IN_LIST"] != "Y")
 				unset($arFields[$FIELD_NAME]);
 	}
 
 	function AdminListAddHeaders($entity_id, &$arHeaders)
 	{
 		$arUserFields = $this->GetUserFields($entity_id, 0, $GLOBALS["lang"]);
-		foreach($arUserFields as $FIELD_NAME=>$arUserField)
+		foreach($arUserFields as $FIELD_NAME => $arUserField)
 		{
-			if($arUserField["SHOW_IN_LIST"]=="Y")
+			if($arUserField["SHOW_IN_LIST"] == "Y")
 			{
 				$arHeaders[] = array(
 					"id" => $FIELD_NAME,
-					"content" => htmlspecialcharsbx($arUserField["LIST_COLUMN_LABEL"]? $arUserField["LIST_COLUMN_LABEL"]: $arUserField["FIELD_NAME"]),
-					"sort" => $arUserField["MULTIPLE"]=="N"? $FIELD_NAME: false,
+					"content" => htmlspecialcharsbx($arUserField["LIST_COLUMN_LABEL"] ? $arUserField["LIST_COLUMN_LABEL"] : $arUserField["FIELD_NAME"]),
+					"sort" => $arUserField["MULTIPLE"] == "N" ? $FIELD_NAME : false,
 				);
 			}
 		}
@@ -1763,17 +1760,17 @@ class CUserTypeManager
 	function AddUserFields($entity_id, $arRes, &$row)
 	{
 		$arUserFields = $this->GetUserFields($entity_id);
-		foreach($arUserFields as $FIELD_NAME=>$arUserField)
-			if($arUserField["SHOW_IN_LIST"]=="Y" && array_key_exists($FIELD_NAME, $arRes))
+		foreach($arUserFields as $FIELD_NAME => $arUserField)
+			if($arUserField["SHOW_IN_LIST"] == "Y" && array_key_exists($FIELD_NAME, $arRes))
 				$this->AddUserField($arUserField, $arRes[$FIELD_NAME], $row);
 	}
 
 	function AddFindFields($entity_id, &$arFindFields)
 	{
 		$arUserFields = $this->GetUserFields($entity_id, 0, $GLOBALS["lang"]);
-		foreach($arUserFields as $FIELD_NAME=>$arUserField)
+		foreach($arUserFields as $FIELD_NAME => $arUserField)
 		{
-			if($arUserField["SHOW_FILTER"]!="N" && $arUserField["USER_TYPE"]["BASE_TYPE"]!="file")
+			if($arUserField["SHOW_FILTER"] != "N" && $arUserField["USER_TYPE"]["BASE_TYPE"] != "file")
 			{
 				if($arUserField["USER_TYPE"] && is_callable(array($arUserField["USER_TYPE"]["CLASS_NAME"], "getfilterhtml")))
 				{
@@ -1793,11 +1790,11 @@ class CUserTypeManager
 	function AdminListShowFilter($entity_id)
 	{
 		$arUserFields = $this->GetUserFields($entity_id, 0, $GLOBALS["lang"]);
-		foreach($arUserFields as $FIELD_NAME=>$arUserField)
+		foreach($arUserFields as $FIELD_NAME => $arUserField)
 		{
-			if($arUserField["SHOW_FILTER"]!="N" && $arUserField["USER_TYPE"]["BASE_TYPE"]!="file")
+			if($arUserField["SHOW_FILTER"] != "N" && $arUserField["USER_TYPE"]["BASE_TYPE"] != "file")
 			{
-				echo $this->GetFilterHTML($arUserField, "find_".$FIELD_NAME, $GLOBALS["find_".$FIELD_NAME]);
+				echo $this->GetFilterHTML($arUserField, "find_" . $FIELD_NAME, $GLOBALS["find_" . $FIELD_NAME]);
 			}
 		}
 	}
@@ -1821,21 +1818,21 @@ class CUserTypeManager
 			if($this->GetRights($arUserField["ENTITY_ID"]) >= "W")
 			{
 				$selfFolderUrl = $adminPage->getSelfFolderUrl();
-				$userFieldUrl = $selfFolderUrl."userfield_edit.php?lang=".LANGUAGE_ID."&ID=".$arUserField["ID"];
+				$userFieldUrl = $selfFolderUrl . "userfield_edit.php?lang=" . LANGUAGE_ID . "&ID=" . $arUserField["ID"];
 				$userFieldUrl = $adminSidePanelHelper->editUrlToPublicPage($userFieldUrl);
-				$edit_link = ($arUserField["HELP_MESSAGE"] ? htmlspecialcharsex($arUserField["HELP_MESSAGE"]).'<br>' : '').'<a href="'.htmlspecialcharsbx($userFieldUrl.'&back_url='.urlencode($APPLICATION->GetCurPageParam("", array("bxpublic")).'&tabControl_active_tab=user_fields_tab')).'">'.htmlspecialcharsex(GetMessage("MAIN_EDIT")).'</a>';
+				$edit_link = ($arUserField["HELP_MESSAGE"] ? htmlspecialcharsex($arUserField["HELP_MESSAGE"]) . '<br>' : '') . '<a href="' . htmlspecialcharsbx($userFieldUrl . '&back_url=' . urlencode($APPLICATION->GetCurPageParam("", array("bxpublic")) . '&tabControl_active_tab=user_fields_tab')) . '">' . htmlspecialcharsex(GetMessage("MAIN_EDIT")) . '</a>';
 			}
 			else
 			{
 				$edit_link = '';
 			}
 
-			$hintHTML = '<span id="hint_'.$arUserField["FIELD_NAME"].'"></span><script>BX.hint_replace(BX(\'hint_'.$arUserField["FIELD_NAME"].'\'), \''.CUtil::JSEscape($edit_link).'\');</script>&nbsp;';
+			$hintHTML = '<span id="hint_' . $arUserField["FIELD_NAME"] . '"></span><script>BX.hint_replace(BX(\'hint_' . $arUserField["FIELD_NAME"] . '\'), \'' . CUtil::JSEscape($edit_link) . '\');</script>&nbsp;';
 
-			if ($arUserField["MANDATORY"]=="Y")
-				$strLabelHTML = $hintHTML.'<span class="adm-required-field">'.htmlspecialcharsbx($arUserField["EDIT_FORM_LABEL"]? $arUserField["EDIT_FORM_LABEL"]: $arUserField["FIELD_NAME"]).'</span>'.':';
+			if($arUserField["MANDATORY"] == "Y")
+				$strLabelHTML = $hintHTML . '<span class="adm-required-field">' . htmlspecialcharsbx($arUserField["EDIT_FORM_LABEL"] ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"]) . '</span>' . ':';
 			else
-				$strLabelHTML = $hintHTML.htmlspecialcharsbx($arUserField["EDIT_FORM_LABEL"]? $arUserField["EDIT_FORM_LABEL"]: $arUserField["FIELD_NAME"]).':';
+				$strLabelHTML = $hintHTML . htmlspecialcharsbx($arUserField["EDIT_FORM_LABEL"] ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"]) . ':';
 
 			if(is_callable(array($arUserField["USER_TYPE"]["CLASS_NAME"], "geteditformhtml")))
 			{
@@ -1843,12 +1840,16 @@ class CUserTypeManager
 
 				if(!$bVarsFromForm)
 					$form_value = $arUserField["VALUE"];
-				elseif($arUserField["USER_TYPE"]["BASE_TYPE"]=="file")
-					$form_value = $GLOBALS[$arUserField["FIELD_NAME"]."_old_id"];
-				elseif($arUserField["EDIT_IN_LIST"]=="N")
+				elseif($arUserField["USER_TYPE"]["BASE_TYPE"] == "file")
+					$form_value = $GLOBALS[$arUserField["FIELD_NAME"] . "_old_id"];
+				elseif($arUserField["EDIT_IN_LIST"] == "N")
 					$form_value = $arUserField["VALUE"];
 
-				if($arUserField["MULTIPLE"] == "N")
+				if(
+					$arUserField["MULTIPLE"] === "N"
+					||
+					!empty($arUserField['USER_TYPE']['USE_FIELD_COMPONENT'])
+				)
 				{
 					$valign = "";
 					$rowClass = "";
@@ -1858,13 +1859,13 @@ class CUserTypeManager
 							$arUserField,
 							array(
 								"NAME" => $arUserField["FIELD_NAME"],
-								"VALUE" => (is_array($form_value)? $form_value : htmlspecialcharsbx($form_value)),
+								"VALUE" => (is_array($form_value) ? $form_value : htmlspecialcharsbx($form_value)),
 								"VALIGN" => &$valign,
 								"ROWCLASS" => &$rowClass
 							),
 						)
 					);
-					return '<tr'.($rowClass != '' ? ' class="'.$rowClass.'"' : '').'><td'.($valign <> 'middle'? ' class="adm-detail-valign-top"':'').' width="40%">'.$strLabelHTML.'</td><td width="60%">'.$html.'</td></tr>'.$js;
+					return '<tr' . ($rowClass != '' ? ' class="' . $rowClass . '"' : '') . '><td' . ($valign <> 'middle' ? ' class="adm-detail-valign-top"' : '') . ' width="40%">' . $strLabelHTML . '</td><td width="60%">' . $html . '</td></tr>' . $js;
 				}
 				elseif(is_callable(array($arUserField["USER_TYPE"]["CLASS_NAME"], "geteditformhtmlmulty")))
 				{
@@ -1886,13 +1887,13 @@ class CUserTypeManager
 						array(
 							$arUserField,
 							array(
-								"NAME" => $arUserField["FIELD_NAME"]."[]",
+								"NAME" => $arUserField["FIELD_NAME"] . "[]",
 								"VALUE" => $form_value,
 								"ROWCLASS" => &$rowClass
 							),
 						)
 					);
-					return '<tr'.($rowClass != '' ? ' class="'.$rowClass.'"' : '').'><td class="adm-detail-valign-top">'.$strLabelHTML.'</td><td>'.$html.'</td></tr>'.$js;
+					return '<tr' . ($rowClass != '' ? ' class="' . $rowClass . '"' : '') . '><td class="adm-detail-valign-top">' . $strLabelHTML . '</td><td>' . $html . '</td></tr>' . $js;
 				}
 				else
 				{
@@ -1910,16 +1911,16 @@ class CUserTypeManager
 							|| ((!is_array($value)) && (strlen($value) > 0))
 						)
 						{
-							$html .= '<tr><td>'.call_user_func_array(
-								array($arUserField["USER_TYPE"]["CLASS_NAME"], "geteditformhtml"),
-								array(
-									$arUserField,
+							$html .= '<tr><td>' . call_user_func_array(
+									array($arUserField["USER_TYPE"]["CLASS_NAME"], "geteditformhtml"),
 									array(
-										"NAME" => $arUserField["FIELD_NAME"]."[".$i."]",
-										"VALUE" => (is_array($value)? $value : htmlspecialcharsbx($value)),
-									),
-								)
-							).'</td></tr>';
+										$arUserField,
+										array(
+											"NAME" => $arUserField["FIELD_NAME"] . "[" . $i . "]",
+											"VALUE" => (is_array($value) ? $value : htmlspecialcharsbx($value)),
+										),
+									)
+								) . '</td></tr>';
 						}
 					}
 					//Add multiple values support
@@ -1930,20 +1931,20 @@ class CUserTypeManager
 						array(
 							$arUserField,
 							array(
-								"NAME" => $arUserField["FIELD_NAME"]."[".($i+1)."]",
+								"NAME" => $arUserField["FIELD_NAME"] . "[" . ($i + 1) . "]",
 								"VALUE" => "",
 								"ROWCLASS" => &$rowClass
 							),
 						)
 					);
-					return '<tr'.($rowClass != '' ? ' class="'.$rowClass.'"' : '').'><td class="adm-detail-valign-top">'.$strLabelHTML.'</td><td>'.
-						'<table id="table_'.$arUserField["FIELD_NAME"].'">'.$html.'<tr><td>'.$fieldHtml.'</td></tr>'.
-					'<tr><td style="padding-top: 6px;"><input type="button" value="'.GetMessage("USER_TYPE_PROP_ADD").'" onClick="addNewRow(\'table_'.$arUserField["FIELD_NAME"].'\', \''.$FIELD_NAME_X.'|'.$arUserField["FIELD_NAME"].'|'.$arUserField["FIELD_NAME"].'_old_id\')"></td></tr>'.
-					"<script type=\"text/javascript\">BX.addCustomEvent('onAutoSaveRestore', function(ob, data) {for (var i in data){if (i.substring(0,".(strlen($arUserField['FIELD_NAME'])+1).")=='".CUtil::JSEscape($arUserField['FIELD_NAME'])."['){".
-					'addNewRow(\'table_'.$arUserField["FIELD_NAME"].'\', \''.$FIELD_NAME_X.'|'.$arUserField["FIELD_NAME"].'|'.$arUserField["FIELD_NAME"].'_old_id\')'.
-					"}}})</script>".
-					'</table>'.
-					'</td></tr>'.$js;
+					return '<tr' . ($rowClass != '' ? ' class="' . $rowClass . '"' : '') . '><td class="adm-detail-valign-top">' . $strLabelHTML . '</td><td>' .
+						'<table id="table_' . $arUserField["FIELD_NAME"] . '">' . $html . '<tr><td>' . $fieldHtml . '</td></tr>' .
+						'<tr><td style="padding-top: 6px;"><input type="button" value="' . GetMessage("USER_TYPE_PROP_ADD") . '" onClick="addNewRow(\'table_' . $arUserField["FIELD_NAME"] . '\', \'' . $FIELD_NAME_X . '|' . $arUserField["FIELD_NAME"] . '|' . $arUserField["FIELD_NAME"] . '_old_id\')"></td></tr>' .
+						"<script type=\"text/javascript\">BX.addCustomEvent('onAutoSaveRestore', function(ob, data) {for (var i in data){if (i.substring(0," . (strlen($arUserField['FIELD_NAME']) + 1) . ")=='" . CUtil::JSEscape($arUserField['FIELD_NAME']) . "['){" .
+						'addNewRow(\'table_' . $arUserField["FIELD_NAME"] . '\', \'' . $FIELD_NAME_X . '|' . $arUserField["FIELD_NAME"] . '|' . $arUserField["FIELD_NAME"] . '_old_id\')' .
+						"}}})</script>" .
+						'</table>' .
+						'</td></tr>' . $js;
 				}
 			}
 		}
@@ -1957,16 +1958,16 @@ class CUserTypeManager
 			if(is_callable(array($arUserField["USER_TYPE"]["CLASS_NAME"], "getfilterhtml")))
 			{
 				$html = call_user_func_array(
-					array($arUserField["USER_TYPE"]["CLASS_NAME"], "getfilterhtml"),
-					array(
-						$arUserField,
+						array($arUserField["USER_TYPE"]["CLASS_NAME"], "getfilterhtml"),
 						array(
-							"NAME" => $filter_name,
-							"VALUE" => htmlspecialcharsex($filter_value),
-						),
-					)
-				).CAdminCalendar::ShowScript();
-				return '<tr><td>'.htmlspecialcharsbx($arUserField["LIST_FILTER_LABEL"]? $arUserField["LIST_FILTER_LABEL"]: $arUserField["FIELD_NAME"]).':</td><td>'.$html.'</td></tr>';
+							$arUserField,
+							array(
+								"NAME" => $filter_name,
+								"VALUE" => htmlspecialcharsex($filter_value),
+							),
+						)
+					) . CAdminCalendar::ShowScript();
+				return '<tr><td>' . htmlspecialcharsbx($arUserField["LIST_FILTER_LABEL"] ? $arUserField["LIST_FILTER_LABEL"] : $arUserField["FIELD_NAME"]) . ':</td><td>' . $html . '</td></tr>';
 			}
 		}
 		return '';
@@ -1991,14 +1992,14 @@ class CUserTypeManager
 						array(
 							$arUserField,
 							array(
-								"NAME" => "FIELDS[".$row->id."][".$arUserField["FIELD_NAME"]."]",
+								"NAME" => "FIELDS[" . $row->id . "][" . $arUserField["FIELD_NAME"] . "]",
 								"VALUE" => htmlspecialcharsbx($value),
 							),
 						)
 					);
-					if ($html === '')
+					if($html === '')
 						$html = '&nbsp;';
-					$row->AddViewField($arUserField["FIELD_NAME"], $html.$js.CAdminCalendar::ShowScript());
+					$row->AddViewField($arUserField["FIELD_NAME"], $html . $js . CAdminCalendar::ShowScript());
 				}
 				elseif(is_callable(array($arUserField["USER_TYPE"]["CLASS_NAME"], "getadminlistviewhtmlmulty")))
 				{
@@ -2010,7 +2011,7 @@ class CUserTypeManager
 					if(!is_array($form_value))
 						$form_value = array();
 
-					foreach($form_value as $key=>$val)
+					foreach($form_value as $key => $val)
 						$form_value[$key] = htmlspecialcharsbx($val);
 
 					$html = call_user_func_array(
@@ -2018,14 +2019,14 @@ class CUserTypeManager
 						array(
 							$arUserField,
 							array(
-								"NAME" => "FIELDS[".$row->id."][".$arUserField["FIELD_NAME"]."]"."[]",
+								"NAME" => "FIELDS[" . $row->id . "][" . $arUserField["FIELD_NAME"] . "]" . "[]",
 								"VALUE" => $form_value,
 							),
 						)
 					);
 					if($html == '')
 						$html = '&nbsp;';
-					$row->AddViewField($arUserField["FIELD_NAME"], $html.$js.CAdminCalendar::ShowScript());
+					$row->AddViewField($arUserField["FIELD_NAME"], $html . $js . CAdminCalendar::ShowScript());
 				}
 				else
 				{
@@ -2034,21 +2035,21 @@ class CUserTypeManager
 					if(is_array($value))
 						$form_value = $value;
 					else
-						$form_value = strlen($value) > 0? unserialize($value): false;
+						$form_value = strlen($value) > 0 ? unserialize($value) : false;
 
 					if(!is_array($form_value))
 						$form_value = array();
 
-					foreach($form_value as $i=>$val)
+					foreach($form_value as $i => $val)
 					{
-						if($html!="")
+						if($html != "")
 							$html .= " / ";
 						$html .= call_user_func_array(
 							array($arUserField["USER_TYPE"]["CLASS_NAME"], "getadminlistviewhtml"),
 							array(
 								$arUserField,
 								array(
-									"NAME" => "FIELDS[".$row->id."][".$arUserField["FIELD_NAME"]."]"."[".$i."]",
+									"NAME" => "FIELDS[" . $row->id . "][" . $arUserField["FIELD_NAME"] . "]" . "[" . $i . "]",
 									"VALUE" => htmlspecialcharsbx($val),
 								),
 							)
@@ -2056,12 +2057,12 @@ class CUserTypeManager
 					}
 					if($html == '')
 						$html = '&nbsp;';
-					$row->AddViewField($arUserField["FIELD_NAME"], $html.$js.CAdminCalendar::ShowScript());
+					$row->AddViewField($arUserField["FIELD_NAME"], $html . $js . CAdminCalendar::ShowScript());
 				}
 			}
-			if($arUserField["EDIT_IN_LIST"]=="Y" && is_callable(array($arUserField["USER_TYPE"]["CLASS_NAME"], "getadminlistedithtml")))
+			if($arUserField["EDIT_IN_LIST"] == "Y" && is_callable(array($arUserField["USER_TYPE"]["CLASS_NAME"], "getadminlistedithtml")))
 			{
-				if (!$row->bEditMode)
+				if(!$row->bEditMode)
 				{
 					// put dummy
 					$row->AddEditField($arUserField["FIELD_NAME"], "&nbsp;");
@@ -2073,26 +2074,26 @@ class CUserTypeManager
 						array(
 							$arUserField,
 							array(
-								"NAME" => "FIELDS[".$row->id."][".$arUserField["FIELD_NAME"]."]",
+								"NAME" => "FIELDS[" . $row->id . "][" . $arUserField["FIELD_NAME"] . "]",
 								"VALUE" => htmlspecialcharsbx($value),
 							),
 						)
 					);
 					if($html == '')
 						$html = '&nbsp;';
-					$row->AddEditField($arUserField["FIELD_NAME"], $html.$js.CAdminCalendar::ShowScript());
+					$row->AddEditField($arUserField["FIELD_NAME"], $html . $js . CAdminCalendar::ShowScript());
 				}
 				elseif(is_callable(array($arUserField["USER_TYPE"]["CLASS_NAME"], "getadminlistedithtmlmulty")))
 				{
 					if(is_array($value))
 						$form_value = $value;
 					else
-						$form_value = strlen($value) > 0? unserialize($value): false;
+						$form_value = strlen($value) > 0 ? unserialize($value) : false;
 
 					if(!is_array($form_value))
 						$form_value = array();
 
-					foreach($form_value as $key=>$val)
+					foreach($form_value as $key => $val)
 						$form_value[$key] = htmlspecialcharsbx($val);
 
 					$html = call_user_func_array(
@@ -2100,18 +2101,18 @@ class CUserTypeManager
 						array(
 							$arUserField,
 							array(
-								"NAME" => "FIELDS[".$row->id."][".$arUserField["FIELD_NAME"]."][]",
+								"NAME" => "FIELDS[" . $row->id . "][" . $arUserField["FIELD_NAME"] . "][]",
 								"VALUE" => $form_value,
 							),
 						)
 					);
 					if($html == '')
 						$html = '&nbsp;';
-					$row->AddEditField($arUserField["FIELD_NAME"], $html.$js.CAdminCalendar::ShowScript());
+					$row->AddEditField($arUserField["FIELD_NAME"], $html . $js . CAdminCalendar::ShowScript());
 				}
 				else
 				{
-					$html = "<table id=\"table_".$arUserField["FIELD_NAME"]."_".$row->id."\">";
+					$html = "<table id=\"table_" . $arUserField["FIELD_NAME"] . "_" . $row->id . "\">";
 					if(is_array($value))
 						$form_value = $value;
 					else
@@ -2121,32 +2122,32 @@ class CUserTypeManager
 						$form_value = array();
 
 					$i = -1;
-					foreach($form_value as $i=>$val)
+					foreach($form_value as $i => $val)
 					{
-						$html .= '<tr><td>'.call_user_func_array(
+						$html .= '<tr><td>' . call_user_func_array(
+								array($arUserField["USER_TYPE"]["CLASS_NAME"], "getadminlistedithtml"),
+								array(
+									$arUserField,
+									array(
+										"NAME" => "FIELDS[" . $row->id . "][" . $arUserField["FIELD_NAME"] . "]" . "[" . $i . "]",
+										"VALUE" => htmlspecialcharsbx($val),
+									),
+								)
+							) . '</td></tr>';
+					}
+					$html .= '<tr><td>' . call_user_func_array(
 							array($arUserField["USER_TYPE"]["CLASS_NAME"], "getadminlistedithtml"),
 							array(
 								$arUserField,
 								array(
-									"NAME" => "FIELDS[".$row->id."][".$arUserField["FIELD_NAME"]."]"."[".$i."]",
-									"VALUE" => htmlspecialcharsbx($val),
+									"NAME" => "FIELDS[" . $row->id . "][" . $arUserField["FIELD_NAME"] . "]" . "[" . ($i + 1) . "]",
+									"VALUE" => "",
 								),
 							)
-						).'</td></tr>';
-					}
-					$html .= '<tr><td>'.call_user_func_array(
-						array($arUserField["USER_TYPE"]["CLASS_NAME"], "getadminlistedithtml"),
-						array(
-							$arUserField,
-							array(
-								"NAME" => "FIELDS[".$row->id."][".$arUserField["FIELD_NAME"]."]"."[".($i+1)."]",
-								"VALUE" => "",
-							),
-						)
-					).'</td></tr>';
-					$html .= '<tr><td><input type="button" value="'.GetMessage("USER_TYPE_PROP_ADD").'" onClick="addNewRow(\'table_'.$arUserField["FIELD_NAME"].'_'.$row->id.'\', \'FIELDS\\\\['.$row->id.'\\\\]\\\\['.$arUserField["FIELD_NAME"].'\\\\]\')"></td></tr>'.
-					'</table>';
-					$row->AddEditField($arUserField["FIELD_NAME"], $html.$js.CAdminCalendar::ShowScript());
+						) . '</td></tr>';
+					$html .= '<tr><td><input type="button" value="' . GetMessage("USER_TYPE_PROP_ADD") . '" onClick="addNewRow(\'table_' . $arUserField["FIELD_NAME"] . '_' . $row->id . '\', \'FIELDS\\\\[' . $row->id . '\\\\]\\\\[' . $arUserField["FIELD_NAME"] . '\\\\]\')"></td></tr>' .
+						'</table>';
+					$row->AddEditField($arUserField["FIELD_NAME"], $html . $js . CAdminCalendar::ShowScript());
 				}
 			}
 		}
@@ -2177,7 +2178,7 @@ class CUserTypeManager
 				if(!is_array($form_value))
 					$form_value = array();
 
-				foreach($form_value as $key=>$val)
+				foreach($form_value as $key => $val)
 					$form_value[$key] = htmlspecialcharsbx($val);
 
 				$html = call_user_func_array(
@@ -2195,14 +2196,14 @@ class CUserTypeManager
 				if(is_array($value))
 					$form_value = $value;
 				else
-					$form_value = strlen($value) > 0? unserialize($value): false;
+					$form_value = strlen($value) > 0 ? unserialize($value) : false;
 
 				if(!is_array($form_value))
 					$form_value = array();
 
 				foreach($form_value as $val)
 				{
-					if($html!="")
+					if($html != "")
 						$html .= " / ";
 
 					$html .= call_user_func_array(
@@ -2237,6 +2238,21 @@ class CUserTypeManager
 		return ob_get_clean();
 	}
 
+	/**
+	 * @param array $userField
+	 * @param array|null $additionalParameters
+	 * @return string|null
+	 */
+	public function renderField(array $userField, ?array $additionalParameters = array()): ?string
+	{
+		$userType = $this->getUserType($userField['USER_TYPE_ID']);
+		if(!empty($userType['CLASS_NAME']) && is_callable([$userType['CLASS_NAME'], 'renderField']))
+		{
+			return call_user_func([$userType['CLASS_NAME'], 'renderField'], $userField, $additionalParameters);
+		}
+		return null;
+	}
+
 	function GetPublicView($arUserField, $arAdditionalParameters = array())
 	{
 		$event = new \Bitrix\Main\Event("main", "onBeforeGetPublicView", array(&$arUserField, &$arAdditionalParameters));
@@ -2247,16 +2263,16 @@ class CUserTypeManager
 		$html = null;
 		$event = new \Bitrix\Main\Event("main", "onGetPublicView", array($arUserField, $arAdditionalParameters));
 		$event->send();
-		foreach ($event->getResults() as $evenResult)
+		foreach($event->getResults() as $evenResult)
 		{
-			if ($evenResult->getType() == \Bitrix\Main\EventResult::SUCCESS)
+			if($evenResult->getType() == \Bitrix\Main\EventResult::SUCCESS)
 			{
 				$html = $evenResult->getParameters();
 				break;
 			}
 		}
 
-		if ($html !== null)
+		if($html !== null)
 		{
 			//All done
 		}
@@ -2274,7 +2290,7 @@ class CUserTypeManager
 				$arAdditionalParameters
 			));
 		}
-		elseif ($arUserField["VIEW_COMPONENT_NAME"])
+		elseif($arUserField["VIEW_COMPONENT_NAME"])
 		{
 			$html = $this->CallUserTypeComponent(
 				$arUserField["VIEW_COMPONENT_NAME"],
@@ -2283,7 +2299,7 @@ class CUserTypeManager
 				$arAdditionalParameters
 			);
 		}
-		elseif ($arType && $arType["VIEW_COMPONENT_NAME"])
+		elseif($arType && $arType["VIEW_COMPONENT_NAME"])
 		{
 			$html = $this->CallUserTypeComponent(
 				$arType["VIEW_COMPONENT_NAME"],
@@ -2311,13 +2327,13 @@ class CUserTypeManager
 	public function getPublicText($userField)
 	{
 		$userType = $this->getUserType($userField['USER_TYPE_ID']);
-		if (!empty($userType['CLASS_NAME']) && is_callable(array($userType['CLASS_NAME'], 'getPublicText')))
+		if(!empty($userType['CLASS_NAME']) && is_callable(array($userType['CLASS_NAME'], 'getPublicText')))
 			return call_user_func_array(array($userType['CLASS_NAME'], 'getPublicText'), array($userField));
 
-		return join(', ', array_map(function ($v)
+		return join(', ', array_map(function($v)
 		{
-			return is_null($v) || is_scalar($v) ? (string) $v : '';
-		}, (array) $userField['VALUE']));
+			return is_null($v) || is_scalar($v) ? (string)$v : '';
+		}, (array)$userField['VALUE']));
 	}
 
 	function GetPublicEdit($arUserField, $arAdditionalParameters = array())
@@ -2330,34 +2346,34 @@ class CUserTypeManager
 		$html = null;
 		$event = new \Bitrix\Main\Event("main", "onGetPublicEdit", array($arUserField, $arAdditionalParameters));
 		$event->send();
-		foreach ($event->getResults() as $evenResult)
+		foreach($event->getResults() as $evenResult)
 		{
-			if ($evenResult->getType() == \Bitrix\Main\EventResult::SUCCESS)
+			if($evenResult->getType() == \Bitrix\Main\EventResult::SUCCESS)
 			{
 				$html = $evenResult->getParameters();
 				break;
 			}
 		}
 
-		if ($html !== null)
+		if($html !== null)
 		{
 			//All done
 		}
-		elseif ($arUserField["EDIT_CALLBACK"] && is_callable($arUserField['EDIT_CALLBACK']))
+		elseif($arUserField["EDIT_CALLBACK"] && is_callable($arUserField['EDIT_CALLBACK']))
 		{
 			$html = call_user_func_array($arUserField["EDIT_CALLBACK"], array(
 				$arUserField,
 				$arAdditionalParameters
 			));
 		}
-		elseif ($arType && $arType["EDIT_CALLBACK"] && is_callable($arType['EDIT_CALLBACK']))
+		elseif($arType && $arType["EDIT_CALLBACK"] && is_callable($arType['EDIT_CALLBACK']))
 		{
 			$html = call_user_func_array($arType["EDIT_CALLBACK"], array(
 				$arUserField,
 				$arAdditionalParameters
 			));
 		}
-		elseif ($arUserField["EDIT_COMPONENT_NAME"])
+		elseif($arUserField["EDIT_COMPONENT_NAME"])
 		{
 			$html = $this->CallUserTypeComponent(
 				$arUserField["EDIT_COMPONENT_NAME"],
@@ -2366,7 +2382,7 @@ class CUserTypeManager
 				$arAdditionalParameters
 			);
 		}
-		elseif ($arType && $arType["EDIT_COMPONENT_NAME"])
+		elseif($arType && $arType["EDIT_COMPONENT_NAME"])
 		{
 			$html = $this->CallUserTypeComponent(
 				$arType["EDIT_COMPONENT_NAME"],
@@ -2415,8 +2431,8 @@ class CUserTypeManager
 	 * @param       $entity_id
 	 * @param       $ID
 	 * @param       $arFields
-	 * @param bool  $user_id False means current user id.
-	 * @param bool  $checkRequired Whether to check required fields.
+	 * @param bool $user_id False means current user id.
+	 * @param bool $checkRequired Whether to check required fields.
 	 * @param array $requiredFields Conditionally required fields.
 	 * @return bool
 	 */
@@ -2428,7 +2444,7 @@ class CUserTypeManager
 		//1 Get user typed fields list for entity
 		$arUserFields = $this->GetUserFields($entity_id, $ID, LANGUAGE_ID);
 		//2 For each field
-		foreach($arUserFields as $FIELD_NAME=>$arUserField)
+		foreach($arUserFields as $FIELD_NAME => $arUserField)
 		{
 			$enableRequiredFieldCheck = $arUserField["MANDATORY"] === "Y"
 				? $checkRequired : ($requiredFieldMap && isset($requiredFieldMap[$FIELD_NAME]));
@@ -2445,12 +2461,12 @@ class CUserTypeManager
 						$arDBFiles = array_flip($arUserField["VALUE"]);
 					elseif($arUserField["VALUE"] > 0)
 						$arDBFiles = array($arUserField["VALUE"] => 0);
-					elseif (is_numeric($arFields[$FIELD_NAME]))
+					elseif(is_numeric($arFields[$FIELD_NAME]))
 						$arDBFiles = array($arFields[$FIELD_NAME] => 0);
 					else
 						$arDBFiles = array();
 
-					if($arUserField["MULTIPLE"]=="N")
+					if($arUserField["MULTIPLE"] == "N")
 					{
 						$value = $arFields[$FIELD_NAME];
 						if(is_array($value) && array_key_exists("tmp_name", $value))
@@ -2488,21 +2504,21 @@ class CUserTypeManager
 
 					if(!$bWasInput && empty($arDBFiles))
 					{
-						$aMsg[] = array("id"=>$FIELD_NAME, "text"=>str_replace("#FIELD_NAME#", $EDIT_FORM_LABEL, GetMessage("USER_TYPE_FIELD_VALUE_IS_MISSING")));
+						$aMsg[] = array("id" => $FIELD_NAME, "text" => str_replace("#FIELD_NAME#", $EDIT_FORM_LABEL, GetMessage("USER_TYPE_FIELD_VALUE_IS_MISSING")));
 					}
 				}
-				elseif($arUserField["MULTIPLE"]=="N")
+				elseif($arUserField["MULTIPLE"] == "N")
 				{
-					if(strlen($arFields[$FIELD_NAME])<=0)
+					if(strlen($arFields[$FIELD_NAME]) <= 0)
 					{
-						$aMsg[] = array("id"=>$FIELD_NAME, "text"=>str_replace("#FIELD_NAME#", $EDIT_FORM_LABEL, GetMessage("USER_TYPE_FIELD_VALUE_IS_MISSING")));
+						$aMsg[] = array("id" => $FIELD_NAME, "text" => str_replace("#FIELD_NAME#", $EDIT_FORM_LABEL, GetMessage("USER_TYPE_FIELD_VALUE_IS_MISSING")));
 					}
 				}
 				else
 				{
 					if(!is_array($arFields[$FIELD_NAME]))
 					{
-						$aMsg[] = array("id"=>$FIELD_NAME, "text"=>str_replace("#FIELD_NAME#", $EDIT_FORM_LABEL, GetMessage("USER_TYPE_FIELD_VALUE_IS_MISSING")));
+						$aMsg[] = array("id" => $FIELD_NAME, "text" => str_replace("#FIELD_NAME#", $EDIT_FORM_LABEL, GetMessage("USER_TYPE_FIELD_VALUE_IS_MISSING")));
 					}
 					else
 					{
@@ -2520,7 +2536,7 @@ class CUserTypeManager
 						}
 						if(!$bFound)
 						{
-							$aMsg[] = array("id"=>$FIELD_NAME, "text"=>str_replace("#FIELD_NAME#", $EDIT_FORM_LABEL, GetMessage("USER_TYPE_FIELD_VALUE_IS_MISSING")));
+							$aMsg[] = array("id" => $FIELD_NAME, "text" => str_replace("#FIELD_NAME#", $EDIT_FORM_LABEL, GetMessage("USER_TYPE_FIELD_VALUE_IS_MISSING")));
 						}
 					}
 				}
@@ -2529,9 +2545,9 @@ class CUserTypeManager
 			if($arUserField["USER_TYPE"])
 			{
 				$CLASS_NAME = $arUserField["USER_TYPE"]["CLASS_NAME"];
-				if(array_key_exists($FIELD_NAME, $arFields) && is_callable(array($CLASS_NAME, "checkfields")))
+				if(array_key_exists($FIELD_NAME, $arFields)	&& is_callable(array($CLASS_NAME, "checkfields")))
 				{
-					if($arUserField["MULTIPLE"]=="N")
+					if($arUserField["MULTIPLE"] == "N")
 					{
 						//apply appropriate check function
 						$ar = call_user_func_array(
@@ -2587,7 +2603,7 @@ class CUserTypeManager
 		$arUserFields = $this->getUserFieldsWithReadyData($entity_id, $oldData, LANGUAGE_ID);
 
 		//2 For each field
-		foreach($arUserFields as $FIELD_NAME=>$arUserField)
+		foreach($arUserFields as $FIELD_NAME => $arUserField)
 		{
 			//identify user type
 			if($arUserField["USER_TYPE"])
@@ -2598,7 +2614,7 @@ class CUserTypeManager
 				if(array_key_exists($FIELD_NAME, $arFields) && is_callable(array($CLASS_NAME, "checkfields")))
 				{
 					// check required values
-					if ($arUserField["MANDATORY"]=="Y")
+					if($arUserField["MANDATORY"] == "Y")
 					{
 						if($arUserField["USER_TYPE"]["BASE_TYPE"] == "file")
 						{
@@ -2607,12 +2623,12 @@ class CUserTypeManager
 								$arDBFiles = array_flip($arUserField["VALUE"]);
 							elseif($arUserField["VALUE"] > 0)
 								$arDBFiles = array($arUserField["VALUE"] => 0);
-							elseif (is_numeric($arFields[$FIELD_NAME]))
+							elseif(is_numeric($arFields[$FIELD_NAME]))
 								$arDBFiles = array($arFields[$FIELD_NAME] => 0);
 							else
 								$arDBFiles = array();
 
-							if($arUserField["MULTIPLE"]=="N")
+							if($arUserField["MULTIPLE"] == "N")
 							{
 								$value = $arFields[$FIELD_NAME];
 								if(is_array($value) && array_key_exists("tmp_name", $value))
@@ -2642,21 +2658,21 @@ class CUserTypeManager
 
 							if(!$bWasInput && empty($arDBFiles))
 							{
-								$aMsg[] = array("id"=>$FIELD_NAME, "text"=>str_replace("#FIELD_NAME#", $EDIT_FORM_LABEL, GetMessage("USER_TYPE_FIELD_VALUE_IS_MISSING")));
+								$aMsg[] = array("id" => $FIELD_NAME, "text" => str_replace("#FIELD_NAME#", $EDIT_FORM_LABEL, GetMessage("USER_TYPE_FIELD_VALUE_IS_MISSING")));
 							}
 						}
-						elseif($arUserField["MULTIPLE"]=="N")
+						elseif($arUserField["MULTIPLE"] == "N")
 						{
-							if(strlen($arFields[$FIELD_NAME])<=0)
+							if(strlen($arFields[$FIELD_NAME]) <= 0)
 							{
-								$aMsg[] = array("id"=>$FIELD_NAME, "text"=>str_replace("#FIELD_NAME#", $EDIT_FORM_LABEL, GetMessage("USER_TYPE_FIELD_VALUE_IS_MISSING")));
+								$aMsg[] = array("id" => $FIELD_NAME, "text" => str_replace("#FIELD_NAME#", $EDIT_FORM_LABEL, GetMessage("USER_TYPE_FIELD_VALUE_IS_MISSING")));
 							}
 						}
 						else
 						{
 							if(!is_array($arFields[$FIELD_NAME]))
 							{
-								$aMsg[] = array("id"=>$FIELD_NAME, "text"=>str_replace("#FIELD_NAME#", $EDIT_FORM_LABEL, GetMessage("USER_TYPE_FIELD_VALUE_IS_MISSING")));
+								$aMsg[] = array("id" => $FIELD_NAME, "text" => str_replace("#FIELD_NAME#", $EDIT_FORM_LABEL, GetMessage("USER_TYPE_FIELD_VALUE_IS_MISSING")));
 							}
 							else
 							{
@@ -2674,14 +2690,14 @@ class CUserTypeManager
 								}
 								if(!$bFound)
 								{
-									$aMsg[] = array("id"=>$FIELD_NAME, "text"=>str_replace("#FIELD_NAME#", $EDIT_FORM_LABEL, GetMessage("USER_TYPE_FIELD_VALUE_IS_MISSING")));
+									$aMsg[] = array("id" => $FIELD_NAME, "text" => str_replace("#FIELD_NAME#", $EDIT_FORM_LABEL, GetMessage("USER_TYPE_FIELD_VALUE_IS_MISSING")));
 								}
 							}
 						}
 					}
 
 					// check regular values
-					if($arUserField["MULTIPLE"]=="N")
+					if($arUserField["MULTIPLE"] == "N")
 					{
 						//apply appropriate check function
 						$ar = call_user_func_array(
@@ -2726,7 +2742,7 @@ class CUserTypeManager
 
 		$entity_id = preg_replace("/[^0-9A-Z_]+/", "", $entity_id);
 
-		$result = $this->updateUserFieldValuesByEvent($entity_id, (int) $ID, $arFields);
+		$result = $this->updateUserFieldValuesByEvent($entity_id, (int)$ID, $arFields);
 		if($result !== null)
 		{
 			return $result;
@@ -2740,7 +2756,7 @@ class CUserTypeManager
 		$arInsertType = array();
 		$arDelete = array();
 		$arUserFields = $this->GetUserFields($entity_id, $ID, false, $user_id);
-		foreach($arUserFields as $FIELD_NAME=>$arUserField)
+		foreach($arUserFields as $FIELD_NAME => $arUserField)
 		{
 			if(array_key_exists($FIELD_NAME, $arFields))
 			{
@@ -2750,7 +2766,7 @@ class CUserTypeManager
 					if(is_callable(array($arUserField["USER_TYPE"]["CLASS_NAME"], "onbeforesave")))
 						$arFields[$FIELD_NAME] = call_user_func_array(array($arUserField["USER_TYPE"]["CLASS_NAME"], "onbeforesave"), array($arUserField, $arFields[$FIELD_NAME], $user_id));
 
-					if(strlen($arFields[$FIELD_NAME])>0)
+					if(strlen($arFields[$FIELD_NAME]) > 0)
 						$arUpdate[$FIELD_NAME] = $arFields[$FIELD_NAME];
 					else
 						$arUpdate[$FIELD_NAME] = false;
@@ -2759,6 +2775,7 @@ class CUserTypeManager
 				{
 					$arInsert[$arUserField["ID"]] = array();
 					$arInsertType[$arUserField["ID"]] = $arUserField["USER_TYPE"];
+					$arInsertType[$arUserField['ID']]['FIELD_NAME'] = $arUserField['FIELD_NAME'];
 
 					if(is_callable(array($arUserField["USER_TYPE"]["CLASS_NAME"], "onbeforesaveall")))
 					{
@@ -2771,7 +2788,7 @@ class CUserTypeManager
 							if(is_callable(array($arUserField["USER_TYPE"]["CLASS_NAME"], "onbeforesave")))
 								$value = call_user_func_array(array($arUserField["USER_TYPE"]["CLASS_NAME"], "onbeforesave"), array($arUserField, $value, $user_id));
 
-							if(strlen($value)>0)
+							if(strlen($value) > 0)
 							{
 								switch($arInsertType[$arUserField["ID"]]["BASE_TYPE"])
 								{
@@ -2793,11 +2810,11 @@ class CUserTypeManager
 						}
 					}
 
-					if ($arUserField['USER_TYPE_ID'] == 'datetime')
+					if($arUserField['USER_TYPE_ID'] == 'datetime')
 					{
 						$serialized = \Bitrix\Main\UserFieldTable::serializeMultipleDatetime($arInsert[$arUserField["ID"]]);
 					}
-					elseif ($arUserField['USER_TYPE_ID'] == 'date')
+					elseif($arUserField['USER_TYPE_ID'] == 'date')
 					{
 						$serialized = \Bitrix\Main\UserFieldTable::serializeMultipleDate($arInsert[$arUserField["ID"]]);
 					}
@@ -2816,14 +2833,14 @@ class CUserTypeManager
 		$lower_entity_id = strtolower($entity_id);
 
 		if(!empty($arUpdate))
-			$strUpdate = $DB->PrepareUpdate("b_uts_".$lower_entity_id, $arUpdate);
+			$strUpdate = $DB->PrepareUpdate("b_uts_" . $lower_entity_id, $arUpdate);
 		else
 			return $result;
 
 		if(strlen($strUpdate) > 0)
 		{
 			$result = true;
-			$rs = $DB->QueryBind("UPDATE b_uts_".$lower_entity_id." SET ".$strUpdate." WHERE VALUE_ID = ".intval($ID), $arBinds);
+			$rs = $DB->QueryBind("UPDATE b_uts_" . $lower_entity_id . " SET " . $strUpdate . " WHERE VALUE_ID = " . intval($ID), $arBinds);
 			$rows = $rs->AffectedRowsCount();
 		}
 		else
@@ -2831,9 +2848,9 @@ class CUserTypeManager
 			$rows = 0;
 		}
 
-		if(intval($rows)<=0)
+		if(intval($rows) <= 0)
 		{
-			$rs = $DB->Query("SELECT 'x' FROM b_uts_".$lower_entity_id." WHERE VALUE_ID = ".intval($ID), false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+			$rs = $DB->Query("SELECT 'x' FROM b_uts_" . $lower_entity_id . " WHERE VALUE_ID = " . intval($ID), false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
 			if($rs->Fetch())
 				$rows = 1;
 		}
@@ -2841,17 +2858,17 @@ class CUserTypeManager
 		if($rows <= 0)
 		{
 			$arUpdate["ID"] = $arUpdate["VALUE_ID"] = $ID;
-			$DB->Add("b_uts_".$lower_entity_id, $arUpdate, array_keys($arBinds));
+			$DB->Add("b_uts_" . $lower_entity_id, $arUpdate, array_keys($arBinds));
 		}
 		else
 		{
-			foreach($arDelete as $key=>$value)
+			foreach($arDelete as $key => $value)
 			{
-				$DB->Query("DELETE from b_utm_".$lower_entity_id." WHERE FIELD_ID = ".intval($key)." AND VALUE_ID = ".intval($ID), false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+				$DB->Query("DELETE from b_utm_" . $lower_entity_id . " WHERE FIELD_ID = " . intval($key) . " AND VALUE_ID = " . intval($ID), false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
 			}
 		}
 
-		foreach($arInsert as $FieldId=>$arField)
+		foreach($arInsert as $FieldId => $arField)
 		{
 			switch($arInsertType[$FieldId]["BASE_TYPE"])
 			{
@@ -2871,7 +2888,7 @@ class CUserTypeManager
 			}
 			foreach($arField as $value)
 			{
-				if ($value instanceof \Bitrix\Main\Type\Date)
+				if($value instanceof \Bitrix\Main\Type\Date)
 				{
 					// little hack to avoid timezone vs 00:00:00 ambiguity. for utm only
 					$value = new \Bitrix\Main\Type\DateTime($value->format('Y-m-d H:i:s'), 'Y-m-d H:i:s');
@@ -2885,13 +2902,14 @@ class CUserTypeManager
 					case "double":
 						break;
 					case "datetime":
-						$value = $DB->CharToDateFunction($value);
+						$userFieldName = $arInsertType[$FieldId]['FIELD_NAME'];
+						$value = DateTimeType::charToDate($arUserFields[$userFieldName], $value);
 						break;
 					default:
-						$value = "'".$DB->ForSql($value)."'";
+						$value = "'" . $DB->ForSql($value) . "'";
 				}
-				$DB->Query("INSERT INTO b_utm_".$lower_entity_id." (VALUE_ID, FIELD_ID, ".$COLUMN.")
-					VALUES (".intval($ID).", '".$FieldId."', ".$value.")", false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+				$DB->Query("INSERT INTO b_utm_" . $lower_entity_id . " (VALUE_ID, FIELD_ID, " . $COLUMN . ")
+					VALUES (" . intval($ID) . ", '" . $FieldId . "', " . $value . ")", false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
 			}
 		}
 
@@ -2903,11 +2921,11 @@ class CUserTypeManager
 		$userFields = $this->getUserFields($entity_id, $id);
 
 		$fields = [];
-		foreach ($userFields as $fieldName => $userField)
+		foreach($userFields as $fieldName => $userField)
 		{
-			if (!in_array($fieldName, $ignoreList))
+			if(!in_array($fieldName, $ignoreList))
 			{
-				if (is_callable([$userField["USER_TYPE"]["CLASS_NAME"], "onBeforeCopy"]))
+				if(is_callable([$userField["USER_TYPE"]["CLASS_NAME"], "onBeforeCopy"]))
 				{
 					$fields[$fieldName] = call_user_func_array(
 						[$userField["USER_TYPE"]["CLASS_NAME"], "onBeforeCopy"],
@@ -2923,11 +2941,11 @@ class CUserTypeManager
 
 		$this->update($entity_id, $copiedId, $fields, $userId);
 
-		foreach ($userFields as $fieldName => $userField)
+		foreach($userFields as $fieldName => $userField)
 		{
-			if (!in_array($fieldName, $ignoreList))
+			if(!in_array($fieldName, $ignoreList))
 			{
-				if (is_callable([$userField["USER_TYPE"]["CLASS_NAME"], "onAfterCopy"]))
+				if(is_callable([$userField["USER_TYPE"]["CLASS_NAME"], "onAfterCopy"]))
 				{
 					$fields[$fieldName] = call_user_func_array(
 						[$userField["USER_TYPE"]["CLASS_NAME"], "onAfterCopy"],
@@ -2959,7 +2977,7 @@ class CUserTypeManager
 						if(is_callable(array($arUserField["USER_TYPE"]["CLASS_NAME"], "ondelete")))
 							call_user_func_array(array($arUserField["USER_TYPE"]["CLASS_NAME"], "ondelete"), array($arUserField, $value));
 
-						if($arUserField["USER_TYPE"]["BASE_TYPE"]=="file")
+						if($arUserField["USER_TYPE"]["BASE_TYPE"] == "file")
 							CFile::Delete($value);
 					}
 				}
@@ -2968,12 +2986,12 @@ class CUserTypeManager
 					if(is_callable(array($arUserField["USER_TYPE"]["CLASS_NAME"], "ondelete")))
 						call_user_func_array(array($arUserField["USER_TYPE"]["CLASS_NAME"], "ondelete"), array($arUserField, $arUserField["VALUE"]));
 
-					if($arUserField["USER_TYPE"]["BASE_TYPE"]=="file")
+					if($arUserField["USER_TYPE"]["BASE_TYPE"] == "file")
 						CFile::Delete($arUserField["VALUE"]);
 				}
 			}
-			$DB->Query("DELETE FROM b_utm_".strtolower($entity_id)." WHERE VALUE_ID = ".intval($ID), false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
-			$DB->Query("DELETE FROM b_uts_".strtolower($entity_id)." WHERE VALUE_ID = ".intval($ID), false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+			$DB->Query("DELETE FROM b_utm_" . strtolower($entity_id) . " WHERE VALUE_ID = " . intval($ID), false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
+			$DB->Query("DELETE FROM b_uts_" . strtolower($entity_id) . " WHERE VALUE_ID = " . intval($ID), false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
 		}
 	}
 
@@ -2984,26 +3002,26 @@ class CUserTypeManager
 		{
 			foreach($arUserFields as $arUserField)
 			{
-				if($arUserField["IS_SEARCHABLE"]=="Y")
+				if($arUserField["IS_SEARCHABLE"] == "Y")
 				{
 					if($arUserField["USER_TYPE"])
 						if(is_callable(array($arUserField["USER_TYPE"]["CLASS_NAME"], "onsearchindex")))
-							$result .= "\r\n".call_user_func_array(array($arUserField["USER_TYPE"]["CLASS_NAME"], "onsearchindex"), array($arUserField));
+							$result .= "\r\n" . call_user_func_array(array($arUserField["USER_TYPE"]["CLASS_NAME"], "onsearchindex"), array($arUserField));
 				}
 			}
 		}
 		return $result;
 	}
 
-	function GetRights($ENTITY_ID=false, $ID=false)
+	function GetRights($ENTITY_ID = false, $ID = false)
 	{
-		if(($ID !== false) && array_key_exists("ID:".$ID, $this->arRightsCache))
+		if(($ID !== false) && array_key_exists("ID:" . $ID, $this->arRightsCache))
 		{
-			return $this->arRightsCache["ID:".$ID];
+			return $this->arRightsCache["ID:" . $ID];
 		}
-		if(($ENTITY_ID !== false) && array_key_exists("ENTITY_ID:".$ENTITY_ID, $this->arRightsCache))
+		if(($ENTITY_ID !== false) && array_key_exists("ENTITY_ID:" . $ENTITY_ID, $this->arRightsCache))
 		{
-			return $this->arRightsCache["ENTITY_ID:".$ENTITY_ID];
+			return $this->arRightsCache["ENTITY_ID:" . $ENTITY_ID];
 		}
 
 		global $USER;
@@ -3031,43 +3049,42 @@ class CUserTypeManager
 
 		if($ID !== false)
 		{
-			$this->arRightsCache["ID:".$ID] = $RIGHTS;
+			$this->arRightsCache["ID:" . $ID] = $RIGHTS;
 		}
 		if($ENTITY_ID !== false)
 		{
-			$this->arRightsCache["ENTITY_ID:".$ENTITY_ID] = $RIGHTS;
+			$this->arRightsCache["ENTITY_ID:" . $ENTITY_ID] = $RIGHTS;
 		}
 
 		return $RIGHTS;
 	}
 
-
 	/**
 	 * @param             $arUserField
 	 * @param null|string $fieldName
-	 * @param array       $fieldParameters
+	 * @param array $fieldParameters
 	 *
 	 * @return Entity\DatetimeField|Entity\FloatField|Entity\IntegerField|Entity\StringField|mixed
 	 * @throws Bitrix\Main\ArgumentException
 	 */
 	public function getEntityField($arUserField, $fieldName = null, $fieldParameters = array())
 	{
-		if (empty($fieldName))
+		if(empty($fieldName))
 		{
 			$fieldName = $arUserField['FIELD_NAME'];
 		}
 
-		if (is_callable(array($arUserField['USER_TYPE']['CLASS_NAME'], 'getEntityField')))
+		if(is_callable(array($arUserField['USER_TYPE']['CLASS_NAME'], 'getEntityField')))
 		{
 			return call_user_func(array($arUserField['USER_TYPE']['CLASS_NAME'], 'getEntityField'), $fieldName, $fieldParameters);
 		}
 
-		if ($arUserField['USER_TYPE']['USER_TYPE_ID'] == 'date')
+		if($arUserField['USER_TYPE']['USER_TYPE_ID'] == 'date')
 		{
 			return new Entity\DateField($fieldName, $fieldParameters);
 		}
 
-		switch ($arUserField['USER_TYPE']['BASE_TYPE'])
+		switch($arUserField['USER_TYPE']['BASE_TYPE'])
 		{
 			case 'int':
 			case 'enum':
@@ -3094,7 +3111,7 @@ class CUserTypeManager
 	 */
 	public function getEntityReferences($arUserField, Entity\ScalarField $entityField)
 	{
-		if (is_callable(array($arUserField['USER_TYPE']['CLASS_NAME'], 'getEntityReferences')))
+		if(is_callable(array($arUserField['USER_TYPE']['CLASS_NAME'], 'getEntityReferences')))
 		{
 			return call_user_func(array($arUserField['USER_TYPE']['CLASS_NAME'], 'getEntityReferences'), $arUserField, $entityField);
 		}
@@ -3179,6 +3196,7 @@ class CUserTypeManager
 
 		return $result;
 	}
+
 }
 
 class CUserTypeSQL
@@ -3207,59 +3225,59 @@ class CUserTypeSQL
 		$this->obWhere = new CSQLWhere;
 		$num = 0;
 		$arFields = array();
-		foreach($this->user_fields as $FIELD_NAME=>$arField)
+		foreach($this->user_fields as $FIELD_NAME => $arField)
 		{
-			if($arField["MULTIPLE"]=="Y")
+			if($arField["MULTIPLE"] == "Y")
 				$num++;
-			$table_alias = $arField["MULTIPLE"]=="N"? $this->table_alias: $this->table_alias.$num;
+			$table_alias = $arField["MULTIPLE"] == "N" ? $this->table_alias : $this->table_alias . $num;
 			$arType = $this->user_fields[$FIELD_NAME]["USER_TYPE"];
 
-			if($arField["MULTIPLE"]=="N")
-				$TABLE_FIELD_NAME = $table_alias.".".$FIELD_NAME;
-			elseif($arType["BASE_TYPE"]=="int")
-				$TABLE_FIELD_NAME = $table_alias.".VALUE_INT";
-			elseif($arType["BASE_TYPE"]=="file")
-				$TABLE_FIELD_NAME = $table_alias.".VALUE_INT";
-			elseif($arType["BASE_TYPE"]=="enum")
-				$TABLE_FIELD_NAME = $table_alias.".VALUE_INT";
-			elseif($arType["BASE_TYPE"]=="double")
-				$TABLE_FIELD_NAME = $table_alias.".VALUE_DOUBLE";
-			elseif($arType["BASE_TYPE"]=="datetime")
-				$TABLE_FIELD_NAME = $table_alias.".VALUE_DATE";
+			if($arField["MULTIPLE"] == "N")
+				$TABLE_FIELD_NAME = $table_alias . "." . $FIELD_NAME;
+			elseif($arType["BASE_TYPE"] == "int")
+				$TABLE_FIELD_NAME = $table_alias . ".VALUE_INT";
+			elseif($arType["BASE_TYPE"] == "file")
+				$TABLE_FIELD_NAME = $table_alias . ".VALUE_INT";
+			elseif($arType["BASE_TYPE"] == "enum")
+				$TABLE_FIELD_NAME = $table_alias . ".VALUE_INT";
+			elseif($arType["BASE_TYPE"] == "double")
+				$TABLE_FIELD_NAME = $table_alias . ".VALUE_DOUBLE";
+			elseif($arType["BASE_TYPE"] == "datetime")
+				$TABLE_FIELD_NAME = $table_alias . ".VALUE_DATE";
 			else
-				$TABLE_FIELD_NAME = $table_alias.".VALUE";
+				$TABLE_FIELD_NAME = $table_alias . ".VALUE";
 
-			$arFields[$FIELD_NAME] =  array(
+			$arFields[$FIELD_NAME] = array(
 				"TABLE_ALIAS" => $table_alias,
 				"FIELD_NAME" => $TABLE_FIELD_NAME,
 				"FIELD_TYPE" => $arType["BASE_TYPE"],
 				"USER_TYPE_ID" => $arType["USER_TYPE_ID"],
 				"MULTIPLE" => $arField["MULTIPLE"],
-				"JOIN" => $arField["MULTIPLE"]=="N"?
-					"INNER JOIN b_uts_".$this->entity_id." ".$table_alias." ON ".$table_alias.".VALUE_ID = ".$ID:
-					"INNER JOIN b_utm_".$this->entity_id." ".$table_alias." ON ".$table_alias.".FIELD_ID = ".$arField["ID"]." AND ".$table_alias.".VALUE_ID = ".$ID,
-				"LEFT_JOIN" => $arField["MULTIPLE"]=="N"?
-					"LEFT JOIN b_uts_".$this->entity_id." ".$table_alias." ON ".$table_alias.".VALUE_ID = ".$ID:
-					"LEFT JOIN b_utm_".$this->entity_id." ".$table_alias." ON ".$table_alias.".FIELD_ID = ".$arField["ID"]." AND ".$table_alias.".VALUE_ID = ".$ID,
+				"JOIN" => $arField["MULTIPLE"] == "N" ?
+					"INNER JOIN b_uts_" . $this->entity_id . " " . $table_alias . " ON " . $table_alias . ".VALUE_ID = " . $ID :
+					"INNER JOIN b_utm_" . $this->entity_id . " " . $table_alias . " ON " . $table_alias . ".FIELD_ID = " . $arField["ID"] . " AND " . $table_alias . ".VALUE_ID = " . $ID,
+				"LEFT_JOIN" => $arField["MULTIPLE"] == "N" ?
+					"LEFT JOIN b_uts_" . $this->entity_id . " " . $table_alias . " ON " . $table_alias . ".VALUE_ID = " . $ID :
+					"LEFT JOIN b_utm_" . $this->entity_id . " " . $table_alias . " ON " . $table_alias . ".FIELD_ID = " . $arField["ID"] . " AND " . $table_alias . ".VALUE_ID = " . $ID,
 			);
 
-			if($arType["BASE_TYPE"]=="enum")
+			if($arType["BASE_TYPE"] == "enum")
 			{
-				$arFields[$FIELD_NAME."_VALUE"] =  array(
-					"TABLE_ALIAS" => $table_alias."EN",
-					"FIELD_NAME" => $table_alias."EN.VALUE",
+				$arFields[$FIELD_NAME . "_VALUE"] = array(
+					"TABLE_ALIAS" => $table_alias . "EN",
+					"FIELD_NAME" => $table_alias . "EN.VALUE",
 					"FIELD_TYPE" => "string",
 					"MULTIPLE" => $arField["MULTIPLE"],
-					"JOIN" => $arField["MULTIPLE"]=="N"?
-						"INNER JOIN b_uts_".$this->entity_id." ".$table_alias."E ON ".$table_alias."E.VALUE_ID = ".$ID."
-						INNER JOIN b_user_field_enum ".$table_alias."EN ON ".$table_alias."EN.ID = ".$table_alias."E.".$FIELD_NAME:
-						"INNER JOIN b_utm_".$this->entity_id." ".$table_alias."E ON ".$table_alias."E.FIELD_ID = ".$arField["ID"]." AND ".$table_alias."E.VALUE_ID = ".$ID."
-						INNER JOIN b_user_field_enum ".$table_alias."EN ON ".$table_alias."EN.ID = ".$table_alias."E.VALUE_INT",
-					"LEFT_JOIN" => $arField["MULTIPLE"]=="N"?
-						"LEFT JOIN b_uts_".$this->entity_id." ".$table_alias."E ON ".$table_alias."E.VALUE_ID = ".$ID."
-						LEFT JOIN b_user_field_enum ".$table_alias."EN ON ".$table_alias."EN.ID = ".$table_alias."E.".$FIELD_NAME:
-						"LEFT JOIN b_utm_".$this->entity_id." ".$table_alias."E ON ".$table_alias."E.FIELD_ID = ".$arField["ID"]." AND ".$table_alias."E.VALUE_ID = ".$ID."
-						LEFT JOIN b_user_field_enum ".$table_alias."EN ON ".$table_alias."EN.ID = ".$table_alias."E.VALUE_INT",
+					"JOIN" => $arField["MULTIPLE"] == "N" ?
+						"INNER JOIN b_uts_" . $this->entity_id . " " . $table_alias . "E ON " . $table_alias . "E.VALUE_ID = " . $ID . "
+						INNER JOIN b_user_field_enum " . $table_alias . "EN ON " . $table_alias . "EN.ID = " . $table_alias . "E." . $FIELD_NAME :
+						"INNER JOIN b_utm_" . $this->entity_id . " " . $table_alias . "E ON " . $table_alias . "E.FIELD_ID = " . $arField["ID"] . " AND " . $table_alias . "E.VALUE_ID = " . $ID . "
+						INNER JOIN b_user_field_enum " . $table_alias . "EN ON " . $table_alias . "EN.ID = " . $table_alias . "E.VALUE_INT",
+					"LEFT_JOIN" => $arField["MULTIPLE"] == "N" ?
+						"LEFT JOIN b_uts_" . $this->entity_id . " " . $table_alias . "E ON " . $table_alias . "E.VALUE_ID = " . $ID . "
+						LEFT JOIN b_user_field_enum " . $table_alias . "EN ON " . $table_alias . "EN.ID = " . $table_alias . "E." . $FIELD_NAME :
+						"LEFT JOIN b_utm_" . $this->entity_id . " " . $table_alias . "E ON " . $table_alias . "E.FIELD_ID = " . $arField["ID"] . " AND " . $table_alias . "E.VALUE_ID = " . $ID . "
+						LEFT JOIN b_user_field_enum " . $table_alias . "EN ON " . $table_alias . "EN.ID = " . $table_alias . "E.VALUE_INT",
 				);
 			}
 		}
@@ -3274,7 +3292,7 @@ class CUserTypeSQL
 		{
 			if(in_array("UF_*", $arSelect))
 			{
-				foreach($this->user_fields as $FIELD_NAME=>$arField)
+				foreach($this->user_fields as $FIELD_NAME => $arField)
 				{
 					$this->select[$FIELD_NAME] = true;
 				}
@@ -3300,7 +3318,7 @@ class CUserTypeSQL
 	function GetSelect()
 	{
 		$result = "";
-		foreach($this->select as $key=>$value)
+		foreach($this->select as $key => $value)
 		{
 			$simpleFormat = true;
 			if($this->user_fields[$key]["MULTIPLE"] == "N")
@@ -3309,14 +3327,14 @@ class CUserTypeSQL
 				{
 					if(is_callable(array($arType["CLASS_NAME"], "FormatField")))
 					{
-						$result .= ", ".call_user_func_array(array($arType["CLASS_NAME"], "FormatField"), array($this->user_fields[$key], $this->table_alias.".".$key))." ".$key;
+						$result .= ", " . call_user_func_array(array($arType["CLASS_NAME"], "FormatField"), array($this->user_fields[$key], $this->table_alias . "." . $key)) . " " . $key;
 						$simpleFormat = false;
 					}
 				}
 			}
 			if($simpleFormat)
 			{
-				$result .= ", ".$this->table_alias.".".$key;
+				$result .= ", " . $this->table_alias . "." . $key;
 			}
 		}
 		return $result;
@@ -3325,9 +3343,9 @@ class CUserTypeSQL
 	function GetJoin($ID)
 	{
 		$result = $this->obWhere->GetJoins();
-		$table = " b_uts_".$this->entity_id." ".$this->table_alias." ";
-		if((count($this->select)>0 || count($this->order)>0) && strpos($result, $table)===false)
-			$result .= "\nLEFT JOIN".$table."ON ".$this->table_alias.".VALUE_ID = ".$ID;
+		$table = " b_uts_" . $this->entity_id . " " . $this->table_alias . " ";
+		if((count($this->select) > 0 || count($this->order) > 0) && strpos($result, $table) === false)
+			$result .= "\nLEFT JOIN" . $table . "ON " . $this->table_alias . ".VALUE_ID = " . $ID;
 		return $result;
 	}
 
@@ -3336,10 +3354,10 @@ class CUserTypeSQL
 		if(is_array($arOrder))
 		{
 			$this->order = array();
-			foreach($arOrder as $field=>$order)
+			foreach($arOrder as $field => $order)
 			{
 				if(array_key_exists($field, $this->user_fields))
-					$this->order[$field] = $order!="ASC"? "DESC": "ASC";
+					$this->order[$field] = $order != "ASC" ? "DESC" : "ASC";
 			}
 		}
 	}
@@ -3348,7 +3366,7 @@ class CUserTypeSQL
 	{
 		$field = strtoupper($field);
 		if(isset($this->order[$field]))
-			$result = $this->table_alias.".".$field;
+			$result = $this->table_alias . "." . $field;
 		else
 			$result = "";
 		return $result;
@@ -3374,11 +3392,11 @@ class CUserFieldEnum
 		$aMsg = array();
 		$originalValues = $values;
 
-		foreach($values as $i=>$row)
+		foreach($values as $i => $row)
 		{
-			foreach($row as $key=>$val)
+			foreach($row as $key => $val)
 			{
-				if(strncmp($key, "~", 1)===0)
+				if(strncmp($key, "~", 1) === 0)
 				{
 					unset($values[$i][$key]);
 				}
@@ -3388,25 +3406,25 @@ class CUserFieldEnum
 		/*check unique XML_ID*/
 		$arAdded = array();
 		$salt = RandString(8);
-		foreach($values as $key=>$value)
+		foreach($values as $key => $value)
 		{
-			if(strncmp($key, "n", 1)===0 && $value["DEL"]!="Y" && strlen($value["VALUE"])>0)
+			if(strncmp($key, "n", 1) === 0 && $value["DEL"] != "Y" && strlen($value["VALUE"]) > 0)
 			{
-				if(strlen($value["XML_ID"])<=0)
+				if(strlen($value["XML_ID"]) <= 0)
 				{
 					$values[$key]["XML_ID"] = $value["XML_ID"] = md5($salt . $value["VALUE"]);
 				}
 
 				if(array_key_exists($value["XML_ID"], $arAdded))
 				{
-					$aMsg[] = array("text"=>GetMessage("USER_TYPE_XML_ID_UNIQ", array("#XML_ID#"=>$value["XML_ID"])));
+					$aMsg[] = array("text" => GetMessage("USER_TYPE_XML_ID_UNIQ", array("#XML_ID#" => $value["XML_ID"])));
 				}
 				else
 				{
-					$rsEnum = $this->GetList(array(), array("USER_FIELD_ID"=>$FIELD_ID, "XML_ID"=>$value["XML_ID"]));
+					$rsEnum = $this->GetList(array(), array("USER_FIELD_ID" => $FIELD_ID, "XML_ID" => $value["XML_ID"]));
 					if($arEnum = $rsEnum->Fetch())
 					{
-						$aMsg[] = array("text"=>GetMessage("USER_TYPE_XML_ID_UNIQ", array("#XML_ID#"=>$value["XML_ID"])));
+						$aMsg[] = array("text" => GetMessage("USER_TYPE_XML_ID_UNIQ", array("#XML_ID#" => $value["XML_ID"])));
 					}
 					else
 					{
@@ -3418,7 +3436,7 @@ class CUserFieldEnum
 
 		$previousValues = array();
 
-		$rsEnum = $this->GetList(array(), array("USER_FIELD_ID"=>$FIELD_ID));
+		$rsEnum = $this->GetList(array(), array("USER_FIELD_ID" => $FIELD_ID));
 		while($arEnum = $rsEnum->Fetch())
 		{
 			$previousValues[$arEnum["ID"]] = $arEnum;
@@ -3426,7 +3444,7 @@ class CUserFieldEnum
 			if(array_key_exists($arEnum["ID"], $values))
 			{
 				$value = $values[$arEnum["ID"]];
-				if(strlen($value["VALUE"])<=0 || $value["DEL"]=="Y")
+				if(strlen($value["VALUE"]) <= 0 || $value["DEL"] == "Y")
 				{
 				}
 				elseif(
@@ -3436,7 +3454,7 @@ class CUserFieldEnum
 					$arEnum["XML_ID"] != $value["XML_ID"]
 				)
 				{
-					if(strlen($value["XML_ID"])<=0)
+					if(strlen($value["XML_ID"]) <= 0)
 						$value["XML_ID"] = md5($value["VALUE"]);
 
 					$bUnique = true;
@@ -3444,15 +3462,15 @@ class CUserFieldEnum
 					{
 						if(array_key_exists($value["XML_ID"], $arAdded))
 						{
-							$aMsg[] = array("text"=>GetMessage("USER_TYPE_XML_ID_UNIQ", array("#XML_ID#"=>$value["XML_ID"])));
+							$aMsg[] = array("text" => GetMessage("USER_TYPE_XML_ID_UNIQ", array("#XML_ID#" => $value["XML_ID"])));
 							$bUnique = false;
 						}
 						else
 						{
-							$rsEnumXmlId = $this->GetList(array(), array("USER_FIELD_ID"=>$FIELD_ID, "XML_ID"=>$value["XML_ID"]));
+							$rsEnumXmlId = $this->GetList(array(), array("USER_FIELD_ID" => $FIELD_ID, "XML_ID" => $value["XML_ID"]));
 							if($arEnumXmlId = $rsEnumXmlId->Fetch())
 							{
-								$aMsg[] = array("text"=>GetMessage("USER_TYPE_XML_ID_UNIQ", array("#XML_ID#"=>$value["XML_ID"])));
+								$aMsg[] = array("text" => GetMessage("USER_TYPE_XML_ID_UNIQ", array("#XML_ID#" => $value["XML_ID"])));
 								$bUnique = false;
 							}
 						}
@@ -3472,18 +3490,18 @@ class CUserFieldEnum
 			return false;
 		}
 
-		if(CACHED_b_user_field_enum!==false)
+		if(CACHED_b_user_field_enum !== false)
 			$CACHE_MANAGER->CleanDir("b_user_field_enum");
 
-		foreach($values as $key=>$value)
+		foreach($values as $key => $value)
 		{
-			if(strncmp($key, "n", 1)===0 && $value["DEL"]!="Y" && strlen($value["VALUE"])>0)
+			if(strncmp($key, "n", 1) === 0 && $value["DEL"] != "Y" && strlen($value["VALUE"]) > 0)
 			{
-				if(strlen($value["XML_ID"])<=0)
+				if(strlen($value["XML_ID"]) <= 0)
 					$value["XML_ID"] = md5($value["VALUE"]);
 
-				if($value["DEF"]!="Y")
-					$value["DEF"]="N";
+				if($value["DEF"] != "Y")
+					$value["DEF"] = "N";
 
 				$value["USER_FIELD_ID"] = $FIELD_ID;
 				$id = $DB->Add("b_user_field_enum", $value);
@@ -3492,32 +3510,32 @@ class CUserFieldEnum
 				unset($originalValues[$key], $values[$key]);
 			}
 		}
-		$rsEnum = $this->GetList(array(), array("USER_FIELD_ID"=>$FIELD_ID));
+		$rsEnum = $this->GetList(array(), array("USER_FIELD_ID" => $FIELD_ID));
 		while($arEnum = $rsEnum->Fetch())
 		{
 			if(array_key_exists($arEnum["ID"], $values))
 			{
 				$value = $values[$arEnum["ID"]];
-				if(strlen($value["VALUE"])<=0 || $value["DEL"]=="Y")
+				if(strlen($value["VALUE"]) <= 0 || $value["DEL"] == "Y")
 				{
-					$DB->Query("DELETE FROM b_user_field_enum WHERE ID = ".$arEnum["ID"], false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+					$DB->Query("DELETE FROM b_user_field_enum WHERE ID = " . $arEnum["ID"], false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
 				}
 				elseif($arEnum["VALUE"] != $value["VALUE"] ||
 					$arEnum["DEF"] != $value["DEF"] ||
 					$arEnum["SORT"] != $value["SORT"] ||
 					$arEnum["XML_ID"] != $value["XML_ID"])
 				{
-					if(strlen($value["XML_ID"])<=0)
+					if(strlen($value["XML_ID"]) <= 0)
 						$value["XML_ID"] = md5($value["VALUE"]);
 
 					unset($value["ID"]);
 					$strUpdate = $DB->PrepareUpdate("b_user_field_enum", $value);
-					if(strlen($strUpdate)>0)
-						$DB->Query("UPDATE b_user_field_enum SET ".$strUpdate." WHERE ID = ".$arEnum["ID"], false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+					if(strlen($strUpdate) > 0)
+						$DB->Query("UPDATE b_user_field_enum SET " . $strUpdate . " WHERE ID = " . $arEnum["ID"], false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
 				}
 			}
 		}
-		if(CACHED_b_user_field_enum!==false)
+		if(CACHED_b_user_field_enum !== false)
 			$CACHE_MANAGER->CleanDir("b_user_field_enum");
 
 		$event = new \Bitrix\Main\Event('main', 'onAfterSetEnumValues', [$FIELD_ID, $originalValues, $previousValues]);
@@ -3526,13 +3544,13 @@ class CUserFieldEnum
 		return true;
 	}
 
-	function GetList($aSort=array(), $aFilter=array())
+	function GetList($aSort = array(), $aFilter = array())
 	{
 		global $DB, $CACHE_MANAGER;
 
 		if(CACHED_b_user_field_enum !== false)
 		{
-			$cacheId = "b_user_field_enum".md5(serialize($aSort).".".serialize($aFilter));
+			$cacheId = "b_user_field_enum" . md5(serialize($aSort) . "." . serialize($aFilter));
 			if($CACHE_MANAGER->Read(CACHED_b_user_field_enum, $cacheId, "b_user_field_enum"))
 			{
 				$arResult = $CACHE_MANAGER->Get($cacheId);
@@ -3548,45 +3566,23 @@ class CUserFieldEnum
 
 		$bJoinUFTable = false;
 		$arFilter = array();
-		foreach($aFilter as $key=>$val)
+		foreach($aFilter as $key => $val)
 		{
 			if(is_array($val))
 			{
 				if(count($val) <= 0)
 					continue;
 				$val = array_map(array($DB, "ForSQL"), $val);
-				$val = "('".implode("', '", $val)."')";
+				$val = "('" . implode("', '", $val) . "')";
 			}
 			else
 			{
 				if(strlen($val) <= 0)
 					continue;
-				$val = "('".$DB->ForSql($val)."')";
+				$val = "('" . $DB->ForSql($val) . "')";
 			}
 
 			$key = strtoupper($key);
-			switch($key)
-			{
-			case "ID":
-			case "USER_FIELD_ID":
-			case "VALUE":
-			case "DEF":
-			case "SORT":
-			case "XML_ID":
-				$arFilter[] = "UFE.".$key." in ".$val;
-				break;
-			case "USER_FIELD_NAME":
-				$bJoinUFTable = true;
-				$arFilter[] = "UF.FIELD_NAME in ".$val;
-				break;
-			}
-		}
-
-		$arOrder = array();
-		foreach($aSort as $key=>$val)
-		{
-			$key = strtoupper($key);
-			$ord = (strtoupper($val) <> "ASC"? "DESC": "ASC");
 			switch($key)
 			{
 				case "ID":
@@ -3595,7 +3591,29 @@ class CUserFieldEnum
 				case "DEF":
 				case "SORT":
 				case "XML_ID":
-					$arOrder[] = "UFE.".$key." ".$ord;
+					$arFilter[] = "UFE." . $key . " in " . $val;
+					break;
+				case "USER_FIELD_NAME":
+					$bJoinUFTable = true;
+					$arFilter[] = "UF.FIELD_NAME in " . $val;
+					break;
+			}
+		}
+
+		$arOrder = array();
+		foreach($aSort as $key => $val)
+		{
+			$key = strtoupper($key);
+			$ord = (strtoupper($val) <> "ASC" ? "DESC" : "ASC");
+			switch($key)
+			{
+				case "ID":
+				case "USER_FIELD_ID":
+				case "VALUE":
+				case "DEF":
+				case "SORT":
+				case "XML_ID":
+					$arOrder[] = "UFE." . $key . " " . $ord;
 					break;
 			}
 		}
@@ -3605,12 +3623,12 @@ class CUserFieldEnum
 			$arOrder[] = "UFE.ID asc";
 		}
 		DelDuplicateSort($arOrder);
-		$sOrder = "\nORDER BY ".implode(", ", $arOrder);
+		$sOrder = "\nORDER BY " . implode(", ", $arOrder);
 
 		if(count($arFilter) == 0)
 			$sFilter = "";
 		else
-			$sFilter = "\nWHERE ".implode("\nAND ", $arFilter);
+			$sFilter = "\nWHERE " . implode("\nAND ", $arFilter);
 
 		$strSql = "
 			SELECT
@@ -3622,19 +3640,19 @@ class CUserFieldEnum
 				,UFE.XML_ID
 			FROM
 				b_user_field_enum UFE
-				".($bJoinUFTable? "INNER JOIN b_user_field UF ON UF.ID = UFE.USER_FIELD_ID": "")."
-			".$sFilter.$sOrder;
+				" . ($bJoinUFTable ? "INNER JOIN b_user_field UF ON UF.ID = UFE.USER_FIELD_ID" : "") . "
+			" . $sFilter . $sOrder;
 
 		if($cacheId == '')
 		{
-			$res = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$res = $DB->Query($strSql, false, "FILE: " . __FILE__ . "<br> LINE: " . __LINE__);
 		}
 		else
 		{
 			$arResult = array();
-			$res = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$res = $DB->Query($strSql, false, "FILE: " . __FILE__ . "<br> LINE: " . __LINE__);
 			while($ar = $res->Fetch())
-				$arResult[]=$ar;
+				$arResult[] = $ar;
 
 			$CACHE_MANAGER->Set($cacheId, $arResult);
 
@@ -3642,13 +3660,13 @@ class CUserFieldEnum
 			$res->InitFromArray($arResult);
 		}
 
-		return  $res;
+		return $res;
 	}
 
 	function DeleteFieldEnum($FIELD_ID)
 	{
 		global $DB, $CACHE_MANAGER;
-		$DB->Query("DELETE FROM b_user_field_enum WHERE USER_FIELD_ID = ".intval($FIELD_ID), false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
-		if(CACHED_b_user_field_enum!==false) $CACHE_MANAGER->CleanDir("b_user_field_enum");
+		$DB->Query("DELETE FROM b_user_field_enum WHERE USER_FIELD_ID = " . intval($FIELD_ID), false, "FILE: " . __FILE__ . "<br>LINE: " . __LINE__);
+		if(CACHED_b_user_field_enum !== false) $CACHE_MANAGER->CleanDir("b_user_field_enum");
 	}
 }

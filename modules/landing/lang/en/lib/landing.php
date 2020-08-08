@@ -5,4 +5,5 @@ $MESS["LANDING_BLOCK_UNABLE_DEL_INC"] = "Template area cannot be deleted";
 $MESS["LANDING_BLOCK_WRONG_SORT"] = "Out of sort range or block was not found";
 $MESS["LANDING_NOT_FOUND"] = "Landing was not found";
 $MESS["LANDING_TITLE_NOT_FOUND"] = "Landing was not found";
+$MESS["LANDING_SITE_ERROR"] = "Site was not found or access was denied";
 ?>

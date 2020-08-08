@@ -61,13 +61,18 @@ class Encoding
 			return $data;
 		}
 
+		return self::convert($data, $charsetFrom, $charsetTo, $errorMessage);
+	}
+
+	private static function convert(&$data, $charsetFrom, $charsetTo, &$errorMessage = "")
+	{
 		if(is_array($data) || $data instanceof \SplFixedArray)
 		{
 			//let's do a recursion
 			foreach($data as $key => $value)
 			{
-				$newKey = self::convertEncoding($key, $charsetFrom, $charsetTo, $errorMessage);
-				$newValue = self::convertEncoding($value, $charsetFrom, $charsetTo, $errorMessage);
+				$newKey = self::convert($key, $charsetFrom, $charsetTo, $errorMessage);
+				$newValue = self::convert($value, $charsetFrom, $charsetTo, $errorMessage);
 
 				$data[$newKey] = $newValue;
 

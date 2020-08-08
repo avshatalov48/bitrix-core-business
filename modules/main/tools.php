@@ -6,6 +6,7 @@
  * @copyright 2001-2014 Bitrix
  */
 
+use Bitrix\Main;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Page\AssetLocation;
 use Bitrix\Main\UI\Extension;
@@ -3003,6 +3004,9 @@ function Rel2Abs($curdir, $relpath)
 	return $res;
 }
 
+/**
+ * @deprecated Use \Bitrix\Main\IO\Path::normalize()
+ */
 function _normalizePath($strPath)
 {
 	$strResult = '';
@@ -4481,10 +4485,11 @@ function bitrix_sess_sign()
 
 function check_bitrix_sessid($varname='sessid')
 {
-	return
-		$_REQUEST[$varname] === bitrix_sessid() ||
-		\Bitrix\Main\Context::getCurrent()->getRequest()->getHeader('X-Bitrix-Csrf-Token') === bitrix_sessid()
-	;
+	$request = Main\Context::getCurrent()->getRequest();
+	return (
+		$request[$varname] === bitrix_sessid() ||
+		$request->getHeader('X-Bitrix-Csrf-Token') === bitrix_sessid()
+	);
 }
 
 function bitrix_sessid_get($varname='sessid')
@@ -5939,6 +5944,34 @@ class CUtil
 		$pcreBacktrackLimit = self::Unformat(ini_get("pcre.backtrack_limit"));
 		if($pcreBacktrackLimit < $val)
 			@ini_set("pcre.backtrack_limit", $val);
+	}
+
+	public static function getSitesByWizard($wizard)
+	{
+		static $list = [];
+
+		if (is_null($list[$wizard]))
+		{
+			$list[$wizard] = array();
+
+			if ('portal' == $wizard && Main\ModuleManager::isModuleInstalled('bitrix24'))
+			{
+				$list[$wizard] = Main\SiteTable::getByPrimary('s1')->fetchAll();
+			}
+			else if ($wizard <> '')
+			{
+				$res = Main\SiteTable::getList(['order' => ['DEF' => 'DESC', 'SORT' => 'ASC']]);
+				foreach ($res as $item)
+				{
+					if (Main\Config\Option::get('main', '~wizard_id', '', $item['LID']) === $wizard)
+					{
+						$list[$wizard][] = $item;
+					}
+				}
+			}
+		}
+
+		return $list[$wizard];
 	}
 }
 

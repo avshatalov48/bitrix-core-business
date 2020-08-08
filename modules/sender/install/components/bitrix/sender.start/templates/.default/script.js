@@ -19,7 +19,12 @@
 	{
 		this.context = BX(options.containerId);
 
-		var tiles = ['sender-start-mailings', 'sender-start-ad', 'sender-start-rc'];
+		var tiles = [
+			'sender-start-mailings',
+			'sender-start-ad',
+			'sender-start-rc',
+			'sender-start-toloka'
+		];
 		for (var i = 0; i < tiles.length; i++)
 		{
 			var tileList = BX.UI.TileList.Manager.getById(tiles[i]);

@@ -28,7 +28,7 @@ class LocationTable extends NameEntity
 
 	public static function add(array $data)
 	{
-		if(strlen($data['NAME']))
+		if($data['NAME'] <> '')
 		{
 			$data['NAME_UPPER'] = ToUpper($data['NAME']); // bitrix to upper
 
@@ -43,7 +43,7 @@ class LocationTable extends NameEntity
 
 	public static function update($primary, array $data)
 	{
-		if(strlen($data['NAME']))
+		if($data['NAME'] <> '')
 		{
 			$data['NAME_UPPER'] = ToUpper($data['NAME']); // bitrix to upper
 

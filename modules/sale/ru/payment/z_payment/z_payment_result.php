@@ -34,7 +34,7 @@ if (CModule::IncludeModule("sale"))
 	$err=0;
 	$err_text= '';
 
-	if ($arOrder = CSaleOrder::GetByID(IntVal($lmi_payment_no)))	
+	if ($arOrder = CSaleOrder::GetByID(intval($lmi_payment_no)))
 	{
 		$bCorrectPayment = False;
 		$err=1;
@@ -48,7 +48,7 @@ if (CModule::IncludeModule("sale"))
 	$sk  = CSalePaySystemAction::GetParamValue("ZP_MERCHANT_KEY");
 	$CruR  = CSalePaySystemAction::GetParamValue("ZP_CODE_RUR");
 
-	if(strlen($sk) <=0)
+	if($sk == '')
 	{
 		$bCorrectPayment = False;
 		$err=4;

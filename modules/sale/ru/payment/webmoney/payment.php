@@ -6,13 +6,13 @@
 </head>
 <body bgColor="#ffffff">
 <?
-$ORDER_ID = IntVal($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"]);
-if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_POST["SendAdditionalInfo"]) > 0)
+$ORDER_ID = intval($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"]);
+if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["SendAdditionalInfo"] <> '')
 {
 	$strSql = 
 		"UPDATE b_sale_order SET ".
 		"	ADDITIONAL_INFO = 'Идентификатор в системе WebMoney: ".$DB->ForSql($_POST["WEBMONEY_ID"], 150)."' ".
-		"WHERE ID=".$ORDER_ID." AND USER_ID=".IntVal($USER->GetID())." AND PAYED<>'Y'";
+		"WHERE ID=".$ORDER_ID." AND USER_ID=".intval($USER->GetID())." AND PAYED<>'Y'";
 	$DB->Query($strSql);
 	?>
 	<font class="text"><font color="#006600"><b>Спасибо, ваш идентификатор записан. Вы можете закрыть данное окно.</b></font></font>

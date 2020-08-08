@@ -6,13 +6,19 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
-use Bitrix\Sender\Message\ConfigurationOption as ConOpt;
 use Bitrix\Sender\Internals\PrettyDate;
+use Bitrix\Sender\Message\ConfigurationOption as ConOpt;
 
 /** @var CAllMain $APPLICATION */
 /** @var array $arParams */
 /** @var array $arResult */
 $containerId = 'bx-sender-template-edit';
+Bitrix\Main\UI\Extension::load(
+	[
+		'ui',
+	]
+);
+CJSCore::Init(array('admin_interface'));
 ?>
 <script type="text/javascript">
 	BX.ready(function () {

@@ -13,10 +13,10 @@ class CRubric
 		$arFilter = array();
 		foreach($aFilter as $key=>$val)
 		{
-			if(strlen($val)<=0)
+			if($val == '')
 				continue;
 
-			$key = strtoupper($key);
+			$key = mb_strtoupper($key);
 			switch($key)
 			{
 				case "ID":
@@ -36,8 +36,8 @@ class CRubric
 		$arOrder = array();
 		foreach($aSort as $key=>$val)
 		{
-			$ord = (strtoupper($val) <> "ASC"? "DESC": "ASC");
-			$key = strtoupper($key);
+			$ord = (mb_strtoupper($val) <> "ASC"? "DESC": "ASC");
+			$key = mb_strtoupper($key);
 
 			switch($key)
 			{
@@ -171,9 +171,9 @@ class CRubric
 		$this->LAST_ERROR = "";
 		$aMsg = array();
 
-		if(strlen($arFields["NAME"]) == 0)
+		if($arFields["NAME"] == '')
 			$aMsg[] = array("id"=>"NAME", "text"=>GetMessage("class_rub_err_name"));
-		if(strlen($arFields["LID"]) > 0)
+		if($arFields["LID"] <> '')
 		{
 			$r = CLang::GetByID($arFields["LID"]);
 			if(!$r->Fetch())
@@ -181,7 +181,7 @@ class CRubric
 		}
 		else
 			$aMsg[] = array("id"=>"LID", "text"=>GetMessage("class_rub_err_lang2"));
-		if(strlen($arFields["DAYS_OF_MONTH"]) > 0)
+		if($arFields["DAYS_OF_MONTH"] <> '')
 		{
 			$arDoM = explode(",", $arFields["DAYS_OF_MONTH"]);
 			$arFound = array();
@@ -210,7 +210,7 @@ class CRubric
 				}
 			}
 		}
-		if(strlen($arFields["DAYS_OF_WEEK"]) > 0)
+		if($arFields["DAYS_OF_WEEK"] <> '')
 		{
 			$arDoW = explode(",", $arFields["DAYS_OF_WEEK"]);
 			$arFound = array();
@@ -231,7 +231,7 @@ class CRubric
 				}
 			}
 		}
-		if(strlen($arFields["TIMES_OF_DAY"]) > 0)
+		if($arFields["TIMES_OF_DAY"] <> '')
 		{
 			$arToD = explode(",", $arFields["TIMES_OF_DAY"]);
 			$arFound = array();
@@ -252,21 +252,21 @@ class CRubric
 				}
 			}
 		}
-		if(strlen($arFields["TEMPLATE"])>0 && !CPostingTemplate::IsExists($arFields["TEMPLATE"]))
+		if($arFields["TEMPLATE"] <> '' && !CPostingTemplate::IsExists($arFields["TEMPLATE"]))
 			$aMsg[] = array("id"=>"TEMPLATE", "text"=>GetMessage("class_rub_err_wrong_templ"));
 		if($arFields["AUTO"]=="Y")
 		{
-			if((strlen($arFields["FROM_FIELD"]) < 3) || !check_email($arFields["FROM_FIELD"]))
+			if((mb_strlen($arFields["FROM_FIELD"]) < 3) || !check_email($arFields["FROM_FIELD"]))
 				$aMsg[] = array("id"=>"FROM_FIELD", "text"=>GetMessage("class_rub_err_email"));
-			if(strlen($arFields["DAYS_OF_MONTH"])+strlen($arFields["DAYS_OF_WEEK"]) <= 0)
+			if(mb_strlen($arFields["DAYS_OF_MONTH"]) + mb_strlen($arFields["DAYS_OF_WEEK"]) <= 0)
 				$aMsg[] = array("id"=>"DAYS_OF_MONTH", "text"=>GetMessage("class_rub_err_days_missing"));
-			if(strlen($arFields["TIMES_OF_DAY"]) <= 0)
+			if($arFields["TIMES_OF_DAY"] == '')
 				$aMsg[] = array("id"=>"TIMES_OF_DAY", "text"=>GetMessage("class_rub_err_times_missing"));
-			if(strlen($arFields["TEMPLATE"]) <= 0)
+			if($arFields["TEMPLATE"] == '')
 				$aMsg[] = array("id"=>"TEMPLATE", "text"=>GetMessage("class_rub_err_templ_missing"));
-			if(is_set($arFields, "FROM_FIELD") && strlen($arFields["FROM_FIELD"])<=0)
+			if(is_set($arFields, "FROM_FIELD") && $arFields["FROM_FIELD"] == '')
 				$aMsg[] = array("id"=>"FROM_FIELD", "text"=>GetMessage("class_rub_err_from"));
-			if(strlen($arFields["LAST_EXECUTED"])<=0)
+			if($arFields["LAST_EXECUTED"] == '')
 				$aMsg[] = array("id"=>"LAST_EXECUTED", "text"=>GetMessage("class_rub_err_le_missing"));
 			elseif(is_set($arFields, "LAST_EXECUTED") && $arFields["LAST_EXECUTED"]!==false && $DB->IsDate($arFields["LAST_EXECUTED"], false, false, "FULL")!==true)
 				$aMsg[] = array("id"=>"LAST_EXECUTED", "text"=>GetMessage("class_rub_err_le_wrong"));

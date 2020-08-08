@@ -23,7 +23,7 @@ $aTabs = array(
 );
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
-if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $WORKFLOW_RIGHT=="W" && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $WORKFLOW_RIGHT=="W" && check_bitrix_sessid())
 {
 	$obWorkflowStatus = new CWorkflowStatus;
 
@@ -139,7 +139,7 @@ if ($message)
 $tabControl->Begin();
 $tabControl->BeginNextTab();
 ?>
-<? if (strlen($str_TIMESTAMP_X)>0 && $str_TIMESTAMP_X!="00.00.0000 00:00:00") : ?>
+<? if ($str_TIMESTAMP_X <> '' && $str_TIMESTAMP_X!="00.00.0000 00:00:00") : ?>
 	<tr>
 		<td><?=GetMessage("FLOW_TIMESTAMP")?></td>
 		<td><?=$str_TIMESTAMP_X?></td>

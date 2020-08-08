@@ -140,7 +140,12 @@ foreach ($arResult['DEMO'] as $item):
 		<span class="landing-item-inner">
 			<div class="landing-title">
 				<div class="landing-title-wrap">
-					<div class="landing-title-overflow"><?= \htmlspecialcharsbx($item['TITLE'])?></div>
+					<div class="landing-title-overflow">
+						<?= \htmlspecialcharsbx($item['TITLE'])?>
+					</div>
+					<?if ($this->getComponent()::isDemoNew($item['TIMESTAMP'])): ?>
+						<span class="landing-title-new"><?= Loc::getMessage('LANDING_TPL_LABEL_NEW');?></span>
+					<?endif;?>
 				</div>
 			</div>
 			<?if (trim($item['DESCRIPTION'])):?>
@@ -162,6 +167,13 @@ foreach ($arResult['DEMO'] as $item):
 						<span class="landing-item-desc-open"></span>
 					</span>
 				</span>
+				<?if ($item['DESIGNED_BY']):?>
+						<a class="landing-item-designed" href="<?= $item['DESIGNED_BY']['URL'];?>" target="_blank">
+							<?= Loc::getMessage('LANDING_TPL_DESIGNED_BY', [
+								'#DESIGNER#' => $item['DESIGNED_BY']['NAME'],
+							]);?>
+						</a>
+				<?endif;?>
 			<?else:?>
 				<span class="landing-item-cover">
 					<?if ($item['PREVIEW']):?>
@@ -199,6 +211,7 @@ foreach ($arResult['DEMO'] as $item):
 	</div>
 <?endif;?>
 
+<?if (Manager::isB24()):?>
 <a class="landing-license-banner" href="javascript:void(0)" onclick="BX.SidePanel.Instance.open('<?= SITE_DIR;?>marketplace/?placement=site_templates');">
 	<div class="landing-license-banner-icon">
 		<div class="landing-license-banner-icon-arrow"></div>
@@ -207,6 +220,7 @@ foreach ($arResult['DEMO'] as $item):
 		<?= Loc::getMessage('LANDING_TPL_LOAD_APP_TEMPLATE');?>
 	</div>
 </a>
+<?endif;?>
 
 <script type="text/javascript">
 	BX.ready(function ()

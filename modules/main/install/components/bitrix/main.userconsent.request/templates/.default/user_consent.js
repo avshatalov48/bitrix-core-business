@@ -112,6 +112,11 @@
 		},
 		onClick: function (item, e)
 		{
+			if (item.config.url)
+			{
+				return;
+			}
+
 			this.requestForItem(item);
 			e.preventDefault();
 		},
@@ -261,6 +266,8 @@
 				this.nodes.loader = this.nodes.container.querySelector('[data-bx-loader]');
 				this.nodes.content = this.nodes.container.querySelector('[data-bx-content]');
 				this.nodes.textarea = this.nodes.container.querySelector('[data-bx-textarea]');
+				this.nodes.link = this.nodes.container.querySelector('[data-bx-link]');
+				this.nodes.linkA = this.nodes.link ? this.nodes.link.querySelector('a') : null;
 
 				this.nodes.buttonAccept = this.nodes.container.querySelector('[data-bx-btn-accept]');
 				this.nodes.buttonReject = this.nodes.container.querySelector('[data-bx-btn-reject]');
@@ -277,7 +284,7 @@
 				{
 					return;
 				}
-				this.nodes.head.textContent = text;
+				this.nodes.head.innerHTML = text;
 			},
 			setContent: function (text)
 			{
@@ -285,7 +292,23 @@
 				{
 					return;
 				}
-				this.nodes.textarea.textContent = text;
+				this.nodes.textarea.innerHTML = text;
+
+				this.nodes.link.style.display = 'none';
+				this.nodes.textarea.style.display = '';
+			},
+			setUrl: function (url)
+			{
+				if (!this.nodes.link)
+				{
+					return;
+				}
+
+				this.nodes.linkA.textContent = url;
+				this.nodes.linkA.href = url;
+
+				this.nodes.link.style.display = '';
+				this.nodes.textarea.style.display = 'none';
 			},
 			show: function (isContentVisible)
 			{
@@ -366,7 +389,11 @@
 				this.cache.set(cacheHash, this.current.config.text);
 			}
 
-			if (this.cache.has(cacheHash))
+			if (this.current && this.current.config.url)
+			{
+				this.setTextToPopup('', this.current.config.url);
+			}
+			else if (this.cache.has(cacheHash))
 			{
 				this.setTextToPopup(this.cache.getData(cacheHash));
 			}
@@ -389,7 +416,7 @@
 				);
 			}
 		},
-		setTextToPopup: function (text)
+		setTextToPopup: function (text, url)
 		{
 			// set title from a first line from text.
 			var titleBar = '';
@@ -402,7 +429,14 @@
 				titleBar  = titleBar.split(".").map(Function.prototype.call, String.prototype.trim).filter(String)[0];
 			}
 			this.popup.setTitle(titleBar ? titleBar : BX.message(this.msg.title));
-			this.popup.setContent(text);
+			if (url)
+			{
+				this.popup.setUrl(url);
+			}
+			else
+			{
+				this.popup.setContent(text);
+			}
 			this.popup.show(true);
 		},
 		saveConsent: function (item, callback)

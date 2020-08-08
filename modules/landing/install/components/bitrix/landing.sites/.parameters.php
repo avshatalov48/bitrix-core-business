@@ -32,6 +32,10 @@ $arComponentParameters = Array(
 			'NAME' => getMessage('LANDING_CMP_PAR_PAGE_URL_LANDING_EDIT'),
 			'TYPE' => 'STRING'
 		),
+		'PAGE_URL_SITE_DOMAIN_SWITCH' => array(
+			'NAME' => getMessage('LANDING_CMP_PAR_PAGE_URL_SITE_DOMAIN_SWITCH'),
+			'TYPE' => 'STRING'
+		),
 		'SEF' => array(
 			'NAME' => getMessage('LANDING_CMP_PAR_SEF'),
 			'TYPE' => 'STRING',

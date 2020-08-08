@@ -38,7 +38,7 @@ if (!$arResult['CAN_CONNECT_NEW_MAILBOX'])
 						<? if ($settings['icon']): ?>
 							<img class="mail-add-img" src="<?=$settings['icon'] ?>" alt="<?=htmlspecialcharsbx($settings['name']) ?>">
 						<? else: ?>
-							<span class="mail-add-text <? if (strlen($settings['name']) > 10): ?> mail-add-text-small"<? endif ?>">
+							<span class="mail-add-text <? if (mb_strlen($settings['name']) > 10): ?> mail-add-text-small"<? endif ?>">
 								&nbsp;<?=htmlspecialcharsbx($settings['name']) ?>&nbsp;
 							</span>
 						<? endif ?>
@@ -61,7 +61,7 @@ if (!$arResult['CAN_CONNECT_NEW_MAILBOX'])
 				urlParams.IFRAME = 'Y';
 			}
 
-			if (event.getEventId() == 'mail-mailbox-config-success')
+			if (event.getEventId() === 'mail-mailbox-config-success')
 			{
 				event.data.handled = false;
 

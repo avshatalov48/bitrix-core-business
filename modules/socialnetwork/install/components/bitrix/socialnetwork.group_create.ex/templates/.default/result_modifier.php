@@ -10,29 +10,37 @@ use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
-$arResult['TypesProject'] = array();
-$arResult['TypesNonProject'] = array();
+$arResult['TypesProject'] = $arResult['TypesNonProject'] = [];
 
 $arResult['ClientConfig'] = array(
 	'refresh' => (empty($_GET["refresh"]) || $_GET["refresh"] != 'N' ? 'Y' : 'N')
 );
 
-foreach($arResult['Types'] as $code => $type)
+if (
+	is_array($arResult['Types'])
+	&& !empty($arResult['Types'])
+)
 {
-	if ($type['PROJECT'] == 'Y')
+	foreach($arResult['Types'] as $code => $type)
 	{
-		$arResult['TypesProject'][$code] = $type;
-	}
-	else
-	{
-		$arResult['TypesNonProject'][$code] = $type;
+		if ($type['PROJECT'] == 'Y')
+		{
+			$arResult['TypesProject'][$code] = $type;
+		}
+		else
+		{
+			$arResult['TypesNonProject'][$code] = $type;
+		}
 	}
 }
 
 $arResult['openAdditional'] = false;
 
-$arResult["GROUP_PROPERTIES_MANDATORY"] = $arResult["GROUP_PROPERTIES_NON_MANDATORY"] = array();
-if (!empty($arResult["GROUP_PROPERTIES"]))
+$arResult["GROUP_PROPERTIES_MANDATORY"] = $arResult["GROUP_PROPERTIES_NON_MANDATORY"] = [];
+if (
+	is_array($arResult['GROUP_PROPERTIES'])
+	&& !empty($arResult['GROUP_PROPERTIES'])
+)
 {
 	foreach($arResult["GROUP_PROPERTIES"] as $key => $userField)
 	{
@@ -66,7 +74,7 @@ if (
 	&& $arResult["intranetInstalled"]
 )
 {
-	$inactiveFeaturesList = array('forum', 'photo', 'search', 'group_lists', 'wiki');
+	$inactiveFeaturesList = [ 'forum', 'photo', 'search', 'group_lists', 'wiki' ];
 	foreach($inactiveFeaturesList as $feature)
 	{
 		if (isset($arResult["POST"]["FEATURES"][$feature]))
@@ -80,12 +88,12 @@ if ($arParams["GROUP_ID"] > 0)
 {
 	$arResult["typeCode"] = \Bitrix\Socialnetwork\Item\Workgroup::getTypeCodeByParams(array(
 		'typesList' => $arResult['Types'],
-		'fields' => array(
+		'fields' => [
 			'VISIBLE' => (isset($arResult["POST"]['VISIBLE']) && $arResult["POST"]['VISIBLE'] == 'Y' ? 'Y' : 'N'),
 			'OPENED' => (isset($arResult["POST"]['OPENED']) && $arResult["POST"]['OPENED'] == 'Y' ? 'Y' : 'N'),
 			'PROJECT' => (isset($arResult["POST"]['PROJECT']) && $arResult["POST"]['PROJECT'] == 'Y' ? 'Y' : 'N'),
 			'EXTERNAL' => (isset($arResult["POST"]["IS_EXTRANET_GROUP"]) && $arResult["POST"]["IS_EXTRANET_GROUP"] == 'Y' ? 'Y' : 'N')
-		)
+		]
 	));
 }
 

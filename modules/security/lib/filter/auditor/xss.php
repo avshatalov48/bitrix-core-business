@@ -53,7 +53,7 @@ class Xss
 			$last = $current;
 			foreach ($this->filters as $searchChar => $filters)
 			{
-				if ($searchChar && strpos($current, $searchChar) === false)
+				if ($searchChar && mb_strpos($current, $searchChar) === false)
 					continue;
 
 				$current = preg_replace($filters['search'], $filters['replace'], $current);

@@ -246,7 +246,7 @@ if(count($arTemplates)>0):
 		<tr>
 			<td class="adm-detail-valign-top"><input type="radio" id="TEMPLATE<?=$i?>" name="TEMPLATE" value="<?=$arTemplate["PATH"]?>"<?if($str_TEMPLATE==$arTemplate["PATH"]) echo "checked"?>></td>
 			<td>
-				<label for="TEMPLATE<?=$i?>" title="<?=$arTemplate["DESCRIPTION"]?>"><?=(strlen($arTemplate["NAME"])>0?$arTemplate["NAME"]:GetMessage("rub_no_name"))?></label><br>
+				<label for="TEMPLATE<?=$i?>" title="<?=$arTemplate["DESCRIPTION"]?>"><?=($arTemplate["NAME"] <> ''?$arTemplate["NAME"]:GetMessage("rub_no_name"))?></label><br>
 				<?if(IsModuleInstalled("fileman")):?>
 					<a title="<?=GetMessage("rub_manage")?>" href="/bitrix/admin/fileman_admin.php?path=<?=urlencode("/".$arTemplate["PATH"])?>"><?=$arTemplate["PATH"]?></a>
 				<?else:?>

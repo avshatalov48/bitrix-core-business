@@ -8,7 +8,7 @@ use \Bitrix\Main\Localization\Loc;
 
 return [
 	'block' => [
-		//'name' => Loc::getMessage('LANDING_BLOCK_59_3_NAME'),
+		'name' => Loc::getMessage('LANDING_BLOCK_59_3_NAME2'),
 		'section' => array('sidebar', 'other'),
 		'type' => ['knowledge', 'group'],
 		'subtype' => 'search',
@@ -16,7 +16,6 @@ return [
 			'type' => 'form',
 			'resultPage' => 'search-result3-dark'
 		],
-		'version' => '20.0.0', // old param for backward compatibility. Can used for old versions of module via repo. Do not delete!
 	],
 	'style' => [
 		'.landing-block-node-button-container' => [
@@ -25,7 +24,7 @@ return [
 		],
 		'.landing-block-node-input-container' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_59_3_INPUT'),
-			'type' => ['color', 'color-hover', 'background-color', 'background-hover', 'border-color'],
+			'type' => ['color', 'background-color', 'border-color'],
 		],
 	],
 	'attrs' => [

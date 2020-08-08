@@ -48,5 +48,5 @@ foreach ($_POST as $key => $value)
 	<input type="hidden" name="paySystemId" value="<?=$params['PAYSYSTEM_ID']?>">
 	<input type="hidden" name="initiate_pay" value="Y">
 
-	<input type="submit" name="send" class="btn btn-primary pl-4 pr-4" value="<?=Loc::getMessage('SALE_HPS_ALFABANK_SEND');?>">
+	<input type="submit" name="send" class="btn btn-lg btn-success pl-4 pr-4" style="border-radius: 32px;" value="<?=Loc::getMessage('SALE_HPS_ALFABANK_SEND');?>">
 </form>

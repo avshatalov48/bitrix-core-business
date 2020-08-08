@@ -15,4 +15,15 @@ class PhoneNumber extends Main\Engine\Controller
 	{
 		return GetCountries();
 	}
+
+	public function configureActions()
+	{
+		return [
+			'getCountries' => [
+				'-prefilters' => [
+					Main\Engine\ActionFilter\Authentication::class,
+				],
+			],
+		];
+	}
 }

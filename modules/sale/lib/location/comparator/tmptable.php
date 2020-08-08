@@ -26,7 +26,7 @@ final class TmpTable
 		if(intval($serviceId) <= 0)
 			throw new ArgumentNullException('serviceId');
 
-		if(strlen($tableName) > 0)
+		if($tableName <> '')
 			$this->name = $tableName;
 
 		$this->serviceId = intval($serviceId);
@@ -65,7 +65,7 @@ final class TmpTable
 		if(intval($locationId) <= 0)
 			throw new ArgumentNullException('locationId');
 
-		if(strlen($xmlId) <= 0)
+		if($xmlId == '')
 			throw new ArgumentNullException('xmlId');
 
 		$sqlHelper = $this->connection->getSqlHelper();
@@ -162,7 +162,7 @@ final class TmpTable
 
 		foreach(current($data) as $key => $val)
 		{
-			if(strlen($queryBegin) > 0)
+			if($queryBegin <> '')
 				$queryBegin .= ', ';
 
 			$queryBegin .= $sqlHelper->forSql($key);
@@ -177,14 +177,14 @@ final class TmpTable
 
 		foreach($data as $xmlId => $row)
 		{
-			if(strlen($values) > 0)
+			if($values <> '')
 				$values .= ', ';
 
 			$rowValues = '';
 
 			foreach($row as $col)
 			{
-				if(strlen($rowValues) > 0)
+				if($rowValues <> '')
 					$rowValues .= ', ';
 
 				$rowValues .= "'".$sqlHelper->forSql($col)."'";
@@ -203,7 +203,7 @@ final class TmpTable
 			$imported++;
 		}
 
-		if(strlen($values) > 0)
+		if($values <> '')
 			$this->connection->queryExecute($queryBegin.$values);
 
 		$this->connection->queryExecute("CREATE INDEX IX_BSDTMP_XML_ID ON ".$this->name." (XML_ID)");

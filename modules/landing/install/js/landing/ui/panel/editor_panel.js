@@ -241,7 +241,7 @@
 		}));
 
 		var rights = BX.Landing.Env.getInstance().getOptions().rights;
-		if (rights.includes('edit'))
+		if (rights && rights.includes('edit'))
 		{
 			editor.addButton(new BX.Landing.UI.Button.CreatePage("createPage", {
 				html: "<span class=\"landing-ui-icon-editor-new-page\"></span>",

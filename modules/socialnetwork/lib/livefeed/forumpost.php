@@ -31,7 +31,8 @@ final class ForumPost extends Provider
 			'report_comment',
 			'photo_comment',
 			'wiki_comment',
-			'lists_new_element_comment'
+			'lists_new_element_comment',
+			'crm_activity_add_comment'
 		);
 	}
 
@@ -385,7 +386,7 @@ final class ForumPost extends Provider
 
 		$siteId = (
 			isset($params['SITE_ID'])
-			&& strlen($params['SITE_ID']) > 0
+			&& $params['SITE_ID'] <> ''
 				? $params['SITE_ID']
 				: SITE_ID
 		);
@@ -399,13 +400,13 @@ final class ForumPost extends Provider
 
 		$message = (
 			isset($params['MESSAGE'])
-			&& strlen($params['MESSAGE']) > 0
+			&& $params['MESSAGE'] <> ''
 			? $params['MESSAGE']
 			: ''
 		);
 
 		if (
-			strlen($message) <= 0
+			$message == ''
 			|| !Loader::includeModule('forum')
 		)
 		{
@@ -509,7 +510,7 @@ final class ForumPost extends Provider
 
 		$siteId = (
 			isset($params['SITE_ID'])
-			&& strlen($params['SITE_ID']) > 0
+			&& $params['SITE_ID'] <> ''
 				? $params['SITE_ID']
 				: SITE_ID
 		);

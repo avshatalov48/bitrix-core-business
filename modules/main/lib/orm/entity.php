@@ -875,7 +875,7 @@ class Entity
 	{
 		if ($entity_name === null)
 		{
-			$entity_name = 'Tmp'.randString();
+			$entity_name = 'Tmp'.randString().'x';
 		}
 		elseif (!preg_match('/^[a-z0-9_]+$/i', $entity_name))
 		{
@@ -1005,7 +1005,7 @@ class Entity
 		{
 			$namespace = $parameters['namespace'];
 
-			if (!preg_match('/^[a-z0-9\\\\]+$/i', $namespace))
+			if (!preg_match('/^[a-z0-9_\\\\]+$/i', $namespace))
 			{
 				throw new Main\ArgumentException(sprintf(
 					'Invalid namespace name `%s`', $namespace
@@ -1334,47 +1334,23 @@ class Entity
 	/**
 	 * Sets a flag indicating full text index support for a field.
 	 *
+	 * @deprecated Does nothing, mysql 5.6 has fulltext always enabled.
 	 * @param string $field
 	 * @param bool   $mode
-	 *
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
 	 */
 	public function enableFullTextIndex($field, $mode = true)
 	{
-		$table = $this->getDBTableName();
-		$options = array();
-		$optionString = Main\Config\Option::get("main", "~ft_".$table);
-		if($optionString <> '')
-		{
-			$options = unserialize($optionString);
-		}
-		$options[StringHelper::strtoupper($field)] = $mode;
-		Main\Config\Option::set("main", "~ft_".$table, serialize($options));
 	}
 
 	/**
 	 * Returns true if full text index is enabled for a field.
 	 *
+	 * @deprecated Always returns true, mysql 5.6 has fulltext always enabled.
 	 * @param string $field
-	 *
 	 * @return bool
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
 	 */
 	public function fullTextIndexEnabled($field)
 	{
-		$table = $this->getDBTableName();
-		$optionString = Main\Config\Option::get("main", "~ft_".$table);
-		if($optionString <> '')
-		{
-			$field = StringHelper::strtoupper($field);
-			$options = unserialize($optionString);
-			if(isset($options[$field]) && $options[$field] === true)
-			{
-				return true;
-			}
-		}
-		return false;
+		return true;
 	}
 }

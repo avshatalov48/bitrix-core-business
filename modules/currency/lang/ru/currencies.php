@@ -15,7 +15,6 @@ $MESS["currency_sort"] = "Сорт.";
 $MESS["currency_sort_ex"] = "Индекс сортировки";
 $MESS["currency_actions"] = "Действия";
 $MESS["currency_empty"] = "Список валют пуст";
-$MESS["currency_title"] = "Валюты";
 $MESS["currency_add"] = "Добавить валюту";
 $MESS["currency_curr"] = "Валюта";
 $MESS["currency_curr_settings"] = "Настройки валюты";

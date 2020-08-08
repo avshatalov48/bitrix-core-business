@@ -68,10 +68,13 @@ $MESS["main_change_pass_code_error"] = "Incorrect or expired confirmation code. 
 $MESS["main_change_pass_error"] = "Error changing the password.";
 $MESS["main_login_need_phone_confirmation"] = "You have not confirmed your registration yet (your phone number: #PHONE#). Please use the password recovery form to request another confirmation SMS.";
 $MESS["main_register_sms_sent"] = "A code to change your password has been sent to your phone.";
+$MESS["main_send_password_email_code"] = "Authorization code has been sent to email address you used for registration. You can send another code in a minute.";
 $MESS["main_user_captcha_error"] = "CAPTCHA code is incorrect.";
 $MESS["main_user_check_no_phone"] = "Registration phone number is not specified.";
 $MESS["main_user_pass_request_sent"] = "Confirmation code has been sent to the specified phone number.";
 $MESS["user_email_not_set"] = "User E-Mail is not specified.";
 $MESS["user_login_not_set"] = "User login is not specified.";
 $MESS["user_pass_not_set"] = "User password is not specified.";
+$MESS['main_register_no_user'] = "User was not found.";
+$MESS['main_register_timeout'] = "Timeout has not expired yet.";
 ?>

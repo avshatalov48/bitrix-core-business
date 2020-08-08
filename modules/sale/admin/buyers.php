@@ -42,7 +42,7 @@ while ($arGroups = $dbGroups->Fetch())
 	$arUsersGroups[] = $arGroups;
 
 $sTableID = "tbl_sale_buyers";
-$oSort = new CAdminSorting($sTableID, "LAST_LOGIN", "desc");
+$oSort = new CAdminUiSorting($sTableID, "LAST_LOGIN", "desc");
 global $by, $order;
 $lAdmin = new CAdminUiList($sTableID, $oSort);
 
@@ -169,7 +169,7 @@ $lAdmin->setFilterPresets($filterPresets);
 
 $lAdmin->AddFilter($filterFields, $arFilter);
 
-if (isset($arFilter["BUYER"]) && strlen($arFilter["BUYER"]) > 0)
+if (isset($arFilter["BUYER"]) && $arFilter["BUYER"] <> '')
 {
 	$nameSearch = trim($arFilter["BUYER"]);
 	$searchFilter = \Bitrix\Main\UserUtils::getAdminSearchFilter([
@@ -187,14 +187,14 @@ if (isset($arFilter["BUYER"]) && strlen($arFilter["BUYER"]) > 0)
 			}
 			else
 			{
-				if (strpos($key, 'INDEX') !== false)
+				if (mb_strpos($key, 'INDEX') !== false)
 				{
 					$key = str_replace('INDEX', 'USER.INDEX', $key);
 				}
 				elseif ($key !== 'LOGIC')
 				{
-					$namePosition = strpos($key, preg_replace('/^\W+/', '', $key));
-					$key = substr($key, 0, $namePosition)."USER.".substr($key, $namePosition);
+					$namePosition = mb_strpos($key, preg_replace('/^\W+/', '', $key));
+					$key = mb_substr($key, 0, $namePosition)."USER.".mb_substr($key, $namePosition);
 				}
 				$result[$key] = $value;
 			}
@@ -251,7 +251,7 @@ if ($publicMode && \Bitrix\Main\Loader::includeModule('crm'))
 	$sorting = $gridOptions->getSorting(['sort' => ['NAME' => 'ASC']]);
 
 	$by = key($sorting['sort']);
-	$order = strtoupper(current($sorting['sort'])) === 'ASC' ? 'ASC' : 'DESC';
+	$order = mb_strtoupper(current($sorting['sort'])) === 'ASC' ? 'ASC' : 'DESC';
 
 	$sortByUserField = isset($by) && in_array($by, $userFields);
 
@@ -279,24 +279,16 @@ if ($publicMode && \Bitrix\Main\Loader::includeModule('crm'))
 	if ($searchString !== '')
 	{
 		$searchFields = ['FIND' => $searchString];
-	}
-	else
-	{
-		$searchFields = [];
-
-		foreach ($arFilter as $key => $searchValue)
-		{
-			if (strpos($key, 'USER.') === 0)
-			{
-				$field = str_replace('USER.', '', $key);
-				$searchFields[$field] = $searchValue;
-			}
-		}
-	}
-
-	if (!empty($searchFields))
-	{
 		$filter = array_merge(\Bitrix\Main\UserUtils::getAdminSearchFilter($searchFields), $filter);
+	}
+
+	foreach ($arFilter as $key => $searchValue)
+	{
+		if (mb_strpos($key, 'USER.') === 0 || mb_strpos($key, '%USER.') === 0 || mb_strpos($key, '*USER.') === 0)
+		{
+			$field = str_replace('USER.', '', $key);
+			$filter[$field] = $searchValue;
+		}
 	}
 
 	$gridColumns = $gridOptions->getUsedColumns();

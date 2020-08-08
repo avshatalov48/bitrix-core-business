@@ -385,32 +385,50 @@ export class Backend
 
 	createPage(options: CreatePageOptions = {})
 	{
+		const envOptions = Env.getInstance().getOptions();
 		const {
 			title,
-			siteId = Env.getInstance().getOptions().site_id,
+			siteId = envOptions.site_id,
 			code = Text.getRandom(16),
 			blockId,
 			menuCode,
 			folderId,
 		} = options;
 
-		const fields = {
-			TITLE: title,
-			SITE_ID: siteId,
-			CODE: code,
+		const templateCode = (() => {
+			const {theme} = envOptions;
+			if (
+				Type.isPlainObject(theme)
+				&& Type.isArray(theme.newPageTemplate)
+				&& Type.isStringFilled(theme.newPageTemplate[0])
+			)
+			{
+				return theme.newPageTemplate[0];
+			}
+
+			return 'empty';
+		})();
+
+		const requestBody = {
+			siteId,
+			code: templateCode,
+			fields: {
+				TITLE: title,
+				CODE: code,
+			},
 		};
 
 		if (Type.isNumber(blockId) && Type.isString(menuCode))
 		{
-			fields.BLOCK_ID = blockId;
-			fields.MENU_CODE = menuCode;
+			requestBody.fields.BLOCK_ID = blockId;
+			requestBody.fields.MENU_CODE = menuCode;
 		}
 
 		if (Type.isNumber(folderId))
 		{
-			fields.FOLDER_ID = folderId;
+			requestBody.fields.FOLDER_ID = folderId;
 		}
 
-		return this.action('Landing::add', {fields});
+		return this.action('Landing::addByTemplate', requestBody);
 	}
 }

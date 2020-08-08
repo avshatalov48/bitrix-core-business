@@ -59,27 +59,52 @@ $nav->allowAllRecords(false)
 		->setPageSize($arParams['PAGE_SIZE'])
 		->initFromUri();
 
-$dbApp = \Bitrix\Rest\AppTable::getList(array(
-	'filter' => $filter,
-	'select' => array(
-		'ID', 'APP_NAME', 'CLIENT_ID', 'CLIENT_SECRET',
-		'URL_INSTALL',
-		'MENU_NAME' => 'LANG.MENU_NAME',
-		'MENU_NAME_DEFAULT' => 'LANG_DEFAULT.MENU_NAME',
-		'MENU_NAME_LICENSE' => 'LANG_LICENSE.MENU_NAME',
-	),
-	"count_total" => true,
-	"offset" => $nav->getOffset(),
-	"limit" => $nav->getLimit(),
-));
+$appList = \Bitrix\Rest\AppTable::getList(
+	[
+		'filter' => $filter,
+		'select' => [
+			'ID',
+			'APP_NAME',
+			'CLIENT_ID',
+			'CLIENT_SECRET',
+			'URL_INSTALL',
+			'LANG',
+			'LANG_DEFAULT',
+			'LANG_LICENSE',
+		],
+		'count_total' => true,
+		'offset' => $nav->getOffset(),
+		'limit' => $nav->getLimit(),
+	]
+);
 
-$arResult['ROWS_COUNT'] = $dbApp->getCount();
+$arResult['ROWS_COUNT'] = $appList->getCount();
 $nav->setRecordCount($arResult['ROWS_COUNT']);
-$arResult["NAV_OBJECT"] = $nav;
+$arResult['NAV_OBJECT'] = $nav;
 
-while($app = $dbApp->fetch())
+foreach ($appList->fetchCollection() as $app)
 {
-	$arResult["ELEMENTS_ROWS"][$app["ID"]] = $app;
+	$id = $app->getId();
+	$arResult['ELEMENTS_ROWS'][$id] = [
+		'ID' => $id,
+		'APP_NAME' => $app->getAppName(),
+		'CLIENT_ID' => $app->getClientId(),
+		'CLIENT_SECRET' => $app->getClientSecret(),
+		'URL_INSTALL' => $app->getUrlInstall(),
+		'MENU_NAME' => !is_null($app->getLang()) ? $app->getLang()->getMenuName() : '',
+		'MENU_NAME_DEFAULT' => !is_null($app->getLangDefault()) ? $app->getLangDefault()->getMenuName() : '',
+		'MENU_NAME_LICENSE' => !is_null($app->getLangLicense()) ? $app->getLangLicense()->getMenuName() : '',
+		'MENU_NAME_ALL' => []
+	];
+
+	$app->fillLangAll();
+	if (!is_null($app->getLangAll()))
+	{
+		foreach ($app->getLangAll() as $lang)
+		{
+			$arResult['ELEMENTS_ROWS'][$id]['MENU_NAME_ALL'][$lang->getLanguageId()] = $lang->getMenuName();
+		}
+	}
 }
 
 

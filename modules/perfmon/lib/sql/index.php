@@ -5,16 +5,19 @@ use Bitrix\Main\NotSupportedException;
 class Index extends BaseObject
 {
 	public $unique = false;
+	public $fulltext = false;
 	public $columns = array();
 
 	/**
 	 * @param string $name Index name.
 	 * @param boolean $unique Uniqueness flag.
+	 * @param boolean $fulltext Fulltext flag.
 	 */
-	function __construct($name = '', $unique)
+	function __construct($name = '', $unique, $fulltext=false)
 	{
 		parent::__construct($name);
 		$this->unique = (bool)$unique;
+		$this->fulltext = (bool)$fulltext;
 	}
 
 	/**
@@ -38,12 +41,13 @@ class Index extends BaseObject
 	 *
 	 * @param Tokenizer $tokenizer Tokens collection.
 	 * @param boolean $unique Uniqueness flag.
+	 * @param boolean $fulltext Fulltext flag.
 	 * @param string $indexName Optional name of the index.
 	 *
 	 * @return Index
 	 * @throws NotSupportedException
 	 */
-	public static function create(Tokenizer $tokenizer, $unique = false, $indexName = '')
+	public static function create(Tokenizer $tokenizer, $unique = false, $fulltext = false, $indexName = '')
 	{
 		if (!$indexName)
 		{
@@ -64,7 +68,7 @@ class Index extends BaseObject
 			$tokenizer->skipWhiteSpace();
 		}
 
-		$index = new self($indexName, $unique);
+		$index = new self($indexName, $unique, $fulltext);
 
 		if ($tokenizer->testText('('))
 		{
@@ -138,7 +142,7 @@ class Index extends BaseObject
 	 */
 	public function getCreateDdl($dbType = '')
 	{
-		return "CREATE ".($this->unique? "UNIQUE ": "")."INDEX ".$this->name." ON ".$this->parent->name."(".$this->body.")";
+		return "CREATE ".($this->fulltext? "FULLTEXT ": "").($this->unique? "UNIQUE ": "")."INDEX ".$this->name." ON ".$this->parent->name."(".$this->body.")";
 	}
 
 	/**

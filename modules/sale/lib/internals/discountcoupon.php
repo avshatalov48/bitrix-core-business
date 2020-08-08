@@ -700,7 +700,7 @@ class DiscountCouponTable extends Main\Entity\DataManager
 		}
 
 		$allchars = 'ABCDEFGHIJKLNMOPQRSTUVWXYZ0123456789';
-		$charsLen = strlen($allchars)-1;
+		$charsLen = mb_strlen($allchars) - 1;
 
 		do
 		{
@@ -708,10 +708,10 @@ class DiscountCouponTable extends Main\Entity\DataManager
 			$partOne = '';
 			$partTwo = '';
 			for ($i = 0; $i < 5; $i++)
-				$partOne .= substr($allchars, rand(0, $charsLen), 1);
+				$partOne .= mb_substr($allchars, rand(0, $charsLen), 1);
 
 			for ($i = 0; $i < 7; $i++)
-				$partTwo .= substr($allchars, rand(0, $charsLen), 1);
+				$partTwo .= mb_substr($allchars, rand(0, $charsLen), 1);
 
 			$result = 'SL-'.$partOne.'-'.$partTwo;
 			if ($check)

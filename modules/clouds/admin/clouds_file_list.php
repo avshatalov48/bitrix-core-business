@@ -43,6 +43,15 @@ $arFilterFields = Array(
 );
 $lAdmin->InitFilter($arFilterFields);
 
+if (mb_strpos($find_name, "*") !== false)
+{
+	$re_find_name = "#^".str_replace(array("\\*", "\\?"), array(".*", ".{0,1}"), preg_quote($find_name, "#"))."$#";
+}
+else
+{
+	$re_find_name = "#".preg_quote($find_name, "#")."#";
+}
+
 if ($arID = $lAdmin->GroupAction())
 {
 	if ($_REQUEST['action_target'] == 'selected')
@@ -52,14 +61,14 @@ if ($arID = $lAdmin->GroupAction())
 		{
 			foreach($arFiles["file"] as $i => $file)
 			{
-				if ($find_name == "" || strpos($file, $find_name) !== false)
+				if ($find_name == "" || preg_match($re_find_name, $file))
 				{
 					$arID[] =  "F".urlencode($file);
 				}
 			}
 			foreach($arFiles["dir"] as $i => $file)
 			{
-				if ($find_name == "" || strpos($file, $find_name) !== false)
+				if ($find_name == "" || preg_match($re_find_name, $file))
 				{
 					$arID[] =  "D".urlencode($file);
 				}
@@ -73,17 +82,17 @@ if($USER->CanDoOperation("clouds_upload") && is_array($arID))
 {
 	foreach($arID as $ID)
 	{
-		if(strlen($ID) <= 0)
+		if($ID == '')
 			continue;
 		$ID = urldecode($ID);
 
 		switch($action)
 		{
 		case "delete":
-			if(substr($ID, 0, 1) === "F")
+			if(mb_substr($ID, 0, 1) === "F")
 			{
-				$file_size = $obBucket->GetFileSize($path.substr($ID, 1));
-				if(!$obBucket->DeleteFile($path.substr($ID, 1)))
+				$file_size = $obBucket->GetFileSize($path.mb_substr($ID, 1));
+				if(!$obBucket->DeleteFile($path.mb_substr($ID, 1)))
 				{
 					$e = $APPLICATION->GetException();
 					if(is_object($e))
@@ -98,14 +107,14 @@ if($USER->CanDoOperation("clouds_upload") && is_array($arID))
 					$obBucket->DecFileCounter($file_size);
 				}
 			}
-			elseif(substr($ID, 0, 1) === "D")
+			elseif(mb_substr($ID, 0, 1) === "D")
 			{
-				$arFiles = $obBucket->ListFiles($path.substr($ID, 1), true);
+				$arFiles = $obBucket->ListFiles($path.mb_substr($ID, 1), true);
 				if (is_array($arFiles))
 				{
 					foreach($arFiles["file"] as $i => $file)
 					{
-						if(!$obBucket->DeleteFile($path.substr($ID, 1)."/".$file))
+						if(!$obBucket->DeleteFile($path.mb_substr($ID, 1)."/".$file))
 						{
 							$e = $APPLICATION->GetException();
 							if(is_object($e))
@@ -371,11 +380,11 @@ if($USER->CanDoOperation("clouds_upload") && is_array($arID))
 			elseif($ID !== "Fnew")
 			{
 				//TODO check for ../../../
-				$filePath = substr($ID, 1);
+				$filePath = mb_substr($ID, 1);
 				$filePath = "/".$path."/".$filePath;
 				$filePath = preg_replace("#[\\\\\\/]+#", "/", $filePath);
 
-				$f = $io->GetFile(preg_replace("#[\\\\\\/]+#", "/", $_SERVER["DOCUMENT_ROOT"]."/".$path."/".substr($ID, 1)));
+				$f = $io->GetFile(preg_replace("#[\\\\\\/]+#", "/", $_SERVER["DOCUMENT_ROOT"]."/".$path."/".mb_substr($ID, 1)));
 			}
 			elseif(isset($_REQUEST["filePath"]))
 			{
@@ -392,7 +401,7 @@ if($USER->CanDoOperation("clouds_upload") && is_array($arID))
 				break;
 
 			if(
-				substr($ID, 0, 1) !== "F"
+				mb_substr($ID, 0, 1) !== "F"
 				|| $obBucket->ACTIVE !== "Y"
 				|| $obBucket->READ_ONLY !== "N"
 			)
@@ -604,10 +613,10 @@ if(is_array($arFiles))
 {
 	foreach($arFiles["file"] as $i => $file)
 	{
-		$p = strpos($file, "/");
+		$p = mb_strpos($file, "/");
 		if ($p !== false)
 		{
-			$dir = substr($file, 0, $p);
+			$dir = mb_substr($file, 0, $p);
 			if (isset($arFiles["dir"][$dir]))
 			{
 				$arFiles["dir"][$dir]["FILE_SIZE"] += $arFiles["file_size"][$i];
@@ -626,7 +635,7 @@ if(is_array($arFiles))
 				);
 			}
 		}
-		elseif ($find_name == "" || strpos($file, $find_name) !== false)
+		elseif ($find_name == "" || preg_match($re_find_name, $file))
 		{
 			$arData[] = array(
 				"ID" => "F".urlencode($file),
@@ -643,12 +652,12 @@ if(is_array($arFiles))
 	{
 		if (is_array($dir))
 		{
-			if ($find_name == "" || strpos($dir["NAME"], $find_name) !== false)
+			if ($find_name == "" || preg_match($re_find_name, $dir["NAME"]))
 			{
 				$arData[] = $dir;
 			}
 		}
-		elseif ($find_name == "" || strpos($dir, $find_name) !== false)
+		elseif ($find_name == "" || preg_match($re_find_name, $dir))
 		{
 			$size = '';
 			$count = '';

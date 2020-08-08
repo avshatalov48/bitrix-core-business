@@ -26,7 +26,7 @@ return array(
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'THEME_CODE' => '1construction',
-			'THEME_CODE_TYPO' => '3corporate',
+
 		),
 	),
 	'layout' => array(),
@@ -73,7 +73,7 @@ return array(
 					0 => 'navbar navbar-expand-lg g-py-0 u-navbar-color-black u-navbar-align-right',
 				),
 				'#wrapper' => array(
-					0 => 'landing-block landing-block-menu g-bg-white u-header u-header--floating u-header--floating-relative g-z-index-9999',
+					0 => 'landing-block landing-block-menu g-bg-white u-header u-header--sticky u-header--relative g-z-index-9999',
 				),
 			),
 		),

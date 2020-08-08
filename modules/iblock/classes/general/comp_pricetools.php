@@ -1499,7 +1499,7 @@ class CIBlockPriceTools
 			$checkFields = array();
 			foreach (array_keys($arOrder) as $code)
 			{
-				$code = strtoupper($code);
+				$code = mb_strtoupper($code);
 				$arSelect[$code] = 1;
 				if ($code == 'ID' || $code == 'CATALOG_AVAILABLE')
 					continue;

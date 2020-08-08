@@ -317,7 +317,7 @@ class MessageMail implements Message\iBase, Message\iMailable
 
 		if (Integration\Bitrix24\Service::isCloud())
 		{
-			if ($mailBody && strpos($mailBody, '#UNSUBSCRIBE_LINK#') === false)
+			if ($mailBody && mb_strpos($mailBody, '#UNSUBSCRIBE_LINK#') === false)
 			{
 				$result = new Result();
 				$result->addError(new Error(Loc::getMessage('SENDER_INTEGRATION_MAIL_MESSAGE_ERR_NO_UNSUB_LINK')));

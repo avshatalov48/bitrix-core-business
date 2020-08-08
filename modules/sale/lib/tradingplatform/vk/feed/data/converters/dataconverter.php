@@ -23,7 +23,7 @@ abstract class DataConverter
 	 */
 	protected static function convertQuotes($str)
 	{
-		if (strlen($str) > 0)
+		if ($str <> '')
 		{
 //			check quotes
 			$str = preg_replace(
@@ -95,7 +95,7 @@ abstract class DataConverter
 	protected static function matchLength($string)
 	{
 //		base length
-		$length = strlen($string);
+		$length = mb_strlen($string);
 
 //		construct regexp for find all special chars
 		$regexp = '';
@@ -141,7 +141,7 @@ abstract class DataConverter
 		}
 		else
 		{
-			$newPadLength = \Bitrix\Main\Text\BinaryString::getLength($string) - strlen($string) + $padLength;
+			$newPadLength = \Bitrix\Main\Text\BinaryString::getLength($string) - mb_strlen($string) + $padLength;
 			
 			return str_pad($string, $newPadLength, $padString, $padType);
 		}
@@ -162,8 +162,8 @@ abstract class DataConverter
 			return $string;
 		}
 		
-		$cropLength = $currLength - $needLength + strlen(self::END_STRING);
-		$substrLength = strlen($string) - $cropLength;
+		$cropLength = $currLength - $needLength + mb_strlen(self::END_STRING);
+		$substrLength = mb_strlen($string) - $cropLength;
 		
 //		if so more spechialchars, can't match correct new length.
 //		Use hack and find minimal 100% correct length
@@ -178,7 +178,7 @@ abstract class DataConverter
 			$substrLength = floor($needLength / $maxSpecialCharLength);
 		}
 		
-		return substr($string, 0, $substrLength) . self::END_STRING;
+		return mb_substr($string, 0, $substrLength).self::END_STRING;
 	}
 }
 

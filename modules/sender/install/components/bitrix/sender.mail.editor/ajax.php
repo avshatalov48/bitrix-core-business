@@ -4,12 +4,11 @@ define('BX_SECURITY_SHOW_MESSAGE', true);
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
 
-use Bitrix\Main\Loader;
-use Bitrix\Sender\Internals\QueryController as Controller;
-use Bitrix\Sender\Internals\CommonAjax;
 use Bitrix\Main\HttpRequest;
+use Bitrix\Sender\Internals\CommonAjax;
+use Bitrix\Sender\Internals\QueryController as Controller;
 
-if (!Loader::includeModule('sender'))
+if (!Bitrix\Main\Loader::includeModule('sender'))
 {
 	return;
 }
@@ -61,11 +60,11 @@ $actions[] = Controller\Action::create('saveFile')
 					$isCheckedSuccess = false;
 					$io = \CBXVirtualIo::GetInstance();
 					$docRoot = \Bitrix\Main\Application::getDocumentRoot();
-					if(strpos($filePath, \CTempFile::GetAbsoluteRoot()) === 0)
+					if(mb_strpos($filePath, \CTempFile::GetAbsoluteRoot()) === 0)
 					{
 						$absPath = $filePath;
 					}
-					elseif(strpos($io->CombinePath($docRoot, $filePath), \CTempFile::GetAbsoluteRoot()) === 0)
+					elseif(mb_strpos($io->CombinePath($docRoot, $filePath), \CTempFile::GetAbsoluteRoot()) === 0)
 					{
 						$absPath = $io->CombinePath($docRoot, $filePath);
 					}
@@ -108,7 +107,7 @@ $actions[] = Controller\Action::create('saveFile')
 			foreach($fileList as $tmpFileName => $file)
 			{
 				$fid = \Bitrix\Sender\Internals\PostFiles::saveFile($file);
-				if($fid > 0 && ($filePath = \CFile::GetPath($fid)) && strlen($filePath) > 0)
+				if($fid > 0 && ($filePath = \CFile::GetPath($fid)) && $filePath <> '')
 				{
 					$result['data']['list'][] = array(
 						'tmp' => $tmpFileName,

@@ -60,12 +60,12 @@
 .bx-contentview-popup .bx-contentview-popup-img:last-child {
 	margin-bottom: 0;
 }
-.bx-contentview-popup-img:link span,
-.bx-contentview-popup-img:visited span {
+.bx-contentview-popup .bx-contentview-popup-img:link span,
+.bx-contentview-popup .bx-contentview-popup-img:visited span {
 	color:#525C69;
 	text-decoration:none;
 }
-.bx-contentview-popup-img:hover span {
+.bx-contentview-popup .bx-contentview-popup-img:hover span {
 	color:#525C69;
 	text-decoration:underline;
 }

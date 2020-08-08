@@ -1,0 +1,37 @@
+@charset "UTF-8";
+
+@font-face
+{
+	font-family: "finance";
+	src: url("/bitrix/templates/landing24/assets/vendor/icon/icon-finance/font.woff") format("woff");
+	font-weight: normal;
+	font-style: normal;
+}
+
+[data-icon-finance]:before
+{
+	font-family: "finance" !important;
+	content: attr(data-icon-finance);
+	font-style: normal !important;
+	font-weight: normal !important;
+	font-variant: normal !important;
+	text-transform: none !important;
+	speak: none;
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+[class^="icon-finance"]:before,
+[class*=" icon-finance"]:before
+{
+	font-family: "finance" !important;
+	font-style: normal !important;
+	font-weight: normal !important;
+	font-variant: normal !important;
+	text-transform: none !important;
+	speak: none;
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}

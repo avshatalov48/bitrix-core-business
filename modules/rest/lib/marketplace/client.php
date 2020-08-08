@@ -31,7 +31,8 @@ class Client
 		$allowedActions = array(
 			Transport::METHOD_GET_LAST,
 			Transport::METHOD_GET_DEV,
-			Transport::METHOD_GET_BEST
+			Transport::METHOD_GET_BEST,
+			Transport::METHOD_GET_SALE_OUT
 		);
 
 		if(in_array($action, $allowedActions))
@@ -220,12 +221,18 @@ class Client
 		);
 	}
 
-	public static function getLastByTag($tag, $pageSize = false)
+	public static function getLastByTag($tag, $page = false, $pageSize = false)
 	{
 		$queryFields = Array(
 			"tag" => $tag,
 			"sort" => "date_public"
 		);
+
+		$page = intval($page);
+		if($page > 0)
+		{
+			$queryFields["page"] = $page;
+		}
 
 		if($pageSize > 0)
 		{
@@ -255,6 +262,30 @@ class Client
 
 		return Transport::instance()->call(
 			Transport::METHOD_GET_APP,
+			$queryFields
+		);
+	}
+
+	public static function getAppPublic($code, $version = false, $checkHash = false, $installHash = false)
+	{
+		$queryFields = [
+			"code" => $code
+		];
+
+		$version = intval($version);
+		if($version > 0)
+		{
+			$queryFields["ver"] = $version;
+		}
+
+		if($checkHash !== false)
+		{
+			$queryFields["check_hash"] = $checkHash;
+			$queryFields["install_hash"] = $installHash;
+		}
+
+		return Transport::instance()->call(
+			Transport::METHOD_GET_APP_PUBLIC,
 			$queryFields
 		);
 	}

@@ -54,6 +54,7 @@ class UIToolbarComponent extends CBitrixComponent
 
 		$pageTitle = $GLOBALS["APPLICATION"]->getViewContent("pagetitle");
 		$insidePageTitle = $GLOBALS["APPLICATION"]->getViewContent("inside_pagetitle");
+		$inPageTitle = $GLOBALS["APPLICATION"]->getViewContent("in_pagetitle");
 
 		$isBitrix24Cloud = ModuleManager::isModuleInstalled("bitrix24");
 		/** @var \CIntranetToolbar $oldToolbar */
@@ -70,7 +71,7 @@ class UIToolbarComponent extends CBitrixComponent
 				&& count($oldToolbar->getButtons()) > 0
 			));
 
-		if (strlen($pageTitle) || strlen($insidePageTitle) || $oldToolbarButtons)
+		if ($pageTitle <> '' || $insidePageTitle <> '' || $inPageTitle <> '' || $oldToolbarButtons)
 		{
 			$this->includeComponentTemplate("old");
 		}

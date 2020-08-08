@@ -7,12 +7,12 @@ class CAllSaleOrderTax
 	{
 		global $DB;
 
-		if ((is_set($arFields, "ORDER_ID") || $ACTION=="ADD") && IntVal($arFields["ORDER_ID"])<=0)
+		if ((is_set($arFields, "ORDER_ID") || $ACTION=="ADD") && intval($arFields["ORDER_ID"])<=0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGOT_EMPTY_ORDER_ID"), "ERROR_NO_ORDER_ID");
 			return false;
 		}
-		if ((is_set($arFields, "TAX_NAME") || $ACTION=="ADD") && strlen($arFields["TAX_NAME"])<=0)
+		if ((is_set($arFields, "TAX_NAME") || $ACTION=="ADD") && $arFields["TAX_NAME"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGOT_EMPTY_TAX_NAME"), "ERROR_NO_TAX_NAME");
 			return false;
@@ -58,7 +58,7 @@ class CAllSaleOrderTax
 			}
 		}
 
-		if ((is_set($arFields, "CODE") || $ACTION=="ADD") && strlen($arFields["CODE"])<=0)
+		if ((is_set($arFields, "CODE") || $ACTION=="ADD") && $arFields["CODE"] == '')
 			$arFields["CODE"] = false;
 
 		return true;
@@ -72,7 +72,7 @@ class CAllSaleOrderTax
 	public static function Update($ID, $arFields)
 	{
 		global $DB;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		if (!static::CheckFields("UPDATE", $arFields)) return false;
 
@@ -88,14 +88,14 @@ class CAllSaleOrderTax
 	public static function Delete($ID)
 	{
 		global $DB;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		return $DB->Query("DELETE FROM ".static::getTableName()." WHERE ID = ".$ID."", true);
 	}
 
 	public static function DeleteEx($ORDER_ID)
 	{
 		global $DB;
-		$ORDER_ID = IntVal($ORDER_ID);
+		$ORDER_ID = intval($ORDER_ID);
 		return $DB->Query("DELETE FROM ".static::getTableName()." WHERE ORDER_ID = ".$ORDER_ID."", true);
 	}
 
@@ -103,7 +103,7 @@ class CAllSaleOrderTax
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$strSql =
 			"SELECT ID, ORDER_ID, TAX_NAME, VALUE, VALUE_MONEY, APPLY_ORDER, CODE, IS_PERCENT, IS_IN_PRICE ".
 			"FROM ".static::getTableName()." ".
@@ -130,13 +130,13 @@ class CAllSaleOrderTax
 		for ($i = 0; $i < $cnt; $i++)
 		{
 			if ($i == 0)
-				$prevOrder = IntVal($arTaxList[$i]["APPLY_ORDER"]);
+				$prevOrder = intval($arTaxList[$i]["APPLY_ORDER"]);
 
-			if ($prevOrder != IntVal($arTaxList[$i]["APPLY_ORDER"]))
+			if ($prevOrder != intval($arTaxList[$i]["APPLY_ORDER"]))
 			{
 				$tax_koeff += $part_sum;
 				$part_sum = 0.00;
-				$prevOrder = IntVal($arTaxList[$i]["APPLY_ORDER"]);
+				$prevOrder = intval($arTaxList[$i]["APPLY_ORDER"]);
 			}
 
 			$val = $tax_koeff * DoubleVal($arTaxList[$i]["VALUE"]) / 100.00;
@@ -157,13 +157,13 @@ class CAllSaleOrderTax
 		for ($i = 0; $i < $cnt; $i++)
 		{
 			if ($i==0)
-				$prevOrder = IntVal($arTaxList[$i]["APPLY_ORDER"]);
+				$prevOrder = intval($arTaxList[$i]["APPLY_ORDER"]);
 
-			if ($prevOrder <> IntVal($arTaxList[$i]["APPLY_ORDER"]))
+			if ($prevOrder <> intval($arTaxList[$i]["APPLY_ORDER"]))
 			{
 				$tax_koeff += $part_sum;
 				$part_sum = 0.00;
-				$prevOrder = IntVal($arTaxList[$i]["APPLY_ORDER"]);
+				$prevOrder = intval($arTaxList[$i]["APPLY_ORDER"]);
 			}
 
 			$val = $tax_koeff * DoubleVal($arTaxList[$i]["VALUE"]) / 100.00;

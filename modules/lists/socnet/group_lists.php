@@ -2,6 +2,8 @@
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 	die();
 
+use Bitrix\Lists\Copy\Integration\Group;
+
 $pageId = "group_group_lists";
 include($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/bitrix/socialnetwork_group/templates/.default/util_group_menu.php");
 include($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/bitrix/socialnetwork_group/templates/.default/util_group_profile.php");
@@ -23,8 +25,13 @@ $APPLICATION->includeComponent(
 	"bitrix:socialnetwork.copy.checker",
 	"",
 	[
-		"QUEUE_ID" => $arResult["VARIABLES"]["group_id"],
-		"HELPER" => new Bitrix\Lists\Copy\Integration\Group()
+		"moduleId" => Group::MODULE_ID,
+		"queueId" => $arResult["VARIABLES"]["group_id"],
+		"stepperClassName" => Group::STEPPER_CLASS,
+		"checkerOption" => Group::CHECKER_OPTION,
+		"errorOption" => Group::ERROR_OPTION,
+		"titleMessage" => GetMessage("LISTS_STEPPER_PROGRESS_TITLE"),
+		"errorMessage" => GetMessage("LISTS_STEPPER_PROGRESS_ERROR"),
 	],
 	$component,
 	["HIDE_ICONS" => "Y"]

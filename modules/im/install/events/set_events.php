@@ -48,7 +48,7 @@ while ($lang = $langs->Fetch())
 	{
 		if ($isIntranet)
 		{
-			$notifyMessage = "<?EventMessageThemeCompiler::includeComponent(\"bitrix:intranet.template.mail\",\"\",array(\"MESSAGE\" => \"{#MESSAGE#}\",\"FROM_USER\" => \"{#FROM_USER#}\",\"USER_NAME\" => \"{#USER_NAME#}\",\"SERVER_NAME\" => \"{#SERVER_NAME#}\",\"DATE_CREATE\" => \"{#DATE_CREATE#}\",\"FROM_USER_ID\" => \"{#FROM_USER_ID# }\",\"TEMPLATE_TYPE\" => \"IM_NEW_NOTIFY\"));?>";
+			$notifyMessage = "<?EventMessageThemeCompiler::includeComponent(\"bitrix:intranet.template.mail\",\"\",array(\"MESSAGE\" => \$arParams['MESSAGE'],\"FROM_USER\" => \"{#FROM_USER#}\",\"USER_NAME\" => \"{#USER_NAME#}\",\"SERVER_NAME\" => \"{#SERVER_NAME#}\",\"DATE_CREATE\" => \"{#DATE_CREATE#}\",\"FROM_USER_ID\" => \"{#FROM_USER_ID# }\",\"TEMPLATE_TYPE\" => \"IM_NEW_NOTIFY\"));?>";
 		}
 		else
 		{

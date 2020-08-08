@@ -22,6 +22,7 @@ Extension::load([
 	'loader',
 	'ui.actionpanel',
 	'ui.fonts.opensans',
+	'ui.buttons',
 	'dnd',
 ]);
 
@@ -104,8 +105,8 @@ $displayedCount = count(
 					?></span><?
 					endif;
 				?></span><?
-				?><span class="main-grid-settings-window-actions-item-button webform-small-button" id="<?=$arParams["GRID_ID"]?>-grid-settings-apply-button"><?=Loc::getMessage("interface_grid_apply_settings")?></span><?
-				?><span class="main-grid-settings-window-actions-item-button webform-small-button webform-small-button-transparent" id="<?=$arParams["GRID_ID"]?>-grid-settings-cancel-button"><?=Loc::getMessage("interface_grid_cancel_settings")?></span><?
+				?><span class="ui-btn ui-btn-success main-grid-settings-window-actions-item-button" id="<?=$arParams["GRID_ID"]?>-grid-settings-apply-button"><?=Loc::getMessage("interface_grid_apply_settings")?></span><?
+				?><span class="ui-btn ui-btn-link main-grid-settings-window-actions-item-button" id="<?=$arParams["GRID_ID"]?>-grid-settings-cancel-button"><?=Loc::getMessage("interface_grid_cancel_settings")?></span><?
 			?></div><?
 		?></div><?
 		?><div class="main-grid-wrapper<?=!$arParams["ALLOW_HORIZONTAL_SCROLL"] ? " main-grid-full" : "" ?>"><?
@@ -165,7 +166,7 @@ $displayedCount = count(
 							?></thead><?
 						endif ?><?
 							?><tbody><?
-							if (empty($arParams['ROWS'])): ?><?
+							if (empty($arParams['ROWS']) || (count($arParams['ROWS']) === 1 && $arParams['ROWS'][0]['id'] === 'template_0')): ?><?
 								?><tr class="main-grid-row main-grid-row-empty main-grid-row-body"><?
 									?><td class="main-grid-cell main-grid-cell-center" colspan="<?=count($arParams['COLUMNS']) + $additionalColumnsCount + $stickedColumnsCount?>"><?
 										if (!isset($_REQUEST["apply_filter"])) :
@@ -185,7 +186,8 @@ $displayedCount = count(
 										endif; ?><?
 									?></td><?
 								?></tr><?
-							else:
+							endif;
+							if (!empty($arResult['ROWS']) || (count($arParams['ROWS']) === 1 && $arParams['ROWS'][0]['id'] === 'template_0')) :
 								foreach($arParams['ROWS'] as $key => $arRow):
 									$rowClasses = isset($arRow['columnClasses']) && is_array($arRow['columnClasses'])
 										? $arRow['columnClasses'] : array();
@@ -208,6 +210,7 @@ $displayedCount = count(
 									$collapseRow = ($arParams["ENABLE_COLLAPSIBLE_ROWS"] && isset($arRow["parent_group_id"]) && $lastCollapseGroup === $arRow["parent_group_id"]);?>
 
 									<tr class="main-grid-row main-grid-row-body<?=$arRow["not_count"] ? " main-grid-not-count" : ""?><?=$arRow["expand"] ? " main-grid-row-expand" : ""?><?=$arRow["draggable"] === false ? " main-grid-row-drag-disabled" : ""?><?=$collapseRow ? " main-grid-hide" : ""?>" data-child-loaded="<?=$arRow["expand"]?"true":"false"?>" data-depth="<?=htmlspecialcharsbx($arRow["depth"])?>" data-id="<?=$data_id ?>"<?=$arParams["ENABLE_COLLAPSIBLE_ROWS"] ? " data-parent-id=\"".htmlspecialcharsbx($arRow["parent_id"])."\"" : ""?> <?if(!empty($sDefAction["js"])):?> data-default-action="<?=Text\HtmlFilter::encode($sDefAction["js"])?>" title="<?=GetMessage("interface_grid_dblclick")?><?=$sDefAction["title"]?>"<?endif;?><?=$arRow["attrs_string"]?>>
+									<tr class="main-grid-row main-grid-row-body<?=$arRow["not_count"] ? " main-grid-not-count" : ""?><?=$arRow["expand"] ? " main-grid-row-expand" : ""?><?=$arRow["draggable"] === false ? " main-grid-row-drag-disabled" : ""?><?=$collapseRow ? " main-grid-hide" : ""?>" data-child-loaded="<?=$arRow["expand"]?"true":"false"?>" data-depth="<?=htmlspecialcharsbx($arRow["depth"])?>" data-id="<?=$data_id ?>"<?=$arParams["ENABLE_COLLAPSIBLE_ROWS"] ? " data-parent-id=\"".htmlspecialcharsbx($arRow["parent_id"])."\"" : ""?> <?if(!empty($sDefAction["js"])):?> data-default-action="<?=Text\HtmlFilter::encode($sDefAction["js"])?>" title="<?=GetMessage("interface_grid_dblclick")?><?=$sDefAction["title"]?>"<?endif;?><?=$arRow["attrs_string"]?>>
 										<? if ($arParams["ALLOW_ROWS_SORT"] && $arRow["draggable"] !== false) : ?>
 											<th class="main-grid-cell main-grid-cell-drag" rowspan="<?=count($arParams["ROW_LAYOUT"])?>">
 												<span class="main-grid-cell-content">&nbsp;</span>
@@ -223,11 +226,11 @@ $displayedCount = count(
 										<? endif ?>
 										<? if ($arParams["SHOW_ROW_ACTIONS_MENU"] || $arParams["SHOW_GRID_SETTINGS_MENU"]) : ?>
 											<td class="main-grid-cell main-grid-cell-action" rowspan="<?=count($arParams["ROW_LAYOUT"])?>">
-												<? if (!empty($arRow["actions"]) && $arParams["SHOW_ROW_ACTIONS_MENU"]) : ?>
-													<span class="main-grid-cell-content">
+												<span class="main-grid-cell-content">
+													<? if (!empty($arRow["actions"]) && $arParams["SHOW_ROW_ACTIONS_MENU"]) : ?>
 														<a href="#" class="main-grid-row-action-button" data-actions="<?=$actions?>"></a>
-													</span>
-												<? endif; ?>
+													<? endif; ?>
+												</span>
 											</td>
 										<? endif; ?>
 
@@ -398,11 +401,11 @@ $displayedCount = count(
 									endif ?><?
 										if ($arParams["SHOW_ROW_ACTIONS_MENU"] || $arParams["SHOW_GRID_SETTINGS_MENU"]) :
 											?><td class="main-grid-cell main-grid-cell-action"><?
-												if (!empty($arRow["actions"]) && $arParams["SHOW_ROW_ACTIONS_MENU"]) : ?><?
-													?><span class="main-grid-cell-content"><?
+												?><span class="main-grid-cell-content"><?
+													if (!empty($arRow["actions"]) && $arParams["SHOW_ROW_ACTIONS_MENU"]) : ?><?
 														?><a href="#" class="main-grid-row-action-button" data-actions="<?=$actions?>"></a><?
-													?></span><?
-												endif
+													endif;
+												?></span><?
 											?></td><?
 
 										endif; ?><?
@@ -727,6 +730,8 @@ endif; ?>
 							"SETTINGS_FOR_ALL_CONFIRM_CANCEL" => Loc::getMessage("interface_grid_settings_for_all_cancel"),
 							"MAIN_UI_GRID_IMAGE_EDITOR_BUTTON_EDIT" => Loc::getMessage("interface_grid_image_editor_button_edit"),
 							"MAIN_UI_GRID_IMAGE_EDITOR_BUTTON_REMOVE" => Loc::getMessage("interface_grid_image_editor_button_remove"),
+							"SAVE_BUTTON_LABEL" => Loc::getMessage("interface_grid_save"),
+							"CANCEL_BUTTON_LABEL" => Loc::getMessage("interface_grid_cancel"),
 							"CLOSE" => Loc::getMessage("interface_grid_settings_close"),
 							"IS_ADMIN" => $USER->CanDoOperation("edit_other_settings"),
 							"MESSAGES" => $arResult["MESSAGES"],
@@ -736,6 +741,7 @@ endif; ?>
                             "ALLOW_STICKED_COLUMNS" => $arParams["ALLOW_STICKED_COLUMNS"],
                             "CHECKBOX_COLUMN_ENABLED" => $arParams["SHOW_ROW_CHECKBOXES"],
                             "ACTION_COLUMN_ENABLED" => ($arParams["SHOW_ROW_ACTIONS_MENU"] || $arParams["SHOW_GRID_SETTINGS_MENU"]),
+                            "ADVANCED_EDIT_MODE" => $arParams["ADVANCED_EDIT_MODE"],
 						)
 					)?>,
 					<?=CUtil::PhpToJSObject($arResult["OPTIONS"])?>,

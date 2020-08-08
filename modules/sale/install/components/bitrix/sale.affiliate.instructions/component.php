@@ -4,42 +4,42 @@ if(!CBXFeatures::IsFeatureEnabled('SaleAffiliate'))
 	return;
 
 $arParams["REGISTER_PAGE"] = Trim($arParams["REGISTER_PAGE"]);
-if (StrLen($arParams["REGISTER_PAGE"]) <= 0)
+if ($arParams["REGISTER_PAGE"] == '')
 	$arParams["REGISTER_PAGE"] = "register.php";
 
 $arParams["SHOP_NAME"] = trim($arParams["SHOP_NAME"]);
 
 $arParams["SHOP_URL"] = trim($arParams["SHOP_URL"]);
 
-if (strlen($arParams["SHOP_NAME"]) <= 0 || strlen($arParams["SHOP_URL"]) <= 0)
+if ($arParams["SHOP_NAME"] == '' || $arParams["SHOP_URL"] == '')
 {
 	$dbSite = CSite::GetList(($b="sort"), ($o="asc"), array("LID" => SITE_ID));
 	if ($arParams["arSite"] = $dbSite->GetNext())
 	{
-		if (strlen($arParams["SHOP_NAME"]) <= 0)
+		if ($arParams["SHOP_NAME"] == '')
 			$arParams["SHOP_NAME"] = $arParams["arSite"]["SITE_NAME"];
-		if (strlen($arParams["SHOP_URL"]) <= 0)
+		if ($arParams["SHOP_URL"] == '')
 			$arParams["SHOP_URL"] = $arParams["arSite"]["SERVER_NAME"];
 	}
 }
 
-if (strlen($arParams["SHOP_NAME"]) <=0)
+if ($arParams["SHOP_NAME"] == '')
 	$arParams["SHOP_NAME"] = COption::GetOptionString("main", "site_name", "");
 
-if (strlen($arParams["SHOP_URL"]) <=0)
+if ($arParams["SHOP_URL"] == '')
 {
-	if (defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME) > 0)
+	if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '')
 		$arParams["SHOP_URL"] = SITE_SERVER_NAME;
 	else
 		$arParams["SHOP_URL"] = COption::GetOptionString("main", "server_name", "");
 }
 
 $arParams["AFF_REG_PAGE"] = Trim($arParams["AFF_REG_PAGE"]);
-if (StrLen($arParams["AFF_REG_PAGE"]) <= 0)
+if ($arParams["AFF_REG_PAGE"] == '')
 	$arParams["AFF_REG_PAGE"] = "/affiliate/register.php";
 
 
-if (strlen($arParams["SET_TITLE"]) <= 0) $arParams["SET_TITLE"] = "Y";
+if ($arParams["SET_TITLE"] == '') $arParams["SET_TITLE"] = "Y";
 	
 if (CModule::IncludeModule("sale"))
 {
@@ -51,7 +51,7 @@ if (CModule::IncludeModule("sale"))
 		$dbAffiliate = CSaleAffiliate::GetList(
 			array("TRANSACT_DATE" => "ASC"),
 			array(
-				"USER_ID" => IntVal($GLOBALS["USER"]->GetID()),
+				"USER_ID" => intval($GLOBALS["USER"]->GetID()),
 				"SITE_ID" => SITE_ID,
 			),
 			false,

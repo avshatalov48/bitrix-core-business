@@ -50,10 +50,10 @@
 			<?
 			if(($arResult["GPS_N"]) != 0 && ($arResult["GPS_S"]) != 0)
 			{
-				$gpsN = substr($arResult["GPS_N"],0,15);
-				$gpsS = substr($arResult["GPS_S"],0,15);
+				$gpsN = mb_substr($arResult["GPS_N"], 0, 15);
+				$gpsS = mb_substr($arResult["GPS_S"], 0, 15);
 				$gpsText = $arResult["ADDRESS"];
-				$gpsTextLen = strlen($arResult["ADDRESS"]);
+				$gpsTextLen = mb_strlen($arResult["ADDRESS"]);
 				if($arResult["MAP"] == 0)
 				{
 					$APPLICATION->IncludeComponent("bitrix:map.yandex.view", ".default", array(

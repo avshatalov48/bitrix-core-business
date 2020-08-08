@@ -81,7 +81,7 @@ if($USER->IsAuthorized() && check_bitrix_sessid() && $bUserCanDeductOrder)
 
 			}
 
-			if(strlen($undoReason) > 0)
+			if($undoReason <> '')
 				$undoReason = $APPLICATION->ConvertCharset($undoReason, 'utf-8', SITE_CHARSET);
 
 			if (!CSaleOrder::DeductOrder($orderId, $deducted, $undoReason, false, $arStoreInfo))

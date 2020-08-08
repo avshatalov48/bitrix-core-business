@@ -237,7 +237,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 		self::tryParseString($arParams["PATH_TO_PAYMENT"], "payment.php");
 
 		self::tryParseString($arParams["PATH_TO_CANCEL"], $APPLICATION->GetCurPage()."?"."ID=#ID#");
-		$arParams["PATH_TO_CANCEL"] .= (strpos($arParams["PATH_TO_CANCEL"], "?") === false ? "?" : "&");
+		$arParams["PATH_TO_CANCEL"] .= (mb_strpos($arParams["PATH_TO_CANCEL"], "?") === false ? "?" : "&");
 
 		self::tryParseString($arParams["ACTIVE_DATE_FORMAT"], "d.m.Y");
 
@@ -281,7 +281,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 		{
 			$arParams['HIDE_USER_INFO'] = array();
 		}
-		
+
 		return $arParams;
 	}
 
@@ -295,7 +295,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 		foreach($fld as $k => &$item)
 		{
 			$item = trim($item);
-			if(!strlen($item))
+			if($item == '')
 				unset($fld[$k]);
 		}
 
@@ -329,7 +329,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 	public static function tryParseString(&$fld, $default)
 	{
 		$fld = trim((string)$fld);
-		if(!strlen($fld) && isset($default))
+		if(!mb_strlen($fld) && isset($default))
 			$fld = htmlspecialcharsbx($default);
 
 		return $fld;
@@ -386,7 +386,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 	{
 		$this->requestData["ID"] = urldecode(urldecode($this->arParams["ID"]));
 
-		if (!strlen($this->requestData["ID"]))
+		if ($this->requestData["ID"] == '')
 			$this->doCaseOrderIdNotSet();
 	}
 
@@ -402,7 +402,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 
 			foreach($this->arParams['CUSTOM_SELECT_PROPS'] as $prop)
 			{
-				if (strpos($prop, 'PROPERTY_') !== false)
+				if (mb_strpos($prop, 'PROPERTY_') !== false)
 				{
 					$propId = str_replace('PROPERTY_', '', $prop);
 
@@ -547,6 +547,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 			}
 
 			$basketValues['FORMATED_SUM'] = SaleFormatCurrency($basketValues["PRICE"] * $basketValues['QUANTITY'], $basketValues["CURRENCY"]);
+			$basketValues['FORMATED_BASE_SUM'] = SaleFormatCurrency($basketValues["BASE_PRICE"] * $basketValues['QUANTITY'], $basketValues["CURRENCY"]);
 
 			$basket[$basketValues['ID']] = $basketValues;
 		}
@@ -603,7 +604,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 
 			foreach ($this->arParams['CUSTOM_SELECT_PROPS'] as $customProperty)
 			{
-				if (strpos($customProperty, "PROPERTY_") !== false)
+				if (mb_strpos($customProperty, "PROPERTY_") !== false)
 				{
 					$code = str_replace('PROPERTY_', '', $customProperty);
 					if (!in_array($code , $skuPropertyCodes))
@@ -659,7 +660,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 				{
 					foreach ($productProperties[$productId] as $key => $value)
 					{
-						if (strpos($key, "PROPERTY_") !== false || in_array($key, $imgFields))
+						if (mb_strpos($key, "PROPERTY_") !== false || in_array($key, $imgFields))
 						{
 							$item[$key] = $value;
 						}
@@ -672,13 +673,13 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 					$arFieldsToFill = array_merge($this->arParams['CUSTOM_SELECT_PROPS'], $imgFields); // fields to be filled with parents' values if empty
 					foreach ($arFieldsToFill as $field)
 					{
-						if(!strlen($field))
+						if($field == '')
 							continue;
-						$field = strtoupper($field);
+						$field = mb_strtoupper($field);
 						$fieldVal = (in_array($field, $imgFields)) ? $field : $field."_VALUE";
 						$parentId = $skuParentMap[$item["PRODUCT_ID"]];
 
-						if ((!isset($item[$fieldVal]) || (isset($item[$fieldVal]) && strlen($item[$fieldVal]) == 0))
+						if ((!isset($item[$fieldVal]) || (isset($item[$fieldVal]) && $item[$fieldVal] == ''))
 							&& (isset($productProperties[$parentId][$fieldVal]) && !empty($productProperties[$parentId][$fieldVal]))) // can be array or string
 						{
 							$item[$fieldVal] = $productProperties[$parentId][$fieldVal];
@@ -756,7 +757,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 		$propertyCodes = [];
 		foreach ($select as $selectName)
 		{
-			if (strpos($selectName, 'PROPERTY_') !== false)
+			if (mb_strpos($selectName, 'PROPERTY_') !== false)
 			{
 				$propertyCodes[] = str_replace('PROPERTY_', '', $selectName);
 			}
@@ -1362,7 +1363,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 				}
 			}
 
-			if ($shipmentFields["DELIVERY_ID"] > 0 && strlen($shipmentFields["TRACKING_NUMBER"]))
+			if ($shipmentFields["DELIVERY_ID"] > 0 && mb_strlen($shipmentFields["TRACKING_NUMBER"]))
 			{
 				$shipmentFields["TRACKING_URL"] = $trackingManager->getTrackingUrl($shipmentFields["DELIVERY_ID"], $shipmentFields["TRACKING_NUMBER"]);
 			}
@@ -1399,7 +1400,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 			$this->formatDate($paymentFields);
 			$paymentOrder[$paymentFields['ID']] = $paymentFields;
 		}
-		
+
 		$orderFields['PAYMENT'] = $paymentOrder;
 
 		$orderFields['IS_ALLOW_PAY'] = $this->order->isAllowPay() ? 'Y' : 'N';
@@ -1484,8 +1485,8 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 						$handlerFolder = Sale\PaySystem\Manager::getPathToHandlerFolder($service->getField('ACTION_FILE'));
 						$pathToAction = Main\Application::getDocumentRoot().$handlerFolder;
 						$pathToAction = str_replace("\\", "/", $pathToAction);
-						while (substr($pathToAction, strlen($pathToAction) - 1, 1) == "/")
-							$pathToAction = substr($pathToAction, 0, strlen($pathToAction) - 1);
+						while (mb_substr($pathToAction, mb_strlen($pathToAction) - 1, 1) == "/")
+							$pathToAction = mb_substr($pathToAction, 0, mb_strlen($pathToAction) - 1);
 						if (file_exists($pathToAction))
 						{
 							if (is_dir($pathToAction) && file_exists($pathToAction."/payment.php"))
@@ -1695,7 +1696,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 			{
 				continue;
 			}
-			
+
 			foreach ($shipment['ITEMS'] as $i => &$item)
 			{
 				if (isset($basket[$item['BASKET_ID']]))
@@ -1765,7 +1766,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 		}
 		if (empty ($this->arParams["PATH_TO_COPY"]))
 		{
-			$urlSign = (strstr($this->arParams["PATH_TO_LIST"], "?")) ? '&' : "?";
+			$urlSign = (mb_strstr($this->arParams["PATH_TO_LIST"], "?")) ? '&' : "?";
 			$this->arResult["URL_TO_COPY"] = CComponentEngine::makePathFromTemplate($this->arParams["PATH_TO_LIST"].$urlSign.'ID=#ID#', array("ID" => urlencode(urlencode( $this->arResult["ACCOUNT_NUMBER"]))))."&amp;COPY_ORDER=Y";
 		}
 		else
@@ -1774,6 +1775,8 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 		}
 		$this->arResult["URL_TO_LIST"] = $this->arParams["PATH_TO_LIST"];
 		$this->arResult["SITE_ID"] =  $this->arResult["LID"];
+
+		$this->arResult["RETURN_URL"] = (new Sale\PaySystem\Context())->getUrl();
 	}
 
 	/**
@@ -1895,7 +1898,7 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 			{
 				$shipment["DELIVERY"]["NAME"] = htmlspecialcharsbx($shipment["DELIVERY"]["NAME"]);
 				$shipment["DELIVERY"]["SRC_LOGOTIP"] = CFile::GetPath($shipment["DELIVERY"]['LOGOTIP']);
-				if (!strlen($shipment["DELIVERY"]["SRC_LOGOTIP"]))
+				if ($shipment["DELIVERY"]["SRC_LOGOTIP"] == '')
 				{
 					$shipment["DELIVERY"]["SRC_LOGOTIP"] = '/bitrix/images/sale/logo-default-d.gif';
 				}
@@ -2094,12 +2097,14 @@ class CBitrixPersonalOrderDetailComponent extends CBitrixComponent
 	 */
 	protected function formatDate(&$arr)
 	{
-		if (strlen($this->arParams['ACTIVE_DATE_FORMAT']))
+		if($this->arParams['ACTIVE_DATE_FORMAT'] <> '')
 		{
-			foreach ($this->orderDateFields2Convert as $fld)
+			foreach($this->orderDateFields2Convert as $fld)
 			{
-				if (!empty($arr[$fld]))
+				if(!empty($arr[$fld]))
+				{
 					$arr[$fld."_FORMATED"] = CIBlockFormatProperties::DateFormat($this->arParams['ACTIVE_DATE_FORMAT'], MakeTimeStamp($arr[$fld]));
+				}
 			}
 		}
 	}

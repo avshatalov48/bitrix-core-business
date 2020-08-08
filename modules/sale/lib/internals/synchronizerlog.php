@@ -55,7 +55,7 @@ class SynchronizerLogTable extends DataManager
 
 		if ($loggingRecord = $r->fetch())
 		{
-			if(strlen($loggingRecord['MAX_DATE_INSERT'])>0)
+			if($loggingRecord['MAX_DATE_INSERT'] <> '')
 			{
 				$maxDateInsert = $loggingRecord['MAX_DATE_INSERT'];
 				$date = new DateTime($maxDateInsert);

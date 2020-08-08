@@ -207,7 +207,7 @@ class ConverterDocumentShipment extends Converter
 					break;
 				case 'CURRENCY':
 					$replaceCurrency = $settings->getReplaceCurrency();
-					$value = substr($replaceCurrency<>'' ? $replaceCurrency:$traits[$k], 0, 3);
+					$value = mb_substr($replaceCurrency <> ''? $replaceCurrency : $traits[$k], 0, 3);
 					break;
 				case 'CURRENCY_RATE':
 					$value = self::CURRENCY_RATE_DEFAULT;;
@@ -255,7 +255,7 @@ class ConverterDocumentShipment extends Converter
 						switch($name)
 						{
 							case 'PRICE_DELIVERY':
-								$valueRV = (strlen($traits['PRICE_DELIVERY'])>0? $traits['PRICE_DELIVERY']:"0.0000");
+								$valueRV = ($traits['PRICE_DELIVERY'] <> ''? $traits['PRICE_DELIVERY']:"0.0000");
 								break;
 							case 'DATE_ALLOW_DELIVERY':
 							case 'DELIVERY_LOCATION':

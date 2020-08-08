@@ -1,14 +1,19 @@
 <?
 
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ErrorCollection;
-
-use Bitrix\Sender\UI;
-use Bitrix\Sender\Security;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Sender\ListTable;
+use Bitrix\Sender\Security;
+use Bitrix\Sender\UI;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
+	die();
+}
+
+if (!Bitrix\Main\Loader::includeModule('sender'))
+{
+	ShowError('Module `sender` not installed');
 	die();
 }
 
@@ -36,7 +41,7 @@ class SenderContactSetSelectorComponent extends CBitrixComponent
 			?
 			$this->arParams['CAN_EDIT']
 			:
-			Security\Access::current()->canModifySegments();
+			Security\Access::getInstance()->canModifySegments();
 
 		$this->arParams['INPUT_NAME'] = isset($this->arParams['INPUT_NAME']) ? $this->arParams['INPUT_NAME'] : 'CAMPAIGN_ID';
 		$this->arParams['READONLY'] = isset($this->arParams['READONLY']) ? (bool) $this->arParams['READONLY'] : false;

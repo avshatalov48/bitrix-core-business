@@ -297,3 +297,34 @@ select.log-filter-field-inp {
 	padding-top: 10px;
 	text-align: center;
 }
+
+#feed_filter_button.ui-btn {
+	margin-left: 7px;
+	opacity: .5;
+	width: 30px;
+	z-index: 130;
+}
+
+#feed_filter_button.ui-btn:hover {
+	opacity: 1;
+}
+
+.profile-menu-group + .pagetitle-wrap > .pagetitle-inner-container {
+	padding-right: 0;
+}
+
+.ui-btn-filter-button:after {
+	left: 50%;
+	top: 50%;
+	transform: none;
+	cursor: pointer;
+	margin: -12px 0 0 -12px;
+}
+
+.ui-btn.ui-btn-filter-button:after {
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2215%22%20height%3D%2215%22%3E%3Cpath%20fill%3D%22%23525C69%22%20fill-rule%3D%22evenodd%22%20d%3D%22M15%208.443V6.555h-1.828a5.68%205.68%200%2000-.982-2.41l1.282-1.28-1.335-1.335-1.281%201.28a5.696%205.696%200%2000-2.398-1.003V0H6.572v1.802a5.72%205.72%200%2000-2.422.99L2.875%201.52%201.54%202.855l1.275%201.271a5.7%205.7%200%2000-1%202.429H0v1.888h1.815c.15.888.495%201.705%201.001%202.406L1.53%2012.134l1.335%201.334%201.287-1.287c.708.502%201.529.84%202.42.985V15h1.885v-1.84a5.672%205.672%200%20002.394-.994l1.294%201.295%201.338-1.336-1.3-1.297c.5-.695.841-1.506.989-2.387h1.828l.001.002zm-7.503%202.556A3.499%203.499%200%20017.5%204a3.5%203.5%200%2011.001%207l-.003-.001z%22/%3E%3C/svg%3E);
+}
+
+.bitrix24-light-theme .ui-btn.ui-btn-filter-button:after {
+	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2215%22%20height%3D%2215%22%3E%3Cpath%20fill%3D%22%23fff%22%20fill-rule%3D%22evenodd%22%20d%3D%22M15%208.443V6.555h-1.828a5.68%205.68%200%2000-.982-2.41l1.282-1.28-1.335-1.335-1.281%201.28a5.696%205.696%200%2000-2.398-1.003V0H6.572v1.802a5.72%205.72%200%2000-2.422.99L2.875%201.52%201.54%202.855l1.275%201.271a5.7%205.7%200%2000-1%202.429H0v1.888h1.815c.15.888.495%201.705%201.001%202.406L1.53%2012.134l1.335%201.334%201.287-1.287c.708.502%201.529.84%202.42.985V15h1.885v-1.84a5.672%205.672%200%20002.394-.994l1.294%201.295%201.338-1.336-1.3-1.297c.5-.695.841-1.506.989-2.387h1.828l.001.002zm-7.503%202.556A3.499%203.499%200%20017.5%204a3.5%203.5%200%2011.001%207l-.003-.001z%22/%3E%3C/svg%3E);
+}

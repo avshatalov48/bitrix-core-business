@@ -634,6 +634,7 @@ if ($errors)
 	<script type="text/javascript">function reloadForm(){document.getElementById('form1').submit();}</script>
 	<?=GetFilterHiddens("filter_")?>
 	<input type="hidden" name="Update" value="Y">
+	<input type="hidden" name="ID" value="<?echo $propertyId ?>">
 	<input type="hidden" name="lang" value="<?=LANG?>">
 	<input type="hidden" name="PREVIOUS-TYPE" value="<?=htmlspecialcharsbx($property['TYPE'])?>">
 	<?=bitrix_sessid_post()?>

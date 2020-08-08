@@ -15,7 +15,7 @@ $componentParameters = array(
 	'PATH_TO_LIST' => $arResult['PATH_TO_LIST'],
 	'PATH_TO_IMPORT' => $arResult['PATH_TO_IMPORT'],
 	'BLACKLIST' => 'Y',
-	'CAN_EDIT' => Security\Access::current()->canModifyBlacklist(),
+	'CAN_EDIT' => Security\Access::getInstance()->canModifyBlacklist(),
 );
 if ($_REQUEST['IFRAME'] == 'Y')
 {

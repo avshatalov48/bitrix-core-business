@@ -43,7 +43,7 @@ foreach ($arResult['ROWS'] as $index => $data)
 		}
 
 		$data['ADDRESS_COUNT'] = implode(', ', $counterStrings);
-		$data['ADDRESS_COUNT'] = strtolower($data['ADDRESS_COUNT']);
+		$data['ADDRESS_COUNT'] = mb_strtolower($data['ADDRESS_COUNT']);
 	}
 
 	$actions = array();

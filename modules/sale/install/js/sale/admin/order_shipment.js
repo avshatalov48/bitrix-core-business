@@ -1168,13 +1168,13 @@ BX.Sale.Admin.OrderShipment.prototype.showCreateCheckWindow = function(shipmentI
 					'width': '516',
 					'buttons': [
 						{
-							title: top.BX.message('JS_CORE_WINDOW_SAVE'),
+							title: window.BX.message('JS_CORE_WINDOW_SAVE'),
 							id: 'saveCheckBtn',
 							name: 'savebtn',
-							className: top.BX.browser.IsIE() && top.BX.browser.IsDoctype() && !top.BX.browser.IsIE10() ? '' : 'adm-btn-save'
+							className: window.BX.browser.IsIE() && window.BX.browser.IsDoctype() && !window.BX.browser.IsIE10() ? '' : 'adm-btn-save'
 						},
 						{
-							title: top.BX.message('JS_CORE_WINDOW_CANCEL'),
+							title: window.BX.message('JS_CORE_WINDOW_CANCEL'),
 							id: 'cancelCheckBtn',
 							name: 'cancel'
 						}
@@ -1319,12 +1319,19 @@ BX.Sale.Admin.GeneralShipment =
 		);
 	},
 
-	createNewShipment : function()
+	createNewShipment : function(event, data)
 	{
-		var orderId = BX('ID').value;
-		window.location = '/bitrix/admin/sale_order_shipment_edit.php?lang='+BX.Sale.Admin.OrderEditPage.languageId+'&order_id='+orderId+'&backurl='+encodeURIComponent(window.location.pathname+window.location.search);
-	},
+        data = data ? data : {};
+        addParams = BX.prop.getObject(data, 'addParams', {});
 
+		var orderId = BX('ID').value;
+        url = '/bitrix/admin/sale_order_shipment_edit.php?lang='+BX.Sale.Admin.OrderEditPage.languageId+'&order_id='+orderId+'&backurl='+encodeURIComponent(window.location.pathname+window.location.search);
+		if (addParams)
+            url = BX.util.add_url_param(url, addParams);
+
+		window.location = url;
+	},
+	
 	findProductByBarcode : function(_this)
 	{
 		BX.hide(_this.parentNode);

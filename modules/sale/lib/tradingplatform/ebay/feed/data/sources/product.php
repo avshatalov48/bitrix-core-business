@@ -25,7 +25,7 @@ class Product
 		if(!$this->ebay->isActive())
 			throw new SystemException("Ebay is not active!".__METHOD__);
 
-		if(!isset($params["SITE_ID"]) || strlen($params["SITE_ID"]) <= 0)
+		if(!isset($params["SITE_ID"]) || $params["SITE_ID"] == '')
 			throw new ArgumentNullException("SITE_ID");
 
 		$this->siteId = $params["SITE_ID"];
@@ -99,7 +99,7 @@ class Product
 
 	public function setStartPosition($startPos = "")
 	{
-		if(strlen($startPos) > 3) // format: iBlockId_RecordNumber
+		if(mb_strlen($startPos) > 3) // format: iBlockId_RecordNumber
 		{
 			$positions = explode("_", $startPos);
 

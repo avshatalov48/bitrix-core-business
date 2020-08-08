@@ -29,6 +29,7 @@ class CatalogSectionComponent extends ElementList
 	{
 		parent::__construct($component);
 		$this->setExtendedMode(false)->setMultiIblockMode(false)->setPaginationMode(true);
+		$this->setSeparateLoading(true);
 	}
 
 	public function onPrepareComponentParams($params)
@@ -151,14 +152,14 @@ class CatalogSectionComponent extends ElementList
 			$sectionIterator->SetUrlTemplates('', $this->arParams['SECTION_URL']);
 			$sectionResult = $sectionIterator->GetNext();
 		}
-		elseif (strlen($this->arParams['SECTION_CODE']) > 0)
+		elseif ($this->arParams['SECTION_CODE'] <> '')
 		{
 			$filterFields['=CODE'] = $this->arParams['SECTION_CODE'];
 			$sectionIterator = CIBlockSection::GetList(array(), $filterFields, false, $selectFields);
 			$sectionIterator->SetUrlTemplates('', $this->arParams['SECTION_URL']);
 			$sectionResult = $sectionIterator->GetNext();
 		}
-		elseif (strlen($this->arParams['SECTION_CODE_PATH']) > 0)
+		elseif ($this->arParams['SECTION_CODE_PATH'] <> '')
 		{
 			$sectionId = CIBlockFindTools::GetSectionIDByCodePath($this->arParams['IBLOCK_ID'], $this->arParams['SECTION_CODE_PATH']);
 			if ($sectionId)
@@ -385,9 +386,7 @@ class CatalogSectionComponent extends ElementList
 
 				$returnUrl = array(
 					'add_section' => (
-					strlen($this->arParams['SECTION_URL'])
-						? $this->arParams['SECTION_URL']
-						: CIBlock::GetArrayByID($this->arParams['IBLOCK_ID'], 'SECTION_PAGE_URL')
+					$this->arParams['SECTION_URL'] <> ''? $this->arParams['SECTION_URL'] : CIBlock::GetArrayByID($this->arParams['IBLOCK_ID'], 'SECTION_PAGE_URL')
 					),
 					'delete_section' => $urlDeleteSectionButton,
 				);

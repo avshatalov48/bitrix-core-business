@@ -7,7 +7,7 @@ $orderSumBankPaycash = $_POST["orderSumBankPaycash"];
 $action = $_POST["action"];
 $orderCreatedDatetime = $_POST["orderCreatedDatetime"];
 $paymentType = $_POST["paymentType"];
-$customerNumber = IntVal($_POST["customerNumber"]);
+$customerNumber = intval($_POST["customerNumber"]);
 $invoiceId = $_POST["invoiceId"];
 $md5 = $_POST["md5"];
 $paymentDateTime = $_POST["paymentDateTime"];
@@ -31,7 +31,7 @@ $customerNumber = CSalePaySystemAction::GetParamValue("ORDER_ID");
 $changePayStatus =  trim(CSalePaySystemAction::GetParamValue("CHANGE_STATUS_PAY"));
 $shopPassword = CSalePaySystemAction::GetParamValue("SHOP_KEY");
 
-if(strlen($shopPassword) <=0)
+if($shopPassword == '')
 	$bCorrectPayment = False;
 
 $strCheck = md5(implode(";", array($orderIsPaid, $orderSumAmount, $orderSumCurrencyPaycash, $orderSumBankPaycash, $shopId, $invoiceId,  $customerNumber, $shopPassword)));
@@ -64,7 +64,7 @@ if($bCorrectPayment)
 
 		$arFields = array(
 				"PS_STATUS" => "Y",
-				"PS_STATUS_CODE" => substr($action, 0, 5),
+				"PS_STATUS_CODE" => mb_substr($action, 0, 5),
 				"PS_STATUS_DESCRIPTION" => $strPS_STATUS_DESCRIPTION,
 				"PS_STATUS_MESSAGE" => $strPS_STATUS_MESSAGE,
 				"PS_SUM" => $orderSumAmount,
@@ -73,7 +73,7 @@ if($bCorrectPayment)
 			);
 		
 		// You can comment this code if you want PAYED flag not to be set automatically
-		if (FloatVal($arOrder["PRICE"]) == FloatVal($orderSumAmount) && IntVal($orderIsPaid) == 1)
+		if (FloatVal($arOrder["PRICE"]) == FloatVal($orderSumAmount) && intval($orderIsPaid) == 1)
 		{
 			if ($changePayStatus == "Y")
 			{
@@ -98,7 +98,7 @@ if($bCorrectPayment)
 		}
 		
 		if(CSaleOrder::Update($arOrder["ID"], $arFields))
-			if(strlen($techMessage)<=0 && strlen($code)<=0)
+			if($techMessage == '' && $code == '')
 				$code = "0";
 	}
 	else
@@ -109,12 +109,12 @@ if($bCorrectPayment)
 }
 
 $APPLICATION->RestartBuffer();
-$dateISO = date("Y-m-d\TH:i:s").substr(date("O"), 0, 3).":".substr(date("O"), -2, 2);
+$dateISO = date("Y-m-d\TH:i:s").mb_substr(date("O"), 0, 3).":".mb_substr(date("O"), -2, 2);
 header("Content-Type: text/xml");
 header("Pragma: no-cache");
 $text = "<"."?xml version=\"1.0\" encoding=\"windows-1251\"?".">\n";
 $text .= "<response performedDatetime=\"".$dateISO."\">";
-if(strlen($techMessage) > 0)
+if($techMessage <> '')
 	$text .= "<result code=\"".$code."\" action=\"".htmlspecialcharsbx($action)."\" shopId=\"".$shopId."\" invoiceId=\"".htmlspecialcharsbx($invoiceId)."\" techMessage=\"".$techMessage."\"/>";
 else
 	$text .= "<result code=\"".$code."\" action=\"".htmlspecialcharsbx($action)."\" shopId=\"".$shopId."\" invoiceId=\"".htmlspecialcharsbx($invoiceId)."\"/>";

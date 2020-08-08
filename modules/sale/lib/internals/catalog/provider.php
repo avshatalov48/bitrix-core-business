@@ -1638,9 +1638,9 @@ final class Provider
 	 */
 	private static function clearProviderName($providerName)
 	{
-		if (substr($providerName, 0, 1) == "\\")
+		if (mb_substr($providerName, 0, 1) == "\\")
 		{
-			$providerName = substr($providerName, 1);
+			$providerName = mb_substr($providerName, 1);
 		}
 
 		return trim($providerName);

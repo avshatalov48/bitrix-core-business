@@ -73,14 +73,14 @@ class Mobile
 		}
 		else
 		{
-			$deviceDetectSource = strtolower(Context::getCurrent()->getServer()->get("HTTP_USER_AGENT"));
+			$deviceDetectSource = mb_strtolower(Context::getCurrent()->getServer()->get("HTTP_USER_AGENT"));
 		}
 
-		if (strrpos(ToUpper($deviceDetectSource), "IPHONE") > 0 || strrpos(ToUpper($deviceDetectSource), "IPAD") > 0)
+		if (mb_strrpos(ToUpper($deviceDetectSource), "IPHONE") > 0 || mb_strrpos(ToUpper($deviceDetectSource), "IPAD") > 0)
 		{
 			self::$platform = "ios";
 		}
-		elseif (strrpos(ToUpper($deviceDetectSource), "ANDROID") > 0 || strrpos(ToUpper($deviceDetectSource), "ANDROID") === 0)
+		elseif (mb_strrpos(ToUpper($deviceDetectSource), "ANDROID") > 0 || mb_strrpos(ToUpper($deviceDetectSource), "ANDROID") === 0)
 		{
 			self::$platform = "android";
 		}
@@ -105,7 +105,7 @@ class Mobile
 
 		if (array_key_exists("MOBILE_API_VERSION", $_COOKIE))
 		{
-			self::$apiVersion = intval($_COOKIE["MOBILE_API_VERSION"]);
+			self::$apiVersion = $_COOKIE["MOBILE_API_VERSION"];
 		}
 		elseif ($APPLICATION->get_cookie("MOBILE_APP_VERSION"))
 		{
@@ -113,7 +113,7 @@ class Mobile
 		}
 		elseif (array_key_exists("api_version", $_REQUEST))
 		{
-			self::$apiVersion = intval($_REQUEST["api_version"]);
+			self::$apiVersion = $_REQUEST["api_version"];
 		}
 		else
 		{
@@ -124,6 +124,8 @@ class Mobile
 				self::$apiVersion = $pregMatch[0];
 			}
 		}
+
+		self::$apiVersion = intval(self::$apiVersion);
 	}
 
 	/**
@@ -263,7 +265,7 @@ JSCODE;
 			$APPLICATION->AddHeadString($androidJS, false, true);
 		}
 		$userAgent = \Bitrix\Main\Context::getCurrent()->getServer()->get("HTTP_USER_AGENT");
-		if(strpos($userAgent, "WKWebView/BitrixMobile") === false)
+		if(mb_strpos($userAgent, "WKWebView/BitrixMobile") === false)
 		{
 			if (self::getInstance()->getBXScriptSupported())
 			{

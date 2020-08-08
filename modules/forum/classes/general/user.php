@@ -324,7 +324,30 @@ class CAllForumUser
 		unset($GLOBALS["FORUM_CACHE"]["USER"]);
 		unset($GLOBALS["FORUM_CACHE"]["USER_ID"]);
 
-		$result = UserTable::update($ID, $arFields);
+		$entity = \Bitrix\Forum\UserTable::getEntity();
+		$data = [];
+		foreach ($arFields as $k => $v)
+		{
+			$k = (strpos($k, "=") === 0 ? substr($k, 1) : $k);
+			if ($entity->hasField($k))
+			{
+				$field = $entity->getField($k);
+				$data[$k] = $v;
+				if ($field instanceof \Bitrix\Main\ORM\Fields\DateField)
+				{
+					$data[$k] = new \Bitrix\Main\Type\DateTime(\Bitrix\Main\Type\DateTime::isCorrect($v) ? $v : null);
+				}
+				else if (
+					!is_array($v)
+					&& preg_match("/{$k}\s*\\+\s*(\d+)/", $v, $matches)
+				)
+				{
+					$data[$k] = new \Bitrix\Main\DB\SqlExpression("?# + ".$matches[1], $k);
+				}
+			}
+		}
+
+		$result = UserTable::update($ID, $data);
 		if (!$result->isSuccess())
 		{
 			return false;

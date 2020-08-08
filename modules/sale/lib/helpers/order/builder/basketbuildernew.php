@@ -38,7 +38,14 @@ class BasketBuilderNew implements IBasketBuilderDelegate
 
 	public function getItemFromBasket($basketCode, $productData)
 	{
-		$item = $this->builder->getBasket()->getExistsItem($productData["MODULE"], $productData["OFFER_ID"], $productData["PROPS"]);
+		if(empty($productData['MANUALLY_EDITED']))
+		{
+			$item = $this->builder->getBasket()->getExistsItem($productData["MODULE"], $productData["OFFER_ID"], $productData["PROPS"]);
+		}
+		else
+		{
+			$item = $this->builder->getBasket()->getItemByBasketCode($basketCode);
+		}
 
 		if($item == null && $basketCode != BasketBuilder::BASKET_CODE_NEW)
 		{

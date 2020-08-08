@@ -489,6 +489,7 @@ if ($arResult['DO_NOT_CACHE'] || $this->StartResultCache($arParams["CACHE_TIME"]
 								$res['~POST_MESSAGE_TEXT'] = $commentAuxProvider->getText();
 								$res["AUX"] = $commentAuxProvider->getType();
 								$res["AUX_LIVE_PARAMS"] = array();
+								$res["CAN_DELETE"] = ($commentAuxProvider->canDelete() ? 'Y' : 'N');
 							}
 						}
 					}

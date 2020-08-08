@@ -1,9 +1,11 @@
 <?
 $MESS["MAIL_CLIENT_AJAX_ERROR"] = "Error processing the request.";
+$MESS["MAIL_CLIENT_BUTTON_LOADING"] = "Loading...";
 $MESS["MAIL_CLIENT_CANCELATION_WARNING_3"] = "Email synchronization is not available on your plan. New emails will not be visible in Bitrix24.
 Task related emails will remain. Other emails will be deleted.<br>
 Upgrade to <a href=\"/settings/license_all.php\" target=\"_blank\">one of the extended plans</a> to connect emails and enjoy other productivity features.
 Select a plan your business wants and needs.";
+$MESS["MAIL_CLIENT_CONFIG_DIRS_SYNC_EMPTY_WARNING"] = "Please select folders to synchronize with the remote mailbox.";
 $MESS["MAIL_CLIENT_DENIED"] = "Access denied";
 $MESS["MAIL_CLIENT_ELEMENT_DENIED"] = "Access denied";
 $MESS["MAIL_CLIENT_ELEMENT_NOT_FOUND"] = "Item was not found.";
@@ -12,7 +14,11 @@ $MESS["MAIL_CLIENT_HOME_TITLE"] = "Mail";
 $MESS["MAIL_CLIENT_MAILBOX_ADD"] = "Connect new";
 $MESS["MAIL_CLIENT_MAILBOX_INDEX_BAR"] = "Indexing";
 $MESS["MAIL_CLIENT_MAILBOX_SYNC_BAR"] = "Synchronization";
+$MESS["MAIL_CLIENT_MAILBOX_SYNC_BAR_COMPLETED"] = "Synchronization completed";
+$MESS["MAIL_CLIENT_MAILBOX_SYNC_BAR_INTERRUPTED"] = "Synchronization aborted";
 $MESS["MAIL_CLIENT_SAVE_ERROR"] = "Error saving data";
+$MESS["MAIL_DISK_ACTION_SAVE_TO_OWN_FILES"] = "Save to Bitrix24.Drive";
+$MESS["MAIL_DISK_FILE_DOWNLOAD_ARCHIVE"] = "Download all files as archive";
 $MESS["MAIL_MAILBOX_LICENSE_CONNECTED_MAILBOXES_LIMIT_BODY"] = "The number of mailboxes per employee depends on the active Bitrix24 plan.
 <br><br>
 Your current plan allows #LIMIT# mailboxes per employee.";
@@ -37,6 +43,8 @@ $MESS["MAIL_MESSAGE_EMPTY_SENDER"] = "Specify sender";
 $MESS["MAIL_MESSAGE_EMPTY_SUBJECT_PLACEHOLDER"] = "(no subject)";
 $MESS["MAIL_MESSAGE_EXT_BIND_CRM_EMPTY_TITLE"] = "Item";
 $MESS["MAIL_MESSAGE_EXT_BIND_CRM_TITLE"] = "CRM";
+$MESS["MAIL_MESSAGE_EXT_BIND_POSTS_EMPTY_TITLE"] = "Message";
+$MESS["MAIL_MESSAGE_EXT_BIND_POSTS_TITLE"] = "Messages";
 $MESS["MAIL_MESSAGE_EXT_BIND_TASKS_EMPTY_TITLE"] = "Task";
 $MESS["MAIL_MESSAGE_EXT_BIND_TASKS_TITLE"] = "Tasks";
 $MESS["MAIL_MESSAGE_EXT_BLOCK_LINK"] = "More...";
@@ -47,10 +55,12 @@ $MESS["MAIL_MESSAGE_LIST_BTN_DELETE"] = "Delete";
 $MESS["MAIL_MESSAGE_LIST_BTN_MOVE"] = "Move to folder";
 $MESS["MAIL_MESSAGE_LIST_BTN_NOT_SPAM"] = "Not spam";
 $MESS["MAIL_MESSAGE_LIST_BTN_SEEN"] = "Read";
+$MESS["MAIL_MESSAGE_LIST_BTN_SEEN_ALL"] = "Mark all as read";
 $MESS["MAIL_MESSAGE_LIST_BTN_SPAM"] = "Mark as spam";
 $MESS["MAIL_MESSAGE_LIST_BTN_UNSEEN"] = "Unread";
 $MESS["MAIL_MESSAGE_LIST_BTN_VIEW"] = "Open";
 $MESS["MAIL_MESSAGE_LIST_COLUMN_BIND"] = "Processed";
+$MESS["MAIL_MESSAGE_LIST_COLUMN_BIND_BLOG_POST"] = "Message";
 $MESS["MAIL_MESSAGE_LIST_COLUMN_BIND_CRM_ACTIVITY"] = "CRM";
 $MESS["MAIL_MESSAGE_LIST_COLUMN_BIND_EVENT"] = "Event";
 $MESS["MAIL_MESSAGE_LIST_COLUMN_BIND_IM"] = "Chat";
@@ -62,6 +72,7 @@ $MESS["MAIL_MESSAGE_LIST_COLUMN_SUBJECT"] = "Subject";
 $MESS["MAIL_MESSAGE_LIST_CONFIRM_CANCEL_BTN"] = "Cancel";
 $MESS["MAIL_MESSAGE_LIST_CONFIRM_DELETE"] = "Messages will be deleted permanently. <br>You will not be able to recover them.";
 $MESS["MAIL_MESSAGE_LIST_CONFIRM_DELETE_BTN"] = "Delete";
+$MESS["MAIL_MESSAGE_LIST_CONFIRM_READ_ALL"] = "Are you sure you want to mark all messages in this folder as read?";
 $MESS["MAIL_MESSAGE_LIST_CONFIRM_TITLE"] = "Confirm action";
 $MESS["MAIL_MESSAGE_LIST_COUNTERS_EMPTY"] = "There are no messages to act on";
 $MESS["MAIL_MESSAGE_LIST_COUNTERS_TITLE"] = "Messages";
@@ -75,6 +86,7 @@ $MESS["MAIL_MESSAGE_LIST_FILTER_OPTION_ANY"] = "Not important";
 $MESS["MAIL_MESSAGE_LIST_FILTER_OPTION_N"] = "No";
 $MESS["MAIL_MESSAGE_LIST_FILTER_OPTION_Y"] = "Yes";
 $MESS["MAIL_MESSAGE_LIST_FILTER_PRESET_BIND_CRM"] = "CRM";
+$MESS["MAIL_MESSAGE_LIST_FILTER_PRESET_BIND_POST"] = "Messages";
 $MESS["MAIL_MESSAGE_LIST_FILTER_PRESET_BIND_TASK"] = "Tasks";
 $MESS["MAIL_MESSAGE_LIST_FILTER_PRESET_INCOME"] = "Inbox";
 $MESS["MAIL_MESSAGE_LIST_FILTER_PRESET_OUTCOME"] = "Sent";
@@ -88,6 +100,7 @@ $MESS["MAIL_MESSAGE_LIST_NOTIFY_SUCCESS"] = "Success";
 $MESS["MAIL_MESSAGE_LIST_SETTINGS_LINK"] = "Mailbox settings";
 $MESS["MAIL_MESSAGE_LIST_SIGNATURE_LINK"] = "Edit signature";
 $MESS["MAIL_MESSAGE_LOG_MORE"] = "Show more";
+$MESS["MAIL_MESSAGE_MAX_SIZE_EXCEED"] = "Maximum possible attachment size exceeded (#SIZE#)";
 $MESS["MAIL_MESSAGE_NEW_ADD_RCPT"] = "Add recipient";
 $MESS["MAIL_MESSAGE_NEW_BCC"] = "BCC";
 $MESS["MAIL_MESSAGE_NEW_BTN"] = "New message";
@@ -100,6 +113,7 @@ $MESS["MAIL_MESSAGE_NEW_SUBJECT"] = "Subject";
 $MESS["MAIL_MESSAGE_NEW_SUBJECT_PH"] = "Enter message subject";
 $MESS["MAIL_MESSAGE_NEW_TO"] = "To";
 $MESS["MAIL_MESSAGE_NEW_UPLOADING"] = "Please wait while the attachments are loading";
+$MESS["MAIL_MESSAGE_POST_TITLE"] = "Email: #SUBJECT#";
 $MESS["MAIL_MESSAGE_RCPT"] = "To";
 $MESS["MAIL_MESSAGE_RCPT_BCC"] = "BCC";
 $MESS["MAIL_MESSAGE_RCPT_CC"] = "Copy";

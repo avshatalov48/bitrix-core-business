@@ -613,8 +613,8 @@ class CAllWorkflow
 			}
 
 			$link = "/bitrix/admin/workflow_edit.php?lang=".$lang."&site=".$SITE_ID."&fname=".$FILENAME;
-			if (strlen($template)>0) $link .= "&template=".urlencode($template);
-			if (strlen($return_url)>0) $link .= "&return_url=".urlencode($return_url);
+			if ($template <> '') $link .= "&template=".urlencode($template);
+			if ($return_url <> '') $link .= "&return_url=".urlencode($return_url);
 			$z = CWorkflow::GetByFilename($FILENAME, $SITE_ID);
 			if ($zr = $z->Fetch())
 			{
@@ -821,7 +821,7 @@ class CAllWorkflow
 			}
 
 			// still good
-			if (strlen($strError)<=0)
+			if ($strError == '')
 			{
 				// publish the document
 				$y = CWorkflow::GetByID($DOCUMENT_ID);
@@ -834,7 +834,7 @@ class CAllWorkflow
 				{
 					// save file
 					$prolog = $yr["PROLOG"];
-					if (strlen($prolog)>0)
+					if ($prolog <> '')
 					{
 						$title = $yr["TITLE"];
 						$prolog = SetPrologTitle($prolog, $title);
@@ -860,7 +860,7 @@ class CAllWorkflow
 			}
 		}
 
-		if (strlen($strError)<=0)
+		if ($strError == '')
 		{
 			// update db
 			$arFields = array(
@@ -987,7 +987,7 @@ class CAllWorkflow
 			}
 			$DOC_ROOT = CSite::GetSiteDocRoot($site);
 			// new one
-			if (strlen($wf_path)>0)
+			if ($wf_path <> '')
 			{
 				$pathto = Rel2Abs($wf_path, $fname);
 				$path = $DOC_ROOT.$pathto;
@@ -1022,7 +1022,7 @@ class CAllWorkflow
 	{
 		if($site!==false)
 		{
-			if(strlen($site)>0)
+			if($site <> '')
 			{
 				$res = CSite::GetByID($site);
 				if(!($arSite = $res->Fetch()))

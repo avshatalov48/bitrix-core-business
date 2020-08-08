@@ -85,6 +85,17 @@ class LogTable extends Main\Entity\DataManager
 		);
 	}
 
+	/**
+	 * Checks if logging is applicable to the data and logs it if this is the case.
+	 *
+	 * @param \CRestServer $server REST call context.
+	 * @param string $data Response content.
+	 *
+	 * @return void
+	 *
+	 * @see \Bitrix\Rest\Log::checkEntry
+	 * @see \Bitrix\Rest\Log::addEntry
+	 */
 	public static function log(\CRestServer $server, $data)
 	{
 		if(static::checkEntry($server))
@@ -93,39 +104,51 @@ class LogTable extends Main\Entity\DataManager
 		}
 	}
 
+	/**
+	 * Checks if logging is applicable to the rest call.
+	 *
+	 * @param \CRestServer $server REST call context.
+	 *
+	 * @return void
+	 */
 	public static function checkEntry(\CRestServer $server)
 	{
 		global $USER;
 
-		$logOptions = Main\Config\Option::get('rest', 'log', 'N');
-		if(strlen($logOptions) > 0)
+		$logEndTime = intval(\Bitrix\Main\Config\Option::get('rest', 'log_end_time', 0));
+		if ($logEndTime < time())
 		{
-			if($logOptions == 'Y')
-			{
-				return true;
-			}
-
-			$logOptions = unserialize($logOptions);
-			if(is_array($logOptions))
-			{
-				if(
-					isset($logOptions['client_id']) && $server->getClientId() !== $logOptions['client_id']
-					|| isset($logOptions['password_id']) && $server->getPasswordId() !== $logOptions['password_id']
-					|| isset($logOptions['scope']) && $server->getScope() !== $logOptions['scope']
-					|| isset($logOptions['method']) && $server->getMethod() !== $logOptions['method']
-					|| isset($logOptions['user_id']) && $USER->getId() !== $logOptions['user_id']
-				)
-				{
-					return false;
-				}
-
-				return true;
-			}
+			return false;
 		}
 
-		return false;
+		$logOptions = @unserialize(\Bitrix\Main\Config\Option::get('rest', 'log_filters', ''));
+		if (!is_array($logOptions))
+		{
+			$logOptions = array();
+		}
+
+		if(
+			isset($logOptions['client_id']) && $server->getClientId() !== $logOptions['client_id']
+			|| isset($logOptions['password_id']) && $server->getPasswordId() !== $logOptions['password_id']
+			|| isset($logOptions['scope']) && $server->getScope() !== $logOptions['scope']
+			|| isset($logOptions['method']) && $server->getMethod() !== $logOptions['method']
+			|| isset($logOptions['user_id']) && $USER->getId() !== $logOptions['user_id']
+		)
+		{
+			return false;
+		}
+
+		return true;
 	}
 
+	/**
+	 * Adds a log entry.
+	 *
+	 * @param \CRestServer $server REST call context.
+	 * @param string $data Response content.
+	 *
+	 * @return void
+	 */
 	public static function addEntry(\CRestServer $server, $data)
 	{
 		$request = Main\Context::getCurrent()->getRequest();
@@ -142,5 +165,55 @@ class LogTable extends Main\Entity\DataManager
 			'RESPONSE_STATUS' => \CHTTP::getLastStatus(),
 			'RESPONSE_DATA' => $data,
 		));
+	}
+
+	public static function getCountAll()
+	{
+		$entity = static::getEntity();
+		$sqlTableName = static::getTableName();
+
+		$sql = "SELECT count(1) CNT FROM {$sqlTableName}";
+		$query = $entity->getConnection()->query($sql);
+		return $query->fetch()["CNT"];
+	}
+
+	public static function clearAll()
+	{
+		$entity = static::getEntity();
+		$sqlTableName = static::getTableName();
+
+		$sql = "TRUNCATE TABLE {$sqlTableName}";
+		$entity->getConnection()->queryExecute($sql);
+	}
+
+	public static function cleanUpAgent()
+	{
+		$entity = static::getEntity();
+		$sqlTableName = static::getTableName();
+		$connection = $entity->getConnection();
+
+		$lastIdQuery = $connection->query("
+			SELECT max(ID) MID
+			from {$sqlTableName}
+		");
+		$lastId = $lastIdQuery->fetch();
+		if ($lastId && $lastId['MID'])
+		{
+			$date = new Main\Type\DateTime();
+			$date->add("-7D");
+
+			$lastTimeQuery = $connection->query("
+				SELECT TIMESTAMP_X
+				from {$sqlTableName}
+				WHERE ID = $lastId[MID]
+			");
+			$lastTime = $lastTimeQuery->fetch();
+			if ($lastTime && $lastTime['TIMESTAMP_X'] < $date)
+			{
+				static::clearAll();
+			}
+		}
+
+		return "\\Bitrix\\Rest\\LogTable::cleanUpAgent();";
 	}
 }

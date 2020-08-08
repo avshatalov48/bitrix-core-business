@@ -199,26 +199,11 @@ class CCalendarNotify
 		return $fields;
 	}
 
-	public static function ChangeNotify($fields = [], $params)
+	public static function ChangeNotify($fields = [], $params = [])
 	{
 		$fields['NOTIFY_EVENT'] = "change";
 		$fields['NOTIFY_TAG'] = "CALENDAR|INVITE|".$params['eventId']."|".$fields['TO_USER_ID'];
 		$fields['NOTIFY_SUB_TAG'] = "CALENDAR|INVITE|".$params['eventId'];
-
-//		$fields['MESSAGE'] = Loc::getMessage('EC_MESS_INVITE_CHANGED_SITE',
-//			array(
-//				'#TITLE#' => "[url=".$params["pathToEvent"]."]".$params["name"]."[/url]",
-//				'#ACTIVE_FROM#' => $params["from"]
-//			)
-//		);
-//
-//		$fields['MESSAGE_OUT'] = Loc::getMessage('EC_MESS_INVITE_CHANGED',
-//			array(
-//				'#OWNER_NAME#' => CCalendar::GetUserName($params['userId']),
-//				'#TITLE#' => $params["name"],
-//				'#ACTIVE_FROM#' => $params["from"]
-//			)
-//		);
 
 		// Was changed only one field in this case we could be more specific
 		if (count($params['entryChanges']) == 1)
@@ -363,10 +348,6 @@ class CCalendarNotify
 			foreach ($params['entryChanges'] as $change)
 			{
 				$key = $change['fieldKey'];
-				if ($key == 'EXDATE')
-				{
-					$key = 'RRULE';
-				}
 				$changedFieldsList[] = Loc::getMessage('EC_NOTIFY_FIELD_'.$key);
 			}
 			$changedFieldsListMessage = implode(', ', array_unique($changedFieldsList));

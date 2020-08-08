@@ -22,7 +22,7 @@ if (!Loader::includeModule('catalog'))
 
 Loc::loadMessages(__FILE__);
 
-if ($_SERVER["REQUEST_METHOD"]=="POST" && strlen($_POST["action"])>0 && check_bitrix_sessid())
+if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["action"] <> '' && check_bitrix_sessid())
 {
 	$APPLICATION->RestartBuffer();
 

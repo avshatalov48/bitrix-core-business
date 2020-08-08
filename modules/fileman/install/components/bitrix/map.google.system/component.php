@@ -8,7 +8,7 @@ if (!isset($arParams['GOOGLE_VERSION']))
 
 $arParams['DEV_MODE'] = $arParams['DEV_MODE'] == 'Y' ? 'Y' : 'N';
 
-if(strlen($arParams['API_KEY']) <= 0)
+if($arParams['API_KEY'] == '')
 	$arParams['API_KEY'] =  Option::get('fileman', 'google_map_api_key', '');
 
 if (!defined('BX_GMAP_SCRIPT_LOADED'))
@@ -18,14 +18,24 @@ if (!defined('BX_GMAP_SCRIPT_LOADED'))
 	if ($arParams['DEV_MODE'] != 'Y')
 	{
 		$scheme = (CMain::IsHTTPS() ? "https" : "http");
-		$APPLICATION->AddHeadString('<script src="'.$scheme.'://maps.google.com/maps/api/js?key='.$arParams['API_KEY'].'&language='.LANGUAGE_ID.'" charset="utf-8"></script>');
+		$language = LANGUAGE_ID;
+
+		//https://developers.google.com/maps/faq#languagesupport
+		$languageReplaces = ['ua' => 'uk'];
+
+		if(isset($languageReplaces[$language]))
+		{
+			$language = $languageReplaces[$language];
+		}
+
+		$APPLICATION->AddHeadString('<script src="'.$scheme.'://maps.google.com/maps/api/js?key='.$arParams['API_KEY'].'&language='.$language.'" charset="utf-8"></script>');
 
 		define('BX_GMAP_SCRIPT_LOADED', 1);
 	}
 }
 
 $arParams['MAP_ID'] =
-	(strlen($arParams["MAP_ID"])<=0 || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["MAP_ID"])) ?
+	($arParams["MAP_ID"] == '' || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["MAP_ID"])) ?
 	'MAP_'.$this->randString() : $arParams['MAP_ID'];
 
 $arParams['INIT_MAP_LON'] = floatval($arParams['INIT_MAP_LON']);
@@ -85,7 +95,7 @@ else
 }
 
 $arParams['MAP_WIDTH'] = trim($arParams['MAP_WIDTH']);
-if (ToUpper($arParams['MAP_WIDTH']) != 'AUTO' && substr($arParams['MAP_WIDTH'], -1, 1) != '%')
+if (ToUpper($arParams['MAP_WIDTH']) != 'AUTO' && mb_substr($arParams['MAP_WIDTH'], -1, 1) != '%')
 {
 	$arParams['MAP_WIDTH'] = intval($arParams['MAP_WIDTH']);
 	if ($arParams['MAP_WIDTH'] <= 0) $arParams['MAP_WIDTH'] = 600;
@@ -93,7 +103,7 @@ if (ToUpper($arParams['MAP_WIDTH']) != 'AUTO' && substr($arParams['MAP_WIDTH'], 
 }
 
 $arParams['MAP_HEIGHT'] = trim($arParams['MAP_HEIGHT']);
-if (substr($arParams['MAP_HEIGHT'], -1, 1) != '%')
+if (mb_substr($arParams['MAP_HEIGHT'], -1, 1) != '%')
 {
 	$arParams['MAP_HEIGHT'] = intval($arParams['MAP_HEIGHT']);
 	if ($arParams['MAP_HEIGHT'] <= 0) $arParams['MAP_HEIGHT'] = 500;

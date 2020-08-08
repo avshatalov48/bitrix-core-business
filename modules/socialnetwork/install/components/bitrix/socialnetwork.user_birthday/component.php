@@ -7,22 +7,22 @@ if (!CModule::IncludeModule("socialnetwork"))
 	return;
 }
 
-$arParams["USER_ID"] = IntVal($arParams["USER_ID"]);
+$arParams["USER_ID"] = intval($arParams["USER_ID"]);
 if ($arParams["USER_ID"] <= 0)
-	$arParams["USER_ID"] = IntVal($USER->GetID());
+	$arParams["USER_ID"] = intval($USER->GetID());
 
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 
-if (strLen($arParams["USER_VAR"]) <= 0)
+if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if (strlen($arParams["PATH_TO_USER"]) <= 0)
+if ($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["ITEMS_COUNT"] = IntVal($arParams["ITEMS_COUNT"]);
+$arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
 if ($arParams["ITEMS_COUNT"] <= 0)
 	$arParams["ITEMS_COUNT"] = 6;
 
@@ -93,8 +93,8 @@ if (CSocNetUser::IsFriendsAllowed())
 				$arNavParams = array("nPageSize" => $arParams["ITEMS_COUNT"], "bDescPageNumbering" => false);
 				$arNavigation = CDBResult::GetNavParams($arNavParams);
 
-				$nowDay = IntVal(Date("d"));
-				$nowMonth = IntVal(Date("m"));
+				$nowDay = intval(Date("d"));
+				$nowMonth = intval(Date("m"));
 
 				$arResult["Users"] = false;
 				$cnt = 0;
@@ -105,7 +105,7 @@ if (CSocNetUser::IsFriendsAllowed())
 					$arResult["Users"]["List"] = false;
 					while ($arFriends = $dbFriends->GetNext())
 					{
-						if (StrLen($arFriends["PB"]) <= 0)
+						if ($arFriends["PB"] == '')
 							continue;
 
 						$pu = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $arFriends["ID"]));
@@ -135,9 +135,9 @@ if (CSocNetUser::IsFriendsAllowed())
 
 						$arDateTmp = ParseDateTime($arFriends["PB"], "YYYY-MM-DD");
 
-						$day = IntVal($arDateTmp["DD"]);
-						$month = IntVal($arDateTmp["MM"]);
-						$year = IntVal($arDateTmp["YYYY"]);
+						$day = intval($arDateTmp["DD"]);
+						$month = intval($arDateTmp["MM"]);
+						$year = intval($arDateTmp["YYYY"]);
 						if ($day <= 0)
 							continue;
 

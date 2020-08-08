@@ -41,7 +41,7 @@ CBPDocument::AddShowParameterInit($arParams["DOCUMENT_TYPE"][0], "only_users", $
 									<label class="bizproc-field-name">
 										<?=($arParameter["Required"] ? "<span class=\"required\">*</span> " : "")?>
 										<span class="bizproc-field-title"><?=htmlspecialcharsbx($arParameter["Name"])?></span><?
-										if (strlen($arParameter["Description"]) > 0):
+										if ($arParameter["Description"] <> ''):
 											?><span class="bizproc-field-description"> (<?=htmlspecialcharsbx($arParameter["Description"])?>)</span><?
 										endif;
 										?>:

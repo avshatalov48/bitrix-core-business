@@ -31,7 +31,10 @@ return array(
 			'VIEW_TYPE' => 'no',
 			'UP_SHOW' => 'Y',
 			'THEME_CODE' => '3corporate',
-			'THEME_CODE_TYPO' => '3corporate',
+			'THEMEFONTS_CODE' => 'g-font-roboto',
+			'THEMEFONTS_CODE_H' => 'g-font-roboto',
+			'THEMEFONTS_SIZE' => '1',
+			'THEMEFONTS_USE' => 'Y',
 		),
 		'TITLE' => Loc::getMessage("LANDING_DEMO_STORE_CHATS--NAME"),
 	),
@@ -41,12 +44,12 @@ return array(
 		0 => [
 			'code' => 'store-chats-dark',
 			'page' => 'mainpage',
-			'color' => '#222244',
+			'color' => '#000000',
 		],
 		1 => [
 			'code' => 'store-chats-light',
 			'page' => 'mainpage',
-			'color' => '#eeeeff',
+			'color' => '#F6F6F9',
 		],
 	],
 );

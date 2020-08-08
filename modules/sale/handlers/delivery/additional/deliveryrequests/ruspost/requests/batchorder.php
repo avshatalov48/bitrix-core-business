@@ -50,7 +50,7 @@ class BatchOrder extends Base
 
 		$row = $res->fetch();
 
-		if(!$row || strlen($row['EXTERNAL_ID']) <= 0)
+		if(!$row || $row['EXTERNAL_ID'] == '')
 		{
 			$result->addError(new Error(Loc::getMessage('SALE_DLVRS_ADD_DREQ_RBATCHO_03', array('#SHIPMENT_ID#' => $shipmentId))));
 			return $result;

@@ -4,9 +4,7 @@ this.BX.Sale.Admin = this.BX.Sale.Admin || {};
 (function (exports,sale_barcode,main_core) {
 	'use strict';
 
-	var WidgetFabric =
-	/*#__PURE__*/
-	function () {
+	var WidgetFabric = /*#__PURE__*/function () {
 	  function WidgetFabric() {
 	    babelHelpers.classCallCheck(this, WidgetFabric);
 	  }
@@ -87,9 +85,7 @@ this.BX.Sale.Admin = this.BX.Sale.Admin || {};
 	  return data;
 	}
 
-	var Dialog =
-	/*#__PURE__*/
-	function () {
+	var Dialog = /*#__PURE__*/function () {
 	  function Dialog(props) {
 	    babelHelpers.classCallCheck(this, Dialog);
 	    this._onClose = props.onClose || null;
@@ -214,9 +210,7 @@ this.BX.Sale.Admin = this.BX.Sale.Admin || {};
 	  return data;
 	}
 
-	var BarcodeView =
-	/*#__PURE__*/
-	function () {
+	var BarcodeView = /*#__PURE__*/function () {
 	  function BarcodeView(props) {
 	    babelHelpers.classCallCheck(this, BarcodeView);
 	    this._basketId = props.basketId;
@@ -401,9 +395,7 @@ this.BX.Sale.Admin = this.BX.Sale.Admin || {};
 	babelHelpers.defineProperty(BarcodeView, "TYPE_LINK", 'link');
 	babelHelpers.defineProperty(BarcodeView, "TYPE_INPUT", 'input');
 
-	var BarcodeEdit =
-	/*#__PURE__*/
-	function (_BarcodeView) {
+	var BarcodeEdit = /*#__PURE__*/function (_BarcodeView) {
 	  babelHelpers.inherits(BarcodeEdit, _BarcodeView);
 
 	  function BarcodeEdit(props) {

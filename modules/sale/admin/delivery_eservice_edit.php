@@ -25,7 +25,7 @@ $fields = array(
 	"RIGHTS" => "YYY"
 );
 $tabControlName = "tabControl";
-$isItSavingProcess = ($_SERVER['REQUEST_METHOD'] == "POST" && (strlen($_POST["save"]) > 0 || strlen($_POST["apply"]) > 0)) ? true : false;
+$isItSavingProcess = ($_SERVER['REQUEST_METHOD'] == "POST" && ($_POST["save"] <> '' || $_POST["apply"] <> '')) ? true : false;
 $isFormReloading = $_SERVER['REQUEST_METHOD'] == "POST" && !$isItSavingProcess;
 
 if($saleModulePermissions == "W" && check_bitrix_sessid())
@@ -53,7 +53,7 @@ if($saleModulePermissions == "W" && check_bitrix_sessid())
 				$fields = ExtraServices\Manager::prepareParamsToSave($fields);
 				$codeExist = false;
 
-				if(strlen($fields["CODE"]) > 0)
+				if($fields["CODE"] <> '')
 				{
 					$glres = ExtraServices\Table::getList(array(
 						'filter' => array(
@@ -97,16 +97,16 @@ if($saleModulePermissions == "W" && check_bitrix_sessid())
 				$strError .= Loc::getMessage("SALE_ESDE_ERROR_ID").'.<br>\n';
 			}
 
-			if(strlen($strError) <= 0)
+			if($strError == '')
 			{
 				$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $ID));
-				if (strlen($_POST["apply"]) > 0)
+				if ($_POST["apply"] <> '')
 				{
 					$applyUrl = $APPLICATION->GetCurPageParam("ID=".$ID, array('ID'));
 					$applyUrl = $adminSidePanelHelper->setDefaultQueryParams($applyUrl);
 					LocalRedirect($applyUrl);
 				}
-				elseif(strlen($_POST["save"]) > 0)
+				elseif($_POST["save"] <> '')
 				{
 					$adminSidePanelHelper->localRedirect($backUrl);
 					LocalRedirect($backUrl);
@@ -160,7 +160,7 @@ if($DELIVERY_ID > 0)
 
 if($deliveryService && $ID <= 0)
 {
-	if(isset($_GET["ES_CODE"]) && strlen($_GET["ES_CODE"]) > 0)
+	if(isset($_GET["ES_CODE"]) && $_GET["ES_CODE"] <> '')
 	{
 		$embeddedList = $deliveryService->getEmbeddedExtraServicesList();
 
@@ -174,7 +174,7 @@ if($deliveryService && $ID <= 0)
 				$fields["RIGHTS"] = "NYY";
 		}
 	}
-	elseif(isset($_REQUEST["CLASS_NAME"]) && strlen($_REQUEST["CLASS_NAME"]) > 0)
+	elseif(isset($_REQUEST["CLASS_NAME"]) && $_REQUEST["CLASS_NAME"] <> '')
 	{
 		$fields["CLASS_NAME"] = $_REQUEST["CLASS_NAME"];
 		$fields["ID"] = strval(mktime());
@@ -241,7 +241,7 @@ if ($ID > 0 && $saleModulePermissions >= "W")
 $context = new CAdminContextMenu($aMenu);
 $context->Show();
 
-if(strlen($strError) > 0)
+if($strError <> '')
 {
 	$adminMessage = new CAdminMessage(Array("DETAILS"=>$strError, "TYPE"=>"ERROR", "MESSAGE"=>Loc::getMessage("SALE_DSE_ERROR"), "HTML"=>true));
 	echo $adminMessage->Show();
@@ -304,7 +304,7 @@ $manager = new ExtraServices\Manager(array($fields), $deliveryService->getCurren
 		</td>
 	</tr>
 
-	<?if(isset($fields["CLASS_NAME"]) && strlen($fields["CLASS_NAME"]) > 0):?>
+	<?if(isset($fields["CLASS_NAME"]) && $fields["CLASS_NAME"] <> ''):?>
 		<tr>
 			<td class="adm-detail-valign-top"><?=(is_callable($fields["CLASS_NAME"].'::getAdminParamsName') ? htmlspecialcharsbx($fields["CLASS_NAME"]::getAdminParamsName()) : Loc::getMessage("SALE_ESDE_FIELD_PARAMS"))?>:</td>
 			<td>

@@ -6,7 +6,9 @@
  * @copyright 2001-2013 Bitrix
  */
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+
+use Bitrix\Main\UserField\Types\BaseType;
 
 /**
  * Bitrix vars
@@ -18,7 +20,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
  * @global CUser $USER
  */
 
-$arParams["bVarsFromForm"] = ($arParams["bVarsFromForm"] ? true:false);
+$arParams["bVarsFromForm"] = ($arParams["bVarsFromForm"] ? true : false);
 $arResult["VALUE"] = false;
 $arUserField = &$arParams["arUserField"];
 
@@ -46,9 +48,9 @@ if($arUserField["USER_TYPE"])
 	}
 	else
 	{
-		if($arUserField["USER_TYPE"]["BASE_TYPE"]=="file")
+		if($arUserField["USER_TYPE"]["BASE_TYPE"] == "file")
 		{
-			$arResult["VALUE"] = $GLOBALS[$arUserField["FIELD_NAME"]."_old_id"];
+			$arResult["VALUE"] = $GLOBALS[$arUserField["FIELD_NAME"] . "_old_id"];
 		}
 		else
 		{
@@ -56,33 +58,36 @@ if($arUserField["USER_TYPE"])
 		}
 	}
 
-	if (!is_array($arResult["VALUE"]))
+	if(!is_array($arResult["VALUE"]))
 	{
 		$arResult["VALUE"] = array($arResult["VALUE"]);
 	}
-	if (empty($arResult["VALUE"]))
+	if(empty($arResult["VALUE"]))
 	{
 		$arResult["VALUE"] = array(null);
 	}
 
-	foreach ($arResult["VALUE"] as $key => $res)
+	foreach($arResult["VALUE"] as $key => $res)
 	{
-		switch ($arUserField["USER_TYPE"]["BASE_TYPE"])
+		switch($arUserField["USER_TYPE"]["BASE_TYPE"])
 		{
 			case "double":
-				if ($res <> '')
+				if($res <> '')
 				{
 					$res = round(doubleval($res), $arUserField["SETTINGS"]["PRECISION"]);
 				}
 				break;
 			case "int":
-				if ($res <> '')
+				if($res <> '')
 				{
 					$res = intval($res);
 				}
 				break;
 			default:
-				if(is_string($res))
+				if(
+					is_string($res)
+					&& empty($arUserField['USER_TYPE']['USE_FIELD_COMPONENT'])
+				)
 				{
 					$res = htmlspecialcharsbx($res);
 				}
@@ -92,7 +97,12 @@ if($arUserField["USER_TYPE"])
 	}
 
 	$arUserField["~FIELD_NAME"] = $arUserField["FIELD_NAME"];
-	if ($arUserField["MULTIPLE"]=="Y")
+
+	if (
+		$arUserField["MULTIPLE"]==="Y"
+		&&
+		empty($arUserField['USER_TYPE']['USE_FIELD_COMPONENT'])
+	)
 	{
 		$arUserField["FIELD_NAME"] .= "[]";
 
@@ -102,7 +112,7 @@ if($arUserField["USER_TYPE"])
 		}
 	}
 
-	if (is_callable(array($arUserField["USER_TYPE"]['CLASS_NAME'], 'getlist')))
+	if(is_callable(array($arUserField["USER_TYPE"]['CLASS_NAME'], 'getlist')))
 	{
 		$enum = array();
 
@@ -113,7 +123,7 @@ if($arUserField["USER_TYPE"])
 			&& ($arUserField["SETTINGS"]["DISPLAY"] != "CHECKBOX" || $arUserField["MULTIPLE"] <> "Y")
 		)
 		{
-			$enum = array(null => ($arUserField["SETTINGS"]["CAPTION_NO_VALUE"] <> ''? htmlspecialcharsbx($arUserField["SETTINGS"]["CAPTION_NO_VALUE"]) : GetMessage("MAIN_NO")));
+			$enum = array(null => ($arUserField["SETTINGS"]["CAPTION_NO_VALUE"] <> '' ? htmlspecialcharsbx($arUserField["SETTINGS"]["CAPTION_NO_VALUE"]) : GetMessage("MAIN_NO")));
 		}
 
 		$rsEnum = call_user_func_array(
@@ -143,15 +153,9 @@ if($arUserField["USER_TYPE"])
 
 	$arParams["form_name"] = !empty($arParams["form_name"]) ? $arParams["form_name"] : "form1";
 
-	$arResult["RANDOM"] = ($arParams["RANDOM"] <> ''? $arParams["RANDOM"] : $this->randString());
+	$arResult["RANDOM"] = ($arParams["RANDOM"] <> '' ? $arParams["RANDOM"] : $this->randString());
 
-	if($this->initComponentTemplate() || $arParams['skip_manager'])
-	{
-		$APPLICATION->AddHeadScript($this->getPath()."/script.js");
-
-		$this->IncludeComponentTemplate();
-	}
-	else
+	if(!empty($arUserField['USER_TYPE']['USE_FIELD_COMPONENT']))
 	{
 		$arParams['skip_manager'] = true;
 
@@ -159,8 +163,34 @@ if($arUserField["USER_TYPE"])
 		{
 			$arUserField['FIELD_NAME'] = $arUserField['~FIELD_NAME'];
 		}
-
-		global $USER_FIELD_MANAGER;
-		echo $USER_FIELD_MANAGER->GetPublicEdit($arUserField, $arParams);
+		$arParams['mode'] = ($arParams['mode'] ?? (
+			(!empty($componentTemplate) && !empty($parentComponentTemplate)) ? $componentTemplate : BaseType::MODE_EDIT)
+		);
+		$arParams['VALUE'] = $arResult['VALUE'];
+		$arParams['parentComponent'] = $this->getParent();
+		$field = new \Bitrix\Main\UserField\Renderer($arUserField, $arParams);
+		print $field->render();
 	}
+	else
+	{
+		if($this->initComponentTemplate() || $arParams['skip_manager'])
+		{
+			$APPLICATION->AddHeadScript($this->getPath() . "/script.js");
+
+			$this->IncludeComponentTemplate();
+		}
+		else
+		{
+			$arParams['skip_manager'] = true;
+
+			if($arUserField['MULTIPLE'] === 'Y')
+			{
+				$arUserField['FIELD_NAME'] = $arUserField['~FIELD_NAME'];
+			}
+
+			global $USER_FIELD_MANAGER;
+			echo $USER_FIELD_MANAGER->GetPublicEdit($arUserField, $arParams);
+		}
+	}
+
 }

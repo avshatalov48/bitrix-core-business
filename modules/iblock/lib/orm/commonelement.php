@@ -203,8 +203,18 @@ abstract class CommonElement extends EO_CommonElement
 		/** @var EntityObject $valueObject */
 		$valueObject = $valueEntity->createObject();
 
-		// set base fields
-		$valueObject->set('IBLOCK_ELEMENT_ID', $this->getId());
+		// if we don't have primary right now, repeat setter later
+		if ($this->state == State::RAW)
+		{
+			$this->sysAddOnPrimarySetListener(function (EntityObject $localObject) use ($valueObject) {
+				$valueObject->set('IBLOCK_ELEMENT_ID', $localObject->get('ID'));
+			});
+		}
+		else
+		{
+			// set base fields
+			$valueObject->set('IBLOCK_ELEMENT_ID', $this->get('ID'));
+		}
 
 		if ($valueEntity->hasField('IBLOCK_PROPERTY_ID'))
 		{

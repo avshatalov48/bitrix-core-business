@@ -23,7 +23,8 @@ $arResult = Array();
 
 if ($arParams['CONTEXT'] == 'DESKTOP' || $arParams['DESKTOP'] == 'Y')
 {
-	$GLOBALS["APPLICATION"]->SetPageProperty("BodyClass", "im-desktop");
+	$darkClass = \CIMSettings::GetSetting(CIMSettings::SETTINGS, 'enableDarkTheme')? 'bx-messenger-dark': '';
+	$GLOBALS["APPLICATION"]->SetPageProperty("BodyClass", "im-desktop $darkClass");
 
 	CIMMessenger::SetDesktopStatusOnline(null, false);
 	CIMMessenger::SetDesktopVersion(empty($_GET['BXD_API_VERSION'])? 0 : $_GET['BXD_API_VERSION']);
@@ -326,10 +327,18 @@ $arResult['TURN_SERVER_LOGIN'] = COption::GetOptionString('im', 'turn_server_log
 $arResult['TURN_SERVER_PASSWORD'] = COption::GetOptionString('im', 'turn_server_password');
 
 $initJs = 'im_web';
+$promoType = \Bitrix\Im\Promotion::DEVICE_TYPE_BROWSER;
 if ($arResult["CONTEXT"] == 'DESKTOP')
+{
 	$initJs = 'im_desktop';
+	$promoType = \Bitrix\Im\Promotion::DEVICE_TYPE_DESKTOP;
+}
 else if ($arResult["DESIGN"] == 'DESKTOP')
+{
 	$initJs = 'im_page';
+}
+
+$arResult['PROMO'] = \Bitrix\Im\Promotion::getActive($promoType);
 
 CJSCore::Init($initJs);
 \Bitrix\Main\UI\Extension::load(['ui.buttons', 'ui.buttons.icons']);

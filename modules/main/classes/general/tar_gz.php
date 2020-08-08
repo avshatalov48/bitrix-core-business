@@ -791,7 +791,7 @@ class CArchiver implements IBXArchive
 
 		clearstatcache();
 
-		while(self::$bMbstring ? mb_strlen($v_binary_data = $this->_readBlock(), "latin1") : strlen($v_binary_data = $this->_readBlock()) != 0)
+		while((self::$bMbstring? mb_strlen($v_binary_data = $this->_readBlock(), "latin1") : strlen($v_binary_data = $this->_readBlock())) != 0)
 		{
 			$v_extract_file = FALSE;
 			$v_extraction_stopped = 0;
@@ -1167,7 +1167,7 @@ class CArchiver implements IBXArchive
 		//changed
 		$v_data = unpack("a100filename/a8mode/a8uid/a8gid/a12size/a12mtime/a8checksum/a1typeflag/a100link/a6magic/a2version/a32uname/a32gname/a8devmajor/a8devminor/a131prefix", $v_binary_data);
 
-		$v_header['checksum'] = OctDec(trim($v_data['checksum']));
+		$v_header['checksum'] = octdec(trim($v_data['checksum']));
 		if ($v_header['checksum'] != $v_checksum)
 		{
 			$v_header['filename'] = '';
@@ -1181,13 +1181,15 @@ class CArchiver implements IBXArchive
 
 		// ----- Extract the properties
 		$v_header['filename'] = trim($v_data['prefix']."/".$v_data['filename']);
-		$v_header['mode'] = OctDec(trim($v_data['mode']));
-		$v_header['uid'] = OctDec(trim($v_data['uid']));
-		$v_header['gid'] = OctDec(trim($v_data['gid']));
-		$v_header['size'] = OctDec(trim($v_data['size']));
-		$v_header['mtime'] = OctDec(trim($v_data['mtime']));
+		$v_header['mode'] = octdec(trim($v_data['mode']));
+		$v_header['uid'] = octdec(trim($v_data['uid']));
+		$v_header['gid'] = octdec(trim($v_data['gid']));
+		$v_header['size'] = octdec(trim($v_data['size']));
+		$v_header['mtime'] = octdec(trim($v_data['mtime']));
 		if (($v_header['typeflag'] = $v_data['typeflag']) == "5")
 			$v_header['size'] = 0;
+
+		$v_header['filename'] = \Bitrix\Main\IO\Path::normalize($v_header['filename']);
 
 		return true;
 	}

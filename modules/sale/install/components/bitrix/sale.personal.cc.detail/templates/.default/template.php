@@ -34,7 +34,7 @@
 				<?
 				foreach($arResult["PAY_SYSTEM"] as $val)
 				{
-					?><option value="<?= $val["ID"] ?>"<?if (IntVal($arResult["PAY_SYSTEM_ACTION_ID"]) == IntVal($val["ID"])) echo " selected";?>><?= $val["PS_NAME"]." - ".$val["PT_NAME"]?></option><?
+					?><option value="<?= $val["ID"] ?>"<?if (intval($arResult["PAY_SYSTEM_ACTION_ID"]) == intval($val["ID"])) echo " selected";?>><?= $val["PS_NAME"]." - ".$val["PT_NAME"]?></option><?
 				}
 				?>
 			</select>
@@ -79,7 +79,7 @@
 				<?
 				for ($i = 1; $i <= 12; $i++)
 				{
-					?><option value="<?= $i ?>"<?if (IntVal($arResult["CARD_EXP_MONTH"]) == $i) echo " selected";?>><?= ((strlen($i) < 2) ? "0".$i : $i) ?></option><?
+					?><option value="<?= $i ?>"<?if (intval($arResult["CARD_EXP_MONTH"]) == $i) echo " selected";?>><?= ((mb_strlen($i) < 2) ? "0".$i : $i) ?></option><?
 				}
 				?>
 			</select>
@@ -87,7 +87,7 @@
 				<?
 				for ($i = 2007; $i <= 2100; $i++)
 				{
-					?><option value="<?= $i ?>"<?if (IntVal($arResult["CARD_EXP_YEAR"]) == $i) echo " selected";?>><?= $i ?></option><?
+					?><option value="<?= $i ?>"<?if (intval($arResult["CARD_EXP_YEAR"]) == $i) echo " selected";?>><?= $i ?></option><?
 				}
 				?>
 			</select>

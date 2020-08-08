@@ -32,7 +32,7 @@ $arImportParams = array(
 
 $arImportResult = saleLocationImport($arImportParams);
 
-if(strlen($arImportResult['ERROR']) > 0 )
+if($arImportResult['ERROR'] <> '' )
 {
 	echo $arImportResult['ERROR'];
 
@@ -46,7 +46,7 @@ elseif (isset($arImportResult['COMPLETE']) && $arImportResult['COMPLETE'] === tr
 }
 elseif( $arImportResult['STEP'] !== false)
 {
-	if(strlen($arImportResult['MESSAGE']) > 0)
+	if($arImportResult['MESSAGE'] <> '')
 		echo $arImportResult['MESSAGE'];
 
 	if(intval($arImportResult['AMOUNT']) > 0 && intval($arImportResult['POS']) > 0)

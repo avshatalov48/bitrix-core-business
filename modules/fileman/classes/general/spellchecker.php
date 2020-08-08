@@ -77,7 +77,7 @@ class CSpellchecker
 			$dic = file($path);
 			foreach ($dic as $dict_word)
 			{
-				$this->dic[$letter][strtolower(trim($dict_word))] = $dict_word;
+				$this->dic[$letter][mb_strtolower(trim($dict_word))] = $dict_word;
 			}
 		}
 		else

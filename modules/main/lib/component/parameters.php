@@ -39,7 +39,7 @@ class ParametersTable
 			),
 			'SEF_MODE' => array(
 				'data_type' => 'boolean',
-				'values' => array(self::SEF_MODE, self::NOT_SEF_MODE),
+				'values' => array(self::NOT_SEF_MODE, self::SEF_MODE),
 			),
 			'SEF_FOLDER' => array(
 				'data_type' => 'string',

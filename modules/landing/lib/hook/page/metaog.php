@@ -70,7 +70,8 @@ class MetaOg extends \Bitrix\Landing\Hook\Page
 			'filter' => array(
 				'=HOOK' => 'METAOG',
 				'=CODE' => 'IMAGE',
-				'=ENTITY_TYPE' => $entityType
+				'=ENTITY_TYPE' => $entityType,
+				'=PUBLIC' => Hook::getEditMode() ? 'N' : 'Y'
 			)
 		));
 		while ($row = $res->fetch())

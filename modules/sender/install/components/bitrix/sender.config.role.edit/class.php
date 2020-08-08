@@ -2,77 +2,69 @@
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Loader;
-use Bitrix\Main\Error;
-use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Web\Uri;
-
+use Bitrix\Sender\Access\ActionDictionary;
+use Bitrix\Sender\Access\Service\RoleDealCategoryService;
+use Bitrix\Sender\Access\Service\RoleDealCategoryServiceInterface;
+use Bitrix\Sender\Access\Service\RolePermissionService;
+use Bitrix\Sender\Access\Service\RolePermissionServiceInterface;
+use Bitrix\Sender\Access\Service\RoleRelationService;
+use Bitrix\Sender\Access\Service\RoleRelationServiceInterface;
+use Bitrix\Sender\Integration\Crm\Connectors\Client;
 use Bitrix\Sender\Security;
-use Bitrix\Sender\Internals\Model;
+
+if (!Bitrix\Main\Loader::includeModule('sender'))
+{
+	ShowError('Module `sender` not installed');
+	die();
+}
 
 Loc::loadMessages(__FILE__);
 
-class SenderConfigRoleEditComponent extends CBitrixComponent
+class ConfigRoleEditSenderComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 {
-	/** @var  ErrorCollection $errors */
-	protected $errors;
+	/**
+	 * @var RolePermissionServiceInterface;
+	 */
+	private $permissionService;
+	/**
+	 * @var RoleRelationServiceInterface;
+	 */
+	private $roleRelationService;
 
-	protected function checkRequiredParams()
-	{
-		return true;
-	}
+	/**
+	 * @var RoleDealCategoryServiceInterface;
+	 */
+	private $roleDealCategoryService;
+	private $settings;
 
 	protected function initParams()
 	{
-		$this->arParams['PATH_TO_LIST'] = isset($this->arParams['PATH_TO_LIST']) ? $this->arParams['PATH_TO_LIST'] : '';
-		$this->arParams['PATH_TO_USER_PROFILE'] = isset($this->arParams['PATH_TO_USER_PROFILE']) ? $this->arParams['PATH_TO_USER_PROFILE'] : '';
-		$this->arParams['NAME_TEMPLATE'] = empty($this->arParams['NAME_TEMPLATE']) ? \CAllSite::GetNameFormat(false) : str_replace(array("#NOBR#","#/NOBR#"), array("",""), $this->arParams["NAME_TEMPLATE"]);
+		parent::initParams();
+		$this->permissionService   = new RolePermissionService();
+		$this->roleRelationService = new RoleRelationService();
+		$this->roleDealCategoryService = new RoleDealCategoryService();
 
 		if (!isset($this->arParams['ID']))
 		{
 			$this->arParams['ID'] = $this->request->get('ID');
 		}
-		$this->arParams['ID'] = (int) $this->arParams['ID'];
-
-		$this->arParams['SET_TITLE'] = isset($this->arParams['SET_TITLE']) ? $this->arParams['SET_TITLE'] == 'Y' : true;
-		$this->arParams['CAN_EDIT'] = isset($this->arParams['CAN_EDIT'])
-			?
-			$this->arParams['CAN_EDIT']
-			:
-			Security\Access::current()->canModifySettings();
+		$this->arParams['ID'] = $this->arParams['ID'] === "" ? -1 : (int)$this->arParams['ID'];
 	}
 
 	protected function preparePost()
 	{
-		$roleId = (int) $this->arParams['ID'];
-		$roleName = (string) $this->request->get('NAME');
-		$permissions = $this->request->get('PERMISSIONS');
 
-		$result = Security\Role\Manager::setRolePermissions(
-			$roleId,
-			['NAME' => $roleName],
-			$permissions
-		);
-		$this->errors->add($result->getErrors());
-		if ($this->errors->isEmpty())
-		{
-			if ($this->request->get('IFRAME') == 'Y')
-			{
-				$roleId = $roleId ?: $result->getId();
-				$path = str_replace('#id#', $roleId, $this->arParams['PATH_TO_EDIT']);
-				$uri = new Uri($path);
+		if ($this->request->get('IFRAME') != 'Y')
+			LocalRedirect($this->arParams['PATH_TO_LIST']);
 
-				$uri->addParams(array('IFRAME' => 'Y'));
-				$uri->addParams(array('IS_SAVED' => 'Y'));
+		$uri = new Uri("");
 
-				$path = $uri->getLocator();
-				LocalRedirect($path);
-			}
-			else
-			{
-				LocalRedirect($this->arParams['PATH_TO_LIST']);
-			}
-		}
+		$uri->addParams(array('IFRAME' => 'Y'));
+		$uri->addParams(array('IS_SAVED' => 'Y'));
+
+		$path = $uri->getLocator();
+		LocalRedirect($path);
 	}
 
 	protected function prepareResult()
@@ -82,11 +74,7 @@ class SenderConfigRoleEditComponent extends CBitrixComponent
 		{
 			/**@var CAllMain*/
 			$GLOBALS['APPLICATION']->SetTitle(
-				$this->arParams['ID'] > 0
-					?
-					Loc::getMessage('SENDER_CONFIG_ROLE_EDIT_COMP_TITLE_EDIT')
-					:
-					Loc::getMessage('SENDER_CONFIG_ROLE_EDIT_COMP_TITLE_ADD')
+					Loc::getMessage('SENDER_CONFIG_ROLE_EDIT_COMP_ACCESS_RIGHTS')
 			);
 		}
 
@@ -98,101 +86,82 @@ class SenderConfigRoleEditComponent extends CBitrixComponent
 
 		if (!Security\Role\Manager::canUse())
 		{
-			return false;
+			$this->arResult['CANT_USE'] = true;
 		}
 
 		$this->arResult['ERRORS'] = array();
 		$this->arResult['ACTION_URI'] = $this->getPath() . '/ajax.php';
-		$this->arResult['PERMISSIONS'] = [];
 		$this->arResult['NAME'] = Loc::getMessage('SENDER_CONFIG_ROLE_EDIT_COMP_TEMPLATE_NAME');
-
-		$row = Model\Role\RoleTable::getRowById($this->arParams['ID']);
-		if ($row)
-		{
-			$this->arResult['NAME'] = $row['NAME'];
-			$this->arResult['PERMISSIONS'] = Security\Role\Manager::getRolePermissions($this->arParams['ID']);
-		}
-
-		if ($this->request->isPost() && check_bitrix_sessid() && $this->arParams['CAN_EDIT'])
-		{
-			$this->preparePost();
-			$this->printErrors();
-		}
-
-		$this->arResult['LIST'] = $this->getSenderPermissions();
 
 		return true;
 	}
 
-	protected function getSenderPermissions()
+	private function getDealCategories()
 	{
-		$list = [];
-		$perms = $this->arResult['PERMISSIONS'];
-		$map = Security\Role\Permission::getMap();
-		foreach ($map as $entityCode => $actionMap)
+		$dealCategories = Client::getDealCategoryList();
+
+		$items = [];
+
+		$items[] = [
+			'id' => -1,
+			'text' => Loc::getMessage('SENDER_DEAL_CATEGORY_ALL'),
+			'href' => sprintf("/marketing/config/role/edit/%d/", -1)
+		];
+
+		foreach ($dealCategories as $key => $dealCategory)
 		{
-			$actions = [];
-			foreach ($actionMap as $actionCode => $availablePerms)
-			{
-				$permissions = [];
-				foreach ($availablePerms as $permCode)
-				{
-					$permissions[] = [
-						'CODE' => $permCode,
-						'NAME' => Security\Role\Permission::getPermissionName($permCode),
-						'SELECTED' => $permCode === $perms[$entityCode][$actionCode]
-					];
-				}
-
-				$actions[] = [
-					'CODE' => $actionCode,
-					'NAME' => Security\Role\Permission::getActionName($actionCode),
-					'PERMS' => $permissions
-				];
-			}
-
-			$list[] = [
-				'CODE' => $entityCode,
-				'NAME' => Security\Role\Permission::getEntityName($entityCode),
-				'ACTIONS' => $actions
+			$items[] = [
+				'id' => $key,
+				'text' => $dealCategory,
+				'href' => sprintf("/marketing/config/role/edit/%d/", $key)
 			];
 		}
 
-		return $list;
+		return $items;
+	}
+
+	protected function getData()
+	{
+		$dealCategoryId = $this->arParams['ID'] ?? -1;
+		$res = $this->permissionService->getRoleList(
+			[
+				"filter" => ["=DEAL_CATEGORY_ID" => $dealCategoryId]
+			]
+		);
+
+		if(empty($res))
+		{
+			$this->roleDealCategoryService
+				->fillDefaultDealCategoryPermission($dealCategoryId);
+		}
+
+		$this->arResult['USER_GROUPS'] = $this
+			->permissionService
+			->getUserGroups(
+				$this->arParams['ID'] ?? -1
+			);
+
+		$this->arResult['ACCESS_RIGHTS'] = $this
+			->permissionService
+			->getAccessRights();
+
+		$this->arResult['DEAL_CATEGORIES'] = $this->getDealCategories();
 	}
 
 	public function executeComponent()
 	{
-		$this->errors = new \Bitrix\Main\ErrorCollection();
-		if (!Loader::includeModule('sender'))
-		{
-			$this->errors->setError(new Error('Module `sender` is not installed.'));
-			$this->printErrors();
-			return;
-		}
-
-		$this->initParams();
-		if (!$this->checkRequiredParams())
-		{
-			$this->printErrors();
-			return;
-		}
-
-		if (!$this->prepareResult())
-		{
-			$this->printErrors();
-			return;
-		}
-
-		$this->printErrors();
-		$this->includeComponentTemplate();
+		parent::executeComponent();
+		$this->getData();
+		$this->prepareResultAndTemplate();
 	}
 
-	protected function printErrors()
+	public function getEditAction()
 	{
-		foreach ($this->errors as $error)
-		{
-			ShowError($error);
-		}
+		return ActionDictionary::ACTION_SETTINGS_EDIT;
+	}
+
+	public function getViewAction()
+	{
+		return ActionDictionary::ACTION_SETTINGS_EDIT;
 	}
 }

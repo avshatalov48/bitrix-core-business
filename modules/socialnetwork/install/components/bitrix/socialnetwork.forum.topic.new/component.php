@@ -12,7 +12,7 @@ if (!CModule::IncludeModule("forum")):
 elseif (!CModule::IncludeModule("socialnetwork")):
 	ShowError(GetMessage("SONET_MODULE_NOT_INSTALL"));
 	return false;
-elseif (intVal($arParams["FID"]) <= 0):
+elseif (intval($arParams["FID"]) <= 0):
 	ShowError(GetMessage("F_FID_IS_EMPTY"));
 	return false;
 endif;
@@ -20,15 +20,15 @@ endif;
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$arParams["FID"] = intVal($arParams["FID"]);
+	$arParams["FID"] = intval($arParams["FID"]);
 	$arParams["TID"] = 0;
-	$arParams["MID"] = (intVal($arParams["MID"]) <= 0 ? $_REQUEST["MID"] : $arParams["MID"]);
+	$arParams["MID"] = (intval($arParams["MID"]) <= 0 ? $_REQUEST["MID"] : $arParams["MID"]);
 	$arParams["MESSAGE_TYPE"] = (empty($arParams["MESSAGE_TYPE"]) ? $_REQUEST["MESSAGE_TYPE"] : $arParams["MESSAGE_TYPE"]);
 	$arParams["MESSAGE_TYPE"] = ($arParams["MESSAGE_TYPE"] != "EDIT" ? "NEW" : "EDIT");
 	
-	$arParams["SOCNET_GROUP_ID"] = intVal($arParams["SOCNET_GROUP_ID"]);
+	$arParams["SOCNET_GROUP_ID"] = intval($arParams["SOCNET_GROUP_ID"]);
 	$arParams["MODE"] = ($arParams["SOCNET_GROUP_ID"] > 0 ? "GROUP" : "USER");
-	$arParams["USER_ID"] = intVal(intVal($arParams["USER_ID"]) > 0 ? $arParams["USER_ID"] : $USER->GetID());
+	$arParams["USER_ID"] = intval(intval($arParams["USER_ID"]) > 0 ? $arParams["USER_ID"] : $USER->GetID());
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
 			"topic_list" => "PAGE_NAME=topic_list",
@@ -40,10 +40,10 @@ endif;
 	}
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["URL_TEMPLATES_".strToUpper($URL)]);
+		if (trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
+			$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
@@ -56,11 +56,11 @@ endif;
 		$arParams["AJAX_TYPE"] = "N";
 	$arParams["AJAX_CALL"] = ($_REQUEST["AJAX_CALL"] == "Y" ? "Y" : "N");
 	$arParams["AJAX_CALL"] = (($arParams["AJAX_TYPE"] == "Y" && $arParams["AJAX_CALL"] == "Y") ? "Y" : "N");
-	$arParams["VOTE_CHANNEL_ID"] = intVal($arParams["VOTE_CHANNEL_ID"]);
+	$arParams["VOTE_CHANNEL_ID"] = intval($arParams["VOTE_CHANNEL_ID"]);
 	$arParams["SHOW_VOTE"] = ($arParams["SHOW_VOTE"] == "Y" && $arParams["VOTE_CHANNEL_ID"] > 0 && IsModuleInstalled("vote") ? "Y" : "N");
 	$arParams["VOTE_GROUP_ID"] = (!is_array($arParams["VOTE_GROUP_ID"]) || empty($arParams["VOTE_GROUP_ID"]) ? array() : $arParams["VOTE_GROUP_ID"]);
 	if (!is_array($arParams['VOTE_UNIQUE'])) $arParams['VOTE_UNIQUE'] = array();
-	if (!(isset($arParams['VOTE_UNIQUE_IP_DELAY']) && strlen(trim($arParams['VOTE_UNIQUE_IP_DELAY'])) > 0 && strpos($arParams['VOTE_UNIQUE_IP_DELAY'], " ") !== false))
+	if (!(isset($arParams['VOTE_UNIQUE_IP_DELAY']) && trim($arParams['VOTE_UNIQUE_IP_DELAY']) <> '' && mb_strpos($arParams['VOTE_UNIQUE_IP_DELAY'], " ") !== false))
 		$arParams['VOTE_UNIQUE_IP_DELAY'] = "10 D";
 	$arParams["AUTOSAVE"] = CForumAutosave::GetInstance();
 /***************** STANDART ****************************************/
@@ -155,7 +155,7 @@ if ($arParams["MESSAGE_TYPE"] == "EDIT")
 		$arResult["TOPIC"] = $res["TOPIC_INFO"];
 		$arResult["TOPIC_FILTER"] = CForumTopic::GetByID($arParams["TID"]);
 
-		if ($arParams["SHOW_VOTE"] == "Y" && $arResult["MESSAGE"]["PARAM1"] == "VT" && intVal($arResult["MESSAGE"]["PARAM2"]) > 0)
+		if ($arParams["SHOW_VOTE"] == "Y" && $arResult["MESSAGE"]["PARAM1"] == "VT" && intval($arResult["MESSAGE"]["PARAM2"]) > 0)
 		{
 			$db_res = CVoteQuestion::GetListEx(
 				array("ID" => "ASC"),
@@ -210,7 +210,7 @@ if (!empty($arError))
 /*******************************************************************/
 $strErrorMessage = ""; $strOKMessage = "";
 $bVarsFromForm = false;
-$arResult["VIEW"] = ((strToUpper($_REQUEST["MESSAGE_MODE"]) == "VIEW" && $_SERVER["REQUEST_METHOD"] == "POST") ? "Y" : "N");
+$arResult["VIEW"] = ((mb_strtoupper($_REQUEST["MESSAGE_MODE"]) == "VIEW" && $_SERVER["REQUEST_METHOD"] == "POST") ? "Y" : "N");
 $_REQUEST["FILES"] = (is_array($_REQUEST["FILES"]) ? $_REQUEST["FILES"] : array());
 $_REQUEST["FILES_TO_UPLOAD"] = (is_array($_REQUEST["FILES_TO_UPLOAD"]) ? $_REQUEST["FILES_TO_UPLOAD"] : array());
 
@@ -225,10 +225,10 @@ $arResult["URL"] = array(
 		array("FID" => $arParams["FID"], "TID" => $arParams["TID"], "UID" => $arParams["USER_ID"])), 
 	"~READ" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_MESSAGE"], 
 		array("UID" => $arParams["USER_ID"], "FID" => $arParams["FID"], "TID" => $arParams["TID"], 
-			"MID"=>((intVal($arParams["MID"]) > 0) ? intVal($arParams["MID"]) : "s"))), 
+			"MID"=>((intval($arParams["MID"]) > 0) ? intval($arParams["MID"]) : "s"))),
 	"READ" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE"], 
 		array("UID" => $arParams["USER_ID"], "FID" => $arParams["FID"], "TID" => $arParams["TID"], 
-			"MID"=>((intVal($arParams["MID"]) > 0) ? intVal($arParams["MID"]) : "s"))));
+			"MID"=>((intval($arParams["MID"]) > 0) ? intval($arParams["MID"]) : "s"))));
 /*******************************************************************/
 $parser = new forumTextParser(LANGUAGE_ID, $arParams["PATH_TO_SMILE"]);
 /********************************************************************
@@ -242,8 +242,8 @@ ForumSetLastVisit($arParams["FID"], $arParams["TID"]);
 ********************************************************************/
 if ($_SERVER["REQUEST_METHOD"] == "POST")
 {
-	$TID1 = ($arParams["MESSAGE_TYPE"]=="NEW") ? 0 : intVal($arParams["TID"]);
-	$MID1 = ($arParams["MESSAGE_TYPE"]=="NEW") ? 0 : intVal($arParams["MID"]);
+	$TID1 = ($arParams["MESSAGE_TYPE"]=="NEW") ? 0 : intval($arParams["TID"]);
+	$MID1 = ($arParams["MESSAGE_TYPE"]=="NEW") ? 0 : intval($arParams["MID"]);
 
 	if (!check_bitrix_sessid())
 	{
@@ -258,7 +258,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 		{
 			foreach($_FILES as $name => $file)
 			{
-				if (strpos($name, "FILE_NEW_") === 0 && empty($file["error"]) && !empty($file["name"]))
+				if (mb_strpos($name, "FILE_NEW_") === 0 && empty($file["error"]) && !empty($file["name"]))
 				{
 					$error = true;
 					break;
@@ -286,7 +286,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 
 		if ($arParams["SHOW_VOTE"] == "Y" && (!empty($_REQUEST["QUESTION"]) || !empty($_REQUEST["QUESTION_ID"])))
 		{
-			$VOTE_ID = ($arResult["MESSAGE"]["PARAM1"] == 'VT' ? intVal($arResult["MESSAGE"]["PARAM2"]) : 0);
+			$VOTE_ID = ($arResult["MESSAGE"]["PARAM1"] == 'VT' ? intval($arResult["MESSAGE"]["PARAM2"]) : 0);
 			$arVote = array(
 				"CHANNEL_ID" => $arParams["VOTE_CHANNEL_ID"],
 				"TITLE" => $_REQUEST["TITLE"],
@@ -332,7 +332,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 				foreach ($arAnswers as $keya => $vala)
 					$res["ANSWERS"][] = array_merge($vala, array("DEL" => "Y"));
 
-				if (empty($res["ANSWERS"]) && empty($res["QUESTION"]) && intVal($res["ID"]) <= 0)
+				if (empty($res["ANSWERS"]) && empty($res["QUESTION"]) && intval($res["ID"]) <= 0)
 					continue;
 
 				unset($arQuestions[$res["ID"]]);
@@ -350,7 +350,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 				$uniqType += 5;
 
 				list($uniqDelay, $uniqDelayType) = explode(" ", $arParams['VOTE_UNIQUE_IP_DELAY']);
-				$uniqDelay = intVal(trim($uniqDelay));
+				$uniqDelay = intval(trim($uniqDelay));
 				$uniqDelayType = trim($uniqDelayType);
 				if (!in_array($uniqDelayType, array("S", "M", "H", "D")))
 					$uniqDelayType = "D";
@@ -360,7 +360,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 					"DELAY" => $uniqDelay,
 					"DELAY_TYPE" => $uniqDelayType);
 				$VOTE_ID = VoteVoteEditFromArray($arParams["VOTE_CHANNEL_ID"], ($VOTE_ID > 0 ? $VOTE_ID : false), $arVote, $arVoteParams);
-				if (intVal($VOTE_ID) > 0)
+				if (intval($VOTE_ID) > 0)
 				{
 					$arFieldsG["PARAM1"] = "VT";
 					$arFieldsG["PARAM2"] = $VOTE_ID;
@@ -413,7 +413,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 					$res = array();
 					foreach ($_FILES as $key => $val)
 					{
-						if (substr($key, 0, strLen("FILE_NEW")) == "FILE_NEW" && !empty($val["name"]))
+						if (mb_substr($key, 0, mb_strlen("FILE_NEW")) == "FILE_NEW" && !empty($val["name"]))
 						{
 							$arFiles[] = $_FILES[$key];
 						}
@@ -430,7 +430,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 				$arFieldsG["EDITOR_EMAIL"] = $_REQUEST["EDITOR_EMAIL"];
 				$arFieldsG["EDIT_REASON"] = $_REQUEST["EDIT_REASON"];
 			}
-			$MID1 = intVal(ForumAddMessage($arParams["MESSAGE_TYPE"], $arParams["FID"], $TID1, $MID1, $arFieldsG,
+			$MID1 = intval(ForumAddMessage($arParams["MESSAGE_TYPE"], $arParams["FID"], $TID1, $MID1, $arFieldsG,
 				$strErrorMessage, $strOKMessage, false, $_POST["captcha_word"], 0, $_POST["captcha_code"], $arParams["NAME_TEMPLATE"]));
 
 			if ($MID1 > 0)
@@ -456,10 +456,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 				$workgroups_path = "";
 				if ($arParams["MODE"] == "GROUP" && IsModuleInstalled("extranet")) {
 					$workgroups_path = COption::GetOptionString("socialnetwork", "workgroups_page", false, SITE_ID);
-					$workgroups_path = "#GROUPS_PATH#".substr(
-						$arParams["~URL_TEMPLATES_MESSAGE"],
-						strlen($workgroups_path),
-						strlen($arParams["~URL_TEMPLATES_MESSAGE"]) - strlen($workgroups_path));
+					$workgroups_path = "#GROUPS_PATH#".mb_substr($arParams["~URL_TEMPLATES_MESSAGE"], mb_strlen($workgroups_path), mb_strlen($arParams["~URL_TEMPLATES_MESSAGE"]) - mb_strlen($workgroups_path));
 				}
 
 				$arSonetFields = array(
@@ -485,7 +482,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 					"RATING_TYPE_ID" => "FORUM_TOPIC",
 					"RATING_ENTITY_ID" => intval($arParams["TID"])
 				);
-				if (intVal($arResult["MESSAGE"]["AUTHOR_ID"]) > 0)
+				if (intval($arResult["MESSAGE"]["AUTHOR_ID"]) > 0)
 					$arSonetFields["USER_ID"] = $arResult["MESSAGE"]["AUTHOR_ID"];
 
 				$userFieldsList = $USER_FIELD_MANAGER->GetUserFields("SONET_COMMENT", 0, LANGUAGE_ID);
@@ -622,12 +619,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 				}
 
 				$url = ForumAddPageParams(CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_MESSAGE"],
-					array("FID" => $arParams["FID"], "TID" => $arParams["TID"], "MID" => intVal($arParams["MID"]),
+					array("FID" => $arParams["FID"], "TID" => $arParams["TID"], "MID" => intval($arParams["MID"]),
 					"UID" => $arParams["USER_ID"], "GID" => $arParams["SOCNET_GROUP_ID"])),
 				array("result" => $arNote["code"]));
 				LocalRedirect($url);
 			}
-			elseif (intVal($arFieldsG["PARAM2"]) > 0 && $arFieldsG["PARAM1"] == "VT")
+			elseif (intval($arFieldsG["PARAM2"]) > 0 && $arFieldsG["PARAM1"] == "VT")
 			{
 				CVote::Delete($arFieldsG["PARAM2"]);
 			}
@@ -644,16 +641,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 	{
 		$bVarsFromForm = true;
 		$arFields = array(
-			"FORUM_ID" => intVal($arParams["FID"]),
-			"TOPIC_ID" => intVal($arParams["TID"]),
-			"MESSAGE_ID" => intVal($arParams["MID"]),
-			"USER_ID" => intVal($GLOBALS["USER"]->GetID()));
+			"FORUM_ID" => intval($arParams["FID"]),
+			"TOPIC_ID" => intval($arParams["TID"]),
+			"MESSAGE_ID" => intval($arParams["MID"]),
+			"USER_ID" => intval($GLOBALS["USER"]->GetID()));
 		$arFiles = array();
 		$arFilesExists = array();
 		$res = array();
 
 		foreach ($_FILES as $key => $val):
-			if (substr($key, 0, strLen("FILE_NEW")) == "FILE_NEW" && !empty($val["name"])):
+			if (mb_substr($key, 0, mb_strlen("FILE_NEW")) == "FILE_NEW" && !empty($val["name"])):
 				$arFiles[] = $_FILES[$key];
 			endif;
 		endforeach;

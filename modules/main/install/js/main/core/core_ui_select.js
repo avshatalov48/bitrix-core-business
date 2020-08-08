@@ -970,20 +970,17 @@
 			if (BX.type.isArray(items) && !this.popup)
 			{
 				nodeRect = BX.pos(this.getNode());
-				this.popup = new BX.PopupWindow(
-					'main-filter-control-popup',
-					this.getNode(),
-					{
-						autoHide : false,
-						offsetTop : 2,
-						offsetLeft : 0,
-						lightShadow : true,
-						closeIcon : false,
-						closeByEsc : false,
-						noAllPaddings: true,
-						zIndex: 2000
-					}
-				);
+				this.popup = new BX.Main.Popup({
+					bindElement: this.getNode(),
+					autoHide : false,
+					offsetTop : 2,
+					offsetLeft : 0,
+					lightShadow : true,
+					closeIcon : false,
+					closeByEsc : false,
+					noAllPaddings: true,
+					zIndex: 2000
+				});
 
 				BX.style(this.popup.popupContainer, 'width', nodeRect.width + 'px');
 				BX.addClass(this.popup.popupContainer, this.classPopup);

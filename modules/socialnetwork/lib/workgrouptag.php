@@ -94,6 +94,6 @@ class WorkgroupTagTable extends Entity\DataManager
 
 	protected static function isDuplicateKeyError(SqlQueryException $exception)
 	{
-		return strpos($exception->getDatabaseMessage(), '(1062)') !== false;
+		return mb_strpos($exception->getDatabaseMessage(), '(1062)') !== false;
 	}
 }

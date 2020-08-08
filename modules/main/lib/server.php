@@ -86,6 +86,15 @@ class Server
 	}
 
 	/**
+	 * Returns remote address.
+	 * @return string|null
+	 */
+	public function getRemoteAddr()
+	{
+		return $this->get("REMOTE_ADDR");
+	}
+
+	/**
 	 * Returns server port.
 	 *
 	 * @return string | null
@@ -93,6 +102,11 @@ class Server
 	public function getServerPort()
 	{
 		return $this->get("SERVER_PORT");
+	}
+
+	public function getRequestScheme()
+	{
+		return $this->get("REQUEST_SCHEME");
 	}
 
 	/**

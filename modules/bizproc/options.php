@@ -21,7 +21,7 @@ while ($site = $dbSites->Fetch())
 }
 $subTabControl = new CAdminViewTabControl("subTabControl", $aSubTabs);
 
-if ($REQUEST_METHOD == "GET" && strlen($RestoreDefaults) > 0 && $bizprocPerms == "W" && check_bitrix_sessid())
+if ($REQUEST_METHOD == "GET" && $RestoreDefaults <> '' && $bizprocPerms == "W" && check_bitrix_sessid())
 {
 	COption::RemoveOption("bizproc");
 }
@@ -38,7 +38,7 @@ $arAllOptions = array(
 );
 
 $strWarning = "";
-if ($REQUEST_METHOD == "POST" && strlen($Update) > 0 && $bizprocPerms == "W" && check_bitrix_sessid())
+if ($REQUEST_METHOD == "POST" && $Update <> '' && $bizprocPerms == "W" && check_bitrix_sessid())
 {
 	COption::SetOptionString("bizproc", "log_cleanup_days", $log_cleanup_days);
 	if ($log_cleanup_days > 0)
@@ -67,7 +67,7 @@ if ($REQUEST_METHOD == "POST" && strlen($Update) > 0 && $bizprocPerms == "W" && 
 	}
 }
 
-if (strlen($strWarning) > 0)
+if ($strWarning <> '')
 	CAdminMessage::ShowMessage($strWarning);
 
 $aTabs = array(

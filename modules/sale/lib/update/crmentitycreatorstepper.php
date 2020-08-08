@@ -741,10 +741,20 @@ final class CrmEntityCreatorStepper extends Stepper
 
 	/**
 	 * Show progress bar in crm and shop section
+	 *
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ArgumentOutOfRangeException
 	 */
-	public static function showProgressBar()
+	public static function showProgressBar(): void
 	{
-		if (defined("SITE_TEMPLATE_ID") && SITE_TEMPLATE_ID !== "bitrix24")
+		if (defined("ADMIN_SECTION")
+			|| (defined("SITE_TEMPLATE_ID") && SITE_TEMPLATE_ID !== "bitrix24")
+		)
+		{
+			return;
+		}
+
+		if (self::getCrmSiteId() !== SITE_ID)
 		{
 			return;
 		}
@@ -753,7 +763,7 @@ final class CrmEntityCreatorStepper extends Stepper
 		global $APPLICATION;
 
 		$currentPage = $APPLICATION->getCurPage();
-		if ((strpos($currentPage, "/crm/") !== false) || (strpos($currentPage, "/shop/") !== false))
+		if ((mb_strpos($currentPage, "/crm/") !== false) || (mb_strpos($currentPage, "/shop/") !== false))
 		{
 			$ids = ["sale" => __CLASS__];
 			$content = self::getHtml($ids, Loc::getMessage("CRM_ENTITY_CREATOR_STEPPER_TITLE"));
@@ -782,18 +792,17 @@ final class CrmEntityCreatorStepper extends Stepper
 	 * @throws Main\ObjectPropertyException
 	 * @throws Main\SystemException
 	 */
-	public static function bindAgent()
+	public static function bindAgent(): void
 	{
-		if (!defined("SITE_TEMPLATE_ID"))
-		{
-			return;
-		}
-		elseif (defined("SITE_TEMPLATE_ID") && SITE_TEMPLATE_ID !== "bitrix24")
+		if (defined("ADMIN_SECTION")
+			|| (defined("SITE_TEMPLATE_ID") && SITE_TEMPLATE_ID !== "bitrix24")
+			|| (!Main\Loader::includeModule("crm"))
+		)
 		{
 			return;
 		}
 
-		if (!Main\Loader::includeModule("crm"))
+		if (self::getCrmSiteId() !== SITE_ID)
 		{
 			return;
 		}
@@ -848,7 +857,7 @@ final class CrmEntityCreatorStepper extends Stepper
 	 */
 	public static function bindAgentOrderUpdate()
 	{
-		if (!CrmEntityCreatorStepper::isAgent())
+		if (!self::isAgent())
 		{
 			Option::delete(self::$moduleId, ["name" => self::STEPPER_PARAMS]);
 			Option::delete(self::$moduleId, ["name" => self::ORDER_CONVERT_IS_FINISH]);
@@ -893,9 +902,11 @@ final class CrmEntityCreatorStepper extends Stepper
 	 * @throws Main\SystemException
 	 * @throws \Exception
 	 */
-	private function setError($orderId, $errorMessage)
+	private function setError($orderId, $errorMessage): void
 	{
-		$orderRow = Sale\Internals\OrderConverterCrmErrorTable::getList(["ORDER_ID" => $orderId])->fetch();
+		$orderRow = Sale\Internals\OrderConverterCrmErrorTable::getList([
+			'filter' => ["ORDER_ID" => $orderId],
+		])->fetch();
 		if (!$orderRow)
 		{
 			$this->addError($orderId, $errorMessage);
@@ -995,7 +1006,7 @@ final class CrmEntityCreatorStepper extends Stepper
 	 * @throws Main\ArgumentNullException
 	 * @throws Main\ArgumentOutOfRangeException
 	 */
-	private function getCrmSiteId()
+	private static function getCrmSiteId()
 	{
 		return Option::get(self::$moduleId, self::WIZARD_SITE_ID);
 	}
@@ -1010,7 +1021,7 @@ final class CrmEntityCreatorStepper extends Stepper
 	{
 		$site = Main\SiteTable::getList([
 			"select" => ["SERVER_NAME"],
-			"filter" => ["=LID" => $this->getCrmSiteId()]
+			"filter" => ["=LID" => self::getCrmSiteId()]
 		])->fetch();
 
 		$siteUrl = (Main\Context::getCurrent()->getRequest()->isHttps() ? "https://" : "http://").$site["SERVER_NAME"];

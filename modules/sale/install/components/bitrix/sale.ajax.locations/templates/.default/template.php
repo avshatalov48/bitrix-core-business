@@ -10,7 +10,7 @@ if ($arParams["AJAX_CALL"] != "Y"
 	foreach ($arParams["LOC_DEFAULT"] as $val):
 		$checked = "";
 
-		if ((($val["ID"] == IntVal($_REQUEST["NEW_LOCATION_".$arParams["ORDER_PROPS_ID"]])) || ($val["ID"] == $arParams["CITY"])) && (!isset($_REQUEST["CHANGE_ZIP"]) || $_REQUEST["CHANGE_ZIP"] != "Y"))
+		if ((($val["ID"] == intval($_REQUEST["NEW_LOCATION_".$arParams["ORDER_PROPS_ID"]])) || ($val["ID"] == $arParams["CITY"])) && (!isset($_REQUEST["CHANGE_ZIP"]) || $_REQUEST["CHANGE_ZIP"] != "Y"))
 		{
 			$checked = "checked";
 			$isChecked = "Y";
@@ -24,7 +24,7 @@ if ($arParams["AJAX_CALL"] != "Y"
 <?endif;?>
 
 <?
-if (isset($_REQUEST["NEW_LOCATION_".$arParams["ORDER_PROPS_ID"]]) && IntVal($_REQUEST["NEW_LOCATION_".$arParams["ORDER_PROPS_ID"]]) > 0)
+if (isset($_REQUEST["NEW_LOCATION_".$arParams["ORDER_PROPS_ID"]]) && intval($_REQUEST["NEW_LOCATION_".$arParams["ORDER_PROPS_ID"]]) > 0)
 	$disabled = true;
 ?>
 
@@ -57,7 +57,7 @@ else
 	</select>
 	<?if($cDisabled):?>
 		</div>
-		<?if(strlen($countryName) > 0):?>
+		<?if($countryName <> ''):?>
 			<div class="sale_locations_fixed"><?=GetMessage("SAL_LOC_COUNTRY").": ".$countryName."<br>"?></div>
 		<?endif;?>
 	<?endif?>
@@ -106,7 +106,7 @@ else
 	</select>
 	<?if($rDisabled):?>
 		</div>
-		<?if(strlen($regionName) > 0):?>
+		<?if($regionName <> ''):?>
 			<div class="sale_locations_fixed"><?=GetMessage("SAL_LOC_REGION").": ".$regionName?></div>
 		<?endif;?>
 	<?endif?>
@@ -129,7 +129,7 @@ else
 	<?if($cDisabled):?>
 		<div style="display:none">
 	<?endif?>
-	<select <?=$id?> <?if($disabled) echo "disabled";?> name="<?=$arParams["CITY_INPUT_NAME"]?>"<?if (strlen($arParams["ONCITYCHANGE"]) > 0):?> onchange="<?=$arParams["ONCITYCHANGE"]?>"<?endif;?> type="location">
+	<select <?=$id?> <?if($disabled) echo "disabled";?> name="<?=$arParams["CITY_INPUT_NAME"]?>"<?if ($arParams["ONCITYCHANGE"] <> ''):?> onchange="<?=$arParams["ONCITYCHANGE"]?>"<?endif;?> type="location">
 		<option><?echo GetMessage('SAL_CHOOSE_CITY')?></option>
 		<?foreach ($arResult["CITY_LIST"] as $arCity):?>
 			<option value="<?=$arCity["ID"]?>"<?if ($arCity["ID"] == $arParams["CITY"]):?> selected="selected"<?endif;?>><?=($arCity['CITY_ID'] > 0 ? $arCity["CITY_NAME"] : GetMessage('SAL_CHOOSE_CITY_OTHER'))?></option>
@@ -139,7 +139,7 @@ else
 	<?
 	if($cDisabled):?>
 		</div>
-		<?if(strlen($cityName) > 0):?>
+		<?if($cityName <> ''):?>
 			<div class="sale_locations_fixed"><?=GetMessage("SAL_LOC_CITY").": ".$cityName?></div>
 		<?endif;?>
 	<?endif?>
@@ -171,7 +171,7 @@ else
 		{
 			getLocation.apply(window, arguments);
 		}
-		else if(<?=strlen($arParams['ONCITYCHANGE'])?> > 0)
+		else if(<?=mb_strlen($arParams['ONCITYCHANGE'])?> > 0)
 		{
 			var citySelector = BX(idAttrValue);
 

@@ -307,28 +307,28 @@ final class CIBlockXmlImport
 				file_exists($rawFilename)
 				&& is_file($rawFilename)
 				&& (
-					substr($rawFilename, -4) === ".xml"
+					mb_substr($rawFilename, -4) === ".xml"
 				)
 			)
 			{
-				$this->fileParameters['PATH'] = substr($rawFilename, strlen($_SERVER['DOCUMENT_ROOT']));
+				$this->fileParameters['PATH'] = mb_substr($rawFilename, mb_strlen($_SERVER['DOCUMENT_ROOT']));
 				$this->fileParameters['ABSOLUTE_PATH'] = $rawFilename;
 			}
 			else
 			{
 				$rawFilename = trim(str_replace("\\", '/', $rawFilename), '/');
 				$filename = rel2abs($_SERVER['DOCUMENT_ROOT'], '/'.$rawFilename);
-				if (strlen($filename) > 1 && $filename === '/'.$rawFilename)
+				if (mb_strlen($filename) > 1 && $filename === '/'.$rawFilename)
 				{
 					$this->fileParameters['PATH'] = $filename;
 					$this->fileParameters['ABSOLUTE_PATH'] = $_SERVER['DOCUMENT_ROOT'].$filename;
 				}
 				unset($filename, $rawFilename);
 			}
-			$this->fileParameters['FILES_DIRECTORY'] = substr(
+			$this->fileParameters['FILES_DIRECTORY'] = mb_substr(
 				$this->fileParameters['ABSOLUTE_PATH'],
 				0,
-				strrpos($this->fileParameters['ABSOLUTE_PATH'], '/') + 1
+				mb_strrpos($this->fileParameters['ABSOLUTE_PATH'], '/') + 1
 			);
 		}
 

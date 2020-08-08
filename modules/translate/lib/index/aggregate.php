@@ -47,7 +47,7 @@ class Aggregate
 			$languages = $params['LANGUAGES'];
 		}
 
-		$languageUpperKeys = array_combine($languages, array_map('strtoupper', $languages));
+		$languageUpperKeys = array_combine($languages, array_map('mb_strtoupper', $languages));
 
 		foreach ($languageUpperKeys as $langId => $alias)
 		{
@@ -118,7 +118,7 @@ class Aggregate
 			$className .= "_". md5(implode('', $params['PATH_LIST']));
 		}
 
-		$languageUpperKeys = array_combine($languages, array_map('strtoupper', $languages));
+		$languageUpperKeys = array_combine($languages, array_map('mb_strtoupper', $languages));
 
 		if (!isset(self::$entities[$className]))
 		{

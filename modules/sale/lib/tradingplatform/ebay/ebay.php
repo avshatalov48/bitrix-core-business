@@ -118,7 +118,7 @@ class Ebay extends Platform
 	 */
 	public function sendErrorMail($type, $details, $siteId)
 	{
-		if(!isset($this->settings[$siteId]["EMAIL_ERRORS"]) || strlen($this->settings[$siteId]["EMAIL_ERRORS"]) <= 0)
+		if(!isset($this->settings[$siteId]["EMAIL_ERRORS"]) || $this->settings[$siteId]["EMAIL_ERRORS"] == '')
 			return false;
 
 		$loggerTypes = Helper::OnEventLogGetAuditTypes();
@@ -184,8 +184,8 @@ class Ebay extends Platform
 			{
 				$deliveryName = $map[$additional['DELIVERY_ID']];
 
-				if(substr($deliveryName,0,3) == "RU_")
-					$deliveryName = substr($deliveryName, 3);
+				if(mb_substr($deliveryName, 0, 3) == "RU_")
+					$deliveryName = mb_substr($deliveryName, 3);
 			}
 		}
 

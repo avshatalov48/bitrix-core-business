@@ -27,21 +27,21 @@ else
 if ($arGadgetParams["EVENT_ID"] == "system")
 	$sTitle = GetMessage('GD_UPDATES_ENTITY_SYSTEM');
 elseif ($arGadgetParams["EVENT_ID"] == "forum")
-	$sTitle = (array_key_exists("forum", $arResult["ActiveFeatures"]) && strlen($arResult["ActiveFeatures"]["forum"]) > 0 ? $arResult["ActiveFeatures"]["forum"] : GetMessage('GD_UPDATES_ENTITY_FORUM'));
+	$sTitle = (array_key_exists("forum", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["forum"] <> '' ? $arResult["ActiveFeatures"]["forum"] : GetMessage('GD_UPDATES_ENTITY_FORUM'));
 elseif ($arGadgetParams["EVENT_ID"] == "blog")
-	$sTitle = (array_key_exists("blog", $arResult["ActiveFeatures"]) && strlen($arResult["ActiveFeatures"]["blog"]) > 0 ? $arResult["ActiveFeatures"]["blog"] : GetMessage('GD_UPDATES_ENTITY_BLOG'));
+	$sTitle = (array_key_exists("blog", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["blog"] <> '' ? $arResult["ActiveFeatures"]["blog"] : GetMessage('GD_UPDATES_ENTITY_BLOG'));
 elseif ($arGadgetParams["EVENT_ID"] == "tasks")
-	$sTitle = (array_key_exists("tasks", $arResult["ActiveFeatures"]) && strlen($arResult["ActiveFeatures"]["tasks"]) > 0 ? $arResult["ActiveFeatures"]["tasks"] : GetMessage('GD_UPDATES_ENTITY_TASKS'));
+	$sTitle = (array_key_exists("tasks", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["tasks"] <> '' ? $arResult["ActiveFeatures"]["tasks"] : GetMessage('GD_UPDATES_ENTITY_TASKS'));
 elseif ($arGadgetParams["EVENT_ID"] == "calendar")
-	$sTitle = (array_key_exists("calendar", $arResult["ActiveFeatures"]) && strlen($arResult["ActiveFeatures"]["calendar"]) > 0 ? $arResult["ActiveFeatures"]["calendar"] : GetMessage('GD_UPDATES_ENTITY_CALENDAR'));
+	$sTitle = (array_key_exists("calendar", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["calendar"] <> '' ? $arResult["ActiveFeatures"]["calendar"] : GetMessage('GD_UPDATES_ENTITY_CALENDAR'));
 elseif ($arGadgetParams["EVENT_ID"] == "photo")
-	$sTitle = (array_key_exists("photo", $arResult["ActiveFeatures"]) && strlen($arResult["ActiveFeatures"]["photo"]) > 0 ? $arResult["ActiveFeatures"]["photo"] : GetMessage('GD_UPDATES_ENTITY_PHOTO'));
+	$sTitle = (array_key_exists("photo", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["photo"] <> '' ? $arResult["ActiveFeatures"]["photo"] : GetMessage('GD_UPDATES_ENTITY_PHOTO'));
 elseif ($arGadgetParams["EVENT_ID"] == "files")
-	$sTitle = (array_key_exists("files", $arResult["ActiveFeatures"]) && strlen($arResult["ActiveFeatures"]["files"]) > 0 ? $arResult["ActiveFeatures"]["files"] : GetMessage('GD_UPDATES_ENTITY_FILES'));
+	$sTitle = (array_key_exists("files", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["files"] <> '' ? $arResult["ActiveFeatures"]["files"] : GetMessage('GD_UPDATES_ENTITY_FILES'));
 else
 	$sTitle = "";
 
-if (strlen($arGadgetParams["EVENT_ID"]) > 0)
+if ($arGadgetParams["EVENT_ID"] <> '')
 	$arGadget["TITLE"] .= " [".$sTitle."]";
 	
 if($arGadgetParams["SHOW_TITLE"] == "Y"):
@@ -95,13 +95,13 @@ $list_url = false;
 
 if (
 	isset($arGadgetParams["PATH_TO_GROUP_LOG"]) 
-	&& strlen($arGadgetParams["PATH_TO_GROUP_LOG"]) > 0
+	&& $arGadgetParams["PATH_TO_GROUP_LOG"] <> ''
 )
 	$list_url = $arGadgetParams["PATH_TO_GROUP_LOG"];
-elseif (strlen($arGadgetParams["LIST_URL"]) > 0)
+elseif ($arGadgetParams["LIST_URL"] <> '')
 {
 	$list_url = htmlspecialcharsbx($arGadgetParams["LIST_URL"]);
-	$list_url .= (strpos($list_url, "?") !== false ? "&" : "?")."flt_group_id=".$arGadgetParams["GROUP_ID"]."&skip_subscribe=Y";
+	$list_url .= (mb_strpos($list_url, "?") !== false ? "&" : "?")."flt_group_id=".$arGadgetParams["GROUP_ID"]."&skip_subscribe=Y";
 }
 
 if ($list_url):

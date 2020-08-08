@@ -41,7 +41,7 @@ class CSaleProxyAdminResult extends CAdminResult
 			$found = false;
 			foreach($filter as $condition => $value)
 			{
-				if(strpos($condition, $fld) !== false)
+				if(mb_strpos($condition, $fld) !== false)
 				{
 					$found = true;
 					break;
@@ -130,7 +130,7 @@ class CSaleProxyAdminUiResult extends CAdminUiResult
 			$found = false;
 			foreach($filter as $condition => $value)
 			{
-				if(strpos($condition, $fld) !== false)
+				if(mb_strpos($condition, $fld) !== false)
 				{
 					$found = true;
 					break;

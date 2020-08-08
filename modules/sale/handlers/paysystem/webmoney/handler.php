@@ -44,7 +44,9 @@ class WebMoneyHandler extends PaySystem\ServiceHandler
 		$extraParams = array(
 			'URL' => $this->getUrl($payment, 'pay'),
 			'ENCODING' => $this->service->getField('ENCODING'),
-			'BX_PAYSYSTEM_CODE' => $payment->getPaymentSystemId()
+			'BX_PAYSYSTEM_CODE' => $payment->getPaymentSystemId(),
+			'WEBMONEY_SUCCESS_URL' => $this->getSuccessUrl($payment),
+			'WEBMONEY_FAIL_URL' => $this->getFailUrl($payment),
 		);
 
 		$this->setExtraParams($extraParams);
@@ -223,4 +225,21 @@ class WebMoneyHandler extends PaySystem\ServiceHandler
 		}
 	}
 
+	/**
+	 * @param Payment $payment
+	 * @return mixed|string
+	 */
+	private function getSuccessUrl(Payment $payment)
+	{
+		return $this->getBusinessValue($payment, 'WEBMONEY_SUCCESS_URL') ?: $this->service->getContext()->getUrl();
+	}
+
+	/**
+	 * @param Payment $payment
+	 * @return mixed|string
+	 */
+	private function getFailUrl(Payment $payment)
+	{
+		return $this->getBusinessValue($payment, 'WEBMONEY_FAIL_URL') ?: $this->service->getContext()->getUrl();
+	}
 }

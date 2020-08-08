@@ -106,7 +106,7 @@ class MailUserSignatureListComponent extends CBitrixComponent
 				'columns' => [
 					'ID' => $signature->getId(),
 					'SENDER' => !empty($signature->getSender()) ? htmlspecialcharsbx($signature->getSender()) : Loc::getMessage('MAIL_USERSIGNATURE_LIST_DEFAULT'),
-					'SIGNATURE' => htmlspecialcharsbx(strip_tags(substr($signature->getSignature(), 0, 100)), ENT_COMPAT, false),
+					'SIGNATURE' => htmlspecialcharsbx(strip_tags(mb_substr($signature->getSignature(), 0, 100)), ENT_COMPAT, false),
 				],
 				'actions' => [
 					[

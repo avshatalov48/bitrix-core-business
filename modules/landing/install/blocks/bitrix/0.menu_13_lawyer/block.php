@@ -1,4 +1,4 @@
-<header class="landing-block landing-block-menu g-bg-white u-header u-header--floating u-header--floating-relative g-z-index-9999">
+<header class="landing-block landing-semantic-background-color g-bg-white u-header u-header--sticky u-header--relative g-z-index-9999">
 	<div class="u-header__section u-header__section--light g-transition-0_3 g-py-6 g-py-18--md"
 		 data-header-fix-moment-exclude="g-py-18--md"
 		 data-header-fix-moment-classes="u-shadow-v27 g-py-13--md">
@@ -14,34 +14,34 @@
 
 				<!-- Navigation -->
 				<div class="collapse navbar-collapse align-items-center flex-sm-row" id="navBar">
-					<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav text-uppercase g-font-weight-700 g-font-size-11 g-pt-20 g-pt-0--lg ml-auto">
+					<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav text-uppercase font-weight-bold g-font-size-11 g-pt-20 g-pt-0--lg ml-auto">
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
-							<a href="#about" class="landing-block-node-menu-list-item-link nav-link p-0">About</a>
+							<a href="#about" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">About</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
-							<a href="#services" class="landing-block-node-menu-list-item-link nav-link p-0">Services</a>
+							<a href="#services" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Services</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
-							<a href="#whyWe" class="landing-block-node-menu-list-item-link nav-link p-0">Why we</a>
+							<a href="#whyWe" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Why we</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
-							<a href="#benefits" class="landing-block-node-menu-list-item-link nav-link p-0">Benefits</a>
+							<a href="#benefits" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Benefits</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
-							<a href="#ourCases" class="landing-block-node-menu-list-item-link nav-link p-0">Our
+							<a href="#ourCases" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Our
 								cases</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
-							<a href="#team" class="landing-block-node-menu-list-item-link nav-link p-0">Team</a>
+							<a href="#team" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Team</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
-							<a href="#testimonials" class="landing-block-node-menu-list-item-link nav-link p-0">Testimonials</a>
+							<a href="#testimonials" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Testimonials</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
-							<a href="#blog" class="landing-block-node-menu-list-item-link nav-link p-0">Blog</a>
+							<a href="#blog" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Blog</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
-							<a href="#contact" class="landing-block-node-menu-list-item-link nav-link p-0">Contact</a>
+							<a href="#contact" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Contact</a>
 						</li>
 					</ul>
 				</div>

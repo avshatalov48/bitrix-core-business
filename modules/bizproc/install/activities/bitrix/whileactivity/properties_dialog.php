@@ -4,7 +4,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 <?
 if (!array_key_exists("condition_type", $arCurrentValues)
-	|| strlen($arCurrentValues["condition_type"]) <= 0
+	|| $arCurrentValues["condition_type"] == ''
 	|| !array_key_exists($arCurrentValues["condition_type"], $arActivities))
 {
 	$arCurrentValues["condition_type"] = $firstConditionType;
@@ -46,4 +46,3 @@ foreach ($arActivities as $key => $value)
 	echo $arActivities[$key]["PROPERTIES_DIALOG"];
 	?></tbody><?
 }
-?>

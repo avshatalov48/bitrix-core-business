@@ -4,20 +4,19 @@
  *
  * @package bitrix
  * @subpackage im
- * @copyright 2001-2019 Bitrix
+ * @copyright 2001-2020 Bitrix
  */
 
-import {Timer} from 'im.tools.timer';
+import {Timer} from 'im.lib.timer';
 import {DialogCrmType, DialogType, RestMethod} from "im.const";
-import {Utils} from "im.utils";
+import {Utils} from "im.lib.utils";
+import {Vue} from "ui.vue";
 
-class ApplicationController
+export class ApplicationController
 {
 	constructor()
 	{
-		this.store = null;
-		this.restClient = null;
-		this.templateEngine = null;
+		this.controller = null;
 
 		this.timer = new Timer();
 
@@ -30,59 +29,49 @@ class ApplicationController
 		this.messageReadQueue = {};
 	}
 
-	setTemplateEngine(template)
+	setCoreController(controller)
 	{
-		this.templateEngine = template;
-	}
-
-	setRestClient(client)
-	{
-		this.restClient = client;
-	}
-
-	setStore(store)
-	{
-		this.store = store;
+		this.controller = controller;
 	}
 
 	getSiteId()
 	{
-		return this.store.state.application.common.siteId;
+		return this.controller.getStore().state.application.common.siteId;
 	}
 
 	getUserId()
 	{
-		return this.store.state.application.common.userId;
+		return this.controller.getStore().state.application.common.userId;
 	}
 
 	getLanguageId()
 	{
-		return this.store.state.application.common.languageId;
+		return this.controller.getStore().state.application.common.languageId;
 	}
 
 	getCurrentUser()
 	{
-		return this.store.getters['users/get'](this.store.state.application.common.userId, true);
+		return this.controller.getStore().getters['users/get'](this.controller.getStore().state.application.common.userId, true);
 	}
 
 	getChatId()
 	{
-		return this.store.state.application.dialog.chatId;
+		return this.controller.getStore().state.application.dialog.chatId;
 	}
 
 	getDialogId()
 	{
-		return this.store.state.application.dialog.dialogId;
+		return this.controller.getStore().state.application.dialog.dialogId;
 	}
 
 	getDialogData(dialogId = this.getDialogId())
 	{
-		if (this.store.state.dialogues.collection[dialogId])
+		if (this.controller.getStore().state.dialogues.collection[dialogId])
 		{
-			return this.store.state.dialogues.collection[dialogId];
+			return this.controller.getStore().state.dialogues.collection[dialogId];
 		}
 
-		return this.store.getters['dialogues/getBlank']();
+		return this.controller.getStore().getters['dialogues/getBlank']();
 	}
 
 	getDialogCrmData(dialogId = this.getDialogId())
@@ -123,7 +112,7 @@ class ApplicationController
 			return this.getDialogId();
 		}
 
-		let dialog = this.store.getters['dialogues/getByChatId'](chatId);
+		let dialog = this.controller.getStore().getters['dialogues/getByChatId'](chatId);
 		if (!dialog)
 		{
 			return 0;
@@ -134,12 +123,7 @@ class ApplicationController
 
 	getDiskFolderId()
 	{
-		return this.store.state.application.dialog.diskFolderId;
-	}
-
-	getMessageLimit()
-	{
-		return this.store.state.application.dialog.messageLimit;
+		return this.controller.getStore().state.application.dialog.diskFolderId;
 	}
 
 	getDefaultMessageLimit()
@@ -150,36 +134,6 @@ class ApplicationController
 	getRequestMessageLimit()
 	{
 		return this.requestMessageLimit;
-	}
-
-	emit(eventName, params = {})
-	{
-		this.templateEngine.$emit(eventName, params);
-
-		return true;
-	}
-
-	listen(eventName, callback)
-	{
-		if (typeof callback !== 'function')
-		{
-			return false;
-		}
-
-		this.templateEngine.$on(eventName, callback);
-
-		return true;
-	}
-
-	getReadedList()
-	{
-		let dialog = this.store.state.dialogues.collection[this.getDialogId()];
-		if (!dialog)
-		{
-			return [];
-		}
-
-		return dialog.readedList;
 	}
 
 	muteDialog(action = null, dialogId = this.getDialogId())
@@ -195,7 +149,7 @@ class ApplicationController
 		}
 
 		this.timer.start('muteDialog', dialogId, .3, (id) => {
-			this.restClient.callMethod(RestMethod.imChatMute, {
+			this.controller.restClient.callMethod(RestMethod.imChatMute, {
 				'DIALOG_ID': dialogId,
 				'ACTION': action? 'Y': 'N'
 			})
@@ -212,7 +166,7 @@ class ApplicationController
 			muteList = this.getDialogData().muteList.filter(userId => userId !== this.getUserId());
 		}
 
-		this.store.dispatch('dialogues/update', {
+		this.controller.getStore().dispatch('dialogues/update', {
 			dialogId,
 			fields: {muteList},
 		});
@@ -225,10 +179,9 @@ class ApplicationController
 		return this.getDialogData().muteList.includes(this.getUserId());
 	}
 
-
 	isUnreadMessagesLoaded()
 	{
-		let dialog = this.store.state.dialogues.collection[this.getDialogId()];
+		let dialog = this.controller.getStore().state.dialogues.collection[this.getDialogId()];
 		if (!dialog)
 		{
 			return true;
@@ -239,7 +192,7 @@ class ApplicationController
 			return true;
 		}
 
-		let collection = this.store.state.messages.collection[this.getChatId()];
+		let collection = this.controller.getStore().state.messages.collection[this.getChatId()];
 		if (!collection || collection.length <= 0)
 		{
 			return true;
@@ -269,11 +222,21 @@ class ApplicationController
 		this._prepareFilesBeforeSave = func.bind(this);
 	}
 
+	showSmiles()
+	{
+		this.store.dispatch('application/showSmiles');
+	}
+
+	hideSmiles()
+	{
+		this.store.dispatch('application/hideSmiles');
+	}
+
 	startOpponentWriting(params)
 	{
 		let {dialogId, userId, userName} = params;
 
-		this.store.dispatch('dialogues/updateWriting', {
+		this.controller.getStore().dispatch('dialogues/updateWriting', {
 			dialogId,
 			userId,
 			userName,
@@ -282,7 +245,7 @@ class ApplicationController
 
 		this.timer.start('writingEnd', dialogId+'|'+userId, 35, (id, params) => {
 			let {dialogId, userId} = params;
-			this.store.dispatch('dialogues/updateWriting', {
+			this.controller.getStore().dispatch('dialogues/updateWriting', {
 				dialogId,
 				userId,
 				action: false
@@ -311,7 +274,7 @@ class ApplicationController
 
 		this.timer.start('writes', dialogId, 28);
 		this.timer.start('writesSend', dialogId, 5, (id) => {
-			this.restClient.callMethod(RestMethod.imDialogWriting, {
+			this.controller.restClient.callMethod(RestMethod.imDialogWriting, {
 				'DIALOG_ID': dialogId
 			}).catch(() => {
 				this.timer.stop('writes', dialogId);
@@ -345,7 +308,7 @@ class ApplicationController
 
 			this.tempJoinChat['wait'] = true;
 
-			this.restClient.callMethod(RestMethod.imChatParentJoin, {
+			this.controller.restClient.callMethod(RestMethod.imChatParentJoin, {
 				'DIALOG_ID': dialogId,
 				'MESSAGE_ID': messageId
 			}).then(() => {
@@ -367,7 +330,7 @@ class ApplicationController
 			dialogId = this.getDialogId()
 		} = params;
 
-		this.store.dispatch('dialogues/update', {
+		this.controller.getStore().dispatch('dialogues/update', {
 			dialogId,
 			fields: {
 				textareaMessage: message
@@ -377,7 +340,7 @@ class ApplicationController
 
 	setSendingMessageFlag(messageId)
 	{
-		this.store.dispatch('messages/actionStart', {
+		this.controller.getStore().dispatch('messages/actionStart', {
 			id: messageId,
 			chatId: this.getChatId()
 		});
@@ -385,7 +348,7 @@ class ApplicationController
 
 	reactMessage(messageId, type = 'like', action = 'auto')
 	{
-		this.restClient.callMethod(RestMethod.imMessageLike, {
+		this.controller.restClient.callMethod(RestMethod.imMessageLike, {
 			'MESSAGE_ID': messageId,
 			'ACTION': action === 'auto'? 'auto': (action === 'set'? 'plus': 'minus')
 		});
@@ -448,22 +411,22 @@ class ApplicationController
 				return true;
 			}
 
-			this.store.dispatch('messages/readMessages', {
+			this.controller.getStore().dispatch('messages/readMessages', {
 				chatId: chatId,
 				readId: lastId
 			}).then(result =>
 			{
-				this.store.dispatch('dialogues/decreaseCounter', {
+				this.controller.getStore().dispatch('dialogues/decreaseCounter', {
 					dialogId,
 					count: result.count
 				});
 
-				if (this.getChatId() === chatId && this.store.getters['dialogues/canSaveChat'])
+				if (this.getChatId() === chatId && this.controller.getStore().getters['dialogues/canSaveChat'])
 				{
-					let dialog = this.store.getters['dialogues/get'](dialogId);
+					let dialog = this.controller.getStore().getters['dialogues/get'](dialogId);
 					if (dialog.counter <= 0)
 					{
-						this.store.commit('application/clearDialogExtraCount');
+						this.controller.getStore().commit('application/clearDialogExtraCount');
 					}
 				}
 
@@ -474,7 +437,7 @@ class ApplicationController
 				else
 				{
 					this.timer.start('readMessageServer', chatId, .5, () => {
-						this.restClient.callMethod(RestMethod.imDialogRead, {
+						this.controller.restClient.callMethod(RestMethod.imDialogRead, {
 							'DIALOG_ID': dialogId,
 							'MESSAGE_ID': lastId
 						}).then(() => resolve({dialogId, lastId})).catch(() => resolve({dialogId, lastId}));
@@ -510,28 +473,28 @@ class ApplicationController
 
 		this.messageLastReadId[chatId] = messageId;
 
-		this.store.dispatch('messages/unreadMessages', {
+		this.controller.getStore().dispatch('messages/unreadMessages', {
 			chatId: chatId,
 			unreadId: this.messageLastReadId[chatId]
 		}).then(result => {
 
 			let dialogId = this.getDialogIdByChatId(chatId);
 
-			this.store.dispatch('dialogues/update', {
+			this.controller.getStore().dispatch('dialogues/update', {
 				dialogId,
 				fields: {
 					unreadId: messageId
 				},
 			});
 
-			this.store.dispatch('dialogues/increaseCounter', {
+			this.controller.getStore().dispatch('dialogues/increaseCounter', {
 				dialogId,
 				count: result.count
 			});
 
 			if (!skipAjax)
 			{
-				this.restClient.callMethod(RestMethod.imDialogUnread, {
+				this.controller.restClient.callMethod(RestMethod.imDialogUnread, {
 					'DIALOG_ID': dialogId,
 					'MESSAGE_ID': this.messageLastReadId[chatId]
 				});
@@ -542,7 +505,7 @@ class ApplicationController
 
 	shareMessage(messageId, type, date = null)
 	{
-		this.restClient.callMethod(RestMethod.imMessageShare, {
+		this.controller.restClient.callMethod(RestMethod.imMessageShare, {
 			'DIALOG_ID': this.getDialogId(),
 			'MESSAGE_ID': messageId,
 			'TYPE': type,
@@ -550,6 +513,14 @@ class ApplicationController
 
 		return true;
 	}
-}
 
-export {ApplicationController};
+	emit(eventName, ...args)
+	{
+		Vue.event.$emit(eventName, ...args)
+	}
+
+	listen(event, callback)
+	{
+		Vue.event.$on(event, callback);
+	}
+}

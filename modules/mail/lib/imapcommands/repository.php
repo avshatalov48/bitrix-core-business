@@ -54,13 +54,13 @@ class Repository
 		{
 			return;
 		}
+
 		$mailsData = [];
 		foreach ($messages as $messageData)
 		{
 			$mailsData[] = [
 				'HEADER_MD5' => $messageData['HEADER_MD5'],
 				'MAILBOX_USER_ID' => $mailbox['USER_ID'],
-				'MAILBOX_OPTIONS' => $mailbox['OPTIONS'],
 				'IS_SEEN' => $isSeen,
 			];
 		}
@@ -87,13 +87,13 @@ class Repository
 		{
 			return;
 		}
+
 		$mailsData = [];
 		foreach ($messages as $messageData)
 		{
 			$mailsData[] = [
 				'HEADER_MD5' => $messageData['HEADER_MD5'],
-				'MAILBOX_USER_ID' => $mailbox['USER_ID'],
-				'MAILBOX_OPTIONS' => $mailbox['OPTIONS'],
+				'MAILBOX_USER_ID' => $mailbox['USER_ID']
 			];
 		}
 		Mail\MailMessageUidTable::updateList(
@@ -168,6 +168,7 @@ class Repository
 			->whereIn('ID', $this->messagesIds)
 			->whereNot('MSG_UID', 0)
 			->where('MESSAGE_ID', '>', 0)
+			->addFilter('DELETE_TIME', 'IS NULL')
 			->exec()
 			->fetchAll();
 		if ($messagesSelected)

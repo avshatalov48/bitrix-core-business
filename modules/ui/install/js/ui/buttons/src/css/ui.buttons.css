@@ -31,10 +31,10 @@
 	--ui-btn-text-shadow-hover: none;
 	--ui-btn-text-shadow-active: none;
 	/**/
-	--ui-btn-clock-white: url(/bitrix/js/ui/buttons/src/css/images/ui-loader-clock-white.min.svg?v=1.1);
-	--ui-btn-clock-black: url(/bitrix/js/ui/buttons/src/css/images/ui-loader-clock-black.min.svg?v=1.1);
-	--ui-btn-wait-white: url(/bitrix/js/ui/buttons/src/css/images/ui-loader-wait-white.min.svg?v=1.1);
-	--ui-btn-wait-black: url(/bitrix/js/ui/buttons/src/css/images/ui-loader-wait-black.min.svg?v=1.1);
+	--ui-btn-clock-white: url(/bitrix/js/ui/buttons/src/css/images/ui-loader-clock-white.min.svg?v=1.2);
+	--ui-btn-clock-black: url(/bitrix/js/ui/buttons/src/css/images/ui-loader-clock-black.min.svg?v=1.2);
+	--ui-btn-wait-white: url(/bitrix/js/ui/buttons/src/css/images/ui-loader-wait-white.min.svg?v=1.2);
+	--ui-btn-wait-black: url(/bitrix/js/ui/buttons/src/css/images/ui-loader-wait-black.min.svg?v=1.2);
 
 }
 
@@ -720,5 +720,62 @@ a.ui-btn-double:focus,
 .ui-btn-clock .ui-btn-main { background-image: var(--ui-btn-clock-loader); }
 
 /*endregion*/
+
+/*endregion*/
+
+/*region Links*/
+:root {
+	--ui-link-color: #216bb6;
+	--ui-link-border-color: #216bb6;
+}
+
+.ui-link,
+*.ui-link:hover {
+	cursor: pointer;
+	font: 13px/22px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: var(--ui-link-color);
+	transition: 250ms linear color, 250ms linear border-color;
+}
+
+.ui-link + .ui-link,
+.ui-link + script + .ui-link { margin-left: 12px; }
+
+.ui-link,
+.ui-link-primary {
+	--ui-link-color: #216bb6;
+	--ui-link-border-color: #216bb6
+}
+
+.ui-link:hover,
+.ui-link-primary:hover {
+	--ui-link-color: #2067b0;
+	--ui-link-border-color: #2067b0
+}
+
+.ui-link-secondary {
+	--ui-link-color: #80868e;
+	--ui-link-border-color: #d8d8d8
+}
+
+.ui-link-secondary:hover {
+	--ui-link-color: #333;
+	--ui-link-border-color: #333
+}
+
+.ui-link-dark {
+	--ui-link-color: #333;
+	--ui-link-border-color: #333
+}
+
+.ui-link-dark:hover {
+	--ui-link-color: #000;
+	--ui-link-border-color: #000
+}
+
+.ui-link-solid { border-bottom: 1px solid var(--ui-link-border-color); }
+
+.ui-link-dashed { border-bottom: 1px dashed var(--ui-link-border-color); }
+
+.ui-link-dotted { border-bottom: 1px dotted var(--ui-link-border-color); }
 
 /*endregion*/

@@ -1,4 +1,4 @@
-<section class="landing-block g-bg-gray-light-v4 g-pt-90 g-pb-90">
+<section class="landing-block landing-semantic-background-color g-bg-gray-light-v4 g-pt-90 g-pb-90">
 	<!-- Product Blocks -->
 	<div class="js-carousel g-px-25 row"
 		 data-infinite="true"
@@ -42,15 +42,15 @@
 
 				<div class="g-pa-20">
 					<div class="g-mb-20">
-						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-small js-animation fadeInRight text-uppercase font-weight-bold g-font-size-default g-color-white g-mb-5">
 							Crete</h3>
 
-						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
+						<div class="landing-block-node-card-text landing-semantic-text-image-small js-animation fadeInLeft g-color-white-opacity-0_8">
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
 					</div>
 
-					<div class="landing-block-node-card-price js-animation fadeInRight d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
+					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeInRight d-inline-block g-line-height-1 font-weight-bold g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
 						 href="#">$350.00
 					</div>
 				</div>
@@ -65,15 +65,15 @@
 
 				<div class="g-pa-20">
 					<div class="g-mb-20">
-						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-small js-animation fadeInRight text-uppercase font-weight-bold g-font-size-default g-color-white g-mb-5">
 							Langkawi</h3>
 
-						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
+						<div class="landing-block-node-card-text landing-semantic-text-image-small js-animation fadeInLeft g-color-white-opacity-0_8">
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
 					</div>
 
-					<div class="landing-block-node-card-price js-animation fadeInRight d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
+					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeInRight d-inline-block g-line-height-1 font-weight-bold g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
 						 href="#">$350.00
 					</div>
 				</div>
@@ -88,15 +88,15 @@
 
 				<div class="g-pa-20">
 					<div class="g-mb-20">
-						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-small js-animation fadeInRight text-uppercase font-weight-bold g-font-size-default g-color-white g-mb-5">
 							Paris</h3>
 
-						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
+						<div class="landing-block-node-card-text landing-semantic-text-image-small js-animation fadeInLeft g-color-white-opacity-0_8">
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
 					</div>
 
-					<div class="landing-block-node-card-price js-animation fadeInRight d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
+					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeInRight d-inline-block g-line-height-1 font-weight-bold g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
 						 href="#">$350.00
 					</div>
 				</div>
@@ -111,15 +111,15 @@
 
 				<div class="g-pa-20">
 					<div class="g-mb-20">
-						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-small js-animation fadeInRight text-uppercase font-weight-bold g-font-size-default g-color-white g-mb-5">
 							Venice</h3>
 
-						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
+						<div class="landing-block-node-card-text landing-semantic-text-image-small js-animation fadeInLeft g-color-white-opacity-0_8">
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
 					</div>
 
-					<div class="landing-block-node-card-price js-animation fadeInRight d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
+					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeInRight d-inline-block g-line-height-1 font-weight-bold g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
 						 href="#">$350.00
 					</div>
 				</div>
@@ -134,15 +134,15 @@
 
 				<div class="g-pa-20">
 					<div class="g-mb-20">
-						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-small js-animation fadeInRight text-uppercase font-weight-bold g-font-size-default g-color-white g-mb-5">
 							London</h3>
 
-						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
+						<div class="landing-block-node-card-text landing-semantic-text-image-small js-animation fadeInLeft g-color-white-opacity-0_8">
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
 					</div>
 
-					<div class="landing-block-node-card-price js-animation fadeInRight d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
+					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeInRight d-inline-block g-line-height-1 font-weight-bold g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
 						 href="#">$350.00
 					</div>
 				</div>
@@ -157,15 +157,15 @@
 
 				<div class="g-pa-20">
 					<div class="g-mb-20">
-						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-small js-animation fadeInRight text-uppercase font-weight-bold g-font-size-default g-color-white g-mb-5">
 							Rome</h3>
 
-						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
+						<div class="landing-block-node-card-text landing-semantic-text-image-small js-animation fadeInLeft g-color-white-opacity-0_8">
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
 					</div>
 
-					<div class="landing-block-node-card-price js-animation fadeInRight d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
+					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeInRight d-inline-block g-line-height-1 font-weight-bold g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
 						 href="#">$350.00
 					</div>
 				</div>
@@ -180,15 +180,15 @@
 
 				<div class="g-pa-20">
 					<div class="g-mb-20">
-						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-small js-animation fadeInRight text-uppercase font-weight-bold g-font-size-default g-color-white g-mb-5">
 							Crete</h3>
 
-						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
+						<div class="landing-block-node-card-text landing-semantic-text-image-small js-animation fadeInLeft g-color-white-opacity-0_8">
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
 					</div>
 
-					<div class="landing-block-node-card-price js-animation fadeInRight d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
+					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeInRight d-inline-block g-line-height-1 font-weight-bold g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
 						 href="#">$350.00
 					</div>
 				</div>
@@ -203,15 +203,15 @@
 
 				<div class="g-pa-20">
 					<div class="g-mb-20">
-						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-small js-animation fadeInRight text-uppercase font-weight-bold g-font-size-default g-color-white g-mb-5">
 							Langkawi</h3>
 
-						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
+						<div class="landing-block-node-card-text landing-semantic-text-image-small js-animation fadeInLeft g-color-white-opacity-0_8">
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
 					</div>
 
-					<div class="landing-block-node-card-price js-animation fadeInRight d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
+					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeInRight d-inline-block g-line-height-1 font-weight-bold g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
 						 href="#">$350.00
 					</div>
 				</div>
@@ -226,15 +226,15 @@
 
 				<div class="g-pa-20">
 					<div class="g-mb-20">
-						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-small js-animation fadeInRight text-uppercase font-weight-bold g-font-size-default g-color-white g-mb-5">
 							Paris</h3>
 
-						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
+						<div class="landing-block-node-card-text landing-semantic-text-image-small js-animation fadeInLeft g-color-white-opacity-0_8">
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
 					</div>
 
-					<div class="landing-block-node-card-price js-animation fadeInRight d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
+					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeInRight d-inline-block g-line-height-1 font-weight-bold g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
 						 href="#">$350.00
 					</div>
 				</div>
@@ -249,15 +249,15 @@
 
 				<div class="g-pa-20">
 					<div class="g-mb-20">
-						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-small js-animation fadeInRight text-uppercase font-weight-bold g-font-size-default g-color-white g-mb-5">
 							Venice</h3>
 
-						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
+						<div class="landing-block-node-card-text landing-semantic-text-image-small js-animation fadeInLeft g-color-white-opacity-0_8">
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
 					</div>
 
-					<div class="landing-block-node-card-price js-animation fadeInRight d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
+					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeInRight d-inline-block g-line-height-1 font-weight-bold g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
 						 href="#">$350.00
 					</div>
 				</div>
@@ -272,15 +272,15 @@
 
 				<div class="g-pa-20">
 					<div class="g-mb-20">
-						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-small js-animation fadeInRight text-uppercase font-weight-bold g-font-size-default g-color-white g-mb-5">
 							London</h3>
 
-						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
+						<div class="landing-block-node-card-text landing-semantic-text-image-small js-animation fadeInLeft g-color-white-opacity-0_8">
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
 					</div>
 
-					<div class="landing-block-node-card-price js-animation fadeInRight d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
+					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeInRight d-inline-block g-line-height-1 font-weight-bold g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
 						 href="#">$350.00
 					</div>
 				</div>
@@ -295,15 +295,15 @@
 
 				<div class="g-pa-20">
 					<div class="g-mb-20">
-						<h3 class="landing-block-node-card-title js-animation fadeInRight text-uppercase g-font-weight-700 g-font-roboto-slab g-font-size-default g-color-white g-mb-5">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-small js-animation fadeInRight text-uppercase font-weight-bold g-font-size-default g-color-white g-mb-5">
 							Rome</h3>
 
-						<div class="landing-block-node-card-text js-animation fadeInLeft g-color-white-opacity-0_8">
+						<div class="landing-block-node-card-text landing-semantic-text-image-small js-animation fadeInLeft g-color-white-opacity-0_8">
 							<p>dapibus quis sapien id phar etra iaculis est</p>
 						</div>
 					</div>
 
-					<div class="landing-block-node-card-price js-animation fadeInRight d-inline-block g-line-height-1 g-font-weight-700 g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
+					<div class="landing-block-node-card-price landing-semantic-link-image-small js-animation fadeInRight d-inline-block g-line-height-1 font-weight-bold g-font-size-11 g-bg-primary g-color-primary--parent-hover g-bg-white--parent-hover g-pa-10"
 						 href="#">$350.00
 					</div>
 				</div>

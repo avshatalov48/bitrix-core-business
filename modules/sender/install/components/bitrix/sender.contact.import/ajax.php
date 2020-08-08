@@ -4,23 +4,21 @@ define('BX_SECURITY_SHOW_MESSAGE', true);
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
 
-use Bitrix\Main\Loader;
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Application;
 use Bitrix\Main\HttpRequest;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\Encoding as TextEncoding;
 use Bitrix\Main\Type\DateTime;
-
+use Bitrix\Sender\ContactListTable;
+use Bitrix\Sender\ContactTable;
+use Bitrix\Sender\Internals\PrettyDate;
 use Bitrix\Sender\Internals\QueryController as Controller;
 use Bitrix\Sender\Internals\SqlBatch;
-use Bitrix\Sender\Recipient;
 use Bitrix\Sender\ListTable;
-use Bitrix\Sender\ContactTable;
-use Bitrix\Sender\ContactListTable;
-use Bitrix\Sender\Internals\PrettyDate;
+use Bitrix\Sender\Recipient;
 use Bitrix\Sender\Security;
 
-if (!Loader::includeModule('sender'))
+if (!Bitrix\Main\Loader::includeModule('sender'))
 {
 	return;
 }
@@ -41,7 +39,7 @@ $actions[] = Controller\Action::create('importList')->setHandler(
 
 		if ($isBlacklist)
 		{
-			if (!Security\Access::current()->canModifyBlacklist())
+			if (!Security\Access::getInstance()->canModifyBlacklist())
 			{
 				Security\AccessChecker::addError($content->getErrorCollection(), Security\AccessChecker::ERR_CODE_EDIT);
 				return;
@@ -49,7 +47,7 @@ $actions[] = Controller\Action::create('importList')->setHandler(
 		}
 		else
 		{
-			if (!Security\Access::current()->canModifySegments())
+			if (!Security\Access::getInstance()->canModifySegments())
 			{
 				Security\AccessChecker::addError($content->getErrorCollection(), Security\AccessChecker::ERR_CODE_EDIT);
 				return;

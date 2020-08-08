@@ -44,13 +44,13 @@ this.BX = this.BX || {};
 	    options = babelHelpers.objectSpread({}, {
 	      signedParameters: "",
 	      moduleId: "",
-	      errorOptionName: "",
+	      errorOption: "",
 	      errorAlertContainerId: "",
 	      errorAlertCloseButtonId: ""
 	    }, options);
 	    this.signedParameters = options.signedParameters;
 	    this.moduleId = options.moduleId;
-	    this.errorOptionName = options.errorOptionName;
+	    this.errorOption = options.errorOption;
 	    this.errorAlertContainerId = options.errorAlertContainerId;
 	    this.errorAlertCloseButtonId = options.errorAlertCloseButtonId;
 	    this.init();
@@ -76,7 +76,7 @@ this.BX = this.BX || {};
 
 	      this.requestSender.deleteErrorOption({
 	        "moduleId": this.moduleId,
-	        "errorOptionName": this.errorOptionName
+	        "errorOption": this.errorOption
 	      }).then(function (response) {
 	        _this.errorAlertContainer.remove();
 	      }).catch(function (response) {});

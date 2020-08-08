@@ -7,28 +7,28 @@ $strPaySysError = "";
 if ($bDoPayAction)
 {
 	$INPUT_CARD_NUM = Trim($_REQUEST["ccard_num"]);
-	if (!isset($INPUT_CARD_NUM) || strlen($INPUT_CARD_NUM) <= 0)
+	if (!isset($INPUT_CARD_NUM) || $INPUT_CARD_NUM == '')
 		$strPaySysError .= GetMessage("AN_CC_NUM")."<br />";
 
 	$INPUT_CARD_NUM = preg_replace("/[\D]+/", "", $INPUT_CARD_NUM);
-	if (strlen($INPUT_CARD_NUM) <= 0)
+	if ($INPUT_CARD_NUM == '')
 		$strPaySysError .= GetMessage("AN_CC_NUM")."<br />";
 
-	$INPUT_CARD_EXP_MONTH = IntVal($_REQUEST["ccard_date1"]);
+	$INPUT_CARD_EXP_MONTH = intval($_REQUEST["ccard_date1"]);
 	if ($INPUT_CARD_EXP_MONTH < 1 || $INPUT_CARD_EXP_MONTH > 12)
 		$strPaySysError .= GetMessage("AN_CC_MONTH")."<br />";
-	elseif (strlen($INPUT_CARD_EXP_MONTH) < 2)
+	elseif (mb_strlen($INPUT_CARD_EXP_MONTH) < 2)
 		$INPUT_CARD_EXP_MONTH = "0".$INPUT_CARD_EXP_MONTH;
 
-	$INPUT_CARD_EXP_YEAR = IntVal($_REQUEST["ccard_date2"]);
+	$INPUT_CARD_EXP_YEAR = intval($_REQUEST["ccard_date2"]);
 	if ($INPUT_CARD_EXP_YEAR < 2005)
 		$strPaySysError .= GetMessage("AN_CC_YEAR")."<br />";
 
 	$INPUT_CARD_CODE = Trim($_REQUEST["ccard_code"]);
 
-	if (strlen($strPaySysError) <= 0)
+	if ($strPaySysError == '')
 	{
-		$ORDER_ID = IntVal($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"]);
+		$ORDER_ID = intval($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"]);
 
 		// Merchant Account Information
 		$strPostQueryString  = "x_version=3.1";
@@ -102,9 +102,9 @@ if ($bDoPayAction)
 		$mass = explode("|,|", "|,".$strResult);
 
 		$strHashValue = CSalePaySystemAction::GetParamValue("HASH_VALUE");
-		if (strlen($strHashValue) > 0)
+		if ($strHashValue <> '')
 		{
-			if (md5($strHashValue.(CSalePaySystemAction::GetParamValue("PS_LOGIN")).$mass[7].sprintf("%.2f",$GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["SHOULD_PAY"])) != strtolower($mass[38]))
+			if (md5($strHashValue.(CSalePaySystemAction::GetParamValue("PS_LOGIN")).$mass[7].sprintf("%.2f", $GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["SHOULD_PAY"])) != mb_strtolower($mass[38]))
 			{
 				$mass = array();
 				$mass[1] = 3;
@@ -114,14 +114,14 @@ if ($bDoPayAction)
 			}
 		}
 
-		$strPS_STATUS = ((IntVal($mass[1])==1) ? "Y" : "N");
+		$strPS_STATUS = ((intval($mass[1])==1) ? "Y" : "N");
 		$strPS_STATUS_CODE = $mass[3];
 		if ($strPS_STATUS == "Y")
 			$strPS_STATUS_DESCRIPTION = "Approval Code: ".$mass[5].(!empty($mass[7]) ? "; Transaction ID: ".$mass[7] : "");
 		else
 		{
-			$strPS_STATUS_DESCRIPTION = (IntVal($mass[1])==2 ? "Declined" : "Error").": ".$mass[4]." (Reason Code ".$mass[3]." / Sub ".$mass[2].")";
-			$strPaySysError .= (IntVal($mass[1])==2 ? "Transaction was declined" : "Error while processing transaction").": ".$mass[4]." (".$mass[3]."/".$mass[2].")";
+			$strPS_STATUS_DESCRIPTION = (intval($mass[1])==2 ? "Declined" : "Error").": ".$mass[4]." (Reason Code ".$mass[3]." / Sub ".$mass[2].")";
+			$strPaySysError .= (intval($mass[1])==2 ? "Transaction was declined" : "Error while processing transaction").": ".$mass[4]." (".$mass[3]."/".$mass[2].")";
 		}
 
 		$strPS_STATUS_MESSAGE = "";

@@ -2,17 +2,17 @@
 	<div class="container">
 		<div class="landing-block-node-container row g-flex-centered align-items-end">
 			<div class="landing-block-node-button-container text-left col-4 js-animation slideInLeft">
-				<a class="landing-block-node-button btn btn-sm text-uppercase u-btn-primary rounded-0 g-px-15 g-font-weight-700 g-mb-0"
-				   href="tel:+469548521">
+				<a class="landing-block-node-button landing-semantic-link-image-medium btn btn-sm text-uppercase u-btn-primary rounded-0 g-px-15 font-weight-bold g-mb-0"
+				   href="tel:#PHONE1#">
 					Contact
 				</a>
 			</div>
 			<div class="landing-block-node-text-container text-right col-8 js-animation slideInRight">
-				<h6 class="landing-block-node-title h6 g-mb-0">
+				<h6 class="landing-block-node-title landing-semantic-text-medium h6 g-mb-0">
 					Contact us
 				</h6>
-				<div class="landing-block-node-text g-font-size-14">
-					+469 548 521
+				<div class="landing-block-node-text landing-semantic-text-small g-font-size-14">
+					#PHONE1#
 				</div>
 			</div>
 		</div>

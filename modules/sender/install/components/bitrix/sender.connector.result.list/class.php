@@ -1,16 +1,13 @@
 <?
 
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ErrorCollection;
-use Bitrix\Main\UI\Filter\Options as FilterOptions;
-use Bitrix\Main\Grid\Options as GridOptions;
-use Bitrix\Main\Loader;
 use Bitrix\Main\Error;
-
-use Bitrix\Sender\Security;
+use Bitrix\Main\ErrorCollection;
+use Bitrix\Main\Grid\Options as GridOptions;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI\Filter\Options as FilterOptions;
 use Bitrix\Sender\Connector;
 use Bitrix\Sender\Recipient;
-
+use Bitrix\Sender\Security;
 use Bitrix\Sender\UI\PageNavigation;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
@@ -18,6 +15,11 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+if (!Bitrix\Main\Loader::includeModule('sender'))
+{
+	ShowError('Module `sender` not installed');
+	die();
+}
 Loc::loadMessages(__FILE__);
 
 class SenderConnectorResultListComponent extends CBitrixComponent
@@ -44,7 +46,7 @@ class SenderConnectorResultListComponent extends CBitrixComponent
 			?
 			$this->arParams['CAN_VIEW']
 			:
-			Security\Access::current()->canViewSegments();
+			Security\Access::getInstance()->canViewSegments();
 
 		if (!isset($this->arParams['ENDPOINT']))
 		{
@@ -206,7 +208,7 @@ class SenderConnectorResultListComponent extends CBitrixComponent
 		$sorting = $gridOptions->getSorting(array('sort' => $defaultSort));
 
 		$by = key($sorting['sort']);
-		$order = strtoupper(current($sorting['sort'])) === 'ASC' ? 'ASC' : 'DESC';
+		$order = mb_strtoupper(current($sorting['sort'])) === 'ASC' ? 'ASC' : 'DESC';
 
 		$list = array();
 		foreach ($this->getUiGridColumns() as $column)
@@ -292,7 +294,7 @@ class SenderConnectorResultListComponent extends CBitrixComponent
 	public function executeComponent()
 	{
 		$this->errors = new \Bitrix\Main\ErrorCollection();
-		if (!Loader::includeModule('sender'))
+		if (!Bitrix\Main\Loader::includeModule('sender'))
 		{
 			$this->errors->setError(new Error('Module `sender` is not installed.'));
 			$this->printErrors();

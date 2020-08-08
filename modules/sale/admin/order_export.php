@@ -27,9 +27,9 @@ if ($handle = opendir($_SERVER["DOCUMENT_ROOT"].$strPath2Export))
 	{
 		if ($file == "." || $file == "..")
 			continue;
-		if (is_file($_SERVER["DOCUMENT_ROOT"].$strPath2Export.$file) && substr($file, strlen($file)-4)==".php")
+		if (is_file($_SERVER["DOCUMENT_ROOT"].$strPath2Export.$file) && mb_substr($file, mb_strlen($file) - 4) == ".php")
 		{
-			$export_name = substr($file, 0, strlen($file) - 4);
+			$export_name = mb_substr($file, 0, mb_strlen($file) - 4);
 			$arAvailableExports[$export_name] = $file;
 		}
 	}
@@ -42,7 +42,7 @@ $errorMessage = "";
 if (CModule::IncludeModule("sale"))
 {
 	$EXPORT_FORMAT = Trim($EXPORT_FORMAT);
-	if (strlen($EXPORT_FORMAT) > 0)
+	if ($EXPORT_FORMAT <> '')
 	{
 		if (array_key_exists($EXPORT_FORMAT, $arAvailableExports))
 		{
@@ -54,7 +54,7 @@ if (CModule::IncludeModule("sale"))
 				&& is_file($_SERVER["DOCUMENT_ROOT"].$strPath2Export1.$arAvailableExports[$EXPORT_FORMAT]))
 				$exportFilePath = $_SERVER["DOCUMENT_ROOT"].$strPath2Export1.$arAvailableExports[$EXPORT_FORMAT];
 
-			if (StrLen($exportFilePath) > 0)
+			if ($exportFilePath <> '')
 			{
 				@set_time_limit(50000);
 
@@ -75,7 +75,7 @@ if (CModule::IncludeModule("sale"))
 				}
 
 				$filter_lang = Trim($filter_lang);
-				if (strlen($filter_lang) > 0)
+				if ($filter_lang <> '')
 				{
 					if (!in_array($filter_lang, $arAccessibleSites) && $saleModulePermissions < "W")
 						$filter_lang = "";
@@ -93,7 +93,7 @@ if (CModule::IncludeModule("sale"))
 				{
 					$key = "";
 
-					if(strlen($arProps["CODE"]) > 0)
+					if($arProps["CODE"] <> '')
 					{
 						$key = $arProps["CODE"];
 
@@ -103,7 +103,7 @@ if (CModule::IncludeModule("sale"))
 					else
 					{
 						$key = $arProps["ID"];
-						$arOrderProps[IntVal($key)] = $arProps;
+						$arOrderProps[intval($key)] = $arProps;
 					}
 
 					if($key)
@@ -115,18 +115,18 @@ if (CModule::IncludeModule("sale"))
 
 				if (isset($OID) && is_array($OID) && count($OID) > 0)
 					$arFilter["ID"] = $OID;
-				elseif (isset($OID) && IntVal($OID) > 0)
-					$arFilter["ID"] = IntVal($OID);
+				elseif (isset($OID) && intval($OID) > 0)
+					$arFilter["ID"] = intval($OID);
 
 
-				if(IntVal($filter_id_from)>0) $arFilter[">=ID"] = IntVal($filter_id_from);
-				if(IntVal($filter_id_to)>0) $arFilter["<=ID"] = IntVal($filter_id_to);
-				if(strlen($filter_date_from)>0) $arFilter[">=DATE_INSERT"] = trim($filter_date_from);
-				if(strlen($filter_date_to)>0)
+				if(intval($filter_id_from)>0) $arFilter[">=ID"] = intval($filter_id_from);
+				if(intval($filter_id_to)>0) $arFilter["<=ID"] = intval($filter_id_to);
+				if($filter_date_from <> '') $arFilter[">=DATE_INSERT"] = trim($filter_date_from);
+				if($filter_date_to <> '')
 				{
 					if($arDate = ParseDateTime($filter_date_to, CSite::GetDateFormat("FULL", SITE_ID)))
 					{
-						if(StrLen($filter_date_to) < 11)
+						if(mb_strlen($filter_date_to) < 11)
 						{
 							$arDate["HH"] = 23;
 							$arDate["MI"] = 59;
@@ -142,7 +142,7 @@ if (CModule::IncludeModule("sale"))
 					}
 				}
 
-				if(strlen($filter_date_update_from)>0)
+				if($filter_date_update_from <> '')
 				{
 					$arFilter[">=DATE_UPDATE"] = trim($filter_date_update_from);
 				}
@@ -153,11 +153,11 @@ if (CModule::IncludeModule("sale"))
 					$arFilter[">=DATE_UPDATE"] = $filter_date_update_from;
 				}
 
-				if(strlen($filter_date_update_to)>0)
+				if($filter_date_update_to <> '')
 				{
 					if($arDate = ParseDateTime($filter_date_update_to, CSite::GetDateFormat("FULL", SITE_ID)))
 					{
-						if(StrLen($filter_date_update_to) < 11)
+						if(mb_strlen($filter_date_update_to) < 11)
 						{
 							$arDate["HH"] = 23;
 							$arDate["MI"] = 59;
@@ -173,13 +173,13 @@ if (CModule::IncludeModule("sale"))
 					}
 				}
 
-				if(strlen($filter_date_paid_from)>0) $arFilter[">=DATE_PAYED"] = trim($filter_date_paid_from);
+				if($filter_date_paid_from <> '') $arFilter[">=DATE_PAYED"] = trim($filter_date_paid_from);
 
-				if(strlen($filter_date_paid_to)>0)
+				if($filter_date_paid_to <> '')
 				{
 					if($arDate = ParseDateTime($filter_date_paid_to, CSite::GetDateFormat("FULL", SITE_ID)))
 					{
-						if(StrLen($filter_date_paid_to) < 11)
+						if(mb_strlen($filter_date_paid_to) < 11)
 						{
 							$arDate["HH"] = 23;
 							$arDate["MI"] = 59;
@@ -195,13 +195,13 @@ if (CModule::IncludeModule("sale"))
 					}
 				}
 
-				if(strlen($filter_date_allow_delivery_from)>0) $arFilter[">=DATE_ALLOW_DELIVERY"] = trim($filter_date_allow_delivery_from);
+				if($filter_date_allow_delivery_from <> '') $arFilter[">=DATE_ALLOW_DELIVERY"] = trim($filter_date_allow_delivery_from);
 
-				if(strlen($filter_date_allow_delivery_to)>0)
+				if($filter_date_allow_delivery_to <> '')
 				{
 					if($arDate = ParseDateTime($filter_date_allow_delivery_to, CSite::GetDateFormat("FULL", SITE_ID)))
 					{
-						if(StrLen($filter_date_allow_delivery_to) < 11)
+						if(mb_strlen($filter_date_allow_delivery_to) < 11)
 						{
 							$arDate["HH"] = 23;
 							$arDate["MI"] = 59;
@@ -217,10 +217,10 @@ if (CModule::IncludeModule("sale"))
 					}
 				}
 
-				if(strlen($filter_lang)>0 && $filter_lang!="NOT_REF") $arFilter["=LID"] = trim($filter_lang);
-				if(strlen($filter_currency)>0) $arFilter["CURRENCY"] = trim($filter_currency);
+				if($filter_lang <> '' && $filter_lang!="NOT_REF") $arFilter["=LID"] = trim($filter_lang);
+				if($filter_currency <> '') $arFilter["CURRENCY"] = trim($filter_currency);
 
-				if(isset($filter_status) && !is_array($filter_status) && strlen($filter_status) > 0)
+				if(isset($filter_status) && !is_array($filter_status) && $filter_status <> '')
 					$filter_status = array($filter_status);
 				if(isset($filter_status) && is_array($filter_status) && count($filter_status) > 0)
 				{
@@ -228,17 +228,17 @@ if (CModule::IncludeModule("sale"))
 					for ($i = 0; $i < $countFilter; $i++)
 					{
 						$filter_status[$i] = trim($filter_status[$i]);
-						if(strlen($filter_status[$i]) > 0)
+						if($filter_status[$i] <> '')
 							$arFilter["=STATUS_ID"][] = $filter_status[$i];
 					}
 				}
-				if (strlen($filter_by_recommendation)>0) $arFilter["=BY_RECOMMENDATION"] = trim($filter_by_recommendation);
-				if(strlen($filter_date_status_from)>0) $arFilter[">=DATE_STATUS"] = trim($filter_date_status_from);
-				if(strlen($filter_date_status_to)>0)
+				if ($filter_by_recommendation <> '') $arFilter["=BY_RECOMMENDATION"] = trim($filter_by_recommendation);
+				if($filter_date_status_from <> '') $arFilter[">=DATE_STATUS"] = trim($filter_date_status_from);
+				if($filter_date_status_to <> '')
 				{
 					if($arDate = ParseDateTime($filter_date_status_to, CSite::GetDateFormat("FULL", SITE_ID)))
 					{
-						if(StrLen($filter_date_status_to) < 11)
+						if(mb_strlen($filter_date_status_to) < 11)
 						{
 							$arDate["HH"] = 23;
 							$arDate["MI"] = 59;
@@ -254,36 +254,36 @@ if (CModule::IncludeModule("sale"))
 					}
 				}
 
-				if(strlen($filter_payed)>0) $arFilter["=PAYED"] = trim($filter_payed);
-				if(strlen($filter_canceled)>0) $arFilter["=CANCELED"] = trim($filter_canceled);
-				if(strlen($filter_deducted)>0) $arFilter["=DEDUCTED"] = trim($filter_deducted);
-				if(strlen($filter_allow_delivery)>0) $arFilter["=ALLOW_DELIVERY"] = trim($filter_allow_delivery);
-				if(strlen($filter_marked)>0) $arFilter["=MARKED"] = trim($filter_marked);
-				if(strlen($filter_buyer)>0) $arFilter["%BUYER"] = trim($filter_buyer);
-				if(strlen($filter_user_login)>0) $arFilter["USER.LOGIN"] = trim($filter_user_login);
-				if(strlen($filter_user_email)>0) $arFilter["USER.EMAIL"] = trim($filter_user_email);
-				if(IntVal($filter_user_id)>0) $arFilter["=USER_ID"] = IntVal($filter_user_id);
+				if($filter_payed <> '') $arFilter["=PAYED"] = trim($filter_payed);
+				if($filter_canceled <> '') $arFilter["=CANCELED"] = trim($filter_canceled);
+				if($filter_deducted <> '') $arFilter["=DEDUCTED"] = trim($filter_deducted);
+				if($filter_allow_delivery <> '') $arFilter["=ALLOW_DELIVERY"] = trim($filter_allow_delivery);
+				if($filter_marked <> '') $arFilter["=MARKED"] = trim($filter_marked);
+				if($filter_buyer <> '') $arFilter["%BUYER"] = trim($filter_buyer);
+				if($filter_user_login <> '') $arFilter["USER.LOGIN"] = trim($filter_user_login);
+				if($filter_user_email <> '') $arFilter["USER.EMAIL"] = trim($filter_user_email);
+				if(intval($filter_user_id)>0) $arFilter["=USER_ID"] = intval($filter_user_id);
 				if(is_array($filter_group_id) && count($filter_group_id) > 0)
 				{
 					foreach($filter_group_id as $v)
 					{
-						if(IntVal($v) > 0)
+						if(intval($v) > 0)
 							$arFilter["USER_GROUP.GROUP_ID"][] = $v;
 					}
 				}
 
-				if(IntVal($filter_affiliate_id)>0) $arFilter["AFFILIATE_ID"] = IntVal($filter_affiliate_id);
-				if(strlen($filter_discount_coupon)>0) $arFilter["=ORDER_COUPONS.COUPON"] = trim($filter_discount_coupon);
+				if(intval($filter_affiliate_id)>0) $arFilter["AFFILIATE_ID"] = intval($filter_affiliate_id);
+				if($filter_discount_coupon <> '') $arFilter["=ORDER_COUPONS.COUPON"] = trim($filter_discount_coupon);
 				if(floatval($filter_price_from)>0) $arFilter[">=PRICE"] = floatval($filter_price_from);
 				if(floatval($filter_price_to)>0) $arFilter["<PRICE"] = floatval($filter_price_to);
-				if(strlen($filter_xml_id)>0) $arFilter["%XML_ID"] = trim($filter_xml_id);
-				if(strlen($filter_tracking_number)>0) $arFilter["%SHIPMENT.TRACKING_NUMBER"] = trim($filter_tracking_number);
+				if($filter_xml_id <> '') $arFilter["%XML_ID"] = trim($filter_xml_id);
+				if($filter_tracking_number <> '') $arFilter["%SHIPMENT.TRACKING_NUMBER"] = trim($filter_tracking_number);
 
-				if(isset($filter_universal) && strlen($filter_universal) > 0)
+				if(isset($filter_universal) && $filter_universal <> '')
 					$arFilter["NAME_SEARCH"] = trim($filter_universal);
-				if(strlen($filter_account_number)>0) $arFilter["ACCOUNT_NUMBER"] = trim($filter_account_number);
+				if($filter_account_number <> '') $arFilter["ACCOUNT_NUMBER"] = trim($filter_account_number);
 
-				if(strlen($filter_sum_paid) > 0)
+				if($filter_sum_paid <> '')
 				{
 					if($filter_sum_paid == "Y")
 						$arFilter[">SUM_PAID"] = 0;
@@ -296,7 +296,7 @@ if (CModule::IncludeModule("sale"))
 					$countFilterPerson = count($filter_person_type);
 					for ($i = 0; $i < $countFilterPerson; $i++)
 					{
-						if(IntVal($filter_person_type[$i]) > 0)
+						if(intval($filter_person_type[$i]) > 0)
 							$arFilter["=PERSON_TYPE_ID"][] = $filter_person_type[$i];
 					}
 				}
@@ -327,7 +327,7 @@ if (CModule::IncludeModule("sale"))
 						$whereExpression .= "PAY_SYSTEM_ID = ".intval($filter_pay_system[$i]);
 					}
 
-					if(strlen($whereExpression) > 0)
+					if($whereExpression <> '')
 					{
 						$whereExpression .= ")";
 
@@ -343,7 +343,7 @@ if (CModule::IncludeModule("sale"))
 					}
 				}
 
-				if(!empty($filter_tracking_number) && strlen($filter_tracking_number) > 0)
+				if(!empty($filter_tracking_number) && $filter_tracking_number <> '')
 				{
 					$runtimeFields["REQUIRED_PS_PRESENTED"] = array(
 						'data_type' => 'boolean',
@@ -437,7 +437,7 @@ if (CModule::IncludeModule("sale"))
 					if($value["IS_FILTERED"] == "Y" && $value["TYPE"] != "MULTIPLE")
 					{
 						$tmp = trim(${"filter_prop_".$key});
-						if(StrLen($tmp) > 0)
+						if($tmp <> '')
 						{
 							if($value["TYPE"]=="STRING" && !preg_match("/^\d+$/", $tmp))
 								$filterName = "%PROPERTY_VALUE_".$key;
@@ -455,7 +455,7 @@ if (CModule::IncludeModule("sale"))
 					if($value["IS_FILTERED"] == "Y" && $value["TYPE"] != "MULTIPLE")
 					{
 						$tmp = trim(${"filter_prop_".$key});
-						if(StrLen($tmp) > 0)
+						if($tmp <> '')
 						{
 							if($value["TYPE"]=="STRING" && !preg_match("/^\d+$/", $tmp))
 								$filterName = "%PROPERTY_VAL_BY_CODE_".$key;
@@ -470,7 +470,7 @@ if (CModule::IncludeModule("sale"))
 
 				if($saleModulePermissions < "W")
 				{
-					if(strlen($filter_lang) <= 0 && count($arAccessibleSites) > 0)
+					if($filter_lang == '' && count($arAccessibleSites) > 0)
 						$arFilter["=LID"] = $arAccessibleSites;
 				}
 
@@ -503,7 +503,7 @@ if (CModule::IncludeModule("sale"))
 
 				}
 
-				if(isset($arFilter["NAME_SEARCH"]) && strlen($arFilter["NAME_SEARCH"]) > 0)
+				if(isset($arFilter["NAME_SEARCH"]) && $arFilter["NAME_SEARCH"] <> '')
 				{
 					$nameSearch = $arFilter["NAME_SEARCH"];
 					unset($arFilter["NAME_SEARCH"]);
@@ -526,8 +526,8 @@ if (CModule::IncludeModule("sale"))
 						continue;
 
 					if(
-						(isset($filterOrderProps["PROPERTY_VAL_BY_CODE_".$key]) && strlen($filterOrderProps["PROPERTY_VAL_BY_CODE_".$key]) > 0)
-						|| (isset($filterOrderProps["%PROPERTY_VAL_BY_CODE_".$key]) && strlen($filterOrderProps["%PROPERTY_VAL_BY_CODE_".$key]) > 0)
+						(isset($filterOrderProps["PROPERTY_VAL_BY_CODE_".$key]) && $filterOrderProps["PROPERTY_VAL_BY_CODE_".$key] <> '')
+						|| (isset($filterOrderProps["%PROPERTY_VAL_BY_CODE_".$key]) && $filterOrderProps["%PROPERTY_VAL_BY_CODE_".$key] <> '')
 					)
 					{
 						$propIterator++;
@@ -561,8 +561,8 @@ if (CModule::IncludeModule("sale"))
 						continue;
 
 					if(
-						(isset($filterOrderProps["PROPERTY_VALUE_".$key]) && strlen($filterOrderProps["PROPERTY_VALUE_".$key]) > 0)
-						|| (isset($filterOrderProps["%PROPERTY_VALUE_".$key]) && strlen($filterOrderProps["%PROPERTY_VALUE_".$key]) > 0)
+						(isset($filterOrderProps["PROPERTY_VALUE_".$key]) && $filterOrderProps["PROPERTY_VALUE_".$key] <> '')
+						|| (isset($filterOrderProps["%PROPERTY_VALUE_".$key]) && $filterOrderProps["%PROPERTY_VALUE_".$key] <> '')
 					)
 					{
 						$runtimeFields['PROP_'.$propIterator] = array(
@@ -622,7 +622,7 @@ if (CModule::IncludeModule("sale"))
 						$arShownFieldsParams[$ind]["KEY"] = $key;
 
 						$arFields_tmp = array();
-						if (strlen($value["SELECT"]) > 0)
+						if ($value["SELECT"] <> '')
 							$arFields_tmp = explode(",", $value["SELECT"]);
 
 						$arShownFieldsParams[$ind]["SHOW"] = $arFields_tmp;
@@ -671,7 +671,7 @@ else
 	$errorMessage .= GetMessage("SOE_NO_SALE").". ";
 }
 
-if (strlen($errorMessage) > 0)
+if ($errorMessage <> '')
 {
 	$APPLICATION->SetTitle(GetMessage("SOE_EXPORT_ERROR"));
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");

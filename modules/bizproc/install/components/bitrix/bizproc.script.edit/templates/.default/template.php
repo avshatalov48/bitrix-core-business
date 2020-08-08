@@ -18,7 +18,7 @@ $APPLICATION->IncludeComponent('bitrix:bizproc.automation', '', [
 	'CONSTANTS_EDIT_URL'            => '/bizproc/script/template/constants/?id=#ID#',
 	'PARAMETERS_EDIT_URL'            => '/bizproc/script/template/parameters/?id=#ID#',
 	'MARKETPLACE_ROBOT_CATEGORY' => $script['MODULE_ID'].'_bots',
-	'MARKETPLACE_TRIGGER_PLACEMENT' => strtoupper($script['MODULE_ID']).'_ROBOT_TRIGGERS',
+	'MARKETPLACE_TRIGGER_PLACEMENT' => mb_strtoupper($script['MODULE_ID']).'_ROBOT_TRIGGERS',
 	'HIDE_TOOLBAR' => 'Y',
 	'MESSAGES' => [
 		'BIZPROC_AUTOMATION_CMP_AUTOMATION_EDIT' => \Bitrix\Main\Localization\Loc::getMessage('BIZPROC_SCRIPT_EDIT_TITLE'),

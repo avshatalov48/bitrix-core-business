@@ -488,11 +488,11 @@ class FieldType
 		{
 			foreach ($property as $key => $val)
 			{
-				switch (strtoupper($key))
+				switch(mb_strtoupper($key))
 				{
 					case 'TYPE':
 					case '0':
-						$normalized['Type'] = (string) $val;
+						$normalized['Type'] = (string)$val;
 						break;
 					case 'MULTIPLE':
 					case '1':
@@ -504,7 +504,7 @@ class FieldType
 						break;
 					case 'OPTIONS':
 					case '3':
-						$normalized['Options'] = is_array($val) ? $val : (string)$val;
+						$normalized['Options'] = is_array($val)? $val : (string)$val;
 						break;
 					case 'SETTINGS':
 						{
@@ -516,12 +516,12 @@ class FieldType
 						break;
 					case 'NAME':
 						{
-							$normalized['Name'] = (string) $val;
+							$normalized['Name'] = (string)$val;
 						}
 						break;
 					case 'DESCRIPTION':
 						{
-							$normalized['Description'] = (string) $val;
+							$normalized['Description'] = (string)$val;
 						}
 						break;
 					case 'DEFAULT':

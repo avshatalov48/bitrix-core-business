@@ -44,7 +44,7 @@ class BizprocScriptPlacementComponent extends \CBitrixComponent
 
 			foreach($scriptList as $script)
 			{
-				$itemText = strlen($script['NAME']) > 0
+				$itemText = $script['NAME'] <> ''
 					? $script['NAME']
 					: $script['APP_NAME'];
 

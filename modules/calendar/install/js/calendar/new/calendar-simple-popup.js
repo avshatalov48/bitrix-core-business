@@ -8,7 +8,6 @@
 	SimpleAddPopup.prototype = {
 		show: function(params)
 		{
-			var popup;
 			this.params = params;
 			this.entryTime = params.entryTime;
 			this.attendees = [];
@@ -17,6 +16,9 @@
 			this.attendeesCodes = {};
 			this.allowInvite = true;
 			this.notify = true;
+			this.secondSlideIsOpened = false;
+			this.checkDataBeforeCloseMode = true;
+			this.displayed = false;
 
 			if (this.calendar.ownerUser)
 			{
@@ -28,6 +30,9 @@
 			this.attendees.push(this.calendar.currentUser);
 			this.attendeesIndex[this.calendar.currentUser.id] = true;
 			this.attendeesCodes['U' + this.calendar.currentUser.id] = 'users';
+
+			this.initiateAttendees = [];
+			this.attendees.forEach(function(user){this.initiateAttendees.push(user.id);}, this);
 
 			// Check angle position
 			var
@@ -56,11 +61,9 @@
 				anglePosition = false;
 			}
 
-			popup = BX.PopupWindowManager.create(this.calendar.id + "-simple-add-popup",
+			var popup = new BX.PopupWindow(this.calendar.id + "-simple-add-popup",
 				params.bindNode || params.entryNode,
 				{
-					autoHide: true,
-					closeByEsc: true,
 					offsetTop: offsetTop,
 					offsetLeft: offsetLeft,
 					closeIcon: true,
@@ -106,7 +109,8 @@
 			{
 				this.overlay = popup.overlay.element;
 				BX.addClass(popup.overlay.element, 'calendar-popup-overlay');
-				setTimeout(BX.delegate(function(){
+				setTimeout(BX.delegate(function()
+				{
 					BX.addClass(popup.overlay.element, 'calendar-popup-overlay-dark');
 					popup.overlay = null;
 				}, this), 1);
@@ -122,15 +126,16 @@
 
 			BX.bind(document, 'keydown', BX.proxy(this.keyHandler, this));
 			BX.addCustomEvent(popup, 'onPopupClose', BX.proxy(this.close, this));
+			BX.bind(this.overlay, 'click', BX.proxy(this.close, this));
 
 			this.calendar.disableKeyHandler();
 			setTimeout(BX.delegate(function(){this.calendar.disableKeyHandler();}, this), 100);
+			this.displayed = true;
 		},
 
 		save: function(params)
 		{
-			if (!params)
-				params = {};
+			params = params || {};
 
 			// check users accessibility
 			if (params.checkBusyUsers !== false && this.calendar.util.isMeetingsEnabled())
@@ -173,11 +178,25 @@
 			{
 				this.params.saveCallback();
 			}
+
+			this.checkDataBeforeCloseMode = false;
 			this.close();
 		},
 
 		close: function()
 		{
+			if (!this.popup || !this.popup.isShown())
+			{
+				return;
+			}
+
+			if (this.checkDataBeforeCloseMode
+				&& !this.checkBeforeClose()
+				&& !confirm(BX.message('EC_SAVE_ENTRY_CONFIRM')))
+			{
+				return;
+			}
+
 			this.calendar.enableKeyHandler();
 
 			if (this.popup)
@@ -207,6 +226,26 @@
 			}
 
 			BX.unbind(document, 'keydown', BX.proxy(this.keyHandler, this));
+			BX.unbind(this.overlay, 'click', BX.proxy(this.close, this));
+
+			this.displayed = false;
+		},
+
+		isShown: function()
+		{
+			return this.displayed;
+		},
+
+		couldBeClosedByEsc: function()
+		{
+			return !((this.dateTimeField.fromTime && this.dateTimeField.fromTime.shown) // from popup
+				|| (this.dateTimeField.toTime && this.dateTimeField.toTime.shown) // to popup
+				|| this.secondSlideIsOpened // second slider
+				|| (this.reminderField && this.reminderField.reminder && this.reminderField.reminder.reminderMenu)
+				|| (this.sectionSelector && this.sectionSelector.sectionMenu)
+				|| (this.locationSelector && this.locationSelector.selectContol && this.locationSelector.selectContol.popupMenu)
+				|| BX.PopupWindowManager.getCurrentPopup()
+				);
 		},
 
 		getPopupData: function()
@@ -215,8 +254,8 @@
 			this.attendees.forEach(function(user){attendees.push(user.id);});
 
 			var
-				fromTime = this.calendar.util.parseTime(this.dateTimeField.fromTimeInput.value),
-				toTime = this.calendar.util.parseTime(this.dateTimeField.toTimeInput.value),
+				fromTime = BX.Calendar.Util.parseTime(this.dateTimeField.fromTimeInput.value),
+				toTime = BX.Calendar.Util.parseTime(this.dateTimeField.toTimeInput.value),
 				fromDate = new Date(this.entryTime.from.getTime()),
 				toDate = new Date(this.entryTime.from.getTime());
 
@@ -255,6 +294,25 @@
 			};
 		},
 
+		getEntry: function ()
+		{
+			var data = this.getPopupData();
+			var entryData = {
+				ID: null,
+				NAME: data.name,
+				dateFrom: data.from,
+				dateTo: data.to,
+				TZ_FROM: data.defaultTz,
+				TZ_TO: data.defaultTz,
+				SECT_ID: parseInt(data.section),
+				LOCATION: data.location,
+				ATTENDEES_CODES: data.attendeesCodesList,
+				remind: data.remind
+			};
+
+			return new BX.Calendar.Entry({data: entryData});
+		},
+
 		createContent: function()
 		{
 			this.mainSlide = BX.create('DIV', {props: {className: 'calendar-add-popup-main-slide'}});
@@ -270,7 +328,6 @@
 						type: 'text'
 					},
 					events:{
-						click: BX.proxy(this.nameInputClick, this),
 						keyup: BX.proxy(this.entryNameChanged, this),
 						blur: BX.proxy(this.entryNameChanged, this),
 						change: BX.proxy(this.entryNameChanged, this)
@@ -300,7 +357,15 @@
 			this.fullFormField.link = this.fullFormField.innerWrap.appendChild(BX.create('SPAN', {
 				props: {className: 'calendar-text-link'},
 				text: BX.message('EC_FULL_FORM_LABEL'),
-				events: {click : this.params.fullFormCallback}
+				events: {click : function()
+					{
+						this.checkDataBeforeCloseMode = false;
+						if (BX.type.isFunction(this.params.fullFormCallback))
+						{
+							this.params.fullFormCallback();
+						}
+					}.bind(this)
+				}
 			}));
 
 			this.mainSlide.appendChild(BX.create('HR', {props: {className: 'calendar-filed-separator'}}));
@@ -315,13 +380,6 @@
 			return this.sliderContainer;
 		},
 
-		nameInputClick: function()
-		{
-			this.nameField.input.select();
-			// Do it once, for second and more clicks - do nothing
-			BX.unbind(this.nameField.input, 'click', BX.proxy(this.nameInputClick, this));
-		},
-
 		prepareSecondSlide: function(params)
 		{
 			this.closeSecondSlideCallback = params.closeCallback || null;
@@ -334,32 +392,47 @@
 				this.secondSlide = this.sliderContainer.appendChild(BX.create('DIV', {props: {className: 'calendar-add-popup-second-slide'}}));
 			}
 
-			this.backButton = this.secondSlide.appendChild(BX.create('DIV', {props: {className: 'calendar-add-popup-second-slide-header'}})).appendChild(BX.create('SPAN', {props: {className: 'calendar-add-popup-second-slide-back-btn'}, html: BX.message('EC_SIMPLE_FORM_BACK')}));
+			this.backButton = this.secondSlide
+				.appendChild(BX.create('DIV', {props: {className: 'calendar-add-popup-second-slide-header'}}))
+				.appendChild(BX.create('SPAN', {props: {className: 'calendar-add-popup-second-slide-back-btn'}, html: BX.message('EC_SIMPLE_FORM_BACK')}));
 
 			BX.bind(this.backButton, 'click', BX.proxy(this.closeSecondSlide, this));
-			BX.bind(document, "keyup", BX.proxy(function(e){if(e.keyCode === 27){this.closeSecondSlide()}}, this));
+			BX.bind(document, "keyup", BX.proxy(this.secondSlideEscHandler, this));
 
-			this.popup.setClosingByEsc(false);
 			this.popupButtonsContainer.style.display = 'none';
 			this.resizeSecondSlide();
 
 			setTimeout(BX.delegate(function(){BX.addClass(this.popup.contentContainer, 'calendar-add-popup-wrap-second-tab-active');}, this), 0);
+
+			this.secondSlideIsOpened = true;
+		},
+
+		secondSlideEscHandler: function(e)
+		{
+			if(e.keyCode === this.calendar.util.KEY_CODES['escape'])
+			{
+				this.closeSecondSlide()
+			}
 		},
 
 		closeSecondSlide: function()
 		{
 			if(this.closeSecondSlideCallback)
+			{
 				this.closeSecondSlideCallback();
+			}
 
-			BX.unbind(document, "keyup", BX.proxy(function(e){if(e.keyCode === 27){this.closeSecondSlide()}}, this));
+			BX.unbind(document, "keyup", BX.proxy(this.secondSlideEscHandler, this));
 			BX.removeClass(this.popup.contentContainer, 'calendar-add-popup-wrap-second-tab-active');
 
 			this.popupButtonsContainer.style.display = '';
 			this.clearSecondSlideHeight();
-			this.popup.setClosingByEsc(true);
 			if (this.resizeTimeout)
+			{
 				this.resizeTimeout = clearTimeout(this.resizeTimeout);
+			}
 			BX.cleanNode(this.secondSlide);
+			this.secondSlideIsOpened = false;
 		},
 
 		resizeSecondSlide: function()
@@ -404,107 +477,35 @@
 
 		createSectionSelector: function()
 		{
-			this.sectionField = {
-				select: this.nameField.innerWrap.appendChild(BX.create('DIV', {
-					props: {className: 'calendar-field calendar-field-select calendar-field-tiny'}
-				}))
-			};
-			this.sectionField.innerValue = this.sectionField.select.appendChild(BX.create('DIV', {
-				props: {className: 'calendar-field-select-icon'},
-				style: {backgroundColor : this.params.section.color}
-			}));
-
-			BX.bind(this.sectionField.select, 'click', showPopup);
-
-
-			var
-				_this = this,
-				sectionList = this.calendar.sectionController.getSectionListForEdit();
-
-			function showPopup()
-			{
-				if (_this.sectionMenu && _this.sectionMenu.popupWindow && _this.sectionMenu.popupWindow.isShown())
-				{
-					return _this.sectionMenu.close();
-				}
-
-				var i, menuItems = [], icon;
-
-				for (i = 0; i < sectionList.length; i++)
-				{
-					menuItems.push({
-						id: 'bx-calendar-section-' + sectionList[i].id,
-						text: BX.util.htmlspecialchars(sectionList[i].name),
-						color: sectionList[i].color,
-						className: 'calendar-add-popup-section-menu-item',
-						onclick: (function (value)
-						{
-							return function ()
-							{
-								_this.params.section = _this.calendar.sectionController.getSection(value);
-								_this.calendar.util.setUserOption('lastUsedSection', _this.params.section.id);
-								_this.sectionField.innerValue.style.backgroundColor = _this.params.section.color;
-								_this.sectionMenu.close();
-
-								if (BX.type.isFunction(_this.params.changeSectionCallback))
-								{
-									_this.params.changeSectionCallback(_this.params.section);
-								}
-							}
-						})(sectionList[i].id)
-					});
-				}
-
-				_this.sectionMenu = BX.PopupMenu.create(
-					"sectionMenu" + _this.calendar.id,
-					_this.sectionField.select,
-					menuItems,
+			this.sectionSelector = new window.BXEventCalendar.SectionSelector({
+				outerWrap: this.nameField.innerWrap,
+				sectionList: this.calendar.sectionController.getSectionListForEdit(),
+				sectionGroupList: this.calendar.sectionController.getSectionGroupList(),
+				mode: 'compact',
+				getCurrentSection: BX.delegate(function() {
+					return this.params.section;
+				}, this),
+				selectCallback: BX.delegate(function(section) {
+					if (section)
 					{
-						closeByEsc : true,
-						autoHide : true,
-						zIndex: 1200,
-						offsetTop: 0,
-						offsetLeft: 40,
-						angle: true
-					}
-				);
-
-				_this.sectionMenu.popupWindow.contentContainer.style.overflow = "auto";
-				_this.sectionMenu.popupWindow.contentContainer.style.maxHeight = "300px";
-				_this.sectionMenu.show();
-
-				// Paint round icons for section menu
-				for (i = 0; i < _this.sectionMenu.menuItems.length; i++)
-				{
-					if (_this.sectionMenu.menuItems[i].layout.item)
-					{
-						icon = _this.sectionMenu.menuItems[i].layout.item.querySelector('.menu-popup-item-icon');
-						if (icon)
+						this.params.section = this.calendar.sectionController.getSection(section.id);
+						//this.calendar.util.setUserOption('lastUsedSection', section.id);
+						if (BX.type.isFunction(this.params.changeSectionCallback))
 						{
-							icon.style.backgroundColor = _this.sectionMenu.menuItems[i].color;
+							this.params.changeSectionCallback(section);
 						}
 					}
-				}
-
-				BX.addClass(_this.sectionField.select, 'active');
-				_this.popup.setAutoHide(false);
-
-				BX.addCustomEvent(_this.sectionMenu.popupWindow, 'onPopupClose', function()
-				{
-					_this.popup.setAutoHide(true);
-					BX.removeClass(_this.sectionField.select, 'active');
-					BX.PopupMenu.destroy("sectionMenu" + _this.calendar.id);
-					_this.sectionMenu = null;
-				});
-			}
+				}, this),
+				// openPopupCallback: function() {this.popup.setAutoHide(false);}.bind(this),
+				// closePopupCallback: function() {this.popup.setAutoHide(true);}.bind(this)
+			});
 		},
 
 		createDateTimeField: function()
 		{
-			var
-				_this = this,
-				timeFrom = this.calendar.util.formatTime(this.entryTime.from.getHours(), this.entryTime.from.getMinutes()),
-				timeTo = this.calendar.util.formatTime(this.entryTime.to.getHours(), this.entryTime.to.getMinutes());
+			var _this = this;
+			this.initiateTimeFrom = this.calendar.util.formatTime(this.entryTime.from.getHours(), this.entryTime.from.getMinutes());
+			this.initiateTimeTo = this.calendar.util.formatTime(this.entryTime.to.getHours(), this.entryTime.to.getMinutes());
 
 			this.dateTimeField = {
 				outerWrap: this.mainSlide.appendChild(BX.create('DIV', {props: {className: 'calendar-field-container calendar-field-container-datetime'}}))
@@ -518,7 +519,7 @@
 
 			this.dateTimeField.fromTimeInput = this.dateTimeField.fromTimeInputWrap.appendChild(BX.create('INPUT', {
 				attrs: {
-					value: timeFrom,
+					value: this.initiateTimeFrom,
 					placeholder: BX.message('EC_TIME_FROM_PLACEHOLDER'),
 					type: 'text'
 				},
@@ -534,7 +535,7 @@
 
 			this.dateTimeField.toTimeInput = this.dateTimeField.toTimeInputWrap.appendChild(BX.create('INPUT', {
 				attrs: {
-					value: timeTo,
+					value: this.initiateTimeTo,
 					placeholder: BX.message('EC_TIME_TO_PLACEHOLDER'),
 					type: 'text'
 				},
@@ -632,28 +633,28 @@
 
 		createReminderField: function()
 		{
+			var _this = this;
 			this.reminderValues = [];
 			this.reminderField = this.createField('container-text', this.mainSlide);
 			this.reminderField.innerCont = this.reminderField.innerWrap.appendChild(BX.create('DIV', {props: {className: 'calendar-text'}, text: BX.message('EC_REMIND_LABEL') + ':'}));
 
-			var _this = this;
-			this.reminderField.reminder = new window.BXEventCalendar.ReminderSelector({
-				id: "reminder-" + this.calendar.id,
+			this.reminderField.reminder = new BX.Calendar.Controls.Reminder({
+				wrap: this.reminderField.innerCont,
 				selectedValues: [this.calendar.util.getUserOption('defaultReminder', 15)],
-				values: this.calendar.util.getRemindersList(),
-				valuesContainerNode: this.reminderField.innerCont.appendChild(BX.create('SPAN')),
-				addButtonNode: this.reminderField.innerCont.appendChild(BX.create('SPAN', {props: {className: 'calendar-notification-btn-container calendar-notification-btn-add'}, html: '<span class="calendar-notification-icon"></span>'})),
+				//valuesContainerNode: this.reminderField.innerCont.appendChild(BX.create('SPAN')),
+				//addButtonNode: this.reminderField.innerCont.appendChild(BX.create('SPAN', {props: {className:
+				// 'calendar-notification-btn-container calendar-notification-btn-add'}, html: '<span class="calendar-notification-icon"></span>'})),
 				changeCallack: function(values){
 					_this.reminderValues = values;
 				},
-				showPopupCallBack: function()
-				{
-					_this.popup.setAutoHide(false);
-				},
-				hidePopupCallBack: function()
-				{
-					_this.popup.setAutoHide(true);
-				}
+				// showPopupCallBack: function()
+				// {
+				// 	_this.popup.setAutoHide(false);
+				// },
+				// hidePopupCallBack: function()
+				// {
+				// 	_this.popup.setAutoHide(true);
+				// }
 			});
 		},
 
@@ -666,7 +667,6 @@
 			this.locationSelector = new window.BXEventCalendar.LocationSelector(
 				this.calendar.id + '-simple-slider-location',
 				{
-					//disabled: true,
 					value: this.entry ? this.entry.location : '',
 					wrapNode: this.locationField.outerWrap,
 					getControlContentCallback: BX.delegate(function()
@@ -743,10 +743,10 @@
 
 		showPlannerSlide: function()
 		{
-			if (this.popup)
-			{
-				this.popup.setAutoHide(false);
-			}
+			// if (this.popup)
+			// {
+			// 	this.popup.setAutoHide(false);
+			// }
 			this.prepareSecondSlide({
 				closeCallback : BX.proxy(this.hidePlannerSlide, this)
 			});
@@ -783,10 +783,10 @@
 
 		hidePlannerSlide: function()
 		{
-			if (this.popup)
-			{
-				this.popup.setAutoHide(true);
-			}
+			// if (this.popup)
+			// {
+			// 	this.popup.setAutoHide(true);
+			// }
 
 			if (this.allowInviteField)
 			{
@@ -881,7 +881,7 @@
 			BX.removeCustomEvent('OnDestinationAddNewItem', BX.proxy(this.checkPlannerState, this));
 			BX.removeCustomEvent('OnDestinationUnselect', BX.proxy(this.checkPlannerState, this));
 			BX.removeCustomEvent('OnDestinationUnselect', BX.proxy(this.clearSecondSlideHeight, this));
-			BX.removeCustomEvent('OnCalendarPlannerSelectorChanged', BX.proxy(this.OnCalendarPlannerSelectorChanged, this));
+			BX.removeCustomEvent('OnCalendarPlannerSelectorChanged', BX.proxy(this.onCalendarPlannerSelectorChanged, this));
 		},
 
 		plannerIsShown: function()
@@ -1116,6 +1116,21 @@
 			{
 				this.save();
 			}
+			else if(e.keyCode === this.calendar.util.KEY_CODES['escape'] && this.couldBeClosedByEsc())
+			{
+				this.close();
+			}
+		},
+
+		checkBeforeClose: function()
+		{
+			var popupData = this.getPopupData();
+			return !(this.params.entryName !== popupData.name
+				|| popupData.location
+				|| this.initiateAttendees.join(',') !== popupData.attendees.join(',')
+				|| this.initiateTimeFrom !== this.dateTimeField.fromTimeInput.value
+				|| this.initiateTimeTo !== this.dateTimeField.toTimeInput.value
+			);
 		}
 	};
 

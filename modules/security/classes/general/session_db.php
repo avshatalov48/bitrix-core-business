@@ -6,7 +6,7 @@ class CSecuritySessionDB
 {
 	protected static $isReadOnly = false;
 	protected static $sessionId = null;
-
+	protected static $hasFailedRead = false;
 	/**
 	 * @return bool
 	 */
@@ -61,6 +61,14 @@ class CSecuritySessionDB
 		if ($sessionRow && isset($sessionRow['SESSION_DATA']))
 		{
 			return base64_decode($sessionRow['SESSION_DATA']);
+		}
+		else
+		{
+			if (!self::$hasFailedRead)
+			{
+				AddEventHandler("main", "OnPageStart", array("CSecuritySession", "UpdateSessID"));
+				self::$hasFailedRead = true;
+			}
 		}
 
 		return '';

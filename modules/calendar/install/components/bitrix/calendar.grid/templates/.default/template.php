@@ -10,6 +10,8 @@ if($isBitrix24Template)
 $this->SetViewTarget("inside_pagetitle");
 }
 ?>
+<div id="<?= $arResult['ID']?>-add-button-container" class="pagetitle-container" style="margin-right: 12px"></div>
+
 <? if ($arParams["SHOW_FILTER"]):?>
 	<div id="<?= $arResult['ID']?>-search-container" class="pagetitle-container pagetitle-flexible-space<?= $isBitrix24Template ? '' : ' calendar-default-search-wrap' ?>">
 	<?
@@ -43,11 +45,14 @@ if($isBitrix24Template)
 	$this->SetViewTarget("below_pagetitle");
 }
 ?>
+<div class="calendar-view-switcher-list">
+	<div id="<?= $arResult['ID']?>-view-switcher-container"></div>
 
-<? if ($arParams["SHOW_FILTER"]):?>
-	<div id="<?= $arResult['ID']?>-counter-container" class="pagetitle-container" style="overflow: hidden;"></div>
-<? endif;?>
-<div id="<?= $arResult['ID']?>-view-switcher-container" class="calendar-view-switcher pagetitle-align-right-container"></div>
+	<? if ($arParams["SHOW_FILTER"]):?>
+		<div id="<?= $arResult['ID']?>-counter-container" class="pagetitle-container" style="overflow: hidden;"></div>
+	<? endif;?>
+</div>
+
 <?
 if($isBitrix24Template)
 {

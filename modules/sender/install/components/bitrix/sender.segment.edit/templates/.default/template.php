@@ -5,8 +5,8 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 }
 
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Web\Json;
 use Bitrix\Main\UI\Extension;
+use Bitrix\Main\Web\Json;
 use Bitrix\Sender\Internals\PrettyDate;
 
 /** @var CAllMain $APPLICATION */
@@ -206,6 +206,7 @@ $containerId = 'bx-sender-segment-edit';
 				<div data-hint="<?=Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_DYNAMIC_HINT')?>"></div>
 			</div>
 		</div>
+		<?if($arResult['CAN_ADD_PERSONAL_CONTACTS']):?>
 		<div class="sender-box-list">
 			<div class="sender-box-name"><?=Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_LIST1')?></div>
 			<div class="sender-flex-control">
@@ -231,7 +232,7 @@ $containerId = 'bx-sender-segment-edit';
 				<div data-hint="<?=Loc::getMessage('SENDER_SEGMENT_EDIT_TMPL_LIST_HINT1')?>"></div>
 			</div>
 		</div>
-
+		<?endif;?>
 
 		<?
 		$APPLICATION->IncludeComponent(

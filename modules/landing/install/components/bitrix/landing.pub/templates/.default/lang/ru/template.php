@@ -16,4 +16,15 @@ $MESS["LANDING_TPL_SITES_STORE"] = "Мои магазины";
 $MESS["LANDING_TPL_SITES_KNOWLEDGE"] = "Базы знаний";
 $MESS["LANDING_TPL_SITES_GROUP"] = "Базы знаний";
 $MESS["LANDING_TPL_SETTINGS_BUTTON_TITLE"] = "Настройки";
+$MESS["LANDING_TPL_ERROR_NOT_FOUND_NOTE"] = "Может быть, ошибка в адресе? Проверьте еще раз.";
+$MESS["LANDING_TPL_ERROR_NOT_FOUND_NOTE_KNOWLEDGE"] = "Попробуйте найти нужную вам базу знаний в #LINK1#общем списке#LINK2#";
+$MESS["LANDING_TPL_ERROR_NOT_ALLOWED_NOTE_KNOWLEDGE"] = "Отправьте запрос на доступ одному из пользователей, который сможет выдать вам разрешение на просмотр базы знаний";
+$MESS["LANDING_TPL_ERROR_NOT_ALLOWED_NOTE_GROUP"] = "Вступите в группу или сделайте запрос на вступление через профайл #LINK1#рабочей группы#LINK2#.";
+$MESS["LANDING_TPL_ERROR_NOT_ALLOWED_ASK"] = "Отправить запрос";
+$MESS["LANDING_TPL_ERROR_NOT_ALLOWED_GROUP"] = "Перейти в группу";
+$MESS["LANDING_TPL_ACCESS_ASK_TITLE_KNOWLEDGE"] = "Запрос доступа";
+$MESS["LANDING_TPL_ACCESS_ASK_HEADER_KNOWLEDGE"] = "База знаний закрыта для публичного просмотра";
+$MESS["LANDING_TPL_ACCESS_ASK_DESCRIPTION_KNOWLEDGE"] = "Отправьте запрос одному из пользователей, чтобы получить разрешение на просмотр базы знаний.";
+$MESS["LANDING_TPL_ACCESS_ASK_SEND_KNOWLEDGE"] = "Запросить доступ";
+$MESS["LANDING_ERROR_NOT_ALLOW_VIEW_BY_PLAN_KNOWLEDGE"] = "На вашем тарифном плане есть ограничение по количеству созданных баз знаний. Чтобы работать с большим числом баз знаний, перейдите на другой тарифный план.";
 ?>

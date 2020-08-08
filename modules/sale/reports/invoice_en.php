@@ -67,7 +67,7 @@ array(
 							<tr>
 								<td class="mainText">
 								<?
-								if(strlen($arParams["BUYER_COMPANY_NAME"]) > 0)
+								if($arParams["BUYER_COMPANY_NAME"] <> '')
 									echo $arParams["BUYER_COMPANY_NAME"];
 								else
 									echo $arParams["BUYER_LAST_NAME"]." ".$arParams["BUYER_FIRST_NAME"]." ".$arParams["BUYER_SECOND_NAME"];
@@ -78,7 +78,7 @@ array(
 								echo "<br>".$arParams["BUYER_ADDRESS"];
 								echo "<br>".$arParams["BUYER_INDEX"];
 								
-								if (strlen($arParams["BUYER_CONTACT"])>0) echo "<br>Contact person: ".$arParams["BUYER_CONTACT"];?>
+								if ($arParams["BUYER_CONTACT"] <> '') echo "<br>Contact person: ".$arParams["BUYER_CONTACT"];?>
 								</td>
 							</tr>
 							<tr>
@@ -97,7 +97,7 @@ array(
 							<tr>
 								<td class="mainText">
 									<?
-								if(strlen($arParams["BUYER_COMPANY_NAME"]) > 0)
+								if($arParams["BUYER_COMPANY_NAME"] <> '')
 									echo $arParams["BUYER_COMPANY_NAME"];
 								else
 									echo $arParams["BUYER_LAST_NAME"]." ".$arParams["BUYER_FIRST_NAME"]." ".$arParams["BUYER_SECOND_NAME"];
@@ -108,7 +108,7 @@ array(
 								echo "<br>".$arParams["BUYER_ADDRESS"];
 								echo "<br>".$arParams["BUYER_INDEX"];
 								
-								if (strlen($arParams["BUYER_CONTACT"])>0) echo "<br>Contact person: ".$arParams["BUYER_CONTACT"];?>
+								if ($arParams["BUYER_CONTACT"] <> '') echo "<br>Contact person: ".$arParams["BUYER_CONTACT"];?>
 								</td>
 							</tr>
 						</table>

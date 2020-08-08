@@ -149,7 +149,7 @@ foreach ($arResult["TOPICS"] as $res):
 				<tr class="<?=($iCount == 1 ? "forum-row-first " : "")?><?
 					?><?=($iCount == count($arResult["TOPICS"]) ? "forum-row-last " : "")?><?
 					?><?=($iCount%2 == 1 ? "forum-row-odd " : "forum-row-even ")?><?
-					?><?=(intVal($res["SORT"]) != 150 ? "forum-row-sticky " : "")?><?
+					?><?=(intval($res["SORT"]) != 150 ? "forum-row-sticky " : "")?><?
 					?><?=($res["STATE"] != "Y" && $res["STATE"] != "L" ? "forum-row-closed " : "")?><?
 					?><?=($res["TopicStatus"] == "MOVED" ? "forum-row-moved " : "")?><?
 					?><?=($res["APPROVED"] != "Y" ? " forum-row-hidden ": "")?><?
@@ -158,7 +158,7 @@ foreach ($arResult["TOPICS"] as $res):
 						<div class="forum-icon-container">
 							<div class="forum-icon <?
 							$title = ""; $class = "";
-							if (intVal($res["SORT"]) != 150):
+							if (intval($res["SORT"]) != 150):
 								$title = GetMessage("F_PINNED_TOPIC");
 								if ($res["TopicStatus"] == "NEW"):
 									$title .= " (".GetMessage("F_HAVE_NEW_MESS").")";
@@ -170,7 +170,7 @@ foreach ($arResult["TOPICS"] as $res):
 								$title = GetMessage("F_MOVED_TOPIC");
 								?> forum-icon-moved <?
 							elseif ($res["STATE"] != "Y" && $res["STATE"] != "L"):
-								$title = (intVal($res["SORT"]) != 150 ? GetMessage("F_PINNED_CLOSED_TOPIC") : GetMessage("F_CLOSED_TOPIC"));
+								$title = (intval($res["SORT"]) != 150 ? GetMessage("F_PINNED_CLOSED_TOPIC") : GetMessage("F_CLOSED_TOPIC"));
 								if ($res["TopicStatus"] == "NEW"):
 									$title .= " (".GetMessage("F_HAVE_NEW_MESS").")";
 									?> forum-icon-closed-newposts <?
@@ -191,7 +191,7 @@ foreach ($arResult["TOPICS"] as $res):
 					<td class="forum-column-title">
 						<div class="forum-item-info">
 							<div class="forum-item-name"><?
-						if (intVal($res["SORT"]) != 150 && $res["STATE"]!="Y"):
+						if (intval($res["SORT"]) != 150 && $res["STATE"]!="Y"):
 								?><span class="forum-status-sticky"><?=GetMessage("F_PINNED")?></span>, <?
 							if ($res["STATE"] != "L"):
 								?><span class="forum-status-closed"><?=GetMessage("F_CLOSED")?></span>:&nbsp;<?
@@ -200,23 +200,23 @@ foreach ($arResult["TOPICS"] as $res):
 							endif;
 						elseif ($res["TopicStatus"] == "MOVED" || $res["STATE"]=="L"):
 								?><span class="forum-status-moved"><?=GetMessage("F_MOVED")?></span>:&nbsp;<?
-						elseif (intVal($res["SORT"]) != 150):
+						elseif (intval($res["SORT"]) != 150):
 								?><span class="forum-status-sticky"><?=GetMessage("F_PINNED")?></span>:&nbsp;<?
 						elseif (($res["STATE"]!="Y") && ($res["STATE"]!="L")):
 								?><span class="forum-status-closed"><?=GetMessage("F_CLOSED")?></span>:&nbsp;<?
 						endif;
 								?><span class="forum-item-title"><?
-						if (false && strLen($res["IMAGE"]) > 0):
+						if (false && $res["IMAGE"] <> ''):
 								?><img src="<?=$arParams["PATH_TO_ICON"].$res["IMAGE"];?>" alt="<?=$res["IMAGE_DESCR"];?>" border="0" width="15" height="15"/><?
 						endif;
 								?><a href="<?=$res["URL"]["TOPIC"]?>" title="<?=GetMessage("F_TOPIC_START")?> <?=$res["START_DATE"]?>"><?=$res["TITLE"]?></a><?
-						if ($res["TopicStatus"] == "NEW" && strLen($arParams["TMPLT_SHOW_ADDITIONAL_MARKER"]) > 0):
+						if ($res["TopicStatus"] == "NEW" && $arParams["TMPLT_SHOW_ADDITIONAL_MARKER"] <> ''):
 								?><a href="<?=$res["URL"]["MESSAGE_UNREAD"]?>" class="forum-new-message-marker"><?=$arParams["TMPLT_SHOW_ADDITIONAL_MARKER"]?></a><?
 						endif;
 								?></span><?
 						if ($res["PAGES_COUNT"] > 1):
 								?> <span class="forum-item-pages">(<?
-							$iCountPages = intVal($res["PAGES_COUNT"] > 5 ? 3 : $res["PAGES_COUNT"]);
+							$iCountPages = intval($res["PAGES_COUNT"] > 5 ? 3 : $res["PAGES_COUNT"]);
 							for ($ii = 1; $ii <= $iCountPages; $ii++):
 								?><a href="<?=ForumAddPageParams($res["URL"]["~TOPIC"], array("PAGEN_".$arParams["PAGEN"] => $ii))?>"><?
 									?><?=$ii?></a><?=($ii < $iCountPages ? ",&nbsp;" : "")?><?

@@ -78,7 +78,7 @@ if($lAdmin->EditAction() && ($WORKFLOW_RIGHT == "W"))
 		if(!$lAdmin->IsUpdated($ID))
 			continue;
 
-		if (strlen(trim($arFields["TITLE"]))>0)
+		if (trim($arFields["TITLE"]) <> '')
 		{
 			$DB->StartTransaction();
 
@@ -108,7 +108,7 @@ if($WORKFLOW_RIGHT=="W" && $arID = $lAdmin->GroupAction())
 
 	foreach($arID as $ID)
 	{
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if($ID <= 1)
 			continue;
 

@@ -490,7 +490,15 @@ class ShipmentDocument extends DocumentBase
 									'TYPE' => 'bool'
 								)
                             )
-                        )
+                        ),
+						'MARKINGS' => array(
+							'TYPE' => 'array',
+							'FIELDS' => array(
+								'BARCODE' => array(
+									'TYPE' => 'string'
+								),
+							)
+						),
                     )
                 ),
                 'TAXES' => array(

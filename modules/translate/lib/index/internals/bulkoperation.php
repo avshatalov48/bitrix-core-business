@@ -40,7 +40,7 @@ trait BulkOperation
 		$columns = [];
 		foreach ($columns0 as $c)
 		{
-			$columns[$c] = $sqlHelper->quote(strtoupper($c));
+			$columns[$c] = $sqlHelper->quote(mb_strtoupper($c));
 		}
 
 		$sqlValues = array();
@@ -110,7 +110,7 @@ trait BulkOperation
 				$hasSubQuery = false;
 				foreach ($filter as $field => $value)
 				{
-					if (strpos($field, '.') !== false)
+					if (mb_strpos($field, '.') !== false)
 					{
 						$hasSubQuery = true;
 						break;
@@ -158,7 +158,7 @@ trait BulkOperation
 			$hasSubQuery = false;
 			foreach ($filter as $field => $value)
 			{
-				if (strpos($field, '.') !== false)
+				if (mb_strpos($field, '.') !== false)
 				{
 					$hasSubQuery = true;
 					break;
@@ -253,7 +253,7 @@ trait BulkOperation
 						$val = array_map(array($sqlHelper, 'forSql'), $val);
 						$where[] = "$key IN('".implode("', '", $val)."')";
 					}
-					elseif (is_string($val) && strlen($val) > 0)
+					elseif (is_string($val) && $val <> '')
 					{
 						$where[] = "$key IN(".$val.')';
 					}
@@ -267,7 +267,7 @@ trait BulkOperation
 						$val = array_map(array($sqlHelper, 'forSql'), $val);
 						$where[] = "$key NOT IN('".implode("', '", $val)."')";
 					}
-					elseif (is_string($val) && strlen($val) > 0)
+					elseif (is_string($val) && $val <> '')
 					{
 						$where[] = "$key NOT IN(".$val.')';
 					}

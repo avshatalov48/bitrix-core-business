@@ -82,4 +82,6 @@ $MESS["IBLOCK_SORT_FIELD_DEPTH_LEVEL"] = "section nesting level";
 $MESS["IBLOCK_PROP_SAUTOCOMPLETE_DESC"] = "Bind to sections with autocomplete";
 $MESS["IBLOCK_PROP_DATE_DESC"] = "Date";
 $MESS["IBLOCK_FIELD_SUBSCRIPTIONS"] = "Number of subscriptions";
+$MESS["IBLOCK_FIELD_API_CODE_FORMAT_ERROR"] = "API symbolic code can include up to 50 Latin characters and numbers; the first character must be alphabetical";
+$MESS["IBLOCK_FIELD_API_CODE_UNIQUE_ERROR"] = "API symbolic code must be unique; an information block with this code already exists";
 ?>

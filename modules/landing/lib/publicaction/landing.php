@@ -679,56 +679,28 @@ class Landing
 	 * Create a page by template.
 	 * @param int $siteId Site id.
 	 * @param string $code Code of template.
+	 * @param array $fields Landing fields.
 	 * @return PublicActionResult
 	 */
-	public static function addByTemplate($siteId, $code)
+	public static function addByTemplate($siteId, $code, array $fields = [])
 	{
 		$result = new PublicActionResult();
 		$error = new \Bitrix\Landing\Error;
 
 		$siteId = intval($siteId);
+		$fields = self::checkAddingInMenu($fields);
 
-		// get type by siteId
-		$res = Site::getList([
-			'select' => [
-				'TYPE'
-			],
-			'filter' => [
-				'ID' => $siteId
-			]
-		]);
-		if (!($site = $res->fetch()))
+		$res = LandingCore::addByTemplate($siteId, $code, $fields);
+
+		if ($res->isSuccess())
 		{
-			$error->addError(
-				'SITE_ERROR',
-				Loc::getMessage('LANDING_SITE_ERROR')
-			);
+			$result->setResult($res->getId());
+		}
+		else
+		{
+			$error->addFromResult($res);
 			$result->setError($error);
-			return $result;
 		}
-
-		// include the component
-		$componentName = 'bitrix:landing.demo';
-		$className = \CBitrixComponent::includeComponentClass($componentName);
-		$demoCmp = new $className;
-		$demoCmp->initComponent($componentName);
-		$demoCmp->arParams = [
-			'TYPE' => 'PAGE',//$site['TYPE'],
-			'SITE_ID' => $siteId,
-			'SITE_WORK_MODE' => 'N',
-			'DISABLE_REDIRECT' => 'Y'
-		];
-
-		// ... and create the page by component's method
-		$landingId = $demoCmp->createPage($siteId, $code);
-		$result->setResult($landingId);
-
-		// if error occurred
-		foreach ($demoCmp->getErrors() as $code => $title)
-		{
-			$error->addError($code, $title);
-		}
-		$result->setError($error);
 
 		return $result;
 	}
@@ -926,22 +898,43 @@ class Landing
 				'ENTITY_ID' => $lid,
 				'ENTITY_TYPE' => \Bitrix\Landing\Hook::ENTITY_TYPE_LANDING,
 				'HOOK' => 'FONTS',
-				'CODE' => 'CODE'
+				'CODE' => 'CODE',
+				'PUBLIC' => 'N'
 			);
 			$res = HookDataTable::getList(array(
 				'select' => array(
-					'ID'
+					'ID', 'VALUE'
 				),
 				'filter' => $fields
 			));
 			if ($row = $res->fetch())
 			{
-				HookDataTable::update(
-					$row['ID'],
-					array(
-						'VALUE' => $content
-					)
+				$existsContent = $row['VALUE'];
+
+				// concat new fonts to the exists
+				$found = preg_match_all(
+					'#(<noscript>.*?<style.*?data-id="([^"]+)"[^>]*>[^<]+</style>)#is',
+					$content,
+					$newFonts
 				);
+				if ($found)
+				{
+					foreach ($newFonts[1] as $i => $newFont)
+					{
+						if (mb_strpos($existsContent, '"' . $newFonts[2][$i] . '"') === false)
+						{
+							$existsContent .= $newFont;
+						}
+					}
+				}
+
+				if ($existsContent != $row['VALUE'])
+				{
+					HookDataTable::update(
+						$row['ID'],
+						['VALUE' => $existsContent]
+					);
+				}
 			}
 			else
 			{

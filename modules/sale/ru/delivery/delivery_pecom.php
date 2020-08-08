@@ -115,9 +115,9 @@ class CDeliveryPecom
 		$shopLocationId = CSaleHelper::getShopLocationId($siteId);
 		$arShopLocation = CSaleHelper::getLocationByIdHitCached($shopLocationId);
 
-		$locString = strlen($arShopLocation["COUNTRY_NAME_LANG"]) > 0 ? $arShopLocation["COUNTRY_NAME_LANG"] : "";
-		$locString .= (strlen($arShopLocation["REGION_NAME_LANG"]) > 0 ? (strlen($locString) > 0 ? ", " : "").$arShopLocation["REGION_NAME_LANG"] : "");
-		$locString .= (strlen($arShopLocation["CITY_NAME_LANG"]) > 0 ? (strlen($locString) > 0 ? ", " : "").$arShopLocation["CITY_NAME_LANG"] : "");
+		$locString = $arShopLocation["COUNTRY_NAME_LANG"] <> '' ? $arShopLocation["COUNTRY_NAME_LANG"] : "";
+		$locString .= ($arShopLocation["REGION_NAME_LANG"] <> '' ? ($locString <> '' ? ", " : "").$arShopLocation["REGION_NAME_LANG"] : "");
+		$locString .= ($arShopLocation["CITY_NAME_LANG"] <> '' ? ($locString <> '' ? ", " : "").$arShopLocation["CITY_NAME_LANG"] : "");
 
 		$locDelivery = Adapter::mapLocation($shopLocationId);
 
@@ -365,7 +365,7 @@ class CDeliveryPecom
 
 		foreach ($arSettings as $key => $value)
 		{
-			if (strlen($value) > 0)
+			if ($value <> '')
 				$arSettings[$key] = $value;
 			else
 				unset($arSettings[$key]);
@@ -642,7 +642,7 @@ class CDeliveryPecom
 			unset($_SESSION['PECOM_LOCATIONS_MAP_ERRORS']);
 		}
 
-		if(strlen($message) > 0)
+		if($message <> '')
 		{
 			$result = array(
 				'MESSAGE' => $message,

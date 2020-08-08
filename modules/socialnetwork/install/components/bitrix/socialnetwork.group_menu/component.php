@@ -24,73 +24,73 @@ if (!Loader::includeModule("socialnetwork"))
 if (!array_key_exists("MAX_ITEMS", $arParams) || intval($arParams["MAX_ITEMS"]) <= 0)
 	$arParams["MAX_ITEMS"] = 6;
 
-$arParams["GROUP_ID"] = IntVal($arParams["GROUP_ID"]);
+$arParams["GROUP_ID"] = intval($arParams["GROUP_ID"]);
 
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 
-if (strLen($arParams["GROUP_VAR"]) <= 0)
+if ($arParams["GROUP_VAR"] == '')
 	$arParams["GROUP_VAR"] = "group_id";
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
 
 $arParams["PATH_TO_GROUP"] = trim($arParams["PATH_TO_GROUP"]);
-if (strlen($arParams["PATH_TO_GROUP"]) <= 0)
+if ($arParams["PATH_TO_GROUP"] == '')
 	$arParams["PATH_TO_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_MODS"] = trim($arParams["PATH_TO_GROUP_MODS"]);
-if (strlen($arParams["PATH_TO_GROUP_MODS"]) <= 0)
+if ($arParams["PATH_TO_GROUP_MODS"] == '')
 	$arParams["PATH_TO_GROUP_MODS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_mods&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_USERS"] = trim($arParams["PATH_TO_GROUP_USERS"]);
-if (strlen($arParams["PATH_TO_GROUP_USERS"]) <= 0)
+if ($arParams["PATH_TO_GROUP_USERS"] == '')
 	$arParams["PATH_TO_GROUP_USERS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_users&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_EDIT"] = trim($arParams["PATH_TO_GROUP_EDIT"]);
-if (strlen($arParams["PATH_TO_GROUP_EDIT"]) <= 0)
+if ($arParams["PATH_TO_GROUP_EDIT"] == '')
 	$arParams["PATH_TO_GROUP_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_edit&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_REQUEST_SEARCH"] = trim($arParams["PATH_TO_GROUP_REQUEST_SEARCH"]);
-if (strlen($arParams["PATH_TO_GROUP_REQUEST_SEARCH"]) <= 0)
+if ($arParams["PATH_TO_GROUP_REQUEST_SEARCH"] == '')
 	$arParams["PATH_TO_GROUP_REQUEST_SEARCH"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_request_search&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_REQUESTS"] = trim($arParams["PATH_TO_GROUP_REQUESTS"]);
-if (strlen($arParams["PATH_TO_GROUP_REQUESTS"]) <= 0)
+if ($arParams["PATH_TO_GROUP_REQUESTS"] == '')
 	$arParams["PATH_TO_GROUP_REQUESTS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_requests&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_BAN"] = trim($arParams["PATH_TO_GROUP_BAN"]);
-if (strlen($arParams["PATH_TO_GROUP_BAN"]) <= 0)
+if ($arParams["PATH_TO_GROUP_BAN"] == '')
 	$arParams["PATH_TO_GROUP_BAN"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_ban&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_BLOG"] = trim($arParams["PATH_TO_GROUP_BLOG"]);
-if(strlen($arParams["PATH_TO_GROUP_BLOG"])<=0)
+if($arParams["PATH_TO_GROUP_BLOG"] == '')
 	$arParams["PATH_TO_GROUP_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_blog&".$arParams["GROUP_VAR"]."=#group_id#");
 	
 $arParams["PATH_TO_GROUP_MICROBLOG"] = trim($arParams["PATH_TO_GROUP_MICROBLOG"]);
-if(strlen($arParams["PATH_TO_GROUP_MICROBLOG"])<=0)
+if($arParams["PATH_TO_GROUP_MICROBLOG"] == '')
 	$arParams["PATH_TO_GROUP_MICROBLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_microblog&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_PHOTO"] = trim($arParams["PATH_TO_GROUP_PHOTO"]);
-if(strlen($arParams["PATH_TO_GROUP_PHOTO"])<=0)
+if($arParams["PATH_TO_GROUP_PHOTO"] == '')
 	$arParams["PATH_TO_GROUP_PHOTO"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_photo&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_FORUM"] = trim($arParams["PATH_TO_GROUP_FORUM"]);
-if(strlen($arParams["PATH_TO_GROUP_FORUM"])<=0)
+if($arParams["PATH_TO_GROUP_FORUM"] == '')
 	$arParams["PATH_TO_GROUP_FORUM"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_forum&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_CALENDAR"] = trim($arParams["PATH_TO_GROUP_CALENDAR"]);
-if(strlen($arParams["PATH_TO_GROUP_CALENDAR"])<=0)
+if($arParams["PATH_TO_GROUP_CALENDAR"] == '')
 	$arParams["PATH_TO_GROUP_CALENDAR"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_calendar&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_TASKS"] = trim($arParams["PATH_TO_GROUP_TASKS"]);
-if(strlen($arParams["PATH_TO_GROUP_TASKS"])<=0)
+if($arParams["PATH_TO_GROUP_TASKS"] == '')
 	$arParams["PATH_TO_GROUP_TASKS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_tasks&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_FILES"] = trim($arParams["PATH_TO_GROUP_FILES"]);
-if(strlen($arParams["PATH_TO_GROUP_FILES"])<=0)
+if($arParams["PATH_TO_GROUP_FILES"] == '')
 	$arParams["PATH_TO_GROUP_FILES"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_files&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_CONTENT_SEARCH"] = trim($arParams["PATH_TO_GROUP_CONTENT_SEARCH"]);
-if(strlen($arParams["PATH_TO_GROUP_CONTENT_SEARCH"])<=0)
+if($arParams["PATH_TO_GROUP_CONTENT_SEARCH"] == '')
 	$arParams["PATH_TO_GROUP_CONTENT_SEARCH"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_content_search&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["USE_MAIN_MENU"] = (isset($arParams["USE_MAIN_MENU"]) ? $arParams["USE_MAIN_MENU"] : false);
@@ -193,20 +193,26 @@ if (
 			$arResult["CanView"]["blog"] = (array_key_exists("blog", $arResult["ActiveFeatures"]) && CSocNetFeaturesPerms::CanPerformOperation($USER->GetID(), SONET_ENTITY_GROUP, $arResult["Group"]["ID"], "blog", "view_post", CSocNetUser::IsCurrentUserModuleAdmin()));
 			$arResult["CanView"]["photo"] = (array_key_exists("photo", $arResult["ActiveFeatures"]) && CSocNetFeaturesPerms::CanPerformOperation($USER->GetID(), SONET_ENTITY_GROUP, $arResult["Group"]["ID"], "photo", "view", CSocNetUser::IsCurrentUserModuleAdmin()));
 			$arResult["CanView"]["content_search"] = (array_key_exists("search", $arResult["ActiveFeatures"]) && CSocNetFeaturesPerms::CanPerformOperation($USER->GetID(), SONET_ENTITY_GROUP, $arResult["Group"]["ID"], "search", "view", CSocNetUser::IsCurrentUserModuleAdmin()));
+			$arResult["CanView"]["chat"] = array_key_exists("chat", $arResult["ActiveFeatures"]);
 
-			$arResult["Title"]["blog"] = ((array_key_exists("blog", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["blog"]) > 0) ? $arResult["ActiveFeatures"]["blog"] : GetMessage("SONET_UM_BLOG"));
-			$arResult["Title"]["microblog"] = ((array_key_exists("microblog", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["microblog"]) > 0) ? $arResult["ActiveFeatures"]["microblog"] : GetMessage("SONET_UM_MICROBLOG"));
-			$arResult["Title"]["photo"] = ((array_key_exists("photo", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["photo"]) > 0) ? $arResult["ActiveFeatures"]["photo"] : GetMessage("SONET_UM_PHOTO"));
-			$arResult["Title"]["forum"] = ((array_key_exists("forum", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["forum"]) > 0) ? $arResult["ActiveFeatures"]["forum"] : GetMessage("SONET_UM_FORUM"));
-			$arResult["Title"]["calendar"] = ((array_key_exists("calendar", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["calendar"]) > 0) ? $arResult["ActiveFeatures"]["calendar"] : GetMessage("SONET_UM_CALENDAR"));
-			$arResult["Title"]["tasks"] = ((array_key_exists("tasks", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["tasks"]) > 0) ? $arResult["ActiveFeatures"]["tasks"] : GetMessage("SONET_UM_TASKS"));
-			$arResult["Title"]["files"] = ((array_key_exists("files", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["files"]) > 0) ? $arResult["ActiveFeatures"]["files"] : GetMessage("SONET_UM_FILES"));
-			$arResult["Title"]["content_search"] = ((array_key_exists("search", $arResult["ActiveFeatures"]) && StrLen($arResult["ActiveFeatures"]["search"]) > 0) ? $arResult["ActiveFeatures"]["search"] : GetMessage("SONET_UM_SEARCH"));
+			$arResult["Title"]["blog"] = ((array_key_exists("blog", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["blog"] <> '') ? $arResult["ActiveFeatures"]["blog"] : GetMessage("SONET_UM_BLOG"));
+			$arResult["Title"]["microblog"] = ((array_key_exists("microblog", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["microblog"] <> '') ? $arResult["ActiveFeatures"]["microblog"] : GetMessage("SONET_UM_MICROBLOG"));
+			$arResult["Title"]["photo"] = ((array_key_exists("photo", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["photo"] <> '') ? $arResult["ActiveFeatures"]["photo"] : GetMessage("SONET_UM_PHOTO"));
+			$arResult["Title"]["forum"] = ((array_key_exists("forum", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["forum"] <> '') ? $arResult["ActiveFeatures"]["forum"] : GetMessage("SONET_UM_FORUM"));
+			$arResult["Title"]["calendar"] = ((array_key_exists("calendar", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["calendar"] <> '') ? $arResult["ActiveFeatures"]["calendar"] : GetMessage("SONET_UM_CALENDAR"));
+			$arResult["Title"]["tasks"] = ((array_key_exists("tasks", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["tasks"] <> '') ? $arResult["ActiveFeatures"]["tasks"] : GetMessage("SONET_UM_TASKS"));
+			$arResult["Title"]["files"] = ((array_key_exists("files", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["files"] <> '') ? $arResult["ActiveFeatures"]["files"] : GetMessage("SONET_UM_FILES"));
+			$arResult["Title"]["content_search"] = ((array_key_exists("search", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["search"] <> '') ? $arResult["ActiveFeatures"]["search"] : GetMessage("SONET_UM_SEARCH"));
+
+			if($arResult["CanView"]["chat"])
+			{
+				$arResult["Urls"]["chat"] = "javascript:if (BXIM) { BXIM.openMessenger('sg".$arResult["Group"]["ID"]."'); }";
+			}
 
 			$a = array_keys($arResult["Urls"]);
 			foreach ($a as $v)
 			{
-				$arResult["Urls"][strtolower($v)] = $arResult["Urls"][$v];
+				$arResult["Urls"][mb_strtolower($v)] = $arResult["Urls"][$v];
 			}
 
 			if (
@@ -230,7 +236,7 @@ if (
 				$arResult["CanView"]['marketplace'] = array_key_exists('marketplace', $arResult["ActiveFeatures"]);
 				$arResult["Title"]['marketplace'] = (
 					array_key_exists('marketplace', $arResult["ActiveFeatures"])
-					&& strLen($arResult["ActiveFeatures"]['marketplace']) > 0
+					&& $arResult["ActiveFeatures"]['marketplace'] <> ''
 						? $arResult["ActiveFeatures"]['marketplace']
 						: Bitrix\Main\Localization\Loc::getMessage('SONET_UM_MARKETPLACE')
 				);
@@ -247,7 +253,7 @@ if (
 						$arResult["CanView"][$tabId] = array_key_exists($tabId, $arResult["ActiveFeatures"]);
 						$arResult["Title"][$tabId] = (
 							array_key_exists($tabId, $arResult["ActiveFeatures"])
-							&& strLen($arResult["ActiveFeatures"][$tabId]) > 0
+							&& $arResult["ActiveFeatures"][$tabId] <> ''
 									? $arResult["ActiveFeatures"][$tabId]
 									: (
 										!empty($placementHandler['TITLE']) > 0

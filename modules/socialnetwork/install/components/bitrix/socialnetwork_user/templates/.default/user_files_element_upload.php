@@ -1,5 +1,5 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
-$sTplName = (isset($_REQUEST["use_light_view"]) && strToUpper($_REQUEST["use_light_view"]) == "Y") ? "popup" : ".default";
+$sTplName = (isset($_REQUEST["use_light_view"]) && mb_strtoupper($_REQUEST["use_light_view"]) == "Y") ? "popup" : ".default";
 $result = $APPLICATION->IncludeComponent("bitrix:webdav.element.upload", $sTplName, Array(
 	"OBJECT"	=>	$arParams["OBJECT"], 
 	"SECTION_ID"	=>	$arResult["VARIABLES"]["SECTION_ID"],

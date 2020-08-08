@@ -8,7 +8,7 @@ if ($arParams["ALLOW_CREATE_GROUP"] == "Y")
 		".default",
 		array(
 			"NAME" => $popupName,
-			"PATH_TO_GROUP_EDIT" => (strlen($arParams["PATH_TO_GROUP_CREATE"]) > 0 
+			"PATH_TO_GROUP_EDIT" => ($arParams["PATH_TO_GROUP_CREATE"] <> ''
 				? htmlspecialcharsback($arParams["PATH_TO_GROUP_CREATE"])
 				: ""
 			)

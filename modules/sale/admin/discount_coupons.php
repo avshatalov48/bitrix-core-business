@@ -45,7 +45,7 @@ $request = Main\Context::getCurrent()->getRequest();
 
 $adminListTableID = 'tbl_sale_discount_coupons';
 
-$adminSort = new CAdminSorting($adminListTableID, 'ID', 'ASC');
+$adminSort = new CAdminUiSorting($adminListTableID, 'ID', 'ASC');
 $adminList = new CAdminUiList($adminListTableID, $adminSort);
 
 $discountIterator = Internals\DiscountTable::getList(array(

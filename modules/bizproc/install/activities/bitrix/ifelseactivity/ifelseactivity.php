@@ -13,10 +13,8 @@ class CBPIfElseActivity
 	public function Execute()
 	{
 		$flag = true;
-		for ($i = 0; $i < count($this->arActivities); $i++)
+		foreach ($this->arActivities as $activity)
 		{
-			$activity = $this->arActivities[$i];
-
 			if (($activity->Condition == null) || $activity->Condition->Evaluate($activity))
 			{
 				$flag = false;
@@ -26,7 +24,9 @@ class CBPIfElseActivity
 			}
 		}
 		if (!$flag)
+		{
 			return CBPActivityExecutionStatus::Executing;
+		}
 
 		return CBPActivityExecutionStatus::Closed;
 	}
@@ -34,9 +34,8 @@ class CBPIfElseActivity
 	public function Cancel()
 	{
 		$flag = true;
-		for ($i = 0; $i < count($this->arActivities); $i++)
+		foreach ($this->arActivities as $activity)
 		{
-			$activity = $this->arActivities[$i];
 			if ($activity->executionStatus == CBPActivityExecutionStatus::Executing)
 			{
 				$flag = false;
@@ -50,7 +49,9 @@ class CBPIfElseActivity
 			}
 		}
 		if (!$flag)
+		{
 			return CBPActivityExecutionStatus::Canceling;
+		}
 		return CBPActivityExecutionStatus::Closed;
 	}
 
@@ -67,7 +68,7 @@ class CBPIfElseActivity
 		$child = "CBP".$childActivity;
 
 		$bCorrect = false;
-		while (strlen($child) > 0)
+		while ($child <> '')
 		{
 			if ($child == "CBPIfElseBranchActivity")
 			{

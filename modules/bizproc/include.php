@@ -50,25 +50,6 @@ $arClasses = array(
 	"CBPViewHelper" => "classes/general/viewhelper.php",
 	'CBPTaskChangedStatus' => "classes/general/constants.php",
 	'CBPRestActivity' => 'classes/general/restactivity.php',
-
-	"bitrix\\bizproc\\fieldtype" => "lib/fieldtype.php",
-	"bitrix\\bizproc\\restactivitytable" => "lib/restactivity.php",
-	"bitrix\\bizproc\\restservice" => "lib/restservice.php",
-	"bitrix\\bizproc\\workflowinstancetable" => "lib/workflowinstance.php",
-	"bitrix\\bizproc\\workflowstatetable" => "lib/workflowstate.php",
-	"bitrix\\bizproc\\workflowtemplatetable" => "lib/workflowtemplate.php",
-	"bitrix\\bizproc\\basetype\\base" => "lib/basetype/base.php",
-	"bitrix\\bizproc\\basetype\\booltype" => "lib/basetype/booltype.php",
-	"bitrix\\bizproc\\basetype\\date" => "lib/basetype/date.php",
-	"bitrix\\bizproc\\basetype\\datetime" => "lib/basetype/datetime.php",
-	"bitrix\\bizproc\\basetype\\double" => "lib/basetype/double.php",
-	"bitrix\\bizproc\\basetype\\file" => "lib/basetype/file.php",
-	"bitrix\\bizproc\\basetype\\inttype" => "lib/basetype/inttype.php",
-	"bitrix\\bizproc\\basetype\\select" => "lib/basetype/select.php",
-	"bitrix\\bizproc\\basetype\\stringtype" => "lib/basetype/stringtype.php",
-	"bitrix\\bizproc\\basetype\\text" => "lib/basetype/text.php",
-	"bitrix\\bizproc\\basetype\\user" => "lib/basetype/user.php",
-	"bitrix\\bizproc\\basetype\\internalselect" => "lib/basetype/internalselect.php",
 );
 CModule::AddAutoloadClasses("bizproc", $arClasses);
 

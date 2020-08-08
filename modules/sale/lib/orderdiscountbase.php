@@ -2284,12 +2284,12 @@ abstract class OrderDiscountBase
 		if ($action == '')
 			return $result;
 
-		$action = trim(substr($action, 8));
-		$action = substr($action, 2);
-		$key = strpos($action, ')');
+		$action = trim(mb_substr($action, 8));
+		$action = mb_substr($action, 2);
+		$key = mb_strpos($action, ')');
 		if ($key === false)
 			return $result;
-		$orderName = '\\'.substr($action, 0, $key);
+		$orderName = '\\'.mb_substr($action, 0, $key);
 
 		preg_match_all("/".$orderName."(?:,|\))/".BX_UTF_PCRE_MODIFIER, $action, $list);
 		if (isset($list[0]) && is_array($list[0]))

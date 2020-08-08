@@ -30,7 +30,7 @@ if(!CBXFeatures::IsFeatureEnabled('SaleAccounts'))
 	return;
 }
 
-$ID = IntVal($_GET["USER_ID"]);
+$ID = intval($_GET["USER_ID"]);
 
 $registry = \Bitrix\Sale\Registry::getInstance(\Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER);
 
@@ -42,9 +42,9 @@ if(Bitrix\Main\Loader::includeModule("catalog"))
 	$catalogSubscribeEnabled = class_exists('\Bitrix\Catalog\SubscribeTable');
 
 //reorder
-if(isset($_REQUEST["reorder"]) && IntVal($_REQUEST["reorder"]) > 0)
+if(isset($_REQUEST["reorder"]) && intval($_REQUEST["reorder"]) > 0)
 {
-	$ORDER_ID = IntVal($_REQUEST["reorder"]);
+	$ORDER_ID = intval($_REQUEST["reorder"]);
 	$lid = trim($_REQUEST["lid"]);
 	$arID = array();
 	$urlProduct = "";
@@ -135,17 +135,17 @@ if(!empty($arUser))
 	}
 
 	//user adres
-	if (strlen($u_PERSONAL_STATE) > 0)
+	if ($u_PERSONAL_STATE <> '')
 		$userAdres .= $u_PERSONAL_STATE;
-	if (strlen($u_PERSONAL_CITY) > 0)
+	if ($u_PERSONAL_CITY <> '')
 	{
-		if (strlen($userAdres) > 0)
+		if ($userAdres <> '')
 			$userAdres .= ", ";
 		$userAdres .= $u_PERSONAL_CITY;
 	}
-	if (strlen($u_PERSONAL_STREET) > 0)
+	if ($u_PERSONAL_STREET <> '')
 	{
-		if (strlen($userAdres) > 0)
+		if ($userAdres <> '')
 			$userAdres .= ", ";
 		$userAdres .= $u_PERSONAL_STREET;
 	}
@@ -165,9 +165,9 @@ $basketError = '';
 
 //ACTIONS
 //viewed
-if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'viewed_apply' && IntVal($_REQUEST["viewed_id"]) > 0 && strlen($_REQUEST["viewed_lid"]) > 0 && $saleModulePermissions >= "W")
+if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'viewed_apply' && intval($_REQUEST["viewed_id"]) > 0 && $_REQUEST["viewed_lid"] <> '' && $saleModulePermissions >= "W")
 {
-	$PRODUCT_ID = IntVal($_REQUEST["viewed_id"]);
+	$PRODUCT_ID = intval($_REQUEST["viewed_id"]);
 	$LID = trim($_REQUEST["viewed_lid"]);
 
 	if (CModule::IncludeModule("catalog"))
@@ -219,7 +219,7 @@ if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'viewed_apply' && IntVa
 		$arViews = $dbViewsList->Fetch();
 	}
 
-	if (strlen($viewedError) <= 0)
+	if ($viewedError == '')
 	{
 		$arFields = array("PROPS" => array());
 
@@ -263,7 +263,7 @@ if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'viewed_apply' && IntVa
 			$arFields["PRODUCT_PROVIDER_CLASS"] = "CCatalogProductProvider";
 		}
 
-		if(strlen($arProduct["IBLOCK_EXTERNAL_ID"]) > 0)
+		if($arProduct["IBLOCK_EXTERNAL_ID"] <> '')
 		{
 			$arFields["CATALOG_XML_ID"] = $arProduct["IBLOCK_EXTERNAL_ID"];
 			$arFields["PROPS"][] = Array(
@@ -272,7 +272,7 @@ if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'viewed_apply' && IntVa
 					"VALUE" => $arProduct["IBLOCK_EXTERNAL_ID"],
 				);
 		}
-		if(intVal($arProduct["XML_ID"]) > 0)
+		if(intval($arProduct["XML_ID"]) > 0)
 		{
 			$arFields["PRODUCT_XML_ID"] = $arProduct["XML_ID"];
 			$arFields["PROPS"][] = Array(
@@ -329,7 +329,7 @@ if (isset($_REQUEST['apply']) && isset($_REQUEST['action']) && $saleModulePermis
 		else
 		{
 			$arBasketActionFilter = array("FUSER_ID" => $arFields["FUSER_ID"], "ORDER_ID" => "NULL", "CAN_BUY" => "Y");
-			if (strlen($filter_basket_lid)>0)
+			if ($filter_basket_lid <> '')
 				$arBasketActionFilter["LID"] = trim($filter_basket_lid);
 
 			$dbBasketEl = \Bitrix\Sale\Internals\BasketTable::getList(array(
@@ -388,7 +388,7 @@ if (isset($_REQUEST['apply']) && isset($_REQUEST['action']) && $saleModulePermis
 							}
 						}
 
-						if (strlen($basketError) <= 0)
+						if ($basketError == '')
 						{
 							if ($adminSidePanelHelper->isPublicSidePanel())
 							{
@@ -534,12 +534,12 @@ if(!empty($arUser))
 		$row->AddField("STATUS_ID", $status);
 
 		$payed = (($arOrderMain["PAYED"] == "Y") ? GetMessage("BUYERS_PAY_YES") : GetMessage("BUYERS_PAY_NO"));
-		if (strlen($arOrderMain["DATE_PAYED"]) > 0)
+		if ($arOrderMain["DATE_PAYED"] <> '')
 			$payed .= "<br>".$arOrderMain["DATE_PAYED"];
 		$row->AddField("PAYED", $payed);
 
 		$cancel = (($arOrderMain["CANCELED"] == "Y") ? GetMessage("BUYER_LAST_YES") : GetMessage("BUYER_LAST_NO"));
-		if (strlen($arOrderMain["DATE_CANCELED"]) > 0)
+		if ($arOrderMain["DATE_CANCELED"] <> '')
 			$cancel .= "<br>".$arOrderMain["DATE_CANCELED"];
 		$row->AddField("CANCELED", $cancel);
 		$row->AddField("PRODUCT", $basketCount);
@@ -638,9 +638,9 @@ if(!empty($arUser))
 
 	$arOrderFilter = array("USER_ID" => $ID);
 
-	if (strlen($filter_order_lid)>0)
+	if ($filter_order_lid <> '')
 		$arOrderFilter["LID"] = trim($filter_order_lid);
-	if (isset($filter_order_status) && !is_array($filter_order_status) && strlen($filter_order_status) > 0)
+	if (isset($filter_order_status) && !is_array($filter_order_status) && $filter_order_status <> '')
 		$filter_order_status = array($filter_order_status);
 	if (isset($filter_order_status) && is_array($filter_order_status) && count($filter_order_status) > 0)
 	{
@@ -648,17 +648,17 @@ if(!empty($arUser))
 		for ($i = 0; $i < $filterOrderCount; $i++)
 		{
 			$filter_order_status[$i] = Trim($filter_order_status[$i]);
-			if (strlen($filter_order_status[$i]) > 0)
+			if ($filter_order_status[$i] <> '')
 				$arOrderFilter["STATUS_ID"][] = $filter_order_status[$i];
 		}
 	}
-	if (strlen($filter_order_payed)>0)
+	if ($filter_order_payed <> '')
 		$arOrderFilter["PAYED"] = Trim($filter_order_payed);
 
-	if (strlen($filter_order_delivery)>0)
+	if ($filter_order_delivery <> '')
 		$arOrderFilter["ALLOW_DELIVERY"] = Trim($filter_order_delivery);
 
-	if (strlen($filter_date_order_from)>0)
+	if ($filter_date_order_from <> '')
 	{
 		$dateFrom = MkDateTime(FmtDate($filter_date_order_from,"D.M.Y"),"d.m.Y");
 
@@ -666,11 +666,11 @@ if(!empty($arUser))
 			$arOrderFilter[">=DATE_INSERT"] = Trim($filter_date_order_from);
 	}
 
-	if (strlen($filter_date_order_to) > 0)
+	if ($filter_date_order_to <> '')
 	{
 		if ($arDate = ParseDateTime($filter_date_order_to, CSite::GetDateFormat("FULL", SITE_ID)))
 		{
-			if (StrLen($filter_date_order_to) < 11)
+			if (mb_strlen($filter_date_order_to) < 11)
 			{
 				$arDate["HH"] = 23;
 				$arDate["MI"] = 59;
@@ -684,24 +684,24 @@ if(!empty($arUser))
 			$filter_date_order_to = "";
 	}
 
-	if(strlen(trim($filter_date_order_from_DAYS_TO_BACK))>0)
+	if(trim($filter_date_order_from_DAYS_TO_BACK) <> '')
 	{
-		$dateBack = IntVal($filter_date_order_from_DAYS_TO_BACK);
+		$dateBack = intval($filter_date_order_from_DAYS_TO_BACK);
 		$arOrderFilter["DATE_FROM"] = ConvertTimeStamp(AddToTimeStamp(array("DD" => "-".$dateBack), mktime(0, 0, 0, date("n"), date("j"), date("Y"))), "SHORT");
 	}
 
-	if (strlen($filter_order_date_up_from)>0)
+	if ($filter_order_date_up_from <> '')
 	{
 		$dateFrom = MkDateTime(FmtDate($filter_order_date_up_from,"D.M.Y"),"d.m.Y");
 
 		if ($dateFrom)
 			$arOrderFilter[">=DATE_UPDATE"] = trim($filter_order_date_up_from);
 	}
-	if (strlen($filter_order_date_up_to) > 0)
+	if ($filter_order_date_up_to <> '')
 	{
 		if ($arDate = ParseDateTime($filter_order_date_up_to, CSite::GetDateFormat("FULL", SITE_ID)))
 		{
-			if (StrLen($filter_order_date_up_to) < 11)
+			if (mb_strlen($filter_order_date_up_to) < 11)
 			{
 				$arDate["HH"] = 23;
 				$arDate["MI"] = 59;
@@ -715,15 +715,15 @@ if(!empty($arUser))
 			$filter_order_date_up_to = "";
 	}
 
-	if (strlen($filter_summa_from) > 0)
+	if ($filter_summa_from <> '')
 	{
 		$arOrderFilter[">=PRICE"] = FloatVal($filter_summa_from);
 	}
-	if (strlen($filter_summa_to) > 0)
+	if ($filter_summa_to <> '')
 	{
 		$arOrderFilter["<=PRICE"] = FloatVal($filter_summa_to);
 	}
-	if (strlen($filter_order_prod_name) > 0)
+	if ($filter_order_prod_name <> '')
 	{
 		$arOrderFilter["%BASKET.NAME"] = $filter_order_prod_name;
 	}
@@ -865,7 +865,7 @@ if(!empty($arUser))
 			$payed .= "[<a target='_top' href='".$paymentLinkUrl."'>".$payment["ID"]."</a>], ".
 				htmlspecialcharsbx($payment["PAY_SYSTEM_NAME"]).", ".
 				($payment["PAID"] == "Y" ? \Bitrix\Main\Localization\Loc::getMessage("SOB_PAYMENTS_PAID") :  \Bitrix\Main\Localization\Loc::getMessage("SOB_PAYMENTS_UNPAID")).", ".
-				(strlen($payment["PS_STATUS"]) > 0 ? \Bitrix\Main\Localization\Loc::getMessage("SOB_PAYMENTS_STATUS").": ".htmlspecialcharsbx($payment["PS_STATUS"]).", " : "").
+				($payment["PS_STATUS"] <> '' ? \Bitrix\Main\Localization\Loc::getMessage("SOB_PAYMENTS_STATUS").": ".htmlspecialcharsbx($payment["PS_STATUS"]).", " : "").
 				'<span style="white-space:nowrap;">'.htmlspecialcharsex(SaleFormatCurrency($payment["SUM"], $payment["CURRENCY"])).'<span>';
 
 		}
@@ -914,9 +914,9 @@ if(!empty($arUser))
 				($shipment["CANCELED"] == "Y" ? \Bitrix\Main\Localization\Loc::getMessage("SOB_SHIPMENTS_CANCELED").", " : "").
 				($shipment["DEDUCTED"] == "Y" ? \Bitrix\Main\Localization\Loc::getMessage("SOB_SHIPMENTS_DEDUCTED").", " : "").
 				($shipment["MARKED"] == "Y" ? \Bitrix\Main\Localization\Loc::getMessage("SOB_SHIPMENTS_MARKED").", " : "").
-				(strlen($shipment["TRACKING_NUMBER"]) > 0 ? htmlspecialcharsbx($shipment["TRACKING_NUMBER"]).", " : "");
+				($shipment["TRACKING_NUMBER"] <> '' ? htmlspecialcharsbx($shipment["TRACKING_NUMBER"]).", " : "");
 
-			if(strlen($shipment["STATUS_ID"]) > 0)
+			if($shipment["STATUS_ID"] <> '')
 				$allowDelivery .= $shipmentStatuses[$shipment["STATUS_ID"]] ? htmlspecialcharsbx($shipmentStatuses[$shipment["STATUS_ID"]]) : \Bitrix\Main\Localization\Loc::getMessage("SOB_SHIPMENTS_STATUS").": ".$shipment["STATUS_ID"];
 
 		}
@@ -1038,9 +1038,9 @@ if(!empty($arUser))
 
 		$archiveFilter = ["USER_ID" => $ID];
 
-		if (strlen($filter_order_lid)>0)
+		if ($filter_order_lid <> '')
 			$archiveFilter["LID"] = trim($filter_order_lid);
-		if (isset($filter_order_status) && !is_array($filter_order_status) && strlen($filter_order_status) > 0)
+		if (isset($filter_order_status) && !is_array($filter_order_status) && $filter_order_status <> '')
 			$filter_order_status = array($filter_order_status);
 		if (isset($filter_order_status) && is_array($filter_order_status) && count($filter_order_status) > 0)
 		{
@@ -1048,17 +1048,17 @@ if(!empty($arUser))
 			for ($i = 0; $i < $filterOrderCount; $i++)
 			{
 				$filter_order_status[$i] = Trim($filter_order_status[$i]);
-				if (strlen($filter_order_status[$i]) > 0)
+				if ($filter_order_status[$i] <> '')
 					$archiveFilter["STATUS_ID"][] = $filter_order_status[$i];
 			}
 		}
-		if (strlen($filter_order_payed)>0)
+		if ($filter_order_payed <> '')
 			$archiveFilter["PAYED"] = Trim($filter_order_payed);
 
-		if (strlen($filter_order_delivery)>0)
+		if ($filter_order_delivery <> '')
 			$archiveFilter["ALLOW_DELIVERY"] = Trim($filter_order_delivery);
 
-		if (strlen($filter_date_order_from)>0)
+		if ($filter_date_order_from <> '')
 		{
 			$dateFrom = MkDateTime(FmtDate($filter_date_order_from,"D.M.Y"),"d.m.Y");
 
@@ -1066,7 +1066,7 @@ if(!empty($arUser))
 				$archiveFilter[">=DATE_INSERT"] = Trim($filter_date_order_from);
 		}
 
-		if (strlen($filter_date_order_to) > 0)
+		if ($filter_date_order_to <> '')
 		{
 			if ($arDate = ParseDateTime($filter_date_order_to, CSite::GetDateFormat("FULL", SITE_ID)))
 			{
@@ -1082,14 +1082,14 @@ if(!empty($arUser))
 //		$archiveFilter["DATE_FROM"] = ConvertTimeStamp(AddToTimeStamp(array("DD" => "-".$dateBack), mktime(0, 0, 0, date("n"), date("j"), date("Y"))), "SHORT");
 //	}
 
-		if (strlen($filter_date_order_archived_from)>0)
+		if ($filter_date_order_archived_from <> '')
 		{
 			$dateFrom = MkDateTime(FmtDate($filter_date_order_archived_from,"D.M.Y"),"d.m.Y");
 
 			if ($dateFrom)
 				$archiveFilter[">=DATE_ARCHIVED"] = trim($filter_date_order_archived_from);
 		}
-		if (strlen($filter_date_order_archived_to) > 0)
+		if ($filter_date_order_archived_to <> '')
 		{
 			if ($arDate = ParseDateTime($filter_date_order_archived_to, CSite::GetDateFormat("FULL", SITE_ID)))
 			{
@@ -1099,15 +1099,15 @@ if(!empty($arUser))
 				$filter_date_order_archived_to = "";
 		}
 
-		if (strlen($filter_summa_from) > 0)
+		if ($filter_summa_from <> '')
 		{
 			$archiveFilter[">=PRICE"] = FloatVal($filter_summa_from);
 		}
-		if (strlen($filter_summa_to) > 0)
+		if ($filter_summa_to <> '')
 		{
 			$archiveFilter["<=PRICE"] = FloatVal($filter_summa_to);
 		}
-		if (strlen($filter_order_prod_name) > 0)
+		if ($filter_order_prod_name <> '')
 		{
 			$archiveFilter["%BASKET_ARCHIVE.NAME"] = $filter_order_prod_name;
 		}
@@ -1330,10 +1330,10 @@ if(!empty($arUser))
 
 	$arBasketFilter = array("FUSER.USER_ID" => $ID, "ORDER_ID" => "NULL");
 
-	if (strlen($filter_basket_lid)>0)
+	if ($filter_basket_lid <> '')
 		$arBasketFilter["LID"] = trim($filter_basket_lid);
 
-	if (strlen(trim($basket_name_product)) > 0)
+	if (trim($basket_name_product) <> '')
 		$arBasketFilter["%NAME"] = $basket_name_product;
 
 	CAdminMessage::ShowNote($basketMessage);
@@ -1478,18 +1478,18 @@ if(!empty($arUser))
 	$arFuserItems = CSaleUser::GetList(array("USER_ID" => $ID));
 	$arFilter["FUSER_ID"] = $arFuserItems["ID"];
 
-	if (strlen($filter_viewed_lid)>0)
+	if ($filter_viewed_lid <> '')
 		$arFilter["LID"] = trim($filter_viewed_lid);
 
-	if(strlen(trim($filter_date_visit_from))>0)
+	if(trim($filter_date_visit_from) <> '')
 	{
 		$arFilter["DATE_FROM"] = FmtDate($filter_date_visit_from,"D.M.Y");
 	}
-	if(strlen(trim($filter_date_visit_to))>0)
+	if(trim($filter_date_visit_to) <> '')
 	{
 		if ($arDate = ParseDateTime($filter_date_visit_to, CSite::GetDateFormat("FULL", SITE_ID)))
 		{
-			if (StrLen($filter_date_visit_to) < 11)
+			if (mb_strlen($filter_date_visit_to) < 11)
 			{
 				$arDate["HH"] = 23;
 				$arDate["MI"] = 59;
@@ -1505,9 +1505,9 @@ if(!empty($arUser))
 		}
 	}
 
-	if(strlen(trim($filter_date_visit_from_DAYS_TO_BACK))>0)
+	if(trim($filter_date_visit_from_DAYS_TO_BACK) <> '')
 	{
-		$dateBack = IntVal($filter_date_visit_from_DAYS_TO_BACK);
+		$dateBack = intval($filter_date_visit_from_DAYS_TO_BACK);
 		$arFilter["DATE_FROM"] = ConvertTimeStamp(AddToTimeStamp(array("DD" => "-".$dateBack), mktime(0, 0, 0, date("n"), date("j"), date("Y"))), "SHORT");
 	}
 
@@ -2154,7 +2154,7 @@ if(!empty($arUser))
 						<? endif; ?>
 					</td>
 				</tr>
-				<?if(strlen($userFIO) > 0):?>
+				<?if($userFIO <> ''):?>
 					<tr>
 						<td class="adm-detail-content-cell-l"><?=GetMessage("BUYER_FILED_FIO")?>:</td>
 						<td class="adm-detail-content-cell-r">
@@ -2168,7 +2168,7 @@ if(!empty($arUser))
 						<div><a href="mailto:<?=$u_EMAIL?>"><?=$u_EMAIL?></a></div>
 					</td>
 				</tr>
-				<?if(strlen($u_PERSONAL_PHONE) > 0):?>
+				<?if($u_PERSONAL_PHONE <> ''):?>
 					<tr>
 						<td class="adm-detail-content-cell-l"><?=GetMessage("BUYER_FILED_PHONE")?>:</td>
 						<td class="adm-detail-content-cell-r">
@@ -2176,7 +2176,7 @@ if(!empty($arUser))
 						</td>
 					</tr>
 				<?endif;?>
-				<?if(strlen($u_PERSONAL_MOBILE) > 0):?>
+				<?if($u_PERSONAL_MOBILE <> ''):?>
 					<tr>
 						<td class="adm-detail-content-cell-l"><?=GetMessage("BUYER_FILED_PHONE_M")?>:</td>
 						<td class="adm-detail-content-cell-r">
@@ -2202,7 +2202,7 @@ if(!empty($arUser))
 						<div><?=$strUserGroup?></div>
 					</td>
 				</tr>
-				<?if (strlen($userAdres) > 0):?>
+				<?if ($userAdres <> ''):?>
 				<tr>
 					<td class="adm-detail-content-cell-l" valign="top"><?=GetMessage("BUYER_FILED_ADRES")?>:</td>
 					<td class="adm-detail-content-cell-r">

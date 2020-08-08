@@ -87,6 +87,7 @@
 }
 
 .new-from-email-dialog-error {
+	width: 484px;
 	padding: 10px 18px;
 	background: rgb(253,225,229);
 	color: rgb(219,0,22);
@@ -145,6 +146,27 @@
 	background: rgb(253,225,200);
 	color: rgb(219,90,22);
 	white-space: normal;
+}
+
+.new-from-email-dialog-field-hint {
+	display: none;
+	margin-top: 5px;
+}
+
+.new-from-email-dialog-field-error .new-from-email-dialog-string-block {
+	border-color: #ff5752;
+}
+
+.new-from-email-dialog-field-error .new-from-email-dialog-field-hint {
+	color: #ff5752;
+}
+
+.new-from-email-dialog-field-warning .new-from-email-dialog-string-block {
+	border-color: #d5a933;
+}
+
+.new-from-email-dialog-field-warning .new-from-email-dialog-field-hint {
+	color: #d5a933;
 }
 
 .main-mail-confirm-menu-content .popup-window-content {

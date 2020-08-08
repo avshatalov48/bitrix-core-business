@@ -470,6 +470,7 @@ class HtmlDocument
 		$httpClient = new HttpClient();
 		$httpClient->setTimeout(5);
 		$httpClient->setStreamTimeout(5);
+		$httpClient->setPrivateIp(false);
 		$httpClient->setHeader('User-Agent', UrlPreview::USER_AGENT, true);
 		if(!$httpClient->query('GET', $url))
 			return false;

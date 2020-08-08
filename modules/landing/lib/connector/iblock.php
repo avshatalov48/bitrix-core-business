@@ -30,7 +30,7 @@ class Iblock
 					$landing->getPublicUrl(),
 					$url
 				);
-				if (substr($url, 0, 1) == '/')
+				if (mb_substr($url, 0, 1) == '/')
 				{
 					$url = \Bitrix\Landing\Site::getPublicUrl(
 						$landing->getSiteId()

@@ -6,7 +6,7 @@ if ($arResult["NeedAuth"] == "Y")
 {
 	$APPLICATION->AuthForm("");
 }
-elseif (strlen($arResult["FatalErrorMessage"]) > 0)
+elseif ($arResult["FatalErrorMessage"] <> '')
 {
 	?>
 	<p><span class='errortext' style="color: red;"><?= $arResult["FatalErrorMessage"] ?></span><br/></p>

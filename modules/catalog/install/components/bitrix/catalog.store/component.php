@@ -31,13 +31,13 @@ if ($arParams["SEF_MODE"] == "Y")
 
 	$componentPage = CComponentEngine::parseComponentPath($arParams["SEF_FOLDER"], $arUrlTemplates, $arVariables);
 
-	if (strlen($componentPage) <= 0)
+	if ($componentPage == '')
 		$componentPage = "liststores";
 
 	CComponentEngine::initComponentVariables($componentPage, $arComponentVariables,	$arVariableAliases,	$arVariables);
 
 	foreach ($arUrlTemplates as $url => $value)
-		$arResult["PATH_TO_".strtoupper($url)] = $arParams["SEF_FOLDER"].$value;
+		$arResult["PATH_TO_".mb_strtoupper($url)] = $arParams["SEF_FOLDER"].$value;
 
 	$sefFolder = $arParams["SEF_FOLDER"];
 }
@@ -48,7 +48,7 @@ else
 	CComponentEngine::initComponentVariables(false, $arComponentVariables, $arVariableAliases, $arVariables);
 
 	foreach ($arDefaultUrlTemplatesN404 as $url => $value)
-		$arResult["PATH_TO_".strtoupper($url)] = $GLOBALS["APPLICATION"]->GetCurPageParam($value, $arComponentVariables);
+		$arResult["PATH_TO_".mb_strtoupper($url)] = $GLOBALS["APPLICATION"]->GetCurPageParam($value, $arComponentVariables);
 
 	$componentPage = "";
 	if ((int)$arVariables["store_id"] > 0)

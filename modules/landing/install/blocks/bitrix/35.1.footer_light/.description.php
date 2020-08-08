@@ -32,12 +32,12 @@ return array(
 		'.landing-block-card-list2-item' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_35.1.FOOTER_LIGHT_CARDS_LANDINGBLOCKCARDLISTITEM'),
 			'label' => array('.landing-block-node-list-item'),
-			'group_label' => Loc::getMessage('LANDING_BLOCK_35_1-COLUMN1'),
+			'group_label' => Loc::getMessage('LANDING_BLOCK_35_1-COLUMN2'),
 		),
 		'.landing-block-card-list3-item' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_35.1.FOOTER_LIGHT_CARDS_LANDINGBLOCKCARDLISTITEM'),
 			'label' => array('.landing-block-node-list-item'),
-			'group_label' => Loc::getMessage('LANDING_BLOCK_35_1-COLUMN1'),
+			'group_label' => Loc::getMessage('LANDING_BLOCK_35_1-COLUMN3'),
 		),
 	),
 	'nodes' => array(

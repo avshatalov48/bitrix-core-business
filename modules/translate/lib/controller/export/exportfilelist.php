@@ -31,6 +31,8 @@ class ExportFileList
 	{
 		$this->keepField('seekPathLangId');
 
+		Loc::loadLanguageFile(__DIR__ . '/exportaction.php');
+
 		parent::__construct($name, $controller, $config);
 	}
 
@@ -76,7 +78,7 @@ class ExportFileList
 			if ($this->totalItems > 0)
 			{
 				$this->exportFileName = $this->generateExportFileName($path, $this->languages);
-				$this->createExportTempFile();
+				$this->createExportTempFile($this->exportFileName);
 			}
 
 			$this->saveProgressParameters();

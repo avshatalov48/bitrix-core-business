@@ -44,7 +44,7 @@ $siteCount = count($siteList);
 
 $bWasUpdated = false;
 
-if ($_SERVER['REQUEST_METHOD'] == "GET" && strlen($RestoreDefaults)>0 && $SALE_RIGHT=="W" && check_bitrix_sessid())
+if ($_SERVER['REQUEST_METHOD'] == "GET" && $RestoreDefaults <> '' && $SALE_RIGHT=="W" && check_bitrix_sessid())
 {
 	$bWasUpdated = true;
 
@@ -123,7 +123,7 @@ function addNumeratorErrorToWarningString($_numeratorResult)
 	}
 	return $numeratorWarningsString;
 }
-if ($_SERVER['REQUEST_METHOD'] == "POST" && strlen($Update) > 0 && $SALE_RIGHT == "W" && check_bitrix_sessid())
+if ($_SERVER['REQUEST_METHOD'] == "POST" && $Update <> '' && $SALE_RIGHT == "W" && check_bitrix_sessid())
 {
 	if (isset($_POST['hideNumeratorSettings']) && $_POST['hideNumeratorSettings'] != "Y")
 	{
@@ -249,7 +249,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && strlen($Update) > 0 && $SALE_RIGHT =
 				if ($arAllOptions[$i][3][0]=="checkbox" && $val!="Y")
 					$val = "N";
 
-				if ($name == "path2user_ps_files" && substr($val, strlen($val)-1, 1) != "/")
+				if ($name == "path2user_ps_files" && mb_substr($val, mb_strlen($val) - 1, 1) != "/")
 				{
 					$val .= "/";
 				}
@@ -445,7 +445,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && strlen($Update) > 0 && $SALE_RIGHT =
 		{
 			for ($i = 0, $intCount = count($SELECTED_FIELDS); $i < $intCount; $i++)
 			{
-				if (strlen($saveValue) > 0)
+				if ($saveValue <> '')
 					$saveValue .= ",";
 
 				$saveValue .= $SELECTED_FIELDS[$i];
@@ -679,14 +679,20 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && strlen($Update) > 0 && $SALE_RIGHT =
 		if (isset($_POST['archive_site']))
 			$filter["LID"] = $_POST['archive_site'];
 
-		if (strlen($_POST['archive_payed']))
+		if($_POST['archive_payed'] <> '')
+		{
 			$filter["=PAYED"] = $_POST['archive_payed'];
+		}
 
-		if (strlen($_POST['archive_canceled']))
+		if($_POST['archive_canceled'] <> '')
+		{
 			$filter["=CANCELED"] = $_POST['archive_canceled'];
+		}
 
-		if (strlen($_POST['archive_deducted']))
+		if($_POST['archive_deducted'] <> '')
+		{
 			$filter["=DEDUCTED"] = $_POST['archive_deducted'];
+		}
 		
 		if ((int)($_POST['archive_limit']))
 			$archiveLimit = (int)$_POST['archive_limit'];
@@ -747,7 +753,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && strlen($Update) > 0 && $SALE_RIGHT =
 			$mapStatuses = $_POST['tracking_map_statuses'];
 
 			foreach($mapStatuses as $tStatusId => $sStatusId)
-				if(strlen($sStatusId) <= 0)
+				if($sStatusId == '')
 					unset($mapStatuses[$tStatusId]);
 
 			Option::set('sale', 'tracking_map_statuses', serialize($mapStatuses));
@@ -833,7 +839,7 @@ if($strWarning != '')
 	CAdminMessage::ShowMessage($strWarning);
 elseif ($bWasUpdated)
 {
-	if(strlen($Update)>0 && strlen($_REQUEST["back_url_settings"])>0)
+	if($Update <> '' && $_REQUEST["back_url_settings"] <> '')
 		LocalRedirect($_REQUEST["back_url_settings"]);
 	else
 		LocalRedirect($APPLICATION->GetCurPage()."?mid=".$module_id."&lang=".LANGUAGE_ID."&back_url_settings=".urlencode($_REQUEST["back_url_settings"])."&".$tabControl->ActiveTabParam());
@@ -1125,7 +1131,7 @@ $tabControl->BeginNextTab();
 		<td>
 			<?
 			$guestStatuses = \Bitrix\Main\Config\Option::get("sale", "allow_guest_order_view_status", "");
-			$guestStatuses = (strlen($guestStatuses) > 0) ?  unserialize($guestStatuses) : array();
+			$guestStatuses = ($guestStatuses <> '') ?  unserialize($guestStatuses) : array();
 			$statusList = (array_slice($arStatuses,1));
 			?>
 
@@ -1275,7 +1281,7 @@ $tabControl->BeginNextTab();
 		<td>
 			<?
 			$recStatuses = COption::GetOptionString("sale", "p2p_status_list", "");
-			if(strlen($recStatuses) > 0)
+			if($recStatuses <> '')
 				$recStatuses = unserialize($recStatuses);
 			else
 				$recStatuses = array();
@@ -1372,7 +1378,7 @@ $tabControl->BeginNextTab();
 				<?
 				$val = COption::GetOptionString("sale", "pay_amount", 'a:4:{i:1;a:2:{s:6:"AMOUNT";s:2:"10";s:8:"CURRENCY";s:3:"EUR";}i:2;a:2:{s:6:"AMOUNT";s:2:"20";s:8:"CURRENCY";s:3:"EUR";}i:3;a:2:{s:6:"AMOUNT";s:2:"30";s:8:"CURRENCY";s:3:"EUR";}i:4;a:2:{s:6:"AMOUNT";s:2:"40";s:8:"CURRENCY";s:3:"EUR";}}');
 				$key = 0;
-				if(strlen($val) > 0)
+				if($val <> '')
 				{
 					$arAmount = unserialize($val);
 					foreach($arAmount as $key => $val)
@@ -1415,7 +1421,7 @@ $tabControl->BeginNextTab();
 
 			$arSubscribeProd = array();
 			$subscribeProd = COption::GetOptionString("sale", "subscribe_prod", "");
-			if (strlen($subscribeProd) > 0)
+			if ($subscribeProd <> '')
 				$arSubscribeProd = unserialize($subscribeProd);
 
 			$aTabs2 = Array();
@@ -1700,15 +1706,15 @@ for ($i = 0; $i < $siteCount; $i++):
 							<?while ($arLocation = $dbLocationList->GetNext()):
 								$locationName = $arLocation["COUNTRY_NAME"];
 
-								if (strlen($arLocation["REGION_NAME"]) > 0)
+								if ($arLocation["REGION_NAME"] <> '')
 								{
-									if (strlen($locationName) > 0)
+									if ($locationName <> '')
 										$locationName .= " - ";
 									$locationName .= $arLocation["REGION_NAME"];
 								}
-								if (strlen($arLocation["CITY_NAME"]) > 0)
+								if ($arLocation["CITY_NAME"] <> '')
 								{
-									if (strlen($locationName) > 0)
+									if ($locationName <> '')
 										$locationName .= " - ";
 									$locationName .= $arLocation["CITY_NAME"];
 								}
@@ -2401,7 +2407,7 @@ function RestoreDefaults()
 
 <input type="submit" <?if ($SALE_RIGHT<"W") echo "disabled" ?> name="Update" value="<?echo GetMessage("MAIN_SAVE")?>" class="adm-btn-save">
 <input type="hidden" name="Update" value="Y">
-<?if(strlen($_REQUEST["back_url_settings"])>0):?>
+<?if($_REQUEST["back_url_settings"] <> ''):?>
 	<input type="button" name="Cancel" value="<?=GetMessage("MAIN_OPT_CANCEL")?>" onclick="window.location='<?echo htmlspecialcharsbx(CUtil::addslashes($_REQUEST["back_url_settings"]))?>'">
 	<input type="hidden" name="back_url_settings" value="<?=htmlspecialcharsbx($_REQUEST["back_url_settings"])?>">
 <?endif;?>

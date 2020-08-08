@@ -7,23 +7,23 @@ class CAllSaleAffiliatePlanSection
 {
 	function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
-		if ((is_set($arFields, "PLAN_ID") || $ACTION=="ADD") && IntVal($arFields["PLAN_ID"]) <= 0)
+		if ((is_set($arFields, "PLAN_ID") || $ACTION=="ADD") && intval($arFields["PLAN_ID"]) <= 0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SCGAPS1_NO_PLAN"), "EMPTY_PLAN_ID");
 			return false;
 		}
-		if ((is_set($arFields, "MODULE_ID") || $ACTION=="ADD") && StrLen($arFields["MODULE_ID"]) <= 0)
+		if ((is_set($arFields, "MODULE_ID") || $ACTION=="ADD") && $arFields["MODULE_ID"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SCGAPS1_NO_MODULE"), "EMPTY_MODULE_ID");
 			return false;
 		}
-		if ((is_set($arFields, "SECTION_ID") || $ACTION=="ADD") && StrLen($arFields["SECTION_ID"]) <= 0)
+		if ((is_set($arFields, "SECTION_ID") || $ACTION=="ADD") && $arFields["SECTION_ID"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SCGAPS1_NO_SECTION"), "EMPTY_SECTION_ID");
 			return false;
 		}
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$arPlanSection = false;
 		if ($ACTION != "ADD")
 		{
@@ -57,7 +57,7 @@ class CAllSaleAffiliatePlanSection
 			if ($arFields["RATE_TYPE"] == "P")
 				$arFields["RATE_CURRENCY"] = false;
 
-			if ($arFields["RATE_TYPE"] == "F" && (!is_set($arFields, "RATE_CURRENCY") || StrLen($arFields["RATE_CURRENCY"]) <= 0))
+			if ($arFields["RATE_TYPE"] == "F" && (!is_set($arFields, "RATE_CURRENCY") || $arFields["RATE_CURRENCY"] == ''))
 			{
 				$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SCGAPS1_NO_CURRENCY"), "EMPTY_RATE_CURRENCY");
 				return false;
@@ -77,7 +77,7 @@ class CAllSaleAffiliatePlanSection
 				if (!is_set($arFields, "RATE_CURRENCY"))
 					$arFields["RATE_CURRENCY"] = $arPlanSection["RATE_CURRENCY"];
 
-				if (!is_set($arFields, "RATE_CURRENCY") || StrLen($arFields["RATE_CURRENCY"]) <= 0)
+				if (!is_set($arFields, "RATE_CURRENCY") || $arFields["RATE_CURRENCY"] == '')
 				{
 					$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SCGAPS1_NO_CURRENCY"), "EMPTY_RATE_CURRENCY");
 					return false;
@@ -92,7 +92,7 @@ class CAllSaleAffiliatePlanSection
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if ($ID <= 0)
 			return False;
 
@@ -105,15 +105,15 @@ class CAllSaleAffiliatePlanSection
 	{
 		global $DB;
 
-		$planID = IntVal($planID);
+		$planID = intval($planID);
 		if ($planID <= 0)
 			return False;
 
 		$strSectionIDs = "0";
 		for ($i = 0; $i < count($arSectionIDs); $i++)
 		{
-			if (IntVal($arSectionIDs[$i]) > 0)
-				$strSectionIDs .= ",".IntVal($arSectionIDs[$i]);
+			if (intval($arSectionIDs[$i]) > 0)
+				$strSectionIDs .= ",".intval($arSectionIDs[$i]);
 		}
 
 		return $DB->Query("DELETE FROM b_sale_affiliate_plan_section WHERE PLAN_ID = ".$planID." AND ID NOT IN (".$strSectionIDs.")", true);
@@ -123,16 +123,16 @@ class CAllSaleAffiliatePlanSection
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if ($ID <= 0)
 			return False;
 
 		$arFields1 = array();
 		foreach ($arFields as $key => $value)
 		{
-			if (substr($key, 0, 1)=="=")
+			if (mb_substr($key, 0, 1) == "=")
 			{
-				$arFields1[substr($key, 1)] = $value;
+				$arFields1[mb_substr($key, 1)] = $value;
 				unset($arFields[$key]);
 			}
 		}
@@ -144,7 +144,7 @@ class CAllSaleAffiliatePlanSection
 
 		foreach ($arFields1 as $key => $value)
 		{
-			if (strlen($strUpdate)>0) $strUpdate .= ", ";
+			if ($strUpdate <> '') $strUpdate .= ", ";
 			$strUpdate .= $key."=".$value." ";
 		}
 
@@ -160,7 +160,7 @@ class CAllSaleAffiliatePlanSection
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if ($ID <= 0)
 			return false;
 

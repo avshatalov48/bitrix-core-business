@@ -90,7 +90,7 @@ CJSCore::RegisterExt('event_calendar', array(
 		$basePath.'calendar-simple-view-popup.js',
 		$basePath.'calendar-section-slider.js',
 		$basePath.'calendar-settings-slider.js',
-		$basePath.'calendar-edit-entry-slider.js',
+		//$basePath.'calendar-edit-entry-slider.js',
 		$basePath.'calendar-view-entry-slider.js',
 		$basePath.'calendar-sync-slider.js',
 		$basePath.'calendar-util.js',

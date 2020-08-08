@@ -11,7 +11,7 @@ class FieldAdapter
 	 * @param array $sourceField
 	 * @return array
 	 */
-	public static function adapt(array $sourceField)
+	public static function adapt(array $sourceField, $filterId = '')
 	{
 		$sourceField = static::normalize($sourceField);
 		switch ($sourceField["type"])
@@ -171,7 +171,8 @@ class FieldAdapter
 					$sourceField["placeholder"],
 					$sourceField["params"]["multiple"],
 					$sourceField["params"],
-					(isset($sourceField["lightweight"]) ? $sourceField["lightweight"] : false)
+					(isset($sourceField["lightweight"]) ? $sourceField["lightweight"] : false),
+					$filterId
 				);
 				break;
 

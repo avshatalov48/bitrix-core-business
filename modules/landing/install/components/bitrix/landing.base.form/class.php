@@ -59,7 +59,7 @@ class LandingBaseFormComponent extends LandingBaseComponent
 	 * @param bool $strict Strict check of var.
 	 * @return mixed
 	 */
-	protected function request($var, $strict = false)
+	public function request($var, $strict = false)
 	{
 		if ($this->postFields === null)
 		{
@@ -178,7 +178,7 @@ class LandingBaseFormComponent extends LandingBaseComponent
 		{
 			foreach ($additionalFields as $key => $value)
 			{
-				$group = substr($key, 0, strpos($key, '_'));
+				$group = mb_substr($key, 0, mb_strpos($key, '_'));
 				if (
 					!in_array($group, $diffGroups) &&
 					isset($additionalFieldsParent[$key]) &&
@@ -195,7 +195,7 @@ class LandingBaseFormComponent extends LandingBaseComponent
 		{
 			foreach ($additionalFieldsParent as $key => $value)
 			{
-				$group = substr($key, 0, strpos($key, '_'));
+				$group = mb_substr($key, 0, mb_strpos($key, '_'));
 				if (
 					!in_array($group, $diffGroups) &&
 					isset($additionalFields[$key]) &&

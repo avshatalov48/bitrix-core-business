@@ -80,7 +80,7 @@ class ExchangeLogTable extends Main\Entity\DataManager
 	{
 		$tableName = static::getTableName();
 
-		if (strlen($direction)<= 0)
+		if ($direction == '')
 			throw new Main\ArgumentOutOfRangeException("$direction");
 
 		$r = ExchangeLogTable::getList(array(
@@ -94,7 +94,7 @@ class ExchangeLogTable extends Main\Entity\DataManager
 
 		if ($loggingRecord = $r->fetch())
 		{
-			if(strlen($loggingRecord['MAX_DATE_INSERT'])>0)
+			if($loggingRecord['MAX_DATE_INSERT'] <> '')
 			{
 				$maxDateInsert = $loggingRecord['MAX_DATE_INSERT'];
 				$date = new Main\Type\DateTime($maxDateInsert);

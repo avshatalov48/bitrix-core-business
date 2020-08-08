@@ -333,12 +333,12 @@
 					{
 						if (data.length <= 0)
 						{
-							data = {result: {}};
+							data = {result: {}, error: "BLANK_ANSWER", error_description: "Empty answer with correct http code, network error possible."};
 						}
 					}
 					else if (data.length <= 0)
 					{
-						data = {result: {}, error: "BLANK_ANSWER_WITH_ERROR_CODE", error_description: 'Blank answer with error http code: '+status};
+						data = {result: {}, error: "BLANK_ANSWER_WITH_ERROR_CODE", error_description: 'Empty answer with error http code: '+status};
 					}
 				}
 			}
@@ -438,65 +438,74 @@
 			data: {halt: !!bHaltOnError ? 1 : 0, cmd: calls},
 			callback: function(res, config, status)
 			{
-				if(!!callback)
+				if(!callback)
 				{
-					var error = res.error();
-					var data = res.data();
-					var result = Utils.isArray(calls) ? [] : {};
+					return false;
+				}
 
-					for(var i in calls)
+				var error = res.error();
+				var data = res.data();
+				var result = Utils.isArray(calls) ? [] : {};
+
+				for(var i in calls)
+				{
+					if(!!calls[i] && calls.hasOwnProperty(i))
 					{
-						if(!!calls[i] && calls.hasOwnProperty(i))
+						if(Utils.isString(calls[i]))
 						{
-							if(Utils.isString(calls[i]))
-							{
-								var q = calls[i].split('?');
-							}
-							else
-							{
-								q = [
-									Utils.isArray(calls[i]) ? calls[i][0] : calls[i].method,
-									Utils.isArray(calls[i]) ? calls[i][1] : calls[i].data
-								];
-							}
+							var q = calls[i].split('?');
+						}
+						else
+						{
+							q = [
+								Utils.isArray(calls[i]) ? calls[i][0] : calls[i].method,
+								Utils.isArray(calls[i]) ? calls[i][1] : calls[i].data
+							];
+						}
 
-							if(data && (typeof data.result[i] !== 'undefined' || typeof data.result_error[i] !== 'undefined'))
-							{
-								result[i] = new ajaxResult({
-									result: typeof data.result[i] !== 'undefined' ? data.result[i] : {},
-									error: data.result_error[i] || undefined,
-									total: data.result_total[i],
-									time: data.result_time[i],
-									next: data.result_next[i]
-								}, {
-									method: q[0],
-									data: q[1],
-									callback: callback,
-									endpoint: endpoint,
-									queryParams: queryParams,
-									cors: cors
-								}, res.status);
-							}
-							else if (error)
-							{
-								result[i] = new ajaxResult({
-									result: {},
-									error: error.ex,
-									total: 0
-								}, {
-									method: q[0],
-									data: q[1],
-									callback: callback,
-									endpoint: endpoint,
-									queryParams: queryParams,
-									cors: cors
-								}, res.status);
-							}
+						if (
+							data
+							&& typeof data.result !== 'undefined'
+							&& (
+								typeof data.result[i] !== 'undefined'
+								|| typeof data.result_error[i] !== 'undefined'
+							)
+						)
+						{
+							result[i] = new ajaxResult({
+								result: typeof data.result[i] !== 'undefined' ? data.result[i] : {},
+								error: data.result_error[i] || undefined,
+								total: data.result_total[i],
+								time: data.result_time[i],
+								next: data.result_next[i]
+							}, {
+								method: q[0],
+								data: q[1],
+								callback: callback,
+								endpoint: endpoint,
+								queryParams: queryParams,
+								cors: cors
+							}, res.status);
+						}
+						else if (error)
+						{
+							result[i] = new ajaxResult({
+								result: {},
+								error: error.ex,
+								total: 0
+							}, {
+								method: q[0],
+								data: q[1],
+								callback: callback,
+								endpoint: endpoint,
+								queryParams: queryParams,
+								cors: cors
+							}, res.status);
 						}
 					}
-
-					callback.apply(window, [result]);
 				}
+
+				callback.apply(window, [result]);
 			},
 			sendCallback: sendCallback,
 			endpoint: endpoint,

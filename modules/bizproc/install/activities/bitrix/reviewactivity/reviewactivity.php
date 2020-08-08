@@ -120,10 +120,10 @@ class CBPReviewActivity
 		$arParameters["DOCUMENT_ID"] = $documentId;
 		$arParameters["DOCUMENT_URL"] = $documentService->GetDocumentAdminPage($documentId);
 		$arParameters["TaskButtonMessage"] = $this->IsPropertyExists("TaskButtonMessage") ? $this->TaskButtonMessage : GetMessage("BPAR_ACT_BUTTON2");
-		if (strlen($arParameters["TaskButtonMessage"]) <= 0)
+		if ($arParameters["TaskButtonMessage"] == '')
 			$arParameters["TaskButtonMessage"] = GetMessage("BPAR_ACT_BUTTON2");
 		$arParameters["CommentLabelMessage"] = $this->IsPropertyExists("CommentLabelMessage") ? $this->CommentLabelMessage : GetMessage("BPAR_ACT_COMMENT");
-		if (strlen($arParameters["CommentLabelMessage"]) <= 0)
+		if ($arParameters["CommentLabelMessage"] == '')
 			$arParameters["CommentLabelMessage"] = GetMessage("BPAR_ACT_COMMENT");
 		$arParameters["ShowComment"] = $this->IsPropertyExists("ShowComment") ? $this->ShowComment : "Y";
 		if ($arParameters["ShowComment"] != "Y" && $arParameters["ShowComment"] != "N")
@@ -163,7 +163,7 @@ class CBPReviewActivity
 		if (!$this->IsPropertyExists("SetStatusMessage") || $this->SetStatusMessage == "Y")
 		{
 			$totalCount = $this->TotalCount;
-			$message = ($this->IsPropertyExists("StatusMessage") && strlen($this->StatusMessage) > 0) ? $this->StatusMessage : GetMessage("BPAR_ACT_INFO");
+			$message = ($this->IsPropertyExists("StatusMessage") && $this->StatusMessage <> '') ? $this->StatusMessage : GetMessage("BPAR_ACT_INFO");
 			$this->SetStatusTitle(str_replace(
 				array("#PERC#", "#PERCENT#", "#REV#", "#REVIEWED#", "#TOT#", "#TOTAL#", "#REVIEWERS#"),
 				array(0, 0, 0, 0, $totalCount, $totalCount, ""),
@@ -293,12 +293,12 @@ class CBPReviewActivity
 		if ($arUser = $dbUser->Fetch())
 			$this->Comments = $this->Comments.
 				CUser::FormatName(COption::GetOptionString("bizproc", "name_template", CSite::GetNameFormat(false), SITE_ID), $arUser)." (".$arUser["LOGIN"].")".
-				((strlen($arEventParameters["COMMENT"]) > 0) ? ": " : "").$arEventParameters["COMMENT"]."\n";
+				(($arEventParameters["COMMENT"] <> '') ? ": " : "").$arEventParameters["COMMENT"]."\n";
 
 		$this->WriteToTrackingService(
 				str_replace(
 					array("#PERSON#", "#COMMENT#"),
-					array("{=user:user_".$arEventParameters["REAL_USER_ID"]."}", (strlen($arEventParameters["COMMENT"]) > 0 ? ": ".$arEventParameters["COMMENT"] : "")),
+					array("{=user:user_".$arEventParameters["REAL_USER_ID"]."}", ($arEventParameters["COMMENT"] <> '' ? ": ".$arEventParameters["COMMENT"] : "")),
 					GetMessage("BPAR_ACT_REVIEW_TRACK")
 				),
 				$arEventParameters["REAL_USER_ID"]
@@ -329,13 +329,13 @@ class CBPReviewActivity
 
 		if (!$this->IsPropertyExists("SetStatusMessage") || $this->SetStatusMessage == "Y")
 		{
-			$messageTemplate = ($this->IsPropertyExists("StatusMessage") && strlen($this->StatusMessage) > 0) ? $this->StatusMessage : GetMessage("BPAR_ACT_INFO");
+			$messageTemplate = ($this->IsPropertyExists("StatusMessage") && $this->StatusMessage <> '') ? $this->StatusMessage : GetMessage("BPAR_ACT_INFO");
 			$votedPercent = intval($this->ReviewedCount / $this->TotalCount * 100);
 			$votedCount = $this->ReviewedCount;
 			$totalCount = $this->TotalCount;
 
 			$reviewers = "";
-			if (strpos($messageTemplate, "#REVIEWERS#") !== false)
+			if (mb_strpos($messageTemplate, "#REVIEWERS#") !== false)
 				$reviewers = $this->GetReviewersNames();
 			if ($reviewers == "")
 				$reviewers = GetMessage("BPAA_ACT_APPROVERS_NONE");
@@ -402,7 +402,7 @@ class CBPReviewActivity
 
 			$form .=
 				'<tr><td valign="top" width="40%" align="right" class="bizproc-field-name">'
-					.(strlen($arTask["PARAMETERS"]["CommentLabelMessage"]) > 0 ? $arTask["PARAMETERS"]["CommentLabelMessage"] : GetMessage("BPAR_ACT_COMMENT"))
+					.($arTask["PARAMETERS"]["CommentLabelMessage"] <> '' ? $arTask["PARAMETERS"]["CommentLabelMessage"] : GetMessage("BPAR_ACT_COMMENT"))
 					.$required
 				.':</td>'.
 				'<td valign="top" width="60%" class="bizproc-field-value">'.
@@ -410,7 +410,7 @@ class CBPReviewActivity
 				'</td></tr>';
 		}
 
-		$buttons = '<input type="submit" name="review" value="'.(strlen($arTask["PARAMETERS"]["TaskButtonMessage"]) > 0 ? $arTask["PARAMETERS"]["TaskButtonMessage"] : GetMessage("BPAR_ACT_BUTTON2")).'"/>';
+		$buttons = '<input type="submit" name="review" value="'.($arTask["PARAMETERS"]["TaskButtonMessage"] <> '' ? $arTask["PARAMETERS"]["TaskButtonMessage"] : GetMessage("BPAR_ACT_BUTTON2")).'"/>';
 
 		return array($form, $buttons);
 	}
@@ -424,7 +424,7 @@ class CBPReviewActivity
 					'TARGET_USER_STATUS' => CBPTaskUserStatus::Ok,
 					'NAME'  => 'review',
 					'VALUE' => 'Y',
-					'TEXT'  => strlen($arTask["PARAMETERS"]["TaskButtonMessage"]) > 0 ? $arTask["PARAMETERS"]["TaskButtonMessage"] : GetMessage("BPAR_ACT_BUTTON2")
+					'TEXT'  => $arTask["PARAMETERS"]["TaskButtonMessage"] <> '' ? $arTask["PARAMETERS"]["TaskButtonMessage"] : GetMessage("BPAR_ACT_BUTTON2")
 				)
 			)
 		);
@@ -459,7 +459,7 @@ class CBPReviewActivity
 				&& $arTask['PARAMETERS']['CommentRequired'] === 'Y'
 			)
 			{
-				$label = strlen($arTask["PARAMETERS"]["CommentLabelMessage"]) > 0 ? $arTask["PARAMETERS"]["CommentLabelMessage"] : GetMessage("BPAR_ACT_COMMENT");
+				$label = $arTask["PARAMETERS"]["CommentLabelMessage"] <> '' ? $arTask["PARAMETERS"]["CommentLabelMessage"] : GetMessage("BPAR_ACT_COMMENT");
 				throw new CBPArgumentNullException(
 					'task_comment',
 					GetMessage("BPAA_ACT_COMMENT_ERROR", array(
@@ -500,7 +500,7 @@ class CBPReviewActivity
 			$bUsersFieldEmpty = true;
 			foreach ($arTestProperties["Users"] as $userId)
 			{
-				if (!is_array($userId) && (strlen(trim($userId)) > 0) || is_array($userId) && (count($userId) > 0))
+				if (!is_array($userId) && (trim($userId) <> '') || is_array($userId) && (count($userId) > 0))
 				{
 					$bUsersFieldEmpty = false;
 					break;
@@ -511,7 +511,7 @@ class CBPReviewActivity
 		if ($bUsersFieldEmpty)
 			$arErrors[] = array("code" => "NotExist", "parameter" => "Users", "message" => GetMessage("BPAR_ACT_PROP_EMPTY1"));
 
-		if (!array_key_exists("Name", $arTestProperties) || strlen($arTestProperties["Name"]) <= 0)
+		if (!array_key_exists("Name", $arTestProperties) || $arTestProperties["Name"] == '')
 		{
 			$arErrors[] = array("code" => "NotExist", "parameter" => "Name", "message" => GetMessage("BPAR_ACT_PROP_EMPTY4"));
 		}
@@ -524,7 +524,7 @@ class CBPReviewActivity
 		$timeoutDuration = ($this->IsPropertyExists("TimeoutDuration") ? $this->TimeoutDuration : 0);
 
 		$timeoutDurationType = ($this->IsPropertyExists("TimeoutDurationType") ? $this->TimeoutDurationType : "s");
-		$timeoutDurationType = strtolower($timeoutDurationType);
+		$timeoutDurationType = mb_strtolower($timeoutDurationType);
 		if (!in_array($timeoutDurationType, array("s", "d", "h", "m")))
 			$timeoutDurationType = "s";
 
@@ -632,13 +632,13 @@ class CBPReviewActivity
 			}
 		}
 
-		if (strlen($arCurrentValues['status_message']) <= 0)
+		if ($arCurrentValues['status_message'] == '')
 			$arCurrentValues['status_message'] = GetMessage("BPAR_ACT_INFO");
-		if (strlen($arCurrentValues['comment_label_message']) <= 0)
+		if ($arCurrentValues['comment_label_message'] == '')
 			$arCurrentValues['comment_label_message'] = GetMessage("BPAR_ACT_COMMENT");
-		if (strlen($arCurrentValues['task_button_message']) <= 0)
+		if ($arCurrentValues['task_button_message'] == '')
 			$arCurrentValues['task_button_message'] = GetMessage("BPAR_ACT_BUTTON2");
-		if (strlen($arCurrentValues["timeout_duration_type"]) <= 0)
+		if ($arCurrentValues["timeout_duration_type"] == '')
 			$arCurrentValues["timeout_duration_type"] = "s";
 
 		$documentService = $runtime->GetService("DocumentService");

@@ -38,7 +38,7 @@ if(($arEMAIL = $lAdmin->GroupAction()) && $POST_RIGHT=="W")
 
 	foreach($arEMAIL as $EMAIL)
 	{
-		$SUBSCR_ID = IntVal($arSubscr[$EMAIL]);
+		$SUBSCR_ID = intval($arSubscr[$EMAIL]);
 		if($SUBSCR_ID <= 0)
 			continue;
 

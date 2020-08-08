@@ -39,10 +39,10 @@ Loc::loadMessages(__FILE__);
 				$counter++;
 				$selected = false;
 				$domainNameLocal = $arResult['DOMAIN_NAME'];
-				if ($domainItem['postfix'] && (substr($domainNameLocal, -1 * strlen($domainItem['postfix'])) == $domainItem['postfix']))
+				if ($domainItem['postfix'] && (mb_substr($domainNameLocal, -1 * mb_strlen($domainItem['postfix'])) == $domainItem['postfix']))
 				{
 					$wasSelected = $selected = true;
-					$domainNameLocal = substr($domainNameLocal, 0, -1 * strlen($domainItem['postfix']));
+					$domainNameLocal = mb_substr($domainNameLocal, 0, -1 * mb_strlen($domainItem['postfix']));
 				}
 				if ($domainCode == 'own' && !$wasSelected)
 				{
@@ -57,7 +57,7 @@ Loc::loadMessages(__FILE__);
 						?>class="ui-radio ui-postfix" <?
 						?>data-input-id="<?= $arParams['FIELD_ID'];?>_<?= $domainCode;?>" />
 					<div class="landing-form-domainname-wrap">
-						<label class="ui-form-control-label" for="landing-domain-name-<?= $counter;?>"><?= Loc::getMessage('LANDING_TPL_DOMAIN_NAME_' . strtoupper($domainCode));?></label>
+						<label class="ui-form-control-label" for="landing-domain-name-<?= $counter;?>"><?= Loc::getMessage('LANDING_TPL_DOMAIN_NAME_'.mb_strtoupper($domainCode));?></label>
 						<input type="text" id="<?= $arParams['FIELD_ID'];?>_<?= $domainCode;?>" value="<?= $selected ? $domainNameLocal : '';?>" class="ui-input ui-domainname ui-domainname-subdomain" data-postfix="<?= $domainItem['postfix'];?>" />
 						<span class="landing-site-name-postfix"><?= $domainItem['postfix'];?></span>
 						<div class="landing-site-name-status" id="landing-site-name-status-subdomain"></div>
@@ -71,7 +71,7 @@ Loc::loadMessages(__FILE__);
 						?>class="ui-radio ui-postfix" <?
 						?>data-input-id="<?= $arParams['FIELD_ID'];?>_<?= $domainCode;?>" />
 					<div class="landing-form-domainname-wrap">
-						<label class="ui-form-control-label" for="landing-domain-name-<?= $counter;?>"><?= Loc::getMessage('LANDING_TPL_DOMAIN_NAME_' . strtoupper($domainCode));?></label>
+						<label class="ui-form-control-label" for="landing-domain-name-<?= $counter;?>"><?= Loc::getMessage('LANDING_TPL_DOMAIN_NAME_'.mb_strtoupper($domainCode));?></label>
 						<input type="text" id="<?= $arParams['FIELD_ID'];?>_<?= $domainCode;?>" maxlength="64" value="<?= $selected ? $domainNameLocal : '';?>" class="ui-input ui-domainname" data-postfix="" />
 						<div class="landing-site-name-status" id="landing-site-name-status-domain"></div>
 					</div>

@@ -171,7 +171,7 @@ $userId = intval($USER->GetID());
 	}
 </script>
 <?
-if($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_REQUEST["Update"]) > 0 && !$bReadOnly && check_bitrix_sessid())
+if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Update"] <> '' && !$bReadOnly && check_bitrix_sessid())
 {
 	$adminSidePanelHelper->decodeUriComponent();
 
@@ -191,24 +191,24 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_REQUEST["Update"]) > 0 && !$
 		"IS_DEFAULT" => $IS_DEFAULT,
 	);
 	$DB->StartTransaction();
-	if(strlen($errorMessage) == 0 && $ID > 0 && $res = CCatalogMeasure::update($ID, $arFields))
+	if($errorMessage == '' && $ID > 0 && $res = CCatalogMeasure::update($ID, $arFields))
 	{
 		$ID = $res;
 		$DB->Commit();
 
 		$adminSidePanelHelper->sendSuccessResponse("apply", array("ID" => $ID));
 
-		if(strlen($_REQUEST["apply"])<=0)
+		if($_REQUEST["apply"] == '')
 			LocalRedirect("/bitrix/admin/cat_measure_list.php?lang=".LANG."&".GetFilterParams("filter_", false));
 		else
 			LocalRedirect("/bitrix/admin/cat_measure_edit.php?lang=".LANG."&ID=".$ID."&".GetFilterParams("filter_", false));
 	}
-	elseif(strlen($errorMessage) == 0 && $ID == 0 && $res = CCatalogMeasure::add($arFields))
+	elseif($errorMessage == '' && $ID == 0 && $res = CCatalogMeasure::add($arFields))
 	{
 		$ID = $res;
 		$DB->Commit();
 
-		if (strlen($_REQUEST["apply"]) <= 0)
+		if ($_REQUEST["apply"] == '')
 		{
 			$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $ID));
 			$adminSidePanelHelper->localRedirect($listUrl);

@@ -221,6 +221,12 @@ class DocumentBase
             case 'ITEM_UNIT':
                 $result = self::resolveUnitParams($value, $fieldsInfo);
                 break;
+			case 'MARKING_GROUP':
+				$result = self::resolveMarkingGroupParams($value, $fieldsInfo);
+				break;
+			case 'MARKINGS':
+				$result = self::resolveMarkingParams($value, $fieldsInfo);
+				break;
 			case 'DISCOUNTS':
 				$result = self::resolveDiscountsParams($value, $fieldsInfo);
 				break;
@@ -301,7 +307,7 @@ class DocumentBase
 				{
 					$propertyName = $property["#"][$message["CC_BSC1_ID"]][0]["#"];
 					$propertyValue = $property["#"][$message["CC_BSC1_VALUE"]][0]["#"];
-					if(strlen($propertyValue)>0)
+					if($propertyValue <> '')
 						$properties[$propertyName] = $propertyValue;
 				}
 			}
@@ -340,7 +346,7 @@ class DocumentBase
             {
                 $traitName = $val["#"][$message["CC_BSC1_NAME"]][0]["#"];
                 $traitValue = $val["#"][$message["CC_BSC1_VALUE"]][0]["#"];
-                if(strlen($traitValue)>0)
+                if($traitValue <> '')
                     $traits[$traitName] = $traitValue;
             }
 
@@ -352,10 +358,10 @@ class DocumentBase
                     foreach($traits as $k=>$v)
                     {
                         $namePropertyBaslet = $message["CC_BSC1_PROP_BASKET"];
-                        if (strpos($k, $namePropertyBaslet."#") === 0)
+                        if (mb_strpos($k, $namePropertyBaslet."#") === 0)
                         {
-                            $position = strpos($k, $namePropertyBaslet."#");
-                            $idBasketProperty = substr($k, $position + strlen($namePropertyBaslet."#"));
+							$position = mb_strpos($k, $namePropertyBaslet."#");
+							$idBasketProperty = mb_substr($k, $position + mb_strlen($namePropertyBaslet."#"));
 
                             self::internalizeFields($v);
 
@@ -484,6 +490,70 @@ class DocumentBase
         return $result;
     }
 
+	/**
+	 * @param $value
+	 * @param array $fieldsInfo
+	 * @return null
+	 */
+	protected static function resolveMarkingGroupParams($value, array $fieldsInfo)
+	{
+		$result = null;
+		$message = self::getMessage();
+
+		if (is_array($value["#"][$message["CC_BSC1_MARKING_GROUP"]])
+			&& !empty($value["#"][$message["CC_BSC1_MARKING_GROUP"]]))
+		{
+			$field = $value["#"][$message["CC_BSC1_MARKING_GROUP"]];
+
+			foreach($fieldsInfo['FIELDS'] as $name => $info)
+			{
+				if(is_array($field[0]["#"]))
+				{
+					if(!empty($field[0]["#"][$message["CC_BSC1_MARKING_GROUP_".$name]][0]["#"]))
+					{
+						$fieldValue = $field[0]["#"][$message["CC_BSC1_MARKING_GROUP_".$name]][0]["#"];
+						self::internalizeFields($fieldValue, $info);
+						$result[$name] = $fieldValue;
+					}
+				}
+			}
+		}
+		return $result;
+	}
+
+	/**
+	 * @param array $value
+	 * @param array $fieldsInfo
+	 * @return null
+	 */
+	protected static function resolveMarkingParams(array $value, array $fieldsInfo)
+	{
+		$result = [];
+		$message = self::getMessage();
+
+		if (is_array($value["#"][$message["CC_BSC1_MARKINGS"]][0]["#"][$message["CC_BSC1_MARKING"]])
+			&& !empty($value["#"][$message["CC_BSC1_MARKINGS"]][0]["#"][$message["CC_BSC1_MARKING"]]))
+		{
+			$fields = $value["#"][$message["CC_BSC1_MARKINGS"]][0]["#"][$message["CC_BSC1_MARKING"]];
+
+			foreach($fields as $k=>$field)
+			{
+				foreach($fieldsInfo['FIELDS'] as $name => $info)
+				{
+					if(!empty($field["#"][$message["CC_BSC1_MARKING_".$name]][0]["#"]))
+					{
+						$fieldValue = $field["#"][$message["CC_BSC1_MARKING_".$name]][0]["#"];
+						self::internalizeFields($fieldValue, $info);
+
+						$result[] = $fieldValue;
+					}
+				}
+			}
+
+		}
+		return $result;
+	}
+
     /**
      * @param array $fields
      * @return array|null
@@ -524,6 +594,8 @@ class DocumentBase
                     'MEASURE_CODE' => !empty($item['ITEM_UNIT']) ? $item['ITEM_UNIT']['ITEM_UNIT_CODE']:null,
                     'MEASURE_NAME' => !empty($item['ITEM_UNIT']) ? $item['ITEM_UNIT']['ITEM_UNIT_NAME']:null,
                     'ATTRIBUTES' => !empty($item['REK_VALUES']['PROP_BASKET']) ? $item['REK_VALUES']['PROP_BASKET']:null,
+                    'MARKING_GROUP' => !empty($item['MARKING_GROUP']['CODE']) ? $item['MARKING_GROUP']['CODE']:null,
+                    'MARKINGS' => !empty($item['MARKINGS']) ? $item['MARKINGS']:null,
                     'TAX' => array(
                         'VAT_RATE' => !empty($item['TAXES']['TAX_VALUE']) ? $item['TAXES']['TAX_VALUE']/100:null,
                         'VAT_INCLUDED' => !empty($item['TAXES']['IN_PRICE']) ? $item['TAXES']['IN_PRICE']:'Y'//if tax is null then always included by default
@@ -664,7 +736,7 @@ class DocumentBase
                             {
 								$taxValueTmp = isset($item['TAX_VALUE']) ? $item['TAX_VALUE']:0;
 
-								if (IntVal($taxValueTmp) > IntVal($taxValue))
+								if (intval($taxValueTmp) > intval($taxValue))
 								{
 									$taxName = $item['NAME'];
 									$taxValue = $taxValueTmp;
@@ -673,7 +745,7 @@ class DocumentBase
                         }
                     }
 
-                    if(IntVal($taxValue)>0)
+                    if(intval($taxValue)>0)
                     {
                         $fields[$k] = self::resolveTaxParams($document, $v);
                         $fields[$k]['VALUE'] = $taxValue;

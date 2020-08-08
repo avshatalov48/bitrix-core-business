@@ -5,21 +5,24 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 }
 
 use Bitrix\Main\Application;
-use Bitrix\Main\Config\Option;
 use Bitrix\Main\Error;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Engine\ActionFilter;
+use Bitrix\Main\Engine\UrlManager;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Web\Json;
+use Bitrix\Rest\Configuration\Setting;
 use Bitrix\Rest\Configuration\Controller;
+use Bitrix\Rest\Configuration\Helper;
 use Bitrix\Rest\Configuration\Manifest;
+use Bitrix\Rest\Configuration\Structure;
 
 class CRestConfigurationExportComponent extends CBitrixComponent implements Controllerable
 {
 	/** @var ErrorCollection $errors */
 	protected $errors;
 	protected $type = 'configuration';
+	protected $contextPostfix = 'export';
 	protected $optionPath = '~tmp_export_path_configuration';
 
 	protected function checkRequiredParams()
@@ -48,6 +51,7 @@ class CRestConfigurationExportComponent extends CBitrixComponent implements Cont
 
 	protected function prepareResult()
 	{
+		$result = [];
 		global $APPLICATION;
 
 		$manifest = Manifest::get($this->arParams['MANIFEST_CODE']);
@@ -56,61 +60,16 @@ class CRestConfigurationExportComponent extends CBitrixComponent implements Cont
 			$this->errors->setError(new Error(Loc::getMessage("REST_CONFIGURATION_EXPORT_NOT_FOUND")));
 			return false;
 		}
-		$result = [
-			'DOWNLOAD_URL' => $APPLICATION->GetCurPageParam('download=Y', ['download']),
-			'MANIFEST' => $manifest
-		];
+		$result['MANIFEST'] = $manifest;
 
 		$APPLICATION->SetTitle( $result['MANIFEST']['EXPORT_TITLE_PAGE'] ?: Loc::getMessage('REST_CONFIGURATION_EXPORT_TITLE') );
-		$request = Application::getInstance()->getContext()->getRequest();
-		$download = $request->getQuery("download");
 
-		if($download == 'Y')
+		$result['ENABLED_ZIP_MODE'] = Helper::getInstance()->enabledZipMod();
+		$result['ENABLED_EXPORT'] = $result['ENABLED_ZIP_MODE'];
+		if($result['ENABLED_ZIP_MODE'] != 'Y')
 		{
-			$folder = Option::get('rest', $this->optionPath,'');
-			if(file_exists($folder) && is_dir($folder))
-			{
-				$dir = array_diff(scandir($folder),['.','..']);
-				if(empty($dir))
-				{
-					$this->errors->setError(new Error(Loc::getMessage("REST_CONFIGURATION_EXPORT_ERROR_ARCHIVE_NOT_FOUND")));
-					return false;
-				}
-				$name = $this->type.'.tar.gz';
-				$archive = CBXArchive::GetArchive($folder.$name, 'TAR.GZ');
-				$archive->SetOptions(
-					array(
-						"COMPRESS"			=> false,
-						"ADD_PATH"			=> false,
-						"REMOVE_PATH"		=> $folder,
-						"CHECK_PERMISSIONS" => false
-					)
-				);
-				$res = $archive->Pack($folder);
-				if($res === IBXArchive::StatusSuccess)
-				{
-					$APPLICATION->restartBuffer();
-					if(!headers_sent())
-					{
-						header('Content-Type: application/tar');
-						header("Content-Disposition: attachment; filename=\"".$name."\"");
-						header("Content-Length: ".filesize($folder.$name));
-						readfile($folder.$name);
-					}
-					unlink($folder.$name);
-					exit();
-				}
-				else
-				{
-					$this->errors->setError(new Error(Loc::getMessage("REST_CONFIGURATION_EXPORT_ERROR_ARCHIVE_NOT_FOUND")));
-					return false;
-				}
-			}
-			else
-			{
-				$this->errors->setError(new Error(Loc::getMessage("REST_CONFIGURATION_EXPORT_ERROR_ARCHIVE_NOT_FOUND")));
-				return false;
-			}
+			$result['REST_SETTING_PATH'] = BX_ROOT.'/admin/settings.php?lang='.LANGUAGE_ID.'&mid=rest';
+
 		}
 
 		$this->arResult = $result;
@@ -123,44 +82,6 @@ class CRestConfigurationExportComponent extends CBitrixComponent implements Cont
 		{
 			ShowError($error);
 		}
-	}
-
-	protected function saveContent($type, $code, $content)
-	{
-		$return = false;
-		$tmpPath = Option::get('rest', $this->optionPath,'');
-		if(!$tmpPath)
-		{
-			return $return;
-		}
-
-		try
-		{
-			$path = $tmpPath . ($type === false ? '' : $type . '/');
-			if(is_array($content))
-			{
-				$content = Json::encode($content);
-			}
-			elseif(!is_string($content))
-			{
-				return $return;
-			}
-
-			if (CheckDirPath($path))
-			{
-				$name = $path.$code.'.json';
-
-				if(file_put_contents($name, $content) !== false)
-				{
-					$return = true;
-				}
-			}
-		}
-		catch (\Exception $e)
-		{
-		}
-
-		return $return;
 	}
 
 	public function executeComponent()
@@ -182,23 +103,33 @@ class CRestConfigurationExportComponent extends CBitrixComponent implements Cont
 		$this->includeComponentTemplate();
 	}
 
+	protected function getContextPostFix()
+	{
+		return $this->contextPostfix.$this->arParams['MANIFEST_CODE'];
+	}
+
+	protected function getContext()
+	{
+		return Helper::getInstance()->getContextUser($this->getContextPostFix());
+	}
+
 	public function startAction()
 	{
 		$result = [];
 		if($this->checkRequiredParams())
 		{
-			//on start export creat folder
-			$sTmpFolderPath = CTempFile::GetDirectoryName(
-				4,
-				[
-					'rest',
-					uniqid($this->type . '_export_', true)
-				]
-			);
-			CheckDirPath($sTmpFolderPath);
-			Option::set('rest', $this->optionPath, $sTmpFolderPath);
-			$result = Controller::getEntityCodeList();
+			$context = $this->getContext();
+
+			$setting = new Setting($context);
+			$setting->deleteFull();
+
+			$structure = new Structure($context);
+			if($structure->getFolder())
+			{
+				$result = Controller::getEntityCodeList();
+			}
 		}
+
 		return $result;
 	}
 
@@ -217,8 +148,35 @@ class CRestConfigurationExportComponent extends CBitrixComponent implements Cont
 					'VERSION' => $manifest['VERSION'],
 					'USES' => $manifest['USES']
 				];
-				$this->saveContent(false, 'manifest', $manifest);
+				$context = $this->getContext();
+				$structure = new Structure($context);
+				$structure->saveContent(false, 'manifest', $manifest);
 				$result['result'] = true;
+
+				$setting = new Setting($context);
+
+				Controller::callEventFinish(
+					[
+						'TYPE' => 'EXPORT',
+						'CONTEXT' => $this->getContextPostFix(),
+						'CONTEXT_USER' => $context,
+						'MANIFEST_CODE' => $manifest['CODE'],
+						'IMPORT_MANIFEST' => [],//TODO: delete this after fix crm
+						'MANIFEST' => $manifest,
+						'ITEM_CODE' => $this->arParams['ITEM_CODE']
+					]
+				);
+
+				$setting->delete(Setting::SETTING_MANIFEST);
+
+				$uri = UrlManager::getInstance()->getEndPoint();
+				$uri->addParams(
+					[
+						'action' => 'rest.controller.configuration.download',
+						'postfix' => $this->getContextPostFix()
+					]
+				);
+				$result['download'] = $uri->getUri();
 			}
 		}
 
@@ -233,22 +191,24 @@ class CRestConfigurationExportComponent extends CBitrixComponent implements Cont
 		{
 			$request = Application::getInstance()->getContext()->getRequest();
 			$code = preg_replace('/[^a-zA-Z0-9_]/', '', $request->getPost("code"));
-			$step = htmlspecialcharsbx($request->getPost("step"));
-			$next = intVal($request->getPost("next"));
+			$step = intVal($request->getPost("step"));
+			$next = htmlspecialcharsbx($request->getPost("next"));
 			if($code)
 			{
+				$structure = new Structure($this->getContext());
 				$items = Controller::callEventExport(
 					$this->arParams['MANIFEST_CODE'],
 					$code,
 					$step,
 					$next,
-					$this->arParams['ITEM_CODE']
+					$this->arParams['ITEM_CODE'],
+					$this->getContext()
 				);
 				foreach ($items as $item)
 				{
-					if($item['FILE_NAME'] != '')
+					if(!is_array($item['FILE_NAME']) && strlen($item['FILE_NAME']) > 0)
 					{
-						$this->saveContent($code, $item['FILE_NAME'], $item['CONTENT']);
+						$structure->saveContent($code, $item['FILE_NAME'], $item['CONTENT']);
 					}
 					if ($item['ERROR_MESSAGES'])
 					{
@@ -257,6 +217,16 @@ class CRestConfigurationExportComponent extends CBitrixComponent implements Cont
 					if ($item['ERROR_ACTION'])
 					{
 						$result['errorsNotice'][] = $item['ERROR_ACTION'];
+					}
+					if (isset($item['FILES']) && is_array($item['FILES']))
+					{
+						foreach ($item['FILES'] as $file)
+						{
+							if(isset($file['ID']))
+							{
+								$structure->saveFile($file['ID'], $file);
+							}
+						}
 					}
 
 					$result['next'] = $item['NEXT'];
@@ -269,6 +239,44 @@ class CRestConfigurationExportComponent extends CBitrixComponent implements Cont
 			$result['next'] = false;
 		}
 
+		return $result;
+	}
+
+	public function loadManifestAction()
+	{
+		$result = [
+			'next' => false
+		];
+
+		if($this->checkRequiredParams())
+		{
+			$request = Application::getInstance()->getContext()->getRequest();
+			$step = intVal($request->getPost("step"));
+			$next = htmlspecialcharsbx($request->getPost("next"));
+			$items = Manifest::callEventInit(
+				$this->arParams['MANIFEST_CODE'],
+				[
+					'TYPE' => 'EXPORT',
+					'STEP' => $step,
+					'NEXT' => $next,
+					'ITEM_CODE' => $this->arParams['ITEM_CODE'],
+					'CONTEXT_USER' => $this->getContext()
+				]
+			);
+			foreach ($items as $item)
+			{
+				if ($item['ERROR_MESSAGES'])
+				{
+					$result['errors'][] = $item['ERROR_MESSAGES'];
+				}
+				if ($item['ERROR_ACTION'])
+				{
+					$result['errorsNotice'][] = $item['ERROR_ACTION'];
+				}
+
+				$result['next'] = $item['NEXT'];
+			}
+		}
 		return $result;
 	}
 
@@ -309,6 +317,15 @@ class CRestConfigurationExportComponent extends CBitrixComponent implements Cont
 				],
 				'postfilters' => [
 
+				]
+			],
+			'loadManifest' => [
+				'prefilters' => [
+					new ActionFilter\Authentication(),
+					new ActionFilter\HttpMethod(
+						[ActionFilter\HttpMethod::METHOD_POST]
+					),
+					new ActionFilter\Csrf()
 				]
 			]
 		];

@@ -34,6 +34,7 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 			);
 
 			$code = $this->arParams['CODE'];
+			$this->getRemoteTemplates = true;
 			$demo = $this->getDemoPage($code);
 
 			$this->instagramUrlRegister();//@tmp
@@ -43,21 +44,20 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 				// check if SITE GROUP
 				if (
 					isset($demo[$code]['DATA']['site_group']) &&
-					$demo[$code]['DATA']['site_group'] == 'Y'
+					$demo[$code]['DATA']['site_group'] === 'Y'
 				)
 				{
 					$this->arResult['SITE_GROUP'] = $demo[$code]['DATA']['site_group_items'];
-					
-					$code = $this->arResult['SITE_GROUP'][0]['page']
-							? $this->arResult['SITE_GROUP'][0]['code'] . '/' . $this->arResult['SITE_GROUP'][0]['page']
-							: $this->arResult['SITE_GROUP'][0]['code'];
-					
 					foreach ($this->arResult['SITE_GROUP'] as $i => $site)
 					{
 						$this->arResult['SITE_GROUP'][$i]['url'] = $this->getUrlPreview(
-							$site['page'] ? $site['code'] . '/' . $site['page'] : $site['code']
+							$site['code'],
+							$demo[$site['code']]
 						);
 					}
+
+					// for first load preview
+					$code = $this->arResult['SITE_GROUP'][0]['code'] . '/' . $this->arResult['SITE_GROUP'][0]['page'];
 				}
 				
 				if ($demo[$code]['REST'] > 0)
@@ -70,7 +70,7 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 				$this->arResult['EXTERNAL_IMPORT'] = [];
 				$this->arResult['COLORS'] = \Bitrix\Landing\Hook\Page\Theme::getColorCodes();
 				$this->arResult['TEMPLATE'] = $demo[$code];
-				$this->arResult['TEMPLATE']['URL_PREVIEW'] = $this->getUrlPreview($code);
+				$this->arResult['TEMPLATE']['URL_PREVIEW'] = $this->getUrlPreview($code, $demo[$code]);
 				// first color by default
 				$this->arResult['THEME_CURRENT'] = array_shift(array_keys($this->arResult['COLORS']));
 

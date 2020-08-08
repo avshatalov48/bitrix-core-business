@@ -1,6 +1,8 @@
 <?php
 IncludeModuleLangFile(__FILE__);
 
+if (!defined("T_BAD_CHARACTER")) define("T_BAD_CHARACTER", 401);
+
 class CVariableDeclare
 {
 	public $line = 0;
@@ -335,7 +337,10 @@ class CVulnScanner
 
 	private function dependencyHave($tokens, $type)
 	{
-
+		if (!is_array($tokens))
+		{
+			return false;
+		}
 		for ($i = 1, $tokens_count = count($tokens) - 1; $i < $tokens_count; $i++)
 		{
 			if(is_array($tokens[$i]))

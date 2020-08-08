@@ -17,17 +17,17 @@ if (is_array($arResult["RESULT"]))
 			if (array_key_exists('DELIVERY_DISCOUNT_PRICE', $arResult["RESULT"])
 					&& round($arResult["RESULT"]['DELIVERY_DISCOUNT_PRICE'], 4) != round($arResult["RESULT"]["VALUE"], 4))
 			{
-				echo (strlen($arResult["RESULT"]["DELIVERY_DISCOUNT_PRICE_FORMATED"]) > 0 ? $arResult["RESULT"]["DELIVERY_DISCOUNT_PRICE_FORMATED"] : number_format($arResult["RESULT"]["DELIVERY_DISCOUNT_PRICE"], 2, ',', ' '));
+				echo ($arResult["RESULT"]["DELIVERY_DISCOUNT_PRICE_FORMATED"] <> '' ? $arResult["RESULT"]["DELIVERY_DISCOUNT_PRICE_FORMATED"] : number_format($arResult["RESULT"]["DELIVERY_DISCOUNT_PRICE"], 2, ',', ' '));
 
-				echo "</b><br/><span style='text-decoration:line-through;color:#828282;'>".(strlen($arResult["RESULT"]["VALUE_FORMATTED"]) > 0 ? $arResult["RESULT"]["VALUE_FORMATTED"] : number_format($arResult["RESULT"]["VALUE"], 2, ',', ' '))."</span>";
+				echo "</b><br/><span style='text-decoration:line-through;color:#828282;'>".($arResult["RESULT"]["VALUE_FORMATTED"] <> '' ? $arResult["RESULT"]["VALUE_FORMATTED"] : number_format($arResult["RESULT"]["VALUE"], 2, ',', ' '))."</span>";
 			}
 			else
 			{
-				echo (strlen($arResult["RESULT"]["VALUE_FORMATTED"]) > 0 ? $arResult["RESULT"]["VALUE_FORMATTED"] : number_format($arResult["RESULT"]["VALUE"], 2, ',', ' '))."</b>";
+				echo ($arResult["RESULT"]["VALUE_FORMATTED"] <> '' ? $arResult["RESULT"]["VALUE_FORMATTED"] : number_format($arResult["RESULT"]["VALUE"], 2, ',', ' '))."</b>";
 			}
 			echo "<br />";
 
-			if (strlen($arResult["RESULT"]["TRANSIT"]) > 0)
+			if ($arResult["RESULT"]["TRANSIT"] <> '')
 			{
 				echo '<br />';
 				echo GetMessage('SALE_SADC_TRANSIT').': <b>'.$arResult["RESULT"]["TRANSIT"].'</b>';

@@ -33,7 +33,7 @@
 }
 
 .main-user-consent-request-popup-header {
-	margin: 0 0 30px 0;
+	margin: 0 0 10px 0;
 	font: normal 18px "Helvetica Neue", Arial, Helvetica, sans-serif;
 	color: #000;
 	text-align: left;
@@ -101,14 +101,27 @@
 }
 
 .main-user-consent-request-popup-text {
-	padding: 5px 10px;
-	width: 100%;
-	height: 130px;
 	border: 1px solid #999;
-	background: #fff;
-	box-sizing: border-box;
-	outline: none;
-	-moz-appearance: none;
+	overflow: auto;
+	padding: 8px;
+	width: 600px;
+	text-align: left;
+	color: rgb(84, 84, 84);
+}
+
+.main-user-consent-request-popup-link {
+	height: 130px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+}
+.main-user-consent-request-popup-link a {
+	display: block;
+	margin: 20px 0 0 0;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	max-width: 260px;
 }
 
 /** LOADER **/
@@ -157,10 +170,12 @@
 }
 
 .main-user-consent-request-announce{
-	cursor: pointer;
 	color: #333;
 	font-size:13px;
 	line-height: 15px;
+}
+.main-user-consent-request-announce-link{
+	cursor: pointer;
 }
 
 @keyframes rotate {
@@ -186,7 +201,11 @@
 		max-width: 590px;
 	}
 
-	.main-user-consent-request-popup-text {
+	.main-user-consent-request-popup-text,
+	.main-user-consent-request-popup-link {
 		height: 240px;
+	}
+	.main-user-consent-request-popup-link a {
+		max-width: 200px;
 	}
 }

@@ -46,7 +46,7 @@ while(list($keyL, $arrS) = each($arrLegend))
 	{
 		$arr[] = array("COLOR"=> $arrS["COLOR"], "COUNTER" => $arrS[$counter_type]);
 	}
-	elseif (strlen($diagram_type)<=0)
+	elseif ($diagram_type == '')
 	{
 		$arr[] = array("COLOR"=> $arrS["COLOR"], "COUNTER" => $arrS[$counter_type]);
 	}

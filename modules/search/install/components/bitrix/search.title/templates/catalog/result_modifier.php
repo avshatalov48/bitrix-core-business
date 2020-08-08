@@ -23,7 +23,7 @@ foreach($arResult["CATEGORIES"] as $category_id => $arCategory)
 			$arResult["SEARCH"][] = &$arResult["CATEGORIES"][$category_id]["ITEMS"][$i];
 			if (
 				$arItem["MODULE_ID"] == "iblock"
-				&& substr($arItem["ITEM_ID"], 0, 1) !== "S"
+				&& mb_substr($arItem["ITEM_ID"], 0, 1) !== "S"
 			)
 			{
 				if ($arCatalogs === false)

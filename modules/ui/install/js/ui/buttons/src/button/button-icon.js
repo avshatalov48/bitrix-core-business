@@ -35,4 +35,6 @@ export default class ButtonIcon
 	static CLOUD = 'ui-btn-icon-cloud';
 	static EDIT = 'ui-btn-icon-edit';
 	static SHARE = 'ui-btn-icon-share';
+	static ANGLE_UP = 'ui-btn-icon-angle-up';
+	static ANGLE_DOWN = 'ui-btn-icon-angle-down';
 }

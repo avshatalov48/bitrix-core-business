@@ -94,7 +94,9 @@
 			{
 				var ext = this.limits["uploadFileExt"].split(this.limits["uploadFileExt"].indexOf(",") >= 0 ? "," : " ");
 				for (ii = 0; ii < ext.length; ii++)
+				{
 					ext[ii] = (ext[ii].charAt(0) == "." ? ext[ii].substr(1) : ext[ii]);
+				}
 				this.limits["uploadFileExt"] = ext.join(",");
 			}
 			this.params = params;
@@ -145,22 +147,20 @@
 				this.queue = new BX.UploaderQueue(queueFields, this.limits, this);
 
 				this.params["doWeHaveStorage"] = true;
-				BX.addCustomEvent(this, 'onDone', BX.delegate(function(){
-					this.init(this.fileInput);
-				}, this));
+				BX.addCustomEvent(this, 'onDone', function(){ this.init(this.fileInput);}.bind(this));
 				if (!!this.params["filesInputName"] && this.params["pasteFileHashInForm"])
 				{
-					BX.addCustomEvent(this, 'onFileIsUploaded', BX.delegate(function(id, item){
+					BX.addCustomEvent(this, 'onFileIsUploaded', function(id, item){
 						var node = BX.create("INPUT", {props : { type : "hidden", name : this.params["filesInputName"] + '[]', value : item.hash }});
 						if (BX(params["placeHolder"]) && BX(id + 'Item'))
 							BX(id + 'Item').appendChild(node);
 						else if (this.fileInput !== null)
 							this.fileInput.parentNode.insertBefore(node, this.fileInput);
-					}, this));
+					}.bind(this));
 				}
 				if (this.params["deleteFileOnServer"])
 				{
-					BX.addCustomEvent(this, 'onFileIsDeleted', BX.delegate(function(id, file){
+					BX.addCustomEvent(this, 'onFileIsDeleted', function(id, file){
 						if (!!file && !!file.hash)
 						{
 							var data = this.preparePost({mode : "delete", hash : file.hash}, false);
@@ -169,25 +169,25 @@
 								data.data
 							);
 						}
-					}, this));
+					}.bind(this));
 				}
 				BX.onCustomEvent(window, "onUploaderIsInited", [this.id, this]);
 				this.uploads = new BX.UploaderUtils.Hash();
 				this.upload = null;
 				if (this.params["bindBeforeUnload"] === false)
 				{
-					this.__beforeunload = BX.delegate(this.terminate, this);
+					this.__beforeunload = this.terminate.bind(this);
 				}
 				else
 				{
-					this.__beforeunload = BX.delegate(function(e) {
+					this.__beforeunload = (function(e) {
 						if (this.uploads && this.uploads.length > 0)
 						{
 							var confirmationMessage = BX.message("UPLOADER_UPLOADING_ONBEFOREUNLOAD");
 							(e || window.event).returnValue = confirmationMessage;
 							return confirmationMessage;
 						}
-					}, this);
+					}).bind(this);
 				}
 				BX.bind(window, 'beforeunload', this.__beforeunload);
 			}
@@ -213,7 +213,7 @@
 
 				if (fileInput)
 				{
-					BX.bind(fileInput, "change", BX.delegate(this.onChange, this));
+					BX.bind(fileInput, "change", this.onChange.bind(this));
 					return true;
 				}
 			}
@@ -493,7 +493,7 @@
 			}
 			else if (status == statuses.error)
 			{
-				delete item.progress;
+				//delete item.progress;
 				this.queue.itFailed.setItem(item.id, item);
 				this.queue.itForUpload.removeItem(item.id);
 
@@ -503,7 +503,7 @@
 			}
 			else if (status == statuses.uploaded)
 			{
-				delete item.progress;
+				//delete item.progress;
 				this.queue.itUploaded.setItem(item.id, item);
 				this.queue.itForUpload.removeItem(item.id);
 
@@ -713,9 +713,9 @@
 		}
 		else
 		{
-			BX.addCustomEvent(this, "onFileIsUploaded", BX.delegate(function(id, item, data) {
+			BX.addCustomEvent(this, "onFileIsUploaded", (function(id, item, data) {
 				this.dealWithFile(item, data);
-			}, this));
+			}).bind(this));
 		}
 		this.streams = new BX.UploaderStreams(1, this);
 		return this;
@@ -749,7 +749,7 @@
 
 			if (fileInput)
 			{
-				BX.bind(fileInput, "change", BX.delegate(this.onChange, this));
+				BX.bind(fileInput, "change", this.onChange.bind(this));
 				return true;
 			}
 		}
@@ -977,7 +977,7 @@
 				this.log('initialize');
 			}
 		}
-		this._exec = BX.delegate(this.exec, this);
+		this._exec = this.exec.bind(this);
 	};
 
 	BX.UploaderPackage.prototype = {
@@ -1010,6 +1010,10 @@
 			{
 				if (data.hasOwnProperty(item))
 				{
+					if (item === "sessid")
+					{
+						data[item] = BX.bitrix_sessid();
+					}
 					BX.UploaderUtils.appendToForm(fd, item, data[item]);
 				}
 			}
@@ -1072,10 +1076,10 @@
 							data.props["restored"] = item["restored"];
 							delete item["restored"];
 						}
-						callback.push(BX.proxy(function() {
+						callback.push((function() {
 							item.uploadStatus = statuses.preparing;
 							this.adjustProcess(stream.id, item, statuses["new"], {});
-						}, this));
+						}).bind(this));
 					}
 					else
 					{
@@ -1122,7 +1126,7 @@
 					{
 						data.props = (data.props || {name : item.name });
 						data.files.push(file);
-						callback.push(BX.proxy(function(file) {
+						callback.push(function(file) {
 							file.uploadStatus = statuses.done;
 							if (item.file == file)
 							{
@@ -1133,14 +1137,14 @@
 								this.adjustProcess(stream.id, item, statuses.preparing, {canvas : item.thumb.thumb, package : 1, packages : 1});
 								item.thumb = null;
 							}
-						}, this))
+						}.bind(this));
 					}
 					else if (!(fileConstructor == '[object File]' || fileConstructor == '[object Blob]'))
 					{
 						data.props = (data.props || {name : item.name });
 						data.props["files"] = (data.props["files"] || {});
 						data.props["files"][(file["thumb"] || "default")] = file;
-						callback.push(BX.proxy(function(file) {
+						callback.push((function(file) {
 							file.uploadStatus = statuses.done;
 							if (item.file == file)
 							{
@@ -1151,7 +1155,7 @@
 								this.adjustProcess(stream.id, item, statuses.preparing, {canvas : item.thumb.thumb, package : 1, packages : 1});
 								item.thumb = null;
 							}
-						}, this))
+						}).bind(this));
 					}
 					else
 					{
@@ -1166,7 +1170,7 @@
 						{
 							data.files.push(blob);
 							data.props = (data.props || {name : item.name});
-							callback.push(BX.proxy(function(file, blob) {
+							callback.push((function(file, blob) {
 								BX.UploaderUtils.applyFilePart(file, blob);
 								if (item.file == file && blob == file)
 								{
@@ -1188,7 +1192,7 @@
 									if (item.thumb.uploadStatus == statuses.done)
 										item.thumb = null;
 								}
-							}, this));
+							}).bind(this));
 						}
 					}
 				}
@@ -1227,10 +1231,10 @@
 			if (this.status != statuses.ready)
 				return;
 			this.status = statuses.inprogress;
-			this.__onAllStreamsAreKilled = BX.delegate(function(streams, stream){
+			this.__onAllStreamsAreKilled = function(streams, stream){
 				this.stop();
 				BX.onCustomEvent(this, 'donePackage', [stream, this, this['lastResponse']]);
-			}, this);
+			}.bind(this);
 			BX.addCustomEvent(this.streams, 'onrelease', this.__onAllStreamsAreKilled);
 			BX.onCustomEvent(this, 'startPackage', [this, streams]);
 			this.log('start');
@@ -1291,9 +1295,9 @@
 			if (stream.pack != this)
 			{
 				this.log('stream is bound: ' + stream.id);
-				BX.addCustomEvent(stream, 'onsuccess', BX.delegate(this.doneStream, this));
-				BX.addCustomEvent(stream, 'onfailure', BX.delegate(this.errorStream, this));
-				BX.addCustomEvent(stream, 'onprogress', BX.delegate(this.progressStream, this));
+				BX.addCustomEvent(stream, 'onsuccess', this.doneStream.bind(this));
+				BX.addCustomEvent(stream, 'onfailure', this.errorStream.bind(this));
+				BX.addCustomEvent(stream, 'onprogress', this.progressStream.bind(this));
 			}
 			if (reinit !== false)
 			{
@@ -1668,10 +1672,10 @@
 		this.id = 'stream' + _id;
 		this._id = _id;
 		this.manager = streamsManager;
-		this._onsuccess = BX.delegate(this.onsuccess, this);
-		this._onfailure = BX.delegate(this.onfailure, this);
-		this._onerror = BX.delegate(this.onerror, this);
-		this._onprogress = BX.delegate(this.onprogress, this);
+		this._onsuccess = this.onsuccess.bind(this);
+		this._onfailure = this.onfailure.bind(this);
+		this._onerror = this.onerror.bind(this);
+		this._onprogress = this.onprogress.bind(this);
 	};
 	BX.UploaderStream.prototype =
 	{
@@ -1811,9 +1815,9 @@
 		this.packages = new BX.UploaderUtils.Hash();
 		this.uploaded = uploader;
 		this.timeout = 3000; // time between streams
-		this._exec = BX.delegate(this.exec, this);
-		this._restore = BX.delegate(this.restore, this);
-		this._kill = BX.delegate(this.kill, this);
+		this._exec = this.exec.bind(this);
+		this._restore = this.restore.bind(this);
+		this._kill = this.kill.bind(this);
 		this.count = Math.min(5, (count > 1 ? count : 1));
 		this.status = statuses.ready;
 

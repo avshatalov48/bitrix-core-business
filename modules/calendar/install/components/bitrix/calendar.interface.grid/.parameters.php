@@ -25,30 +25,5 @@ $arComponentParameters = array();
 // );
 
 //* * * * * * * * * * * Parameters  * * * * * * * * * * *
-$arParams = array();
-$arParams["CALENDAR_TYPE"] = Array(
-	"PARENT" => "BASE",
-	"NAME" => GetMessage("EC_TYPE"),
-	"TYPE" => "LIST",
-	"VALUES" => $arTypes
-);
-
-if (CCalendar::IsIntranetEnabled())
-{
-	$arParams["ALLOW_SUPERPOSE"] = Array(
-		"PARENT" => "BASE",
-		"NAME" => GetMessage("EC_P_ALLOW_SUPERPOSE"),
-		"TYPE" => "CHECKBOX",
-		"DEFAULT" => "Y"
-	);
-
-	$arParams["ALLOW_RES_MEETING"] = Array(
-		"PARENT" => "BASE",
-		"NAME" => GetMessage("EC_P_ALLOW_RES_MEETING"),
-		"TYPE" => "CHECKBOX",
-		"DEFAULT" => "Y"
-	);
-}
-
-$arComponentParameters["PARAMETERS"] = $arParams;
+$arComponentParameters["PARAMETERS"] = [];
 ?>

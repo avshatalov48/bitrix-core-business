@@ -21,6 +21,7 @@
 		this.sectionController = new window.BXEventCalendar.SectionController(this, data, config);
 		this.entryController = new window.BXEventCalendar.EntryController(this, data);
 		this.currentViewName = this.util.getUserOption(this.viewOption) || this.DEFAULT_VIEW;
+		BX.Calendar.CalendarSectionManager.setNewEntrySectionId(this.sectionController.getCurrentSection().id);
 
 		this.requests = {};
 		this.currentUser = config.user;
@@ -45,6 +46,10 @@
 				}, this), 1000);
 			}
 		}
+
+		BX.addCustomEvent("onPullEvent-calendar", function(command, params)
+		{
+		});
 	}
 
 	Calendar.prototype = {
@@ -66,7 +71,8 @@
 
 				// Main views container
 				this.viewsCont = BX.create('DIV', {props: {className: 'calendar-views-container calendar-disable-select'}});
-				BX.bind(this.viewsCont, 'click', BX.proxy(this.handleViewsClick, this));
+				BX.bind(this.viewsCont, 'click', this.handleViewsClick.bind(this));
+
 				this.dragDrop = new window.BXEventCalendar.DragDrop(this);
 
 				if (this.util.isFilterEnabled() && !this.search.isFilterEmpty())
@@ -122,6 +128,34 @@
 						top.BX.loadExt('access');
 					}
 				}
+
+				BX.Event.EventEmitter.subscribe('BX.Calendar.EventEditForm:onSave', function(event)
+				{
+					if (event instanceof BX.Event.BaseEvent)
+					{
+						var data = event.getData();
+						if (data.options.recursionMode || data.responseData.reload)
+						{
+							this.reload();
+						}
+						else if (data.responseData && BX.Type.isArray(data.responseData.eventList))
+						{
+							this.entryController.handleEntriesList(data.responseData.eventList);
+							this.getView().displayEntries();
+						}
+					}
+				}.bind(this));
+
+				BX.Event.EventEmitter.subscribe('BX.Calendar.Entry:onChangeMeetingStatus', function(event)
+				{
+					if (event instanceof BX.Event.BaseEvent)
+					{
+						//var data = event.getData();
+						this.reload();
+					}
+				}.bind(this));
+
+
 			}
 		},
 
@@ -155,6 +189,20 @@
 					this.views.push(new window.BXEventCalendar.CalendarCustomView(this, customView));
 				}, this);
 			}
+
+			BX.addCustomEvent(this, 'keyup', function(params){
+
+				if (BX.Calendar && BX.Calendar.Util)
+				{
+					this.views.forEach(function(view){
+						if (view.getHotkey() && BX.Calendar.Util.getKeyCode(view.getHotkey()) === params.keyCode)
+						{
+							BX.Calendar.Util.sendAnalyticLabel({viewMode:'hotkey', viewType:view.getName()});
+							this.setView(view.getName(), {animation: true});
+						}
+					}, this);
+				}
+			}.bind(this));
 
 			BX.onCustomEvent(window, 'onCalendarBeforeBuildViews', [this.views, this]);
 			this.views.forEach(this.buildView, this);
@@ -226,20 +274,82 @@
 
 		buildViewSwitcher: function()
 		{
-			this.viewSwitcherCont = BX(this.id + '-view-switcher-container');
+			var views = [];
+			var currentViewMode = null;
+			this.views.forEach(function(view) {
+				views.push({
+					name: view.name,
+					text: view.title || view.name,
+					type: 'base',
+					dataset: null,
+					hotkey: view.getHotkey()
+				});
+			}, this);
 
-			var dropDownMode = !this.viewSwitcherCont;
-
-			if (dropDownMode)
+			if (BX.type.isArray(this.util.config.additionalViewModes))
 			{
-				this.viewSwitcherCont = this.topBlock.appendChild(BX.create('DIV', {props: {className: 'calendar-view-switcher-selector'}}));
+				this.util.config.additionalViewModes.forEach(function(view) {
+					views.push({
+						name: view.id,
+						text: BX.util.htmlspecialchars(view.label),
+						type: 'additional',
+						dataset: view
+					});
+					if (view.selected)
+					{
+						currentViewMode = view.id;
+					}
+				}, this);
 			}
 
-			this.viewSwitcher = new window.BXEventCalendar.ViewSwitcher({
-				calendar: this,
-				wrap: this.viewSwitcherCont,
-				dropDownMode: dropDownMode
+			this.viewSelector = new BX.Calendar.Controls.ViewSelector({
+				views: views,
+				currentView: this.getView(),
+				currentViewMode: currentViewMode
 			});
+
+			this.viewSelector.subscribe('onChange', function(event)
+			{
+				var data = event.getData();
+				if (data && data.name)
+				{
+					if (data.type === 'base')
+					{
+						this.setView(data.name, {animation: true});
+						BX.Calendar.Util.sendAnalyticLabel({viewMode:'selector',viewType:data.name});
+					}
+					else if (data.type === 'additional')
+					{
+						this.triggerEvent('changeViewMode', data.dataset);
+					}
+				}
+			}.bind(this));
+			this.topBlock.appendChild(this.viewSelector.getOuterWrap());
+
+
+			this.lineViewSelectorWrap = BX(this.id + '-view-switcher-container');
+			if (this.lineViewSelectorWrap)
+			{
+				this.lineViewSelector = new BX.Calendar.Controls.LineViewSelector({
+					views: views,
+					currentView: this.getView(),
+					currentViewMode: currentViewMode
+				});
+				this.lineViewSelectorWrap.appendChild(this.lineViewSelector.getOuterWrap());
+
+				this.lineViewSelector.subscribe('onChange', function(event)
+				{
+					var data = event.getData();
+					if (data && data.name)
+					{
+						if (data.type === 'base')
+						{
+							this.setView(data.name, {animation: true});
+							BX.Calendar.Util.sendAnalyticLabel({viewMode:'topmenu', viewType:data.name});
+						}
+					}
+				}.bind(this));
+			}
 		},
 
 		setView: function(view, params)
@@ -255,6 +365,17 @@
 					currentView = this.getView(),
 					viewRange = currentView.getViewRange(),
 					newView = this.getView(view);
+
+				if (this.viewSelector)
+				{
+					this.viewSelector.setValue(newView);
+					this.viewSelector.closePopup();
+				}
+
+				if (this.lineViewSelector)
+				{
+					this.lineViewSelector.setValue(newView);
+				}
 
 				if (newView && (view !== this.currentViewName || !currentView.getIsBuilt()))
 				{
@@ -413,13 +534,27 @@
 
 		displayError : function(str, bReloadPage)
 		{
+			if (BX.type.isArray(str) && str.length > 0)
+			{
+				var
+					errorMessage = '',
+					errors = str;
+				for (var i = 0; i < errors.length; i++)
+				{
+					errorMessage += errors[i].message + "\n";
+				}
+				str = errorMessage;
+			}
+
 			var _this = this;
 			setTimeout(function(){
 				if (!_this.bOnunload)
 				{
 					alert(str || '[Bitrix Calendar] Request error');
 					if (bReloadPage)
+					{
 						BX.reload();
+					}
 				}
 			}, 200);
 		},
@@ -525,8 +660,18 @@
 			this.keyHandlerEnabled = true;
 		},
 
-		isKeyHandlerEnabled: function()
+		isKeyHandlerEnabled: function(e)
 		{
+			var target = e.target || e.srcElement;
+
+			if (target && BX.Type.isDomNode(target))
+			{
+				if ({'INPUT':true,'TEXTAREA':true}[target.nodeName])
+				{
+					return false;
+				}
+			}
+
 			var res = this.keyHandlerEnabled
 				&& !BX.hasClass(document.body, 'bx-im-fullscreen-block-scroll')
 				&& !BX.hasClass(document.body, 'side-panel-disable-scrollbar');
@@ -536,7 +681,9 @@
 				var i, popups = document.body.querySelectorAll(".popup-window");
 				for (i = 0; i < popups.length; i++)
 				{
-					if (popups[i] && popups[i].style.display !== 'none')
+					if (popups[i]
+						&& popups[i].style.display !== 'none'
+						&& !BX.hasClass(popups[i], 'calendar-view-switcher-popup'))
 					{
 						res = false;
 						break;
@@ -549,7 +696,7 @@
 
 		keyUpHandler: function(e)
 		{
-			if (this.isKeyHandlerEnabled())
+			if (this.isKeyHandlerEnabled(e))
 			{
 				var
 					KEY_CODES = this.util.getKeyCodes(),
@@ -635,14 +782,23 @@
 					);
 				}
 
-				if (!this.util.readOnlyMode())
+				var addButtonWrap = BX(this.id + '-add-button-container');
+				if (!this.util.readOnlyMode() && BX.Type.isDomNode(addButtonWrap))
 				{
-					this.addButton = new window.BXEventCalendar.AddButton(
-						{
-							wrap: this.buttonsCont,
-							calendar: this
-						}
-					);
+					addButtonWrap.appendChild(new BX.Calendar.Controls.AddButton({
+						addEntry: function(){
+							BX.Calendar.EntryManager.openEditSlider({
+								type: this.util.type,
+								ownerId: this.util.ownerId,
+								userId: parseInt(this.currentUser.id)
+							});
+						}.bind(this),
+						addTask: this.showTasks ?
+							function(){
+								BX.SidePanel.Instance.open(this.util.getEditTaskPath(), {loader: "task-new-loader"});
+							}.bind(this)
+							: null
+					}).getWrap());
 				}
 			}
 		},
@@ -668,8 +824,12 @@
 
 		showStartUpEntry: function(startupEntry)
 		{
-			this.entryController.handleEntriesList(startupEntry, startupEntry['~userIndex']);
-			this.getView().showViewSlider({entry: new window.BXEventCalendar.Entry(this, startupEntry)});
+			BX.Calendar.EntryManager.openViewSlider(startupEntry.ID,
+				{
+					from: BX.Calendar.Util.parseDate(startupEntry['~CURRENT_DATE']),
+					timezoneOffset: startupEntry.TZ_OFFSET_FROM || null
+				}
+			);
 		},
 
 		isExternalMode: function()
@@ -709,11 +869,14 @@
 
 		loadCssList: function()
 		{
-			top.BX.loadCSS([
-				'/bitrix/components/bitrix/calendar.grid/templates/.default/style.css',
-				'/bitrix/js/calendar/new/calendar.css',
-				'/bitrix/js/calendar/cal-style.css'
-			]);
+			if (window.top && window.top.BX)
+			{
+				window.top.BX.loadCSS([
+					'/bitrix/components/bitrix/calendar.grid/templates/.default/style.css',
+					'/bitrix/js/calendar/new/calendar.css',
+					'/bitrix/js/calendar/cal-style.css'
+				]);
+			}
 		}
 	};
 

@@ -378,14 +378,31 @@ BX.adminSubList.prototype.Init = function()
 	this.MAIN_BUTTON_CANCEL = BX('cancel');
 	this.MAIN_BUTTON_SAVE_ADD = BX('save_and_add');
 
-	if (!this.MAIN_BUTTON_SAVE && !this.MAIN_BUTTON_APPLY && !this.MAIN_BUTTON_CANCEL && !this.MAIN_BUTTON_SAVE_ADD)
+	if (!(
+		BX.type.isElementNode(this.MAIN_BUTTON_SAVE)
+		&& BX.type.isElementNode(this.MAIN_BUTTON_APPLY)
+		&& BX.type.isElementNode(this.MAIN_BUTTON_CANCEL)
+		&& BX.type.isElementNode(this.MAIN_BUTTON_SAVE_ADD)
+	))
 	{
-		if (!!this.PARENT_FORM)
+		if (BX.type.isElementNode(this.PARENT_FORM))
 		{
 			this.MAIN_BUTTON_SAVE = BX.findChild(this.PARENT_FORM, { tag: 'input', attribute: { type: 'submit', name: 'save' }}, true, false);
+			if (!BX.type.isElementNode(this.MAIN_BUTTON_SAVE))
+			{
+				this.MAIN_BUTTON_SAVE = BX.findChild(this.PARENT_FORM, { tag: 'input', attribute: { type: 'button', name: 'save' }}, true, false);
+			}
 			this.MAIN_BUTTON_APPLY = BX.findChild(this.PARENT_FORM, { tag: 'input', attribute: { type: 'submit', name: 'apply' }}, true, false);
+			if (!BX.type.isElementNode(this.MAIN_BUTTON_APPLY))
+			{
+				this.MAIN_BUTTON_APPLY = BX.findChild(this.PARENT_FORM, { tag: 'input', attribute: { type: 'button', name: 'apply' }}, true, false);
+			}
 			this.MAIN_BUTTON_CANCEL = BX.findChild(this.PARENT_FORM, { tag: 'input', attribute: { type: 'button', name: 'cancel' }}, true, false);
 			this.MAIN_BUTTON_SAVE_ADD = BX.findChild(this.PARENT_FORM, { tag: 'input', attribute: { type: 'submit', name: 'save_and_add' }}, true, false);
+			if (!BX.type.isElementNode(this.MAIN_BUTTON_SAVE_ADD))
+			{
+				this.MAIN_BUTTON_SAVE_ADD = BX.findChild(this.PARENT_FORM, { tag: 'input', attribute: { type: 'button', name: 'save_and_add' }}, true, false);
+			}
 		}
 	}
 };
@@ -467,7 +484,14 @@ BX.adminSubList.prototype.SaveSettings =  function()
 		BX.closeWait();
 		this.GetAdminList(
 			url,
-			function(){top.BX.WindowManager.Get().Close();}
+			function(){
+				var wnd = top.BX.WindowManager.Get() || BX.WindowManager.Get();
+				if (wnd !== null)
+				{
+					wnd.Close();
+				}
+				wnd = null;
+			}
 		);
 	}, this));
 };
@@ -480,7 +504,14 @@ BX.adminSubList.prototype.DeleteSettings = function(bCommon)
 		BX.closeWait();
 		this.GetAdminList(
 			url,
-			function(){top.BX.WindowManager.Get().Close();}
+			function(){
+				var wnd = top.BX.WindowManager.Get() || BX.WindowManager.Get();
+				if (wnd !== null)
+				{
+					wnd.Close();
+				}
+				wnd = null;
+			}
 		);
 	}, this));
 };

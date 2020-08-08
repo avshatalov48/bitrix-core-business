@@ -2,6 +2,9 @@ import Type from './type';
 
 const isError = Symbol.for('BX.BaseError.isError');
 
+/**
+ * @memberOf BX
+ */
 export default class BaseError
 {
 	constructor(message?: string, code?: string, customData?: any)

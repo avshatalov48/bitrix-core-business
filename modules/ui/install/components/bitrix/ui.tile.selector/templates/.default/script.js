@@ -56,7 +56,8 @@
 		search: 'search',
 		input: 'input',
 		searcherCategoryClick: 'popup-category-click',
-		searcherItemClick: 'popup-item-click'
+		searcherItemClick: 'popup-item-click',
+		searcherInit: 'popup-search-init',
 	};
 	TileSelector.getById = function (id)
 	{
@@ -175,6 +176,7 @@
 				'context': this.context,
 				'title': title || ''
 			});
+			this.fire(this.events.searcherInit, [this.searcher]);
 		}
 
 		this.searcher.filterByName();
@@ -901,18 +903,25 @@
 			return;
 		}
 
-		this.popup = BX.PopupWindowManager.create(
+		this.popup = BX.Main.PopupManager.create(
 			this.id,
 			this.context,
 			{
 				width: 620,
-				height: 225,
+				height: 290,
 				autoHide: true,
 				lightShadow: true,
 				closeByEsc: true,
-				closeIcon: true,
+				closeIcon: false,
 				offsetLeft: 40,
-				angle: true
+				angle: true,
+				buttons: [
+					new BX.UI.CloseButton({
+						onclick: function() {
+							this.popup.close();
+						}.bind(this),
+					})
+				]
 			}
 		);
 

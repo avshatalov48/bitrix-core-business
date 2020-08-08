@@ -8,7 +8,7 @@
 				<img class="landing-block-node-card-icon d-block g-height-20 g-left-2 g-relative-centered--y mr-auto g-ml-37"
 					 src="https://cdn.bitrix24.site/bitrix/images/landing/play-black.png"/>
 			</a>
-			<div class="landing-block-node-text lead d-block g-color-white g-font-weight-400 g-font-size-22">
+			<div class="landing-block-node-text lead d-block g-color-white g-font-size-22">
 				Watch Company24 Video
 			</div>
 		</div>

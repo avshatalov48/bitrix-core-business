@@ -20,23 +20,23 @@ if (!CModule::IncludeModule("socialnetwork"))
 
 $arResult["IS_IFRAME"] = ($_REQUEST["IFRAME"] == "Y");
 
-$arParams["GROUP_ID"] = IntVal($arParams["GROUP_ID"]);
+$arParams["GROUP_ID"] = intval($arParams["GROUP_ID"]);
 
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 
-if (strLen($arParams["USER_VAR"]) <= 0)
+if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if (strLen($arParams["GROUP_VAR"]) <= 0)
+if ($arParams["GROUP_VAR"] == '')
 	$arParams["GROUP_VAR"] = "group_id";
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if (strlen($arParams["PATH_TO_USER"]) <= 0)
+if ($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_GROUP"] = trim($arParams["PATH_TO_GROUP"]);
-if (strlen($arParams["PATH_TO_GROUP"]) <= 0)
+if ($arParams["PATH_TO_GROUP"] == '')
 	$arParams["PATH_TO_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#");
 
 if (!$USER->IsAuthorized())
@@ -107,14 +107,14 @@ else
 
 				if (
 					$_SERVER["REQUEST_METHOD"] == "POST"
-					&& strlen($_POST["save"]) > 0
+					&& $_POST["save"] <> ''
 					&& check_bitrix_sessid()
 				)
 				{
 					$errorMessage = "";
 
 					if (
-						(strlen($errorMessage) <= 0) 
+						($errorMessage == '')
 						&& !CSocNetGroup::Delete($arResult["Group"]["ID"]) 
 						&& ($e = $APPLICATION->GetException())
 					)
@@ -126,16 +126,16 @@ else
 					{
 						$APPLICATION->RestartBuffer();
 						echo CUtil::PhpToJsObject(array(
-							'MESSAGE' => (strlen($errorMessage) > 0 ? 'ERROR' : 'SUCCESS'),
-							'ERROR_MESSAGE' => (strlen($errorMessage) > 0 ? $errorMessage : ''),
-							'URL' => (strlen($errorMessage) > 0 ? '' : $arResult["Urls"]["GroupsList"])
+							'MESSAGE' => ($errorMessage <> '' ? 'ERROR' : 'SUCCESS'),
+							'ERROR_MESSAGE' => ($errorMessage <> '' ? $errorMessage : ''),
+							'URL' => ($errorMessage <> '' ? '' : $arResult["Urls"]["GroupsList"])
 						));
 						require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");
 						die();
 					}
 					else
 					{
-						if (strlen($errorMessage) > 0)
+						if ($errorMessage <> '')
 						{
 							$arResult["ErrorMessage"] = $errorMessage;
 						}

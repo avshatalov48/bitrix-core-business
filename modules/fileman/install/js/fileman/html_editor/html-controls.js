@@ -4,6 +4,7 @@
  * Time: 4:23
  *
  */
+
 ;(function() {
 function __run()
 {
@@ -5018,29 +5019,35 @@ function __run()
 		else
 		{
 			this.StartWaiting();
-			this.editor.Request({
-				getData: this.editor.GetReqData('video_oembed',
-					{
-						video_source: value
-					}
-				),
-				handler: function(res)
+
+			BX.ajax.runAction('fileman.api.htmleditorajax.getVideoOembed', {
+				data: {
+					video_source: value
+				}
+			}).then(
+				// Success
+				function(response)
 				{
-					if (res.result)
+					this.StopWaiting();
+					if (response.data.result)
 					{
-						_this.StopWaiting();
-						_this.ShowVideoParams(res.data);
+						this.ShowVideoParams(response.data.data);
 					}
 					else
 					{
-						_this.StopWaiting();
-						if (res.error !== '')
+						if (response.data.error !== '')
 						{
-							_this.ShowVideoParams(false, res.error);
+							this.ShowVideoParams(false, response.data.error);
 						}
 					}
-				}
-			});
+				}.bind(this),
+				// Failure
+				function (response)
+				{
+					this.StopWaiting();
+					this.ShowVideoParams(false);
+				}.bind(this)
+			);
 		}
 	};
 

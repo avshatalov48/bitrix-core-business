@@ -130,7 +130,7 @@ elseif($type=="listen")
 		{
 			usleep(1000);
 
-			if(intVal(time() - $startExecTime) > $max_execution_time)
+			if(intval(time() - $startExecTime) > $max_execution_time)
 			{
 				break;
 			}

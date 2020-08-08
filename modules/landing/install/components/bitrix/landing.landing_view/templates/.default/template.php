@@ -21,6 +21,7 @@ Extension::load([
 	'ui.buttons.icons',
 	'ui.alerts',
 	'ui.fonts.opensans',
+	'ui.info-helper',
 	'sidepanel',
 	'popup_menu',
 	'marketplace',
@@ -176,6 +177,11 @@ if (!$request->offsetExists('landing_mode')):
 	$startChain = $component->getMessageType('LANDING_TPL_START_PAGE');
 	$lightMode = $arParams['PANEL_LIGHT_MODE'] == 'Y';
 	$panelModifier = $lightMode ? ' landing-ui-panel-top-light' : '';
+	// informer
+	if (\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24'))
+	{
+		$APPLICATION->includeComponent('bitrix:ui.info.helper', '', []);
+	}
 	?>
 	<div class="landing-ui-panel landing-ui-panel-top<?= $panelModifier;?>">
 		<div class="landing-ui-panel-top-logo">
@@ -309,19 +315,14 @@ if ($request->offsetExists('landing_mode'))
 			<?= \CUtil::phpToJSObject($arResult['TOP_PANEL_CONFIG']);?>
 		);
 	</script>
-	<?
-
-    if ($request->get('forceLoad') == 'true')
-    {
-    ?>
-        <script type="text/javascript">
-            BX.namespace('BX.Landing');
-            BX.Landing.Block = function() {};
-            BX.Landing.Main = function() {};
-            BX.Landing.Main.createInstance = function() {};
-        </script>
-    <?
-    }
+	<?if ($request->get('forceLoad') == 'true'):?>
+		<script type="text/javascript">
+			BX.namespace('BX.Landing');
+			BX.Landing.Block = function() {};
+			BX.Landing.Main = function() {};
+			BX.Landing.Main.createInstance = function() {};
+		</script>
+	<?endif;
 }
 // top panel
 else
@@ -347,6 +348,36 @@ else
 	Manager::setPageTitle(
 		\htmlspecialcharsbx($arResult['LANDING']->getTitle())
 	);
+	// available view
+	// @todo: needs to be refactored
+	$check = Manager::checkFeature(
+		Manager::FEATURE_ALLOW_VIEW_PAGE,
+		['ID' => $arResult['LANDING']->getSiteId()]
+	);
+	if (!$check)
+	{
+		Loc::loadMessages(
+			Manager::getDocRoot() . '/bitrix/components/bitrix/landing.start/templates/.default/template.php'
+		);
+		?>
+		<script>
+			BX.message({
+				LANDING_TPL_JS_PAY_TARIFF_TITLE: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_JS_PAY_TARIFF_TITLE'));?>',
+				LANDING_TPL_JS_PAY_TARIFF: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_JS_PAY_TARIFF'));?>'
+			});
+			BX.ready(function()
+			{
+				if (typeof BX.Landing.PaymentAlertShow !== 'undefined')
+				{
+					BX.Landing.PaymentAlertShow({
+						message: '<?= \CUtil::jsEscape($component->getMessageType('LANDING_ERROR_NOT_ALLOW_VIEW_BY_PLAN'));?>',
+						type: 'alert'
+					});
+				}
+			});
+		</script>
+		<?
+	}
 	?>
 	<style type="text/css">
 		html, body {
@@ -369,18 +400,18 @@ else
 		});
 	</script>
 	<div class="landing-ui-view-wrapper">
-        <div class="landing-editor-loader-container"></div>
-        <div class="landing-editor-required-user-action">
-            <h3></h3>
-            <p></p>
-            <div>
-                <a href="" class="ui-btn"></a>
-            </div>
-        </div>
-        <div class="landing-ui-view-iframe-wrapper">
-            <iframe src="<?= $urls['landingFrame']->getUri();?>" class="landing-ui-view" id="landing-view-frame" allowfullscreen></iframe>
-        </div>
-	</div>
+		<div class="landing-editor-loader-container"></div>
+			<div class="landing-editor-required-user-action">
+				<h3></h3>
+				<p></p>
+				<div>
+					<a href="" class="ui-btn"></a>
+				</div>
+			</div>
+			<div class="landing-ui-view-iframe-wrapper">
+				<iframe src="<?= $urls['landingFrame']->getUri();?>" class="landing-ui-view" id="landing-view-frame" allowfullscreen></iframe>
+			</div>
+		</div>
 	</div>
 <?
 }

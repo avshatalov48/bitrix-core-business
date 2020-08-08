@@ -38,7 +38,7 @@ class Seo
 			$currentVal = $application->getProperty($key);
 			if (is_string($currentVal))
 			{
-				self::$storedKeys[$key] = $currentVal;
+				self::$storedKeys[$key] = htmlspecialcharsback($currentVal);
 			}
 		}
 	}
@@ -56,7 +56,7 @@ class Seo
 			$newVal = $application->getProperty($key);
 			if (is_string($newVal) && $newVal != $val)
 			{
-				self::$changedKeys[$key] = $newVal;
+				self::$changedKeys[$key] = htmlspecialcharsback($newVal);
 			}
 		}
 	}

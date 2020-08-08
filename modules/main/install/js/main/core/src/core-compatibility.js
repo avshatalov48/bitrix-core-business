@@ -13,13 +13,16 @@ import * as debugNs from './lib/runtime/debug';
 import {isReady} from './lib/event/ready';
 import getElement from './internal/get-element';
 import getWindow from './internal/get-window';
-import EventEmitter from "./lib/event/event-emitter";
-import BaseEvent from "./lib/event/base-event";
+import EventEmitter from './lib/event/event-emitter';
+import BaseEvent from './lib/event/base-event';
 
 // BX.*
 export const {getClass, namespace} = Reflection;
 export const message = messageFunction;
 
+/**
+ * @memberOf BX
+ */
 export const {
 	replace,
 	remove,

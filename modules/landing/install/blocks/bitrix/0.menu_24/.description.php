@@ -8,9 +8,8 @@ use \Bitrix\Main\Localization\Loc;
 
 return array(
 	'block' => array(
-		// 'name' => Loc::getMessage('LANDING_BLOCK_MENU_24-NAME'),
+		'name' => Loc::getMessage('LANDING_BLOCK_MENU_24-NAME'),
 		'section' => array('sidebar', 'menu'),
-		'type' => ['knowledge', 'group'],
 		'dynamic' => false,
 		'subtype' => 'menu',
 		'subtype_params' => array(
@@ -18,39 +17,38 @@ return array(
 		),
 		'version' => '20.0.0', // old param for backward compatibility. Can used for old versions of module via repo. Do not delete!
 	),
-	'cards' => array(
-		'.landing-block-node-menu-item' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_MENU_24-LINK'),
-			'label' => array('.landing-block-node-menu-link-text'),
-		),
-	),
-	'nodes' => array(
-		'.landing-block-node-menu-link' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_MENU_24-LINK'),
-			'type' => 'link',
-			'group' => 'link',
-			'skipContent' => true,
-		),
-		'.landing-block-node-menu-link-text' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_MENU_24-TEXT'),
-			'type' => 'text',
-			'group' => 'link',
-			'allowInlineEdit' => false,
-			'textOnly' => true,
-		),
-	),
+
+	'menu' => [
+		'.landing-block-node-menu' => [
+			'item' => '.landing-block-node-menu-item',
+			'name' => Loc::getMessage('LANDING_BLOCK_MENU_24-NAVBAR'),
+			'root' => [
+				'ulClassName' => 'landing-block-node-menu g-menu-multilevel w-100 navbar-nav flex-column list-unstyled js-scroll-nav',
+				'liClassName' => 'landing-block-node-menu-item nav-item',
+				'aClassName' => 'landing-block-node-menu-link nav-link row no-gutters align-items-center g-text-decoration-none--hover rounded g-mx-5 g-px-25 g-py-8 g-rounded-25',
+			],
+			'children' => [
+				'ulClassName' => 'landing-block-node-menu navbar-nav g-menu-sublevel g-ml-20 flex-column list-unstyled js-scroll-nav',
+				'liClassName' => 'landing-block-node-menu-item nav-item',
+				'aClassName' => 'landing-block-node-menu-link nav-link row no-gutters align-items-center g-text-decoration-none--hover rounded g-mx-5 g-px-25 g-py-8 g-rounded-25',
+			],
+			'nodes' => [
+				'.landing-block-node-menu-link' => [
+					'name' => Loc::getMessage('LANDING_BLOCK_MENU_24-LINK'),
+					'type' => 'link',
+				],
+			],
+		],
+	],
+
 	'style' => array(
 		'block' => array(
 			'type' => ['block-default', 'block-border']
 		),
 		'nodes' => array(
-			'.landing-block-node-menu-link' => array(
-				'name' => Loc::getMessage('LANDING_BLOCK_MENU_24-LINK'),
-				'type' => ['typo-simple', 'row-align']
-			),
 			'.landing-block-node-navbar' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_MENU_24-NAVBAR'),
-				'type' => ['navbar-bg'],
+				'type' => ['navbar-color', 'navbar-bg', 'navbar-color-hover', 'navbar-bg-hover', 'navbar-marker', 'typo-simple'],
 			),
 		),
 	),

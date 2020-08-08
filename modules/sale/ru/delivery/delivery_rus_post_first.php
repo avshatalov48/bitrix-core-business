@@ -179,7 +179,7 @@ class CDeliveryRusPostFirst
 			COption::RemoveOption('sale', 'delivery_rus_post_first_tarifs');
 
 			foreach($result as $key => $value)
-				if(substr($key, 0, 6) == 'TARIF_' || substr($key, 0, 8) == 'service_')
+				if(mb_substr($key, 0, 6) == 'TARIF_' || mb_substr($key, 0, 8) == 'service_')
 					unset($result[$key]);
 		}
 
@@ -193,7 +193,7 @@ class CDeliveryRusPostFirst
 
 		foreach ($arSettings as $key => $value)
 		{
-			if (strlen($value) > 0)
+			if ($value <> '')
 				$arSettings[$key] = $value;
 			else
 				unset($arSettings[$key]);
@@ -292,8 +292,8 @@ class CDeliveryRusPostFirst
 		while ($arRes = $csvFile->Fetch())
 		{
 			if(
-				(strlen($regionCodeFromCode) > 0 && in_array($regionCodeFromCode, $arRes))
-				|| (strlen($regionCodeFromName) > 0 && in_array($regionCodeFromName, $arRes))
+				($regionCodeFromCode <> '' && in_array($regionCodeFromCode, $arRes))
+				|| ($regionCodeFromName <> '' && in_array($regionCodeFromName, $arRes))
 			)
 			{
 				$tarifNumber = $arRes[$COL_TARIF_NUM];
@@ -414,7 +414,7 @@ class CDeliveryRusPostFirst
 
 	protected static function getRegionCodeByOldName($regionLangName)
 	{
-		if(strlen($regionLangName) <= 0)
+		if($regionLangName == '')
 			return "";
 
 		static $data = array();

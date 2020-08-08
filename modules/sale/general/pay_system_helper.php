@@ -6,7 +6,7 @@ class CSalePaySystemsHelper
 {
 	private static function getTarifClassName($actionFile)
 	{
-		if(strlen($actionFile) <= 0 )
+		if($actionFile == '' )
 			return '';
 
 		static $arClassNames = array();
@@ -31,7 +31,7 @@ class CSalePaySystemsHelper
 
 		$PSTarifClassName = self::getTarifClassName($actionFile);
 
-		if(strlen($PSTarifClassName) > 0 && is_callable($PSTarifClassName.'::prepareToField'))
+		if($PSTarifClassName <> '' && is_callable($PSTarifClassName.'::prepareToField'))
 			$arResult = call_user_func($PSTarifClassName.'::prepareToField', $arTarif);
 
 		return $arResult;
@@ -42,7 +42,7 @@ class CSalePaySystemsHelper
 		$arTarif = array();
 		$PSTarifClassName = self::getTarifClassName($actionFile);
 
-		if(strlen($PSTarifClassName) > 0 && is_callable($PSTarifClassName.'::getStructure'))
+		if($PSTarifClassName <> '' && is_callable($PSTarifClassName.'::getStructure'))
 			$arTarif = call_user_func($PSTarifClassName.'::getStructure', $psId, $persId);
 
 		return $arTarif;
@@ -59,7 +59,7 @@ class CSalePaySystemsHelper
 
 		$PSTarifClassName = self::getTarifClassName($arPaySystem["PSA_ACTION_FILE"]);
 
-		if(strlen($PSTarifClassName) > 0 && is_callable($PSTarifClassName.'::getPrice'))
+		if($PSTarifClassName <> '' && is_callable($PSTarifClassName.'::getPrice'))
 			$result = call_user_func_array(
 							$PSTarifClassName.'::getPrice',
 							array(
@@ -77,7 +77,7 @@ class CSalePaySystemsHelper
 	{
 		$PSTarifClassName = self::getTarifClassName($actionFile);
 
-		if(strlen($PSTarifClassName) > 0 && is_callable($PSTarifClassName.'::checkCompability'))
+		if($PSTarifClassName <> '' && is_callable($PSTarifClassName.'::checkCompability'))
 		{
 			$result = call_user_func_array(
 							$PSTarifClassName.'::checkCompability',
@@ -122,15 +122,15 @@ class CSalePaySystemsHelper
 		if (preg_match("#<title_".LANGUAGE_ID."[^>]*>([^<]*?)</title_".LANGUAGE_ID."[\s]*>#i", $contents, $arMatches))
 		{
 			$arMatches[1] = Trim($arMatches[1]);
-			if (strlen($arMatches[1])>0) $rep_title = $arMatches[1];
+			if ($arMatches[1] <> '') $rep_title = $arMatches[1];
 		}
-		if (strlen($rep_title)<=0
+		if ($rep_title == ''
 			&& preg_match("#<title[^>]*>([^<]*?)</title[\s]*>#i", $contents, $arMatches))
 		{
 			$arMatches[1] = Trim($arMatches[1]);
-			if (strlen($arMatches[1])>0) $rep_title = $arMatches[1];
+			if ($arMatches[1] <> '') $rep_title = $arMatches[1];
 		}
-		if (strlen($rep_title)<=0)
+		if ($rep_title == '')
 			$rep_title = basename($strPathFull, ".php");
 
 		return $rep_title;

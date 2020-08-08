@@ -5,6 +5,8 @@ namespace Bitrix\Landing\Assets;
 use \Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
 use Bitrix\Main;
+use Bitrix\Landing;
+use Bitrix\Main\IO\File;
 
 Loc::loadMessages(__FILE__);
 
@@ -124,7 +126,10 @@ class Manager
 			self::REGISTERED_KEY_CODE => $code,
 			self::REGISTERED_KEY_LOCATION => $location,
 		];
-		\CJSCore::markExtensionLoaded($code);
+		if($code !== 'main.core' && $code !== 'core')
+		{
+			\CJSCore::markExtensionLoaded($code);
+		}
 	}
 
 
@@ -245,10 +250,11 @@ class Manager
 				{
 					foreach ($asset[$type] as $path)
 					{
-						if (\CMain::IsExternalLink($path))
+						if (\CMain::isExternalLink($path))
 						{
 							$this->resources->addString($this->createStringFromPath($path, $type));
 						}
+						// todo: check is file exist
 						else if (self::detectType($path))
 						{
 							$this->resources->add($path, $type, $location);
@@ -262,7 +268,13 @@ class Manager
 					// preload fonts add immediately
 					foreach ($asset[$type] as $fontFile)
 					{
-						$this->resources->addString($this->createStringFromPath($fontFile, $type));
+						if (
+							!\CMain::isExternalLink($fontFile)
+							&& File::isFileExists(Landing\Manager::getDocRoot() . $fontFile)
+						)
+						{
+							$this->resources->addString($this->createStringFromPath($fontFile, $type));
+						}
 					}
 					break;
 				}
@@ -322,7 +334,7 @@ class Manager
 	public static function detectType(string $path): ?string
 	{
 		$path = parse_url($path)['path'];
-		$type = strtolower(substr(strrchr($path, '.'), 1));
+		$type = mb_strtolower(mb_substr(strrchr($path, '.'), 1));
 		switch ($type)
 		{
 			case 'js':
@@ -331,6 +343,9 @@ class Manager
 				return Types::TYPE_CSS;
 			case 'php':
 				return Types::TYPE_LANG;
+			case 'woff':
+			case 'woff2':
+				return Types::TYPE_FONT;
 			default:
 				return null;
 		}
@@ -350,7 +365,7 @@ class Manager
 		$linkType = '';
 		foreach ($available as $type => $value)
 		{
-			if (strpos($path, $type) !== false)
+			if (mb_strpos($path, $type) !== false)
 			{
 				$linkType = $value;
 				break;
@@ -361,6 +376,16 @@ class Manager
 	}
 
 	/**
+	 * Add asset string
+	 *
+	 * @param string $string
+	 */
+	public function addString(string $string): void
+	{
+		$this->resources->addString(trim($string));
+	}
+
+	/**
 	 * Add extensions on page
 	 * @param int $lid - ID of current landing.
 	 */
@@ -368,8 +393,10 @@ class Manager
 	{
 		if ($lid === 0)
 		{
-			trigger_error("You must to pass ID of current landing to the \Bitrix\Landing\Assets\Manager::setOutput",
-				E_USER_WARNING);
+			trigger_error(
+				"You must to pass ID of current landing to the \Bitrix\Landing\Assets\Manager::setOutput",
+				E_USER_WARNING
+			);
 		}
 		$this->createBuilder();
 		$this->builder->attachToLanding($lid);

@@ -1,0 +1,37 @@
+@charset "UTF-8";
+
+@font-face
+{
+	font-family: "medical-and-health";
+	src: url("/bitrix/templates/landing24/assets/vendor/icon/icon-medical/font.woff") format("woff");
+	font-weight: normal;
+	font-style: normal;
+}
+
+[data-icon-medical]:before
+{
+	font-family: "medical-and-health" !important;
+	content: attr(data-icon-medical);
+	font-style: normal !important;
+	font-weight: normal !important;
+	font-variant: normal !important;
+	text-transform: none !important;
+	speak: none;
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+[class^="icon-medical"]:before,
+[class*=" icon-medical"]:before
+{
+	font-family: "medical-and-health" !important;
+	font-style: normal !important;
+	font-weight: normal !important;
+	font-variant: normal !important;
+	text-transform: none !important;
+	speak: none;
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}

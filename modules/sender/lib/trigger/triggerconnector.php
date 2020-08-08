@@ -130,7 +130,7 @@ abstract class TriggerConnector extends Base
 		$connectorPersonalizeList = $this->connector->getPersonalizeList();
 		foreach($connectorPersonalizeList as $tag)
 		{
-			if(strlen($tag['CODE']) > 0)
+			if($tag['CODE'] <> '')
 			{
 				$personalizeList[] = $tag['CODE'];
 			}

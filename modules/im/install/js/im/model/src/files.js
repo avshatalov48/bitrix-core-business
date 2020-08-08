@@ -1,19 +1,19 @@
 /**
  * Bitrix Messenger
- * File model (Vuex Builder model)
+ * Files model (Vuex Builder model)
  *
  * @package bitrix
  * @subpackage im
- * @copyright 2001-2019 Bitrix
+ * @copyright 2001-2020 Bitrix
  */
 
 
 import {Vue} from 'ui.vue';
 import {VuexBuilderModel} from 'ui.vue.vuex';
 import {FileStatus, FileType, MutationType} from 'im.const';
-import {Utils} from "im.utils";
+import {Utils} from "im.lib.utils";
 
-class FilesModel extends VuexBuilderModel
+export class FilesModel extends VuexBuilderModel
 {
 	getName()
 	{
@@ -725,5 +725,3 @@ class FilesModel extends VuexBuilderModel
 		return icon;
 	}
 }
-
-export {FilesModel};

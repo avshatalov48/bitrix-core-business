@@ -25,14 +25,14 @@ elseif ($action == 'get_items')
 	CMedialib::GetItems(array(
 		'site' => isset($_REQUEST['site']) ? $_REQUEST['site'] : false,
 		'lang' => isset($_REQUEST['lang']) ? $_REQUEST['lang'] : 'en',
-		'collectionId' => intVal($_POST['col_id'])
+		'collectionId' => intval($_POST['col_id'])
 	));
 }
 elseif ($action == 'edit_collection')
 {
-	$parent = intVal($_POST['parent']);
+	$parent = intval($_POST['parent']);
 	$id = CMedialib::EditCollection(array(
-		'id' => intVal($_POST['id']),
+		'id' => intval($_POST['id']),
 		'name' => \Bitrix\Main\Text\Encoding::convertEncoding(rawurldecode($_POST['name']), 'UTF-8', SITE_CHARSET),
 		'desc' => \Bitrix\Main\Text\Encoding::convertEncoding(rawurldecode($_POST['desc']), 'UTF-8', SITE_CHARSET),
 		'keywords' => \Bitrix\Main\Text\Encoding::convertEncoding(rawurldecode($_POST['keywords']), 'UTF-8', SITE_CHARSET),
@@ -57,7 +57,7 @@ elseif ($action == 'edit_collection')
 }
 elseif ($action == 'del_collection')
 {
-	$res = CMedialib::DelCollection(intVal($_POST['id']), $_POST['child_cols']);
+	$res = CMedialib::DelCollection(intval($_POST['id']), $_POST['child_cols']);
 	?><script>window.bx_req_res = <?= ($res ? 'true' : 'false')?>;</script><?
 }
 elseif ($action == 'edit_item')
@@ -65,7 +65,7 @@ elseif ($action == 'edit_item')
 	CMedialib::EditItem(array(
 		'lang' => isset($_REQUEST['lang']) ? $_REQUEST['lang'] : 'en',
 		'site' => isset($_REQUEST['site']) ? $_REQUEST['site'] : false,
-		'id' => intVal($_REQUEST['id']),
+		'id' => intval($_REQUEST['id']),
 		'file' => isset($_FILES["load_file"]) ? $_FILES["load_file"] : false,
 		'path' => isset($_POST["item_path"]) ? $_POST["item_path"] : '',
 		'path_site' => isset($_POST["item_path_site"]) ? $_POST["item_path_site"] : '',
@@ -78,15 +78,15 @@ elseif ($action == 'edit_item')
 }
 elseif ($action == 'del_item')
 {
-	$res = CMedialib::DelItem(intVal($_POST['id']), $_POST['mode'] == 'current', intVal($_POST['col_id']));
+	$res = CMedialib::DelItem(intval($_POST['id']), $_POST['mode'] == 'current', intval($_POST['col_id']));
 	?><script>window.bx_req_res = <?= ($res ? 'true' : 'false')?>;</script><?
 }
 elseif ($action == 'save_settings')
 {
 	CMedialib::SaveUserSettings(array(
-		'width' => intVal($_POST['width']),
-		'height' => intVal($_POST['height']),
-		'coll_id' => intVal($_POST['coll_id'])
+		'width' => intval($_POST['width']),
+		'height' => intval($_POST['height']),
+		'coll_id' => intval($_POST['coll_id'])
 	));
 }
 elseif ($action == 'upload_form')
@@ -98,7 +98,7 @@ elseif ($action == 'upload_form')
 }
 elseif ($action == 'get_item_coll_list')
 {
-	CMedialib::GetItemCollectionList(array('ID' => intVal($_POST['id'])));
+	CMedialib::GetItemCollectionList(array('ID' => intval($_POST['id'])));
 }
 elseif ($action == 'multi_del')
 {
@@ -116,14 +116,14 @@ elseif ($action == 'search')
 }
 elseif ($action == 'get_item_view')
 {
-	CMedialib::GetItemViewHTML(intVal($_POST['id']));
+	CMedialib::GetItemViewHTML(intval($_POST['id']));
 }
 elseif ($action == 'change_col_type')
 {
 	CMedialib::ChangeColType(array(
-		'col' => intVal($_POST['col']),
-		'type' => intVal($_POST['type']),
-		'parent' => intVal($_POST['parent']),
+		'col' => intval($_POST['col']),
+		'type' => intval($_POST['type']),
+		'parent' => intval($_POST['parent']),
 		'childCols' => $_POST['children']
 	));
 }

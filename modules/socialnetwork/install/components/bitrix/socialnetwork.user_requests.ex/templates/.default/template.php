@@ -14,18 +14,18 @@ if ($arResult["NEED_AUTH"] == "Y")
 {
 	$APPLICATION->AuthForm("");
 }
-elseif (strlen($arResult["FatalError"])>0)
+elseif ($arResult["FatalError"] <> '')
 {
 	?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?
 }
 else
 {
 	CUtil::InitJSCore(array("popup"));
-	if(strlen($arResult["ErrorMessage"])>0)
+	if($arResult["ErrorMessage"] <> '')
 	{
 		?><span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br /><?
 	}
-	if(strlen($arResult["InfoMessage"])>0)
+	if($arResult["InfoMessage"] <> '')
 	{
 		?><span class='infotext'><?=$arResult["InfoMessage"]?></span><br /><?
 	}
@@ -82,9 +82,9 @@ else
 					<td class="invite-list-img">
 						<div class="invite-active-block">
 							<? if ($arRequest["EVENT_TYPE"] == "INVITE_USER"): ?>
-								<span class="invite-list-img-image" style="<?=(is_array($arRequest["USER_PERSONAL_PHOTO_IMG"]) && strlen($arRequest["USER_PERSONAL_PHOTO_IMG"]["src"]) > 0 ? "background: url('".$arRequest["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></span>
+								<span class="invite-list-img-image" style="<?=(is_array($arRequest["USER_PERSONAL_PHOTO_IMG"]) && $arRequest["USER_PERSONAL_PHOTO_IMG"]["src"] <> '' ? "background: url('".$arRequest["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></span>
 							<? else: ?>
-								<span class="invite-list-img-image" style="<?=(is_array($arRequest["GROUP_IMG"]) && strlen($arRequest["GROUP_IMG"]["src"]) > 0 ? "background: url('".$arRequest["GROUP_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></span>
+								<span class="invite-list-img-image" style="<?=(is_array($arRequest["GROUP_IMG"]) && $arRequest["GROUP_IMG"]["src"] <> '' ? "background: url('".$arRequest["GROUP_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></span>
 							<? endif; ?>
 						</div>
 					</td>
@@ -110,7 +110,7 @@ else
 			?></table>
 
 			<div class="invite-list-nav"><?
-			if (StrLen($arResult["RequestsIn"]["NAV_STRING"]) > 0):
+			if ($arResult["RequestsIn"]["NAV_STRING"] <> ''):
 				?><?=$arResult["RequestsIn"]["NAV_STRING"]?><br /><br /><?
 			endif;
 			?></div><?
@@ -164,9 +164,9 @@ else
 					<td class="invite-list-img">
 						<div class="invite-active-block">
 							<? if ($arRequest["EVENT_TYPE"] == "INVITE_USER"): ?>
-								<span class="invite-list-img-image" style="<?=(is_array($arRequest["USER_PERSONAL_PHOTO_IMG"]) && strlen($arRequest["USER_PERSONAL_PHOTO_IMG"]["src"]) > 0 ? "background: url('".$arRequest["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></span>
+								<span class="invite-list-img-image" style="<?=(is_array($arRequest["USER_PERSONAL_PHOTO_IMG"]) && $arRequest["USER_PERSONAL_PHOTO_IMG"]["src"] <> '' ? "background: url('".$arRequest["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></span>
 							<? else: ?>
-								<span class="invite-list-img-image" style="<?=(is_array($arRequest["GROUP_IMG"]) && strlen($arRequest["GROUP_IMG"]["src"]) > 0 ? "background: url('".$arRequest["GROUP_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></span>
+								<span class="invite-list-img-image" style="<?=(is_array($arRequest["GROUP_IMG"]) && $arRequest["GROUP_IMG"]["src"] <> '' ? "background: url('".$arRequest["GROUP_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></span>
 							<? endif; ?>
 						</div>
 					</td>
@@ -191,7 +191,7 @@ else
 			?></table>
 
 			<div class="invite-list-nav"><?
-			if (StrLen($arResult["RequestsOut"]["NAV_STRING"]) > 0):
+			if ($arResult["RequestsOut"]["NAV_STRING"] <> ''):
 				?><?=$arResult["RequestsOut"]["NAV_STRING"]?><br /><br /><?
 			endif;
 			?></div><?

@@ -37,7 +37,7 @@ final class MailHandler
 		$commentId = false;
 
 		if (
-			strlen($message) <= 0
+			$message == ''
 			&& count($attachments) > 0
 		)
 		{
@@ -47,7 +47,7 @@ final class MailHandler
 		if (
 			$logEntryId <= 0
 			|| $userId <= 0
-			|| strlen($message) <= 0
+			|| $message == ''
 		)
 		{
 			return false;

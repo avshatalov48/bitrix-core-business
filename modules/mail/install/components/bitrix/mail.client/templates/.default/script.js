@@ -40,7 +40,33 @@
 				BX.bind(items[i], 'click', this.handleLogItemClick.bind(this, items[i].getAttribute('data-id')));
 			}
 
-			this.initCreateMenu();
+			BX.Event.EventEmitter.subscribe(
+				'BXMailMessageActions:CRM_ACTIVITY',
+				function (event)
+				{
+					BX.show(
+						BX.findChildByClassName(
+							BX('mail-msg-view-details-' + event.getData().messageId),
+							'js-msg-view-control-skip',
+							true
+						)
+					);
+				}
+			);
+
+			BX.Event.EventEmitter.subscribe(
+				'BXMailMessageActions:CRM_EXCLUDE',
+				function (event)
+				{
+					BX.hide(
+						BX.findChildByClassName(
+							BX('mail-msg-view-details-' + event.getData().messageId),
+							'js-msg-view-control-skip',
+							true
+						)
+					);
+				}
+			);
 		}
 
 		this.__inited = true;
@@ -360,199 +386,6 @@
 		BX.addClass(details, 'mail-msg-close-animation');
 	};
 
-	BXMailMessageController.initCreateMenu = function ()
-	{
-		var ctrl = this;
-
-		var handler = ctrl.createAction.bind(ctrl);
-
-		var createBtn = BX('mail-msg-view-create-btn');
-		BX.bind(
-			createBtn,
-			'click',
-			function (event)
-			{
-				handler(
-					event,
-					{
-						value: ctrl.options.createMenu.__default.id,
-						disable: BX.addClass.bind(BX, createBtn.parentNode, 'ui-btn-main-disabled'),
-						enable: BX.removeClass.bind(BX, createBtn.parentNode, 'ui-btn-main-disabled')
-					}
-				);
-			}
-		);
-
-		var createMenuBtn = BX('mail-msg-view-create-menu-btn');
-		BX.bind(
-			createMenuBtn,
-			'click',
-			function ()
-			{
-				var items = ['TASKS_TASK'];
-				if (ctrl.options.isCrmEnabled)
-				{
-					items.push(ctrl.options.createMenu['CRM_ACTIVITY'].binded ? 'CRM_EXCLUDE' : 'CRM_ACTIVITY');
-				}
-				items = items.concat([
-					'BLOG_POST',
-					'IM_CHAT',
-					'CALENDAR_EVENT'
-				]);
-				for (var i = 0, id; i < items.length; i++)
-				{
-					id = items[i];
-
-					if (id == ctrl.options.createMenu.__default.id)
-					{
-						items.splice(i, 1);
-						i--;
-
-						continue;
-					}
-
-					items[i] = {
-						text: ctrl.options.createMenu[id].title,
-						value: ctrl.options.createMenu[id].id,
-						onclick: handler,
-						disabled: ctrl.options.createMenu[id].disabled,
-					};
-				}
-
-				BX.PopupMenu.show(
-					'mail-msg-view-create-menu',
-					createMenuBtn,
-					items,
-					{
-						offsetLeft: 16,
-						angle: true,
-						closeByEsc: true
-					}
-				);
-			}
-		);
-	}
-
-	BXMailMessageController.createAction = function (event, item)
-	{
-		var ctrl = this;
-
-		var failHandler = function (json)
-		{
-			item.enable();
-
-			if (json.errors && json.errors.length > 0)
-			{
-				var error = json.errors.map(
-					function (item)
-					{
-						return item.message;
-					}
-				).join('<br>');
-
-				top.BX.UI.Notification.Center.notify({
-					autoHideDelay: 5000,
-					content: error
-				});
-			}
-		};
-
-		switch (item.value)
-		{
-			case 'TASKS_TASK':
-				top.BX.SidePanel.Instance.open(this.options.createMenu['TASKS_TASK'].href);
-				break;
-			case 'CRM_ACTIVITY':
-				// @TODO: loader
-				item.disable();
-
-				var pr = BX.ajax.runComponentAction(
-					'bitrix:mail.client',
-					'createCrmActivity',
-					{
-						mode: 'ajax',
-						data: {
-							messageId: this.options.messageId
-						}
-					}
-				);
-				pr.then(
-					function (json)
-					{
-						item.enable();
-
-						top.BX.UI.Notification.Center.notify({
-							autoHideDelay: 2000,
-							content: BX.message('MAIL_MESSAGE_LIST_NOTIFY_ADDED_TO_CRM')
-						});
-
-						ctrl.options.createMenu['CRM_ACTIVITY'].binded = true;
-
-						BX.PopupMenu.destroy('mail-msg-view-create-menu');
-
-						BX.show(
-							BX.findChildByClassName(
-								BX('mail-msg-view-details-'+ctrl.options.messageId),
-								'js-msg-view-control-skip',
-								true
-							)
-						);
-					},
-					failHandler
-				);
-				break;
-			case 'CRM_EXCLUDE':
-				// @TODO: loader
-				item.disable();
-
-				var messageId = item.messageId || this.options.messageId;
-
-				var pr = BX.ajax.runComponentAction(
-					'bitrix:mail.client',
-					'removeCrmActivity',
-					{
-						mode: 'ajax',
-						data: {
-							messageId: messageId
-						}
-					}
-				);
-				pr.then(
-					function (json)
-					{
-						top.BX.UI.Notification.Center.notify({
-							autoHideDelay: 2000,
-							content: BX.message('MAIL_MESSAGE_LIST_NOTIFY_EXCLUDED_FROM_CRM')
-						});
-
-						BX.hide(
-							BX.findChildByClassName(
-								BX('mail-msg-view-details-' + messageId),
-								'js-msg-view-control-skip',
-								true
-							)
-						);
-
-						item.enable();
-
-						if (messageId == ctrl.options.messageId)
-						{
-							ctrl.options.createMenu['CRM_ACTIVITY'].binded = false;
-						}
-
-						BX.PopupMenu.destroy('mail-msg-view-create-menu');
-					},
-					failHandler
-				);
-				break;
-		}
-
-		if (item.menuWindow)
-		{
-			item.menuWindow.close();
-		}
-	};
-
 	BXMailMessageController.close = function (destroy)
 	{
 		var slider = top.BX.SidePanel.Instance.getSliderByWindow(window);
@@ -679,7 +512,7 @@
 				'click',
 				function (event)
 				{
-					self.ctrl.createAction(
+					BXMailMessageActions && BXMailMessageActions.createAction(
 						event,
 						{
 							messageId: self.options.messageId,
@@ -703,11 +536,10 @@
 
 		var mailForm = BXMainMailForm.getForm(this.options.formId);
 
-		BX.addCustomEvent(mailForm, 'MailForm:field:rcptSelectorClose', BXMailMessage.handleRcptSelectorClose.bind(this));
 		BX.addCustomEvent(mailForm, 'MailForm:footer:buttonClick', BXMailMessage.handleFooterButtonClick.bind(this));
 		BX.addCustomEvent(mailForm, 'MailForm:submit', BXMailMessage.handleFormSubmit.bind(this));
 		BX.addCustomEvent(mailForm, 'MailForm:submit:ajaxSuccess', BXMailMessage.handleFormSubmitSuccess.bind(this));
-		BX.PULL.extendWatch('mail_mailbox_' + this.options.messageId);
+		BX.PULL && BX.PULL.extendWatch('mail_mailbox_' + this.options.messageId);
 		BX.addCustomEvent("onPullEvent-mail", BX.proxy(function(command, params)
 		{
 			//outgoing message read confirmed handler
@@ -733,22 +565,6 @@
 		}, this));
 
 		this.htmlForm.__inited = true;
-	};
-
-	BXMailMessage.handleRcptSelectorClose = function (form, field)
-	{
-		if (!field.params.name.match(/^data\[(to|cc|bcc)\]$/))
-			return;
-
-		for (var i = 0, target; i < form.fields.length; i++)
-		{
-			target = form.fields[i];
-			if (target.selector == field.selector || !target.params.name.match(/^data\[(to|cc|bcc)\]$/))
-				continue;
-
-			BX.SocNetLogDestination.obItems[target.selector] = BX.SocNetLogDestination.obItems[field.selector];
-			BX.SocNetLogDestination.obItemsLast[target.selector] = BX.SocNetLogDestination.obItemsLast[field.selector];
-		}
 	};
 
 	BXMailMessage.handleFooterButtonClick = function (form, button)
@@ -783,7 +599,7 @@
 		}
 
 		// @TODO: use events
-		var uploads;
+		var uploads, items, totalSize = 0;
 		for (var i in form.postForm.controllers)
 		{
 			if (!form.postForm.controllers.hasOwnProperty(i))
@@ -805,28 +621,29 @@
 				form.showError(BX.message('MAIL_MESSAGE_NEW_UPLOADING'));
 				return BX.PreventDefault(event);
 			}
-		}
 
-		/*
-		if ('edit' == this.ctrl.options.type)
-		{
-			var hiddenWrapper = BX('crm_act_email_create_hidden');
-			hiddenWrapper.innerHTML = '';
-
-			var fields = BX.findChildren(document, {'tag': 'input'}, true);
-			for (var i = 0, clone; i < fields.length; i++)
+			if (BX.message('MAIL_MESSAGE_MAX_SIZE') > 0)
 			{
-				if (fields[i].name && fields[i].name.indexOf('__crm_activity_planner[') >= 0)
+				try
 				{
-					clone = fields[i].cloneNode(true);
-					clone.removeAttribute('id');
-					clone.setAttribute('name', 'data'+fields[i].name.substr('__crm_activity_planner'.length));
-
-					hiddenWrapper.appendChild(clone);
+					items = form.postForm.controllers[i].handler.agent.queue.items.items;
+					totalSize = Object.keys(items).reduce(
+						function (sum, k)
+						{
+							return sum + (items[k].file ? parseInt(items[k].file.sizeInt || items[k].file.size) : 0);
+						},
+						totalSize
+					);
 				}
+				catch (err) {}
 			}
 		}
-		*/
+
+		if (BX.message('MAIL_MESSAGE_MAX_SIZE') > 0 && BX.message('MAIL_MESSAGE_MAX_SIZE') <= Math.ceil(totalSize / 3) * 4) // base64 coef.
+		{
+			form.showError(BX.message('MAIL_MESSAGE_MAX_SIZE_EXCEED'));
+			return BX.PreventDefault(event);
+		}
 	};
 
 	BXMailMessage.handleFormSubmitSuccess = function (form, data)
@@ -1026,7 +843,9 @@
 		this.ctrl.close(true);
 	};
 
-	var BXMailMailbox = {};
+	var BXMailMailbox = {
+		syncData: {}
+	};
 
 	BXMailMailbox.init = function (mailbox)
 	{
@@ -1035,7 +854,7 @@
 		return this;
 	};
 
-	BXMailMailbox.sync = function (button, stepper, gridId)
+	BXMailMailbox.sync = function (stepper, gridId, onlySyncCurrent)
 	{
 		var self = this;
 
@@ -1046,12 +865,10 @@
 
 		self.syncLock = true;
 
-		if (!BX.type.isDomNode(button))
-		{
-			button = document.createElement('DIV');
-		}
+		BXMailMailbox.updateStepper(stepper, 0, -1);
 
-		BX.addClass(button, 'ui-btn-wait');
+		var filter = BX.Main.filterManager.getById(gridId);
+		var dir = filter.getFilterFieldsValues()['DIR'];
 
 		var pr = BX.ajax.runComponentAction(
 			'bitrix:mail.client',
@@ -1059,7 +876,9 @@
 			{
 				mode: 'ajax',
 				data: {
-					id: self.mailbox.ID
+					id: self.mailbox.ID,
+					dir: dir || self.mailbox.OPTIONS.inboxDir,
+					onlySyncCurrent: onlySyncCurrent === undefined ? false : onlySyncCurrent,
 				}
 			}
 		);
@@ -1067,367 +886,200 @@
 		pr.then(
 			function (json)
 			{
-				self.syncLock = false;
-				BX.removeClass(button, 'ui-btn-wait');
-
-				BX.addClass(button, 'ui-btn-icon-buisness');
-				BX.removeClass(button, 'ui-btn-icon-business-warning');
-
-				button.setAttribute('title', BX.message('MAIL_MESSAGE_SYNC_BTN_HINT'));
-
-				BXMailMailbox.updateStepper(stepper, json.data.complete, json.data.status);
-
-				if (json.data.new > 0)
-				{
-					BX.Main.gridManager.getInstanceById(gridId).reload();
-				}
+				BXMailMailbox.syncProgress(stepper, gridId, json.data);
 			},
 			function (json)
 			{
-				self.syncLock = false;
-				BX.removeClass(button, 'ui-btn-wait');
-
-				BX.addClass(button, 'ui-btn-icon-business-warning');
-				BX.removeClass(button, 'ui-btn-icon-buisness');
-
-				var error = BX.message('MAIL_CLIENT_AJAX_ERROR');
-				if (json.errors && json.errors.length > 0)
-				{
-					error += '\n';
-					error += json.errors.map(
-						function (item)
-						{
-							return item.message;
-						}
-					).join('\n');
-				}
-
-				button.setAttribute('title', error);
+				BXMailMailbox.syncProgress(
+					stepper,
+					gridId,
+					{
+						'complete': -1,
+						'status': -1,
+						'errors': json.errors
+					}
+				);
 			}
 		);
 	};
 
-	BXMailMailbox.updateStepper = function(stepper, completed, status)
+	BXMailMailbox.syncProgress = function (stepper, gridId, params)
 	{
-		if (completed)
+		var self = this;
+
+		if (params.timestamp < self.syncData.timestamp)
 		{
-			stepper.style.display = 'none';
+			return;
 		}
-		else
+
+		self.syncData.timestamp = params.timestamp;
+
+		if (!BX.type.isNotEmptyString(params.sessid))
 		{
-			var stepperLine = BX.findChildByClassName(stepper, 'main-stepper-bar-line');
-			var stepperSteps = BX.findChildByClassName(stepper, 'main-stepper-steps');
+			params.sessid = 'dummy';
+		}
 
-			if (status >= 0)
+		if (typeof self.syncData[params.sessid] == 'undefined')
+		{
+			self.syncData[params.sessid] = {};
+		}
+
+		if (params.new > 0)
+		{
+			self.syncData[params.sessid].new = params.new;
+		}
+
+		if (params.complete > 0 && !self.syncData[params.sessid].complete)
+		{
+			if (self.syncData[params.sessid].new > 0 || params.updated > 0 || params.deleted > 0)
 			{
-				var status = Math.min(Math.max(Math.round(parseFloat(status) * 100), 1), 99);
-
-				if (stepperLine)
+				var gridInstance = BX.Main.gridManager.getInstanceById(gridId);
+				if (gridInstance.getRows().getCountSelected() == 0)
 				{
-					stepperLine.style.width = status+'%';
+					gridInstance.reload();
 				}
+			}
 
-				if (stepperSteps)
-				{
-					stepperSteps.innerHTML = status+'%';
-				}
+			if (params.final > 0)
+			{
+				delete self.syncData[params.sessid];
 			}
 			else
 			{
-				if (stepperLine)
-				{
-					stepperLine.style.width = '0%';
-				}
-
-				if (stepperSteps)
-				{
-					stepperSteps.innerHTML = '';
-				}
+				self.syncData[params.sessid].complete = true;
 			}
+		}
 
+		BXMailMailbox.updateStepper(stepper, params.complete, params.status, params.errors);
+
+		if (params.complete < 0 || params.complete > 0)
+		{
+			this.syncLock = false;
+		}
+
+		if (params.complete < 0 && params.status >= 0)
+		{
+			BXMailMailbox.sync(stepper, gridId, true);
+		}
+	}
+
+	BXMailMailbox.toggleStepper = function(stepper, show)
+	{
+		if (show)
+		{
+			BX.addClass(stepper, 'main-stepper-show');
+			BX.removeClass(stepper, 'main-stepper-hide');
 			stepper.style.display = '';
+		}
+		else
+		{
+			BX.addClass(stepper, 'main-stepper-hide');
+			BX.removeClass(stepper, "main-stepper-show");
+
+			setTimeout(
+				function ()
+				{
+					stepper.style.display = 'none';
+				},
+				300
+			);
+		}
+	}
+
+	BXMailMailbox.updateStepper = function(stepper, complete, status, errors)
+	{
+		stepper.hideTimeout = clearTimeout(stepper.hideTimeout);
+
+		status = parseFloat(status);
+
+		var stepperInfo = BX.findChildByClassName(stepper, 'main-stepper-info');
+		var stepperLine = BX.findChildByClassName(stepper, 'main-stepper-bar-line');
+		var stepperSteps = BX.findChildByClassName(stepper, 'main-stepper-steps');
+		var stepperError = BX.findChildByClassName(stepper, 'main-stepper-error-text');
+
+		if (complete < 0 && status < 0)
+		{
+			stepperInfo && (stepperInfo.innerHTML = BX.message('MAIL_CLIENT_MAILBOX_SYNC_BAR_INTERRUPTED'));
+
+			if (stepperError)
+			{
+				var details = [];
+
+				if (errors && errors.length > 0)
+				{
+					for (var i = 0; i < errors.length; i++)
+					{
+						if (errors[i].code < 0)
+						{
+							details.push(errors[i].message);
+							errors.splice(i--, 1);
+						}
+						else
+						{
+							errors[i] = errors[i].message;
+						}
+					}
+
+					var error = (errors.length > 0 ? errors : details).join(': ');
+				}
+				else
+				{
+					var error = BX.message('MAIL_CLIENT_AJAX_ERROR');
+				}
+
+				stepperError.innerHTML = error;
+
+				if (details.length > 0 && errors.length > 0)
+				{
+					stepperError.appendChild(
+						BX.UI.Hint.createNode(details.join(': '))
+					);
+				}
+
+				BX.addClass(stepper, 'main-stepper-error');
+			}
+			else
+			{
+				BXMailMailbox.toggleStepper(stepper, false);
+			}
+		}
+		else
+		{
+			BX.removeClass(stepper, 'main-stepper-error');
+
+			if (complete > 0)
+			{
+				stepperInfo && (stepperInfo.innerHTML = BX.message('MAIL_CLIENT_MAILBOX_SYNC_BAR_COMPLETED'));
+
+				stepperLine && (stepperLine.style.width = '100%');
+				stepperSteps && (stepperSteps.innerHTML = '100%');
+
+				stepper.hideTimeout = setTimeout(BXMailMailbox.toggleStepper.bind(this, stepper, false), 2000);
+			}
+			else
+			{
+				stepperInfo && (stepperInfo.innerHTML = BX.message('MAIL_CLIENT_MAILBOX_SYNC_BAR'));
+
+				if (status < 0)
+				{
+					stepperLine && (stepperLine.style.width = '0%');
+					stepperSteps && (stepperSteps.innerHTML = '');
+				}
+				else
+				{
+					var percent = Math.min(Math.max(Math.round(status * 100), 1), 99);
+
+					stepperLine && (stepperLine.style.width = percent + '%');
+					stepperSteps && (stepperSteps.innerHTML = percent + '%');
+				}
+
+				BXMailMailbox.toggleStepper(stepper, true);
+			}
 		}
 
 		var event = document.createEvent('Event');
 		event.initEvent('resize', true, true);
 		window.dispatchEvent(event);
-	};
-
-	BXMailMailbox.setupDirs = function (callback)
-	{
-		var imapOptions = {}
-
-		try
-		{
-			imapOptions = this.mailbox.OPTIONS.imap;
-		}
-		catch (err) {}
-
-		var dirs = imapOptions.dirs;
-		var dirsList = imapOptions.dirsList;
-
-		var ignore = imapOptions.ignore || [];
-		var disabled = imapOptions.disabled || [];
-
-		var dirsTypes = {
-			'outcome': BX.type.isArray(imapOptions.outcome) && imapOptions.outcome[0] ? imapOptions.outcome[0] : '',
-			'trash': BX.type.isArray(imapOptions.trash) && imapOptions.trash[0] ? imapOptions.trash[0] : '',
-			'spam': BX.type.isArray(imapOptions.spam) && imapOptions.spam[0] ? imapOptions.spam[0] : ''
-		};
-
-		if (dirsTypes.spam == '')
-		{
-			dirsTypes.spam = dirsTypes.trash;
-		}
-
-		if (dirs)
-		{
-			var dirsTree = [];
-
-			var item, path, level;
-			for (var i = 0; i < dirsList.length; i++)
-			{
-				path = dirsList[i];
-				if (dirs.hasOwnProperty(path))
-				{
-					item = dirs[path];
-					level = item.length - 1;
-
-					dirsTree.push({
-						item: item,
-						path: path,
-						name: item[level],
-						level: level,
-						ignore: BX.util.in_array(path, ignore),
-						disabled: BX.util.in_array(path, disabled)
-					});
-				}
-			}
-
-			top.BX.SidePanel.Instance.open(
-				'mail:mailbox-setup-dirs',
-				{
-					width: 640,
-					cacheable: false,
-					contentCallback: function(slider)
-					{
-						var promise = new top.BX.Promise();
-
-						var html = '', subhtml, placeholder, checkedSingle;
-						var count = dirsTree.length, i, flag;
-
-						html += '<div class="mail-connect-section-block">';
-
-						html += '<div class="mail-connect-title-block">';
-						html += '<div class="mail-connect-title">' + BX.message('MAIL_CLIENT_CONFIG_IMAP_DIRS_SYNC') + '</div>';
-						html += '</div>';
-
-						for (i = 0; i < count; i++)
-						{
-							flag = dirsTree[i].disabled ? 'disabled' : (!dirsTree[i].ignore ? 'checked' : '');
-
-							html += '<div class="mail-connect-option-email mail-connect-form-check-hidden" style="padding-left: '+(25*dirsTree[i].level)+'px">';
-							html += '<input onclick="return document.querySelectorAll(\'.mail-connect-form-input-check:checked\').length > 0; " class="mail-connect-form-input mail-connect-form-input-check" id="imap-dir-sync-n'+i+'" type="checkbox" name="imap_dirs[sync]['+i+']" value="'+dirsTree[i].path+'" '+flag+'>';
-							html += '<label class="mail-connect-form-label mail-connect-form-label-check" for="imap-dir-sync-n'+i+'" '+(dirsTree[i].disabled ? 'style="color: #a0a0a0;"' : '')+'>'+dirsTree[i].name+'</label>';
-							html += '</div>';
-						}
-
-						html += '</div>';
-
-						html += '<div class="mail-connect-section-block">';
-
-						html += '<div class="mail-connect-title-block">';
-						html += '<div class="mail-connect-title">';
-						html += BX.message('MAIL_CLIENT_CONFIG_IMAP_DIRS_FOR');
-						html += '</div></div>';
-
-						for (var type in dirsTypes)
-						{
-							subhtml = '';
-							checkedSingle = '';
-							placeholder = '<input id="mail_connect_setup_dirs_' + type + '_placeholder" type="radio" name="imap_dirs[' + type + ']" value="" checked>';
-							placeholder += '<label for="mail_connect_setup_dirs_' + type + '_placeholder">' + BX.message('MAIL_CLIENT_CONFIG_IMAP_DIRS_EMPTY_DEFAULT') + '</label>';
-							for (i = 0; i < count; i++)
-							{
-								if (dirsTree[i].disabled)
-								{
-									continue;
-								}
-
-								flag = '';
-								if (dirsTree[i].path == dirsTypes[type])
-								{
-									flag = 'checked';
-									placeholder = '';
-									checkedSingle = 'mail_connect_setup_dirs_' + type + '_' + (i + 1);
-								}
-
-								subhtml += '<input type="radio" name="imap_dirs[' + type + ']" value="' + BX.util.htmlspecialchars(dirsTree[i].path) + '" id="mail_connect_setup_dirs_' + type + '_' + (i + 1) + '" ' + flag + '>';
-								subhtml += '<label for="mail_connect_setup_dirs_' + type + '_' + (i + 1) + '">' + BX.util.htmlspecialchars(dirsTree[i].item.join(' / ')) + '</label>';
-							}
-
-							html += '<div class="mail-connect-option-email mail-connect-form-check-hidden">'
-								+ BX.message('MAIL_CLIENT_CONFIG_IMAP_DIRS_' + type.toUpperCase()) +
-								'<label class="mail-set-singleselect mail-set-singleselect-line" data-checked="' + checkedSingle + '">\
-									<input id="mail_connect_setup_dirs_' + type + '_0" type="radio" name="imap_dirs[' + type + ']" value="0">\
-									<div class="mail-set-singleselect-wrapper">'
-									+ subhtml +
-									'</div>'
-									+ placeholder +
-								'</label>\
-							</div>';
-						}
-
-						html += '</div>';
-
-						promise.fulfill(
-							'<form class="mail-connect-setup-dirs-form" style="display: flex; flex-direction: column; height: 100%; ">\
-								<div style="padding: 0 20px 20px 20px; flex: 1; overflow: auto; ">\
-									<div class="mail-msg-sidepanel-header">\
-										<div class="mail-msg-sidepanel-title-container">\
-											<div class="mail-msg-sidepanel-title">\
-												<span class="mail-msg-sidepanel-title-text">' + BX.message('MAIL_CLIENT_CONFIG_IMAP_DIRS_TITLE') + '</span>\
-											</div>\
-										</div>\
-									</div>\
-									<div class="mail-connect mail-connect-slider">' + html + '</div>\
-								</div>\
-								<div class="mail-connect-footer mail-connect-footer-fixed" style="position: static; ">\
-									<div class="mail-connect-footer-container">\
-										<button class="ui-btn ui-btn-md ui-btn-success ui-btn-success mail-connect-btn-connect" type="submit">'
-											+ BX.message('MAIL_CLIENT_CONFIG_IMAP_DIRS_BTN_SAVE') +
-										'</button>\
-										<button class="ui-btn ui-btn-md ui-btn-link mail-connect-btn-cancel" type="reset">'
-											+ BX.message('MAIL_CLIENT_CONFIG_IMAP_DIRS_BTN_CANCEL') +
-										'</button>\
-									</div>\
-								</div>\
-							</form>'
-						);
-
-						return promise;
-					},
-					events: {
-						onLoad: function(event)
-						{
-							var form = BX.findChildByClassName(
-								event.slider.layout.content,
-								'mail-connect-setup-dirs-form',
-								true
-							);
-
-							top.BX.bind(
-								form,
-								'submit',
-								function (e)
-								{
-									e.preventDefault();
-
-									var data = BX.ajax.prepareForm(form).data;
-
-									if (data.imap_dirs)
-									{
-										imapOptions.outcome = data.imap_dirs.outcome ? [data.imap_dirs.outcome] : imapOptions.outcome;
-										imapOptions.trash = data.imap_dirs.trash ? [data.imap_dirs.trash] : imapOptions.trash;
-										imapOptions.spam = data.imap_dirs.spam ? [data.imap_dirs.spam] : imapOptions.spam;
-
-										if (data.imap_dirs.sync)
-										{
-											imapOptions.ignore = [];
-
-											for (path in dirs)
-											{
-												if (dirs.hasOwnProperty(path))
-												{
-													imapOptions.ignore.push(path);
-												}
-											}
-
-											var i, k;
-											for (i in data.imap_dirs.sync)
-											{
-												if (data.imap_dirs.sync.hasOwnProperty(i))
-												{
-													k = BX.util.array_search(data.imap_dirs.sync[i], imapOptions.ignore);
-
-													if (!(k < 0))
-													{
-														imapOptions.ignore.splice(k, 1);
-													}
-												}
-											}
-										}
-									}
-
-									callback(data);
-
-									event.slider.close();
-								}
-							);
-							top.BX.bind(
-								form,
-								'reset',
-								function (e)
-								{
-									event.slider.close();
-								}
-							);
-
-							var singleselect = function(input)
-							{
-								var options = BX.findChildren(input, {tag: 'input', attr: {type: 'radio'}}, true);
-								for (var i in options)
-								{
-									BX.bind(options[i], 'change', function()
-									{
-										if (this.checked)
-										{
-											if (this.value == 0)
-											{
-												var input1 = BX(input.getAttribute('data-checked'));
-												if (input1)
-												{
-													var label0 = BX.findNextSibling(this, {tag: 'label', attr: {'for': this.id}});
-													var label1 = BX.findNextSibling(input1, {tag: 'label', attr: {'for': input1.id}});
-													if (label0 && label1)
-														BX.adjust(label0, {text: label1.innerHTML});
-												}
-											}
-											else
-											{
-												input.setAttribute('data-checked', this.id);
-											}
-										}
-									});
-								}
-
-								BX.bind(input, 'click', function(event)
-								{
-									event = event || window.event;
-									event.skip_singleselect = input;
-								});
-
-								BX.bind(event.getSlider().getContentContainer(), 'click', function(event)
-								{
-									event = event || window.event;
-									if (event.skip_singleselect !== input)
-									{
-										if(top.BX(input.getAttribute('data-checked')))
-										{
-											top.BX(input.getAttribute('data-checked')).checked = true;
-										}
-									}
-								});
-							};
-
-							var selectInputs = BX.findChildrenByClassName(event.getSlider().getContentContainer(), 'mail-set-singleselect', true);
-							for (var i in selectInputs)
-								singleselect(selectInputs[i]);
-						}
-					}
-				}
-			);
-		}
 	};
 
 	window.BXMailMessageController = BXMailMessageController;

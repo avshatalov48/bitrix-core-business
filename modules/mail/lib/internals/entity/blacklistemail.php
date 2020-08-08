@@ -23,8 +23,9 @@ class BlacklistEmail extends \Bitrix\Mail\EO_Blacklist
 		$firstPart = '';
 		if (count(explode('@', $email)) === 2)
 		{
-			$convertingPart = array_pop(explode('@', $email));
-			$firstPart = array_shift(explode('@', $email)) . '@';
+			$list = explode('@', $email);
+			$convertingPart = array_pop($list);
+			$firstPart = array_shift($list) . '@';
 		}
 
 		$encoder = new \CBXPunycode();

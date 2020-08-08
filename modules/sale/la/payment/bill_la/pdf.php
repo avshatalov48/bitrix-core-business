@@ -1,6 +1,6 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();?><?
 $arPaySysAction["ENCODING"] = "";
-$ORDER_ID = IntVal($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"]);
+$ORDER_ID = intval($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"]);
 if (!is_array($arOrder))
 	$arOrder = CSaleOrder::GetByID($ORDER_ID);
 
@@ -183,7 +183,7 @@ if ($arBasket = $dbBasket->Fetch())
 {
 	$arColsCaption = array(
 		1 => CSalePdf::prepareToPdf('#'),
-		CSalePdf::prepareToPdf('ArtÃ­culo / DescripciÃ³n'),
+		CSalePdf::prepareToPdf('Artículo / Descripción'),
 		CSalePdf::prepareToPdf('Cant'),
 		CSalePdf::prepareToPdf('Unidades'),
 		CSalePdf::prepareToPdf('Precio unitario'),
@@ -230,7 +230,7 @@ if ($arBasket = $dbBasket->Fetch())
 
 		$productName = $arBasket["NAME"];
 		if ($productName == "OrderDelivery")
-			$productName = "EnvÃ­o";
+			$productName = "Envío";
 		else if ($productName == "OrderDiscount")
 			$productName = "Descuento";
 
@@ -270,8 +270,8 @@ if ($arBasket = $dbBasket->Fetch())
 	{
 		$arDelivery_tmp = CSaleDelivery::GetByID($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["DELIVERY_ID"]);
 
-		$sDeliveryItem = "EnvÃ­o";
-		if (strlen($arDelivery_tmp["NAME"]) > 0)
+		$sDeliveryItem = "Envío";
+		if ($arDelivery_tmp["NAME"] <> '')
 			$sDeliveryItem .= sprintf(" (%s)", $arDelivery_tmp["NAME"]);
 		$arCells[++$n] = array(
 			1 => CSalePdf::prepareToPdf($n),
@@ -606,7 +606,7 @@ $pdf->SetFont($fontFamily, 'B', $fontSize);
 
 if (CSalePaySystemAction::GetParamValue("COMMENT1", false) || CSalePaySystemAction::GetParamValue("COMMENT2", false))
 {
-	$pdf->Write(15, CSalePdf::prepareToPdf('TÃ©rminos y Condiciones'));
+	$pdf->Write(15, CSalePdf::prepareToPdf('Términos y Condiciones'));
 	$pdf->Ln();
 
 	$pdf->SetFont($fontFamily, '', $fontSize);
@@ -691,7 +691,7 @@ if ($bankAccNo && $bankRouteNo && $bankSwift)
 
 	if ($bank || $bankAddr || $bankPhone)
 	{
-		$bankDetails .= CSalePdf::prepareToPdf("Nombre y direcciÃ³n del banco: ");
+		$bankDetails .= CSalePdf::prepareToPdf("Nombre y dirección del banco: ");
 		if ($bank)
 			$bankDetails .= CSalePdf::prepareToPdf($bank);
 		$bankDetails .= CSalePdf::prepareToPdf("\n");
@@ -705,7 +705,7 @@ if ($bankAccNo && $bankRouteNo && $bankSwift)
 		}
 	}
 
-	$bankDetails .= CSalePdf::prepareToPdf(sprintf("NÃºmero de enrutamiento del banco: %s\n", $bankRouteNo));
+	$bankDetails .= CSalePdf::prepareToPdf(sprintf("Número de enrutamiento del banco: %s\n", $bankRouteNo));
 	$bankDetails .= CSalePdf::prepareToPdf(sprintf("SWIFT del banco: %s\n", $bankSwift));
 
 	$pdf->MultiCell($width/2, 15, $bankDetails, 0, 'L');

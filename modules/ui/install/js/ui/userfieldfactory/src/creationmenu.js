@@ -1,11 +1,16 @@
-import {Event, Type, Tag} from 'main.core';
+import {Dom, Event, Type, Tag} from 'main.core';
 import {Popup} from 'main.popup';
+
+const SCROLL_OFFSET = 3;
 
 /**
  * @memberof BX.UI.UserFieldFactory
  */
 export class CreationMenu
 {
+	#enableScrollToBottom: boolean;
+	#enableScrollToTop: boolean;
+
 	constructor(id: string, types: Array, params: Object)
 	{
 		this.id = id;
@@ -109,15 +114,19 @@ export class CreationMenu
 
 	renderItem(item, onClick): Element
 	{
-		return Tag.render`<div class="ui-userfieldfactory-creation-menu-item" onclick="${(()=>{this.onItemClick(item, onClick);})}">
+		return Tag.render`<div class="ui-userfieldfactory-creation-menu-item" onclick="${(()=>{this.handleItemClick(item, onClick);})}">
 			<div class="ui-userfieldfactory-creation-menu-item-title">${item.title}</div>
 			<div class="ui-userfieldfactory-creation-menu-item-desc">${item.description}</div>
 		</div>`;
 	}
 
-	onItemClick(item, onClick)
+	handleItemClick(item, onClick)
 	{
-		if(Type.isFunction(onClick))
+		if(Type.isFunction(item.onClick))
+		{
+			item.onClick(item.name);
+		}
+		else if(Type.isFunction(onClick))
 		{
 			onClick(item.name);
 		}
@@ -153,29 +162,29 @@ export class CreationMenu
 
 	onBottomButtonMouseOver()
 	{
-		if(this._enableScrollToBottom)
+		if(this.#enableScrollToBottom)
 		{
 			return;
 		}
 
-		this._enableScrollToBottom = true;
-		this._enableScrollToTop = false;
+		this.#enableScrollToBottom = true;
+		this.#enableScrollToTop = false;
 
 		(function scroll()
 		{
-			if(!this._enableScrollToBottom)
+			if(!this.#enableScrollToBottom)
 			{
 				return;
 			}
 
 			if((this.containerList.scrollTop + this.containerList.offsetHeight) !== this.containerList.scrollHeight)
 			{
-				this.containerList.scrollTop += 3;
+				this.containerList.scrollTop += SCROLL_OFFSET;
 			}
 
 			if((this.containerList.scrollTop + this.containerList.offsetHeight) === this.containerList.scrollHeight)
 			{
-				this._enableScrollToBottom = false;
+				this.#enableScrollToBottom = false;
 			}
 			else
 			{
@@ -186,34 +195,34 @@ export class CreationMenu
 
 	onBottomButtonMouseOut()
 	{
-		this._enableScrollToBottom = false;
+		this.#enableScrollToBottom = false;
 	}
 
 	onTopButtonMouseOver()
 	{
-		if(this._enableScrollToTop)
+		if(this.#enableScrollToTop)
 		{
 			return;
 		}
 
-		this._enableScrollToBottom = false;
-		this._enableScrollToTop = true;
+		this.#enableScrollToBottom = false;
+		this.#enableScrollToTop = true;
 
 		(function scroll()
 		{
-			if(!this._enableScrollToTop)
+			if(!this.#enableScrollToTop)
 			{
 				return;
 			}
 
 			if(this.containerList.scrollTop > 0)
 			{
-				this.containerList.scrollTop -= 3;
+				this.containerList.scrollTop -= SCROLL_OFFSET;
 			}
 
 			if(this.containerList.scrollTop === 0)
 			{
-				this._enableScrollToTop = false;
+				this.#enableScrollToTop = false;
 			}
 			else
 			{
@@ -224,7 +233,7 @@ export class CreationMenu
 
 	onTopButtonMouseOut()
 	{
-		this._enableScrollToTop = false;
+		this.#enableScrollToTop = false;
 	}
 
 	onScroll()
@@ -240,20 +249,20 @@ export class CreationMenu
 
 		if(scrollTop === 0)
 		{
-			this.topScrollButton.classList.add('hidden');
+			Dom.hide(this.topScrollButton);
 		}
 		else
 		{
-			this.topScrollButton.classList.remove('hidden');
+			Dom.show(this.topScrollButton);
 		}
 
 		if((scrollTop + height) === scrollHeight)
 		{
-			this.bottomScrollButton.classList.add('hidden');
+			Dom.hide(this.bottomScrollButton);
 		}
 		else
 		{
-			this.bottomScrollButton.classList.remove('hidden');
+			Dom.show(this.bottomScrollButton);
 		}
 	}
 }

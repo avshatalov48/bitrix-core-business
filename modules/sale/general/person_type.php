@@ -70,7 +70,7 @@ class CAllSalePersonType
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$dbPerson = CSalePersonType::GetList(Array(), Array("ID" => $ID));
 		if ($res = $dbPerson->Fetch())
 		{
@@ -83,7 +83,7 @@ class CAllSalePersonType
 	{
 		global $DB, $USER;
 
-		if ((is_set($arFields, "NAME") || $ACTION=="ADD") && strlen(trim($arFields["NAME"]))<=0)
+		if ((is_set($arFields, "NAME") || $ACTION=="ADD") && trim($arFields["NAME"]) == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGP_NO_NAME_TP"), "ERROR_NO_NAME");
 			return false;
@@ -96,7 +96,7 @@ class CAllSalePersonType
 			&& (
 				(is_array($arFields["LID"]) && count($arFields["LID"])<=0)
 				||
-				(!is_array($arFields["LID"]) && strlen($arFields["LID"])<=0)
+				(!is_array($arFields["LID"]) && $arFields["LID"] == '')
 				)
 			)
 		)
@@ -134,7 +134,7 @@ class CAllSalePersonType
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if (!CSalePersonType::CheckFields("UPDATE", $arFields, $ID))
 			return false;
 
@@ -155,7 +155,7 @@ class CAllSalePersonType
 			$arFields["LID"] = false;
 			foreach($arLID as $k => $v)
 			{
-				if(strlen($v) > 0)
+				if($v <> '')
 				{
 					$str_LID .= ", '".$DB->ForSql($v)."'";
 					if(empty($arFields["LID"]))
@@ -278,8 +278,8 @@ class CAllSalePersonType
 		}
 		$s1 = '';
 		$s = '<select name="'.$sFieldName.'"';
-		if (strlen($sAddParams)>0) $s .= ' '.$sAddParams.'';
-		if (strlen($JavaFunc)>0) $s .= ' OnChange="'.$JavaFunc.'"';
+		if ($sAddParams <> '') $s .= ' '.$sAddParams.'';
+		if ($JavaFunc <> '') $s .= ' OnChange="'.$JavaFunc.'"';
 		$s .= '>'."\n";
 		$found = false;
 
@@ -287,11 +287,11 @@ class CAllSalePersonType
 		{
 			foreach ($GLOBALS["SALE_PERSON_TYPE_LIST_CACHE"] as $res)
 			{
-				$found = (IntVal($res["ID"]) == IntVal($sValue));
+				$found = (intval($res["ID"]) == intval($sValue));
 				$s1 .= '<option value="'.$res["ID"].'"'.($found ? ' selected' : '').'>'.(($bFullName) ? ("[".$res["ID"]."] ".htmlspecialcharsbx($res["NAME"])." (".htmlspecialcharsbx($res["LID"]).")") : (htmlspecialcharsbx($res["NAME"]))).'</option>'."\n";
 			}
 		}
-		if (strlen($sDefaultValue)>0)
+		if ($sDefaultValue <> '')
 			$s .= "<option value='' ".($found ? "" : "selected").">".htmlspecialcharsbx($sDefaultValue)."</option>";
 		return $s.$s1.'</select>';
 	}

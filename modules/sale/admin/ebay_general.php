@@ -32,7 +32,7 @@ if(isset($_POST["EBAY_ON"]))
 {
 	$ebay->setActive();
 
-	if(strlen($backUrl) > 0)
+	if($backUrl <> '')
 		LocalRedirect($backUrl);
 }
 elseif(isset($_POST["EBAY_OFF"]))
@@ -64,7 +64,7 @@ if($ebay->isActive())
 	if(isset($_POST["EBAY_SETTINGS"]) && is_array($_POST["EBAY_SETTINGS"]))
 	{
 		foreach($_POST["EBAY_SETTINGS"]["IBLOCK_ID"] as $key => $iblockId)
-			if(strlen($iblockId) <= 0)
+			if($iblockId == '')
 				unset($_POST["EBAY_SETTINGS"]["IBLOCK_ID"][$key]);
 
 		$site = !empty($_POST["SITE_ID_INITIAL"]) && $SITE_ID == $_POST["SITE_ID_INITIAL"] ? $SITE_ID : $_POST["SITE_ID_INITIAL"];
@@ -174,7 +174,7 @@ elseif($ebay->isActive())
 	?>
 	<tr>
 		<td width="40%"><span class="adm-required-field"><?=Loc::getMessage("SALE_EBAY_DOMAIN_NAME")?></span>:</td>
-		<td width="60%"><input type="text" name="EBAY_SETTINGS[DOMAIN_NAME]" value="<?echo (strlen($siteSettings["DOMAIN_NAME"])>0) ? htmlspecialcharsbx($siteSettings["DOMAIN_NAME"]) : '' ?>" size="50" /> <input type="button" onclick="this.form['EBAY_SETTINGS[DOMAIN_NAME]'].value = window.location.host;" value="<?=Loc::getMessage("SALE_EBAY_DOMAIN_NAME_CURRENT")?>" /></td>
+		<td width="60%"><input type="text" name="EBAY_SETTINGS[DOMAIN_NAME]" value="<?echo ($siteSettings["DOMAIN_NAME"] <> '') ? htmlspecialcharsbx($siteSettings["DOMAIN_NAME"]) : '' ?>" size="50" /> <input type="button" onclick="this.form['EBAY_SETTINGS[DOMAIN_NAME]'].value = window.location.host;" value="<?=Loc::getMessage("SALE_EBAY_DOMAIN_NAME_CURRENT")?>" /></td>
 	</tr>
 	<tr>
 		<td width="40%"><span class="adm-required-field"><?=Loc::getMessage("SALE_EBAY_PAYER_TYPE")?>:</span></td>
@@ -471,7 +471,7 @@ else //If integration with ebay is not active
 		echo EndNote();
 		echo '<input type="submit" name="EBAY_ON" value="'.GetMessage("SALE_EBAY_ON").'" title="'.GetMessage("SALE_EBAY_ON_TITLE").'" onclick="return confirm(\''.GetMessage("SALE_EBAY_ON_CONFIRM").'\')"/>';
 
-		if(strlen($backUrl) > 0)
+		if($backUrl <> '')
 			echo '<input type="hidden" name="back_url" value="'.htmlspecialcharsbx($backUrl).'">';
 	}
 	else

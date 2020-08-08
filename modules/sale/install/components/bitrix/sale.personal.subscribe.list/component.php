@@ -14,7 +14,7 @@ if (!$USER->IsAuthorized())
 }
 
 $arParams["PATH_TO_CANCEL"] = Trim($arParams["PATH_TO_CANCEL"]);
-if (strlen($arParams["PATH_TO_CANCEL"]) <= 0)
+if ($arParams["PATH_TO_CANCEL"] == '')
 	$arParams["PATH_TO_CANCEL"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?ID=#ID#");
 
 $arParams["PER_PAGE"] = (intval($arParams["PER_PAGE"]) <= 0 ? 20 : intval($arParams["PER_PAGE"]));
@@ -23,12 +23,12 @@ $arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y" );
 if($arParams["SET_TITLE"] == 'Y')
 	$APPLICATION->SetTitle(GetMessage("SPSL_DEFAULT_TITLE"));
 
-$by = (strlen($_REQUEST["by"])>0 ? $_REQUEST["by"]: "ID");
-$order = (strlen($_REQUEST["order"])>0 ? $_REQUEST["order"]: "DESC");
+$by = ($_REQUEST["by"] <> '' ? $_REQUEST["by"]: "ID");
+$order = ($_REQUEST["order"] <> '' ? $_REQUEST["order"]: "DESC");
 
 $dbRecurring = CSaleRecurring::GetList(
 		array($by => $order),
-		array("USER_ID" => IntVal($USER->GetID())),
+		array("USER_ID" => intval($USER->GetID())),
 		false,
 		false,
 		array("ID", "USER_ID", "MODULE", "PRODUCT_ID", "PRODUCT_NAME", "PRODUCT_URL", "PRODUCT_PRICE_ID", "RECUR_SCHEME_TYPE", "RECUR_SCHEME_LENGTH", "WITHOUT_ORDER", "PRICE", "CURRENCY", "ORDER_ID", "CANCELED", "CALLBACK_FUNC", "DESCRIPTION", "TIMESTAMP_X", "PRIOR_DATE", "NEXT_DATE", "REMAINING_ATTEMPTS", "SUCCESS_PAYMENT")

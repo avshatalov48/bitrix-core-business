@@ -17,7 +17,7 @@ for($index = 0; $index < $itemSize; $index++)
 		$strReturn .= '</span> <span class="wd-crumb-item"> <span>/&nbsp;</span>';
 
 	if ($index <= 0)
-		$title = (strlen($arParams["STR_TITLE"]) > 0 ? htmlspecialcharsEx($arParams["STR_TITLE"]) : htmlspecialcharsex($arResult[$index]["TITLE"]));
+		$title = ($arParams["STR_TITLE"] <> '' ? htmlspecialcharsEx($arParams["STR_TITLE"]) : htmlspecialcharsex($arResult[$index]["TITLE"]));
 	else 
 		$title = htmlspecialcharsex($arResult[$index]["TITLE"]);
 	

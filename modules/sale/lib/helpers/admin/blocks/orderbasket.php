@@ -66,7 +66,7 @@ class OrderBasket
 
 		$this->isShowXmlId = Option::get("sale", "show_order_product_xml_id", "N") == "Y";
 
-		if(strlen($jsObjName)>0 && strlen($idPrefix)>0)
+		if($jsObjName <> '' && $idPrefix <> '')
 		{
 			$this->jsObjName = $jsObjName;
 
@@ -405,9 +405,11 @@ class OrderBasket
 			$data = static::prepareData();
 
 		$totalPrices = OrderEdit::getTotalPrices($this->order, $this, false);
+		$weight = $this->order->getBasket() ? $this->order->getBasket()->getWeight() : 0;
 
 		if($this->mode == self::EDIT_MODE)
 		{
+
 			$result .= '
 				BX.ready(function(){
 					var obParams = {
@@ -424,7 +426,7 @@ class OrderBasket
 						unRemovableFields: ["PRICE", "QUANTITY"],
 						formatQuantity: "'.Option::get('sale', 'format_quantity', 'AUTO').'",
 						weightUnit: "'.$this->weightUnit.'",
-						'.$this->getTotalBlockFieldsJs($totalPrices, $data).'
+						'.$this->getTotalBlockFieldsJs($totalPrices, array("WEIGHT" => $weight)).'
 					};';
 
 			if(!$defTails)
@@ -467,7 +469,7 @@ class OrderBasket
 						mode: "view",
 						formatQuantity: "'.Option::get('sale', 'format_quantity', 'AUTO').'",
 						weightUnit: "'.$this->weightUnit.'",
-						'.$this->getTotalBlockFieldsJs($totalPrices, array("WEIGHT" => $this->order->getBasket()->getWeight())).'
+						'.$this->getTotalBlockFieldsJs($totalPrices, array("WEIGHT" => $weight)).'
 					};';
 
 			if(!$defTails)
@@ -941,11 +943,11 @@ class OrderBasket
 
 			foreach ($visibleColumns as $id => $name)
 			{
-				if (substr($id, 0, 9) == "PROPERTY_")
+				if (mb_substr($id, 0, 9) == "PROPERTY_")
 				{
-					$iblockPropCode = substr($id, 9);
+					$iblockPropCode = mb_substr($id, 9);
 
-					if(strlen($iblockPropCode) > 0)
+					if($iblockPropCode <> '')
 					{
 						$iBlockProps[] = $iblockPropCode;
 
@@ -1151,7 +1153,7 @@ class OrderBasket
 						if(!in_array($propParams["ID"], $allProps))
 							$allProps[] = $propParams["ID"];
 
-						if(strlen($propParams["~VALUE"]) > 0)
+						if($propParams["~VALUE"] <> '')
 						{
 							$props[$id][$offerId][$propParams["ID"]] = $propParams["~VALUE"];
 
@@ -1295,7 +1297,7 @@ class OrderBasket
 		$arTmpColumns = array();
 		$arColumnsOptions = static::loadVisibleColumns($idPrefix);
 
-		if (is_array($arColumnsOptions) && isset($arColumnsOptions["columns"]) && strlen($arColumnsOptions["columns"]) > 0)
+		if (is_array($arColumnsOptions) && isset($arColumnsOptions["columns"]) && $arColumnsOptions["columns"] <> '')
 			$arTmpColumns = explode(",", $arColumnsOptions["columns"]);
 
 		if(is_array($arTmpColumns) && !empty($arTmpColumns))
@@ -1305,11 +1307,11 @@ class OrderBasket
 
 			foreach ($arTmpColumns as $id => $columnCode)
 			{
-				if (substr($columnCode, 0, 9) == "PROPERTY_")
+				if (mb_substr($columnCode, 0, 9) == "PROPERTY_")
 				{
-					$iblockPropCode = substr($columnCode, 9);
+					$iblockPropCode = mb_substr($columnCode, 9);
 
-					if(strlen($iblockPropCode) > 0)
+					if($iblockPropCode <> '')
 					{
 						$iBlockProps[] = $iblockPropCode;
 
@@ -1338,7 +1340,7 @@ class OrderBasket
 
 				while($arPropData = $dbRes->fetch())
 				{
-					if(strlen($arPropData['CODE']) > 0)
+					if($arPropData['CODE'] <> '')
 						$result["PROPERTY_".$arPropData['CODE']] = $arPropData["NAME"];
 					else
 						$result["PROPERTY_".$arPropData['ID']] = $arPropData["NAME"];
@@ -1546,14 +1548,14 @@ class OrderBasket
 		$arUserColumns = ($userColumns != '') ? explode(",", $userColumns) : array();
 		foreach ($arUserColumns as $key => $column)
 		{
-			$column = strtoupper($column);
+			$column = mb_strtoupper($column);
 			if (strncmp($column, 'PROPERTY_', 9) != 0)
 			{
 				unset($arUserColumns[$key]);
 			}
 			else
 			{
-				$propertyCode = substr($column, 9);
+				$propertyCode = mb_substr($column, 9);
 				if ($propertyCode == '')
 				{
 					unset($arUserColumns[$key]);
@@ -1602,7 +1604,7 @@ class OrderBasket
 			{
 				foreach ($arElement as $key => $value)
 				{
-					if (strncmp($key, 'PROPERTY_', 9) == 0 && substr($key, -6) == "_VALUE")
+					if (strncmp($key, 'PROPERTY_', 9) == 0 && mb_substr($key, -6) == "_VALUE")
 					{
 						$columnCode = str_replace("_VALUE", "", $key);
 						if (!isset($arPropertyInfo[$columnCode]))
@@ -1630,13 +1632,13 @@ class OrderBasket
 					$fieldVal = $field."_VALUE";
 					$parentId = $arSku2Parent[$productId];
 
-					if ((!isset($arElementInfo[$fieldVal]) || (isset($arElementInfo[$fieldVal]) && strlen($arElementInfo[$fieldVal]) == 0))
+					if ((!isset($arElementInfo[$fieldVal]) || (isset($arElementInfo[$fieldVal]) && $arElementInfo[$fieldVal] == ''))
 							&& (isset($arProductData[$parentId][$fieldVal]) && !empty($arProductData[$parentId][$fieldVal]))) // can be array or string
 					{
 						$arElementInfo[$fieldVal] = $arProductData[$parentId][$fieldVal];
 					}
 				}
-				if (strpos($arElementInfo["~XML_ID"], '#') === false)
+				if (mb_strpos($arElementInfo["~XML_ID"], '#') === false)
 				{
 					$arElementInfo["~XML_ID"] = $arParent['~XML_ID'].'#'.$arElementInfo["~XML_ID"];
 				}
@@ -1730,7 +1732,7 @@ class OrderBasket
 				unset($val);
 			}
 
-			if(strlen($arElementInfo["~IBLOCK_EXTERNAL_ID"]) > 0)
+			if($arElementInfo["~IBLOCK_EXTERNAL_ID"] <> '')
 			{
 				$arSkuData[] = array(
 						"NAME" => "Catalog XML_ID",
@@ -1739,7 +1741,7 @@ class OrderBasket
 				);
 			}
 
-			if(strlen($arElementInfo["~XML_ID"]) > 0)
+			if($arElementInfo["~XML_ID"] <> '')
 			{
 				$arSkuData[] = array(
 						"NAME" => "Product XML_ID",
@@ -2194,7 +2196,7 @@ class OrderBasket
 		elseif(!isset($params["MEASURE_CODE"]))
 			$params["MEASURE_CODE"] = 0;
 
-		if(strlen($item->getField("MEASURE_NAME")) > 0)
+		if($item->getField("MEASURE_NAME") <> '')
 			$params["MEASURE_TEXT"] = $item->getField("MEASURE_NAME");
 		elseif(!isset($params["MEASURE_TEXT"]))
 			$params["MEASURE_TEXT"] = "";

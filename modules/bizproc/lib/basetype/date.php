@@ -305,7 +305,7 @@ class Date extends Base
 	{
 		$value = parent::extractValue($fieldType, $field, $request);
 
-		if ($value !== null && is_string($value) && strlen($value) > 0)
+		if ($value !== null && is_string($value) && $value <> '')
 		{
 			if (\CBPActivity::isExpression($value))
 				return $value;
@@ -472,7 +472,7 @@ class Date extends Base
 		foreach (\DateTimeZone::listIdentifiers() as $tz)
 		{
 			foreach ($exclude as $ex)
-				if (strpos($tz, $ex) === 0)
+				if (mb_strpos($tz, $ex) === 0)
 					continue 2;
 			try
 			{

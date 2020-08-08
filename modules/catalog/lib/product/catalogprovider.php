@@ -270,7 +270,7 @@ if (Main\Loader::includeModule('sale'))
 			{
 				if ($entityData['TYPE'] != Catalog\ProductTable::TYPE_OFFER)
 					continue;
-				if (strpos($products[$entityData['ID']]['PRODUCT_DATA']['~XML_ID'], '#') !== false)
+				if (mb_strpos($products[$entityData['ID']]['PRODUCT_DATA']['~XML_ID'], '#') !== false)
 					continue;
 				$offerList[] = $entityData['ID'];
 			}
@@ -885,7 +885,7 @@ if (Main\Loader::includeModule('sale'))
 
 						}
 
-						if (!empty($proxyCatalogSkuData[$item["ITEM_ID"]]) && strpos($elementData["XML_ID"], '#') === false)
+						if (!empty($proxyCatalogSkuData[$item["ITEM_ID"]]) && mb_strpos($elementData["XML_ID"], '#') === false)
 						{
 							$parentSkuData = $proxyCatalogSkuData[$item["ITEM_ID"]];
 							if (!empty($proxyParentData[$parentSkuData['ID']]) && is_array($proxyParentData[$parentSkuData['ID']]))
@@ -1741,24 +1741,7 @@ if (Main\Loader::includeModule('sale'))
 					}
 					else
 					{
-						if ($productQuantity <= $catalogQuantity)
-						{
-							$fields["QUANTITY"] = $catalogQuantity - $productQuantity;
-						}
-						else
-						{
-							$fields["QUANTITY"] = 0;
-
-							$minusQuantity = ($productQuantity - $catalogQuantity);
-
-							$needReservedQuantity = $catalogReservedQuantity - $minusQuantity;
-							if ($minusQuantity > $catalogReservedQuantity)
-							{
-								$needReservedQuantity = $catalogReservedQuantity;
-							}
-
-							$fields["QUANTITY_RESERVED"] = $needReservedQuantity;
-						}
+						$fields["QUANTITY"] = $catalogQuantity - $productQuantity;
 					}
 
 				}
@@ -4038,9 +4021,9 @@ if (Main\Loader::includeModule('sale'))
 			foreach ($fields as $name => $value)
 			{
 				$clearName = $name;
-				if (substr($clearName, 0, 1) == '~')
+				if (mb_substr($clearName, 0, 1) == '~')
 				{
-					$clearName = substr($clearName, 1, strlen($clearName));
+					$clearName = mb_substr($clearName, 1, mb_strlen($clearName));
 				}
 
 				if (!in_array($clearName, $clearFields))
@@ -4450,13 +4433,20 @@ if (Main\Loader::includeModule('sale'))
 				if (empty($iblockData['PRODUCT_LIST']))
 					continue;
 
-				foreach($iblockData['PRODUCT_LIST'] as $productData)
+				foreach($iblockData['PRODUCT_LIST'] as $productId)
 				{
-					$productId = $productData['PRODUCT_ID'];
-
 					if (isset($resultList[$productId]))
 					{
-						$resultList[$productId]['QUANTITY'] = 1;
+						if (
+							!empty($resultList[$productId]['QUANTITY_LIST'])
+							&& is_array($resultList[$productId]['QUANTITY_LIST'])
+						)
+						{
+							foreach (array_keys($resultList[$productId]['QUANTITY_LIST']) as $index)
+							{
+								$resultList[$productId]['QUANTITY_LIST'][$index] = 1;
+							}
+						}
 					}
 				}
 			}

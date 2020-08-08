@@ -5,6 +5,9 @@
  * @var CMain $APPLICATION
  * @var CUser $USER
  */
+
+use Bitrix\Main\Web\Json;
+
 $rights = "N";
 if (
 	\CSocNetUser::IsCurrentUserModuleAdmin()
@@ -70,7 +73,14 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 		"NOTIFY_TAG" => ($arParams["bFromList"] ? "BLOG|COMMENT" : ""),
 		"NOTIFY_TEXT" => ($arParams["bFromList"] ? TruncateText(str_replace(Array("\r\n", "\n"), " ", $arParams["POST_DATA"]["~TITLE"]), 100) : ""),
 		"SHOW_MINIMIZED" => "Y",
-		"SHOW_POST_FORM" => ($arResult["CanUserComment"] ? "Y" : "N"),
+		"SHOW_POST_FORM" => (!$arParams["bFromList"] && $arResult["CanUserComment"] ? "Y" : "N"),
+		"USE_LIVE" => !$arParams["bFromList"],
+		"SHOW_MENU" => !$arParams["bFromList"],
+		"REPLY_ACTION" => (
+			$arParams["bFromList"]
+				? $arResult["replyAction"]
+				: ''
+		),
 
 		"IMAGE_SIZE" => $arParams["IMAGE_SIZE"],
 		"mfi" => $arParams["mfi"],
@@ -91,9 +101,26 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 	$this->__component
 );
 if ($eventHandlerID > 0 )
+{
 	RemoveEventHandler('main', 'system.field.view.file', $eventHandlerID);
+}
 
-if ($arResult["CanUserComment"] == "Y")
+if ($arParams["bFromList"])
+{
+	if (!empty($arResult["RECORDS"]))
+	{
+		ob_start();
+		$APPLICATION->IncludeComponent(
+			"bitrix:mobile.comments.pseudoform",
+			"",
+			[
+				'REPLY_ACTION' => $arResult["replyAction"]
+			]
+		);
+		$arResult["OUTPUT_LIST"]["HTML"] .= ob_get_clean();
+	}
+}
+elseif ($arResult["CanUserComment"] == "Y")
 {
 	ob_start();
 	include_once(__DIR__ . "/script.php");
@@ -104,11 +131,11 @@ if ($_REQUEST["empty_get_comments"] == "Y")
 {
 	$APPLICATION->RestartBuffer();
 	while(ob_get_clean());
-	echo CUtil::PhpToJSObject(array(
+	\CMain::finalActions(Json::encode([
 		"TEXT" => $arResult["OUTPUT_LIST"]["HTML"],
 		"POST_NUM_COMMENTS" => intval($arResult["Post"]["NUM_COMMENTS"]),
 		"POST_PERM" => $arResult["PostPerm"]
-	));
+	]));
 	die();
 }
 ?>

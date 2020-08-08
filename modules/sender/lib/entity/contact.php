@@ -86,7 +86,7 @@ class Contact extends Base
 		}
 		catch (SqlQueryException $exception)
 		{
-			if (strpos($exception->getMessage(), '(1062) Duplicate entry') !== false)
+			if (mb_strpos($exception->getMessage(), '(1062) Duplicate entry') !== false)
 			{
 				$this->errors->setError(new Error(Loc::getMessage('SENDER_ENTITY_CONTACT_ERROR_DUPLICATE')));
 				return $id;

@@ -107,9 +107,17 @@ foreach($arResult["TABS"] as $tab)
 	$sections = array();
 ?>
 	<div id="tab_<?=$tab["id"]?>">
+		<?php
+			if (!empty($tab['title']))
+			{
+				?>
+				<div class="mobile-grid-tab-title"><?= $tab['title'] ?></div>
+				<?php
+			}
+		?>
 		<div
 			id="inner_tab_<?=$tab["id"]?>"
-			class="bx-edit-tab-inner"<?if($tab["id"] <> $arResult["SELECTED_TAB"]) echo ' style="display:none;"'?>>
+			class="bx-edit-tab-inner">
 			<? if($tab["icon"] <> ""): ?> <div class="bx-icon <?=htmlspecialcharsbx($tab["icon"])?>"></div> <? endif; ?>
 			<?/*?><div class="bx-form-title"><?=htmlspecialcharsbx($tab["title"])?></div><?*/ // Our design is not support this 13.11.2015 ?>
 			<div style="height: 100%;">
@@ -221,90 +229,122 @@ array_unshift($tab["fields"], array(
 							$bWasRequired = ($bWasRequired ? : $field["required"]);
 							$className = "";
 							$html = "";
-							switch($field["type"])
+
+						if(!empty($field['userField']))
+						{
+
+							$className = $field['userField']['USER_TYPE_ID'];
+							if ($className === \Bitrix\Main\UserField\Types\BooleanType::USER_TYPE_ID)
 							{
-								case 'custom':
-								case 'label':
-									//html allowed
-									$className = $field["type"];
-									$html = $val;
-									break;
-								case 'label':
-									$className = "label";
-									$html = $val;
-									break;
-								case 'text':
-									$placeholder = htmlspecialcharsbx($field["placeholder"] ?: $field["name"]);
-									$val = htmlspecialcharsbx($val);
-									$className = "text";
-									if ($arParams["RESTRICTED_MODE"])
-									{
-										$html = "<input type=\"hidden\" data-bx-type=\"text\" placeholder=\"{$placeholder}\" name=\"{$field["id"]}\" id=\"{$field["~id"]}\" $params value=\"$val\" />".
-										"<span id=\"{$field["~id"]}_target\" class=\"text\">".($val==""?"<span class=\"placeholder\">".$placeholder."</span>" : $val)."</span>";
-									}
-									else
-									{
-										$html = "<input class=\"mobile-grid-data-text\" type=\"text\" placeholder=\"{$placeholder}\" name=\"{$field["id"]}\" id=\"{$field["~id"]}\" $params value=\"$val\" />";
-									}
-									$jsObjects[] = $field["~id"];
-									break;
-								case 'number':
-									$className = "number";
-									$valFrom = $field["item"]["from"];
-									$valTo = $field["item"]["to"];
-									$html = "<input type=\"text\" class=\"mobile-grid-data-text\" name=\"".$field["id"]."_from\" id=\"{$field["~id"]}\" value=\"".htmlspecialcharsbx($valFrom)."\" style=\"border-bottom: 1px solid #dee0e3;\" placeholder=\"".GetMessage("interface_form_from")."\">
-											<input type=\"text\" class=\"mobile-grid-data-text\" name=\"".$field["id"]."_to\" value=\"".htmlspecialcharsbx($valTo)."\" placeholder=\"".GetMessage("interface_form_to")."\">";
-									break;
-								case 'textarea':
-									$placeholder = htmlspecialcharsbx($field["placeholder"] ?: $field["name"]);
-									$val = htmlspecialcharsbx($val);
-									$className = "textarea";
-									if ($arParams["RESTRICTED_MODE"])
-									{
-										$html = "<input type='hidden' data-bx-type='textarea' placeholder=\"{$placeholder}\" name=\"{$field["id"]}\" id=\"{$field["~id"]}\" $params value=\"$val\" />".
-										"<span id=\"{$field["~id"]}_target\">".($val==""?"<span class='placeholder'>".$placeholder."</span>" : $val)."</span>";
-									}
-									else
-									{
-										$html = "<textarea class=\"mobile-grid-data-textarea\" name=\"{$field["id"]}\" id=\"{$field["~id"]}\" placeholder=\"$placeholder\" $params>$val</textarea>";
-									}
-									$jsObjects[] = $field["~id"];
-									break;
-								case 'select-group':
-								case 'select-user':
-									$url = ($field["type"] == 'select-user' ? $userUrl : $groupUrl);
-									$className = "user";
-									$jsObjects[] = $field["~id"];
-									ob_start();
-									$html = '';
+								$i++;
+								$field["~id"] .= $i;
+							}
 
-									if (is_array($field["item"]))
-									{
-										$item = array_change_key_case($field["item"], CASE_LOWER);
-										$html .= "<option value=\"{$item["id"]}\" selected>{$item["id"]}</option>";
+							$field['userField']['~id'] = $field["~id"];
+							$userField = $field['userField'];
 
-										?><div class="mobile-grid-field-select-user-item"><?
-											if ($field["canDrop"] !== false):
-												?><del id="<?=$field["~id"]?>_del_<?=$item["id"]?>"></del><?
-											endif;
-											?>
-											<div class="avatar"<?if(!empty($item["avatar"])):?> style="background-image:url('<?=htmlspecialcharsbx($item["avatar"])?>')"<?endif;?>></div>
-											<?php if ($field['type'] === 'select-user'):?>
-												<span onclick="BXMobileApp.Events.postToComponent('onUserProfileOpen', [<?=$item["id"]?>], 'communication');"><?=htmlspecialcharsbx($item["name"])?></span>
-											<?php else:?>
-												<span onclick="BXMobileApp.PageManager.loadPageBlank({url: '<?=str_replace("#ID#", $item["id"], $url)?>',bx24ModernStyle: true});"><?=htmlspecialcharsbx($item["name"])?></span>
-											<?php endif;?>
-										</div><?php
-									}
-									$users = ob_get_clean();
-									$html = "<select class=\"mobile-grid-data-select\" name=\"{$field["id"]}\" data-bx-type=\"{$field["type"]}\" bx-can-drop=\"".($field["canDrop"] === false ? "false" : "")."\" id=\"{$field["~id"]}\"{$params}>".$html."</select>".
-											"<div id=\"{$field["~id"]}_target\" class=\"mobile-grid-field-select-user-container\">".$users."</div>".
-										"<a class=\"mobile-grid-button select-user add\" id=\"{$field["~id"]}_select\" href=\"#\">".($users == ''? GetMessage("interface_form_select") : GetMessage("interface_form_change"))."</a>";
-									break;
-								case 'group':
-								case 'user':
-									$url = ($field["type"] == 'user' ? $userUrl : $groupUrl);
-									$className = "user";
+							$mode = $arParams["RESTRICTED_MODE"] ?
+								[\Bitrix\Main\UserField\Types\BaseType::MODE_VIEW] :
+								[\Bitrix\Main\UserField\Types\BaseType::MODE_EDIT];
+
+							$additionalParameters = [
+								'mode' => $mode,
+								'mediaType' => \Bitrix\Main\Component\BaseUfComponent::MEDIA_TYPE_MOBILE,
+								'formId' => $arParams['FORM_ID'] ?? false,
+								'gridId' => $arParams['THEME_GRID_ID'] ?? false,
+							];
+
+							$html = (new \Bitrix\Main\UserField\Renderer($userField, $additionalParameters))->render();
+						}
+						else
+						{
+						switch($field["type"])
+						{
+						case 'custom':
+						case 'label':
+							//html allowed
+							$className = $field["type"];
+							$html = $val;
+							break;
+						case 'label':
+							$className = "label";
+							$html = $val;
+							break;
+						case 'text':
+							$placeholder = htmlspecialcharsbx($field["placeholder"] ?: $field["name"]);
+							$val = htmlspecialcharsbx($val);
+							$className = "text";
+							if($arParams["RESTRICTED_MODE"])
+							{
+								$html = "<input type=\"hidden\" data-bx-type=\"text\" placeholder=\"{$placeholder}\" name=\"{$field["id"]}\" id=\"{$field["~id"]}\" $params value=\"$val\" />" .
+									"<span id=\"{$field["~id"]}_target\" class=\"text\">" . ($val == "" ? "<span class=\"placeholder\">" . $placeholder . "</span>" : $val) . "</span>";
+							}
+							else
+							{
+								$html = "<input class=\"mobile-grid-data-text\" type=\"text\" placeholder=\"{$placeholder}\" name=\"{$field["id"]}\" id=\"{$field["~id"]}\" $params value=\"$val\" />";
+							}
+							$jsObjects[] = $field["~id"];
+							break;
+						case 'number':
+							$className = "number";
+							$valFrom = $field["item"]["from"];
+							$valTo = $field["item"]["to"];
+							$html = "<input type=\"text\" class=\"mobile-grid-data-text\" name=\"" . $field["id"] . "_from\" id=\"{$field["~id"]}\" value=\"" . htmlspecialcharsbx($valFrom) . "\" style=\"border-bottom: 1px solid #dee0e3;\" placeholder=\"" . GetMessage("interface_form_from") . "\">
+											<input type=\"text\" class=\"mobile-grid-data-text\" name=\"" . $field["id"] . "_to\" value=\"" . htmlspecialcharsbx($valTo) . "\" placeholder=\"" . GetMessage("interface_form_to") . "\">";
+							break;
+						case 'textarea':
+							$placeholder = htmlspecialcharsbx($field["placeholder"] ?: $field["name"]);
+							$val = htmlspecialcharsbx($val);
+							$className = "textarea";
+							if($arParams["RESTRICTED_MODE"])
+							{
+								$html = "<input type='hidden' data-bx-type='textarea' placeholder=\"{$placeholder}\" name=\"{$field["id"]}\" id=\"{$field["~id"]}\" $params value=\"$val\" />" .
+									"<span id=\"{$field["~id"]}_target\">" . ($val == "" ? "<span class='placeholder'>" . $placeholder . "</span>" : $val) . "</span>";
+							}
+							else
+							{
+								$html = "<textarea class=\"mobile-grid-data-textarea\" name=\"{$field["id"]}\" id=\"{$field["~id"]}\" placeholder=\"$placeholder\" $params>$val</textarea>";
+							}
+							$jsObjects[] = $field["~id"];
+							break;
+						case 'select-group':
+						case 'select-user':
+						$url = ($field["type"] == 'select-user' ? $userUrl : $groupUrl);
+						$className = "user";
+						$jsObjects[] = $field["~id"];
+						ob_start();
+						$html = '';
+
+						if (is_array($field["item"]))
+						{
+						$item = array_change_key_case($field["item"], CASE_LOWER);
+						$html .= "<option value=\"{$item["id"]}\" selected>{$item["id"]}</option>";
+
+						?>
+						<div class="mobile-grid-field-select-user-item"><?
+							if($field["canDrop"] !== false):
+								?>
+							<del id="<?= $field["~id"] ?>_del_<?= $item["id"] ?>"></del><?
+							endif;
+							?>
+							<div class="avatar"<?
+							if(!empty($item["avatar"])):?> style="background-image:url('<?= htmlspecialcharsbx($item["avatar"]) ?>')"<? endif; ?>></div>
+							<?php if($field['type'] === 'select-user'): ?>
+								<span onclick="BXMobileApp.Events.postToComponent('onUserProfileOpen', [<?= $item["id"] ?>], 'communication');"><?= htmlspecialcharsbx($item["name"]) ?></span>
+							<?php else: ?>
+								<span onclick="BXMobileApp.PageManager.loadPageBlank({url: '<?= str_replace("#ID#", $item["id"], $url) ?>',bx24ModernStyle: true});"><?= htmlspecialcharsbx($item["name"]) ?></span>
+							<?php endif; ?>
+						</div><?php
+						}
+						$users = ob_get_clean();
+						$html = "<select class=\"mobile-grid-data-select\" name=\"{$field["id"]}\" data-bx-type=\"{$field["type"]}\" bx-can-drop=\"" . ($field["canDrop"] === false ? "false" : "") . "\" id=\"{$field["~id"]}\"{$params}>" . $html . "</select>" .
+							"<div id=\"{$field["~id"]}_target\" class=\"mobile-grid-field-select-user-container\">" . $users . "</div>" .
+							"<a class=\"mobile-grid-button select-user add\" id=\"{$field["~id"]}_select\" href=\"#\">" . ($users == '' ? GetMessage("interface_form_select") : GetMessage("interface_form_change")) . "</a>";
+						break;
+						case 'group':
+						case 'user':
+						$url = ($field["type"] == 'user' ? $userUrl : $groupUrl);
+						$className = "user";
 
 									ob_start();
 									if (is_array($field["item"]))
@@ -402,227 +442,238 @@ array_unshift($tab["fields"], array(
 									}
 									$users = ob_get_clean();
 
-									$html =
-										"<div class=\"mobile-grid-field-select-user-wrap\">".
-											"<input value=\"$u\" type=\"checkbox\" id=\"expand_$i\" />".
-											"<div class=\"mobile-grid-field-select-user-container\">".$users."</div>".
-											"<label class=\"mobile-grid-field-select-user-more\" for=\"expand_$i\">".
-												"<span class=\"unchecked\">".GetMessage("interface_form_show_more")." (<span>".($u-3)."</span>)</span>".
-												"<span class=\"checked\">".GetMessage("interface_form_hide")."</span>".
-											"</label>".
-										"</div>";
-									break;
-								case 'list':
-								case 'select':
-									$className = "select";
-									if (is_array($field["items"]))
+						$html =
+							"<div class=\"mobile-grid-field-select-user-wrap\">" .
+							"<input value=\"$u\" type=\"checkbox\" id=\"expand_$i\" />" .
+							"<div class=\"mobile-grid-field-select-user-container\">" . $users . "</div>" .
+							"<label class=\"mobile-grid-field-select-user-more\" for=\"expand_$i\">" .
+							"<span class=\"unchecked\">" . GetMessage("interface_form_show_more") . " (<span>" . ($u - 3) . "</span>)</span>" .
+							"<span class=\"checked\">" . GetMessage("interface_form_hide") . "</span>" .
+							"</label>" .
+							"</div>";
+						break;
+						case 'list':
+						case 'select':
+							$className = "select";
+							if(is_array($field["items"]))
+							{
+								if(!is_array($val))
+									$val = array($val);
+								$items = array();
+
+								$selected = array_intersect(array_keys($field["items"]), $val);
+								if(empty($selected) && !(is_array($field["params"]) && array_key_exists("multiple", $field["params"])))
+								{
+									$selected = array(reset(array_keys($field["items"])));
+								}
+
+								$html = "<select class=\"mobile-grid-data-select\" name=\"{$field["id"]}\" id=\"{$field["~id"]}\"{$params}>";
+								foreach($field["items"] as $k => $v):
+									$items[$k] = $v;
+									$s = (in_array($k, $selected) ? " selected" : "");
+									$k = htmlspecialcharsbx($k);
+									$v = htmlspecialcharsbx($v);
+									$html .= "<option value=\"{$k}\" {$s}>$v</option>";
+								endforeach;
+								$html .= "</select>";
+
+
+								if(is_array($field["params"]) && array_key_exists("multiple", $field["params"]))
+								{
+									$html .= "<span id=\"{$field["~id"]}_target\">";
+									foreach($selected as $k)
 									{
-										if(!is_array($val))
-											$val = array($val);
-										$items = array();
-
-										$selected = array_intersect(array_keys($field["items"]), $val);
-										if (empty($selected) && !(is_array($field["params"]) && array_key_exists("multiple", $field["params"])))
-										{
-											$selected = array(reset(array_keys($field["items"])));
-										}
-
-										$html = "<select class=\"mobile-grid-data-select\" name=\"{$field["id"]}\" id=\"{$field["~id"]}\"{$params}>";
-										foreach($field["items"] as $k => $v):
-											$items[$k] = $v;
-											$s = (in_array($k, $selected) ? " selected" : "");
-											$k = htmlspecialcharsbx($k);
-											$v = htmlspecialcharsbx($v);
-											$html .= "<option value=\"{$k}\" {$s}>$v</option>";
-										endforeach;
-										$html .= "</select>";
-
-
-										if (is_array($field["params"]) && array_key_exists("multiple", $field["params"]))
-										{
-											$html .= "<span id=\"{$field["~id"]}_target\">";
-											foreach ($selected as $k)
-											{
-												$v = htmlspecialcharsbx($items[$k]);
-												$html .= "<a href=\"javascript:void();\">$v</a>"; // TODO we need to decide how should it looks
-											}
-											$html .= "</span>".
-												"<a class=\"mobile-grid-button select-change\" href=\"#\" id=\"{$field["~id"]}_select\">".GetMessage("interface_form_change")."</a>";
-										}
-										else if (empty($selected))
-										{
-											break;
-										}
-										else
-										{
-											$k = reset($selected);
-											$v = htmlspecialcharsbx($items[$k]);
-											$html .= "<a href='#' id=\"{$field["~id"]}_select\">$v</a>";
-										}
-										$jsObjects[] = $field["~id"];
+										$v = htmlspecialcharsbx($items[$k]);
+										$html .= "<a href=\"javascript:void();\">$v</a>"; // TODO we need to decide how should it looks
 									}
+									$html .= "</span>" .
+										"<a class=\"mobile-grid-button select-change\" href=\"#\" id=\"{$field["~id"]}_select\">" . GetMessage("interface_form_change") . "</a>";
+								}
+								else if(empty($selected))
+								{
 									break;
-								case 'checkbox':
-									$className = "checkbox";
-									$items = (is_array($field["items"]) ? $field["items"] : array("Y" => "Y"));
-									$val = (is_array($val) ? $val : array($val));
-									foreach($items as $k => $v)
-									{
-										$i++;
-										$k = htmlspecialcharsbx($k);
-										$v = htmlspecialcharsbx($v);
-										$checked = (in_array($k, $val) ? ' checked' : '');
-										$html .= "<label for=\"{$field["~id"]}{$i}\">".
-												"<input type=\"checkbox\" id=\"{$field["~id"]}{$i}\" name=\"{$field["id"]}\" value=\"{$k}\" {$checked}{$params} />".
-												"<span>{$v}</span>".
-											"</label>";
-										$jsObjects[] = $field["~id"].$i;
-									}
-									break;
-								case 'radio':
-									$className = "radio";
-									$items = (is_array($field["items"]) ? $field["items"] : array("Y" => "Y"));
-									$val = (is_array($val) ? $val : array($val));
-									foreach($items as $k => $v)
-									{
-										$i++;
-										$k = htmlspecialcharsbx($k);
-										$v = htmlspecialcharsbx($v);
-										$checked = (in_array($k, $val) ? ' checked' : '');
-										$html .= "<label for=\"{$field["~id"]}{$i}\">".
-												"<input type=\"radio\" id=\"{$field["~id"]}{$i}\" name=\"{$field["id"]}\" value=\"{$k}\" {$checked}{$params} />".
-												"<span>{$v}</span>".
-											"</label>";
-										$jsObjects[] = $field["~id"].$i;
-									}
-									break;
-								case 'diskview':
-								case 'disk_fileview':
-								case 'crmview':
-									$field["type"] = ($field["type"] == "diskview" ? "disk_fileview" : $field["type"]);
-									$field["type"] = substr($field["type"], 0, -4);
-								if ($field["type"] == "crm" && !\Bitrix\Main\ModuleManager::isModuleInstalled("crm") ||
-									$field["type"] == "disk_file" && !\Bitrix\Main\ModuleManager::isModuleInstalled("disk"))
-									break;
-									$val = is_array($val) ? $val : array();
-									$className = ($field["type"] == "disk_file" ? "file" : $field["type"]);
-									ob_start();
-									$APPLICATION->IncludeComponent("bitrix:system.field.view", $field["type"],
-										array(
-											"arUserField" => $val,
-											"MOBILE" => "Y",
-											"CAN_EDIT" => false,
-											"formId" => $arParams["FORM_ID"]
-										),
-										$component,
-										array("HIDE_ICONS" => "Y")
-									);
-									$html = ob_get_clean();
-									if ($html == '')
-										break;
-									break;
-								case 'crm':
-								case 'disk_file':
-								case 'disk':
-									$field["type"] = ($field["type"] == "disk" ? "disk_file" : $field["type"]);
-									if ($field["type"] == "crm" && !\Bitrix\Main\ModuleManager::isModuleInstalled("crm") ||
-										$field["type"] == "disk_file" && !\Bitrix\Main\ModuleManager::isModuleInstalled("disk"))
-										break;
-									$val = is_array($val) ? $val : array();
-									$className = ($field["type"] == "disk_file" ? "file" : $field["type"]);
-									ob_start();
-									$APPLICATION->IncludeComponent("bitrix:system.field.edit", $field["type"],
-										array(
-											"arUserField" => $val,
-											"MOBILE" => "Y",
-											"CAN_EDIT" => true,
-											"formId" => $arParams["FORM_ID"]
-										),
-										$component,
-										array("HIDE_ICONS" => "Y")
-									);
-									$html = ob_get_clean();
-									if ($html == '')
-										break;
-									$html .= '<input type="hidden" id="'.$field["~id"].'" value="'.$val["FIELD_NAME"].'" data-bx-type="'.$field["type"].'" />';
-									$jsObjects[] = $field["~id"];
-									break;
-								case 'file':
-								case 'image':
-									$className = "file";
-									$val = (is_array($val) ? $val : array($val));
-									$uploadedFile =  preg_replace("/[\n\t]+/", "", $uploadedFile);
-									ob_start();
-									?><input type="hidden" <?
-										?>name="<?=$field["id"]?>" <?
-										?>value="0" <?
-										?>id="<?=$field["~id"]?>" <?
-										?>data-bx-type="<?=$field["type"]?>" <?
-										?>data-bx-extension="<?=$field["ext"]?>" <?
-										?>data-bx-url="<?=$field["url"]?>" <?
-										?>data-bx-name="<?=$field["id"]?>" <?
-										?>data-bx-max="<?=$field["maxCount"]?>" <?
-									?> /><?
-								?><div id="file-placeholder-<?=$field["~id"]?>"><?
-									foreach ($val as $f)
-									{
-										$f = (is_array($f) ? $f : CFile::GetFileArray($f));
-										if (is_array($f))
-										{
-											?><?=str_replace(
-												array(
-													"#id#",
-													"#name#",
-													"#size#",
-													"#preview_url#",
-													"#class#",
-													"#control_name#"
-												),
-												array(
-													$f["ID"],
-													$f["FILE_NAME"],
-													CFile::FormatSize($f["FILE_SIZE"]),
-													(empty($f["SRC"]) ? "javascript:void(0);" : $f["SRC"]),
-													(empty($f["SRC"]) ? "file" : "image"),
-													$field["id"]
-												),
-												$uploadedFile
-											)?><?
-										}
-									}
-									?></div>
-									<div class="mobile-grid-button file" id="file-eventnode-<?=$field["~id"]?>"><?
-											?><?=($field["maxCount"] != 1 ? GetMessage("interface_form_add") : GetMessage("interface_form_change"))?><?
-										?><input class="mobile-grid-button-file" type="file" id="<?=$field["~id"]?>_file" size="1" <?if ($field["maxCount"] != 1){?>multiple="multiple" <?}?>/></div>
-								<?
-									$html = ob_get_clean();
-									$jsObjects[] = $field["~id"];
-									break;
-								case 'datetime':
-								case 'date':
-								case 'time':
-									$className = "date";
-									$placeholder = htmlspecialcharsbx($field["placeholder"] ?: $field["name"]);
-									$html = "<input type='hidden' data-bx-type=\"{$field["type"]}\" id=\"{$field["~id"]}\" name=\"{$field["id"]}\" {$params} value=\"{$val}\" />";
-
-									$format = ($field["type"] == "datetime" ? $arParams["DATE_TIME_FORMAT"] : ($field["type"] == "date" ? $arParams["DATE_FORMAT"] : $arParams["TIME_FORMAT"]));
-
-									if ($val)
-										$val = FormatDate($format, MakeTimeStamp($val));
-
-									$html .= "<div placeholder=\"{$placeholder}\" id=\"{$field["~id"]}_container\">".($val? $val : $placeholder)."</div>";
-
-									if ($field["canDrop"] !== false)
-										$html .= '<del id="'.$field["~id"].'_del" '.($val ? '' :'style="display:none"').'></del>';
-
-									$jsObjects[] = $field["~id"];
-									break;
-								default:
-									$className = "text";
-									$html = htmlspecialcharsbx($val);
-								break;
+								}
+								else
+								{
+									$k = reset($selected);
+									$v = htmlspecialcharsbx($items[$k]);
+									$html .= "<a href='#' id=\"{$field["~id"]}_select\">$v</a>";
+								}
+								$jsObjects[] = $field["~id"];
 							}
-							if ($html === '')
+							break;
+						case 'checkbox':
+							$className = "checkbox";
+							$items = (is_array($field["items"]) ? $field["items"] : array("Y" => "Y"));
+							$val = (is_array($val) ? $val : array($val));
+							foreach($items as $k => $v)
+							{
+								$i++;
+								$k = htmlspecialcharsbx($k);
+								$v = htmlspecialcharsbx($v);
+								$checked = (in_array($k, $val) ? ' checked' : '');
+								$html .= "<label for=\"{$field["~id"]}{$i}\">" .
+									"<input type=\"checkbox\" id=\"{$field["~id"]}{$i}\" name=\"{$field["id"]}\" value=\"{$k}\" {$checked}{$params} />" .
+									"<span>{$v}</span>" .
+									"</label>";
+								$jsObjects[] = $field["~id"] . $i;
+							}
+							break;
+						case 'radio':
+							$className = "radio";
+							$items = (is_array($field["items"]) ? $field["items"] : array("Y" => "Y"));
+							$val = (is_array($val) ? $val : array($val));
+							foreach($items as $k => $v)
+							{
+								$i++;
+								$k = htmlspecialcharsbx($k);
+								$v = htmlspecialcharsbx($v);
+								$checked = (in_array($k, $val) ? ' checked' : '');
+								$html .= "<label for=\"{$field["~id"]}{$i}\">" .
+									"<input type=\"radio\" id=\"{$field["~id"]}{$i}\" name=\"{$field["id"]}\" value=\"{$k}\" {$checked}{$params} />" .
+									"<span>{$v}</span>" .
+									"</label>";
+								$jsObjects[] = $field["~id"] . $i;
+							}
+							break;
+						case 'diskview':
+						case 'disk_fileview':
+						case 'crmview':
+							$field["type"] = ($field["type"] == "diskview" ? "disk_fileview" : $field["type"]);
+							$field["type"] = substr($field["type"], 0, -4);
+							if($field["type"] == "crm" && !\Bitrix\Main\ModuleManager::isModuleInstalled("crm") ||
+								$field["type"] == "disk_file" && !\Bitrix\Main\ModuleManager::isModuleInstalled("disk"))
+								break;
+							$val = is_array($val) ? $val : array();
+							$className = ($field["type"] == "disk_file" ? "file" : $field["type"]);
+							ob_start();
+							$APPLICATION->IncludeComponent("bitrix:system.field.view", $field["type"],
+								array(
+									"arUserField" => $val,
+									"MOBILE" => "Y",
+									"CAN_EDIT" => false,
+									"formId" => $arParams["FORM_ID"],
+									'mode' => 'main.view'
+								),
+								$component,
+								array("HIDE_ICONS" => "Y")
+							);
+							$html = ob_get_clean();
+							if($html == '')
+								break;
+							break;
+						case 'crm':
+						case 'disk_file':
+						case 'disk':
+							$field["type"] = ($field["type"] == "disk" ? "disk_file" : $field["type"]);
+							if($field["type"] == "crm" && !\Bitrix\Main\ModuleManager::isModuleInstalled("crm") ||
+								$field["type"] == "disk_file" && !\Bitrix\Main\ModuleManager::isModuleInstalled("disk"))
+								break;
+							$val = is_array($val) ? $val : array();
+							$className = ($field["type"] == "disk_file" ? "file" : $field["type"]);
+							ob_start();
+							$APPLICATION->IncludeComponent("bitrix:system.field.edit", $field["type"],
+								array(
+									"arUserField" => $val,
+									"MOBILE" => "Y",
+									"CAN_EDIT" => true,
+									"formId" => $arParams["FORM_ID"],
+									'mode' => 'main.edit'
+								),
+								$component,
+								array("HIDE_ICONS" => "Y")
+							);
+							$html = ob_get_clean();
+							if($html == '')
+								break;
+							$html .= '<input type="hidden" id="' . $field["~id"] . '" value="' . $val["FIELD_NAME"] . '" data-bx-type="' . $field["type"] . '" />';
+							$jsObjects[] = $field["~id"];
+							break;
+						case 'file':
+						case 'image':
+						$className = "file";
+						$val = (is_array($val) ? $val : array($val));
+						$uploadedFile = preg_replace("/[\n\t]+/", "", $uploadedFile);
+						ob_start();
+						?>
+						<input type="hidden" <?
+						?>name="<?= $field["id"] ?>" <?
+									 ?>value="0" <?
+									 ?>id="<?= $field["~id"] ?>" <?
+									 ?>data-bx-type="<?= $field["type"] ?>" <?
+									 ?>data-bx-extension="<?= $field["ext"] ?>" <?
+									 ?>data-bx-url="<?= $field["url"] ?>" <?
+									 ?>data-bx-name="<?= $field["id"] ?>" <?
+									 ?>data-bx-max="<?= $field["maxCount"] ?>" <?
+						?> /><?
+						?>
+						<div id="file-placeholder-<?= $field["~id"] ?>"><?
+							foreach($val as $f)
+							{
+								$f = (is_array($f) ? $f : CFile::GetFileArray($f));
+								if(is_array($f))
+								{
+									?><?= str_replace(
+									array(
+										"#id#",
+										"#name#",
+										"#size#",
+										"#preview_url#",
+										"#class#",
+										"#control_name#"
+									),
+									array(
+										$f["ID"],
+										$f["FILE_NAME"],
+										CFile::FormatSize($f["FILE_SIZE"]),
+										(empty($f["SRC"]) ? "javascript:void(0);" : $f["SRC"]),
+										(empty($f["SRC"]) ? "file" : "image"),
+										$field["id"]
+									),
+									$uploadedFile
+								) ?><?
+								}
+							}
+							?></div>
+						<div class="mobile-grid-button file" id="file-eventnode-<?= $field["~id"] ?>"><?
+							?><?= ($field["maxCount"] != 1 ? GetMessage("interface_form_add") : GetMessage("interface_form_change")) ?><?
+							?>
+							<input class="mobile-grid-button-file" type="file" id="<?= $field["~id"] ?>_file" size="1" <?
+							if($field["maxCount"] != 1)
+							{
+							?>multiple="multiple" <?
+							} ?>/>
+						</div>
+						<?
+						$html = ob_get_clean();
+						$jsObjects[] = $field["~id"];
+						break;
+						case 'datetime':
+						case 'date':
+						case 'time':
+							$className = "date";
+							$placeholder = htmlspecialcharsbx($field["placeholder"] ?: $field["name"]);
+							$html = "<input type='hidden' data-bx-type=\"{$field["type"]}\" id=\"{$field["~id"]}\" name=\"{$field["id"]}\" {$params} value=\"{$val}\" />";
+
+							$format = ($field["type"] == "datetime" ? $arParams["DATE_TIME_FORMAT"] : ($field["type"] == "date" ? $arParams["DATE_FORMAT"] : $arParams["TIME_FORMAT"]));
+
+							if($val)
+								$val = FormatDate($format, MakeTimeStamp($val));
+
+							$html .= "<div placeholder=\"{$placeholder}\" id=\"{$field["~id"]}_container\">" . ($val ? $val : $placeholder) . "</div>";
+
+							if($field["canDrop"] !== false)
+								$html .= '<del id="' . $field["~id"] . '_del" ' . ($val ? '' : 'style="display:none"') . '></del>';
+
+							$jsObjects[] = $field["~id"];
+							break;
+						default:
+							$className = "text";
+							$html = htmlspecialcharsbx($val);
+							break;
+						}
+						}
+						if ($html == '')
 								continue;
 							?><div class="mobile-grid-section<?=(!empty($sections) ? "-child" : "")?> <?= htmlspecialcharsbx($field['class']) ?>"<?if(!empty($style)): ?> style="<?= $style ?>"<? endif;
 							if(!empty($field['fieldId'])): ?> id="<?= $field['fieldId'] ?>"<? endif ?>><?
@@ -633,7 +684,11 @@ array_unshift($tab["fields"], array(
 									?><?if(strlen($field["name"])):?><?=htmlspecialcharsEx($field["name"])?><? endif ?>
 									</div><?
 								}
-								?><div class="mobile-grid-block mobile-grid-data-<?=$className?>-container"><?=preg_replace("/[\t\n]+/i", "", $html)?></div><?
+								?>
+									<div class="mobile-grid-block mobile-grid-data-<?=$className?>-container">
+										<?= $html ?>
+									</div>
+								<?
 							?></div><?
 						}
 					}

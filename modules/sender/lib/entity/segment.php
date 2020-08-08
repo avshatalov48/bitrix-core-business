@@ -12,6 +12,7 @@ use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Sender\ContactTable;
+use Bitrix\Sender\GroupDealCategoryTable;
 use Bitrix\Sender\ListTable;
 use Bitrix\Sender\GroupTable;
 use Bitrix\Sender\GroupConnectorTable;
@@ -179,11 +180,40 @@ class Segment extends Base
 			{
 				$dataCounters[] = $connector->getDataCounter();
 			}
+
+			$this->updateDealCategory($id, $connector);
 		}
 
 		$this->updateAddressCounters($id, $dataCounters);
 
 		return $id;
+	}
+
+	private function updateDealCategory(int $groupId, $connector)
+	{
+		$groupDealCategory = [];
+
+		foreach ($connector->getFieldValues() as $fieldKey => $fieldValue)
+		{
+			if($fieldKey != 'DEAL_CATEGORY_ID')
+			{
+				continue;
+			}
+			GroupDealCategoryTable::delete(array('GROUP_ID' => $groupId));
+
+			foreach ($fieldValue as $dealCategory)
+			{
+				$groupDealCategory[] = [
+					'GROUP_ID' => $groupId,
+					'DEAL_CATEGORY_ID' => $dealCategory
+				];
+			}
+		}
+
+		if(!empty($groupDealCategory))
+		{
+			GroupDealCategoryTable::addMulti($groupDealCategory);
+		}
 	}
 
 	/**
@@ -419,8 +449,9 @@ class Segment extends Base
 		$tableName = GroupTable::getTableName();
 		$now = Application::getConnection()->getSqlHelper()->convertToDbDateTime(new DateTime());
 		$ids = array();
-		foreach ($list as $id)
+		foreach ($list as $element)
 		{
+			$id = $element['ID'];
 			if (!$id || !is_numeric($id))
 			{
 				continue;

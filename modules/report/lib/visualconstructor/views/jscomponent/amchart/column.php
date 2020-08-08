@@ -43,7 +43,7 @@ class Column extends Serial
 	public function handlerFinallyBeforePassToView($dataFromReport)
 	{
 		$result = parent::handlerFinallyBeforePassToView($dataFromReport);
-		$result['categoryAxis']['labelRotation'] = -20;
+		$result['categoryAxis']['labelRotation'] = 45;
 		$result['categoryAxis']['gridPosition'] = "start";
 		foreach ($result['graphs'] as &$graphConfig)
 		{

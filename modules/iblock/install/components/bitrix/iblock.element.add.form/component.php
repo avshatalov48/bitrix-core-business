@@ -45,20 +45,20 @@ if(!is_array($arParams["PROPERTY_CODES"]))
 else
 {
 	foreach($arParams["PROPERTY_CODES"] as $i=>$k)
-		if(strlen($k) <= 0)
+		if($k == '')
 			unset($arParams["PROPERTY_CODES"][$i]);
 }
 $arParams["PROPERTY_CODES_REQUIRED"] = is_array($arParams["PROPERTY_CODES_REQUIRED"]) ? $arParams["PROPERTY_CODES_REQUIRED"] : array();
 foreach($arParams["PROPERTY_CODES_REQUIRED"] as $key => $value)
-	if(strlen(trim($value)) <= 0)
+	if(trim($value) == '')
 		unset($arParams["PROPERTY_CODES_REQUIRED"][$key]);
 
 $arParams["USER_MESSAGE_ADD"] = trim($arParams["USER_MESSAGE_ADD"]);
-if(strlen($arParams["USER_MESSAGE_ADD"]) <= 0)
+if($arParams["USER_MESSAGE_ADD"] == '')
 	$arParams["USER_MESSAGE_ADD"] = GetMessage("IBLOCK_USER_MESSAGE_ADD_DEFAULT");
 
 $arParams["USER_MESSAGE_EDIT"] = trim($arParams["USER_MESSAGE_EDIT"]);
-if(strlen($arParams["USER_MESSAGE_EDIT"]) <= 0)
+if($arParams["USER_MESSAGE_EDIT"] == '')
 	$arParams["USER_MESSAGE_EDIT"] = GetMessage("IBLOCK_USER_MESSAGE_EDIT_DEFAULT");
 
 if (!$bWorkflowIncluded)
@@ -201,7 +201,7 @@ if ($bAllowAccess)
 			if (empty($arProperty["ROW_COUNT"])) $arProperty["ROW_COUNT"] = "5";
 		}
 
-		if(strlen($arProperty["USER_TYPE"]) > 0 )
+		if($arProperty["USER_TYPE"] <> '' )
 		{
 			$arUserType = CIBlockProperty::GetUserType($arProperty["USER_TYPE"]);
 			if(array_key_exists("GetPublicEditHTML", $arUserType))
@@ -225,7 +225,7 @@ if ($bAllowAccess)
 	$arFilter = array("IBLOCK_TYPE" => $arParams["IBLOCK_TYPE"], "IBLOCK_ID" => $arParams["IBLOCK_ID"], "SHOW_NEW" => "Y");
 
 	// check type of user association to iblock elements and add user association to filter
-	if ($arParams["ELEMENT_ASSOC"] == "PROPERTY_ID" && strlen($arParams["ELEMENT_ASSOC_PROPERTY"]) && is_array($arResult["PROPERTY_LIST_FULL"][$arParams["ELEMENT_ASSOC_PROPERTY"]]))
+	if ($arParams["ELEMENT_ASSOC"] == "PROPERTY_ID" && mb_strlen($arParams["ELEMENT_ASSOC_PROPERTY"]) && is_array($arResult["PROPERTY_LIST_FULL"][$arParams["ELEMENT_ASSOC_PROPERTY"]]))
 	{
 		if ($USER->GetID())
 			$arFilter["PROPERTY_".$arParams["ELEMENT_ASSOC_PROPERTY"]] = $USER->GetID();
@@ -553,14 +553,14 @@ if ($bAllowAccess)
 					$bError = true;
 					foreach($propertyValue as $value)
 					{
-						if(strlen($value) > 0)
+						if($value <> '')
 						{
 							$bError = false;
 							break;
 						}
 					}
 				}
-				elseif(strlen($propertyValue) <= 0)
+				elseif($propertyValue == '')
 				{
 					$bError = true;
 				}
@@ -568,12 +568,12 @@ if ($bAllowAccess)
 			//single
 			elseif (is_array($propertyValue) && array_key_exists("VALUE", $propertyValue))
 			{
-				if(strlen($propertyValue["VALUE"]) <= 0)
+				if($propertyValue["VALUE"] == '')
 					$bError = true;
 			}
 			elseif (!is_array($propertyValue))
 			{
-				if(strlen($propertyValue) <= 0)
+				if($propertyValue == '')
 					$bError = true;
 			}
 
@@ -636,7 +636,7 @@ if ($bAllowAccess)
 				$arBizProcParametersValues = array();
 				foreach ($arDocumentStates as $arDocumentState)
 				{
-					if(strlen($arDocumentState["ID"]) <= 0)
+					if($arDocumentState["ID"] == '')
 					{
 						$arErrorsTmp = array();
 
@@ -662,7 +662,7 @@ if ($bAllowAccess)
 
 			$arUpdateValues["PROPERTY_VALUES"] = $arUpdatePropertyValues;
 
-			if ($bWorkflowIncluded && strlen($arParams["STATUS_NEW"]) > 0)
+			if ($bWorkflowIncluded && $arParams["STATUS_NEW"] <> '')
 			{
 				$arUpdateValues["WF_STATUS_ID"] = $arParams["STATUS_NEW"];
 				$arUpdateValues["ACTIVE"] = "Y";
@@ -747,7 +747,7 @@ if ($bAllowAccess)
 				$arUpdateValues["IBLOCK_ID"] = $arParams["IBLOCK_ID"];
 
 				// set activity start date for new element to current date. Change it, if ya want ;-)
-				if (strlen($arUpdateValues["DATE_ACTIVE_FROM"]) <= 0)
+				if ($arUpdateValues["DATE_ACTIVE_FROM"] == '')
 				{
 					$arUpdateValues["DATE_ACTIVE_FROM"] = ConvertTimeStamp(time()+CTimeZone::GetOffset(), "FULL");
 				}
@@ -758,10 +758,10 @@ if ($bAllowAccess)
 					$arResult["ERRORS"][] = $oElement->LAST_ERROR;
 				}
 
-				if (!empty($_REQUEST["iblock_apply"]) && strlen($SEF_URL) > 0)
+				if (!empty($_REQUEST["iblock_apply"]) && $SEF_URL <> '')
 				{
-					if (strpos($SEF_URL, "?") === false) $SEF_URL .= "?edit=Y";
-					elseif (strpos($SEF_URL, "edit=") === false) $SEF_URL .= "&edit=Y";
+					if (mb_strpos($SEF_URL, "?") === false) $SEF_URL .= "?edit=Y";
+					elseif (mb_strpos($SEF_URL, "edit=") === false) $SEF_URL .= "&edit=Y";
 					$SEF_URL .= "&CODE=".$arParams["ID"];
 				}
 			}
@@ -772,7 +772,7 @@ if ($bAllowAccess)
 			$arBizProcWorkflowId = array();
 			foreach($arDocumentStates as $arDocumentState)
 			{
-				if(strlen($arDocumentState["ID"]) <= 0)
+				if($arDocumentState["ID"] == '')
 				{
 					$arErrorsTmp = array();
 
@@ -800,13 +800,13 @@ if ($bAllowAccess)
 		{
 			if (!empty($_REQUEST["iblock_submit"]))
 			{
-				if (strlen($arParams["LIST_URL"]) > 0)
+				if ($arParams["LIST_URL"] <> '')
 				{
 					$sRedirectUrl = $arParams["LIST_URL"];
 				}
 				else
 				{
-					if (strlen($SEF_URL) > 0)
+					if ($SEF_URL <> '')
 					{
 						$SEF_URL = str_replace("edit=Y", "", $SEF_URL);
 						$SEF_URL = str_replace("?&", "?", $SEF_URL);
@@ -822,14 +822,14 @@ if ($bAllowAccess)
 			}
 			else
 			{
-				if (strlen($SEF_URL) > 0)
+				if ($SEF_URL <> '')
 					$sRedirectUrl = $SEF_URL;
 				else
 					$sRedirectUrl = $APPLICATION->GetCurPageParam("edit=Y&CODE=".$arParams["ID"], array("edit", "CODE", "strIMessage"), $get_index_page=false);
 			}
 
 			$sAction = $sAction == "ADD" ? "ADD" : "EDIT";
-			$sRedirectUrl .= (strpos($sRedirectUrl, "?") === false ? "?" : "&")."strIMessage=";
+			$sRedirectUrl .= (mb_strpos($sRedirectUrl, "?") === false ? "?" : "&")."strIMessage=";
 			$sRedirectUrl .= urlencode($arParams["USER_MESSAGE_".$sAction]);
 
 			LocalRedirect($sRedirectUrl);
@@ -865,14 +865,14 @@ if ($bAllowAccess)
 		if(
 			$arParams["DETAIL_TEXT_USE_HTML_EDITOR"]
 			&& array_key_exists("DETAIL_TEXT", $arResult["ELEMENT"])
-			&& strtolower($arResult["ELEMENT"]["DETAIL_TEXT_TYPE"]) == "html"
+			&& mb_strtolower($arResult["ELEMENT"]["DETAIL_TEXT_TYPE"]) == "html"
 		)
 			$arResult["ELEMENT"]["DETAIL_TEXT"] = $arResult["ELEMENT"]["~DETAIL_TEXT"];
 
 		if(
 			$arParams["PREVIEW_TEXT_USE_HTML_EDITOR"]
 			&& array_key_exists("PREVIEW_TEXT", $arResult["ELEMENT"])
-			&& strtolower($arResult["ELEMENT"]["PREVIEW_TEXT_TYPE"]) == "html"
+			&& mb_strtolower($arResult["ELEMENT"]["PREVIEW_TEXT_TYPE"]) == "html"
 		)
 			$arResult["ELEMENT"]["PREVIEW_TEXT"] = $arResult["ELEMENT"]["~PREVIEW_TEXT"];
 

@@ -6,7 +6,7 @@ use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 
-class Important extends \Bitrix\Main\Engine\Controller
+class Important extends \Bitrix\Socialnetwork\Controller\Base
 {
 	public function getUsersAction(array $params = [])
 	{
@@ -21,10 +21,10 @@ class Important extends \Bitrix\Main\Engine\Controller
 
 		$pageSize = 10;
 		$postId = (isset($params['POST_ID']) && intval($params['POST_ID']) > 0 ? intval($params['POST_ID']) : 0);
-		$propertyName = (isset($params['NAME']) && strlen($params['NAME']) > 0 ? trim($params['NAME']) : 'BLOG_POST_IMPRTNT');
-		$propertyValue = (isset($params['VALUE']) && strlen($params['VALUE']) > 0 ? trim($params['VALUE']) : 'Y');
-		$pathToUser = (isset($params['PATH_TO_USER']) && strlen($params['PATH_TO_USER']) > 0 ? $params['PATH_TO_USER'] : SITE_DIR.'company/personal/user/#USER_ID#/');
-		$nameTemplate = (isset($params['NAME_TEMPLATE']) && strlen($params['NAME_TEMPLATE']) > 0 ? $params['NAME_TEMPLATE'] :  \CSite::getNameFormat(false));
+		$propertyName = (isset($params['NAME']) && $params['NAME'] <> '' ? trim($params['NAME']) : 'BLOG_POST_IMPRTNT');
+		$propertyValue = (isset($params['VALUE']) && $params['VALUE'] <> '' ? trim($params['VALUE']) : 'Y');
+		$pathToUser = (isset($params['PATH_TO_USER']) && $params['PATH_TO_USER'] <> '' ? $params['PATH_TO_USER'] : SITE_DIR.'company/personal/user/#USER_ID#/');
+		$nameTemplate = (isset($params['NAME_TEMPLATE']) && $params['NAME_TEMPLATE'] <> '' ? $params['NAME_TEMPLATE'] :  \CSite::getNameFormat(false));
 		$pageNumber = (isset($params['PAGE_NUMBER']) && intval($params['PAGE_NUMBER']) > 0 ? intval($params['PAGE_NUMBER']) : 1);
 
 		if ($postId <= 0)
@@ -190,6 +190,62 @@ class Important extends \Bitrix\Main\Engine\Controller
 		}
 
 		return $result;
+	}
+
+	public function voteAction(array $params = [])
+	{
+		global $CACHE_MANAGER;
+
+		$currentUserId = $this->getCurrentUser()->getId();
+		$postId = (isset($params['POST_ID']) && intval($params['POST_ID']) > 0 ? intval($params['POST_ID']) : 0);
+
+		if ($postId <= 0)
+		{
+			$this->addError(new Error(Loc::getMessage('SONET_CONTROLLER_LIVEFEED_BLOGPOST_IMPORTANT_POST_ID_EMPTY'), 'SONET_CONTROLLER_LIVEFEED_BLOGPOST_IMPORTANT_POST_ID_EMPTY'));
+			return null;
+		}
+
+		if (
+			!$currentUserId
+			|| !\CSocNetFeatures::isActiveFeature(SONET_ENTITY_USER, $currentUserId, 'blog')
+		)
+		{
+			$this->addError(new Error(Loc::getMessage('SONET_CONTROLLER_LIVEFEED_BLOGPOST_IMPORTANT_NO_READ_PERMS'), 'SONET_CONTROLLER_LIVEFEED_BLOGPOST_IMPORTANT_NO_READ_PERMS'));
+			return null;
+		}
+
+		if (!Loader::includeModule('blog'))
+		{
+			$this->addError(new Error('SONET_CONTROLLER_LIVEFEED_BLOGPOST_IMPORTANT_NO_BLOG_MODULE', 'SONET_CONTROLLER_LIVEFEED_BLOGPOST_IMPORTANT_NO_BLOG_MODULE'));
+			return null;
+		}
+
+		\CBlogUserOptions::setOption($postId, 'BLOG_POST_IMPRTNT', 'Y', $currentUserId);
+
+		if (defined('BX_COMP_MANAGED_CACHE'))
+		{
+			$CACHE_MANAGER->clearByTag('BLOG_POST_IMPRTNT'.$postId);
+			$CACHE_MANAGER->clearByTag('BLOG_POST_IMPRTNT'.$postId."_".$currentUserId);
+			$CACHE_MANAGER->clearByTag('BLOG_POST_IMPRTNT'."_USER_".$currentUserId);
+		}
+
+		$options = [
+			[
+				'post_id' => $postId,
+				'name' => 'BLOG_POST_IMPRTNT',
+				'value' => 'Y'
+			]
+		];
+
+		$res = getModuleEvents('socialnetwork', 'OnAfterCBlogUserOptionsSet');
+		while ($eventFields = $res->fetch())
+		{
+			executeModuleEventEx($eventFields, [ $options, '', '' ]);
+		}
+
+		return [
+			'success' => 'Y'
+		];
 	}
 }
 

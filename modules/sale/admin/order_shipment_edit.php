@@ -4,10 +4,17 @@ use Bitrix\Main\Page\Asset;
 use Bitrix\Sale\Order;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Delivery\Requests;
+use \Bitrix\Sale\Exchange\Integration\Admin\Link,
+	\Bitrix\Sale\Exchange\Integration\Admin\Registry,
+	\Bitrix\Sale\Exchange\Integration\Admin\ModeType,
+	\Bitrix\Sale\Helpers\Admin\Blocks\FactoryMode,
+	\Bitrix\Sale\Helpers\Admin\Blocks\BlockType;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-
 \Bitrix\Main\Loader::includeModule('sale');
+
+
+
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
@@ -36,6 +43,8 @@ $lang = Application::getInstance()->getContext()->getLanguage();
 $orderId = intval($request->get('order_id'));
 $shipmentId = intval($request->get('shipment_id'));
 $siteId = Application::getInstance()->getContext()->getSite();
+$link = Link::getInstance();
+$factory = FactoryMode::create($link->getType());
 $backUrl = $request->get('backurl');
 $save = $_SERVER["REQUEST_METHOD"] == "POST" && (isset($_POST["apply"]) || isset($_POST["save"]));
 $refresh = $_SERVER["REQUEST_METHOD"] == "POST" && !$save;
@@ -46,8 +55,13 @@ $registry = \Bitrix\Sale\Registry::getInstance(\Bitrix\Sale\Registry::REGISTRY_T
 $orderClass = $registry->getOrderClassName();
 
 if($orderId <= 0 || !($saleOrder = $orderClass::load($orderId)))
-	LocalRedirect("/bitrix/admin/sale_order.php?lang=".$lang.GetFilterParams("filter_", false));
-
+{
+	$link
+		->create()
+		->fill()
+		->setPageByType(Registry::SALE_ORDER)
+		->redirect();
+}
 
 $allowedOrderStatusesView = \Bitrix\Sale\OrderStatus::getStatusesUserCanDoOperations($USER->GetID(), array('view'));
 $allowedOrderStatusesUpdate = \Bitrix\Sale\OrderStatus::getStatusesUserCanDoOperations($USER->GetID(), array('update'));
@@ -64,7 +78,13 @@ if (intval($shipmentId) > 0)
 	$shipment = $shipmentCollection->getItemById($shipmentId);
 
 	if(!$shipment)
-		LocalRedirect("/bitrix/admin/sale_order.php?lang=".LANGUAGE_ID.GetFilterParams("filter_", false));
+	{
+		$link
+			->create()
+			->fill()
+			->setPageByType(Registry::SALE_ORDER)
+			->redirect();
+	}
 
 	$allowedDeliveryStatusesView = \Bitrix\Sale\DeliveryStatus::getStatusesUserCanDoOperations($USER->GetID(), array('view'));
 	$allowedDeliveryStatusesUpdate = \Bitrix\Sale\DeliveryStatus::getStatusesUserCanDoOperations($USER->GetID(), array('update'));
@@ -88,7 +108,11 @@ if ($saleModulePermissions == 'P')
 
 	if (!$isUserResponsible && !$isAllowCompany)
 	{
-		LocalRedirect("/bitrix/admin/sale_order.php?lang=".LANGUAGE_ID.GetFilterParams("filter_", false));
+		$link
+			->create()
+			->fill()
+			->setPageByType(Registry::SALE_ORDER)
+			->redirect();
 	}
 }
 
@@ -96,7 +120,11 @@ if ($request->get('delete') == 'Y' && check_bitrix_sessid())
 {
 	if(!$allowDelete)
 	{
-		LocalRedirect('/bitrix/admin/sale_order_shipment.php?lang='.$lang.GetFilterParams('filter_', false));
+		$link
+			->create()
+			->fill()
+			->setPageByType(Registry::SALE_ORDER_SHIPMENT)
+			->redirect();
 	}
 
 	$delResult = $shipment->delete();
@@ -110,9 +138,20 @@ if ($request->get('delete') == 'Y' && check_bitrix_sessid())
 		if ($result->isSuccess())
 		{
 			if ($backUrl)
-				LocalRedirect($backUrl);
+			{
+				$link
+					->create()
+					->setRequestUri($backUrl)
+					->redirect();
+			}
 			else
-				LocalRedirect('/bitrix/admin/sale_order_shipment.php?lang='.$lang.GetFilterParams('filter_', false));
+			{
+				$link
+					->create()
+					->fill()
+					->setPageByType(Registry::SALE_ORDER_SHIPMENT)
+					->redirect();
+			}
 		}
 		else
 		{
@@ -127,15 +166,28 @@ if ($request->isPost() && ($save || $refresh) && check_bitrix_sessid())
 	{
 		if (isset($_POST["apply"]))
 		{
-			LocalRedirect("/bitrix/admin/sale_order_shipment_edit.php?lang=".$lang."&order_id=".$orderId."&shipment_id=".$shipmentId."&backurl=".urlencode($backUrl).GetFilterParams("filter_", false));
+			$link
+				->create()
+				->fill()
+				->setPageByType(Registry::SALE_ORDER_SHIPMENT_EDIT)
+				->setField('order_id', $orderId)
+				->setField('shipment_id', $shipmentId)
+				->setField('backurl', $backUrl)
+				->redirect();
 		}
 		else
 		{
-			LocalRedirect('/bitrix/admin/sale_order_shipment.php?lang='.$lang.GetFilterParams('filter_', false));
+			$link
+				->create()
+				->fill()
+				->setPageByType(Registry::SALE_ORDER_SHIPMENT)
+				->redirect();
 		}
 
+
 	}
-	$result = \Bitrix\Sale\Helpers\Admin\Blocks\OrderShipment::updateData($saleOrder, $request->get('SHIPMENT'));
+
+	$result = $factory::create(BlockType::SHIPMENT)->updateData($saleOrder, $request->get('SHIPMENT'));
 
 	$data = $result->getData();
 
@@ -150,17 +202,34 @@ if ($request->isPost() && ($save || $refresh) && check_bitrix_sessid())
 		{
 			$shipmentId = $shipment->getId();
 
-			if (strlen($request->getPost("apply")) == 0)
+			if ($request->getPost("apply") == '')
 			{
 				if ($backUrl)
-					LocalRedirect($backUrl);
-
+				{
+					$link
+						->create()
+						->setRequestUri($backUrl)
+						->redirect();
+				}
 				else
-					LocalRedirect("/bitrix/admin/sale_order_shipment.php?lang=".$lang.GetFilterParams("filter_", false));
+				{
+					$link
+						->create()
+						->fill()
+						->setPageByType(Registry::SALE_ORDER_SHIPMENT)
+						->redirect();
+				}
 			}
 			else
 			{
-				LocalRedirect("/bitrix/admin/sale_order_shipment_edit.php?lang=".$lang."&order_id=".$orderId."&shipment_id=".$shipmentId."&backurl=".urlencode($backUrl).GetFilterParams("filter_", false));
+				$link
+					->create()
+					->fill()
+					->setPageByType(Registry::SALE_ORDER_SHIPMENT_EDIT)
+					->setField('order_id', $orderId)
+					->setField('shipment_id', $shipmentId)
+					->setField('backurl', $backUrl)
+					->redirect();
 			}
 		}
 		else
@@ -197,12 +266,18 @@ else
 	if ($new)
 	{
 		$shipment = $saleOrder->getShipmentCollection()->createItem();
-		\Bitrix\Sale\Helpers\Admin\Blocks\OrderShipment::setShipmentByDefaultValues($shipment);
+		$factory::create(BlockType::SHIPMENT)->setShipmentByDefaultValues($shipment);
 	}
 }
 
-if (!$shipment || (!$allowView && !$allowUpdate) || $orderClass::isLocked($orderId))
-	LocalRedirect("/bitrix/admin/sale_order_shipment.php?lang=".$lang.GetFilterParams("filter_", false));
+if (!$shipment || (!$allowView && !$allowUpdate) || Order::isLocked($orderId))
+{
+	$link
+		->create()
+		->fill()
+		->setPageByType(Registry::SALE_ORDER_SHIPMENT)
+		->redirect();
+}
 
 if ($shipmentId)
 	$title = str_replace("#ID#", $shipmentId, GetMessage("EDIT_ORDER_SHIPMENT"));
@@ -231,165 +306,287 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 
 $aMenu = array();
 
-	$aMenu[] = array(
-		"ICON" => "btn_list",
-		"TEXT" => Loc::getMessage("SOPE_SHIPMENT_TRANSITION"),
-		"TITLE"=> Loc::getMessage("SOPE_SHIPMENT_TRANSITION_TITLE"),
-		"LINK" => "/bitrix/admin/sale_order_view.php?ID=".$orderId."&lang=".$lang.GetFilterParams("filter_")
-	);
+$aMenu[] = array(
+	"ICON" => "btn_list",
+	"TEXT" => Loc::getMessage("SOPE_SHIPMENT_TRANSITION"),
+	"TITLE"=> Loc::getMessage("SOPE_SHIPMENT_TRANSITION_TITLE"),
+	"LINK" => $link
+		->create()
+		->fill()
+		->setField('ID', $orderId)
+		->setPageByType(Registry::SALE_ORDER_VIEW)
+		->build()
+);
 
 if (!$new)
 {
 	if($allowDelete)
 	{
+		$href = $link
+			->create()
+			->setField('order_id', $orderId)
+			->setField('shipment_id', $shipmentId)
+			->setField('delete', 'Y')
+			->setQuery(bitrix_sessid_get())
+			->setPageByType(Registry::SALE_ORDER_SHIPMENT_EDIT)
+			->fill()
+			->build();
+
 		$aMenu[] = array(
 			"TEXT" => Loc::getMessage("SOPE_SHIPMENT_DELETE"),
 			"TITLE" => Loc::getMessage("SOPE_SHIPMENT_DELETE_TITLE"),
 			"LINK" => 'javascript:void(0)',
-			"ONCLICK" => "if(confirm('".Loc::getMessage('SOPE_SHIPMENT_DELETE_MESSAGE')."')) window.location.href='/bitrix/admin/sale_order_shipment_edit.php?order_id=".$orderId."&shipment_id=".$shipmentId."&delete=Y&".bitrix_sessid_get()."&lang=".$lang.GetFilterParams("filter_")."'"
+			"ONCLICK" => "if(confirm('".Loc::getMessage('SOPE_SHIPMENT_DELETE_MESSAGE')."')) window.location.href='".$href."'"
 		);
 	}
 }
 
-$aMenu[] = array(
-	"TEXT" => Loc::getMessage("SOPE_SHIPMENT_LIST"),
-	"TITLE"=> Loc::getMessage("SOPE_SHIPMENT_LIST_TITLE"),
-	"LINK" => "/bitrix/admin/sale_order_shipment.php?lang=".$lang.GetFilterParams("filter_")
-);
-
-if (!$new)
+if($link->getType() == ModeType::APP_LAYOUT_TYPE)
 {
-
-$arSysLangs = array();
-$db_lang = CLangAdmin::GetList(($b="sort"), ($o="asc"), array("ACTIVE" => "Y"));
-while ($arLang = $db_lang->Fetch())
-	$arSysLangs[] = $arLang["LID"];
-
-$arReports = array();
-$dirs = array(
-	$_SERVER["DOCUMENT_ROOT"]."/bitrix/admin/reports/",
-	$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/reports/"
-
-);
-foreach ($dirs as $dir)
+	//do nothing
+}
+else
 {
-	if (file_exists($dir))
+	$aMenu[] = array(
+		"TEXT" => Loc::getMessage("SOPE_SHIPMENT_LIST"),
+		"TITLE"=> Loc::getMessage("SOPE_SHIPMENT_LIST_TITLE"),
+		"LINK" => $link
+			->create()
+			->setPageByType(Registry::SALE_ORDER_SHIPMENT)
+			->fill()
+			->build()
+	);
+
+
+	if (!$new)
 	{
-		if ($handle = opendir($dir))
+
+		$arSysLangs = array();
+		$db_lang = CLangAdmin::GetList(($b="sort"), ($o="asc"), array("ACTIVE" => "Y"));
+		while ($arLang = $db_lang->Fetch())
+			$arSysLangs[] = $arLang["LID"];
+
+		$arReports = array();
+		$dirs = array(
+			$_SERVER["DOCUMENT_ROOT"]."/bitrix/admin/reports/",
+			$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/reports/"
+
+		);
+		foreach ($dirs as $dir)
+
+
+
+
 		{
-			while (($file = readdir($handle)) !== false)
+			if (file_exists($dir))
 			{
-				$file_contents = '';
-				if ($file == "." || $file == ".." || $file == ".access.php" || isset($arReports[$file]))
-					continue;
-				if (is_file($dir.$file) && ToUpper(substr($file, -4)) == ".PHP")
+				if ($handle = opendir($dir))
 				{
-					$rep_title = $file;
-					if ($dir == $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/reports/")
-					{
-						if (is_file($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/ru/reports/".$file))
-							$file_contents = file_get_contents($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/ru/reports/".$file);
-					}
+					while (($file = readdir($handle)) !== false)
 
-					if (empty($file_contents))
-						$file_contents = file_get_contents($dir.$file);
 
-					$rep_langs = "";
-					$arMatches = array();
-					if (preg_match("#<title([\s]+langs[\s]*=[\s]*\"([^\"]*)\"|)[\s]*>([^<]*)</title[\s]*>#i", $file_contents, $arMatches))
-					{
-						$arMatches[3] = Trim($arMatches[3]);
-						if (strlen($arMatches[3]) > 0) $rep_title = $arMatches[3];
-						$arMatches[2] = Trim($arMatches[2]);
-						if (strlen($arMatches[2]) > 0) $rep_langs = $arMatches[2];
-					}
-					if (strlen($rep_langs) > 0)
-					{
-						$bContinue = true;
-						foreach ($arSysLangs as $sysLang)
-						{
-							if (strpos($rep_langs, $sysLang) !== false)
-							{
-								$bContinue = false;
-								break;
-							}
-						}
 
-						if ($bContinue)
+
+
+
+					{
+						$file_contents = '';
+						if ($file == "." || $file == ".." || $file == ".access.php" || isset($arReports[$file]))
 							continue;
-					}
+						if (is_file($dir.$file) && ToUpper(mb_substr($file, -4)) == ".PHP")
+						{
+							$rep_title = $file;
+							if ($dir == $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/reports/")
+							{
+								if (is_file($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/ru/reports/".$file))
+									$file_contents = file_get_contents($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/ru/reports/".$file);
+							}
 
-					$arReports[$file] = array(
-						"TEXT" => $rep_title,
-						"ONCLICK" => "window.open('/bitrix/admin/sale_order_print_new.php?&ORDER_ID=".$orderId."&SHIPMENT_ID=".$shipmentId."&doc=".substr($file, 0, strlen($file)-4)."&".bitrix_sessid_get()."', '_blank');"
+							if (empty($file_contents))
+								$file_contents = file_get_contents($dir.$file);
+
+							$rep_langs = "";
+							$arMatches = array();
+							if (preg_match("#<title([\s]+langs[\s]*=[\s]*\"([^\"]*)\"|)[\s]*>([^<]*)</title[\s]*>#i", $file_contents, $arMatches))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+							{
+								$arMatches[3] = Trim($arMatches[3]);
+								if ($arMatches[3] <> '') $rep_title = $arMatches[3];
+								$arMatches[2] = Trim($arMatches[2]);
+								if ($arMatches[2] <> '') $rep_langs = $arMatches[2];
+							}
+							if ($rep_langs <> '')
+							{
+								$bContinue = true;
+								foreach ($arSysLangs as $sysLang)
+								{
+									if (mb_strpos($rep_langs, $sysLang) !== false)
+									{
+										$bContinue = false;
+										break;
+									}
+								}
+
+								if ($bContinue)
+									continue;
+							}
+
+							$defaultLink = new \Bitrix\Sale\Exchange\Integration\Admin\DefaultLink();
+							$href = $defaultLink
+								->setPageByType(Registry::SALE_ORDER_PRINT_NEW)
+								->setField('ORDER_ID', $orderId)
+								->setField('SHIPMENT_ID', $shipmentId)
+								->setField('doc', mb_substr($file, 0, mb_strlen($file) - 4))
+								->setQuery(bitrix_sessid_get())
+								->build();
+
+							$arReports[$file] = array(
+								"TEXT" => $rep_title,
+								"ONCLICK" => "window.open('".$href."', '_blank');"
+							);
+						}
+					}
+				}
+				closedir($handle);
+			}
+
+
+		}
+
+
+
+		$aMenu[] = array(
+			"TEXT" => Loc::getMessage("SOPE_SHIPMENT_PRINT"),
+			"TITLE" => Loc::getMessage("SOPE_SHIPMENT_PRINT_TITLE"),
+			"LINK" => 'javascript:void(0)',
+			"MENU" => $arReports
+		);
+	}
+
+
+
+
+
+
+
+
+
+
+
+	if($shipmentId > 0)
+	{
+		$deliveryId = $shipment->getDeliveryId();
+		$deliveryRequestHandler = Requests\Manager::getDeliveryRequestHandlerByDeliveryId($deliveryId);
+
+		if($deliveryRequestHandler)
+		{
+			$rTypesMenu = array();
+			$requestId = Requests\Manager::getRequestIdByShipmentId($shipmentId);
+
+			if($requestId > 0)
+			{
+				foreach(Requests\Manager::getDeliveryRequestShipmentActions($shipment) as $action => $actionName)
+				{
+					$rTypesMenu[] = array(
+						"TEXT" => $actionName,
+						"LINK" =>"javascript:BX.Sale.Delivery.Request.processRequest({action: 'actionShipmentExecute', deliveryId: ".$deliveryId.", requestAction: '".CUtil::JSEscape($action)."', requestId: ".$requestId.", shipmentIds: [".$shipmentId."], lang: '".LANGUAGE_ID."'})"
 					);
 				}
+
+				if(!empty($rTypesMenu))
+					$rTypesMenu[] = array("SEPARATOR" => true);
+
+				$rTypesMenu[] = array(
+					"TEXT" => Loc::getMessage('SOPE_DELIVERY_REQUEST_SHIPMENT_UPDATE'),
+					"LINK" => "javascript:BX.Sale.Delivery.Request.processRequest({action: 'updateShipmentsFromDeliveryRequest', shipmentIds: [".$shipmentId."]}, true)"
+				);
+
+
+
+
+
+				$rTypesMenu[] = array(
+
+
+
+
+					"TEXT" => Loc::getMessage('SOPE_DELIVERY_REQUEST_SHIPMENT_DELETE'),
+					"LINK" => "javascript:BX.Sale.Delivery.Request.processRequest({action: 'deleteShipmentsFromDeliveryRequest', shipmentIds: [".$shipmentId."]}, true)"
+				);
 			}
-		}
-		closedir($handle);
-	}
-}
-
-	$aMenu[] = array(
-		"TEXT" => Loc::getMessage("SOPE_SHIPMENT_PRINT"),
-		"TITLE" => Loc::getMessage("SOPE_SHIPMENT_PRINT_TITLE"),
-		"LINK" => 'javascript:void(0)',
-		"MENU" => $arReports
-	);
-}
-
-if($shipmentId > 0)
-{
-	$deliveryId = $shipment->getDeliveryId();
-	$deliveryRequestHandler = Requests\Manager::getDeliveryRequestHandlerByDeliveryId($deliveryId);
-
-	if($deliveryRequestHandler)
-	{
-		$rTypesMenu = array();
-		$requestId = Requests\Manager::getRequestIdByShipmentId($shipmentId);
-
-		if($requestId > 0)
-		{
-			foreach(Requests\Manager::getDeliveryRequestShipmentActions($shipment) as $action => $actionName)
+			else
 			{
 				$rTypesMenu[] = array(
-					"TEXT" => $actionName,
-					"LINK" =>"javascript:BX.Sale.Delivery.Request.processRequest({action: 'actionShipmentExecute', deliveryId: ".$deliveryId.", requestAction: '".CUtil::JSEscape($action)."', requestId: ".$requestId.", shipmentIds: [".$shipmentId."], lang: '".LANGUAGE_ID."'})"
+					"TEXT" => Loc::getMessage('SOPE_DELIVERY_REQUEST_CREATE'),
+					"LINK" => $link
+						->create()
+						->fill()
+						->setPageByType(Registry::SALE_DELIVERY_REQUEST)
+						->setField('ACTION', 'CREATE_DELIVERY_REQUEST')
+						->setField('BACK_URL', $APPLICATION->GetCurPageParam())
+						->setFieldsValues(['SHIPMENT_IDS'=>[$shipmentId]])
+						->build()
+				);
+
+				$rTypesMenu[] = array(
+					"TEXT" => Loc::getMessage('SOPE_DELIVERY_REQUEST_ADD'),
+					"LINK" => $link
+						->create()
+						->fill()
+
+
+
+
+
+
+						->setPageByType(Registry::SALE_DELIVERY_REQUEST)
+						->setField('ACTION', 'ADD_SHIPMENTS_TO_REQUEST')
+						->setField('BACK_URL', $APPLICATION->GetCurPageParam())
+						->setFieldsValues(['SHIPMENT_IDS'=>[$shipmentId]])
+						->build()
 				);
 			}
 
-			if(!empty($rTypesMenu))
-				$rTypesMenu[] = array("SEPARATOR" => true);
-
-			$rTypesMenu[] = array(
-				"TEXT" => Loc::getMessage('SOPE_DELIVERY_REQUEST_SHIPMENT_UPDATE'),
-				"LINK" => "javascript:BX.Sale.Delivery.Request.processRequest({action: 'updateShipmentsFromDeliveryRequest', shipmentIds: [".$shipmentId."]}, true)"
-			);
-
-			$rTypesMenu[] = array(
-				"TEXT" => Loc::getMessage('SOPE_DELIVERY_REQUEST_SHIPMENT_DELETE'),
-				"LINK" => "javascript:BX.Sale.Delivery.Request.processRequest({action: 'deleteShipmentsFromDeliveryRequest', shipmentIds: [".$shipmentId."]}, true)"
-			);
-		}
-		else
-		{
-			$rTypesMenu[] = array(
-				"TEXT" => Loc::getMessage('SOPE_DELIVERY_REQUEST_CREATE'),
-				"LINK" => "/bitrix/admin/sale_delivery_request.php?lang=".LANGUAGE_ID."&ACTION=CREATE_DELIVERY_REQUEST&SHIPMENT_IDS[]=".$shipmentId."&BACK_URL=".urlencode($APPLICATION->GetCurPageParam())
-			);
-
-			$rTypesMenu[] = array(
-				"TEXT" => Loc::getMessage('SOPE_DELIVERY_REQUEST_ADD'),
-				"LINK" => "/bitrix/admin/sale_delivery_request.php?lang=".LANGUAGE_ID."&ACTION=ADD_SHIPMENTS_TO_REQUEST&SHIPMENT_IDS[]=".$shipmentId."&BACK_URL=".urlencode($APPLICATION->GetCurPageParam())
+			$aMenu[] = array(
+				"TEXT" => Loc::getMessage('SOPE_DELIVERY_REQUEST'),
+				"TITLE" => Loc::getMessage('SOPE_DELIVERY_REQUEST_TITLE'),
+				"LINK" => 'javascript:void(0)',
+				"MENU" => $rTypesMenu
 			);
 		}
 
-		$aMenu[] = array(
-			"TEXT" => Loc::getMessage('SOPE_DELIVERY_REQUEST'),
-			"TITLE" => Loc::getMessage('SOPE_DELIVERY_REQUEST_TITLE'),
-			"LINK" => 'javascript:void(0)',
-			"MENU" => $rTypesMenu
-		);
+
+
+
+
+
+
+
+
+
+
+
+
+
 	}
 }
 
@@ -400,7 +597,9 @@ $context->Show();
 ?><div id="sale-adm-order-problem-block"><?
 if($shipmentId > 0 && $shipment->getField("MARKED") == "Y")
 {
-	echo \Bitrix\Sale\Helpers\Admin\Blocks\OrderMarker::getViewForEntity($saleOrder->getId(), $shipmentId);
+	/** @var \Bitrix\Sale\Helpers\Admin\Blocks\OrderMarker $marker */
+	$marker = $factory::create(BlockType::MARKER);
+	echo $marker->getViewForEntity($saleOrder->getId(), $shipmentId);
 }
 ?></div><?
 
@@ -418,7 +617,19 @@ if ($shipmentId > 0)
 }
 
 $formId = "order_shipment_edit_info";
-?><form method="POST" action="<?=$APPLICATION->GetCurPage()."?lang=".$lang.'&order_id='.$orderId.$urlForm.GetFilterParams("filter_", false).(($shipmentId > 0) ? '&shipment_id='.$shipmentId : '').'&backurl='.urlencode($backUrl)?>" name="<?=$formId?>_form" id="<?=$formId?>_form"><?
+
+$action = $link
+	->create()
+	->setPage($APPLICATION->GetCurPage())
+	->setLang($lang)
+	->setField('order_id', $orderId)
+	->setField('shipment_id', $shipmentId)
+	->setField('backurl', $backUrl)
+	->setQuery($urlForm)
+	->fill()
+	->build();
+
+?><form method="POST" action="<?=$action?>" name="<?=$formId?>_form" id="<?=$formId?>_form"><?
 $tabControl = new CAdminTabControlDrag($formId, $aTabs, $moduleId, false, true);
 $tabControl->Begin();
 
@@ -434,64 +645,75 @@ $defaultBlocksOrder = array(
 	"additional"
 );
 $blocksOrder = $tabControl->getCurrentTabBlocksOrder($defaultBlocksOrder);
-$shipmentOrderBasket = new \Bitrix\Sale\Helpers\Admin\Blocks\OrderBasketShipment($shipment, "BX.Sale.Admin.ShipmentBasketObj", "sale_shipment_basket");
+$shipmentOrderBasket = $factory::create(BlockType::SHIPMENT_BASKET, [
+	'shipment'=>$shipment,
+	'jsObjName'=>'BX.Sale.Admin.ShipmentBasketObj',
+	'idPrefix'=>'sale_shipment_basket']);
 ?>
 
-<input type="hidden" name="lang" id="lang" value="<?=$lang;?>">
-<input type="hidden" id="order_id" name="order_id" value="<?=$orderId?>">
-<input type="hidden" id="site_id" name="site_id" value="<?=$siteId;?>">
+	<input type="hidden" name="lang" id="lang" value="<?=$lang;?>">
+	<input type="hidden" id="order_id" name="order_id" value="<?=$orderId?>">
+	<input type="hidden" id="site_id" name="site_id" value="<?=$siteId;?>">
 <?=bitrix_sessid_post();?>
 <?
 \Bitrix\Main\Page\Asset::getInstance()->addJs("/bitrix/js/sale/admin/order_ajaxer.js");
 \Bitrix\Sale\Delivery\Requests\Manager::initJs();
 
-echo \Bitrix\Sale\Helpers\Admin\Blocks\OrderAdditional::getScripts();
+echo $factory::create(BlockType::ADDITIONAL)->getScripts();
 echo \Bitrix\Sale\Helpers\Admin\OrderEdit::getScripts($saleOrder, $formId);
-echo \Bitrix\Sale\Helpers\Admin\Blocks\OrderShipment::getScripts();
+echo $factory::create(BlockType::SHIPMENT)->getScripts();
 echo $shipmentOrderBasket->getScripts($dataForRecovery);
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/admin_tool.php");
 ?>
-<tr>
-	<td>
-		<div style="position: relative; vertical-align: top">
-			<?$tabControl->DraggableBlocksStart();?>
-			<?
+	<tr>
+		<td>
+			<div style="position: relative; vertical-align: top">
+				<?$tabControl->DraggableBlocksStart();?>
+				<?
 				foreach ($blocksOrder as $blockCode)
 				{
 					$tabControl->DraggableBlockBegin(GetMessage("SALE_BLOCK_TITLE_".toUpper($blockCode)), $blockCode);
-					switch ($blockCode)
+
+					if(BlockType::isDefined(BlockType::resolveId($blockCode)))
 					{
-						case "goodsList":
-							echo $shipmentOrderBasket->getEdit();
-							echo '<div style="display: none;">'.$shipmentOrderBasket->settingsDialog->getHtml().'</div>';
-							break;
-						case "shipmentStatus":
-							echo \Bitrix\Sale\Helpers\Admin\Blocks\OrderShipmentStatus::getEdit($shipment);
-							break;
-						case "shipment":
-							echo \Bitrix\Sale\Helpers\Admin\Blocks\OrderShipment::getEdit($shipment, 0, 'edit', $dataForRecovery[1]);
-							break;
-						case "buyer":
-							echo \Bitrix\Sale\Helpers\Admin\Blocks\OrderBuyer::getView($saleOrder);
-							break;
-						case "additional":
-							echo \Bitrix\Sale\Helpers\Admin\Blocks\OrderAdditional::getEdit($shipment, $formId.'_form', 'SHIPMENT[1]');
-							break;
+						$block = null;
+						if(BlockType::resolveId($blockCode) && BlockType::resolveId($blockCode) !== BlockType::SHIPMENT_BASKET)
+							$block = $factory::create(BlockType::resolveId($blockCode));
+
+						switch (BlockType::resolveId($blockCode))
+						{
+							case BlockType::SHIPMENT_BASKET:
+								echo $shipmentOrderBasket->getEdit();
+								echo '<div style="display: none;">'.$shipmentOrderBasket->settingsDialog->getHtml().'</div>';
+								break;
+							case BlockType::SHIPMENT_STATUS:
+								echo $block::getEdit($shipment);
+								break;
+							case BlockType::SHIPMENT:
+								echo $block::getEdit($shipment, 0, 'edit', $dataForRecovery[1]);
+								break;
+							case BlockType::BUYER:
+								echo $block::getView($saleOrder);
+								break;
+							case BlockType::ADDITIONAL:
+								echo $block::getEdit($shipment, $formId.'_form', 'SHIPMENT[1]');
+								break;
+						}
 					}
 					$tabControl->DraggableBlockEnd();
 				}
-			?>
-		</div>
-	</td>
-</tr>
+				?>
+			</div>
+		</td>
+	</tr>
 
 <?
 
 //--TAB order
 $tabControl->EndTab();
 ?>
-</form>
+	</form>
 <?
 if ($shipmentId > 0):
 	//TAB history --
@@ -500,7 +722,7 @@ if ($shipmentId > 0):
 	<tr>
 		<td id="order-history"><?= $historyContent; ?></td>
 	</tr>
-<?
+	<?
 	//-- TAB history
 	$tabControl->EndTab();
 
@@ -511,14 +733,15 @@ if ($shipmentId > 0):
 		<td>
 			<div style="position:relative; vertical-align:top">
 				<?
-				$orderBasket = new \Bitrix\Sale\Helpers\Admin\Blocks\OrderBasket(
-					$saleOrder,
-					"BX.Sale.Admin.OrderBasketObj",
-					"sale_order_basket",
-					true,
-					\Bitrix\Sale\Helpers\Admin\Blocks\OrderBasket::VIEW_MODE
-				);
-				echo \Bitrix\Sale\Helpers\Admin\Blocks\OrderAnalysis::getView($saleOrder, $orderBasket, false, $shipmentId);
+				$orderBasket = $factory::create(BlockType::BASKET, [
+					'order'=> $saleOrder,
+					'jsObjName' => "BX.Sale.Admin.OrderBasketObj",
+					'idPrefix' => "sale_order_basket",
+					'createProductBasement' => true,
+					'mode' => \Bitrix\Sale\Helpers\Admin\Blocks\OrderBasket::VIEW_MODE
+				]);
+
+				echo $factory::create(BlockType::ANALYSIS)->getView($saleOrder, $orderBasket, false, $shipmentId);
 				?>
 			</div>
 		</td>

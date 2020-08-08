@@ -113,14 +113,14 @@ elseif(isset($_REQUEST["test"]) && $_REQUEST["test"] === "cluster")
 			die();
 		}
 
-		if(strlen($_GET["server_url"]) > 0)
+		if($_GET["server_url"] <> '')
 			$server_url = $_GET["server_url"];
 		else
 			$server_url = '/bitrix/admin/perfmon_panel.php?test=Y&show_page_exec_time=Y&show_sql_stat=N';
 
-		if(strpos($server_url, "show_page_exec_time=Y") === false)
+		if(mb_strpos($server_url, "show_page_exec_time=Y") === false)
 		{
-			if(strpos($server_url, "?") === false)
+			if(mb_strpos($server_url, "?") === false)
 				$server_url .= "?";
 			$server_url .= '&show_page_exec_time=Y&show_sql_stat=N';
 		}
@@ -322,8 +322,10 @@ elseif(isset($_REQUEST["test"]))
 
 			if($bPHPIsGood)
 			{
-				if(strlen(ini_get('open_basedir')))
+				if(ini_get('open_basedir') <> '')
+				{
 					$bPHPIsGood = false;
+				}
 			}
 
 			if($bPHPIsGood)
@@ -397,7 +399,7 @@ elseif(isset($_REQUEST["test"]))
 					$interval = 0;
 				$hours = intval($interval / 3600);
 				$interval -= $hours * 3600;
-				$minutes = intval($interval / 60 );
+				$minutes = intval($interval / 60);
 				$interval -= $minutes * 60;
 				$seconds = intval($interval);
 				echo GetMessage("PERFMON_PANEL_MINUTES", array("#HOURS#" => $hours, "#MINUTES#" => $minutes, "#SECONDS#" => $seconds));?><br>
@@ -562,7 +564,7 @@ if($REQUEST_METHOD == "POST" && ($calc.$total_calc!="") && $RIGHT >= "W" && chec
 	COption::RemoveOption("perfmon", "mark_db_read_value");
 	COption::RemoveOption("perfmon", "mark_db_update_value");
 
-	if(strlen($total_calc))
+	if($total_calc <> '')
 	{
 		CPerfomanceComponent::Clear();
 		CPerfomanceSQL::Clear();
@@ -713,13 +715,13 @@ $aTabs = array(
 	array(
 		"DIV" => "perfomance",
 		"TAB" => GetMessage("PERFMON_PANEL_PERF_NAME").(
-			strlen($mark_value) && $mark_value != "measure"?
+			mb_strlen($mark_value) && $mark_value != "measure"?
 			" (".$mark_value.")":
 			""
 		),
 		"ICON" => "main_user_edit",
 		"TITLE" => (
-			strlen($mark_value) && $mark_value != "measure"?
+		mb_strlen($mark_value) && $mark_value != "measure"?
 			GetMessage("PERFMON_PANEL_PERF_TITLE2", array("#TOTAL_MARK_DATE#" => $mark_date, "#TOTAL_MARK_VALUE#" => $mark_value)):
 			GetMessage("PERFMON_PANEL_PERF_TITLE1")
 		),
@@ -737,13 +739,13 @@ $aTabs = array(
 	array(
 		"DIV" => "dev",
 		"TAB" => GetMessage("PERFMON_PANEL_DEV_NAME").(
-			strlen(COption::GetOptionString("perfmon", "total_mark_time", "")) > 0?
+			COption::GetOptionString("perfmon", "total_mark_time", "") <> ''?
 			" (".COption::GetOptionString("perfmon", "total_mark_value").")":
 			""
 		),
 		"ICON" => "main_user_edit",
 		"TITLE" => (
-			strlen(COption::GetOptionString("perfmon", "total_mark_time", "")) > 0?
+			COption::GetOptionString("perfmon", "total_mark_time", "") <> ''?
 			GetMessage("PERFMON_PANEL_DEV_TITLE2", array(
 				"#mark_value#" => COption::GetOptionString("perfmon", "total_mark_value"),
 				"#hits#" => COption::GetOptionString("perfmon", "total_mark_hits"),
@@ -1110,7 +1112,7 @@ else
 					<div id="page_rate_result_hidden" style="display:none"></div>
 					<div id="page_rate_result"><?echo GetMessage("PERFMON_PANEL_MEASURE")?></div>
 				</b></td>
-			<?elseif(strlen($mark_value) > 0):?>
+			<?elseif($mark_value <> ''):?>
 				<td class="bx-digit-cell"><b><?echo $mark_value?></b></td>
 			<?else:?>
 				<td class="bx-digit-cell"><b><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></b></td>
@@ -1125,7 +1127,7 @@ else
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_PAGE_TIME")?></td>
 			<?if($mark_value == "measure"):?>
 				<td class="bx-digit-cell" id="page_time_result"><?echo GetMessage("PERFMON_PANEL_MEASURE")?></td>
-			<?elseif(strlen($mark_value) > 0):?>
+			<?elseif($mark_value <> ''):?>
 				<td class="bx-digit-cell" id="page_time_result"><?echo $mark_value?></td>
 			<?else:?>
 				<td class="bx-digit-cell" id="page_time_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
@@ -1138,7 +1140,7 @@ else
 		?>
 		<tr>
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_CPU")?></td>
-			<?if(strlen($mark_value) > 0):?>
+			<?if($mark_value <> ''):?>
 				<td class="bx-digit-cell" id="mark_php_cpu_value_result"><?echo $mark_value?></td>
 			<?else:?>
 				<td class="bx-digit-cell" id="mark_php_cpu_value_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
@@ -1151,7 +1153,7 @@ else
 		?>
 		<tr>
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_FILES")?></td>
-			<?if(strlen($mark_value) > 0):?>
+			<?if($mark_value <> ''):?>
 				<td class="bx-digit-cell" id="mark_php_files_value_result"><?echo $mark_value?></td>
 			<?else:?>
 				<td class="bx-digit-cell" id="mark_php_files_value_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
@@ -1164,7 +1166,7 @@ else
 		?>
 		<tr>
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_MAIL")?></td>
-			<?if(strlen($mark_value) > 0):?>
+			<?if($mark_value <> ''):?>
 				<td class="bx-digit-cell" id="mark_php_mail_value_result"><?echo $mark_value?></td>
 			<?else:?>
 				<td class="bx-digit-cell" id="mark_php_mail_value_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
@@ -1179,7 +1181,7 @@ else
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_SESSION")?><div id="session_time_result_hidden" style="display:none"></div></td>
 			<?if($mark_value == -1):?>
 				<td class="bx-digit-cell" id="session_time_result"><?echo GetMessage("PERFMON_PANEL_SESSION_ERR")?><span class="required"><sup>3</sup></td>
-			<?elseif(strlen($mark_value) > 0):?>
+			<?elseif($mark_value <> ''):?>
 				<td class="bx-digit-cell" id="session_time_result"><?echo $mark_value?></td>
 			<?else:?>
 				<td class="bx-digit-cell" id="session_time_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
@@ -1192,7 +1194,7 @@ else
 		?>
 		<tr>
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_PHP")?></td>
-			<?if(strlen($mark_value) > 0):?>
+			<?if($mark_value <> ''):?>
 				<td class="bx-digit-cell" id="mark_php_is_good_result"><?echo ($mark_value == "N"? "<span class=\"errortext\">".GetMessage("PERFMON_PANEL_MARK_PHP_IS_NO_GOOD")."</span>": GetMessage("PERFMON_PANEL_MARK_PHP_IS_GOOD"))?></td>
 			<?else:?>
 				<td class="bx-digit-cell" id="mark_php_is_good_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
@@ -1212,7 +1214,7 @@ else
 		?>
 		<tr>
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_MARK_DB_INSERT_VALUE", array("#database_type#" => $db_type))?></td>
-			<?if(strlen($mark_value) > 0):?>
+			<?if($mark_value <> ''):?>
 				<td class="bx-digit-cell" id="mark_db_insert_value_result"><?echo $mark_value?></td>
 			<?else:?>
 				<td class="bx-digit-cell" id="mark_db_insert_value_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
@@ -1225,7 +1227,7 @@ else
 		?>
 		<tr>
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_MARK_DB_READ_VALUE", array("#database_type#" => $db_type))?></td>
-			<?if(strlen($mark_value) > 0):?>
+			<?if($mark_value <> ''):?>
 				<td class="bx-digit-cell" id="mark_db_read_value_result"><?echo $mark_value?></td>
 			<?else:?>
 				<td class="bx-digit-cell" id="mark_db_read_value_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
@@ -1238,7 +1240,7 @@ else
 		?>
 		<tr>
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_MARK_DB_UPDATE_VALUE", array("#database_type#" => $db_type))?></td>
-			<?if(strlen($mark_value) > 0):?>
+			<?if($mark_value <> ''):?>
 				<td class="bx-digit-cell" id="mark_db_update_value_result"><?echo $mark_value?></td>
 			<?else:?>
 				<td class="bx-digit-cell" id="mark_db_update_value_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
@@ -1398,7 +1400,7 @@ else
 				$internal = COption::GetOptionInt("perfmon", "total_mark_duration");
 			$hours = intval($interval / 3600);
 			$interval -= $hours * 3600;
-			$minutes = intval($interval / 60 );
+			$minutes = intval($interval / 60);
 			$interval -= $minutes * 60;
 			$seconds = intval($interval);
 			echo GetMessage("PERFMON_PANEL_MINUTES", array("#HOURS#" => $hours, "#MINUTES#" => $minutes, "#SECONDS#" => $seconds));

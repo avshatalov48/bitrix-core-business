@@ -266,7 +266,7 @@ class SaleBsmSiteMaster extends \CBitrixComponent
 		foreach ($steps as $step)
 		{
 			$class = array_pop(explode("\\", $step));
-			$stepFile = strtolower($class).".php";
+			$stepFile = mb_strtolower($class).".php";
 			if (Main\IO\File::isFileExists(self::WIZARD_DIR.$stepFile))
 			{
 				require_once(self::WIZARD_DIR.$stepFile);

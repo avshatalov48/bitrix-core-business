@@ -164,7 +164,7 @@ else
 											<input type="password" name="USER_PASSWORD" maxlength="255" size="25" />&nbsp;&nbsp;&nbsp;
 										</td>
 									</tr>
-									<?if (strlen($arParams["REGISTER_PAGE"]) > 0):?>
+									<?if ($arParams["REGISTER_PAGE"] <> ''):?>
 										<tr>
 											<td>
 												<a href="<?=$arParams["REGISTER_PAGE"]?>?forgot_password=yes&amp;back_url=<?=urlencode($arResult["CURRENT_PAGE"]) ?>"><?=GetMessage("SPCR1_FORG_PASSWORD")?></a>

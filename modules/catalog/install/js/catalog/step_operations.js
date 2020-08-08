@@ -496,7 +496,7 @@ BX.Catalog.Iblocks = (function()
 		if (!!this.iblockContent[this.iblockIndex].errors)
 		{
 			if (BX.type.isNotEmptyString(errorList))
-				this.iblockContent[this.iblockIndex].errors = this.iblockContent[this.iblockIndex].errors.innerHTML + errorList;
+				this.iblockContent[this.iblockIndex].errors.innerHTML = this.iblockContent[this.iblockIndex].errors.innerHTML + errorList;
 			BX.style(this.iblockContent[this.iblockIndex].errorsFrame, 'display', 'block');
 		}
 	};

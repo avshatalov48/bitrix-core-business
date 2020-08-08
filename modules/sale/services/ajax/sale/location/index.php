@@ -47,7 +47,7 @@ else
 	$arResult["RESULT"] = "OK";
 
 /** @global CMain $APPLICATION */
-if(strtolower(SITE_CHARSET) != 'utf-8')
+if(mb_strtolower(SITE_CHARSET) != 'utf-8')
 	$arResult = $APPLICATION -> ConvertCharsetArray($arResult, SITE_CHARSET, 'utf-8');
 
 header('Content-Type: application/json');

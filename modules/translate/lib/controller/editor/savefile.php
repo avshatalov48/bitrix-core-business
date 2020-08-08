@@ -29,7 +29,7 @@ class SaveFile
 			$this->addError(new Main\Error(Loc::getMessage('TR_EDIT_FILE_PATH_ERROR')));
 			return $result;
 		}
-		if (!Translate\IO\Path::isLangDir($file, true) || (substr($file, -4) !== '.php'))
+		if (!Translate\IO\Path::isLangDir($file, true) || (mb_substr($file, -4) !== '.php'))
 		{
 			$this->addError(new Main\Error(Loc::getMessage('TR_EDIT_ERROR_FILE_NOT_LANG', array('#FILE#' => $file))));
 			return $result;
@@ -179,7 +179,7 @@ class SaveFile
 					$inpValue = $request->getPost($fldName);
 
 					/** @var \ArrayAccess $langFile */
-					if (!empty($inpValue))
+					if (!empty($inpValue) || $inpValue === '0')
 					{
 						if ($langFile[$phraseId] !== $inpValue)
 						{

@@ -980,10 +980,10 @@ class CMainUiFilter extends CBitrixComponent
 		return $resultField;
 	}
 
-	static function prepareField($field)
+	static function prepareField($field, $filterId = '')
 	{
 		return array_merge(
-			FieldAdapter::adapt($field),
+			FieldAdapter::adapt($field, $filterId),
 			array("STRICT" => $field["strict"] === true),
 			array("REQUIRED" => $field["required"] === true),
 			array("VALUE_REQUIRED" => $field["valueRequired"] === true)
@@ -1043,7 +1043,7 @@ class CMainUiFilter extends CBitrixComponent
 			{
 				foreach ($sourceFields as $sourceFieldKey => $sourceField)
 				{
-					$this->arResult["FIELDS"][] = static::prepareField($sourceField);
+					$this->arResult["FIELDS"][] = static::prepareField($sourceField, $this->arParams['FILTER_ID']);
 				}
 			}
 		}

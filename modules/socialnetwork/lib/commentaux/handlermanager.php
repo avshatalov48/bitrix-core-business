@@ -19,16 +19,20 @@ class HandlerManager
 		$createTaskClass = CreateTask::className();
 		/** @var FileVersion $fileVersionClass */
 		$fileVersionClass = FileVersion::className();
+		/** @var TaskInfo $taskInfoClass */
+		$taskInfoClass = TaskInfo::className();
 
 		$this->handlerListByPostText = array(
 			$shareClass::getPostText() => $shareClass,
 			$createTaskClass::getPostText() => $createTaskClass,
-			$fileVersionClass::getPostText() => $fileVersionClass
+			$fileVersionClass::getPostText() => $fileVersionClass,
+			$taskInfoClass::getPostText() => $taskInfoClass,
 		);
 		$this->handlerListByType = array(
 			$shareClass::getType() => $shareClass,
 			$createTaskClass::getType() => $createTaskClass,
-			$fileVersionClass::getType() => $fileVersionClass
+			$fileVersionClass::getType() => $fileVersionClass,
+			$taskInfoClass::getType() => $taskInfoClass,
 		);
 	}
 

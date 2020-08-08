@@ -26,7 +26,7 @@ use Bitrix\Main\Localization\Loc;
 				<?
 				if($arResult["ID"]>0)
 				{
-					if (strlen($arResult["arUser"]["TIMESTAMP_X"])>0)
+					if ($arResult["arUser"]["TIMESTAMP_X"] <> '')
 					{
 						?>
 						<div class="col-12">
@@ -36,7 +36,7 @@ use Bitrix\Main\Localization\Loc;
 						<?
 					}
 
-					if (strlen($arResult["arUser"]["LAST_LOGIN"])>0)
+					if ($arResult["arUser"]["LAST_LOGIN"] <> '')
 					{
 						?>
 						<div class="col-12">

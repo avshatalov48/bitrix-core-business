@@ -116,9 +116,9 @@ class Csv
 
 		//  encoding
 		$enc = $this->request->get('encodingIn');
-		if ($enc !== null && in_array(strtolower($enc), Translate\Config::getAllowedEncodings()))
+		if ($enc !== null && in_array(mb_strtolower($enc), Translate\Config::getAllowedEncodings()))
 		{
-			$this->encodingIn = strtolower($enc);
+			$this->encodingIn = mb_strtolower($enc);
 		}
 		elseif (isset($params['encodingIn']) && in_array($params['encodingIn'], Translate\Config::getAllowedEncodings()))
 		{
@@ -300,7 +300,7 @@ class Csv
 		{
 			if (
 				(filesize($_FILES['csvFile']['tmp_name']) > 0) &&
-				(substr($_FILES['csvFile']['name'], -4) === '.csv')
+				(mb_substr($_FILES['csvFile']['name'], -4) === '.csv')
 			)
 			{
 				if ($this->moveUploadedFile($_FILES['csvFile'], '.csv'))

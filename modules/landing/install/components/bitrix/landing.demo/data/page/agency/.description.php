@@ -13,7 +13,7 @@ return array(
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(
 			'THEME_CODE' => 'agency',
-			'THEME_CODE_TYPO' => 'agency',
+
 			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/agency/preview.jpg',
 			'METAOG_TITLE' => Loc::getMessage('LANDING_DEMO_AGENCY_TITLE'),
 			'METAOG_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_AGENCY_DESCRIPTION'),
@@ -27,7 +27,7 @@ return array(
 				'CODE' => '0.menu_02',
 				'SORT' => '-100',
 				'CONTENT' => '
-<header class="landing-block landing-block-menu u-header u-header--floating u-header--floating-relative">
+<header class="landing-block landing-block-menu u-header u-header--sticky u-header--relative">
 	<div class="u-header__section u-header__section--light g-bg-white g-transition-0_3 g-py-16 g-py-10--md" data-header-fix-moment-exclude="g-bg-white" data-header-fix-moment-classes="u-shadow-v27 g-bg-white-opacity-0_9">
 		<nav class="navbar navbar-expand-lg p-0 g-px-15">
 			<div class="container">
@@ -156,7 +156,7 @@ return array(
                     <i class="landing-block-node-card-icon icon-picture"></i>
                   </span>
 						<h3 class="landing-block-node-card-title text-uppercase g-line-height-1_2 g-font-weight-700 g-color-white g-mb-25 g-font-size-16">WE LOVE OUR CUSTOMERS</h3>
-						<div class="landing-block-node-card-text g-font-size-13 g-mb-30 g-color-gray-light-v2"><p>Nulla cursus orci sed ipsum scelerisque volutpat. Integer quis dapibus leo, maximus ultrices dui. Mauris facilisis, ex sed scelerisque bibendum, tellus leo pharetra augue, sed iaculis felis neque quis magna.</p></div>
+						<div class="landing-block-node-card-text g-mb-30 g-font-size-13 g-color-gray-light-v2"><p>Nulla cursus orci sed ipsum scelerisque volutpat. Integer quis dapibus leo, maximus ultrices dui. Mauris facilisis, ex sed scelerisque bibendum, tellus leo pharetra augue, sed iaculis felis neque quis magna.</p></div>
 						<div class="landing-block-node-card-link-container mt-auto">
 							<a href="#" class="landing-block-node-card-link text-uppercase g-font-weight-700 g-font-size-11 g-text-underline--none--hover">Read
 								More</a>
@@ -172,7 +172,7 @@ return array(
                     <i class="landing-block-node-card-icon icon-loop"></i>
                   </span>
 						<h3 class="landing-block-node-card-title text-uppercase g-line-height-1_2 g-font-weight-700 g-color-white g-mb-25 g-font-size-16">WE ARE CREATIVE</h3>
-						<div class="landing-block-node-card-text g-font-size-13 g-mb-30 g-color-gray-light-v2"><p>Nulla cursus orci sed ipsum scelerisque volutpat. Integer quis dapibus leo, maximus ultrices dui. Mauris facilisis, ex sed scelerisque bibendum, tellus leo pharetra augue, sed iaculis felis neque quis magna.</p></div>
+						<div class="landing-block-node-card-text g-mb-30 g-font-size-13 g-color-gray-light-v2"><p>Nulla cursus orci sed ipsum scelerisque volutpat. Integer quis dapibus leo, maximus ultrices dui. Mauris facilisis, ex sed scelerisque bibendum, tellus leo pharetra augue, sed iaculis felis neque quis magna.</p></div>
 						<div class="landing-block-node-card-link-container mt-auto">
 							<a href="#" class="landing-block-node-card-link text-uppercase g-font-weight-700 g-font-size-11 g-text-underline--none--hover">Read
 								More</a>
@@ -188,7 +188,7 @@ return array(
                     <i class="landing-block-node-card-icon icon-note"></i>
                   </span>
 						<h3 class="landing-block-node-card-title text-uppercase g-line-height-1_2 g-font-weight-700 g-color-white g-mb-25 g-font-size-16">WE ARE PRAGMATIC</h3>
-						<div class="landing-block-node-card-text g-font-size-13 g-mb-30 g-color-gray-light-v2"><p>Nulla cursus orci sed ipsum scelerisque volutpat. Integer quis dapibus leo, maximus ultrices dui. Mauris facilisis, ex sed scelerisque bibendum, tellus leo pharetra augue, sed iaculis felis neque quis magna.</p></div>
+						<div class="landing-block-node-card-text g-mb-30 g-font-size-13 g-color-gray-light-v2"><p>Nulla cursus orci sed ipsum scelerisque volutpat. Integer quis dapibus leo, maximus ultrices dui. Mauris facilisis, ex sed scelerisque bibendum, tellus leo pharetra augue, sed iaculis felis neque quis magna.</p></div>
 						<div class="landing-block-node-card-link-container mt-auto">
 							<a href="#" class="landing-block-node-card-link text-uppercase g-font-weight-700 g-font-size-11 g-text-underline--none--hover">Read
 								More</a>
@@ -204,7 +204,7 @@ return array(
                     <i class="landing-block-node-card-icon icon-map"></i>
                   </span>
 						<h3 class="landing-block-node-card-title text-uppercase g-line-height-1_2 g-font-weight-700 g-color-white g-mb-25 g-font-size-16">WE ARE PROFESSIONAL</h3>
-						<div class="landing-block-node-card-text g-font-size-13 g-mb-30 g-color-gray-light-v2"><p>Nulla cursus orci sed ipsum scelerisque volutpat. Integer quis dapibus leo, maximus ultrices dui. Mauris facilisis, ex sed scelerisque bibendum, tellus leo pharetra augue, sed iaculis felis neque quis magna.</p></div>
+						<div class="landing-block-node-card-text g-mb-30 g-font-size-13 g-color-gray-light-v2"><p>Nulla cursus orci sed ipsum scelerisque volutpat. Integer quis dapibus leo, maximus ultrices dui. Mauris facilisis, ex sed scelerisque bibendum, tellus leo pharetra augue, sed iaculis felis neque quis magna.</p></div>
 						<div class="landing-block-node-card-link-container mt-auto">
 							<a href="#" class="landing-block-node-card-link text-uppercase g-font-weight-700 g-font-size-11 g-text-underline--none--hover">Read
 								More</a>
@@ -379,7 +379,7 @@ return array(
 		<div class="row mx-0">
 			<div class="col-md-6 text-center text-md-left g-py-50 g-py-100--md g-px-15 g-px-50--md">
 				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-default g-color-white g-mb-25 js-animation fadeInUp">USER INTERFACE</h3>
-				<div class="landing-block-node-text g-mb-30 g-font-size-13 g-color-gray-light-v2 js-animation fadeInUp"><p><span style="font-weight: bold;"><span style="color: rgb(245, 245, 245);">1. DISCUSS WITH CLIENT</span><br /></span><span style="">Quisque rhoncus euismod pulvinar. Nulla non arcu at lectus. Vestibulum fringilla velit rhoncus euismod rhoncus turpis. Donec vel pharetra tellus. Sed non est lacus.<br /><br /></span><span style="font-weight: bold;">2. WIREFRAME<br /></span><span style="">Cras sit amet varius velit. Maecenas porta condimentum tortor at sagittis. Cum sociis natoque penatibus et magnis dis. Donec vel pharetra tellus. Sed non est lacus.<br /></span><span style="font-weight: bold;"><br />3. CREATIVE CONCEPT<br /></span><span style="">Nam in nisl volutpat ex bibendum sollicitudin. Praesent ac magna convallis, sagittis erat in, dapibus mauris. Donec vel pharetra tellus. Sed non est lacus.</span></p></div>
+				<div class="landing-block-node-text g-mb-30 g-color-gray-light-v2 js-animation fadeInUp"><p><span style="font-weight: bold;"><span style="color: rgb(245, 245, 245);">1. DISCUSS WITH CLIENT</span><br /></span><span style="">Quisque rhoncus euismod pulvinar. Nulla non arcu at lectus. Vestibulum fringilla velit rhoncus euismod rhoncus turpis. Donec vel pharetra tellus. Sed non est lacus.<br /><br /></span><span style="font-weight: bold;">2. WIREFRAME<br /></span><span style="">Cras sit amet varius velit. Maecenas porta condimentum tortor at sagittis. Cum sociis natoque penatibus et magnis dis. Donec vel pharetra tellus. Sed non est lacus.<br /></span><span style="font-weight: bold;"><br />3. CREATIVE CONCEPT<br /></span><span style="">Nam in nisl volutpat ex bibendum sollicitudin. Praesent ac magna convallis, sagittis erat in, dapibus mauris. Donec vel pharetra tellus. Sed non est lacus.</span></p></div>
 				<div class="landing-block-node-button-container">
 					<a class="landing-block-node-button text-uppercase btn btn-xl u-btn-primary g-font-weight-700 g-font-size-12 g-rounded-50 js-animation fadeInUp" href="#" tabindex="0">Contact us
 						<span>for more info</span></a>
@@ -504,7 +504,7 @@ return array(
 					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-font-size-18 g-color-gray-dark-v2 g-mb-7">
 						Ralf
 						Smith</h4>
-					<div class="landing-block-node-employee-subtitle g-font-size-13 g-color-gray-dark-v5 mb-0">head
+					<div class="landing-block-node-employee-subtitle g-color-gray-dark-v5 mb-0">head
 						photographer</div>
 					<!-- End Figure Info-->
 				</div>
@@ -535,7 +535,7 @@ return array(
 					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-font-size-18 g-color-gray-dark-v2 g-mb-7">
 						Monica
 						Gaudy</h4>
-					<div class="landing-block-node-employee-subtitle g-font-size-13 g-color-gray-dark-v5 mb-0">head
+					<div class="landing-block-node-employee-subtitle g-color-gray-dark-v5 mb-0">head
 						photographer</div>
 					<!-- End Figure Info-->
 				</div>
@@ -566,7 +566,7 @@ return array(
 					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-font-size-18 g-color-gray-dark-v2 g-mb-7">
 						Julia
 						Exon</h4>
-					<div class="landing-block-node-employee-subtitle g-font-size-13 g-color-gray-dark-v5 mb-0">head
+					<div class="landing-block-node-employee-subtitle g-color-gray-dark-v5 mb-0">head
 						photographer</div>
 					<!-- End Figure Info-->
 				</div>
@@ -597,7 +597,7 @@ return array(
 					<h4 class="landing-block-node-employee-name text-uppercase g-font-weight-700 g-font-size-18 g-color-gray-dark-v2 g-mb-7">
 						Jacob
 						Assange</h4>
-					<div class="landing-block-node-employee-subtitle g-font-size-13 g-color-gray-dark-v5 mb-0">head
+					<div class="landing-block-node-employee-subtitle g-color-gray-dark-v5 mb-0">head
 						photographer</div>
 					<!-- End Figure Info-->
 				</div>
@@ -710,9 +710,9 @@ return array(
 						<span class="landing-block-node-contact-icon-container d-block g-color-primary g-font-size-50 g-line-height-1 g-mb-20">
 							<i class="landing-block-node-linkcontact-icon icon-globe"></i>
 						</span>
-						<span class="landing-block-node-linkcontact-title d-block text-uppercase g-font-size-14 g-color-main g-mb-5">
+						<span class="landing-block-node-linkcontact-title d-block text-uppercase g-color-main g-mb-5">
 							Address</span>
-						<span class="landing-block-node-linkcontact-text g-text-decoration-none g-text-underline--hover g-font-size-14 g-font-weight-700 ">
+						<span class="landing-block-node-linkcontact-text g-text-decoration-none g-text-underline--hover g-font-weight-700 ">
 							61 Oxford str., London, 3DG
 						</span>
 					</a>
@@ -724,9 +724,9 @@ return array(
 						<span class="landing-block-node-contact-icon-container d-block g-color-primary g-font-size-50 g-line-height-1 g-mb-20">
 							<i class="landing-block-node-linkcontact-icon icon-call-in"></i>
 						</span>
-						<span class="landing-block-node-linkcontact-title d-block text-uppercase g-font-size-14 g-color-main g-mb-5">
+						<span class="landing-block-node-linkcontact-title d-block text-uppercase g-color-main g-mb-5">
 							Phone number</span>
-						<span class="landing-block-node-linkcontact-text g-text-decoration-none g-text-underline--hover g-font-size-14 g-font-weight-700 ">
+						<span class="landing-block-node-linkcontact-text g-text-decoration-none g-text-underline--hover g-font-weight-700 ">
 							1-800-643-4500
 						</span>
 					</a>
@@ -738,9 +738,9 @@ return array(
 						<span class="landing-block-node-contact-icon-container d-block g-color-primary g-font-size-50 g-line-height-1 g-mb-20">
 							<i class="landing-block-node-linkcontact-icon icon-envelope"></i>
 						</span>
-						<span class="landing-block-node-linkcontact-title d-block text-uppercase g-font-size-14 g-color-main g-mb-5">
+						<span class="landing-block-node-linkcontact-title d-block text-uppercase g-color-main g-mb-5">
 							Email</span>
-						<span class="landing-block-node-linkcontact-text g-text-decoration-none g-text-underline--hover g-font-size-14 g-font-weight-700 ">
+						<span class="landing-block-node-linkcontact-text g-text-decoration-none g-text-underline--hover g-font-weight-700 ">
 							info@company24.com
 						</span>
 					</a>
@@ -752,9 +752,9 @@ return array(
 						<span class="landing-block-node-contact-icon-container d-block g-color-primary g-font-size-50 g-line-height-1 g-mb-20">
 							<i class="landing-block-node-contact-icon icon-earphones-alt"></i>
 						</span>
-						<span class="landing-block-node-contact-title d-block text-uppercase g-font-size-14 g-color-main g-mb-5">
+						<span class="landing-block-node-contact-title d-block text-uppercase g-color-main g-mb-5">
 							Toll free</span>
-						<span class="landing-block-node-contact-text g-font-size-14 g-font-weight-700 ">
+						<span class="landing-block-node-contact-text g-font-weight-700 ">
 							@company24
 						</span>
 					</div>
@@ -826,7 +826,7 @@ return array(
 		<div class="container text-center text-md-left u-bg-overlay__inner">
 			<div class="row">
 				<div class="col-md-4 col-lg-5 d-flex align-items-center g-mb-20 g-mb-0--md">
-					<div class="w-100 g-font-size-13 g-color-white mb-0 landing-block-node-copy">
+					<div class="w-100 g-color-white mb-0 landing-block-node-copy">
 						&copy; 2018 All rights reserved.
 					</div>
 				</div>

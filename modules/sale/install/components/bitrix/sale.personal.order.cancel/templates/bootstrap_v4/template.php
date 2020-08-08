@@ -7,7 +7,7 @@
 <div class="row">
 	<div class="col">
 		<div class="bx-order-cancel">
-			<?if(strlen($arResult["ERROR_MESSAGE"])<=0):?>
+			<?if($arResult["ERROR_MESSAGE"] == ''):?>
 				<form method="post" action="<?=POST_FORM_ACTION_URI?>">
 					<input type="hidden" name="CANCEL" value="Y">
 					<?=bitrix_sessid_post()?>

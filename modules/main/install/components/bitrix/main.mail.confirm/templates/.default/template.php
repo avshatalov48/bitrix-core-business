@@ -110,6 +110,7 @@
 									<div class="new-from-email-dialog-string-block">
 										<input tabindex="8" type="password" class="new-from-email-dialog-square-string" data-name="smtp-password">
 									</div>
+									<div class="new-from-email-dialog-field-hint"></div>
 								</div>
 							</div>
 						</div>
@@ -154,6 +155,10 @@
 		MAIN_MAIL_CONFIRM_INVALID_SMTP_PORT: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_INVALID_SMTP_PORT')) ?>',
 		MAIN_MAIL_CONFIRM_EMPTY_SMTP_LOGIN: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_EMPTY_SMTP_LOGIN')) ?>',
 		MAIN_MAIL_CONFIRM_EMPTY_SMTP_PASSWORD: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_EMPTY_SMTP_PASSWORD')) ?>',
+		MAIN_MAIL_CONFIRM_INVALID_SMTP_PASSWORD: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_INVALID_SMTP_PASSWORD')) ?>',
+		MAIN_MAIL_CONFIRM_INVALID_SMTP_PASSWORD_CARET: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_INVALID_SMTP_PASSWORD_CARET')) ?>',
+		MAIN_MAIL_CONFIRM_INVALID_SMTP_PASSWORD_NULL: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_INVALID_SMTP_PASSWORD_NULL')) ?>',
+		MAIN_MAIL_CONFIRM_SPACE_SMTP_PASSWORD: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_SPACE_SMTP_PASSWORD')) ?>',
 		MAIN_MAIL_CONFIRM_EMPTY_CODE: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_EMPTY_CODE')) ?>',
 		MAIN_MAIL_CONFIRM_DELETE: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_DELETE')) ?>',
 		MAIN_MAIL_CONFIRM_DELETE_SENDER_CONFIRM: '<?=\CUtil::jsEscape(getMessage('MAIN_MAIL_CONFIRM_DELETE_SENDER_CONFIRM')) ?>',

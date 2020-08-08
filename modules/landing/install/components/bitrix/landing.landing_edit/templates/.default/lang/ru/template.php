@@ -4,6 +4,7 @@ $MESS['LANDING_TPL_TITLE_ADD'] = 'Новая страница';
 $MESS['LANDING_TPL_BUTTON_ADD'] = 'Добавить';
 $MESS['LANDING_TPL_BUTTON_SAVE'] = 'Сохранить';
 $MESS['LANDING_TPL_BUTTON_CANCEL'] = 'Отменить';
+$MESS['LANDING_TPL_FONTS_PAGE'] = 'Шрифты на странице';
 $MESS['LANDING_TPL_ADDITIONAL'] = 'Дополнительно';
 $MESS['LANDING_TPL_ADDITIONAL_METRIKA'] = 'Аналитика';
 $MESS['LANDING_TPL_ADDITIONAL_BG'] = 'Фон';

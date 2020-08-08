@@ -4,10 +4,10 @@
  *
  * @package bitrix
  * @subpackage im
- * @copyright 2001-2019 Bitrix
+ * @copyright 2001-2020 Bitrix
  */
 
-let DateFormat = Object.freeze({
+export const DateFormat = Object.freeze({
 	groupTitle: 'groupTitle',
 	message: 'message',
 	recentTitle: 'recentTitle',
@@ -16,7 +16,3 @@ let DateFormat = Object.freeze({
 	default: 'default',
 	vacationTitle: 'vacationTitle',
 });
-
-export {
-	DateFormat,
-};

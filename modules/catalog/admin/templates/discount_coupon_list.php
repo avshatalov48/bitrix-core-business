@@ -106,7 +106,7 @@ if (($arID = $lAdmin->GroupAction()) && !$boolCouponsReadOnly)
 
 	foreach ($arID as $ID)
 	{
-		if (strlen($ID) <= 0)
+		if ($ID == '')
 			continue;
 
 		switch ($_REQUEST['action'])

@@ -25,7 +25,7 @@ if(!isset($arResult["ERROR"]))
 		case 'delete':
 			$strError = $monitoring->stopMonitoring($domain);
 
-			if(strlen($strError) > 0)
+			if($strError <> '')
 				$arResult["ERROR"] = $strError;
 			break;
 	}

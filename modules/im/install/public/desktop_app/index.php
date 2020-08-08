@@ -1,4 +1,5 @@
 <?
+define("BX_SKIP_USER_LIMIT_CHECK", true);
 require($_SERVER["DOCUMENT_ROOT"]."/desktop_app/headers.php");
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 
@@ -18,6 +19,16 @@ if (intval($USER->GetID()) <= 0 || \Bitrix\Im\User::getInstance()->isConnector()
 </script><?
 	return true;
 }
+
+if (
+	\Bitrix\Main\Loader::includeModule('bitrix24')
+	&& \Bitrix\Bitrix24\Limits\User::isUserRestricted($USER->GetID())
+)
+{
+	LocalRedirect('/desktop_app/limit.php');
+	return false;
+}
+
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/im/install/public/desktop_app/index.php");
 
 if (isset($_GET['IFRAME']) == 'Y')
@@ -26,7 +37,7 @@ if (isset($_GET['IFRAME']) == 'Y')
 		"CONTEXT" => "FULLSCREEN",
 	), false, Array("HIDE_ICONS" => "Y"));
 }
-else if (!isset($_GET['BXD_API_VERSION']) && strpos($_SERVER['HTTP_USER_AGENT'], 'BitrixDesktop') === false)
+else if (!isset($_GET['BXD_API_VERSION']) && mb_strpos($_SERVER['HTTP_USER_AGENT'], 'BitrixDesktop') === false)
 {
 	$APPLICATION->IncludeComponent("bitrix:im.messenger", "fullscreen", Array(
 		"CONTEXT" => "FULLSCREEN",
@@ -48,6 +59,11 @@ else
 	$APPLICATION->IncludeComponent("bitrix:im.messenger", "", Array(
 		"CONTEXT" => "DESKTOP"
 	), false, Array("HIDE_ICONS" => "Y"));
+
+	if (IsModuleInstalled('ui'))
+	{
+		$APPLICATION->IncludeComponent("bitrix:ui.info.helper", "", array());
+	}
 
 	$diskEnabled = false;
 	if(IsModuleInstalled('disk'))

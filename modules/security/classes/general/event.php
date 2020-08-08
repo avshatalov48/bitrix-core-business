@@ -121,7 +121,7 @@ class CSecurityEvent
 		}
 		else
 		{
-			if (strlen($timestamp) <= 0)
+			if ($timestamp == '')
 			{
 				$days = COption::getOptionInt("main", "event_log_cleanup_days", 7);
 				if ($days > 7)
@@ -216,7 +216,7 @@ class CSecurityEvent
 	 */
 	private static function isRunOnWin()
 	{
-		return (strtoupper(substr(PHP_OS, 0, 3)) === "WIN");
+		return (mb_strtoupper(mb_substr(PHP_OS, 0, 3)) === "WIN");
 	}
 
 	/**

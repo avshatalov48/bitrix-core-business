@@ -120,9 +120,9 @@ class UserContentViewTable extends Entity\DataManager
 		{
 			$listRes = self::getList([
 				'filter' => [
-					"USER_ID" => $userId,
-					"RATING_TYPE_ID" => $typeId,
-					"RATING_ENTITY_ID" => $entityId,
+					"=USER_ID" => $userId,
+					"=RATING_TYPE_ID" => $typeId,
+					"=RATING_ENTITY_ID" => $entityId,
 				]
 			]);
 			if (!$listRes->fetch())

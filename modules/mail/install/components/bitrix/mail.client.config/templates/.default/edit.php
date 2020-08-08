@@ -1,9 +1,8 @@
 <?php
 
+use Bitrix\Mail\Helper\LicenseManager;
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Mail\Helper\LicenseManager;
-use Bitrix\Mail\Helper\MessageFolder;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
@@ -12,7 +11,7 @@ if (\CModule::includeModule('bitrix24'))
 	\CBitrix24::initLicenseInfoPopupJS();
 }
 
-\Bitrix\Main\UI\Extension::load('ui.buttons');
+\Bitrix\Main\UI\Extension::load(['ui.buttons', 'ui.hint']);
 \Bitrix\Main\Loader::includeModule('socialnetwork');
 \CJsCore::init(array('socnetlogdest', 'popup', 'fx'));
 $APPLICATION->setAdditionalCSS('/bitrix/components/bitrix/main.post.form/templates/.default/style.css');
@@ -37,40 +36,6 @@ if (!empty($mailbox))
 
 	$mailbox['OPTIONS']['flags'] = is_array($mailbox['OPTIONS']['flags'])
 		? array_values($mailbox['OPTIONS']['flags'])
-		: array();
-
-	if (!is_array($mailbox['OPTIONS']['imap']))
-	{
-		$mailbox['OPTIONS']['imap'] = array();
-	}
-
-	if (!is_array($mailbox['OPTIONS']['imap']['dirs']))
-	{
-		$mailbox['OPTIONS']['imap']['dirs'] = array();
-	}
-
-	$mailbox['OPTIONS']['imap']['disabled'] = is_array($mailbox['OPTIONS']['imap']['disabled'])
-		? array_values($mailbox['OPTIONS']['imap']['disabled'])
-		: array();
-
-	$mailbox['OPTIONS']['imap']['ignore'] = is_array($mailbox['OPTIONS']['imap']['ignore'])
-		? array_values($mailbox['OPTIONS']['imap']['ignore'])
-		: array();
-
-	$mailbox['OPTIONS']['imap'][MessageFolder::INCOME] = is_array($mailbox['OPTIONS']['imap'][MessageFolder::INCOME])
-		? array_values($mailbox['OPTIONS']['imap'][MessageFolder::INCOME])
-		: array();
-
-	$mailbox['OPTIONS']['imap'][MessageFolder::OUTCOME] = is_array($mailbox['OPTIONS']['imap'][MessageFolder::OUTCOME])
-		? array_values($mailbox['OPTIONS']['imap'][MessageFolder::OUTCOME])
-		: array();
-
-	$mailbox['OPTIONS']['imap'][MessageFolder::TRASH] = is_array($mailbox['OPTIONS']['imap'][MessageFolder::TRASH])
-		? array_values($mailbox['OPTIONS']['imap'][MessageFolder::TRASH])
-		: array();
-
-	$mailbox['OPTIONS']['imap'][MessageFolder::SPAM] = is_array($mailbox['OPTIONS']['imap'][MessageFolder::SPAM])
-		? array_values($mailbox['OPTIONS']['imap'][MessageFolder::SPAM])
 		: array();
 }
 
@@ -135,7 +100,7 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 					<? if ($settings['icon']): ?>
 						<img class="mail-connect-img" src="<?=$settings['icon'] ?>" alt="<?=htmlspecialcharsbx($settings['name']) ?>">
 					<? else: ?>
-						<span class="mail-connect-text <? if (strlen($settings['name']) > 10): ?> mail-connect-text-small"<? endif ?>">
+						<span class="mail-connect-text <? if (mb_strlen($settings['name']) > 10): ?> mail-connect-text-small"<? endif ?>">
 							&nbsp;<?=htmlspecialcharsbx($settings['name']) ?>&nbsp;
 						</span>
 					<? endif ?>
@@ -183,7 +148,7 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 						<? if ($settings['icon']): ?>
 							<img class="mail-connect-img" src="<?=$settings['icon'] ?>" alt="<?=htmlspecialcharsbx($settings['name']) ?>">
 						<? else: ?>
-							<span class="mail-connect-text <? if (strlen($settings['name']) > 10): ?> mail-connect-text-small"<? endif ?>">
+							<span class="mail-connect-text <? if (mb_strlen($settings['name']) > 10): ?> mail-connect-text-small"<? endif ?>">
 								&nbsp;<?=htmlspecialcharsbx($settings['name']) ?>&nbsp;
 							</span>
 						<? endif ?>
@@ -303,8 +268,15 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 			</div>
 		<? else: ?>
 			<div class="mail-connect-section-block">
-				<a class="mail-connect-dashed-switch" href="#" id="mail_connect_mb_imap_dirs_link"
-					><?=Loc::getMessage('MAIL_CLIENT_CONFIG_IMAP_DIRS_LINK') ?></a>
+				<a
+					class="mail-connect-dashed-switch"
+					href="<?php echo \CHTTP::urlAddParams(
+						$arParams['PATH_TO_MAIL_CONFIG_DIRS'],
+						['mailboxId' => $mailbox['ID']]
+					) ?>"
+				>
+					<?=Loc::getMessage('MAIL_CLIENT_CONFIG_IMAP_DIRS_LINK') ?>
+				</a>
 			</div>
 		<? endif ?>
 
@@ -342,19 +314,32 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 				<div class="mail-connect-title-block">
 					<div class="mail-connect-title"><?=Loc::getMessage('MAIL_CLIENT_CONFIG_SMTP') ?></div>
 				</div>
-				<div class="<? if (empty($mailbox['__smtp']) || !$hasSmtpFields): ?>mail-connect-form-hidden-block<? endif ?>">
-					<? if (empty($mailbox['__smtp']) || !$hasSmtpFields): ?>
-						<div class="mail-connect-option-email">
-							<input class="mail-connect-form-input mail-connect-form-input-check" type="checkbox"
-								name="fields[use_smtp]" value="1" id="mail_connect_mb_server_smtp_switch"
-								<? if (empty($mailbox)): ?> checked <? endif ?>
-								<? if (!empty($mailbox['__smtp'])): ?> checked disabled <? endif ?>
-								onchange="BX('mail_connect_mb_server_smtp_form').style.display = this.checked ? '' : 'none'; ">
-							<label class="mail-connect-form-label mail-connect-form-label-check" for="mail_connect_mb_server_smtp_switch"><?=Loc::getMessage('MAIL_CLIENT_CONFIG_SMTP_ACTIVE') ?></label>
-						</div>
-					<? endif ?>
+				<div class="mail-connect-form-hidden-block">
+					<div class="mail-connect-option-email">
+						<input class="mail-connect-form-input mail-connect-form-input-check" type="checkbox"
+							name="fields[use_smtp]" value="1" id="mail_connect_mb_server_smtp_switch"
+							<? if (empty($mailbox) || !empty($mailbox['__smtp'])): ?> checked <? endif ?>
+							onchange="BX('mail_connect_mb_server_smtp_form').style.display = this.checked ? '' : 'none'; ">
+						<label class="mail-connect-form-label mail-connect-form-label-check" for="mail_connect_mb_server_smtp_switch">
+							<?=htmlspecialcharsbx(Loc::getMessage('MAIL_CLIENT_CONFIG_SMTP_ACTIVE')) ?>
+						</label>
+					</div>
 					<div class="mail-connect-form-inner" id="mail_connect_mb_server_smtp_form"
 						<? if (!empty($mailbox) && empty($mailbox['__smtp'])): ?> style="display: none; " <? endif ?>>
+						<? if (empty($settings['upload_outgoing'])): ?>
+							<div class="mail-connect-form-item">
+								<div class="mail-connect-option-email" style="position: relative; ">
+									<input class="mail-connect-form-input mail-connect-form-input-check" type="checkbox"
+										name="fields[upload_outgoing]" value="1" id="mail_connect_mb_server_smtp_upload"
+										<? if (empty($mailbox) || !in_array('deny_upload', $mailbox['OPTIONS']['flags'])): ?> checked <? endif ?>>
+									<label class="mail-connect-form-label mail-connect-form-label-check" for="mail_connect_mb_server_smtp_upload">
+										<?=Loc::getMessage('MAIL_CLIENT_CONFIG_SMTP_UPLOAD') ?>
+									</label>
+									<span style="position: absolute; bottom: 0; "
+										data-hint="<?=Loc::getMessage('MAIL_CLIENT_CONFIG_SMTP_UPLOAD_HINT') ?>"></span>
+								</div>
+							</div>
+						<? endif ?>
 						<? if ($hasSmtpFields): ?>
 							<div class="mail-connect-warning-block">
 								<div class="mail-connect-warning-text"><?=Loc::getMessage('MAIL_CLIENT_CONFIG_SMTP_WARNING') ?></div>
@@ -362,14 +347,24 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 						<? endif ?>
 						<? if (empty($settings['smtp']['server'])): ?>
 							<div class="mail-connect-form-item">
-								<label class="mail-connect-form-label" for="mail_connect_mb_server_smtp_field"><?=Loc::getMessage('MAIL_CLIENT_CONFIG_SMTP_SERVER') ?></label>
-								<div class="mail-connect-form-item-server-port">
-									<input class="mail-connect-form-input mail-connect-form-input-server" type="text" placeholder="smtp.example.com"
-										name="fields[server_smtp]" id="mail_connect_mb_server_smtp_field"
-										<? if (!empty($mailbox['__smtp'])): ?> value="<?=htmlspecialcharsbx($mailbox['__smtp']['server']) ?>" <? endif ?>>
-									<input class="mail-connect-form-input mail-connect-form-input-port" type="text"
+								<label class="mail-connect-form-label" for="mail_connect_mb_server_smtp_field"><?=Loc::getMessage('MAIL_CLIENT_CONFIG_SMTP_SERVER_2') ?></label>
+								<input class="mail-connect-form-input" type="text" placeholder="smtp.example.com"
+									name="fields[server_smtp]" id="mail_connect_mb_server_smtp_field"
+									<? if (!empty($mailbox['__smtp'])): ?> value="<?=htmlspecialcharsbx($mailbox['__smtp']['server']) ?>" <? endif ?>>
+								<div class="mail-connect-form-error"></div>
+							</div>
+							<div class="mail-connect-form-item">
+								<label class="mail-connect-form-label" for="mail_connect_mb_port_smtp_field"><?=Loc::getMessage('MAIL_CLIENT_CONFIG_SMTP_PORT') ?></label>
+								<div class="mail-connect-form-item-inner">
+									<input class="mail-connect-form-input" type="text" placeholder="587"
 										name="fields[port_smtp]" id="mail_connect_mb_port_smtp_field"
 										<? if (!empty($mailbox['__smtp'])): ?> value="<?=htmlspecialcharsbx($mailbox['__smtp']['port']) ?>" <? endif ?>>
+									<div class="mail-connect-option-email">
+										<input class="mail-connect-form-input mail-connect-form-input-check" type="checkbox"
+											name="fields[ssl_smtp]" id="mail_connect_mb_ssl_smtp_field" value="Y"
+											<? if (!empty($mailbox['__smtp']) && 'smtps' == $mailbox['__smtp']['protocol']): ?> checked <? endif ?>>
+										<label class="mail-connect-form-label mail-connect-form-label-check" for="mail_connect_mb_ssl_smtp_field"><?=Loc::getMessage('MAIL_CLIENT_CONFIG_SMTP_SSL') ?></label>
+									</div>
 								</div>
 								<div class="mail-connect-form-error"></div>
 							</div>
@@ -561,7 +556,7 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 								"API_VERSION" => 3,
 								"LIST" => array_keys($crmQueueSelected),
 								"INPUT_NAME" => "fields[crm_queue][]",
-								"USE_SYMBOLIC_ID" => "Y",
+								"USE_SYMBOLIC_ID" => true,
 								"BUTTON_SELECT_CAPTION" => Loc::getMessage("MAIL_CLIENT_CONFIG_CRM_QUEUE_ADD"),
 								"SELECTOR_OPTIONS" => [
 									'apiVersion' => 3,
@@ -599,7 +594,7 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 				"LIST" => array_keys($accessSelected),
 				"UNDELETABLE" => [ sprintf('U%u', empty($mailbox) ? $USER->getId() : $mailbox['USER_ID']) ],
 				"INPUT_NAME" => "fields[access_dest][]",
-				"USE_SYMBOLIC_ID" => "Y",
+				"USE_SYMBOLIC_ID" => true,
 				"BUTTON_SELECT_CAPTION" => Loc::getMessage("MAIL_CLIENT_CONFIG_ACCESS_ADD"),
 				"SELECTOR_OPTIONS" => [
 					"departmentSelectDisable" => "N",
@@ -656,6 +651,7 @@ $arJsParams = array(
 		top.BX.loadCSS('/bitrix/components/bitrix/mail.client.config/templates/.default/style.css');
 	}
 
+	BX.UI.Hint.init(BX('mail_connect_form'));
 
 	BX.ready(function() {
 		BX.MailClientConfig.Edit.init(<?=CUtil::PhpToJSObject($arJsParams)?>);
@@ -764,6 +760,17 @@ $arJsParams = array(
 		};
 
 		BX.addCustomEvent('OnMailOAuthBCompleted', oauthHandler);
+
+		var changedDirs = false;
+
+		BX.addCustomEvent(
+			'SidePanel.Slider:onMessage',
+			function (event) {
+				if (event.getEventId() === 'mail-mailbox-config-dirs-success') {
+					changedDirs = event.data.changed;
+				}
+			}
+		);
 
 		BX.bind(
 			BX('mail_connect_mb_oauth_btn'),
@@ -879,6 +886,7 @@ $arJsParams = array(
 								);
 
 								BX.removeClass(fieldContainer, 'mail-connect-form-item-confirmed');
+								BX.removeClass(fieldContainer, 'mail-connect-form-item-warning');
 								BX.removeClass(fieldContainer, 'mail-connect-form-item-error');
 							}
 						},
@@ -903,7 +911,16 @@ $arJsParams = array(
 			if (error)
 			{
 				BX.removeClass(fieldContainer, 'mail-connect-form-item-confirmed');
-				BX.addClass(fieldContainer, 'mail-connect-form-item-error');
+				if (error.warning)
+				{
+					BX.removeClass(fieldContainer, 'mail-connect-form-item-error');
+					BX.addClass(fieldContainer, 'mail-connect-form-item-warning');
+				}
+				else
+				{
+					BX.removeClass(fieldContainer, 'mail-connect-form-item-warning');
+					BX.addClass(fieldContainer, 'mail-connect-form-item-error');
+				}
 				BX.adjust(
 					BX.findChildByClassName(fieldContainer, 'mail-connect-form-error', true),
 					{
@@ -913,11 +930,12 @@ $arJsParams = array(
 			}
 			else
 			{
+				BX.removeClass(fieldContainer, 'mail-connect-form-item-warning');
 				BX.removeClass(fieldContainer, 'mail-connect-form-item-error');
 				//BX.addClass(fieldContainer, 'mail-connect-form-item-confirmed');
 			}
 
-			return !error;
+			return !(error && !error.warning);
 		};
 
 		var checkForm = function ()
@@ -1017,7 +1035,7 @@ $arJsParams = array(
 			}
 
 			var smtpSwitch = form.elements['fields[use_smtp]'];
-			if (smtpSwitch && smtpSwitch.checked)
+			if (smtpSwitch ? smtpSwitch.checked : form.elements['fields[mailbox_id]'])
 			{
 				var serverSmtpField = form.elements['fields[server_smtp]'];
 				var serverError = false;
@@ -1058,13 +1076,43 @@ $arJsParams = array(
 				}
 
 				var passwordSmtpField = form.elements['fields[pass_smtp]'];
-				if (passwordSmtpField && !form.elements['fields[mailbox_id]'])
+				if (passwordSmtpField)
 				{
-					result *= fieldError(
-						passwordSmtpField,
-						!(passwordSmtpField.value.length > 0),
-						'<?=\CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_CONFIG_PASS_EMPTY')) ?>'
-					);
+					if (passwordSmtpField.value.length > 0)
+					{
+						if (passwordSmtpField.value.match(/^\^/))
+						{
+							result *= fieldError(
+								passwordSmtpField,
+								true,
+								'<?=\CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_CONFIG_SMTP_PASS_BAD_CARET')) ?>'
+							);
+						}
+						else if (passwordSmtpField.value.match(/\x00/))
+						{
+							result *= fieldError(
+								passwordSmtpField,
+								true,
+								'<?=\CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_CONFIG_SMTP_PASS_BAD_NULL')) ?>'
+							);
+						}
+						else if (passwordSmtpField.value.match(/^\s|\s$/))
+						{
+							result *= fieldError(
+								passwordSmtpField,
+								{warning: true},
+								'<?=\CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_CONFIG_SMTP_PASS_SPACE')) ?>'
+							);
+						}
+					}
+					else if (!form.elements['fields[mailbox_id]'])
+					{
+						result *= fieldError(
+							passwordSmtpField,
+							true,
+							'<?=\CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_CONFIG_PASS_EMPTY')) ?>'
+						);
+					}
 				}
 			}
 
@@ -1193,6 +1241,8 @@ $arJsParams = array(
 						}
 						else
 						{
+							<? if (!empty($mailbox)): ?>
+
 							if (json.data && json.data.id > 0)
 							{
 								top.BX.SidePanel.Instance.postMessage(
@@ -1200,14 +1250,44 @@ $arJsParams = array(
 									'mail-mailbox-config-success',
 									{
 										id: json.data.id,
-										changed: {
-											imap_dirs: form.__extData && form.__extData.imap_dirs
-										}
+										changed: changedDirs
 									}
 								);
 							}
 
 							closeForm(json.data ? json.data.id : 0);
+
+							<? else: ?>
+
+							if (json.data && json.data.id > 0) {
+								top.BX.SidePanel.Instance.open(
+									'<?=\CUtil::jsEscape(\CHTTP::urlAddParams(
+										$arParams['PATH_TO_MAIL_CONFIG_DIRS'],
+										['mailboxId' => '#id#', 'INIT' => 'Y']
+									)) ?>'.replace('#id#', json.data.id),
+									{
+										width: 640,
+										cacheable: false,
+										events: {
+											onClose: function () {
+												closeForm(json.data.id);
+												top.BX.SidePanel.Instance.postMessage(
+													window,
+													'mail-mailbox-config-success',
+													{
+														id: json.data.id,
+														changed: changedDirs
+													}
+												);
+											},
+										}
+									}
+								);
+							} else {
+								closeForm(0);
+							}
+
+							<? endif; ?>
 						}
 					},
 					onfailure: function(json)
@@ -1257,6 +1337,24 @@ $arJsParams = array(
 				closeForm();
 			}
 		);
+
+		if (top.BX.SidePanel.Instance.getTopSlider())
+		{
+			BX.addCustomEvent(
+				top.BX.SidePanel.Instance.getTopSlider().getWindow(),
+				"SidePanel.Slider:onClose",
+				function (event)
+				{
+					top.BX.SidePanel.Instance.postMessage(
+						window,
+						'mail-mailbox-config-close',
+						{
+							changed: changedDirs
+						}
+					);
+				}
+			);
+		}
 
 		<? if (!empty($mailbox)): ?>
 
@@ -1360,49 +1458,10 @@ $arJsParams = array(
 			'LINK'     => $mailbox['LINK'],
 			'OPTIONS'  => array(
 				'flags' => $mailbox['OPTIONS']['flags'],
-				'imap'  => $mailbox['OPTIONS']['imap'],
 			),
 		)) ?>;
 
-		<? $imapDirs = array_map(
-			function ($dirName) use ($mailbox)
-			{
-				return Bitrix\Mail\Helper\MessageFolder::getFormattedPath($dirName, $mailbox['OPTIONS']);
-			},
-			(array) $mailbox['OPTIONS']['imap']['dirs']
-		) ?>
-
-		// this is to preserve dirs order
-		mailboxData.OPTIONS.imap.dirs = <?=json_encode(array_combine(
-			$imapDirsList = Main\Text\Encoding::convertEncoding(array_keys($imapDirs), SITE_CHARSET, 'UTF-8'),
-			Main\Text\Encoding::convertEncoding(array_values($imapDirs), SITE_CHARSET, 'UTF-8')
-		)) ?>;
-
-		mailboxData.OPTIONS.imap.dirsList = <?=json_encode($imapDirsList) ?>;
-
 		BXMailMailbox.init(mailboxData);
-
-		var applyDirs = function (data)
-		{
-			form.__extData = data;
-		};
-
-		BX.bind(
-			BX('mail_connect_mb_imap_dirs_link'),
-			'click',
-			function (e)
-			{
-				e.preventDefault();
-
-				BXMailMailbox.setupDirs(applyDirs);
-			}
-		);
-
-		if ('#mail-cfg-dirs' == window.location.hash)
-		{
-			window.location.hash = '#mail-cfg-dummy';
-			BXMailMailbox.setupDirs(applyDirs);
-		}
 
 		<? endif ?>
 

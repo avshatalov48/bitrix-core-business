@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports, main_core, landing_env, landing_loc, landing_ui_panel_content, landing_sliderhacks) {
+(function (exports, main_core, landing_env, landing_loc, landing_ui_panel_content, landing_sliderhacks, landing_pageobject) {
 	'use strict';
 
 	/**
@@ -129,7 +129,7 @@ this.BX = this.BX || {};
 	      if (!_this.blocksPanel) {
 	        _this.blocksPanel = _this.createBlocksPanel();
 
-	        _this.onBlocksListCategoryChange('last');
+	        _this.onBlocksListCategoryChange(_this.options.default_section);
 
 	        _this.blocksPanel.layout.hidden = true;
 	        main_core.Dom.append(_this.blocksPanel.layout, document.body);
@@ -345,10 +345,41 @@ this.BX = this.BX || {};
 	      this.currentBlock = block;
 	      this.currentArea = area;
 	      this.blocksPanel.show();
+	      this.disableAddBlockButtons();
 
 	      if (!!area && !!button) {
 	        this.onCreateButtonMouseout(area, button);
 	      }
+	    }
+	  }, {
+	    key: "disableAddBlockButtons",
+	    value: function disableAddBlockButtons() {
+	      landing_pageobject.PageObject.getBlocks().forEach(function (block) {
+	        var panel = block.panels.get('create_action');
+
+	        if (panel) {
+	          var button = panel.buttons.get('insert_after');
+
+	          if (button) {
+	            button.disable();
+	          }
+	        }
+	      });
+	    }
+	  }, {
+	    key: "enableAddBlockButtons",
+	    value: function enableAddBlockButtons() {
+	      landing_pageobject.PageObject.getBlocks().forEach(function (block) {
+	        var panel = block.panels.get('create_action');
+
+	        if (panel) {
+	          var button = panel.buttons.get('insert_after');
+
+	          if (button) {
+	            button.enable();
+	          }
+	        }
+	      });
 	    }
 	    /**
 	     * Creates blocks list panel
@@ -366,6 +397,9 @@ this.BX = this.BX || {};
 	        title: landing_loc.Loc.getMessage('LANDING_CONTENT_BLOCKS_TITLE'),
 	        className: 'landing-ui-panel-block-list',
 	        scrollAnimation: true
+	      });
+	      panel.subscribe('onCancel', function () {
+	        _this2.enableAddBlockButtons();
 	      });
 	      categories.forEach(function (categoryId) {
 	        var hasItems = !isEmpty(blocks[categoryId].items);
@@ -799,6 +833,9 @@ this.BX = this.BX || {};
 	        _this6.adjustEmptyAreas();
 
 	        void _this6.hideBlockLoader();
+
+	        _this6.enableAddBlockButtons();
+
 	        return p;
 	      });
 	    }
@@ -1092,5 +1129,5 @@ this.BX = this.BX || {};
 
 	exports.Main = Main;
 
-}(this.BX.Landing = this.BX.Landing || {}, BX, BX.Landing, BX.Landing, BX.Landing.UI.Panel, BX.Landing));
+}(this.BX.Landing = this.BX.Landing || {}, BX, BX.Landing, BX.Landing, BX.Landing.UI.Panel, BX.Landing, BX.Landing));
 //# sourceMappingURL=main.bundle.js.map

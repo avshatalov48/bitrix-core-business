@@ -24,15 +24,15 @@ ClearVars();
 $errorMessage = "";
 $bVarsFromForm = false;
 
-$ID = IntVal($ID);
+$ID = intval($ID);
 $affiliatePlanType = COption::GetOptionString("sale", "affiliate_plan_type", "N");
 $simpleForm = COption::GetOptionString("sale", "lock_catalog", "Y");
 
-if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions>="W" && check_bitrix_sessid())
+if ($REQUEST_METHOD=="POST" && $Update <> '' && $saleModulePermissions>="W" && check_bitrix_sessid())
 {
-	if (StrLen($SITE_ID) <= 0)
+	if ($SITE_ID == '')
 		$errorMessage .= GetMessage("SAPE1_NO_SITE").".<br>";
-	if (StrLen($NAME) <= 0)
+	if ($NAME == '')
 		$errorMessage .= GetMessage("SAPE1_NO_NAME").".<br>";
 
 	$ACTIVE = (($ACTIVE == "Y") ? "Y" : "N");
@@ -53,13 +53,13 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions>="W" 
 		$BASE_RATE_TYPE = "F";
 		$BASE_RATE_CURRENCY = $BASE_RATE_TYPE_CMN;
 
-		if (StrLen($BASE_RATE_CURRENCY) <= 0)
+		if ($BASE_RATE_CURRENCY == '')
 			$errorMessage .= GetMessage("SAPE1_NO_RATE_CURRENCY").".<br>";
 	}
 
 	if ($affiliatePlanType == "N")
 	{
-		$MIN_PLAN_VALUE = IntVal($MIN_PLAN_VALUE);
+		$MIN_PLAN_VALUE = intval($MIN_PLAN_VALUE);
 	}
 	else
 	{
@@ -67,7 +67,7 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions>="W" 
 		$MIN_PLAN_VALUE = DoubleVal($MIN_PLAN_VALUE);
 	}
 
-	$NUM_SECTIONS = IntVal($NUM_SECTIONS);
+	$NUM_SECTIONS = intval($NUM_SECTIONS);
 	if ($NUM_SECTIONS >= 0)
 	{
 		for ($i = 0; $i <= $NUM_SECTIONS; $i++)
@@ -84,23 +84,23 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions>="W" 
 				{
 					for ($j = 0, $maxCount = count(${"SECTION_SELECTOR_LEVEL_".$i}); $j < $maxCount; $j++)
 					{
-						if (IntVal(${"SECTION_SELECTOR_LEVEL_".$i}[$j]) > 0)
-							${"SECTION_ID_".$i} = IntVal(${"SECTION_SELECTOR_LEVEL_".$i}[$j]);
+						if (intval(${"SECTION_SELECTOR_LEVEL_".$i}[$j]) > 0)
+							${"SECTION_ID_".$i} = intval(${"SECTION_SELECTOR_LEVEL_".$i}[$j]);
 					}
 				}
 
-				${"SECTION_ID_".$i} = IntVal(${"SECTION_ID_".$i});
+				${"SECTION_ID_".$i} = intval(${"SECTION_ID_".$i});
 				if (${"SECTION_ID_".$i} <= 0)
 					$errorMessage .= GetMessage("SAPE1_NO_SECTION").".<br>";
 			}
 			else
 			{
 				${"MODULE_ID_".$i} = Trim(${"MODULE_ID_".$i});
-				if (StrLen(${"MODULE_ID_".$i}) <= 0)
+				if (${"MODULE_ID_".$i} == '')
 					$errorMessage .= GetMessage("SAPE1_NO_MODULE").".<br>";
 
 				${"SECTION_ID_".$i} = Trim(${"SECTION_ID_".$i});
-				if (StrLen(${"SECTION_ID_".$i}) <= 0)
+				if (${"SECTION_ID_".$i} == '')
 					$errorMessage .= GetMessage("SAPE1_NO_SECTION").".<br>";
 			}
 
@@ -117,14 +117,14 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions>="W" 
 				${"RATE_TYPE_".$i} = "F";
 				${"RATE_CURRENCY_".$i} = ${"RATE_TYPE_CMN_".$i};
 
-				if (StrLen(${"RATE_CURRENCY_".$i}) <= 0)
+				if (${"RATE_CURRENCY_".$i} == '')
 					$errorMessage .= GetMessage("SAPE1_NO_RATE_CURRENCY").".<br>";
 			}
 		}
 	}
 
 
-	if (StrLen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
 		$arFields = array(
 			"SITE_ID" => $SITE_ID,
@@ -151,7 +151,7 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions>="W" 
 		else
 		{
 			$ID = CSaleAffiliatePlan::Add($arFields);
-			$ID = IntVal($ID);
+			$ID = intval($ID);
 			if ($ID <= 0)
 			{
 				if ($ex = $APPLICATION->GetException())
@@ -162,11 +162,11 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions>="W" 
 		}
 	}
 
-	if (strlen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
 		$arSectionIDs = array();
 
-		$NUM_SECTIONS = IntVal($NUM_SECTIONS);
+		$NUM_SECTIONS = intval($NUM_SECTIONS);
 		if ($NUM_SECTIONS >= 0)
 		{
 			for ($i = 0; $i <= $NUM_SECTIONS; $i++)
@@ -174,7 +174,7 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions>="W" 
 				if (!isset(${"ID_".$i}))
 					continue;
 
-				${"ID_".$i} = IntVal(${"ID_".$i});
+				${"ID_".$i} = intval(${"ID_".$i});
 
 				$arFields = array(
 					"PLAN_ID" => $ID,
@@ -197,7 +197,7 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions>="W" 
 				else
 				{
 					${"ID_".$i} = CSaleAffiliatePlanSection::Add($arFields);
-					${"ID_".$i} = IntVal(${"ID_".$i});
+					${"ID_".$i} = intval(${"ID_".$i});
 					if (${"ID_".$i} <= 0)
 					{
 						if ($ex = $APPLICATION->GetException())
@@ -213,9 +213,9 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions>="W" 
 		CSaleAffiliatePlanSection::DeleteByPlan($ID, $arSectionIDs);
 	}
 
-	if (strlen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
-		if (strlen($apply) <= 0)
+		if ($apply == '')
 			LocalRedirect("/bitrix/admin/sale_affiliate_plan.php?lang=".LANG.GetFilterParams("filter_", false));
 	}
 	else
@@ -274,7 +274,7 @@ $context = new CAdminContextMenu($aMenu);
 $context->Show();
 ?>
 
-<?if(strlen($errorMessage)>0)
+<?if($errorMessage <> '')
 	echo CAdminMessage::ShowMessage(Array("DETAILS"=>$errorMessage, "TYPE"=>"ERROR", "MESSAGE"=>GetMessage("SAPE1_ERROR_SAVE"), "HTML"=>true));?>
 
 
@@ -369,7 +369,7 @@ $tabControl->BeginNextTab();
 	<tr>
 		<td><?= (($affiliatePlanType == "N") ? GetMessage("SAPE1_LIMIT") : GetMessage("SAPE1_LIMIT_HINT")) ?>:</td>
 		<td>
-			<input type="text" name="MIN_PLAN_VALUE" size="10" maxlength="10" value="<?= IntVal($str_MIN_PLAN_VALUE) ?>">
+			<input type="text" name="MIN_PLAN_VALUE" size="10" maxlength="10" value="<?= intval($str_MIN_PLAN_VALUE) ?>">
 		</td>
 	</tr>
 <?
@@ -553,7 +553,7 @@ $tabControl->BeginNextTab();
 					if ($maxLevel < $arSectionTree["DEPTH_LEVEL"])
 						$maxLevel = $arSectionTree["DEPTH_LEVEL"];
 
-					$arSectionTree["IBLOCK_SECTION_ID"] = IntVal($arSectionTree["IBLOCK_SECTION_ID"]);
+					$arSectionTree["IBLOCK_SECTION_ID"] = intval($arSectionTree["IBLOCK_SECTION_ID"]);
 
 					if (!is_array($arSections[$arSectionTree["IBLOCK_SECTION_ID"]]))
 						$arSections[$arSectionTree["IBLOCK_SECTION_ID"]] = array();
@@ -804,7 +804,7 @@ $tabControl->BeginNextTab();
 				$cnt = -1;
 				if ($bVarsFromForm)
 				{
-					$NUM_SECTIONS = IntVal($NUM_SECTIONS);
+					$NUM_SECTIONS = intval($NUM_SECTIONS);
 					if ($NUM_SECTIONS > 0)
 					{
 						for ($i = 0; $i <= $NUM_SECTIONS; $i++)
@@ -815,7 +815,7 @@ $tabControl->BeginNextTab();
 							$cnt++;
 
 							$str = "";
-							if (IntVal(${"SECTION_ID_".$i}) > 0)
+							if (intval(${"SECTION_ID_".$i}) > 0)
 							{
 								$dbSection = CIBlockSection::GetByID(${"SECTION_ID_".$i});
 								if ($arSection = $dbSection->Fetch())
@@ -830,7 +830,7 @@ $tabControl->BeginNextTab();
 							?>
 							<script language="JavaScript">
 							<!--
-							AffAddSectionRow(-1, <?= CUtil::JSEscape(${"ID_".$i}) ?>, '<?= CUtil::JSEscape(${"MODULE_ID_".$i}) ?>', '<?= CUtil::JSEscape(${"SECTION_ID_".$i}) ?>', '<?= CUtil::JSEscape(${"RATE_".$i}) ?>', '<?= CUtil::JSEscape(${"RATE_TYPE_CMN_".$i}) ?>', <?= ((StrLen($str) > 0) ? "new Array(0, ".$str.")" : "new Array()") ?>);
+							AffAddSectionRow(-1, <?= CUtil::JSEscape(${"ID_".$i}) ?>, '<?= CUtil::JSEscape(${"MODULE_ID_".$i}) ?>', '<?= CUtil::JSEscape(${"SECTION_ID_".$i}) ?>', '<?= CUtil::JSEscape(${"RATE_".$i}) ?>', '<?= CUtil::JSEscape(${"RATE_TYPE_CMN_".$i}) ?>', <?= (($str <> '') ? "new Array(0, ".$str.")" : "new Array()") ?>);
 							//-->
 							</script>
 							<?
@@ -852,7 +852,7 @@ $tabControl->BeginNextTab();
 							$str_RATE_TYPE_CMN = $arPlanSection["RATE_CURRENCY"];
 
 						$str = "";
-						if (IntVal($str_SECTION_ID) > 0)
+						if (intval($str_SECTION_ID) > 0)
 						{
 							$dbSection = CIBlockSection::GetByID($str_SECTION_ID);
 							if ($arSection = $dbSection->Fetch())
@@ -866,7 +866,7 @@ $tabControl->BeginNextTab();
 						?>
 						<script language="JavaScript">
 						<!--
-						AffAddSectionRow(-1, <?= $arPlanSection["ID"] ?>, '<?= CUtil::JSEscape($str_MODULE_ID) ?>', '<?= CUtil::JSEscape($str_SECTION_ID) ?>', '<?= CUtil::JSEscape($str_RATE) ?>', '<?= CUtil::JSEscape($str_RATE_TYPE_CMN) ?>', <?= ((StrLen($str) > 0) ? "new Array(0, ".$str.")" : "new Array()") ?>);
+						AffAddSectionRow(-1, <?= $arPlanSection["ID"] ?>, '<?= CUtil::JSEscape($str_MODULE_ID) ?>', '<?= CUtil::JSEscape($str_SECTION_ID) ?>', '<?= CUtil::JSEscape($str_RATE) ?>', '<?= CUtil::JSEscape($str_RATE_TYPE_CMN) ?>', <?= (($str <> '') ? "new Array(0, ".$str.")" : "new Array()") ?>);
 						//-->
 						</script>
 						<?

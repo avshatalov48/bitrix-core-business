@@ -12,8 +12,8 @@
 					</div>
 
 					<div class="media-body align-self-center">
-						<h3 class="landing-block-node-card-title h5 text-uppercase g-font-weight-800">Criminal law</h3>
-						<div class="landing-block-node-card-text g-font-size-default g-color-gray-dark-v2 mb-0">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-medium h5 text-uppercase font-weight-bold">Criminal law</h3>
+						<div class="landing-block-node-card-text landing-semantic-text-small g-font-size-default g-color-gray-dark-v2 mb-0">
 							<p>Proin dignissim eget enim id aliquam.
 								Proin ornare dictum leo, non elementum tellus molestie et. Vivamus sit amet scelerisque
 								leo.
@@ -36,8 +36,8 @@
 					</div>
 
 					<div class="media-body align-self-center">
-						<h3 class="landing-block-node-card-title h5 text-uppercase g-font-weight-800">Civil law</h3>
-						<div class="landing-block-node-card-text g-font-size-default g-color-gray-dark-v2 mb-0">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-medium h5 text-uppercase font-weight-bold">Civil law</h3>
+						<div class="landing-block-node-card-text landing-semantic-text-small g-font-size-default g-color-gray-dark-v2 mb-0">
 							<p>Nteger commodo est id erat bibendum, eu
 								convallis dolor tempus. Fusce mollis blandit eros. Nunc quis sapien in massa varius
 								convallis at sed justo. Praesent nec consectetur nibh, sed lobortis turpis.</p>
@@ -57,8 +57,8 @@
 					</div>
 
 					<div class="media-body align-self-center">
-						<h3 class="landing-block-node-card-title h5 text-uppercase g-font-weight-800">Business law</h3>
-						<div class="landing-block-node-card-text g-font-size-default g-color-gray-dark-v2 mb-0">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-medium h5 text-uppercase font-weight-bold">Business law</h3>
+						<div class="landing-block-node-card-text landing-semantic-text-small g-font-size-default g-color-gray-dark-v2 mb-0">
 							<p>Aenean lobortis ante ac porttitor
 								eleifend. Morbi massa justo, gravida sollicitudin tortor vel, dignissim viverra lectus.
 								In
@@ -80,8 +80,8 @@
 					</div>
 
 					<div class="media-body align-self-center">
-						<h3 class="landing-block-node-card-title h5 text-uppercase g-font-weight-800">Tax law</h3>
-						<div class="landing-block-node-card-text g-font-size-default g-color-gray-dark-v2 mb-0">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-medium h5 text-uppercase font-weight-bold">Tax law</h3>
+						<div class="landing-block-node-card-text landing-semantic-text-small g-font-size-default g-color-gray-dark-v2 mb-0">
 							<p>Nam et nulla rutrum, dignissim eros
 								quis, dictum eros. In ullamcorper molestie neque, ac faucibus felis efficitur sed. Nam
 								et

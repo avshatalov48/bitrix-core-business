@@ -701,7 +701,7 @@ class Message extends Internals\Entity
 
 			"USE_SMILES" => $fields["USE_SMILES"],
 			"NEW_TOPIC" => ($fields["NEW_TOPIC"] === "Y" ? "Y" : "N"),
-			"APPROVED" => $topic["APPROVED"] === Topic::APPROVED_DISAPPROVED ? Message::APPROVED_DISAPPROVED : Message::APPROVED_APPROVED,
+			"APPROVED" => $topic["APPROVED"] === Topic::APPROVED_DISAPPROVED || $fields["APPROVED"] === Message::APPROVED_DISAPPROVED ? Message::APPROVED_DISAPPROVED : Message::APPROVED_APPROVED,
 
 			"POST_DATE" => $fields["POST_DATE"] ?: new \Bitrix\Main\Type\DateTime(),
 			"POST_MESSAGE" => $fields["POST_MESSAGE"],
@@ -731,10 +731,11 @@ class Message extends Internals\Entity
 			$data += array_intersect_key($fields, $USER_FIELD_MANAGER->getUserFields(MessageTable::getUfId()));
 		}
 
-		$additionalFields = ["SOURCE_ID", "PARAM1", "PARAM2", "XML_ID"];
+		$temporaryFields = ["AUX", "AUX_DATA"];
+		$additionalFields = array_merge(["SOURCE_ID", "PARAM1", "PARAM2", "XML_ID"], $temporaryFields);
 		foreach ($additionalFields as $key)
 		{
-			if (array_key_exists($key, 	$fields))
+			if (array_key_exists($key, $fields))
 			{
 				$data[$key] = $fields[$key];
 			}
@@ -765,6 +766,10 @@ class Message extends Internals\Entity
 			$data["UPLOAD_DIR"] = $strUploadDir;
 		}
 
+		foreach ($temporaryFields as $field)
+		{
+			unset($data[$field]);
+		}
 		$dbResult = MessageTable::add($data);
 
 		if (!$dbResult->isSuccess())

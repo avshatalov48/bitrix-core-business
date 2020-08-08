@@ -1,33 +1,31 @@
 <?
 IncludeModuleLangFile(__FILE__);
+
 class CAdminMobileFilter
 {
 	const SELECT_ALL = "AMFSelectAll";
 
-	public static function getFields ($filterId)
+	public static function setFields($filterId, $arFields)
 	{
-		return CUserOptions::GetOption("mobileapp", "filter_".$filterId, array());
+		return CUserOptions::SetOption("mobileapp", "filter_" . $filterId, $arFields);
 	}
 
-	public static function setFields ($filterId, $arFields)
+	public static function getNonemptyFields($filterId, $arFieldsParams = false)
 	{
-		return CUserOptions::SetOption("mobileapp", "filter_".$filterId, $arFields);
-	}
-
-	public static function getNonemptyFields ($filterId, $arFieldsParams = false)
-	{
-		$arFilter = self::getFields ($filterId);
+		$arFilter = self::getFields($filterId);
 		$arNonemptyFields = array();
 
 		foreach ($arFilter as $fieldId => $fieldValue)
 		{
-			if(strlen($fieldValue) <= 0)
+			if ($fieldValue == '')
+			{
 				continue;
+			}
 
 			$arNonemptyFields[$fieldId] = $fieldValue;
 
 			//BX.userOptions.save saves array as string coma delimited
-			if(
+			if (
 				$arFieldsParams !== false
 				&& isset($arFieldsParams[$fieldId])
 				&& $arFieldsParams[$fieldId]["TYPE"] == "MULTI_SELECT"
@@ -41,6 +39,11 @@ class CAdminMobileFilter
 		return $arNonemptyFields;
 	}
 
+	public static function getFields($filterId)
+	{
+		return CUserOptions::GetOption("mobileapp", "filter_" . $filterId, array());
+	}
+
 	public static function getHtml($arFields)
 	{
 		global $APPLICATION;
@@ -49,19 +52,19 @@ class CAdminMobileFilter
 
 		foreach ($arFields as $fieldID => $arField)
 		{
-			if($arField["TYPE"] == "TEXT")
-			{
-				$arItem = array(
-							"TYPE" => "TEXT",
-							"ID" => "field_id_".$fieldID,
-							"VALUE" => $arField["VALUE"]
-						);
-			}
-			elseif($arField["TYPE"] == "DATE")
+			if ($arField["TYPE"] == "TEXT")
 			{
 				$arItem = array(
 					"TYPE" => "TEXT",
-					"ID" => "field_id_".$fieldID,
+					"ID" => "field_id_" . $fieldID,
+					"VALUE" => $arField["VALUE"]
+				);
+			}
+			elseif ($arField["TYPE"] == "DATE")
+			{
+				$arItem = array(
+					"TYPE" => "TEXT",
+					"ID" => "field_id_" . $fieldID,
 					"VALUE" => $arField["VALUE"],
 					"CUSTOM_ATTRS" => array(
 						"onclick" => "maAdminFilter.getDatePickerHtml(this);"
@@ -69,9 +72,9 @@ class CAdminMobileFilter
 				);
 
 			}
-			elseif($arField["TYPE"] == "ONE_SELECT")
+			elseif ($arField["TYPE"] == "ONE_SELECT")
 			{
-				if(isset($arField["ADD_ALL_SELECT"]) && $arField["ADD_ALL_SELECT"] == "Y")
+				if (isset($arField["ADD_ALL_SELECT"]) && $arField["ADD_ALL_SELECT"] == "Y")
 				{
 					$arField["OPTIONS"] = array_merge(
 						array(self::SELECT_ALL => GetMessage("MOBILEAPP_FILTER_ALL")),
@@ -83,40 +86,49 @@ class CAdminMobileFilter
 					"TYPE" => "RADIO",
 					"VALUES" => $arField["OPTIONS"],
 					"SELECTED" => $arField["OPTIONS"][$arField["VALUE"]],
-					"NAME" => "field_name_".$fieldID,
+					"NAME" => "field_name_" . $fieldID,
 				);
 			}
 
-			elseif($arField["TYPE"] == "MULTI_SELECT")
+			elseif ($arField["TYPE"] == "MULTI_SELECT")
 			{
 				$checked = array();
-				if(is_array($arField["VALUE"]))
+				if (is_array($arField["VALUE"]))
+				{
 					$checked = $arField["VALUE"];
-				else if(is_string($arField["VALUE"]) && strlen(trim($arField["VALUE"])) > 0)
-					$checked = explode(',', $arField["VALUE"]);
+				}
+				else
+				{
+					if (is_string($arField["VALUE"]) && trim($arField["VALUE"]) <> '')
+					{
+						$checked = explode(',', $arField["VALUE"]);
+					}
+				}
 
 				$arItem = array(
 					"TYPE" => "CHECKBOXES",
 					"VALUES" => $arField["OPTIONS"],
-					"NAME" => "field_name_".$fieldID,
+					"NAME" => "field_name_" . $fieldID,
 				);
 
-				if(!empty($checked))
+				if (!empty($checked))
+				{
 					$arItem["CHECKED"] = $checked;
+				}
 			}
 
-			$arData[] =	array(
+			$arData[] = array(
 				"TITLE" => $arField["NAME"],
 				"TYPE" => "BLOCK",
 				"FORM_ID" => "mapp_filter_form_id",
-				"DATA" => array( $arItem )
+				"DATA" => array($arItem)
 			);
 		}
 
 		$compParams = array(
-				"FORM_ID" => 'mapp_filter_form_id',
-				"DATA" => $arData,
-				);
+			"FORM_ID" => 'mapp_filter_form_id',
+			"DATA" => $arData,
+		);
 
 		ob_start();
 		$APPLICATION->IncludeComponent(
@@ -132,4 +144,5 @@ class CAdminMobileFilter
 		return $result;
 	}
 }
+
 ?>

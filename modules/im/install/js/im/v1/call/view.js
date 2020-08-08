@@ -13,12 +13,14 @@
 	};
 
 	var UiState = {
-		Calling: 1,
-		Connected: 2,
-		Error: 3
+		Initializing: 1,
+		Calling: 2,
+		Connected: 3,
+		Error: 4
 	};
 
-	var zIndexBase = 1200;
+	var localUserPosition = 1000;
+	var addButtonPosition = 1001;
 
 	/**
 	 *
@@ -31,21 +33,26 @@
 		this.container = config.container;
 		this.cameraId = config.cameraId;
 		this.microphoneId = config.microphoneId;
+		this.speakerId = BX.Call.Hardware.defaultSpeaker;
+		this.speakerMuted = false;
 		this.showChatButtons = (config.showChatButtons === true);
 
 		this.language = config.language || '';
 
-		this.cameraList = [];
-		this.microphoneList = [];
+		this.lastPosition = 1;
 
 		this.userLimit = config.userLimit || 1;
 		this.userId = BX.message('USER_ID');
 		this.localUser = new CallUser({
 			id: this.userId,
 			state: BX.Call.UserState.Connected,
-			localUser: true
+			localUser: true,
+			order: localUserPosition,
 		});
 
+		this.mediaSelectionBlocked = false;
+
+		this.visible = false;
 		this.elements = {
 			root: null,
 			container: null,
@@ -55,17 +62,14 @@
 			audio: {
 				// userId: <audio> for this user's stream
 			},
-			center: {
-				container: null,
-				video: null
-			},
+			center: null,
 			userBlock: null,
 			ear: {
 				left: null,
 				right: null
 			},
 			userList: {
-				rows: [],
+				container: null,
 				addButton: null
 			},
 		};
@@ -77,6 +81,7 @@
 			link: null,
 			microphone: null,
 			camera: null,
+			speaker: null,
 			screen: null,
 			chat: null,
 			history: null,
@@ -94,11 +99,7 @@
 		this.disabledButtons = {};
 
 		this.uiState = UiState.Calling;
-		this.layout = Layouts.Centered;
-		this.grid = {
-			rows: 0,
-			columns: 0
-		};
+		this.layout = config.layout || Layouts.Centered;
 
 		this.users = {}; // Call participants. The key is the user id.
 
@@ -121,6 +122,7 @@
 
 		// Event handlers
 		this._onFullScreenChangeHandler = this._onFullScreenChange.bind(this);
+		//this._onResizeHandler = BX.throttle(this._onResize.bind(this), 500);
 		this._onResizeHandler = this._onResize.bind(this);
 
 		this.init();
@@ -156,6 +158,11 @@
 		}
 	};
 
+	BX.Call.View.prototype.getNextPosition = function()
+	{
+		return this.lastPosition++;
+	};
+
 	/**
 	 * @param {object} userStates {userId -> state}
 	 */
@@ -173,53 +180,12 @@
 			this.users[userIds[i]] = new CallUser({
 				id: userIds[i],
 				state : userStates[userIds[i]] ? userStates[userIds[i]] : BX.Call.UserState.Idle,
+				order: this.getNextPosition(),
 				onClick: this._onUserClick.bind(this)
 			});
 		}
 
 		BX.Call.Util.updateUserData(userIds);
-	};
-
-	BX.Call.View.prototype.setDeviceList = function(deviceList)
-	{
-		this.cameraList = [];
-		this.microphoneList = [];
-
-		for (var i = 0; i < deviceList.length; i++)
-		{
-			var deviceInfo = deviceList[i];
-			if (deviceInfo.kind == "audioinput")
-			{
-				this.microphoneList.push(deviceInfo);
-			}
-			else if (deviceInfo.kind == "videoinput")
-			{
-				this.cameraList.push(deviceInfo);
-			}
-		}
-
-		if(this.buttons.camera)
-		{
-			if(this.cameraList.length === 0)
-			{
-				this.buttons.camera.hideArrow();
-			}
-			else
-			{
-				this.buttons.camera.showArrow();
-			}
-		}
-		if(this.buttons.microphone)
-		{
-			if(this.microphoneList.length === 0)
-			{
-				this.buttons.microphone.hideArrow();
-			}
-			else
-			{
-				this.buttons.microphone.showArrow();
-			}
-		}
 	};
 
 	BX.Call.View.prototype.setCentralUser = function(userId)
@@ -232,7 +198,7 @@
 		{
 			return;
 		}
-		if (!this.users[userId])
+		if (!this.users[userId] && userId != this.userId)
 		{
 			return;
 		}
@@ -293,7 +259,14 @@
 		}
 
 		this.uiState = uiState;
-		this.updateButtons();
+		if(this.uiState == UiState.Error && this.elements.container)
+		{
+			this.elements.container.textContent = '';
+		}
+		if(this.elements.root)
+		{
+			this.updateButtons();
+		}
 	};
 
 	BX.Call.View.prototype.setLayout = function(newLayout)
@@ -305,28 +278,23 @@
 
 		this.layout = newLayout;
 
-		for(var i = 0; i < this.elements.userList.rows.length; i++)
-		{
-			BX.remove(this.elements.userList.rows[i]);
-		}
-
-		this.elements.userList.rows = this.renderUserList();
 		if(this.layout == Layouts.Centered)
 		{
 			this.elements.root.className = "bx-messenger-videocall bx-messenger-videocall-centered";
-			BX.Call.Util.appendChildren(this.elements.userBlock, this.elements.userList.rows);
+			this.elements.userBlock.appendChild(this.elements.userList.container);
 			this.elements.container.appendChild(this.elements.center);
 			this.elements.container.appendChild(this.elements.userBlock);
 
-			this.centralUser.reattachStream();
+			this.centralUser.playVideo();
 		}
 		else if (this.layout == Layouts.Grid)
 		{
-			this.elements.root.className = "bx-messenger-videocall bx-messenger-videocall-grid bx-messenger-videocall-grid-r-" + this.grid.rows + " bx-messenger-videocall-grid-c-" + this.grid.columns;
+			this.elements.root.className = "bx-messenger-videocall bx-messenger-videocall-grid";
 			this.elements.container.removeChild(this.elements.center);
 			this.elements.container.removeChild(this.elements.userBlock);
-			BX.Call.Util.appendChildren(this.elements.container, this.elements.userList.rows);
+			this.elements.container.appendChild(this.elements.userList.container);
 		}
+		this.renderUserList();
 		this.toggleEars();
 	};
 
@@ -373,6 +341,8 @@
 				this.buttons.microphone.enable();
 			}
 		}
+
+		this.localUser.setMicrophoneState(!isMuted);
 	};
 
 	BX.Call.View.prototype.addUser = function(userId, state)
@@ -385,6 +355,7 @@
 		this.users[userId] = new CallUser({
 			id: userId,
 			state : state || BX.Call.UserState.Idle,
+			order: this.getNextPosition(),
 			onClick: this._onUserClick.bind(this)
 		});
 
@@ -408,21 +379,32 @@
 		{
 			this.setCentralUser(userId);
 		}
-		else if(userId == this.centralUser.userId && (newState == BX.Call.UserState.Idle || newState == BX.Call.UserState.Failed))
+		else if(userId == this.centralUser.userId)
 		{
-			var usersWithVideo = this.getUsersWithVideo();
-			var connectedUsers = this.getConnectedUsers();
-			if (usersWithVideo.length > 0)
+			if(newState == BX.Call.UserState.Connecting || newState == BX.Call.UserState.Failed)
 			{
-				this.setCentralUser(usersWithVideo[0]);
+				this.centralUser.blurVideo();
 			}
-			else if (this.localUser.hasVideo())
+			else if (newState == BX.Call.UserState.Connected)
 			{
-				this.setCentralUser(this.userId);
+				this.centralUser.blurVideo(false);
 			}
-			else if (connectedUsers.length > 0)
+			else if (newState == BX.Call.UserState.Idle)
 			{
-				this.setCentralUser(connectedUsers[0]);
+				var usersWithVideo = this.getUsersWithVideo();
+				var connectedUsers = this.getConnectedUsers();
+				if (usersWithVideo.length > 0)
+				{
+					this.setCentralUser(usersWithVideo[0]);
+				}
+				else if (connectedUsers.length > 0)
+				{
+					this.setCentralUser(connectedUsers[0]);
+				}
+				else
+				{
+					this.centralUser.blurVideo();
+				}
 			}
 		}
 
@@ -447,9 +429,22 @@
 		user.setTalking(talking);
 	};
 
-	BX.Call.View.prototype.setLocalStream = function(mediaStream)
+	BX.Call.View.prototype.setUserMicrophoneState = function(userId, isMicrophoneOn)
+	{
+		/** @type {CallUser} */
+		var user = this.users[userId];
+		if(!user)
+		{
+			return;
+		}
+
+		user.setMicrophoneState(isMicrophoneOn);
+	};
+
+	BX.Call.View.prototype.setLocalStream = function(mediaStream, flipVideo)
 	{
 		this.localUser.stream = mediaStream;
+		this.localUser.flipVideo = !!flipVideo;
 		this.setCameraState(this.localUser.hasVideo());
 
 		var videoTracks = mediaStream.getVideoTracks();
@@ -469,10 +464,6 @@
 			var audioTrackSettings = audioTracks[0].getSettings();
 			this.microphoneId = audioTrackSettings.deviceId || '';
 		}
-		else
-		{
-			this.microphoneId = '';
-		}
 
 		/*if(!this.localUser.hasVideo())
 		{
@@ -481,11 +472,56 @@
 
 		if(this.layout == Layouts.Centered && this.centralUser.userId == this.userId)
 		{
-			this.centralUser.setStream(mediaStream);
+			if(this.localUser.hasVideo())
+			{
+				this.centralUser.setStream(mediaStream);
+			}
+			else
+			{
+				this.setCentralUser(Object.keys(this.users)[0]);
+			}
 		}
 		else
 		{
 			this.updateUserList();
+		}
+	};
+
+	BX.Call.View.prototype.setSpeakerId = function(speakerId)
+	{
+		if (!('setSinkId' in HTMLMediaElement.prototype))
+		{
+			console.error("Speaker selection is not supported");
+		}
+
+		this.speakerId = speakerId;
+		for (var userId in this.elements.audio)
+		{
+			this.elements.audio[userId].setSinkId(this.speakerId);
+		}
+	};
+
+	BX.Call.View.prototype.muteSpeaker = function(mute)
+	{
+		this.speakerMuted = !!mute;
+
+		for (var userId in this.elements.audio)
+		{
+			this.elements.audio[userId].volume = this.speakerMuted ? 0 : 1;
+		}
+
+		if(this.speakerMuted)
+		{
+			this.buttons.speaker.disable();
+			this.buttons.speaker.hideArrow()
+		}
+		else
+		{
+			this.buttons.speaker.enable();
+			if(BX.Call.Hardware.canSelectSpeaker())
+			{
+				this.buttons.speaker.showArrow()
+			}
 		}
 	};
 
@@ -507,10 +543,23 @@
 			this.elements.audioContainer.appendChild(this.elements.audio[userId]);
 		}
 
+		this.elements.audio[userId].volume = this.speakerMuted ? 0 : 1;
+
 		if(mediaStream.getAudioTracks().length > 0 && mediaStream != this.elements.audio[userId].srcObject)
 		{
-			this.elements.audio[userId].srcObject = mediaStream;
-			this.elements.audio[userId].play();
+			if(this.speakerId && this.elements.audio[userId].setSinkId)
+			{
+				this.elements.audio[userId].setSinkId(this.speakerId).then(function()
+				{
+					this.elements.audio[userId].srcObject = mediaStream;
+					this.elements.audio[userId].play().catch(BX.DoNothing);
+				}.bind(this)).catch(console.error);
+			}
+			else
+			{
+				this.elements.audio[userId].srcObject = mediaStream;
+				this.elements.audio[userId].play().catch(BX.DoNothing);
+			}
 		}
 
 		this.users[userId].stream = mediaStream;
@@ -532,10 +581,10 @@
 				{
 					this.setCentralUser(usersWithVideo[0]);
 				}
-				else if (this.localUser.hasVideo())
+				/*else if (this.localUser.hasVideo())
 				{
 					this.setCentralUser(this.userId);
-				}
+				}*/
 			}
 		}
 		if(this.centralUser.userId == userId)
@@ -554,20 +603,18 @@
 		}
 		this.container.appendChild(this.elements.root);
 
-		if(this.layout == Layouts.Centered)
-		{
-			this.centralUser.reattachStream();
-		}
-
 		this.updateButtons();
 		this.updateUserList();
+		this.resumeVideo();
 
 		this.toggleEars();
+		this.visible = true;
 	};
 
 	BX.Call.View.prototype.hide = function()
 	{
 		BX.remove(this.elements.root);
+		this.visible = false;
 	};
 
 	/**
@@ -575,7 +622,7 @@
 	 * @param {string} params.text
 	 * @param {string} [params.subText]
 	 */
-	BX.Call.View.prototype.showFatalError = function(params)
+	BX.Call.View.prototype.showMessage = function(params)
 	{
 		if(!this.elements.root)
 		{
@@ -592,7 +639,6 @@
 				props: {className: "bx-messenger-videocall-status-text"},
 				text: params.text
 			});
-
 			statusNode.appendChild(textNode);
 		}
 
@@ -601,6 +647,21 @@
 			BX.cleanNode(this.elements.overlay);
 		}
 		this.elements.overlay.appendChild(statusNode);
+	};
+
+	BX.Call.View.prototype.hideMessage = function()
+	{
+		this.elements.overlay.textContent = '';
+	};
+
+	/**
+	 * @param {Object} params
+	 * @param {string} params.text
+	 * @param {string} [params.subText]
+	 */
+	BX.Call.View.prototype.showFatalError = function(params)
+	{
+		this.showMessage(params);
 		this.setUiState(UiState.Error);
 	};
 
@@ -608,6 +669,7 @@
 	{
 		BX.cleanNode(this.container);
 
+		this.visible = false;
 		this.callbacks.onClose();
 	};
 
@@ -631,13 +693,9 @@
 			this.elements.panel.classList.remove('bx-messenger-videocall-panel-folded');
 			this.elements.wrap.appendChild(this.elements.container);
 
-			if(this.layout == Layouts.Centered)
-			{
-				this.centralUser.reattachStream();
-			}
-
 			this.updateButtons();
 			this.updateUserList();
+			this.resumeVideo();
 		}
 	};
 
@@ -674,9 +732,9 @@
 		this.disabledButtons['camera'] = true;
 	};
 
-	BX.Call.View.prototype.disableSwitchMicrophone = function()
+	BX.Call.View.prototype.enableSwitchCamera = function()
 	{
-		this.disabledButtons['microphone'] = true;
+		delete this.disabledButtons['camera'];
 	};
 
 	BX.Call.View.prototype.disableScreenSharing = function()
@@ -684,12 +742,25 @@
 		this.disabledButtons['screen'] = true;
 	};
 
+	BX.Call.View.prototype.disableMediaSelection = function()
+	{
+		this.mediaSelectionBlocked = true;
+	};
+
+	BX.Call.View.prototype.isMediaSelectionAllowed = function()
+	{
+		return this.uiState == UiState.Connected && !this.mediaSelectionBlocked && !this.isFullScreen;
+	};
 
 	BX.Call.View.prototype.getButtonList = function()
 	{
 		if(this.uiState == UiState.Error)
 		{
 			return ['close'];
+		}
+		if(this.uiState == UiState.Initializing)
+		{
+			return ['hangup'];
 		}
 
 		if(this.size == BX.Call.View.Size.Folded)
@@ -715,10 +786,13 @@
 			result.push('link');
 		}
 
+		result.push('microphone');
 		if(this.uiState === UiState.Connected)
 		{
-			result.push('microphone', 'camera');
+			result.push('camera');
 		}
+
+		result.push('speaker');
 
 		if(this.isScreenSharingSupported() && !this.isFullScreen && this.uiState === UiState.Connected)
 		{
@@ -754,11 +828,9 @@
 					children: [
 						this.elements.container = BX.create("div", {
 							props: {className: "bx-messenger-videocall-inner"},
-							children: [
-								this.elements.overlay = BX.create("div", {
-									props: {className: "bx-messenger-videocall-overlay"}
-								})
-							]
+						}),
+						this.elements.overlay = BX.create("div", {
+							props: {className: "bx-messenger-videocall-overlay"}
 						}),
 						this.elements.panel = BX.create("div", {
 							props: {className: "bx-messenger-videocall-panel"},
@@ -801,6 +873,35 @@
 			]
 		});
 
+		this.elements.userList.container = BX.create("div", {
+			props: {
+				className: "bx-messenger-videocall-user-list"
+			},
+			children: [
+				BX.create("div", {
+					props: {className: "bx-messenger-videocall-user-extra"}
+				})
+			],
+			events: {
+				scroll: this.toggleEars.bind(this)
+			}
+		});
+
+		this.elements.userList.addButton = BX.create("div", {
+			props: {className: "bx-messenger-videocall-user-add"},
+			children: [
+				BX.create("div", {
+					props: {className: "bx-messenger-videocall-user-add-inner"}
+				})
+			],
+			style: {
+				order: addButtonPosition
+			},
+			events: {
+				click: this._onAddButtonClick.bind(this)
+			}
+		});
+
 		if(this.layout == Layouts.Centered)
 		{
 			this.elements.container.appendChild(this.elements.center);
@@ -812,9 +913,9 @@
 
 	BX.Call.View.prototype.renderUserList = function()
 	{
-		var containerSize = this.elements.root.getBoundingClientRect();
+		var containerSize = this.elements.userList.container.getBoundingClientRect();
 		var showLocalUser = this.localUser.hasVideo() && (this.layout == Layouts.Grid || this.centralUser.userId != this.userId);
-		var userNodes = [];
+		var userCount = 0;
 
 		for (var userId in this.users)
 		{
@@ -822,79 +923,49 @@
 			var user = this.users[userId];
 			if(this.layout == Layouts.Centered && userId == this.centralUser.userId)
 			{
+				user.dismount();
 				continue;
 			}
-			if(user.state == BX.Call.UserState.Idle)
+			if(user.state == BX.Call.UserState.Idle
+				|| user.state == BX.Call.UserState.Declined
+				|| user.state == BX.Call.UserState.Unavailable
+				|| user.state == BX.Call.UserState.Busy
+			)
 			{
+				user.dismount();
 				continue;
 			}
-
-			userNodes.push(user.render());
+			user.mount(this.elements.userList.container);
+			userCount++;
 		}
 		if(showLocalUser)
 		{
-			userNodes.push(this.localUser.render());
-		}
-
-		var rows = [];
-		var userCount = userNodes.length;
-		var rowCount = (this.layout == Layouts.Centered) ? 1 : BX.Call.Util.findRowCount(containerSize.width, containerSize.height, userCount);
-		var columnCount = Math.ceil(userCount / rowCount);
-
-		var i;
-		for (i = 0; i < rowCount; i++)
-		{
-			rows.push(BX.create("div", {props: {className: "bx-messenger-videocall-user-list"}}));
-		}
-
-		var currentRow = 0;
-		var currentColumn = 0;
-		for (i = 0; i < userCount; i++)
-		{
-			if (currentColumn >= columnCount)
-			{
-				currentColumn = 0;
-				currentRow++;
-			}
-
-			rows[currentRow].appendChild(userNodes[i]);
-			currentColumn++;
-		}
-
-		var showAdd = this.layout == Layouts.Centered && userCount > 0 && !this.isFullScreen && this.uiState === UiState.Connected && !this.isButtonDisabled("add") && this.getConnectedUserCount() < this.userLimit - 1;
-		if (showAdd)
-		{
-			this.elements.userList.addButton = BX.create("div", {
-				props: {className: "bx-messenger-videocall-user-add"},
-				children: [
-					BX.create("div", {
-						props: {className: "bx-messenger-videocall-user-add-inner"}
-					})
-				],
-				events: {
-					click: this._onAddButtonClick.bind(this)
-				}
-			});
-
-			if(!this.isFullScreen)
-			{
-				rows[currentRow].appendChild(this.elements.userList.addButton);
-			}
+			// using force true to always move self to the end of the list
+			this.localUser.mount(this.elements.userList.container, true);
+			userCount++;
 		}
 		else
 		{
-			this.elements.userList.addButton = null;
+			this.localUser.dismount();
 		}
 
-		this.grid.rows = rowCount;
-		this.grid.columns = columnCount;
-
-		if(this.layout === Layouts.Centered && rows.length === 1)
+		if (this.layout == Layouts.Grid)
 		{
-			rows[0].addEventListener("scroll", this.toggleEars.bind(this));
+			var userSize = BX.Call.Util.findBestElementSize(containerSize.width, containerSize.height, userCount);
+
+			this.elements.userList.container.style.setProperty('--grid-user-width', userSize.width + 'px');
+			this.elements.userList.container.style.setProperty('--grid-user-height', userSize.height + 'px');
 		}
 
-		return rows;
+		var showAdd = this.layout == Layouts.Centered && userCount > 0 && !this.isFullScreen && this.uiState === UiState.Connected && !this.isButtonDisabled("add") && this.getConnectedUserCount() < this.userLimit - 1;
+		if (showAdd && !this.isFullScreen)
+		{
+			this.elements.userList.container.appendChild(this.elements.userList.addButton);
+		}
+		else
+		{
+			BX.remove(this.elements.userList.addButton);
+		}
 	};
 
 	/**
@@ -962,7 +1033,7 @@
 						class: "microphone",
 						text: BX.message("IM_M_CALL_BTN_MIC"),
 						enabled: !this.isMuted,
-						arrowEnabled: this.microphoneList.length > 0 && !this.isFullScreen,
+						arrowEnabled: this.isMediaSelectionAllowed(),
 						onClick: this._onMicrophoneButtonClick.bind(this),
 						onArrowClick: this._onMicrophoneArrowClick.bind(this)
 					});
@@ -973,18 +1044,31 @@
 						class: "camera",
 						text: BX.message("IM_M_CALL_BTN_CAMERA"),
 						enabled: this.isCameraOn,
-						arrowEnabled: this.cameraList.length > 0 && !this.isFullScreen,
+						arrowEnabled: this.isMediaSelectionAllowed(),
 						onClick: this._onCameraButtonClick.bind(this),
 						onArrowClick: this._onCameraArrowClick.bind(this)
 					});
 					middleSubPanel.appendChild(this.buttons.camera.render());
 					break;
-				case "screen":
-					this.buttons.screen = new SimpleButton({
-						class: "screen",
-						text: BX.message("IM_M_CALL_BTN_SCREEN"),
-						onClick: this._onScreenButtonClick.bind(this)
+				case "speaker":
+					this.buttons.speaker = new ButtonWithArrow({
+						class: "speaker",
+						text: BX.message("IM_M_CALL_BTN_SPEAKER"),
+						enabled: !this.speakerMuted,
+						arrowEnabled: BX.Call.Hardware.canSelectSpeaker(),
+						onClick: this._onSpeakerButtonClick.bind(this),
+						onArrowClick: this._onSpeakerArrowClick.bind(this)
 					});
+					middleSubPanel.appendChild(this.buttons.speaker.render());
+				case "screen":
+					if(!this.buttons.screen)
+					{
+						this.buttons.screen = new SimpleButton({
+							class: "screen",
+							text: BX.message("IM_M_CALL_BTN_SCREEN"),
+							onClick: this._onScreenButtonClick.bind(this)
+						});
+					}
 					middleSubPanel.appendChild(this.buttons.screen.render());
 					break;
 				case "chat":
@@ -1005,10 +1089,17 @@
 					break;
 				case "hangup":
 					this.buttons.hangup = new HangupButton({
-						text: BX.message("IM_M_CALL_BTN_HANGUP"),
+						text: Object.keys(this.users).length > 1 ?  BX.message("IM_M_CALL_BTN_DISCONNECT") : BX.message("IM_M_CALL_BTN_HANGUP"),
 						onClick: this._onHangupButtonClick.bind(this)
 					});
-					rightSubPanel.appendChild(this.buttons.hangup.render());
+					if(this.uiState == UiState.Initializing)
+					{
+						middleSubPanel.appendChild(this.buttons.hangup.render());
+					}
+					else
+					{
+						rightSubPanel.appendChild(this.buttons.hangup.render());
+					}
 					break;
 				case "close":
 					this.buttons.close = new HangupButton({
@@ -1031,28 +1122,63 @@
 		return panelInner;
 	};
 
-	BX.Call.View.prototype.updateUserList = function()
+	BX.Call.View.prototype.setButtonActive = function(buttonName, isActive)
 	{
-		for (var i = 0; i < this.elements.userList.rows.length; i++)
+		if(!this.buttons[buttonName])
 		{
-			BX.remove(this.elements.userList.rows[i]);
+			return;
 		}
 
-		this.elements.userList.rows = this.renderUserList();
+		this.buttons[buttonName].setActive(isActive);
+	};
+
+	BX.Call.View.prototype.setButtonCounter = function(buttonName, counter)
+	{
+		if(!this.buttons[buttonName])
+		{
+			return;
+		}
+
+		this.buttons[buttonName].setCounter(counter);
+	};
+
+	BX.Call.View.prototype.updateUserList = function()
+	{
+		this.renderUserList();
+
 		if (this.layout == Layouts.Centered)
 		{
-			BX.Call.Util.appendChildren(this.elements.userBlock, this.elements.userList.rows);
-			var userList = this.elements.userList.rows[0];
-			this.centralUser.setFullSize(userList.childElementCount == 0);
+			if(!this.elements.userList.container.parentElement)
+			{
+				this.elements.userBlock.appendChild(this.elements.userList.container);
+			}
+			this.centralUser.setFullSize(this.elements.userList.container.childElementCount === 0);
 
 		}
 		else if (this.layout == Layouts.Grid)
 		{
-			BX.Call.Util.appendChildren(this.elements.container, this.elements.userList.rows);
-
-			this.elements.root.className = "bx-messenger-videocall bx-messenger-videocall-grid bx-messenger-videocall-grid-r-" + this.grid.rows + " bx-messenger-videocall-grid-c-" + this.grid.columns;
+			if(!this.elements.userList.container.parentElement)
+			{
+				this.elements.container.appendChild(this.elements.userList.container);
+			}
+			this.elements.root.className = "bx-messenger-videocall bx-messenger-videocall-grid";
 		}
 		this.toggleEars();
+	};
+
+	BX.Call.View.prototype.resumeVideo = function()
+	{
+		for (var userId in this.users)
+		{
+			/** @type {CallUser} */
+			var user = this.users[userId];
+			user.playVideo()
+		}
+		this.localUser.playVideo(true);
+		if(this.layout == Layouts.Centered)
+		{
+			this.centralUser.playVideo();
+		}
 	};
 
 	BX.Call.View.prototype.updateButtons = function()
@@ -1064,7 +1190,7 @@
 
 	BX.Call.View.prototype.isScreenSharingSupported = function()
 	{
-		return typeof(BXDesktopSystem) !== "undefined";
+		return navigator.mediaDevices && typeof(navigator.mediaDevices.getDisplayMedia) === "function" || typeof(BXDesktopSystem) !== "undefined";
 	};
 
 	BX.Call.View.prototype.isFullScreenSupported = function()
@@ -1075,7 +1201,7 @@
 		}
 		else if (BX.browser.IsFirefox())
 		{
-			return document.mozFullscreenEnabled === true;
+			return document.fullscreenEnabled === true;
 		}
 		else
 		{
@@ -1091,7 +1217,7 @@
 		}
 		else if (BX.browser.IsFirefox())
 		{
-			this.elements.root.mozRequestFullScreen();
+			this.elements.root.requestFullscreen();
 		}
 	};
 
@@ -1109,6 +1235,10 @@
 		{
 			document.webkitCancelFullScreen();
 		}
+		else if (document.document.exitFullscreen())
+		{
+			document.exitFullscreen()
+		}
 	};
 
 	BX.Call.View.prototype.toggleEars = function()
@@ -1121,9 +1251,8 @@
 	{
 		if (
 			this.layout == Layouts.Centered
-			&& this.elements.userList.rows.length == 1
-			&& this.elements.userList.rows[0].scrollWidth > this.elements.userList.rows[0].offsetWidth
-			&& (this.elements.userList.rows[0].offsetWidth + this.elements.userList.rows[0].scrollLeft) < this.elements.userList.rows[0].scrollWidth
+			&& this.elements.userList.container.scrollWidth > this.elements.userList.container.offsetWidth
+			&& (this.elements.userList.container.offsetWidth + this.elements.userList.container.scrollLeft) < this.elements.userList.container.scrollWidth
 	  	   )
 		{
 			this.elements.ear.right.classList.add("bx-messenger-videocall-ear-show");
@@ -1138,8 +1267,7 @@
 	{
 		if (
 			this.layout == Layouts.Centered
-			&& this.elements.userList.rows.length == 1
-			&& this.elements.userList.rows[0].scrollLeft > 0
+			&& this.elements.userList.container.scrollLeft > 0
 		   )
 		{
 			this.elements.ear.left.classList.add("bx-messenger-videocall-ear-show");
@@ -1156,7 +1284,7 @@
 		this.scrollInterval = setInterval(
 			function()
 			{
-				this.elements.userList.rows[0].scrollLeft -= 10;
+				this.elements.userList.container.scrollLeft -= 10;
 			}.bind(this),
 			20
 		);
@@ -1168,7 +1296,7 @@
 		this.scrollInterval = setInterval(
 			function()
 			{
-				this.elements.userList.rows[0].scrollLeft += 10;
+				this.elements.userList.container.scrollLeft += 10;
 			}.bind(this),
 			20
 		);
@@ -1198,26 +1326,10 @@
 		}
 		else if (BX.browser.IsFirefox())
 		{
-			this.isFullScreen = (document.mozFullscreenElement == this.elements.root);
+			this.isFullScreen = (document.fullscreenElement == this.elements.root);
 		}
 
-		if(this.isFullScreen)
-		{
-			//this.elements.wrap.classList.add('bx-messenger-videocall-fullscreen');
-			if(this.elements.userList.addButton)
-			{
-				BX.remove(this.elements.userList.addButton);
-			}
-
-		}
-		else
-		{
-			//this.elements.wrap.classList.remove('bx-messenger-videocall-fullscreen');
-			if(this.elements.userList.addButton)
-			{
-				this.elements.userList.rows[this.elements.userList.rows.length - 1].appendChild(this.elements.userList.addButton);
-			}
-		}
+		this.updateUserList();
 		this.updateButtons();
 	};
 
@@ -1228,6 +1340,10 @@
 			this.centralUser.updateAvatarWidth();
 		}
 		this.toggleEars();
+		if(this.layout == Layouts.Grid)
+		{
+			this.updateUserList();
+		}
 	};
 
 	BX.Call.View.prototype._onUserClick = function(e)
@@ -1281,14 +1397,10 @@
 	BX.Call.View.prototype._onMicrophoneArrowClick = function(e)
 	{
 		e.stopPropagation();
-		if(this.microphoneList.length === 0)
-		{
-			return;
-		}
 
 		DeviceSelector.create({
 			parentElement: e.currentTarget,
-			deviceList: this.microphoneList,
+			deviceList: BX.Call.Hardware.getMicrophoneList(),
 			current: this.microphoneId,
 			onSelect: this._onMicrophoneSelected.bind(this)
 		}).show();
@@ -1316,14 +1428,14 @@
 	BX.Call.View.prototype._onCameraArrowClick = function(e)
 	{
 		e.stopPropagation();
-		if(this.cameraList.length === 0)
+		if(!BX.Call.Hardware.hasCamera())
 		{
-			return;
+			return false;
 		}
 
 		DeviceSelector.create({
 			parentElement: e.currentTarget,
-			deviceList: this.cameraList,
+			deviceList: BX.Call.Hardware.getCameraList(),
 			current: this.cameraId,
 			onSelect: this._onCameraSelected.bind(this)
 		}).show();
@@ -1339,6 +1451,27 @@
 		this.callbacks.onReplaceCamera(deviceInfo);
 	};
 
+	BX.Call.View.prototype._onSpeakerButtonClick = function(e)
+	{
+		this.muteSpeaker(!this.speakerMuted);
+	};
+
+	BX.Call.View.prototype._onSpeakerArrowClick = function(e)
+	{
+		e.stopPropagation();
+
+		DeviceSelector.create({
+			parentElement: e.currentTarget,
+			deviceList: BX.Call.Hardware.getSpeakerList(),
+			current: this.speakerId,
+			onSelect: this._onSpeakerSelected.bind(this)
+		}).show();
+	};
+
+	BX.Call.View.prototype._onSpeakerSelected = function(deviceInfo)
+	{
+		this.setSpeakerId(deviceInfo.deviceId);
+	};
 
 	BX.Call.View.prototype._onScreenButtonClick = function(e)
 	{
@@ -1394,6 +1527,15 @@
 		});
 	};
 
+	BX.Call.View.prototype.releaseLocalMedia = function()
+	{
+		this.localUser.releaseStream();
+		if(this.centralUser.userId == this.userId)
+		{
+			this.centralUser.releaseStream();
+		}
+	};
+
 	BX.Call.View.prototype.destroy = function()
 	{
 		if(this.elements.root)
@@ -1401,6 +1543,7 @@
 			BX.cleanNode(this.elements.root, true);
 			this.elements.root = null;
 		}
+		this.visible = false;
 
 		window.removeEventListener("webkitfullscreenchange", this._onFullScreenChangeHandler);
 		window.removeEventListener("mozfullscreenchange", this._onFullScreenChangeHandler);
@@ -1439,6 +1582,7 @@
 			nameBlock: null,
 			name: null
 		};
+		this.loader = null;
 
 		this.checkAspectInterval = setInterval(this.checkVideoAspect.bind(this), 500);
 	};
@@ -1456,7 +1600,6 @@
 			default:
 				return '/bitrix/js/im/images/watermark-white-en.svg';
 		}
-
 	};
 
 	CentralUser.prototype.render = function()
@@ -1532,36 +1675,68 @@
 		{
 			this.elements.container.appendChild(this.elements.video);
 			this.elements.container.classList.remove("bx-messenger-videocall-audio");
+			if(this.userId == this.parent.userId && this.parent.localUser.flipVideo)
+			{
+				this.elements.video.classList.add("bx-messenger-videocall-video-flipped")
+			}
+			else
+			{
+				this.elements.video.classList.remove("bx-messenger-videocall-video-flipped")
+			}
 		}
 		else
 		{
-			if(this.userId != this.parent.userId)
-			{
-				this.elements.container.classList.add("bx-messenger-videocall-audio");
-			}
+			this.elements.container.classList.add("bx-messenger-videocall-audio");
 		}
+
+		this.loader = new BX.Loader({
+			target: this.elements.container
+		});
 
 		this.updateUserInfo();
 		return this.elements.container;
 	};
 
+	CentralUser.prototype.blurVideo = function(blur)
+	{
+		blur = blur !== false;
+
+		if(blur)
+		{
+			this.elements.video.pause();
+			this.elements.video.classList.add("bx-messenger-videocall-video-blurred");
+			this.loader.show();
+		}
+		else
+		{
+			this.elements.video.play().catch(BX.DoNothing);
+			this.elements.video.classList.remove("bx-messenger-videocall-video-blurred");
+			this.loader.hide();
+		}
+	};
+
 	CentralUser.prototype.updateUserInfo = function()
 	{
 		var self = this;
-		BX.Call.Util.getUserName(this.userId).then(function(name)
+		var userId = this.userId;
+		BX.Call.Util.getUserName(userId).then(function(name)
 		{
-			self.elements.name.innerText = name;
+			if(self.userId == userId)
+			{
+				self.elements.name.innerText = name;
+			}
 			return BX.Call.Util.getUserAvatar(self.userId);
 		}).then(function (avatar)
 		{
 			if (avatar != '')
 			{
-				self.elements.avatar.style.backgroundImage = "url(" + avatar + ")";
+				self.elements.avatar.style.backgroundImage = "url('" + avatar + "')";
 			}
 			else
 			{
 				self.elements.avatar.style.removeProperty("background-image");
 			}
+			self.updateAvatarWidth();
 		});
 	};
 
@@ -1577,13 +1752,15 @@
 			return;
 		}
 
-		if (userId == this.parent.userId)
+		if (userId == this.parent.userId && this.parent.localUser.flipVideo)
 		{
 			this.setStream(this.parent.localUser.stream);
+			this.elements.video.classList.add("bx-messenger-videocall-video-flipped");
 		}
 		else
 		{
 			this.setStream(this.parent.users[userId].stream);
+			this.elements.video.classList.remove("bx-messenger-videocall-video-flipped");
 		}
 
 		this.userId = userId;
@@ -1595,33 +1772,61 @@
 		this.stream = stream;
 		var hasVideo = BX.Call.Util.containsVideoTrack(stream);
 
-		if(this.hasVideo && !hasVideo)
+		if(this.stream)
+		{
+			if(this.hasVideo && !hasVideo)
+			{
+				BX.remove(this.elements.video);
+				this.elements.container.appendChild(this.elements.user);
+				this.elements.container.classList.add("bx-messenger-videocall-audio");
+				this.updateAvatarWidth();
+			}
+			else if(!this.hasVideo && hasVideo)
+			{
+				BX.remove(this.elements.user);
+				this.elements.container.appendChild(this.elements.video);
+				this.elements.container.classList.remove("bx-messenger-videocall-audio");
+			}
+		}
+		else
 		{
 			BX.remove(this.elements.video);
 			this.elements.container.appendChild(this.elements.user);
 			this.elements.container.classList.add("bx-messenger-videocall-audio");
 			this.updateAvatarWidth();
 		}
-		else if(!this.hasVideo && hasVideo)
-		{
-			BX.remove(this.elements.user);
-			this.elements.container.appendChild(this.elements.video);
-			this.elements.container.classList.remove("bx-messenger-videocall-audio");
-		}
 
 		this.hasVideo = hasVideo;
 		if(this.hasVideo)
 		{
-			this.elements.video.srcObject = stream;
+			if (this.elements.video.srcObject != stream)
+			{
+				this.elements.video.srcObject = stream;
+			}
+			this.blurVideo(false);
+			if(this.userId == this.parent.userId && this.parent.localUser.flipVideo)
+			{
+				this.elements.video.classList.add("bx-messenger-videocall-video-flipped")
+			}
+			else
+			{
+				this.elements.video.classList.remove("bx-messenger-videocall-video-flipped")
+			}
 		}
 	};
 
-	CentralUser.prototype.reattachStream = function()
+	CentralUser.prototype.playVideo = function()
 	{
-		if(this.hasVideo)
+		if(this.elements.video)
 		{
-			this.elements.video.srcObject = this.stream;
+			this.elements.video.play().catch(BX.DoNothing);
 		}
+	};
+
+	CentralUser.prototype.releaseStream = function()
+	{
+		this.elements.video.srcObject = null;
+		this.stream = null;
 	};
 
 	CentralUser.prototype.setFullSize = function(fullSize)
@@ -1662,6 +1867,11 @@
 	CentralUser.prototype.destroy = function()
 	{
 		this.stream = null;
+		if(this.loader)
+		{
+			this.loader.destroy();
+			this.loader = null;
+		}
 		clearInterval(this.checkAspectInterval);
 	};
 
@@ -1671,8 +1881,35 @@
 		this.name = '';
 		this.avatar = '';
 		this.state = config.state;
-		this.stream = config.stream;
+		this.order = config.order;
+
+		this._stream = config.stream;
+		Object.defineProperty(this, "stream", {
+			get: function()
+			{
+				return this._stream;
+			},
+			set: function(stream)
+			{
+				this._stream = stream;
+				this.update()
+			}
+		});
+		this._flipVideo = false;
+		Object.defineProperty(this, "flipVideo", {
+			get: function()
+			{
+				return this._flipVideo;
+			},
+			set: function(flipVideo)
+			{
+				this._flipVideo = flipVideo;
+				this.update()
+			}
+		});
+
 		this.talking = false;
+		this.isMicrophoneOn = config.isMicrophoneOn !== false;
 
 		this.localUser = config.localUser === true;
 		this.hidden = false;
@@ -1680,13 +1917,16 @@
 		this.elements = {
 			root: null,
 			container: null,
+			videoContainer: null,
 			video: null,
+			videoBorder: null,
 			avatar: null,
 			nameContainer: null,
 			name: null,
 			overlay: null,
 			state: null,
-			removeButton: null
+			removeButton: null,
+			micState: null
 		};
 
 		this.callBacks = {
@@ -1701,12 +1941,15 @@
 		var self = this;
 		this.elements.root = BX.create("div", {
 			props: {className: "bx-messenger-videocall-user"},
-			dataset: {userId: this.id},
+			dataset: {userId: this.id, order: this.order},
 			children: [
 				this.elements.container = BX.create("div", {
 					props: {className: "bx-messenger-videocall-user-inner"},
-				})
+				}),
 			],
+			style: {
+				order: this.order
+			},
 			events: {
 				click: function(e)
 				{
@@ -1736,7 +1979,7 @@
 		{
 			if (avatar != '')
 			{
-				self.elements.avatar.style.backgroundImage = "url(" + avatar + ")";
+				self.elements.avatar.style.backgroundImage = "url('" + avatar + "')";
 			}
 			else
 			{
@@ -1749,21 +1992,38 @@
 			this.elements.container.appendChild(this.elements.avatar);
 		}
 
-		this.elements.video = BX.create("video", {
+		this.elements.videoContainer = BX.create("div", {
 			props: {
-				className: "bx-messenger-videocall-video",
-				volume: 0,
-				autoplay: true
-			}
+				className: "bx-messenger-videocall-video-container",
+			},
+			children: [
+				this.elements.video = BX.create("video", {
+					props: {
+						className: "bx-messenger-videocall-video",
+						volume: 0,
+						autoplay: true
+					}
+				}),
+				this.elements.videoBorder = BX.create("div", {
+					props: {
+						className: "bx-messenger-videocall-video-border",
+					}
+				})
+			]
 		});
+		this.elements.container.appendChild(this.elements.videoContainer);
+
 		if(this.stream && this.stream.active)
 		{
 			this.elements.video.srcObject = this.stream;
 		}
-		this.elements.container.appendChild(this.elements.video);
+		if(this.flipVideo)
+		{
+			this.elements.video.classList.add("bx-messenger-videocall-video-flipped");
+		}
 
 		this.elements.overlay = BX.create("div", {props: {className: "bx-messenger-videocall-overlay"}});
-		this.elements.container.appendChild(this.elements.overlay);
+		this.elements.root.appendChild(this.elements.overlay);
 
 		this.elements.state = this.renderState();
 		if(this.elements.state)
@@ -1783,7 +2043,17 @@
 				})
 			]
 		});
-		this.elements.container.appendChild(this.elements.nameContainer);
+		this.elements.videoContainer.appendChild(this.elements.nameContainer);
+
+		this.elements.micState = BX.create("div", {
+			props: {className: "bx-messenger-videocall-user-mic-state" + (this.isMicrophoneOn ? " hidden" : "")},
+			children: [
+				BX.create("div", {
+					props: {className: "bx-messenger-videocall-user-mic-state-icon"},
+				}),
+			]
+		});
+		this.elements.nameContainer.insertBefore(this.elements.micState, this.elements.name);
 
 		BX.Call.Util.getUserName(this.id).then(function(name)
 		{
@@ -1801,6 +2071,43 @@
 		this.elements.container.appendChild(this.elements.removeButton);*/
 
 		return this.elements.root;
+	};
+
+	CallUser.prototype.update = function()
+	{
+		if(!this.elements.root)
+		{
+			return;
+		}
+		if(this.hasVideo())
+		{
+			if(this.elements.video.srcObject != this.stream)
+			{
+				this.elements.video.srcObject = this.stream;
+			}
+			BX.remove(this.elements.avatar);
+			if(this.flipVideo)
+			{
+				this.elements.video.classList.add("bx-messenger-videocall-video-flipped");
+			}
+			else
+			{
+				this.elements.video.classList.remove("bx-messenger-videocall-video-flipped");
+			}
+		}
+		else
+		{
+			this.elements.video.srcObject = null;
+			this.elements.container.appendChild(this.elements.avatar);
+		}
+	};
+
+	CallUser.prototype.playVideo = function()
+	{
+		if(this.elements.video)
+		{
+			this.elements.video.play().catch(BX.DoNothing);
+		}
 	};
 
 	CallUser.prototype.renderState = function()
@@ -1871,6 +2178,7 @@
 			case BX.Call.UserState.Connected:
 				break;
 			case BX.Call.UserState.Failed:
+			case BX.Call.UserState.Unavailable:
 				stateNode = BX.create("div", {
 					props: {className: "bx-messenger-videocall-user-status bx-messenger-videocall-user-status-wide"},
 					children: [
@@ -1882,7 +2190,7 @@
 						}),
 						BX.create("span", {
 							props: {className: "bx-messenger-videocall-user-status-text"},
-							text: BX.message("IM_M_CALL_STATUS_CONNECTION_ERROR")
+							text: this.state == BX.Call.UserState.Failed ? BX.message("IM_M_CALL_STATUS_CONNECTION_ERROR") : BX.message("IM_M_CALL_STATUS_UNAVAILABLE")
 						})
 					]
 				});
@@ -1890,6 +2198,39 @@
 		}
 
 		return stateNode ? stateNode : null;
+	};
+
+	CallUser.prototype.mount = function(parent, force)
+	{
+		force = force === true;
+		if(!this.elements.root)
+		{
+			this.render();
+		}
+
+		if(this.isMounted() && !force)
+		{
+			return false;
+		}
+
+		parent.appendChild(this.elements.root);
+		this.update();
+	};
+
+	CallUser.prototype.dismount = function()
+	{
+		if(!this.isMounted())
+		{
+			return false;
+		}
+
+		this.elements.video.srcObject = null;
+		BX.remove(this.elements.root);
+	};
+
+	CallUser.prototype.isMounted = function()
+	{
+		return !!(this.elements.root && this.elements.root.parentElement);
 	};
 
 	CallUser.prototype.setState = function(newState)
@@ -1942,6 +2283,27 @@
 		}
 	};
 
+	CallUser.prototype.setMicrophoneState = function(isMicrophoneOn)
+	{
+		if(this.isMicrophoneOn == isMicrophoneOn)
+		{
+			return;
+		}
+		this.isMicrophoneOn = isMicrophoneOn;
+		if(!this.elements.root)
+		{
+			return;
+		}
+		if(this.isMicrophoneOn)
+		{
+			this.elements.micState.classList.add("hidden");
+		}
+		else
+		{
+			this.elements.micState.classList.remove("hidden");
+		}
+	};
+
 	CallUser.prototype.hide = function()
 	{
 		if(!this.elements.root)
@@ -1984,9 +2346,19 @@
 		}
 	};
 
+	CallUser.prototype.releaseStream = function()
+	{
+		if(this.elements.video)
+		{
+			this.elements.video.srcObject = null;
+		}
+		this.stream = null;
+	};
+
+
 	CallUser.prototype.destroy = function()
 	{
-		this.stream = null;
+		this.releaseStream();
 		clearInterval(this.checkAspectInterval);
 	};
 
@@ -2012,7 +2384,7 @@
 
 	TitleButton.prototype.getTitle = function(name)
 	{
-		var prettyName = '<span class="bx-messenger-videocall-panel-title-name">' + BX.util.htmlspecialchars(this.text)+ '</span>';
+		var prettyName = '<span class="bx-messenger-videocall-panel-title-name">' + this.text + '</span>';
 
 		if(this.isGroupCall)
 		{
@@ -2028,9 +2400,13 @@
 	{
 		this.class = config.class;
 		this.text = BX.type.isNotEmptyString(config.text) ? config.text : '';
+		this.isActive = false;
+		this.counter = config.counter || 0;
 
 		this.elements = {
-			root: null
+			root: null,
+			counter: null,
+			counterValue: null
 		};
 
 		this.callbacks = {
@@ -2059,16 +2435,73 @@
 			props: {className: "bx-messenger-videocall-panel-item"},
 			children: [
 				BX.create("div", {
-					props: {className: "bx-messenger-videocall-panel-icon bx-messenger-videocall-panel-icon-" + this.class}
+					props: {className: "bx-messenger-videocall-panel-icon bx-messenger-videocall-panel-icon-" + this.class},
+					children: [
+						this.elements.counter = BX.create("span", {
+							props: {className: "bx-messenger-cl-count"},
+							style: {
+								display: this.counter > 0 ? "inline-block" : "none",
+								position: "absolute",
+								right: "-19px",
+								top: "-13px"
+							},
+							children: [
+								this.elements.counterValue = BX.create("span", {
+									props: {className: "bx-messenger-cl-count-digit"},
+									text: this.counter
+								})
+							]
+						}),
+					]
 				}),
+
 				textNode
 			],
 			events: {
 				click: this.callbacks.onClick
 			}
 		});
+		if(this.isActive)
+		{
+			this.elements.root.classList.add("active");
+		}
 
 		return this.elements.root;
+	};
+
+	SimpleButton.prototype.setActive = function (isActive)
+	{
+		if(this.isActive == isActive)
+		{
+			return;
+		}
+		this.isActive = isActive;
+		if (!this.elements.root)
+		{
+			return;
+		}
+		if(this.isActive)
+		{
+			this.elements.root.classList.add("active");
+		}
+		else
+		{
+			this.elements.root.classList.remove("active");
+		}
+	};
+
+	SimpleButton.prototype.setCounter = function (counter)
+	{
+		this.counter = counter;
+		if(this.counter == 0)
+		{
+			this.elements.counter.style.display = "none";
+		}
+		else
+		{
+			this.elements.counter.style.removeProperty("display");
+		}
+		this.elements.counterValue.innerText = counter;
 	};
 
 	var HangupButton = function (config)
@@ -2257,7 +2690,7 @@
 			menuItems,
 			{
 				autoHide: true,
-				zIndex: zIndexBase + 500,
+				zIndex: BX.MessengerCommon.getDefaultZIndex() + 500,
 				closeByEsc: true,
 				offsetTop: 0,
 				offsetLeft: 0,
@@ -2285,10 +2718,14 @@
 		this.menu.popupWindow.show();
 	};
 
+	BX.Call.View.Layout = Layouts;
+
 	BX.Call.View.Size = {
 		Folded: 'folded',
 		Full: 'full'
-	}
+	};
+
+	BX.Call.View.UiState = UiState;
 
 
 })();

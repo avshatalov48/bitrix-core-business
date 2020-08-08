@@ -59,11 +59,11 @@ class BasketBuilderExist implements IBasketBuilderDelegate
 
 		$itemFields = array_intersect_key($productData, array_flip($item::getAvailableFields()));
 
-		if(isset($itemFields["MEASURE_CODE"]) && strlen($itemFields["MEASURE_CODE"]) > 0)
+		if(isset($itemFields["MEASURE_CODE"]) && $itemFields["MEASURE_CODE"] <> '')
 		{
 			$measures = $this->builder->getCatalogMeasures();
 
-			if(isset($measures[$itemFields["MEASURE_CODE"]]) && strlen($measures[$itemFields["MEASURE_CODE"]]) > 0)
+			if(isset($measures[$itemFields["MEASURE_CODE"]]) && $measures[$itemFields["MEASURE_CODE"]] <> '')
 				$itemFields["MEASURE_NAME"] = $measures[$itemFields["MEASURE_CODE"]];
 		}
 

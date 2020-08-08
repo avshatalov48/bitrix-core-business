@@ -3,7 +3,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
 $isSearchInstalled = CModule::IncludeModule("search");
 
-if(!isset($arParams["PAGE"]) || strlen($arParams["PAGE"])<=0)
+if(!isset($arParams["PAGE"]) || $arParams["PAGE"] == '')
 	$arParams["PAGE"] = "#SITE_DIR#search/index.php";
 
 $arResult["CATEGORIES"] = array();
@@ -53,7 +53,7 @@ if(
 		{
 			foreach($arParams["CATEGORY_".$i] as $categoryCode)
 			{
-				if ((strpos($categoryCode, 'custom_') !== 0))
+				if ((mb_strpos($categoryCode, 'custom_') !== 0))
 				{
 					$bCustom = false;
 					break;
@@ -62,7 +62,7 @@ if(
 		}
 		else
 		{
-			$bCustom = (strpos($arParams["CATEGORY_".$i], 'custom_') === 0);
+			$bCustom = (mb_strpos($arParams["CATEGORY_".$i], 'custom_') === 0);
 		}
 
 		if ($bCustom)

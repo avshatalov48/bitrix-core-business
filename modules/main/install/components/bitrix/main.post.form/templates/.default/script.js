@@ -3116,6 +3116,40 @@ window.MPFMentionInit = function(formId, params)
 		}
 	};
 
+	if (BX(formId))
+	{
+		BX.addCustomEvent(BX(formId), 'OnUCFormAfterShow', function(ucFormManager) {
+			if (
+				!BX.type.isNotEmptyObject(ucFormManager)
+				|| !BX.type.isArray(ucFormManager.id)
+				|| !BX.type.isNotEmptyString(ucFormManager.id[0])
+			)
+			{
+				return;
+			}
+
+			var reg = new RegExp('EVENT\_(\\d+)','i'); // calendar test
+			if (!reg.test(ucFormManager.id[0]))
+			{
+				return;
+			}
+
+			var selectorId = window.MPFgetSelectorId('bx-mention-' + formId + '-id');
+			if (!BX.type.isNotEmptyString(selectorId))
+			{
+				return;
+			}
+
+			var selectorInstance = BX.UI.SelectorManager.instances[selectorId];
+			if (!BX.type.isNotEmptyObject(selectorInstance))
+			{
+				return;
+			}
+
+			selectorInstance.bindOptions.zIndex = 2200;
+		});
+	}
+
 	BX.ready(function() {
 			var ment = BX('bx-b-mention-' + formId);
 			var selectorId = window.MPFgetSelectorId('bx-mention-' + formId + '-id');

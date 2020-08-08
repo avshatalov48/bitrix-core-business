@@ -1,4 +1,6 @@
 <?
+use Bitrix\Main\Loader;
+
 define("ADMIN_MODULE_NAME", "perfmon");
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
@@ -7,7 +9,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 /** @global CUser $USER */
 IncludeModuleLangFile(__FILE__);
 
-if (!CModule::IncludeModule('perfmon'))
+if (!Loader::includeModule('perfmon'))
 {
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	$message = new CAdminMessage(GetMessage("PERFMON_ROW_EDIT_MODULE_ERROR"));
@@ -27,7 +29,7 @@ function var_import_r($tokens, &$pos, &$result)
 	while (isset($tokens[$pos]))
 	{
 		if ($tokens[$pos][0] === T_STRING)
-			$uc = strtoupper($tokens[$pos][1]);
+			$uc = mb_strtoupper($tokens[$pos][1]);
 		else
 			$uc = "";
 
@@ -279,7 +281,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && check_bitrix_sessid() && $isAdmin)
 			{
 				if (isset($_POST["mark_".$Field."_"]) && $_POST["mark_".$Field."_"] === "Y")
 					$arToInsert[$Field] = var_import($_POST[$Field]);
-				elseif (isset($_POST[$Field]) && strlen($_POST[$Field]) > 0)
+				elseif (isset($_POST[$Field]) && $_POST[$Field] <> '')
 					$arToInsert[$Field] = $_POST[$Field];
 				else
 					$arToInsert[$Field] = false;
@@ -301,7 +303,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && check_bitrix_sessid() && $isAdmin)
 			{
 				if (isset($_POST["mark_".$Field."_"]) && $_POST["mark_".$Field."_"] === "Y")
 					$arToUpdate[$Field] = serialize(var_import($_POST[$Field]));
-				elseif (isset($_POST[$Field]) && strlen($_POST[$Field]) > 0)
+				elseif (isset($_POST[$Field]) && $_POST[$Field] <> '')
 					$arToUpdate[$Field] = $_POST[$Field];
 				else
 					$arToUpdate[$Field] = false;
@@ -309,14 +311,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && check_bitrix_sessid() && $isAdmin)
 		}
 
 		$strUpdate = $DB->PrepareUpdate($table_name, $arToUpdate);
-		if (strlen($strUpdate))
+		if($strUpdate <> '')
 		{
 			$res = $DB->Query("
 				update ".CPerfomanceTable::escapeTable($table_name)."
 				set ".$strUpdate."
 				".$strWhere."
 			", true);
-			if (!$res)
+			if(!$res)
 			{
 				$bVarsFromForm = true;
 				$strError = $DB->GetErrorMessage();

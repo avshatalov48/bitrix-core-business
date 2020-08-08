@@ -1,7 +1,7 @@
 <?
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
-if (strlen($arParams["START_VALUE"]) > 0)
+if ($arParams["START_VALUE"] <> '')
 	require("full.php");
 elseif ($arParams["STEP"] == 0)
 	require("start.php");

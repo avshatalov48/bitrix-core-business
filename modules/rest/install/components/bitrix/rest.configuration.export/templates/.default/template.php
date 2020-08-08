@@ -25,14 +25,18 @@ $containerId = 'rest-configuration-export';
 <div id="<?=htmlspecialcharsbx($containerId)?>" class="rest-configuration">
 	<div class="rest-configuration-wrapper">
 		<div class="rest-configuration-title"><?=($arResult['MANIFEST']['EXPORT_TITLE_BLOCK'])?:Loc::getMessage('REST_CONFIGURATION_EXPORT_TITLE_BLOCK')?></div>
-
+		<? if($arResult['ENABLED_ZIP_MODE'] != 'Y'):?>
+			<div class="rest-configuration-alert">
+				<div class="rest-configuration-alert-text"><?=Loc::getMessage('REST_CONFIGURATION_EXPORT_ERRORS_SETTINGS_NEEDED', [ '#SETTING_HREF#' => $arResult['REST_SETTING_PATH'] ])?></div>
+			</div>
+		<? endif;?>
 		<div class="rest-configuration-start-icon-main rest-configuration-start-icon-main-zip">
 			<div class="rest-configuration-start-icon-refresh"></div>
 			<div class="rest-configuration-start-icon"></div>
 			<div class="rest-configuration-start-icon-circle"></div>
 		</div>
 		<div class="rest-configuration-controls start-btn-block">
-			<button class="ui-btn ui-btn-lg ui-btn-primary start-btn"><?=Loc::getMessage('REST_CONFIGURATION_EXPORT_START_BTN')?></button>
+			<button class="ui-btn ui-btn-lg ui-btn-primary start-btn" <?=($arResult['ENABLED_EXPORT'] != 'Y')?'disabled="disabled" ':'';?>><?=Loc::getMessage('REST_CONFIGURATION_EXPORT_START_BTN')?></button>
 		</div>
 
 		<div class="rest-configuration-info" ><p><?=($arResult['MANIFEST']['EXPORT_ACTION_DESCRIPTION'])?:Loc::getMessage('REST_CONFIGURATION_EXPORT_DESCRIPTION')?></p></div>
@@ -44,7 +48,6 @@ $containerId = 'rest-configuration-export';
 		BX.Rest.Configuration.Export.init(<?=Json::encode(
 			[
 				'id' => $containerId,
-				'downloadPage' => $arResult['DOWNLOAD_URL'],
 				'signedParameters' => $this->getComponent()->getSignedParameters()
 			]
 		)?>);

@@ -69,7 +69,7 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm
 		{
 			if ($phone[0] === '7')
 			{
-				$phone = substr($phone, 1);
+				$phone = mb_substr($phone, 1);
 			}
 		}
 		else
@@ -121,7 +121,7 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm
 			}
 
 			$position = [
-				'name' => $item['name'],
+				'name' => mb_substr($item['name'], 0, static::MAX_NAME_LENGTH),
 				'price' => (float)$item['price'],
 				'sum' => (float)$item['sum'],
 				'quantity' => $item['quantity'],
@@ -192,7 +192,7 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm
 	private function getPaymentTypeMap()
 	{
 		return array(
-			Check::PAYMENT_TYPE_CASH => 4,
+			Check::PAYMENT_TYPE_CASH => 0,
 			Check::PAYMENT_TYPE_CASHLESS => 1,
 			Check::PAYMENT_TYPE_ADVANCE => 2,
 			Check::PAYMENT_TYPE_CREDIT => 3,
@@ -309,7 +309,7 @@ class CashboxAtolFarmV4 extends CashboxAtolFarm
 	 * @param array $checkData
 	 * @return Result
 	 */
-	protected function validate(array $checkData)
+	protected function validateCheckQuery(array $checkData)
 	{
 		$result = new Result();
 

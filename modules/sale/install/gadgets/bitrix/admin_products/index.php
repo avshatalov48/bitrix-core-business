@@ -12,9 +12,9 @@ $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 if ($saleModulePermissions == "D")
 	return false;
 
-if (strlen($arGadgetParams["SITE_ID"]) > 0)
+if ($arGadgetParams["SITE_ID"] <> '')
 {
-	if (strlen($arGadgetParams["TITLE_STD"]) <= 0)
+	if ($arGadgetParams["TITLE_STD"] == '')
 	{
 		$rsSites = CSite::GetByID($arGadgetParams["SITE_ID"]);
 		if ($arSite = $rsSites->GetNext())
@@ -25,7 +25,7 @@ if (strlen($arGadgetParams["SITE_ID"]) > 0)
 $arGadgetParams["RND_STRING"] = randString(8);
 
 $arFilter = array();
-if (strlen($arGadgetParams["SITE_ID"]) > 0)
+if ($arGadgetParams["SITE_ID"] <> '')
 {
 	$arFilter["LID"] = $arGadgetParams["SITE_ID"];
 	$arGadgetParams["RND_STRING"] = $arGadgetParams["SITE_ID"].'_'.$arGadgetParams["RND_STRING"];
@@ -36,7 +36,7 @@ if($arGadgetParams["PERIOD"] == "WEEK")
 	$arFilter[">=DATE_INSERT"] = ConvertTimeStamp(AddToTimeStamp(Array("DD" => -7)));
 	$cache_time = 60*60*4;
 }
-elseif(strlen($arGadgetParams["PERIOD"]) <= 0 || $arGadgetParams["PERIOD"] == "MONTH")
+elseif($arGadgetParams["PERIOD"] == '' || $arGadgetParams["PERIOD"] == "MONTH")
 {
 	$arFilter[">=DATE_INSERT"] = ConvertTimeStamp(AddToTimeStamp(Array("MM" => -1)));
 	$cache_time = 60*60*12;
@@ -244,7 +244,7 @@ $tabControl = new CAdminViewTabControl("salePrdTabControl_".$arGadgetParams["RND
 								{
 									?><tr>
 										<td><?=htmlspecialcharsEx($val["NAME"])?></td>
-										<td align="right"><?=IntVal($val["QUANTITY"])?></td>
+										<td align="right"><?=intval($val["QUANTITY"])?></td>
 										<td align="right" nowrap><?=CCurrencyLang::CurrencyFormat(DoubleVal($val["AVG_PRICE"]), $val["CURRENCY"], true)?></td>
 										<td align="right" nowrap><?=CCurrencyLang::CurrencyFormat(DoubleVal($val["PRICE"]), $val["CURRENCY"], true)?></td>
 									</tr><?
@@ -272,7 +272,7 @@ $tabControl = new CAdminViewTabControl("salePrdTabControl_".$arGadgetParams["RND
 								{
 									?><tr>
 										<td><?=htmlspecialcharsEx($val["NAME"])?></td>
-										<td align="right"><?=IntVal($val["VIEW_COUNT"])?></td>
+										<td align="right"><?=intval($val["VIEW_COUNT"])?></td>
 										<td align="right" nowrap><?=(DoubleVal($val["PRICE"]) > 0 ? CCurrencyLang::CurrencyFormat(DoubleVal($val["PRICE"]), $val["CURRENCY"], true) : "")?></td>
 									</tr><?
 								}

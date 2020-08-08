@@ -258,7 +258,7 @@ class CFileMan
 		$DOC_ROOT = CSite::GetSiteDocRoot($site);
 
 		$strMenuLinks = "";
-		if(strlen($sMenuTemplateTmp)>0)
+		if($sMenuTemplateTmp <> '')
 			$strMenuLinks .= "\$sMenuTemplate = \"".CFileMan::EscapePHPString($sMenuTemplateTmp)."\";\n";
 
 		$strMenuLinks .= "\$aMenuLinks = Array(";
@@ -343,7 +343,7 @@ class CFileMan
 
 		$path = $io->CombinePath($path);
 
-		$p=strrpos($path, "/");
+		$p = mb_strrpos($path, "/");
 
 		while($p!==false)
 		{
@@ -353,9 +353,9 @@ class CFileMan
 				$dir->MarkWritable();
 				break;
 			}
-			$badDirs[] = substr($path, $p + 1);
-			$path = substr($path, 0, $p);
-			$p = strrpos($path, "/");
+			$badDirs[] = mb_substr($path, $p + 1);
+			$path = mb_substr($path, 0, $p);
+			$p = mb_strrpos($path, "/");
 		}
 
 		for($i = count($badDirs) - 1; $i >= 0; $i--)
@@ -383,7 +383,7 @@ class CFileMan
 		$io = CBXVirtualIo::GetInstance();
 
 		global $APPLICATION, $USER;
-		if(strlen(trim($path))<=0)
+		if(trim($path) == '')
 			return GetMessage("FILEMAN_FILEMAN_TRYING_ROOT_DELETE")."\n";
 		if(!$io->DirectoryExists($DOC_ROOT.$path))
 			return GetMessage("FILEMAN_FILEMAN_FOLDER")." \"$path\" ".GetMessage("FILEMAN_FILEMAN_NOT_EXISTS")."\n";
@@ -427,7 +427,7 @@ class CFileMan
 		if(!$io->FileExists($DOC_ROOT.$path))
 			return GetMessage("FILEMAN_FILEMAN_FILE")." \"$path\" ".GetMessage("FILEMAN_FILEMAN_NOT_EXISTS")."\n";
 
-		if(strlen($path)>=12 && substr($path, strlen($path) - 12)=="/.access.php")
+		if(mb_strlen($path) >= 12 && mb_substr($path, mb_strlen($path) - 12) == "/.access.php")
 			return;
 
 		//check: can we delete this file
@@ -462,7 +462,7 @@ class CFileMan
 
 		CMain::InitPathVars($site, $path);
 
-		if(strlen($path) <= 0)
+		if($path == '')
 			return false;
 
 		$src = $_SERVER["DOCUMENT_ROOT"].$path;
@@ -536,7 +536,7 @@ class CFileMan
 		$strWarning = '';
 
 		//check: if we copy to the same directory
-		if(strpos($DOC_ROOT_TO.$path_to."/", $DOC_ROOT_FROM.$path_from."/")===0)
+		if(mb_strpos($DOC_ROOT_TO.$path_to."/", $DOC_ROOT_FROM.$path_from."/") === 0)
 			return GetMessage("FILEMAN_LIB_BAD_FOLDER").": \"".$path_from."\".\n";
 
 		$io = CBXVirtualIo::GetInstance();
@@ -553,7 +553,7 @@ class CFileMan
 			//Check: folder exist or not
 			$strWarTmp = CFileMan::CreateDir(Array($site_to, $path_to));
 
-			if(strlen($strWarTmp ) > 0)
+			if($strWarTmp <> '')
 				return $strWarTmp;
 
 			$APPLICATION->CopyFileAccessPermission(Array($site_from, $path_from), Array($site_to, $path_to));
@@ -569,7 +569,7 @@ class CFileMan
 				return GetMessage("FILEMAN_FILEMAN_FILE_READ_DENY")." \"".$path_from."\".\n";
 
 			// Copying php or system file without PHP or LPA access
-			if (!($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', $arPath) || !(HasScriptExtension($Elem["NAME"]) || substr($Elem["NAME"], 0, 1)==".")))
+			if (!($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', $arPath) || !(HasScriptExtension($Elem["NAME"]) || mb_substr($Elem["NAME"], 0, 1) == ".")))
 				return GetMessage("FILEMAN_FILEMAN_FILE_READ_DENY")." \"".$path_from."\".\n";
 
 			// If we can't move source-file
@@ -577,10 +577,10 @@ class CFileMan
 				return GetMessage("FILEMAN_FILEMAN_FILE_DEL_DENY")." \"".$path_from."\".\n";
 
 			//Check if folder already exist and trying to create if not
-			$p = strrpos($path_to, "/");
-			$path_to_dir = substr($path_to, 0, $p);
+			$p = mb_strrpos($path_to, "/");
+			$path_to_dir = mb_substr($path_to, 0, $p);
 			$strWarTmp = CFileMan::CreateDir(Array($site_to, $path_to_dir));
-			if(strlen($strWarTmp)>0)
+			if($strWarTmp <> '')
 				return $strWarTmp;
 
 			if($io->FileExists($DOC_ROOT_TO.$path_to) || $io->DirectoryExists($DOC_ROOT_TO.$path_to))
@@ -628,7 +628,7 @@ class CFileMan
 				CSearch::ReIndexFile(Array($site_to, $path_to), $site);
 			}
 
-			if($bDeleteAfterCopy && strlen($strWarning) <=0) // If was command "delete after copy"?
+			if($bDeleteAfterCopy && $strWarning == '') // If was command "delete after copy"?
 				$strWarning .= CFileMan::DeleteFile(Array($site_from, $path_from));
 
 			return $strWarning;
@@ -659,7 +659,7 @@ class CFileMan
 				//let's check, if we can read from there
 				elseif(!$USER->CanDoFileOperation('fm_view_file', Array($site_from, $path_from."/".$fn)))
 					$strWarning .= GetMessage("FILEMAN_FILEMAN_FILE_READ_DENY")." \"".$path_from."/".$fn."\".\n";
-				elseif (!($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', Array($site_from, $path_from."/".$fn)) || !(HasScriptExtension($fn) || substr($fn, 0, 1) == ".")))
+				elseif (!($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', Array($site_from, $path_from."/".$fn)) || !(HasScriptExtension($fn) || mb_substr($fn, 0, 1) == ".")))
 					$strWarning .= GetMessage("FILEMAN_FILEMAN_FILE_READ_DENY")." \"".$path_from."/".$fn."\".\n";
 				else
 				{
@@ -703,7 +703,7 @@ class CFileMan
 							CSearch::ReindexFile($path_to."/".$fn, $site);
 						}
 
-						if($bDeleteAfterCopy && strlen($strWarning) <=0)
+						if($bDeleteAfterCopy && $strWarning == '')
 						{
 							$strWarning .= CFileMan::DeleteFile(Array($site_from, $path_from."/".$fn));
 						}
@@ -752,7 +752,7 @@ class CFileMan
 	{
 		if($site !== false)
 		{
-			if(strlen($site)>0)
+			if($site <> '')
 			{
 				$res = CSite::GetByID($site);
 				if($arSite = $res->Fetch())
@@ -789,7 +789,7 @@ class CFileMan
 	public static function GetFileTypeEx($fileName)
 	{
 		global $arFilemanPredifinedFileTypesR;
-		$fileExt = GetFileExtension(strtolower($fileName));
+		$fileExt = GetFileExtension(mb_strtolower($fileName));
 		if (count($arFilemanPredifinedFileTypesR) <= 0)
 		{
 			foreach ($GLOBALS['arFilemanPredifinedFileTypes'] as $key => $value)
@@ -818,7 +818,7 @@ class CFileMan
 		$documentRoot = CSite::GetSiteDocRoot($Params['site']);
 
 		// Restore file
-		if (strlen($Params['path']) > 0)
+		if ($Params['path'] <> '')
 			$APPLICATION->SaveFileContent($documentRoot.$Params['path'], $Params['content']);
 
 		// Update disk quota
@@ -839,7 +839,7 @@ class CFileMan
 				$permFile = $Params['perm'][$i]['permFile'];
 
 				$permContent = $APPLICATION->GetFileContent($permFile);
-				$permContent = substr($permContent, 0, strpos($permContent, "?".">"));
+				$permContent = mb_substr($permContent, 0, mb_strpos($permContent, "?".">"));
 				$permContent .= "\$PERM[\"".EscapePHPString($Params['perm'][$i]['file'])."\"][\"".EscapePHPString($Params['perm'][$i]['group'])."\"]=\"".EscapePHPString($Params['perm'][$i]['perm'])."\";\n";
 				$permContent .= "?".">\n";
 
@@ -954,7 +954,7 @@ class CFileMan
 		global $APPLICATION;
 
 		// Restore file
-		if (strlen($Params['absPath']) > 0)
+		if ($Params['absPath'] <> '')
 			$APPLICATION->SaveFileContent($Params['absPath'], $Params['content']);
 
 		$GLOBALS["CACHE_MANAGER"]->CleanDir("menu");
@@ -964,7 +964,7 @@ class CFileMan
 	{
 		$io = CBXVirtualIo::GetInstance();
 
-		if (strlen($Params['path']) > 0 && $Params['path'] != "/" && $io->DirectoryExists($Params['absPath']))
+		if ($Params['path'] <> '' && $Params['path'] != "/" && $io->DirectoryExists($Params['absPath']))
 			CFileman::DeleteEx(Array($Params['site'], $Params['path']));
 
 		$documentRoot = CSite::GetSiteDocRoot($Params['site']);
@@ -1000,8 +1000,8 @@ class CFileMan
 		if(($p = bxstrrpos($path, "/")) === false)
 			return $result;
 
-		$path_file = substr($path, $p + 1);
-		$path_dir = substr($path, 0, $p);
+		$path_file = mb_substr($path, $p + 1);
+		$path_dir = mb_substr($path, 0, $p);
 
 		$io = CBXVirtualIo::GetInstance();
 		if (!$io->FileExists($DOC_ROOT.$path_dir."/.access.php"))
@@ -1368,7 +1368,7 @@ class CFileMan
 		if (isset($arAdditionalParams['use_editor_3']))
 			$arParams['use_editor_3'] = $arAdditionalParams['use_editor_3'];
 
-		$arParams['site'] = (strlen($site)<=0?LANG:$site);
+		$arParams['site'] = ($site == ''?LANG:$site);
 		if(isset($arSize["width"]))
 			$arParams["width"] = $arSize["width"];
 
@@ -1418,7 +1418,7 @@ class CFileMan
 			$abs_path = $DOC_ROOT.$__path;
 			if ($io->FileExists($abs_path))
 			{
-				$relPath = substr($relPath,0,strrpos($relPath,"/"));
+				$relPath = mb_substr($relPath, 0, mb_strrpos($relPath, "/"));
 				if ($relPath=="")
 					$relPath = "/";
 			}
@@ -1689,21 +1689,21 @@ class CFileMan
 		$res = ParseFileContent($filesrc);
 		if ($bCheckProlog)
 		{
-			$prolog = trim(strtolower($res['PROLOG']));
-			if (strlen($prolog) > 0 &&
-				strpos($prolog, "prolog_before") === false &&
-				strpos($prolog, 'bitrix/header.php') === false &&
-				strpos($prolog, '$application->settitle') === false &&
-				strpos($prolog, '$application->setpageproperty') === false)
+			$prolog = trim(mb_strtolower($res['PROLOG']));
+			if ($prolog <> '' &&
+				mb_strpos($prolog, "prolog_before") === false &&
+				mb_strpos($prolog, 'bitrix/header.php') === false &&
+				mb_strpos($prolog, '$application->settitle') === false &&
+				mb_strpos($prolog, '$application->setpageproperty') === false)
 			{
 				$res['CONTENT'] = $res['PROLOG']."\n".$res['CONTENT'];
 				$res['PROLOG'] = '';
 			}
 
-			$epilog = trim(strtolower($res['EPILOG']));
-			if (strlen($epilog) > 0 &&
-				strpos($epilog, 'bitrix/footer.php') === false &&
-				strpos($epilog, 'epilog.php') === false)
+			$epilog = trim(mb_strtolower($res['EPILOG']));
+			if ($epilog <> '' &&
+				mb_strpos($epilog, 'bitrix/footer.php') === false &&
+				mb_strpos($epilog, 'epilog.php') === false)
 			{
 				$res['CONTENT'] = $res['CONTENT']."\n".$res['EPILOG'];
 				$res['EPILOG'] = '';
@@ -1738,14 +1738,14 @@ class CFileMan
 			$db_site_templ = CSite::GetTemplateList($site);
 			while($ar_site_templ = $db_site_templ->Fetch())
 			{
-				if(strlen($ar_site_templ["CONDITION"])<=0)
+				if($ar_site_templ["CONDITION"] == '')
 				{
 					$templateID = $ar_site_templ["TEMPLATE"];
 					break;
 				}
 			}
 
-			if(strlen($templateID)>0)
+			if($templateID <> '')
 			{
 				$db_templ = CSiteTemplate::GetByID($templateID);
 				$ar_templ = $db_templ->Fetch();
@@ -1771,13 +1771,13 @@ class CFileMan
 						$str = $matches[0][$j];
 						$url = trim(trim($matches[1][$j]), '"\';');
 						$css = "";
-						if (substr($url, -5) != 'print')
+						if (mb_substr($url, -5) != 'print')
 						{
 							$url = trim(trim($url), ' "\';');
-							if (substr($url, 0, 4) == 'url(' && substr($url, -1) == ')')
-								$url = trim(substr($url, 4, -1), ' "\'');
+							if (mb_substr($url, 0, 4) == 'url(' && mb_substr($url, -1) == ')')
+								$url = trim(mb_substr($url, 4, -1), ' "\'');
 							$url = trim(trim($url), '\'";');
-							if (substr($url, 0, 1) != '/' && file_exists($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/templates/".$ar_templ["ID"]."/".$url))
+							if (mb_substr($url, 0, 1) != '/' && file_exists($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/templates/".$ar_templ["ID"]."/".$url))
 								$css = "\n".$APPLICATION->GetFileContent($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/templates/".$ar_templ["ID"]."/".$url)."\n";
 							else if(file_exists($_SERVER["DOCUMENT_ROOT"].$url))
 								$css = "\n".$APPLICATION->GetFileContent($_SERVER["DOCUMENT_ROOT"].$url)."\n";
@@ -1801,10 +1801,10 @@ class CFileMan
 
 		if(!is_set($arResult, "STYLES") || $arResult["STYLES"] == false)
 		{
-			if($io->FileExists($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/".(strlen($site)<=0?LANGUAGE_ID:$site)."/styles.css"))
+			if($io->FileExists($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/".($site == ''?LANGUAGE_ID:$site)."/styles.css"))
 			{
-				$arResult["STYLES"] = $APPLICATION->GetFileContent($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/".(strlen($site) <= 0?LANGUAGE_ID : $site)."/styles.css");
-				$arResult["STYLES_TITLE"] = CSiteTemplate::__GetByStylesTitle($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/".(strlen($site)<=0?LANGUAGE_ID : $site)."/.styles.php");
+				$arResult["STYLES"] = $APPLICATION->GetFileContent($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/".($site == ''?LANGUAGE_ID : $site)."/styles.css");
+				$arResult["STYLES_TITLE"] = CSiteTemplate::__GetByStylesTitle($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/".($site == ''?LANGUAGE_ID : $site)."/.styles.php");
 			}
 			elseif($io->FileExists($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/styles.css"))
 			{
@@ -1833,11 +1833,11 @@ class CFileMan
 			}
 		}
 
-		if(strlen($templateID) > 0 && $io->FileExists($_SERVER["DOCUMENT_ROOT"]."local/templates/".$templateID."/editor.css"))
+		if($templateID <> '' && $io->FileExists($_SERVER["DOCUMENT_ROOT"]."local/templates/".$templateID."/editor.css"))
 		{
 			$arResult["STYLES"] .= "\r\n".$APPLICATION->GetFileContent($_SERVER["DOCUMENT_ROOT"]."local/templates/".$templateID."/editor.css");
 		}
-		elseif(strlen($templateID)>0 && $io->FileExists($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/templates/".$templateID."/editor.css"))
+		elseif($templateID <> '' && $io->FileExists($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/templates/".$templateID."/editor.css"))
 		{
 			$arResult["STYLES"] .= "\r\n".$APPLICATION->GetFileContent($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/templates/".$templateID."/editor.css");
 		}
@@ -1851,7 +1851,7 @@ class CFileMan
 		}
 		elseif($io->FileExists($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/".$site."/editor.css"))
 		{
-			$arResult["STYLES"] .= "\r\n".$APPLICATION->GetFileContent($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/".(strlen($site) <= 0 ? LANGUAGE_ID : $site)."/editor.css");
+			$arResult["STYLES"] .= "\r\n".$APPLICATION->GetFileContent($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/".($site == '' ? LANGUAGE_ID : $site)."/editor.css");
 		}
 		elseif($io->FileExists($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/editor.css"))
 		{
@@ -1893,12 +1893,12 @@ class CFileMan
 		{
 			$name = trim($matches[1][$i]);
 			$er_name = $name;
-			$name = substr($name, 1, -1);
+			$name = mb_substr($name, 1, -1);
 			$bx = 'bitrix:';
-			$bxlen = strlen($bx);
-			if (substr($name, 0, $bxlen) != $bx)
+			$bxlen = mb_strlen($bx);
+			if (mb_substr($name, 0, $bxlen) != $bx)
 				return $er_name;
-			$name = substr($name, $bxlen);
+			$name = mb_substr($name, $bxlen);
 			for ($j = 0, $c = count($arAllowedComponents); $j < $c; $j++)
 				if (preg_match($arAllowedComponents[$j], $name))
 					continue 2;
@@ -1946,7 +1946,7 @@ class CFileMan
 					$tmp2 = explode(",", $tmp[1]);
 					$show = $tmp2[0];
 					$docked = $tmp2[1];
-					$arPos = explode(";", substr($tmp2[2], 1, -1));
+					$arPos = explode(";", mb_substr($tmp2[2], 1, -1));
 ?>
 			var _ar = [];
 			_ar.show = <?echo($show == 'true' ? 'true' : 'false');?>;
@@ -1955,8 +1955,8 @@ class CFileMan
 			_ar.position = [<?echo$arPos[0];?>,<?echo$arPos[1];?>,<?echo$arPos[2];?>];
 			<?else:?>
 			_ar.position = {
-				x : '<?echo(substr($arPos[0],-2)=="px" ? substr($arPos[0],0,-2) : $arPos[0]);?>',
-				y : '<?echo(substr($arPos[1],-2)=="px" ? substr($arPos[1],0,-2) : $arPos[1]);?>'
+				x : '<?echo(mb_substr($arPos[0], -2) == "px"? mb_substr($arPos[0], 0, -2) : $arPos[0]);?>',
+				y : '<?echo(mb_substr($arPos[1], -2) == "px"? mb_substr($arPos[1], 0, -2) : $arPos[1]);?>'
 			};
 			<?endif;?>
 
@@ -2018,7 +2018,7 @@ class CFileMan
 			{
 				if ($iNum != 2)
 					$iNum = 3;
-				?>SETTINGS['<?= $edname?>'].arTBSetsSettings["<?= intVal($iNum)?>"] = {show: <?= $tskbrset['show'] ? 'true' : 'false'?>, size: <?= intVal($tskbrset['size'])?>};
+				?>SETTINGS['<?= $edname?>'].arTBSetsSettings["<?= intval($iNum)?>"] = {show: <?= $tskbrset['show'] ? 'true' : 'false'?>, size: <?= intval($tskbrset['size'])?>};
 			<?
 		}
 	}
@@ -2062,7 +2062,7 @@ class CFileMan
 	public static function SetPropstypes($arPT = Array(), $desc = false, $site = "")
 	{
 		$str = addslashes(serialize($arPT));
-		if (strlen($str) > 2000)
+		if (mb_strlen($str) > 2000)
 			return false;
 		return COption::SetOptionString('fileman', "propstypes", $str, $desc, $site);
 
@@ -2265,7 +2265,7 @@ function setEditorEventHandlers($name)
 function _replace_br_($str)
 {
 	return $str;
-	$pos2 = strpos(strtolower($str), "\n");
+	$pos2 = mb_strpos(mb_strtolower($str), "\n");
 	if ($pos2!==FALSE)
 	{
 		$str = str_replace("\r"," ",$str);

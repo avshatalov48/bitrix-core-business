@@ -1,7 +1,7 @@
 <?php
 namespace Bitrix\Landing;
 
-use Bitrix\Main\Page\Asset;
+use \Bitrix\Main\Page\Asset;
 use \Bitrix\Main\Web\Json;
 use \Bitrix\Main\Web\DOM;
 use \Bitrix\Main\Localization\Loc;
@@ -16,12 +16,7 @@ Loc::loadMessages(__FILE__);
 class Block extends \Bitrix\Landing\Internals\BaseTable
 {
 	/**
-	 * Add images from new block to local storage.
-	 */
-	const ADD_FILES_TO_LOCAL_STORAGE = false;
-
-	/**
-	 * Dir of repoitory of blocks.
+	 * Dir of repository of blocks.
 	 */
 	const BLOCKS_DIR = 'blocks';
 
@@ -170,6 +165,12 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 	protected $metaData = array();
 
 	/**
+	 * Additional block assets.
+	 * @var array
+	 */
+	protected $assets = array();
+
+	/**
 	 * Active or not current block.
 	 * @var boolean
 	 */
@@ -226,7 +227,8 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		'landing_carousel',
 		'landing_google_maps_new',
 		'landing_countdown',
-		'landing_gallery_cards'
+		'landing_gallery_cards',
+		'landing_chat'
 	];
 
 	/**
@@ -242,7 +244,10 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			$data = parent::getList(array(
 				'select' => array(
 					'*',
+					'LANDING_TITLE' => 'LANDING.TITLE',
 					'LANDING_ACTIVE' => 'LANDING.ACTIVE',
+					'LANDING_TPL_CODE' => 'LANDING.TPL_CODE',
+					'SITE_TPL_CODE' => 'LANDING.SITE.TPL_CODE',
 					'SITE_ID' => 'LANDING.SITE_ID'
 				),
 				'filter' => array(
@@ -279,6 +284,12 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			$this->access = $data['ACCESS'];
 		}
 
+		// assets
+		if (isset($data['ASSETS']))
+		{
+			$this->assets = $data['ASSETS'];
+		}
+
 		// fill meta data
 		$keys = ['CREATED_BY_ID', 'MODIFIED_BY_ID', 'DATE_CREATE', 'DATE_MODIFY'];
 		foreach ($keys as $key)
@@ -288,6 +299,10 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				$this->metaData[$key] = $data[$key];
 			}
 		}
+		$this->metaData['LANDING_TITLE'] = isset($data['LANDING_TITLE']) ? $data['LANDING_TITLE'] : '';
+		$this->metaData['LANDING_TPL_CODE'] = isset($data['LANDING_TPL_CODE']) ? $data['LANDING_TPL_CODE'] : '';
+		$this->metaData['SITE_TPL_CODE'] = isset($data['SITE_TPL_CODE']) ? $data['SITE_TPL_CODE'] : '';
+		$this->metaData['XML_ID'] = isset($data['XML_ID']) ? $data['XML_ID'] : '';
 
 		// other data
 		if (preg_match(self::REPO_MASK, $this->code, $matches))
@@ -338,6 +353,8 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				'select' => array(
 					'*',
 					'LANDING_ACTIVE' => 'LANDING.ACTIVE',
+					'LANDING_TPL_CODE' => 'LANDING.TPL_CODE',
+					'SITE_TPL_CODE' => 'LANDING.SITE.TPL_CODE',
 					'SITE_ID' => 'LANDING.SITE_ID'
 				),
 				'filter' => $filter,
@@ -572,6 +589,23 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			if (file_exists($path))
 			{
 				$content = file_get_contents($path);
+				if (preg_match('/MESS\[[^\]]+\]/', $content))
+				{
+					$mess = Loc::loadLanguageFile($path);
+					if ($mess)
+					{
+						$replace = [];
+						foreach ($mess as $key => $title)
+						{
+							$replace['MESS[' . $key . ']'] = $title;
+						}
+						$content = str_replace(
+							array_keys($replace),
+							array_values($replace),
+							$content
+						);
+					}
+				}
 			}
 		}
 
@@ -631,9 +665,9 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			'ACTIVE' => 'Y'
 		);
 		$availableReplace = array(
-			'ACTIVE', 'PUBLIC', 'ACCESS',
-			'SORT', 'CONTENT', 'ANCHOR',
-			'SOURCE_PARAMS', 'INITIATOR_APP_CODE'
+			'ACTIVE', 'PUBLIC', 'ACCESS', 'SORT',
+			'CONTENT', 'ANCHOR', 'SOURCE_PARAMS',
+			'INITIATOR_APP_CODE', 'XML_ID'
 		);
 		foreach ($availableReplace as $replace)
 		{
@@ -647,6 +681,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		{
 			$block = new self($res->getId());
 			$manifest = $block->getManifest();
+			Assets\PreProcessing::blockAddProcessing($block);
 			if (
 				isset($manifest['callbacks']['afteradd']) &&
 				is_callable($manifest['callbacks']['afteradd'])
@@ -669,41 +704,6 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			}
 			else// index search only
 			{
-				$block->save();
-			}
-			// get all images from block to local storage
-			if (self::ADD_FILES_TO_LOCAL_STORAGE)
-			{
-				foreach ($manifest['nodes'] as $selector => $node)
-				{
-					if (isset($node['type']) && $node['type'] == 'img')
-					{
-						$images = \Bitrix\Landing\Node\Img::getNode(
-							$block, $selector
-						);
-						foreach ($images as &$img)
-						{
-							$file = Manager::savePicture($img['src']);
-							if ($file)
-							{
-								File::addToBlock(
-									$block->getId(),
-									$file['ID']
-								);
-								$img['src'] = $file['SRC'];
-								$img['id'] = $file['ID'];
-							}
-						}
-						\Bitrix\Landing\Node\Img::saveNode(
-							$block,
-							$selector,
-							$images
-						);
-					}
-				}
-				$block->saveContent(
-					$block->getDom()->saveHTML()
-				);
 				$block->save();
 			}
 			return $block;
@@ -1144,7 +1144,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			$title = (string) $title;
 			$title = trim($title);
 			$blocksCats[$code] = $createNewSection($item);
-			$md5s[md5(strtolower($title))] = $code;
+			$md5s[md5(mb_strtolower($title))] = $code;
 		}
 		foreach ($blocks as $key => $block)
 		{
@@ -1159,7 +1159,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				{
 					$section = 'other';
 				}
-				$sectionMd5 = md5(strtolower($section));
+				$sectionMd5 = md5(mb_strtolower($section));
 				// adding new sections (actual for repo blocks)
 				if (
 					!isset($blocksCats[$section]) &&
@@ -1219,7 +1219,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		// sort by id
 		foreach ($blocksCats as $codeCat => &$blocksCat)
 		{
-			$codeCat = strtoupper($codeCat);
+			$codeCat = mb_strtoupper($codeCat);
 			uasort($blocksCat['items'], function($item1, $item2) use($codeCat)
 			{
 				if ($item1['repo_id'])
@@ -1232,8 +1232,8 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				}
 				if (
 					($item1['id'] && $item2['id']) &&
-					strpos($item1['id'], 'BX_' . $codeCat . '_') === 0 &&
-					strpos($item2['id'], 'BX_' . $codeCat . '_') === 0
+					mb_strpos($item1['id'], 'BX_'.$codeCat.'_') === 0 &&
+					mb_strpos($item2['id'], 'BX_'.$codeCat.'_') === 0
 				)
 				{
 					return ($item1['id'] > $item2['id']) ? 1 : -1;
@@ -1292,15 +1292,38 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		return array_values($blocks);
 	}
 
+	/**
+	 * Returns blocks style manifests from repository.
+	 * @return array
+	 */
+	public static function getStyle(): array
+	{
+		return self::getSpecialManifest('style');
+	}
 
 	/**
-     * Get blocks style manifest from repository.
+	 * Returns blocks semantic manifests from repository.
+	 * @return array
+	 */
+	public static function getSemantic(): array
+	{
+		return self::getSpecialManifest('semantic');
+	}
+
+	/**
+     * Returns blocks style manifest from repository.
      * @return array
 	*/
-	public static function getStyle()
+	protected static function getSpecialManifest(string $type): array
 	{
-		$style = array();
+		static $style = [];
 
+		if (array_key_exists($type, $style))
+		{
+			return $style[$type];
+		}
+
+		$style[$type] = [];
 		$paths = self::getGeneralPaths();
 
 		// read all subdirs ($namespaces) in block dir
@@ -1314,16 +1337,20 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 					if (
 						$entry != '.' && $entry != '..' &&
 						is_dir($path . '/' . $entry) &&
-						file_exists($path . '/' . $entry . '/.style.php')
+						file_exists($path . '/' . $entry . '/.' . $type . '.php')
 					)
 					{
-						$style[$entry] = include $path . '/' . $entry . '/.style.php';
+						$style[$type][$entry] = include $path . '/' . $entry . '/.' . $type . '.php';
+						if (!is_array($style[$type][$entry]))
+						{
+							unset($style[$type][$entry]);
+						}
 					}
 				}
 			}
 		}
 
-		return $style;
+		return $style[$type];
 	}
 
 	/**
@@ -1858,7 +1885,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				$callbacks = array();
 				foreach ($manifest['callbacks'] as $code => $callback)
 				{
-					$callbacks[strtolower($code)] = $callback;
+					$callbacks[mb_strtolower($code)] = $callback;
 				}
 				$manifest['callbacks'] = $callbacks;
 			}
@@ -1993,9 +2020,9 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		$manifests[$code] = array();
 		$namespace = null;
 
-		if (strpos($code, ':') !== false)
+		if (mb_strpos($code, ':') !== false)
 		{
-			list($namespace, $code) = explode(':', $code);
+			[$namespace, $code] = explode(':', $code);
 		}
 
 		if ($path = self::getBlockPath($code ,$namespace))
@@ -2302,9 +2329,11 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			}
 			if ($modifyTime < $manifest['timestamp'])
 			{
+				$count = 0;
+				$limit = 1;
 				Update\Block::executeStep([
   					'ID' => $this->id
-	  			], $count = 0, $limit = 1, $paramsUpdater = []);
+	  			], $count, $limit, $paramsUpdater = []);
 				$this->resetContent();
 				$this->content = $this->getContent();
 			}
@@ -2312,7 +2341,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 
 		if (!\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24'))
 		{
-			if (strpos($this->content, '/upload/') !== false)
+			if (mb_strpos($this->content, '/upload/') !== false)
 			{
 				$this->content = preg_replace(
 					'#"//[^\'^"]+/upload/#',
@@ -2322,7 +2351,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			}
 			if (Manager::getOption('badpicture2x') == 'Y')
 			{
-				if (strpos($this->content, 'srcset="') !== false)
+				if (mb_strpos($this->content, 'srcset="') !== false)
 				{
 					$this->content = str_replace(
 						'srcset="',
@@ -2330,7 +2359,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 						$this->content
 					);
 				}
-				if (strpos($this->content, '2x)') !== false)
+				if (mb_strpos($this->content, '2x)') !== false)
 				{
 					$this->content = preg_replace(
 						"#(, url\('[^'^\"]+'\) 2x)#",
@@ -2486,6 +2515,17 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 					$content
 				);
 			}
+
+			$event = new \Bitrix\Main\Event('landing', 'onBlockPublicView', [
+				'block' => $this,
+				'outputContent' => $content
+			]);
+			$event->send();
+			foreach ($event->getResults() as $result)
+			{
+				$content = $result->getParameters();
+			}
+
 			if ($this->repoId)
 			{
 				echo $content;
@@ -2500,8 +2540,48 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				{
 				}
 			}
-
 		}
+		Assets\PreProcessing::blockViewProcessing($this, $edit);
+	}
+
+	/**
+	 * Save assets to the block.
+	 * @param array $assets New assets array.
+	 * @return void
+	 */
+	public function saveAssets(array $assets): void
+	{
+		if ($this->access < $this::ACCESS_W)
+		{
+			$this->error->addError(
+				'ACCESS_DENIED',
+				Loc::getMessage('LANDING_BLOCK_ACCESS_DENIED')
+			);
+			return;
+		}
+
+		foreach (['font', 'icon'] as $assetCode)
+		{
+			if (isset($this->assets[$assetCode]) && !isset($assets[$assetCode]))
+			{
+				$assets[$assetCode] = $this->assets[$assetCode];
+			}
+			if (isset($assets[$assetCode]) && !$assets[$assetCode])
+			{
+				unset($assets[$assetCode]);
+			}
+		}
+
+		$this->assets = $assets;
+	}
+
+	/**
+	 * Returns the block assets.
+	 * @return array
+	 */
+	public function getAssets(): array
+	{
+		return $this->assets;
 	}
 
 	/**
@@ -2548,7 +2628,8 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			'SORT' => $this->sort,
 			'ACTIVE' => $this->active ? 'Y' : 'N',
 			'ANCHOR' => $this->anchor,
-			'DELETED' => $this->deleted ? 'Y' : 'N'
+			'DELETED' => $this->deleted ? 'Y' : 'N',
+			'ASSETS' => $this->assets ? $this->assets : null
 		);
 		if ($additionalFields)
 		{
@@ -2559,6 +2640,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			$data['CONTENT'] = $this->content;
 			$data['SEARCH_CONTENT'] = $this->getSearchContent();
 		}
+		Cache::clear($this->id);
 		$res = parent::update($this->id, $data);
 		$this->error->addFromResult($res);
 		return $res->isSuccess();
@@ -2866,7 +2948,10 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 					Manager::setPageTitle($result['title'], true);
 					Landing\Seo::changeValue('title', $result['title']);
 				}
+				$rememberAccess = $this->access;
+				$this->access = $this::ACCESS_W;
 				$this->saveContent($result['content']);
+				$this->access = $rememberAccess;
 				header('X-Bitrix24-Page: dynamic');
 				return;
 			}
@@ -2894,6 +2979,13 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		{
 			$filterId = intval($filterId);
 			$elemId = intval($elemId);
+			$query = [];
+
+			if (isset($detailPage['query']))
+			{
+				$query = (array) $detailPage['query'];
+				unset($detailPage['query']);
+			}
 
 			// normalize the array
 			$detailPage = array_merge(
@@ -2915,6 +3007,11 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			else if ($filterId && $elemId)
 			{
 				$detailPage['href'] = '#';
+			}
+
+			if ($detailPage['href'] && $query)
+			{
+				$detailPage['query'] = http_build_query($query);
 			}
 
 			return $detailPage;
@@ -2957,6 +3054,9 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			$order = isset($settings['source']['sort'])
 						? (array)$settings['source']['sort']
 						: [];
+			$additional = isset($settings['source']['additional'])
+						? (array)$settings['source']['additional']
+						: [];
 			$stubs = isset($item['stubs'])
 						? (array)$item['stubs']
 						: [];
@@ -2972,7 +3072,8 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				'select' => array_values($references),
 				'filter' => $filter,
 				'order' => $order,
-				'limit' => $pagesCount
+				'limit' => $pagesCount,
+				'additional' => $additional
 			];
 			// gets list or singleton data
 			$sourceData = [];
@@ -2985,7 +3086,8 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 						'LANDING_ID' => $this->lid,
 						'LANDING_ACTIVE' => $this->landingActive ? 'Y' : ['Y', 'N']
 					],
-					'cache' => $cache
+					'cache' => $cache,
+					'block' => $this
 				]
 			);
 			if (is_object($source))
@@ -3024,9 +3126,9 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 					{
 						continue;
 					}
-					if (strpos($selector, '@') !== false)
+					if (mb_strpos($selector, '@') !== false)
 					{
-						list($selector,) = explode('@', $selector);
+						[$selector,] = explode('@', $selector);
 					}
 					if (!isset($update[$selector]))
 					{
@@ -3085,13 +3187,14 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 														? $field['text']
 														: '',
 												'href' => $dataItem['LINK'],
-												'target' => '_self'
+												'target' => '_self',
+												'query' => isset($dataItem['_GET']) ? $dataItem['_GET'] : []
 											]);
 										}
 									}
 							}
 						}
-						else if ($fieldType != NodeType::LINK)
+						else// if ($fieldType != NodeType::LINK)
 						{
 							$value = isset($dataItem[$fieldCode])
 								? $dataItem[$fieldCode]
@@ -3112,7 +3215,8 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 										? $field['text']
 										: '',
 									'href' => $dataItem['LINK'],
-									'target' => '_self'
+									'target' => '_self',
+									'query' => isset($dataItem['_GET']) ? $dataItem['_GET'] : []
 								]);
 							}
 						}
@@ -3184,9 +3288,9 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			{
 				foreach ($stubs as $selector => $stub)
 				{
-					if (strpos($selector, '@') !== false)
+					if (mb_strpos($selector, '@') !== false)
 					{
-						list($selector,) = explode('@', $selector);
+						[$selector,] = explode('@', $selector);
 					}
 					$update[$selector] = array_fill(0, $pagesCount, $stub);
 				}
@@ -3205,6 +3309,11 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 					]
 				);
 				$this->access = $rememberAccess;
+				if(!$edit)
+				{
+					Assets\PreProcessing::blockSetDynamicProcessing($this);
+				}
+
 				header('X-Bitrix24-Page: dynamic');
 				if ($caching)
 				{
@@ -3402,7 +3511,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 					// some dance for set new content ;)
 					if ($content)
 					{
-						$tmpCardName = strtolower('tmpcard' . randString(10));
+						$tmpCardName = mb_strtolower('tmpcard'.randString(10));
 						$newChild = new DOM\Element($tmpCardName);
 						$newChild->setOwnerDocument($doc);
 						$newChild->setInnerHTML($content);
@@ -3561,9 +3670,9 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 					$resultList[$position]
 				);
 				$this->saveContent($doc->saveHTML());
+				Assets\PreProcessing::blockUpdateNodeProcessing($this);
 				return true;
 			}
-
 		}
 
 		$this->error->addError(
@@ -3703,6 +3812,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 
 		// save rebuild html as text
 		$this->saveContent($doc->saveHTML());
+		Assets\PreProcessing::blockUpdateNodeProcessing($this);
 		return true;
 	}
 
@@ -3741,10 +3851,13 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				{
 					if ($menuItem['href'] == '#landing0')
 					{
-						$res = Landing::add([
-							'TITLE' => $menuItem['text'],
-							'SITE_ID' => $this->getSiteId()
-						]);
+						$res = Landing::addByTemplate(
+							$this->getSiteId(),
+							Assets\PreProcessing\Theme::getNewPageTemplate($this->getSiteId()),
+							[
+								'TITLE' => $menuItem['text']
+							]
+						);
 						if ($res->isSuccess())
 						{
 							$menuItem['href'] = '#landing' . $res->getId();
@@ -3885,9 +3998,9 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 					{
 						foreach ($upd as $sel => $content)
 						{
-							if (strpos($sel, '@'))
+							if(mb_strpos($sel, '@'))
 							{
-								list($sel, $pos) = explode('@', $sel);
+								[$sel, $pos] = explode('@', $sel);
 							}
 							if (!isset($updNodes[$sel]))
 							{
@@ -3961,9 +4074,9 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		$positions = array();
 		foreach ((array)$data as $selector => $item)
 		{
-			if (strpos($selector, '@') !== false)
+			if (mb_strpos($selector, '@') !== false)
 			{
-				list($selector, $position) = explode('@', $selector);
+				[$selector, $position] = explode('@', $selector);
 			}
 			else
 			{
@@ -4019,9 +4132,8 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				// apply classes to the block
 				if ($selector == $wrapper)
 				{
-					$resultList = array(
-						array_pop($doc->getChildNodesArray())
-					);
+					$nodesArray = $doc->getChildNodesArray();
+					$resultList = [array_pop($nodesArray)];
 				}
 				// or by selector
 				else
@@ -4059,6 +4171,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		}
 		// save rebuild html as text
 		$this->saveContent($doc->saveHTML());
+		Assets\PreProcessing::blockUpdateClassesProcessing($this);
 		return true;
 	}
 
@@ -4163,7 +4276,8 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 					// set attrs to the block
 					if ($selector == $wrapper)
 					{
-						$resultList = [array_pop($doc->getChildNodesArray())];
+						$nodesArray = $doc->getChildNodesArray();
+						$resultList = [array_pop($nodesArray)];
 					}
 					// or by selector
 					else
@@ -4222,7 +4336,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 	 */
 	protected static function replaceMetaMarkers($content)
 	{
-		if (strpos($content, '#breadcrumb#') !== false)
+		if (mb_strpos($content, '#breadcrumb#') !== false)
 		{
 			ob_start();
 			$arResult = array(
@@ -4261,7 +4375,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			);
 		}
 
-		if (strpos($content, '#title#') !== false)
+		if (mb_strpos($content, '#title#') !== false)
 		{
 			$content = str_replace(
 				'#title#',
@@ -4396,7 +4510,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 					if (!$cards[$selector]['source'][$pos]['value'])
 					{
 						//@tmp for menu first item
-						if (strpos($this->getCode(), 'menu') !== false)
+						if (mb_strpos($this->getCode(), 'menu') !== false)
 						{
 							$cards[$selector]['source'][$pos]['value'] = $resultListCnt > 0 ? 1 : 0;
 						}
@@ -4441,6 +4555,11 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			// recursive getting menu
 			$exportMenu = function($resultList) use(&$exportMenu)
 			{
+				if(!$resultList)
+				{
+					return [];
+				}
+
 				$menu = [];
 				foreach ($resultList->getChildNodesArray() as $pos => $node)
 				{
@@ -4514,9 +4633,8 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		// get actual css from block wrapper
 		if (isset($manifest['style']['block']))
 		{
-			$resultList = array(
-				array_pop($doc->getChildNodesArray())
-			);
+			$nodesArray = $doc->getChildNodesArray();
+			$resultList = [array_pop($nodesArray)];
 			foreach ($resultList as $pos => $result)
 			{
 				if ($result && $result->getNodeType() == $result::ELEMENT_NODE)
@@ -4586,9 +4704,8 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		if (isset($allAttrs['#wrapper']))
 		{
 			$allAttrsNew['#wrapper'] = [];
-			$resultList = array(
-				array_pop($doc->getChildNodesArray())
-			);
+			$nodesArray = $doc->getChildNodesArray();
+			$resultList = [array_pop($nodesArray)];
 			foreach ($resultList as $pos => $result)
 			{
 				foreach ($allAttrs['#wrapper'] as $attrKey)
@@ -4640,9 +4757,10 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 	 * @param string $query Query string.
 	 * @param array $filter Filter array.
 	 * @param array $select Select fields.
+	 * @param array $group Group fields.
 	 * @return array
 	 */
-	public static function search($query, array $filter = [], array $select = ['LID'])
+	public static function search($query, array $filter = [], array $select = ['LID'], array $group = ['LID'])
 	{
 		$result = [];
 
@@ -4651,9 +4769,8 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		$res = Internals\BlockTable::getList([
 			'select' => $select,
 			'filter' => $filter,
-			'group' => [
-				'LID'
-			]
+			'group' => $group,
+			'order' => ['SORT' => 'desc']
 		]);
 		while ($row = $res->fetch())
 		{

@@ -4,7 +4,7 @@
 
 		<div class="landing-block-node-date-container g-mb-40 g-mb-70--md">
 			<div class="landing-block-node-date mx-auto js-countdown u-countdown text-center"
-				 data-end-date="1586678580000"
+				 data-end-date="1618214400000"
 				 data-days-format="%D"
 				 data-hours-format="%H"
 				 data-minutes-format="%M"
@@ -14,7 +14,7 @@
 
 				<div class="d-inline-block g-line-height-1 u-countdown--days-hide">
 					<div class="landing-block-node-number-border align-top g-px-10 g-px-50--md g-py-15 g-brd-right g-brd-white-opacity-0_4">
-						<div class="landing-block-node-number-number landing-block-node-number-number-days g-color-white g-font-size-20 g-font-size-40--md g-font-weight-700 g-line-height-1 g-mb-5">
+						<div class="landing-block-node-number-number landing-block-node-number-number-days g-color-white g-font-size-20 g-font-size-40--md font-weight-bold g-line-height-1 g-mb-5">
 							<span class="js-cd-days">12</span>
 						</div>
 						<span class="landing-block-node-number-text landing-block-node-number-text-days g-font-size-12 g-color-white text-uppercase">Days</span>
@@ -23,7 +23,7 @@
 
 				<div class="d-inline-block g-line-height-1">
 					<div class="landing-block-node-number-border align-top g-px-10 g-px-50--md g-py-15 g-brd-right g-brd-white-opacity-0_4">
-						<div class="landing-block-node-number-number landing-block-node-number-number-hours g-color-white g-font-size-20 g-font-size-40--md g-font-weight-700 g-line-height-1 g-mb-5">
+						<div class="landing-block-node-number-number landing-block-node-number-number-hours g-color-white g-font-size-20 g-font-size-40--md font-weight-bold g-line-height-1 g-mb-5">
 							<span class="js-cd-hours">01</span>
 						</div>
 						<span class="landing-block-node-number-text landing-block-node-number-text-hours g-font-size-12 g-color-white text-uppercase">Hours</span>
@@ -32,7 +32,7 @@
 
 				<div class="d-inline-block g-line-height-1">
 					<div class="landing-block-node-number-border align-top g-px-10 g-px-50--md g-py-15 g-brd-right g-brd-white-opacity-0_4">
-						<div class="landing-block-node-number-number landing-block-node-number-number-minutes g-color-white g-font-size-20 g-font-size-40--md g-font-weight-700 g-line-height-1 g-mb-5">
+						<div class="landing-block-node-number-number landing-block-node-number-number-minutes g-color-white g-font-size-20 g-font-size-40--md font-weight-bold g-line-height-1 g-mb-5">
 							<span class="js-cd-minutes">52</span>
 						</div>
 						<span class="landing-block-node-number-text landing-block-node-number-text-minutes g-font-size-12 g-color-white text-uppercase">Minutes</span>
@@ -41,7 +41,7 @@
 
 				<div class="d-inline-block g-line-height-1">
 					<div class="align-top g-px-10 g-px-50--md g-py-15">
-						<div class="landing-block-node-number-number landing-block-node-number-number-seconds g-color-white g-font-size-20 g-font-size-40--md g-font-weight-700 g-line-height-1 g-mb-5">
+						<div class="landing-block-node-number-number landing-block-node-number-number-seconds g-color-white g-font-size-20 g-font-size-40--md font-weight-bold g-line-height-1 g-mb-5">
 							<span class="js-cd-seconds">52</span>
 						</div>
 						<span class="landing-block-node-number-text landing-block-node-number-text-seconds g-font-size-12 g-color-white text-uppercase">Seconds</span>
@@ -51,8 +51,8 @@
 			</div>
 		</div>
 
-		<h2 class="landing-block-node-title text-center text-uppercase g-font-weight-700 g-font-size-60 g-color-white g-mb-30 g-mb-70--md">
-			UI & UX Design 2018</h2>
+		<h2 class="landing-block-node-title text-center text-uppercase font-weight-bold g-font-size-60 g-color-white g-mb-30 g-mb-70--md">
+			UI & UX Design 2020</h2>
 
 		<div class="row">
 			<div class="col-sm-6 col-md-5 text-center text-md-left g-mb-30 g-mb-0--md">
@@ -65,7 +65,7 @@
 						<div class="landing-block-node-date-title g-mb-5 g-font-size-14 g-color-white-opacity-0_5">
 							<span style="font-weight: bold;">When</span></div>
 						<h3 class="landing-block-node-date-text h3 text-uppercase g-font-size-15 g-color-white mb-0">
-							18:30, 12 Jul, 2018
+							18:30, 12 Jul, 2020
 						</h3>
 					</div>
 				</div>
@@ -88,7 +88,7 @@
 			</div>
 
 			<div class="col-md-2 text-center text-md-right">
-				<a class="landing-block-node-button btn btn-lg text-uppercase u-btn-white g-font-weight-700 g-font-size-11 rounded-0 g-py-18"
+				<a class="landing-block-node-button btn btn-lg text-uppercase u-btn-white font-weight-bold g-font-size-11 rounded-0 g-py-18"
 				   href="#">Register Now</a>
 			</div>
 		</div>

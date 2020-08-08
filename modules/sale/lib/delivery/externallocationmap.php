@@ -44,7 +44,7 @@ class ExternalLocationMap
 	 */
 	public static function getInternalId($externalCode)
 	{
-		if(strlen($externalCode) <= 0)
+		if($externalCode == '')
 			return 0;
 
 		$srvId = static::getExternalServiceId();
@@ -72,7 +72,7 @@ class ExternalLocationMap
 	 */
 	public static function getExternalId($locationId)
 	{
-		if(strlen($locationId) <= 0)
+		if($locationId == '')
 			return '';
 
 		$srvId = static::getExternalServiceId();
@@ -100,7 +100,7 @@ class ExternalLocationMap
 		if($loc = $res->fetch())
 			$result = $loc['XML_ID'];
 
-		if(strlen($result) <= 0)
+		if($result == '')
 			$result = self::getUpperCityExternalId($locationId, $srvId);
 
 		return $result;
@@ -156,7 +156,7 @@ class ExternalLocationMap
 	 */
 	public static function getCityId($locationId)
 	{
-		if(strlen($locationId) <= 0)
+		if($locationId == '')
 			return 0;
 
 		$res = LocationTable::getList(array(
@@ -293,7 +293,7 @@ class ExternalLocationMap
 	{
 		set_time_limit(0);
 
-		if(strlen($path) <= 0)
+		if($path == '')
 			return 0;
 
 		if(!\Bitrix\Main\IO\File::isFileExists($path))
@@ -364,7 +364,7 @@ class ExternalLocationMap
 		$content = '';
 
 		while($row = $res->fetch())
-			if(strlen($row['CODE']) > 0)
+			if($row['CODE'] <> '')
 				$content .= $row['CODE'].";".$row['XML_ID']."\n";
 
 		return \Bitrix\Main\IO\File::putFileContents($path, $content);
@@ -377,7 +377,7 @@ class ExternalLocationMap
 	 */
 	public static function getExternalServiceId()
 	{
-		if(strlen(static::EXTERNAL_SERVICE_CODE) <=0)
+		if(static::EXTERNAL_SERVICE_CODE == '')
 			throw new SystemException('EXTERNAL_SERVICE_CODE must be defined!');
 
 		static $result = null;
@@ -414,7 +414,7 @@ class ExternalLocationMap
 	 */
 	protected static function utfDecode($str)
 	{
-		if(strtolower(SITE_CHARSET) != 'utf-8')
+		if(mb_strtolower(SITE_CHARSET) != 'utf-8')
 			$str = Encoding::convertEncoding($str, 'UTF-8', SITE_CHARSET);
 
 		return $str;
@@ -495,10 +495,10 @@ class ExternalLocationMap
 	 */
 	public static function setExternalLocation2($srvId, $locationId, $xmlId, $updateExist = false)
 	{
-		if(strlen($xmlId) <= 0)
+		if($xmlId == '')
 			throw new ArgumentNullException('code');
 
-		if(strlen($srvId) <= 0)
+		if($srvId == '')
 			throw new ArgumentNullException('srvId');
 
 		if(intval($locationId) <= 0)
@@ -740,21 +740,21 @@ class ExternalLocationMap
 
 				$found = null;
 
-				if($loc['PARENTS_TYPE_CODE'] == 'REGION' && strlen($region) > 0)
+				if($loc['PARENTS_TYPE_CODE'] == 'REGION' && $region <> '')
 				{
 					if(!is_array($regionNorm))
 						$regionNorm = Comparator::normalizeEntity($region, 'REGION');
 
 					$found = Comparator::isEntityEqual($loc['PARENTS_NAME_UPPER'], $regionNorm, 'REGION');
 				}
-				elseif(strlen($subregion) > 0 && $loc['PARENTS_TYPE_CODE'] == 'SUBREGION')
+				elseif($subregion <> '' && $loc['PARENTS_TYPE_CODE'] == 'SUBREGION')
 				{
 					if(!is_array($subregionNorm))
 						$subregionNorm = Comparator::normalizeEntity($subregion, 'SUBREGION');
 
 					$found = Comparator::isEntityEqual($loc['PARENTS_NAME_UPPER'], $subregionNorm, 'SUBREGION');
 				}
-				elseif(strlen($city) > 0 && $loc['PARENTS_TYPE_CODE'] == 'CITY')
+				elseif($city <> '' && $loc['PARENTS_TYPE_CODE'] == 'CITY')
 				{
 					if(!is_array($cityNorm))
 						$subregionNorm = Comparator::normalizeEntity($city, 'LOCALITY');

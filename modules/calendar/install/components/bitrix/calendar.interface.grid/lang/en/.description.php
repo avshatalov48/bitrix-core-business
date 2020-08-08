@@ -1,5 +1,5 @@
 <?
-$MESS["EVENT_CALENDAR2"] = "Event Calendar 2.0";
-$MESS["EVENT_CALENDAR_DESCRIPTION"] = "A component to display the event calendar.";
 $MESS["EVENT_CALENDAR"] = "Event Calendar";
+$MESS["EVENT_CALENDAR_GRID"] = "Calendar grid UI";
+$MESS["EVENT_CALENDAR_GRID_DESCRIPTION"] = "This component shows external entities on the calendar grid. Requires the Calendar module's API.";
 ?>

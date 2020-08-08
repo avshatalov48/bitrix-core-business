@@ -8,13 +8,13 @@ IncludeModuleLangFile(__FILE__);
 $bPublicMode = defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1;
 
 set_time_limit(0);
-$IBLOCK_ID = IntVal($IBLOCK_ID);
-$STEP = IntVal($STEP);
+$IBLOCK_ID = intval($IBLOCK_ID);
+$STEP = intval($STEP);
 if ($STEP <= 0)
 	$STEP = 1;
-if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($backButton) > 0)
+if ($_SERVER["REQUEST_METHOD"] == "POST" && $backButton <> '')
 	$STEP = $STEP - 2;
-if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($backButton2) > 0)
+if ($_SERVER["REQUEST_METHOD"] == "POST" && $backButton2 <> '')
 	$STEP = 1;
 
 $NUM_CATALOG_LEVELS = intval(COption::GetOptionInt('iblock', 'num_catalog_levels', 3));
@@ -105,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $STEP > 1 && check_bitrix_sessid())
 		if ($IBLOCK_ID <= 0 || !($arIBlock = $arIBlockRes->GetNext()))
 			$strError .= GetMessage("IBLOCK_ADM_EXP_NO_IBLOCK")."<br>";
 
-		if (strlen($strError) > 0)
+		if ($strError <> '')
 			$STEP = 1;
 		//*****************************************************************//
 	}
@@ -133,20 +133,20 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $STEP > 1 && check_bitrix_sessid())
 				$delimiter_r_char = " ";
 				break;
 			case "OTR":
-				$delimiter_r_char = substr($delimiter_other_r, 0, 1);
+				$delimiter_r_char = mb_substr($delimiter_other_r, 0, 1);
 				break;
 			case "TZP":
 				$delimiter_r_char = ";";
 				break;
 		}
 
-		if (strlen($delimiter_r_char) != 1)
+		if (mb_strlen($delimiter_r_char) != 1)
 			$strError .= GetMessage("IBLOCK_ADM_EXP_NO_DELIMITER")."<br>";
 
-		if (strlen($strError) <= 0)
+		if ($strError == '')
 			$csvFile->SetDelimiter($delimiter_r_char);
 
-		if (strlen($_REQUEST["DATA_FILE_NAME"]) <= 0)
+		if ($_REQUEST["DATA_FILE_NAME"] == '')
 		{
 			$strError .= GetMessage("IBLOCK_ADM_EXP_NO_FILE_NAME")."<br>";
 		}
@@ -161,11 +161,11 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $STEP > 1 && check_bitrix_sessid())
 		else
 		{
 			$DATA_FILE_NAME = Rel2Abs("/", $_REQUEST["DATA_FILE_NAME"]);
-			if (strtolower(substr($DATA_FILE_NAME, strlen($DATA_FILE_NAME)-4)) != ".csv")
+			if (mb_strtolower(mb_substr($DATA_FILE_NAME, mb_strlen($DATA_FILE_NAME) - 4)) != ".csv")
 				$DATA_FILE_NAME .= ".csv";
 		}
 
-		if (strlen($strError) <= 0)
+		if ($strError == '')
 		{
 			$fp = fopen($_SERVER["DOCUMENT_ROOT"].$DATA_FILE_NAME, "w");
 			if(!is_resource($fp))
@@ -183,7 +183,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $STEP > 1 && check_bitrix_sessid())
 			$strError .= GetMessage("IBLOCK_ADM_EXP_NO_FIELDS")."<br>";
 
 		$num_rows_writed = 0;
-		if (strlen($strError) <= 0)
+		if ($strError == '')
 		{
 			$selectArray = array(
 				"ID",
@@ -199,7 +199,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $STEP > 1 && check_bitrix_sessid())
 				{
 					if(strncmp($value, "IE_", 3) == 0)
 					{
-						$selectArray[] = substr($value, 3);
+						$selectArray[] = mb_substr($value, 3);
 					}
 					elseif(strncmp($value, "IC_GROUP", 8) == 0)
 					{
@@ -264,11 +264,13 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $STEP > 1 && check_bitrix_sessid())
 					foreach($arProperties as $prop_id => $arProperty)
 					{
 						$arUserTypeFormat[$arProperty["ID"]] = false;
-						if(strlen($arProperty["USER_TYPE"]))
+						if($arProperty["USER_TYPE"] <> '')
 						{
 							$arUserType = CIBlockProperty::GetUserType($arProperty["USER_TYPE"]);
 							if(isset($arUserType["GetPublicViewHTML"]))
+							{
 								$arUserTypeFormat[$arProperty["ID"]] = $arUserType["GetPublicViewHTML"];
+							}
 						}
 					}
 				}
@@ -378,11 +380,11 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $STEP > 1 && check_bitrix_sessid())
 					foreach($arNeedFields as $field_name)
 					{
 						if(strncmp($field_name, "IE_", 3) == 0)
-							$arTuple[] = $arElement["~".substr($field_name, 3)];
+							$arTuple[] = $arElement["~".mb_substr($field_name, 3)];
 						elseif(strncmp($field_name, "IP_PROP", 7) == 0)
-							$arTuple[] = $arPropsValues[IntVal(substr($field_name, 7))];
+							$arTuple[] = $arPropsValues[intval(mb_substr($field_name, 7))];
 						elseif(strncmp($field_name, "IC_GROUP", 8) == 0)
-							$arTuple[] = $arPath[IntVal(substr($field_name, 8))];
+							$arTuple[] = $arPath[intval(mb_substr($field_name, 8))];
 					}
 
 					ArrayMultiply($arResFields, $arTuple);
@@ -390,7 +392,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $STEP > 1 && check_bitrix_sessid())
 			}
 		}
 
-		if (strlen($strError) > 0)
+		if ($strError <> '')
 			$STEP = 2;
 		elseif ($bPublicMode)
 		{
@@ -496,7 +498,7 @@ if ($STEP == 2)
 	<tr>
 		<td width="40%" class="adm-detail-valign-top"><?echo GetMessage("IBLOCK_ADM_EXP_DELIMITER") ?>:</td>
 		<td width="60%">
-			<input type="radio" name="delimiter_r" id="delimiter_TZP" value="TZP" <?if ($delimiter_r=="TZP" || strlen($delimiter_r)<=0) echo "checked"?>><label for="delimiter_TZP"><?echo GetMessage("IBLOCK_ADM_EXP_DELIM_TZP") ?></label><br>
+			<input type="radio" name="delimiter_r" id="delimiter_TZP" value="TZP" <?if ($delimiter_r=="TZP" || $delimiter_r == '') echo "checked"?>><label for="delimiter_TZP"><?echo GetMessage("IBLOCK_ADM_EXP_DELIM_TZP") ?></label><br>
 			<input type="radio" name="delimiter_r" id="delimiter_ZPT" value="ZPT" <?if ($delimiter_r=="ZPT") echo "checked"?>><label for="delimiter_ZPT"><?echo GetMessage("IBLOCK_ADM_EXP_DELIM_ZPT") ?></label><br>
 			<input type="radio" name="delimiter_r" id="delimiter_TAB" value="TAB" <?if ($delimiter_r=="TAB") echo "checked"?>><label for="delimiter_TAB"><?echo GetMessage("IBLOCK_ADM_EXP_DELIM_TAB") ?></label><br>
 			<input type="radio" name="delimiter_r" id="delimiter_SPS" value="SPS" <?if ($delimiter_r=="SPS") echo "checked"?>><label for="delimiter_SPS"><?echo GetMessage("IBLOCK_ADM_EXP_DELIM_SPS") ?></label><br>
@@ -507,7 +509,7 @@ if ($STEP == 2)
 	<tr>
 		<td><?echo GetMessage("IBLOCK_ADM_EXP_FIRST_LINE_NAMES") ?>:</td>
 		<td>
-			<input type="checkbox" name="first_line_names" value="Y" <?if ($first_line_names=="Y" || strlen($strError)<=0) echo "checked"?>>
+			<input type="checkbox" name="first_line_names" value="Y" <?if ($first_line_names=="Y" || $strError == '') echo "checked"?>>
 		</td>
 	</tr>
 
@@ -555,7 +557,7 @@ if ($STEP == 2)
 				$arCheckID = array();
 				for ($i = 0; $i < $intCountFields; $i++)
 				{
-					if ($field_needed[$i]=="Y" || (!isset($field_needed) && strlen($strCSVError)<=0))
+					if ($field_needed[$i]=="Y" || (!isset($field_needed) && $strCSVError == ''))
 					{
 						$arCheckID[] = $i;
 						$intCountChecked++;
@@ -620,7 +622,7 @@ if ($STEP == 2)
 	<tr>
 		<td><?echo GetMessage("IBLOCK_ADM_EXP_ENTER_FILE_NAME") ?>:</td>
 		<td><?
-			if (strlen($DATA_FILE_NAME) > 0)
+			if ($DATA_FILE_NAME <> '')
 			{
 				$exportFileName = $DATA_FILE_NAME;
 			}

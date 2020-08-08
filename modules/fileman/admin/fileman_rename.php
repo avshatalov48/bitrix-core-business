@@ -38,13 +38,13 @@ if(!$io->FileExists($abs_path) && !$io->DirectoryExists($abs_path))
 	$strWarning .= GetMessage("FILEMAN_FILEORFOLDER_NOT_FOUND");
 else
 {
-	if($REQUEST_METHOD=="POST" && strlen($save)>0 && check_bitrix_sessid())
+	if($REQUEST_METHOD=="POST" && $save <> '' && check_bitrix_sessid())
 	{
 		$pathTmp = $path;
 		foreach($arFiles as $ind => $file)
 		{
 			$newfilename = $filename[$ind];
-			if(strlen($newfilename)<=0)
+			if($newfilename == '')
 			{
 				$strWarning .= GetMessage("FILEMAN_RENAME_NEW_NAME")." \"".$file."\"!\n";
 			}
@@ -55,7 +55,7 @@ else
 			else
 			{
 				$pathto = Rel2Abs($path, $newfilename);
-				if(!$USER->CanDoOperation('edit_php') && (substr(CFileman::GetFileName($file), 0, 1) == "." || substr(CFileman::GetFileName($pathto), 0, 1)=="." || (!HasScriptExtension($file) && HasScriptExtension($pathto)))) // if not admin and renaming from non PHP to PHP
+				if(!$USER->CanDoOperation('edit_php') && (mb_substr(CFileman::GetFileName($file), 0, 1) == "." || mb_substr(CFileman::GetFileName($pathto), 0, 1) == "." || (!HasScriptExtension($file) && HasScriptExtension($pathto)))) // if not admin and renaming from non PHP to PHP
 					$strWarning .= GetMessage("FILEMAN_RENAME_TOPHPFILE_ERROR")."\n";
 				elseif(!$USER->CanDoOperation('edit_php') 	&& HasScriptExtension($file) && !HasScriptExtension($pathto)) // if not admin and renaming from PHP to non PHP
 					$strWarning .= GetMessage("FILEMAN_RENAME_FROMPHPFILE_ERROR")."\n";
@@ -64,7 +64,7 @@ else
 					$pathparsedtmp = CFileMan::ParsePath(Array($site, $pathto), false, false, "", $logical == "Y");
 					$strWarningTmp = CFileMan::CreateDir($pathparsedtmp["PREV"]);
 
-					if(strlen($strWarningTmp)>0)
+					if($strWarningTmp <> '')
 						$strWarning .= $strWarningTmp;
 					else
 					{
@@ -87,12 +87,12 @@ else
 			}
 		}
 
-		if(strlen($strWarning)<=0)
+		if($strWarning == '')
 		{
 			$module_id = "fileman";
 			if(COption::GetOptionString($module_id, "log_page", "Y")=="Y")
 			{
-				$res_log['path'] = substr($pathto, 1);
+				$res_log['path'] = mb_substr($pathto, 1);
 				CEventLog::Log(
 					"content",
 					"FILE_RENAME",

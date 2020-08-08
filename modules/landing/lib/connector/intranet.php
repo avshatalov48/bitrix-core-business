@@ -12,7 +12,7 @@ class Intranet
 	/**
 	 * Service component paths.
 	 */
-	const PATH_SERVICE_LIST = '/kb/binding/menu/';
+	const PATH_SERVICE_LIST = 'kb/binding/menu/';
 
 	/**
 	 * Returns one service menu item for bind entity.
@@ -26,14 +26,14 @@ class Intranet
 				'id' => 'landing_bind',
 				'system' => true,
 				'text' => Loc::getMessage('LANDING_CONNECTOR_INTRANET_MENU_BIND_TITLE'),
-				'onclick' => 'BX.SidePanel.Instance.open(\'' . self::PATH_SERVICE_LIST .
+				'onclick' => 'BX.SidePanel.Instance.open(\'' . SITE_DIR . self::PATH_SERVICE_LIST .
 							 '?menuId=' . $bindCode . '\', {allowChangeHistory: false});'
 			],
 			[
 				'id' => 'landing_create',
 				'system' => true,
 				'text' => Loc::getMessage('LANDING_CONNECTOR_INTRANET_MENU_BIND_CREATE_TITLE'),
-				'onclick' => 'BX.SidePanel.Instance.open(\'' . self::PATH_SERVICE_LIST .
+				'onclick' => 'BX.SidePanel.Instance.open(\'' . SITE_DIR . self::PATH_SERVICE_LIST .
 							 '?menuId=' . $bindCode . '&create=Y\', {allowChangeHistory: false});'
 			]
 		];
@@ -64,7 +64,7 @@ class Intranet
 							function() 
 							{
 								BX.ajax({
-									url: "' . self::PATH_SERVICE_LIST . '",
+									url: "' . SITE_DIR . self::PATH_SERVICE_LIST . '",
 									method: "POST",
 									data: {
 										action: "unbind",
@@ -98,7 +98,7 @@ class Intranet
 
 	/**
 	 * Returns menu items for different binding places in Intranet.
-	 * @param \Bitrix\Main\Event $event
+	 * @param \Bitrix\Main\Event $event Event instance.
 	 * @return array
 	 */
 	public static function onBuildBindingMenu(\Bitrix\Main\Event $event)
@@ -108,7 +108,6 @@ class Intranet
 			\Bitrix\Landing\Site\Type::SCOPE_CODE_KNOWLEDGE
 		);
 
-		return [];
 		$bindings = Binding\Menu::getList(null);
 
 		// associate different bindings

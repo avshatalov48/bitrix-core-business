@@ -14,7 +14,7 @@ if (!$USER->IsAuthorized())
 $currentUserId = $USER->GetID();
 $isAdmin = $USER->IsAdmin() || (CModule::IncludeModule('bitrix24') && CBitrix24::IsPortalAdmin($USER->GetID()));
 
-if (strlen($arParams["TASK_ID"]) > 0 && !is_numeric($arParams["TASK_ID"]))
+if ($arParams["TASK_ID"] <> '' && !is_numeric($arParams["TASK_ID"]))
 {
 	$arParams["WORKFLOW_ID"] = $arParams["TASK_ID"];
 	$arParams["TASK_ID"] = 0;
@@ -58,7 +58,7 @@ $arParams["TASK_EDIT_URL"] = trim($arParams["TASK_EDIT_URL"]);
 if (empty($arParams["TASK_EDIT_URL"])):
 	$arParams["TASK_EDIT_URL"] = $APPLICATION->GetCurPage()."?PAGE_NAME=task_edit&ID=#ID#&back_url=".urlencode($arResult["backUrl"]);
 else:
-	$arParams["TASK_EDIT_URL"] .= (strpos($arParams["TASK_EDIT_URL"], "?") === false ? "?" : "&")."back_url=".urlencode($arResult["backUrl"]);
+	$arParams["TASK_EDIT_URL"] .= (mb_strpos($arParams["TASK_EDIT_URL"], "?") === false ? "?" : "&")."back_url=".urlencode($arResult["backUrl"]);
 endif;
 $arParams["~TASK_EDIT_URL"] = $arParams["TASK_EDIT_URL"];
 $arParams["TASK_EDIT_URL"] = htmlspecialcharsbx($arParams["~TASK_EDIT_URL"]);
@@ -178,7 +178,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["action"] == "doTask" && chec
 		else
 			$backUrl = $arResult["backUrl"];
 
-		if (strlen($backUrl) > 0)
+		if ($backUrl <> '')
 		{
 			LocalRedirect($backUrl);
 			die();

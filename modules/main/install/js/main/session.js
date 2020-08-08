@@ -1,29 +1,23 @@
 function CBXSession()
 {
 	var _this = this;
-	this.mess = {};
-	this.timeout = null;
-	this.sessid = null;
-	this.bShowMess = true;
-	this.dateStart = new Date();
 	this.dateInput = new Date();
 	this.dateCheck = new Date();
-	this.activityInterval = 0;
+	this.dateHit = new Date();
 	this.notifier = null;
-	
-	this.Expand = function(timeout, sessid, bShowMess, key)
+	this.checkInterval = 60;
+
+	this.Expand = function(key)
 	{
-		this.timeout = timeout;
-		this.sessid = sessid;
-		this.bShowMess = bShowMess;
 		this.key = key;
 		
 		BX.ready(function(){
 			BX.bind(document, "keypress", _this.OnUserInput);
 			BX.bind(document.body, "mousemove", _this.OnUserInput);
 			BX.bind(document.body, "click", _this.OnUserInput);
-			
-			setTimeout(_this.CheckSession, (_this.timeout-60)*1000);
+
+			//check the state once in a minute
+			setInterval(_this.CheckSession, _this.checkInterval*1000);
 		})
 	};
 		
@@ -35,43 +29,50 @@ function CBXSession()
 	
 	this.CheckSession = function()
 	{
-		var curr = new Date();
-		if(curr.valueOf() - _this.dateCheck.valueOf() < 30000)
-			return;
+		var currentDate = new Date();
 
-		_this.activityInterval = Math.round((_this.dateInput.valueOf() - _this.dateStart.valueOf())/1000);
-		_this.dateStart.setTime(_this.dateInput.valueOf());
-		var interval = (_this.activityInterval > _this.timeout? (_this.timeout-60) : _this.activityInterval);
-
-		var config = {
-			'method': 'GET',
-			'dataType': 'html',
-			'url': '/bitrix/tools/public_session.php?sessid='+_this.sessid+'&interval='+interval+'&k='+_this.key,
-			'data':  '',
-			'onsuccess': function(data){_this.CheckResult(data)},
-			'lsId': 'sess_expand', //caching the result in the local storage for multiple tabs
-			'lsTimeout': 60
-		};
-		if(interval > 0)
+		if((currentDate - _this.dateCheck) < (_this.checkInterval - 1))
 		{
-			//forced request
-			config.lsForce = true;
+			//storm protection, e.g. after PC wake-up
+			return;
 		}
-		BX.ajax(config);
+
+		_this.dateCheck.setTime(currentDate.valueOf());
+
+		if(_this.dateInput > _this.dateHit)
+		{
+			//there was input after the last hit, expand/check the session
+			var config = {
+				'method': 'GET',
+				'headers': [
+					{'name': 'X-Bitrix-Csrf-Token', 'value': BX.bitrix_sessid()}
+				],
+				'dataType': 'html',
+				'url': '/bitrix/tools/public_session.php?k='+_this.key,
+				'data':  '',
+				'onsuccess': function(data){_this.CheckResult(data)},
+				'lsId': 'sess_expand', //caching the result in the local storage for multiple tabs
+				'lsTimeout': _this.checkInterval - 5 //some delta for response time
+			};
+			BX.ajax(config);
+		}
 	};
 	
 	this.CheckResult = function(data)
 	{
+		var currentDate = new Date();
+		_this.dateHit.setTime(currentDate.valueOf());
+
 		if(data == 'SESSION_EXPIRED')
 		{
-			if(_this.bShowMess)
+			if(BX.message("SessExpired"))
 			{
 				if(!_this.notifier)
 				{
 					_this.notifier = document.body.appendChild(BX.create('DIV', {
 						props: {className: 'bx-session-message'},
 						style: {
-							top: '0px',
+							top: '0',
 							backgroundColor: '#FFEB41',
 							border: '1px solid #EDDA3C',
 							width: '630px',
@@ -84,13 +85,16 @@ function CBXSession()
 							zIndex: '10000',
 							padding: '10px'
 						},
-						html: '<a class="bx-session-message-close" style="display:block; width:12px; height:12px; background:url(/bitrix/js/main/core/images/close.gif) center no-repeat; float:right;" href="javascript:bxSession.Close()"></a>'+_this.mess.messSessExpired
+						html: '<a class="bx-session-message-close" ' +
+							'style="display:block; width:12px; height:12px; background:url(/bitrix/js/main/core/images/close.gif) center no-repeat; float:right;" ' +
+							'href="javascript:bxSession.Close()"></a>' +
+							BX.message("SessExpired")
 					}));
 
 					var windowScroll = BX.GetWindowScrollPos();
 					var windowSize = BX.GetWindowInnerSize();
 
-					_this.notifier.style.left = parseInt(windowScroll.scrollLeft + windowSize.innerWidth / 2 - parseInt(_this.notifier.clientWidth) / 2) + 'px';
+					_this.notifier.style.left = parseInt(windowScroll.scrollLeft + (windowSize.innerWidth / 2) - (parseInt(_this.notifier.clientWidth) / 2)) + 'px';
 
 					if(BX.browser.IsIE())
 					{
@@ -110,18 +114,6 @@ function CBXSession()
 
 				_this.notifier.style.display = '';
 			}
-		}
-		else
-		{
-			var timeout;
-			if(data == 'SESSION_CHANGED')
-				timeout = (_this.timeout-60);
-			else
-				timeout = (_this.activityInterval < 60? 60 : (_this.activityInterval > _this.timeout? (_this.timeout-60) : _this.activityInterval));
-
-			var curr = new Date();
-			_this.dateCheck.setTime(curr.valueOf());
-			setTimeout(_this.CheckSession, timeout*1000);
 		}
 	};
 	

@@ -120,7 +120,10 @@ class Syspage
 			return $items;
 		};
 
-		if (isset($types[$id]))
+		if (
+			isset($types[$id])
+			&& count($types[$id]) > 0
+		)
 		{
 			return $removeHidden($types[$id]);
 		}

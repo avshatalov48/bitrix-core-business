@@ -64,7 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_REQUEST["Update"]) && check
 
 	$arHandlersData = json_decode($arHandlersData, true);
 
-	if( 'utf-8' != strtolower(SITE_CHARSET))
+	if('utf-8' != mb_strtolower(SITE_CHARSET))
 		$arHandlersData = $APPLICATION->ConvertCharsetArray($arHandlersData, 'utf-8', SITE_CHARSET);
 
 	if ($arHandlersData)
@@ -143,9 +143,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_REQUEST["Update"]) && check
 					);
 		}
 
-		if (strlen($errorsList) <= 0)
+		if ($errorsList == '')
 		{
-			if (strlen($_REQUEST["apply"]) > 0)
+			if ($_REQUEST["apply"] <> '')
 				LocalRedirect($APPLICATION->GetCurPage()."?lang=".LANG."&SID=".urlencode($SID));
 			else
 				LocalRedirect('/bitrix/admin/sale_delivery_handlers.php?lang='.LANG);
@@ -177,7 +177,7 @@ while ($arHandler = $rsDeliveryInfo->Fetch())
 	unset($arHandler["COMPABILITY"]);
 	unset($arHandler["CALCULATOR"]);
 
-	if (strlen($arHandler["LID"]) > 0)
+	if ($arHandler["LID"] <> '')
 		$arDeliveryInfo[$arHandler["LID"]] = $arHandler;
 	else
 	{
@@ -379,7 +379,7 @@ $arConfigValues = array();
 foreach ($arDeliveryInfo[$SITE_ID]["CONFIG"]["CONFIG"] as $config_id => $arConfig)
 {
 	if ($arConfig["TYPE"] != "MULTISELECT")
-		$arConfigValues[$config_id] = strlen($arConfig["VALUE"]) > 0 ? $arConfig["VALUE"] : $arConfig["DEFAULT"];
+		$arConfigValues[$config_id] = $arConfig["VALUE"] <> '' ? $arConfig["VALUE"] : $arConfig["DEFAULT"];
 	else
 	{
 		if (is_set($arConfig["VALUE"]) && !is_array($arConfig["VALUE"]))
@@ -682,7 +682,7 @@ $parentTabControl->BeginNextTab();
 	<tr>
 		<td colspan="2">
 <?
-if (strlen($deliveryHint) > 0)
+if ($deliveryHint <> '')
 {
 	echo BeginNote();
 	echo $deliveryHint;

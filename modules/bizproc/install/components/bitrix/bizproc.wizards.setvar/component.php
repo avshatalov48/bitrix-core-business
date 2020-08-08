@@ -18,45 +18,45 @@ $pathToTemplates = $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/templates_
 
 $arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if (strLen($arParams["BLOCK_VAR"]) <= 0)
+if ($arParams["BLOCK_VAR"] == '')
 	$arParams["BLOCK_VAR"] = "block_id";
 
 $arParams["PATH_TO_NEW"] = trim($arParams["PATH_TO_NEW"]);
-if (strlen($arParams["PATH_TO_NEW"]) <= 0)
+if ($arParams["PATH_TO_NEW"] == '')
 	$arParams["PATH_TO_NEW"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=new");
 
 $arParams["PATH_TO_LIST"] = trim($arParams["PATH_TO_LIST"]);
-if (strlen($arParams["PATH_TO_LIST"]) <= 0)
+if ($arParams["PATH_TO_LIST"] == '')
 	$arParams["PATH_TO_LIST"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=list&".$arParams["BLOCK_VAR"]."=#block_id#");
 
 $arParams["PATH_TO_INDEX"] = trim($arParams["PATH_TO_INDEX"]);
-if (strlen($arParams["PATH_TO_INDEX"]) <= 0)
+if ($arParams["PATH_TO_INDEX"] == '')
 	$arParams["PATH_TO_INDEX"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=index");
 
 $arParams["PATH_TO_TASK"] = trim($arParams["PATH_TO_TASK"]);
-if (strlen($arParams["PATH_TO_TASK"]) <= 0)
+if ($arParams["PATH_TO_TASK"] == '')
 	$arParams["PATH_TO_TASK"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=task&".$arParams["TASK_VAR"]."=#task_id#");
-$arParams["PATH_TO_TASK"] = $arParams["PATH_TO_TASK"].((strpos($arParams["PATH_TO_TASK"], "?") === false) ? "?" : "&").bitrix_sessid_get();
+$arParams["PATH_TO_TASK"] = $arParams["PATH_TO_TASK"].((mb_strpos($arParams["PATH_TO_TASK"], "?") === false) ? "?" : "&").bitrix_sessid_get();
 
 $arParams["PATH_TO_BP"] = trim($arParams["PATH_TO_BP"]);
-if (strlen($arParams["PATH_TO_BP"]) <= 0)
+if ($arParams["PATH_TO_BP"] == '')
 	$arParams["PATH_TO_BP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=bp&".$arParams["BLOCK_VAR"]."=#block_id#");
-$arParams["PATH_TO_BP"] = $arParams["PATH_TO_BP"].((strpos($arParams["PATH_TO_BP"], "?") === false) ? "?" : "&").bitrix_sessid_get();
+$arParams["PATH_TO_BP"] = $arParams["PATH_TO_BP"].((mb_strpos($arParams["PATH_TO_BP"], "?") === false) ? "?" : "&").bitrix_sessid_get();
 
 $arParams["PATH_TO_SETVAR"] = trim($arParams["PATH_TO_SETVAR"]);
-if (strlen($arParams["PATH_TO_SETVAR"]) <= 0)
+if ($arParams["PATH_TO_SETVAR"] == '')
 	$arParams["PATH_TO_SETVAR"] = $APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=setvar&".$arParams["BLOCK_VAR"]."=#block_id#";
-$arParams["PATH_TO_SETVAR"] = $arParams["PATH_TO_SETVAR"].((strpos($arParams["PATH_TO_SETVAR"], "?") === false) ? "?" : "&").bitrix_sessid_get();
+$arParams["PATH_TO_SETVAR"] = $arParams["PATH_TO_SETVAR"].((mb_strpos($arParams["PATH_TO_SETVAR"], "?") === false) ? "?" : "&").bitrix_sessid_get();
 
-$arResult["BackUrl"] = urlencode(strlen($_REQUEST["back_url"]) <= 0 ? $APPLICATION->GetCurPageParam() : $_REQUEST["back_url"]);
+$arResult["BackUrl"] = urlencode($_REQUEST["back_url"] == '' ? $APPLICATION->GetCurPageParam() : $_REQUEST["back_url"]);
 
 $arResult["FatalErrorMessage"] = "";
 $arResult["ErrorMessage"] = "";
 
 $arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
-if (strlen($arParams["IBLOCK_TYPE"]) <= 0)
+if ($arParams["IBLOCK_TYPE"] == '')
 	$arResult["FatalErrorMessage"] .= GetMessage("BPWC_WVC_EMPTY_IBLOCK_TYPE").". ";
 
 $arParams["BLOCK_ID"] = intval($arParams["BLOCK_ID"]);
@@ -65,7 +65,7 @@ if ($arParams["BLOCK_ID"] <= 0)
 
 $arResult["PATH_TO_LIST"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_LIST"], array("block_id" => $arParams["BLOCK_ID"]));
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	if (!$USER->IsAdmin())
 	{
@@ -77,7 +77,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 	}
 }
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	$arResult["BlockType"] = null;
 	$ar = CIBlockType::GetByIDLang($arParams["IBLOCK_TYPE"], LANGUAGE_ID, true);
@@ -87,7 +87,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 		$arResult["FatalErrorMessage"] .= GetMessage("BPWC_WVC_WRONG_IBLOCK_TYPE").". ";
 }
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	$arResult["Block"] = null;
 	$db = CIBlock::GetList(array(), array("ID" => $arParams["BLOCK_ID"], "TYPE" => $arParams["IBLOCK_TYPE"], "ACTIVE" => "Y"));
@@ -97,13 +97,13 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 		$arResult["FatalErrorMessage"] .= GetMessage("BPWC_WVC_WRONG_IBLOCK").". ";
 }
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
-	if (strlen($_REQUEST["cancel_variables"]) > 0)
+	if ($_REQUEST["cancel_variables"] <> '')
 		LocalRedirect(CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_LIST"], array("block_id" => $arResult["Block"]["ID"])));
 }
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	$arResult["WorkflowTemplateId"] = 0;
 	$arResult["WorkflowVariables"] = 0;
@@ -124,13 +124,13 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 		$arResult["FatalErrorMessage"] .= GetMessage("BPWC_WVC_WRONG_TMPL").". ";
 }
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	$runtime = CBPRuntime::GetRuntime();
 	$runtime->StartRuntime();
 	$arResult["DocumentService"] = $runtime->GetService("DocumentService");
 
-	if ($_SERVER["REQUEST_METHOD"] == "POST" && (strlen($_REQUEST["save_variables"]) > 0 || strlen($_REQUEST["apply_variables"]) > 0) && check_bitrix_sessid())
+	if ($_SERVER["REQUEST_METHOD"] == "POST" && ($_REQUEST["save_variables"] <> '' || $_REQUEST["apply_variables"] <> '') && check_bitrix_sessid())
 	{
 		$errorMessageTmp = "";
 		$arRequest = $_REQUEST;
@@ -178,11 +178,11 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 			}
 		}
 
-		if (strlen($errorMessageTmp) <= 0)
+		if ($errorMessageTmp == '')
 		{
 			CBPWorkflowTemplateLoader::Update($arResult["WorkflowTemplateId"], array("VARIABLES" => $arResult["WorkflowVariables"]));
 
-			if (strlen($_REQUEST["save_variables"]) > 0)
+			if ($_REQUEST["save_variables"] <> '')
 				LocalRedirect(CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_LIST"], array("block_id" => $arResult["Block"]["ID"])));
 			else
 				LocalRedirect(CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_SETVAR"], array("block_id" => $arResult["Block"]["ID"])));
@@ -196,7 +196,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 
 $this->IncludeComponentTemplate();
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	if ($arParams["SET_TITLE"] == "Y")
 		$APPLICATION->SetTitle(str_replace("#NAME#", $arResult["BlockType"]["NAME"], GetMessage("BPWC_WVC_PAGE_TITLE")));

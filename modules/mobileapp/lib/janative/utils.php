@@ -16,7 +16,7 @@ class Utils
 		$namespace = $defaultNamespace;
 		$name = $entityIdentifier;
 
-		if (strpos($entityIdentifier, ":"))
+		if(mb_strpos($entityIdentifier, ":"))
 		{
 			list($namespace, $name) = explode(":", $entityIdentifier);
 		}

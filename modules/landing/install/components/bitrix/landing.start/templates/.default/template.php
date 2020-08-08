@@ -22,6 +22,7 @@ foreach ($arParams['SEF_URL_TEMPLATES'] as $code => $url)
 		'PAGE_URL_SITE' => $arParams['PAGE_URL_SITE_SHOW'],
 		'PAGE_URL_SITE_EDIT' => $arParams['PAGE_URL_SITE_EDIT'],
 		'PAGE_URL_LANDING_EDIT' => $arParams['PAGE_URL_LANDING_EDIT'],
+		'PAGE_URL_SITE_DOMAIN_SWITCH' => $arParams['PAGE_URL_SITE_DOMAIN_SWITCH'],
 		'TILE_MODE' => $arParams['TILE_SITE_MODE'],
 		'DRAFT_MODE' => $arParams['DRAFT_MODE'],
 		'SEF' => $sef,

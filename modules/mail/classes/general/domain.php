@@ -101,7 +101,7 @@ class CMailDomain
 
 		if ($result !== false)
 		{
-			if (strtolower($result['name']) == $domain)
+			if (mb_strtolower($result['name']) == $domain)
 			{
 				return array(
 					'domain' => $result['name'],

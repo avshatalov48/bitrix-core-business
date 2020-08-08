@@ -20,6 +20,7 @@ $MESS["LANDING_TPL_BUTTON_SAVE"] = "Save";
 $MESS["LANDING_TPL_CODE_SETTINGS"] = "Use the #LINK1#Site settings#LINK2# to edit the home page address.";
 $MESS["LANDING_TPL_CODE_SETTINGS_KNOWLEDGE"] = "You can change the main page address in the #LINK1#knowledge base settings#LINK2#.";
 $MESS["LANDING_TPL_FIELD_CODE"] = "Page address";
+$MESS["LANDING_TPL_FONTS_PAGE"] = "Page fonts";
 $MESS["LANDING_TPL_HOOK_METRIKA"] = "Analytics";
 $MESS["LANDING_TPL_HOOK_PIXEL"] = "Tracking pixels";
 $MESS["LANDING_TPL_HTML_DISABLED_TITLE"] = "Plan restrictions";

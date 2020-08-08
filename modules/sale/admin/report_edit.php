@@ -50,28 +50,28 @@ $arFieldsBuyer = Array(
 
 $errorMessage = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST"
-	&& (strlen($save) > 0 || strlen($apply) > 0)
+	&& ($save <> '' || $apply <> '')
 	&& $saleModulePermissions == "W"
 	&& check_bitrix_sessid())
 {
 	$arOpt = Array();
 	foreach($arFieldsShop as $key => $val)
 	{
-		$arOpt[$key] = Array("TYPE" => $_POST["TYPE_".$key], "VALUE" => (strlen($_POST["TYPE_".$key])> 0 ? $_POST["VALUE_".$key] : trim($_POST["VALUE2_".$key])));
+		$arOpt[$key] = Array("TYPE" => $_POST["TYPE_".$key], "VALUE" => ($_POST["TYPE_".$key] <> '' ? $_POST["VALUE_".$key] : trim($_POST["VALUE2_".$key])));
 	}	
 	
 	foreach($arFieldsBuyer as $key => $val)
 	{
-		$arOpt[$key] = Array("TYPE" => $_POST["TYPE_".$key], "VALUE" => (strlen($_POST["TYPE_".$key])> 0 ? $_POST["VALUE_".$key] : trim($_POST["VALUE2_".$key])));
+		$arOpt[$key] = Array("TYPE" => $_POST["TYPE_".$key], "VALUE" => ($_POST["TYPE_".$key] <> '' ? $_POST["VALUE_".$key] : trim($_POST["VALUE2_".$key])));
 	}
 	
 	$serResult = serialize($arOpt);
-	$lenght = strlen($serResult);
-	if(IntVal($lenght) > 2000)
+	$lenght = mb_strlen($serResult);
+	if(intval($lenght) > 2000)
 	{
 		for($i=1; $i <= ceil($lenght/2000); $i++)
 		{
-			COption::SetOptionString("sale", "reports".$i, substr($serResult, ($i-1)*2000, $i*2000));
+			COption::SetOptionString("sale", "reports".$i, mb_substr($serResult, ($i - 1) * 2000, $i * 2000));
 		}
 		COption::SetOptionInt("sale", "reports_count", $i);
 	
@@ -86,7 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"
 }
 
 $report = "";
-$serCount = IntVal(COption::GetOptionInt("sale", "reports_count"));
+$serCount = intval(COption::GetOptionInt("sale", "reports_count"));
 if($serCount > 0)
 {
 	for($i=1; $i <= $serCount; $i++)
@@ -215,7 +215,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 	$arOrderSel = Array();
 	while ($arOrderProps = $dbOrderProps->GetNext())
 	{
-		$orderID = ((strlen($arOrderProps["CODE"])>0) ? $arOrderProps["CODE"] : $arOrderProps["ID"]);
+		$orderID = (($arOrderProps["CODE"] <> '') ? $arOrderProps["CODE"] : $arOrderProps["ID"]);
 		if(!in_array($orderID, $arOrderSel))
 		{
 			$arOrderSel[] = $orderID;
@@ -295,8 +295,8 @@ $tabControl->BeginNextTab();
 							<select name="VALUE_<?=$key?>" id="VALUE_<?=$key?>" style="display:none;">
 								<option value="">--</option>
 							</select>					
-							<input type="text" name="VALUE2_<?=$key?>" id="VALUE2_<?=$key?>" value="<?if(strlen($val["TYPE"]) <= 0) echo htmlspecialcharsbx($val["VALUE"])?>"  size="40">
-							<?if(strlen($val["VALUE"]) > 0 && strlen($val["TYPE"]) > 0)
+							<input type="text" name="VALUE2_<?=$key?>" id="VALUE2_<?=$key?>" value="<?if($val["TYPE"] == '') echo htmlspecialcharsbx($val["VALUE"])?>"  size="40">
+							<?if($val["VALUE"] <> '' && $val["TYPE"] <> '')
 							{
 								?>
 								<script>
@@ -336,7 +336,7 @@ $tabControl->BeginNextTab();
 								<option value="">--</option>
 							</select>					
 							<input type="text" name="VALUE2_<?=$key?>" id="VALUE2_<?=$key?>" value=""  size="40">
-							<?if(strlen($val["VALUE"]) > 0)
+							<?if($val["VALUE"] <> '')
 							{
 								?>
 								<script>

@@ -30,6 +30,7 @@ $APPLICATION->IncludeComponent(
 	'',
 	array(
 		'PATH_TO_IMPORT' => $arResult['PATH_TO_IMPORT'],
+		'PATH_TO_IMPORT_MANIFEST' => $arResult['PATH_TO_IMPORT_MANIFEST'],
 		'PATH_TO_EXPORT' => $arResult['PATH_TO_EXPORT'],
 		'MANIFEST_CODE' => $arResult['MANIFEST_CODE'],
 		'MP_LOAD_PATH' => ''
@@ -45,7 +46,7 @@ $APPLICATION->IncludeComponent(
 		'FILTER_ID' => '_configuration_banner',
 		'BLOCK_COUNT' => 3,
 		'SET_TITLE' => 'N',
-		'SHOW_BANNER_MARKETPLACE' => 'Y',
+		'HOLD_BANNER_ITEMS' => 'Y',
 		'DETAIL_URL_TPL' => $arResult['MP_DETAIL_URL_TPL'],
 		'MP_TAG_PATH' => $arResult['MP_TAG_PATH']
 	)

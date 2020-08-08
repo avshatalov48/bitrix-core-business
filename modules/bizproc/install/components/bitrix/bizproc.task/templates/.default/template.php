@@ -128,7 +128,7 @@ if (empty($arResult['DOCUMENT_ICON']))
 		?>
 		<span class="bp-task-block-title"><?=GetMessage("BPATL_TASK_TITLE")?>: </span>
 		<?
-		if (strlen($arResult["TASK"]["DESCRIPTION"]) > 0):
+		if ($arResult["TASK"]["DESCRIPTION"] <> ''):
 			echo \CBPViewHelper::prepareTaskDescription($arResult["TASK"]["DESCRIPTION"]);
 		else:
 			echo $arResult["TASK"]["NAME"];
@@ -300,6 +300,10 @@ if (empty($arResult['DOCUMENT_ICON']))
 					),
 					$component
 				);
+
+				$currentBodyClass = $APPLICATION->GetPageProperty("BodyClass", false);
+				$currentBodyClass = str_replace('flexible-layout', '', $currentBodyClass);
+				$APPLICATION->SetPageProperty("BodyClass", $currentBodyClass);
 				?>
 			</div>
 		</div>

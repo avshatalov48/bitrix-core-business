@@ -543,6 +543,11 @@
 	transition: color 0.2s linear;
 }
 
+.menu-popup-item-text .tariff-lock {
+	margin: 0 5px 2px 5px;
+	vertical-align: middle;
+}
+
 .popup-window-fixed-width .menu-popup-item-text {
 	-o-text-overflow: ellipsis;
 	   text-overflow: ellipsis;

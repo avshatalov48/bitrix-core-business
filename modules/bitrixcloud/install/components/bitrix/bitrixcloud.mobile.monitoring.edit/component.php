@@ -94,7 +94,7 @@ if(isset($arResult["ACTION"]))
 		case 'delete':
 			$strError = $monitoring->stopMonitoring($arResult["DOMAIN"]);
 
-			if(strlen($strError) > 0)
+			if($strError <> '')
 			{
 				ShowError($strError);
 				return;

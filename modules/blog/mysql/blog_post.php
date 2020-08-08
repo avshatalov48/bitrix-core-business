@@ -529,6 +529,11 @@ class CBlogPost extends CAllBlogPost
 			$dbResult = $DB->Query($strSql.$ID, False, "File: ".__FILE__."<br>Line: ".__LINE__);
 			if ($arResult = $dbResult->Fetch())
 			{
+				if (!empty($arResult['TITLE']))
+				{
+					$arResult['TITLE'] = \Bitrix\Main\Text\Emoji::decode($arResult['TITLE']);
+				}
+
 				static::$arBlogPostCache[$ID] = $arResult;
 				return $arResult;
 			}

@@ -225,7 +225,7 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 
 		if ($arCatalogProduct['TYPE'] == Catalog\ProductTable::TYPE_OFFER)
 		{
-			if (strpos($arProduct["~XML_ID"], '#') === false)
+			if (mb_strpos($arProduct["~XML_ID"], '#') === false)
 			{
 				$parent = \CCatalogSku::GetProductInfo($arProduct['ID'], $arProduct['IBLOCK_ID']);
 				if (!empty($parent))
@@ -2104,7 +2104,7 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 									);
 								}
 
-								if (!empty($proxyCatalogSkuData[$item["ITEM_ID"]]) && strpos($arProduct["XML_ID"], '#') === false)
+								if (!empty($proxyCatalogSkuData[$item["ITEM_ID"]]) && mb_strpos($arProduct["XML_ID"], '#') === false)
 								{
 									$arParentSku = $proxyCatalogSkuData[$item["ITEM_ID"]];
 									if (!empty($proxyParentData[$arParentSku['ID']]) && is_array($proxyParentData[$arParentSku['ID']]))

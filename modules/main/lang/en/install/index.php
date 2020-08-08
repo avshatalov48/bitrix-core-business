@@ -9,6 +9,10 @@ $MESS["MAIN_DEFAULT_LANGUAGE_FORMAT_DATETIME"] = "MM/DD/YYYY H:MI:SS T";
 $MESS["MAIN_DEFAULT_LANGUAGE_FORMAT_NAME"] = "#NAME# #LAST_NAME#";
 $MESS["MAIN_DEFAULT_LANGUAGE_FULL_DATE_FORMAT"] = "l, F j, Y";
 $MESS["MAIN_DEFAULT_LANGUAGE_LONG_DATE_FORMAT"] = "F j, Y";
+$MESS["MAIN_DEFAULT_LANGUAGE_DAY_SHORT_MONTH_FORMAT"] = "M j";
+$MESS["MAIN_DEFAULT_LANGUAGE_DAY_OF_WEEK_MONTH_FORMAT"] = "l, F j";
+$MESS["MAIN_DEFAULT_LANGUAGE_SHORT_DAY_OF_WEEK_MONTH_FORMAT"] = "D, F j";
+$MESS["MAIN_DEFAULT_LANGUAGE_SHORT_DAY_OF_WEEK_SHORT_MONTH_FORMAT"] = "D, M j";
 $MESS["MAIN_DEFAULT_LANGUAGE_LONG_TIME_FORMAT"] = "g:i:s a";
 $MESS["MAIN_DEFAULT_LANGUAGE_MEDIUM_DATE_FORMAT"] = "M j, Y";
 $MESS["MAIN_DEFAULT_LANGUAGE_NAME"] = "English";
@@ -53,6 +57,20 @@ http://#SERVER_NAME#/bitrix/admin/event_log.php?set_filter=Y&find_audit_type_id=
 $MESS["MAIN_EVERYONE_GROUP_DESC"] = "All users (including non-authorized users).";
 $MESS["MAIN_EVERYONE_GROUP_NAME"] = "All users (with non-authorized users)";
 $MESS["MAIN_INSTALL_DB_ERROR"] = "Cannot connect to the database. Please check the parameters.";
+$MESS["MAIN_INSTALL_EVENT_MESS_USER_CODE_REQUEST"] = "#SITE_NAME#: Request for verification code";
+$MESS["MAIN_INSTALL_EVENT_MESS_USER_CODE_REQUEST_MESS"] = "Use the following code to log in:
+
+#CHECKWORD#
+
+Once logged in, you can change your password in your user profile.
+
+Your registration information:
+
+User ID: #USER_ID#
+Account status: #STATUS#
+Login: #LOGIN#
+
+This message was created automatically.";
 $MESS["MAIN_INSTALL_EVENT_TYPE_NOTIFICATION"] = "Event log notification";
 $MESS["MAIN_INSTALL_EVENT_TYPE_NOTIFICATION_DESC"] = "#EMAIL# - Recipient email
 #ADDITIONAL_TEXT# - Action additional text
@@ -74,6 +92,15 @@ $MESS["MAIN_INSTALL_EVENT_TYPE_NOTIFICATION_DESC_SMS"] = "#PHONE_NUMBER# - Recip
 #USER_AGENT# - Browser
 #REQUEST_URI# - Page URL
 #EVENT_COUNT# - Number of events";
+$MESS["MAIN_INSTALL_EVENT_TYPE_USER_CODE_REQUEST"] = "Request for verification code";
+$MESS["MAIN_INSTALL_EVENT_TYPE_USER_CODE_REQUEST_DESC"] = "#USER_ID# - user ID
+#STATUS# - Login status
+#LOGIN# - Login
+#CHECKWORD# - Verification code
+#NAME# - First name
+#LAST_NAME# - Last name
+#EMAIL# - User email
+";
 $MESS["MAIN_MAIL_CONFIRM_EVENT_TYPE_DESC"] = "
 
 #EMAIL_TO# - confirmation email address

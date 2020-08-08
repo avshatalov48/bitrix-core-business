@@ -6,17 +6,22 @@
  * @var CBitrixComponentTemplate $this
  * @var SocialnetworkBlogPostComment $this->__component
  */
-$arResult["RECORDS"] = array();
+$arResult["RECORDS"] = [];
 $arParams["SHOW_MINIMIZED"] = "Y";
 $arParams["ENTITY_TYPE"] = "BG";
 $arParams["ENTITY_XML_ID"] = "BLOG_".$arParams["ID"];
 $arParams["ENTITY_ID"] = $arParams["ID"];
 $arResult["newCount"] = $arResult["~newCount"];
+
 include_once(__DIR__."/functions.php");
 include_once(__DIR__."/../.default/functions.php");
+
 $arResult["PUSH&PULL"] = false;
 
-if(!empty($arResult["CommentsResult"]) && is_array($arResult["CommentsResult"]))
+if(
+	!empty($arResult["CommentsResult"])
+	&& is_array($arResult["CommentsResult"])
+)
 {
 	$arResult["~CommentsResult"] = $arResult["CommentsResult"] = array_reverse($arResult["CommentsResult"]);
 	CPageOption::SetOptionString("main", "nav_page_in_session", "N");
@@ -90,6 +95,7 @@ if(!empty($arResult["CommentsResult"]) && is_array($arResult["CommentsResult"]))
 	$arResult["NAV_RESULT"] = $res = new CDBResult;
 
 	if (
+//		!$arParams["bFromList"] &&
 		$arParams["NAV_TYPE_NEW"] == 'Y'
 		&& !$filter
 		&& $arResult['firstPage']
@@ -125,6 +131,20 @@ if(!empty($arResult["CommentsResult"]) && is_array($arResult["CommentsResult"]))
 	}
 	else
 	{
+/*
+		if ($arParams["bFromList"])
+		{
+			$arResult["CommentsResult"] = array_filter($arResult["CommentsResult"], function ($value) { return (
+				isset($value['NEW'])
+				&& $value['NEW'] == 'Y'
+			); });
+			if (!empty($arResult["CommentsResult"]))
+			{
+				$arResult["CommentsResult"] = array_slice($arResult["CommentsResult"], 0, 3);
+			}
+			$arParams["PAGE_SIZE"] = count($arResult["CommentsResult"]);
+		}
+*/
 		$res->InitFromArray($arResult["CommentsResult"]);
 		$arResult["NAV_RESULT"] = $res;
 	}
@@ -171,7 +191,7 @@ if(!empty($arResult["CommentsResult"]) && is_array($arResult["CommentsResult"]))
 
 			if (preg_match_all("#\\[disk file id=(n\\d+)\\]#is".BX_UTF_PCRE_MODIFIER, $comment['POST_TEXT'], $matches))
 			{
-				$commentObjectId = array_map(function($a) { return intval(substr($a, 1)); }, $matches[1]);
+				$commentObjectId = array_map(function($a) { return intval(mb_substr($a, 1)); }, $matches[1]);
 				$inlineDiskObjectIdList = array_merge($inlineDiskObjectIdList, $commentObjectId);
 			}
 
@@ -251,7 +271,7 @@ if(!empty($arResult["CommentsResult"]) && is_array($arResult["CommentsResult"]))
 
 		if (intval($arResult["ajax_comment"]) == intval($comment["ID"]))
 		{
-			if ($this->__component->prepareMobileData)
+			if ($this->__component->prepareMobileData && function_exists("socialnetworkBlogPostCommentWeb"))
 			{
 				$arResult["RECORDS"][$comment["ID"]]["WEB"] = socialnetworkBlogPostCommentWeb(
 					$comment,
@@ -310,4 +330,22 @@ else if ($arResult["ajax_comment"] > 0 && $_GET["delete_comment_id"] > 0)
 		"ACTION" => "DELETE"
 	);
 }
+
+$emptyPageParams = [];
+if (
+	!empty($arParams['EMPTY_PAGE_PARAMS'])
+	&& is_array($arParams['EMPTY_PAGE_PARAMS'])
+)
+{
+	$emptyPageParams = $arParams['EMPTY_PAGE_PARAMS'];
+	$emptyPageParams["focus_form"] = true;
+	$emptyPageParams["show_full"] = false;
+	$emptyPageParams["focus_comments"] = false;
+}
+
+$arResult["replyAction"] = (
+	!empty($emptyPageParams)
+		? "__MSLOpenLogEntryNew(".\CUtil::phpToJSObject($emptyPageParams).", null); event.stopPropagation(); return (event ? event.preventDefault() : false);"
+		: ""
+);
 ?>

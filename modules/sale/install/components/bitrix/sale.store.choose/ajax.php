@@ -20,7 +20,7 @@ if (!\Bitrix\Main\Loader::includeModule('sale'))
 
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 
-if(strlen($result["ERROR"]) <= 0 && $saleModulePermissions >= "W" && check_bitrix_sessid())
+if($result["ERROR"] == '' && $saleModulePermissions >= "W" && check_bitrix_sessid())
 {
 	$action = isset($_REQUEST['action']) ? trim($_REQUEST['action']): '';
 
@@ -37,16 +37,16 @@ if(strlen($result["ERROR"]) <= 0 && $saleModulePermissions >= "W" && check_bitri
 }
 else
 {
-	if(strlen($result["ERROR"]) <= 0)
+	if($result["ERROR"] == '')
 		$result["ERROR"] = "Error! Access denied";
 }
 
-if(strlen($result["ERROR"]) > 0)
+if($result["ERROR"] <> '')
 	$result["RESULT"] = "ERROR";
 else
 	$result["RESULT"] = "OK";
 
-if(strtolower(SITE_CHARSET) != 'utf-8')
+if(mb_strtolower(SITE_CHARSET) != 'utf-8')
 	$result = \Bitrix\Main\Text\Encoding::convertEncoding($result, SITE_CHARSET, 'utf-8');
 
 header('Content-Type: application/json');

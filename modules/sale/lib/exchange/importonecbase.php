@@ -71,7 +71,7 @@ abstract class ImportOneCBase extends ImportPattern
 			$params = $item->getFieldValues();
 			$fields = $params['TRAITS'];
 
-			if(strlen($fields[$item::getFieldExternalId()])<= 0)
+			if($fields[$item::getFieldExternalId()] == '')
 				$result->addErrors(array(new Error(" ".EntityType::getDescription($item->getOwnerTypeId()).": ".GetMessage("SALE_EXCHANGE_EXTERNAL_ID_NOT_FOUND"), 'SALE_EXCHANGE_EXTERNAL_ID_NOT_FOUND')));
 		}
 
@@ -196,7 +196,7 @@ abstract class ImportOneCBase extends ImportPattern
 		$loader = Entity\EntityImportLoaderFactory::create($entityTypeId);
 		$loader->loadSettings($settings);
 
-		if(strlen($document->getId())>0)
+		if($document->getId() <> '')
 			$fieldsEntity = $loader->getByNumber($document->getId());
 		else
 			$fieldsEntity = $loader->getByExternalId($document->getExternalId());

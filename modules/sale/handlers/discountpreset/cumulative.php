@@ -209,7 +209,7 @@ final class Cumulative extends BasePreset
 		foreach ($state->get('discount_ranges', $this->getDefaultRowValues()) as $i => $range)
 		{
 			if (
-				empty($range['sum']) ||
+				($range['sum'] === '' || $range['sum'] === null) ||
 				empty($range['value']) ||
 				empty($range['type'])
 			)

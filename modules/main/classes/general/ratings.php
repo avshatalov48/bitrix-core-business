@@ -2227,4 +2227,31 @@ class CAllRatings
 		return $result;
 	}
 
+	public static function deleteRatingVoting(array $params = [])
+	{
+		global $DB;
+
+		$entityTypeId = (
+			isset($params['ENTITY_TYPE_ID'])
+			&& strlen($params['ENTITY_TYPE_ID']) > 0
+				? $params['ENTITY_TYPE_ID']
+				: ''
+		);
+		$entityId = (
+			isset($params['ENTITY_ID'])
+			&& intval($params['ENTITY_ID']) > 0
+				? intval($params['ENTITY_ID'])
+				: 0
+		);
+		if (
+			strlen($entityTypeId) <= 0
+			|| $entityId <= 0
+		)
+		{
+			return;
+		}
+
+		$DB->query("DELETE FROM b_rating_voting WHERE ENTITY_TYPE_ID='".$DB->forSql($entityTypeId)."' AND ENTITY_ID=".intval($entityId), true);
+		$DB->query("DELETE FROM b_rating_voting_reaction WHERE ENTITY_TYPE_ID='".$DB->forSql($entityTypeId)."' AND ENTITY_ID=".intval($entityId), true);
+	}
 }

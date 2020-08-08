@@ -28,21 +28,21 @@ function __CanDoAccess($colId)
 }
 
 $ctRes = CMedialib::GetCollectionTree(array('CheckAccessFunk' => '__CanDoAccess'));
-$curColId = isset($col_id, $ctRes['Collections'][$col_id]) ? intVal($col_id) : 0;
+$curColId = isset($col_id, $ctRes['Collections'][$col_id]) ? intval($col_id) : 0;
 //Fetch groups
 $arGroups = array();
 $db_groups = CGroup::GetList($order="sort", $by="asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
 while($arRes = $db_groups->Fetch())
 	$arGroups[] = $arRes;
 
-if($REQUEST_METHOD=="POST" && strlen($saveperm) > 0 && check_bitrix_sessid()) // TODO: access
+if($REQUEST_METHOD=="POST" && $saveperm <> '' && check_bitrix_sessid()) // TODO: access
 {
 	$arTaskPerm = array();
 	for ($i = 0, $l = count($arGroups); $i < $l; $i++)
 	{
 		$id = $arGroups[$i]['ID'];
-		if (isset($_POST['g_'.$id]) && intVal($_POST['g_'.$id]) > 0)
-			$arTaskPerm[$id] = intVal($_POST['g_'.$id]);
+		if (isset($_POST['g_'.$id]) && intval($_POST['g_'.$id]) > 0)
+			$arTaskPerm[$id] = intval($_POST['g_'.$id]);
 	}
 	CMedialib::SaveAccessPermissions($curColId, $arTaskPerm);
 }
@@ -54,7 +54,7 @@ $res = CTask::GetList(Array('LETTER' => 'asc'), Array('MODULE_ID' => 'fileman', 
 while($arRes = $res->Fetch())
 {
 	$name = $arRes['TITLE'];
-	if (strlen($name) == 0)
+	if ($name == '')
 		$name = $arRes['NAME'];
 
 	$arTasks[$arRes['ID']] = Array('title' => $name, 'letter' => $arRes['LETTER']);
@@ -102,7 +102,7 @@ $tabControl->Begin();
 			//for each groups
 			foreach ($arGroups as $arGroup)
 			{
-				$arGroup['ID'] = intVal($arGroup['ID']);
+				$arGroup['ID'] = intval($arGroup['ID']);
 			?>
 			<tr valign="top">
 				<td>

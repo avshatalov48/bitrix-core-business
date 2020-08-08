@@ -110,7 +110,7 @@ class CSocNetTextParser
 				$text = preg_replace("#<li(\s+[^>]*>|>)#is", "[*]", $text);
 			}
 
-			if (strlen($text)>0)
+			if ($text <> '')
 			{
 				$text = str_replace("<", "&lt;", $text);
 				$text = str_replace(">", "&gt;", $text);
@@ -291,7 +291,7 @@ class CSocNetTextParser
 	function convert4mail($text)
 	{
 		$text = Trim($text);
-		if (strlen($text)<=0) return "";
+		if ($text == '') return "";
 
 		$text = preg_replace("#<(/?)code(.*?)>#is", "[\\1code]", $text);
 		$text = preg_replace("#<(/?)quote(.*?)>#is", "[\\1qoute]", $text);
@@ -322,7 +322,7 @@ class CSocNetTextParser
 
 	function convert_emoticon($code = "", $image = "", $description = "", $servername = "")
 	{
-		if (strlen($code)<=0 || strlen($image)<=0) return;
+		if ($code == '' || $image == '') return;
 		$code = stripslashes($code);
 		$description = stripslashes($description);
 		$image = stripslashes($image);
@@ -334,7 +334,7 @@ class CSocNetTextParser
 
 	function convert_code_tag($text = "")
 	{
-		if (strlen($text)<=0) return;
+		if ($text == '') return;
 
 		$text = stripslashes($text);
 		$text = str_replace(array("<", ">"), array("&lt;", "&gt;"), $text);
@@ -349,7 +349,7 @@ class CSocNetTextParser
 
 	function convert_code_tag_rss($text = "")
 	{
-		if (strlen($text)<=0) return;
+		if ($text == '') return;
 
 		$text = stripslashes($text);
 		$text = str_replace(array("<", ">"), array("&lt;", "&gt;"), $text);
@@ -364,7 +364,7 @@ class CSocNetTextParser
 
 	function convert_quote_tag($text = "")
 	{
-		if (strlen($text)<=0) return;
+		if ($text == '') return;
 		$txt = $text;
 
 		$txt = preg_replace("#\[quote\]#ie", "\$this->convert_open_quote_tag()", $txt);
@@ -383,7 +383,7 @@ class CSocNetTextParser
 
 	function convert_quote_tag_rss($text = "")
 	{
-		if (strlen($text)<=0) return;
+		if ($text == '') return;
 		$txt = $text;
 
 		$txt = preg_replace("#\[quote\]#ie", "\$this->convert_open_quote_tag_rss()", $txt);
@@ -436,11 +436,11 @@ class CSocNetTextParser
 
 	function convert_image_tag($url = "")
 	{
-		if (strlen($url)<=0) return;
+		if ($url == '') return;
 		$url = trim($url);
 
 		$extension = preg_replace("/^.*\.(\S+)$/", "\\1", $url);
-		$extension = strtolower($extension);
+		$extension = mb_strtolower($extension);
 		$extension = preg_quote($extension, "/");
 
 		$bErrorIMG = False;
@@ -463,15 +463,15 @@ class CSocNetTextParser
 
 	function convert_font_attr($attr, $value = "", $text = "")
 	{
-		if (strlen($text)<=0) return "";
-		if (strlen($value)<=0) return $text;
+		if ($text == '') return "";
+		if ($value == '') return $text;
 
 		if ($attr == "size")
 		{
 			$count = count($this->arFontSize);
 			if ($count <= 0)
 				return $text;
-			$value = intVal($value >= $count ? ($count) : $value);
+			$value = intval($value >= $count ? ($count) : $value);
 			return "<span style='font-size:".$this->arFontSize[$value]."%;'>".$text."</span>";
 		}
 		else if ($attr == 'color')
@@ -543,7 +543,7 @@ class CSocNetTextParser
 		if (preg_match("/^<img\s+src/i", $text)) $bCutUrl = False;
 		$text = str_replace("&amp;", "&", $text);
 		$text = preg_replace("/javascript:/i", "javascript&#58; ", $text);
-		if ($bCutUrl && strlen($text) < 55) $bCutUrl = False;
+		if ($bCutUrl && mb_strlen($text) < 55) $bCutUrl = False;
 		if ($bCutUrl && !preg_match("/^(http|ftp|https|news):\/\//i", $text)) $bCutUrl = False;
 
 		if ($bCutUrl)
@@ -551,7 +551,7 @@ class CSocNetTextParser
 			$stripped = preg_replace("#^(http|ftp|https|news)://(\S+)$#i", "\\2", $text);
 			$uri_type = preg_replace("#^(http|ftp|https|news)://(\S+)$#i", "\\1", $text);
 
-			$text = $uri_type.'://'.substr($stripped, 0, 30).'...'.substr($stripped, -10);
+			$text = $uri_type.'://'.mb_substr($stripped, 0, 30).'...'.mb_substr($stripped, -10);
 		}
 
 		return $pref."<a href='".$url."' target='_blank'>".$text."</a>".$end;
@@ -608,7 +608,7 @@ class CSocNetTextParser
 			$text = preg_replace("'(^|\s)((http|https|news|ftp)://[-_:A-Za-z0-9@]+(\.[-_/=:A-Za-z0-9#@&?=%+]+)+)'is", "\\1[url]\\2[/url]", $text);
 
 //			$text = htmlspecialcharsEx($text);
-			if (strlen($text)>0)
+			if ($text <> '')
 			{
 				$text = str_replace("<", "&lt;", $text);
 				$text = str_replace(">", "&gt;", $text);
@@ -726,9 +726,9 @@ class CSocNetTextParser
 		$dbSite = CSite::GetByID(SITE_ID);
 		$arSite = $dbSite->Fetch();
 		$serverName = htmlspecialcharsEx($arSite["SERVER_NAME"]);
-		if (strlen($serverName) <=0)
+		if ($serverName == '')
 		{
-			if (defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME)>0)
+			if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '')
 				$serverName = SITE_SERVER_NAME;
 			else
 				$serverName = COption::GetOptionString("main", "server_name", "www.bitrixsoft.com");
@@ -854,14 +854,14 @@ class CSocNetTools
 
 	function Birthday($datetime, $gender, $showYear = "N")
 	{
-		if (StrLen($datetime) <= 0)
+		if ($datetime == '')
 			return false;
 
 		$arDateTmp = ParseDateTime($datetime, CSite::GetDateFormat('SHORT'));
 
-		$day = IntVal($arDateTmp["DD"]);
-		$month = IntVal($arDateTmp["MM"]);
-		$year = IntVal($arDateTmp["YYYY"]);
+		$day = intval($arDateTmp["DD"]);
+		$month = intval($arDateTmp["MM"]);
+		$year = intval($arDateTmp["YYYY"]);
 
 		$val = $day.' '.ToLower(GetMessage('MONTH_'.$month.'_S'));
 		if (($showYear == 'Y') || ($showYear == 'M' && $gender == 'M'))
@@ -869,8 +869,8 @@ class CSocNetTools
 
 		return array(
 			"DATE" => $val,
-			"MONTH" => Str_Pad(IntVal($arDateTmp["MM"]), 2, "0", STR_PAD_LEFT),
-			"DAY" => Str_Pad(IntVal($arDateTmp["DD"]), 2, "0", STR_PAD_LEFT)
+			"MONTH" => Str_Pad(intval($arDateTmp["MM"]), 2, "0", STR_PAD_LEFT),
+			"DAY" => Str_Pad(intval($arDateTmp["DD"]), 2, "0", STR_PAD_LEFT)
 		);
 	}
 }

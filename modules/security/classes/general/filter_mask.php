@@ -75,7 +75,7 @@ class CSecurityFilterMask
 			return true;
 		}
 
-		if(CACHED_b_sec_filter_mask !== false)
+		if(CACHED_b_sec_filter_mask !== false && is_object($CACHE_MANAGER))
 		{
 			$cache_id = "b_sec_filter_mask";
 			if($CACHE_MANAGER->Read(CACHED_b_sec_filter_mask, $cache_id, "b_sec_filter_mask"))

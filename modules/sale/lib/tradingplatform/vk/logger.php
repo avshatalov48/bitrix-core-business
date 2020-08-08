@@ -248,7 +248,7 @@ class Logger
 							);
 							$itemsCount++;
 							
-							if (strlen($itemConverted) > 0)
+							if ($itemConverted <> '')
 								if ($itemsCount <= self::MAX_SHOWING_ERRORS_ITEMS)
 									$itemsConverted[] = $itemConverted;
 								else
@@ -302,14 +302,14 @@ class Logger
 			$errorsConvertedString = implode('', $errorsConvertedStrings);
 
 //			add intro before errors
-			if (strlen($errorsConvertedString) > 0)
+			if ($errorsConvertedString <> '')
 			{
 				$result = $flagCritical ? Loc::getMessage("SALE_VK_ERRORS__INTRO_CRITICAL") : Loc::getMessage("SALE_VK_ERRORS__INTRO_NORMAL");
 				$result .= ':<br>' . $errorsConvertedString;
 			}
 
 //			check if need download log file
-			if (strlen($result) > 0)
+			if ($result <> '')
 			{
 				$vk = Vk::getInstance();
 				if ($richLog = $vk->getRichLog($this->exportId))

@@ -33,7 +33,7 @@ else
 	{
 		$request = Bitrix\Main\Context::getCurrent()->getRequest();
 		$downloadUrl = "http://dl.bitrix24.com/b24/bitrix24_desktop.exe";
-		if (stripos($request->getUserAgent(), "Macintosh") !== false)
+		if (mb_stripos($request->getUserAgent(), "Macintosh") !== false)
 		{
 			$downloadUrl = "http://dl.bitrix24.com/b24/bitrix24_desktop.dmg";
 		}

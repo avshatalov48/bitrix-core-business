@@ -48,7 +48,7 @@ if ($arResult["NEED_AUTH"] == "Y")
 {
 	$APPLICATION->AuthForm("");
 }
-elseif (strlen($arResult["FatalError"]) > 0)
+elseif ($arResult["FatalError"] <> '')
 {
 	?>
 	<span class='errortext'><?=$arResult["FatalError"]?></span><br /><br />
@@ -56,7 +56,7 @@ elseif (strlen($arResult["FatalError"]) > 0)
 }
 else
 {
-	if(strlen($arResult["ErrorMessage"])>0)
+	if($arResult["ErrorMessage"] <> '')
 	{
 		?>
 		<span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br />
@@ -285,7 +285,7 @@ else
 			<br />
 			<input type="submit" name="save" value="<?= GetMessage("SONET_C4_SUBMIT") ?>">
 			<?
-			if ($_REQUEST['backurl'] && strpos($_REQUEST['backurl'], "/") === 0)
+			if ($_REQUEST['backurl'] && mb_strpos($_REQUEST['backurl'], "/") === 0)
 				$backurl = htmlspecialcharsbx(CUtil::addslashes($_REQUEST['backurl']));
 			elseif ($arParams["PAGE_ID"] == "group_subscribe") 
 				$backurl = $arResult["Urls"]["Group"];

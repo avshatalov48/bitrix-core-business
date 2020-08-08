@@ -79,6 +79,21 @@ class WorkflowStateTable extends Entity\DataManager
 		);
 	}
 
+	public static function getIdsByDocument(array $documentId)
+	{
+		$documentId = \CBPHelper::ParseDocumentId($documentId);
+		$rows = static::getList([
+			'select' => ['ID'],
+			'filter' => [
+				'=MODULE_ID' => $documentId[0],
+				'=ENTITY' => $documentId[1],
+				'=DOCUMENT_ID' => $documentId[2]
+			]
+		])->fetchAll();
+
+		return array_column($rows, 'ID');
+	}
+
 	/**
 	 * @param array $data Entity data.
 	 * @throws Main\NotImplementedException

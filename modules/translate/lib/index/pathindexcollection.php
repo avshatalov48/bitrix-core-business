@@ -230,7 +230,7 @@ class PathIndexCollection
 							{
 								continue;
 							}
-							if (substr($name, -4) !== '.php')
+							if (mb_substr($name, -4) !== '.php')
 							{
 								continue;
 							}
@@ -453,7 +453,7 @@ class PathIndexCollection
 			}
 			foreach ($langSettings as $settingPath => $settings)
 			{
-				if (strpos($settingPath, '*') !== false && $settingPath !== '*' && !empty($settings['languages']))
+				if (mb_strpos($settingPath, '*') !== false && $settingPath !== '*' && !empty($settings['languages']))
 				{
 					$settingPath = str_replace('*', '', $settingPath);
 					Index\Internals\PathIndexTable::bulkUpdate(
@@ -468,7 +468,7 @@ class PathIndexCollection
 			}
 			foreach ($langSettings as $settingPath => $settings)
 			{
-				if (substr($settingPath, -4) === '.php' && !empty($settings['languages']))
+				if (mb_substr($settingPath, -4) === '.php' && !empty($settings['languages']))
 				{
 					Index\Internals\PathIndexTable::bulkUpdate(
 						['OBLIGATORY_LANGS' => implode(',', $settings['languages'])],
@@ -556,7 +556,7 @@ class PathIndexCollection
 				'PARENT_ID' => $searchParentId,
 				'DEPTH_LEVEL' => $searchDepthLevel,
 				'IS_LANG' => $isLang ? 'Y' : 'N',
-				'IS_DIR' => (substr($part, -4) === '.php' ? 'N' : 'Y'),
+				'IS_DIR' => (mb_substr($part, -4) === '.php' ? 'N' : 'Y'),
 			);
 
 			$pathInx = Index\Internals\PathIndexTable::add($nodeData);

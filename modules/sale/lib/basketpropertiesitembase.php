@@ -38,14 +38,6 @@ abstract class BasketPropertyItemBase extends Internals\CollectableEntity
 	}
 
 	/**
-	 * @return int
-	 */
-	public function getId()
-	{
-		return $this->getField('ID');
-	}
-
-	/**
 	 * @return string|void
 	 */
 	public static function getRegistryEntity()
@@ -120,9 +112,9 @@ abstract class BasketPropertyItemBase extends Internals\CollectableEntity
 					$fieldName = $value->getName();
 					if (array_key_exists($fieldName, $fields))
 					{
-						if (!empty($fields[$fieldName]) && strlen($fields[$fieldName]) > $value->getSize())
+						if (!empty($fields[$fieldName]) && mb_strlen($fields[$fieldName]) > $value->getSize())
 						{
-							$fields[$fieldName] = substr($fields[$fieldName], 0, $value->getSize());
+							$fields[$fieldName] = mb_substr($fields[$fieldName], 0, $value->getSize());
 						}
 					}
 				}
@@ -235,11 +227,11 @@ abstract class BasketPropertyItemBase extends Internals\CollectableEntity
 				{
 					if (array_key_exists($fieldName, $fields))
 					{
-						if (!empty($fields[$fieldName]) && strlen($fields[$fieldName]) > $value->getSize())
+						if (!empty($fields[$fieldName]) && mb_strlen($fields[$fieldName]) > $value->getSize())
 						{
 							if ($fieldName === 'NAME')
 							{
-								$propertyName = substr($propertyName, 0, 50)."...";
+								$propertyName = mb_substr($propertyName, 0, 50)."...";
 							}
 
 							$result->addError(

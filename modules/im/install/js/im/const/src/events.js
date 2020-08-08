@@ -4,10 +4,10 @@
  *
  * @package bitrix
  * @subpackage im
- * @copyright 2001-2019 Bitrix
+ * @copyright 2001-2020 Bitrix
  */
 
-const EventType = Object.freeze({
+export const EventType = Object.freeze({
 	dialog:
 	{
 		scrollToBottom: 'EventType.dialog.scrollToBottom',
@@ -22,7 +22,3 @@ const EventType = Object.freeze({
 		blur: 'EventType.textarea.blur',
 	}
 });
-
-export {
-	EventType
-};

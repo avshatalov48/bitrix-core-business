@@ -48,6 +48,8 @@ class HttpRequest extends Request
 	 */
 	protected $headers;
 
+	protected $httpHost;
+
 	/**
 	 * Creates new HttpRequest object
 	 *
@@ -339,17 +341,17 @@ class HttpRequest extends Request
 	 */
 	public function getHttpHost()
 	{
-		static $host = null;
-
-		if ($host === null)
+		if ($this->httpHost === null)
 		{
 			//scheme can be anything, it's used only for parsing
 			$url = new Web\Uri("http://".$this->server->getHttpHost());
 			$host = $url->getHost();
 			$host = trim($host, "\t\r\n\0 .");
+
+			$this->httpHost = $host;
 		}
 
-		return $host;
+		return $this->httpHost;
 	}
 
 	public function isHttps()
@@ -409,10 +411,14 @@ class HttpRequest extends Request
 		$headers = [];
 		foreach ($server as $name => $value)
 		{
-			if (substr($name, 0, 5) === 'HTTP_')
+			if (strpos($name, 'HTTP_') === 0)
 			{
 				$headerName = substr($name, 5);
 				$headers[$headerName] = $value;
+			}
+			elseif (in_array($name, ['CONTENT_TYPE', 'CONTENT_LENGTH'], true))
+			{
+				$headers[$name] = $value;
 			}
 		}
 

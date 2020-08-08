@@ -34,7 +34,7 @@ class CBPSetStateActivity
 	{
 		$arErrors = array();
 
-		if (strlen($arTestProperties["TargetStateName"]) <= 0)
+		if ($arTestProperties["TargetStateName"] == '')
 		{
 			$arErrors[] = array("code" => "emptyState", "parameter" => "TargetStateName", "message" => GetMessage('BPSSA_ERROR_EMPTY_STATE'));
 		}
@@ -73,7 +73,7 @@ class CBPSetStateActivity
 
 		$runtime = CBPRuntime::GetRuntime();
 
-		$state = ((strlen($arCurrentValues["target_state_name_1"]) > 0) ? $arCurrentValues["target_state_name_1"] : $arCurrentValues["target_state_name"]);
+		$state = (($arCurrentValues["target_state_name_1"] <> '') ? $arCurrentValues["target_state_name_1"] : $arCurrentValues["target_state_name"]);
 		$cancelCurrentState = isset($arCurrentValues['cancel_current_state']) && $arCurrentValues['cancel_current_state'] == 'Y' ? 'Y' : 'N';
 		$arProperties = array('TargetStateName' => $state, 'CancelCurrentState' => $cancelCurrentState);
 

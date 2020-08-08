@@ -91,6 +91,16 @@ $showPersonalTitle = $showGeneralSettings && $isPersonal;
 					<div class="calendar-field-container calendar-field-container-checkbox">
 						<div class="calendar-field-block">
 							<label type="text" class="calendar-field-checkbox-label">
+								<input id="<?=$id?>_sync_tasks" type="checkbox" class="calendar-field-checkbox">
+								<?=Loc::getMessage('EC_OPTION_SYNC_TASKS')?>
+							</label>
+						</div>
+					</div>
+				</div>
+				<div class="calendar-settings-control calendar-settings-checkbox">
+					<div class="calendar-field-container calendar-field-container-checkbox">
+						<div class="calendar-field-block">
+							<label type="text" class="calendar-field-checkbox-label">
 								<input id="<?=$id?>_show_completed_tasks" type="checkbox" class="calendar-field-checkbox">
 								<?=Loc::getMessage('EC_OPTION_SHOW_COMPLETED_TASKS')?>
 							</label>

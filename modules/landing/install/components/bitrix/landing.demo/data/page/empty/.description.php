@@ -23,5 +23,4 @@ return array(
 		),
 	),
 	'items' => array (),
-	'sort' => 1,
 );

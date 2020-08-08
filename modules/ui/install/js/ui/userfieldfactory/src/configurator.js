@@ -1,5 +1,5 @@
-import {Type, Loc, Tag} from 'main.core';
-import {Field} from './field';
+import {Type, Loc, Tag, Text} from 'main.core';
+import {UserField} from 'ui.userfield';
 import {FieldTypes} from "./fieldtypes";
 import {EnumItem} from './enumitem';
 
@@ -9,16 +9,16 @@ import {EnumItem} from './enumitem';
 export class Configurator
 {
 	constructor(params: {
-		field: Field,
+		userField: UserField,
 		onSave: Function,
 		onCancel: ?Function,
 	})
 	{
 		if(Type.isPlainObject(params))
 		{
-			if(params.field instanceof Field)
+			if(params.userField)
 			{
-				this.field = params.field;
+				this.userField = params.userField;
 			}
 			if(Type.isFunction(params.onSave))
 			{
@@ -37,7 +37,7 @@ export class Configurator
 	{
 		this.node = Tag.render`<div class="ui-userfieldfactory-configurator"></div>`;
 
-		this.labelInput = Tag.render`<input class="ui-ctl-element" type="text" value="${this.field.getTitle()}" />`;
+		this.labelInput = Tag.render`<input class="ui-ctl-element" type="text" value="${Text.encode(this.userField.getTitle())}" />`;
 
 		this.node.appendChild(Tag.render`<div class="ui-userfieldfactory-configurator-block">
 			<div class="ui-userfieldfactory-configurator-title">
@@ -50,7 +50,7 @@ export class Configurator
 			</div>
 		</div>`);
 
-		if(this.field.getTypeId() === FieldTypes.enumeration)
+		if(this.userField.getUserTypeId() === FieldTypes.getTypes().enumeration)
 		{
 			this.node.appendChild(this.renderEnumeration());
 		}
@@ -89,20 +89,28 @@ export class Configurator
 		return this.node;
 	}
 
-	saveField(): Field
+	saveField(): UserField
 	{
 		if(this.timeCheckbox)
 		{
-			this.field.setIsShowTime(this.timeCheckbox.checked);
+			if(this.timeCheckbox.checked)
+			{
+				this.userField.setUserTypeId(FieldTypes.getTypes().datetime);
+			}
+			else
+			{
+				this.userField.setUserTypeId(FieldTypes.getTypes().date);
+			}
 		}
 		if(this.multipleCheckbox)
 		{
-			this.field.setIsMultiple(this.multipleCheckbox.checked);
+			this.userField.setIsMultiple(this.multipleCheckbox.checked);
 		}
-		this.field.setTitle(this.labelInput.value);
-		this.field.saveEnumeration(this.enumItems);
+		this.userField.setTitle(this.labelInput.value);
+		this.userField.setIsMandatory(this.mandatoryCheckbox.checked);
+		this.saveEnumeration(this.userField, this.enumItems);
 
-		return this.field;
+		return this.userField;
 	}
 
 	renderEnumeration(): Element
@@ -121,7 +129,7 @@ export class Configurator
 			${this.enumAddItemContainer}
 		</div>`;
 
-		this.field.getEnumeration().forEach((item) =>
+		this.userField.getEnumeration().forEach((item) =>
 		{
 			this.addEnumInput(item);
 		});
@@ -130,32 +138,32 @@ export class Configurator
 		return this.enumContainer;
 	}
 
-	addEnumInput(item: Object|EnumItem = null): Element
+	addEnumInput(item: ?{
+		value: string,
+		id: ?number,
+	}): Element
 	{
-		if(!(item instanceof EnumItem))
+		let enumItem;
+		if(Type.isPlainObject(item))
 		{
-			if(Type.isPlainObject(item))
-			{
-				item = new EnumItem(item.VALUE);
-			}
-			else
-			{
-				item = new EnumItem();
-			}
+			enumItem = new EnumItem(item.value, item.id);
+		}
+		else
+		{
+			enumItem = new EnumItem();
 		}
 
 		const node = Tag.render`<div style="margin-bottom: 10px;" class="ui-ctl ui-ctl-textbox ui-ctl-w100 ui-ctl-row">
-			<input class="ui-ctl-element" type="text" value="${item.getValue()}">
-			<div class="ui-userfieldfactory-configurator-remove-enum" onclick="${(event) =>
-		{
-			event.preventDefault();
-			this.deleteEnumItem(item);
-		}}"></div>
+			<input class="ui-ctl-element" type="text" value="${enumItem.getValue()}">
+			<div class="ui-userfieldfactory-configurator-remove-enum" onclick="${(event) => {
+				event.preventDefault();
+				this.deleteEnumItem(enumItem);
+			}}"></div>
 		</div>`;
 
-		item.setNode(node);
+		enumItem.setNode(node);
 
-		this.enumItems.add(item);
+		this.enumItems.add(enumItem);
 
 		this.enumItemsContainer.appendChild(node);
 
@@ -172,10 +180,19 @@ export class Configurator
 	{
 		this.optionsContainer = Tag.render`<div class="ui-userfieldfactory-configurator-block"></div>`;
 
-		if(!this.field.isSaved() && this.field.isDateField())
+		this.mandatoryCheckbox = Tag.render`<input class="ui-ctl-element" type="checkbox">`;
+		this.mandatoryCheckbox.checked = (this.userField.isMandatory());
+		this.optionsContainer.appendChild(Tag.render`<div>
+				<label class="ui-ctl ui-ctl-checkbox ui-ctl-xs">
+					${this.mandatoryCheckbox}
+					<div class="ui-ctl-label-text">${Loc.getMessage('UI_USERFIELD_FACTORY_FIELD_REQUIRED')}</div>
+				</label>
+			</div>`);
+
+		if(!this.userField.isSaved() && (this.userField.getUserTypeId() === FieldTypes.getTypes().date || this.userField.getUserTypeId() === FieldTypes.getTypes().datetime))
 		{
 			this.timeCheckbox = Tag.render`<input class="ui-ctl-element" type="checkbox">`;
-			this.timeCheckbox.checked = this.field.isShowTime();
+			this.timeCheckbox.checked = (this.userField.getUserTypeId() === FieldTypes.getTypes().datetime);
 			this.optionsContainer.appendChild(Tag.render`<div>
 				<label class="ui-ctl ui-ctl-checkbox ui-ctl-xs">
 					${this.timeCheckbox}
@@ -184,10 +201,10 @@ export class Configurator
 			</div>`);
 		}
 
-		if(!this.field.isSaved() && this.field.getTypeId() !== FieldTypes.boolean)
+		if(!this.userField.isSaved() && this.userField.getUserTypeId() !== FieldTypes.getTypes().boolean)
 		{
 			this.multipleCheckbox = Tag.render`<input class="ui-ctl-element" type="checkbox">`;
-			this.multipleCheckbox.checked = this.field.isMultiple();
+			this.multipleCheckbox.checked = this.userField.isMultiple();
 			this.optionsContainer.appendChild(Tag.render`<div>
 				<label class="ui-ctl ui-ctl-checkbox ui-ctl-xs">
 					${this.multipleCheckbox}
@@ -197,5 +214,24 @@ export class Configurator
 		}
 
 		return this.optionsContainer;
+	}
+
+	saveEnumeration(userField: UserField, enumItems: EnumItem[])
+	{
+		const items = [];
+		let sort = 100;
+
+		enumItems.forEach((item) =>
+		{
+			items.push({
+				value: item.getValue(),
+				sort: sort,
+				id: item.getId(),
+			});
+
+			sort += 100;
+		});
+
+		userField.setEnumeration(items);
 	}
 }

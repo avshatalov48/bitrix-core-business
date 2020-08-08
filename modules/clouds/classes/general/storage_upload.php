@@ -1,4 +1,4 @@
-<?
+<?php
 /*.
 	require_module 'standard';
 	require_module 'pcre';
@@ -24,7 +24,7 @@ class CCloudStorageUpload
 	function __construct($filePath)
 	{
 		$this->_filePath = $filePath;
-		$this->_ID = "1".substr(md5($filePath), 1);
+		$this->_ID = "1".mb_substr(md5($filePath), 1);
 	}
 
 	/**
@@ -246,13 +246,10 @@ class CCloudStorageUpload
 				$arUploadInfo
 			);
 
-			if($bSuccess)
-				$this->Delete();
-
-			$this->DeleteOld();
-
 			if ($bSuccess)
 			{
+				$this->Delete();
+
 				if ($obBucket->getQueueFlag())
 				{
 					CCloudFailover::queueCopy($obBucket, $this->_filePath);
@@ -373,6 +370,43 @@ class CCloudStorageUpload
 		unset($this->_cache);
 		return true;
 	}
-	
+
+	public static function CleanUp($ID = '')
+	{
+		global $DB;
+		if ($ID)
+		{
+			$rs = $DB->Query("
+				SELECT ID, BUCKET_ID, NEXT_STEP
+				FROM b_clouds_file_upload
+				WHERE ID = '".$DB->ForSql($ID)."'
+			");
+		}
+		else
+		{
+			$days = COption::GetOptionInt("clouds", "multipart_upload_keep_days");
+			if ($days > 0)
+			{
+				$seconds = $days * 3600 * 24;
+				$delete_time = ConvertTimeStamp(time() - $seconds, 'FULL');
+				$rs = $DB->Query("
+					SELECT ID, BUCKET_ID, NEXT_STEP
+					FROM b_clouds_file_upload
+					WHERE TIMESTAMP_X < ".$DB->CharToDateFunction($delete_time)
+				);
+			}
+		}
+
+		while ($arBucket = $rs->Fetch())
+		{
+			$obBucket = new CCloudStorageBucket(intval($arBucket["BUCKET_ID"]));
+			if ($obBucket->Init())
+			{
+				$arUploadInfo = unserialize($arBucket["NEXT_STEP"]);
+				$service = $obBucket->GetService();
+				$service->CancelMultipartUpload($obBucket->GetBucketArray(), $arUploadInfo);
+			}
+			$DB->Query("DELETE FROM b_clouds_file_upload WHERE ID = '".$DB->ForSql($arBucket["ID"])."'");
+		}
+	}
 }
-?>

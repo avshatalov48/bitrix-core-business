@@ -751,13 +751,12 @@ class CSiteCheckerTest
 		if (!$res = $this->ConnectToHost())
 			return false;
 
-		$compression = IsModuleInstalled('compression');
 		$strRes = GetHttpResponse($res, $strRequest, $strHeaders);
 
 		if (preg_match('#gzip|deflate#mi', $strHeaders) && CUtil::BinStrlen($strRes) < 64 * 1024) // comression not supported by server
-			return $compression ? $this->Result(false, GetMessage("MAIN_SC_ENABLED")) : $this->Result(true, GetMessage("MAIN_SC_ENABLED_MOD"));
+			return $this->Result(true, GetMessage("MAIN_SC_ENABLED_MOD"));
 		else
-			return $compression ? $this->Result(false, GetMessage("MAIN_SC_COMP_DISABLED")) : $this->Result(false, GetMessage("MAIN_SC_COMP_DISABLED_MOD"));
+			return $this->Result(false, GetMessage("MAIN_SC_COMP_DISABLED_MOD"));
 	}
 
 	function check_socket_ssl()
@@ -2519,7 +2518,7 @@ class CSiteCheckerTest
 				}
 			}
 
-			if (version_compare($this->db_ver, '5.6', '>=') && file_exists($file = str_replace('/install.sql', '/install_ft.sql', $file)))
+			if (file_exists($file = str_replace('/install.sql', '/install_ft.sql', $file)))
 			{
 				if (false === ($query = file_get_contents($file)))
 					return false;
@@ -2782,24 +2781,6 @@ class CSiteCheckerTest
 		$_SERVER['HTTP_USER_AGENT'] = $HTTP_USER_AGENT;
 
 		return "CSiteCheckerTest::CommonTest();";
-	}
-
-	function enableFullTextIndex($table, $field)
-	{
-		$name = '~ft_'.strtolower($table);
-		global $DB;
-		$options = array();
-		$f = $DB->Query('SELECT * FROM b_option WHERE MODULE_ID="main" AND NAME="'.$name.'"')->Fetch();
-		$optionString = $f['VALUE'];
-		if($optionString <> '')
-		{
-			$options = unserialize($optionString);
-		}
-		$options[strtoupper($field)] = true;
-		if ($f)
-			$DB->Query('UPDATE b_option SET VALUE="'.$DB->ForSQL(serialize($options)).'" WHERE MODULE_ID="main" AND NAME="'.$name.'"');
-		else
-			$DB->Query('INSERT INTO b_option (MODULE_ID, NAME, VALUE) VALUES("main", "'.$name.'", "'.$DB->ForSQL(serialize($options)).'")');
 	}
 }
 

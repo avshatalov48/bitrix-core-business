@@ -5,9 +5,9 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 }
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Web\Json;
 use Bitrix\Sender\Internals\PrettyDate;
-use Bitrix\Main\UI\Extension;
 
 Loc::loadMessages(__FILE__);
 
@@ -20,6 +20,7 @@ $containerId = 'bx-sender-letter-edit';
 Extension::load("ui.buttons");
 Extension::load("ui.buttons.icons");
 Extension::load("ui.notification");
+CJSCore::Init(array('admin_interface'));
 ?>
 <script type="text/javascript">
 	BX.ready(function () {
@@ -36,6 +37,10 @@ Extension::load("ui.notification");
 			'mess' => array(
 				'patternTitle' => Loc::getMessage('SENDER_COMP_TMPL_LETTER_PATTERN_TITLE'),
 				'name' => $arResult['MESSAGE_NAME'],
+				'applyClose' => $component->getLocMessage('SENDER_LETTER_APPLY_CLOSE'),
+				'applyCloseTitle' => $component->getLocMessage('SENDER_LETTER_APPLY_CLOSE_TITLE'),
+				'applyYes' => $component->getLocMessage('SENDER_LETTER_APPLY_YES'),
+				'applyCancel' => $component->getLocMessage('SENDER_LETTER_APPLY_CANCEL'),
 				'outsideSaveSuccess' => $component->getLocMessage(
 					'SENDER_LETTER_EDIT_OUTSIDE_ADD_SUCCESS',
 					['%path%' => $arParams['PATH_TO_LIST']]
@@ -116,7 +121,7 @@ Extension::load("ui.notification");
 			<div class="bx-sender-letter-field sender-letter-edit-row" style="<?=($arParams['IFRAME'] == 'Y' ? 'display: none;' : '')?>">
 				<div class="bx-sender-caption sender-letter-edit-title"><?=Loc::getMessage('SENDER_LETTER_EDIT_FIELD_NAME')?>:</div>
 				<div class="bx-sender-value">
-					<input data-role="letter-title" type="text" name="TITLE" value="<?=htmlspecialcharsbx($arResult['ROW']['TITLE'])?>" class="bx-sender-letter-form-control bx-sender-letter-field-input">
+					<input data-role="letter-title" type="text" name="TITLE" value="<?=htmlspecialcharsbx($arResult['ROW']['TITLE'])?>" class="bx-sender-letter-form-control bx-sender-letter-field-input" <?if(!$arParams['CAN_EDIT']):?>disabled="disabled"<?endif;?>>
 				</div>
 			</div>
 
@@ -173,6 +178,7 @@ Extension::load("ui.notification");
 					"MESSAGE" => $arResult['MESSAGE'],
 					"TEMPLATE_TYPE" => $arResult['ROW']['TEMPLATE_TYPE'],
 					"TEMPLATE_ID" => $arResult['ROW']['TEMPLATE_ID'],
+					"CAN_EDIT" => $arParams['CAN_EDIT'],
 				),
 				false
 			);

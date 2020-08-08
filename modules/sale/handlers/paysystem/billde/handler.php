@@ -8,9 +8,13 @@ use Bitrix\Sale;
 use Bitrix\Main\Loader;
 use Bitrix\Sale\PaySystem;
 
-Loader::registerAutoLoadClasses('sale', array(PaySystem\Manager::getClassNameFromPath('Bill') => 'handlers/paysystem/bill/handler.php'));
+PaySystem\Manager::includeHandler('Bill');
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class BillDeHandler
+ * @package Sale\Handlers\PaySystem
+ */
 class BillDeHandler extends BillHandler
 {
 	/**

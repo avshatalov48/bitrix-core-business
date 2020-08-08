@@ -1,4 +1,6 @@
-(function (main_core, landing_sliderhacks) {
+this.BX = this.BX || {};
+this.BX.Landing = this.BX.Landing || {};
+(function (exports,main_core,landing_sliderhacks) {
 	'use strict';
 
 	main_core.Event.bind(document, 'click', function (event) {
@@ -18,6 +20,11 @@
 	      var urlParams = main_core.Dom.attr(pseudoLink, 'data-pseudo-url');
 
 	      if (main_core.Text.toBoolean(urlParams.enabled) && main_core.Type.isStringFilled(urlParams.href)) {
+	        if (urlParams.query) {
+	          urlParams.href += urlParams.href.indexOf('?') === -1 ? '?' : '&';
+	          urlParams.href += urlParams.query;
+	        }
+
 	        if (urlParams.target === '_self') {
 	          event.stopImmediatePropagation();
 	          void landing_sliderhacks.SliderHacks.reloadSlider(urlParams.href);
@@ -29,5 +36,5 @@
 	  }
 	});
 
-}(BX, BX.Landing));
+}((this.BX.Landing.Wiki = this.BX.Landing.Wiki || {}),BX,BX.Landing));
 //# sourceMappingURL=public.bundle.js.map

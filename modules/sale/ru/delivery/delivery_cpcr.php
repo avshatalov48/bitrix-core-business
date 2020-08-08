@@ -351,7 +351,7 @@ class CDeliveryCPCR
 					DELIVERY_CPCR_SERVER_METHOD,
 					DELIVERY_CPCR_SERVER,
 					DELIVERY_CPCR_SERVER_PORT,
-					$query_page . (DELIVERY_CPCR_SERVER_METHOD == 'GET' ? ((strpos($query_page, '?') === false ? '?' : '&') . $query_string) : ''),
+					$query_page . (DELIVERY_CPCR_SERVER_METHOD == 'GET' ? ((mb_strpos($query_page, '?') === false ? '?' : '&') . $query_string) : ''),
 					DELIVERY_CPCR_SERVER_METHOD == 'POST' ? $query_string : false
 					//,
 					// "",
@@ -366,7 +366,7 @@ class CDeliveryCPCR
 			CDeliveryCPCR::__Write2Log($error_number.": ".$error_text);
 			CDeliveryCPCR::__Write2Log($data);
 
-			if (strpos($data, "<?xml") === false)
+			if (mb_strpos($data, "<?xml") === false)
 			{
 				return array(
 					"RESULT" => "ERROR",

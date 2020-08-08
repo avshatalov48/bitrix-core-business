@@ -9,7 +9,7 @@ use \Bitrix\Main\Localization\Loc;
 return [
 	'old_id' => '229',
 	'code' => 'wiki-light/category',
-	//'name' => Loc::getMessage("LANDING_DEMO_WIKI_LIGHT_CATEGORY_TITLE"),
+	'name' => Loc::getMessage("LANDING_DEMO_WIKI_LIGHT_CATEGORY_TITLE"),
 	'description' => Loc::getMessage("LANDING_DEMO_WIKI_LIGHT_CATEGORY_DESCRIPTION"),
 	'preview' => '',
 	'preview2x' => '',
@@ -22,8 +22,6 @@ return [
 		'TITLE' => Loc::getMessage("LANDING_DEMO_WIKI_LIGHT_CATEGORY_TITLE"),
 		'RULE' => null,
 		'ADDITIONAL_FIELDS' => [
-			'THEME_CODE' => '3corporate',
-			'THEME_CODE_TYPO' => 'app',
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'METAMAIN_USE' => 'N',
@@ -50,31 +48,37 @@ return [
 	'items' => [
 		'#block3524' => [
 			'old_id' => 3524,
-			'code' => '27.4.one_col_fix_text',
+			'code' => '27.2.one_col_full_title',
 			'access' => 'X',
 			'nodes' => [
-				'.landing-block-node-text' => [
-					0 => '<span>Tasks and Projects<br /></span>',
+				'.landing-block-node-title' => [
+					0 => '<span style="font-weight: 700;">Tasks and Projects<br /></span>',
 				],
 			],
 			'style' => [
 				'#wrapper' => [
-					0 => 'landing-block js-animation fadeInUp g-pt-50 g-pb-auto',
+					0 => 'landing-block js-animation fadeInUp g-pl-0 g-pb-auto container g-max-width-container g-pt-50',
 				],
-				'.landing-block-node-text' => [
-					0 => 'landing-block-node-text g-pb-1 container text-left g-font-montserrat font-weight-bold g-font-size-30',
+				'.landing-block-node-title' => [
+					0 => 'landing-block-node-title g-font-weight-400 g-my-0 text-left g-font-size-40',
 				],
 			],
 		],
 		'#block3525' => [
 			'old_id' => 3525,
-			'code' => '59.2.search_sidebar',
+			'code' => '27.4.one_col_fix_text',
 			'access' => 'X',
 			'nodes' => [
+				'.landing-block-node-text' => [
+					0 => '<p>New search & filter options are available above each Kanban board. Switch between default tasks statuses or apply filters to your board. Smart Kanban - the system will automatically show you the last project you have visited when you open Kanban view in Tasks.</p>',
+				],
 			],
 			'style' => [
 				'#wrapper' => [
-					0 => 'landing-block g-pt-15 g-pb-15 g-pl-15 g-pr-15',
+					0 => 'landing-block container js-animation fadeInUp g-pl-auto g-pb-9 g-pr-65 g-pt-25',
+				],
+				'.landing-block-node-text' => [
+					0 => 'landing-block-node-text g-pb-1 text-left g-color-black g-line-height-1_8 g-font-size-18',
 				],
 			],
 		],
@@ -92,7 +96,7 @@ return [
 					0 => 'landing-block js-animation fadeInUp g-pl-0 g-pb-auto container g-max-width-container g-pt-50',
 				],
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title g-font-weight-400 g-my-0 text-left g-font-montserrat g-font-size-30',
+					0 => 'landing-block-node-title g-font-weight-400 g-my-0 text-left g-font-size-30',
 				],
 			],
 		],
@@ -129,6 +133,17 @@ return [
 					1 => '<p>You can record video announcements right in Bitrix24 Activity Stream & share it with your team.</p>',
 					2 => '<p>Emoji are ideograms used in electronic messages and web pages to express an idea or an emotion.</p>',
 				],
+				'.landing-block-node-button' => [
+					0 => [
+						'href' => '#landing230',
+					],
+					1 => [
+						'href' => '#landing230',
+					],
+					2 => [
+						'href' => '#landing230',
+					],
+				],
 			],
 			'style' => [
 				'#wrapper' => [
@@ -150,9 +165,9 @@ return [
 					2 => 'landing-block-node-title g-font-size-20 g-color-blue',
 				],
 				'.landing-block-node-text' => [
-					0 => 'landing-block-node-text g-color-black-opacity-0_3',
-					1 => 'landing-block-node-text g-color-black-opacity-0_3',
-					2 => 'landing-block-node-text g-color-black-opacity-0_3',
+					0 => 'landing-block-node-text g-color-black',
+					1 => 'landing-block-node-text g-color-black',
+					2 => 'landing-block-node-text g-color-black',
 				],
 				'.landing-block-node-button' => [
 					0 => 'landing-block-node-button btn u-btn-outline-primary g-font-size-11 text-uppercase',
@@ -175,7 +190,7 @@ return [
 					0 => 'landing-block js-animation fadeInUp g-pl-0 g-pb-auto container g-max-width-container g-pt-50',
 				],
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title g-font-weight-400 g-my-0 text-left g-font-montserrat g-font-size-30',
+					0 => 'landing-block-node-title g-font-weight-400 g-my-0 text-left g-font-size-30',
 				],
 			],
 		],
@@ -212,6 +227,17 @@ return [
 					1 => '<p>You can record video announcements right in Bitrix24 Activity Stream & share it with your team.</p>',
 					2 => '<p>Emoji are ideograms used in electronic messages and web pages to express an idea or an emotion.</p>',
 				],
+				'.landing-block-node-button' => [
+					0 => [
+						'href' => '#landing230',
+					],
+					1 => [
+						'href' => '#landing230',
+					],
+					2 => [
+						'href' => '#landing230',
+					],
+				],
 			],
 			'style' => [
 				'#wrapper' => [
@@ -233,9 +259,9 @@ return [
 					2 => 'landing-block-node-title g-font-size-20 g-color-blue',
 				],
 				'.landing-block-node-text' => [
-					0 => 'landing-block-node-text g-color-black-opacity-0_3',
-					1 => 'landing-block-node-text g-color-black-opacity-0_3',
-					2 => 'landing-block-node-text g-color-black-opacity-0_3',
+					0 => 'landing-block-node-text g-color-black',
+					1 => 'landing-block-node-text g-color-black',
+					2 => 'landing-block-node-text g-color-black',
 				],
 				'.landing-block-node-button' => [
 					0 => 'landing-block-node-button btn u-btn-outline-primary g-font-size-11 text-uppercase',

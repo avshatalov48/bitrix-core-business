@@ -5,10 +5,10 @@ if(!CBXFeatures::IsFeatureEnabled('SaleAffiliate'))
 
 $arParas["REDIRECT_PAGE"] = trim($arParams["REDIRECT_PAGE"]);
 
-if (strlen($arParams["SET_TITLE"]) <= 0) $arParams["SET_TITLE"] = "Y";
+if ($arParams["SET_TITLE"] == '') $arParams["SET_TITLE"] = "Y";
 
 if (
-	strlen($arParams["REDIRECT_PAGE"]) <= 0
+	$arParams["REDIRECT_PAGE"] == ''
 	|| preg_match('/^([a-z0-9]+):\\/\\//', $arParams["REDIRECT_PAGE"])
 )
 	$arParams["REDIRECT_PAGE"] = "index.php";
@@ -28,54 +28,54 @@ if (CModule::IncludeModule("sale"))
 			if ($_REQUEST["do_authorize"] == "Y")
 			{
 				$USER_LOGIN = $_REQUEST["USER_LOGIN"];
-				if (strlen($USER_LOGIN) <= 0)
+				if ($USER_LOGIN == '')
 					$errorMessage .= GetMessage("SPCR1_ON_LOGIN").".<br />";
 
 				$USER_PASSWORD = $_REQUEST["USER_PASSWORD"];
 
-				if (strlen($errorMessage) <= 0)
+				if ($errorMessage == '')
 				{
 					$arAuthResult = $GLOBALS["USER"]->Login($USER_LOGIN, $USER_PASSWORD, "N");
 					if ($arAuthResult != False && $arAuthResult["TYPE"] == "ERROR")
-						$errorMessage .= GetMessage("SPCR1_ERR_REG").((strlen($arAuthResult["MESSAGE"]) > 0) ? ": ".$arAuthResult["MESSAGE"] : ".<br />" );
+						$errorMessage .= GetMessage("SPCR1_ERR_REG").(($arAuthResult["MESSAGE"] <> '') ? ": ".$arAuthResult["MESSAGE"] : ".<br />" );
 				}
 			}
 			elseif ($_REQUEST["do_register"] == "Y")
 			{
 				$NEW_NAME = $_REQUEST["NEW_NAME"];
-				if (strlen($NEW_NAME) <= 0)
+				if ($NEW_NAME == '')
 					$errorMessage .= GetMessage("SPCR1_NO_NAME").".<br />";
 
 				$NEW_LAST_NAME = $_REQUEST["NEW_LAST_NAME"];
-				if (strlen($NEW_LAST_NAME) <= 0)
+				if ($NEW_LAST_NAME == '')
 					$errorMessage .= GetMessage("SPCR1_NO_LASTNAME").".<br />";
 
 				$NEW_EMAIL = $_REQUEST["NEW_EMAIL"];
-				if (strlen($NEW_EMAIL) <= 0)
+				if ($NEW_EMAIL == '')
 					$errorMessage .= GetMessage("SPCR1_NO_EMAIL").".<br />";
 				elseif (!check_email($NEW_EMAIL))
 					$errorMessage .= GetMessage("SPCR1_BAD_EMAIL").".<br />";
 
 				$NEW_LOGIN = $_REQUEST["NEW_LOGIN"];
-				if (strlen($NEW_LOGIN) <= 0)
+				if ($NEW_LOGIN == '')
 					$errorMessage .= GetMessage("SPCR1_NO_LOGIN").".<br />";
 
 				$NEW_PASSWORD = $_REQUEST["NEW_PASSWORD"];
-				if (strlen($NEW_PASSWORD) <= 0)
+				if ($NEW_PASSWORD == '')
 					$errorMessage .= GetMessage("SPCR1_NO_PASSWORD").".<br />";
 
 				$NEW_PASSWORD_CONFIRM = $_REQUEST["NEW_PASSWORD_CONFIRM"];
-				if (strlen($NEW_PASSWORD_CONFIRM) <= 0)
+				if ($NEW_PASSWORD_CONFIRM == '')
 					$errorMessage .= GetMessage("SPCR1_NO_PASSWORD_CONF").".<br />";
 
-				if (strlen($NEW_PASSWORD) > 0 && strlen($NEW_PASSWORD_CONFIRM) > 0 && $NEW_PASSWORD != $NEW_PASSWORD_CONFIRM)
+				if ($NEW_PASSWORD <> '' && $NEW_PASSWORD_CONFIRM <> '' && $NEW_PASSWORD != $NEW_PASSWORD_CONFIRM)
 					$errorMessage .= GetMessage("SPCR1_NO_CONF").".<br />";
 
-				if (strlen($errorMessage) <= 0)
+				if ($errorMessage == '')
 				{
 					$arAuthResult = $GLOBALS["USER"]->Register($NEW_LOGIN, $NEW_NAME, $NEW_LAST_NAME, $NEW_PASSWORD, $NEW_PASSWORD_CONFIRM, $NEW_EMAIL, LANG, $_REQUEST["captcha_word"], $_REQUEST["captcha_sid"]);
 					if ($arAuthResult != False && $arAuthResult["TYPE"] == "ERROR")
-						$errorMessage .= GetMessage("SPCR1_ERR_REGISTER").((strlen($arAuthResult["MESSAGE"]) > 0) ? ": ".$arAuthResult["MESSAGE"] : ".<br />" );
+						$errorMessage .= GetMessage("SPCR1_ERR_REGISTER").(($arAuthResult["MESSAGE"] <> '') ? ": ".$arAuthResult["MESSAGE"] : ".<br />" );
 					else
 						if ($GLOBALS["USER"]->IsAuthorized())
 							CUser::SendUserInfo($GLOBALS["USER"]->GetID(), SITE_ID, GetMessage("INFO_REQ"), true);
@@ -98,7 +98,7 @@ if (CModule::IncludeModule("sale"))
 		$dbAffiliate = CSaleAffiliate::GetList(
 			array("TRANSACT_DATE" => "ASC"),
 			array(
-				"USER_ID" => IntVal($GLOBALS["USER"]->GetID()),
+				"USER_ID" => intval($GLOBALS["USER"]->GetID()),
 				"SITE_ID" => SITE_ID
 			),
 			false,
@@ -141,18 +141,18 @@ if (CModule::IncludeModule("sale"))
 				$arResult["agree_agreement"] = $_REQUEST["agree_agreement"] == "Y" ? "Y" : "N";
 
 				$AFF_SITE = Trim($_REQUEST["AFF_SITE"]);
-				if (StrLen($AFF_SITE) <= 0)
+				if ($AFF_SITE == '')
 					$errorMessage .= GetMessage("SPCR1_NO_SITE").".<br />";
 
 				$arResult["AFF_SITE"] = htmlspecialcharsbx($AFF_SITE);
 
 				$AFF_DESCRIPTION = Trim($_REQUEST["AFF_DESCRIPTION"]);
-				if (StrLen($AFF_DESCRIPTION) <= 0)
+				if ($AFF_DESCRIPTION == '')
 					$errorMessage .= GetMessage("SPCR1_NO_DESCR").".<br />";
 
 				$arResult["AFF_DESCRIPTION"] = htmlspecialcharsbx($AFF_DESCRIPTION);
 
-				if (StrLen($errorMessage) <= 0)
+				if ($errorMessage == '')
 				{
 					$dbPlan = CSaleAffiliatePlan::GetList(
 						array("MIN_PLAN_VALUE" => "ASC"),
@@ -170,11 +170,11 @@ if (CModule::IncludeModule("sale"))
 						$errorMessage .= GetMessage("SPCR1_NO_PLANS").".<br />";
 				}
 
-				if (StrLen($errorMessage) <= 0)
+				if ($errorMessage == '')
 				{
 					$arFields = array(
 						"SITE_ID" => SITE_ID,
-						"USER_ID" => IntVal($GLOBALS["USER"]->GetID()),
+						"USER_ID" => intval($GLOBALS["USER"]->GetID()),
 						"PLAN_ID" => $arPlan["ID"],
 						"ACTIVE" => ((DoubleVal($arPlan["MIN_PLAN_VALUE"]) > 0) ? "N" : "Y"),
 						"DATE_CREATE" => date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL")), time()+CTimeZone::GetOffset()),
@@ -237,7 +237,7 @@ if (CModule::IncludeModule("sale"))
 	}
 
 	$arResult["REDIRECT_PAGE"] = htmlspecialcharsbx($arParams["REDIRECT_PAGE"]);
-	$arResult["DEFAULT_USER_LOGIN"] = (strlen($_REQUEST["USER_LOGIN"]) > 0) ? htmlspecialcharsbx($_REQUEST["USER_LOGIN"]) : htmlspecialcharsbx($arResult["DEFAULT_USER_LOGIN"]);
+	$arResult["DEFAULT_USER_LOGIN"] = ($_REQUEST["USER_LOGIN"] <> '') ? htmlspecialcharsbx($_REQUEST["USER_LOGIN"]) : htmlspecialcharsbx($arResult["DEFAULT_USER_LOGIN"]);
 
 	$this->IncludeComponentTemplate();
 }

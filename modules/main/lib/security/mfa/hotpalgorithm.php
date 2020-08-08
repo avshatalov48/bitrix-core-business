@@ -23,17 +23,9 @@ class HotpAlgorithm extends OtpAlgorithm
 	}
 
 	/**
-	 * Verify provided input
-	 *
-	 * @param string $input Input received from user.
-	 * @param int|string $params Synchronized user params, saved for this algorithm (see getSyncParameters).
-	 * @throws ArgumentOutOfRangeException
-	 * @return array [
-	 *  bool isSuccess (Valid input or not),
-	 *  string newParams (Updated user params for this OtpAlgorithm)
-	 * ]
+	 * @inheritDoc
 	 */
-	public function verify($input, $params = 0)
+	public function verify($input, $params = null)
 	{
 		$input = (string) $input;
 
@@ -60,13 +52,7 @@ class HotpAlgorithm extends OtpAlgorithm
 	}
 
 	/**
-	 * Generate provision URI according to KeyUriFormat
-	 *
-	 * @link https://code.google.com/p/google-authenticator/wiki/KeyUriFormat
-	 * @param string $label User label.
-	 * @param array $opts Additional URI parameters, e.g. ['image' => 'http://example.com/my_logo.png'] .
-	 * @throws \Bitrix\Main\ArgumentTypeException
-	 * @return string
+	 * @inheritDoc
 	 */
 	public function generateUri($label, array $opts = array())
 	{
@@ -75,13 +61,7 @@ class HotpAlgorithm extends OtpAlgorithm
 	}
 
 	/**
-	 * Return synchronized user params for provided inputs
-	 *
-	 * @param string $inputA First code.
-	 * @param string $inputB Second code.
-	 * @throws OtpException
-	 * @throws ArgumentOutOfRangeException
-	 * @return string
+	 * @inheritDoc
 	 */
 	public function getSyncParameters($inputA, $inputB)
 	{

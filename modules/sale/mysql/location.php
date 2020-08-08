@@ -9,7 +9,7 @@ class CSaleLocation extends CAllSaleLocation
 	{
 		global $DB;
 
-		if (is_string($arGroupBy) && strlen($arGroupBy) == 2)
+		if (is_string($arGroupBy) && mb_strlen($arGroupBy) == 2)
 		{
 			$arFilter["LID"] = $arGroupBy;
 			$arGroupBy = false;
@@ -44,9 +44,9 @@ class CSaleLocation extends CAllSaleLocation
 				"SELECT ".$arSqls["SELECT"]." ".
 				"FROM b_sale_location L ".
 				"	".$arSqls["FROM"]." ";
-			if (strlen($arSqls["WHERE"]) > 0)
+			if ($arSqls["WHERE"] <> '')
 				$strSql .= "WHERE ".$arSqls["WHERE"]." ";
-			if (strlen($arSqls["GROUPBY"]) > 0)
+			if ($arSqls["GROUPBY"] <> '')
 				$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
@@ -62,29 +62,29 @@ class CSaleLocation extends CAllSaleLocation
 			"SELECT ".$arSqls["SELECT"]." ".
 			"FROM b_sale_location L ".
 			"	".$arSqls["FROM"]." ";
-		if (strlen($arSqls["WHERE"]) > 0)
+		if ($arSqls["WHERE"] <> '')
 			$strSql .= "WHERE ".$arSqls["WHERE"]." ";
-		if (strlen($arSqls["GROUPBY"]) > 0)
+		if ($arSqls["GROUPBY"] <> '')
 			$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
-		if (strlen($arSqls["ORDERBY"]) > 0)
+		if ($arSqls["ORDERBY"] <> '')
 			$strSql .= "ORDER BY ".$arSqls["ORDERBY"]." ";
 
-		if (is_array($arNavStartParams) && IntVal($arNavStartParams["nTopCount"])<=0)
+		if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"])<=0)
 		{
 			$strSql_tmp =
 				"SELECT COUNT('x') as CNT ".
 				"FROM b_sale_location L ".
 				"	".$arSqls["FROM"]." ";
-			if (strlen($arSqls["WHERE"]) > 0)
+			if ($arSqls["WHERE"] <> '')
 				$strSql_tmp .= "WHERE ".$arSqls["WHERE"]." ";
-			if (strlen($arSqls["GROUPBY"]) > 0)
+			if ($arSqls["GROUPBY"] <> '')
 				$strSql_tmp .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
 			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$cnt = 0;
-			if (strlen($arSqls["GROUPBY"]) <= 0)
+			if ($arSqls["GROUPBY"] == '')
 			{
 				if ($arRes = $dbRes->Fetch())
 					$cnt = $arRes["CNT"];
@@ -103,8 +103,8 @@ class CSaleLocation extends CAllSaleLocation
 		}
 		else
 		{
-			if (is_array($arNavStartParams) && IntVal($arNavStartParams["nTopCount"])>0)
-				$strSql .= "LIMIT ".IntVal($arNavStartParams["nTopCount"]);
+			if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"])>0)
+				$strSql .= "LIMIT ".intval($arNavStartParams["nTopCount"]);
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
@@ -121,7 +121,7 @@ class CSaleLocation extends CAllSaleLocation
 
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		/*$strSql =
 			"SELECT L.ID, L.COUNTRY_ID, L.CITY_ID, L.SORT, ".
 			"	LC.NAME as COUNTRY_NAME_ORIG, LC.SHORT_NAME as COUNTRY_SHORT_NAME, LCL.NAME as COUNTRY_NAME_LANG, ".
@@ -177,12 +177,12 @@ class CSaleLocation extends CAllSaleLocation
 		for($i=0; $i < $countFilterKey; $i++)
 		{
 			$val = $DB->ForSql($arFilter[$filter_keys[$i]]);
-			if (strlen($val)<=0) continue;
+			if ($val == '') continue;
 
 			$key = $filter_keys[$i];
 			if ($key[0]=="!")
 			{
-				$key = substr($key, 1);
+				$key = mb_substr($key, 1);
 				$bInvert = true;
 			}
 			else
@@ -191,7 +191,7 @@ class CSaleLocation extends CAllSaleLocation
 			switch(ToUpper($key))
 			{
 			case "ID":
-				$arSqlSearch[] = "C.ID ".($bInvert?"<>":"=")." ".IntVal($val)." ";
+				$arSqlSearch[] = "C.ID ".($bInvert?"<>":"=")." ".intval($val)." ";
 				break;
 			case "NAME":
 				$arSqlSearch[] = "C.NAME ".($bInvert?"<>":"=")." '".$val."' ";
@@ -213,7 +213,7 @@ class CSaleLocation extends CAllSaleLocation
 			"FROM b_sale_location_country C ".
 			"	LEFT JOIN b_sale_location_country_lang CL ON (C.ID = CL.COUNTRY_ID AND CL.LID = '".$DB->ForSql($strLang, 2)."') ".
 			(
-				strlen($arOrder["SORT"]) > 0
+				$arOrder["SORT"] <> ''
 				?
 				"	LEFT JOIN b_sale_location SL ON (SL.COUNTRY_ID = C.ID AND (SL.CITY_ID = 0 OR ISNULL(SL.CITY_ID))) "
 				:
@@ -284,12 +284,12 @@ class CSaleLocation extends CAllSaleLocation
 		for($i=0; $i < $countFilterKey; $i++)
 		{
 			$val = $DB->ForSql($arFilter[$filter_keys[$i]]);
-			if (strlen($val)<=0) continue;
+			if ($val == '') continue;
 
 			$key = $filter_keys[$i];
 			if ($key[0]=="!")
 			{
-				$key = substr($key, 1);
+				$key = mb_substr($key, 1);
 				$bInvert = true;
 			}
 			else
@@ -298,7 +298,7 @@ class CSaleLocation extends CAllSaleLocation
 			switch(ToUpper($key))
 			{
 				case "ID":
-					$arSqlSearch[] = "C.ID ".($bInvert?"<>":"=")." ".IntVal($val)." ";
+					$arSqlSearch[] = "C.ID ".($bInvert?"<>":"=")." ".intval($val)." ";
 					break;
 				case "NAME":
 					$arSqlSearch[] = "C.NAME ".($bInvert?"<>":"=")." '".$val."' ";
@@ -388,12 +388,12 @@ class CSaleLocation extends CAllSaleLocation
 		for($i=0; $i < $countFilterKey; $i++)
 		{
 			$val = $DB->ForSql($arFilter[$filter_keys[$i]]);
-			if (strlen($val)<=0) continue;
+			if ($val == '') continue;
 
 			$key = $filter_keys[$i];
 			if ($key[0]=="!")
 			{
-				$key = substr($key, 1);
+				$key = mb_substr($key, 1);
 				$bInvert = true;
 			}
 			else
@@ -402,7 +402,7 @@ class CSaleLocation extends CAllSaleLocation
 			switch(ToUpper($key))
 			{
 				case "ID":
-					$arSqlSearch[] = "C.ID ".($bInvert?"<>":"=")." ".IntVal($val)." ";
+					$arSqlSearch[] = "C.ID ".($bInvert?"<>":"=")." ".intval($val)." ";
 					break;
 				case "NAME":
 					$arSqlSearch[] = "C.NAME ".($bInvert?"<>":"=")." '".$val."' ";
@@ -492,7 +492,7 @@ class CSaleLocation extends CAllSaleLocation
 			"VALUES(".$arInsert[1].")";
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-		$ID = IntVal($DB->LastID());
+		$ID = intval($DB->LastID());
 
 		$b = "sort";
 		$o = "asc";
@@ -540,7 +540,7 @@ class CSaleLocation extends CAllSaleLocation
 			"VALUES(".$arInsert[1].")";
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-		$ID = IntVal($DB->LastID());
+		$ID = intval($DB->LastID());
 
 		$b = "sort";
 		$o = "asc";
@@ -588,7 +588,7 @@ class CSaleLocation extends CAllSaleLocation
 			"VALUES(".$arInsert[1].")";
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-		$ID = IntVal($DB->LastID());
+		$ID = intval($DB->LastID());
 
 		$b = "sort";
 		$o = "asc";
@@ -638,7 +638,7 @@ class CSaleLocation extends CAllSaleLocation
 			"VALUES(".$arInsert[1].")";
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-		$ID = IntVal($DB->LastID());
+		$ID = intval($DB->LastID());
 
 		// make IX_B_SALE_LOC_CODE feel happy
 		Location\LocationTable::update($ID, array('CODE' => $ID));

@@ -26,3 +26,7 @@ $MESS['SALE_PS_MANAGER_GROUP_PS_OTHER'] = 'Остальные свойства �
 $MESS['SALE_PS_MANAGER_INNER_NAME'] = 'Внутренний счет';
 $MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_SBERBANK'] = 'Настройки подключения Сбербанк';
 $MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_UAPAY'] = 'Настройки подключения UAPAY';
+$MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_ADYEN'] = 'Настройки подключения Adyen';
+$MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_APPLE_PAY'] = 'Настройки подключения Apple Pay';
+$MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_SKB'] = 'Настройки подключения СКБ банк';
+$MESS['SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_BEPAID'] = 'Настройки подключения BePaid';

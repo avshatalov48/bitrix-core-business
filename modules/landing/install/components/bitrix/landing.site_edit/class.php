@@ -9,22 +9,13 @@ use \Bitrix\Landing\Landing;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\Rights;
 use \Bitrix\Landing\TemplateRef;
+use \Bitrix\Landing\Domain\Register;
 use \Bitrix\Main\Localization\Loc;
 
 \CBitrixComponent::includeComponentClass('bitrix:landing.base.form');
 
 class LandingSiteEditComponent extends LandingBaseFormComponent
 {
-	/**
-	 * B24 service for detect IP for current zone.
-	 */
-	const B24_SERVICE_DETECT_IP = 'https://ip.bitrix24.site/getipforzone/?bx24_zone=';
-
-	/**
-	 * Default IP for DNS.
-	 */
-	const B24_DEFAULT_DNS_IP = '52.59.124.117';
-
 	/**
 	 * Class of current element.
 	 * @var string
@@ -50,25 +41,6 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 	protected function additionalFieldsAllowed()
 	{
 		return true;
-	}
-
-	/**
-	 * Get IP for DNS record for custom domain.
-	 * @return string
-	 */
-	protected function getIpForDNS()
-	{
-		$ip = '';
-		$http = new \Bitrix\Main\Web\HttpClient;
-		$ip = $http->get($this::B24_SERVICE_DETECT_IP . Manager::getZone());
-		$ip = \CUtil::jsObjectToPhp($ip);
-
-		if (isset($ip['IP']))
-		{
-			return $ip['IP'];
-		}
-
-		return $this::B24_DEFAULT_DNS_IP;
 	}
 
 	/**
@@ -123,7 +95,10 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 	{
 		return
 			isset($this->arResult['SITE']['DOMAIN_ID']['CURRENT']) &&
-			$this->arResult['SITE']['DOMAIN_ID']['CURRENT'] == '0';
+			(
+				$this->arResult['SITE']['DOMAIN_ID']['CURRENT'] == '0' ||
+				$this->arResult['SITE']['DOMAIN_ID']['CURRENT'] == ''
+			);
 	}
 
 	/**
@@ -154,8 +129,9 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 			$this->arResult['LANG_CODES'] = $this->getLangCodes();
 			$this->arResult['TEMPLATES'] = $this->getTemplates();
 			$this->arResult['IS_INTRANET'] = $this->isIntranet();
-			$this->arResult['SHOW_RIGHTS'] = Rights::isExtendedMode() && Rights::isAdmin();
+			$this->arResult['SHOW_RIGHTS'] = Rights::isAdmin() && Rights::isExtendedMode();
 			$this->arResult['SETTINGS'] = [];
+			$this->arResult['REGISTER'] = Register::getInstance();
 
 			if (
 				!defined('LANDING_DISABLE_B24_MODE') &&
@@ -210,13 +186,7 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 				}
 			}
 
-			// settings, etc
-			if ($this->id)
-			{
-				$this->arResult['SETTINGS'] = \Bitrix\Landing\Hook\Page\Settings::getDataForSite(
-					$this->id
-				);
-			}
+			// etc
 			$this->arResult['DOMAINS'] = $this->getDomains();
 			$this->arResult['LANDINGS'] = $this->arParams['SITE_ID'] > 0
 										? $this->getLandings(array(
@@ -273,9 +243,9 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 					{
 						foreach (explode(',', $tplRef) as $ref)
 						{
-							if (strpos($ref, ':') !== false)
+							if (mb_strpos($ref, ':') !== false)
 							{
-								list($a, $lid) = explode(':', $ref);
+								[$a, $lid] = explode(':', $ref);
 								$data[$a] = $lid;
 							}
 						}
@@ -300,7 +270,7 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 						$data
 					);
 					// rights
-					if (Rights::isAdmin())
+					if (Rights::isAdmin() && Rights::isExtendedMode())
 					{
 						Rights::setOperationsForSite(
 							$primary['ID'],

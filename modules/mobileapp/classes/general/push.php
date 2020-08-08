@@ -9,7 +9,7 @@ class CAdminMobilePush
 	{
 		$result = true;
 
-		if(strlen($branchName) > 0)
+		if($branchName <> '')
 			self::$arData[$branchName] = $arData;
 		else
 			$result = false;
@@ -43,7 +43,7 @@ class CAdminMobilePush
 		return $arResult;
 	}
 
-	public function getOptions($path = "")
+	public static function getOptions($path = "")
 	{
 		global $USER;
 		$arOptions = array();
@@ -79,7 +79,7 @@ class CAdminMobilePush
 		return $arResult;
 	}
 
-	public function saveOptions($path = "", $arOpts)
+	public static function saveOptions($path = "", $arOpts)
 	{
 		$result = true;
 		$opts = self::getOptions();
@@ -102,7 +102,7 @@ class CAdminMobilePush
 		return CUserOptions::SetOption('mobileapp', 'push_options', $opts);
 	}
 
-	public function OnAdminMobileGetPushSettings()
+	public static function OnAdminMobileGetPushSettings()
 	{
 		foreach (GetModuleEvents("mobileapp", "OnAdminMobileGetPushSettings", true) as $arHandler)
 			ExecuteModuleEventEx($arHandler);

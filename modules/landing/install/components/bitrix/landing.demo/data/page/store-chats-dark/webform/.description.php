@@ -21,7 +21,7 @@ return array(
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'THEME_CODE' => '3corporate',
-			'THEME_CODE_TYPO' => '3corporate',
+
 		),
 	),
 	
@@ -41,13 +41,13 @@ return array(
 			),
 			'style' => array(
 				'#wrapper' => array(
-					0 => 'landing-block js-animation animation-none g-pt-0 g-pb-5 u-block-border u-block-border-margin-sm animation-none',
+					0 => 'landing-block js-animation animation-none g-pt-0 g-pb-25 u-block-border-none animation-none',
 				),
 				'.landing-block-node-title' => array(
 					0 => 'landing-block-node-title h2 g-color-white text-left g-font-size-27',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text g-pb-1 g-color-white g-font-size-16 text-left',
+					0 => 'landing-block-node-text g-pb-1 g-color-white text-left',
 				),
 			),
 		),
@@ -62,7 +62,20 @@ return array(
 			),
 			'style' => array(
 				'#wrapper' => array(
-					0 => 'landing-block g-pos-rel g-pt-30 g-pb-30 landing-block-node-bgimg g-bg-img-hero g-bg-cover g-bg-none--after u-block-border u-block-border-margin-md g-rounded-6 g-theme-bitrix-bg-dark-v1',
+					0 => 'landing-block g-pos-rel g-pt-15 g-pb-30 landing-block-node-bgimg g-bg-img-hero g-bg-cover g-bg-none--after u-block-border-none g-theme-bitrix-bg-dark-v3',
+				),
+			),
+		),
+		'2' => array(
+			'code' => '26.separator',
+			'nodes' => array(
+			),
+			'style' => array(
+				'#wrapper' => array(
+					0 => 'landing-block g-bg-transparent g-pt-15 g-pb-10',
+				),
+				'.landing-block-line' => array(
+					0 => 'landing-block-line g-brd-transparent my-0',
 				),
 			),
 		),

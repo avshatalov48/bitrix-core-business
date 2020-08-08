@@ -19,7 +19,7 @@ elseif (!CModule::IncludeModule("socialnetwork"))
 	ShowError(GetMessage("SONET_MODULE_NOT_INSTALL"));
 	return false;
 }
-elseif (intVal($arParams["FID"]) <= 0)
+elseif (intval($arParams["FID"]) <= 0)
 {
 	ShowError(GetMessage("F_FID_IS_EMPTY"));
 	return false;
@@ -29,12 +29,12 @@ elseif (intVal($arParams["FID"]) <= 0)
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-$GLOBALS["FID"] = $arParams["FID"] = intVal($arParams["FID"]);
+$GLOBALS["FID"] = $arParams["FID"] = intval($arParams["FID"]);
 $arParams["USE_DESC_PAGE"] = ($arParams["USE_DESC_PAGE"] == "N" ? "N" : "Y");
 
 $arParams["MODE"] = ($arParams["SOCNET_GROUP_ID"] > 0 ? "GROUP" : "USER");
-$arParams["SOCNET_GROUP_ID"] = intVal($arParams["SOCNET_GROUP_ID"]);
-$arParams["USER_ID"] = intVal(!empty($arParams["USER_ID"]) ? $arParams["USER_ID"] : $USER->GetID());
+$arParams["SOCNET_GROUP_ID"] = intval($arParams["SOCNET_GROUP_ID"]);
+$arParams["USER_ID"] = intval(!empty($arParams["USER_ID"]) ? $arParams["USER_ID"] : $USER->GetID());
 /***************** URL *********************************************/
 $URL_NAME_DEFAULT = array(
 		"topic_list" => "PAGE_NAME=topic_list",
@@ -44,23 +44,23 @@ $URL_NAME_DEFAULT = array(
 		"profile_view" => "PAGE_NAME=profile_view&UID=#UID#");
 foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 {
-	if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-	$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-	$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+	if (trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+	$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
+	$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 }
 /***************** ADDITIONAL **************************************/
-$arParams["PAGEN"] = (intVal($arParams["PAGEN"]) <= 0 ? 1 : intVal($arParams["PAGEN"]));
+$arParams["PAGEN"] = (intval($arParams["PAGEN"]) <= 0 ? 1 : intval($arParams["PAGEN"]));
 $arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
-$arParams["PAGE_NAVIGATION_WINDOW"] = intVal(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
+$arParams["PAGE_NAVIGATION_WINDOW"] = intval(intval($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
 
-$arParams["TOPICS_PER_PAGE"] = intVal($arParams["TOPICS_PER_PAGE"] > 0 ? $arParams["TOPICS_PER_PAGE"] : COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"));
-$arParams["MESSAGES_PER_PAGE"] = intVal($arParams["MESSAGES_PER_PAGE"] > 0 ? $arParams["MESSAGES_PER_PAGE"] : COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10"));
+$arParams["TOPICS_PER_PAGE"] = intval($arParams["TOPICS_PER_PAGE"] > 0 ? $arParams["TOPICS_PER_PAGE"] : COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"));
+$arParams["MESSAGES_PER_PAGE"] = intval($arParams["MESSAGES_PER_PAGE"] > 0 ? $arParams["MESSAGES_PER_PAGE"] : COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10"));
 $arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
 $arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 $arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : CSite::GetNameFormat());
 
-$arParams["WORD_LENGTH"] = intVal($arParams["WORD_LENGTH"]);
+$arParams["WORD_LENGTH"] = intval($arParams["WORD_LENGTH"]);
 /***************** STANDART ****************************************/
 if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
 	$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
@@ -189,7 +189,7 @@ endif;
 /********************************************************************
 				Actions
 ********************************************************************/
-$ACTION = strToUpper(is_set($_REQUEST, "form_action") ? $_REQUEST["form_action"] : $_REQUEST["ACTION"]);
+$ACTION = mb_strtoupper(is_set($_REQUEST, "form_action")? $_REQUEST["form_action"] : $_REQUEST["ACTION"]);
 if ($_REQUEST["topic_edit"] == "Y")
 {
 	$strErrorMessage = ""; $strOkMessage = ""; 
@@ -230,7 +230,7 @@ if ($_REQUEST["topic_edit"] == "Y")
 		{
 			do
 			{
-				$arTopic[] = intVal($res["ID"]);
+				$arTopic[] = intval($res["ID"]);
 			}while ($res = $db_res->Fetch());
 			switch ($ACTION)
 			{
@@ -382,9 +382,9 @@ if($arParams["SOCNET_GROUP_ID"]>0 && $USER->IsAuthorized() && check_bitrix_sessi
 
 					$MAILBOX_ID = CMailBox::Add($arMailboxFields);
 				}
-				elseif(substr($_POST["EMAIL_FORUM_MAILBOX"], 0, 1) == 'M') //new smtp rule
+				elseif(mb_substr($_POST["EMAIL_FORUM_MAILBOX"], 0, 1) == 'M') //new smtp rule
 				{
-					$MAILBOX_ID = substr($_POST["EMAIL_FORUM_MAILBOX"], 1);
+					$MAILBOX_ID = mb_substr($_POST["EMAIL_FORUM_MAILBOX"], 1);
 					$dbrMailF = CMailBox::GetById($MAILBOX_ID);
 					if(($arMailF = $dbrMailF->GetNext()) && $arMailF['SERVER_TYPE']=='smtp')
 					{
@@ -554,7 +554,7 @@ while ($res = $db_res->GetNext())
 		$res["LAST_POST_DATE"] = $res["ABS_LAST_POST_DATE"];
 		$res["LAST_POSTER_NAME"] = $res["ABS_LAST_POSTER_NAME"];
 		$res["LAST_MESSAGE_ID"] = $res["ABS_LAST_MESSAGE_ID"];
-		$res["mCnt"] = intVal($res["POSTS_UNAPPROVED"]);
+		$res["mCnt"] = intval($res["POSTS_UNAPPROVED"]);
 		$res["numMessages"] += $res["mCnt"];
 		$res["mCntURL"] = $res["URL"]["MODERATE_MESSAGE"];
 	endif;
@@ -563,8 +563,8 @@ while ($res = $db_res->GetNext())
 	/*******************************************************************/
 	/*******************************************************************/
 	$res["pages"] = ForumShowTopicPages($res["numMessages"], $res["URL"]["READ"], 
-		"PAGEN_".$arParams["PAGEN"], intVal($arParams["MESSAGES_PER_PAGE"]));
-	$res["PAGES_COUNT"] = intVal(ceil($res["numMessages"]/$arParams["MESSAGES_PER_PAGE"]));
+		"PAGEN_".$arParams["PAGEN"], intval($arParams["MESSAGES_PER_PAGE"]));
+	$res["PAGES_COUNT"] = intval(ceil($res["numMessages"]/$arParams["MESSAGES_PER_PAGE"]));
 /*******************************************************************/
 	$res["TITLE"] = $parser->wrap_long_words($res["TITLE"]);
 	$res["DESCRIPTION"] = $parser->wrap_long_words($res["DESCRIPTION"]);

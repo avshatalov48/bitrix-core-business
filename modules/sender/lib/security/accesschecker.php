@@ -32,7 +32,7 @@ class AccessChecker
 	 */
 	public static function getMessage($code)
 	{
-		$message = Loc::getMessage('SENDER_SECURITY_ACCESS_CHECKER_' . strtoupper($code));
+		$message = Loc::getMessage('SENDER_SECURITY_ACCESS_CHECKER_'.mb_strtoupper($code));
 		return $message ?: 'Unknown error.';
 	}
 

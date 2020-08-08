@@ -1,32 +1,32 @@
-<header class="landing-block landing-block-menu landing-ui-pattern-transparent u-header u-header--floating u-header--floating-relative">
+<header class="landing-block u-header u-header--sticky u-header--relative">
 	<!-- Top Bar -->
-	<div class="landing-block-node-top-block u-header__section u-header__section--hidden g-bg-white g-transition-0_3 g-pt-15 g-pb-15">
+	<div class="landing-block-node-top-block landing-semantic-background-color u-header__section u-header__section--hidden g-bg-white g-transition-0_3 g-pt-15 g-pb-15">
 		<div class="container">
-			<div class="row flex-column flex-md-row align-items-center justify-content-md-end text-uppercase g-font-weight-700 g-font-size-13 g-mt-minus-10">
+			<div class="row flex-column flex-md-row align-items-center justify-content-md-end text-uppercase font-weight-bold g-font-size-13 g-mt-minus-10">
 				<div class="col-auto text-center text-md-left g-font-size-10 mr-md-auto g-mt-10">
 					<div class="landing-block-node-card-menu-contact d-inline-block g-mb-8 g-mb-0--md g-mr-10 g-mr-30--sm" data-card-preset="contact-link">
-						<div class="landing-block-node-menu-contact-title d-inline-block g-color-gray-dark-v5">
+						<div class="landing-block-node-menu-contact-title landing-semantic-text-small d-inline-block g-color-gray-dark-v5">
 							Phone Number:
 						</div>
-						<a href="tel:+4554554554" class="landing-block-node-menu-contact-link d-inline-block g-font-weight-900 g-color-gray-dark-v2">
-							+4 554 554 554
+						<a href="tel:#PHONE1#" class="landing-block-node-menu-contact-link landing-semantic-link-small d-inline-block font-weight-bold g-color-gray-dark-v2">
+							#PHONE1#
 						</a>
 					</div>
 
 					<div class="landing-block-node-card-menu-contact d-inline-block g-mb-8 g-mb-0--md g-mr-10 g-mr-30--sm" data-card-preset="contact-link">
-						<div class="landing-block-node-menu-contact-title d-inline-block g-color-gray-dark-v5">
+						<div class="landing-block-node-menu-contact-title landing-semantic-text-small d-inline-block g-color-gray-dark-v5">
 							Email:
 						</div>
-						<a href="mailto:support@company24.com" class="landing-block-node-menu-contact-link d-inline-block g-font-weight-900 g-color-gray-dark-v2">
-							support@company24.com
+						<a href="mailto:#EMAIL1#" class="landing-block-node-menu-contact-link landing-semantic-link-small d-inline-block font-weight-bold g-color-gray-dark-v2">
+							#EMAIL1#
 						</a>
 					</div>
 
 					<div class="landing-block-node-card-menu-contact d-inline-block g-mb-8 g-mb-0--md g-mr-10 g-mr-30--sm" data-card-preset="contact-text">
-						<div class="landing-block-node-menu-contact-title d-inline-block g-color-gray-dark-v5">
+						<div class="landing-block-node-menu-contact-title landing-semantic-text-small d-inline-block g-color-gray-dark-v5">
 							Opening time:
 						</div>
-						<div class="landing-block-node-menu-contact-text d-inline-block g-font-weight-900 g-color-gray-dark-v2">
+						<div class="landing-block-node-menu-contact-text landing-semantic-link-small d-inline-block font-weight-bold g-color-gray-dark-v2">
 							Mon-Sat: 08.00 -18.00
 						</div>
 					</div>
@@ -37,7 +37,7 @@
 	</div>
 	<!-- End Top Bar -->
 
-	<div class="landing-block-node-bottom-block u-header__section u-header__section--light g-bg-gray-light-v5 g-py-30"
+	<div class="landing-block-node-bottom-block landing-semantic-background-color u-header__section u-header__section--light g-bg-gray-light-v5 g-py-30"
 		 data-header-fix-moment-classes="u-shadow-v27">
 		<nav class="navbar navbar-expand-lg p-0 g-px-15">
 			<div class="container">
@@ -50,51 +50,50 @@
 
 				<!-- Navigation -->
 				<div class="collapse navbar-collapse align-items-center flex-sm-row" id="navBar">
-					<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav col-lg-9 text-uppercase g-font-weight-700 g-font-size-11 g-pt-20 g-pt-0--lg ml-auto g-mr-20">
+					<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav col-lg-10 text-uppercase font-weight-bold g-font-size-11 g-pt-20 g-pt-0--lg ml-auto g-mr-20">
 						<li class="landing-block-node-menu-list-item nav-item g-mx-20--lg g-mb-7 g-mb-0--lg">
-							<a href="#home" class="landing-block-node-menu-list-item-link nav-link p-0">Home</a>
+							<a href="#home" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Home</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-20--lg g-mb-7 g-mb-0--lg">
-							<a href="#promo" class="landing-block-node-menu-list-item-link nav-link p-0">Promo</a>
+							<a href="#promo" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Promo</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-20--lg g-mb-7 g-mb-0--lg">
-							<a href="#topWorks" class="landing-block-node-menu-list-item-link nav-link p-0">Top
-								works</a>
+							<a href="#topWorks" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Top works</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-20--lg g-mb-7 g-mb-0--lg">
-							<a href="#services" class="landing-block-node-menu-list-item-link nav-link p-0">Services</a>
+							<a href="#services" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Services</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-20--lg g-mb-7 g-mb-0--lg">
-							<a href="#gallery" class="landing-block-node-menu-list-item-link nav-link p-0">Gallery</a>
+							<a href="#gallery" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Gallery</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-20--lg g-mb-7 g-mb-0--lg">
-							<a href="#about" class="landing-block-node-menu-list-item-link nav-link p-0">About</a>
+							<a href="#about" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">About</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-20--lg g-mb-7 g-mb-0--lg">
-							<a href="#offers" class="landing-block-node-menu-list-item-link nav-link p-0">Offers</a>
+							<a href="#offers" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Offers</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-20--lg g-mb-7 g-mb-0--lg">
-							<a href="#contact" class="landing-block-node-menu-list-item-link nav-link p-0">Contact</a>
+							<a href="#contact" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Contact</a>
 						</li>
 					</ul>
-					<ul class="list-inline mb-0 landing-block-node-menu-list-social d-lg-flex justify-content-end col-lg-3 g-px-0">
-						<li class="landing-block-card-social list-inline-item g-mr-10 g-mr-0--last"
+					<ul class="list-inline mb-0 landing-block-node-menu-list-social d-lg-flex flex-wrap justify-content-end col-lg-2 g-px-0">
+						<li class="landing-block-card-social list-inline-item g-ma-3"
 							data-card-preset="facebook">
-							<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+							<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 							   href="https://facebook.com">
 								<i class="landing-block-card-social-icon fa fa-facebook"></i>
 							</a>
 						</li>
-						<li class="landing-block-card-social list-inline-item g-mr-10 g-mr-0--last"
+						<li class="landing-block-card-social list-inline-item g-ma-3"
 							data-card-preset="instagram">
-							<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+							<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 							   href="https://instagram.com">
 								<i class="landing-block-card-social-icon fa fa-instagram"></i>
 							</a>
 						</li>
-						<li class="landing-block-card-social list-inline-item g-mr-10 g-mr-0--last"
+						<li class="landing-block-card-social list-inline-item g-ma-3"
 							data-card-preset="twitter">
-							<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+							<a class="landing-block-card-social-icon-link landing-semantic-menu-h-text d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
 							   href="https://twitter.com">
 								<i class="landing-block-card-social-icon fa fa-twitter"></i>
 							</a>

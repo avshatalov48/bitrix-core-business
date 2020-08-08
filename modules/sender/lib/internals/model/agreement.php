@@ -46,7 +46,7 @@ class AgreementTable extends Entity\DataManager
 				}
 			)),
 			new Entity\StringField('EMAIL', array(
-				'required' => true,
+				'required' => false,
 				'validation' => function ()
 				{
 					return array(

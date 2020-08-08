@@ -34,12 +34,12 @@ $lAdmin->InitFilter($arFilterFields);
 
 $arFilter = array();
 
-if ($filter_site_id != "NOT_REF" && StrLen($filter_site_id) > 0)
+if ($filter_site_id != "NOT_REF" && $filter_site_id <> '')
 	$arFilter["SITE_ID"] = $filter_site_id;
 else
 	Unset($arFilter["SITE_ID"]);
 
-if (StrLen($filter_active) > 0)
+if ($filter_active <> '')
 	$arFilter["ACTIVE"] = (($filter_active == "Y") ? "Y" : "N");
 
 if ($lAdmin->EditAction() && $saleModulePermissions >= "W")
@@ -47,7 +47,7 @@ if ($lAdmin->EditAction() && $saleModulePermissions >= "W")
 	foreach ($FIELDS as $ID => $arFields)
 	{
 		$DB->StartTransaction();
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		if (!$lAdmin->IsUpdated($ID))
 			continue;
@@ -78,7 +78,7 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 
 	foreach ($arID as $ID)
 	{
-		if (strlen($ID) <= 0)
+		if ($ID == '')
 			continue;
 
 		switch ($_REQUEST['action'])
@@ -202,7 +202,7 @@ while ($arPlan = $dbResultList->NavNext(true, "f_"))
 
 	if ($affiliatePlanType == "N")
 	{
-		$fieldValue = IntVal($f_MIN_PLAN_VALUE)."&nbsp;".GetMessage("SAP1_SHT");
+		$fieldValue = intval($f_MIN_PLAN_VALUE)."&nbsp;".GetMessage("SAP1_SHT");
 	}
 	else
 	{

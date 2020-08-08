@@ -163,6 +163,10 @@ class ShipmentTable extends Main\Entity\DataManager
 			),
 
 			new Main\Entity\FloatField(
+				'EXPECTED_PRICE_DELIVERY'
+			),
+
+			new Main\Entity\FloatField(
 				'WEIGHT',
 				[
 					'default_value' => 0

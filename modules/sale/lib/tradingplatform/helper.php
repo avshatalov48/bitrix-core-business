@@ -68,10 +68,10 @@ class Helper
 
 				if($IblockElement = $dbIblockElement->Fetch())
 				{
-					if(strlen($IblockElement["XML_ID"]) > 0)
+					if($IblockElement["XML_ID"] <> '')
 						$result["PRODUCT_XML_ID"] = $IblockElement["XML_ID"];
 
-					if(strlen($IblockElement["IBLOCK_EXTERNAL_ID"]) > 0)
+					if($IblockElement["IBLOCK_EXTERNAL_ID"] <> '')
 						$result["CATALOG_XML_ID"] = $IblockElement["IBLOCK_EXTERNAL_ID"];
 				}
 
@@ -267,7 +267,7 @@ class Helper
 			$arPropFilter["RELATED"]["TYPE"] = "WITH_NOT_RELATED";
 		}
 
-		if (strlen($params["DELIVERY"]) > 0)
+		if ($params["DELIVERY"] <> '')
 		{
 			$arPropFilter["RELATED"]["DELIVERY_ID"] = $params["DELIVERY"];
 			$arPropFilter["RELATED"]["TYPE"] = "WITH_NOT_RELATED";
@@ -305,7 +305,7 @@ class Helper
 			"DEDUCTED" => Loc::getMessage("SALE_EBAY_HLP_FLAG_DEDUCTED"),
 		);
 
-		if (strlen($siteId) <= 0)
+		if ($siteId == '')
 			throw new ArgumentNullException("siteId");
 
 		$dbRes = SiteTable::getList(array(
@@ -409,10 +409,10 @@ class Helper
 
 	public function notifyNewOrder($newOrderId, $siteId, $buyerEmail = "", $buyerFio = "")
 	{
-		if (strlen($newOrderId) <= 0)
+		if ($newOrderId == '')
 			throw new ArgumentNullException("newOrderId");
 
-		if (strlen($siteId) <= 0)
+		if ($siteId == '')
 			throw new ArgumentNullException("siteId");
 
 		global $DB;

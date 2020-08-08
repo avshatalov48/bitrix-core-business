@@ -61,6 +61,7 @@ class OfdruOfd extends Ofd
 			'ITEMS' => array(
 				'INN' => array(
 					'TYPE' => 'STRING',
+					'REQUIRED' => 'Y',
 					'LABEL' => Localization\Loc::getMessage('SALE_CASHBOX_OFDRU_SELLER_INN'),
 					'VALUE' => ''
 				)
@@ -71,12 +72,13 @@ class OfdruOfd extends Ofd
 	}
 
 	/**
-	 * @param $settings
 	 * @return Result
 	 */
-	public static function validateSettings($settings)
+	public function validate()
 	{
 		$result = new Result();
+
+		$settings = $this->cashbox->getField('OFD_SETTINGS');
 
 		if (empty($settings['SELLER']['INN']))
 		{

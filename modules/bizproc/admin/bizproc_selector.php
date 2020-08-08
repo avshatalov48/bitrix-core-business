@@ -85,7 +85,7 @@ switch($_POST['fieldType'])
 
 	case "date":
 	case "datetime":
-		$arFilter = Array("datetime", "date", 'mixed');
+		$arFilter = Array("datetime", "date", 'mixed', 'UF:date');
 		break;
 
 	case "user":
@@ -248,7 +248,7 @@ function _RecFindParams($act, $arFilter, &$arResult)
 	global $arAllActivities;
 	foreach($act as $key => $value)
 	{
-		$value["Type"] = strtolower($value["Type"]);
+		$value["Type"] = mb_strtolower($value["Type"]);
 		if(is_array($arAllActivities[$value["Type"]]['RETURN']) && count($arAllActivities[$value["Type"]]['RETURN'])>0)
 		{
 			$arResultTmp = Array();
@@ -393,7 +393,7 @@ _RecFindParams($arWorkflowTemplate, $arFilter, $arReturns);
 			<select id="BPSId5S" size="<?=($_REQUEST['only_users'] == 'Y' ? 14 : 11)?>" style="width:100%" ondblclick="BPSVInsert(this.value, true)">
 				<option value="" style="background-color: #eeeeff" selected><?echo GetMessage("BIZPROC_SEL_USERS_TAB_GROUPS")?></option>
 				<?foreach($arAllowableUserGroups as $groupId => $groupName):
-					if ($groupName === "" || strpos($groupId, 'group_u') === 0)
+					if ($groupName === "" || mb_strpos($groupId, 'group_u') === 0)
 						continue;
 					?>
 					<option value="<?=htmlspecialcharsbx($groupName)?>; "><?=htmlspecialcharsbx($groupName)?></option>
@@ -409,7 +409,7 @@ _RecFindParams($arWorkflowTemplate, $arFilter, $arReturns);
 					$str = "SELECT ID, LOGIN, NAME, LAST_NAME, SECOND_NAME, EMAIL FROM b_user WHERE ID IN (0";
 					$cnt1 = min($cnt, $i + $mcnt);
 					for ($j = $i; $j < $cnt1; $j++)
-						$str .= ", ".IntVal($arUsers[$j]);
+						$str .= ", ".intval($arUsers[$j]);
 					$i += $mcnt;
 					$str .= ") AND ACTIVE='Y' AND (EXTERNAL_AUTH_ID IS NULL OR EXTERNAL_AUTH_ID NOT IN ('replica', 'email', 'imconnector', 'bot')) ORDER BY LAST_NAME, EMAIL, ID";
 					$dbuser = $DB->Query($str);

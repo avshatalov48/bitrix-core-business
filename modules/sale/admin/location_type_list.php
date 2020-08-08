@@ -68,7 +68,7 @@ try
 	}
 
 	$sTableID = "tbl_type_list";
-	$oSort = new CAdminSorting($sTableID, "SORT", "asc");
+	$oSort = new CAdminUiSorting($sTableID, "SORT", "asc");
 	$lAdmin = new CAdminUiList($sTableID, $oSort);
 
 	// order, select and filter for the list
@@ -259,16 +259,16 @@ else
 {
 	SearchHelper::checkIndexesValid();
 
-	if(strlen($fatal))
+	if($fatal <> '')
 	{
 		$messageParams = array('MESSAGE' => $fatal, 'type' => 'ERROR');
-		if ($publicMode)
+		if($publicMode)
 		{
 			$messageParams["SKIP_PUBLIC_MODE"] = true;
 		}
 		?>
 		<div class="error-message">
-			<?CAdminMessage::ShowMessage($messageParams)?>
+			<? CAdminMessage::ShowMessage($messageParams) ?>
 		</div>
 		<?
 	}

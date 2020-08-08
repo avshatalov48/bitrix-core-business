@@ -1186,12 +1186,6 @@
 	position: relative;
 	width: 50px;
 	height: 50px;
-	background-color: #535c6a;
-	/*background-image: url("images/log/live_feed_sprite_6.png?3");*/
-	/*background-position: 13px -154px;*/
-	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20viewBox%3D%220%200%2089%2089%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Ccircle%20fill%3D%22%23535C69%22%20cx%3D%2244.5%22%20cy%3D%2244.5%22%20r%3D%2244.5%22/%3E%3Cpath%20d%3D%22M68.18%2071.062c0-3.217-3.61-16.826-3.61-16.826%200-1.99-2.6-4.26-7.72-5.585a17.363%2017.363%200%200%201-4.887-2.223c-.33-.188-.28-1.925-.28-1.925l-1.648-.25c0-.142-.14-2.225-.14-2.225%201.972-.663%201.77-4.574%201.77-4.574%201.252.695%202.068-2.4%202.068-2.4%201.482-4.3-.738-4.04-.738-4.04a27.076%2027.076%200%200%200%200-7.918c-.987-8.708-15.847-6.344-14.085-3.5-4.343-.8-3.352%209.082-3.352%209.082l.942%202.56c-1.85%201.2-.564%202.65-.5%204.32.09%202.466%201.6%201.955%201.6%201.955.093%204.07%202.1%204.6%202.1%204.6.377%202.556.142%202.12.142%202.12l-1.786.217a7.147%207.147%200%200%201-.14%201.732c-2.1.936-2.553%201.485-4.64%202.4-4.032%201.767-8.414%204.065-9.193%207.16-.78%203.093-3.095%2015.32-3.095%2015.32H68.18z%22%20fill%3D%22%23FFF%22/%3E%3C/g%3E%3C/svg%3E');
-	background-repeat: no-repeat;
-	background-position: center;
 	border-radius: 50%;
 	display: block;
 	float: left;
@@ -1330,6 +1324,7 @@ a.feed-post-title:hover {
 }
 
 .feed-post-text-block-inner {
+	min-height: 47px;
 	max-height: 285px;
 	max-width: 867px;
 	overflow: hidden;
@@ -1537,6 +1532,14 @@ a.feed-post-title:hover {
 
 .feed-post-text-block.feed-info-block {
 	padding-bottom: 0;
+}
+
+.feed-post-cont-wrap .feed-post-text-block.feed-info-block-empty {
+	min-height: auto;
+}
+
+.feed-post-cont-wrap .feed-post-text-block.feed-info-block-empty .feed-post-text-block-inner {
+	min-height: auto;
 }
 
 .feed-post-text-block .feed-task-info-text-item {line-height: normal}
@@ -1954,7 +1957,7 @@ a.feed-post-more-link:hover {
 }
 
 .feed-post-cont-wrap .feed-com-files.diskuf-files-entity {
-	padding-bottom: 23px;
+	padding-bottom: 10px;
 }
 
 .feed-post-block-new .feed-post-cont-wrap .feed-com-files.diskuf-files-entity {
@@ -2071,8 +2074,8 @@ a.feed-post-more-link:hover {
 }
 
 .feed-com-files-cont .feed-com-files-photo {
-	height: 75px;
-	width: 75px;
+	height: 64px;
+	width: 64px;
 }
 
 .feed-com-tag,
@@ -2583,7 +2586,7 @@ a.feed-post-more-link:hover {
 	min-width: 100px;
 	overflow: hidden;
 	padding-left: 3px;
-	padding-top: 2px;
+	padding-top: 9px;
 	text-decoration: underline;
 	-o-text-overflow: ellipsis;
 	text-overflow: ellipsis;
@@ -4729,3 +4732,99 @@ td.transparent {background: none;}
 	animation: dash 1.5s ease-in-out infinite;
 	stroke-linecap: round;
 }
+
+.feed-post-text-block .wiki_post_feed a.wiki_red
+{
+	color: red;
+}
+
+	
+/*region Feed notification*/
+.feed-notification-container {
+	position: relative;
+	background-color: rgba(230, 249, 255, 0.95);
+	padding: 20px 55px 20px 19px;
+	border-bottom: 2px solid #7E9FC1;
+	display: flex;
+	align-items: flex-start;
+	overflow: hidden;
+	box-sizing: border-box;
+	transition: 250ms ease all;
+	opacity: 1;
+}
+
+.feed-notification-container.feed-notification-container-collapsed {
+	height: 0 !important;
+	padding-top: 0 !important;
+	padding-bottom: 0 !important;
+	border-bottom: 0 !important;
+	opacity: 0 !important;
+}
+
+.feed-notification-block-icon {
+	min-width: 65px;
+	max-width: 65px;
+}
+
+.feed-notification-icon {
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	background: no-repeat center #9DCF00 url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg width='22px' height='22px' viewBox='0 0 22 22' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Cg stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cpath d='M14.5098977,18.2950885 L14.5098977,14.1944652 L18.2950885,14.1944652 L18.2950885,3.1543256 L3.1543256,3.1543256 L3.1543256,14.1944652 L6.93951631,14.1944652 L6.93951631,18.2950885 L14.5098977,18.2950885 Z M1.89259536,0 L19.5568187,0 C20.6020703,0 21.4494141,0.847343804 21.4494141,1.89259536 L21.4494141,19.5568187 C21.4494141,20.6020703 20.6020703,21.4494141 19.5568187,21.4494141 L1.89259536,21.4494141 C0.847343804,21.4494141 0,20.6020703 0,19.5568187 L0,1.89259536 C0,0.847343804 0.847343804,0 1.89259536,0 Z M7.76826616,8.15467104 L9.53468841,9.98417989 L13.9507442,5.50503746 L15.2124745,7.39763282 L9.53468841,13.0754189 L6.38036282,9.9210933 L7.76826616,8.15467104 Z' id='Icon' fill='%23FFFFFF'%3E%3C/path%3E%3C/g%3E%3C/svg%3E");
+}
+
+.feed-notification-title {
+	font: 18px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #333;
+	margin-bottom: 7px;
+}
+
+.feed-notification-description {
+	font: 14px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #525C69;
+}
+
+.feed-notification-buttons {
+	padding-top: 17px;
+}
+
+.feed-notification-close-btn {
+	position: absolute;
+	width: 10px;
+	height: 10px;
+	display: block;
+	right: 11px;
+	top: 11px;
+	z-index: 11;
+	transform: rotate(45deg);
+	opacity: .25;
+	cursor: pointer;
+	transition: 250ms all ease;
+}
+
+.feed-notification-close-btn:hover { opacity: .7; }
+
+.feed-notification-close-btn:after,
+.feed-notification-close-btn:before {
+	width: 2px;
+	height: 10px;
+	content: '';
+	background-color: #525C69;
+	display: block;
+	position: relative;
+}
+
+.feed-notification-close-btn:after {
+	transform: rotate(90deg);
+	left: 4px;
+	top: -10px;
+	transform-origin: center;
+}
+
+.feed-notification-close-btn:before {
+	left: 50%;
+	margin-left: -1px;
+}
+
+
+/*endregion*/

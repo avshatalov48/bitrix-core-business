@@ -125,9 +125,9 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 		if ($basketCode !== null)
 		{
 			$basketItem->internalId = $basketCode;
-			if (strpos($basketCode, 'n') === 0)
+			if (mb_strpos($basketCode, 'n') === 0)
 			{
-				$internalId = intval(substr($basketCode, 1));
+				$internalId = intval(mb_substr($basketCode, 1));
 				if ($internalId > static::$idBasket)
 				{
 					static::$idBasket = $internalId;
@@ -257,9 +257,6 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 		parent::__construct($fields);
 
 		$this->calculatedFields = new Internals\Fields();
-
-		$controller = Internals\CustomFieldsController::getInstance();
-		$controller->initialize($this);
 	}
 
 	/**
@@ -484,31 +481,7 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 			return null;
 		}
 
-		$value = parent::getField($name);
-		if ($name == "BASE_PRICE" && $value === null)
-		{
-			$value = PriceMaths::roundPrecision($this->getField('PRICE') + $this->getField('DISCOUNT_PRICE'));
-		}
-
-		if ($name === 'CUSTOM_PRICE')
-		{
-			return $this->isMarkedFieldCustom('PRICE') ? 'Y' : 'N';
-		}
-
-		return $value;
-	}
-
-	/**
-	 * @return array
-	 * @throws Main\ArgumentOutOfRangeException
-	 */
-	public function getFieldValues()
-	{
-		$fields = parent::getFieldValues();
-
-		$fields['CUSTOM_PRICE'] = $this->isMarkedFieldCustom('PRICE') ? 'Y' : 'N';
-
-		return $fields;
+		return parent::getField($name);
 	}
 
 	/**
@@ -954,15 +927,6 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 	}
 
 	/**
-	 * @return int|null|string
-	 * @throws Main\ArgumentNullException
-	 */
-	public function getId()
-	{
-		return (int)$this->getField('ID');
-	}
-
-	/**
 	 * @return float|null|string
 	 * @throws Main\ArgumentNullException
 	 */
@@ -1279,7 +1243,9 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 
 		$r = $this->saveProperties();
 		if (!$r->isSuccess())
+		{
 			$result->addErrors($r->getErrors());
+		}
 
 		$this->callEventOnBasketItemEntitySaved();
 
@@ -1329,9 +1295,9 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 	 */
 	private function saveProperties()
 	{
-		/** @var BasketPropertiesCollection $basketPropertyCollection */
-		$basketPropertyCollection = $this->getPropertyCollection();
-		return $basketPropertyCollection->save();
+		/** @var BasketPropertiesCollection $propertyCollection */
+		$propertyCollection = $this->getPropertyCollection();
+		return $propertyCollection->save();
 	}
 
 	/**
@@ -1374,8 +1340,6 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 				$this->setFieldNoDemand('FUSER_ID', $fUserId);
 			}
 		}
-
-		$this->setFieldNoDemand('CUSTOM_PRICE', $this->isMarkedFieldCustom('PRICE') ? 'Y' : 'N');
 	}
 
 	/**

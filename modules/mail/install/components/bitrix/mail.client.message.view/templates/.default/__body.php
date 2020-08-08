@@ -2,6 +2,7 @@
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Viewer;
+\Bitrix\Main\UI\Extension::load("ui.icons.b24");
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
@@ -48,8 +49,10 @@ $prepareReply = function($__field) use (&$message, &$rcptList, &$rcptLast)
 				continue;
 			}
 
-			$id = 'U'.md5($item['email']);
-			$type = 'users';
+//			$id = 'U'.md5($item['email']);
+//			$type = 'users';
+			$id = 'MC'.$item['email'];
+			$type = 'mailcontacts';
 
 			$rcptList['emails'][$id] = $rcptList[$type][$id] = array(
 				'id'         => $id,
@@ -177,7 +180,7 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 					<? if (!empty($list)): ?>
 						<? $count = count($list); ?>
 						<? $limit = $count > ($k > 0 ? 2 : 4) ? ($k > 0 ? 1 : 3) : $count; ?>
-						<span style="display: inline-block; margin-right: 5px; ">
+						<span style="display: flex; align-items: center; margin-right: 5px; ">
 							<span class="mail-msg-view-rcpt-list" <? if ($k > 0): ?> style="color: #000; "<? endif ?>><?=$type ?>:</span>
 							<? foreach ($list as $item): ?>
 								<? if ($limit == 0): ?>
@@ -186,7 +189,7 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 									</a>
 									<span class="mail-msg-view-rcpt-list-hidden">
 								<? endif ?>
-								<span class="mail-msg-view-rcpt-block">
+								<span class="mail-msg-view-rcpt-block mail-msg-list-cell-flex">
 									<?
 										$params = $item['AVATAR_PARAMS'];
 										// for using initials from DB, not from message field
@@ -242,20 +245,56 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 	<div id="mail_msg_<?=$message['ID'] ?>_body" class="mail-msg-view-body"></div>
 </div>
 
-<? $attachedFiles = array(); ?>
-<? if (!empty($message['__files'])): ?>
-	<? \Bitrix\Main\UI\Extension::load('ui.viewer'); ?>
+<? $diskFiles = array(); ?>
+<? if (!empty($message['__files'])):
+
+	\Bitrix\Main\UI\Extension::load('ui.viewer');
+
+	$viewerItemAttributes = function ($item) use (&$message)
+	{
+		$attributes = Viewer\ItemAttributes::tryBuildByFileId($item['fileId'], $item['url'])
+			->setTitle($item['name'])
+			->setGroupBy(sprintf('mail_msg_%u_file', $message['ID']))
+			->addAction(array(
+				'type' => 'download',
+			));
+
+		if (isset($item['objectId']) && $item['objectId'] > 0)
+		{
+			$attributes->addAction(array(
+				'type' => 'copyToMe',
+				'text' => Loc::getMessage('MAIL_DISK_ACTION_SAVE_TO_OWN_FILES'),
+				'action' => 'BX.Disk.Viewer.Actions.runActionCopyToMe',
+				'params' => array(
+					'objectId' => $item['objectId'],
+				),
+				'extension' => 'disk.viewer.actions',
+				'buttonIconClass' => 'ui-btn-icon-cloud',
+			));
+		}
+
+		return $attributes;
+	};
+
+	$diskFiles = array_filter(
+		$message['__files'],
+		function ($item)
+		{
+			return isset($item['objectId']) && $item['objectId'] > 0;
+		}
+	);
+
+	?>
 	<div class="mail-msg-view-file-block mail-msg-view-border-bottom">
 		<div class="mail-msg-view-file-text"><?=getMessage('MAIL_MESSAGE_ATTACHES') ?>:</div>
 		<div class="mail-msg-view-file-inner">
 			<div id="mail_msg_<?=$message['ID'] ?>_files_images_list" class="mail-msg-view-file-inner">
 				<? foreach ($message['__files'] as $item): ?>
-					<? if (preg_match('/^n\d+$/i', $item['id'])) $attachedFiles[] = $item['id']; ?>
 					<? if (empty($item['preview'])) continue; ?>
 					<div class="mail-msg-view-file-item-image">
 						<span class="mail-msg-view-file-link-image">
 							<img class="mail-msg-view-file-item-img" src="<?=htmlspecialcharsbx($item['preview']) ?>"
-							<?=Viewer\ItemAttributes::tryBuildByFileId($item['fileId'], $item['url'])->setTitle($item['name'])->setGroupBy(sprintf('mail_msg_%u_file', $message['ID'])) ?>>
+							<?=$viewerItemAttributes($item) ?>>
 						</span>
 					</div>
 				<? endforeach ?>
@@ -266,19 +305,32 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 					<div class="mail-msg-view-file-item diskuf-files-entity">
 						<span class="feed-com-file-icon feed-file-icon-<?=htmlspecialcharsbx(\Bitrix\Main\IO\Path::getExtension($item['name'])) ?>"></span>
 						<a class="mail-msg-view-file-link" href="<?=htmlspecialcharsbx($item['url']) ?>" target="_blank"
-							<? if (preg_match('/^n\d+$/i', $item['id'])) echo Viewer\ItemAttributes::tryBuildByFileId($item['fileId'], $item['url'])->setTitle($item['name'])->setGroupBy(sprintf('mail_msg_%u_file', $message['ID'])) ?>>
+							<? if (preg_match('/^n\d+$/i', $item['id'])) echo $viewerItemAttributes($item); ?>>
 							<?=htmlspecialcharsbx($item['name']) ?>
 						</a>
 						<div class="mail-msg-view-file-link-info"><?=htmlspecialcharsbx($item['size']) ?></div>
 					</div>
 				<? endforeach ?>
 			</div>
+			<? if (\Bitrix\Main\Loader::includeModule('disk') && count($diskFiles) > 1): ?>
+				<div class="mail-msg-view-file-archive-block">
+					<? $href = \Bitrix\Disk\Driver::getInstance()->getUrlManager()->getUrlDownloadController('downloadArchive', array(
+						'fileId' => 0,
+						'objectIds' => array_column($diskFiles, 'objectId'),
+						'signature' => \Bitrix\Disk\Security\ParameterSigner::getArchiveSignature(array_column($diskFiles, 'objectId')),
+					)) ?>
+					<a class="mail-msg-view-file-archive-link" href="<?=htmlspecialcharsbx($href) ?>"><?=Loc::getMessage('MAIL_DISK_FILE_DOWNLOAD_ARCHIVE') ?></a>
+					<div class="mail-msg-view-file-link-info">&nbsp;(<?=\CFile::formatSize(array_sum(array_column($diskFiles, 'bytes'))) ?>)</div>
+				</div>
+			<? endif ?>
 		</div>
 	</div>
 <? endif ?>
 
 <div class="mail-msg-view-reply-panel mail-msg-view-border-bottom js-msg-view-reply-panel">
-	<div class="mail-msg-userpic" <? if (!empty($arResult['USER_IMAGE'])): ?> style="background: url('<?=htmlspecialcharsbx($arResult['USER_IMAGE']) ?>'); background-size: 23px 23px; "<? endif ?>></div>
+	<div class="ui-icon ui-icon-common-user mail-msg-userpic">
+		<i <? if (!empty($arResult['USER_IMAGE'])): ?> style="background: url('<?=htmlspecialcharsbx($arResult['USER_IMAGE']) ?>'); background-size: 23px 23px; "<? endif ?>></i>
+	</div>
 	<div class="mail-msg-view-reply-panel-text"><?=Loc::getMessage('MAIL_MESSAGE_REPLY_Q') ?></div>
 </div>
 
@@ -309,7 +361,7 @@ $actionUrl = '/bitrix/services/main/ajax.php?c=bitrix%3Amail.client&action=sendM
 	);
 	$quote = $messageHtml;
 
-	$attachedFiles = array_intersect($attachedFiles, $inlineFiles);
+	$attachedFiles = array_intersect(array_column($diskFiles, 'id'), $inlineFiles);
 
 	$selectorParams = array(
 		//'pathToAjax' => '/bitrix/components/bitrix/crm.activity.editor/ajax.php?soc_net_log_dest=search_email_comms';
@@ -331,6 +383,7 @@ $actionUrl = '/bitrix/services/main/ajax.php?c=bitrix%3Amail.client&action=sendM
 	$APPLICATION->includeComponent(
 		'bitrix:main.mail.form', '',
 		array(
+			'VERSION' => 2,
 			'FORM_ID' => $formId,
 			'LAYOUT_ONLY' => true,
 			'SUBMIT_AJAX' => true,
@@ -444,7 +497,8 @@ var mailto = function ()
 		),
 		{
 			width: 960,
-			cacheable: false
+			cacheable: false,
+			loader: 'create-mail-loader'
 		}
 	);
 

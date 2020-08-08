@@ -7,16 +7,16 @@ if (!CModule::IncludeModule("socialnetwork"))
 	return;
 }
 
-if (strLen($arParams["EVENTS_VAR"]) <= 0)
+if ($arParams["EVENTS_VAR"] == '')
 	$arParams["EVENTS_VAR"] = "events";
 
-$arParams["LOG_DATE_DAYS"] = IntVal($arParams["LOG_DATE_DAYS"]);
+$arParams["LOG_DATE_DAYS"] = intval($arParams["LOG_DATE_DAYS"]);
 if ($arParams["LOG_DATE_DAYS"] <= 0)
 	$arParams["LOG_DATE_DAYS"] = 7;
 
 $arParams["EVENT_ID"] = false;
 	
-if (array_key_exists($arParams["EVENTS_VAR"], $_REQUEST) && strlen(trim($_REQUEST[$arParams["EVENTS_VAR"]])) > 0)
+if (array_key_exists($arParams["EVENTS_VAR"], $_REQUEST) && trim($_REQUEST[$arParams["EVENTS_VAR"]]) <> '')
 {
 	$arParams["EVENT_ID"] = trim($_REQUEST[$arParams["EVENTS_VAR"]]);
 	$arParams["EVENT_ID"] = explode("|", $arParams["EVENT_ID"]);
@@ -53,22 +53,22 @@ if (!function_exists("__RSSCheckServerName"))
 	function __RSSCheckServerName($url, $server_name)
 	{	
 		$protocol = (CMain::IsHTTPS() ? "https://" : "http://");
-		$result = strlen($url) > 0 && strpos($url, $protocol) !== 0 ? $protocol.$server_name.$url : $url;
+		$result = $url <> '' && mb_strpos($url, $protocol) !== 0 ? $protocol.$server_name.$url : $url;
 		return $result;
 	}
 }
 
-if(strlen($arResult["SERVER_NAME"])<=0 && defined("SITE_SERVER_NAME"))
+if($arResult["SERVER_NAME"] == '' && defined("SITE_SERVER_NAME"))
 	$arResult["SERVER_NAME"] = SITE_SERVER_NAME;
 
-if(strlen($arResult["SERVER_NAME"])<=0 && defined("SITE_SERVER_NAME"))
+if($arResult["SERVER_NAME"] == '' && defined("SITE_SERVER_NAME"))
 {
 	$rsSite = CSite::GetList(($b="sort"), ($o="asc"), array("LID" => SITE_ID));
 	if($arSite = $rsSite->Fetch())
 		$arResult["SERVER_NAME"] = $arSite["SERVER_NAME"];
 }
 		
-if(strlen($arResult["SERVER_NAME"])<=0)
+if($arResult["SERVER_NAME"] == '')
 	$arResult["SERVER_NAME"] = COption::GetOptionString("main", "server_name", "www.bitrixsoft.com");
 
 if ($arParams["ENTITY_TYPE"] == SONET_ENTITY_GROUP)
@@ -168,7 +168,7 @@ if ($arResult["NAME"])
 		if ($arParams["EVENT_ID"])
 			$arFilter["EVENT_ID"] = $arParams["EVENT_ID"];
 			
-		if (!is_array($arFilter["EVENT_ID"]) && strlen(trim($arFilter["EVENT_ID"])) > 0)
+		if (!is_array($arFilter["EVENT_ID"]) && trim($arFilter["EVENT_ID"]) <> '')
 			$arFilter["EVENT_ID"] = array($arFilter["EVENT_ID"]);
 			
 		foreach($arFilter["EVENT_ID"] as $i => $feature)
@@ -183,8 +183,8 @@ if ($arResult["NAME"])
 		
 		
 		if (
-			array_key_exists("ENTITY_TYPE", $arFilter) && strlen($arFilter["ENTITY_TYPE"]) > 0 
-			&& array_key_exists("ENTITY_ID", $arFilter) && intval($arFilter["ENTITY_ID"]) > 0 
+			array_key_exists("ENTITY_TYPE", $arFilter) && $arFilter["ENTITY_TYPE"] <> ''
+			&& array_key_exists("ENTITY_ID", $arFilter) && intval($arFilter["ENTITY_ID"]) > 0
 		)
 		{
 			$arFeatures = CSocNetFeatures::GetActiveFeatures($arFilter["ENTITY_TYPE"], $arFilter["ENTITY_ID"]);
@@ -254,16 +254,16 @@ if ($arResult["NAME"])
 				$path2Entity = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $arEvents["ENTITY_ID"]));
 			
 			$arDateTmp = ParseDateTime($arEvents["LOG_DATE"], CSite::GetDateFormat('FULL'));
-			$day = IntVal($arDateTmp["DD"]);
-			$month = IntVal($arDateTmp["MM"]);
-			$year = IntVal($arDateTmp["YYYY"]);
+			$day = intval($arDateTmp["DD"]);
+			$month = intval($arDateTmp["MM"]);
+			$year = intval($arDateTmp["YYYY"]);
 			$dateFormated = $day.' '.ToLower(GetMessage('MONTH_'.$month.'_S')).' '.$year;
 			$timeFormated = $arDateTmp["HH"].':'.$arDateTmp["MI"].':'.$arDateTmp["SS"];
 
 			$arEvents["MESSAGE_FORMAT"] = htmlspecialcharsback($arEvents["MESSAGE"]);
-			if (StrLen($arEvents["CALLBACK_FUNC"]) > 0)
+			if ($arEvents["CALLBACK_FUNC"] <> '')
 			{
-				if (StrLen($arEvents["MODULE_ID"]) > 0)
+				if ($arEvents["MODULE_ID"] <> '')
 					CModule::IncludeModule($arEvents["MODULE_ID"]);
 
 				$arEvents["MESSAGE_FORMAT"] = call_user_func($arEvents["CALLBACK_FUNC"], $arEvents);

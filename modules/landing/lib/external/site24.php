@@ -131,8 +131,8 @@ class Site24
 		$params['host'] = trim($params['host']);
 
 		if (
-			strpos($params['host'], 'http://') === 0 ||
-			strpos($params['host'], 'https://') === 0
+			mb_strpos($params['host'], 'http://') === 0 ||
+			mb_strpos($params['host'], 'https://') === 0
 		)
 		{
 			$parseHost = parse_url($params['host']);
@@ -165,7 +165,7 @@ class Site24
 			$result = $httpClient->getResult();
 		}
 
-		if (strlen($result) > 0)
+		if ($result <> '')
 		{
 			try
 			{

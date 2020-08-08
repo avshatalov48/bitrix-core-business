@@ -115,7 +115,7 @@ class CAllExtra
 		$arMsg = array();
 		$boolResult = true;
 
-		$strAction = strtoupper($strAction);
+		$strAction = mb_strtoupper($strAction);
 
 		$ID = (int)$ID;
 		if ('UPDATE' == $strAction && 0 >= $ID)

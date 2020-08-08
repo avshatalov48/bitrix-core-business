@@ -32,7 +32,7 @@ return [
 						</div>
 						<div>
 							<span class="landing-block-node-card-contact-text g-color-gray-dark-v2">Email:</span>
-							<a class="landing-block-node-card-contact-link g-color-gray-dark-v2 g-font-weight-700" href="mailto:info@company24.com" target="_blank">info@company24.com</a>
+							<a class="landing-block-node-card-contact-link g-color-gray-dark-v2 font-weight-bold" href="mailto:info@company24.com" target="_blank">info@company24.com</a>
 						</div>
 					</div>',
 		'values' => [

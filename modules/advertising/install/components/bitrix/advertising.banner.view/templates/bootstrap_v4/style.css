@@ -22,7 +22,7 @@
 .bx-advertisingbanner-text-title {
 	color: #000;
 	white-space: nowrap;
-	transition: 250ms linear all;
+	/*transition: 250ms linear all;*/
 }
 
 .bx-advertisingbanner-text-block {

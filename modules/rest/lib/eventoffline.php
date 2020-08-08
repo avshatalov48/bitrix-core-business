@@ -226,6 +226,7 @@ class EventOfflineTable extends Main\Entity\DataManager
 			$sqlProcessId = $helper->forSql($processId);
 
 			$sql = array();
+			$sql[] = "DELETE FROM {$sqlTable} WHERE {$sqlWhere} AND ERROR=0 AND PROCESS_ID <> '{$sqlProcessId}'";
 			$sql[] = "UPDATE {$sqlTable} SET ERROR=1, PROCESS_ID=IF(PROCESS_ID='{$sqlProcessId}', '', 'fake_process_id') WHERE {$sqlWhere} AND ERROR=0 ORDER BY PROCESS_ID ASC";
 			$sql[] = "DELETE FROM {$sqlTable} WHERE {$sqlWhere} AND PROCESS_ID='fake_process_id'";
 

@@ -266,10 +266,10 @@ textarea.landing-options-input {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	z-index: 99;
 	padding: 15px;
 	background: #fff;
 	text-align: left;
+	z-index: 900;
 }
 
 .pinable-block:hover {
@@ -636,6 +636,7 @@ textarea.landing-options-input {
 	margin-top: 13px;
 	vertical-align: top;
 	width: 100%;
+	padding-left: 12px;
 }
 
 .landing-form-social-text-title .ui-editable-field-label {
@@ -649,6 +650,7 @@ textarea.landing-options-input {
 	line-height: 27px;
 	min-width: 243px;
 	padding: 0 0 0 5px;
+	max-width: 100%;
 }
 
 .landing-form-social-text-title .ui-title-input-btn {
@@ -663,6 +665,7 @@ textarea.landing-options-input {
 .landing-form-social-text .ui-editable-field-textar-wrap {
 	min-height: 19px;
 	max-width: 100%;
+	padding-left: 12px;
 }
 
 .landing-form-social-text .ui-editable-field-label,
@@ -675,16 +678,16 @@ textarea.landing-options-input {
 	max-width: 100%;
 	overflow: hidden;
 	word-wrap: break-word;
+	padding-left: 0;
 }
 
 .landing-form-social-text .ui-editable-field-textarea {
 	box-sizing: border-box;
 	min-height: 48px;
-	margin: 0 0 -3px 6px;
+	margin: 0 0 -3px 0;
 	padding-left: 5px;
 	min-width: 458px;
 }
-
 
 .landing-form-social-text-block .ui-editable-field-textar-wrap .ui-title-input-btn {
 	top: 2px;
@@ -785,6 +788,8 @@ textarea.landing-options-input {
 
 .landing-ui-field-input {
 	background-color: #ffffff;
+	max-width: 476px;
+	padding-right: 35px;
 }
 
 .ui-form-right-cell-favicon {
@@ -885,4 +890,71 @@ textarea.landing-options-input {
 
 .landing-form-hidden-row-highlight {
 	background: rgba(187,237,33, .2);
+}
+
+.landing-domain {
+	background: #fff;
+	max-width: 605px;
+	padding: 10px 16px 15px;
+	border-radius: 2px;
+}
+
+.landing-domain-own {
+	background: transparent;
+	padding-bottom: 9px;
+}
+
+.landing-domain-name {
+	position: relative;
+	margin: 0 0 17px 2px;
+	display: inline-block;
+	padding-right: 20px;
+}
+
+.landing-domain-name-value {
+	font-size: 21px;
+	line-height: 27px;
+	color: #525c69;
+}
+
+.landing-domain-name .ui-title-input-btn {
+	top: 6px;
+	right: -4px;
+}
+
+.landing-domain-status-title {
+	color: #525c69;
+	margin-bottom: 15px;
+}
+
+.landing-domain-status-text {
+	color: #333;
+}
+
+.landing-domain-status-notice {
+	color: #76715e;
+	font-family:"OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.landing-domain-status {
+	border-radius: 2px;
+	padding: 16px 18px 18px;
+	font: 16px/22px "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.landing-domain-status-configure {
+	background: #ecfafe;
+}
+
+.landing-domain-status-active {
+	background: #f3fbeb;
+}
+
+.landing-domain-status-wait {
+	background: #fefcd6;
+}
+
+a {
+	color: #2067b0;
+	text-decoration: none;
 }

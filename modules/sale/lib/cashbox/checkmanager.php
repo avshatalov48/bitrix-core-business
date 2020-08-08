@@ -279,7 +279,10 @@ final class CheckManager
 				}
 
 				if ($order !== null
-					&& ($payment !== null || $shipment !== null)
+					&& (
+						$payment !== null
+						|| $shipment !== null
+					)
 				)
 				{
 					$r = new Result();
@@ -312,13 +315,13 @@ final class CheckManager
 				}
 
 				$error = new Errors\Error($errorMessage);
+				Logger::addError($error->getMessage(), $check['CASHBOX_ID']);
 			}
 			else
 			{
 				$error = new Errors\Warning($errorMessage);
+				Logger::addWarning($error->getMessage(), $check['CASHBOX_ID']);
 			}
-
-			Manager::writeToLog($check['CASHBOX_ID'], $error);
 
 			$event = new Main\Event('sale', static::EVENT_ON_CHECK_PRINT_ERROR, array($data));
 			$event->send();
@@ -338,40 +341,7 @@ final class CheckManager
 
 			if ($updateResult->isSuccess())
 			{
-				if ($payment !== null || $shipment !== null)
-				{
-					$isSend = false;
-					$event = new Main\Event(
-						'sale',
-						static::EVENT_ON_CHECK_PRINT_SEND,
-						array('PAYMENT' => $payment, 'SHIPMENT' => $shipment, 'CHECK' => $check)
-					);
-					$event->send();
-
-					$eventResults = $event->getResults();
-					/** @var Main\EventResult $eventResult */
-					foreach($eventResults as $eventResult)
-					{
-						if($eventResult->getType() == Main\EventResult::SUCCESS)
-							$isSend = true;
-					}
-
-					if (!$isSend)
-					{
-						if ($payment !== null)
-						{
-							/** @var Sale\Notify $notifyClassName */
-							$notifyClassName = $registry->getNotifyClassName();
-							$notifyClassName::callNotify($payment, Sale\EventActions::EVENT_ON_CHECK_PRINT);
-						}
-						elseif ($shipment !== null)
-						{
-							/** @var Sale\Notify $notifyClassName */
-							$notifyClassName = $registry->getNotifyClassName();
-							$notifyClassName::callNotify($shipment, Sale\EventActions::EVENT_ON_CHECK_PRINT);
-						}
-					}
-				}
+				self::addStatisticOnSuccessCheckPrint($checkId);
 
 				/** @ToDO Will be removed after OrderCheckCollection is realized */
 				if (
@@ -382,6 +352,38 @@ final class CheckManager
 				{
 					$order->addTimelineCheckEntryOnCreate($checkId, ['PRINTED' => 'Y']);
 				}
+
+				$isSend = false;
+				$event = new Main\Event(
+					'sale',
+					static::EVENT_ON_CHECK_PRINT_SEND,
+					array('PAYMENT' => $payment, 'SHIPMENT' => $shipment, 'CHECK' => $check)
+				);
+				$event->send();
+
+				$eventResults = $event->getResults();
+				/** @var Main\EventResult $eventResult */
+				foreach($eventResults as $eventResult)
+				{
+					if($eventResult->getType() == Main\EventResult::SUCCESS)
+						$isSend = true;
+				}
+
+				if (!$isSend)
+				{
+					if ($payment !== null)
+					{
+						/** @var Sale\Notify $notifyClassName */
+						$notifyClassName = $registry->getNotifyClassName();
+						$notifyClassName::callNotify($payment, Sale\EventActions::EVENT_ON_CHECK_PRINT);
+					}
+					elseif ($shipment !== null)
+					{
+						/** @var Sale\Notify $notifyClassName */
+						$notifyClassName = $registry->getNotifyClassName();
+						$notifyClassName::callNotify($shipment, Sale\EventActions::EVENT_ON_CHECK_PRINT);
+					}
+				}
 			}
 			else
 			{
@@ -390,6 +392,17 @@ final class CheckManager
 		}
 
 		return $result;
+	}
+
+	private function addStatisticOnSuccessCheckPrint($checkId)
+	{
+		$check = self::getObjectById($checkId);
+
+		$cashbox = Manager::getObjectById($check->getField('CASHBOX_ID'));
+		if ($cashbox)
+		{
+			AddEventToStatFile('sale', 'checkPrint', $checkId, $cashbox::getCode());
+		}
 	}
 
 	/**
@@ -1167,7 +1180,7 @@ final class CheckManager
 	public static function collectInfo(array $filter = array())
 	{
 		$result = array();
-		
+
 		$typeMap = CheckManager::getCheckTypeMap();
 
 		$dbRes = static::getList(
@@ -1216,6 +1229,9 @@ final class CheckManager
 	/**
 	 * @param $id
 	 * @return Check|null
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
 	 */
 	public static function getObjectById($id)
 	{

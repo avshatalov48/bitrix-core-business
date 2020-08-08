@@ -47,7 +47,7 @@ class CBPStateActivity
 			{
 				$v2 = array();
 				foreach ($v1 as $v3)
-					$v2[] = (strpos($v3, "{=") === 0 ? $v3 : "{=user:".$v3."}");
+					$v2[] = (mb_strpos($v3, "{=") === 0 ? $v3 : "{=user:".$v3."}");
 				if (count($v2) > 0)
 					$s[] = $k1.": ".implode(", ", $v2);
 			}
@@ -127,7 +127,7 @@ class CBPStateActivity
 
 		if (is_a($sender, "CBPStateInitializationActivity"))
 		{
-			if (strlen($this->nextStateName) > 0)
+			if ($this->nextStateName <> '')
 			{
 				$stateFinalization = null;
 				for ($i = 0, $s = sizeof($this->arActivities); $i < $s; $i++)
@@ -162,7 +162,7 @@ class CBPStateActivity
 		else
 		{
 			$stateFinalization = null;
-			if (strlen($this->nextStateName) > 0)
+			if ($this->nextStateName <> '')
 			{
 				for ($i = 0, $s = sizeof($this->arActivities); $i < $s; $i++)
 				{
@@ -188,7 +188,7 @@ class CBPStateActivity
 			$this->isListenTrigerred = false;
 
 			$arEP = array();
-			if (strlen($this->nextStateName) > 0)
+			if ($this->nextStateName <> '')
 				$arEP["NextStateName"] = $this->nextStateName;
 
 			$this->workflow->CloseActivity($this, $arEP);
@@ -255,7 +255,7 @@ class CBPStateActivity
 		$child = "CBP".$childActivity;
 
 		$bCorrect = false;
-		while (strlen($child) > 0)
+		while ($child <> '')
 		{
 			if (in_array($child, array("CBPStateInitializationActivity", "CBPStateFinalizationActivity", "CBPEventDrivenActivity")))
 			{

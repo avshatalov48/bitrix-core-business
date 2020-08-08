@@ -113,7 +113,6 @@ if ($isBitrix24Template)
 			?>href="javascript:void(0);" <?
 			?>title="<?= Loc::getMessage('LANDING_TPL_CREATE_FOLDER');?>"></a>
 		<?else:?>
-		&nbsp;&nbsp;
 		<?endif;?>
 
 		<?

@@ -22,6 +22,10 @@ class HttpClient
 	const HTTP_PATCH = "PATCH";
 	const HTTP_DELETE = "DELETE";
 
+	const DEFAULT_SOCKET_TIMEOUT = 30;
+	const DEFAULT_STREAM_TIMEOUT = 60;
+	const DEFAULT_STREAM_TIMEOUT_NO_WAIT = 1;
+
 	const BUF_READ_LEN = 16384;
 	const BUF_POST_LEN = 131072;
 
@@ -31,8 +35,8 @@ class HttpClient
 	protected $proxyPassword;
 
 	protected $resource;
-	protected $socketTimeout = 30;
-	protected $streamTimeout = 60;
+	protected $socketTimeout = self::DEFAULT_SOCKET_TIMEOUT;
+	protected $streamTimeout = self::DEFAULT_STREAM_TIMEOUT;
 	protected $error = array();
 	protected $peerSocketName;
 
@@ -59,7 +63,10 @@ class HttpClient
 	protected $result = '';
 	protected $outputStream;
 
+	/** @var IpAddress */
+	protected $effectiveIp;
 	protected $effectiveUrl;
+	protected $receivedBytesLength = 0;
 
 	protected $contextOptions = [];
 
@@ -67,9 +74,9 @@ class HttpClient
 	 * @param array $options Optional array with options:
 	 *		"redirect" bool Follow redirects (default true)
 	 *		"redirectMax" int Maximum number of redirects (default 5)
-	 *		"waitResponse" bool Wait for response or disconnect just after request (default true)
+	 *		"waitResponse" bool Read the body or disconnect just after reading headers (default true)
 	 *		"socketTimeout" int Connection timeout in seconds (default 30)
-	 *		"streamTimeout" int Stream reading timeout in seconds (default 60)
+	 *		"streamTimeout" int Stream reading timeout in seconds (default 60 for waitResponse == true and 1 for waitResponse == false)
 	 *		"version" string HTTP version (HttpClient::HTTP_1_0, HttpClient::HTTP_1_1) (default "1.0")
 	 *		"proxyHost" string Proxy host name/address
 	 *		"proxyPort" int Proxy port number
@@ -200,6 +207,10 @@ class HttpClient
 		if ($multipart)
 		{
 			$postData = $this->prepareMultipart($postData);
+			if($postData === false)
+			{
+				return false;
+			}
 		}
 
 		if($this->query(self::HTTP_POST, $url, $postData))
@@ -214,14 +225,13 @@ class HttpClient
 	 * Accepts file as a resource or as an array with keys 'resource' (or 'content') and optionally 'filename' and 'contentType'
 	 *
 	 * @param array|string|resource $postData Entity of POST/PUT request
-	 * @return string
+	 * @return string|bool False on error
 	 */
 	protected function prepareMultipart($postData)
 	{
 		if (is_array($postData))
 		{
 			$boundary = 'BXC'.md5(rand().time());
-			$this->setHeader('Content-type', 'multipart/form-data; boundary='.$boundary);
 
 			$data = '';
 
@@ -236,8 +246,6 @@ class HttpClient
 
 					if (is_array($v))
 					{
-						$content = '';
-
 						if (isset($v['resource']) && is_resource($v['resource']) && get_resource_type($v['resource']) === 'stream')
 						{
 							$resource = $v['resource'];
@@ -253,6 +261,7 @@ class HttpClient
 							{
 								$this->error["MULTIPART"] = "File `{$k}` not found for multipart upload";
 								trigger_error($this->error["MULTIPART"], E_USER_WARNING);
+								return false;
 							}
 						}
 
@@ -284,6 +293,8 @@ class HttpClient
 
 			$data .= '--'.$boundary."--\r\n";
 			$postData = $data;
+
+			$this->setHeader('Content-type', 'multipart/form-data; boundary='.$boundary);
 		}
 
 		return $postData;
@@ -301,6 +312,8 @@ class HttpClient
 	{
 		$queryMethod = $method;
 		$this->effectiveUrl = $url;
+		$this->effectiveIp = null;
+		$this->error = [];
 
 		if(is_array($entityBody))
 		{
@@ -320,6 +333,13 @@ class HttpClient
 				return false;
 			}
 
+			$error = $parsedUrl->convertToPunycode();
+			if($error instanceof \Bitrix\Main\Error)
+			{
+				$this->error["URI"] = "Error converting hostname to punycode: ".$error->getMessage();
+				return false;
+			}
+
 			if($this->privateIp == false)
 			{
 				$ip = IpAddress::createByUri($parsedUrl);
@@ -328,6 +348,7 @@ class HttpClient
 					$this->error["PRIVATE_IP"] = "Resolved IP is incorrect or private: ".$ip->get();
 					return false;
 				}
+				$this->effectiveIp = $ip;
 			}
 
 			//just in case of serial queries
@@ -340,16 +361,16 @@ class HttpClient
 
 			$this->sendRequest($queryMethod, $parsedUrl, $entityBody);
 
-			if(!$this->waitResponse)
-			{
-				$this->disconnect();
-				return true;
-			}
-
 			if(!$this->readHeaders())
 			{
 				$this->disconnect();
 				return false;
+			}
+
+			if(!$this->waitResponse)
+			{
+				$this->disconnect();
+				return true;
 			}
 
 			if($this->redirect && ($location = $this->responseHeaders->get("Location")) !== null && $location <> '')
@@ -450,14 +471,19 @@ class HttpClient
 	}
 
 	/**
-	 * Sets response waiting option.
+	 * Sets response body waiting option.
 	 *
-	 * @param bool $value If true, wait for response. If false, return just after request (default true).
+	 * @param bool $value If true, wait for response body. If false, disconnect just after reading headers (default true).
 	 * @return $this
 	 */
 	public function waitResponse($value)
 	{
 		$this->waitResponse = (bool)$value;
+		if(!$this->waitResponse)
+		{
+			$this->setStreamTimeout(self::DEFAULT_STREAM_TIMEOUT_NO_WAIT);
+		}
+
 		return $this;
 	}
 
@@ -659,15 +685,16 @@ class HttpClient
 		{
 			$proto = ($url->getScheme() == "https"? "ssl://" : "");
 			$host = $url->getHost();
-			$host = \CBXPunycode::ToASCII($host, $encodingErrors);
-			if(is_array($encodingErrors) && count($encodingErrors) > 0)
-			{
-				$this->error["URI"] = "Error converting hostname to punycode: ".implode("\n", $encodingErrors);
-				return false;
-			}
-			$url->setHost($host);
-
 			$port = $url->getPort();
+
+			if($this->effectiveIp !== null)
+			{
+				//set original host to match a sertificate
+				$this->setContextOptions(["ssl" => ["peer_name" => $host]]);
+
+				//resolved in query() if private IPs were disabled
+				$host = $this->effectiveIp->get();
+			}
 		}
 
 		$context = $this->createContext();
@@ -716,8 +743,7 @@ class HttpClient
 			$this->contextOptions["ssl"]["allow_self_signed"] = true;
 		}
 
-		$context = stream_context_create($this->contextOptions);
-		return $context;
+		return stream_context_create($this->contextOptions);
 	}
 
 	protected function disconnect()
@@ -765,6 +791,7 @@ class HttpClient
 		$this->result = '';
 		$this->responseHeaders->clear();
 		$this->responseCookies->clear();
+		$this->receivedBytesLength = 0;
 
 		if($this->proxyHost <> '')
 		{
@@ -852,24 +879,16 @@ class HttpClient
 		while(!feof($this->resource))
 		{
 			$line = fgets($this->resource, self::BUF_READ_LEN);
+
 			if($line == "\r\n")
 			{
 				break;
 			}
-			if($this->streamTimeout > 0)
+			if(!$this->checkErrors($line))
 			{
-				$info = stream_get_meta_data($this->resource);
-				if($info['timed_out'])
-				{
-					$this->error['STREAM_TIMEOUT'] = "Stream reading timeout of ".$this->streamTimeout." second(s) has been reached";
-					return false;
-				}
-			}
-			if($line === false)
-			{
-				$this->error['STREAM_READING'] = "Stream reading error";
 				return false;
 			}
+
 			$headers .= $line;
 		}
 
@@ -880,7 +899,6 @@ class HttpClient
 
 	protected function readBody()
 	{
-		$receivedBodyLength = 0;
 		if($this->responseHeaders->get("Transfer-Encoding") == "chunked")
 		{
 			while(!feof($this->resource))
@@ -892,6 +910,7 @@ class HttpClient
 				chunk-extension = *( ";" chunk-ext-name [ "=" chunk-ext-val ] )
 				*/
 				$line = fgets($this->resource, self::BUF_READ_LEN);
+
 				if($line == "\r\n")
 				{
 					continue;
@@ -902,57 +921,32 @@ class HttpClient
 				}
 
 				$length = hexdec($line);
-				while($length > 0)
+
+				if(!$this->receiveBytes($length))
 				{
-					$buf = $this->receive($length);
-					if($this->streamTimeout > 0)
-					{
-						$info = stream_get_meta_data($this->resource);
-						if($info['timed_out'])
-						{
-							$this->error['STREAM_TIMEOUT'] = "Stream reading timeout of ".$this->streamTimeout." second(s) has been reached";
-							return false;
-						}
-					}
-					if($buf === false)
-					{
-						$this->error['STREAM_READING'] = "Stream reading error";
-						return false;
-					}
-					$currentReceivedBodyLength = BinaryString::getLength($buf);
-					$length -= $currentReceivedBodyLength;
-					$receivedBodyLength += $currentReceivedBodyLength;
-					if($this->bodyLengthMax > 0 && $receivedBodyLength > $this->bodyLengthMax)
-					{
-						$this->error['STREAM_LENGTH'] = "Maximum content length has been reached. Break reading";
-						return false;
-					}
+					return false;
 				}
+			}
+		}
+		elseif(($length = $this->responseHeaders->get("Content-Length")) !== null)
+		{
+			//we'll read exact length of the content
+			if(!$this->receiveBytes($length))
+			{
+				return false;
 			}
 		}
 		else
 		{
+			//we don't know the length of the content - hope we'll reach the stream's end
 			while(!feof($this->resource))
 			{
 				$buf = $this->receive();
-				if($this->streamTimeout > 0)
+
+				$this->receivedBytesLength += BinaryString::getLength($buf);
+
+				if(!$this->checkErrors($buf))
 				{
-					$info = stream_get_meta_data($this->resource);
-					if($info['timed_out'])
-					{
-						$this->error['STREAM_TIMEOUT'] = "Stream reading timeout of ".$this->streamTimeout." second(s) has been reached";
-						return false;
-					}
-				}
-				if($buf === false)
-				{
-					$this->error['STREAM_READING'] = "Stream reading error";
-					return false;
-				}
-				$receivedBodyLength += BinaryString::getLength($buf);
-				if($this->bodyLengthMax > 0 && $receivedBodyLength > $this->bodyLengthMax)
-				{
-					$this->error['STREAM_LENGTH'] = "Maximum content length has been reached. Break reading";
 					return false;
 				}
 			}
@@ -961,6 +955,55 @@ class HttpClient
 		if($this->responseHeaders->get("Content-Encoding") == "gzip")
 		{
 			$this->decompress();
+		}
+
+		return true;
+	}
+
+	protected function receiveBytes($length)
+	{
+		while($length > 0)
+		{
+			$count = ($length > self::BUF_READ_LEN? self::BUF_READ_LEN : $length);
+
+			$buf = $this->receive($count);
+
+			$receivedBytesLength = BinaryString::getLength($buf);
+			$this->receivedBytesLength += $receivedBytesLength;
+
+			if(!$this->checkErrors($buf))
+			{
+				return false;
+			}
+
+			$length -= $receivedBytesLength;
+		}
+
+		return true;
+	}
+
+	protected function checkErrors($buf)
+	{
+		if($this->streamTimeout > 0)
+		{
+			$info = stream_get_meta_data($this->resource);
+			if($info['timed_out'])
+			{
+				$this->error['STREAM_TIMEOUT'] = "Stream reading timeout of ".$this->streamTimeout." second(s) has been reached";
+				return false;
+			}
+		}
+
+		if($buf === false)
+		{
+			$this->error['STREAM_READING'] = "Stream reading error";
+			return false;
+		}
+
+		if($this->bodyLengthMax > 0 && $this->receivedBytesLength > $this->bodyLengthMax)
+		{
+			$this->error['STREAM_LENGTH'] = "Maximum content length has been reached. Break reading";
+			return false;
 		}
 
 		return true;

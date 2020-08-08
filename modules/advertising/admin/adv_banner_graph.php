@@ -39,12 +39,12 @@ while ($arBann = $rsBanns->Fetch())
 {
 	$banner_ref_id[] = $arBann["ID"];
 	$banner_ref[] = "[".$arBann["ID"]."] ".$arBann["NAME"];
-	if (!in_array($arBann["GROUP_SID"], $group_ref_id) && strlen($arBann["GROUP_SID"])>0)
+	if (!in_array($arBann["GROUP_SID"], $group_ref_id) && $arBann["GROUP_SID"] <> '')
 	{
 		$group_ref_id[] = $arBann["GROUP_SID"];
 		$group_ref[] = $arBann["GROUP_SID"];
 	}
-	if (strlen($find_type_sid)>0)
+	if ($find_type_sid <> '')
 	{
 		if ($arBann["TYPE_SID"]==$find_type_sid) $find_banner_id[] = $arBann["ID"];
 	}
@@ -54,7 +54,7 @@ if(empty($banner_ref))
 
 $man = false;
 
-if ((!isset($_SESSION["SESS_ADMIN"]["AD_STAT_BANNER_GRAPH"]) || empty($_SESSION["SESS_ADMIN"]["AD_STAT_BANNER_GRAPH"])) && strlen($find_date1)<=0 && strlen($find_date2)<=0 && !is_array($find_banner_id) && strlen($find_banner_summa)<=0 && !is_array($find_what_show))
+if ((!isset($_SESSION["SESS_ADMIN"]["AD_STAT_BANNER_GRAPH"]) || empty($_SESSION["SESS_ADMIN"]["AD_STAT_BANNER_GRAPH"])) && $find_date1 == '' && $find_date2 == '' && !is_array($find_banner_id) && $find_banner_summa == '' && !is_array($find_what_show))
 {
 	$find_banner_id = $banner_ref_id;
 	$find_banner_summa = "Y";
@@ -80,11 +80,11 @@ $lAdmin = new CAdminList($sTableID, $oSort);
 
 $lAdmin->InitFilter($FilterArr);
 
-if (strlen($set_filter)>0 || $man) 
+if ($set_filter <> '' || $man) 
 	InitFilterEx($FilterArr,"AD_STAT_BANNER_GRAPH","set",true); 
 else 
 	InitFilterEx($FilterArr,"AD_STAT_BANNER_GRAPH","get",true);
-if (strlen($del_filter)>0)
+if ($del_filter <> '')
 	DelFilterEx($FilterArr,"AD_STAT_LIST",true);
 
 //if((!is_set($find_banner_id) && !is_set($find_what_show)) || (!is_set($find_what_show) && is_set($find_banner_id)) || (is_set($find_what_show) && !is_set($find_banner_id)))

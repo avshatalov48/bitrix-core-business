@@ -41,7 +41,7 @@ class CBitrixCloudBackupWebService extends CBitrixCloudWebService
 		if (is_object($node))
 		{
 			$spd = $node->getAttribute("crc_code");
-			if(strlen($spd) > 0)
+			if($spd <> '')
 				CUpdateClient::setSpd($spd);
 		}
 		else
@@ -118,13 +118,13 @@ class CBitrixCloudBackupWebService extends CBitrixCloudWebService
 		if (
 			!is_array($parsedUrl)
 			|| !($parsedUrl["scheme"] === "http" || $parsedUrl["scheme"] === "https")
-			|| strlen($parsedUrl["host"]) <= 0
+			|| $parsedUrl["host"] == ''
 			|| !(intval($parsedUrl["port"]) == 0 || intval($parsedUrl["port"]) == 80)
-			|| strlen($parsedUrl["path"]) > 0
-			|| strlen($parsedUrl["user"]) > 0
-			|| strlen($parsedUrl["pass"]) > 0
-			|| strlen($parsedUrl["query"]) > 0
-			|| strlen($parsedUrl["fragment"]) > 0
+			|| $parsedUrl["path"] <> ''
+			|| $parsedUrl["user"] <> ''
+			|| $parsedUrl["pass"] <> ''
+			|| $parsedUrl["query"] <> ''
+			|| $parsedUrl["fragment"] <> ''
 		)
 		{
 			throw new CBitrixCloudException(GetMessage("BCL_BACKUP_WRONG_URL"), "");

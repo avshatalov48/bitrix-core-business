@@ -6,10 +6,10 @@
 					<img class="landing-block-node-img g-width-60 g-height-60 g-object-fit-cover" src="https://cdn.bitrix24.site/bitrix/images/landing/business/100x100/img1.jpg" alt="">
 				</div>
 				<div class="media-body">
-					<h6 class="landing-block-node-title g-font-roboto-slab g-color-gray-dark-v1">
+					<h6 class="landing-block-node-title landing-semantic-subtitle-small g-color-gray-dark-v1">
 						Best dessert recipes for breakfast which will..
 					</h6>
-					<div class="landing-block-node-subtitle g-font-open-sans g-font-size-12 g-color-gray-dark-v4">
+					<div class="landing-block-node-subtitle landing-semantic-text-small g-font-size-12 g-color-gray-dark-v4">
 						<p>July 20, 2019</p>
 					</div>
 				</div>
@@ -20,10 +20,10 @@
 					<img class="landing-block-node-img g-width-60 g-height-60 g-object-fit-cover" src="https://cdn.bitrix24.site/bitrix/images/landing/business/100x100/img2.jpg" alt="">
 				</div>
 				<div class="media-body">
-					<h6 class="landing-block-node-title g-font-roboto-slab g-color-gray-dark-v1">
+					<h6 class="landing-block-node-title landing-semantic-subtitle-small g-color-gray-dark-v1">
 						Stylish things to do, see and purchase..
 					</h6>
-					<div class="landing-block-node-subtitle g-font-open-sans g-font-size-12 g-color-gray-dark-v4">
+					<div class="landing-block-node-subtitle landing-semantic-text-small g-font-size-12 g-color-gray-dark-v4">
 						<p>July 16, 2019</p>
 					</div>
 				</div>
@@ -34,10 +34,10 @@
 					<img class="landing-block-node-img g-width-60 g-height-60 g-object-fit-cover" src="https://cdn.bitrix24.site/bitrix/images/landing/business/100x100/img3.jpg" alt="">
 				</div>
 				<div class="media-body">
-					<h6 class="landing-block-node-title g-font-roboto-slab g-color-gray-dark-v1">
+					<h6 class="landing-block-node-title landing-semantic-subtitle-small g-color-gray-dark-v1">
 						Government plans to test new primary school..
 					</h6>
-					<div class="landing-block-node-subtitle g-font-open-sans g-font-size-12 g-color-gray-dark-v4">
+					<div class="landing-block-node-subtitle landing-semantic-text-small g-font-size-12 g-color-gray-dark-v4">
 						<p>July 07, 2019</p>
 					</div>
 				</div>
@@ -48,10 +48,10 @@
 					<img class="landing-block-node-img g-width-60 g-height-60 g-object-fit-cover" src="https://cdn.bitrix24.site/bitrix/images/landing/business/100x100/img4.jpg" alt="">
 				</div>
 				<div class="media-body">
-					<h6 class="landing-block-node-title g-font-roboto-slab g-color-gray-dark-v1">
+					<h6 class="landing-block-node-title landing-semantic-subtitle-small g-color-gray-dark-v1">
 						Top 10 Luxury Hotels - 5 Star Best Luxury Hotels
 					</h6>
-					<div class="landing-block-node-subtitle g-font-open-sans g-font-size-12 g-color-gray-dark-v4">
+					<div class="landing-block-node-subtitle landing-semantic-text-small g-font-size-12 g-color-gray-dark-v4">
 						<p>July 01, 2019</p>
 					</div>
 				</div>

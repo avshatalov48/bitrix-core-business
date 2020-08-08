@@ -12,22 +12,6 @@ Loc::loadMessages(__FILE__);
 class Form
 {
 	/**
-	 * Enabled or not B24 integration module.
-	 * @return bool
-	 */
-	protected static function isB24Connector()
-	{
-		static $isConnector = null;
-		if ($isConnector === null)
-		{
-			$isConnector = Loader::includeModule('b24connector')
-				&& Loader::includeModule('socialservices');
-		}
-		
-		return $isConnector;
-	}
-	
-	/**
 	 * Check if b24 or box portal
 	 * @return bool
 	 * @throws \Bitrix\Main\LoaderException
@@ -53,7 +37,7 @@ class Form
 		{
 			$forms = self::getFormsForPortal();
 		}
-		elseif (self::isB24Connector())
+		elseif (Manager::isB24Connector())
 		{
 			$forms = self::getFormsViaConnector();
 		}
@@ -203,7 +187,7 @@ class Form
 		else
 		{
 			// portal or SMN with b24connector
-			if (Manager::isB24() || self::isB24Connector())
+			if (Manager::isB24() || Manager::isB24Connector())
 			{
 				$attrs[] = array(
 					'name' => Loc::getMessage('LANDING_BLOCK_WEBFORM'),
@@ -285,7 +269,7 @@ class Form
 		{
 			$link = '/crm/webform/';
 		}
-		else if (self::isB24Connector())
+		else if (Manager::isB24Connector())
 		{
 			$link = '/bitrix/admin/b24connector_crm_forms.php?lang=' . LANGUAGE_ID;
 		}
@@ -358,7 +342,7 @@ class Form
 				);
 		}
 		// if use b24 connector - need get portal url
-		else if (self::isB24Connector())
+		else if (Manager::isB24Connector())
 		{
 			if ($client = ApClient::init())
 			{

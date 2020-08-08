@@ -1,4 +1,6 @@
 <?
+$MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_CANNOT_DELETE_HIGHLOADBLOCK"] = "Cannot delete highload information block #NAME# because it is a system block.";
+$MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_CANNOT_UPDATE_HIGHLOADBLOCK"] = "Cannot update highload information block #NAME# because it is a system block.";
 $MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_CREATE_HIGHLOADBLOCK"] = "Cannot create Highload information block #NAME#";
 $MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_DICTIONARY_ITEM_CREATE"] = "Error creating record with code #CODE# in dictionary #DICTIONARY#";
 $MESS["BX_CATALOG_PRODUCT_SYSTEMFIELD_ERR_EXIST_HIGHLOADBLOCK"] = "Highload information block #NAME# already exists";

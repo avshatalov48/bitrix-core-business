@@ -4,7 +4,6 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Web\Json;
-
 use Bitrix\Sender\Integration;
 use Bitrix\Sender\Internals\Model;
 
@@ -53,6 +52,17 @@ foreach ($arParams['LIST'] as $item):
 		foreach ($item['list'] as $button):
 			if (empty($button))
 			{
+				continue;
+			}
+
+			if($button['type'] === 'ui-feedback')
+			{
+				$APPLICATION->IncludeComponent(
+					'bitrix:ui.feedback.form',
+					'',
+					$button['content']
+				);
+
 				continue;
 			}
 
@@ -109,6 +119,9 @@ foreach ($arParams['LIST'] as $item):
 				<a id="<?=htmlspecialcharsbx($button['id'])?>"
 					href="<?=htmlspecialcharsbx($button['href'])?>"
 					class="ui-btn <?=htmlspecialcharsbx($button['class'])?>"
+					onclick="BX.Sender.Page.open('<?=CUtil::JSEscape(
+						htmlspecialcharsbx($button['href'])
+					)?>'); return false;"
 					style="<?=($button['visible'] ? '' : 'display: none;')?>"
 				>
 					<?=htmlspecialcharsbx($button['caption'])?>

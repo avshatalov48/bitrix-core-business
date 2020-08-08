@@ -14,7 +14,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 $errorMessage = "";
 
 $ID = trim($_REQUEST["ID"]);
-$adminMode = (strtoupper($_REQUEST["admin_mode"]) == "Y");
+$adminMode = (mb_strtoupper($_REQUEST["admin_mode"]) == "Y");
 
 $arWorkflowState = CBPStateService::GetWorkflowState($ID);
 
@@ -41,7 +41,7 @@ else
 	}
 
 	$backUrl = "/".ltrim(trim($_REQUEST["back_url"]), "\\/");
-	if (strlen($backUrl) <= 0)
+	if ($backUrl == '')
 		$backUrl = CBPDocument::GetDocumentAdminPage($arWorkflowState["DOCUMENT_ID"]);
 
 	$aMenu = array(
@@ -84,9 +84,9 @@ else
 		<tr>
 			<td align="right" valign="top" width="50%"><?= GetMessage("BPABL_STATE_NAME") ?>:</td>
 			<td width="50%" valign="top"><?
-			if (strlen($arWorkflowState["STATE_NAME"]) > 0)
+			if ($arWorkflowState["STATE_NAME"] <> '')
 			{
-				if (strlen($arWorkflowState["STATE_TITLE"]) > 0)
+				if ($arWorkflowState["STATE_TITLE"] <> '')
 					echo htmlspecialcharsbx($arWorkflowState["STATE_TITLE"])." (".htmlspecialcharsbx($arWorkflowState["STATE_NAME"]).")";
 				else
 					echo htmlspecialcharsbx($arWorkflowState["STATE_NAME"]);
@@ -135,7 +135,7 @@ else
 								$strMessageTemplate = GetMessage("BPABL_TYPE_6");
 						}
 
-						$name = (strlen($track["ACTION_TITLE"]) > 0 ? $track["ACTION_TITLE"]." (".$track["ACTION_NAME"].")" : $track["ACTION_NAME"]);
+						$name = ($track["ACTION_TITLE"] <> '' ? $track["ACTION_TITLE"]." (".$track["ACTION_NAME"].")" : $track["ACTION_NAME"]);
 
 						switch ($track["EXECUTION_STATUS"])
 						{
@@ -179,7 +179,7 @@ else
 								$status = GetMessage("BPABL_RES_6");
 						}
 
-						$note = ((strlen($track["ACTION_NOTE"]) > 0) ? ": ".$track["ACTION_NOTE"] : "");
+						$note = (($track["ACTION_NOTE"] <> '') ? ": ".$track["ACTION_NOTE"] : "");
 
 						$note = CBPTrackingService::parseStringParameter($note);
 

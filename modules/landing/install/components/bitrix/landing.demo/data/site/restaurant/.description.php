@@ -17,7 +17,10 @@ return array(
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(
 			'THEME_CODE' => 'restaurant',
-			'THEME_CODE_TYPO' => 'restaurant',
+			'THEMEFONTS_CODE' => 'g-font-montserrat',
+			'THEMEFONTS_CODE_H' => 'g-font-montserrat',
+			'THEMEFONTS_SIZE' => '0.92857',
+			'THEMEFONTS_USE' => 'Y',
 			'B24BUTTON_CODE' => $buttons[0],
 			'UP_SHOW' => 'Y',
 		)

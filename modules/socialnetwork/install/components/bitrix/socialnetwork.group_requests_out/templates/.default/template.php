@@ -4,7 +4,7 @@ if ($arResult["NEED_AUTH"] == "Y")
 {
 	$APPLICATION->AuthForm("");
 }
-elseif (strlen($arResult["FatalError"])>0)
+elseif ($arResult["FatalError"] <> '')
 {
 	?>
 	<span class='errortext'><?=$arResult["FatalError"]?></span><br /><br />
@@ -12,7 +12,7 @@ elseif (strlen($arResult["FatalError"])>0)
 }
 else
 {
-	if(strlen($arResult["ErrorMessage"])>0)
+	if($arResult["ErrorMessage"] <> '')
 	{
 		?>
 		<span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br />
@@ -54,7 +54,7 @@ else
 	</script>
 
 	<form method="post" name="form1" action="<?=POST_FORM_ACTION_URI?>" enctype="multipart/form-data">
-		<?if (StrLen($arResult["NAV_STRING"]) > 0):?>
+		<?if ($arResult["NAV_STRING"] <> ''):?>
 			<?=$arResult["NAV_STRING"]?><br /><br />
 		<?endif;?>
 		<div class="sonet-cntnr-group-requests-out">
@@ -120,7 +120,7 @@ else
 								$rsInvitedUser = CUser::GetByID($friend["USER_ID"]);
 								if (($arInvitedUser = $rsInvitedUser->Fetch()) && (!is_array($arInvitedUser["UF_DEPARTMENT"]) || intval($arInvitedUser["UF_DEPARTMENT"][0]) <= 0))
 								{
-									if (strlen($arInvitedUser["LAST_LOGIN"]) <= 0 && strlen($arInvitedUser["LAST_ACTIVITY_DATE"]) <= 0)
+									if ($arInvitedUser["LAST_LOGIN"] == '' && $arInvitedUser["LAST_ACTIVITY_DATE"] == '')
 										echo "<br><br><a href='".$APPLICATION->GetCurPageParam("invite_user_id=".$arInvitedUser["ID"], array("invite_user_id", "employee"))."'>".GetMessage("SONET_C12_REINVITE_TO_SITE")."</a>";
 								}
 
@@ -135,7 +135,7 @@ else
 			<?endif;?>
 		</table>
 		</div>
-		<?if (StrLen($arResult["NAV_STRING"]) > 0):?>
+		<?if ($arResult["NAV_STRING"] <> ''):?>
 			<?=$arResult["NAV_STRING"]?><br /><br />
 		<?endif;?>
 		<input type="hidden" name="max_count" value="<?= $ind ?>">

@@ -29,7 +29,6 @@ $MESS["TR_EXPORT_CSV_PARAM_CONVERT_UTF8"] = "Convert to UTF-8";
 $MESS["TR_EXPORT_CSV_PARAM_LANGUAGES"] = "Select languages to export";
 $MESS["TR_EXPORT_CSV_PARAM_LANGUAGES_ALL"] = "All";
 $MESS["TR_EXPORT_CSV_PARAM_UNTRANSLATED"] = "Export untranslated messages only";
-$MESS["TR_EXPORT_CSV_PROGRESS"] = "Folders processed";
 $MESS["TR_EXPORT_DLG_CLEAR"] = "Delete export file";
 $MESS["TR_EXPORT_DLG_DOWNLOAD"] = "Download export file";
 $MESS["TR_FILENAME"] = "File name:";

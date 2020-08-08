@@ -14,10 +14,10 @@ $saleModulePermissions = $GLOBALS["APPLICATION"]->GetGroupRight("sale");
 if (intval($arGadgetParams["ITEMS_COUNT"]) <= 0 || intval($arGadgetParams["ITEMS_COUNT"]) > 40)
 	$arGadgetParams["ITEMS_COUNT"] = 10;
 
-if (strlen($arGadgetParams["SITE_ID"]) > 0)
+if ($arGadgetParams["SITE_ID"] <> '')
 {
 	$arGadgetParams["SITE_CURRENCY"] = Sale\Internals\SiteCurrencyTable::getSiteCurrency($arGadgetParams["SITE_ID"]);
-	if (strlen($arGadgetParams["TITLE_STD"]) <= 0)
+	if ($arGadgetParams["TITLE_STD"] == '')
 	{
 		$rsSites = CSite::GetByID($arGadgetParams["SITE_ID"]);
 		if ($arSite = $rsSites->GetNext())
@@ -74,7 +74,7 @@ if ($saleModulePermissions != "W")
 }
 else
 {
-	if (strlen($arGadgetParams["SITE_ID"]) > 0)
+	if ($arGadgetParams["SITE_ID"] <> '')
 	{
 		$arFilterLID = array("=LID" => $arGadgetParams["SITE_ID"]);
 	}
@@ -227,7 +227,7 @@ foreach($arDatePeriods as $key => $arPeriod)
 				|| in_array($status_code, $arGadgetParams["ORDERS_STATUS_1"])
 			)
 			{
-				if (array_key_exists("Y_FIELD", $arStatus) && strlen($arStatus["Y_FIELD"]) > 0)
+				if (array_key_exists("Y_FIELD", $arStatus) && $arStatus["Y_FIELD"] <> '')
 					$arFilterYField = array("=".$arStatus["Y_FIELD"] => "Y");
 				else
 					$arFilterYField = array();

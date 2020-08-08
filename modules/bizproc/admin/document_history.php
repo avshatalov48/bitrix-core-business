@@ -21,12 +21,12 @@ if (defined("VIEW_DOCUMENT_URL"))
 
 $documentId = trim($_REQUEST["document_id"]);
 
-if (strlen($entity) <= 0)
+if ($entity == '')
 	$fatalErrorMessage .= GetMessage("BPADH_NO_ENTITY").". ";
-if (strlen($documentId) <= 0)
+if ($documentId == '')
 	$fatalErrorMessage .= GetMessage("BPADH_NO_DOC_ID").". ";
 
-if (strlen($fatalErrorMessage) <= 0)
+if ($fatalErrorMessage == '')
 {
 	$documentId = array($moduleId, $entity, $documentId);
 
@@ -40,7 +40,7 @@ if (strlen($fatalErrorMessage) <= 0)
 		$fatalErrorMessage .= GetMessage("BPADH_NO_PERMS").". ";
 }
 
-if (strlen($fatalErrorMessage) > 0)
+if ($fatalErrorMessage <> '')
 {
 	$APPLICATION->SetTitle(GetMessage("BPADH_ERROR"));
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
@@ -65,9 +65,9 @@ $arFilterFields = array(
 $lAdmin->InitFilter($arFilterFields);
 
 $arFilter = array("DOCUMENT_ID" => $documentId);
-if (strlen($filter_modified_1) > 0)
+if ($filter_modified_1 <> '')
 	$arFilter[">=MODIFIED"] = $filter_modified_1;
-if (strlen($filter_modified_2) > 0)
+if ($filter_modified_2 <> '')
 	$arFilter["<=MODIFIED"] = $filter_modified_2;
 if (intval($filter_user_id) > 0)
 	$arFilter["USER_ID"] = $filter_user_id;
@@ -94,7 +94,7 @@ if (($arID = $lAdmin->GroupAction()))
 
 	foreach ($arID as $ID)
 	{
-		if (strlen($ID) <= 0)
+		if ($ID == '')
 			continue;
 
 		switch ($_REQUEST['action'])
@@ -153,14 +153,14 @@ while ($arResultItem = $dbResultList->NavNext(true, "f_"))
 
 	$row->AddField(
 		"ID",
-		((strlen($viewDocumentUrl) > 0) ? '<a href="'.str_replace(array("#ID#"), array($f_ID), $viewDocumentUrl).'" title="'.GetMessage("BPADH_VIEW_DOC").'">' : "").$f_ID.((strlen($viewDocumentUrl) > 0) ? '</a>' : "")
+		(($viewDocumentUrl <> '') ? '<a href="'.str_replace(array("#ID#"), array($f_ID), $viewDocumentUrl).'" title="'.GetMessage("BPADH_VIEW_DOC").'">' : "").$f_ID.(($viewDocumentUrl <> '') ? '</a>' : "")
 	);
 	$row->AddField("NAME", $f_NAME);
 	$row->AddField("MODIFIED", $f_MODIFIED);
-	$row->AddField("USER", '[<a href="/bitrix/admin/user_edit.php?ID='.$f_USER_ID.'&lang='.LANGUAGE_ID.'" title="'.GetMessage("BPADH_USER_PROFILE").'">'.$f_USER_ID.'</a>] '.$f_USER_NAME.(strlen($f_USER_NAME) > 0 && strlen($f_USER_LAST_NAME) > 0 ? " " : "").$f_USER_LAST_NAME.(strlen($f_USER_NAME) <= 0 && strlen($f_USER_LAST_NAME) <= 0 ? $f_USER_LOGIN : ""));
+	$row->AddField("USER", '[<a href="/bitrix/admin/user_edit.php?ID='.$f_USER_ID.'&lang='.LANGUAGE_ID.'" title="'.GetMessage("BPADH_USER_PROFILE").'">'.$f_USER_ID.'</a>] '.$f_USER_NAME.($f_USER_NAME <> '' && $f_USER_LAST_NAME <> '' ? " " : "").$f_USER_LAST_NAME.($f_USER_NAME == '' && $f_USER_LAST_NAME == '' ? $f_USER_LOGIN : ""));
 
 	$arActions = Array();
-	if (strlen($viewDocumentUrl) > 0)
+	if ($viewDocumentUrl <> '')
 	{
 		$arActions[] = array(
 			"ICON" => "edit",

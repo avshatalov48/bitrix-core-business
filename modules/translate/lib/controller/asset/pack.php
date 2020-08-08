@@ -69,10 +69,16 @@ class Pack
 	/**
 	 * Runs controller action.
 	 *
+	 * @param boolean $runBefore Flag to run onBeforeRun event handler.
 	 * @return array
 	 */
-	public function run()
+	public function run($runBefore = false)
 	{
+		if ($runBefore)
+		{
+			$this->onBeforeRun();
+		}
+
 		// continue previous process
 		$progressParams = $this->getProgressParameters();
 		$this->packFile = (bool)$progressParams['packFile'];
@@ -87,7 +93,16 @@ class Pack
 			$this->processedItems = 0;
 			$this->archiveFileName = $this->generateExportFileName();
 
-			$tempDir = Translate\IO\Directory::generateTemporalDirectory('translate');
+			$exportFolder = Translate\Config::getExportFolder();
+			if (!empty($exportFolder))
+			{
+				$tempDir = new Translate\IO\Directory($exportFolder);
+			}
+			else
+			{
+				$tempDir = Translate\IO\Directory::generateTemporalDirectory('translate');
+			}
+
 			if (!$tempDir->isExists() || !$tempDir->isDirectory())
 			{
 				$this->addError(new Error(
@@ -171,12 +186,13 @@ class Pack
 				$this->declareAccomplishment();
 
 				$this->downloadParams = $this->getDownloadingParameters();
+				$result['FILE_NAME'] = $this->downloadParams['fileName'];
 				$result['DOWNLOAD_LINK'] = $this->generateDownloadLink();
 
 				$messagePlaceholders = array(
 					'#TOTAL_FILES#' => $this->processedItems,
 					'#FILE_SIZE_FORMAT#' => \CFile::FormatSize($this->downloadParams['fileSize']),
-					'#LANG#' => strtoupper($this->languageId),
+					'#LANG#' => mb_strtoupper($this->languageId),
 					'#FILE_PATH#' => $this->archiveFileName,
 					'#LINK#' => $result['DOWNLOAD_LINK'],
 				);

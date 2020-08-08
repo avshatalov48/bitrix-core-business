@@ -957,7 +957,7 @@ class CCatalogViewedProductsComponent extends CBitrixComponent
 			array($this->arParams['PRODUCT_ID_VARIABLE'], $this->arParams['ACTION_VARIABLE'], ''),
 			array('delete_system_params' => true)
 		);
-		$currentPath .= (stripos($currentPath, '?') === false ? '?' : '&');
+		$currentPath .= (mb_stripos($currentPath, '?') === false ? '?' : '&');
 		if ($this->arParams['COMPARE_PATH'] == '')
 		{
 			$comparePath = $currentPath;
@@ -969,7 +969,7 @@ class CCatalogViewedProductsComponent extends CBitrixComponent
 				array($this->arParams['PRODUCT_ID_VARIABLE'], $this->arParams['ACTION_VARIABLE'], ''),
 				array('delete_system_params' => true)
 			);
-			$comparePath .= (stripos($comparePath, '?') === false ? '?' : '&');
+			$comparePath .= (mb_stripos($comparePath, '?') === false ? '?' : '&');
 		}
 		$this->arParams['COMPARE_PATH'] = $comparePath.$this->arParams['ACTION_VARIABLE'].'=COMPARE';
 
@@ -1142,7 +1142,7 @@ class CCatalogViewedProductsComponent extends CBitrixComponent
 						$boolArr = is_array($prop["VALUE"]);
 						if (
 							($boolArr && !empty($prop["VALUE"]))
-							|| (!$boolArr && strlen($prop["VALUE"]) > 0)
+							|| (!$boolArr && $prop["VALUE"] <> '')
 						)
 						{
 							$element['DISPLAY_PROPERTIES'][$propertyName] = CIBlockFormatProperties::GetDisplayValue($element, $prop, 'catalog_out');

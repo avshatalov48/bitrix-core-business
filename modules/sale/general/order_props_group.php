@@ -7,7 +7,7 @@ class CAllSaleOrderPropsGroup
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$strSql =
 			"SELECT * ".
 			"FROM b_sale_order_props_group ".
@@ -28,12 +28,12 @@ class CAllSaleOrderPropsGroup
 		if (is_set($arFields, "PERSON_TYPE_ID") && $ACTION!="ADD")
 			UnSet($arFields["PERSON_TYPE_ID"]);
 
-		if ((is_set($arFields, "PERSON_TYPE_ID") || $ACTION=="ADD") && IntVal($arFields["PERSON_TYPE_ID"]) <= 0)
+		if ((is_set($arFields, "PERSON_TYPE_ID") || $ACTION=="ADD") && intval($arFields["PERSON_TYPE_ID"]) <= 0)
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGOPG_EMPTY_PERS_TYPE"), "ERROR_NO_PERSON_TYPE");
 			return false;
 		}
-		if ((is_set($arFields, "NAME") || $ACTION=="ADD") && strlen($arFields["NAME"]) <= 0)
+		if ((is_set($arFields, "NAME") || $ACTION=="ADD") && $arFields["NAME"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGOPG_EMPTY_GROUP"), "ERROR_NO_NAME");
 			return false;
@@ -55,7 +55,7 @@ class CAllSaleOrderPropsGroup
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		if (!CSaleOrderPropsGroup::CheckFields("UPDATE", $arFields, $ID)) return false;
 
@@ -71,7 +71,7 @@ class CAllSaleOrderPropsGroup
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$db_orderProps = CSaleOrderProps::GetList(($by="PROPS_GROUP_ID"), ($order="ASC"), Array("PROPS_GROUP_ID"=>$ID));
 		while ($arOrderProps = $db_orderProps->Fetch())

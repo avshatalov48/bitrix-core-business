@@ -42,7 +42,7 @@ $showSubscribe = true;
 
 /* Compatibility with the sale subscribe option */
 $saleNotifyOption = Bitrix\Main\Config\Option::get('sale', 'subscribe_prod');
-if(strlen($saleNotifyOption) > 0)
+if($saleNotifyOption <> '')
 	$saleNotifyOption = unserialize($saleNotifyOption);
 $saleNotifyOption = is_array($saleNotifyOption) ? $saleNotifyOption : array();
 foreach($saleNotifyOption as $siteId => $data)

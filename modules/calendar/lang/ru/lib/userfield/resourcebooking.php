@@ -46,10 +46,6 @@ $MESS["USER_TYPE_RESOURCE_EVENT_TITLE"] = "Бронирование";
 $MESS["USER_TYPE_RESOURCE_EMPTY"] = "Не заполнено";
 $MESS["USER_TYPE_RESOURCE_BOOKED_ERROR"] = "Ресурсы или сотрудники заняты в указанное время";
 
-$MESS["USER_TYPE_RESOURCE_B24_LIMITATION_TITLE"] = "Ограничение на количество бронируемых ресурсов";
-$MESS["USER_TYPE_RESOURCE_B24_LIMITATION"] = "У ряда тарифов есть ограничения на количество бронируемых ресурсов (или сотрудников). Ограничение общее для вашего Битрикс 24.";
-$MESS["USER_TYPE_RESOURCE_B24_LIMITATION_LINK"] = "Подробнее читайте в статье";
-
 $MESS["WEBF_RES_SETTINGS"] = "Настройки";
 $MESS["WEBF_RES_CLOSE_SETTINGS_POPUP"] = "Завершить настройку";
 $MESS["WEBF_RES_NAME_LABEL"] = "Название";

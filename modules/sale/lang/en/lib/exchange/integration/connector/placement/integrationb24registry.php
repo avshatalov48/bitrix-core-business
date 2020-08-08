@@ -1,0 +1,4 @@
+<?
+$MESS["SALE_INTEGRATIONB24_REGISTRY_GROUPNAME"] = "Bitrix Site Manager integration";
+$MESS["SALE_INTEGRATIONB24_REGISTRY_TITLE"] = "Registry";
+?>

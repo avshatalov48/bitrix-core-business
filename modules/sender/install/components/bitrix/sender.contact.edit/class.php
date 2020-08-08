@@ -1,20 +1,23 @@
 <?
 
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Context;
-use Bitrix\Main\Web\Uri;
-use Bitrix\Main\Loader;
 use Bitrix\Main\Error;
-
+use Bitrix\Main\ErrorCollection;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Uri;
 use Bitrix\Sender\Entity;
-use Bitrix\Sender\Security;
-use Bitrix\Sender\Recipient;
 use Bitrix\Sender\Integration;
-
+use Bitrix\Sender\Recipient;
+use Bitrix\Sender\Security;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
+	die();
+}
+
+if (!Bitrix\Main\Loader::includeModule('sender'))
+{
+	ShowError('Module `sender` not installed');
 	die();
 }
 
@@ -48,7 +51,7 @@ class SenderContactEditComponent extends \CBitrixComponent
 			?
 			$this->arParams['CAN_EDIT']
 			:
-			Security\Access::current()->canModifySegments();
+			Security\Access::getInstance()->canModifySegments();
 
 		if (!isset($this->arParams['ID']))
 		{
@@ -113,7 +116,7 @@ class SenderContactEditComponent extends \CBitrixComponent
 			);
 		}
 
-		if (!Security\Access::current()->canViewSegments())
+		if (!Security\Access::getInstance()->canViewSegments())
 		{
 			Security\AccessChecker::addError($this->errors);
 			return false;
@@ -161,7 +164,7 @@ class SenderContactEditComponent extends \CBitrixComponent
 	public function executeComponent()
 	{
 		$this->errors = new \Bitrix\Main\ErrorCollection();
-		if (!Loader::includeModule('sender'))
+		if (!Bitrix\Main\Loader::includeModule('sender'))
 		{
 			$this->errors->setError(new Error('Module `sender` is not installed.'));
 			$this->printErrors();

@@ -84,7 +84,20 @@ class AgreementTable extends Entity\DataManager
 				{
 					return Random::getString(6);
 				}
-			)
+			),
+			'USE_URL' => [
+				'data_type' => 'boolean',
+				'default_value' => 'N',
+				'values' => ['Y', 'N']
+			],
+			'URL' => [
+				'data_type' => 'string',
+			],
+			'IS_AGREEMENT_TEXT_HTML' => [
+				'data_type' => 'boolean',
+				'default_value' => 'N',
+				'values' => ['Y', 'N']
+			],
 		);
 	}
 

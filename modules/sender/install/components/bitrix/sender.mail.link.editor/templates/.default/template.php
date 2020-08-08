@@ -49,7 +49,7 @@ $containerId = 'bx-sender-mail-link-editor';
 			'UTM_CONTENT',
 		);
 		foreach ($list as $name):
-			$nameLower = strtolower($name);
+			$nameLower = mb_strtolower($name);
 		?>
 			<div class="sender-popup-editor-row">
 				<div class="sender-popup-editor-caption">

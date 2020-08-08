@@ -46,7 +46,7 @@ class Calculator
 		$request = "TARIFFCOMPUTE_2";
 		$fromBLocationCode = \CSaleHelper::getShopLocationId($shipment->getCollection()->getOrder()->getSiteId());
 
-		if(strlen($fromBLocationCode) <= 0)
+		if($fromBLocationCode == '')
 		{
 			$result->addError(new Error(Loc::getMessage('SALE_DLV_SRV_SPSR_ERROR_HTTP_PUBLIC')));
 
@@ -64,7 +64,7 @@ class Calculator
 
 		$fromCity = Location::getExternalId($fromBLocationCode);
 
-		if(strlen($fromCity) <= 0)
+		if($fromCity == '')
 		{
 			$result->addError(new Error(Loc::getMessage('SALE_DLV_SRV_SPSR_ERROR_HTTP_PUBLIC')));
 
@@ -82,7 +82,7 @@ class Calculator
 
 		$toBLocationCode = self::getLocationCode($shipment);
 
-		if(strlen($toBLocationCode) <= 0)
+		if($toBLocationCode == '')
 		{
 			$result->addError(new Error(Loc::getMessage('SALE_DLV_SRV_SPSR_ERROR_HTTP_PUBLIC')));
 
@@ -100,7 +100,7 @@ class Calculator
 
 		$toCity = Location::getExternalId($toBLocationCode);
 
-		if(strlen($toCity) <= 0)
+		if($toCity == '')
 		{
 			$result->addError(new Error(Loc::getMessage('SALE_DLV_SRV_SPSR_ERROR_HTTP_PUBLIC')));
 
@@ -199,7 +199,7 @@ class Calculator
 
 			$dimensions = $basketItem->getField('DIMENSIONS');
 
-			if(!is_array($dimensions) && strlen($dimensions) > 0)
+			if(!is_array($dimensions) && $dimensions <> '')
 				$dimensions = unserialize($dimensions);
 
 			if(!empty($dimensions['WIDTH']) && !empty($dimensions['HEIGHT']) && !empty($dimensions['LENGTH']))
@@ -359,7 +359,7 @@ class Calculator
 
 	protected static function utfDecode($str)
 	{
-		if(strtolower(SITE_CHARSET) != 'utf-8')
+		if(mb_strtolower(SITE_CHARSET) != 'utf-8')
 			$str = Encoding::convertEncoding($str, 'UTF-8', SITE_CHARSET);
 
 		return $str;

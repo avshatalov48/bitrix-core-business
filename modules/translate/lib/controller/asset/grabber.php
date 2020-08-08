@@ -141,12 +141,12 @@ class Grabber
 			if (
 				(filesize($_FILES['tarFile']['tmp_name']) > 0) &&
 				(
-					substr($_FILES['tarFile']['name'], -7) === '.tar.gz' ||
-					substr($_FILES['tarFile']['name'], -4) === '.tar'
+					mb_substr($_FILES['tarFile']['name'], -7) === '.tar.gz' ||
+					mb_substr($_FILES['tarFile']['name'], -4) === '.tar'
 				)
 			)
 			{
-				if (substr($_FILES['tarFile']['name'], -7) === '.tar.gz')
+				if (mb_substr($_FILES['tarFile']['name'], -7) === '.tar.gz')
 				{
 					$suffix = '.tar.gz';
 				}

@@ -1344,7 +1344,7 @@ input[type=number].main-ui-number-input::-webkit-outer-spin-button {
 	margin: 0;
 	height: 32px;
 	width: 12px;
-	background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI3IiBoZWlnaHQ9IjEyIiB2aWV3Qm94PSIwIDAgNyAxMiI+CiAgPGcgZmlsbD0iIzUyNUM2OSIgZmlsbC1ydWxlPSJldmVub2RkIj4KICAgIDxwb2x5Z29uIHBvaW50cz0iMy41IDAgNyA0IDAgNCIvPgogICAgPHBvbHlnb24gcG9pbnRzPSIzLjUgMTIgMCA4IDcgOCIvPgogIDwvZz4KPC9zdmc+Cg==');
+	background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI3IiBoZWlnaHQ9IjEyIj48ZyBmaWxsPSIjNTI1QzY5IiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zLjUgMEw3IDRIMHpNMy41IDEyTDAgOGg3eiIvPjwvZz48L3N2Zz4=');
 	background-repeat: no-repeat;
 	background-position: center;
 	-webkit-appearance: none;

@@ -46,12 +46,12 @@ class AdditionalProfile extends \Bitrix\Sale\Delivery\Services\Base
 		if(!($this->additionalHandler instanceof AdditionalHandler))
 			throw new ArgumentNullException('this->additionalHandler is not instance of AdditionalHandler');
 
-		if(isset($initParams['PROFILE_ID']) && strlen($initParams['PROFILE_ID']) > 0)
+		if(isset($initParams['PROFILE_ID']) && $initParams['PROFILE_ID'] <> '')
 			$this->profileType = $initParams['PROFILE_ID'];
-		elseif(isset($this->config['MAIN']['PROFILE_TYPE']) && strlen($this->config['MAIN']['PROFILE_TYPE']) > 0)
+		elseif(isset($this->config['MAIN']['PROFILE_TYPE']) && $this->config['MAIN']['PROFILE_TYPE'] <> '')
 			$this->profileType = $this->config['MAIN']['PROFILE_TYPE'];
 
-		if(strlen($this->profileType) > 0)
+		if($this->profileType <> '')
 		{
 			$profileParams = $this->getProfileParams();
 
@@ -126,9 +126,9 @@ class AdditionalProfile extends \Bitrix\Sale\Delivery\Services\Base
 	 */
 	protected function 	inheritParams()
 	{
-		if(strlen($this->name) <= 0) $this->name = $this->additionalHandler->getName();
+		if($this->name == '') $this->name = $this->additionalHandler->getName();
 		if(intval($this->logotip) <= 0) $this->logotip = $this->additionalHandler->getLogotip();
-		if(strlen($this->description) <= 0) $this->description = $this->additionalHandler->getDescription();
+		if($this->description == '') $this->description = $this->additionalHandler->getDescription();
 
 		$this->trackingParams = $this->additionalHandler->getTrackingParams();
 		$this->trackingClass = $this->additionalHandler->getTrackingClass();
@@ -147,8 +147,8 @@ class AdditionalProfile extends \Bitrix\Sale\Delivery\Services\Base
 			foreach($parentES as $esFields)
 			{
 				if(
-					(strlen($esFields['CODE']) > 0 && !$this->extraServices->getItemByCode($esFields['CODE']))
-					|| strlen($esFields['CODE']) <= 0
+					($esFields['CODE'] <> '' && !$this->extraServices->getItemByCode($esFields['CODE']))
+					|| $esFields['CODE'] == ''
 				)
 				{
 					$this->extraServices->addItem($esFields, $this->currency);

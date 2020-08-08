@@ -1,4 +1,7 @@
 <?
+
+use Bitrix\Main\Loader;
+
 IncludeModuleLangFile(__FILE__);
 
 /**
@@ -18,6 +21,7 @@ define("IM_MESSAGE_CHAT", "C");
 define("IM_MESSAGE_OPEN", "O");
 define("IM_MESSAGE_THREAD", "T");
 define("IM_MESSAGE_OPEN_LINE", "L");
+define("IM_MESSAGE_VIDEOCONF", "V");
 
 define("IM_CHAT_TYPE_PERSONAL", "PERSONAL");
 /**
@@ -107,8 +111,8 @@ CModule::AddAutoloadClasses(
 	)
 );
 
-$jsCoreRel = array('im_common', 'im_phone_call_view', 'clipboard', 'sidepanel', 'ui.notification', 'ui.alerts');
-$jsCoreRelMobile = array('im_common', 'uploader');
+$jsCoreRel = array('resize_observer', 'im_common', 'im_phone_call_view', 'im.lib.localstorage', 'clipboard', 'sidepanel', 'loader', 'ui.notification', 'ui.alerts', 'ui.vue', 'ui.buttons');
+$jsCoreRelMobile = array('im_common', 'uploader', 'mobile.pull.client');
 if (IsModuleInstalled('voximplant'))
 {
 	$jsCoreRel[] = 'voximplant';
@@ -131,27 +135,44 @@ if (IsModuleInstalled('pull') || IsModuleInstalled('disk'))
 $jsCoreRelPage = $jsCoreRel;
 $jsCoreRelPage[] = 'im_window';
 
-$jsIm = [
-	'/bitrix/js/im/im.js',
-	'/bitrix/js/im/v1/call/simple_vad.js',
-	'/bitrix/js/im/v1/call/controller.js',
-	'/bitrix/js/im/v1/call/engine.js',
-	'/bitrix/js/im/v1/call/hardware_dialog.js',
-	'/bitrix/js/im/v1/call/abstract_call.js',
-	'/bitrix/js/im/v1/call/plain_call.js',
-	'/bitrix/js/im/v1/call/voximplant_call.js',
-	'/bitrix/js/im/v1/call/util.js',
-	'/bitrix/js/im/v1/call/view.js',
-	'/bitrix/js/im/v1/call/notification.js',
-	'/bitrix/js/im/v1/call/invite_popup.js',
-	'/bitrix/js/im/v1/call/floating_video.js',
+$userAgent = \Bitrix\Main\Context::getCurrent()->getRequest()->getUserAgent();
+/* TODO 2 tabs desktop
+if (mb_strpos(mb_strtolower($userAgent), "bitrixdesktop") !== false)
+{
+	$jsCoreRelPage[] = 'im_desktop';
+	$jsCoreRelPage[] = 'im_timecontrol';
+}
+*/
+
+$jsImCall = [
+	'/bitrix/js/im/call/simple_vad.js',
+	'/bitrix/js/im/call/controller.js',
+	'/bitrix/js/im/call/engine.js',
+	'/bitrix/js/im/call/hardware.js',
+	'/bitrix/js/im/call/hardware_dialog.js',
+	'/bitrix/js/im/call/abstract_call.js',
+	'/bitrix/js/im/call/plain_call.js',
+	'/bitrix/js/im/call/voximplant_call.js',
+	'/bitrix/js/im/call/util.js',
+	'/bitrix/js/im/call/view.js',
+	'/bitrix/js/im/call/notification.js',
+	'/bitrix/js/im/call/notification_conference.js',
+	'/bitrix/js/im/call/invite_popup.js',
+	'/bitrix/js/im/call/floating_video.js',
+	'/bitrix/js/im/call/logger.js',
+	'/bitrix/js/im/call/video_strategy.js',
 ];
+
+$jsIm = array_merge(
+	['/bitrix/js/im/im.js'],
+	$jsImCall
+);
 
 CJSCore::RegisterExt('im_common', array(
 	'js' => '/bitrix/js/im/common.js',
-	'css' => '/bitrix/js/im/css/common.css',
+	'css' => ['/bitrix/js/im/css/common.css', '/bitrix/js/im/css/dark_im.css'],
 	'lang' => '/bitrix/modules/im/js_common.php',
-	'rel' => array('ls', 'ajax', 'date', 'fx', 'user', 'rest.client', 'phone_number', 'loader', 'ui.viewer')
+	'rel' => array('ls', 'ajax', 'date', 'fx', 'user', 'rest.client', 'phone_number', 'loader', 'ui.viewer', 'main.md5', 'im.debug', 'ui.notification')
 ));
 
 CJSCore::RegisterExt('im_phone_call_view', array(
@@ -176,7 +197,10 @@ CJSCore::RegisterExt('im_web', array(
 				'turn_server_firefox' => COption::GetOptionString('im', 'turn_server_firefox'),
 				'turn_server_login' => COption::GetOptionString('im', 'turn_server_login'),
 				'turn_server_password' => COption::GetOptionString('im', 'turn_server_password'),
+				'turn_server_max_users' => \Bitrix\Main\Config\Option::get('im', 'turn_server_max_users'),
 				'call_server_enabled' => \Bitrix\Im\Call\Call::isCallServerEnabled() ? 'Y' : 'N',
+				'call_server_max_users' => \Bitrix\Im\Call\Call::getMaxCallServerParticipants(),
+				'call_log_service' => \Bitrix\Im\Call\Call::getLogService(),
 			)
 		);
 	},
@@ -198,7 +222,10 @@ CJSCore::RegisterExt('im_page', array(
 				'turn_server_firefox' => COption::GetOptionString('im', 'turn_server_firefox'),
 				'turn_server_login' => COption::GetOptionString('im', 'turn_server_login'),
 				'turn_server_password' => COption::GetOptionString('im', 'turn_server_password'),
+				'turn_server_max_users' => \Bitrix\Main\Config\Option::get('im', 'turn_server_max_users'),
 				'call_server_enabled' => \Bitrix\Im\Call\Call::isCallServerEnabled() ? 'Y' : 'N',
+				'call_server_max_users' => \Bitrix\Im\Call\Call::getMaxCallServerParticipants(),
+				'call_log_service' => \Bitrix\Im\Call\Call::getLogService(),
 			)
 		);
 	},
@@ -227,13 +254,42 @@ CJSCore::RegisterExt('im_window', array(
 CJSCore::RegisterExt('im_desktop', array(
 	'js' => '/bitrix/js/im/desktop.js',
 	'lang' => '/bitrix/modules/im/js_desktop.php',
-	'rel' => array('im_page', 'im_call', 'socnetlogdest'),
+	'rel' => array('im_page', 'socnetlogdest'),
 ));
 
 CJSCore::RegisterExt('im_timecontrol', array(
-	'js' => '/bitrix/js/im/timecontrol.js',
+	'js' => '/bitrix/js/im/timecontrol.es6.js',
 	'rel' => array('timecontrol'),
 ));
+
+$imCallRel = ['loader', 'resize_observer', 'webrtc_adapter', 'im.lib.localstorage'];
+if(Loader::includeModule('voximplant'))
+{
+	$imCallRel[] = 'voximplant';
+}
+CJSCore::RegisterExt('im_call', [
+	'js' => $jsImCall,
+	'css' => [
+		'/bitrix/js/im/css/im.css',
+		'/bitrix/js/im/css/call/view.css'
+	],
+	'rel' => $imCallRel,
+	'oninit' => function()
+	{
+		return array(
+			'lang_additional' => array(
+				'turn_server' => COption::GetOptionString('im', 'turn_server'),
+				'turn_server_firefox' => COption::GetOptionString('im', 'turn_server_firefox'),
+				'turn_server_login' => COption::GetOptionString('im', 'turn_server_login'),
+				'turn_server_password' => COption::GetOptionString('im', 'turn_server_password'),
+				'turn_server_max_users' => \Bitrix\Main\Config\Option::get('im', 'turn_server_max_users'),
+				'call_server_enabled' => \Bitrix\Im\Call\Call::isCallServerEnabled() ? 'Y' : 'N',
+				'call_server_max_users' => \Bitrix\Main\Config\Option::get('im', 'call_server_max_users'),
+				'call_log_service' => \Bitrix\Im\Call\Call::getLogService(),
+			)
+		);
+	},
+]);
 
 $GLOBALS["APPLICATION"]->AddJSKernelInfo('im', array_merge(['/bitrix/js/im/common.js', '/bitrix/js/im/window.js'], $jsIm));
 $GLOBALS["APPLICATION"]->AddCSSKernelInfo('im', array('/bitrix/js/im/css/common.css', '/bitrix/js/im/css/window.css', '/bitrix/js/im/css/im.css', '/bitrix/js/im/css/call/view.css'));

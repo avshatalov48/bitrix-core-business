@@ -25,8 +25,7 @@ class Auth
 
 		$externalAuthId = $USER->GetParam('EXTERNAL_AUTH_ID');
 
-		// user with external '__controller' is real user
-		if ($externalAuthId === "__controller")
+		if ($USER->IsAdmin() || $externalAuthId === "__controller")
 		{
 			return true;
 		}

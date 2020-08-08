@@ -9,7 +9,7 @@ class CSaleMeasure
 		{
 			$tablePath = COption::GetOptionString('sale', 'measurement_path', '/bitrix/modules/sale/measurements.php');
 			$fullPath = $_SERVER["DOCUMENT_ROOT"].$tablePath;
-			if (strlen($tablePath) > 0 && file_exists($fullPath) && !is_dir($fullPath))
+			if ($tablePath <> '' && file_exists($fullPath) && !is_dir($fullPath))
 			{
 				require_once($fullPath);
 				

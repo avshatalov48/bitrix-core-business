@@ -5,6 +5,9 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/general/price.ph
 class CPrice extends CAllPrice
 {
 	/**
+	 * @deprecated deprecated since catalog 17.6.0
+	 * @see \Bitrix\Catalog\Model\Price::getList
+	 *
 	 * @param array $arOrder
 	 * @param array $arFilter
 	 * @param bool|array $arGroupBy
@@ -144,6 +147,9 @@ class CPrice extends CAllPrice
 	}
 
 	/**
+	 * @deprecated deprecated since catalog 17.6.0
+	 * @see \Bitrix\Catalog\Model\Price::getList
+	 *
 	 * @param array $arOrder
 	 * @param array $arFilter
 	 * @param bool|array $arGroupBy

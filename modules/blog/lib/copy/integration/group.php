@@ -2,31 +2,26 @@
 namespace Bitrix\Blog\Copy\Integration;
 
 use Bitrix\Main\Config\Option;
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
 use Bitrix\Socialnetwork\ComponentHelper;
 use Bitrix\Socialnetwork\Copy\Integration\Feature;
-use Bitrix\Socialnetwork\Copy\Integration\Helper;
 
-class Group implements Feature, Helper
+class Group implements Feature
 {
-	private $stepper;
+	const MODULE_ID = "blog";
+	const QUEUE_OPTION = "BlogGroupQueue";
+	const CHECKER_OPTION = "BlogGroupChecker_";
+	const STEPPER_OPTION = "BlogGroupStepper_";
+	const STEPPER_CLASS = GroupStepper::class;
+	const ERROR_OPTION = "BlogGroupError_";
 
 	private $executiveUserId;
 	private $features = [];
-
-	private $moduleId = "blog";
-	private $queueOption = "BlogGroupQueue";
-	private $checkerOption = "BlogGroupChecker_";
-	private $stepperOption = "BlogGroupStepper_";
-	private $errorOption = "BlogGroupError_";
 
 	public function __construct($executiveUserId = 0, array $features = [])
 	{
 		$this->executiveUserId = $executiveUserId;
 		$this->features = $features;
-
-		$this->stepper = GroupStepper::class;
 	}
 
 	public function copy($groupId, $copiedGroupId)
@@ -39,7 +34,7 @@ class Group implements Feature, Helper
 
 		$this->addToQueue($copiedGroupId);
 
-		Option::set($this->moduleId, $this->checkerOption.$copiedGroupId, "Y");
+		Option::set(self::MODULE_ID, self::CHECKER_OPTION.$copiedGroupId, "Y");
 
 		$queueOption = [
 			"executiveUserId" => $this->executiveUserId,
@@ -47,61 +42,16 @@ class Group implements Feature, Helper
 			"copiedGroupId" => $copiedGroupId,
 			"features" => $this->features
 		];
-		Option::set($this->moduleId, $this->stepperOption.$copiedGroupId, serialize($queueOption));
+		Option::set(self::MODULE_ID, self::STEPPER_OPTION.$copiedGroupId, serialize($queueOption));
 
 		$agent = \CAgent::getList([], [
-			"MODULE_ID" => $this->moduleId,
-			"NAME" => $this->stepper."::execAgent();"
+			"MODULE_ID" => self::MODULE_ID,
+			"NAME" => GroupStepper::class."::execAgent();"
 		])->fetch();
 		if (!$agent)
 		{
 			GroupStepper::bind(1);
 		}
-	}
-
-	/**
-	 * Returns a module id for work with options.
-	 * @return string
-	 */
-	public function getModuleId()
-	{
-		return $this->moduleId;
-	}
-
-	/**
-	 * Returns a map of option names.
-	 *
-	 * @return array
-	 */
-	public function getOptionNames()
-	{
-		return [
-			"queue" => $this->queueOption,
-			"checker" => $this->checkerOption,
-			"stepper" => $this->stepperOption,
-			"error" => $this->errorOption
-		];
-	}
-
-	/**
-	 * Returns a link to stepper class.
-	 * @return string
-	 */
-	public function getLinkToStepperClass()
-	{
-		return $this->stepper;
-	}
-
-	/**
-	 * Returns a text map.
-	 * @return array
-	 */
-	public function getTextMap()
-	{
-		return [
-			"title" => Loc::getMessage("GROUP_STEPPER_PROGRESS_TITLE"),
-			"error" => Loc::getMessage("GROUP_STEPPER_PROGRESS_ERROR")
-		];
 	}
 
 	private function getBlogPostIdsByGroupId($groupId)
@@ -124,7 +74,7 @@ class Group implements Feature, Helper
 
 		foreach ($blogPosts as $blogPost)
 		{
-			$sonetRights = $this->getsonetBlogPostRights($blogPost["ID"]);
+			$sonetRights = $this->getSonetBlogPostRights($blogPost["ID"]);
 			$sonetRights[] = "SG".$copiedGroupId;
 			$newBlogPostRights = ["SG".$copiedGroupId];
 			ComponentHelper::processBlogPostShare(
@@ -156,7 +106,7 @@ class Group implements Feature, Helper
 		return $blogPosts;
 	}
 
-	private function getsonetBlogPostRights($blogPostId)
+	private function getSonetBlogPostRights($blogPostId)
 	{
 		$currentRights = [];
 
@@ -180,11 +130,11 @@ class Group implements Feature, Helper
 
 	private function addToQueue(int $copiedGroupId)
 	{
-		$option = Option::get($this->moduleId, $this->queueOption, "");
+		$option = Option::get(self::MODULE_ID, self::QUEUE_OPTION, "");
 		$option = ($option !== "" ? unserialize($option) : []);
 		$option = (is_array($option) ? $option : []);
 
 		$option[] = $copiedGroupId;
-		Option::set($this->moduleId, $this->queueOption, serialize($option));
+		Option::set(self::MODULE_ID, self::QUEUE_OPTION, serialize($option));
 	}
 }

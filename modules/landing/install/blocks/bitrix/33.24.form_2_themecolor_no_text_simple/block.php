@@ -86,7 +86,9 @@
 				 data-b24form=""
 				 data-b24form-use-style="Y"
 				 data-b24form-show-header="N"
-			></div>
+			>
+				<div class="g-landing-alert">MESS[LANDING_BLOCK_WEBFORM_PRELOADER]</div>
+			</div>
 		</div>
 	</div>
 </section>

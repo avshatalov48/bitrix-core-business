@@ -426,14 +426,9 @@ class forumTextParser extends CTextParser
 		$userId = (!empty($fields['USER_ID']) ? $fields['USER_ID'] : '');
 		$userName = (!empty($fields['USER_NAME']) ? $fields['USER_NAME'] : '');
 
-		$ajaxPage = $this->ajaxPage;
-
-		if (
-			$this->pathToUserEntityType && strlen($this->pathToUserEntityType) > 0
-			&& intval($this->pathToUserEntityId) > 0
-		)
+		if (empty($userId))
 		{
-			$ajaxPage = $ajaxPage.(strpos($pathToUser, '?') === false ? '?' : '&').'entityType='.$this->pathToUserEntityType.'&entityId='.intval($this->pathToUserEntityId);
+			return "<span class=\"blog-p-user-name\">{$userName}</span>";
 		}
 
 		$anchorId = RandString(8);

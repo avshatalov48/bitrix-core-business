@@ -7,7 +7,14 @@
  */
 namespace Bitrix\Socialnetwork\Item;
 
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Error;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ModuleManager;
+use Bitrix\Socialnetwork\ComponentHelper;
 use Bitrix\Socialnetwork\LogTable;
+use Bitrix\Socialnetwork\Controller\Livefeed;
 
 class Log
 {
@@ -74,5 +81,4 @@ class Log
 	{
 		return false;
 	}
-
 }

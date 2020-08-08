@@ -4,7 +4,7 @@ define("ADMIN_MODULE_NAME", "security");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 CModule::IncludeModule('security');
-IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/options_user_settings_1.php");
+IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/options_user_settings.php");
 IncludeModuleLangFile(__FILE__);
 
 /**

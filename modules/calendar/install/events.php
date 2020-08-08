@@ -1,14 +1,17 @@
-<?
-$langs = CLanguage::GetList(($b=""), ($o=""));
+<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+
+$langs = CLanguage::GetList($by="sort", $order="asc");
 while($lang = $langs->Fetch())
 {
 	$lid = $lang["LID"];
 	IncludeModuleLangFile(__FILE__, $lid);
 
-	$arSites = array();
-	$sites = CSite::GetList(($b=""), ($o=""), Array("LANGUAGE_ID"=>$lid));
+	$arSites = [];
+	$sites = CSite::GetList($by = 'sort', $order = 'asc', ["LANGUAGE_ID" => $lid]);
 	while ($site = $sites->Fetch())
+	{
 		$arSites[] = $site["LID"];
+	}
 
 	$et = new CEventType;
 	$et->Add(array(

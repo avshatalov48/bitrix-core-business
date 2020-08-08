@@ -19,7 +19,7 @@ class UIPageSliderWrapperComponent extends \CBitrixComponent
 		return
 			$this->request->get('IFRAME') === 'Y' ||
 			isset($this->arParams['IFRAME_MODE']) && $this->arParams['IFRAME_MODE'] === true
-		;
+			;
 	}
 
 	/**
@@ -88,6 +88,7 @@ class UIPageSliderWrapperComponent extends \CBitrixComponent
 		$this->arParams['USE_PADDING'] = isset($this->arParams['USE_PADDING']) ? (bool) $this->arParams['USE_PADDING'] : true;
 		$this->arParams['BUTTONS'] = isset($this->arParams['BUTTONS']) ? $this->arParams['BUTTONS'] : [];
 		$this->arParams['PAGE_MODE'] = isset($this->arParams['PAGE_MODE']) ? (bool) $this->arParams['PAGE_MODE'] : true;
+		$this->arParams['RETURN_CONTENT'] = isset($this->arParams['RETURN_CONTENT']) ? (bool) $this->arParams['RETURN_CONTENT'] : false;
 		$this->arParams['PAGE_MODE_OFF_BACK_URL'] = isset($this->arParams['PAGE_MODE_OFF_BACK_URL']) ? $this->arParams['PAGE_MODE_OFF_BACK_URL'] : '/';
 		$this->arParams['CLOSE_AFTER_SAVE'] = isset($this->arParams['CLOSE_AFTER_SAVE']) ? (bool) $this->arParams['CLOSE_AFTER_SAVE'] : false;
 		$this->arParams['RELOAD_PAGE_AFTER_SAVE'] = isset($this->arParams['RELOAD_PAGE_AFTER_SAVE']) ? (bool) $this->arParams['RELOAD_PAGE_AFTER_SAVE'] : false;
@@ -132,8 +133,21 @@ class UIPageSliderWrapperComponent extends \CBitrixComponent
 			$APPLICATION->RestartBuffer();
 			$this->includeComponentTemplate();
 
-			require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_after.php');
-			exit;
+			if ($this->arParams['RETURN_CONTENT'])
+			{
+				foreach (GetModuleEvents("main", "OnEpilog", true) as $arEvent)
+				{
+					ExecuteModuleEventEx($arEvent);
+				}
+
+				return $APPLICATION->EndBufferContentMan();
+			}
+			else
+			{
+				require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_after.php');
+				exit;
+			}
+
 		}
 		elseif ($this->arParams['PAGE_MODE'] || self::$isWrapperCalled)
 		{

@@ -247,7 +247,7 @@ class CIBlockProperty extends CAllIBlockProperty
 	function _Add($ID, $arFields)
 	{
 		global $DB;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		if($arFields["MULTIPLE"]=="Y")
 			$strType = "longtext";

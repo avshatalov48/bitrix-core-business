@@ -242,9 +242,9 @@
 		{
 			// init nodes
 			this.dataNode = params.dataNode;
-			this.titleNode = BX('pagetitle');
-			this.inputNode = BX('pagetitle_input');
-			this.buttonNode = BX('pagetitle_edit');
+			this.titleNode = document.querySelector('.ui-side-panel-wrap-title-name');
+			this.inputNode = document.querySelector('.ui-side-panel-wrap-title-input');
+			this.buttonNode = document.querySelector('.ui-side-panel-wrap-title-edit-button');
 
 			this.initialTitle = this.titleNode.textContent;
 			this.defaultTitle = params.defaultTitle;

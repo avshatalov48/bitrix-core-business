@@ -14,20 +14,19 @@ use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Update\Stepper;
 use Bitrix\Main\Web\Json;
-use Bitrix\Socialnetwork\Copy\Integration\Helper;
 
 Extension::load("ui.alerts");
 
 $messages = Loc::loadLanguageFile(__FILE__);
 
-$showProgress = $arResult["SHOW_PROGRESS"];
+$moduleId = $arResult["moduleId"];
+$stepperClassName = $arResult["stepperClassName"];
+$errorOption = $arResult["errorOption"];
 
-/**
- * @var Helper $helper
- */
-$helper = $arResult["HELPER"];
-$moduleId = $helper->getModuleId();
-$idsWithErrors = $arResult["IDS_WITH_ERRORS"];
+$showProgress = $arResult["showProgress"];
+$showError = $arResult["showError"];
+$titleMessage = $arResult["titleMessage"];
+$errorMessage = $arResult["errorMessage"];
 
 $errorAlertContainerId = "cc-ui-alert-container";
 $errorAlertCloseButtonId = "cc-ui-alert-close-btn";
@@ -36,19 +35,14 @@ $errorAlertCloseButtonId = "cc-ui-alert-close-btn";
 <div class="tasks-copy-checker-container">
 	<?php if ($showProgress): ?>
 		<div class="tasks-copy-checker-progress">
-			<?=Stepper::getHtml([
-				$moduleId => [
-					$helper->getLinkToStepperClass()
-				],
-			], $helper->getTextMap()["title"]);?>
+			<?=Stepper::getHtml([$moduleId => [$stepperClassName]], $titleMessage);?>
 		</div>
 	<? endif; ?>
 	<div class="tasks-copy-checker-errors">
-		<?php if ($idsWithErrors): ?>
+		<?php if ($showError): ?>
 			<div id="<?=$errorAlertContainerId?>" class="ui-alert ui-alert-danger">
 				<span class="ui-alert-message">
-					<?=$helper->getTextMap()["error"].
-						HtmlFilter::encode(implode(", ", $idsWithErrors))?>
+					<?=HtmlFilter::encode($errorMessage)?>
 				</span>
 				<span id="<?=$errorAlertCloseButtonId?>" class="ui-alert-close-btn"></span>
 			</div>
@@ -62,7 +56,7 @@ $errorAlertCloseButtonId = "cc-ui-alert-close-btn";
 		new BX.Socialnetwork.CopyChecker({
 			signedParameters: "<?=$this->getComponent()->getSignedParameters()?>",
 			moduleId: "<?=$moduleId?>",
-			errorOptionName: "<?=$helper->getOptionNames()["error"]?>",
+			errorOption: "<?=HtmlFilter::encode($errorOption)?>",
 			errorAlertContainerId: "<?=$errorAlertContainerId?>",
 			errorAlertCloseButtonId: "<?=$errorAlertCloseButtonId?>"
 		});

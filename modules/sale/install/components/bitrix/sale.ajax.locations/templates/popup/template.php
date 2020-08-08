@@ -16,7 +16,7 @@ if ($arParams["AJAX_CALL"] != "Y"
 	$isChecked = "";
 	foreach ($arParams["LOC_DEFAULT"] as $val):
 		$checked = "";
-		if ((($val["ID"] == IntVal($_REQUEST["NEW_LOCATION_".$arParams["ORDER_PROPS_ID"]])) || ($val["ID"] == $arParams["CITY"])) && (!isset($_REQUEST["CHANGE_ZIP"]) || $_REQUEST["CHANGE_ZIP"] != "Y"))
+		if ((($val["ID"] == intval($_REQUEST["NEW_LOCATION_".$arParams["ORDER_PROPS_ID"]])) || ($val["ID"] == $arParams["CITY"])) && (!isset($_REQUEST["CHANGE_ZIP"]) || $_REQUEST["CHANGE_ZIP"] != "Y"))
 		{
 			$checked = "checked";
 			$isChecked = "Y";

@@ -290,7 +290,7 @@ class Rest extends \IRestService
 			$users = (int)$params['USER_ID'];
 		}
 
-		if (!$params['TEXT'] || strlen($params['TEXT']) <= 0)
+		if (!$params['TEXT'] || $params['TEXT'] == '')
 		{
 			throw new \Bitrix\Rest\RestException("Text can't be empty", "TEXT_ERROR", \CRestServer::STATUS_WRONG_REQUEST);
 		}

@@ -83,9 +83,9 @@
 			return this.getFirst(this.getHeadChild());
 		},
 
-		getEditSelectedValues: function()
+		getEditSelectedValues: function(withTemplate)
 		{
-			var selectedRows = this.getSelected();
+			var selectedRows = this.getSelected(withTemplate);
 			var values = {};
 
 			selectedRows.forEach(
@@ -98,9 +98,9 @@
 			return values;
 		},
 
-		getSelectedIds: function()
+		getSelectedIds: function(withTemplate)
 		{
-			return this.getSelected().map(function(current) {
+			return this.getSelected(withTemplate).map(function(current) {
 				return current.getId();
 			});
 		},
@@ -128,9 +128,9 @@
 			BX.onCustomEvent(window, 'Grid::thereEditedRows', []);
 		},
 
-		editSelectedCancel: function()
+		editSelectedCancel: function(withTemplate)
 		{
-			this.getSelected().forEach(function(current) {
+			this.getSelected(withTemplate).forEach(function(current) {
 				current.editCancel();
 			});
 
@@ -229,9 +229,9 @@
 		 * Gets selected rows
 		 * @return {BX.Grid.Row[]}
 		 */
-		getSelected: function()
+		getSelected: function(withTemplate)
 		{
-			return this.getBodyChild().filter(function(current) {
+			return this.getBodyChild(withTemplate).filter(function(current) {
 				return current.isShown() && current.isSelected();
 			});
 		},
@@ -333,13 +333,11 @@
 		 * Gets child rows of tbody
 		 * @return {BX.Grid.Row[]}
 		 */
-		getBodyChild: function()
+		getBodyChild: function(withTemplates)
 		{
-			this.bodyChild = this.bodyChild || this.getRows().filter(function(current) {
-				return current.isBodyChild();
+			return this.getRows().filter(function(current) {
+				return current.isBodyChild() && (!current.isTemplate() || withTemplates);
 			});
-
-			return this.bodyChild;
 		},
 
 		getFootChild: function()
@@ -514,10 +512,35 @@
 			});
 		},
 
-		hasEditable: function() {
+		hasEditable: function()
+		{
 			return this.getBodyChild().some(function(current) {
 				return current.isEdit();
 			});
+		},
+
+		insertAfter: function(currentId, targetId)
+		{
+			const currentRow = this.getById(currentId);
+			const targetRow = this.getById(targetId);
+
+			if (currentRow && targetRow)
+			{
+				BX.Dom.insertAfter(currentRow.getNode(), targetRow.getNode());
+				this.reset();
+			}
+		},
+
+		insertBefore: function(currentId, targetId)
+		{
+			const currentRow = this.getById(currentId);
+			const targetRow = this.getById(targetId);
+
+			if (currentRow && targetRow)
+			{
+				BX.Dom.insertBefore(currentRow.getNode(), targetRow.getNode());
+				this.reset();
+			}
 		}
 	};
 })();

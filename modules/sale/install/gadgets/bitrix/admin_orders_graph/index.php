@@ -10,10 +10,10 @@ if ($saleModulePermissions == "D")
 if(!CBXFeatures::IsFeatureEnabled('SaleReports'))
 	return false;
 
-if (strlen($arGadgetParams["SITE_ID"]) > 0)
+if ($arGadgetParams["SITE_ID"] <> '')
 {
 	$arGadgetParams["SITE_CURRENCY"] = CSaleLang::GetLangCurrency($arGadgetParams["SITE_ID"]);
-	if (strlen($arGadgetParams["TITLE_STD"]) <= 0)	
+	if ($arGadgetParams["TITLE_STD"] == '')
 	{
 		$rsSites = CSite::GetByID($arGadgetParams["SITE_ID"]);
 		if ($arSite = $rsSites->GetNext())
@@ -30,7 +30,7 @@ $width = 400;
 $height = 300;
 
 $arFields = Array();
-if (strlen($arGadgetParams["SITE_ID"]) > 0)
+if ($arGadgetParams["SITE_ID"] <> '')
 	$arFields["find_lid"] = $arGadgetParams["SITE_ID"];
 if(empty($arGadgetParams["ORDERS_STATUS"]))
 	$arGadgetParams["ORDERS_STATUS"] = Array("CREATED", "PAID");
@@ -70,7 +70,7 @@ if($arGadgetParams["PERIOD"] == "WEEK")
 	$arFields["filter_by"] = "day";
 	$arFields["cache_time"] = 60*60*4;
 }
-elseif(strlen($arGadgetParams["PERIOD"]) <= 0 || $arGadgetParams["PERIOD"] == "MONTH")
+elseif($arGadgetParams["PERIOD"] == '' || $arGadgetParams["PERIOD"] == "MONTH")
 {
 	$arFields["filter_date_from"] = ConvertTimeStamp(AddToTimeStamp(Array("MM" => -1)));
 	$arFields["filter_by"] = "week";

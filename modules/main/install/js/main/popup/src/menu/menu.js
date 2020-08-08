@@ -377,4 +377,9 @@ export default class Menu
 
 		return -1;
 	}
+
+	getMenuContainer()
+	{
+		return this.getPopupWindow().getPopupContainer();
+	}
 }

@@ -33,7 +33,7 @@ $arParams["NAME"] = trim($arParams["NAME"]);
 if ($arParams["NAME"] == '')
 	$arParams["NAME"] = "CATALOG_COMPARE_LIST";
 
-if (strlen($arParams["ELEMENT_SORT_FIELD"])<=0)
+if ($arParams["ELEMENT_SORT_FIELD"] == '')
 	$arParams["ELEMENT_SORT_FIELD"]="sort";
 
 if (!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["ELEMENT_SORT_ORDER"]))
@@ -439,7 +439,7 @@ Processing of the Buy link
 $strError = "";
 if (isset($_REQUEST[$arParams["ACTION_VARIABLE"]]) && isset($_REQUEST[$arParams["PRODUCT_ID_VARIABLE"]]))
 {
-	$action = strtoupper($_REQUEST[$arParams["ACTION_VARIABLE"]]);
+	$action = mb_strtoupper($_REQUEST[$arParams["ACTION_VARIABLE"]]);
 	$productID = (int)$_REQUEST[$arParams["PRODUCT_ID_VARIABLE"]];
 	if (($action == "COMPARE_ADD2BASKET" || $action == "COMPARE_BUY") && $productID > 0)
 	{
@@ -480,7 +480,7 @@ if (isset($_REQUEST[$arParams["ACTION_VARIABLE"]]) && isset($_REQUEST[$arParams[
 		}
 	}
 }
-if (strlen($strError)>0)
+if ($strError <> '')
 {
 	ShowError($strError);
 	return;
@@ -678,7 +678,7 @@ if (!empty($arCompare) && is_array($arCompare))
 		array("delete_system_params" => true)
 	);
 
-	$arResult['~COMPARE_URL_TEMPLATE'] = $currentPath.(stripos($currentPath, '?') === false ? '?' : '&');
+	$arResult['~COMPARE_URL_TEMPLATE'] = $currentPath.(mb_stripos($currentPath, '?') === false ? '?' : '&');
 	$arResult['COMPARE_URL_TEMPLATE'] = htmlspecialcharsbx($arResult['~COMPARE_URL_TEMPLATE']);
 	$rawCompareTemplateWithAction = $arResult['~COMPARE_URL_TEMPLATE'].$arParams['ACTION_VARIABLE'];
 	$compareTemplateWithAction = $arResult['COMPARE_URL_TEMPLATE'].$arParams['ACTION_VARIABLE'];
@@ -856,7 +856,7 @@ if (!empty($arCompare) && is_array($arCompare))
 						$boolArr = is_array($prop['VALUE']);
 						if (
 							($boolArr && !empty($prop["VALUE"]))
-							|| (!$boolArr && strlen($prop["VALUE"]) > 0)
+							|| (!$boolArr && $prop["VALUE"] <> '')
 						)
 						{
 							$arItem['OFFER_DISPLAY_PROPERTIES'][$pid] = CIBlockFormatProperties::GetDisplayValue($arOffer, $prop, 'catalog_out');
@@ -900,7 +900,7 @@ if (!empty($arCompare) && is_array($arCompare))
 					$boolArr = is_array($prop['VALUE']);
 					if (
 						($boolArr && !empty($prop["VALUE"]))
-						|| (!$boolArr && strlen($prop["VALUE"]) > 0)
+						|| (!$boolArr && $prop["VALUE"] <> '')
 					)
 					{
 						$arItem['DISPLAY_PROPERTIES'][$pid] = CIBlockFormatProperties::GetDisplayValue($arItem, $prop, 'catalog_out');

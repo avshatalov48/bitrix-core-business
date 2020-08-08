@@ -581,6 +581,48 @@
 
 /*endregion*/
 
+/*region ui-btn-icon-angle-up*/
+.ui-btn-icon-angle-up.ui-btn,
+.ui-btn-icon-angle-up.ui-btn-split,
+.ui-btn-icon-angle-up.ui-btn-double,
+.ui-btn-icon-angle-up.ui-btn-danger,
+.ui-btn-icon-angle-up.ui-btn-primary,
+.ui-btn-icon-angle-up.ui-btn-default,
+.ui-btn-icon-angle-up.ui-btn-danger-dark,
+.ui-btn-icon-angle-up.ui-btn-success-dark,
+.ui-btn-icon-angle-up.ui-btn-primary-dark,
+.bitrix24-light-theme .ui-btn-icon-angle-up.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-angle-up-white.svg?v=1.1); }
+
+.ui-btn-icon-angle-up.ui-btn-link,
+.ui-btn-icon-angle-up.ui-btn-light,
+.ui-btn-icon-angle-up.ui-btn-success,
+.ui-btn-icon-angle-up.ui-btn-secondary,
+.ui-btn-icon-angle-up.ui-btn-light-border,
+.bitrix24-dark-theme .ui-btn-icon-angle-up.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-angle-up-black.svg?v=1.1); }
+
+/*endregion*/
+
+/*region ui-btn-icon-angle-down*/
+.ui-btn-icon-angle-down.ui-btn,
+.ui-btn-icon-angle-down.ui-btn-split,
+.ui-btn-icon-angle-down.ui-btn-double,
+.ui-btn-icon-angle-down.ui-btn-danger,
+.ui-btn-icon-angle-down.ui-btn-primary,
+.ui-btn-icon-angle-down.ui-btn-default,
+.ui-btn-icon-angle-down.ui-btn-danger-dark,
+.ui-btn-icon-angle-down.ui-btn-success-dark,
+.ui-btn-icon-angle-down.ui-btn-primary-dark,
+.bitrix24-light-theme .ui-btn-icon-angle-down.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-angle-down-white.svg?v=1.1); }
+
+.ui-btn-icon-angle-down.ui-btn-link,
+.ui-btn-icon-angle-down.ui-btn-light,
+.ui-btn-icon-angle-down.ui-btn-success,
+.ui-btn-icon-angle-down.ui-btn-secondary,
+.ui-btn-icon-angle-down.ui-btn-light-border,
+.bitrix24-dark-theme .ui-btn-icon-angle-down.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-angle-down-black.svg?v=1.1); }
+
+/*endregion*/
+
 /*region ui-btn-icon-pause*/
 .ui-btn-icon-pause.ui-btn,
 .ui-btn-icon-pause.ui-btn-split,

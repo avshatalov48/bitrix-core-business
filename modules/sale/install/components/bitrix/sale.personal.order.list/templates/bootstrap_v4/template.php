@@ -184,7 +184,8 @@ else
 								"allow_inner" => $arParams['ALLOW_INNER'],
 								"refresh_prices" => $arParams['REFRESH_PRICES'],
 								"path_to_payment" => $arParams['PATH_TO_PAYMENT'],
-								"only_inner_full" => $arParams['ONLY_INNER_FULL']
+								"only_inner_full" => $arParams['ONLY_INNER_FULL'],
+								"return_url" => $arResult['RETURN_URL'],
 							);
 						}
 						?>
@@ -245,13 +246,13 @@ else
 											foreach ($payment['CHECK_DATA'] as $checkInfo)
 											{
 												$title = Loc::getMessage('SPOL_CHECK_NUM', array('#CHECK_NUMBER#' => $checkInfo['ID']))." - ". htmlspecialcharsbx($checkInfo['TYPE_NAME']);
-												if (strlen($checkInfo['LINK']))
+												if($checkInfo['LINK'] <> '')
 												{
 													$link = $checkInfo['LINK'];
 													$listCheckLinks .= "<div><a href='$link' target='_blank'>$title</a></div>";
 												}
 											}
-											if (strlen($listCheckLinks) > 0)
+											if ($listCheckLinks <> '')
 											{
 												?>
 												<div class="sale-order-list-payment-check">
@@ -414,7 +415,7 @@ else
 									?>
 								</div>
 								<?
-								if (strlen($shipment['TRACKING_URL']) > 0)
+								if ($shipment['TRACKING_URL'] <> '')
 								{
 									?>
 									<div class="col-md-2 col-md-offset-1 col-sm-12 sale-order-list-shipment-button-container">
@@ -496,7 +497,7 @@ else
 					<span class="text-nowrap"><?= $order['ORDER']['DATE_INSERT'] ?>,</span>
 					<?= count($order['BASKET_ITEMS']); ?>
 					<?
-					$count = substr(count($order['BASKET_ITEMS']), -1);
+					$count = mb_substr(count($order['BASKET_ITEMS']), -1);
 					if ($count == '1')
 					{
 						echo Loc::getMessage('SPOL_TPL_GOOD');
@@ -560,7 +561,8 @@ else
 			"url" => CUtil::JSEscape($this->__component->GetPath().'/ajax.php'),
 			"templateFolder" => CUtil::JSEscape($templateFolder),
 			"templateName" => $this->__component->GetTemplateName(),
-			"paymentList" => $paymentChangeData
+			"paymentList" => $paymentChangeData,
+			"returnUrl" => CUtil::JSEscape($arResult["RETURN_URL"]),
 		);
 		$javascriptParams = CUtil::PhpToJSObject($javascriptParams);
 		?>

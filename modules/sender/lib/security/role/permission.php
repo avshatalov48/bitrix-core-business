@@ -26,7 +26,6 @@ class Permission
 	const PERMISSION_SELF = 'A';
 	const PERMISSION_DEPARTMENT = 'D';
 	const PERMISSION_ANY = 'X';
-	const PERMISSION_ALLOW = 'X';
 
 	/**
 	 * Returns permission code according to the user's Permission.

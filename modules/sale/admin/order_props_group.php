@@ -24,7 +24,7 @@ $lAdmin->InitFilter($arFilterFields);
 
 $arFilter = array();
 
-if (IntVal($filter_person_type_id)>0)
+if (intval($filter_person_type_id)>0)
 	$arFilter["PERSON_TYPE_ID"] = $filter_person_type_id;
 else
 	Unset($arFilter["PERSON_TYPE_ID"]);
@@ -34,7 +34,7 @@ if ($lAdmin->EditAction() && $saleModulePermissions >= "W")
 	foreach ($FIELDS as $ID => $arFields)
 	{
 		$DB->StartTransaction();
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		if (!$lAdmin->IsUpdated($ID))
 			continue;
@@ -73,7 +73,7 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 
 	foreach ($arID as $ID)
 	{
-		if (strlen($ID) <= 0)
+		if ($ID == '')
 			continue;
 
 		switch ($_REQUEST['action'])
@@ -163,7 +163,7 @@ while ($arPropsGroup = $dbResultList->NavNext(true, "f_"))
 			array("PROPS_GROUP_ID" => $f_ID),
 			array()
 		);
-		$numProps = IntVal($numProps);
+		$numProps = intval($numProps);
 
 		if ($numProps > 0)
 			$fieldValue = "<a href=\"sale_order_props.php?lang=".LANG."&set_filter=Y&filter_group=".$f_ID."\">".$numProps."</a>";

@@ -1,11 +1,13 @@
 <?
+use Bitrix\Main\Loader;
+
 define("ADMIN_MODULE_NAME", "perfmon");
 define("PERFMON_STOP", true);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 /** @global CMain $APPLICATION */
 /** @global CDatabase $DB */
 /** @global CUser $USER */
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/include.php");
+Loader::includeModule('perfmon');
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/prolog.php");
 
 IncludeModuleLangFile(__FILE__);
@@ -73,9 +75,9 @@ class CPerfmonListColumnRequestUri extends CAdminListColumn
 			array("", "", "", "&"),
 			$arRes["REQUEST_URI"]
 		);
-		if (strpos($url, "?") === false)
+		if (mb_strpos($url, "?") === false)
 			$url .= "?";
-		if (strpos($url, "=") !== false)
+		if (mb_strpos($url, "=") !== false)
 			$url .= "&";
 		$url .= "show_sql_stat=Y&show_page_exec_time=Y&show_sql_stat_immediate=Y";
 
@@ -91,7 +93,7 @@ class CPerfmonListColumnRequestUri extends CAdminListColumn
 			$url = "http://".$arRes["SERVER_NAME"].":".$arRes["SERVER_PORT"].$url;
 		}
 
-		return '<a href="'.htmlspecialcharsbx($url).'" title="'.htmlspecialcharsbx($url).'">&gt;&gt;</a>&nbsp;<a href="perfmon_sql_list.php?lang='.LANGUAGE_ID.'&amp;set_filter=Y&amp;find_hit_id='.urlencode($arRes["ID"]).'" title="'.urlencode($arRes["REQUEST_URI"]).'">'.(strlen($arRes["REQUEST_URI"]) > $this->max_display_url? substr($arRes["REQUEST_URI"], 0, $this->max_display_url)."...": $arRes["REQUEST_URI"]).'</a> ';
+		return '<a href="'.htmlspecialcharsbx($url).'" title="'.htmlspecialcharsbx($url).'">&gt;&gt;</a>&nbsp;<a href="perfmon_sql_list.php?lang='.LANGUAGE_ID.'&amp;set_filter=Y&amp;find_hit_id='.urlencode($arRes["ID"]).'" title="'.urlencode($arRes["REQUEST_URI"]).'">'.(mb_strlen($arRes["REQUEST_URI"]) > $this->max_display_url? mb_substr($arRes["REQUEST_URI"], 0, $this->max_display_url)."...": $arRes["REQUEST_URI"]).'</a> ';
 	}
 }
 

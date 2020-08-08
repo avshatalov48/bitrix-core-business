@@ -18,7 +18,7 @@ $err_mess = "File: ".__FILE__."<br>Line: ";
 
 ClearVars("str_");
 
-$ID = IntVal($ID);
+$ID = intval($ID);
 if($_SERVER["REQUEST_METHOD"]=="POST" && $_REQUEST["save_form"]=="Y" && $MOD_RIGHT>="W" && check_bitrix_sessid())
 {
 	$dbr = CMailMessage::GetByID($ID);
@@ -37,7 +37,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && $_REQUEST["save_form"]=="Y" && $MOD_RIG
 			CMailMessage::MarkAsSpam($ID, $_REQUEST["MARK_SPAM"]=="Y", $dbr_arr);
 		}
 
-		if(strlen($_REQUEST["MANUAL_FILTER"])>0)
+		if($_REQUEST["MANUAL_FILTER"] <> '')
 		{
 			CMailFilter::FilterMessage($ID, "M", ($_REQUEST["MANUAL_FILTER"]>0?$_REQUEST["MANUAL_FILTER"]:false));
 		}
@@ -45,13 +45,12 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && $_REQUEST["save_form"]=="Y" && $MOD_RIG
 		if($_REQUEST["DELETE_MESSAGE"]=="Y")
 		{
 			CMailMessage::Delete($ID);
-			$_REQUEST["save"] == "Y";
 		}
 	}
 
-	if(strlen($_REQUEST["apply"])>0)
+	if($_REQUEST["apply"] <> '')
 		LocalRedirect($APPLICATION->GetCurPage()."?lang=".LANG."&ID=".$ID."#tb");
-	elseif(strlen($_REQUEST["next"])>0 || strlen($_REQUEST["prev"])>0)
+	elseif($_REQUEST["next"] <> '' || $_REQUEST["prev"] <> '')
 	{
 		$md5Path = md5("/bitrix/admin/mail_message_admin.php");
 		$FILTER = $_SESSION["SESS_ADMIN"][$md5Path];
@@ -67,12 +66,12 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && $_REQUEST["save_form"]=="Y" && $MOD_RIG
 			"SPAM"=>$FILTER["find_spam"]
 			);
 
-		if(strlen($_REQUEST["next"])>0)
+		if($_REQUEST["next"] <> '')
 			$arFilter[">ID"] = $ID;
 		else
 			$arFilter["<ID"] = $ID;
 
-		$mailmessages = CMailMessage::GetList(Array("ID"=>(strlen($_REQUEST["next"])>0?"asc":"desc")), $arFilter);
+		$mailmessages = CMailMessage::GetList(Array("ID"=>($_REQUEST["next"] <> ''?"asc":"desc")), $arFilter);
 		if($arr = $mailmessages->Fetch())
 			LocalRedirect($APPLICATION->GetCurPage()."?lang=".LANG."&ID=".$arr["ID"]."#tb");
 	}
@@ -135,25 +134,25 @@ if($dbr_arr = $dbr->ExtractFields("str_")):
 		<td width="40%"><?echo GetMessage("MAIL_MSG_VIEW_DATE")?></td>
 		<td width="60%"><?=$str_FIELD_DATE?></td>
 	</tr>
-	<?if(strlen($dbr_arr["FIELD_FROM"])>0):?>
+	<?if($dbr_arr["FIELD_FROM"] <> ''):?>
 	<tr>
 		<td><?echo GetMessage("MAIL_MSG_VIEW_FROM")?></td>
 		<td><?=TxtToHTML($dbr_arr["FIELD_FROM"])?></td>
 	</tr>
 	<?endif?>
-	<?if(strlen($dbr_arr["FIELD_TO"])>0):?>
+	<?if($dbr_arr["FIELD_TO"] <> ''):?>
 	<tr>
 		<td><?echo GetMessage("MAIL_MSG_VIEW_TO")?></td>
 		<td><?=TxtToHTML($dbr_arr["FIELD_TO"])?></td>
 	</tr>
 	<?endif?>
-	<?if(strlen($dbr_arr["FIELD_CC"])>0):?>
+	<?if($dbr_arr["FIELD_CC"] <> ''):?>
 	<tr>
 		<td><?echo GetMessage("MAIL_MSG_VIEW_CC")?></td>
 		<td><?=TxtToHTML($dbr_arr["FIELD_CC"])?></td>
 	</tr>
 	<?endif?>
-	<?if(strlen($dbr_arr["FIELD_BCC"])>0):?>
+	<?if($dbr_arr["FIELD_BCC"] <> ''):?>
 	<tr>
 		<td><?echo GetMessage("MAIL_MSG_VIEW_BCC")?></td>
 		<td><?=TxtToHTML($dbr_arr["FIELD_BCC"])?></td>
@@ -188,7 +187,7 @@ if($dbr_arr = $dbr->ExtractFields("str_")):
 	function _ConvReplies($str1, $str2)
 	{
 		$str2 = str_replace('\"', '"', $str2);
-		if(substr_count($str1, "&gt;")%2 == 1)
+		if (mb_substr_count($str1, '&gt;') % 2 == 1)
 			$clr = "#770000";
 		else
 			$clr = "#CC9933";
@@ -196,7 +195,16 @@ if($dbr_arr = $dbr->ExtractFields("str_")):
 	}
 	?>
 	<tr>
-		<td colspan="2" style="background:white; padding: 15px;"><?=preg_replace_callback("'(^|\r\n)[\s]*([A-Za-z]*(&gt;)+)([^\r\n]+)'", create_function('$m', "return _ConvReplies(\$m[2], \$m[4]);"), TxtToHTML($dbr_arr["BODY"]))?></td>
+		<td colspan="2" style="background: white; padding: 15px; ">
+			<?=preg_replace_callback(
+				'/(^|\n)[\s]*([A-Za-z]*(&gt;)+)([^\n]+)/',
+				function ($m)
+				{
+					return _ConvReplies($m[2], $m[4]);
+				},
+				txtToHtml($dbr_arr['BODY'])
+			) ?>
+		</td>
 	</tr>
 	<?
 	if($dbr_arr["ATTACHMENTS"]>0):
@@ -207,7 +215,7 @@ if($dbr_arr = $dbr->ExtractFields("str_")):
 		<td><?echo GetMessage("MAIL_MSG_VIEW_ATTACHMENTS")?></td>
 		<td>
 		<?while($dbr_attach_arr = $dbr_attach->GetNext()):?>
-			<a target="_blank" href="mail_attachment_view.php?lang=<?=LANG?>&amp;ID=<?=$dbr_attach_arr["ID"]?>"><?=(strlen($dbr_attach_arr["FILE_NAME"])>0?$dbr_attach_arr["FILE_NAME"]:GetMessage("MAIL_MSG_VIEW_NNM"))?></a> (<?
+			<a target="_blank" href="mail_attachment_view.php?lang=<?=LANG?>&amp;ID=<?=$dbr_attach_arr["ID"]?>"><?=($dbr_attach_arr["FILE_NAME"] <> ''?$dbr_attach_arr["FILE_NAME"]:GetMessage("MAIL_MSG_VIEW_NNM"))?></a> (<?
 				echo CFile::FormatSize($dbr_attach_arr["FILE_SIZE"]);
 			?>)<br>
 		<?endwhile?>

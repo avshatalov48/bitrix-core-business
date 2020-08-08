@@ -797,7 +797,7 @@ class Order extends Controller
 			}
 		}
 
-		if($this->isB24())
+		if($this->isCrmModuleInstalled())
 		{
 			if(is_array($fields['ORDER']['TRADE_BINDINGS']))
 			{

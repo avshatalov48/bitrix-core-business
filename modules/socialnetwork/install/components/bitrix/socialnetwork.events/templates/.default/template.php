@@ -1,6 +1,6 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
-if(strlen($arResult["FatalError"])>0)
+if($arResult["FatalError"] <> '')
 {
 	?>
 	<span class='errortext'><?=$arResult["FatalError"]?></span><br /><br />
@@ -8,7 +8,7 @@ if(strlen($arResult["FatalError"])>0)
 }
 else
 {
-	if(strlen($arResult["ErrorMessage"])>0)
+	if($arResult["ErrorMessage"] <> '')
 	{
 		?>
 		<span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br />
@@ -246,7 +246,7 @@ else
 							<?= $arResult["Event"]["DATE_CREATE"]; ?>
 						</td>
 					</tr>
-					<?if (StrLen($arResult["Event"]["TITLE"]) > 0):?>
+					<?if ($arResult["Event"]["TITLE"] <> ''):?>
 					<tr>
 						<td align="center">
 							<?= $arResult["Event"]["TITLE"]; ?>

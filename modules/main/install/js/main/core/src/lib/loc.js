@@ -3,6 +3,7 @@ import message from './loc/message';
 
 /**
  * Implements interface for works with language messages
+ * @memberOf BX
  */
 export default class Loc
 {

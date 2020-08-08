@@ -192,6 +192,11 @@ final class PreviewManager
 			$response = $this->sendResizedImage($file);
 		}
 
+		if ($response instanceof Response\BFile && isset($options['cache_time']))
+		{
+			$response->setCacheTime($options['cache_time']);
+		}
+
 		if ($response instanceof \Bitrix\Main\Response)
 		{
 			/** @global \CMain $APPLICATION */

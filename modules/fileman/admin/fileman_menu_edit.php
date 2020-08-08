@@ -44,7 +44,7 @@ if($multiSite)
 	while($arSite = $dbSitesList->GetNext())
 	{
 		$dir = rtrim($arSite["DIR"], "/");
-		if (substr($path, 0, strlen($dir)) == $dir && $arSite["DOC_ROOT"] == CSite::GetSiteDocRoot($site))
+		if (mb_substr($path, 0, mb_strlen($dir)) == $dir && $arSite["DOC_ROOT"] == CSite::GetSiteDocRoot($site))
 		{
 			$site = $arSite["ID"];
 			break;
@@ -56,7 +56,7 @@ else
 	while($arSite = $dbSitesList->GetNext())
 	{
 		$dir = rtrim($arSite["DIR"], "/");
-		if (substr($path, 0, strlen($dir)) == $dir)
+		if (mb_substr($path, 0, mb_strlen($dir)) == $dir)
 		{
 			$site = $arSite["ID"];
 			break;
@@ -94,7 +94,7 @@ if($name <> '')
 
 $abs_path = $DOC_ROOT.$menufilename;
 
-if($io->FileExists($abs_path) && strlen($new)<=0)
+if($io->FileExists($abs_path) && $new == '')
 	$bEdit = true;
 else
 	$bEdit = false;
@@ -112,10 +112,10 @@ if(!$USER->CanDoOperation('fileman_edit_existent_files') || !$USER->CanDoFileOpe
 	$strWarning = GetMessage("ACCESS_DENIED");
 else
 {
-	if($REQUEST_METHOD=="POST" && strlen($save)>0 && is_array($ids) && check_bitrix_sessid())
+	if($REQUEST_METHOD=="POST" && $save <> '' && is_array($ids) && check_bitrix_sessid())
 	{
 		$sMenuTemplateTmp = "";
-		if(strlen($template)>0 && $template!=GetMessage("FILEMAN_MENU_EDIT_DEF"))
+		if($template <> '' && $template!=GetMessage("FILEMAN_MENU_EDIT_DEF"))
 			$sMenuTemplateTmp = Rel2Abs("/", $template);
 
 		$res = CFileMan::GetMenuArray($abs_path);
@@ -140,7 +140,7 @@ else
 
 			if($bSimple)
 			{
-				if((${"del_".$num}=="Y" || (strlen(${"text_".$num})<=0 && strlen(${"link_".$num})<=0)) && !$only_edit)
+				if((${"del_".$num}=="Y" || (${"text_".$num} == '' && ${"link_".$num} == '')) && !$only_edit)
 				{
 					unset($aMenuLinksTmp[$num-1]);
 					continue;
@@ -162,18 +162,18 @@ else
 				$arAddLinksTmp = explode("\n", $additional_link);
 				for($j = 0, $m = count($arAddLinksTmp); $j < $m; $j++)
 				{
-					if(strlen(trim($arAddLinksTmp[$j]))>0)
+					if(trim($arAddLinksTmp[$j]) <> '')
 						$arAddLinks[] = trim($arAddLinksTmp[$j]);
 				}
 				$aMenuItem[] = $arAddLinks;
 
 				$arParams = Array();
-				$param_cnt = IntVal(${"param_cnt_".$num});
-				for($j=1; $j<=IntVal($param_cnt); $j++)
+				$param_cnt = intval(${"param_cnt_".$num});
+				for($j=1; $j<=intval($param_cnt); $j++)
 				{
 					$param_name = trim(${"param_name_".$num."_".$j});
 					$param_value = trim(${"param_value_".$num."_".$j});
-					if(strlen($param_name)>0 || strlen($param_value)>0)
+					if($param_name <> '' || $param_value <> '')
 						$arParams[$param_name]=$param_value;
 				}
 				$aMenuItem[] = $arParams;
@@ -185,7 +185,7 @@ else
 
 				$aMenuLinksTmp_[] = $aMenuItem;
 			}
-			$aMenuSort[] = IntVal(${"sort_".$num});
+			$aMenuSort[] = intval(${"sort_".$num});
 		}
 		if(!$bSimple)
 			$aMenuLinksTmp = $aMenuLinksTmp_;
@@ -205,20 +205,20 @@ else
 		//теперь $aMenuLinksTmp пр€мо в таком готовом виде, что хоть меню рисуй :-)
 	}
 
-	if($REQUEST_METHOD=="POST" && strlen($save)>0 && strlen($name)<=0 && check_bitrix_sessid())
+	if($REQUEST_METHOD=="POST" && $save <> '' && $name == '' && check_bitrix_sessid())
 	{
 		$strWarning = GetMessage("FILEMAN_MENU_EDIT_ENTER_TYPE");
 	}
-	elseif(strlen($new)>0 && strlen($name)>0 && $io->FileExists($abs_path) && check_bitrix_sessid())
+	elseif($new <> '' && $name <> '' && $io->FileExists($abs_path) && check_bitrix_sessid())
 	{
 		$strWarning = GetMessage("FILEMAN_MENU_EDIT_EXISTS_ERROR");
 		$bEdit = false;
 		$abs_path = $DOC_ROOT.$path;
 	}
 
-	if(strlen($strWarning) <= 0)
+	if($strWarning == '')
 	{
-		if($REQUEST_METHOD=="POST" && strlen($save) >0 && is_array($ids) && check_bitrix_sessid())
+		if($REQUEST_METHOD=="POST" && $save <> '' && is_array($ids) && check_bitrix_sessid())
 		{
 			CFileMan::SaveMenu(Array($site, $menufilename), $aMenuLinksTmp, $sMenuTemplateTmp);
 			$bEdit = true;
@@ -229,8 +229,8 @@ else
 				$mt = COption::GetOptionString("fileman", "menutypes", $default_value, $site);
 				$mt = unserialize(str_replace("\\", "", $mt));
 				$res_log['menu_name'] = $mt[$name];
-				$res_log['path'] = substr($path, 1);
-				if (strlen($new)<=0)
+				$res_log['path'] = mb_substr($path, 1);
+				if ($new == '')
 					CEventLog::Log(
 						"content",
 						"MENU_EDIT",
@@ -247,9 +247,9 @@ else
 						serialize($res_log)
 					);
 			}
-			if(strlen($apply)<=0)
+			if($apply == '')
 			{
-				if(strlen($back_url)>0)
+				if($back_url <> '')
 					LocalRedirect("/".ltrim($back_url, "/"));
 				else
 					LocalRedirect("/bitrix/admin/fileman_admin.php?".$addUrl."&site=".$site."&path=".UrlEncode($path));
@@ -270,7 +270,7 @@ foreach ($arParsedPath["AR_PATH"] as $chainLevel)
 	$adminChain->AddItem(
 		array(
 			"TEXT" => htmlspecialcharsex($chainLevel["TITLE"]),
-			"LINK" => ((strlen($chainLevel["LINK"]) > 0) ? $chainLevel["LINK"] : ""),
+			"LINK" => (($chainLevel["LINK"] <> '') ? $chainLevel["LINK"] : ""),
 		)
 	);
 }
@@ -284,7 +284,7 @@ $aMenu = array(
 	)
 );
 
-if(strlen($strWarning)<=0):
+if($strWarning == ''):
 
 $aMenu[] = array("SEPARATOR"=>"Y");
 
@@ -331,7 +331,7 @@ $number_new_params = COption::GetOptionInt("fileman", "num_menu_param", 1, $site
 <?endif;?>
 <?CAdminMessage::ShowMessage($strWarning);?>
 
-<?if(strlen($strWarning)<=0):?>
+<?if($strWarning == ''):?>
 <?if($USER->CanDoFileOperation('fm_edit_existent_file',$arPath_m)):?>
 
 <?= CAdminCalendar::ShowScript()?>
@@ -498,7 +498,7 @@ $tabControl->BeginNextTab();
 ?>
 
 	<?
-	if($bEdit && strlen($strWarning)<=0)
+	if($bEdit && $strWarning == '')
 	{
 		$res = CFileMan::GetMenuArray($abs_path);
 		$aMenuLinksTmp = $res["aMenuLinks"];
@@ -514,7 +514,7 @@ $tabControl->BeginNextTab();
 			<script>
 			function ChType(ob)
 			{
-				window.location = "<?echo $APPLICATION->GetCurPage()?>?lang=<?=LANG?>&site=<?=$site?>&path=<?=htmlspecialcharsex(addslashes($path))?><?if(strlen($back_url)>0)echo "&back_url=".URlEncode($back_url);?>&name="+ob[ob.selectedIndex].value;
+				window.location = "<?echo $APPLICATION->GetCurPage()?>?lang=<?=LANG?>&site=<?=$site?>&path=<?=htmlspecialcharsex(addslashes($path))?><?if($back_url <> '')echo "&back_url=".URlEncode($back_url);?>&name="+ob[ob.selectedIndex].value;
 			}
 			</script>
 			<select name="name" onChange="ChType(this)">
@@ -536,7 +536,7 @@ $tabControl->BeginNextTab();
 	<tr>
 		<td><?=GetMessage("FILEMAN_MENU_EDIT_TEMPLATE")?></td>
 		<td>
-			<input type="text" name="template" size="50" maxlength="255" value="<?if(strlen($sMenuTemplateTmp)>0) echo htmlspecialcharsex($sMenuTemplateTmp); else echo GetMessage("FILEMAN_MENU_EDIT_DEF");?>"
+			<input type="text" name="template" size="50" maxlength="255" value="<?if($sMenuTemplateTmp <> '') echo htmlspecialcharsex($sMenuTemplateTmp); else echo GetMessage("FILEMAN_MENU_EDIT_DEF");?>"
 			OnFocus="if(this.value=='<?=GetMessage("FILEMAN_MENU_EDIT_DEF")?>')this.value=''"
 			onfocusout="if(this.value=='')this.value='<?=GetMessage("FILEMAN_MENU_EDIT_DEF")?>';">
 		</td>
@@ -696,7 +696,7 @@ $tabControl->BeginNextTab();
 	$tabControl->Buttons(
 		array(
 			"disabled" => false,
-			"back_url" => ((strlen($back_url)>0 && strpos($back_url, "/bitrix/admin/fileman_menu_edit.php")!==0) ? htmlspecialcharsex($back_url) : "/bitrix/admin/fileman_admin.php?".$addUrl."&site=".Urlencode($site)."&path=".UrlEncode($arParsedPath["FULL"]))
+			"back_url" => (($back_url <> '' && mb_strpos($back_url, "/bitrix/admin/fileman_menu_edit.php") !== 0) ? htmlspecialcharsex($back_url) : "/bitrix/admin/fileman_admin.php?".$addUrl."&site=".Urlencode($site)."&path=".UrlEncode($arParsedPath["FULL"]))
 		)
 	);
 	?>

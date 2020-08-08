@@ -18,9 +18,7 @@ Class mobileapp extends CModule
 	{
 		$arModuleVersion = array();
 
-		$path = str_replace("\\", "/", __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen("/index.php"));
-		include($path."/version.php");
+		include(__DIR__.'/version.php');
 
 		if (is_array($arModuleVersion) && array_key_exists("VERSION", $arModuleVersion))
 		{
@@ -38,7 +36,7 @@ Class mobileapp extends CModule
 		$this->errors = false;
 		
 		if (!$DB->Query("SELECT 'x' FROM b_mobileapp_app", true))
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/mobileapp/install/db/" . strtolower($DB->type) . "/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mobileapp/install/db/".mb_strtolower($DB->type) . "/install.sql");
 		$APPLICATION->ResetException();
 		if ($this->errors !== false)
 		{
@@ -56,7 +54,7 @@ Class mobileapp extends CModule
 	function UnInstallDB($arParams = array())
 	{
 		global $DB;
-		$DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/mobileapp/install/db/" . strtolower($DB->type) . "/uninstall.sql");
+		$DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mobileapp/install/db/".mb_strtolower($DB->type) . "/uninstall.sql");
 		UnRegisterModuleDependences("pull", "OnGetDependentModule", "mobileapp", "CMobileAppPullSchema", "OnGetDependentModule");
 		UnRegisterModule("mobileapp");
 		return true;
@@ -130,7 +128,7 @@ Class mobileapp extends CModule
 		global $USER, $DB, $APPLICATION, $step;
 		if($USER->IsAdmin())
 		{
-			$step = IntVal($step);
+			$step = intval($step);
 			if($step < 2)
 			{
 				$APPLICATION->IncludeAdminFile(Loc::getMessage("APP_PLATFORM_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mobileapp/install/unstep1.php");

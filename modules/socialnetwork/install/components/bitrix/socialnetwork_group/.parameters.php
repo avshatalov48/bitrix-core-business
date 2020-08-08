@@ -8,7 +8,7 @@ $userProp = array();
 if (!empty($arRes))
 {
 	foreach ($arRes as $key => $val)
-		$userProp[$val["FIELD_NAME"]] = (strLen($val["EDIT_FORM_LABEL"]) > 0 ? $val["EDIT_FORM_LABEL"] : $val["FIELD_NAME"]);
+		$userProp[$val["FIELD_NAME"]] = ($val["EDIT_FORM_LABEL"] <> '' ? $val["EDIT_FORM_LABEL"] : $val["FIELD_NAME"]);
 }
 
 $arRes = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFields("SONET_GROUP", 0, LANGUAGE_ID);
@@ -16,7 +16,7 @@ $groupProp = array();
 if (!empty($arRes))
 {
 	foreach ($arRes as $key => $val)
-		$groupProp[$val["FIELD_NAME"]] = (strLen($val["EDIT_FORM_LABEL"]) > 0 ? $val["EDIT_FORM_LABEL"] : $val["FIELD_NAME"]);
+		$groupProp[$val["FIELD_NAME"]] = ($val["EDIT_FORM_LABEL"] <> '' ? $val["EDIT_FORM_LABEL"] : $val["FIELD_NAME"]);
 }
 
 $arComponentParameters = array(
@@ -844,7 +844,7 @@ if(CModule::IncludeModule("iblock"))
 			"PARENT" => "WEBDAV_SETTINGS",
 			"NAME" => str_replace("#upload_max_filesize#", ini_get('upload_max_filesize'), GetMessage("SONET_UPLOAD_MAX_FILESIZE")),
 			"TYPE" => "STRING",
-			"DEFAULT" => intVal(ini_get('upload_max_filesize')));
+			"DEFAULT" => intval(ini_get('upload_max_filesize')));
 		$arComponentParameters["PARAMETERS"]["FILES_UPLOAD_MAX_FILE"] = array(
 			"PARENT" => "WEBDAV_SETTINGS",
 			"NAME" => GetMessage("SONET_UPLOAD_MAX_FILE"),
@@ -870,8 +870,8 @@ if(CModule::IncludeModule("iblock"))
 					{
 						do
 						{
-							$arForum[intVal($res["ID"])] = $res["NAME"];
-							$fid = intVal($res["ID"]);
+							$arForum[intval($res["ID"])] = $res["NAME"];
+							$fid = intval($res["ID"]);
 						}while ($res = $db_res->GetNext());
 					}
 				}
@@ -1119,7 +1119,7 @@ if (CModule::IncludeModule("forum"))
 		while (($file = readdir($directory)) !== false)
 		{
 			if ($file != "." && $file != ".." && is_dir($dir.$file))
-				$arThemes[$file] = (!empty($arThemesMessages[$file]) ? $arThemesMessages[$file] : strtoupper(substr($file, 0, 1)).strtolower(substr($file, 1)));
+				$arThemes[$file] = (!empty($arThemesMessages[$file]) ? $arThemesMessages[$file] : mb_strtoupper(mb_substr($file, 0, 1)).mb_strtolower(mb_substr($file, 1)));
 		}
 		closedir($directory);
 	endif;
@@ -1470,7 +1470,7 @@ if (CModule::IncludeModule("iblock"))
 			"PARENT" => "PHOTO_SETTINGS",
 			"NAME" => str_replace("#upload_max_filesize#", ini_get('upload_max_filesize'), GetMessage("SONET_UPLOAD_MAX_FILESIZE")),
 			"TYPE" => "STRING",
-			"DEFAULT" => intVal(ini_get('upload_max_filesize')));
+			"DEFAULT" => intval(ini_get('upload_max_filesize')));
 
 		$arComponentParameters["PARAMETERS"]["PHOTO_USE_RATING"] = array(
 			"PARENT" => "PHOTO_SETTINGS",
@@ -1578,8 +1578,8 @@ if (CModule::IncludeModule("iblock"))
 						{
 							do
 							{
-								$arForum[intVal($res["ID"])] = $res["NAME"];
-								$fid = intVal($res["ID"]);
+								$arForum[intval($res["ID"])] = $res["NAME"];
+								$fid = intval($res["ID"]);
 							}while ($res = $db_res->GetNext());
 						}
 					}
@@ -1765,7 +1765,7 @@ if (is_dir($dir) && $directory = opendir($dir)):
 	while (($file = readdir($directory)) !== false)
 	{
 		if ($file != "." && $file != ".." && is_dir($dir.$file))
-			$arSMThemes[$file] = (!empty($arSMThemesMessages[$file]) ? $arSMThemesMessages[$file] : strtoupper(substr($file, 0, 1)).strtolower(substr($file, 1)));
+			$arSMThemes[$file] = (!empty($arSMThemesMessages[$file]) ? $arSMThemesMessages[$file] : mb_strtoupper(mb_substr($file, 0, 1)).mb_strtolower(mb_substr($file, 1)));
 	}
 	closedir($directory);
 endif;
@@ -1782,7 +1782,7 @@ while($arSiteRes = $dbSiteRes->Fetch())
 	}
 }
 
-if (strpos($site_template, "bright") === 0)
+if (mb_strpos($site_template, "bright") === 0)
 	$DefaultSMTheme = "grey";
 else
 {
@@ -1791,7 +1791,7 @@ else
 	else
 		$theme_id = COption::GetOptionString("main", "wizard_".$site_template."_theme_id");
 
-	if (strlen($theme_id) > 0)
+	if ($theme_id <> '')
 		$DefaultSMTheme = $theme_id;
 	else
 		$DefaultSMTheme = "grey";

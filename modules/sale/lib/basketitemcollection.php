@@ -85,6 +85,9 @@ abstract class BasketItemCollection extends Internals\EntityCollection
 			$basketItem = $itemClassName::load($this, $item);
 			$this->addItem($basketItem);
 		}
+
+		$controller = Internals\CustomFieldsController::getInstance();
+		$controller->initializeCollection($this);
 	}
 
 	/**

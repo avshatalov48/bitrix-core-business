@@ -4,9 +4,10 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Landing\Manager;
 use \Bitrix\Main\Localization\Loc;
 
-return [
+$result = [
 	'facebook' => [
 		'name' => '<span class="fa fa-facebook"></span> Facebook',
 		'html' => '<li class="landing-block-node-list-item col g-valign-middle g-flex-grow-0 list-inline-item g-mr-6 g-mb-6"
@@ -27,7 +28,7 @@ return [
 			],
 		],
 	],
-	
+
 	'instagram' => [
 		'name' => '<span class="fa fa-instagram"></span> Instagram',
 		'html' => '<li class="landing-block-node-list-item col g-valign-middle g-flex-grow-0 list-inline-item g-mr-6 g-mb-6"
@@ -48,7 +49,7 @@ return [
 			],
 		],
 	],
-	
+
 	'twitter' => [
 		'name' => '<span class="fa fa-twitter"></span> Twitter',
 		'html' => '<li class="landing-block-node-list-item col g-valign-middle g-flex-grow-0 list-inline-item g-mr-6 g-mb-6"
@@ -69,7 +70,7 @@ return [
 			],
 		],
 	],
-	
+
 	'youtube' => [
 		'name' => '<span class="fa fa-youtube"></span> YouTube',
 		'html' => '<li class="landing-block-node-list-item col g-valign-middle g-flex-grow-0 list-inline-item g-mr-6 g-mb-6"
@@ -90,7 +91,7 @@ return [
 			],
 		],
 	],
-	
+
 	'telegram' => [
 		'name' => '<span class="fa fa-telegram"></span> Telegram',
 		'html' => '<li class="landing-block-node-list-item col g-valign-middle g-flex-grow-0 list-inline-item g-mr-6 g-mb-6"
@@ -111,7 +112,28 @@ return [
 			],
 		],
 	],
-	
+
+	'whatsapp' => [
+		'name' => '<span class="fa fa-whatsapp"></span> WhatsApp',
+		'html' => '<li class="landing-block-node-list-item col g-valign-middle g-flex-grow-0 list-inline-item g-mr-6 g-mb-6"
+			data-card-preset="whatsapp">
+			<a class="landing-block-node-list-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-whatsapp--hover g-bg-whatsapp g-color-white text-center" href="https://whatsapp.org/" target="_blank">
+				<i class="landing-block-node-list-icon fa fa-whatsapp"></i>
+			</a>
+		</li>',
+		'disallow' => ['.landing-block-node-list-icon'],
+		'values' => [
+			'.landing-block-node-list-link' => [
+				'href' => 'https://whatsapp.com/',
+				'target' => '_blank',
+			],
+			'.landing-block-node-list-icon' => [
+				'type' => 'icon',
+				'classList' => ['fa', 'fa-whatsapp'],
+			],
+		],
+	],
+
 	'pinterest' => [
 		'name' => '<span class="fa fa-pinterest"></span> Pinterest',
 		'html' => '<li class="landing-block-node-list-item col g-valign-middle g-flex-grow-0 list-inline-item g-mr-6 g-mb-6"
@@ -132,7 +154,7 @@ return [
 			],
 		],
 	],
-	
+
 	'skype' => [
 		'name' => '<span class="fa fa-skype"></span> Skype',
 		'html' => '<li class="landing-block-node-list-item col g-valign-middle g-flex-grow-0 list-inline-item g-mr-6 g-mb-6"
@@ -153,7 +175,7 @@ return [
 			],
 		],
 	],
-	
+
 	'dribbble' => [
 		'name' => '<span class="fa fa-dribbble"></span> Dribbble',
 		'html' => '<li class="landing-block-node-list-item col g-valign-middle g-flex-grow-0 list-inline-item g-mr-6 g-mb-6"
@@ -174,7 +196,7 @@ return [
 			],
 		],
 	],
-	
+
 	'linkedin' => [
 		'name' => '<span class="fa fa-linkedin"></span> LinkedIn',
 		'html' => '<li class="landing-block-node-list-item col g-valign-middle g-flex-grow-0 list-inline-item g-mr-6 g-mb-6"
@@ -195,7 +217,7 @@ return [
 			],
 		],
 	],
-	
+
 	'vk' => [
 		'name' => '<span class="fa fa-vk"></span> '.Loc::getMessage('LANDING_BLOCK__SOCIAL_VK'),
 		'html' => '<li class="landing-block-node-list-item col g-valign-middle g-flex-grow-0 list-inline-item g-mr-6 g-mb-6"
@@ -216,7 +238,7 @@ return [
 			],
 		],
 	],
-	
+
 	'odnoklassniki' => [
 		'name' => '<span class="fa fa-odnoklassniki"></span> '.Loc::getMessage('LANDING_BLOCK__SOCIAL_OK'),
 		'html' => '<li class="landing-block-node-list-item col g-valign-middle g-flex-grow-0 list-inline-item g-mr-6 g-mb-6"
@@ -238,3 +260,10 @@ return [
 		],
 	],
 ];
+
+if (!in_array(Manager::getZone(), ['ru', 'kz', 'by']))
+{
+	unset($result['vk'], $result['odnoklassniki']);
+}
+
+return $result;

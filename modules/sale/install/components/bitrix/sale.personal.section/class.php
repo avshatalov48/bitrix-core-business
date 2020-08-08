@@ -246,7 +246,7 @@ class PersonalOrderSection extends CBitrixComponent
 		{
 			$this->arResult["AUTH_SUCCESS_URL"] = $this->arResult["PATH_TO_LOGIN"];
 			$backUrl = $this->request->get('backurl');
-			if (!empty($backUrl) && strpos($backUrl, "/") === 0)
+			if (!empty($backUrl) && mb_strpos($backUrl, "/") === 0)
 			{
 				$this->arResult["AUTH_SUCCESS_URL"] = $backUrl;
 			}

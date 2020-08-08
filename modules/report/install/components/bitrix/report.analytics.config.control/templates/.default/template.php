@@ -4,6 +4,20 @@ CJSCore::Init(array("popup"));
 \Bitrix\Main\UI\Extension::load("ui.buttons.icons");
 ?>
 
+<?
+if (\Bitrix\Main\Loader::includeModule('intranet'))
+{
+	$APPLICATION->includeComponent(
+		'bitrix:intranet.binding.menu',
+		'',
+		array(
+			'SECTION_CODE' => 'crm_analytics',
+			'MENU_CODE' => 'config'
+		)
+	);
+}
+?>
+
 <div class="analytic-board-config-control">
 	<a id="analytic_board_configuration_button" class="ui-btn ui-btn-light-border ui-btn-icon-setting"></a>
 </div>

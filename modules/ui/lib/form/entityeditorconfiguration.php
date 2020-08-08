@@ -67,7 +67,7 @@ class EntityEditorConfiguration
 	{
 		$categoryName = $this->getCategoryName();
 
-		$scope = isset($params['scope']) ? strtoupper($params['scope']) : EntityEditorConfigScope::UNDEFINED;
+		$scope = isset($params['scope'])? mb_strtoupper($params['scope']) : EntityEditorConfigScope::UNDEFINED;
 		if(!EntityEditorConfigScope::isDefined($scope))
 		{
 			$scope = EntityEditorConfigScope::PERSONAL;
@@ -131,7 +131,7 @@ class EntityEditorConfiguration
 	{
 		$categoryName = $this->getCategoryName();
 
-		$scope = isset($params['scope']) ? strtoupper($params['scope']) : EntityEditorConfigScope::UNDEFINED;
+		$scope = isset($params['scope'])? mb_strtoupper($params['scope']) : EntityEditorConfigScope::UNDEFINED;
 		if(!EntityEditorConfigScope::isDefined($scope))
 		{
 			$scope = EntityEditorConfigScope::PERSONAL;

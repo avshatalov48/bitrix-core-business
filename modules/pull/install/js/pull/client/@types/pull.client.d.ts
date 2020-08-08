@@ -51,6 +51,7 @@ declare module 'pull.client' {
         function capturePullEvent(enable?: boolean): void;
         function getDebugInfo(): void;
         function start(options?: PullOptions): Promise<Function>;
+        function disconnect(code?: string, reason?: string): void;
     }
 
     class PullClient {
@@ -61,6 +62,7 @@ declare module 'pull.client' {
         capturePullEvent(enable?: boolean): void;
         getDebugInfo(): void;
         start(options?: PullOptions): Promise<Function>;
+        disconnect(code?: string, reason?: string): void;
         static PullStatus: PullStatus;
         static SubscriptionType: SubscriptionType;
         static CloseReasons: CloseReasons;

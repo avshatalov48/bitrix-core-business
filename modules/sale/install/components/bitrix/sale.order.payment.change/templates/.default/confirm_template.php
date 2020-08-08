@@ -144,7 +144,7 @@ else
 			<?
 		}
 	}
-	elseif (empty($arResult['PAYMENT_LINK']) && !$arResult['IS_CASH'] && strlen($arResult['TEMPLATE']))
+	elseif (empty($arResult['PAYMENT_LINK']) && !$arResult['IS_CASH'] && mb_strlen($arResult['TEMPLATE']))
 	{
 		echo $arResult['TEMPLATE'];
 	}
@@ -157,7 +157,7 @@ else
 				<p><?=Loc::getMessage("SOPC_PAYMENT_SUC", array("#PAYMENT_ID#"=>$arResult['PAYMENT_ID']))?></p>
 				<p><?=Loc::getMessage("SOPC_PAYMENT_SYSTEM_NAME", array("#PAY_SYSTEM_NAME#"=>$arResult['PAY_SYSTEM_NAME']))?></p>
 				<?
-				if (!$arResult['IS_CASH'] && strlen($arResult['PAYMENT_LINK']))
+				if (!$arResult['IS_CASH'] && mb_strlen($arResult['PAYMENT_LINK']))
 				{
 					?>
 					<p><?=Loc::getMessage("SOPC_PAY_LINK", array("#LINK#"=>$arResult['PAYMENT_LINK']))?></p>
@@ -167,7 +167,7 @@ else
 			</div>
 		</div>
 		<?
-		if (!$arResult['IS_CASH'] && strlen($arResult['PAYMENT_LINK']))
+		if (!$arResult['IS_CASH'] && mb_strlen($arResult['PAYMENT_LINK']))
 		{
 			?>
 			<script type="text/javascript">

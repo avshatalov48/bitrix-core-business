@@ -23,7 +23,7 @@ class Helper
 	 */
 	public static function getShipmentEditLink($shipmentId, $text = '', $orderId = 0, $languageId = LANGUAGE_ID)
 	{
-		if(strlen($text) <= 0)
+		if($text == '')
 			$text = strval($shipmentId);
 
 		if(intval($orderId) <= 0)
@@ -56,7 +56,7 @@ class Helper
 	 */
 	public static function getDeliveryEditLink($deliveryId, $deliveryName = '', $languageId = LANGUAGE_ID)
 	{
-		if(strlen($deliveryName) <= 0)
+		if($deliveryName == '')
 		{
 			$delivery = Services\Manager::getObjectById($deliveryId);
 			$deliveryName = !!$delivery ? $delivery->getNameWithParent().' ['.intval($deliveryId).']' : intval($deliveryId);
@@ -78,7 +78,7 @@ class Helper
 	 */
 	public static function getRequestViewLink($requestId, $text = '', $languageId = LANGUAGE_ID)
 	{
-		if(strlen($text) <= 0)
+		if($text == '')
 			$text = strval($requestId);
 
 		return '<a href="/bitrix/admin/sale_delivery_request_view.php'.

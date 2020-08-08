@@ -1,4 +1,7 @@
 <?
+
+use Bitrix\Im\Call\VideoStrategyType;
+
 class CIMSettings
 {
 	const SETTINGS = 'settings';
@@ -151,7 +154,7 @@ class CIMSettings
 	public static function GetNotifyAccess($userId, $moduleId, $eventId, $clientId)
 	{
 		$userId = intval($userId);
-		if ($userId <= 0 || strlen($moduleId) <= 0 || strlen($eventId) <= 0 || strlen($clientId) <= 0)
+		if ($userId <= 0 || $moduleId == '' || $eventId == '' || $clientId == '')
 			return false;
 
 		$notifyId = $clientId.'|'.$moduleId.'|'.$eventId;
@@ -202,6 +205,7 @@ class CIMSettings
 				'viewLastMessage' => true,
 				'enableSound' => true,
 				'enableBigSmile' => true,
+				'enableDarkTheme' => false,
 				'enableRichLink' => true,
 				'linesTabEnable' => true,
 				'linesNewGroupEnable' => false,
@@ -223,6 +227,7 @@ class CIMSettings
 				'privacyCall' => COption::GetOptionString("im", "privacy_call"),
 				'privacySearch' => COption::GetOptionString("im", "privacy_search"),
 				'privacyProfile' => COption::GetOptionString("im", "privacy_profile"),
+				'callAcceptIncomingVideo' => VideoStrategyType::ALLOW_ALL
 			);
 		}
 		elseif ($type == self::NOTIFY)
@@ -313,6 +318,10 @@ class CIMSettings
 					$arValues[$key] = implode(',', $value[$key]);
 
 				}
+				else if ($key === 'callAcceptIncomingVideo')
+				{
+					$arValues[$key] = in_array($value[$key], VideoStrategyType::getList())? $value[$key]: $default;
+				}
 				else if (array_key_exists($key, $value))
 				{
 					$arValues[$key] = is_bool($value[$key])? $value[$key]: $default;
@@ -344,7 +353,7 @@ class CIMSettings
 		foreach ($arNotify as $moduleId => $notifyTypes)
 		{
 			$arNames[$moduleId]['NAME'] = $notifyTypes['NAME'];
-			if (strlen($notifyTypes['NAME']) <= 0)
+			if ($notifyTypes['NAME'] == '')
 			{
 				$info = CModule::CreateModuleObject($moduleId);
 				$arNames[$moduleId]['NAME'] = $info->MODULE_NAME;

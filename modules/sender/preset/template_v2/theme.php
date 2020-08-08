@@ -150,7 +150,7 @@
 		.bxBlockContentLine{
 			border: none;
 			height: 2px;
-			background: #d3d3d3;
+			background-color: #d3d3d3;
 			margin: 10px 0;
 			display: block;
 		}

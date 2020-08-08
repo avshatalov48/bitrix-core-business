@@ -1,5 +1,5 @@
 <section class="landing-block js-animation flipInX g-bg-img-hero u-bg-overlay g-bg-primary-opacity-0_9--after g-pt-20 g-pb-40">
-	<div class="container u-bg-overlay__inner text-center">
+	<div class="container u-bg-overlay__inner text-center g-px-35 g-px-0--md">
 
 		<div class="js-carousel row"
 			 data-autoplay="true"
@@ -7,8 +7,8 @@
 			 data-infinite="true"
 			 data-slides-show="6"
 			 data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-45 g-height-45 g-font-size-30 g-color-white"
-			 data-arrow-left-classes="fa fa-angle-left g-left-minus-20"
-			 data-arrow-right-classes="fa fa-angle-right g-right-minus-20"
+			 data-arrow-left-classes="fa fa-angle-left g-left-minus-35"
+			 data-arrow-right-classes="fa fa-angle-right g-right-minus-35"
 			 data-responsive='[{
                  "breakpoint": 1200,
                  "settings": {

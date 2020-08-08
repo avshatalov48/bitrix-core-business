@@ -87,7 +87,7 @@ class ConversionHandler
 
 						while ($item = $itemDb->fetch())
 						{
-							if (strlen($item['ID']) <= 0)
+							if ($item['ID'] == '')
 							{
 								continue;
 							}

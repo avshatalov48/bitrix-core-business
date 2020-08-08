@@ -17,10 +17,12 @@ class TaggedCache
 	protected $cacheTag = [];
 	protected $wasTagged = false;
 	protected $isMySql = false;
+	protected $pool = false;
 
 	public function __construct()
 	{
 		$this->isMySql = (static::getDbType() === "MYSQL");
+		$this->pool = Main\Application::getInstance()->getConnectionPool();
 	}
 
 	protected static function getDbType()
@@ -43,6 +45,8 @@ class TaggedCache
 			$con = Main\Application::getConnection();
 			$sqlHelper = $con->getSqlHelper();
 
+			$this->pool->useMasterOnly(true);
+
 			$rs = $con->query("
 				SELECT TAG
 				FROM b_cache_tag
@@ -50,10 +54,13 @@ class TaggedCache
 				AND CACHE_SALT = '".$sqlHelper->forSql($this->salt, 4)."'
 				AND RELATIVE_PATH = '".$sqlHelper->forSql($path)."'
 			");
+
 			while ($ar = $rs->fetch())
 			{
 				$this->cacheTag[$path][$ar["TAG"]] = true;
 			}
+
+			$this->pool->useMasterOnly(false);
 		}
 	}
 
@@ -67,7 +74,7 @@ class TaggedCache
 
 	public function startTagCache($relativePath)
 	{
-		array_unshift($this->compCacheStack, array($relativePath, array()));
+		array_unshift($this->compCacheStack, [$relativePath, []]);
 	}
 
 	public function endTagCache()
@@ -76,6 +83,8 @@ class TaggedCache
 
 		if ($this->wasTagged)
 		{
+			$this->pool->useMasterOnly(true);
+
 			$con = Main\Application::getConnection();
 			$sqlHelper = $con->getSqlHelper();
 
@@ -119,6 +128,8 @@ class TaggedCache
 			{
 				$con->queryExecute($strSqlPrefix.substr($strSqlValues, 2));
 			}
+
+			$this->pool->useMasterOnly(false);
 		}
 
 		array_shift($this->compCacheStack);
@@ -140,6 +151,8 @@ class TaggedCache
 
 	public function clearByTag($tag)
 	{
+		$this->pool->useMasterOnly(true);
+
 		$con = Main\Application::getConnection();
 		$sqlHelper = $con->getSqlHelper();
 
@@ -152,7 +165,7 @@ class TaggedCache
 			$sqlWhere = " WHERE TAG = '".$sqlHelper->forSql($tag)."'";
 		}
 
-		$dirs = array();
+		$dirs = [];
 		$rs = $con->query("SELECT * FROM b_cache_tag".$sqlWhere);
 		while ($ar = $rs->fetch())
 		{
@@ -174,5 +187,7 @@ class TaggedCache
 			$cache->cleanDir($path);
 			unset($this->cacheTag[$path]);
 		}
+
+		$this->pool->useMasterOnly(false);
 	}
 }

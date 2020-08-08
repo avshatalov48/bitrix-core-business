@@ -66,7 +66,7 @@ if (!$templateData['BLOG']['BLOG_FROM_AJAX'])
 
 	if ($arParams["FB_USE"] == "Y")
 	{
-		$currentLanguage = strtolower(LANGUAGE_ID);
+		$currentLanguage = mb_strtolower(LANGUAGE_ID);
 		switch ($currentLanguage)
 		{
 			case 'en':
@@ -79,7 +79,7 @@ if (!$templateData['BLOG']['BLOG_FROM_AJAX'])
 				$facebookLocale = 'be_BY';
 				break;
 			default:
-				$facebookLocale = $currentLanguage.'_'.strtoupper(LANGUAGE_ID);
+				$facebookLocale = $currentLanguage.'_'.mb_strtoupper(LANGUAGE_ID);
 		}
 		$arJSParams['serviceList']['facebook'] = true;
 		$arJSParams['settings']['facebook'] = array(
@@ -110,7 +110,7 @@ if (!$templateData['BLOG']['BLOG_FROM_AJAX'])
 						if (!!window.VK)
 						{
 							VK.init({
-								apiId: "'.(isset($arParams["VK_API_ID"]) && strlen($arParams["VK_API_ID"]) > 0 ? $arParams["VK_API_ID"] : "API_ID").'",
+								apiId: "'.(isset($arParams["VK_API_ID"]) && $arParams["VK_API_ID"] <> '' ? $arParams["VK_API_ID"] : "API_ID").'",
 								onlyWidgets: true
 							});
 

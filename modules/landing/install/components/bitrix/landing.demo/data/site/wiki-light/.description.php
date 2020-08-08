@@ -13,7 +13,7 @@ $buttons = B24button::getButtons();
 $buttons = array_keys($buttons);
 
 return [
-	//'name' => Loc::getMessage("LANDING_DEMO_WIKI_LIGHT_TITLE"),
+	'name' => Loc::getMessage("LANDING_DEMO_WIKI_LIGHT_TITLE"),
 	'description' => Loc::getMessage("LANDING_DEMO_WIKI_LIGHT_DESCRIPTION"),
 	'preview' => '',
 	'preview2x' => '',
@@ -27,8 +27,10 @@ return [
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'mobile',
 			'ROBOTS_USE' => 'N',
-			'THEME_CODE' => '3corporate',
-			'THEME_CODE_TYPO' => 'app',
+			'THEMEFONTS_CODE' => 'g-font-open-sans',
+			'THEMEFONTS_CODE_H' => 'g-font-montserrat',
+			'THEMEFONTS_SIZE' => '1',
+			'THEMEFONTS_USE' => 'Y',
 			'COPYRIGHT_SHOW' => 'Y',
 			'B24BUTTON_CODE' => $buttons[0],
 			'B24BUTTON_COLOR' => 'site',

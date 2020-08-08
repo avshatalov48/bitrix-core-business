@@ -42,7 +42,7 @@ if($REQUEST_METHOD=="POST" && !empty($Import) && $POST_RIGHT>="W" && check_bitri
 	$addr = strtok($sAddr, ", \r\n\t");
 	while($addr!==false)
 	{
-		if(strlen($addr) > 0)
+		if($addr <> '')
 			$aEmail[$addr] = true;
 		$addr = strtok(", \r\n\t");
 	}

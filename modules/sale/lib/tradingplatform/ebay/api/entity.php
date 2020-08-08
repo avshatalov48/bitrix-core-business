@@ -61,7 +61,7 @@ abstract class Entity
 					}
 				}
 			}
-			elseif(strlen($value) > 0)
+			elseif($value <> '')
 			{
 				$result .= '<'.$tag.'>'.$value.'</'.$tag.'>'."\n";
 			}

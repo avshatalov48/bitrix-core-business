@@ -179,3 +179,34 @@
 	background: #9dcf00;
 	content: '';
 }
+
+.landing-title-new {
+	display: inline-block;
+	vertical-align: top;
+	position: absolute;
+	text-transform: uppercase;
+	top: -6px;
+	right: 10px;
+	color: #fff;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+	border-radius: 8px;
+	background: #59d1f8;
+	padding: 0 9px;
+	font: 8px/16px "OpenSans-Bold", "Helvetica Neue", Helvetica, sans-serif;
+}
+
+.landing-item-designed {
+	background-color: rgba(40, 100, 242, .85);
+	bottom: 47px;
+	display: block;
+	left: 0;
+	font: 8px/16px "OpenSans-Bold", "Helvetica Neue", Helvetica, sans-serif;
+	color: rgba(255, 255, 255, .8);
+	transition: color .2s linear;
+	position: absolute;
+	padding: 0 7px 1px;
+}
+
+.landing-item-designed:hover {
+	color: rgba(255, 255, 255, 1);
+}

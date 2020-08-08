@@ -74,7 +74,7 @@ while ($dbOrderList->NavNext(true, "f_")):
 	{
 		$CATALOG_XML_ID = $arBasket["CATALOG_XML_ID"];
 		$PRODUCT_XML_ID = $arBasket["PRODUCT_XML_ID"];
-		if (strlen($PRODUCT_XML_ID) <= 0 && strlen($CATALOG_XML_ID) <= 0)
+		if ($PRODUCT_XML_ID == '' && $CATALOG_XML_ID == '')
 		{
 			$dbBasketProps = CSaleBasket::GetPropsList(
 					array("CODE" => "ASC"),
@@ -87,15 +87,15 @@ while ($dbOrderList->NavNext(true, "f_")):
 				elseif ($arBasketProps["CODE"] == "PRODUCT.XML_ID")
 				{
 					$PRODUCT_XML_ID = $arBasketProps["VALUE"];
-					if (substr($PRODUCT_XML_ID, 0, 2) == "ID")
-						$PRODUCT_XML_ID = substr($PRODUCT_XML_ID, 2);
+					if (mb_substr($PRODUCT_XML_ID, 0, 2) == "ID")
+						$PRODUCT_XML_ID = mb_substr($PRODUCT_XML_ID, 2);
 				}
 			}
 		}
-		if (strlen($PRODUCT_XML_ID) <= 0)
+		if ($PRODUCT_XML_ID == '')
 			$PRODUCT_XML_ID = $arBasket["PRODUCT_ID"];
 
-		echo "			<".GetMessage("Article")." ".GetMessage("Catalog")."=\"".$CATALOG_XML_ID."\" ".GetMessage("Product")."=\"".$PRODUCT_XML_ID."\" ".GetMessage("Unit")."=\"\" ".GetMessage("Amount")."=\"".$arBasket["QUANTITY"]."\" ".GetMessage("Price")."=\"".$arBasket["PRICE"]."\" ".GetMessage("Sum")."=\"".(DoubleVal($arBasket["PRICE"])*IntVal($arBasket["QUANTITY"]))."\" ".GetMessage("Description")."=\"".htmlspecialcharsbx($arBasket["NAME"])."\"/>\n";
+		echo "			<".GetMessage("Article")." ".GetMessage("Catalog")."=\"".$CATALOG_XML_ID."\" ".GetMessage("Product")."=\"".$PRODUCT_XML_ID."\" ".GetMessage("Unit")."=\"\" ".GetMessage("Amount")."=\"".$arBasket["QUANTITY"]."\" ".GetMessage("Price")."=\"".$arBasket["PRICE"]."\" ".GetMessage("Sum")."=\"".(DoubleVal($arBasket["PRICE"])*intval($arBasket["QUANTITY"]))."\" ".GetMessage("Description")."=\"".htmlspecialcharsbx($arBasket["NAME"])."\"/>\n";
 	}
 	echo "		</".GetMessage("Document").">\n";
 
@@ -148,7 +148,7 @@ header('Pragma: public');
 header('Cache-control: private');
 header('Accept-Ranges: bytes');
 header("Content-Type: application/xml");
-header('Content-Length: '.(function_exists("mb_strlen")? mb_strlen($content, 'latin1'): strlen($content)));
+header('Content-Length: '.(function_exists("mb_strlen")? mb_strlen($content, 'latin1') : mb_strlen($content)));
 header("Content-Disposition: attachment; filename=order.xml");
 
 echo $content;

@@ -33,7 +33,7 @@ class CCloudStorageService_RackSpaceCloudFiles extends CCloudStorageService_Open
 			$obRequest->additional_headers["X-Auth-Key"] = $key;
 			$obRequest->Query("GET", $host, 80, "/v1.0");
 
-			if($obRequest->status == 301 && strlen($obRequest->headers["Location"]) > 0)
+			if($obRequest->status == 301 && $obRequest->headers["Location"] <> '')
 			{
 				if(preg_match("#^https://(.*?)(/.*)\$#", $obRequest->headers["Location"], $arNewLocation))
 				{
@@ -77,14 +77,14 @@ class CCloudStorageService_RackSpaceCloudFiles extends CCloudStorageService_Open
 			if(preg_match("#^http://(.*?)(|:\d+)(/.*)\$#", $arToken["X-CDN-Management-Url"], $arCDN))
 			{
 				$Host = $arCDN[1];
-				$Port = $arCDN[2]? substr($arCDN[2], 1): 80;
+				$Port = $arCDN[2]? mb_substr($arCDN[2], 1) : 80;
 				$Urn = $arCDN[3];
 				$Proto = "";
 			}
 			elseif(preg_match("#^https://(.*?)(|:\d+)(/.*)\$#", $arToken["X-CDN-Management-Url"], $arCDN))
 			{
 				$Host = $arCDN[1];
-				$Port = $arCDN[2]? substr($arCDN[2], 1): 443;
+				$Port = $arCDN[2]? mb_substr($arCDN[2], 1) : 443;
 				$Urn = $arCDN[3];
 				$Proto = "ssl://";
 			}
@@ -178,7 +178,7 @@ class CCloudStorageService_RackSpaceCloudFiles extends CCloudStorageService_Open
 					{
 						$result = array();
 						foreach($obCDNRequest->headers as $key => $value)
-							$result[strtolower($key)] = $value;
+							$result[mb_strtolower($key)] = $value;
 					}
 				}
 			}
@@ -199,7 +199,7 @@ class CCloudStorageService_RackSpaceCloudFiles extends CCloudStorageService_Open
 
 		if($arBucket["PREFIX"])
 		{
-			if(substr($URI, 0, strlen($arBucket["PREFIX"])+1) !== $arBucket["PREFIX"]."/")
+			if(mb_substr($URI, 0, mb_strlen($arBucket["PREFIX"]) + 1) !== $arBucket["PREFIX"]."/")
 				$URI = $arBucket["PREFIX"]."/".$URI;
 		}
 

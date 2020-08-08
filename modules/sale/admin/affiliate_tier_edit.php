@@ -24,11 +24,11 @@ ClearVars();
 $errorMessage = "";
 $bVarsFromForm = false;
 
-$ID = IntVal($ID);
+$ID = intval($ID);
 
-if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions>="W" && check_bitrix_sessid())
+if ($REQUEST_METHOD=="POST" && $Update <> '' && $saleModulePermissions>="W" && check_bitrix_sessid())
 {
-	if (StrLen($SITE_ID) <= 0)
+	if ($SITE_ID == '')
 		$errorMessage .= GetMessage("SATE1_NO_SITE").".<br>";
 
 	$RATE1 = str_replace(",", ".", $RATE1);
@@ -46,14 +46,14 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions>="W" 
 	$RATE5 = str_replace(",", ".", $RATE5);
 	$RATE5 = DoubleVal($RATE5);
 
-	if (StrLen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
 		$dbAffiliateTier = CSaleAffiliateTier::GetList(array(), array("SITE_ID" => $SITE_ID, "!ID" => $ID));
 		if ($dbAffiliateTier->Fetch())
 			$errorMessage .= str_replace("#SITE_ID#", $SITE_ID, GetMessage("SATE1_EXISTS")).".<br>";
 	}
 
-	if (StrLen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
 		$arFields = array(
 			"SITE_ID" => $SITE_ID,
@@ -77,7 +77,7 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions>="W" 
 		else
 		{
 			$ID = CSaleAffiliateTier::Add($arFields);
-			$ID = IntVal($ID);
+			$ID = intval($ID);
 			if ($ID <= 0)
 			{
 				if ($ex = $APPLICATION->GetException())
@@ -88,9 +88,9 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $saleModulePermissions>="W" 
 		}
 	}
 
-	if (strlen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
-		if (strlen($apply) <= 0)
+		if ($apply == '')
 			LocalRedirect("/bitrix/admin/sale_affiliate_tier.php?lang=".LANG.GetFilterParams("filter_", false));
 	}
 	else
@@ -149,7 +149,7 @@ $context = new CAdminContextMenu($aMenu);
 $context->Show();
 ?>
 
-<?if(strlen($errorMessage)>0)
+<?if($errorMessage <> '')
 	echo CAdminMessage::ShowMessage(Array("DETAILS"=>$errorMessage, "TYPE"=>"ERROR", "MESSAGE"=>GetMessage("SATE1_ERROR_SAVE"), "HTML"=>true));?>
 
 <form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?" name="form1">

@@ -24,6 +24,7 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_9_IMAGE_CAROUSEL_6_COLS_FIX_3_NODES_LANDINGBLOCKNODEBGIMG'),
 			'type' => 'img',
 			'dimensions' => array('width' => 1920, 'height' => 350),
+			'allowInlineEdit' => false,
 		),
 		'.landing-block-node-img' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_9_IMAGE_CAROUSEL_6_COLS_FIX_3_NODES_LANDINGBLOCKNODEIMG'),

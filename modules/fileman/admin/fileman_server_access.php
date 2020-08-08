@@ -101,7 +101,7 @@ if ($REQUEST_METHOD == "POST" && $USER->CanDoOperation('fileman_admin_folders') 
 	if (CFileMan::IsWindows())
 		$result_value = $_POST['readonly'] == "Y" ? '0' : '666';
 	else
-		$result_value = intVal($_POST['res_value']);
+		$result_value = intval($_POST['res_value']);
 
 	$result_value = (int) "0".$result_value;
 	$oChmod = new CFilemanChmod;
@@ -179,7 +179,7 @@ else
 		$adminChain->AddItem(
 			array(
 				"TEXT" => htmlspecialcharsex($chainLevel["TITLE"]),
-				"LINK" => ((strlen($chainLevel["LINK"]) > 0) ? $chainLevel["LINK"] : ""),
+				"LINK" => (($chainLevel["LINK"] <> '') ? $chainLevel["LINK"] : ""),
 			)
 		);
 	}
@@ -272,7 +272,7 @@ $tabControl->Begin();
 		<div class="bxfm-sperm-cont">
 			<? foreach(array('owner', 'group', 'public') as $k):?>
 			<div class="bx-s-perm-gr">
-				<div class="bx-s-title"><?= GetMessage("FM_SA_".strtoupper($k))?></div>
+				<div class="bx-s-title"><?= GetMessage("FM_SA_".mb_strtoupper($k))?></div>
 				<table class="bxsp-tbl"><tr>
 					<td class="bxsp-inp-cell"><input  id="bxsp_<?= $k?>_read" type="checkbox" value="Y"/></td>
 					<td class="bxsp-label-cell"><label for="bxsp_<?= $k?>_read"><?= GetMessage("FM_SA_READ")?></label></td>

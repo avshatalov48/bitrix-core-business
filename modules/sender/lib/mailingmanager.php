@@ -9,10 +9,9 @@ namespace Bitrix\Sender;
 
 use Bitrix\Main\DB\Exception;
 use Bitrix\Main\Type;
-
+use Bitrix\Sender\Dispatch\MethodSchedule;
 use Bitrix\Sender\Entity;
 use Bitrix\Sender\Internals\Model;
-use Bitrix\Sender\Dispatch\MethodSchedule;
 
 class MailingManager
 {
@@ -66,7 +65,11 @@ class MailingManager
 	 * Send letter.
 	 *
 	 * @param integer $letterId Letter ID.
+	 *
 	 * @return string
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	public static function chainSend($letterId)
 	{
@@ -85,7 +88,6 @@ class MailingManager
 		{
 			return "";
 		}
-
 
 		$postingSendStatus = '';
 		if(!empty($letter['POSTING_ID']))
@@ -107,7 +109,7 @@ class MailingManager
 
 		if(!empty(static::$error) || $postingSendStatus === PostingManager::SEND_RESULT_CONTINUE)
 		{
-			return static::getAgentName($letterId);
+			return Runtime\SenderJob::getAgentName($letterId);
 		}
 
 		if ($letter['REITERATE'] !== 'Y')
@@ -159,7 +161,10 @@ class MailingManager
 	}
 
 	/**
+	 *
 	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	public static function checkSend()
 	{
@@ -174,6 +179,7 @@ class MailingManager
 				'<=AUTO_SEND_TIME' => new Type\DateTime(),
 			)
 		));
+
 		while ($mailingChain = $mailingChainDb->fetch())
 		{
 			static::chainSend($mailingChain['ID']);
@@ -261,7 +267,6 @@ class MailingManager
 					$arUpdateMailChain['STATUS'] = MailingChainTable::STATUS_SEND;
 					$arUpdateMailChain['AUTO_SEND_TIME'] = Type\DateTime::createFromPhp($timeOfExecute);
 				}
-
 
 				Model\LetterTable::update($arMailingChain['ID'], $arUpdateMailChain);
 			}

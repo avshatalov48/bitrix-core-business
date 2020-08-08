@@ -33,12 +33,12 @@ $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
 if(
 	$_SERVER["REQUEST_METHOD"] == "POST"
-	&& strlen($Update.$Apply.$RestoreDefaults) > 0
+	&& $Update.$Apply.$RestoreDefaults <> ''
 	&& $POST_RIGHT == "W"
 	&& check_bitrix_sessid()
 )
 {
-	if(strlen($RestoreDefaults)>0)
+	if($RestoreDefaults <> '')
 	{
 		COption::RemoveOption("subscribe");
 		$z = CGroup::GetList($v1="id",$v2="asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
@@ -58,7 +58,7 @@ if(
 				foreach($_POST[$name] as $postValue)
 				{
 					$postValue = trim($postValue);
-					if(strlen($postValue) > 0)
+					if($postValue <> '')
 						$val .= ($val <> ""? ",": "").$postValue;
 				}
 			}
@@ -83,9 +83,9 @@ if(
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/admin/group_rights.php");
 	ob_end_clean();
 
-	if(strlen($_REQUEST["back_url_settings"]) > 0)
+	if($_REQUEST["back_url_settings"] <> '')
 	{
-		if((strlen($Apply) > 0) || (strlen($RestoreDefaults) > 0))
+		if(($Apply <> '') || ($RestoreDefaults <> ''))
 			LocalRedirect($APPLICATION->GetCurPage()."?mid=".urlencode($module_id)."&lang=".urlencode(LANGUAGE_ID)."&back_url_settings=".urlencode($_REQUEST["back_url_settings"])."&".$tabControl->ActiveTabParam());
 		else
 			LocalRedirect($_REQUEST["back_url_settings"]);
@@ -155,7 +155,7 @@ $tabControl->BeginNextTab();
 <?$tabControl->Buttons();?>
 	<input <?if ($POST_RIGHT<"W") echo "disabled" ?> type="submit" name="Update" value="<?=GetMessage("MAIN_SAVE")?>" title="<?=GetMessage("MAIN_OPT_SAVE_TITLE")?>" class="adm-btn-save">
 	<input <?if ($POST_RIGHT<"W") echo "disabled" ?> type="submit" name="Apply" value="<?=GetMessage("MAIN_OPT_APPLY")?>" title="<?=GetMessage("MAIN_OPT_APPLY_TITLE")?>">
-	<?if(strlen($_REQUEST["back_url_settings"])>0):?>
+	<?if($_REQUEST["back_url_settings"] <> ''):?>
 		<input <?if ($POST_RIGHT<"W") echo "disabled" ?> type="button" name="Cancel" value="<?=GetMessage("MAIN_OPT_CANCEL")?>" title="<?=GetMessage("MAIN_OPT_CANCEL_TITLE")?>" onclick="window.location='<?echo htmlspecialcharsbx(CUtil::addslashes($_REQUEST["back_url_settings"]))?>'">
 		<input type="hidden" name="back_url_settings" value="<?=htmlspecialcharsbx($_REQUEST["back_url_settings"])?>">
 	<?endif?>

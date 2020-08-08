@@ -10,7 +10,8 @@ return [
 	'rel' => [
 		'main.popup',
 		'main.core',
-		'uf',
+		'sidepanel',
+		'ui.userfield',
 	],
 	'skip_core' => false,
 ];

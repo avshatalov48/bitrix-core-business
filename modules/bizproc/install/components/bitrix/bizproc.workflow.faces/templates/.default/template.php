@@ -1,5 +1,5 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
-\Bitrix\Main\UI\Extension::load("ui.tooltip");
+\Bitrix\Main\UI\Extension::load(["ui.tooltip", "ui.icons.b24"]);
 
 $cmpId = RandString();
 if (empty($arResult['WORKFLOW_ID'])):?>
@@ -19,20 +19,28 @@ if (empty($arResult['WORKFLOW_ID'])):?>
 			{
 				if ($startedPhoto = CBPViewHelper::getUserPhotoSrc($arResult['STARTED_BY']))
 				{
-					?><span class="bp-short-process-step-inner"><img src="<?=CBPViewHelper::getUserPhotoSrc($arResult['STARTED_BY'])?>" border="0" bx-tooltip-user-id="<?=(int)$arResult['STARTED_BY']['ID']?>" bx-tooltip-classname="intrantet-user-selector-tooltip" /></span><?
+					?><div class="bp-short-process-step-inner ui-icon ui-icon-common-user">
+						<i bx-tooltip-user-id="<?=(int)$arResult['STARTED_BY']['ID']?>" bx-tooltip-classname="intrantet-user-selector-tooltip" style="background-image: url('<?=htmlspecialcharsbx($startedPhoto)?>')"></i>
+					</div><?
 				}
 				else
 				{
-					?><span class="bp-short-process-step-inner" bx-tooltip-user-id="<?=(int)$arResult['STARTED_BY']['ID']?>" bx-tooltip-classname="intrantet-user-selector-tooltip"></span><?
+					?><div class="bp-short-process-step-inner ui-icon ui-icon-common-user" bx-tooltip-user-id="<?=(int)$arResult['STARTED_BY']['ID']?>" bx-tooltip-classname="intrantet-user-selector-tooltip">
+						<i></i>
+					</div><?
 				}
 			}
 			elseif (!empty($arResult['DOCUMENT_ID']) && in_array($arResult['DOCUMENT_ID'][0], array('crm', 'disk', 'lists', 'tasks')))
 			{
-				?><span class="bp-short-process-step-inner"><img src="<?=htmlspecialcharsbx($templateFolder)?>/images/bp-<?=$arResult['DOCUMENT_ID'][0]?>-icon.png"  border="0"/></span><?
+				?><span class="bp-short-process-step-inner">
+					<img src="<?=htmlspecialcharsbx($templateFolder)?>/images/bp-<?=$arResult['DOCUMENT_ID'][0]?>-icon.png"  border="0"/>
+				</span><?
 			}
 			else
 			{
-				?><span class="bp-short-process-step-inner"><img src="<?=htmlspecialcharsbx($templateFolder)?>/images/bp-other-icon.png" border="0" /></span><?
+				?><span class="bp-short-process-step-inner">
+					<img src="<?=htmlspecialcharsbx($templateFolder)?>/images/bp-other-icon.png" border="0" />
+				</span><?
 			}
 		?></a>
 		<?if (!empty($arResult['TASKS']['COMPLETED'][0])):
@@ -48,11 +56,17 @@ if (empty($arResult['WORKFLOW_ID'])):?>
 				<a href="javascript:void(0)" class="bp-short-process-step <?if ($face['STATUS'] == CBPTaskUserStatus::Ok || $face['STATUS'] == CBPTaskUserStatus::Yes) echo 'bp-short-process-step-ready'?><?if ($face['STATUS'] == CBPTaskUserStatus::No || $face['STATUS'] == CBPTaskUserStatus::Cancel) echo 'bp-short-process-step-cancel'?> <?if ($task['USERS_CNT'] > 1) echo 'bp-short-process-step-more'?>" title="<?=$task['NAME']?>"><?
 					if ($face['PHOTO_SRC'])
 					{
-						?><span class="bp-short-process-step-inner"><img src="<?=$face['PHOTO_SRC']?>" border="0" bx-tooltip-user-id="<?=(int)$face['USER_ID']?>" bx-tooltip-classname="intrantet-user-selector-tooltip" /></span><?
+//						?>
+						<div class="bp-short-process-step-inner ui-icon ui-icon-common-user">
+							<i style="background-image: url('<?=htmlspecialcharsbx($face['PHOTO_SRC'])?>')" border="0" bx-tooltip-user-id="<?=(int)$face['USER_ID']?>" bx-tooltip-classname="intrantet-user-selector-tooltip"></i>
+						</div>
+						<?
 					}
 					else
 					{
-						?><span class="bp-short-process-step-inner" bx-tooltip-user-id="<?=(int)$face['USER_ID']?>" bx-tooltip-classname="intrantet-user-selector-tooltip" ></span><?
+						?><div class="bp-short-process-step-inner ui-icon ui-icon-common-user" bx-tooltip-user-id="<?=(int)$face['USER_ID']?>" bx-tooltip-classname="intrantet-user-selector-tooltip">
+							<i></i>
+						</div><?
 					}
 				?></a>
 				<?if ($task['USERS_CNT'] > 1):?>
@@ -87,15 +101,15 @@ if (empty($arResult['WORKFLOW_ID'])):?>
 			$face = $task['USERS'][0];
 			$allFaces = sizeof($arResult['TASKS']['RUNNING_ALL_USERS']);
 			$photoSrc = $face['PHOTO_SRC'];
-			if (!$photoSrc)
-				$photoSrc = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // Base64 Encode of 1x1px Transparent GIF
 		?>
 		<span class="bp-short-prosess-steps-arrow bp-short-prosess-steps-arrow-running <?if ($arResult['TASKS']['RUNNING_CNT'] > 1) echo 'steps-arrow-right-right'?>"></span>
 		<span class="bp-short-process-step-wrapper"><?
 
 			?><a href="javascript:void(0)" class="bp-short-process-step <?if ($face['STATUS'] == CBPTaskUserStatus::Ok || $face['STATUS'] == CBPTaskUserStatus::Yes) echo 'bp-short-process-step-ready'?>
 			<?if ($face['STATUS'] == CBPTaskUserStatus::No || $face['STATUS'] == CBPTaskUserStatus::Cancel) echo 'bp-short-process-step-cancel'?> <?if ($task['USERS_CNT'] > 1) echo 'bp-short-process-step-more'?>">
-				<span class="bp-short-process-step-inner"><img id="<?=$cmpId?>_face_3_photo_src" src="<?=$photoSrc?>" border="0" bx-tooltip-user-id="<?=(int)$face['USER_ID']?>" bx-tooltip-classname="intrantet-user-selector-tooltip" /></span>
+				<div class="bp-short-process-step-inner ui-icon ui-icon-common-user">
+					<i id="<?=$cmpId?>_face_3_photo_src" <?if ($photoSrc):?>style="background-image: url('<?=htmlspecialcharsbx($photoSrc)?>')" border="0"<?endif;?> bx-tooltip-user-id="<?=(int)$face['USER_ID']?>" bx-tooltip-classname="intrantet-user-selector-tooltip"></i>
+				</div>
 			</a>
 			<? if ($allFaces >= 2):?>
 			<a id="<?=$cmpId?>_bp_more_rf" href="#" class="process-step-more process-step-more-running"><span><?=GetMessage('BPWLFC_TOTAL')?> <?=$allFaces?></span></a>

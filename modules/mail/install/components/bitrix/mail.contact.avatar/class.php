@@ -26,6 +26,10 @@ class CMailContactAvatarComponent extends \CBitrixComponent
 		}
 		$email = $this->arParams['email'];
 		$name = $this->arParams['name'];
+
+		$s = $this->arResult['avatarSize'];
+		$this->arResult['initialsFontSize'] = floor($s / 2) - abs($s % 2 - floor($s / 2) % 2);
+
 		if ($fileId && is_numeric($fileId))
 		{
 			$image = \CFile::resizeImageGet(
@@ -40,8 +44,6 @@ class CMailContactAvatarComponent extends \CBitrixComponent
 		}
 		else
 		{
-			$s = $this->arResult['avatarSize'];
-			$this->arResult['initialsFontSize'] = floor($s / 2) - abs($s % 2 - floor($s / 2) % 2);
 			if ($email && $name && $color)
 			{
 				$page = 'icon';

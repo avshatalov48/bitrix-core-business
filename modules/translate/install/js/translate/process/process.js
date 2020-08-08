@@ -40,8 +40,6 @@
 
 		/** @var {Object} */
 		this.option = {};
-		/** @var {Array} */
-		this.optionsFields = {};
 
 		this.state = this.STATES.intermediate;
 		/** @var {Boolean} */
@@ -83,6 +81,7 @@
 
 		/**
 		 * @param {Object} settings
+		 * @param {String} [settings.id]
 		 * @param {String} [settings.controller]
 		 * @param {String} [settings.controllerDefault]
 		 * @param {String} [settings.method]
@@ -145,10 +144,10 @@
 				this.messages = {};
 			}
 
-			this.optionsFields = this.getSetting("optionsFields");
-			if (!this.optionsFields)
+			var optionsFields = this.getSetting("optionsFields");
+			if (!optionsFields)
 			{
-				this.optionsFields = {};
+				this.setSetting("optionsFields", {});
 			}
 
 			this.handlers = this.getSetting("handlers");
@@ -189,9 +188,10 @@
 		 */
 		setOptionFieldValue: function (optionName, val)
 		{
-			if (this.optionsFields[optionName])
+			var optionsFields = this.getSetting('optionsFields');
+			if (optionsFields[optionName])
 			{
-				this.optionsFields[optionName].value = val;
+				optionsFields[optionName].value = val;
 			}
 			return this;
 		},
@@ -202,12 +202,13 @@
 			var valuesToStore = {};
 			if ("sessionStorage" in window)
 			{
-				var option, optionName;
-				for (optionName in this.optionsFields)
+				var option, optionName,
+					optionsFields = this.getSetting('optionsFields');
+				for (optionName in optionsFields)
 				{
-					if (this.optionsFields.hasOwnProperty(optionName))
+					if (optionsFields.hasOwnProperty(optionName))
 					{
-						option = this.optionsFields[optionName];
+						option = optionsFields[optionName];
 						switch (option["type"])
 						{
 							case "checkbox":
@@ -251,7 +252,7 @@
 			{
 				this.dialog = BX.Translate.ProcessDialogManager.create({
 					id: this.id,
-					optionsFields: this.optionsFields,
+					optionsFields: this.getSetting('optionsFields', {}),
 					optionsFieldsValue: this.loadOptionFieldValues(),
 					messages: {
 						title: this.getMessage("DialogTitle"),
@@ -277,7 +278,9 @@
 
 		showDialog: function ()
 		{
-			this.getDialog().show();
+			this.getDialog()
+				.setSetting("optionsFieldsValue", this.loadOptionFieldValues())
+				.show();
 
 			if (!this.isRequestRunning)
 			{
@@ -851,6 +854,7 @@
 				{
 					this.getDialog().setDownloadButtons(
 						result["DOWNLOAD_LINK"],
+						result["FILE_NAME"],
 						BX.delegate(function(){this.callAction('purge');}, this)
 					);
 				}

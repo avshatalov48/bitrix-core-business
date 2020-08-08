@@ -18,7 +18,7 @@ IncludeModuleLangFile(__FILE__);
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
-$ID = IntVal($ID);
+$ID = intval($ID);
 
 ClearVars();
 ClearVars("fp_");
@@ -28,10 +28,10 @@ $bInitVars = false;
 
 $lpEnabled = CSaleLocation::isLocationProEnabled();
 
-if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $saleModulePermissions=="W" && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $saleModulePermissions=="W" && check_bitrix_sessid())
 {
 	$adminSidePanelHelper->decodeUriComponent();
-	$TAX_ID = IntVal($TAX_ID);
+	$TAX_ID = intval($TAX_ID);
 	if ($TAX_ID<=0)
 		$strError .= GetMessage("ERROR_NO_TAX_ID")."<br>";
 
@@ -46,20 +46,24 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $saleMod
 	$IS_PERCENT = "Y";
 	if ($IS_PERCENT!="Y") $IS_PERCENT = "N";
 
-	if ($IS_PERCENT!="Y" && strlen($CURRENCY)<=0)
+	if ($IS_PERCENT!="Y" && $CURRENCY == '')
 		$strError .= GetMessage("ERROR_PERCENT_OR_CURRENCY")."<br>";
 
-	$APPLY_ORDER = IntVal($APPLY_ORDER);
+	$APPLY_ORDER = intval($APPLY_ORDER);
 	if ($APPLY_ORDER<=0) $APPLY_ORDER = 100;
 
 	$arLocation = array();
 	if($lpEnabled)
 	{
-		if(strlen($_REQUEST['LOCATION']['L']))
+		if($_REQUEST['LOCATION']['L'] <> '')
+		{
 			$LOCATION1 = explode(':', $_REQUEST['LOCATION']['L']);
+		}
 
-		if(strlen($_REQUEST['LOCATION']['G']))
+		if($_REQUEST['LOCATION']['G'] <> '')
+		{
 			$LOCATION2 = explode(':', $_REQUEST['LOCATION']['G']);
+		}
 	}
 
 	if (isset($LOCATION1) && is_array($LOCATION1) && count($LOCATION1)>0)
@@ -67,12 +71,12 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $saleMod
 		$countLocation = count($LOCATION1);
 		for ($i = 0; $i < $countLocation; $i++)
 		{
-			if (strlen($LOCATION1[$i]))
+			if($LOCATION1[$i] <> '')
 			{
 				$arLocation[] = array(
 					"LOCATION_ID" => $LOCATION1[$i],
 					"LOCATION_TYPE" => "L"
-					);
+				);
 			}
 		}
 	}
@@ -82,12 +86,12 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $saleMod
 		$countLocation2 = count($LOCATION2);
 		for ($i = 0; $i < $countLocation2; $i++)
 		{
-			if (strlen($LOCATION2[$i]))
+			if($LOCATION2[$i] <> '')
 			{
 				$arLocation[] = array(
 					"LOCATION_ID" => $LOCATION2[$i],
 					"LOCATION_TYPE" => "G"
-					);
+				);
 			}
 		}
 	}
@@ -95,14 +99,14 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $saleMod
 	if (!is_array($arLocation) || count($arLocation)<=0)
 		$strError .= GetMessage("ERROR_NO_LOCATION")."<br>";
 
-	if (strlen($strError)<=0)
+	if ($strError == '')
 	{
 		unset($arFields);
 		$arFields = array(
-			"PERSON_TYPE_ID" => (IntVal($PERSON_TYPE_ID)>0) ? IntVal($PERSON_TYPE_ID) : False,
+			"PERSON_TYPE_ID" => (intval($PERSON_TYPE_ID)>0) ? intval($PERSON_TYPE_ID) : False,
 			"TAX_ID" => $TAX_ID,
 			"VALUE" => $VALUE,
-			"CURRENCY" => (strlen($CURRENCY)>0) ? $CURRENCY : False,
+			"CURRENCY" => ($CURRENCY <> '') ? $CURRENCY : False,
 			"IS_PERCENT" => $IS_PERCENT,
 			"IS_IN_PRICE" => $IS_IN_PRICE,
 			"APPLY_ORDER" => $APPLY_ORDER,
@@ -124,7 +128,7 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $saleMod
 		}
 	}
 
-	if (strlen($strError)>0)
+	if ($strError <> '')
 	{
 		$adminSidePanelHelper->sendJsonErrorResponse($strError);
 		$bInitVars = True;
@@ -132,7 +136,7 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $saleMod
 
 	$adminSidePanelHelper->sendSuccessResponse("base");
 
-	if (strlen($save) > 0 && strlen($strError) <= 0)
+	if ($save <> '' && $strError == '')
 	{
 		$adminSidePanelHelper->localRedirect($listUrl);
 		LocalRedirect($listUrl);
@@ -259,7 +263,7 @@ $tabControl->BeginNextTab();
 				$db_TAX = CSaleTax::GetList(array("NAME" => "ASC"), array());
 				while ($db_TAX_arr = $db_TAX->NavNext(true, "fp_"))
 				{
-					?><option value="<?echo intval($fp_ID) ?>" <?if (IntVal($fp_ID)==IntVal($str_TAX_ID)) echo "selected";?>><?= $fp_NAME ?> (<?echo $fp_LID ?>)</option><?
+					?><option value="<?echo intval($fp_ID) ?>" <?if (intval($fp_ID)==intval($str_TAX_ID)) echo "selected";?>><?= $fp_NAME ?> (<?echo $fp_LID ?>)</option><?
 				}
 				?>
 			</select>
@@ -296,7 +300,7 @@ $tabControl->BeginNextTab();
 		</td>
 		<td width="60%">
 			<select name="IS_IN_PRICE">
-				<option value="N" <?if ($str_IS_IN_PRICE=="N" || strlen($str_IS_IN_PRICE)<=0) echo " selected"?>><?echo GetMessage("RATE_NET");?></option>
+				<option value="N" <?if ($str_IS_IN_PRICE=="N" || $str_IS_IN_PRICE == '') echo " selected"?>><?echo GetMessage("RATE_NET");?></option>
 				<option value="Y" <?if ($str_IS_IN_PRICE=="Y") echo " selected"?>><?echo GetMessage("RATE_YES");?></option>
 			</select>
 		</td>
@@ -360,7 +364,7 @@ $tabControl->BeginNextTab();
 						$arLOCATION1 = Array();
 					?>
 					<?while ($vars = $db_vars->Fetch()):?>
-						<option value="<?echo $vars["ID"]?>"<?if (in_array(IntVal($vars["ID"]), $arLOCATION1)) echo " selected"?>><?echo htmlspecialcharsbx($vars["COUNTRY_NAME_LANG"])?><?if(strlen($vars["REGION_NAME_LANG"]) > 0) echo " - ".htmlspecialcharsbx($vars["REGION_NAME_LANG"])?><?if(strlen($vars["CITY_NAME_LANG"]) > 0) echo " - ".htmlspecialcharsbx($vars["CITY_NAME_LANG"])?></option>
+						<option value="<?echo $vars["ID"]?>"<?if (in_array(intval($vars["ID"]), $arLOCATION1)) echo " selected"?>><?echo htmlspecialcharsbx($vars["COUNTRY_NAME_LANG"])?><?if($vars["REGION_NAME_LANG"] <> '') echo " - ".htmlspecialcharsbx($vars["REGION_NAME_LANG"])?><?if($vars["CITY_NAME_LANG"] <> '') echo " - ".htmlspecialcharsbx($vars["CITY_NAME_LANG"])?></option>
 					<?endwhile;?>
 				</select>
 			</td>
@@ -388,7 +392,7 @@ $tabControl->BeginNextTab();
 						$arLOCATION2 = Array();
 					?>
 					<?while ($vars = $db_vars->Fetch()):?>
-						<option value="<?echo $vars["ID"]?>"<?if (in_array(IntVal($vars["ID"]), $arLOCATION2)) echo " selected"?>><?echo htmlspecialcharsbx($vars["NAME"])?></option>
+						<option value="<?echo $vars["ID"]?>"<?if (in_array(intval($vars["ID"]), $arLOCATION2)) echo " selected"?>><?echo htmlspecialcharsbx($vars["NAME"])?></option>
 					<?endwhile;?>
 				</select>
 			</td>

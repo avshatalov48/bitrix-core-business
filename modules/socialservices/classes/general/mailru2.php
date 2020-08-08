@@ -272,12 +272,12 @@ class CMailRu2Interface extends CSocServOAuthTransport
 	{
 		if ($appID === false)
 		{
-			$appID = trim(CSocServFacebook::GetOption("mailru2_client_id"));
+			$appID = trim(CSocServAuth::GetOption("mailru2_client_id"));
 		}
 
 		if ($appSecret === false)
 		{
-			$appSecret = trim(CSocServFacebook::GetOption("mailru2_client_secret"));
+			$appSecret = trim(CSocServAuth::GetOption("mailru2_client_secret"));
 		}
 
 		parent::__construct($appID, $appSecret, $code);
@@ -317,9 +317,9 @@ class CMailRu2Interface extends CSocServOAuthTransport
 				{
 					return true;
 				}
-				else if (isset($tokens['REFRESH_TOKEN']))
+				else if (isset($token['REFRESH_TOKEN']))
 				{
-					if ($this->getNewAccessToken($tokens['REFRESH_TOKEN'], $this->userId, true))
+					if ($this->getNewAccessToken($token['REFRESH_TOKEN'], $this->userId, true))
 					{
 						return true;
 					}

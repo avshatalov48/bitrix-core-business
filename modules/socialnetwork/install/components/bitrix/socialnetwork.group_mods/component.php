@@ -7,31 +7,31 @@ if (!CModule::IncludeModule("socialnetwork"))
 	return;
 }
 
-$arParams["GROUP_ID"] = IntVal($arParams["GROUP_ID"]);
+$arParams["GROUP_ID"] = intval($arParams["GROUP_ID"]);
 
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 
-if (strLen($arParams["USER_VAR"]) <= 0)
+if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
-if (strLen($arParams["GROUP_VAR"]) <= 0)
+if ($arParams["GROUP_VAR"] == '')
 	$arParams["GROUP_VAR"] = "group_id";
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if (strlen($arParams["PATH_TO_USER"]) <= 0)
+if ($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 $arParams["PATH_TO_GROUP"] = trim($arParams["PATH_TO_GROUP"]);
-if (strlen($arParams["PATH_TO_GROUP"]) <= 0)
+if ($arParams["PATH_TO_GROUP"] == '')
 	$arParams["PATH_TO_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#");
 $arParams["PATH_TO_GROUP_MODS"] = trim($arParams["PATH_TO_GROUP_MODS"]);
-if(strlen($arParams["PATH_TO_GROUP_MODS"])<=0)
+if($arParams["PATH_TO_GROUP_MODS"] == '')
 	$arParams["PATH_TO_GROUP_MODS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_mods&".$arParams["GROUP_VAR"]."=#group_id#");
 $arParams["PATH_TO_GROUP_USERS"] = trim($arParams["PATH_TO_GROUP_USERS"]);
-if(strlen($arParams["PATH_TO_GROUP_USERS"])<=0)
+if($arParams["PATH_TO_GROUP_USERS"] == '')
 	$arParams["PATH_TO_GROUP_USERS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_users&".$arParams["GROUP_VAR"]."=#group_id#");
 
-$arParams["ITEMS_COUNT"] = IntVal($arParams["ITEMS_COUNT"]);
+$arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
 if ($arParams["ITEMS_COUNT"] <= 0)
 	$arParams["ITEMS_COUNT"] = 30;
 
@@ -126,17 +126,17 @@ else
 			}
 
 			if ($_SERVER["REQUEST_METHOD"]=="POST" && $arResult["CurrentUserPerms"]["UserCanModifyGroup"] 
-				&& strlen($_POST["save"]) > 0 && check_bitrix_sessid())
+				&& $_POST["save"] <> '' && check_bitrix_sessid())
 			{
 				$errorMessage = "";
 
 				$arIDs = array();
-				if (strlen($errorMessage) <= 0)
+				if ($errorMessage == '')
 				{
-					for ($i = 0; $i <= IntVal($_POST["max_count"]); $i++)
+					for ($i = 0; $i <= intval($_POST["max_count"]); $i++)
 					{
 						if ($_POST["checked_".$i] == "Y")
-							$arIDs[] = IntVal($_POST["id_".$i]);
+							$arIDs[] = intval($_POST["id_".$i]);
 					}
 
 					if (count($arIDs) <= 0)
@@ -144,13 +144,13 @@ else
 				}
 
 				if (
-					(strlen($errorMessage) <= 0)
+					($errorMessage == '')
 					&& !CSocNetUserToGroup::TransferModerator2Member($GLOBALS["USER"]->GetID(), $arResult["Group"]["ID"], $arIDs, CSocNetUser::IsCurrentUserModuleAdmin())
 					&& ($e = $APPLICATION->GetException())					
 				)
 					$errorMessage .= $e->GetString();
 
-				if (strlen($errorMessage) > 0)
+				if ($errorMessage <> '')
 					$arResult["ErrorMessage"] = $errorMessage;
 			}
 

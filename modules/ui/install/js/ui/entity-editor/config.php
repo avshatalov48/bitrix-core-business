@@ -23,6 +23,7 @@ return [
 		"/bitrix/js/ui/entity-editor/js/scheme.js",
 		"/bitrix/js/ui/entity-editor/js/selector.js",
 		"/bitrix/js/ui/entity-editor/js/tool-panel.js",
+		"/bitrix/js/ui/entity-editor/js/field-configurator.js",
 		"/bitrix/js/ui/entity-editor/js/user-field.js",
 		"/bitrix/js/ui/entity-editor/js/validator.js",
 	],
@@ -34,9 +35,11 @@ return [
 		"uploader",
 		"tooltip",
 		"helper",
+		"core_money_editor",
+		"ui",
 		"ui.notification",
 		"ui.dropdown",
 		"ui.buttons",
-		"ui.forms"
+		"ui.forms",
 	]
 ];

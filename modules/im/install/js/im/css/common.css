@@ -14,7 +14,7 @@
 
 /* CL */
 .bx-messenger-input-wrap-active .bx-messenger-input-close { opacity: 1 }
-.bx-messenger-command { border-bottom: 1px dashed #2067B0; cursor: pointer; color: #2067B0; display: inline-block; }
+.bx-messenger-command { border-bottom: 1px dashed #2067B0; cursor: pointer; color: #2067B0; }
 .bx-messenger-command-data { display: none; }
 .bx-messenger-content-item-system .bx-messenger-content-item-arrow {display:none;}
 
@@ -436,8 +436,6 @@
 .bx-messenger-chat-general-access .bx-messenger-textarea-general-invite { display: block; }
 .bx-messenger-chat-general-access .bx-messenger-textarea-open-invite-text-box { padding-right: 10px; }
 .bx-messenger-chat-general-access .bx-messenger-textarea-open-invite-join { display: none;}
-
-.bx-messenger-chat-open .bx-messenger-panel-button-box { display: none; }
 
 .bx-messenger-chat-guest .bx-messenger-content-like-button { width: 0; overflow: hidden;  padding-right: 0; cursor: default;}
 .bx-messenger-chat-guest .bx-messenger-panel-title-chat,

@@ -44,7 +44,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Export"]=="Y")
 	//We have to strongly check all about file names at server side
 	$ABS_FILE_NAME = false;
 	$WORK_DIR_NAME = false;
-	if(isset($NS["URL_DATA_FILE"]) && (strlen($NS["URL_DATA_FILE"])>0))
+	if(isset($NS["URL_DATA_FILE"]) && ($NS["URL_DATA_FILE"] <> ''))
 	{
 		$filename = trim(str_replace("\\", "/", trim($NS["URL_DATA_FILE"])), "/");
 		if (
@@ -57,12 +57,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Export"]=="Y")
 		else
 		{
 			$FILE_NAME = rel2abs($_SERVER["DOCUMENT_ROOT"], "/".$filename);
-			if((strlen($FILE_NAME) > 1) && ($FILE_NAME === "/".$filename))
+			if((mb_strlen($FILE_NAME) > 1) && ($FILE_NAME === "/".$filename))
 			{
 				$ABS_FILE_NAME = $_SERVER["DOCUMENT_ROOT"].$FILE_NAME;
-				if (strtolower(substr($ABS_FILE_NAME, -4)) != ".xml")
+				if (mb_strtolower(mb_substr($ABS_FILE_NAME, -4)) != ".xml")
 					$ABS_FILE_NAME .= ".xml";
-				$WORK_DIR_NAME = substr($ABS_FILE_NAME, 0, strrpos($ABS_FILE_NAME, "/")+1);
+				$WORK_DIR_NAME = mb_substr($ABS_FILE_NAME, 0, mb_strrpos($ABS_FILE_NAME, "/") + 1);
 			}
 		}
 	}
@@ -90,16 +90,16 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Export"]=="Y")
 			if($fp = fopen($ABS_FILE_NAME, "wb"))
 			{
 				@chmod($ABS_FILE_NAME, BX_FILE_PERMISSIONS);
-				if(strtolower(substr($ABS_FILE_NAME, -4)) == ".xml")
+				if(mb_strtolower(mb_substr($ABS_FILE_NAME, -4)) == ".xml")
 				{
-					$DIR_NAME = substr($ABS_FILE_NAME, 0, -4)."_files";
+					$DIR_NAME = mb_substr($ABS_FILE_NAME, 0, -4)."_files";
 					if(
 						is_dir($DIR_NAME)
 						|| @mkdir($DIR_NAME, BX_DIR_PERMISSIONS)
 					)
 					{
 						$_SESSION["BX_CML2_EXPORT"]["work_dir"] = $WORK_DIR_NAME;
-						$_SESSION["BX_CML2_EXPORT"]["file_dir"] = substr($DIR_NAME."/", strlen($WORK_DIR_NAME));
+						$_SESSION["BX_CML2_EXPORT"]["file_dir"] = mb_substr($DIR_NAME."/", mb_strlen($WORK_DIR_NAME));
 					}
 				}
 			}

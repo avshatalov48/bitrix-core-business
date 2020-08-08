@@ -21,6 +21,8 @@ class CRestUtil
 
 	const BITRIX_1C_APP_CODE = 'bitrix.1c';
 
+	const PLACEMENT_APP_URI = 'REST_APP_URI';
+
 	public static function sendHeaders()
 	{
 		Header('Access-Control-Allow-Origin: *');
@@ -998,15 +1000,13 @@ class CRestUtil
 		{
 			$type = 'ID';
 		}
-		$appType = \Bitrix\Rest\AppTable::getAppType($appInfo['CODE'], $appInfo['VERSION']);
 
-		$url = '';
 		if(
 			empty($appInfo['MENU_NAME'])
 			&& empty($appInfo['MENU_NAME_DEFAULT'])
 			&& empty($appInfo['MENU_NAME_LICENSE'])
 			|| $appInfo['ACTIVE'] === \Bitrix\Rest\AppTable::INACTIVE
-			|| $appType === \Bitrix\Rest\AppTable::TYPE_CONFIGURATION
+			|| $appInfo['TYPE'] === \Bitrix\Rest\AppTable::TYPE_CONFIGURATION
 		)
 		{
 			$url = \Bitrix\Rest\Marketplace\Url::getApplicationDetailUrl(urlencode($appInfo['CODE']));

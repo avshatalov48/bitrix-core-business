@@ -19,6 +19,7 @@ class CatalogTopComponent extends ElementList
 	{
 		parent::__construct($component);
 		$this->setExtendedMode(false)->setMultiIblockMode(false)->setPaginationMode(false);
+		$this->setSeparateLoading(true);
 	}
 
 	public function onPrepareComponentParams($params)

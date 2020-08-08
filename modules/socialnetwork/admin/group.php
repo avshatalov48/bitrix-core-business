@@ -39,15 +39,15 @@ $arFilterFields = array(
 $lAdmin->InitFilter($arFilterFields);
 
 $arFilter = array();
-if (strlen($filter_site_id) > 0 && $filter_site_id != "NOT_REF")
+if ($filter_site_id <> '' && $filter_site_id != "NOT_REF")
 	$arFilter["SITE_ID"] = $filter_site_id;
-if (strlen($filter_subject_id) > 0 && $filter_subject_id != "NOT_REF")
+if ($filter_subject_id <> '' && $filter_subject_id != "NOT_REF")
 	$arFilter["SUBJECT_ID"] = $filter_subject_id;
-if (strlen($filter_name) > 0)
+if ($filter_name <> '')
 	$arFilter["%NAME"] = $filter_name;
 if (intval($filter_owner_id) > 0)
 	$arFilter["OWNER_ID"] = $filter_owner_id;
-if (strlen($filter_owner_user) > 0)
+if ($filter_owner_user <> '')
 	$arFilter["?OWNER_USER"] = $filter_owner_user;
 
 if ($lAdmin->EditAction() && $socialnetworkModulePermissions >= "W")
@@ -81,7 +81,7 @@ if ($lAdmin->EditAction() && $socialnetworkModulePermissions >= "W")
 	foreach ($FIELDS as $ID => $arFields)
 	{
 		$DB->StartTransaction();
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$bError = false;
 
 		if (!$lAdmin->IsUpdated($ID))
@@ -188,7 +188,8 @@ if ($lAdmin->EditAction() && $socialnetworkModulePermissions >= "W")
 						UserToGroup::addInfoToChat(array(
 							'group_id' => $ID,
 							'user_id' => $arFields["OWNER_ID"],
-							'action' => UserToGroup::CHAT_ACTION_IN
+							'action' => UserToGroup::CHAT_ACTION_IN,
+							'role' => \Bitrix\Socialnetwork\UserToGroupTable::ROLE_OWNER
 						));
 					}
 				}
@@ -222,7 +223,7 @@ if (($arID = $lAdmin->GroupAction()) && $socialnetworkModulePermissions >= "W")
 
 	foreach ($arID as $ID)
 	{
-		if (strlen($ID) <= 0)
+		if ($ID == '')
 			continue;
 
 		switch ($_REQUEST['action'])

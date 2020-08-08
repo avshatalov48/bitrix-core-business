@@ -115,4 +115,7 @@ $MESS["SALE_PS_RETURN_SETTINGS_YANDEX"] = "Настроить механизм �
 $MESS["SALE_PSE_YANDEX_INVOICE_SETTINGS_TITLE"] = "Настройки безопасности";
 $MESS["SALE_PSE_YANDEX_INVOICE_SETTINGS"] = "Для выставления счетов через Яндекс, необходимо дополнительно <a href='/bitrix/admin/sale_yandexinvoice_settings.php?lang=ru&pay_system_id=#ID#' target='_blank'>настроить</a> обработчик";
 $MESS["SALE_PSE_YANDEX_INVOICE_SETTINGS_OK"] = "Обработчик успешно настроен. Изменить настройки можно <a href='/bitrix/admin/sale_yandexinvoice_settings.php?lang=ru&pay_system_id=#ID#' target='_blank'>тут</a>";
+$MESS["SPS_VALIDATION_DOMAIN_HEAD"] = "Подтверждение владения доменом";
+$MESS["SPS_VALIDATION_DOMAIN_VALIDATION"] = "Подтвердить домен";
+$MESS["SPS_VALIDATION_DOMAIN_FORM"] = "Форма подтверждения домена";
 ?>

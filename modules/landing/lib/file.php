@@ -26,6 +26,20 @@ class File
 	const ENTITY_TYPE_ASSET = 'A';
 
 	/**
+	 * Returns sanitized file name.
+	 * @param string $fileName File name.
+	 * @return string
+	 */
+	public static function sanitizeFileName(string $fileName): string
+	{
+		return preg_replace(
+			'/[\(\)\s]+/s',
+			'_',
+			$fileName
+		);
+	}
+
+	/**
 	 * Add new record.
 	 * @param int $fileId File id.
 	 * @param int $entityId Entity id.
@@ -117,7 +131,7 @@ class File
 
 	/**
 	 * Final delete all marked files.
-	 * @param null $limit
+	 * @param int $limit Records limit for one iteration.
 	 * @return void
 	 */
 	public static function deleteFinal($limit = null)
@@ -373,7 +387,7 @@ class File
 	
 	/**
 	 * Add new record for Asset.
-	 * @param int $assetId - id of landing to which attached asset.
+	 * @param int $assetId Id of landing to which attached asset.
 	 * @param int $fileId File id.
 	 * @return void
 	 */
@@ -389,7 +403,7 @@ class File
 	
 	/**
 	 * Gets asset files for current landing.
-	 * @param int $assetId - id of landing to which attached asset.
+	 * @param int $assetId Id of landing to which attached asset.
 	 * @return array
 	 */
 	public static function getFilesFromAsset($assetId)
@@ -403,7 +417,7 @@ class File
 	/**
 	 * Delete asset files for current landing.
 	 * Not remove from disk immediately, just marked for agent
-	 * @param int $assetId - id of landing to which attached asset.
+	 * @param int $assetId Id of landing to which attached asset.
 	 * @param int|int[] $fileId File id (by default delete all files from Asset).
 	 * @return void
 	 */
@@ -414,11 +428,8 @@ class File
 	
 	/**
 	 * Mark file as "need rebuild", but not delete them. File will be exist until not created new file.
-	 * @param int|int[] $assetId - id of landing to which attached asset. If not set - will marked all
+	 * @param int|int[] $assetId Id of landing to which attached asset. If not set - will marked all.
 	 * @return void
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
 	 */
 	public static function markAssetToRebuild($assetId = [])
 	{
@@ -557,5 +568,40 @@ class File
 			return $file['SRC'];
 		}
 		return null;
+	}
+
+	/**
+	 * Delete all file Id from File table.
+	 * @param int $fileId File id to delete.
+	 * @return void
+	 */
+	public static function releaseFile(int $fileId): void
+	{
+		$res = FileTable::getList(array(
+			'select' => [
+				'ID'
+			],
+			'filter' => [
+				'FILE_ID' => $fileId
+			]
+		));
+		while ($row = $res->fetch())
+		{
+			FileTable::delete($row['ID']);
+		}
+	}
+
+	/**
+	 * Physical delete file.
+	 * @param int $fileId File id.
+	 * @return void
+	 */
+	public static function deletePhysical(int $fileId): void
+	{
+		if (self::getFileArray($fileId))
+		{
+			self::releaseFile($fileId);
+			\CFile::delete($fileId);
+		}
 	}
 }

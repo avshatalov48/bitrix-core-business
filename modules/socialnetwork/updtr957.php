@@ -70,7 +70,7 @@ while ($arResult = $dbResult->Fetch())
 		"TRANSPORT" 	=> $arResult["TRANSPORT"],
 		"VISIBLE" 		=> $arResult["VISIBLE"]
 	);
-	if (strlen($arResult["SITE_ID"]) > 0)
+	if ($arResult["SITE_ID"] <> '')
 		$arLogEvent["SITE_ID"] = $arResult["SITE_ID"];
 	else
 		$arLogEvent["SITE_ID"] = false;
@@ -121,7 +121,7 @@ while ($arResult = $dbResult->Fetch())
 		"TRANSPORT" 	=> $arResult["TRANSPORT"],
 		"VISIBLE" 		=> $arResult["VISIBLE"]
 	);
-	if (strlen($arResult["SITE_ID"]) > 0)
+	if ($arResult["SITE_ID"] <> '')
 		$arLogEvent["SITE_ID"] = $arResult["SITE_ID"];
 	else
 		$arLogEvent["SITE_ID"] = false;

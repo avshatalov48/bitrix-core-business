@@ -250,7 +250,7 @@ class CAllEventMessage
 
 		if($ID===false && !is_set($arFields, "EVENT_NAME"))
 		{
-			$this->LAST_ERROR .= GetMessage(GetMessage("MAIN_BAD_EVENT_NAME_NA"))."<br>";
+			$this->LAST_ERROR .= GetMessage("MAIN_BAD_EVENT_NAME_NA")."<br>";
 			$arMsg[] = array("id"=>"EVENT_NAME", "text"=> GetMessage("MAIN_BAD_EVENT_NAME_NA"));
 		}
 		if(is_set($arFields, "EVENT_NAME"))

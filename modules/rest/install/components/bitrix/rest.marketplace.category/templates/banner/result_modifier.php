@@ -24,6 +24,7 @@ if(!empty($arResult['ITEMS']))
 				'link' => $item['URL'],
 				'infoHelperCode' => $item['INFO_HELPER_CODE']? : false,
 				'icon' => $item['ICON'],
+				'price' => $item['PRICE'],
 			];
 		},
 		$arResult['ITEMS']

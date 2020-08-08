@@ -18,7 +18,7 @@ if (!function_exists("BPWSInitParam"))
 		if ($arParams[$name] <= 0)
 			$arParams[$name] = trim($_REQUEST[$name]);
 		if ($arParams[$name] <= 0)
-			$arParams[$name] = trim($_REQUEST[strtolower($name)]);
+			$arParams[$name] = trim($_REQUEST[mb_strtolower($name)]);
 	}
 }
 
@@ -44,18 +44,18 @@ endif;
 
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		$arParams[strToUpper($URL)."_URL"] = trim($arParams[strToUpper($URL)."_URL"]);
-		if (empty($arParams[strToUpper($URL)."_URL"])):
-			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPage();
+		$arParams[mb_strtoupper($URL)."_URL"] = trim($arParams[mb_strtoupper($URL)."_URL"]);
+		if (empty($arParams[mb_strtoupper($URL)."_URL"])):
+			$arParams[mb_strtoupper($URL)."_URL"] = $APPLICATION->GetCurPage();
 		endif;
-		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams["~".mb_strtoupper($URL)."_URL"] = $arParams[mb_strtoupper($URL)."_URL"];
+		$arParams[mb_strtoupper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".mb_strtoupper($URL)."_URL"]);
 	}
 /***************** ADDITIONAL **************************************/
-	$arParams["PAGE_ELEMENTS"] = intVal(intVal($arParams["PAGE_ELEMENTS"]) > 0 ? $arParams["PAGE_ELEMENTS"] : 50);
+	$arParams["PAGE_ELEMENTS"] = intval(intVal($arParams["PAGE_ELEMENTS"]) > 0 ? $arParams["PAGE_ELEMENTS"] : 50);
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
 	$arParams["GRID_ID"] = "bizproc_history_".$arParams["DOCUMENT_ID"][2]; 
-    $arParams["ACTION"] = (isset($_REQUEST["action"]) ? strtolower($_REQUEST["action"]) : '');
+    $arParams["ACTION"] = (isset($_REQUEST["action"])? mb_strtolower($_REQUEST["action"]) : '');
     $arParams["ACTION"] = (in_array($arParams["ACTION"], array("recover", "delete")) ? $arParams["ACTION"] : '');
     $arResult["NOTIFICATIONS"] = array(
         "recover" => GetMessage("BPADH_RECOVERY_OK"), 
@@ -76,19 +76,19 @@ endif;
 				Main data
 ********************************************************************/
 $arError = array();
-if (strlen($arParams["MODULE_ID"]) <= 0)
+if ($arParams["MODULE_ID"] == '')
 	$arError[] = array(
 		"id" => "empty_module_id",
 		"text" => GetMessage("BPATT_NO_MODULE_ID"));
-if (strlen($arParams["ENTITY"]) <= 0)
+if ($arParams["ENTITY"] == '')
 	$arError[] = array(
 		"id" => "empty_entity",
 		"text" => GetMessage("BPABS_EMPTY_ENTITY"));
-if (strlen($arParams["DOCUMENT_TYPE"]) <= 0)
+if ($arParams["DOCUMENT_TYPE"] == '')
 	$arError[] = array(
 		"id" => "empty_document_type",
 		"text" => GetMessage("BPABS_EMPTY_DOC_TYPE"));
-if (strlen($arParams["DOCUMENT_ID"]) <= 0)
+if ($arParams["DOCUMENT_ID"] == '')
 	$arError[] = array(
 		"id" => "empty_document_id",
 		"text" => GetMessage("BPABS_EMPTY_DOC_ID"));
@@ -196,7 +196,7 @@ if (!empty($arParams['ACTION']) && !empty($_REQUEST["ID"]) && check_bitrix_sessi
 ********************************************************************/
 $history = new CBPHistoryService();
 $db_res = $history->GetHistoryList(
-	array(strtoupper($by) => strtoupper($order)),
+	array(mb_strtoupper($by) => mb_strtoupper($order)),
 	array("DOCUMENT_ID" => $arParams["DOCUMENT_ID"]),
 	false,
 	false,

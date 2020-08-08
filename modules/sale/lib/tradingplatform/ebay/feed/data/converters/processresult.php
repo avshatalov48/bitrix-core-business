@@ -16,7 +16,7 @@ class ProcessResult extends DataConverter
 
 		$result["RESULT_ID"] = $data["RESULT_ID"];
 
-		if(strlen($data["CONTENT"]) >= 0)
+		if((string)$data["CONTENT"] !== '')
 		{
 			$strings = explode("\n", $data["CONTENT"]);
 			$fields = array();
@@ -27,9 +27,9 @@ class ProcessResult extends DataConverter
 				{
 					$info = json_decode($string, true);
 
-					if(strpos($info["message"], "Processing Request #") !== false)
-						$fields["PROCESSING_REQUEST_ID"] = substr($info["message"], 20);
-					elseif(strpos($info["message"], "Processing Complete") !== false)
+					if(mb_strpos($info["message"], "Processing Request #") !== false)
+						$fields["PROCESSING_REQUEST_ID"] = mb_substr($info["message"], 20);
+					elseif(mb_strpos($info["message"], "Processing Complete") !== false)
 						$fields["PROCESSING_RESULT"] = "Complete";
 				}
 

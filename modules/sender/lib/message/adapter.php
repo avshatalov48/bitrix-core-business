@@ -694,4 +694,12 @@ class Adapter implements iBase
 		}
 		return new \Bitrix\Main\Result();
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getEntityCode()
+	{
+		return $this->message->getEntityCode();
+	}
 }

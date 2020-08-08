@@ -46,7 +46,7 @@ if ($params["PAYED"] != "Y")
 						<input type="hidden" name="lc" value="<?=htmlspecialcharsbx($params["PAYPAL_LC"])?>">
 					<?endif;?>
 
-					<? $buttonSrc = (strlen($params["PAYPAL_BUTTON_SRC"])>0) ? $params["PAYPAL_BUTTON_SRC"] : "http://www.paypal.com/en_US/i/btn/x-click-but6.gif";?>
+					<? $buttonSrc = ($params["PAYPAL_BUTTON_SRC"] <> '') ? $params["PAYPAL_BUTTON_SRC"] : "http://www.paypal.com/en_US/i/btn/x-click-but6.gif";?>
 
 					<input type="image" src="<?=$buttonSrc?>" name="submit">
 				</form>

@@ -48,11 +48,12 @@ class UserTable
 			),
 			'USER' => array(
 				'data_type' => '\Bitrix\Main\User',
-				'reference' => array('=this.USER_ID' => 'ref.ID')
+				'reference' => array('=this.USER_ID' => 'ref.ID'),
+				'join_type' => 'INNER',
 			),
 			'ACTIVE' => array(
 				'data_type' => 'boolean',
-				'values' => array('Y', 'N'),
+				'values' => array('N', 'Y'),
 				'default' => 'N'
 			),
 			'SECRET' => array(
@@ -77,7 +78,7 @@ class UserTable
 			),
 			'SKIP_MANDATORY' => array(
 				'data_type' => 'boolean',
-				'values' => array('Y', 'N'),
+				'values' => array('N', 'Y'),
 				'default' => 'N'
 			),
 			'DEACTIVATE_UNTIL' => array(

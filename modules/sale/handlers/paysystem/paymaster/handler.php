@@ -10,10 +10,13 @@ use Bitrix\Sale\PaySystem;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 
-Loader::registerAutoLoadClasses('sale', array(PaySystem\Manager::getClassNameFromPath('WebMoney') => 'handlers/paysystem/webmoney/handler.php'));
-
+PaySystem\Manager::includeHandler('WebMoney');
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class PayMasterHandler
+ * @package Sale\Handlers\PaySystem
+ */
 class PayMasterHandler extends WebMoneyHandler
 {
 	/**
@@ -26,7 +29,9 @@ class PayMasterHandler extends WebMoneyHandler
 		$extraParams = array(
 			'PS_MODE' => $this->service->getField('PS_MODE'),
 			'URL' => $this->getUrl($payment, 'pay'),
-			'BX_PAYSYSTEM_CODE' => $payment->getPaymentSystemId()
+			'BX_PAYSYSTEM_CODE' => $payment->getPaymentSystemId(),
+			'PAYMASTER_SUCCESS_URL' => $this->getSuccessUrl($payment),
+			'PAYMASTER_FAIL_URL' => $this->getFailUrl($payment),
 		);
 		$this->setExtraParams($extraParams);
 
@@ -184,5 +189,23 @@ class PayMasterHandler extends WebMoneyHandler
 			echo $data['CODE'];
 			die();
 		}
+	}
+
+	/**
+	 * @param Payment $payment
+	 * @return mixed|string
+	 */
+	private function getSuccessUrl(Payment $payment)
+	{
+		return $this->getBusinessValue($payment, 'PAYMASTER_SUCCESS_URL') ?: $this->service->getContext()->getUrl();
+	}
+
+	/**
+	 * @param Payment $payment
+	 * @return mixed|string
+	 */
+	private function getFailUrl(Payment $payment)
+	{
+		return $this->getBusinessValue($payment, 'PAYMASTER_FAIL_URL') ?: $this->service->getContext()->getUrl();
 	}
 }

@@ -320,7 +320,7 @@ namespace Bitrix\Sale\TradingPlatform\Ebay\Wizard
 		{
 			$result = "";
 
-			if(!empty($ebaySettings[$siteId]["SFTP_LOGIN"]) && strlen(($ebaySettings[$siteId]["SFTP_LOGIN"])) > 0)
+			if(!empty($ebaySettings[$siteId]["SFTP_LOGIN"]) && ($ebaySettings[$siteId]["SFTP_LOGIN"]) <> '')
 				$result = $ebaySettings[$siteId]["SFTP_LOGIN"];
 
 			return $result;
@@ -328,7 +328,7 @@ namespace Bitrix\Sale\TradingPlatform\Ebay\Wizard
 
 		protected static function getUserInfo($siteId, array $ebaySettings)
 		{
-			if(strlen($siteId) <= 0 || empty($ebaySettings))
+			if($siteId == '' || empty($ebaySettings))
 				return array();
 
 			if(empty($ebaySettings[$siteId]["API"]["AUTH_TOKEN"]))
@@ -336,7 +336,7 @@ namespace Bitrix\Sale\TradingPlatform\Ebay\Wizard
 
 			$userId = self::getUserId($siteId, $ebaySettings);
 
-			if(strlen($userId) <= 0)
+			if($userId == '')
 				return array();
 
 			$cacheManager = \Bitrix\Main\Application::getInstance()->getManagedCache();
@@ -398,7 +398,7 @@ namespace Bitrix\Sale\TradingPlatform\Ebay\Wizard
 
 		protected static function getPolicyInfo($siteId, $ebaySettings)
 		{
-			if(strlen($siteId) <= 0 || empty($ebaySettings[$siteId]["API"]["AUTH_TOKEN"]))
+			if($siteId == '' || empty($ebaySettings[$siteId]["API"]["AUTH_TOKEN"]))
 				return array();
 
 			$cacheManager = \Bitrix\Main\Application::getInstance()->getManagedCache();
@@ -475,9 +475,9 @@ namespace Bitrix\Sale\TradingPlatform\Ebay\Wizard
 				if($site = $dbRes->fetch())
 					$domainName = $site["SERVER_NAME"];
 
-				if (strlen($domainName) <=0)
+				if ($domainName == '')
 				{
-					if (defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME)>0)
+					if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '')
 						$domainName = SITE_SERVER_NAME;
 					else
 						$domainName = \COption::GetOptionString("main", "server_name", "www.bitrixsoft.com");
@@ -554,7 +554,7 @@ namespace Bitrix\Sale\TradingPlatform\Ebay\Wizard
 			{
 				$value = isset($this->ebaySettings[$this->siteId]["STATUS_MAP"][$ebayStatus]) ? $this->ebaySettings[$this->siteId]["STATUS_MAP"][$ebayStatus] : '';
 
-				if(strlen($value) <= 0 && !empty($defaultValues[$ebayStatus]))
+				if($value == '' && !empty($defaultValues[$ebayStatus]))
 					$value = $defaultValues[$ebayStatus];
 
 				$result .= '<input type="hidden" name="EBAY_SETTINGS[STATUS_MAP]['.$ebayStatus.']" value="'.$value.'">';
@@ -635,7 +635,7 @@ namespace Bitrix\Sale\TradingPlatform\Ebay\Wizard
 
 		public static function isSucceed($siteId, array $ebaySettings)
 		{
-			return (!empty($ebaySettings[$siteId]["SFTP_LOGIN"]) && strlen(($ebaySettings[$siteId]["SFTP_LOGIN"])) > 0);
+			return (!empty($ebaySettings[$siteId]["SFTP_LOGIN"]) && ($ebaySettings[$siteId]["SFTP_LOGIN"]) <> '');
 		}
 
 		public function save()
@@ -674,7 +674,7 @@ namespace Bitrix\Sale\TradingPlatform\Ebay\Wizard
 
 		public static function isSucceed($siteId, array $ebaySettings)
 		{
-			return (!empty($ebaySettings[$siteId]["API"]["AUTH_TOKEN"]) && strlen(($ebaySettings[$siteId]["API"]["AUTH_TOKEN"])) > 0);
+			return (!empty($ebaySettings[$siteId]["API"]["AUTH_TOKEN"]) && ($ebaySettings[$siteId]["API"]["AUTH_TOKEN"]) <> '');
 		}
 	}
 
@@ -1089,7 +1089,7 @@ namespace Bitrix\Sale\TradingPlatform\Ebay\Wizard
 			$sftpTokenExp	= !empty($this->ebaySettings[$this->siteId]["SFTP_TOKEN_EXP"]) ? $this->ebaySettings[$this->siteId]["SFTP_TOKEN_EXP"] : "";
 
 			return
-				self::getLampHtml(strlen($sftpToken) > 0).' '.Loc::getMessage('SALE_EBAY_W_STEP_MIP_MIP').' '.(strlen($sftpToken) > 0 ? Loc::getMessage('SALE_EBAY_W_STEP_MIP_CONNECTED') : Loc::getMessage('SALE_EBAY_W_STEP_MIP_NOT_CONNECTED')).'.<br>'.
+				self::getLampHtml($sftpToken <> '').' '.Loc::getMessage('SALE_EBAY_W_STEP_MIP_MIP').' '.($sftpToken <> '' ? Loc::getMessage('SALE_EBAY_W_STEP_MIP_CONNECTED') : Loc::getMessage('SALE_EBAY_W_STEP_MIP_NOT_CONNECTED')).'.<br>'.
 				'<br><br><hr><br>'.
 				'<input type="button" value="'.Loc::getMessage('SALE_EBAY_W_STEP_MIP_TO_CONNECT').'" onclick="window.open(\''.Ebay::getSftpTokenUrl($sftpLogin).'\', \'gettingOAuthToken\');">'.
 				'<input type="hidden" id="SALE_EBAY_SETTINGS_SFTP_TOKEN" name="EBAY_SETTINGS[SFTP_PASS]" value="'.$sftpToken.'">'.
@@ -1217,7 +1217,7 @@ namespace Bitrix\Sale\TradingPlatform\Ebay\Wizard
 			foreach(array('IBLOCK_ID', 'IBLOCK_TYPE_ID', 'MORE_PHOTO_PROP') as $param)
 			{
 				foreach($this->ebaySettings[$this->siteId][$param] as $key => $value)
-					if(strlen($value) <= 0)
+					if($value == '')
 						unset($this->ebaySettings[$this->siteId][$param][$key]);
 
 				$settings[$this->siteId][$param] = $this->ebaySettings[$this->siteId][$param];

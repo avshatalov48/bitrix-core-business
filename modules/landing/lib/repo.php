@@ -72,11 +72,16 @@ class Repo extends \Bitrix\Landing\Internals\BaseTable
 		$items = array();
 		$siteId = Manager::getMainSiteId();
 		$siteTemplateId = Manager::getTemplateId($siteId);
+		$langPortal = LANGUAGE_ID;
+		if (in_array($langPortal, ['ru', 'kz', 'by']))
+		{
+			$langPortal = 'ru';
+		}
 
 		$res = self::getList(array(
 			'select' => array(
 				'ID', 'NAME', 'DATE_CREATE', 'DESCRIPTION',
-				'SECTIONS', 'PREVIEW', 'APP_CODE',
+				'SECTIONS', 'PREVIEW', 'APP_CODE', 'MANIFEST',
 				new \Bitrix\Main\Entity\ExpressionField(
 					'DATE_CREATE_TIMESTAMP',
 					'UNIX_TIMESTAMP(DATE_CREATE)'
@@ -100,6 +105,20 @@ class Repo extends \Bitrix\Landing\Internals\BaseTable
 		));
 		while ($row = $res->fetch())
 		{
+			$manifest = unserialize($row['MANIFEST']);
+			if (isset($manifest['lang'][$langPortal][$row['NAME']]))
+			{
+				$row['NAME'] = $manifest['lang'][$langPortal][$row['NAME']];
+			}
+			else if (
+				isset($manifest['lang_original']) &&
+				$manifest['lang_original'] != $langPortal &&
+				$manifest['lang']['en'][$row['NAME']]
+			)
+			{
+				$row['NAME'] = $manifest['lang']['en'][$row['NAME']];
+			}
+
 			$items['repo_'. $row['ID']] = array(
 				'id' => null,
 				'name' => $row['NAME'],

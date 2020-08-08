@@ -1,9 +1,10 @@
 <?php
 namespace Bitrix\Catalog\Config;
 
-use Bitrix\Main\Loader,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Bitrix24;
+use Bitrix\Bitrix24;
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
@@ -43,7 +44,8 @@ final class Feature
 		'catalog_price_quantity_ranges' => true,
 		'catalog_multi_price_types' => true,
 		'catalog_multi_warenhouses' => true,
-		'catalog_inventory_management' => true
+		'catalog_inventory_management' => true,
+		'catalog_common_product_processing' => true,
 	];
 
 	/**
@@ -104,6 +106,21 @@ final class Feature
 	public static function isInventoryManagementEnabled()
 	{
 		return self::isFeatureEnabled('catalog_inventory_management');
+	}
+
+	/**
+	 * Returns true if common product processing is enabled.
+	 *
+	 * @return bool
+	 */
+	public static function isCommonProductProcessingEnabled(): bool
+	{
+		if (!self::isBitrix24())
+		{
+			return Option::get('catalog', 'catalog_common_product_processing', 'N') === 'Y';
+		}
+
+		return self::isFeatureEnabled('catalog_common_product_processing');
 	}
 
 	/**

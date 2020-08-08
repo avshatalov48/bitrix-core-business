@@ -82,7 +82,17 @@ class SectionPropertyTable extends Entity\DataManager
 			),
 			'DISPLAY_TYPE' => array(
 				'data_type' => 'enum',
-				'values' => array('A', 'B', 'F', 'G', 'H', 'K', 'P', 'R'),
+				'values' => array(
+					self::NUMBERS_WITH_SLIDER,
+					self::NUMBERS,
+					self::CHECKBOXES,
+					self::CHECKBOXES_WITH_PICTURES,
+					self::CHECKBOXES_WITH_PICTURES_AND_LABELS,
+					self::RADIO_BUTTONS,
+					self::DROPDOWN,
+					self::DROPDOWN_WITH_PICTURES_AND_LABELS,
+					self::CALENDAR
+				),
 				'title' => Loc::getMessage('IBLOCK_SECTION_PROPERTY_ENTITY_DISPLAY_TYPE_FIELD'),
 			),
 			'DISPLAY_EXPANDED' => array(

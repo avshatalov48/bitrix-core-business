@@ -33,13 +33,6 @@ $MESS["EC_B24_LOCATION_LIMITATION"] = "<span>You can create and select event loc
 </span>";
 $MESS["EC_B24_LOCATION_LIMITATION_TITLE"] = "Create and Select Location";
 $MESS["EC_BUSY_ALERT"] = "One or more participants are not available during hours specified and cannot be invited.";
-$MESS["EC_BUSY_USERS_BACK2EDIT"] = "Edit";
-$MESS["EC_BUSY_USERS_CLOSE"] = "Cancel and Close";
-$MESS["EC_BUSY_USERS_EXCLUDE_PLURAL"] = "Create event anyway";
-$MESS["EC_BUSY_USERS_EXCLUDE_SINGLE"] = "Create event anyway";
-$MESS["EC_BUSY_USERS_PLURAL"] = "Some of the users cannot attend during the time period you selected (#USER_LIST#)";
-$MESS["EC_BUSY_USERS_SINGLE"] = "#USER_NAME# cannot attend during the time period you selected";
-$MESS["EC_BUSY_USERS_TITLE"] = "Attendees are busy";
 $MESS["EC_CALDAV_COLLAPSE"] = "hide";
 $MESS["EC_CALDAV_CONNECTION_ERROR"] = "CalDav server returned error \"#ERROR_STR#\" while checking the connection \"#CONNECTION_NAME#\". Please check connection settings and try again.";
 $MESS["EC_CALDAV_DEL"] = "delete";
@@ -69,6 +62,7 @@ $MESS["EC_CAL_SYNC_OK"] = "Synchronized";
 $MESS["EC_CAL_SYNC_OUTLOOK"] = "MS Outlook";
 $MESS["EC_CAL_SYNC_REFRESH"] = "update";
 $MESS["EC_CAL_SYNC_TITLE"] = "Synchronize";
+$MESS["EC_COLLAPSED_MESSAGE"] = "Events";
 $MESS["EC_COLOR"] = "Other color";
 $MESS["EC_COUNTER_INVITATION_PLURAL_0"] = "invitation";
 $MESS["EC_COUNTER_INVITATION_PLURAL_1"] = "invitations";
@@ -90,12 +84,10 @@ $MESS["EC_DEFAULT_ENTRY_NAME"] = "New Event";
 $MESS["EC_DELETE_EVENT_CONFIRM"] = "Are you sure you want to delete this event?";
 $MESS["EC_DELETE_MEETING_CONFIRM"] = "You are about to delete the event containing other participants. Are you sure you want to delete the event?";
 $MESS["EC_DELETE_MEETING_GUEST_CONFIRM"] = "Deleting the event will automatically cancel your participation. Are you sure you want to delete the event?";
-$MESS["EC_DEL_REC_EVENT"] = "Delete recurring event";
 $MESS["EC_DESCRIPTION"] = "Description";
 $MESS["EC_DESTINATION_ADD_MORE"] = "Add more";
 $MESS["EC_DESTINATION_ADD_USERS"] = "Add persons, groups or department";
 $MESS["EC_EDEV_EXP_WARN"] = "Note! The export data check failed. Please ensure your access permissions are valid.";
-$MESS["EC_EDIT_REC_EVENT"] = "Edit recurring event";
 $MESS["EC_ENTRIES_EVENTS"] = "Events";
 $MESS["EC_ENTRIES_TASKS"] = "Tasks";
 $MESS["EC_ENTRY_NAME"] = "Event name";
@@ -125,7 +117,7 @@ $MESS["EC_MOBILE_HELP_ANDROID"] = "<p>To connect your calendars, follow these st
 <li>Select the menu Settings > Accounts > \"Bitrix24\"
 If there is no account present, create a new one and select Bitrix24.
 <ul>
-	<li>Specify your Bitrix24's address (e.g. <i>company.bitrix24.ru</i>)</li>
+	<li>Specify your Bitrix24's address (e.g. <i>company.bitrix24.com</i>)</li>
 	<li>Enter your login (email)</li>
 	<li>Enter your password</li>
 </ul>
@@ -166,9 +158,7 @@ $MESS["EC_NEW_CONNECTION_NAME"] = "New CalDav Connection";
 $MESS["EC_NOTIFY_STATUS_LABEL"] = "Notify when attendees confirm or decline invitation";
 $MESS["EC_NO_COUNTERS"] = "There are no urgent events.";
 $MESS["EC_NO_EVENTS"] = "No events";
-$MESS["EC_REC_EV_ALL"] = "All event instances";
-$MESS["EC_REC_EV_NEXT"] = "This and all subsequent events";
-$MESS["EC_REC_EV_ONLY_THIS_EVENT"] = "Only this event";
+
 $MESS["EC_REINVITE_LABEL"] = "Ask users to reconfirm attendance";
 $MESS["EC_REMIND"] = "Remind";
 $MESS["EC_REMIND1_0"] = "When event starts";
@@ -176,10 +166,15 @@ $MESS["EC_REMIND1_10"] = "10 minutes before event";
 $MESS["EC_REMIND1_120"] = "2 hours before event";
 $MESS["EC_REMIND1_1440"] = "Day before event";
 $MESS["EC_REMIND1_15"] = "15 minutes before event";
+$MESS["EC_REMIND1_20"] = "20 minutes before the event";
 $MESS["EC_REMIND1_2880"] = "Two days before event";
 $MESS["EC_REMIND1_30"] = "30 minutes before event";
 $MESS["EC_REMIND1_5"] = "5 minutes before event";
 $MESS["EC_REMIND1_60"] = "1 hour before event";
+$MESS["EC_REMIND1_CUSTOM"] = "Custom";
+$MESS["EC_REMIND1_DAY_0"] = "On the event day (#TIME#)";
+$MESS["EC_REMIND1_DAY_1"] = "One day before the event (#TIME#)";
+$MESS["EC_REMIND1_DAY_2"] = "Two days before the event (#TIME#)";
 $MESS["EC_REMIND1_DAY_COUNT"] = "#COUNT# day(s) before";
 $MESS["EC_REMIND1_HOUR_COUNT"] = "#COUNT# hour(s) before";
 $MESS["EC_REMIND1_MIN_COUNT"] = "#COUNT# minite(s) before";
@@ -189,6 +184,7 @@ $MESS["EC_REMIND1_SHORT_10"] = "10 minutes before";
 $MESS["EC_REMIND1_SHORT_120"] = "2 hours before";
 $MESS["EC_REMIND1_SHORT_1440"] = "Day before";
 $MESS["EC_REMIND1_SHORT_15"] = "15 minutes before";
+$MESS["EC_REMIND1_SHORT_20"] = "20 minutes before";
 $MESS["EC_REMIND1_SHORT_2880"] = "Two days before";
 $MESS["EC_REMIND1_SHORT_30"] = "30 minutes before";
 $MESS["EC_REMIND1_SHORT_5"] = "5 minutes before";
@@ -198,6 +194,7 @@ $MESS["EC_REPEAT"] = "Repeat";
 $MESS["EC_REQUEST_APP_FAILURE"] = "Error loading or running application <strong>\"#APPNAME#\"</strong>";
 $MESS["EC_REQUEST_APP_NONAME_TAB"] = "- untitled -";
 $MESS["EC_RESERVE_PERIOD_WARN"] = "Recurring events cannot book a meeting room.";
+$MESS["EC_SAVE_ENTRY_CONFIRM"] = "All unsaved data will be lost.";
 $MESS["EC_SEARCH_RESET_RESULT"] = "reset";
 $MESS["EC_SEARCH_RESULT"] = "Search results";
 $MESS["EC_SECTION_BUTTON"] = "Calendars";
@@ -235,7 +232,12 @@ $MESS["EC_SEC_SLIDER_SELECT_GROUPS"] = "Add workgroups and projects";
 $MESS["EC_SEC_SLIDER_SELECT_USERS"] = "Add users";
 $MESS["EC_SEC_SLIDER_TITLE_COMP_CAL"] = "Company";
 $MESS["EC_SEC_SLIDER_TITLE_GROUP_CAL"] = "Workgroups and projects";
+$MESS["EC_SEC_SLIDER_TITLE_LOCATION_CAL"] = "Locations";
+$MESS["EC_SEC_SLIDER_TITLE_RESOURCE_CAL"] = "Resources";
 $MESS["EC_SEC_SLIDER_TYPE_CALENDARS_LIST"] = "Company calendars";
+$MESS["EC_SEC_SLIDER_TYPE_LOCATION_LIST"] = "Location calendars";
+$MESS["EC_SEC_SLIDER_TYPE_RESOURCE_LIST"] = "Resource calendars";
+$MESS["EC_SEC_TASK_HIDE"] = "Hide task calendar";
 $MESS["EC_SEC_USER_TASK_DEFAULT"] = "User tasks";
 $MESS["EC_SET_SLIDER_PESONAL_SETTINGS_TITLE"] = "Personal preferences";
 $MESS["EC_SET_SLIDER_SETTINGS_TITLE"] = "Settings";

@@ -5,17 +5,19 @@ global $APPLICATION;
 
 if(CModule::IncludeModule("statistic"))
 {
-	if(strlen($_REQUEST["site_id"]) <= 0)
+	if($_REQUEST["site_id"] == '')
 	{
 		$site_id = false;
-		$referer_url = strlen($_SERVER["HTTP_REFERER"]) <= 0? $_SESSION["SESS_HTTP_REFERER"]: $_SERVER["HTTP_REFERER"];
-		if(strlen($referer_url))
+		$referer_url = $_SERVER["HTTP_REFERER"] == ''? $_SESSION["SESS_HTTP_REFERER"]: $_SERVER["HTTP_REFERER"];
+		if($referer_url <> '')
 		{
 			$url = @parse_url($referer_url);
 			if($url)
 			{
 				if($arr = $APPLICATION->GetSiteByDir($url["path"], $url["host"]))
+				{
 					$site_id = $arr["SITE_ID"];
+				}
 			}
 		}
 	}

@@ -32,31 +32,31 @@ $arParams["IUS_INPUT_NAME_STRING_EXTRANET"] = "users_list_string_ius_extranet";
 
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 
-if (strLen($arParams["USER_VAR"]) <= 0)
+if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if (strLen($arParams["GROUP_VAR"]) <= 0)
+if ($arParams["GROUP_VAR"] == '')
 	$arParams["GROUP_VAR"] = "group_id";
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if (strlen($arParams["PATH_TO_USER"]) <= 0)
+if ($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_GROUP"] = trim($arParams["PATH_TO_GROUP"]);
-if (strlen($arParams["PATH_TO_GROUP"]) <= 0)
+if ($arParams["PATH_TO_GROUP"] == '')
 	$arParams["PATH_TO_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_SEARCH"] = trim($arParams["PATH_TO_SEARCH"]);
-if (strlen($arParams["PATH_TO_SEARCH"]) <= 0)
+if ($arParams["PATH_TO_SEARCH"] == '')
 	$arParams["PATH_TO_SEARCH"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=search");
 
-$arParams["ITEMS_COUNT"] = IntVal($arParams["ITEMS_COUNT"]);
+$arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
 if ($arParams["ITEMS_COUNT"] <= 0)
 	$arParams["ITEMS_COUNT"] = 30;
 
-$arParams["GROUP_ID"] = IntVal($arParams["GROUP_ID"]);
-$arParams["USER_ID"] = IntVal($USER->GetID());
+$arParams["GROUP_ID"] = intval($arParams["GROUP_ID"]);
+$arParams["USER_ID"] = intval($USER->GetID());
 
 // for bitrix:main.user.link
 if (IsModuleInstalled('intranet'))
@@ -151,7 +151,7 @@ else
 				$arErrorUsers = array();
 				$arResult["SuccessUsers"] = false;
 				$arResult["ErrorUsers"] = false;
-				if ($_SERVER["REQUEST_METHOD"]=="POST" && strlen($_POST["save"]) > 0 && check_bitrix_sessid())
+				if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["save"] <> '' && check_bitrix_sessid())
 				{
 					$errorMessage = "";
 					$warningMessage = "";
@@ -160,16 +160,16 @@ else
 
 					if ($bIntranet)
 					{
-						if (strlen($arParams["IUS_INPUT_NAME"]) > 0 && is_array($_POST[$arParams["IUS_INPUT_NAME"]]) && count($_POST[$arParams["IUS_INPUT_NAME"]]) > 0)
+						if ($arParams["IUS_INPUT_NAME"] <> '' && is_array($_POST[$arParams["IUS_INPUT_NAME"]]) && count($_POST[$arParams["IUS_INPUT_NAME"]]) > 0)
 							$bAnyUser = true;
 
-						if (!$bAnyUser && CModule::IncludeModule('extranet') && strlen($arParams["IUS_INPUT_NAME_EXTRANET"]) > 0 && is_array($_POST[$arParams["IUS_INPUT_NAME_EXTRANET"]]) && count($_POST[$arParams["IUS_INPUT_NAME_EXTRANET"]]) > 0)
+						if (!$bAnyUser && CModule::IncludeModule('extranet') && $arParams["IUS_INPUT_NAME_EXTRANET"] <> '' && is_array($_POST[$arParams["IUS_INPUT_NAME_EXTRANET"]]) && count($_POST[$arParams["IUS_INPUT_NAME_EXTRANET"]]) > 0)
 							$bAnyUser = true;
 
-						if (!$bAnyUser && strlen($arParams["IUS_INPUT_NAME_SUSPICIOUS"]) > 0 && strlen($_POST[$arParams["IUS_INPUT_NAME_SUSPICIOUS"]]) > 0)
+						if (!$bAnyUser && $arParams["IUS_INPUT_NAME_SUSPICIOUS"] <> '' && $_POST[$arParams["IUS_INPUT_NAME_SUSPICIOUS"]] <> '')
 							$bAnyUser = true;
 
-						if (!$bAnyUser && $arResult["bExtranet"] && strlen($arParams["IUS_INPUT_NAME_SUSPICIOUS_EXTRANET"]) > 0 && strlen($_POST[$arParams["IUS_INPUT_NAME_SUSPICIOUS_EXTRANET"]]) > 0)
+						if (!$bAnyUser && $arResult["bExtranet"] && $arParams["IUS_INPUT_NAME_SUSPICIOUS_EXTRANET"] <> '' && $_POST[$arParams["IUS_INPUT_NAME_SUSPICIOUS_EXTRANET"]] <> '')
 							$bAnyUser = true;
 					}
 
@@ -178,10 +178,10 @@ else
 					{
 						if ($arResult["bExtranet"])
 						{
-							if (strlen($_POST["EMAILS"]) > 0)
+							if ($_POST["EMAILS"] <> '')
 								$bAnyUser = true;
 						}
-						elseif (strlen($_POST["users_list"]) > 0)
+						elseif ($_POST["users_list"] <> '')
 							$bAnyUser = true;
 					}
 
@@ -192,13 +192,13 @@ else
 					$arUsersList = array();
 					$arUsersFull = array();
 
-					if (StrLen($errorMessage) <= 0)
+					if ($errorMessage == '')
 					{
 						/* new component */
-						if ($bIntranet && strlen($arParams["IUS_INPUT_NAME"]) > 0 && is_array($_POST[$arParams["IUS_INPUT_NAME"]]) && count($_POST[$arParams["IUS_INPUT_NAME"]]) > 0)
+						if ($bIntranet && $arParams["IUS_INPUT_NAME"] <> '' && is_array($_POST[$arParams["IUS_INPUT_NAME"]]) && count($_POST[$arParams["IUS_INPUT_NAME"]]) > 0)
 							$arUserIDs = $_POST[$arParams["IUS_INPUT_NAME"]];
 
-						if ($bIntranet && strlen($arParams["IUS_INPUT_NAME_EXTRANET"]) > 0 && is_array($_POST[$arParams["IUS_INPUT_NAME_EXTRANET"]]) && count($_POST[$arParams["IUS_INPUT_NAME_EXTRANET"]]) > 0)
+						if ($bIntranet && $arParams["IUS_INPUT_NAME_EXTRANET"] <> '' && is_array($_POST[$arParams["IUS_INPUT_NAME_EXTRANET"]]) && count($_POST[$arParams["IUS_INPUT_NAME_EXTRANET"]]) > 0)
 						{
 							$arUserIDsExtranet = $_POST[$arParams["IUS_INPUT_NAME_EXTRANET"]];
 							$arUserIDs = array_merge($arUserIDs, $arUserIDsExtranet);
@@ -230,19 +230,19 @@ else
 							foreach ($arUsersListTmp as $userTmp)
 							{
 								$userTmp = Trim($userTmp);
-								if (StrLen($userTmp) > 0)
+								if ($userTmp <> '')
 									$arUsersList[] = $userTmp;
 							}
 
 							if (!$arResult["bExtranet"])
 							{
-								if (Count($arUsersList) <= 0 && strlen($_POST[$arParams["IUS_INPUT_NAME_SUSPICIOUS"]]) <= 0)
+								if (Count($arUsersList) <= 0 && $_POST[$arParams["IUS_INPUT_NAME_SUSPICIOUS"]] == '')
 									$errorMessage .= GetMessage("SONET_C33_NO_USERS").". ";
 							}
-							elseif (Count($arUsersList) <= 0 && strlen($_POST["EMAILS"]) <= 0 && strlen($_POST[$arParams["IUS_INPUT_NAME_SUSPICIOUS_EXTRANET"]]) <= 0 && strlen($_POST[$arParams["IUS_INPUT_NAME_SUSPICIOUS"]]) <= 0)
+							elseif (Count($arUsersList) <= 0 && $_POST["EMAILS"] == '' && $_POST[$arParams["IUS_INPUT_NAME_SUSPICIOUS_EXTRANET"]] == '' && $_POST[$arParams["IUS_INPUT_NAME_SUSPICIOUS"]] == '')
 								$errorMessage .= GetMessage("SONET_C33_NO_USERS").". ";
 
-							if (StrLen($errorMessage) <= 0)
+							if ($errorMessage == '')
 							{
 								$arUsersIDByInput = array();
 								foreach ($arUsersList as $user)
@@ -252,7 +252,7 @@ else
 									{
 										foreach ($arFoundUsers as $userID => $userName)
 										{
-											$userID = IntVal($userID);
+											$userID = intval($userID);
 											if ($userID > 0)
 											{
 												if (in_array($userID, $arUsersIDByInput))
@@ -273,7 +273,7 @@ else
 						}
 					}
 
-					if (StrLen($errorMessage) <= 0)
+					if ($errorMessage == '')
 					{
 						foreach ($arUsersFull as $arUserToRequest)
 						{
@@ -321,13 +321,13 @@ else
 						$arEmail = array();
 						
 						// get all suspicious intranet emails
-						if (strlen($arParams["IUS_INPUT_NAME_SUSPICIOUS"]) > 0 && strlen($_POST[$arParams["IUS_INPUT_NAME_SUSPICIOUS"]]) > 0)
+						if ($arParams["IUS_INPUT_NAME_SUSPICIOUS"] <> '' && $_POST[$arParams["IUS_INPUT_NAME_SUSPICIOUS"]] <> '')
 						{
 							$arEmailOriginal = preg_split("/[\n\r\t\,;]+/", $_POST[$arParams["IUS_INPUT_NAME_SUSPICIOUS"]]);
 	
 							foreach($arEmailOriginal as $addr)
 							{
-								if(strlen($addr) > 0 && check_email($addr))
+								if($addr <> '' && check_email($addr))
 								{
 									$addrX = "";
 									$phraseX = "";
@@ -359,13 +359,13 @@ else
 						// get all suspicious extranet emails
 						if ($arResult["bExtranet"])
 						{
-							if (strlen($arParams["IUS_INPUT_NAME_SUSPICIOUS_EXTRANET"]) > 0 && strlen($_POST[$arParams["IUS_INPUT_NAME_SUSPICIOUS_EXTRANET"]]) > 0)
+							if ($arParams["IUS_INPUT_NAME_SUSPICIOUS_EXTRANET"] <> '' && $_POST[$arParams["IUS_INPUT_NAME_SUSPICIOUS_EXTRANET"]] <> '')
 							{
 								$arEmailOriginal = preg_split("/[\n\r\t\,;]+/", $_POST[$arParams["IUS_INPUT_NAME_SUSPICIOUS_EXTRANET"]]);
 
 								foreach($arEmailOriginal as $addr)
 								{
-									if(strlen($addr) > 0 && check_email($addr))
+									if($addr <> '' && check_email($addr))
 									{
 										$addrX = "";
 										$phraseX = "";
@@ -396,13 +396,13 @@ else
 						}
 						
 						// get all suspicious extranet emails from an old form
-						if ($arResult["bExtranet"] && (!is_array($arEmail) || count($arEmail) <= 0) && strlen($_POST["EMAILS"]) > 0)
+						if ($arResult["bExtranet"] && (!is_array($arEmail) || count($arEmail) <= 0) && $_POST["EMAILS"] <> '')
 						{
 							$arEmailOriginal = preg_split("/[\n\r\t\,;]+/", $_POST["EMAILS"]);
 	
 							foreach($arEmailOriginal as $addr)
 							{
-								if(strlen($addr) > 0 && check_email($addr))
+								if($addr <> '' && check_email($addr))
 								{
 									$addrX = "";
 									$phraseX = "";
@@ -467,7 +467,7 @@ else
 
 								$name = "";
 
-								if (strlen(trim($arUser["NAME"].$arUser["LAST_NAME"])) <= 0)
+								if (trim($arUser["NAME"].$arUser["LAST_NAME"]) == '')
 									$name = "&lt;".$arUser["EMAIL"]."&gt;";
 								else
 									$name = trim($arUser["NAME"]." ".$arUser["LAST_NAME"])." &lt;".$arUser["EMAIL"]."&gt;";
@@ -533,7 +533,7 @@ else
 								$user = new CUser;
 
 								$name = $last_name = "";
-								if (strlen($email["NAME"]) > 0)
+								if ($email["NAME"] <> '')
 									list($name, $last_name) = explode(" ", $email["NAME"]);
 
 								$arFields = array(
@@ -556,7 +556,7 @@ else
 
 								if (intval($NEW_USER_ID) > 0)
 								{
-									$arUserToRequest[] = array("NAME"=>(strlen($email["NAME"]) > 0 ? $email["NAME"]." " : "")."&lt;".$email["EMAIL"]."&gt;", "ID"=>$NEW_USER_ID);
+									$arUserToRequest[] = array("NAME"=>($email["NAME"] <> '' ? $email["NAME"]." " : "")."&lt;".$email["EMAIL"]."&gt;", "ID"=>$NEW_USER_ID);
 	
 									$event = new CEvent;
 									$arFields = Array(
@@ -602,7 +602,7 @@ else
 					$arResult["SuccessUsers"] = $arSuccessUsers;
 					$arResult["ErrorUsers"] = $arErrorUsers;
 					$arResult["WarningMessage"] = $warningMessage;
-					if (strlen($errorMessage) > 0)
+					if ($errorMessage <> '')
 						$arResult["ErrorMessage"] = $errorMessage;
 					else
 						$arResult["ShowForm"] = "Confirm";
@@ -625,7 +625,7 @@ else
 								if ($arResult["Friends"]["List"] == false)
 									$arResult["Friends"]["List"] = array();
 
-								$pref = ((IntVal($USER->GetID()) == $arFriends["FIRST_USER_ID"]) ? "SECOND" : "FIRST");
+								$pref = ((intval($USER->GetID()) == $arFriends["FIRST_USER_ID"]) ? "SECOND" : "FIRST");
 
 								if (!CSocNetUserPerms::CanPerformOperation($USER->GetID(), $arFriends[$pref."_USER_ID"], "invitegroup", CSocNetUser::IsCurrentUserModuleAdmin()))
 									continue;

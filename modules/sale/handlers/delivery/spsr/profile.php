@@ -80,11 +80,11 @@ class SpsrProfile extends \Bitrix\Sale\Delivery\Services\Base
 	 */
 	protected function 	inheritParams()
 	{
-		if(strlen($this->name) <= 0) $this->name = $this->spsrHandler->getName();
+		if($this->name == '') $this->name = $this->spsrHandler->getName();
 		if(intval($this->logotip) <= 0) $this->logotip = $this->spsrHandler->getLogotip();
-		if(strlen($this->description) <= 0) $this->description = $this->spsrHandler->getDescription();
+		if($this->description == '') $this->description = $this->spsrHandler->getDescription();
 		if(empty($this->trackingParams)) $this->trackingParams = $this->spsrHandler->getTrackingParams();
-		if(strlen($this->trackingClass) <= 0) $this->trackingClass = $this->spsrHandler->getTrackingClass();
+		if($this->trackingClass == '') $this->trackingClass = $this->spsrHandler->getTrackingClass();
 
 		$parentES = \Bitrix\Sale\Delivery\ExtraServices\Manager::getExtraServicesList($this->parentId);
 		$allowEsCodes = self::getProfileES($this->serviceType);
@@ -94,7 +94,7 @@ class SpsrProfile extends \Bitrix\Sale\Delivery\Services\Base
 			foreach($parentES as $esFields)
 			{
 				if(
-					strlen($esFields['CODE']) > 0
+					$esFields['CODE'] <> ''
 					&& !$this->extraServices->getItemByCode($esFields['CODE'])
 					&& in_array($esFields['CODE'], $allowEsCodes)
 				)

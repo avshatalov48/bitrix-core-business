@@ -18,6 +18,8 @@ CREATE TABLE b_bp_workflow_template (
 	ACTIVE char(1) NOT NULL default 'Y',
 	ORIGINATOR_ID VARCHAR(255) NULL,
 	ORIGIN_ID VARCHAR(255) NULL,
+	IS_SYSTEM char(1) NOT NULL default 'N',
+	`SORT` INT(10) NOT NULL DEFAULT 10,
 	primary key (ID),
 	index ix_bp_wf_template_mo(MODULE_ID, ENTITY, DOCUMENT_TYPE)
 );

@@ -56,7 +56,7 @@ class AllowedSender
 	 */
 	public static function isAllowed($email, $userId = null)
 	{
-		if (!strlen($email))
+		if ($email == '')
 		{
 			return false;
 		}
@@ -68,10 +68,11 @@ class AllowedSender
 		{
 			return false;
 		}
-		$normalizedEmail = strtolower($normalizedEmail);
+		$normalizedEmail = mb_strtolower($normalizedEmail);
 		$allowedSenders = self::getList($userId);
-		if (empty(array_filter($allowedSenders, function ($item) use ($normalizedEmail) {
-			return strtolower($item['email']) === $normalizedEmail;
+		if (empty(array_filter($allowedSenders, function ($item) use ($normalizedEmail)
+		{
+			return mb_strtolower($item['email']) === $normalizedEmail;
 		})))
 		{
 			return false;

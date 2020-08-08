@@ -151,14 +151,14 @@ else
 
 					</script>
 					<div id="error"></div>
-					<div id="ok" style="display: none; color: #859f4a; font-weight: bold;"><br /><br /><?=GetMessage("BUY_SUP_CONTACT_OK")?></div>
+					<div id="ok" style="display: none; color: #859f4a; font-weight: bold;"><br /><br /><?=GetMessage("BUY_SUP_CONTACT_OK2")?></div>
 					<div id="req">
 						<br /><br/>
 						<table style="border-bottom: 1px solid #dbdbda;">
 							<tr>
 								<td nowrap valign="middle"><?=GetMessage("BUY_SUP_NAME")?></td>
 								<td style="padding: 5px 0 5px 15px;"><input type="text" name="name" value="<?=htmlspecialcharsbx($USER->GetFullName())?>" id="name"></td>
-								<td rowspan="3" style="color:#788186; padding-left: 25px;" valign="top"><?=GetMessage("BUY_SUP_PREQUEST")?></td>
+								<td rowspan="3" style="color:#788186; padding-left: 25px;" valign="top"><?=GetMessage("BUY_SUP_PREQUEST1")?></td>
 							</tr>
 							<tr>
 								<td nowrap valign="middle"><?=GetMessage("BUY_SUP_YPHONE")?></td>
@@ -178,8 +178,7 @@ else
 				</div>
 				<br /><br />
 				<div style="color:#464f57;">
-					<b><?=GetMessage("BUY_SUP_BUY_1")?></b>
-					<?=GetMessage("BUY_SUP_BUY_2".(IsModuleInstalled("intranet") ? "_CP" : ""))?>
+					<?=GetMessage("BUY_SUP_BUY_1_1", ["#LINK#" => GetMessage("BUY_SUP_BUY_EULA_LINK".(IsModuleInstalled("intranet") ? "_CP" : ""))]);?>
 					<a href="<?=$res["toBasket"]?>" target="_blank"><?=GetMessage("BUY_SUP_BUY_SELF")?></a><br /><br />
 				</div>
 			</div>

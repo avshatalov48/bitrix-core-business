@@ -125,13 +125,13 @@ foreach ($arResult['VALUE'] as $key => $value)
 			}
 		}
 	}
-	else
+	elseif (preg_match('/(\d+)$/i', $value, $matches))
 	{
 		foreach($arParams['ENTITY_TYPE'] as $entityType)
 		{
 			if (!empty($entityType))
 			{
-				$value = $arResult['LIST_PREFIXES'][$entityType].'_'.$value;
+				$value = $arResult['LIST_PREFIXES'][$entityType].'_'.$matches[1];
 				$code = $arResult['SELECTOR_ENTITY_TYPES'][$entityType];
 				break;
 			}

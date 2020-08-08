@@ -2,7 +2,7 @@
 <a name="tb"></a>
 <a href="<?=$arResult["URL_TO_LIST"]?>"><?=GetMessage("STPSC_2LIST")?></a>
 <br /><br />
-<?if(strlen($arResult["ERROR_MESSAGE"])<=0):?>
+<?if($arResult["ERROR_MESSAGE"] == ''):?>
 	<form method="post" action="<?=POST_FORM_ACTION_URI?>">
 		<?=bitrix_sessid_post()?>
 		<input type="hidden" name="ID" value="<?=$arResult["ID"]?>">

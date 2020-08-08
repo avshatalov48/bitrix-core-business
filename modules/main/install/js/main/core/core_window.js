@@ -1835,9 +1835,10 @@ BX.CDialog.prototype.adjustPos = function()
 	if (!this.bExpanded)
 	{
 		var currentWindow = window;
-		if (top.BX.SidePanel && top.BX.SidePanel.Instance && top.BX.SidePanel.Instance.getTopSlider())
+		var topWindow = BX.PageObject.getRootWindow();
+		if (topWindow.BX.SidePanel && topWindow.BX.SidePanel.Instance && topWindow.BX.SidePanel.Instance.getTopSlider())
 		{
-			currentWindow = top.BX.SidePanel.Instance.getTopSlider().getWindow();
+			currentWindow = topWindow.BX.SidePanel.Instance.getTopSlider().getWindow();
 		}
 		var windowSize = currentWindow.BX.GetWindowInnerSize();
 		var windowScroll = currentWindow.BX.GetWindowScrollPos();

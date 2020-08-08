@@ -57,11 +57,22 @@ class MainUserConsentEditComponent extends CBitrixComponent
 			'LANGUAGE_ID' => $languageId,
 			'DATA_PROVIDER' => $this->request->getPost('DATA_PROVIDER'),
 			'AGREEMENT_TEXT' => $this->request->getPost('AGREEMENT_TEXT'),
+			'IS_AGREEMENT_TEXT_HTML' => ($this->request->getPost('IS_AGREEMENT_TEXT_HTML') ?  'Y': 'N'),
 			'LABEL_TEXT' => $this->request->getPost('LABEL_TEXT'),
+			'USE_URL' => $this->request->getPost('USE_URL') ? 'Y': 'N',
+			'URL' => $this->request->getPost('URL'),
 			'FIELDS' => $fieldList,
 		);
 		$this->agreement->mergeData($data);
 		$this->agreement->save();
+
+		$pathTo = str_replace('#id#', $this->agreement->getId(), $this->arParams['PATH_TO_EDIT']);
+		if ($this->arParams['IFRAME'])
+		{
+			$pathTo .= strpos($pathTo, '?') === false ? '?' : '&';
+			$pathTo .= 'IFRAME=Y';
+		}
+
 		if ($this->agreement->hasErrors())
 		{
 			$this->arResult['ERRORS'] = $this->agreement->getErrors();
@@ -70,7 +81,9 @@ class MainUserConsentEditComponent extends CBitrixComponent
 		{
 			if ($this->arParams['IFRAME'])
 			{
-				$this->arResult['IS_SAVED'] = true;
+				$pathTo .= strpos($pathTo, '?') === false ? '?' : '&';
+				$pathTo .= 'IS_SAVED=Y';
+				LocalRedirect($pathTo);
 			}
 			else
 			{
@@ -79,24 +92,23 @@ class MainUserConsentEditComponent extends CBitrixComponent
 		}
 		else
 		{
-			$pathTo = str_replace('#id#', $this->agreement->getId(), $this->arParams['PATH_TO_EDIT']);
-			if ($this->arParams['IFRAME'])
-			{
-				$pathTo .= strpos($pathTo, '?') === false ? '?' : '&';
-				$pathTo .= 'IFRAME=Y';
-			}
-
 			LocalRedirect($pathTo);
 		}
 	}
 
 	protected function prepareResult()
 	{
-		$this->arResult['IS_SAVED'] = false;
+		$this->arResult['IS_SAVED'] = ($this->request->get('IS_SAVED') == 'Y');
+		$this->arResult['AJAX_REQUEST'] = $this->request->isAjaxRequest();
 		$this->arResult['ERRORS'] = array();
 		$this->agreement = new Agreement($this->arParams['ID']);
 
-		if($this->request->isPost() && check_bitrix_sessid() && $this->arParams['CAN_EDIT'])
+		if (
+			$this->request->isPost() &&
+			!$this->arResult['AJAX_REQUEST'] &&
+			check_bitrix_sessid() &&
+			$this->arParams['CAN_EDIT']
+		)
 		{
 			$this->processPost();
 		}
@@ -123,6 +135,8 @@ class MainUserConsentEditComponent extends CBitrixComponent
 			);
 		}
 
+		$this->prepareMenu();
+
 		return true;
 	}
 
@@ -140,24 +154,45 @@ class MainUserConsentEditComponent extends CBitrixComponent
 			'AGREEMENT_TEXT' => '',
 			'AVAILABLE' => true,
 			'SELECTED' => (Agreement::TYPE_CUSTOM == $data['TYPE'] && !$data['LANGUAGE_ID']),
-			'FIELDS' => array(
-				array(
+			'FIELDS' => [
+				[
 					'INPUT_NAME' => 'AGREEMENT_TEXT',
 					'CODE' => 'AGREEMENT_TEXT',
 					'TYPE' => 'text',
 					'CAPTION' => Loc::getMessage('MAIN_USER_CONSENT_EDIT_COMP_FIELD_AGREEMENT_TEXT'),
 					'PLACEHOLDER' => Loc::getMessage('MAIN_USER_CONSENT_EDIT_COMP_FIELD_AGREEMENT_TEXT_HINT'),
 					'VALUE' => $data['AGREEMENT_TEXT'],
-				),
-				array(
+					'TAB' => 'text',
+				],
+				[
+					'INPUT_NAME' => 'IS_AGREEMENT_TEXT_HTML',
+					'CODE' => 'IS_AGREEMENT_TEXT_HTML',
+					'TYPE' => 'checkbox',
+					'CAPTION' => Loc::getMessage('MAIN_USER_CONSENT_EDIT_COMP_FIELD_IS_AGREEMENT_TEXT_HTML'),
+					'VALUE' => $data['IS_AGREEMENT_TEXT_HTML'],
+					'TAB' => 'text',
+				],
+				[
 					'INPUT_NAME' => 'LABEL_TEXT',
 					'CODE' => 'LABEL_TEXT',
 					'TYPE' => 'string',
 					'CAPTION' => Loc::getMessage('MAIN_USER_CONSENT_EDIT_COMP_FIELD_LABEL_TEXT'),
 					'PLACEHOLDER' => Loc::getMessage('MAIN_USER_CONSENT_EDIT_COMP_FIELD_LABEL_TEXT_HINT'),
 					'VALUE' => $data['LABEL_TEXT'] ? $data['LABEL_TEXT'] : Loc::getMessage('MAIN_USER_CONSENT_EDIT_COMP_FIELD_LABEL_TEXT_DEFAULT_VALUE'),
-				)
-			),
+					'TAB' => 'settings',
+				],
+				[
+					'INPUT_NAME' => 'URL',
+					'CODE' => 'URL',
+					'TYPE' => 'string',
+					'SHOW_BY_CHECKBOX' => true,
+					'CHECKBOX_NAME' => 'USE_URL',
+					'CAPTION' => Loc::getMessage('MAIN_USER_CONSENT_EDIT_COMP_FIELD_LABEL_USE_URL'),
+					'PLACEHOLDER' => Loc::getMessage('MAIN_USER_CONSENT_EDIT_COMP_FIELD_LABEL_URL'),
+					'VALUE' => ($data['USE_URL'] == 'Y' && $data['URL'] ? $data['URL'] : ''),
+					'TAB' => 'settings',
+				]
+			],
 			'IS_SUPPORT_DATA_PROVIDERS' => false
 		);
 
@@ -258,5 +293,30 @@ class MainUserConsentEditComponent extends CBitrixComponent
 		}
 
 		$this->includeComponentTemplate();
+	}
+
+	private function prepareMenu()
+	{
+		$this->arResult['MENU_ITEMS'] = [
+			'text' => [
+				'NAME' => Loc::getMessage('MAIN_USER_CONSENT_EDIT_COMP_TAB_TEXT'),
+				'ATTRIBUTES' => [
+					'onclick' => 'BX.Main.UserConsent.Edit.showTextTab();',
+				],
+				'ACTIVE' => true
+			],
+			'settings' => [
+				'NAME' => Loc::getMessage('MAIN_USER_CONSENT_EDIT_COMP_TAB_SETTINGS'),
+				'ATTRIBUTES' => [
+					'onclick' => 'BX.Main.UserConsent.Edit.showSettingsTab();',
+				],
+			],
+			'list' => [
+				'NAME' => Loc::getMessage('MAIN_USER_CONSENT_EDIT_COMP_TAB_LIST'),
+				'ATTRIBUTES' => [
+					'onclick' => 'BX.Main.UserConsent.Edit.showListTab();',
+				],
+			],
+		];
 	}
 }

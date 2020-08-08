@@ -71,4 +71,5 @@ $MESS["IBLOCK_FIELD_NAME"] = "Name";
 $MESS["IBLOCK_FIELD_SORT"] = "Sorting";
 $MESS["IBLOCK_FIELD_CODE"] = "Mnemonic code";
 $MESS["IBLOCK_FIELD_DETAIL_PICTURE"] = "Detailed image";
+$MESS["IBSEC_E_ERR_BUILDER_ADSENT"] = "Link builder was not found.";
 ?>

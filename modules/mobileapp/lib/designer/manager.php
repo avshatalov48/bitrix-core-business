@@ -272,7 +272,7 @@ class Manager
 			if (array_key_exists($key, $imageParamList))
 			{
 				$imagePath = \CFile::GetPath($value);
-				if(strlen($imagePath)>0)
+				if($imagePath <> '')
 					$value = $imagePath;
 				else
 					continue;
@@ -284,7 +284,7 @@ class Manager
 				foreach ($value as $imageCode => $imageId)
 				{
 					$imagePath = \CFile::GetPath($imageId);
-					if(strlen($imagePath)>0)
+					if($imagePath <> '')
 						$tmpValue[$imageCode] = $imagePath;
 					else
 						continue;

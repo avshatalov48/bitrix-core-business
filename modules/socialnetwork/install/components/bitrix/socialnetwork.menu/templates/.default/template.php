@@ -1,7 +1,7 @@
 <?
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
-if (strlen($arResult["ErrorMessage"]) > 0)
+if ($arResult["ErrorMessage"] <> '')
 {
 	?><span class='errortext'><?=$arResult["ErrorMessage"]?></span><?
 	return;
@@ -54,17 +54,23 @@ else
 	</script>
 	<?
 
-	if($arResult["PERMISSION"]>"R"):
-
-		$allFeaturesInactive = Array();
+	if ($arResult["PERMISSION"]>"R")
+	{
+		$allFeaturesInactive = [];
 		foreach($arResult['ALL_FEATURES'] as $feature=>$arFeature)
-			if (!in_array($feature, $arResult["FEATURES_CODES"]))
-				$allFeaturesInactive[] = Array(
+		{
+			if (
+				!in_array($feature, $arResult["FEATURES_CODES"])
+			)
+			{
+				$allFeaturesInactive[] = [
 					'feature' => $feature,
-					'Active' => $arFeature['Active'],			
+					'Active' => $arFeature['Active'],
 					'FeatureName' => $arFeature['FeatureName'],
-					);
-	endif;
+				];
+			}
+		}
+	}
 
 	?>
 	<form action="<?=POST_FORM_ACTION_URI?>" method="POST" id="MenuHolderForm_<?=$arResult["ID"]?>">
@@ -110,7 +116,7 @@ else
 					}
 					?> style="position: relative;"><nobr><?
 					if($arResult["PERMISSION"] > "R"):
-						?><a href="<?=$arFeature["Url"]?>" onClick="if (!window.___BXMenu.bWasDraggedRecently) { location.href='<?=$arFeature["Url"]?>'; } return BX.PreventDefault(arguments[0]||window.event);" class="bx-sm-header" style="cursor:pointer;" onmousedown="return getMenuHolder('<?=AddSlashes($arResult["ID"])?>').DragStart('<?=$arFeature["feature"]?>', event)"><?
+						?><a href="<?=$arFeature["Url"]?>" onClick="if (!window.___BXMenu.bWasDraggedRecently) { location.href='<?=str_replace("'", "\'", $arFeature["Url"])?>'; } return BX.PreventDefault(arguments[0]||window.event);" class="bx-sm-header" style="cursor:pointer;" onmousedown="return getMenuHolder('<?=AddSlashes($arResult["ID"])?>').DragStart('<?=$arFeature["feature"]?>', event)"><?
 					else:
 						?><a href="<?=$arFeature["Url"]?>" class="bx-sm-header"><?
 					endif;
@@ -230,7 +236,7 @@ else
 	endif;
 	
 	if($arResult["PERMISSION"] > "R"):
-		if(count($allFeaturesInactive) > 0):		
+		if(count($allFeaturesInactive) > 0):
 			?><td width="0%" valign="top"><div class="ddmenu" onMouseOver="getMenuHolder('<?=AddSlashes($arResult["ID"])?>').ShowHolder('ddmenuinact', this);" onMouseMove="getMenuHolder('<?=AddSlashes($arResult["ID"])?>').ShowHolder('ddmenuinact', this);" onClick="getMenuHolder('<?=AddSlashes($arResult["ID"])?>').ShowHolder('ddmenuinact', this);">
 			<table cellspacing="0" cellpadding="0">
 			<tr>

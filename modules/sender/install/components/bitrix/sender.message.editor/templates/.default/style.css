@@ -164,3 +164,52 @@
 .sender-message-editor-field-file-cloud .diskuf-selectdialog-switcher {
 	display: none;
 }
+
+.bx-sender-message-iframe-full {
+	display: none;
+	width: 100%;
+	border: none;
+}
+
+.bx-sender-insert-loader .bx-faceid-tracker-loader {
+	display: block;
+}
+
+.bx-faceid-tracker-loader {
+	display: none;
+	position: relative;
+	height: 100%;
+	min-height: 100px;
+	width: 100%;
+	background: #ccc;
+}
+
+.bx-faceid-tracker-loader:before {
+	content: '';
+	display: block;
+	padding-top: 100%;
+}
+
+.bx-faceid-tracker-circular {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin: auto;
+	height: 120px;
+	width: 120px;
+	-webkit-animation: rotate 2s linear infinite;
+	animation: rotate 2s linear infinite;
+	-webkit-transform-origin: center center;
+	transform-origin: center center;
+}
+
+.bx-faceid-tracker-path {
+	stroke: #E8EEF0;
+	stroke-width: 2;
+	stroke-dasharray: 20, 200;
+	stroke-dashoffset: 0;
+	animation: dash 1.5s ease-in-out infinite;
+	stroke-linecap: round;
+}

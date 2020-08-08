@@ -20,9 +20,9 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/mail/constants.php");
 		'CMailFilterCondition' => 'classes/general/mail.php',
 		'CMailLog'             => 'classes/general/mail.php',
 
-		'CMailbox'             => 'classes/'.strtolower($DB->type).'/mail.php',
-		'CMailUtil'            => 'classes/'.strtolower($DB->type).'/mail.php',
-		'CMailMessage'         => 'classes/'.strtolower($DB->type).'/mail.php',
+		'CMailbox'             => 'classes/'.mb_strtolower($DB->type).'/mail.php',
+		'CMailUtil'            => 'classes/'.mb_strtolower($DB->type).'/mail.php',
+		'CMailMessage'         => 'classes/'.mb_strtolower($DB->type).'/mail.php',
 
 		'CSMTPServer'          => 'classes/general/smtp.php',
 		'CSMTPServerHost'      => 'classes/general/smtp.php',

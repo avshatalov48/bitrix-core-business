@@ -13,6 +13,7 @@ use Bitrix\Main\Localization\Loc;
  * @global CMain $APPLICATION
  * @global CUser $USER
  */
+
 $rows = [];
 foreach ($arResult["ELEMENTS_ROWS"] as $row)
 {
@@ -24,6 +25,9 @@ foreach ($arResult["ELEMENTS_ROWS"] as $row)
 			"onclick" => "BX.SidePanel.Instance.emulateAnchorClick('".CUtil::JSEscape(str_replace("#id#", $row['ID'], $arParams['EDIT_URL_TPL']))."');"
 		]
 	];
+
+	$onlyApi = empty($row["MENU_NAME"]) && empty($row["MENU_NAME_DEFAULT"]) && empty($row["MENU_NAME_LICENSE"]) && (empty($row['MENU_NAME_ALL']) || !implode('', $row['MENU_NAME_ALL']));
+
 	if(!$onlyApi)
 	{
 		$actions["view"] = array(
@@ -62,7 +66,7 @@ foreach ($arResult["ELEMENTS_ROWS"] as $row)
 	{
 		$gridRow["columns"][$fieldId] = htmlspecialcharsbx($row[$fieldId]);
 	}
-	if (empty($app["MENU_NAME"]) && empty($app["MENU_NAME_DEFAULT"]) && empty($app["MENU_NAME_LICENSE"]))
+	if ($onlyApi)
 	{
 		$gridRow["columns"]["ONLY_API"] = Loc::getMessage("APP_YES");
 	}

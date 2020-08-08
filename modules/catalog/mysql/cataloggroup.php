@@ -33,7 +33,7 @@ class CCatalogGroup extends CAllCatalogGroup
 		return false;
 	}
 
-	function Add($arFields)
+	public static function Add($arFields)
 	{
 		global $DB, $CACHE_MANAGER;
 
@@ -43,7 +43,7 @@ class CCatalogGroup extends CAllCatalogGroup
 				return false;
 		}
 
-		if (!CCatalogGroup::CheckFields("ADD", $arFields, 0))
+		if (!static::CheckFields("ADD", $arFields, 0))
 			return false;
 
 		if ($arFields["BASE"] == "Y")
@@ -118,7 +118,7 @@ class CCatalogGroup extends CAllCatalogGroup
 		return $groupID;
 	}
 
-	function Update($ID, $arFields)
+	public static function Update($ID, $arFields)
 	{
 		global $DB, $CACHE_MANAGER;
 
@@ -132,7 +132,7 @@ class CCatalogGroup extends CAllCatalogGroup
 				return false;
 		}
 
-		if (!CCatalogGroup::CheckFields("UPDATE", $arFields, $ID))
+		if (!static::CheckFields("UPDATE", $arFields, $ID))
 			return false;
 
 		$strUpdate = $DB->PrepareUpdate("b_catalog_group", $arFields);
@@ -211,7 +211,7 @@ class CCatalogGroup extends CAllCatalogGroup
 		return true;
 	}
 
-	function Delete($ID)
+	public static function Delete($ID)
 	{
 		global $DB, $CACHE_MANAGER, $APPLICATION;
 
@@ -219,7 +219,7 @@ class CCatalogGroup extends CAllCatalogGroup
 		if ($ID <= 0)
 			return false;
 
-		if ($res = CCatalogGroup::GetByID($ID))
+		if ($res = static::GetByID($ID))
 		{
 			if ($res["BASE"] != "Y")
 			{

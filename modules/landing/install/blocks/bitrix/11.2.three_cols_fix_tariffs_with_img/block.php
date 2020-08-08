@@ -1,7 +1,7 @@
 <section class="landing-block g-bg-gray-light-v5 g-pt-100 g-pb-100">
 	<div class="container">
 		<div class="text-uppercase text-center g-mb-70">
-			<h2 class="landing-block-node-title d-inline-block g-letter-spacing-0_5 g-font-weight-700 g-font-size-12 g-brd-bottom g-brd-5 g-brd-primary g-pb-8 g-mb-20">
+			<h2 class="landing-block-node-title d-inline-block g-letter-spacing-0_5 font-weight-bold g-font-size-12 g-brd-bottom g-brd-5 g-brd-primary g-pb-8 g-mb-20">
 				Our offers
 			</h2>
 			<div class="landing-block-node-text text-uppercase g-letter-spacing-3 g-font-size-12 g-color-gray-dark-v5 mb-0">
@@ -30,7 +30,7 @@
 						</div>
 					</header>
 
-					<div class="landing-block-node-card-price g-font-weight-700 d-block g-color-white g-font-size-26 g-letter-spacing-5">
+					<div class="landing-block-node-card-price font-weight-bold d-block g-color-white g-font-size-26 g-letter-spacing-5">
 						$100.00
 					</div>
 					<ul class="landing-block-node-card-price-list list-unstyled g-letter-spacing-0_5 g-font-size-12 mb-0 g-pt-20">
@@ -49,7 +49,7 @@
 					</ul>
 
 					<footer class="g-pa-40 landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn btn-md rounded-0 u-btn-outline-white g-brd-2 g-font-size-12 g-font-weight-600 g-letter-spacing-1"
+						<a class="landing-block-node-card-button btn btn-md rounded-0 u-btn-outline-white g-brd-2 g-font-size-12 font-weight-bold g-letter-spacing-1"
 						   href="#">Order Now</a>
 					</footer>
 					<!-- End of Article Content -->
@@ -76,7 +76,7 @@
 						</div>
 					</header>
 
-					<div class="landing-block-node-card-price g-font-weight-700 d-block g-color-white g-font-size-26 g-letter-spacing-5">
+					<div class="landing-block-node-card-price font-weight-bold d-block g-color-white g-font-size-26 g-letter-spacing-5">
 						$150.00
 					</div>
 					<ul class="landing-block-node-card-price-list list-unstyled g-letter-spacing-0_5 g-font-size-12 mb-0 g-pt-20">
@@ -95,7 +95,7 @@
 					</ul>
 
 					<footer class="g-pa-40 landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn btn-md rounded-0 u-btn-outline-white g-brd-2 g-font-size-12 g-font-weight-600 g-letter-spacing-1"
+						<a class="landing-block-node-card-button btn btn-md rounded-0 u-btn-outline-white g-brd-2 g-font-size-12 font-weight-bold g-letter-spacing-1"
 						   href="#">Order Now</a>
 					</footer>
 					<!-- End of Article Content -->
@@ -123,7 +123,7 @@
 						</div>
 					</header>
 
-					<div class="landing-block-node-card-price g-font-weight-700 d-block g-color-white g-font-size-26 g-letter-spacing-5">
+					<div class="landing-block-node-card-price font-weight-bold d-block g-color-white g-font-size-26 g-letter-spacing-5">
 						$200.00
 					</div>
 					<ul class="landing-block-node-card-price-list list-unstyled g-letter-spacing-0_5 g-font-size-12 mb-0 g-pt-20">
@@ -142,7 +142,7 @@
 					</ul>
 
 					<footer class="g-pa-40 landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn btn-md rounded-0 u-btn-outline-white g-brd-2 g-font-size-12 g-font-weight-600 g-letter-spacing-1"
+						<a class="landing-block-node-card-button btn btn-md rounded-0 u-btn-outline-white g-brd-2 g-font-size-12 font-weight-bold g-letter-spacing-1"
 						   href="#">Order Now</a>
 					</footer>
 					<!-- End of Article Content -->

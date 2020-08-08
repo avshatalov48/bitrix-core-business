@@ -246,7 +246,7 @@ class YandexInvoiceHandler extends PaySystem\ServiceHandler
 				'PS_INVOICE_ID' => $payload['orderId'],
 				'PS_STATUS' => ($payload['status'] == 'Authorized') ? 'Y' : 'N',
 				'PS_SUM' => $payload['order']['amount'],
-				'PS_CURRENCY' => substr($payload['order']['currency'], 0, 3),
+				'PS_CURRENCY' => mb_substr($payload['order']['currency'], 0, 3),
 				'PS_RESPONSE_DATE' => new DateTime(),
 			);
 			$serviceResult->setPsData($psData);
@@ -388,7 +388,7 @@ class YandexInvoiceHandler extends PaySystem\ServiceHandler
 	private function isSignCorrect(Payment $payment, $data, $sign)
 	{
 		$binary = self::base64Decode($sign);
-		list($r, $s) = str_split($binary, (int) (strlen($binary) / 2));
+		list($r, $s) = str_split($binary, (int) (mb_strlen($binary) / 2));
 
 		$r = ltrim($r, "\x00");
 		$s = ltrim($s, "\x00");

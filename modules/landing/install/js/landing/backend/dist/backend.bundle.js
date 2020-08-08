@@ -379,32 +379,45 @@ this.BX = this.BX || {};
 	    key: "createPage",
 	    value: function createPage() {
 	      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	      var envOptions = landing_env.Env.getInstance().getOptions();
 	      var title = options.title,
 	          _options$siteId = options.siteId,
-	          siteId = _options$siteId === void 0 ? landing_env.Env.getInstance().getOptions().site_id : _options$siteId,
+	          siteId = _options$siteId === void 0 ? envOptions.site_id : _options$siteId,
 	          _options$code = options.code,
 	          code = _options$code === void 0 ? main_core.Text.getRandom(16) : _options$code,
 	          blockId = options.blockId,
 	          menuCode = options.menuCode,
 	          folderId = options.folderId;
-	      var fields = {
-	        TITLE: title,
-	        SITE_ID: siteId,
-	        CODE: code
+
+	      var templateCode = function () {
+	        var theme = envOptions.theme;
+
+	        if (main_core.Type.isPlainObject(theme) && main_core.Type.isArray(theme.newPageTemplate) && main_core.Type.isStringFilled(theme.newPageTemplate[0])) {
+	          return theme.newPageTemplate[0];
+	        }
+
+	        return 'empty';
+	      }();
+
+	      var requestBody = {
+	        siteId: siteId,
+	        code: templateCode,
+	        fields: {
+	          TITLE: title,
+	          CODE: code
+	        }
 	      };
 
 	      if (main_core.Type.isNumber(blockId) && main_core.Type.isString(menuCode)) {
-	        fields.BLOCK_ID = blockId;
-	        fields.MENU_CODE = menuCode;
+	        requestBody.fields.BLOCK_ID = blockId;
+	        requestBody.fields.MENU_CODE = menuCode;
 	      }
 
 	      if (main_core.Type.isNumber(folderId)) {
-	        fields.FOLDER_ID = folderId;
+	        requestBody.fields.FOLDER_ID = folderId;
 	      }
 
-	      return this.action('Landing::add', {
-	        fields: fields
-	      });
+	      return this.action('Landing::addByTemplate', requestBody);
 	    }
 	  }], [{
 	    key: "getInstance",

@@ -134,13 +134,13 @@ while ($arOrder = $dbOrderList->fetch())
 				{
 					$dbUser = CUser::GetByID($arOrder["USER_ID"]);
 					if ($arUser = $dbUser->Fetch())
-						$LOCAL_PAYED_USER_CACHE[$arOrder["USER_ID"]] = htmlspecialcharsEx($arUser["NAME"].((strlen($arUser["NAME"])<=0 || strlen($arUser["LAST_NAME"])<=0) ? "" : " ").$arUser["LAST_NAME"]." (".$arUser["LOGIN"].")");
+						$LOCAL_PAYED_USER_CACHE[$arOrder["USER_ID"]] = htmlspecialcharsEx($arUser["NAME"].(($arUser["NAME"] == '' || $arUser["LAST_NAME"] == '') ? "" : " ").$arUser["LAST_NAME"]." (".$arUser["LOGIN"].")");
 				}
 				$printValue = "[".$arOrder["USER_ID"]."] ".$LOCAL_PAYED_USER_CACHE[$arOrder["USER_ID"]];
 				echo "\"".str_replace("\"", "\"\"", $printValue)."\"";
 				break;
 			case "PAY_SYSTEM":
-				if (IntVal($arOrder["PAY_SYSTEM_ID"]) > 0)
+				if (intval($arOrder["PAY_SYSTEM_ID"]) > 0)
 				{
 					if (!isset($LOCAL_PAY_SYSTEM_CACHE[$arOrder["PAY_SYSTEM_ID"]])
 						|| !is_array($LOCAL_PAY_SYSTEM_CACHE[$arOrder["PAY_SYSTEM_ID"]]))
@@ -154,7 +154,7 @@ while ($arOrder = $dbOrderList->fetch())
 				}
 				break;
 			case "DELIVERY":
-				if (IntVal($arOrder["DELIVERY_ID"]) > 0)
+				if (intval($arOrder["DELIVERY_ID"]) > 0)
 				{
 					if (!isset($LOCAL_DELIVERY_CACHE[$arOrder["DELIVERY_ID"]])
 						|| !is_array($LOCAL_DELIVERY_CACHE[$arOrder["DELIVERY_ID"]]))
@@ -220,7 +220,7 @@ ob_end_clean();
 header('Pragma: public');
 header('Cache-control: private');
 header('Accept-Ranges: bytes');
-header('Content-Length: '.strlen($content));
+header('Content-Length: '.mb_strlen($content));
 header("Content-Type: application/force-download");
 header('Content-Disposition: attachment; filename=data.csv');
 

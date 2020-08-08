@@ -890,7 +890,7 @@ HTML
 	 */
 	public function getUI($id, array $values)
 	{
-		if(!array_key_exists($id, $this->uiPatterns) || strlen(trim($this->uiPatterns[$id])) === 0)
+		if(!array_key_exists($id, $this->uiPatterns) || trim($this->uiPatterns[$id]) == '')
 		{
 			return '';
 		}
@@ -948,7 +948,7 @@ HTML
 		foreach($this->previewModes as $mode)
 		{
 			$devices .= $this->getUI('device', array(
-				'MESS_NAME' => strtoupper(htmlspecialcharsbx($mode['NAME'])),
+				'MESS_NAME' => mb_strtoupper(htmlspecialcharsbx($mode['NAME'])),
 				'class' => htmlspecialcharsbx($mode['CLASS']),
 				'width' => htmlspecialcharsbx($mode['WIDTH']),
 				'height' => htmlspecialcharsbx($mode['HEIGHT']),
@@ -1179,7 +1179,7 @@ HTML
 	 */
 	public static function isContentSupported($content)
 	{
-		if(!$content || strpos($content, Content\Engine::BLOCK_PLACE_ATTR) === false)
+		if(!$content || mb_strpos($content, Content\Engine::BLOCK_PLACE_ATTR) === false)
 		{
 			return false;
 		}
@@ -1198,16 +1198,16 @@ HTML
 	public static function isHtmlDocument($content)
 	{
 		$result = true;
-		$content = strtoupper($content);
-		if(strpos($content, '<HTML') === false)
+		$content = mb_strtoupper($content);
+		if(mb_strpos($content, '<HTML') === false)
 		{
 			$result = false;
 		}
-		if(strpos($content, '</HTML') === false)
+		if(mb_strpos($content, '</HTML') === false)
 		{
 			$result = false;
 		}
-		if(strpos($content, '<BODY') === false)
+		if(mb_strpos($content, '<BODY') === false)
 		{
 			$result = false;
 		}

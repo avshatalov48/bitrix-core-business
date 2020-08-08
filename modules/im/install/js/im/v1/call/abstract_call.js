@@ -10,12 +10,13 @@
 	 * - hangup
 	 *
 	 * Events:
+	 * - onJoin
+	 * - onLeave
 	 * - onUserStateChanged
 	 * - onStreamReceived
 	 * - onStreamRemoved
 	 * - onCallFailure
 	 * - onDestroy
-	 *
 	 */
 
 	BX.namespace('BX.Call');
@@ -28,8 +29,6 @@
 		this.parentId = params.parentId || null;
 		this.direction = params.direction;
 
-		this.debug = params.debug || false;
-
 		this.ready = false;
 		this.userId = BX.Call.Engine.getInstance().getCurrentUserId();
 
@@ -40,6 +39,7 @@
 
 		// media constraints
 		this.videoEnabled = params.videoEnabled === true;
+		this.videoHd = params.videoHd === true;
 		this.cameraId = params.cameraId || '';
 		this.microphoneId = params.microphoneId || '';
 
@@ -57,6 +57,24 @@
 		{
 			this.initEventListeners(params.events);
 		}
+
+		Object.defineProperty(this, "provider", {
+			get: function()
+			{
+				if(this instanceof BX.Call.PlainCall)
+				{
+					return BX.Call.Provider.Plain;
+				}
+				else if (this instanceof BX.Call.VoximplantCall)
+				{
+					return BX.Call.VoximplantCall;
+				}
+				else
+				{
+					return "";
+				}
+			}
+		})
 	};
 
 	BX.Call.AbstractCall.prototype.initEventListeners = function(eventListeners)
@@ -102,7 +120,15 @@
 			eventFields.call = this;
 			for (var i = 0; i < this.eventListeners[eventName].length; i++)
 			{
-				this.eventListeners[eventName][i].call(this, eventFields);
+				try 
+				{
+					this.eventListeners[eventName][i].call(this, eventFields);	
+				}
+				catch (err)
+				{
+					console.error(eventName + " callback error: ", err);
+					this.log(eventName + " callback error: ", err);
+				}
 			}
 		}
 	};
@@ -122,6 +148,11 @@
 	BX.Call.AbstractCall.prototype.isVideoEnabled = function()
 	{
 		return this.videoEnabled;
+	};
+
+	BX.Call.AbstractCall.prototype.isAnyoneParticipating = function()
+	{
+		throw new Error("isAnyoneParticipating should be implemented");
 	};
 
 	BX.Call.AbstractCall.prototype.__onPullEvent = function(command, params)
@@ -156,32 +187,8 @@
 
 	BX.Call.AbstractCall.prototype.log = function()
 	{
-		var text = '';
-		if (BX.desktop && BX.desktop.ready())
-		{
-			for (var i = 0; i < arguments.length; i++)
-			{
-				try
-				{
-					text = text+' | '+(typeof(arguments[i]) == 'object'? JSON.stringify(arguments[i]): arguments[i]);
-				}
-				catch (e)
-				{
-					text = text+' | (circular structure)';
-				}
+		var arr = [this.id];
 
-			}
-			BX.desktop.log(BX.message('USER_ID')+'.video.log', text.substr(3));
-		}
-		if (this.debug)
-		{
-			if (console)
-			{
-				var a = ['Call log; '];
-				console.log.apply(this, a.concat(Array.prototype.slice.call(arguments)));
-			}
-		}
+		BX.CallEngine.log.apply(BX.CallEngine, arr.concat(Array.prototype.slice.call(arguments)));
 	};
-
-
 })();

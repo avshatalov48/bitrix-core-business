@@ -15,6 +15,7 @@
  * Modify list for integration with Bitrix Framework:
  * - removed integration with third-party package builders;
  * - add check variables before using them, see tags: 28122018;
+ * - add alternative Promise check for Bitrix Cli, see tags: 02032020;
  * - add export for work in Bitrix CoreJS extensions;
  */
 
@@ -1312,7 +1313,7 @@ function switchToZone(targetZone, bEnteringZone) {
     }
 }
 function snapShot() {
-    var GlobalPromise = _global.Promise;
+    var GlobalPromise = _global.Promise || Promise; // tag 02032020
     return patchGlobalPromise ? {
         Promise: GlobalPromise,
         PromiseProp: Object.getOwnPropertyDescriptor(_global, "Promise"),

@@ -15,7 +15,7 @@ class RequestVkontakte extends ProxyRequest
 		$url .= $params['endpoint'];
 
 		$clientParameters = is_array($params['fields']) ? $params['fields'] : array();
-		$clientParameters = $clientParameters + ['v' => '5.7', 'access_token' => $this->adapter->getToken()];
+		$clientParameters = $clientParameters + ['v' => '5.107', 'access_token' => $this->adapter->getToken()];
 
 
 		if (isset($params['method']) && $params['method'] == 'POST')

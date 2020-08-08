@@ -14,28 +14,28 @@ $arResult["ErrorMessage"] = "";
 
 $arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if (strlen($arParams["TASK_VAR"]) <= 0)
+if ($arParams["TASK_VAR"] == '')
 	$arParams["TASK_VAR"] = "task_id";
-if (strlen($arParams["BLOCK_VAR"]) <= 0)
+if ($arParams["BLOCK_VAR"] == '')
 	$arParams["BLOCK_VAR"] = "block_id";
 
 $arParams["PATH_TO_INDEX"] = trim($arParams["PATH_TO_INDEX"]);
-if (strlen($arParams["PATH_TO_INDEX"]) <= 0)
+if ($arParams["PATH_TO_INDEX"] == '')
 	$arParams["PATH_TO_INDEX"] = $APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=index";
 
 $arParams["PATH_TO_LIST"] = trim($arParams["PATH_TO_LIST"]);
-if (strlen($arParams["PATH_TO_LIST"]) <= 0)
+if ($arParams["PATH_TO_LIST"] == '')
 	$arParams["PATH_TO_LIST"] = $APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=list&".$arParams["BLOCK_VAR"]."=#block_id#";
 
 $arParams["PATH_TO_TASK"] = trim($arParams["PATH_TO_TASK"]);
-if (strlen($arParams["PATH_TO_TASK"]) <= 0)
+if ($arParams["PATH_TO_TASK"] == '')
 	$arParams["PATH_TO_TASK"] = $APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=task&".$arParams["BLOCK_VAR"]."=#block_id#&".$arParams["TASK_VAR"]."=#task_id#";
-$arParams["PATH_TO_TASK"] = $arParams["PATH_TO_TASK"].((strpos($arParams["PATH_TO_TASK"], "?") === false) ? "?" : "&").bitrix_sessid_get();
+$arParams["PATH_TO_TASK"] = $arParams["PATH_TO_TASK"].((mb_strpos($arParams["PATH_TO_TASK"], "?") === false) ? "?" : "&").bitrix_sessid_get();
 
 $arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
-if (strlen($arParams["IBLOCK_TYPE"]) <= 0)
+if ($arParams["IBLOCK_TYPE"] == '')
 	$arResult["FatalErrorMessage"] .= GetMessage("BPWC_WRC_EMPTY_IBLOCK_TYPE").". ";
 
 $arParams["BLOCK_ID"] = intval($arParams["BLOCK_ID"]);
@@ -52,7 +52,7 @@ if (!check_bitrix_sessid())
 
 $workflowTemplateId = intval($_REQUEST["workflow_template_id"]);
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	$arResult["BlockType"] = null;
 	$ar = CIBlockType::GetByIDLang($arParams["IBLOCK_TYPE"], LANGUAGE_ID, true);
@@ -62,7 +62,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 		$arResult["FatalErrorMessage"] .= GetMessage("BPWC_WRC_WRONG_IBLOCK_TYPE").". ";
 }
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	$arResult["Block"] = null;
 	$db = CIBlock::GetList(array(), array("ID" => $arParams["BLOCK_ID"], "TYPE" => $arParams["IBLOCK_TYPE"], "ACTIVE" => "Y"));
@@ -72,7 +72,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 		$arResult["FatalErrorMessage"] .= GetMessage("BPWC_WRC_WRONG_IBLOCK").". ";
 }
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	$arResult["AdminAccess"] = ($USER->IsAdmin() || is_array($arParams["ADMIN_ACCESS"]) && (count(array_intersect($USER->GetUserGroupArray(), $arParams["ADMIN_ACCESS"])) > 0));
 
@@ -90,7 +90,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 
 	$ks = array_keys($arCurrentUserGroups);
 	foreach ($ks as $k)
-		$arCurrentUserGroups[$k] = strtolower($arCurrentUserGroups[$k]);
+		$arCurrentUserGroups[$k] = mb_strtolower($arCurrentUserGroups[$k]);
 
 	$arResult["TEMPLATES"] = array();
 	foreach ($arDocumentTypeStates as $arState)
@@ -126,7 +126,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 		$arResult["FatalErrorMessage"] .= GetMessage("BPWC_WRC_0_TMPLS").". ";
 }
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	if (count($arResult["TEMPLATES"]) == 1)
 	{
@@ -134,10 +134,10 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 		$workflowTemplateId = intval($k[0]);
 	}
 
-	if (strlen($_POST["CancelStartParamWorkflow"]) > 0)
+	if ($_POST["CancelStartParamWorkflow"] <> '')
 		LocalRedirect($backUrl);
 
-	if ($workflowTemplateId > 0 && check_bitrix_sessid() && strlen($_POST["CancelStartParamWorkflow"]) <= 0
+	if ($workflowTemplateId > 0 && check_bitrix_sessid() && $_POST["CancelStartParamWorkflow"] == ''
 		&& array_key_exists($workflowTemplateId, $arResult["TEMPLATES"]))
 	{
 		$arResult["TEMPLATE"] = $arResult["TEMPLATES"][$workflowTemplateId];
@@ -153,7 +153,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 		{
 			$bCanStartWorkflow = true;
 		}
-		elseif ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_POST["DoStartParamWorkflow"]) > 0)
+		elseif ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["DoStartParamWorkflow"] <> '')
 		{
 			$bCanStartWorkflow = true;
 
@@ -262,7 +262,7 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 		}
 		else
 		{
-			$p = ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_POST["DoStartParamWorkflow"]) > 0);
+			$p = ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["DoStartParamWorkflow"] <> '');
 
 			$keys = array_keys($arResult["TEMPLATE"]["PARAMETERS"]);
 			foreach ($keys as $key)
@@ -292,16 +292,16 @@ if (strlen($arResult["FatalErrorMessage"]) <= 0)
 $this->IncludeComponentTemplate();
 
 
-if (strlen($arResult["FatalErrorMessage"]) <= 0)
+if ($arResult["FatalErrorMessage"] == '')
 {
 	if ($arParams["SET_TITLE"] == "Y")
-		$APPLICATION->SetTitle(str_replace("#NAME#", $arResult["TEMPLATE"]["NAME"], (strlen($arResult["CreateTitle"]) > 0 ? "#NAME#: ".$arResult["CreateTitle"] : GetMessage("BPWC_WRC_PAGE_TITLE"))));
+		$APPLICATION->SetTitle(str_replace("#NAME#", $arResult["TEMPLATE"]["NAME"], ($arResult["CreateTitle"] <> '' ? "#NAME#: ".$arResult["CreateTitle"] : GetMessage("BPWC_WRC_PAGE_TITLE"))));
 
 	if ($arParams["SET_NAV_CHAIN"] == "Y")
 	{
 		$APPLICATION->AddChainItem($arResult["BlockType"]["NAME"], $arResult["PATH_TO_INDEX"]);
 		$APPLICATION->AddChainItem($arResult["Block"]["NAME"], $arResult["PATH_TO_LIST"]);
-		$APPLICATION->AddChainItem(strlen($arResult["CreateTitle"]) > 0 ? $arResult["CreateTitle"] : GetMessage("BPWC_WRC_PAGE_NAV_CHAIN"));
+		$APPLICATION->AddChainItem($arResult["CreateTitle"] <> '' ? $arResult["CreateTitle"] : GetMessage("BPWC_WRC_PAGE_NAV_CHAIN"));
 	}
 }
 else

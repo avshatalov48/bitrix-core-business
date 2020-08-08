@@ -51,4 +51,5 @@ $MESS["IBSEC_A_UPDERR"] = "Error updating the record:";
 $MESS["IBSEC_A_UP_TITLE"] = "Click to browse higher level";
 $MESS["IBSEC_A_USERINFO"] = "View user information";
 $MESS["IBSEC_A_XML_ID"] = "External code";
+$MESS["IBSEC_A_ERR_BUILDER_ADSENT"] = "Link builder was not found.";
 ?>

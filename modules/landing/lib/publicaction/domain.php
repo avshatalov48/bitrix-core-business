@@ -5,6 +5,7 @@ use \Bitrix\Landing\Site;
 use \Bitrix\Landing\Domain as DomainCore;
 use \Bitrix\Landing\PublicActionResult;
 use \Bitrix\Landing\Manager;
+use \Bitrix\Landing\Domain\Register;
 use \Bitrix\Main\SystemException;
 
 class Domain
@@ -213,6 +214,54 @@ class Domain
 
 		// set result and return
 		$result->setResult($return);
+		return $result;
+	}
+
+	/**
+	 * Returns info about domain registration.
+	 * @param string $domainName Domain name.
+	 * @param array $tld Domain tld.
+	 * @return PublicActionResult
+	 */
+	public static function whois(string $domainName, array $tld): PublicActionResult
+	{
+		$result = new PublicActionResult();
+		$domainName = trim($domainName);
+		$return = [
+			'enable' => false,
+			'suggest' => []
+		];
+
+		// registrator instance
+		$regInstance = Register::getInstance();
+		if ($regInstance && !$regInstance->enable())
+		{
+			$result->setResult($return);
+			return $result;
+		}
+
+		// internal enable first
+		$res = DomainCore::getList([
+			'select' => [
+				'ID'
+			],
+			'filter' => [
+				'=DOMAIN' => $domainName
+			]
+		]);
+		if (!$res->fetch())
+		{
+			$return['enable'] = $regInstance->isEnableForRegistration($domainName);
+		}
+
+		// get suggested domains
+		if (!$return['enable'])
+		{
+			$return['suggest'] = $regInstance->getSuggestedDomains($domainName, $tld);
+		}
+
+		$result->setResult($return);
+
 		return $result;
 	}
 }

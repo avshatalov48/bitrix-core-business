@@ -118,20 +118,20 @@ if ($arParams["SHOW_NAVIGATION"] != "N")
 		{
 			$sSectionName = "";
 			include($chain_file_name);
-			if(strlen($sSectionName)>0)
+			if($sSectionName <> '')
 				$arChain[] = Array("TITLE"=>$sSectionName, "LINK"=>$path."/");
 		}
 
 		if($path.'/' == SITE_DIR)
 			break;
 
-		if(strlen($path)<=0)
+		if($path == '')
 			break;
 
 		$pos = bxstrrpos($path, "/");
 		if($pos===false)
 			break;
-		$path = substr($path, 0, $pos+1);
+		$path = mb_substr($path, 0, $pos + 1);
 	}
 	
 	$GLOBALS["APPLICATION"]->IncludeComponent(

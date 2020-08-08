@@ -80,7 +80,7 @@ class Handler extends Requests\HandlerBase
 		);
 
 		foreach($requestClasses as $className)
-			$classes[$namespace.$className] = $path.strtolower($className).'.php';
+			$classes[$namespace.$className] = $path.mb_strtolower($className).'.php';
 
 		Loader::registerAutoLoadClasses('sale', $classes);
 		$registered = true;
@@ -696,7 +696,7 @@ class Handler extends Requests\HandlerBase
 
 		$row = $res->fetch();
 
-		if(!$row || strlen($row['EXTERNAL_ID']) < 0)
+		if(!$row || (string)$row['EXTERNAL_ID'] === '')
 		{
 			$result->addError(
 				new Error(

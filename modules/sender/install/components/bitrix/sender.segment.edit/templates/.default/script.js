@@ -218,7 +218,7 @@
 				{
 					return;
 				}
-				
+
 				this.createItem(connectorData.ID);
 			}, this);
 		}
@@ -354,12 +354,12 @@
 				return item.ID !== 'sender_contact_list';
 			})
 			.map(function (item) {
-			return {
-				id: item.ID,
-				text: item.NAME,
-				onclick: this.onMenuAddClick.bind(this, item.ID)
-			};
-		}, this);
+				return {
+					id: item.ID,
+					text: item.NAME,
+					onclick: this.onMenuAddClick.bind(this, item.ID)
+				};
+			}, this);
 
 		this.menuAdd = BX.PopupMenu.create(
 			'sender-segment-edit-menu-add',
@@ -538,10 +538,113 @@
 	FilterListener.prototype.onBeforeApplyFilter = function (filterId)
 	{
 		var item = this.manager.getItemByFilterId(filterId);
+		var filter = BX.Main.filterManager.getById(filterId)
+		var dealCategory = filter.getField('DEAL_CATEGORY_ID');
+		var hasValues = false;
+
+		for(var id in filter.getFilterFieldsValues())
+		{
+			if(filter.getFilterFieldsValues().hasOwnProperty(id))
+			{
+				var value = filter.getFilterFieldsValues()[id];
+				if(
+					value !== 'exact' &&
+					value !== 'NONE' &&
+					value !== ''
+				)
+				{
+					if(Array.isArray(value) && !value.length)
+					{
+						continue;
+					}
+
+					hasValues = true;
+				}
+			}
+		}
+
+		if(dealCategory && hasValues)
+		{
+			if(typeof dealCategory.options.ITEMS[0] !== 'undefined')
+			{
+				this.setDefaultValue(dealCategory, {0: dealCategory.options.ITEMS[0].VALUE});
+			}
+		}
+
 		if (item)
 		{
 			item.animateCounter(true);
 		}
+	};
+
+	FilterListener.prototype.setDefaultValue = function(field, value)
+	{
+		var container = field.parent.getFieldListContainer();
+		Object.entries(value).forEach(function (data) {
+			var fieldValue = data[1];
+
+			var fieldNode = container.querySelector(
+				"[data-name='"
+					.concat(field.id, "'] [data-name='")
+					.concat(field.id, "'], [data-name='")
+					.concat(field.id, "'] [name='")
+					.concat(field.id, "']"));
+
+			if (fieldNode) {
+				var dataValue = fieldNode.getAttribute('data-value');
+				if(dataValue !== "[]")
+				{
+					return;
+				}
+
+				if (BX.Dom.hasClass(fieldNode, 'main-ui-multi-select')) {
+					var items = BX.Dom.attr(fieldNode, 'data-items');
+
+					if (BX.Type.isArray(items)) {
+						var item = items.find(function (currentItem) {
+							return currentItem.VALUE === fieldValue;
+						});
+
+						if (BX.Type.isPlainObject(item)) {
+							BX.Dom.attr(fieldNode, 'data-value', item);
+							var nameNode = fieldNode.querySelector('.main-ui-square-container');
+
+							if (nameNode) {
+								var squareNode =
+									BX.create('span', {
+										'props': {
+											'className': 'main-ui-square'
+										},
+										'attrs': {
+											'data-item': JSON.stringify(item)
+										}
+									});
+								var squareNodeItem =
+									BX.create('span', {
+										'props': {
+											'className': 'main-ui-square-item'
+										}
+									});
+								var squareNodeRem =
+									BX.create('span', {
+										'props': {
+											'className': 'main-ui-item-icon main-ui-square-delete'
+										}
+									});
+
+								squareNodeItem.innerText = item.NAME;
+								squareNode.append(squareNodeItem);
+								squareNode.append(squareNodeRem);
+
+								nameNode.append(squareNode);
+							}
+							var value = [item];
+							fieldNode.setAttribute('data-value', JSON.stringify(value));
+						}
+					}
+				}
+			}
+		});
 	};
 	FilterListener.prototype.onFilterData = function (filterId, promise)
 	{

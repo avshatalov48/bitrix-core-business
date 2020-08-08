@@ -99,11 +99,21 @@ class Page
 	public function preparePrevPageLogId()
 	{
 		$request = $this->getRequest();
-		$processorInstance = $this->getProcessorInstance();
+		$params = $this->getComponent()->arParams;
 
-		if ($request->get('pplogid') !== null)
+		$prevPageLogId = null;
+		if (isset($params['PREV_PAGE_LOG_ID']))
 		{
-			$prevPageLogIdList = explode('|', trim($request->get('pplogid')));
+			$prevPageLogId = $params['PREV_PAGE_LOG_ID'];
+		}
+		elseif ($request->get('pplogid') !== null)
+		{
+			$prevPageLogId = $request->get('pplogid');
+		}
+
+		if ($prevPageLogId !== null)
+		{
+			$prevPageLogIdList = explode('|', trim($prevPageLogId));
 			foreach($prevPageLogIdList as $key => $val)
 			{
 				preg_match('/^(\d+)$/', $val, $matches);
@@ -221,7 +231,7 @@ class Page
 		{
 			if ($params['USE_FOLLOW'] == 'N')
 			{
-				if (empty($processorInstance->getOrderKey('LOG_DATE')))
+				if (!empty($processorInstance->getOrderKey('LOG_DATE')))
 				{
 					$result['LAST_ENTRY_DATE_TS'] = $processorInstance->makeTimeStampFromDateTime($lastEventFields['LOG_DATE'], 'FULL');
 				}
@@ -250,12 +260,10 @@ class Page
 			$dateLastPage = convertTimeStamp($result['dateLastPageTS'], 'FULL');
 		}
 
-		$lastPageData = $this->getLastPageData();
 		if (
 			Util::checkUserAuthorized()
 			&& $params['SET_LOG_PAGE_CACHE'] == 'Y'
 			&& $dateLastPage
-			&& $lastPageData
 			&& (
 				!$this->getDateLastPageStart()
 				|| $this->getDateLastPageStart() != $dateLastPage
@@ -263,6 +271,16 @@ class Page
 			)
 		)
 		{
+			$lastPageData = $this->getLastPageData();
+			if (empty($lastPageData))
+			{
+				$lastPageData = [
+					'TRAFFIC_AVG' => 0,
+					'TRAFFIC_CNT' => 0,
+					'TRAFFIC_LAST_DATE_TS' => 0
+				];
+			}
+
 			$bNeedSetTraffic = \CSocNetLogComponent::isSetTrafficNeeded([
 				'PAGE_NUMBER' => $result['PAGE_NUMBER'],
 				'GROUP_CODE' => $result['COUNTER_TYPE'],

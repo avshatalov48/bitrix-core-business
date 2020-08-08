@@ -138,8 +138,15 @@ else
 // delete action
 if ($is_update_form && $action === 'delete' && check_bitrix_sessid())
 {
-	HL\HighloadBlockTable::delete($hlblock['ID']);
-	\LocalRedirect('highloadblock_index.php?lang='.LANGUAGE_ID);
+	$result = HL\HighloadBlockTable::delete($hlblock['ID']);
+	if ($result->isSuccess())
+	{
+		\LocalRedirect('highloadblock_index.php?lang='.LANGUAGE_ID);
+	}
+	else
+	{
+		$errors = $result->getErrorMessages();
+	}
 }
 
 // save action

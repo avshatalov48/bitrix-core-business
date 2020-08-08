@@ -40,6 +40,7 @@ if (!$arResult['CAN_EDIT'])
 						<td class="table-blue-td-title">&nbsp;</td>
 						<td class="table-blue-td-title">&nbsp;</td>
 						<td class="table-blue-td-title"><?=Loc::getMessage('SENDER_CONFIG_ROLE_LIST_ROLE')?></td>
+						<td class="table-blue-td-title"><?=Loc::getMessage('SENDER_CONFIG_ROLE_LIST_AVAILABLE_CATEGORY')?></td>
 						<td class="table-blue-td-title"></td>
 					</tr>
 					<?foreach ($arResult['ROLE_ACCESS_CODES'] as $roleAccessCode):?>
@@ -94,7 +95,6 @@ if (!$arResult['CAN_EDIT'])
 			</td>
 		</tr>
 	</table>
-
 	<?
 	$APPLICATION->IncludeComponent(
 		"bitrix:sender.ui.button.panel",

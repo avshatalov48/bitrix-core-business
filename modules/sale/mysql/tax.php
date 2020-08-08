@@ -16,7 +16,7 @@ class CSaleTax extends CAllSaleTax
 			"VALUES(".$arInsert[1].", ".$DB->GetNowFunction().")";
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-		$ID = IntVal($DB->LastID());
+		$ID = intval($DB->LastID());
 
 		return $ID;
 	}

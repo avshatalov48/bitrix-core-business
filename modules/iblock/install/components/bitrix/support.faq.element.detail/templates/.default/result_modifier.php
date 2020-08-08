@@ -17,9 +17,9 @@ global $APPLICATION, $USER;
 
 	$arResult['ITEM']["DETAIL_TEXT"] = preg_replace_callback("/(<|\[)CODE(>|\])(.+?)(<|\[)\/CODE(>|\])/is",code_replace_func,$arResult['ITEM']["DETAIL_TEXT"]);
 
-	if(strtoupper($arResult['ITEM']["PREVIEW_TEXT_TYPE"]) == "TEXT")
+	if(mb_strtoupper($arResult['ITEM']["PREVIEW_TEXT_TYPE"]) == "TEXT")
 		$arResult['ITEM']["PREVIEW_TEXT"] = nl2br($arResult['ITEM']["PREVIEW_TEXT"]);
-	if(strtoupper($arResult['ITEM']["DETAIL_TEXT_TYPE"]) == "TEXT")
+	if(mb_strtoupper($arResult['ITEM']["DETAIL_TEXT_TYPE"]) == "TEXT")
 		$arResult['ITEM']["DETAIL_TEXT"] = nl2br($arResult['ITEM']["DETAIL_TEXT"]);
 
 	//create button

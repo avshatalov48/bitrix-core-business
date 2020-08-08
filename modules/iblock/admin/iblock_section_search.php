@@ -142,7 +142,7 @@ if (!isset($by))
 	$by = 'NAME';
 if (!isset($order))
 	$order = 'ASC';
-$arOrder = (strtoupper($by) === "ID"? array($by => $order): array($by => $order, "ID" => "ASC"));
+$arOrder = (mb_strtoupper($by) === "ID"? array($by => $order): array($by => $order, "ID" => "ASC"));
 $lAdmin = new CAdminList($sTableID, $oSort);
 
 $arFilterFields = array(
@@ -164,7 +164,7 @@ $arFilterFields = array(
 if($entity_id)
 	$USER_FIELD_MANAGER->AdminListAddFilterFields($entity_id, $arFilterFields);
 
-$section_id = strlen($find_section_section) > 0? intval($find_section_section): "";
+$section_id = $find_section_section <> ''? intval($find_section_section): "";
 $lAdmin->InitFilter($arFilterFields);
 $find_section_section = $section_id;
 
@@ -322,12 +322,12 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	$row->AddCheckField("ACTIVE", false);
 
 	if(array_key_exists("ELEMENT_CNT", $arVisibleColumnsMap))
-		$row->AddViewField("ELEMENT_CNT", $f_ELEMENT_CNT.'('.IntVal(CIBlockSection::GetSectionElementsCount($f_ID, Array("CNT_ALL"=>"Y"))).')');
+		$row->AddViewField("ELEMENT_CNT", $f_ELEMENT_CNT.'('.intval(CIBlockSection::GetSectionElementsCount($f_ID, Array("CNT_ALL"=>"Y"))).')');
 
 	if(array_key_exists("SECTION_CNT", $arVisibleColumnsMap))
 	{
 		$arFilter = Array("IBLOCK_ID"=>$IBLOCK_ID, "SECTION_ID"=>$f_ID);
-		$row->AddViewField("SECTION_CNT", '<a href="'.$sec_list_url.'" onclick="'.$lAdmin->ActionRedirect($sec_list_url).'; return false;" title="'.GetMessage("IBLOCK_SECSEARCH_LIST").'">'.IntVal(CIBlockSection::GetCount($arFilter)).'</a>');
+		$row->AddViewField("SECTION_CNT", '<a href="'.$sec_list_url.'" onclick="'.$lAdmin->ActionRedirect($sec_list_url).'; return false;" title="'.GetMessage("IBLOCK_SECSEARCH_LIST").'">'.intval(CIBlockSection::GetCount($arFilter)).'</a>');
 	}
 
 	if(array_key_exists("MODIFIED_BY", $arVisibleColumnsMap) && intval($f_MODIFIED_BY) > 0)

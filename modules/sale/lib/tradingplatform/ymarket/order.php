@@ -27,7 +27,7 @@ class Order
 		if(empty($params['CURRENCY']))
 			throw new ArgumentNullException('params[CURRENCY]');
 
-		if(strlen($params['SITE_ID']) <= 0)
+		if($params['SITE_ID'] == '')
 			throw new ArgumentNullException('params[SITE_ID]');
 
 		if(intval($params['PERSON_TYPE_ID']) <= 0)

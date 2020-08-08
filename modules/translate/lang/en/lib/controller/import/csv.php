@@ -7,5 +7,4 @@ $MESS["TR_IMPORT_FILE_DROPPED"] = "Import file deleted";
 $MESS["TR_IMPORT_UPLOAD_OK"] = "The file has been imported successfully.";
 $MESS["TR_IMPORT_VOID"] = "No data to import";
 $MESS["TR_INDEX_ACTION_STATS"] = "Files indexed:  #PROCESSED_FILES# of #TOTAL_FILES#.";
-$MESS["TR_INDEX_COMPLETED"] = "Imported messages have been indexed.";
 ?>

@@ -1,5 +1,5 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();?><?
-$ORDER_ID = IntVal($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"]);
+$ORDER_ID = intval($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["ID"]);
 if (!is_array($arOrder))
 	$arOrder = CSaleOrder::GetByID($ORDER_ID);
 ?>
@@ -186,7 +186,7 @@ if ($arBasket = $dbBasket->Fetch())
 
 		$productName = $arBasket["NAME"];
 		if ($productName == "OrderDelivery")
-			$productName = "EnvÃ­o";
+			$productName = "Envío";
 		else if ($productName == "OrderDiscount")
 			$productName = "Descuento";
 
@@ -223,8 +223,8 @@ if ($arBasket = $dbBasket->Fetch())
 	{
 		$arDelivery_tmp = CSaleDelivery::GetByID($GLOBALS["SALE_INPUT_PARAMS"]["ORDER"]["DELIVERY_ID"]);
 
-		$sDeliveryItem = "EnvÃ­o";
-		if (strlen($arDelivery_tmp["NAME"]) > 0)
+		$sDeliveryItem = "Envío";
+		if ($arDelivery_tmp["NAME"] <> '')
 			$sDeliveryItem .= sprintf(" (%s)", $arDelivery_tmp["NAME"]);
 		$arCells[++$n] = array(
 			1 => $n,
@@ -399,7 +399,7 @@ if ($arBasket = $dbBasket->Fetch())
 <table class="it" width="100%">
 	<tr>
 		<td><nobr>#</nobr></td>
-		<td><nobr>ArtÃ­culo / DescripciÃ³n</nobr></td>
+		<td><nobr>Artículo / Descripción</nobr></td>
 		<td><nobr>Cant</nobr></td>
 		<td><nobr>Unidades</nobr></td>
 		<td><nobr>Precio unitario</nobr></td>
@@ -465,7 +465,7 @@ for ($n = 1; $n <= $rowsCnt; $n++)
 <br>
 
 <? if (CSalePaySystemAction::GetParamValue("COMMENT1", false) || CSalePaySystemAction::GetParamValue("COMMENT2", false)) { ?>
-<b>TÃ©rminos y Condiciones</b>
+<b>Términos y Condiciones</b>
 <br>
 	<? if (CSalePaySystemAction::GetParamValue("COMMENT1", false)) { ?>
 	<?=nl2br(HTMLToTxt(preg_replace(
@@ -515,7 +515,7 @@ for ($n = 1; $n <= $rowsCnt; $n++)
 			<? $bankPhone = CSalePaySystemAction::GetParamValue("SELLER_BANK_PHONE", false); ?>
 
 			<? if ($bank || $bankAddr || $bankPhone) { ?>
-				Nombre y direcciÃ³n del banco: <? if ($bank) { ?><?=$bank; ?><? } ?>
+				Nombre y dirección del banco: <? if ($bank) { ?><?=$bank; ?><? } ?>
 				<br>
 
 				<? if ($bankAddr) { ?>
@@ -529,7 +529,7 @@ for ($n = 1; $n <= $rowsCnt; $n++)
 				<? } ?>
 			<? } ?>
 
-			NÃºmero de enrutamiento del banco: <?=$bankRouteNo; ?>
+			Número de enrutamiento del banco: <?=$bankRouteNo; ?>
 			<br>
 
 			SWIFT del banco: <?=$bankSwift; ?>

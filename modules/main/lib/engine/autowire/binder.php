@@ -351,15 +351,13 @@ final class Binder
 		{
 			if ($parameter->isDefaultValueAvailable())
 			{
-				$value = $parameter->getDefaultValue();
+				return $parameter->getDefaultValue();
 			}
-			else
-			{
-				throw new ArgumentException(
-					"Could not find value for parameter {{$parameter->getName()}}",
-					$parameter
-				);
-			}
+
+			throw new ArgumentException(
+				"Could not find value for parameter {{$parameter->getName()}}",
+				$parameter
+			);
 		}
 
 		if ($parameter->isArray())

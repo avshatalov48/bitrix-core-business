@@ -71,12 +71,12 @@ abstract class Process
 			'PERCENT' => 				intval($params['PERCENT']),
 			'CODE' => 					$params['CODE'],
 			'ORDER' => 					count($this->stages),
-			'TYPE' => 					strlen($params['TYPE']) ? $params['TYPE'] : static::CALLBACK_TYPE_MANUAL,
+			'TYPE' => $params['TYPE'] <> ''? $params['TYPE'] : static::CALLBACK_TYPE_MANUAL,
 
 			'CALLBACK' => 				$params['CALLBACK'],
 			'SUBPERCENT_CALLBACK' => 	$params['SUBPERCENT_CALLBACK'],
-			'ON_BEFORE_CALLBACK' => 	strlen($params['ON_BEFORE_CALLBACK']) ? $params['ON_BEFORE_CALLBACK'] : false,
-			'ON_AFTER_CALLBACK' => 		strlen($params['ON_AFTER_CALLBACK']) ? $params['ON_AFTER_CALLBACK'] : false
+			'ON_BEFORE_CALLBACK' => $params['ON_BEFORE_CALLBACK'] <> ''? $params['ON_BEFORE_CALLBACK'] : false,
+			'ON_AFTER_CALLBACK' => $params['ON_AFTER_CALLBACK'] <> ''? $params['ON_AFTER_CALLBACK'] : false
 		);
 		$this->stagesByCode[$params['CODE']] =& $this->stages[count($this->stages) - 1];
 	}
@@ -316,7 +316,7 @@ abstract class Process
 	
 		$addit = 0;
 		$cb = $this->stages[$this->stage]['SUBPERCENT_CALLBACK'];
-		if(strlen($cb) && method_exists($this, $cb))
+		if(mb_strlen($cb) && method_exists($this, $cb))
 			$addit = $this->$cb();
 
 		return $percent + $addit;
@@ -412,7 +412,7 @@ abstract class Process
 
 	public function logMessage($message = '', $addTimeStamp = true)
 	{
-		if(!static::DEBUG_MODE || !strlen($message))
+		if(!static::DEBUG_MODE || !mb_strlen($message))
 			return;
 
 		file_put_contents(
@@ -503,10 +503,10 @@ abstract class Process
 		$m = floor(($time - $h * 3600) / 60);
 		$s = $time - $h * 3600 - $m * 60;
 
-		if(strlen($m) == 1)
+		if(mb_strlen($m) == 1)
 			$m = '0'.$m;
 
-		if(strlen($s) == 1)
+		if(mb_strlen($s) == 1)
 			$s = '0'.$s;
 
 		return $h.':'.$m.':'.$s;

@@ -536,5 +536,5 @@ this.BX.UI = this.BX.UI || {};
 	exports.MessageBox = MessageBox;
 	exports.MessageBoxButtons = MessageBoxButtons;
 
-}((this.BX.UI.Dialogs = this.BX.UI.Dialogs || {}),BX,BX));
+}((this.BX.UI.Dialogs = this.BX.UI.Dialogs || {}),BX,BX.Main));
 //# sourceMappingURL=dialogs.bundle.js.map

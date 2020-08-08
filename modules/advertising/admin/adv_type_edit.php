@@ -39,7 +39,7 @@ $SID = preg_replace("~[^A-Za-z_0-9]~", "", $SID);
 $OLD_SID = preg_replace("~[^A-Za-z_0-9]~", "", $OLD_SID);
 $strError = '';
 
-if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && check_bitrix_sessid())
 {
 	if ($ACTIVE != "Y") $ACTIVE = "N";
 	$arFields = array(
@@ -51,15 +51,15 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && check_bi
 		);
 	if ($SID = CAdvType::Set($arFields, $OLD_SID))
 	{
-		if (strlen($strError)<=0)
+		if ($strError == '')
 		{
-			if (strlen($save)>0) LocalRedirect("adv_type_list.php?lang=".LANGUAGE_ID);
+			if ($save <> '') LocalRedirect("adv_type_list.php?lang=".LANGUAGE_ID);
 			else LocalRedirect("adv_type_edit.php?SID=".$SID."&lang=".LANGUAGE_ID."&".$tabControl->ActiveTabParam());
 		}
 	}
 	$DB->PrepareFields("b_adv_type");
 }
-if (strlen($strError)>0)
+if ($strError <> '')
 {
 	$original_SID = $SID;
 	$SID = $OLD_SID;
@@ -70,9 +70,9 @@ if(!$rsType || !$rsType->ExtractFields())
 	$str_SORT = CAdvType::GetNextSort();
 	$str_ACTIVE = "Y";
 }
-if (strlen($strError)>0) $DB->InitTableVarsForEdit("b_adv_type", "", "str_");
+if ($strError <> '') $DB->InitTableVarsForEdit("b_adv_type", "", "str_");
 
-$sDocTitle = (strlen($SID)>0) ? GetMessage("AD_EDIT_TYPE", array("#SID#" => $SID)) : GetMessage("AD_NEW_TYPE");
+$sDocTitle = ($SID <> '') ? GetMessage("AD_EDIT_TYPE", array("#SID#" => $SID)) : GetMessage("AD_NEW_TYPE");
 $APPLICATION->SetTitle($sDocTitle);
 
 /***************************************************************************
@@ -87,7 +87,7 @@ $aMenu = array(
 		"ICON"	=> "btn_list"
 	)
 );
-if(strlen($SID)>0)
+if($SID <> '')
 {
 	$aMenu[] = array("SEPARATOR"=>"Y");
 
@@ -148,8 +148,8 @@ $tabControl->Begin();
 $tabControl->BeginNextTab();
 ?>
 
-	<?if (strlen($SID)>0):?>
-	<?if (strlen($str_DATE_CREATE)>0) :?>
+	<?if ($SID <> ''):?>
+	<?if ($str_DATE_CREATE <> '') :?>
 	<tr valign="top">
 		<td><?=GetMessage("AD_CREATED")?></td>
 		<td><?=$str_DATE_CREATE?><?
@@ -161,7 +161,7 @@ $tabControl->BeginNextTab();
 		?></td>
 	</tr>
 	<?endif;?>
-	<?if (strlen($str_DATE_MODIFY)>0) :?>
+	<?if ($str_DATE_MODIFY <> '') :?>
 	<tr valign="top">
 		<td><?=GetMessage("AD_MODIFIED")?></td>
 		<td><?=$str_DATE_MODIFY?><?
@@ -204,7 +204,7 @@ $tabControl->BeginNextTab();
 			?></td>
 		<td><?
 			if ($isEditMode) :
-				?><input maxlength="255" type="text" name="SID" size="20" value="<?echo (strlen($strError)>0) ? $original_SID : $str_SID?>"><?
+				?><input maxlength="255" type="text" name="SID" size="20" value="<?echo ($strError <> '') ? $original_SID : $str_SID?>"><?
 			else :
 				echo $str_SID;
 			endif;

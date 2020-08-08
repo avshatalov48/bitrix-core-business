@@ -74,7 +74,7 @@ else
 $arFilter["=URL_TO_404"] = $find_url_to_404;
 
 foreach($arFilter as $key => $value)
-	if(!strlen($value))
+	if($value == '')
 		unset($arFilter[$key]);
 $arFilter["!PHRASE"] = false;
 

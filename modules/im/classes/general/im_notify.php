@@ -14,7 +14,7 @@ class CIMNotify
 		global $USER;
 		$this->user_id = intval($user_id);
 		if ($this->user_id == 0)
-			$this->user_id = IntVal($USER->GetID());
+			$this->user_id = intval($USER->GetID());
 		if (isset($arParams['HIDE_LINK']) && $arParams['HIDE_LINK'] == 'Y')
 			$this->bHideLink = true;
 	}
@@ -81,13 +81,12 @@ class CIMNotify
 
 			if ($iNumPage == 0)
 			{
-				$dbType = strtolower($DB->type);
 				$sqlLimit = '';
-				if ($dbType== "mysql")
+				if ($DB->type == "MYSQL")
 					$sqlLimit = " AND M.DATE_CREATE > DATE_SUB(NOW(), INTERVAL 30 DAY)";
-				else if ($dbType == "mssql")
+				elseif ($DB->type == "MSSQL")
 					$sqlLimit = " AND M.DATE_CREATE > dateadd(day, -30, getdate())";
-				else if ($dbType == "oracle")
+				elseif ($DB->type == "ORACLE")
 					$sqlLimit = " AND M.DATE_CREATE > SYSDATE-30";
 
 				$strSql = $DB->TopSql($strSql, 20);
@@ -245,29 +244,31 @@ class CIMNotify
 
 			if ($bGetOnlyFlash)
 			{
-				foreach ($arNotify['notify'] as $key => $value)
+				$notifyFlash = \Bitrix\Im\NotifyFlash::getInstance();
+
+				foreach ($arNotify['notify'] as $id => $value)
 				{
-					if (isset($_SESSION['IM_FLASHED_NOTIFY'][$key]))
+					if ($notifyFlash->exists(\Bitrix\Im\NotifyFlash::TYPE_NOTIFY, $id))
 					{
-						unset($arNotify['notify'][$key]);
-						unset($arNotify['original_notify'][$key]);
+						unset($arNotify['notify'][$id]);
+						unset($arNotify['original_notify'][$id]);
 						$arNotify['loadNotify'] = true;
 					}
 					else
 					{
 						$value['FROM_USER_DATA'] = $arGetUsers;
 						$value['COUNTER'] = $counters[$value['CHAT_ID']];
-						$arNotify['notify'][$key] = self::GetFormatNotify($value);
+						$arNotify['notify'][$id] = self::GetFormatNotify($value);
 					}
 				}
 			}
 			else
 			{
-				foreach ($arNotify['notify'] as $key => $value)
+				foreach ($arNotify['notify'] as $id => $value)
 				{
 					$value['FROM_USER_DATA'] = $arGetUsers;
 					$value['COUNTER'] = $counters[$value['CHAT_ID']];
-					$arNotify['notify'][$key] = self::GetFormatNotify($value);
+					$arNotify['notify'][$id] = self::GetFormatNotify($value);
 				}
 			}
 
@@ -360,33 +361,28 @@ class CIMNotify
 		return $arNotify;
 	}
 
-	public static function GetFlashNotify($arUnreadNotify)
+	public static function GetFlashNotify($unreadNotify)
 	{
-		$arFlashNotify = Array();
-		if (isset($_SESSION['IM_FLASHED_NOTIFY']))
+		$flashed = Array();
+
+		$notifyFlash = \Bitrix\Im\NotifyFlash::getInstance();
+
+		foreach ($unreadNotify as $id)
 		{
-			foreach ($arUnreadNotify as $value)
+			if ($notifyFlash->exists(\Bitrix\Im\NotifyFlash::TYPE_NOTIFY, $id))
 			{
-				if (!isset($_SESSION['IM_FLASHED_NOTIFY'][$value]))
-				{
-					$_SESSION['IM_FLASHED_NOTIFY'][$value] = $value;
-					$arFlashNotify[$value] = true;
-				}
-				else
-					$arFlashNotify[$value] = false;
+				$flashed[$id] = false;
 			}
-		}
-		else
-		{
-			$_SESSION['IM_FLASHED_NOTIFY'] = Array();
-			foreach ($arUnreadNotify as $value)
+			else
 			{
-				$_SESSION['IM_FLASHED_NOTIFY'][$value] = $value;
-				$arFlashNotify[$value] = true;
+				$notifyFlash->set(\Bitrix\Im\NotifyFlash::TYPE_NOTIFY, $id);
+				$flashed[$id] = true;
 			}
 		}
 
-		return $arFlashNotify;
+		$notifyFlash->commit();
+
+		return $flashed;
 	}
 
 	public function GetNotify($ID)
@@ -420,8 +416,10 @@ class CIMNotify
 			'type' => $arFields['NOTIFY_TYPE'],
 			'date' => \Bitrix\Main\Type\DateTime::createFromTimestamp($arFields['DATE_CREATE']),
 			'silent' => $arFields['NOTIFY_SILENT']? 'Y': 'N',
+			'onlyFlash' => (bool)$arFields['NOTIFY_ONLY_FLASH'],
+			'link' => (string)$arFields['NOTIFY_LINK'],
 			'text' => str_replace('#BR#', '<br>', $CCTP->convertText($arFields['MESSAGE'])),
-			'tag' => strlen($arFields['NOTIFY_TAG'])>0? md5($arFields['NOTIFY_TAG']): '',
+			'tag' => $arFields['NOTIFY_TAG'] <> ''? md5($arFields['NOTIFY_TAG']): '',
 			'originalTag' => $arFields['NOTIFY_TAG'],
 			'original_tag' => $arFields['NOTIFY_TAG'],
 			'read' => $arFields['NOTIFY_READ'],
@@ -458,23 +456,46 @@ class CIMNotify
 		global $DB;
 
 		$id = intval($id);
-		if ($id <= 0)
+		if ($id < 0)
 			return false;
 
-		$message = \Bitrix\Im\Model\MessageTable::getList(Array(
-			'select' => Array('ID', 'CHAT_ID', 'NOTIFY_TAG'),
-			'filter' => Array(
-				'=ID' => $id,
-				'=RELATION.MESSAGE_TYPE' => IM_MESSAGE_SYSTEM,
-				'=RELATION.USER_ID' => $this->user_id,
-			)
-		))->fetch();
-		if (!$message)
+		if ($id === 0)
 		{
-			return false;
+			$query = [
+				'select' => ['CHAT_ID'],
+				'filter' => [
+					'=USER_ID' => $this->user_id,
+					'=MESSAGE_TYPE' => IM_MESSAGE_SYSTEM
+				]
+			];
+
+			$chatResult = \Bitrix\Im\Model\RelationTable::getList($query)->fetch();
+			$chatId = (int)$chatResult['CHAT_ID'];
+			if (!$chatId)
+			{
+				return false;
+			}
+		}
+		else
+		{
+			$query = [
+				'select' => ['ID', 'CHAT_ID', 'NOTIFY_TAG'],
+				'filter' => [
+					'=RELATION.MESSAGE_TYPE' => IM_MESSAGE_SYSTEM,
+					'=RELATION.USER_ID' => $this->user_id,
+					'=ID' => $id
+				]
+			];
+
+			$message = \Bitrix\Im\Model\MessageTable::getList($query)->fetch();
+			if (!$message)
+			{
+				return false;
+			}
+
+			$chatId = (int)$message['CHAT_ID'];
 		}
 
-		$chatId = intval($message['CHAT_ID']);
 		$messages = array();
 
 		$filterId = ($setThisAndHigher? '>=': '=').'ID';
@@ -601,7 +622,7 @@ class CIMNotify
 			$strSql ="UPDATE b_im_message SET NOTIFY_READ = 'Y' WHERE ID IN (".implode(",", array_keys($messages)).")";
 			$DB->Query($strSql);
 
-			$counters = \CIMNotify::GetCounters($chats);
+			$counters = \CIMNotify::GetRealCounters($chats);
 			foreach ($counters as $chatId => $counter)
 			{
 				$DB->Query("UPDATE b_im_relation SET COUNTER = {$counter} WHERE CHAT_ID = {$chatId}");
@@ -800,7 +821,7 @@ class CIMNotify
 		$arRes['NOTIFY_BUTTONS'] = unserialize($arRes['NOTIFY_BUTTONS']);
 
 		$resultMessages = Array();
-		if (strlen($arRes['NOTIFY_TAG'])>0)
+		if ($arRes['NOTIFY_TAG'] <> '')
 		{
 			$CBXSanitizer = new CBXSanitizer;
 			$CBXSanitizer->AddTags(array(
@@ -822,7 +843,7 @@ class CIMNotify
 					}
 					break;
 				}
-				else if (is_array($resultEvent) && $resultEvent['text'] || is_string($resultEvent) && strlen($resultEvent) > 0)
+				else if (is_array($resultEvent) && $resultEvent['text'] || is_string($resultEvent) && $resultEvent <> '')
 				{
 					$resultMessages[] = $CBXSanitizer->SanitizeHtml(is_string($resultEvent)? $resultEvent: $resultEvent['text']);
 				}
@@ -842,7 +863,7 @@ class CIMNotify
 
 		self::Delete($id);
 
-		if (strlen($arRes['NOTIFY_TAG'])>0)
+		if ($arRes['NOTIFY_TAG'] <> '')
 		{
 			foreach(GetModuleEvents("im", "OnAfterConfirmNotify", true) as $arEvent)
 				ExecuteModuleEventEx($arEvent, array($arRes['NOTIFY_MODULE'], $arRes['NOTIFY_TAG'], $value, $arRes, $resultMessages));
@@ -874,7 +895,7 @@ class CIMNotify
 
 		$id = intval($id);
 		$text = trim($text);
-		if ($id <= 0 || strlen($text) <= 0)
+		if ($id <= 0 || $text == '')
 			return false;
 
 		$strSql = "
@@ -912,7 +933,7 @@ class CIMNotify
 				}
 				break;
 			}
-			else if (is_array($resultEvent) && $resultEvent['text'] || is_string($resultEvent) && strlen($resultEvent) > 0)
+			else if (is_array($resultEvent) && $resultEvent['text'] || is_string($resultEvent) && $resultEvent <> '')
 			{
 				$resultMessages[] = $CBXSanitizer->SanitizeHtml(is_string($resultEvent)? $resultEvent: $resultEvent['text']);
 			}
@@ -992,7 +1013,7 @@ class CIMNotify
 		global $DB;
 
 		$notifyTag = (string)$notifyTag;
-		if (strlen($notifyTag) <= 0)
+		if ($notifyTag == '')
 		{
 			return false;
 		}
@@ -1061,7 +1082,7 @@ class CIMNotify
 		global $DB;
 
 		$notifySubTag = (string)$notifySubTag;
-		if (strlen($notifySubTag) <= 0)
+		if ($notifySubTag == '')
 			return false;
 
 		$dbRes = $DB->Query("
@@ -1128,7 +1149,7 @@ class CIMNotify
 		global $DB;
 
 		$notifySubTag = (string)$notifySubTag;
-		if (strlen($notifySubTag) <= 0)
+		if ($notifySubTag == '')
 			return false;
 
 		$sqlUser = "";
@@ -1194,12 +1215,12 @@ class CIMNotify
 	{
 		global $DB;
 		$moduleId = (string)$moduleId;
-		if (strlen($moduleId) <= 0)
+		if ($moduleId == '')
 			return false;
 
 		$sqlEvent = '';
 		$moduleEvent = (string)$moduleEvent;
-		if (strlen($moduleEvent) > 0)
+		if ($moduleEvent <> '')
 			$sqlEvent = " AND NOTIFY_EVENT = '".$DB->ForSQL($moduleEvent)."'";
 
 		$strSql = "DELETE FROM b_im_message WHERE NOTIFY_MODULE = '".$DB->ForSQL($moduleId)."'".$sqlEvent;
@@ -1232,6 +1253,11 @@ class CIMNotify
 	public static function GetRealCounter($chatId)
 	{
 		return \Bitrix\Im\Notify::getRealCounter($chatId);
+	}
+
+	public static function GetRealCounters($chatId)
+	{
+		return \Bitrix\Im\Notify::getRealCounters($chatId);
 	}
 
 	public static function GetCounter($chatId)

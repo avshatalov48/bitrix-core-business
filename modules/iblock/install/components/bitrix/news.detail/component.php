@@ -21,7 +21,7 @@ if(!isset($arParams["CACHE_TIME"]))
 	$arParams["CACHE_TIME"] = 36000000;
 
 $arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
-if(strlen($arParams["IBLOCK_TYPE"])<=0)
+if($arParams["IBLOCK_TYPE"] == '')
 	$arParams["IBLOCK_TYPE"] = "news";
 
 $arParams["ELEMENT_ID"] = intval($arParams["~ELEMENT_ID"]);
@@ -55,13 +55,13 @@ foreach($arParams["PROPERTY_CODE"] as $k=>$v)
 $arParams["IBLOCK_URL"]=trim($arParams["IBLOCK_URL"]);
 
 $arParams["META_KEYWORDS"]=trim($arParams["META_KEYWORDS"]);
-if(strlen($arParams["META_KEYWORDS"])<=0)
+if($arParams["META_KEYWORDS"] == '')
 	$arParams["META_KEYWORDS"] = "-";
 $arParams["META_DESCRIPTION"]=trim($arParams["META_DESCRIPTION"]);
-if(strlen($arParams["META_DESCRIPTION"])<=0)
+if($arParams["META_DESCRIPTION"] == '')
 	$arParams["META_DESCRIPTION"] = "-";
 $arParams["BROWSER_TITLE"]=trim($arParams["BROWSER_TITLE"]);
-if(strlen($arParams["BROWSER_TITLE"])<=0)
+if($arParams["BROWSER_TITLE"] == '')
 	$arParams["BROWSER_TITLE"] = "-";
 
 $arParams["INCLUDE_IBLOCK_INTO_CHAIN"] = $arParams["INCLUDE_IBLOCK_INTO_CHAIN"]!="N";
@@ -74,7 +74,7 @@ $arParams["SET_META_KEYWORDS"] = (isset($arParams["SET_META_KEYWORDS"]) && $arPa
 $arParams["SET_META_DESCRIPTION"] = (isset($arParams["SET_META_DESCRIPTION"]) && $arParams["SET_META_DESCRIPTION"] === 'N' ? 'N' : 'Y');
 $arParams["STRICT_SECTION_CHECK"] = (isset($arParams["STRICT_SECTION_CHECK"]) && $arParams["STRICT_SECTION_CHECK"] === "Y");
 $arParams["ACTIVE_DATE_FORMAT"] = trim($arParams["ACTIVE_DATE_FORMAT"]);
-if(strlen($arParams["ACTIVE_DATE_FORMAT"])<=0)
+if($arParams["ACTIVE_DATE_FORMAT"] == '')
 	$arParams["ACTIVE_DATE_FORMAT"] = $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT"));
 
 $arParams["DISPLAY_TOP_PAGER"] = $arParams["DISPLAY_TOP_PAGER"]=="Y";
@@ -174,11 +174,11 @@ if($arParams["SHOW_WORKFLOW"] || $this->startResultCache(false, array(($arParams
 		{
 			$arFilter["SECTION_ID"] = $arParams["SECTION_ID"];
 		}
-		elseif (strlen($arParams["~SECTION_CODE"]) > 0)
+		elseif ($arParams["~SECTION_CODE"] <> '')
 		{
 			$arFilter["SECTION_CODE"] = $arParams["~SECTION_CODE"];
 		}
-		elseif ($this->getParent() && strpos($arParams["DETAIL_URL"], "#SECTION_CODE_PATH#") !== false)
+		elseif ($this->getParent() && mb_strpos($arParams["DETAIL_URL"], "#SECTION_CODE_PATH#") !== false)
 		{
 			$this->abortResultCache();
 			Iblock\Component\Tools::process404(
@@ -242,9 +242,9 @@ if($arParams["SHOW_WORKFLOW"] || $this->startResultCache(false, array(($arParams
 		$arResult = $obElement->GetFields();
 
 		$arResult["NAV_RESULT"] = new CDBResult;
-		if(($arResult["DETAIL_TEXT_TYPE"]=="html") && (strstr($arResult["DETAIL_TEXT"], "<BREAK />")!==false))
+		if(($arResult["DETAIL_TEXT_TYPE"]=="html") && (mb_strstr($arResult["DETAIL_TEXT"], "<BREAK />") !== false))
 			$arPages=explode("<BREAK />", $arResult["DETAIL_TEXT"]);
-		elseif(($arResult["DETAIL_TEXT_TYPE"]!="html") && (strstr($arResult["DETAIL_TEXT"], "&lt;BREAK /&gt;")!==false))
+		elseif(($arResult["DETAIL_TEXT_TYPE"]!="html") && (mb_strstr($arResult["DETAIL_TEXT"], "&lt;BREAK /&gt;") !== false))
 			$arPages=explode("&lt;BREAK /&gt;", $arResult["DETAIL_TEXT"]);
 		else
 			$arPages=array();
@@ -288,7 +288,7 @@ if($arParams["SHOW_WORKFLOW"] || $this->startResultCache(false, array(($arParams
 				$arResult["NAV_TEXT"].=$ar;
 		}
 
-		if(strlen($arResult["ACTIVE_FROM"])>0)
+		if($arResult["ACTIVE_FROM"] <> '')
 			$arResult["DISPLAY_ACTIVE_FROM"] = CIBlockFormatProperties::DateFormat($arParams["ACTIVE_DATE_FORMAT"], MakeTimeStamp($arResult["ACTIVE_FROM"], CSite::GetDateFormat()));
 		else
 			$arResult["DISPLAY_ACTIVE_FROM"] = "";
@@ -316,7 +316,7 @@ if($arParams["SHOW_WORKFLOW"] || $this->startResultCache(false, array(($arParams
 			$prop = &$arResult["PROPERTIES"][$pid];
 			if(
 				(is_array($prop["VALUE"]) && count($prop["VALUE"])>0)
-				|| (!is_array($prop["VALUE"]) && strlen($prop["VALUE"])>0)
+				|| (!is_array($prop["VALUE"]) && $prop["VALUE"] <> '')
 			)
 			{
 				$arResult["DISPLAY_PROPERTIES"][$pid] = CIBlockFormatProperties::GetDisplayValue($arResult, $prop, "news_out");

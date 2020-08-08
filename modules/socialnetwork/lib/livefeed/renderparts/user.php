@@ -88,10 +88,9 @@ final class User extends Base
 				if ($userPath === null)
 				{
 					$userPath = (
-						(!isset($options['mobile']) || !$options['mobile'])
-						&& (!isset($options['im']) || !$options['im'])
+						(!isset($options['im']) || !$options['im'])
 							? (
-								!isset($options['mobile']) || !$options['mobile']
+								(!isset($options['mobile']) || !$options['mobile'])
 									? Option::get('socialnetwork', 'user_page', SITE_DIR.'company/personal/').'user/#user_id#/'
 									: SITE_DIR.'mobile/users/?user_id=#user_id#'
 							)

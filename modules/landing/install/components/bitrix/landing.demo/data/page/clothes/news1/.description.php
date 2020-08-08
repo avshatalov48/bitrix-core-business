@@ -19,7 +19,6 @@ return array(
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'THEME_CODE' => 'travel',
-			'THEME_CODE_TYPO' => 'travel',
 		),
 	),
 	'layout' => array(),
@@ -40,13 +39,13 @@ return array(
 			),
 			'style' => array(
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-font-size-40 g-color-black g-mb-minus-10 g-font-montserrat g-text-transform-none',
+					0 => 'landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-font-size-40 g-color-black g-mb-minus-10 g-text-transform-none',
 				),
 				'.landing-block-node-subtitle' => array(
 					0 => 'landing-block-node-subtitle g-font-weight-700 g-font-size-12 g-color-primary g-mb-15',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text g-pb-1 g-color-black g-font-open-sans g-font-size-16',
+					0 => 'landing-block-node-text g-pb-1 g-color-black',
 				),
 				'.landing-block-node-inner' => array(
 					0 => 'landing-block-node-inner text-uppercase u-heading-v2-4--bottom g-brd-primary',
@@ -79,10 +78,10 @@ return array(
 					0 => 'landing-block-node-text-container js-animation slideInRight col-md-6',
 				),
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title g-font-weight-700 mb-0 g-mb-15 g-font-montserrat g-text-transform-none g-font-size-30',
+					0 => 'landing-block-node-title g-font-weight-700 mb-0 g-mb-15 g-text-transform-none g-font-size-30',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text g-color-gray-dark-v4 g-font-open-sans g-font-size-16',
+					0 => 'landing-block-node-text g-color-gray-dark-v4',
 				),
 				'.landing-block-node-img' => array(
 					0 => 'landing-block-node-img js-animation slideInLeft img-fluid',
@@ -118,7 +117,7 @@ return array(
 					0 => 'landing-block-node-title text-uppercase g-font-weight-700 g-font-size-26 mb-0 g-mb-15',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text g-color-gray-dark-v4 g-font-size-16 g-font-open-sans',
+					0 => 'landing-block-node-text g-color-gray-dark-v4',
 				),
 				'.landing-block-node-img' => array(
 					0 => 'landing-block-node-img js-animation slideInRight img-fluid',

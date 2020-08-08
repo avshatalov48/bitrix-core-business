@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
-(function (exports,main_core) {
+(function (exports,main_core_events,main_core) {
 	'use strict';
 
 	var BaseEvent =
@@ -33,8 +33,8 @@ this.BX.UI = this.BX.UI || {};
 
 	var Sensor =
 	/*#__PURE__*/
-	function (_Event$EventEmitter) {
-	  babelHelpers.inherits(Sensor, _Event$EventEmitter);
+	function (_EventEmitter) {
+	  babelHelpers.inherits(Sensor, _EventEmitter);
 
 	  function Sensor() {
 	    var _this;
@@ -152,7 +152,7 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  }]);
 	  return Sensor;
-	}(main_core.Event.EventEmitter);
+	}(main_core_events.EventEmitter);
 
 	var DragMoveSensorEvent =
 	/*#__PURE__*/
@@ -778,8 +778,8 @@ this.BX.UI = this.BX.UI || {};
 
 	var Draggable =
 	/*#__PURE__*/
-	function (_Event$EventEmitter) {
-	  babelHelpers.inherits(Draggable, _Event$EventEmitter);
+	function (_EventEmitter) {
+	  babelHelpers.inherits(Draggable, _EventEmitter);
 
 	  function Draggable() {
 	    var _this6;
@@ -1368,7 +1368,8 @@ this.BX.UI = this.BX.UI || {};
 	          depth = _this$getOptions7.depth;
 
 	      return main_core.Text.toNumber(depth.margin) || 20;
-	    }
+	    } // eslint-disable-next-line
+
 	  }, {
 	    key: "getElementDepth",
 	    value: function getElementDepth(element) {
@@ -1970,7 +1971,7 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  }]);
 	  return Draggable;
-	}(main_core.Event.EventEmitter);
+	}(main_core_events.EventEmitter);
 	babelHelpers.defineProperty(Draggable, "MOVE", 'move');
 	babelHelpers.defineProperty(Draggable, "CLONE", 'clone');
 	babelHelpers.defineProperty(Draggable, "DROP_PREVIEW", 'drop-preview');
@@ -1987,5 +1988,5 @@ this.BX.UI = this.BX.UI || {};
 	exports.DragEnterEvent = DragEnterEvent;
 	exports.DragEnterContainerEvent = DragEnterContainerEvent;
 
-}((this.BX.UI.DragAndDrop = this.BX.UI.DragAndDrop || {}),BX));
+}((this.BX.UI.DragAndDrop = this.BX.UI.DragAndDrop || {}),BX.Event,BX));
 //# sourceMappingURL=draggable.bundle.js.map

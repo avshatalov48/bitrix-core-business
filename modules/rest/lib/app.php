@@ -6,6 +6,7 @@ use Bitrix\Main\Data\Cache;
 use Bitrix\Main\EventResult;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Rest\Marketplace\Client;
+use Bitrix\Main\ORM\Fields\Relations\OneToMany;
 
 Loc::loadMessages(__FILE__);
 
@@ -202,6 +203,8 @@ class AppTable extends Main\Entity\DataManager
 					'=ref.LANGUAGE_ID' => new Main\DB\SqlExpression('?s', static::getLicenseLanguage()),
 				),
 			),
+			(new OneToMany('LANG_ALL', AppLangTable::class, 'APP'))
+				->configureJoinType('left')
 		);
 	}
 
@@ -941,9 +944,19 @@ class AppTable extends Main\Entity\DataManager
 
 	public static function canUninstallByType($code, $version = false)
 	{
+		$result = true;
+
 		$type = static::getAppType($code, $version);
-		$usesConfigurationApp = \Bitrix\Rest\Configuration\Helper::getInstance()->getUsesConfigurationApp();
-		return ($type == static::TYPE_CONFIGURATION && $code == $usesConfigurationApp)?false:true;
+		if($type == static::TYPE_CONFIGURATION)
+		{
+			$appList = \Bitrix\Rest\Configuration\Helper::getInstance()->getBasicAppList();
+			if(in_array($code, $appList))
+			{
+				$result = false;
+			}
+		}
+
+		return $result;
 	}
 
 	public static function getAppType($code, $version = false)

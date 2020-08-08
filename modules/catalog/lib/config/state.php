@@ -607,4 +607,19 @@ final class State
 		$APPLICATION->ThrowException($error);
 		unset($error, $oldMessages);
 	}
+
+	/**
+	 * Returns true if product card slider option is checked.
+	 *
+	 * @return bool
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	public static function isProductCardSliderEnabled(): bool
+	{
+		if (!Feature::isCommonProductProcessingEnabled())
+			return false;
+
+		return Main\Config\Option::get('catalog', 'product_card_slider_enabled', 'Y') === 'Y';
+	}
 }

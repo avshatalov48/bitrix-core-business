@@ -59,45 +59,45 @@ class CIBlockType
 
 		foreach ($arFilter as $key => $val)
 		{
-			if (!is_array($val) && strlen($val) <= 0)
+			if (!is_array($val) && $val == '')
 				continue;
 
-			switch (strtoupper($key))
+			switch(mb_strtoupper($key))
 			{
-			case "ID":
-				$strSqlSearch .= "AND UPPER(T.ID) LIKE UPPER('".$DB->ForSql($val)."')\n";
-				break;
+				case "ID":
+					$strSqlSearch .= "AND UPPER(T.ID) LIKE UPPER('".$DB->ForSql($val)."')\n";
+					break;
 
-			case "=ID":
-				if (is_array($val))
-				{
-					if (!empty($val))
+				case "=ID":
+					if(is_array($val))
 					{
-						$sqlVal = array_map(array($DB, 'ForSQL'), $val);
-						$strSqlSearch .= "AND T.ID in ('".implode("', '", $sqlVal)."')\n";
+						if(!empty($val))
+						{
+							$sqlVal = array_map(array($DB, 'ForSQL'), $val);
+							$strSqlSearch .= "AND T.ID in ('".implode("', '", $sqlVal)."')\n";
+						}
 					}
-				}
-				else
-				{
-					$strSqlSearch .= "AND T.ID = '".$DB->ForSql($val)."'\n";
-				}
-				break;
+					else
+					{
+						$strSqlSearch .= "AND T.ID = '".$DB->ForSql($val)."'\n";
+					}
+					break;
 
-			case "NAME":
-				$strSqlSearch .= "AND UPPER(TL.NAME) LIKE UPPER('%".$DB->ForSql($val)."%')\n";
-				$bLang = true;
-				break;
-			case "LANGUAGE_ID":
-				$strSqlSearch .= "AND TL.LID = '".$DB->ForSql($val)."'\n";
-				$bLang = true;
-				break;
+				case "NAME":
+					$strSqlSearch .= "AND UPPER(TL.NAME) LIKE UPPER('%".$DB->ForSql($val)."%')\n";
+					$bLang = true;
+					break;
+				case "LANGUAGE_ID":
+					$strSqlSearch .= "AND TL.LID = '".$DB->ForSql($val)."'\n";
+					$bLang = true;
+					break;
 			}
 		}
 
 		$strSqlOrder = '';
 		foreach ($arOrder as $by => $order)
 		{
-			$by = strtoupper($by);
+			$by = mb_strtoupper($by);
 			if ($by == "ID")
 				$by = "T.ID";
 			elseif ($by == "NAME")
@@ -109,7 +109,7 @@ class CIBlockType
 			else
 				$by = "T.SORT";
 
-			$order = strtolower($order);
+			$order = mb_strtolower($order);
 			if ($order != "desc")
 				$order = "asc";
 
@@ -362,7 +362,7 @@ class CIBlockType
 
 		if ($ID === false)
 		{
-			if (!isset($arFields["ID"]) || strlen($arFields["ID"]) <= 0)
+			if (!isset($arFields["ID"]) || $arFields["ID"] == '')
 			{
 				$this->LAST_ERROR .= GetMessage("IBLOCK_TYPE_BAD_ID")."<br>";
 			}
@@ -390,7 +390,7 @@ class CIBlockType
 		{
 			foreach ($arFields["LANG"] as $lid => $arFieldsLang)
 			{
-				if (strlen($arFieldsLang["NAME"]) <= 0)
+				if ($arFieldsLang["NAME"] == '')
 				{
 					$this->LAST_ERROR .= GetMessage("IBLOCK_TYPE_BAD_NAME")." ".$lid.".<br>";
 				}
@@ -504,7 +504,7 @@ class CIBlockType
 			$DB->Query("DELETE FROM b_iblock_type_lang WHERE IBLOCK_TYPE_ID='".$DB->ForSQL($ID)."'");
 			foreach ($arLang as $lid => $arFieldsLang)
 			{
-				if (strlen($arFieldsLang["NAME"]) > 0 || strlen($arFieldsLang["ELEMENT_NAME"]) > 0)
+				if ($arFieldsLang["NAME"] <> '' || $arFieldsLang["ELEMENT_NAME"] <> '')
 				{
 					$DB->Query("
 						INSERT INTO b_iblock_type_lang(IBLOCK_TYPE_ID, LID, NAME, SECTION_NAME, ELEMENT_NAME)

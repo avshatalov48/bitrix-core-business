@@ -1,9 +1,9 @@
 <?
 function initialize_params($url)
 {
-	if (strpos($url,"?")>0)
+	if (mb_strpos($url, "?") > 0)
 	{
-		$par = substr($url,strpos($url,"?")+1,strlen($url));
+		$par = mb_substr($url, mb_strpos($url, "?") + 1, mb_strlen($url));
 		$arr = explode("#",$par);
 		$par = $arr[0];
 		$arr1 = explode("&",$par);
@@ -20,12 +20,12 @@ $arImageExts = array("gif", "jpg", "jpeg", "png", "bmp");
 
 $DIR = dirname($_SERVER["REQUEST_URI"]);
 
-$sapi = (stristr(php_sapi_name(), "cgi") !== false? "cgi":"");
+$sapi = (mb_stristr(php_sapi_name(), "cgi") !== false? "cgi":"");
 set_time_limit(0);
 $arr1 = explode("?", $_SERVER["REQUEST_URI"]); 
 $arr2 = explode("#", $arr1[0]);
 $URI = $arr2[0];
-$file = substr($URI, strlen($DIR) + 1);
+$file = mb_substr($URI, mb_strlen($DIR) + 1);
 $file = str_replace("..", "", $file);
 $filename = urldecode($_SERVER["DOCUMENT_ROOT"].$DIR."/files/".$file);
 
@@ -45,7 +45,7 @@ if(file_exists($filename))
 		if ($USER->IsAuthorized())
 		{
 			$FILE_PERM = $APPLICATION->GetFileAccessPermission($DIR."/files/".$file, $USER->GetUserGroupArray());
-			$FILE_PERM = ((strlen($FILE_PERM) > 0) ? $FILE_PERM : "D");
+			$FILE_PERM = (($FILE_PERM <> '') ? $FILE_PERM : "D");
 			if ($FILE_PERM >= "R")
 				if (CSaleAuxiliary::CheckAccess($USER->GetID(), $mp3AuxiliaryPrefix.$file, $mp3AccessTimeLength, $mp3AccessTimeType))
 					$bCanAccess = True;
@@ -83,15 +83,15 @@ if(file_exists($filename))
 			}
 			else
 			{
-				$p = strpos($_SERVER["HTTP_RANGE"], "=");
+				$p = mb_strpos($_SERVER["HTTP_RANGE"], "=");
 				if(intval($p)>0)
 				{
-					$bytes = substr($_SERVER["HTTP_RANGE"], $p+1);
-					$p = strpos($bytes, "-");
+					$bytes = mb_substr($_SERVER["HTTP_RANGE"], $p + 1);
+					$p = mb_strpos($bytes, "-");
 					if($p!==false)
 					{
-						$cur_pos = IntVal(substr($bytes, 0, $p));
-						$size = IntVal(substr($bytes, $p+1));
+						$cur_pos = intval(mb_substr($bytes, 0, $p));
+						$size = intval(mb_substr($bytes, $p + 1));
 						if($size<=0)
 							$size = $filesize - 1;
 						if($cur_pos>$size)
@@ -117,7 +117,7 @@ if(file_exists($filename))
 					if (CModule::IncludeModule("statistic"))
 					{
 						initialize_params($_SERVER["REQUEST_URI"]);
-						if (strlen($event1)<=0 && strlen($event2)<=0)
+						if ($event1 == '' && $event2 == '')
 						{
 							$event1 = "download";
 							$event2 = "private";

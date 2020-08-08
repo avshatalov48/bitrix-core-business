@@ -2,6 +2,9 @@ import getTag from '../internal/get-tag';
 
 const objectCtorString = Function.prototype.toString.call(Object);
 
+/**
+ * @memberOf BX
+ */
 export default class Type
 {
 	/**

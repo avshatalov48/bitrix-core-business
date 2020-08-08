@@ -365,7 +365,7 @@ class CounterCalculation
 	{
 		$query = null;
 		$connection = \Bitrix\Main\Application::getConnection();
-		switch(strtoupper($connection->getType()))
+		switch(mb_strtoupper($connection->getType()))
 		{
 			case 'MSSQL':
 				$query = "SELECT ID FROM b_sender_contact WHERE TYPE_ID=1 AND CODE LIKE '%[A-Z]%' COLLATE Latin1_General_BIN";

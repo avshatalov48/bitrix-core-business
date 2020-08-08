@@ -107,7 +107,7 @@ class Entities
 				{
 					if (!array_key_exists($value, $sonetGroupsList))
 					{
-						$lastSonetGroupsList[] = intval(substr($value, 2));
+						$lastSonetGroupsList[] = intval(mb_substr($value, 2));
 					}
 				}
 				if (!empty($lastSonetGroupsList))

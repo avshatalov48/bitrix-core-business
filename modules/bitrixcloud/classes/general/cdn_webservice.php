@@ -31,7 +31,7 @@ class CBitrixCloudCDNWebService extends CBitrixCloudWebService
 	{
 		$arErrors = /*.(array[int]string).*/ array();
 		$domainTmp = CBXPunycode::ToASCII($this->domain, $arErrors);
-		if (strlen($domainTmp) > 0)
+		if ($domainTmp <> '')
 			$domain = $domainTmp;
 		else
 			$domain = $this->domain;

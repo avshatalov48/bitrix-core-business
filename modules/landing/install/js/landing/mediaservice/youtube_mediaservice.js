@@ -14,9 +14,10 @@
 
 		this.matcher = BX.Landing.Utils.Matchers.youtube;
 		this.embedURL = "//www.youtube.com/embed/$4";
+		this.previewURL = "//img.youtube.com/vi/$4/sddefault.jpg";
 		this.idPlace = 4;
 		this.params = {
-			autoplay: 1,
+			autoplay: 0,
 			controls: 1,
 			loop: 0,
 			mute: 0,

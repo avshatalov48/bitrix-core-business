@@ -12,20 +12,20 @@ class CSearchSuggest
 
 	function CSearchSuggest($strFilterMD5 = "", $phrase = "")
 	{
-		$strFilterMD5 = strtolower($strFilterMD5);
+		$strFilterMD5 = mb_strtolower($strFilterMD5);
 		if (preg_match("/^[0-9a-f]{32}$/", $strFilterMD5))
 			$this->_filter_md5 = $strFilterMD5;
 
 		$phrase = ToLower(trim($phrase, " \t\n\r"));
-		if ($l = strlen($phrase))
+		if ($l = mb_strlen($phrase))
 		{
 			if ($l > 250)
 			{
-				$p = strrpos($phrase, ' ');
+				$p = mb_strrpos($phrase, ' ');
 				if ($p === false)
-					$phrase = substr($phrase, 0, 250);
+					$phrase = mb_substr($phrase, 0, 250);
 				else
-					$phrase = substr($phrase, 0, $p);
+					$phrase = mb_substr($phrase, 0, $p);
 			}
 			$this->_phrase = $phrase;
 		}
@@ -34,7 +34,7 @@ class CSearchSuggest
 	function SetResultCount($result_count)
 	{
 		$DB = CDatabase::GetModuleConnection('search');
-		if (strlen($this->_filter_md5) && strlen($this->_phrase))
+		if (mb_strlen($this->_filter_md5) && mb_strlen($this->_phrase))
 		{
 			$result_count = intval($result_count);
 			$filter_md5 = $DB->ForSQL($this->_filter_md5);
@@ -112,16 +112,18 @@ class CSearchSuggest
 		if (!isset($site_id))
 			$site_id = SITE_ID;
 
-		if (strlen($this->_phrase))
+		if($this->_phrase <> '')
 		{
 			$nTopCount = intval($nTopCount);
-			if ($nTopCount <= 0)
+			if($nTopCount <= 0)
+			{
 				$nTopCount = 10;
+			}
 
 			$phrase = $DB->ForSQL($this->_phrase);
 			$site_id = $DB->ForSQL($site_id);
 
-			if (strlen($this->_filter_md5))
+			if($this->_filter_md5 <> '')
 			{
 				$filter_md5 = $DB->ForSQL($this->_filter_md5, 32);
 				return $DB->Query($DB->TopSql("

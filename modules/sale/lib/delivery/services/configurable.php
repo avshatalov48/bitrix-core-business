@@ -68,15 +68,15 @@ class Configurable extends Base
 	{
 		$result = "";
 
-		if (IntVal($this->config["MAIN"]["PERIOD"]["FROM"]) > 0 || IntVal($this->config["MAIN"]["PERIOD"]["TO"]) > 0)
+		if (intval($this->config["MAIN"]["PERIOD"]["FROM"]) > 0 || intval($this->config["MAIN"]["PERIOD"]["TO"]) > 0)
 		{
 			$result = "";
 
-			if(IntVal($this->config["MAIN"]["PERIOD"]["FROM"]) > 0)
-				$result .= " ".Loc::getMessage("SALE_DLVR_HANDL_CONF_PERIOD_FROM")." ".IntVal($this->config["MAIN"]["PERIOD"]["FROM"]);
+			if(intval($this->config["MAIN"]["PERIOD"]["FROM"]) > 0)
+				$result .= " ".Loc::getMessage("SALE_DLVR_HANDL_CONF_PERIOD_FROM")." ".intval($this->config["MAIN"]["PERIOD"]["FROM"]);
 
-			if(IntVal($this->config["MAIN"]["PERIOD"]["TO"]) > 0)
-				$result .= " ".Loc::getMessage("SALE_DLVR_HANDL_CONF_PERIOD_TO")." ".IntVal($this->config["MAIN"]["PERIOD"]["TO"]);
+			if(intval($this->config["MAIN"]["PERIOD"]["TO"]) > 0)
+				$result .= " ".Loc::getMessage("SALE_DLVR_HANDL_CONF_PERIOD_TO")." ".intval($this->config["MAIN"]["PERIOD"]["TO"]);
 
 			if($this->config["MAIN"]["PERIOD"]["TYPE"] == "MIN")
 				$result .= " ".Loc::getMessage("SALE_DLVR_HANDL_CONF_PERIOD_MIN")." ";

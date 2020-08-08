@@ -14,33 +14,33 @@ if ($bSearchInstalled)
 
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 
-if (strLen($arParams["GROUP_VAR"]) <= 0)
+if ($arParams["GROUP_VAR"] == '')
 	$arParams["GROUP_VAR"] = "group_id";
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if (strLen($arParams["USER_VAR"]) <= 0)
+if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
 
 $arParams["PATH_TO_GROUP"] = trim($arParams["PATH_TO_GROUP"]);
-if (strlen($arParams["PATH_TO_GROUP"]) <= 0)
+if ($arParams["PATH_TO_GROUP"] == '')
 	$arParams["PATH_TO_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_SEARCH"] = trim($arParams["PATH_TO_GROUP_SEARCH"]);
-if (strlen($arParams["PATH_TO_GROUP_SEARCH"]) <= 0)
+if ($arParams["PATH_TO_GROUP_SEARCH"] == '')
 	$arParams["PATH_TO_GROUP_SEARCH"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_search");
 
 $arParams["PATH_TO_GROUP_CREATE"] = trim($arParams["PATH_TO_GROUP_CREATE"]);
-if (strlen($arParams["PATH_TO_GROUP_CREATE"]) <= 0)
+if ($arParams["PATH_TO_GROUP_CREATE"] == '')
 	$arParams["PATH_TO_GROUP_CREATE"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_create&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["ITEMS_COUNT"] = IntVal($arParams["ITEMS_COUNT"]);
+$arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
 if ($arParams["ITEMS_COUNT"] <= 0)
 	$arParams["ITEMS_COUNT"] = 20;
 
 $arParams["DATE_TIME_FORMAT"] = Trim($arParams["DATE_TIME_FORMAT"]);
-$arParams["DATE_TIME_FORMAT"] = ((StrLen($arParams["DATE_TIME_FORMAT"]) <= 0) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
+$arParams["DATE_TIME_FORMAT"] = (($arParams["DATE_TIME_FORMAT"] == '') ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 
-$arParams["SUBJECT_ID"] = IntVal($arParams["SUBJECT_ID"]);
+$arParams["SUBJECT_ID"] = intval($arParams["SUBJECT_ID"]);
 
 $arResult["~q"] = trim($_REQUEST["q"]);
 $arResult["~tags"] = trim($_REQUEST["tags"]);
@@ -69,7 +69,7 @@ if ($GLOBALS["USER"]->IsAuthorized())
 
 $arResult["SEARCH_RESULT"] = Array();
 
-if ($bSearchInstalled && (strlen($arResult["~q"]) > 0 || strlen($arResult["~tags"]) > 0))
+if ($bSearchInstalled && ($arResult["~q"] <> '' || $arResult["~tags"] <> ''))
 {
 	$arFilter = array(
 		"SITE_ID" => SITE_ID,
@@ -81,7 +81,7 @@ if ($bSearchInstalled && (strlen($arResult["~q"]) > 0 || strlen($arResult["~tags
 		"CHECK_DATES" => "Y",
 		"TAGS" => $arResult["~tags"],
 	);
-	if (strlen($arResult["~subject"]) > 0)
+	if ($arResult["~subject"] <> '')
 		$arFilter["PARAM1"] = $arResult["~subject"];
 	if ($arResult["~how"] == "d")
 		$aSort = array("DATE_CHANGE" => "DESC", "CUSTOM_RANK" => "DESC", "RANK" => "DESC");
@@ -120,7 +120,7 @@ if ($bSearchInstalled && (strlen($arResult["~q"]) > 0 || strlen($arResult["~tags
 
 		if (count($arResult["SEARCH_RESULT"]) > 0)
 		{
-			if (strlen($arResult["~tags"]) > 0)
+			if ($arResult["~tags"] <> '')
 				$arResult["ORDER_LINK"] = $APPLICATION->GetCurPageParam("tags=".$arResult["tags"], Array("tags", "how"));
 			else
 				$arResult["ORDER_LINK"] = $APPLICATION->GetCurPageParam("q=".$arResult["q"], Array("q", "how"));
@@ -165,7 +165,7 @@ else
 	else
 		$arFilterTmp["CLOSED"] = "N";
 
-	if (strlen($arResult["~q"]) > 0)
+	if ($arResult["~q"] <> '')
 		$arFilterTmp["~NAME"] = "%".$arResult["~q"]."%";
 
 	$dbGroups = CSocNetGroup::GetList(

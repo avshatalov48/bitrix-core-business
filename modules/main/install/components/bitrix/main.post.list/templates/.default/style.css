@@ -874,3 +874,34 @@ div.feed-com-avatar-Y { background: none; }
 	padding-top: 20px;
 }
 /*=========================== end tasks patches ======================*/
+
+/*=========================== disk patches =======================*/
+div[bx-mpl-block="edit-placeholder"] .feed-add-post-files-activity {
+	display: none;
+}
+/*=========================== disk patches =======================*/
+
+/*=========================== aux comment =======================*/
+.feed-com-block.mpl-comment-aux .feed-com-main-content {
+	border: 1px solid #dddfe1;
+	background-color: #fff;
+	color: #7f8690;
+}
+
+.feed-com-block.mpl-comment-aux .feed-time.feed-com-time {
+	color: #a8aeb5;
+}
+
+.feed-com-block.mpl-comment-aux .feed-com-text {
+	color: #757d87;
+}
+
+.feed-com-block.mpl-comment-aux .feed-com-name.feed-author-name,
+.feed-com-block.mpl-comment-aux .feed-time.feed-com-time:hover {
+	color: #525c69;
+}
+
+.feed-com-block.mpl-comment-aux .feed-com-avatar {
+	display: none;
+}
+/*=========================== aux comment =======================*/

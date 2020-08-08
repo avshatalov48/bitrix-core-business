@@ -514,6 +514,21 @@ BXBlockEditorEditDialogColumn.prototype =
 		this.switchDefaultColumn(container);
 	},
 
+	hideAllColumns: function(container)
+	{
+		var columnList = this.getColumnList(container);
+		for(var i in columnList)
+		{
+			if (!columnList.hasOwnProperty(i))
+			{
+				continue;
+			}
+
+			var column = columnList[i];
+			column.style.display = 'none';
+		}
+	},
+
 	switchDefaultColumn: function(container)
 	{
 		var columnNumList = this.getColumnList(container);
@@ -525,6 +540,7 @@ BXBlockEditorEditDialogColumn.prototype =
 
 	onLoadSetting: function(eventParams)
 	{
+		this.hideAllColumns(eventParams.container.container);
 		this.switchDefaultColumn(eventParams.container.container);
 	},
 

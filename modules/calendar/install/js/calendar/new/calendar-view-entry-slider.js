@@ -25,7 +25,8 @@
 					}.bind(this),
 					onClose: BX.proxy(this.hide, this),
 					onCloseComplete: BX.proxy(this.destroy, this)
-				}
+				},
+				printable: true
 			});
 
 			this.calendar.disableKeyHandler();
@@ -200,6 +201,7 @@
 		{
 			this.plannerId = this.id + '_view_slider_planner';
 			this.DOM.plannerWrap = BX(this.id + '_view_planner_wrap');
+
 			setTimeout(BX.delegate(function()
 			{
 				if (this.DOM.plannerWrap)

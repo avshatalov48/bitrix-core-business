@@ -10,7 +10,7 @@ return [
 	'logo' => [
 		'name' => Loc::getMessage("LANDING_BLOCK_MENU_4-PRESET-LOGO"),
 		'html' => '
-			<li class="landing-block-node-menu-list-item landing-block-node-menu-list-logo g-hidden-lg-down nav-logo-item g-mx-15--lg" data-card-preset="logo">
+			<li class="landing-block-node-menu-list-item landing-block-node-menu-list-logo d-none d-lg-block nav-logo-item g-mx-15--lg" data-card-preset="logo">
 							<a href="#" class="landing-block-node-menu-logo-link navbar-brand mr-0">
 								<img class="landing-block-node-menu-logo d-block g-max-width-180"
 									 src="https://cdn.bitrix24.site/bitrix/images/landing/logos/architecture-logo-light.png"

@@ -43,7 +43,7 @@
 	array("HIDE_ICONS" => "Y")
 );
 ?>
-<?if (strtolower($arResult["VARIABLES"]["ACTION"]) == "clone"):?>
+<?if (mb_strtolower($arResult["VARIABLES"]["ACTION"]) == "clone"):?>
 <script>
 if (/*@cc_on ! @*/ false && new ActiveXObject("SharePoint.OpenDocuments.2"))
 {

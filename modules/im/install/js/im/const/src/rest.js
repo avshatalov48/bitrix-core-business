@@ -4,10 +4,10 @@
  *
  * @package bitrix
  * @subpackage im
- * @copyright 2001-2019 Bitrix
+ * @copyright 2001-2020 Bitrix
  */
 
-const RestMethod = Object.freeze({
+export const RestMethod = Object.freeze({
 
 	imMessageAdd: 'im.message.add',
 	imMessageUpdate: 'im.message.update',
@@ -36,9 +36,12 @@ const RestMethod = Object.freeze({
 
 	mobileBrowserConstGet: 'mobile.browser.const.get',
 
+	imRecentGet: 'im.recent.get',
+	imRecentList: 'im.recent.list'
+
 });
 
-const RestMethodHandler = Object.freeze({
+export const RestMethodHandler = Object.freeze({
 	imChatGet: 'im.chat.get',
 
 	imMessageAdd: 'im.message.add',
@@ -56,9 +59,7 @@ const RestMethodHandler = Object.freeze({
 	imUserListGet: 'im.user.list.get',
 
 	mobileBrowserConstGet: 'mobile.browser.const.get',
-});
 
-export {
-	RestMethod,
-	RestMethodHandler,
-};
+	imRecentGet: 'im.recent.get',
+	imRecentList: 'im.recent.list'
+});

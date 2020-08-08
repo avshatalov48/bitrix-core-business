@@ -89,6 +89,7 @@ $MESS["SONET_GCE_T_DEST_EXTRANET_ADD_EMAIL_TITLE"] = "Email";
 $MESS["SONET_GCE_T_DEST_EXTRANET_ADD_NAME_TITLE"] = "Имя";
 $MESS["SONET_GCE_T_DEST_EXTRANET_ADD_LAST_NAME_TITLE"] = "Фамилия";
 $MESS["SONET_GCE_T_DEST_EXTRANET_ADD_SEND_PASSWORD_TITLE"] = "Отправить данные для входа на указанный e-mail";
+$MESS["SONET_GCE_T_DEST_EXTRANET_ADD_WO_CONFIRMATION_TITLE"] = "Без подтверждения";
 $MESS["SONET_GCE_T_EMAILS_DESCR"] = "Введите адреса через запятую";
 $MESS["SONET_GCE_T_AJAX_ERROR"] = "Произошла ошибка при обработке данных формы. Пожалуйста, попробуйте еще раз.";
 $MESS["SONET_GCE_T_BUTTON_TITLE_FURTHER"] = "дальше";

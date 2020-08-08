@@ -148,12 +148,12 @@ class SaleBasketLineComponent extends CBitrixComponent
 	{
 		if ($this->arParams['HIDE_ON_BASKET_PAGES'] == 'Y')
 		{
-			$currentPage = strtolower(\Bitrix\Main\Context::getCurrent()->getRequest()->getRequestedPage());
-			$basketPage = strtolower($this->arParams['PATH_TO_BASKET']);
-			$orderPage = strtolower($this->arParams['PATH_TO_ORDER']);
+			$currentPage = mb_strtolower(\Bitrix\Main\Context::getCurrent()->getRequest()->getRequestedPage());
+			$basketPage = mb_strtolower($this->arParams['PATH_TO_BASKET']);
+			$orderPage = mb_strtolower($this->arParams['PATH_TO_ORDER']);
 			if (
-				strncmp($currentPage, $basketPage, strlen($basketPage)) == 0
-				|| strncmp($currentPage, $orderPage, strlen($orderPage)) == 0
+				strncmp($currentPage, $basketPage, mb_strlen($basketPage)) == 0
+				|| strncmp($currentPage, $orderPage, mb_strlen($orderPage)) == 0
 			)
 				$this->disableUseBasket = true;
 		}
@@ -458,7 +458,7 @@ class SaleBasketLineComponent extends CBitrixComponent
 			{
 				foreach ($arProductData[$arItem["PRODUCT_ID"]] as $key => $value)
 				{
-					if (strpos($key, "PROPERTY_") !== false || in_array($key, $arImgFields))
+					if (mb_strpos($key, "PROPERTY_") !== false || in_array($key, $arImgFields))
 						$arItem[$key] = $value;
 				}
 			}
@@ -470,7 +470,7 @@ class SaleBasketLineComponent extends CBitrixComponent
 					$fieldVal = (in_array($field, $arImgFields)) ? $field : $field."_VALUE";
 					$parentId = $arSku2Parent[$arItem["PRODUCT_ID"]];
 
-					if ((!isset($arItem[$fieldVal]) || (isset($arItem[$fieldVal]) && strlen($arItem[$fieldVal]) == 0))
+					if ((!isset($arItem[$fieldVal]) || (isset($arItem[$fieldVal]) && $arItem[$fieldVal] == ''))
 						&& (isset($arProductData[$parentId][$fieldVal]) && !empty($arProductData[$parentId][$fieldVal]))) // can be array or string
 					{
 						$arItem[$fieldVal] = $arProductData[$parentId][$fieldVal];
@@ -707,13 +707,13 @@ if (!function_exists('BasketNumberWordEndings'))
 
 		if ($lang=="ru")
 		{
-			if (strlen($num)>1 && substr($num, strlen($num)-2, 1)=="1")
+			if (mb_strlen($num) > 1 && mb_substr($num, mb_strlen($num) - 2, 1) == "1")
 			{
 				return $arEnds[0];
 			}
 			else
 			{
-				$c = IntVal(substr($num, strlen($num)-1, 1));
+				$c = intval(mb_substr($num, mb_strlen($num) - 1, 1));
 				if ($c==0 || ($c>=5 && $c<=9))
 					return $arEnds[1];
 				elseif ($c==1)
@@ -724,7 +724,7 @@ if (!function_exists('BasketNumberWordEndings'))
 		}
 		elseif ($lang=="en")
 		{
-			if (IntVal($num)>1)
+			if (intval($num)>1)
 			{
 				return "s";
 			}

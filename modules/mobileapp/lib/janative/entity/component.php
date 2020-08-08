@@ -23,7 +23,7 @@ class Component extends Base
 	public function __construct($path = null)
 	{
 		\Bitrix\MobileApp\Mobile::Init();
-		if (strpos($path, Application::getDocumentRoot()) === 0)
+		if (mb_strpos($path, Application::getDocumentRoot()) === 0)
 		{
 			$this->path = $path;
 		}
@@ -32,7 +32,7 @@ class Component extends Base
 			$this->path = Application::getDocumentRoot() . $path;
 		}
 
-		if (substr($this->path, -1) != "/") //compatibility fix
+		if (mb_substr($this->path, -1) != "/") //compatibility fix
 		{
 			$this->path .= "/";
 		}

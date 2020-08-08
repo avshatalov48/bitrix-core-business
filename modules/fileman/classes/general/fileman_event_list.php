@@ -59,7 +59,7 @@ class CEventFileman
 		}
 		else
 		{						
-			if ((is_file($DOC_ROOT."/".$DESCRIPTION['path']) || is_dir($DOC_ROOT."/".$DESCRIPTION['path'])) && !strrpos($DESCRIPTION['path'], " "))
+			if ((is_file($DOC_ROOT."/".$DESCRIPTION['path']) || is_dir($DOC_ROOT."/".$DESCRIPTION['path'])) && !mb_strrpos($DESCRIPTION['path'], " "))
 				$fileURL = SITE_DIR.$DESCRIPTION['path'];
 		}
 		

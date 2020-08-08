@@ -155,6 +155,7 @@ $renderField = function($htmlFormId, $field, $isExt = false, $version)
 									'enableDepartments' => 'N',
 									'enableUsers' => (!isset($field['selector']['enableUsers']) || $field['selector']['enableUsers'] ? 'Y' : 'N'),
 									'enableEmailUsers' => (isset($field['selector']['enableUsers']) && $field['selector']['enableUsers'] ? 'Y' : 'N'),
+									'allowSearchEmailUsers' => (isset($field['selector']['enableUsers']) && $field['selector']['enableUsers'] ? 'Y' : 'N'),
 									'enableMailContacts' => 'Y',
 									'addMailContactsTab' => 'Y',
 									'allowAddMailContact' => 'Y',

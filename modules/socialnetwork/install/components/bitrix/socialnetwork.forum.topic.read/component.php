@@ -5,7 +5,7 @@ if (!CModule::IncludeModule("forum")):
 elseif (!CModule::IncludeModule("socialnetwork")):
 	ShowError(GetMessage("SONET_MODULE_NOT_INSTALL"));
 	return false;
-elseif (intVal($arParams["FID"]) <= 0):
+elseif (intval($arParams["FID"]) <= 0):
 	ShowError(GetMessage("F_FID_IS_EMPTY"));
 	return false;
 endif;
@@ -13,18 +13,18 @@ endif;
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-$GLOBALS["FID"] = $arParams["FID"] = intVal($arParams["FID"]);
-$arParams["TID"] = intVal((intVal($arParams["TID"]) <= 0 ? $_REQUEST["TID"] : $arParams["TID"]));
-$arParams["MID_UNREAD"] = (strLen(trim($arParams["MID"])) <= 0 ? $_REQUEST["MID"] : $arParams["MID"]);
-$arParams["MID"] = (is_array($arParams["MID"]) ? 0 : intVal($arParams["MID"]));
-if (strtolower($arParams["MID_UNREAD"]) == "unread_mid")
-	$arParams["MID"] = intVal(ForumGetFirstUnreadMessage($arParams["FID"], $arParams["TID"]));
+$GLOBALS["FID"] = $arParams["FID"] = intval($arParams["FID"]);
+$arParams["TID"] = intval((intval($arParams["TID"]) <= 0 ? $_REQUEST["TID"] : $arParams["TID"]));
+$arParams["MID_UNREAD"] = (trim($arParams["MID"]) == '' ? $_REQUEST["MID"] : $arParams["MID"]);
+$arParams["MID"] = (is_array($arParams["MID"]) ? 0 : intval($arParams["MID"]));
+if (mb_strtolower($arParams["MID_UNREAD"]) == "unread_mid")
+	$arParams["MID"] = intval(ForumGetFirstUnreadMessage($arParams["FID"], $arParams["TID"]));
 $arParams['AJAX_POST'] = ($arParams["AJAX_POST"] == "Y" ? "Y" : "N");
 $arParams["ACTION"] = (!empty($arParams["ACTION"]) ? $arParams["ACTION"] : $_REQUEST["ACTION"]);
 $arParams["ACTION"] = (!empty($arParams["ACTION"]) ? $arParams["ACTION"] : ($_POST["MESSAGE_TYPE"]=="REPLY" ? "REPLY" : false));
-$arParams["SOCNET_GROUP_ID"] = intVal($arParams["SOCNET_GROUP_ID"]);
+$arParams["SOCNET_GROUP_ID"] = intval($arParams["SOCNET_GROUP_ID"]);
 $arParams["MODE"] = ($arParams["SOCNET_GROUP_ID"] > 0 ? "GROUP" : "USER");
-$arParams["USER_ID"] = intVal(intVal($arParams["USER_ID"]) > 0 ? $arParams["USER_ID"] : $USER->GetID());
+$arParams["USER_ID"] = intval(intval($arParams["USER_ID"]) > 0 ? $arParams["USER_ID"] : $USER->GetID());
 /***************** URL *********************************************/
 $URL_NAME_DEFAULT = array(
 	"topic_list" => "PAGE_NAME=topic_list",
@@ -34,31 +34,31 @@ $URL_NAME_DEFAULT = array(
 	"profile_view" => "PAGE_NAME=profile_view&UID=#UID#");
 foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 {
-	if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPageParam($URL_VALUE,
+	if (trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPageParam($URL_VALUE,
 			array("PAGE_NAME", "FID", "TID", "UID", "GID", "MID", "ACTION", "sessid", "SEF_APPLICATION_CUR_PAGE_URL",
 				"AJAX_TYPE", "AJAX_CALL", BX_AJAX_PARAM_ID, "result", "order"));
-	$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-	$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+	$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
+	$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 }
 /***************** ADDITIONAL **************************************/
-$arParams["PAGEN"] = (intVal($arParams["PAGEN"]) <= 0 ? 1 : intVal($arParams["PAGEN"]));
+$arParams["PAGEN"] = (intval($arParams["PAGEN"]) <= 0 ? 1 : intval($arParams["PAGEN"]));
 $arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
-$arParams["PAGE_NAVIGATION_WINDOW"] = intVal(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
+$arParams["PAGE_NAVIGATION_WINDOW"] = intval(intval($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
 $arParams["PAGE_NAVIGATION_SHOW_ALL"] = ($arParams["PAGE_NAVIGATION_SHOW_ALL"] == "Y" ? "Y" : "N");
 
 $arParams["USER_FIELDS"] = (is_array($arParams["USER_FIELDS"]) ? $arParams["USER_FIELDS"] : ($arParams["USER_FIELDS"] ? array($arParams["USER_FIELDS"]) : array()));
 if (!in_array("UF_FORUM_MESSAGE_DOC", $arParams["USER_FIELDS"]))
 	$arParams["USER_FIELDS"][] = "UF_FORUM_MESSAGE_DOC";
 
-$arParams["MESSAGES_PER_PAGE"] = intVal(empty($arParams["MESSAGES_PER_PAGE"]) ?
+$arParams["MESSAGES_PER_PAGE"] = intval(empty($arParams["MESSAGES_PER_PAGE"]) ?
 	COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10") : $arParams["MESSAGES_PER_PAGE"]);
 
 $arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]);
 $arParams["PATH_TO_ICON"] = trim($arParams["PATH_TO_ICON"]);
 
-$arParams["WORD_LENGTH"] = intVal($arParams["WORD_LENGTH"]);
-$arParams["IMAGE_SIZE"] = (intVal($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 500);
+$arParams["WORD_LENGTH"] = intval($arParams["WORD_LENGTH"]);
+$arParams["IMAGE_SIZE"] = (intval($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 500);
 
 // Data and data-time format
 $arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
@@ -187,9 +187,9 @@ elseif ($arParams["MODE"] == "USER")
 
 	$arResult["CURRENT_PAGE"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_TOPIC"],
 		array("UID" => $arParams["USER_ID"], "TID" => $arParams["TID"], "GID" => $arParams["SOCNET_GROUP_ID"], "FID" => $arParams["FID"]));
-	if ((intVal($_REQUEST["PAGEN_".$arParams["PAGEN"]]) > 1) && (intVal($arParams["MID"]) <= 0)):
+	if ((intval($_REQUEST["PAGEN_".$arParams["PAGEN"]]) > 1) && (intval($arParams["MID"]) <= 0)):
 		$arResult["CURRENT_PAGE"] = ForumAddPageParams($arResult["CURRENT_PAGE"],
-			array("PAGEN_".$arParams["PAGEN"] => intVal($_REQUEST["PAGEN_".$arParams["PAGEN"]])));
+			array("PAGEN_".$arParams["PAGEN"] => intval($_REQUEST["PAGEN_".$arParams["PAGEN"]])));
 	endif;
 /************** Message ********************************************/
 	if ($arParams["MID"] > 0):
@@ -333,15 +333,15 @@ $_REQUEST["FILES_TO_UPLOAD"] = is_array($_REQUEST["FILES_TO_UPLOAD"]) ? $_REQUES
 
 if (is_set($_REQUEST, "result"))
 {
-	switch (strToLower($_REQUEST["result"]))
+	switch(mb_strtolower($_REQUEST["result"]))
 	{
 		case "message_add":
 		case "mid_add":
 		case "reply":
-				$arNote[] = array(
-					"id" => "message_add",
-					"text" => GetMessage("F_MESS_SUCCESS_ADD"));
-		break;
+			$arNote[] = array(
+				"id" => "message_add",
+				"text" => GetMessage("F_MESS_SUCCESS_ADD"));
+			break;
 	}
 	unset($_GET["result"]);
 	DeleteParam(array("result"));
@@ -419,7 +419,7 @@ $db_res = CForumMessage::GetListEx(array("ID" => "ASC"), $arFilter, false, false
 $db_res->NavStart($arParams["MESSAGES_PER_PAGE"], false, ($iNumPage > 0 ? $iNumPage : false));
 $arResult["NAV_RESULT"] = $db_res;
 $arResult["NAV_STRING"] = $db_res->GetPageNavStringEx($navComponentObject, GetMessage("F_TITLE_NAV"), $arParams["PAGE_NAVIGATION_TEMPLATE"]);
-$number = intVal($db_res->NavPageNomer - 1) * $arParams["MESSAGES_PER_PAGE"] + 1;
+$number = intval($db_res->NavPageNomer - 1) * $arParams["MESSAGES_PER_PAGE"] + 1;
 $arResult['PAGE_NUMBER'] = $db_res->NavPageNomer;
 $UserInfo = array();
 $bNeedFirstMessage = ($db_res->NavPageNomer > 1 && $arParams["SHOW_VOTE"] == "Y");
@@ -457,7 +457,7 @@ while ($bNeedLoop)
 
 /************** Message info/***************************************/
 /************** Author info ****************************************/
-	$res["AUTHOR_ID"] = intVal($res["AUTHOR_ID"]);
+	$res["AUTHOR_ID"] = intval($res["AUTHOR_ID"]);
 	$res["AUTHOR_NAME"] = $parser->wrap_long_words($res["AUTHOR_NAME"]);
 	if ($res["AUTHOR_ID"] <= 0)
 	{
@@ -518,7 +518,7 @@ while ($bNeedLoop)
 		"DELETE" => $arResult["PANELS"]["DELETE"],
 		"SUPPORT" => $arResult["PANELS"]["SUPPORT"] == "Y" && $res["AUTHOR_ID"] > 0 ? "Y" : "N",
 		"EDIT" => $arResult["PANELS"]["EDIT"],
-		"STATISTIC" => $arResult["PANELS"]["STATISTIC"] == "Y" && intVal($res["GUEST_ID"]) > 0 ? "Y" : "N",
+		"STATISTIC" => $arResult["PANELS"]["STATISTIC"] == "Y" && intval($res["GUEST_ID"]) > 0 ? "Y" : "N",
 		"MAIN" => $arResult["PANELS"]["MAIN"] == "Y" && $res["AUTHOR_ID"] > 0 ? "Y" : "N",
 		"MAIL" => $arResult["PANELS"]["MAIL"],
 		"VOTES" => $res["VOTING"] != "N" ? "Y" : "N");
@@ -527,7 +527,7 @@ while ($bNeedLoop)
 
 	if ($arResult["USER"]["RIGHTS"]["ADD_MESSAGE"] == "Y" && $res["PANELS"]["EDIT"] != "Y" &&
 		$USER->IsAuthorized() && $res["AUTHOR_ID"] == $USER->GetId() &&
-		(COption::GetOptionString("forum", "USER_EDIT_OWN_POST", "N") == "Y" || $arResult["TOPIC"]["iLAST_TOPIC_MESSAGE"] == intVal($res["ID"])))
+		(COption::GetOptionString("forum", "USER_EDIT_OWN_POST", "N") == "Y" || $arResult["TOPIC"]["iLAST_TOPIC_MESSAGE"] == intval($res["ID"])))
 	{
 		$res["PANELS"]["EDIT"] = "Y";
 	}
@@ -567,7 +567,7 @@ while ($bNeedLoop)
 	$res["URL"]["MESSAGE_SUPPORT"] = ForumAddPageParams($res["URL"]["~MESSAGE"],
 		array("MID" => $res["ID"], "ACTION" => "support", "MESSAGE_TYPE" => "EDIT", "sessid" => bitrix_sessid()));
 	$res["URL"]["AUTHOR_VOTE"] = ForumAddPageParams($res["URL"]["MESSAGE"],
-			array("UID" => $res["AUTHOR_ID"], "MID" => $res["ID"], "VOTES" => intVal($arResult["USER"]["RANK"]["VOTES"]),
+			array("UID" => $res["AUTHOR_ID"], "MID" => $res["ID"], "VOTES" => intval($arResult["USER"]["RANK"]["VOTES"]),
 				"VOTES_TYPE" => ($res["VOTING"] == "VOTE" ? "V" : "U"), "ACTION" => "VOTE4USER"))/*."&amp;".bitrix_sessid_get()*/;
 	$res["URL"]["MESSAGE_SPAM"] = ForumAddPageParams($res["URL"]["~MESSAGE"],
 		array("MID" => $res["ID"], "ACTION" => "spam", "MESSAGE_TYPE" => "EDIT"/*, "sessid" => bitrix_sessid()*/));
@@ -587,8 +587,8 @@ if (!empty($arResult["MESSAGE_LIST"]))
 	$res = array_keys($arResult["MESSAGE_LIST"]);
 	$arFilterProps = $arFilter;
 	if ($res[0] > 1)
-		$arFilterProps[">ID"] = $arFilter[">MESSAGE_ID"] = intVal($res[0]) - 1;
-	$arFilterProps["<ID"] = $arFilter["<MESSAGE_ID"] = intVal($res[count($res) - 1]) + 1;
+		$arFilterProps[">ID"] = $arFilter[">MESSAGE_ID"] = intval($res[0]) - 1;
+	$arFilterProps["<ID"] = $arFilter["<MESSAGE_ID"] = intval($res[count($res) - 1]) + 1;
 
 	$db_files = CForumFiles::GetList(array("MESSAGE_ID" => "ASC"), $arFilter);
 	$bNeedLoop = $bBreakLoop = false;

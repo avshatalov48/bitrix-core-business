@@ -11,7 +11,7 @@ class CAllPullWatch
 		global $DB, $CACHE_MANAGER;
 
 		$userId = intval($userId);
-		if ($userId == 0 || strlen($tag) <= 0)
+		if ($userId == 0 || $tag == '')
 			return false;
 
 		$arResult = $CACHE_MANAGER->Read(3600, $cache_id="b_pw_".$userId, "b_pull_watch");
@@ -95,8 +95,7 @@ class CAllPullWatch
 			");
 		}
 
-		$dbType = strtolower($DB->type);
-		if ($dbType == "mysql")
+		if ($DB->type == "MYSQL")
 		{
 			if (!empty(self::$arInsert))
 			{
@@ -107,15 +106,15 @@ class CAllPullWatch
 				foreach(self::$arInsert as $tag)
 				{
 					$strSqlValues .= ",\n(".intval($userId).", '".$DB->ForSql($arChannel['CHANNEL_ID'])."', '".$DB->ForSql($tag)."', ".$DB->CurrentTimeFunction().")";
-					if(strlen($strSqlValues) > $maxValuesLen)
+					if(mb_strlen($strSqlValues) > $maxValuesLen)
 					{
-						$DB->Query($strSqlPrefix.substr($strSqlValues, 2));
+						$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 2));
 						$strSqlValues = "";
 					}
 				}
-				if(strlen($strSqlValues) > 0)
+				if($strSqlValues <> '')
 				{
-					$DB->Query($strSqlPrefix.substr($strSqlValues, 2));
+					$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 2));
 				}
 			}
 		}
@@ -167,7 +166,7 @@ class CAllPullWatch
 		{
 			$isMulti = false;
 			$searchTag = trim($tags);
-			if (strlen($searchTag) <= 0)
+			if ($searchTag == '')
 			{
 				return false;
 			}

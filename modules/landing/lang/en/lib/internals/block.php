@@ -2,6 +2,7 @@
 $MESS["LANDING_TABLE_FIELD_ACCESS"] = "Block access permissions";
 $MESS["LANDING_TABLE_FIELD_ACTIVE"] = "Active";
 $MESS["LANDING_TABLE_FIELD_ANCHOR"] = "Anchor";
+$MESS["LANDING_TABLE_FIELD_ASSETS"] = "Additional block resources";
 $MESS["LANDING_TABLE_FIELD_CODE"] = "ID";
 $MESS["LANDING_TABLE_FIELD_CONTENT"] = "Block contents";
 $MESS["LANDING_TABLE_FIELD_CREATED_BY_ID"] = "Created by user ID";

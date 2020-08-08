@@ -1,106 +1,133 @@
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
-(function (exports,main_core_events,main_popup,main_core) {
+(function (exports,main_core_events,main_popup,main_core,ui_userfield) {
 	'use strict';
 
-	var MAX_FIELD_LENGTH = 20;
+	var MAX_FIELD_LENGTH = 50;
 	/**
 	 * @memberof BX.UI.UserFieldFactory
 	 */
 
-	var FieldTypes = Object.freeze({
-	  string: 'string',
-	  enumeration: 'enumeration',
-	  date: 'date',
-	  datetime: 'datetime',
-	  address: 'address',
-	  url: 'url',
-	  file: 'file',
-	  money: 'money',
-	  boolean: 'boolean',
-	  double: 'double',
-	  employee: 'employee',
-	  crm: 'crm',
-	  crmStatus: 'crm_status'
-	});
-	var FieldDescriptions = Object.freeze({
-	  string: {
-	    title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_STRING_TITLE"),
-	    description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_STRING_LEGEND"),
-	    defaultTitle: main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_STRING_LABEL')
-	  },
-	  enumeration: {
-	    title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_ENUM_TITLE"),
-	    description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_ENUM_LEGEND"),
-	    defaultTitle: main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_ENUMERATION_LABEL')
-	  },
-	  datetime: {
-	    title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_DATETIME_TITLE"),
-	    description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_DATETIME_LEGEND"),
-	    defaultTitle: main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_DATETIME_LABEL')
-	  },
-	  address: {
-	    title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_ADDRESS_TITLE"),
-	    description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_ADDRESS_LEGEND")
-	  },
-	  url: {
-	    title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_URL_TITLE"),
-	    description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_URL_LEGEND")
-	  },
-	  file: {
-	    title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_FILE_TITLE"),
-	    description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_FILE_LEGEND"),
-	    defaultTitle: main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_FILE_LABEL')
-	  },
-	  money: {
-	    title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_MONEY_TITLE"),
-	    description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_MONEY_LEGEND"),
-	    defaultTitle: main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_MONEY_LABEL')
-	  },
-	  boolean: {
-	    title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_BOOLEAN_TITLE"),
-	    description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_BOOLEAN_LEGEND")
-	  },
-	  double: {
-	    title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_DOUBLE_TITLE"),
-	    description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_DOUBLE_LEGEND"),
-	    defaultTitle: main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_DOUBLE_LABEL')
-	  },
-	  employee: {
-	    title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_EMPLOYEE_TITLE"),
-	    description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_EMPLOYEE_LEGEND")
+	var FieldTypes =
+	/*#__PURE__*/
+	function () {
+	  function FieldTypes() {
+	    babelHelpers.classCallCheck(this, FieldTypes);
 	  }
-	});
+
+	  babelHelpers.createClass(FieldTypes, null, [{
+	    key: "getTypes",
+	    value: function getTypes() {
+	      return Object.freeze({
+	        string: 'string',
+	        enumeration: 'enumeration',
+	        date: 'date',
+	        datetime: 'datetime',
+	        address: 'address',
+	        url: 'url',
+	        file: 'file',
+	        money: 'money',
+	        boolean: 'boolean',
+	        double: 'double',
+	        employee: 'employee',
+	        crm: 'crm',
+	        crmStatus: 'crm_status'
+	      });
+	    }
+	  }, {
+	    key: "getDescriptions",
+	    value: function getDescriptions() {
+	      return Object.freeze({
+	        string: {
+	          title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_STRING_TITLE"),
+	          description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_STRING_LEGEND"),
+	          defaultTitle: main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_STRING_LABEL')
+	        },
+	        enumeration: {
+	          title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_ENUM_TITLE"),
+	          description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_ENUM_LEGEND"),
+	          defaultTitle: main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_ENUMERATION_LABEL')
+	        },
+	        datetime: {
+	          title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_DATETIME_TITLE"),
+	          description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_DATETIME_LEGEND"),
+	          defaultTitle: main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_DATETIME_LABEL')
+	        },
+	        address: {
+	          title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_ADDRESS_TITLE"),
+	          description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_ADDRESS_LEGEND")
+	        },
+	        url: {
+	          title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_URL_TITLE"),
+	          description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_URL_LEGEND")
+	        },
+	        file: {
+	          title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_FILE_TITLE"),
+	          description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_FILE_LEGEND"),
+	          defaultTitle: main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_FILE_LABEL')
+	        },
+	        money: {
+	          title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_MONEY_TITLE"),
+	          description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_MONEY_LEGEND"),
+	          defaultTitle: main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_MONEY_LABEL')
+	        },
+	        boolean: {
+	          title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_BOOLEAN_TITLE"),
+	          description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_BOOLEAN_LEGEND")
+	        },
+	        double: {
+	          title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_DOUBLE_TITLE"),
+	          description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_DOUBLE_LEGEND"),
+	          defaultTitle: main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_DOUBLE_LABEL')
+	        },
+	        employee: {
+	          title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_EMPLOYEE_TITLE"),
+	          description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_EMPLOYEE_LEGEND")
+	        }
+	      });
+	    }
+	  }, {
+	    key: "getCustomTypeDescription",
+	    value: function getCustomTypeDescription() {
+	      return Object.freeze({
+	        name: 'custom',
+	        title: main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_CUSTOM_TITLE'),
+	        description: main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_CUSTOM_LEGEND')
+	      });
+	    }
+	  }]);
+	  return FieldTypes;
+	}();
 	var DefaultData = Object.freeze({
-	  MULTIPLE: 'N',
-	  MANDATORY: 'N',
-	  USER_TYPE_ID: FieldTypes.string,
-	  SHOW_FILTER: 'E',
-	  SHOW_IN_LIST: 'Y',
-	  SETTINGS: {},
-	  IS_SEARCHABLE: 'N'
+	  multiple: 'N',
+	  mandatory: 'N',
+	  userTypeId: FieldTypes.string,
+	  showFilter: 'E',
+	  showInList: 'Y',
+	  settings: {},
+	  isSearchable: 'N'
 	});
 	var DefaultFieldData = Object.freeze({
 	  file: {
-	    SHOW_FILTER: 'N',
-	    SHOW_IN_LIST: 'N'
+	    showFilter: 'N',
+	    showInList: 'N'
 	  },
 	  employee: {
-	    SHOW_FILTER: 'I'
+	    showFilter: 'I'
 	  },
 	  crm: {
-	    SHOW_FILTER: 'I'
+	    showFilter: 'I'
 	  },
 	  crm_status: {
-	    SHOW_FILTER: 'I'
+	    showFilter: 'I'
 	  },
 	  enumeration: {
-	    SETTINGS: {
+	    settings: {
 	      DISPLAY: 'UI'
 	    }
 	  },
 	  double: {
-	    SETTINGS: {
+	    settings: {
 	      PRECISION: 2
 	    }
 	  }
@@ -155,6 +182,7 @@ this.BX.UI = this.BX.UI || {};
 
 	  return data;
 	}
+	var SCROLL_OFFSET = 3;
 	/**
 	 * @memberof BX.UI.UserFieldFactory
 	 */
@@ -164,6 +192,17 @@ this.BX.UI = this.BX.UI || {};
 	function () {
 	  function CreationMenu(id, types, params) {
 	    babelHelpers.classCallCheck(this, CreationMenu);
+
+	    _enableScrollToBottom.set(this, {
+	      writable: true,
+	      value: void 0
+	    });
+
+	    _enableScrollToTop.set(this, {
+	      writable: true,
+	      value: void 0
+	    });
+
 	    this.id = id;
 	    this.items = types;
 	    this.params = {};
@@ -244,13 +283,15 @@ this.BX.UI = this.BX.UI || {};
 	      var _this2 = this;
 
 	      return main_core.Tag.render(_templateObject5(), function () {
-	        _this2.onItemClick(item, onClick);
+	        _this2.handleItemClick(item, onClick);
 	      }, item.title, item.description);
 	    }
 	  }, {
-	    key: "onItemClick",
-	    value: function onItemClick(item, onClick) {
-	      if (main_core.Type.isFunction(onClick)) {
+	    key: "handleItemClick",
+	    value: function handleItemClick(item, onClick) {
+	      if (main_core.Type.isFunction(item.onClick)) {
+	        item.onClick(item.name);
+	      } else if (main_core.Type.isFunction(onClick)) {
 	        onClick(item.name);
 	      }
 
@@ -283,23 +324,23 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "onBottomButtonMouseOver",
 	    value: function onBottomButtonMouseOver() {
-	      if (this._enableScrollToBottom) {
+	      if (babelHelpers.classPrivateFieldGet(this, _enableScrollToBottom)) {
 	        return;
 	      }
 
-	      this._enableScrollToBottom = true;
-	      this._enableScrollToTop = false;
+	      babelHelpers.classPrivateFieldSet(this, _enableScrollToBottom, true);
+	      babelHelpers.classPrivateFieldSet(this, _enableScrollToTop, false);
 	      (function scroll() {
-	        if (!this._enableScrollToBottom) {
+	        if (!babelHelpers.classPrivateFieldGet(this, _enableScrollToBottom)) {
 	          return;
 	        }
 
 	        if (this.containerList.scrollTop + this.containerList.offsetHeight !== this.containerList.scrollHeight) {
-	          this.containerList.scrollTop += 3;
+	          this.containerList.scrollTop += SCROLL_OFFSET;
 	        }
 
 	        if (this.containerList.scrollTop + this.containerList.offsetHeight === this.containerList.scrollHeight) {
-	          this._enableScrollToBottom = false;
+	          babelHelpers.classPrivateFieldSet(this, _enableScrollToBottom, false);
 	        } else {
 	          window.setTimeout(scroll.bind(this), 20);
 	        }
@@ -308,28 +349,28 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "onBottomButtonMouseOut",
 	    value: function onBottomButtonMouseOut() {
-	      this._enableScrollToBottom = false;
+	      babelHelpers.classPrivateFieldSet(this, _enableScrollToBottom, false);
 	    }
 	  }, {
 	    key: "onTopButtonMouseOver",
 	    value: function onTopButtonMouseOver() {
-	      if (this._enableScrollToTop) {
+	      if (babelHelpers.classPrivateFieldGet(this, _enableScrollToTop)) {
 	        return;
 	      }
 
-	      this._enableScrollToBottom = false;
-	      this._enableScrollToTop = true;
+	      babelHelpers.classPrivateFieldSet(this, _enableScrollToBottom, false);
+	      babelHelpers.classPrivateFieldSet(this, _enableScrollToTop, true);
 	      (function scroll() {
-	        if (!this._enableScrollToTop) {
+	        if (!babelHelpers.classPrivateFieldGet(this, _enableScrollToTop)) {
 	          return;
 	        }
 
 	        if (this.containerList.scrollTop > 0) {
-	          this.containerList.scrollTop -= 3;
+	          this.containerList.scrollTop -= SCROLL_OFFSET;
 	        }
 
 	        if (this.containerList.scrollTop === 0) {
-	          this._enableScrollToTop = false;
+	          babelHelpers.classPrivateFieldSet(this, _enableScrollToTop, false);
 	        } else {
 	          window.setTimeout(scroll.bind(this), 20);
 	        }
@@ -338,7 +379,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "onTopButtonMouseOut",
 	    value: function onTopButtonMouseOut() {
-	      this._enableScrollToTop = false;
+	      babelHelpers.classPrivateFieldSet(this, _enableScrollToTop, false);
 	    }
 	  }, {
 	    key: "onScroll",
@@ -353,15 +394,15 @@ this.BX.UI = this.BX.UI || {};
 	      var scrollHeight = this.containerList.scrollHeight;
 
 	      if (scrollTop === 0) {
-	        this.topScrollButton.classList.add('hidden');
+	        main_core.Dom.hide(this.topScrollButton);
 	      } else {
-	        this.topScrollButton.classList.remove('hidden');
+	        main_core.Dom.show(this.topScrollButton);
 	      }
 
 	      if (scrollTop + height === scrollHeight) {
-	        this.bottomScrollButton.classList.add('hidden');
+	        main_core.Dom.hide(this.bottomScrollButton);
 	      } else {
-	        this.bottomScrollButton.classList.remove('hidden');
+	        main_core.Dom.show(this.bottomScrollButton);
 	      }
 	    }
 	  }], [{
@@ -384,6 +425,10 @@ this.BX.UI = this.BX.UI || {};
 	  return CreationMenu;
 	}();
 
+	var _enableScrollToBottom = new WeakMap();
+
+	var _enableScrollToTop = new WeakMap();
+
 	/**
 	 * @memberof BX.UI.UserFieldFactory
 	 */
@@ -392,14 +437,21 @@ this.BX.UI = this.BX.UI || {};
 	function () {
 	  function EnumItem() {
 	    var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+	    var id = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 	    babelHelpers.classCallCheck(this, EnumItem);
 	    this.value = value;
+	    this.id = id;
 	  }
 
 	  babelHelpers.createClass(EnumItem, [{
 	    key: "setNode",
 	    value: function setNode(node) {
 	      this.node = node;
+	    }
+	  }, {
+	    key: "getId",
+	    value: function getId() {
+	      return this.id;
 	    }
 	  }, {
 	    key: "getNode",
@@ -436,178 +488,25 @@ this.BX.UI = this.BX.UI || {};
 	  return EnumItem;
 	}();
 
-	/**
-	 * @memberof BX.UI.UserFieldFactory
-	 */
+	function _templateObject17() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<div>\n\t\t\t\t<label class=\"ui-ctl ui-ctl-checkbox ui-ctl-xs\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"ui-ctl-label-text\">", "</div>\n\t\t\t\t</label>\n\t\t\t</div>"]);
 
-	var Field =
-	/*#__PURE__*/
-	function () {
-	  function Field(data) {
-	    babelHelpers.classCallCheck(this, Field);
-	    babelHelpers.defineProperty(this, "saved", false);
-	    this.data = data;
-	    var id = main_core.Text.toInteger(data.ID);
+	  _templateObject17 = function _templateObject17() {
+	    return data;
+	  };
 
-	    if (id > 0) {
-	      this.saved = true;
-	    }
-	  }
+	  return data;
+	}
 
-	  babelHelpers.createClass(Field, [{
-	    key: "setData",
-	    value: function setData(data) {
-	      delete data.SIGNATURE;
-	      this.data = babelHelpers.objectSpread({}, this.data, data);
-	      return this;
-	    }
-	  }, {
-	    key: "getData",
-	    value: function getData() {
-	      return this.data;
-	    }
-	  }, {
-	    key: "markAsSaved",
-	    value: function markAsSaved() {
-	      this.saved = true;
-	      return this;
-	    }
-	  }, {
-	    key: "getName",
-	    value: function getName() {
-	      return this.data.FIELD;
-	    }
-	  }, {
-	    key: "setName",
-	    value: function setName(name) {
-	      if (!this.isSaved()) {
-	        this.data.FIELD = name;
-	      }
+	function _templateObject16() {
+	  var data = babelHelpers.taggedTemplateLiteral(["<input class=\"ui-ctl-element\" type=\"checkbox\">"]);
 
-	      return this;
-	    }
-	  }, {
-	    key: "getEntityId",
-	    value: function getEntityId() {
-	      return this.data.ENTITY_ID;
-	    }
-	  }, {
-	    key: "getTypeId",
-	    value: function getTypeId() {
-	      return this.data.USER_TYPE_ID;
-	    }
-	  }, {
-	    key: "getEnumeration",
-	    value: function getEnumeration() {
-	      if (!main_core.Type.isArray(this.data.ENUM)) {
-	        this.data.ENUM = [];
-	      }
+	  _templateObject16 = function _templateObject16() {
+	    return data;
+	  };
 
-	      return this.data.ENUM;
-	    }
-	  }, {
-	    key: "saveEnumeration",
-	    value: function saveEnumeration(items) {
-	      var _this = this;
-
-	      this.data.ENUM = [];
-	      var sort = 100;
-	      items.forEach(function (item) {
-	        _this.data.ENUM.push({
-	          VALUE: item.getValue(),
-	          SORT: sort
-	        });
-
-	        sort += 100;
-	      });
-	    }
-	  }, {
-	    key: "getTitle",
-	    value: function getTitle() {
-	      var titleFields = Field.getTitleFields();
-	      var titleFieldsCount = titleFields.length;
-
-	      for (var index = 0; index < titleFieldsCount; index++) {
-	        if (main_core.Type.isString(this.data[titleFields[index]]) && this.data[titleFields[index]].length > 0) {
-	          return this.data[titleFields[index]];
-	        }
-	      }
-
-	      return this.getName();
-	    }
-	  }, {
-	    key: "setTitle",
-	    value: function setTitle(title) {
-	      var _this2 = this;
-
-	      if (main_core.Type.isString(title) && title.length > 0) {
-	        Field.getTitleFields().forEach(function (label) {
-	          _this2.data[label] = title;
-	        });
-
-	        if (this.getTypeId() === FieldTypes.boolean) {
-	          this.data.SETTINGS.LABEL_CHECKBOX = title;
-	        }
-	      }
-	    }
-	  }, {
-	    key: "isSaved",
-	    value: function isSaved() {
-	      return this.saved;
-	    }
-	  }, {
-	    key: "isMultiple",
-	    value: function isMultiple() {
-	      return this.data.MULTIPLE === 'Y';
-	    }
-	  }, {
-	    key: "setIsMultiple",
-	    value: function setIsMultiple(isMultiple) {
-	      if (!this.isSaved()) {
-	        this.data.MULTIPLE = main_core.Text.toBoolean(isMultiple) === true ? 'Y' : 'N';
-	      }
-	    }
-	  }, {
-	    key: "isDateField",
-	    value: function isDateField() {
-	      return this.getTypeId() === FieldTypes.datetime || this.getTypeId() === FieldTypes.date;
-	    }
-	  }, {
-	    key: "isShowTime",
-	    value: function isShowTime() {
-	      return this.getTypeId() === FieldTypes.datetime;
-	    }
-	  }, {
-	    key: "setIsShowTime",
-	    value: function setIsShowTime(isShowTime) {
-	      if (!this.isSaved()) {
-	        isShowTime = main_core.Text.toBoolean(isShowTime);
-
-	        if (isShowTime) {
-	          this.data.USER_TYPE_ID = FieldTypes.datetime;
-	        } else {
-	          this.data.USER_TYPE_ID = FieldTypes.date;
-	        }
-	      }
-	    }
-	  }, {
-	    key: "isSearchable",
-	    value: function isSearchable() {
-	      return this.data.IS_SEARCHABLE === 'Y';
-	    }
-	  }, {
-	    key: "setIsSearchable",
-	    value: function setIsSearchable(isSearchable) {
-	      this.data.IS_SEARCHABLE = main_core.Text.toBoolean(isSearchable) === true ? 'Y' : 'N';
-	    }
-	  }], [{
-	    key: "getTitleFields",
-	    value: function getTitleFields() {
-	      return Array.from(['EDIT_FORM_LABEL', 'LIST_COLUMN_LABEL', 'LIST_FILTER_LABEL']);
-	    }
-	  }]);
-	  return Field;
-	}();
+	  return data;
+	}
 
 	function _templateObject15() {
 	  var data = babelHelpers.taggedTemplateLiteral(["<div>\n\t\t\t\t<label class=\"ui-ctl ui-ctl-checkbox ui-ctl-xs\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"ui-ctl-label-text\">", "</div>\n\t\t\t\t</label>\n\t\t\t</div>"]);
@@ -769,8 +668,8 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.classCallCheck(this, Configurator);
 
 	    if (main_core.Type.isPlainObject(params)) {
-	      if (params.field instanceof Field) {
-	        this.field = params.field;
+	      if (params.userField) {
+	        this.userField = params.userField;
 	      }
 
 	      if (main_core.Type.isFunction(params.onSave)) {
@@ -791,10 +690,10 @@ this.BX.UI = this.BX.UI || {};
 	      var _this = this;
 
 	      this.node = main_core.Tag.render(_templateObject$1());
-	      this.labelInput = main_core.Tag.render(_templateObject2$1(), this.field.getTitle());
+	      this.labelInput = main_core.Tag.render(_templateObject2$1(), main_core.Text.encode(this.userField.getTitle()));
 	      this.node.appendChild(main_core.Tag.render(_templateObject3$1(), main_core.Loc.getMessage('UI_USERFIELD_FACTORY_CONFIGURATOR_FIELD_TITLE'), this.labelInput));
 
-	      if (this.field.getTypeId() === FieldTypes.enumeration) {
+	      if (this.userField.getUserTypeId() === FieldTypes.getTypes().enumeration) {
 	        this.node.appendChild(this.renderEnumeration());
 	      }
 
@@ -827,16 +726,21 @@ this.BX.UI = this.BX.UI || {};
 	    key: "saveField",
 	    value: function saveField() {
 	      if (this.timeCheckbox) {
-	        this.field.setIsShowTime(this.timeCheckbox.checked);
+	        if (this.timeCheckbox.checked) {
+	          this.userField.setUserTypeId(FieldTypes.getTypes().datetime);
+	        } else {
+	          this.userField.setUserTypeId(FieldTypes.getTypes().date);
+	        }
 	      }
 
 	      if (this.multipleCheckbox) {
-	        this.field.setIsMultiple(this.multipleCheckbox.checked);
+	        this.userField.setIsMultiple(this.multipleCheckbox.checked);
 	      }
 
-	      this.field.setTitle(this.labelInput.value);
-	      this.field.saveEnumeration(this.enumItems);
-	      return this.field;
+	      this.userField.setTitle(this.labelInput.value);
+	      this.userField.setIsMandatory(this.mandatoryCheckbox.checked);
+	      this.saveEnumeration(this.userField, this.enumItems);
+	      return this.userField;
 	    }
 	  }, {
 	    key: "renderEnumeration",
@@ -848,7 +752,7 @@ this.BX.UI = this.BX.UI || {};
 	        _this2.addEnumInput().focus();
 	      }, main_core.Loc.getMessage('UI_USERFIELD_ADD'));
 	      this.enumContainer = main_core.Tag.render(_templateObject9(), main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_ENUM_ITEMS'), this.enumItemsContainer, this.enumAddItemContainer);
-	      this.field.getEnumeration().forEach(function (item) {
+	      this.userField.getEnumeration().forEach(function (item) {
 	        _this2.addEnumInput(item);
 	      });
 	      this.addEnumInput();
@@ -856,26 +760,24 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  }, {
 	    key: "addEnumInput",
-	    value: function addEnumInput() {
+	    value: function addEnumInput(item) {
 	      var _this3 = this;
 
-	      var item = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+	      var enumItem;
 
-	      if (!(item instanceof EnumItem)) {
-	        if (main_core.Type.isPlainObject(item)) {
-	          item = new EnumItem(item.VALUE);
-	        } else {
-	          item = new EnumItem();
-	        }
+	      if (main_core.Type.isPlainObject(item)) {
+	        enumItem = new EnumItem(item.value, item.id);
+	      } else {
+	        enumItem = new EnumItem();
 	      }
 
-	      var node = main_core.Tag.render(_templateObject10(), item.getValue(), function (event) {
+	      var node = main_core.Tag.render(_templateObject10(), enumItem.getValue(), function (event) {
 	        event.preventDefault();
 
-	        _this3.deleteEnumItem(item);
+	        _this3.deleteEnumItem(enumItem);
 	      });
-	      item.setNode(node);
-	      this.enumItems.add(item);
+	      enumItem.setNode(node);
+	      this.enumItems.add(enumItem);
 	      this.enumItemsContainer.appendChild(node);
 	      return node;
 	    }
@@ -889,20 +791,38 @@ this.BX.UI = this.BX.UI || {};
 	    key: "renderOptions",
 	    value: function renderOptions() {
 	      this.optionsContainer = main_core.Tag.render(_templateObject11());
+	      this.mandatoryCheckbox = main_core.Tag.render(_templateObject12());
+	      this.mandatoryCheckbox.checked = this.userField.isMandatory();
+	      this.optionsContainer.appendChild(main_core.Tag.render(_templateObject13(), this.mandatoryCheckbox, main_core.Loc.getMessage('UI_USERFIELD_FACTORY_FIELD_REQUIRED')));
 
-	      if (!this.field.isSaved() && this.field.isDateField()) {
-	        this.timeCheckbox = main_core.Tag.render(_templateObject12());
-	        this.timeCheckbox.checked = this.field.isShowTime();
-	        this.optionsContainer.appendChild(main_core.Tag.render(_templateObject13(), this.timeCheckbox, main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_ENABLE_TIME')));
+	      if (!this.userField.isSaved() && (this.userField.getUserTypeId() === FieldTypes.getTypes().date || this.userField.getUserTypeId() === FieldTypes.getTypes().datetime)) {
+	        this.timeCheckbox = main_core.Tag.render(_templateObject14());
+	        this.timeCheckbox.checked = this.userField.getUserTypeId() === FieldTypes.getTypes().datetime;
+	        this.optionsContainer.appendChild(main_core.Tag.render(_templateObject15(), this.timeCheckbox, main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_ENABLE_TIME')));
 	      }
 
-	      if (!this.field.isSaved() && this.field.getTypeId() !== FieldTypes.boolean) {
-	        this.multipleCheckbox = main_core.Tag.render(_templateObject14());
-	        this.multipleCheckbox.checked = this.field.isMultiple();
-	        this.optionsContainer.appendChild(main_core.Tag.render(_templateObject15(), this.multipleCheckbox, main_core.Loc.getMessage('UI_USERFIELD_FACTORY_FIELD_MULTIPLE')));
+	      if (!this.userField.isSaved() && this.userField.getUserTypeId() !== FieldTypes.getTypes().boolean) {
+	        this.multipleCheckbox = main_core.Tag.render(_templateObject16());
+	        this.multipleCheckbox.checked = this.userField.isMultiple();
+	        this.optionsContainer.appendChild(main_core.Tag.render(_templateObject17(), this.multipleCheckbox, main_core.Loc.getMessage('UI_USERFIELD_FACTORY_FIELD_MULTIPLE')));
 	      }
 
 	      return this.optionsContainer;
+	    }
+	  }, {
+	    key: "saveEnumeration",
+	    value: function saveEnumeration(userField, enumItems) {
+	      var items = [];
+	      var sort = 100;
+	      enumItems.forEach(function (item) {
+	        items.push({
+	          value: item.getValue(),
+	          sort: sort,
+	          id: item.getId()
+	        });
+	        sort += 100;
+	      });
+	      userField.setEnumeration(items);
 	    }
 	  }]);
 	  return Configurator;
@@ -919,7 +839,7 @@ this.BX.UI = this.BX.UI || {};
 	  function Factory(entityId) {
 	    var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	    babelHelpers.classCallCheck(this, Factory);
-	    main_core_events.EventEmitter.makeObservable(this, 'UI.UserFieldFactory.Factory');
+	    main_core_events.EventEmitter.makeObservable(this, 'BX.UI.UserFieldFactory.Factory');
 	    this.configuratorClass = Configurator;
 
 	    if (main_core.Type.isString(entityId) && entityId.length > 0) {
@@ -927,10 +847,6 @@ this.BX.UI = this.BX.UI || {};
 	    }
 
 	    if (main_core.Type.isPlainObject(params)) {
-	      if (main_core.Type.isString(params.creationSignature)) {
-	        this.creationSignature = params.creationSignature;
-	      }
-
 	      if (main_core.Type.isString(params.menuId)) {
 	        this.menuId = params.menuId;
 	      }
@@ -943,7 +859,8 @@ this.BX.UI = this.BX.UI || {};
 	        this.bindElement = params.bindElement;
 	      }
 
-	      this.setConfiguratorClass(params.configuratorClass);
+	      this.moduleId = params.moduleId;
+	      this.setCustomTypesUrl(params.customTypesUrl).setConfiguratorClass(params.configuratorClass);
 	    } else {
 	      params.types = [];
 	    }
@@ -955,8 +872,8 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getFieldTypes",
 	    value: function getFieldTypes() {
 	      var types = [];
-	      Object.keys(FieldDescriptions).forEach(function (name) {
-	        types.push(babelHelpers.objectSpread({}, FieldDescriptions[name], {
+	      Object.keys(FieldTypes.getDescriptions()).forEach(function (name) {
+	        types.push(babelHelpers.objectSpread({}, FieldTypes.getDescriptions()[name], {
 	          name: name
 	        }));
 	      });
@@ -976,8 +893,17 @@ this.BX.UI = this.BX.UI || {};
 	        params.bindElement = this.bindElement;
 	      }
 
+	      var types = this.types;
+
+	      if (this.customTypesUrl && !this.isCustomTypeAdded) {
+	        var customType = babelHelpers.objectSpread({}, FieldTypes.getCustomTypeDescription());
+	        customType.onClick = this.onCustomTypeClick.bind(this);
+	        types.push(customType);
+	        this.isCustomTypeAdded = true;
+	      }
+
 	      if (!this.menu) {
-	        this.menu = new CreationMenu(this.menuId, this.types, params);
+	        this.menu = new CreationMenu(this.menuId, types, params);
 	      }
 
 	      return this.menu;
@@ -998,30 +924,37 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    }
 	  }, {
+	    key: "setCustomTypesUrl",
+	    value: function setCustomTypesUrl(customTypesUrl) {
+	      this.customTypesUrl = customTypesUrl;
+	      return this;
+	    }
+	  }, {
 	    key: "getConfigurator",
 	    value: function getConfigurator(params) {
 	      return new this.configuratorClass(params);
 	    }
 	  }, {
-	    key: "createField",
-	    value: function createField(fieldType, fieldName) {
+	    key: "createUserField",
+	    value: function createUserField(fieldType, fieldName) {
 	      var data = babelHelpers.objectSpread({}, DefaultData, DefaultFieldData[fieldType], {
-	        USER_TYPE_ID: fieldType
+	        userTypeId: fieldType
 	      });
 
 	      if (!main_core.Type.isString(fieldName) || fieldName.length <= 0 || fieldName.length > MAX_FIELD_LENGTH) {
 	        fieldName = this.generateFieldName();
 	      }
 
-	      data.FIELD = fieldName;
-	      data.ENTITY_ID = this.entityId;
-	      data.SIGNATURE = this.creationSignature;
-	      var field = new Field(data);
-	      field.setTitle(this.getDefaultLabel(fieldType));
-	      this.emit('onCreateField', {
-	        field: field
+	      data.fieldName = fieldName;
+	      data.entityId = this.entityId;
+	      var userField = new ui_userfield.UserField(data, {
+	        moduleId: this.moduleId
 	      });
-	      return field;
+	      userField.setTitle(this.getDefaultLabel(fieldType));
+	      this.emit('onCreateField', {
+	        userField: userField
+	      });
+	      return userField;
 	    }
 	  }, {
 	    key: "getDefaultLabel",
@@ -1048,136 +981,36 @@ this.BX.UI = this.BX.UI || {};
 	      return name;
 	    }
 	  }, {
-	    key: "saveField",
-	    value: function saveField(field) {
+	    key: "onCustomTypeClick",
+	    value: function onCustomTypeClick() {
 	      var _this = this;
 
-	      return new Promise(function (resolve, reject) {
-	        if (field instanceof Field) {
-	          if (field.isSaved()) {
-	            _this.getEditManager().update({
-	              "FIELDS": [field.getData()]
-	            }, function (response) {
-	              _this.onFieldSave(field, response, resolve, reject);
-	            });
-	          } else {
-	            _this.getEditManager().add({
-	              "FIELDS": [field.getData()]
-	            }, function (response) {
-	              _this.onFieldSave(field, response, resolve, reject);
-	            });
-	          }
-	        } else {
-	          reject(['Wrong parameter: field must be instance of Field']);
-	        }
-	      });
-	    }
-	  }, {
-	    key: "deleteField",
-	    value: function deleteField(field) {
-	      var _this2 = this;
+	      if (!this.customTypesUrl) {
+	        return;
+	      }
 
-	      return new Promise(function (resolve, reject) {
-	        if (field instanceof Field) {
-	          if (field.isSaved()) {
-	            _this2.getEditManager().delete({
-	              "FIELDS": [field.getData()]
-	            }, function (response) {
-	              _this2.onFieldDelete(field, response, resolve, reject);
-	            });
-	          }
-	        } else {
-	          reject(['Wrong parameter: field must be instance of Field']);
-	        }
-	      });
-	    }
-	  }, {
-	    key: "onFieldSave",
-	    value: function onFieldSave(field, response, onSuccess, onError) {
-	      if (main_core.Type.isPlainObject(response)) {
-	        if (response.ERROR && main_core.Type.isArray(response.ERROR) && response.ERROR.length > 0) {
-	          onError(response.ERROR);
-	        } else {
-	          var fieldData = this.getFieldDataFromResponse(response);
+	      BX.SidePanel.Instance.open(this.customTypesUrl.toString(), {
+	        cacheable: false,
+	        allowChangeHistory: false,
+	        width: 900,
+	        events: {
+	          onClose: function onClose(event) {
+	            var slider = event.getSlider();
 
-	          if (fieldData) {
-	            field.markAsSaved().setData(fieldData);
+	            if (slider) {
+	              var userFieldData = slider.getData().get('userFieldData');
 
-	            if (main_core.Type.isFunction(onSuccess)) {
-	              onSuccess(field);
+	              if (userFieldData) {
+	                var userField = ui_userfield.UserField.unserialize(userFieldData);
+
+	                _this.emit('onCreateCustomUserField', {
+	                  userField: userField
+	                });
+	              }
 	            }
-
-	            this.emit('onFieldSave', {
-	              field: field
-	            });
 	          }
 	        }
-	      } else {
-	        if (main_core.Type.isFunction(onError)) {
-	          if (main_core.Type.isArray(this.managerErrors) && this.managerErrors.length > 0) {
-	            onError(this.managerErrors);
-	            this.managerErrors = [];
-	          } else {
-	            onError([main_core.Loc.getMessage('UI_USERFIELD_SAVE_ERROR')]);
-	          }
-	        }
-	      }
-	    }
-	  }, {
-	    key: "onFieldDelete",
-	    value: function onFieldDelete(field, response, onSuccess, onError) {
-	      if (main_core.Type.isPlainObject(response) || main_core.Type.isArray(response)) {
-	        if (main_core.Type.isPlainObject(response) && response.ERROR && main_core.Type.isArray(response.ERROR) && response.ERROR.length > 0) {
-	          onError(response.ERROR);
-	        } else {
-	          if (main_core.Type.isFunction(onSuccess)) {
-	            onSuccess(field);
-	          }
-
-	          this.emit('onFieldDelete', {
-	            field: field
-	          });
-	        }
-	      } else {
-	        if (main_core.Type.isFunction(onError)) {
-	          if (main_core.Type.isArray(this.managerErrors) && this.managerErrors.length > 0) {
-	            onError(this.managerErrors);
-	            this.managerErrors = [];
-	          } else {
-	            onError([main_core.Loc.getMessage('UI_USERFIELD_DELETE_ERROR')]);
-	          }
-	        }
-	      }
-	    }
-	  }, {
-	    key: "getFieldDataFromResponse",
-	    value: function getFieldDataFromResponse(response) {
-	      if (main_core.Type.isPlainObject(response)) {
-	        var fieldData = null;
-	        Object.keys(response).forEach(function (fieldName) {
-	          if (main_core.Type.isPlainObject(response[fieldName]['FIELD'])) {
-	            fieldData = response[fieldName]['FIELD'];
-	          }
-	        });
-	        return fieldData;
-	      }
-
-	      return null;
-	    }
-	  }, {
-	    key: "getEditManager",
-	    value: function getEditManager() {
-	      var _this3 = this;
-
-	      if (!this.editManager) {
-	        this.editManager = BX.Main.UF.EditManager;
-
-	        this.editManager.displayError = function (errors) {
-	          _this3.managerErrors = errors;
-	        };
-	      }
-
-	      return this.editManager;
+	      });
 	    }
 	  }]);
 	  return Factory;
@@ -1185,8 +1018,7 @@ this.BX.UI = this.BX.UI || {};
 
 	exports.Factory = Factory;
 	exports.FieldTypes = FieldTypes;
-	exports.Field = Field;
 	exports.Configurator = Configurator;
 
-}((this.BX.UI.UserFieldFactory = this.BX.UI.UserFieldFactory || {}),BX.Event,BX.Main,BX));
+}((this.BX.UI.UserFieldFactory = this.BX.UI.UserFieldFactory || {}),BX.Event,BX.Main,BX,BX.UI.UserField));
 //# sourceMappingURL=userfieldfactory.bundle.js.map

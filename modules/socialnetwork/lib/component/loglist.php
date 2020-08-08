@@ -147,14 +147,14 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 	protected function processParentParams(&$params)
 	{
 		$parent = $this->getParent();
-		if(is_object($parent) && strlen($parent->__name) > 0)
+		if(is_object($parent) && $parent->__name <> '')
 		{
 			$this->getParamsInstance()->prepareParentParams($params);
 			$this->getParamsPhotogalleryInstance()->prepareParentPhotogalleryParams($params);
 
 			// parent of 2nd level
 			$parent2 = $parent->getParent();
-			if(is_object($parent2) && strlen($parent2->__name) > 0)
+			if(is_object($parent2) && $parent2->__name <> '')
 			{
 				$this->getParamsInstance()->prepareParent2Params($params);
 			}
@@ -264,7 +264,7 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 
 		$this->setExtranetSiteValue((Loader::includeModule('extranet') && \CExtranet::isExtranetSite()));
 		$this->setCommentsNeededValue(
-			strlen($request->get('log_filter_submit')) > 0
+			$request->get('log_filter_submit') <> ''
 			&& $request->get('flt_comments')== 'Y'
 		);
 
@@ -276,7 +276,8 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 
 		$params['HIDE_EDIT_FORM'] = ($params['LOG_ID'] > 0 ? 'Y' : (isset($params['HIDE_EDIT_FORM']) ? $params['HIDE_EDIT_FORM'] : 'N'));
 		$params['SHOW_EVENT_ID_FILTER'] = ($params['LOG_ID'] > 0 ? 'N' : $params['SHOW_EVENT_ID_FILTER']);
-		$params['AUTH'] = (isset($params['AUTH']) && strToUpper($params['AUTH']) == 'Y' ? 'Y' : 'N');
+		$params['AUTH'] = (isset($params['AUTH']) && mb_strtoupper($params['AUTH']) == 'Y' ? 'Y' : 'N');
+		$params['PAGE_NUMBER'] = (isset($params['PAGE_NUMBER']) && intval($params['PAGE_NUMBER']) > 0 ? intval($params['PAGE_NUMBER']) : 1);
 
 		$paramsInstance->prepareModeParams($params);
 		$paramsInstance->prepareFollowParams($params);
@@ -350,8 +351,21 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 			$result['PATH_TO_LOG_TAG'] .= '&apply_filter=Y';
 		}
 
-		$result['AJAX_CALL'] = (strlen($request->get('logajax')) > 0);
-		$result['bReload'] = ($result['AJAX_CALL'] && $request->get('RELOAD') == 'Y');
+		$result['AJAX_CALL'] = (
+			!empty($this->arParams['TARGET'])
+			|| $request->get('logajax') <> ''
+		);
+		$result['bReload'] = (
+			$result['AJAX_CALL']
+			&& (
+				$request->get('RELOAD') == 'Y'
+				|| (
+					isset($this->arParams['RELOAD'])
+					&& $this->arParams['RELOAD'] == 'Y'
+				)
+			)
+
+		);
 		$result['SHOW_UNREAD'] = $this->arParams['SHOW_UNREAD'];
 		$result['currentUserId'] = intval($USER->getId());
 
@@ -442,16 +456,20 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 	protected function getEntriesData(&$result)
 	{
 		$result['arLogTmpID'] = [];
+		$params = $this->arParams;
 
 		if (empty($result['RETURN_EMPTY_LIST']))
 		{
 			$this->getEntryIdList($result);
 
 			if (
-				count($result['arLogTmpID']) <= 0
+				count($result['arLogTmpID']) < $params['PAGE_SIZE']
 				&& $this->getLogPageProcessorInstance()->getNeedSetLogPage() // no log pages for user
 			)
 			{
+				$result['arLogTmpID'] = [];
+				$this->getProcessorInstance()->setEventsList([]);
+
 				$this->getLogPageProcessorInstance()->setDateLastPageStart(null);
 				$this->getProcessorInstance()->unsetFilterKey('>=LOG_UPDATE');
 				$this->getEntryIdList($result);
@@ -613,7 +631,7 @@ class LogList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\
 							continue;
 						}
 
-						$fieldData['EDIT_FORM_LABEL'] = strLen($fieldData['EDIT_FORM_LABEL']) > 0 ? $fieldData['EDIT_FORM_LABEL'] : $fieldData['FIELD_NAME'];
+						$fieldData['EDIT_FORM_LABEL'] = $fieldData['EDIT_FORM_LABEL'] <> '' ? $fieldData['EDIT_FORM_LABEL'] : $fieldData['FIELD_NAME'];
 						$fieldData['~EDIT_FORM_LABEL'] = $fieldData['EDIT_FORM_LABEL'];
 						$fieldData['EDIT_FORM_LABEL'] = htmlspecialcharsEx($fieldData['EDIT_FORM_LABEL']);
 						$result['COMMENT_PROPERTIES']['DATA'][$fieldName] = $fieldData;

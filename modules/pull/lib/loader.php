@@ -28,8 +28,8 @@ class Loader
 			return;
 		}
 
-		$firstNamespace = strtolower($fileParts[0]);
-		$secondNamespace = strtolower($fileParts[1]);
+		$firstNamespace = mb_strtolower($fileParts[0]);
+		$secondNamespace = mb_strtolower($fileParts[1]);
 
 		if (
 			$firstNamespace === "protobuf" ||

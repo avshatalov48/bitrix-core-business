@@ -12,7 +12,7 @@ span.fields.address .multiple { padding-right: 15px; }
 	height: 7px;
 }
 
-.uf-address-search-input { width: 300px; }
+.uf-address-search-input { width: 300px; margin-right: 20px; }
 
 .uf-search-result-list-item {
 }
@@ -50,7 +50,7 @@ span.fields.address .multiple { padding-right: 15px; }
 .uf-address-search-input-remove {
 	position: absolute;
 	top: 50%;
-	right: -20px;
+	right: 0;
 	width: 20px;
 	height: 20px;
 	opacity: .3;

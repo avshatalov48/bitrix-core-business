@@ -36,6 +36,9 @@ class LogRightTable extends Entity\DataManager
 			),
 			'GROUP_CODE' => array(
 				'data_type' => 'string',
+			),
+			'LOG_UPDATE' => array(
+				'data_type' => 'datetime'
 			)
 		);
 
@@ -58,7 +61,7 @@ class LogRightTable extends Entity\DataManager
 		$now = $helper->getCurrentDateTimeFunction();
 		if (
 			!$value
-			|| strtolower($value) == strtolower($now)
+			|| mb_strtolower($value) == mb_strtolower($now)
 		)
 		{
 			$value = new SqlExpression($now);
@@ -77,7 +80,7 @@ class LogRightTable extends Entity\DataManager
 
 	public static function deleteByGroupCode($value = '')
 	{
-		if (strlen($value) <= 0)
+		if ($value == '')
 		{
 			return false;
 		}

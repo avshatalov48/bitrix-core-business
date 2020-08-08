@@ -217,9 +217,9 @@ class PersonalProfileDetail extends CBitrixComponent
 	 */
 	protected function getLocationHtml($name, $key, $locationTemplate)
 	{
-		$name = strlen($name) > 0 ? $name : "" ;
+		$name = $name <> '' ? $name : "" ;
 		$key = (int)$key >= 0 ? (int)$this->arParams['LOCATION_KEY'] : 0;
-		$locationTemplate = strlen($locationTemplate) > 0 ? $locationTemplate : '';
+		$locationTemplate = $locationTemplate <> '' ? $locationTemplate : '';
 		$locationClassName = 'location-block-wrapper';
 		if (empty($locationTemplate))
 		{
@@ -262,11 +262,11 @@ class PersonalProfileDetail extends CBitrixComponent
 
 		if ($this->errorCollection->isEmpty())
 		{
-			if (strlen($request->get("save")) > 0)
+			if ($request->get("save") <> '')
 			{
 				LocalRedirect($this->arParams["PATH_TO_LIST"]);
 			}
-			elseif (strlen($request->get("apply")) > 0)
+			elseif ($request->get("apply") <> '')
 			{
 				LocalRedirect(CComponentEngine::makePathFromTemplate($this->arParams["PATH_TO_DETAIL"], Array("ID" => $this->idProfile)));
 			}
@@ -434,17 +434,17 @@ class PersonalProfileDetail extends CBitrixComponent
 		}
 		elseif ($property["IS_PROFILE_NAME"] == "Y")
 		{
-			if (strlen(trim($currentValue)) <= 0)
+			if (trim($currentValue) == '')
 				return false;
 		}
 		elseif ($property["IS_PAYER"] == "Y")
 		{
-			if (strlen(trim($currentValue)) <= 0)
+			if (trim($currentValue) == '')
 				return false;
 		}
 		elseif ($property["IS_EMAIL"] == "Y")
 		{
-			if (strlen(trim($currentValue)) <= 0 || !check_email(trim($currentValue)))
+			if (trim($currentValue) == '' || !check_email(trim($currentValue)))
 				return false;
 		}
 		elseif ($property["REQUIED"] == "Y")
@@ -461,7 +461,7 @@ class PersonalProfileDetail extends CBitrixComponent
 			}
 			else
 			{
-				if (strlen($currentValue) <= 0)
+				if ($currentValue == '')
 					return false;
 			}
 		}
@@ -477,7 +477,7 @@ class PersonalProfileDetail extends CBitrixComponent
 	 */
 	protected function prepareUpdatingProperties($request, $userOrderProperties)
 	{
-		if (strlen($request->get("NAME")) <= 0)
+		if ($request->get("NAME") == '')
 		{
 			$this->errorCollection->setError(new Main\Error(Loc::getMessage("SALE_NO_NAME")."<br>"));
 		}
@@ -539,7 +539,7 @@ class PersonalProfileDetail extends CBitrixComponent
 
 					foreach ($currentValue['name'] as $key => $fileName)
 					{
-						if (strlen($fileName) > 0)
+						if ($fileName <> '')
 						{
 							$fileArray = array(
 								'name' => $fileName,

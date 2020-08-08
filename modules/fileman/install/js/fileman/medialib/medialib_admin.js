@@ -42,7 +42,7 @@
 
 			BX.addCustomEvent(this.uploader, "onItemIsAdded", this._onItemIsAdded);
 			BX.addCustomEvent(this.uploader, 'onStart', BX.delegate(this.start, this));
-			BX.addCustomEvent(this.uploader, 'onDone', BX.delegate(this.done, this));
+			BX.addCustomEvent(this.uploader, 'onFinish', BX.delegate(this.done, this));
 			BX.addCustomEvent(this.uploader, 'onTerminate', BX.delegate(this.terminate, this));
 
 			BX.addCustomEvent(this.uploader, "onFileIsAppended", this._onFileIsAppended);

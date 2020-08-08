@@ -24,7 +24,7 @@ class _CIBElement
 			/** @noinspection PhpWrongForeachArgumentTypeInspection */
 			foreach($this->props as $arProp)
 			{
-				if(strlen(trim($arProp["CODE"]))>0)
+				if(trim($arProp["CODE"]) <> '')
 					$PIND = $arProp["CODE"];
 				else
 					$PIND = $arProp["ID"];
@@ -54,7 +54,7 @@ class _CIBElement
 							$arProp["VALUE"]  = "";
 						}
 					}
-					elseif(is_array($arProp["VALUE"]) || strlen($arProp["VALUE"]))
+					elseif(is_array($arProp["VALUE"]) || mb_strlen($arProp["VALUE"]))
 					{
 						if($arProp["PROPERTY_TYPE"]=="N")
 							$arProp["VALUE"] = htmlspecialcharsEx(CIBlock::NumberFormat($arProp["VALUE"]));
@@ -77,7 +77,7 @@ class _CIBElement
 						$arProp["VALUE_XML_ID"] = false;
 						foreach($arList as $key=>$val)
 						{
-							if(strlen($val)>0)
+							if($val <> '')
 							{
 								$arEnum = CIBlockPropertyEnum::GetByID($key);
 								if($arEnum!==false)
@@ -127,7 +127,7 @@ class _CIBElement
 						$arProp["~DESCRIPTION"] = $arProp["DESCRIPTION"] = false;
 						foreach($arList as $key=>$val)
 						{
-							if(is_array($val) || strlen($val)>0)
+							if(is_array($val) || $val <> '')
 							{
 								if(is_array($arProp["VALUE"]))
 								{
@@ -158,7 +158,7 @@ class _CIBElement
 
 		if(array_key_exists("ID", $arFilter) && is_string($arFilter['ID']))
 		{
-			if (!is_numeric(substr($arFilter["ID"], 0, 1)))
+			if (!is_numeric(mb_substr($arFilter["ID"], 0, 1)))
 			{
 				$arFilter["CODE"] = $arFilter["ID"];
 				unset($arFilter["ID"]);
@@ -173,7 +173,7 @@ class _CIBElement
 		$arAllProps = Array();
 		while($arProp = $props->Fetch())
 		{
-			if(strlen(trim($arProp["CODE"]))>0)
+			if(trim($arProp["CODE"]) <> '')
 				$PIND = $arProp["CODE"];
 			else
 				$PIND = $arProp["ID"];
@@ -184,7 +184,7 @@ class _CIBElement
 				$arProp["VALUE"] = $arProp["VALUE_ENUM"];
 			}
 
-			if(is_array($arProp["VALUE"]) || (strlen($arProp["VALUE"]) > 0))
+			if(is_array($arProp["VALUE"]) || ($arProp["VALUE"] <> ''))
 			{
 				$arProp["~VALUE"] = $arProp["VALUE"];
 				if(is_array($arProp["VALUE"]) || preg_match("/[;&<>\"]/", $arProp["VALUE"]))

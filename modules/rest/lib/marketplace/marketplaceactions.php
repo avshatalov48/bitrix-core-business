@@ -17,7 +17,7 @@ class MarketplaceActions
 		$params = 'placement='.$placement.'&lang='.$userLang;
 		if(ModuleManager::isModuleInstalled('bitrix24'))
 		{
-			$zone = strtolower(\Bitrix\Main\PhoneNumber\Parser::detectCountry());
+			$zone = strtolower(\CBitrix24::getPortalZone());
 			$params .= '&zone='.$zone;
 		}
 		else

@@ -55,7 +55,7 @@ if(
 		while($ar = $l->Fetch())
 		{
 			$mess = trim($_POST["redirect_message_warning_".$ar["LID"]]);
-			if(strlen($mess) > 0)
+			if($mess <> '')
 				COption::SetOptionString("security", "redirect_message_warning_".$ar["LID"], $mess);
 			else
 				COption::RemoveOption("security", "redirect_message_warning_".$ar["LID"]);
@@ -250,9 +250,9 @@ while($ar = $rs->Fetch())
 					<?if($disabled) echo "disabled";?>
 				><?
 				$mess = trim(COption::GetOptionString("security", "redirect_message_warning_".$ar["LID"]));
-				if(strlen($mess) <= 0)
+				if($mess == '')
 					$mess = trim(COption::GetOptionString("security", "redirect_message_warning"));
-				if(strlen($mess) <= 0)
+				if($mess == '')
 					$mess = trim(CSecurityRedirect::GetDefaultMessage($ar["LID"]));
 				echo htmlspecialcharsbx($mess);
 				$arLangs[] = $ar["LID"];

@@ -19,7 +19,7 @@ if (empty($arResult["CATEGORIES"]) || !$arResult['CATEGORIES_ITEMS_EXISTS'])
 			<div class="bx_item_block">
 				<?if (is_array($arElement["PICTURE"])):?>
 				<div class="bx_img_element">
-					<div class="bx_image" style="background-image: url('<?echo $arElement["PICTURE"]["src"]?>')"></div>
+					<div class="bx_image" style="background-image: url('<?echo $arElement["PICTURE"]["src"]?>');width:<?=$arElement["PICTURE"]["width"]?>px;height:<?=$arElement["PICTURE"]["height"]?>px;"></div>
 				</div>
 				<?endif;?>
 				<div class="bx_item_element">

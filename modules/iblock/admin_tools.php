@@ -18,7 +18,7 @@ function _ShowStringPropertyField($name, $property_fields, $values, $bInitDef = 
 	if ($MULTIPLE_CNT <= 0 || $MULTIPLE_CNT > 30)
 		$MULTIPLE_CNT = 5;
 
-	$bInitDef = $bInitDef && (strlen($property_fields["DEFAULT_VALUE"]) > 0);
+	$bInitDef = $bInitDef && ($property_fields["DEFAULT_VALUE"] <> '');
 
 	$cnt = ($property_fields["MULTIPLE"] == "Y"? $MULTIPLE_CNT + ($bInitDef? 1: 0) : 1);
 
@@ -97,7 +97,7 @@ function _ShowStringPropertyField($name, $property_fields, $values, $bInitDef = 
 	if ($property_fields["MULTIPLE"] == "Y")
 	{
 		echo '<tr><td><input type="button" value="'.GetMessage("IBLOCK_AT_PROP_ADD").'" onClick="BX.IBlock.Tools.addNewRow(\'tb'.md5($name).'\')"></td></tr>';
-		echo "<script type=\"text/javascript\">BX.addCustomEvent('onAutoSaveRestore', function(ob, data) {for (var i in data){if (i.substring(0,".(strlen($name)+1).")=='".CUtil::JSEscape($name)."['){BX.IBlock.Tools.addNewRow('tb".md5($name)."')}}})</script>";
+		echo "<script type=\"text/javascript\">BX.addCustomEvent('onAutoSaveRestore', function(ob, data) {for (var i in data){if (i.substring(0,".(mb_strlen($name) + 1).")=='".CUtil::JSEscape($name)."['){BX.IBlock.Tools.addNewRow('tb".md5($name)."')}}})</script>";
 	}
 
 	echo "</table>";
@@ -524,8 +524,8 @@ function _ShowUserPropertyField($name, $property_fields, $values, $bInitDef = fa
 					$html .= '&nbsp;';
 				$html .= '</td></tr>';
 
-				if(substr($key, -1, 1)=='n' && $max_val < intval(substr($key, 1)))
-					$max_val = intval(substr($key, 1));
+				if(mb_substr($key, -1, 1) == 'n' && $max_val < intval(mb_substr($key, 1)))
+					$max_val = intval(mb_substr($key, 1));
 				if($property_fields["MULTIPLE"] != "Y")
 				{
 					$bVarsFromForm = true;
@@ -540,7 +540,7 @@ function _ShowUserPropertyField($name, $property_fields, $values, $bInitDef = fa
 		|| ($bVarsFromForm && !$bMultiple && count($values) == 0) //Was not displayed
 	)
 	{
-		$bDefaultValue = is_array($property_fields["DEFAULT_VALUE"]) || strlen($property_fields["DEFAULT_VALUE"]);
+		$bDefaultValue = is_array($property_fields["DEFAULT_VALUE"]) || mb_strlen($property_fields["DEFAULT_VALUE"]);
 
 		if($property_fields["MULTIPLE"]=="Y")
 		{

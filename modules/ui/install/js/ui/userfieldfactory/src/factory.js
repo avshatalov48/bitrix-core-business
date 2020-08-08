@@ -2,10 +2,11 @@ import {Loc, Type, Reflection} from "main.core";
 import {EventEmitter} from "main.core.events";
 
 import {CreationMenu} from "./creationmenu";
-import {Field} from "./field";
-import {MAX_FIELD_LENGTH, DefaultData, DefaultFieldData, FieldDescriptions} from "./fieldtypes";
+import {UserField} from 'ui.userfield';
+import {MAX_FIELD_LENGTH, DefaultData, DefaultFieldData, FieldTypes} from "./fieldtypes";
 import {Configurator} from "./configurator";
 
+import 'sidepanel';
 import 'uf';
 
 /**
@@ -15,14 +16,15 @@ import 'uf';
 export class Factory
 {
 	constructor(entityId: string, params: {
-		creationSignature: string,
 		menuId: ?string,
 		types: ?Array,
 		bindElement: ?Element,
 		configuratorClass: ?Configurator,
+		customTypesUrl: ?string,
+		moduleId: ?string,
 	} = {})
 	{
-		EventEmitter.makeObservable(this, 'UI.UserFieldFactory.Factory');
+		EventEmitter.makeObservable(this, 'BX.UI.UserFieldFactory.Factory');
 		this.configuratorClass = Configurator;
 		if(Type.isString(entityId) && entityId.length > 0)
 		{
@@ -30,10 +32,6 @@ export class Factory
 		}
 		if(Type.isPlainObject(params))
 		{
-			if(Type.isString(params.creationSignature))
-			{
-				this.creationSignature = params.creationSignature;
-			}
 			if(Type.isString(params.menuId))
 			{
 				this.menuId = params.menuId;
@@ -46,7 +44,9 @@ export class Factory
 			{
 				this.bindElement = params.bindElement;
 			}
-			this.setConfiguratorClass(params.configuratorClass);
+			this.moduleId = params.moduleId;
+			this.setCustomTypesUrl(params.customTypesUrl)
+				.setConfiguratorClass(params.configuratorClass);
 		}
 		else
 		{
@@ -59,9 +59,9 @@ export class Factory
 	{
 		const types = [];
 
-		Object.keys(FieldDescriptions).forEach((name) =>
+		Object.keys(FieldTypes.getDescriptions()).forEach((name) =>
 		{
-			types.push({...FieldDescriptions[name], ...{name}});
+			types.push({...FieldTypes.getDescriptions()[name], ...{name}});
 		});
 
 		this.emit('OnGetUserTypes', {
@@ -81,9 +81,17 @@ export class Factory
 		{
 			params.bindElement = this.bindElement;
 		}
+		const types = this.types;
+		if(this.customTypesUrl && !this.isCustomTypeAdded)
+		{
+			const customType = {...FieldTypes.getCustomTypeDescription()};
+			customType.onClick = this.onCustomTypeClick.bind(this);
+			types.push(customType);
+			this.isCustomTypeAdded = true;
+		}
 		if(!this.menu)
 		{
-			this.menu = new CreationMenu(this.menuId, this.types, params);
+			this.menu = new CreationMenu(this.menuId, types, params);
 		}
 
 		return this.menu;
@@ -107,8 +115,15 @@ export class Factory
 		}
 	}
 
+	setCustomTypesUrl(customTypesUrl: string): this
+	{
+		this.customTypesUrl = customTypesUrl;
+
+		return this;
+	}
+
 	getConfigurator(params: {
-		field: Field,
+		userField: UserField,
 		onSave: Function,
 		onCancel: ?Function,
 	}): Configurator
@@ -116,26 +131,27 @@ export class Factory
 		return new this.configuratorClass(params);
 	}
 
-	createField(fieldType: string, fieldName: ?string): Field
+	createUserField(fieldType: string, fieldName: ?string): UserField
 	{
-		let data = {...DefaultData, ...DefaultFieldData[fieldType], ...{USER_TYPE_ID: fieldType}};
+		let data = {...DefaultData, ...DefaultFieldData[fieldType], ...{userTypeId: fieldType}};
 
 		if(!Type.isString(fieldName) || fieldName.length <= 0 || fieldName.length > MAX_FIELD_LENGTH)
 		{
 			fieldName = this.generateFieldName();
 		}
-		data.FIELD = fieldName;
-		data.ENTITY_ID = this.entityId;
-		data.SIGNATURE = this.creationSignature;
+		data.fieldName = fieldName;
+		data.entityId = this.entityId;
 
-		const field = new Field(data);
-		field.setTitle(this.getDefaultLabel(fieldType));
+		const userField = new UserField(data, {
+			moduleId: this.moduleId,
+		});
+		userField.setTitle(this.getDefaultLabel(fieldType));
 
 		this.emit('onCreateField', {
-			field,
+			userField,
 		});
 
-		return field;
+		return userField;
 	}
 
 	getDefaultLabel(fieldType: string): string
@@ -166,164 +182,30 @@ export class Factory
 		return name;
 	}
 
-	saveField(field: Field): Promise<?Field, Array>
+	onCustomTypeClick()
 	{
-		return new Promise((resolve, reject) =>
+		if(!this.customTypesUrl)
 		{
-			if(field instanceof Field)
-			{
-				if(field.isSaved())
-				{
-					this.getEditManager().update({ "FIELDS": [field.getData()]}, (response) =>
+			return;
+		}
+		BX.SidePanel.Instance.open(this.customTypesUrl.toString(), {
+			cacheable: false,
+			allowChangeHistory: false,
+			width: 900,
+			events: {
+				onClose: (event) => {
+					const slider = event.getSlider();
+					if(slider)
 					{
-						this.onFieldSave(field, response, resolve, reject);
-					});
-				}
-				else
-				{
-					this.getEditManager().add({ "FIELDS": [field.getData()]}, (response) =>
-					{
-						this.onFieldSave(field, response, resolve, reject);
-					});
-				}
-			}
-			else
-			{
-				reject(['Wrong parameter: field must be instance of Field']);
-			}
-		});
-	}
-
-	deleteField(field: Field): Promise
-	{
-		return new Promise((resolve, reject) =>
-		{
-			if(field instanceof Field)
-			{
-				if(field.isSaved())
-				{
-					this.getEditManager().delete({ "FIELDS": [field.getData()]}, (response) =>
-					{
-						this.onFieldDelete(field, response, resolve, reject);
-					});
-				}
-			}
-			else
-			{
-				reject(['Wrong parameter: field must be instance of Field']);
-			}
-		});
-	}
-
-	onFieldSave(field: Field, response, onSuccess: Function, onError: Function): void
-	{
-		if(Type.isPlainObject(response))
-		{
-			if(response.ERROR && Type.isArray(response.ERROR) && response.ERROR.length > 0)
-			{
-				onError(response.ERROR);
-			}
-			else
-			{
-				const fieldData = this.getFieldDataFromResponse(response);
-				if(fieldData)
-				{
-					field.markAsSaved()
-						.setData(fieldData);
-					if(Type.isFunction(onSuccess))
-					{
-						onSuccess(field);
+						const userFieldData = slider.getData().get('userFieldData');
+						if(userFieldData)
+						{
+							const userField = UserField.unserialize(userFieldData);
+							this.emit('onCreateCustomUserField', {userField});
+						}
 					}
-					this.emit('onFieldSave', {
-						field,
-					});
 				}
 			}
-		}
-		else
-		{
-			if(Type.isFunction(onError))
-			{
-				if(Type.isArray(this.managerErrors) && this.managerErrors.length > 0)
-				{
-					onError(this.managerErrors);
-					this.managerErrors = [];
-				}
-				else
-				{
-					onError([Loc.getMessage('UI_USERFIELD_SAVE_ERROR')]);
-				}
-			}
-		}
-	}
-
-	onFieldDelete(field: Field, response, onSuccess: Function, onError: Function): void
-	{
-		if(Type.isPlainObject(response) || Type.isArray(response))
-		{
-			if(Type.isPlainObject(response) && response.ERROR && Type.isArray(response.ERROR) && response.ERROR.length > 0)
-			{
-				onError(response.ERROR);
-			}
-			else
-			{
-				if(Type.isFunction(onSuccess))
-				{
-					onSuccess(field);
-				}
-				this.emit('onFieldDelete', {
-					field,
-				});
-			}
-		}
-		else
-		{
-			if(Type.isFunction(onError))
-			{
-				if(Type.isArray(this.managerErrors) && this.managerErrors.length > 0)
-				{
-					onError(this.managerErrors);
-					this.managerErrors = [];
-				}
-				else
-				{
-					onError([Loc.getMessage('UI_USERFIELD_DELETE_ERROR')]);
-				}
-			}
-		}
-	}
-
-	getFieldDataFromResponse(response: Object): ?Object
-	{
-		if(Type.isPlainObject(response))
-		{
-			let fieldData = null;
-			Object.keys(response).forEach((fieldName) =>
-			{
-				if(Type.isPlainObject(response[fieldName]['FIELD']))
-				{
-					fieldData = response[fieldName]['FIELD'];
-				}
-			});
-
-			return fieldData;
-		}
-
-		return null;
-	}
-
-	getEditManager(): BX.Main.UF.Manager
-	{
-		if(!this.editManager)
-		{
-			this.editManager = BX.Main.UF.EditManager;
-
-			this.editManager.displayError = (errors: Array) =>
-			{
-				this.managerErrors = errors;
-			};
-		}
-
-		return this.editManager;
+		});
 	}
 }

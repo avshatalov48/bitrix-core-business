@@ -113,6 +113,8 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 				$workflowTemplateName = $arTemplate["NAME"];
 				$workflowTemplateDescription = $arTemplate["DESCRIPTION"];
 				$workflowTemplateAutostart = $arTemplate["AUTO_EXECUTE"];
+				$workflowTemplateIsSystem = $arTemplate["IS_SYSTEM"];
+				$workflowTemplateSort = $arTemplate["SORT"];
 				$arWorkflowTemplate = $arTemplate["TEMPLATE"];
 				$arWorkflowParameters = $arTemplate["PARAMETERS"];
 				$arWorkflowVariables = $arTemplate["VARIABLES"];
@@ -140,6 +142,8 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 			$workflowTemplateName = Loc::getMessage("BIZPROC_WFEDIT_DEFAULT_TITLE");
 			$workflowTemplateDescription = '';
 			$workflowTemplateAutostart = 1;
+			$workflowTemplateIsSystem = 'N';
+			$workflowTemplateSort = 10;
 
 			if ($_GET['init'] == 'statemachine')
 			{
@@ -213,6 +217,8 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 				"PARAMETERS"	=> $_POST["arWorkflowParameters"],
 				"VARIABLES" 	=> $_POST["arWorkflowVariables"],
 				"CONSTANTS" 	=> $_POST["arWorkflowConstants"],
+				"IS_SYSTEM" 	=> $_POST["workflowTemplateIsSystem"] ?? 'N',
+				"SORT" 	=> $_POST["workflowTemplateSort"] ?? 10,
 				"USER_ID"		=> intval($USER->GetID()),
 				"MODIFIER_USER" => new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser),
 			];
@@ -321,6 +327,11 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 
 				try
 				{
+					if ($ID > 0 && $workflowTemplateAutostart == \CBPDocumentEventType::Automation)
+					{
+						$_POST["import_template_autostart"] = \CBPDocumentEventType::Automation;
+					}
+
 					$r = CBPWorkflowTemplateLoader::ImportTemplate(
 						$ID,
 						[MODULE_ID, ENTITY, $document_type],
@@ -383,6 +394,8 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 		$this->arResult['TEMPLATE_NAME'] = $workflowTemplateName;
 		$this->arResult['TEMPLATE_DESC'] = $workflowTemplateDescription;
 		$this->arResult['TEMPLATE_AUTOSTART'] = $workflowTemplateAutostart;
+		$this->arResult['TEMPLATE_IS_SYSTEM'] = $workflowTemplateIsSystem;
+		$this->arResult['TEMPLATE_SORT'] = $workflowTemplateSort;
 		$this->arResult['TEMPLATE'] = $arWorkflowTemplate;
 		$this->arResult['TEMPLATE_CHECK_STATUS'] = CBPWorkflowTemplateLoader::checkTemplateActivities($arWorkflowTemplate);
 		$this->arResult['PARAMETERS'] = $arWorkflowParameters;

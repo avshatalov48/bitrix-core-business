@@ -109,7 +109,7 @@ if($MOD_RIGHT=="W" && $arID = $lAdmin->GroupAction())
 		$rsData = Bitrix\Mail\MailMessageTable::getList(array(
 			'select' => array('ID'),
 			'filter' => array_filter($FilterTmp),
-			'order'  => array(strtoupper($by) => $order),
+			'order'  => array(mb_strtoupper($by) => $order),
 		));
 
 		while($arRes = $rsData->fetch())
@@ -117,15 +117,15 @@ if($MOD_RIGHT=="W" && $arID = $lAdmin->GroupAction())
 	}
 
 	$filter_id = false;
-	if(substr($_REQUEST['action'], 0, strlen("refilter_num_")) == "refilter_num_")
+	if(mb_substr($_REQUEST['action'], 0, mb_strlen("refilter_num_")) == "refilter_num_")
 	{
-		$filter_id = substr($_REQUEST['action'], strlen("refilter_num_"));
+		$filter_id = mb_substr($_REQUEST['action'], mb_strlen("refilter_num_"));
 		$_REQUEST['action'] = "refilter";
 	}
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
 
 		$ID = intval($ID);
@@ -162,7 +162,7 @@ $messageList = Bitrix\Mail\MailMessageTable::getList(array(
 		'FIELD_FROM', 'FIELD_REPLY_TO', 'FIELD_CC', 'FIELD_BCC', 'FIELD_DATE', 'DATE_INSERT', 'ATTACHMENTS', 'MSG_ID' // optional
 	),
 	'filter'      => array_filter($arFilter),
-	'order'       => array(strtoupper($by) => $order),
+	'order'       => array(mb_strtoupper($by) => $order),
 	'offset'      => $nav->getOffset(),
 	'limit'       => $nav->getLimit(),
 	'count_total' => true,
@@ -227,7 +227,7 @@ while($arRes = $messageList->fetch())
 		'<a href="mail_message_view.php?lang=%s&amp;ID=%u">%s</a>',
 		htmlspecialcharsbx(LANG),
 		$arRes['ID'],
-		strlen($arRes['SUBJECT']) > 0 ? htmlspecialcharsbx($arRes['SUBJECT']) : getMessage('MAIL_MSG_ADM_NOSUBJ')
+		$arRes['SUBJECT'] <> '' ? htmlspecialcharsbx($arRes['SUBJECT']) : getMessage('MAIL_MSG_ADM_NOSUBJ')
 	);
 
 	$row->AddViewField("SUBJECT", $str);
@@ -315,7 +315,7 @@ $arActions["refilter"] = GetMessage("MAIL_MSG_ADM_PROC_ACT_RULES");
 
 $res = CMailFilter::GetList(Array("NAME"=>"ASC"), Array("ACTIVE"=>"Y", "WHEN_MANUALLY_RUN"=>"Y"));
 while($flt_arr = $res->Fetch())
-	$arActions["refilter_num_".$flt_arr["ID"]] = GetMessage("MAIL_MSG_ADM_PROC_ACT_RULE")." ".htmlspecialcharsbx(substr($flt_arr["NAME"], 0, 30));
+	$arActions["refilter_num_".$flt_arr["ID"]] = GetMessage("MAIL_MSG_ADM_PROC_ACT_RULE")." ".htmlspecialcharsbx(mb_substr($flt_arr["NAME"], 0, 30));
 
 if ($MOD_RIGHT=="W")
 	$lAdmin->AddGroupActionTable($arActions);

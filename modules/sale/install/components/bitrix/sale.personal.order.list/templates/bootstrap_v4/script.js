@@ -9,6 +9,7 @@ BX.namespace('BX.Sale.PersonalOrderComponent');
 			params.paymentList = params.paymentList || {};
 			params.url = params.url || "";
 			params.templateName = params.templateName || "";
+			params.returnUrl = params.returnUrl || "";
 
 			Array.prototype.forEach.call(rowWrapper, function(wrapper)
 			{
@@ -38,7 +39,8 @@ BX.namespace('BX.Sale.PersonalOrderComponent');
 							url: event.target.href,
 							data:
 							{
-								sessid: BX.bitrix_sessid()
+								sessid: BX.bitrix_sessid(),
+								RETURN_URL: params.returnUrl
 							},
 							onsuccess: BX.proxy(function(result)
 							{

@@ -23,94 +23,169 @@
 			this.next = '';
 			this.section = [];
 			this.progressDescriptionContainer = BX.findChildByClassName( BX(this.id), 'rest-configuration-info');
-			this.clearAll = false;
+			this.needClearFull = params.needClearFull;
+			this.needClearFullConfirm = params.needClearFullConfirm;
 			this.errors = [];
+
 			var startBtn = BX.findChildByClassName( BX(this.id),'start_btn');
-			BX.bind(
-				startBtn,
-				'click',
-				BX.delegate(
-					function()
-					{
-						var btnConfirm = new BX.UI.Button({
-							color: BX.UI.Button.Color.PRIMARY,
-							state: BX.UI.Button.State.DISABLED,
-							text: BX.message('REST_CONFIGURATION_IMPORT_INSTALL_CONFIRM_POPUP_BTN_CONTINUE'),
-							onclick: BX.delegate(
-									function (btn)
-									{
-										this.clearAll = BX('CONFIGURATION_ACCEPT_CLEAR_ALL').checked;
-										if (!this.clearAll)
-										{
-											return false;
-										}
-										btn.context.close();
-										this.start();
-									},
-									this
-							)
-						});
-						var message = BX.create(
-							'div',
+			if (startBtn !== null)
+			{
+				BX.bind(
+					startBtn,
+					'click',
+					BX.delegate(
+						function()
+						{
+							if(this.needClearFullConfirm === true)
 							{
-								children: [
+								this.showConfirmClearAll(startBtn);
+							}
+							else
+							{
+								this.start();
+							}
+						},
+						this
+					)
+				);
+			}
+			else
+			{
+				this.start();
+			}
+
+
+			var startLaterBtn = BX.findChildByClassName( BX(this.id),'start_later_btn');
+			if (startLaterBtn !== null)
+			{
+				BX.bind(
+					startLaterBtn,
+					'click',
+					BX.delegate(
+						function()
+						{
+							this.showPopupInstallLater(startLaterBtn);
+						},
+						this
+					)
+				);
+
+			}
+		},
+
+		showPopupInstallLater: function(eventBtn)
+		{
+			this.sendAjax(
+				'preInstallOff',
+				{},
+				BX.delegate(
+					function (response)
+					{
+						BX.UI.Dialogs.MessageBox.show(
+							{
+								message:
 									BX.create(
 										"p",
 										{
-											text: BX.message('REST_CONFIGURATION_IMPORT_INSTALL_CONFIRM_POPUP_TEXT'),
+											html: BX.message('REST_CONFIGURATION_IMPORT_PRE_INSTALL_LATER_APP_POPUP_DESCRIPTION'),
 										}
 									),
-									BX.create(
-										"INPUT",
+								modal: true,
+								bindElement: eventBtn,
+								buttons: [
+									new BX.UI.Button(
 										{
-											attrs: {
-												id: "CONFIGURATION_ACCEPT_CLEAR_ALL",
-												type: "checkbox",
-												name: 'ACCEPT_CLEAR_ALL',
-												value: 'Y'
-											},
-											events: {
-												change: function (event) {
-													btnConfirm.setState(
-														this.checked ? BX.UI.Button.State.ACTIVE : BX.UI.Button.State.DISABLED
-													);
-												}
+											text: BX.message('REST_CONFIGURATION_IMPORT_INSTALL_LATER_POPUP_CLOSE_BTN'),
+											color: BX.UI.Button.Color.PRIMARY,
+											onclick: function (btn) {
+												btn.context.close();
+												BX.SidePanel.Instance.close();
 											}
 										}
 									),
-									BX.create(
-										'label',
-										{
-											attrs: {
-												for: "CONFIGURATION_ACCEPT_CLEAR_ALL"
-											},
-											text: BX.message('REST_CONFIGURATION_IMPORT_INSTALL_CONFIRM_POPUP_CHECKBOX_LABEL'),
-										}
-									)
-								]
+								],
 							}
 						);
-
-						BX.UI.Dialogs.MessageBox.show({
-							message: message,
-							modal: true,
-							bindElement: startBtn,
-							buttons: [
-								btnConfirm,
-								new BX.UI.Button({
-									text: BX.message('REST_CONFIGURATION_IMPORT_INSTALL_CONFIRM_POPUP_BTN_CANCEL'),
-									onclick: function(btn) {
-										btn.context.close();
-									}
-								}),
-							],
-						});
-
 					},
 					this
 				)
 			);
+		},
 
+		showConfirmClearAll: function(startBtn)
+		{
+			var btnConfirm = new BX.UI.Button({
+				color: BX.UI.Button.Color.PRIMARY,
+				state: BX.UI.Button.State.DISABLED,
+				text: BX.message('REST_CONFIGURATION_IMPORT_INSTALL_CONFIRM_POPUP_BTN_CONTINUE'),
+				onclick: BX.delegate(
+					function (btn)
+					{
+						if (!BX('CONFIGURATION_ACCEPT_CLEAR_ALL').checked)
+						{
+							return false;
+						}
+						btn.context.close();
+						this.start();
+					},
+					this
+				)
+			});
+			var message = BX.create(
+				'div',
+				{
+					children: [
+						BX.create(
+							"p",
+							{
+								text: BX.message('REST_CONFIGURATION_IMPORT_INSTALL_CONFIRM_POPUP_TEXT'),
+							}
+						),
+						BX.create(
+							"INPUT",
+							{
+								attrs: {
+									id: "CONFIGURATION_ACCEPT_CLEAR_ALL",
+									type: "checkbox",
+									name: 'ACCEPT_CLEAR_ALL',
+									value: 'Y'
+								},
+								events: {
+									change: function (event) {
+										btnConfirm.setState(
+											this.checked ? BX.UI.Button.State.ACTIVE : BX.UI.Button.State.DISABLED
+										);
+									}
+								}
+							}
+						),
+						BX.create(
+							'label',
+							{
+								attrs: {
+									for: "CONFIGURATION_ACCEPT_CLEAR_ALL"
+								},
+								text: BX.message('REST_CONFIGURATION_IMPORT_INSTALL_CONFIRM_POPUP_CHECKBOX_LABEL'),
+							}
+						)
+					]
+				}
+			);
+
+			BX.UI.Dialogs.MessageBox.show({
+				message: message,
+				modal: true,
+				bindElement: startBtn,
+				buttons: [
+					btnConfirm,
+					new BX.UI.Button({
+						text: BX.message('REST_CONFIGURATION_IMPORT_INSTALL_CONFIRM_POPUP_BTN_CANCEL'),
+						onclick: function(btn) {
+							btn.context.close();
+						}
+					}),
+				],
+			});
 		},
 
 		setDescription: function (code)
@@ -185,38 +260,68 @@
 			this.sendAjax(
 				'finish',
 				{},
-				function (response)
-				{
-					if(response.data.result === true)
-					{
-						if(self.errors.length > 0)
+				BX.delegate(
+					function(response) {
+						if (response.data.result === true)
 						{
-							var errorsBlock = BX.findChildByClassName( BX(self.id),'rest-configuration-errors');
-							for (var i = 0; i < self.errors.length; i++)
+							if (self.errors.length > 0)
 							{
-								errorsBlock.appendChild(
-									BX.create('p',
-										{
-											'text':self.errors[i]
-										}
-									)
+								var errorsBlock = BX.findChildByClassName(BX(self.id), 'rest-configuration-errors');
+								for (var i = 0; i < self.errors.length; i++)
+								{
+									errorsBlock.appendChild(
+										BX.create('p',
+											{
+												'text': self.errors[i]
+											}
+										)
+									);
+								}
+							}
+							else
+							{
+								BX(self.id).appendChild(
+									BX.create('p', {
+										attrs: {
+											className: 'rest-configuration-import-finish rest-configuration-info'
+										},
+										html: BX.message('REST_CONFIGURATION_IMPORT_INSTALL_FINISH_TEXT')
+									})
 								);
 							}
 						}
-						else
+
+						var elementList = [];
+
+						if (!!response.data.createItemList && response.data.createItemList.length > 0)
 						{
-							BX(self.id).appendChild(
-								BX.create('p', {
-									attrs: {
-										className: 'rest-configuration-import-finish rest-configuration-info'
-									},
-									html: BX.message('REST_CONFIGURATION_IMPORT_INSTALL_FINISH_TEXT')
-								})
-							);
+							var itemList = response.data.createItemList;
+							for (var i = 0; i < itemList.length; i++)
+							{
+								elementList[i] = BX.create(
+									itemList[i]['TAG'],
+									itemList[i]['DATA']
+								);
+								this.progressDescriptionContainer.appendChild(
+									elementList[i]
+								);
+							}
 						}
 
-					}
-				}
+						top.BX.Event.EventEmitter.emit(
+							'BX.Rest.Configuration.Install:onFinish',
+							new top.BX.Event.BaseEvent(
+								{
+									data: {
+										finishResponse: response.data,
+										errors: this.errors,
+										elementList: elementList
+									},
+								}
+							)
+						);
+					},
+					this)
 			);
 		},
 
@@ -294,25 +399,42 @@
 
 			this.setDescription('START');
 			BX.style(BX.findChildByClassName( BX(this.id),'start_btn_block'), 'display', 'none');
-			var self = this;
 			this.sendAjax(
 				'start',
 				{},
-				function (response)
-				{
-					if(response.data.section.length > 0)
+				BX.delegate(
+					function (response)
 					{
-						self.section = response.data.section;
-						if(!!response.data.next && response.data.next === 'save')
+						if(response.data.section.length > 0)
 						{
-							self.save(0, 0);
+							this.section = response.data.section;
+							if(!!response.data.next && response.data.next === 'save')
+							{
+								this.loadManifest(0, '', 'export');
+							}
+							else
+							{
+								this.loadManifest(0, '', 'import');
+							}
 						}
-						else
-						{
-							self.clear(0, 0, 0);
-						}
-					}
-				}
+					},
+					this
+				)
+			);
+		},
+
+		finishSave: function()
+		{
+			this.sendAjax(
+				'finishSave',
+				{},
+				BX.delegate(
+					function (response)
+					{
+						this.loadManifest(0, '', 'import');
+					},
+					this
+				)
 			);
 		},
 
@@ -340,11 +462,52 @@
 
 							if(section >= this.section.length)
 							{
-								this.clear(0, 0, 0);
+								this.finishSave(0, '', 'import');
 							}
 							else
 							{
 								this.save(section, step);
+							}
+						}
+						else
+						{
+							this.showFatalError();
+						}
+					},
+					this
+				)
+			);
+		},
+
+		loadManifest: function (step, next, type)
+		{
+			this.sendAjax(
+				'loadManifest',
+				{
+					step: step,
+					next: next,
+					type: type
+				},
+				BX.delegate(
+					function (response)
+					{
+						if(!!response.data)
+						{
+							step++;
+							if(response.data.next === false)
+							{
+								if(type === 'export')
+								{
+									this.save(0, 0);
+								}
+								else
+								{
+									this.clear(0, 0, 0);
+								}
+							}
+							else
+							{
+								this.loadManifest(step, response.data.next, type);
 							}
 						}
 						else
@@ -428,7 +591,7 @@
 			);
 		},
 
-		showFatalError: function ()
+		showFatalError: function (message)
 		{
 			var barContainer = BX.findChildByClassName( BX(this.id),'rest-configuration-start-icon-main');
 			BX.removeClass(barContainer,'rest-configuration-start-icon-main-zip rest-configuration-start-icon-main-loading');
@@ -442,15 +605,14 @@
 					},
 					children:[
 					],
-					'text': BX.message("REST_CONFIGURATION_IMPORT_INSTALL_FATAL_ERROR")
+					'text': (message) ? message : BX.message("REST_CONFIGURATION_IMPORT_INSTALL_FATAL_ERROR")
 				})
 			);
 		},
 
 		sendAjax: function (action, data, callback)
 		{
-			data.clear = this.clearAll;
-			var self = this;
+			data.clear = this.needClearFull;
 			BX.ajax.runComponentAction(
 				'bitrix:rest.configuration.install',
 				action,
@@ -460,27 +622,37 @@
 					data: data
 				}
 			).then(
-				function(response)
-				{
-					callback(response);
-					if(!!response.data.errors)
+				BX.delegate(
+					function(response)
 					{
-						self.addErrors(response.data.errors);
-					}
-					if(!!response.data['errorsNotice'])
-					{
-						console.log({
-							errors: response.data['errorsNotice'],
-							action: action,
-							data: data,
-							response: response
-						});
-					}
-				}
+						if(!!response.data.exception)
+						{
+							this.showFatalError(response.data.exception);
+						}
+						else
+						{
+							callback(response);
+						}
+						if(!!response.data.errors)
+						{
+							this.addErrors(response.data.errors);
+						}
+						if(!!response.data['notice'])
+						{
+							console.log({
+								errors: response.data['notice'],
+								action: action,
+								data: data,
+								response: response
+							});
+						}
+					},
+					this
+				)
 			).catch(
 				function(response)
 				{
-					this.showFatalError();
+					this.showFatalError(false);
 				}.bind(this)
 			);
 		}

@@ -240,7 +240,7 @@ if(CSaleYMHandler::isActive())
 	$orderPropsList = array();
 
 	while ($arOrderProps = $dbOrderProps->Fetch())
-		if(strlen($arOrderProps["CODE"]) > 0)
+		if($arOrderProps["CODE"] <> '')
 			$orderPropsList[$arOrderProps["CODE"]] = $arOrderProps["NAME"];
 
 	$tabControl->Begin();

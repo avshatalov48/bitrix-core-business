@@ -74,7 +74,7 @@ $readDatetimeFormatted = !empty($message['READ_CONFIRMED']) && $message['READ_CO
 		) ?>
 	</div>
 	<div class="mail-uf-message-separator"></div>
-	<div class="mail-uf-message-body"><?=htmlspecialcharsbx(substr($message['BODY'], 0, 255)) ?></div>
+	<div class="mail-uf-message-body"><?=htmlspecialcharsbx(mb_substr($message['BODY'], 0, 255)) ?></div>
 	<div>
 		<a class="mail-uf-message-body-expand" data-slider-ignore-autobinding="true"
 			href="<?=htmlspecialcharsbx($message['__href']) ?>"
@@ -104,7 +104,7 @@ $readDatetimeFormatted = !empty($message['READ_CONFIRMED']) && $message['READ_CO
 <? endif?>
 
 <script type="text/javascript">
-	
+
 (function ()
 {
 	if (window.BXMailUfMessageHelper)
@@ -119,8 +119,8 @@ $readDatetimeFormatted = !empty($message['READ_CONFIRMED']) && $message['READ_CO
 		BX.SidePanel.Instance.open(
 			href,
 			{
-				//cacheable: false,
-				width: 1080
+				width: 1080,
+				loader: 'view-mail-loader'
 			}
 		);
 

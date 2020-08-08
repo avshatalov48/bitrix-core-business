@@ -27,7 +27,7 @@ class SocialNetwork
 	 * Path for binding group with new site.
 	 * @todo: it's not good, specify path in the code, but temporary it's ok
 	 */
-	const PATH_GROUP_BINDING = '/kb/binding/group/create.php?groupId=#groupId#';
+	const PATH_GROUP_BINDING = 'kb/binding/group/create.php?groupId=#groupId#';
 
 	/**
 	 * Gets binding row by group id.
@@ -112,7 +112,7 @@ class SocialNetwork
 				)
 			);
 			\CJSCore::init('sidepanel');
-			$link = str_replace('#groupId#', $groupId, self::PATH_GROUP_BINDING);
+			$link = SITE_DIR . str_replace('#groupId#', $groupId, self::PATH_GROUP_BINDING);
 			$link = 'javascript:void(KnowledgeCreate(\'' . $link . '\'));';
 		}
 
@@ -121,7 +121,7 @@ class SocialNetwork
 
 	/**
 	 * Fill settings array for social network group.
-	 * @param array $socNetFeaturesSettings Settings array.
+	 * @param array &$socNetFeaturesSettings Settings array.
 	 * @return void
 	 */
 	public static function onFillSocNetFeaturesList(&$socNetFeaturesSettings)
@@ -143,7 +143,7 @@ class SocialNetwork
 
 	/**
 	 * Fill menu array for social network group.
-	 * @param array $result Menu array.
+	 * @param array &$result Menu array.
 	 * @return void
 	 */
 	public static function onFillSocNetMenu(&$result)
@@ -242,7 +242,7 @@ class SocialNetwork
 		if ($groupPath === null)
 		{
 			$groupPath = Option::get('socialnetwork', 'group_path_template', '', SITE_ID);
-			if (substr($groupPath, -1) == '/')
+			if (mb_substr($groupPath, -1) == '/')
 			{
 				$groupPath .= 'general/';
 			}

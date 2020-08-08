@@ -25,7 +25,7 @@ $fileId = intval($_REQUEST["i"]);
 $fileAction = ($_REQUEST["act"] == "v" ? "view" : "download");
 $filePathHash = trim($_REQUEST["h"]);
 
-if ($fileId <= 0 || strlen($fileName) <= 0 && strlen($fileNameHash) <= 0)
+if ($fileId <= 0 || $fileName == '' && $fileNameHash == '')
 	die("Error1");
 
 $bpId = !empty($_REQUEST['bp_id']) ? (int)$_REQUEST['bp_id'] : 0;
@@ -88,11 +88,11 @@ if (strcmp($checkName, $rawName) !== 0)
 		die("Error3");
 }
 
-if (strlen($arImg["SUBDIR"]) <= 0)
+if ($arImg["SUBDIR"] == '')
 	die("Error4");
 
-if (substr($arImg["SUBDIR"], 0, strlen("bizproc_wf/")) != "bizproc_wf/"
-	&& (strlen($filePathHash) <= 0 || $filePathHash != md5($arImg["SUBDIR"])))
+if (mb_substr($arImg["SUBDIR"], 0, mb_strlen("bizproc_wf/")) != "bizproc_wf/"
+	&& ($filePathHash == '' || $filePathHash != md5($arImg["SUBDIR"])))
 	die("Error5");
 
 set_time_limit(0);

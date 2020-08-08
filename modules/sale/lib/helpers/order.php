@@ -19,7 +19,7 @@ class Order
 	public static function isAllowGuestView(Sale\Order $order)
 	{
 		$guestStatuses = Option::get("sale", "allow_guest_order_view_status", "");
-		$guestStatuses = (strlen($guestStatuses) > 0) ?  unserialize($guestStatuses) : array();
+		$guestStatuses = ($guestStatuses <> '') ?  unserialize($guestStatuses) : array();
 		return (is_array($guestStatuses) && in_array($order->getField('STATUS_ID'), $guestStatuses) && Option::get("sale", "allow_guest_order_view") === 'Y');
 	}
 
@@ -44,16 +44,16 @@ class Order
 		$paths = unserialize(Option::get("sale", "allow_guest_order_view_paths"));
 		$path =  htmlspecialcharsbx($paths[$site['LID']]);
 
-		if (isset($path) && strpos($path, '#order_id#'))
+		if (isset($path) && mb_strpos($path, '#order_id#'))
 		{
 			$accountNumber = urlencode(urlencode($order->getField('ACCOUNT_NUMBER')));
 			$path = str_replace('#order_id#', $accountNumber,$path);
-			if (strpos($path, '/') !== 0)
+			if (mb_strpos($path, '/') !== 0)
 			{
 				$path = '/'.$path;
 			}
 
-			$path .= (strpos($path, '?')) ? '&' : "?";
+			$path .= (mb_strpos($path, '?')) ? '&' : "?";
 			$path .= "access=".$order->getHash();
 		}
 		else

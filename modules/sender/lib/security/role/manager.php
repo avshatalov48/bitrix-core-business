@@ -7,6 +7,7 @@ use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Entity\AddResult;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Sender\Access\Role\RoleTable;
 use Bitrix\Sender\Internals\Model;
 
 use Bitrix\Bitrix24\Feature;
@@ -66,7 +67,7 @@ class Manager
 	 */
 	public static function getRoleList(array $parameters = [])
 	{
-		return Model\Role\RoleTable::getList($parameters);
+		return RoleTable::getList($parameters);
 	}
 
 	/**
@@ -174,11 +175,11 @@ class Manager
 			throw new ArgumentException('Role id should be greater than zero', 'roleId');
 		}
 
-		if(Model\Role\RoleTable::getRowById($roleId))
+		if(RoleTable::getRowById($roleId))
 		{
 			if (!empty($roleFields))
 			{
-				$result = Model\Role\RoleTable::update($roleId, $roleFields);
+				$result = RoleTable::update($roleId, $roleFields);
 				if (!$result->isSuccess())
 				{
 					return $result;
@@ -187,7 +188,7 @@ class Manager
 		}
 		else
 		{
-			$result = Model\Role\RoleTable::add($roleFields);
+			$result = RoleTable::add($roleFields);
 			if (!$result->isSuccess())
 			{
 				return $result;
@@ -231,7 +232,7 @@ class Manager
 	{
 		Model\Role\PermissionTable::deleteByRoleId($roleId);
 		Model\Role\AccessTable::deleteByRoleId($roleId);
-		Model\Role\RoleTable::delete($roleId);
+		RoleTable::delete($roleId);
 		self::clearMenuCache();
 	}
 
@@ -253,7 +254,7 @@ class Manager
 	 */
 	public static function installRoles()
 	{
-		$roleRow = Model\Role\RoleTable::getRow([]);
+		$roleRow = RoleTable::getRow([]);
 		if($roleRow)
 		{
 			return;
@@ -322,7 +323,7 @@ class Manager
 		$roleIds = array();
 		foreach ($defaultRoles as $roleCode => $role)
 		{
-			$addResult = Model\Role\RoleTable::add(array(
+			$addResult = RoleTable::add(array(
 				'NAME' => $role['NAME'],
 				'XML_ID' => $roleCode,
 			));

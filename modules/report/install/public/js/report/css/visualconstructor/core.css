@@ -1,4 +1,8 @@
 .amcharts-legend-div {
     overflow-y: auto!important;
     max-height: 280px;
+    scrollbar-width:none;
+}
+.amcharts-legend-div::-webkit-scrollbar {
+    display: none;
 }

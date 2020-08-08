@@ -52,10 +52,13 @@ class MainUserConsentRequestComponent extends CBitrixComponent
 			$this->errors->setError(new Error(Loc::getMessage('MAIN_USER_CONSENT_REQUEST_COMP_CLASS_ERR_ID')));
 			return false;
 		}
-		$agreement->getText();
 		
 		$agreementData = $agreement->getData();
 		$this->arResult['INPUT_LABEL'] = $agreement->getLabelText();
+
+		$this->arResult['LABEL'] = $agreement->getLabel();
+		$this->arResult['URL'] = $agreement->getUrl();
+
 
 		if (isset($this->arParams['REPLACE']['fields']) && is_array($this->arParams['REPLACE']['fields']))
 		{
@@ -68,11 +71,12 @@ class MainUserConsentRequestComponent extends CBitrixComponent
 			'autoSave' => $this->arParams['AUTO_SAVE'],
 			'actionUrl' => $this->getPath() . '/ajax.php',
 			'replace' => $this->arParams['REPLACE'],
+			'url' => $this->arResult['URL'],
 		);
 
 		if ($this->arParams['IS_LOADED'])
 		{
-			$config['text'] = $agreement->getText();
+			$config['text'] = $agreement->getHtml();
 		}
 		if ($this->arParams['SUBMIT_EVENT_NAME'])
 		{

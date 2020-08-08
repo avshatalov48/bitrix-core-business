@@ -1,5 +1,4 @@
 <?
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/delivery.php");
 
 /** @deprecated */
 class CSaleDelivery extends CAllSaleDelivery
@@ -10,12 +9,12 @@ class CSaleDelivery extends CAllSaleDelivery
 		$val = DoubleVal($val);
 
 		$baseSiteCurrency = "";
-		if (isset($arFilter["LID"]) && strlen($arFilter["LID"]) > 0)
+		if (isset($arFilter["LID"]) && $arFilter["LID"] <> '')
 			$baseSiteCurrency = CSaleLang::GetLangCurrency($arFilter["LID"]);
-		elseif (isset($arFilter["CURRENCY"]) && strlen($arFilter["CURRENCY"]) > 0)
+		elseif (isset($arFilter["CURRENCY"]) && $arFilter["CURRENCY"] <> '')
 			$baseSiteCurrency = $arFilter["CURRENCY"];
 
-		if (strlen($baseSiteCurrency) <= 0)
+		if ($baseSiteCurrency == '')
 			return False;
 
 		$strSqlSearch = "";
@@ -24,7 +23,7 @@ class CSaleDelivery extends CAllSaleDelivery
 		while ($arCurrency = $dbCurrency->Fetch())
 		{
 			$val1 = roundEx(CCurrencyRates::ConvertCurrency($val, $baseSiteCurrency, $arCurrency["CURRENCY"]), SALE_VALUE_PRECISION);
-			if (strlen($strSqlSearch) > 0)
+			if ($strSqlSearch <> '')
 				$strSqlSearch .= " OR ";
 
 			$strSqlSearch .= "(D.ORDER_CURRENCY = '".$arCurrency["CURRENCY"]."' AND ";
@@ -40,8 +39,8 @@ class CSaleDelivery extends CAllSaleDelivery
 	/** @deprecated */
 	function PrepareLocation4Where($val, $key, $operation, $negative, $field, &$arField, &$arFilter)
 	{
-		return "(D2L.LOCATION_ID = ".IntVal($val)." AND D2L.LOCATION_TYPE = 'L' ".
-			" OR L2LG.LOCATION_ID = ".IntVal($val)." AND D2L.LOCATION_TYPE = 'G') ";
+		return "(D2L.LOCATION_ID = ".intval($val)." AND D2L.LOCATION_TYPE = 'L' ".
+			" OR L2LG.LOCATION_ID = ".intval($val)." AND D2L.LOCATION_TYPE = 'G') ";
 	}
 }
 ?>

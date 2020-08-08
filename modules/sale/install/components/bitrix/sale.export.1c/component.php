@@ -21,7 +21,7 @@ if ($arParams["USE_TEMP_DIR"] !== "Y" && $arParams["USE_TEMP_DIR"] !== "N")
 if(!isset($arParams["INTERVAL"]))
 	$arParams["INTERVAL"] = COption::GetOptionString("sale", "1C_INTERVAL", 30);
 else
-	$arParams["INTERVAL"] = IntVal($arParams["INTERVAL"]);
+	$arParams["INTERVAL"] = intval($arParams["INTERVAL"]);
 
 $arParams["FILE_SIZE_LIMIT"] = intval($arParams["FILE_SIZE_LIMIT"]);
 if($arParams["FILE_SIZE_LIMIT"] < 1)
@@ -61,14 +61,14 @@ $lid = ($bCrmMode && !empty($arParams["LID"]) ? $arParams["LID"] : null);
 
 ob_start();
 
-$curPage = substr($APPLICATION -> GetCurPage(), 0, 22);
+$curPage = mb_substr($APPLICATION->GetCurPage(), 0, 22);
 
 if(empty($_REQUEST["sessid"]) && !empty($_POST["sessid"]))
 {
 	$_REQUEST["sessid"] = $_POST["sessid"];
 }
 
-if(strlen($_REQUEST["sessid"]) > 0 && COption::GetOptionString("sale", "secure_1c_exchange", "N") != "Y")
+if($_REQUEST["sessid"] <> '' && COption::GetOptionString("sale", "secure_1c_exchange", "N") != "Y")
 {
 	COption::SetOptionString("sale", "secure_1c_exchange", "Y");
 }
@@ -121,7 +121,7 @@ else
 	$ABS_FILE_NAME = false;
 	$WORK_DIR_NAME = false;
 
-	if(isset($_GET["filename"]) && strlen($_GET["filename"]) > 0 && strlen($DIR_NAME) > 0)
+	if(isset($_GET["filename"]) && $_GET["filename"] <> '' && $DIR_NAME <> '')
 	{
 		//This check for 1c server on linux
 		$filename = preg_replace("#^(/tmp/|upload/1c/webdata)#", "", $_GET["filename"]);
@@ -138,10 +138,10 @@ else
 			$filename = trim(str_replace("\\", "/", trim($filename)), "/");
 
 			$FILE_NAME = rel2abs($DIR_NAME, "/".$filename);
-			if((strlen($FILE_NAME) > 1) && ($FILE_NAME === "/".$filename))
+			if((mb_strlen($FILE_NAME) > 1) && ($FILE_NAME === "/".$filename))
 			{
 				$ABS_FILE_NAME = $DIR_NAME.$FILE_NAME;
-				$WORK_DIR_NAME = substr($ABS_FILE_NAME, 0, strrpos($ABS_FILE_NAME, "/")+1);
+				$WORK_DIR_NAME = mb_substr($ABS_FILE_NAME, 0, mb_strrpos($ABS_FILE_NAME, "/") + 1);
 			}
 		}
 	}
@@ -156,7 +156,7 @@ else
 		else
 		{
 			$DIR_NAME = $_SERVER["DOCUMENT_ROOT"]."/".COption::GetOptionString("main", "upload_dir", "upload")."/1c_exchange/";
-			DeleteDirFilesEx(substr($DIR_NAME, strlen($_SERVER["DOCUMENT_ROOT"])));
+			DeleteDirFilesEx(mb_substr($DIR_NAME, mb_strlen($_SERVER["DOCUMENT_ROOT"])));
 		}
 
 		CheckDirPath($DIR_NAME);
@@ -185,7 +185,7 @@ else
 			echo "zip=".($_SESSION["BX_CML2_EXPORT"]["zip"]? "yes": "no")."\n";
 			echo "file_limit=".$arParams["FILE_SIZE_LIMIT"]."\n";
 
-			if(strlen($_GET["version"]) > 0)
+			if($_GET["version"] <> '')
 			{
 				echo bitrix_sessid_get()."\n";
 				echo "version=2.09";
@@ -218,7 +218,7 @@ else
 				$arFilter["PAYED"] = "Y";
 			if($arParams["EXPORT_ALLOW_DELIVERY_ORDERS"])
 				$arFilter["ALLOW_DELIVERY"] = "Y";
-			if(strlen($arParams["EXPORT_FINAL_ORDERS"])>0)
+			if($arParams["EXPORT_FINAL_ORDERS"] <> '')
 			{
 				$bNextExport = false;
 				$arStatusToExport = [];
@@ -255,7 +255,7 @@ else
 			if($arParams["SITE_LIST"])
 				$arFilter["LID"] = $arParams["SITE_LIST"];
 
-			if(strlen(COption::GetOptionString("sale", "last_export_time_committed_".$curPage, ""))>0)
+			if(COption::GetOptionString("sale", "last_export_time_committed_".$curPage, "") <> '')
 				$arFilter[">=DATE_UPDATE"] = ConvertTimeStamp(COption::GetOptionString("sale", "last_export_time_committed_".$curPage, ""), "FULL");
 			COption::SetOptionString("sale", "last_export_time_".$curPage, time());
 		}
@@ -281,13 +281,13 @@ else
 				$nTopCount = $arParams["IMPORT_SIZE"];
 
 			$arParams["REPLACE_CURRENCY"] = '';
-			if(strlen($_SESSION["BX_CML2_EXPORT"]["version"]) > 0 && IntVal($arParams["INTERVAL"]) <= 0)
+			if($_SESSION["BX_CML2_EXPORT"]["version"] <> '' && intval($arParams["INTERVAL"]) <= 0)
 				$arParams["INTERVAL"] = 30;
 
 			$export::setLanguage('en');
 		}
 
-		if(strlen($_SESSION["BX_CML2_EXPORT"]["version"]) <= 0)
+		if($_SESSION["BX_CML2_EXPORT"]["version"] == '')
 			$arParams["INTERVAL"] = 0;
 
 		$options = array();
@@ -341,7 +341,7 @@ else
 			{
 				$crmSiteUrl = $_GET["CRM_SITE_URL"];
 			}
-			if(strlen($crmSiteUrl) > 0)
+			if($crmSiteUrl <> '')
 			{
 				$opt = COption::GetOptionString("sale", "~crm_integration", "");
 				$opt = unserialize($opt);
@@ -378,7 +378,7 @@ else
 		else
 			echo "error\n";
 	}
-	elseif($_GET["mode"] == "file" && strlen($_SESSION["BX_CML2_EXPORT"]["version"]) <= 0)// old version
+	elseif($_GET["mode"] == "file" && $_SESSION["BX_CML2_EXPORT"]["version"] == '')// old version
 	{
 		if($ABS_FILE_NAME)
 		{
@@ -395,7 +395,7 @@ else
 				if($fp = fopen($ABS_FILE_NAME, "ab"))
 				{
 					$result = fwrite($fp, $DATA);
-					if($result === (function_exists("mb_strlen")? mb_strlen($DATA, 'latin1'): strlen($DATA)))
+					if($result === (function_exists("mb_strlen")? mb_strlen($DATA, 'latin1') : mb_strlen($DATA)))
 					{
 						if($_SESSION["BX_CML2_EXPORT"]["zip"])
 							$_SESSION["BX_CML2_EXPORT"]["zip"] = $ABS_FILE_NAME;
@@ -418,14 +418,14 @@ else
 			}
 		}
 
-		if(strlen($_SESSION["BX_CML2_EXPORT"]["zip"]) > 0)
+		if($_SESSION["BX_CML2_EXPORT"]["zip"] <> '')
 		{
 			$file_name = $_SESSION["BX_CML2_EXPORT"]["zip"];
 
 			if(function_exists("zip_open"))
 			{
-				$dir_name = substr($file_name, 0, strrpos($file_name, "/")+1);
-				if(strlen($dir_name) <= strlen($_SERVER["DOCUMENT_ROOT"]))
+				$dir_name = mb_substr($file_name, 0, mb_strrpos($file_name, "/") + 1);
+				if(mb_strlen($dir_name) <= mb_strlen($_SERVER["DOCUMENT_ROOT"]))
 					return false;
 
 				$hZip = zip_open($file_name);
@@ -446,7 +446,7 @@ else
 								while($data = zip_entry_read($entry, 102400))
 								{
 									$result = fwrite($fout, $data);
-									if($result !== (function_exists("mb_strlen")? mb_strlen($data, 'latin1'): strlen($data)))
+									if($result !== (function_exists("mb_strlen")? mb_strlen($data, 'latin1') : mb_strlen($data)))
 										return false;
 								}
 							}
@@ -481,7 +481,7 @@ else
 				while($o->findNext());
 
 			echo "success";
-			if(strlen($loader->strError)>0)
+			if($loader->strError <> '')
 				echo $loader->strError;
 			echo "\n";
 		}
@@ -508,7 +508,7 @@ else
 				if($fp = fopen($ABS_FILE_NAME, "ab"))
 				{
 					$result = fwrite($fp, $DATA);
-					if($result === (function_exists("mb_strlen")? mb_strlen($DATA, 'latin1'): strlen($DATA)))
+					if($result === (function_exists("mb_strlen")? mb_strlen($DATA, 'latin1') : mb_strlen($DATA)))
 					{
 						if($_SESSION["BX_CML2_EXPORT"]["zip"])
 							$_SESSION["BX_CML2_EXPORT"]["zip"] = $ABS_FILE_NAME;
@@ -531,7 +531,7 @@ else
 			}
 		}
 	}
-	elseif($_GET["mode"] == "import" && $_SESSION["BX_CML2_EXPORT"]["zip"] && strlen($_SESSION["BX_CML2_EXPORT"]["zip"]) > 1)
+	elseif($_GET["mode"] == "import" && $_SESSION["BX_CML2_EXPORT"]["zip"] && mb_strlen($_SESSION["BX_CML2_EXPORT"]["zip"]) > 1)
 	{
 		if(!array_key_exists("last_zip_entry", $_SESSION["BX_CML2_EXPORT"]))
 			$_SESSION["BX_CML2_EXPORT"]["last_zip_entry"] = "";
@@ -695,7 +695,7 @@ else
 				$_SESSION["BX_CML2_EXPORT"]["last_xml_entry"] = "";
 				echo "success";
 			}
-			if(strlen($loader->strError)>0)
+			if($loader->strError <> '')
 				echo $loader->strError;
 			echo "\n";
 		}
@@ -797,11 +797,11 @@ if(!$bDesignMode)
 		$contents = gzcompress($contents);
 
 		header("Content-Type: application/octet-stream");
-		header("Content-Length: ".(function_exists("mb_strlen")? mb_strlen($contents, 'latin1') : strlen($contents)));
+		header("Content-Length: ".(function_exists("mb_strlen")? mb_strlen($contents, 'latin1') : mb_strlen($contents)));
 	}
 	else
 	{
-		$str = (function_exists("mb_strlen")? mb_strlen($contents, 'latin1'): strlen($contents));
+		$str = (function_exists("mb_strlen")? mb_strlen($contents, 'latin1') : mb_strlen($contents));
 		if(in_array($_GET["mode"], array("query", "info")) || in_array($_POST["mode"], array("query", "info")))
 		{
 			header("Content-Type: application/xml; charset=windows-1251");

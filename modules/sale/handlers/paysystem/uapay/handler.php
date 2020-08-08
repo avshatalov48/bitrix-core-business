@@ -62,16 +62,15 @@ class UaPayHandler
 			{
 				$result->addErrors($showTemplateResult->getErrors());
 			}
+
+			if ($params["URL"])
+			{
+				$result->setPaymentUrl($params["URL"]);
+			}
 		}
 		else
 		{
 			$result->addErrors($invoiceResult->getErrors());
-		}
-
-		if (!$result->isSuccess())
-		{
-			$error = "UAPAY: initiatePay: ".join("\n", $result->getErrorMessages());
-			PaySystem\Logger::addError($error);
 		}
 
 		return $result;
@@ -172,7 +171,7 @@ class UaPayHandler
 				"callbackUrl" => $this->getBusinessValue($payment, "UAPAY_CALLBACK_URL"),
 				"description" => $this->getPaymentDescription($payment),
 				"amount" => (int)PriceMaths::roundPrecision($payment->getSum() * 100),
-				"redirectUrl" => $this->getBusinessValue($payment, "UAPAY_REDIRECT_URL"),
+				"redirectUrl" => $this->getRedirectUrl($payment),
 				"extraInfo" => self::encode($extraInfo),
 			],
 		];
@@ -210,6 +209,15 @@ class UaPayHandler
 		$result->setPsData(["PS_INVOICE_ID" => $payloadData["id"]]);
 		$result->setData($payloadData);
 		return $result;
+	}
+
+	/**
+	 * @param Payment $payment
+	 * @return mixed|string
+	 */
+	private function getRedirectUrl(Payment $payment)
+	{
+		return $this->getBusinessValue($payment, 'UAPAY_REDIRECT_URL') ?: $this->service->getContext()->getUrl();
 	}
 
 	/**
@@ -730,7 +738,7 @@ class UaPayHandler
 	 */
 	private static function urlSafeBase64Decode($input)
 	{
-		$remainder = strlen($input) % 4;
+		$remainder = mb_strlen($input) % 4;
 		if ($remainder)
 		{
 			$padLength = 4 - $remainder;

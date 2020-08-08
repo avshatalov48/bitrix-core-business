@@ -1605,6 +1605,51 @@ BX.Sale.Input = (function () {
 		return true;
 	};
 
+	// Address ////////////////////////////////////////////////////////////////////////////////////////////////////////
+	Module.AddressInput = AddressInput;
+	Utils.extend(AddressInput, BaseInput);
+	Module.Manager.register('ADDRESS', AddressInput);
+
+	function AddressInput(name, settings, value, publicO)
+	{
+		AddressInput.__super__.constructor.call(this, name, settings, value, publicO);
+	}
+
+	AddressInput.prototype.getValuePath = function ()
+	{
+	};
+
+	AddressInput.prototype.createEditorSingle = function (name, value)
+	{
+		var addressControl = new BX.Sale.AddressControlConstructor({
+			propsData: {
+				name: name,
+				initValue: value ? JSON.stringify(value) : null,
+				isLocked: false,
+			}
+		});
+
+		addressControl.$mount();
+
+		return [addressControl.$el];
+	};
+
+	AddressInput.prototype.setValueSingle = function (item, value)
+	{
+	};
+
+	AddressInput.prototype.getValueSingle = function (item)
+	{
+	};
+
+	AddressInput.prototype.setDisabledSingle = function (item, disabled)
+	{
+	};
+
+	AddressInput.prototype.addEventSingle = function (item, name, action)
+	{
+	};
+
 	Module.UserFieldInput = UserFieldInput;
 	Utils.extend(UserFieldInput, BaseInput);
 	Module.Manager.register('UF', UserFieldInput);

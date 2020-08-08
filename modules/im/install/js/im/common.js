@@ -10,6 +10,7 @@
 		this.sendBotCommand = false;
 		this.sendBotCommandBlock = {};
 		this.tryCheckConnect = {};
+		this.externalLink = {};
 	};
 
 	/* Section: Context */
@@ -18,9 +19,20 @@
 		this.BXIM = dom;
 	}
 
+	MessengerCommon.prototype.isIntranet = function()
+	{
+		return this.BXIM.bitrixIntranet;
+	}
+
 	MessengerCommon.prototype.isPage = function()
 	{
-		return typeof(BX.MessengerWindow) != 'undefined' && !(this.BXIM.context == 'POPUP-FULLSCREEN' && BX.browser.IsMobile());
+		//return typeof(BX.MessengerWindow) != 'undefined' && !(this.BXIM.context == 'POPUP-FULLSCREEN'/* && BX.browser.IsMobile()*/); // TODO
+		return typeof(BX.MessengerWindow) != 'undefined';
+	}
+
+	MessengerCommon.prototype.isPopupPage = function()
+	{
+		return typeof(BX.MessengerWindow) != 'undefined' && this.BXIM.context == 'POPUP-FULLSCREEN' && this.BXIM.bitrixIntranet;
 	}
 
 	MessengerCommon.prototype.isDesktop = function()
@@ -124,8 +136,8 @@
 			isMobile: this.isMobile() ? 'Y' : 'N',
 			vInitedCall: BX.localStorage.get('vInitedCall') ? 'Y' : 'N',
 			desktopStatus: this.BXIM.desktopStatus ? 'Y' : 'N',
-			callInit: this.BXIM.webrtc.callInit ? 'Y' : 'N',
-			callActive: this.BXIM.webrtc.callActive ? 'Y' : 'N',
+			hasActiveCall: BX.MessengerCalls.hasActiveCall() ? 'Y' : 'N',
+			hasActiveCallTab: this.BXIM.callController.hasActiveCall() ? 'Y' : 'N',
 			appVersion: navigator.appVersion
 		}
 	}
@@ -355,7 +367,7 @@
 			var scrollResult = this.isElementVisibleOnScreen(visibleNode, element, true);
 			if (!scrollResult.top)
 			{
-				BX.scrollToNode(lastUnreadMessage.parentNode.parentNode.parentNode.parentNode.parentNode);
+				this.scrollToNode(lastUnreadMessage.parentNode.parentNode.parentNode.parentNode.parentNode);
 				return false;
 			}
 		}
@@ -1089,6 +1101,55 @@
 		return textElement;
 	}
 
+	MessengerCommon.prototype.openLink = function(link, target)
+	{
+		target = target || '_blank';
+
+		var dom = BX.create('a', {attrs: {href: link, style: 'display:none', target: target}});
+		document.body.appendChild(dom);
+		dom.click();
+		document.body.removeChild(dom);
+
+		return true;
+	}
+
+	MessengerCommon.prototype.clipboardCopy = function(callback, cut)
+	{
+		document.execCommand(cut == true? "cut": "copy");
+
+		var clipboardTextArea = BX.create('textarea', { style : {'position': 'absolute', 'opacity': 0, 'top': -1000, 'left': -1000}});
+		document.body.insertBefore(clipboardTextArea, document.body.firstChild);
+		clipboardTextArea.focus();
+		document.execCommand("paste");
+		var text = clipboardTextArea.value;
+
+		var textNew = null;
+		if (typeof (callback) == 'function')
+		{
+			textNew = callback(clipboardTextArea.value);
+		}
+		else if(typeof (callback) == 'string')
+		{
+			textNew = callback;
+		}
+
+		if (textNew)
+		{
+			text = clipboardTextArea.value = textNew;
+			clipboardTextArea.selectionStart = 0;
+			document.execCommand("copy");
+		}
+
+		BX.remove(clipboardTextArea);
+
+		return text;
+	}
+
+	MessengerCommon.prototype.clipboardCut = function ()
+	{
+		return this.clipboardCopy(null, true);
+	}
+
 	MessengerCommon.prototype.prepareTextBack = function(text, trueQuote)
 	{
 		var textElement = text;
@@ -1199,9 +1260,11 @@
 		reset = typeof(reset) == 'boolean'? reset: false;
 
 		if (
-			userId.toString().substr(0, 4) == 'chat'
-			|| userId.toString().substr(0, 2) == 'sg'
-			|| userId.toString().substr(0, 3) == 'crm'
+			userId && (
+				userId.toString().substr(0, 4) == 'chat'
+				|| userId.toString().substr(0, 2) == 'sg'
+				|| userId.toString().substr(0, 3) == 'crm'
+			)
 		)
 		{
 			var chatId = userId.toString().substr(0, 4) == 'chat'? userId.toString().substr(4): userId;
@@ -1318,7 +1381,7 @@
 		}
 		else if (this.getCurrentUser() == userData.id)
 		{
-			status = userData.status? userData.status.toString(): '';
+			status = userData.status? userData.status.toString(): 'online';
 			statusText = status? BX.message('IM_STATUS_'+status.toUpperCase()): '';
 		}
 		else if (!online.isOnline)
@@ -1338,7 +1401,7 @@
 		}
 		else
 		{
-			status = userData.status? userData.status.toString(): '';
+			status = userData.status? userData.status.toString(): 'offline';
 			statusText = BX.message('IM_STATUS_'+status.toUpperCase());
 		}
 
@@ -1771,6 +1834,10 @@
 		if (entityType == 'CRM')
 		{
 			var entityParams = this.BXIM.messenger.chat[chatId].entity_id.toString().split('|');
+			if (!this.BXIM.path.crm[entityParams[0]])
+			{
+				return null;
+			}
 			return {'PATH': this.BXIM.path.crm[entityParams[0]].replace('#ID#', entityParams[1]), 'TITLE': BX.message('IM_M_OL_GOTO_CRM')};
 		}
 		else
@@ -2293,7 +2360,7 @@
 				if (this.BXIM.messenger.contactListSearchText <= 0 && !this.BXIM.messenger.chatList)
 				{
 					this.BXIM.messenger.popupContactListSearchInput.value = "";
-					if (!this.isMobile() && this.BXIM.messenger.popupMessenger && !this.BXIM.messenger.desktop.ready() && !this.BXIM.messenger.webrtc.callInit)
+					if (!this.isMobile() && this.BXIM.messenger.popupMessenger && !this.BXIM.messenger.desktop.ready() && !this.BXIM.callController.hasActiveCall())
 					{
 						this.BXIM.messenger.popupMessenger.destroy();
 						return true;
@@ -2540,6 +2607,23 @@
 				if (i > ii) { return -1; }
 				else if (i < ii) { return 1;}
 				else{ return 0;}
+			}
+		});
+
+		BX.MessengerCalls.get().forEach(function(call)
+		{
+			if (!groups['calls'])
+			{
+				groups['calls'] = true;
+				recentList.appendChild(BX.create("div", {props : { className: "bx-messenger-recent-group bx-messenger-recent-group-calls"}, children : [
+					BX.create("span", {props : { className: "bx-messenger-recent-group-title"}, html : BX.message('IM_RECENT_CALLS')})
+				]}));
+			}
+
+			var node = BX.MessengerCalls.drawElement(call);
+			if (node)
+			{
+				recentList.appendChild(node);
 			}
 		});
 
@@ -3392,11 +3476,11 @@
 				var userParam = this.getUserParam(userId);
 				if (userParam.type == 'chat')
 				{
-					messageText = BX.message('IM_CL_CHAT_2');
+					messageText = BX.message('IM_CL_CHAT_NEW');
 				}
 				else if (userParam.type == 'open')
 				{
-					messageText = BX.message('IM_CL_OPEN_CHAT');
+					messageText = BX.message('IM_CL_OPEN_CHAT_NEW');
 				}
 				else if(userParam.type == 'call')
 				{
@@ -3600,6 +3684,45 @@
 		});
 	};
 
+	MessengerCommon.prototype.getDialogCounter = function(dialogId)
+	{
+		if (!this.BXIM.messenger.unreadMessage[dialogId])
+		{
+			return 0;
+		}
+
+		if (this.BXIM.messenger.unreadMessage[dialogId].length >= 100)
+		{
+			return '99+';
+		}
+
+		return this.BXIM.messenger.unreadMessage[dialogId].length;
+	};
+
+	MessengerCommon.prototype.getVideoconfLink = function(dialogId)
+	{
+		if (
+			!dialogId
+			|| !this.BXIM.messenger.chat[dialogId.substr(4)]
+			|| !this.BXIM.messenger.chat[dialogId.substr(4)].public
+		)
+		{
+			return null;
+		}
+
+		return this.BXIM.messenger.chat[dialogId.substr(4)].public.link;
+	}
+
+	MessengerCommon.prototype.getVideoconfLinkByCode = function(code)
+	{
+		if (!code)
+		{
+			return null;
+		}
+
+		return location.origin.replace('http://', 'https://')+'/video/'+code;
+	};
+
 	MessengerCommon.prototype.drawContactListElement = function(params)
 	{
 		if (!params || !params.id)
@@ -3612,6 +3735,12 @@
 		params.showLastMessage = params.showLastMessage === false? false: true;
 		params.showCounter = params.showCounter === false? false: true;
 		params.data = params.data? params.data: {};
+
+
+		if (this.BXIM.userId == params.data.id && params.data.extranet)
+		{
+			return null;
+		}
 
 		var chatStatus = '';
 		var newMessage = '';
@@ -3663,22 +3792,34 @@
 
 		var description = '';
 		var showCrm = false;
-		if (this.BXIM.settings.viewLastMessage && params.showLastMessage)
+
+		if (
+			this.BXIM.settings.viewLastMessage
+			&& params.showLastMessage
+			&& params.id
+		)
 		{
-			if (this.BXIM.messenger.message[params.id] && this.BXIM.messenger.message[params.id].text)
-			{
-				params.text = this.BXIM.messenger.message[params.id].text;
-			}
+
+			// if (
+			// 	this.BXIM.messenger.message[params.id]
+			// 	&& this.BXIM.messenger.message[params.id].text
+			// )
+			// {
+			// 	params.text = this.BXIM.messenger.message[params.id].text;
+			// }
 
 			var directionIcon = '';
 			if (params.textSenderId == this.BXIM.userId)
 				directionIcon = '<span class="bx-messenger-cl-user-reply"></span>';
 
-			params.text = this.purifyText(params.text, params.textParams);
+			if (params.text)
+			{
+				params.text = this.purifyText(params.text, params.textParams);
+			}
 
-			description = directionIcon+''+params.text;
+			description = directionIcon+params.text;
 		}
-		else
+		if (!description)
 		{
 			if (params.userIsChat)
 			{
@@ -3692,11 +3833,11 @@
 				}
 				else if (params.data.type == 'open')
 				{
-					description = BX.message('IM_CL_OPEN_CHAT');
+					description = BX.message('IM_CL_OPEN_CHAT_NEW');
 				}
 				else
 				{
-					description = BX.message('IM_CL_CHAT_2');
+					description = BX.message('IM_CL_CHAT_NEW');
 				}
 			}
 			else if (params.userIsQueue)
@@ -3924,7 +4065,7 @@
 		var userListObject = this.BXIM.messenger.users;
 		if (activeSearch && searchStructureId)
 		{
-			category.push({'id': 'private', 'name': BX.message('IM_CTL_CHAT_PRIVATE'), 'title': BX.message('IM_CL_CREATE_PRIVATE'), 'more': BX.message('IM_CL_MORE_PRIVATE')});
+			category.push({'id': 'private', 'name': BX.message('IM_CTL_CHAT_PRIVATE_NEW'), 'title': BX.message('IM_CL_CREATE_PRIVATE_NEW'), 'more': BX.message('IM_CL_MORE_PRIVATE_NEW')});
 
 			userListObject = {};
 			if (this.BXIM.messenger.userInGroup[searchStructureId])
@@ -3937,29 +4078,29 @@
 		}
 		else if (activeSearch)
 		{
-			category.push({'id': 'private', 'name': BX.message('IM_CTL_CHAT_PRIVATE'), 'title': BX.message('IM_CL_CREATE_PRIVATE'), 'more': BX.message('IM_CL_MORE_PRIVATE')});
+			category.push({'id': 'private', 'name': BX.message('IM_CTL_CHAT_PRIVATE_NEW'), 'title': BX.message('IM_CL_CREATE_PRIVATE_NEW'), 'more': BX.message('IM_CL_MORE_PRIVATE_NEW')});
 			category.push({'id': 'bot', 'name': BX.message('IM_CTL_CHAT_BOT'), 'title': '', 'more': BX.message('IM_CL_MORE_BOT')});
-			category.push({'id': 'open', 'name': BX.message('IM_CTL_CHAT_OPEN'), 'title': BX.message('IM_CL_CREATE_OPEN'), 'more': BX.message('IM_CL_MORE_OPEN'), skip: !this.BXIM.messenger.openChatEnable || this.BXIM.userExtranet});
-			category.push({'id': 'chat', 'name': BX.message('IM_CTL_CHAT_CHAT'), 'title': BX.message('IM_CL_CREATE_CHAT'), 'more': BX.message('IM_CL_MORE_CHAT')});
+			category.push({'id': 'open', 'name': BX.message('IM_CTL_CHAT_OPEN_NEW'), 'title': BX.message('IM_CL_CREATE_OPEN_NEW'), 'more': BX.message('IM_CL_MORE_OPEN_NEW'), skip: !this.BXIM.messenger.openChatEnable || this.BXIM.userExtranet});
+			category.push({'id': 'chat', 'name': BX.message('IM_CTL_CHAT_CHAT_NEW'), 'title': BX.message('IM_CL_CREATE_CHAT_NEW'), 'more': BX.message('IM_CL_MORE_CHAT_NEW')});
 			category.push({'id': 'lines', 'name': BX.message('IM_CTL_CHAT_LINES'), 'title': '', 'more': BX.message('IM_CL_MORE_LINES')});
 			category.push({'id': 'call', 'name': BX.message('IM_CTL_CHAT_CALL'), 'title': '', 'more': BX.message('IM_CL_MORE_CALL'),  skip: !this.BXIM.webrtc.phoneEnabled});
 			category.push({'id': 'ol', 'name': BX.message('IM_CTL_CHAT_OL'), 'title': '', 'more': BX.message('IM_CTL_CHAT_OL'), skip: this.BXIM.userExtranet});
-			category.push({'id': 'extranet', 'name': BX.message('IM_CTL_CHAT_EXTRANET'), 'title': BX.message('IM_CL_CREATE_PRIVATE'), 'more': BX.message('IM_CL_MORE_EXTRANET')});
+			category.push({'id': 'extranet', 'name': BX.message('IM_CTL_CHAT_EXTRANET'), 'title': BX.message('IM_CL_CREATE_PRIVATE_NEW'), 'more': BX.message('IM_CL_MORE_EXTRANET_NEW')});
 			category.push({'id': 'structure', 'name': this.BXIM.bitrixIntranet? BX.message('IM_CTL_CHAT_STRUCTURE'): BX.message('IM_CL_GROUP'), 'title': '', 'more': this.BXIM.bitrixIntranet? BX.message('IM_CL_MORE_STRUCTURE'): BX.message('IM_CL_MORE_GROUP'), skip: !showStructureBlock});
-			category.push({'id': 'blocked', 'name': BX.message('IM_CTL_CHAT_BLOCKED'), 'title': '', 'more': BX.message('IM_CL_MORE_EXTRANET')});
+			category.push({'id': 'blocked', 'name': BX.message('IM_CTL_CHAT_BLOCKED'), 'title': '', 'more': BX.message('IM_CL_MORE_EXTRANET_NEW')});
 		}
 		else
 		{
-			category.push({'id': 'open', 'name': BX.message('IM_CTL_CHAT_OPEN'), 'title': BX.message('IM_CL_CREATE_OPEN'), 'more': BX.message('IM_CL_MORE_OPEN'), skip: !this.BXIM.messenger.openChatEnable || this.BXIM.userExtranet});
-			category.push({'id': 'chat', 'name': BX.message('IM_CTL_CHAT_CHAT'), 'title': BX.message('IM_CL_CREATE_CHAT'), 'more': BX.message('IM_CL_MORE_CHAT')});
+			category.push({'id': 'open', 'name': BX.message('IM_CTL_CHAT_OPEN_NEW'), 'title': BX.message('IM_CL_CREATE_OPEN_NEW'), 'more': BX.message('IM_CL_MORE_OPEN_NEW'), skip: !this.BXIM.messenger.openChatEnable || this.BXIM.userExtranet});
+			category.push({'id': 'chat', 'name': BX.message('IM_CTL_CHAT_CHAT_NEW'), 'title': BX.message('IM_CL_CREATE_CHAT_NEW'), 'more': BX.message('IM_CL_MORE_CHAT_NEW')});
 			category.push({'id': 'lines', 'name': BX.message('IM_CTL_CHAT_LINES'), 'title': '', 'more': BX.message('IM_CL_MORE_LINES')});
 			category.push({'id': 'call', 'name': BX.message('IM_CTL_CHAT_CALL'), 'title': '', 'more': BX.message('IM_CL_MORE_CALL'),  skip: !this.BXIM.webrtc.phoneEnabled});
-			category.push({'id': 'private', 'name': BX.message('IM_CTL_CHAT_PRIVATE'), 'title': BX.message('IM_CL_CREATE_PRIVATE'), 'more': BX.message('IM_CL_MORE_PRIVATE')});
+			category.push({'id': 'private', 'name': BX.message('IM_CTL_CHAT_PRIVATE_NEW'), 'title': BX.message('IM_CL_CREATE_PRIVATE_NEW'), 'more': BX.message('IM_CL_MORE_PRIVATE_NEW')});
 			category.push({'id': 'bot', 'name': BX.message('IM_CTL_CHAT_BOT'), 'title': '', 'more': BX.message('IM_CL_MORE_BOT')});
 			category.push({'id': 'ol', 'name': BX.message('IM_CTL_CHAT_OL'), 'title': '', 'more': BX.message('IM_CTL_CHAT_OL'), skip: this.BXIM.userExtranet});
-			category.push({'id': 'extranet', 'name': BX.message('IM_CTL_CHAT_EXTRANET'), 'title': BX.message('IM_CL_CREATE_PRIVATE'), 'more': BX.message('IM_CL_MORE_EXTRANET')});
+			category.push({'id': 'extranet', 'name': BX.message('IM_CTL_CHAT_EXTRANET'), 'title': BX.message('IM_CL_CREATE_PRIVATE_NEW'), 'more': BX.message('IM_CL_MORE_EXTRANET_NEW')});
 			category.push({'id': 'structure', 'name': this.BXIM.bitrixIntranet? BX.message('IM_CTL_CHAT_STRUCTURE'): BX.message('IM_CTL_CHAT_GROUP'), 'title': '', 'more': this.BXIM.bitrixIntranet? BX.message('IM_CL_MORE_STRUCTURE'): BX.message('IM_CL_MORE_GROUP'), skip: !showStructureBlock});
-			category.push({'id': 'blocked', 'name': BX.message('IM_CTL_CHAT_BLOCKED'), 'title': '', 'more': BX.message('IM_CL_MORE_EXTRANET')});
+			category.push({'id': 'blocked', 'name': BX.message('IM_CTL_CHAT_BLOCKED'), 'title': '', 'more': BX.message('IM_CL_MORE_EXTRANET_NEW')});
 		}
 
 		for (var i = 0; i < category.length; i++)
@@ -4030,8 +4171,13 @@
 					if (!viewSelf && userId == this.BXIM.userId)
 						continue;
 
-					if (this.BXIM.messenger.users[userId].external_auth_id === 'imconnector')
+					if (
+						this.BXIM.messenger.users[userId].external_auth_id === 'imconnector'
+						|| this.BXIM.messenger.users[userId].external_auth_id === 'call'
+					)
+					{
 						continue;
+					}
 
 					if (typeof(this.BXIM.messenger.users[userId].active) != 'undefined' && !this.BXIM.messenger.users[userId].active)
 						continue;
@@ -6153,18 +6299,20 @@
 	/* Section: Pull Events */
 	MessengerCommon.prototype.pullEvent = function()
 	{
+		if (typeof BX.PULL === 'undefined')
+		{
+			return false;
+		}
+
 		var pullHandler = BX.delegate(function(command,params,extra)
 		{
 			if (this.isMobile())
 			{
-				if (this.BXIM.webComponent && !this.BXIM.checkRevision(extra.revision_im_mobile))
-				{
-					return false;
-				}
+				this.BXIM.checkRevision(extra.revision_im_mobile);
 			}
-			else if (!this.BXIM.checkRevision(extra.revision_im_web))
+			else
 			{
-				return false;
+				this.BXIM.checkRevision(extra.revision_im_web);
 			}
 
 			if (command == 'generalChatId')
@@ -6543,6 +6691,21 @@
 					}
 				}
 
+				//Delete 'writing' message from OL
+				if (params.chatId && this.BXIM.messenger.linesWritingList[params.chatId])
+				{
+					var prevMessageId = this.BXIM.messenger.linesWritingList[params.chatId].id;
+					var prevMessage = BX.findChildByClassName(
+						this.BXIM.messenger.popupMessengerBodyWrap,
+						"bx-messenger-content-item-id-"+prevMessageId
+					);
+					if (prevMessage)
+					{
+						BX.remove(prevMessage);
+						delete this.BXIM.messenger.linesWritingList[params.chatId];
+					}
+				}
+
 				var data = {};
 				data.MESSAGE = {};
 				data.USERS_MESSAGE = {};
@@ -6620,7 +6783,53 @@
 					}
 				}
 
-				data.MESSAGE[params.message.id] = params.message;
+				if (
+					params.message.templateFileId &&
+					params.message.templateId &&
+					params.chatId &&
+					this.BXIM.messenger.message[params.message.templateId]
+				)
+				{
+					this.clearProgessMessage(params.message.templateId);
+
+					if (BX('im-message-' + params.message.templateId))
+					{
+						BX('im-message-' + params.message.templateId).id = 'im-message-' + params.message.id;
+						var element = BX.findChild(this.BXIM.messenger.popupMessengerBodyWrap, { attribute: { 'data-messageid': '' + params.message.templateId } }, true);
+						if (element)
+						{
+							element.setAttribute('data-messageid', '' + params.message.id + '');
+							if (element.getAttribute('data-blockmessageid') == '' + params.message.templateId)
+							{
+								element.setAttribute('data-blockmessageid', '' + params.message.id + '');
+							}
+							BX.removeClass(element, 'bx-messenger-content-item-id-' + params.message.templateId);
+							BX.addClass(element, 'bx-messenger-content-item-id-' + params.message.id);
+							BX.removeClass(element, 'bx-messenger-content-item-content-progress');
+						}
+						else
+						{
+							var element2 = BX.findChild(this.BXIM.messenger.popupMessengerBodyWrap, { attribute: { 'data-blockmessageid': '' + params.message.templateId } }, true);
+							if (element2)
+							{
+								element2.setAttribute('data-blockmessageid', '' + params.message.id + '');
+							}
+						}
+					}
+
+					this.BXIM.messenger.message[params.message.templateId] = params.message;
+					this.BXIM.messenger.message[params.message.id] = params.message;
+					this.BXIM.messenger.showMessage[params.dialogId].push(params.message.id.toString());
+					delete this.BXIM.messenger.message[params.message.templateId];
+					this.BXIM.disk.files[params.chatId][params.message.templateFileId] = params.files[params.message.params.FILE_ID[0]];
+					this.diskRedrawFile(params.chatId, params.message.templateFileId);
+
+					return;
+				}
+				else
+				{
+					data.MESSAGE[params.message.id] = params.message;
+				}
 
 				this.BXIM.lastRecordId = parseInt(params.message.id) > this.BXIM.lastRecordId? parseInt(params.message.id): this.BXIM.lastRecordId;
 
@@ -6690,11 +6899,16 @@
 				else
 				{
 					data.UNREAD_MESSAGE = {};
-					if (params.notify === true || params.notify.indexOf(parseInt(this.BXIM.userId)) > -1)
+					if (
+						typeof params.message.params.NOTIFY === 'undefined'
+						|| params.message.params.NOTIFY === 'Y'
+						|| params.message.params.NOTIFY.indexOf(parseInt(this.BXIM.userId)) > -1
+					)
 					{
 						data.UNREAD_MESSAGE[command == 'messageChat'? params.message.recipientId: params.message.senderId] = [params.message.id];
 					}
-					data.USERS_MESSAGE[command == 'messageChat'?params.message.recipientId: params.message.senderId] = [params.message.id];
+
+					data.USERS_MESSAGE[command == 'messageChat'? params.message.recipientId: params.message.senderId] = [params.message.id];
 
 					if (command == 'message')
 						this.endWriting(params.message.senderId, 0, false);
@@ -7308,6 +7522,10 @@
 					}
 				}
 			}
+			else if (command == 'promotionRead')
+			{
+				BX.MessengerPromo.read(params.id);
+			}
 			else if (command == 'fileUpload')
 			{
 				if (this.MobileActionNotEqual('DIALOG'))
@@ -7537,8 +7755,19 @@
 				{
 					this.readMessage('chat'+params.chatId, true, false, true);
 					this.leaveFromChat(params.chatId, false);
+
+					if (
+						this.BXIM.callController.hasActiveCall()
+						&& this.BXIM.callController.currentCall.associatedEntity.id == 'chat'+params.chatId
+					)
+					{
+						this.BXIM.callController.currentCall.hangup();
+					}
+
 					if (params.message.length > 0)
+					{
 						this.BXIM.openConfirm({title: BX.util.htmlspecialchars(params.chatTitle), message: params.message});
+					}
 				}
 				else if (this.MobileActionEqual('DIALOG'))
 				{
@@ -7997,6 +8226,120 @@
 			BX.addCustomEvent("onPullEvent-im", pullHandler);
 			BX.addCustomEvent("onPullEvent-imopenlines", pullOpenLinesHandler);
 		}
+
+		BX.PULL.subscribe({
+			type: 'client',
+			moduleId: 'imopenlines',
+			command: 'linesMessageWrite', callback: function(params, sender) {
+				//Check md5 of incoming message (sessionId, chatId, userId)
+				if (
+					!this.BXIM.messenger.chat[params.operatorChatId]
+					|| !this.BXIM.messenger.chat[params.operatorChatId].entity_id
+				)
+				{
+					return;
+				}
+
+				var operatorChatId = this.BXIM.messenger.chat[params.operatorChatId].id;
+				var chatName = 'chat' + operatorChatId;
+
+				var sessionId = 0;
+				var session = BX.MessengerCommon.linesGetSession(this.BXIM.messenger.chat[params.operatorChatId]);
+				if (session)
+				{
+					sessionId = session.id;
+				}
+
+				var source = this.BXIM.messenger.chat[params.operatorChatId].entity_id.toString().split('|');
+
+				var clientChatId = 0;
+				var clientId = 0;
+				if (source[2] && source[3])
+				{
+					clientChatId = source[2];
+					clientId = source[3];
+				}
+
+				var infoString = BX.md5(
+					sessionId
+					+ '/' + clientChatId
+					+ '/' + clientId
+				);
+				if (params.infoString === infoString)
+				{
+					if (this.BXIM.messenger.linesWritingList[operatorChatId])
+					{
+						this.BXIM.messenger.linesWritingList[operatorChatId].text = params.text;
+						var prevMessageId = this.BXIM.messenger.linesWritingList[operatorChatId].id;
+						var prevMessage = BX.findChildByClassName(
+							this.BXIM.messenger.popupMessengerBodyWrap,
+							"bx-messenger-content-item-id-"+prevMessageId
+						);
+						if (prevMessage)
+						{
+							if (params.text === '')
+							{
+								clearTimeout(this.BXIM.messenger.linesWritingListTimeout[operatorChatId]);
+								BX.remove(prevMessage);
+								delete this.BXIM.messenger.linesWritingList[operatorChatId];
+								BX.MessengerCommon.endWriting(clientId, chatName);
+							}
+							else
+							{
+								var prevMessageContent = BX('im-message-'+prevMessageId);
+								prevMessageContent.innerText = params.text;
+
+								clearTimeout(this.BXIM.messenger.linesWritingListTimeout[operatorChatId]);
+								this.BXIM.messenger.linesWritingListTimeout[operatorChatId] = setTimeout(BX.delegate(function(){
+									BX.remove(prevMessage);
+									delete this.BXIM.messenger.linesWritingList[operatorChatId];
+									BX.MessengerCommon.endWriting(clientId, chatName);
+								}, this), 29500);
+							}
+						}
+					}
+					else
+					{
+						if (params.text === '')
+						{
+							return;
+						}
+
+						var message = {
+							id: 'ol-writing-' + Date.now(),
+							senderId: clientId,
+							text: params.text,
+							date: new Date(),
+							params: {
+								CLASS: "bx-messenger-content-item-lines-writing"
+							}
+						};
+
+						this.BXIM.messenger.linesWritingList[operatorChatId] = message;
+
+						if (chatName !== BXIM.messenger.currentTab)
+						{
+							return;
+						}
+						BX.MessengerCommon.drawMessage(BXIM.messenger.currentTab, message);
+						BX.MessengerCommon.startWriting(clientId, chatName);
+
+
+						var createdMessage = BX.findChildByClassName(
+							this.BXIM.messenger.popupMessengerBodyWrap,
+							"bx-messenger-content-item-id-"+message.id
+						);
+
+						clearTimeout(this.BXIM.messenger.linesWritingListTimeout[operatorChatId]);
+						this.BXIM.messenger.linesWritingListTimeout[operatorChatId] = setTimeout(BX.delegate(function(){
+							BX.remove(createdMessage);
+							delete this.BXIM.messenger.linesWritingList[operatorChatId];
+							BX.MessengerCommon.endWriting(clientId, chatName);
+						}, this), 29500);
+					}
+				}
+			}
+		});
 	}
 
 
@@ -8056,15 +8399,35 @@
 			}
 		}
 
+		if (typeof data.UNREAD_MESSAGE === 'undefined')
+		{
+			data.UNREAD_MESSAGE = {};
+		}
+
 		if (typeof(data.MESSAGE) != "undefined")
 		{
 			for (var i in data.MESSAGE)
 			{
+				if (
+					data.MESSAGE[i].params.NOTIFY === 'N'
+					|| typeof data.MESSAGE[i].params.NOTIFY === 'object' && data.MESSAGE[i].params.NOTIFY.indexOf(parseInt(this.BXIM.userId)) <= -1
+				)
+				{
+					var dialogId = data.MESSAGE[i].messageType === 'P'? data.MESSAGE[i].senderId: data.MESSAGE[i].recipientId;
+					if (data.UNREAD_MESSAGE[dialogId])
+					{
+						data.UNREAD_MESSAGE[dialogId] = data.UNREAD_MESSAGE[dialogId].filter(function (element) {
+							return element != data.MESSAGE[i].id;
+						});
+					}
+				}
+
 				data.MESSAGE[i].date = new Date(data.MESSAGE[i].date);
 				if (this.BXIM.messenger.message[i] && this.BXIM.messenger.message[i].dropDuplicate)
 				{
 					data.MESSAGE[i].dropDuplicate = true;
 				}
+
 				this.BXIM.messenger.message[i] = data.MESSAGE[i];
 				this.BXIM.lastRecordId = parseInt(i) > this.BXIM.lastRecordId? parseInt(i): this.BXIM.lastRecordId;
 			}
@@ -8311,6 +8674,7 @@
 		{
 			return false;
 		}
+
 		var message = this.BXIM.messenger.message[messageId];
 
 		var dialogId = '';
@@ -8356,11 +8720,20 @@
 	MessengerCommon.prototype.readMessage = function(userId, send, sendAjax, skipCheck)
 	{
 		if (!userId || this.skipReadMessage)
+		{
 			return false;
+		}
 
 		skipCheck = skipCheck == true || this.isMobile();
 		if (!skipCheck && (!this.BXIM.messenger.unreadMessage[userId] || this.BXIM.messenger.unreadMessage[userId].length <= 0))
+		{
 			return false;
+		}
+
+		if (this.BXIM.callController.hasActiveCall() && this.BXIM.callController.hasVisibleCall())
+		{
+			return false;
+		}
 
 		if (userId.toString().substring(0, 4) == 'chat')
 		{
@@ -8379,7 +8752,7 @@
 		)
 		{
 			var topSlider = BX.SidePanel.Instance.getTopSlider();
-			if (topSlider.url !== '/desktop_app/')
+			if (!(topSlider.url === '/desktop_app/' || topSlider.url.startsWith('im:slider')))
 			{
 				return false;
 			}
@@ -8864,6 +9237,40 @@
 								this.BXIM.messenger.showMessage[i] = data.USERS_MESSAGE[i];
 						}
 					}
+
+					for (var i in data.USERS)
+					{
+						data.USERS[i].last_activity_date = new Date(data.USERS[i].last_activity_date);
+						data.USERS[i].mobile_last_date = new Date(data.USERS[i].mobile_last_date);
+						data.USERS[i].idle = data.USERS[i].idle? new Date(data.USERS[i].idle): false;
+						data.USERS[i].absent = data.USERS[i].absent? new Date(data.USERS[i].absent): false;
+
+						this.BXIM.messenger.users[i] = data.USERS[i];
+					}
+
+					for (var i in data.PHONES)
+					{
+						this.BXIM.messenger.phones[i] = {};
+						for (var j in data.PHONES[i])
+						{
+							this.BXIM.messenger.phones[i][j] = BX.util.htmlspecialcharsback(data.PHONES[i][j]);
+						}
+					}
+					for (var i in data.USER_IN_GROUP)
+					{
+						if (typeof(this.BXIM.messenger.userInGroup[i]) == 'undefined' || typeof(this.BXIM.messenger.userInGroup[i].users) == 'undefined' || !this.BXIM.messenger.userInGroup[i].users.length)
+						{
+							this.BXIM.messenger.userInGroup[i] = data.USER_IN_GROUP[i];
+						}
+						else
+						{
+							for (var j = 0; j < data.USER_IN_GROUP[i].users.length; j++)
+								this.BXIM.messenger.userInGroup[i].users.push(data.USER_IN_GROUP[i].users[j]);
+
+							this.BXIM.messenger.userInGroup[i].users = BX.util.array_unique(this.BXIM.messenger.userInGroup[i].users)
+						}
+					}
+
 					if (isHistoryDialog)
 					{
 						for (var i = 0; i < data.USERS_MESSAGE[userId].length; i++)
@@ -8914,7 +9321,7 @@
 						}
 						if (lastChildBeforeChangeDom)
 						{
-							BX.scrollToNode(lastChildBeforeChangeDom.parentNode.parentNode.parentNode.parentNode.parentNode);
+							this.scrollToNode(lastChildBeforeChangeDom.parentNode.parentNode.parentNode.parentNode.parentNode);
 						}
 						else
 						{
@@ -9145,7 +9552,7 @@
 				else
 				{
 					this.BXIM.messenger.redrawTab[userId] = true;
-					if (data.ERROR == 'ACCESS_DENIED')
+					if (data.ERROR == 'ACCESS_DENIED' && this.BXIM.messenger.currentTab == userId)
 					{
 						this.BXIM.messenger.currentTab = 0;
 						this.BXIM.messenger.openChatFlag = false;
@@ -9332,8 +9739,8 @@
 			{
 				BX.removeClass(this.BXIM.messenger.popupMessengerDialog, "bx-messenger-chat-load-last-message");
 			}
-			if (!this.BXIM.checkRevision(this.isMobile()? data.MOBILE_REVISION: data.REVISION))
-				return false;
+
+			this.BXIM.checkRevision(this.isMobile()? data.MOBILE_REVISION: data.REVISION);
 
 			if (!data)
 			{
@@ -9624,7 +10031,7 @@
 			else
 			{
 				this.BXIM.messenger.redrawTab[userId] = true;
-				if (data.ERROR == 'ACCESS_DENIED')
+				if (data.ERROR == 'ACCESS_DENIED' && this.BXIM.messenger.currentTab == userId)
 				{
 					this.BXIM.messenger.currentTab = 0;
 					this.BXIM.messenger.openChatFlag = false;
@@ -9699,7 +10106,9 @@
 		if (user.id <= 0)
 			return false;
 
-		this.BXIM.messenger.currentTab = userId? userId: 0;
+		userId = userId? userId: 0;
+
+		this.BXIM.messenger.currentTab = userId;
 		if (userId.toString().substr(0,4) == 'chat')
 		{
 			this.BXIM.messenger.openChatFlag = true;
@@ -9708,6 +10117,7 @@
 			else if (this.BXIM.messenger.chat[userId.toString().substr(4)] && this.BXIM.messenger.chat[userId.toString().substr(4)].type == 'lines')
 				this.BXIM.messenger.openLinesFlag = true;
 		}
+
 		BX.localStorage.set('mct', this.BXIM.messenger.currentTab, 15);
 
 		if (this.isMobile())
@@ -9721,7 +10131,11 @@
 
 		if (!this.isMobile())
 		{
-			this.BXIM.messenger.popupMessengerPanel.className  = this.BXIM.messenger.openChatFlag? 'bx-messenger-panel bx-messenger-hide': 'bx-messenger-panel';
+			if (this.BXIM.messenger.popupMessengerPanel)
+			{
+				this.BXIM.messenger.popupMessengerPanel.className  = this.BXIM.messenger.openChatFlag? 'bx-messenger-panel bx-messenger-hide': 'bx-messenger-panel';
+			}
+
 			if (this.BXIM.messenger.openChatFlag)
 			{
 				this.BXIM.messenger.popupMessengerPanelChat.className = this.BXIM.messenger.openCallFlag? 'bx-messenger-panel bx-messenger-hide': 'bx-messenger-panel';
@@ -9735,7 +10149,7 @@
 		}
 
 		extraClose = extraClose == true;
-		callToggle = callToggle != false;
+		callToggle = callToggle === true;
 
 		var arMessage = [];
 		if (typeof(this.BXIM.messenger.showMessage[userId]) != 'undefined' && this.BXIM.messenger.showMessage[userId].length > 0)
@@ -9830,6 +10244,9 @@
 
 		if (extraClose)
 			this.BXIM.messenger.extraClose();
+
+		if (callToggle && this.BXIM.callController.hasActiveCall())
+			this.BXIM.callController.showChat();
 
 		if (this.isMobile())
 		{
@@ -10103,7 +10520,7 @@
 				var textElement = BX('im-message-'+this.BXIM.messenger.unreadMessage[userId][0]);
 				if (textElement && textElement.parentNode.parentNode.parentNode.parentNode.parentNode)
 				{
-					BX.scrollToNode(textElement.parentNode.parentNode.parentNode.parentNode.parentNode);
+					this.scrollToNode(textElement.parentNode.parentNode.parentNode.parentNode.parentNode);
 				}
 				else
 				{
@@ -10137,10 +10554,45 @@
 			}
 		}
 
+		if (this.BXIM.messenger.linesWritingList[chatId])
+		{
+			var chatName = 'chat' + chatId;
+			if (chatName === BXIM.messenger.currentTab)
+			{
+				BX.MessengerCommon.drawMessage(BXIM.messenger.currentTab, BXIM.messenger.linesWritingList[chatId]);
+
+				var createdMessage = BX.findChildByClassName(
+					this.BXIM.messenger.popupMessengerBodyWrap,
+					"bx-messenger-content-item-id-"+BXIM.messenger.linesWritingList[chatId].id
+				);
+
+				clearTimeout(this.BXIM.messenger.linesWritingListTimeout[chatId]);
+				this.BXIM.messenger.linesWritingListTimeout[chatId] = setTimeout(BX.delegate(function(){
+					BX.remove(createdMessage);
+					delete this.BXIM.messenger.linesWritingList[chatId];
+				}, this), 29500);
+			}
+		}
+
 		delete this.BXIM.messenger.redrawTab[userId];
 	};
 
 
+	MessengerCommon.prototype.scrollToNode = function(node)
+	{
+		var obNode = BX(node);
+
+		var isEdge = navigator.userAgent.indexOf('Edge') > -1;
+		if (!isEdge && obNode.scrollIntoView)
+		{
+			obNode.scrollIntoView(true);
+		}
+		else
+		{
+			var arNodePos = BX.pos(obNode);
+			window.scrollTo(arNodePos.left, arNodePos.top);
+		}
+	}
 
 	/* Section: Send Message */
 	MessengerCommon.prototype.sendMessageAjax = function(messageTmpIndex, recipientId, messageText, sendMessageToChat)
@@ -10173,7 +10625,7 @@
 			'skipDateCheck': true,
 			'recipientId': recipientId,
 			'senderId': this.BXIM.userId,
-			'text': messageText,
+			'text': BX.util.htmlspecialchars(messageText),
 			'userId': recipientId,
 			'userIsChat': sendMessageToChat,
 			'params': {CLASS: olSilentMode == 'Y'? 'bx-messenger-content-item-system': ''}
@@ -10273,6 +10725,8 @@
 							}
 						}
 
+						BX.MessengerCommon.clearProgessMessage(data.TMP_ID);
+
 						var textElement = BX('im-message-'+data.TMP_ID);
 						if (textElement)
 						{
@@ -10292,8 +10746,6 @@
 						var lastMessageElementDate = BX.findChildByClassName(element, "bx-messenger-content-item-date");
 						if (lastMessageElementDate)
 							lastMessageElementDate.innerHTML = BX.MessengerCommon.formatDate(message.date, BX.MessengerCommon.getDateFormatType('MESSAGE'));
-
-						BX.MessengerCommon.clearProgessMessage(data.ID);
 					}
 
 					if (this.BXIM.messenger.history[data.RECIPIENT_ID])
@@ -10923,10 +11375,10 @@
 			timeout: 30,
 			data: {'IM_SHARE_MESSAGE' : 'Y', ID: id, TYPE: type, DATE: date? date: 0, 'IM_AJAX_CALL' : 'Y', 'sessid': BX.bitrix_sessid()},
 			onsuccess: BX.delegate(function(data) {
+				BX.MessengerCommon.clearProgessMessage(id);
+
 				if (data.ERROR)
 					return false;
-
-				BX.MessengerCommon.clearProgessMessage(id);
 			}, this),
 			onfailure: BX.delegate(function() {
 				BX.MessengerCommon.clearProgessMessage(id);
@@ -11590,7 +12042,7 @@
 						file.viewerAttrs = null;
 					}
 				}
-				if (!this.BXIM.desktop.enableInVersion(99))
+				if (!this.BXIM.desktop.enableInVersion(47))
 				{
 					if (file.type == 'video')
 					{
@@ -11895,6 +12347,8 @@
 			'urlDownload': ''
 		};
 
+
+		/*
 		if (!this.BXIM.disk.filesRegister[chatId])
 			this.BXIM.disk.filesRegister[chatId] = {};
 
@@ -11907,6 +12361,79 @@
 		};
 
 		this.diskChatDialogFileRegister(chatId, agent.messageText);
+		*/
+
+		var recipientId = 0;
+		if (this.BXIM.messenger.chat[chatId] && this.BXIM.messenger.chat[chatId].type != 'private')
+		{
+			recipientId = 'chat'+chatId;
+		}
+		else
+		{
+			for (var userId in this.BXIM.messenger.userChat)
+			{
+				if (this.BXIM.messenger.userChat[userId] == chatId)
+				{
+					recipientId = userId;
+					break;
+				}
+			}
+		}
+		if (!recipientId)
+			return false;
+
+		var olSilentMode = 'N';
+		if (recipientId.toString().substr(0,4) == 'chat' && this.BXIM.messenger.linesSilentMode && this.BXIM.messenger.linesSilentMode[chatId])
+		{
+			olSilentMode = 'Y';
+		}
+
+		// TODO: check
+		var paramsFileId = [this.BXIM.disk.files[chatId][id].id];
+		var fileType = 'file';
+		var tmpMessageId = 'tempFile'+this.BXIM.disk.fileTmpId + new Date().getTime();
+		this.BXIM.messenger.message[tmpMessageId] = {
+			'id': tmpMessageId,
+			'chatId': chatId,
+			'senderId': this.BXIM.userId,
+			'recipientId': recipientId,
+			'date': new Date(),
+			'text': BX.MessengerCommon.prepareText(agent.messageText, true),
+			'params': {'FILE_ID': paramsFileId, 'CLASS': olSilentMode == "Y"? "bx-messenger-content-item-system": ""}
+		};
+		if (!this.BXIM.messenger.showMessage[recipientId])
+			this.BXIM.messenger.showMessage[recipientId] = [];
+
+		this.BXIM.messenger.showMessage[recipientId].push(tmpMessageId);
+		BX.MessengerCommon.drawMessage(recipientId, this.BXIM.messenger.message[tmpMessageId]);
+		BX.MessengerCommon.drawProgessMessage(tmpMessageId);
+
+		this.recentListAdd({
+			'id': tmpMessageId,
+			'date': new Date(),
+			'skipDateCheck': true,
+			'recipientId': recipientId,
+			'senderId': this.BXIM.userId,
+			'text': agent.messageText? agent.messageText: '['+BX.message('IM_F_FILE')+']',
+			'userId': recipientId,
+			'userIsChat': recipientId.toString().substr(0,4) == 'chat',
+			'params': {}
+		}, true);
+
+		this.BXIM.messenger.popupMessengerFileFormRegChatId.value = chatId;
+		file.regTmpMessageId = this.BXIM.messenger.popupMessengerFileFormRegMessageId.value = tmpMessageId;
+		file.regHiddenMessageId = this.BXIM.messenger.popupMessengerFileFormRegMessageHidden.value = olSilentMode;
+		file.regParams = this.BXIM.messenger.popupMessengerFileFormRegParams.value = JSON.stringify({
+			'FILE_TMP_ID' : this.BXIM.disk.files[chatId][id].id,
+			'TEXT' : agent.messageText
+		});
+		this.BXIM.disk.OldBeforeUnload = window.onbeforeunload;
+		window.onbeforeunload = function()
+		{
+			return BX.message('IM_F_EFP')
+		};
+
+		this.BXIM.disk.fileTmpId++;
 
 		agent.messageText = '';
 	}
@@ -12140,58 +12667,93 @@
 
 	MessengerCommon.prototype.diskChatDialogFileStart = function(status, percent, agent, pIndex)
 	{
-		var fileId = this.BXIM.disk.filesProgress[status.id];
+		// var fileId = this.BXIM.disk.filesProgress[status.id];
+		// var formFields = agent.streams.packages.getItem(pIndex).data;
+		// if (!this.BXIM.disk.files[formFields.REG_CHAT_ID][fileId])
+		// 	return false;
+		//
+		// this.BXIM.disk.files[formFields.REG_CHAT_ID][fileId].progress = parseInt(percent);
+		// BX.MessengerCommon.diskRedrawFile(formFields.REG_CHAT_ID, fileId);
+
+
 		var formFields = agent.streams.packages.getItem(pIndex).data;
-		if (!this.BXIM.disk.files[formFields.REG_CHAT_ID][fileId])
+		var chatId = formFields.CHAT_ID;
+		var fileId = this.BXIM.disk.files[chatId][status.id].id;
+		if (!this.BXIM.disk.files[formFields.CHAT_ID][fileId])
 			return false;
 
-		this.BXIM.disk.files[formFields.REG_CHAT_ID][fileId].progress = parseInt(percent);
-		BX.MessengerCommon.diskRedrawFile(formFields.REG_CHAT_ID, fileId);
+		this.BXIM.disk.files[chatId][fileId].progress = parseInt(percent);
+		BX.MessengerCommon.diskRedrawFile(chatId, fileId);
 	}
 
 	MessengerCommon.prototype.diskChatDialogFileProgress = function(status, percent, agent, pIndex)
 	{
-		var fileId = this.BXIM.disk.filesProgress[status.id];
+		// var fileId = this.BXIM.disk.filesProgress[status.id];
+		// var formFields = agent.streams.packages.getItem(pIndex).data;
+		// if (!this.BXIM.disk.files[formFields.REG_CHAT_ID][fileId])
+		// 	return false;
+		//
+		// this.BXIM.disk.files[formFields.REG_CHAT_ID][fileId].progress = parseInt(percent);
+		// BX.MessengerCommon.diskRedrawFile(formFields.REG_CHAT_ID, fileId);
+
 		var formFields = agent.streams.packages.getItem(pIndex).data;
-		if (!this.BXIM.disk.files[formFields.REG_CHAT_ID][fileId])
+		var chatId = formFields.CHAT_ID;
+		var fileId = this.BXIM.disk.files[chatId][status.id].id;
+		if (!this.BXIM.disk.files[formFields.CHAT_ID][fileId])
 			return false;
 
-		this.BXIM.disk.files[formFields.REG_CHAT_ID][fileId].progress = parseInt(percent);
-		BX.MessengerCommon.diskRedrawFile(formFields.REG_CHAT_ID, fileId);
+		this.BXIM.disk.files[chatId][fileId].progress = parseInt(percent);
+		BX.MessengerCommon.diskRedrawFile(chatId, fileId);
 	}
 
 	MessengerCommon.prototype.diskChatDialogFileDone = function(status, file, agent, pIndex)
 	{
-		if (!this.BXIM.disk.files[file.file.fileChatId][file.file.fileId])
-			return false;
-
-		if (this.BXIM.disk.files[file.file.fileChatId] && this.BXIM.disk.files[file.file.fileChatId][file.file.fileId])
-		{
-			file.file.fileParams['preview'] = this.BXIM.disk.files[file.file.fileChatId][file.file.fileId]['preview'];
-		}
-		if (!this.BXIM.disk.files[file.file.fileChatId])
-			this.BXIM.disk.files[file.file.fileChatId] = {};
-
-		file.file.fileParams.date = new Date(file.file.fileParams.date);
-		this.BXIM.disk.files[file.file.fileChatId][file.file.fileId] = file.file.fileParams;
-		BX.MessengerCommon.diskRedrawFile(file.file.fileChatId, file.file.fileId);
-
-		delete this.BXIM.disk.filesMessage[file.file.fileTmpId];
+		// if (!this.BXIM.disk.files[file.file.fileChatId][file.file.fileId])
+		// 	return false;
+		//
+		// if (this.BXIM.disk.files[file.file.fileChatId] && this.BXIM.disk.files[file.file.fileChatId][file.file.fileId])
+		// {
+		// 	file.file.fileParams['preview'] = this.BXIM.disk.files[file.file.fileChatId][file.file.fileId]['preview'];
+		// }
+		// if (!this.BXIM.disk.files[file.file.fileChatId])
+		// 	this.BXIM.disk.files[file.file.fileChatId] = {};
+		//
+		// file.file.fileParams.date = new Date(file.file.fileParams.date);
+		// this.BXIM.disk.files[file.file.fileChatId][file.file.fileId] = file.file.fileParams;
+		// BX.MessengerCommon.diskRedrawFile(file.file.fileChatId, file.file.fileId);
+		//
+		// delete this.BXIM.disk.filesMessage[file.file.fileTmpId];
 		window.onbeforeunload = this.BXIM.disk.OldBeforeUnload;
 	}
 
 	MessengerCommon.prototype.diskChatDialogFileError = function(item, file, agent, pIndex)
 	{
-		var fileId = this.BXIM.disk.filesProgress[item.id];
+		// var fileId = this.BXIM.disk.filesProgress[item.id];
+		// var formFields = agent.streams.packages.getItem(pIndex).data;
+		// if (!this.BXIM.disk.files[formFields.REG_CHAT_ID][fileId])
+		// 	return false;
+		//
+		// item.deleteFile();
+		//
+		// this.BXIM.disk.files[formFields.REG_CHAT_ID][fileId].status = "error";
+		// this.BXIM.disk.files[formFields.REG_CHAT_ID][fileId].errorText = file.error;
+		// BX.MessengerCommon.diskRedrawFile(formFields.REG_CHAT_ID, fileId);
+		// window.onbeforeunload = this.BXIM.disk.OldBeforeUnload;
+
 		var formFields = agent.streams.packages.getItem(pIndex).data;
-		if (!this.BXIM.disk.files[formFields.REG_CHAT_ID][fileId])
+		this.clearProgessMessage(formFields.REG_MESSAGE_ID);
+
+		var chatId = formFields.CHAT_ID;
+		var fileId = this.BXIM.disk.files[chatId][item.id].id;
+		if (!this.BXIM.disk.files[formFields.CHAT_ID][fileId])
 			return false;
 
 		item.deleteFile();
 
-		this.BXIM.disk.files[formFields.REG_CHAT_ID][fileId].status = "error";
-		this.BXIM.disk.files[formFields.REG_CHAT_ID][fileId].errorText = file.error;
-		BX.MessengerCommon.diskRedrawFile(formFields.REG_CHAT_ID, fileId);
+		this.BXIM.disk.files[formFields.CHAT_ID][fileId].status = "error";
+		this.BXIM.disk.files[formFields.CHAT_ID][fileId].errorText = file.error;
+		BX.MessengerCommon.diskRedrawFile(formFields.CHAT_ID, fileId);
+
 		window.onbeforeunload = this.BXIM.disk.OldBeforeUnload;
 	}
 
@@ -12205,11 +12767,11 @@
 			{
 				delete this.BXIM.disk.filesMessage[tmpId];
 			}
-			if (this.BXIM.disk.filesRegister[stream.post.REG_CHAT_ID])
-			{
-				delete this.BXIM.disk.filesRegister[stream.post.REG_CHAT_ID][tmpId];
-				delete this.BXIM.disk.filesRegister[stream.post.REG_CHAT_ID][files[tmpId]];
-			}
+			// if (this.BXIM.disk.filesRegister[stream.post.REG_CHAT_ID])
+			// {
+			// 	delete this.BXIM.disk.filesRegister[stream.post.REG_CHAT_ID][tmpId];
+			// 	delete this.BXIM.disk.filesRegister[stream.post.REG_CHAT_ID][files[tmpId]];
+			// }
 			if (this.BXIM.disk.files[stream.post.REG_CHAT_ID])
 			{
 				if (this.BXIM.disk.files[stream.post.REG_CHAT_ID][files[tmpId]])
@@ -12226,14 +12788,14 @@
 			}
 			delete this.BXIM.disk.filesProgress[tmpId];
 		}
-		BX.ajax({
-			url: this.BXIM.pathToFileAjax+'?FILE_UNREGISTER&V='+this.BXIM.revision,
-			method: 'POST',
-			dataType: 'json',
-			skipAuthCheck: true,
-			timeout: 30,
-			data: {'IM_FILE_UNREGISTER' : 'Y', CHAT_ID: stream.post.REG_CHAT_ID, FILES: stream.post.REG_PARAMS, MESSAGES: JSON.stringify(messages), 'IM_AJAX_CALL' : 'Y', 'sessid': BX.bitrix_sessid()}
-		});
+		// BX.ajax({
+		// 	url: this.BXIM.pathToFileAjax+'?FILE_UNREGISTER&V='+this.BXIM.revision,
+		// 	method: 'POST',
+		// 	dataType: 'json',
+		// 	skipAuthCheck: true,
+		// 	timeout: 30,
+		// 	data: {'IM_FILE_UNREGISTER' : 'Y', CHAT_ID: stream.post.REG_CHAT_ID, FILES: stream.post.REG_PARAMS, MESSAGES: JSON.stringify(messages), 'IM_AJAX_CALL' : 'Y', 'sessid': BX.bitrix_sessid()}
+		// });
 		window.onbeforeunload = this.BXIM.disk.OldBeforeUnload;
 		BX.MessengerCommon.drawTab(this.getRecipientByChatId(stream.post.REG_CHAT_ID));
 	}
@@ -12289,7 +12851,7 @@
 				if(!this.BXIM.webrtc.phoneSupport())
 					return false;
 
-				if (this.BXIM.webrtc.callInit || this.BXIM.webrtc.callActive)
+				if (this.BXIM.callController.hasActiveCall())
 				{
 					// todo: set and proceed busy status in b_voximplant_queue
 					/*BX.MessengerCommon.phoneCommand('busy', {'CALL_ID' : params.callId});*/
@@ -12720,7 +13282,7 @@
 				if (this.isMobile())
 					return false;
 
-				if (this.BXIM.webrtc.callInit || this.BXIM.webrtc.callActive)
+				if (this.BXIM.callController.hasActiveCall())
 					return false;
 
 				if ( BX.localStorage.get('viInitedCall') || BX.localStorage.get('viExternalCard'))
@@ -13750,14 +14312,15 @@
 			onsuccess: BX.delegate(function(data){
 				if (data.ERROR == '')
 				{
-					if (params.SLIDER == 'Y')
-					{
-						this.BXIM.messenger.openMessengerSlider('chat'+data.CHAT_ID, params);
-					}
-					else
-					{
-						this.BXIM.messenger.openMessenger('chat'+data.CHAT_ID, params);
-					}
+					this.BXIM.messenger.openMessenger('chat'+data.CHAT_ID, params).then(function() {
+						if (BX.MessengerWindow && this.BXIM.settings.linesTabEnable)
+						{
+							if (BX.MessengerWindow.currentTab != 'im-ol')
+							{
+								BX.MessengerWindow.changeTab('im-ol');
+							}
+						}
+					}.bind(this));
 				}
 				else
 				{
@@ -14025,6 +14588,12 @@
 		canVoteHead = canVoteHead || false;
 
 		var ratingSelect = BX.delegate(function() {
+			if (!this.BXIM.messenger.openlines.canUseVoteHead)
+			{
+				BX.UI.InfoHelper.show('limit_contact_center_ol_boss_rate');
+				return false;
+			}
+
 			var elementRating = BX.proxy_context.getAttribute('data-rating');
 			var elementSessionId = BX.proxy_context.getAttribute('data-sessionId');
 
@@ -14066,6 +14635,11 @@
 		canVoteHead = canVoteHead || false;
 
 		var addComment = BX.delegate(function() {
+			if (!this.BXIM.messenger.openlines.canUseVoteHead)
+			{
+				BX.UI.InfoHelper.show('limit_contact_center_ol_boss_rate');
+				return false;
+			}
 
 			if (this.BXIM.messenger.linesCommentHeadAdd)
 			{

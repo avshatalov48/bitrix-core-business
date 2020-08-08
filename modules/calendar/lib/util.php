@@ -1,7 +1,5 @@
 <?php
-
 namespace Bitrix\Calendar;
-
 use Bitrix\Main;
 
 class Util
@@ -30,6 +28,17 @@ class Util
 		return \Bitrix\Main\Config\Option::get('calendar', 'sectionStructureConverted', 'N') === 'Y';
 	}
 
+	public static function getTimestamp($date, $round = true, $getTime = true)
+	{
+		$timestamp = MakeTimeStamp($date, \CSite::getDateFormat($getTime ? "FULL" : "SHORT"));
+		// Get rid of seconds
+		if ($round)
+		{
+			$timestamp = round($timestamp / 60) * 60;
+		}
+		return $timestamp;
+	}
+	
 	public static function isTimezoneValid($timeZone)
 	{
 		if (in_array($timeZone, timezone_identifiers_list()))
@@ -40,4 +49,3 @@ class Util
 		return false;
 	}
 }
-?>

@@ -22,6 +22,8 @@
 		data.textOnly = true;
 		var content = data.content;
 		data.content = content.source || content.src;
+		data.placeholder = BX.Landing.Loc.getMessage('LANDING_EMBED_FIELD_PLACEHOLDER');
+		data.description = "<span class='landing-ui-anchor-preview'>"+BX.Landing.Loc.getMessage('LANDING_EMBED_FIELD_DESCRIPTION')+"</span>";
 
 		BX.Landing.UI.Field.Text.apply(this, arguments);
 
@@ -35,6 +37,13 @@
 			props: {type: "hidden", value: content.src || this.input.innerText}
 		});
 
+		this.error = BX.Landing.UI.Field.BaseField.createDescription(
+			BX.Landing.Loc.getMessage("LANDING_EMBED_ERROR_TEXT")
+		);
+
+		BX.Dom.addClass(this.error, 'landing-ui-error');
+		BX.Dom.style(this.description, 'margin-bottom', '0px');
+
 		this.adjustForm();
 	};
 
@@ -47,48 +56,86 @@
 		 */
 		onInputInput: function()
 		{
+			var value = this.getValue();
 			this.adjustForm(true);
-			this.onInputHandler(this.getValue());
+			this.onInputHandler(value);
 			this.onValueChangeHandler(this);
 
 			var event = new BX.Event.BaseEvent({
-				data: {value: this.getValue()},
-				compatData: [this.getValue()],
+				data: {value: value},
+				compatData: [value],
 			});
 			this.emit('change', event);
+		},
+
+		isEmbedUrl: function(value)
+		{
+			return /^http[s]?:\/\//.test(value);
 		},
 
 		getValue: function()
 		{
 			return {
 				src: this.mediaService ? this.mediaService.getEmbedURL() : this.input.innerText,
+				preview: this.mediaService ? this.mediaService.getEmbedPreview() : '',
 				source: this.input.innerText
 			};
 		},
 
 		adjustForm: function(skipParams)
 		{
-			var ServiceFactory = new BX.Landing.MediaService.Factory();
+			var value = String(this.input.innerText).trim();
 
-			if (this.mediaService && this.mediaService.form)
+			this.hideError();
+
+			if (this.isEmbedUrl(value))
 			{
-				remove(this.mediaService.form.layout);
-			}
+				var ServiceFactory = new BX.Landing.MediaService.Factory();
 
-			this.mediaService = ServiceFactory.create(
-				this.input.innerText,
-				!skipParams ? getQueryParam(this.hiddenInput.value) : {}
-			);
-
-			if (this.mediaService)
-			{
-				var form = this.mediaService.getSettingsForm();
-
-				if (form)
+				if (this.mediaService && this.mediaService.form)
 				{
-					this.layout.appendChild(form.layout);
+					remove(this.mediaService.form.layout);
+				}
+
+				this.mediaService = ServiceFactory.create(
+					value,
+					!skipParams ? getQueryParam(this.hiddenInput.value) : {}
+				);
+
+				if (this.mediaService)
+				{
+					var form = this.mediaService.getSettingsForm();
+
+					if (form)
+					{
+						this.layout.appendChild(form.layout);
+					}
 				}
 			}
+			else
+			{
+				if (this.mediaService)
+				{
+					remove(this.mediaService.form.layout);
+				}
+
+				if (BX.Type.isStringFilled(value))
+				{
+					this.showError();
+				}
+			}
+		},
+
+		showError: function()
+		{
+			BX.Dom.append(this.error, this.layout);
+			BX.Dom.style(this.description, 'margin-bottom', null);
+		},
+
+		hideError: function()
+		{
+			BX.Dom.remove(this.error);
+			BX.Dom.style(this.description, 'margin-bottom', '0px');
 		}
 	}
 })();

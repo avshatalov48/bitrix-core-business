@@ -71,4 +71,5 @@ $MESS["IBLOCK_FIELD_NAME"] = "Название";
 $MESS["IBLOCK_FIELD_SORT"] = "Сортировка";
 $MESS["IBLOCK_FIELD_CODE"] = "Символьный код";
 $MESS["IBLOCK_FIELD_DETAIL_PICTURE"] = "Детальная картинка";
+$MESS["IBSEC_E_ERR_BUILDER_ADSENT"] = "Не найден генератор ссылок.";
 ?>

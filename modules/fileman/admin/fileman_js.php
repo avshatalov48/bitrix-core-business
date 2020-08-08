@@ -28,8 +28,8 @@ if (!isset($_SERVER['HTTP_IF_NONE_MATCH']) || $_SERVER['HTTP_IF_NONE_MATCH'] != 
 	$aMess = _GtFMess();
 	$aMess = array_keys($aMess);
 	for($i=0; $i<count($aMess); $i++)
-		if(substr($aMess[$i], 0, strlen("FILEMAN_JS_"))=="FILEMAN_JS_")
-			$sMess .= "'".substr($aMess[$i], strlen("FILEMAN_JS_"))."': '".CUtil::addslashes(GetMessage($aMess[$i]))."',";
+		if(mb_substr($aMess[$i], 0, mb_strlen("FILEMAN_JS_")) == "FILEMAN_JS_")
+			$sMess .= "'".mb_substr($aMess[$i], mb_strlen("FILEMAN_JS_"))."': '".CUtil::addslashes(GetMessage($aMess[$i]))."',";
 
 	$sMess = rtrim($sMess,',');
 	?>var BX_MESS = {<?=$sMess?>};<?

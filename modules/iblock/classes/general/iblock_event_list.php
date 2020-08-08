@@ -56,7 +56,7 @@ class CEventIBlock
 		$DESCRIPTION = unserialize($row['DESCRIPTION']);
 
 		$IblockURL = "";
-		if (strpos($row['AUDIT_TYPE_ID'], "SECTION") !== false)
+		if (mb_strpos($row['AUDIT_TYPE_ID'], "SECTION") !== false)
 		{
 			if (isset($DESCRIPTION["ID"]))
 			{
@@ -65,7 +65,7 @@ class CEventIBlock
 					$IblockURL = $arSection["SECTION_PAGE_URL"];
 			}
 		}
-		elseif (strpos($row['AUDIT_TYPE_ID'], "ELEMENT") !== false)
+		elseif (mb_strpos($row['AUDIT_TYPE_ID'], "ELEMENT") !== false)
 		{
 			if (isset($DESCRIPTION["ID"]))
 			{

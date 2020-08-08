@@ -27,7 +27,7 @@ $arViewStyles = array(
 	),
 	'TEXT' => array(
 		'TITLE' => 'catalog-section-list-item-title',
-		'LIST' =>  'catalog-section-list-text-list mb-4'
+		'LIST' =>  'catalog-section-list-text-list row mb-4'
 	),
 	'TILE' => array(
 		'TITLE' => 'catalog-section-list-item-title',
@@ -36,6 +36,28 @@ $arViewStyles = array(
 	)
 );
 $arCurView = $arViewStyles[$arParams['VIEW_MODE']];
+
+switch ($arParams['LIST_COLUMNS_COUNT'])
+{
+	case "1":
+		$listColumsClass = "col-12";
+		break;
+	case "2":
+		$listColumsClass = "col-6";
+		break;
+	case "3":
+		$listColumsClass = "col-sm-4 col-6";
+		break;
+	case "4":
+		$listColumsClass = "col-md-3 col-sm-4 col-6";
+		break;
+	case "6":
+		$listColumsClass = "col-lg-2 col-md-3 col-sm-4 col-6";
+		break;
+	case "12":
+		$listColumsClass = "col-lg-1 col-md-3 col-sm-4 col-6";
+		break;
+}
 
 $strSectionEdit = CIBlock::GetArrayByID($arParams["IBLOCK_ID"], "SECTION_EDIT");
 $strSectionDelete = CIBlock::GetArrayByID($arParams["IBLOCK_ID"], "SECTION_DELETE");
@@ -100,7 +122,7 @@ $arSectionDeleteParams = array("CONFIRM" => GetMessage('CT_BCSL_ELEMENT_DELETE_C
 										<a class="catalog-section-list-item-link" href="<? echo $arSection['SECTION_PAGE_URL']; ?>">
 											<? echo $arSection['NAME']; ?>
 										</a>
-										<? if ($arParams["COUNT_ELEMENTS"])
+										<? if ($arParams["COUNT_ELEMENTS"] && $arSection['ELEMENT_CNT'] !== null)
 										{
 											?>
 											<span class="catalog-section-list-item-counter">(<? echo $arSection['ELEMENT_CNT']; ?>)</span>
@@ -129,13 +151,13 @@ $arSectionDeleteParams = array("CONFIRM" => GetMessage('CT_BCSL_ELEMENT_DELETE_C
 						$this->AddDeleteAction($arSection['ID'], $arSection['DELETE_LINK'], $strSectionDelete, $arSectionDeleteParams);
 
 						?>
-						<li id="<? echo $this->GetEditAreaId($arSection['ID']); ?>" class="catalog-section-list-item">
+						<li id="<? echo $this->GetEditAreaId($arSection['ID']); ?>" class="<?=$listColumsClass?> catalog-section-list-item">
 							<div class="catalog-section-list-item-inner">
 								<h3 class="catalog-section-list-item-title">
 									<a class="catalog-section-list-item-link" href="<? echo $arSection['SECTION_PAGE_URL']; ?>">
 										<? echo $arSection['NAME']; ?>
 									</a>
-									<? if ($arParams["COUNT_ELEMENTS"])
+									<? if ($arParams["COUNT_ELEMENTS"] && $arSection['ELEMENT_CNT'] !== null)
 									{
 										?>
 										<span class="catalog-section-list-item-counter">(<? echo $arSection['ELEMENT_CNT']; ?>)</span>
@@ -170,7 +192,7 @@ $arSectionDeleteParams = array("CONFIRM" => GetMessage('CT_BCSL_ELEMENT_DELETE_C
 								)
 							);
 							?>
-							<li id="<? echo $this->GetEditAreaId($arSection['ID']); ?>"  class="col-6 col-sm-3 col-md-2 catalog-section-list-item">
+							<li id="<? echo $this->GetEditAreaId($arSection['ID']); ?>"  class="<?=$listColumsClass?> catalog-section-list-item">
 								<div class="catalog-section-list-tile-img-container">
 									<a
 										href="<? echo $arSection['SECTION_PAGE_URL']; ?>"
@@ -187,7 +209,7 @@ $arSectionDeleteParams = array("CONFIRM" => GetMessage('CT_BCSL_ELEMENT_DELETE_C
 												<a class="catalog-section-list-item-link" href="<? echo $arSection['SECTION_PAGE_URL']; ?>">
 													<? echo $arSection['NAME']; ?>
 												</a>
-												<? if ($arParams["COUNT_ELEMENTS"])
+												<? if ($arParams["COUNT_ELEMENTS"] && $arSection['ELEMENT_CNT'] !== null)
 												{
 													?>
 													<span class="catalog-section-list-item-counter">(<? echo $arSection['ELEMENT_CNT']; ?>)</span>
@@ -238,7 +260,7 @@ $arSectionDeleteParams = array("CONFIRM" => GetMessage('CT_BCSL_ELEMENT_DELETE_C
 						<li class="catalog-section-list-item" id="<?=$this->GetEditAreaId($arSection['ID']);?>">
 							<h3 class="catalog-section-list-list-title">
 								<a class="catalog-section-list-list-link" href="<? echo $arSection["SECTION_PAGE_URL"]; ?>"><? echo $arSection["NAME"];?><?
-									if ($arParams["COUNT_ELEMENTS"])
+									if ($arParams["COUNT_ELEMENTS"] && $arSection['ELEMENT_CNT'] !== null)
 									{
 										?> <span>(<? echo $arSection["ELEMENT_CNT"]; ?>)</span><?
 									}

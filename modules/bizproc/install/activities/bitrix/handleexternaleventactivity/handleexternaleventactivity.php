@@ -30,7 +30,7 @@ class CBPHandleExternalEventActivity
 		$arPermissionTmp = $this->Permission;
 		if (is_array($arPermissionTmp))
 			foreach ($arPermissionTmp as $val)
-				$v[] = (strpos($val, "{=") === 0 ? $val : "{=user:".$val."}");
+				$v[] = (mb_strpos($val, "{=") === 0 ? $val : "{=user:".$val."}");
 
 		if (count($v) > 0)
 			$this->WriteToTrackingService(str_replace(array("#EVENT#", "#VAL#"), array($this->name, implode(", ", $v)), GetMessage("BPHEEA_TRACK")));

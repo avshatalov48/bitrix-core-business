@@ -9,14 +9,8 @@ use Bitrix\Sale\Payment;
 use Bitrix\Sale\PaySystem;
 use Bitrix\Crm\Integration;
 
+PaySystem\Manager::includeHandler('orderdocument');
 Loc::loadMessages(__FILE__);
-
-Loader::registerAutoLoadClasses(
-	'sale',
-	[
-		PaySystem\Manager::getClassNameFromPath('orderdocument') => 'handlers/paysystem/orderdocument/handler.php'
-	]
-);
 
 /**
  * Class InvoiceDocumentHandler

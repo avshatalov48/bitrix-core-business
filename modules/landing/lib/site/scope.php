@@ -13,7 +13,7 @@ abstract class Scope
 	public static function init(array $params = [])
 	{
 		$reflectionClass = new \ReflectionClass(get_called_class());
-		self::$currentScopeId = strtoupper($reflectionClass->getShortName());
+		self::$currentScopeId = mb_strtoupper($reflectionClass->getShortName());
 	}
 
 	/**

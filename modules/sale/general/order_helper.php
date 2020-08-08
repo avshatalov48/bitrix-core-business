@@ -133,7 +133,7 @@ class CSaleOrderHelper
 
 					foreach ($arStore["BARCODE"] as $bValue)
 					{
-						if (strlen($bValue) <= 0)
+						if ($bValue == '')
 						{
 							$GLOBALS["APPLICATION"]->ThrowException(GetMessage("NEWO_ERR_STORE_EMPTY_BARCODES", array("#PRODUCT_NAME#" => $arProduct["NAME"], "#STORE_ID#" => $arStore["STORE_ID"], "#BARCODE#" => $arStore["BARCODE"][$j]))."<br>");
 							$result = false;
@@ -160,7 +160,7 @@ class CSaleOrderHelper
 				//check if store info contains all necessary fields
 				foreach ($arProduct["STORES"] as $arRecord)
 				{
-					if (!isset($arRecord["STORE_ID"]) || intVal($arRecord["STORE_ID"]) < 0 || (!isset($arRecord["AMOUNT"])) || intVal($arRecord["AMOUNT"]) < 0)
+					if (!isset($arRecord["STORE_ID"]) || intval($arRecord["STORE_ID"]) < 0 || (!isset($arRecord["AMOUNT"])) || intval($arRecord["AMOUNT"]) < 0)
 					{
 						$GLOBALS["APPLICATION"]->ThrowException(GetMessage("NEWO_ERR_STORE_WRONG_INFO", array("#PRODUCT_NAME#" => $arProduct["NAME"]))."<br>");
 						$result = false;

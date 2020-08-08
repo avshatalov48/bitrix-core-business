@@ -25,6 +25,8 @@ BX.UserContentView = {
 	observer: null,
 	checkerMap: null,
 	viewAreaMap: null,
+
+	ajaxSent: false
 };
 
 BX.UserContentView.clear = function()
@@ -161,39 +163,26 @@ BX.UserContentView.sendViewAreaData = function()
 		}
 	}
 
-	if (this.toSendList.length > 0)
+	if (
+		this.toSendList.length > 0
+		&& !this.ajaxSent
+	)
 	{
-		if (!!this.mobile)
-		{
-			var BMAjaxWrapper = new MobileAjaxWrapper;
-			BMAjaxWrapper.runAction('socialnetwork.api.contentview.set', {
-				data: {
-					params: {
-						viewXMLIdList: this.toSendList
-					}
-				}
-			}, {
-				success: function(response) {
-					this.success(response.data);
-				}.bind(this),
-				failure:function(response) {
-				}.bind(this)
-			});
-		}
-		else
-		{
-			BX.ajax.runAction('socialnetwork.api.contentview.set', {
-				data: {
-					params: {
-						viewXMLIdList : this.toSendList
-					}
-				}
-			}).then(function(response) {
-				BX.UserContentView.success(response.data);
-			}.bind(this), function(response) {
+		this.ajaxSent = true;
 
-			}.bind(this));
-		}
+		var ajaxApi = (!!this.mobile ? new MobileAjaxWrapper : BX.ajax);
+		ajaxApi.runAction('socialnetwork.api.contentview.set', {
+			data: {
+				params: {
+					viewXMLIdList: this.toSendList
+				}
+			}
+		}).then(function(response) {
+			this.ajaxSent = false;
+			this.success(response.data);
+		}.bind(this), function(response) {
+			this.ajaxSent = false;
+		}.bind(this));
 	}
 
 	setTimeout(BX.delegate(this.sendViewAreaData, this), this.sendViewAreaTimeout);
@@ -222,6 +211,7 @@ BX.UserContentView.registerViewArea = function(nodeId)
 	if (
 		BX.type.isNotEmptyString(nodeId)
 		&& BX(nodeId)
+		&& this.viewAreaMap
 		&& !this.viewAreaMap.has(BX(nodeId))
 	)
 	{
@@ -614,7 +604,7 @@ BX.UserContentView.Counter.prototype.list = function(params)
 
 			this.popupShownIdList.push(data.items[i]['ID']);
 
-			if (data.items[i]['PHOTO_SRC'].length > 0)
+			if (BX.type.isNotEmptyString(data.items[i]['PHOTO_SRC']))
 			{
 				avatarNode = BX.create("IMG", {
 					attrs: {src: data.items[i]['PHOTO_SRC']},

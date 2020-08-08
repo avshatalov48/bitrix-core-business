@@ -31,36 +31,7 @@ class PhoneAuth extends Main\Engine\Controller
 			$params["smsTemplate"] = "SMS_USER_CONFIRM_NUMBER";
 		}
 
-		$phoneNumber = Main\UserPhoneAuthTable::normalizePhoneNumber($params["phoneNumber"]);
-		$userPhone = Main\UserPhoneAuthTable::getList(["filter" => ["=PHONE_NUMBER" => $phoneNumber]])->fetchObject();
-
-		if(!$userPhone)
-		{
-			$this->addError(new Main\Error(Loc::getMessage("main_register_no_user"), "ERR_NOT_FOUND"));
-			return null;
-		}
-
-		//alowed only once in a minute
-		if($userPhone->getDateSent())
-		{
-			$currentDateTime = new Main\Type\DateTime();
-			if(($currentDateTime->getTimestamp() - $userPhone->getDateSent()->getTimestamp()) < \CUser::PHONE_CODE_RESEND_INTERVAL)
-			{
-				$this->addError(new Main\Error(Loc::getMessage("main_register_timeout"), "ERR_TIMEOUT"));
-				return null;
-			}
-		}
-
-		list($code, $phoneNumber) = \CUser::GeneratePhoneCode($userPhone->getUserId());
-
-		$sms = new Main\Sms\Event(
-			$params["smsTemplate"],
-			[
-				"USER_PHONE" => $phoneNumber,
-				"CODE" => $code,
-			]
-		);
-		$result = $sms->send(true);
+		$result = \CUser::SendPhoneCode($params["phoneNumber"], $params["smsTemplate"]);
 
 		if(!$result->isSuccess())
 		{
@@ -151,7 +122,7 @@ class PhoneAuth extends Main\Engine\Controller
 	{
 		$signer = new Main\Security\Sign\Signer();
 		$string = base64_encode(serialize($data));
-		return $signer->sign($string, self::SIGNATURE_SALT);
+		return $signer->sign($string, static::SIGNATURE_SALT);
 	}
 
 	/**

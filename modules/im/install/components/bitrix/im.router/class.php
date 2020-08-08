@@ -45,6 +45,19 @@ class ImRouterComponent extends \CBitrixComponent
 		return true;
 	}
 
+	private function showCall()
+	{
+		define('SKIP_TEMPLATE_AUTH_ERROR', true);
+
+		$this->arResult['ALIAS'] = $this->aliasData['ALIAS'];
+		$this->arResult['CHAT_ID'] = $this->aliasData['ENTITY_ID'];
+
+		$this->setTemplateName("call");
+		$this->includeComponentTemplate();
+
+		return true;
+	}
+
 	public function executeComponent()
 	{
 		if (!$this->checkModules())
@@ -58,9 +71,13 @@ class ImRouterComponent extends \CBitrixComponent
 		if ($this->request->get('alias'))
 		{
 			$this->aliasData = \Bitrix\Im\Alias::get($this->request->get('alias'));
-			if ($this->aliasData['ENTITY_TYPE'] == \Bitrix\Im\Alias::ENTITY_TYPE_OPEN_LINE && IsModuleInstalled('imopenlines'))
+			if ($this->aliasData['ENTITY_TYPE'] == \Bitrix\Im\Alias::ENTITY_TYPE_LIVECHAT && IsModuleInstalled('imopenlines'))
 			{
 				$this->showLiveChat();
+			}
+			else if ($this->aliasData['ENTITY_TYPE'] == \Bitrix\Im\Alias::ENTITY_TYPE_VIDEOCONF)
+			{
+				$this->showCall();
 			}
 			else if ($this->request->get('iframe') == 'Y')
 			{

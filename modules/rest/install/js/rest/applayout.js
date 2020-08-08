@@ -34,6 +34,7 @@
 			proto: params.proto,
 			userOptions: params.userOptions,
 			appOptions: params.appOptions,
+			placementId: !!params.placementId ? params.placementId : 0,
 			placementOptions: params.placementOptions
 		};
 
@@ -58,6 +59,40 @@
 	{
 		var url = BX.message('REST_APPLICATION_URL').replace('#ID#', parseInt(applicationId));
 		url = BX.util.add_url_param(url, {'_r': Math.random()});
+
+		var sidePanelSettings = {};
+
+		if (placementOptions && typeof placementOptions === "object")
+		{
+			for (var param in placementOptions) // separation side panel settings and placement options
+			{
+				if (!placementOptions.hasOwnProperty(param))
+				{
+					continue;
+				}
+
+				if (param.search("bx24_") === 0)
+				{
+					var key = param.replace("bx24_", "");
+					sidePanelSettings[key] = placementOptions[param];
+
+					delete placementOptions[param];
+				}
+			}
+
+			if (placementOptions.hasOwnProperty("options"))
+			{
+				if (typeof placementOptions.options === "object")
+				{
+					appOptions = placementOptions.options;
+				}
+
+				if (placementOptions.hasOwnProperty("params"))
+				{
+					placementOptions = placementOptions.params;
+				}
+			}
+		}
 
 		var params = {
 			ID: applicationId,
@@ -114,6 +149,81 @@
 				closeCallback();
 			}
 		};
+
+		var availableSidePanelSettings = ["width", "leftBoundary", "title", "label"];
+		for (var setting in sidePanelSettings)
+		{
+			if (!sidePanelSettings.hasOwnProperty(setting))
+			{
+				continue;
+			}
+
+			for (var i in availableSidePanelSettings)
+			{
+				if (setting === availableSidePanelSettings[i])
+				{
+					switch (setting)
+					{
+						case "leftBoundary":
+							if (BX.type.isNumber(sidePanelSettings[setting]))
+							{
+								options["customLeftBoundary"] = Number(sidePanelSettings[setting]);
+							}
+
+							break;
+						case "width":
+							if (BX.type.isNumber(sidePanelSettings[setting]))
+							{
+								options["width"] = Number(sidePanelSettings[setting]);
+							}
+
+							break;
+						case "title":
+							if (BX.type.isString(sidePanelSettings[setting]))
+							{
+								options["title"] = String(sidePanelSettings[setting]);
+							}
+
+							break;
+						case "label":
+							var label = sidePanelSettings[setting];
+
+							if (BX.type.isObject(label))
+							{
+								var availableBgColors = {
+									aqua: "#06bab1",
+									green: "#a5de00",
+									orange: "#ffa801",
+									brown: "#b57051",
+									pink: "#f968b6",
+									blue: "#2eceff",
+									grey: "#a1a6ac",
+									violet: "#6b52cc"
+								};
+								if (label.hasOwnProperty("bgColor"))
+								{
+									var replaceColorCode = "";
+
+									for (var color in availableBgColors) // separation side panel settings and placement options
+									{
+										if (label.bgColor === color)
+										{
+											replaceColorCode = availableBgColors[color];
+											break;
+										}
+									}
+
+									sidePanelSettings[setting]["bgColor"] = replaceColorCode;
+								}
+								options["label"] = sidePanelSettings[setting];
+							}
+
+							break;
+					}
+				}
+			}
+		}
+
 		BX.SidePanel.Instance.open(url, options);
 
 		var slider = top.BX.SidePanel.Instance.getTopSlider();
@@ -738,17 +848,41 @@
 
 		closeApplication: function(params, cb)
 		{
-			var url = BX.message('REST_APPLICATION_URL').replace('#ID#', parseInt(this.params.id));
-			if(
+			var url = BX.message('REST_APPLICATION_VIEW_URL').replace('#APP#', this.params.appId);
+			if (
 				top.BX.SidePanel.Instance.isOpen()
 				&& top.BX.SidePanel.Instance.getTopSlider().url.match(
-					new RegExp(
-						'^' + url
-					)
+					new RegExp('^' + url)
 				)
 			)
 			{
 				top.BX.SidePanel.Instance.close(false, cb);
+			}
+			else
+			{
+				url = BX.message('REST_PLACEMENT_URL').replace('#PLACEMENT_ID#', parseInt(this.params.placementId));
+				if(
+					top.BX.SidePanel.Instance.isOpen()
+					&& top.BX.SidePanel.Instance.getTopSlider().url.match(
+					new RegExp('^' + url)
+					)
+				)
+				{
+					top.BX.SidePanel.Instance.close(false, cb);
+				}
+				else
+				{
+					url = BX.message('REST_APPLICATION_URL').replace('#ID#', parseInt(this.params.id));
+					if(
+						top.BX.SidePanel.Instance.isOpen()
+						&& top.BX.SidePanel.Instance.getTopSlider().url.match(
+						new RegExp('^' + url)
+						)
+					)
+					{
+						top.BX.SidePanel.Instance.close(false, cb);
+					}
+				}
 			}
 		}
 	};

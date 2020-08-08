@@ -336,7 +336,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["BARCODE_AJAX"]) && 
 	$arElement = array();
 	$elementId = 0;
 
-	if(strlen($barcode) > 0)
+	if($barcode <> '')
 	{
 		$rsBarCode = CCatalogStoreBarCode::getList(array(), array("BARCODE" => $barcode), false, false, array('PRODUCT_ID'));
 		$arBarCode = $rsBarCode->Fetch();
@@ -553,7 +553,7 @@ if(!$bBadBlock)
 					&$filtered,
 				));
 			}
-			elseif(is_array($value) || strlen($value))
+			elseif(is_array($value) || mb_strlen($value))
 			{
 				if($value === "NOT_REF")
 					$value = false;
@@ -582,7 +582,7 @@ if(!$bBadBlock)
 				else
 				{
 					$value = ${"filter_sub_el_property_".$arSKUProps[$i]["ID"]};
-					if(strlen($value) || is_array($value))
+					if(mb_strlen($value) || is_array($value))
 					{
 						if($value === "NOT_REF")
 							$value = false;
@@ -598,7 +598,7 @@ if(!$bBadBlock)
 		$arFilter['ID'] = CIBlockElement::SubQuery('PROPERTY_'.$arCatalog['SKU_PROPERTY_ID'], $arSubQuery);
 	}
 
-	if(intval($_REQUEST['filter_section']) < 0 || strlen($_REQUEST['filter_section']) <= 0)
+	if(intval($_REQUEST['filter_section']) < 0 || $_REQUEST['filter_section'] == '')
 		unset($arFilter["SECTION_ID"]);
 	elseif($_REQUEST['filter_subsections'] == "Y")
 	{
@@ -894,7 +894,7 @@ if(!$bBadBlock)
 					$arSkuProperty = array();
 					foreach($val as $kk => $vv)
 					{
-						if(is_int($kk) && strlen($vv) > 0)
+						if(is_int($kk) && $vv <> '')
 						{
 							if($skuProperty != "")
 								$skuProperty .= " <br> ";

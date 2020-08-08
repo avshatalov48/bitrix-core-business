@@ -1,5 +1,12 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+use Bitrix\Main,
+	Bitrix\Sale;
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
 $this->setFramemode(false);
 
@@ -13,14 +20,15 @@ global $APPLICATION, $USER;
 
 $APPLICATION->RestartBuffer();
 
-$bUseAccountNumber = \Bitrix\Sale\Integration\Numerator\NumeratorOrder::isUsedNumeratorForOrder();
+$bUseAccountNumber = Sale\Integration\Numerator\NumeratorOrder::isUsedNumeratorForOrder();
 
-$ORDER_ID = urldecode(urldecode($_REQUEST["ORDER_ID"]));
-$paymentId = isset($_REQUEST["PAYMENT_ID"]) ? $_REQUEST["PAYMENT_ID"] : '';
-$hash = isset($_REQUEST["HASH"]) ? $_REQUEST["HASH"] : null;
+$orderId = urldecode(urldecode($_REQUEST["ORDER_ID"]));
+$paymentId = $_REQUEST["PAYMENT_ID"] ?? '';
+$hash = $_REQUEST["HASH"] ?? null;
+$returnUrl = $_REQUEST["RETURN_URL"] ?? '';
 
-$registry = \Bitrix\Sale\Registry::getInstance(\Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER);
-/** @var \Bitrix\Sale\Order $orderClassName */
+$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+/** @var Sale\Order $orderClassName */
 $orderClassName = $registry->getOrderClassName();
 
 $arOrder = false;
@@ -34,7 +42,7 @@ if (!$USER->IsAuthorized() && is_array($_SESSION['SALE_ORDER_ID']) && empty($has
 		$dbRes = $orderClassName::getList([
 			'filter' => [
 				"LID" => SITE_ID,
-				"ACCOUNT_NUMBER" => $ORDER_ID
+				"ACCOUNT_NUMBER" => $orderId
 			],
 			'order' => [
 				"DATE_UPDATE" => "DESC"
@@ -48,7 +56,7 @@ if (!$USER->IsAuthorized() && is_array($_SESSION['SALE_ORDER_ID']) && empty($has
 	}
 	else
 	{
-		$realOrderId = intval($ORDER_ID);
+		$realOrderId = intval($orderId);
 	}
 
 	$checkedBySession = in_array($realOrderId, $_SESSION['SALE_ORDER_ID']);
@@ -58,7 +66,7 @@ if ($bUseAccountNumber && !$arOrder)
 {
 	$arFilter = array(
 		"LID" => SITE_ID,
-		"ACCOUNT_NUMBER" => $ORDER_ID
+		"ACCOUNT_NUMBER" => $orderId
 	);
 
 	if (empty($hash))
@@ -80,7 +88,7 @@ if (!$arOrder)
 {
 	$arFilter = array(
 		"LID" => SITE_ID,
-		"ID" => $ORDER_ID
+		"ID" => $orderId
 	);
 	if (!$checkedBySession && empty($hash))
 		$arFilter["USER_ID"] = intval($USER->GetID());
@@ -97,26 +105,26 @@ if (!$arOrder)
 
 if ($arOrder)
 {
-	/** @var \Bitrix\Sale\Payment|null $paymentItem */
+	/** @var Sale\Payment|null $paymentItem */
 	$paymentItem = null;
 
-	/** @var \Bitrix\Sale\Order $order */
+	/** @var Sale\Order $order */
 	$order = $orderClassName::load($arOrder['ID']);
 
 	if ($order)
 	{
-		$guestStatuses = \Bitrix\Main\Config\Option::get("sale", "allow_guest_order_view_status", "");
-		$guestStatuses = (strlen($guestStatuses) > 0) ?  unserialize($guestStatuses) : array();
+		$guestStatuses = Main\Config\Option::get("sale", "allow_guest_order_view_status", "");
+		$guestStatuses = ($guestStatuses <> '') ?  unserialize($guestStatuses) : array();
 
 		if (
-			!\Bitrix\Sale\OrderStatus::isAllowPay($order->getField('STATUS_ID'))
+			!Sale\OrderStatus::isAllowPay($order->getField('STATUS_ID'))
 			||
 			(
 				!empty($hash)
 				&& (
 					$order->getHash() !== $hash
 					||
-					!\Bitrix\Sale\Helpers\Order::isAllowGuestView($order)
+					!Sale\Helpers\Order::isAllowGuestView($order)
 				)
 			)
 		)
@@ -125,14 +133,14 @@ if ($arOrder)
 			return;
 		}
 
-		/** @var \Bitrix\Sale\PaymentCollection $paymentCollection */
+		/** @var Sale\PaymentCollection $paymentCollection */
 		$paymentCollection = $order->getPaymentCollection();
 
 		if ($paymentCollection)
 		{
 			if ($paymentId)
 			{
-				$data = \Bitrix\Sale\PaySystem\Manager::getIdsByPayment($paymentId);
+				$data = Sale\PaySystem\Manager::getIdsByPayment($paymentId);
 
 				if ($data[1] > 0)
 					$paymentItem = $paymentCollection->getItemById($data[1]);
@@ -140,7 +148,7 @@ if ($arOrder)
 
 			if ($paymentItem === null)
 			{
-				/** @var \Bitrix\Sale\Payment $item */
+				/** @var Sale\Payment $item */
 				foreach ($paymentCollection as $item)
 				{
 					if (!$item->isInner() && !$item->isPaid())
@@ -153,10 +161,15 @@ if ($arOrder)
 
 			if ($paymentItem !== null)
 			{
-				$service = \Bitrix\Sale\PaySystem\Manager::getObjectById($paymentItem->getPaymentSystemId());
+				$service = Sale\PaySystem\Manager::getObjectById($paymentItem->getPaymentSystemId());
 				if ($service)
 				{
-					$context = \Bitrix\Main\Application::getInstance()->getContext();
+					$context = Main\Application::getInstance()->getContext();
+
+					if ($returnUrl)
+					{
+						$service->getContext()->setUrl($returnUrl);
+					}
 
 					$result = $service->initiatePay($paymentItem, $context->getRequest());
 					if (!$result->isSuccess())

@@ -44,7 +44,7 @@ try
 	{
 		if (empty($to['user']) || empty($to['host']))
 			continue;
-		if (strtolower($hostname) != strtolower($to['host']))
+		if (mb_strtolower($hostname) != mb_strtolower($to['host']))
 			continue;
 		if (preg_match('/^no-?reply$/i', $to['user']))
 			continue;
@@ -87,7 +87,7 @@ try
 			{
 				$item['fileName'] = $fileId;
 
-				if (strpos($item['contentType'], 'message/') === 0)
+				if (mb_strpos($item['contentType'], 'message/') === 0)
 					$item['fileName'] .= '.eml';
 			}
 
@@ -98,8 +98,8 @@ try
 
 				if (is_set($imageExts, $item['contentType']))
 				{
-					$extPos = strrpos($item['fileName'], '.');
-					$ext    = substr($item['fileName'], $extPos);
+					$extPos = mb_strrpos($item['fileName'], '.');
+					$ext = mb_substr($item['fileName'], $extPos);
 
 					if ($extPos === false || !in_array($ext, $imageExts[$item['contentType']]))
 						$item['fileName'] .= $imageExts[$item['contentType']][0];

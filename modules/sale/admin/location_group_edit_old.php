@@ -11,7 +11,7 @@ IncludeModuleLangFile(__FILE__);
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
-$ID = IntVal($ID);
+$ID = intval($ID);
 
 ClearVars();
 
@@ -28,10 +28,10 @@ while ($arLang = $db_lang->Fetch())
 
 $strError = "";
 $bInitVars = false;
-if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $saleModulePermissions=="W" && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $saleModulePermissions=="W" && check_bitrix_sessid())
 {
 	$adminSidePanelHelper->decodeUriComponent();
-	$SORT = IntVal($SORT);
+	$SORT = intval($SORT);
 	if ($SORT<=0) $SORT = 100;
 
 	if (!is_array($LOCATION_ID) || count($LOCATION_ID)<=0)
@@ -41,11 +41,11 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $saleMod
 	for ($i = 0; $i<$langCnt; $i++)
 	{
 		${"NAME_".$arSysLangs[$i]} = Trim(${"NAME_".$arSysLangs[$i]});
-		if (strlen(${"NAME_".$arSysLangs[$i]})<=0)
+		if (${"NAME_".$arSysLangs[$i]} == '')
 			$strError .= GetMessage("ERROR_EMPTY_NAME")." [".$arSysLangs[$i]."] ".$arSysLangNames[$i].".<br>";
 	}
 
-	if (strlen($strError)<=0)
+	if ($strError == '')
 	{
 		$arFields = array(
 			"SORT" => $SORT,
@@ -69,12 +69,12 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $saleMod
 		else
 		{
 			$ID = CSaleLocationGroup::Add($arFields);
-			if (IntVal($ID)<=0)
+			if (intval($ID)<=0)
 				$strError .= GetMessage("ERROR_ADD_GROUP")."<br>";
 		}
 	}
 
-	if (strlen($strError) > 0)
+	if ($strError <> '')
 	{
 		$adminSidePanelHelper->sendJsonErrorResponse($strError);
 		$bInitVars = true;
@@ -82,7 +82,7 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $saleMod
 
 	$adminSidePanelHelper->sendSuccessResponse("base");
 
-	if (strlen($save)>0 && strlen($strError)<=0)
+	if ($save <> '' && $strError == '')
 		LocalRedirect("sale_location_group_admin.php?lang=".LANG.GetFilterParams("filter_", false));
 }
 
@@ -194,26 +194,26 @@ $tabControl->BeginNextTab();
 				<?
 				$arCurLocs = array();
 				while ($arLocs = $db_locs->Fetch())
-					$arCurLocs[] = IntVal($arLocs["LOCATION_ID"]);
+					$arCurLocs[] = intval($arLocs["LOCATION_ID"]);
 				if ($bInitVars && is_array($LOCATION_ID)) $arCurLocs = $LOCATION_ID;
 				?>
 				<?while ($vars = $db_vars->Fetch()):
 					$locationName = $vars["COUNTRY_NAME"];
 
-					if (strlen($vars["REGION_NAME"]) > 0)
+					if ($vars["REGION_NAME"] <> '')
 					{
-						if (strlen($locationName) > 0)
+						if ($locationName <> '')
 							$locationName .= " - ";
 						$locationName .= $vars["REGION_NAME"];
 					}
-					if (strlen($vars["CITY_NAME"]) > 0)
+					if ($vars["CITY_NAME"] <> '')
 					{
-						if (strlen($locationName) > 0)
+						if ($locationName <> '')
 							$locationName .= " - ";
 						$locationName .= $vars["CITY_NAME"];
 					}
 					?>
-					<option value="<?echo $vars["ID"]?>"<?if (in_array(IntVal($vars["ID"]), $arCurLocs)) echo " selected"?>><?echo htmlspecialcharsbx($locationName)?></option>
+					<option value="<?echo $vars["ID"]?>"<?if (in_array(intval($vars["ID"]), $arCurLocs)) echo " selected"?>><?echo htmlspecialcharsbx($locationName)?></option>
 				<?endwhile;?>
 			</select>
 		</td>

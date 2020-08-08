@@ -119,22 +119,22 @@ if(empty($fatal))
 
 <?SearchHelper::checkIndexesValid();?>
 
-<?if(strlen($fatal)):?>
+<? if($fatal <> ''): ?>
 	<?
 	$messageParams = array('MESSAGE' => $fatal, 'type' => 'ERROR');
-	if ($publicMode)
+	if($publicMode)
 	{
 		$messageParams["SKIP_PUBLIC_MODE"] = true;
 	}
 	?>
 	<div class="error-message">
-		<?CAdminMessage::ShowMessage($messageParams)?>
+		<? CAdminMessage::ShowMessage($messageParams) ?>
 	</div>
 
-<?else:?>
+<? else: ?>
 
-	<?$lAdmin->DisplayList();?>
+	<? $lAdmin->DisplayList(); ?>
 
-<?endif?>
+<? endif?>
 
 <?require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>

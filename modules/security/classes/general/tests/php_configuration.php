@@ -164,7 +164,7 @@ class CSecurityPhpConfigurationTest
 	 */
 	protected function isPhpConfVarOff($name)
 	{
-		return (intval(ini_get($name)) == 0 || strtolower(trim(ini_get($name))) == "off");
+		return (intval(ini_get($name)) == 0 || mb_strtolower(trim(ini_get($name))) == "off");
 	}
 
 	/**
@@ -174,7 +174,7 @@ class CSecurityPhpConfigurationTest
 	 */
 	protected function isPhpConfVarOn($name)
 	{
-		return (intval(ini_get($name)) == 1 || strtolower(trim(ini_get($name))) == "on");
+		return (intval(ini_get($name)) == 1 || mb_strtolower(trim(ini_get($name))) == "on");
 	}
 
 	/**

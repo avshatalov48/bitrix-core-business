@@ -139,7 +139,7 @@ final class LogComment extends Provider
 			if (!empty($pathToLogEntry))
 			{
 				$pathToLogEntry = \CComponentEngine::makePathFromTemplate($pathToLogEntry, array("log_id" => $logId));
-				$pathToLogEntry .= (strpos($pathToLogEntry, '?') === false ? '?' : '&').'commentId='.$this->getEntityId().'#com'.$this->getEntityId();
+				$pathToLogEntry .= (mb_strpos($pathToLogEntry, '?') === false ? '?' : '&').'commentId='.$this->getEntityId().'#com'.$this->getEntityId();
 			}
 		}
 		return $pathToLogEntry;
@@ -193,12 +193,12 @@ final class LogComment extends Provider
 
 		$message = (
 			isset($params['MESSAGE'])
-			&& strlen($params['MESSAGE']) > 0
+			&& $params['MESSAGE'] <> ''
 				? $params['MESSAGE']
 				: ''
 		);
 
-		if (strlen($message) <= 0)
+		if ($message == '')
 		{
 			return false;
 		}

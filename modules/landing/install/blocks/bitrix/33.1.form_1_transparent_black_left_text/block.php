@@ -1,4 +1,4 @@
-<section class="landing-block g-pos-rel g-pt-120 g-pb-120 landing-block-node-bgimg g-bg-size-cover g-bg-img-hero g-bg-cover g-bg-black-opacity-0_7--after"
+<section class="landing-block landing-block-node-bgimg landing-semantic-color-overlay g-pos-rel g-pt-120 g-pb-120 g-bg-size-cover g-bg-img-hero g-bg-cover g-bg-black-opacity-0_7--after"
 		style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1080/img4.jpg);">
 
 	<div class="container g-z-index-1 g-pos-rel">
@@ -71,12 +71,12 @@
 
 
 			<div class="col-md-4 g-mb-60">
-				<h2 class="landing-block-node-main-title js-animation fadeInUp h1 g-color-white mb-4"
+				<h2 class="landing-block-node-main-title landing-semantic-title-medium js-animation fadeInUp h1 g-color-white mb-4"
 					data-form-style-main-font-color="1"
 					data-form-style-main-font-family="1"
 				>Contact Us</h2>
 
-				<div class="landing-block-node-text js-animation fadeInUp g-line-height-1_5 text-left g-mb-40 g-color-white-opacity-0_6"
+				<div class="landing-block-node-text landing-semantic-text-medium js-animation fadeInUp g-line-height-1_5 text-left g-mb-40 g-color-white-opacity-0_6"
 					 data-form-style-main-font-weight="1"
 					 data-form-style-header-text-font-size="1"
 					 data-form-style-label-font-weight="1"
@@ -90,7 +90,7 @@
 					</p>
 				</div>
 
-				<h3 class="h4 g-color-white mb-4 landing-block-node-title">Contact Info</h3>
+				<h3 class="landing-block-node-title landing-semantic-subtitle-medium h4 g-color-white mb-4">Contact Info</h3>
 
 				<div class="landing-block-node-card-contact-container">
 					<!-- Icon Block -->
@@ -102,7 +102,7 @@
 								</span>
 							</div>
 							<div class="media-body">
-								<div class="landing-block-node-contact-text g-color-white-opacity-0_6 mb-0">5B Streat, City
+								<div class="landing-block-node-contact-text landing-semantic-text-medium g-color-white-opacity-0_6 mb-0">5B Streat, City
 									50987 New Town US
 								</div>
 							</div>
@@ -119,7 +119,7 @@
 								</span>
 							</div>
 							<div class="media-body">
-								<a href="tel:+32(0)333444555" class="landing-block-card-linkcontact-link g-color-white-opacity-0_6">+32 (0) 333 444 555</a>
+								<a href="tel:#PHONE1#" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#PHONE1#</a>
 							</div>
 						</div>
 					</div>
@@ -133,7 +133,7 @@
 								  <i class="landing-block-card-contact-icon icon-communication-033 u-line-icon-pro"></i>
 								</span>
 							</div>
-							<a href="tel:+32(0)333444666" class="landing-block-card-linkcontact-link g-color-white-opacity-0_6">+32 (0) 333 444 666</a>
+							<a href="tel:#PHONE2#" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#PHONE2#</a>
 						</div>
 					</div>
 					<!-- End Icon Block -->
@@ -146,7 +146,7 @@
 								  <i class="landing-block-card-contact-icon icon-communication-033 u-line-icon-pro"></i>
 								</span>
 							</div>
-							<a href="tel:+32(0)333444777" class="landing-block-card-linkcontact-link g-color-white-opacity-0_6">+32 (0) 333 444 777</a>
+							<a href="tel:#PHONE3#" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#PHONE3#</a>
 						</div>
 					</div>
 					<!-- End Icon Block -->
@@ -159,7 +159,7 @@
 									<i class="landing-block-card-contact-icon icon-communication-062 u-line-icon-pro"></i>
 								</span>
 							</div>
-							<a href="mailto:info@company24.com" class="landing-block-card-linkcontact-link g-color-white-opacity-0_6">info@company24.com</a>
+							<a href="mailto:#EMAIL1#" class="landing-block-card-linkcontact-link landing-semantic-link-medium g-color-white-opacity-0_6">#EMAIL1#</a>
 						</div>
 					</div>
 					<!-- End Icon Block -->
@@ -173,7 +173,9 @@
 					 data-form-style-input-border-color="1"
 					 data-b24form-use-style="Y"
 					 data-b24form-show-header="N"
-				></div>
+				>
+					<div class="g-landing-alert">MESS[LANDING_BLOCK_WEBFORM_PRELOADER]</div>
+				</div>
 			</div>
 
 		</div>

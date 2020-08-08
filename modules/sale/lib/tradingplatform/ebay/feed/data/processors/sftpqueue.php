@@ -26,20 +26,20 @@ class SftpQueue extends DataProcessor
 
 	public function __construct(array $params)
 	{
-		if(!isset($params["FEED_TYPE"]) || strlen($params["FEED_TYPE"]) <= 0)
+		if(!isset($params["FEED_TYPE"]) || $params["FEED_TYPE"] == '')
 			throw new ArgumentNullException("FEED_TYPE");
 
 		if($this->feedType == "ORDER_ACK")
 			$this->feedType = "order-ack";
 		else
-			$this->feedType = strtolower($params["FEED_TYPE"]);
+			$this->feedType = mb_strtolower($params["FEED_TYPE"]);
 
-		if(!isset($params["SITE_ID"]) || strlen($params["SITE_ID"]) <= 0)
+		if(!isset($params["SITE_ID"]) || $params["SITE_ID"] == '')
 			throw new ArgumentNullException("SITE_ID");
 
 		$this->siteId = $params["SITE_ID"];
 
-		if(isset($params["COVER_TAG"]) && strlen($params["COVER_TAG"]) > 0)
+		if(isset($params["COVER_TAG"]) && $params["COVER_TAG"] <> '')
 			$this->coverTag = $params["COVER_TAG"];
 
 		if(isset($params["SCHEMA_FILE_NAME"]))
@@ -87,7 +87,7 @@ class SftpQueue extends DataProcessor
 
 			Ebay::log(Logger::LOG_LEVEL_DEBUG, "EBAY_DATA_PROCESSOR_SFTPQUEUE_FLUSHING", $this->feedType, print_r($feedData["DATA"],true), $this->siteId);
 
-			if(strtolower(SITE_CHARSET) != 'utf-8')
+			if(mb_strtolower(SITE_CHARSET) != 'utf-8')
 				$feedData["DATA"] = \Bitrix\Main\Text\Encoding::convertEncoding($feedData["DATA"], SITE_CHARSET, 'UTF-8');
 
 			$res = file_put_contents($fileXml, $feedData["DATA"], FILE_APPEND);

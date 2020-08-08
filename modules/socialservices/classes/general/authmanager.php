@@ -999,6 +999,22 @@ class CSocServAuth
 			}
 		}
 
+		if (is_set($arFields, "PERSONAL_PHOTO"))
+		{
+			if (strlen($arFields["PERSONAL_PHOTO"]["name"])<=0 && strlen($arFields["PERSONAL_PHOTO"]["del"])<=0)
+			{
+				unset($arFields["PERSONAL_PHOTO"]);
+			}
+			else
+			{
+				$rsPersonalPhoto = $DB->Query("SELECT PERSONAL_PHOTO FROM b_socialservices_user WHERE ID=".$id);
+				if ($personalPhoto = $rsPersonalPhoto->Fetch())
+				{
+					$arFields["PERSONAL_PHOTO"]["old_file"] = $personalPhoto["PERSONAL_PHOTO"];
+				}
+			}
+		}
+
 		if(!self::CheckFields('UPDATE', $arFields))
 		{
 			return false;
@@ -1025,25 +1041,33 @@ class CSocServAuth
 		return $id;
 	}
 
-	public static  function Delete($id)
+	public static function Delete($id)
 	{
 		global $DB;
 		$id = intval($id);
 		if ($id > 0)
 		{
-			$rsUser = $DB->Query("SELECT ID FROM b_socialservices_user WHERE ID=".$id);
+			$rsUser = $DB->Query("SELECT ID, PERSONAL_PHOTO FROM b_socialservices_user WHERE ID=".$id);
 			$arUser = $rsUser->Fetch();
-			if(!$arUser)
+			if (!$arUser)
+			{
 				return false;
+			}
 
-			foreach(GetModuleEvents("socialservices", "OnBeforeSocServUserDelete", true) as $arEvent)
+			foreach (GetModuleEvents("socialservices", "OnBeforeSocServUserDelete", true) as $arEvent)
+			{
 				ExecuteModuleEventEx($arEvent, array($id));
+			}
+
+			CFile::Delete($arUser["PERSONAL_PHOTO"]);
 
 			$DB->Query("DELETE FROM b_socialservices_user WHERE ID = ".$id." ", true);
+
 			$cache_id = 'socserv_ar_user';
 			$obCache = new CPHPCache;
 			$cache_dir = '/bx/socserv_ar_user';
 			$obCache->Clean($cache_id, $cache_dir);
+
 			return true;
 		}
 		return false;
@@ -1055,7 +1079,11 @@ class CSocServAuth
 		$id = intval($id);
 		if ($id > 0)
 		{
-			$DB->Query("DELETE FROM b_socialservices_user WHERE USER_ID = ".$id." ", true);
+			$rsUsers = $DB->Query("SELECT ID FROM b_socialservices_user WHERE USER_ID = ".$id." ", true);
+			while ($arUserLink = $rsUsers->Fetch())
+			{
+				self::Delete($arUserLink["ID"]);
+			}
 			return true;
 		}
 		return false;

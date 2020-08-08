@@ -15,7 +15,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
 $sTableID = "tbl_sale_tax_exempt";
 
-$oSort = new CAdminSorting($sTableID, "ID", "asc");
+$oSort = new CAdminUiSorting($sTableID, "ID", "asc");
 
 $lAdmin = new CAdminUiList($sTableID, $oSort);
 
@@ -66,7 +66,7 @@ while ($arGroup = $dbResultList->NavNext(false))
 		{
 			if($arTax = CSaleTax::GetByID($arRes["TAX_ID"]))
 			{
-				if (strlen($fieldShow) > 0)
+				if ($fieldShow <> '')
 					$fieldShow .= ", ";
 
 				$fieldShow .= "<a href=\"/bitrix/admin/sale_tax_edit.php?ID=".$arRes["TAX_ID"]."&lang=".
@@ -74,7 +74,7 @@ while ($arGroup = $dbResultList->NavNext(false))
 			}
 		}
 	}
-	if (strlen($fieldShow) <= 0)
+	if ($fieldShow == '')
 		$fieldShow = "&nbsp;";
 	$row->AddField("COUNT", $fieldShow);
 

@@ -26,7 +26,7 @@ else if ($arParams['EDIT_MODE'] == 'Y')
 {
 	?>
 	<div class="g-min-height-200 g-flex-centered g-height-100">
-		<div class="g-pa-10 g-brd-html-dashed g-bg-white">
+		<div class="g-landing-alert">
 			<?= Loc::getMessage('LANDING_TPL_NOT_IN_PREVIEW_MODE');?>
 		</div>
 	</div>

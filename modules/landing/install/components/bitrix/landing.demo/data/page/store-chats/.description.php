@@ -22,12 +22,12 @@ return array(
 		0 => [
 			'code' => 'store-chats-dark',
 			'page' => 'mainpage',
-			'color' => '#222244',
+			'color' => '#000000',
 		],
 		1 => [
 			'code' => 'store-chats-light',
 			'page' => 'mainpage',
-			'color' => '#eeeeff',
+			'color' => '#F6F6F9',
 		],
 	],
 );

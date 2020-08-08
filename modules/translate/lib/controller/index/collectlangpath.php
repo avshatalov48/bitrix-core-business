@@ -47,10 +47,16 @@ class CollectLangPath
 	 * Runs controller action.
 	 *
 	 * @param string $path Path to indexing.
+	 * @param boolean $runBefore Flag to run onBeforeRun event handler.
 	 * @return array
 	 */
-	public function run($path = '')
+	public function run($path = '', $runBefore = false)
 	{
+		if ($runBefore)
+		{
+			$this->onBeforeRun();
+		}
+
 		if (empty($path))
 		{
 			$path = Translate\Config::getDefaultPath();
@@ -91,7 +97,7 @@ class CollectLangPath
 					}
 				}
 
-				if (substr($testPath, -4) === '.php')
+				if (mb_substr($testPath, -4) === '.php')
 				{
 					if (!Translate\IO\Path::isLangDir($testPath))
 					{

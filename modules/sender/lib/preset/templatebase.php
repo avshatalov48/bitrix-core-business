@@ -108,7 +108,7 @@ class TemplateBase
 			$html = $template['CONTENT'];
 
 			$html = preg_replace('/<\?[\w\w].*?B_PROLOG_INCLUDED[^>].*?\?>/is', '', $html);
-			if(stripos($html, $replaceAttr) === false)
+			if(mb_stripos($html, $replaceAttr) === false)
 			{
 				$replaceTo = '<div id="bxStylistBody" ' . $replaceAttr . '>' . $replaceText . '</div>';
 			}

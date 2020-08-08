@@ -18,8 +18,8 @@
  */
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
-$arResult["PATH_TO_GROUP_EDIT"] = (strlen($arParams["~PATH_TO_GROUP_EDIT"]) > 0 ? $arParams["~PATH_TO_GROUP_EDIT"] : "");
-$arResult["GROUP_NAME"] = (strlen($arParams["~GROUP_NAME"]) > 0 ? $arParams["~GROUP_NAME"] : "");
+$arResult["PATH_TO_GROUP_EDIT"] = ($arParams["~PATH_TO_GROUP_EDIT"] <> '' ? $arParams["~PATH_TO_GROUP_EDIT"] : "");
+$arResult["GROUP_NAME"] = ($arParams["~GROUP_NAME"] <> '' ? $arParams["~GROUP_NAME"] : "");
 $arResult["IS_PROJECT"] = (isset($arParams["IS_PROJECT"]) && $arParams["IS_PROJECT"] == 'Y' ? 'Y' : 'N');
 
 $this->IncludeComponentTemplate();

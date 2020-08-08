@@ -149,7 +149,7 @@ class BizprocAutomationComponent extends \CBitrixComponent
 			'responsibleId' => 0,
 		);
 
-		$type = strtolower($robot['Type']);
+		$type = mb_strtolower($robot['Type']);
 		if (isset($availableRobots[$type]) && isset($availableRobots[$type]['ROBOT_SETTINGS']))
 		{
 			$settings = $availableRobots[$type]['ROBOT_SETTINGS'];
@@ -170,7 +170,7 @@ class BizprocAutomationComponent extends \CBitrixComponent
 				}
 				$result['responsibleLabel'] .= $usersLabel;
 
-				if ($users && count($users) == 1 && $users[0] && strpos($users[0], 'user_') === 0)
+				if ($users && count($users) == 1 && $users[0] && mb_strpos($users[0], 'user_') === 0)
 				{
 					$id = (int) \CBPHelper::StripUserPrefix($users[0]);
 					$result['responsibleUrl'] = CComponentEngine::MakePathFromTemplate(
@@ -213,6 +213,7 @@ class BizprocAutomationComponent extends \CBitrixComponent
 		if ($this->isApiMode())
 		{
 			$this->arResult['DOCUMENT_FIELDS'] = $this->getDocumentFields();
+			$this->arResult['DOCUMENT_USER_GROUPS'] = $this->getDocumentUserGroups();
 			$this->arResult['DOCUMENT_SIGNED'] = static::signDocument($documentType, $documentCategoryId, null);
 			$this->arResult['DOCUMENT_NAME'] = $documentService->getEntityName($documentType[0], $documentType[1]);
 			$this->includeComponentTemplate('api');
@@ -305,7 +306,7 @@ class BizprocAutomationComponent extends \CBitrixComponent
 			if (is_array($this->arParams['~CONTEXT']))
 				$dialog->setContext($this->arParams['~CONTEXT']);
 
-			if (strpos($this->arParams['~ROBOT_DATA']['Type'], 'rest_') === 0)
+			if (mb_strpos($this->arParams['~ROBOT_DATA']['Type'], 'rest_') === 0)
 			{
 				$this->arResult = array('dialog' => $dialog);
 				$this->includeComponentTemplate('rest_robot_properties_dialog');
@@ -328,6 +329,13 @@ class BizprocAutomationComponent extends \CBitrixComponent
 
 		$availableRobots = \Bitrix\Bizproc\Automation\Engine\Template::getAvailableRobots($documentType);
 
+		$triggers = [];
+		if ($target)
+		{
+			$triggers = $target->getTriggers(array_keys($statusList));
+			$target->prepareTriggersToShow($triggers);
+		}
+
 		$this->arResult = array(
 			'CAN_EDIT' => $canEdit,
 			'TITLE_VIEW' => $this->getTitleView(),
@@ -344,7 +352,7 @@ class BizprocAutomationComponent extends \CBitrixComponent
 			'STATUSES' => $statusList,
 
 			'TEMPLATES' => $target ? $this->getTemplates(array_keys($statusList)) : [$this->prepareTemplateForView()],
-			'TRIGGERS' => $target ? $target->getTriggers(array_keys($statusList)) : [],
+			'TRIGGERS' => $triggers,
 			'AVAILABLE_TRIGGERS' => $target ? $target->getAvailableTriggers() : [],
 			'AVAILABLE_ROBOTS' => array_values($availableRobots),
 			'GLOBAL_CONSTANTS' => \Bitrix\Bizproc\Workflow\Type\GlobalConst::getAll(),
@@ -364,6 +372,8 @@ class BizprocAutomationComponent extends \CBitrixComponent
 			'FRAME_MODE' => $this->request->get('IFRAME') === 'Y' && $this->request->get('IFRAME_TYPE') === 'SIDE_SLIDER',
 			'USE_DISK' => Main\Loader::includeModule('disk'),
 		);
+
+		$this->prepareDelayMinLimitResult();
 
 		$this->includeComponentTemplate();
 	}
@@ -455,6 +465,11 @@ class BizprocAutomationComponent extends \CBitrixComponent
 		return array_values(\Bitrix\Bizproc\Automation\Helper::getDocumentFields($this->getDocumentType(), $filter));
 	}
 
+	private function getDocumentUserGroups()
+	{
+		return \Bitrix\Bizproc\Automation\Helper::getDocumentUserGroups($this->getDocumentType());
+	}
+
 	private function showError($message)
 	{
 		echo <<<HTML
@@ -463,5 +478,20 @@ class BizprocAutomationComponent extends \CBitrixComponent
 			</div>
 HTML;
 		return;
+	}
+
+	private function prepareDelayMinLimitResult()
+	{
+		$this->arResult['DELAY_MIN_LIMIT_M'] = 0;
+		$this->arResult['DELAY_MIN_LIMIT_LABEL'] = '';
+
+		$delayMinLimit = CBPSchedulerService::getDelayMinLimit();
+		if ($delayMinLimit)
+		{
+			$this->arResult['DELAY_MIN_LIMIT_M'] = intdiv($delayMinLimit,60);
+			$this->arResult['DELAY_MIN_LIMIT_LABEL'] = Loc::getMessage('BIZPROC_AUTOMATION_DELAY_MIN_LIMIT', [
+				'#VAL#' => \CBPHelper::FormatTimePeriod($delayMinLimit)
+			]);
+		}
 	}
 }

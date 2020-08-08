@@ -1,16 +1,19 @@
 <?php
 namespace Bitrix\Landing\Hook\Page;
 
+use \Bitrix\Crm\SiteButton;
 use \Bitrix\Landing\Field;
+use \Bitrix\Landing\Manager;
+use \Bitrix\Main\Loader;
 use \Bitrix\Main\Localization\Loc;
-use \Bitrix\Crm\SiteButton\Preset;
+use \Bitrix\Socialservices\ApClient;
 
 Loc::loadMessages(__FILE__);
 
 class B24button extends \Bitrix\Landing\Hook\Page
 {
 	/**
-	 * Get script url fromscript-code.
+	 * Get script url from script-code.
 	 * @param string $script Script code.
 	 * @return string
 	 */
@@ -28,69 +31,104 @@ class B24button extends \Bitrix\Landing\Hook\Page
 	 * Get b24 buttons.
 	 * @return array
 	 */
-	public static function getButtons()
+	public static function getButtons(): array
 	{
-		static $items = null;
-
-		if ($items !== null)
+		static $buttons = null;
+		if ($buttons !== null)
 		{
-			return $items;
+			return $buttons;
 		}
 
-		$items = array();
+		$buttons = [];
+		foreach (self::getButtonsData() as $button)
+		{
+			$key = self::getScriptUrl($button['SCRIPT']);
+			if ($key)
+			{
+				$buttons[$key] = \htmlspecialcharsbx($button['NAME']);
+			}
+		}
+
+		return $buttons;
+	}
+
+	/**
+	 * Get raw data of b24 buttons
+	 *
+	 * @return array|null
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\LoaderException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public static function getButtonsData(): ?array
+	{
+		static $buttonsData = null;
+
+		if ($buttonsData !== null)
+		{
+			return $buttonsData;
+		}
+
+		$buttonsData = [];
 
 		// b24 crm
-		if (\Bitrix\Main\Loader::includeModule('crm'))
+		if (Loader::includeModule('crm'))
 		{
 			// if buttons not exist (new portal) - create before
-			if (Preset::checkVersion())
+			if (SiteButton\Preset::checkVersion())
 			{
-				$preset = new Preset();
+				$preset = new SiteButton\Preset();
 				$preset->install();
 			}
-			
-			$buttonList = \Bitrix\Crm\SiteButton\Manager::getList(array(
-				'select' => array(
+
+			$buttonsData = SiteButton\Manager::getList([
+				'filter' => ['=ACTIVE' => 'Y'],
+				'select' => [
 					'ID', 'SECURITY_CODE', 'NAME'
-				),
-				'order' => array(
+				],
+				'order' => [
 					'ID' => 'DESC'
-				)
-			));
-			foreach ($buttonList as $button)
-			{
-				$key = self::getScriptUrl($button['SCRIPT']);
-				if ($key)
-				{
-					$items[$key] = $button['NAME'];
-				}
-			}
+				]
+			]);
 		}
 		// site manager
-		elseif (
-			\Bitrix\Main\Loader::includeModule('b24connector') &&
-			\Bitrix\Main\Loader::includeModule('socialservices')
-		)
+		elseif (Manager::isB24Connector())
 		{
-			$client = \Bitrix\Socialservices\ApClient::init();
+			$client = ApClient::init();
 			if ($client)
 			{
 				$res = $client->call('crm.button.list');
 				if (isset($res['result']) && is_array($res['result']))
 				{
-					foreach ($res['result'] as $button)
-					{
-						$key = self::getScriptUrl($button['SCRIPT']);
-						if ($key)
-						{
-							$items[$key] = \htmlspecialcharsbx($button['NAME']);
-						}
-					}
+					$buttonsData = $res['result'];
 				}
 			}
 		}
 
-		return $items;
+		return $buttonsData;
+	}
+
+	/**
+	 * Find button ID by script code
+	 * @param $code - script for button
+	 * @return bool|string
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ArgumentNullException
+	 * @throws \Bitrix\Main\LoaderException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public static function getButtonIdByCode($code)
+	{
+		foreach (self::getButtonsData() as $button)
+		{
+			if ($code === self::getScriptUrl($button['SCRIPT']))
+			{
+				return $button['ID'];
+			}
+		}
+
+		return false;
 	}
 
 	/**

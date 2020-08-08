@@ -48,23 +48,23 @@ else
 	// let's get array of access rights for whole folder
 	$CUR_PERM = GetAccessArrTmp($arParsedPath["PREV"]);
 
-	if($REQUEST_METHOD=="POST" && strlen($save)>0 && strlen($propeditmore)<=0 && check_bitrix_sessid())
+	if($REQUEST_METHOD=="POST" && $save <> '' && $propeditmore == '' && check_bitrix_sessid())
 	{
 		$bNeedSectionFile = False;
 
 		$strSectionName = "";
-		if(strlen($sectionname)>0)
+		if($sectionname <> '')
 		{
 			$strSectionName = "\$sSectionName = \"".CFileMan::EscapePHPString($sectionname)."\";\n";
 			$bNeedSectionFile = True;
 		}
 
 		$strDirProperties = "\$arDirProperties = array(\n";
-		$numpropsvals = IntVal($numpropsvals);
+		$numpropsvals = intval($numpropsvals);
 		$bNeedComma = False;
 		for($i = 0; $i<$numpropsvals; $i++)
 		{
-			if(strlen(Trim($_POST["CODE_".$i]))>0 && strlen(Trim($_POST["VALUE_".$i]))>0)
+			if(Trim($_POST["CODE_".$i]) <> '' && Trim($_POST["VALUE_".$i]) <> '')
 			{
 				if($bNeedComma) $strDirProperties .= ",\n";
 				$strDirProperties .= "   \"".CFileMan::EscapePHPString(Trim($_POST["CODE_".$i]))."\" => \"".CFileMan::EscapePHPString(Trim($_POST["VALUE_".$i]))."\"";
@@ -130,9 +130,9 @@ else
 			$strNotice = $e->msg;
 		else
 		{
-			if(strlen($apply)<=0)
+			if($apply == '')
 			{
-				if(strlen($back_url)>0)
+				if($back_url <> '')
 					LocalRedirect("/".ltrim($back_url, "/"));
 				else
 					LocalRedirect("/bitrix/admin/fileman_admin.php?".$addUrl."&site=".$site."&path=".UrlEncode($path));
@@ -143,14 +143,14 @@ else
 	}
 }
 
-if(strlen($propeditmore)>0) $bInitVars = True;
+if($propeditmore <> '') $bInitVars = True;
 
 foreach ($arParsedPath["AR_PATH"] as $chainLevel)
 {
 	$adminChain->AddItem(
 		array(
 			"TEXT" => htmlspecialcharsex($chainLevel["TITLE"]),
-			"LINK" => ((strlen($chainLevel["LINK"]) > 0) ? $chainLevel["LINK"] : ""),
+			"LINK" => (($chainLevel["LINK"] <> '') ? $chainLevel["LINK"] : ""),
 		)
 	);
 }
@@ -174,7 +174,7 @@ $context->Show();
 <?CAdminMessage::ShowMessage($strWarning);?>
 
 <?
-if(strlen($strWarning)<=0):
+if($strWarning == ''):
 	$sectionname = "";
 	$arDirProperties = false;
 	$sSectionName = "";
@@ -269,7 +269,7 @@ $tabControl->Begin();
 					}
 				}
 
-				$numpropsvals = IntVal($numpropsvals);
+				$numpropsvals = intval($numpropsvals);
 				$numnewpropsvals = $numpropsvals-$oldind;
 				if($bInitVars && $numnewpropsvals>0)
 				{
@@ -278,7 +278,7 @@ $tabControl->Begin();
 						$oldind++;
 						$f_CODE = $_POST["CODE_".$oldind];
 						$f_VALUE = $_POST["VALUE_".$oldind];
-						if(strlen($f_CODE)<=0) continue;
+						if($f_CODE == '') continue;
 
 						$bPredefinedProperty = False;
 						if(is_set($arPropTypes, $f_CODE))
@@ -301,7 +301,7 @@ $tabControl->Begin();
 								<?endif;?>
 							</td>
 							<td><input type="text" name="VALUE_<?echo $ind;?>" value="<?echo htmlspecialcharsbx($f_VALUE);?>" size="60"><?
-								if($APPLICATION->GetDirProperty($f_CODE, Array($site, $path)) && strlen($f_VALUE)<=0)
+								if($APPLICATION->GetDirProperty($f_CODE, Array($site, $path)) && $f_VALUE == '')
 								{
 									?><br><small><b><?echo GetMessage("FILEMAN_FOLDER_CURVAL")?></b> <?echo htmlspecialcharsbx($APPLICATION->GetDirProperty($f_CODE, Array($site, $path)));?></small><?
 								}
@@ -385,8 +385,8 @@ $tabControl->Begin();
 				{
 					$name = '';
 					if ($arRes['SYS'])
-						$name = GetMessage(strtoupper($arRes['NAME']));
-					if (strlen($name) == 0)
+						$name = GetMessage(mb_strtoupper($arRes['NAME']));
+					if ($name == '')
 						$name = $arRes['NAME'];
 
 					$arPermTypes[$arRes['ID']] = Array(
@@ -405,9 +405,9 @@ $tabControl->Begin();
 				else
 					$inh_perm = $CUR_PERM[$arParsedPath["LAST"]]["*"];
 
-				if (substr($inh_perm,0,2) == 'T_')
-					$inh_taskId = intval(substr($inh_perm,2));
-				elseif(strlen($inh_perm) == 1)
+				if (mb_substr($inh_perm, 0, 2) == 'T_')
+					$inh_taskId = intval(mb_substr($inh_perm, 2));
+				elseif(mb_strlen($inh_perm) == 1)
 					$inh_taskId = CTask::GetIdByLetter($inh_perm,'main','file');
 				else
 					$inh_taskId = 'NOT_REF';
@@ -440,9 +440,9 @@ $tabControl->Begin();
 					else
 						$perm = $CUR_PERM[$arParsedPath["LAST"]][$g_ID];
 
-					if (substr($perm,0,2) == 'T_')
-						$taskId = intval(substr($perm,2));
-					elseif(strlen($perm) == 1)
+					if (mb_substr($perm, 0, 2) == 'T_')
+						$taskId = intval(mb_substr($perm, 2));
+					elseif(mb_strlen($perm) == 1)
 						$taskId = CTask::GetIdByLetter($perm,'main','file');
 					else
 						$taskId = 'NOT_REF';
@@ -516,7 +516,7 @@ $tabControl->EndTab();
 $tabControl->Buttons(
 	array(
 		"disabled" => (!$USER->CanDoFileOperation('fm_edit_existent_folder',$arPath)),
-		"back_url" => (strlen($back_url) > 0 ? $back_url : "fileman_admin.php?".$addUrl."&site=".$site."&path=".UrlEncode($path))
+		"back_url" => ($back_url <> '' ? $back_url : "fileman_admin.php?".$addUrl."&site=".$site."&path=".UrlEncode($path))
 	)
 );
 $tabControl->End();

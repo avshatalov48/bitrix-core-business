@@ -242,7 +242,7 @@ class Column extends BaseObject
 					intval($this->length) < intval($target->length)
 					|| (
 						intval($target->length) < intval($this->length)
-						&& strtoupper($this->type) === "CHAR"
+						&& mb_strtoupper($this->type) === "CHAR"
 					)
 				)
 			)
@@ -286,7 +286,7 @@ class Column extends BaseObject
 					intval($this->length) < intval($target->length)
 					|| (
 						intval($target->length) < intval($this->length)
-						&& strtoupper($this->type) === "CHAR"
+						&& mb_strtoupper($this->type) === "CHAR"
 					)
 				)
 			)

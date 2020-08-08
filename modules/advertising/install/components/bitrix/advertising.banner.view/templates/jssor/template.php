@@ -12,26 +12,26 @@ $rnd = $component->randString();
 
 $arParams['PROPS']['PRESET'] = intval($arParams['PROPS']['PRESET']);
 
-$arParams['PROPS']['OVERLAY_COLOR'] = hexdec(substr($arParams['PROPS']['OVERLAY_COLOR'],0,2)).','
-	.hexdec(substr($arParams['PROPS']['OVERLAY_COLOR'],2,2)).','
-	.hexdec(substr($arParams['PROPS']['OVERLAY_COLOR'],4,2)).','
+$arParams['PROPS']['OVERLAY_COLOR'] = hexdec(mb_substr($arParams['PROPS']['OVERLAY_COLOR'], 0, 2)).','
+	.hexdec(mb_substr($arParams['PROPS']['OVERLAY_COLOR'], 2, 2)).','
+	.hexdec(mb_substr($arParams['PROPS']['OVERLAY_COLOR'], 4, 2)).','
 	.abs(1 - intval($arParams['PROPS']['OVERLAY_OPACITY'])/100);
 
 $arParams['PROPS']['HEADING_BG_OPACITY'] = isset($arParams['PROPS']['HEADING_BG_OPACITY']) ? intval($arParams['PROPS']['HEADING_BG_OPACITY']) : 100;
 
-$arParams['PROPS']['HEADING_BG_COLOR'] = hexdec(substr($arParams['PROPS']['HEADING_BG_COLOR'],0,2)).','
-	.hexdec(substr($arParams['PROPS']['HEADING_BG_COLOR'],2,2)).','
-	.hexdec(substr($arParams['PROPS']['HEADING_BG_COLOR'],4,2)).','
+$arParams['PROPS']['HEADING_BG_COLOR'] = hexdec(mb_substr($arParams['PROPS']['HEADING_BG_COLOR'], 0, 2)).','
+	.hexdec(mb_substr($arParams['PROPS']['HEADING_BG_COLOR'], 2, 2)).','
+	.hexdec(mb_substr($arParams['PROPS']['HEADING_BG_COLOR'], 4, 2)).','
 	.abs(1 - $arParams['PROPS']['HEADING_BG_OPACITY']/100);
 
-$arParams['PROPS']['ANNOUNCEMENT_BG_COLOR'] = hexdec(substr($arParams['PROPS']['ANNOUNCEMENT_BG_COLOR'],0,2)).','
-	.hexdec(substr($arParams['PROPS']['ANNOUNCEMENT_BG_COLOR'],2,2)).','
-	.hexdec(substr($arParams['PROPS']['ANNOUNCEMENT_BG_COLOR'],4,2)).','
+$arParams['PROPS']['ANNOUNCEMENT_BG_COLOR'] = hexdec(mb_substr($arParams['PROPS']['ANNOUNCEMENT_BG_COLOR'], 0, 2)).','
+	.hexdec(mb_substr($arParams['PROPS']['ANNOUNCEMENT_BG_COLOR'], 2, 2)).','
+	.hexdec(mb_substr($arParams['PROPS']['ANNOUNCEMENT_BG_COLOR'], 4, 2)).','
 	.abs(1 - intval($arParams['PROPS']['ANNOUNCEMENT_BG_OPACITY'])/100);
 
-$arParams['PROPS']['BUTTON_BG_COLOR'] = hexdec(substr($arParams['PROPS']['BUTTON_BG_COLOR'],0,2)).','
-	.hexdec(substr($arParams['PROPS']['BUTTON_BG_COLOR'],2,2)).','
-	.hexdec(substr($arParams['PROPS']['BUTTON_BG_COLOR'],4,2));
+$arParams['PROPS']['BUTTON_BG_COLOR'] = hexdec(mb_substr($arParams['PROPS']['BUTTON_BG_COLOR'], 0, 2)).','
+	.hexdec(mb_substr($arParams['PROPS']['BUTTON_BG_COLOR'], 2, 2)).','
+	.hexdec(mb_substr($arParams['PROPS']['BUTTON_BG_COLOR'], 4, 2));
 
 $arParams['PROPS']['HEADING_FONT_SIZE'] = intval($arParams['PROPS']['HEADING_FONT_SIZE']);
 $arParams['PROPS']['ANNOUNCEMENT_FONT_SIZE'] = intval($arParams['PROPS']['ANNOUNCEMENT_FONT_SIZE']);

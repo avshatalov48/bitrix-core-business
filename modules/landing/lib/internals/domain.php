@@ -56,6 +56,9 @@ class DomainTable extends Entity\DataManager
 				'required' => true,
 				'default_value' => self::PROTOCOL_HTTPS
 			)),
+			'PROVIDER' => new Entity\StringField('PROVIDER', array(
+				'title' => Loc::getMessage('LANDING_TABLE_FIELD_PROVIDER')
+			)),
 			'CREATED_BY_ID' => new Entity\IntegerField('CREATED_BY_ID', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_CREATED_BY_ID'),
 				'required' => true

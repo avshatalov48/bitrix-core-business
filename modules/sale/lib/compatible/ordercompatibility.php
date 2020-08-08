@@ -3298,7 +3298,7 @@ class OrderCompatibility extends Internals\EntityCompatibility
 		static $propIndex = 0;
 
 		$propIDTmp = false;
-		if (strpos($key, "PROPERTY_ID_") === 0)
+		if (mb_strpos($key, "PROPERTY_ID_") === 0)
 		{
 			$propIndex++;
 			$this->addPropertyRuntime($propIndex);
@@ -3307,7 +3307,7 @@ class OrderCompatibility extends Internals\EntityCompatibility
 				return null;
 			}
 
-			$propIDTmp = intval(substr($key, strlen("PROPERTY_ID_")));
+			$propIDTmp = intval(mb_substr($key, mb_strlen("PROPERTY_ID_")));
 
 			$this->query->addFilter('='.$propRuntimeName.'.ORDER_PROPS_ID', $propIDTmp);
 			if(isset($locationPropInfo['ID'][$propIDTmp]))
@@ -3322,7 +3322,7 @@ class OrderCompatibility extends Internals\EntityCompatibility
 			$output = 'PROPERTY_ID_'.$propIDTmp;
 
 		}
-		elseif (strpos($key, "PROPERTY_ORDER_PROPS_ID_") === 0)
+		elseif (mb_strpos($key, "PROPERTY_ORDER_PROPS_ID_") === 0)
 		{
 			$propIndex++;
 			$this->addPropertyRuntime($propIndex);
@@ -3331,7 +3331,7 @@ class OrderCompatibility extends Internals\EntityCompatibility
 				return null;
 			}
 
-			$propIDTmp = intval(substr($key, strlen("PROPERTY_ORDER_PROPS_ID_")));
+			$propIDTmp = intval(mb_substr($key, mb_strlen("PROPERTY_ORDER_PROPS_ID_")));
 
 			$this->query->addFilter('='.$propRuntimeName.'.ORDER_PROPS_ID', $propIDTmp);
 			if(isset($locationPropInfo['ID'][$propIDTmp]))
@@ -3345,7 +3345,7 @@ class OrderCompatibility extends Internals\EntityCompatibility
 
 			$output = 'PROPERTY_ORDER_PROPS_ID_'.$propIDTmp;
 		}
-		elseif (strpos($key, "PROPERTY_NAME_") === 0)
+		elseif (mb_strpos($key, "PROPERTY_NAME_") === 0)
 		{
 			$propIndex++;
 			$this->addPropertyRuntime($propIndex);
@@ -3354,14 +3354,14 @@ class OrderCompatibility extends Internals\EntityCompatibility
 				return null;
 			}
 
-			$propIDTmp = intval(substr($key, strlen("PROPERTY_NAME_")));
+			$propIDTmp = intval(mb_substr($key, mb_strlen("PROPERTY_NAME_")));
 
 			$this->addQueryAlias('PROPERTY_NAME_'.$propIDTmp, $propRuntimeName.'.NAME');
 			$this->query->addFilter('='.$propRuntimeName.'.ORDER_PROPS_ID', $propIDTmp);
 
 			$output = 'PROPERTY_NAME_'.$propIDTmp;
 		}
-		elseif (strpos($key, "PROPERTY_VALUE_") === 0)
+		elseif (mb_strpos($key, "PROPERTY_VALUE_") === 0)
 		{
 			$propIndex++;
 			$this->addPropertyRuntime($propIndex);
@@ -3370,7 +3370,7 @@ class OrderCompatibility extends Internals\EntityCompatibility
 				return null;
 			}
 
-			$propIDTmp = intval(substr($key, strlen("PROPERTY_VALUE_")));
+			$propIDTmp = intval(mb_substr($key, mb_strlen("PROPERTY_VALUE_")));
 
 			if(isset($locationPropInfo['ID'][$propIDTmp]))
 			{
@@ -3383,7 +3383,7 @@ class OrderCompatibility extends Internals\EntityCompatibility
 
 			$output = 'PROPERTY_ID_'.$propIDTmp;
 		}
-		elseif (strpos($key, "PROPERTY_CODE_") === 0)
+		elseif (mb_strpos($key, "PROPERTY_CODE_") === 0)
 		{
 			$propIndex++;
 			$this->addPropertyRuntime($propIndex);
@@ -3392,13 +3392,13 @@ class OrderCompatibility extends Internals\EntityCompatibility
 				return null;
 			}
 
-			$propIDTmp = intval(substr($key, strlen("PROPERTY_CODE_")));
+			$propIDTmp = intval(mb_substr($key, mb_strlen("PROPERTY_CODE_")));
 			$this->addQueryAlias('PROPERTY_CODE_'.$propIDTmp, $propRuntimeName.'.CODE');
 			$this->query->addFilter('='.$propRuntimeName.'.ORDER_PROPS_ID', $propIDTmp);
 
 			$output = 'PROPERTY_CODE_'.$propIDTmp;
 		}
-		elseif (strpos($key, "PROPERTY_VAL_BY_CODE_") === 0)
+		elseif (mb_strpos($key, "PROPERTY_VAL_BY_CODE_") === 0)
 		{
 			$propIndex++;
 			$this->addPropertyRuntime($propIndex);
@@ -3407,7 +3407,7 @@ class OrderCompatibility extends Internals\EntityCompatibility
 				return null;
 			}
 
-			$propIDTmp = preg_replace("/[^a-zA-Z0-9_-]/is", "", trim(substr($key, strlen("PROPERTY_VAL_BY_CODE_"))));
+			$propIDTmp = preg_replace("/[^a-zA-Z0-9_-]/is", "", trim(mb_substr($key, mb_strlen("PROPERTY_VAL_BY_CODE_"))));
 
 			$this->addQueryAlias('PROPERTY_VAL_BY_CODE_'.$propIDTmp, $propRuntimeName.'.VALUE');
 			if(isset($locationPropInfo['CODE'][$propIDTmp]))
@@ -3423,7 +3423,7 @@ class OrderCompatibility extends Internals\EntityCompatibility
 
 			$output = 'PROPERTY_VAL_BY_CODE_'.$propIDTmp;
 		}
-		elseif (strpos($key, "BASKET_") === 0)
+		elseif (mb_strpos($key, "BASKET_") === 0)
 		{
 			$output = static::addBasketRuntime($key);
 		}

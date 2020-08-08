@@ -1,4 +1,4 @@
-(function (exports,ui_vue,ui_dexie,main_md5,ui_vuex) {
+(function (exports,ui_vue,ui_dexie,main_md5,ui_vue_vuex) {
   'use strict';
 
   /**
@@ -1458,7 +1458,7 @@
         var variables = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
         if (!(babelHelpers.typeof(variables) === 'object' && variables)) {
-          console.error('VuexBuilderModel.setVars: passed variables is not a Object', store);
+          this.logger('error', 'VuexBuilderModel.setVars: passed variables is not a Object', store);
           return this;
         }
 
@@ -1602,7 +1602,8 @@
             namespace = _this.namespace ? _this.namespace : _this.getName();
 
             if (!namespace && _this.withNamespace) {
-              console.error('VuexModel.getStore: current model can not be run in Vuex modules mode', _this.getState());
+              _this.logger('error', 'VuexModel.getStore: current model can not be run in Vuex modules mode', _this.getState());
+
               reject();
             }
           }
@@ -1667,11 +1668,11 @@
         this.lastSaveState = state;
 
         if (this.saveStateTimeout) {
-          console.log('wait save...', this.getName());
+          this.logger('log', 'VuexModel.saveState: wait save...', this.getName());
           return true;
         }
 
-        console.log('Start saving', this.getName());
+        this.logger('log', 'VuexModel.saveState: start saving', this.getName());
         var timeout = this.getSaveTimeout();
 
         if (typeof this.databaseConfig.timeout === 'number') {
@@ -1679,7 +1680,8 @@
         }
 
         this.saveStateTimeout = setTimeout(function () {
-          console.log('save!', _this2.getName());
+          _this2.logger('log', 'VuexModel.saveState: saved!', _this2.getName());
+
           var lastState = _this2.lastSaveState;
 
           if (typeof lastState === 'function') {
@@ -1809,8 +1811,8 @@
     babelHelpers.createClass(VuexBuilderModel, [{
       key: "setStore",
       value: function setStore(store) {
-        if (!(store instanceof ui_vuex.VuexVendor.Store)) {
-          console.error('VuexBuilderModel.setStore: passed store is not a Vuex.Store', store);
+        if (!(store instanceof ui_vue_vuex.VuexVendor.Store)) {
+          this.logger('error', 'VuexBuilderModel.setStore: passed store is not a Vuex.Store', store);
           return this;
         }
 
@@ -1825,7 +1827,8 @@
         clearTimeout(this.cacheTimeout);
         return new Promise(function (resolve) {
           _this3.cacheTimeout = setTimeout(function () {
-            console.warn('Cache loading timeout', _this3.getName());
+            _this3.logger('warn', 'VuexModel.getStoreFromDatabase: Cache loading timeout', _this3.getName());
+
             resolve(_this3.getState());
           }, 1000);
 
@@ -1934,6 +1937,37 @@
         }
 
         return result;
+      }
+    }, {
+      key: "logger",
+      value: function logger(type) {
+        for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+          args[_key - 1] = arguments[_key];
+        }
+
+        if (type === 'error') {
+          var _console;
+
+          (_console = console).error.apply(_console, args);
+
+          return undefined;
+        } else if (typeof BX.VueDevTools === 'undefined') {
+          return undefined;
+        }
+
+        if (type === 'log') {
+          var _console2;
+
+          (_console2 = console).log.apply(_console2, args);
+        } else if (type === 'info') {
+          var _console3;
+
+          (_console3 = console).info.apply(_console3, args);
+        } else if (type === 'warn') {
+          var _console4;
+
+          (_console4 = console).warn.apply(_console4, args);
+        }
       }
     }], [{
       key: "convertToArray",

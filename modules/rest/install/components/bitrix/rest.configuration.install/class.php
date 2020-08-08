@@ -9,12 +9,15 @@ use Bitrix\Main\Engine\ActionFilter;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ErrorCollection;
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Application;
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Error;
 use Bitrix\Rest\Configuration\Controller;
+use Bitrix\Rest\Configuration\Structure;
 use Bitrix\Rest\Configuration\Manifest;
+use Bitrix\Rest\Configuration\Setting;
 use Bitrix\Rest\Configuration\Helper;
 use Bitrix\Rest\AppLogTable;
 use Bitrix\Rest\AppTable;
@@ -32,6 +35,7 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 	protected $errors;
 	protected $actionError;
 	protected $diskFolder = false;
+	protected $savedActionUserContextPostfix = 'saved';
 
 	protected function checkRequiredParams()
 	{
@@ -58,18 +62,32 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 	{
 		return [
 			'IMPORT_PATH',
+			'IMPORT_CONTEXT',
 			'IMPORT_MANIFEST',
 			'IMPORT_DISK_FOLDER_ID',
 			'IMPORT_DISK_STORAGE_PARAMS',
 			'APP',
 			'MODE',
+			'MANIFEST_CODE',
 			'UNINSTALL_APP_ON_FINISH'
 		];
 	}
 
+	protected function isPreInstallAppMode()
+	{
+		return $this->request->getQuery('create_install') === 'Y';
+	}
+
 	protected function prepareResult()
 	{
-		$result = [];
+		$result = [
+			'MANIFEST' => [],
+			'NEED_CLEAR_FULL' => true,
+			'PRE_INSTALL_APP_MODE' => false,
+			'NEED_START_BTN' => true,
+			'NEED_CLEAR_FULL_CONFIRM' => true
+		];
+		$manifest = null;
 
 		if(!empty($this->arParams['IMPORT_MANIFEST']['CODE']))
 		{
@@ -85,6 +103,25 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 			{
 				$result['NOTIFY'][] = Loc::getMessage("REST_CONFIGURATION_INSTALL_ERROR_MANIFEST_NOT_FOUND");
 			}
+		}
+		elseif($this->arParams['MANIFEST_CODE'])
+		{
+			$manifest = Manifest::get($this->arParams['MANIFEST_CODE']);
+		}
+
+		if(!is_null($manifest))
+		{
+			$result['MANIFEST'] = $manifest;
+			$result['NEED_CLEAR_FULL_CONFIRM'] = $manifest['DISABLE_CLEAR_FULL'] == 'Y' ? false : true;
+			$result['NEED_CLEAR_FULL'] = $result['NEED_CLEAR_FULL_CONFIRM'];
+			$result['NEED_START_BTN'] = $manifest['DISABLE_NEED_START_BTN'] == 'Y' && !$manifest['NEED_CLEAR_FULL_CONFIRM'] ? false : true;
+		}
+
+		if($this->isPreInstallAppMode())
+		{
+			$result['NEED_START_BTN'] = true;
+			$result['NEED_CLEAR_FULL_CONFIRM'] = false;
+			$result['PRE_INSTALL_APP_MODE'] = true;
 		}
 
 		$this->arResult = $result;
@@ -180,7 +217,16 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 		}
 		else
 		{
-			$folder = $this->arParams['IMPORT_PATH'];
+			if(!empty($this->arParams['IMPORT_PATH']))
+			{
+				$folder = $this->arParams['IMPORT_PATH'];
+			}
+			else
+			{
+				$structure = new \Bitrix\Rest\Configuration\Structure($this->getUserContext());
+				$folder = $structure->getFolder();
+			}
+
 			if(is_dir($folder.$type))
 			{
 				$fileList = array_values(array_diff(scandir($folder . $type), ['.', '..']));
@@ -212,14 +258,15 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 					)
 				);
 			}
-			$bad = false;
-			$result['DATA'] = Helper::getInstance()->sanitize($result['DATA'], $bad);
-			if($bad)
+
+			$result['SANITIZE'] = false;
+			$result['~DATA'] = $result['DATA'];
+			$result['DATA'] = Helper::getInstance()->sanitize($result['DATA'], $result['SANITIZE']);
+			if($result['SANITIZE'])
 			{
-				unset($result['DATA']);
 				$this->setActionError(
 					Loc::getMessage(
-						"REST_CONFIGURATION_INSTALL_FILE_CONTENT_ERROR_SANITIZE",
+						"REST_CONFIGURATION_INSTALL_FILE_CONTENT_ERROR_SANITIZE_SHORT",
 						[
 							'#STEP#' => $step
 						]
@@ -229,7 +276,7 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 		}
 		if($result['FILE_NAME'])
 		{
-			$result['FILE_NAME'] = preg_replace('/(.json)$/i', '', $result['FILE_NAME']);
+			$result['FILE_NAME'] = preg_replace('/('.Helper::CONFIGURATION_FILE_EXTENSION.')$/i', '', $result['FILE_NAME']);
 		}
 
 		return $result;
@@ -237,12 +284,13 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 
 	protected function getImportContext()
 	{
-		$result = 'external';
-		if(!empty($this->arParams['APP']['ID']))
-		{
-			$result = Helper::getInstance()->prefixAppContext.$this->arParams['APP']['ID'];
-		}
-		return $result;
+		$id = !empty($this->arParams['APP']['ID']) ? $this->arParams['APP']['ID'] : 0;
+		return Helper::getInstance()->getContextAction($id);
+	}
+
+	protected function getUserContext($postfix = false)
+	{
+		return $this->arParams['IMPORT_CONTEXT'].(($postfix !== false) ? $postfix : '');
 	}
 
 	public function startAction()
@@ -252,12 +300,29 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 		{
 			$section = Controller::getEntityCodeList();
 			$result['section'] = array_values($section);
-			$usesApp = Helper::getInstance()->getUsesConfigurationApp();
-			Helper::getInstance()->deleteRatio();
-			if($usesApp == '' && Loader::includeModule('disk'))
+
+			if(!empty($this->arParams['APP']))
 			{
-				$result['next'] = 'save';
-				$this->deleteBackupFolder();
+				$setting = new Setting($this->getUserContext());
+				$setting->set(Setting::SETTING_APP_INFO, $this->arParams['APP']);
+			}
+
+			if(Helper::getInstance()->isBasicManifest($this->arParams['MANIFEST_CODE']))
+			{
+				$usesApp = Helper::getInstance()->getBasicApp($this->arParams['MANIFEST_CODE']);
+				if($usesApp === false && $this->arParams['MODE'] != 'ROLLBACK' &&  Loader::includeModule('disk'))
+				{
+					$result['next'] = 'save';
+					$setting = new Setting($this->getUserContext($this->savedActionUserContextPostfix));
+					$setting->deleteFull();
+					$this->deleteBackupFolder();
+				}
+			}
+
+			if($this->arParams['IMPORT_DISK_FOLDER_ID'] && $this->arParams['IMPORT_DISK_STORAGE_PARAMS'])
+			{
+				$structure = new Structure($this->getUserContext());
+				$structure->setUnpackFilesFromDisk($this->arParams['IMPORT_DISK_FOLDER_ID'], $this->arParams['IMPORT_DISK_STORAGE_PARAMS']);
 			}
 		}
 		$result['notice'] = $this->getActionError();
@@ -294,6 +359,72 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 		return true;
 	}
 
+	private function addDiskBackupFiles($files)
+	{
+		if(is_array($files))
+		{
+			$structure = new Structure($this->getUserContext($this->savedActionUserContextPostfix));
+
+			$storage = Helper::getInstance()->getStorageBackup();
+			if($storage)
+			{
+				$folderName = $this->getImportContext();
+				$folder = $storage->getChild(
+					[
+						'=NAME' => $folderName,
+						'TYPE' => FolderTable::TYPE_FOLDER
+					]
+				);
+				if(!$folder)
+				{
+					$folder = $storage->addFolder(
+						[
+							'NAME' => $folderName,
+							'CREATED_BY' => SystemUser::SYSTEM_USER_ID,
+						]
+					);
+				}
+
+				$subFolder = $folder->getChild(
+					[
+						'=NAME' => Helper::STRUCTURE_FILES_NAME,
+						'TYPE' => FolderTable::TYPE_FOLDER
+					]
+				);
+				if(!$subFolder)
+				{
+					$subFolder = $folder->addSubFolder(
+						[
+							'NAME' => Helper::STRUCTURE_FILES_NAME,
+							'CREATED_BY' => SystemUser::SYSTEM_USER_ID
+						]
+					);
+				}
+
+				if($subFolder)
+				{
+					foreach ($files as $file)
+					{
+						if($file['ID'])
+						{
+							$id = intVal($file['ID']);
+							$structure->saveFile($id, $file);
+
+							$fileData = \CFile::MakeFileArray($id);
+							$subFolder->uploadFile(
+								$fileData,
+								[
+									'NAME' => $id,
+									'CREATED_BY' => SystemUser::SYSTEM_USER_ID
+								]
+							);
+						}
+					}
+				}
+			}
+		}
+	}
+
 	private function addDiskBackupContent($type, $code, $content)
 	{
 		$return = false;
@@ -305,7 +436,7 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 		{
 			return $return;
 		}
-		$name = $code.'.json';
+		$name = $code.Helper::CONFIGURATION_FILE_EXTENSION;
 		$storage = Helper::getInstance()->getStorageBackup();
 		if($storage)
 		{
@@ -325,25 +456,29 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 					]
 				);
 			}
-			$subFolder = $folder->getChild(
-				[
-					'=NAME' => $type,
-					'TYPE' => FolderTable::TYPE_FOLDER
-				]
-			);
-			if(!$subFolder)
+			if($type !== false)
 			{
-				$folder = $folder->addSubFolder(
+				$subFolder = $folder->getChild(
 					[
-						'NAME' => $type,
-						'CREATED_BY' => SystemUser::SYSTEM_USER_ID
+						'=NAME' => $type,
+						'TYPE' => FolderTable::TYPE_FOLDER
 					]
 				);
+				if(!$subFolder)
+				{
+					$folder = $folder->addSubFolder(
+						[
+							'NAME' => $type,
+							'CREATED_BY' => SystemUser::SYSTEM_USER_ID
+						]
+					);
+				}
+				else
+				{
+					$folder = $subFolder;
+				}
 			}
-			else
-			{
-				$folder = $subFolder;
-			}
+
 			if ($folder)
 			{
 				$file = $folder->uploadFile(
@@ -400,7 +535,8 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 	public function finishAction()
 	{
 		$result = [
-			'result' => false
+			'result' => false,
+			'createItemList' => []
 		];
 		if($this->checkRequiredParams())
 		{
@@ -424,11 +560,11 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 				{
 					$result['result'] = true;
 				}
-				Helper::getInstance()->setUsesConfigurationApp($this->arParams['APP']['CODE']);
+				Helper::getInstance()->setBasicApp($this->arParams['MANIFEST_CODE'], $this->arParams['APP']['CODE']);
 			}
 			else
 			{
-				Helper::getInstance()->deleteUsesConfigurationApp();
+				Helper::getInstance()->deleteBasicApp($this->arParams['MANIFEST_CODE']);
 			}
 
 			if(!empty($this->arParams['UNINSTALL_APP_ON_FINISH']))
@@ -458,8 +594,33 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 					}
 				}
 			}
+
+			$setting = new Setting($this->getUserContext());
+			$ratio = $setting->get(Setting::SETTING_RATIO);
+			$app = $setting->get(Setting::SETTING_APP_INFO);
+			$eventResult = Controller::callEventFinish(
+				[
+					'TYPE' => 'IMPORT',
+					'CONTEXT' => $this->getImportContext(),
+					'CONTEXT_USER' => $this->getUserContext(),
+					'RATIO' => $ratio,
+					'MANIFEST_CODE' => $this->arParams['MANIFEST_CODE'],
+					'IMPORT_MANIFEST' => $this->arParams['IMPORT_MANIFEST'],
+					'APP_ID' => ($app['ID'] > 0) ? $app['ID'] : 0
+				]
+			);
+
+			foreach ($eventResult as $data)
+			{
+				if(is_array($data['CREATE_DOM_LIST']))
+				{
+					$result['createItemList'] = array_merge($result['createItemList'], $data['CREATE_DOM_LIST']);
+				}
+			}
+
 		}
-		$result['errorsNotice'] = $this->getActionError();
+
+		$result['notice'] = $this->getActionError();
 		return $result;
 	}
 
@@ -482,8 +643,11 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 						'STEP' => $step,
 						'NEXT' => $next,
 						'CONTEXT' => $this->getImportContext(),
+						'CONTEXT_USER' => $this->getUserContext(),
 						'CLEAR_FULL' => $clearFull,
-						'PREFIX_NAME' => Loc::getMessage("REST_CONFIGURATION_INSTALL_CLEAR_PREFIX_NAME")
+						'PREFIX_NAME' => Loc::getMessage("REST_CONFIGURATION_INSTALL_CLEAR_PREFIX_NAME"),
+						'MANIFEST_CODE' => $this->arParams['MANIFEST_CODE'],
+						'IMPORT_MANIFEST' => $this->arParams['IMPORT_MANIFEST']
 					]
 				);
 
@@ -496,9 +660,14 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 					$this->setActionError($data['ERROR_ACTION']);
 				}
 
+				if ($data['ERROR_EXCEPTION'])
+				{
+					$result['exception'] = $data['ERROR_EXCEPTION'];
+				}
+
 				if(!isset($data['NEXT']))
 				{
-					$result['NEXT'] = false;
+					$result['next'] = false;
 				}
 				else
 				{
@@ -507,7 +676,7 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 			}
 		}
 
-		$result['errorsNotice'] = $this->getActionError();
+		$result['notice'] = $this->getActionError();
 
 		return $result;
 	}
@@ -533,33 +702,52 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 
 				if ($content['DATA'])
 				{
-					$ratio = Helper::getInstance()->getRatio();
+					$setting = new Setting($this->getUserContext());
+					$ratio = $setting->get(Setting::SETTING_RATIO);
 					$dataList = Controller::callEventImport(
-						$code,
-						$content,
-						$ratio,
-						$this->getImportContext()
+						[
+							'CODE' => $code,
+							'CONTENT' => $content,
+							'RATIO' => $ratio,
+							'CONTEXT' => $this->getImportContext(),
+							'CONTEXT_USER' => $this->getUserContext(),
+							'MANIFEST_CODE' => $this->arParams['MANIFEST_CODE'],
+							'IMPORT_MANIFEST' => $this->arParams['IMPORT_MANIFEST']
+						]
 					);
 
 					foreach ($dataList as $data)
 					{
-						if ($data['RATIO'])
+						if (is_array($data['RATIO']))
 						{
-							Helper::getInstance()->addRatio($code, $data['RATIO']);
+							if (!$ratio[$code])
+							{
+								$ratio[$code] = [];
+							}
+							foreach ($data['RATIO'] as $old => $new)
+							{
+								$ratio[$code][$old] = $new;
+							}
+						}
+						if ($data['ERROR_EXCEPTION'])
+						{
+							$result['exception'] = $data['ERROR_EXCEPTION'];
 						}
 						if ($data['ERROR_MESSAGES'])
 						{
-							$result['errors'] = $data['ERROR_MESSAGES'];
+							$result['errors'] = is_array($data['ERROR_MESSAGES']) ? $data['ERROR_MESSAGES'] : [$data['ERROR_MESSAGES']];
 						}
 						if ($data['ERROR_ACTION'])
 						{
 							$this->setActionError($data['ERROR_ACTION']);
 						}
 					}
+
+					$setting->set(Setting::SETTING_RATIO, $ratio);
 				}
 			}
 		}
-		$result['errorsNotice'] = $this->getActionError();
+		$result['notice'] = $this->getActionError();
 
 		return $result;
 	}
@@ -575,12 +763,17 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 			$next = htmlspecialcharsbx($request->getPost("next"));
 			if($code)
 			{
-				$items = Controller::callEventExport(Helper::TYPE_SECTION_TOTAL, $code, $step, $next);
+				$manifest = $this->arParams['MANIFEST_CODE'] != '' ? $this->arParams['MANIFEST_CODE'] : Helper::TYPE_SECTION_TOTAL;
+				$items = Controller::callEventExport($manifest, $code, $step, $next);
 				foreach ($items as $item)
 				{
 					if($item['FILE_NAME'] != '')
 					{
 						$this->addDiskBackupContent($code, $item['FILE_NAME'], $item['CONTENT']);
+						if($item['FILES'])
+						{
+							$this->addDiskBackupFiles($item['FILES']);
+						}
 					}
 					$result['next'] = $item['NEXT'];
 				}
@@ -591,9 +784,86 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 			$result['next'] = false;
 		}
 
-		$result['errorsNotice'] = $this->getActionError();
+		$result['notice'] = $this->getActionError();
 
 		return $result;
+	}
+
+	public function loadManifestAction()
+	{
+		$result = [
+			'next' => false
+		];
+
+		if($this->checkRequiredParams())
+		{
+			$request = Application::getInstance()->getContext()->getRequest();
+			$step = intVal($request->getPost("step"));
+			$next = htmlspecialcharsbx($request->getPost("next"));
+			$type = $request->getPost("type");
+			if($type != 'import')
+			{
+				$type = 'EXPORT';
+				$contextUser = $this->getUserContext($this->savedActionUserContextPostfix);
+			}
+			else
+			{
+				$type = 'IMPORT';
+				$contextUser = $this->getUserContext();
+			}
+
+			$items = Manifest::callEventInit(
+				$this->arParams['MANIFEST_CODE'],
+				[
+					'TYPE' => $type ,
+					'STEP' => $step,
+					'NEXT' => $next,
+					'ITEM_CODE' => $this->arParams['ITEM_CODE'],
+					'CONTEXT_USER' => $contextUser
+				]
+			);
+			foreach ($items as $item)
+			{
+				if ($item['ERROR_MESSAGES'])
+				{
+					$result['errors'][] = $item['ERROR_MESSAGES'];
+				}
+				if ($item['ERROR_ACTION'])
+				{
+					$result['notice'][] = $item['ERROR_ACTION'];
+				}
+
+				$result['next'] = $item['NEXT'];
+			}
+		}
+		return $result;
+	}
+
+	public function finishSaveAction()
+	{
+		$structure = new Structure($this->getUserContext($this->savedActionUserContextPostfix));
+		$manifest = Manifest::get($this->arParams['MANIFEST_CODE']);
+		if(!is_null($manifest))
+		{
+			$manifest = [
+				'CODE' => $manifest['CODE'],
+				'VERSION' => $manifest['VERSION'],
+				'USES' => $manifest['USES']
+			];
+			$this->addDiskBackupContent(false, 'manifest', $manifest);
+		}
+		$this->addDiskBackupContent(false, Helper::STRUCTURE_FILES_NAME, $structure->getFileList());
+		return [
+			'result' => true
+		];
+	}
+
+	public function preInstallOffAction()
+	{
+		Option::set("rest", "import_configuration_app", '');
+		return [
+			'result' => true
+		];
 	}
 
 	public function configureActions()
@@ -658,7 +928,37 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 				'postfilters' => [
 
 				]
-			]
+			],
+			'finishSave' => [
+				'prefilters' => [
+					new ActionFilter\Authentication(),
+					new ActionFilter\HttpMethod(
+						[ActionFilter\HttpMethod::METHOD_POST]
+					),
+					new ActionFilter\Csrf()
+				],
+				'postfilters' => [
+
+				]
+			],
+			'loadManifest' => [
+				'prefilters' => [
+					new ActionFilter\Authentication(),
+					new ActionFilter\HttpMethod(
+						[ActionFilter\HttpMethod::METHOD_POST]
+					),
+					new ActionFilter\Csrf()
+				]
+			],
+			'preInstallOff' => [
+				'prefilters' => [
+					new ActionFilter\Authentication(),
+					new ActionFilter\HttpMethod(
+						[ActionFilter\HttpMethod::METHOD_POST]
+					),
+					new ActionFilter\Csrf()
+				]
+			],
 		];
 	}
 }

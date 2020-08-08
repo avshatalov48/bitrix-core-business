@@ -1,12 +1,12 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
-if(strlen($arResult["FatalError"])>0)
+if($arResult["FatalError"] <> '')
 {
 	?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?
 }
 else
 {
-	if(strlen($arResult["ErrorMessage"])>0)
+	if($arResult["ErrorMessage"] <> '')
 	{
 		?><span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br /><?
 	}
@@ -19,9 +19,9 @@ else
 			".default",
 			array(
 				"PATH_TO_GROUP" => $arParams["PATH_TO_GROUP"],
-				"PATH_TO_GROUP_INVITE" => htmlspecialcharsback($arResult["Urls"]["GroupEdit"]).(strpos($arResult["Urls"]["GroupEdit"], "?") === false ? "?" : "&")."tab=invite",
-				"PATH_TO_GROUP_EDIT" => htmlspecialcharsback($arResult["Urls"]["GroupEdit"]).(strpos($arResult["Urls"]["GroupEdit"], "?") === false ? "?" : "&")."tab=edit",
-				"PATH_TO_GROUP_FEATURES" => htmlspecialcharsback($arResult["Urls"]["GroupEdit"]).(strpos($arResult["Urls"]["GroupEdit"], "?") === false ? "?" : "&")."tab=features",
+				"PATH_TO_GROUP_INVITE" => htmlspecialcharsback($arResult["Urls"]["GroupEdit"]).(mb_strpos($arResult["Urls"]["GroupEdit"], "?") === false ? "?" : "&")."tab=invite",
+				"PATH_TO_GROUP_EDIT" => htmlspecialcharsback($arResult["Urls"]["GroupEdit"]).(mb_strpos($arResult["Urls"]["GroupEdit"], "?") === false ? "?" : "&")."tab=edit",
+				"PATH_TO_GROUP_FEATURES" => htmlspecialcharsback($arResult["Urls"]["GroupEdit"]).(mb_strpos($arResult["Urls"]["GroupEdit"], "?") === false ? "?" : "&")."tab=features",
 				"ON_GROUP_ADDED" => "BX.DoNothing",
 				"ON_GROUP_CHANGED" => "BX.DoNothing",
 				"ON_GROUP_DELETED" => "BX.DoNothing"
@@ -36,7 +36,7 @@ else
 			".default",
 			array(
 				"NAME" => $popupName,
-				"PATH_TO_GROUP_EDIT" => (strlen($arResult["Urls"]["GroupEdit"]) > 0
+				"PATH_TO_GROUP_EDIT" => ($arResult["Urls"]["GroupEdit"] <> ''
 					? htmlspecialcharsback($arResult["Urls"]["GroupEdit"])
 					: ""
 				),
@@ -61,7 +61,7 @@ else
 		?><form method="post" name="form1" action="<?=POST_FORM_ACTION_URI?>" enctype="multipart/form-data"><?
 	endif;
 	
-	if (StrLen($arResult["NAV_STRING"]) > 0):
+	if ($arResult["NAV_STRING"] <> ''):
 		?><?=$arResult["NAV_STRING"]?><br /><br /><?
 	endif;
 	?>
@@ -208,7 +208,7 @@ else
 	</table>
 	</div>
 	<?
-	if (StrLen($arResult["NAV_STRING"]) > 0):
+	if ($arResult["NAV_STRING"] <> ''):
 		?><br><?=$arResult["NAV_STRING"]?><br /><br /><?
 	endif;
 	

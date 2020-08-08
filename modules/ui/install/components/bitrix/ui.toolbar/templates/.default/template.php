@@ -36,20 +36,24 @@ $titleStyles = !empty($titleProps) ? ' style="'.$titleProps.'"' : "";
 		?><?= $favoriteStar ?><?
 	?></div><?
 
-	if (strlen($afterTitleButtons)):
-		?><div class="ui-toolbar-after-title-buttons"><?=$afterTitleButtons?></div><?
+	if($afterTitleButtons <> ''):
+		?>
+		<div class="ui-toolbar-after-title-buttons"><?= $afterTitleButtons ?></div><?
 	endif;
 
-	if (strlen($filter)):
-		?><div class="ui-toolbar-filter-box"><?=$filter?><?
-			if (strlen($filterButtons)): ?><?
-				?><div class="ui-toolbar-filter-buttons"><?=$filterButtons?></div><?
-			endif
+	if($filter <> ''):
+		?>
+		<div class="ui-toolbar-filter-box"><?= $filter ?><?
+		if($filterButtons <> ''): ?><?
+			?>
+			<div class="ui-toolbar-filter-buttons"><?= $filterButtons ?></div><?
+		endif
 		?></div><?
 	endif;
 
-	if (strlen($rightButtons)):
-		?><div class="ui-toolbar-right-buttons"><?=$rightButtons?></div><?
+	if($rightButtons <> ''):
+		?>
+		<div class="ui-toolbar-right-buttons"><?= $rightButtons ?></div><?
 	endif;
 ?></div>
 

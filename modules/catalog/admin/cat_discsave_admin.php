@@ -57,7 +57,7 @@ if (!empty($find_id_from))
 	$arFilter['>=ID'] = $find_id_from;
 if (!empty($find_id_to))
 	$arFilter['<=ID'] = $find_id_to;
-if (strlen($find_name) > 0)
+if ($find_name <> '')
 	$arFilter['%NAME'] = $find_name;
 if (!empty($find_active))
 	$arFilter['ACTIVE'] = $find_active;

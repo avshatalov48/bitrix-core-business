@@ -1,0 +1,68 @@
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+  <svg>
+    <rect width="100%" height="100%" fill="#EFF2F5"/>
+    <rect width="100%" height="300" y="95" fill="#fff"/>
+    <rect width="100%" height="45" y="95" fill="#FFF" transform="matrix(1 0 0 -1 0 187)"/>
+    <rect width="100%" height="45" y=".5" fill="#FFF" transform="matrix(1 0 0 -1 0 45)"/>
+    <rect width="100%" height="155" y="250" fill="url(#skelet-a)"/>
+  </svg>
+
+  <defs>
+    <linearGradient id="skelet-a" x1="50%" x2="50%" y1="0%" y2="98.947%">
+      <stop offset="0%" stop-color="#EFF2F5" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#EFF2F5"/>
+    </linearGradient>
+  </defs>
+
+  <svg>
+    <defs>
+      <g fill="none" fill-rule="evenodd" id="content">
+        <rect width="13" height="13" x="27" y="63" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="13" height="13" x="84" y="63" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="107" height="13" x="160" y="63" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="134" height="13" x="316" y="63" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="134" height="13" x="674" y="63" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="134" height="13" x="1108" y="63" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="134" height="13" x="1403" y="63" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="134" height="13" x="1698" y="63" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="13" height="13" x="27" y="130" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="13" height="13" x="27" y="200" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="13" height="13" x="84" y="130" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="13" height="13" x="84" y="200" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="107" height="13" x="160" y="130" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="107" height="13" x="160" y="200" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="190" height="13" x="671" y="200" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="71" height="13" x="1258" y="200" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="66" height="13" x="1404" y="200" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="66" height="13" x="1561" y="200" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="66" height="13" x="1874" y="200" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="134" height="13" x="316" y="130" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="90" height="110" x="316" y="200" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="215" height="13" x="671" y="130" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="79" height="13" x="1105" y="130" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="79" height="13" x="1258" y="130" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="79" height="13" x="1405" y="130" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="79" height="13" x="1561" y="130" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="79" height="13" x="1719" y="130" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="217" height="13" x="1874" y="130" fill="#9EA6AD" opacity=".2" rx="2"/>
+        <rect width="200" height="15" x="38" y="15.5" fill="#9EA6AD" opacity=".2" rx="2"/>
+      </g>
+    </defs>
+    <use xlink:href="#content" y="0" x="0"/>
+  </svg>
+
+  <rect id="msk1" width="100%" fill="url(#msk_gd)" mask="url(#mask)" height="1200"/>
+
+  <mask id="mask" fill="white">
+    <use xlink:href="#content"/>
+  </mask>
+
+  <linearGradient x1="66.6%" y1="50%" x2="33.3%" y2="50%" id="msk_gd">
+    <stop stop-color="#9EA6AD" stop-opacity="0" offset="0%"/>
+    <stop stop-color="#9EA6AD" stop-opacity="1" offset="50%"/>
+    <stop stop-color="#9EA6AD" stop-opacity="0" offset="100%"/>
+  </linearGradient>
+
+  <animate xlink:href="#msk1" attributeName="x" from="-100%" to="100%" dur="1s" begin="0s" repeatCount="indefinite"/>
+
+</svg>

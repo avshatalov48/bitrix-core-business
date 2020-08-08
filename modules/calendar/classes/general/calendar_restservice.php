@@ -48,8 +48,8 @@ final class CCalendarRestService extends IRestService
 //			"calendar.resource.booking.delete" => [__CLASS__, "ResourceBookingDelete"],
 
 			"calendar.meeting.status.set" => [__CLASS__, "MeetingStatusSet"],
-			"calendar.meeting.status.get" => [__CLASS__, "MeetingStatusGet"],
 			"calendar.meeting.params.set" => [__CLASS__, "MeetingParamsSet"],
+			"calendar.meeting.status.get" => [__CLASS__, "MeetingStatusGet"],
 			"calendar.accessibility.get" => [__CLASS__, "MeetingAccessibilityGet"],
 			"calendar.settings.get" => [__CLASS__, "SettingsGet"],
 			"calendar.user.settings.get" => [__CLASS__, "UserSettingsGet"],
@@ -1203,50 +1203,11 @@ final class CCalendarRestService extends IRestService
 	}
 
 	/*
-	 * Set meeting params for current user
-	 *
-	 * @param array $params - incomoning params:
-	 * $params['eventId'] - event id
-	 * $params['accessibility']
-	 * $params['remind']
-	 *
-	 * @return true if everything ok
-	 *
-	 * @throws \Bitrix\Rest\RestException
-	 *
-	 * @example (Javascript)
-	 * BX24.callMethod("calendar.meeting.params.set",
-	 * {
-	 * 		eventId: '651',
-	 *	 	accessibility: 'free',
-	 * 		remind: [{type: 'min', count: 20}]
-	 * });
+	 * @deprecated
 	 */
 	public static function MeetingParamsSet($params = array(), $nav = null, $server = null)
 	{
-		$userId = CCalendar::GetCurUserId();
-		$methodName = "calendar.meeting.params.set";
-
-		$necessaryParams = array('eventId');
-		foreach ($necessaryParams as $param)
-		{
-			if (!isset($params[$param]) || empty($params[$param]))
-				throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#PARAM_NAME#' => $param,'#REST_METHOD#' => $methodName)));
-		}
-
-		$result = CCalendarEvent::SetMeetingParams(
-			$userId,
-			intVal($params['eventId']),
-			array(
-				'ACCESSIBILITY' => $params['accessibility'],
-				'REMIND' =>  $params['remind']
-			)
-		);
-
-		if (!$result)
-			throw new RestException(Loc::getMessage('CAL_REST_GET_DATA_ERROR'));
-
-		return true;
+		throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
 	}
 
 	/*
@@ -1414,9 +1375,11 @@ final class CCalendarRestService extends IRestService
 		$methodName = "calendar.user.settings.set";
 
 		if (!isset($params['settings']))
+		{
 			throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#PARAM_NAME#' => 'settings','#REST_METHOD#' => $methodName)));
+		}
 
-		CCalendarUserSettings::Set($params['settings'], $userId);
+		\Bitrix\Calendar\UserSettings::set($params['settings'], $userId);
 		return true;
 	}
 
@@ -1996,7 +1959,7 @@ final class CCalendarRestService extends IRestService
 	{
 		$userId = CCalendar::GetCurUserId();
 		$methodName = "calendar.user.settings.clear";
-		CCalendarUserSettings::Set(false, $userId);
+		\Bitrix\Calendar\UserSettings::set(false, $userId);
 		return true;
 	}
 

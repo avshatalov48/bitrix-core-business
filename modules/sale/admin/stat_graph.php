@@ -112,16 +112,16 @@ $arFilter=Array();
 				Plot data
 *******************************************************/
 
-if (strlen($filter_date_from)>0)
+if ($filter_date_from <> '')
 {
 	$arFilter["DATE_FROM"] = Trim($filter_date_from);
 }
 
-if (strlen($filter_date_to)>0)
+if ($filter_date_to <> '')
 {
 	if ($arDate = ParseDateTime($filter_date_to, CSite::GetDateFormat("FULL", SITE_ID)))
 	{
-		if (StrLen($filter_date_to) < 11)
+		if (mb_strlen($filter_date_to) < 11)
 		{
 			$arDate["HH"] = 23;
 			$arDate["MI"] = 59;
@@ -161,9 +161,9 @@ $arY = Array();
 $MinX = 0;
 $MaxX = 0;
 
-if(strlen($filter_date_from) > 0)
+if($filter_date_from <> '')
 	$MinX = MakeTimeStamp($filter_date_from);
-if(strlen($filter_date_to) > 0)
+if($filter_date_to <> '')
 	$MaxX = MakeTimeStamp($filter_date_to);
 else
 	$MaxX = mktime(0, 0, 0, date("n"), date("j"), date("Y"));
@@ -173,9 +173,9 @@ function bxStatSort($a, $b)
 	global $filter_by;
 	if($filter_by == "weekday")
 	{
-		if(IntVal($a["DATE"]) == IntVal($b["DATE"]))
+		if(intval($a["DATE"]) == intval($b["DATE"]))
 			return 0;
-		elseif(IntVal($a["DATE"]) > IntVal($b["DATE"]))
+		elseif(intval($a["DATE"]) > intval($b["DATE"]))
 			return ($order == "DESC") ? -1 : 1;
 		else
 			return ($order == "DESC") ? 1 : -1;
@@ -191,7 +191,7 @@ function bxStatSort($a, $b)
 	}
 }
 
-$CACHE = IntVal($_REQUEST["cache_time"]);
+$CACHE = intval($_REQUEST["cache_time"]);
 $obCache = new CPHPCache; 
 $cache_id = "sale_stat_graph5_".md5(serialize($arFilter)."_".serialize($arFind));
 if($obCache->InitCache($CACHE, $cache_id, "/"))
@@ -423,30 +423,30 @@ else
 		{
 			if($arFind["find_all"] == "Y")
 			{
-				$arY[] = IntVal($v["COUNT"]);
-				$arCountY[] = IntVal($v["COUNT"]);
+				$arY[] = intval($v["COUNT"]);
+				$arCountY[] = intval($v["COUNT"]);
 			}
 			if($arFind["find_payed"] == "Y")
 			{
-				$arY[] = IntVal($v["PAYED"]);
-				$arPayedY[] = IntVal($v["PAYED"]);
+				$arY[] = intval($v["PAYED"]);
+				$arPayedY[] = intval($v["PAYED"]);
 			}
 			if($arFind["find_allow_delivery"] == "Y")
 			{
-				$arY[] = IntVal($v["ALLOW_DELIVERY"]);
-				$arDelivY[] = IntVal($v["ALLOW_DELIVERY"]);
+				$arY[] = intval($v["ALLOW_DELIVERY"]);
+				$arDelivY[] = intval($v["ALLOW_DELIVERY"]);
 			}
 			if($arFind["find_canceled"] == "Y")
 			{
-				$arY[] = IntVal($v["CANCELED"]);
-				$arCancelY[] = IntVal($v["CANCELED"]);
+				$arY[] = intval($v["CANCELED"]);
+				$arCancelY[] = intval($v["CANCELED"]);
 			}
 			foreach($arStatus as $k1 => $v1)
 			{
 				if($arFind["find_status_".$k1] == "Y")
 				{
-					$arY[] = IntVal($v["STATUS"][$k1]);
-					$arStatusY[$k1][] = IntVal($v["STATUS"][$k1]);
+					$arY[] = intval($v["STATUS"][$k1]);
+					$arStatusY[$k1][] = intval($v["STATUS"][$k1]);
 				}
 			}
 		}

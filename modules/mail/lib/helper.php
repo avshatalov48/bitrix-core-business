@@ -2,7 +2,6 @@
 
 namespace Bitrix\Mail;
 
-use Bitrix\Mail\Helper\MessageFolder;
 use Bitrix\Main;
 
 class Helper
@@ -56,11 +55,17 @@ class Helper
 		$mailboxHelper->setCheckpoint();
 
 		$stage1 = $mailboxHelper->dismissOldMessages();
-		$stage2 = $mailboxHelper->cleanup();
+		$stage2 = $mailboxHelper->dismissDeletedUidMessages();
+		$stage3 = $mailboxHelper->cleanup();
 
 		global $pPERIOD;
 
-		$pPERIOD = min($pPERIOD, max($stage1 && $stage2 ? $pPERIOD : 600, 60));
+		$pPERIOD = min($pPERIOD, max($stage1 && $stage2 && $stage3 ? $pPERIOD : 600, 60));
+
+		if ($pPERIOD === null)
+		{
+			$pPERIOD = 60;
+		}
 
 		return sprintf('Bitrix\Mail\Helper::cleanupMailboxAgent(%u);', $id);
 	}
@@ -143,7 +148,7 @@ class Helper
 				'name' => $item['title'],
 				'level' => $item['level'],
 				'disabled' => (bool) preg_grep('/^ \x5c Noselect $/ix', $item['flags']),
-				'income' => strtolower($item['name']) == 'inbox',
+				'income' => mb_strtolower($item['name']) == 'inbox',
 				'outcome' => (bool) preg_grep('/^ \x5c Sent $/ix', $item['flags']),
 			);
 		}
@@ -201,11 +206,10 @@ class Helper
 
 		$client = static::createClient($mailbox, $mailbox['LANG_CHARSET'] ?: $mailbox['CHARSET']);
 
-		$imapOptions = $mailbox['OPTIONS']['imap'];
-		if (empty($imapOptions['outcome']) || !is_array($imapOptions['outcome']))
-			return;
+		$dir = MailboxDirectory::fetchOneOutcome($mailbox['ID']);
+		$path = $dir ? $dir->getPath() : 'INBOX';
 
-		return $client->addMessage(reset($imapOptions['outcome']), $data, $error);
+		return $client->addMessage($path, $data, $error);
 	}
 
 	public static function updateImapMessage($userId, $hash, $data, &$error)
@@ -219,7 +223,8 @@ class Helper
 				'MAILBOX_OPTIONS' => 'MAILBOX.OPTIONS',
 			),
 			'filter' => array(
-				'=HEADER_MD5' => $hash,
+				'=HEADER_MD5'  => $hash,
+				'=DELETE_TIME' => 'IS NULL',
 			),
 		));
 
@@ -282,6 +287,17 @@ class DummyMail extends Main\Mail\Mail
 	public function __toString()
 	{
 		return sprintf("%s\r\n\r\n%s", $this->getHeaders(), $this->getBody());
+	}
+
+	/**
+	 * @deprecated
+	 */
+	public static function overwriteMessageHeaders(Main\Mail\Mail $message, array $headers)
+	{
+		foreach ($headers as $name => $value)
+		{
+			$message->headers[$name] = $value;
+		}
 	}
 
 }

@@ -7,7 +7,9 @@
  */
 namespace Bitrix\Sender;
 
+use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Entity;
+use Bitrix\Main\Entity\ReferenceField;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type;
 use Bitrix\Sender\Internals\Model\GroupCounterTable;
@@ -50,6 +52,11 @@ class GroupTable extends Entity\DataManager
 				'title' => Loc::getMessage('SENDER_ENTITY_GROUP_FIELD_TITLE_NAME')
 			),
 			'DATE_INSERT' => array(
+				'data_type' => 'datetime',
+				'required' => true,
+				'default_value' => new Type\DateTime(),
+			),
+			'DATE_UPDATE' => array(
 				'data_type' => 'datetime',
 				'required' => true,
 				'default_value' => new Type\DateTime(),
@@ -112,6 +119,15 @@ class GroupTable extends Entity\DataManager
 				'data_type' => 'Bitrix\Sender\MailingGroupTable',
 				'reference' => array('=this.ID' => 'ref.GROUP_ID'),
 			),
+			'DEAL_CATEGORY' =>
+				new ReferenceField(
+					'DEAL_CATEGORY',
+					GroupDealCategoryTable::class,
+					[
+						'=this.ID' => 'ref.GROUP_ID',
+					],
+					['join_type' => 'LEFT']
+				)
 		);
 	}
 
@@ -139,6 +155,26 @@ class GroupTable extends Entity\DataManager
 		$primary = array('GROUP_ID' => $data['primary']['ID']);
 		GroupConnectorTable::delete($primary);
 		GroupCounterTable::delete($primary);
+
+		return $result;
+	}
+
+	public static function onBeforeUpdate(Entity\Event $event)
+	{
+		$result = new Entity\EventResult;
+
+		$data = $event->getParameters();
+		if (array_key_exists('DATE_UPDATE', $data['fields']))
+		{
+			$data['fields']['DATE_UPDATE'] = new Type\DateTime();
+			$result->modifyFields($data['fields']);
+		}
+
+		if (array_key_exists('CODE', $data['fields']) && is_null($data['fields']['CODE']))
+		{
+			$data['fields']['CODE'] = new SqlExpression('NULL');
+			$result->modifyFields($data['fields']);
+		}
 
 		return $result;
 	}
@@ -180,6 +216,40 @@ class GroupConnectorTable extends Entity\DataManager
 			'GROUP' => array(
 				'data_type' => 'Bitrix\Sender\GroupTable',
 				'reference' => array('=this.GROUP_ID' => 'ref.ID'),
+			),
+		);
+	}
+}
+
+
+
+class GroupDealCategoryTable extends Entity\DataManager
+{
+	/**
+	 * @return string
+	 */
+	public static function getTableName()
+	{
+		return 'b_sender_group_deal_category';
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function getMap()
+	{
+		return array(
+			'GROUP_ID' => array(
+				'data_type' => 'integer',
+				'primary' => true,
+			),
+			'GROUP' => array(
+				'data_type' => 'Bitrix\Sender\GroupTable',
+				'reference' => array('=this.GROUP_ID' => 'ref.ID'),
+			),
+			'DEAL_CATEGORY_ID' => array(
+				'data_type' => 'integer',
+				'primary' => true,
 			),
 		);
 	}

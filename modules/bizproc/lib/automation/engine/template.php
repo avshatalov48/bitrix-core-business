@@ -133,7 +133,7 @@ class Template
 				[], //arWorkflowParameters
 				[], //arWorkflowVariables
 				$request, //arCurrentValues = null
-				'bizproc_robot_dialog', //formName = ""
+				'bizproc_automation_robot_dialog', //formName = ""
 				null, //popupWindow = null
 				SITE_ID //siteId = ''
 			)
@@ -185,7 +185,7 @@ class Template
 		{
 			foreach ($robotErrors as $i => $error)
 			{
-				$saveResult->addError(new Error($error['message']));
+				$saveResult->addError(new Error($error['message'], $error['code'], ['parameter' => $error['parameter']]));
 			}
 		}
 

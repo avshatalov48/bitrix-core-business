@@ -90,7 +90,7 @@ class ParamPhotogallery
 	{
 		if (
 			(
-				strlen($componentParams['PHOTO_GROUP_IBLOCK_TYPE']) <= 0
+				$componentParams['PHOTO_GROUP_IBLOCK_TYPE'] == ''
 				|| intval($componentParams['PHOTO_GROUP_IBLOCK_ID']) <= 0
 			)
 			&& Loader::includeModule('iblock'))

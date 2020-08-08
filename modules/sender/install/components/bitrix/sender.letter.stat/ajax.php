@@ -4,16 +4,16 @@ define('BX_SECURITY_SHOW_MESSAGE', true);
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
 
-use Bitrix\Main\Loader;
+use Bitrix\Fileman\Block\Editor as BlockEditor;
 use Bitrix\Main\Context;
 use Bitrix\Main\HttpRequest;
-use Bitrix\Sender\Internals\QueryController as Controller;
-use Bitrix\Sender\Internals\CommonAjax;
-use Bitrix\Sender\Stat;
+use Bitrix\Main\Loader;
 use Bitrix\Sender\Entity;
-use Bitrix\Fileman\Block\Editor as BlockEditor;
+use Bitrix\Sender\Internals\CommonAjax;
+use Bitrix\Sender\Internals\QueryController as Controller;
+use Bitrix\Sender\Stat;
 
-if (!Loader::includeModule('sender'))
+if (!Bitrix\Main\Loader::includeModule('sender'))
 {
 	return;
 }

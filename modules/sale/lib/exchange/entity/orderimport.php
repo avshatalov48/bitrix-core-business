@@ -363,6 +363,7 @@ class OrderImport extends EntityImport
         $result["CAN_BUY"] = "Y";
         $result["IGNORE_CALLBACK_FUNC"] = "Y";
         $result["PRODUCT_XML_ID"] = $productXML_ID;
+        $result["MARKING_CODE_GROUP"] = $item['MARKING_GROUP'];
 
         return $result;
     }
@@ -391,7 +392,7 @@ class OrderImport extends EntityImport
 	{
 		$result = '';
 
-		if(strpos($code, '#') !== false)
+		if(mb_strpos($code, '#') !== false)
 		{
 			$code = explode('#', $code);
 			$result = $code[1];
@@ -524,6 +525,9 @@ class OrderImport extends EntityImport
 
 						if($criterionBasketItems->equalsBasketItem($basketItem, $item))
 						{
+							if($item['MARKING_GROUP'] != $basketItem->getMarkingCodeGroup())
+								$fieldsBasket['MARKING_CODE_GROUP'] = $item['MARKING_GROUP'];
+
 							if($item['PRICE'] != $basketItem->getPrice())
 								$basketItem->setPrice($item['PRICE'], true);
 

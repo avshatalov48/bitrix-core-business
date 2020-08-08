@@ -1,6 +1,6 @@
 <?php
 $translate_default_option = array(
-	'INIT_FOLDERS' => '/bitrix/',
+	'INIT_FOLDERS' => '/bitrix/,/local/',
 	'BACKUP_FOLDER' => 'bitrix/backup/translate/',
 	'ONLY_ERRORS' => 'N',
 	'BUTTON_LANG_FILES' => 'N',

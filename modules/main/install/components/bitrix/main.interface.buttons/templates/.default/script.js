@@ -230,6 +230,130 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			}
 
 			this.bindOnResizeFrame();
+
+			var showChildButtons = Array.from(this.container.querySelectorAll('.main-buttons-item-child-button'));
+			showChildButtons.forEach(function(button) {
+				var realChildButton = button.closest('.main-buttons-item-child');
+				if (realChildButton.dataset.isOpened)
+				{
+					this.realChildButton = realChildButton;
+					var clonedChildButton = realChildButton.closest('.main-buttons-item-child-button-cloned')
+					if (clonedChildButton)
+					{
+						this.clonedChildButton = clonedChildButton;
+					}
+				}
+				BX.Event.bind(button, 'click', this.onShowChildButtonClick.bind(this));
+			}, this);
+		},
+
+		calculateChildListWidth: function()
+		{
+			if (this.realChildButton)
+			{
+				var buttons = this.realChildButton
+					.querySelectorAll('.main-buttons-item-child-list-inner .main-buttons-item');
+
+				var offset = 10;
+				return Array.from(buttons).reduce(function(acc, button) {
+					var width = BX.Text.toNumber(BX.Dom.style(button, 'width'));
+					var marginLeft = BX.Text.toNumber(BX.Dom.style(button, 'margin-left'));
+					var marginRight = BX.Text.toNumber(BX.Dom.style(button, 'margin-right'));
+
+					return acc + width + marginLeft + marginRight;
+				}, offset);
+			}
+			return 0;
+		},
+
+		onShowChildButtonClick: function(event)
+		{
+			event.preventDefault();
+
+			if (!this.realChildButton)
+			{
+				this.realChildButton = event.currentTarget.closest('.main-buttons-item-child');
+			}
+
+			var childListContainer = this.realChildButton
+				.querySelector('.main-buttons-item-child-list');
+
+			var childIds = BX.Dom.attr(this.realChildButton, 'data-child-items');
+			var isOpened = BX.Dom.attr(this.realChildButton, 'data-is-opened');
+			var expandedParentIds = {};
+			if (isOpened)
+			{
+				BX.Dom.attr(this.realChildButton, 'data-is-opened', null);
+
+				childIds.forEach(function(childId) {
+					var button = this.getContainer().querySelector('[data-id="'+childId+'"]');
+					BX.Dom.style(button, 'display', null);
+					if (childId.hasOwnProperty('PARENT_ITEM_ID'))
+					{
+						expandedParentIds[childId['PARENT_ITEM_ID']] = 'N';
+					}
+				}, this);
+
+				if (this.clonedChildButton)
+				{
+					BX.Dom.remove(this.clonedChildButton);
+				}
+
+				BX.Dom.style(childListContainer, {
+					overflow: null,
+					'max-width': null,
+				});
+
+				expandedParentIds = JSON.stringify(expandedParentIds);
+				BX.userOptions.save('ui', this.listContainer.id, 'expanded_lists', expandedParentIds);
+			}
+			else
+			{
+				BX.Dom.attr(this.realChildButton, 'data-is-opened', true);
+				BX.Dom.style(childListContainer, 'max-width', this.calculateChildListWidth() + 'px');
+
+				this.cloneChildButton(this.realChildButton);
+
+				childIds.forEach(function(childId) {
+					var button = this.getContainer().querySelector('[data-id="'+childId+'"]');
+					BX.Dom.insertBefore(button, this.realChildButton);
+					BX.Dom.style(button, 'display', 'inline-block');
+					if (childId.hasOwnProperty('PARENT_ITEM_ID')) {
+						expandedParentIds[childId['PARENT_ITEM_ID']] = 'Y';
+					}
+				}, this);
+
+				setTimeout(function() {
+					BX.Dom.style(childListContainer, 'overflow', 'unset');
+				}.bind(this), 200);
+
+				expandedParentIds = JSON.stringify(expandedParentIds);
+				BX.userOptions.save('ui', this.listContainer.id, 'expanded_lists', expandedParentIds);
+			}
+
+			setTimeout(function() {
+				this._onResizeHandler();
+			}.bind(this), 200);
+		},
+
+		cloneChildButton: function(realChildButton)
+		{
+			this.clonedChildButton = BX.Runtime.clone(realChildButton);
+
+			var childList = this.clonedChildButton.querySelector('.main-buttons-item-child-list');
+			if (childList)
+			{
+				BX.Dom.remove(childList);
+			}
+
+			BX.Dom.addClass(this.clonedChildButton, 'main-buttons-item-child-button-cloned');
+			BX.Dom.style(this.clonedChildButton, 'transition', 'none');
+			BX.Dom.insertBefore(this.clonedChildButton, realChildButton);
+			BX.Event.bind(this.clonedChildButton, 'click', this.onShowChildButtonClick.bind(this));
+
+			setTimeout(function() {
+				BX.Dom.style(this.clonedChildButton, 'transition', null);
+			}.bind(this));
 		},
 
 		_onDocumentClick: function(event)
@@ -2945,7 +3069,9 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 
 			if (this.isMoreButton(this.dragItem) ||
 				this.isSeparator(this.dragItem) ||
-				this.isNotHiddenItem(this.dragItem))
+				this.isNotHiddenItem(this.dragItem) ||
+				BX.Dom.attr(this.dragItem, 'data-parent-item-id') ||
+				BX.Dom.attr(this.dragItem, 'data-has-child'))
 			{
 				event.preventDefault();
 				return;
@@ -3096,7 +3222,9 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			if (!BX.type.isDomNode(this.overItem) ||
 				!BX.type.isDomNode(this.dragItem) ||
 				this.overItem === this.dragItem ||
-				this.isNotHiddenItem(this.overItem))
+				this.isNotHiddenItem(this.overItem) ||
+				BX.Dom.attr(this.overItem, 'data-parent-item-id') ||
+				BX.Dom.attr(this.overItem, 'data-has-child'))
 			{
 				return;
 			}

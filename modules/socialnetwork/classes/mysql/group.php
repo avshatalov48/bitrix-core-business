@@ -66,7 +66,7 @@ class CSocNetGroup extends CAllSocNetGroup
 			&& is_array($arFields["IMAGE_ID"])
 			&& (
 				!array_key_exists("MODULE_ID", $arFields["IMAGE_ID"])
-				|| strlen($arFields["IMAGE_ID"]["MODULE_ID"]) <= 0
+				|| $arFields["IMAGE_ID"]["MODULE_ID"] == ''
 			)
 		)
 		{
@@ -79,14 +79,14 @@ class CSocNetGroup extends CAllSocNetGroup
 		\Bitrix\Socialnetwork\Util::processEqualityFieldsToInsert($arFields1, $arInsert);
 
 		$ID = false;
-		if (strlen($arInsert[0]) > 0)
+		if ($arInsert[0] <> '')
 		{
 			$strSql =
 				"INSERT INTO b_sonet_group(".$arInsert[0].") ".
 				"VALUES(".$arInsert[1].")";
 			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
 
-			$ID = IntVal($DB->LastID());
+			$ID = intval($DB->LastID());
 
 			$events = GetModuleEvents("socialnetwork", "OnSocNetGroupAdd");
 			while ($arEvent = $events->Fetch())
@@ -134,7 +134,7 @@ class CSocNetGroup extends CAllSocNetGroup
 					)
 					{
 						$tagsList = array_map(function($a) { return trim($a, ' '); }, $tagsList);
-						$tagsList = array_filter($tagsList, function($a) { return (strlen($a) > 0); });
+						$tagsList = array_filter($tagsList, function($a) { return ($a <> ''); });
 					}
 					if (
 						!empty($tagsList)
@@ -169,7 +169,7 @@ class CSocNetGroup extends CAllSocNetGroup
 			return false;
 		}
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$arGroupOld = CSocNetGroup::GetByID($ID);
 		if (!$arGroupOld)
@@ -219,7 +219,7 @@ class CSocNetGroup extends CAllSocNetGroup
 			&& is_array($arFields["IMAGE_ID"])
 			&& (
 				!array_key_exists("MODULE_ID", $arFields["IMAGE_ID"])
-				|| strlen($arFields["IMAGE_ID"]["MODULE_ID"]) <= 0
+				|| $arFields["IMAGE_ID"]["MODULE_ID"] == ''
 			)
 		)
 		{
@@ -231,7 +231,7 @@ class CSocNetGroup extends CAllSocNetGroup
 		$strUpdate = $DB->PrepareUpdate("b_sonet_group", $arFields);
 		\Bitrix\Socialnetwork\Util::processEqualityFieldsToUpdate($arFields1, $strUpdate);
 
-		if (strlen($strUpdate) > 0)
+		if ($strUpdate <> '')
 		{
 			$strSql =
 				"UPDATE b_sonet_group SET ".
@@ -361,7 +361,7 @@ class CSocNetGroup extends CAllSocNetGroup
 				)
 				{
 					$tagsList = array_map(function($a) { return trim($a, ' '); }, $tagsList);
-					$tagsList = array_filter($tagsList, function($a) { return (strlen($a) > 0); });
+					$tagsList = array_filter($tagsList, function($a) { return ($a <> ''); });
 				}
 				if (
 					!empty($tagsList)
@@ -540,11 +540,11 @@ class CSocNetGroup extends CAllSocNetGroup
 				"SELECT ".$arSqls["SELECT"]." ".
 				"FROM b_sonet_group G ".
 				"	".$arSqls["FROM"]." ";
-			if (strlen($arSqls["WHERE"]) > 0)
+			if ($arSqls["WHERE"] <> '')
 			{
 				$strSql .= "WHERE ".$arSqls["WHERE"]." ";
 			}
-			if (strlen($arSqls["GROUPBY"]) > 0)
+			if ($arSqls["GROUPBY"] <> '')
 			{
 				$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 			}
@@ -567,7 +567,7 @@ class CSocNetGroup extends CAllSocNetGroup
 				"FROM b_sonet_group G ".
 				"	".$arSqls["FROM"]." ".
 				"WHERE G.VISIBLE = 'Y' ";
-			if (strlen($arSqls["WHERE"]) > 0)
+			if ($arSqls["WHERE"] <> '')
 			{
 				$strSql .= "AND ".$arSqls["WHERE"]." ";
 			}
@@ -575,19 +575,19 @@ class CSocNetGroup extends CAllSocNetGroup
 			$strSql .= "UNION ".
 				"SELECT ".$arSqls["SELECT"]." ".
 				"FROM b_sonet_group G ".
-				"	INNER JOIN b_sonet_user2group UG ON (G.ID = UG.GROUP_ID AND UG.USER_ID = ".IntVal($arFilter["CHECK_PERMISSIONS"])." AND UG.ROLE <= '".$DB->ForSql(SONET_ROLES_USER, 1)."') ".
+				"	INNER JOIN b_sonet_user2group UG ON (G.ID = UG.GROUP_ID AND UG.USER_ID = ".intval($arFilter["CHECK_PERMISSIONS"])." AND UG.ROLE <= '".$DB->ForSql(SONET_ROLES_USER, 1)."') ".
 				"	".$arSqls["FROM"]." ".
 				"WHERE G.VISIBLE = 'N' ";
-			if (strlen($arSqls["WHERE"]) > 0)
+			if ($arSqls["WHERE"] <> '')
 				$strSql .= "AND ".$arSqls["WHERE"]." ";
 			$strSql .= " ";
 
-			if (strlen($arSqls["GROUPBY"]) > 0)
+			if ($arSqls["GROUPBY"] <> '')
 			{
 				$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 			}
 
-			if (strlen($arSqls["ORDERBY"]) > 0)
+			if ($arSqls["ORDERBY"] <> '')
 			{
 				$strSql .= "ORDER BY ".Str_Replace(array(" G.", " UG.", " S."), array(" ", " ", " "), " ".$arSqls["ORDERBY"])." ";
 			}
@@ -598,34 +598,34 @@ class CSocNetGroup extends CAllSocNetGroup
 				"SELECT ".$arSqls["SELECT"]." ".
 				"FROM b_sonet_group G ".
 				"	".$arSqls["FROM"]." ";
-			if (strlen($arSqls["WHERE"]) > 0)
+			if ($arSqls["WHERE"] <> '')
 			{
 				$strSql .= "WHERE ".$arSqls["WHERE"]." ";
 			}
-			if (strlen($arSqls["GROUPBY"]) > 0)
+			if ($arSqls["GROUPBY"] <> '')
 			{
 				$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 			}
-			if (strlen($arSqls["ORDERBY"]) > 0)
+			if ($arSqls["ORDERBY"] <> '')
 			{
 				$strSql .= "ORDER BY ".$arSqls["ORDERBY"]." ";
 			}
 		}
 
-		if (is_array($arNavStartParams) && IntVal($arNavStartParams["nTopCount"]) <= 0)
+		if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"]) <= 0)
 		{
 			$strSql_tmp =
 				"SELECT COUNT('x') as CNT ".
 				"FROM b_sonet_group G ".
 				"	".$arSqls["FROM"]." ";
 			if (
-				strlen($arSqls["WHERE"]) > 0
+				$arSqls["WHERE"] <> ''
 				|| $checkPermissions
 			)
 			{
-				$strSql_tmp .= "WHERE ".($checkPermissions ? "G.VISIBLE = 'Y'" : "1 = 1").(strlen($arSqls["WHERE"]) > 0 ? " AND " : "").$arSqls["WHERE"]." ";
+				$strSql_tmp .= "WHERE ".($checkPermissions ? "G.VISIBLE = 'Y'" : "1 = 1").($arSqls["WHERE"] <> '' ? " AND " : "").$arSqls["WHERE"]." ";
 			}
-			if (strlen($arSqls["GROUPBY"]) > 0)
+			if ($arSqls["GROUPBY"] <> '')
 			{
 				$strSql_tmp .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 			}
@@ -634,7 +634,7 @@ class CSocNetGroup extends CAllSocNetGroup
 
 			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$cnt = 0;
-			if (strlen($arSqls["GROUPBY"]) <= 0)
+			if ($arSqls["GROUPBY"] == '')
 			{
 				if ($arRes = $dbRes->Fetch())
 				{
@@ -652,14 +652,14 @@ class CSocNetGroup extends CAllSocNetGroup
 				$strSql_tmp =
 					"SELECT COUNT('x') as CNT ".
 					"FROM b_sonet_group G ".
-					"	INNER JOIN b_sonet_user2group UG ON (G.ID = UG.GROUP_ID AND UG.USER_ID = ".IntVal($arFilter["CHECK_PERMISSIONS"])." AND UG.ROLE <= '".$DB->ForSql(SONET_ROLES_USER, 1)."') ".
+					"	INNER JOIN b_sonet_user2group UG ON (G.ID = UG.GROUP_ID AND UG.USER_ID = ".intval($arFilter["CHECK_PERMISSIONS"])." AND UG.ROLE <= '".$DB->ForSql(SONET_ROLES_USER, 1)."') ".
 					"	".$arSqls["FROM"]." ".
 					"WHERE G.VISIBLE = 'N' ";
-				if (strlen($arSqls["WHERE"]) > 0)
+				if ($arSqls["WHERE"] <> '')
 				{
 					$strSql_tmp .= "AND ".$arSqls["WHERE"]." ";
 				}
-				if (strlen($arSqls["GROUPBY"]) > 0)
+				if ($arSqls["GROUPBY"] <> '')
 				{
 					$strSql_tmp .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 				}
@@ -667,7 +667,7 @@ class CSocNetGroup extends CAllSocNetGroup
 				//echo "!2.2!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
 				$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-				if (strlen($arSqls["GROUPBY"]) <= 0)
+				if ($arSqls["GROUPBY"] == '')
 				{
 					if ($arRes = $dbRes->Fetch())
 					{
@@ -692,10 +692,10 @@ class CSocNetGroup extends CAllSocNetGroup
 		{
 			if (
 				is_array($arNavStartParams)
-				&& IntVal($arNavStartParams["nTopCount"]) > 0
+				&& intval($arNavStartParams["nTopCount"]) > 0
 			)
 			{
-				$strSql .= "LIMIT ".IntVal($arNavStartParams["nTopCount"]);
+				$strSql .= "LIMIT ".intval($arNavStartParams["nTopCount"]);
 			}
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";

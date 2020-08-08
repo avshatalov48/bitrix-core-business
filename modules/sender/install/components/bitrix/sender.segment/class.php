@@ -1,15 +1,19 @@
 <?
 
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ErrorCollection;
-use Bitrix\Main\Loader;
 use Bitrix\Main\Error;
-
+use Bitrix\Main\ErrorCollection;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Sender\Access\ActionDictionary;
 use Bitrix\Sender\Preset;
-use Bitrix\Sender\Security;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
+	die();
+}
+
+if (!Bitrix\Main\Loader::includeModule('sender'))
+{
+	ShowError('Module `sender` not installed');
 	die();
 }
 
@@ -22,7 +26,7 @@ class SenderSegmentComponent extends CBitrixComponent
 
 	protected function checkRequiredParams()
 	{
-		if (!Loader::includeModule('sender'))
+		if (!Bitrix\Main\Loader::includeModule('sender'))
 		{
 			$this->errors->setError(new Error('Module `sender` is not installed.'));
 			return false;
@@ -78,7 +82,7 @@ class SenderSegmentComponent extends CBitrixComponent
 			CComponentEngine::initComponentVariables($componentPage, $arComponentVariables, $arVariableAliases, $arVariables);
 			foreach ($arUrlTemplates as $url => $value)
 			{
-				$key = 'PATH_TO_'.strtoupper($url);
+				$key = 'PATH_TO_'.mb_strtoupper($url);
 				$this->arResult[$key] = isset($this->arParams[$key][0]) ? $this->arParams[$key] : $this->arParams['SEF_FOLDER'] . $value;
 			}
 
@@ -113,8 +117,8 @@ class SenderSegmentComponent extends CBitrixComponent
 			global $APPLICATION;
 			foreach ($arDefaultUrlTemplates404 as $url => $value)
 			{
-				$key = 'PATH_TO_'.strtoupper($url);
-				$value = substr($value, 0, -1);
+				$key = 'PATH_TO_'.mb_strtoupper($url);
+				$value = mb_substr($value, 0, -1);
 				$value = str_replace('/', '&ID=', $value);
 				$this->arResult[$key] = $APPLICATION->GetCurPage() . "?$value";
 			}
@@ -170,5 +174,15 @@ class SenderSegmentComponent extends CBitrixComponent
 		}
 
 		$this->includeComponentTemplate($this->arResult['COMPONENT_PAGE']);
+	}
+
+	public function getEditAction()
+	{
+		return ActionDictionary::ACTION_SEGMENT_EDIT;
+	}
+
+	public function getViewAction()
+	{
+		return ActionDictionary::ACTION_SEGMENT_VIEW;
 	}
 }

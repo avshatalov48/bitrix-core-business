@@ -18,6 +18,7 @@ class Types
 	const TEXTAREA = "TEXTAREA";
 	const CUSTOM = "CUSTOM";
 	const IMAGE = "IMAGE";
+	const MONEY = "MONEY";
 
 
 	/**

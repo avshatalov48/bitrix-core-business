@@ -8,10 +8,12 @@
 namespace Bitrix\Main;
 
 use Bitrix\Main\Config\Configuration;
-use Bitrix\Main\Engine\Binder;
+use Bitrix\Main\Engine\AutoWire;
 use Bitrix\Main\Engine\Controller;
+use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Engine\Response\AjaxJson;
 use Bitrix\Main\Engine\Router;
+use Bitrix\Main\Engine\JsonPayload;
 use Bitrix\Main\UI\PageNavigation;
 
 /**
@@ -166,9 +168,8 @@ class HttpApplication extends Application
 
 	private function registerAutoWirings()
 	{
-		/** @see \Bitrix\Main\UI\PageNavigation */
-		Binder::registerParameter(
-			'\\Bitrix\\Main\\UI\\PageNavigation',
+		AutoWire\Binder::registerGlobalAutoWiredParameter(new AutoWire\Parameter(
+			PageNavigation::class,
 			function() {
 				$pageNavigation = new PageNavigation('nav');
 				$pageNavigation
@@ -178,7 +179,21 @@ class HttpApplication extends Application
 
 				return $pageNavigation;
 			}
-		);
+		));
+
+		AutoWire\Binder::registerGlobalAutoWiredParameter(new AutoWire\Parameter(
+			JsonPayload::class,
+			function() {
+				return new JsonPayload();
+			}
+		));
+
+		AutoWire\Binder::registerGlobalAutoWiredParameter(new AutoWire\Parameter(
+			CurrentUser::class,
+			function() {
+				return CurrentUser::get();
+			}
+		));
 	}
 
 	/**

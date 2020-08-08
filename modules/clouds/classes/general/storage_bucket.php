@@ -147,7 +147,7 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 			'M' => 1048576.0,
 			'G' => 1073741824.0,
 		);
-		$str = strtoupper(trim($str));
+		$str = mb_strtoupper(trim($str));
 		if($str !== '' && preg_match("/([0-9.]+)(|K|M|G)\$/", $str, $match) > 0)
 		{
 			return doubleval($match[1])*$scale[$match[2]];
@@ -468,8 +468,8 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 	*/
 	function GetFileSize($filePath)
 	{
-		$DIR_NAME = substr($filePath, 0, strrpos($filePath, "/") + 1);
-		$FILE_NAME = substr($filePath, strlen($DIR_NAME));
+		$DIR_NAME = mb_substr($filePath, 0, mb_strrpos($filePath, "/") + 1);
+		$FILE_NAME = mb_substr($filePath, mb_strlen($DIR_NAME));
 
 		$arListing = $this->service->ListFiles($this->arBucket, $DIR_NAME, false);
 		if(is_array($arListing))
@@ -516,20 +516,20 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 			$arFields["BUCKET"] = trim($arFields["BUCKET"]);
 
 			$bBadLength = false;
-			if(strpos($arFields["BUCKET"], ".") !== false)
+			if(mb_strpos($arFields["BUCKET"], ".") !== false)
 			{
 				$arName = explode(".", $arFields["BUCKET"]);
 				$bBadLength = false;
 				foreach($arName as $str)
-					if(strlen($str) < 2 || strlen($str) > 63)
+					if(mb_strlen($str) < 2 || mb_strlen($str) > 63)
 						$bBadLength = true;
 			}
 
-			if(strlen($arFields["BUCKET"]) <= 0)
+			if($arFields["BUCKET"] == '')
 				$aMsg[] = array("id" => "BUCKET", "text" => GetMessage("CLO_STORAGE_EMPTY_BUCKET"));
 			if(preg_match("/[^a-z0-9._-]/", $arFields["BUCKET"]) > 0)
 				$aMsg[] = array("id" => "BUCKET", "text" => GetMessage("CLO_STORAGE_BAD_BUCKET_NAME"));
-			if(strlen($arFields["BUCKET"]) < 2 || strlen($arFields["BUCKET"]) > 63)
+			if(mb_strlen($arFields["BUCKET"]) < 2 || mb_strlen($arFields["BUCKET"]) > 63)
 				$aMsg[] = array("id" => "BUCKET", "text" => GetMessage("CLO_STORAGE_WRONG_BUCKET_NAME_LENGTH"));
 			if($bBadLength)
 				$aMsg[] = array("id" => "BUCKET", "text" => GetMessage("CLO_STORAGE_WRONG_BUCKET_NAME_LENGTH2"));
@@ -538,7 +538,7 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 			if(preg_match("/(-\\.|\\.-)/", $arFields["BUCKET"]) > 0)
 				$aMsg[] = array("id" => "BUCKET", "text" => GetMessage("CLO_STORAGE_BAD_BUCKET_NAME3"));
 
-			if(strlen($arFields["BUCKET"]) > 0)
+			if($arFields["BUCKET"] <> '')
 			{
 				$rsBucket = self::GetList(array(), array(
 					"=SERVICE_ID" => $arFields["SERVICE_ID"],
@@ -624,8 +624,8 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 		$arQueryOrder = array();
 		foreach($arOrder as $strColumn => $strDirection)
 		{
-			$strColumn = strtoupper($strColumn);
-			$strDirection = strtoupper($strDirection)==="ASC"? "ASC": "DESC";
+			$strColumn = mb_strtoupper($strColumn);
+			$strDirection = mb_strtoupper($strDirection) === "ASC"? "ASC": "DESC";
 			switch($strColumn)
 			{
 				case "ID":
@@ -641,7 +641,7 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 		$arQuerySelect = array();
 		foreach($arSelect as $strColumn)
 		{
-			$strColumn = strtoupper($strColumn);
+			$strColumn = mb_strtoupper($strColumn);
 			switch($strColumn)
 			{
 				case "ID":
@@ -911,7 +911,7 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 		}
 
 		$strUpdate = $DB->PrepareUpdate("b_clouds_file_bucket", $arFields);
-		if(strlen($strUpdate) > 0)
+		if($strUpdate <> '')
 		{
 			$strSql = "
 				UPDATE b_clouds_file_bucket SET

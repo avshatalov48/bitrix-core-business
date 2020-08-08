@@ -101,7 +101,7 @@ abstract class Tree extends Entity\DataManager
 
 		foreach (static::getEntity()->getFields() as $field)
 		{
-			if($field->getName() == 'PARENT_ID' && strlen($data['PARENT_ID']))
+			if($field->getName() == 'PARENT_ID' && mb_strlen($data['PARENT_ID']))
 			{
 				//it cant be parent for itself
 				if(intval($primary['ID']) == intval($data['PARENT_ID']))
@@ -155,7 +155,7 @@ abstract class Tree extends Entity\DataManager
 		$rebalance = !isset($additional['REBALANCE']) || $additional['REBALANCE'] !== false;
 		$node = self::getNodeInfo($primary);
 
-		if(isset($data['PARENT_ID']) && !strlen($data['PARENT_ID']))
+		if(isset($data['PARENT_ID']) && !mb_strlen($data['PARENT_ID']))
 			$data['PARENT_ID'] = 0;
 
 		$updResult = parent::update($primary, $data);

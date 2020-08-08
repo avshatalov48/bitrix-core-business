@@ -93,6 +93,7 @@ class Archiver
 		return $this->processedFileCount;
 	}
 
+
 	/**
 	 * Pack language folder.
 	 *
@@ -104,8 +105,8 @@ class Archiver
 	public function pack(Translate\IO\Directory $directory, $seekPath = '')
 	{
 		$this->setOptions(array(
-			'ADD_PATH' => false,
-			'REMOVE_PATH' => $directory->getDirectory()->getPhysicalPath(),
+			'ADD_PATH' => $directory->getName(),
+			'REMOVE_PATH' => $directory->getPhysicalPath(),
 		));
 
 		if (empty($seekPath) && !empty($this->seekPath))
@@ -119,7 +120,7 @@ class Archiver
 				if ($this instanceof \CArchiver)
 				{
 					/** @noinspection */
-					return count($this->lastFile);
+					return count($this->lastFile) + ($this->tempres == "continue" ? 1 : 0);
 				}
 				return -1;
 			},

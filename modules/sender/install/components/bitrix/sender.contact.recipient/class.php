@@ -1,28 +1,32 @@
 <?
 
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ErrorCollection;
-use Bitrix\Main\UI\Filter\Options as FilterOptions;
-use Bitrix\Main\Grid\Options as GridOptions;
-use Bitrix\Main\Loader;
 use Bitrix\Main\Error;
-
+use Bitrix\Main\ErrorCollection;
+use Bitrix\Main\Grid\Options as GridOptions;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI\Filter\Options as FilterOptions;
+use Bitrix\Sender\Access\ActionDictionary;
 use Bitrix\Sender\Entity;
-use Bitrix\Sender\Message;
-use Bitrix\Sender\Security;
-
 use Bitrix\Sender\Internals\DataExport;
-use Bitrix\Sender\UI\PageNavigation;
+use Bitrix\Sender\Message;
 use Bitrix\Sender\PostingRecipientTable;
+use Bitrix\Sender\Security;
+use Bitrix\Sender\UI\PageNavigation;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
+if (!Bitrix\Main\Loader::includeModule('sender'))
+{
+	ShowError('Module `sender` not installed');
+	die();
+}
+
 Loc::loadMessages(__FILE__);
 
-class SenderContactRecipientComponent extends CBitrixComponent
+class ContactRecipientSenderComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 {
 	/** @var ErrorCollection $errors */
 	protected $errors;
@@ -42,6 +46,10 @@ class SenderContactRecipientComponent extends CBitrixComponent
 
 	protected function initParams()
 	{
+		$this->arParams['GRID_ID'] = isset($this->arParams['GRID_ID']) ? $this->arParams['GRID_ID'] : 'SENDER_LETTER_RECIPIENT_GRID';
+
+		parent::initParams();
+
 		if (empty($this->arParams['CONTACT_ID']))
 		{
 			$this->arParams['CONTACT_ID'] = (int) $this->request->get('CONTACT_ID');
@@ -54,20 +62,6 @@ class SenderContactRecipientComponent extends CBitrixComponent
 		{
 			$this->arParams['CAMPAIGN_ID'] = (int) $this->request->get('CAMPAIGN_ID');
 		}
-
-		$this->arParams['PATH_TO_LIST'] = isset($this->arParams['PATH_TO_LIST']) ? $this->arParams['PATH_TO_LIST'] : '';
-		$this->arParams['PATH_TO_USER_PROFILE'] = isset($this->arParams['PATH_TO_USER_PROFILE']) ? $this->arParams['PATH_TO_USER_PROFILE'] : '';
-		$this->arParams['NAME_TEMPLATE'] = empty($this->arParams['NAME_TEMPLATE']) ? \CAllSite::GetNameFormat(false) : str_replace(array("#NOBR#","#/NOBR#"), array("",""), $this->arParams["NAME_TEMPLATE"]);
-
-		$this->arParams['GRID_ID'] = isset($this->arParams['GRID_ID']) ? $this->arParams['GRID_ID'] : 'SENDER_LETTER_RECIPIENT_GRID';
-		$this->arParams['FILTER_ID'] = isset($this->arParams['FILTER_ID']) ? $this->arParams['FILTER_ID'] : $this->arParams['GRID_ID'] . '_FILTER';
-
-		$this->arParams['SET_TITLE'] = isset($this->arParams['SET_TITLE']) ? $this->arParams['SET_TITLE'] == 'Y' : true;
-		$this->arParams['CAN_EDIT'] = isset($this->arParams['CAN_EDIT'])
-			?
-			$this->arParams['CAN_EDIT']
-			:
-			Security\Access::current()->canModifySegments();
 	}
 
 	protected function preparePost()
@@ -114,7 +108,7 @@ class SenderContactRecipientComponent extends CBitrixComponent
 			);
 		}
 
-		if (!Security\Access::current()->canViewSegments())
+		if (!Security\Access::getInstance()->canViewSegments())
 		{
 			Security\AccessChecker::addError($this->errors);
 			return false;
@@ -285,7 +279,7 @@ class SenderContactRecipientComponent extends CBitrixComponent
 		$sorting = $gridOptions->getSorting(array('sort' => $defaultSort));
 
 		$by = key($sorting['sort']);
-		$order = strtoupper(current($sorting['sort'])) === 'ASC' ? 'ASC' : 'DESC';
+		$order = mb_strtoupper(current($sorting['sort'])) === 'ASC' ? 'ASC' : 'DESC';
 
 		$list = array();
 		foreach ($this->getUiGridColumns() as $column)
@@ -538,20 +532,7 @@ class SenderContactRecipientComponent extends CBitrixComponent
 
 	public function executeComponent()
 	{
-		$this->errors = new \Bitrix\Main\ErrorCollection();
-		if (!Loader::includeModule('sender'))
-		{
-			$this->errors->setError(new Error('Module `sender` is not installed.'));
-			$this->printErrors();
-			return;
-		}
-
-		$this->initParams();
-		if (!$this->checkRequiredParams())
-		{
-			$this->printErrors();
-			return;
-		}
+		parent::executeComponent();
 
 		if (!$this->prepareResult())
 		{
@@ -560,5 +541,15 @@ class SenderContactRecipientComponent extends CBitrixComponent
 		}
 
 		$this->includeComponentTemplate();
+	}
+
+	public function getEditAction()
+	{
+		return ActionDictionary::ACTION_SEGMENT_CLIENT_EDIT;
+	}
+
+	public function getViewAction()
+	{
+		return ActionDictionary::ACTION_SEGMENT_CLIENT_VIEW;
 	}
 }

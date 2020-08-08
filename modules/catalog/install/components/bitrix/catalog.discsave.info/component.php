@@ -10,7 +10,7 @@ global $APPLICATION;
 global $USER;
 
 $arParams['SITE_ID'] = strval($arParams['SITE_ID']);
-if (0 >= strlen($arParams['SITE_ID']))
+if ($arParams['SITE_ID'] == '')
 	$arParams['SITE_ID'] = SITE_ID;
 
 $arParams['USER_ID'] = intval($arParams['USER_ID']);

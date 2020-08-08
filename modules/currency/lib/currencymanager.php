@@ -36,7 +36,7 @@ class CurrencyManager
 	public static function checkCurrencyID($currency)
 	{
 		$currency = (string)$currency;
-		return ($currency === '' || strlen($currency) > 3 ? false : $currency);
+		return ($currency === '' || mb_strlen($currency) > 3 ? false : $currency);
 	}
 
 	/**
@@ -48,7 +48,7 @@ class CurrencyManager
 	public static function checkLanguage($language)
 	{
 		$language = (string)$language;
-		return ($language === '' || strlen($language) > 2 ? false : $language);
+		return ($language === '' || mb_strlen($language) > 2 ? false : $language);
 	}
 
 	/**

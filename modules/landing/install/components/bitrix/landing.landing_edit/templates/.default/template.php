@@ -125,6 +125,10 @@ $uriSave->addParams(array(
 <?
 if ($arParams['SUCCESS_SAVE'])
 {
+	if ($request->get('IFRAME') != 'Y')
+	{
+		$this->getComponent()->refresh([], ['action']);
+	}
 	return;
 }
 ?>
@@ -154,7 +158,14 @@ if ($arParams['SUCCESS_SAVE'])
 								echo $domainName;
 								if ($isIntranet)
 								{
-									echo Manager::getPublicationPath($row['CODE']['CURRENT']);
+									if ($siteCurrent)
+									{
+										echo Manager::getPublicationPath(trim($siteCurrent['CODE'], '/'));
+									}
+									else
+									{
+										echo '/';
+									}
 								}
 								else if (Manager::isB24())
 								{
@@ -360,6 +371,15 @@ if ($arParams['SUCCESS_SAVE'])
 						</tr>
 					<? endif; ?>
 				<? endif;?>
+
+				<?php if (isset($hooks['THEMEFONTS'])):?>
+					<tr>
+						<td class="ui-form-label ui-form-label-align-top"><?=Loc::getMessage('LANDING_TPL_FONTS_PAGE')?></td>
+						<td class="ui-form-right-cell ui-form-right-cell-fonts">
+							<?$template->showMultiply('THEMEFONTS');?>
+						</td>
+					</tr>
+				<?php endif;?>
 				
 				<tr>
 					<td class="ui-form-right-cell ui-form-collapse" colspan="2">

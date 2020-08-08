@@ -340,7 +340,7 @@ if ($params['BASKET_ITEMS'])
 	if ($params['DELIVERY_PRICE'] > 0)
 	{
 		$sDeliveryItem = "Schifffahrt";
-		if (strlen($params['DELIVERY_NAME']) > 0)
+		if ($params['DELIVERY_NAME'] <> '')
 			$sDeliveryItem .= sprintf(" (%s)", $params['DELIVERY_NAME']);
 		$arCells[++$n] = array();
 		foreach ($arCols as $columnId => $caption)

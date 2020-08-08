@@ -73,4 +73,6 @@ $MESS["REST_SCOPE_SALESCENTER"] = "Продажи в чате";
 $MESS["REST_SCOPE_SALESCENTER_DESCRIPTION"] = "зарезервировано для использования";
 $MESS["REST_SCOPE_SOCIALNETWORK"] = "Социальная сеть";
 $MESS["REST_SCOPE_SOCIALNETWORK_DESCRIPTION"] = "не используется в приложениях";
+$MESS["REST_SCOPE_RPA"] = "Роботизация бизнеса";
+$MESS["REST_SCOPE_RPA_DESCRIPTION"] = "полный доступ: чтение, добавление, изменение и удаление процессов, стадий, элементов, записей таймлайна. Можно выполнять задания";
 ?>

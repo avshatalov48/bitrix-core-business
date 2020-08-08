@@ -13,14 +13,14 @@
 							<article class="landing-block-node-img-title-border h-100 g-flex-middle text-center
 								g-brd-around g-brd-white-opacity-0_2 text-uppercase g-color-white">
 								<div class="g-flex-middle-item">
-									<h3 class="landing-block-node-img-title g-color-white h3 g-line-height-1_4 g-letter-spacing-5 g-font-size-20 g-mb-20">
+									<h3 class="landing-block-node-img-title landing-semantic-title-image-small g-color-white h3 g-line-height-1_4 g-letter-spacing-5 g-font-size-20 g-mb-20">
 										Professional<br>Photography
 									</h3>
-									<div class="landing-block-node-img-text g-letter-spacing-3 g-font-weight-300 g-mb-40">
+									<div class="landing-block-node-img-text landing-semantic-text-image-medium g-letter-spacing-3 g-mb-40">
 										Yhdte Jit Iurrw Joksmns Iooldf
 									</div>
 									<div class="landing-block-node-button-container">
-										<a class="landing-block-node-img-button btn btn-md u-btn-outline-white g-font-size-11 g-brd-2 rounded-0 g-px-25"
+										<a class="landing-block-node-img-button landing-semantic-link-image-medium btn btn-md u-btn-outline-white g-font-size-11 g-brd-2 rounded-0 g-px-25"
 										   href="#">Learn More</a>
 									</div>
 								</div>
@@ -41,14 +41,14 @@
 							<article class="landing-block-node-img-title-border h-100 g-flex-middle text-center
 								g-brd-around g-brd-white-opacity-0_2 text-uppercase g-color-white">
 								<div class="g-flex-middle-item">
-									<h3 class="landing-block-node-img-title g-color-white h3 g-line-height-1_4 g-letter-spacing-5 g-font-size-20 g-mb-20">
+									<h3 class="landing-block-node-img-title landing-semantic-title-image-small g-color-white h3 g-line-height-1_4 g-letter-spacing-5 g-font-size-20 g-mb-20">
 										Work<br>Presentations
 									</h3>
-									<div class="landing-block-node-img-text g-letter-spacing-3 g-font-weight-300 g-mb-40">
+									<div class="landing-block-node-img-text landing-semantic-text-image-medium g-letter-spacing-3 g-mb-40">
 										Ut pulvinar tellus jhsed sed elit
 									</div>
 									<div class="landing-block-node-button-container">
-										<a class="landing-block-node-img-button btn btn-md u-btn-outline-white g-font-size-11 g-brd-2 rounded-0 g-px-25"
+										<a class="landing-block-node-img-button landing-semantic-link-image-medium btn btn-md u-btn-outline-white g-font-size-11 g-brd-2 rounded-0 g-px-25"
 										   href="#">Learn More</a>
 									</div>
 								</div>

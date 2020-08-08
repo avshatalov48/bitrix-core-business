@@ -13,7 +13,6 @@ return array(
 		'dynamic' => false,
 		'subtype' => 'form',
 		'version' => '18.5.0', // old param for backward compatibility. Can used for old versions of module via repo. Do not delete!
-		'type' => ['page', 'store', 'smn'],
 	),
 	'cards' => array(),
 	'nodes' => array(

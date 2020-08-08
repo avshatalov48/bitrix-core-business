@@ -48,7 +48,9 @@ final class ForumCommentsComponent extends CBitrixComponent implements \Bitrix\M
 	public function __construct($component = null)
 	{
 		parent::__construct($component);
+
 		\Bitrix\Main\Loader::includeModule("forum");
+
 		$this->componentId = $this->isAjaxRequest()? randString(7) : $this->randString();
 		$this->errorCollection = new ErrorCollection();
 
@@ -196,6 +198,11 @@ final class ForumCommentsComponent extends CBitrixComponent implements \Bitrix\M
 	{
 		try
 		{
+			if (!\Bitrix\Main\Loader::includeModule("forum"))
+			{
+				throw new \Bitrix\Main\NotSupportedException(Loc::getMessage("F_NO_MODULE"));
+			}
+
 			$this->checkRequiredParams();
 			$this->feed = new \Bitrix\Forum\Comments\Feed(
 				$this->arParams["FORUM_ID"],
@@ -255,9 +262,7 @@ final class ForumCommentsComponent extends CBitrixComponent implements \Bitrix\M
 
 	protected function checkRequiredParams()
 	{
-		if (!CModule::IncludeModule("forum"))
-			$this->errorCollection->add(array(new Error(Loc::getMessage('F_NO_MODULE'), self::ERROR_REQUIRED_PARAMETER)));
-		elseif (intval($this->arParams["FORUM_ID"]) <= 0)
+		if (intval($this->arParams["FORUM_ID"]) <= 0)
 			$this->errorCollection->add(array(new Error(Loc::getMessage('F_ERR_FID_EMPTY'), self::ERROR_REQUIRED_PARAMETER)));
 		elseif (empty($this->arParams["ENTITY_TYPE"]))
 			$this->errorCollection->add(array(new Error(Loc::getMessage('F_ERR_ENT_EMPTY'), self::ERROR_REQUIRED_PARAMETER)));
@@ -608,6 +613,12 @@ final class ForumCommentsComponent extends CBitrixComponent implements \Bitrix\M
 //			"USE_CAPTCHA",
 		];
 	}
+
+	public function navigateCommentAction()
+	{
+		$this->executeComponent();
+	}
+
 	public function processCommentAction()
 	{
 		$this->arParams["COMPONENT_AJAX"] = "Y";
@@ -626,7 +637,7 @@ final class ForumCommentsComponent extends CBitrixComponent implements \Bitrix\M
 				"id" => $this->arParams["ENTITY_ID"],
 				"xml_id" => $this->arParams["ENTITY_XML_ID"]
 			),
-			(isset($this->arParams["RECIPIENT_ID"]) ? intval($this->arParams["RECIPIENT_ID"]) : 0)
+			(isset($this->arParams["RECIPIENT_ID"]) ? intval($this->arParams["RECIPIENT_ID"]) : null)
 		);
 
 		$this->forum = $this->feed->getForum();

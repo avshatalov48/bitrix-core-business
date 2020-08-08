@@ -57,7 +57,7 @@ if (check_bitrix_sessid() && CModule::IncludeModule("calendar"))
 
 			foreach($users as $user)
 			{
-				$userSettings = CCalendarUserSettings::Get($user['USER_ID']);
+				$userSettings = \Bitrix\Calendar\UserSettings::Get($user['USER_ID']);
 				$userIds[] = $user['USER_ID'];
 				$result['entries'][] = array(
 					'type' => 'user',

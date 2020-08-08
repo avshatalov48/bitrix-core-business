@@ -247,80 +247,127 @@ abstract class Provider
 		else
 		{
 			$eventId = $this->getEventId();
-
-			if (!empty($eventId))
+			if (empty($eventId))
 			{
-				if ($this->getType() == Provider::TYPE_POST)
+				return $result;
+			}
+
+			if ($this->getType() == Provider::TYPE_POST)
+			{
+				$filter = array(
+					'EVENT_ID' => $eventId
+				);
+
+				if ($this->getId() == LogEvent::PROVIDER_ID)
 				{
-					$filter = array(
-						'EVENT_ID' => $eventId
-					);
-
-					if ($this->getId() == LogEvent::PROVIDER_ID)
-					{
-						$filter['=ID'] = $this->entityId;
-					}
-					else
-					{
-						$filter['=SOURCE_ID'] = $this->entityId;
-					}
-
-					if (
-						is_array($params)
-						&& isset($params['inactive'])
-						&& $params['inactive']
-					)
-					{
-						$filter['=INACTIVE'] = 'Y';
-					}
-
-					$res = \CSocNetLog::getList(
-						array(),
-						$filter,
-						false,
-						array('nTopCount' => 1),
-						array('ID')
-					);
-
-					if (
-						($logEntry = $res->fetch())
-						&& (intval($logEntry['ID']) > 0)
-					)
-					{
-						$result = $this->logId = intval($logEntry['ID']);
-					}
+					$filter['=ID'] = $this->entityId;
 				}
-				elseif ($this->getType() == Provider::TYPE_COMMENT)
+				else
 				{
-					$filter = array(
-						'EVENT_ID' => $eventId
-					);
-
-					if ($this->getId() == LogComment::PROVIDER_ID)
-					{
-						$filter['ID'] = $this->entityId;
-					}
-					else
-					{
-						$filter['SOURCE_ID'] = $this->entityId;
-					}
-
-					$res = \CSocNetLogComments::getList(
-						array(),
-						$filter,
-						false,
-						array('nTopCount' => 1),
-						array('ID', 'LOG_ID')
-					);
-
-					if (
-						($logEntry = $res->fetch())
-						&& (intval($logEntry['LOG_ID']) > 0)
-					)
-					{
-						$result = $this->logId = intval($logEntry['LOG_ID']);
-					}
+					$filter['=SOURCE_ID'] = $this->entityId;
 				}
+
+				if (
+					is_array($params)
+					&& isset($params['inactive'])
+					&& $params['inactive']
+				)
+				{
+					$filter['=INACTIVE'] = 'Y';
+				}
+
+				$res = \CSocNetLog::getList(
+					array(),
+					$filter,
+					false,
+					array('nTopCount' => 1),
+					array('ID')
+				);
+
+				if (
+					($logEntry = $res->fetch())
+					&& (intval($logEntry['ID']) > 0)
+				)
+				{
+					$result = $this->logId = intval($logEntry['ID']);
+				}
+			}
+			elseif ($this->getType() == Provider::TYPE_COMMENT)
+			{
+				$filter = array(
+					'EVENT_ID' => $eventId
+				);
+
+				if ($this->getId() == LogComment::PROVIDER_ID)
+				{
+					$filter['ID'] = $this->entityId;
+				}
+				else
+				{
+					$filter['SOURCE_ID'] = $this->entityId;
+				}
+
+				$res = \CSocNetLogComments::getList(
+					array(),
+					$filter,
+					false,
+					array('nTopCount' => 1),
+					array('ID', 'LOG_ID')
+				);
+
+				if (
+					($logCommentEntry = $res->fetch())
+					&& (intval($logCommentEntry['LOG_ID']) > 0)
+				)
+				{
+					$result = $this->logId = intval($logCommentEntry['LOG_ID']);
+				}
+			}
+		}
+
+		return $result;
+	}
+
+	public function getLogCommentId($params = [])
+	{
+		$result = false;
+
+		$eventId = $this->getEventId();
+		if (
+			empty($eventId)
+			|| $this->getType() != Provider::TYPE_COMMENT
+		)
+		{
+			return $result;
+		}
+
+		$filter = array(
+			'EVENT_ID' => $eventId
+		);
+
+		if ($this->getId() == LogComment::PROVIDER_ID)
+		{
+			$filter['ID'] = $this->entityId;
+		}
+		else
+		{
+			$filter['SOURCE_ID'] = $this->entityId;
+		}
+
+		$res = \CSocNetLogComments::getList(
+			array(),
+			$filter,
+			false,
+			array('nTopCount' => 1),
+			array('ID', 'LOG_ID')
+		);
+
+		if ($logCommentEntry = $res->fetch())
+		{
+			$result = intval($logCommentEntry['ID']);
+			if (intval($logCommentEntry['LOG_ID']) > 0)
+			{
+				$this->logId = intval($logCommentEntry['LOG_ID']);
 			}
 		}
 
@@ -932,7 +979,12 @@ abstract class Provider
 			'save' => $save
 		);
 
+		$pool = \Bitrix\Main\Application::getInstance()->getConnectionPool();
+		$pool->useMasterOnly(true);
+
 		$result = UserContentViewTable::set($viewParams);
+
+		$pool->useMasterOnly(false);
 
 		if (
 			$result
@@ -1036,7 +1088,7 @@ abstract class Provider
 
 	final public function setLogEventId($eventId = '')
 	{
-		if (strlen($eventId) <= 0)
+		if ($eventId == '')
 		{
 			return false;
 		}
@@ -1048,7 +1100,7 @@ abstract class Provider
 
 	final private function setLogEntityType($entityType = '')
 	{
-		if (strlen($entityType) <= 0)
+		if ($entityType == '')
 		{
 			return false;
 		}
@@ -1158,7 +1210,7 @@ abstract class Provider
 		return $result;
 	}
 
-	public function getAdditionalData($params = array())
+	public function getAdditionalData($params = [])
 	{
 		return array();
 	}
@@ -1182,4 +1234,113 @@ abstract class Provider
 		return true;
 	}
 
+	public function deleteCounter($params = [])
+	{
+		global $USER;
+
+		$userId = (
+			isset($params["userId"])
+			&& intval($params["userId"]) > 0
+				? intval($params["userId"])
+				: (
+					is_object($USER)
+						? $USER->getId()
+						: 0
+				)
+		);
+
+		if (intval($userId) <= 0)
+		{
+			return false;
+		}
+
+		$siteId = (
+			isset($params["siteId"])
+			&& $params["siteId"] <> ''
+				? $params["siteId"]
+				: SITE_ID
+		);
+
+		$code = false;
+		if ($this->getType() == self::TYPE_COMMENT)
+		{
+			$logCommentId = $this->getLogCommentId();
+			if ($logCommentId > 0)
+			{
+				$code = 'LC'.$logCommentId;
+			}
+		}
+		else
+		{
+			$logId = $this->getLogId();
+			if ($logId > 0)
+			{
+				$code = 'L'.$logId;
+			}
+		}
+
+		if (!$code)
+		{
+			return false;
+		}
+
+		$result = Main\UserCounterTable::delete([
+			'USER_ID' => $userId,
+			'SITE_ID' => $siteId,
+			'CODE' => \CUserCounter::LIVEFEED_CODE.$code
+		]);
+
+		$pullMessage = [];
+		if (\CUserCounter::checkLiveMode())
+		{
+			$connection = \Bitrix\Main\Application::getConnection();
+			$helper = $connection->getSqlHelper();
+
+			$query = "
+				SELECT pc.CHANNEL_ID, uc.USER_ID, uc.SITE_ID, uc.CODE, uc.CNT
+				FROM b_user_counter uc
+				INNER JOIN b_pull_channel pc ON pc.USER_ID = uc.USER_ID
+				INNER JOIN b_user u ON u.ID = uc.USER_ID AND (CASE WHEN u.EXTERNAL_AUTH_ID IN ('".join("', '", \Bitrix\Main\UserTable::getExternalUserTypes())."') THEN 'Y' ELSE 'N' END) = 'N' AND u.LAST_ACTIVITY_DATE > ".$helper->addSecondsToDateTime('(-3600)')."
+				WHERE uc.USER_ID = ".$userId." AND uc.CODE = '".\CUserCounter::LIVEFEED_CODE."'
+			";
+
+			$res = $connection->query($query);
+			while($row = $res->fetch())
+			{
+				\CUserCounter::addValueToPullMessage($row, [ $siteId ], $pullMessage);
+			}
+
+			$res = $connection->query("
+				SELECT pc.CHANNEL_ID, uc.USER_ID, uc.SITE_ID, uc.CODE, uc.CNT
+				FROM b_user_counter uc
+				INNER JOIN b_pull_channel pc ON pc.USER_ID = uc.USER_ID
+				INNER JOIN b_user u ON u.ID = uc.USER_ID AND (CASE WHEN u.EXTERNAL_AUTH_ID IN ('".join("', '", \Bitrix\Main\UserTable::getExternalUserTypes())."') THEN 'Y' ELSE 'N' END) = 'N' AND u.LAST_ACTIVITY_DATE > ".$helper->addSecondsToDateTime('(-3600)')."
+				WHERE uc.USER_ID = ".$userId." AND uc.CODE LIKE '".\CUserCounter::LIVEFEED_CODE."L%'
+			");
+			while($row = $res->fetch())
+			{
+				\CUserCounter::addValueToPullMessage($row, [ $siteId ], $pullMessage);
+			}
+
+			$connection->query("UPDATE b_user_counter SET SENT = '1' WHERE SENT = '0' AND USER_ID = ".$userId." AND CODE = '".\CUserCounter::LIVEFEED_CODE."'");
+		}
+
+		if (
+			!empty($pullMessage)
+			&& Loader::includeModule('pull')
+		)
+		{
+			foreach ($pullMessage as $channelId => $messageFields)
+			{
+				\Bitrix\Pull\Event::add($channelId, [
+					'module_id' => 'main',
+					'command' => 'user_counter',
+					'expiry' => 3600,
+					'params' => $messageFields,
+				]);
+			}
+		}
+
+		return $result;
+	}
 }

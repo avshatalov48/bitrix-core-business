@@ -14,34 +14,34 @@ $arResult["arSocNetAllowedSubscribeEntityTypes"] = CSocNetAllowed::GetAllowedEnt
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/bitrix/socialnetwork.subscribe_list/include.php");
 
-$arParams["USER_ID"] = IntVal($GLOBALS["USER"]->GetID());
+$arParams["USER_ID"] = intval($GLOBALS["USER"]->GetID());
 
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 
-if (strLen($arParams["USER_VAR"]) <= 0)
+if ($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "user_id";
-if (strLen($arParams["PAGE_VAR"]) <= 0)
+if ($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if (strLen($arParams["GROUP_VAR"]) <= 0)
+if ($arParams["GROUP_VAR"] == '')
 	$arParams["GROUP_VAR"] = "group_id";
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if (strlen($arParams["PATH_TO_USER"]) <= 0)
+if ($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_GROUP"] = trim($arParams["PATH_TO_GROUP"]);
-if (strlen($arParams["PATH_TO_GROUP"]) <= 0)
+if ($arParams["PATH_TO_GROUP"] == '')
 	$arParams["PATH_TO_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_SUBSCRIBE"] = trim($arParams["PATH_TO_GROUP_SUBSCRIBE"]);
-if (strlen($arParams["PATH_TO_GROUP_SUBSCRIBE"]) <= 0)
+if ($arParams["PATH_TO_GROUP_SUBSCRIBE"] == '')
 	$arParams["PATH_TO_GROUP_SUBSCRIBE"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_subscribe&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_USER_SUBSCRIBE"] = trim($arParams["PATH_TO_USER_SUBSCRIBE"]);
-if (strlen($arParams["PATH_TO_USER_SUBSCRIBE"]) <= 0)
+if ($arParams["PATH_TO_USER_SUBSCRIBE"] == '')
 	$arParams["PATH_TO_USER_SUBSCRIBE"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_subscribe&".$arParams["USER_VAR"]."=#user_id#");
 
-$arParams["ITEMS_COUNT"] = IntVal($arParams["ITEMS_COUNT"]);
+$arParams["ITEMS_COUNT"] = intval($arParams["ITEMS_COUNT"]);
 if ($arParams["ITEMS_COUNT"] <= 0)
 	$arParams["ITEMS_COUNT"] = 30;
 
@@ -56,7 +56,7 @@ $bUseLogin = $arParams["SHOW_LOGIN"] != "N" ? true : false;
 $arFilter["ENTITY_TYPE"] = Trim($arFilter["ENTITY_TYPE"]);
 if ($arFilter["ENTITY_TYPE"] != SONET_ENTITY_GROUP && $arFilter["ENTITY_TYPE"] != SONET_ENTITY_USER)
 	$arFilter["ENTITY_TYPE"] = "";
-if (StrLen($arParams["ENTITY_TYPE"]) <= 0)
+if ($arParams["ENTITY_TYPE"] == '')
 	$arParams["ENTITY_TYPE"] = Trim($_REQUEST["flt_entity_type"]);
 if ($arFilter["ENTITY_TYPE"] != SONET_ENTITY_GROUP && $arFilter["ENTITY_TYPE"] != SONET_ENTITY_USER)
 	$arFilter["ENTITY_TYPE"] = "";
@@ -67,7 +67,7 @@ if (!$GLOBALS["USER"]->IsAuthorized())
 }
 else
 {
-	if ($_SERVER["REQUEST_METHOD"]=="POST" && strlen($_POST["save"]) > 0 && check_bitrix_sessid())
+	if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["save"] <> '' && check_bitrix_sessid())
 	{
 		$errorMessage = "";
 
@@ -77,10 +77,10 @@ else
 				continue;
 
 			if (
-				strpos($key, "t_bx_sl_") === 0 
-				|| strpos($key, "t_cb_bx_sl_") === 0
-				|| strpos($key, "v_bx_sl_") === 0 
-				|| strpos($key, "v_cb_bx_sl_") === 0				
+				mb_strpos($key, "t_bx_sl_") === 0
+				|| mb_strpos($key, "t_cb_bx_sl_") === 0
+				|| mb_strpos($key, "v_bx_sl_") === 0
+				|| mb_strpos($key, "v_cb_bx_sl_") === 0
 			)
 			{
 				if (preg_match("#(t_bx_sl|t_cb_bx_sl|v_bx_sl|v_cb_bx_sl)_([a-zA-Z0-9]+)_([0-9almy]+)_([a-zA-Z_]+)#i".BX_UTF_PCRE_MODIFIER, $key, $res) > 0)
@@ -174,7 +174,7 @@ else
 									&& array_key_exists("HAS_SITE_ID", $arResult["arSocNetAllowedSubscribeEntityTypesDesc"][$entity_type])
 									&& $arResult["arSocNetAllowedSubscribeEntityTypesDesc"][$entity_type]["HAS_SITE_ID"] == "Y"
 									&& defined("SITE_ID") 
-									&& strlen(SITE_ID) > 0 
+									&& SITE_ID <> ''
 										? SITE_ID 
 										: false
 								)
@@ -193,20 +193,20 @@ else
 								&& array_key_exists("HAS_SITE_ID", $arResult["arSocNetAllowedSubscribeEntityTypesDesc"][$entity_type])
 								&& $arResult["arSocNetAllowedSubscribeEntityTypesDesc"][$entity_type]["HAS_SITE_ID"] == "Y"
 								&& defined("SITE_ID") 
-								&& strlen(SITE_ID) > 0 
+								&& SITE_ID <> ''
 									? SITE_ID 
 									: false
 							)
 						);
 
 						if (
-							strpos($key, "t_bx_sl_") === 0 
-							|| strpos($key, "t_cb_bx_sl_") === 0
+							mb_strpos($key, "t_bx_sl_") === 0
+							|| mb_strpos($key, "t_cb_bx_sl_") === 0
 						)
 							$arFields["TRANSPORT"] = $value;
 						elseif (
-							strpos($key, "v_bx_sl_") === 0 
-							|| strpos($key, "v_cb_bx_sl_") === 0
+							mb_strpos($key, "v_bx_sl_") === 0
+							|| mb_strpos($key, "v_cb_bx_sl_") === 0
 						)
 							$arFields["VISIBLE"] = $value;
 						
@@ -237,13 +237,13 @@ else
 						}
 					}
 					
-					if (strlen($errorMessage) > 0)
+					if ($errorMessage <> '')
 						break;
 				}
 			}
 		}
 
-		if (strlen($errorMessage) > 0)
+		if ($errorMessage <> '')
 		{
 			$arResult["ErrorMessage"] = $errorMessage;
 		}
@@ -260,7 +260,7 @@ else
 		if (
 			is_array($arResult["arSocNetAllowedSubscribeEntityTypesDesc"][$entity_type])
 			&& array_key_exists("TITLE_LIST", $arResult["arSocNetAllowedSubscribeEntityTypesDesc"][$entity_type])
-			&& strlen($arResult["arSocNetAllowedSubscribeEntityTypesDesc"][$entity_type]["TITLE_LIST"]) > 0
+			&& $arResult["arSocNetAllowedSubscribeEntityTypesDesc"][$entity_type]["TITLE_LIST"] <> ''
 		)
 			$arEntities[$entity_type]["ALL"]["TITLE_LIST"] = $arResult["arSocNetAllowedSubscribeEntityTypesDesc"][$entity_type]["TITLE_LIST"];
 	
@@ -270,14 +270,14 @@ else
 			&& $arResult["arSocNetAllowedSubscribeEntityTypesDesc"][$entity_type]["HAS_MY"] == "Y"
 			&& array_key_exists("CLASS_MY", $arResult["arSocNetAllowedSubscribeEntityTypesDesc"][$entity_type])
 			&& array_key_exists("METHOD_MY", $arResult["arSocNetAllowedSubscribeEntityTypesDesc"][$entity_type])
-			&& strlen($arResult["arSocNetAllowedSubscribeEntityTypesDesc"][$entity_type]["CLASS_MY"]) > 0
-			&& strlen($arResult["arSocNetAllowedSubscribeEntityTypesDesc"][$entity_type]["METHOD_MY"]) > 0
+			&& $arResult["arSocNetAllowedSubscribeEntityTypesDesc"][$entity_type]["CLASS_MY"] <> ''
+			&& $arResult["arSocNetAllowedSubscribeEntityTypesDesc"][$entity_type]["METHOD_MY"] <> ''
 			&& method_exists($arResult["arSocNetAllowedSubscribeEntityTypesDesc"][$entity_type]["CLASS_MY"], $arResult["arSocNetAllowedSubscribeEntityTypesDesc"][$entity_type]["METHOD_MY"])
 		)
 		{
 			if (
 				array_key_exists("TITLE_LIST_MY", $arResult["arSocNetAllowedSubscribeEntityTypesDesc"][$entity_type])
-				&& strlen($arResult["arSocNetAllowedSubscribeEntityTypesDesc"][$entity_type]["TITLE_LIST_MY"]) > 0
+				&& $arResult["arSocNetAllowedSubscribeEntityTypesDesc"][$entity_type]["TITLE_LIST_MY"] <> ''
 			)
 			{
 				$arEntities[$entity_type]["ALL_MY"]["TITLE_LIST"] = $arResult["arSocNetAllowedSubscribeEntityTypesDesc"][$entity_type]["TITLE_LIST_MY"];
@@ -305,13 +305,13 @@ else
 	$arResult["EventsNew"] = array();
 
 	$arFilter = array("USER_ID" => $GLOBALS["USER"]->GetID());
-	if (StrLen($arParams["ENTITY_TYPE"]) > 0)
+	if ($arParams["ENTITY_TYPE"] <> '')
 		$arFilter["ENTITY_TYPE"] = $arParams["ENTITY_TYPE"];
 
 	if ($arParams["ENTITY_TYPE"] == SONET_ENTITY_GROUP)
 		$arFilter["GROUP_SITE_ID"] = SITE_ID;
 
-	if (StrLen($arParams["ENTITY_TYPE"]) <= 0)
+	if ($arParams["ENTITY_TYPE"] == '')
 	{
 		$arFilter["COMMON_GROUP_SITE_ID"] = SITE_ID;
 		$arFilter["SITE_ID"] = array(SITE_ID, false);
@@ -381,7 +381,7 @@ else
 					$arResult["Events"][$arrayKey]["EditUrl"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER_SUBSCRIBE"], array("user_id" => $arEvents["ENTITY_ID"]));
 				}
 				
-				$arResult["Events"][$arrayKey]["EditUrl"] .= (strpos($arResult["Events"][$arrayKey]["EditUrl"], "?") !== false ? "&" : "?")."backurl=".$APPLICATION->GetCurPage();			
+				$arResult["Events"][$arrayKey]["EditUrl"] .= (mb_strpos($arResult["Events"][$arrayKey]["EditUrl"], "?") !== false ? "&" : "?")."backurl=".$APPLICATION->GetCurPage();
 			}
 
 			if ($arEvents["EVENT_ID"] != "all")

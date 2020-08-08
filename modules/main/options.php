@@ -181,6 +181,8 @@ $arAllOptions = array(
 		Array("mail_event_bulk", GetMessage("main_option_mail_bulk"), "5", Array("text", 10)),
 		Array("mail_additional_parameters", GetMessage("MAIN_OPTION_MAIL_ADDITIONAL_PARAMETERS"), "", Array("text", 30)),
 		Array("mail_link_protocol", GetMessage("MAIN_OPTION_MAIL_LINK_PROTOCOL"), "", Array("text", 10)),
+		array('track_outgoing_emails_read', getMessage('MAIN_OPTION_MAIL_TRACK_READ'), 'Y', array('checkbox', 'Y')),
+		array('track_outgoing_emails_click', getMessage('MAIN_OPTION_MAIL_TRACK_CLICK'), 'Y', array('checkbox', 'Y')),
 
 		GetMessage("main_options_sms_title"),
 		Array("sms_default_service", GetMessage("main_options_sms_service"), "", Array("selectbox", $smsServices)),
@@ -274,7 +276,8 @@ $allowedHostsList = unserialize(COption::GetOptionString("main", "imageeditor_pr
 
 if (!is_array($allowedHostsList) || empty($allowedHostsList))
 {
-    $allowedHostsList[] = '';
+	$allowedHostsList = [];
+	$allowedHostsList[] = '';
 }
 
 $allowedWhiteListLabel = GetMessage("MAIN_OPTIONS_IMAGE_EDITOR_PROXY_WHITE_LIST");

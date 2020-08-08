@@ -22,4 +22,7 @@ $MESS["IBLOCK_SECTION_ENTITY_XML_ID_FIELD"] = "Внешний код";
 $MESS["IBLOCK_SECTION_ENTITY_TMP_ID_FIELD"] = "Временный код";
 $MESS["IBLOCK_SECTION_ENTITY_DETAIL_PICTURE_FIELD"] = "Детальное изображение";
 $MESS["IBLOCK_SECTION_ENTITY_SOCNET_GROUP_ID_FIELD"] = "Группа социальной сети";
+$MESS["IBLOCK_SECTION_ENTITY_MESS_ADD_BLOCKED"] = "Для добавления разделов инфоблоков используйте вызов CIBlockSection::Add()";
+$MESS["IBLOCK_SECTION_ENTITY_MESS_UPDATE_BLOCKED"] = "Для изменения разделов инфоблоков используйте вызов CIBlockSection::Update()";
+$MESS["IBLOCK_SECTION_ENTITY_MESS_DELETE_BLOCKED"] = "Для удаления разделов инфоблоков используйте вызов CIBlockSection::Delete()";
 ?>

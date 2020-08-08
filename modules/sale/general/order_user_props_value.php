@@ -5,7 +5,7 @@ class CAllSaleOrderUserPropsValue
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		if(CSaleLocation::isLocationProMigrated())
 		{
@@ -36,21 +36,21 @@ class CAllSaleOrderUserPropsValue
 	function Delete($ID)
 	{
 		global $DB;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		return $DB->Query("DELETE FROM b_sale_user_props_value WHERE ID = ".$ID."", true);
 	}
 
 	function DeleteAll($ID)
 	{
 		global $DB;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		return $DB->Query("DELETE FROM b_sale_user_props_value WHERE USER_PROPS_ID = ".$ID."", true);
 	}
 	
 	function Update($ID, $arFields)
 	{
 		global $DB;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		// need to check here if we got CODE or ID came
 		if(isset($arFields['VALUE']) && ((string) $arFields['VALUE'] != '') && CSaleLocation::isLocationProMigrated())

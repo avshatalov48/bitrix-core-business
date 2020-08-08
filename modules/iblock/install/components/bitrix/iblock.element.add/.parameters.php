@@ -1,19 +1,21 @@
 <?
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
-if(!CModule::IncludeModule("iblock"))
+use Bitrix\Main\Loader;
+
+if(!Loader::includeModule("iblock"))
 	return;
 
 if($arCurrentValues["IBLOCK_ID"] > 0)
 {
 	$arIBlock = CIBlock::GetArrayByID($arCurrentValues["IBLOCK_ID"]);
 
-	$bWorkflowIncluded = ($arIBlock["WORKFLOW"] == "Y") && CModule::IncludeModule("workflow");
-	$bBizproc = ($arIBlock["BIZPROC"] == "Y") && CModule::IncludeModule("bizproc");
+	$bWorkflowIncluded = ($arIBlock["WORKFLOW"] == "Y") && Loader::includeModule("workflow");
+	$bBizproc = ($arIBlock["BIZPROC"] == "Y") && Loader::includeModule("bizproc");
 }
 else
 {
-	$bWorkflowIncluded = CModule::IncludeModule("workflow");
+	$bWorkflowIncluded = Loader::includeModule("workflow");
 	$bBizproc = false;
 }
 
@@ -283,5 +285,3 @@ foreach ($arVirtualProperties as $key => $title)
 		"TYPE" => "STRING",
 	);
 }
-
-?>

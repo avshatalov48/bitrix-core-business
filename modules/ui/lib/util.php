@@ -14,13 +14,14 @@ class Util
 {
 	public static function getHelpdeskUrl($byLang = false)
 	{
-		if (Loader::includeModule('bitrix24') && !$byLang)
+		$lang = LANGUAGE_ID;
+		if (Loader::includeModule('bitrix24'))
 		{
-			$lang = \CBitrix24::getLicensePrefix();
-		}
-		else
-		{
-			$lang = LANGUAGE_ID;
+			$licensePrefix = \CBitrix24::getLicensePrefix();
+			if(!$byLang || $licensePrefix === 'ua')
+			{
+				$lang = $licensePrefix;
+			}
 		}
 
 		switch ($lang)
@@ -49,6 +50,10 @@ class Util
 
 			case "la":
 				$helpdeskUrl = "https://helpdesk.bitrix24.es";
+				break;
+
+			case "pl":
+				$helpdeskUrl = "https://helpdesk.bitrix24.pl";
 				break;
 
 			default:

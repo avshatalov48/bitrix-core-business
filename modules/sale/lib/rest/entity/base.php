@@ -278,7 +278,7 @@ abstract class Base
 					continue;
 				}
 
-				$operation = substr($rawName, 0, strlen($rawName) - strlen($field['FIELD']));
+				$operation = mb_substr($rawName, 0, mb_strlen($rawName) - mb_strlen($field['FIELD']));
 				if(isset($info['FORBIDDEN_FILTERS'])
 					&& is_array($info['FORBIDDEN_FILTERS'])
 					&& in_array($operation, $info['FORBIDDEN_FILTERS'], true))
@@ -403,7 +403,7 @@ abstract class Base
 				if(isset($rewriteFields[$field['FIELD']]['REFERENCE_FIELD']))
 				{
 					$originalName = $rewriteFields[$field['FIELD']]['REFERENCE_FIELD'];
-					$operation = substr($rawName, 0, strlen($rawName) - strlen($field['FIELD']));
+					$operation = mb_substr($rawName, 0, mb_strlen($rawName) - mb_strlen($field['FIELD']));
 					$result[$operation.$originalName] = $value;
 				}
 			}

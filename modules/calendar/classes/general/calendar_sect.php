@@ -21,10 +21,7 @@ class CCalendarSect
 			"XML_ID" => Array("FIELD_NAME" => "CS.XML_ID", "FIELD_TYPE" => "string"),
 			"EXTERNAL_ID" => Array("FIELD_NAME" => "CS.EXTERNAL_ID", "FIELD_TYPE" => "string"),
 			"ACTIVE" => Array("FIELD_NAME" => "CS.ACTIVE", "FIELD_TYPE" => "string"),
-			//"DESCRIPTION" => Array("FIELD_NAME" => "CS.DESCRIPTION", "FIELD_TYPE" => "string"),
 			"COLOR" => Array("FIELD_NAME" => "CS.COLOR", "FIELD_TYPE" => "string"),
-			//"TEXT_COLOR" => Array("FIELD_NAME" => "CS.TEXT_COLOR", "FIELD_TYPE" => "string"),
-			//"EXPORT" => Array("FIELD_NAME" => "CS.EXPORT", "FIELD_TYPE" => "string"),
 			"SORT" => Array("FIELD_NAME" => "CS.SORT", "FIELD_TYPE" => "int"),
 			"CAL_TYPE" => Array("FIELD_NAME" => "CS.CAL_TYPE", "FIELD_TYPE" => "string", "PROCENT" => "N"),
 			"OWNER_ID" => Array("FIELD_NAME" => "CS.OWNER_ID", "FIELD_TYPE" => "int"),
@@ -256,8 +253,8 @@ class CCalendarSect
 
 		if (($checkPermissions || $getPermissions) && count($arSectionIds) > 0 && $userId >= 0)
 		{
-			$res = array();
-			$arAccessCodes = array();
+			$res = [];
+			$arAccessCodes = [];
 
 			$settings = CCalendar::GetSettings(array('request' => false));
 			foreach($arResult as $sect)
@@ -292,7 +289,6 @@ class CCalendarSect
 							// Add codes to get they full names for interface
 							$arAccessCodes = array_merge($arAccessCodes, array_keys(self::$Permissions[$sectId]));
 							$sect['ACCESS'] = self::$Permissions[$sectId];
-
 						}
 					}
 
@@ -335,7 +331,6 @@ class CCalendarSect
 	{
 		global $DB;
 		$checkPermissions = $params['checkPermissions'] !== false;
-		$checkSocnetPermissions = $params['checkSocnetPermissions'] !== false;
 		$userId = isset($params['userId']) ? intVal($params['userId']) : CCalendar::GetCurUserId();
 
 		$arResult = Array();
@@ -474,23 +469,6 @@ class CCalendarSect
 
 		if ($checkPermissions && count($arSectionIds) > 0)
 		{
-			if ($checkSocnetPermissions)
-			{
-				if (isset($params['USERS']) && count($params['USERS']) > 0)  // Fetch all socnet permissions for users
-				{
-					$arFeaturesU = CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $params['USERS'], "calendar");
-					$arViewU = CSocNetFeaturesPerms::CanPerformOperation($userId, SONET_ENTITY_USER, $params['USERS'], "calendar", 'view');
-					$arWriteU = CSocNetFeaturesPerms::CanPerformOperation($userId, SONET_ENTITY_GROUP, $params['USERS'], "calendar", 'write');
-				}
-
-				if (isset($params['GROUPS']) && count($params['GROUPS']) > 0) // Fetch all socnet permissions for groups
-				{
-					$arFeaturesG = CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $params['GROUPS'], "calendar");
-					$arViewG = CSocNetFeaturesPerms::CanPerformOperation($userId, SONET_ENTITY_GROUP, $params['GROUPS'], "calendar", 'view');
-					$arWriteG = CSocNetFeaturesPerms::CanPerformOperation($userId, SONET_ENTITY_GROUP, $params['GROUPS'], "calendar", 'write');
-				}
-			}
-
 			$res = array();
 			$sectIds = array();
 			foreach($arResult as $sect)
@@ -500,13 +478,6 @@ class CCalendarSect
 
 				if (self::CanDo('calendar_view_time', $sectId) && !in_array($sectId, $sectIds))
 				{
-					if ($checkSocnetPermissions)
-					{
-						// Disabled in socialnetwork
-						if (($sect['CAL_TYPE'] == 'group' && (!$arFeaturesG[$ownerId] || !$arViewG[$ownerId])) || ($sect['CAL_TYPE'] == 'user' && (!$arFeaturesU[$ownerId] || !$arViewU[$ownerId])))
-							continue;
-					}
-
 					$sect['PERM'] = array(
 						'view_time' => self::CanDo('calendar_view_time', $sectId),
 						'view_title' => self::CanDo('calendar_view_title', $sectId),
@@ -516,17 +487,6 @@ class CCalendarSect
 						'edit_section' => self::CanDo('calendar_edit_section', $sectId),
 						'access' => self::CanDo('calendar_edit_access', $sectId)
 					);
-
-					if ($checkSocnetPermissions) // Forse denied access for all "write" operations
-					{
-						if (($sect['CAL_TYPE'] == 'group' && !$arWriteG[$ownerId]) || ($sect['CAL_TYPE'] == 'user' && !$arWriteU[$ownerId]))
-						{
-							$sect['PERM']['add'] = false;
-							$sect['PERM']['edit'] = false;
-							$sect['PERM']['edit_section'] = false;
-							$sect['PERM']['access'] = false;
-						}
-					}
 
 					if ($sect['CAL_TYPE'] == 'user')
 					{
@@ -732,10 +692,11 @@ class CCalendarSect
 		else
 			$name = GetMessage('EC_DEF_SECT_GROUP_CAL');
 
-		$userId = CCalendar::GetCurUserId();
+		$userId = $params['type'] == 'user' ? $params['ownerId'] : CCalendar::GetCurUserId();
+
 		if ($userId > 0)
 		{
-			$arFields = Array(
+			$arFields = [
 				'CAL_TYPE' => $params['type'],
 				'NAME' => $name,
 				'DESCRIPTION' => GetMessage('EC_DEF_SECT_DESC'),
@@ -743,7 +704,7 @@ class CCalendarSect
 				'OWNER_ID' => $params['ownerId'],
 				'IS_EXCHANGE' => 0,
 				'ACCESS' => CCalendarSect::GetDefaultAccess($params['type'], $params['ownerId']),
-				'PERM' => array(
+				'PERM' => [
 					'view_time' => true,
 					'view_title' => true,
 					'view_full' => true,
@@ -751,9 +712,14 @@ class CCalendarSect
 					'edit' => true,
 					'edit_section' => true,
 					'access' => true
-				)
-			);
-			$arFields['ID'] = self::Edit(array('arFields' => $arFields));
+				]
+			];
+
+			$arFields['ID'] = self::Edit([
+				'arFields' => $arFields,
+				'userId' => $userId
+			]);
+
 			if ($arFields['ID'] > 0)
 				return $arFields;
 		}
@@ -841,6 +807,7 @@ class CCalendarSect
 			return true;
 
 		$res = in_array($operation, self::GetOperations($sectId, $userId));
+
 		self::$bClearOperationCache = false;
 		return $res;
 	}
@@ -1149,8 +1116,14 @@ class CCalendarSect
 	public static function GetModificationLabel($calendarId) // GetCalendarModificationLabel
 	{
 		global $DB;
-		$sectionId = intVal($calendarId[0]);
+		// We didn't have cashing for task list,
+		// so just change modification label every 3 minutes
+		if ($calendarId[0] === \CCalendar::TASK_SECTION_ID)
+		{
+			return \CCalendar::Date(round(time() / 180) * 180);
+		}
 
+		$sectionId = intVal($calendarId[0]);
 		if ($sectionId > 0)
 		{
 			$strSql = "
@@ -1248,10 +1221,8 @@ class CCalendarSect
 
 	public static function GetLastUsedSection($type, $ownerId, $userId)
 	{
-		$lastSection = CUserOptions::GetOption("calendar", "last_section", false, $userId);
-		if (isset($lastSection[$type.'_'.$ownerId]))
-			return $lastSection[$type.'_'.$ownerId];
-		return false;
+		$userSettings = \Bitrix\Calendar\UserSettings::get($userId);
+		return $userSettings['lastUsedSection'];
 	}
 
 	public static function GetSectionForOwner($type, $ownerId, $autoCreate = true)
@@ -1297,13 +1268,13 @@ class CCalendarSect
 		return array('sectionId' => $sectionId, 'autoCreated' => $autoCreated, 'section' => $section);
 	}
 
-	public static function HandlePermission($section = array())
+	public static function HandlePermission($section = [])
 	{
 		if ($section && $section['ID'])
 		{
 			$sectionId = $section['ID'];
 			if (!is_array(self::$Permissions[$sectionId]))
-				self::$Permissions[$sectionId] = array();
+				self::$Permissions[$sectionId] = [];
 
 			if($section['ACCESS_CODE'] != '' && $section['ACCESS_CODE'] != '0' && $section['TASK_ID'] > 0)
 				self::$Permissions[$sectionId][$section['ACCESS_CODE']] = $section['TASK_ID'];

@@ -34,7 +34,7 @@ if($APPLICATION->GetGroupRight("forum") != "D")
 		"section" => "forum",
 		"sort" => 550,
 		"text" => GetMessage("FORUM_CONTROL"),
-		//"url" => "/bitrix/admin/forum_index.php?lang=".LANG,
+		"url" => "/bitrix/admin/forum_index.php?lang=".LANG,
 		"more_url" => [
 			"/bitrix/admin/forum_index.php?lang=".LANG,
 			"/bitrix/admin/forum_index.php"

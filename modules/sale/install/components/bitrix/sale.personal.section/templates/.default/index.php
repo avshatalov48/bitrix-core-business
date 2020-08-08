@@ -3,7 +3,7 @@
 use Bitrix\Main\Localization\Loc;
 
 
-if (strlen($arParams["MAIN_CHAIN_NAME"]) > 0)
+if ($arParams["MAIN_CHAIN_NAME"] <> '')
 {
 	$APPLICATION->AddChainItem(htmlspecialcharsbx($arParams["MAIN_CHAIN_NAME"]), $arResult['SEF_FOLDER']);
 }
@@ -94,7 +94,7 @@ if ($customPagesList)
 		$availablePages[] = array(
 			"path" => $page[0],
 			"name" => $page[1],
-			"icon" => (strlen($page[2])) ? '<i class="fa '.htmlspecialcharsbx($page[2]).'"></i>' : ""
+			"icon" => (mb_strlen($page[2])) ? '<i class="fa '.htmlspecialcharsbx($page[2]).'"></i>' : ""
 		);
 	}
 }

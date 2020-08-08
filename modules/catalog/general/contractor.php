@@ -13,7 +13,7 @@ class CAllCatalogContractor
 			$GLOBALS["APPLICATION"]->ThrowException(Loc::getMessage("CC_EMPTY_COMPANY"));
 			return false;
 		}
-		if (((($action == 'ADD' || is_set($arFields, "PERSON_NAME")) && strlen($arFields["PERSON_NAME"]) <= 0) && $personType == CONTRACTOR_INDIVIDUAL))
+		if (((($action == 'ADD' || is_set($arFields, "PERSON_NAME")) && $arFields["PERSON_NAME"] == '') && $personType == CONTRACTOR_INDIVIDUAL))
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(Loc::getMessage("CC_WRONG_PERSON_LASTNAME"));
 			return false;

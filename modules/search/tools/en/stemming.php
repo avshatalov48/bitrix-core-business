@@ -64,7 +64,7 @@ function stemming_letter_en()
 
 function stemming_stop_en($sWord)
 {
-	if (strlen($sWord) < 2)
+	if (mb_strlen($sWord) < 2)
 		return false;
 	static $stop_list = false;
 	if (!$stop_list)
@@ -79,7 +79,7 @@ function stemming_stop_en($sWord)
 			foreach (explode(",", STEMMING_STOP_EN) as $word)
 			{
 				$word = trim($word);
-				if (strlen($word) > 0)
+				if ($word <> '')
 					$stop_list[$word] = 0;
 			}
 		}
@@ -104,7 +104,7 @@ function stemming_en($word)
 	global $STEMMING_EN_EX2;
 
 	//If the word has two letters or less, leave it as it is.
-	$word_len = strlen($word);
+	$word_len = mb_strlen($word);
 	if ($word_len <= 2)
 		return $word;
 	if (array_key_exists($word, $STEMMING_EN_EX1))
@@ -117,9 +117,9 @@ function stemming_en($word)
 
 	//In any word, R1 is the region after the first non-vowel following a vowel, or the end of the word if it contains no such a non-vowel.
 	$R1 = 0;
-	while (($R1 < $word_len) && (strpos($vowels, substr($word, $R1, 1)) === false))
+	while (($R1 < $word_len) && (mb_strpos($vowels, mb_substr($word, $R1, 1)) === false))
 		$R1++;
-	while (($R1 < $word_len) && (strpos($vowels, substr($word, $R1, 1)) !== false))
+	while (($R1 < $word_len) && (mb_strpos($vowels, mb_substr($word, $R1, 1)) !== false))
 		$R1++;
 	if ($R1 < $word_len)
 		$R1++;
@@ -129,9 +129,9 @@ function stemming_en($word)
 		$R1 = 5;
 
 	$R2 = $R1;
-	while (($R2 < $word_len) && (strpos($vowels, substr($word, $R2, 1)) === false))
+	while (($R2 < $word_len) && (mb_strpos($vowels, mb_substr($word, $R2, 1)) === false))
 		$R2++;
-	while (($R2 < $word_len) && (strpos($vowels, substr($word, $R2, 1)) !== false))
+	while (($R2 < $word_len) && (mb_strpos($vowels, mb_substr($word, $R2, 1)) !== false))
 		$R2++;
 	if ($R2 < $word_len)
 		$R2++;
@@ -145,21 +145,21 @@ function stemming_en($word)
 		{
 			//sses - replace by ss
 		case "SSES":
-			$word = substr($word, 0, $word_len - 4)."SS";
+			$word = mb_substr($word, 0, $word_len - 4)."SS";
 			break;
 			//ied+   ies* - replace by i if preceded by more than one letter, otherwise by ie  (so ties -> tie, cries -> cri)
 		case "IED":
 		case "IES":
-			if (strlen($word) > 4)
-				$word = substr($word, 0, $word_len - 3)."I";
+			if (mb_strlen($word) > 4)
+				$word = mb_substr($word, 0, $word_len - 3)."I";
 			else
-				$word = substr($word, 0, $word_len - 3)."IE";
+				$word = mb_substr($word, 0, $word_len - 3)."IE";
 			break;
 			//s  delete if the preceding word part contains a vowel not immediately before the s
 			//   (so gas and this retain the s, gaps and kiwis lose it)
 		case "S":
 			if (preg_match("/([$vowels].*.)(S)$/", $word))
-				$word = substr($word, 0, $word_len - 1);
+				$word = mb_substr($word, 0, $word_len - 1);
 			break;
 			//us+   ss - do nothing
 		}
@@ -177,8 +177,8 @@ function stemming_en($word)
 		{
 		case "EEDLY":
 		case "EED":
-			if (preg_match("/".$found[0]."$/", substr($word, $R1)))
-				$word = substr($word, 0, strlen($word) - strlen($found[0]))."EE";
+			if (preg_match("/".$found[0]."$/", mb_substr($word, $R1)))
+				$word = mb_substr($word, 0, mb_strlen($word) - mb_strlen($found[0]))."EE";
 			break;
 		default:
 			//delete if the preceding word part contains a vowel, and then
@@ -188,7 +188,7 @@ function stemming_en($word)
 				if (($step1b1 = preg_replace("/(AT|BL|IZ)$/", "\\1E", $step1b)) == $step1b)
 					//if the word ends with a double remove the last letter (so hopp -> hop), or
 					if (preg_match("/(BB|DD|FF|GG|MM|NN|PP|RR|TT)$/", $step1b))
-						$step1b1 = substr($step1b, 0, strlen($step1b) - 1);
+						$step1b1 = mb_substr($step1b, 0, mb_strlen($step1b) - 1);
 					else
 					{
 						//if the word is short, add e (so hop -> hope)
@@ -214,21 +214,21 @@ function stemming_en($word)
 	//	Search for the longest among the following suffixes, and, if found and in R1, perform the action indicated.
 	if (
 		preg_match($STEMMING_EN_STEP2, $word, $found)
-		&& preg_match("/".$found[0]."$/", substr($word, $R1))
+		&& preg_match("/".$found[0]."$/", mb_substr($word, $R1))
 	)
 	{
 		switch ($found[0])
 		{
 		case "OGI":
 			if (preg_match("/LOGI$/", $word))
-				$word = substr($word, 0, strlen($word) - 3)."OG";
+				$word = mb_substr($word, 0, mb_strlen($word) - 3)."OG";
 			break;
 		case "LI":
 			if (preg_match("/[CDEGHKMNRT]LI$/", $word))
-				$word = substr($word, 0, strlen($word) - 2);
+				$word = mb_substr($word, 0, mb_strlen($word) - 2);
 			break;
 		default:
-			$word = substr($word, 0, strlen($word) - strlen($found[0])).$STEMMING_EN_STEP2A[$found[0]];
+			$word = mb_substr($word, 0, mb_strlen($word) - mb_strlen($found[0])).$STEMMING_EN_STEP2A[$found[0]];
 		}
 	}
 
@@ -236,17 +236,17 @@ function stemming_en($word)
 	//	Search for the longest among the following suffixes, and, if found and in R1, perform the action indicated.
 	if (
 		preg_match($STEMMING_EN_STEP3, $word, $found)
-		&& preg_match("/".$found[0]."$/", substr($word, $R1))
+		&& preg_match("/".$found[0]."$/", mb_substr($word, $R1))
 	)
 	{
 		switch ($found[0])
 		{
 		case "ATIVE":
-			if (preg_match("/ATIVE$/", substr($word, $R2)))
-				$word = substr($word, 0, strlen($word) - 5);
+			if (preg_match("/ATIVE$/", mb_substr($word, $R2)))
+				$word = mb_substr($word, 0, mb_strlen($word) - 5);
 			break;
 		default:
-			$word = substr($word, 0, strlen($word) - strlen($found[0])).$STEMMING_EN_STEP3A[$found[0]];
+			$word = mb_substr($word, 0, mb_strlen($word) - mb_strlen($found[0])).$STEMMING_EN_STEP3A[$found[0]];
 		}
 	}
 
@@ -254,25 +254,25 @@ function stemming_en($word)
 	//	Search for the longest among the following suffixes, and, if found and in R2, perform the action indicated.
 	if (
 		preg_match($STEMMING_EN_STEP4, $word, $found)
-		&& preg_match("/".$found[0]."$/", substr($word, $R2))
+		&& preg_match("/".$found[0]."$/", mb_substr($word, $R2))
 	)
 	{
 		switch ($found[0])
 		{
 		case "ION":
 			if (preg_match("/[ST]ION$/", $word))
-				$word = substr($word, 0, strlen($word) - strlen($found[0]));
+				$word = mb_substr($word, 0, mb_strlen($word) - mb_strlen($found[0]));
 			break;
 		default:
-			$word = substr($word, 0, strlen($word) - strlen($found[0]));
+			$word = mb_substr($word, 0, mb_strlen($word) - mb_strlen($found[0]));
 		}
 	}
 
 	//Step 5:
 	if (
-		preg_match("/E$/", substr($word, $R2))
+		preg_match("/E$/", mb_substr($word, $R2))
 		|| (
-			preg_match("/E$/", substr($word, $R1))
+			preg_match("/E$/", mb_substr($word, $R1))
 			//Define a short syllable in a word as either (a) a vowel followed by a non-vowel other than w, x or Y
 			//and preceded by a non-vowel, or * (b) a vowel at the beginning of the word followed by a non-vowel.
 			&& !(
@@ -282,11 +282,11 @@ function stemming_en($word)
 		)
 	)
 	{
-		$word = substr($word, 0, strlen($word) - 1);
+		$word = mb_substr($word, 0, mb_strlen($word) - 1);
 	}
-	elseif (preg_match("/L$/", substr($word, $R2)) && preg_match("/LL$/", $word))
+	elseif (preg_match("/L$/", mb_substr($word, $R2)) && preg_match("/LL$/", $word))
 	{
-		$word = substr($word, 0, strlen($word) - 1);
+		$word = mb_substr($word, 0, mb_strlen($word) - 1);
 	}
 
 	return str_replace("y", "Y", $word);

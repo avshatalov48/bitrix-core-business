@@ -1,24 +1,22 @@
 <?php
-use Bitrix\Main\Loader;
+
+use Bitrix\Main\Entity\ExpressionField;
+use Bitrix\Main\HttpRequest;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Sender\Entity;
+use Bitrix\Sender\Internals\CommonAjax;
+use Bitrix\Sender\Internals\QueryController as Controller;
+use Bitrix\Sender\UI;
 
 define('STOP_STATISTICS', true);
 define('BX_SECURITY_SHOW_MESSAGE', true);
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
 
-if (!Loader::includeModule('sender'))
+if (!Bitrix\Main\Loader::includeModule('sender'))
 {
 	return;
 }
-
-use Bitrix\Main\HttpRequest;
-use Bitrix\Main\Entity\ExpressionField;
-use Bitrix\Sender\Internals\QueryController as Controller;
-use Bitrix\Sender\Internals\CommonAjax;
-use Bitrix\Sender\Entity;
-
-use Bitrix\Sender\UI;
 
 Loc::loadMessages(__FILE__);
 

@@ -13,6 +13,7 @@ return [
 		'landing.loc',
 		'landing.ui.panel.content',
 		'landing.sliderhacks',
+		'landing.pageobject',
 	],
 	'skip_core' => false,
 ];

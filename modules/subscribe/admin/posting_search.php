@@ -128,7 +128,7 @@ if(is_array($GROUP_ID) && count($GROUP_ID)>0)
 
 	$user = CUser::GetList(($b="id"), ($o="asc"), $arFilter);
 	while($user_arr = $user->Fetch())
-		if(strlen($user_arr["EMAIL"]) > 0)
+		if($user_arr["EMAIL"] <> '')
 			$aEmail[$user_arr["EMAIL"]] = 1;
 }
 

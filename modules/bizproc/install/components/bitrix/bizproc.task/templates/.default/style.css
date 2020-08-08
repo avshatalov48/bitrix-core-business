@@ -145,6 +145,7 @@
 	font-size: 13px;
 	margin-top: 4px;
 	margin-bottom: 16px;
+	word-break: break-word;
 }
 
 .bp-task-page .bp-task-block-title {

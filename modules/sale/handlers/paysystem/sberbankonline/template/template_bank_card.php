@@ -20,7 +20,7 @@ $sum = roundEx($params['SUM'], 2);
 			}
 		?>
 		<div class="d-flex align-items-center justify-content-start">
-			<input class="btn btn-primary pl-4 pr-4" name="registerOrder" value="<?=Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_SBERBANK_BUTTON_PAID')?>" type="submit">
+			<input class="btn btn-lg btn-success pl-4 pr-4" style="border-radius: 32px;" name="registerOrder" value="<?=Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_SBERBANK_BUTTON_PAID')?>" type="submit">
 			<p><?=Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_SBERBANK_REDIRECT');?></p>
 		</div>
 

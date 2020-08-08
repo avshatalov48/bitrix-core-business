@@ -683,8 +683,8 @@ return $iblockIds;
 		{
 			$iblock = \CIBlock::GetByID($iblockId)->GetNext();
 			
-			$result .= '<option disabled value="-1">' .
-				strtoupper(is_array($iblock) ? $iblock["NAME"] : $iblockId) .
+			$result .= '<option disabled value="-1">'.
+				mb_strtoupper(is_array($iblock)? $iblock["NAME"] : $iblockId) .
 				'</option>';
 
 //			create ITEMS for current iblock

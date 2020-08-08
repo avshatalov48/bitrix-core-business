@@ -1,0 +1,7 @@
+<?php
+
+$MESS["MAIL_NOTIFY_GO_TO_LIST"] = "Перейти";
+$MESS["MAIL_NOTIFY_NEW_MESSAGE"] = "Новое письмо";
+$MESS["MAIL_NOTIFY_NEW_MESSAGE_TEXT_SINGLE"] = "Новое письмо: #BRIEF#";
+$MESS["MAIL_NOTIFY_NEW_MESSAGE_TEXT_MULTI"] = "Новых писем: #COUNT#";
+$MESS["MAIL_NOTIFY_NEW_MESSAGE_TITLE"] = "Почта";

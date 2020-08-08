@@ -151,6 +151,16 @@ BX.UI.Selector.prototype.getPopupBind = function()
 	);
 };
 
+BX.UI.Selector.prototype.getPopupZIndex = function()
+{
+	return (
+		BX.type.isNotEmptyObject(this.bindOptions)
+		&& typeof this.bindOptions.zIndex != 'undefined'
+			? this.bindOptions.zIndex
+			: 1200
+	);
+};
+
 BX.UI.Selector.prototype.openDialog = function()
 {
 	var popupBind = this.getPopupBind();
@@ -242,7 +252,7 @@ BX.UI.Selector.prototype.openDialogPromiseFulfilled = function(result)
 			id: 'bx-selector-dialog-' + this.id,
 			bindElement: popupBind,
 			autoHide: (this.getOption('popupAutoHide') != 'N'),
-			zIndex: 1200,
+			zIndex: this.getPopupZIndex(),
 			className: this.getRenderInstance().class.popup,
 			offsetLeft: this.bindOptions.offsetLeft,
 			offsetTop: this.bindOptions.offsetTop,
@@ -342,7 +352,7 @@ BX.UI.Selector.prototype.openContainer = function()
 		id: 'bx-selector-dialog-' + this.id + '-container',
 		bindElement: this.getPopupBind(),
 		autoHide: (this.getOption('popupAutoHide') != 'N'),
-		zIndex: 1200,
+		zIndex: this.getPopupZIndex(),
 		className: this.getRenderInstance().class.popup,
 		offsetLeft: this.bindOptions.offsetLeft,
 		offsetTop: this.bindOptions.offsetTop,
@@ -409,10 +419,12 @@ BX.UI.Selector.prototype.openContainer = function()
 
 BX.UI.Selector.prototype.openSearch = function(params)
 {
+	this.manager.statuses.allowSendEvent = false;
 	if (this.popups.main != null)
 	{
 		this.popups.main.close();
 	}
+	this.manager.statuses.allowSendEvent = true;
 
 	if (this.popups.search != null)
 	{
@@ -456,7 +468,7 @@ BX.UI.Selector.prototype.openSearch = function(params)
 			id: 'bx-selector-dialog-' + this.id + '-search',
 			bindElement: this.getPopupBind(),
 			autoHide: true,
-			zIndex: 1200,
+			zIndex: this.getPopupZIndex(),
 			className: this.getRenderInstance().class.popup,
 			offsetLeft: this.bindOptions.offsetLeft,
 			offsetTop: this.bindOptions.offsetTop,
@@ -2209,7 +2221,7 @@ BX.UI.Selector.prototype.isContainerOpen = function() // isOpenContainer
 BX.UI.Selector.prototype.isSearchOpen = function() // isOpenDialog
 {
 	return (
-		this.popups.popup != null
+		this.popups.search != null
 		|| this.popups.container != null
 	);
 };
@@ -2434,6 +2446,8 @@ BX.UI.Selector.prototype.selectItemPromiseFulfilled = function(data)
 		itemId: itemId
 	} ]);
 
+	BX.onCustomEvent('BX.UI.Selector:onChange', [{selectorId: this.id}]);
+
 	if (this.callback.select)
 	{
 		this.callback.select({
@@ -2493,6 +2507,8 @@ BX.UI.Selector.prototype.deleteSelectedItem = function(params)
 			}
 		}
 	}
+
+	BX.onCustomEvent('BX.UI.Selector:onChange', [{selectorId: this.id}]);
 
 	delete this.itemsSelected[itemId];
 };

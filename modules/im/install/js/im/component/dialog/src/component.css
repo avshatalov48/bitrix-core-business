@@ -1,0 +1,205 @@
+/* GENERAL */
+.bx-mobilechat-wrapper {
+	display: block;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+.bx-mobilechat-box {
+	display: flex;
+	flex-direction: column;
+	flex-wrap: nowrap;
+	height: 100%;
+	overflow: hidden;
+	-webkit-overflow-scrolling: touch;
+}
+
+.bx-mobilechat-body {
+	position: relative;
+	display: flex;
+	flex-grow: 1;
+	flex-shrink: 1;
+	flex-wrap: wrap;
+	align-items: center;
+	overflow: hidden;
+	-webkit-overflow-scrolling: touch;
+}
+
+.bx-mobilechat-body {
+	padding-top: constant(safe-area-inset-top);
+	padding-bottom: constant(safe-area-inset-bottom);
+	padding-top: env(safe-area-inset-top);
+	padding-bottom: env(safe-area-inset-bottom);
+	box-sizing: border-box;
+}
+
+.bx-im-quote-panel, .bx-mobilechat-dialog {
+	padding-right: constant(safe-area-inset-right);
+	padding-left: constant(safe-area-inset-left);
+	padding-right: env(safe-area-inset-right);
+	padding-left: env(safe-area-inset-left);
+	box-sizing: border-box;
+}
+
+.bx-mobilechat-body .bx-im-dialog {
+	position: relative;
+}
+
+.bx-mobilechat-help-container {
+	margin: 0 auto;
+}
+.bx-mobilechat-help-container .bx-mobilechat-help-title-sm {
+	display: none;
+}
+.bx-mobilechat-help-title {
+	display: block;
+	margin: 0 0 29px 0;
+	font: 300 26px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #333;
+	text-align: center;
+	opacity: .6;
+	width: 100%;
+}
+.bx-mobilechat-box-dark-background .bx-mobilechat-help-title {
+	color: #949494;
+}
+
+.bx-mobilechat-help-title-lg {
+	font: 200 26px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	letter-spacing: -.27px;
+}
+.bx-mobilechat-help-title-md {
+	font: 200 24px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	letter-spacing: -.25px;
+}
+.bx-mobilechat-help-title-sm {
+	font: 200 20px/27px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	letter-spacing: -.21px;
+}
+.bx-mobilechat-help-subtitle {
+	font: 14px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+.bx-mobilechat-chat-start .bx-mobilechat-body {
+	flex-direction: column;
+	flex-wrap: nowrap;
+	overflow: hidden;
+	justify-content: center;
+}
+.bx-mobilechat-chat-start .bx-mobilechat-body-with-message {
+	justify-content: flex-end;
+}
+.bx-mobilechat-dialog {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	flex-wrap: nowrap;
+	width: 100%;
+	overflow: hidden;
+	-webkit-animation: bx-mobilechat-dialog-opacity .2s ease-in-out;
+	animation: bx-mobilechat-dialog-opacity .2s ease-in-out;
+}
+
+/* END OF CHAT */
+
+/* END OF BODY */
+
+
+/* MEDIAQUERIES */
+.bx-mobilechat-mobile.bx-mobilechat-wrapper {
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+	height: 100%;
+}
+/* END OF MEDIAQUERIES */
+
+
+/* LOADER */
+.bx-mobilechat-loading-window {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin: 0 auto;
+}
+.bx-mobilechat-loading-circular {
+	margin: 0 0 53px 0;
+	height: 80px;
+	width: 80px;
+	-webkit-animation: bx-mobilechat-loading-rotate 2s linear infinite;
+	animation: bx-mobilechat-loading-rotate 2s linear infinite;
+	-webkit-transform-origin: center center;
+	transform-origin: center center;
+}
+
+.bx-mobilechat-loading-inner-path {
+	stroke: rgba(215,220,223,.17);
+	stroke-width: 1.5;
+	stroke-dasharray: 200, 200;
+	stroke-dashoffset: 0;
+	stroke-linecap: round;
+}
+
+.bx-mobilechat-loading-path {
+	stroke: rgba(215,220,223,.74);
+	stroke-width: 1.5;
+	stroke-dasharray: 20, 200;
+	stroke-dashoffset: 0;
+	-webkit-animation: bx-mobilechat-loading-dash 1.5s ease-in-out infinite;
+	animation: bx-mobilechat-loading-dash 1.5s ease-in-out infinite;
+	stroke-linecap: round;
+}
+.bx-mobilechat-loading-msg {
+	margin: 0;
+}
+/* END OF LOADER */
+
+/* WARNING */
+.bx-mobilechat-warning-window {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin: 0 auto;
+	max-width: 290px;
+}
+.bx-mobilechat-warning-icon {
+	display: block;
+	margin: 0 0 26px 0;
+	width: 53px;
+	height: 48px;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2255%22%20height%3D%2248%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%20transform%3D%22translate%28.805%20.74%29%22%3E%3Cpath%20stroke%3D%22%23A8ADB4%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.7%22%20d%3D%22M26.688.27L52.64%2045.685H.737z%22/%3E%3Cpath%20fill%3D%22%23A8ADB4%22%20d%3D%22M25.546%2015.714h2.283v16.625h-2.283z%22/%3E%3Ccircle%20cx%3D%2226.688%22%20cy%3D%2236.771%22%20r%3D%221.478%22%20fill%3D%22%23A8ADB4%22/%3E%3C/g%3E%3C/svg%3E');
+	background-repeat: no-repeat;
+}
+.bx-mobilechat-warning-msg {
+	opacity: .9;
+}
+.bx-mobilechat-warning-msg > a {
+	color: #000;
+}
+/* END OF WARNING */
+
+
+@keyframes bx-mobilechat-loading-rotate {
+	100% {
+		transform: rotate(360deg);
+	}
+}
+@keyframes bx-mobilechat-loading-dash {
+	0% {
+		stroke-dasharray: 1, 200;
+		stroke-dashoffset: 0;
+	}
+	50% {
+		stroke-dasharray: 89, 200;
+		stroke-dashoffset: -35px;
+	}
+	100% {
+		stroke-dasharray: 89, 200;
+		stroke-dashoffset: -124px;
+	}
+}
+@keyframes bx-mobilechat-dialog-opacity {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}

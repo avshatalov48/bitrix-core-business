@@ -91,7 +91,7 @@ $imgName = GetFileNameWithoutExtension($imgName).'-img';
 //Check access to file
 if(
 	(
-		strlen($new) > 0 &&
+		$new <> '' &&
 		!(
 			$USER->CanDoOperation('fileman_admin_files') &&
 			$USER->CanDoFileOperation('fm_create_new_file', $arPath)
@@ -99,7 +99,7 @@ if(
 	)
 	||
 	(
-		strlen($new) < 0 &&
+		$new == '' &&
 		!(
 			$USER->CanDoOperation('fileman_edit_existent_files') &&
 			$USER->CanDoFileOperation('fm_edit_existent_file',$arPath)

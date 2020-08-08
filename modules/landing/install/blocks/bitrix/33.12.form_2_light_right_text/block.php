@@ -68,15 +68,17 @@
 					 data-b24form=""
 					 data-b24form-use-style="Y"
 					 data-b24form-show-header="N"
-				></div>
+				>
+					<div class="g-landing-alert">MESS[LANDING_BLOCK_WEBFORM_PRELOADER]</div>
+				</div>
 			</div>
 
 			<div class="col-md-6 order-1 order-md-2">
 				<div class="text-center g-overflow-hidden">
-					<h3 class="landing-block-node-main-title h3 text-uppercase g-font-weight-700 g-mb-20 g-color-black">
+					<h3 class="landing-block-node-main-title landing-semantic-title-medium h3 text-uppercase font-weight-bold g-mb-20 g-color-black">
 						Contact Us</h3>
 
-					<div class="landing-block-node-text g-line-height-1_5 text-left g-mb-40 g-color-gray-dark-v5"
+					<div class="landing-block-node-text landing-semantic-text-medium g-line-height-1_5 text-left g-mb-40 g-color-gray-dark-v5"
 						 data-form-style-main-font-family="1"
 						 data-form-style-main-font-weight="1"
 						 data-form-style-header-text-font-size="1"
@@ -96,13 +98,13 @@
 								<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
 									<i class="landing-block-card-contact-icon icon-anchor"></i>
 								</span>
-								<span class="landing-block-card-contact-title h3 d-block text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0"
+								<span class="landing-block-card-contact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0"
 									  data-form-style-label-font-weight="1"
 									  data-form-style-label-font-size="1"
 									  data-form-style-second-font-color="1"
 								>
 									Address</span>
-								<span class="landing-block-card-contact-text g-font-weight-700 g-font-size-11 g-color-gray-dark-v1">
+								<span class="landing-block-card-contact-text landing-semantic-text-medium font-weight-bold g-font-size-11 g-color-gray-dark-v1">
 									Sit amet adipiscing
 								</span>
 							</div>
@@ -112,51 +114,51 @@
 								<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
 									<i class="landing-block-card-contact-icon fa fa-clock-o"></i>
 								</span>
-								<span class="landing-block-card-contact-title h3 d-block text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0"
+								<span class="landing-block-card-contact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0"
 									  data-form-style-label-font-weight="1"
 									  data-form-style-label-font-size="1"
 									  data-form-style-second-font-color="1"
 								>
 									Opening time</span>
-								<span class="landing-block-card-contact-text g-font-weight-700 g-font-size-11 g-color-gray-dark-v1">
+								<span class="landing-block-card-contact-text landing-semantic-text-medium font-weight-bold g-font-size-11 g-color-gray-dark-v1">
 									Mon-Sat: 08.00 -18.00
 								</span>
 							</div>
 
 							<div class="landing-block-card-contact js-animation fadeIn col-sm-6 g-brd-left g-brd-bottom g-brd-gray-light-v4 g-px-15 g-py-25"
 								 data-card-preset="link">
-								<a href="tel:+18006434500" class="landing-block-card-linkcontact-link g-text-decoration-none--hover">
+								<a href="tel:#PHONE1#" class="landing-block-card-linkcontact-link g-text-decoration-none--hover">
 									<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
 										<i class="landing-block-card-linkcontact-icon icon-call-in"></i>
 									</span>
-									<span class="landing-block-card-linkcontact-title h3 d-block text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0"
+									<span class="landing-block-card-linkcontact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0"
 										  data-form-style-label-font-weight="1"
 										  data-form-style-label-font-size="1"
 										  data-form-style-second-font-color="1"
 									>
 										Phone number
 									</span>
-									<span class="landing-block-card-linkcontact-text g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11 g-color-gray-dark-v1">
-										+1-800-643-4500
+									<span class="landing-block-card-linkcontact-text landing-semantic-link-medium g-text-decoration-none g-text-underline--hover font-weight-bold g-font-size-11 g-color-gray-dark-v1">
+										#PHONE1#
 									</span>
 								</a>
 							</div>
 
 							<div class="landing-block-card-contact js-animation fadeIn col-sm-6 g-brd-left g-brd-bottom g-brd-gray-light-v4 g-px-15 g-py-25"
 								 data-card-preset="link">
-								<a href="mailto:info@company24.com" class="landing-block-card-linkcontact-link g-text-decoration-none--hover">
+								<a href="mailto:#EMAIL1#" class="landing-block-card-linkcontact-link g-text-decoration-none--hover">
 									<span class="landing-block-card-contact-icon-container g-color-primary g-line-height-1 d-inline-block g-font-size-50 g-mb-30">
 										<i class="landing-block-card-linkcontact-icon icon-line icon-envelope-letter"></i>
 									</span>
-									<span class="landing-block-card-linkcontact-title h3 d-block text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0"
+									<span class="landing-block-card-linkcontact-title landing-semantic-subtitle-medium h3 d-block text-uppercase g-font-size-11 g-color-gray-dark-v5 mb-0"
 										  data-form-style-label-font-weight="1"
 										  data-form-style-label-font-size="1"
 										  data-form-style-second-font-color="1"
 									>
 										Email
 									</span>
-									<span class="landing-block-card-linkcontact-text g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11 g-color-gray-dark-v1">
-										info@company24.com
+									<span class="landing-block-card-linkcontact-text landing-semantic-link-medium g-text-decoration-none g-text-underline--hover font-weight-bold g-font-size-11 g-color-gray-dark-v1">
+										#EMAIL1#
 									</span>
 								</a>
 							</div>

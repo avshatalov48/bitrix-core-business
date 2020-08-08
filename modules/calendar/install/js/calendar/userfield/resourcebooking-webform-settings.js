@@ -560,6 +560,7 @@
 		this.DOM = {};
 	}
 
+
 	ComplexTuneFormFieldAbstract.prototype = {
 		build: function (params)
 		{
@@ -782,7 +783,6 @@
 		};
 	};
 	//endregion
-
 
 	// region 'ResourcesComplexTuneFormField'
 	function ResourcesComplexTuneFormField()

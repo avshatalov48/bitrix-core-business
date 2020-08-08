@@ -136,7 +136,7 @@ class FileDiffTable extends DataManager
 		{
 			foreach ($filter as $key => $value)
 			{
-				if (empty($value))
+				if (empty($value) && $value !== '0')
 				{
 					continue;
 				}

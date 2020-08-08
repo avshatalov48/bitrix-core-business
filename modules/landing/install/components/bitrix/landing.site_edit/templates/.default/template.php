@@ -40,6 +40,9 @@ $isIntranet = $arResult['IS_INTRANET'];
 $context = \Bitrix\Main\Application::getInstance()->getContext();
 $request = $context->getRequest();
 $isSMN = $row['TYPE']['CURRENT'] == 'SMN';
+$domain = isset($arResult['DOMAINS'][$row['DOMAIN_ID']['CURRENT']])
+		? $arResult['DOMAINS'][$row['DOMAIN_ID']['CURRENT']]
+		: [];
 
 // title
 if ($arParams['SITE_ID'])
@@ -53,7 +56,8 @@ else
 
 // assets
 \CJSCore::init([
-	'color_picker', 'landing_master', 'action_dialog', 'access'
+	'color_picker', 'landing_master', 'action_dialog',
+	'access', 'sidepanel'
 ]);
 \Bitrix\Main\UI\Extension::load('ui.buttons');
 Asset::getInstance()->addCSS('/bitrix/components/bitrix/landing.site_edit/templates/.default/landing-forms.css');
@@ -69,6 +73,13 @@ $template = new Template($arResult);
 $uriSave = new \Bitrix\Main\Web\Uri(\htmlspecialcharsback(POST_FORM_ACTION_URI));
 $uriSave->addParams(array(
 	'action' => 'save'
+));
+$uriDomain = new \Bitrix\Main\Web\Uri(
+	str_replace('#site_edit#', $row['ID']['CURRENT'], $arParams['PAGE_URL_SITE_DOMAIN'])
+);
+$uriDomain->addParams(array(
+	'tab' => '__tab__',
+	'IFRAME' => 'Y'
 ));
 
 // access selector
@@ -104,6 +115,10 @@ if ($arResult['SHOW_RIGHTS'])
 <?
 if ($arParams['SUCCESS_SAVE'])
 {
+	if ($request->get('IFRAME') != 'Y')
+	{
+		$this->getComponent()->refresh([], ['action']);
+	}
 	return;
 }
 ?>
@@ -144,21 +159,96 @@ if ($arParams['SUCCESS_SAVE'])
 						<span class="landing-form-site-name-label">/</span>
 					</td>
 				</tr>
-				<?else:?>
+				<?elseif ($domain):?>
 				<tr class="landing-form-site-name-fieldset">
 					<td class="ui-form-label ui-form-label-align-top"><?= $row['CODE']['TITLE']?></td>
 					<td class="ui-form-right-cell">
-						<?$APPLICATION->IncludeComponent(
-							'bitrix:landing.domain_rename',
-							'.default',
-							array(
-								'TYPE' => $row['TYPE']['CURRENT'],
-								'DOMAIN_ID' => $row['DOMAIN_ID']['CURRENT'],
-								'FIELD_NAME' => 'fields[DOMAIN_ID]',
-								'FIELD_ID' => 'ui-domainname-text'
-							),
-							false
-						);?>
+						<div class="landing-domain">
+							<?if (Manager::isB24()):
+								$puny = new \CBXPunycode;
+								?>
+								<span class="landing-domain-name">
+									<span class="landing-domain-name-value"><?= $puny->decode($domain['DOMAIN']);?></span>
+									<a href="<?= str_replace('__tab__', '', $uriDomain->getUri());?>" class="ui-title-input-btn ui-editing-pen landing-domain-btn"></a>
+								</span>
+								<?if (!\Bitrix\Landing\Domain::getBitrix24Subdomain($domain['DOMAIN'])):?>
+									<?if (\Bitrix\Landing\Domain\Register::isDomainActive($domain['DOMAIN'])):?>
+										<div class="landing-domain-status landing-domain-status-active">
+											<div class="landing-domain-status-text"><?= Loc::getMessage('LANDING_TPL_DOMAIN_ACTIVATION_YES');?></div>
+										</div>
+									<?else:?>
+										<div class="landing-domain-status landing-domain-status-wait">
+											<div class="landing-domain-status-text"><?= Loc::getMessage('LANDING_TPL_DOMAIN_ACTIVATION_NO');?></div>
+											<div class="landing-domain-status-notice"><?= Loc::getMessage('LANDING_TPL_DOMAIN_ACTIVATION_INFO');?></div>
+										</div>
+									<?endif;?>
+								<?elseif ($arResult['REGISTER']->enable()):?>
+									<div class="landing-domain-status landing-domain-status-configure">
+										<div class="landing-domain-status-title"><?= Loc::getMessage('LANDING_TPL_DOMAIN_FREE_TEXT');?></div>
+										<a href="<?= str_replace('__tab__', 'provider', $uriDomain->getUri());?>" class="ui-btn ui-btn-primary ui-btn-sm ui-btn-round landing-domain-btn">
+											<?= Loc::getMessage('LANDING_TPL_DOMAIN_FREE_BUTTON');?>
+										</a>
+										<a href="<?= str_replace('__tab__', 'private', $uriDomain->getUri());?>" class="ui-btn ui-btn-light-border ui-btn-sm ui-btn-round landing-domain-btn">
+											<?= Loc::getMessage('LANDING_TPL_DOMAIN_PRIVATE_BUTTON');?>
+										</a>
+									</div>
+									<?else:?>
+										<div>
+											<a href="<?= str_replace('__tab__', 'private', $uriDomain->getUri());?>" class="ui-btn ui-btn-light-border ui-btn-sm ui-btn-round landing-domain-btn">
+												<?= Loc::getMessage('LANDING_TPL_DOMAIN_PRIVATE_BUTTON');?>
+											</a>
+										</div>
+										<script>
+											BX.ready(function() {
+												var domainBlock = document.querySelector('.landing-domain');
+												domainBlock.classList.add('landing-domain-own');
+											});
+										</script>
+									<?endif;?>
+									<script>
+										BX.ready(function()
+										{
+											var domainRenameLinks = [].slice.call(
+												document.querySelectorAll('.landing-domain-btn')
+											);
+											for (var i = 0, c = domainRenameLinks.length; i < c; i++)
+											{
+												BX.bind(domainRenameLinks[i], 'click', function()
+												{
+													top.BX.SidePanel.Instance.open(
+														this.getAttribute('href'),
+														{
+															width: 1000,
+															allowChangeHistory: false,
+															events: {
+																onClose: function(event)
+																{
+																	if (
+																		event.slider.url.indexOf('save=Y') !== -1 ||
+																		event.slider.url.indexOf('switch=Y') !== -1
+																	)
+																	{
+																		window.location.reload();
+																	}
+																}
+															}
+														}
+													);
+													BX.PreventDefault();
+												});
+											}
+										});
+									</script>
+									<?else:?>
+										<select name="fields[DOMAIN_ID]" class="ui-select">
+											<?foreach ($arResult['DOMAINS'] as $item):?>
+												<option value="<?= $item['ID']?>"<?if ($item['ID'] == $row['DOMAIN_ID']['CURRENT']){?> selected="selected"<?}?>>
+													<?= \htmlspecialcharsbx($item['DOMAIN']);?>
+												</option>
+											<?endforeach;?>
+										</select>
+									<?endif;?>
+						</div>
 					</td>
 				</tr>
 				<?endif;?>
@@ -192,7 +282,7 @@ if ($arParams['SUCCESS_SAVE'])
 						</div>
 					</td>
 				</tr>
-				<tr>
+				<tr data-landing-main-option="b24widget">
 					<td class="ui-form-label"><?= $pageFields['B24BUTTON_COLOR']->getLabel();?></td>
 					<td class="ui-form-right-cell">
 						<div class="landing-form-flex-box">
@@ -211,7 +301,7 @@ if ($arParams['SUCCESS_SAVE'])
 			<?if (isset($hooks['THEME'])):
 				$pageFields = $hooks['THEME']->getPageFields();
 				if (isset($pageFields['THEME_CODE'])): ?>
-					<tr>
+					<tr data-landing-main-option="theme">
 						<td class="ui-form-label"><?= $pageFields['THEME_CODE']->getLabel();?></td>
 						<td class="ui-form-right-cell">
 							<div class="landing-form-flex-box">
@@ -246,6 +336,16 @@ if ($arParams['SUCCESS_SAVE'])
 					</tr>
 				<? endif; ?>
 			<? endif;?>
+
+			<?php if (isset($hooks['THEMEFONTS'])):?>
+				<tr data-landing-main-option="themefonts">
+					<td class="ui-form-label ui-form-label-align-top"><?=$component->getMessageType('LANDING_TPL_FONTS')?></td>
+					<td class="ui-form-right-cell ui-form-right-cell-fonts">
+						<?$template->showMultiply('THEMEFONTS', true);?>
+					</td>
+				</tr>
+			<?php endif;?>
+
 			<?if (isset($hooks['UP'])):
 				$pageFields = $hooks['UP']->getPageFields();
 				if (isset($pageFields['UP_SHOW'])):
@@ -736,31 +836,48 @@ if ($arParams['SUCCESS_SAVE'])
 						<td class="ui-form-right-cell">
 							<!--							SPEED-->
 							<div class="ui-checkbox-block">
-								<?foreach(['USE_WEBPACK'] as $speedHook):?>
-									<?
-									if (isset($pageFields['SPEED_'.$speedHook]))
-									{
-										echo '<div class="ui-checkbox-hidden-input">';
-										if (!$pageFields['SPEED_'.$speedHook]->getValue())
+								<?php if (isset($pageFields['SPEED_USE_WEBPACK'])):?>
+									<div class="ui-checkbox-hidden-input">
+									<?php
+										if (!$pageFields['SPEED_USE_WEBPACK']->getValue())
 										{
-											$pageFields['SPEED_'.$speedHook]->setValue('N');
+											$pageFields['SPEED_USE_WEBPACK']->setValue('Y');
 										}
-										echo $pageFields['SPEED_'.$speedHook]->viewForm(array(
+										echo $pageFields['SPEED_USE_WEBPACK']->viewForm(array(
 											'class' => 'ui-checkbox',
-											'id' => 'checkbox-speed-'.strtolower($speedHook),
+											'id' => 'checkbox-speed-'.mb_strtolower('USE_WEBPACK'),
+											'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
+										));
+									?>
+										<div class="ui-checkbox-label-wrapper">
+											<label for="checkbox-speed-<?=mb_strtolower('USE_WEBPACK')?>" class="ui-checkbox-label">
+												<?=$pageFields['SPEED_USE_WEBPACK']->getLabel();?>
+											</label>
+										</div>
+									</div>
+								<?php endif;?>
+
+								<?php if (isset($pageFields['SPEED_USE_LAZY'])):?>
+									<div class="ui-checkbox-hidden-input">
+										<?php
+										// todo: can use foreach(hooks) with webpack
+										if (!$pageFields['SPEED_USE_LAZY']->getValue())
+										{
+											$pageFields['SPEED_USE_LAZY']->setValue('Y');
+										}
+										echo $pageFields['SPEED_USE_LAZY']->viewForm(array(
+											'class' => 'ui-checkbox',
+											'id' => 'checkbox-speed-'.strtolower('USE_LAZY'),
 											'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
 										));
 										?>
 										<div class="ui-checkbox-label-wrapper">
-											<label for="checkbox-speed-<?=strtolower($speedHook)?>" class="ui-checkbox-label">
-												<?= $pageFields['SPEED_'.$speedHook]->getLabel();?>
+											<label for="checkbox-speed-<?=strtolower('USE_LAZY')?>" class="ui-checkbox-label">
+												<?=$pageFields['SPEED_USE_LAZY']->getLabel();?>
 											</label>
 										</div>
-										<?
-										echo '</div>';
-									}
-									?>
-								<? endforeach; ?>
+									</div>
+								<?php endif;?>
 							</div>
 							<div class="landing-form-help-link">
 								<?= $pageFields['SPEED_USE_WEBPACK']->getHelpValue();?>
@@ -788,7 +905,7 @@ if ($arParams['SUCCESS_SAVE'])
 								<div class="ui-checkbox-hidden-input-inner">
 									<?if (isset($pageFields['HEADBLOCK_USE'])):?>
 										<label class="ui-checkbox-label" for="checkbox-headblock-use">
-											<?= $pageFields['HEADBLOCK_USE']->getLabel();?>
+											<?= Loc::getMessage('LANDING_TPL_HOOK_HEADBLOCK_USE');?>
 										</label>
 										<?if ($hooks['HEADBLOCK']->isLocked()):?>
 										<span class="landing-icon-lock"></span>
@@ -851,7 +968,7 @@ if ($arParams['SUCCESS_SAVE'])
 								<div class="ui-checkbox-hidden-input-inner">
 									<?if (isset($pageFields['CSSBLOCK_USE'])):?>
 										<label class="ui-checkbox-label" for="checkbox-headblock-css">
-											<?= $pageFields['CSSBLOCK_USE']->getLabel();?>
+											<?= Loc::getMessage('LANDING_TPL_HOOK_HEADBLOCK_USE');?>
 										</label>
 									<?endif;?>
 									<?if (isset($pageFields['CSSBLOCK_CODE'])):?>

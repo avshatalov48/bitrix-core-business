@@ -171,6 +171,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 							'MENU_NAME' => $name
 						));
 					}
+
+					$eventFields = [
+						"APP_ID" => $appId,
+						"IS_NEW_APP" => $arResult["APP"]['ID'] > 0 ? true : false
+					];
+					foreach(GetModuleEvents("rest", "OnRestAppInstall", true) as $eventHandler)
+					{
+						ExecuteModuleEventEx($eventHandler, array($eventFields));
+					}
 				}
 				else
 				{

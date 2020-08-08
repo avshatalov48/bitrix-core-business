@@ -1,21 +1,24 @@
-var MainUserConsentEditManager = function(params)
+;(function ()
 {
-	this.init = function (params)
+	BX.namespace('BX.Main.UserConsent');
+
+	BX.Main.UserConsent.Edit = function (params)
 	{
+		this.isSaved = params.isSaved;
 		this.mess = params.mess;
+		this.listDomIds = params.listDomIds;
 
-		var container = BX('USER_CONSENT_CONTAINER');
-		this.container = container;
+		this.container = BX(this.listDomIds['formContainerId']);
 
-		this.typeNode = container.querySelector('[data-bx-type-input]');
-		this.langNode = container.querySelector('[data-bx-lang-input]');
+		this.typeNode = this.container.querySelector('[data-bx-type-input]');
+		this.langNode = this.container.querySelector('[data-bx-lang-input]');
 
-		this.typeSelectorNode = container.querySelector('[data-bx-type-selector]');
-		this.typeViewNode = container.querySelector('[data-bx-type-view]');
-		this.dataProviderNode = container.querySelector('[data-bx-data-provider]');
-		this.dataProviderInputNode = container.querySelector('[data-bx-data-provider-input]');
-		this.dataProviderUrlNode = container.querySelector('[data-bx-data-provider-url]');
-		this.fieldListNodes = container.querySelectorAll('[data-bx-fields]');
+		this.typeSelectorNode = this.container.querySelector('[data-bx-type-selector]');
+		this.typeViewNode = this.container.querySelector('[data-bx-type-view]');
+		this.dataProviderNode = this.container.querySelector('[data-bx-data-provider]');
+		this.dataProviderInputNode = this.container.querySelector('[data-bx-data-provider-input]');
+		this.dataProviderUrlNode = this.container.querySelector('[data-bx-data-provider-url]');
+		this.fieldListNodes = this.container.querySelectorAll('[data-bx-fields]');
 		this.fieldListNodes = BX.convert.nodeListToArray(this.fieldListNodes);
 
 		BX.bind(this.typeViewNode, 'click', this.showAgreementText.bind(this));
@@ -50,9 +53,82 @@ var MainUserConsentEditManager = function(params)
 			});
 		}
 
+		if (this.isSaved)
+		{
+			this.sendEventMessageAboutSave();
+		}
 	};
 
-	this.onDataProviderChange = function()
+	BX.Main.UserConsent.Edit.prototype.showTextTab = function ()
+	{
+		this.container.style.display = '';
+		BX(this.listDomIds['listContainerId']).style.display = 'none';
+
+		BX(this.listDomIds['fieldNameId']).style.display = '';
+		BX(this.listDomIds['fieldTypeId']).style.display = '';
+		BX(this.listDomIds['fieldProviderId']).style.display = '';
+
+		this.showTab('text');
+	};
+
+	BX.Main.UserConsent.Edit.prototype.showSettingsTab = function ()
+	{
+		this.container.style.display = '';
+		BX(this.listDomIds['listContainerId']).style.display = 'none';
+
+		BX(this.listDomIds['fieldNameId']).style.display = 'none';
+		BX(this.listDomIds['fieldTypeId']).style.display = 'none';
+		BX(this.listDomIds['fieldProviderId']).style.display = 'none';
+
+		this.showTab('settings');
+	};
+
+	BX.Main.UserConsent.Edit.prototype.showListTab = function ()
+	{
+		this.container.style.display = 'none';
+		BX(this.listDomIds['listContainerId']).style.display = '';
+	};
+
+	BX.Main.UserConsent.Edit.prototype.showTab = function (type)
+	{
+		this.fieldListNodes.forEach(function (fieldListNode) {
+			if (this.isTypeVisible(fieldListNode))
+			{
+				var fieldNodes = fieldListNode.querySelectorAll('[data-bx-field]');
+				var listFields = BX.convert.nodeListToArray(fieldNodes);
+				listFields.forEach(function (fieldNode) {
+					if (fieldNode.getAttribute('data-bx-tab') === type)
+					{
+						fieldNode.style.display = '';
+					}
+					else
+					{
+						fieldNode.style.display = 'none';
+					}
+				}.bind(this));
+			}
+		}.bind(this));
+	}
+
+	BX.Main.UserConsent.Edit.prototype.submit = function ()
+	{
+		BX(this.listDomIds['formId']).submit();
+	};
+
+	BX.Main.UserConsent.Edit.prototype.sendEventMessageAboutSave = function ()
+	{
+		if (window.top === window)
+		{
+			return;
+		}
+		if (!window.top.BX)
+		{
+			return;
+		}
+		window.top.BX.onCustomEvent(window.top, 'main-user-consent-saved', []);
+	}
+
+	BX.Main.UserConsent.Edit.prototype.onDataProviderChange = function()
 	{
 		var option = this.dataProviderInputNode.options[this.dataProviderInputNode.selectedIndex];
 		var data = option.getAttribute('data-bx-data');
@@ -79,7 +155,7 @@ var MainUserConsentEditManager = function(params)
 		this.showFieldsDataProvider(data, provider);
 	};
 
-	this.onTypeChange = function()
+	BX.Main.UserConsent.Edit.prototype.onTypeChange = function()
 	{
 		var option = this.typeSelectorNode.options[this.typeSelectorNode.selectedIndex];
 		var type = option.getAttribute('data-bx-type');
@@ -96,14 +172,18 @@ var MainUserConsentEditManager = function(params)
 		this.dataProviderNode.style.display = isSupportDataProviders ? '' : 'none';
 
 		this.fieldListNodes.forEach(function (fieldListNode) {
-			var fieldType = fieldListNode.getAttribute('data-bx-type');
-			var fieldLang = fieldListNode.getAttribute('data-bx-lang');
-			var isVisible = type == fieldType && lang == fieldLang;
-			fieldListNode.style.display = isVisible ? '' : 'none';
-		});
+			fieldListNode.style.display = this.isTypeVisible(fieldListNode) ? '' : 'none';
+		}.bind(this));
 	};
 
-	this.showAgreementText = function()
+	BX.Main.UserConsent.Edit.prototype.isTypeVisible = function(fieldListNode)
+	{
+		var fieldType = fieldListNode.getAttribute('data-bx-type');
+		var fieldLang = fieldListNode.getAttribute('data-bx-lang');
+		return (this.typeNode.value === fieldType && this.langNode.value === fieldLang);
+	};
+
+	BX.Main.UserConsent.Edit.prototype.showAgreementText = function()
 	{
 		var text = this.typeViewNode.getAttribute('data-bx-text');
 		if (!text)
@@ -148,7 +228,7 @@ var MainUserConsentEditManager = function(params)
 		this.agreementViewPopup.show();
 	};
 
-	this.showFieldsDataProvider = function(data, provider)
+	BX.Main.UserConsent.Edit.prototype.showFieldsDataProvider = function(data, provider)
 	{
 		var hideAttribute = 'data-bx-is-data-prov-hide';
 		var changeDisplay = function (isInputVisible, field) {
@@ -179,7 +259,7 @@ var MainUserConsentEditManager = function(params)
 		});
 	};
 
-	this.getFields = function(context)
+	BX.Main.UserConsent.Edit.prototype.getFields = function(context)
 	{
 		return this.getFieldNodes(context).map(function (fieldNode) {
 			return {
@@ -197,11 +277,10 @@ var MainUserConsentEditManager = function(params)
 		});
 	};
 
-	this.getFieldNodes = function(context)
+	BX.Main.UserConsent.Edit.prototype.getFieldNodes = function(context)
 	{
 		var fieldNodes = context.querySelectorAll('[data-bx-field]');
 		return BX.convert.nodeListToArray(fieldNodes);
 	};
 
-	this.init(params);
-};
+})();

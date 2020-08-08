@@ -28,7 +28,20 @@ BX.BXSF.init = function(params) {
 	}
 
 	BX.bind(BX("sonet_group_features_form_button_cancel"), "click", function(event) {
-		BX.SidePanel.Instance.close();
+
+		if (BX.SidePanel.Instance.getSliderByWindow(window))
+		{
+			BX.SidePanel.Instance.close();
+		}
+		else
+		{
+			var url = event.currentTarget.getAttribute('bx-url');
+			if (BX.type.isNotEmptyString(url))
+			{
+				window.location=url;
+			}
+		}
+
 		event.preventDefault();
 	});
 

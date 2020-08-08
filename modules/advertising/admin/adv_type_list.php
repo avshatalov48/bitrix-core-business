@@ -96,7 +96,7 @@ if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 	{
 		$ob = new CAdvType;
 
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
 
 		switch($_REQUEST['action'])

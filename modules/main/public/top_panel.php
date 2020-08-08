@@ -851,26 +851,6 @@ class CTopPanel
 					"HK_ID"	=>"top_panel_debug_time",
 				),
 			);
-			if(\Bitrix\Main\Loader::includeModule("compression") && CCompress::CheckCanGzip() !== 0)
-			{
-				$bShowCompressed = isset($_SESSION["SESS_COMPRESS"]) && $_SESSION["SESS_COMPRESS"] == "Y";
-				if(isset($_GET["compress"]))
-				{
-					if($_GET["compress"] === "Y" || $_GET["compress"] === "y")
-						$bShowCompressed = true;
-					elseif($_GET["compress"] === "N" || $_GET["compress"] === "n")
-						$bShowCompressed = false;
-				}
-
-				$arMenu[] = array("SEPARATOR"=>true);
-				$arMenu[] = array(
-					"TEXT"=>GetMessage("top_panel_debug_compr"),
-					"TITLE"=>GetMessage("top_panel_debug_compr_title"),
-					"CHECKED"=>(!!$bShowCompressed),
-					"ACTION"=>"jsUtils.Redirect([], '".CUtil::addslashes($APPLICATION->GetCurPageParam("compress=".($bShowCompressed? "N" : "Y"), array("compress")))."');",
-					"HK_ID"=>"top_panel_debug_compr",
-				);
-			}
 
 			$APPLICATION->AddPanelButton(array(
 				"HREF"=>$url,

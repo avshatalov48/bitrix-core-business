@@ -51,10 +51,10 @@ abstract class CBaseSaleReportHelper extends CReportHelper
 		{
 			$id = (int)$row['ID'];
 			$title = $row['TITLE'];
-			if (is_string($title) && strlen($title) > 0)
+			if (is_string($title) && $title <> '')
 			{
 				$titleMsg = GetMessage('SALE_REPORT_DEFAULT_MOST_EXPECTED_GOODS');
-				if ($title === $titleMsg && is_string($row['SETTINGS']) && strlen($row['SETTINGS']) > 0)
+				if ($title === $titleMsg && is_string($row['SETTINGS']) && $row['SETTINGS'] <> '')
 				{
 					$settings = unserialize($row['SETTINGS']);
 					if (is_array($settings))
@@ -65,11 +65,11 @@ abstract class CBaseSaleReportHelper extends CReportHelper
 						{
 							if (isset($settings['select'][$aliasNum]['alias'])
 								&& is_string($settings['select'][$aliasNum]['alias'])
-								&& strlen($settings['select'][$aliasNum]['alias']) > 0)
+								&& $settings['select'][$aliasNum]['alias'] <> '')
 							{
 								$alias = $settings['select'][$aliasNum]['alias'];
 								$aliasMsg = GetMessage('SALE_REPORT_DEFAULT_MOST_EXPECTED_GOODS_ALIAS_'.$msgNum);
-								if (is_string($aliasMsg) && strlen($aliasMsg) > 0 && $alias !== $aliasMsg)
+								if (is_string($aliasMsg) && $aliasMsg <> '' && $alias !== $aliasMsg)
 								{
 									$settings['select'][$aliasNum]['alias'] = $aliasMsg;
 									$needUpdate = true;
@@ -232,7 +232,7 @@ abstract class CBaseSaleReportHelper extends CReportHelper
 				self::$catalogs[] = $ibRow;
 				$path = array();
 				$curLevel = $prevLevel = 0;
-				$sections = CIBlockSection::GetTreeList(array('=IBLOCK_ID'=>$ibRow['IBLOCK_ID']));
+				$sections = CIBlockSection::GetTreeList(array('=IBLOCK_ID'=>$ibRow['IBLOCK_ID']), array('ID', 'IBLOCK_ID', 'NAME', 'DEPTH_LEVEL', 'LEFT_MARGIN'));
 				$row = null;
 				while($row = $sections->GetNext())
 				{
@@ -460,7 +460,7 @@ abstract class CBaseSaleReportHelper extends CReportHelper
 
 	public static function getHelperByOwner($ownerId)
 	{
-		return 'CSaleReport'.substr($ownerId,strlen(SALE_REPORT_OWNER_ID)+1).'Helper';
+		return 'CSaleReport'.mb_substr($ownerId, mb_strlen(SALE_REPORT_OWNER_ID) + 1).'Helper';
 	}
 
 	public static function getDefaultReports()
@@ -1081,7 +1081,7 @@ abstract class CBaseSaleReportHelper extends CReportHelper
 		}
 		return $html;
 	}
-	
+
 	public static function calculateInReportCurrency($value)
 	{
 		$res = $value;
@@ -1607,7 +1607,7 @@ class CSaleReportSaleOrderHelper extends CBaseSaleReportHelper
 							),
 							true))
 				{
-					$userDef = substr($elem['name'], 0, -11);
+					$userDef = mb_substr($elem['name'], 0, -11);
 					$href = array('pattern' => '/bitrix/admin/sale_buyers_profile.php?USER_ID=#'.$userDef.'.ID#&lang='.LANG);
 				}
 			}
@@ -1903,7 +1903,7 @@ class CSaleReportUserHelper extends CBaseSaleReportHelper
 		{
 			if ($k === 'LOGIC') continue;
 			if (is_array($v)) return(self::fieldInFilter($v, $fieldPathStr));
-			else if (strpos($k, $fieldPathStr) !== false) return true;
+			else if (mb_strpos($k, $fieldPathStr) !== false) return true;
 		}
 		return false;
 	}
@@ -1914,7 +1914,7 @@ class CSaleReportUserHelper extends CBaseSaleReportHelper
 		$bResult = false;
 		foreach (array_keys($select) as $k)
 		{
-			if (strpos($k, '_SALE_ORDER_USER_') !== false)
+			if (mb_strpos($k, '_SALE_ORDER_USER_') !== false)
 			{
 				$bResult = true;
 				break;
@@ -2524,7 +2524,7 @@ class CSaleReportSaleBasketHelper extends CBaseSaleReportHelper
 							{
 								if (is_string($filterValue) && $filterValue[0] == 'c')
 								{
-									$iblockFilterValue[] = intval(substr($filterValue, 1));
+									$iblockFilterValue[] = intval(mb_substr($filterValue, 1));
 									// The filter on a section is deleted if the filter only according
 									// to the catalog is necessary
 									unset($arFilterValues[$l]);
@@ -2852,7 +2852,7 @@ class CSaleReportSaleBasketHelper extends CBaseSaleReportHelper
 					),
 					true))
 				{
-					$userDef = substr($elem['name'], 0, -11);
+					$userDef = mb_substr($elem['name'], 0, -11);
 					$href = array('pattern' => '/bitrix/admin/sale_buyers_profile.php?USER_ID=#'.$userDef.'.ID#&lang='.LANG);
 				}
 			}
@@ -3269,7 +3269,7 @@ class CSaleReportSaleProductHelper extends CBaseSaleReportHelper
 							{
 								if (is_string($filterValue) && $filterValue[0] == 'c')
 								{
-									$iblockFilterValue[] = intval(substr($filterValue, 1));
+									$iblockFilterValue[] = intval(mb_substr($filterValue, 1));
 									// The filter on a section is deleted if the filter only according
 									// to the catalog is necessary
 									unset($arFilterValues[$l]);
@@ -3481,15 +3481,15 @@ class CSaleReportSaleProductHelper extends CBaseSaleReportHelper
 		// runtime fields which align right
 		if (self::$bUsePriceTypesColumns)
 		{
-			if (strpos($k, 'PRICE_TYPE_') === 0 && is_numeric(substr($k, 11))) $cInfo['align'] = 'right';
+			if (mb_strpos($k, 'PRICE_TYPE_') === 0 && is_numeric(mb_substr($k, 11))) $cInfo['align'] = 'right';
 		}
 
 		// Formatting fields of price types
 		if (preg_match('/[A-Za-z_]*PRICE_TYPE_[0-9]+$/', $k) && !empty($v) && $v !== '&nbsp;')
 		{
 			$v = trim($v);
-			$spacePos = strpos(trim($v), ' ');
-			$v = number_format(doubleval(substr($v, 0, $spacePos)), 2, '.', ' ').substr($v, $spacePos);
+			$spacePos = mb_strpos(trim($v), ' ');
+			$v = number_format(doubleval(mb_substr($v, 0, $spacePos)), 2, '.', ' ').mb_substr($v, $spacePos);
 		}
 	}
 
@@ -3548,8 +3548,8 @@ class CSaleReportSaleProductHelper extends CBaseSaleReportHelper
 				if (preg_match('/[A-Za-z_]*PRICE_TYPE_[0-9]+$/', $k) && !empty($v) && $v !== '&nbsp;')
 				{
 					$v = trim($v);
-					$spacePos = strpos($v, ' ');
-					$v = number_format(doubleval(substr($v, 0, $spacePos)), 2, '.', ' ').substr($v, $spacePos);
+					$spacePos = mb_strpos($v, ' ');
+					$v = number_format(doubleval(mb_substr($v, 0, $spacePos)), 2, '.', ' ').mb_substr($v, $spacePos);
 				}
 			}
 		}

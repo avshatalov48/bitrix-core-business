@@ -44,7 +44,9 @@
 
 		this.bindNodes();
 		this.initFields();
+		this.loadFrame();
 	};
+
 	Editor.prototype.initFields = function ()
 	{
 		var fieldNodes = this.context.querySelectorAll('[data-bx-field]');
@@ -55,6 +57,28 @@
 			Helper.tag.init(fieldNode, node);
 		}, this);
 	};
+
+	Editor.prototype.loadFrame = function()
+	{
+		var frameNode = Helper.getNode('bx-sender-template-iframe', this.context);
+
+
+		if(frameNode)
+		{
+			frameNode.src = this.ajaxAction.getRequestingUri('prepareHtml', {
+				'lang': '',
+				'messageId': this.messageId
+			});
+
+			frameNode.onload = function()
+			{
+				var loader = Helper.getNode('bx-sender-view-loader',  BX.Sender.Message.Editor.context);
+				loader.style.display = 'none';
+				frameNode.style.display = 'block';
+			};
+		}
+	};
+
 	Editor.prototype.onMoreClick = function ()
 	{
 		Helper.display.toggle(this.moreFields);

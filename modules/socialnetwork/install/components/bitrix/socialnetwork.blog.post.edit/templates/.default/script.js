@@ -15,6 +15,7 @@
 		this.lastWait = [];
 		this.animationStartHeight = 0;
 		this.initedEditorsList = [];
+		this.options = {};
 	};
 
 	window.SBPEFullForm.instance = null;
@@ -30,6 +31,30 @@
 	};
 
 	window.SBPEFullForm.prototype = {
+
+		setOption: function(key, value)
+		{
+			if (!BX.type.isNotEmptyString(key))
+			{
+				return;
+			}
+
+			this.options[key] = value;
+		},
+
+		onShow: function()
+		{
+			if(
+				BX.type.isNotEmptyString(this.options.startVideoRecorder)
+				&& this.options.startVideoRecorder == 'Y'
+			)
+			{
+				setTimeout(function() {
+					BX.onCustomEvent(BX('divoPostFormLHE_blogPostForm' ), 'OnShowLHE', ['justShow']);
+					BX.VideoRecorder.start('blogPostForm', 'post');
+				}, 500);
+			}
+		},
 
 		onSliderClose: function() {
 
@@ -292,101 +317,22 @@
 
 		tasksTaskEvent : function(taskId)
 		{
-			this.showTaskPopup(taskId);
-		},
+			var taskLink = BX.message('PATH_TO_USER_TASKS_TASK').replace('#user_id#', BX.message('USER_ID')).replace('#task_id#', taskId).replace('#action#', 'view');
 
-		showTaskPopup : function(taskId)
-		{
-			this.createTaskPopup = new BX.PopupWindow("blogPostEditCreateTaskPopup", null, {
-				autoHide: false,
-				zIndex: 0,
-				offsetLeft: 0,
-				offsetTop: 0,
-				overlay: false,
-				lightShadow: true,
-				closeIcon: {
-					right : "12px",
-					top : "10px"
-				},
-				draggable: {
-					restrict:true
-				},
-				closeByEsc: false,
-				contentColor : 'white',
-				contentNoPaddings: true,
-				buttons: [],
-				content: BX.create('DIV', {
-					attrs: {
-						id: 'blogPostEditCreateTaskPopup_content'
-					},
-					props: {
-						className: 'feed-create-task-popup-content'
+			window.top.BX.UI.Notification.Center.notify({
+				content: BX.message('sonetBPECreateTaskSuccessTitle'),
+				actions: [{
+					title: BX.message('sonetBPECreateTaskButtonTitle'),
+					events: {
+						click: function(event, balloon, action) {
+							balloon.close();
+							window.top.BX.SidePanel.Instance.open(taskLink);
+						}
 					}
-				}),
-				events: {
-					onAfterPopupShow: BX.proxy(function()
-					{
-						this.setTaskPopupContent(BX.create('DIV', {
-							children: [
-								BX.create('DIV', {
-									props: {
-										className: 'feed-create-task-popup-title'
-									},
-									html: BX.message('sonetBPECreateTaskSuccessTitle')
-								}),
-								BX.create('DIV', {
-									props: {
-										className: 'feed-create-task-popup-description'
-									},
-									html: BX.message('sonetBPECreateTaskSuccessDescription')
-								})
-							]
-						}));
+				}]
 
-						this.createTaskPopup.setButtons([
-							new BX.PopupWindowButton({
-								text : BX.message('sonetBPECreateTaskButtonTitle'),
-								events : {
-									click : BX.proxy(function() {
-										this.createTaskPopup.destroy();
-
-										var taskLink = BX.message('PATH_TO_USER_TASKS_TASK').replace('#user_id#', BX.message('USER_ID')).replace('#task_id#', taskId).replace('#action#', 'view');
-										if (
-											typeof BX.Bitrix24 != 'undefined'
-											&& typeof BX.Bitrix24.PageSlider != 'undefined'
-										)
-										{
-											BX.Bitrix24.PageSlider.open(taskLink);
-										}
-										else
-										{
-											window.open(taskLink, '_blank');
-										}
-									}, this)
-								}
-							})
-						]);
-					}, this),
-					onPopupClose: BX.proxy(function() {
-						this.createTaskPopup.destroy();
-					}, this)
-				}
 			});
-
-			this.createTaskPopup.params.zIndex = (BX.WindowManager ? BX.WindowManager.GetZIndex() : 0);
-			this.createTaskPopup.show();
 		},
-
-		setTaskPopupContent : function(contentNode)
-		{
-			if (BX('blogPostEditCreateTaskPopup_content'))
-			{
-				var containerNode = BX('blogPostEditCreateTaskPopup_content');
-				BX.cleanNode(containerNode);
-				containerNode.appendChild(contentNode);
-			}
-		}
-
 	};
 
 	window.SBPETabs = function()
@@ -406,7 +352,6 @@
 		this.menuItems = [];
 		this.lastWait = [];
 		this.clickDisabled = false;
-		this.createTaskPopup = null;
 
 		if (this.inited !== true)
 			this.init();

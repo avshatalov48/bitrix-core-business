@@ -124,6 +124,7 @@
     color: #545c6a;
     -webkit-transition: background .3s ease, color .3s ease;
     transition: background .3s ease, color .3s ease;
+	margin-left: auto!important;
 }
 
 .main-buttons-item-more:hover,
@@ -642,4 +643,104 @@
 
 .menu-popup-item.main-buttons-submenu-item.main-buttons-item-active .main-buttons-item-text-title {
 	color: #2067b0;
+}
+
+.main-buttons-item[data-parent-item-id] .main-buttons-item-edit-button,
+.main-buttons-item[data-has-child] .main-buttons-item-edit-button,
+.main-buttons-item[data-parent-item-id] .main-buttons-item-drag-button,
+.main-buttons-item[data-has-child] .main-buttons-item-drag-button {
+	display: none!important;
+}
+
+.main-buttons-item-child {
+	display: inline-flex;
+	margin-right: 44px;
+	margin-left: -48px;
+	position: relative;
+}
+
+.main-buttons-item-child[data-is-opened="true"]:not(.main-buttons-item-child-button-cloned) {
+	margin-left: 0;
+	margin-right: 51px;
+}
+
+.main-buttons-item-child-list {
+	flex-grow: 1;
+	overflow: hidden;
+	max-width: 0;
+	opacity: 0;
+	transition: 200ms max-width ease, 200ms opacity ease;
+}
+
+.main-buttons-item-child[data-is-opened="true"] .main-buttons-item-child-list {
+	opacity: 1;
+}
+
+.main-buttons-item-child-list-inner {
+	white-space: nowrap;
+	margin-left: 32px;
+}
+
+.main-buttons-item-child[data-is-opened="true"] .main-buttons-item-child-list-inner {
+	margin-left: 0;
+}
+
+.main-buttons-item-child-button {
+	position: absolute;
+	width: 26px;
+	height: 60px;
+	border-right: 1px rgba(82, 92, 105, .6) solid;
+	cursor: pointer;
+	top: 0;
+	right: -28px;
+	transition: 200ms border ease;
+}
+
+.main-buttons-item-child-button::after {
+	background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg width='6px' height='10px' viewBox='0 0 6 10' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Ctitle%3EIcons /?·?Set 1 / Icon 14%3C/title%3E%3Cg id='Page-1' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg id='ui-/-common-/-top-navigation-divider' transform='translate(-91.000000, -25.000000)'%3E%3Crect id='Rectangle-8' x='0' y='0' width='976' height='60'%3E%3C/rect%3E%3Cg id='Icons-/-·-Set-1-/-Icon-14' transform='translate(87.000000, 23.000000)' fill='%23525C69'%3E%3Cpolygon id='Icon' points='4.76025178 3.70042132 7.40103151 6.34120105 8.08503572 7 7.40103151 7.6591903 4.76025178 10.29997 5.69210783 11.2318261 9.92370058 7.00023333 5.69210783 2.76864058'%3E%3C/polygon%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: contain;
+	display: inline-block;
+	content: '';
+	position: absolute;
+	width: 6px;
+	height: 10px;
+	top: 53%;
+	left: 50%;
+	transform: translateY(-50%) translateX(-50%);
+}
+
+.main-buttons-item-child-button:hover {
+	border-right: 1px rgba(82, 92, 105, 1) solid;
+}
+
+.main-buttons-item-child-button:hover::after {
+	background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg width='6px' height='10px' viewBox='0 0 6 10' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Ctitle%3EIcons /?·?Set 1 / Icon 14%3C/title%3E%3Cg id='Page-1' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg id='ui-/-common-/-top-navigation-divider' transform='translate(-91.000000, -25.000000)'%3E%3Crect id='Rectangle-8' x='0' y='0' width='976' height='60'%3E%3C/rect%3E%3Cg id='Icons-/-·-Set-1-/-Icon-14' transform='translate(87.000000, 23.000000)' fill='%23333333'%3E%3Cpolygon id='Icon' points='4.76025178 3.70042132 7.40103151 6.34120105 8.08503572 7 7.40103151 7.6591903 4.76025178 10.29997 5.69210783 11.2318261 9.92370058 7.00023333 5.69210783 2.76864058'%3E%3C/polygon%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+[data-is-opened] .main-buttons-item-child-button::after {
+	top: 54%;
+	transform: translateY(-50%) translateX(-50%) scale(-1, -1);
+}
+
+[data-is-opened] .main-buttons-item-child-button {
+	right: -35px;
+}
+
+.main-buttons-item-child-button-cloned {
+	margin-right: 33px;
+	margin-left: -49px;
+	opacity: 0;
+	transition: opacity 200ms ease;
+}
+
+.main-buttons-item-child-button-cloned .main-buttons-item-child-button {
+	border-right: none;
+	top: -36px;
+	right: -28px;
+}
+
+.main-buttons-item-child-button-cloned:hover {
+	opacity: .6;
 }

@@ -53,7 +53,7 @@ class CCloudTempFile
 			}
 			elseif ($i < 25)
 			{
-				$dir_add = substr(md5(mt_rand()), 0, 3);
+				$dir_add = mb_substr(md5(mt_rand()), 0, 3);
 			}
 			else
 			{
@@ -109,7 +109,7 @@ class CCloudTempFile
 		else //Fixed name during the session
 		{
 			$subdir = implode("/", (is_array($subdir) ? $subdir : array($subdir, bitrix_sessid())))."/";
-			while (strpos($subdir, "//") !== false)
+			while (mb_strpos($subdir, "//") !== false)
 			{
 				$subdir = str_replace("//", "/", $subdir);
 			}
@@ -147,6 +147,47 @@ class CCloudTempFile
 		return $temp_path;
 	}
 
+	protected static $my_pid = '';
+	/**
+	 * @param bool $lock
+	 * @return bool
+	 */
+	protected static function cleanupFilesLock($lock = true)
+	{
+		if (!self::$my_pid)
+		{
+			self::$my_pid = md5(mt_rand());
+		}
+
+		$obCacheLock = null;
+		$cache_ttl = 300;
+		$uniq_str = 'cleanupFiles';
+		$init_dir = 'clouds';
+
+		$obCacheLock = new CPHPCache();
+		if ($lock)
+		{
+			if ($obCacheLock->InitCache($cache_ttl, $uniq_str, $init_dir))
+			{
+				$vars = $obCacheLock->GetVars();
+				if (self::$my_pid !== $vars['pid'])
+				{
+					return false; //There is other cleaning process
+				}
+			}
+			elseif ($obCacheLock->StartDataCache())
+			{
+				$obCacheLock->EndDataCache(array('pid' => self::$my_pid));
+			}
+		}
+		else
+		{
+			$obCacheLock->Clean($uniq_str, $init_dir);
+		}
+
+		return true;
+	}
+
 	/**
 	 * @param CCloudStorageBucket $obBucket
 	 * @param string $dir_name
@@ -155,28 +196,39 @@ class CCloudTempFile
 	 */
 	protected static function cleanupFiles($obBucket, $dir_name, $files)
 	{
+
 		$date = new \Bitrix\Main\Type\DateTime();
 		$date->setTimeZone(new DateTimeZone("UTC"));
 		$date->add("-1D");
 		$tmp_expiration_time = $date->format('Y-m-d')."T".$date->format('H:i:s');
 		$now = date('Y-m-d/H/', time());
+
 		foreach ($files['file'] as $i => $filePath)
 		{
+			//Files cleanup
 			if (preg_match("#^BXTEMP-(....-..-../../)#", $filePath, $match) && $match[1] < $now)
 			{
-				if (!$obBucket->DeleteFile($dir_name.$filePath))
+				if (!static::cleanupFilesLock())
 				{
-					return false; //There is other cleaning process processing
+					return false;
 				}
+				$obBucket->DeleteFile($dir_name.$filePath);
 			}
 			elseif ($files["file_mtime"][$i] < $tmp_expiration_time)
 			{
-				if (!$obBucket->DeleteFile($dir_name.$filePath))
+				if (!static::cleanupFilesLock())
 				{
-					return false; //There is other cleaning process processing
+					return false;
 				}
+				$obBucket->DeleteFile($dir_name.$filePath);
 			}
 		}
+
+		if (static::cleanupFilesLock())
+		{
+			static::cleanupFilesLock(false);
+		}
+
 		return true;
 	}
 
@@ -191,7 +243,7 @@ class CCloudTempFile
 			{
 				$obBucket->DeleteFile($bucket['filePath']);
 			}
-			else
+			elseif (static::cleanupFilesLock())
 			{
 				$dir_name = self::GetAbsoluteRoot()."/";
 				$list = $obBucket->ListFiles($dir_name, true);
@@ -199,6 +251,7 @@ class CCloudTempFile
 				{
 					static::cleanupFiles($obBucket, $dir_name, $list);
 				}
+				static::cleanupFilesLock(false);
 			}
 		}
 	}

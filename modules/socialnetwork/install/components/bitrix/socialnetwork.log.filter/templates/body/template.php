@@ -7,7 +7,7 @@ if (!is_array($arResult["PresetFilters"]) &&
 $isFiltered = false;
 foreach (array("flt_created_by_id", "flt_group_id", "flt_date_datesel", "flt_show_hidden") as $param)
 {
-	if (array_key_exists($param, $_GET) && (strlen($_GET[$param]) > 0) && ($_GET[$param] !== "0"))
+	if (array_key_exists($param, $_GET) && ($_GET[$param] <> '') && ($_GET[$param] !== "0"))
 	{
 		$isFiltered = true;
 		break;
@@ -41,7 +41,9 @@ if ($arResult["MODE"] == "AJAX")
 		{
 			$rsUser = CUser::GetByID($createdByID);
 			if ($arUser = $rsUser->Fetch())
-				$userName = CUser::FormatName($arParams["NAME_TEMPLATE"], $arUser, ($arParams["SHOW_LOGIN"] != "N" ? true : false));
+			{
+				$userName = CUser::FormatName(\CSite::getNameFormat(), $arUser, ($arParams["SHOW_LOGIN"] != "N" ? true : false));
+			}
 		}
 		?><div class="filter-field">
 			<label class="filter-field-title" for="filter-field-created-by"><?=GetMessage("SONET_C30_T_FILTER_CREATED_BY");?></label>
@@ -154,7 +156,7 @@ if ($arResult["MODE"] == "AJAX")
 		endif;
 
 		?><div class="sonet-log-filter-submit"><?
-			?><span class="popup-window-button popup-window-button-create" onclick="document.forms['log_filter'].submit();"><span class="popup-window-button-left"></span><span class="popup-window-button-text"><?=GetMessage("SONET_C30_T_SUBMIT")?></span><span class="popup-window-button-right"></span></span><input type="hidden" name="log_filter_submit" value="Y"><?if ($isFiltered):?><a href="<?=$GLOBALS["APPLICATION"]->GetCurPageParam("preset_filter_id=".(array_key_exists("preset_filter_id", $_GET) && strlen($_GET["preset_filter_id"]) > 0 ? htmlspecialcharsbx($_GET["preset_filter_id"]) : "clearall"), array("flt_created_by_id","flt_group_id","flt_date_datesel","flt_date_days","flt_date_from","flt_date_to","flt_show_hidden","skip_subscribe","preset_filter_id","sessid","bxajaxid", "log_filter_submit", "FILTER_CREATEDBY","SONET_FILTER_MODE", "set_follow_type"), false)?>" class="popup-window-button popup-window-button-link popup-window-button-link-cancel"><span class="popup-window-button-link-text"><?=GetMessage("SONET_C30_T_RESET")?></span></a><?endif;
+			?><span class="popup-window-button popup-window-button-create" onclick="document.forms['log_filter'].submit();"><span class="popup-window-button-left"></span><span class="popup-window-button-text"><?=GetMessage("SONET_C30_T_SUBMIT")?></span><span class="popup-window-button-right"></span></span><input type="hidden" name="log_filter_submit" value="Y"><?if ($isFiltered):?><a href="<?=$GLOBALS["APPLICATION"]->GetCurPageParam("preset_filter_id=".(array_key_exists("preset_filter_id", $_GET) && $_GET["preset_filter_id"] <> '' ? htmlspecialcharsbx($_GET["preset_filter_id"]) : "clearall"), array("flt_created_by_id","flt_group_id","flt_date_datesel","flt_date_days","flt_date_from","flt_date_to","flt_show_hidden","skip_subscribe","preset_filter_id","sessid","bxajaxid", "log_filter_submit", "FILTER_CREATEDBY","SONET_FILTER_MODE", "set_follow_type"), false)?>" class="popup-window-button popup-window-button-link popup-window-button-link-cancel"><span class="popup-window-button-link-text"><?=GetMessage("SONET_C30_T_RESET")?></span></a><?endif;
 		?></div>
 		<input type="hidden" name="skip_subscribe" value="<?=(isset($_REQUEST["skip_subscribe"]) && $_REQUEST["skip_subscribe"] == "Y" ? "Y" : "N")?>">
 		<input type="hidden" name="preset_filter_id" value="<?=(array_key_exists("preset_filter_id", $_GET) ? htmlspecialcharsbx($_GET["preset_filter_id"]) : "")?>" />

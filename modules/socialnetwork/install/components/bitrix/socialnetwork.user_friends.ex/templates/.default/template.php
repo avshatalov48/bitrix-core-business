@@ -10,7 +10,7 @@ use Bitrix\Main\UI;
 
 UI\Extension::load("ui.tooltip");
 
-if(strlen($arResult["FatalError"])>0)
+if($arResult["FatalError"] <> '')
 {
 	?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?
 }
@@ -18,7 +18,7 @@ else
 {
 	CUtil::InitJSCore(array("popup"));
 
-	if(strlen($arResult["ErrorMessage"])>0)
+	if($arResult["ErrorMessage"] <> '')
 	{
 		?><span class="errortext"><?=$arResult["ErrorMessage"]?></span><br /><br /><?
 	}
@@ -132,7 +132,7 @@ else
 							?>onclick="__UFEtoggleCheckbox(event, this, 'F<?=intval($arFriend["USER_ID"])?>');"<?
 						}
 						?>><?
-							?><span class="sonet-members-member-img" style="<?=(is_array($arFriend["USER_PERSONAL_PHOTO_IMG"]) && strlen($arFriend["USER_PERSONAL_PHOTO_IMG"]["src"]) > 0 ? "background: url('".$arFriend["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></span><?
+							?><span class="sonet-members-member-img" style="<?=(is_array($arFriend["USER_PERSONAL_PHOTO_IMG"]) && $arFriend["USER_PERSONAL_PHOTO_IMG"]["src"] <> '' ? "background: url('".$arFriend["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></span><?
 							if ($arResult["CurrentUserPerms"] && $arResult["CurrentUserPerms"]["IsCurrentUser"])
 							{
 								?><input class="sonet-members-checkbox" type="checkbox"/><?
@@ -161,7 +161,7 @@ else
 		else
 			echo GetMessage("SONET_UFE_T_NO_FRIENDS");
 
-		if (StrLen($arResult["Friends"]["NAV_STRING"]) > 0):
+		if ($arResult["Friends"]["NAV_STRING"] <> ''):
 			?><div class="sonet-members-nav"><?=$arResult["Friends"]["NAV_STRING"]?></div><?
 		endif;
 
@@ -199,7 +199,7 @@ else
 							?>onclick="__UFEtoggleCheckbox(event, this, 'B<?=intval($arBanned["USER_ID"])?>');"<?
 						}
 						?>><?
-							?><span class="sonet-members-member-img" style="<?=(is_array($arBanned["USER_PERSONAL_PHOTO_IMG"]) && strlen($arBanned["USER_PERSONAL_PHOTO_IMG"]["src"]) > 0 ? "background: url('".$arBanned["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></span><?
+							?><span class="sonet-members-member-img" style="<?=(is_array($arBanned["USER_PERSONAL_PHOTO_IMG"]) && $arBanned["USER_PERSONAL_PHOTO_IMG"]["src"] <> '' ? "background: url('".$arBanned["USER_PERSONAL_PHOTO_IMG"]["src"]."') no-repeat 0 0;" : "")?>"></span><?
 							if ($arBanned["CAN_UNBAN"])
 							{
 								?><input class="sonet-members-checkbox" type="checkbox"/><?
@@ -225,7 +225,7 @@ else
 				}
 			?></div><?
 
-			if (StrLen($arResult["Banned"]["NAV_STRING"]) > 0):
+			if ($arResult["Banned"]["NAV_STRING"] <> ''):
 				?><div class="sonet-members-nav"><?=$arResult["Banned"]["NAV_STRING"]?></div><?
 			endif;
 

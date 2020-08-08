@@ -110,7 +110,6 @@ class CAllSocNetLogCounter
 			$entity_id = $arLog["ENTITY_ID"];
 			$event_id = $arLog["EVENT_ID"];
 			$created_by_id = $arLog["USER_ID"];
-			$log_user_id = $arLog["USER_ID"];
 		}
 		elseif (
 			$type == CSocNetLogCounter::TYPE_LOG_COMMENT
@@ -122,18 +121,16 @@ class CAllSocNetLogCounter
 			$event_id = $arLogComment["EVENT_ID"];
 			$created_by_id = $arLogComment["USER_ID"];
 			$logId = $arLogComment["LOG_ID"]; // recalculate log_id
-			$log_user_id = $arLogComment["LOG_USER_ID"];
 		}
 		else
 		{
 			$logId = $entityId;
-			$log_user_id = 0;
 		}
 
 		if (
 			!in_array($entity_type, CSocNetAllowed::GetAllowedEntityTypes())
 			|| intval($entity_id) <= 0
-			|| strlen($event_id) <= 0
+			|| $event_id == ''
 		)
 		{
 			return false;
@@ -147,8 +144,8 @@ class CAllSocNetLogCounter
 				&& $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type]["HAS_MY"] == "Y"
 				&& array_key_exists("CLASS_OF", $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type])
 				&& array_key_exists("METHOD_OF", $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type])
-				&& strlen($arSocNetAllowedSubscribeEntityTypesDesc[$entity_type]["CLASS_OF"]) > 0
-				&& strlen($arSocNetAllowedSubscribeEntityTypesDesc[$entity_type]["METHOD_OF"]) > 0
+				&& $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type]["CLASS_OF"] <> ''
+				&& $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type]["METHOD_OF"] <> ''
 				&& method_exists($arSocNetAllowedSubscribeEntityTypesDesc[$entity_type]["CLASS_OF"], $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type]["METHOD_OF"])
 			)
 			{
@@ -166,7 +163,7 @@ class CAllSocNetLogCounter
 				|| DisableSonetLogVisibleSubscr !== true
 			)
 			&& $visible 
-			&& strlen($visible) > 0
+			&& $visible <> ''
 		)
 		{
 			$key_res = CSocNetGroup::GetFilterOperation($visible);
@@ -183,7 +180,7 @@ class CAllSocNetLogCounter
 
 			if (
 				$transport
-				&& strlen($transport) > 0
+				&& $transport <> ''
 			)
 			{
 				$key_res = CSocNetGroup::GetFilterOperation($transport);
@@ -336,8 +333,8 @@ class CAllSocNetLogCounter
 						: ""
 				)."
 				LEFT JOIN b_sonet_log_site SLS ON SLS.LOG_ID = SLR.LOG_ID
-				".(strlen($followJoin) > 0 ? $followJoin : "")."
-				".(strlen($viewJoin) > 0 ? $viewJoin : "")."
+				".($followJoin <> '' ? $followJoin : "")."
+				".($viewJoin <> '' ? $viewJoin : "")."
 				".(!$bGroupCounters && !IsModuleInstalled("intranet") ? "LEFT JOIN b_sonet_log_smartfilter SLSF ON SLSF.USER_ID = U.ID " : "")."
 
 			WHERE
@@ -361,8 +358,8 @@ class CAllSocNetLogCounter
 				".($bGroupCounters ? "AND (SLR0.GROUP_CODE like 'SG%' AND SLR0.GROUP_CODE NOT LIKE 'SG%\_%')": "").
 				$userWhere."
 				".
-				(strlen($followWhere) > 0 ? $followWhere : "").
-				(strlen($viewWhere) > 0 ? $viewWhere : "")."
+				($followWhere <> '' ? $followWhere : "").
+				($viewWhere <> '' ? $viewWhere : "")."
 		";
 
 		if($bGroupCounters)
@@ -371,8 +368,8 @@ class CAllSocNetLogCounter
 		}
 
 		if (
-			strlen($visibleFilter) > 0 
-			|| strlen($transportFilter) > 0
+			$visibleFilter <> ''
+			|| $transportFilter <> ''
 		)
 		{
 			$strSQL .= "
@@ -577,7 +574,7 @@ class CAllSocNetLogCounter
 						";
 			}
 
-			if (strlen($strOfEntities) > 0)
+			if ($strOfEntities <> '')
 			{
 					$strSQL .= "
 						(
@@ -841,7 +838,7 @@ class CAllSocNetLogCounter
 			"SELECT ".$arSqls["SELECT"]." ".
 			"FROM b_sonet_log_counter SLC ".
 			"	".$arSqls["FROM"]." ";
-		if (strlen($arSqls["WHERE"]) > 0)
+		if ($arSqls["WHERE"] <> '')
 			$strSql .= "WHERE ".$arSqls["WHERE"]." ";
 
 		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);

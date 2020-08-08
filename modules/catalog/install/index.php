@@ -24,9 +24,7 @@ class catalog extends CModule
 	{
 		$arModuleVersion = array();
 
-		$path = str_replace("\\", "/", __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen("/index.php"));
-		include($path."/version.php");
+		include(__DIR__.'/version.php');
 
 		if (is_array($arModuleVersion) && isset($arModuleVersion["VERSION"]))
 		{
@@ -94,7 +92,7 @@ class catalog extends CModule
 		global $errors;
 
 		if(!$DB->Query("SELECT 'x' FROM b_catalog_group", true))
-			$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/catalog/install/db/".strtolower($DB->type)."/install.sql");
+			$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/catalog/install/db/".mb_strtolower($DB->type)."/install.sql");
 
 		if (!empty($errors))
 		{
@@ -128,7 +126,6 @@ class catalog extends CModule
 		$eventManager->registerEventHandlerCompatible("iblock", "OnBeforeIBlockElementDelete", "catalog", "CCatalog", "OnBeforeIBlockElementDelete", 10000);
 		$eventManager->registerEventHandlerCompatible("main", "OnEventLogGetAuditTypes", "catalog", "CCatalogEvent", "GetAuditTypes");
 		$eventManager->registerEventHandlerCompatible('main', 'OnBuildGlobalMenu', 'catalog', 'CCatalogAdmin', 'OnBuildGlobalMenu');
-		$eventManager->registerEventHandlerCompatible('main', 'OnAdminListDisplay', 'catalog', 'CCatalogAdmin', 'OnAdminListDisplay');
 		$eventManager->registerEventHandlerCompatible('main', 'OnBuildGlobalMenu', 'catalog', 'CCatalogAdmin', 'OnBuildSaleMenu');
 		$eventManager->registerEventHandlerCompatible("catalog", "OnCondCatControlBuildList", "catalog", "CCatalogCondCtrlGroup", "GetControlDescr", 100);
 		$eventManager->registerEventHandlerCompatible("catalog", "OnCondCatControlBuildList", "catalog", "CCatalogCondCtrlIBlockFields", "GetControlDescr", 200);
@@ -170,6 +167,29 @@ class catalog extends CModule
 		$eventManager->registerEventHandlerCompatible('iblock', 'OnAfterIBlockSectionDelete', 'catalog', '\Bitrix\Catalog\Config\State', 'handlerAfterIblockSectionDelete');
 
 		$eventManager->registerEventHandlerCompatible('perfmon', 'OnGetTableSchema', 'catalog', 'catalog', 'getTableSchema');
+
+		$eventManager->registerEventHandler(
+			'highloadblock',
+			'\Bitrix\Highloadblock\Highloadblock::'.Main\ORM\Data\DataManager::EVENT_ON_BEFORE_DELETE,
+			'catalog',
+			'\Bitrix\Catalog\Product\SystemField',
+			'handlerHighloadBlockBeforeDelete'
+		);
+		$eventManager->registerEventHandler(
+			'highloadblock',
+			'\Bitrix\Highloadblock\Highloadblock::'.Main\ORM\Data\DataManager::EVENT_ON_BEFORE_UPDATE,
+			'catalog',
+			'\Bitrix\Catalog\Product\SystemField',
+			'handlerHighloadBlockBeforeUpdate'
+		);
+
+		$eventManager->registerEventHandler(
+			'iblock',
+			'onGetUrlBuilders',
+			'catalog',
+			'\Bitrix\Catalog\Url\AdminPage\Registry',
+			'getBuilderList'
+		);
 
 		if (!$this->bitrix24mode)
 		{
@@ -265,7 +285,7 @@ class catalog extends CModule
 
 		if (!isset($arParams["savedata"]) || $arParams["savedata"] != "Y")
 		{
-			$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/catalog/install/db/".strtolower($DB->type)."/uninstall.sql");
+			$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/catalog/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
 			if (!empty($errors))
 			{
 				$APPLICATION->ThrowException(implode("", $errors));
@@ -289,7 +309,6 @@ class catalog extends CModule
 		$eventManager->unRegisterEventHandler("iblock", "OnBeforeIBlockElementDelete", "catalog", "CCatalog", "OnBeforeIBlockElementDelete");
 		$eventManager->unRegisterEventHandler("main", "OnEventLogGetAuditTypes", "catalog", "CCatalogEvent", "GetAuditTypes");
 		$eventManager->unRegisterEventHandler('main', 'OnBuildGlobalMenu', 'catalog', 'CCatalogAdmin', 'OnBuildGlobalMenu');
-		$eventManager->unRegisterEventHandler('main', 'OnAdminListDisplay', 'catalog', 'CCatalogAdmin', 'OnAdminListDisplay');
 		$eventManager->unRegisterEventHandler('main', 'OnBuildGlobalMenu', 'catalog', 'CCatalogAdmin', 'OnBuildSaleMenu');
 		$eventManager->unRegisterEventHandler("catalog", "OnCondCatControlBuildList", "catalog", "CCatalogCondCtrlGroup", "GetControlDescr");
 		$eventManager->unRegisterEventHandler("catalog", "OnCondCatControlBuildList", "catalog", "CCatalogCondCtrlIBlockFields", "GetControlDescr");
@@ -341,6 +360,29 @@ class catalog extends CModule
 		$eventManager->unRegisterEventHandler('main', 'onUserDelete', 'catalog', '\Bitrix\Catalog\SubscribeTable', 'onUserDelete');
 		$eventManager->unRegisterEventHandler('catalog', 'onAddContactType', 'catalog', '\Bitrix\Catalog\SubscribeTable', 'onAddContactType');
 		$eventManager->unRegisterEventHandler('sale', 'OnSaleOrderSaved', 'catalog', '\Bitrix\Catalog\SubscribeTable', 'onSaleOrderSaved');
+
+		$eventManager->unRegisterEventHandler(
+			'highloadblock',
+			'\Bitrix\Highloadblock\Highloadblock::'.Main\ORM\Data\DataManager::EVENT_ON_BEFORE_DELETE,
+			'catalog',
+			'\Bitrix\Catalog\Product\SystemField',
+			'handlerHighloadBlockBeforeDelete'
+		);
+		$eventManager->unRegisterEventHandler(
+			'highloadblock',
+			'\Bitrix\Highloadblock\Highloadblock::'.Main\ORM\Data\DataManager::EVENT_ON_BEFORE_UPDATE,
+			'catalog',
+			'\Bitrix\Catalog\Product\SystemField',
+			'handlerHighloadBlockBeforeUpdate'
+		);
+
+		$eventManager->unRegisterEventHandler(
+			'iblock',
+			'onGetUrlBuilders',
+			'catalog',
+			'\Bitrix\Catalog\Url\AdminPage\Registry',
+			'getBuilderList'
+		);
 
 		if ($this->bitrix24mode)
 		{

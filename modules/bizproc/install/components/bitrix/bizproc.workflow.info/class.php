@@ -41,7 +41,7 @@ class BizprocWorkflowInfo extends \CBitrixComponent
 		{
 			foreach ($_REQUEST as $key => $value)
 			{
-				if (strtolower($key) == 'workflow_id')
+				if (mb_strtolower($key) == 'workflow_id')
 				{
 					$params['WORKFLOW_ID'] = trim($_REQUEST[$key]);
 					break;

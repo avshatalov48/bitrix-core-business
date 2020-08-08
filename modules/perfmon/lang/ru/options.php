@@ -30,4 +30,11 @@ $MESS["PERFMON_OPTIONS_LARGE_CACHE_LOG"] = "Записывать только о
 $MESS["PERFMON_OPTIONS_LARGE_CACHE_SIZE"] = "Размер файла кеша больше которого считать его большим";
 $MESS["PERFMON_OPTIONS_LARGE_CACHE_SIZE_KB"] = "(килобайт)";
 $MESS["PERFMON_OPTIONS_LARGE_CACHE_NOTE"] = "При этом не будет записываться статистика страниц на которых нет больших файлов кеша и не будут записываться предупреждения PHP.";
+$MESS["PERFMON_TAB_ORM"] = "Генератор таблетов";
+$MESS["PERFMON_TAB_TITLE_ORM"] = "Настройка генератора таблетов";
+$MESS["PERFMON_OPTIONS_ENABLE_TABLET_GENERATOR"] = "Разрешить генерацию таблетов для ORM:";
+$MESS["PERFMON_OPTIONS_SECTION_GENERATOR_SETTINGS"] = "Параметры генератора";
+$MESS["PERFMON_OPTIONS_TABLET_SHORT_ALIASES"] = "Использовать короткие алиасы классов:";
+$MESS["PERFMON_OPTIONS_TABLET_OBJECT_SETTINGS"] = "Описание параметров полей таблета через методы:";
+$MESS["PERFMON_OPTIONS_TABLET_USE_MAP_INDEX"] = "Имена полей в карте:";
 ?>

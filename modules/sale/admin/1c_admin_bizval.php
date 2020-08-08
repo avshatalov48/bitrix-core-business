@@ -20,7 +20,7 @@ $errors = array();
 
 $businessValueControl = new BusinessValueControl('bizval');
 
-if($REQUEST_METHOD == 'POST' && strlen($Update) > 0 && $salePermissions >= 'W' && check_bitrix_sessid())
+if($REQUEST_METHOD == 'POST' && $Update <> '' && $salePermissions >= 'W' && check_bitrix_sessid())
 {
 	if ($isSuccess = $businessValueControl->setMapFromPost())
 		$businessValueControl->saveMap();

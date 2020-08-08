@@ -285,6 +285,16 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      this._prepareFilesBeforeSave = func.bind(this);
 	    }
 	  }, {
+	    key: "showSmiles",
+	    value: function showSmiles() {
+	      this.store.dispatch('application/showSmiles');
+	    }
+	  }, {
+	    key: "hideSmiles",
+	    value: function hideSmiles() {
+	      this.store.dispatch('application/hideSmiles');
+	    }
+	  }, {
 	    key: "startOpponentWriting",
 	    value: function startOpponentWriting(params) {
 	      var _this2 = this;

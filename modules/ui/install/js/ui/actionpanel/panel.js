@@ -96,9 +96,7 @@ BX.UI.ActionPanel.prototype =
 		if(this.mutationObserver)
 			return this.mutationObserver;
 
-		this.mutationObserver = new MutationObserver(function() {
-			BX.throttle(this.adjustPanelStyle, 20, this);
-		}.bind(this));
+		this.mutationObserver = new MutationObserver(BX.throttle(this.adjustPanelStyle, 20, this));
 
 		return this.mutationObserver;
 	},

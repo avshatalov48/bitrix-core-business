@@ -417,12 +417,12 @@ class CAllSaleTax
 	{
 		global $DB;
 
-		if ((is_set($arFields, "LID") || $ACTION=="ADD") && strlen($arFields["LID"])<=0)
+		if ((is_set($arFields, "LID") || $ACTION=="ADD") && $arFields["LID"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGT_EMPTY_SITE"), "ERROR_NO_LID");
 			return false;
 		}
-		if ((is_set($arFields, "NAME") || $ACTION=="ADD") && strlen($arFields["NAME"])<=0)
+		if ((is_set($arFields, "NAME") || $ACTION=="ADD") && $arFields["NAME"] == '')
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SKGT_EMPTY_NAME"), "ERROR_NO_NAME");
 			return false;
@@ -438,7 +438,7 @@ class CAllSaleTax
 			}
 		}
 
-		if ((is_set($arFields, "CODE") || $ACTION=="ADD") && strlen($arFields["CODE"])<=0)
+		if ((is_set($arFields, "CODE") || $ACTION=="ADD") && $arFields["CODE"] == '')
 			$arFields["CODE"] = false;
 
 		return true;
@@ -447,7 +447,7 @@ class CAllSaleTax
 	function Update($ID, $arFields)
 	{
 		global $DB;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		if (!CSaleTax::CheckFields("UPDATE", $arFields)) return false;
 
@@ -464,7 +464,7 @@ class CAllSaleTax
 	function Delete($ID)
 	{
 		global $DB;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$db_taxrates = CSaleTaxRate::GetList(Array(), Array("TAX_ID"=>$ID));
 		while ($ar_taxrates = $db_taxrates->Fetch())
@@ -480,7 +480,7 @@ class CAllSaleTax
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$strSql =
 			"SELECT ID, LID, NAME, CODE, DESCRIPTION, ".$DB->DateToCharFunction("TIMESTAMP_X", "FULL")." as TIMESTAMP_X ".
 			"FROM b_sale_tax ".
@@ -508,12 +508,12 @@ class CAllSaleTax
 		for ($i=0; $i<$countFiltersKeys; $i++)
 		{
 			$val = $DB->ForSql($arFilter[$filter_keys[$i]]);
-			if (strlen($val)<=0) continue;
+			if ($val == '') continue;
 
 			$key = $filter_keys[$i];
 			if ($key[0]=="!")
 			{
-				$key = substr($key, 1);
+				$key = mb_substr($key, 1);
 				$bInvert = true;
 			}
 			else
@@ -522,7 +522,7 @@ class CAllSaleTax
 			switch (ToUpper($key))
 			{
 				case "ID":
-					$arSqlSearch[] = "T.ID ".($bInvert?"<>":"=")." ".IntVal($val)." ";
+					$arSqlSearch[] = "T.ID ".($bInvert?"<>":"=")." ".intval($val)." ";
 					break;
 				case "LID":
 					$arSqlSearch[] = "T.LID ".($bInvert?"<>":"=")." '".$val."' ";
@@ -602,7 +602,7 @@ class CAllSaleTax
 			$key = $filter_keys[$i];
 			if ($key[0]=="!")
 			{
-				$key = substr($key, 1);
+				$key = mb_substr($key, 1);
 				$bInvert = true;
 			}
 			else
@@ -618,10 +618,10 @@ class CAllSaleTax
 				switch (ToUpper($key))
 				{
 					case "GROUP_ID":
-						$arSqlSearch_tmp[] = "TE2G.GROUP_ID ".($bInvert?"<>":"=")." ".IntVal($val)." ";
+						$arSqlSearch_tmp[] = "TE2G.GROUP_ID ".($bInvert?"<>":"=")." ".intval($val)." ";
 						break;
 					case "TAX_ID":
-						$arSqlSearch_tmp[] = "TE2G.TAX_ID ".($bInvert?"<>":"=")." ".IntVal($val)." ";
+						$arSqlSearch_tmp[] = "TE2G.TAX_ID ".($bInvert?"<>":"=")." ".intval($val)." ";
 						break;
 				}
 			}
@@ -664,8 +664,8 @@ class CAllSaleTax
 	{
 		global $DB;
 
-		$arFields["GROUP_ID"] = IntVal($arFields["GROUP_ID"]);
-		$arFields["TAX_ID"] = IntVal($arFields["TAX_ID"]);
+		$arFields["GROUP_ID"] = intval($arFields["GROUP_ID"]);
+		$arFields["TAX_ID"] = intval($arFields["TAX_ID"]);
 
 		if ($arFields["GROUP_ID"]<=0 || $arFields["TAX_ID"]<=0)
 			return False;
@@ -695,9 +695,9 @@ class CAllSaleTax
 		for ($i=0; $i<$countFilterKeys; $i++)
 		{
 			$val = $arFields[$filter_keys[$i]];
-			if (IntVal($val)<=0) continue;
+			if (intval($val)<=0) continue;
 			$key = $filter_keys[$i];
-			$arSqlSearch[] = " ".$key." = ".IntVal($val)." ";
+			$arSqlSearch[] = " ".$key." = ".intval($val)." ";
 		}
 
 		$countSqlSearch = count($arSqlSearch);

@@ -24,7 +24,7 @@ abstract class DataProcessor
 	{
 		self::$vk = Vk::getInstance();
 
-		if (!isset($exportId) || strlen($exportId) <= 0)
+		if (!isset($exportId) || $exportId == '')
 			throw new ArgumentNullException("EXPORT_ID");
 		else
 			$this->exportId = $exportId;

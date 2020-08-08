@@ -22,7 +22,7 @@ class Text extends \Bitrix\Landing\Field
 	 */
 	public function __construct($code, array $params = array())
 	{
-		$this->code = strtoupper($code);
+		$this->code = mb_strtoupper($code);
 		$this->value = null;
 		$this->id = isset($params['id']) ? $params['id'] : '';
 		$this->title = isset($params['title']) ? $params['title'] : '';
@@ -76,7 +76,7 @@ class Text extends \Bitrix\Landing\Field
 	{
 		if ($this->maxlength > 0)
 		{
-			$this->value = substr($value, 0, $this->maxlength);
+			$this->value = mb_substr($value, 0, $this->maxlength);
 		}
 		else
 		{

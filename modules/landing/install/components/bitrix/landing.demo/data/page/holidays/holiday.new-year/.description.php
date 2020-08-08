@@ -16,14 +16,12 @@ return array(
 	'preview_url' => '',
 	'show_in_list' => 'Y',
 	'type' => 'page',
-	'sort' => \LandingSiteDemoComponent::checkActivePeriod(12,8,12,31) ? 11 : -201,
 	'version' => 2,
 	'fields' => array(
 		'TITLE' => Loc::getMessage("LANDING_DEMO___NEWYEAR-TITLE"),
 		'RULE' => null,
 		'ADDITIONAL_FIELDS' => array(
 			'THEME_CODE' => 'real-estate',
-			'THEME_CODE_TYPO' => 'real-estate',
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'METAOG_TITLE' => Loc::getMessage("LANDING_DEMO___NEWYEAR-TITLE"),

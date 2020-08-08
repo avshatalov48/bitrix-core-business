@@ -12,7 +12,7 @@ if ($saleModulePermissions < "W")
 <?
 IncludeModuleLangFile(__FILE__);
 
-$divInd = IntVal($divInd);
+$divInd = intval($divInd);
 $arAgent = Array(
 		"FIZ" => Array(
 			"SURNAME" => GetMessage("SOG_SURNAME"),
@@ -74,7 +74,7 @@ $arAgent = Array(
 			"FULL_NAME" => GetMessage("SOG_FULL_NAME"),
 		);
 	
-	if(strlen($type)<=0)
+	if($type == '')
 		$type = "FIZ";
 		
 	foreach($arAgent[$type] as $k => $v)
@@ -108,7 +108,7 @@ $arAgent = Array(
 
 		foreach ($arAgentInfo as $key => $value)
 		{
-			if (strlen($fields) > 0)
+			if ($fields <> '')
 				$fields .= ",";
 			$fields .= $key;
 

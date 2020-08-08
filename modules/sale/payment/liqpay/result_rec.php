@@ -7,10 +7,10 @@ function liqpay_parseTag($rs, $tag)
 	$rs = str_replace("\n", "", str_replace("\r", "", $rs));
 	$tags = '<'.$tag.'>';
 	$tage = '</'.$tag;
-	$start = strpos($rs, $tags)+strlen($tags);
-	$end = strpos($rs, $tage);
+	$start = mb_strpos($rs, $tags) + mb_strlen($tags);
+	$end = mb_strpos($rs, $tage);
 
-	return substr($rs, $start, ($end-$start));
+	return mb_substr($rs, $start, ($end - $start));
 }
 
 if ($_POST['signature']=="" || $_POST['operation_xml']=="")

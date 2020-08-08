@@ -23,5 +23,5 @@
 		<input type="hidden" name="IncCurrLabel" value="<?=htmlspecialcharsbx($params['PS_MODE']);?>">
 	<?php endif;?>
 
-	<input type="submit" name="submit" class="btn btn-primary pl-4 pr-4" value="<?=Loc::getMessage("SALE_HPS_ROBOXCHANGE_TEMPL_BUTTON")?>">
+	<input type="submit" name="submit" class="btn btn-lg btn-success pl-4 pr-4" style="border-radius: 32px;" value="<?=Loc::getMessage("SALE_HPS_ROBOXCHANGE_TEMPL_BUTTON")?>">
 </form>

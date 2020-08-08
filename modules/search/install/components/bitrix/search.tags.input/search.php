@@ -12,13 +12,13 @@ if (CModule::IncludeModule("search")):
 		list($key, $val) = explode(":", $param);
 		$arParams[$key] = $val;
 	}
-	if (intVal($arParams["pe"]) <= 0)
+	if (intval($arParams["pe"]) <= 0)
 		$arParams["pe"] = 10;
 	$arResult = array();
 // **************************************************************************************
 	if(!empty($_POST["search"]))
 	{
-		if(strToLower($arParams["sort"]) == "name")
+		if(mb_strtolower($arParams["sort"]) == "name")
 			$arOrder = array("NAME"=>"ASC", "CNT"=>"DESC");
 		else
 			$arOrder = array("CNT"=>"DESC", "NAME"=>"ASC");

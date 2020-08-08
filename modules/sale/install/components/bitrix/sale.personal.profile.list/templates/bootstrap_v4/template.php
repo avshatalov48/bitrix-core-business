@@ -29,7 +29,7 @@ if (!empty($arResult['ERRORS']))
 		return;
 	}
 }
-if(strlen($arResult["NAV_STRING"]) > 0)
+if($arResult["NAV_STRING"] <> '')
 {
 	?>
 	<div class="row mb-3">
@@ -91,7 +91,7 @@ if (count($arResult["PROFILES"]))
 		</div>
 	</div>
 	<?
-	if(strlen($arResult["NAV_STRING"]) > 0)
+	if($arResult["NAV_STRING"] <> '')
 	{
 		?>
 		<div class="row">

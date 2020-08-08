@@ -4,24 +4,19 @@
  *
  * @package bitrix
  * @subpackage im
- * @copyright 2001-2019 Bitrix
+ * @copyright 2001-2020 Bitrix
  */
 
-const FileStatus = Object.freeze({
+export const FileStatus = Object.freeze({
 	upload: 'upload',
 	wait: 'wait',
 	done: 'done',
 	error: 'error',
 });
 
-const FileType = Object.freeze({
+export const FileType = Object.freeze({
 	image: 'image',
 	video: 'video',
 	audio: 'audio',
 	file: 'file',
 });
-
-export {
-	FileStatus,
-	FileType
-};

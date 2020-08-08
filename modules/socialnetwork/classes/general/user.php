@@ -12,7 +12,7 @@ class CAllSocNetUser
 			return false;
 		}
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$bSuccess = True;
 
 		if (!CSocNetGroup::DeleteNoDemand($ID))
@@ -151,7 +151,7 @@ class CAllSocNetUser
 
 	public static function IsOnLine($userID)
 	{
-		$userID = IntVal($userID);
+		$userID = intval($userID);
 		if ($userID <= 0)
 			return false;
 		
@@ -231,10 +231,10 @@ class CAllSocNetUser
 		$login = Trim($login);
 
 		$formatName = $name;
-		if (StrLen($formatName) > 0 && StrLen($lastName) > 0)
+		if ($formatName <> '' && $lastName <> '')
 			$formatName .= " ";
 		$formatName .= $lastName;
-		if (StrLen($formatName) <= 0)
+		if ($formatName == '')
 			$formatName = $login;
 
 		return $formatName;
@@ -247,19 +247,19 @@ class CAllSocNetUser
 		$secondName = Trim($secondName);
 		$login = Trim($login);
 		$email = Trim($email);
-		$id = IntVal($id);
+		$id = intval($id);
 
 		$formatName = $name;
-		if (StrLen($formatName) > 0 && StrLen($secondName) > 0)
+		if ($formatName <> '' && $secondName <> '')
 			$formatName .= " ";
 		$formatName .= $secondName;
-		if (StrLen($formatName) > 0 && StrLen($lastName) > 0)
+		if ($formatName <> '' && $lastName <> '')
 			$formatName .= " ";
 		$formatName .= $lastName;
-		if (StrLen($formatName) <= 0)
+		if ($formatName == '')
 			$formatName = $login;
 
-		if (StrLen($email) > 0)
+		if ($email <> '')
 			$formatName .= " &lt;".$email."&gt;";
 		$formatName .= " [".$id."]";
 
@@ -269,18 +269,18 @@ class CAllSocNetUser
 	public static function SearchUser($user, $bIntranet = false)
 	{
 		$user = Trim($user);
-		if (StrLen($user) <= 0)
+		if ($user == '')
 			return false;
 
 		$userID = 0;
-		if ($user."|" == IntVal($user)."|")
-			$userID = IntVal($user);
+		if ($user."|" == intval($user)."|")
+			$userID = intval($user);
 
 		if ($userID <= 0)
 		{
 			$arMatches = array();
 			if (preg_match("#\[(\d+)\]#i", $user, $arMatches))
-				$userID = IntVal($arMatches[1]);
+				$userID = intval($arMatches[1]);
 		}
 
 
@@ -317,13 +317,13 @@ class CAllSocNetUser
 			foreach ($arUserTmp as $s)
 			{
 				$s = Trim($s);
-				if (StrLen($s) > 0)
+				if ($s <> '')
 					$arUser[] = $s;
 			}
 
 			if (
 				count($arUser) <= 0
-				&& strlen($email) > 0
+				&& $email <> ''
 			)
 			{
 				$arFilter = array(
@@ -361,7 +361,7 @@ class CAllSocNetUser
 
 	public static function GetByID($ID)
 	{
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$dbUser = CUser::GetByID($ID);
 		if ($arUser = $dbUser->GetNext())

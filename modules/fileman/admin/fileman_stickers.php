@@ -103,40 +103,40 @@ elseif($action == 'save_sticker')
 
 	$ID = CSticker::Edit(array(
 		'arFields' => array(
-			'ID' => intVal($_POST['id']),
+			'ID' => intval($_POST['id']),
 			'PAGE_URL' => $_POST['page_url'],
 			'PAGE_TITLE' => $_POST['page_title'],
 			'SITE_ID' => $_REQUEST['site_id'],
 
 			'PERSONAL' => $_POST['personal'] == 'Y' ? 'Y' : 'N',
 			'CONTENT' => $_POST['content'],
-			'POS_TOP' => intVal($_POST['top']),
-			'POS_LEFT' => intVal($_POST['left']),
-			'WIDTH' => intVal($_POST['width']),
-			'HEIGHT' => intVal($_POST['height']),
+			'POS_TOP' => intval($_POST['top']),
+			'POS_LEFT' => intval($_POST['left']),
+			'WIDTH' => intval($_POST['width']),
+			'HEIGHT' => intval($_POST['height']),
 
-			'COLOR' => intVal($_POST['color']),
+			'COLOR' => intval($_POST['color']),
 			'COLLAPSED' => $_POST['collapsed'] == 'Y' ? 'Y' : 'N',
 			'COMPLETED' => $_POST['completed'] == 'Y' ? 'Y' : 'N',
 			'CLOSED' => $_POST['closed'] == 'Y' ? 'Y' : 'N',
 			'DELETED' => $_POST['deleted'] == 'Y' ? 'Y' : 'N',
 
-			'MARKER_TOP' => isset($_POST['marker']['top']) ? intVal($_POST['marker']['top']) : 0,
-			'MARKER_LEFT' => isset($_POST['marker']['left']) ? intVal($_POST['marker']['left']) : 0,
-			'MARKER_WIDTH' => isset($_POST['marker']['width']) ? intVal($_POST['marker']['width']) : 0,
-			'MARKER_HEIGHT' => isset($_POST['marker']['height']) ? intVal($_POST['marker']['height']) : 0,
+			'MARKER_TOP' => isset($_POST['marker']['top']) ? intval($_POST['marker']['top']) : 0,
+			'MARKER_LEFT' => isset($_POST['marker']['left']) ? intval($_POST['marker']['left']) : 0,
+			'MARKER_WIDTH' => isset($_POST['marker']['width']) ? intval($_POST['marker']['width']) : 0,
+			'MARKER_HEIGHT' => isset($_POST['marker']['height']) ? intval($_POST['marker']['height']) : 0,
 
 			'MARKER_ADJUST' => $markerAdjust
 		)
 	));
 
-	CUserOptions::SetOption('fileman', "stickers_last_color", intVal($_POST['color']));
+	CUserOptions::SetOption('fileman', "stickers_last_color", intval($_POST['color']));
 
 	if ($ID > 0)
 	{
 ?>
 <script>
-window.__bxst_result['<?= intVal($_POST['reqid'])?>'] = <?= CUtil::PhpToJSObject(CSticker::GetById($ID))?>;
+window.__bxst_result['<?= intval($_POST['reqid'])?>'] = <?= CUtil::PhpToJSObject(CSticker::GetById($ID))?>;
 </script>
 <?
 	}
@@ -152,8 +152,8 @@ elseif ($action == 'show_list')
 		$arIds = array();
 		for ($i = 0; $i < count($_REQUEST['list_ids']); $i++)
 		{
-			if (intVal($_REQUEST['list_ids'][$i]) > 0)
-				$arIds[] = intVal($_REQUEST['list_ids'][$i]);
+			if (intval($_REQUEST['list_ids'][$i]) > 0)
+				$arIds[] = intval($_REQUEST['list_ids'][$i]);
 		}
 
 		if ($_REQUEST['list_action'] == 'del')
@@ -249,7 +249,7 @@ elseif ($action == 'show_list')
 			)
 		));
 
-	$naviSize = intVal($_REQUEST['navi_size']);
+	$naviSize = intval($_REQUEST['navi_size']);
 	if (!$naviSize)
 	{
 		$naviSize = CUserOptions::GetOption('fileman', "stickers_navi_size", 5);
@@ -267,7 +267,7 @@ elseif ($action == 'show_list')
 	$dbStickers->NavStart($naviSize);
 
 	$curPageIds = array();
-	$count = intVal($dbStickers->SelectedRowsCount());
+	$count = intval($dbStickers->SelectedRowsCount());
 
 	$arPages = CSticker::GetPagesList($_REQUEST['site_id']);
 
@@ -343,18 +343,18 @@ elseif ($action == 'show_list')
 			$html = strip_tags($arRes['CONTENT']);
 			$colorClass = isset($colorSchemes[$arRes['COLOR']]) ? $colorSchemes[$arRes['COLOR']] : $colorSchemes[0];
 			$date = CSticker::GetUsableDate($arRes['DATE_UPDATE2']);
-			$url = $arRes['PAGE_URL']."?show_sticker=".intVal($arRes['ID']);
+			$url = $arRes['PAGE_URL']."?show_sticker=".intval($arRes['ID']);
 			$bCompleted = $arRes['COMPLETED'] == 'Y';
 			if ($arRes['PAGE_URL'] == $curPage)
 				$curPageIds[] = $arRes['ID'];
 			?>
 			<tr class="bxst-list-item<? if ($arRes['CLOSED'] == "Y") {echo " bxst-list-item-closed";}?>">
-				<td class="bxst-id-cell"><a href="<?= $url?>"><?= intVal($arRes['ID'])?></a></td>
+				<td class="bxst-id-cell"><a href="<?= $url?>"><?= intval($arRes['ID'])?></a></td>
 				<td><?= $html?></td>
 				<td><?= htmlspecialcharsex($date)?></td>
 				<td><nobr><?= htmlspecialcharsex(CSticker::GetUserName($arRes['CREATED_BY']))?></nobr></td>
 				<td class="bxst-list-it-link<? if ($bCompleted) {echo ' bxstl-completed';}?>">
-					<? if (strlen($arRes['PAGE_TITLE']) > 0):?>
+					<? if ($arRes['PAGE_TITLE'] <> ''):?>
 					<a href="<?= $url?>" title="<?= htmlspecialcharsex($arRes['PAGE_TITLE'])?>"><?= htmlspecialcharsex($arRes['PAGE_TITLE'])?></a>
 					<?endif;?>
 					<a href="<?= $url?>" class="bxst-list-it-path" title="<?= htmlspecialcharsex($arRes['PAGE_URL'])?>"><?= htmlspecialcharsex($arRes['PAGE_URL'])?></a>
@@ -362,7 +362,7 @@ elseif ($action == 'show_list')
 				</td>
 				<td><div class="bxstl-color-ind <?= $colorClass?>" /></td>
 				<?if (!$bReadonly):?>
-				<td><input type="checkbox" name="bxstl_item" value="<?= intVal($arRes['ID'])?>" onclick="window.oBXSticker.List.EnableActionBut(this.checked ? true : 'check');" /></td>
+				<td><input type="checkbox" name="bxstl_item" value="<?= intval($arRes['ID'])?>" onclick="window.oBXSticker.List.EnableActionBut(this.checked ? true : 'check');" /></td>
 				<?endif;?>
 			</tr>
 			<?endwhile;?>

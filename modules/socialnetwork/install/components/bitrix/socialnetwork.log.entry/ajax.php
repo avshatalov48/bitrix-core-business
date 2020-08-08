@@ -5,7 +5,7 @@ define("NO_LANG_FILES", true);
 define("NOT_CHECK_PERMISSIONS", true);
 
 $site_id = (isset($_REQUEST["site"]) && is_string($_REQUEST["site"])) ? trim($_REQUEST["site"]): "";
-$site_id = substr(preg_replace("/[^a-z0-9_]/i", "", $site_id), 0, 2);
+$site_id = mb_substr(preg_replace("/[^a-z0-9_]/i", "", $site_id), 0, 2);
 
 define("SITE_ID", $site_id);
 
@@ -21,7 +21,7 @@ $entity_xml_id = (isset($_REQUEST["exmlid"]) && is_string($_REQUEST["exmlid"])) 
 $entity_xml_id = (!empty($entity_xml_id)) ? $entity_xml_id : ((isset($_REQUEST["ENTITY_XML_ID"]) && is_string($_REQUEST["ENTITY_XML_ID"])) ? trim($_REQUEST["ENTITY_XML_ID"]): "");
 
 $lng = (isset($_REQUEST["lang"]) && is_string($_REQUEST["lang"])) ? trim($_REQUEST["lang"]): "";
-$lng = substr(preg_replace("/[^a-z0-9_]/i", "", $lng), 0, 2);
+$lng = mb_substr(preg_replace("/[^a-z0-9_]/i", "", $lng), 0, 2);
 
 $ls = isset($_REQUEST["ls"]) && !is_array($_REQUEST["ls"])? trim($_REQUEST["ls"]): "";
 $ls_arr = isset($_REQUEST["ls_arr"])? $_REQUEST["ls_arr"]: "";
@@ -105,7 +105,7 @@ if(CModule::IncludeModule("socialnetwork"))
 		if ($arLog = CSocNetLog::GetByID($log_id))
 		{
 			if (
-				strpos($arLog["ENTITY_TYPE"], "CRM") === 0
+				mb_strpos($arLog["ENTITY_TYPE"], "CRM") === 0
 				&& 
 				(
 					!in_array($arLog["EVENT_ID"], array("crm_lead_message", "crm_deal_message", "crm_company_message", "crm_contact_message", "crm_activity_add"))
@@ -163,7 +163,7 @@ if(CModule::IncludeModule("socialnetwork"))
 					$comment_text = preg_replace("/\xe2\x81\xa0/is", ' ', $_REQUEST["message"]);  // INVISIBLE_CURSOR from editor
 					CUtil::decodeURIComponent($comment_text);
 					$comment_text = Trim($comment_text);
-					if (strlen($comment_text) > 0)
+					if ($comment_text <> '')
 					{
 						$arSearchParams = array();
 
@@ -187,7 +187,7 @@ if(CModule::IncludeModule("socialnetwork"))
 						}
 						elseif ($arCommentEvent["EVENT_ID"] == "files_comment")
 						{
-							if (strlen($arLog["PARAMS"]) > 0)
+							if ($arLog["PARAMS"] <> '')
 							{
 								$files_forum_id = 0;
 								$arLogParams = explode("&", htmlspecialcharsback($arLog["PARAMS"]));
@@ -219,7 +219,7 @@ if(CModule::IncludeModule("socialnetwork"))
 						}
 						elseif($arCommentEvent["EVENT_ID"] == "photo_comment")
 						{
-							if (strlen($arLog["PARAMS"]) > 0)
+							if ($arLog["PARAMS"] <> '')
 							{
 								$photo_forum_id = 0;
 								$arLogParams = unserialize(htmlspecialcharsback($arLog["PARAMS"]));
@@ -548,7 +548,7 @@ if(CModule::IncludeModule("socialnetwork"))
 						}
 						elseif (
 							isset($commentIdres["MESSAGE"])
-							&& strlen($commentIdres["MESSAGE"]) > 0
+							&& $commentIdres["MESSAGE"] <> ''
 						)
 						{
 							$arResult["strMessage"] = $commentIdres["MESSAGE"];
@@ -574,7 +574,7 @@ if(CModule::IncludeModule("socialnetwork"))
 		if ($arComment = CSocNetLogComments::GetByID($comment_id))
 		{
 			if (
-				strpos($arComment["ENTITY_TYPE"], "CRM") === 0
+				mb_strpos($arComment["ENTITY_TYPE"], "CRM") === 0
 				&& $currentUserExternalAuthId != 'email'
 				&& IsModuleInstalled("crm")
 			)
@@ -608,12 +608,12 @@ if(CModule::IncludeModule("socialnetwork"))
 							: $arComment["LOG_DATE"]
 					),
 					(
-						stripos($timeFormat, 'a') 
-						|| (
-							$timeFormat == 'FULL' 
-							&& (strpos(FORMAT_DATETIME, 'T')!==false || strpos(FORMAT_DATETIME, 'TT')!==false)
-						) !== false 
-							? (strpos(FORMAT_DATETIME, 'TT')!==false ? 'H:MI TT' : 'H:MI T')
+					mb_stripos($timeFormat, 'a')
+					|| (
+						$timeFormat == 'FULL'
+						&& (mb_strpos(FORMAT_DATETIME, 'T') !== false || mb_strpos(FORMAT_DATETIME, 'TT') !== false)
+					) !== false
+							? (mb_strpos(FORMAT_DATETIME, 'TT') !== false ? 'H:MI TT' : 'H:MI T')
 							: 'HH:MI'
 					)
 				);
@@ -685,7 +685,7 @@ if(CModule::IncludeModule("socialnetwork"))
 		$counterType = (isset($_REQUEST["ct"]) ? $_REQUEST["ct"] : false);
 
 		$arListParams = (
-			strpos($log_entity_type, "CRM") === 0
+		mb_strpos($log_entity_type, "CRM") === 0
 			&& $currentUserExternalAuthId != 'email'
 			&& IsModuleInstalled("crm")
 				? array("IS_CRM" => "Y", "CHECK_CRM_RIGHTS" => "Y")
@@ -1095,11 +1095,11 @@ if(CModule::IncludeModule("socialnetwork"))
 					"OK_MESSAGE" => "",
 					"VIEW_URL" => (
 						isset($arComment["EVENT"]["URL"])
-						&& strlen($arComment["EVENT"]["URL"]) > 0
+						&& $arComment["EVENT"]["URL"] <> ''
 							? $arComment["EVENT"]["URL"]
 							: (
 								isset($arParams["PATH_TO_LOG_ENTRY"])
-								&& strlen($arParams["PATH_TO_LOG_ENTRY"]) > 0
+								&& $arParams["PATH_TO_LOG_ENTRY"] <> ''
 									? CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_LOG_ENTRY"], array("log_id" => $arLog["ID"]))."?commentId=#ID#"
 									: ""
 							)

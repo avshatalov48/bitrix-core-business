@@ -109,6 +109,11 @@ class CRestProvider
 							)
 						),
 					),
+					\CRestUtil::PLACEMENTS => array(
+						\CRestUtil::PLACEMENT_APP_URI => array(
+							'max_count' => 1
+						)
+					)
 				),
 			);
 

@@ -18,10 +18,7 @@ class advertising extends CModule
 	{
 		$arModuleVersion = array();
 
-		$path = str_replace("\\", "/", __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen("/index.php"));
-
-		include($path."/version.php");
+		include(__DIR__.'/version.php');
 
 		if (is_array($arModuleVersion) && array_key_exists("VERSION", $arModuleVersion))
 		{
@@ -79,7 +76,7 @@ class advertising extends CModule
 
 		if ($EMPTY=="Y")
 		{
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/install/db/".strtolower($DB->type)."/install.sql");
+			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/install/db/".mb_strtolower($DB->type)."/install.sql");
 
 			if (!empty($errors))
 			{
@@ -156,7 +153,7 @@ class advertising extends CModule
 		$ADV_RIGHT = $APPLICATION->GetGroupRight("advertising");
 		if ($ADV_RIGHT=="W")
 		{
-			$step = IntVal($step);
+			$step = intval($step);
 			$errors = false;
 
 			if ($step < 2)
@@ -213,7 +210,7 @@ class advertising extends CModule
 		{
 			$errors = false;
 			// delete whole base
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/install/db/".strtolower($DB->type)."/uninstall.sql");
+			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/advertising/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
 
 			if (!empty($errors))
 			{

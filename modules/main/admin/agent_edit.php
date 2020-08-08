@@ -49,6 +49,9 @@ if($REQUEST_METHOD=="POST" && (strlen($save)>0 || strlen($apply)>0) && $isAdmin 
 	if(intval($USER_ID) > 0)
 		$arFields["USER_ID"] = $USER_ID;
 
+	if($arFields["ACTIVE"] == "Y")
+		$arFields["RETRY_COUNT"] = 0;
+
 	if($ID>0)
 		$res = CAgent::Update($ID, $arFields);
 	else

@@ -300,7 +300,7 @@ class ShipmentImport extends EntityImport
 
                             if($deltaQuantity < 0)
                             {
-                                $this->fillShipmentItem($shipmentItem, 0, abs($deltaQuantity));
+                                $result = $this->fillShipmentItem($shipmentItem, 0, abs($deltaQuantity));
                             }
                             elseif($deltaQuantity > 0)
                             {
@@ -333,7 +333,12 @@ class ShipmentImport extends EntityImport
                                     $this->setCollisions(EntityCollisionType::ShipmentBasketItemQuantityError, $shipment, $item['NAME']);
                                 }
                             }
-                        }
+
+							if(count($item['MARKINGS'])>0)
+							{
+								$result = $this->fillMarkingsShipmentItem($shipmentItem, $item['MARKINGS']);
+							}
+						}
                         else
                         {
                             $this->setCollisions(EntityCollisionType::ShipmentBasketItemNotFound, $shipment);
@@ -371,6 +376,83 @@ class ShipmentImport extends EntityImport
         return $shipmentItem;
     }
 
+	protected function fillMarkingsShipmentItem(Sale\ShipmentItem $item, $markings)
+	{
+		$result = new Sale\Result();
+
+		$this->resetMarkingsShipmentItem($item);
+		$itemStoreCollection = $item->getShipmentItemStoreCollection();
+
+		$delta = min(count($markings), $item->getQuantity());
+
+		if($itemStoreCollection->count() < $delta)
+		{
+			for ($i = (count($markings) - $itemStoreCollection->count()); $i > 0; $i--)
+			{
+				$itemStore = $itemStoreCollection->createItem($itemStoreCollection->getShipmentItem()->getBasketItem());
+				$r = $itemStore->setFields([
+					'QUANTITY'=>1
+				]);
+
+				if($r->isSuccess() === false)
+				{
+					$result->addErrors($r->getErrors());
+					break 1;
+				}
+			}
+		}
+
+		if($result->isSuccess())
+		{
+			$k = 0;
+			/** @var  Sale\ShipmentItemStore $storeItem */
+			foreach ($itemStoreCollection as  $storeItem)
+			{
+				$r = $storeItem->setField('MARKING_CODE', $markings[$k++]);
+				if($r->isSuccess() === false)
+				{
+					$result->addErrors($r->getErrors());
+					break 1;
+				}
+			}
+		}
+		return $result;
+	}
+
+	protected function resetMarkingsShipmentItem(Sale\ShipmentItem $item)
+	{
+		$itemStoreCollection = $item->getShipmentItemStoreCollection();
+
+		/** @var \Bitrix\Sale\ShipmentItemStore $barcode */
+		foreach ($itemStoreCollection as $barcode)
+		{
+			$barcode->setField('MARKING_CODE', null);
+		}
+	}
+
+	private function syncRelationBarcodeMarkingsCode(Sale\ShipmentItem $shipmentItem, $value)
+	{
+		if($shipmentItem->getBasketItem()->isSupportedMarkingCode())
+		{
+			$after = $shipmentItem->getQuantity() + $value;
+			if($after < $shipmentItem->getQuantity()) // minus
+			{
+				$deltaQuantity = $shipmentItem->getQuantity() - $after;
+
+				$storeCollection = $shipmentItem->getShipmentItemStoreCollection();
+				/** @var Sale\ShipmentItemStore $store */
+				foreach ($storeCollection as $store)
+				{
+					if($deltaQuantity > 0)
+					{
+						$store->delete();
+						$deltaQuantity--;
+					}
+				}
+			}
+		}
+	}
+
     /**
      * @param Sale\ShipmentItem $shipmentItem
      * @param $value
@@ -389,6 +471,8 @@ class ShipmentImport extends EntityImport
         }
         else
         {
+			$this->syncRelationBarcodeMarkingsCode($shipmentItem, $deltaQuantity);
+
             $r = $shipmentItem->setField(
                 "QUANTITY",
                 $shipmentItem->getQuantity() + $deltaQuantity
@@ -399,7 +483,7 @@ class ShipmentImport extends EntityImport
         $shipmentItemCollection = $shipmentItem->getCollection();
 
         /** @var Shipment $shipment */
-        if (!$shipment = $shipmentItemCollection->getShipment())
+        if ($shipment = $shipmentItemCollection->getShipment())
         {
             if(!$r->isSuccess())
             {
@@ -408,7 +492,7 @@ class ShipmentImport extends EntityImport
             }
             else
             {
-                $this->setCollisions(EntityCollisionType::OrderShipmentItemsModify, $shipment);
+                //$this->setCollisions(EntityCollisionType::OrderShipmentItemsModify, $shipment);
             }
         }
 

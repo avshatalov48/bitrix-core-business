@@ -44,16 +44,6 @@ class Extension
 
 			return true;
 		}
-
-		if (preg_match("/^((?P<MODULE_ID>[\w\.]+):)?(?P<EXT_NAME>[\w\.\-]+)$/", $extName, $matches))
-		{
-			if (strlen($matches['MODULE_ID']) > 0 && $matches['MODULE_ID'] !== 'main')
-			{
-				\Bitrix\Main\Loader::includeModule($matches['MODULE_ID']);
-			}
-			$extName = $matches['EXT_NAME'];
-		}
-
 		return \CJSCore::isExtRegistered($extName);
 	}
 
@@ -521,18 +511,6 @@ class Extension
 	private static function getCoreConfigForDependencyList($name, $storeConfig = false, &$resultList = [], &$alreadyResolved = [])
 	{
 		$alreadyResolved[] = $name;
-
-		if (preg_match("/^((?P<MODULE_ID>[\w\.]+):)?(?P<EXT_NAME>[\w\.\-]+)$/", $name, $matches))
-		{
-			if (strlen($matches['MODULE_ID']) > 0 && $matches['MODULE_ID'] !== 'main')
-			{
-				\Bitrix\Main\Loader::includeModule($matches['MODULE_ID']);
-			}
-
-			$name = $matches['EXT_NAME'];
-
-			$alreadyResolved[] = $name;
-		}
 
 		$config = \CJSCore::getExtInfo($name);
 		if ($config)

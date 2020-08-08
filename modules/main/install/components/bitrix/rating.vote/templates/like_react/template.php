@@ -52,7 +52,13 @@ $APPLICATION->SetAdditionalCSS("/bitrix/components/bitrix/rating.vote/templates/
 			 id="bx-ilike-count-<?=htmlspecialcharsbx($arResult['VOTE_ID'])?>"
 			 data-myreaction="<?=htmlspecialcharsbx($arParams['USER_REACTION'])?>"
 			 class="feed-post-emoji-text-box bx-ilike-right-wrap <?=($arResult['USER_HAS_VOTED'] == 'N'? '': 'bx-you-like')?>"
-			 <?=($arResult["COMMENT"] != "Y" ? 'style="display: none;"' : '')?>><?
+			 <?=(
+			 	$arResult["COMMENT"] != "Y"
+				&& $arParams['MOBILE'] != 'Y'
+				&& (!isset($arParams["TYPE"]) || $arParams["TYPE"] != 'POST')
+					? 'style="display: none;"'
+					: ''
+			 )?>><?
 			?><div class="feed-post-emoji-text-item bx-ilike-right<?=(intval($arResult['TOTAL_POSITIVE_VOTES']) <= 0 ? ' feed-post-emoji-text-counter-invisible' : '')?>"><?=intval($arResult['TOTAL_POSITIVE_VOTES'])?></div><?
 		?></div><?
 	?></span><?

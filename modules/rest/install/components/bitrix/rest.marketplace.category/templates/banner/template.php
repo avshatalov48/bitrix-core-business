@@ -61,23 +61,4 @@ if (is_array($arResult["ITEMS"])):
 			gridPartners.draw();
 		});
 	</script>
-
-	<?
-	if(
-		isset($arParams['SHOW_BANNER_MARKETPLACE'])
-		&& $arParams['SHOW_BANNER_MARKETPLACE'] == 'Y'
-		&& !empty($arParams['MP_TAG_PATH'])
-		&& !isset($arResult['SHOW_COMING_SOON'])
-	):
-	?>
-		<a class="rest-configuration-banner" href="<?=$arParams['MP_TAG_PATH']?>">
-			<div class="rest-configuration-banner-icon">
-				<div class="rest-configuration-banner-icon-arrow"></div>
-			</div>
-			<div class="rest-configuration-banner-title">
-				<span class="rest-configuration-banner-title-strong"><?= Loc::getMessage("REST_MARKETPLACE_CATEGORY_BANNER_TITLE") ?></span>
-				<span class="rest-configuration-banner-title-light"><?= Loc::getMessage("REST_MARKETPLACE_CATEGORY_BANNER_DESCRIPTION") ?></span>
-			</div>
-		</a>
-	<? endif;?>
 <? endif; ?>

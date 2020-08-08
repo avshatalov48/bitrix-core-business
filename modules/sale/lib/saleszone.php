@@ -59,7 +59,7 @@ class SalesZone
 	 */
 	public static function checkCountryId($countryId, $siteId)
 	{
-		if(!strlen($siteId))
+		if($siteId == '')
 			return false;
 
 		$cIds = static::getCountriesIds($siteId);
@@ -74,7 +74,7 @@ class SalesZone
 	 */
 	public static function checkRegionId($regionId, $siteId)
 	{
-		if(!strlen($siteId))
+		if($siteId == '')
 			return false;
 
 		$rIds = static::getRegionsIds($siteId);
@@ -89,7 +89,7 @@ class SalesZone
 	 */
 	public static function checkCityId($cityId, $siteId)
 	{
-		if(!strlen($siteId))
+		if($siteId == '')
 			return false;
 
 		$cIds = static::getCitiesIds($siteId);
@@ -106,7 +106,7 @@ class SalesZone
 	{
 		if(\CSaleLocation::isLocationProMigrated())
 		{
-			if(!intval($locationId) || !strlen($siteId))
+			if(!intval($locationId) || !mb_strlen($siteId))
 				return false;
 
 			return Location\SiteLocationTable::checkConnectionExists($siteId, $locationId);
@@ -431,7 +431,7 @@ class SalesZone
 		$locations[Location\Connector::DB_LOCATION_FLAG] = $class::normalizeLocationList($locations[Location\Connector::DB_LOCATION_FLAG]);
 
 		// store to database
-		$class::resetMultipleForOwner(strlen($siteId) ? $siteId : $class::ALL_SITES, $locations);
+		$class::resetMultipleForOwner($siteId <> ''? $siteId : $class::ALL_SITES, $locations);
 	}
 
 	/**
@@ -479,7 +479,7 @@ class SalesZone
 
 		while($arRegion = $dbLocationsList->GetNext())
 		{
-			if(strlen($arRegion["REGION_ID"]) > 0 && $arRegion["REGION_ID"] != "0")
+			if($arRegion["REGION_ID"] <> '' && $arRegion["REGION_ID"] != "0")
 				$regions[$arRegion["REGION_ID"]] = $regionsList[$arRegion["REGION_ID"]];
 		}
 
@@ -515,7 +515,7 @@ class SalesZone
 			);
 
 			while($arCity = $dbLocationsList->GetNext())
-				if(strlen($arCity["CITY_ID"]) > 0)
+				if($arCity["CITY_ID"] <> '')
 					$cities[$arCity["CITY_ID"]] =  $citiesList[$arCity["CITY_ID"]];
 		}
 

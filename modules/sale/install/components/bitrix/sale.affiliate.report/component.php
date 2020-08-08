@@ -4,10 +4,10 @@ if(!CBXFeatures::IsFeatureEnabled('SaleAffiliate'))
 	return;
 
 $arParams["REGISTER_PAGE"] = trim($arParams["REGISTER_PAGE"]);
-if (strlen($arParams["REGISTER_PAGE"]) <= 0)
+if ($arParams["REGISTER_PAGE"] == '')
 	$arParams["REGISTER_PAGE"] = "register.php";
 
-if (strlen($arParams["SET_TITLE"]) <= 0) $arParams["SET_TITLE"] = "Y";
+if ($arParams["SET_TITLE"] == '') $arParams["SET_TITLE"] = "Y";
 	
 if (CModule::IncludeModule("sale"))
 {
@@ -19,7 +19,7 @@ if (CModule::IncludeModule("sale"))
 		$dbAffiliate = CSaleAffiliate::GetList(
 			array("TRANSACT_DATE" => "ASC"),
 			array(
-				"USER_ID" => IntVal($GLOBALS["USER"]->GetID()),
+				"USER_ID" => intval($GLOBALS["USER"]->GetID()),
 				"SITE_ID" => SITE_ID,
 			),
 			false,
@@ -35,14 +35,14 @@ if (CModule::IncludeModule("sale"))
 			{
 				$arResult["FIELDS"] = $arAffiliate;
 
-				if (strlen($_REQUEST["del_filter"])>0)
+				if ($_REQUEST["del_filter"] <> '')
 					DelFilter(Array("filter_date_from", "filter_date_to"));
 				else
 					InitFilter(Array("filter_date_from", "filter_date_to"));
 
 				$filter_date_from = $_REQUEST["filter_date_from"];
 				$filter_date_to = $_REQUEST["filter_date_to"];
-				if (StrLen($filter_date_from) <= 0 && StrLen($filter_date_to) <= 0)
+				if ($filter_date_from == '' && $filter_date_to == '')
 				{
 					$filter_date_from = date($DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")), mktime(0, 0, 0, date("m") - 3, 1, date("Y")));
 					$filter_date_to = date($DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")), mktime(0, 0, 0, date("m"), date("d") + 1, date("Y")));
@@ -62,9 +62,9 @@ if (CModule::IncludeModule("sale"))
 					"=CANCELED" => "N",
 					"=LID" => SITE_ID
 				);
-				if (StrLen($filter_date_from) > 0)
+				if ($filter_date_from <> '')
 					$arFilter[">=DATE_ALLOW_DELIVERY"] = Trim($filter_date_from);
-				if (StrLen($filter_date_to) > 0)
+				if ($filter_date_to <> '')
 					$arFilter["<=DATE_ALLOW_DELIVERY"] = Trim($filter_date_to);
 
 				$dbItemsList = \Bitrix\Sale\Internals\OrderTable::getList(

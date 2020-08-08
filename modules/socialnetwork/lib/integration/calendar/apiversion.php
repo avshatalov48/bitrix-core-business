@@ -18,7 +18,7 @@ class ApiVersion
 	{
 		if (self::isEventEditFormAvailable())
 		{
-			return "new BX.Calendar.EventEditForm().show();";
+			return "if (BX.Calendar && BX.Calendar.SliderLoader){new BX.Calendar.SliderLoader('NEW').show();}";
 		}
 		else
 		{

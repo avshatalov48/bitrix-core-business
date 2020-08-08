@@ -1,6 +1,8 @@
 <?php
 namespace Bitrix\Landing\Node;
 
+use Bitrix\Main\Web\DOM\StyleInliner;
+
 class Embed extends \Bitrix\Landing\Node
 {
 	/**
@@ -30,11 +32,33 @@ class Embed extends \Bitrix\Landing\Node
 			{
 				if (isset($value['src']) && $value['src'])
 				{
-					$resultList[$pos]->setAttribute('src', $value['src']);
+					if($resultList[$pos]->getTagName() === 'IFRAME')
+					{
+						$resultList[$pos]->setAttribute('src', $value['src']);
+					}
+					else
+					{
+						$resultList[$pos]->setAttribute('data-src', $value['src']);
+					}
 				}
 				if (isset($value['source']) && $value['source'])
 				{
 					$resultList[$pos]->setAttribute('data-source', $value['source']);
+				}
+				if (isset($value['preview']) && $value['preview'])
+				{
+					$styles = [];
+					foreach (StyleInliner::getStyle($resultList[$pos]) as $key => $stylesValue)
+					{
+						if ($key !== 'background' && $key !== 'background-image')
+						{
+							$styles[] = "{$key}: {$stylesValue};";
+						}
+					}
+					$styles[] = "background-image: url('{$value['preview']}');";
+					$styles = implode(' ', $styles);
+					$resultList[$pos]->setAttribute('style', $styles);
+					$resultList[$pos]->setAttribute('data-preview', $value['preview']);
 				}
 			}
 		}
@@ -55,8 +79,9 @@ class Embed extends \Bitrix\Landing\Node
 		foreach ($resultList as $pos => $res)
 		{
 			$data[$pos] = array(
-				'src' => $res->getAttribute('src'),
-				'data-source' => $res->getAttribute('data-source')
+				'src' => $res->getAttribute('data-src') ?: $res->getAttribute('src'),
+				'source' => $res->getAttribute('data-source'),
+				'preview' => $res->getAttribute('data-preview')
 			);
 		}
 

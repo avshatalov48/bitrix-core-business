@@ -12,18 +12,27 @@ class ContextMenu
 {
 	private $botId = 0;
 	private $items = Array();
-	
+
 	function __construct($botId = 0)
 	{
 		$this->botId = intval($botId);
 	}
-	
+
 	public function addItem($params)
 	{
 		$button = Array();
-		$button['BOT_ID'] = $this->botId;
-		if (!isset($params['TEXT']) || strlen(trim($params['TEXT'])) <= 0)
+		if (isset($button['BOT_ID']) && intval($button['BOT_ID']) > 0)
+		{
+			$button['BOT_ID'] = intval($button['BOT_ID']);
+		}
+		else
+		{
+			$button['BOT_ID'] = $this->botId;
+		}
+		if (!isset($params['TEXT']) || trim($params['TEXT']) == '')
+		{
 			return false;
+		}
 
 		if (isset($params['LINK']) && preg_match('#^(?:/|https?://)#', $params['LINK']))
 		{
@@ -36,15 +45,15 @@ class ContextMenu
 		else if (isset($params['APP_ID']))
 		{
 			$button['APP_ID'] = intval($params['APP_ID']);
-			if (isset($params['APP_PARAMS']) && strlen(trim($params['APP_PARAMS'])) > 0)
+			if (isset($params['APP_PARAMS']) && trim($params['APP_PARAMS']) <> '')
 			{
 				$button['APP_PARAMS'] = $params['APP_PARAMS'];
 			}
 		}
-		else if ($this->botId > 0 && isset($params['COMMAND']) && strlen(trim($params['COMMAND'])) > 0)
+		else if ($this->botId > 0 && isset($params['COMMAND']) && trim($params['COMMAND']) <> '')
 		{
-			$button['COMMAND'] = substr($params['COMMAND'], 0, 1) == '/'? substr($params['COMMAND'], 1): $params['COMMAND'];
-			$button['COMMAND_PARAMS'] = isset($params['COMMAND_PARAMS']) && strlen(trim($params['COMMAND_PARAMS'])) > 0? $params['COMMAND_PARAMS']: '';
+			$button['COMMAND'] = mb_substr($params['COMMAND'], 0, 1) == '/'? mb_substr($params['COMMAND'], 1) : $params['COMMAND'];
+			$button['COMMAND_PARAMS'] = isset($params['COMMAND_PARAMS']) && trim($params['COMMAND_PARAMS']) <> ''? $params['COMMAND_PARAMS']: '';
 		}
 		else
 		{
@@ -91,7 +100,7 @@ class ContextMenu
 				$menu->addItem($button);
 			}
 		}
-		
+
 		return $menu->isEmpty()? null: $menu;
 	}
 
@@ -113,6 +122,6 @@ class ContextMenu
 	public function getJson()
 	{
 		$result = \Bitrix\Main\Web\Json::encode($this->items);
-		return strlen($result) < 60000? $result: "";
+		return mb_strlen($result) < 60000? $result: "";
 	}
 }

@@ -6,7 +6,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 if (defined('VUEJS_DEBUG') && VUEJS_DEBUG)
 {
-	$js = '/bitrix/js/ui/vue/vendor/v2/dist/dev.vue.bundle.js';
+	$js = './dev/dist/dev.vue.bundle.js';
 	$rel = [
 		'main.polyfill.core',
 		'ui.vue.devtools'
@@ -14,7 +14,7 @@ if (defined('VUEJS_DEBUG') && VUEJS_DEBUG)
 }
 else
 {
-	$js = '/bitrix/js/ui/vue/vendor/v2/dist/vue.bundle.js';
+	$js = './prod/dist/vue.bundle.js';
 	$rel = [
 		'main.polyfill.core',
 	];

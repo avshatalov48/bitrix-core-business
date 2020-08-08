@@ -29,7 +29,7 @@ class Comparator
 			if(empty($location2[$type]))
 				continue;
 
-			if(strlen($location1[$type]) > 0 && strlen($location2[$type]) > 0)
+			if($location1[$type] <> '' && $location2[$type] <> '')
 			{
 				/** @var Comparator  $comparator */
 				$comparator = self::getConcreteComparatorClassaName($type);
@@ -86,7 +86,7 @@ class Comparator
 
 	public static function isEntityEqual($entity1, $entity2, $type = '')
 	{
-		if(strlen($type) > 0)
+		if($type <> '')
 		{
 			/** @var Comparator  $comparator */
 			$comparator = self::getConcreteComparatorClassaName($type);
@@ -113,11 +113,11 @@ class Comparator
 			$entity2N = static::normalize($entity2);
 		}
 
-		if(strlen($entity1N['NAME']) > 0 && strlen($entity2N['NAME']) > 0)
+		if($entity1N['NAME'] <> '' && $entity2N['NAME'] <> '')
 			if($entity1N['NAME'] != $entity2N['NAME'])
 				return false;
 
-		if(strlen($entity1N['TYPE']) > 0 && strlen($entity2N['TYPE']) > 0)
+		if($entity1N['TYPE'] <> '' && $entity2N['TYPE'] <> '')
 			if($entity1N['TYPE'] != $entity2N['TYPE'])
 				return false;
 
@@ -190,7 +190,7 @@ class Comparator
 	{
 		$name = self::flatten($name);
 
-		if(strlen($name) <= 0)
+		if($name == '')
 			return array('NAME' => '', 'TYPE' => '');
 
 		$matches = array();
@@ -219,12 +219,12 @@ class Comparator
 				$regexp = '';
 				$s = self::flatten($s);
 
-				if(strpos($name, $s.' ') !== false)
+				if(mb_strpos($name, $s.' ') !== false)
 					$regexp = '/^'.$s.'\s+(.*)$/i'.BX_UTF_PCRE_MODIFIER;
-				elseif(strpos($name, ' '.$s) !== false)
+				elseif(mb_strpos($name, ' '.$s) !== false)
 					$regexp = '/^(.*)\s+'.$s.'$/i'.BX_UTF_PCRE_MODIFIER;
 
-				if(strlen($regexp) > 0 && preg_match($regexp, $name, $matches))
+				if($regexp <> '' && preg_match($regexp, $name, $matches))
 				{
 					$name = $matches[1];
 					$resultType = $type;
@@ -241,13 +241,13 @@ class Comparator
 
 	public static function getLocalityNamesArray($name, $type)
 	{
-		if(strlen($name) <= 0)
+		if($name == '')
 			return array();
 
 		$result = array();
 		$types = self::getReplacement()->getLocalityTypes();
 
-		if(strlen($type) > 0)
+		if($type <> '')
 		{
 			$result[] = ToUpper($type.' '.$name);
 			$result[] = ToUpper($name.' '.$type);

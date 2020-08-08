@@ -76,7 +76,7 @@ $filter = array();
 if(intval($find_id) > 0) $filter["=ID"] = intval($find_id);
 if(!empty($find_delivery_id) && is_array($find_delivery_id)) $filter["=DELIVERY_ID"] = $find_delivery_id;
 //if(strlen(trim($find_status)) > 0) $filter["=STATUS"] = trim($find_status);
-if(strlen(trim($find_external_id)) > 0) $filter["=EXTERNAL_ID"] = trim($find_external_id);
+if(trim($find_external_id) <> '') $filter["=EXTERNAL_ID"] = trim($find_external_id);
 if(strval(trim($find_external_date_insert_from)) != '')
 {
 	$filter[">=DATE"] = trim($find_external_date_insert_from);
@@ -86,7 +86,7 @@ if(strval(trim($find_external_date_insert_to)) != '')
 {
 	if($arDate = ParseDateTime($find_external_date_insert_to, CSite::GetDateFormat("FULL", SITE_ID)))
 	{
-		if(strlen($find_external_date_insert_to) < 11)
+		if(mb_strlen($find_external_date_insert_to) < 11)
 		{
 			$arDate["HH"] = 23;
 			$arDate["MI"] = 59;
@@ -143,7 +143,7 @@ $lAdmin->AddHeaders($aHeaders);
 $arVisibleColumns = $lAdmin->GetVisibleHeaderColumns();
 
 $glParams = array(
-	'order' => array(strtoupper($by) => $order),
+	'order' => array(mb_strtoupper($by) => $order),
 	'count_total' => true,
 	'offset' => $nav->getOffset(),
 	'limit' => $nav->getLimit(),
@@ -195,12 +195,12 @@ while($fields = $resRequestList->fetch())
 
 		while($req = $reqRes->fetch())
 		{
-			if(strlen($shipmentNumbers) > 0)
+			if($shipmentNumbers <> '')
 				$shipmentNumbers .= ', ';
 
 			$shipmentNumbers .= Requests\Helper::getShipmentEditLink($req['SHIPMENT_ID'], $req['SHIPMENT_ID'], $req['ORDER_ID']);
 
-			if(strlen($orderNumbers) > 0)
+			if($orderNumbers <> '')
 				$orderNumbers .= ', ';
 
 			$orderNumbers .= '<a href="/bitrix/admin/sale_order_view.php?ID='.$req['ORDER_ID'].'&lang='.LANGUAGE_ID.'">'.

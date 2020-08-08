@@ -17,12 +17,12 @@ if (!$USER->IsAuthorized())
 	$APPLICATION->AuthForm(GetMessage("SALE_ACCESS_DENIED"));
 }
 
-$ID = IntVal($arParams["ID"]);
+$ID = intval($arParams["ID"]);
 $errorMessage = "";
 $bVarsFromForm = false;
 
 $arParams["PATH_TO_LIST"] = Trim($arParams["PATH_TO_LIST"]);
-if (strlen($arParams["PATH_TO_LIST"]) <= 0)
+if ($arParams["PATH_TO_LIST"] == '')
 	$arParams["PATH_TO_LIST"] = htmlspecialcharsbx($APPLICATION->GetCurPage());
 	
 $arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y" );
@@ -34,9 +34,9 @@ if($arParams["SET_TITLE"] == 'Y')
 		$APPLICATION->SetTitle(GetMessage("STPC_TITLE_ADD"));
 }
 
-if(strlen($_POST["reset"]) > 0)
+if($_POST["reset"] <> '')
 	LocalRedirect($arParams["PATH_TO_LIST"]);
-if ($_SERVER["REQUEST_METHOD"]=="POST" && (strlen($_POST["save"]) > 0 || strlen($_POST["apply"]) > 0) && check_bitrix_sessid())
+if ($_SERVER["REQUEST_METHOD"]=="POST" && ($_POST["save"] <> '' || $_POST["apply"] <> '') && check_bitrix_sessid())
 {
 	if ($ID > 0)
 	{
@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && (strlen($_POST["save"]) > 0 || strlen(
 				array(),
 				array(
 						"ID" => $ID,
-						"USER_ID" => IntVal($USER->GetID())
+						"USER_ID" => intval($USER->GetID())
 					),
 				false,
 				false,
@@ -56,19 +56,19 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && (strlen($_POST["save"]) > 0 || strlen(
 		}
 	}
 
-	if (strlen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
-		$PAY_SYSTEM_ACTION_ID = IntVal($_REQUEST["PAY_SYSTEM_ACTION_ID"]);
+		$PAY_SYSTEM_ACTION_ID = intval($_REQUEST["PAY_SYSTEM_ACTION_ID"]);
 		if ($PAY_SYSTEM_ACTION_ID <= 0)
 			$errorMessage .= GetMessage("STPC_EMPTY_PAY_SYS").". ";
 
 		$CARD_TYPE = Trim($_REQUEST["CARD_TYPE"]);
 		$CARD_TYPE = ToUpper($CARD_TYPE);
-		if (strlen($CARD_TYPE) <= 0)
+		if ($CARD_TYPE == '')
 			$errorMessage .= GetMessage("STPC_EMPTY_CARD_TYPE").". ";
 
 		$CARD_NUM = preg_replace("/[\D]+/", "", $_REQUEST["CARD_NUM"]);
-		if (strlen($CARD_NUM) <= 0)
+		if ($CARD_NUM == '')
 		{
 			$errorMessage .= GetMessage("STPC_EMPTY_CARDNUM").". ";
 		}
@@ -79,40 +79,40 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && (strlen($_POST["save"]) > 0 || strlen(
 				$errorMessage .= GetMessage("STPC_WRONG_CARDNUM").". ";
 		}
 
-		$CARD_EXP_MONTH = IntVal($_REQUEST["CARD_EXP_MONTH"]);
+		$CARD_EXP_MONTH = intval($_REQUEST["CARD_EXP_MONTH"]);
 		if ($CARD_EXP_MONTH < 1 || $CARD_EXP_MONTH > 12)
 			$errorMessage .= GetMessage("STPC_WRONG_MONTH").". ";
 
-		$CARD_EXP_YEAR = IntVal($_REQUEST["CARD_EXP_YEAR"]);
+		$CARD_EXP_YEAR = intval($_REQUEST["CARD_EXP_YEAR"]);
 		if ($CARD_EXP_YEAR < 2007 || $CARD_EXP_YEAR > 2100)
 			$errorMessage .= GetMessage("STPC_WRONG_YEAR").". ";
 
 		$CARD_CODE = Trim($_REQUEST["CARD_CODE"]);
 	}
 
-	if (strlen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
 		$SUM_MIN = str_replace(",", ".", $_REQUEST["SUM_MIN"]);
 		$SUM_MIN = DoubleVal($SUM_MIN);
 		$SUM_MAX = str_replace(",", ".", $_REQUEST["SUM_MAX"]);
 		$SUM_MAX = DoubleVal($SUM_MAX);
 		$ACTIVE = (($_REQUEST["ACTIVE"] == "Y") ? "Y" : "N");
-		$SORT = ((IntVal($_REQUEST["SORT"]) > 0) ? IntVal($_REQUEST["SORT"]) : 100);
+		$SORT = ((intval($_REQUEST["SORT"]) > 0) ? intval($_REQUEST["SORT"]) : 100);
 		$CURRENCY = Trim($_REQUEST["CURRENCY"]);
 		$SUM_CURRENCY = Trim($_REQUEST["SUM_CURRENCY"]);
 
-		if (($SUM_MIN > 0 || $SUM_MAX > 0) && strlen($SUM_CURRENCY) <= 0)
+		if (($SUM_MIN > 0 || $SUM_MAX > 0) && $SUM_CURRENCY == '')
 			$errorMessage .= GetMessage("STPC_EMPTY_BCURRENCY").". ";
 	}
 
-	if (strlen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
 		$arFields = array(
-				"USER_ID" => IntVal($USER->GetID()),
+				"USER_ID" => intval($USER->GetID()),
 				"ACTIVE" => $ACTIVE,
 				"SORT" => $SORT,
 				"PAY_SYSTEM_ACTION_ID" => $PAY_SYSTEM_ACTION_ID,
-				"CURRENCY" => ((strlen($CURRENCY) > 0) ? $CURRENCY : False),
+				"CURRENCY" => (($CURRENCY <> '') ? $CURRENCY : False),
 				"CARD_TYPE" => $CARD_TYPE,
 				"CARD_NUM" => CSaleUserCards::CryptData($CARD_NUM, "E"),
 				"CARD_EXP_MONTH" => $CARD_EXP_MONTH,
@@ -120,7 +120,7 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && (strlen($_POST["save"]) > 0 || strlen(
 				"CARD_CODE" => $CARD_CODE,
 				"SUM_MIN" => (($SUM_MIN > 0) ? $SUM_MIN : False),
 				"SUM_MAX" => (($SUM_MAX > 0) ? $SUM_MAX : False),
-				"SUM_CURRENCY" => ((strlen($SUM_CURRENCY) > 0) ? $SUM_CURRENCY : False)
+				"SUM_CURRENCY" => (($SUM_CURRENCY <> '') ? $SUM_CURRENCY : False)
 			);
 
 		if ($ID > 0)
@@ -142,11 +142,11 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && (strlen($_POST["save"]) > 0 || strlen(
 		}
 	}
 
-	if (strlen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
-		if (strlen($_POST["save"]) > 0)
+		if ($_POST["save"] <> '')
 			LocalRedirect($arParams["PATH_TO_LIST"]);
-		elseif(strlen($_POST["apply"]) > 0)
+		elseif($_POST["apply"] <> '')
 			LocalRedirect(CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_DETAIL"], Array("ID" => $ID)));
 
 	}
@@ -160,7 +160,7 @@ $dbUserCards = CSaleUserCards::GetList(
 		array("DATE_UPDATE" => "DESC"),
 		array(
 				"ID" => $ID,
-				"USER_ID" => IntVal($GLOBALS["USER"]->GetID())
+				"USER_ID" => intval($GLOBALS["USER"]->GetID())
 			),
 		false,
 		false,

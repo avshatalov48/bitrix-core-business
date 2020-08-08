@@ -486,7 +486,7 @@ final class ImportProcess extends Location\Util\Process
 
 	protected static function checkLocationCodeExists($code)
 	{
-		if(!strlen($code))
+		if($code == '')
 			return false;
 
 		$dbConnection = Main\HttpApplication::getConnection();
@@ -577,7 +577,7 @@ final class ImportProcess extends Location\Util\Process
 
 			///////////////////////////////////////////
 			// transform parent
-			if(strlen($data['PARENT_CODE']))
+			if($data['PARENT_CODE'] <> '')
 			{
 				if(isset($this->data['existedlocs']['static'][$data['PARENT_CODE']]))
 				{
@@ -588,10 +588,14 @@ final class ImportProcess extends Location\Util\Process
 					$data['PARENT_ID'] = $this->data['existedlocs'][$gid][$data['PARENT_CODE']];
 				}
 				else
+				{
 					$data['PARENT_ID'] = 0;
+				}
 			}
 			else
+			{
 				$data['PARENT_ID'] = 0;
+			}
 
 			unset($data['PARENT_CODE']);
 
@@ -658,7 +662,7 @@ final class ImportProcess extends Location\Util\Process
 
 						if($sCode == 'ZIP_LOWER')
 						{
-							if(strlen($values) <= 0)
+							if($values == '')
 								continue;
 
 							$values = explode(',', $values);
@@ -673,7 +677,7 @@ final class ImportProcess extends Location\Util\Process
 						{
 							foreach($values as $val)
 							{
-								if(strlen($val) <= 0)
+								if($val == '')
 									continue;
 
 								$this->hitData['HANDLES']['EXTERNAL']->insert(array(
@@ -1156,15 +1160,19 @@ final class ImportProcess extends Location\Util\Process
 				if(isset($lay[$currentBundle]))
 				{
 					$chain[] = $currentBundle;
-					if(strlen($lay[$currentBundle]['PARENT_CODE']))
+					if($lay[$currentBundle]['PARENT_CODE'] <> '')
 					{
 						$currentBundle = $lay[$currentBundle]['PARENT_CODE'];
 
 						if(!isset($lay[$currentBundle]))
+						{
 							throw new Main\SystemException('Unknown parent bundle found ('.$currentBundle.'). Layout file is broken');
+						}
 					}
 					else
+					{
 						$currentBundle = false;
+					}
 				}
 			}
 
@@ -1585,8 +1593,10 @@ final class ImportProcess extends Location\Util\Process
 				$i = -1;
 			}
 
-			if(strlen($code))
+			if($code <> '')
+			{
 				$buffer[] = $code;
+			}
 		}
 
 		// last iteration
@@ -1628,7 +1638,7 @@ final class ImportProcess extends Location\Util\Process
 		$indexName = $this->dbHelper->forSql(trim($indexName));
 		$tableName = $this->dbHelper->forSql(trim($tableName));
 
-		if(!strlen($indexName) || !strlen($tableName))
+		if(!mb_strlen($indexName) || !mb_strlen($tableName))
 			return false;
 
 		if($this->dbConnType == self::DB_TYPE_MYSQL)
@@ -1659,7 +1669,7 @@ final class ImportProcess extends Location\Util\Process
 		$indexName = $this->dbHelper->forSql(trim($indexName));
 		$tableName = $this->dbHelper->forSql(trim($tableName));
 
-		if(!strlen($indexName) || !strlen($tableName))
+		if(!mb_strlen($indexName) || !mb_strlen($tableName))
 			return false;
 
 		if(!$this->checkIndexExistsByName($indexName, $tableName))
@@ -2025,8 +2035,10 @@ final class ImportProcess extends Location\Util\Process
 		{
 			foreach($value as $v)
 			{
-				if(strlen($v))
+				if($v <> '')
+				{
 					$result[] = $this->parseQueryCode($v);
+				}
 			}
 		}
 
@@ -2257,10 +2269,12 @@ final class ImportProcess extends Location\Util\Process
 					unset($item['TYPE_CODE']);
 
 					// parent id
-					if(strlen($item['PARENT_CODE']))
+					if($item['PARENT_CODE'] <> '')
 					{
 						if(!isset($descriptior['CODES'][$item['PARENT_CODE']]))
+						{
 							$descriptior['CODES'][$item['PARENT_CODE']] = static::checkLocationCodeExists($item['PARENT_CODE']);
+						}
 
 						$item['PARENT_ID'] = $descriptior['CODES'][$item['PARENT_CODE']];
 					}
@@ -2282,7 +2296,7 @@ final class ImportProcess extends Location\Util\Process
 
 								if($code == 'ZIP_LOWER')
 								{
-									if(strlen($values[0]) <= 0)
+									if($values[0] == '')
 										continue;
 
 									$values = explode(',', $values[0]);
@@ -2297,7 +2311,7 @@ final class ImportProcess extends Location\Util\Process
 								{
 									foreach($values as $value)
 									{
-										if(strlen($value) <= 0)
+										if($value == '')
 											continue;
 
 										$item['EXTERNAL'][] = array(

@@ -44,7 +44,7 @@ class Quantity extends Base
 		else
 			$price = 0;
 
-		return '<input type="text" name="'.$name.'[PARAMS][PRICE]" value="'.$price.'">'.(strlen($currency) > 0 ? " (".htmlspecialcharsbx($currency).")" : "");
+		return '<input type="text" name="'.$name.'[PARAMS][PRICE]" value="'.$price.'">'.($currency <> '' ? " (".htmlspecialcharsbx($currency).")" : "");
 	}
 
 	public function setOperatingCurrency($currency)

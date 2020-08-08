@@ -101,6 +101,14 @@ $MESS["CC_BSC1_ID"] = "Ид";
 $MESS["CC_BSC1_TAXES"] = "Налоги";
 $MESS["CC_BSC1_TAX"] = "Налог";
 $MESS["CC_BSC1_TAX_VALUE"] = "Ставка";
+
+$MESS["CC_BSC1_MARKING_GROUP"] = "ГруппаМаркировки";
+$MESS["CC_BSC1_MARKING_GROUP_CODE"] = "Код";
+
+$MESS["CC_BSC1_MARKINGS"] = "Маркировки";
+$MESS["CC_BSC1_MARKING"] = "Маркировка";
+$MESS["CC_BSC1_MARKING_BARCODE"] = "Штрихкод";
+
 $MESS["CC_BSC1_IN_PRICE"] = "УчтеноВСумме";
 $MESS["CC_BSC1_SERVICE"] = "Услуга";
 $MESS["CC_BSC1_CANCELED"] = "ПометкаУдаления";

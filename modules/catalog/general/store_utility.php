@@ -94,7 +94,7 @@ class CCatalogStoreControlUtil
 	 */
 	public static function getFields($docType)
 	{
-		if(strlen($docType) > 0 && isset(CCatalogDocs::$types[$docType]))
+		if($docType <> '' && isset(CCatalogDocs::$types[$docType]))
 		{
 			$documentClass = CCatalogDocs::$types[$docType];
 			if(method_exists($documentClass, "getFields"))

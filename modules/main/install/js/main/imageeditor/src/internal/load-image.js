@@ -9,6 +9,17 @@ export default function loadImage({src, proxy}: LoadImageOptions)
 {
 	return new Promise((resolve, reject) => {
 		const imageSrc = (() => {
+			const srcUri = new Uri(src);
+			const srcHost = srcUri.getHost();
+			if (
+				srcHost === ''
+				|| srcHost === window.location.host
+				|| srcHost === window.location.hostname
+			)
+			{
+				return src;
+			}
+
 			if (Type.isString(proxy))
 			{
 				return Uri.addParam(proxy, {

@@ -79,22 +79,10 @@ class main extends CModule
 			return false;
 		}
 
-		if (strtolower($DB->type) == 'mysql')
-		{
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/".$DBType."/install_ft.sql");
-			if ($errors === false)
-			{
-				$entity = \Bitrix\Main\UserIndexTable::getEntity();
-				$entity->enableFullTextIndex("SEARCH_USER_CONTENT");
-				$entity->enableFullTextIndex("SEARCH_DEPARTMENT_CONTENT");
-				$entity->enableFullTextIndex("SEARCH_ADMIN_CONTENT");
-				\Bitrix\Main\UserIndexSelectorTable::getEntity()->enableFullTextIndex("SEARCH_SELECTOR_CONTENT");
-			}
-		}
-
 		if(\Bitrix\Main\ORM\Fields\CryptoField::cryptoAvailable())
 		{
 			\Bitrix\Main\UserPhoneAuthTable::enableCrypto("OTP_SECRET");
+			\Bitrix\Main\Authentication\Internal\UserAuthCodeTable::enableCrypto("OTP_SECRET");
 		}
 
 		$this->InstallTasks();
@@ -172,10 +160,6 @@ class main extends CModule
 
 		RegisterModuleDependences("main", "OnFileDelete", "main", "\\Bitrix\\Main\\UI\\Viewer\\FilePreviewTable", "onFileDelete");
 
-		RegisterModuleDependences("disk", "onAfterAjaxActionCreateFolderWithSharing", "main", "\\Bitrix\\Main\\FinderDestTable", "onAfterDiskAjaxAction");
-		RegisterModuleDependences("disk", "onAfterAjaxActionAppendSharing", "main", "\\Bitrix\\Main\\FinderDestTable", "onAfterDiskAjaxAction");
-		RegisterModuleDependences("disk", "onAfterAjaxActionChangeSharingAndRights", "main", "\\Bitrix\\Main\\FinderDestTable", "onAfterDiskAjaxAction");
-
 		RegisterModuleDependences("socialnetwork", "OnSocNetLogDelete", "main", "CUserCounter", "OnSocNetLogDelete");
 		RegisterModuleDependences("socialnetwork", "OnSocNetLogCommentDelete", "main", "CUserCounter", "OnSocNetLogCommentDelete");
 
@@ -235,6 +219,10 @@ class main extends CModule
 		$eventManager->registerEventHandler('main', 'onUpdateUserFieldValues', 'main', '\Bitrix\Main\UserField\Internal\UserFieldHelper', 'onUpdateUserFieldValues');
 		$eventManager->registerEventHandler('main', 'onDeleteUserFieldValues', 'main', '\Bitrix\Main\UserField\Internal\UserFieldHelper', 'onDeleteUserFieldValues');
 
+		RegisterModuleDependences("main", "OnAuthProvidersBuildList", "main", "\\Bitrix\\Main\\Access\\Auth\\AccessAuthProvider", "getProviders");
+		RegisterModuleDependences("iblock", "OnBeforeIBlockSectionUpdate", "main", "\\Bitrix\\Main\\Access\\Auth\\AccessEventHandler", "onBeforeIBlockSectionUpdate");
+		RegisterModuleDependences("iblock", "OnBeforeIBlockSectionAdd", "main", "\\Bitrix\\Main\\Access\\Auth\\AccessEventHandler", "onBeforeIBlockSectionAdd");
+		RegisterModuleDependences("iblock", "OnBeforeIBlockSectionDelete", "main", "\\Bitrix\\Main\\Access\\Auth\\AccessEventHandler", "onBeforeIBlockSectionDelete");
 
 		self::InstallDesktop();
 
@@ -333,6 +321,10 @@ class main extends CModule
 			"LONG_DATE_FORMAT" => GetMessage("MAIN_DEFAULT_LANGUAGE_LONG_DATE_FORMAT"),
 			"FULL_DATE_FORMAT" => GetMessage("MAIN_DEFAULT_LANGUAGE_FULL_DATE_FORMAT"),
 			"DAY_MONTH_FORMAT" => GetMessage("MAIN_DEFAULT_LANGUAGE_DAY_MONTH_FORMAT"),
+			"DAY_SHORT_MONTH_FORMAT" => GetMessage("MAIN_DEFAULT_LANGUAGE_DAY_SHORT_MONTH_FORMAT"),
+			"DAY_OF_WEEK_MONTH_FORMAT" => GetMessage("MAIN_DEFAULT_LANGUAGE_DAY_OF_WEEK_MONTH_FORMAT"),
+			"SHORT_DAY_OF_WEEK_MONTH_FORMAT" => GetMessage("MAIN_DEFAULT_LANGUAGE_SHORT_DAY_OF_WEEK_MONTH_FORMAT"),
+			"SHORT_DAY_OF_WEEK_SHORT_MONTH_FORMAT" => GetMessage("MAIN_DEFAULT_LANGUAGE_SHORT_DAY_OF_WEEK_SHORT_MONTH_FORMAT"),
 			"SHORT_TIME_FORMAT" => GetMessage("MAIN_DEFAULT_LANGUAGE_SHORT_TIME_FORMAT"),
 			"LONG_TIME_FORMAT" => GetMessage("MAIN_DEFAULT_LANGUAGE_LONG_TIME_FORMAT"),
 			"AM_VALUE" => GetMessage("MAIN_DEFAULT_LANGUAGE_AM_VALUE"),
@@ -368,7 +360,11 @@ class main extends CModule
 				"MEDIUM_DATE_FORMAT" => "M j, Y",
 				"LONG_DATE_FORMAT" => "F j, Y",
 				"FULL_DATE_FORMAT" => "l, F j, Y",
-				"DAY_MONTH_FORMAT" => "M j",
+				"DAY_MONTH_FORMAT" => "F j",
+				"DAY_SHORT_MONTH_FORMAT" => "M j",
+				"DAY_OF_WEEK_MONTH_FORMAT" => "l, F j",
+				"SHORT_DAY_OF_WEEK_MONTH_FORMAT" => "D, F j",
+				"SHORT_DAY_OF_WEEK_SHORT_MONTH_FORMAT" => "D, M j",
 				"SHORT_TIME_FORMAT" => "g:i a",
 				"LONG_TIME_FORMAT" => "g:i:s a",
 				"AM_VALUE" => "am",
@@ -403,7 +399,11 @@ class main extends CModule
 				"MEDIUM_DATE_FORMAT" => "j. M Y",
 				"LONG_DATE_FORMAT" => "j. F Y",
 				"FULL_DATE_FORMAT" => "l, j. F  Y",
-				"DAY_MONTH_FORMAT" => "j. M",
+				"DAY_MONTH_FORMAT" => "j. F",
+				"DAY_SHORT_MONTH_FORMAT" => "j. M",
+				"DAY_OF_WEEK_MONTH_FORMAT" => "l, j. F",
+				"SHORT_DAY_OF_WEEK_MONTH_FORMAT" => "D, j. F",
+				"SHORT_DAY_OF_WEEK_SHORT_MONTH_FORMAT" => "D, j. M",
 				"SHORT_TIME_FORMAT" => "H:i",
 				"LONG_TIME_FORMAT" => "H:i:s",
 				"AM_VALUE" => "am",
@@ -437,8 +437,12 @@ class main extends CModule
 				"SHORT_DATE_FORMAT" => "d.m.Y",
 				"MEDIUM_DATE_FORMAT" => "j M Y",
 				"LONG_DATE_FORMAT" => "j F Y",
-				"FULL_DATE_FORMAT" => "l, j F  Y",
+				"FULL_DATE_FORMAT" => "l, j F Y",
 				"DAY_MONTH_FORMAT" => "j F",
+				"DAY_SHORT_MONTH_FORMAT" => "j M",
+				"DAY_OF_WEEK_MONTH_FORMAT" => "l, j F",
+				"SHORT_DAY_OF_WEEK_MONTH_FORMAT" => "D, j F",
+				"SHORT_DAY_OF_WEEK_SHORT_MONTH_FORMAT" => "D, j M",
 				"SHORT_TIME_FORMAT" => "H:i",
 				"LONG_TIME_FORMAT" => "H:i:s",
 				"AM_VALUE" => "am",
@@ -472,8 +476,12 @@ class main extends CModule
 				"SHORT_DATE_FORMAT" => "d.m.Y",
 				"MEDIUM_DATE_FORMAT" => "j M Y",
 				"LONG_DATE_FORMAT" => "j F Y",
-				"FULL_DATE_FORMAT" => "l, j F  Y",
+				"FULL_DATE_FORMAT" => "l, j F Y",
 				"DAY_MONTH_FORMAT" => "j F",
+				"DAY_SHORT_MONTH_FORMAT" => "j M",
+				"DAY_OF_WEEK_MONTH_FORMAT" => "l, j F",
+				"SHORT_DAY_OF_WEEK_MONTH_FORMAT" => "D, j F",
+				"SHORT_DAY_OF_WEEK_SHORT_MONTH_FORMAT" => "D, j M",
 				"SHORT_TIME_FORMAT" => "H:i",
 				"LONG_TIME_FORMAT" => "H:i:s",
 				"AM_VALUE" => "am",
@@ -1525,6 +1533,13 @@ class main extends CModule
 				'DESCRIPTION' => getMessage('MAIN_INSTALL_EVENT_TYPE_NOTIFICATION_DESC'),
 				'SORT'        => 9,
 			);
+			$arEventTypes[] = array(
+				'LID'         => $lid,
+				'EVENT_NAME'  => 'USER_CODE_REQUEST',
+				'NAME'        => GetMessage("MAIN_INSTALL_EVENT_TYPE_USER_CODE_REQUEST"),
+				'DESCRIPTION' => GetMessage("MAIN_INSTALL_EVENT_TYPE_USER_CODE_REQUEST_DESC"),
+				'SORT'        => 10,
+			);
 
 			//sms types
 			$arEventTypes[] = array(
@@ -1638,6 +1653,15 @@ class main extends CModule
 			"EMAIL_TO" => "#EMAIL#",
 			"SUBJECT" => GetMessage("MAIN_EVENT_MESS_NOTIFICATION"),
 			"MESSAGE" => GetMessage("MAIN_EVENT_MESS_NOTIFICATION_TEXT"),
+		);
+		$arMessages[] = array(
+			"EVENT_NAME" => "USER_CODE_REQUEST",
+			"LID" => "s1",
+			"LANGUAGE_ID" => LANGUAGE_ID,
+			"EMAIL_FROM" => "#DEFAULT_EMAIL_FROM#",
+			"EMAIL_TO" => "#EMAIL#",
+			"SUBJECT" => GetMessage("MAIN_INSTALL_EVENT_MESS_USER_CODE_REQUEST"),
+			"MESSAGE" => GetMessage("MAIN_INSTALL_EVENT_MESS_USER_CODE_REQUEST_MESS"),
 		);
 
 		$message = new CEventMessage;

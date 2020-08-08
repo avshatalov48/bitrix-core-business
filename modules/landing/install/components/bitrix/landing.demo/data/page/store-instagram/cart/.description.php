@@ -18,7 +18,10 @@ return array(
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'THEME_CODE' => 'travel',
-			'THEME_CODE_TYPO' => 'travel',
+			'THEMEFONTS_CODE' => 'g-font-roboto',
+			'THEMEFONTS_CODE_H' => 'g-font-roboto',
+			'THEMEFONTS_SIZE' => '1',
+			'THEMEFONTS_USE' => 'Y',
 		),
 	),
 	'layout' => array(

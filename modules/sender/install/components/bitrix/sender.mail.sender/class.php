@@ -1,12 +1,17 @@
 <?
 
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ErrorCollection;
-
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Mail\Address;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
+	die();
+}
+
+if (!Bitrix\Main\Loader::IncludeModule('sender'))
+{
+	ShowError('Module `sender` not installed');
 	die();
 }
 

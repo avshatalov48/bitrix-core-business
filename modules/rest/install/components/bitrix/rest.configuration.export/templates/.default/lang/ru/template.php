@@ -13,3 +13,4 @@ $MESS['REST_CONFIGURATION_EXPORT_ERRORS_POPUP_TITLE'] = 'Отчёт об оши�
 $MESS['REST_CONFIGURATION_EXPORT_ERRORS_POPUP_TEXT_LABEL'] = 'Описание проблемы';
 $MESS['REST_CONFIGURATION_EXPORT_ERRORS_POPUP_TEXT_PLACEHOLDER'] = 'Текст описания проблемы';
 $MESS['REST_CONFIGURATION_EXPORT_ERRORS_POPUP_BTN_COPY'] = 'Копировать';
+$MESS['REST_CONFIGURATION_EXPORT_ERRORS_SETTINGS_NEEDED'] = 'Для работы экспорта необходимы дополнительные <a target="_blank" href="#SETTING_HREF#">настройки</a>';

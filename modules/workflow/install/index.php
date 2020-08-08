@@ -16,9 +16,7 @@ Class workflow extends CModule
 	{
 		$arModuleVersion = array();
 
-		$path = str_replace("\\", "/", __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen("/index.php"));
-		include($path."/version.php");
+		include(__DIR__.'/version.php');
 
 		if (is_array($arModuleVersion) && array_key_exists("VERSION", $arModuleVersion))
 		{
@@ -167,7 +165,7 @@ Class workflow extends CModule
 		$WORKFLOW_RIGHT = $APPLICATION->GetGroupRight("workflow");
 		if($WORKFLOW_RIGHT == "W")
 		{
-			$step = IntVal($step);
+			$step = intval($step);
 			if($step < 2)
 			{
 				$APPLICATION->IncludeAdminFile(GetMessage("FLOW_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/workflow/install/step1.php");
@@ -191,7 +189,7 @@ Class workflow extends CModule
 		$WORKFLOW_RIGHT = $APPLICATION->GetGroupRight("workflow");
 		if($WORKFLOW_RIGHT == "W")
 		{
-			$step = IntVal($step);
+			$step = intval($step);
 			if($step < 2)
 			{
 				$APPLICATION->IncludeAdminFile(GetMessage("FLOW_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/workflow/install/unstep1.php");

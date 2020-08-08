@@ -6,39 +6,39 @@
 				</div>
 			</div>
 
-			<div class="landing-block-node-address-col js-animation slideInRight col-md-6 order-1 order-md-2 d-flex g-bg-primary text-center g-pa-40">
+			<div class="landing-block-node-address-col landing-semantic-background-color js-animation slideInRight col-md-6 order-1 order-md-2 d-flex g-bg-primary text-center g-pa-40">
 				<div class="landing-block-node-address-container align-self-center w-100">
 					<div class="landing-block-node-address-title-container g-mb-40">
-						<h6 class="landing-block-node-address-subtitle d-inline-block g-theme-travel-bg-black-v1 g-font-weight-700 g-color-white g-px-15 g-py-10 g-mb-20">
+						<h6 class="landing-block-node-address-subtitle landing-semantic-link-image-medium d-inline-block g-theme-travel-bg-black-v1 font-weight-bold g-color-white g-px-15 g-py-10 g-mb-20">
 								Contact Us
 						</h6>
-						<h2 class="landing-block-node-address-title text-uppercase u-heading-v8__title g-font-weight-700 g-font-size-40 mb-0">
+						<h2 class="landing-block-node-address-title landing-semantic-title-medium text-uppercase u-heading-v8__title font-weight-bold g-font-size-40 mb-0">
 							<font color="#ffffff">Get in</font> touch
 						</h2>
 					</div>
 
-					<div class="landing-block-node-address-text g-line-height-1_3 g-font-size-16 g-color-white-opacity-0_8 g-mb-45">
+					<div class="landing-block-node-address-text landing-semantic-text-medium g-line-height-1_3 g-font-size-16 g-color-white-opacity-0_8 g-mb-45">
 						<p>Aliquam dapibus quis sapien id pharetra. Vivamus iaculis est vitae libero tempus, in sollicitudin est consectetur porttitor iaculis pretium</p>
 					</div>
 
 					<address class="landing-block-card-address-container g-mb-40">
 						<div class="landing-block-card-address g-mb-20" data-card-preset="contact-link">
-							<div class="landing-block-card-address-title d-inline-block text-uppercase g-font-size-14 g-color-white-opacity-0_7 g-pr-5">Email:</div>
-							<a class="landing-block-card-address-link d-inline-block g-color-white text-uppercase g-font-size-14 g-font-weight-700" href="mailto:info@company24.com">
-								info@company24.com
+							<div class="landing-block-card-address-title landing-semantic-text-medium d-inline-block text-uppercase g-font-size-14 g-color-white-opacity-0_7 g-pr-5">Email:</div>
+							<a class="landing-block-card-address-link landing-semantic-link-medium d-inline-block g-color-white text-uppercase g-font-size-14 font-weight-bold" href="mailto:#EMAIL1#">
+								#EMAIL1#
 							</a>
 						</div>
 
 						<div class="landing-block-card-address g-mb-20" data-card-preset="contact-link">
-							<div class="landing-block-card-address-title d-inline-block text-uppercase g-font-size-14 g-color-white-opacity-0_7 g-pr-5">Phone number:</div>
-							<a class="landing-block-card-address-link d-inline-block g-color-white text-uppercase g-font-size-14 g-font-weight-700" href="tel:+48 555 2566 112">
-								+48 555 2566 112
+							<div class="landing-block-card-address-title landing-semantic-text-medium d-inline-block text-uppercase g-font-size-14 g-color-white-opacity-0_7 g-pr-5">Phone number:</div>
+							<a class="landing-block-card-address-link landing-semantic-link-medium d-inline-block g-color-white text-uppercase g-font-size-14 font-weight-bold" href="tel:#PHONE1#">
+								#PHONE1#
 							</a>
 						</div>
 
 						<div class="landing-block-card-address g-mb-20" data-card-preset="contact-text">
-							<div class="landing-block-card-address-title d-inline-block text-uppercase g-font-size-14 g-color-white-opacity-0_7 g-pr-5">Address:</div>
-							<div class="landing-block-card-address-text d-inline-block text-uppercase g-font-size-14 g-color-white g-font-weight-700">
+							<div class="landing-block-card-address-title landing-semantic-text-medium d-inline-block text-uppercase g-font-size-14 g-color-white-opacity-0_7 g-pr-5">Address:</div>
+							<div class="landing-block-card-address-text landing-semantic-link-medium d-inline-block text-uppercase g-font-size-14 g-color-white font-weight-bold">
 								In sed lectus tincidunt
 							</div>
 						</div>

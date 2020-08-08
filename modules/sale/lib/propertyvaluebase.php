@@ -119,7 +119,13 @@ abstract class PropertyValueBase extends Internals\CollectableEntity
 			$filter['=PERSON_TYPE_ID'] = $order->getPersonTypeId();
 		}
 
-		$filter[] = self::constructRelatedEntitiesFilter($order);
+		$filter[] = [
+			'LOGIC' => 'OR',
+			[
+				'=ID' => array_keys($propertyValuesMap),
+			],
+			self::constructRelatedEntitiesFilter($order)
+		];
 
 		$registry = Registry::getInstance(static::getRegistryType());
 
@@ -706,7 +712,7 @@ abstract class PropertyValueBase extends Internals\CollectableEntity
 	}
 
 	/**
-	 * @return null|string
+	 * @return null|string|array
 	 */
 	public function getValue()
 	{

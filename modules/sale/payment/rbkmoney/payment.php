@@ -6,7 +6,7 @@ if ($recipientCurrencyB == "RUB")
 $ACTION_TYPE = CSalePaySystemAction::GetParamValue("PAYMENT_VALUE");
 ?>
 <form action="https://Rbkmoney.ru/acceptpurchase.aspx" method="POST" name="payment_form">
-<?if (strlen($ACTION_TYPE) > 0)
+<?if ($ACTION_TYPE <> '')
 {
 	?><input type="hidden" name="preference" value="<?= $ACTION_TYPE?>" /><?
 }

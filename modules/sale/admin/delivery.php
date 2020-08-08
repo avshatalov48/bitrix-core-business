@@ -30,14 +30,14 @@ $lAdmin->InitFilter($arFilterFields);
 
 $arFilter = array();
 
-if (strlen($filter_lang)>0 && $filter_lang!="NOT_REF") $arFilter["LID"] = Trim($filter_lang);
-if (IntVal($filter_weight_from)>0) $arFilter["+>=WEIGHT_TO"] = IntVal($filter_weight_from);
-if (IntVal($filter_weight_to)>0) $arFilter["+<=WEIGHT_FROM"] = IntVal($filter_weight_to);
+if ($filter_lang <> '' && $filter_lang!="NOT_REF") $arFilter["LID"] = Trim($filter_lang);
+if (intval($filter_weight_from)>0) $arFilter["+>=WEIGHT_TO"] = intval($filter_weight_from);
+if (intval($filter_weight_to)>0) $arFilter["+<=WEIGHT_FROM"] = intval($filter_weight_to);
 if (DoubleVal($filter_order_price_from)>0) $arFilter["+>=ORDER_PRICE_TO"] = DoubleVal($filter_order_price_from);
 if (DoubleVal($filter_order_price_to)>0) $arFilter["+<=ORDER_PRICE_FROM"] = DoubleVal($filter_order_price_to);
-if (strlen($filter_order_currency)>0) $arFilter["ORDER_CURRENCY"] = Trim($filter_order_currency);
-if (strlen($filter_active)>0) $arFilter["ACTIVE"] = Trim($filter_active);
-if (IntVal($filter_location)>0) $arFilter["LOCATION"] = IntVal($filter_location);
+if ($filter_order_currency <> '') $arFilter["ORDER_CURRENCY"] = Trim($filter_order_currency);
+if ($filter_active <> '') $arFilter["ACTIVE"] = Trim($filter_active);
+if (intval($filter_location)>0) $arFilter["LOCATION"] = intval($filter_location);
 
 
 if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
@@ -58,7 +58,7 @@ if (($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 
 	foreach ($arID as $ID)
 	{
-		if (strlen($ID) <= 0)
+		if ($ID == '')
 			continue;
 
 		switch ($_REQUEST['action'])
@@ -137,9 +137,9 @@ while ($arCCard = $dbResultList->NavNext(true, "f_"))
 	$row->AddField("LID", $f_LID);
 
 	$fieldValue = "";
-	if (IntVal($f_WEIGHT_FROM) > 0)
+	if (intval($f_WEIGHT_FROM) > 0)
 		$fieldValue .= " ".GetMessage("SALE_FROM")." ".$f_WEIGHT_FROM;
-	if (IntVal($f_WEIGHT_TO) > 0)
+	if (intval($f_WEIGHT_TO) > 0)
 		$fieldValue .= " ".GetMessage("SALE_TO")." ".$f_WEIGHT_TO;
 	$row->AddField("WEIGHT", $fieldValue);
 
@@ -271,7 +271,7 @@ $oFilter->Begin();
 					<option value=""><?echo GetMessage("SALE_ALL")?></option>
 					<?$db_vars = CSaleLocation::GetList(Array("SORT"=>"ASC", "COUNTRY_NAME_LANG"=>"ASC", "CITY_NAME_LANG"=>"ASC"), array(), LANG)?>
 					<?while ($vars = $db_vars->Fetch()):?>
-						<option value="<?echo $vars["ID"]?>"<?if (IntVal($vars["ID"])==IntVal($filter_location)) echo " selected"?>><?echo htmlspecialcharsbx($vars["COUNTRY_NAME"]." - ".$vars["CITY_NAME"])?></option>
+						<option value="<?echo $vars["ID"]?>"<?if (intval($vars["ID"])==intval($filter_location)) echo " selected"?>><?echo htmlspecialcharsbx($vars["COUNTRY_NAME"]." - ".$vars["CITY_NAME"])?></option>
 					<?endwhile;?>
 				</select>
 			<?endif?>

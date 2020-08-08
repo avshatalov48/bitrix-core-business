@@ -9,13 +9,13 @@ $settings = \Bitrix\Landing\Hook\Page\Settings::getDataForSite(
 );
 ?>
 
-<header class="landing-block landing-block-menu g-bg-white g-pt-20 g-pb-20 g-brd-bottom g-brd-gray-light-v4">
+<header class="landing-block g-bg-white g-pt-20 g-pb-20 g-brd-bottom g-brd-gray-light-v4">
 	<div class="container">
 		<div class="row flex-lg-row align-items-center justify-content-between">
-			<div class="col-sm-9 d-none d-sm-block text-center text-lg-left">
+			<div class="col-sm-9 text-center text-lg-left">
 				<div class="row align-items-center">
 
-					<div class="landing-block-node-card col-sm g-brd-right--sm g-brd-gray-light-v4" data-card-preset="link">
+					<div class="landing-block-node-card col-sm g-brd-right--sm g-brd-gray-light-v4 g-mb-15 g-mb-0--sm" data-card-preset="link">
 						<div class="g-pa-10--lg">
 							<div class="landing-block-node-card-icon-container d-lg-inline-block g-valign-top g-color-primary g-mr-5 g-font-size-18 g-line-height-1">
 								<i class="landing-block-node-card-icon icon icon-screen-smartphone"></i>
@@ -24,16 +24,16 @@ $settings = \Bitrix\Landing\Hook\Page\Settings::getDataForSite(
 								<div class="landing-block-node-card-title text-uppercase g-font-size-13">
 									Call Us
 								</div>
-								<a class="landing-block-node-card-link g-color-primary g-font-size-14 g-font-weight-700"
-								   href="tel:+469548521"
+								<a class="landing-block-node-card-link g-color-primary g-font-size-14 font-weight-bold"
+								   href="tel:#PHONE1#"
 								   target="_blank">
-									+469 548 521
+									#PHONE1#
 								</a>
 							</div>
 						</div>
 					</div>
 
-					<div class="landing-block-node-card col-sm g-brd-right--sm g-brd-gray-light-v4" data-card-preset="text">
+					<div class="landing-block-node-card col-sm g-brd-right--sm g-brd-gray-light-v4 g-mb-15 g-mb-0--sm" data-card-preset="text">
 						<div class="g-pa-10--lg">
 							<div class="landing-block-node-card-icon-container d-lg-inline-block g-valign-top g-color-primary g-mr-5 g-font-size-18 g-line-height-1">
 								<i class="landing-block-node-card-icon icon icon-clock"></i>
@@ -42,14 +42,14 @@ $settings = \Bitrix\Landing\Hook\Page\Settings::getDataForSite(
 								<div class="landing-block-node-card-title text-uppercase g-font-size-13">
 									Opening time
 								</div>
-								<div class="landing-block-node-card-text g-font-size-14 g-font-weight-700">
+								<div class="landing-block-node-card-text g-font-size-14 font-weight-bold">
 									Mon-Sat: 08.00 -18.00
 								</div>
 							</div>
 						</div>
 					</div>
 
-					<div class="landing-block-node-card col-sm g-brd-right--sm g-brd-gray-light-v4" data-card-preset="link">
+					<div class="landing-block-node-card col-sm g-brd-right--sm g-brd-gray-light-v4 g-mb-15 g-mb-0--sm" data-card-preset="link">
 						<div class="g-pa-10--lg">
 							<div class="landing-block-node-card-icon-container d-lg-inline-block g-valign-top g-color-primary g-mr-5 g-font-size-18 g-line-height-1">
 								<i class="landing-block-node-card-icon icon icon-envelope"></i>
@@ -58,10 +58,10 @@ $settings = \Bitrix\Landing\Hook\Page\Settings::getDataForSite(
 								<div class="landing-block-node-card-title text-uppercase g-font-size-13">
 									Email us
 								</div>
-								<a class="landing-block-node-card-link g-color-primary g-font-size-14 g-font-weight-700"
-									 href="mailto:info@company24.com"
+								<a class="landing-block-node-card-link g-color-primary g-font-size-14 font-weight-bold"
+									 href="mailto:#EMAIL1#"
 									 target="_blank">
-									info@company24.com
+									#EMAIL1#
 								</a>
 							</div>
 						</div>

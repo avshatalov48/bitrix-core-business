@@ -112,6 +112,7 @@ class Client
 			"BX_TYPE" => static::TYPE_CP,
 		];
 		$params["BX_HASH"] = static::signRequest($params);
+		$params["BX_ALL"] = "y";
 
 		$request = [
 			"verificationQuery" => http_build_query($params)

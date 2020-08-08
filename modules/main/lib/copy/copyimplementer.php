@@ -124,7 +124,10 @@ abstract class CopyImplementer
 		foreach ($results as $result)
 		{
 			$data = $data + $result->getData();
-			$copyResult->addErrors($result->getErrors());
+			if ($result->getErrors())
+			{
+				$copyResult->addErrors($result->getErrors());
+			}
 		}
 
 		if ($data)

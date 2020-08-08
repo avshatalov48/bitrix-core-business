@@ -85,7 +85,7 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 
 		$userFields = $this->getUserFields($this->getUserId());
 
-		if (strLen($userFields['WORK_POSITION']) > 0)
+		if ($userFields['WORK_POSITION'] <> '')
 		{
 			$val = htmlspecialcharsbx($userFields['WORK_POSITION']);
 			if (!$this->isExtranetUser())
@@ -299,14 +299,14 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 					case 'WORK_CITY':
 					case 'WORK_STREET':
 					case 'WORK_MAILBOX':
-						if (strLen($val) > 0)
+						if ($val <> '')
 						{
 							$val = htmlspecialcharsbx($val);
 						}
 						break;
 					case 'WORK_POSITION':
 						if (
-							strLen($val) > 0
+							$val <> ''
 							&& ModuleManager::isModuleInstalled('intranet')
 							&& !$this->isExtranetUser()
 						)
@@ -316,14 +316,14 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 						break;
 					case 'LAST_LOGIN':
 					case 'DATE_REGISTER':
-						if (strLen($val) > 0)
+						if ($val <> '')
 						{
 							$val = date($this->getDateTimeFormat(), makeTimeStamp($val, \CSite::getDateFormat("FULL")));
 						}
 						break;
 					case 'EMAIL':
 						$val = (
-							strLen($val) > 0
+							$val <> ''
 							&& ModuleManager::isModuleInstalled('intranet')
 								? '<a href="mailto:'.htmlspecialcharsbx($val).'">'.htmlspecialcharsbx($val).'</a>'
 								: ''
@@ -335,11 +335,11 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 						{
 							$val = "";
 						}
-						elseif (strLen($val) > 0)
+						elseif ($val <> '')
 						{
 							$val = htmlspecialcharsbx($val);
 							$valLink = $val;
-							if (strToLower(subStr($val, 0, strLen("http://"))) != "http://")
+							if (mb_strtolower(mb_substr($val, 0, mb_strlen("http://"))) != "http://")
 							{
 								$valLink = "http://".$val;
 							}
@@ -348,13 +348,13 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 						break;
 					case 'PERSONAL_COUNTRY':
 					case 'WORK_COUNTRY':
-						if (strLen($val) > 0)
+						if ($val <> '')
 						{
 							$val = getCountryById($val);
 						}
 						break;
 					case 'PERSONAL_ICQ':
-						if (strLen($val) > 0)
+						if ($val <> '')
 						{
 							$val = htmlspecialcharsbx($val);
 						}
@@ -364,7 +364,7 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 					case 'PERSONAL_MOBILE':
 					case 'WORK_PHONE':
 					case 'WORK_FAX':
-						if (strLen($val) > 0)
+						if ($val <> '')
 						{
 							$valEncoded = preg_replace('/[^\d\+]+/', '', htmlspecialcharsbx($val));
 							$val = '<a href="callto:'.$valEncoded.'">'.htmlspecialcharsbx($val).'</a>';
@@ -382,12 +382,12 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 						);
 						break;
 					case 'PERSONAL_BIRTHDAY':
-						if (strLen($val) > 0)
+						if ($val <> '')
 						{
 							$parsedDate = parseDateTime($val, \CSite::getDateFormat('SHORT'));
-							$day = intVal($parsedDate["DD"]);
-							$month = intVal($parsedDate["MM"]);
-							$year = intVal($parsedDate["YYYY"]);
+							$day = intval($parsedDate["DD"]);
+							$month = intval($parsedDate["MM"]);
+							$year = intval($parsedDate["YYYY"]);
 
 							$val = $day.' '.toLower(Loc::getMessage('MONTH_'.$month.'_S'));
 							if ($userFields['PERSONAL_GENDER'] == 'M')
@@ -397,7 +397,7 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 						}
 						break;
 					case 'WORK_LOGO':
-						if (intVal($val) > 0)
+						if (intval($val) > 0)
 						{
 							$size = 150;
 							$imageFile = \CFile::getFileArray($val);
@@ -420,7 +420,7 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 						{
 							foreach($val as $manager)
 							{
-								$formattedValue .= (strlen($formattedValue) > 0 ? ', ' : '').(
+								$formattedValue .= ($formattedValue <> '' ? ', ' : '').(
 									!$this->currentEmailUser()
 										? '<a href="'.$manager["URL"].'">'.$manager["NAME_FORMATTED"].'</a>'
 										: $manager["NAME_FORMATTED"]
@@ -434,7 +434,7 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 						break;
 				}
 
-				if(strlen($val) > 0)
+				if($val <> '')
 				{
 					$userFieldsFormatted[$field] = array(
 						"code" => $field,
@@ -472,7 +472,7 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 						$userField['SETTINGS']['SECTION_URL'] = false;
 					}
 
-					$userField["EDIT_FORM_LABEL"] = strLen($userField["EDIT_FORM_LABEL"]) > 0 ? $userField["EDIT_FORM_LABEL"] : $userField["FIELD_NAME"];
+					$userField["EDIT_FORM_LABEL"] = $userField["EDIT_FORM_LABEL"] <> '' ? $userField["EDIT_FORM_LABEL"] : $userField["FIELD_NAME"];
 					$userField["EDIT_FORM_LABEL"] = htmlspecialcharsEx($userField["EDIT_FORM_LABEL"]);
 					$userField["~EDIT_FORM_LABEL"] = $userField["EDIT_FORM_LABEL"];
 
@@ -501,12 +501,12 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 					$value .= ob_get_contents();
 					ob_end_clean();
 
-					if(strlen($value) > 0)
+					if($value <> '')
 					{
 						$userFieldsFormatted[$fieldCode] = array(
 							"code" => $fieldCode,
 							"name" => htmlspecialcharsEx(
-								strLen($userField["EDIT_FORM_LABEL"]) > 0
+								$userField["EDIT_FORM_LABEL"] <> ''
 									? $userField["EDIT_FORM_LABEL"]
 									: $userField["FIELD_NAME"]
 							),
@@ -610,7 +610,7 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 	{
 		if (
 			isset($params["entityType"])
-			&& strlen($params["entityType"]) > 0
+			&& $params["entityType"] <> ''
 		)
 		{
 			$this->context["ENTITY_TYPE"] = $params["entityType"];

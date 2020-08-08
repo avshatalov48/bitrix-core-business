@@ -1,4 +1,4 @@
-<header class="landing-block landing-block-menu landing-ui-pattern-transparent u-header u-header--floating">
+<header class="landing-block u-header u-header--sticky u-header--float">
 	<div class="u-header__section g-bg-black-opacity-0_2 g-transition-0_3 g-py-7 g-py-23--md"
 		 data-header-fix-moment-exclude="g-bg-black-opacity-0_2 g-py-23--md"
 		 data-header-fix-moment-classes="u-header__section--light u-shadow-v19 g-bg-white g-py-15--md">
@@ -22,31 +22,31 @@
 					<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav text-uppercase g-letter-spacing-1 g-font-size-12 g-pt-20 g-pt-0--lg ml-auto">
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#home-section"
-							   class="landing-block-node-menu-list-item-link nav-link p-0">Home</a>
+							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Home</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#about-section"
-							   class="landing-block-node-menu-list-item-link nav-link p-0">About</a>
+							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">About</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#services-section"
-							   class="landing-block-node-menu-list-item-link nav-link p-0">Services</a>
+							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Services</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#news-section"
-							   class="landing-block-node-menu-list-item-link nav-link p-0">News</a>
+							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">News</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#portfolio-section"
-							   class="landing-block-node-menu-list-item-link nav-link p-0">Portfolio</a>
+							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Portfolio</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#contact-section"
-							   class="landing-block-node-menu-list-item-link nav-link p-0">Contact</a>
+							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Contact</a>
 						</li>
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#"
-							   class="landing-block-node-menu-list-item-link nav-link p-0">Main</a>
+							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Main</a>
 						</li>
 					</ul>
 				</div>

@@ -114,7 +114,7 @@ EOT;
 			$locations_csv = $wizard->GetVar('locations_csv');
 			$load_zip = $wizard->GetVar('load_zip');
 
-			if (strlen($locations_csv) <= 0 && $load_zip != 'Y')
+			if ($locations_csv == '' && $load_zip != 'Y')
 				$this->SetError(GetMessage('WSL_STEP2_GFILE_ERROR'), 'locations_csv');
 
 			if($locations_csv == "locations.csv")
@@ -295,7 +295,7 @@ else if (window.attachEvent)
 		if ($wizard->IsNextButtonClick())
 		{
 			$path = dirname(__FILE__);
-			$path = strtolower(str_replace("\\", '/', $path));
+			$path = mb_strtolower(str_replace("\\", '/', $path));
 
 			$filename = $wizard->GetVar('locations_csv');
 			$bLoadZIP = $wizard->GetVar('load_zip');

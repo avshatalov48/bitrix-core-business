@@ -127,15 +127,15 @@ class BizprocWorkflowInstances extends \CBitrixComponent
 			if ($value === '' || $value === null)
 				continue;
 
-			if (substr($key, -5) == '_from')
+			if (mb_substr($key, -5) == '_from')
 			{
 				$op = '>=';
-				$newKey = substr($key, 0, -5);
+				$newKey = mb_substr($key, 0, -5);
 			}
-			elseif (substr($key, -3) == '_to')
+			elseif (mb_substr($key, -3) == '_to')
 			{
 				$op = '<=';
-				$newKey = substr($key, 0, -3);
+				$newKey = mb_substr($key, 0, -3);
 
 				if (in_array($newKey, array('MODIFIED', 'WS_STARTED')))
 				{
@@ -173,7 +173,7 @@ class BizprocWorkflowInstances extends \CBitrixComponent
 		elseif ($useAliases)
 			$fieldName = $orderKeys[0];
 
-		$direction = strtoupper($orderRule[$orderKeys[0]]);
+		$direction = mb_strtoupper($orderRule[$orderKeys[0]]);
 		if ($direction !== 'DESC')
 			$direction = 'ASC';
 
@@ -418,7 +418,7 @@ class BizprocWorkflowInstances extends \CBitrixComponent
 
 		if (!isset(static::$moduleNames[$moduleId]))
 		{
-			$message = Loc::getMessage('BPWI_MODULE_'.strtoupper($moduleId));
+			$message = Loc::getMessage('BPWI_MODULE_'.mb_strtoupper($moduleId));
 			static::$moduleNames[$moduleId] = $message? $message : $moduleId;
 		}
 		return static::$moduleNames[$moduleId];

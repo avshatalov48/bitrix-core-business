@@ -38,7 +38,7 @@ if(CModule::IncludeModule('iblock'))
 						foreach($arProp["VALUES"] as $arValue)
 						{
 							$value = $arValue["VALUE"];
-							if(is_array($value) || strlen($value))
+							if(is_array($value) || mb_strlen($value))
 							{
 								$this->preparePropertyValue($arProp, $arValue, $value, $bSerialized);
 								fwrite($this->fp, $this->formatXMLNode(4, GetMessage("IBLOCK_XML2_PICTURE"), $value));
@@ -186,10 +186,10 @@ if(CModule::IncludeModule('iblock'))
 				return true;
 
 			$tableName = '';
-			if(strlen($arProperty["USER_TYPE_SETTINGS"]["TABLE_NAME"])>0)
+			if($arProperty["USER_TYPE_SETTINGS"]["TABLE_NAME"] <> '')
 				$tableName = $arProperty["USER_TYPE_SETTINGS"]["TABLE_NAME"];
 
-			if(strlen($tableName)==0)
+			if($tableName == '')
 				return true;
 
 			$hlblock = Bitrix\Highloadblock\HighloadBlockTable::getList(array(

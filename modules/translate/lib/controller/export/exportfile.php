@@ -12,6 +12,20 @@ class ExportFile
 	extends ExportAction
 {
 	/**
+	 * \Bitrix\Main\Engine\Action constructor.
+	 *
+	 * @param string $name Action name.
+	 * @param Main\Engine\Controller $controller Parent controller object.
+	 * @param array $config Additional configuration.
+	 */
+	public function __construct($name, Main\Engine\Controller $controller, $config = array())
+	{
+		Loc::loadLanguageFile(__DIR__ . '/exportaction.php');
+
+		parent::__construct($name, $controller, $config);
+	}
+
+	/**
 	 * Runs controller action.
 	 *
 	 * @param string $path Path to export.
@@ -47,7 +61,7 @@ class ExportFile
 
 		$this->exportFileName = $this->generateExportFileName($path, $this->languages);
 
-		$csvFile = $this->createExportTempFile();
+		$csvFile = $this->createExportTempFile($this->exportFileName);
 		$csvFile->openWrite( Main\IO\FileStreamOpenMode::APPEND);
 
 		$fullPaths = [];

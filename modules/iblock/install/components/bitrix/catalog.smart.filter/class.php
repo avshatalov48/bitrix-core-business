@@ -40,7 +40,7 @@ class CBitrixCatalogSmartFilter extends CBitrixComponent
 					"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 				)
 			);
-			if (!$arParams["SECTION_ID"] && strlen($arParams["SECTION_CODE_PATH"]) > 0)
+			if (!$arParams["SECTION_ID"] && $arParams["SECTION_CODE_PATH"] <> '')
 			{
 				$arParams["SECTION_ID"] = CIBlockFindTools::GetSectionIDByCodePath(
 					$arParams["IBLOCK_ID"],
@@ -323,7 +323,7 @@ class CBitrixCatalogSmartFilter extends CBitrixComponent
 			elseif ($resultItem["ITEMS"][$PID]["PROPERTY_TYPE"] == "S")
 			{
 				$addedKey = $this->fillItemValues($resultItem["ITEMS"][$PID], $lookupDictionary[$row["VALUE"]], true);
-				if (strlen($addedKey) > 0)
+				if ($addedKey <> '')
 				{
 					$resultItem["ITEMS"][$PID]["VALUES"][$addedKey]["FACET_VALUE"] = $row["VALUE"];
 					$resultItem["ITEMS"][$PID]["VALUES"][$addedKey]["ELEMENT_COUNT"] = $row["ELEMENT_COUNT"];
@@ -332,7 +332,7 @@ class CBitrixCatalogSmartFilter extends CBitrixComponent
 			else
 			{
 				$addedKey = $this->fillItemValues($resultItem["ITEMS"][$PID], $row["VALUE"], true);
-				if (strlen($addedKey) > 0)
+				if ($addedKey <> '')
 				{
 					$resultItem["ITEMS"][$PID]["VALUES"][$addedKey]["FACET_VALUE"] = $row["VALUE"];
 					$resultItem["ITEMS"][$PID]["VALUES"][$addedKey]["ELEMENT_COUNT"] = $row["ELEMENT_COUNT"];
@@ -573,7 +573,7 @@ class CBitrixCatalogSmartFilter extends CBitrixComponent
 		elseif($PROPERTY_TYPE == "N")
 		{
 			$convertKey = (float)$key;
-			if (strlen($key) <= 0)
+			if ($key == '')
 			{
 				return null;
 			}
@@ -596,7 +596,7 @@ class CBitrixCatalogSmartFilter extends CBitrixComponent
 		}
 		elseif($arProperty["DISPLAY_TYPE"] == "U")
 		{
-			$date = substr($key, 0, 10);
+			$date = mb_substr($key, 0, 10);
 			if (!$date)
 			{
 				return null;
@@ -631,7 +631,7 @@ class CBitrixCatalogSmartFilter extends CBitrixComponent
 		{
 			return null;
 		}
-		elseif(strlen($key) <= 0)
+		elseif($key == '')
 		{
 			return null;
 		}
@@ -792,7 +792,7 @@ class CBitrixCatalogSmartFilter extends CBitrixComponent
 			$resultItem["VALUES"][$htmlKey]['FILE'] = CFile::GetFileArray($file_id);
 		}
 
-		if (strlen($url_id))
+		if($url_id <> '')
 		{
 			$error = "";
 			$utf_id = \Bitrix\Main\Text\Encoding::convertEncoding($url_id, LANG_CHARSET, "utf-8", $error);
@@ -811,8 +811,10 @@ class CBitrixCatalogSmartFilter extends CBitrixComponent
 			{
 				if(!isset($result[$PID]))
 					$result[$PID] = array();
-				if(strlen($value))
+				if($value <> '')
+				{
 					$result[$PID][] = $value;
+				}
 			}
 		}
 		return $result;
@@ -1109,7 +1111,7 @@ class CBitrixCatalogSmartFilter extends CBitrixComponent
 				elseif ($smartElement === "is" || $smartElement === "or")
 				{
 					$valueId = $this->searchValue($item["VALUES"], $smartPart[$i+1]);
-					if (strlen($valueId))
+					if($valueId <> '')
 					{
 						$result[$item["VALUES"][$valueId]["CONTROL_NAME"]] = $item["VALUES"][$valueId]["HTML_VALUE"];
 					}
@@ -1132,9 +1134,9 @@ class CBitrixCatalogSmartFilter extends CBitrixComponent
 				//Prices
 				if ($arItem["PRICE"])
 				{
-					if (strlen($arItem["VALUES"]["MIN"]["HTML_VALUE"]) > 0)
+					if ($arItem["VALUES"]["MIN"]["HTML_VALUE"] <> '')
 						$smartPart["from"] = $arItem["VALUES"]["MIN"]["HTML_VALUE"];
-					if (strlen($arItem["VALUES"]["MAX"]["HTML_VALUE"]) > 0)
+					if ($arItem["VALUES"]["MAX"]["HTML_VALUE"] <> '')
 						$smartPart["to"] = $arItem["VALUES"]["MAX"]["HTML_VALUE"];
 				}
 
@@ -1158,9 +1160,9 @@ class CBitrixCatalogSmartFilter extends CBitrixComponent
 					|| $arItem["DISPLAY_TYPE"] == "U"
 				)
 				{
-					if (strlen($arItem["VALUES"]["MIN"]["HTML_VALUE"]) > 0)
+					if ($arItem["VALUES"]["MIN"]["HTML_VALUE"] <> '')
 						$smartPart["from"] = $arItem["VALUES"]["MIN"]["HTML_VALUE"];
-					if (strlen($arItem["VALUES"]["MAX"]["HTML_VALUE"]) > 0)
+					if ($arItem["VALUES"]["MAX"]["HTML_VALUE"] <> '')
 						$smartPart["to"] = $arItem["VALUES"]["MAX"]["HTML_VALUE"];
 				}
 				else
@@ -1172,7 +1174,7 @@ class CBitrixCatalogSmartFilter extends CBitrixComponent
 								$ar["CHECKED"]
 								|| $ar["CONTROL_ID"] === $checkedControlId
 							)
-							&& strlen($ar["URL_ID"])
+							&& mb_strlen($ar["URL_ID"])
 						)
 						{
 							$smartPart[] = $ar["URL_ID"];

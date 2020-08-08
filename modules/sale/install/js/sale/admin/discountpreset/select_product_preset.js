@@ -547,27 +547,8 @@ BX.Sale.Admin.DiscountPreset.SelectProduct = (function(){
 	};
 
 	SelectProduct.prototype.onClickAddSection = function(event) {
-
-		if(!BX('sect_stub'))
-		{
-			this.container.appendChild(BX.create('input', {
-				props: {
-					type: 'hidden',
-					id: 'sect_stub',
-					name: 'sect_stub'
-				}
-			}));
-		}
-
-		var url = 'cat_section_search.php?land=ru&discount=Y&n=sect_stub';
+		var url = 'iblock_section_search.php?lang='+ BX.message.LANGUAGE_ID +'&discount=Y&lookup=jsMLI_select_section';
 		var popup = window.open(url, '', 'scrollbars=yes,resizable=yes,width=900,height=600,top=' + parseInt((screen.height - 500) / 2 - 14, 10) + ',left=' + parseInt((screen.width - 600) / 2 - 5, 10));
-
-		popup.onbeforeunload = function(){
-			if(window.jsMLI_select_section)
-			{
-				jsMLI_select_section.AddValue(BX('sect_stub').value);
-			}
-		};
 
 		BX.PreventDefault(event);
 	};

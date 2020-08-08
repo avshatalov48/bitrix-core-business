@@ -8,7 +8,7 @@ define("BX_SECURITY_SHOW_MESSAGE", true);
 define('NOT_CHECK_PERMISSIONS', true);
 
 $siteId = isset($_REQUEST['SITE_ID']) && is_string($_REQUEST['SITE_ID']) ? $_REQUEST['SITE_ID'] : '';
-$siteId = substr(preg_replace('/[^a-z0-9_]/i', '', $siteId), 0, 2);
+$siteId = mb_substr(preg_replace('/[^a-z0-9_]/i', '', $siteId), 0, 2);
 if (!empty($siteId) && is_string($siteId))
 {
 	define('SITE_ID', $siteId);
@@ -33,8 +33,9 @@ if(empty($templateName))
 
 $params['ACCOUNT_NUMBER'] = $orderData['order'];
 $params['PAYMENT_NUMBER'] = $orderData['payment'];
-$params['PATH_TO_PAYMENT'] = strlen($orderData['path_to_payment']) > 0 ? htmlspecialcharsbx($orderData['path_to_payment']) : "";
+$params['PATH_TO_PAYMENT'] = $orderData['path_to_payment'] <> '' ? htmlspecialcharsbx($orderData['path_to_payment']) : "";
 $params['REFRESH_PRICES'] = ($orderData['refresh_prices'] === 'Y') ? 'Y' : 'N';
+$params['RETURN_URL'] = $orderData['return_url'] ?? "";
 if (CBXFeatures::IsFeatureEnabled('SaleAccounts'))
 {
 	$params['ALLOW_INNER'] = $orderData['allow_inner'];

@@ -54,7 +54,9 @@
 .bizproc-type-control:focus {
 	outline: none;
 }
-.bizproc-type-control-string{
+.bizproc-type-control-string,
+.bizproc-type-control-int,
+.bizproc-type-control-double{
 	width: 100%;
 }
 .bizproc-type-control-date,
@@ -69,11 +71,6 @@
 	vertical-align: middle;
 	opacity: 0;
 	margin-right: 15px;
-}
-
-.bizproc-type-control-int,
-.bizproc-type-control-double{
-	max-width: 155px;
 }
 
 .bizproc-type-control-bool,
@@ -336,4 +333,12 @@
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
+}
+
+.bizproc-type-control-user-item.bizproc-type-control-user-item-head {
+	background: #ade7e4;
+}
+
+.bizproc-type-control-user-item-head .bizproc-type-control-user-name {
+	color: #207976;
 }

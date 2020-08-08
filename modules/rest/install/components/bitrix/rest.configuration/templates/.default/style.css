@@ -187,8 +187,9 @@
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%,-50%);
-	max-height: 100%;
-	max-width: 100%;
+	max-height: calc(100% - 75px);
+	max-width: calc(100% - 75px);
+	border-radius: 5px;
 }
 
 .rest-market-partners-content {
@@ -204,19 +205,18 @@
 .rest-market-partners-title {
 	display: block;
 	overflow: hidden;
-	white-space: nowrap;
-	text-overflow: ellipsis;
-	font-family: "OpenSans-SemiBold", Helvetica, Arial, sans-serif;
+	max-height: 55px;
+	font-family: Arial, sans-serif;
 	font-size: 18px;
 	color: #333;
-	line-height: 30px;
+	line-height: 22px;
 	margin-bottom: 7px;
 }
 
 .rest-market-partners-description {
 	flex: 1;
 	overflow: hidden;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: Arial, sans-serif;
 	font-size: 13px;
 	color: rgba(51,51,51,.62);
 	line-height: 18px;
@@ -224,10 +224,21 @@
 }
 
 .rest-market-partner-link-wrapper {
-	display: block;
+	display: flex;
 	text-align: center;
+	align-items: center;
+	justify-content: center;
 }
 
+.rest-market-partners-price {
+	display: flex;
+	flex: 1;
+}
+
+.rest-market-partner-link-wrapper .ui-btn + .rest-market-partners-price:before {
+	content: '';
+	flex: 1;
+}
 
 /*item site style*/
 .rest-market-site-wrapper {

@@ -176,16 +176,18 @@ if ($APPLICATION->GetGroupRight("sale")!="D")
 	/* CASHBOX Begin*/
 	if ($APPLICATION->GetGroupRight("sale") == "W")
 	{
-		$portalZone = Loader::includeModule('intranet') ? CIntranetUtils::getPortalZone() : "";
-		$licensePrefix = Loader::includeModule("bitrix24") ? \CBitrix24::getLicensePrefix() : "";
+		$isAvailable = true;
 
-		if (
-			Loader::includeModule("bitrix24") && $licensePrefix === 'ru'
-			||
-			Loader::includeModule('intranet') && $portalZone === 'ru'
-			||
-			!Loader::includeModule("bitrix24") && !Loader::includeModule('intranet')
-		)
+		if (Loader::includeModule("bitrix24"))
+		{
+			$isAvailable = \CBitrix24::getLicensePrefix() === 'ru';
+		}
+		elseif (Loader::includeModule('intranet'))
+		{
+			$isAvailable = CIntranetUtils::getPortalZone() === 'ru';
+		}
+
+		if ($isAvailable)
 		{
 			$arMenu = array(
 				"parent_menu" => "global_menu_store",

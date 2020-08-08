@@ -3,7 +3,7 @@ IncludeModuleLangFile(__FILE__);
 
 class CSocNetForumComments
 {
-	function FindLogEventIDByForumEntityID($forumEntityType)
+	public static function findLogEventIDByForumEntityID($forumEntityType)
 	{
 		$event_id = false;
 		$arSocNetLogEvents = CSocNetAllowed::GetAllowedLogEvents();
@@ -44,10 +44,13 @@ class CSocNetForumComments
 
 	public static function onAfterCommentAdd($entityType, $entityId, $arData)
 	{
-		global $APPLICATION, $DB, $USER_FIELD_MANAGER;
+		global $DB, $USER_FIELD_MANAGER;
 
-		$log_event_id = CSocNetForumComments::FindLogEventIDByForumEntityID($entityType);
-		if (!$log_event_id)
+		$log_event_id = \CSocNetForumComments::findLogEventIDByForumEntityID($entityType);
+		if (
+			!$log_event_id
+			|| $log_event_id == 'tasks' // \Bitrix\Tasks\Integration\Forum\Task\Comment::onAfterAdd()
+		)
 		{
 			return false;
 		}
@@ -138,7 +141,7 @@ class CSocNetForumComments
 				"MESSAGE" => $sText,
 				"TEXT_MESSAGE" => $parser->convert4mail($sText),
 				"URL" => $strURL,
-				"MODULE_ID" => (array_key_exists("MODULE_ID", $arLogCommentEvent) && strlen($arLogCommentEvent["MODULE_ID"]) > 0 ? $arLogCommentEvent["MODULE_ID"] : ""),
+				"MODULE_ID" => (array_key_exists("MODULE_ID", $arLogCommentEvent) && $arLogCommentEvent["MODULE_ID"] <> '' ? $arLogCommentEvent["MODULE_ID"] : ""),
 				"SOURCE_ID" => $messageId,
 				"LOG_ID" => $log_id
 			);
@@ -216,7 +219,7 @@ class CSocNetForumComments
 	{
 		global $APPLICATION, $DB, $USER_FIELD_MANAGER;
 
-		$log_event_id = CSocNetForumComments::FindLogEventIDByForumEntityID($entityType);
+		$log_event_id = \CSocNetForumComments::findLogEventIDByForumEntityID($entityType);
 		if (!$log_event_id)
 		{
 			return false;
@@ -312,7 +315,7 @@ class CSocNetForumComments
 								"MESSAGE" => $sText,
 								"TEXT_MESSAGE" => $parser->convert4mail($sText),
 								"URL" => str_replace("?IFRAME=Y", "", str_replace("&IFRAME=Y", "", str_replace("IFRAME=Y&", "", $strURL))),
-								"MODULE_ID" => (array_key_exists("MODULE_ID", $arLogCommentEvent) && strlen($arLogCommentEvent["MODULE_ID"]) > 0 ? $arLogCommentEvent["MODULE_ID"] : ""),
+								"MODULE_ID" => (array_key_exists("MODULE_ID", $arLogCommentEvent) && $arLogCommentEvent["MODULE_ID"] <> '' ? $arLogCommentEvent["MODULE_ID"] : ""),
 								"SOURCE_ID" => intval($arData["MESSAGE_ID"]),
 								"LOG_ID" => $log_id,
 								"RATING_TYPE_ID" => "FORUM_POST",

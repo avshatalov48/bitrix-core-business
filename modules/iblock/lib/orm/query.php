@@ -28,7 +28,7 @@ class Query extends BaseQuery
 		{
 			// table alias for all the records (cut b_ prefix)
 			$propSTable = $this->entity->getSingleValueTableName();
-			$commonAlias = substr($propSTable, 2);
+			$commonAlias = mb_substr($propSTable, 2);
 
 			// found first join and changed alias. all other joins to be removed
 			$changed = false;

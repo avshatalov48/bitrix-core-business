@@ -210,7 +210,7 @@ abstract class BaseValues
 		foreach ($rows as $row)
 		{
 			$values = "('".implode("', '", $row)."')";
-			$bodySize += strlen($values);
+			$bodySize += mb_strlen($values);
 			$body[] = $values;
 			if ($bodySize > $maxBodySize)
 			{

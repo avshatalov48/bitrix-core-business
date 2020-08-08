@@ -32,7 +32,7 @@ return array(
 	),
 	'style' => array(
 		'block' => array(
-			'type' => 'block-default-wo-paddings'
+			'type' => ['block-default-wo-paddings', 'header-on-scroll', 'header-position']
 		),
 		'nodes' => array(
 			'.landing-block-node-menu-list-item-link' => array(
@@ -46,6 +46,6 @@ return array(
 		),
 	),
 	'assets' => array(
-		'ext' => array('landing_menu'),
+		'ext' => array('landing_menu', 'landing_header'),
 	),
 );

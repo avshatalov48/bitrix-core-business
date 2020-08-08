@@ -79,14 +79,14 @@ $arFilter = Array(
 	"DATE_MODIFY_1"		=> $find_modify_1,
 	"DATE_MODIFY_2"		=> $find_modify_2,
 	//"MODIFIED_BY"		=> ($find_type == "modified_by" && strlen($find)>0 ? $find:$find_modified_by),
-	"MODIFIED_USER_ID"	=> ($find_type == "modified_by" && strlen($find)>0 ? $find:$find_modified_user_id),
+	"MODIFIED_USER_ID"	=> ($find_type == "modified_by" && $find <> '' ? $find:$find_modified_user_id),
 	"LOCK_STATUS"		=> $find_lock_status,
 	"STATUS"			=> $find_status,
 	"STATUS_ID"			=> $find_status_id,
 	"FILENAME"			=> $find_filename,
 	"SITE_ID"			=> $find_site_id,
-	"TITLE"				=> ($find_type == "title" && strlen($find)>0? $find:$find_title),
-	"BODY"				=> ($find_type == "body" && strlen($find)>0? $find:$find_body),
+	"TITLE"				=> ($find_type == "title" && $find <> ''? $find:$find_title),
+	"BODY"				=> ($find_type == "body" && $find <> ''? $find:$find_body),
 	"ID_EXACT_MATCH"	=> $find_id_exact_match,
 	"MODIFIED_USER_ID_EXACT_MATCH" => $find_modified_user_id_exact_match,
 	"FILENAME_EXACT_MATCH" => $find_filename_exact_match,
@@ -142,7 +142,7 @@ if($WORKFLOW_RIGHT>"R" && $arID = $lAdmin->GroupAction())
 
 	foreach($arID as $ID)
 	{
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if($ID <= 0)
 			continue;
 

@@ -17,6 +17,8 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 $arDefaultUrlTemplates404 = array(
 	"category" => "category/#category#/",
 	"detail" => "detail/#app#/",
+	"placement_view" => "view/#APP#/",
+	"placement" => "placement/#PLACEMENT_ID#/",
 	"search" => "search/",
 	"buy" => "buy/",
 	"updates" => "updates/",
@@ -68,6 +70,8 @@ if($arParams["SEF_MODE"] == "Y")
 	$arParams["BUY_URL"] = CComponentEngine::MakePathFromTemplate($arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["buy"], $arVariables);
 	$arParams["UPDATES_URL"] = CComponentEngine::MakePathFromTemplate($arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["updates"], $arVariables);
 	$arParams["INSTALLED_URL"] = CComponentEngine::MakePathFromTemplate($arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["installed"], $arVariables);
+	$arParams["PLACEMENT_VIEW"] = CComponentEngine::MakePathFromTemplate($arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["placement_view"], $arVariables);
+	$arParams["PLACEMENT"] = CComponentEngine::MakePathFromTemplate($arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["placement"], $arVariables);
 
 	$arParams["CATEGORY_URL_TPL"] = $arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["category"];
 	$arParams["DETAIL_URL_TPL"] = $arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["detail"];
@@ -105,6 +109,10 @@ else
 		$arParams['DETAIL_URL_TPL'] = $APPLICATION->GetCurPageParam('app=#app#', array('IFRAME', 'IFRAME_TYPE'));
 }
 
+if($componentPage == 'placement_view')
+{
+	$componentPage = 'placement';
+}
 $arResult = array(
 	"FOLDER" => $SEF_FOLDER,
 	"URL_TEMPLATES" => $arUrlTemplates,

@@ -284,6 +284,8 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 					}
 				}
 			}
+			// some update if we need
+			$this->updateVersion();
 			// if landing is unactive
 			if (
 				false &&
@@ -734,7 +736,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	 * @param int|array $id Landing id (id array), optional.
 	 * @param boolean $absolute Full url.
 	 * @param bool $createPubPath Create pub path (checking and create).
-	 * @param array $fullUrl Returns full url of landings.
+	 * @param array &$fullUrl Returns full url of landings.
 	 * @return string|array
 	 */
 	public function getPublicUrl($id = false, $absolute = true, $createPubPath = false, &$fullUrl = [])
@@ -961,7 +963,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 					);
 				}
 			}
-			else
+			else if ($this->siteRow['LANDING_ID_INDEX'] != $this->id)
 			{
 				Manager::getApplication()->addChainItem(
 					$this->title,
@@ -1048,7 +1050,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 		ob_end_clean();
 
 		// implode content and templates parts
-		if ($content && strpos($content, '#CONTENT#') !== false)
+		if ($content && mb_strpos($content, '#CONTENT#') !== false)
 		{
 			$content = str_replace('#CONTENT#', $contentMain, $content);
 		}
@@ -1224,7 +1226,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 				{
 					return 'href="' . PublicAction\Utils::getIblockURL(
 							$href[2],
-							strtolower($href[1])
+							mb_strtolower($href[1])
 						) . '"';
 				},
 				$content);
@@ -1240,6 +1242,16 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 			);
 		}
 
+		// fix breadcrumb navigation
+		if ($this->siteRow['LANDING_ID_INDEX'] > 0)
+		{
+			$content = str_replace(
+				'#system_mainpage',
+				'#landing' . $this->siteRow['LANDING_ID_INDEX'],
+				$content
+			);
+		}
+
 		// replace in content
 		if (preg_match_all($pattern, $content, $matches))
 		{
@@ -1250,13 +1262,13 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 			);
 			for ($i = 0, $c = count($matches[0]); $i < $c; $i++)
 			{
-				if (strtoupper($matches[2][$i]) == 'LANDING')
+				if (mb_strtoupper($matches[2][$i]) == 'LANDING')
 				{
 					$urls['LANDING'][] = $matches[3][$i];
 				}
-				else if (strtoupper($matches[2][$i]) == 'DYNAMIC')
+				else if (mb_strtoupper($matches[2][$i]) == 'DYNAMIC')
 				{
-					list($dynamicId, ) = explode('_', $matches[3][$i]);
+					[$dynamicId, ] = explode('_', $matches[3][$i]);
 					$urls['DYNAMIC'][] = $dynamicId;
 				}
 				else
@@ -1368,16 +1380,16 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 					function($matches) use($urls, $landingFull, $isIframe)
 					{
 						$dynamicPart = '';
-						$matches[2] = strtoupper($matches[2]);
+						$matches[2] = mb_strtoupper($matches[2]);
 						if ($matches[2] == 'DYNAMIC')
 						{
 							$matches[2] = 'LANDING';
-							if (($underPos = strpos($matches[3], '_')) !== false)
+							if (($underPos = mb_strpos($matches[3], '_')) !== false)
 							{
-								$dynamicPart = substr($matches[3], $underPos);
-								$matches[3] = substr($matches[3], 0, $underPos);
+								$dynamicPart = mb_substr($matches[3], $underPos);
+								$matches[3] = mb_substr($matches[3], 0, $underPos);
 							}
-							list($dynamicId, ) = explode('_', $matches[3]);
+							[$dynamicId, ] = explode('_', $matches[3]);
 							$matches[3] = $dynamicId;
 						}
 						if (isset($urls[$matches[2]][$matches[3]]))
@@ -1389,11 +1401,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 								{
 									$landingUrl = $landingFull[$matches[3]];
 								}
-								$url = substr(
-									$landingUrl,
-									0,
-									strlen($landingUrl) - 1
-								);
+								$url = mb_substr($landingUrl, 0, mb_strlen($landingUrl) - 1);
 								$url .= $dynamicPart . ($isIframe ? '/?IFRAME=Y' : '/');
 							}
 							else
@@ -1506,6 +1514,15 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	}
 
 	/**
+	 * Returns code of current landing.
+	 * @return string
+	 */
+	public function getCode(): string
+	{
+		return $this->code;
+	}
+
+	/**
 	 * Get metadata of current landing.
 	 * @return array
 	 */
@@ -1530,6 +1547,15 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	public function canPublication()
 	{
 		return in_array(Rights::ACCESS_TYPES['public'], $this->rights);
+	}
+
+	/**
+	 * Can current user delete this landing.
+	 * @return bool
+	 */
+	public function canDelete()
+	{
+		return in_array(Rights::ACCESS_TYPES['delete'], $this->rights);
 	}
 
 	/**
@@ -1579,12 +1605,10 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 
 	/**
 	 * Get site id of main, if exist.
-	 * @return string
+	 * @return string|null
 	 */
-	public function getSmnSiteId()
+	public function getSmnSiteId(): ?string
 	{
-		$siteId = Manager::getMainSiteId();
-
 		if ($this->siteId)
 		{
 			$res = Site::getList(array(
@@ -1597,13 +1621,11 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 			));
 			if ($row = $res->fetch())
 			{
-				return $row['SMN_SITE_ID']
-						? $row['SMN_SITE_ID']
-						: $siteId;
+				return $row['SMN_SITE_ID'];
 			}
 		}
 
-		return $siteId;
+		return null;
 	}
 
 	/**
@@ -1666,16 +1688,53 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	public function updateVersion()
 	{
 		$needUpdate = false;
+		// double hooks: public and draft
 		if ($this->version <= 1)
 		{
 			$needUpdate = true;
-			Hook::setEditMode();
+			$this->version = 2;
+			$hookEditMode = Hook::getEditMode();
+			if (!$hookEditMode)
+			{
+				Hook::setEditMode(true);
+			}
 			Hook::publicationSite($this->siteId);
 			Hook::publicationLanding($this->id);
+			if (!$hookEditMode)
+			{
+				Hook::setEditMode(false);
+			}
+		}
+		// block assets
+		if ($this->version <= 2)
+		{
+			$needUpdate = true;
+			$this->version = 3;
+			Assets\PreProcessing\Icon::processingLanding($this->id);
+			Assets\Manager::rebuildWebpackForLanding($this->id);
+		}
+		if ($this->version <= 3)
+		{
+			$needUpdate = true;
+			$this->version = 4;
+			Assets\PreProcessing\Font::processingLanding($this->id);
+		}
+		if ($this->version <= 4)
+		{
+			$needUpdate = true;
+			$this->version = 5;
+			Hook\Page\ThemeFonts::migrateFromTypoThemes($this->id, $this->siteId);
+		}
+		if ($this->version <= 5)
+		{
+			// fix 126641
+			$needUpdate = true;
+			$this->version = 6;
+			Assets\PreProcessing\Icon::processingLanding($this->id);
+			Assets\Manager::rebuildWebpackForLanding($this->id);
 		}
 		if ($needUpdate)
 		{
-			$this->version++;
 			Rights::setOff();
 			self::update($this->id, [
 				'VERSION' => $this->version,
@@ -1811,6 +1870,12 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 			if ($this->blocks[$id]->getAccess() >= $this->blocks[$id]->ACCESS_X)
 			{
 				$this->blocks[$id]->markDeleted($mark);
+				if (!$mark)
+				{
+					Assets\PreProcessing::blockUndeleteProcessing(
+						$this->blocks[$id]
+					);
+				}
 				if ($this->blocks[$id]->save())
 				{
 					if ($mark)
@@ -2108,7 +2173,8 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 				}
 				else
 				{
-					$targetBlock = array_pop(array_values($this->blocks));
+					$blocksTmp = array_values($this->blocks);
+					$targetBlock = array_pop($blocksTmp);
 				}
 				if ($targetBlock)
 				{
@@ -2161,7 +2227,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	 * Copy all blocks from another landing to this.
 	 * @param int $lid Landing id.
 	 * @param boolean $replaceLinks Replace links to the old blocks.
-	 * @param array $references Array that will contain references between old and new IDs.
+	 * @param array &$references Array that will contain references between old and new IDs.
 	 * @return void
 	 */
 	public function copyAllBlocks($lid, $replaceLinks = true, array &$references = [])
@@ -2244,7 +2310,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 			{
 				$toSiteId = $this->getSiteId();
 			}
-			if ($toFolderId)
+			if ($toFolderId !== null)
 			{
 				$folderId = intval($toFolderId);
 			}
@@ -2365,5 +2431,66 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 		{
 			return new \Bitrix\Main\Result;
 		}
+	}
+
+	/**
+	 * Creates new page in the site by template.
+	 * @param int $siteId Site id.
+	 * @param string $code Template code.
+	 * @param array $fields Landing fields.
+	 * @return \Bitrix\Main\Entity\AddResult
+	 */
+	public static function addByTemplate(int $siteId, string $code, array $fields = []): \Bitrix\Main\Entity\AddResult
+	{
+		$result = new \Bitrix\Main\Entity\AddResult;
+
+		// get type by siteId
+		$res = Site::getList([
+			'select' => [
+				'TYPE'
+			],
+			'filter' => [
+				'ID' => $siteId
+			]
+		]);
+		if (!($site = $res->fetch()))
+		{
+			$result->addError(new \Bitrix\Main\Error(
+				  'SITE_ERROR',
+				  Loc::getMessage('LANDING_SITE_ERROR')
+			  ));
+			return $result;
+		}
+
+		// include the component
+		$componentName = 'bitrix:landing.demo';
+		$className = \CBitrixComponent::includeComponentClass($componentName);
+		$demoCmp = new $className;
+		$demoCmp->initComponent($componentName);
+		$demoCmp->arParams = [
+			'TYPE' => ($site['TYPE'] == 'STORE') ? 'PAGE' : $site['TYPE'],
+			'SITE_ID' => $siteId,
+			'SITE_WORK_MODE' => 'N',
+			'DISABLE_REDIRECT' => 'Y',
+			'META' => $fields
+		];
+
+		// ... and create the page by component's method
+		$landingId = $demoCmp->createPage($siteId, $code);
+
+		// prepare success or failure
+		if ($landingId)
+		{
+			$result->setId($landingId);
+		}
+		else
+		{
+			foreach ($demoCmp->getErrors() as $code => $title)
+			{
+				$result->addError(new \Bitrix\Main\Error($code, $title));
+			}
+		}
+
+		return $result;
 	}
 }

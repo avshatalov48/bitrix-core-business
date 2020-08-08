@@ -814,7 +814,7 @@ BX.ImMobile.prototype.mobileActionReady = function()
 			BX.create("div", { props : { className : "bx-messenger-textarea-open-invite" }, children : [
 				BX.create("div", { props : { className : "bx-messenger-textarea-open-invite-text-box" }, children: [
 					BX.create("div", { props : { className : "bx-messenger-textarea-open-invite-text-box-element" }, children: [
-						this.popupMessengerTextareaOpenText = BX.create("div", { props : { className : "bx-messenger-textarea-open-invite-text" }, html: BX.message('IM_O_INVITE_TEXT')})
+						this.popupMessengerTextareaOpenText = BX.create("div", { props : { className : "bx-messenger-textarea-open-invite-text" }, html: BX.message('IM_O_INVITE_TEXT_NEW')})
 					]})
 				]}),
 				this.popupMessengerTextareaOpenJoin = BX.create("div", { props : { className : "bx-messenger-textarea-open-invite-join bx-notifier-item-button bx-notifier-item-button-confirm bx-notifier-item-button-accept" }, html: BX.message('IM_O_INVITE_JOIN')})
@@ -2590,11 +2590,11 @@ BX.ImMessengerMobile.prototype.redrawChatHeaderDelay = function()
 			}
 			else if (this.chat[chatId].type == 'open')
 			{
-				BXMobileApp.UI.Page.TopBar.title.setDetailText(BX.message("IM_CL_OPEN_CHAT"));
+				BXMobileApp.UI.Page.TopBar.title.setDetailText(BX.message("IM_CL_OPEN_CHAT_NEW"));
 			}
 			else
 			{
-				BXMobileApp.UI.Page.TopBar.title.setDetailText(BX.message("IM_CL_CHAT_2"));
+				BXMobileApp.UI.Page.TopBar.title.setDetailText(BX.message("IM_CL_CHAT_NEW"));
 			}
 		}
 		BXMobileApp.UI.Page.TopBar.title.setImage(BX.MessengerCommon.isBlankAvatar(this.chat[chatId].avatar)? BX.MessengerCommon.getDefaultAvatar(avatarType): this.chat[chatId].avatar);

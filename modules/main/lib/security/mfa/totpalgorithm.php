@@ -26,21 +26,16 @@ class TotpAlgorithm extends OtpAlgorithm
 	}
 
 	/**
-	 * Verify provided input.
-	 *
-	 * @param string $input Input received from user.
-	 * @param string $params Synchronized user params, saved for this algorithm (see getSyncParameters).
-	 * @param int|null $time Override system time, may be used in time machine.
-	 * @throws ArgumentOutOfRangeException
-	 * @throws \Bitrix\Main\ArgumentTypeException
-	 * @return array [
-	 *  bool isSuccess (Valid input or not),
-	 *  string newParams (Updated user params for this OtpAlgorithm)
-	 * ]
+	 * @inheritDoc
 	 */
-	public function verify($input, $params = '0:0', $time = null)
+	public function verify($input, $params = null, $time = null)
 	{
 		$input = (string) $input;
+
+		if($params === null)
+		{
+			$params = '0:0';
+		}
 
 		if (!preg_match('#^\d+$#D', $input))
 			throw new ArgumentOutOfRangeException('input', 'string with numbers');
@@ -99,13 +94,7 @@ class TotpAlgorithm extends OtpAlgorithm
 	}
 
 	/**
-	 * Generate provision URI according to KeyUriFormat
-	 *
-	 * @link https://code.google.com/p/google-authenticator/wiki/KeyUriFormat
-	 * @param string $label User label.
-	 * @param array $opts Additional URI parameters, e.g. ['image' => 'http://example.com/my_logo.png'] .
-	 * @throws \Bitrix\Main\ArgumentTypeException
-	 * @return string
+	 * @inheritDoc
 	 */
 	public function generateUri($label, array $opts = array())
 	{
@@ -154,13 +143,7 @@ class TotpAlgorithm extends OtpAlgorithm
 	}
 
 	/**
-	 * Return synchronized user params for provided inputs
-	 *
-	 * @param string $inputA First code.
-	 * @param null $inputB Second code not used for TOTP syncing.
-	 * @throws OtpException
-	 * @throws ArgumentOutOfRangeException
-	 * @return string
+	 * @inheritDoc
 	 */
 	public function getSyncParameters($inputA, $inputB)
 	{

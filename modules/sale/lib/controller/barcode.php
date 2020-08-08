@@ -25,7 +25,7 @@ class Barcode extends \Bitrix\Main\Engine\Controller
 			return false;
 		}
 
-		if(strlen($barcode) <= 0)
+		if($barcode == '')
 		{
 			return false;
 		}

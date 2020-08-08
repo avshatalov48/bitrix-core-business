@@ -24,7 +24,10 @@ return array(
 			'VIEW_TYPE' => 'ltr',
 			'UP_SHOW' => 'Y',
 			'THEME_CODE' => 'travel',
-			'THEME_CODE_TYPO' => 'travel',
+			'THEMEFONTS_CODE_H' => 'g-font-montserrat',
+			'THEMEFONTS_CODE' => 'g-font-open-sans',
+			'THEMEFONTS_SIZE' => '1.14286',
+			'THEMEFONTS_USE' => 'Y',
 		),
 	),
 	'layout' => array(

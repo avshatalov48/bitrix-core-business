@@ -3,10 +3,13 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
 $arViewModeList = array('LIST', 'LINE', 'TEXT', 'TILE');
 
+$columnCountList = array('1', '2', '3', '4', '6', '12');
+
 $arDefaultParams = array(
 	'VIEW_MODE' => 'LIST',
 	'SHOW_PARENT_NAME' => 'Y',
-	'HIDE_SECTION_NAME' => 'N'
+	'HIDE_SECTION_NAME' => 'N',
+	'LIST_COLUMNS_COUNT' => '6'
 );
 
 $arParams = array_merge($arDefaultParams, $arParams);
@@ -17,6 +20,8 @@ if ('N' != $arParams['SHOW_PARENT_NAME'])
 	$arParams['SHOW_PARENT_NAME'] = 'Y';
 if ('Y' != $arParams['HIDE_SECTION_NAME'])
 	$arParams['HIDE_SECTION_NAME'] = 'N';
+if (!in_array($arParams['LIST_COLUMNS_COUNT'], $columnCountList))
+	$arParams['LIST_COLUMNS_COUNT'] = '6';
 
 $arResult['VIEW_MODE_LIST'] = $arViewModeList;
 
@@ -96,4 +101,3 @@ if (0 < $arResult['SECTIONS_COUNT'])
 		}
 	}
 }
-?>

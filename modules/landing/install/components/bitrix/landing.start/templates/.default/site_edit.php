@@ -30,6 +30,7 @@ if ($arParams['TYPE'] != 'STORE')
 			'SITE_ID' => $arResult['VARS']['site_edit'],
 			'PAGE_URL_SITES' => $arParams['PAGE_URL_SITES'],
 			'PAGE_URL_LANDING_VIEW' => $arParams['PAGE_URL_LANDING_VIEW'],
+			'PAGE_URL_SITE_DOMAIN' => $arParams['PAGE_URL_SITE_DOMAIN'],
 			'TEMPLATE' => $template
 		),
 		$component

@@ -29,7 +29,7 @@ class answer {
 			MESSAGE : "",
 			MESSAGE_TYPE : "text",
 	//		IMAGE_ID : "",
-	//		FIELD_TYPE : 0,
+			FIELD_TYPE : 0,
 	//		FIELD_WIDTH : 0, //out of date
 	//		FIELD_HEIGHT : 0, //out of date
 	//		FIELD_PARAM : "", //out of date

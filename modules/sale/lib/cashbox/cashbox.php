@@ -26,12 +26,19 @@ abstract class Cashbox
 	private $fields = array();
 
 	/**
+	 * @throws Main\LoaderException
 	 * @return void
 	 */
 	public static function init()
 	{
 		$handlers = static::getHandlerList();
 		Main\Loader::registerAutoLoadClasses(null, $handlers);
+	}
+
+	public static function getCode()
+	{
+		$className = (new \ReflectionClass(static::class))->getShortName();
+		return mb_strtolower($className);
 	}
 
 	/**
@@ -251,57 +258,71 @@ abstract class Cashbox
 	}
 
 	/**
-	 * @param $data
 	 * @return Result
 	 */
-	public static function validateFields($data)
+	public function validate()
 	{
-		$result = new Result();
+		$fields = $this->fields;
+		unset($fields['OFD_SETTINGS']);
 
-		$requiredFields = static::getRequiredFields($data['KKM_ID']);
-		if (isset($data['SETTINGS']))
-		{
-			$data = array_merge($data, $data['SETTINGS']);
-			unset($data['SETTINGS']);
-		}
+		$result = $this->validateFields($fields);
 
-		foreach ($data as $code => $value)
+		$ofd = $this->getOfd();
+		if ($ofd)
 		{
-			if (is_array($value))
+			$r = $ofd->validate();
+			if (!$r->isSuccess())
 			{
-				foreach ($value as $fieldCode => $subValue)
-				{
-					if (isset($requiredFields[$fieldCode]) && $subValue === '')
-					{
-						$result->addError(
-								new Main\Error(
-									Loc::getMessage(
-										'SALE_CASHBOX_VALIDATE_ERROR',
-										array('#FIELD_ID#' => $requiredFields[$fieldCode]
-									)
-								)
-							)
-						);
-					}
-				}
-			}
-			else
-			{
-				if (isset($requiredFields[$code]) && $value === '')
-				{
-					$result->addError(
-						new Main\Error(
-							Loc::getMessage(
-								'SALE_CASHBOX_VALIDATE_ERROR',
-								array('#FIELD_ID#' => $requiredFields[$code])
-							)
-						)
-					);
-				}
+				$result->addErrors($r->getErrors());
 			}
 		}
 
 		return $result;
+	}
+
+	protected function validateFields($fields)
+	{
+		$result = new Result();
+
+		foreach ($fields as $code => $value)
+		{
+			if (is_array($value))
+			{
+				$r = $this->validateFields($value);
+				if (!$r->isSuccess())
+				{
+					$result->addErrors($r->getErrors());
+				}
+
+				continue;
+			}
+
+			if (
+				$this->isRequiredField($code)
+				&& $value === ''
+			)
+			{
+				$requiredFields = $this->getRequiredFields();
+
+				$result->addError(
+					new Main\Error(
+						Loc::getMessage(
+							'SALE_CASHBOX_VALIDATE_ERROR',
+							['#FIELD_ID#' => $requiredFields[$code]]
+						)
+					)
+				);
+			}
+		}
+
+		return $result;
+	}
+
+	protected function isRequiredField($field) : bool
+	{
+		$requiredFields = $this->getRequiredFields();
+
+		return isset($requiredFields[$field]);
 	}
 
 	/**
@@ -320,11 +341,11 @@ abstract class Cashbox
 	 * @param $modelId
 	 * @return array
 	 */
-	private static function getRequiredFields($modelId = 0)
+	private function getRequiredFields()
 	{
 		$result = static::getGeneralRequiredFields();
 
-		$settings = static::getSettings($modelId);
+		$settings = static::getSettings($this->getField('KKM_ID'));
 		foreach ($settings as $groupId => $group)
 		{
 			foreach ($group['ITEMS'] as $code => $item)

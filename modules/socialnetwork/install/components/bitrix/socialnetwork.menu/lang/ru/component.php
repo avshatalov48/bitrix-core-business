@@ -50,4 +50,5 @@ $MESS["SONET_SM_MAX_ITEMS"] = "Количество пунктов в строк
 $MESS["SONET_SM_CLEAR"] = "Сбросить настройки меню";
 $MESS["SONET_SM_MAX_ITEMS_INCORRECT"] = "Введено неверное значение количества пунктов в строке";
 $MESS["SONET_MODULE_NOT_INSTALL"] = "Модуль социальной сети не установлен.";
+$MESS["SONET_SM_G_CHAT"] = "Чат";
 ?>

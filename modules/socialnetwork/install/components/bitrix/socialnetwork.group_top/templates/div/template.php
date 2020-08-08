@@ -10,13 +10,13 @@
 					<?endif;?>
 					<div class="bx-sonet-group-date intranet-date<?if ($arParams["DISPLAY_IMAGE"] == "N"):?> no-image<?endif;?>"><?= $arGroup["FULL_DATE_CHANGE_FORMATED"] ?></div>
 					<div class="bx-user-name<?if ($arParams["DISPLAY_IMAGE"] == "N"):?> no-image<?endif;?>"><a href="<?= $arGroup["GROUP_URL"] ?>"><?= $arGroup["NAME"] ?></a></div>
-					<?if ($arParams["DISPLAY_DESCRIPTION"] != "N" && StrLen($arGroup["DESCRIPTION"]) > 0):?>
+					<?if ($arParams["DISPLAY_DESCRIPTION"] != "N" && $arGroup["DESCRIPTION"] <> ''):?>
 						<div class="bx-user-post<?if ($arParams["DISPLAY_IMAGE"] == "N"):?> no-image<?endif;?>"><?= $arGroup["DESCRIPTION"] ?></div>
 					<?endif;?>
-					<?if ($arParams["DISPLAY_NUMBER_OF_MEMBERS"] != "N" && IntVal($arGroup["NUMBER_OF_MEMBERS"]) > 0):?>
+					<?if ($arParams["DISPLAY_NUMBER_OF_MEMBERS"] != "N" && intval($arGroup["NUMBER_OF_MEMBERS"]) > 0):?>
 						<div class="bx-user-post<?if ($arParams["DISPLAY_IMAGE"] == "N"):?> no-image<?endif;?>"><?= GetMessage("SONET_C68_T_MEMBERS") ?>: <?= $arGroup["NUMBER_OF_MEMBERS"] ?></div>
 					<?endif;?>
-					<?if ($arParams["DISPLAY_SUBJECT"] != "N" && StrLen($arGroup["SUBJECT_NAME"]) > 0):?>
+					<?if ($arParams["DISPLAY_SUBJECT"] != "N" && $arGroup["SUBJECT_NAME"] <> ''):?>
 						<div class="bx-user-post<?if ($arParams["DISPLAY_IMAGE"] == "N"):?> no-image<?endif;?>"><?= GetMessage("SONET_C68_T_SUBJ") ?>: <?= $arGroup["SUBJECT_NAME"] ?></div>
 					<?endif;?>
 					<div class="bx-users-delimiter"></div>

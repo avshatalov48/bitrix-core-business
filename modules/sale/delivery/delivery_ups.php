@@ -110,9 +110,9 @@ class CDeliveryUPS
 		$fp = fopen($_SERVER["DOCUMENT_ROOT"].$file, "r");
 		while ($data = fgetcsv($fp, 1000, ","))
 		{
-			if (count($data >= 9) && strlen($data[1]) == 2)
+			if (count($data >= 9) && mb_strlen($data[1]) == 2)
 			{
-				if (substr($data[2], -3) == " EU") $data[2] = substr($data[2], 0, -3);
+				if (mb_substr($data[2], -3) == " EU") $data[2] = mb_substr($data[2], 0, -3);
 
 				$arResult[$data[1]] = array(
 					$data[2],
@@ -155,34 +155,41 @@ class CDeliveryUPS
 		$arResult = array();
 		while ($data = fgetcsv($fp, 1000, ","))
 		{
-			if (stristr($data[0], "service option"))
+			if(mb_stristr($data[0], "service option"))
 			{
-				if (stristr($data[1], "express saver"))
+				if(mb_stristr($data[1], "express saver"))
+				{
 					$current_profile = "express_saver";
+				}
 				else
+				{
 					$current_profile = "express";
+				}
 
 				$arResult[$current_profile] = array();
 			}
-			elseif (stristr($data[1], 'weight'))
+			elseif(mb_stristr($data[1], 'weight'))
 			{
-				if ($check == 0)
+				if($check == 0)
 				{
 					$bSkip = true;
 					$check++;
 				}
-				elseif ($check == 1)
+				elseif($check == 1)
 				{
 					$bSkip = false;
 					$check = 0;
 				}
 			}
-			elseif (count($data) == 10)
+			elseif(count($data) == 10)
 			{
-				if ($bSkip) continue;
+				if($bSkip)
+				{
+					continue;
+				}
 				else
 				{
-					foreach ($data as $key => $value)
+					foreach($data as $key => $value)
 					{
 						$value = trim($value);
 						$value = str_replace(".", '', $value);
@@ -190,7 +197,7 @@ class CDeliveryUPS
 						$data[$key] = $value;
 					}
 
-					if (doubleval($data[1]) <= 0)
+					if(doubleval($data[1]) <= 0)
 					{
 						$bSkip = true;
 						continue;
@@ -292,12 +299,12 @@ class CDeliveryUPS
 		foreach ($arZones as $country_id => $arZone)
 		{
 			if (
-				($arLocation["COUNTRY_NAME_ORIG"] && stristr($arZone[0], $arLocation["COUNTRY_NAME_ORIG"]) !== false)
-				|| ($arLocation["COUNTRY_SHORT_NAME"] && stristr($arZone[0], $arLocation["COUNTRY_SHORT_NAME"]) !== false)
-				|| ($arLocation["COUNTRY_NAME_LANG"] && stristr($arZone[0], $arLocation["COUNTRY_NAME_LANG"]) !== false)
-				|| ($arLocation["COUNTRY_NAME_ORIG"] && stristr($arLocation["COUNTRY_NAME_ORIG"], $arZone[0]) !== false)
-				|| ($arLocation["COUNTRY_SHORT_NAME"] && stristr($arLocation["COUNTRY_SHORT_NAME"], $arZone[0]) !== false)
-				|| ($arLocation["COUNTRY_NAME_LANG"] && stristr($arLocation["COUNTRY_NAME_LANG"], $arZone[0]) !== false)
+				($arLocation["COUNTRY_NAME_ORIG"] && mb_stristr($arZone[0], $arLocation["COUNTRY_NAME_ORIG"]) !== false)
+				|| ($arLocation["COUNTRY_SHORT_NAME"] && mb_stristr($arZone[0], $arLocation["COUNTRY_SHORT_NAME"]) !== false)
+				|| ($arLocation["COUNTRY_NAME_LANG"] && mb_stristr($arZone[0], $arLocation["COUNTRY_NAME_LANG"]) !== false)
+				|| ($arLocation["COUNTRY_NAME_ORIG"] && mb_stristr($arLocation["COUNTRY_NAME_ORIG"], $arZone[0]) !== false)
+				|| ($arLocation["COUNTRY_SHORT_NAME"] && mb_stristr($arLocation["COUNTRY_SHORT_NAME"], $arZone[0]) !== false)
+				|| ($arLocation["COUNTRY_NAME_LANG"] && mb_stristr($arLocation["COUNTRY_NAME_LANG"], $arZone[0]) !== false)
 			)
 			{
 				$arLocation["COUNTRY_SID"] = $country_id;
@@ -363,7 +370,7 @@ class CDeliveryUPS
 			
 		CDeliveryUPS::__GetLocation($arLocationTo, $arConfig);
 
-		if (strlen($arLocationTo["COUNTRY_SID"]) <= 0) 
+		if ($arLocationTo["COUNTRY_SID"] == '')
 			return array();
 
 		$zones_file = $arConfig["zones_csv"]["VALUE"];

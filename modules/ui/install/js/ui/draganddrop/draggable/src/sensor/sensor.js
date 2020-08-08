@@ -1,7 +1,8 @@
-import {Event, Type} from 'main.core';
+import {Type} from 'main.core';
+import {EventEmitter} from 'main.core.events';
 import {DragStartSensorEvent} from './events/drag.start.sensor.event';
 
-export default class Sensor extends Event.EventEmitter
+export default class Sensor extends EventEmitter
 {
 	containers: Array<HTMLElement>;
 	options: Object;

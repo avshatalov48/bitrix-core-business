@@ -27,9 +27,12 @@
 			this.presets = options.presets || {};
 			this.form = options.form || {};
 			this.title = options.title || '';
-			this.button = BX(options.button);
 
-			BX.bind(this.button, 'click', this.openPanel.bind(this));
+			if (options.button)
+			{
+				this.button = BX(options.button);
+				BX.bind(this.button, 'click', this.openPanel.bind(this));
+			}
 		},
 		appendPresets: function(presets)
 		{

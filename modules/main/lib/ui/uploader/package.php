@@ -62,16 +62,9 @@ class Package
 		if (!is_string($path))
 			throw new ArgumentNullException("path");
 		$this->path = $path;
-		if (!is_string($CID))
-			throw new ArgumentNullException("CID");
-		else if (strpos($CID, "/") !== false)
-			throw new ArgumentException("CID contains forbidden symbol /");
-		$this->CID = $CID;
+		$this->setCid($CID);
 		$this->cidLog = new Log($this->path.$this->getCid().".log");
-
-		if (!is_string($index))
-			throw new ArgumentNullException("packageIndex");
-		$this->index = $index;
+		$this->setIndex($index);
 
 		$this->request = Context::getCurrent()->getRequest();
 		if (!$this->request->isPost())
@@ -82,7 +75,7 @@ class Package
 		$this->log = new Log($this->path.$this->getIndex().".package");
 		if (!isset($this->log["CID"]))
 		{
-			$this->log["CID"] = $this->CID;
+			$this->log["CID"] = $this->getCid();
 			$this->log["pIndex"] = $this->getIndex();
 			$this->log["filesCount"] = $post["filesCount"];
 			$this->log["files"] = array();
@@ -96,6 +89,15 @@ class Package
 		return $this;
 	}
 
+	protected function setIndex($index)
+	{
+		if (!is_string($index))
+			throw new ArgumentNullException("packageIndex");
+		if (!preg_match("/^pIndex([0-9]+)$/", $index))
+			throw new ArgumentException("Index must be a string like '^pIndex([0-9]+)$'", "packageIndex");
+
+		$this->index = $index;
+	}
 	/**
 	 * Returns package Index.
 	 * @return string
@@ -136,6 +138,14 @@ class Package
 		return $this->files[$id];
 	}
 
+	protected function setCid($CID)
+	{
+		if (!is_string($CID))
+			throw new ArgumentNullException("CID");
+		else if (strpos($CID, "/") !== false)
+			throw new ArgumentException("CID contains a forbidden symbol /");
+		$this->CID = preg_replace("/[^a-z0-9_\\-.]/i", "_", $CID);
+	}
 	/**
 	 * @return string
 	 */

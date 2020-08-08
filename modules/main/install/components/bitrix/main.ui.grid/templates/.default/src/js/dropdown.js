@@ -24,6 +24,7 @@
 		this.activeClass = 'main-dropdown-active';
 		this.selectedClass = 'main-dropdown-item-selected';
 		this.notSelectedClass = 'main-dropdown-item-not-selected';
+		this.lockedClass = 'main-dropdown-item-locked';
 		this.menuItemClass = 'menu-popup-item';
 		this.init(dropdown);
 	};
@@ -99,7 +100,9 @@
 				});
 			}
 
-			return prepareItems(this.getItems());
+			const items = prepareItems(this.getItems());
+			BX.onCustomEvent(window, 'Dropdown::onPrepareItems', [this.id, this.menuId, items])
+			return items;
 		},
 
 		createMenu: function()
@@ -113,8 +116,8 @@
 				{
 					'autoHide': true,
 					'offsetTop': -8,
-					'offsetLeft': 40,
-					'maxHeight': 208,
+					'offsetLeft': +(this.dropdown.dataset.menuOffsetLeft || 40),
+					'maxHeight': +(this.dropdown.dataset.menuMaxHeight || 170),
 					'angle': {
 						'position': 'bottom',
 						'offset': 0
@@ -188,6 +191,11 @@
 			});
 
 			BX.addClass(node, this.selectedClass);
+		},
+
+		lockedItem: function(node) {
+
+			BX.addClass(node, this.lockedClass);
 		},
 
 		getDataItemIndexByValue: function(items, value)

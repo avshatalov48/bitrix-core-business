@@ -23,7 +23,7 @@ else
 {
 	if ($arParams['REFRESHED_COMPONENT_MODE'] === 'Y')
 	{
-		$wrapperId = str_shuffle(substr($arResult['SIGNED_PARAMS'],0,10));
+		$wrapperId = str_shuffle(mb_substr($arResult['SIGNED_PARAMS'], 0, 10));
 		?>
 		<div class="bx-sap row">
 			<div class="col" id="bx-sap<?=$wrapperId?>">

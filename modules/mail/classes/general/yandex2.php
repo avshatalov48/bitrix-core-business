@@ -144,7 +144,7 @@ class CMailYandex2
 	 */
 	public static function checkUser($token, $domain, $login, &$error)
 	{
-		if (in_array(strtolower($login), array('abuse', 'postmaster')))
+		if (in_array(mb_strtolower($login), array('abuse', 'postmaster')))
 			return 'exists';
 
 		$result = self::get('https://pddimp.yandex.ru/api2/admin/email/details', array(

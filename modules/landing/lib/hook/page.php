@@ -121,7 +121,7 @@ abstract class Page
 			$lockStates[$class] = Manager::checkFeature(
 				Manager::FEATURE_ENABLE_ALL_HOOKS,
 				[
-					'hook' => strtolower(array_pop(explode('\\', $class)))
+					'hook' => mb_strtolower(array_pop(explode('\\', $class)))
 				]
 			);
 		}
@@ -150,7 +150,7 @@ abstract class Page
 	public function getCode()
 	{
 		$class = new \ReflectionClass($this);
-		return strtoupper($class->getShortName());
+		return mb_strtoupper($class->getShortName());
 	}
 
 	/**

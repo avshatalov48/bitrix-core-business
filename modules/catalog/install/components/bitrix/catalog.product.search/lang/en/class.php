@@ -27,6 +27,7 @@ $MESS["SPS_FIELD_DETAIL_TEXT"] = "Detailed description";
 $MESS["SPS_FIELD_DETAIL_PICTURE"] = "Full image";
 $MESS["SPS_FIELD_CODE"] = "Symbolic code";
 $MESS["SPS_FIELD_XML_ID"] = "External ID";
+$MESS["SPS_FIELD_SORT"] = "Sorting";
 $MESS["SPS_GOTO_PARENT_SECTION"] = "Parent section";
 $MESS["SPS_ROOT_NAME"] = "Root";
 $MESS["SPS_SEARCH_PLACEHOLDER"] = "Start typing to search";

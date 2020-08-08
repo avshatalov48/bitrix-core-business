@@ -4,6 +4,7 @@ namespace Bitrix\Socialnetwork\Copy;
 use Bitrix\Main\Copy\Container;
 use Bitrix\Main\Copy\ContainerCollection;
 use Bitrix\Main\Copy\EntityCopier;
+use Bitrix\Main\Result;
 use Bitrix\Socialnetwork\Copy\Implement\UserGroupHelper;
 use Bitrix\Socialnetwork\Copy\Integration\Feature;
 use Bitrix\Socialnetwork\Copy\UserToGroup as UserToGroupCopier;
@@ -28,10 +29,15 @@ class GroupManager
 
 	private $markerUsers = true;
 
+	private $result;
+	private $mapIdsCopiedGroups = [];
+
 	public function __construct($executiveUserId, array $groupIdsToCopy)
 	{
 		$this->executiveUserId = $executiveUserId;
 		$this->groupIdsToCopy = $groupIdsToCopy;
+
+		$this->result = new Result();
 	}
 
 	/**
@@ -87,7 +93,20 @@ class GroupManager
 			$groupCopier->addEntityToCopy($this->getUserToGroupCopier($userToGroupImplementer));
 		}
 
-		return $groupCopier->copy($containerCollection);
+		$this->result = $groupCopier->copy($containerCollection);
+		$this->mapIdsCopiedGroups = $groupCopier->getMapIdsCopiedEntity();
+
+		return $this->result;
+	}
+
+	/**
+	 * Returns the ids map of the copied groups.
+	 *
+	 * @return array
+	 */
+	public function getMapIdsCopiedGroups(): array
+	{
+		return $this->mapIdsCopiedGroups;
 	}
 
 	private function getContainerCollection()

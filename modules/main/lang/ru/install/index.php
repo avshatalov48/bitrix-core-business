@@ -216,7 +216,6 @@ $MESS["MAIN_DESKTOP_EMAIL_KEY"] = "E-mail";
 $MESS["MAIN_DESKTOP_EMAIL_VALUE"] = "<a href=\"mailto:info@1c-bitrix.ru\">info@1c-bitrix.ru</a>";
 $MESS["MAIN_DESKTOP_INFO_TITLE"] = "Информация о сайте";
 $MESS["MAIN_DESKTOP_RSS_TITLE"] = "Новости 1С-Битрикс";
-
 $MESS["MAIN_MAIL_CONFIRM_EVENT_TYPE_NAME"] = "Подтверждение email-адреса отправителя";
 $MESS["MAIN_MAIL_CONFIRM_EVENT_TYPE_DESC"] = "
 
@@ -238,6 +237,10 @@ $MESS["MAIN_DEFAULT_LANGUAGE_MEDIUM_DATE_FORMAT"] = "j M Y";
 $MESS["MAIN_DEFAULT_LANGUAGE_LONG_DATE_FORMAT"] = "j F Y";
 $MESS["MAIN_DEFAULT_LANGUAGE_FULL_DATE_FORMAT"] = "l, j F Y";
 $MESS["MAIN_DEFAULT_LANGUAGE_DAY_MONTH_FORMAT"] = "j F";
+$MESS["MAIN_DEFAULT_LANGUAGE_DAY_SHORT_MONTH_FORMAT"] = "j M";
+$MESS["MAIN_DEFAULT_LANGUAGE_DAY_OF_WEEK_MONTH_FORMAT"] = "l, j F";
+$MESS["MAIN_DEFAULT_LANGUAGE_SHORT_DAY_OF_WEEK_MONTH_FORMAT"] = "D, j F";
+$MESS["MAIN_DEFAULT_LANGUAGE_SHORT_DAY_OF_WEEK_SHORT_MONTH_FORMAT"] = "D, j M";
 $MESS["MAIN_DEFAULT_LANGUAGE_SHORT_TIME_FORMAT"] = "H:i";
 $MESS["MAIN_DEFAULT_LANGUAGE_LONG_TIME_FORMAT"] = "H:i:s";
 $MESS["MAIN_DEFAULT_LANGUAGE_AM_VALUE"] = "am";
@@ -282,3 +285,27 @@ IP-адрес: #REMOTE_ADDR#
 Перейти в журнал событий:
 http://#SERVER_NAME#/bitrix/admin/event_log.php?set_filter=Y&find_audit_type_id=#AUDIT_TYPE_ID#";
 $MESS["main_install_sms_template_notification_mess"] = "#NAME#: #ADDITIONAL_TEXT# (событий: #EVENT_COUNT#)";
+$MESS["MAIN_INSTALL_EVENT_TYPE_USER_CODE_REQUEST"] = "Запрос кода авторизации";
+$MESS["MAIN_INSTALL_EVENT_TYPE_USER_CODE_REQUEST_DESC"] = "#USER_ID# - ID пользователя
+#STATUS# - Статус логина
+#LOGIN# - Логин
+#CHECKWORD# - Код для авторизации
+#NAME# - Имя
+#LAST_NAME# - Фамилия
+#EMAIL# - Email пользователя
+";
+$MESS["MAIN_INSTALL_EVENT_MESS_USER_CODE_REQUEST"] = "#SITE_NAME#: Запрос кода авторизации";
+$MESS["MAIN_INSTALL_EVENT_MESS_USER_CODE_REQUEST_MESS"] = "Используйте для авторизации код:
+
+#CHECKWORD#
+
+После авторизации вы сможете изменить свой пароль в редактировании профиля.
+
+Ваша регистрационная информация:
+
+ID пользователя: #USER_ID#
+Статус профиля: #STATUS#
+Логин: #LOGIN#
+
+Сообщение создано автоматически.";
+?>

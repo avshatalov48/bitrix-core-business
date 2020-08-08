@@ -15,10 +15,10 @@ if (CModule::IncludeModule("sale"))
 		$SERVER_NAME_tmp = "";
 		if (defined("SITE_SERVER_NAME"))
 			$SERVER_NAME_tmp = SITE_SERVER_NAME;
-		if (strlen($SERVER_NAME_tmp)<=0)
+		if ($SERVER_NAME_tmp == '')
 			$SERVER_NAME_tmp = COption::GetOptionString("main", "server_name", "");
 
-		if (!($arOrder = CSaleOrder::GetByID(IntVal($_POST["LMI_PAYMENT_NO"]))))
+		if (!($arOrder = CSaleOrder::GetByID(intval($_POST["LMI_PAYMENT_NO"]))))
 			$bCorrectPayment = False;
 
 		if ($bCorrectPayment)
@@ -34,7 +34,7 @@ if (CModule::IncludeModule("sale"))
 		if ($bCorrectPayment)
 		{
 			$strPS_STATUS_DESCRIPTION = "";
-			if (strlen($_POST["pci_mode"]) > 0)
+			if ($_POST["pci_mode"] <> '')
 				$strPS_STATUS_DESCRIPTION .= "тестовый режим, реально деньги не переводились; ";
 			$strPS_STATUS_DESCRIPTION .= "кошелек продавца - ".$_POST["pci_pursedest"]."; ";
 			$strPS_STATUS_DESCRIPTION .= "номер операции - ".$_POST["pci_wmtid"]."; ";

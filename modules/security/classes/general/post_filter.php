@@ -64,6 +64,7 @@ class CSecurityXSSDetect
 		$this->variables = new CSecurityXSSDetectVariables();
 		$this->extractVariablesFromArray("\$_GET", $_GET);
 		$this->extractVariablesFromArray("\$_POST", $_POST);
+		$this->extractVariablesFromArray("\$_SERVER[REQUEST_URI]", explode("/",$_SERVER['REQUEST_URI']));
 
 		if(!$this->variables->isEmpty())
 		{
@@ -282,7 +283,7 @@ class CSecurityXSSDetect
 	{
 		if(!is_string($value))
 			return;
-		if(strlen($value) <= 2)
+		if(mb_strlen($value) <= 2)
 			return; //too short
 		if(preg_match("/^(?P<quot>[\"']?)[^`,;+\-*\/\{\}\[\]\(\)&\\|=\\\\]*(?P=quot)\$/D", $value))
 			return; //there is no potantially dangerous code
@@ -291,7 +292,7 @@ class CSecurityXSSDetect
 		if(preg_match("/^[0-9 \n\r\t\\[\\]]*\$/D", $value))
 			return; //there is no potantially dangerous code
 
-		$this->variables->addVariable($name, str_replace(chr(0), "", $value));
+		$this->variables->addVariable($name, $value);
 	}
 
 	/**
@@ -320,7 +321,7 @@ class CSecurityXSSDetect
 			return mb_orig_strpos($haystack, $needle);
 		}
 
-		return strpos($haystack, $needle);
+		return mb_strpos($haystack, $needle);
 	}
 
 	protected static function fastSubstr($string, $start, $length = null)
@@ -330,7 +331,7 @@ class CSecurityXSSDetect
 			return mb_orig_substr($string, $start, $length);
 		}
 
-		return substr($string, $start, $length);
+		return mb_substr($string, $start, $length);
 	}
 
 }

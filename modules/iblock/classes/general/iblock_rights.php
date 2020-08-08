@@ -12,6 +12,11 @@ class CIBlockRights
 	const ALL_OPERATIONS = 2;
 	const RETURN_OPERATIONS = 4;
 
+	/** @var string Public reading */
+	public const PUBLIC_READ = 'R';
+	/** @var string Admin access */
+	public const FULL_ACCESS = 'X';
+
 	protected $IBLOCK_ID = 0;
 	protected $id = 0;
 	protected static $arLetterToTask = null;
@@ -52,7 +57,7 @@ class CIBlockRights
 		{
 			if(isset($arRight["RIGHT_ID"]))
 			{
-				if(strlen($arRight["RIGHT_ID"]) > 0)
+				if($arRight["RIGHT_ID"] <> '')
 					$RIGHT_ID = $arRight["RIGHT_ID"];
 				else
 					$RIGHT_ID = "n".$i++;
@@ -79,9 +84,9 @@ class CIBlockRights
 
 		foreach($arRights as $RIGHT_ID => $arRightSet)
 		{
-			if(substr($RIGHT_ID, 0, 1) == "n")
+			if(mb_substr($RIGHT_ID, 0, 1) == "n")
 			{
-				if(strlen($arRightSet["GROUP_CODE"]) <= 0)
+				if($arRightSet["GROUP_CODE"] == '')
 					unset($arRights[$RIGHT_ID]);
 				elseif($arRightSet["TASK_ID"] > 0)
 				{
@@ -429,7 +434,7 @@ class CIBlockRights
 		$arUniqCodes = array();
 		foreach($arRights as $RIGHT_ID => $arRightSet)
 		{
-			if(strlen($arRightSet["GROUP_CODE"]) > 0)
+			if($arRightSet["GROUP_CODE"] <> '')
 			{
 				if(isset($arUniqCodes[$arRightSet["GROUP_CODE"]]))
 					unset($arRights[$RIGHT_ID]);
@@ -458,7 +463,7 @@ class CIBlockRights
 			$bInherit = true;//$arRightSet["DO_INHERIT"] == "Y";
 			$bChildrenSet = false;
 
-			if(strlen($GROUP_CODE) <= 0 || is_array($arRightSet["TASK_ID"]))
+			if($GROUP_CODE == '' || is_array($arRightSet["TASK_ID"]))
 				continue;
 
 			if(!array_key_exists($arRightSet["TASK_ID"], $arTasks))
@@ -475,7 +480,7 @@ class CIBlockRights
 				$bCleanUp = true;
 			}
 
-			if(substr($RIGHT_ID, 0, 1) == "n")
+			if(mb_substr($RIGHT_ID, 0, 1) == "n")
 			{
 				$arAddedCodes[$GROUP_CODE] = $GROUP_CODE;
 				$NEW_RIGHT_ID = $this->_add(
@@ -551,7 +556,7 @@ class CIBlockRights
 			"TASK_ID" => $TASK_ID,
 			"OP_SREAD" => in_array("section_read", $arOperations)? "Y": "N",
 			"OP_EREAD" => in_array("element_read", $arOperations)? "Y": "N",
-			"XML_ID" => (strlen($XML_ID) > 0? $XML_ID: false),
+			"XML_ID" => ($XML_ID <> ''? $XML_ID: false),
 		));
 
 		return $NEW_RIGHT_ID;

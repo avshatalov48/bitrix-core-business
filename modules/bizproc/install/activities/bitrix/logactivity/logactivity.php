@@ -51,7 +51,7 @@ class CBPLogActivity
 	{
 		$arErrors = array();
 
-		if (strlen($arTestProperties["Text"]) <= 0)
+		if ($arTestProperties["Text"] == '')
 		{
 			$arErrors[] = array(
 				"code" => "emptyText",
@@ -93,7 +93,7 @@ class CBPLogActivity
 		$errors = [];
 		$properties = array(
 			"Text" => $arCurrentValues["text"],
-			"SetVariable" => (strtoupper($arCurrentValues["set_variable"]) === 'Y')
+			"SetVariable" => (mb_strtoupper($arCurrentValues["set_variable"]) === 'Y')
 		);
 
 		$errors = self::ValidateProperties($properties, new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser));

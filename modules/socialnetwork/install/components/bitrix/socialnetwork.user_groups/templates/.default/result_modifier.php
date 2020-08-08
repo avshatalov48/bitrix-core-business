@@ -37,7 +37,7 @@ if (
 		$arResult["menuItems"][] = array(
 			"TEXT" => Loc::getMessage("SONET_C33_T_F_MY_PROJECT"),
 			"URL" => (
-				strlen($arResult["WORKGROUPS_PATH"]) > 0
+				$arResult["WORKGROUPS_PATH"] <> ''
 					? $arResult["WORKGROUPS_PATH"]."?filter_my=Y&filter_project=Y"
 					: $APPLICATION->GetCurPageParam("filter_my=Y&filter_project=Y", $arFilterKeys, false)
 			),
@@ -62,7 +62,7 @@ if (
 	$arResult["menuItems"][] = array(
 		"TEXT" => Loc::getMessage("SONET_C33_T_F_MY"),
 		"URL" => (
-			strlen($arResult["WORKGROUPS_PATH"]) > 0
+			$arResult["WORKGROUPS_PATH"] <> ''
 				? $arResult["WORKGROUPS_PATH"]."?filter_my=Y".($arResult['USE_PROJECTS'] == 'Y' ? '&filter_project=N' : '')
 				: $APPLICATION->GetCurPageParam("filter_my=Y".($arResult['USE_PROJECTS'] == 'Y' ? '&filter_project=N' : ''), $arFilterKeys, false)
 		),
@@ -76,7 +76,7 @@ if ($arResult['USE_PROJECTS'] == 'Y')
 	$arResult["menuItems"][] = array(
 		"TEXT" => Loc::getMessage("SONET_C36_T_F_ALL_PROJECT"),
 		"URL" => (
-			strlen($arResult["WORKGROUPS_PATH"]) > 0
+			$arResult["WORKGROUPS_PATH"] <> ''
 				? $arResult["WORKGROUPS_PATH"]."?filter_project=Y"
 				: $APPLICATION->GetCurPageParam("filter_project=Y", $arFilterKeys, false)
 		),
@@ -98,7 +98,7 @@ if ($arResult['USE_PROJECTS'] == 'Y')
 $arResult["menuItems"][] = array(
 	"TEXT" => Loc::getMessage("SONET_C36_T_F_ALL"),
 	"URL" => (
-		strlen($arResult["WORKGROUPS_PATH"]) > 0
+		$arResult["WORKGROUPS_PATH"] <> ''
 			? $arResult["WORKGROUPS_PATH"].($arResult['USE_PROJECTS'] == 'Y' ? '?filter_project=N' : '')
 			: $APPLICATION->GetCurPageParam("filter_project=N", $arFilterKeys, false)
 	),
@@ -123,7 +123,7 @@ if ($USER->IsAuthorized())
 	$arResult["menuItems"][] = array(
 		"TEXT" => Loc::getMessage("SONET_C36_T_F_FAVORITES"),
 		"URL" => (
-			strlen($arResult["WORKGROUPS_PATH"]) > 0
+			$arResult["WORKGROUPS_PATH"] <> ''
 				? $arResult["WORKGROUPS_PATH"]."?filter_favorites=Y"
 				: $APPLICATION->GetCurPageParam("filter_favorites=Y", $arFilterKeys, false)
 		),
@@ -137,7 +137,7 @@ if (COption::GetOptionString("socialnetwork", "work_with_closed_groups", "N") !=
 	$arResult["menuItems"][] = array(
 		"TEXT" => Loc::getMessage("SONET_C33_T_F_ARCHIVE"),
 		"URL" => (
-			strlen($arResult["WORKGROUPS_PATH"]) > 0
+			$arResult["WORKGROUPS_PATH"] <> ''
 				? $arResult["WORKGROUPS_PATH"]."?filter_archive=Y"
 				: $APPLICATION->GetCurPageParam("filter_archive=Y", $arFilterKeys, false)
 		),
@@ -154,7 +154,7 @@ if (
 	$arResult["menuItems"][] = array(
 		"TEXT" => Loc::getMessage("SONET_C33_T_F_EXTRANET"),
 		"URL" => (
-			strlen($arResult["WORKGROUPS_PATH"]) > 0
+			$arResult["WORKGROUPS_PATH"] <> ''
 				? $arResult["WORKGROUPS_PATH"]."?filter_extranet=Y"
 				: $APPLICATION->GetCurPageParam("filter_extranet=Y", $arFilterKeys, false)
 		),
@@ -171,7 +171,7 @@ if (
 	$arResult["menuItems"][] = array(
 		"TEXT" => Loc::getMessage("SONET_C33_T_F_TAGS"),
 		"URL" => (
-			strlen($arResult["WORKGROUPS_PATH"]) > 0
+			$arResult["WORKGROUPS_PATH"] <> ''
 				? $arResult["WORKGROUPS_PATH"]."?filter_tags=Y"
 				: $APPLICATION->GetCurPageParam("filter_tags=Y", $arFilterKeys, false)
 		),
@@ -268,7 +268,7 @@ if (
 
 				$group["NAME"] = htmlspecialcharsEx($group["NAME"]);
 				$group['URL'] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP"], array("group_id" => $group["ID"]));
-				$group["DESCRIPTION"] = (strlen($group["DESCRIPTION"]) > 47 ? substr($group["DESCRIPTION"], 0, 47)."..." : $group["DESCRIPTION"]);
+				$group["DESCRIPTION"] = (mb_strlen($group["DESCRIPTION"]) > 47 ? mb_substr($group["DESCRIPTION"], 0, 47)."..." : $group["DESCRIPTION"]);
 				$group["DESCRIPTION"] = htmlspecialcharsEx($group["DESCRIPTION"]);
 
 				$imageResized = false;

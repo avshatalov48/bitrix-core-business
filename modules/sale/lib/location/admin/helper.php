@@ -104,26 +104,30 @@ abstract class Helper
 
 					if(is_array($proxed['FILTER'][$code]))
 					{
-						if(strlen($proxed['FILTER'][$code]['FROM']) && strlen($proxed['FILTER'][$code]['TO'])) // range
+						if(mb_strlen($proxed['FILTER'][$code]['FROM']) && mb_strlen($proxed['FILTER'][$code]['TO'])) // range
 						{
 							$filter['><'.$code] = array($proxed['FILTER'][$code]['FROM'], $proxed['FILTER'][$code]['TO']);
 						}
-						elseif(strlen($proxed['FILTER'][$code]['FROM'])) // greather than
+						elseif(mb_strlen($proxed['FILTER'][$code]['FROM'])) // greather than
 						{
 							$filter['>='.$code] = $proxed['FILTER'][$code]['FROM'];
 						}
-						elseif(strlen($proxed['FILTER'][$code]['TO'])) // less than
+						elseif(mb_strlen($proxed['FILTER'][$code]['TO'])) // less than
 						{
 							$filter['<='.$code] = $proxed['FILTER'][$code]['TO'];
 						}
 					}
-					elseif(strlen($proxed['FILTER'][$code]))
-						$filter['='.$code] = (string) $proxed['FILTER'][$code];
+					elseif(mb_strlen($proxed['FILTER'][$code]))
+					{
+						$filter['='.$code] = (string)$proxed['FILTER'][$code];
+					}
 				}
 				else
 				{
-					if(strlen($proxed['FILTER'][$code]))
+					if($proxed['FILTER'][$code] <> '')
+					{
 						$filter[static::getFilterModifier($fld['data_type']).$code] = $proxed['FILTER'][$code];
+					}
 				}
 			}
 		}
@@ -248,7 +252,7 @@ abstract class Helper
 
 		if(!empty($columns[$code]))
 		{
-			if(!strlen($value) && strlen($columns[$code]['default']))
+			if(!mb_strlen($value) && mb_strlen($columns[$code]['default']))
 				$value = $columns[$code]['default'];
 
 			switch($columns[$code]['data_type'])
@@ -321,35 +325,39 @@ abstract class Helper
 				{
 					// range expected
 
-					if(strlen($GLOBALS[$from]) && strlen($GLOBALS[$to])) // range
+					if(mb_strlen($GLOBALS[$from]) && mb_strlen($GLOBALS[$to])) // range
 					{
 						$filter['><'.$code] = array($GLOBALS[$from], $GLOBALS[$to]);
 					}
-					elseif(strlen($GLOBALS[$from])) // greather than
+					elseif(mb_strlen($GLOBALS[$from])) // greather than
 					{
 						$filter['>='.$code] = $GLOBALS[$from];
 					}
-					elseif(strlen($GLOBALS[$to])) // less than
+					elseif(mb_strlen($GLOBALS[$to])) // less than
 					{
 						$filter['<='.$code] = $GLOBALS[$to];
 					}
 				}
 				else
 				{
-					if(strlen($GLOBALS['find_'.$code]))
+					if($GLOBALS['find_'.$code] <> '')
+					{
 						$filter[static::getFilterModifier($fld['data_type']).$code] = $GLOBALS['find_'.$code];
+					}
 				}
 			}
 		}
 
 		if(!empty($filter))
 			$parameters['filter'] = $filter;
-		if(strlen($by))
+		if($by <> '')
 		{
 			$columns = static::getColumns($page); // check if that column really exists, for the whole extension hierarchy
 
 			if(isset($columns[$by]))
-				$parameters['order'] = array($by => isset($order) ? $order : 'asc');
+			{
+				$parameters['order'] = array($by => isset($order)? $order : 'asc');
+			}
 		}
 
 		return $parameters;
@@ -450,7 +458,7 @@ abstract class Helper
 		{
 			$result = new \CSaleProxyAdminUiResult($parameters, $entityClass, $tableId);
 		}
-		elseif($isAdminSection && strlen($tableId))
+		elseif($isAdminSection && mb_strlen($tableId))
 		{
 			$result = new \CSaleProxyAdminResult($parameters, $entityClass, $tableId); // being in admin and knowing table, do admin result api call
 		}
@@ -523,7 +531,7 @@ abstract class Helper
 	{
 		$map = static::getEntityRoadMap();
 
-		return strlen($map['main']['primaryFieldName']) ? $map['main']['primaryFieldName'] : 'ID';
+		return $map['main']['primaryFieldName'] <> ''? $map['main']['primaryFieldName'] : 'ID';
 	}
 
 	// returns element name by it`s primary
@@ -573,7 +581,7 @@ abstract class Helper
 		$selfFolderUrl = (defined("SELF_FOLDER_URL") ? SELF_FOLDER_URL : "/bitrix/admin/");
 
 		$packed = self::packUrlParameters($parameters);
-		return $selfFolderUrl.$page.(strlen($packed) ? '?'.$packed : '');
+		return $selfFolderUrl.$page.($packed <> ''? '?'.$packed : '');
 	}
 
 	#####################################
@@ -594,7 +602,7 @@ abstract class Helper
 		if(!$road['name'])
 			throw new Main\SystemException('Undefined entity name in entity map');
 
-		if(!strlen($page))
+		if($page == '')
 			$page = 'list';
 
 		$flds = array();
@@ -608,7 +616,7 @@ abstract class Helper
 
 		foreach($map as $fldCode => $fldDesc)
 		{
-			if((strlen($fldDesc['title']) || $fldDesc['required'] || $fldDesc['primary'] || $fldCode == 'ID'))
+			if((mb_strlen($fldDesc['title']) || $fldDesc['required'] || $fldDesc['primary'] || $fldCode == 'ID'))
 			{
 				if(is_array($excluded) && in_array($fldCode, $excluded))
 					continue;
@@ -616,7 +624,7 @@ abstract class Helper
 				if(is_array($included) && !in_array($fldCode, $included))
 					continue;
 
-				$fldDesc['title'] = strlen($fldDesc['title']) ? htmlspecialcharsbx($fldDesc['title']) : $fldCode;
+				$fldDesc['title'] = $fldDesc['title'] <> ''? htmlspecialcharsbx($fldDesc['title']) : $fldCode;
 				$fldDesc['ownerEntity'] = $road['name']; // map can be cumulative, from several entites, so we need to know who is an owner
 				$flds[$fldCode] = $fldDesc;
 			}
@@ -635,15 +643,17 @@ abstract class Helper
 		$params = array();
 		foreach($parameters as $param => $value)
 		{
-			if(strlen($value))
+			if($value <> '')
 			{
-				if(strpos($param, '=') === 0)
+				if(mb_strpos($param, '=') === 0)
 				{
 					// value goes as-is, unsafe
-					$param = substr($param, 1);
+					$param = mb_substr($param, 1);
 				}
 				else
+				{
 					$value = urlencode($value);
+				}
 
 				$params[] = urlencode($param).'='.$value;
 			}
@@ -655,7 +665,7 @@ abstract class Helper
 	protected static function getEntityClass($code = '')
 	{
 		$entityRoad = static::getEntityRoadMap();
-		$entityName = $entityRoad[strlen($code) ? $code : self::getEntityRoadCode()]['name'];
+		$entityName = $entityRoad[$code <> ''? $code : self::getEntityRoadCode()]['name'];
 
 		if(!$entityName)
 			throw new Main\SystemException('Undefined entity name in helper');
@@ -667,7 +677,7 @@ abstract class Helper
 	{
 		$appearance = Config\Option::get("sale", "sale_location_selector_appearance");
 
-		if(!strlen($appearance) || !in_array($appearance, array('search', 'steps')))
+		if(!mb_strlen($appearance) || !in_array($appearance, array('search', 'steps')))
 			return 'steps';
 
 		return $appearance;
@@ -689,7 +699,7 @@ abstract class Helper
 			}
 			else
 			{
-				if(!strlen($list[$i]))
+				if($list[$i] == '')
 					unset($list[$i]);
 			}
 		}

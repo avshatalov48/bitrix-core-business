@@ -1,11 +1,13 @@
 <?
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
+use Bitrix\Main\Loader;
+
 $module_id = "sale";
 $salePermissions = $APPLICATION->GetGroupRight($module_id);
 if ($salePermissions >= "R") :
 
-include_once($GLOBALS["DOCUMENT_ROOT"]."/bitrix/modules/sale/include.php");
+Loader::includeModule('sale');
 IncludeModuleLangFile(__FILE__);
 
 $arAllOptions = array(
@@ -21,7 +23,7 @@ $arAllOptions = array(
 
 $arPersonType = array();
 
-if($REQUEST_METHOD=="POST" && strlen($Update)>0 && $salePermissions>="W" && check_bitrix_sessid())
+if($_SERVER['REQUEST_METHOD']=="POST" && $Update <> '' && $salePermissions>="W" && check_bitrix_sessid())
 {
 
 	$dbExport = CSaleExport::GetList();
@@ -38,7 +40,7 @@ if($REQUEST_METHOD=="POST" && strlen($Update)>0 && $salePermissions>="W" && chec
 	{
 		$arParams = array();
 
-		if (strlen(${"export_fields_".$arPersonType["ID"]}) > 0)
+		if (${"export_fields_".$arPersonType["ID"]} <> '')
 		{
 			$arActFields = explode(",", ${"export_fields_".$arPersonType["ID"]});
 			$actFieldsCount = count($arActFields);
@@ -48,7 +50,7 @@ if($REQUEST_METHOD=="POST" && strlen($Update)>0 && $salePermissions>="W" && chec
 
 				$typeTmp = ${"TYPE_".$arActFields[$i]."_".$arPersonType["ID"]};
 				$valueTmp = ${"VALUE1_".$arActFields[$i]."_".$arPersonType["ID"]};
-				if (strlen($typeTmp) <= 0)
+				if ($typeTmp == '')
 					$valueTmp = ${"VALUE2_".$arActFields[$i]."_".$arPersonType["ID"]};
 
 				$arParams[$arActFields[$i]] = array(
@@ -61,16 +63,16 @@ if($REQUEST_METHOD=="POST" && strlen($Update)>0 && $salePermissions>="W" && chec
 			$i = 0;
 			foreach($_POST as $k => $v)
 			{
-				if(strpos($k, "REKV_".$arPersonType["ID"]."_") !== false && strlen($v) > 0)
+				if(mb_strpos($k, "REKV_".$arPersonType["ID"]."_") !== false && $v <> '')
 				{
-					$ind = substr($k, strrpos($k, "_")+1);
+					$ind = mb_substr($k, mb_strrpos($k, "_") + 1);
 
 					$typeTmp = ${"TYPE_REKV_".$ind."_".$arPersonType["ID"]};
 					$valueTmp = ${"VALUE1_REKV_".$ind."_".$arPersonType["ID"]};
-					if (strlen($valueTmp) <= 0)
+					if ($valueTmp == '')
 						$valueTmp = ${"VALUE2_REKV_".$ind."_".$arPersonType["ID"]};
 
-					if(strlen($v) > 0 && strlen($valueTmp) > 0)
+					if($v <> '' && $valueTmp <> '')
 					{
 						$arParams["REKV_".$i] = array(
 								"TYPE" => $typeTmp,
@@ -82,7 +84,7 @@ if($REQUEST_METHOD=="POST" && strlen($Update)>0 && $salePermissions>="W" && chec
 				}
 			}
 		}
-		if(IntVal($arExportProfile[$arPersonType["ID"]])>0)
+		if(intval($arExportProfile[$arPersonType["ID"]])>0)
 			$res = CSaleExport::Update($arExportProfile[$arPersonType["ID"]], Array("PERSON_TYPE_ID" => $arPersonType["ID"], "VARS" => serialize($arParams)));
 		else
 			$res = CSaleExport::Add(Array("PERSON_TYPE_ID" => $arPersonType["ID"], "VARS" => serialize($arParams)));
@@ -315,7 +317,7 @@ function AddRekvMore(ind)
 					{
 						$v = array("NAME" => "", "VALUE" => "", "TYPE" => "");
 					}
-					if(strlen($v["NAME"]) > 0)
+					if($v["NAME"] <> '')
 					{
 						$k = str_replace("REKV_", "REKV_n", $k);
 						?>
@@ -323,7 +325,7 @@ function AddRekvMore(ind)
 						<?
 					}
 
-					if(strpos($k, "REKV_") !== false)
+					if(mb_strpos($k, "REKV_") !== false)
 						$i++;
 					?>
 					var param_<?= $k ?>_type_<?= $arExport["PERSON_TYPE_ID"] ?> = '<?= CUtil::JSEscape($v["TYPE"]) ?>';
@@ -332,7 +334,7 @@ function AddRekvMore(ind)
 				}
 				?>
 				var param_person_type_1c_<?=$arExport["PERSON_TYPE_ID"]?> = '<?=(($arExpParams["IS_FIZ"]=="Y")?"FIZ":"UR")?>';
-				var param_person_type_rekv_<?=$arExport["PERSON_TYPE_ID"]?> = '<?=IntVal($i)?>';
+				var param_person_type_rekv_<?=$arExport["PERSON_TYPE_ID"]?> = '<?=intval($i)?>';
 				<?
 			}
 			?>
@@ -431,4 +433,3 @@ function AddRekvMore(ind)
 	</tr>
 	<?
 endif;
-?>

@@ -74,12 +74,11 @@ class Agent
 
 		$date = new \Bitrix\Main\Type\DateTime;
 		$date->add('-' . $days . ' days');
-		$folders = [];
 
 		// first delete landings
 		$res = Landing::getList([
 			'select' => [
-				'ID', 'FOLDER'
+				'ID', 'FOLDER_ID'
 			],
 			'filter' => [
 				[
@@ -103,41 +102,14 @@ class Agent
 		]);
 		while ($row = $res->fetch())
 		{
-			if ($row['FOLDER'] == 'Y')
+			if ($row['FOLDER_ID'])
 			{
-				$folders[] = $row['ID'];
-				continue;
+				Landing::update($row['ID'], [
+					'FOLDER_ID' => 0
+				]);
 			}
 			$resDel = Landing::delete($row['ID'], true);
 			$resDel->isSuccess();// for trigger
-		}
-
-		// delete from folders
-		if ($folders)
-		{
-			$res = Landing::getList([
-				'select' => [
-					'ID'
-				],
-				'filter' => [
-					'FOLDER_ID' => $folders,
-					'=DELETED' => ['Y', 'N'],
-					'=SITE.DELETED' => ['Y', 'N'],
-					'CHECK_PERMISSIONS' => 'N'
-				],
-				'order' => [
-					'DATE_MODIFY' => 'desc'
-				]
-			]);
-			while ($row = $res->fetch())
-			{
-				array_unshift($folders, $row['ID']);
-			}
-			foreach ($folders as $folderId)
-			{
-				$resDel = Landing::delete($folderId, true);
-				$resDel->isSuccess();// for trigger
-			}
 		}
 
 		// then delete sites

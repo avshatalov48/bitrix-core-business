@@ -86,7 +86,6 @@ $MESS["ErrorOnBeforeSiteAddLLM"] = "В вашу редакцию входит т
 $MESS["error_first_edition_hack"] = "Ошибка соответствия редакции.";
 $MESS["error_intranet_edition_hack"] = "Ошибка соответствия редакции.";
 $MESS["MAIN_FEATURE_ERROR_EDITABLE"] = "Модуль не доступен в вашей редакции.";
-$MESS["MAIN_SESS_MESS"] = "Ваш сеанс работы с сайтом завершен из-за отсутствия активности в течение #TIMEOUT# мин. Введенные на странице данные не будут сохранены. Скопируйте их перед тем, как закроете или обновите страницу.";
 $MESS["MAIN_NAME_JOHN_SMITH"] = "Иван Петров";
 $MESS["MAIN_NAME_SMITH_JOHN"] = "Петров Иван";
 $MESS["MAIN_NAME_JOHN_L_SMITH"] = "Иван В. Петров";

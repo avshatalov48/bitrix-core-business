@@ -3,7 +3,7 @@ if (!defined("CACHED_b_bitrixcloud_option"))
 	define("CACHED_b_bitrixcloud_option", 36000);
 
 global $DB;
-$db_type = strtolower($DB->type);
+$db_type = mb_strtolower($DB->type);
 CModule::AddAutoloadClasses("bitrixcloud", array(
 	"CAllBitrixCloudOption" => "classes/general/option.php",
 	"CBitrixCloudOption" => "classes/".$db_type."/option.php",

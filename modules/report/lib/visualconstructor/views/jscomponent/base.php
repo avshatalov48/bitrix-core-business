@@ -12,7 +12,6 @@ use Bitrix\Report\VisualConstructor\View;
  */
 abstract class Base extends View
 {
-
 	/**
 	 * Method to modify Content which pass to widget view, in absoulte end.
 	 *
@@ -30,5 +29,4 @@ abstract class Base extends View
 		$resultWidget['content']['params']['errors'] = $calculatedPerformedData['errors'];
 		return $resultWidget;
 	}
-
 }

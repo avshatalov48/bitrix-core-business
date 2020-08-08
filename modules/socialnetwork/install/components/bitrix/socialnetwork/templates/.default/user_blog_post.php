@@ -12,9 +12,9 @@ $pageId = "user_blog";
 include("util_menu.php");
 include("util_profile.php");
 
-if(strlen($arResult["PATH_TO_USER_BLOG_CATEGORY"]) <= 0)
+if($arResult["PATH_TO_USER_BLOG_CATEGORY"] == '')
 {
-	$arResult["PATH_TO_USER_BLOG_CATEGORY"] = $arResult["PATH_TO_USER_BLOG"].(strpos("?", $arResult["PATH_TO_USER_BLOG"]) === false ? "?" : "&")."category=#category_id#";
+	$arResult["PATH_TO_USER_BLOG_CATEGORY"] = $arResult["PATH_TO_USER_BLOG"].(mb_strpos("?", $arResult["PATH_TO_USER_BLOG"]) === false ? "?" : "&")."category=#category_id#";
 }
 
 $APPLICATION->IncludeComponent(

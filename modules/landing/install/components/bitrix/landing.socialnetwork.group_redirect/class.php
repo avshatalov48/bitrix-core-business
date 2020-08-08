@@ -21,7 +21,7 @@ class LandingSocialnetworkGroupRedirectComponent extends LandingBaseComponent
 	 * @param int $siteId Site id.
 	 * @return int
 	 */
-	protected function getGroupIdBySiteId($siteId)
+	public static function getGroupIdBySiteId($siteId)
 	{
 		$res = BindingTable::getList([
 			'select' => [
@@ -53,7 +53,7 @@ class LandingSocialnetworkGroupRedirectComponent extends LandingBaseComponent
 				\Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP
 			);
 			$realFileDir = dirname($this->getRealFile());
-			$sitePath = substr($this->getUriPath(), strlen($realFileDir));
+			$sitePath = mb_substr($this->getUriPath(), mb_strlen($realFileDir));
 			$landingId = UrlPreview::getPreviewByCode($sitePath);
 
 			if ($landingId)
@@ -78,7 +78,7 @@ class LandingSocialnetworkGroupRedirectComponent extends LandingBaseComponent
 				}
 			}
 
-			showError(Loc::getMessage('LANDING_CMP_GROUP_NOT_FOUND'));
+			parent::executeComponent();
 		}
 	}
 }

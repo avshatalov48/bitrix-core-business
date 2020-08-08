@@ -136,9 +136,13 @@ class CSaleTfpdf extends tFPDF
 		$arRowsContentWidth = array();
 
 		if ($margin === null || $margin < 0)
+		{
 			$margin = 5;
+		}
 		else
+		{
 			$margin = (int)$margin;
+		}
 
 		// last columns always digital
 		end($cols);
@@ -192,7 +196,9 @@ class CSaleTfpdf extends tFPDF
 			if ($noDigitWidth - $requiredWidth > $eps)
 			{
 				if (!in_array($lastColumn, $digitColumns))
+				{
 					$digitColumns[] = $lastColumn;
+				}
 
 				$digitWidth = 0;
 				foreach ($digitColumns as $columnId)
@@ -218,13 +224,16 @@ class CSaleTfpdf extends tFPDF
 			}
 		}
 
-		$additionalWidth = $requiredWidth / (count($arRowsWidth) - 1);
+		$additionalWidth = $requiredWidth / count($digitColumns);
 		reset($cols);
 		$firstColumnKey = key($cols);
 		$digitWidth = 0;
+		$onlyDigit = true;
 		foreach ($arRowsWidth as $columnId => $rowWidth)
 		{
-			if ($columnId == $firstColumnKey)
+			if ($columnId === $firstColumnKey
+				&& $cols[$columnId]['IS_DIGIT']
+			)
 			{
 				$digitWidth += $arRowsWidth[$columnId];
 				continue;
@@ -247,6 +256,10 @@ class CSaleTfpdf extends tFPDF
 			{
 				$digitWidth += $arRowsWidth[$columnId];
 			}
+			else
+			{
+				$onlyDigit = false;
+			}
 		}
 
 		$requiredWidth = $docWidth - $digitWidth;
@@ -254,7 +267,12 @@ class CSaleTfpdf extends tFPDF
 		{
 			foreach ($arRowsWidth as $columnId => $rowWidth)
 			{
-				if ($cols[$columnId]['IS_DIGIT'] !== true)
+				if ($onlyDigit)
+				{
+					$arRowsWidth[$columnId] += $requiredWidth / count($digitColumns);
+					$arRowsContentWidth[$columnId] += $requiredWidth / count($digitColumns);
+				}
+				elseif ($cols[$columnId]['IS_DIGIT'] !== true)
 				{
 					$ratio = $requiredWidth / $noDigitWidth;
 					$arRowsWidth[$columnId] *= $ratio;
@@ -401,7 +419,7 @@ class CSalePdf
 		}
 		elseif ($file)
 		{
-			$path = strpos($file, $_SERVER['DOCUMENT_ROOT']) === 0
+			$path = mb_strpos($file, $_SERVER['DOCUMENT_ROOT']) === 0
 				? $file
 				: $_SERVER['DOCUMENT_ROOT'] . $file;
 		}

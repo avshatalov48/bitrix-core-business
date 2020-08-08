@@ -51,11 +51,11 @@ switch($request->get('action'))
 				$isCheckedSuccess = false;
 				$io = CBXVirtualIo::GetInstance();
 				$docRoot = \Bitrix\Main\Application::getDocumentRoot();
-				if(strpos($filePath, CTempFile::GetAbsoluteRoot()) === 0)
+				if(mb_strpos($filePath, CTempFile::GetAbsoluteRoot()) === 0)
 				{
 					$absPath = $filePath;
 				}
-				elseif(strpos($io->CombinePath($docRoot, $filePath), CTempFile::GetAbsoluteRoot()) === 0)
+				elseif(mb_strpos($io->CombinePath($docRoot, $filePath), CTempFile::GetAbsoluteRoot()) === 0)
 				{
 					$absPath = $io->CombinePath($docRoot, $filePath);
 				}
@@ -96,7 +96,7 @@ switch($request->get('action'))
 
 		foreach($fileList as $tmpFileName => $file)
 		{
-			if(strlen($file["name"]) <= 0 || intval($file["size"]) <= 0)
+			if($file["name"] == '' || intval($file["size"]) <= 0)
 			{
 				continue;
 			}
@@ -104,7 +104,7 @@ switch($request->get('action'))
 			$resultInsertAttachFile = false;
 			$file["MODULE_ID"] = "fileman";
 			$fid = intval(CFile::SaveFile($file, "fileman", true));
-			if($fid > 0 && ($filePath = CFile::GetPath($fid)) && strlen($filePath) > 0)
+			if($fid > 0 && ($filePath = CFile::GetPath($fid)) && $filePath <> '')
 			{
 				$result['data']['list'][] = array(
 					'tmp' => $tmpFileName,

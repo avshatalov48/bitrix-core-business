@@ -4,7 +4,6 @@ namespace Bitrix\Sale\Helpers\Admin\Blocks;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Sale;
 use Bitrix\Sale\Helpers\Admin\OrderEdit;
 use Bitrix\Sale\Services\Company\Manager;
 
@@ -17,10 +16,6 @@ class OrderAdditional
 		global $APPLICATION, $USER;
 
 		$saleModulePermissions = $APPLICATION->GetGroupRight("sale");
-
-		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
-		/** @var Sale\Order $orderClass */
-		$orderClass = $registry->getOrderClassName();
 
 		$userCompanyId = null;
 
@@ -47,7 +42,7 @@ class OrderAdditional
 		$lang = Application::getInstance()->getContext()->getLanguage();
 
 		if(get_class($collection) == 'Bitrix\Sale\Order')
-			$orderLocked = $orderClass::isLocked($collection->getId());
+			$orderLocked = \Bitrix\Sale\Order::isLocked($collection->getId());
 		else
 			$orderLocked = false;
 
@@ -166,10 +161,8 @@ class OrderAdditional
 					<tr>
 						<td class="adm-detail-content-cell-l vat" width="40%">'.Loc::getMessage('SALE_ORDER_ADDITIONAL_INFO_RESPONSIBLE').':</td>
 						<td class="adm-detail-content-cell-r">
-							<div class="adm-s-order-person-choose">
-								<a href="/bitrix/admin/user_edit.php?lang='.LANGUAGE_ID.'&ID='. $data["RESPONSIBLE_ID"].'" id="order_additional_info_responsible">'.
-									htmlspecialcharsbx($data['RESPONSIBLE']).'
-								</a>&nbsp;
+							<div class="adm-s-order-person-choose">'.static::renderResponsibleLink($data).'
+								&nbsp;
 								<a class="adm-s-bus-morelinkqhsw" onclick="BX.Sale.Admin.OrderAdditionalInfo.choosePerson(\''.$formName.'\', \''.LANGUAGE_ID.'\');" href="javascript:void(0);">
 									'.Loc::getMessage('SALE_ORDER_ADDITIONAL_INFO_CHANGE').'
 								</a>
@@ -208,12 +201,8 @@ class OrderAdditional
 		$data = self::prepareData($collection);
 		$blockEmpResponsible = '';
 
-		$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
-		/** @var Sale\Order $orderClass */
-		$orderClass = $registry->getOrderClassName();
-
 		if(get_class($collection) == 'Bitrix\Sale\Order')
-			$orderLocked = $orderClass::isLocked($collection->getId());
+			$orderLocked = \Bitrix\Sale\Order::isLocked($collection->getId());
 		else
 			$orderLocked = false;
 
@@ -268,11 +257,7 @@ class OrderAdditional
 					<tr>
 						<td class="adm-detail-content-cell-l vat" width="40%">'.Loc::getMessage('SALE_ORDER_ADDITIONAL_INFO_RESPONSIBLE').':</td>
 						<td class="adm-detail-content-cell-r">
-							<div>
-								<a href="/bitrix/admin/user_edit.php?lang='.LANGUAGE_ID.'&ID='. $data["RESPONSIBLE_ID"].'" id="order_additional_info_responsible">'.
-									htmlspecialcharsbx($data['RESPONSIBLE']).'
-								</a>
-							</div>
+							<div>'.static::renderResponsibleLink($data).'</div>
 						</td>
 					</tr>
 					'.$blockEmpResponsible.'
@@ -284,11 +269,16 @@ class OrderAdditional
 					<tr>
 						<td class="adm-detail-content-cell-l'.($orderLocked ? '' : ' vat').'" width="40%">'.Loc::getMessage('SALE_ORDER_ADDITIONAL_INFO_MANAGER_COMMENT').':</td>
 						<td class="adm-detail-content-cell-r">'.($orderLocked ? '' : '<a href="javascript:void(0);" style="text-decoration: none; border-bottom: 1px dashed" onClick="BX.Sale.Admin.OrderAdditionalInfo.showCommentsDialog(\''.$collection->getField('ID').'\', BX(\'sale-adm-comments-view\'))">'.Loc::getMessage('SALE_ORDER_ADDITIONAL_INFO_COMMENT_TITLE').'</a>').
-							'<p id="sale-adm-comments-view" style="color:gray; max-width:800px; overflow:auto;">'.(strlen($data['COMMENTS']) > 0 ? nl2br(htmlspecialcharsbx($data['COMMENTS'])) : '').'</p>
+							'<p id="sale-adm-comments-view" style="color:gray; max-width:800px; overflow:auto;">'.($data['COMMENTS'] <> '' ? nl2br(htmlspecialcharsbx($data['COMMENTS'])) : '').'</p>
 						</td>
 					</tr>
 				</tbody>
 			</table>';
+	}
+
+	protected static function renderResponsibleLink($data)
+	{
+		return '<a href="/bitrix/admin/user_edit.php?lang='.LANGUAGE_ID.'&ID='. $data["RESPONSIBLE_ID"].'" id="order_additional_info_responsible">'.htmlspecialcharsbx($data['RESPONSIBLE']).'</a>';
 	}
 
 	public static function getScripts()
@@ -336,7 +326,7 @@ class OrderAdditional
 
 
 		if(in_array("ADDITIONAL_INFO", $collection->getAvailableFields()))
-			if(strlen($collection->getField("ADDITIONAL_INFO")) > 0)
+			if($collection->getField("ADDITIONAL_INFO") <> '')
 				$data["ADDITIONAL_INFO"] = $collection->getField("ADDITIONAL_INFO");
 		
 		if(in_array("COMPANY_ID", $collection->getAvailableFields()))

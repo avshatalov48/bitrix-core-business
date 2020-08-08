@@ -21,14 +21,14 @@ $documentId = trim($_REQUEST["document_id"]);
 
 $backUrl = "/".ltrim(trim($_REQUEST["back_url"]), "\\/");
 
-if (strlen($documentType) <= 0)
+if ($documentType == '')
 	$fatalErrorMessage .= GetMessage("BPABS_EMPTY_DOC_TYPE").". ";
-if (strlen($entity) <= 0)
+if ($entity == '')
 	$fatalErrorMessage .= GetMessage("BPABS_EMPTY_ENTITY").". ";
-if (strlen($documentId) <= 0)
+if ($documentId == '')
 	$fatalErrorMessage .= GetMessage("BPABS_EMPTY_DOC_ID").". ";
 
-if (strlen($fatalErrorMessage) <= 0)
+if ($fatalErrorMessage == '')
 {
 	$documentType = array($moduleId, $entity, $documentType);
 	$documentId = array($moduleId, $entity, $documentId);
@@ -48,7 +48,7 @@ if (strlen($fatalErrorMessage) <= 0)
 		$fatalErrorMessage .= GetMessage("BPABS_NO_PERMS").". ";
 }
 
-if (strlen($fatalErrorMessage) <= 0)
+if ($fatalErrorMessage == '')
 {
 	$showMode = "SelectWorkflow";
 	$workflowTemplateId = intval($_REQUEST["workflow_template_id"]);
@@ -68,7 +68,7 @@ if (strlen($fatalErrorMessage) <= 0)
 ;
 	}
 
-	if ($workflowTemplateId > 0 && check_bitrix_sessid() && strlen($_POST["CancelStartParamWorkflow"]) <= 0
+	if ($workflowTemplateId > 0 && check_bitrix_sessid() && $_POST["CancelStartParamWorkflow"] == ''
 		&& array_key_exists($workflowTemplateId, $arWorkflowTemplates))
 	{
 		$arWorkflowTemplate = $arWorkflowTemplates[$workflowTemplateId];
@@ -80,7 +80,7 @@ if (strlen($fatalErrorMessage) <= 0)
 		{
 			$bCanStartWorkflow = true;
 		}
-		elseif ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_POST["DoStartParamWorkflow"]) > 0)
+		elseif ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["DoStartParamWorkflow"] <> '')
 		{
 			$arErrorsTmp = array();
 
@@ -150,7 +150,7 @@ if (strlen($fatalErrorMessage) <= 0)
 			else
 			{
 				$showMode = "StartWorkflowSuccess";
-				if (strlen($backUrl) <= 0)
+				if ($backUrl == '')
 					$backUrl = "/bitrix/admin/bizproc_log.php?ID=#WF#";
 				LocalRedirect(str_replace("#WF#", $wfId, $backUrl));
 				die();
@@ -158,7 +158,7 @@ if (strlen($fatalErrorMessage) <= 0)
 		}
 		else
 		{
-			$p = ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_POST["DoStartParamWorkflow"]) > 0);
+			$p = ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["DoStartParamWorkflow"] <> '');
 			$keys = array_keys($arWorkflowTemplate["PARAMETERS"]);
 			foreach ($keys as $key)
 			{
@@ -187,14 +187,14 @@ if (strlen($fatalErrorMessage) <= 0)
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 CBPDocument::AddShowParameterInit(MODULE_ID, "only_users", $documentType[2], $documentType[1]);
 
-if (strlen($fatalErrorMessage) > 0)
+if ($fatalErrorMessage <> '')
 {
 	$APPLICATION->SetTitle(GetMessage("BPABS_ERROR"));
 	CAdminMessage::ShowMessage($fatalErrorMessage);
 }
 else
 {
-	if (strlen($backUrl) <= 0)
+	if ($backUrl == '')
 		$backUrl = CBPDocument::GetDocumentAdminPage($documentId);
 
 	$aMenu = array(
@@ -262,7 +262,7 @@ else
 			{
 				?>
 				<tr<?if ($arParameter["Required"]):?> class="adm-detail-required-field"<?endif?>>
-					<td><?= htmlspecialcharsbx($arParameter["Name"]) ?>:<?if (strlen($arParameter["Description"]) > 0) echo "<br /><small>".htmlspecialcharsbx($arParameter["Description"])."</small><br />";?></td>
+					<td><?= htmlspecialcharsbx($arParameter["Name"]) ?>:<?if ($arParameter["Description"] <> '') echo "<br /><small>".htmlspecialcharsbx($arParameter["Description"])."</small><br />";?></td>
 					<td><?
 						echo $documentService->GetFieldInputControl(
 							$documentType,

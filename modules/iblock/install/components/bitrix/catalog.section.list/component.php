@@ -92,41 +92,45 @@ if($this->startResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==
 	);
 
 	$arSelect = array();
-	if(array_key_exists("SECTION_FIELDS", $arParams) && !empty($arParams["SECTION_FIELDS"]) && is_array($arParams["SECTION_FIELDS"]))
+
+	if (!empty($arParams["SECTION_FIELDS"]) && is_array($arParams["SECTION_FIELDS"]))
 	{
 		foreach($arParams["SECTION_FIELDS"] as &$field)
 		{
 			if (!empty($field) && is_string($field))
 				$arSelect[] = $field;
 		}
-		if (isset($field))
-			unset($field);
+		unset($field);
 	}
-
-	if(!empty($arSelect))
+	if (!empty($arSelect))
 	{
-		$arSelect[] = "ID";
-		$arSelect[] = "NAME";
-		$arSelect[] = "LEFT_MARGIN";
-		$arSelect[] = "RIGHT_MARGIN";
-		$arSelect[] = "DEPTH_LEVEL";
-		$arSelect[] = "IBLOCK_ID";
-		$arSelect[] = "IBLOCK_SECTION_ID";
-		$arSelect[] = "LIST_PAGE_URL";
-		$arSelect[] = "SECTION_PAGE_URL";
+		$arSelect = array_merge(
+			$arSelect,
+			array(
+				"ID",
+				"NAME",
+				"LEFT_MARGIN",
+				"RIGHT_MARGIN",
+				"DEPTH_LEVEL",
+				"IBLOCK_ID",
+				"IBLOCK_SECTION_ID",
+				"LIST_PAGE_URL",
+				"SECTION_PAGE_URL"
+			)
+		);
 	}
 	$boolPicture = empty($arSelect) || in_array('PICTURE', $arSelect);
 
-	if(isset($arParams['SECTION_USER_FIELDS']) && !empty($arParams["SECTION_USER_FIELDS"]) && is_array($arParams["SECTION_USER_FIELDS"]))
+	if(!empty($arParams["SECTION_USER_FIELDS"]) && is_array($arParams["SECTION_USER_FIELDS"]))
 	{
 		foreach($arParams["SECTION_USER_FIELDS"] as &$field)
 		{
 			if(is_string($field) && preg_match("/^UF_/", $field))
 				$arSelect[] = $field;
 		}
-		if (isset($field))
-			unset($field);
+		unset($field);
 	}
+	$arSelect = array_unique($arSelect);
 
 	$arResult["SECTION"] = false;
 	$intSectionDepth = 0;
@@ -147,6 +151,8 @@ if($this->startResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==
 
 	if(is_array($arResult["SECTION"]))
 	{
+		$arResult["SECTION"]["~ELEMENT_CNT"] = null;
+		$arResult["SECTION"]["ELEMENT_CNT"] = null;
 		unset($arFilter["ID"]);
 		unset($arFilter["=CODE"]);
 		$arFilter["LEFT_MARGIN"]=$arResult["SECTION"]["LEFT_MARGIN"]+1;
@@ -186,7 +192,7 @@ if($this->startResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==
 
 	$sectionFilter = array_merge($arrFilter, $arFilter);
 
-	$elementFilter = array(
+	$elementCountFilter = array(
 		"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 		"CHECK_PERMISSIONS" => "Y",
 		"MIN_PERMISSION" => "R",
@@ -197,7 +203,7 @@ if($this->startResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==
 		foreach (array_keys($sectionFilter['PROPERTY']) as $propertyId)
 		{
 			$field = CIBlock::MkOperationFilter($propertyId);
-			$elementFilter[$field['PREFIX'].'PROPERTY_'.$field['FIELD']] = $sectionFilter['PROPERTY'][$propertyId];
+			$elementCountFilter[$field['PREFIX'].'PROPERTY_'.$field['FIELD']] = $sectionFilter['PROPERTY'][$propertyId];
 		}
 		unset($field, $propertyId, $value);
 	}
@@ -207,20 +213,60 @@ if($this->startResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==
 		case "CNT_ALL":
 			break;
 		case "CNT_ACTIVE":
-			$elementFilter["ACTIVE"] = "Y";
-			$elementFilter["ACTIVE_DATE"] = "Y";
+			$elementCountFilter["ACTIVE"] = "Y";
+			$elementCountFilter["ACTIVE_DATE"] = "Y";
 			break;
 		case "CNT_AVAILABLE":
-			$elementFilter["ACTIVE"] = "Y";
-			$elementFilter["ACTIVE_DATE"] = "Y";
-			$elementFilter["AVAILABLE"] = "Y";
+			$elementCountFilter["ACTIVE"] = "Y";
+			$elementCountFilter["ACTIVE_DATE"] = "Y";
+			$elementCountFilter["AVAILABLE"] = "Y";
 			break;
 	}
 
+	if ($arParams["COUNT_ELEMENTS"] && $arResult['SECTION']['ID'] > 0)
+	{
+		$elementFilter = $elementCountFilter;
+		$elementFilter['SECTION_ID'] = $arResult['SECTION']['ID'];
+		if ($arResult['SECTION']['RIGHT_MARGIN'] == ($arResult['SECTION']['LEFT_MARGIN'] + 1))
+		{
+			$elementFilter['INCLUDE_SUBSECTIONS'] = 'N';
+		}
+		$arResult["SECTION"]["~ELEMENT_CNT"] = CIBlockElement::GetList(array(), $elementFilter, array());
+		$arResult["SECTION"]["ELEMENT_CNT"] = $arResult["SECTION"]["~ELEMENT_CNT"];
+	}
+
 	//ORDER BY
-	$arSort = array(
-		"left_margin"=>"asc",
-	);
+
+	$arSort = array();
+	if (!empty($this->arParams['CUSTOM_SECTION_SORT']) && is_array($this->arParams['CUSTOM_SECTION_SORT']))
+	{
+		foreach ($this->arParams['CUSTOM_SECTION_SORT'] as $field => $value)
+		{
+			if (!is_string($value))
+			{
+				continue;
+			}
+			$field = strtoupper($field);
+			if (isset($arSort[$field]))
+			{
+				continue;
+			}
+			if (!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls)?$/i', $value))
+			{
+				continue;
+			}
+			$arSort[$field] = $value;
+		}
+		unset($field, $value);
+	}
+
+	if (empty($arSort))
+	{
+		$arSort = array(
+			"LEFT_MARGIN" => "ASC",
+		);
+	}
+
 	//EXECUTE
 	$rsSections = CIBlockSection::GetList($arSort, $sectionFilter, false, $arSelect);
 	$rsSections->SetUrlTemplates("", $arParams["SECTION_URL"]);
@@ -239,11 +285,8 @@ if($this->startResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==
 		$arSection["EDIT_LINK"] = $arButtons["edit"]["edit_section"]["ACTION_URL"];
 		$arSection["DELETE_LINK"] = $arButtons["edit"]["delete_section"]["ACTION_URL"];
 
-		if ($arParams["COUNT_ELEMENTS"])
-		{
-			$elementFilter["SECTION_ID"] = $arSection["ID"];
-			$arSection["ELEMENT_CNT"] = CIBlockElement::GetList(array(), $elementFilter, array());
-		}
+		$arSection["~ELEMENT_CNT"] = null;
+		$arSection["ELEMENT_CNT"] = null;
 
 		$arResult["SECTIONS"][]=$arSection;
 	}
@@ -261,6 +304,18 @@ if($this->startResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==
 				\Bitrix\Iblock\Component\Tools::IPROPERTY_ENTITY_SECTION,
 				'IPROPERTY_VALUES'
 			);
+		}
+
+		if ($arParams["COUNT_ELEMENTS"])
+		{
+			$elementFilter = $elementCountFilter;
+			$elementFilter["SECTION_ID"] = $arSection["ID"];
+			if ($arSection['RIGHT_MARGIN'] == ($arSection['LEFT_MARGIN'] + 1))
+			{
+				$elementFilter['INCLUDE_SUBSECTIONS'] = 'N';
+			}
+			$arSection["~ELEMENT_CNT"] = CIBlockElement::GetList(array(), $elementFilter, array());
+			$arSection["ELEMENT_CNT"] = $arSection["~ELEMENT_CNT"];
 		}
 	}
 	unset($arSection);

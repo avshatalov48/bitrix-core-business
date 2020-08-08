@@ -603,6 +603,14 @@
 			}
 
 			return fields;
+		},
+		getDocumentUserGroups: function()
+		{
+			if (BX.Bizproc.Automation && BX.Bizproc.Automation.API.documentUserGroups)
+			{
+				return BX.Bizproc.Automation.API.documentUserGroups;
+			}
+			return [];
 		}
 	};
 

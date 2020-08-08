@@ -170,7 +170,7 @@ class CAllCatalogProduct
 		$arMsg = array();
 		$boolResult = true;
 
-		$ACTION = strtoupper($ACTION);
+		$ACTION = mb_strtoupper($ACTION);
 		$ID = (int)$ID;
 		if ($ACTION == "ADD" && (!is_set($arFields, "ID") || (int)$arFields["ID"]<=0))
 		{
@@ -248,7 +248,7 @@ class CAllCatalogProduct
 		if ((is_set($arFields, "PRICE_TYPE") || $ACTION=="ADD") && ($arFields["PRICE_TYPE"] != "R") && ($arFields["PRICE_TYPE"] != "T"))
 			$arFields["PRICE_TYPE"] = "S";
 
-		if ((is_set($arFields, "RECUR_SCHEME_TYPE") || $ACTION=="ADD") && (strlen($arFields["RECUR_SCHEME_TYPE"]) <= 0 || !in_array($arFields["RECUR_SCHEME_TYPE"], Catalog\ProductTable::getPaymentPeriods(false))))
+		if ((is_set($arFields, "RECUR_SCHEME_TYPE") || $ACTION=="ADD") && ($arFields["RECUR_SCHEME_TYPE"] == '' || !in_array($arFields["RECUR_SCHEME_TYPE"], Catalog\ProductTable::getPaymentPeriods(false))))
 		{
 			$arFields["RECUR_SCHEME_TYPE"] = self::TIME_PERIOD_DAY;
 		}
@@ -555,18 +555,18 @@ class CAllCatalogProduct
 		$field = (string)$field;
 		if ($field == '')
 			return false;
-		$field = strtoupper($field);
+		$field = mb_strtoupper($field);
 		if (strncmp($field, 'CATALOG_', 8) != 0)
 			return false;
 
 		$iNum = 0;
-		$field = substr($field, 8);
-		$p = strrpos($field, '_');
+		$field = mb_substr($field, 8);
+		$p = mb_strrpos($field, '_');
 		if ($p !== false && $p > 0)
 		{
-			$iNum = (int)substr($field, $p+1);
+			$iNum = (int)mb_substr($field, $p + 1);
 			if ($iNum > 0)
-				$field = substr($field, 0, $p);
+				$field = mb_substr($field, 0, $p);
 		}
 		return array(
 			'FIELD' => $field,
@@ -639,7 +639,7 @@ class CAllCatalogProduct
 					$arAllProps = array();
 					do
 					{
-						$strID = (strlen($arProp["CODE"])>0 ? $arProp["CODE"] : $arProp["ID"]);
+						$strID = ($arProp["CODE"] <> '' ? $arProp["CODE"] : $arProp["ID"]);
 						if (is_array($arProp["VALUE"]))
 						{
 							foreach ($arProp["VALUE"] as &$strOneValue)

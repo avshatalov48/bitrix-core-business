@@ -7,7 +7,7 @@ define("DisableEventsCheck", true);
 
 $siteId = '';
 if (isset($_REQUEST['site_id']) && is_string($_REQUEST['site_id']))
-	$siteId = substr(preg_replace('/[^a-z0-9_]/i', '', $_REQUEST['site_id']), 0, 2);
+	$siteId = mb_substr(preg_replace('/[^a-z0-9_]/i', '', $_REQUEST['site_id']), 0, 2);
 
 if (!$siteId)
 	define('SITE_ID', $siteId);
@@ -37,7 +37,7 @@ if (empty($action))
 	die('Unknown action!');
 
 $APPLICATION->ShowAjaxHead();
-$action = strtoupper($action);
+$action = mb_strtoupper($action);
 
 $sendResponse = function($data, array $errors = array(), $plain = false)
 {
@@ -77,7 +77,7 @@ $sendHtmlResponse = function($html)
 	}
 	header('Content-Type: text/html; charset='.LANG_CHARSET);
 	echo $html;
-	\Bitrix\Main\Application::getInstance()->end();
+	\CMain::FinalActions();
 };
 
 CBitrixComponent::includeComponentClass('bitrix:bizproc.automation');
@@ -221,6 +221,7 @@ switch ($action)
 		$updatedTriggers = [];
 		$triggers = isset($_REQUEST['triggers']) && is_array($_REQUEST['triggers']) ? $_REQUEST['triggers'] : [];
 
+		$target->prepareTriggersToSave($triggers);
 		$updatedTriggers = $target->setTriggers($triggers);
 
 		$updatedTemplates = array();
@@ -261,6 +262,7 @@ switch ($action)
 			}
 		}
 
+		$target->prepareTriggersToShow($updatedTriggers);
 		$sendResponse(array('templates' => $updatedTemplates, 'triggers' => $updatedTriggers), $errors);
 
 		break;

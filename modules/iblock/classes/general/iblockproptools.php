@@ -6,22 +6,25 @@ Loc::loadMessages(__FILE__);
 
 class CIBlockPropertyTools
 {
-	const CODE_MORE_PHOTO = 'MORE_PHOTO';
-	const CODE_SKU_LINK = 'CML2_LINK';
-	const CODE_BLOG_POST = 'BLOG_POST_ID';
-	const CODE_BLOG_COMMENTS_COUNT = 'BLOG_COMMENTS_CNT';
-	const CODE_FORUM_TOPIC = 'FORUM_TOPIC_ID';
-	const CODE_FORUM_MESSAGES_COUNT = 'FORUM_MESSAGE_CNT';
-	const CODE_VOTE_COUNT = 'VOTE_COUNT';
-	const CODE_VOTE_COUNT_OLD = 'vote_count';
-	const CODE_VOTE_SUMM = 'VOTE_SUM';
-	const CODE_VOTE_SUMM_OLD = 'vote_sum';
-	const CODE_VOTE_RATING = 'RATING';
-	const CODE_VOTE_RATING_OLD = 'rating';
+	public const CODE_MORE_PHOTO = 'MORE_PHOTO';
+	public const CODE_SKU_LINK = 'CML2_LINK';
+	public const CODE_BLOG_POST = 'BLOG_POST_ID';
+	public const CODE_BLOG_COMMENTS_COUNT = 'BLOG_COMMENTS_CNT';
+	public const CODE_FORUM_TOPIC = 'FORUM_TOPIC_ID';
+	public const CODE_FORUM_MESSAGES_COUNT = 'FORUM_MESSAGE_CNT';
+	public const CODE_VOTE_COUNT = 'VOTE_COUNT';
+	public const CODE_VOTE_COUNT_OLD = 'vote_count';
+	public const CODE_VOTE_SUMM = 'VOTE_SUM';
+	public const CODE_VOTE_SUMM_OLD = 'vote_sum';
+	public const CODE_VOTE_RATING = 'RATING';
+	public const CODE_VOTE_RATING_OLD = 'rating';
+	public const CODE_ARTNUMBER = 'ARTNUMBER';
+	public const CODE_BACKGROUND_IMAGE = 'BACKGROUND_IMAGE';
 
-	const XML_SKU_LINK = 'CML2_LINK';
+	public const XML_MORE_PHOTO = self::CODE_MORE_PHOTO;
+	public const XML_SKU_LINK = self::CODE_SKU_LINK;
 
-	const USER_TYPE_SKU_LINK = 'SKU';
+	public const USER_TYPE_SKU_LINK = 'SKU';
 
 	protected static $errors = array();
 
@@ -129,6 +132,7 @@ class CIBlockPropertyTools
 					'USER_TYPE' => null,
 					'NAME' => Loc::getMessage('IBPT_PROP_TITLE_MORE_PHOTO'),
 					'CODE' => self::CODE_MORE_PHOTO,
+					'XML_ID' => self::XML_MORE_PHOTO,
 					'MULTIPLE' => 'Y',
 					'FILE_TYPE' => 'jpg, gif, bmp, png, jpeg',
 					'ACTIVE' => 'Y',
@@ -155,6 +159,7 @@ class CIBlockPropertyTools
 					'USER_TYPE' => null,
 					'NAME' => Loc::getMessage('IBPT_PROP_TITLE_BLOG_POST'),
 					'CODE' => self::CODE_BLOG_POST,
+					'XML_ID' => self::CODE_BLOG_POST,
 					'MULTIPLE' => 'N',
 					'ACTIVE' => 'Y',
 				);
@@ -165,6 +170,29 @@ class CIBlockPropertyTools
 					'USER_TYPE' => null,
 					'NAME' => Loc::getMessage('IBPT_PROP_TITLE_BLOG_COMMENTS_COUNT'),
 					'CODE' => self::CODE_BLOG_COMMENTS_COUNT,
+					'XML_ID' => self::CODE_BLOG_COMMENTS_COUNT,
+					'MULTIPLE' => 'N',
+					'ACTIVE' => 'Y',
+				);
+				break;
+			case self::CODE_ARTNUMBER:
+				$propertyDescription = array(
+					'PROPERTY_TYPE' => Iblock\PropertyTable::TYPE_STRING,
+					'USER_TYPE' => null,
+					'NAME' => Loc::getMessage('IBPT_PROP_TITLE_ARTNUMBER'),
+					'CODE' => self::CODE_ARTNUMBER,
+					'XML_ID' => self::CODE_ARTNUMBER,
+					'MULTIPLE' => 'N',
+					'ACTIVE' => 'Y',
+				);
+				break;
+			case self::CODE_BACKGROUND_IMAGE:
+				$propertyDescription = array(
+					'PROPERTY_TYPE' => Iblock\PropertyTable::TYPE_STRING,
+					'USER_TYPE' => null,
+					'NAME' => Loc::getMessage('IBPT_PROP_TITLE_BACKGROUND_IMAGE'),
+					'CODE' => self::CODE_BACKGROUND_IMAGE,
+					'XML_ID' => self::CODE_BACKGROUND_IMAGE,
 					'MULTIPLE' => 'N',
 					'ACTIVE' => 'Y',
 				);

@@ -10,7 +10,7 @@
 /** @var string $templateFolder */
 /** @var string $componentPath */
 /** @var CBitrixComponent $component */
-if(strlen($arResult["ERROR_MESSAGE"])>0)
+if($arResult["ERROR_MESSAGE"] <> '')
 	ShowError($arResult["ERROR_MESSAGE"]);
 $arPlacemarks = array();
 $gpsN = '';
@@ -39,8 +39,8 @@ $gpsS = '';
 		<?endif;
 		if($arProperty["GPS_S"]!=0 && $arProperty["GPS_N"]!=0)
 		{
-			$gpsN=substr(doubleval($arProperty["GPS_N"]),0,15);
-			$gpsS=substr(doubleval($arProperty["GPS_S"]),0,15);
+			$gpsN = mb_substr(doubleval($arProperty["GPS_N"]), 0, 15);
+			$gpsS = mb_substr(doubleval($arProperty["GPS_S"]), 0, 15);
 			$arPlacemarks[]=array("LON"=>$gpsS,"LAT"=>$gpsN,"TEXT"=>$arProperty["TITLE"]);
 		}
 		?>

@@ -47,7 +47,7 @@ class UserToGroup extends CopyImplementer
 					$errorMessage = $exception->getString();
 					$this->result->addError(new Error($errorMessage, self::GROUP_USER_COPY_ERROR));
 				}
-				if (strlen($errorMessage) <= 0)
+				if ($errorMessage == '')
 				{
 					$this->result->addError(new Error("Error adding a user to the group", self::GROUP_USER_COPY_ERROR));
 				}

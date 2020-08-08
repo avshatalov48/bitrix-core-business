@@ -64,11 +64,11 @@ if (!isset($_SESSION["SESS_ADMIN"]["AD_STAT_CONTRACT_GRAPH"]) || empty($_SESSION
 	$man = true;
 }
 	
-if (strlen($set_filter)>0 || $man) 
+if ($set_filter <> '' || $man)
 	InitFilterEx($FilterArr,"AD_STAT_CONTRACT_GRAPH","set",true); 
 else 
 	InitFilterEx($FilterArr,"AD_STAT_CONTRACT_GRAPH","get",true);
-if (strlen($del_filter)>0) DelFilterEx($FilterArr,"AD_STAT_LIST",true);
+if ($del_filter <> '') DelFilterEx($FilterArr,"AD_STAT_LIST",true);
 
 //if((!is_set($find_contract_id) && !is_set($find_what_show)) || (!is_set($find_what_show) && is_set($find_contract_id)) || (is_set($find_what_show) && !is_set($find_contract_id)))
 //	$strError = GetMessage("ADV_F_NO_FIELDS");

@@ -22,13 +22,13 @@ class CUserTypeHlblock extends CUserTypeEnum
 	function GetDBColumnType($arUserField)
 	{
 		global $DB;
-		switch(strtolower($DB->type))
+		switch($DB->type)
 		{
-			case "mysql":
+			case "MYSQL":
 				return "int(18)";
-			case "oracle":
+			case "ORACLE":
 				return "number(18)";
-			case "mssql":
+			case "MSSQL":
 				return "int";
 		}
 		return "int";
@@ -103,7 +103,7 @@ class CUserTypeHlblock extends CUserTypeEnum
 			';
 		}
 
-		if($hlblock_id > 0 && strlen($hlfield_id) && CModule::IncludeModule('highloadblock'))
+		if($hlblock_id > 0 && mb_strlen($hlfield_id) && CModule::IncludeModule('highloadblock'))
 		{
 			$result .= '
 			<tr>
@@ -339,7 +339,7 @@ class CUserTypeHlblock extends CUserTypeEnum
 
 			foreach ($userfields as $userfield)
 			{
-				$fieldTitle = strlen($userfield['LIST_COLUMN_LABEL']) ? $userfield['LIST_COLUMN_LABEL'] : $userfield['FIELD_NAME'];
+				$fieldTitle = $userfield['LIST_COLUMN_LABEL'] <> ''? $userfield['LIST_COLUMN_LABEL'] : $userfield['FIELD_NAME'];
 				$list[$hlblock['ID']]['fields'][(int)$userfield['ID']] = $fieldTitle;
 			}
 		}
@@ -369,9 +369,9 @@ class CUserTypeHlblock extends CUserTypeEnum
 
 		if ($hlblockId)
 		{
-			if (strlen($hlfieldId))
+			if($hlfieldId <> '')
 			{
-				$hlfieldId = (int) $hlfieldId;
+				$hlfieldId = (int)$hlfieldId;
 			}
 
 			foreach ($list[$hlblockId]['fields'] as $fieldId => $fieldName)

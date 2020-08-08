@@ -44,7 +44,7 @@
 </td>
 </tr></table>
 
-<?if (strlen($arResult["ERROR_MESSAGE"]) <= 0):?>
+<?if ($arResult["ERROR_MESSAGE"] == ''):?>
 	<?if (count($arResult["SEARCH_RESULT"]) > 0):?>
 		<br /><?foreach ($arResult["SEARCH_RESULT"] as $v):?>
 		<div class="sonet-cntnr-group-list2">
@@ -63,21 +63,21 @@
 						<b><?= GetMessage("SONET_C39_ARCHIVE_GROUP") ?></b>
 						<?
 					}
-					if (strlen($v["BODY_FORMATED"]) > 0)
+					if ($v["BODY_FORMATED"] <> '')
 					{
 						?>
 						<br />
 						<?= $v["BODY_FORMATED"] ?>
 						<?
 					}
-					if (strlen($v["SUBJECT_NAME"]) > 0)
+					if ($v["SUBJECT_NAME"] <> '')
 					{
 						?>
 						<br />
 						<?= GetMessage("SONET_C24_T_SUBJ") ?>: <?= $v["SUBJECT_NAME"] ?>
 						<?
 					}
-					if (IntVal($v["NUMBER_OF_MEMBERS"]) > 0)
+					if (intval($v["NUMBER_OF_MEMBERS"]) > 0)
 					{
 						?>
 						<br />
@@ -93,11 +93,11 @@
 		</div>
 		<?endforeach;?>
 
-		<?if (strlen($arResult["NAV_STRING"]) > 0):?>
+		<?if ($arResult["NAV_STRING"] <> ''):?>
 			<p><?=$arResult["NAV_STRING"]?></p>
 		<?endif;?>
 			
-		<?if (strlen($arResult["ORDER_LINK"]) > 0):?>
+		<?if ($arResult["ORDER_LINK"] <> ''):?>
 			<?if ($arResult["how"] == "d"):?>
 				<p><a href="<?= $arResult["ORDER_LINK"] ?>"><?= GetMessage("SONET_C24_T_ORDER_REL") ?></a>&nbsp;|&nbsp;<b><?= GetMessage("SONET_C24_T_ORDER_DATE") ?></b></p>
 			<?else:?>

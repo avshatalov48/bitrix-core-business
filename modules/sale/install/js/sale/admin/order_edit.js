@@ -18,6 +18,7 @@ BX.Sale.Admin.OrderEditPage =
 	runningCheckTimeout: {},
 	tailsLoaded: false,
 	rollbackMethods: [],
+	connectedB24Portal: '',
 
 	getForm: function()
 	{
@@ -418,13 +419,36 @@ BX.Sale.Admin.OrderEditPage =
 
 	desktopMakeCall: function(phone)
 	{
-		var isMobile = BX.browser.IsMobile();
 		phone = encodeURIComponent(phone);
 
 		BX.Sale.Admin.OrderEditPage.desktopRunningCheck(
-			function(){ location.href = 'bx://v2/' + location.hostname + '/callto/phone/' + phone; },
-			function(){ location.href = (isMobile ? 'tel:' : 'callto:') + phone; }
+			function()
+			{
+				if(BX.Sale.Admin.OrderEditPage.connectedB24Portal !== '')
+				{
+					BX.Sale.Admin.OrderEditPage.desktopCall(phone, BX.Sale.Admin.OrderEditPage.connectedB24Portal);
+				}
+				else
+				{
+					BX.Sale.Admin.OrderEditPage.browserCall(phone);
+				}
+			},
+			function()
+			{
+				BX.Sale.Admin.OrderEditPage.browserCall(phone);
+			}
 		);
+	},
+
+	desktopCall: function(phone, connectedB24Portal)
+	{
+		location.href = 'bx://v2/' + connectedB24Portal + '/callto/phone/' + phone;
+	},
+
+	browserCall: function(phone)
+	{
+		var isMobile = BX.browser.IsMobile();
+		location.href = (isMobile ? 'tel:' : 'callto:') + phone;
 	},
 
 	desktopRunningCheck: function(successCallback, failureCallback)
@@ -487,9 +511,7 @@ BX.Sale.Admin.OrderEditPage =
 			newBlockContent = '<div class="adm-s-select-popup-element-selected-bad">' +
 				'<span>'+BX.message("SALE_ORDER_STATUS_CANCELED")+'</span>' +
 				params.DATE_CANCELED +
-				'<a href="/bitrix/admin/user_edit.php?lang='+BX.Sale.Admin.OrderEditPage.languageId+'&ID='+params.EMP_CANCELED_ID+'">'+
-					BX.util.htmlspecialchars(params.EMP_CANCELED_NAME) +
-				'</a>' +
+                BX.Sale.Admin.OrderEditPage.getUserEditLink(params) +
 			'</div>';
 
 			block.style.textAlign = "start";
@@ -507,6 +529,13 @@ BX.Sale.Admin.OrderEditPage =
 		}
 
 		block.innerHTML = newBlockContent;
+	},
+
+	getUserEditLink: function(params)
+	{
+        return '<a href="/bitrix/admin/user_edit.php?lang='+BX.Sale.Admin.OrderEditPage.languageId+'&ID='+params.EMP_CANCELED_ID+'">'+
+        	BX.util.htmlspecialchars(params.EMP_CANCELED_NAME) +
+        '</a>';
 	},
 
 	onRefreshOrderDataAndSave: function()
@@ -609,6 +638,7 @@ BX.Sale.Admin.OrderEditPage =
 	 * 		DISCOUNT_ID: string,
 	 *		USE_COUPONS: string,
 	 *		EDIT_PAGE_URL: string,
+	 *		EDIT_PAGE_URL_PARAMS: array,
 	 *		NAME: string
 	 * }} discountParams
 	 * @param {HTMLTableElement} table
@@ -694,6 +724,16 @@ BX.Sale.Admin.OrderEditPage =
 			value = itemDiscount.DESCR;
 		}
 
+		var target = "_self";
+
+		if(discountParams.EDIT_PAGE_URL_PARAMS)
+		{
+			if(discountParams.EDIT_PAGE_URL_PARAMS.target)
+			{
+				target = discountParams.EDIT_PAGE_URL_PARAMS.target;
+			}
+		}
+
 		if(discountParams.EDIT_PAGE_URL)
 		{
 			row.appendChild(
@@ -705,7 +745,8 @@ BX.Sale.Admin.OrderEditPage =
 						BX.create('a',{
 							props: {
 								href: discountParams.EDIT_PAGE_URL,
-								className: "adm-s-detail-content-sale-link"
+								className: "adm-s-detail-content-sale-link",
+								target: target,
 							},
 							html: BX.util.htmlspecialchars(discountParams.NAME)
 						})
@@ -713,6 +754,7 @@ BX.Sale.Admin.OrderEditPage =
 				})
 			);
 		}
+
 		else
 		{
 			row.appendChild(
@@ -1294,4 +1336,86 @@ BX.Sale.Admin.OrderEditPage =
 			return !BX.hasClass('sale-order-edit-block-fast-nav', 'adm-detail-tabs-block-pin');
 		}
 	}
+};
+
+BX.Sale.Admin.Integration = function () {};
+BX.Sale.Admin.Integration.OrderEditPage = function () {};
+
+BX.Sale.Admin.Integration.OrderEditPage.toggleCancelDialog = function()
+{
+    var dialog = BX("sale-adm-status-cancel-dialog");
+
+    if(dialog)
+        BX.toggleClass(dialog, "active");
+};
+
+BX.Sale.Admin.Integration.OrderEditPage.onCancelStatusButton = function(orderId, canceled)
+{
+    this.toggleCancelDialog();
+
+    BX.Sale.Admin.OrderAjaxer.sendRequest(
+        this.ajaxRequests.cancelOrder(orderId, canceled, BX("FORM_REASON_CANCELED").value)
+    );
+};
+
+BX.Sale.Admin.Integration.OrderEditPage.getUserEditLink = function(params)
+{
+    return '<a href="/bitrix/admin/user_edit.php?lang='+BX.Sale.Admin.OrderEditPage.languageId+'&ID='+params.EMP_CANCELED_ID+'" target="_blank">'+
+        BX.util.htmlspecialchars(params.EMP_CANCELED_NAME) +
+        '</a>';
+};
+
+BX.Sale.Admin.Integration.OrderEditPage.changeCancelBlock = function(orderId, params)
+{
+    var block = BX("sale-adm-status-cancel-blocktext"),
+        cancelReasonNode = BX("FORM_REASON_CANCELED"),
+        buttonNode = BX("sale-adm-status-cancel-dialog-btn"),
+        newBlockContent = "";
+
+    if(params.CANCELED == "Y")
+    {
+        newBlockContent = '<div class="adm-s-select-popup-element-selected-bad">' +
+            '<span>'+BX.message("SALE_ORDER_STATUS_CANCELED")+'</span>' +
+            params.DATE_CANCELED +
+            BX.Sale.Admin.Integration.OrderEditPage.getUserEditLink(params) +
+            '</div>';
+
+        block.style.textAlign = "start";
+        cancelReasonNode.disabled = true;
+        buttonNode.innerHTML = BX.message("SALE_ORDER_STATUS_CANCEL_CANCEL");
+        buttonNode.onclick = function(){ BX.Sale.Admin.Integration.OrderEditPage.onCancelStatusButton(orderId,"Y"); };
+    }
+    else
+    {
+        newBlockContent = '<a href="javascript:void(0);" onclick="BX.Sale.Admin.OrderEditPage.toggleCancelDialog();">'+BX.message("SALE_ORDER_STATUS_CANCELING")+'</a>';
+        block.style.textAlign = "center";
+        cancelReasonNode.disabled = false;
+        buttonNode.innerHTML = BX.message("SALE_ORDER_STATUS_CANCEL");
+        buttonNode.onclick = function(){ BX.Sale.Admin.Integration.OrderEditPage.onCancelStatusButton(orderId,"N"); };
+    }
+
+    block.innerHTML = newBlockContent;
+};
+
+BX.Sale.Admin.Integration.OrderEditPage.ajaxRequests = function () {};
+
+BX.Sale.Admin.Integration.OrderEditPage.ajaxRequests.cancelOrder = function(orderId, canceled, comment)
+{
+    return {
+        action: "cancelOrder",
+        orderId: orderId,
+        canceled: canceled,
+        comment: comment,
+        callback: function(result)
+        {
+            BX.Sale.Admin.OrderEditPage.unBlockForm();
+
+            if(result && !result.ERROR)
+                BX.Sale.Admin.Integration.OrderEditPage.changeCancelBlock(orderId, result);
+            else if(result && result.ERROR)
+                BX.Sale.Admin.OrderEditPage.showDialog(BX.message("SALE_ORDER_STATUS_CANCEL_ERROR") + ": "+result.ERROR);
+            else
+                BX.debug(BX.message("SALE_ORDER_STATUS_CANCEL_ERROR"));
+        }
+    };
 };

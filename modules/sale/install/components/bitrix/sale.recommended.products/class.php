@@ -79,7 +79,7 @@ class CSaleRecommendedProductsComponent extends CCatalogViewedProductsComponent
 
 		$params["DETAIL_URL"] = trim($params["DETAIL_URL"]);
 
-		$params["MIN_BUYES"] = IntVal($params["MIN_BUYES"]);
+		$params["MIN_BUYES"] = intval($params["MIN_BUYES"]);
 		if($params["MIN_BUYES"] <= 0)
 			$params["MIN_BUYES"] = 2;
 

@@ -349,7 +349,7 @@ if (isset($arParams["TAG"]))
 			"bx-role" => "mp-left-menu-item",
 			"bx-mp-left-menu-item" => "all",
 			"bx-filter-mode" => isset($arParams["PLACEMENT"]) ? "placement" : "tag",
-			"bx-filter-value" => isset($arParams["PLACEMENT"]) ? $arParams["PLACEMENT"] : $arParams["TAG"],
+			"bx-filter-value" => preg_replace("/[^a-z0-9_-]/i", "_", isset($arParams["PLACEMENT"]) ? $arParams["PLACEMENT"] : $arParams["TAG"]),
 			"onclick" => "BX.onCustomEvent('BX.Main.Filter:clickMPMenu', [this])"
 		],
 		"NAME_HTML" => "<span class=\"ui-sidepanel-menu-link-text-item\">".Loc::getMessage("MARKETPLACE_COLLECTION")."</span>".($cnt > 0 ? " <span class=\"ui-sidepanel-menu-link-text-counter\">{$cnt}</span>" : ""),

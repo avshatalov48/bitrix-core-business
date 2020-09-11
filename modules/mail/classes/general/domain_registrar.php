@@ -2,105 +2,103 @@
 
 class CMailDomainRegistrar
 {
+	/**
+	 * Allowed registrar classes by zones.
+	 */
+	const REGISTRAR_CLASSES = [
+		'ru' => '\Bitrix\Mail\Registrar\RegRu',
+		'ua' => '\Bitrix\Mail\Registrar\Omnilance'
+	];
 
-	public function __construct()
+	/**
+	 * Current registrar class.
+	 * @var string
+	 */
+	private static $classRegistrar = '\Bitrix\Mail\Registrar\RegRu';
+
+	/**
+	 * Sets new class registrar.
+	 * @param string $className Class name.
+	 * @return void
+	 */
+	public static function setRegistrarClass(string $className): void
 	{
+		if (in_array($className, self::REGISTRAR_CLASSES))
+		{
+			self::$classRegistrar = $className;
+		}
 	}
 
-	public static function isDomainExists($user, $password, $domain, &$error)
+	/**
+	 * Checks domain available.
+	 * @param string $user User name.
+	 * @param string $password User password.
+	 * @param string $domain Domain name.
+	 * @param string|null &$error Error message if occurred.
+	 * @return bool|null Returns true if domain exists.
+	 */
+	public static function isDomainExists(string $user, string $password, string $domain, ?string &$error): ?bool
 	{
-		$domain = CharsetConverter::ConvertCharset($domain, SITE_CHARSET, 'UTF-8');
+		$result = self::$classRegistrar::checkDomain($user, $password, $domain, $error);
 
-		$result = CMailRegru::checkDomain($user, $password, $domain, $error);
-
-		if ($result !== false)
+		if ($result === null)
 		{
-			if (isset($result['domains'][0]['dname']) && mb_strtolower($result['domains'][0]['dname']) == mb_strtolower($domain))
-			{
-				$result = $result['domains'][0];
-				if ($result['result'] == 'Available')
-					return false;
-				else if ($result['error_code'] == 'DOMAIN_ALREADY_EXISTS')
-					return true;
-
-				$error = $result['error_code'];
-			}
-			else
-			{
-				$error = 'unknown';
-			}
+			$error = self::getErrorCode($error);
+			return null;
 		}
-
-		$error = self::getErrorCode($error);
-		return null;
+		else
+		{
+			return $result;
+		}
 	}
 
-	public static function suggestDomain($user, $password, $word1, $word2, $tlds, &$error)
+	/**
+	 * Suggests domains by query words.
+	 * @param string $user User name.
+	 * @param string $password User password.
+	 * @param string $word1 Query word 1.
+	 * @param string $word2 Query word 2.
+	 * @param array $tlds Query tlds.
+	 * @param string|null &$error Error message if occurred.
+	 * @return array|null
+	 */
+	public static function suggestDomain(string $user, string $password, ?string $word1, ?string $word2, array $tlds, ?string &$error): ?array
 	{
-		$word1 = CharsetConverter::ConvertCharset($word1, SITE_CHARSET, 'UTF-8');
-		$word2 = CharsetConverter::ConvertCharset($word2, SITE_CHARSET, 'UTF-8');
-		foreach ($tlds as &$v)
-			$v = CharsetConverter::ConvertCharset($v, SITE_CHARSET, 'UTF-8');
+		$result = self::$classRegistrar::suggestDomain($user, $password, $word1, $word2, $tlds, $error);
 
-		$result = CMailRegru::suggestDomain($user, $password, $word1, $word2, $tlds, $error);
-
-		if ($result !== false)
+		if ($result === null)
 		{
-			$suggestions = array();
-			if (!empty($result['suggestions']) && is_array($result['suggestions']))
-			{
-				foreach ($result['suggestions'] as $entry)
-				{
-					foreach ($entry['avail_in'] as $tlds)
-					{
-						$suggestions[] = CharsetConverter::ConvertCharset(
-							sprintf('%s.%s', $entry['name'], $tlds),
-							'UTF-8', SITE_CHARSET
-						);
-					}
-				}
-			}
-
-			return $suggestions;
+			$error = self::getErrorCode($error);
+			return null;
 		}
-
-		$error = self::getErrorCode($error);
-		return null;
+		else
+		{
+			return $result;
+		}
 	}
 
-	public static function createDomain($user, $password, $domain, $params, &$error)
+	/**
+	 * Creates new domain.
+	 * @param string $user User name.
+	 * @param string $password User password.
+	 * @param string $domain Domain name.
+	 * @param array $params Additional params.
+	 * @param string|null &$error Error message if occurred.
+	 * @return bool|null Returns true on success.
+	 */
+	public static function createDomain(string $user, string $password, string $domain, array $params, ?string &$error): ?bool
 	{
-		$params = array_merge(
-			$params,
-			array(
-				'period' => 1,
-				'nss' => array(
-					'ns0' => 'ns1.reg.ru.',
-					'ns1' => 'ns2.reg.ru.',
-				),
-			)
-		);
+		$result = self::$classRegistrar::createDomain($user, $password, $domain, $params, $error);
 
-		if (array_key_exists('ip', $params))
+		if ($result === null)
 		{
-			$params['enduser_ip'] = $params['ip'];
+			$error = self::getErrorCode($error);
+			return null;
 		}
-
-		$domain = \Bitrix\Main\Text\Encoding::convertEncoding($domain, SITE_CHARSET, 'UTF-8');
-		$params = \Bitrix\Main\Text\Encoding::convertEncoding($params, SITE_CHARSET, 'UTF-8');
-
-		$result = CMailRegru::createDomain($user, $password, $domain, $params, $error);
-
-		if ($result !== false)
+		else
 		{
-			if (isset($result['dname']) && mb_strtolower($result['dname']) == mb_strtolower($domain))
-				return true;
-			else
-				$error = 'unknown';
+			return $result;
 		}
-
-		$error = self::getErrorCode($result['error_code']);
-		return null;
 	}
 
 	public static function checkDomain($user, $password, $domain, &$error)
@@ -139,66 +137,28 @@ class CMailDomainRegistrar
 		return null;
 	}
 
-	public static function updateDns($user, $password, $domain, $params, &$error)
+	/**
+	 * Updates domain DNS.
+	 * @param string $user User name.
+	 * @param string $password User password.
+	 * @param string $domain Domain name.
+	 * @param array $params Additional params.
+	 * @param string|null &$error Error message if occurred.
+	 * @return bool|null Returns true on success.
+	 */
+	public static function updateDns(string $user, string $password, string $domain, array $params, ?string &$error): ?bool
 	{
-		$domain = \Bitrix\Main\Text\Encoding::convertEncoding($domain, SITE_CHARSET, 'UTF-8');
-		$params = \Bitrix\Main\Text\Encoding::convertEncoding($params, SITE_CHARSET, 'UTF-8');
+		$result = self::$classRegistrar::updateDns($user, $password, $domain, $params, $error);
 
-		foreach ($params as $k => $record)
+		if ($result === null)
 		{
-			switch ($record['type'])
-			{
-				case 'a':
-					$params[$k] = array(
-						'action' => 'add_alias',
-						'subdomain' => '@',
-						'ipaddr' => $record['value']
-					);
-					break;
-				case 'alias':
-					$params[$k] = array(
-						'action' => 'add_alias',
-						'subdomain' => $record['name'],
-						'ipaddr' => $record['value']
-					);
-					break;
-				case 'cname':
-					$params[$k] = array(
-						'action'         => 'add_cname',
-						'subdomain'      => $record['name'],
-						'canonical_name' => $record['value']
-					);
-					break;
-				case 'mx':
-					$params[$k] = array(
-						'action'      => 'add_mx',
-						'subdomain'   => $record['name'],
-						'mail_server' => $record['value'],
-						'priority'    => $record['priority']
-					);
-					break;
-			}
+			$error = self::getErrorCode($error);
+			return null;
 		}
-
-		$result = CMailRegru::updateDns($user, $password, $domain, $params, $error);
-
-		if ($result !== false)
+		else
 		{
-			if (isset($result['dname']) && mb_strtolower($result['dname']) == mb_strtolower($domain))
-			{
-				if (isset($result['result']) && $result['result'] == 'success')
-					return true;
-				else
-					return false;
-			}
-			else
-			{
-				$error = 'unknown';
-			}
+			return $result;
 		}
-
-		$error = self::getErrorCode($result['error_code']);
-		return null;
 	}
 
 	public static function getDomainsList($user, $password, $filter = array(), &$error)

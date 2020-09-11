@@ -131,7 +131,7 @@ class CCityLookup_stat_table extends CCityLookup
 					LIMIT 1
 				");
 				$ar = $rs->Fetch();
-				if($ar && strlen($ar["START_IP"]) > 0)
+				if($ar && $ar["START_IP"] <> '')
 				{
 					$rs = $DB->Query("
 						SELECT *

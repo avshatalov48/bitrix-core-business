@@ -272,7 +272,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 				}
 			}
 
-			if ((strlen($arFields["SOCNET_GROUP_ID"]) > 0) && CModule::IncludeModule('socialnetwork'))
+			if (($arFields["SOCNET_GROUP_ID"] <> '') && CModule::IncludeModule('socialnetwork'))
 			{
 				CSocNetGroup::SetLastActivity($arFields["SOCNET_GROUP_ID"]);
 			}

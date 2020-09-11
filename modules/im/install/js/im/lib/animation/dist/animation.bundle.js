@@ -11,9 +11,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @subpackage im
 	 * @copyright 2001-2019 Bitrix
 	 */
-	var Animation =
-	/*#__PURE__*/
-	function () {
+	var Animation = /*#__PURE__*/function () {
 	  function Animation() {
 	    babelHelpers.classCallCheck(this, Animation);
 	  }

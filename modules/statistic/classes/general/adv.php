@@ -9,9 +9,9 @@ class CAllAdv
 
 		// lookup campaign with referer1 and referer2
 		$referer1 = trim($referer1);
-		$referer1_sql = strlen($referer1)>0? "REFERER1='".$DB->ForSql($referer1, 255)."'": "(REFERER1 is null or ".$DB->Length("REFERER1")."=0)";
+		$referer1_sql = $referer1 <> ''? "REFERER1='".$DB->ForSql($referer1, 255)."'": "(REFERER1 is null or ".$DB->Length("REFERER1")."=0)";
 		$referer2 = trim($referer2);
-		$referer2_sql = strlen($referer2)>0? "REFERER2='".$DB->ForSql($referer2, 255)."'": "(REFERER2 is null or ".$DB->Length("REFERER2")."=0)";
+		$referer2_sql = $referer2 <> ''? "REFERER2='".$DB->ForSql($referer2, 255)."'": "(REFERER2 is null or ".$DB->Length("REFERER2")."=0)";
 
 		$strSql = "
 			SELECT
@@ -43,7 +43,7 @@ class CAllAdv
 			{
 				$NA_1 = COption::GetOptionString("statistic", "AVD_NA_REFERER1");
 				$NA_2 = COption::GetOptionString("statistic", "AVD_NA_REFERER2");
-				if ((strlen($NA_1)>0 || strlen($NA_2)>0) && $referer1==$NA_1 && $referer2==$NA_2)
+				if (($NA_1 <> '' || $NA_2 <> '') && $referer1==$NA_1 && $referer2==$NA_2)
 					$NA = "Y";
 			}
 
@@ -64,8 +64,8 @@ class CAllAdv
 				{
 					// add new advertising campaign
 					$arFields = Array(
-						"REFERER1" => strlen($referer1)>0 ? "'".$DB->ForSql($referer1, 255)."'" : "null",
-						"REFERER2" => strlen($referer2)>0 ? "'".$DB->ForSql($referer2, 255)."'" : "null",
+						"REFERER1" => $referer1 <> '' ? "'".$DB->ForSql($referer1, 255)."'" : "null",
+						"REFERER2" => $referer2 <> '' ? "'".$DB->ForSql($referer2, 255)."'" : "null",
 						"DATE_FIRST" => $DB->GetNowFunction(),
 						"DATE_LAST" => $DB->GetNowFunction(),
 					);
@@ -147,11 +147,11 @@ class CAllAdv
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if( ($val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "DATE1":

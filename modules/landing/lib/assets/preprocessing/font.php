@@ -13,10 +13,16 @@ class Font
 	 */
 	protected static function saveAssets(Block $block): void
 	{
+		$blockContent = $block->getContent();
+		if (!$blockContent)
+		{
+			return;
+		}
+
 		$fonts = [];
 		$found = preg_match_all(
 			'/[\s"](g-font-[^\s"]+)/s',
-			$block->getContent(),
+			$blockContent,
 			$matches
 		);
 		if ($found)

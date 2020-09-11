@@ -45,13 +45,13 @@ function CheckFilter()
 
 	foreach($arr as $ar)
 	{
-		if (strlen($ar["date1"])>0 && !CheckDateTime($ar["date1"]))
+		if ($ar["date1"] <> '' && !CheckDateTime($ar["date1"]))
 			//$str.= $ar["mess1"]."<br>";
 			$arMsg[] = array("id"=>"find_first_date1", "text"=> $ar["mess1"]);
-		elseif (strlen($ar["date2"])>0 && !CheckDateTime($ar["date2"]))
+		elseif ($ar["date2"] <> '' && !CheckDateTime($ar["date2"]))
 			//$str.= $ar["mess2"]."<br>";
 			$arMsg[] = array("id"=>"find_first_date2", "text"=> $ar["mess2"]);
-		elseif (strlen($ar["date1"])>0 && strlen($ar["date2"])>0 && $statDB->CompareDates($ar["date1"], $ar["date2"])==1)
+		elseif ($ar["date1"] <> '' && $ar["date2"] <> '' && $statDB->CompareDates($ar["date1"], $ar["date2"])==1)
 			//$str.= $ar["mess3"]."<br>";
 			$arMsg[] = array("id"=>"find_first_date2", "text"=> $ar["mess2"]);
 	}
@@ -282,7 +282,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	{
 		$str .= "[<a title=\"".GetMessage("STAT_EDIT_USER")."\" href=\"user_edit.php?lang=".LANGUAGE_ID."&amp;ID=".$f_LAST_USER_ID."\">".$f_LAST_USER_ID."</a>]";
 
-		if (strlen($f_LOGIN)>0) :
+		if ($f_LOGIN <> '') :
 			$str .= " (".$f_LOGIN.") ".$f_USER_NAME;
 		else:
 			if (!in_array($f_LAST_USER_ID, array_keys($arrUsers)))
@@ -300,7 +300,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 				$LOGIN = $arrUsers[$f_LAST_USER_ID]["LOGIN"];
 			}
 
-			if (strlen($LOGIN)>0) :
+			if ($LOGIN <> '') :
 				$str .= " (".$LOGIN.") ".$USER_NAME;
 			endif;
 		endif;
@@ -326,7 +326,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	$str = '<a title="'.GetMessage("STAT_HITS_LIST").'" href="hit_list.php?lang='.LANGUAGE_ID.'&find_guest_id='.$f_ID.'&find_guest_id_exact_match=Y&set_filter=Y">'.$f_HITS.'</a>';
 	$row->AddViewField("HITS", $str);
 
-	if (strlen($f_FIRST_URL_FROM)>0)
+	if ($f_FIRST_URL_FROM <> '')
 	{
 		$row->AddViewField("FIRST_URL_FROM", StatAdminListFormatURL($arRes["FIRST_URL_FROM"], array(
 			"new_window" => false,
@@ -337,7 +337,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	}
 
 	$str = "";
-	if (strlen($f_FIRST_SITE_ID)>0)
+	if ($f_FIRST_SITE_ID <> '')
 	{
 		$str .= '[<a title="'.GetMessage("STAT_SITE").'" href="/bitrix/admin/site_edit.php?LID='.$f_FIRST_SITE_ID.'&lang='.LANGUAGE_ID.'">'.$f_FIRST_SITE_ID.'</a>]&nbsp;';
 	}
@@ -351,7 +351,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	)));
 
 	$str = "";
-	if (strlen($f_LAST_SITE_ID)>0)
+	if ($f_LAST_SITE_ID <> '')
 	{
 		$str .= '[<a title="'.GetMessage("STAT_SITE").'" href="/bitrix/admin/site_edit.php?LID='.$f_LAST_SITE_ID.'&lang='.LANGUAGE_ID.'">'.$f_LAST_SITE_ID.'</a>]&nbsp;';
 	}
@@ -380,9 +380,9 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	}
 	$row->AddViewField("LAST_ADV_ID", $str);
 
-	if(strlen($f_LAST_COUNTRY_ID) > 0)
+	if($f_LAST_COUNTRY_ID <> '')
 	{
-		if (strlen($f_LAST_COUNTRY_NAME)>0)
+		if ($f_LAST_COUNTRY_NAME <> '')
 			$str = "[".$f_LAST_COUNTRY_ID."] ".$f_LAST_COUNTRY_NAME;
 		else
 			$str =  $f_LAST_COUNTRY_ID;
@@ -390,7 +390,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 		$row->AddViewField("LAST_COUNTRY_ID", $str);
 	}
 
-	if(strlen($f_LAST_CITY_ID) > 0)
+	if($f_LAST_CITY_ID <> '')
 	{
 		$row->AddViewField("LAST_CITY_ID", "[".$f_LAST_CITY_ID."] ".$f_LAST_CITY_NAME);
 	}

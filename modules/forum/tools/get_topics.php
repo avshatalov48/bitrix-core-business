@@ -13,7 +13,7 @@ if (CModule::IncludeModule("forum"))
 	$arTopic = CForumTopic::GetByID($ID);
 }
 if ($arTopic)
-	$res = "[<a class='tablebodylink' href='/bitrix/admin/forum_topics.php?lang=".LANG."'>".intVal($arTopic["ID"])."</a>] (".htmlspecialcharsbx($arTopic["TITLE"]).") ";
+	$res = "[<a class='tablebodylink' href='/bitrix/admin/forum_topics.php?lang=".LANG."'>".intval($arTopic["ID"])."</a>] (".htmlspecialcharsbx($arTopic["TITLE"]).") ";
 else
 	$res = "&nbsp;".GetMessage("MAIN_NOT_FOUND");
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_admin.php");

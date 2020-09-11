@@ -19,9 +19,9 @@ if (in_array("USERS_ONLINE", $arParams["SHOW"]))
 {
 	$arMsg = array();
 	if (!empty($arResult["GUEST"]))
-		$arMsg[] = GetMessage("F_NOW_ONLINE_1", array("#GUESTS#" => "<span>".intVal($arResult["GUEST"])."</span>"));
+		$arMsg[] = GetMessage("F_NOW_ONLINE_1", array("#GUESTS#" => "<span>".intval($arResult["GUEST"])."</span>"));
 	if (!empty($arResult["REGISTER"]))
-		$arMsg[] = GetMessage("F_NOW_ONLINE_2", array("#USERS#" => "<span>".intVal($arResult["REGISTER"])."</span>"));
+		$arMsg[] = GetMessage("F_NOW_ONLINE_2", array("#USERS#" => "<span>".intval($arResult["REGISTER"])."</span>"));
 	if (!empty($arResult["USERS_HIDDEN"]))
 		$arMsg[] = GetMessage("F_NOW_ONLINE_3", array("#HIDDEN_USERS#" => "<span>".count($arResult["USERS_HIDDEN"])."</span>"));
 
@@ -34,8 +34,8 @@ if (in_array("USERS_ONLINE", $arParams["SHOW"]))
 $first = true;
 foreach ($arResult["USERS"] as $res)
 {
-	if($arParams["WORD_WRAP_CUT"] > 0 && strLen($res["~SHOW_NAME"])>$arParams["WORD_WRAP_CUT"])
-		$res["SHOW_NAME"] = htmlspecialcharsbx(subStr($res["~SHOW_NAME"], 0, $arParams["WORD_WRAP_CUT"]))."...";
+	if($arParams["WORD_WRAP_CUT"] > 0 && mb_strlen($res["~SHOW_NAME"]) > $arParams["WORD_WRAP_CUT"])
+		$res["SHOW_NAME"] = htmlspecialcharsbx(mb_substr($res["~SHOW_NAME"], 0, $arParams["WORD_WRAP_CUT"]))."...";
 	?><?=(!$first ? ", ": "")?><span class="forum-user-online"><?
 		?><?=str_replace(array("#URL#", "#NAME#"), array($res["profile_view"], $res["SHOW_NAME"]), $arParams["USER_TMPL"])
 	?></span><?
@@ -45,8 +45,8 @@ if (CForumUser::IsAdmin() && !empty($arResult["USERS_HIDDEN"]))
 {
 	foreach ($arResult["USERS_HIDDEN"] as $res)
 	{
-		if($arParams["WORD_WRAP_CUT"] > 0 && strLen($res["~SHOW_NAME"])>$arParams["WORD_WRAP_CUT"])
-			$res["SHOW_NAME"] = htmlspecialcharsbx(subStr($res["~SHOW_NAME"], 0, $arParams["WORD_WRAP_CUT"]))."...";
+		if($arParams["WORD_WRAP_CUT"] > 0 && mb_strlen($res["~SHOW_NAME"]) > $arParams["WORD_WRAP_CUT"])
+			$res["SHOW_NAME"] = htmlspecialcharsbx(mb_substr($res["~SHOW_NAME"], 0, $arParams["WORD_WRAP_CUT"]))."...";
 		?><?=(!$first ? ", ": "")?><span class="forum-user-online-hidden"><?
 			?><?=str_replace(array("#URL#", "#NAME#"), array($res["profile_view"], $res["SHOW_NAME"]), $arParams["USER_TMPL"])
 		?></span><?
@@ -85,14 +85,14 @@ if (in_array("STATISTIC", $arParams["SHOW"])):
 <?
 	if (empty($arParams["FID"])):
 ?>
-		<div class="forum-statistics-allusers"><?=GetMessage("F_REGISTER_USERS")?>:&nbsp;<span><?=intVal($arResult["STATISTIC"]["USERS_ON_FORUM"])?></span></div>
-		<div class="forum-statistics-users"><?=GetMessage("F_ACTIVE_USERS")?>:&nbsp;<span><?=intVal($arResult["STATISTIC"]["USERS_ON_FORUM_ACTIVE"])?></span></div>
+		<div class="forum-statistics-allusers"><?=GetMessage("F_REGISTER_USERS")?>:&nbsp;<span><?=intval($arResult["STATISTIC"]["USERS_ON_FORUM"])?></span></div>
+		<div class="forum-statistics-users"><?=GetMessage("F_ACTIVE_USERS")?>:&nbsp;<span><?=intval($arResult["STATISTIC"]["USERS_ON_FORUM_ACTIVE"])?></span></div>
 <?/*?>		<div class="forum-statistics-forums"><?=GetMessage("F_FORUMS_ALL")?>:&nbsp;<span><?=$arResult["STATISTIC"]["FORUMS"]?></span></div><?*/?>
 <?
 	endif;
 ?>
-		<div class="forum-statistics-topics"><?=GetMessage("F_TOPICS_ALL")?>:&nbsp;<span><?=intVal($arResult["STATISTIC"]["TOPICS"])?></span></div>
-		<div class="forum-statistics-replies"><?=GetMessage("F_POSTS_ALL")?>:&nbsp;<span><?=intVal($arResult["STATISTIC"]["POSTS"])?></span></div>
+		<div class="forum-statistics-topics"><?=GetMessage("F_TOPICS_ALL")?>:&nbsp;<span><?=intval($arResult["STATISTIC"]["TOPICS"])?></span></div>
+		<div class="forum-statistics-replies"><?=GetMessage("F_POSTS_ALL")?>:&nbsp;<span><?=intval($arResult["STATISTIC"]["POSTS"])?></span></div>
 		<div class="forum-clear-float"></div>
 	</div>
 	

@@ -5,6 +5,16 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_bef
 \Bitrix\Main\Loader::includeModule('bizproc');
 \Bitrix\Main\Localization\Loc::loadMessages(__FILE__);
 
+if (!defined('MODULE_ID') && !defined('ENTITY') && isset($_REQUEST['dts']))
+{
+	$dts = \CBPDocument::unSignDocumentType($_REQUEST['dts']);
+	if ($dts)
+	{
+		define('MODULE_ID', $dts[0]);
+		define('ENTITY', $dts[1]);
+	}
+}
+
 CBPHelper::decodeTemplatePostData($_POST);
 
 $arWorkflowParameters = $_POST['arWorkflowParameters'];
@@ -19,12 +29,15 @@ unset($globalTypes[\Bitrix\Bizproc\FieldType::FILE]);
 $user = new CBPWorkflowTemplateUser(\CBPWorkflowTemplateUser::CurrentUser);
 $isAdmin = $user->isAdmin();
 
+$documentType = [MODULE_ID, ENTITY, $_POST['document_type']];
+$documentTypeSigned = \CBPDocument::signDocumentType($documentType);
+
 try
 {
 	$canWrite = CBPDocument::CanUserOperateDocumentType(
 		CBPCanUserOperateOperation::CreateWorkflow,
 		$GLOBALS["USER"]->GetID(),
-		array(MODULE_ID, ENTITY, $_POST['document_type'])
+		$documentType
 	);
 }
 catch (Exception $e)
@@ -50,7 +63,7 @@ if ($_POST["save"] == "Y")
 	{
 		foreach ($_POST['perm'] as $t => $v)
 		{
-			$perms[$t] = CBPHelper::UsersStringToArray($v, array(MODULE_ID, ENTITY, $_POST['document_type']), $arErrors);
+			$perms[$t] = CBPHelper::UsersStringToArray($v, $documentType, $arErrors);
 		}
 	}
 
@@ -78,9 +91,9 @@ $runtime = CBPRuntime::GetRuntime();
 $runtime->StartRuntime();
 
 $documentService = $runtime->GetService("DocumentService");
-echo $documentService->GetJSFunctionsForFields(array(MODULE_ID, ENTITY, $_POST['document_type']), "objFields");
+echo $documentService->GetJSFunctionsForFields($documentType, "objFields");
 
-$arAllowableOperations = $documentService->GetAllowableOperations(array(MODULE_ID, ENTITY, $_POST['document_type']));
+$arAllowableOperations = $documentService->GetAllowableOperations($documentType);
 if (defined('DISABLE_BIZPROC_PERMISSIONS') && DISABLE_BIZPROC_PERMISSIONS)
 {
 	$arAllowableOperations = array();
@@ -91,7 +104,7 @@ if(!is_array($arWorkflowParameters))
 	$arWorkflowParameters = array();
 }
 
-$arWorkflowParameterTypesTmp = $documentService->GetDocumentFieldTypes(array(MODULE_ID, ENTITY, $_POST['document_type']));
+$arWorkflowParameterTypesTmp = $documentService->GetDocumentFieldTypes($documentType);
 $arWorkflowParameterTypes = array();
 foreach ($arWorkflowParameterTypesTmp as $key => $value)
 {
@@ -178,7 +191,7 @@ function WFSFSave()
 
 	BX.showWait();
 	BX.ajax({
-		'url': '/bitrix/admin/<?= MODULE_ID ?>_bizproc_wf_settings.php?lang=<?= LANGUAGE_ID ?>&entity=<?= ENTITY ?>',
+		'url': '/bitrix/tools/bizproc_wf_settings.php?lang=<?= LANGUAGE_ID ?>&dts=<?= CUtil::JSEscape($documentTypeSigned) ?>',
 		'method': 'POST',
 		'data': ajaxData,
 		'dataType': 'json',
@@ -288,7 +301,7 @@ function WFSParamSetType(type, pvMode, value)
 	if (typeof value == "undefined")
 		value = "";
 
-	if (objFields.arFieldTypes[type['Type']]['Complex'] == "Y")
+	if (objFields.arFieldTypes[type['Type']] && objFields.arFieldTypes[type['Type']]['Complex'] == "Y")
 	{
 		objFields.GetFieldInputControl4Type(
 			type,
@@ -556,7 +569,7 @@ function WFSParamSaveForm(Type)
 	WFSData[lastEd]['Multiple'] = document.getElementById("WFSFormMult"+Type).checked ? 1 : 0;
 
 	WFSData[lastEd]['Options'] = null;
-	if (objFields.arFieldTypes[WFSData[lastEd]['Type']]['Complex'] == "Y")
+	if (objFields.arFieldTypes[WFSData[lastEd]['Type']] && objFields.arFieldTypes[WFSData[lastEd]['Type']]['Complex'] == "Y")
 		WFSData[lastEd]['Options'] = window.currentType[Type]['Options'];
 
 	objFields.GetFieldInputValue(
@@ -1051,8 +1064,8 @@ if (!empty($arAllowableOperations)):
 					$usersP = htmlspecialcharsbx(CBPHelper::UsersArrayToString(
 								$permissions[$op_id],
 								$_POST['arWorkflowTemplate'],
-								array(MODULE_ID, ENTITY, $_POST['document_type'])
-							));
+						$documentType
+					));
 			?>
 			<textarea name="<?= $parameterKeyExt ?>" id="id_<?= $parameterKeyExt ?>" rows="4" cols="50"><?= $usersP ?></textarea>
 			<input type="button" value="..." onclick="BPAShowSelector('id_<?= $parameterKeyExt ?>', 'user', 'all', {'arWorkflowParameters': WFSAllData['P'], 'arWorkflowVariables': WFSAllData['V'], 'arWorkflowConstants': WFSAllData['C']});" style="vertical-align: top; margin-left: 2px"

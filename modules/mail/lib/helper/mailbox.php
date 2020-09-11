@@ -607,7 +607,8 @@ abstract class Mailbox
 		}
 		else
 		{
-			$result = Mail\MailMessageUidTable::add(array_merge(
+			$checkResult = new ORM\Data\AddResult();
+			$addFields = array_merge(
 				array(
 					'MESSAGE_ID'  => 0,
 				),
@@ -618,7 +619,20 @@ abstract class Mailbox
 					'TIMESTAMP_X' => $now,
 					'DATE_INSERT' => $now,
 				)
-			))->isSuccess();
+			);
+			Mail\MailMessageUidTable::checkFields($checkResult, null, $addFields);
+			if (!$checkResult->isSuccess())
+			{
+				return false;
+			}
+
+			Mail\MailMessageUidTable::mergeData($addFields, [
+				'MSG_UID' => $addFields['MSG_UID'],
+				'HEADER_MD5' => $addFields['HEADER_MD5'],
+				'SESSION_ID' => $addFields['SESSION_ID'],
+				'TIMESTAMP_X' => $addFields['TIMESTAMP_X'],
+			]);
+			$result = true;
 		}
 
 		return $result;

@@ -33,14 +33,14 @@ while ($ar = $rs->Fetch())
 	$arrADV_DETAIL[$ar["ID"]] = array("REFERER1" => $ar["REFERER1"], "REFERER2" => $ar["REFERER2"]);
 }
 
-if(isset($find_referer1) && strlen($find_referer1) > 0)
+if(isset($find_referer1) && $find_referer1 <> '')
 {
 	$find_adv=array();
 	foreach($arrADV_DETAIL as $ADV_ID=>$ADV_DETAIL)
 		if($ADV_DETAIL["REFERER1"]==$find_referer1 && !in_array($ADV_ID, $find_adv))
 			$find_adv[]=$ADV_ID;
 }
-if(isset($find_referer2) && strlen($find_referer2) > 0)
+if(isset($find_referer2) && $find_referer2 <> '')
 {
 	$find_adv=array();
 	foreach($arrADV_DETAIL as $ADV_ID=>$ADV_DETAIL)
@@ -104,7 +104,7 @@ InitFilterEx($arSettings, $sTableID."_settings", "get");
 
 if($find_diagram_type===false)//Restore saved setting
 {
-	if(strlen($saved_diagram_type) > 0)
+	if($saved_diagram_type <> '')
 		$find_diagram_type = $saved_diagram_type;
 	else
 		$find_diagram_type = "COUNTER";
@@ -179,7 +179,7 @@ $lAdmin->NavText($rsData->GetNavPrint(GetMessage("STAT_PATH_PAGES")));
 $lAdmin->BeginPrologContent();
 
 if($find_diagram_type=="COUNTER"):
-	if(strlen($parent_id)>0) :
+	if($parent_id <> '') :
 	?>
 		<table cellspacing=0 cellpadding=0 class="list">
 			<tr class="gutter">
@@ -201,21 +201,21 @@ if($find_diagram_type=="COUNTER"):
 			reset($arrPages);
 			$i=0;
 			foreach($arrPages as $page):
-				if(strlen($page)>0) :
+				if($page <> '') :
 					$i++;
 					$arr = array();
 					$site_url = "";
 					preg_match("#\[(.+?)\]#",$page, $arr);
-					if(strlen($arr[1])>0)
+					if($arr[1] <> '')
 					{
 						$page = str_replace("[".$arr[1]."] ", "", $page);
 						$site_url = $arSites[$arr[1]];
 					}
 					$err_404 = "N";
-					if(substr($page,0,strlen($str_err_404))==$str_err_404)
+					if(mb_substr($page, 0, mb_strlen($str_err_404)) == $str_err_404)
 					{
 						$err_404 = "Y";
-						$page = substr($page,strlen($str_err_404),strlen($page));
+						$page = mb_substr($page, mb_strlen($str_err_404), mb_strlen($page));
 					}
 					?>
 					<tr>
@@ -314,22 +314,22 @@ while($arRes = $rsData->NavNext(true, "f_"))
 
 		foreach($arrPAGES as $page)
 		{
-			if(strlen($page)>0)
+			if($page <> '')
 			{
 				$arr = array();
 				$site_url = "";
 				preg_match("#\[(.+?)\]#",$page, $arr);
-				if(strlen($arr[1])>0)
+				if($arr[1] <> '')
 				{
 					$page = str_replace("[".$arr[1]."] ", "", $page);
 					$site_url = $arSites[$arr[1]];
 				}
 
 				$err_404 = "N";
-				if(substr($page,0,strlen($str_err_404))==$str_err_404)
+				if(mb_substr($page, 0, mb_strlen($str_err_404)) == $str_err_404)
 				{
 					$err_404 = "Y";
-					$page = substr($page,strlen($str_err_404),strlen($page));
+					$page = mb_substr($page, mb_strlen($str_err_404), mb_strlen($page));
 				}
 				$path_id = GetStatPathID($page, $path_id);
 				$action_url = "path_list.php?lang=".LANGUAGE_ID."&find_diagram_type=COUNTER&parent_id=".urlencode($path_id)."&context=".urlencode($context);
@@ -363,7 +363,7 @@ $lAdmin->AddFooter(
 );
 
 $aContext = array();
-if(strlen($parent_id)>0)
+if($parent_id <> '')
 {
 	$aContext[] = array(
 		"TEXT" => GetMessage("STAT_ENTER_POINTS_S"),

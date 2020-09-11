@@ -110,7 +110,7 @@ return array(
 					<img class="landing-block-node-card-photo g-width-130 g-height-130 g-brd-around g-brd-10 g-brd-white g-rounded-50x mx-auto g-mb-20 g-mb-25--md" src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x500/img21.jpg" alt="" />
 					<p class="landing-block-node-card-name text-uppercase g-line-height-1 g-font-weight-700 g-font-size-20 g-color-white g-mb-10 g-mb-15--md">
 						Juicy steak with special sauce</p>
-					<div class="landing-block-node-card-text g-line-height-1_1 g-font-weight-100 g-font-size-default g-color-white g-mb-10 g-mb-20--md">
+					<div class="landing-block-node-card-text g-line-height-1_1 g-font-weight-100 g-color-white g-mb-10 g-mb-20--md">
 						<p>
 							Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in.</p>
 					</div>
@@ -135,7 +135,7 @@ return array(
 					<img class="landing-block-node-card-photo g-width-130 g-height-130 g-brd-around g-brd-10 g-brd-white g-rounded-50x mx-auto g-mb-20 g-mb-25--md" src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x500/img22.jpg" alt="" />
 					<p class="landing-block-node-card-name text-uppercase g-line-height-1 g-font-weight-700 g-font-size-20 g-color-white g-mb-10 g-mb-15--md">
 						Sushi rolls</p>
-					<div class="landing-block-node-card-text g-line-height-1_1 g-font-weight-100 g-font-size-default g-color-white g-mb-10 g-mb-20--md">
+					<div class="landing-block-node-card-text g-line-height-1_1 g-font-weight-100 g-color-white g-mb-10 g-mb-20--md">
 						<p>
 							Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in.</p>
 					</div>
@@ -160,7 +160,7 @@ return array(
 					<img class="landing-block-node-card-photo g-width-130 g-height-130 g-brd-around g-brd-10 g-brd-white g-rounded-50x mx-auto g-mb-20 g-mb-25--md" src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x500/img23.jpg" alt="" />
 					<p class="landing-block-node-card-name text-uppercase g-line-height-1 g-font-weight-700 g-font-size-20 g-color-white g-mb-10 g-mb-15--md">
 						Special Vegan tomato soup</p>
-					<div class="landing-block-node-card-text g-line-height-1_1 g-font-weight-100 g-font-size-default g-color-white g-mb-10 g-mb-20--md">
+					<div class="landing-block-node-card-text g-line-height-1_1 g-font-weight-100 g-color-white g-mb-10 g-mb-20--md">
 						<p>
 							Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in.</p>
 					</div>
@@ -185,7 +185,7 @@ return array(
 					<img class="landing-block-node-card-photo g-width-130 g-height-130 g-brd-around g-brd-10 g-brd-white g-rounded-50x mx-auto g-mb-20 g-mb-25--md" src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x500/img24.jpg" alt="" />
 					<p class="landing-block-node-card-name text-uppercase g-line-height-1 g-font-weight-700 g-font-size-20 g-color-white g-mb-10 g-mb-15--md">
 						Fruity caramel</p>
-					<div class="landing-block-node-card-text g-line-height-1_1 g-font-weight-100 g-font-size-default g-color-white g-mb-10 g-mb-20--md">
+					<div class="landing-block-node-card-text g-line-height-1_1 g-font-weight-100 g-color-white g-mb-10 g-mb-20--md">
 						<p>
 							Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in.</p>
 					</div>
@@ -502,9 +502,9 @@ return array(
 								vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante.</p>
 						</div>
 
-						<div class="landing-block-node-card-price font-weight-bold g-color-white g-font-size-26 g-mb-30">$14.00</div>
+						<div class="landing-block-node-card-price g-font-weight-700 g-color-white g-font-size-26 g-mb-30">$14.00</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button btn text-uppercase u-btn-white g-font-weight-700 g-font-size-11 g-color-gray-dark-v2 g-brd-none rounded-0 g-px-30 g-py-25 js-animation fadeIn animated" href="#">Book now
+							<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-special g-btn-px-m g-btn-white text-uppercase g-color-gray-dark-v2 rounded-0 g-py-25 js-animation fadeIn animated" href="#">Book now
 							</a>
 						</div>
 					</div>
@@ -533,9 +533,9 @@ return array(
 								vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante.</p>
 						</div>
 
-						<div class="landing-block-node-card-price font-weight-bold g-color-white g-font-size-26 g-mb-30">$14.00</div>
+						<div class="landing-block-node-card-price g-font-weight-700 g-color-white g-font-size-26 g-mb-30">$14.00</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button btn text-uppercase u-btn-white g-font-weight-700 g-font-size-11 g-color-gray-dark-v2 g-brd-none rounded-0 g-px-30 g-py-25 js-animation fadeIn animated" href="#">Book now
+							<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-special g-btn-px-m g-btn-white text-uppercase g-color-gray-dark-v2 rounded-0 g-py-25 js-animation fadeIn animated" href="#">Book now
 							</a>
 						</div>
 					</div>
@@ -564,9 +564,9 @@ return array(
 								vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante.</p>
 						</div>
 
-						<div class="landing-block-node-card-price font-weight-bold g-color-white g-font-size-26 g-mb-30">$14.00</div>
+						<div class="landing-block-node-card-price g-font-weight-700 g-color-white g-font-size-26 g-mb-30">$14.00</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button btn text-uppercase u-btn-white g-font-weight-700 g-font-size-11 g-color-gray-dark-v2 g-brd-none rounded-0 g-px-30 g-py-25 js-animation fadeIn animated" href="#">Book now
+							<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-special g-btn-px-m g-btn-white text-uppercase g-color-gray-dark-v2 rounded-0 g-py-25 js-animation fadeIn animated" href="#">Book now
 							</a>
 						</div>
 					</div>
@@ -595,9 +595,9 @@ return array(
 								vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante.</p>
 						</div>
 
-						<div class="landing-block-node-card-price font-weight-bold g-color-white g-font-size-26 g-mb-30">$14.00</div>
+						<div class="landing-block-node-card-price g-font-weight-700 g-color-white g-font-size-26 g-mb-30">$14.00</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button btn text-uppercase u-btn-white g-font-weight-700 g-font-size-11 g-color-gray-dark-v2 g-brd-none rounded-0 g-px-30 g-py-25 js-animation fadeIn animated" href="#">Book now
+							<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-special g-btn-px-m g-btn-white text-uppercase g-color-gray-dark-v2 rounded-0 g-py-25 js-animation fadeIn animated" href="#">Book now
 							</a>
 						</div>
 					</div>
@@ -626,9 +626,9 @@ return array(
 								vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante.</p>
 						</div>
 
-						<div class="landing-block-node-card-price font-weight-bold g-color-white g-font-size-26 g-mb-30">$14.00</div>
+						<div class="landing-block-node-card-price g-font-weight-700 g-color-white g-font-size-26 g-mb-30">$14.00</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button btn text-uppercase u-btn-white g-font-weight-700 g-font-size-11 g-color-gray-dark-v2 g-brd-none rounded-0 g-px-30 g-py-25 js-animation fadeIn animated" href="#">Book now
+							<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-special g-btn-px-m g-btn-white text-uppercase g-color-gray-dark-v2 rounded-0 g-py-25 js-animation fadeIn animated" href="#">Book now
 							</a>
 						</div>
 					</div>
@@ -724,7 +724,7 @@ return array(
 					</span>
 				<h3 class="landing-block-node-card-number mb-0 g-font-size-18 g-color-black-opacity-0_9"><span style="font-weight: bold;">CATERING</span></h3>
 				<div class="landing-block-node-card-number-title text-uppercase g-font-weight-700 g-font-size-11 g-color-white g-mb-20"> </div>
-				<div class="landing-block-node-card-text g-font-size-default mb-0 g-color-gray-light-v1"><p>Nunc ligula nulla, efficitur et eros ut, vulputate gravida leo. Vestibulum ante ipsum primis in faucibus orci luctus et.</p></div>
+				<div class="landing-block-node-card-text mb-0 g-color-gray-light-v1"><p>Nunc ligula nulla, efficitur et eros ut, vulputate gravida leo. Vestibulum ante ipsum primis in faucibus orci luctus et.</p></div>
 			</div>
 
 			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-3 text-center g-mb-40 g-mb-0--lg animated ">
@@ -733,7 +733,7 @@ return array(
 					</span>
 				<h3 class="landing-block-node-card-number mb-0 g-font-size-18 g-color-black-opacity-0_9"><span style="font-weight: bold;">WINE COLLECTION</span></h3>
 				<div class="landing-block-node-card-number-title text-uppercase g-font-weight-700 g-font-size-11 g-color-white g-mb-20"> </div>
-				<div class="landing-block-node-card-text g-font-size-default mb-0 g-color-gray-light-v1"><p>Nunc ligula nulla, efficitur et eros ut, vulputate gravida leo. Vestibulum ante ipsum primis in faucibus orci luctus et.</p></div>
+				<div class="landing-block-node-card-text mb-0 g-color-gray-light-v1"><p>Nunc ligula nulla, efficitur et eros ut, vulputate gravida leo. Vestibulum ante ipsum primis in faucibus orci luctus et.</p></div>
 			</div>
 
 			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-3 text-center g-mb-40 g-mb-0--lg animated ">
@@ -742,7 +742,7 @@ return array(
 					</span>
 				<h3 class="landing-block-node-card-number mb-0 g-font-size-18 g-color-black-opacity-0_9"><span style="font-weight: bold;">CUSTOM ORDERS</span></h3>
 				<div class="landing-block-node-card-number-title text-uppercase g-font-weight-700 g-font-size-11 g-color-white g-mb-20"> </div>
-				<div class="landing-block-node-card-text g-font-size-default mb-0 g-color-gray-light-v1"><p>Nunc ligula nulla, efficitur et eros ut, vulputate gravida leo. Vestibulum ante ipsum primis in faucibus orci luctus et.</p></div>
+				<div class="landing-block-node-card-text mb-0 g-color-gray-light-v1"><p>Nunc ligula nulla, efficitur et eros ut, vulputate gravida leo. Vestibulum ante ipsum primis in faucibus orci luctus et.</p></div>
 			</div>
 
 			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-3 text-center g-mb-40 g-mb-0--lg animated ">
@@ -751,7 +751,7 @@ return array(
 					</span>
 				<h3 class="landing-block-node-card-number mb-0 g-font-size-18 g-color-black-opacity-0_9"><span style="font-weight: bold;">WINE COLLECTION</span></h3>
 				<div class="landing-block-node-card-number-title text-uppercase g-font-weight-700 g-font-size-11 g-color-white g-mb-20"> </div>
-				<div class="landing-block-node-card-text g-font-size-default mb-0 g-color-gray-light-v1"><p>Nunc ligula nulla, efficitur et eros ut, vulputate gravida leo. Vestibulum ante ipsum primis in faucibus orci luctus et.</p></div>
+				<div class="landing-block-node-card-text mb-0 g-color-gray-light-v1"><p>Nunc ligula nulla, efficitur et eros ut, vulputate gravida leo. Vestibulum ante ipsum primis in faucibus orci luctus et.</p></div>
 			</div>
 		</div>
 	</div>

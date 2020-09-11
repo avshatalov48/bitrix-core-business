@@ -473,6 +473,19 @@ class SaleOrderAjax extends \CBitrixComponent
 			}
 		}
 
+		// check for direct initialization with ADDITIONAL_PICT_PROP parameter
+		if (!empty($arParams['ADDITIONAL_PICT_PROP']) && is_array($arParams['ADDITIONAL_PICT_PROP']))
+		{
+			$pictProp = [];
+
+			foreach ($arParams['ADDITIONAL_PICT_PROP'] as $iblockId => $property)
+			{
+				$pictProp[(int)$iblockId] = $property;
+			}
+
+			$arParams['ADDITIONAL_PICT_PROP'] = $pictProp;
+		}
+
 		if (!isset($arParams['BASKET_IMAGES_SCALING']) || !in_array($arParams['BASKET_IMAGES_SCALING'], ['standard', 'adaptive', 'no_scale']))
 		{
 			$arParams['BASKET_IMAGES_SCALING'] = 'adaptive';

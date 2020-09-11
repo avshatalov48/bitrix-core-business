@@ -160,10 +160,10 @@ while($arRes = $rsData->NavNext(true, "f_"))
 
 	$str = "";
 	if ($f_USER_ID>0) :
-		if (strlen($arRes["LOGIN"])) :
+		if($arRes["LOGIN"] <> '') :
 			$str .= "[<a title=\"".GetMessage("STAT_EDIT_USER")."\" href=\"user_edit.php?lang=".LANG."&amp;ID=".$f_USER_ID."\">".$f_USER_ID."</a>] (".$f_LOGIN.") ".$f_USER_NAME."";
 		else :
-			if (!in_array($f_USER_ID, array_keys($arrUsers)))
+			if(!in_array($f_USER_ID, array_keys($arrUsers)))
 			{
 				$rsUser = CUser::GetByID($f_USER_ID);
 				$arUser = $rsUser->GetNext();
@@ -178,7 +178,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 				$LOGIN = $arrUsers[$f_USER_ID]["LOGIN"];
 			}
 			$str .= "[<a title=\"".GetMessage("STAT_EDIT_USER")."\" href=\"user_edit.php?lang=".LANG."&amp;ID=".$f_USER_ID."\">".$f_USER_ID."</a>]&nbsp;";
-			if (strlen($LOGIN)>0) :
+			if($LOGIN <> '') :
 				$str .= "(".$LOGIN.") ".$USER_NAME."";
 			endif;
 		endif;
@@ -196,7 +196,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	$str = "<a href=\"session_list.php?lang=".LANG."&amp;find_id=".$f_SESSION_ID."&amp;find_id_exact_match=Y&amp;set_filter=Y\">".$f_SESSION_ID."</a>";
 	$row->AddViewField("SESSION_ID", $str);
 
-	if(strlen($f_CITY_ID) > 0)
+	if($f_CITY_ID <> '')
 	{
 		$row->AddViewField("CITY_ID", "[".$f_CITY_ID."] ".$f_CITY_NAME);
 	}

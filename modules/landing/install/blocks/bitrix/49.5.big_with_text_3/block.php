@@ -9,7 +9,7 @@
 	</div>
 
 	<div class="landing-block-node-container container g-max-width-800 js-animation fadeInDown container text-center u-bg-overlay__inner g-mx-1">
-		<h2 class="landing-block-node-title text-uppercase landing-semantic-title-image-medium g-line-height-1 font-weight-bold g-font-size-30 g-color-white g-mb-20">
+		<h2 class="landing-block-node-title text-uppercase landing-semantic-title-image-medium g-line-height-1 g-font-weight-700 g-font-size-30 g-color-white g-mb-20">
 			High quality solutions</h2>
 
 		<div class="landing-block-node-text landing-semantic-text-image-medium g-color-white-opacity-0_7 g-mb-35">
@@ -18,7 +18,7 @@
 		</div>
 		<div class="landing-block-node-button-container">
 			<a href="#"
-			   class="landing-block-node-button landing-semantic-link-image-medium btn btn-xl u-btn-primary text-uppercase font-weight-bold g-font-size-12 g-rounded-50 g-py-15 g-px-40">Buy
+			   class="landing-block-node-button landing-semantic-link-image-medium btn g-btn-primary g-btn-type-solid g-btn-px-l g-btn-size-md text-uppercase g-rounded-50 g-py-15">Buy
 				full version</a>
 		</div>
 	</div>

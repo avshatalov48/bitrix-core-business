@@ -146,7 +146,7 @@ while (!empty($arMessages))
 			?><span class="forum-header-title-closed">[ <span><?=GetMessage("F_CLOSED")?></span> ]</span> <?
 			endif;
 			?><?=trim($arTopic["TITLE"])?><?
-			if (strlen($arTopic["DESCRIPTION"])>0):
+			if ($arTopic["DESCRIPTION"] <> ''):
 			?>, <?=trim($arTopic["DESCRIPTION"])?><?
 			endif;
 			?></span></div>
@@ -163,7 +163,7 @@ while (!empty($arMessages))
 <div class="forum-header-box">
 	<div class="forum-header-title">
 		<span><?if ($arTopic["STATE"] != "Y"): ?><span class="forum-header-title-closed">[ <span><?=GetMessage("F_CLOSED")?></span>]</span> <? endif;
-		?><?=trim($arTopic["TITLE"])?><?if (strlen($arTopic["DESCRIPTION"])>0): ?>, <?=trim($arTopic["DESCRIPTION"])?><? endif; ?></span>
+		?><?=trim($arTopic["TITLE"])?><?if ($arTopic["DESCRIPTION"] <> ''): ?>, <?=trim($arTopic["DESCRIPTION"])?><? endif; ?></span>
 	</div>
 </div>
 <div class="forum-block-container">

@@ -58,7 +58,7 @@ return [
 			],
 			'style' => [
 				'.landing-block-node-text' => [
-					0 => 'landing-block-node-text g-pb-1 container g-max-width-container g-font-size-76 g-font-montserrat text-left font-weight-bold g-color-white g-line-height-1_2',
+					0 => 'landing-block-node-text g-pb-1 container g-max-width-container g-font-size-76 g-font-montserrat text-left g-font-weight-700 g-color-white g-line-height-1_2',
 				],
 				'#wrapper' => [
 					0 => 'landing-block js-animation g-pb-auto g-pt-15 animation-none animated g-bg-transparent',
@@ -349,7 +349,7 @@ return [
 					0 => 'landing-block-title g-color-white g-font-size-17',
 				],
 				'.landing-block-link' => [
-					0 => 'landing-block-link u-link-v5 g-font-size-18 font-weight-bold g-color-blue g-color-blue--hover',
+					0 => 'landing-block-link u-link-v5 g-font-size-18 g-font-weight-700 g-color-blue g-color-blue--hover',
 				],
 				'.landing-block-link-container' => [
 					0 => 'landing-block-link-container',
@@ -370,7 +370,7 @@ return [
 			],
 			'style' => [
 				'.landing-block-node-text' => [
-					0 => 'landing-block-node-text g-pb-1 container g-color-white g-font-size-50 g-font-montserrat g-max-width-container text-left font-weight-bold',
+					0 => 'landing-block-node-text g-pb-1 container g-color-white g-font-size-50 g-font-montserrat g-max-width-container text-left g-font-weight-700',
 				],
 				'#wrapper' => [
 					0 => 'landing-block js-animation g-pt-50 g-pb-auto animation-none animated g-bg-transparent',
@@ -489,10 +489,10 @@ return [
 					3 => 'landing-block-card row js-animation fadeIn g-mb-10 g-mb-0--last landing-card',
 				],
 				'.landing-block-title' => [
-					0 => 'landing-block-title col-10 col-md-11 text-left g-font-size-22 font-weight-bold g-ma-0 g-color-gray-light-v4',
-					1 => 'landing-block-title col-10 col-md-11 text-left g-font-size-22 font-weight-bold g-ma-0 g-color-gray-light-v4',
-					2 => 'landing-block-title col-10 col-md-11 text-left g-font-size-22 font-weight-bold g-ma-0 g-color-gray-light-v4',
-					3 => 'landing-block-title col-10 col-md-11 text-left g-font-size-22 font-weight-bold g-ma-0 g-color-gray-light-v4',
+					0 => 'landing-block-title col-10 col-md-11 text-left g-font-size-22 g-font-weight-700 g-ma-0 g-color-gray-light-v4',
+					1 => 'landing-block-title col-10 col-md-11 text-left g-font-size-22 g-font-weight-700 g-ma-0 g-color-gray-light-v4',
+					2 => 'landing-block-title col-10 col-md-11 text-left g-font-size-22 g-font-weight-700 g-ma-0 g-color-gray-light-v4',
+					3 => 'landing-block-title col-10 col-md-11 text-left g-font-size-22 g-font-weight-700 g-ma-0 g-color-gray-light-v4',
 				],
 				'.landing-block-text' => [
 					0 => 'col-10 offset-2 col-md-11 offset-md-1 text-left landing-block-text g-color-gray-light-v1',

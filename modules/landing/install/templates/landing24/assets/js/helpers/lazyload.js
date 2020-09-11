@@ -12,13 +12,12 @@
 			images.forEach(function (img)
 			{
 				img.src = img.dataset.src;
+				img.removeAttribute('data-src');
 				if (img.dataset.srcset !== undefined)
 				{
 					img.srcset = img.dataset.srcset;
+					img.removeAttribute('data-srcset');
 				}
-				img.removeAttribute('data-lazy-img');
-				img.removeAttribute('data-src');
-				img.removeAttribute('data-srcset');
 			});
 		}
 	});
@@ -45,10 +44,10 @@
 			if (entry.isIntersecting)
 			{
 				// load <img>
-				if (!isNative)
+				var observableImages = [].slice.call(entry.target.querySelectorAll('[data-lazy-img]'));
+				observableImages.forEach(function (img)
 				{
-					var observableImages = [].slice.call(entry.target.querySelectorAll('[data-lazy-img]'));
-					observableImages.forEach(function (img)
+					if (!isNative)
 					{
 						var origSrc = BX.data(img, 'src');
 						var origSrcset = BX.data(img, 'srcset');
@@ -66,16 +65,34 @@
 											srcset: origSrcset ? origSrcset : '',
 											'data-lazy-src': '',
 											'data-src': '',
-											'data-srcset': '',
+											'data-srcset': ''
 										}
 									});
 									BX.remove(this);
-									BX.onCustomEvent("BX.Landing.Lazyload:loadImage", [{target: entry.target, src: origSrc}]);
+									var event = new BX.Landing.Event.Block({
+										block: entry.target,
+										node: img,
+										data: {src: origSrc}
+									});
+									BX.onCustomEvent("BX.Landing.Lazyload:loadImage", [event]);
 								}
 							}
 						});
-					});
-				}
+					}
+					// native lazy
+					else
+					{
+						img.addEventListener('load', function(){
+							var event = new BX.Landing.Event.Block({
+								block: entry.target,
+								node: img,
+								data: {src: img.src}
+							});
+							BX.onCustomEvent("BX.Landing.Lazyload:loadImage", [event]);
+						});
+					}
+				});
+
 
 				// bg
 				var observableBg = [].slice.call(entry.target.querySelectorAll('[data-lazy-bg]'));
@@ -102,11 +119,16 @@
 										'style': origStyle,
 										'data-style': '',
 										'data-src': '',
-										'data-src2x': '',
+										'data-src2x': ''
 									}
 								});
 								BX.remove(this);
-								BX.onCustomEvent("BX.Landing.Lazyload:loadImage", [{target: entry.target, src: origSrc}]);
+								var event = new BX.Landing.Event.Block({
+									block: entry.target,
+									node: bg,
+									data: {src: origSrc}
+								});
+								BX.onCustomEvent("BX.Landing.Lazyload:loadImage", [event]);
 							}
 						}
 					});

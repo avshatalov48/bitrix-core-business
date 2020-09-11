@@ -2177,30 +2177,55 @@ class CAllIBlockSection
 
 		if (static::checkLoadSections($elementInherentFilter))
 		{
-			$arSectionFilter = array(
-				"IBLOCK_ID" => $arFilter["IBLOCK_ID"],
-				"?NAME" => $arFilter["NAME"],
-				">=TIMESTAMP_X" => $arFilter["TIMESTAMP_X_1"],
-				"<=TIMESTAMP_X" => $arFilter["TIMESTAMP_X_2"],
-				"MODIFIED_BY" => $arFilter["MODIFIED_USER_ID"] ? $arFilter["MODIFIED_USER_ID"] : $arFilter["MODIFIED_BY"],
-				">=DATE_CREATE" => $arFilter["DATE_CREATE_1"],
-				"<=DATE_CREATE" => $arFilter["DATE_CREATE_2"],
-				"CREATED_BY" => $arFilter["CREATED_USER_ID"] ? $arFilter["CREATED_USER_ID"] : $arFilter["CREATED_BY"],
-				"CODE" => $arFilter["CODE"],
-				"EXTERNAL_ID" => $arFilter["EXTERNAL_ID"],
-				"ACTIVE" => $arFilter["ACTIVE"],
-
-				"CNT_ACTIVE" => $arFilter["CNT_ACTIVE"],
-				"CNT_ALL" => $arFilter["CNT_ALL"],
-				"ELEMENT_SUBSECTIONS" => $arFilter["ELEMENT_SUBSECTIONS"],
+			$arSectionFilter = array();
+			$simpleFilter = array(
+				"IBLOCK_ID" => "IBLOCK_ID",
+				"NAME" => "?NAME",
+				"TIMESTAMP_X_1" => ">=TIMESTAMP_X",
+				"TIMESTAMP_X_2" => "<=TIMESTAMP_X",
+				"DATE_CREATE_1" => ">=DATE_CREATE",
+				"DATE_CREATE_2" => "<=DATE_CREATE",
+				"CODE" => "CODE",
+				"EXTERNAL_ID" => "EXTERNAL_ID",
+				"ACTIVE" => "ACTIVE",
+				"CNT_ACTIVE" => "CNT_ACTIVE",
+				"CNT_ALL" => "CNT_ALL",
+				"ELEMENT_SUBSECTIONS" => "ELEMENT_SUBSECTIONS"
 			);
+			foreach ($simpleFilter as $source => $dest)
+			{
+				if (isset($arFilter[$source]))
+				{
+					$arSectionFilter[$dest] = $arFilter[$source];
+				}
+			}
+			unset($source);
+			unset($dest);
+			unset($simpleFilter);
+			if (isset($arFilter["MODIFIED_USER_ID"]) || isset($arFilter["MODIFIED_BY"]))
+			{
+				$arSectionFilter["MODIFIED_BY"] = (isset($arFilter["MODIFIED_USER_ID"])
+					? $arFilter["MODIFIED_USER_ID"]
+					: $arFilter["MODIFIED_BY"]
+				);
+			}
+			if (isset($arFilter["CREATED_USER_ID"]) || isset($arFilter["CREATED_BY"]))
+			{
+				$arSectionFilter["CREATED_BY"] = (isset($arFilter["CREATED_USER_ID"])
+					? $arFilter["CREATED_USER_ID"]
+					: $arFilter["CREATED_BY"]
+				);
+			}
+
 			if (isset($arFilter["CHECK_PERMISSIONS"]))
 			{
 				$arSectionFilter['CHECK_PERMISSIONS'] = $arFilter["CHECK_PERMISSIONS"];
 				$arSectionFilter['MIN_PERMISSION'] = (isset($arFilter['MIN_PERMISSION']) ? $arFilter['MIN_PERMISSION'] : 'R');
 			}
-			if (array_key_exists("SECTION_ID", $arFilter))
+			if (isset($arFilter['SECTION_ID']) && (string)$arFilter['SECTION_ID'] != '')
+			{
 				$arSectionFilter["SECTION_ID"] = $arFilter["SECTION_ID"];
+			}
 			if (!empty($filterById))
 				$arSectionFilter = $filterById + $arSectionFilter;
 
@@ -2269,40 +2294,52 @@ class CAllIBlockSection
 			unset($obSection);
 		}
 
-		$arElementFilter = array (
-			"IBLOCK_ID"		=>$arFilter["IBLOCK_ID"],
-			"?NAME"			=>$arFilter["NAME"],
-			"SECTION_ID"		=>$arFilter["SECTION_ID"],
-			">=TIMESTAMP_X"		=>$arFilter["TIMESTAMP_X_1"],
-			"<=TIMESTAMP_X"		=>$arFilter["TIMESTAMP_X_2"],
-			"CODE"			=>$arFilter["CODE"],
-			"EXTERNAL_ID"		=>$arFilter["EXTERNAL_ID"],
-			"MODIFIED_USER_ID"	=>$arFilter["MODIFIED_USER_ID"],
-			"MODIFIED_BY"		=>$arFilter["MODIFIED_BY"],
-			">=DATE_CREATE"		=>$arFilter["DATE_CREATE_1"],
-			"<=DATE_CREATE"		=>$arFilter["DATE_CREATE_2"],
-			"CREATED_BY"		=>$arFilter["CREATED_BY"],
-			"CREATED_USER_ID"	=>$arFilter["CREATED_USER_ID"],
-			">=DATE_ACTIVE_FROM"	=>$arFilter["DATE_ACTIVE_FROM_1"],
-			"<=DATE_ACTIVE_FROM"	=>$arFilter["DATE_ACTIVE_FROM_2"],
-			">=DATE_ACTIVE_TO"	=>$arFilter["DATE_ACTIVE_TO_1"],
-			"<=DATE_ACTIVE_TO"	=>$arFilter["DATE_ACTIVE_TO_2"],
-			"ACTIVE"		=>$arFilter["ACTIVE"],
-			"?SEARCHABLE_CONTENT"	=>$arFilter["DESCRIPTION"],
-			"?TAGS"			=>$arFilter["?TAGS"],
-			"WF_STATUS"		=>$arFilter["WF_STATUS"],
-
-			"SHOW_NEW"		=> ($arFilter["SHOW_NEW"] !== "N"? "Y": "N"),
-			"SHOW_BP_NEW"		=> $arFilter["SHOW_BP_NEW"]
+		$arElementFilter = array();
+		$simpleElementFilter = array(
+			"IBLOCK_ID" => "IBLOCK_ID",
+			"NAME" => "?NAME",
+			"TIMESTAMP_X_1" => ">=TIMESTAMP_X",
+			"TIMESTAMP_X_2" => "<=TIMESTAMP_X",
+			"CODE" => "CODE",
+			"EXTERNAL_ID" => "EXTERNAL_ID",
+			"MODIFIED_USER_ID" => "MODIFIED_USER_ID",
+			"MODIFIED_BY" => "MODIFIED_BY",
+			"DATE_CREATE_1" => ">=DATE_CREATE",
+			"DATE_CREATE_2" => "<=DATE_CREATE",
+			"CREATED_BY" => "CREATED_BY",
+			"CREATED_USER_ID" => "CREATED_USER_ID",
+			"DATE_ACTIVE_FROM_1" => ">=DATE_ACTIVE_FROM",
+			"DATE_ACTIVE_FROM_2" => "<=DATE_ACTIVE_FROM",
+			"DATE_ACTIVE_TO_1" => ">=DATE_ACTIVE_TO",
+			"DATE_ACTIVE_TO_2" => "<=DATE_ACTIVE_TO",
+			"ACTIVE" => "ACTIVE",
+			"DESCRIPTION" => "?SEARCHABLE_CONTENT",
+			"?TAGS" => "?TAGS",
+			"WF_STATUS" => "WF_STATUS",
+			"SHOW_BP_NEW" => "SHOW_BP_NEW"
 		);
+		foreach ($simpleElementFilter as $source => $dest)
+		{
+			if (isset($arFilter[$source]))
+			{
+				$arElementFilter[$dest] = $arFilter[$source];
+			}
+		}
+		unset($source);
+		unset($dest);
+		unset($simpleElementFilter);
+		$arElementFilter["SHOW_NEW"] = (isset($arFilter["SHOW_NEW"]) && $arFilter["SHOW_NEW"] == "N" ? "N" : "Y");
+
 		if (isset($arFilter["CHECK_PERMISSIONS"]))
 		{
 			$arElementFilter['CHECK_PERMISSIONS'] = $arFilter["CHECK_PERMISSIONS"];
 			$arElementFilter['MIN_PERMISSION'] = (isset($arFilter['MIN_PERMISSION']) ? $arFilter['MIN_PERMISSION'] : 'R');
 		}
 
-		if($arFilter["SECTION_ID"] == '')
-			unset($arElementFilter["SECTION_ID"]);
+		if (isset($arFilter['SECTION_ID']) && (string)$arFilter['SECTION_ID'] != '')
+		{
+			$arElementFilter["SECTION_ID"] = $arFilter["SECTION_ID"];
+		}
 
 		if (!empty($elementInherentFilter))
 			$arElementFilter = $arElementFilter + $elementInherentFilter;

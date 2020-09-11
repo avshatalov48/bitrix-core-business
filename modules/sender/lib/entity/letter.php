@@ -578,7 +578,8 @@ class Letter extends Base
 
 		if ($isChanged && $this->getId() && $this->get('POSTING_ID'))
 		{
-			Posting\Builder::create()->run($this->get('POSTING_ID'), false);
+			Posting\Builder::create()
+				->run($this->get('POSTING_ID'), false, false);
 		}
 	}
 

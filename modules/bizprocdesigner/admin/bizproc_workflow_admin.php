@@ -22,14 +22,14 @@ if (defined("EDIT_PAGE"))
 $documentType = trim($_REQUEST["document_type"]);
 $backUrl = "/".ltrim(trim($_REQUEST["back_url_list"]), "\\/");
 
-if (strlen($entity) <= 0)
+if ($entity == '')
 	$fatalErrorMessage .= GetMessage("BPATT_NO_ENTITY").". ";
-if (strlen($documentType) <= 0)
+if ($documentType == '')
 	$fatalErrorMessage .= GetMessage("BPATT_NO_DOC_TYPE").". ";
-if (strlen($editPage) <= 0)
+if ($editPage == '')
 	$fatalErrorMessage .= GetMessage("BPATT_NO_EDIT_PAGE").". ";
 
-if (strlen($fatalErrorMessage) <= 0)
+if ($fatalErrorMessage == '')
 {
 	$documentType = array($moduleId, $entity, $documentType);
 
@@ -43,7 +43,7 @@ if (strlen($fatalErrorMessage) <= 0)
 		$fatalErrorMessage .= GetMessage("BPATT_NO_PERMS").". ";
 }
 
-if (strlen($fatalErrorMessage) > 0)
+if ($fatalErrorMessage <> '')
 {
 	$APPLICATION->SetTitle(GetMessage("BPATT_ERROR"));
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
@@ -66,7 +66,7 @@ $arFilterFields = array(
 $lAdmin->InitFilter($arFilterFields);
 
 $arFilter = array("DOCUMENT_TYPE" => $documentType);
-if (strlen($filter_name) > 0)
+if ($filter_name <> '')
 	$arFilter["~NAME"] = "%".$filter_name."%";
 if (intval($filter_autoexecute) > 0)
 	$arFilter["AUTO_EXECUTE"] = intval($filter_autoexecute);
@@ -75,7 +75,7 @@ if($lAdmin->EditAction())
 {
 	foreach($FIELDS as $ID=>$arFields)
 	{
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		if(!$lAdmin->IsUpdated($ID))
 			continue;
@@ -109,7 +109,7 @@ if ($arID = $lAdmin->GroupAction())
 
 	foreach ($arID as $ID)
 	{
-		if (strlen($ID) <= 0)
+		if ($ID == '')
 			continue;
 
 		switch ($_REQUEST['action'])
@@ -174,19 +174,19 @@ while ($arResultItem = $dbResultList->NavNext(true, "f_"))
 		$autoExecuteText .= GetMessage("BPATT_AE_NONE");
 	if (($f_AUTO_EXECUTE & CBPDocumentEventType::Create) != 0)
 	{
-		if (strlen($autoExecuteText) > 0)
+		if ($autoExecuteText <> '')
 			$autoExecuteText .= ", ";
 		$autoExecuteText .= GetMessage("BPATT_AE_CREATE");
 	}
 	if (($f_AUTO_EXECUTE & CBPDocumentEventType::Edit) != 0)
 	{
-		if (strlen($autoExecuteText) > 0)
+		if ($autoExecuteText <> '')
 			$autoExecuteText .= ", ";
 		$autoExecuteText .= GetMessage("BPATT_AE_EDIT");
 	}
 	if (($f_AUTO_EXECUTE & CBPDocumentEventType::Delete) != 0)
 	{
-		if (strlen($autoExecuteText) > 0)
+		if ($autoExecuteText <> '')
 			$autoExecuteText .= ", ";
 		$autoExecuteText .= GetMessage("BPATT_AE_DELETE");
 	}
@@ -231,7 +231,7 @@ $lAdmin->AddGroupActionTable(
 );
 
 $aContext = array();
-if (strlen($backUrl) > 0)
+if ($backUrl <> '')
 {
 	$aContext[] = array(
 		"TEXT" => GetMessage("BPATT_BACK"),

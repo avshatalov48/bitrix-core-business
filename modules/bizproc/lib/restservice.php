@@ -39,6 +39,13 @@ class RestService extends \IRestService
 	const ERROR_TASK_COMPLETED = 'ERROR_TASK_COMPLETED';
 	const ERROR_TASK_EXECUTION = 'ERROR_TASK_EXECUTION';
 
+	private const ALLOWED_TASK_ACTIVITIES = [
+		'ReviewActivity',
+		'ApproveActivity',
+		'RequestInformationActivity',
+		'RequestInformationOptionalActivity'
+	];
+
 	public static function onRestServiceBuildDescription()
 	{
 		$map = [];
@@ -1034,7 +1041,7 @@ class RestService extends \IRestService
 
 			if (isset($row['PARAMETERS']))
 			{
-				$row['PARAMETERS'] = static::filterTaskParameters($row['PARAMETERS']);
+				$row['PARAMETERS'] = static::prepareTaskParameters($row['PARAMETERS'], $row);
 			}
 
 			$result[] = $row;
@@ -1043,18 +1050,19 @@ class RestService extends \IRestService
 		return static::setNavData($result, $iterator);
 	}
 
-	private static function filterTaskParameters(array $parameters)
+	private static function prepareTaskParameters(array $parameters, array $task)
 	{
-		$whiteList = array(
-			array('CommentLabelMessage', 'CommentLabel'),
+		$whiteList = [
+			['CommentLabelMessage', 'CommentLabel'],
 			'CommentRequired', 'ShowComment',
-			array('TaskButtonMessage', 'StatusOkLabel'),
-			array('TaskButton1Message', 'StatusYesLabel'),
-			array('TaskButton2Message', 'StatusNoLabel'),
-			array('TaskButtonCancelMessage', 'StatusCancelLabel'),
-		);
+			['TaskButtonMessage', 'StatusOkLabel'],
+			['TaskButton1Message', 'StatusYesLabel'],
+			['TaskButton2Message', 'StatusNoLabel'],
+			['TaskButtonCancelMessage', 'StatusCancelLabel'],
+			['REQUEST', 'Fields'],
+		];
 
-		$filtered = array();
+		$filtered = [];
 
 		foreach ($whiteList as $whiteKey)
 		{
@@ -1070,7 +1078,58 @@ class RestService extends \IRestService
 			}
 		}
 
+		if (isset($filtered['Fields']))
+		{
+			$filtered['Fields'] = self::externalizeRequestFields($task, $filtered['Fields']);
+		}
+
 		return $filtered;
+	}
+
+	private static function externalizeRequestFields($task, array $fields): array
+	{
+		$documentService = \CBPRuntime::GetRuntime(true)->getDocumentService();
+		$result = [];
+		foreach ($fields as $requestField)
+		{
+			$id = $requestField['Name'];
+			$requestField['Name'] = $requestField['Title'];
+			$property = FieldType::normalizeProperty($requestField);
+			$property['Id'] = $id;
+
+			$fieldTypeObject = $documentService->getFieldTypeObject($task["PARAMETERS"]["DOCUMENT_TYPE"], $property);
+			if ($fieldTypeObject)
+			{
+				$fieldTypeObject->setDocumentId($task["PARAMETERS"]["DOCUMENT_ID"]);
+				$property['Default'] = $fieldTypeObject->externalizeValue('rest', $property['Default']);
+			}
+
+			$result[] = $property;
+		}
+		return $result;
+	}
+
+	private static function internalizeRequestFields($task, array $values): array
+	{
+		$documentService = \CBPRuntime::GetRuntime(true)->getDocumentService();
+		$result = [];
+
+		foreach ($task['PARAMETERS']['REQUEST'] as $property)
+		{
+			if (!isset($values[$property['Name']]))
+			{
+				continue;
+			}
+
+			$property = FieldType::normalizeProperty($property);
+			$fieldTypeObject = $documentService->getFieldTypeObject($task["PARAMETERS"]["DOCUMENT_TYPE"], $property);
+			if ($fieldTypeObject)
+			{
+				$fieldTypeObject->setDocumentId($task["PARAMETERS"]["DOCUMENT_ID"]);
+				$result[$property['Name']] = $fieldTypeObject->internalizeValue('rest', $values[$property['Name']]);
+			}
+		}
+		return $result;
 	}
 
 	/**
@@ -1088,15 +1147,21 @@ class RestService extends \IRestService
 		$userId = self::getCurrentUserId();
 		$task = static::getTask($params['TASK_ID'], $userId);
 
-		if ($task['ACTIVITY'] !== 'ReviewActivity' && $task['ACTIVITY'] !== 'ApproveActivity')
+		if (!in_array($task['ACTIVITY'], self::ALLOWED_TASK_ACTIVITIES))
 		{
 			throw new RestException('Incorrect task type', self::ERROR_TASK_TYPE);
+		}
+
+		if (!empty($params['FIELDS']))
+		{
+			$params['FIELDS'] = self::internalizeRequestFields($task, $params['FIELDS']);
 		}
 
 		$errors = array();
 		$request = array(
 			'INLINE_USER_STATUS' => \CBPTaskUserStatus::resolveStatus($params['STATUS']),
-			'task_comment' => !empty($params['COMMENT']) && is_string($params['COMMENT']) ? $params['COMMENT'] : null
+			'task_comment' => !empty($params['COMMENT']) && is_string($params['COMMENT']) ? $params['COMMENT'] : null,
+			'fields' => $params['FIELDS'] ?? null,
 		);
 
 		if (!\CBPDocument::postTaskForm($task, $userId, $request, $errors))

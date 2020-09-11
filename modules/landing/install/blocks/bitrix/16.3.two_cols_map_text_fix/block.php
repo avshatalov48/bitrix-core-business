@@ -1,7 +1,7 @@
 <section class="landing-block g-pt-0 g-pb-0">
 	<div class="row no-gutters">
 		<div class="landing-block-node-text-container js-animation slideInLeft col-md-6 g-pa-25 g-pa-50--md">
-			<h2 class="landing-block-node-title landing-semantic-title-medium text-uppercase font-weight-bold g-font-size-26">
+			<h2 class="landing-block-node-title landing-semantic-title-medium text-uppercase g-font-weight-700 g-font-size-26">
 				Quality results with us
 			</h2>
 			<div class="landing-block-node-text landing-semantic-text-medium g-color-gray-dark-v4">

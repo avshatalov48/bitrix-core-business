@@ -40,7 +40,8 @@ class SenderMessageEditorComponent extends CommonSenderComponent
 
 		$this->arParams['TEMPLATE_TYPE'] = isset($this->arParams['TEMPLATE_TYPE']) ? $this->arParams['TEMPLATE_TYPE'] : null;
 		$this->arParams['TEMPLATE_ID'] = isset($this->arParams['TEMPLATE_ID']) ? $this->arParams['TEMPLATE_ID'] : null;
-
+		$this->arParams['IS_TRIGGER'] = isset($this->arParams['IS_TRIGGER']) ? (bool) $this->arParams['IS_TRIGGER'] :
+			false;
 		$this->arParams['CAN_EDIT'] = $this->arParams['CAN_EDIT']??
 									$this->getAccessController()->check(
 										MailingAction::getMap()[$this->arParams['MESSAGE_CODE']]

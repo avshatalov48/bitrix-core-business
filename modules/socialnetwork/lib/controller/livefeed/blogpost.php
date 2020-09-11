@@ -227,6 +227,17 @@ class BlogPost extends \Bitrix\Socialnetwork\Controller\Base
 			return null;
 		}
 
+		$currentUserPerm = \Bitrix\Socialnetwork\Item\Helper::getBlogPostPerm([
+			'USER_ID' => $currentUserId,
+			'POST_ID' => $postId
+		]);
+
+		if ($currentUserPerm <= Permissions::DENY)
+		{
+			$this->addError(new Error(Loc::getMessage('SONET_CONTROLLER_LIVEFEED_BLOGPOST_NOT_FOUND'), 'SONET_CONTROLLER_LIVEFEED_BLOGPOST_NOT_FOUND'));
+			return null;
+		}
+
 		$postFields = $postItem->getFields();
 
 		$perms2update = [];

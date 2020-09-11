@@ -18,7 +18,7 @@ $attrList = [];
 
 if($arResult['userField']['EDIT_IN_LIST'] !== 'Y')
 {
-	$attrList['disabled'] = 'disabled';
+	$attrList['readonly'] = 'readonly';
 }
 else
 {

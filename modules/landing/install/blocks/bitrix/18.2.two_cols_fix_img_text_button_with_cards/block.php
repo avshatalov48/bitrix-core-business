@@ -6,7 +6,7 @@
 		</div>
 
 		<div class="col-lg-6 col-md-8 col-12">
-			<h2 class="landing-block-node-title landing-semantic-subtitle-medium g-line-height-1_1 font-weight-bold g-font-size-20 g-mb-10 g-color-black">
+			<h2 class="landing-block-node-title landing-semantic-subtitle-medium g-line-height-1_1 g-font-weight-700 g-font-size-20 g-mb-10 g-color-black">
 				Exclusive interview with InVision's CEO</h2>
 			<div class="landing-block-node-text landing-semantic-text-medium g-line-height-1_2 g-font-size-14 g-color-black-opacity-0_8">
 				In rutrum tellus vitae blandit lacinia. Phasellus eget sapien odio. Phasellus eget sapien odio.
@@ -15,7 +15,7 @@
 		</div>
 
 		<div class="col-lg-2 col-md-10 col-12 text-right">
-			<a class="landing-block-node-link landing-semantic-link-image-medium g-color-gray-dark-v2 g-color-primary--hover font-weight-bold g-font-size-12 g-text-underline--none--hover text-uppercase g-color-primary g-color-teal--hover"
+			<a class="landing-block-node-link landing-semantic-link-image-medium g-color-gray-dark-v2 g-color-primary--hover g-font-weight-700 g-font-size-12 g-text-underline--none--hover text-uppercase g-color-primary g-color-teal--hover"
 			   href="#">
 				Read more ...
 			</a>
@@ -29,7 +29,7 @@
 		</div>
 
 		<div class="col-lg-6 col-md-8 col-12">
-			<h2 class="landing-block-node-title landing-semantic-subtitle-medium g-line-height-1_1 font-weight-bold g-font-size-20 g-mb-10 g-color-black">
+			<h2 class="landing-block-node-title landing-semantic-subtitle-medium g-line-height-1_1 g-font-weight-700 g-font-size-20 g-mb-10 g-color-black">
 				We build your website to realise your vision, project and more</h2>
 			<div class="landing-block-node-text landing-semantic-text-medium g-line-height-1_2 g-font-size-14 g-color-black-opacity-0_8">
 				In rutrum tellus vitae blandit lacinia. Phasellus eget sapien odio. Phasellus eget sapien odio.
@@ -38,7 +38,7 @@
 		</div>
 
 		<div class="col-lg-2 col-md-10 col-12 text-right">
-			<a class="landing-block-node-link landing-semantic-link-image-medium g-color-gray-dark-v2 g-color-primary--hover font-weight-bold g-font-size-12 g-text-underline--none--hover text-uppercase g-color-primary g-color-teal--hover"
+			<a class="landing-block-node-link landing-semantic-link-image-medium g-color-gray-dark-v2 g-color-primary--hover g-font-weight-700 g-font-size-12 g-text-underline--none--hover text-uppercase g-color-primary g-color-teal--hover"
 			   href="#">
 				Read more ...
 			</a>
@@ -52,7 +52,7 @@
 		</div>
 
 		<div class="col-lg-6 col-md-8 col-12">
-			<h2 class="landing-block-node-title landing-semantic-subtitle-medium g-line-height-1_1 font-weight-bold g-font-size-20 g-mb-10 g-color-black">
+			<h2 class="landing-block-node-title landing-semantic-subtitle-medium g-line-height-1_1 g-font-weight-700 g-font-size-20 g-mb-10 g-color-black">
 				Government plans to test new primary school of programming</h2>
 			<div class="landing-block-node-text landing-semantic-text-medium g-line-height-1_2 g-font-size-14 g-color-black-opacity-0_8">
 				In rutrum tellus vitae blandit lacinia. Phasellus eget sapien odio. Phasellus eget sapien odio.
@@ -61,7 +61,7 @@
 		</div>
 
 		<div class="col-lg-2 col-md-10 col-12 text-right">
-			<a class="landing-block-node-link landing-semantic-link-image-medium g-color-gray-dark-v2 g-color-primary--hover font-weight-bold g-font-size-12 g-text-underline--none--hover text-uppercase g-color-primary g-color-teal--hover"
+			<a class="landing-block-node-link landing-semantic-link-image-medium g-color-gray-dark-v2 g-color-primary--hover g-font-weight-700 g-font-size-12 g-text-underline--none--hover text-uppercase g-color-primary g-color-teal--hover"
 			   href="#">
 				Read more ...
 			</a>

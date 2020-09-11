@@ -104,7 +104,7 @@ if (Loader::includeModule('replica'))
 			if ($this->replaceGuidsWithFiles($fields))
 			{
 				$update = $sqlHelper->prepareUpdate("b_forum_message", $fields);
-				if (strlen($update[0]) > 0)
+				if ($update[0] <> '')
 				{
 					$sql = "UPDATE ".$sqlHelper->quote("b_forum_message")." SET ".$update[0]." WHERE ID = ".$messId;
 					$connection->query($sql);

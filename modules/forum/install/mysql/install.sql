@@ -368,7 +368,7 @@ CREATE TABLE b_forum_stat (
 	SITE_ID char(2) default NULL,
 	FORUM_ID smallint(5) NOT NULL default '0',
 	TOPIC_ID int(10) default NULL,
-	SHOW_NAME varchar(101) default NULL,
+	SHOW_NAME varchar(255) default NULL,
 	PRIMARY KEY(ID),
 	INDEX IX_B_FORUM_STAT_SITE_ID(SITE_ID, LAST_VISIT),
 	INDEX IX_B_FORUM_STAT_TOPIC_ID(TOPIC_ID, LAST_VISIT),

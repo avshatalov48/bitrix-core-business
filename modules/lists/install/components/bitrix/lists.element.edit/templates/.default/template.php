@@ -192,7 +192,7 @@ if(CModule::IncludeModule("bizproc") && CBPRuntime::isFeatureEnabled() && $arRes
 				"type" => "section",
 			);
 
-			if (strlen($arDocumentState["ID"]) && strlen($arDocumentState["WORKFLOW_STATUS"]))
+			if (mb_strlen($arDocumentState["ID"]) && mb_strlen($arDocumentState["WORKFLOW_STATUS"]))
 			{
 				if (CBPDocument::CanUserOperateDocument(
 					CBPCanUserOperateOperation::StartWorkflow,
@@ -227,15 +227,17 @@ if(CModule::IncludeModule("bizproc") && CBPRuntime::isFeatureEnabled() && $arRes
 					"value" => htmlspecialcharsbx($arDocumentState["TEMPLATE_DESCRIPTION"]),
 				);
 
-			if(strlen($arDocumentState["STATE_MODIFIED"]))
+			if($arDocumentState["STATE_MODIFIED"] <> '')
+			{
 				$arTab2Fields[] = array(
 					"id" => "BIZPROC_DATE".$bizProcIndex,
 					"name" => GetMessage("CT_BLEE_BIZPROC_DATE"),
 					"type" => "label",
 					"value" => htmlspecialcharsbx($arDocumentState["STATE_MODIFIED"]),
 				);
+			}
 
-			if(strlen($arDocumentState["STATE_NAME"]))
+			if($arDocumentState["STATE_NAME"] <> '')
 			{
 				$backUrl = CHTTP::urlAddParams(
 					$APPLICATION->GetCurPageParam("", array($arResult["FORM_ID"]."_active_tab")),
@@ -250,14 +252,13 @@ if(CModule::IncludeModule("bizproc") && CBPRuntime::isFeatureEnabled() && $arRes
 					array("skip_empty" => true, "encode" => true)
 				);
 
-				if(strlen($arDocumentState["ID"]))
+				if($arDocumentState["ID"] <> '')
 				{
 					$arTab2Fields[] = array(
 						"id" => "BIZPROC_STATE".$bizProcIndex,
 						"name" => GetMessage("CT_BLEE_BIZPROC_STATE"),
 						"type" => "label",
-						"value" => '<a href="'.htmlspecialcharsbx($url).'">'.(strlen($arDocumentState["STATE_TITLE"])?
-								$arDocumentState["STATE_TITLE"] : $arDocumentState["STATE_NAME"]).'</a>',
+						"value" => '<a href="'.htmlspecialcharsbx($url).'">'.($arDocumentState["STATE_TITLE"] <> ''? $arDocumentState["STATE_TITLE"] : $arDocumentState["STATE_NAME"]).'</a>',
 					);
 
 					$canDeleteWorkflow = CBPDocument::CanUserOperateDocument(
@@ -267,7 +268,7 @@ if(CModule::IncludeModule("bizproc") && CBPRuntime::isFeatureEnabled() && $arRes
 						array("UserGroups" => $arCurrentUserGroups)
 					);
 
-					if ($canDeleteWorkflow)
+					if($canDeleteWorkflow)
 					{
 						$arTab2Fields[] = array(
 							"id" => "BIZPROC_DELETE".$bizProcIndex,
@@ -285,8 +286,7 @@ if(CModule::IncludeModule("bizproc") && CBPRuntime::isFeatureEnabled() && $arRes
 						"id" => "BIZPROC_STATE".$bizProcIndex,
 						"name" => GetMessage("CT_BLEE_BIZPROC_STATE"),
 						"type" => "label",
-						"value" => (strlen($arDocumentState["STATE_TITLE"]) ?
-							$arDocumentState["STATE_TITLE"] : $arDocumentState["STATE_NAME"]),
+						"value" => ($arDocumentState["STATE_TITLE"] <> ''? $arDocumentState["STATE_TITLE"] : $arDocumentState["STATE_NAME"]),
 					);
 				}
 			}
@@ -296,7 +296,7 @@ if(CModule::IncludeModule("bizproc") && CBPRuntime::isFeatureEnabled() && $arRes
 				$arWorkflowParameters = array();
 			$formName = $arResult["form_id"];
 			$bVarsFromForm = $arResult["VARS_FROM_FORM"];
-			if(strlen($arDocumentState["ID"]) <= 0 && $templateId > 0)
+			if($arDocumentState["ID"] == '' && $templateId > 0)
 			{
 				$arParametersValues = array();
 				$keys = array_keys($arWorkflowParameters);
@@ -382,7 +382,7 @@ if(CModule::IncludeModule("bizproc") && CBPRuntime::isFeatureEnabled() && $arRes
 				);
 			}
 
-			if(strlen($arDocumentState["ID"]))
+			if($arDocumentState["ID"] <> '')
 			{
 				$arTasks = CBPDocument::GetUserTasksForWorkflow($GLOBALS["USER"]->GetID(), $arDocumentState["ID"]);
 				if(count($arTasks) > 0)
@@ -396,11 +396,11 @@ if(CModule::IncludeModule("bizproc") && CBPRuntime::isFeatureEnabled() && $arRes
 						);
 
 						$url = CHTTP::urlAddParams(str_replace(
-								array("#list_id#", "#section_id#", "#element_id#", "#task_id#", "#group_id#"),
-								array($arResult["IBLOCK_ID"], intval($arResult["SECTION_ID"]),
-									$arResult["ELEMENT_ID"], $arTask["ID"], $arParams["SOCNET_GROUP_ID"]),
-								$arParams["~BIZPROC_TASK_URL"]
-							),
+							array("#list_id#", "#section_id#", "#element_id#", "#task_id#", "#group_id#"),
+							array($arResult["IBLOCK_ID"], intval($arResult["SECTION_ID"]),
+								$arResult["ELEMENT_ID"], $arTask["ID"], $arParams["SOCNET_GROUP_ID"]),
+							$arParams["~BIZPROC_TASK_URL"]
+						),
 							array("back_url" => $backUrl),
 							array("skip_empty" => true, "encode" => true)
 						);

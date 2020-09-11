@@ -72,7 +72,7 @@ return array(
 		),
 		'.landing-block-node-card-icon-container' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_11.2.THREE_COLS_FIX_TARIFFS_BLACK_NODES_LANDINGBLOCKNODECARD_ICON'),
-			'type' => 'color',
+			'type' => ['color', 'background-color'],
 		),
 		'.landing-block-node-card-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_11.2.THREE_COLS_FIX_TARIFFS_BLACK_NODES_LANDINGBLOCKNODECARD_TITLE'),

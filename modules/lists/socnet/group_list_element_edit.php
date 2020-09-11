@@ -17,7 +17,7 @@ include($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/bitrix/socialnetwork_group
 	$component
 );?>
 <?
-$p = strpos($arResult["PATH_TO_GROUP_BIZPROC_WORKFLOW_DELETE"], "?");
+$p = mb_strpos($arResult["PATH_TO_GROUP_BIZPROC_WORKFLOW_DELETE"], "?");
 if($p === false)
 	$ch = "?";
 else

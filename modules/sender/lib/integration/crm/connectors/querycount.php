@@ -8,9 +8,8 @@
 
 namespace Bitrix\Sender\Integration\Crm\Connectors;
 
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Entity;
-
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Sender\Recipient;
 
 Loc::loadMessages(__FILE__);
@@ -122,6 +121,7 @@ class QueryCount
 			}
 
 			$entityName = mb_strtoupper($query->getEntity()->getName());
+			$entityDbName = "crm_".mb_strtolower($query->getEntity()->getName());
 
 			$useEmptyValue = false;
 			if (mb_strpos($field['DATA_COLUMN'], '.') > 0)
@@ -144,7 +144,7 @@ class QueryCount
 			{
 				$query->registerRuntimeField(new Entity\ExpressionField(
 					$fieldName,
-					"SUM(CASE WHEN %s = 'Y' THEN 1 ELSE 0 END)",
+					"COUNT(DISTINCT CASE WHEN %s = 'Y' THEN `{$entityDbName}`.`ID` END)",
 					$field['HAS']
 				));
 			}
@@ -164,7 +164,7 @@ class QueryCount
 
 				$query->registerRuntimeField(new Entity\ExpressionField(
 					$fieldName,
-					"SUM(CASE WHEN %s > 0 THEN 1 ELSE 0 END)",
+					"COUNT(DISTINCT CASE WHEN %s > 0 THEN `{$entityDbName}`.`ID` END)",
 					$field['DATA_COLUMN']
 				));
 			}
@@ -185,10 +185,9 @@ class QueryCount
 				'HAS' => null
 			],
 			Recipient\Type::CRM_DEAL_PRODUCT_CONTACT_ID => [
-				'DATA_COLUMN' => 'PROD_DEAL.ID',
+				'DATA_COLUMN' => 'SGT_DEAL.ID',
 				'COLUMN_ALIAS' => 'COUNT_CONTACT_DEAL_PRODUCT',
 				'HAS' => null,
-				'IGNORE_TYPES' => [Recipient\Type::CRM_CONTACT_ID],
 				'ENTITIES' => ['CONTACT']
 			],
 			Recipient\Type::CRM_ORDER_PRODUCT_CONTACT_ID => [
@@ -203,10 +202,9 @@ class QueryCount
 				'HAS' => null
 			],
 			Recipient\Type::CRM_DEAL_PRODUCT_COMPANY_ID => [
-				'DATA_COLUMN' => 'PROD_DEAL.ID',
+				'DATA_COLUMN' => 'SGT_DEAL.ID',
 				'COLUMN_ALIAS' => 'COUNT_COMPANY_DEAL_PRODUCT',
 				'HAS' => null,
-				'IGNORE_TYPES' => [Recipient\Type::CRM_COMPANY_ID],
 				'ENTITIES' => ['COMPANY']
 			],
 			Recipient\Type::CRM_ORDER_PRODUCT_COMPANY_ID => [

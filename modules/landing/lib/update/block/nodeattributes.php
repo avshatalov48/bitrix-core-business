@@ -19,7 +19,7 @@ final class NodeAttributes extends Stepper
 	const STOP_EXECUTING = false;
 	const OPTION_NAME = 'blocks_attrs_update';
 	const OPTION_STATUS_NAME = 'blocks_attrs_update_status';
-	const STEP_PORTION = 10;    //count of block CODES to step
+	const STEP_PORTION = 1;    //count of block CODES to step
 	
 	protected static $moduleId = 'landing';
 	protected $dataToUpdate = array();
@@ -287,16 +287,6 @@ final class NodeAttributes extends Stepper
 		$code = $block->getCode();
 		$doc = $block->getDom();
 
-//		save to journal
-		$eventLog = new \CEventLog;
-		$eventLog->Add(array(
-			"SEVERITY" => $eventLog::SEVERITY_SECURITY,
-			"AUDIT_TYPE_ID" => 'LANDING_BLOCK_BEFORE_UPDATE',
-			"MODULE_ID" => "landing",
-			"ITEM_ID" => 'landing_block_' . $block->getId(),
-			"DESCRIPTION" => $doc->getInnerHTML(),
-		));
-		
 		foreach ($this->dataToUpdate['BLOCKS'][$code]['NODES'] as $selector => $rules)
 		{
 			$resultList = $doc->querySelectorAll($selector);

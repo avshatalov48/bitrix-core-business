@@ -16,7 +16,7 @@ $post = $this->request->getPostList()->toArray();
 if ($post["AJAX_POST"] == "Y")
 	CUtil::decodeURIComponent($post);
 
-if ((strlen($action) > 0 || strlen($s_action) > 0) && ($_REQUEST["MESSAGE_MODE"] != "VIEW") && check_bitrix_sessid())
+if (($action <> '' || $s_action <> '') && ($_REQUEST["MESSAGE_MODE"] != "VIEW") && check_bitrix_sessid())
 {
 	//*************************!Subscribe***************************************************
 	if ($s_action == 'SUBSCRIBE' || $s_action == 'UNSUBSCRIBE')
@@ -35,7 +35,7 @@ if ((strlen($action) > 0 || strlen($s_action) > 0) && ($_REQUEST["MESSAGE_MODE"]
 	}
 	$result = false;
 	//*************************!Subscribe***************************************************
-	if (strlen($action) > 0 && $action != "SUBSCRIBE" && $action != "UNSUBSCRIBE" )
+	if ($action <> '' && $action != "SUBSCRIBE" && $action != "UNSUBSCRIBE" )
 	{
 		$arFields = array();
 		$url = false;
@@ -59,7 +59,7 @@ if ((strlen($action) > 0 || strlen($s_action) > 0) && ($_REQUEST["MESSAGE_MODE"]
 				$MID = 0;
 				$db_res = CForumMessage::GetList(array("ID"=>"ASC"), array("TOPIC_ID"=>$arParams["TID"]), false, 1);
 				if (($db_res) && ($res = $db_res->Fetch()))
-					$MID = intVal($res["ID"]);
+					$MID = intval($res["ID"]);
 				if ($MID > 0)
 				{
 					$url = ForumAddPageParams(
@@ -99,7 +99,7 @@ if ((strlen($action) > 0 || strlen($s_action) > 0) && ($_REQUEST["MESSAGE_MODE"]
 					{
 						$res = array();
 						foreach ($_FILES as $key => $val):
-							if (substr($key, 0, strlen("FILE_NEW")) == "FILE_NEW" && !empty($val["name"])):
+							if (mb_substr($key, 0, mb_strlen("FILE_NEW")) == "FILE_NEW" && !empty($val["name"])):
 								$arFiles[] = $_FILES[$key];
 							endif;
 						endforeach;
@@ -125,7 +125,7 @@ if ((strlen($action) > 0 || strlen($s_action) > 0) && ($_REQUEST["MESSAGE_MODE"]
 					array("FID" => $arParams["FID"], 
 						"TID" => $arParams["TID"],
 						"TITLE_SEO" => $arResult["TOPIC"]["TITLE_SEO"],
-						"MID" => (intVal($_REQUEST["MID"]) > 0 ? $_REQUEST["MID"] : "s")
+						"MID" => (intval($_REQUEST["MID"]) > 0 ? $_REQUEST["MID"] : "s")
 					));
 				break;
 			case "HIDE":
@@ -235,7 +235,7 @@ if ((strlen($action) > 0 || strlen($s_action) > 0) && ($_REQUEST["MESSAGE_MODE"]
 				}
 				else 
 				{
-					$mid = intVal($message);
+					$mid = intval($message);
 					if (is_array($message))
 					{
 						sort($message);
@@ -254,7 +254,7 @@ if ((strlen($action) > 0 || strlen($s_action) > 0) && ($_REQUEST["MESSAGE_MODE"]
 						if ($db_res && $res = $db_res->Fetch())
 							$mid = $res["ID"];
 					endif;
-					$mid = (intVal($mid) > 0 ? $mid : "s");
+					$mid = (intval($mid) > 0 ? $mid : "s");
 					$url = str_replace("#MID#", $mid, $url);
 				}
 			}
@@ -264,14 +264,14 @@ if ((strlen($action) > 0 || strlen($s_action) > 0) && ($_REQUEST["MESSAGE_MODE"]
 			}
 			elseif ($action == "REPLY")
 			{
-				$arParams["MID"] = intVal($result);
+				$arParams["MID"] = intval($result);
 			}
 			
 			$url = str_replace("#result#", $result, $url);
 		}
 		else
 			$result = true;
-		$action = strToLower($action);
+		$action = mb_strtolower($action);
 	}
 	
 	if (!$result)
@@ -294,7 +294,7 @@ if ((strlen($action) > 0 || strlen($s_action) > 0) && ($_REQUEST["MESSAGE_MODE"]
 		die();
 	}
 }
-elseif ((strlen($action) > 0) && ($_REQUEST["MESSAGE_MODE"] != "VIEW") && !check_bitrix_sessid())
+elseif (($action <> '') && ($_REQUEST["MESSAGE_MODE"] != "VIEW") && !check_bitrix_sessid())
 {
 	$bVarsFromForm = true;
 	$strErrorMessage = GetMessage("F_ERR_SESS_FINISH");
@@ -318,16 +318,16 @@ elseif($post["MESSAGE_MODE"] == "VIEW")
 		"NL2BR" => $arResult["FORUM"]["ALLOW_NL2BR"]);
 	$arAllow["SMILES"] = ($_POST["USE_SMILES"]!="Y" ? "N" : $arResult["FORUM"]["ALLOW_SMILES"]);
 	$arFields = array(
-		"FORUM_ID" => intVal($arParams["FID"]),
-		"TOPIC_ID" => intVal($arParams["TID"]),
-		"MESSAGE_ID" => intVal($arParams["MID"]),
-		"USER_ID" => intVal($GLOBALS["USER"]->GetID()));
+		"FORUM_ID" => intval($arParams["FID"]),
+		"TOPIC_ID" => intval($arParams["TID"]),
+		"MESSAGE_ID" => intval($arParams["MID"]),
+		"USER_ID" => intval($GLOBALS["USER"]->GetID()));
 	$arFiles = array();
 	$arFilesExists = array();
 	$res = array();
 
 	foreach ($_FILES as $key => $val):
-		if (substr($key, 0, strlen("FILE_NEW")) == "FILE_NEW" && !empty($val["name"])):
+		if (mb_substr($key, 0, mb_strlen("FILE_NEW")) == "FILE_NEW" && !empty($val["name"])):
 			$arFiles[] = $_FILES[$key];
 		endif;
 	endforeach;

@@ -156,7 +156,7 @@ $APPLICATION->SetTitle(htmlspecialcharsbx($arResult["IBLOCK"]["NAME"]));
 $arResult["GRID_ID"] = "lists_list_elements_".$arResult["IBLOCK_ID"];
 $arResult["FILTER_ID"] = "lists_list_elements_".$arResult["IBLOCK_ID"];
 
-$arResult["ANY_SECTION"] = (isset($_REQUEST["list_section_id"]) && strlen($_REQUEST["list_section_id"]) == 0)
+$arResult["ANY_SECTION"] = (isset($_REQUEST["list_section_id"]) && $_REQUEST["list_section_id"] == '')
 	|| (!isset($_REQUEST["list_section_id"]));
 $arResult["SECTION"] = false;
 $arResult["SECTION_ID"] = false;
@@ -429,7 +429,7 @@ foreach($listFields as $FIELD_ID => $arField)
 {
 	if(!count($grid_columns) || in_array($FIELD_ID, $grid_columns))
 	{
-		if(substr($FIELD_ID, 0, 9) == "PROPERTY_")
+		if(mb_substr($FIELD_ID, 0, 9) == "PROPERTY_")
 			$arProperties[] = $FIELD_ID;
 		else
 			$arSelect[] = $FIELD_ID;
@@ -570,23 +570,23 @@ foreach($filterData as $key => $value)
 		if (empty($value))
 			continue;
 	}
-	elseif(strlen($value) <= 0)
+	elseif($value == '')
 		continue;
 
-	if(substr($key, -5) == "_from")
+	if(mb_substr($key, -5) == "_from")
 	{
-		$new_key = substr($key, 0, -5);
+		$new_key = mb_substr($key, 0, -5);
 		$op = (!empty($filterData[$new_key."_numsel"]) && $filterData[$new_key."_numsel"] == "more") ? ">" : ">=";
 	}
-	elseif(substr($key, -3) == "_to")
+	elseif(mb_substr($key, -3) == "_to")
 	{
-		$new_key = substr($key, 0, -3);
+		$new_key = mb_substr($key, 0, -3);
 		$op = (!empty($filterData[$new_key."_numsel"]) && $filterData[$new_key."_numsel"] == "less") ? "<" : "<=";
 		if(array_key_exists($new_key, $dateFilter))
 		{
 			$dateFormat = $DB->dateFormatToPHP(Csite::getDateFormat());
 			$dateParse = date_parse_from_format($dateFormat, $value);
-			if(!strlen($dateParse["hour"]) && !strlen($dateParse["minute"]) && !strlen($dateParse["second"]))
+			if(!mb_strlen($dateParse["hour"]) && !mb_strlen($dateParse["minute"]) && !mb_strlen($dateParse["second"]))
 			{
 				$timeFormat = $DB->dateFormatToPHP(CSite::getTimeFormat());
 				$value .= " ".date($timeFormat, mktime(23, 59, 59, 0, 0, 0));
@@ -822,7 +822,7 @@ while($obElement = $rsElements->GetNextElement())
 		$field["SECTION_ID"] = $iblockSectionId;
 		$field["ELEMENT_ID"] = $data["ID"];
 		$field["FIELD_ID"] = $fieldId;
-		$valueKey = (substr($fieldId, 0, 9) == "PROPERTY_") ? $fieldId : "~".$fieldId;
+		$valueKey = (mb_substr($fieldId, 0, 9) == "PROPERTY_") ? $fieldId : "~".$fieldId;
 		$field["VALUE"] = $listValues[$data["ID"]][$valueKey];
 		$columns[$fieldId] = \Bitrix\Lists\Field::renderField($field);
 	}
@@ -884,7 +884,7 @@ while($obElement = $rsElements->GetNextElement())
 						$arWorkflowTemplate["ID"], $arParams["SOCNET_GROUP_ID"]),
 					$arParams["BIZPROC_WORKFLOW_START_URL"]
 				), array("workflow_template_id" => $arWorkflowTemplate["ID"], "back_url" => $backUrl));
-				$url .= ((strpos($url, "?") === false) ? "?" : "&").bitrix_sessid_get();
+				$url .= ((mb_strpos($url, "?") === false) ? "?" : "&").bitrix_sessid_get();
 				$arBPStart[] = array(
 					"TEXT" => $arWorkflowTemplate["NAME"],
 					"ONCLICK" =>"jsUtils.Redirect(arguments, '".CUtil::JSEscape($url)."')",
@@ -918,7 +918,7 @@ while($obElement = $rsElements->GetNextElement())
 			if (!$canViewWorkflow)
 				continue;
 
-			if(strlen($vv["TEMPLATE_NAME"]) > 0)
+			if($vv["TEMPLATE_NAME"] <> '')
 				$html .= "<b>".$vv["TEMPLATE_NAME"]."</b>:<br />";
 			else
 				$html .= "<b>".(++$ii)."</b>:<br />";
@@ -932,7 +932,7 @@ while($obElement = $rsElements->GetNextElement())
 				array("skip_empty" => true, "encode" => true)
 			);
 
-			$html .= "<a href=\"".htmlspecialcharsbx($url)."\">".(strlen($vv["STATE_TITLE"]) > 0 ?
+			$html .= "<a href=\"".htmlspecialcharsbx($url)."\">".($vv["STATE_TITLE"] <> '' ?
 					$vv["STATE_TITLE"] : $vv["STATE_NAME"])."</a><br />";
 		}
 
@@ -1057,7 +1057,7 @@ while($obElement = $rsElements->GetNextElement())
 					continue;
 
 				/* Stop workflow */
-				if (strlen($documentState["ID"]) && strlen($documentState["WORKFLOW_STATUS"]))
+				if (mb_strlen($documentState["ID"]) && mb_strlen($documentState["WORKFLOW_STATUS"]))
 				{
 					if (CBPDocument::CanUserOperateDocument(
 						CBPCanUserOperateOperation::StartWorkflow,
@@ -1074,7 +1074,7 @@ while($obElement = $rsElements->GetNextElement())
 					}
 				}
 				/* Removal workflow */
-				if (strlen($documentState["STATE_NAME"]) && strlen($documentState["ID"]))
+				if (mb_strlen($documentState["STATE_NAME"]) && mb_strlen($documentState["ID"]))
 				{
 					if (CBPDocument::CanUserOperateDocument(
 						CBPCanUserOperateOperation::CreateWorkflow,
@@ -1091,7 +1091,7 @@ while($obElement = $rsElements->GetNextElement())
 					}
 				}
 				/* Tasks workflow */
-				if(strlen($documentState["ID"]) && $documentState['WORKFLOW_STATUS'])
+				if($documentState["ID"] <> '' && $documentState['WORKFLOW_STATUS'])
 				{
 					$tasks = CBPDocument::getUserTasksForWorkflow($GLOBALS["USER"]->GetID(), $documentState["ID"]);
 					if(!empty($tasks))
@@ -1109,7 +1109,7 @@ while($obElement = $rsElements->GetNextElement())
 							);
 							$actionsProcess[] = array(
 								"TEXT" => $task["NAME"],
-								"ONCLICK" =>"jsUtils.Redirect(arguments, '".CUtil::JSEscape($url)."')",
+								"ONCLICK" => "jsUtils.Redirect(arguments, '".CUtil::JSEscape($url)."')",
 							);
 						}
 					}

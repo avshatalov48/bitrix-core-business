@@ -58,7 +58,7 @@ export const AttachTypeFile =
 			},
 			fileNameFull(element)
 			{
-				return Utils.text.htmlspecialcharsback(element.NAME);
+				return element.NAME;
 			},
 			fileSize(element)
 			{

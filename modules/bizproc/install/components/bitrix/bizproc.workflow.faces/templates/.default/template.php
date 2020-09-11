@@ -25,8 +25,8 @@ if (empty($arResult['WORKFLOW_ID'])):?>
 				}
 				else
 				{
-					?><div class="bp-short-process-step-inner ui-icon ui-icon-common-user" bx-tooltip-user-id="<?=(int)$arResult['STARTED_BY']['ID']?>" bx-tooltip-classname="intrantet-user-selector-tooltip">
-						<i></i>
+					?><div class="bp-short-process-step-inner ui-icon ui-icon-common-user">
+						<i bx-tooltip-user-id="<?=(int)$arResult['STARTED_BY']['ID']?>" bx-tooltip-classname="intrantet-user-selector-tooltip"></i>
 					</div><?
 				}
 			}

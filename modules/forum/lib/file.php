@@ -98,7 +98,7 @@ class File
 				$existingFiles[] = $file["FILE_ID"];
 				continue;
 			}
-			if (strLen($file["name"]) <= 0)
+			if ($file["name"] == '')
 			{
 				unset($files[$key]);
 				continue;
@@ -121,7 +121,7 @@ class File
 			{
 				$res = "Uploading is forbidden";
 			}
-			if (strlen($res) > 0)
+			if ($res <> '')
 			{
 				$result->addError(new Main\Error($res));
 			}

@@ -471,15 +471,14 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      return this.dateFormatFunction;
 	    },
 	    format: function format(timestamp) {
-	      var _format = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-
+	      var format = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 	      var localize = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
-	      if (!_format) {
-	        _format = this.getFormatType(im_const.DateFormat.default, localize);
+	      if (!format) {
+	        format = this.getFormatType(im_const.DateFormat.default, localize);
 	      }
 
-	      return this.getDateFunction(localize).format(_format, timestamp);
+	      return this.getDateFunction(localize).format(format, timestamp);
 	    },
 	    cast: function cast(date) {
 	      var def = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : new Date();

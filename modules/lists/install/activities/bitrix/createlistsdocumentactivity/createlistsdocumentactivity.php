@@ -34,7 +34,7 @@ class CBPCreateListsDocumentActivity
 	{
 		$documentType = $this->DocumentType;
 		$fields = $this->Fields;
-		$fields['IBLOCK_ID'] = substr($documentType[2], 7); // strlen('iblock_') == 7
+		$fields['IBLOCK_ID'] = mb_substr($documentType[2], 7); // strlen('iblock_') == 7
 
 		if (!isset($fields["CREATED_BY"]))
 		{
@@ -152,7 +152,7 @@ class CBPCreateListsDocumentActivity
 		$documentService = $runtime->GetService("DocumentService");
 		$arDocumentFields = $documentType ? $documentService->GetDocumentFields($documentType) : array();
 
-		$iblockId = $documentType? substr($documentType[2], 7) : null;
+		$iblockId = $documentType? mb_substr($documentType[2], 7) : null;
 		$listFields = $iblockId? static::getVisibleFieldsList($iblockId) : array();
 
 		foreach ($arDocumentFields as $fieldKey => $fieldValue)
@@ -287,7 +287,7 @@ class CBPCreateListsDocumentActivity
 		$documentService = CBPRuntime::GetRuntime(true)->GetService("DocumentService");
 		$fields = $documentService->GetDocumentFields($documentType);
 
-		$listFields = static::getVisibleFieldsList(substr($documentType[2], 7));
+		$listFields = static::getVisibleFieldsList(mb_substr($documentType[2], 7));
 
 		foreach ($fields as $fieldKey => $fieldValue)
 		{
@@ -311,7 +311,7 @@ class CBPCreateListsDocumentActivity
 		$result = array();
 		foreach ($listFields as $key => $field)
 		{
-			if (strpos($key, 'PROPERTY_') === 0)
+			if (mb_strpos($key, 'PROPERTY_') === 0)
 			{
 				if (!empty($field['CODE']))
 					$key = 'PROPERTY_'.$field['CODE'];

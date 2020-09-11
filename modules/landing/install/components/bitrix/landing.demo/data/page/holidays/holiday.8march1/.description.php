@@ -103,7 +103,7 @@ return array(
 					<div class="landing-block-node-card-subtitle text-uppercase g-line-height-1 g-font-weight-700 g-font-size-20 g-color-white g-mb-40 g-mb-50--md">Happy woman day!</div>
 					<img class="landing-block-node-card-photo g-width-130 g-height-130 g-brd-around g-brd-10 g-brd-white g-rounded-50x mx-auto g-mb-20 g-mb-25--md" src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x500/img33.jpg" alt="" data-fileid="-1" />
 					<p class="landing-block-node-card-name text-uppercase g-line-height-1 g-font-weight-700 g-font-size-20 g-color-white g-mb-10 g-mb-15--md">Wide choise of chocolate sweets</p>
-					<div class="landing-block-node-card-text g-line-height-1_1 g-font-weight-100 g-font-size-default g-color-white g-mb-10 g-mb-20--md"><p><span style="color: rgb(245, 245, 245);">Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in.</span></p></div>
+					<div class="landing-block-node-card-text g-line-height-1_1 g-font-weight-100 g-color-white g-mb-10 g-mb-20--md"><p><span style="color: rgb(245, 245, 245);">Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in.</span></p></div>
 					<div class="landing-block-node-card-price text-uppercase g-font-weight-700 g-font-size-16 g-color-primary mb-0">from $55</div>
 				</div>
 			</div>
@@ -121,7 +121,7 @@ return array(
         <div class="landing-block-node-texts col-lg-7 g-pt-100 g-pb-80 g-px-15 g-px-40--md g-bg-primary">
             <header class="landing-block-node-header text-uppercase u-heading-v2-4--bottom g-brd-primary g-mb-40">
                 <h4 class="landing-block-node-subtitle h6 g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-mb-20 g-color-white-opacity-0_8 text-left">About us</h4>
-                <h2 class="landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-font-size-40 g-color-white g-mb-minus-10 text-left g-font-size-50--md g-font-montserrat text-uppercase">gifts for any taste</h2>
+                <h2 class="landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-font-size-40 g-color-white g-mb-minus-10 text-left g-font-size-50--md text-uppercase">gifts for any taste</h2>
             </header>
 
 			<div class="landing-block-node-text g-color-white-opacity-0_8 text-left"><p>Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante. Nunc ullamcorper, justo a iaculis elementum, enim orci viverra eros, fringilla porttitor lorem eros vel.</p><p><span style="font-size: 1rem;">Fringilla lorem, vel faucibus ante. Nunc ullamcorper, justo a iaculis elementum, enim orci viverra eros, fringilla porttitor lorem eros vel.</span><br /></p></div>
@@ -149,7 +149,7 @@ return array(
         <div class="container">
             <div class="landing-block-node-inner text-uppercase text-center u-heading-v2-4--bottom g-brd-primary">
                 <h4 class="landing-block-node-subtitle h6 g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20">Our products</h4>
-                <h2 class="landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-font-size-40 g-mb-minus-10 g-font-montserrat text-uppercase">best candies of the year</h2>
+                <h2 class="landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-font-size-40 g-mb-minus-10 text-uppercase">best candies of the year</h2>
             </div>
         </div>
     </section>',
@@ -348,7 +348,7 @@ return array(
 						<div class="text-uppercase text-center u-heading-v5-3 u-heading-v5-color-primary u-heading-v5-rounded-50x g-mb-20">
 							<h4 class="landing-block-node-card-subtitle g-font-weight-700 g-font-size-12 g-color-white-opacity-0_7 g-mb-15">From
 								chef</h4>
-							<h2 class="landing-block-node-card-title u-heading-v5__title g-line-height-1_2 g-font-weight-700 g-color-white g-bg-white--before g-pb-40 g-font-size-38 g-font-montserrat text-uppercase js-animation fadeInLeft">SWEETS WITH LOVE</h2>
+							<h2 class="landing-block-node-card-title u-heading-v5__title g-line-height-1_2 g-font-weight-700 g-color-white g-bg-white--before g-pb-40 g-font-size-38 text-uppercase js-animation fadeInLeft">SWEETS WITH LOVE</h2>
 						</div>
 
 						<div class="landing-block-node-card-text g-px-70--md g-color-white-opacity-0_7 g-mb-25 js-animation fadeIn">
@@ -356,9 +356,9 @@ return array(
 								vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante.</p>
 						</div>
 
-						<div class="landing-block-node-card-price font-weight-bold g-color-white g-font-size-26 g-mb-30">$14.00</div>
+						<div class="landing-block-node-card-price g-font-weight-700 g-color-white g-font-size-26 g-mb-30">$14.00</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button btn text-uppercase u-btn-white g-font-weight-700 g-font-size-11 g-color-gray-dark-v2 g-brd-none rounded-0 g-px-30 g-py-25 js-animation fadeIn" href="#">Book now
+							<a class="landing-block-node-card-button btn text-uppercase g-btn-type-solid g-btn-size-special g-btn-px-m g-btn-white g-color-gray-dark-v2 rounded-0 g-py-25 js-animation fadeIn" href="#">Book now
 							</a>
 						</div>
 					</div>

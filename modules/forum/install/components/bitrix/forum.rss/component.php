@@ -10,18 +10,18 @@ if (!function_exists("__create_uuid"))
 	function __create_uuid($params)
 	{
 		$uuid = md5($params);
-		return substr($uuid,  0, 8).'-'.
-			substr($uuid,  8, 4).'-'.
-			substr($uuid, 12, 4).'-'.
-			substr($uuid, 16, 4).'-'.
-			substr($uuid, 20);
+		return mb_substr($uuid, 0, 8).'-'.
+			mb_substr($uuid, 8, 4).'-'.
+			mb_substr($uuid, 12, 4).'-'.
+			mb_substr($uuid, 16, 4).'-'.
+			mb_substr($uuid, 20);
 	}
 }
 
 $arResult["TYPE_RSS"] = array("RSS1" => "RSS .92", "RSS2" => "RSS 2.0", "ATOM" => "Atom .3");
 $arResult["FORUMS"] = array();
 $arResult["TOPIC"] = array();
-$arResult["SERVER_NAME"] = (defined("SITE_SERVER_NAME") && strLen(SITE_SERVER_NAME) > 0) ? SITE_SERVER_NAME : COption::GetOptionString("main", "server_name");
+$arResult["SERVER_NAME"] = (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '') ? SITE_SERVER_NAME : COption::GetOptionString("main", "server_name");
 /********************************************************************
 				Input params
 ********************************************************************/
@@ -29,19 +29,19 @@ $arResult["SERVER_NAME"] = (defined("SITE_SERVER_NAME") && strLen(SITE_SERVER_NA
 	$arParams["TYPE_RANGE"] = (is_array($arParams["TYPE_RANGE"]) ? $arParams["TYPE_RANGE"] : array("RSS1", "RSS2", "ATOM"));
 	$arParams["TYPE_RANGE"] = array_intersect($arParams["TYPE_RANGE"], array_keys($arResult["TYPE_RSS"]));
 	$arParams["TYPE_DEFAULT"] = (in_array($arParams["TYPE_DEFAULT"], $arParams["TYPE_RANGE"]) ? $arParams["TYPE_DEFAULT"] : $arParams["TYPE_RANGE"][0]);
-	$arParams["TYPE"] = (strToUpper($arParams["TYPE"]) == "DEFAULT" ? $arParams["TYPE_DEFAULT"] : $arParams["TYPE"]);
-	$arParams["TYPE"] = strToUpper(!empty($arResult["TYPE_RSS"][strToUpper($arParams["TYPE"])]) ? $arParams["TYPE"] : false);
+	$arParams["TYPE"] = (mb_strtoupper($arParams["TYPE"]) == "DEFAULT" ? $arParams["TYPE_DEFAULT"] : $arParams["TYPE"]);
+$arParams["TYPE"] = mb_strtoupper(!empty($arResult["TYPE_RSS"][strToUpper($arParams["TYPE"])])? $arParams["TYPE"] : false);
 
 	$arParams["FID_RANGE"] = (is_array($arParams["FID_RANGE"]) ? $arParams["FID_RANGE"] : array());
 
-	$arParams["MODE"] = (in_array(strToLower($arParams["MODE"]), array("forum", "topic", "link")) ? strToLower($arParams["MODE"]) : "link");
+	$arParams["MODE"] = (in_array(mb_strtolower($arParams["MODE"]), array("forum", "topic", "link"))? mb_strtolower($arParams["MODE"]) : "link");
 	$arParams["MODE_DATA"] = trim($arParams["MODE_DATA"]);
 	if (empty($arParams["MODE_DATA"]))
 		$arParams["MODE_DATA"] = ($arParams["MODE"] == "topic" ? "topic" : "forum");
 	else
 		$arParams["MODE_DATA"] = ($arParams["MODE_DATA"] == "topic" ? "topic" : "forum");
 	$arParams["MODE"] = ($arParams["MODE"] == "link" || $arParams["TYPE"] == false ? "link" : "rss");
-	$arParams["IID"] = intVal(intVal($arParams["IID"]) <= 0 ? $_REQUEST["IID"] : $arParams["IID"]);
+	$arParams["IID"] = intval(intVal($arParams["IID"]) <= 0 ? $_REQUEST["IID"] : $arParams["IID"]);
 	$arParams["FID"] = ($arParams["MODE_DATA"] == "forum" ? $arParams["IID"] : 0);
 	$arParams["TID"] = ($arParams["MODE_DATA"] == "topic" ? $arParams["IID"] : 0);
 /***************** URL *********************************************/
@@ -57,16 +57,16 @@ $arResult["SERVER_NAME"] = (defined("SITE_SERVER_NAME") && strLen(SITE_SERVER_NA
 	}
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		if (trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
+			$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
-	$arParams["COUNT"] = intVal(intVal($arParams["COUNT"]) > 0 ? $arParams["COUNT"] : ($arParams["MODE_DATA"] == "forum" ?
+	$arParams["COUNT"] = intval(intVal($arParams["COUNT"]) > 0 ? $arParams["COUNT"] : ($arParams["MODE_DATA"] == "forum" ?
 		COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10") : COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10")));
 	$arParams["COUNT"] = ($arParams["COUNT"] > 0 ? $arParams["COUNT"] : 10);
-	$arParams["MAX_FILE_SIZE"] = (intVal($arParams["MAX_FILE_SIZE"]) <= 0 ? 10*1024*1024 : intVal($arParams["MAX_FILE_SIZE"])*1024*1024);
+	$arParams["MAX_FILE_SIZE"] = (intval($arParams["MAX_FILE_SIZE"]) <= 0 ? 10*1024*1024 : intval($arParams["MAX_FILE_SIZE"])*1024*1024);
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
 
@@ -170,7 +170,7 @@ if ($arParams["MODE"] == "link"):
 	$arResult["rss_link"] = array();
 	foreach ($arParams["TYPE_RANGE"] as $key)
 	{
-		$rss = strToLower($key);
+		$rss = mb_strtolower($key);
 		$arResult["rss_link"][$rss] = array(
 			"type" => $rss,
 			"name" => $arResult["TYPE_RSS"][$key],
@@ -191,8 +191,8 @@ $arFilter = array();
 $arItems = array();
 $arParams["FID"] = (!empty($arResult["FORUMS"][$arParams["FID"]]) ? $arParams["FID"] : 0);
 $arResult["LANGUAGE_ID"] = LANGUAGE_ID;
-$arResult["CHARSET"] = (defined("SITE_CHARSET") && strLen(SITE_CHARSET) > 0) ? SITE_CHARSET : "windows-1251";
-$arResult["NOW"] = ($arParams["TYPE"] != "ATOM") ? date("r") : date("Y-m-d H:i:s").substr(date("O"), 0, 3).":".substr(date("O"), -2, 2);
+$arResult["CHARSET"] = (defined("SITE_CHARSET") && SITE_CHARSET <> '') ? SITE_CHARSET : "windows-1251";
+$arResult["NOW"] = ($arParams["TYPE"] != "ATOM") ? date("r") : date("Y-m-d H:i:s").mb_substr(date("O"), 0, 3).":".mb_substr(date("O"), -2, 2);
 $arResult["TEMPLATE_ELEMENTS"] = array("AUTHOR_NAME", "AUTHOR_LINK", "SIGNATURE", "DATE_REG", "AVATAR", "POST_MESSAGE", "POST_LINK",
 	"POST_DATE", "ATTACH_IMG", "TITLE", "TOPIC_LINK",
 	"TOPIC_DATE", "TOPIC_DESCRIPTION", "NAME", "FORUM_LINK", "FORUM_DESCRIPTION");
@@ -266,7 +266,7 @@ if($this->StartResultCache($arParams["CACHE_TIME"], array($cache_id_array, $arPa
 	if ($arParams["MODE_DATA"] != "topic")
 	{
 		$arFilter = array();
-		if (intVal($arParams["FID"]) > 0)
+		if (intval($arParams["FID"]) > 0)
 		{
 			$arFilter["FORUM_ID"] = $arParams["FID"];
 		}
@@ -303,7 +303,7 @@ if($this->StartResultCache($arParams["CACHE_TIME"], array($cache_id_array, $arPa
 			if ($arParams["TYPE"] == "ATOM")
 			{
 				$timeISO = mktime($arDate["HH"], $arDate["MI"], $arDate["SS"], $arDate["MM"], $arDate["DD"], $arDate["YYYY"]);
-				$date = date("Y-m-d\TH:i:s", $timeISO).substr(date("O", $timeISO), 0, 3).":".substr(date("O", $timeISO), -2, 2);
+				$date = date("Y-m-d\TH:i:s", $timeISO).mb_substr(date("O", $timeISO), 0, 3).":".mb_substr(date("O", $timeISO), -2, 2);
 			}
 			$res["POST_DATE"] = $date;
 			$res["POST_DATE_FORMATED"] = CForumFormat::DateFormat($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($res["~POST_DATE"], CSite::GetDateFormat())+CTimeZone::GetOffset());
@@ -316,7 +316,7 @@ if($this->StartResultCache($arParams["CACHE_TIME"], array($cache_id_array, $arPa
 			/************** Message info/***************************************/
 			/************** Author info ****************************************/
 			// Avatar
-			if (strLen($res["AVATAR"]) > 0):
+			if ($res["AVATAR"] <> ''):
 				$res["~AVATAR"] = array("ID" => $res["AVATAR"]);
 				$res["~AVATAR"]["FILE"] = CFile::GetFileArray($res["~AVATAR"]["ID"]);
 				$res["AVATAR"] = CFile::ShowImage($res["~AVATAR"]["FILE"], COption::GetOptionString("forum", "avatar_max_width", 100),
@@ -326,15 +326,15 @@ if($this->StartResultCache($arParams["CACHE_TIME"], array($cache_id_array, $arPa
 			$res["DATE_REG"] = CForumFormat::DateFormat($arParams["DATE_FORMAT"], MakeTimeStamp($res["DATE_REG"], CSite::GetDateFormat()));
 			// Another data
 			$res["SIGNATURE"] = "";
-			if ($arResult["FORUMS"][$res["FORUM_ID"]]["ALLOW_SIGNATURE"] == "Y" && strlen($res["~SIGNATURE"]) > 0)
+			if ($arResult["FORUMS"][$res["FORUM_ID"]]["ALLOW_SIGNATURE"] == "Y" && $res["~SIGNATURE"] <> '')
 			{
 				$res["SIGNATURE"] = $parser->convert_to_rss($res["~SIGNATURE"], array_merge($arAllow, array("SMILES" => "N")));
 			}
 			/************** Author info/****************************************/
 			$res["~AUTHOR_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PROFILE_VIEW"],
-				array("UID" => intVal($res["AUTHOR_ID"])));
+				array("UID" => intval($res["AUTHOR_ID"])));
 			$res["AUTHOR_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"],
-				array("UID" => intVal($res["AUTHOR_ID"])));
+				array("UID" => intval($res["AUTHOR_ID"])));
 			$res["~POST_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_MESSAGE"],
 				array("FID" => $res["FORUM_ID"], "TID" => $res["TOPIC_ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => $res["ID"]));
 			$res["POST_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE"],
@@ -346,10 +346,10 @@ if($this->StartResultCache($arParams["CACHE_TIME"], array($cache_id_array, $arPa
 			$res["URL"] = "http://".htmlspecialcharsbx($arResult["SERVER_NAME"]).$res["POST_LINK"];
 
 			$res["~URL_RSS"] = "http://".$arResult["SERVER_NAME"].CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_RSS"],
-				array("TYPE" => strToLower($arParams["TYPE"]), "MODE" => "topic", "IID" => $res["TOPIC_ID"]));
+				array("TYPE" => mb_strtolower($arParams["TYPE"]), "MODE" => "topic", "IID" => $res["TOPIC_ID"]));
 			$res["URL_RSS"] = "http://".htmlspecialcharsbx($arResult["SERVER_NAME"]).
 				CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_RSS"],
-				array("TYPE" => strToLower($arParams["TYPE"]), "MODE" => "topic", "IID" => $res["TOPIC_ID"]));
+				array("TYPE" => mb_strtolower($arParams["TYPE"]), "MODE" => "topic", "IID" => $res["TOPIC_ID"]));
 			$res["UUID"] = __create_uuid($res["~URL"]);
 
 			// TOPIC DATA
@@ -358,7 +358,7 @@ if($this->StartResultCache($arParams["CACHE_TIME"], array($cache_id_array, $arPa
 			if ($arParams["TYPE"] == "ATOM")
 			{
 				$timeISO = mktime($arDate["HH"], $arDate["MI"], $arDate["SS"], $arDate["MM"], $arDate["DD"], $arDate["YYYY"]);
-				$date = date("Y-m-d\TH:i:s", $timeISO).substr(date("O", $timeISO), 0, 3).":".substr(date("O", $timeISO), -2, 2);
+				$date = date("Y-m-d\TH:i:s", $timeISO).mb_substr(date("O", $timeISO), 0, 3).":".mb_substr(date("O", $timeISO), -2, 2);
 			}
 			$topic = array(
 				"ID" => $res["TOPIC_ID"],
@@ -377,9 +377,9 @@ if($this->StartResultCache($arParams["CACHE_TIME"], array($cache_id_array, $arPa
 				"AUTHOR_ID" => $res["USER_START_ID"],
 				"~AUTHOR_ID" => $res["~USER_START_ID"],
 				"~AUTHOR_LINK" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PROFILE_VIEW"],
-					array("UID" => intVal($res["~USER_START_ID"]))),
+					array("UID" => intval($res["~USER_START_ID"]))),
 				"AUTHOR_LINK" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"],
-					array("UID" => intVal($res["~USER_START_ID"]))),
+					array("UID" => intval($res["~USER_START_ID"]))),
 				"~TOPIC_LINK" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_READ"],
 					array("FID" => $res["FORUM_ID"], "TID" => $res["TOPIC_ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => "s")),
 				"TOPIC_LINK" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_READ"],
@@ -404,7 +404,7 @@ if($this->StartResultCache($arParams["CACHE_TIME"], array($cache_id_array, $arPa
 				{
 					$replace = array($arItems[$res["FORUM_ID"]]["TOPICS"][$res["TOPIC_ID"]][$element],
 						$arItems[$res["FORUM_ID"]]["TOPICS"][$res["TOPIC_ID"]]["~".$element]);
-					if (strLen($res[$element]) > 0)
+					if ($res[$element] <> '')
 						$replace = array($res[$element], $res["~".$element]);
 					$text = str_replace(array("#".$res."#", "#~".$res."#"), $replace, $text);
 				}
@@ -474,7 +474,7 @@ if (!empty($arResult["MESSAGE_LIST"]))
 /************** Message List/***************************************/
 $arResult["DATA"] = $arItems;
 
-$arParams["TYPE"] = strToLower($arParams["TYPE"]);
+	$arParams["TYPE"] = mb_strtolower($arParams["TYPE"]);
 if ($arParams["DESIGN_MODE"] != "Y")
 {
 	$this->IncludeComponentTemplate();

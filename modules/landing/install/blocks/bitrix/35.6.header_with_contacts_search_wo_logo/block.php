@@ -24,7 +24,7 @@ $settings = \Bitrix\Landing\Hook\Page\Settings::getDataForSite(
 								<div class="landing-block-node-card-title text-uppercase g-font-size-13">
 									Call Us
 								</div>
-								<a class="landing-block-node-card-link g-color-primary g-font-size-14 font-weight-bold"
+								<a class="landing-block-node-card-link g-color-primary g-font-size-14 g-font-weight-700"
 								   href="tel:#PHONE1#"
 								   target="_blank">
 									#PHONE1#
@@ -42,7 +42,7 @@ $settings = \Bitrix\Landing\Hook\Page\Settings::getDataForSite(
 								<div class="landing-block-node-card-title text-uppercase g-font-size-13">
 									Opening time
 								</div>
-								<div class="landing-block-node-card-text g-font-size-14 font-weight-bold">
+								<div class="landing-block-node-card-text g-font-size-14 g-font-weight-700">
 									Mon-Sat: 08.00 -18.00
 								</div>
 							</div>
@@ -58,7 +58,7 @@ $settings = \Bitrix\Landing\Hook\Page\Settings::getDataForSite(
 								<div class="landing-block-node-card-title text-uppercase g-font-size-13">
 									Email us
 								</div>
-								<a class="landing-block-node-card-link g-color-primary g-font-size-14 font-weight-bold"
+								<a class="landing-block-node-card-link g-color-primary g-font-size-14 g-font-weight-700"
 									 href="mailto:#EMAIL1#"
 									 target="_blank">
 									#EMAIL1#

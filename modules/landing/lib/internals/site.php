@@ -4,12 +4,13 @@ namespace Bitrix\Landing\Internals;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\Entity;
 use \Bitrix\Main\ModuleManager;
+use \Bitrix\Main\SystemException;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\Site;
 use \Bitrix\Landing\Domain;
 use \Bitrix\Landing\Rights;
 use \Bitrix\Landing\Role;
-use \Bitrix\Main\SystemException;
+use \Bitrix\Landing\Restriction;
 
 Loc::loadMessages(__FILE__);
 
@@ -436,7 +437,7 @@ class SiteTable extends Entity\DataManager
 				{
 					$result->setErrors([
 						new Entity\EntityError(
-							Loc::getMessage('LANDING_TABLE_ERROR_TOTAL_SITE_REACHED'),
+							Restriction\Manager::getSystemErrorMessage('limit_sites_number'),
 							'TOTAL_SITE_REACHED'
 						)
 					]);
@@ -639,7 +640,7 @@ class SiteTable extends Entity\DataManager
 				$result->unsetFields($unsetFields);
 				$result->setErrors(array(
 					new Entity\EntityError(
-						Loc::getMessage('LANDING_PUBLIC_SITE_REACHED'),
+						Restriction\Manager::getSystemErrorMessage('limit_sites_number').'@',
 						'PUBLIC_SITE_REACHED'
 					)
 				));
@@ -744,21 +745,6 @@ class SiteTable extends Entity\DataManager
 						new Entity\EntityError(
 							Loc::getMessage('LANDING_TABLE_ERROR_DOMAIN_IS_INCORRECT2'),
 							'DOMAIN_IS_INCORRECT'
-						)
-					));
-					return $result;
-				}
-				// check allow custom domain
-				if (
-					!self::isB24Domain($domainName) &&
-					!Manager::checkFeature(Manager::FEATURE_CUSTOM_DOMAIN)
-				)
-				{
-					$result->unsetFields($unsetFields);
-					$result->setErrors(array(
-						new Entity\EntityError(
-							Loc::getMessage('LANDING_TABLE_ERROR_CUSTOM_DOMAIN_ISNT_ALLOWED'),
-							'CUSTOM_DOMAIN_ISNT_ALLOWED'
 						)
 					));
 					return $result;
@@ -1194,7 +1180,7 @@ class SiteTable extends Entity\DataManager
 			$result->unsetFields(array('ADDITIONAL_FIELDS'));
 			$result->setErrors(array(
 				new Entity\EntityError(
-					Loc::getMessage('LANDING_TABLE_ERROR_SITE_LIMIT_REACHED'),
+					Restriction\Manager::getSystemErrorMessage('limit_sites_number'),
 					'SITE_LIMIT_REACHED'
 				)
 			));
@@ -1519,6 +1505,7 @@ class SiteTable extends Entity\DataManager
 			\Bitrix\Landing\TemplateRef::setForSite($primary['ID'], []);
 			\Bitrix\Landing\UrlRewrite::removeForSite($primary['ID']);
 			\Bitrix\Landing\Rights::setOperationsForSite($primary['ID'], []);
+			\Bitrix\Landing\Site\Cookies::removeAgreementsForSite($primary['ID']);
 			BindingTable::siteClear($primary['ID']);
 
 			Rights::setOn();

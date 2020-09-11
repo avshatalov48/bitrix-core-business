@@ -2585,7 +2585,7 @@ BXMLSearch.prototype = {
 		this.Query = Query;
 		this.oML.DeSelectCollection();
 
-		this.oML.pBread.appendChild(BX.create('SPAN', {props:{className: 'ml-search-title'}, html: ML_MESS.SearchResultEx.replace('#SEARCH_QUERY#', Query)}));
+		this.oML.pBread.appendChild(BX.create('SPAN', {props:{className: 'ml-search-title'}, text: ML_MESS.SearchResultEx.replace('#SEARCH_QUERY#', Query)}));
 
 		// Clean
 		while(this.oML.pListCont.childNodes[1])
@@ -2602,7 +2602,7 @@ BXMLSearch.prototype = {
 		}
 		else
 		{
-			this.oML.pListCont.appendChild(BX.create('DIV', {props: {className: 'ml-search-no-result'}, html: ML_MESS.NoResult}));
+			this.oML.pListCont.appendChild(BX.create('DIV', {props: {className: 'ml-search-no-result'}, text: ML_MESS.NoResult}));
 		}
 	}
 }

@@ -32,7 +32,7 @@
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-livechat.svg);
 }
 
-.landing-b24-widget-button-social-item.ui-icon-service-whatsapp {
+.landing-b24-widget-button-social-item.ui-icon-service-whatsapp, .landing-b24-widget-button-social-item[class*="ui-icon-service-wz_whatsapp"] {
 	background-color: #01e675;
 	/*background-size: 30px;*/
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-whatsapp.svg);

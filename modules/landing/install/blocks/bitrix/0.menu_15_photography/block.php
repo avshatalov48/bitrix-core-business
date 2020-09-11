@@ -2,13 +2,13 @@
 	<!-- Top Bar -->
 	<div class="landing-block-node-top-block landing-semantic-background-color u-header__section u-header__section--hidden g-bg-white g-transition-0_3 g-pt-15 g-pb-15">
 		<div class="container">
-			<div class="row flex-column flex-md-row align-items-center justify-content-md-end text-uppercase font-weight-bold g-font-size-13 g-mt-minus-10">
+			<div class="row flex-column flex-md-row align-items-center justify-content-md-end text-uppercase g-font-weight-700 g-font-size-13 g-mt-minus-10">
 				<div class="col-auto text-center text-md-left g-font-size-10 mr-md-auto g-mt-10">
 					<div class="landing-block-node-card-menu-contact d-inline-block g-mb-8 g-mb-0--md g-mr-10 g-mr-30--sm" data-card-preset="contact-link">
 						<div class="landing-block-node-menu-contact-title landing-semantic-text-small d-inline-block g-color-gray-dark-v5">
 							Phone Number:
 						</div>
-						<a href="tel:#PHONE1#" class="landing-block-node-menu-contact-link landing-semantic-link-small d-inline-block font-weight-bold g-color-gray-dark-v2">
+						<a href="tel:#PHONE1#" class="landing-block-node-menu-contact-link landing-semantic-link-small d-inline-block g-font-weight-700 g-color-gray-dark-v2">
 							#PHONE1#
 						</a>
 					</div>
@@ -17,7 +17,7 @@
 						<div class="landing-block-node-menu-contact-title landing-semantic-text-small d-inline-block g-color-gray-dark-v5">
 							Email:
 						</div>
-						<a href="mailto:#EMAIL1#" class="landing-block-node-menu-contact-link landing-semantic-link-small d-inline-block font-weight-bold g-color-gray-dark-v2">
+						<a href="mailto:#EMAIL1#" class="landing-block-node-menu-contact-link landing-semantic-link-small d-inline-block g-font-weight-700 g-color-gray-dark-v2">
 							#EMAIL1#
 						</a>
 					</div>
@@ -26,7 +26,7 @@
 						<div class="landing-block-node-menu-contact-title landing-semantic-text-small d-inline-block g-color-gray-dark-v5">
 							Opening time:
 						</div>
-						<div class="landing-block-node-menu-contact-text landing-semantic-link-small d-inline-block font-weight-bold g-color-gray-dark-v2">
+						<div class="landing-block-node-menu-contact-text landing-semantic-link-small d-inline-block g-font-weight-700 g-color-gray-dark-v2">
 							Mon-Sat: 08.00 -18.00
 						</div>
 					</div>
@@ -50,7 +50,7 @@
 
 				<!-- Navigation -->
 				<div class="collapse navbar-collapse align-items-center flex-sm-row" id="navBar">
-					<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav col-lg-10 text-uppercase font-weight-bold g-font-size-11 g-pt-20 g-pt-0--lg ml-auto g-mr-20">
+					<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav col-lg-10 text-uppercase g-font-weight-700 g-font-size-11 g-pt-20 g-pt-0--lg ml-auto g-mr-20">
 						<li class="landing-block-node-menu-list-item nav-item g-mx-20--lg g-mb-7 g-mb-0--lg">
 							<a href="#home" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Home</a>
 						</li>

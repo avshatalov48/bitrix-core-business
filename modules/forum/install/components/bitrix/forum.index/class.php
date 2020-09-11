@@ -74,9 +74,9 @@ class ForumIndexComponent extends \CBitrixComponent
 			"rss" => "PAGE_NAME=rss&TYPE=#TYPE#&MODE=#MODE#&IID=#IID#"
 		] as $pageName => $pageUrl)
 		{
-			$key = "URL_TEMPLATES_".strtoupper($pageName);
+			$key = "URL_TEMPLATES_".mb_strtoupper($pageName);
 			$this->arParams[$key] = array_key_exists($key, $this->arParams) ? trim($this->arParams[$key]) : "";
-			$this->arParams["~".$key] = strlen($this->arParams[$key]) > 0 ? $this->arParams[$key] : $url."?".$pageUrl;
+			$this->arParams["~".$key] = $this->arParams[$key] <> '' ? $this->arParams[$key] : $url."?".$pageUrl;
 			$this->arParams[$key] = htmlspecialcharsbx($this->arParams["~".$key]);
 		}
 		/***************** ADDITIONAL **************************************/
@@ -365,20 +365,18 @@ class ForumIndexComponent extends \CBitrixComponent
 		$this->arResult["FORUM"] = $plainGroups;
 
 		$treeGroup = $plainGroups;
+		$dropIds = [];
 		foreach ($treeGroup as $id => $group)
 		{
 			if ($group["LEFT_MARGIN"] >= 1)
 			{
 				$parentId = intval($group["PARENT_ID"]);
 				$treeGroup[$parentId]["GROUPS"][$id] = &$treeGroup[$id];
+				$dropIds[$id] = null;
 			}
 		}
+		$treeGroup = array_diff_key($treeGroup, $dropIds);
 		$this->arResult["FORUMS"] = reset($treeGroup);
-
-		if (key($treeGroup) > 0) // for template
-		{
-			$this->arResult["FORUMS"] = ["GROUPS" => $treeGroup];
-		}
 		//endregion
 
 		//region getting forums allowed for the guest

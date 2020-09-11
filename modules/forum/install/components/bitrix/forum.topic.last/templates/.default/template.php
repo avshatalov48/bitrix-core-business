@@ -76,7 +76,7 @@ endif;
 ?>
 		<td class="user_start_name">
 <?
-			if (intVal($res["USER_START_ID"]) > 0 ):
+			if (intval($res["USER_START_ID"]) > 0 ):
 				?><a href="<?=$res["user_start_id_profile"]?>" class="forum-user"><?=$res["USER_START_NAME"]?></a><?
 			else:
 				?><?=$res["USER_START_NAME"]?><?

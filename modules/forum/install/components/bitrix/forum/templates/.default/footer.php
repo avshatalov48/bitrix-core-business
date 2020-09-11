@@ -31,9 +31,9 @@ if (($arParams["SHOW_FORUMS"] == "Y" && !empty($arResult["GROUPS_FORUMS"]))/* ||
 		$iGid = 0;
 		$iFid = 0;
 		if ($this->__page == "index" || $this->__page == "forums")
-			$iGid = intVal($arResult["GID"]);
+			$iGid = intval($arResult["GID"]);
 		else 
-			$iFid = intVal($arResult["FID"]);
+			$iFid = intval($arResult["FID"]);
 ?>
 		<div class="forum-rapid-access-items">
 			<form action="<?=$arResult["URL_TEMPLATES"]["INDEX"]?>" method="GET" class="forum-form">

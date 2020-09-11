@@ -31,6 +31,7 @@
 	background-position: right center;
 	font: 15px/12px "Helvetica Neue", Arial, Helvetica, sans-serif;
 }
+
 .bx-sender-letter-field-input {
 	width: 100%;
 }
@@ -45,28 +46,25 @@
 
 .bx-sender-letter-step-2 {
 	display: none;
-	padding: 25px;
+	padding: 20px;
 	margin: 0 0 30px 0;
 	background: #fff;
 }
-
-
 
 .bx-sender-letter-template-selector {
 	background: #eef2f4;
 	min-height: calc(100vh - 75px);
 }
+
 .bx-sender-letter-step {
 	padding: 25px;
 	margin: 0 0 30px 0;
 	background: #ffffff;
 }
+
 .bx-sender-letter-step-caption {
 	margin: 0 0 30px 0;
 	font: 26px/25px "Helvetica Neue", Arial, Helvetica, sans-serif;
-}
-.bx-sender-letter-step-content {
-
 }
 
 .bx-sender-letter-steps {
@@ -77,6 +75,7 @@
 .bx-sender-letter-types {
 	height: 40px;
 }
+
 .bx-sender-letter-type {
 	background: #85c2f7;
 	color: white;

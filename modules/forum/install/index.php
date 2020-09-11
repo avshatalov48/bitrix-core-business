@@ -6,10 +6,10 @@ if (!function_exists("CreatePattern"))
 		$separator = "";
 		$NotWord = "\s.,;:!?\#\-\*\|\[\]\(\)";
 		$word_separator = "[".$NotWord."]";
+
+		$pattern = mb_strtolower(trim($pattern));
 		
-		$pattern = strToLower(trim($pattern));
-		
-		if (strLen($pattern) <= 0)
+		if ($pattern == '')
 			return false;
 			
 		$DICTIONARY_ID = intval($DICTIONARY_ID);
@@ -37,30 +37,30 @@ if (!function_exists("CreatePattern"))
 			for ($ii = 0; $ii < $count; $ii++)
 			{
 				$arrRepl[$ii] = trim($arrRepl[$ii]);
-				if (strLen($lett["LETTER"])==1)
+				if (mb_strlen($lett["LETTER"]) == 1)
 				{
-					if (strLen($arrRepl[$ii]) == 1 )
+					if (mb_strlen($arrRepl[$ii]) == 1 )
 						$arrRes[$ii] = $arrRepl[$ii]."+";
-					elseif (substr($arrRepl[$ii], 0, 1) == "(" && (substr($arrRepl[$ii], -1, 1) == ")" || substr($arrRepl[$ii], -2, 1) == ")"))
+					elseif (mb_substr($arrRepl[$ii], 0, 1) == "(" && (mb_substr($arrRepl[$ii], -1, 1) == ")" || mb_substr($arrRepl[$ii], -2, 1) == ")"))
 					{
-						if (substr($arrRepl[$ii], -1, 1) == ")")
+						if (mb_substr($arrRepl[$ii], -1, 1) == ")")
 							$arrRes[$ii] = $arrRepl[$ii]."+";
 						else
 							$arrRes[$ii] = $arrRepl[$ii];
 					}
-					elseif (strLen($arrRepl[$ii]) > 1 )
+					elseif (mb_strlen($arrRepl[$ii]) > 1 )
 						$arrRes[$ii] = "[".$arrRepl[$ii]."]+";
 					else 
 						$space = true;
 				}
 				else 
 				{
-					if (strLen($arrRepl[$ii]) > 0)
+					if ($arrRepl[$ii] <> '')
 						$arrRes[$ii] = $arrRepl[$ii];
 				}
 			}
 			
-			if (strLen($lett["LETTER"])==1)
+			if (mb_strlen($lett["LETTER"]) == 1)
 			{
 				if ($space)
 					$arrRes[] = "";
@@ -74,14 +74,14 @@ if (!function_exists("CreatePattern"))
 		}
 		foreach ($lettersPatt as $key => $val)
 			$pattern = preg_replace($key, $val, $pattern);
-		$len = strlen($pattern);
+		$len = mb_strlen($pattern);
 		for ($ii = 0; $ii < $len; $ii++)
 		{
-			if (is_set($lettPatt, substr($pattern, $ii, 1)))
-				$res .= "(".$lettPatt[substr($pattern, $ii, 1)].")";
+			if (is_set($lettPatt, mb_substr($pattern, $ii, 1)))
+				$res .= "(".$lettPatt[mb_substr($pattern, $ii, 1)].")";
 			else 
 			{
-				$ord = ord(substr($pattern, $ii, 1));
+				$ord = ord(mb_substr($pattern, $ii, 1));
 				if ((48>$ord) || ((64>$ord) and ($ord>57)) || ((97>$ord) and ($ord>90)) || ((127>$ord) and ($ord>122)))
 				{
 					if ($ord == 42)
@@ -91,10 +91,10 @@ if (!function_exists("CreatePattern"))
 					elseif ($ord == 63)
 						$res .= ".?";
 					else
-						$res .= substr($pattern, $ii, 1);
+						$res .= mb_substr($pattern, $ii, 1);
 				}
 				else 
-					$res .= substr($pattern, $ii, 1)."+";
+					$res .= mb_substr($pattern, $ii, 1)."+";
 			}
 			$res .= $separator;
 		}
@@ -106,8 +106,8 @@ if (!function_exists("GenPatternAll"))
 {
 	function GenPatternAll($DICTIONARY_ID_W=0, $DICTIONARY_ID_T=0)
 	{
-		$DICTIONARY_ID_W = intVal($DICTIONARY_ID_W);
-		$DICTIONARY_ID_T = intVal($DICTIONARY_ID_T);
+		$DICTIONARY_ID_W = intval($DICTIONARY_ID_W);
+		$DICTIONARY_ID_T = intval($DICTIONARY_ID_T);
 		if (!$DICTIONARY_ID_W)
 			$DICTIONARY_ID_W = (COption::GetOptionString("forum", "FILTER_DICT_W", '', LANG));
 		if (!$DICTIONARY_ID_T)
@@ -116,11 +116,11 @@ if (!function_exists("GenPatternAll"))
 			$strSql = 
 				"SELECT FM.ID, FM.DICTIONARY_ID, FM.WORDS, FM.PATTERN, FM.REPLACEMENT, FM.DESCRIPTION,  FM.USE_IT, FM.PATTERN_CREATE ".
 				"FROM b_forum_filter FM ".
-				"WHERE FM.DICTIONARY_ID=".intVal($DICTIONARY_ID_W);
+				"WHERE FM.DICTIONARY_ID=".intval($DICTIONARY_ID_W);
 			$db_res = $GLOBALS["DB"]->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			while ($res = $db_res->Fetch())
 			{
-				if ((strlen(trim($res["WORDS"]))>0) && ($res["PATTERN_CREATE"] == "TRNSL")):
+				if ((trim($res["WORDS"]) <> '') && ($res["PATTERN_CREATE"] == "TRNSL")):
 					$pattern = CreatePattern(trim($res["WORDS"]), $DICTIONARY_ID_T);
 					if ($pattern)
 					{
@@ -154,9 +154,7 @@ Class forum extends CModule
 	{
 		$arModuleVersion = array();
 
-		$path = str_replace("\\", "/", __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen("/index.php"));
-		include($path."/version.php");
+		include(__DIR__.'/version.php');
 
 		if (is_array($arModuleVersion) && array_key_exists("VERSION", $arModuleVersion))
 		{
@@ -563,7 +561,7 @@ Class forum extends CModule
 		if (!check_bitrix_sessid())
 			return false;
 		$this->errors = false;
-		$step = IntVal($_REQUEST["step"]);
+		$step = intval($_REQUEST["step"]);
 		if($step != 2)
 			$GLOBALS["APPLICATION"]->IncludeAdminFile(GetMessage("FORUM_INSTALL1"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/install/do_install1.php");
 		else
@@ -597,7 +595,7 @@ Class forum extends CModule
 		if (!check_bitrix_sessid())
 			return false;
 		$GLOBALS["errors"] = false;
-		$step = IntVal($_REQUEST["step"]);
+		$step = intval($_REQUEST["step"]);
 		if($step<2)
 			$GLOBALS["APPLICATION"]->IncludeAdminFile(GetMessage("FORUM_DELETE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/install/do_uninstall1.php");
 		else

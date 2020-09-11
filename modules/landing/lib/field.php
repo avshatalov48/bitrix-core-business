@@ -28,6 +28,12 @@ abstract class Field
 	protected $title;
 
 	/**
+	 * Default value.
+	 * @var string
+	 */
+	protected $default;
+
+	/**
 	 * Field help.
 	 * @var string
 	 */
@@ -56,6 +62,7 @@ abstract class Field
 		$this->value = null;
 		$this->id = isset($params['id']) ? $params['id'] : '';
 		$this->title = isset($params['title']) ? $params['title'] : '';
+		$this->default = isset($params['default']) ? $params['default'] : null;
 		$this->help = isset($params['help']) ? $params['help'] : '';
 		$this->searchable = isset($params['searchable']) && $params['searchable'] === true;
 		$this->fetchModificator = isset($params['fetch_data_modification']) ? $params['fetch_data_modification'] : null;
@@ -158,7 +165,7 @@ abstract class Field
 	 */
 	public function __toString()
 	{
-		return (string)$this->value;
+		return $this->value ? (string)$this->value : (string)$this->default;
 	}
 
 	/**

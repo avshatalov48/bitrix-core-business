@@ -9,7 +9,7 @@ if(!function_exists("__UnEscape"))
 			array_walk($item, '__UnEscape');
 		else
 		{
-			if(strpos($item, "%u") !== false)
+			if(mb_strpos($item, "%u") !== false)
 				$item = $GLOBALS["APPLICATION"]->UnJSEscape($item);
 		}
 	}
@@ -18,13 +18,13 @@ if(!function_exists("__UnEscape"))
 array_walk($_REQUEST, '__UnEscape');
 if ($GLOBALS["USER"]->IsAuthorized())
 {
-	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".strToLower($GLOBALS["DB"]->type)."/favorites.php");
+	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
 	$arGroup = CUserOptions::GetOption("forum", "GroupHidden", "");
 	$arGroup = (CheckSerializedData($arGroup) ? @unserialize($arGroup) : array());
 
 	if (!is_array($arGroup))
 		$arGroup = array();
-	$_REQUEST["group"] = intVal($_REQUEST["group"]);
+	$_REQUEST["group"] = intval($_REQUEST["group"]);
 	if ($_REQUEST["group"] > 0)
 	{
 		if (!in_array($_REQUEST["group"], $arGroup))

@@ -9,6 +9,7 @@ use \Bitrix\Landing\Site;
 use \Bitrix\Landing\Domain;
 use \Bitrix\Landing\Domain\Register;
 use \Bitrix\Landing\Rights;
+use \Bitrix\Landing\Restriction;
 use \Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
@@ -59,10 +60,7 @@ class LandingSiteDomainComponent extends LandingBaseComponent
 	 */
 	protected function actionSaveProvider(string $param): bool
 	{
-		$check = Manager::checkFeature(
-			Manager::FEATURE_FREE_DOMAIN
-		);
-		if (!$check)
+		if (!Restriction\Manager::isAllowed('limit_free_domen'))
 		{
 			return false;
 		}
@@ -131,15 +129,6 @@ class LandingSiteDomainComponent extends LandingBaseComponent
 		}
 		
 		return true;
-	}
-
-	/**
-	 * Returns available tld. While we are offering ru only.
-	 * @return array
-	 */
-	protected function getTld(): array
-	{
-		return ['RU'];
 	}
 
 	/**
@@ -275,7 +264,8 @@ class LandingSiteDomainComponent extends LandingBaseComponent
 
 		if ($init)
 		{
-			$this->arResult['TLD'] = $this->getTld();
+			$this->arResult['REGISTER'] = Register::getInstance();
+			$this->arResult['TLD'] = $this->arResult['REGISTER']->getTld();
 			$this->arResult['DOMAIN_PROVIDER'] = $currentSite['DOMAIN_PROVIDER'];
 			$this->arResult['~DOMAIN_NAME'] = $currentSite['DOMAIN_NAME'];
 			$this->arResult['DOMAIN_NAME'] = $puny->decode($currentSite['DOMAIN_NAME']);
@@ -284,10 +274,9 @@ class LandingSiteDomainComponent extends LandingBaseComponent
 			$this->arResult['IP_FOR_DNS'] = $this->getIpForDNS();
 			$this->arResult['POSTFIX'] = $this->getPostFix();
 			$this->arResult['CNAME'] = 'lb' . $this->arResult['POSTFIX'] . '.';
-			$this->arResult['REGISTER'] = Register::getInstance();
 
-			$this->arResult['FEATURE_FREE_AVAILABLE'] = Manager::checkFeature(
-				Manager::FEATURE_FREE_DOMAIN
+			$this->arResult['FEATURE_FREE_AVAILABLE'] = Restriction\Manager::isAllowed(
+				'limit_free_domen'
 			);
 			if (!$this->arResult['FEATURE_FREE_AVAILABLE'])
 			{

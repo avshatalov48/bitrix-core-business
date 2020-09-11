@@ -9,7 +9,7 @@ require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/filter_tools.php")
 require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/statistic/stat_tools.php");
 require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/statistic/ip_tools.php");
 /*patchlimitationmutatormark1*/
-$dbType = strtolower($DB_test->type);
+$dbType = mb_strtolower($DB_test->type);
 CModule::AddAutoloadClasses(
 	"statistic",
 	array(

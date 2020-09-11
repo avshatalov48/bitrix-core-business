@@ -2,7 +2,7 @@
 IncludeModuleLangFile(__FILE__);
 ClearVars("str_forum_");
 if (CModule::IncludeModule("forum")):
-	$ID = IntVal($ID);
+	$ID = intval($ID);
 	$db_res = CForumUser::GetList(array(), array("USER_ID" => $ID));
 	$db_res->ExtractFields("str_forum_", True);
 	if (!isset($str_forum_ALLOW_POST) || ($str_forum_ALLOW_POST!="Y" && $str_forum_ALLOW_POST!="N"))
@@ -14,7 +14,7 @@ if (CModule::IncludeModule("forum")):
 	if($COPY_ID > 0)
 		$str_forum_AVATAR = "";
 
-	if (strlen($strError)>0)
+	if ($strError <> '')
 	{
 		$str_forum_ALLOW_POST = htmlspecialcharsbx($_POST["forum_ALLOW_POST"]);
 		$str_forum_HIDE_FROM_ONLINE = htmlspecialcharsbx($_POST["forum_HIDE_FROM_ONLINE"]);
@@ -60,7 +60,7 @@ if (CModule::IncludeModule("forum")):
 		<td><?=GetMessage("forum_AVATAR")?></td>
 		<td><?
 			echo CFile::InputFile("forum_AVATAR", 20, $str_forum_AVATAR);
-			if ((is_array($str_forum_AVATAR) && sizeof($str_forum_AVATAR)>0) || (!is_array($str_forum_AVATAR) && strlen($str_forum_AVATAR)>0)):
+			if ((is_array($str_forum_AVATAR) && sizeof($str_forum_AVATAR)>0) || (!is_array($str_forum_AVATAR) && $str_forum_AVATAR <> '')):
 				?><div class="adm-detail-file-image"><?
 				echo CFile::ShowImage($str_forum_AVATAR, 150, 150, "border=0", "", true);?></div><?
 			endif;

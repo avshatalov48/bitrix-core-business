@@ -289,7 +289,8 @@
 
 			result.push({
 				text: items[key].Name,
-				value: '{='+type+':'+key+'}'
+				//TODO: experimental simple expressions
+				value: type === 'Document' ? '{{'+items[key].Name+'}}' : '{='+type+':'+key+'}'
 			});
 		}
 		return this.filterItems(result, text);

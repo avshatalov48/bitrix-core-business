@@ -2063,7 +2063,7 @@ class CIBlockElement extends CAllIBlockElement
 						else
 							$arWas[$val] = true;
 
-						if ($val == '') //Delete property value
+						if ((string)$val == '') //Delete property value
 						{
 							if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "N")
 							{

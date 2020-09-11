@@ -275,15 +275,6 @@ class LandingBaseComponent extends \CBitrixComponent
 			{
 				$errors[$error->getCode()] = $error->getMessage();
 			}
-			// replace some codes
-			foreach ($errors as $code => $mess)
-			{
-				$mess = Loc::getMessage('LANDING_ERROR_' . $code);
-				if ($mess)
-				{
-					$errors[$code] = Help::replaceHelpUrl($mess);
-				}
-			}
 			return $errors;
 		}
 		else
@@ -756,7 +747,7 @@ class LandingBaseComponent extends \CBitrixComponent
 			{
 				$editPage .= '#'.mb_strtolower($matches[1]);
 				unset($params, $matches);
-				return '<a href="' . $editPage . '">' . Loc::getMessage('LANDING_GOTO_EDIT') . '</a>';
+				return '<br/><br/><a href="' . $editPage . '">' . Loc::getMessage('LANDING_GOTO_EDIT') . '</a>';
 			}
 		}
 		unset($params);
@@ -775,7 +766,8 @@ class LandingBaseComponent extends \CBitrixComponent
 			'PUBLIC_PAGE_REACHED',
 			'PUBLIC_SITE_REACHED',
 			'TOTAL_SITE_REACHED',
-			'PUBLIC_HTML_DISALLOWED'
+			'PUBLIC_HTML_DISALLOWED',
+			'LANDING_PAYMENT_FAILED'
 		];
 
 		foreach ($tariffsCodes as $code)
@@ -1011,11 +1003,11 @@ class LandingBaseComponent extends \CBitrixComponent
 		}
 		else if ($action && is_callable(array($this, 'action' . $action)))
 		{
-			if (
-				check_bitrix_sessid() &&
-				$this->{'action' . $action}($param, $additional)
-				|| !check_bitrix_sessid()
-			)
+			if (!check_bitrix_sessid())
+			{
+				$this->addError('LANDING_ERROR_SESS_EXPIRED');
+			}
+			else if ($this->{'action' . $action}($param, $additional))
 			{
 				\localRedirect($this->arResult['CUR_URI']);
 			}

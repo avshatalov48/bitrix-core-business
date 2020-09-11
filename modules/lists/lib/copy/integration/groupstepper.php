@@ -151,11 +151,11 @@ class GroupStepper extends Stepper
 	protected function setQueue(array $queue): void
 	{
 		$queueId = (string) current($queue);
-		$this->checkerName = (strpos($this->checkerName, $queueId) === false ?
+		$this->checkerName = (mb_strpos($this->checkerName, $queueId) === false ?
 			$this->checkerName.$queueId : $this->checkerName);
-		$this->baseName = (strpos($this->baseName, $queueId) === false ?
+		$this->baseName = (mb_strpos($this->baseName, $queueId) === false ?
 			$this->baseName.$queueId : $this->baseName);
-		$this->errorName = (strpos($this->errorName, $queueId) === false ?
+		$this->errorName = (mb_strpos($this->errorName, $queueId) === false ?
 			$this->errorName.$queueId : $this->errorName);
 	}
 

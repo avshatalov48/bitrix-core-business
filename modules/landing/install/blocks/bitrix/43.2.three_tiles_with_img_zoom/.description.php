@@ -29,7 +29,7 @@ return array(
 		'.landing-block-node-img1' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_43.2.THREE_TILES_WITH_IMG_ZOOM_NODES_LANDINGBLOCKNODEIMG1'),
 			'type' => 'img',
-			'dimensions' => array('width' => 350),
+			'dimensions' => array('width' => 500),
 		),
 		'.landing-block-node-subtitle2' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_43.2.THREE_TILES_WITH_IMG_ZOOM_NODES_LANDINGBLOCKNODESUBTITLE2'),
@@ -46,7 +46,7 @@ return array(
 		'.landing-block-node-img2' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_43.2.THREE_TILES_WITH_IMG_ZOOM_NODES_LANDINGBLOCKNODEIMG2'),
 			'type' => 'img',
-			'dimensions' => array('width' => 350),
+			'dimensions' => array('width' => 500),
 		),
 		'.landing-block-node-title-mini' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_43.2.THREE_TILES_WITH_IMG_ZOOM_NODES_LANDINGBLOCKNODETITLEMINI'),

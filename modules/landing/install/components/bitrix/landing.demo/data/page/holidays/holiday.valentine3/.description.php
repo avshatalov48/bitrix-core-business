@@ -101,21 +101,21 @@ return array(
 					<ul class="list-inline mb-0 landing-block-node-menu-list-social">
 						<li class="list-inline-item landing-block-card-social g-mr-10"
 							data-card-preset="facebook">
-							<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+							<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover"
 							   href="https://facebook.com">
 								<i class="landing-block-card-social-icon fa fa-facebook"></i>
 							</a>
 						</li>
 						<li class="landing-block-card-social list-inline-item g-mr-10"
 							data-card-preset="instagram">
-							<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+							<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover"
 							   href="https://instagram.com">
 								<i class="landing-block-card-social-icon fa fa-instagram"></i>
 							</a>
 						</li>
 						<li class="landing-block-card-social list-inline-item g-mr-10"
 							data-card-preset="twitter">
-							<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+							<a class="landing-block-card-social-icon-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover"
 							   href="https://twitter.com">
 								<i class="landing-block-card-social-icon fa fa-twitter"></i>
 							</a>
@@ -182,7 +182,7 @@ return array(
 										Yhdte Jit Iurrw Joksmns Iooldf
 									</div>
 									<div class="landing-block-node-button-container">
-										<a class="landing-block-node-img-button btn btn-md u-btn-outline-white g-font-size-11 g-brd-2 rounded-0 g-px-25" href="#" target="_self">View More</a>
+										<a class="landing-block-node-img-button btn g-btn-type-outline g-btn-white g-btn-size-md g-btn-px-m rounded-0" href="#" target="_self">View More</a>
 									</div>
 								</div>
 							</article>
@@ -206,7 +206,7 @@ return array(
 										Ut pulvinar tellus jhsed sed elit
 									</div>
 									<div class="landing-block-node-button-container">
-										<a class="landing-block-node-img-button btn btn-md u-btn-outline-white g-font-size-11 g-brd-2 rounded-0 g-px-25" href="#" target="_self">View More</a>
+										<a class="landing-block-node-img-button btn g-btn-type-outline g-btn-white g-btn-size-md g-btn-px-m rounded-0" href="#" target="_self">View More</a>
 									</div>
 								</div>
 							</article>
@@ -543,13 +543,13 @@ return array(
 					<!-- End Article Image -->
 
 					<!-- Article Title -->
-					<h4 class="landing-block-node-card-name g-line-height-1 g-font-size-40 g-font-cormorant-infant font-italic g-font-weight-600 g-mb-20">
+					<h4 class="landing-block-node-card-name g-line-height-1">
 						Samantha
 						Fox</h4>
 					<!-- End Article Title -->
 					<!-- Article Body -->
 					<div class="landing-block-node-card-post text-uppercase g-font-weight-700 g-font-size-12 g-color-primary g-mb-30">TRIED VIDEO VALENTINE</div>
-					<div class="landing-block-node-card-text g-font-size-default g-color-gray-dark-v5 g-mb-40">
+					<div class="landing-block-node-card-text g-color-gray-dark-v5 g-mb-40">
 						<p>
 							Etiam dolor tortor, egestas a libero eget, sollicitudin maximus nulla.
 							Nunc vitae maximus ipsum. Vestibulum sodales nisi massa, vitae blandit massa luctus id. Nunc
@@ -572,13 +572,13 @@ return array(
 					<!-- End Article Image -->
 
 					<!-- Article Title -->
-					<h4 class="landing-block-node-card-name g-line-height-1 g-font-size-40 g-font-cormorant-infant font-italic g-font-weight-600 g-mb-20">
+					<h4 class="landing-block-node-card-name g-line-height-1">
 						Dorian
 						Black</h4>
 					<!-- End Article Title -->
 					<!-- Article Body -->
 					<div class="landing-block-node-card-post text-uppercase g-font-weight-700 g-font-size-12 g-color-primary g-mb-30">TRIED ROMANTIC DINNER</div>
-					<div class="landing-block-node-card-text g-font-size-default g-color-gray-dark-v5 g-mb-40">
+					<div class="landing-block-node-card-text g-color-gray-dark-v5 g-mb-40">
 						<p>
 							Etiam dolor tortor, egestas a libero eget, sollicitudin maximus nulla. Nunc vitae maximus
 							ipsum.
@@ -647,7 +647,7 @@ return array(
 					</ul>
 
 					<footer class="g-pa-40 landing-block-node-card-button-containe">
-						<a class="landing-block-node-card-button btn btn-md rounded-0 u-btn-outline-white g-brd-2 g-font-size-12 g-font-weight-600 g-letter-spacing-1" href="#">Order Now</a>
+						<a class="landing-block-node-card-button btn g-btn-type-outline g-btn-white g-btn-size-md g-btn-px-m rounded-0 g-letter-spacing-1" href="#">Order Now</a>
 					</footer>
 					<!-- End of Article Content -->
 				</article>
@@ -691,7 +691,7 @@ return array(
 					</ul>
 
 					<footer class="g-pa-40 landing-block-node-card-button-containe">
-						<a class="landing-block-node-card-button btn btn-md rounded-0 u-btn-outline-white g-brd-2 g-font-size-12 g-font-weight-600 g-letter-spacing-1" href="#">Order Now</a>
+						<a class="landing-block-node-card-button btn g-btn-type-outline g-btn-white g-btn-size-md g-btn-px-m rounded-0 g-letter-spacing-1" href="#">Order Now</a>
 					</footer>
 					<!-- End of Article Content -->
 				</article>
@@ -733,7 +733,7 @@ return array(
 					</ul>
 
 					<footer class="g-pa-40 landing-block-node-card-button-containe">
-						<a class="landing-block-node-card-button btn btn-md rounded-0 u-btn-outline-white g-brd-2 g-font-size-12 g-font-weight-600 g-letter-spacing-1" href="#">Order Now</a>
+						<a class="landing-block-node-card-button btn g-btn-type-outline g-btn-white g-btn-size-md g-btn-px-m rounded-0 g-letter-spacing-1" href="#">Order Now</a>
 					</footer>
 					<!-- End of Article Content -->
 				</article>
@@ -753,7 +753,7 @@ return array(
 			<div class="col-sm-12 col-md-6 col-lg-6 g-mb-25 g-mb-0--lg">
 				<h2 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-16 g-mb-20">Contact
 					us</h2>
-				<div class="landing-block-node-text g-font-size-default g-color-gray-dark-v2 g-mb-20">
+				<div class="landing-block-node-text g-color-gray-dark-v2 g-mb-20">
 					<p>Lorem ipsum dolor sit amet, consectetur
 						adipiscing</p></div>
 

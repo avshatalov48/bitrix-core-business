@@ -8,6 +8,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Event;
+use Bitrix\Rest\Configuration\Helper;
 use CBPDocument;
 use Exception;
 
@@ -92,13 +93,18 @@ class AppConfiguration
 		{
 			return null;
 		}
+		$option = $event->getParameters();
+		if (!Helper::checkAccessManifest($option, static::$accessManifest))
+		{
+			return null;
+		}
+
 		$result = null;
 
 		try
 		{
 			if(static::checkRequiredParams($code))
 			{
-				$option = $event->getParameters();
 				switch ($code)
 				{
 					case self::ENTITY_BIZPROC_MAIN:
@@ -132,13 +138,18 @@ class AppConfiguration
 		{
 			return null;
 		}
+		$data = $event->getParameters();
+		if (!Helper::checkAccessManifest($data, static::$accessManifest))
+		{
+			return null;
+		}
+
 		$result = null;
 
 		try
 		{
 			if(static::checkRequiredParams($code))
 			{
-				$data = $event->getParameters();
 				switch ($code)
 				{
 					case self::ENTITY_BIZPROC_MAIN:

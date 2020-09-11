@@ -6,7 +6,7 @@
 				<br> tristique senectus et netus et malesuada fames ac turpis egestas.</p>
 		</div>
 		<div class="landing-block-node-button-container">
-			<a class="landing-block-node-button landing-semantic-link-image-medium btn btn-md text-uppercase u-btn-primary rounded-0 g-px-15 font-weight-bold" href="#">Projects</a>
+			<a class="landing-block-node-button landing-semantic-link-image-medium btn text-uppercase g-btn-primary rounded-0 g-btn-type-solid g-btn-size-md g-btn-px-m" href="#">Projects</a>
 		</div>
 	</div>
 </section>

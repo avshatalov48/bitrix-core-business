@@ -71,6 +71,6 @@ class TopicMembersStepper extends \Bitrix\Main\Update\Stepper
 		$res = is_array($res) ? $res : [];
 		$res[$topicId] = [];
 		Option::set("forum", "stat.user.recalc.topic", serialize($res));
-		self::bind(0);
+		static::bind(0);
 	}
 }

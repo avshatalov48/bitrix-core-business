@@ -8,10 +8,9 @@
 
 namespace Bitrix\Sender\Integration\Crm\Connectors;
 
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Entity;
 use Bitrix\Main\DB\Result;
-
+use Bitrix\Main\Entity;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Sender\Recipient;
 use Bitrix\Sender\UI\PageNavigation;
 
@@ -82,6 +81,7 @@ class QueryData
 				$alias = '';
 			}
 
+			$query->addGroup('ID');
 			$query->addSelect($field, $alias);
 		}
 

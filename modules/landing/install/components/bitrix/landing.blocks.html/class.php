@@ -10,6 +10,24 @@ use \Bitrix\Landing\Landing;
 class LandingBlocksHtmlComponent extends \CBitrixComponent
 {
 	/**
+	 * Sanitizes bad code.
+	 * @param string $str Very bad html with <script>, etc.
+	 * @return string
+	 */
+	public function sanitize($str)
+	{
+		static $sanitizer = null;
+
+		if ($sanitizer === null)
+		{
+			$sanitizer = new \CBXSanitizer;
+			$sanitizer->SetLevel($sanitizer::SECURE_LEVEL_LOW);
+		}
+
+		return $sanitizer->sanitizeHtml($str);
+	}
+
+	/**
 	 * Local htmlspecialcharsback funciton.
 	 * @param string $code Code for decoding.
 	 * @return string

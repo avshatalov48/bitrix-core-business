@@ -197,4 +197,15 @@ class BoolType extends Base
 
 		return $value;
 	}
+
+	public static function externalizeValue(FieldType $fieldType, $context, $value)
+	{
+		$map = $fieldType->getSettings()['ExternalValues'] ?? null;
+		if ($map && isset($map[$value]))
+		{
+			return $map[$value];
+		}
+
+		return parent::externalizeValue($fieldType, $context, $value);
+	}
 }

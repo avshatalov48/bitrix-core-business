@@ -40,5 +40,9 @@ $arComponentParameters = Array(
 			'NAME' => getMessage('LANDING_CMP_PAR_PAGE_URL_SITE_DOMAIN'),
 			'TYPE' => 'STRING'
 		),
+		'PAGE_URL_SITE_COOKIES' => array(
+			'NAME' => getMessage('LANDING_CMP_PAR_PAGE_URL_SITE_COOKIES'),
+			'TYPE' => 'STRING'
+		)
 	)
 );

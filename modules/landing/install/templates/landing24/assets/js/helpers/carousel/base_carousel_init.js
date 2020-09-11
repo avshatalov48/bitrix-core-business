@@ -156,7 +156,7 @@
 	 */
 	BX.addCustomEvent("BX.Landing.Lazyload:loadImage", function (event)
 	{
-		var slider = event.target.querySelector('.js-carousel');
+		var slider = document.querySelector(BX.Landing.SliderHelper.makeCarouselRelativeSelector(event));
 		if(slider)
 		{
 			var slickObj = $(slider).slick('getSlick');

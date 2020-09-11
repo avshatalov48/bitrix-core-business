@@ -6,7 +6,7 @@ return [
 		'titleBig' => [
 			'g-color-black',
 			'g-font-size-48',
-			'font-weight-bold',
+			'g-font-weight-700',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
@@ -15,7 +15,7 @@ return [
 		'titleMedium' => [
 			'g-color-black',
 			'g-font-size-38',
-			'font-weight-bold',
+			'g-font-weight-700',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
@@ -24,7 +24,7 @@ return [
 		'titleSmall' => [
 			'g-color-black',
 			'g-font-size-30',
-			'font-weight-bold',
+			'g-font-weight-700',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
@@ -33,7 +33,7 @@ return [
 		'subtitleBig' => [
 			'g-color-black',
 			'g-font-size-26',
-			'font-weight-bold',
+			'g-font-weight-700',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
@@ -42,7 +42,7 @@ return [
 		'subtitleMedium' => [
 			'g-color-black',
 			'g-font-size-20',
-			'font-weight-bold',
+			'g-font-weight-700',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
@@ -51,7 +51,7 @@ return [
 		'subtitleSmall' => [
 			'g-color-black',
 			'g-font-size-18',
-			'font-weight-bold',
+			'g-font-weight-700',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
@@ -60,7 +60,7 @@ return [
 		'subtitleBigPrimary' => [
 			'g-color-primary',
 			'g-font-size-26',
-			'font-weight-bold',
+			'g-font-weight-700',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
@@ -69,7 +69,7 @@ return [
 		'subtitleMediumPrimary' => [
 			'g-color-primary',
 			'g-font-size-20',
-			'font-weight-bold',
+			'g-font-weight-700',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
@@ -78,7 +78,7 @@ return [
 		'subtitleSmallPrimary' => [
 			'g-color-primary',
 			'g-font-size-18',
-			'font-weight-bold',
+			'g-font-weight-700',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
@@ -107,7 +107,7 @@ return [
 
 		'titleImageBig' => [
 			'g-font-size-48',
-			'font-weight-bold',
+			'g-font-weight-700',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
@@ -115,7 +115,7 @@ return [
 
 		'titleImageMedium' => [
 			'g-font-size-38',
-			'font-weight-bold',
+			'g-font-weight-700',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
@@ -123,7 +123,7 @@ return [
 
 		'titleImageSmall' => [
 			'g-font-size-30',
-			'font-weight-bold',
+			'g-font-weight-700',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
@@ -131,7 +131,7 @@ return [
 
 		'subtitleImageBig' => [
 			'g-font-size-26',
-			'font-weight-bold',
+			'g-font-weight-700',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
@@ -139,7 +139,7 @@ return [
 
 		'subtitleImageMedium' => [
 			'g-font-size-20',
-			'font-weight-bold',
+			'g-font-weight-700',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
@@ -147,7 +147,7 @@ return [
 
 		'subtitleImageSmall' => [
 			'g-font-size-18',
-			'font-weight-bold',
+			'g-font-weight-700',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
@@ -286,7 +286,7 @@ return [
 		'titleMediumBgBefore' => [
 			'g-color-black',
 			'g-font-size-38',
-			'font-weight-bold',
+			'g-font-weight-700',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',

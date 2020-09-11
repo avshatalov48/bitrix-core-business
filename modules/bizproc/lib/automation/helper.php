@@ -200,12 +200,12 @@ class Helper
 		return $result;
 	}
 
-	public static function convertExpressions($source, array $documentType)
+	public static function convertExpressions($source, array $documentType, $useTilda = true)
 	{
 		$source = (string)$source;
 		[$ids, $names] = static::getFieldsMap($documentType);
 
-		$converter = function ($matches) use ($ids, $names)
+		$converter = function ($matches) use ($ids, $names, $useTilda)
 		{
 			$mods = [];
 			if ($matches['mod1'])
@@ -226,7 +226,7 @@ class Helper
 					return '{{'.$fieldName. ($mods? ' > '.implode(',', $mods) : '').'}}';
 				}
 			}
-			elseif (preg_match('/^A[_0-9]+$/', $matches['object']))
+			elseif ($useTilda && preg_match('/^A[_0-9]+$/', $matches['object']))
 			{
 				return '{{~'.$matches['object'].':'.$matches['field']. ($mods? ' > '.implode(',', $mods) : '').'}}';
 			}
@@ -293,6 +293,38 @@ class Helper
 		);
 
 		return $source;
+	}
+
+	public static function convertProperties(array $properties, array $documentType, $useTilda = true)
+	{
+		foreach ($properties as $code => $property)
+		{
+			if (is_array($property))
+			{
+				$properties[$code] = self::convertProperties($property, $documentType, $useTilda);
+			}
+			else
+			{
+				$properties[$code] = static::convertExpressions($property, $documentType, $useTilda);
+			}
+		}
+		return $properties;
+	}
+
+	public static function unConvertProperties(array $properties, array $documentType)
+	{
+		foreach ($properties as $code => $property)
+		{
+			if (is_array($property))
+			{
+				$properties[$code] = self::unConvertProperties($property, $documentType);
+			}
+			else
+			{
+				$properties[$code] = static::unConvertExpressions($property, $documentType);
+			}
+		}
+		return $properties;
 	}
 
 	/**

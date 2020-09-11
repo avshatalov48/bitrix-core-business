@@ -271,10 +271,21 @@ class PublicAction
 				'error_description' => $error->getMessage()
 			);
 		}
-		return array(
-			'type' => 'error',
-			'result' => $errors
-		);
+		if (!$isRest)
+		{
+			return [
+				'sessid' => bitrix_sessid(),
+				'type' => 'error',
+				'result' => $errors
+			];
+		}
+		else
+		{
+			return [
+				'type' => 'error',
+				'result' => $errors
+			];
+		}
 	}
 
 	/**

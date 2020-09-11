@@ -34,7 +34,7 @@ if(!function_exists("__UnEscape"))
 			array_walk($item, '__UnEscape');
 		else
 		{
-			if(strpos($item, "%u") !== false)
+			if(mb_strpos($item, "%u") !== false)
 				$item = $GLOBALS["APPLICATION"]->UnJSEscape($item);
 		}
 	}
@@ -43,7 +43,7 @@ if(!function_exists("__UnEscape"))
 array_walk($_REQUEST, '__UnEscape');
 // ************************* Input params***************************************************************
 // ************************* BASE **********************************************************************
-	$UID = $arParams["UID"] = intVal($_REQUEST["UID"]);
+	$UID = $arParams["UID"] = intval($_REQUEST["UID"]);
 	$mode = $_REQUEST["mode"];
 // ************************* URL ***********************************************************************
 	$URL_NAME_DEFAULT = array(
@@ -54,17 +54,17 @@ array_walk($_REQUEST, '__UnEscape');
 		"pm_search" => "PAGE_NAME=pm_search");
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPageParam($URL_VALUE, array("PAGE_NAME", "FID", "TID", "UID", BX_AJAX_PARAM_ID));
-		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		if (trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
+			$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPageParam($URL_VALUE, array("PAGE_NAME", "FID", "TID", "UID", BX_AJAX_PARAM_ID));
+		$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 // ************************* ADDITIONAL ****************************************************************
 	$arParams["NAME_TEMPLATE"] = str_replace(array("#NOBR#","#/NOBR#"), "",
 		(!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : CSite::GetDefaultNameFormat()));
-	$arParams["PM_USER_PAGE"] = intVal($arParams["PM_USER_PAGE"] > 0 ? $arParams["PM_USER_PAGE"] : 10);
+	$arParams["PM_USER_PAGE"] = intval($arParams["PM_USER_PAGE"] > 0 ? $arParams["PM_USER_PAGE"] : 10);
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
-	$arParams["PAGE_NAVIGATION_WINDOW"] = intVal(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
+	$arParams["PAGE_NAVIGATION_WINDOW"] = intval(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
 // *************************/Input params***************************************************************
 
 		$arResult["CURRENT_PAGE"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_SEARCH"], array());
@@ -102,7 +102,7 @@ array_walk($_REQUEST, '__UnEscape');
 					array(
 						"link" => ForumAddPageParams(
 							$arResult["CURRENT_PAGE"], 
-							array("search_insert" => "Y", "UID" => intVal($res["ID"]), "sessid" => bitrix_sessid()))), 
+							array("search_insert" => "Y", "UID" => intval($res["ID"]), "sessid" => bitrix_sessid()))),
 					$res);
 			}
 			while ($res = $reqSearch->GetNext());

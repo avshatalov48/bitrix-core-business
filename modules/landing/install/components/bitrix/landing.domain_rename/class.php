@@ -59,9 +59,6 @@ class LandingDomainRenameComponent extends LandingSiteEditComponent
 			// template data
 			$this->arResult['IP_FOR_DNS'] = $this->getIpForDNS();
 			$this->arResult['DOMAINS'] = $this->getDomains();
-			$this->arResult['CUSTOM_DOMAIN_AVAILABLE'] = Manager::checkFeature(
-				Manager::FEATURE_CUSTOM_DOMAIN
-			);
 
 			// domain name
 			if ($this->arParams['DOMAIN_NAME'])

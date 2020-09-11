@@ -77,7 +77,7 @@ class CListFile
 
 			if (isset($params['view']) && $params['view'] == 'short')
 			{
-				$info = $this->_file["FILE_NAME"].' (';
+				$info = $this->_file["ORIGINAL_NAME"].' (';
 				if($intWidth > 0 && $intHeight > 0)
 				{
 					$info .= $intWidth.'x'.$intHeight.', ';
@@ -87,7 +87,7 @@ class CListFile
 			}
 			else
 			{
-				$html .= GetMessage('FILE_TEXT').': <span class="lists-file-preview-data" '.$attributes.'>'.htmlspecialcharsex($this->_file["FILE_NAME"]).'</span>';
+				$html .= GetMessage('FILE_TEXT').': <span class="lists-file-preview-data" '.$attributes.'>'.htmlspecialcharsex($this->_file["ORIGINAL_NAME"]).'</span>';
 
 				if($intWidth > 0 && $intHeight > 0)
 				{
@@ -131,9 +131,9 @@ class CListFile
 					));
 			}
 
-			$p = strpos($input_name, "[");
+			$p = mb_strpos($input_name, "[");
 			if($p > 0)
-				$del_name = substr($input_name, 0, $p)."_del".substr($input_name, $p);
+				$del_name = mb_substr($input_name, 0, $p)."_del".mb_substr($input_name, $p);
 			else
 				$del_name = $input_name."_del";
 
@@ -146,7 +146,7 @@ class CListFile
 
 	function GetImgSrc($params = array())
 	{
-		if(is_array($params) && isset($params['url_template']) && (strlen($params['url_template']) > 0))
+		if(is_array($params) && isset($params['url_template']) && ($params['url_template'] <> ''))
 		{
 			$result = str_replace(
 				array('#list_id#', '#section_id#', '#element_id#', '#field_id#', '#file_id#', '#group_id#'),

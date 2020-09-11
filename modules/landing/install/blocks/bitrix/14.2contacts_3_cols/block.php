@@ -10,7 +10,7 @@
 					</span>
 					<span class="landing-block-node-linkcontact-title landing-semantic-subtitle-medium d-block text-uppercase g-font-size-14 g-color-main g-mb-5">
 						Phone number</span>
-					<span class="landing-block-node-linkcontact-text landing-semantic-subtitle-small-primary g-text-decoration-none g-text-underline--hover g-font-size-14 font-weight-bold">
+					<span class="landing-block-node-linkcontact-text landing-semantic-subtitle-small-primary g-text-decoration-none g-text-underline--hover g-font-size-14 g-font-weight-700">
 						#PHONE1#
 					</span>
 				</a>
@@ -24,7 +24,7 @@
 					</span>
 					<span class="landing-block-node-linkcontact-title landing-semantic-subtitle-medium d-block text-uppercase g-font-size-14 g-color-main g-mb-5">
 						Email</span>
-					<span class="landing-block-node-linkcontact-text landing-semantic-subtitle-small-primary g-text-decoration-none g-text-underline--hover g-font-size-14 font-weight-bold">
+					<span class="landing-block-node-linkcontact-text landing-semantic-subtitle-small-primary g-text-decoration-none g-text-underline--hover g-font-size-14 g-font-weight-700">
 						#EMAIL1#
 					</span>
 				</a>
@@ -38,7 +38,7 @@
 					</span>
 					<span class="landing-block-node-contact-title landing-semantic-subtitle-medium d-block text-uppercase g-font-size-14 g-color-main g-mb-5">
 						Toll free</span>
-					<span class="landing-block-node-linkcontact-text landing-semantic-subtitle-small-primary g-text-decoration-none g-text-underline--hover g-font-size-14 font-weight-bold">
+					<span class="landing-block-node-contact-text landing-semantic-subtitle-small-primary g-text-decoration-none g-text-underline--hover g-font-size-14 g-font-weight-700">
 						@company24
 					</span>
 				</div>

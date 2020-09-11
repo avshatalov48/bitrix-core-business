@@ -66,6 +66,7 @@ class PreProcessing
 		if (!$editMode)
 		{
 			PreProcessing\Icon::view($block);
+			PreProcessing\CustomExtensions::view($block);
 		}
 		PreProcessing\Font::view($block);
 	}
@@ -81,6 +82,7 @@ class PreProcessing
 		{
 			PreProcessing\Lazyload::processing($block);
 		}
+		PreProcessing\CustomExtensions::processing($block);
 	}
 
 	/**

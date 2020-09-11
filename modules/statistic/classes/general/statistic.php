@@ -45,78 +45,59 @@ class CAllStatistics extends CKeepStatistics
 		/** CMain $APPLICATION */
 		/** CUser $USER */
 		global $APPLICATION, $USER;
+
 		if (defined("ADMIN_SECTION") && (ADMIN_SECTION === true))
+		{
 			return;
+		}
+
 		if(!(($USER->IsAuthorized() || $APPLICATION->ShowPanel===true) && $APPLICATION->ShowPanel!==false))
+		{
 			return;
-		//if($APPLICATION->GetPublicShowMode() !== "view")
-		//	return;
+		}
 
-		if ($_GET["show_link_stat"]=="Y") $_SESSION["SHOW_LINK_STAT"] = "Y";
-		elseif ($_GET["show_link_stat"]=="N") $_SESSION["SHOW_LINK_STAT"] = "N";
+		if ($_GET["show_link_stat"]=="Y")
+		{
+			$_SESSION["SHOW_LINK_STAT"] = "Y";
+		}
+		elseif ($_GET["show_link_stat"]=="N")
+		{
+			$_SESSION["SHOW_LINK_STAT"] = "N";
+		}
 
-		$arButtons = array();
 		$STAT_RIGHT = $APPLICATION->GetGroupRight("statistic");
-		if ($STAT_RIGHT>="R")
+		if ($STAT_RIGHT < "R")
 		{
-			$width = 650;
-			$height = 650;
-			$CURRENT_PAGE = __GetFullRequestUri(__GetFullCurPage());
-
-			$arButtons[] = array(
-				"TEXT" => GetMessage("STAT_PAGE_GRAPH_PANEL_BUTTON"),
-				"TITLE" => GetMessage("STAT_PAGE_GRAPH_PANEL_BUTTON"),
-				"IMAGE" => "/bitrix/images/statistic/page_traffic.gif",
-				"ACTION" => "javascript:window.open('/bitrix/admin/section_graph_list.php?lang=". LANGUAGE_ID."&public=Y&width=".$width."&height=".$height."&section=".urlencode($CURRENT_PAGE)."&set_default=Y','','target=_blank,scrollbars=yes,resizable=yes,width=".$width. ",height=".$height.",left='+Math.floor((screen.width - ".$width.")/2)+',top='+Math.floor((screen.height- ".$height.")/2))",
-			);
-
-			if ($_SESSION["SHOW_LINK_STAT"]=="Y")
-			{
-				$add = "show_link_stat=N";
-				$alt = GetMessage("STAT_LINK_STAT_HIDE_PANEL_BUTTON");
-
-				$arButtons[] = array(
-					"TEXT" => GetMessage("STAT_LINK_STAT_PANEL_BUTTON"),
-					"TITLE" => GetMessage("STAT_LINK_STAT_PANEL_BUTTON"),
-					"IMAGE" => "/bitrix/images/statistic/link_stat_panel.gif",
-					"ACTION" => "javascript:ShowStatLinkPage()",
-				);
-
-				ob_start();
-				define("BX_STATISTIC_BUFFER_USED", true);
-
-			}
-			else
-			{
-				$add = "show_link_stat=Y";
-				$alt = GetMessage("STAT_LINK_STAT_SHOW_PANEL_BUTTON");
-			}
-
-			$arButtons[] = array(
-				"TEXT" => $alt,
-				"TITLE" => $alt,
-				"IMAGE" => "/bitrix/images/statistic/link_stat_show.gif",
-				"ACTION" => "jsUtils.Redirect([], '".CUtil::JSEscape($APPLICATION->GetCurPageParam($add, array("show_link_stat")))."')",
-			);
+			return;
 		}
-		if(count($arButtons) > 0)
-		{
-			$APPLICATION->AddPanelButton(array(
-				"ICON" => "bx-panel-statistics-icon",
-				"ALT" => GetMessage("STAT_PANEL_BUTTON"),
-				"TEXT" => GetMessage("STAT_PANEL_BUTTON"),
-				"MAIN_SORT" => 1000,
-				"MENU" => $arButtons,
-				"MODE" => "view",
-				"HINT" => array(
-					"TITLE" => GetMessage("STAT_PANEL_BUTTON"),
-					"TEXT" => GetMessage("STAT_PANEL_BUTTON_HINT"),
-				)
-			));
-		}
+
+		$width = 650;
+		$height = 650;
+		$CURRENT_PAGE = __GetFullRequestUri(__GetFullCurPage());
+		$arButtons = array();
+
+		$arButtons[] = array(
+			"TEXT" => GetMessage("STAT_PAGE_GRAPH_PANEL_BUTTON"),
+			"TITLE" => GetMessage("STAT_PAGE_GRAPH_PANEL_BUTTON"),
+			"IMAGE" => "/bitrix/images/statistic/page_traffic.gif",
+			"ACTION" => "javascript:window.open('/bitrix/admin/section_graph_list.php?lang=". LANGUAGE_ID."&public=Y&width=".$width."&height=".$height."&section=".urlencode($CURRENT_PAGE)."&set_default=Y','','target=_blank,scrollbars=yes,resizable=yes,width=".$width. ",height=".$height.",left='+Math.floor((screen.width - ".$width.")/2)+',top='+Math.floor((screen.height- ".$height.")/2))",
+		);
+
+		$APPLICATION->AddPanelButton(array(
+			"ICON" => "bx-panel-statistics-icon",
+			"ALT" => GetMessage("STAT_PANEL_BUTTON"),
+			"TEXT" => GetMessage("STAT_PANEL_BUTTON"),
+			"MAIN_SORT" => 1000,
+			"MENU" => $arButtons,
+			"MODE" => "view",
+			"HINT" => array(
+				"TITLE" => GetMessage("STAT_PANEL_BUTTON"),
+				"TEXT" => GetMessage("STAT_PANEL_BUTTON_HINT"),
+			)
+		));
 	}
 
-	public static function EndBuffer()
+	public static function EndBuffer(&$content)
 	{
 		$err_mess = "File: ".__FILE__."<br>Line: ";
 		global $APPLICATION, $arHashLink;
@@ -124,9 +105,6 @@ class CAllStatistics extends CKeepStatistics
 		if (defined("ADMIN_SECTION") && ADMIN_SECTION===true) return;
 		if (defined("BX_STATISTIC_BUFFER_USED") && BX_STATISTIC_BUFFER_USED===true)
 		{
-			$content = ob_get_contents();
-			ob_end_clean();
-
 			// this JS will open new windows with statistics data
 			ob_start();
 			?>
@@ -159,7 +137,7 @@ class CAllStatistics extends CKeepStatistics
 					{
 						// relative URL found
 						$link = __GetFullRequestUri(__GetFullCurPage($link));
-						if (strpos($link, $_SERVER["HTTP_HOST"])!==false)
+						if (mb_strpos($link, $_SERVER["HTTP_HOST"]) !== false)
 						{
 							$arUniqLink[crc32ex($link)] = $link;
 						}
@@ -225,7 +203,7 @@ class CAllStatistics extends CKeepStatistics
 
 					// парсим контент и добавляем к тэгам <a> желтую табличку с процентом переходов
 					$pcre_backtrack_limit = intval(ini_get("pcre.backtrack_limit"));
-					$content_len = function_exists('mb_strlen')? mb_strlen($content, 'latin1'): strlen($content);
+					$content_len = function_exists('mb_strlen')? mb_strlen($content, 'latin1') : mb_strlen($content);
 					$content_len++;
 					if($pcre_backtrack_limit < $content_len)
 						@ini_set("pcre.backtrack_limit", $content_len);
@@ -320,7 +298,7 @@ class CAllStatistics extends CKeepStatistics
 
 				}
 			}
-			echo $content.$js;
+			$content .= $js;
 		}
 
 	}
@@ -332,7 +310,7 @@ class CAllStatistics extends CKeepStatistics
 		{
 			$date = $DB->CurrentDateFunction();
 		}
-		elseif(($DATE_FORMAT == "SHORT") && (strtolower($DB->type) == "mysql"))
+		elseif(($DATE_FORMAT == "SHORT") && ($DB->type == "MYSQL"))
 		{
 			$date = "cast(".$DB->CharToDateFunction($DATE, $DATE_FORMAT)." as date)";
 		}
@@ -391,8 +369,8 @@ class CAllStatistics extends CKeepStatistics
 		{
 			if(!array_key_exists("SESS_PHRASE_ID", $_SESSION))
 				$_SESSION["SESS_PHRASE_ID"] = array();
-			$search_phrase = substr(trim($search_phrase), 0, 255);
-			if(strlen($search_phrase))
+			$search_phrase = mb_substr(trim($search_phrase), 0, 255);
+			if($search_phrase <> '')
 			{
 				// check if search of this phrase already occured in this session
 				if(array_key_exists($search_phrase, $_SESSION["SESS_PHRASE_ID"]))
@@ -402,12 +380,18 @@ class CAllStatistics extends CKeepStatistics
 				}
 				else
 				{
-					if(defined("ADMIN_SECTION") && ADMIN_SECTION===true)
+					if(defined("ADMIN_SECTION") && ADMIN_SECTION === true)
+					{
 						$sql_site = "'ad'";
+					}
 					elseif(defined("SITE_ID"))
+					{
 						$sql_site = "'".$DB->ForSql(SITE_ID, 2)."'";
+					}
 					else
+					{
 						$sql_site = "null";
+					}
 
 					// otherwise add it
 					$arFields = Array(
@@ -420,7 +404,9 @@ class CAllStatistics extends CKeepStatistics
 					$_SESSION["SESS_PHRASE_ID"][$search_phrase] = $phrase_id = $DB->Insert("b_stat_phrase_list", $arFields, "File: ".__FILE__."<br>Line: ".__LINE__);
 					// let's use lru to control session data volume
 					while(count($_SESSION["SESS_PHRASE_ID"]) > 10)
+					{
 						array_shift($_SESSION["SESS_PHRASE_ID"]);
+					}
 
 					stat_session_register("SESS_FROM_SEARCHERS");
 
@@ -738,15 +724,15 @@ class CAllStatistics extends CKeepStatistics
 			}
 
 			// если гость пришел с referer1, либо referer2 то
-			if (strlen($_SESSION["referer1"])>0 || strlen($_SESSION["referer2"])>0)
+			if ($_SESSION["referer1"] <> '' || $_SESSION["referer2"] <> '')
 			{
 				CAdv::SetByReferer(trim($_SESSION["referer1"]), trim($_SESSION["referer2"]), $arrADV, $ref1, $ref2);
 			}
 			//Handle Openstat if enabled
-			if(COption::GetOptionString("statistic", "OPENSTAT_ACTIVE") === "Y" && strlen($_REQUEST["_openstat"])>0)
+			if(COption::GetOptionString("statistic", "OPENSTAT_ACTIVE") === "Y" && $_REQUEST["_openstat"] <> '')
 			{
 				$openstat = $_REQUEST["_openstat"];
-				if(strpos($openstat, ";")===false)
+				if(mb_strpos($openstat, ";") === false)
 					$openstat = base64_decode($openstat);
 				$openstat = explode(";", $openstat);
 				CAdv::SetByReferer(
@@ -989,7 +975,7 @@ class CAllStatistics extends CKeepStatistics
 				if (intval($STACK_TIME)>0)
 				{
 					// если лимит активности уже превышался то
-					if (strlen($_SESSION["SESS_GRABBER_STOP_TIME"])>0)
+					if ($_SESSION["SESS_GRABBER_STOP_TIME"] <> '')
 					{
 						// если время задержки еще не истекло то
 						if ((time()-$_SESSION["SESS_GRABBER_STOP_TIME"])<=$DEFENCE_DELAY)
@@ -1033,7 +1019,7 @@ class CAllStatistics extends CKeepStatistics
 						// если в этой сессии письмо еще не отсылали то
 						if ($_SESSION["ACTIVITY_EXCEEDING_NOTIFIED"]!="Y")
 						{
-							if (defined("SITE_ID") && strlen(SITE_ID)>0)
+							if (defined("SITE_ID") && SITE_ID <> '')
 							{
 								$rsSite = CSite::GetByID(SITE_ID);
 								$arSite = $rsSite->Fetch();
@@ -1098,7 +1084,7 @@ class CAllStatistics extends CKeepStatistics
 
 		if($table !== false)
 		{
-			if(strlen($table) > 0 && strlen($where) > 0 && is_array($arrUpdate))
+			if($table <> '' && $where <> '' && is_array($arrUpdate))
 			{
 				foreach($arrUpdate as $field => $value)
 				{
@@ -1131,15 +1117,15 @@ class CAllStatistics extends CKeepStatistics
 	{
 		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
-		if (strlen($cleanup_date)<=0)
+		if ($cleanup_date == '')
 		{
-			$fname = $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/statistic/install/db/".strtolower($DB->type)."/clean_up.sql";
+			$fname = $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/statistic/install/db/".mb_strtolower($DB->type)."/clean_up.sql";
 			if (file_exists($fname))
 			{
 				$arErrors = $DB->RunSQLBatch($fname);
 				if (!$arErrors)
 				{
-					$fname = $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/statistic/install/db/".strtolower($DB->type)."/adv.sql";
+					$fname = $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/statistic/install/db/".mb_strtolower($DB->type)."/adv.sql";
 					$arErrors2 = $DB->RunSQLBatch($fname);
 					if (!$arErrors2) return true; else
 					{
@@ -1193,7 +1179,7 @@ class CAllStatistics extends CKeepStatistics
 		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$base_currency = GetStatisticBaseCurrency();
-		if ($base_currency!="xxx" && strlen($base_currency)>0)
+		if ($base_currency!="xxx" && $base_currency <> '')
 		{
 			if (CModule::IncludeModule("currency"))
 			{
@@ -1287,14 +1273,14 @@ class CAllStatistics extends CKeepStatistics
 				}
 				else
 				{
-					if(strpos($DB->db_Error,"Duplicate key name")===0) $bSuccess=true;
-					if(strpos($DB->db_Error,"Can't DROP")===0) $bSuccess=true;
+					if(mb_strpos($DB->db_Error, "Duplicate key name") === 0) $bSuccess=true;
+					if(mb_strpos($DB->db_Error, "Can't DROP") === 0) $bSuccess=true;
 
-					if(strpos($DB->db_Error,"ORA-00955")===0) $bSuccess=true;
-					if(strpos($DB->db_Error,"ORA-01418")===0) $bSuccess=true;
+					if(mb_strpos($DB->db_Error, "ORA-00955") === 0) $bSuccess=true;
+					if(mb_strpos($DB->db_Error, "ORA-01418") === 0) $bSuccess=true;
 
-					if(strpos($DB->db_Error,"#S0011")===0) $bSuccess=true;
-					if(strpos($DB->db_Error,"#S0002")===0) $bSuccess=true;
+					if(mb_strpos($DB->db_Error, "#S0011") === 0) $bSuccess=true;
+					if(mb_strpos($DB->db_Error, "#S0002") === 0) $bSuccess=true;
 				}
 			}
 			if($bSuccess)

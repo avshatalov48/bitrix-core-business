@@ -4,7 +4,7 @@
 			Company24 completes every project with experience hand.
 		</h2>
 		<div class="landing-block-container">
-			<a class="landing-block-button landing-semantic-link-image-medium js-animation fadeInUp btn u-btn-primary g-min-width-170 g-font-size-13 text-uppercase g-rounded-30 g-px-30 g-py-14"
+			<a class="landing-block-button landing-semantic-link-image-medium js-animation fadeInUp btn g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-l text-uppercase g-rounded-30 g-py-14"
 			   href="#">Get Started</a>
 		</div>
 	</div>

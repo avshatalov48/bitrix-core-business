@@ -217,7 +217,7 @@ return array(
 						Apartment in<br />London\'s center
 					</h2>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn btn-lg g-mt-20 g-mt-0--md text-uppercase u-btn-primary g-font-weight-700 g-font-size-12 g-py-15 g-px-40 g-rounded-4" href="#">Learn more</a>
+						<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-md g-btn-px-l g-mt-20 g-mt-0--md text-uppercase g-btn-primary g-py-15 g-rounded-4" href="#">Learn more</a>
 					</div>
 				</div>
 			</div>
@@ -234,7 +234,7 @@ return array(
 						Apartment in<br />London\'s center
 					</h2>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn btn-lg g-mt-20 g-mt-0--md text-uppercase u-btn-primary g-font-weight-700 g-font-size-12 g-py-15 g-px-40 g-rounded-4" href="#">Learn more</a>
+						<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-md g-btn-px-l g-mt-20 g-mt-0--md text-uppercase g-btn-primary g-py-15 g-rounded-4" href="#">Learn more</a>
 					</div>
 				</div>
 			</div>
@@ -251,7 +251,7 @@ return array(
 						Apartment in<br />London\'s center
 					</h2>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn btn-lg g-mt-20 g-mt-0--md text-uppercase u-btn-primary g-font-weight-700 g-font-size-12 g-py-15 g-px-40 g-rounded-4" href="#">Learn more</a>
+						<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-md g-btn-px-l g-mt-20 g-mt-0--md text-uppercase g-btn-primary g-py-15 g-rounded-4" href="#">Learn more</a>
 					</div>
 				</div>
 			</div>
@@ -269,7 +269,7 @@ return array(
 						Apartment in<br />London\'s center
 					</h2>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn btn-lg g-mt-20 g-mt-0--md text-uppercase u-btn-primary g-font-weight-700 g-font-size-12 g-py-15 g-px-40 g-rounded-4" href="#">Learn more</a>
+						<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-md g-btn-px-l g-mt-20 g-mt-0--md text-uppercase g-btn-primary g-py-15 g-rounded-4" href="#">Learn more</a>
 					</div>
 				</div>
 			</div>
@@ -645,10 +645,10 @@ return array(
 			<div class="landing-block-node-img col-md-6 g-min-height-300 g-bg-img-hero g-px-0 g-bg-size-cover" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/800x460/img1.jpg\');" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb"></div>
 			
 			<div class="col-md-6 text-center text-md-left g-py-50 g-py-100--md g-px-15 g-px-50--md">
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-default g-color-white g-mb-25 js-animation fadeInUp animated">Ut pulvinar tellus sed elit luctus</h3>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-color-white g-mb-25 js-animation fadeInUp animated">Ut pulvinar tellus sed elit luctus</h3>
 				<div class="landing-block-node-text g-mb-30 g-color-gray-light-v2 js-animation fadeInUp animated"><p>Fusce dolor libero, efficitur et lobortis at, faucibus nec nunc. Proin fermentum turpis eget nisi lobortis.<br /><br />FOR $1.500.000 INSTEAD $1.750.000! </p></div>
 				<div class="landing-block-node-button-container">
-					<a class="landing-block-node-button text-uppercase btn btn-xl u-btn-primary g-font-weight-700 g-font-size-12 js-animation fadeInUp animated g-rounded-4" href="#" tabindex="0" target="_self">LEARN MORE</a>
+					<a class="landing-block-node-button text-uppercase btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary js-animation fadeInUp animated g-rounded-4" href="#" tabindex="0" target="_self">LEARN MORE</a>
 				</div>
 			</div>
 		</div>
@@ -1339,7 +1339,7 @@ return array(
 					<h2 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-22 g-font-size-36--md g-color-white g-mb-20">Nunc sed trisrique mi</h2>
 					<div class="landing-block-node-card-text g-max-width-645 g-color-white-opacity-0_9 mx-auto g-mb-35"><p>Fusce dolor libero, efficitur et lobortis at, faucibus nec nunc. Proin fermentum turpis eget nisi facilisis lobortis. Praesent malesuada facilisis maximus.<br /><br /><span style="font-weight: bold;">For $2.500.000</span></p></div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn btn-lg u-btn-primary g-font-weight-700 g-font-size-12 text-uppercase g-px-25 g-py-15 g-rounded-4" href="#" tabindex="-1" target="_self">LEARN MORE</a>
+						<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary text-uppercase g-py-15 g-rounded-4" href="#" tabindex="-1" target="_self">LEARN MORE</a>
 					</div>
 				</div>
 			</div>
@@ -1352,7 +1352,7 @@ return array(
 					<h2 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-22 g-font-size-36--md g-color-white g-mb-20">Nunc sed trisrique mi</h2>
 					<div class="landing-block-node-card-text g-max-width-645 g-color-white-opacity-0_9 mx-auto g-mb-35"><p>Fusce dolor libero, efficitur et lobortis at, faucibus nec nunc. Proin fermentum turpis eget nisi facilisis lobortis. Praesent malesuada facilisis maximus.</p><p><span style="font-weight: bold;">For $2.500.000</span></p></div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn btn-lg u-btn-primary g-font-weight-700 g-font-size-12 text-uppercase g-px-25 g-py-15 g-rounded-4" href="#" tabindex="-1" target="_self">LEARN MORE</a>
+						<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary text-uppercase g-py-15 g-rounded-4" href="#" tabindex="-1" target="_self">LEARN MORE</a>
 					</div>
 				</div>
 			</div>
@@ -1365,7 +1365,7 @@ return array(
 					<h2 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-22 g-font-size-36--md g-color-white g-mb-20">NUNC SED TRISRIQUE MI</h2>
 					<div class="landing-block-node-card-text g-max-width-645 g-color-white-opacity-0_9 mx-auto g-mb-35"><p>Fusce dolor libero, efficitur et lobortis at, faucibus nec nunc. Proin fermentum turpis eget nisi facilisis lobortis. Praesent malesuada facilisis maximus.</p><p><span style="font-weight: bold; color: rgb(244, 81, 30);">For $2.500.000</span></p></div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn btn-lg u-btn-primary g-font-weight-700 g-font-size-12 text-uppercase g-px-25 g-py-15 g-rounded-4" href="#" tabindex="0" target="_self">LEARN MORE</a>
+						<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary text-uppercase g-py-15 g-rounded-4" href="#" tabindex="0" target="_self">LEARN MORE</a>
 					</div>
 				</div>
 			</div>
@@ -1379,7 +1379,7 @@ return array(
 					<h2 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-22 g-font-size-36--md g-color-white g-mb-20">Nunc sed trisrique mi</h2>
 					<div class="landing-block-node-card-text g-max-width-645 g-color-white-opacity-0_9 mx-auto g-mb-35"><p>Fusce dolor libero, efficitur et lobortis at, faucibus nec nunc. Proin fermentum turpis eget nisi facilisis lobortis. Praesent malesuada facilisis maximus.</p><p><span style="font-weight: bold;">For $2.500.000</span></p></div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn btn-lg u-btn-primary g-font-weight-700 g-font-size-12 text-uppercase g-px-25 g-py-15 g-rounded-4" href="#" tabindex="0" target="_self">LEARN MORE</a>
+						<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary text-uppercase g-py-15 g-rounded-4" href="#" tabindex="0" target="_self">LEARN MORE</a>
 					</div>
 				</div>
 			</div>
@@ -1530,7 +1530,7 @@ return array(
 
 		<div class="landing-block-node-text g-color-white-opacity-0_7 g-mb-35">Donec eleifend mauris eu leo varius consectetur. Aliquam luctus a lorem ac rutrum. Cras in nulla id mi ornare vestibulum. <p>Donec et magna nulla. Pellentesque ut ipsum id nibh pretium blandit quis ac erat.</p></div>
 		<div class="landing-block-node-button-container">
-			<a href="#" class="landing-block-node-button btn btn-xl u-btn-primary text-uppercase g-font-weight-700 g-font-size-12 g-py-15 g-px-40 g-mb-15 g-rounded-4" target="_self">CONTACT US</a>
+			<a href="#" class="landing-block-node-button btn g-btn-primary g-btn-type-solid g-btn-px-l g-btn-size-md g-btn-primary text-uppercase g-py-15 g-mb-15 g-rounded-4" target="_self">CONTACT US</a>
 		</div>
 	</div>
 </section>',
@@ -1631,7 +1631,7 @@ return array(
 		<div class="row">
 			<div class="col-sm-12 col-md-6 col-lg-6 g-mb-25 g-mb-0--lg">
 				<h2 class="landing-block-node-title text-uppercase g-color-white g-font-weight-700 g-font-size-16 g-mb-20"> </h2>
-				<div class="landing-block-node-text g-font-size-default g-color-gray-light-v1 g-mb-20"> </div>
+				<div class="landing-block-node-text g-color-gray-light-v1 g-mb-20"> </div>
 
 				<address class="g-color-gray-light-v1 g-mb-20">
 				

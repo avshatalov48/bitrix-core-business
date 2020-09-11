@@ -10,11 +10,11 @@ IncludeModuleLangFile(__FILE__);
 ClearVars();
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/prolog.php");
 
-$ID = IntVal($ID);
+$ID = intval($ID);
 
 $message = false;
 $bInitVars = false;
-if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $forumPermissions=="W" && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $forumPermissions=="W" && check_bitrix_sessid())
 {
 	$POINTS_PER_POST = str_replace(",", ".", $POINTS_PER_POST);
 
@@ -27,12 +27,12 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $forumPe
 	else
 		$res = CForumPoints2Post::Add($arFields);
 		
-	if (intVal($res) <= 0 && $e = $GLOBALS["APPLICATION"]->GetException())
+	if (intval($res) <= 0 && $e = $GLOBALS["APPLICATION"]->GetException())
 	{
 		$message = new CAdminMessage(($ID > 0 ? GetMessage("FORUM_PPE_EDDOR_UPDATE") : GetMessage("FORUM_PPE_ERROR_ADD")), $e);
 		$bInitVars = True;
 	}
-	elseif (strlen($save)>0)
+	elseif ($save <> '')
 		LocalRedirect("forum_points2post.php?lang=".LANG."&".GetFilterParams("filter_", false));
 	else 
 		$ID = $res;

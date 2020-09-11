@@ -30,8 +30,8 @@ if (!function_exists("__array_merge"))
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$arParams["UID"] = intVal(intVal($arParams["UID"]) > 0 ? $arParams["UID"] : $_REQUEST["UID"]);
-	$arParams["mode"] = strToLower((strLen($arParams["mode"]) <= 0) ? $_REQUEST["mode"] : $arParams["mode"]);
+	$arParams["UID"] = intval(intVal($arParams["UID"]) > 0 ? $arParams["UID"] : $_REQUEST["UID"]);
+$arParams["mode"] = mb_strtolower(($arParams["mode"] == '')? $_REQUEST["mode"] : $arParams["mode"]);
 	$arParams["mode"] = (in_array($arParams["mode"], array("all", "lt", "lta")) ? $arParams["mode"] : "all");
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
@@ -48,25 +48,25 @@ if (!function_exists("__array_merge"))
 	}
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (!isset($arParams["URL_TEMPLATES_".strToUpper($URL)]))
-			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		if (!isset($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]))
+			$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["USER_FIELDS"] = (is_array($arParams["USER_FIELDS"]) ? $arParams["USER_FIELDS"] : array($arParams["USER_FIELDS"]));
 	if (!in_array("UF_FORUM_MESSAGE_DOC", $arParams["USER_FIELDS"]))
 		$arParams["USER_FIELDS"][] = "UF_FORUM_MESSAGE_DOC";
 	$arParams["FID_RANGE"] = (is_array($arParams["FID_RANGE"]) && !empty($arParams["FID_RANGE"]) ? $arParams["FID_RANGE"] : array());
-	$arParams["MESSAGES_PER_PAGE"] = intVal((intVal($arParams["MESSAGES_PER_PAGE"]) > 0) ? $arParams["MESSAGES_PER_PAGE"] : COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10"));
+	$arParams["MESSAGES_PER_PAGE"] = intval((intVal($arParams["MESSAGES_PER_PAGE"]) > 0) ? $arParams["MESSAGES_PER_PAGE"] : COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10"));
 	$arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
-	$arParams["PAGE_NAVIGATION_WINDOW"] = intVal(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
+	$arParams["PAGE_NAVIGATION_WINDOW"] = intval(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
 	$arParams["PATH_TO_SMILE"] = "";
-	$arParams["WORD_LENGTH"] = intVal($arParams["WORD_LENGTH"]);
-	$arParams["IMAGE_SIZE"] = (intVal($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 300);
+	$arParams["WORD_LENGTH"] = intval($arParams["WORD_LENGTH"]);
+	$arParams["IMAGE_SIZE"] = (intval($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 300);
 /***************** STANDART ****************************************/
 	$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
 	$arParams["SET_NAVIGATION"] = ($arParams["SET_NAVIGATION"] == "N" ? "N" : "Y");
@@ -244,7 +244,7 @@ else
 /*******************************************************************/
 $arGroupForum = array();
 foreach ($arResult["FORUMS_ALL"] as $res):
-	$arGroupForum[intVal($res["FORUM_GROUP_ID"])]["FORUMS"][] = $res;
+	$arGroupForum[intval($res["FORUM_GROUP_ID"])]["FORUMS"][] = $res;
 endforeach;
 /*******************************************************************/
 $arGroups = array();
@@ -338,7 +338,7 @@ if ($arParams["mode"] == "lta" || $arParams["mode"] == "lt")
 	{
 		do
 		{
-			$arForum_posts[$res["FORUM_ID"]] += intVal($res["COUNT_MESSAGE"]);
+			$arForum_posts[$res["FORUM_ID"]] += intval($res["COUNT_MESSAGE"]);
 			$res = array_merge(
 				$res, array(
 					"ID" => $res["TOPIC_ID"],
@@ -432,7 +432,7 @@ if ($db_res && ($res = $db_res->GetNext()))
 	$res["~ATTACH_FILE"] = array(); $res["ATTACH_FILE"] = array();
 /************** Message info/***************************************/
 /************** Author info ****************************************/
-	$res["AUTHOR_ID"] = intVal($res["AUTHOR_ID"]);
+	$res["AUTHOR_ID"] = intval($res["AUTHOR_ID"]);
 	$res["AVATAR"] = $arResult["USER"]["AVATAR"];
 	$res["~AVATAR"] = $arResult["USER"]["~AVATAR"];
 	// data
@@ -441,7 +441,7 @@ if ($db_res && ($res = $db_res->GetNext()))
 	$res["AUTHOR_NAME"] = $arResult["PARSER"]->wrap_long_words($res["AUTHOR_NAME"]);
 	$res["DESCRIPTION"] = $arResult["PARSER"]->wrap_long_words($res["DESCRIPTION"]);
 	$res["SIGNATURE"] = "";
-	if ($arResult["FORUMS_ALL"][$res["FORUM_ID"]]["ALLOW_SIGNATURE"] == "Y" && strlen($res["~SIGNATURE"]) > 0)
+	if ($arResult["FORUMS_ALL"][$res["FORUM_ID"]]["ALLOW_SIGNATURE"] == "Y" && $res["~SIGNATURE"] <> '')
 		$res["SIGNATURE"] = $arResult["PARSER"]->convert($res["~SIGNATURE"], array_merge($arResult["FORUMS_ALL"][$res["FORUM_ID"]]["ALLOW"], array("SMILES" => "N")));
 	$res["FOR_JS"] = array(
 		"AUTHOR_NAME" => Cutil::JSEscape(htmlspecialcharsbx($res["~AUTHOR_NAME"])),
@@ -560,7 +560,7 @@ foreach ($topics as $topic_id => $res)
 				array("FID" => 0, "MID" => 0, "UID" => $res["AUTHOR_ID"], "mode" => "new")),
 			);
 			$res["URL"]["~AUTHOR_VOTE"] = ForumAddPageParams($res["URL"]["MESSAGE"],
-				array("UID" => $res["AUTHOR_ID"], "MID" => $res["ID"], "VOTES" => intVal($arResult["USER"]["RANK"]["VOTES"]),
+				array("UID" => $res["AUTHOR_ID"], "MID" => $res["ID"], "VOTES" => intval($arResult["USER"]["RANK"]["VOTES"]),
 					"VOTES_TYPE" => ($res["VOTING"] == "VOTE" ? "V" : "U"), "ACTION" => "VOTE4USER"));
 			$res["URL"]["AUTHOR_VOTE"] = $res["URL"]["~AUTHOR_VOTE"]."&amp;".bitrix_sessid_get();
 	/************** For custom templates *******************************/
@@ -583,9 +583,9 @@ $arResult["USER"]["~profile_view"] = $arResult["USER"]["URL"]["~PROFILE"];
 				/Data
 ********************************************************************/
 	$this->IncludeComponentTemplate();
-if (strToLower($arParams["mode"]) == "lta")
+if (mb_strtolower($arParams["mode"]) == "lta")
 	$Title = GetMessage("LU_TITLE_LTA");
-elseif (strToLower($arParams["mode"]) == "lt")
+elseif (mb_strtolower($arParams["mode"]) == "lt")
 	$Title = GetMessage("LU_TITLE_LT");
 else
 	$Title = GetMessage("LU_TITLE_ALL");

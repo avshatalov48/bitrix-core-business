@@ -760,6 +760,97 @@ function deleteAccessRow(link)
 				section.classList.remove("landing-form-field-section-hidden");
 			}
 		}
+	};
+
+	/**
+	 * Cookies.
+	 */
+	BX.Landing.Cookies = function(params)
+	{
+		this.bgPickerBtn = document.querySelector('.landing-form-cookies-color-bg');
+		this.textPickerBtn = document.querySelector('.landing-form-cookies-color-text');
+		this.simplePreview = document.querySelector('.landing-form-cookies-settings-type-simple');
+		this.advancedPreview = document.querySelector('.landing-form-cookies-settings-type-advanced');
+		this.positions = document.querySelectorAll('.landing-form-cookies-position-item');
+
+		this.bgPicker = new BX.ColorPicker({
+			bindElement: this.bgPickerBtn,
+			popupOptions: {angle: false, offsetTop: 5},
+			onColorSelected: this.onBgColorSelected.bind(this),
+			colors: BX.Landing.ColorPicker.prototype.setColors()
+		});
+
+		this.textPicker = new BX.ColorPicker({
+			bindElement: this.textPickerBtn,
+			popupOptions: {angle: false, offsetTop: 5},
+			onColorSelected: this.onTextColorSelected.bind(this),
+			colors: BX.Landing.ColorPicker.prototype.setColors()
+		});
+
+		this.setSelectedBgColor(this.bgPickerBtn.value);
+		this.setSelectedTextColor(this.textPickerBtn.value);
+
+		this.bindEvents();
+	};
+
+	BX.Landing.Cookies.prototype = {
+
+		bindEvents: function () {
+			this.positions.forEach(function (position) {
+				position.addEventListener('click', this.onSelectCookiesPosition.bind(this));
+			}.bind(this));
+
+			this.bgPickerBtn.addEventListener('click', this.showBgPicker.bind(this));
+			this.textPickerBtn.addEventListener('click', this.showTextPicker.bind(this));
+		},
+
+		onBgColorSelected: function() {
+			var color = this.bgPicker.getSelectedColor();
+			this.setSelectedBgColor(color);
+		},
+
+		onTextColorSelected: function() {
+			var color = this.textPicker.getSelectedColor();
+			this.setSelectedTextColor(color);
+		},
+
+		onSelectCookiesPosition: function(event) {
+			this.positions.forEach(function (position) {
+				if (position.classList.contains('landing-form-cookies-position-item-selected'))
+				{
+					position.classList.remove('landing-form-cookies-position-item-selected');
+				}
+			}.bind(this));
+			event.currentTarget.classList.add('landing-form-cookies-position-item-selected');
+		},
+
+		showBgPicker: function() {
+			this.bgPicker.open();
+		},
+
+		showTextPicker: function() {
+			this.textPicker.open();
+		},
+
+		setSelectedBgColor: function(color) {
+			this.bgPickerBtn.style.background = color;
+			this.bgPickerBtn.value = color;
+			this.simplePreview.style.background = color;
+			this.advancedPreview.style.background = color;
+		},
+
+		setSelectedTextColor: function(color) {
+			this.textPickerBtn.style.background = color;
+			this.textPickerBtn.value = color;
+			this.advancedPreview.style.color = color;
+
+			var svgList = document.querySelectorAll('.landing-form-cookies-settings-preview-svg');
+			svgList.forEach(function(svg)
+			{
+				svg.style.fill = color;
+			});
+		}
+
 	}
 
 })();

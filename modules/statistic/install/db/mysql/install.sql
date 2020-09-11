@@ -754,7 +754,7 @@ create table if not exists b_stat_event (
    DIAGRAM_DEFAULT char(1) not null default 'Y',
    primary key (ID),
    index IX_EVENT1_EVENT2 (EVENT1, EVENT2));
-CREATE INDEX IX_B_STAT_EVENT_2 ON b_stat_event (KEEP_DAYS, ID);
+CREATE INDEX IX_B_STAT_EVENT_2 ON b_stat_event (KEEP_DAYS);
 
 create table if not exists b_stat_event_day (
    ID int(18) not null auto_increment,
@@ -925,7 +925,7 @@ create table if not exists b_stat_searcher (
    PHRASES_HITS int(18) not null default '0',
    CHECK_ACTIVITY char(1) not null default 'Y',
    primary key (ID));
-CREATE INDEX IX_B_STAT_SEARCHER_1 ON b_stat_searcher (HIT_KEEP_DAYS, ID);
+CREATE INDEX IX_B_STAT_SEARCHER_1 ON b_stat_searcher (HIT_KEEP_DAYS);
 
 create table if not exists b_stat_searcher_params (
    ID int(18) not null auto_increment,

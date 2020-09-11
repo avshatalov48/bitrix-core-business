@@ -113,24 +113,6 @@ abstract class Page
 	 */
 	public function isLocked()
 	{
-		static $lockStates = [];
-		$class = get_class($this);
-
-		if (!array_key_exists($class, $lockStates))
-		{
-			$lockStates[$class] = Manager::checkFeature(
-				Manager::FEATURE_ENABLE_ALL_HOOKS,
-				[
-					'hook' => mb_strtolower(array_pop(explode('\\', $class)))
-				]
-			);
-		}
-
-		if (!$this->isFree() && !$lockStates[$class])
-		{
-			return true;
-		}
-
 		return false;
 	}
 

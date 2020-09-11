@@ -41,11 +41,11 @@ class CUserOnline
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if( ($val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "INTERVAL":
@@ -132,8 +132,8 @@ class CUserOnline
 		{
 			foreach($arOrder as $by=>$order)
 			{
-				$by = strtolower($by);
-				$order = strtolower($order);
+				$by = mb_strtolower($by);
+				$order = mb_strtolower($order);
 				if ($order!="asc")
 					$order = "desc";
 			}

@@ -17,13 +17,13 @@ else
 	$group_by=false;//no setting (will be read later from session)
 
 $base_currency = GetStatisticBaseCurrency();
-if (strlen($base_currency)>0)
+if ($base_currency <> '')
 {
 	if (CModule::IncludeModule("currency"))
 	{
 		$currency_module = "Y";
 		$base_currency = GetStatisticBaseCurrency();
-		$view_currency = (strlen($find_currency)>0 && $find_currency!="NOT_REF") ? $find_currency : $base_currency;
+		$view_currency = ($find_currency <> '' && $find_currency!="NOT_REF") ? $find_currency : $base_currency;
 		$arrCurrency = array();
 		$rsCur = CCurrency::GetList(($v1="sort"), ($v2="asc"));
 		$arrRefID = array();
@@ -138,7 +138,7 @@ if(($arID = $lAdmin->GroupAction()) && $STAT_RIGHT>="W")
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
 		$ID = intval($ID);
 		switch($_REQUEST['action'])
@@ -245,7 +245,7 @@ $arHeaders[]=
 		"align"		=>"right",
 		"default"	=>false,
 	);
-if((strlen($find_date1_period)>0 || strlen($find_date2_period)>0) && $is_filtered):
+if(($find_date1_period <> '' || $find_date2_period <> '') && $is_filtered):
 	$arHeaders[]=
 		array(	"id"		=>"SESSIONS_PERIOD",
 			"content"	=>GetMessage("STAT_SESSIONS_PERIOD"),
@@ -378,11 +378,11 @@ $lAdmin->AddHeaders($arHeaders);
 //Helper function
 function resolveValue($field_name)
 {
-	global $group_by,${"f_".$field_name},${"f_".strtoupper($group_by)},$arrGROUP_DAYS;
+	global $group_by,${"f_".$field_name},${"f_".mb_strtoupper($group_by)},$arrGROUP_DAYS;
 	if($group_by=="")
 		$value=intval(${"f_".$field_name});
 	else
-		$value=intval($arrGROUP_DAYS[${"f_".strtoupper($group_by)}][$field_name]);
+		$value=intval($arrGROUP_DAYS[${"f_".mb_strtoupper($group_by)}][$field_name]);
 	return $value;
 }
 
@@ -457,7 +457,7 @@ while($arRes = $rsData->NavNext(true, "f_")):
 	endif;
 	$row->AddViewField("SESSIONS_BACK", $strHTML);
 
-	if((strlen($find_date1_period)>0 || strlen($find_date2_period)>0) && $is_filtered):
+	if(($find_date1_period <> '' || $find_date2_period <> '') && $is_filtered):
 		$f_SESSIONS_PERIOD=resolveValue("SESSIONS_PERIOD");
 		if(intval($f_SESSIONS_PERIOD)>0):
 			$strHTML = '<a title="'.GetMessage("STAT_SESSIONS_LIST").'" href="session_list.php?lang='.LANG.'&amp;find_date1='.urlencode($find_date1_period).'&amp;find_date2='.urlencode($find_date2_period).'&amp;';
@@ -493,7 +493,7 @@ while($arRes = $rsData->NavNext(true, "f_")):
 	//$row->AddViewField("SESSIONS_PERIOD", getHTML("SESSIONS_PERIOD"));
 	//$row->AddViewField("SESSIONS_BACK_PERIOD", getHTML("SESSIONS_BACK_PERIOD"));
 
-	$show_events = (strlen($f_EVENTS_VIEW)<=0) ? COption::GetOptionString("statistic", "ADV_EVENTS_DEFAULT") : $f_EVENTS_VIEW;
+	$show_events = ($f_EVENTS_VIEW == '') ? COption::GetOptionString("statistic", "ADV_EVENTS_DEFAULT") : $f_EVENTS_VIEW;
 	$group_events = ($show_events=="event1" || $show_events=="event2") ? $show_events : "";
 	$arF = array();
 	$arF["DATE1_PERIOD"] = $arFilter["DATE1_PERIOD"];

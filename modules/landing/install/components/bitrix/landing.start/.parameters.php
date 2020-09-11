@@ -130,6 +130,11 @@ $arComponentParameters = Array(
 				'DEFAULT' => 'site/domain_switch/#site_edit#/',
 				'VARIABLES' => array('site_edit')
 			),
+			'site_cookies' => array(
+				'NAME' => getMessage('LANDING_CMP_PAR_SM_SITE_COOKIES'),
+				'DEFAULT' => 'site/cookies/#site_edit#/',
+				'VARIABLES' => array('site_edit')
+			),
 			'landing_edit' => array(
 				'NAME' => getMessage('LANDING_CMP_PAR_SM_LANDING_EDIT'),
 				'DEFAULT' => 'site/#site_show#/edit/#landing_edit#/',

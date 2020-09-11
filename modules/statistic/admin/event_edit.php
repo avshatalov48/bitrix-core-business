@@ -45,7 +45,7 @@ $next_pos=intval($next_pos);
 
 $currency_module = "N";
 $base_currency = GetStatisticBaseCurrency();
-if (strlen($base_currency)>0)
+if ($base_currency <> '')
 {
 	if (CModule::IncludeModule("currency"))
 	{
@@ -97,7 +97,7 @@ if ($Load!="" && $tabControl_active_tab=="load_csv_tab" && $REQUEST_METHOD=="POS
 	if (move_uploaded_file($file, $INPUT_CSV_FILE))
 	{
 		// handler was choosen
-		if(strlen($handler)>0 && $handler!="NOT_REF" && in_array($handler , $arrHandlers["reference_id"]))
+		if($handler <> '' && $handler!="NOT_REF" && in_array($handler , $arrHandlers["reference_id"]))
 		{
 			// include it
 			$handler_path = $_SERVER["DOCUMENT_ROOT"].$handler;
@@ -152,7 +152,7 @@ if ($Load!="" && $tabControl_active_tab=="load_manual_tab" && $STAT_RIGHT>="W" &
 				$arrRes = array();
 				$arrRes[] = intval(${"EVENT_ID_".$pid});
 				$arrRes[] = ${"EVENT3_".$pid};
-				$arrRes[] = (strlen(${"DATE_ENTER_".$pid})>0) ? ${"DATE_ENTER_".$pid} : GetTime(time(),"FULL");
+				$arrRes[] = (${"DATE_ENTER_".$pid} <> '') ? ${"DATE_ENTER_".$pid} : GetTime(time(),"FULL");
 				$arrRes[] = ${"PARAM_".$pid};
 				$arrRes[] = ${"MONEY_".$pid};
 				$arrRes[] = ${"CURRENCY_".$pid};
@@ -170,7 +170,7 @@ if ($Load!="" && $tabControl_active_tab=="load_manual_tab" && $STAT_RIGHT>="W" &
 
 // check if we have file to load
 if(
-	strlen($csvfile) > 0
+	$csvfile <> ''
 	&& $STAT_RIGHT >= "W"
 	&& check_bitrix_sessid())
 {
@@ -210,9 +210,9 @@ $APPLICATION->SetTitle(GetMessage("STAT_TITLE"));
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
-if (strlen($success) <= 0 || $success == "Y")
+if ($success == '' || $success == "Y")
 {
-	if (strlen($base_currency) > 0)
+	if ($base_currency <> '')
 	{
 		CAdminMessage::ShowMessage(array(
 			"DETAILS" => GetMessage("STAT_BASE_CURRENCY")." ".$base_currency,
@@ -531,7 +531,7 @@ $tabControl->BeginNextTab();
 				$currency = $_REQUEST["CURRENCY_".$i];
 				$chargeback = $_REQUEST["CHARGEBACK_".$i];
 			}
-			if (strlen($currency)<=0) $currency = $base_currency;
+			if ($currency == '') $currency = $base_currency;
 		?>
 		<tr>
 			<td align="right"><?=$i?></td>

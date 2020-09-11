@@ -14,7 +14,7 @@
 
 				<div class="d-inline-block g-line-height-1 u-countdown--days-hide">
 					<div class="landing-block-node-number-border align-top g-px-10 g-px-50--md g-py-15 g-brd-right g-brd-white-opacity-0_4">
-						<div class="landing-block-node-number-number landing-block-node-number-number-days g-color-white g-font-size-20 g-font-size-40--md font-weight-bold g-line-height-1 g-mb-5">
+						<div class="landing-block-node-number-number landing-block-node-number-number-days g-color-white g-font-size-20 g-font-size-40--md g-font-weight-700 g-line-height-1 g-mb-5">
 							<span class="js-cd-days">12</span>
 						</div>
 						<span class="landing-block-node-number-text landing-block-node-number-text-days g-font-size-12 g-color-white text-uppercase">Days</span>
@@ -23,7 +23,7 @@
 
 				<div class="d-inline-block g-line-height-1">
 					<div class="landing-block-node-number-border align-top g-px-10 g-px-50--md g-py-15 g-brd-right g-brd-white-opacity-0_4">
-						<div class="landing-block-node-number-number landing-block-node-number-number-hours g-color-white g-font-size-20 g-font-size-40--md font-weight-bold g-line-height-1 g-mb-5">
+						<div class="landing-block-node-number-number landing-block-node-number-number-hours g-color-white g-font-size-20 g-font-size-40--md g-font-weight-700 g-line-height-1 g-mb-5">
 							<span class="js-cd-hours">01</span>
 						</div>
 						<span class="landing-block-node-number-text landing-block-node-number-text-hours g-font-size-12 g-color-white text-uppercase">Hours</span>
@@ -32,7 +32,7 @@
 
 				<div class="d-inline-block g-line-height-1">
 					<div class="landing-block-node-number-border align-top g-px-10 g-px-50--md g-py-15 g-brd-right g-brd-white-opacity-0_4">
-						<div class="landing-block-node-number-number landing-block-node-number-number-minutes g-color-white g-font-size-20 g-font-size-40--md font-weight-bold g-line-height-1 g-mb-5">
+						<div class="landing-block-node-number-number landing-block-node-number-number-minutes g-color-white g-font-size-20 g-font-size-40--md g-font-weight-700 g-line-height-1 g-mb-5">
 							<span class="js-cd-minutes">52</span>
 						</div>
 						<span class="landing-block-node-number-text landing-block-node-number-text-minutes g-font-size-12 g-color-white text-uppercase">Minutes</span>
@@ -41,7 +41,7 @@
 
 				<div class="d-inline-block g-line-height-1">
 					<div class="align-top g-px-10 g-px-50--md g-py-15">
-						<div class="landing-block-node-number-number landing-block-node-number-number-seconds g-color-white g-font-size-20 g-font-size-40--md font-weight-bold g-line-height-1 g-mb-5">
+						<div class="landing-block-node-number-number landing-block-node-number-number-seconds g-color-white g-font-size-20 g-font-size-40--md g-font-weight-700 g-line-height-1 g-mb-5">
 							<span class="js-cd-seconds">52</span>
 						</div>
 						<span class="landing-block-node-number-text landing-block-node-number-text-seconds g-font-size-12 g-color-white text-uppercase">Seconds</span>
@@ -51,7 +51,7 @@
 			</div>
 		</div>
 
-		<h2 class="landing-block-node-title text-center text-uppercase font-weight-bold g-font-size-60 g-color-white g-mb-30 g-mb-70--md">
+		<h2 class="landing-block-node-title text-center text-uppercase g-font-weight-700 g-font-size-60 g-color-white g-mb-30 g-mb-70--md">
 			UI & UX Design 2020</h2>
 
 		<div class="row">
@@ -88,7 +88,7 @@
 			</div>
 
 			<div class="col-md-2 text-center text-md-right">
-				<a class="landing-block-node-button btn btn-lg text-uppercase u-btn-white font-weight-bold g-font-size-11 rounded-0 g-py-18"
+				<a class="landing-block-node-button btn text-uppercase g-btn-white rounded-0 g-py-18  g-btn-type-solid g-btn-white g-btn-px-s rounded-0 g-btn-size-special"
 				   href="#">Register Now</a>
 			</div>
 		</div>

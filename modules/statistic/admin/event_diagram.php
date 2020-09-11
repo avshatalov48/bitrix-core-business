@@ -19,7 +19,7 @@ $arFilter = Array(
 	"DATE1_PERIOD"	=> $find_date1,
 	"DATE2_PERIOD"	=> $find_date2
 	);
-if (strlen($find_date1)>0 || strlen($find_date2)>0)	$period = "Y";
+if ($find_date1 <> '' || $find_date2 <> '')	$period = "Y";
 $by = ($period=="Y") ? "s_period_counter" : "s_total_counter";
 $w = CStatEventType::GetList($by, ($order="desc"), $arFilter, $is_filtered);
 while ($wr = $w->Fetch())	

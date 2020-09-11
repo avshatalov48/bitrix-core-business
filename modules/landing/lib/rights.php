@@ -946,7 +946,7 @@ class Rights
 		{
 			$type = mb_strtolower($type);
 			//@todo: hotfix for group right
-			if ($type == 'group')
+			if ($type == Site\Type::SCOPE_CODE_GROUP)
 			{
 				return true;
 			}

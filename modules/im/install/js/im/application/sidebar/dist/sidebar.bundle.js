@@ -65,9 +65,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
-	var SidebarApplication =
-	/*#__PURE__*/
-	function () {
+	var SidebarApplication = /*#__PURE__*/function () {
 	  /* region 01. Initialize */
 	  function SidebarApplication() {
 	    var _this = this;

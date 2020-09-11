@@ -13,15 +13,15 @@
 						<div class="landing-block-node-card-bg-hover opacity-0 g-opacity-1--parent-hover g-transition-0_2 g-transition--ease-in h-100 g-theme-travel-bg-black-v1-opacity-0_8"></div>
 						<div class="landing-block-node-card-inner-container g-pa-20 g-pos-abs g-top-0 g-left-0 h-100 g-flex-middle">
 							<div class="g-flex-middle-item--top g-pointer-events-all">
-								<div class="landing-block-node-card-price landing-semantic-text-image-small font-weight-bold u-ribbon-v1 text-uppercase g-top-20 g-left-20 g-color-white g-theme-travel-bg-black-v1 g-pa-5"
+								<div class="landing-block-node-card-price landing-semantic-text-image-small g-font-weight-700 u-ribbon-v1 text-uppercase g-top-20 g-left-20 g-color-white g-theme-travel-bg-black-v1 g-pa-5"
 										href="#">From
 									<span style="color: #ee4136;">$780.00</span>
 								</div>
 							</div>
 
 							<div class="text-uppercase g-flex-middle-item--bottom g-pointer-events-all">
-								<div class="landing-block-node-card-subtitle landing-semantic-text-image-small g-line-height-1_2 font-weight-bold g-font-size-11 g-color-white g-mb-10">Hong Kong</div>
-								<h3 class="landing-block-node-card-title landing-semantic-text-image-medium h5 g-line-height-1_2 font-weight-bold g-font-size-18 g-color-white g-mb-10">
+								<div class="landing-block-node-card-subtitle landing-semantic-text-image-small g-line-height-1_2 g-font-weight-700 g-font-size-11 g-color-white g-mb-10">Hong Kong</div>
+								<h3 class="landing-block-node-card-title landing-semantic-text-image-medium h5 g-line-height-1_2 g-font-weight-700 g-font-size-18 g-color-white g-mb-10">
 									King Way
 								</h3>
 								<div class="landing-block-node-card-text landing-semantic-text-image-small small g-color-white-opacity-0_8">
@@ -46,15 +46,15 @@
 						<div class="landing-block-node-card-bg-hover opacity-0 g-opacity-1--parent-hover g-transition-0_2 g-transition--ease-in h-100 g-theme-travel-bg-black-v1-opacity-0_8"></div>
 						<div class="landing-block-node-card-inner-container g-pa-20 g-pos-abs g-top-0 g-left-0 h-100 g-flex-middle">
 							<div class="g-flex-middle-item--top g-pointer-events-all">
-								<div class="landing-block-node-card-price landing-semantic-text-image-small font-weight-bold u-ribbon-v1 text-uppercase g-top-20 g-left-20 g-color-white g-theme-travel-bg-black-v1 g-pa-5"
+								<div class="landing-block-node-card-price landing-semantic-text-image-small g-font-weight-700 u-ribbon-v1 text-uppercase g-top-20 g-left-20 g-color-white g-theme-travel-bg-black-v1 g-pa-5"
 										href="#">From
 									<span style="color: #ee4136;">$2350.00</span>
 								</div>
 							</div>
 
 							<div class="text-uppercase g-flex-middle-item--bottom g-pointer-events-all">
-								<div class="landing-block-node-card-subtitle landing-semantic-text-image-small g-line-height-1_2 font-weight-bold g-font-size-11 g-color-white g-mb-10">Venice</div>
-								<h3 class="landing-block-node-card-title landing-semantic-text-image-medium h5 g-line-height-1_2 font-weight-bold g-font-size-18 g-color-white g-mb-10">
+								<div class="landing-block-node-card-subtitle landing-semantic-text-image-small g-line-height-1_2 g-font-weight-700 g-font-size-11 g-color-white g-mb-10">Venice</div>
+								<h3 class="landing-block-node-card-title landing-semantic-text-image-medium h5 g-line-height-1_2 g-font-weight-700 g-font-size-18 g-color-white g-mb-10">
 									Relax tour
 								</h3>
 								<div class="landing-block-node-card-text landing-semantic-text-image-small small g-color-white-opacity-0_8">
@@ -79,15 +79,15 @@
 						<div class="landing-block-node-card-bg-hover opacity-0 g-opacity-1--parent-hover g-transition-0_2 g-transition--ease-in h-100 g-theme-travel-bg-black-v1-opacity-0_8"></div>
 						<div class="landing-block-node-card-inner-container g-pa-20 g-pos-abs g-top-0 g-left-0 h-100 g-flex-middle">
 							<div class="g-flex-middle-item--top g-pointer-events-all">
-								<div class="landing-block-node-card-price landing-semantic-text-image-small font-weight-bold u-ribbon-v1 text-uppercase g-top-20 g-left-20 g-color-white g-theme-travel-bg-black-v1 g-pa-5"
+								<div class="landing-block-node-card-price landing-semantic-text-image-small g-font-weight-700 u-ribbon-v1 text-uppercase g-top-20 g-left-20 g-color-white g-theme-travel-bg-black-v1 g-pa-5"
 										href="#">From
 									<span style="color: #ee4136;">$4320.00</span>
 								</div>
 							</div>
 
 							<div class="text-uppercase g-flex-middle-item--bottom g-pointer-events-all">
-								<div class="landing-block-node-card-subtitle landing-semantic-text-image-small g-line-height-1_2 font-weight-bold g-font-size-11 g-color-white g-mb-10">Karlovy Vary</div>
-								<h3 class="landing-block-node-card-title landing-semantic-text-image-medium h5 g-line-height-1_2 font-weight-bold g-font-size-18 g-color-white g-mb-10">
+								<div class="landing-block-node-card-subtitle landing-semantic-text-image-small g-line-height-1_2 g-font-weight-700 g-font-size-11 g-color-white g-mb-10">Karlovy Vary</div>
+								<h3 class="landing-block-node-card-title landing-semantic-text-image-medium h5 g-line-height-1_2 g-font-weight-700 g-font-size-18 g-color-white g-mb-10">
 									Heaven on Earth
 								</h3>
 								<div class="landing-block-node-card-text landing-semantic-text-image-small small g-color-white-opacity-0_8">
@@ -112,15 +112,15 @@
 						<div class="landing-block-node-card-bg-hover opacity-0 g-opacity-1--parent-hover g-transition-0_2 g-transition--ease-in h-100 g-theme-travel-bg-black-v1-opacity-0_8"></div>
 						<div class="landing-block-node-card-inner-container g-pa-20 g-pos-abs g-top-0 g-left-0 h-100 g-flex-middle">
 							<div class="g-flex-middle-item--top g-pointer-events-all">
-								<div class="landing-block-node-card-price landing-semantic-text-image-small font-weight-bold u-ribbon-v1 text-uppercase g-top-20 g-left-20 g-color-white g-theme-travel-bg-black-v1 g-pa-5"
+								<div class="landing-block-node-card-price landing-semantic-text-image-small g-font-weight-700 u-ribbon-v1 text-uppercase g-top-20 g-left-20 g-color-white g-theme-travel-bg-black-v1 g-pa-5"
 										href="#">From
 									<span style="color: #ee4136;">$760.00</span>
 								</div>
 							</div>
 
 							<div class="text-uppercase g-flex-middle-item--bottom g-pointer-events-all">
-								<div class="landing-block-node-card-subtitle landing-semantic-text-image-small g-line-height-1_2 font-weight-bold g-font-size-11 g-color-white g-mb-10">Madrid</div>
-								<h3 class="landing-block-node-card-title landing-semantic-text-image-medium h5 g-line-height-1_2 font-weight-bold g-font-size-18 g-color-white g-mb-10">
+								<div class="landing-block-node-card-subtitle landing-semantic-text-image-small g-line-height-1_2 g-font-weight-700 g-font-size-11 g-color-white g-mb-10">Madrid</div>
+								<h3 class="landing-block-node-card-title landing-semantic-text-image-medium h5 g-line-height-1_2 g-font-weight-700 g-font-size-18 g-color-white g-mb-10">
 									Lovers tour
 								</h3>
 								<div class="landing-block-node-card-text landing-semantic-text-image-small small g-color-white-opacity-0_8">
@@ -145,15 +145,15 @@
 						<div class="landing-block-node-card-bg-hover opacity-0 g-opacity-1--parent-hover g-transition-0_2 g-transition--ease-in h-100 g-theme-travel-bg-black-v1-opacity-0_8"></div>
 						<div class="landing-block-node-card-inner-container g-pa-20 g-pos-abs g-top-0 g-left-0 h-100 g-flex-middle">
 							<div class="g-flex-middle-item--top g-pointer-events-all">
-								<div class="landing-block-node-card-price landing-semantic-text-image-small font-weight-bold u-ribbon-v1 text-uppercase g-top-20 g-left-20 g-color-white g-theme-travel-bg-black-v1 g-pa-5"
+								<div class="landing-block-node-card-price landing-semantic-text-image-small g-font-weight-700 u-ribbon-v1 text-uppercase g-top-20 g-left-20 g-color-white g-theme-travel-bg-black-v1 g-pa-5"
 										href="#">From
 									<span style="color: #ee4136;">$2440.00</span>
 								</div>
 							</div>
 
 							<div class="text-uppercase g-flex-middle-item--bottom g-pointer-events-all">
-								<div class="landing-block-node-card-subtitle landing-semantic-text-image-small g-line-height-1_2 font-weight-bold g-font-size-11 g-color-white g-mb-10">Bavaria</div>
-								<h3 class="landing-block-node-card-title landing-semantic-text-image-medium h5 g-line-height-1_2 font-weight-bold g-font-size-18 g-color-white g-mb-10">
+								<div class="landing-block-node-card-subtitle landing-semantic-text-image-small g-line-height-1_2 g-font-weight-700 g-font-size-11 g-color-white g-mb-10">Bavaria</div>
+								<h3 class="landing-block-node-card-title landing-semantic-text-image-medium h5 g-line-height-1_2 g-font-weight-700 g-font-size-18 g-color-white g-mb-10">
 									Road of gladiators
 								</h3>
 								<div class="landing-block-node-card-text landing-semantic-text-image-small small g-color-white-opacity-0_8">
@@ -178,15 +178,15 @@
 						<div class="landing-block-node-card-bg-hover opacity-0 g-opacity-1--parent-hover g-transition-0_2 g-transition--ease-in h-100 g-theme-travel-bg-black-v1-opacity-0_8"></div>
 						<div class="landing-block-node-card-inner-container g-pa-20 g-pos-abs g-top-0 g-left-0 h-100 g-flex-middle">
 							<div class="g-flex-middle-item--top g-pointer-events-all">
-								<div class="landing-block-node-card-price landing-semantic-text-image-small font-weight-bold u-ribbon-v1 text-uppercase g-top-20 g-left-20 g-color-white g-theme-travel-bg-black-v1 g-pa-5"
+								<div class="landing-block-node-card-price landing-semantic-text-image-small g-font-weight-700 u-ribbon-v1 text-uppercase g-top-20 g-left-20 g-color-white g-theme-travel-bg-black-v1 g-pa-5"
 										href="#">From
 									<span style="color: #ee4136;">$2530.00</span>
 								</div>
 							</div>
 
 							<div class="text-uppercase g-flex-middle-item--bottom g-pointer-events-all">
-								<div class="landing-block-node-card-subtitle landing-semantic-text-image-small g-line-height-1_2 font-weight-bold g-font-size-11 g-color-white g-mb-10">New York</div>
-								<h3 class="landing-block-node-card-title landing-semantic-text-image-medium h5 g-line-height-1_2 font-weight-bold g-font-size-18 g-color-white g-mb-10">
+								<div class="landing-block-node-card-subtitle landing-semantic-text-image-small g-line-height-1_2 g-font-weight-700 g-font-size-11 g-color-white g-mb-10">New York</div>
+								<h3 class="landing-block-node-card-title landing-semantic-text-image-medium h5 g-line-height-1_2 g-font-weight-700 g-font-size-18 g-color-white g-mb-10">
 									Road of gods
 								</h3>
 								<div class="landing-block-node-card-text landing-semantic-text-image-small small g-color-white-opacity-0_8">

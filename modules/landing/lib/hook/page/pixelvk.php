@@ -70,20 +70,19 @@ class PixelVk extends \Bitrix\Landing\Hook\Page
 		$counter = \CUtil::jsEscape($counter);
 		if ($counter)
 		{
-			Manager::setPageView('AfterHeadOpen',
-				'<script type="text/javascript" data-skip-moving="true">
-					!function(){
-						var t=document.createElement("script");
-						t.type="text/javascript",
-						t.async=!0,
-						t.src="https://vk.com/js/api/openapi.js?160",
-						t.onload=function(){VK.Retargeting.Init("' . $counter . '"),
-						VK.Retargeting.Hit()},document.head.appendChild(t)
-					}();
-				</script>'
+			Cookies::addCookieScript(
+				'vkp',
+				'!function(){
+					var t=document.createElement("script");
+					t.type="text/javascript",
+					t.async=!0,
+					t.src="https://vk.com/js/api/openapi.js?160",
+					t.onload=function(){VK.Retargeting.Init("' . $counter . '"),
+					VK.Retargeting.Hit()},document.head.appendChild(t)
+				}();'
 			);
 			Manager::setPageView(
-				'AfterBodyOpen',
+				'Noscript',
 				'<noscript>
 					<img src="https://vk.com/rtrg?p=' . $counter . '" style="position:fixed; left:-999px;" alt=""/>
 				</noscript>'

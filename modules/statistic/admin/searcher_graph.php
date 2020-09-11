@@ -7,7 +7,7 @@ if($STAT_RIGHT=="D") $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/statistic/colors.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/img.php");
 
-if(strlen($find_date1_DAYS_TO_BACK)>0 && $find_date1_DAYS_TO_BACK!="NOT_REF")
+if($find_date1_DAYS_TO_BACK <> '' && $find_date1_DAYS_TO_BACK!="NOT_REF")
 	$find_date1 = GetTime(time()-86400*intval($find_date1_DAYS_TO_BACK));
 
 $width = intval($_GET["width"]);
@@ -93,7 +93,7 @@ DrawCoordinatGrid($arrayX, $arrayY, $width, $height, $ImageHandle);
 
 foreach($arrLegend as $keyL=>$arrL)
 {
-	if (strlen($keyL)>0)
+	if ($keyL <> '')
 	{
 		Graf($arrX, $arrY_data[$keyL], $ImageHandle, $MinX, $MaxX, $MinY, $MaxY, $arrL["COLOR"]);
 	}

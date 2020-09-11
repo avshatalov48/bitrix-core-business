@@ -10,9 +10,7 @@ this.BX = this.BX || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
-	var ApplicationController =
-	/*#__PURE__*/
-	function () {
+	var ApplicationController = /*#__PURE__*/function () {
 	  function ApplicationController() {
 	    babelHelpers.classCallCheck(this, ApplicationController);
 	    this.controller = null;
@@ -577,9 +575,7 @@ this.BX = this.BX || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
-	var RecentController =
-	/*#__PURE__*/
-	function () {
+	var RecentController = /*#__PURE__*/function () {
 	  function RecentController() {
 	    babelHelpers.classCallCheck(this, RecentController);
 	    this.paginationCount = 50;
@@ -768,9 +764,7 @@ this.BX = this.BX || {};
 	 * @subpackage mobile
 	 * @copyright 2001-2020 Bitrix
 	 */
-	var Controller =
-	/*#__PURE__*/
-	function () {
+	var Controller = /*#__PURE__*/function () {
 	  /* region 01. Initialize and store data */
 	  function Controller() {
 	    var _this = this;

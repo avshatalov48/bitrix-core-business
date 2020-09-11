@@ -106,6 +106,10 @@ $settingsMenu = [
 		'text' => Loc::getMessage('MAIL_MESSAGE_LIST_SIGNATURE_LINK'),
 		'href' => htmlspecialcharsbx($arParams['PATH_TO_MAIL_SIGNATURES']),
 	],
+    [
+        'text' => Loc::getMessage('MAIL_MESSAGE_LIST_ADDRESSBOOK_LINK'),
+        'href' => htmlspecialcharsbx($arParams['PATH_TO_MAIL_ADDRESSBOOK']),
+    ],
 	[
 		'text' => Loc::getMessage('MAIL_MESSAGE_LIST_BLACKLIST_LINK'),
 		'className' => '',

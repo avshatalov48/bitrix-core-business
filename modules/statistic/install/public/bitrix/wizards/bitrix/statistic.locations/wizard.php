@@ -174,7 +174,7 @@ class Step2 extends CWizardStep
 		if ($wizard->IsNextButtonClick() || $wizard->IsFinishButtonClick())
 		{
 			$file_name = $wizard->GetVar('file_name');
-			if(strlen($file_name) <= 0)
+			if($file_name == '')
 				$this->SetError(GetMessage('STATWIZ_STEP2_FILE_ERROR'), 'file_name');
 		}
 	}

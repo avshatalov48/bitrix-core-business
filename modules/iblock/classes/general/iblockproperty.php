@@ -863,7 +863,7 @@ class CAllIBlockProperty
 			$VAL = is_array($VALUE)? $VALUE["VALUE"]: $VALUE;
 			UnSet($arVALUES[$res["ID"]]);
 
-			if($VAL == '')
+			if((string)$VAL == '')
 			{
 				unset($ar_XML_ID[rtrim($res["XML_ID"], " ")]);
 
@@ -922,7 +922,7 @@ class CAllIBlockProperty
 		foreach($arVALUES as $id => $VALUE)
 		{
 			$VAL = is_array($VALUE)? $VALUE["VALUE"]: $VALUE;
-			if($id <> '' && $VAL <> '')
+			if((string)$id <> '' && (string)$VAL <> '')
 			{
 				$DEF = "";
 				$SORT = 0;

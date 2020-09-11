@@ -127,7 +127,7 @@ InitFilterEx($arSettings, $sTableID."_settings", "get");
 
 if($find_data_type===false)//Restore saved setting
 {
-	if (strlen($saved_group_by) > 0)
+	if ($saved_group_by <> '')
 		$find_data_type = $saved_group_by;
 	else
 		$find_data_type = "SESSION_SUMMA";

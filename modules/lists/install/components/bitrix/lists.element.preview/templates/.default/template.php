@@ -14,7 +14,7 @@
 	</div>
 	<table class="list-element-preview-info">
 		<? foreach($arResult['FIELDS'] as $field): ?>
-			<? if(strlen($field['NAME']) > 0): ?>
+			<? if($field['NAME'] <> ''): ?>
 				<tr>
 					<td><?=$field['NAME']?>:</td>
 					<td><?=$field['HTML']?></td>

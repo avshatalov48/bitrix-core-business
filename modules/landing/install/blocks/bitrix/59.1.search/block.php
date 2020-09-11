@@ -12,7 +12,7 @@
 							<input class="form-control form-control-md g-bg-transparent g-brd-transparent g-font-size-16 border-right-0 pr-0 g-py-15 g-pointer-events-none--edit-mode g-height-100x"
 								   type="text" name="q">
 						</div>
-						<div class="landing-block-node-button-container btn u-btn-primary g-color-white g-pa-0">
+						<div class="landing-block-node-button-container btn g-btn-primary g-color-white g-pa-0">
 							<button class="landing-block-node-button btn g-font-size-16 g-py-15 g-px-20 g-pointer-events-none--edit-mode"
 									type="submit">
 								<i class="icon-magnifier g-pos-rel g-top-1"></i>

@@ -68,8 +68,8 @@ class CCommentFiles
 				"FORUM_ID" => $arParams["FORUM_ID"],
 				"TOPIC_ID" => $arResult["FORUM_TOPIC_ID"],
 				"APPROVED_AND_MINE" => $GLOBALS["USER"]->GetId(),
-				">MESSAGE_ID" => intVal(min($res)) - 1,
-				"<MESSAGE_ID" => intVal(max($res)) + 1);
+				">MESSAGE_ID" => intval(min($res)) - 1,
+				"<MESSAGE_ID" => intval(max($res)) + 1);
 			if ($arResult["USER"]["RIGHTS"]["MODERATE"] == "Y")
 				unset($arFilter["APPROVED_AND_MINE"]);
 			$db_files = CForumFiles::GetList(array("MESSAGE_ID" => "ASC"), $arFilter);

@@ -6,10 +6,10 @@
 						<i class="landing-block-node-card-icon icon-badge"></i>
 					</span>
 				<h3 class="landing-block-node-card-number landing-semantic-subtitle-big g-font-size-35 g-color-white mb-0">10</h3>
-				<div class="landing-block-node-card-number-title landing-semantic-subtitle-medium text-uppercase font-weight-bold g-font-size-11 g-color-white g-mb-20">
+				<div class="landing-block-node-card-number-title landing-semantic-subtitle-medium text-uppercase g-font-weight-700 g-font-size-11 g-color-white g-mb-20">
 					Years
 				</div>
-				<div class="landing-block-node-card-text landing-semantic-text-small g-font-size-default g-color-white-opacity-0_6 mb-0">
+				<div class="landing-block-node-card-text landing-semantic-text-small g-color-white-opacity-0_6 mb-0">
 					<p>Sed feugiat porttitor nunc Etiam
 						gravida ex justo ac rhoncus purus tristique ut.
 					</p>
@@ -21,10 +21,10 @@
 						<i class="landing-block-node-card-icon icon-picture"></i>
 					</span>
 				<h3 class="landing-block-node-card-number landing-semantic-subtitle-big g-font-size-35 g-color-white mb-0">99000</h3>
-				<div class="landing-block-node-card-number-title landing-semantic-subtitle-medium text-uppercase font-weight-bold g-font-size-11 g-color-white g-mb-20">
+				<div class="landing-block-node-card-number-title landing-semantic-subtitle-medium text-uppercase g-font-weight-700 g-font-size-11 g-color-white g-mb-20">
 					Photos
 				</div>
-				<div class="landing-block-node-card-text landing-semantic-text-small g-font-size-default g-color-white-opacity-0_6 mb-0">
+				<div class="landing-block-node-card-text landing-semantic-text-small g-color-white-opacity-0_6 mb-0">
 					<p>Ivitae blandit massa luctus fermentum
 						lorem quis elit maximus, vitae
 					</p>
@@ -36,10 +36,10 @@
 						<i class="landing-block-node-card-icon icon-camera"></i>
 					</span>
 				<h3 class="landing-block-node-card-number landing-semantic-subtitle-big g-font-size-35 g-color-white mb-0">20</h3>
-				<div class="landing-block-node-card-number-title landing-semantic-subtitle-medium text-uppercase font-weight-bold g-font-size-11 g-color-white g-mb-20">
+				<div class="landing-block-node-card-number-title landing-semantic-subtitle-medium text-uppercase g-font-weight-700 g-font-size-11 g-color-white g-mb-20">
 					Photographers
 				</div>
-				<div class="landing-block-node-card-text landing-semantic-text-small g-font-size-default g-color-white-opacity-0_6 mb-0">
+				<div class="landing-block-node-card-text landing-semantic-text-small g-color-white-opacity-0_6 mb-0">
 					<p>Curabitur eget tortor sed urna
 						faucibus iaculis id et nulla sed fringilla quam
 					</p>
@@ -51,10 +51,10 @@
 						<i class="landing-block-node-card-icon icon-heart"></i>
 					</span>
 				<h3 class="landing-block-node-card-number landing-semantic-subtitle-big g-font-size-35 g-color-white mb-0">238</h3>
-				<div class="landing-block-node-card-number-title landing-semantic-subtitle-medium text-uppercase font-weight-bold g-font-size-11 g-color-white g-mb-20">
+				<div class="landing-block-node-card-number-title landing-semantic-subtitle-medium text-uppercase g-font-weight-700 g-font-size-11 g-color-white g-mb-20">
 					Weddings
 				</div>
-				<div class="landing-block-node-card-text landing-semantic-text-small g-font-size-default g-color-white-opacity-0_6 mb-0">
+				<div class="landing-block-node-card-text landing-semantic-text-small g-color-white-opacity-0_6 mb-0">
 					<p>Duis dui turpis, consectetur non
 						ultrices vitae, lacinia aliquam sapien
 					</p>

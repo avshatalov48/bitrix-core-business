@@ -466,7 +466,7 @@ class ListsElementAttachedCrmComponent extends CBitrixComponent
 			{
 				if(empty($visibleColumns) || in_array($fieldId, $visibleColumns))
 				{
-					if(substr($fieldId, 0, 9) == 'PROPERTY_')
+					if(mb_substr($fieldId, 0, 9) == 'PROPERTY_')
 						$this->properties[$iblockId][] = $fieldId;
 					else
 						$this->selectedFields[$iblockId][] = $fieldId;
@@ -543,7 +543,7 @@ class ListsElementAttachedCrmComponent extends CBitrixComponent
 
 		foreach($this->listFields[$iblockId] as $fieldId => $field)
 		{
-			$valueKey = (substr($fieldId, 0, 9) == "PROPERTY_") ? $fieldId : "~".$fieldId;
+			$valueKey = (mb_substr($fieldId, 0, 9) == "PROPERTY_") ? $fieldId : "~".$fieldId;
 			$field["ELEMENT_ID"] = $elementId;
 			$field["FIELD_ID"] = $fieldId;
 			$field['VALUE'] = $this->listFieldsValue[$elementId][$valueKey];

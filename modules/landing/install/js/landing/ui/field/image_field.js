@@ -578,6 +578,11 @@
 				.then(this.setValue.bind(this))
 				.then(this.hideLoader.bind(this))
 				.catch(function(err) {
+					BX.Landing.ErrorManager.getInstance().add({
+						type: 'error',
+						action: 'BAD_IMAGE',
+						hideSupportLink: true,
+					});
 					console.error(err);
 					this.hideLoader();
 				}.bind(this));

@@ -68,7 +68,7 @@ $arFilter = Array(
 	"DATE2_PERIOD" => $find_date2
 );
 
-if(strlen($arFilter["DATE1_PERIOD"])>0 || strlen($arFilter["DATE2_PERIOD"])>0)
+if($arFilter["DATE1_PERIOD"] <> '' || $arFilter["DATE2_PERIOD"] <> '')
 	$period = "Y";
 
 $lAdmin->BeginCustomContent();

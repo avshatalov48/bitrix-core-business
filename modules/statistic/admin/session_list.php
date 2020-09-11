@@ -34,11 +34,11 @@ function CheckFilter()
 
 	foreach($arr as $ar)
 	{
-		if (strlen($ar["date1"])>0 && !CheckDateTime($ar["date1"]))
+		if ($ar["date1"] <> '' && !CheckDateTime($ar["date1"]))
 			$arMsg[] = array("id"=>"find_date1", "text"=> $ar["mess1"]);
-		elseif (strlen($ar["date2"])>0 && !CheckDateTime($ar["date2"]))
+		elseif ($ar["date2"] <> '' && !CheckDateTime($ar["date2"]))
 			$arMsg[] = array("id"=>"find_date2", "text"=> $ar["mess2"]);
-		elseif (strlen($ar["date1"])>0 && strlen($ar["date2"])>0 && $statDB->CompareDates($ar["date1"], $ar["date2"])==1)
+		elseif ($ar["date1"] <> '' && $ar["date2"] <> '' && $statDB->CompareDates($ar["date1"], $ar["date2"])==1)
 			$arMsg[] = array("id"=>"find_date2", "text"=> $ar["mess3"]);
 	}
 
@@ -279,7 +279,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 
 	$str = "";
 	if ($f_USER_ID>0) :
-		if (strlen($f_LOGIN)>0) :
+		if ($f_LOGIN <> '') :
 			$str .= "[<a title=\"".GetMessage("STAT_EDIT_USER")."\" href=\"user_edit.php?lang=".LANG."&amp;ID=".$f_USER_ID."\">".$f_USER_ID."</a>] ($f_LOGIN) $f_USER_NAME";
 		else :
 			if(!array_key_exists($f_USER_ID, $arrUsers))
@@ -295,7 +295,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 			$LOGIN = $arrUsers[$f_USER_ID]["LOGIN"];
 
 			$str .= "[<a title=\"".GetMessage("STAT_EDIT_USER")."\" href=\"user_edit.php?lang=".LANG."&amp;ID=".$f_USER_ID."\">".$f_USER_ID."</a>] ";
-			if (strlen($LOGIN)>0) :
+			if ($LOGIN <> '') :
 				$str .= "(".$LOGIN.") ".$USER_NAME."";
 			endif;
 		endif;
@@ -322,7 +322,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 
 	$row->AddViewField("IP_LAST", GetWhoisLink($f_IP_LAST));
 
-	if(strlen($f_CITY_ID) > 0)
+	if($f_CITY_ID <> '')
 	{
 		$row->AddViewField("CITY_ID", "[".$f_CITY_ID."] ".$f_CITY_NAME);
 	}
@@ -343,7 +343,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 
 
 	$str = "";
-	if (strlen($f_FIRST_SITE_ID)>0):
+	if ($f_FIRST_SITE_ID <> ''):
 		$str .= "[<a title=\"".GetMessage("STAT_SITE")."\" href=\"/bitrix/admin/site_edit.php?LID=".$f_FIRST_SITE_ID."&lang=".LANGUAGE_ID."\">".$f_FIRST_SITE_ID."</a>]&nbsp;";
 	endif;
 
@@ -356,7 +356,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	)));
 
 	$str = "";
-	if (strlen($f_LAST_SITE_ID)>0):
+	if ($f_LAST_SITE_ID <> ''):
 		$str .= '[<a title="'.GetMessage("STAT_SITE").'" href="/bitrix/admin/site_edit.php?LID='.$f_LAST_SITE_ID.'&lang='.LANGUAGE_ID.'">'.$f_LAST_SITE_ID.'</a>]&nbsp;';
 	endif;
 

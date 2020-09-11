@@ -68,7 +68,7 @@ class CForumDBTools
 				if (isset($arParams[$fn]))
 				{
 					if (!is_array($arParams[$fn]))
-						$arParams[$fn] = strtoupper($arParams[$fn]);
+						$arParams[$fn] = mb_strtoupper($arParams[$fn]);
 					else
 						$arParams[$fn] = array_map('strtoupper', $arParams[$fn]);
 				}

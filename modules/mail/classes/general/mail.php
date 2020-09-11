@@ -813,7 +813,7 @@ class CAllMailBox
 		if (($use_tls == 'Y' || $use_tls == 'S') && !preg_match('#^(tls|ssl)://#', $server))
 			$server = 'ssl://' . $server;
 
-		$skip_cert = $use_tls != 'Y' || PHP_VERSION_ID < 50600;
+		$skip_cert = $use_tls != 'Y';
 
 		$pop3_conn = &$this->pop3_conn;
 		$pop3_conn = stream_socket_client(
@@ -886,7 +886,7 @@ class CAllMailBox
 		if (($arMAILBOX_PARAMS['USE_TLS'] == 'Y' || $arMAILBOX_PARAMS['USE_TLS'] == 'S') && !preg_match('#^(tls|ssl)://#', $server))
 			$server = 'ssl://' . $server;
 
-		$skip_cert = $arMAILBOX_PARAMS['USE_TLS'] != 'Y' || PHP_VERSION_ID < 50600;
+		$skip_cert = $arMAILBOX_PARAMS['USE_TLS'] != 'Y';
 
 		$pop3_conn = &$this->pop3_conn;
 		$pop3_conn = stream_socket_client(

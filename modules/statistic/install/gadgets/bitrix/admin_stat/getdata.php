@@ -19,8 +19,10 @@ $yesterday_date = GetTime(time()-86400);
 $bef_yesterday_date = GetTime(time()-172800);
 
 if($_REQUEST["table_id"] == "adv"):
-	if(strlen($_REQUEST["site_id"]))
+	if($_REQUEST["site_id"] <> '')
+	{
 		die();
+	}
 	$rsAdv = CAdv::GetList($a_by, $a_order, $arFilter, $is_filtered, 10, $arrGROUP_DAYS, $v);
 
 	?><table class="bx-gadgets-table">
@@ -134,8 +136,10 @@ if($_REQUEST["table_id"] == "adv"):
 	</table><?
 
 elseif($_REQUEST["table_id"] == "event"):
-	if(strlen($_REQUEST["site_id"]))
+	if($_REQUEST["site_id"] <> '')
+	{
 		die();
+	}
 
 	$e_by = "s_stat";
 	$e_order = "desc";

@@ -1,6 +1,8 @@
 <?
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
+use Bitrix\Bizproc;
+
 class CBPRequestInformationOptionalActivity
 	extends CBPCompositeActivity
 	implements IBPEventActivity, IBPActivityExternalEventListener
@@ -460,8 +462,16 @@ class CBPRequestInformationOptionalActivity
 			'COMMENT' => isset($request['task_comment']) ? trim($request['task_comment']) : ''
 		);
 
+		if ($request['INLINE_USER_STATUS'] === \CBPTaskUserStatus::Cancel)
+		{
+			$request['cancel'] = true;
+		}
+
 		if (empty($request['cancel']))
-			$result['RESPONCE'] = static::getTaskResponse($task);
+		{
+			$result['RESPONCE'] = isset($request['fields'])
+				? static::prepareResponseFields($task, $request['fields']) : static::getTaskResponse($task);
+		}
 		else
 			$result['CANCEL']  = true;
 
@@ -531,6 +541,41 @@ class CBPRequestInformationOptionalActivity
 					&& CBPHelper::isEmptyValue($result[$parameter['Name']])
 				)
 					throw new CBPArgumentNullException($parameter["Name"], str_replace("#PARAM#", htmlspecialcharsbx($parameter["Title"]), GetMessage("BPRIOA_ARGUMENT_NULL")));
+			}
+		}
+
+		return $result;
+	}
+
+
+	protected static function prepareResponseFields($task, $values)
+	{
+		$documentService = CBPRuntime::GetRuntime(true)->getDocumentService();
+
+		$result = [];
+
+		if ($task["PARAMETERS"] && is_array($task["PARAMETERS"]) && count($task["PARAMETERS"]) > 0
+			&& $task["PARAMETERS"]["REQUEST"] && is_array($task["PARAMETERS"]["REQUEST"]) && count($task["PARAMETERS"]["REQUEST"]) > 0)
+		{
+			foreach ($task["PARAMETERS"]["REQUEST"] as $property)
+			{
+				$title = $property["Title"];
+				$property = Bizproc\FieldType::normalizeProperty($property);
+				$fieldTypeObject = $documentService->getFieldTypeObject($task["PARAMETERS"]["DOCUMENT_TYPE"], $property);
+				if ($fieldTypeObject)
+				{
+					$fieldTypeObject->setDocumentId($task["PARAMETERS"]["DOCUMENT_ID"]);
+					$result[$property['Name']] = $fieldTypeObject->internalizeValue($task['ACTIVITY_NAME'], $values[$property['Name']]);
+				}
+
+				if (
+					CBPHelper::getBool($property['Required'])
+					&& CBPHelper::isEmptyValue($result[$property['Name']])
+				)
+					throw new CBPArgumentNullException(
+						$property["Name"],
+						str_replace("#PARAM#", htmlspecialcharsbx($title), GetMessage("BPRIA_ARGUMENT_NULL"))
+					);
 			}
 		}
 

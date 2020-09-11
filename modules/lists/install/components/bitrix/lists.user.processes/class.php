@@ -135,23 +135,23 @@ class ListsSelectElementComponent extends CBitrixComponent
 			if(empty($value))
 				continue;
 
-			if(substr($key, -5) == "_from")
+			if(mb_substr($key, -5) == "_from")
 			{
 				$op = ">=";
-				$new_key = substr($key, 0, -5);
+				$new_key = mb_substr($key, 0, -5);
 			}
-			elseif(substr($key, -3) == "_to")
+			elseif(mb_substr($key, -3) == "_to")
 			{
 				$op = "<=";
-				$new_key = substr($key, 0, -3);
-				$newKey = substr($key, 0, -3);
+				$new_key = mb_substr($key, 0, -3);
+				$newKey = mb_substr($key, 0, -3);
 
 				if(in_array($newKey, array("TIMESTAMP_X", 'DATE_CREATE')))
 				{
 					global $DB;
 					$dateFormat = $DB->dateFormatToPHP(Csite::getDateFormat());
 					$dateParse = date_parse_from_format($dateFormat, $value);
-					if(!strlen($dateParse["hour"]) && !strlen($dateParse["minute"]) && !strlen($dateParse["second"]))
+					if(!mb_strlen($dateParse["hour"]) && !mb_strlen($dateParse["minute"]) && !mb_strlen($dateParse["second"]))
 					{
 						$timeFormat = $DB->dateFormatToPHP(CSite::getTimeFormat());
 						$value .= " ".date($timeFormat, mktime(23, 59, 59, 0, 0, 0));
@@ -245,7 +245,7 @@ class ListsSelectElementComponent extends CBitrixComponent
 			}
 
 			$actions = array();
-			if (strlen($data["DOCUMENT_URL"]) > 0)
+			if ($data["DOCUMENT_URL"] <> '')
 				$actions[] = array('ICONCLASS'=>'', 'DEFAULT' => true, 'TEXT'=>Loc::getMessage('CC_BLL_C_DOCUMENT'),
 					'ONCLICK'=>'window.open("'.$data["DOCUMENT_URL"].'");');
 			$this->arResult['RECORDS'][] = array('data' => $data, 'actions' => $actions);

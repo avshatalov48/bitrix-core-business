@@ -2,46 +2,161 @@
 {
 	"use strict";
 
-	BX.addCustomEvent("BX.Landing.Block:init", function (event)
+	BX.namespace("BX.Landing");
+
+	BX.Landing.CardGalleryCollection = function ()
 	{
-		var gallery = event.block.querySelector(event.makeRelativeSelector(".js-gallery-cards"));
-
-		if (gallery !== null)
-		{
-			window["landingGalleresCards" + event.block.id] = new LandingGalleryCards(gallery, event.block);
-			window["landingGalleresCards" + event.block.id].initImages();
-		}
-	});
-
-
-	BX.addCustomEvent("BX.Landing.Block:Node:update", function (event)
-	{
-		// todo: maybe not need in editor?
-		if (typeof(window["landingGalleresCards" + event.block.id]) != 'undefined')
-		{
-			var gallery = event.block.querySelector(event.makeRelativeSelector(".js-gallery-cards"));
-			if (gallery !== null && gallery.contains(event.node))
-			{
-				window["landingGalleresCards" + event.block.id].reinitImage(event.node);
-			}
-		}
-	});
-
-
-	var LandingGalleryCards = function (gallery, block)
-	{
-		this.block = block;
-		this.gallery = gallery;
-		this.uniqId = Math.random().toString(16).substr(2, 8);
+		this.galleries = {};
 	};
 
+	BX.Landing.CardGalleryCollection.GALLERY_SELECTOR = ".js-gallery-cards";
 
-	LandingGalleryCards.prototype = {
-		dataFancybox: 'data-fancybox',
-		dataFancyboxInitied: 'data-fancybox-initied',
-		dataFancyboxTitle: 'data-caption',
-		dataLinkClasses: 'data-link-classes',
-		carouselClonedClasses: 'slick-cloned',
+	/**
+	 * Singleton pattern
+	 * @returns {BX.Landing.CardGalleryCollection}
+	 */
+	BX.Landing.CardGalleryCollection.getInstance = function ()
+	{
+		return (
+			BX.Landing.CardGalleryCollection.instance ||
+			(BX.Landing.CardGalleryCollection.instance = new BX.Landing.CardGalleryCollection())
+		);
+	};
+
+	/**
+	 * First init
+	 * @param {HTMLElement} block
+	 */
+	BX.Landing.CardGalleryCollection.initBlock = function (block)
+	{
+		if (this.isGalleryBlock(block))
+		{
+			var galleryCollection = this.getInstance();
+			galleryCollection.add(block);
+		}
+	};
+
+	/**
+	 *
+	 * @param {HTMLElement} block
+	 * @param {HTMLElement} imgNode
+	 */
+	BX.Landing.CardGalleryCollection.reinitImg = function (block, imgNode)
+	{
+		if (this.isGalleryBlock(block))
+		{
+			var galleryCollection = this.getInstance();
+			var gallery = galleryCollection.findGalleryByBlock(block);
+			if(gallery)
+			{
+				gallery.reinitImage(imgNode);
+			}
+		}
+	};
+
+	/**
+	 * Check if block has gallery
+	 * @param {HTMLElement} block
+	 */
+	BX.Landing.CardGalleryCollection.isGalleryBlock = function (block)
+	{
+		var gallery = this.getGalleryNode(block);
+		return gallery !== null;
+	};
+
+	/**
+	 * Find gallery node in block
+	 * @param {HTMLElement}block
+	 * @returns {HTMLElement|null}
+	 */
+	BX.Landing.CardGalleryCollection.getGalleryNode = function (block)
+	{
+		return block.querySelector(this.GALLERY_SELECTOR);
+	};
+
+	BX.Landing.CardGalleryCollection.prototype = {
+		/**
+		 * Add gallery block to collection
+		 * @param {HTMLElement} block
+		 * @returns {boolean}
+		 */
+		add: function (block)
+		{
+			var gallery = new BX.Landing.CardGallery(
+				block,
+				BX.Landing.CardGalleryCollection.getGalleryNode(block)
+			);
+			gallery.initImages();
+			this.galleries[gallery.getId()] = gallery;
+		},
+
+		findGalleryByBlock: function (block)
+		{
+			return this.galleries[block.id] || null;
+		}
+	}
+
+	/************
+	 Entry object
+	 ************/
+	BX.Landing.CardGallery = function (block, galleryNode)
+	{
+		this.gallery = galleryNode;
+		this.uniqId = block.id;
+	}
+
+	BX.Landing.CardGallery.IMAGES_SELECTOR = '[data-fancybox]';
+	BX.Landing.CardGallery.DATA_FANCYBOX_ID = 'fancybox';
+	BX.Landing.CardGallery.DATA_FANCYBOX_INITIED = 'fancyboxInitied';
+	BX.Landing.CardGallery.DATA_FANCYBOX_TITLE = 'caption';
+	BX.Landing.CardGallery.DATA_LINK_CLASSES = 'linkClasses';
+	BX.Landing.CardGallery.CAROUSEL_CLONED_CLASSES = 'slick-cloned';
+
+	BX.Landing.CardGallery.prototype = {
+		getId: function()
+		{
+			return this.uniqId;
+		},
+
+		initImages: function ()
+		{
+			var images = [].slice.call(this.gallery.querySelectorAll(BX.Landing.CardGallery.IMAGES_SELECTOR));
+			images.forEach(function (image)
+			{
+				// fix double images trouble in slick carousel cloned sliders
+				if (BX.findParent(image, {class: BX.Landing.CardGallery.CAROUSEL_CLONED_CLASSES}))
+				{
+					return;
+				}
+
+				if (!this.isImageInit(image))
+				{
+					this.addOuterLink(image);
+				}
+			}, this);
+		},
+
+
+		/**
+		 * Check is image initied by image or outer link node
+		 * @param image
+		 * @returns {boolean|*}
+		 */
+		isImageInit: function (image)
+		{
+			return (
+				(
+					image.tagName === "IMG"
+					&& image.dataset[BX.Landing.CardGallery.DATA_FANCYBOX_INITIED] === "Y"
+				)
+				||
+				(
+					image.tagName === "A"
+					&& image.firstChild !== null
+					&& this.isImageInit(image.firstChild)
+				)
+			);
+		},
 
 		// create A around the image, need to fancybox popup
 		addOuterLink: function (image)
@@ -49,106 +164,78 @@
 			var src = image.getAttribute('src');
 			if (src != null)
 			{
-				var parent = BX.findParent(image);
-				// find all children, not only image!
-				var childs = BX.findChild(parent,{},false,true);
-				var childs = Object.keys(childs).map(function(key) {
-					return childs[key];
-				});
-
-				var linkClasses = BX.data(image, this.dataLinkClasses.replace('data-', '')) ?
-					' ' + BX.data(image, this.dataLinkClasses.replace('data-', '')) :
-					'';
-
-				var aParams = {
+				// add outer link to image for fancybox activity
+				var parent = image.parentNode;
+				var outerLink = BX.create('a', {
 					attrs: {
 						href: src,
-						class: linkClasses
+						class: image.dataset[BX.Landing.CardGallery.DATA_LINK_CLASSES] || ''
 					},
-					children: childs
-				};
-				aParams.attrs[this.dataFancybox] = BX.data(image, this.dataFancybox.replace('data-', '')) + '_' + this.uniqId;
+					children: [].slice.call(parent.children)
+				});
+				BX.adjust(parent, {'children': [outerLink]});
 
-				// add title to link
-				var alt = BX.Text.encode(image.getAttribute('alt'));
-				if (alt != null)
-				{
-					aParams.attrs[this.dataFancyboxTitle] = alt;
-				}
+				// set unique fancybox id
+				outerLink.dataset[BX.Landing.CardGallery.DATA_FANCYBOX_ID] =
+					image.dataset[BX.Landing.CardGallery.DATA_FANCYBOX_ID] + '_' + this.uniqId;
+				outerLink.dataset[BX.Landing.CardGallery.DATA_FANCYBOX_TITLE] =
+					BX.Text.encode(image.getAttribute('alt')) || '';
 
 				// remove data-attribute to disable gallery on <img>
-				var imageAdjutsParams = {'attrs': {}};
-				imageAdjutsParams.attrs[this.dataFancybox] = "";
-				imageAdjutsParams.attrs[this.dataFancyboxInitied] = "Y";
-				BX.adjust(image, imageAdjutsParams);
+				delete image.dataset[BX.Landing.CardGallery.DATA_FANCYBOX_ID];
+				image.dataset[BX.Landing.CardGallery.DATA_FANCYBOX_INITIED] = "Y";
 
-				// add img with outer link instead
-				BX.adjust(parent, {'children': [BX.create('a', aParams)]});
 			}
-		},
-
-		initImages: function ()
-		{
-			var images = BX.findChild(this.gallery, {attribute: this.dataFancybox}, true, true);
-			images.forEach(BX.delegate(function (image)
-			{
-				// fix double images trouble in slick carousel cloned sliders
-				if(BX.findParent(image, {class: this.carouselClonedClasses}))
-				{
-					return;
-				}
-
-				if(!this.isImageInitied(image))
-				{
-					this.addOuterLink(image);
-				}
-			}, this));
 		},
 
 		reinitImage: function (image)
 		{
 			// only if card has gallery image and image has outer link
-			if (this.isImageInitied(image))
+			if (this.isImageInit(image))
 			{
 				var src = image.getAttribute('src');
-				if (src != null)
+				if (src !== null)
 				{
 					// find outer link
-					var outer = BX.findParent(image, {
-						tag: 'a',
-						attribute: [this.dataFancybox]
-					});
-
-					if (outer !== null)
+					var outerLink = image.parentNode;
+					if (
+						outerLink.tagName === 'A'
+						&& outerLink.dataset[BX.Landing.CardGallery.DATA_FANCYBOX_ID]
+					)
 					{
-						var outerParams = {attrs: {'href': src}};
-
-						// add title to link
-						var alt = BX.Text.encode(image.getAttribute('alt'));
-						if (alt != null)
-						{
-							outerParams.attrs[this.dataFancyboxTitle] = alt;
-						}
-
-						BX.adjust(outer, outerParams);
+						outerLink.href = src;
+						outerLink.dataset[BX.Landing.CardGallery.DATA_FANCYBOX_TITLE] =
+							BX.Text.encode(image.getAttribute('alt')) || '';
 					}
 				}
 			}
-		},
-
-		isImageInitied: function (image)
-		{
-			return (
-				(
-					image.tagName == "IMG" &&
-					BX.data(image, this.dataFancyboxInitied.replace('data-', '')) == "Y"
-				)
-				||
-				(
-					image.tagName == "A" && image.firstChild != null && this.isImageInitied(image.firstChild)
-				)
-			);
+			// todo: else - init?
 		}
-	};
+	}
+
+
+	/****************
+	 * Event handlers
+	 ****************/
+	BX.addCustomEvent("BX.Landing.Block:init", function (event)
+	{
+		if(BX.Landing.getMode() === "edit")
+		{
+			return;
+		}
+
+		BX.Landing.CardGalleryCollection.initBlock(event.block);
+	});
+
+	BX.addCustomEvent("BX.Landing.Lazyload:loadImage", function (event)
+	{
+		if(BX.Landing.getMode() === "edit")
+		{
+			return;
+		}
+
+		BX.Landing.CardGalleryCollection.reinitImg(event.block, event.node);
+		// todo: maybe not need in editor?
+	});
 
 })();

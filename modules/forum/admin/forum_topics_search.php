@@ -14,7 +14,7 @@
 
 	$FN = preg_replace("/[^a-z0-9_\\[\\]:]/i", "", $_REQUEST["FN"]);
 	$FC = preg_replace("/[^a-z0-9_\\[\\]:]/i", "", $_REQUEST["FC"]);
-	if (strlen($FC)<=0) $FC = "TOPIC_ID";
+	if ($FC == '') $FC = "TOPIC_ID";
 
 	$arr = array();
 	$arr["reference_id"][] = "";
@@ -45,7 +45,7 @@
 	$CREATE_DATE_FROM = trim($CREATE_DATE_FROM);
 	$CREATE_DATE_TO = trim($CREATE_DATE_TO);
 	$CREATE_DATE_FROM_DAYS_TO_BACK = intval($CREATE_DATE_FROM_DAYS_TO_BACK);
-	if (strlen($CREATE_DATE_FROM)>0 || strlen($CREATE_DATE_TO)>0 || $CREATE_DATE_FROM_DAYS_TO_BACK>0)
+	if ($CREATE_DATE_FROM <> '' || $CREATE_DATE_TO <> '' || $CREATE_DATE_FROM_DAYS_TO_BACK>0)
 	{
 		$date1_create_stm = MkDateTime(ConvertDateTime($CREATE_DATE_FROM,"D.M.Y"),"d.m.Y");
 		$date2_create_stm = MkDateTime(ConvertDateTime($CREATE_DATE_TO,"D.M.Y")." 23:59","d.m.Y H:i");
@@ -58,7 +58,7 @@
 		if (!$date1_create_stm)
 			$arMsg[] = array("id"=>">=START_DATE", "text"=> GetMessage("FM_WRONG_DATE_CREATE_FROM"));
 
-		if (!$date2_create_stm && strlen($CREATE_DATE_TO)>0)
+		if (!$date2_create_stm && $CREATE_DATE_TO <> '')
 			$arMsg[] = array("id"=>"<=START_DATE", "text"=> GetMessage("FM_WRONG_DATE_CREATE_FROM"));
 		elseif ($date1_create_stm && $date2_create_stm && ($date2_create_stm <= $date1_create_stm))
 			$arMsg[] = array("id"=>"find_date_create_timestamp2", "text"=> GetMessage("SUP_FROM_TILL_DATE_TIMESTAMP"));
@@ -68,7 +68,7 @@
 	$DATE_FROM = trim($DATE_FROM);
 	$DATE_TO = trim($DATE_TO);
 	$DATE_FROM_DAYS_TO_BACK = intval($DATE_FROM_DAYS_TO_BACK);
-	if (strlen($DATE_FROM)>0 || strlen($DATE_TO)>0 || $DATE_FROM_DAYS_TO_BACK>0)
+	if ($DATE_FROM <> '' || $DATE_TO <> '' || $DATE_FROM_DAYS_TO_BACK>0)
 	{
 		$date1_stm = MkDateTime(ConvertDateTime($DATE_FROM,"D.M.Y"),"d.m.Y");
 		$date2_stm = MkDateTime(ConvertDateTime($DATE_TO,"D.M.Y")." 23:59","d.m.Y H:i");
@@ -81,7 +81,7 @@
 		if (!$date1_stm)
 			$arMsg[] = array("id"=>">=LAST_POST_DATE", "text"=> GetMessage("FM_WRONG_DATE_CREATE_FROM"));
 
-		if (!$date2_stm && strlen($DATE_TO)>0)
+		if (!$date2_stm && $DATE_TO <> '')
 			$arMsg[] = array("id"=>"<=LAST_POST_DATE", "text"=> GetMessage("FM_WRONG_DATE_CREATE_FROM"));
 		elseif ($date1_stm && $date2_stm && ($date2_stm <= $date1_stm))
 			$arMsg[] = array("id"=>"find_date_timestamp2", "text"=> GetMessage("SUP_FROM_TILL_DATE_TIMESTAMP"));
@@ -92,14 +92,14 @@
 	if ($FORUM_ID>0)
 		$arFilter = array("FORUM_ID" => $FORUM_ID);
 
-	if (strlen($date1_create_stm)>0)
+	if ($date1_create_stm <> '')
 		$arFilter = array_merge($arFilter, array(">=START_DATE" => $CREATE_DATE_FROM));
-	if (strlen($date2_create_stm)>0)
+	if ($date2_create_stm <> '')
 		$arFilter = array_merge($arFilter, array("<=START_DATE"	=> $CREATE_DATE_TO));
 
-	if (strlen($date1_stm)>0)
+	if ($date1_stm <> '')
 		$arFilter = array_merge($arFilter, array(">=LAST_POST_DATE" => $DATE_FROM));
-	if (strlen($date2_stm)>0)
+	if ($date2_stm <> '')
 		$arFilter = array_merge($arFilter, array("<=LAST_POST_DATE"	=> $DATE_TO));
 
 	if (!empty($arMsg))
@@ -164,7 +164,7 @@ while ($arForum = $rsData->NavNext(true, "t_"))
 	<!--
 	function SetValue(id)
 	{
-		<?if (strLen($FN) <= 0):?>
+		<?if ($FN == ''):?>
 			window.opener.document.getElementById("<?echo $FC;?>").value=id;
 		<?else:?>
 			window.opener.document.<?echo $FN;?>["<?echo $FC;?>"].value=id;

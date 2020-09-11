@@ -22,4 +22,3 @@ $MESS['LANDING_TPL_START_PAGE_LOGO_24'] = '24';
 $MESS['LANDING_TPL_BUY_RENEW'] = 'Пожалуйста, #LINK1#продлите лицензию#LINK2#';
 $MESS['LANDING_WAIT_WHILE_CREATING'] = 'Пожалуйста, подождите, ваш сайт скоро опубликуется...';
 $MESS['LANDING_WAIT_WHILE_CREATING_FORCE'] = 'Перейти на сайт';
-$MESS['LANDING_ERROR_NOT_ALLOW_VIEW_BY_PLAN_KNOWLEDGE'] = "На вашем тарифном плане есть ограничение по количеству созданных баз знаний. Чтобы работать с большим числом баз знаний, перейдите на другой тарифный план.";

@@ -37,11 +37,11 @@ else
 
 //We have to strongly check all about file names at server side
 $ABS_FILE_NAME = false;
-if(isset($_REQUEST["file_name"]) && (strlen($_REQUEST["file_name"])>0))
+if(isset($_REQUEST["file_name"]) && ($_REQUEST["file_name"] <> ''))
 {
 	$filename = "bitrix/modules/statistic/ip2country/".trim(str_replace("\\", "/", trim($_REQUEST["file_name"])), "/");
 	$FILE_NAME = Rel2Abs($_SERVER["DOCUMENT_ROOT"], "/".$filename);
-	if((strlen($FILE_NAME) > 1) && ($FILE_NAME === "/".$filename) && ($APPLICATION->GetFileAccessPermission($FILE_NAME) >= "W"))
+	if((mb_strlen($FILE_NAME) > 1) && ($FILE_NAME === "/".$filename) && ($APPLICATION->GetFileAccessPermission($FILE_NAME) >= "W"))
 	{
 		$ABS_FILE_NAME = $_SERVER["DOCUMENT_ROOT"].$FILE_NAME;
 	}

@@ -43,6 +43,26 @@
 		});
 	};
 
+	var getResponsibleUserExpression = function(fields)
+	{
+		var exp;
+
+		if (BX.type.isArray(fields))
+		{
+			var i, field;
+			for (i = 0; i < fields.length; ++i)
+			{
+				field = fields[i];
+				if (field['Id'] === 'ASSIGNED_BY_ID' || field['Id'] === 'RESPONSIBLE_ID')
+				{
+					exp = '{{'+field['Name']+'}}';
+					break;
+				}
+			}
+		}
+		return exp;
+	};
+
 	Component.prototype =
 	{
 		init: function(data, viewMode)
@@ -139,24 +159,6 @@
 					needleIndex = i;
 			}
 			return this.currentStatusIndex > -1 && needleIndex > this.currentStatusIndex;
-		},
-		getResponsibleUserExpression: function()
-		{
-			var exp;
-			if (BX.type.isArray(this.data['DOCUMENT_FIELDS']))
-			{
-				var i, field;
-				for (i = 0; i < this.data['DOCUMENT_FIELDS'].length; ++i)
-				{
-					field = this.data['DOCUMENT_FIELDS'][i];
-					if (field['Id'] === 'ASSIGNED_BY_ID' || field['Id'] === 'RESPONSIBLE_ID')
-					{
-						exp = '{{'+field['Name']+'}}';
-						break;
-					}
-				}
-			}
-			return exp;
 		},
 		initTriggerManager: function()
 		{
@@ -1222,7 +1224,7 @@
 				|| robot.data.Type === 'RpaApproveActivity'
 			)
 			{
-				popupMinWidth += 124;
+				popupMinWidth += 140;
 				if (popupWidth < popupMinWidth)
 				{
 					popupWidth = popupMinWidth;
@@ -2290,7 +2292,7 @@
 		dragStop: function(x, y, event)
 		{
 			event = event || window.event;
-			var isCopy = event && event.ctrlKey;
+			var isCopy = event && (event.ctrlKey || event.metaKey);
 
 			var tpl, beforeRobot;
 			if (this.draggableItem)
@@ -3548,7 +3550,7 @@
 		dragStop: function(x, y, event)
 		{
 			event = event || window.event;
-			var trigger, isCopy = event && event.ctrlKey;
+			var trigger, isCopy = event && (event.ctrlKey || event.metaKey);
 			var copyTrigger = function(parent, statusId)
 			{
 				var trigger = new Trigger(parent.manager);
@@ -4492,12 +4494,13 @@
 		initDateTimeControl: function()
 		{
 			var basisFields = [];
-			if (BX.type.isArray(this.component.data['DOCUMENT_FIELDS']))
+			var docFields = this.documentFields;
+			if (BX.type.isArray(this.documentFields))
 			{
 				var i, field;
-				for (i = 0; i < this.component.data['DOCUMENT_FIELDS'].length; ++i)
+				for (i = 0; i < this.documentFields.length; ++i)
 				{
-					field = this.component.data['DOCUMENT_FIELDS'][i];
+					field = this.documentFields[i];
 					if (field['Type'] === 'date' || field['Type'] === 'datetime')
 					{
 						basisFields.push(field);
@@ -4516,7 +4519,7 @@
 				{
 					this.targetInput.value = delay.toExpression(
 						basisFields,
-						this.component.getResponsibleUserExpression()
+						getResponsibleUserExpression(docFields)
 					);
 				}).bind(this)
 			});
@@ -6446,6 +6449,7 @@
 					if (multiple)
 					{
 						list['contain'] = BX.message('BIZPROC_AUTOMATION_ROBOT_CONDITION_CONTAIN');
+						list['!contain'] = BX.message('BIZPROC_AUTOMATION_ROBOT_CONDITION_NOT_CONTAIN');
 					}
 					else
 					{
@@ -6455,11 +6459,15 @@
 					break;
 				case 'user':
 					list['in'] = BX.message('BIZPROC_AUTOMATION_ROBOT_CONDITION_IN');
+					list['!in'] = BX.message('BIZPROC_AUTOMATION_ROBOT_CONDITION_NOT_IN');
 					list['contain'] = BX.message('BIZPROC_AUTOMATION_ROBOT_CONDITION_CONTAIN');
+					list['!contain'] = BX.message('BIZPROC_AUTOMATION_ROBOT_CONDITION_NOT_CONTAIN');
 					break;
 				default:
 					list['in'] = BX.message('BIZPROC_AUTOMATION_ROBOT_CONDITION_IN');
+					list['!in'] = BX.message('BIZPROC_AUTOMATION_ROBOT_CONDITION_NOT_IN');
 					list['contain'] = BX.message('BIZPROC_AUTOMATION_ROBOT_CONDITION_CONTAIN');
+					list['!contain'] = BX.message('BIZPROC_AUTOMATION_ROBOT_CONDITION_NOT_CONTAIN');
 					list['>'] = BX.message('BIZPROC_AUTOMATION_ROBOT_CONDITION_GT');
 					list['>='] = BX.message('BIZPROC_AUTOMATION_ROBOT_CONDITION_GTE');
 					list['<'] = BX.message('BIZPROC_AUTOMATION_ROBOT_CONDITION_LT');

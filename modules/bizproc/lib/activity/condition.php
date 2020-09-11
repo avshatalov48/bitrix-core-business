@@ -2,6 +2,7 @@
 namespace Bitrix\Bizproc\Activity;
 
 use Bitrix\Bizproc\FieldType;
+use Bitrix\Main\Localization\Loc;
 
 class Condition
 {
@@ -101,65 +102,21 @@ class Condition
 			$valueToCheck = [$valueToCheck];
 		}
 
-		if ($operator === 'in')
+		if ($operator === 'in' || $operator === '!in')
 		{
-			foreach ($valueToCheck as $f)
-			{
-				if (is_array($value))
-				{
-					$result = in_array($f, $value);
-				}
-				else
-				{
-					$result = (mb_strpos($value, $f) !== false);
-				}
-
-				if (!$result)
-				{
-					break;
-				}
-			}
-
-			return $result;
-		}
-
-		if ($operator === 'contain')
-		{
-			if (!is_array($value))
-			{
-				$value = array($value);
-			}
-			foreach ($value as $v)
-			{
-				foreach ($valueToCheck as $f)
-				{
-					if (is_array($f))
-					{
-						$result = in_array($v, $f);
-					}
-					else
-					{
-						$result = (mb_strpos($f, $v) !== false);
-					}
-
-					if ($result)
-					{
-						break;
-					}
-				}
-
-				if (!$result)
-				{
-					break;
-				}
-			}
-
-			return $result;
+			$result = $this->checkInOperation($valueToCheck, $value, $baseType);
+			return $operator === 'in' ? $result : !$result;
 		}
 
 		if (!is_array($value))
 		{
 			$value = [$value];
+		}
+
+		if ($operator === 'contain' || $operator === '!contain')
+		{
+			$result = $this->checkContainOperation($valueToCheck, $value, $baseType);
+			return $operator === 'contain' ? $result : !$result;
 		}
 
 		if (\CBPHelper::isAssociativeArray($valueToCheck))
@@ -248,6 +205,67 @@ class Condition
 		return $result;
 	}
 
+	private function checkInOperation($toCheck, $base, $baseType): bool
+	{
+		$result = false;
+
+		foreach ($toCheck as $f)
+		{
+			if (is_array($base))
+			{
+				$result = in_array($f, $base);
+			}
+			else
+			{
+				$result = (mb_strpos($base, $f) !== false);
+			}
+
+			if (!$result)
+			{
+				break;
+			}
+		}
+
+		return $result;
+	}
+
+	private function checkContainOperation($toCheck, $base, $baseType): bool
+	{
+		$result = false;
+
+		if ($baseType === 'user')
+		{
+			return count(array_diff($base, $toCheck)) === 0;
+		}
+
+		foreach ($base as $v)
+		{
+			foreach ($toCheck as $f)
+			{
+				if (is_array($f))
+				{
+					$result = in_array($v, $f);
+				}
+				else
+				{
+					$result = (mb_strpos($f, $v) !== false);
+				}
+
+				if ($result)
+				{
+					break;
+				}
+			}
+
+			if (!$result)
+			{
+				break;
+			}
+		}
+
+		return $result;
+	}
+
 	/**
 	 * @return array Array presentation of condition.
 	 */
@@ -257,5 +275,28 @@ class Condition
 			'operator' => $this->getOperator(),
 			'value' => $this->getValue(),
 		);
+	}
+
+	public static function getOperatorList(): array
+	{
+		return [
+			"=" => Loc::getMessage("BIZPROC_ACTIVITY_CONDITION_OPERATOR_EQ"),
+			"!=" => Loc::getMessage("BIZPROC_ACTIVITY_CONDITION_OPERATOR_NE"),
+
+			">" => Loc::getMessage("BIZPROC_ACTIVITY_CONDITION_OPERATOR_GT"),
+			">=" => Loc::getMessage("BIZPROC_ACTIVITY_CONDITION_OPERATOR_GE"),
+
+			"<" => Loc::getMessage("BIZPROC_ACTIVITY_CONDITION_OPERATOR_LT"),
+			"<=" => Loc::getMessage("BIZPROC_ACTIVITY_CONDITION_OPERATOR_LE"),
+
+			"in" => Loc::getMessage("BIZPROC_ACTIVITY_CONDITION_OPERATOR_IN"),
+			"!in" => Loc::getMessage("BIZPROC_ACTIVITY_CONDITION_OPERATOR_NOT_IN"),
+
+			"contain" => Loc::getMessage("BIZPROC_ACTIVITY_CONDITION_OPERATOR_CONTAIN"),
+			"!contain" => Loc::getMessage("BIZPROC_ACTIVITY_CONDITION_OPERATOR_NOT_CONTAIN"),
+
+			"!empty" => Loc::getMessage("BIZPROC_ACTIVITY_CONDITION_OPERATOR_NOT_EMPTY"),
+			"empty" => Loc::getMessage("BIZPROC_ACTIVITY_CONDITION_OPERATOR_EMPTY"),
+		];
 	}
 }

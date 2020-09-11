@@ -4,8 +4,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Landing\Connector;
+use \Bitrix\Landing\Site\Type;
+use \Bitrix\Main\Localization\Loc;
 \Bitrix\Main\UI\Extension::load(["ui.fonts.opensans", "ui.buttons"]);
 
 foreach ($arResult['ERRORS'] as $errorCode => $error)
@@ -40,7 +41,7 @@ if (
 );
 ?>
 
-<?if ($arParams['TYPE'] == 'KNOWLEDGE' || $arParams['TYPE'] == 'GROUP'):?>
+<?if ($arParams['TYPE'] == Type::SCOPE_CODE_KNOWLEDGE || $arParams['TYPE'] == Type::SCOPE_CODE_GROUP):?>
 
 	<?if ($errorCode == 'SITE_NOT_FOUND'):?>
 		<div class="landing-error-kb">
@@ -57,7 +58,7 @@ if (
 				</div>
 			</div>
 		</div>
-	<?elseif ($errorCode == 'SITE_NOT_ALLOWED' && $arParams['TYPE'] == 'KNOWLEDGE'):?>
+	<?elseif ($errorCode == 'SITE_NOT_ALLOWED' && $arParams['TYPE'] == Type::SCOPE_CODE_KNOWLEDGE):?>
 		<div class="landing-error-kb landing-error-kb-group">
 			<div class="landing-error-kb-inner">
 				<div class="landing-error-kb-title"><?= $error;?></div>

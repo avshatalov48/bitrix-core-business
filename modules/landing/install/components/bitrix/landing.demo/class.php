@@ -14,6 +14,7 @@ use \Bitrix\Landing\TemplateRef;
 use \Bitrix\Landing\Rights;
 use \Bitrix\Landing\Landing\Cache;
 use \Bitrix\Landing\Hook\Page\Settings;
+use \Bitrix\Landing\Site\Type;
 use \Bitrix\Highloadblock;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\ModuleManager;
@@ -319,11 +320,15 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		if ($id < 0)
 		{
 			$http = new HttpClient;
-			$res = Json::decode($http->get(
-				$this::REMOTE_REPOSITORY_URL . 'landing_cloud.cloud.getAppItemManifest?='
-				. '&user_lang=' . LANGUAGE_ID
+			$res = $http->get(
+				$this::REMOTE_REPOSITORY_URL . 'landing_cloud.cloud.getAppItemManifest?'
+				. 'user_lang=' . LANGUAGE_ID
 				. '&id=' . (-1 * $id)
-			));
+			);
+			if ($res)
+			{
+				$res = Json::decode($res);
+			}
 			if (isset($res['result']['MANIFEST']))
 			{
 				return $res['result']['MANIFEST'];
@@ -714,7 +719,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 							$updated = true;
 							$content = str_replace(
 								'#TITLE#',
-								$block->getMeta()['LANDING_TITLE'],
+								\htmlspecialcharsbx($block->getMeta()['LANDING_TITLE']),
 								$content
 							);
 						}
@@ -762,7 +767,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 	 */
 	protected function getDomainId()
 	{
-		return \Bitrix\Landing\Site\Type::getDomainId();
+		return Type::getDomainId();
 	}
 
 	/**
@@ -816,8 +821,8 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		}
 		$code = str_replace('/', '_', $code);
 		if (
-			$this->arParams['TYPE'] == 'KNOWLEDGE' ||
-			$this->arParams['TYPE'] == 'GROUP'
+			$this->arParams['TYPE'] == Type::SCOPE_CODE_KNOWLEDGE ||
+			$this->arParams['TYPE'] == Type::SCOPE_CODE_GROUP
 		)
 		{
 			$previewSubDir = '/pub/kb/';
@@ -978,6 +983,10 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					Manager::enableFeatureTmp(
 						Manager::FEATURE_CREATE_SITE
 					);
+				}
+				if (in_array(Manager::getZone(), ['es', 'de', 'fr', 'it', 'pl', 'uk']))
+				{
+					$siteData['ADDITIONAL_FIELDS']['COOKIES_USE'] = 'Y';
 				}
 				$res = Site::add($siteData);
 				Manager::disableFeatureTmp(
@@ -1544,11 +1553,15 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 						if (!array_key_exists($appCode, $applicationItems))
 						{
 							$applicationItems[$appCode] = [];
-							$res = Json::decode($http->get(
-								$this::REMOTE_REPOSITORY_URL . 'landing_cloud.cloud.getAppItems?='
-								. '&user_lang=' . LANGUAGE_ID
+							$res = $http->get(
+								$this::REMOTE_REPOSITORY_URL . 'landing_cloud.cloud.getAppItems?'
+								. 'user_lang=' . LANGUAGE_ID
 								. '&appCode=' . $appCode
-							));
+							);
+							if ($res)
+							{
+								$res = Json::decode($res);
+							}
 							if (isset($res['result']) && is_array($res['result']))
 							{
 								foreach ($res['result'] as $item)
@@ -1569,13 +1582,17 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 						$command = ($subDir == $this::DEMO_DIR_SITE)
 									? 'getDemoSiteList'
 									: 'getDemoPageList';
-						$res = Json::decode($http->get(
-							$this::REMOTE_REPOSITORY_URL . 'landing_cloud.cloud.' . $command . '?='
-							. '&user_lang=' . LANGUAGE_ID
+						$res = $http->get(
+							$this::REMOTE_REPOSITORY_URL . 'landing_cloud.cloud.' . $command . '?'
+							. 'user_lang=' . LANGUAGE_ID
 							. '&type=' . $this->arParams['TYPE']
 							. '&filter[used_in_public]=Y'
 							. '&filter[only_rest]=Y'
-						));
+						);
+						if ($res)
+						{
+							$res = Json::decode($res);
+						}
 						if (isset($res['result']) && is_array($res['result']))
 						{
 							$result = $res['result'];
@@ -2379,9 +2396,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		$this->checkParam('TYPE', '');
 
 		\Bitrix\Landing\Hook::setEditMode(true);
-		\Bitrix\Landing\Site\Type::setScope(
-			$this->arParams['TYPE']
-		);
+		Type::setScope($this->arParams['TYPE']);
 
 		// check access
 		if ($this->arParams['SITE_ID'] > 0)

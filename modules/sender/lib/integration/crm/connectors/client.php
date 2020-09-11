@@ -71,7 +71,7 @@ class Client extends ConnectorBaseFilter
 	 *
 	 * @return Entity\Query[]
 	 */
-	public function getQueries()
+	public function getQueries($selectList = [])
 	{
 		$queries = array();
 		$clientType = $this->getFieldValue('CLIENT_TYPE');
@@ -89,20 +89,27 @@ class Client extends ConnectorBaseFilter
 		return $queries;
 	}
 
-	protected function getContactQuery()
+	protected function getContactQuery($selectList = [])
 	{
 		$query = CrmContactTable::query();
 		$query->setFilter($this->getCrmEntityFilter(\CCrmOwnerType::ContactName));
 		$this->addCrmEntityReferences($query);
 		$query->registerRuntimeField(new Entity\ExpressionField('CRM_ENTITY_TYPE_ID', \CCrmOwnerType::Contact));
+		$query->registerRuntimeField(new Entity\ExpressionField('CRM_ENTITY_TYPE', '\''.\CCrmOwnerType::ContactName.'\''));
 		$query->registerRuntimeField(new Entity\ExpressionField('CRM_COMPANY_ID', 0));
 		$query->registerRuntimeField(new Entity\ExpressionField('CONTACT_ID', '%s', ['ID']));
 		$query->registerRuntimeField(Helper::createExpressionMultiField(\CCrmOwnerType::ContactName, 'EMAIL'));
 		$query->registerRuntimeField(Helper::createExpressionMultiField(\CCrmOwnerType::ContactName, 'PHONE'));
-		$query->setSelect([
-			'NAME', 'CRM_ENTITY_ID' => 'ID', 'CRM_ENTITY_TYPE_ID',
-			'CRM_CONTACT_ID' => 'CONTACT_ID', 'CRM_COMPANY_ID',
-		]);
+		$query->setSelect(
+				[
+					'CRM_ENTITY_ID'  => 'ID',
+					'NAME',
+					'CRM_ENTITY_TYPE_ID',
+					'CRM_ENTITY_TYPE',
+					'CRM_CONTACT_ID' => 'CONTACT_ID',
+					'CRM_COMPANY_ID',
+				]
+		);
 
 		return $query;
 	}
@@ -113,14 +120,21 @@ class Client extends ConnectorBaseFilter
 		$query->setFilter($this->getCrmEntityFilter(\CCrmOwnerType::CompanyName));
 		$this->addCrmEntityReferences($query);
 		$query->registerRuntimeField(new Entity\ExpressionField('CRM_ENTITY_TYPE_ID', \CCrmOwnerType::Company));
+		$query->registerRuntimeField(new Entity\ExpressionField('CRM_ENTITY_TYPE', '\''.\CCrmOwnerType::CompanyName.'\''));
 		$query->registerRuntimeField(new Entity\ExpressionField('CONTACT_ID', 0));
 		$query->registerRuntimeField(new Entity\ExpressionField('COMPANY_ID', '%s', ['ID']));
 		$query->registerRuntimeField(Helper::createExpressionMultiField(\CCrmOwnerType::CompanyName, 'EMAIL'));
 		$query->registerRuntimeField(Helper::createExpressionMultiField(\CCrmOwnerType::CompanyName, 'PHONE'));
-		$query->setSelect([
-			'NAME' => 'TITLE', 'CRM_ENTITY_ID' => 'ID', 'CRM_ENTITY_TYPE_ID',
-			'CRM_CONTACT_ID' => 'CONTACT_ID', 'CRM_COMPANY_ID' => 'COMPANY_ID',
-		]);
+		$query->setSelect(
+			[
+				'CRM_ENTITY_ID'  => 'ID',
+				'NAME'           => 'TITLE',
+				'CRM_ENTITY_TYPE_ID',
+				'CRM_ENTITY_TYPE',
+				'CRM_CONTACT_ID' => 'CONTACT_ID',
+				'CRM_COMPANY_ID' => 'COMPANY_ID',
+			]
+		);
 
 		return $query;
 	}
@@ -170,8 +184,16 @@ class Client extends ConnectorBaseFilter
 
 			$runtimeFieldName = "SGT_$docType";
 			$filter = $this->getCrmReferencedEntityFilter($docType);
+			$joinType = $filter[$docType]['JOIN_TYPE']??'INNER';
+			unset($filter[$docType]['JOIN_TYPE']);
 
-			$joinType = 'INNER';
+			$query->registerRuntimeField(null, new Entity\ReferenceField(
+				$runtimeFieldName,
+				$refClassName,
+				$ref,
+				array('join_type' => $joinType)
+			));
+
 			foreach ($filter as $key => $value)
 			{
 				$pattern = "/^[\W]{0,2}$docType\./";
@@ -180,48 +202,8 @@ class Client extends ConnectorBaseFilter
 					$key = str_replace("$docType.", "$runtimeFieldName.", $key);
 				}
 
-				if(is_array($value))
-				{
-					foreach ($value as $val)
-					{
-						if(is_null($val))
-						{
-							$joinType = 'LEFT';
-							break;
-						}
-					}
-				}elseif (is_null($value))
-				{
-					$joinType = 'LEFT';
-				}
-
-				if($joinType !== 'LEFT')
-				{
-					$query->addFilter($key, $value);
-					continue;
-				}
-				$key = str_replace('=', '', $key);
-
-				if(is_array($value))
-				{
-					$filter = [
-						[$key, '=', null],
-						[$key, 'in', $value]
-					];
-				}
-
-				$query->where(\Bitrix\Main\Entity\Query::filter()
-					->logic('or')
-					->where($filter)
-				);
+				$query->addFilter($key, $value);
 			}
-
-			$query->registerRuntimeField(null, new Entity\ReferenceField(
-				$runtimeFieldName,
-				$refClassName,
-				$ref,
-				array('join_type' => $joinType)
-			));
 
 			$runtime = Helper::getRuntimeByEntity($docType);
 			foreach ($runtime as $item)
@@ -269,6 +251,15 @@ class Client extends ConnectorBaseFilter
 			$query->setFilter($filterFields);
 
 			$this->addNoPurchasesFilter($query, $noPurchasesFilter, $productSource);
+		}
+		if (array_key_exists('DEAL', $filterFields))
+		{
+			$query->where(\Bitrix\Main\Entity\Query::filter()
+				->logic('or')
+				->where($filterFields['DEAL'])
+			);
+			unset($filterFields['DEAL']);
+			$query->setFilter($filterFields);
 		}
 	}
 
@@ -698,7 +689,11 @@ class Client extends ConnectorBaseFilter
 	 */
 	public static function getPersonalizeList()
 	{
-		return Helper::getPersonalizeList();
+		return Loader::includeModule('crm') ? array_merge(
+			Helper::getPersonalizeList(),
+			Helper::buildPersonalizeList(\CCrmOwnerType::ContactName),
+			Helper::buildPersonalizeList(\CCrmOwnerType::CompanyName)
+		) : Helper::getPersonalizeList();
 	}
 
 	public static function getDealCategoryList()
@@ -997,7 +992,8 @@ class Client extends ConnectorBaseFilter
 			'type' => 'list',
 			'required' => true,
 			'valueRequired' => true,
-			'items' => self::getDealCategoryList()
+			'items' => self::getDealCategoryList(),
+			'filter_callback' => ['\Bitrix\Sender\Integration\Crm\Connectors\Helper', 'getDealCategoryFilter']
 		);
 
 		$list[] = array(

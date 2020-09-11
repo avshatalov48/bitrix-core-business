@@ -103,6 +103,7 @@
 				{
 					this._screenShared = screenShared;
 					this.signaling.sendScreenState(this._screenShared);
+					this._applyCurrentVideoQuality();
 				}
 			}
 		});
@@ -130,6 +131,8 @@
 		this.lastSelfPingReceivedTimeout = null;
 
 		this.reinviteTimeout = null;
+
+		this._applyCurrentVideoQuality = BX.debounce(this._doAapplyCurrentVideoQuality.bind(this), 500);
 	};
 
 	BX.extend(BX.Call.VoximplantCall, BX.Call.AbstractCall);
@@ -260,10 +263,16 @@
 
 	BX.Call.VoximplantCall.prototype.removeClientEvents = function()
 	{
+		if (!('VoxImplant' in window))
+		{
+			return;
+		}
+
 		var streamManager = VoxImplant.Hardware.StreamManager.get();
 		streamManager.off(VoxImplant.Hardware.HardwareEvents.DevicesUpdated, this.__onLocalDevicesUpdatedHandler);
 		streamManager.off(VoxImplant.Hardware.HardwareEvents.MediaRendererAdded, this.__onLocalMediaRendererAddedHandler);
 		streamManager.off(VoxImplant.Hardware.HardwareEvents.BeforeMediaRendererRemoved, this.__onBeforeLocalMediaRendererRemovedHandler);
+
 		this.clientEventsBound = false;
 	};
 
@@ -382,16 +391,8 @@
 		{
 			result.cameraId = this.cameraId;
 		}
-		if(this.videoQuality)
-		{
-			var resolution = BX.Call.Util.getMaxResolution(this.videoQuality, this.videoHd);
-			result.frameHeight = resolution.height;
-			result.frameWidth = resolution.width;
-		}
-		else
-		{
-			result.videoQuality = this.videoHd && this.videoQuality === BX.Call.Quality.VeryHigh? VoxImplant.Hardware.VideoQuality.VIDEO_SIZE_HD : VoxImplant.Hardware.VideoQuality.VIDEO_SIZE_nHD;
-		}
+
+		result.videoQuality = this.videoHd ? VoxImplant.Hardware.VideoQuality.VIDEO_SIZE_HD : VoxImplant.Hardware.VideoQuality.VIDEO_SIZE_nHD;
 		return result;
 	};
 
@@ -501,7 +502,7 @@
 		}
 	};
 
-	BX.Call.VoximplantCall.prototype._applyCurrentVideoQuality = function()
+	BX.Call.VoximplantCall.prototype._doAapplyCurrentVideoQuality = function()
 	{
 		this.log("Trying to apply video quality " + this.videoQuality);
 		if(!this.voximplantCall)
@@ -509,11 +510,35 @@
 			return;
 		}
 
-		if('RTCRtpSender' in window && 'setParameters' in window.RTCRtpSender.prototype)
+		var scaleDownCoefficient = this._getVideoScaleDownCoefficient();
+		this.voximplantCall.scaleVideoResolutionDownBy(scaleDownCoefficient);
+		console.warn("scale down resolution to " + scaleDownCoefficient);
+	};
+
+
+
+	BX.Call.VoximplantCall.prototype._getVideoScaleDownCoefficient = function()
+	{
+		if (this.screenShared)
 		{
-			this._setMaxBitrate(BX.Call.Util.getMaxBitrate(this.videoQuality))
+			return 1;
 		}
-		VoxImplant.Hardware.CameraManager.get().setCallVideoSettings(this.voximplantCall, this.constructCameraParams());
+
+		switch (this.videoQuality)
+		{
+			case BX.Call.Quality.VeryHigh:
+				return 1;
+			case BX.Call.Quality.High:
+				return 1.5;
+			case BX.Call.Quality.Medium:
+				return 2;
+			case BX.Call.Quality.Low:
+				return 3;
+			case BX.Call.Quality.VeryLow:
+				return 4;
+			default:
+				return 1;
+		}
 	};
 
 	BX.Call.VoximplantCall.prototype._showLocalVideo = function()
@@ -539,6 +564,12 @@
 	{
 		return new Promise(function(resolve, reject)
 		{
+			if (!('VoxImplant' in window))
+			{
+				resolve();
+				return;
+			}
+
 			VoxImplant.Hardware.StreamManager.get().hideLocalVideo().then(
 				function()
 				{
@@ -1412,6 +1443,7 @@
 	{
 		this.ready = false;
 		this._hideLocalVideo();
+
 		if(this.voximplantCall)
 		{
 			this.removeCallEvents();

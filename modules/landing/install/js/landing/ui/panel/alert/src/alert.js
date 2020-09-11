@@ -63,7 +63,7 @@ export class Alert extends BasePanel
 		});
 	}
 
-	show(type, text): Promise<Alert>
+	show(type, text, hideSupportLink = false): Promise<Alert>
 	{
 		let promise = Promise.resolve(this);
 
@@ -87,7 +87,11 @@ export class Alert extends BasePanel
 			}
 
 			this.text.innerHTML = `${text || type} `;
-			Dom.append(this.getSupportLink(), this.text);
+
+			if (!hideSupportLink)
+			{
+				Dom.append(this.getSupportLink(), this.text);
+			}
 
 			return this;
 		});

@@ -15,10 +15,10 @@ if ($_REQUEST["INSTALL_PUBLIC"] == "Y" && is_array($_REQUEST["PUBLIC_INFO"]) && 
 		if (!is_array($res) || empty($res))
 			continue;
 		// Errors
-		$res["ID"] = intVal($res["ID"]);
+		$res["ID"] = intval($res["ID"]);
 		$res["PATH"] = htmlspecialcharsbx(trim($res["PATH"]));
 		$res["MODE"] = ($res["MODE"] == "sef" ? "sef" : "nsef");
-		if (strLen($res["PATH"]) <= 0)
+		if ($res["PATH"] == '')
 		{
 			?><?=$res["ID"]?>. <?=GetMessage("FORUM_BAD_PATH")?><?
 			continue;

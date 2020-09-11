@@ -73,7 +73,7 @@ export const AttachTypeUser =
 								/>
 							</div>
 						</div>
-						<div class="bx-im-element-attach-type-user-name" v-html="element.NAME"></div>
+						<div class="bx-im-element-attach-type-user-name">{{element.NAME}}</div>
 					</div>
 				</template>
 			</div>

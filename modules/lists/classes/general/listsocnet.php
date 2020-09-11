@@ -65,7 +65,7 @@ waiting for integration lists into events_user_view
 			CSocNetUser::IsCurrentUserModuleAdmin()
 		));
 
-		$arResult["Title"]["group_lists"] = (array_key_exists("ActiveFeatures", $arResult) && array_key_exists("group_lists", $arResult["ActiveFeatures"]) && strlen($arResult["ActiveFeatures"]["group_lists"]) > 0 ? $arResult["ActiveFeatures"]["group_lists"] : GetMessage("LISTS_SOCNET_TAB"));
+		$arResult["Title"]["group_lists"] = (array_key_exists("ActiveFeatures", $arResult) && array_key_exists("group_lists", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["group_lists"] <> '' ? $arResult["ActiveFeatures"]["group_lists"] : GetMessage("LISTS_SOCNET_TAB"));
 
 		if (!array_key_exists("SEF_MODE", $arResult) || $arResult["SEF_MODE"] != "N")
 		{

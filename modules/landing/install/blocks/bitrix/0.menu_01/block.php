@@ -15,7 +15,7 @@
 				<div id="navBar" class="collapse navbar-collapse">
 					<!-- Navigation -->
 					<div class="align-items-center flex-sm-row w-100">
-						<ul class="js-scroll-nav landing-block-node-menu-list navbar-nav text-uppercase font-weight-bold g-font-size-13 g-py-20 g-py-0--lg">
+						<ul class="js-scroll-nav landing-block-node-menu-list navbar-nav text-uppercase g-font-weight-700 g-font-size-13 g-py-20 g-py-0--lg">
 							<li class="landing-block-node-menu-list-item nav-item g-mx-10--lg g-mx-15--xl g-mb-0--lg">
 								<a href="#" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">HOME</a>
 							</li>

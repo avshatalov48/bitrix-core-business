@@ -5,7 +5,7 @@ return [
 		'titleBig' => [
 			'g-color-white',
 			'g-font-size-76',
-			'font-weight-bold',
+			'g-font-weight-700',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
@@ -14,7 +14,7 @@ return [
 		'titleMedium' => [
 			'g-color-white',
 			'g-font-size-50',
-			'font-weight-bold',
+			'g-font-weight-700',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
@@ -23,7 +23,7 @@ return [
 		'titleSmall' => [
 			'g-color-white',
 			'g-font-size-40',
-			'font-weight-bold',
+			'g-font-weight-700',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
@@ -100,7 +100,7 @@ return [
 
 		'titleImageBig' => [
 			'g-font-size-76',
-			'font-weight-bold',
+			'g-font-weight-700',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
@@ -108,7 +108,7 @@ return [
 
 		'titleImageMedium' => [
 			'g-font-size-50',
-			'font-weight-bold',
+			'g-font-weight-700',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
@@ -116,7 +116,7 @@ return [
 
 		'titleImageSmall' => [
 			'g-font-size-40',
-			'font-weight-bold',
+			'g-font-weight-700',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',
@@ -276,7 +276,7 @@ return [
 		'titleMediumBgBefore' => [
 			'g-color-white',
 			'g-font-size-50',
-			'font-weight-bold',
+			'g-font-weight-700',
 			'g-line-height-1_2',
 			'g-letter-spacing-0',
 			'g-text-transform-none',

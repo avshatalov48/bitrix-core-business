@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["MAIL_CLIENT_AJAX_ERROR"] = "Error processing the request.";
 $MESS["MAIL_CLIENT_BUTTON_LOADING"] = "Loading...";
 $MESS["MAIL_CLIENT_CANCELATION_WARNING_3"] = "Email synchronization is not available on your plan. New emails will not be visible in Bitrix24.
@@ -49,6 +49,7 @@ $MESS["MAIL_MESSAGE_EXT_BIND_TASKS_EMPTY_TITLE"] = "Task";
 $MESS["MAIL_MESSAGE_EXT_BIND_TASKS_TITLE"] = "Tasks";
 $MESS["MAIL_MESSAGE_EXT_BLOCK_LINK"] = "More...";
 $MESS["MAIL_MESSAGE_EXT_BLOCK_TITLE"] = "More";
+$MESS["MAIL_MESSAGE_LIST_ADDRESSBOOK_LINK"] = "Contacts";
 $MESS["MAIL_MESSAGE_LIST_ATTACH_ICON_HINT"] = "Contains attachments";
 $MESS["MAIL_MESSAGE_LIST_BLACKLIST_LINK"] = "Blacklist";
 $MESS["MAIL_MESSAGE_LIST_BTN_DELETE"] = "Delete";
@@ -71,9 +72,13 @@ $MESS["MAIL_MESSAGE_LIST_COLUMN_FROM"] = "From";
 $MESS["MAIL_MESSAGE_LIST_COLUMN_SUBJECT"] = "Subject";
 $MESS["MAIL_MESSAGE_LIST_CONFIRM_CANCEL_BTN"] = "Cancel";
 $MESS["MAIL_MESSAGE_LIST_CONFIRM_DELETE"] = "Messages will be deleted permanently. <br>You will not be able to recover them.";
+$MESS["MAIL_MESSAGE_LIST_CONFIRM_DELETE_ALL"] = "Are you sure you want to delete all messages?<br>They will be permanently deleted. You will not be able to recover them.";
 $MESS["MAIL_MESSAGE_LIST_CONFIRM_DELETE_BTN"] = "Delete";
+$MESS["MAIL_MESSAGE_LIST_CONFIRM_MOVE_ALL"] = "Are you sure you want to move all messages?";
 $MESS["MAIL_MESSAGE_LIST_CONFIRM_READ_ALL"] = "Are you sure you want to mark all messages in this folder as read?";
+$MESS["MAIL_MESSAGE_LIST_CONFIRM_SPAM_ALL"] = "Are you sure you want to mark all messages as spam?";
 $MESS["MAIL_MESSAGE_LIST_CONFIRM_TITLE"] = "Confirm action";
+$MESS["MAIL_MESSAGE_LIST_CONFIRM_TRASH_ALL"] = "Are you sure you want to move all messages to the Recycle Bin?";
 $MESS["MAIL_MESSAGE_LIST_COUNTERS_EMPTY"] = "There are no messages to act on";
 $MESS["MAIL_MESSAGE_LIST_COUNTERS_TITLE"] = "Messages";
 $MESS["MAIL_MESSAGE_LIST_COUNTERS_UNBIND"] = "not processed";
@@ -129,4 +134,3 @@ $MESS["MAIL_MESSAGE_SENT"] = "Sent: #DATETIME#";
 $MESS["MAIL_MESSAGE_SPAM_CONFIRM"] = "Are you sure you want to delete this message and blacklist the sender?";
 $MESS["MAIL_MESSAGE_SYNC_BTN_HINT"] = "Synchronize";
 $MESS["MAIL_MESSAGE_TASK_TITLE"] = "Email: #SUBJECT#";
-?>

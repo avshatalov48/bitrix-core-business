@@ -115,12 +115,13 @@
 		this.hideHeaderString = ".crm-webform-header-container{display:none;}";
 		this.hideBitrixLogoString = ".crm-webform-bottom-link{display:none}.crm-webform-bottom-logo-container{height:0;margin:0;}";
 		this.additionalCssString =
-			".content{min-height:170px;}" +
-			".crm-webform-fieldset-footer{padding-bottom:0;}" +
+			".content-wrap{min-height:170px;}" +
 			".crm-webform-body{padding-bottom:0;padding-top:0;}" +
-			".content-wrap{padding-bottom:0;}" +
 			".crm-webform-block.crm-webform-default{margin-bottom:0;}" +
 			".calendar-resbook-webform-block-date-item-inner{transition: border-color ease-in-out 0.5s;}";
+		this.fixHeightCssString =
+			".crm-webform-fieldset-footer{padding-bottom:0;}" +
+			".content-wrap{padding-bottom:0;}";
 
 		this.block = block;
 		this.selector = selector;
@@ -612,7 +613,9 @@
 		createFormOptionsCss: function ()
 		{
 			if (Object.keys(this.styles).length == 0)
+			{
 				this.readFormStyles();
+			}
 
 			var cssString = "";
 			for (var selector in this.selectors)
@@ -636,6 +639,8 @@
 					cssString += selector + "{" + cssStringCurrent + "}";
 				}
 			}
+
+			cssString += this.fixHeightCssString;
 
 			return cssString;
 		},

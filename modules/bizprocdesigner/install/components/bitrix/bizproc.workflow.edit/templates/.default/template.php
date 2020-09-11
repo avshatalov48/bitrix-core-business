@@ -7,6 +7,7 @@ use Bitrix\Main\Page\Asset;
 
 \Bitrix\Main\Loader::includeModule('rest');
 CUtil::InitJSCore(['window', 'ajax', 'bp_selector', 'clipboard', 'marketplace']);
+\Bitrix\Main\UI\Extension::load(['ui.hint']);
 
 if ($isAdminSection)
 {
@@ -34,8 +35,8 @@ $ID = $arResult["ID"];
 $aMenu = [];
 
 $listMenuItem = [
-	"TEXT"  => ((strlen($arParams["BIZPROC_EDIT_MENU_LIST_MESSAGE"]) > 0) ? htmlspecialcharsbx($arParams["BIZPROC_EDIT_MENU_LIST_MESSAGE"]) : GetMessage("BIZPROC_WFEDIT_MENU_LIST")),
-	"TITLE" => ((strlen($arParams["BIZPROC_EDIT_MENU_LIST_TITLE_MESSAGE"]) > 0) ? htmlspecialcharsbx($arParams["BIZPROC_EDIT_MENU_LIST_TITLE_MESSAGE"]) : GetMessage("BIZPROC_WFEDIT_MENU_LIST_TITLE")),
+	"TEXT"  => (($arParams["BIZPROC_EDIT_MENU_LIST_MESSAGE"] <> '') ? htmlspecialcharsbx($arParams["BIZPROC_EDIT_MENU_LIST_MESSAGE"]) : GetMessage("BIZPROC_WFEDIT_MENU_LIST")),
+	"TITLE" => (($arParams["BIZPROC_EDIT_MENU_LIST_TITLE_MESSAGE"] <> '') ? htmlspecialcharsbx($arParams["BIZPROC_EDIT_MENU_LIST_TITLE_MESSAGE"]) : GetMessage("BIZPROC_WFEDIT_MENU_LIST_TITLE")),
 	"LINK"  => $arResult['LIST_PAGE_URL'],
 	"ICON"  => "btn_list",
 ];
@@ -66,13 +67,13 @@ if (!array_key_exists("SKIP_BP_TYPE_SELECT", $arParams) || $arParams["SKIP_BP_TY
 	$arSubMenu[] = [
 		"TEXT"    => GetMessage("BIZPROC_WFEDIT_MENU_ADD_STATE"),
 		"TITLE"   => GetMessage("BIZPROC_WFEDIT_MENU_ADD_STATE_TITLE"),
-		"ONCLICK" => "if(confirm('".GetMessage("BIZPROC_WFEDIT_MENU_ADD_WARN")."'))window.location='".str_replace("#ID#", "0", $arResult["EDIT_PAGE_TEMPLATE"]).(strpos($arResult["EDIT_PAGE_TEMPLATE"], "?") ? "&" : "?")."init=statemachine';"
+		"ONCLICK" => "if(confirm('".GetMessage("BIZPROC_WFEDIT_MENU_ADD_WARN")."'))window.location='".str_replace("#ID#", "0", $arResult["EDIT_PAGE_TEMPLATE"]).(mb_strpos($arResult["EDIT_PAGE_TEMPLATE"], "?")? "&" : "?")."init=statemachine';"
 	];
 
 	$arSubMenu[] = [
 		"TEXT"    => GetMessage("BIZPROC_WFEDIT_MENU_ADD_SEQ"),
 		"TITLE"   => GetMessage("BIZPROC_WFEDIT_MENU_ADD_SEQ_TITLE"),
-		"ONCLICK" => "if(confirm('".GetMessage("BIZPROC_WFEDIT_MENU_ADD_WARN")."'))window.location='".str_replace("#ID#", "0", $arResult["EDIT_PAGE_TEMPLATE"]).(strpos($arResult["EDIT_PAGE_TEMPLATE"], "?") ? "&" : "?")."';"
+		"ONCLICK" => "if(confirm('".GetMessage("BIZPROC_WFEDIT_MENU_ADD_WARN")."'))window.location='".str_replace("#ID#", "0", $arResult["EDIT_PAGE_TEMPLATE"]).(mb_strpos($arResult["EDIT_PAGE_TEMPLATE"], "?")? "&" : "?")."';"
 	];
 
 	$aMenu[] = [
@@ -185,7 +186,7 @@ $aMenu[] = [
 		var data = JSToPHP(arUserParams, 'USER_PARAMS');
 
 		jsExtLoader.onajaxfinish = BCPSaveTemplateComplete;
-		jsExtLoader.startPost('<?= CUtil::JSEscape($v) ?><?if(strpos($v, "?")):?>&<?else:?>?<?endif?><?=bitrix_sessid_get()?>&saveajax=Y&saveuserparams=Y', data);
+		jsExtLoader.startPost('<?= CUtil::JSEscape($v) ?><?if(mb_strpos($v, "?")):?>&<?else:?>?<?endif?><?=bitrix_sessid_get()?>&saveajax=Y&saveuserparams=Y', data);
 	}
 
 	function BCPSaveTemplate(save)
@@ -203,15 +204,19 @@ $aMenu[] = [
 			JSToPHP(arWorkflowTemplate, 'arWorkflowTemplate');
 
 		jsExtLoader.onajaxfinish = BCPSaveTemplateComplete;
-		jsExtLoader.startPost('<?=CUtil::JSEscape($v)?><?if(strpos($v, "?")):?>&<?else:?>?<?endif?><?=bitrix_sessid_get()?>&saveajax=Y' +
+		jsExtLoader.startPost('<?=CUtil::JSEscape($v)?><?if(mb_strpos($v, "?")):?>&<?else:?>?<?endif?><?=bitrix_sessid_get()?>&saveajax=Y' +
 			(save ? '' : '&apply=Y'),
 			data);
 	}
 
 	function BCPShowParams()
 	{
+		<?
+		$dts = $arResult['DOCUMENT_TYPE_SIGNED'];
+		$u =  "/bitrix/tools/bizproc_wf_settings.php?mode=public&bxpublic=Y&lang=".LANGUAGE_ID."&dts=".$dts;
+		?>
 		(new BX.CAdminDialog({
-			'content_url': "/bitrix/admin/<?=MODULE_ID?>_bizproc_wf_settings.php?mode=public&bxpublic=Y&lang=<?=LANGUAGE_ID?>&entity=<?=ENTITY?>",
+			'content_url': '<?=CUtil::JSEscape($u)?>',
 			'content_post': 'workflowTemplateName=' + encodeURIComponent(workflowTemplateName) + '&' +
 				'workflowTemplateDescription=' + encodeURIComponent(workflowTemplateDescription) + '&' +
 				'workflowTemplateAutostart=' + encodeURIComponent(workflowTemplateAutostart) + '&' +
@@ -263,7 +268,7 @@ $aMenu[] = [
 
 	foreach ($arResult['ACTIVITIES'] as $actId => $actProps)
 	{
-		$actPath = substr($actProps["PATH_TO_ACTIVITY"], strlen($_SERVER["DOCUMENT_ROOT"]));
+		$actPath = mb_substr($actProps["PATH_TO_ACTIVITY"], mb_strlen($_SERVER["DOCUMENT_ROOT"]));
 		if (file_exists($actProps["PATH_TO_ACTIVITY"]."/".$actId.".js"))
 		{
 			Asset::getInstance()->addJs($actPath.'/'.$actId.'.js');
@@ -305,6 +310,7 @@ $aMenu[] = [
 		var workflowTemplateSort = <?=CUtil::PhpToJSObject($arResult['TEMPLATE_SORT'])?>;
 
 		var document_type = <?=CUtil::PhpToJSObject($arResult['DOCUMENT_TYPE'])?>;
+		var document_type_signed = '<?=CUtil::JSEscape($arResult['DOCUMENT_TYPE_SIGNED'])?>';
 		var MODULE_ID = <?=CUtil::PhpToJSObject(MODULE_ID)?>;
 		var ENTITY = <?=CUtil::PhpToJSObject(ENTITY)?>;
 		var BPMESS = <?=CUtil::PhpToJSObject($JSMESS)?>;
@@ -386,13 +392,18 @@ $aMenu[] = [
 				return;
 			}
 			BizProcRender(arWorkflowTemplate, document.getElementById('wf1'));
+
+			var workArea = document.getElementById('workarea-content');
+			if (workArea)
+			{
+				BX.scrollToNode(workArea);
+			}
 			<?if($ID <= 0):?>
 			BCPShowParams();
 			<?endif;?>
 		}
 
-		setTimeout("start()", 0);
-
+		BX.ready(start);
 		window.onbeforeunload = function()
 		{
 			return BPTemplateIsModified ? '<?=GetMessageJS('BIZPROC_WFEDIT_BEFOREUNLOAD')?>' : null;
@@ -404,7 +415,7 @@ $aMenu[] = [
 	endif;
 	?>
 	<form>
-		<div id="wf1" style="width: 100%; border-bottom: 2px #efefef dotted; padding-bottom: 10px"></div>
+		<div id="wf1" style="width: 100%; border-bottom: 2px #efefef dotted; padding-bottom: 10px; position: relative; z-index: 1"></div>
 
 		<?php if (!$isAdminSection):
 

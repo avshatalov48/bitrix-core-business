@@ -25,7 +25,7 @@ abstract class Entity implements \ArrayAccess
 		$this->id = $id;
 		if ($id <= 0)
 		{
-			throw new \Bitrix\Main\ArgumentException(__CLASS__ . " empty id.");
+			throw new \Bitrix\Main\ArgumentNullException(static::class . " empty id.");
 		}
 		$this->init();
 

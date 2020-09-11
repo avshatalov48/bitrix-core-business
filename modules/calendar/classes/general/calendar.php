@@ -958,14 +958,17 @@ class CCalendar
 						\CAgent::RemoveAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::clearPushChannels();", "calendar");
 						\CAgent::AddAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::createWatchChannels(0);", "calendar", "N", 60);
 						\CAgent::AddAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::processPush();", "calendar", "N", 180);
-						\CAgent::AddAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::renewWatchChannels();", "calendar", "N", 14400);
+						\CAgent::AddAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::renewWatchChannels();", "calendar", "N", \Bitrix\Calendar\Sync\GoogleApiPush::RENEW_INTERVAL_CHANNEL);
+						\CAgent::AddAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::checkPushChannel();", "calendar", "N", \Bitrix\Calendar\Sync\GoogleApiPush::CHECK_INTERVAL_CHANNEL);
 					}
 					else
 					{
+						global $DB;
 						// start clear push channels agent
 						\CAgent::AddAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::clearPushChannels();", "calendar", "N", 60);
 						\CAgent::RemoveAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::processPush();", "calendar");
 						\CAgent::RemoveAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::renewWatchChannels();", "calendar");
+						$DB->Query("DELETE FROM b_agent WHERE `NAME` LIKE '%GoogleApiPush::checkPushChannel%'");
 					}
 				}
 				elseif ($opt == 'pathes' && is_array($settings[$opt]))
@@ -4902,7 +4905,7 @@ class CCalendar
 							$pushOptionEnabled = COption::GetOptionString('calendar', 'sync_by_push', false);
 							if ($pushOptionEnabled || CCalendar::IsBitrix24())
 							{
-								$googleApiConnection = new GoogleApiSync($connectionData['ENTITY_ID'], $connectionData['ID']);
+								$googleApiConnection = new GoogleApiSync($connectionData['ENTITY_ID'], $conId);
 								$channelInfo = $googleApiConnection->startWatchCalendarList($connectionData['NAME']);
 								if ($channelInfo)
 								{

@@ -7,7 +7,7 @@
 					<img class="landing-block-node-member-photo u-shadow-v29 g-width-110 g-height-110 rounded-circle g-mb-40"
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/200x200/img5.jpg"
 						 alt="Image Description">
-					<h4 class="landing-block-node-member-name landing-semantic-subtitle-medium h5 g-color-gray-dark-v1 g-font-size-17 font-weight-bold mb-1">Alex Taylor</h4>
+					<h4 class="landing-block-node-member-name landing-semantic-subtitle-medium h5 g-color-gray-dark-v1 g-font-size-17 g-font-weight-700 mb-1">Alex Taylor</h4>
 					<div class="landing-block-node-member-post landing-semantic-subtitle-small-primary g-font-size-14 g-color-primary">
 						<p>Founder</p>
 					</div>
@@ -24,7 +24,7 @@
 					<img class="landing-block-node-member-photo u-shadow-v29 g-width-110 g-height-110 rounded-circle g-mb-40"
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/200x200/img6.jpg"
 						 alt="Image Description">
-					<h4 class="landing-block-node-member-name landing-semantic-subtitle-medium h5 g-color-gray-dark-v1 g-font-size-17 font-weight-bold mb-1">Kate Metu</h4>
+					<h4 class="landing-block-node-member-name landing-semantic-subtitle-medium h5 g-color-gray-dark-v1 g-font-size-17 g-font-weight-700 mb-1">Kate Metu</h4>
 					<div class="landing-block-node-member-post landing-semantic-subtitle-small-primary g-font-size-14 g-color-primary">
 						<p>Manager</p>
 					</div>
@@ -41,7 +41,7 @@
 					<img class="landing-block-node-member-photo u-shadow-v29 g-width-110 g-height-110 rounded-circle g-mb-40"
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/200x200/img7.jpg"
 						 alt="Image Description">
-					<h4 class="landing-block-node-member-name landing-semantic-subtitle-medium h5 g-color-gray-dark-v1 g-font-size-17 font-weight-bold mb-1">Daniel Wearne</h4>
+					<h4 class="landing-block-node-member-name landing-semantic-subtitle-medium h5 g-color-gray-dark-v1 g-font-size-17 g-font-weight-700 mb-1">Daniel Wearne</h4>
 					<div class="landing-block-node-member-post landing-semantic-subtitle-small-primary g-font-size-14 g-color-primary">
 						<p>Developer</p>
 					</div>
@@ -58,7 +58,7 @@
 					<img class="landing-block-node-member-photo u-shadow-v29 g-width-110 g-height-110 rounded-circle g-mb-40"
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/200x200/img8.jpg"
 						 alt="Image Description">
-					<h4 class="landing-block-node-member-name landing-semantic-subtitle-medium h5 g-color-gray-dark-v1 g-font-size-17 font-weight-bold mb-1">Tina Krueger</h4>
+					<h4 class="landing-block-node-member-name landing-semantic-subtitle-medium h5 g-color-gray-dark-v1 g-font-size-17 g-font-weight-700 mb-1">Tina Krueger</h4>
 					<div class="landing-block-node-member-post landing-semantic-subtitle-small-primary g-font-size-14 g-color-primary">
 						<p>Designer</p>
 					</div>

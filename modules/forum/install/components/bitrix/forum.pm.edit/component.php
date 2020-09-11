@@ -16,9 +16,9 @@ if(!function_exists("GetUserName"))
 	function GetUserName($USER_ID, $nameTemplate = "")
 	{
 		$ar_res = false;
-		if (IntVal($USER_ID)>0)
+		if (intval($USER_ID)>0)
 		{
-			$db_res = CUser::GetByID(IntVal($USER_ID));
+			$db_res = CUser::GetByID(intval($USER_ID));
 			$ar_res = $db_res->Fetch();
 		}
 
@@ -28,11 +28,11 @@ if(!function_exists("GetUserName"))
 			$ar_res = $db_res->Fetch();
 		}
 
-		$USER_ID = IntVal($ar_res["ID"]);
+		$USER_ID = intval($ar_res["ID"]);
 		$f_LOGIN = htmlspecialcharsex($ar_res["LOGIN"]);
 
 		$forum_user = CForumUser::GetByUSER_ID($USER_ID);
-		if (($forum_user["SHOW_NAME"]=="Y") && (strlen(trim($ar_res["NAME"]))>0 || strlen(trim($ar_res["LAST_NAME"]))>0))
+		if (($forum_user["SHOW_NAME"]=="Y") && (trim($ar_res["NAME"]) <> '' || trim($ar_res["LAST_NAME"]) <> ''))
 		{
 			$nameTemplate = trim(empty($nameTemplate)) ? CSite::GetNameFormat() : $nameTemplate;
 			return trim(CUser::FormatName($nameTemplate, array(	"NAME"			=> htmlspecialcharsbx($ar_res["NAME"]),
@@ -48,7 +48,7 @@ if(!function_exists("GetUserName"))
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$arParams["MID"] = intVal($arParams["MID"] > 0 ? $arParams["MID"] : $_REQUEST["MID"]);
+	$arParams["MID"] = intval($arParams["MID"] > 0 ? $arParams["MID"] : $_REQUEST["MID"]);
 	$mode = (!empty($arParams["mode"]) ? $arParams["mode"] : $_REQUEST["mode"]);
 	if ($arParams["MID"] <= 0)
 		$mode = "new";
@@ -56,8 +56,8 @@ if(!function_exists("GetUserName"))
 		$mode = "edit";
 	else
 		$mode = htmlspecialcharsbx($mode);
-	$arParams["UID"] = intVal(empty($arParams["UID"]) ? $_REQUEST["UID"] : $arParams["UID"]);
-	$arParams["FID"] = intVal(empty($arParams["FID"]) ? $_REQUEST["FID"] : $arParams["FID"]);
+	$arParams["UID"] = intval(empty($arParams["UID"]) ? $_REQUEST["UID"] : $arParams["UID"]);
+	$arParams["FID"] = intval(empty($arParams["FID"]) ? $_REQUEST["FID"] : $arParams["FID"]);
 /***************** Sorting *****************************************/
 	InitSorting($GLOBALS["APPLICATION"]->GetCurPage()."?PAGE_NAME=pm_list&FID=".$arParams["FID"]);
 	global $by, $order;
@@ -72,15 +72,15 @@ if(!function_exists("GetUserName"))
 
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPageParam($URL_VALUE, array("PAGE_NAME", "FID", "TID", "UID", "MID", "mode", BX_AJAX_PARAM_ID));
-		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
+		if (trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
+			$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPageParam($URL_VALUE, array("PAGE_NAME", "FID", "TID", "UID", "MID", "mode", BX_AJAX_PARAM_ID));
+		$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
 		if (!empty($by) && !in_array($URL, array("profile_view", "pm_read", "pm_edit")))
 		{
-			$arParams["~URL_TEMPLATES_".strToUpper($URL)] = ForumAddPageParams($arParams["URL_TEMPLATES_".strToUpper($URL)], 
+			$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = ForumAddPageParams($arParams["URL_TEMPLATES_".mb_strtoupper($URL)],
 				array("by" => $by, "order" => $order), false, false);
 		}
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["NAME_TEMPLATE"] = str_replace(array("#NOBR#","#/NOBR#"), "",
@@ -125,13 +125,13 @@ $arResult["pm_search"] = CComponentEngine::MakePathFromTemplate(
 	$arParams["URL_TEMPLATES_PM_SEARCH"], array());
 $arResult["pm_search_for_js"] = ForumAddPageParams(CComponentEngine::MakePathFromTemplate(
 	$arParams["~URL_TEMPLATES_PM_SEARCH"], array()), array("search_by_login"=>"#LOGIN#"), false, false);
-$arParams["version"] = intVal(COption::GetOptionString("forum", "UsePMVersion", "2"));
+$arParams["version"] = intval(COption::GetOptionString("forum", "UsePMVersion", "2"));
 $arResult["ERROR_MESSAGE"] = "";
 $arResult["OK_MESSAGE"] = "";
 /********************************************************************
 				Action
 ********************************************************************/
-$action = strToLower($_REQUEST["action"]);
+$action = mb_strtolower($_REQUEST["action"]);
 $arError = array();
 if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($action))
 {
@@ -192,7 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($action))
 				"REQUEST_IS_READ" => $_REQUEST["REQUEST_IS_READ"]);
 				
 			$arParams["MID"] = CForumPrivateMessage::Send($arrVars);
-			if (intVal($arParams["MID"]) <= 0)
+			if (intval($arParams["MID"]) <= 0)
 			{
 				$err = $APPLICATION->GetException();
 				$arError[] = array("id" => "bad_send","text" => $err->GetString());
@@ -234,7 +234,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($action))
 			{
 				$componentRelativePath = CComponentEngine::MakeComponentPath($path);
 				$arComponentDescription = CComponentUtil::GetComponentDescr($path);
-				if (strLen($componentRelativePath) <= 0 || !is_array($arComponentDescription)):
+				if ($componentRelativePath == '' || !is_array($arComponentDescription)):
 					continue;
 				elseif (!array_key_exists("CACHE_PATH", $arComponentDescription)):
 					continue;
@@ -286,8 +286,8 @@ $arResult["count"] = CForumPrivateMessage::PMSize($USER->GetID(), COption::GetOp
 $arResult["count"] = round($arResult["count"]*100);
 
 $arResult["sessid"] = bitrix_sessid_post();
-$arResult["FID"] = intVal($arParams["FID"]);
-$arResult["MID"] = intVal($arParams["MID"]);
+$arResult["FID"] = intval($arParams["FID"]);
+$arResult["MID"] = intval($arParams["MID"]);
 $arResult["mode"] = $mode;
 $arResult["SystemFolder"] = FORUM_SystemFolder;
 
@@ -316,7 +316,7 @@ if (!$bVarsFromForm && ($mode == "edit" || $mode=="reply"))
 {
 	$arResult["POST_VALUES"] = $arResult["MESSAGE"];
 	if ($arParams["FID"] != 2)
-		$arParams["FID"] = intVal($res["FOLDER_ID"]);
+		$arParams["FID"] = intval($res["FOLDER_ID"]);
 	if ($mode == "reply")
 	{
 		$arResult["POST_VALUES"]["POST_SUBJ"] = GetMessage("PM_REPLY").$arResult["POST_VALUES"]["POST_SUBJ"];
@@ -336,10 +336,10 @@ elseif ($bVarsFromForm)
 }
 elseif ($arParams["UID"] > 0) 
 {
-	$arResult["POST_VALUES"]["USER_ID"] = intVal($arParams["UID"]);
+	$arResult["POST_VALUES"]["USER_ID"] = intval($arParams["UID"]);
 }
 
-if (intVal($arResult["POST_VALUES"]["USER_ID"]) > 0)
+if (intval($arResult["POST_VALUES"]["USER_ID"]) > 0)
 {
 	$db_res = CForumUser::GetList(
 		array(),

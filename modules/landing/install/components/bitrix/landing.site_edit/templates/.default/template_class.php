@@ -2,6 +2,7 @@
 namespace Bitrix\Landing\Components\LandingEdit;
 
 use \Bitrix\Main\Localization\Loc;
+use \Bitrix\Landing\Restriction;
 
 class Template
 {
@@ -61,22 +62,10 @@ class Template
 					<?
 					if ($hooks[$code]->isLocked())
 					{
-						?>
-						<span class="landing-icon-lock"></span>
-						<script type="text/javascript">
-							BX.ready(function()
-							{
-								if (typeof BX.Landing.PaymentAlert !== 'undefined')
-								{
-									BX.Landing.PaymentAlert({
-										nodes: [BX('<?= 'checkbox-'.mb_strtolower($code) . '-use';?>')],
-										title: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_HTML_DISABLED_TITLE'));?>',
-										message: '<?= \CUtil::jsEscape($hooks[$code]->getLockedMessage());?>'
-									});
-								}
-							});
-						</script>
-						<?
+						echo Restriction\Manager::getLockIcon(
+							Restriction\Hook::getRestrictionCodeByHookCode($code),
+							['checkbox-' . mb_strtolower($code) . '-use']
+						);
 					}
 					unset($pageFields[$code . '_USE']);
 				}
@@ -153,22 +142,6 @@ class Template
 							<label class="ui-checkbox-label" for="<?= 'checkbox-' . strtolower($code) . '-use'; ?>">
 								<?= $pageFields[$code . '_USE']->getLabel(); ?>
 							</label>
-							<?php if ($hooks[$code]->isLocked()): ?>
-								<span class="landing-icon-lock"></span>
-								<script type="text/javascript">
-									BX.ready(function ()
-									{
-										if (typeof BX.Landing.PaymentAlert !== 'undefined')
-										{
-											BX.Landing.PaymentAlert({
-												nodes: [BX('<?= 'checkbox-' . strtolower($code) . '-use';?>')],
-												title: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_HTML_DISABLED_TITLE'));?>',
-												message: '<?= \CUtil::jsEscape($hooks[$code]->getLockedMessage());?>'
-											});
-										}
-									});
-								</script>
-							<?php endif; ?>
 						<?php endif; ?>
 						<?php unset($pageFields[$code . '_USE']);
 					}

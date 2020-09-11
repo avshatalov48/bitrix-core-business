@@ -22,7 +22,7 @@ return [
 									>
 										Phone number
 									</span>
-									<span class="landing-block-card-linkcontact-text g-text-decoration-none g-text-underline--hover font-weight-bold g-font-size-11 g-color-gray-dark-v1">
+									<span class="landing-block-card-linkcontact-text g-text-decoration-none g-text-underline--hover g-font-weight-700 g-font-size-11 g-color-gray-dark-v1">
 										+1-800-643-4500
 									</span>
 								</a>
@@ -54,7 +54,7 @@ return [
 									  data-form-style-second-font-color="1"
 								>
 									Address</span>
-								<span class="landing-block-card-contact-text font-weight-bold g-font-size-11 g-color-gray-dark-v1">
+								<span class="landing-block-card-contact-text g-font-weight-700 g-font-size-11 g-color-gray-dark-v1">
 									Sit amet adipiscing
 								</span>
 							</div>',

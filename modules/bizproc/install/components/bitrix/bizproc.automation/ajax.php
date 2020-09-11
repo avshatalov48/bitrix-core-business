@@ -172,7 +172,7 @@ switch ($action)
 				'DOCUMENT_TYPE' => $documentType,
 				'DOCUMENT_CATEGORY_ID' => $documentCategoryId,
 				'ROBOT_DATA' => $robotData,
-				'REQUEST' => $_REQUEST['form_name'],
+				'REQUEST' => $_REQUEST,
 				'CONTEXT' => $context
 			)
 		);
@@ -249,7 +249,7 @@ switch ($action)
 				$result = $template->save($robots, $curUser->GetID());
 				if ($result->isSuccess())
 				{
-					$updatedTemplates[] = $template->toArray();
+					$updatedTemplates[] = BizprocAutomationComponent::getTemplateViewData($template->toArray(), $documentType);
 				}
 				else
 				{

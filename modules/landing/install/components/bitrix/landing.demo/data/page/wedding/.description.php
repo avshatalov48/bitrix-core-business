@@ -106,7 +106,7 @@ return array(
 					<h2 class="landing-block-node-card-title g-font-weight-700 g-mb-20 g-text-transform-none g-font-size-120 g-color-primary"><span style="font-style: italic;"><span style="color: rgb(245, 245, 245);">Tom</span> <span style="">&amp;</span> <span style="color: rgb(245, 245, 245);">Anna</span></span></h2>
 					<div class="landing-block-node-card-text g-max-width-645 g-color-white-opacity-0_9 mx-auto g-mb-35"> </div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn btn-lg u-btn-primary g-font-weight-700 text-uppercase g-px-25 g-py-15 g-rounded-10 g-font-size-12" href="#" tabindex="-1" target="_self">View more</a>
+						<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary text-uppercase g-py-15 g-rounded-10" href="#" tabindex="-1" target="_self">View more</a>
 					</div>
 				</div>
 			</div>
@@ -122,7 +122,7 @@ return array(
 					<h2 class="landing-block-node-card-title g-font-weight-700 g-mb-20 g-text-transform-none g-font-size-120 g-color-primary"><span style="font-style: italic;"><span style="color: rgb(245, 245, 245);">Tom</span> <span style="">&amp;</span> <span style="color: rgb(245, 245, 245);">Anna</span></span></h2>
 					<div class="landing-block-node-card-text g-max-width-645 g-color-white-opacity-0_9 mx-auto g-mb-35"> </div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn btn-lg u-btn-primary g-font-weight-700 text-uppercase g-px-25 g-py-15 g-rounded-10 g-font-size-12" href="#" tabindex="0" target="_self">View more</a>
+						<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary text-uppercase g-py-15 g-rounded-10" href="#" tabindex="0" target="_self">View more</a>
 					</div>
 				</div>
 			</div>
@@ -145,7 +145,7 @@ return array(
 			<div class="landing-block-node-icon-container u-heading-v7-divider g-color-primary g-brd-gray-light-v4">
 				<i class="landing-block-node-icon fa fa-heart g-font-size-8"></i>
 				<i class="landing-block-node-icon fa fa-heart g-font-size-11"></i>
-				<i class="landing-block-node-icon fa fa-heart g-font-size-default"></i>
+				<i class="landing-block-node-icon fa fa-heart"></i>
 				<i class="landing-block-node-icon fa fa-heart g-font-size-11"></i>
 				<i class="landing-block-node-icon fa fa-heart g-font-size-8"></i>
 			</div>
@@ -185,7 +185,7 @@ return array(
 					<div class="landing-block-node-card-post text-uppercase g-font-weight-700 g-font-size-12 g-color-primary g-mb-30">
 						Stylist, Co-Founder
 					</div>
-					<div class="landing-block-node-card-text g-font-size-default g-color-gray-dark-v5 g-mb-40">
+					<div class="landing-block-node-card-text g-color-gray-dark-v5 g-mb-40">
 						<p>
 							Etiam dolor tortor, egestas a libero eget, sollicitudin maximus nulla.
 							Nunc vitae maximus ipsum. Vestibulum sodales nisi massa, vitae blandit massa luctus id. Nunc
@@ -216,7 +216,7 @@ return array(
 					<div class="landing-block-node-card-post text-uppercase g-font-weight-700 g-font-size-12 g-color-primary g-mb-30">
 						Photography, Co-Founder
 					</div>
-					<div class="landing-block-node-card-text g-font-size-default g-color-gray-dark-v5 g-mb-40">
+					<div class="landing-block-node-card-text g-color-gray-dark-v5 g-mb-40">
 						<p>
 							Etiam dolor tortor, egestas a libero eget, sollicitudin maximus nulla. Nunc vitae maximus
 							ipsum.
@@ -247,7 +247,7 @@ return array(
 				<div class="landing-block-node-card-number-title text-uppercase g-font-weight-700 g-font-size-11 g-color-white g-mb-20">
 					Years
 				</div>
-				<div class="landing-block-node-card-text g-font-size-default g-color-white-opacity-0_6 mb-0">
+				<div class="landing-block-node-card-text g-color-white-opacity-0_6 mb-0">
 					<p>Sed feugiat porttitor nunc Etiam
 						gravida ex justo ac rhoncus purus tristique ut.
 					</p>
@@ -262,7 +262,7 @@ return array(
 				<div class="landing-block-node-card-number-title text-uppercase g-font-weight-700 g-font-size-11 g-color-white g-mb-20">
 					Photos
 				</div>
-				<div class="landing-block-node-card-text g-font-size-default g-color-white-opacity-0_6 mb-0">
+				<div class="landing-block-node-card-text g-color-white-opacity-0_6 mb-0">
 					<p>Ivitae blandit massa luctus fermentum
 						lorem quis elit maximus, vitae
 					</p>
@@ -277,7 +277,7 @@ return array(
 				<div class="landing-block-node-card-number-title text-uppercase g-font-weight-700 g-font-size-11 g-color-white g-mb-20">
 					Photographers
 				</div>
-				<div class="landing-block-node-card-text g-font-size-default g-color-white-opacity-0_6 mb-0">
+				<div class="landing-block-node-card-text g-color-white-opacity-0_6 mb-0">
 					<p>Curabitur eget tortor sed urna
 						faucibus iaculis id et nulla sed fringilla quam
 					</p>
@@ -292,7 +292,7 @@ return array(
 				<div class="landing-block-node-card-number-title text-uppercase g-font-weight-700 g-font-size-11 g-color-white g-mb-20">
 					Weddings
 				</div>
-				<div class="landing-block-node-card-text g-font-size-default g-color-white-opacity-0_6 mb-0">
+				<div class="landing-block-node-card-text g-color-white-opacity-0_6 mb-0">
 					<p>Duis dui turpis, consectetur non
 						ultrices vitae, lacinia aliquam sapien
 					</p>
@@ -315,7 +315,7 @@ return array(
 			Pellentesque finibus convallis nulla vel placerat.
 		</div>
 		<div class="landing-block-node-button-container">
-			<a href="#" class="landing-block-node-button btn btn-xl u-btn-primary text-uppercase g-font-weight-700 g-font-size-12 g-py-15 g-px-40 g-mb-15 g-rounded-10" target="_self">View our presentation</a>
+			<a href="#" class="landing-block-node-button btn g-btn-primary g-btn-type-solid g-btn-px-l g-btn-size-md text-uppercase g-py-15 g-mb-15 g-rounded-10" target="_self">View our presentation</a>
 		</div>
 	</div>
 </section>',
@@ -332,7 +332,7 @@ return array(
 			<div class="landing-block-node-icon-container u-heading-v7-divider g-color-primary g-brd-gray-light-v4">
 				<i class="landing-block-node-icon fa fa-heart g-font-size-8"></i>
 				<i class="landing-block-node-icon fa fa-heart g-font-size-11"></i>
-				<i class="landing-block-node-icon fa fa-heart g-font-size-default"></i>
+				<i class="landing-block-node-icon fa fa-heart"></i>
 				<i class="landing-block-node-icon fa fa-heart g-font-size-11"></i>
 				<i class="landing-block-node-icon fa fa-heart g-font-size-8"></i>
 			</div>
@@ -524,9 +524,9 @@ return array(
 					<h2 class="landing-block-node-title h6 u-heading-v8__title g-font-weight-700 g-color-white mb-0 text-left g-text-transform-none g-font-size-30"><span style="font-style: italic;">Professional </span><p><span style="font-style: italic;">Photos</span></p></h2>
 				</div>
 				<img class="landing-block-node-img img-fluid g-mb-20 flex-shrink-0" src="https://cdn.bitrix24.site/bitrix/images/landing/business/315x435/img1.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
-				<div class="g-mb-40 landing-block-node-text g-line-height-1_8 g-font-size-default g-color-white-opacity-0_8 text-left"><p>Nunc vitae maximus. Vestibulum sodales nisi massa, vitae blandit massa luctus id. Nunc diam tellus.</p></div>
+				<div class="g-mb-40 landing-block-node-text g-line-height-1_8 g-color-white-opacity-0_8 text-left"><p>Nunc vitae maximus. Vestibulum sodales nisi massa, vitae blandit massa luctus id. Nunc diam tellus.</p></div>
 				<div class="landing-block-node-button-container">
-					<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-white g-color-primary g-rounded-25" href="#" target="_self">View More</a>
+					<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-sm g-btn-px-m g-btn-white g-color-primary g-rounded-25" href="#" target="_self">View More</a>
 				</div>
 			</div>
 
@@ -536,9 +536,9 @@ return array(
 					<h2 class="landing-block-node-title h6 u-heading-v8__title g-font-weight-700 g-color-white mb-0 text-left g-text-transform-none g-font-size-30"><span style="font-style: italic;">Wedding </span><p><span style="font-style: italic;">Makeup</span></p></h2>
 				</div>
 				<img class="landing-block-node-img img-fluid g-mb-20 flex-shrink-0" src="https://cdn.bitrix24.site/bitrix/images/landing/business/315x435/img2.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
-				<div class="g-mb-40 landing-block-node-text g-line-height-1_8 g-font-size-default g-color-white-opacity-0_8 text-left"><p>Nunc vitae maximus. Vestibulum sodales nisi massa, vitae blandit massa luctus id. Nunc diam tellus.</p></div>
+				<div class="g-mb-40 landing-block-node-text g-line-height-1_8 g-color-white-opacity-0_8 text-left"><p>Nunc vitae maximus. Vestibulum sodales nisi massa, vitae blandit massa luctus id. Nunc diam tellus.</p></div>
 				<div class="landing-block-node-button-container">
-					<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-white g-color-primary g-rounded-25" href="#" target="_self">View More</a>
+					<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-sm g-btn-px-m g-btn-white g-color-primary g-rounded-25" href="#" target="_self">View More</a>
 				</div>
 			</div>
 
@@ -548,9 +548,9 @@ return array(
 					<h2 class="landing-block-node-title h6 u-heading-v8__title g-font-weight-700 g-color-white mb-0 text-left g-text-transform-none g-font-size-30"><span style="font-style: italic;">Bridal </span><p><span style="font-style: italic;">Bouquet</span></p></h2>
 				</div>
 				<img class="landing-block-node-img img-fluid g-mb-20 flex-shrink-0" src="https://cdn.bitrix24.site/bitrix/images/landing/business/315x435/img3.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
-				<div class="g-mb-40 landing-block-node-text g-line-height-1_8 g-font-size-default g-color-white-opacity-0_8 text-left"><p>Nunc vitae maximus. Vestibulum sodales nisi massa, vitae blandit massa luctus id. Nunc diam tellus.</p></div>
+				<div class="g-mb-40 landing-block-node-text g-line-height-1_8 g-color-white-opacity-0_8 text-left"><p>Nunc vitae maximus. Vestibulum sodales nisi massa, vitae blandit massa luctus id. Nunc diam tellus.</p></div>
 				<div class="landing-block-node-button-container">
-					<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-white g-color-primary g-rounded-25" href="#" target="_self">View More</a>
+					<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-sm g-btn-px-m g-btn-white g-color-primary g-rounded-25" href="#" target="_self">View More</a>
 				</div>
 			</div>
 
@@ -560,9 +560,9 @@ return array(
 					<h2 class="landing-block-node-title h6 u-heading-v8__title g-font-weight-700 g-color-white mb-0 text-left g-text-transform-none g-font-size-30"><span style="font-style: italic;">Creative </span><p><span style="font-style: italic;">Proposals</span></p></h2>
 				</div>
 				<img class="landing-block-node-img img-fluid g-mb-20 flex-shrink-0" src="https://cdn.bitrix24.site/bitrix/images/landing/business/315x435/img4.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
-				<div class="g-mb-40 landing-block-node-text g-line-height-1_8 g-font-size-default g-color-white-opacity-0_8 text-left"><p>Nunc vitae maximus. Vestibulum sodales nisi massa, vitae blandit massa luctus id. Nunc diam tellus.</p></div>
+				<div class="g-mb-40 landing-block-node-text g-line-height-1_8 g-color-white-opacity-0_8 text-left"><p>Nunc vitae maximus. Vestibulum sodales nisi massa, vitae blandit massa luctus id. Nunc diam tellus.</p></div>
 				<div class="landing-block-node-button-container">
-					<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-white g-color-primary g-rounded-25" href="#" target="_self">View More</a>
+					<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-sm g-btn-px-m g-btn-white g-color-primary g-rounded-25" href="#" target="_self">View More</a>
 				</div>
 			</div>
 
@@ -589,7 +589,7 @@ return array(
 							March
 							15, 2017
 						</div>
-						<blockquote class="landing-block-node-card-text g-font-size-default g-color-gray-light-v1 g-mb-40 js-animation fadeInRightBig">
+						<blockquote class="landing-block-node-card-text g-color-gray-light-v1 g-mb-40 js-animation fadeInRightBig">
 							<p>Curabitur eget
 								tortor sed urna faucibus iaculis id et nulla. Aliquam erat volutpat. Donec sed fringilla
 								quam. Sed tincidunt volutpat iaculis. Pellentesque maximus ut eros eget congue. Fusce ac
@@ -597,7 +597,7 @@ return array(
 							</p>
 						</blockquote>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button btn btn-xl text-uppercase u-btn-primary g-font-weight-700 g-font-size-12 g-rounded-20 g-pa-15 js-animation fadeInRightBig" href="#">View Photos</a>
+							<a class="landing-block-node-card-button btn g-btn-primary g-btn-type-solid g-btn-size-sm g-btn-px-m text-uppercase g-rounded-20 g-pa-15 js-animation fadeInRightBig" href="#">View Photos</a>
 						</div>
 					</div>
 				</div>
@@ -616,7 +616,7 @@ return array(
 							November
 							01, 2017
 						</div>
-						<blockquote class="landing-block-node-card-text g-font-size-default g-color-gray-light-v1 g-mb-40 js-animation fadeInRightBig">
+						<blockquote class="landing-block-node-card-text g-color-gray-light-v1 g-mb-40 js-animation fadeInRightBig">
 							<p>Curabitur eget
 								tortor sed urna faucibus iaculis id et nulla. Aliquam erat volutpat. Donec sed fringilla
 								quam. Sed tincidunt volutpat iaculis. Pellentesque maximus ut eros eget congue. Fusce ac
@@ -624,7 +624,7 @@ return array(
 							</p>
 						</blockquote>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button btn btn-xl text-uppercase u-btn-primary g-font-weight-700 g-font-size-12 g-rounded-20 g-pa-15 js-animation fadeInRightBig" href="#">View Photos</a>
+							<a class="landing-block-node-card-button btn g-btn-primary g-btn-type-solid g-btn-size-sm g-btn-px-m text-uppercase g-rounded-20 g-pa-15 js-animation fadeInRightBig" href="#">View Photos</a>
 						</div>
 					</div>
 				</div>
@@ -646,7 +646,7 @@ return array(
 			<div class="landing-block-node-icon-container u-heading-v7-divider g-color-primary g-brd-gray-light-v4">
 				<i class="landing-block-node-icon fa fa-heart g-font-size-8"></i>
 				<i class="landing-block-node-icon fa fa-heart g-font-size-11"></i>
-				<i class="landing-block-node-icon fa fa-heart g-font-size-default"></i>
+				<i class="landing-block-node-icon fa fa-heart"></i>
 				<i class="landing-block-node-icon fa fa-heart g-font-size-11"></i>
 				<i class="landing-block-node-icon fa fa-heart g-font-size-8"></i>
 			</div>
@@ -675,7 +675,7 @@ return array(
 					<header class="landing-block-node-card-container-top g-bg-primary g-pa-20">
 						<h4 class="landing-block-node-card-title g-font-size-30 font-italic g-font-weight-700 g-color-white mb-0">
 							Love Story</h4>
-						<div class="landing-block-node-card-subtitle g-font-size-default g-color-white-opacity-0_6">
+						<div class="landing-block-node-card-subtitle g-color-white-opacity-0_6">
 							Fringilla
 							porttitor
 						</div>
@@ -689,7 +689,7 @@ return array(
 					<!-- Article Content -->
 					<div class="landing-block-node-card-container-bottom h-100 g-pa-40 d-flex flex-column">
 						<div class="g-mb-15">
-							<div class="landing-block-node-card-price-subtitle g-font-size-default g-color-gray-light-v1">
+							<div class="landing-block-node-card-price-subtitle g-color-gray-light-v1">
 								From
 							</div>
 							<div class="landing-block-node-card-price g-font-weight-700 g-color-primary g-mt-10 g-font-size-22">
@@ -697,13 +697,13 @@ return array(
 							</div>
 						</div>
 
-						<div class="landing-block-node-card-text g-font-size-default g-color-gray-light-v1 g-mb-40">
+						<div class="landing-block-node-card-text g-color-gray-light-v1 g-mb-40">
 							<p>
 								Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in.
 							</p>
 						</div>
 						<div class="landing-block-node-card-button-container mt-auto">
-							<a class="landing-block-node-card-button btn text-uppercase u-btn-primary g-font-weight-700 g-rounded-20 g-py-15 g-brd-0 g-font-size-11" href="#">Order Now</a>
+							<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-rounded-20 g-py-15" href="#">Order Now</a>
 						</div>
 					</div>
 					<!-- End Article Content -->
@@ -718,7 +718,7 @@ return array(
 					<header class="landing-block-node-card-container-top g-bg-primary g-pa-20">
 						<h4 class="landing-block-node-card-title g-font-size-30 font-italic g-font-weight-700 g-color-white mb-0">
 							Wedding Photos</h4>
-						<div class="landing-block-node-card-subtitle g-font-size-default g-color-white-opacity-0_6">
+						<div class="landing-block-node-card-subtitle g-color-white-opacity-0_6">
 							Fringilla
 							porttitor
 						</div>
@@ -732,7 +732,7 @@ return array(
 					<!-- Article Content -->
 					<div class="landing-block-node-card-container-bottom h-100 g-pa-40 d-flex flex-column">
 						<div class="g-mb-15">
-							<div class="landing-block-node-card-price-subtitle g-font-size-default g-color-gray-light-v1">
+							<div class="landing-block-node-card-price-subtitle g-color-gray-light-v1">
 								From
 							</div>
 							<div class="landing-block-node-card-price g-font-weight-700 g-color-primary g-mt-10 g-font-size-22">
@@ -740,13 +740,13 @@ return array(
 							</div>
 						</div>
 
-						<div class="landing-block-node-card-text g-font-size-default g-color-gray-light-v1 g-mb-40">
+						<div class="landing-block-node-card-text g-color-gray-light-v1 g-mb-40">
 							<p>
 								Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in.
 							</p>
 						</div>
 						<div class="landing-block-node-card-button-container mt-auto">
-							<a class="landing-block-node-card-button btn text-uppercase u-btn-primary g-font-weight-700 g-rounded-20 g-py-15 g-brd-0 g-font-size-11" href="#">Order Now</a>
+							<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-rounded-20 g-py-15" href="#">Order Now</a>
 						</div>
 					</div>
 					<!-- End Article Content -->
@@ -761,7 +761,7 @@ return array(
 					<header class="landing-block-node-card-container-top g-bg-primary g-pa-20">
 						<h4 class="landing-block-node-card-title g-font-size-30 font-italic g-font-weight-700 g-color-white mb-0">
 							Makeup</h4>
-						<div class="landing-block-node-card-subtitle g-font-size-default g-color-white-opacity-0_6">
+						<div class="landing-block-node-card-subtitle g-color-white-opacity-0_6">
 							Fringilla
 							porttitor
 						</div>
@@ -775,7 +775,7 @@ return array(
 					<!-- Article Content -->
 					<div class="landing-block-node-card-container-bottom h-100 g-pa-40 d-flex flex-column">
 						<div class="g-mb-15">
-							<div class="landing-block-node-card-price-subtitle g-font-size-default g-color-gray-light-v1">
+							<div class="landing-block-node-card-price-subtitle g-color-gray-light-v1">
 								From
 							</div>
 							<div class="landing-block-node-card-price g-font-weight-700 g-color-primary g-mt-10 g-font-size-22">
@@ -783,13 +783,13 @@ return array(
 							</div>
 						</div>
 
-						<div class="landing-block-node-card-text g-font-size-default g-color-gray-light-v1 g-mb-40">
+						<div class="landing-block-node-card-text g-color-gray-light-v1 g-mb-40">
 							<p>
 								Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in.
 							</p>
 						</div>
 						<div class="landing-block-node-card-button-container mt-auto">
-							<a class="landing-block-node-card-button btn text-uppercase u-btn-primary g-font-weight-700 g-rounded-20 g-py-15 g-brd-0 g-font-size-11" href="#">Order Now</a>
+							<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-rounded-20 g-py-15" href="#">Order Now</a>
 						</div>
 					</div>
 					<!-- End Article Content -->
@@ -812,7 +812,7 @@ return array(
 			<div class="landing-block-node-icon-container u-heading-v7-divider g-color-primary g-brd-gray-light-v4">
 				<i class="landing-block-node-icon fa fa-heart g-font-size-8"></i>
 				<i class="landing-block-node-icon fa fa-heart g-font-size-11"></i>
-				<i class="landing-block-node-icon fa fa-heart g-font-size-default"></i>
+				<i class="landing-block-node-icon fa fa-heart"></i>
 				<i class="landing-block-node-icon fa fa-heart g-font-size-11"></i>
 				<i class="landing-block-node-icon fa fa-heart g-font-size-8"></i>
 			</div>
@@ -873,7 +873,7 @@ return array(
 				'SORT' => '8500',
 				'CONTENT' => '<section class="landing-block text-center g-pt-20 g-bg-secondary g-pb-60">
         <div class="container">
-				<a class="landing-block-node-button btn btn-md text-uppercase u-btn-primary g-px-15 g-font-weight-700 g-rounded-10 g-font-size-12" href="#" target="_self">View more</a>
+				<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary text-uppercase g-rounded-10" href="#" target="_self">View more</a>
         </div>
     </section>',
 			),
@@ -889,7 +889,7 @@ return array(
 			<div class="landing-block-node-icon-container u-heading-v7-divider g-color-primary g-brd-gray-light-v4">
 				<i class="landing-block-node-icon fa fa-heart g-font-size-8"></i>
 				<i class="landing-block-node-icon fa fa-heart g-font-size-11"></i>
-				<i class="landing-block-node-icon fa fa-heart g-font-size-default"></i>
+				<i class="landing-block-node-icon fa fa-heart"></i>
 				<i class="landing-block-node-icon fa fa-heart g-font-size-11"></i>
 				<i class="landing-block-node-icon fa fa-heart g-font-size-8"></i>
 			</div>
@@ -1052,7 +1052,7 @@ return array(
 	<div class="text-center text-md-left g-py-40 g-color-gray-dark-v5 container">
 		<div class="row">
 			<div class="col-md-6 d-flex align-items-center g-mb-15 g-mb-0--md w-100 mb-0">
-				<div class="landing-block-node-text mr-1 g-color-gray-dark-v3 g-font-cormorant-open-sans js-animation animation-none">
+				<div class="landing-block-node-text mr-1 g-color-gray-dark-v3 js-animation animation-none">
 					&copy; 2018 All rights reserved.
 				</div>
 			</div>

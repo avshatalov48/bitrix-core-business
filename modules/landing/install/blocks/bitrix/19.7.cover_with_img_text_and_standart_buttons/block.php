@@ -17,13 +17,13 @@
 					<div class="container-fluid px-0">
 						<div class="row no-gutters justify-content-center justify-content-md-start">
 							<div class="landing-block-node-card g-mb-12 g-mr-12">
-								<a class="landing-block-node-card-button landing-semantic-link-image-medium btn btn-sm btn-lg--sm g-rounded-10 text-uppercase u-btn-primary rounded-0" href="#">
+								<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-rounded-10 text-uppercase g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-m" href="#">
 									Learn more
 								</a>
 							</div>
 
 							<div class="landing-block-node-card g-mb-12 g-mr-12">
-								<a class="landing-block-node-card-button landing-semantic-link-image-medium btn btn-sm btn-lg--sm g-rounded-10 text-uppercase u-btn-primary rounded-0" href="#">
+								<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-rounded-10 text-uppercase g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-m" href="#">
 									Contact us
 								</a>
 							</div>

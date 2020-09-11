@@ -115,7 +115,7 @@ class Template
 	{
 		if (isset($robot['Properties']) && is_array($robot['Properties']))
 		{
-			$robot['Properties'] = $this->convertRobotProperties($robot['Properties'], $this->getDocumentType());
+			$robot['Properties'] = Automation\Helper::convertProperties($robot['Properties'], $this->getDocumentType());
 		}
 
 		unset($robot['Delay'], $robot['Condition']);
@@ -147,10 +147,10 @@ class Template
 
 		if (isset($robot['Properties']) && is_array($robot['Properties']))
 		{
-			$robot['Properties'] = $this->unConvertRobotProperties($robot['Properties'], $documentType);
+			$robot['Properties'] = Automation\Helper::unConvertProperties($robot['Properties'], $documentType);
 		}
 
-		$request = $this->unConvertRobotProperties($request, $documentType);
+		$request = Automation\Helper::unConvertProperties($request, $documentType);
 
 		$copy = clone $this;
 		$copy->setRobots([$robot]);
@@ -622,37 +622,5 @@ class Template
 			'Properties' => $delayProperties,
 			'Children' => array()
 		);
-	}
-
-	private function convertRobotProperties(array $properties, array $documentType)
-	{
-		foreach ($properties as $code => $property)
-		{
-			if (is_array($property))
-			{
-				$properties[$code] = self::convertRobotProperties($property, $documentType);
-			}
-			else
-			{
-				$properties[$code] = Automation\Helper::convertExpressions($property, $documentType);
-			}
-		}
-		return $properties;
-	}
-
-	private function unConvertRobotProperties(array $properties, array $documentType)
-	{
-		foreach ($properties as $code => $property)
-		{
-			if (is_array($property))
-			{
-				$properties[$code] = self::unConvertRobotProperties($property, $documentType);
-			}
-			else
-			{
-				$properties[$code] = Automation\Helper::unConvertExpressions($property, $documentType);
-			}
-		}
-		return $properties;
 	}
 }

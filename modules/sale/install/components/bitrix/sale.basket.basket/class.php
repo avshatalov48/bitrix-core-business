@@ -308,6 +308,19 @@ class CBitrixBasketComponent extends CBitrixComponent
 			}
 		}
 
+		// check for direct initialization with ADDITIONAL_PICT_PROP parameter
+		if (!empty($params['ADDITIONAL_PICT_PROP']) && is_array($params['ADDITIONAL_PICT_PROP']))
+		{
+			$pictProp = [];
+
+			foreach ($params['ADDITIONAL_PICT_PROP'] as $iblockId => $property)
+			{
+				$pictProp[(int)$iblockId] = $property;
+			}
+
+			$params['ADDITIONAL_PICT_PROP'] = $pictProp;
+		}
+
 		if (!isset($params['BASKET_IMAGES_SCALING']) || !in_array($params['BASKET_IMAGES_SCALING'], ['standard', 'adaptive', 'no_scale']))
 		{
 			$params['BASKET_IMAGES_SCALING'] = 'adaptive';

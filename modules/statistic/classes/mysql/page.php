@@ -14,7 +14,7 @@ class CPage
 		$exit_counter = "SUM(if(D.EXIT_COUNTER>0,D.EXIT_COUNTER,0))";
 		if (is_array($arFilter))
 		{
-			if (strlen($arFilter["ADV"])>0)
+			if ($arFilter["ADV"] <> '')
 			{
 				$from_adv = " , b_stat_page_adv A ";
 				$where_adv = "and A.PAGE_ID = D.ID";
@@ -48,11 +48,11 @@ class CPage
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if( ($val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "DATE1":
@@ -127,7 +127,7 @@ class CPage
 		$where_adv = "";
 		if (is_array($arFilter))
 		{
-			if (strlen($arFilter["ADV"])>0)
+			if ($arFilter["ADV"] <> '')
 			{
 				$from_adv = " , b_stat_page_adv A ";
 				$where_adv = "and A.PAGE_ID = V.ID";
@@ -158,11 +158,11 @@ class CPage
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if( ($val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "DATE1":
@@ -246,7 +246,7 @@ class CPage
 			";
 
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch) || strlen($strSqlSearch_h)>0);
+		$is_filtered = (IsFiltered($strSqlSearch) || $strSqlSearch_h <> '');
 		return $res;
 	}
 }

@@ -516,7 +516,7 @@ if(
 		}
 		elseif($arParams['SET_TITLE'] !== 'N')
 		{
-			$APPLICATION->SetTitle($arResult['APP_NAME']);
+			$APPLICATION->SetTitle(htmlspecialcharsbx($arResult['APP_NAME']));
 		}
 
 		CJSCore::Init(array('applayout'));

@@ -79,12 +79,13 @@ class CBPSocNetMessageActivity
 			'AVATAR' => '/bitrix/images/bizproc/message_robot.png'
 		));
 		$attach->AddDelimiter();
-		$attach->AddMessage(sprintf(
-			'[b]%s:[/b] [url=%s]%s[/url]',
-			$documentService->getDocumentTypeName($this->GetDocumentType()),
-			$documentService->GetDocumentAdminPage($documentId),
-			$documentService->getDocumentName($documentId)
-		));
+		$attach->AddGrid([[
+			'NAME' => $documentService->getDocumentTypeName($this->GetDocumentType()).':',
+			'VALUE' => $documentService->getDocumentName($documentId),
+			'LINK' => $documentService->GetDocumentAdminPage($documentId),
+			'DISPLAY' => 'BLOCK'
+		]]);
+
 		$attach->AddDelimiter();
 		$attach->AddHtml('<span style="color: #6E6E6E">'.
 			$CCTP->convertText($messageText)

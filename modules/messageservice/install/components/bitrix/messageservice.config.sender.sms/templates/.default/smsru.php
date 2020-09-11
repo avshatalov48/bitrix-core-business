@@ -55,15 +55,15 @@ if ($sender->isRegistered())
 $formatPhone = function ($phone)
 {
 	$phone = preg_replace('#[^0-9]+#', '', $phone);
-	if (strlen($phone) < 11)
+	if (mb_strlen($phone) < 11)
 		return $phone;
 
 	return sprintf('+%s (%s) %s-%s-%s',
-		substr($phone, 0, - 10),
-		substr($phone, -10, 3),
-		substr($phone, -7, 3),
-		substr($phone, -4, 2),
-		substr($phone, -2, 2)
+		mb_substr($phone, 0, -10),
+		mb_substr($phone, -10, 3),
+		mb_substr($phone, -7, 3),
+		mb_substr($phone, -4, 2),
+		mb_substr($phone, -2, 2)
 	);
 };
 ?>

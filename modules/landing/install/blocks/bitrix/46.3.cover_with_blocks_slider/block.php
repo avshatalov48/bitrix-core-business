@@ -13,13 +13,13 @@
 						 alt="">
 
 					<div class="landing-block-node-card-text-container g-bg-white g-pr-40 g-pl-40 g-pb-40 g-pt-40">
-						<h4 class="landing-block-node-card-title landing-semantic-title-image-medium js-animation fadeInRightBig g-font-size-30 font-italic font-weight-bold g-mb-20">
+						<h4 class="landing-block-node-card-title landing-semantic-title-image-medium js-animation fadeInRightBig g-font-size-30 font-italic g-font-weight-700 g-mb-20">
 							Monica and Eddie</h4>
-						<div class="landing-block-node-card-subtitle landing-semantic-subtitle-image-medium text-uppercase font-weight-bold g-font-size-12 g-color-primary g-mb-25">
+						<div class="landing-block-node-card-subtitle landing-semantic-subtitle-image-medium text-uppercase g-font-weight-700 g-font-size-12 g-color-primary g-mb-25">
 							March
 							15, 2019
 						</div>
-						<blockquote class="landing-block-node-card-text landing-semantic-text-image-medium js-animation fadeInRightBig g-font-size-default g-color-gray-light-v1 g-mb-40">
+						<blockquote class="landing-block-node-card-text landing-semantic-text-image-medium js-animation fadeInRightBig g-color-gray-light-v1 g-mb-40">
 							<p>Curabitur eget
 								tortor sed urna faucibus iaculis id et nulla. Aliquam erat volutpat. Donec sed fringilla
 								quam. Sed tincidunt volutpat iaculis. Pellentesque maximus ut eros eget congue. Fusce ac
@@ -27,7 +27,7 @@
 							</p>
 						</blockquote>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium js-animation fadeInRightBig btn btn-xl text-uppercase u-btn-primary font-weight-bold g-font-size-12 g-rounded-20 g-pa-15"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium js-animation fadeInRightBig btn text-uppercase g-btn-primary g-btn-type-solid g-btn-size-sm g-btn-px-m g-rounded-20 g-py-15"
 							   href="#">View Photos</a>
 						</div>
 					</div>
@@ -42,13 +42,13 @@
 						 alt="">
 
 					<div class="landing-block-node-card-text-container g-bg-white g-pr-40 g-pl-40 g-pb-40 g-pt-40">
-						<h4 class="landing-block-node-card-title landing-semantic-title-image-medium js-animation fadeInRight g-font-size-30 font-italic font-weight-bold g-mb-20">
+						<h4 class="landing-block-node-card-title landing-semantic-title-image-medium js-animation fadeInRight g-font-size-30 font-italic g-font-weight-700 g-mb-20">
 							Sofia and Carl</h4>
-						<div class="landing-block-node-card-subtitle landing-semantic-subtitle-image-medium text-uppercase font-weight-bold g-font-size-12 g-color-primary g-mb-25">
+						<div class="landing-block-node-card-subtitle landing-semantic-subtitle-image-medium text-uppercase g-font-weight-700 g-font-size-12 g-color-primary g-mb-25">
 							November
 							01, 2019
 						</div>
-						<blockquote class="landing-block-node-card-text landing-semantic-text-image-medium js-animation fadeInLeft g-font-size-default g-color-gray-light-v1 g-mb-40">
+						<blockquote class="landing-block-node-card-text landing-semantic-text-image-medium js-animation fadeInLeft g-color-gray-light-v1 g-mb-40">
 							<p>Curabitur eget
 								tortor sed urna faucibus iaculis id et nulla. Aliquam erat volutpat. Donec sed fringilla
 								quam. Sed tincidunt volutpat iaculis. Pellentesque maximus ut eros eget congue. Fusce ac
@@ -56,7 +56,7 @@
 							</p>
 						</blockquote>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button landing-semantic-link-image-medium js-animation fadeInRightBig btn btn-xl text-uppercase u-btn-primary font-weight-bold g-font-size-12 g-rounded-20 g-pa-15"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium js-animation fadeInRightBig btn text-uppercase g-btn-primary g-btn-type-solid g-btn-size-sm g-btn-px-m g-rounded-20 g-py-15"
 							   href="#">View Photos</a>
 						</div>
 					</div>

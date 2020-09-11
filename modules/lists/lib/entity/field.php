@@ -223,7 +223,7 @@ class Field implements Controllable, Errorable
 			foreach (explode("\n", $fields["LIST_TEXT_VALUES"]) as $valueLine)
 			{
 				$value = trim($valueLine, " \t\n\r");
-				if (strlen($value) > 0 && !isset($listMap[$value]))
+				if ((string) $value <> '' && !isset($listMap[$value]))
 				{
 					$maxSort += 10;
 					$listMap[$value] = "m".$maxSort;
@@ -277,7 +277,7 @@ class Field implements Controllable, Errorable
 			switch ($fields["TYPE"])
 			{
 				case "SORT":
-					$defaultValueError = (strlen($fields["DEFAULT_VALUE"]) <= 0);
+					$defaultValueError = ($fields["DEFAULT_VALUE"] == '');
 					break;
 				case "L":
 					if (is_array($fields["LIST_DEF"]))
@@ -302,8 +302,7 @@ class Field implements Controllable, Errorable
 		if ($fields["TYPE"] == "PREVIEW_PICTURE")
 		{
 			$fields["DEFAULT_VALUE"]["METHOD"] = "resample";
-			$fields["DEFAULT_VALUE"]["COMPRESSION"] = intval(
-				\COption::getOptionString("main", "image_resize_quality", "95"));
+			$fields["DEFAULT_VALUE"]["COMPRESSION"] = intval(\COption::getOptionString("main", "image_resize_quality", "95"));
 		}
 		elseif ($fields["TYPE"] == "S:Date")
 		{
@@ -322,7 +321,7 @@ class Field implements Controllable, Errorable
 		if (preg_match("/^(G|G:|E|E:)/", $fields["TYPE"]))
 		{
 			$blocks = \CLists::getIBlocks($this->params["IBLOCK_TYPE_ID"], "Y", $this->params["SOCNET_GROUP_ID"]);
-			if (substr($fields["TYPE"], 0, 1) == "G")
+			if (mb_substr($fields["TYPE"], 0, 1) == "G")
 			{
 				unset($blocks[$this->params["IBLOCK_ID"]]);
 			}

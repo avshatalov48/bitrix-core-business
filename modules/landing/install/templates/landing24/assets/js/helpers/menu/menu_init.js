@@ -4,8 +4,8 @@
 
 	BX.addCustomEvent(window, "BX.Landing.Block:init", function (event)
 	{
-		initScrollNavHandler(event);
 		initNavbarNavHandler(event);
+		initScrollNavHandler(event);
 		initModalAlertHandler(event);
 		initMenuMultilevelHandler(event);
 		initCollapseToggler(event);
@@ -29,19 +29,6 @@
 		initNavbarNavHandler(event);
 	});
 
-
-	function initScrollNavHandler(event)
-	{
-		var scrollNavSelector = event.makeRelativeSelector('.js-scroll-nav');
-		if (event.block.querySelectorAll(scrollNavSelector).length > 0)
-		{
-			$.HSCore.components.HSScrollNav.init($(scrollNavSelector), {
-				duration: 400,
-				easing: 'easeOutExpo'
-			});
-		}
-	}
-
 	function initNavbarNavHandler(event)
 	{
 		var navbarNavSelector = event.makeRelativeSelector('.navbar-nav');
@@ -49,6 +36,22 @@
 		{
 			removeAllActive(navbarNavSelector);
 			markActive(navbarNavSelector);
+		}
+	}
+
+	function initScrollNavHandler(event)
+	{
+		if (BX.Landing.getMode() !== "edit")
+		{
+			var scrollNavSelector = event.makeRelativeSelector('.js-scroll-nav');
+			var navbars = event.block.querySelectorAll(scrollNavSelector);
+			if (navbars.length > 0)
+			{
+				[].slice.call(navbars).forEach(function (navbar)
+				{
+					BX.Landing.NavbarScrollSpy.init(navbar);
+				});
+			}
 		}
 	}
 

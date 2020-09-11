@@ -19,7 +19,7 @@ $arComponentParameters = Array(
 			"NAME" => GetMessage("F_TOPICS_PER_PAGE"),
 			"TYPE" => "STRING",
 			"MULTIPLE" => "N",
-			"DEFAULT" => intVal(COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"))),
+			"DEFAULT" => intval(COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"))),
 		
 		"URL_TEMPLATES_TOPIC_SEARCH" => Array(
 			"PARENT" => "URL_TEMPLATES",

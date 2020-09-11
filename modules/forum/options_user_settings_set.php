@@ -23,17 +23,17 @@ if (CModule::IncludeModule("forum") && check_bitrix_sessid()):
 	if ($ar_res)
 	{
 		$arforumFields["AVATAR"]["old_file"] = $ar_res["AVATAR"];
-		$FORUM_USER_ID = IntVal($ar_res["ID"]);
+		$FORUM_USER_ID = intval($ar_res["ID"]);
 
 		$FORUM_USER_ID1 = CForumUser::Update($FORUM_USER_ID, $arforumFields);
-		$forum_res = (IntVal($FORUM_USER_ID1)>0);
+		$forum_res = (intval($FORUM_USER_ID1)>0);
 	}
 	else
 	{
 		$arforumFields["USER_ID"] = $ID;
 
 		$FORUM_USER_ID = CForumUser::Add($arforumFields);
-		$forum_res = (IntVal($FORUM_USER_ID)>0);
+		$forum_res = (intval($FORUM_USER_ID)>0);
 	}
 endif;
 ?>

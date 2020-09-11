@@ -84,7 +84,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_adm
 	<tr>
 		<td nowrap><?echo GetMessage("STAT_COUNTRY")?>:</td>
 		<td>&nbsp;<?
-			if (strlen($f_COUNTRY_ID)>0):
+			if ($f_COUNTRY_ID <> ''):
 			?><?echo "[".$f_COUNTRY_ID."] ".$f_COUNTRY_NAME?><?
 			endif;
 			?></td>
@@ -96,7 +96,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_adm
 	<tr>
 		<td nowrap><?echo GetMessage("STAT_CITY")?>:</td>
 		<td>&nbsp;<?
-			if (strlen($f_CITY_ID)>0):
+			if ($f_CITY_ID <> ''):
 			?><?echo "[".$f_CITY_ID."] ".$f_CITY_NAME?><?
 			endif;
 			?></td>
@@ -112,7 +112,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_adm
 	</tr>
 	<tr>
 		<td valign="top" nowrap><?echo GetMessage("STAT_URL_TO")?></td>
-		<td><?if (strlen($f_FIRST_SITE_ID)>0):?>[<a title="<?=GetMessage("STAT_SITE")?>" href="/bitrix/admin/site_edit.php?LID=<?=$f_FIRST_SITE_ID?>&lang=<?=LANGUAGE_ID?>"><?=$f_FIRST_SITE_ID?></a>]&nbsp;<?endif;?>&nbsp;<?echo StatAdminListFormatURL($arRes["URL_TO"], array(
+		<td><?if ($f_FIRST_SITE_ID <> ''):?>[<a title="<?=GetMessage("STAT_SITE")?>" href="/bitrix/admin/site_edit.php?LID=<?=$f_FIRST_SITE_ID?>&lang=<?=LANGUAGE_ID?>"><?=$f_FIRST_SITE_ID?></a>]&nbsp;<?endif;?>&nbsp;<?echo StatAdminListFormatURL($arRes["URL_TO"], array(
 			"new_window" => true,
 			"attention" => $f_URL_TO_404=="Y",
 			"chars_per_line" => 40,
@@ -122,7 +122,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_adm
 	</tr>
 	<tr>
 		<td valign="top" nowrap><?echo GetMessage("STAT_LAST_PAGE")?></td>
-		<td><?if (strlen($f_LAST_SITE_ID)>0):?>[<a title="<?=GetMessage("STAT_SITE")?>" href="/bitrix/admin/site_edit.php?LID=<?=$f_LAST_SITE_ID?>&lang=<?=LANGUAGE_ID?>"><?=$f_LAST_SITE_ID?></a>]&nbsp;<?endif;?>&nbsp;<?echo StatAdminListFormatURL($arRes["URL_LAST"], array(
+		<td><?if ($f_LAST_SITE_ID <> ''):?>[<a title="<?=GetMessage("STAT_SITE")?>" href="/bitrix/admin/site_edit.php?LID=<?=$f_LAST_SITE_ID?>&lang=<?=LANGUAGE_ID?>"><?=$f_LAST_SITE_ID?></a>]&nbsp;<?endif;?>&nbsp;<?echo StatAdminListFormatURL($arRes["URL_LAST"], array(
 			"new_window" => true,
 			"attention" => $f_URL_LAST_404=="Y",
 			"chars_per_line" => 40,

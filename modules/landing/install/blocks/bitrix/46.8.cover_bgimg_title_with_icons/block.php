@@ -12,9 +12,9 @@
 
 	<div class="u-bg-overlay__inner g-absolute-centered w-100 g-width-80x--md">
 		<div class="landing-block-node-text-container js-animation fadeIn container text-center">
-			<h2 class="landing-block-node-subtitle landing-semantic-subtitle-image-medium text-uppercase u-heading-v3__title g-letter-spacing-1 font-weight-bold g-font-size-18 g-color-white g-brd-3 g-brd-primary g-pb-5 g-mb-20">
+			<h2 class="landing-block-node-subtitle landing-semantic-subtitle-image-medium text-uppercase u-heading-v3__title g-letter-spacing-1 g-font-weight-700 g-font-size-18 g-color-white g-brd-3 g-brd-primary g-pb-5 g-mb-20">
 				Fitness program for all</h2>
-			<h3 class="landing-block-node-title landing-semantic-title-image-medium text-uppercase g-line-height-1_4 g-letter-spacing-5 font-weight-bold g-font-size-40 g-color-white g-mb-20">
+			<h3 class="landing-block-node-title landing-semantic-title-image-medium text-uppercase g-line-height-1_4 g-letter-spacing-5 g-font-weight-700 g-font-size-40 g-color-white g-mb-20">
 				Easy to be perfect</h3>
 
 			<ul class="list-inline g-mb-30">
@@ -54,7 +54,7 @@
 
 			<div class="landing-block-node-button-container">
 				<a href="#"
-				   class="landing-block-node-button landing-semantic-link-image-medium btn btn-md text-uppercase u-btn-outline-white g-letter-spacing-1 font-weight-bold g-font-size-11 g-rounded-50 g-px-35 g-py-14">
+				   class="landing-block-node-button landing-semantic-link-image-medium btn g-btn-type-outline g-btn-white g-btn-size-md g-btn-px-l text-uppercase g-letter-spacing-1 g-rounded-50 g-py-14">
 					Learn More</a>
 			</div>
 		</div>

@@ -43,11 +43,11 @@ return array(
 		),
 		'.landing-block-node-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_7_TWO_COLS_FIX_IMG_TITLE_TEXT_STYLE_LANDINGBLOCKNODETITLE'),
-			'type' => 'typo',
+			'type' => ['typo'],
 		),
 		'.landing-block-node-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_7_TWO_COLS_FIX_IMG_TITLE_TEXT_STYLE_LANDINGBLOCKNODETEXT'),
-			'type' => 'typo',
+			'type' => ['typo'],
 		),
 	),
 );

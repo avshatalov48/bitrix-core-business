@@ -49,7 +49,7 @@ $aTabs = array(
 
 // ********************* User properties ***************************************************
 if($arResult["USER_PROPERTIES"]["SHOW"] == "Y"):
-	$aTabs[] = array("DIV" => "forum_5", "TAB" => strLen(trim($arParams["USER_PROPERTY_NAME"])) > 0 ? $arParams["USER_PROPERTY_NAME"] : GetMessage("USER_TYPE_EDIT_TAB"), "TITLE" => strLen(trim($arParams["USER_PROPERTY_NAME"])) > 0 ? $arParams["USER_PROPERTY_NAME"] : GetMessage("USER_TYPE_EDIT_TAB"));
+	$aTabs[] = array("DIV" => "forum_5", "TAB" => trim($arParams["USER_PROPERTY_NAME"]) <> '' ? $arParams["USER_PROPERTY_NAME"] : GetMessage("USER_TYPE_EDIT_TAB"), "TITLE" => trim($arParams["USER_PROPERTY_NAME"]) <> '' ? $arParams["USER_PROPERTY_NAME"] : GetMessage("USER_TYPE_EDIT_TAB"));
 endif;
 // ******************** /User properties ***************************************************
 

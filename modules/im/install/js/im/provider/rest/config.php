@@ -11,8 +11,8 @@ return [
 	'rel' => [
 		'main.polyfill.core',
 		'ui.vue.vuex',
-		'im.lib.logger',
 		'im.const',
+		'im.lib.logger',
 	],
 	'skip_core' => true,
 ];

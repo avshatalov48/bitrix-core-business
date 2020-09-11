@@ -15,6 +15,8 @@ if ($forumPermissions == "D")
 CModule::IncludeModule("forum");
 IncludeModuleLangFile(__FILE__);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/prolog.php");
+$aForumPermissions = \Bitrix\Forum\Permission::getTitledList();
+$aForumPermissions = ["reference" => array_values($aForumPermissions), "reference_id" => array_keys($aForumPermissions)];
 
 /********************************************************************
 				Input params
@@ -24,7 +26,7 @@ $arError = array();
 $bVarsFromForm = false;
 $arFields = array();
 $message = false;
-$ID = intVal($_REQUEST["ID"]);
+$ID = intval($_REQUEST["ID"]);
 $arSites = array();
 $db_res = CSite::GetList($by = "sort", $order = "asc");
 while ($res = $db_res->GetNext())
@@ -68,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $forumPermissions >= "W" && $_REQUES
 			"INDEXATION" => ($_REQUEST["INDEXATION"] == "Y" ? "Y" : "N"),
 			"DEDUPLICATION" => ($_REQUEST["DEDUPLICATION"] == "Y" ? "Y" : "N"),
 			
-			"SORT" => (intVal($_REQUEST["SORT"]) <= 0 ? 150 : $_REQUEST["SORT"]),
+			"SORT" => (intval($_REQUEST["SORT"]) <= 0 ? 150 : $_REQUEST["SORT"]),
 			"ORDER_BY" => $_REQUEST["ORDER_BY"],
 			"ORDER_DIRECTION" => $_REQUEST["ORDER_DIRECTION"],
 			
@@ -140,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $forumPermissions >= "W" && $_REQUES
 	{
 		$componentRelativePath = CComponentEngine::MakeComponentPath($path);
 		$arComponentDescription = CComponentUtil::GetComponentDescr($path);
-		if (strLen($componentRelativePath) <= 0 || !is_array($arComponentDescription))
+		if ($componentRelativePath == '' || !is_array($arComponentDescription))
 			continue;
 		elseif (!array_key_exists("CACHE_PATH", $arComponentDescription))
 			continue;
@@ -161,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $forumPermissions >= "W" && $_REQUES
 	}
 	else
 	{
-		if (strLen($_REQUEST["apply"]) <= 0)
+		if ($_REQUEST["apply"] == '')
 			LocalRedirect("forum_admin.php?lang=".LANG."&".GetFilterParams("filter_", false));
 		else 
 			LocalRedirect("forum_edit.php?lang=".LANG."&ID=".$ID);
@@ -615,7 +617,7 @@ $tabControl->BeginNextTab();
 	while ($res = $db_res->GetNext())
 	{
 		$strSelected = $arForum["GROUP_ID"][$res["ID"]];
-		$strSelected = (!in_array(strtoupper($strSelected), $aForumPermissions["reference_id"]) ? "A" : $strSelected);
+		$strSelected = (!in_array(mb_strtoupper($strSelected), $aForumPermissions["reference_id"]) ? "A" : $strSelected);
 		?>
 		<tr>
 			<td width="40%"><?=$res["NAME"]?>&nbsp;[<a  href="/bitrix/admin/group_edit.php?ID=<?=$res["ID"]?>&lang=<?=LANGUAGE_ID?>"><?=$res["ID"]?></a>]:</td>

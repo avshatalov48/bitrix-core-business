@@ -19,11 +19,11 @@ class CStoplist extends CAllStopList
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if( ($val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -180,11 +180,11 @@ class CStoplist extends CAllStopList
 				$site_id = $arParams["SITE_ID"];
 			}
 
-			$user_agent_len = strlen($user_agent);
+			$user_agent_len = mb_strlen($user_agent);
 			$user_agent = $DB->ForSql($user_agent, 500);
 			$url_from = $DB->ForSql($url_from, 2000);
 			$url_to = $DB->ForSql($url_to, 2000);
-			if (strlen($site_id) > 0)
+			if ($site_id <> '')
 			{
 				$site_where = "and (SITE_ID = '".$DB->ForSql($site_id, 2)."' or SITE_ID is null or length(SITE_ID)<=0)";
 			}

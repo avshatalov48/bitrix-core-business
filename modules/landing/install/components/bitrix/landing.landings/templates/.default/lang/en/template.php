@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["LANDING_TPL_ACTIONS"] = "actions";
 $MESS["LANDING_TPL_ACTION_ADD"] = "New page";
 $MESS["LANDING_TPL_ACTION_COPY"] = "Copy page";
@@ -13,6 +13,7 @@ $MESS["LANDING_TPL_ACTION_GOTO"] = "Open page";
 $MESS["LANDING_TPL_ACTION_MOVE"] = "Move page";
 $MESS["LANDING_TPL_ACTION_MOVE_TITLE"] = "Move page to site";
 $MESS["LANDING_TPL_ACTION_PUBLIC"] = "Publish";
+$MESS["LANDING_TPL_ACTION_PUBLIC_CHANGED"] = "Publish changes";
 $MESS["LANDING_TPL_ACTION_REC_CONFIRM"] = "Move to the Recycle Bin?";
 $MESS["LANDING_TPL_ACTION_UNDELETE"] = "Restore page";
 $MESS["LANDING_TPL_ACTION_UNDELETE_FOLDER"] = "Restore folder";
@@ -39,4 +40,3 @@ $MESS["LANDING_TPL_TITLE_STORE"] = "Online store";
 $MESS["LANDING_TPL_TTL_DELETE"] = "Days until permanent deletion";
 $MESS["LANDING_TPL_TTL_DELETE_D"] = "days";
 $MESS["LANDING_TPL_UNPUBLIC"] = "Unpublished";
-?>

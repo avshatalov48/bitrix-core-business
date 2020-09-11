@@ -16,7 +16,7 @@ class CForumPoints extends CAllForumPoints
 		$arInsert = $DB->PrepareInsert("b_forum_points", $arFields);
 		$strSql = "INSERT INTO b_forum_points(".$arInsert[0].") VALUES(".$arInsert[1].")";
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		$ID = IntVal($DB->LastID());
+		$ID = intval($DB->LastID());
 
 		foreach ($arFields["LANG"] as $i => $val)
 		{
@@ -43,7 +43,7 @@ class CForumPoints2Post extends CAllForumPoints2Post
 		$arInsert = $DB->PrepareInsert("b_forum_points2post", $arFields);
 		$strSql = "INSERT INTO b_forum_points2post(".$arInsert[0].") VALUES(".$arInsert[1].")";
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		$ID = intVal($DB->LastID());
+		$ID = intval($DB->LastID());
 
 		return $ID;
 	}
@@ -75,7 +75,7 @@ class CForumUserPoints extends CAllForumUserPoints
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
 		// Recount user points
-		if (intVal($arFields["TO_USER_ID"])>0)
+		if (intval($arFields["TO_USER_ID"])>0)
 		{
 			$arUserFields = array(
 				"POINTS" => CForumUser::CountUserPoints($arFields["TO_USER_ID"]));
@@ -83,7 +83,7 @@ class CForumUserPoints extends CAllForumUserPoints
 			$arUser = CForumUser::GetByUSER_ID($arFields["TO_USER_ID"]);
 			if ($arUser)
 			{
-				CForumUser::Update(intVal($arUser["ID"]), $arUserFields);
+				CForumUser::Update(intval($arUser["ID"]), $arUserFields);
 			}
 			else
 			{

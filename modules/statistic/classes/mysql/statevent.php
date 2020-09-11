@@ -44,10 +44,10 @@ class CStatEvent extends CAllStatEvent
 			$MONEY = doubleval($MONEY);
 
 			// если указана валюта то конвертируем
-			if (strlen(trim($CURRENCY))>0)
+			if (trim($CURRENCY) <> '')
 			{
 				$base_currency = GetStatisticBaseCurrency();
-				if (strlen($base_currency)>0)
+				if ($base_currency <> '')
 				{
 					if ($CURRENCY!=$base_currency)
 					{
@@ -70,7 +70,7 @@ class CStatEvent extends CAllStatEvent
 			$CHARGEBACK		= ($CHARGEBACK=="Y") ? "Y" : "N";
 			$SITE_ID		= $arr["SITE_ID"];
 
-			$DATE_ENTER = strlen(trim($DATE_ENTER))>0 ? $DATE_ENTER : GetTime(time(),"FULL");
+			$DATE_ENTER = trim($DATE_ENTER) <> '' ? $DATE_ENTER : GetTime(time(),"FULL");
 			$TIME_ENTER_TMSTMP = MakeTimeStamp($DATE_ENTER);
 			if (!$TIME_ENTER_TMSTMP)
 			{
@@ -92,15 +92,15 @@ class CStatEvent extends CAllStatEvent
 				"GUEST_ID"		=> (intval($GUEST_ID)>0) ? intval($GUEST_ID) : "null",
 				"ADV_ID"		=> (intval($ADV_ID)>0) ? intval($ADV_ID) : "null",
 				"ADV_BACK"		=> ($ADV_BACK=="Y") ? "'Y'" : "'N'",
-				"COUNTRY_ID"	=> (strlen($COUNTRY_ID)>0) ? "'".$DB->ForSql($COUNTRY_ID,2)."'" : "null",
+				"COUNTRY_ID"	=> ($COUNTRY_ID <> '') ? "'".$DB->ForSql($COUNTRY_ID,2)."'" : "null",
 				"KEEP_DAYS"		=> (intval($arEvent["KEEP_DAYS"])>0) ? intval($arEvent["KEEP_DAYS"]) : "null",
 				"CHARGEBACK"	=> "'".$CHARGEBACK."'",
-				"SITE_ID"		=> (strlen($SITE_ID)>0) ? "'".$DB->ForSql($SITE_ID,2)."'" : "null"
+				"SITE_ID"		=> ($SITE_ID <> '') ? "'".$DB->ForSql($SITE_ID,2)."'" : "null"
 				);
 			$EVENT_LIST_ID = $DB->Insert("b_stat_event_list",$arFields, $err_mess.__LINE__);
 
 			// увеличиваем счетчик для страны
-			if (strlen($COUNTRY_ID)>0)
+			if ($COUNTRY_ID <> '')
 				CStatistics::UpdateCountry($COUNTRY_ID, Array("C_EVENTS" => 1));
 
 			// если нужно обновляем дату первого события для данного типа события
@@ -156,7 +156,7 @@ class CStatEvent extends CAllStatEvent
 			CTraffic::IncParam(array("EVENT" => 1), array(), false, $DATE_ENTER);
 
 			// если сайт определен то
-			if (strlen($SITE_ID)>0)
+			if ($SITE_ID <> '')
 			{
 				// обновляем дневной счетчик
 				$arFields = Array("C_EVENTS" => "C_EVENTS+1");
@@ -279,11 +279,11 @@ class CStatEvent extends CAllStatEvent
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if( ($val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -369,11 +369,11 @@ class CStatEvent extends CAllStatEvent
 		$rate = 1;
 		$base_currency = GetStatisticBaseCurrency();
 		$view_currency = $base_currency;
-		if (strlen($base_currency)>0)
+		if ($base_currency <> '')
 		{
 			if (CModule::IncludeModule("currency"))
 			{
-				if ($CURRENCY!=$base_currency && strlen($CURRENCY)>0)
+				if ($CURRENCY!=$base_currency && $CURRENCY <> '')
 				{
 					$rate = CCurrencyRates::GetConvertFactor($base_currency, $CURRENCY);
 					$view_currency = $CURRENCY;
@@ -456,7 +456,7 @@ class CStatEvent extends CAllStatEvent
 		}
 
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch) || strlen($strSqlSearch_h)>0);
+		$is_filtered = (IsFiltered($strSqlSearch) || $strSqlSearch_h <> '');
 		return $res;
 	}
 
@@ -575,7 +575,7 @@ class CStatEvent extends CAllStatEvent
 			// уменьшаем счетчик траффика
 			CTraffic::DecParam(array("EVENT" => 1), array(), false, $ar["DATE_ENTER_FULL"]);
 
-			if (strlen($ar["SITE_ID"])>0)
+			if ($ar["SITE_ID"] <> '')
 			{
 				$arFields = Array("C_EVENTS" => "C_EVENTS-1");
 				$DB->Update("b_stat_day_site",$arFields,"WHERE SITE_ID = '".$DB->ForSql($ar["SITE_ID"], 2)."' and  DATE_STAT = FROM_UNIXTIME('".MkDateTime(ConvertDateTime($ar["DATE_ENTER"],"D.M.Y"),"d.m.Y")."')", $err_mess.__LINE__);

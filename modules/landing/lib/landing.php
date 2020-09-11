@@ -311,7 +311,10 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 				);
 			}
 			// fill meta data
-			$keys = ['CREATED_BY_ID', 'MODIFIED_BY_ID', 'DATE_CREATE', 'DATE_MODIFY'];
+			$keys = [
+				'CREATED_BY_ID', 'MODIFIED_BY_ID', 'DATE_CREATE',
+				'DATE_MODIFY', 'INITIATOR_APP_CODE'
+			];
 			foreach ($keys as $key)
 			{
 				if (isset($landing[$key]))
@@ -1733,6 +1736,20 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 			Assets\PreProcessing\Icon::processingLanding($this->id);
 			Assets\Manager::rebuildWebpackForLanding($this->id);
 		}
+		if ($this->version <= 6)
+		{
+			$needUpdate = true;
+			Update\Block\Buttons::updateLanding($this->id);
+			Update\Block\FontWeight::updateLanding($this->id);
+			$this->version = 7;
+		}
+		if ($this->version <= 7)
+		{
+			$needUpdate = true;
+			Assets\PreProcessing\Icon::processingLanding($this->id);
+			Assets\Manager::rebuildWebpackForLanding($this->id);
+			$this->version = 8;
+		}
 		if ($needUpdate)
 		{
 			Rights::setOff();
@@ -2155,6 +2172,11 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 						'SOURCE_PARAMS' => $srcBlock->getDynamicParams(),
 						'PUBLIC' => 'N'
 				));
+				// we should save original content after all callbacks
+				$newBlock->saveContent(
+					$srcBlock->getContent()
+				);
+				$newBlock->save();
 				// copy files
 				if ($newBlock)
 				{

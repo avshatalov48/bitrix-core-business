@@ -137,5 +137,64 @@ abstract class CPushMessage
 		$this->category = $category;
 	}
 
+	public function setFromArray(array $messageArray)
+	{
+		$text = \Bitrix\Main\Text\Encoding::convertEncoding($messageArray["MESSAGE"], SITE_CHARSET, "utf-8");
+		$title = \Bitrix\Main\Text\Encoding::convertEncoding($messageArray["TITLE"], SITE_CHARSET, "utf-8");
+		$this->setSound('');
+		$this->setText($text);
+		$this->setTitle($title);
+		if ($text <> '')
+		{
+			$this->setSound(
+				($messageArray["SOUND"] <> '')
+					? $messageArray["SOUND"]
+					: "default"
+			);
+		}
+
+		if ($messageArray["CATEGORY"])
+		{
+			$this->setCategory($messageArray["CATEGORY"]);
+		}
+
+		if (array_key_exists("EXPIRY", $messageArray))
+		{
+			$expiry = (int)$messageArray["EXPIRY"];
+			$this->setExpiry($expiry >= 0 ? $expiry : CPushService::DEFAULT_EXPIRY);
+		}
+
+		if ($messageArray["PARAMS"])
+		{
+			$this->setCustomProperty(
+				'params',
+				is_array($messageArray["PARAMS"])
+					? json_encode($messageArray["PARAMS"])
+					: $messageArray["PARAMS"]
+			);
+		}
+
+		if (is_array($messageArray["ADVANCED_PARAMS"]))
+		{
+			$messageArray["ADVANCED_PARAMS"] = \Bitrix\Main\Text\Encoding::convertEncoding($messageArray["ADVANCED_PARAMS"], SITE_CHARSET, "UTF-8");
+			if(array_key_exists("senderMessage",$messageArray["ADVANCED_PARAMS"]))
+			{
+				$this->setText("");
+			}
+
+			foreach ($messageArray["ADVANCED_PARAMS"] as $param => $value)
+			{
+				$this->setCustomProperty($param, $value);
+			}
+		}
+
+		$badge = (int)$messageArray["BADGE"];
+		if (array_key_exists("BADGE", $messageArray) && $badge >= 0)
+		{
+			$this->setBadge($badge);
+		}
+		return $this;
+	}
+
 }
 

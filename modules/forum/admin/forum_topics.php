@@ -105,19 +105,19 @@
 	}
 
 	$arFilter = array();
-	$FORUM_ID = intVal($FORUM_ID);
+	$FORUM_ID = intval($FORUM_ID);
 	if ($FORUM_ID > 0):
 		$arFilter["FORUM_ID"] = $FORUM_ID;
 	endif;
 	$TITLE = trim($TITLE);
-	if (strLen($TITLE) > 0):
+	if ($TITLE <> ''):
 		$arFilter["TITLE"] = $TITLE;
 	endif;
 	$DESCRIPTION = trim($DESCRIPTION);
-	if (strLen($DESCRIPTION) > 0):
+	if ($DESCRIPTION <> ''):
 		$arFilter["DESCRIPTION"] = $DESCRIPTION;
 	endif;
-	$USER_START_ID = intVal($USER_START_ID);
+	$USER_START_ID = intval($USER_START_ID);
 	if ($USER_START_ID > 0):
 		$arFilter["USER_START_ID"] = $USER_START_ID;
 	elseif (trim($_REQUEST["USER_START_ID"]) == "0"):
@@ -165,7 +165,7 @@ if ($lAdmin->EditAction() && $forumModulePermissions >= "R")
 	$sError = ""; $sOk = "";
 	foreach ($FIELDS as $ID => $arFields)
 	{
-		$ID = intVal($ID);
+		$ID = intval($ID);
 
 		if (!$lAdmin->IsUpdated($ID)):
 			continue;
@@ -243,7 +243,7 @@ if($arID = $lAdmin->GroupAction())
 	{
 
 	}
-	elseif ($_REQUEST['action'] == "move" && intVal($_REQUEST['move_to']) <= 0)
+	elseif ($_REQUEST['action'] == "move" && intval($_REQUEST['move_to']) <= 0)
 	{
 		$lAdmin->AddFilterError(GetMessage("FM_WRONG_FORUM_ID"));
 	}
@@ -277,7 +277,7 @@ if($arID = $lAdmin->GroupAction())
 					ForumDeleteTopic($arID, $sError, $sOk);
 					break;
 				case "move":
-					if (!CForumTopic::MoveTopic2Forum($arID, intVal($_REQUEST['move_to']))):
+					if (!CForumTopic::MoveTopic2Forum($arID, intval($_REQUEST['move_to']))):
 						$ex = $APPLICATION->GetException();
 						if ($ex && $err = $ex->GetString()):
 							$lAdmin->AddUpdateError($err, $ID);
@@ -321,7 +321,7 @@ if ($clearCache)
 	{
 		$componentRelativePath = CComponentEngine::MakeComponentPath($path);
 		$arComponentDescription = CComponentUtil::GetComponentDescr($path);
-		if (strLen($componentRelativePath) <= 0 || !is_array($arComponentDescription))
+		if ($componentRelativePath == '' || !is_array($arComponentDescription))
 			continue;
 		elseif (!array_key_exists("CACHE_PATH", $arComponentDescription))
 			continue;

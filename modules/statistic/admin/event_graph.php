@@ -98,7 +98,7 @@ DrawCoordinatGrid($arrayX, $arrayY, $width, $height, $ImageHandle);
 reset($arrLegend);
 while(list($keyL, $arrL) = each($arrLegend))
 {
-	if (strlen($keyL)>0)
+	if ($keyL <> '')
 	{
 		Graf($arrX, $arrY_data[$keyL], $ImageHandle, $MinX, $MaxX, $MinY, $MaxY, $arrL["COLOR"]);
 	}

@@ -252,3 +252,37 @@ BX.Landing.SelectLang.prototype = {
 	}
 };
 
+
+// Sidepanel
+BX.ready(function()
+{
+	var domainRenameLinks = [].slice.call(
+		document.querySelectorAll('.landing-frame-btn')
+	);
+	for (var i = 0, c = domainRenameLinks.length; i < c; i++)
+	{
+		BX.bind(domainRenameLinks[i], 'click', function()
+		{
+			top.BX.SidePanel.Instance.open(
+				this.getAttribute('href'),
+				{
+					width: 1000,
+					allowChangeHistory: false,
+					events: {
+						onClose: function(event)
+						{
+							if (
+								event.slider.url.indexOf('save=Y') !== -1 ||
+								event.slider.url.indexOf('switch=Y') !== -1
+							)
+							{
+								window.location.reload();
+							}
+						}
+					}
+				}
+			);
+			BX.PreventDefault();
+		});
+	}
+});

@@ -68,7 +68,7 @@ return [
 			],
 			'style' => [
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title g-font-weight-300 g-color-white font-weight-bold g-font-size-25 g-mb-20 g-text-transform-none',
+					0 => 'landing-block-node-title g-font-weight-300 g-color-white g-font-weight-700 g-font-size-25 g-mb-20 g-text-transform-none',
 				],
 				'.landing-block-node-text' => [
 					0 => 'landing-block-node-text form-text g-opacity-0_8 g-color-white',
@@ -166,9 +166,9 @@ return [
 					2 => 'landing-block-node-text g-color-black',
 				],
 				'.landing-block-node-button' => [
-					0 => 'landing-block-node-button btn u-btn-outline-primary g-font-size-11 text-uppercase',
-					1 => 'landing-block-node-button btn u-btn-outline-primary g-font-size-11 text-uppercase',
-					2 => 'landing-block-node-button btn u-btn-outline-primary g-font-size-11 text-uppercase',
+					0 => 'landing-block-node-button btn g-btn-type-outline g-btn-size-sm g-btn-px-m g-btn-primary rounded-0 text-uppercase',
+					1 => 'landing-block-node-button btn g-btn-type-outline g-btn-size-sm g-btn-px-m g-btn-primary rounded-0 text-uppercase',
+					2 => 'landing-block-node-button btn g-btn-type-outline g-btn-size-sm g-btn-px-m g-btn-primary rounded-0 text-uppercase',
 				],
 			],
 		],

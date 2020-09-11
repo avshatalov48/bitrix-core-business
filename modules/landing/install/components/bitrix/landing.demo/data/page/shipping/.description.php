@@ -233,11 +233,11 @@ return array(
 					<h3 class="landing-block-node-subtitle text-uppercase g-font-weight-700 g-font-size-18 g-color-white g-mb-20">
 						Delivering
 						anything to anywhere</h3>
-					<div class="landing-block-node-text js-animation fadeInRight g-font-size-default g-color-white-opacity-0_8 g-mb-35 animated">
+					<div class="landing-block-node-text js-animation fadeInRight g-color-white-opacity-0_8 g-mb-35 animated">
 						<p>Maecenas lacus magna, pretium in congue a, pharetra at lacus. Nulla neque justo, sodales
 							vitae dui non, imperdiet luctus libero.</p>
 					</div>
-					<a class="landing-block-node-button js-animation fadeInRight btn btn-md text-uppercase u-btn-primary g-font-weight-700 g-font-size-12 g-brd-none g-rounded-4 g-py-12 g-px-25 animated" href="#">Learn more</a>
+					<a class="landing-block-node-button js-animation fadeInRight btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-rounded-4 g-py-12 animated" href="#">Learn more</a>
 				</div>
 				<!-- End Promo Block - Info -->
 			</div>
@@ -815,7 +815,7 @@ return array(
 					<ul class="landing-block-node-card-price-list list-unstyled g-letter-spacing-0_5 g-font-size-12 mb-0"><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">CURABITUR SIT AMET</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">ETIAM AC MASSA SIT</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">FUSCE ACCUMSAN FAUCIBUS</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DUIS TRISTIQUE BIBENDUM</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DUIS VEHICULA</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DONEC FRINGILLA</span></li></ul>
 
 					<footer class="g-pa-40 landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn btn-md g-brd-2 g-font-size-12 g-font-weight-600 g-letter-spacing-1 u-btn-primary g-color-white g-rounded-4" href="#">Order Now</a>
+						<a class="landing-block-node-card-button btn g-btn-type-outline g-btn-size-md g-btn-px-m g-brd-2 g-letter-spacing-1 g-btn-primary g-rounded-4" href="#">Order Now</a>
 					</footer>
 					<!-- End of Article Content -->
 				
@@ -844,7 +844,7 @@ return array(
 					<ul class="landing-block-node-card-price-list list-unstyled g-letter-spacing-0_5 g-font-size-12 mb-0"><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">CURABITUR SIT AMET</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">ETIAM AC MASSA SIT</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">FUSCE ACCUMSAN FAUCIBUS</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DUIS TRISTIQUE BIBENDUM</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DUIS VEHICULA</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DONEC FRINGILLA</span></li></ul>
 
 					<footer class="g-pa-40 landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn btn-md g-brd-2 g-font-size-12 g-font-weight-600 g-letter-spacing-1 u-btn-primary g-color-white g-rounded-4" href="#">Order Now</a>
+						<a class="landing-block-node-card-button btn g-btn-type-outline g-btn-size-md g-btn-px-m g-brd-2 g-letter-spacing-1 g-btn-primary g-rounded-4" href="#">Order Now</a>
 					</footer>
 					<!-- End of Article Content -->
 				
@@ -873,7 +873,7 @@ return array(
 					<ul class="landing-block-node-card-price-list list-unstyled g-letter-spacing-0_5 g-font-size-12 mb-0"><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">CURABITUR SIT AMET</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">ETIAM AC MASSA SIT</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">FUSCE ACCUMSAN FAUCIBUS</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DUIS TRISTIQUE BIBENDUM</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DUIS VEHICULA</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DONEC FRINGILLA</span></li></ul>
 
 					<footer class="g-pa-40 landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn btn-md g-brd-2 g-font-size-12 g-font-weight-600 g-letter-spacing-1 u-btn-primary g-color-white g-rounded-4" href="#">Order Now</a>
+						<a class="landing-block-node-card-button btn g-btn-type-outline g-btn-size-md g-btn-px-m g-brd-2 g-letter-spacing-1 g-btn-primary g-rounded-4" href="#">Order Now</a>
 					</footer>
 					<!-- End of Article Content -->
 				
@@ -901,7 +901,7 @@ return array(
 					<ul class="landing-block-node-card-price-list list-unstyled g-letter-spacing-0_5 g-font-size-12 mb-0"><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">CURABITUR SIT AMET</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">ETIAM AC MASSA SIT</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">FUSCE ACCUMSAN FAUCIBUS</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DUIS TRISTIQUE BIBENDUM</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DUIS VEHICULA</span></li><li class="g-py-10 g-px-30 g-color-black g-bg-main"><span style="font-weight: 700;color: rgb(33, 33, 33);">DONEC FRINGILLA</span></li></ul>
 
 					<footer class="g-pa-40 landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn btn-md g-brd-2 g-font-size-12 g-font-weight-600 g-letter-spacing-1 u-btn-primary g-color-white g-rounded-4" href="#">Order Now</a>
+						<a class="landing-block-node-card-button btn g-btn-type-outline g-btn-size-md g-btn-px-m g-brd-2 g-letter-spacing-1 g-btn-primary g-rounded-4" href="#">Order Now</a>
 					</footer>
 					<!-- End of Article Content -->
 				
@@ -1053,8 +1053,8 @@ return array(
                             </div>
 
                             <div class="landing-block-card-accordeon-element-body" aria-labelledby="aboutAccordionHeading1">
-                                <div class="card-block u-accordion__body g-py-20 px-0 g-color-gray-dark-v3">
-                                    <div class="landing-block-node-accordeon-element-text g-font-size-default"><p>Anim pariatur cliche reprehenderit, 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod.</p></div>
+                                <div class="card-block u-accordion__body g-pt-20 g-pb-0 px-0 g-color-gray-dark-v3">
+                                    <div class="landing-block-node-accordeon-element-text"><p>Anim pariatur cliche reprehenderit, 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod.</p></div>
                                 </div>
                             </div>
                         </div>
@@ -1070,8 +1070,8 @@ return array(
                             </div>
 
                             <div class="landing-block-card-accordeon-element-body" aria-labelledby="aboutAccordionHeading2">
-                                <div class="card-block u-accordion__body g-py-20 px-0 g-color-gray-dark-v3">
-                                    <div class="landing-block-node-accordeon-element-text g-font-size-default"><p>Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Food truck quinoa nesciunt laborum eiusmod.</p></div>
+                                <div class="card-block u-accordion__body g-pt-20 g-pb-0 px-0 g-color-gray-dark-v3">
+                                    <div class="landing-block-node-accordeon-element-text"><p>Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Food truck quinoa nesciunt laborum eiusmod.</p></div>
                                 </div>
                             </div>
                         </div>
@@ -1087,8 +1087,8 @@ return array(
                             </div>
 
                             <div class="landing-block-card-accordeon-element-body" aria-labelledby="aboutAccordionHeading3">
-                                <div class="card-block u-accordion__body g-py-20 px-0 g-color-gray-dark-v3">
-                                    <div class="landing-block-node-accordeon-element-text g-font-size-default"><p>Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Food truck quinoa nesciunt laborum eiusmod.</p></div>
+                                <div class="card-block u-accordion__body g-pt-20 g-pb-0 px-0 g-color-gray-dark-v3">
+                                    <div class="landing-block-node-accordeon-element-text"><p>Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Food truck quinoa nesciunt laborum eiusmod.</p></div>
                                 </div>
                             </div>
                         </div>
@@ -1104,8 +1104,8 @@ return array(
                             </div>
 
                             <div class="landing-block-card-accordeon-element-body" aria-labelledby="aboutAccordionHeading4">
-                                <div class="card-block u-accordion__body g-py-20 px-0 g-color-gray-dark-v3">
-                                    <div class="landing-block-node-accordeon-element-text g-font-size-default"><p>Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Food truck quinoa nesciunt laborum eiusmod.</p></div>
+                                <div class="card-block u-accordion__body g-pt-20 g-pb-0 px-0 g-color-gray-dark-v3">
+                                    <div class="landing-block-node-accordeon-element-text"><p>Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Food truck quinoa nesciunt laborum eiusmod.</p></div>
                                 </div>
                             </div>
                         </div>
@@ -1120,8 +1120,8 @@ return array(
                             </div>
 
                             <div class="landing-block-card-accordeon-element-body" aria-labelledby="aboutAccordionHeading4">
-                                <div class="card-block u-accordion__body g-py-20 px-0 g-color-gray-dark-v3">
-                                    <div class="landing-block-node-accordeon-element-text g-font-size-default"><p>Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute.</p></div>
+                                <div class="card-block u-accordion__body g-pt-20 g-pb-0 px-0 g-color-gray-dark-v3">
+                                    <div class="landing-block-node-accordeon-element-text"><p>Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute.</p></div>
                                 </div>
                             </div>
                         </div></div>
@@ -1153,7 +1153,7 @@ return array(
 		<div class="container u-bg-overlay__inner g-width-900">
 			<div class="js-carousel g-pb-70"
 				 data-infinite="true"
-				 data-arrows-classes="u-arrow-v1 g-absolute-centered--x g-bottom-0 g-width-40 g-height-40 g-rounded-50x g-font-size-default g-color-gray-light-v2 g-color-white--hover g-bg-white g-bg-primary--hover g-transition-0_2 g-transition--ease-in"
+				 data-arrows-classes="u-arrow-v1 g-absolute-centered--x g-bottom-0 g-width-40 g-height-40 g-rounded-50x g-color-gray-light-v2 g-color-white--hover g-bg-white g-bg-primary--hover g-transition-0_2 g-transition--ease-in"
 				 data-arrow-left-classes="fa fa-angle-left g-ml-minus-30"
 				 data-arrow-right-classes="fa fa-angle-right g-ml-30">
 				<div class="landing-block-node-card js-slide">

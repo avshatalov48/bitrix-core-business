@@ -19,7 +19,7 @@ $favoriteStar = \Bitrix\UI\Toolbar\Facade\Toolbar::hasFavoriteStar()? '<span cla
 			echo $APPLICATION->getViewContent("pagetitle");
 		?></div>
 		<div class="pagetitle">
-			<span id="pagetitle" class="pagetitle-item"><?=$APPLICATION->getTitle(false);?></span>
+			<span id="pagetitle" class="pagetitle-item"><?=$APPLICATION->getTitle(false, true);?></span>
 			<?= $APPLICATION->getViewContent("in_pagetitle"); ?>
 			<?= $favoriteStar; ?>
 		</div>

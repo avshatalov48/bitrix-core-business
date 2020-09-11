@@ -134,11 +134,11 @@ class Helper
 
 			while($row = $dbRes->fetch())
 			{
-				if(strlen($row['SCRIPT']) > 0)
+				if($row['SCRIPT'] <> '')
 					$result .= $row['SCRIPT']."\n";
 			}
 
-			if(strlen($result) > 0)
+			if($result <> '')
 			{
 				\Bitrix\Main\Page\Asset::getInstance()->addString($result, false, \Bitrix\Main\Page\AssetLocation::BODY_END);
 

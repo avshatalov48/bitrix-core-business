@@ -7,6 +7,7 @@ use \Bitrix\Landing\Field;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\ModuleManager;
 use \Bitrix\Main\Loader;
+use \Bitrix\Currency\CurrencyManager;
 
 Loc::loadMessages(__FILE__);
 
@@ -47,6 +48,29 @@ class Settings extends \Bitrix\Landing\Hook\Page
 		'BRAND_PROPERTY' => 'BRAND_REF',
 		'CART_POSITION' => 'BL'
 	);
+
+	/**
+	 * Returns transform $defValues.
+	 * @return array
+	 */
+	protected static function getDefaultValues(): array
+	{
+		static $defValues = [];
+
+		if (!$defValues)
+		{
+			$defValues = self::$defValues;
+			if (
+				!$defValues['CURRENCY_ID'] &&
+				Loader::includeModule('currency')
+			)
+			{
+				$defValues['CURRENCY_ID'] = CurrencyManager::getBaseCurrency();
+			}
+		}
+
+		return $defValues;
+	}
 
 	/**
 	 * Build local allowed codes array.
@@ -139,9 +163,9 @@ class Settings extends \Bitrix\Landing\Hook\Page
 				}
 		}
 
-		if ($field && isset(self::$defValues[$code]))
+		if ($field && isset(self::getDefaultValues()[$code]))
 		{
-			$field->setValue(self::$defValues[$code]);
+			$field->setValue(self::getDefaultValues()[$code]);
 		}
 
 		return $field;
@@ -359,7 +383,7 @@ class Settings extends \Bitrix\Landing\Hook\Page
 			);
 		}
 
-		foreach (self::$defValues as $key => $defValue)
+		foreach (self::getDefaultValues() as $key => $defValue)
 		{
 			if (isset($hooks['SETTINGS'][$key]))
 			{

@@ -198,7 +198,7 @@ if ($ELEMENT_ID > 0)
 		array("copy_id" => $ELEMENT_ID),
 		array("skip_empty" => true, "encode" => true)
 	);
-	if(isset($_GET["list_section_id"]) && strlen($_GET["list_section_id"]) == 0)
+	if(isset($_GET["list_section_id"]) && $_GET["list_section_id"] == '')
 		$arResult["LIST_COPY_ELEMENT_URL"] = CHTTP::urlAddParams($arResult["LIST_COPY_ELEMENT_URL"], array("list_section_id" => ""));
 }
 else
@@ -543,12 +543,12 @@ if(
 					{
 						if(is_array($value))
 						{
-							if(strlen($value["VALUE"]))
+							if($value["VALUE"] <> '')
 							{
 								$value = str_replace(" ", "", str_replace(",", ".", $value["VALUE"]));
-								if (!is_numeric($value))
+								if(!is_numeric($value))
 								{
-									$strError .= GetMessage('CC_BLEE_VALIDATE_FIELD_ERROR', array('#NAME#'=>$arField['NAME']))."<br />";
+									$strError .= GetMessage('CC_BLEE_VALIDATE_FIELD_ERROR', array('#NAME#' => $arField['NAME']))."<br />";
 								}
 								$arProps[$arField["ID"]][$key] = doubleval($value);
 							}
@@ -556,12 +556,12 @@ if(
 						}
 						else
 						{
-							if(strlen($value))
+							if($value <> '')
 							{
 								$value = str_replace(" ", "", str_replace(",", ".", $value));
-								if (!is_numeric($value))
+								if(!is_numeric($value))
 								{
-									$strError .= GetMessage('CC_BLEE_VALIDATE_FIELD_ERROR', array('#NAME#'=>$arField['NAME']))."<br />";
+									$strError .= GetMessage('CC_BLEE_VALIDATE_FIELD_ERROR', array('#NAME#' => $arField['NAME']))."<br />";
 								}
 								$arProps[$arField["ID"]][$key] = doubleval($value);
 							}
@@ -572,24 +572,24 @@ if(
 				{
 					if(is_array($_POST[$FIELD_ID]))
 					{
-						if(strlen($_POST[$FIELD_ID]["VALUE"]))
+						if($_POST[$FIELD_ID]["VALUE"] <> '')
 						{
 							$value = str_replace(" ", "", str_replace(",", ".", $_POST[$FIELD_ID]["VALUE"]));
-							if (!is_numeric($value))
+							if(!is_numeric($value))
 							{
-								$strError .= GetMessage('CC_BLEE_VALIDATE_FIELD_ERROR', array('#NAME#'=>$arField['NAME']))."<br />";
+								$strError .= GetMessage('CC_BLEE_VALIDATE_FIELD_ERROR', array('#NAME#' => $arField['NAME']))."<br />";
 							}
 							$arProps[$arField["ID"]] = doubleval($_POST[$FIELD_ID]["VALUE"]);
 						}
 					}
 					else
 					{
-						if(strlen($_POST[$FIELD_ID]))
+						if($_POST[$FIELD_ID] <> '')
 						{
 							$value = str_replace(" ", "", str_replace(",", ".", $_POST[$FIELD_ID]));
-							if (!is_numeric($value))
+							if(!is_numeric($value))
 							{
-								$strError .= GetMessage('CC_BLEE_VALIDATE_FIELD_ERROR', array('#NAME#'=>$arField['NAME']))."<br />";
+								$strError .= GetMessage('CC_BLEE_VALIDATE_FIELD_ERROR', array('#NAME#' => $arField['NAME']))."<br />";
 							}
 							$arProps[$arField["ID"]] = doubleval($_POST[$FIELD_ID]);
 						}
@@ -646,7 +646,7 @@ if(
 					if(!in_array($arPropV["PROPERTY_TYPE"], $ignoreProperty))
 					{
 						if(is_array($arProps[$arPropV["ID"]]) && empty($arProps[$arPropV["ID"]])
-							|| is_string($arProps[$arPropV["ID"]]) && strlen($arProps[$arPropV["ID"]]) <= 0)
+							|| is_string($arProps[$arPropV["ID"]]) && $arProps[$arPropV["ID"]] == '')
 						{
 							if(!array_key_exists($arPropV["ID"], $arElement["PROPERTY_VALUES"]))
 								$arElement["PROPERTY_VALUES"][$arPropV["ID"]] = array();
@@ -733,7 +733,7 @@ if(
 				$arBizProcParametersValues = array();
 				foreach ($arDocumentStates as $arDocumentState)
 				{
-					if(strlen($arDocumentState["ID"]) <= 0)
+					if($arDocumentState["ID"] == '')
 					{
 						$templatesOnStartup = true;
 						$arErrorsTmp = array();
@@ -811,7 +811,7 @@ if(
 			$arBizProcWorkflowId = array();
 			foreach($arDocumentStates as $arDocumentState)
 			{
-				if(strlen($arDocumentState["ID"]) <= 0)
+				if($arDocumentState["ID"] == '')
 				{
 					$arErrorsTmp = array();
 
@@ -839,9 +839,9 @@ if(
 					$bpTemplateId = intval($_REQUEST["bizproc_template_id_".$i]);
 					$bpEvent = trim($_REQUEST["bizproc_event_".$i]);
 
-					if(strlen($bpEvent) > 0)
+					if($bpEvent <> '')
 					{
-						if(strlen($bpId) > 0)
+						if($bpId <> '')
 						{
 							if(!array_key_exists($bpId, $arDocumentStates))
 								continue;
@@ -890,7 +890,7 @@ if(
 				array($tab_name => $_POST[$tab_name]),
 				array("skip_empty" => true, "encode" => true)
 			);
-			if(isset($_GET["list_section_id"]) && strlen($_GET["list_section_id"]) == 0)
+			if(isset($_GET["list_section_id"]) && $_GET["list_section_id"] == '')
 				$url = CHTTP::urlAddParams($url, array("list_section_id" => ""));
 
 			if(isset($arResult['EXTERNAL_CONTEXT']) && $arResult['EXTERNAL_CONTEXT'] !== '')
@@ -1121,7 +1121,7 @@ foreach($arResult["FIELDS"] as $FIELD_ID => $arField)
 			);
 			if($arField["MULTIPLE"] == "Y")
 			{
-				if(is_array($arField["DEFAULT_VALUE"]) || strlen($arField["DEFAULT_VALUE"]))
+				if(is_array($arField["DEFAULT_VALUE"]) || mb_strlen($arField["DEFAULT_VALUE"]))
 					$data[$FIELD_ID]["n1"] = array("VALUE" => "", "DESCRIPTION" => "");
 			}
 		}

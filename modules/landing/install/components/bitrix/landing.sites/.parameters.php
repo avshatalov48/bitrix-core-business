@@ -1,8 +1,10 @@
 <?php
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
+
+use \Bitrix\Landing\Rights;
 
 if (\Bitrix\Main\Loader::includeModule('landing'))
 {
@@ -19,6 +21,11 @@ $arComponentParameters = Array(
 			'NAME' => getMessage('LANDING_CMP_PAR_LANDING_TYPE'),
 			'TYPE' => 'LIST',
 			'VALUES' => $types
+		),
+		'ACCESS_CODE' => array(
+			'NAME' => getMessage('LANDING_CMP_PAR_ACCESS_CODE'),
+			'TYPE' => 'LIST',
+			'VALUES' => Rights::ACCESS_TYPES
 		),
 		'PAGE_URL_SITE' => array(
 			'NAME' => getMessage('LANDING_CMP_PAR_PAGE_URL_SITE'),

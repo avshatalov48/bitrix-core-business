@@ -37,6 +37,7 @@ $domains = $arResult['DOMAINS'];
 $row = $arResult['SITE'];
 $hooks = $arResult['HOOKS'];
 $request = \bitrix\Main\HttpContext::getCurrent()->getRequest();
+$landingKeys = array_keys($arResult['LANDINGS']);
 
 // title
 Manager::setPageTitle(
@@ -80,7 +81,7 @@ else
 	<input type="hidden" name="fields[LANDING_ID_INDEX]" value="<?= $row['LANDING_ID_INDEX']['CURRENT'];?>" />
 	<input type="hidden" name="fields[DOMAIN_ID]" value="<?= $domainName;?>" />
 	<?if (count($arResult['LANDINGS']) == 1):?>
-		<input name="fields[LANDING_ID_INDEX]" type="hidden" value="<?= array_pop(array_keys($arResult['LANDINGS']))?>" />
+		<input name="fields[LANDING_ID_INDEX]" type="hidden" value="<?= array_pop($landingKeys);?>" />
 	<?endif;?>
 	<?= bitrix_sessid_post();?>
 	<input type="hidden" name="fields[TITLE]" value="<?= $row['TITLE']['CURRENT'];?>" />
@@ -234,7 +235,7 @@ else
 		</div>
 	</div>
 
-	<div class="<?if ($request->get('IFRAME') == 'Y'){?>landing-edit-footer-fixed <?}?>pinable-block">
+	<div class="<?if (false && $request->get('IFRAME') == 'Y'){?>landing-edit-footer-fixed <?}?>pinable-block">
 		<div class="landing-form-footer-container">
 			<button id="landing-save-btn" type="submit" class="ui-btn ui-btn-success"  name="submit"  value="<?= Loc::getMessage('LANDING_TPL_BUTTON_SAVE')?>" id="" title="<?= Loc::getMessage('LANDING_TPL_BUTTON_SAVE_AND_SHOW')?>" >
 				<?= Loc::getMessage('LANDING_TPL_BUTTON_' . ($arParams['SITE_ID'] ? 'SAVE' : 'ADD'));?>

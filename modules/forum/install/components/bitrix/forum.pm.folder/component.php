@@ -18,9 +18,9 @@ endif;
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$arParams["FID"] = intVal(intVal($arParams["FID"]) <= 0 ? $_REQUEST["FID"] : $arParams["FID"]);
+	$arParams["FID"] = intval(intVal($arParams["FID"]) <= 0 ? $_REQUEST["FID"] : $arParams["FID"]);
 	$arParams["mode"] = $_REQUEST["mode"];
-	$action = strToLower($_REQUEST["action"]);
+$action = mb_strtolower($_REQUEST["action"]);
 	$version = COption::GetOptionString("forum", "UsePMVersion", "2");
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
@@ -30,14 +30,14 @@ endif;
 		"profile_view" => "PAGE_NAME=profile_view&UID=#UID#");
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
+		if (trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
+			$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
 		if (!empty($by)):
-			$arParams["~URL_TEMPLATES_".strToUpper($URL)] = ForumAddPageParams($arParams["URL_TEMPLATES_".strToUpper($URL)], 
+			$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = ForumAddPageParams($arParams["URL_TEMPLATES_".mb_strtoupper($URL)],
 				array("by" => $by, "order" => $order), false, false);
 		endif;
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 //	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
@@ -58,7 +58,7 @@ $arResult["URL"] = array(
 $arResult["POST_VALUES"] = array();
 
 $arResult["create_new_folder"] = $arResult["URL"]["FOLDER_NEW"];
-$arParams["version"] = intVal(COption::GetOptionString("forum", "UsePMVersion", "2"));
+$arParams["version"] = intval(COption::GetOptionString("forum", "UsePMVersion", "2"));
 
 $arResult["ERROR_MESSAGE"] = "";
 $arResult["OK_MESSAGE"] = "";
@@ -66,7 +66,7 @@ $arResult["OK_MESSAGE"] = "";
 $arError = array();
 
 if (!empty($_REQUEST["result"])):
-	switch (strToLower($_REQUEST["result"]))
+	switch(mb_strtolower($_REQUEST["result"]))
 	{
 		case "create":
 		case "save":
@@ -146,7 +146,7 @@ if (!empty($action))
 				$arFolders = (is_array($_REQUEST["FID"]) && !empty($_REQUEST["FID"]) ? $_REQUEST["FID"] : $arParams["FID"]);
 				foreach ($arFolders as $iFid):
 					$remMes = true;
-					$iFid = intVal($iFid);
+					$iFid = intval($iFid);
 					if ($iFid <= 0):
 					elseif (!CForumPMFolder::CheckPermissions($iFid)):
 						$arError[] = array(
@@ -186,7 +186,7 @@ if (!empty($action))
 								$componentRelativePath = CComponentEngine::MakeComponentPath($path);
 								$arComponentDescription = CComponentUtil::GetComponentDescr($path);
 
-								if (strLen($componentRelativePath) <= 0 || !is_array($arComponentDescription))
+								if ($componentRelativePath == '' || !is_array($arComponentDescription))
 									continue;
 								elseif (!array_key_exists("CACHE_PATH", $arComponentDescription))
 									continue;
@@ -241,7 +241,7 @@ $arResult["FOLDER"] = array();
 /*******************************************************************/
 if ($arParams["mode"] == "edit" || $arParams["mode"] == "new")
 {
-	if (intVal($arParams["FID"]) > 0)
+	if (intval($arParams["FID"]) > 0)
 	{
 		$db_res = CForumPMFolder::GetByID($arParams["FID"]);
 		if ($db_res && ($res = $db_res->GetNext()))
@@ -264,9 +264,9 @@ else
 		$db_res = CForumPrivateMessage::GetList(array(), $arFilter, true);
 		if ($db_res && ($res = $db_res->GetNext()))
 		{
-			$arResult["SYSTEM_FOLDER"][$ii]["cnt"] = intVal($res["CNT"]);
-			$arResult["SYSTEM_FOLDER"][$ii]["CNT"] = intVal($res["CNT"]);
-			$arResult["SYSTEM_FOLDER"][$ii]["CNT_NEW"] = intVal($res["CNT_NEW"]);
+			$arResult["SYSTEM_FOLDER"][$ii]["cnt"] = intval($res["CNT"]);
+			$arResult["SYSTEM_FOLDER"][$ii]["CNT"] = intval($res["CNT"]);
+			$arResult["SYSTEM_FOLDER"][$ii]["CNT_NEW"] = intval($res["CNT_NEW"]);
 		}
 		$arResult["SYSTEM_FOLDER"][$ii]["URL"] = array(
 			"FOLDER" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_LIST"], array("FID" => $ii)), 
@@ -288,8 +288,8 @@ else
 				"REMOVE" => ForumAddPageParams($arResult["CURRENT_PAGE"] , array("action" => "remove", "FID" => $res["ID"])), 
 				"EDIT" => ForumAddPageParams($arResult["CURRENT_PAGE"] , array("mode" => "edit", "FID" => $res["ID"])));
 			$res["pm_list"] = $res["URL"]["FOLDER"];
-			$res["CNT"] = intVal($res["CNT"]);
-			$res["CNT_NEW"] = intVal($res["CNT_NEW"]);
+			$res["CNT"] = intval($res["CNT"]);
+			$res["CNT_NEW"] = intval($res["CNT_NEW"]);
 			$res["delete"] =  $res["URL"]["DELETE"];
 			$res["remove"] = $res["URL"]["REMOVE"];
 			$res["edit"] = $res["URL"]["EDIT"];

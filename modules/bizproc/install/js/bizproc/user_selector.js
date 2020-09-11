@@ -476,7 +476,7 @@
 						attrs: {
 							className: 'bizproc-type-control-user-name'
 						},
-						html: options.text || ''
+						text: BX.util.htmlspecialcharsback(options.text || '')
 					}),
 					BX.create('span', {
 						attrs: {

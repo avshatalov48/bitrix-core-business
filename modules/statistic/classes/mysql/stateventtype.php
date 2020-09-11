@@ -47,10 +47,10 @@ class CStatEventType extends CAllStatEventType
 			$date2 = $arFilter["DATE2_PERIOD"];
 			$date_from = MkDateTime(ConvertDateTime($date1,"D.M.Y"),"d.m.Y");
 			$date_to = MkDateTime(ConvertDateTime($date2,"D.M.Y")." 23:59","d.m.Y H:i");
-			if (strlen($date1)>0)
+			if ($date1 <> '')
 			{
 				$filter_period = true;
-				if (strlen($date2)>0)
+				if ($date2 <> '')
 				{
 					$strSqlPeriod = "if(D.DATE_STAT<FROM_UNIXTIME('$date_from'),0, if(D.DATE_STAT>FROM_UNIXTIME('$date_to'),0,";
 					$strT="))";
@@ -61,7 +61,7 @@ class CStatEventType extends CAllStatEventType
 					$strT=")";
 				}
 			}
-			elseif (strlen($date2)>0)
+			elseif ($date2 <> '')
 			{
 				$filter_period = true;
 				$strSqlPeriod = "if(D.DATE_STAT>FROM_UNIXTIME('$date_to'),0,";
@@ -77,11 +77,11 @@ class CStatEventType extends CAllStatEventType
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if( ($val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -152,11 +152,11 @@ class CStatEventType extends CAllStatEventType
 		$rate = 1;
 		$base_currency = GetStatisticBaseCurrency();
 		$view_currency = $base_currency;
-		if (strlen($base_currency)>0)
+		if ($base_currency <> '')
 		{
 			if (CModule::IncludeModule("currency"))
 			{
-				if ($CURRENCY!=$base_currency && strlen($CURRENCY)>0)
+				if ($CURRENCY!=$base_currency && $CURRENCY <> '')
 				{
 					$rate = CCurrencyRates::GetConvertFactor($base_currency, $CURRENCY);
 					$view_currency = $CURRENCY;
@@ -373,7 +373,7 @@ class CStatEventType extends CAllStatEventType
 			$res = new CDBResult;
 			$res->InitFromArray($arResult);
 		}
-		$is_filtered = (IsFiltered($strSqlSearch) || $filter_period || strlen($strSqlSearch_h)>0 || $find_group!="");
+		$is_filtered = (IsFiltered($strSqlSearch) || $filter_period || $strSqlSearch_h <> '' || $find_group!="");
 		return $res;
 	}
 
@@ -394,11 +394,11 @@ class CStatEventType extends CAllStatEventType
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if( ($val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -491,11 +491,11 @@ class CStatEventType extends CAllStatEventType
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if( ($val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "DATE1":

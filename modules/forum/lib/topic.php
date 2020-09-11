@@ -195,7 +195,7 @@ class TopicTable extends Main\Entity\DataManager
 		if (array_key_exists("TITLE_SEO", $data) || array_key_exists("TITLE", $data))
 		{
 			$data["TITLE_SEO"] = trim($data["TITLE_SEO"], " -");
-			if (strlen($data["TITLE_SEO"]) <= 0)
+			if ($data["TITLE_SEO"] == '')
 			{
 				$title = array_key_exists("TITLE", $data) ? $data["TITLE"] : $topic["TITLE"];
 				$data["TITLE_SEO"] = \CUtil::translit($title, LANGUAGE_ID, array("max_len"=>255, "safe_chars"=>".", "replace_space" => '-'));
@@ -262,13 +262,24 @@ class Topic extends \Bitrix\Forum\Internals\Entity
 	public const APPROVED_APPROVED = "Y";
 	public const APPROVED_DISAPPROVED = "N";
 
+	public function __construct($id)
+	{
+		if ($id <= 0)
+		{
+			throw new \Bitrix\Main\ArgumentNullException("Topic id");
+		}
+		parent::__construct($id);
+	}
+
 	protected function init()
 	{
 		if (!($this->data = TopicTable::getById($this->id)->fetch()))
 		{
-			throw new \Bitrix\Main\ObjectNotFoundException("Topic with id {$this->id} is not found.");
+			throw new \Bitrix\Main\ObjectNotFoundException(Loc::getMessage("F_ERROR_TID_IS_LOST", ["#id#" => $this->id]));
 		}
 		$this->authorId = intval($this->data["USER_START_ID"]);
+		$this->data["~TITLE_SEO"] = $this->data["TITLE_SEO"];
+		$this->data["TITLE_SEO"] = implode("-", [$this->data["ID"], $this->data["TITLE_SEO"]]);
 	}
 
 	public function moveToForum(int $forumId)

@@ -315,23 +315,23 @@ class RestService extends \IRestService
 		$handlerData = parse_url($handler);
 
 		if (is_array($handlerData)
-			&& strlen($handlerData['host']) > 0
-			&& strpos($handlerData['host'], '.') > 0
+			&& $handlerData['host'] <> ''
+			&& mb_strpos($handlerData['host'], '.') > 0
 		)
 		{
 			if ($handlerData['scheme'] == 'http' || $handlerData['scheme'] == 'https')
 			{
 				$host = $handlerData['host'];
 				$app = self::getApp($server);
-				if (strlen($app['URL']) > 0)
+				if ($app['URL'] <> '')
 				{
 					$urls = array($app['URL']);
 
-					if (strlen($app['URL_DEMO']) > 0)
+					if ($app['URL_DEMO'] <> '')
 					{
 						$urls[] = $app['URL_DEMO'];
 					}
-					if (strlen($app['URL_INSTALL']) > 0)
+					if ($app['URL_INSTALL'] <> '')
 					{
 						$urls[] = $app['URL_INSTALL'];
 					}
@@ -407,9 +407,9 @@ class RestService extends \IRestService
 		{
 			foreach ($langFields['NAME'] as $langId => $langName)
 			{
-				$langData[strtolower($langId)] = array(
+				$langData[mb_strtolower($langId)] = array(
 					'APP_ID' => $langFields['APP_ID'],
-					'LANGUAGE_ID' => strtolower($langId),
+					'LANGUAGE_ID' => mb_strtolower($langId),
 					'NAME' => $langFields['NAME'][$langId],
 					'DESCRIPTION' => is_array($langFields['DESCRIPTION']) && isset($langFields['DESCRIPTION'][$langId])
 						? (string)$langFields['DESCRIPTION'][$langId] : null
@@ -467,7 +467,7 @@ class RestService extends \IRestService
 
 		while ($row = $orm->fetch())
 		{
-			$result[strtolower($row['LANGUAGE_ID'])] = $row['MENU_NAME'];
+			$result[mb_strtolower($row['LANGUAGE_ID'])] = $row['MENU_NAME'];
 		}
 
 		if (isset($result[LANGUAGE_ID]))

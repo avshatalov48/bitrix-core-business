@@ -1,5 +1,7 @@
 <?
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+/** @var \Bitrix\Bizproc\Activity\PropertiesDialog $dialog */
+
 if ($isAdmin):
 ?>
 <tr>

@@ -261,6 +261,32 @@ class MailMessageUidTable extends Entity\DataManager
 		return array_values($result);
 	}
 
+	/**
+	 * Merge data. Insert-update.
+	 *
+	 * @param array $insert Insert fields.
+	 * @param array $update Update fields.
+	 * @return void
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\Db\SqlQueryException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public static function mergeData(array $insert, array $update)
+	{
+		$entity = static::getEntity();
+		$connection = $entity->getConnection();
+		$helper = $connection->getSqlHelper();
+
+		$sql = $helper->prepareMerge($entity->getDBTableName(), $entity->getPrimaryArray(), $insert, $update);
+
+		$sql = current($sql);
+		if($sql <> '')
+		{
+			$connection->queryExecute($sql);
+			$entity->cleanCache();
+		}
+	}
+
 	public static function getMap()
 	{
 		return array(

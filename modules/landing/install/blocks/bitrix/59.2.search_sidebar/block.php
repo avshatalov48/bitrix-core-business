@@ -14,7 +14,7 @@ use \Bitrix\Main\Localization\Loc;
 				<input class="g-brd-none g-bg-transparent form-control g-px-0 g-font-size-12" type="text" name="q">
 			</div>
 			<div class="landing-block-node-button-container input-group-append g-z-index-4 g-bg-gray-light-v4 g-bg-gray-light-v5--hover g-color-gray-dark-v4 g-color-primary--hover">
-				<button class="btn font-weight-bold g-font-size-13 text-uppercase g-pl-20 g-pr-20"
+				<button class="btn g-font-weight-700 g-font-size-13 text-uppercase g-pl-20 g-pr-20"
 						type="submit">
 					<div class="d-none d-md-block"> MESS[LANDING_BLOCK_SEARCH] </div>
 					<i class="d-block d-md-none fa fa-search"></i>

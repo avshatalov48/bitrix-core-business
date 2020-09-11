@@ -12,7 +12,7 @@ class CAllForumMessage
 	//---------------> Message add, update, delete
 	public static function CanUserAddMessage($TID, $arUserGroups, $iUserID = 0, $ExternalPermission = false)
 	{
-		$TID = intVal($TID);
+		$TID = intval($TID);
 		$arTopic = ($TID > 0 ? CForumTopic::GetByID($TID) : false);
 		if ($arTopic)
 		{
@@ -35,7 +35,7 @@ class CAllForumMessage
 
 	public static function CanUserUpdateMessage($MID, $arUserGroups, $iUserID = 0, $ExternalPermission = false)
 	{
-		$MID = intVal($MID);
+		$MID = intval($MID);
 		$arMessage = CForumMessage::GetByIDEx($MID, array("GET_FORUM_INFO" => "Y", "GET_TOPIC_INFO" => "Y", "FILTER" => "N"));
 		$arTopic = $arMessage["TOPIC_INFO"];
 		$arForum = $arMessage["FORUM_INFO"];
@@ -54,13 +54,13 @@ class CAllForumMessage
 				return true;
 			if ($arTopic["STATE"] != "Y")
 				return false;
-			$iUserID = intVal($iUserID);
-			if ($iUserID <= 0 || intVal($arMessage["AUTHOR_ID"]) != $iUserID)
+			$iUserID = intval($iUserID);
+			if ($iUserID <= 0 || intval($arMessage["AUTHOR_ID"]) != $iUserID)
 				return false;
 			if (COption::GetOptionString("forum", "USER_EDIT_OWN_POST", "Y") == "Y")
 				return true;
 			$iCnt = CForumMessage::GetList(array("ID" => "ASC"), array("TOPIC_ID"=>$arTopic["ID"], ">ID"=>$MID), True);
-			if (intVal($iCnt) <= 0)
+			if (intval($iCnt) <= 0)
 				return true;
 		}
 		return false;
@@ -68,12 +68,12 @@ class CAllForumMessage
 
 	public static function CanUserDeleteMessage($MID, $arUserGroups, $iUserID = 0, $ExternalPermission = false)
 	{
-		$MID = intVal($MID);
+		$MID = intval($MID);
 		$arMessage = CForumMessage::GetByIDEx($MID, array("GET_FORUM_INFO" => "Y", "GET_TOPIC_INFO" => "N", "FILTER" => "N"));
 		$arForum = $arMessage["FORUM_INFO"];
 		if ($arMessage)
 		{
-			$FID = intVal($arMessage["FORUM_ID"]);
+			$FID = intval($arMessage["FORUM_ID"]);
 			if (!CForumUser::IsLocked($iUserID)):
 				$strPerms = ($ExternalPermission == false ? CForumNew::GetUserPermission($arForum["ID"], $arUserGroups) : $ExternalPermission);
 			else:
@@ -91,7 +91,7 @@ class CAllForumMessage
 	public static function CheckFields($ACTION, &$arFields, $ID = 0, $arParams = array())
 	{
 		$aMsg = array();
-		$ID = intVal($ID);
+		$ID = intval($ID);
 
 		$arMessage = $arFields;
 
@@ -101,7 +101,7 @@ class CAllForumMessage
 		}
 
 		$bDeduplication = true;
-		if ((is_set($arFields, "FORUM_ID") || $ACTION=="ADD") && intVal($arFields["FORUM_ID"])<=0)
+		if ((is_set($arFields, "FORUM_ID") || $ACTION=="ADD") && intval($arFields["FORUM_ID"])<=0)
 		{
 			$aMsg[] = array(
 				"id"=>'empty_forum_id',
@@ -109,7 +109,7 @@ class CAllForumMessage
 		}
 		else
 		{
-			$forumID = (($ACTION == 'ADD') ? intVal($arFields["FORUM_ID"]) : intVal($arMessage["FORUM_ID"]));
+			$forumID = (($ACTION == 'ADD') ? intval($arFields["FORUM_ID"]) : intval($arMessage["FORUM_ID"]));
 			$arForum = CForumNew::GetByID($forumID);
 			if (!is_array($arForum))
 			{
@@ -133,20 +133,20 @@ class CAllForumMessage
 			}
 		}
 
-		if ((is_set($arFields, "TOPIC_ID") || $ACTION=="ADD") && intVal($arFields["TOPIC_ID"])<=0)
+		if ((is_set($arFields, "TOPIC_ID") || $ACTION=="ADD") && intval($arFields["TOPIC_ID"])<=0)
 		{
 			$aMsg[] = array(
 				"id"=>'empty_topic_id',
 				"text" => GetMessage("F_ERR_EMPTY_TOPIC_ID"));
 		}
-		if ((is_set($arFields, "AUTHOR_NAME") || $ACTION=="ADD") && strLen($arFields["AUTHOR_NAME"])<=0)
+		if ((is_set($arFields, "AUTHOR_NAME") || $ACTION=="ADD") && $arFields["AUTHOR_NAME"] == '')
 		{
 			$aMsg[] = array(
 				"id"=>'empty_author_name',
 				"text" => GetMessage("F_ERR_EMPTY_AUTHOR_NAME"));
 		}
 
-		if ((is_set($arFields, "POST_MESSAGE") || $ACTION=="ADD") && strLen($arFields["POST_MESSAGE"])<=0 &&
+		if ((is_set($arFields, "POST_MESSAGE") || $ACTION=="ADD") && $arFields["POST_MESSAGE"] == '' &&
 				(!is_set($arFields, 'FILES') || sizeof($arFields['FILES']) < 1))
 		{
 			$aMsg[] = array(
@@ -161,7 +161,7 @@ class CAllForumMessage
 			{
 				$iCnt = CForumMessage::GetList(array(), array("TOPIC_ID" => $arMessage["TOPIC_ID"], "!ID" => $ID,
 					"AUTHOR_NAME" => $arMessage["AUTHOR_NAME"], "POST_MESSAGE_CHECK" => $arFields["POST_MESSAGE_CHECK"]), true);
-				if (intVal($iCnt)>0)
+				if (intval($iCnt)>0)
 				{
 					$aMsg[] = array(
 						"id"=>'message_already_exists',
@@ -207,7 +207,7 @@ class CAllForumMessage
 			unset($arFields["FILES"]);
 		}
 
-		if (intVal($arFields["TOPIC_ID"]) > 0)
+		if (intval($arFields["TOPIC_ID"]) > 0)
 		{
 			$res = CForumTopic::GetById($arFields["TOPIC_ID"]);
 			if (!$res)
@@ -234,20 +234,11 @@ class CAllForumMessage
 		else if(!$USER_FIELD_MANAGER->CheckFields("FORUM_MESSAGE", $ID, $arFields, (array_key_exists("USER_ID", $arFields) ? $arFields["USER_ID"] : false)))
 			return false;
 
-		if (is_set($arFields, "AUTHOR_ID") || $ACTION=="ADD") $arFields["AUTHOR_ID"] = intVal($arFields["AUTHOR_ID"]) <= 0 ? false : $arFields["AUTHOR_ID"];
+		if (is_set($arFields, "AUTHOR_ID") || $ACTION=="ADD") $arFields["AUTHOR_ID"] = intval($arFields["AUTHOR_ID"]) <= 0 ? false : $arFields["AUTHOR_ID"];
 		if (is_set($arFields, "USE_SMILES") || $ACTION=="ADD") $arFields["USE_SMILES"] = ($arFields["USE_SMILES"] == "N" ? "N" : "Y");
 		if (is_set($arFields, "NEW_TOPIC") || $ACTION=="ADD") $arFields["NEW_TOPIC"] = ($arFields["NEW_TOPIC"] == "Y" ? "Y" : "N");
 		if (is_set($arFields, "APPROVED") || $ACTION=="ADD") $arFields["APPROVED"] = ($arFields["APPROVED"] == "N" ? "N" : "Y");
 		if (is_set($arFields, "SOURCE_ID") || $ACTION=="ADD") $arFields["SOURCE_ID"] = ($arFields["SOURCE_ID"] == "EMAIL" ? "EMAIL" : "WEB");
-
-// ********************************* QUOTA ********************************* //
-//		if ((!empty($arFields["POST_MESSAGE"])) && (COption::GetOptionInt("main", "disk_space") > 0))
-//		{
-//			$quota = new CDiskQuota();
-//			if (!$quota->checkDiskQuota(strLen($arFields["POST_MESSAGE"])))
-//				return false;
-//		}
-// ********************************* QUOTA ********************************* //
 
 		return True;
 	}
@@ -255,7 +246,7 @@ class CAllForumMessage
 	public static function Update($ID, $arFields, $skip_counts = false, $strUploadDir = false)
 	{
 		global $DB, $USER_FIELD_MANAGER;
-		$ID = intVal($ID);
+		$ID = intval($ID);
 		$strSql = "";
 		$strUploadDir = ($strUploadDir === false ? "forum" : $strUploadDir);
 
@@ -289,7 +280,7 @@ class CAllForumMessage
 			$arFields["HTML"] = '';
 		endif;
 
-		if (is_set($arFields, "POST_DATE") && (strLen(trim($arFields["POST_DATE"])) <= 0))
+		if (is_set($arFields, "POST_DATE") && (trim($arFields["POST_DATE"]) == ''))
 		{
 			$strSql = ", POST_DATE=".$DB->GetNowFunction();
 			unset($arFields["POST_DATE"]);
@@ -301,7 +292,7 @@ class CAllForumMessage
 		}
 		else
 		{
-			if (strLen(trim($arFields["EDIT_DATE"])) <= 0)
+			if (trim($arFields["EDIT_DATE"]) == '')
 			{
 				$strSql .= ", EDIT_DATE=".$DB->GetNowFunction();
 				unset($arFields["EDIT_DATE"]);
@@ -368,9 +359,6 @@ class CAllForumMessage
 			CForumFiles::UpdateByID($arFiles, $res);
 		}
 /***************** Attach/******************************************/
-/***************** Quota *******************************************/
-		$_SESSION["SESS_RECOUNT_DB"] = "Y";
-
 		$USER_FIELD_MANAGER->Update("FORUM_MESSAGE", $ID, $arFields, (array_key_exists("USER_ID", $arFields) ? $arFields["USER_ID"] : false));
 /***************** Event onAfterMessageUpdate **********************/
 		foreach (GetModuleEvents("forum", "onAfterMessageUpdate", true) as $arEvent)
@@ -540,7 +528,7 @@ class CAllForumMessage
 	public static function Delete($ID)
 	{
 		global $DB, $USER_FIELD_MANAGER;
-		$ID = intVal($ID);
+		$ID = intval($ID);
 		$arMessage = array();
 		if ($ID > 0)
 			$arMessage = CForumMessage::GetByID($ID, array("FILTER" => "N"));
@@ -553,13 +541,13 @@ class CAllForumMessage
 				return false;
 		}
 /***************** /Event ******************************************/
-		$AUTHOR_ID = intVal($arMessage["AUTHOR_ID"]);
-		$TOPIC_ID = intVal($arMessage["TOPIC_ID"]);
-		$FORUM_ID = intVal($arMessage["FORUM_ID"]);
+		$AUTHOR_ID = intval($arMessage["AUTHOR_ID"]);
+		$TOPIC_ID = intval($arMessage["TOPIC_ID"]);
+		$FORUM_ID = intval($arMessage["FORUM_ID"]);
 
 		$DB->StartTransaction();
 		// delete votes
-		if ($arMessage["PARAM1"] == "VT" && intVal($arMessage["PARAM2"]) > 0 && IsModuleInstalled("vote")):
+		if ($arMessage["PARAM1"] == "VT" && intval($arMessage["PARAM2"]) > 0 && IsModuleInstalled("vote")):
 			CModule::IncludeModule("vote");
 			CVote::Delete($arMessage["PARAM2"]);
 		endif;
@@ -603,7 +591,7 @@ class CAllForumMessage
 	public static function GetByID($ID, $arAddParams = array())
 	{
 		global $DB;
-		$ID = intVal($ID);
+		$ID = intval($ID);
 		if ($ID <= 0):
 			return false;
 		endif;
@@ -644,7 +632,7 @@ class CAllForumMessage
 	public static function GetByIDEx($ID, $arAddParams = array())
 	{
 		global $DB;
-		$ID = intVal($ID);
+		$ID = intval($ID);
 		$res = false;
 		if ($ID <= 0)
 			return false;
@@ -709,16 +697,16 @@ class CAllForumMessage
 			if ($arAddParams["GET_TOPIC_INFO"] == "Y" && COption::GetOptionString("forum", "FILTER", "Y") == "Y"):
 				$arTopic = array();
 				foreach ($res as $key => $val):
-					if (substr($key, 0, 3) == "FT_")
-						$arTopic[substr($key, 3)] = $val;
+					if (mb_substr($key, 0, 3) == "FT_")
+						$arTopic[mb_substr($key, 3)] = $val;
 				endforeach;
 				if (!empty($arTopic)):
-					$GLOBALS["FORUM_CACHE"]["TOPIC"][intVal($res["TOPIC_INFO"]["ID"])] = $arTopic;
+					$GLOBALS["FORUM_CACHE"]["TOPIC"][intval($res["TOPIC_INFO"]["ID"])] = $arTopic;
 					$db_res_filter = new CDBResult;
 					$db_res_filter->InitFromArray(array($arTopic));
 					$db_res_filter = new _CTopicDBResult($db_res_filter);
 					if ($res_filter = $db_res_filter->Fetch())
-						$GLOBALS["FORUM_CACHE"]["TOPIC_FILTER"][intVal($res["TOPIC_INFO"]["ID"])] = $res_filter;
+						$GLOBALS["FORUM_CACHE"]["TOPIC_FILTER"][intval($res["TOPIC_INFO"]["ID"])] = $res_filter;
 				endif;
 			endif;
 			$db_res = new CDBResult;
@@ -731,18 +719,18 @@ class CAllForumMessage
 				$res["FORUM_INFO"] = array();
 				$res["MESSAGE_INFO"] = array();
 				foreach ($res as $key => $val):
-					if (substr($key, 0, 3) == "FT_")
-						$res["TOPIC_INFO"][substr($key, 3)] = $val;
-					elseif (substr($key, 0, 2) == "F_")
-						$res["FORUM_INFO"][substr($key, 2)] = $val;
+					if (mb_substr($key, 0, 3) == "FT_")
+						$res["TOPIC_INFO"][mb_substr($key, 3)] = $val;
+					elseif (mb_substr($key, 0, 2) == "F_")
+						$res["FORUM_INFO"][mb_substr($key, 2)] = $val;
 					else
 						$res["MESSAGE_INFO"][$key] = $val;
 				endforeach;
 				if (COption::GetOptionString("forum", "FILTER", "Y") != "Y" && !empty($res["TOPIC_INFO"])):
-					$GLOBALS["FORUM_CACHE"]["TOPIC"][intVal($res["TOPIC_INFO"]["ID"])] = $res["TOPIC_INFO"];
+					$GLOBALS["FORUM_CACHE"]["TOPIC"][intval($res["TOPIC_INFO"]["ID"])] = $res["TOPIC_INFO"];
 				endif;
 				if (!empty($res["FORUM_INFO"])):
-					$GLOBALS["FORUM_CACHE"]["FORUM"][intVal($res["FORUM_INFO"]["ID"])] = $res["FORUM_INFO"];
+					$GLOBALS["FORUM_CACHE"]["FORUM"][intval($res["FORUM_INFO"]["ID"])] = $res["FORUM_INFO"];
 				endif;
 			endif;
 			if ($arAddParams["getFiles"] == "Y" && !empty($res))
@@ -805,7 +793,7 @@ class CAllForumMessage
 	public static function SendMailMessage($MID, $arFields = array(), $strLang = false, $mailTemplate = false)
 	{
 		global $USER;
-		$MID = intVal($MID);
+		$MID = intval($MID);
 		$arMessage = array(); $arTopic = array(); $arForum = array(); $arFiles = array();
 		$mailTemplate = ($mailTemplate === false ? "NEW_FORUM_MESSAGE" : $mailTemplate);
 		$event = new CEvent;
@@ -829,8 +817,8 @@ class CAllForumMessage
 
 		$arTopic = $arMessage["TOPIC_INFO"];
 		$arForum = $arMessage["FORUM_INFO"];
-		$TID = intVal($arMessage["TOPIC_ID"]);
-		$FID = intVal($arMessage["FORUM_ID"]);
+		$TID = intval($arMessage["TOPIC_ID"]);
+		$FID = intval($arMessage["FORUM_ID"]);
 
 		if (!is_set($arFields, "FORUM_ID")) $arFields["FORUM_ID"] = $arMessage["FORUM_ID"];
 		if (!is_set($arFields, "FORUM_NAME")) $arFields["FORUM_NAME"] = $arForum["NAME"];
@@ -1036,8 +1024,8 @@ class CAllForumMessage
 
 	public static function GetFirstUnreadEx($FID, $TID, $arUserGroups) // out-of-date function
 	{
-		$FID = intVal($FID);
-		$TID = intVal($TID);
+		$FID = intval($FID);
+		$TID = intval($TID);
 		if ($FID<=0) return false;
 
 		$f_PERMISSION = CForumNew::GetUserPermission($FID, $arUserGroups);
@@ -1046,26 +1034,26 @@ class CAllForumMessage
 
 	public static function GetFirstUnread($FID, $TID, $PERMISSION) // out-of-date function
 	{
-		$FID = intVal($FID);
-		$TID = intVal($TID);
+		$FID = intval($FID);
+		$TID = intval($TID);
 		if ($FID<=0) return false;
-		if (strLen($PERMISSION)<=0) return false;
+		if ($PERMISSION == '') return false;
 
 		$MESSAGE_ID = 0;
 		$TOPIC_ID = 0;
 
 		$read_forum_cookie = COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_FORUM_0";
-		if (strLen($_SESSION["first_read_forum_".$FID])<=0 || intVal($_SESSION["first_read_forum_".$FID])<0)
+		if ($_SESSION["first_read_forum_".$FID] == '' || intval($_SESSION["first_read_forum_".$FID])<0)
 		{
-			if (isset($_COOKIE[$read_forum_cookie]) && strLen($_COOKIE[$read_forum_cookie])>0)
+			if (isset($_COOKIE[$read_forum_cookie]) && $_COOKIE[$read_forum_cookie] <> '')
 			{
 				$arForumCookie = explode("/", $_COOKIE[$read_forum_cookie]);
 				$i = 0;
 				while ($i < count($arForumCookie))
 				{
-					if (intVal($arForumCookie[$i])==$FID)
+					if (intval($arForumCookie[$i])==$FID)
 					{
-						$iCurFirstReadForum = intVal($arForumCookie[$i+1]);
+						$iCurFirstReadForum = intval($arForumCookie[$i+1]);
 						break;
 					}
 					$i += 2;
@@ -1073,24 +1061,24 @@ class CAllForumMessage
 			}
 
 			$read_forum_cookie1 = COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_FORUM_".$FID;
-			if (isset($_COOKIE[$read_forum_cookie1]) && intVal($_COOKIE[$read_forum_cookie1])>0)
+			if (isset($_COOKIE[$read_forum_cookie1]) && intval($_COOKIE[$read_forum_cookie1])>0)
 			{
-				if ($iCurFirstReadForum<intVal($_COOKIE[$read_forum_cookie1]))
+				if ($iCurFirstReadForum<intval($_COOKIE[$read_forum_cookie1]))
 				{
-					$iCurFirstReadForum = intVal($_COOKIE[$read_forum_cookie1]);
+					$iCurFirstReadForum = intval($_COOKIE[$read_forum_cookie1]);
 				}
 			}
 
-			$_SESSION["first_read_forum_".$FID] = intVal($iCurFirstReadForum);
+			$_SESSION["first_read_forum_".$FID] = intval($iCurFirstReadForum);
 		}
-		if (is_null($_SESSION["read_forum_".$FID]) || strLen($_SESSION["read_forum_".$FID])<=0)
+		if (is_null($_SESSION["read_forum_".$FID]) || $_SESSION["read_forum_".$FID] == '')
 		{
 			$_SESSION["read_forum_".$FID] = "0";
 		}
 
 		$arFilter = array("FORUM_ID" => $FID);
-		if (intVal($_SESSION["first_read_forum_" . $FID])>0)
-			$arFilter[">ID"] = intVal($_SESSION["first_read_forum_" . $FID]);
+		if (intval($_SESSION["first_read_forum_" . $FID])>0)
+			$arFilter[">ID"] = intval($_SESSION["first_read_forum_" . $FID]);
 		if ($_SESSION["read_forum_" . $FID]!="0")
 		{
 			$arFMIDsTmp = explode(",", $_SESSION["read_forum_" . $FID]);
@@ -1098,13 +1086,13 @@ class CAllForumMessage
 			{
 				for ($i1 = 0; $i1<count($arFMIDsTmp); $i1++)
 				{
-					if (intVal($_SESSION["first_read_forum_" . $FID]) < intVal($arFMIDsTmp[$i1]))
+					if (intval($_SESSION["first_read_forum_" . $FID]) < intval($arFMIDsTmp[$i1]))
 					{
-						$_SESSION["first_read_forum_" . $FID] = intVal($arFMIDsTmp[$i1]);
+						$_SESSION["first_read_forum_" . $FID] = intval($arFMIDsTmp[$i1]);
 					}
 				}
 				$_SESSION["read_forum_" . $FID] = "0";
-				$arFilter[">ID"] = intVal($_SESSION["first_read_forum_" . $FID]);
+				$arFilter[">ID"] = intval($_SESSION["first_read_forum_" . $FID]);
 			}
 			else
 			{
@@ -1180,7 +1168,7 @@ class CAllForumMessage
 	{
 		$arMentionedUserID = array();
 
-		if (strlen($strMessage) > 0)
+		if ($strMessage <> '')
 		{
 			preg_match_all("/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/is".BX_UTF_PCRE_MODIFIER, $strMessage, $arMention);
 			if (!empty($arMention))
@@ -1253,7 +1241,7 @@ class _CMessageDBResult extends CDBResult
 						$arFields["POST_MESSAGE_HTML"] = $parser->convert($POST_MESSAGE_HTML, $allow, "html", $arFiles);
 					}
 					$strUpdate = $DB->PrepareUpdate("b_forum_message", $arFields);
-					$strSql = "UPDATE b_forum_message SET ".$strUpdate." WHERE ID = ".intVal($res["ID"]);
+					$strSql = "UPDATE b_forum_message SET ".$strUpdate." WHERE ID = ".intval($res["ID"]);
 					if ($DB->QueryBind($strSql, $arFields, false, "File: ".__FILE__."<br>Line: ".__LINE__))
 					{
 						foreach ($arFields as $key => $val)
@@ -1285,7 +1273,7 @@ class _CMessageDBResult extends CDBResult
 						}
 						$arFields = array("HTML" => serialize($arr));
 						$strUpdate = $DB->PrepareUpdate("b_forum_message", $arFields);
-						$strSql = "UPDATE b_forum_message SET ".$strUpdate." WHERE ID = ".intVal($res["ID"]);
+						$strSql = "UPDATE b_forum_message SET ".$strUpdate." WHERE ID = ".intval($res["ID"]);
 						$DB->QueryBind($strSql, $arFields, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 					}
 					foreach ($arr as $key => $val)
@@ -1405,11 +1393,11 @@ class CALLForumFiles
 		$aMsg = array();
 		$arFiles = (!is_array($arFields) ? array($arFields) : $arFields);
 		$arParams = (!is_array($arParams) ? array($arParams) : $arParams);
-		$arParams["FORUM_ID"] = intVal($arParams["FORUM_ID"]);
+		$arParams["FORUM_ID"] = intval($arParams["FORUM_ID"]);
 		if (isset($arParams["TOPIC_ID"]))
-			$arParams["TOPIC_ID"] = intVal($arParams["TOPIC_ID"]);
-		$arParams["MESSAGE_ID"] = intVal($arParams["MESSAGE_ID"]);
-		$arParams["USER_ID"] = intVal($arParams["USER_ID"]);
+			$arParams["TOPIC_ID"] = intval($arParams["TOPIC_ID"]);
+		$arParams["MESSAGE_ID"] = intval($arParams["MESSAGE_ID"]);
+		$arParams["USER_ID"] = intval($arParams["USER_ID"]);
 
 		if (empty($arFiles))
 			return true;
@@ -1435,13 +1423,13 @@ class CALLForumFiles
 		endif;
 		if (empty($aMsg)):
 			$arFilesExists = array();
-			$iFileSize = intVal(COption::GetOptionString("forum", "file_max_size", 5242880));
+			$iFileSize = intval(COption::GetOptionString("forum", "file_max_size", 5242880));
 			foreach ($arFiles as $key => $val):
 				$res = "";
-				if (strLen($val["name"]) <= 0 && intVal($val["FILE_ID"]) <= 0):
+				if ($val["name"] == '' && intval($val["FILE_ID"]) <= 0):
 					unset($arFiles[$key]);
 					continue;
-				elseif (strLen($val["name"]) > 0):
+				elseif ($val["name"] <> ''):
 					if ($arForum["ALLOW_UPLOAD"] == "Y"):
 						$res = CFile::CheckImageFile($val, $iFileSize, 0, 0);
 					elseif ($arForum["ALLOW_UPLOAD"] == "F"):
@@ -1449,7 +1437,7 @@ class CALLForumFiles
 					else:
 						$res = CFile::CheckFile($val, $iFileSize, false, false);
 					endif;
-					if (strLen($res) > 0)
+					if ($res <> '')
 					{
 						$aMsg[] = array(
 							"id"=>'attach_error',
@@ -1457,7 +1445,7 @@ class CALLForumFiles
 					}
 				endif;
 
-				if (intVal($val["FILE_ID"]) > 0):
+				if (intval($val["FILE_ID"]) > 0):
 					$arFiles[$key]["old_file"] = $val["FILE_ID"];
 					$arFilesExists[$val["FILE_ID"]] = $val;
 					continue;
@@ -1548,14 +1536,14 @@ class CALLForumFiles
 		$arFields = (is_array($arFields) ? $arFields : array($arFields));
 		$res = array();
 		foreach ($ID as $val):
-			$val = intVal($val);
+			$val = intval($val);
 			if ($val > 0)
 				$res[] = $val;
 		endforeach;
 		$ID = $res;
 		$res = array();
 		foreach ($arFields as $key => $val):
-			if (intVal($val) > 0 && in_array($key, array("FORUM_ID", "TOPIC_ID", "MESSAGE_ID")))
+			if (intval($val) > 0 && in_array($key, array("FORUM_ID", "TOPIC_ID", "MESSAGE_ID")))
 				$res[$key] = $val;
 		endforeach;
 		$arFields = $res;
@@ -1574,14 +1562,14 @@ class CALLForumFiles
 		$arSQL = array();
 		if (empty($arFields))
 			return false;
-		if (intVal($arFields["FILE_ID"]) > 0)
-			$arSQL[] = "FILE_ID=".intVal($arFields["FILE_ID"]);
-		if (intVal($arFields["MESSAGE_ID"]) > 0 && (!empty($arSQL) || $arParams["DELETE_MESSAGE_FILE"] == "Y"))
-			$arSQL[] = "MESSAGE_ID=".intVal($arFields["MESSAGE_ID"]);
-		if (intVal($arFields["TOPIC_ID"]) > 0 && (!empty($arSQL) || $arParams["DELETE_TOPIC_FILE"] == "Y"))
-			$arSQL[] = "TOPIC_ID=".intVal($arFields["TOPIC_ID"]);
-		if (intVal($arFields["FORUM_ID"]) > 0 && (!empty($arSQL) || $arParams["DELETE_FORUM_FILE"] == "Y"))
-			$arSQL[] = "FORUM_ID=".intVal($arFields["FORUM_ID"]);
+		if (intval($arFields["FILE_ID"]) > 0)
+			$arSQL[] = "FILE_ID=".intval($arFields["FILE_ID"]);
+		if (intval($arFields["MESSAGE_ID"]) > 0 && (!empty($arSQL) || $arParams["DELETE_MESSAGE_FILE"] == "Y"))
+			$arSQL[] = "MESSAGE_ID=".intval($arFields["MESSAGE_ID"]);
+		if (intval($arFields["TOPIC_ID"]) > 0 && (!empty($arSQL) || $arParams["DELETE_TOPIC_FILE"] == "Y"))
+			$arSQL[] = "TOPIC_ID=".intval($arFields["TOPIC_ID"]);
+		if (intval($arFields["FORUM_ID"]) > 0 && (!empty($arSQL) || $arParams["DELETE_FORUM_FILE"] == "Y"))
+			$arSQL[] = "FORUM_ID=".intval($arFields["FORUM_ID"]);
 		if (empty($arSQL))
 			return false;
 		$db_res = $DB->Query("SELECT * from b_forum_file where ".implode(" AND ", $arSQL), false, "FILE: ".__FILE__." LINE:".__LINE__);

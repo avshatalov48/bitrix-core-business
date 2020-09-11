@@ -20,7 +20,7 @@
 										Yhdte Jit Iurrw Joksmns Iooldf
 									</div>
 									<div class="landing-block-node-button-container">
-										<a class="landing-block-node-img-button landing-semantic-link-image-medium btn btn-md u-btn-outline-white g-font-size-11 g-brd-2 rounded-0 g-px-25"
+										<a class="landing-block-node-img-button landing-semantic-link-image-medium btn g-btn-type-outline g-btn-white g-btn-size-md g-btn-px-m rounded-0"
 										   href="#">Learn More</a>
 									</div>
 								</div>
@@ -48,7 +48,7 @@
 										Ut pulvinar tellus jhsed sed elit
 									</div>
 									<div class="landing-block-node-button-container">
-										<a class="landing-block-node-img-button landing-semantic-link-image-medium btn btn-md u-btn-outline-white g-font-size-11 g-brd-2 rounded-0 g-px-25"
+										<a class="landing-block-node-img-button landing-semantic-link-image-medium btn g-btn-type-outline g-btn-white g-btn-size-md g-btn-px-m rounded-0"
 										   href="#">Learn More</a>
 									</div>
 								</div>

@@ -14,7 +14,7 @@ return [
 						<div class="landing-block-node-menu-contact-title d-inline-block g-color-gray-dark-v5">
 							Phone Number:
 						</div>
-						<a href="tel:+4554554554" class="landing-block-node-menu-contact-link d-inline-block font-weight-bold g-color-gray-dark-v2">
+						<a href="tel:+4554554554" class="landing-block-node-menu-contact-link d-inline-block g-font-weight-700 g-color-gray-dark-v2">
 							+4 554 554 554
 						</a>
 					</div>',
@@ -35,7 +35,7 @@ return [
 						<div class="landing-block-node-menu-contact-title d-inline-block g-color-gray-dark-v5">
 							Opening time:
 						</div>
-						<div class="landing-block-node-menu-contact-text d-inline-block font-weight-bold g-color-gray-dark-v2">
+						<div class="landing-block-node-menu-contact-text d-inline-block g-font-weight-700 g-color-gray-dark-v2">
 							Mon-Sat: 08.00 -18.00
 						</div>
 					</div>',

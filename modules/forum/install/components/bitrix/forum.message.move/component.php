@@ -11,12 +11,12 @@ endif;
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$arParams["FID"] = intVal(empty($arParams["FID"]) ? $_REQUEST["FID"] : $arParams["FID"]);
-	$arParams["TID"] = intVal(empty($arParams["TID"]) ? $_REQUEST["TID"] : $arParams["TID"]);
+	$arParams["FID"] = intval(empty($arParams["FID"]) ? $_REQUEST["FID"] : $arParams["FID"]);
+	$arParams["TID"] = intval(empty($arParams["TID"]) ? $_REQUEST["TID"] : $arParams["TID"]);
 	$arParams["MID"] = empty($arParams["MID"]) ? $_REQUEST["MID"] : $arParams["MID"];
-	$arParams["newTID"] = intVal($_REQUEST["newTID"]);
-	$arParams["action"] = strToUpper($_REQUEST["ACTION"]);
-	$arParams["newFID"] = intVal($_REQUEST["newFID"]);
+	$arParams["newTID"] = intval($_REQUEST["newTID"]);
+$arParams["action"] = mb_strtoupper($_REQUEST["ACTION"]);
+	$arParams["newFID"] = intval($_REQUEST["newFID"]);
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
 		"index" => "",
@@ -30,10 +30,10 @@ endif;
 		"topic_search" => "PAGE_NAME=topic_search");
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		if (trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
+			$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["USER_FIELDS"] = (is_array($arParams["USER_FIELDS"]) ? $arParams["USER_FIELDS"] : array($arParams["USER_FIELDS"]));
@@ -42,8 +42,8 @@ endif;
 	$arParams["PATH_TO_SMILE"] = "";
 	$arParams["PATH_TO_ICON"] = "";
 
-	$arParams["WORD_LENGTH"] = intVal($arParams["WORD_LENGTH"]);
-	$arParams["IMAGE_SIZE"] = (intVal($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 300);
+	$arParams["WORD_LENGTH"] = intval($arParams["WORD_LENGTH"]);
+	$arParams["IMAGE_SIZE"] = (intval($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 300);
 
 	// Data and data-time format
 	$arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
@@ -147,7 +147,7 @@ $arResult["PARSER"] = $parser;
 /********************************************************************
 				Action
 ********************************************************************/
-if (intVal($_REQUEST["step"]) == 1)
+if (intval($_REQUEST["step"]) == 1)
 {
 	$message = array_keys($arResult["MESSAGE_LIST"]);
 	$arError = array();
@@ -162,14 +162,14 @@ if (intVal($_REQUEST["step"]) == 1)
 		else:
 			$arError[] = array("id" => "bad_move", "text" => $strErrorMessage);
 		endif;
-	elseif ($arParams["action"] == "MOVE_TO_NEW" && strLen(trim($_REQUEST["TITLE"])) <= 0):
+	elseif ($arParams["action"] == "MOVE_TO_NEW" && trim($_REQUEST["TITLE"]) == ''):
 		$arError[] = array("id" => "bad_move", "text" => GetMessage('FM_ERR_NO_DATA'));
 	elseif ($arParams["action"] == "MOVE_TO_NEW"):
 		$arFields = array(
 			"TITLE"=>trim($_REQUEST["TITLE"]),
 			"TITLE_SEO"=>trim($_REQUEST["TITLE_SEO"]),
 			"DESCRIPTION"=>trim($_REQUEST["DESCRIPTION"]),
-			"ICON"=>intVal($_REQUEST["ICON"]),
+			"ICON"=>intval($_REQUEST["ICON"]),
 			"TAGS" => $_REQUEST["TAGS"]);
 		if (ForumMoveMessage($arParams["FID"], $arParams["TID"], $message, 0, $arFields, $strErrorMessage, $strOKMessage)):
 			$res = CForumMessage::GetByIDEx($message[0], array("GET_TOPIC_INFO" => "Y"));
@@ -194,7 +194,7 @@ if (intVal($_REQUEST["step"]) == 1)
 		}
 		$arResult["VALUES"]["TITLE"] = htmlspecialcharsEx($_REQUEST["TITLE"]);
 		$arResult["VALUES"]["DESCRIPTION"] = htmlspecialcharsEx($_REQUEST["DESCRIPTION"]);
-		$arResult["VALUES"]["ICON"] = intVal($_REQUEST["ICON"]);
+		$arResult["VALUES"]["ICON"] = intval($_REQUEST["ICON"]);
 	endif;
 	$arResult["OK_MESSAGE"] .= $strOKMessage;
 }
@@ -223,9 +223,9 @@ foreach ($arResult["MESSAGE_LIST"] as $key => $res)
 /************** Message info/***************************************/
 
 /************** Author info ****************************************/
-	$res["AUTHOR_ID"] = intVal($res["AUTHOR_ID"]);
+	$res["AUTHOR_ID"] = intval($res["AUTHOR_ID"]);
 	// Avatar
-	if (strLen($res["AVATAR"]) > 0):
+	if ($res["AVATAR"] <> ''):
 		$res["AVATAR"] = array("ID" => $res["AVATAR"]);
 		$res["AVATAR"]["FILE"] = CFile::GetFileArray($res["AVATAR"]["ID"]);
 		$res["AVATAR"]["HTML"] = CFile::ShowImage($res["AVATAR"]["FILE"], COption::GetOptionString("forum", "avatar_max_width", 100),
@@ -237,7 +237,7 @@ foreach ($arResult["MESSAGE_LIST"] as $key => $res)
 	$res["AUTHOR_NAME"] = $parser->wrap_long_words($res["AUTHOR_NAME"]);
 	$res["DESCRIPTION"] = $parser->wrap_long_words($res["DESCRIPTION"]);
 	$res["SIGNATURE"] = "";
-	if ($arResult["FORUM"]["ALLOW_SIGNATURE"] == "Y" && strlen($res["~SIGNATURE"]) > 0)
+	if ($arResult["FORUM"]["ALLOW_SIGNATURE"] == "Y" && $res["~SIGNATURE"] <> '')
 	{
 		$arAllow["SMILES"] = "N";
 		$res["SIGNATURE"] = $parser->convert($res["~SIGNATURE"], $arAllow);

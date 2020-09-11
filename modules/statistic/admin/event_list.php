@@ -32,13 +32,13 @@ if (is_array($ARR_DELETE) && $STAT_RIGHT>="W" && check_bitrix_sessid())
 	}
 }
 $base_currency = GetStatisticBaseCurrency();
-if (strlen($base_currency)>0)
+if ($base_currency <> '')
 {
 	if (CModule::IncludeModule("currency"))
 	{
 		$currency_module = "Y";
 		$base_currency = GetStatisticBaseCurrency();
-		$view_currency = (strlen($find_currency)>0 && $find_currency!="NOT_REF") ? $find_currency : $base_currency;
+		$view_currency = ($find_currency <> '' && $find_currency!="NOT_REF") ? $find_currency : $base_currency;
 		$arrCurrency = array();
 		$rsCur = CCurrency::GetList(($v1="sort"), ($v2="asc"));
 		$arrRefID = array();
@@ -142,7 +142,7 @@ if(($arID = $lAdmin->GroupAction()) && $STAT_RIGHT=="W")
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
 		$ID = intval($ID);
 		switch($_REQUEST['action'])
@@ -249,7 +249,7 @@ $arHeaders = array(
 if($STAT_RIGHT>"M")
 	$arHeaders[]=
 		array(	"id"		=>"MONEY",
-			"content"	=>GetMessage("STAT_MONEY").(strlen($view_currency)>0?"<br>(".htmlspecialcharsEx($view_currency).")":""),
+			"content"	=>GetMessage("STAT_MONEY").($view_currency <> ''?"<br>(".htmlspecialcharsEx($view_currency).")":""),
 			"sort"		=>"s_money",
 			"align"		=>"right",
 			"default"	=>true,
@@ -262,7 +262,7 @@ while($arRes = $rsData->NavNext(true, "f_")):
 	$row =& $lAdmin->AddRow($f_ID, $arRes);
 
 	if($f_TYPE_ID>0):
-		$strHTML='<a href="event_type_list.php?lang='.LANG.'&amp;find_id='.$f_TYPE_ID.'&amp;find_id_exact_match=Y&amp;set_filter=Y" title="ID = '.$f_TYPE_ID.(strlen($f_EVENT1)>0?"\nevent1 = ".$f_EVENT1 : "").(strlen($f_EVENT2)>0?"\nevent2 = ".$f_EVENT2:"").(strlen($f_NAME)>0?"\n".GetMessage("STAT_NAME")." ".$f_NAME:"").(strlen($f_DESCRIPTION)>0?"\n".GetMessage("STAT_DESCRIPTION")." ".$f_DESCRIPTION:"").'">'.$f_TYPE_ID.'</a>';
+		$strHTML='<a href="event_type_list.php?lang='.LANG.'&amp;find_id='.$f_TYPE_ID.'&amp;find_id_exact_match=Y&amp;set_filter=Y" title="ID = '.$f_TYPE_ID.($f_EVENT1 <> ''?"\nevent1 = ".$f_EVENT1 : "").($f_EVENT2 <> ''?"\nevent2 = ".$f_EVENT2:"").($f_NAME <> ''?"\n".GetMessage("STAT_NAME")." ".$f_NAME:"").($f_DESCRIPTION <> ''?"\n".GetMessage("STAT_DESCRIPTION")." ".$f_DESCRIPTION:"").'">'.$f_TYPE_ID.'</a>';
 	else:
 		$strHTML='&nbsp;';
 	endif;
@@ -284,7 +284,7 @@ while($arRes = $rsData->NavNext(true, "f_")):
 	endif;
 	$row->AddViewField("GUEST_ID", $strHTML);
 
-	if(strlen($f_COUNTRY_ID)>0):
+	if($f_COUNTRY_ID <> ''):
 		$strHTML="[".$f_COUNTRY_ID."] ".$f_COUNTRY_NAME;
 	else:
 		$strHTML='&nbsp;';

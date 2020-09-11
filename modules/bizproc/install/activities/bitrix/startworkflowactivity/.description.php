@@ -4,7 +4,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 $arActivityDescription = array(
 	"NAME" => GetMessage("BPSWFA_DESCR_NAME"),
 	"DESCRIPTION" => GetMessage("BPSWFA_DESCR_DESCR"),
-	"TYPE" => "activity",
+	"TYPE" => ["activity"],
 	"CLASS" => "StartWorkflowActivity",
 	"JSCLASS" => "BizProcActivity",
 	"CATEGORY" => array(
@@ -16,5 +16,17 @@ $arActivityDescription = array(
 			"TYPE" => "string",
 		),
 	),
+	"ROBOT_SETTINGS" => array(
+		'CATEGORY' => 'employee'
+	)
 );
+
+if(
+	isset($documentType)
+	&& $documentType[0] === 'crm'
+	&& \Bitrix\Crm\Automation\Factory::canUseBizprocDesigner()
+)
+{
+	$arActivityDescription['TYPE'][] = 'robot_activity';
+}
 ?>

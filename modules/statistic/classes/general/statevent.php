@@ -10,7 +10,7 @@ class CAllStatEvent
 		$s = "";
 
 		$COUNTRY_ID = $_SESSION["SESS_COUNTRY_ID"];
-		if (strlen($_SESSION["SESS_COUNTRY_ID"])<=0) $COUNTRY_ID = "N0";
+		if ($_SESSION["SESS_COUNTRY_ID"] == '') $COUNTRY_ID = "N0";
 
 		$s .= $_SESSION["SESS_SESSION_ID"].".".$_SESSION["SESS_GUEST_ID"].".".$COUNTRY_ID;
 
@@ -23,7 +23,7 @@ class CAllStatEvent
 			if (defined("ADMIN_SECTION") && ADMIN_SECTION===true) $site_id = "";
 			elseif (defined("SITE_ID")) $site_id = SITE_ID;
 		}
-		if (strlen($site_id)>0) $s .= ".".$site_id;
+		if ($site_id <> '') $s .= ".".$site_id;
 		else $s .= ".";
 
 		$encode = COption::GetOptionString("statistic","EVENT_GID_BASE64_ENCODE");
@@ -44,7 +44,7 @@ class CAllStatEvent
 		$event2 = trim($event2);
 		$event3 = trim($event3);
 
-		if(strlen($event1)<=0 && strlen($event2)<=0)
+		if($event1 == '' && $event2 == '')
 			return array("EVENT_ID"=>0, "TYPE_ID"=>0, "EID"=>0);
 
 		//Check if register event for searcher
@@ -77,7 +77,7 @@ class CAllStatEvent
 		}
 		else
 		{
-			if (strlen(trim($site_id))>0)
+			if (trim($site_id) <> '')
 			{
 				$sql_site = "'".$DB->ForSql($site_id,2)."'";
 			}
@@ -90,10 +90,10 @@ class CAllStatEvent
 
 		$money = doubleval($money);
 		// convert when currency specified
-		if (strlen(trim($currency))>0)
+		if (trim($currency) <> '')
 		{
 			$base_currency = GetStatisticBaseCurrency();
-			if (strlen($base_currency)>0)
+			if ($base_currency <> '')
 			{
 				if ($currency!=$base_currency)
 				{
@@ -113,8 +113,8 @@ class CAllStatEvent
 		$sql_KEEP_DAYS = (intval($arEventType["KEEP_DAYS"])>0) ? intval($arEventType["KEEP_DAYS"]) : "null";
 
 		$arr = false;
-		$referer_url = strlen($_SERVER["HTTP_REFERER"])<=0 ? $_SESSION["SESS_HTTP_REFERER"] : $_SERVER["HTTP_REFERER"];
-		if (strlen($referer_url)>0)
+		$referer_url = $_SERVER["HTTP_REFERER"] == '' ? $_SESSION["SESS_HTTP_REFERER"] : $_SERVER["HTTP_REFERER"];
+		if ($referer_url <> '')
 		{
 			if($url = @parse_url($referer_url))
 			{
@@ -122,7 +122,7 @@ class CAllStatEvent
 				$arr = $rs->Fetch();
 			}
 		}
-		$sql_referer_site_id = is_array($arr) && (strlen($arr["ID"]) > 0)? "'".$DB->ForSql($arr["ID"],2)."'": "null";
+		$sql_referer_site_id = is_array($arr) && ($arr["ID"] <> '')? "'".$DB->ForSql($arr["ID"],2)."'": "null";
 		$HIT_ID = CKeepStatistics::GetCuurentHitID();
 
 		$arFields = Array(
@@ -150,7 +150,7 @@ class CAllStatEvent
 		$eid = $DB->Insert("b_stat_event_list", $arFields, $err_mess.__LINE__);
 
 		// in case of first occurence
-		if (strlen($arEventType["DATE_ENTER"])<=0)
+		if ($arEventType["DATE_ENTER"] == '')
 		{
 			// set date of the first event
 			$arFields =  Array("DATE_ENTER"=>$DB->GetNowFunction());
@@ -207,7 +207,7 @@ class CAllStatEvent
 		$DB->Update("b_stat_day", $arFields, "WHERE ".CStatistics::DBDateCompare("DATE_STAT"), $err_mess.__LINE__,false,false,false);
 
 		// when site defined
-		if (strlen($site_id)>0)
+		if ($site_id <> '')
 		{
 			// update site
 			$arFields = Array("C_EVENTS" => "C_EVENTS+1");
@@ -317,7 +317,7 @@ class CAllStatEvent
 		// todays traffic counters
 		CTraffic::IncParam(array("EVENT" => 1), array("EVENT" => 1));
 
-		if (strlen($_SESSION["SESS_COUNTRY_ID"])>0)
+		if ($_SESSION["SESS_COUNTRY_ID"] <> '')
 			CStatistics::UpdateCountry($_SESSION["SESS_COUNTRY_ID"], Array("C_EVENTS" => 1));
 		if ($_SESSION["SESS_CITY_ID"] > 0)
 			CStatistics::UpdateCity($_SESSION["SESS_CITY_ID"], Array("C_EVENTS" => 1));
@@ -335,7 +335,7 @@ class CAllStatEvent
 	public static function AddByEvents($EVENT1, $EVENT2, $EVENT3, $DATE_ENTER, $PARAM, $MONEY="", $CURRENCY="", $CHARGEBACK="N")
 	{
 		$EVENT_ID = CStatEvent::SetEventType($EVENT1, $EVENT2, $arEventType);
-		if ($EVENT_ID>0 && strlen($PARAM)>0)
+		if ($EVENT_ID>0 && $PARAM <> '')
 		{
 			return CStatEvent::Add($EVENT_ID, $EVENT3, $DATE_ENTER, $PARAM, $MONEY, $CURRENCY, $CHARGEBACK);
 		}
@@ -397,20 +397,20 @@ class CAllStatEvent
 		$gid = intval($ar[2]);
 		$base64 = "Y";
 
-		if ((count($ar)==6 || count($ar)==7) && $sid>0 && $gid>0 && strlen($ar[1])==strlen($sid) && strlen($ar[2])==strlen($gid)) $base64 = "N";
+		if ((count($ar)==6 || count($ar)==7) && $sid>0 && $gid>0 && mb_strlen($ar[1]) == mb_strlen($sid) && mb_strlen($ar[2]) == mb_strlen($gid)) $base64 = "N";
 		if ($base64=="Y")
 		{
 			$group_site_id = GetStatGroupSiteID();
-			$s = substr($EVENT_GID,strlen($group_site_id)+1,strlen($EVENT_GID));
+			$s = mb_substr($EVENT_GID, mb_strlen($group_site_id) + 1, mb_strlen($EVENT_GID));
 			$EVENT_GID = $group_site_id.".".base64_decode($s);
 		}
 		$arr = explode(".",$EVENT_GID);
 		$SESSION_ID = (intval($arr[1])>0) ? intval($arr[1]) : "";
 		$GUEST_ID = (intval($arr[2])>0) ? intval($arr[2]) : "";
-		$COUNTRY_ID = (strlen($arr[3])>0) ? $arr[3] : "";
+		$COUNTRY_ID = ($arr[3] <> '') ? $arr[3] : "";
 		$ADV_ID = (intval($arr[4])>0) ? intval($arr[4]) : "";
 		$ADV_BACK = ($arr[5]=="Y" || $arr[5]=="N") ? $arr[5] : "";
-		$SITE_ID = (strlen($arr[6])>0) ? $arr[6] : "";
+		$SITE_ID = ($arr[6] <> '') ? $arr[6] : "";
 
 		$arrRes = array(
 			"SESSION_ID" => $SESSION_ID,
@@ -456,11 +456,11 @@ class CAllStatEvent
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if( ($val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "EVENT3":

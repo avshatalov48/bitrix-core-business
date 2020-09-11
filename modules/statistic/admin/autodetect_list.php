@@ -114,7 +114,7 @@ if($STAT_RIGHT >= "W" && check_bitrix_sessid())
 
 		foreach($arID as $ID)
 		{
-			if(strlen($ID)<=0)
+			if($ID == '')
 				continue;
 			switch($_REQUEST['action'])
 			{

@@ -243,10 +243,10 @@ class ListsElementEditAjaxController extends Controller
 		$nameTemplate = CSite::GetNameFormat(false);
 		foreach($rights as $right)
 		{
-			$res = strpos($right['GROUP_CODE'], 'U');
+			$res = mb_strpos($right['GROUP_CODE'], 'U');
 			if($right['TASK_ID'] == $idRight && $res === 0)
 			{
-				$userId = substr($right['GROUP_CODE'], 1);
+				$userId = mb_substr($right['GROUP_CODE'], 1);
 				$users = CUser::GetList($by="id", $order="asc",
 					array('ID' => $userId),
 					array('FIELDS' => array('ID', 'PERSONAL_PHOTO', 'NAME', 'LAST_NAME'))

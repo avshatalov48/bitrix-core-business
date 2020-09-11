@@ -83,3 +83,17 @@ export type CreatePageOptions = {
 	siteId?: number,
 	code?: string,
 };
+
+export type SourceResponse = {
+	result: any,
+	type: "success" | "error",
+	sessid: string,
+};
+
+export type PreparedResponse = {
+	result: any,
+	type: "success" | "error",
+	sessid: string,
+	status: number,
+	authorized: boolean,
+};

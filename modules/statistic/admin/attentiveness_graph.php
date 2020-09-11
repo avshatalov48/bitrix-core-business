@@ -29,7 +29,7 @@ $arrayY=Array(); // Y axis grid points
 			Get plot data
 *******************************************************/
 
-$site_filtered = (strlen($find_site_id)>0 && $find_site_id!="NOT_REF") ? true : false;
+$site_filtered = ($find_site_id <> '' && $find_site_id!="NOT_REF") ? true : false;
 $arFilter = Array(
 	"DATE1"		=> $find_date1,
 	"DATE2"		=> $find_date2,

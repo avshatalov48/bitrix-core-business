@@ -48,6 +48,14 @@ Manager::setPageView(
 \Bitrix\Main\Page\Asset::getInstance()->addCSS(
 	'/bitrix/components/bitrix/landing.site_edit/templates/.default/landing-forms.css'
 );
+
+// for 'group' type replace titles with the same group name
+if ($arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP)
+{
+	$arResult['SITES'] = \Bitrix\Landing\Binding\Group::recognizeSiteTitle(
+		$arResult['SITES']
+	);
+}
 ?>
 
 <div class="grid-tile-wrap" id="grid-tile-wrap">
@@ -239,30 +247,6 @@ Manager::setPageView(
 	</div>
 </div>
 
-<?if (false && $request->get('IS_AJAX') != 'Y' && Manager::isB24()):?>
-<div id="landing_domain_popup" style="display: none; width: 400px;">
-	<p><?= Loc::getMessage('LANDING_TPL_TRANSFER_NOTE');?></p>
-	<p id="landing_domain_address_allow" style="display: none;">
-		<?= Loc::getMessage('LANDING_TPL_TRANSFER_NEW_ADDRESS');?>:
-	</p>
-	<p id="landing_domain_address_disallow" style="display: none; color: #d2000d;">
-		<?= Loc::getMessage('LANDING_TPL_TRANSFER_NEW_ADDRESS_DISABLED');?>:
-	</p>
-	<?$APPLICATION->IncludeComponent(
-		'bitrix:landing.domain_rename',
-		'.default',
-		array(
-			'TYPE' => 'STORE',
-			'FIELD_ID' => 'new_domain_name'
-		),
-		false
-	);?>
-	<?if ($helpUrl = \Bitrix\Landing\Help::getHelpUrl('SITE_TRANSFER')):?>
-	<p><a href="<?= $helpUrl;?>" target="_blank"><?= Loc::getMessage('LANDING_TPL_TRANSFER_HELP_LINK');?></a></p>
-	<?endif;?>
-</div>
-<?endif;?>
-
 <?if ($navigation->getPageCount() > 1):?>
 	<div class="<?= (defined('ADMIN_SECTION') && ADMIN_SECTION === true) ? '' : 'landing-navigation';?>">
 			<?$APPLICATION->IncludeComponent(
@@ -364,6 +348,7 @@ Manager::setPageView(
 		var title_list = Array.prototype.slice.call(wrapper.getElementsByClassName('landing-item'));
 		tileGrid = new BX.Landing.TileGrid({
 			wrapper: wrapper,
+			siteType: '<?= $arParams['TYPE'];?>',
 			inner: BX('grid-tile-inner'),
 			tiles: title_list,
 			sizeSettings : {
@@ -401,6 +386,11 @@ Manager::setPageView(
 	{
 		function showTileMenu(node, params)
 		{
+			if (typeof showTileMenuCustom === 'function')
+			{
+				showTileMenuCustom(node, params);
+				return;
+			}
 			var menuItems = [
 				{
 					text: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_VIEW'));?>',
@@ -574,33 +564,14 @@ Manager::setPageView(
 					<?if ($arResult['EXPORT_DISABLED'] == 'Y'):?>
 					onclick: function(event)
 					{
-						BX.Landing.PaymentAlertShow({
-							message: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_EXPORT_DISABLED'));?>'
-						});
+						<?= \Bitrix\Landing\Restriction\Manager::getActionCode('limit_sites_transfer');?>
 						BX.PreventDefault(event);
 					}
 					<?else:?>
 					href: params.exportSite
 					<?endif;?>
 				}
-				: null,
-				<?if (false && $arParams['TYPE'] != 'STORE' && \Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24')):?>
-				{
-					text: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_TRANSFER'));?>',
-					onclick: function(event)
-					{
-						tileGrid.transfer(params.ID, {
-							type: 'store',
-							domainId: params.domainId,
-							domainName: params.domainName
-											.replace('.bitrix24site.by', '.bitrix24shop.by')
-											.replace('.bitrix24.site', '.bitrix24.shop'),
-							domainB24Name: params.domainB24Name
-						});
-						BX.PreventDefault(event);
-					}
-				}
-				<?endif;?>
+				: null
 			];
 
 			if (!isMenuShown) {

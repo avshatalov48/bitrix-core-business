@@ -19,9 +19,9 @@ return array(
 			'UP_SHOW' => 'Y',
 			'THEME_CODE' => 'wedding',
 			'THEMEFONTS_CODE' => 'g-font-montserrat',
-'THEMEFONTS_CODE_H' => 'g-font-montserrat',
-'THEMEFONTS_SIZE' => '1',
-'THEMEFONTS_USE' => 'Y',
+			'THEMEFONTS_CODE_H' => 'g-font-montserrat',
+			'THEMEFONTS_SIZE' => '1',
+			'THEMEFONTS_USE' => 'Y',
 		)
 	),
 	'items' => array (

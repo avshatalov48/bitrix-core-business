@@ -24,8 +24,8 @@ $arParams["FID"] = (is_array($arParams["FID"]) && !empty($arParams["FID"]) ? $ar
 $arParams["SORT_BY"] = (empty($arParams["SORT_BY"]) ? false : $arParams["SORT_BY"]);
 $arParams["SORT_BY"] = ($by ? $by : $arParams["SORT_BY"]);
 $arParams["SORT_BY"] = ($arParams["SORT_BY"] ? $arParams["SORT_BY"] : "LAST_POST_DATE");
-$arParams["SORT_ORDER"] = strToUpper($arParams["SORT_ORDER"] == "ASC" ? "ASC" : "DESC");
-$arParams["SORT_ORDER"] = strToUpper($order ? $order : $arParams["SORT_ORDER"]);
+$arParams["SORT_ORDER"] = mb_strtoupper($arParams["SORT_ORDER"] == "ASC"? "ASC" : "DESC");
+$arParams["SORT_ORDER"] = mb_strtoupper($order? $order : $arParams["SORT_ORDER"]);
 $by = $arParams["SORT_BY"];
 $order = $arParams["SORT_ORDER"];
 $arParams["SORT_BY_SORT_FIRST"] = ($arParams["SORT_BY_SORT_FIRST"] == "Y" ? "Y" : "N");
@@ -40,13 +40,13 @@ if (empty($arParams["URL_TEMPLATES_MESSAGE"]) && !empty($arParams["URL_TEMPLATES
 	$arParams["URL_TEMPLATES_MESSAGE"] = $arParams["URL_TEMPLATES_READ"];
 foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 {
-	if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-	$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-	$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+	if (trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+	$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
+	$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 }
 /***************** ADDITIONAL **************************************/
-$arParams["TOPICS_PER_PAGE"] = intVal($arParams["TOPICS_PER_PAGE"] > 0 ? $arParams["TOPICS_PER_PAGE"] :
+$arParams["TOPICS_PER_PAGE"] = intval($arParams["TOPICS_PER_PAGE"] > 0 ? $arParams["TOPICS_PER_PAGE"] :
 	COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"));
 $arParams["SHOW_FORUM_ANOTHER_SITE"] = ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y" ? "Y" : "N");
 $arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) :
@@ -138,7 +138,7 @@ $arTopics = array();
 			$ids = array();
 			while ($res = $db_res->GetNext())
 			{
-				if (strlen($res["LAST_POST_DATE"]) > 0)
+				if ($res["LAST_POST_DATE"] <> '')
 				{
 					$res["LAST_POST_DATE"] = CForumFormat::DateFormat($arParams["DATE_TIME_FORMAT"],
 						MakeTimeStamp($res["LAST_POST_DATE"], CSite::GetDateFormat()));
@@ -149,11 +149,11 @@ $arTopics = array();
 					"~AUTHOR" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PROFILE_VIEW"],
 						array("UID" => $res["USER_START_ID"])),
 					"READ" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE"],
-						array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => intVal($res["LAST_MESSAGE_ID"]))).
-							"#message".intVal($res["LAST_MESSAGE_ID"]),
+						array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => intval($res["LAST_MESSAGE_ID"]))).
+							"#message".intval($res["LAST_MESSAGE_ID"]),
 					"~READ" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_MESSAGE"],
-						array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => intVal($res["LAST_MESSAGE_ID"]))).
-							"#message".intVal($res["LAST_MESSAGE_ID"]));
+						array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => intval($res["LAST_MESSAGE_ID"]))).
+							"#message".intval($res["LAST_MESSAGE_ID"]));
 				$res["user_start_id_profile"] = $res["URL"]["AUTHOR"]; // For custom
 				$res["read"] = $res["URL"]["READ"]; // For custom
 
@@ -284,7 +284,7 @@ $arTopics = array();
 					);
 					if ($arParams['TOPIC_POST_MESSAGE_LENGTH'] > 0)
 					{
-						$symbols_len = strlen(strip_tags($topic['MESSAGE']["POST_MESSAGE_TEXT"]));
+						$symbols_len = mb_strlen(strip_tags($topic['MESSAGE']["POST_MESSAGE_TEXT"]));
 						if($symbols_len > $arParams['TOPIC_POST_MESSAGE_LENGTH'])
 						{
 							$strip_text = $parser->strip_words($topic['MESSAGE']["POST_MESSAGE_TEXT"], $arParams['TOPIC_POST_MESSAGE_LENGTH']);

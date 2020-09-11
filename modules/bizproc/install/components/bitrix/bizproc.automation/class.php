@@ -140,6 +140,15 @@ class BizprocAutomationComponent extends \CBitrixComponent
 		return $list;
 	}
 
+	public static function getTemplateViewData(array $template, $documentType)
+	{
+		foreach ($template['ROBOTS'] as $i => $robot)
+		{
+			$template['ROBOTS'][$i]['viewData'] = self::getRobotViewData($robot, $documentType);
+		}
+		return $template;
+	}
+
 	public static function getRobotViewData($robot, array $documentType)
 	{
 		$availableRobots = \Bitrix\Bizproc\Automation\Engine\Template::getAvailableRobots($documentType);
@@ -290,7 +299,7 @@ class BizprocAutomationComponent extends \CBitrixComponent
 		{
 			$template = new \Bitrix\Bizproc\Automation\Engine\Template($documentType);
 
-			$dialog = $template->getRobotSettingsDialog($this->arParams['~ROBOT_DATA'], $this->arParams['~REQUEST']);
+			$dialog = $template->getRobotSettingsDialog($this->arParams['~ROBOT_DATA']);
 
 			if ($dialog === '')
 			{

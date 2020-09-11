@@ -30,9 +30,9 @@ if ($arGadgetParams["HIDE_GRAPH"] != "Y")
 		$arGadgetParams["GRAPH_HEIGHT"] = 300;
 }
 
-if (strlen($arGadgetParams["SITE_ID"]) <= 0)
+if ($arGadgetParams["SITE_ID"] == '')
 	$arGadgetParams["SITE_ID"] = false;
-elseif (strlen($arGadgetParams["TITLE_STD"]) <= 0)
+elseif ($arGadgetParams["TITLE_STD"] == '')
 {
 	$rsSites = CSite::GetByID($arGadgetParams["SITE_ID"]);
 	if ($arSite = $rsSites->GetNext())

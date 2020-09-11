@@ -18,8 +18,11 @@ abstract class CBPActivity
 	const ClosedEvent = 3;
 	const FaultingEvent = 4;
 
-	const ValuePattern = '#^\s*\{=\s*(?<object>[a-z0-9_]+)\s*\:\s*(?<field>[a-z0-9_\.]+)(\s*>\s*(?<mod1>[a-z0-9_\:]+)(\s*,\s*(?<mod2>[a-z0-9_]+))?)?\s*\}\s*$#i';
-	const ValueInlinePattern = '#\{=\s*(?<object>[a-z0-9_]+)\s*\:\s*(?<field>[a-z0-9_\.]+)(\s*>\s*(?<mod1>[a-z0-9_\:]+)(\s*,\s*(?<mod2>[a-z0-9_]+))?)?\s*\}#i';
+	private const ValueSinglePattern = '\{=\s*(?<object>[a-z0-9_]+)\s*\:\s*(?<field>[a-z0-9_\.]+)(\s*>\s*(?<mod1>[a-z0-9_\:]+)(\s*,\s*(?<mod2>[a-z0-9_]+))?)?\s*\}';
+
+	const ValuePattern = '#^\s*'.self::ValueSinglePattern.'\s*$#i';
+	private const ValueSimplePattern = '#^\s*\{\{(.*?)\}\}\s*$#i';
+	const ValueInlinePattern = '#'.self::ValueSinglePattern.'#i';
 	/** Internal pattern used in calc.php */
 	const ValueInternalPattern = '\{=\s*([a-z0-9_]+)\s*\:\s*([a-z0-9_\.]+)(\s*>\s*([a-z0-9_\:]+)(\s*,\s*([a-z0-9_]+))?)?\s*\}';
 
@@ -1255,7 +1258,11 @@ abstract class CBPActivity
 		if (is_string($text))
 		{
 			$text = trim($text);
-			if (preg_match(static::CalcPattern, $text) || preg_match(static::ValuePattern, $text))
+			if (
+				preg_match(static::CalcPattern, $text)
+				|| preg_match(static::ValuePattern, $text)
+				|| preg_match(self::ValueSimplePattern, $text)
+			)
 				return true;
 		}
 		return false;

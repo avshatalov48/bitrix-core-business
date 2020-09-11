@@ -29,12 +29,12 @@ if(!function_exists("GetUserName"))
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$arParams["version"] = intVal(COption::GetOptionString("forum", "UsePMVersion", "2"));
-	$arParams["FID"] = intVal(intVal($arParams["FID"]) > 0 ? $arParams["FID"] : $_REQUEST["FID"]);
+	$arParams["version"] = intval(COption::GetOptionString("forum", "UsePMVersion", "2"));
+	$arParams["FID"] = intval(intVal($arParams["FID"]) > 0 ? $arParams["FID"] : $_REQUEST["FID"]);
 	if ($arParams["version"] == 2 && $arParams["FID"] == 2)
 		$arParams["FID"] = 3;
-	$arParams["MID"] = intVal(intVal($arParams["MID"]) > 0 ? $arParams["MID"] : $_REQUEST["MID"]);
-	$arParams["UID"] = intVal($USER->GetID());
+	$arParams["MID"] = intval(intVal($arParams["MID"]) > 0 ? $arParams["MID"] : $_REQUEST["MID"]);
+	$arParams["UID"] = intval($USER->GetID());
 /***************** Sorting *****************************************/
 	InitSorting($GLOBALS["APPLICATION"]->GetCurPage()."?PAGE_NAME=pm_list&FID=".$arParams["FID"]);
 	global $by, $order;
@@ -53,16 +53,16 @@ if(!function_exists("GetUserName"))
 
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPageParam($URL_VALUE, array("PAGE_NAME", "FID", "TID", "UID", "MID", "action", "mode", "sessid", BX_AJAX_PARAM_ID));
-		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
+		if (trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
+			$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPageParam($URL_VALUE, array("PAGE_NAME", "FID", "TID", "UID", "MID", "action", "mode", "sessid", BX_AJAX_PARAM_ID));
+		$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
 		if (!empty($by) && !in_array($URL, array("profile_view", "pm_read", "pm_edit")))
 		{
-			$arParams["~URL_TEMPLATES_".strToUpper($URL)] = ForumAddPageParams($arParams["URL_TEMPLATES_".strToUpper($URL)], 
+			$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = ForumAddPageParams($arParams["URL_TEMPLATES_".mb_strtoupper($URL)],
 				array("by" => $by, "order" => $order), false, false);
 		}
 		
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
@@ -78,7 +78,7 @@ if(!function_exists("GetUserName"))
 /********************************************************************
 				Default values
 ********************************************************************/
-	$result = strToLower($_REQUEST["result"]);
+$result = mb_strtolower($_REQUEST["result"]);
 	
 	$arResult["ERROR_MESSAGE"] = "";
 	$arResult["OK_MESSAGE"] = "";
@@ -128,7 +128,7 @@ elseif (!CForumPrivateMessage::CheckPermissions($arParams["MID"]))
 			array("result" => "no_perm")));
 	die();
 }
-$arParams["FID"] = ($arParams["FID"] != 2 ? intVal($res["FOLDER_ID"]) : $arParams["FID"]);
+$arParams["FID"] = ($arParams["FID"] != 2 ? intval($res["FOLDER_ID"]) : $arParams["FID"]);
 $arResult["MESSAGE"] = $res;
 /********************************************************************
 				Action
@@ -142,7 +142,7 @@ if($res["IS_READ"] != "Y" && $arParams["FID"] != 2)
 	{
 		$componentRelativePath = CComponentEngine::MakeComponentPath($path);
 		$arComponentDescription = CComponentUtil::GetComponentDescr($path);
-		if (strLen($componentRelativePath) <= 0 || !is_array($arComponentDescription)):
+		if ($componentRelativePath == '' || !is_array($arComponentDescription)):
 			continue;
 		elseif (!array_key_exists("CACHE_PATH", $arComponentDescription)):
 			continue;
@@ -156,7 +156,7 @@ if($res["IS_READ"] != "Y" && $arParams["FID"] != 2)
 }
 if (!empty($_REQUEST["action"]))
 {
-	$action = strToLower($_REQUEST["action"]);
+	$action = mb_strtolower($_REQUEST["action"]);
 	$arError = array();
 	$arOK = array();
 	$APPLICATION->ResetException();
@@ -227,18 +227,18 @@ if (!empty($_REQUEST["action"]))
 				$arOk[] = array("id" => "delete_".$MID, "text" => str_replace("#MID#", $MID, GetMessage("PM_OK_DELETE")));
 			endif;
 		}
-	elseif (($action == "copy" || $action == "move") && intVal($_REQUEST["folder_id"]) <= 0):
+	elseif (($action == "copy" || $action == "move") && intval($_REQUEST["folder_id"]) <= 0):
 		$arError[] = array("id" => "empty_folder_id_", "text" => GetMessage("PM_ERR_MOVE_NO_FOLDER"));
 	elseif ($action == "copy" || $action == "move"):
-		$folder_id = intVal($_REQUEST["folder_id"]);
+		$folder_id = intval($_REQUEST["folder_id"]);
 		$arrVars = array(
-			"FOLDER_ID" => intVal($folder_id),
+			"FOLDER_ID" => intval($folder_id),
 			"USER_ID" => $USER->GetId(),
 			"IS_READ" => "Y");
 		foreach ($message as $MID) 
 		{
 			if (!CForumPrivateMessage::CheckPermissions($MID)):
-				$arError[] = array("id" => "bad_permission_".$MID, "text" => str_replace("#MID#", intVal($MID), GetMessage("PM_ERR_MOVE_NO_PERM")));
+				$arError[] = array("id" => "bad_permission_".$MID, "text" => str_replace("#MID#", intval($MID), GetMessage("PM_ERR_MOVE_NO_PERM")));
 			elseif (($action == "move" && !CForumPrivateMessage::Update($MID, $arrVars)) ||
 				($action == "copy" && !CForumPrivateMessage::Copy($MID, $arrVars))):
 				$err = $APPLICATION->GetException();
@@ -280,7 +280,7 @@ if (!empty($_REQUEST["action"]))
 			{
 				$componentRelativePath = CComponentEngine::MakeComponentPath($path);
 				$arComponentDescription = CComponentUtil::GetComponentDescr($path);
-				if (strLen($componentRelativePath) <= 0 || !is_array($arComponentDescription)):
+				if ($componentRelativePath == '' || !is_array($arComponentDescription)):
 					continue;
 				elseif (!array_key_exists("CACHE_PATH", $arComponentDescription)):
 					continue;
@@ -453,7 +453,7 @@ $arResult["FolderName"] = ($arParams["FID"] <= $arResult["SystemFolder"]) ? GetM
 $arResult["sessid"] = bitrix_sessid_post();
 $arResult["FID"] = $arParams["FID"];
 $arResult["MID"] = $arParams["MID"];
-if ((intVal($arResult["FID"]) > 1) && (intVal($arResult["FID"]) <=3))
+if ((intval($arResult["FID"]) > 1) && (intval($arResult["FID"]) <=3))
 {
 	$arResult["StatusUser"] = "RECIPIENT";
 	$arResult["InputOutput"] = "RECIPIENT_ID";

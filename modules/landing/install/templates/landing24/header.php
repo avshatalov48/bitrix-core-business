@@ -30,5 +30,6 @@ This is commented to avoid Project Quality Control warning
 $APPLICATION->ShowPanel();
 */
 ?>
+<?$APPLICATION->ShowProperty('Noscript');?>
 <?$APPLICATION->ShowProperty('AfterBodyOpen');?>
 <main class="w-100 <?$APPLICATION->ShowProperty('MainClass');?>" <?$APPLICATION->ShowProperty('MainTag');?>>

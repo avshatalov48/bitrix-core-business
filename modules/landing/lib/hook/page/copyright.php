@@ -34,12 +34,14 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 	}
 
 	/**
-	 * Gets message for locked state.
-	 * @return string
+	 * Locked or not current hook in free plan.
+	 * @return bool
 	 */
-	public function getLockedMessage()
+	public function isLocked()
 	{
-		return Loc::getMessage('LANDING_HOOK_COPYRIGHT_LOCKED');
+		return !\Bitrix\Landing\Restriction\Manager::isAllowed(
+			'limit_sites_powered_by'
+		);
 	}
 
 	/**

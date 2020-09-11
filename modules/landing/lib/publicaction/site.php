@@ -486,7 +486,9 @@ class Site
 		{
 			$error->addError(
 				'FEATURE_NOT_AVAIL',
-				Loc::getMessage('LANDING_FEATURE_NOT_AVAIL_ERROR')
+				\Bitrix\Landing\Restriction\Manager::getSystemErrorMessage(
+					'limit_sites_access_permissions'
+				)
 			);
 			$result->setError($error);
 		}
@@ -521,7 +523,9 @@ class Site
 		{
 			$error->addError(
 				'FEATURE_NOT_AVAIL',
-				Loc::getMessage('LANDING_FEATURE_NOT_AVAIL_ERROR')
+				\Bitrix\Landing\Restriction\Manager::getSystemErrorMessage(
+					'limit_sites_access_permissions'
+				)
 			);
 			$result->setError($error);
 		}
@@ -589,7 +593,7 @@ class Site
 
 	/**
 	 * Sets scope for work with module.
-	 * @param string $type
+	 * @param string $type Scope code.
 	 * @return \Bitrix\Landing\PublicActionResult
 	 */
 	public static function setScope($type)

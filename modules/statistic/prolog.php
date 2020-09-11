@@ -13,7 +13,7 @@ if(CModule::IncludeModule('statistic'))
 	if(!$message && CModule::IncludeModule("currency"))
 	{
 		$base_currency = GetStatisticBaseCurrency();
-		if(strlen($base_currency)<=0)
+		if($base_currency == '')
 			$message = new CAdminMessage(Array("MESSAGE"=>GetMessage("STAT_BASE_CURRENCY_NOT_INSTALLED").' <a href="settings.php?lang='.LANG.'&amp;mid=statistic">('.GetMessage("STAT_CHOOSE_CURRENCY").')</a>', "TYPE"=>"ERROR", "HTML"=>true));
 	}
 }

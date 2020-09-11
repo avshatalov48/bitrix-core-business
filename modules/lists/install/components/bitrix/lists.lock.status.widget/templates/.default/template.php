@@ -21,7 +21,7 @@ $lockedBy = (int) $arResult["LOCKED_BY"];
 
 <div id="<?=$widgetContainerId?>" class="lists-lock-status-widget-container">
 	<div class="lists-lock-status-widget-<?=$lockStatus?>">
-		<?=$elementName.Loc::getMessage("LISTS_LOCK_STATUS_".strtoupper($lockStatus))?>
+		<?=$elementName.Loc::getMessage("LISTS_LOCK_STATUS_".mb_strtoupper($lockStatus))?>
 	</div>
 	<?php if ($lockStatus == "red"): ?>
 		<div class="lists-lock-status-widget-locked-by">
@@ -31,7 +31,7 @@ $lockedBy = (int) $arResult["LOCKED_BY"];
 	<?php elseif ($lockStatus == "green"): ?>
 
 	<?php endif; ?>
-	<div data-hint="<?=HtmlFilter::encode(Loc::getMessage("LISTS_LOCK_STATUS_HINT_".strtoupper($lockStatus),
+	<div data-hint="<?=HtmlFilter::encode(Loc::getMessage("LISTS_LOCK_STATUS_HINT_".mb_strtoupper($lockStatus),
 		["#ELEMENT#" => $elementName, "#USER_NAME#" => $lockedUserName]))?>"></div>
 </div>
 

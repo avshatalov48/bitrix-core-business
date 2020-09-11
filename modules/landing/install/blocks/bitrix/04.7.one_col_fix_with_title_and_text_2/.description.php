@@ -31,6 +31,10 @@ return array(
 			'type' => array('block-default', 'animation'),
 		),
 		'nodes' => array(
+			'.landing-block-node-container' => array(
+				'name' => Loc::getMessage('LANDING_BLOCK_4_CONTAINER'),
+				'type' => 'container',
+			),
 			'.landing-block-node-title' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_4_ONE_COL_FIX_WITH_TITLE_AND_TEXT_2_NODES_LANDINGBLOCKNODETITLE'),
 				'type' => 'typo',

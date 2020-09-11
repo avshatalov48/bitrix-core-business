@@ -66,11 +66,11 @@ $arFilterFields = array(
 $lAdmin->InitFilter($arFilterFields);
 
 $arFilter = array();
-if (strlen($filter_site_id) > 0 && $filter_site_id != "NOT_REF")
+if ($filter_site_id <> '' && $filter_site_id != "NOT_REF")
 	$arFilter["SITE_ID"] = $filter_site_id;
-if (strlen($filter_active) > 0)
+if ($filter_active <> '')
 	$arFilter["ACTIVE"] = $filter_active;
-if (strlen($filter_group_id) > 0)
+if ($filter_group_id <> '')
 	$arFilter["FORUM_GROUP_ID"] = $filter_group_id;
 
 if (check_bitrix_sessid() && $forumModulePermissions >= "R"):
@@ -79,7 +79,7 @@ if (check_bitrix_sessid() && $forumModulePermissions >= "R"):
 		foreach ($FIELDS as $ID => $arFields)
 		{
 			$DB->StartTransaction();
-			$ID = IntVal($ID);
+			$ID = intval($ID);
 	
 			if (!$lAdmin->IsUpdated($ID))
 				continue;
@@ -119,7 +119,7 @@ if (check_bitrix_sessid() && $forumModulePermissions >= "R"):
 	
 		foreach ($arID as $ID)
 		{
-			if (strlen($ID) <= 0)
+			if ($ID == '')
 				continue;
 			switch ($_REQUEST['action'])
 			{
@@ -197,7 +197,7 @@ if (check_bitrix_sessid() && $forumModulePermissions >= "R"):
 		{
 			$componentRelativePath = CComponentEngine::MakeComponentPath($path);
 			$arComponentDescription = CComponentUtil::GetComponentDescr($path);
-			if (strLen($componentRelativePath) <= 0 || !is_array($arComponentDescription)):
+			if ($componentRelativePath == '' || !is_array($arComponentDescription)):
 				continue;
 			elseif (!array_key_exists("CACHE_PATH", $arComponentDescription)):
 				continue;
@@ -380,7 +380,7 @@ $oFilter->Begin();
 				foreach ($arForumGroupsTitle as $key => $val):
 					?>
 					<option value="<?=$key?>"
-					<?=(intVal($filter_group_id)==intVal($key) ? " selected" : "")?>
+					<?=(intval($filter_group_id)==intval($key) ? " selected" : "")?>
 					><?=htmlspecialcharsbx($val)?></option><?
 				endforeach;
 				?>

@@ -13,7 +13,7 @@ class CFilterDictionary extends CAllFilterDictionary
 		foreach ($arFilter as $key => $val)
 		{
 			$key_res = CFilterDictionary::GetFilterOperation($key);
-			$key = strtoupper($key_res["FIELD"]);
+			$key = mb_strtoupper($key_res["FIELD"]);
 			$strNegative = $key_res["NEGATIVE"];
 			$strOperation = $key_res["OPERATION"];
 			
@@ -21,7 +21,7 @@ class CFilterDictionary extends CAllFilterDictionary
 			{
 				case "TYPE":
 				case "TITLE":
-					if (strlen($val)<=0)
+					if ($val == '')
 						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(FD.".$key." IS NULL OR LENGTH(FD.".$key.")<=0)";
 					else
 						$arSqlSearch[] = ($strNegative=="Y"?" FD.".$key." IS NULL OR NOT ":"")."(FD.".$key." ".$strOperation." '".$DB->ForSql($val)."' )";
@@ -29,10 +29,10 @@ class CFilterDictionary extends CAllFilterDictionary
 				case "ID":
 					if ($strOperation!="IN")
 					{
-						if (intVal($val)<=0)
+						if (intval($val)<=0)
 							$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(FD.ID IS NULL OR FD.ID<=0)";
 						else
-							$arSqlSearch[] = ($strNegative=="Y"?" FD.ID IS NULL OR NOT ":"")."(FD.ID ".$strOperation." ".intVal($val)." )";
+							$arSqlSearch[] = ($strNegative=="Y"?" FD.ID IS NULL OR NOT ":"")."(FD.ID ".$strOperation." ".intval($val)." )";
 					}
 					else
 					{
@@ -52,7 +52,8 @@ class CFilterDictionary extends CAllFilterDictionary
 
 		foreach ($arOrder as $by => $order)
 		{
-			$by = strtoupper($by); $order = strtoupper($order);
+			$by = mb_strtoupper($by);
+			$order = mb_strtoupper($order);
 			if ($order!="ASC") $order = "DESC";
 			if ($by == "ID") $arSqlOrder[] = " FD.ID ".$order." ";
 			elseif ($by == "TITLE") $arSqlOrder[] = " FD.TITLE ".$order." ";
@@ -72,7 +73,7 @@ class CFilterDictionary extends CAllFilterDictionary
 			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$iCnt = 0;
 			if ($ar_res = $db_res->Fetch())
-				$iCnt = intVal($ar_res["CNT"]);
+				$iCnt = intval($ar_res["CNT"]);
 			return $iCnt;
 		}
 		$strSql = "SELECT FD.ID, FD.TITLE, FD.TYPE FROM b_forum_dictionary FD ".$strSqlSearch.$strSqlOrder;
@@ -94,7 +95,7 @@ class CFilterLetter extends CAllFilterLetter
 		foreach ($arFilter as $key => $val)
 		{
 			$key_res = CFilterDictionary::GetFilterOperation($key);
-			$key = strtoupper($key_res["FIELD"]);
+			$key = mb_strtoupper($key_res["FIELD"]);
 			$strNegative = $key_res["NEGATIVE"];
 			$strOperation = $key_res["OPERATION"];
 
@@ -102,7 +103,7 @@ class CFilterLetter extends CAllFilterLetter
 			{
 				case "LETTER":
 				case "REPLACEMENT":
-					if (strlen($val)<=0)
+					if ($val == '')
 						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(FL.".$key." IS NULL OR LENGTH(FL.".$key.")<=0)";
 					else
 						$arSqlSearch[] = ($strNegative=="Y"?" FL.".$key." IS NULL OR NOT ":"")."(FL.".$key." ".$strOperation." '".$DB->ForSql($val)."' )";
@@ -111,10 +112,10 @@ class CFilterLetter extends CAllFilterLetter
 				case "ID":
 					if ($strOperation!="IN")
 					{
-						if (intVal($val)<=0)
+						if (intval($val)<=0)
 							$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(FL.".$key." IS NULL OR FL.".$key."<=0)";
 						else
-							$arSqlSearch[] = ($strNegative=="Y"?" FL.".$key." IS NULL OR NOT ":"")."(FL.".$key." ".$strOperation." ".intVal($val)." )";
+							$arSqlSearch[] = ($strNegative=="Y"?" FL.".$key." IS NULL OR NOT ":"")."(FL.".$key." ".$strOperation." ".intval($val)." )";
 					}
 					else
 					{
@@ -134,7 +135,8 @@ class CFilterLetter extends CAllFilterLetter
 
 		foreach ($arOrder as $by=>$order)
 		{
-			$by = strtoupper($by); $order = strtoupper($order);
+			$by = mb_strtoupper($by);
+			$order = mb_strtoupper($order);
 			if ($order!="ASC") $order = "DESC";
 			if ($by == "ID") $arSqlOrder[] = " FL.ID ".$order." ";
 			elseif ($by == "TITLE") $arSqlOrder[] = " FD.TITLE ".$order." ";
@@ -159,7 +161,7 @@ class CFilterLetter extends CAllFilterLetter
 			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$iCnt = 0;
 			if ($ar_res = $db_res->Fetch())
-				$iCnt = intVal($ar_res["CNT"]);
+				$iCnt = intval($ar_res["CNT"]);
 			return $iCnt;
 		}
 		$strSql = 
@@ -186,7 +188,7 @@ class CFilterUnquotableWords extends CAllFilterUnquotableWords
 		foreach ($arFilter as $key => $val)
 		{
 			$key_res = CFilterUnquotableWords::GetFilterOperation($key);
-			$key = strtoupper($key_res["FIELD"]);
+			$key = mb_strtoupper($key_res["FIELD"]);
 			$strNegative = $key_res["NEGATIVE"];
 			$strOperation = $key_res["OPERATION"];
 			switch ($key)
@@ -197,20 +199,20 @@ class CFilterUnquotableWords extends CAllFilterUnquotableWords
 				case "REPLACEMENT":
 				case "DESCRIPTION":
 				case "PATTERN_CREATE":
-					if (strlen($val)<=0)
+					if ($val == '')
 						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(FM.".$key." IS NULL OR LENGTH(FM.".$key.")<=0)";
 					else
 						$arSqlSearch[] = ($strNegative=="Y"?" FM.".$key." IS NULL OR NOT ":"")."(FM.".$key." ".$strOperation." '".$DB->ForSql($val)."' )";
 					break;
 				case "ID":
 				case "DICTIONARY_ID":
-					if (intVal($val)<=0)
+					if (intval($val)<=0)
 						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(FM.".$key." IS NULL OR FM.".$key."<=0)";
 					else 
 					{
 						if ($strOperation!="IN")
 						{
-								$arSqlSearch[] = ($strNegative=="Y"?" FM.".$key." IS NULL OR NOT ":"")."(FM.".$key." ".$strOperation." ".intVal($val)." )";
+								$arSqlSearch[] = ($strNegative=="Y"?" FM.".$key." IS NULL OR NOT ":"")."(FM.".$key." ".$strOperation." ".intval($val)." )";
 						}
 						else
 						{
@@ -231,7 +233,8 @@ class CFilterUnquotableWords extends CAllFilterUnquotableWords
 
 		foreach ($arOrder as $by=>$order)
 		{
-			$by = strtoupper($by); $order = strtoupper($order);
+			$by = mb_strtoupper($by);
+			$order = mb_strtoupper($order);
 			if ($order!="ASC") $order = "DESC";
 			if ($by == "ID") $arSqlOrder[] = " FM.ID ".$order." ";
 			elseif ($by == "WORDS") $arSqlOrder[] = " FM.WORDS ".$order." ";
@@ -258,7 +261,7 @@ class CFilterUnquotableWords extends CAllFilterUnquotableWords
 			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$iCnt = 0;
 			if ($ar_res = $db_res->Fetch())
-				$iCnt = intVal($ar_res["CNT"]);
+				$iCnt = intval($ar_res["CNT"]);
 			return $iCnt;
 		}
 		$strSql = "SELECT FM.ID, FM.DICTIONARY_ID, FM.WORDS, FM.PATTERN, FM.REPLACEMENT, FM.DESCRIPTION,  FM.USE_IT, FM.PATTERN_CREATE ".

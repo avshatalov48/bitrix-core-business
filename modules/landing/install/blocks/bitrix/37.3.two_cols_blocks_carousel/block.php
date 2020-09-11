@@ -23,7 +23,7 @@
 						 style="background-image:url('https://cdn.bitrix24.site/bitrix/images/landing/business/800x496/img4.jpg');">
 					<!-- Article Content -->
 					<div class="landing-block-node-card-text-bg float-right g-color-gray-light-v1 g-bg-black-opacity-0_7 g-width-50x--sm g-pb-30 g-pt-30 g-pr-30 g-pl-30 g-height-100x d-flex flex-column">
-						<h4 class="landing-block-node-card-title landing-semantic-subtitle-image-medium js-animation fadeInLeft  text-uppercase font-weight-bold h6 g-color-white g-mb-15">
+						<h4 class="landing-block-node-card-title landing-semantic-subtitle-image-medium js-animation fadeInLeft  text-uppercase g-font-weight-700 h6 g-color-white g-mb-15">
 							Education Project</h4>
 						<div class="landing-block-node-card-text landing-semantic-text-image-medium js-animation fadeInRight  g-mb-45">
 							<p>Mauris molestie ullamcorper nisl eget hendrerit. Sed faucibus suscipit justo,
@@ -40,7 +40,7 @@
 							</div>
 						</div>
 
-						<a class="btn landing-block-node-card-button landing-semantic-link-medium-white js-animation fadeInLeft  g-valign-middle btn-block text-uppercase u-btn-primary font-weight-bold g-font-size-11 g-color-gray-dark-v1 rounded-0 g-py-10 g-py-20--md g-px-15 g-px-25--md mt-auto"
+						<a class="btn landing-block-node-card-button landing-semantic-link-medium-white js-animation fadeInLeft g-valign-middle btn-block text-uppercase g-btn-primary g-color-gray-dark-v1 rounded-0 g-py-10 g-py-20--md mt-auto g-btn-type-solid g-btn-size-sm g-btn-px-m rounded-0"
 						   href="#">
 							Donate Now
 						</a>
@@ -56,7 +56,7 @@
 						 style="background-image:url('https://cdn.bitrix24.site/bitrix/images/landing/business/800x496/img5.jpg');">
 					<!-- Article Content -->
 					<div class="landing-block-node-card-text-bg float-right g-color-gray-light-v1 g-bg-black-opacity-0_7 g-width-50x--sm g-pb-30 g-pt-30 g-pr-30 g-pl-30 g-height-100x d-flex flex-column">
-						<h4 class="landing-block-node-card-title landing-semantic-subtitle-image-medium js-animation fadeInLeft  text-uppercase font-weight-bold h6 g-color-white g-mb-15">
+						<h4 class="landing-block-node-card-title landing-semantic-subtitle-image-medium js-animation fadeInLeft  text-uppercase g-font-weight-700 h6 g-color-white g-mb-15">
 							Water Project</h4>
 						<div class="landing-block-node-card-text landing-semantic-text-image-medium js-animation fadeInRight  g-mb-45">
 							<p>Mauris molestie ullamcorper nisl eget hendrerit. Sed faucibus suscipit justo,
@@ -73,7 +73,7 @@
 							</div>
 						</div>
 
-						<a class="btn landing-block-node-card-button landing-semantic-link-medium-white js-animation fadeInLeft  g-valign-middle btn-block text-uppercase u-btn-primary font-weight-bold g-font-size-11 g-color-gray-dark-v1 rounded-0 g-py-10 g-py-20--md g-px-15 g-px-25--md mt-auto"
+						<a class="btn landing-block-node-card-button landing-semantic-link-medium-white js-animation fadeInLeft g-valign-middle btn-block text-uppercase g-btn-primary g-color-gray-dark-v1 rounded-0 g-py-10 g-py-20--md mt-auto g-btn-type-solid g-btn-size-sm g-btn-px-m rounded-0"
 						   href="#">
 							Donate Now
 						</a>
@@ -89,7 +89,7 @@
 						 style="background-image:url('https://cdn.bitrix24.site/bitrix/images/landing/business/800x496/img6.jpg');">
 					<!-- Article Content -->
 					<div class="landing-block-node-card-text-bg float-right g-color-gray-light-v1 g-bg-black-opacity-0_7 g-width-50x--sm g-pb-30 g-pt-30 g-pr-30 g-pl-30 g-height-100x d-flex flex-column">
-						<h4 class="landing-block-node-card-title landing-semantic-subtitle-image-medium js-animation fadeInLeft  text-uppercase font-weight-bold h6 g-color-white g-mb-15">
+						<h4 class="landing-block-node-card-title landing-semantic-subtitle-image-medium js-animation fadeInLeft  text-uppercase g-font-weight-700 h6 g-color-white g-mb-15">
 							Education Project</h4>
 						<div class="landing-block-node-card-text landing-semantic-text-image-medium js-animation fadeInRight  g-mb-45">
 							<p>Mauris molestie ullamcorper nisl eget hendrerit. Sed faucibus suscipit justo,
@@ -106,7 +106,7 @@
 							</div>
 						</div>
 
-						<a class="btn landing-block-node-card-button landing-semantic-link-medium-white js-animation fadeInLeft  g-valign-middle btn-block text-uppercase u-btn-primary font-weight-bold g-font-size-11 g-color-gray-dark-v1 rounded-0 g-py-10 g-py-20--md g-px-15 g-px-25--md mt-auto"
+						<a class="btn landing-block-node-card-button landing-semantic-link-medium-white js-animation fadeInLeft g-valign-middle btn-block text-uppercase g-btn-primary g-color-gray-dark-v1 rounded-0 g-py-10 g-py-20--md mt-auto g-btn-type-solid g-btn-size-sm g-btn-px-m rounded-0"
 						   href="#">
 							Donate Now
 						</a>
@@ -122,7 +122,7 @@
 						 style="background-image:url('https://cdn.bitrix24.site/bitrix/images/landing/business/800x496/img7.jpg');">
 					<!-- Article Content -->
 					<div class="landing-semantic-text-image-small landing-block-node-card-text-bg float-right g-color-gray-light-v1 g-bg-black-opacity-0_7 g-width-50x--sm g-pb-30 g-pt-30 g-pr-30 g-pl-30 g-height-100x d-flex flex-column">
-						<h4 class="landing-block-node-card-title landing-semantic-subtitle-image-medium js-animation fadeInLeft  text-uppercase font-weight-bold h6 g-color-white g-mb-15">
+						<h4 class="landing-block-node-card-title landing-semantic-subtitle-image-medium js-animation fadeInLeft  text-uppercase g-font-weight-700 h6 g-color-white g-mb-15">
 							Water Project</h4>
 						<div class="landing-block-node-card-text landing-semantic-text-image-medium js-animation fadeInRight  g-mb-45">
 							<p>Mauris molestie ullamcorper nisl eget hendrerit. Sed faucibus suscipit justo,
@@ -139,7 +139,7 @@
 							</div>
 						</div>
 
-						<a class="btn landing-block-node-card-button landing-semantic-link-medium-white js-animation fadeInLeft g-valign-middle btn-block text-uppercase u-btn-primary font-weight-bold g-font-size-11 g-color-gray-dark-v1 rounded-0 g-py-10 g-py-20--md g-px-15 g-px-25--md mt-auto"
+						<a class="btn landing-block-node-card-button landing-semantic-link-medium-white js-animation fadeInLeft g-valign-middle btn-block text-uppercase g-btn-primary g-color-gray-dark-v1 rounded-0 g-py-10 g-py-20--md mt-auto g-btn-type-solid g-btn-size-sm g-btn-px-m rounded-0"
 						   href="#">
 							Donate Now
 						</a>

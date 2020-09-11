@@ -15,13 +15,13 @@ endif;
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$arParams["FID"] = (intVal($arParams["FID"]) <= 0 ? false : intVal($arParams["FID"]));
-	$arParams["TID"] = (intVal($arParams["TID"]) <= 0 ? false : intVal($arParams["TID"]));
+	$arParams["FID"] = (intval($arParams["FID"]) <= 0 ? false : intval($arParams["FID"]));
+	$arParams["TID"] = (intval($arParams["TID"]) <= 0 ? false : intval($arParams["TID"]));
 	$arParams["TITLE_SEO"] = trim($arParams["TITLE_SEO"]);
-	$arParams["TITLE_SEO"] = strlen($arParams["TITLE_SEO"]) > 0 ? $arParams["TITLE_SEO"] : trim($_REQUEST["TITLE_SEO"]);
-	if ($arParams["TID"] <= 0 && strlen($arParams["TITLE_SEO"]) > 0)
+	$arParams["TITLE_SEO"] = $arParams["TITLE_SEO"] <> '' ? $arParams["TITLE_SEO"] : trim($_REQUEST["TITLE_SEO"]);
+	if ($arParams["TID"] <= 0 && $arParams["TITLE_SEO"] <> '')
 		$arParams["TID"] = intval(strtok($arParams["TITLE_SEO"], "-"));
-	$arParams["PERIOD"] = (intVal($arParams["PERIOD"]) <= 0 ? 10 : intVal($arParams["PERIOD"])); // input params in minuts
+	$arParams["PERIOD"] = (intval($arParams["PERIOD"]) <= 0 ? 10 : intval($arParams["PERIOD"])); // input params in minuts
 	$arParams["PERIOD"] *= 60;
 	$arParams["SHOW"] = (is_array($arParams["SHOW"]) ? $arParams["SHOW"] : array("BIRTHDAY", "USERS_ONLINE", "STATISTIC"));
 	$arParams["SHOW_FORUM_ANOTHER_SITE"] = ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y" ? "Y" : "N");
@@ -31,13 +31,13 @@ endif;
 		"profile_view" => "PAGE_NAME=profile_view&UID=#UID#");
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		if (trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
+			$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
-	$arParams["WORD_LENGTH"] = intVal($arParams["WORD_LENGTH"]);
+	$arParams["WORD_LENGTH"] = intval($arParams["WORD_LENGTH"]);
 	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
 /***************** STANDART ****************************************/
 	if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
@@ -132,7 +132,7 @@ if (in_array("USERS_ONLINE", $arParams["SHOW"]))
 						$arUser["USERS_HIDDEN"][] = $res;
 				}
 				else
-					$Guest = intVal($res["COUNT_USER"]);
+					$Guest = intval($res["COUNT_USER"]);
 			}while ($res = $db_res->GetNext());
 			
 			$arUser["GUEST"] = $Guest;
@@ -185,7 +185,7 @@ if (in_array("BIRTHDAY", $arParams["SHOW"]))
 			{
 				$res["SHOW_NAME"] = $parser->wrap_long_words($res["SHOW_ABC"]);
 				$date_birthday = ParseDateTime($res["PERSONAL_BIRTHDAY"]);
-				$res["AGE"] = intVal(date("Y")) - intVal($date_birthday["YYYY"]);
+				$res["AGE"] = intval(date("Y")) - intval($date_birthday["YYYY"]);
 				$res["profile_view"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"], array("UID" => $res["USER_ID"]));
 				$arUserBirthday[] = $res;
 			} while($res = $db_res->GetNext());
@@ -249,8 +249,8 @@ if (in_array("STATISTIC", $arParams["SHOW"]))
 			do 
 			{
 				$arResult["STATISTIC"]["FORUMS"]++;
-				$arResult["STATISTIC"]["TOPICS"] += intVal($res["TOPICS"]);
-				$arResult["STATISTIC"]["POSTS"] += intVal($res["POSTS"]);
+				$arResult["STATISTIC"]["TOPICS"] += intval($res["TOPICS"]);
+				$arResult["STATISTIC"]["POSTS"] += intval($res["POSTS"]);
 			} while ($res = $db_res->GetNext());
 		}
 		

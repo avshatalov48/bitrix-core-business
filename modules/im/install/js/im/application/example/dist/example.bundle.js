@@ -11,9 +11,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
-	var ExampleApplication =
-	/*#__PURE__*/
-	function () {
+	var ExampleApplication = /*#__PURE__*/function () {
 	  /* region 01. Initialize */
 	  function ExampleApplication() {
 	    var _this = this;

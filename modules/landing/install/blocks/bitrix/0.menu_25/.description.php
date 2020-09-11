@@ -13,7 +13,7 @@ return [
 		'dynamic' => false,
 		'subtype' => 'menu',
 		'subtype_params' => array(
-			'source' => 'catalog',
+			'source' => 'structure',
 		),
 		'version' => '20.0.0', // old param for backward compatibility. Can used for old versions of module via repo. Do not delete!
 	],

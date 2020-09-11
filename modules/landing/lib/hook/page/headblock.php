@@ -72,9 +72,8 @@ class HeadBlock extends \Bitrix\Landing\Hook\Page
 	{
 		if (ModuleManager::isModuleInstalled('bitrix24'))
 		{
-			$checkFeature = Manager::checkFeature(
-				Manager::FEATURE_ENABLE_ALL_HOOKS,
-				['hook' => 'headblock']
+			$checkFeature = \Bitrix\Landing\Restriction\Manager::isAllowed(
+				'limit_sites_html_js'
 			);
 			if ($checkFeature)
 			{
@@ -96,15 +95,6 @@ class HeadBlock extends \Bitrix\Landing\Hook\Page
 		}
 
 		return false;
-	}
-
-	/**
-	 * Gets message for locked state.
-	 * @return string
-	 */
-	public function getLockedMessage()
-	{
-		return Loc::getMessage('LANDING_HOOK_HEADBLOCK_LOCKED');
 	}
 
 	/**

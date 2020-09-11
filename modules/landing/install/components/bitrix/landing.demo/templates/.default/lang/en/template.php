@@ -10,6 +10,5 @@ $MESS["LANDING_TPL_LABEL_NEW"] = "new";
 $MESS["LANDING_TPL_LIMIT_REACHED_TITLE"] = "Limit exceeded";
 $MESS["LANDING_TPL_LOAD_APP_TEMPLATE"] = "<span>Download</span> template from Applications24";
 $MESS["LANDING_TPL_PAGE_LIMIT_REACHED_TEXT"] = "<p>Your current plan restricts the number of pages you can create. You have to upgrade to create more pages.</p><p>With <a href=\"/settings/license_all.php\" target=\"_blank\">selected commercial plans</a>, you can create as many pages as you want.</p>";
-$MESS["LANDING_TPL_SITE_LIMIT_REACHED_TEXT"] = "<p>Your current plan restricts the number of sites you can create. You have to upgrade to create more sites.</p><p>With <a href=\"/settings/license_all.php\" target=\"_blank\">selected commercial plans</a>, you can create as many sites as you want.</p>";
 $MESS["LANDING_TPL_TITLE"] = "Select a template";
 ?>

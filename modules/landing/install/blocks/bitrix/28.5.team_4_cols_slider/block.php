@@ -4,7 +4,7 @@
 			 data-autoplay="false"
 			 data-slides-show="4"
 			 data-slides-scroll="1"
-			 data-arrows-classes="u-arrow-v1 g-pos-abs g-absolute-centered--y--md g-top-0 g-top-50x--md g-width-50 g-height-50 g-font-size-default g-color-white g-bg-gray-dark-v2 g-bg-primary--hover g-transition-0_2 g-transition--ease-in"
+			 data-arrows-classes="u-arrow-v1 g-pos-abs g-absolute-centered--y--md g-top-0 g-top-50x--md g-width-50 g-height-50 g-color-white g-bg-gray-dark-v2 g-bg-primary--hover g-transition-0_2 g-transition--ease-in"
 			 data-arrow-left-classes="fa fa-chevron-left g-left-0 g-ml-minus-50--md"
 			 data-arrow-right-classes="fa fa-chevron-right g-right-0 g-mr-minus-50--md"
 			 data-responsive='[{
@@ -49,7 +49,7 @@
 							<!-- Figure Contacts -->
 							<ul class="landing-block-text-container list-unstyled g-flex-middle-item--bottom g-pt-30 g-pb-30 g-pl-15 g-pr-15 g-pointer-events-all g-bg-black-opacity-0_7">
 								<li class="g-mb-5">
-									<span class="landing-block-node-member-contact-icon-container1 landing-block-node-member-contact-icon-container g-font-size-default g-color-primary g-mr-5">
+									<span class="landing-block-node-member-contact-icon-container1 landing-block-node-member-contact-icon-container g-color-primary g-mr-5">
 										<i class="landing-block-node-member-contact-icon1 landing-block-node-member-contact-icon fa fa-envelope"></i>
 									</span>
 									<span class="landing-block-node-member-contact-text1 landing-semantic-text--imagesmall landing-block-node-member-contact-text g-color-white">
@@ -57,7 +57,7 @@
 									</span>
 								</li>
 								<li class="mb-0">
-									<span class="landing-block-node-member-contact-icon-container2 landing-block-node-member-contact-icon-container g-font-size-default g-color-primary g-mr-5">
+									<span class="landing-block-node-member-contact-icon-container2 landing-block-node-member-contact-icon-container g-color-primary g-mr-5">
 										<i class="landing-block-node-member-contact-icon2 landing-block-node-member-contact-icon fa fa-phone"></i>
 									</span>
 									<span class="landing-block-node-member-contact-text2  landing-semantic-text-image-small landing-block-node-member-contact-text g-color-white">
@@ -72,7 +72,7 @@
 					<!-- Figure Info -->
 					<div class="g-pa-20">
 						<h4 class="landing-block-node-member-name landing-semantic-subtitle-image-small text-uppercase g-font-size-16 g-mb-5">Tammy Exon</h4>
-						<div class="landing-block-node-member-text landing-semantic-text-image-small g-font-style-normal g-font-size-default g-color-white-opacity-0_75">
+						<div class="landing-block-node-member-text landing-semantic-text-image-small g-font-style-normal g-color-white-opacity-0_75">
 							Yoga, Cardio, Pilates, Crossfit
 						</div>
 					</div>
@@ -95,7 +95,7 @@
 							<!-- Figure Contacts -->
 							<ul class="landing-block-text-container list-unstyled g-flex-middle-item--bottom g-pt-30 g-pb-30 g-pl-15 g-pr-15 g-pointer-events-all g-bg-black-opacity-0_7">
 								<li class="g-mb-5">
-									<span class="landing-block-node-member-contact-icon-container1 landing-block-node-member-contact-icon-container g-font-size-default g-color-primary g-mr-5">
+									<span class="landing-block-node-member-contact-icon-container1 landing-block-node-member-contact-icon-container g-color-primary g-mr-5">
 										<i class="landing-block-node-member-contact-icon1 landing-block-node-member-contact-icon fa fa-envelope"></i>
 									</span>
 									<span class="landing-block-node-member-contact-text1 landing-semantic-text-image-small landing-block-node-member-contact-text g-color-white">
@@ -103,7 +103,7 @@
 									</span>
 								</li>
 								<li class="mb-0">
-									<span class="landing-block-node-member-contact-icon-container2 landing-block-node-member-contact-icon-container g-font-size-default g-color-primary g-mr-5">
+									<span class="landing-block-node-member-contact-icon-container2 landing-block-node-member-contact-icon-container g-color-primary g-mr-5">
 										<i class="landing-block-node-member-contact-icon2 landing-block-node-member-contact-icon fa fa-phone"></i>
 									</span>
 									<span class="landing-block-node-member-contact-text2 landing-semantic-text-image-small landing-block-node-member-contact-text g-color-white">
@@ -119,7 +119,7 @@
 					<div class="g-pa-20">
 						<h4 class="landing-block-node-member-name landing-semantic-subtitle-image-small text-uppercase g-font-size-16 g-mb-5">Jacob
 							Barton</h4>
-						<div class="landing-block-node-member-text landing-semantic-text-image-small g-font-style-normal g-font-size-default g-color-white-opacity-0_75">
+						<div class="landing-block-node-member-text landing-semantic-text-image-small g-font-style-normal g-color-white-opacity-0_75">
 							Gym, Boxing, Crossfit, Cardio
 						</div>
 					</div>
@@ -142,7 +142,7 @@
 							<!-- Figure Contacts -->
 							<ul class="landing-block-text-container list-unstyled g-flex-middle-item--bottom g-pt-30 g-pb-30 g-pl-15 g-pr-15 g-pointer-events-all g-bg-black-opacity-0_7">
 								<li class="g-mb-5">
-									<span class="landing-block-node-member-contact-icon-container1 landing-block-node-member-contact-icon-container g-font-size-default g-color-primary g-mr-5">
+									<span class="landing-block-node-member-contact-icon-container1 landing-block-node-member-contact-icon-container g-color-primary g-mr-5">
 										<i class="landing-block-node-member-contact-icon1 landing-block-node-member-contact-icon fa fa-envelope"></i>
 									</span>
 									<span class="landing-block-node-member-contact-text1 landing-semantic-text-image-small landing-block-node-member-contact-text g-color-white">
@@ -150,7 +150,7 @@
 									</span>
 								</li>
 								<li class="mb-0">
-									<span class="landing-block-node-member-contact-icon-container2 landing-block-node-member-contact-icon-container g-font-size-default g-color-primary g-mr-5">
+									<span class="landing-block-node-member-contact-icon-container2 landing-block-node-member-contact-icon-container g-color-primary g-mr-5">
 										<i class="landing-block-node-member-contact-icon2 landing-block-node-member-contact-icon fa fa-phone"></i>
 									</span>
 									<span class="landing-block-node-member-contact-text2 landing-semantic-text-image-small landing-block-node-member-contact-text g-color-white">
@@ -166,7 +166,7 @@
 					<div class="g-pa-20">
 						<h4 class="landing-block-node-member-name landing-semantic-subtitle-image-small text-uppercase g-font-size-16 g-mb-5">Monica
 							Notrom</h4>
-						<div class="landing-block-node-member-text landing-semantic-text-image-small g-font-style-normal g-font-size-default g-color-white-opacity-0_75">
+						<div class="landing-block-node-member-text landing-semantic-text-image-small g-font-style-normal g-color-white-opacity-0_75">
 							Cardio, Pilates, Zymba, Crossfit
 						</div>
 					</div>
@@ -189,7 +189,7 @@
 							<!-- Figure Contacts -->
 							<ul class="landing-block-text-container list-unstyled g-flex-middle-item--bottom g-pt-30 g-pb-30 g-pl-15 g-pr-15 g-pointer-events-all g-bg-black-opacity-0_7">
 								<li class="g-mb-5">
-									<span class="landing-block-node-member-contact-icon-container1 landing-block-node-member-contact-icon-container g-font-size-default g-color-primary g-mr-5">
+									<span class="landing-block-node-member-contact-icon-container1 landing-block-node-member-contact-icon-container g-color-primary g-mr-5">
 										<i class="landing-block-node-member-contact-icon1 landing-block-node-member-contact-icon fa fa-envelope"></i>
 									</span>
 									<span class="landing-block-node-member-contact-text1 landing-semantic-text-image-small landing-block-node-member-contact-text g-color-white">
@@ -197,7 +197,7 @@
 									</span>
 								</li>
 								<li class="mb-0">
-									<span class="landing-block-node-member-contact-icon-container2 landing-block-node-member-contact-icon-container g-font-size-default g-color-primary g-mr-5">
+									<span class="landing-block-node-member-contact-icon-container2 landing-block-node-member-contact-icon-container g-color-primary g-mr-5">
 										<i class="landing-block-node-member-contact-icon2 landing-block-node-member-contact-icon fa fa-phone"></i>
 									</span>
 									<span class="landing-block-node-member-contact-text2 landing-semantic-text-image-small landing-block-node-member-contact-text g-color-white">
@@ -212,7 +212,7 @@
 					<!-- Figure Info -->
 					<div class="g-pa-20">
 						<h4 class="landing-block-node-member-name landing-semantic-subtitle-image-small text-uppercase g-font-size-16 g-mb-5">Tom Sowyer</h4>
-						<div class="landing-block-node-member-text landing-semantic-text-image-small g-font-style-normal g-font-size-default g-color-white-opacity-0_75">
+						<div class="landing-block-node-member-text landing-semantic-text-image-small g-font-style-normal g-color-white-opacity-0_75">
 							Box, Kickboxing, Gym, Crossfit
 						</div>
 					</div>
@@ -235,7 +235,7 @@
 							<!-- Figure Contacts -->
 							<ul class="landing-block-text-container list-unstyled g-flex-middle-item--bottom g-pt-30 g-pb-30 g-pl-15 g-pr-15 g-pointer-events-all g-bg-black-opacity-0_7">
 								<li class="g-mb-5">
-									<span class="landing-block-node-member-contact-icon-container1 landing-block-node-member-contact-icon-container g-font-size-default g-color-primary g-mr-5">
+									<span class="landing-block-node-member-contact-icon-container1 landing-block-node-member-contact-icon-container g-color-primary g-mr-5">
 										<i class="landing-block-node-member-contact-icon1 landing-block-node-member-contact-icon fa fa-envelope"></i>
 									</span>
 									<span class="landing-block-node-member-contact-text1 landing-semantic-text-image-small landing-block-node-member-contact-text g-color-white">
@@ -243,7 +243,7 @@
 									</span>
 								</li>
 								<li class="mb-0">
-									<span class="landing-block-node-member-contact-icon-container2 landing-block-node-member-contact-icon-container g-font-size-default g-color-primary g-mr-5">
+									<span class="landing-block-node-member-contact-icon-container2 landing-block-node-member-contact-icon-container g-color-primary g-mr-5">
 										<i class="landing-block-node-member-contact-icon2 landing-block-node-member-contact-icon fa fa-phone"></i>
 									</span>
 									<span class="landing-block-node-member-contact-text2 landing-semantic-text-image-small landing-block-node-member-contact-text g-color-white">
@@ -258,7 +258,7 @@
 					<!-- Figure Info -->
 					<div class="g-pa-20">
 						<h4 class="landing-block-node-member-name landing-semantic-subtitle-image-small text-uppercase g-font-size-16 g-mb-5">Tammy Exon</h4>
-						<div class="landing-block-node-member-text landing-semantic-text-image-small g-font-style-normal g-font-size-default g-color-white-opacity-0_75">
+						<div class="landing-block-node-member-text landing-semantic-text-image-small g-font-style-normal g-color-white-opacity-0_75">
 							Yoga, Cardio, Pilates, Crossfit
 						</div>
 					</div>

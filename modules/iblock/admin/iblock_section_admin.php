@@ -236,8 +236,13 @@ global $USER_FIELD_MANAGER;
 $USER_FIELD_MANAGER->AdminListAddFilterFieldsV2($entity_id, $filterFields);
 
 //We have to handle current section in a special way
-$section_id = $find_section_section === '' || $find_section_section === null ? '' : (int)$find_section_section;
-$find_section_section = $section_id;
+$parent_section_id = $find_section_section === '' || $find_section_section === null ? '' : (int)$find_section_section;
+$find_section_section = $parent_section_id;
+$parent_section_id = (int)$parent_section_id;
+if ($parent_section_id < 0)
+{
+	$parent_section_id = 0;
+}
 
 //This is all parameters needed for proper navigation
 $sThisSectionUrl = '&type='.urlencode($type).'&lang='.LANGUAGE_ID.'&IBLOCK_ID='.$IBLOCK_ID.'&find_section_section='.$find_section_section;
@@ -248,9 +253,9 @@ $lAdmin->AddFilter($filterFields, $arFilter);
 
 $USER_FIELD_MANAGER->AdminListAddFilterV2($entity_id, $arFilter, $sTableID, $filterFields);
 
-if (!is_null($arFilter["SECTION_ID"]))
+if (isset($arFilter["SECTION_ID"]))
 {
-	$find_section_section = intval($arFilter["SECTION_ID"]);
+	$find_section_section = (int)$arFilter["SECTION_ID"];
 }
 else
 {
@@ -958,7 +963,7 @@ if (CIBlockSectionRights::UserHasRightTo($IBLOCK_ID, $find_section_section, "sec
 
 $aContext[] = array(
 	"TEXT" => htmlspecialcharsbx($arIBlock["ELEMENTS_NAME"]),
-	"LINK" => $urlBuilder->getElementListUrl($find_section_section),
+	"LINK" => $urlBuilder->getElementListUrl($parent_section_id),
 	"TITLE" => GetMessage("IBSEC_A_LISTEL_TITLE")
 );
 if ($urlBuilder->getId() == 'IBLOCK')
@@ -967,7 +972,7 @@ if ($urlBuilder->getId() == 'IBLOCK')
 		$aContext[] = array(
 			"TEXT" => GetMessage("IBSEC_A_NOT_TREE"),
 			"LINK" => $urlBuilder->getSectionListUrl(
-				$find_section_section,
+				$parent_section_id,
 				array('tree' => 'N')
 			),
 			"TITLE" => GetMessage("IBSEC_A_NOT_TREE_TITLE")
@@ -976,7 +981,7 @@ if ($urlBuilder->getId() == 'IBLOCK')
 		$aContext[] = array(
 			"TEXT" => GetMessage("IBSEC_A_TREE"),
 			"LINK" => $urlBuilder->getSectionListUrl(
-				$find_section_section,
+				$parent_section_id,
 				array('tree' => 'Y')
 			),
 			"TITLE" => GetMessage("IBSEC_A_TREE_TITLE")
@@ -1010,9 +1015,9 @@ if ($pageConfig['SHOW_NAVCHAIN'])
 			"ONCLICK" => $lAdmin->ActionAjaxReload($sSectionUrl).';return false;',
 		));
 	}
-	if ($find_section_section > 0)
+	if ($parent_section_id > 0)
 	{
-		$nav = CIBlockSection::GetNavChain($IBLOCK_ID, $find_section_section, array('ID', 'NAME'), true);
+		$nav = CIBlockSection::GetNavChain($IBLOCK_ID, $parent_section_id, array('ID', 'NAME'), true);
 		foreach ($nav as $ar_nav)
 		{
 			$sSectionUrl = $urlBuilder->getSectionListUrl(
@@ -1038,9 +1043,9 @@ $lAdmin->CheckListMode();
 if(defined("CATALOG_PRODUCT"))
 {
 	$sSectionName = $arIBlock["SECTIONS_NAME"];
-	if($find_section_section > 0)
+	if($parent_section_id > 0)
 	{
-		$rsSection = CIBlockSection::GetList(array(), array("=ID" => $find_section_section), false, array("NAME"));
+		$rsSection = CIBlockSection::GetList(array(), array("=ID" => $parent_section_id), false, array("NAME"));
 		$arSection = $rsSection->GetNext();
 		if($arSection)
 			$sSectionName = $arSection["NAME"];

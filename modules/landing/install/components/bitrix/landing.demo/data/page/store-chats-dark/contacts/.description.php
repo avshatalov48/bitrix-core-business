@@ -22,7 +22,6 @@ return array(
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'THEME_CODE' => '3corporate',
-
 		),
 	),
 	'items' => array(
@@ -119,7 +118,7 @@ return array(
 					0 => 'landing-block-node-button-container text-right col-4 js-animation animation-none d-flex justify-content-end',
 				),
 				'.landing-block-node-button' => array(
-					0 => 'landing-block-node-button btn btn-sm g-text-transform-none g-px-15 font-weight-bold g-mb-0 u-theme-bitrix-btn-v6 g-brd-5 g-rounded-20 g-color-white g-font-size-18',
+					0 => 'landing-block-node-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-text-transform-none g-mb-0 g-theme-bitrix-btn-v6 g-rounded-20 g-color-white',
 				),
 				'#wrapper' => array(
 					0 => 'landing-block g-pt-20 g-pb-20 g-theme-bitrix-bg-dark-v3 u-block-border-none',

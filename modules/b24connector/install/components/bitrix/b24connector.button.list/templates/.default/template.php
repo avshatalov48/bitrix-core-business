@@ -118,7 +118,7 @@ CJSCore::Init(array('clipboard'));
 										<div class="intranet-button-list-position-element">
 											<span class="intranet-button-list-position-inner-wrap">
 												<span class="intranet-button-list-position-text"><?=Loc::getMessage("B24C_BL_LOCATION")?>:</span>
-												<span class="intranet-button-list-position-text"><?=htmlspecialcharsbx(strtolower($item['LOCATION_DISPLAY']))?></span>
+												<span class="intranet-button-list-position-text"><?=htmlspecialcharsbx(mb_strtolower($item['LOCATION_DISPLAY']))?></span>
 											</span>
 										</div>
 									</div><!--intranet-button-list-url-container-->

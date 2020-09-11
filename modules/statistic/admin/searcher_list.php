@@ -62,9 +62,9 @@ function CheckFilter()
 
 	foreach($arr as $ar)
 	{
-		if (strlen($ar["date1"])>0 && !CheckDateTime($ar["date1"])) $str.= $ar["mess1"]."<br>";
-		elseif (strlen($ar["date2"])>0 && !CheckDateTime($ar["date2"])) $str.= $ar["mess2"]."<br>";
-		elseif (strlen($ar["date1"])>0 && strlen($ar["date2"])>0 &&
+		if ($ar["date1"] <> '' && !CheckDateTime($ar["date1"])) $str.= $ar["mess1"]."<br>";
+		elseif ($ar["date2"] <> '' && !CheckDateTime($ar["date2"])) $str.= $ar["mess2"]."<br>";
+		elseif ($ar["date1"] <> '' && $ar["date2"] <> '' &&
 		$statDB->CompareDates($ar["date1"], $ar["date2"])==1) $str.= $ar["mess3"]."<br>";
 	}
 
@@ -72,7 +72,7 @@ function CheckFilter()
 		$str.= GetMessage("STAT_FROM_TILL_HITS")."<br>";
 
 	$strError .= $str;
-	if (strlen($str)>0) return false; else return true;
+	if ($str <> '') return false; else return true;
 }
 
 if(($arID = $lAdmin->GroupAction()) && $STAT_RIGHT=="W" && check_bitrix_sessid())
@@ -87,7 +87,7 @@ if(($arID = $lAdmin->GroupAction()) && $STAT_RIGHT=="W" && check_bitrix_sessid()
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
 		$ID = intval($ID);
 		switch($_REQUEST['action'])
@@ -144,7 +144,7 @@ $headers=array(
 	array("id"=>"YESTERDAY_HITS", "content"=>GetMessage("STAT_YESTERDAY_HITS")." $yesterday", "sort"=>"s_yesterday_hits", "default"=>true, "align"=>"right"),
 	array("id"=>"B_YESTERDAY_HITS", "content"=>GetMessage("STAT_B_YESTERDAY_HITS")." $b_yesterday", "sort"=>"s_b_yesterday_hits", "default"=>true, "align"=>"right"),
 	);
-if (strlen($arFilter["DATE1_PERIOD"])>0)
+if ($arFilter["DATE1_PERIOD"] <> '')
 	$headers[]=array("id"=>"PERIOD_HITS", "content"=>GetMessage("STAT_PERIOD_HITS")." ".htmlspecialcharsEx($arFilter["DATE1_PERIOD"])." ".htmlspecialcharsEx($arFilter["DATE2_PERIOD"]), "sort"=>"s_period_hits", "default"=>true, "align"=>"right");
 
 $headers[]=array("id"=>"TOTAL_HITS", "content"=>GetMessage("STAT_TOTAL_HITS"), "sort"=>"s_total_hits", "default"=>true, "align"=>"right");
@@ -225,7 +225,7 @@ $footer=array(
 		array("title"=>GetMessage("STAT_TOT_B_YTD"), "value"=>$total_B_YESTERDAY_COUNTER),
 	);
 
-if (strlen($arFilter["DATE1_PERIOD"])>0)
+if ($arFilter["DATE1_PERIOD"] <> '')
 	$footer[]=array("title"=>GetMessage("STAT_TOT_PRD"), "value"=>$total_PERIOD_COUNTER);
 $footer[]=array("title"=>GetMessage("STAT_TOTAL"), "value"=>$total_TOTAL_COUNTER);
 $lAdmin->AddFooter($footer);

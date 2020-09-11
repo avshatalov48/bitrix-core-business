@@ -60,16 +60,16 @@
 
 				<!-- Promo Block - Info -->
 				<div class="col-sm-12 col-lg-6 g-pt-30 g-pt-0--lg align-self-center">
-					<h2 class="landing-block-node-title landing-semantic-title-medium js-animation fadeInRight text-uppercase g-line-height-1 font-weight-bold g-font-size-55 g-color-white g-mb-30">
+					<h2 class="landing-block-node-title landing-semantic-title-medium js-animation fadeInRight text-uppercase g-line-height-1 g-font-weight-700 g-font-size-55 g-color-white g-mb-30">
 						Planning <br>&amp; Shipping</h2>
-					<h3 class="landing-block-node-subtitle landing-semantic-subtitle-medium text-uppercase font-weight-bold g-font-size-18 g-color-white g-mb-20">
+					<h3 class="landing-block-node-subtitle landing-semantic-subtitle-medium text-uppercase g-font-weight-700 g-font-size-18 g-color-white g-mb-20">
 						Delivering
 						anything to anywhere</h3>
-					<div class="landing-block-node-text landing-semantic-text-medium js-animation fadeInRight g-font-size-default g-color-white-opacity-0_8 g-mb-35">
+					<div class="landing-block-node-text landing-semantic-text-medium js-animation fadeInRight g-color-white-opacity-0_8 g-mb-35">
 						<p>Maecenas lacus magna, pretium in congue a, pharetra at lacus. Nulla neque justo, sodales
 							vitae dui non, imperdiet luctus libero.</p>
 					</div>
-					<a class="landing-block-node-button landing-semantic-link-medium js-animation fadeInRight btn btn-md text-uppercase u-btn-primary font-weight-bold g-font-size-12 g-brd-none g-rounded-4 g-py-12 g-px-25"
+					<a class="landing-block-node-button landing-semantic-link-medium js-animation fadeInRight btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-rounded-4 g-py-12"
 					   href="#">Learn more</a>
 				</div>
 				<!-- End Promo Block - Info -->

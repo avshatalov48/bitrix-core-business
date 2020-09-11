@@ -9,10 +9,11 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var array $arResult */
 /** @var array $arParams */
 /** @var \CMain $APPLICATION */
-/** @var LandingSiteEditComponent $component */
+/** @var \LandingSiteEditComponent $component */
 
-use \Bitrix\Main\Page\Asset;
 use \Bitrix\Landing\Manager;
+use \Bitrix\Landing\Restriction;
+use \Bitrix\Main\Page\Asset;
 use \Bitrix\Main\ModuleManager;
 use \Bitrix\Main\Localization\Loc;
 
@@ -81,6 +82,12 @@ $uriDomain->addParams(array(
 	'tab' => '__tab__',
 	'IFRAME' => 'Y'
 ));
+$uriCookies = new \Bitrix\Main\Web\Uri(
+	str_replace('#site_edit#', $row['ID']['CURRENT'], $arParams['PAGE_URL_SITE_COOKIES'])
+);
+$uriCookies->addParams([
+	'IFRAME' => 'Y'
+]);
 
 // access selector
 if ($arResult['SHOW_RIGHTS'])
@@ -169,7 +176,7 @@ if ($arParams['SUCCESS_SAVE'])
 								?>
 								<span class="landing-domain-name">
 									<span class="landing-domain-name-value"><?= $puny->decode($domain['DOMAIN']);?></span>
-									<a href="<?= str_replace('__tab__', '', $uriDomain->getUri());?>" class="ui-title-input-btn ui-editing-pen landing-domain-btn"></a>
+									<a href="<?= str_replace('__tab__', '', $uriDomain->getUri());?>" class="ui-title-input-btn ui-editing-pen landing-frame-btn"></a>
 								</span>
 								<?if (!\Bitrix\Landing\Domain::getBitrix24Subdomain($domain['DOMAIN'])):?>
 									<?if (\Bitrix\Landing\Domain\Register::isDomainActive($domain['DOMAIN'])):?>
@@ -185,69 +192,35 @@ if ($arParams['SUCCESS_SAVE'])
 								<?elseif ($arResult['REGISTER']->enable()):?>
 									<div class="landing-domain-status landing-domain-status-configure">
 										<div class="landing-domain-status-title"><?= Loc::getMessage('LANDING_TPL_DOMAIN_FREE_TEXT');?></div>
-										<a href="<?= str_replace('__tab__', 'provider', $uriDomain->getUri());?>" class="ui-btn ui-btn-primary ui-btn-sm ui-btn-round landing-domain-btn">
+										<a href="<?= str_replace('__tab__', 'provider', $uriDomain->getUri());?>" class="ui-btn ui-btn-primary ui-btn-sm ui-btn-round landing-frame-btn">
 											<?= Loc::getMessage('LANDING_TPL_DOMAIN_FREE_BUTTON');?>
 										</a>
-										<a href="<?= str_replace('__tab__', 'private', $uriDomain->getUri());?>" class="ui-btn ui-btn-light-border ui-btn-sm ui-btn-round landing-domain-btn">
+										<a href="<?= str_replace('__tab__', 'private', $uriDomain->getUri());?>" class="ui-btn ui-btn-light-border ui-btn-sm ui-btn-round landing-frame-btn">
 											<?= Loc::getMessage('LANDING_TPL_DOMAIN_PRIVATE_BUTTON');?>
 										</a>
 									</div>
-									<?else:?>
-										<div>
-											<a href="<?= str_replace('__tab__', 'private', $uriDomain->getUri());?>" class="ui-btn ui-btn-light-border ui-btn-sm ui-btn-round landing-domain-btn">
-												<?= Loc::getMessage('LANDING_TPL_DOMAIN_PRIVATE_BUTTON');?>
-											</a>
-										</div>
-										<script>
-											BX.ready(function() {
-												var domainBlock = document.querySelector('.landing-domain');
-												domainBlock.classList.add('landing-domain-own');
-											});
-										</script>
-									<?endif;?>
+								<?else:?>
+									<div>
+										<a href="<?= str_replace('__tab__', 'private', $uriDomain->getUri());?>" class="ui-btn ui-btn-light-border ui-btn-sm ui-btn-round landing-frame-btn">
+											<?= Loc::getMessage('LANDING_TPL_DOMAIN_PRIVATE_BUTTON');?>
+										</a>
+									</div>
 									<script>
-										BX.ready(function()
-										{
-											var domainRenameLinks = [].slice.call(
-												document.querySelectorAll('.landing-domain-btn')
-											);
-											for (var i = 0, c = domainRenameLinks.length; i < c; i++)
-											{
-												BX.bind(domainRenameLinks[i], 'click', function()
-												{
-													top.BX.SidePanel.Instance.open(
-														this.getAttribute('href'),
-														{
-															width: 1000,
-															allowChangeHistory: false,
-															events: {
-																onClose: function(event)
-																{
-																	if (
-																		event.slider.url.indexOf('save=Y') !== -1 ||
-																		event.slider.url.indexOf('switch=Y') !== -1
-																	)
-																	{
-																		window.location.reload();
-																	}
-																}
-															}
-														}
-													);
-													BX.PreventDefault();
-												});
-											}
+										BX.ready(function() {
+											var domainBlock = document.querySelector('.landing-domain');
+											domainBlock.classList.add('landing-domain-own');
 										});
 									</script>
-									<?else:?>
-										<select name="fields[DOMAIN_ID]" class="ui-select">
-											<?foreach ($arResult['DOMAINS'] as $item):?>
-												<option value="<?= $item['ID']?>"<?if ($item['ID'] == $row['DOMAIN_ID']['CURRENT']){?> selected="selected"<?}?>>
-													<?= \htmlspecialcharsbx($item['DOMAIN']);?>
-												</option>
-											<?endforeach;?>
-										</select>
-									<?endif;?>
+								<?endif;?>
+							<?else:?>
+								<select name="fields[DOMAIN_ID]" class="ui-select">
+									<?foreach ($arResult['DOMAINS'] as $item):?>
+										<option value="<?= $item['ID']?>"<?if ($item['ID'] == $row['DOMAIN_ID']['CURRENT']){?> selected="selected"<?}?>>
+											<?= \htmlspecialcharsbx($item['DOMAIN']);?>
+										</option>
+									<?endforeach;?>
+								</select>
+							<?endif;?>
 						</div>
 					</td>
 				</tr>
@@ -432,6 +405,9 @@ if ($arParams['SUCCESS_SAVE'])
 								<?endif;?>
 								<?if (!$isIntranet):?>
 									<span class="landing-additional-alt-promo-text" data-landing-additional-option="off"><?= Loc::getMessage('LANDING_TPL_ADDITIONAL_OFF');?></span>
+								<?endif;?>
+								<?if (isset($hooks['COOKIES'])):?>
+									<span class="landing-additional-alt-promo-text" data-landing-additional-option="cookies">Cookies</span>
 								<?endif;?>
 								<?if (isset($hooks['COPYRIGHT'])):?>
 									<span class="landing-additional-alt-promo-text" data-landing-additional-option="sign"><?= Loc::getMessage('LANDING_TPL_ADDITIONAL_SIGN');?></span>
@@ -643,7 +619,8 @@ if ($arParams['SUCCESS_SAVE'])
 									$items = $hooks['VIEW']->getItems();
 									if (!$value)
 									{
-										$value = array_shift(array_keys($items));
+										$itemsKeys = array_keys($items);
+										$value = array_shift($itemsKeys);
 									}
 									?>
 								<div class="landing-form-type-page-wrap">
@@ -907,26 +884,15 @@ if ($arParams['SUCCESS_SAVE'])
 										<label class="ui-checkbox-label" for="checkbox-headblock-use">
 											<?= Loc::getMessage('LANDING_TPL_HOOK_HEADBLOCK_USE');?>
 										</label>
-										<?if ($hooks['HEADBLOCK']->isLocked()):?>
-										<span class="landing-icon-lock"></span>
-										<script type="text/javascript">
-											BX.ready(function()
-											{
-												if (typeof BX.Landing.PaymentAlert !== 'undefined')
-												{
-													BX.Landing.PaymentAlert({
-														<?if ($pageFields['HEADBLOCK_USE']->isEmptyValue()):?>
-														nodes: [BX('checkbox-headblock-use'), BX('textarea-headblock-code')],
-														<?else:?>
-														nodes: [BX('textarea-headblock-code')],
-														<?endif;?>
-														title: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_HTML_DISABLED_TITLE'));?>',
-														message: '<?= \CUtil::jsEscape($hooks['HEADBLOCK']->getLockedMessage());?>'
-													});
-												}
-											});
-										</script>
-										<?endif;?>
+										<?
+										if ($hooks['HEADBLOCK']->isLocked())
+										{
+											echo Restriction\Manager::getLockIcon(
+												Restriction\Hook::getRestrictionCodeByHookCode('HEADBLOCK'),
+												['checkbox-headblock-use']
+											);
+										}
+										?>
 									<?endif;?>
 									<?if (isset($pageFields['HEADBLOCK_CODE'])):?>
 										<div class="ui-control-wrap">
@@ -1019,6 +985,110 @@ if ($arParams['SUCCESS_SAVE'])
 						</td>
 					</tr>
 				<?endif;?>
+				<?if (isset($hooks['COOKIES'])):
+					$pageFields = $hooks['COOKIES']->getPageFields();
+					$agreementId = isset($pageFields['COOKIES_AGREEMENT_ID'])
+									? $pageFields['COOKIES_AGREEMENT_ID']->getValue()
+									: 0;
+					if (!$agreementId)
+					{
+						$agreementId = $arResult['COOKIES_AGREEMENT']['ID'];
+					}
+					?>
+					<tr class="landing-form-hidden-row" data-landing-additional-detail="cookies">
+						<td class="ui-form-label ui-form-label-align-top"><?= $hooks['COOKIES']->getTitle();?></td>
+						<td class="ui-form-right-cell">
+							<div class="ui-checkbox-hidden-input landing-form-cookies">
+								<?
+								if (isset($pageFields['COOKIES_USE']))
+								{
+									$pageFields['COOKIES_USE']->viewForm([
+										'class' => 'ui-checkbox',
+										'id' => 'checkbox-cookies',
+										'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
+									]);
+								}
+								?>
+								<div class="ui-checkbox-hidden-input-inner">
+									<?if (isset($pageFields['COOKIES_USE'])):?>
+										<label class="ui-checkbox-label" for="checkbox-cookies">
+											<?= $pageFields['COOKIES_USE']->getLabel();?>
+										</label>
+										<div class="landing-form-cookies-inner">
+											<?if ($arResult['SITE_INCLUDES_SCRIPT']):?>
+											<div class="landing-alert-site-includes-script">
+												<?= Loc::getMessage('LANDING_TPL_HOOK_COOKIES_SCRIPT_WARN');?>
+											</div>
+											<?endif;?>
+											<?$APPLICATION->IncludeComponent(
+												'bitrix:landing.userconsent.selector',
+												'',
+												array(
+													'ID' => $agreementId,
+													'INPUT_NAME' => 'fields[ADDITIONAL_FIELDS][COOKIES_AGREEMENT_ID]'
+												)
+											);?>
+										</div>
+									<?endif;?>
+										<a href="<?= $uriCookies->getUri();?>" class="landing-frame-btn landing-frame-btn-cookies"><?= Loc::getMessage('LANDING_TPL_HOOK_COOKIES_EDIT_DESCRIPTIONS');?></a>
+									<div class="landing-form-cookies-title"><?= Loc::getMessage('LANDING_TPL_HOOK_COOKIES_VIEW');?></div>
+									<div class="landing-form-cookies-settings">
+										<div class="landing-form-cookies-settings-preview">
+											<div class="landing-form-cookies-settings-type landing-form-cookies-settings-type-simple">
+												<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="#FFF" class="landing-form-cookies-settings-preview-svg">
+													<path fill-rule="evenodd" d="M7.328.07c.463 0 .917.043 1.356.125.21.04.3.289.228.49a1.5 1.5 0 001.27 1.99h.001a.22.22 0 01.213.243 3.218 3.218 0 003.837 3.453c.18-.035.365.078.384.26A7.328 7.328 0 117.329.07zm.263 10.054a1.427 1.427 0 100 2.854 1.427 1.427 0 000-2.854zM3.697 7.792a.884.884 0 100 1.769.884.884 0 000-1.769zm5.476-.488a.884.884 0 100 1.768.884.884 0 000-1.768zM5.806 3.628a1.427 1.427 0 100 2.854 1.427 1.427 0 000-2.854z"/>
+												</svg>
+											</div>
+											<div class="landing-form-cookies-settings-type landing-form-cookies-settings-type-advanced">
+												<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="#FFF" class="landing-form-cookies-settings-preview-svg">
+													<path fill-rule="evenodd" d="M7.328.07c.463 0 .917.043 1.356.125.21.04.3.289.228.49a1.5 1.5 0 001.27 1.99h.001a.22.22 0 01.213.243 3.218 3.218 0 003.837 3.453c.18-.035.365.078.384.26A7.328 7.328 0 117.329.07zm.263 10.054a1.427 1.427 0 100 2.854 1.427 1.427 0 000-2.854zM3.697 7.792a.884.884 0 100 1.769.884.884 0 000-1.769zm5.476-.488a.884.884 0 100 1.768.884.884 0 000-1.768zM5.806 3.628a1.427 1.427 0 100 2.854 1.427 1.427 0 000-2.854z"/>
+												</svg>
+												<span class="landing-form-cookies-settings-preview-text">Cookies</span>
+											</div>
+										</div>
+										<?if (isset($pageFields['COOKIES_COLOR_BG'])):?>
+											<span class="landing-form-cookies-settings-label"><?= $pageFields['COOKIES_COLOR_BG']->getLabel();?></span>
+											<?$pageFields['COOKIES_COLOR_BG']->viewForm([
+												'class' => 'landing-form-cookies-color landing-form-cookies-color-bg',
+												'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
+											]);?>
+										<?endif;?>
+										<?if (isset($pageFields['COOKIES_COLOR_TEXT'])):?>
+										<span class="landing-form-cookies-settings-label"><?= $pageFields['COOKIES_COLOR_TEXT']->getLabel();?></span>
+											<?$pageFields['COOKIES_COLOR_TEXT']->viewForm([
+												'class' => 'landing-form-cookies-color landing-form-cookies-color-text',
+												'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
+											]);?>
+										<?endif;?>
+									</div>
+									<div class="landing-form-cookies-position">
+										<?if (isset($pageFields['COOKIES_POSITION'])):?>
+											<div class="landing-form-cookies-position-title"><?= $pageFields['COOKIES_POSITION']->getLabel();?></div>
+											<div class="landing-form-cookies-position-inner">
+												<input class="landing-form-cookies-position-input" type="radio" name="fields[ADDITIONAL_FIELDS][COOKIES_POSITION]"
+													<?= $pageFields['COOKIES_POSITION'] == 'bottom_left' ? ' checked' : '';?> value="bottom_left" id="bottom_left">
+												<input class="landing-form-cookies-position-input" type="radio" name="fields[ADDITIONAL_FIELDS][COOKIES_POSITION]"
+													<?= $pageFields['COOKIES_POSITION'] == 'bottom_right' ? ' checked' : '';?> value="bottom_right" id="bottom_right">
+												<div class="landing-form-cookies-position-list">
+													<div class="landing-form-cookies-position-list-inner">
+														<label class="landing-form-cookies-position-item landing-form-cookies-position-item-left
+														<?= $pageFields['COOKIES_POSITION'] == 'bottom_left' ? ' landing-form-cookies-position-item-selected' : '';?>" for="bottom_left">
+															<div class="landing-form-cookies-position-item-img"></div>
+														</label>
+														<label class="landing-form-cookies-position-item landing-form-cookies-position-item-right
+														<?= $pageFields['COOKIES_POSITION'] == 'bottom_right' ? ' landing-form-cookies-position-item-selected' : '';?>" for="bottom_right">
+															<div class="landing-form-cookies-position-item-img"></div>
+														</label>
+													</div>
+												</div>
+											</div>
+										<?endif;?>
+									</div>
+								</div>
+							</div>
+						</td>
+					</tr>
+				<?endif;?>
 				<?if (isset($hooks['COPYRIGHT'])):
 				$pageFields = $hooks['COPYRIGHT']->getPageFields();
 				if (isset($pageFields['COPYRIGHT_SHOW'])):
@@ -1042,25 +1112,16 @@ if ($arParams['SUCCESS_SAVE'])
 							));
 							?>
 							<label for="checkbox-copyright" class="ui-checkbox-label"><?= Loc::getMessage('LANDING_TPL_ACTION_SHOW');?></label>
-							<?if ($hooks['COPYRIGHT']->isLocked()):?>
-							<span class="landing-icon-lock"></span>
-							<?endif;?>
-						</span>
-						<?if ($hooks['COPYRIGHT']->isLocked()):?>
-						<script type="text/javascript">
-							BX.ready(function()
+							<?
+							if ($hooks['COPYRIGHT']->isLocked())
 							{
-								if (typeof BX.Landing.PaymentAlert !== 'undefined')
-								{
-									BX.Landing.PaymentAlert({
-										nodes: [BX('checkbox-copyright')],
-										title: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_HTML_DISABLED_TITLE'));?>',
-										message: '<?= \CUtil::jsEscape($hooks['COPYRIGHT']->getLockedMessage());?>'
-									});
-								}
-							});
-						</script>
-						<?endif;?>
+								echo Restriction\Manager::getLockIcon(
+									Restriction\Hook::getRestrictionCodeByHookCode('COPYRIGHT'),
+									['checkbox-copyright']
+								);
+							}
+							?>
+						</span>
 					</td>
 				</tr>
 				<?endif;?>
@@ -1114,7 +1175,7 @@ if ($arParams['SUCCESS_SAVE'])
 		</div>
 	</div>
 
-	<div class="<?if ($request->get('IFRAME') == 'Y'){?>landing-edit-footer-fixed <?}?>pinable-block">
+	<div class="<?if (false && $request->get('IFRAME') == 'Y'){?>landing-edit-footer-fixed <?}?>pinable-block">
 		<div class="landing-form-footer-container">
 			<button id="landing-save-btn" type="submit" class="ui-btn ui-btn-success"  name="submit"  value="<?= Loc::getMessage('LANDING_TPL_BUTTON_' . ($arParams['SITE_ID'] ? 'SAVE' : 'ADD'));?>">
 				<?= Loc::getMessage('LANDING_TPL_BUTTON_' . ($arParams['SITE_ID'] ? 'SAVE' : 'ADD'));?>
@@ -1139,6 +1200,9 @@ if ($arParams['SUCCESS_SAVE'])
 		new BX.Landing.Custom503();
 		new BX.Landing.Copyright();
 		new BX.Landing.Metrika();
+		<?if (isset($hooks['COOKIES'])):?>
+		new BX.Landing.Cookies();
+		<?endif;?>
 		new BX.Landing.Layout({
 			siteId: '<?= $row['ID']['CURRENT'];?>',
 			landingId: -1,

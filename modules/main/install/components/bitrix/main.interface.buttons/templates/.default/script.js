@@ -1383,7 +1383,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			var lastItem = this.getLastVisibleItem();
 			var lastItemIsMoreButton = this.isMoreButton(lastItem);
 
-			if (!lastItemIsMoreButton)
+			if (!lastItemIsMoreButton && lastItem.parentNode === this.listContainer)
 			{
 				this.listContainer.insertBefore(this.moreButton, lastItem);
 			}

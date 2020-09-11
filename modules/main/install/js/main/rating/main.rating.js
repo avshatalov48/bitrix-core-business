@@ -39,33 +39,101 @@ BXRL.render = {
 		var you = (typeof params.you != 'undefined' ? !!params.you : false);
 		var topList = (typeof params.top != 'undefined' && BX.type.isArray(params.top) ? params.top : []);
 		var more = (typeof params.more != 'undefined' ? parseInt(params.more) : 0);
+		var result = '';
 
 		if (
-			!you
-			&& topList.length <= 0
-			&& more <= 0
+			topList.length <= 0
+			&& !you
+			&& (
+				BXRL.manager.mobile
+				|| more <= 0
+			)
 		)
 		{
-			return '';
+			return result;
 		}
 
-		var result = BX.message('RATING_LIKE_TOP_TEXT2_' + (you ? 'YOU_' : '') + (topList.length) + (more > 0 ? '_MORE' : '')).
-			replace("#OVERFLOW_START#", BXRL.manager.mobile ? '<span class="feed-post-emoji-text-item-overflow">' : '').
-			replace("#OVERFLOW_END#", BXRL.manager.mobile ? '</span>' : '').
-			replace("#MORE_START#", BXRL.manager.mobile ? '<span class="feed-post-emoji-text-item-more">' : '&nbsp;').
-			replace("#MORE_END#", BXRL.manager.mobile ? '</span>' : '');
-
-		for(var i in topList)
+		if (BXRL.manager.mobile)
 		{
-			if (!topList.hasOwnProperty(i))
+			if (you)
 			{
-				continue;
+				topList.push({
+					ID: parseInt(BX.message('USER_ID')),
+					NAME_FORMATTED: BX.message('RATING_LIKE_TOP_TEXT3_YOU'),
+					WEIGHT: 1
+				});
 			}
 
-			result = result.replace('#USER_' + (parseInt(i) + 1) + '#', '<span class="feed-post-emoji-text-item">' + topList[i].NAME_FORMATTED + '</span>');
+			result = BX.message('RATING_LIKE_TOP_TEXT3_' + (topList.length > 1 ? '2' : '1')).
+				replace("#OVERFLOW_START#", BXRL.manager.mobile ? '<span class="feed-post-emoji-text-item-overflow">' : '').
+				replace("#OVERFLOW_END#", BXRL.manager.mobile ? '</span>' : '');
+		}
+		else
+		{
+			result = BX.message('RATING_LIKE_TOP_TEXT2_' + (you ? 'YOU_' : '') + (topList.length) + (more > 0 ? '_MORE' : '')).
+				replace("#OVERFLOW_START#", BXRL.manager.mobile ? '<span class="feed-post-emoji-text-item-overflow">' : '').
+				replace("#OVERFLOW_END#", BXRL.manager.mobile ? '</span>' : '').
+				replace("#MORE_START#", BXRL.manager.mobile ? '<span class="feed-post-emoji-text-item-more">' : '&nbsp;').
+				replace("#MORE_END#", BXRL.manager.mobile ? '</span>' : '');
 		}
 
-		return result.replace('#USERS_MORE#', '<span class="feed-post-emoji-text-item">' + more + '</span>');
+		if (BXRL.manager.mobile)
+		{
+			topList.sort(function(a, b) {
+				if(parseFloat(a.ID) === parseInt(BX.message('USER_ID')))
+				{
+					return -1;
+				}
+
+				if(parseInt(b.ID) === parseInt(BX.message('USER_ID')))
+				{
+					return 1;
+				}
+
+				if (parseFloat(a.WEIGHT) === parseFloat(b.WEIGHT))
+				{
+					return 0;
+				}
+
+				return (parseFloat(a.WEIGHT) > parseFloat(b.WEIGHT) ? -1 : 1);
+			});
+
+			var userNameList = topList.map(function(item) {
+				return item.NAME_FORMATTED;
+			});
+
+			var
+				userNameBegin = '',
+				userNameEnd = '';
+
+			if (userNameList.length === 1)
+			{
+				userNameBegin = userNameList.pop();
+				userNameEnd = '';
+			}
+			else
+			{
+				userNameBegin = userNameList.slice(0, userNameList.length-1).join(BX.message('RATING_LIKE_TOP_TEXT3_USERLIST_SEPARATOR').replace(/#USERNAME#/g, ''));
+				userNameEnd = userNameList[userNameList.length-1];
+			}
+
+			result = result.replace('#USER_LIST_BEGIN#', userNameBegin).replace('#USER_LIST_END#', userNameEnd);
+		}
+		else
+		{
+			for(var i in topList)
+			{
+				if (!topList.hasOwnProperty(i))
+				{
+					continue;
+				}
+
+				result = result.replace('#USER_' + (parseInt(i) + 1) + '#', '<span class="feed-post-emoji-text-item">' + topList[i].NAME_FORMATTED + '</span>');
+			}
+			result = result.replace('#USERS_MORE#', '<span class="feed-post-emoji-text-item">' + more + '</span>');
+		}
+
+		return result;
 	},
 
 	getUserReaction: function(params)

@@ -34,7 +34,7 @@ class CAllStopList
 		unset($arFields["TIMESTAMP_X"]);
 		$arFields["~TIMESTAMP_X"] = $DB->GetNowFunction();
 
-		if(strlen($arFields["SITE_ID"]) <= 0 || $arFields["SITE_ID"] == "NOT_REF")
+		if($arFields["SITE_ID"] == '' || $arFields["SITE_ID"] == "NOT_REF")
 			$arFields["SITE_ID"] = false;
 
 		if($arFields["ACTIVE"] != "N")
@@ -46,7 +46,7 @@ class CAllStopList
 		$arIPFields = array("IP_1", "IP_2", "IP_3", "IP_4", "MASK_1", "MASK_2", "MASK_3", "MASK_4");
 		foreach($arIPFields as $FIELD_ID)
 		{
-			if(strlen(trim($arFields[$FIELD_ID])) > 0)
+			if(trim($arFields[$FIELD_ID]) <> '')
 			{
 				$arFields[$FIELD_ID] = intval($arFields[$FIELD_ID]);
 				if($arFields[$FIELD_ID] < 0)
@@ -63,10 +63,10 @@ class CAllStopList
 		if($arFields["USER_AGENT_IS_NULL"] != "Y")
 			$arFields["USER_AGENT_IS_NULL"] = "N";
 
-		if(strlen($arFields["DATE_END"]) > 0 && !CheckDateTime($arFields["DATE_END"]))
+		if($arFields["DATE_END"] <> '' && !CheckDateTime($arFields["DATE_END"]))
 			$aMsg[] = array("id"=>"DATE_END", "text"=> GetMessage("STAT_WRONG_END_DATE"));
 
-		if(strlen($arFields["DATE_START"]) > 0 && !CheckDateTime($arFields["DATE_START"]))
+		if($arFields["DATE_START"] <> '' && !CheckDateTime($arFields["DATE_START"]))
 			$aMsg[] = array("id"=>"DATE_START", "text"=> GetMessage("STAT_WRONG_START_DATE"));
 
 		$arTestFields = $arFields;

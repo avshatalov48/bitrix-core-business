@@ -51,12 +51,12 @@ class Comment extends BaseObject
 			$result["SOURCE_ID"] = $params["SOURCE_ID"];
 		}
 		$errorCollection = new ErrorCollection();
-		if (strlen($result["POST_MESSAGE"]) <= 0)
+		if ($result["POST_MESSAGE"] == '')
 			$errorCollection->addOne(new Error(Loc::getMessage("FORUM_CM_ERR_EMPTY_TEXT"), self::ERROR_PARAMS_MESSAGE));
 
-		if (strlen($result["AUTHOR_NAME"]) <= 0 && $result["AUTHOR_ID"] > 0)
+		if ($result["AUTHOR_NAME"] == '' && $result["AUTHOR_ID"] > 0)
 			$result["AUTHOR_NAME"] = self::getUserName($result["AUTHOR_ID"]);
-		if (strlen($result["AUTHOR_NAME"]) <= 0)
+		if ($result["AUTHOR_NAME"] == '')
 			$errorCollection->addOne(new Error(Loc::getMessage("FORUM_CM_ERR_EMPTY_AUTHORS_NAME"), self::ERROR_PARAMS_MESSAGE));
 
 		if (is_array($params["FILES"]) && in_array($this->forum["ALLOW_UPLOAD"], array("Y", "F", "A")))
@@ -167,6 +167,27 @@ class Comment extends BaseObject
 					$params["AUTHOR_REAL_IP"] = @gethostbyaddr($realIp);
 				}
 			}
+
+			/***************** Events OnBeforeCommentAdd ******************/
+			$event = new Event("forum", "OnBeforeCommentAdd", [
+				$this->getEntity()->getType(),
+				$this->getEntity()->getId(),
+				$params
+			]);
+			$event->send($this);
+			if($event->getResults())
+			{
+				foreach($event->getResults() as $eventResult)
+				{
+					if($eventResult->getType() != EventResult::SUCCESS)
+					{
+						$run = false;
+						break;
+					}
+				}
+			}
+			/***************** /Events *****************************************/
+
 			$topic = \Bitrix\Forum\Topic::getById($params["TOPIC_ID"]);
 			$result = \Bitrix\Forum\Message::create($topic, $params);
 
@@ -184,7 +205,7 @@ class Comment extends BaseObject
 
 				if (
 					!$aux // create task from livefeed
-					|| strlen($auxData) > 0 // tasks commentposter, add to livefeed
+					|| $auxData <> '' // tasks commentposter, add to livefeed
 				)
 				{
 					$event = new Event("forum", "OnAfterCommentAdd", array(
@@ -277,7 +298,7 @@ class Comment extends BaseObject
 						"EDIT_REASON" => trim($paramsRaw["EDIT_REASON"]),
 						"EDIT_DATE" => ""
 					);
-					if (strlen($params["EDITOR_NAME"]) <= 0)
+					if ($params["EDITOR_NAME"] == '')
 						$params["EDITOR_NAME"] = ($params["EDITOR_ID"] > 0 ? self::getUserName($params["EDITOR_ID"]) : Loc::getMessage("GUEST"));
 				}
 				$result = \Bitrix\Forum\Message::getById($this->message["ID"])->edit($params);

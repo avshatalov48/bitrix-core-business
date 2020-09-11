@@ -283,12 +283,10 @@ if ($message)
 		<td><?=GetMessage("MAIL_MBOX_EDT_USE_TLS"); ?><span class="required"><sup>1</sup></span></td>
 		<td><input type="checkbox" name="USE_TLS" id="USE_TLS" value="Y"<? if ($str_USE_TLS == 'Y' || $str_USE_TLS == 'S') { ?> checked<? } ?> onclick="change_port();"<? if (!$bCanUseTLS) { ?> disabled<? } ?>></td>
 	</tr>
-	<? if (PHP_VERSION_ID >= 50600) { ?>
 	<tr id="el23" class="pop3 imap">
 		<td><?=GetMessage('MAIL_MBOX_EDT_SKIP_CERT'); ?></td>
 		<td><input type="checkbox" name="SKIP_CERT" id="SKIP_CERT" value="Y"<? if ($str_USE_TLS == 'S') { ?> checked<? } ?><? if ($str_USE_TLS != 'Y' && $str_USE_TLS != 'S') { ?> disabled<? } ?>></td>
 	</tr>
-	<? } ?>
 	<tr id="el9" class="pop3 imap domain crdomain controller adm-detail-required-field">
 		<td><?=GetMessage("MAIL_MBOX_EDT_LOGIN"); ?></td>
 		<td><input type="text" name="LOGIN" size="53" maxlength="255" value="<?=$str_LOGIN?>"></td>

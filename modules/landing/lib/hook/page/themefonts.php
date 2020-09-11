@@ -178,14 +178,16 @@ class ThemeFonts extends Hook\Page
 			'<style>
 			html {font-size: ' . self::BASE_HTML_SIZE . ';}
 			body {font-size: ' . $size . 'rem;}
+			.g-font-size-default {font-size: ' . $size . 'rem;}
 		</style>'
 		);
 	}
 
 	/**
-	 * Replace THEME_CODE_TYPO hook to THEMEFONTS hooks
-	 * @param int $lid
-	 * @param int $siteId
+	 * Replace THEME_CODE_TYPO hook to THEMEFONTS hooks.
+	 * @param int $lid Landing id.
+	 * @param int $siteId Site id.
+	 * @return void
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException

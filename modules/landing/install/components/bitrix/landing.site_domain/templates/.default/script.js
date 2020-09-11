@@ -14,6 +14,7 @@
 		this.idDomainName = params.idDomainName;
 		this.idDomainMessage = params.idDomainMessage;
 		this.idDomainLoader = params.idDomainLoader;
+		this.idDomainErrorAlert = params.idDomainErrorAlert;
 
 		this.classes = {
 			dangerBorder: 'ui-ctl-danger',
@@ -58,6 +59,10 @@
 		 */
 		setSuccess: function(successMessage)
 		{
+			if (this.idDomainErrorAlert)
+			{
+				BX.hide(this.idDomainErrorAlert);
+			}
 			this.setMessage(successMessage);
 		},
 		/**
@@ -183,7 +188,6 @@
 			this.idDomainName.value = BX.util.trim(this.idDomainName.value);
 			return this.idDomainName.value === '';
 		},
-
 		/**
 		 * Makes some check before submit.
 		 */
@@ -310,7 +314,7 @@
 			var cNameRecordRow = this.idDomainDnsInfo.rows[1];
 			var aRecordRow = this.idDomainDnsInfo.rows[2];
 			var domainParts = domainName.split('.');
-			var domainRe = /^(com|net|org|co)\.[a-z]{2}$/;
+			var domainRe = /^(com|net|org|co|kiev|spb)\.[a-z]{2}$/;
 
 			aRecordRow.style.display = 'none';
 			cNameRecordRow.cells[0].textContent = domainName ? domainName : 'landing.mydomain';
@@ -364,7 +368,9 @@
 		this.idDomainName = params.idDomainName;
 		this.idDomainAnother = params.idDomainAnother;
 		this.idDomainAnotherMore = params.idDomainAnotherMore;
-		this.saveBlockerInfo = params.saveBlockerInfo;
+		this.idDomainErrorAlert = params.idDomainErrorAlert;
+		this.saveBlocker = params.saveBlocker;
+		this.saveBlockerCallback = params.saveBlockerCallback;
 		this.promoCloseIcon = params.promoCloseIcon;
 		this.promoCloseLink = params.promoCloseLink;
 		this.promoBlock = params.promoBlock;
@@ -438,18 +444,7 @@
 		{
 			this.idDomainAnother.style.height = this.idDomainAnother.children[0].offsetHeight + 'px';
 			this.idDomainAnotherMore.classList.add('landing-domain-block-available-btn-hide');
-		}
-		,
-		/**
-		 * Returns true if domain name is empty.
-		 * return {bool}
-		 */
-		domainNameIsEmpty: function()
-		{
-			this.idDomainName.value = BX.util.trim(this.idDomainName.value);
-			return this.idDomainName.value === '';
 		},
-
 		/**
 		 * Makes some check before submit.
 		 */
@@ -458,19 +453,18 @@
 			if (BX.hasClass(this.idDomainSubmit, this.classes.submit))
 			{
 				BX.PreventDefault();
+				return;
 			}
-			else if (this.domainNameIsEmpty())
+
+			this.checkDomainName();
+
+			if (this.helper.isErrorShowed())
 			{
-				this.helper.setError(BX.message('LANDING_TPL_ERROR_DOMAIN_EMPTY'));
 				BX.PreventDefault();
 			}
-			else if (this.helper.isErrorShowed())
+			else if (this.saveBlocker && this.saveBlockerCallback)
 			{
-				BX.PreventDefault();
-			}
-			else if (this.saveBlockerInfo)
-			{
-				top.BX.UI.InfoHelper.show(this.saveBlockerInfo);
+				this.saveBlockerCallback();
 				BX.PreventDefault();
 			}
 			else
@@ -592,6 +586,31 @@
 			}
 		},
 		/**
+		 * Checks that domain name is correct.
+		 */
+		checkDomainName: function()
+		{
+			this.idDomainName.value = BX.util.trim(this.idDomainName.value);
+			var domainRe = RegExp('^[a-z0-9-]+\.' + (this.tld[0].toLowerCase()) + '$');
+
+			if (this.idDomainName.value === '')
+			{
+				this.helper.setError(BX.message('LANDING_TPL_ERROR_DOMAIN_EMPTY'));
+			}
+			else if (!domainRe.test(this.idDomainName.value.toLowerCase()))
+			{
+				this.helper.setError(BX.message('LANDING_TPL_ERROR_DOMAIN_CHECK'));
+			}
+			else if (
+				this.idDomainName.value.indexOf('--') !== -1 ||
+				this.idDomainName.value.indexOf('-.') !== -1 ||
+				this.idDomainName.value.indexOf('-') === 0
+			)
+			{
+				this.helper.setError(BX.message('LANDING_TPL_ERROR_DOMAIN_CHECK_DASH'));
+			}
+		},
+		/**
 		 * Makes whois query for user pointed domain.
 		 */
 		checkDomain: function()
@@ -603,10 +622,9 @@
 				return;
 			}
 
-			this.idDomainName.value = BX.util.trim(this.idDomainName.value);
-			if (this.idDomainName.value === '')
+			this.checkDomainName();
+			if (this.helper.isErrorShowed())
 			{
-				this.helper.setError(BX.message('LANDING_TPL_ERROR_DOMAIN_EMPTY'));
 				return;
 			}
 

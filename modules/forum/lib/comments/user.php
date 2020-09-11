@@ -2,10 +2,13 @@
 
 namespace Bitrix\Forum\Comments;
 
+use \Bitrix\Forum;
+
 class User
 {
 	protected $id = 0;
 	protected $groups = array(2);
+	protected $forumUser = [];
 
 	public function __construct($id)
 	{
@@ -19,6 +22,10 @@ class User
 		{
 			$this->id = $id;
 			$this->groups = \Bitrix\Main\UserTable::getUserGroupIds($id);
+		}
+		if ($this->id > 0)
+		{
+			$this->forumUser = Forum\User::getById($this->id);
 		}
 	}
 
@@ -42,9 +49,13 @@ class User
 		return true;
 	}
 
-	public function getParam()
+	public function getParam(string $key)
 	{
-		return '';
+		if (array_key_exists($key, $this->forumUser))
+		{
+			return $this->forumUser[$key];
+		}
+		return null;
 	}
 	public function isAdmin()
 	{

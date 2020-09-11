@@ -68,6 +68,8 @@ class Help
 		'DOMAIN_BITRIX24' => array(
 			'ru' => '11341354'
 		),
+		'COOKIES_EDIT' => array(
+		),
 		'DOMAIN_FREE' => array(
 			'ru' => '11341378'
 		),
@@ -138,34 +140,12 @@ class Help
 	);
 
 	/**
-	 * Landing's codes.
-	 * @var array
-	 */
-	protected static $helpLanding = [
-		'FREE_DOMAIN_FOR_MONEY' => 'limit_free_domen'
-	];
-
-	/**
 	 * Gets domain's array.
 	 * @return array
 	 */
 	public static function getDomains()
 	{
 		return self::$domains;
-	}
-
-	/**
-	 * Returns help landing code by inner code.
-	 * @param string $code Inner landing code.
-	 * @return string|null
-	 */
-	public static function getHelpLandingCode(string $code): ?string
-	{
-		if (isset(self::$helpLanding[$code]))
-		{
-			return self::$helpLanding[$code];
-		}
-		return null;
 	}
 
 	/**
@@ -219,7 +199,7 @@ class Help
 	}
 
 	/**
-	 * Relace in content all help links by format #HELP_LINK_*CODE*#.
+	 * Replaces in content all help links by format #HELP_LINK_*CODE*#.
 	 * @param string $content Some content.
 	 * @return string
 	 */

@@ -21,20 +21,20 @@ endif;
 			"user_post" => "PAGE_NAME=user_post&UID=#UID#&mode=#mode#");
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		if (trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
+			$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	// Page elements
-	$arParams["USERS_PER_PAGE"] = (intVal($arParams["USERS_PER_PAGE"]) > 0 ? intVal($arParams["USERS_PER_PAGE"]) : 20);
+	$arParams["USERS_PER_PAGE"] = (intval($arParams["USERS_PER_PAGE"]) > 0 ? intval($arParams["USERS_PER_PAGE"]) : 20);
 	// Data and data-time format
 	$arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
-	$arParams["WORD_LENGTH"] = intVal($arParams["WORD_LENGTH"]);
+	$arParams["WORD_LENGTH"] = intval($arParams["WORD_LENGTH"]);
 /***************** STANDART ****************************************/
 	$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
 	$arParams["SET_NAVIGATION"] = ($arParams["SET_NAVIGATION"] == "N" ? "N" : "Y");
@@ -71,6 +71,7 @@ $cache_path_main = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$component
 ********************************************************************/
 $cache_id = "forum_forums_listex_".(($tzOffset = CTimeZone::GetOffset()) <> 0 ? "_".$tzOffset : "");
 $cache_path = $cache_path_main."forums";
+//$arForums = [];
 if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path))
 {
 	$res = $cache->GetVars();
@@ -92,19 +93,19 @@ if (!is_array($arForums) || empty($arForums))
 $arFilter = array("SHOW_ABC" => "");
 if (!$USER->IsAdmin())
 	$arFilter["ACTIVE"] = "Y";
-if (strLen($_REQUEST["del_filter"]) <= 0 && strLen($_REQUEST["set_filter"]) > 0)
+if ($_REQUEST["del_filter"] == '' && $_REQUEST["set_filter"] <> '')
 {
-	if (strlen($_REQUEST["date_last_visit1"])>0 && !$GLOBALS["DB"]->IsDate($_REQUEST["date_last_visit1"]))
+	if ($_REQUEST["date_last_visit1"] <> '' && !$GLOBALS["DB"]->IsDate($_REQUEST["date_last_visit1"]))
 		$strError .= GetMessage("LU_INCORRECT_LAST_MESSAGE_DATE");
-	elseif (strlen($_REQUEST["date_last_visit2"])>0 && !$GLOBALS["DB"]->IsDate($_REQUEST["date_last_visit2"]))
+	elseif ($_REQUEST["date_last_visit2"] <> '' && !$GLOBALS["DB"]->IsDate($_REQUEST["date_last_visit2"]))
 		$strError .= GetMessage("LU_INCORRECT_LAST_MESSAGE_DATE");
 	if (empty($strError))
 	{
-		if (intVal($_REQUEST["date_last_visit1_DAYS_TO_BACK"]) > 0)
+		if (intval($_REQUEST["date_last_visit1_DAYS_TO_BACK"]) > 0)
 			$_REQUEST["date_last_visit1"] = GetTime(time()-86400*intval($_REQUEST["date_last_visit1_DAYS_TO_BACK"]));
-		if (strlen($_REQUEST["date_last_visit1"])>0)
+		if ($_REQUEST["date_last_visit1"] <> '')
 			$arFilter[">=LAST_VISIT"] = $_REQUEST["date_last_visit1"];
-		if (strlen($_REQUEST["date_last_visit2"])>0)
+		if ($_REQUEST["date_last_visit2"] <> '')
 			$arFilter["<=LAST_VISIT"] = $_REQUEST["date_last_visit2"];
 	}
 	$_REQUEST["user_name"] = trim($_REQUEST["user_name"]);
@@ -121,7 +122,7 @@ if (strLen($_REQUEST["del_filter"]) <= 0 && strLen($_REQUEST["set_filter"]) > 0)
 	$arResult["filter"]["user_name"] = htmlspecialcharsbx($_REQUEST["user_name"]);
 /************** For custom/****************************************/
 }
-elseif (strLen($_REQUEST["del_filter"]) > 0)
+elseif ($_REQUEST["del_filter"] <> '')
 {
 	unset($_REQUEST["user_name"]);
 	unset($_REQUEST["date_last_visit2"]);
@@ -197,7 +198,7 @@ if($db_res)
 			$res["LAST_VISIT"] = !empty($res["LAST_VISIT"]) ? CForumFormat::DateFormat($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($res["LAST_VISIT"], CSite::GetDateFormat())) : "";
 			$res["icq"] =  CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE_SEND"], array("TYPE" => "icq", "UID" => $res["USER_ID"]));
 
-			if (strLen($res["AVATAR"])>0)
+			if ($res["AVATAR"] <> '')
 			{
 				$res["~AVATAR"] = array("ID" => $res["AVATAR"], "FILE" => CFile::GetFileArray($res["AVATAR"]));
 				$res["~AVATAR"]["HTML"] = CFile::ShowImage($res["~AVATAR"]["FILE"],

@@ -21,11 +21,11 @@
 					<h3 class="landing-block-node-card-subtitle landing-semantic-subtitle-image-medium h6 g-font-size-32 g-color-white g-mb-10 g-mb-25--md">
 						<span style="font-weight: bold;">$3.500</span> / per month
 					</h3>
-					<h2 class="landing-block-node-card-title landing-semantic-title-image-medium text-uppercase g-line-height-1_2 font-weight-bold g-font-size-20 g-font-size-46 g-color-white mb-0 g-mb-35--md g-text-break-word">
+					<h2 class="landing-block-node-card-title landing-semantic-title-image-medium text-uppercase g-line-height-1_2 g-font-weight-700 g-font-size-20 g-font-size-46 g-color-white g-mb-35 g-text-break-word">
 						Apartment in<br>London's center
 					</h2>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-mt-20 g-mt-0--md text-uppercase u-btn-primary font-weight-bold g-font-size-10 g-font-size-14--md g-py-7 g-px-10 g-py-15--md g-px-40--md"
+						<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-md g-btn-px-l rounded-0 g-mt-0 text-uppercase g-btn-primary g-py-7 g-py-15--md"
 						   href="#">Learn more</a>
 					</div>
 				</div>
@@ -40,11 +40,11 @@
 					<h3 class="landing-block-node-card-subtitle landing-semantic-subtitle-image-medium h6 g-font-size-32 g-color-white g-mb-10 g-mb-25--md">
 						<span style="font-weight: bold;">$3.500</span> / per month
 					</h3>
-					<h2 class="landing-block-node-card-title landing-semantic-title-image-medium text-uppercase g-line-height-1_2 font-weight-bold g-font-size-20 g-font-size-46 g-color-white mb-0 g-mb-35--md g-text-break-word">
+					<h2 class="landing-block-node-card-title landing-semantic-title-image-medium text-uppercase g-line-height-1_2 g-font-weight-700 g-font-size-20 g-font-size-46 g-color-white g-mb-35 g-text-break-word">
 						Apartment in<br>London's center
 					</h2>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-mt-20 g-mt-0--md text-uppercase u-btn-primary font-weight-bold g-font-size-10 g-font-size-14--md g-py-7 g-px-10 g-py-15--md g-px-40--md"
+						<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-md g-btn-px-l rounded-0 g-mt-0 text-uppercase g-btn-primary g-py-7 g-py-15--md"
 						   href="#">Learn more</a>
 					</div>
 				</div>
@@ -59,11 +59,11 @@
 					<h3 class="landing-block-node-card-subtitle landing-semantic-subtitle-image-medium h6 g-font-size-32 g-color-white g-mb-10 g-mb-25--md">
 						<span style="font-weight: bold;">$3.500</span> / per month
 					</h3>
-					<h2 class="landing-block-node-card-title landing-semantic-title-image-medium text-uppercase g-line-height-1_2 font-weight-bold g-font-size-20 g-font-size-46 g-color-white mb-0 g-mb-35--md g-text-break-word">
+					<h2 class="landing-block-node-card-title landing-semantic-title-image-medium text-uppercase g-line-height-1_2 g-font-weight-700 g-font-size-20 g-font-size-46 g-color-white g-mb-35 g-text-break-word">
 						Apartment in<br>London's center
 					</h2>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-mt-20 g-mt-0--md text-uppercase u-btn-primary font-weight-bold g-font-size-10 g-font-size-14--md g-py-7 g-px-10 g-py-15--md g-px-40--md"
+						<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-md g-btn-px-l rounded-0 g-mt-0 text-uppercase g-btn-primary g-py-7 g-py-15--md"
 						   href="#">Learn more</a>
 					</div>
 				</div>
@@ -79,11 +79,11 @@
 					<h3 class="landing-block-node-card-subtitle landing-semantic-subtitle-image-medium h6 g-font-size-32 g-color-white g-mb-10 g-mb-25--md">
 						<span style="font-weight: bold;">$3.500</span> / per month
 					</h3>
-					<h2 class="landing-block-node-card-title landing-semantic-title-image-medium text-uppercase g-line-height-1_2 font-weight-bold g-font-size-20 g-font-size-46 g-color-white mb-0 g-mb-35--md g-text-break-word">
+					<h2 class="landing-block-node-card-title landing-semantic-title-image-medium text-uppercase g-line-height-1_2 g-font-weight-700 g-font-size-20 g-font-size-46 g-color-white g-mb-35 g-text-break-word">
 						Apartment in<br>London's center
 					</h2>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-mt-20 g-mt-0--md text-uppercase u-btn-primary font-weight-bold g-font-size-10 g-font-size-14--md g-py-7 g-px-10 g-py-15--md g-px-40--md"
+						<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-md g-btn-px-l rounded-0 g-mt-0 text-uppercase g-btn-primary g-py-7 g-py-15--md"
 						   href="#">Learn more</a>
 					</div>
 				</div>

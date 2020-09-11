@@ -46,9 +46,9 @@ while($arIBType = $rsIBTypes->GetNext())
 
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
-if($REQUEST_METHOD=="POST" && strlen($Update.$Apply.$RestoreDefaults)>0 && check_bitrix_sessid())
+if($REQUEST_METHOD=="POST" && $Update.$Apply.$RestoreDefaults <> '' && check_bitrix_sessid())
 {
-	if(strlen($RestoreDefaults)>0)
+	if($RestoreDefaults <> '')
 	{
 		COption::RemoveOption("lists");
 	}
@@ -89,7 +89,7 @@ if($REQUEST_METHOD=="POST" && strlen($Update.$Apply.$RestoreDefaults)>0 && check
 		}
 	}
 
-	if(strlen($Update)>0 && strlen($_REQUEST["back_url_settings"])>0)
+	if($Update <> '' && $_REQUEST["back_url_settings"] <> '')
 		LocalRedirect($_REQUEST["back_url_settings"]);
 	else
 		LocalRedirect($APPLICATION->GetCurPage()."?mid=".urlencode($mid)."&lang=".urlencode(LANGUAGE_ID)."&back_url_settings=".urlencode($_REQUEST["back_url_settings"])."&".$tabControl->ActiveTabParam());
@@ -196,7 +196,7 @@ if(IsModuleInstalled('socialnetwork'))
 $tabControl->Buttons();?>
 	<input type="submit" name="Update" value="<?=GetMessage("MAIN_SAVE")?>" title="<?=GetMessage("MAIN_OPT_SAVE_TITLE")?>" class="adm-btn-save">
 	<input type="submit" name="Apply" value="<?=GetMessage("MAIN_OPT_APPLY")?>" title="<?=GetMessage("MAIN_OPT_APPLY_TITLE")?>">
-	<?if(strlen($_REQUEST["back_url_settings"])>0):?>
+	<?if($_REQUEST["back_url_settings"] <> ''):?>
 		<input type="button" name="Cancel" value="<?=GetMessage("MAIN_OPT_CANCEL")?>" title="<?=GetMessage("MAIN_OPT_CANCEL_TITLE")?>" onclick="window.location='<?echo htmlspecialcharsbx(CUtil::addslashes($_REQUEST["back_url_settings"]))?>'">
 		<input type="hidden" name="back_url_settings" value="<?=htmlspecialcharsbx($_REQUEST["back_url_settings"])?>">
 	<?endif?>

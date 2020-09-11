@@ -10,7 +10,7 @@ if (!function_exists("WrapLongWord")) // Need for custom templates. Do not delet
 			$WordBoundary = " \s\n\r\t\x01";
 		if ($WordSeparator === false)
 			$WordSeparator = '<WBR/>&shy;';
-		if (intVal($WordLength) <= 0)
+		if (intval($WordLength) <= 0)
 			$WordLength = 20;
 		if (is_array($value))
 		{
@@ -44,13 +44,13 @@ if (!function_exists("ForumNumberEnding"))
 	{
 		if (LANGUAGE_ID=="ru")
 		{
-			if (strLen($num)>1 && substr($num, strLen($num)-2, 1)=="1")
+			if (mb_strlen($num) > 1 && mb_substr($num, mb_strlen($num) - 2, 1) == "1")
 			{
 				return GetMessage("F_END_OV");
 			}
 			else
 			{
-				$c = intVal(substr($num, strLen($num)-1, 1));
+				$c = intval(mb_substr($num, mb_strlen($num) - 1, 1));
 				if ($c==0 || ($c>=5 && $c<=9))
 					return GetMessage("F_END_OV");
 				elseif ($c==1)
@@ -61,7 +61,7 @@ if (!function_exists("ForumNumberEnding"))
 		}
 		else
 		{
-			if (intVal($num)>1)
+			if (intval($num)>1)
 				return "s";
 			return "";
 		}
@@ -73,7 +73,7 @@ if (!function_exists("endingTopicsPosts"))
 	function endingTopicsPosts($mark, $count)
 	{
 		$text = "";
-		$count = intVal($count%10);
+		$count = intval($count%10);
 			
 		if ($count==1)
 			$text = "_1";
@@ -85,7 +85,7 @@ if (!function_exists("endingTopicsPosts"))
 		// GetMessage("F_STAT_POSTS");
 		// GetMessage("F_STAT_POSTS_1");
 		// GetMessage("F_STAT_POSTS_2_4");
-		return GetMessage("F_STAT_".strToUpper($mark).$text);
+		return GetMessage("F_STAT_".mb_strtoupper($mark).$text);
 	}
 }
 ?>

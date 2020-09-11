@@ -7,7 +7,7 @@
 			</div>
 
 			<div class="landing-block-node-text-container js-animation slideInRight col-md-6 col-lg-6 g-pb-20 g-pb-0--md order-1 order-md-2">
-				<h2 class="landing-block-node-title landing-semantic-subtitle-medium text-uppercase font-weight-bold g-font-size-26 mb-0 g-mb-15">
+				<h2 class="landing-block-node-title landing-semantic-subtitle-medium text-uppercase g-font-weight-700 g-font-size-26 mb-0 g-mb-15">
 					Quality results with us
 				</h2>
 				<div class="landing-block-node-text g-color-gray-dark-v4 landing-semantic-text-medium">

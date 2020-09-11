@@ -38,7 +38,8 @@ $requestDomainName = $this->getComponent()->request('param');
 			idDomainName: BX('domain-edit-name'),
 			idDomainMessage: BX('domain-edit-message'),
 			idDomainLoader: BX('domain-edit-loader'),
-			idDomainSubmit: BX('domain-edit-submit')
+			idDomainSubmit: BX('domain-edit-submit'),
+			idDomainErrorAlert: BX('domain-error-alert')
 		});
 	});
 </script>

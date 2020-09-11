@@ -115,7 +115,7 @@ if(is_array($find_site_id))
 }
 else
 {
-	$site_filtered = (strlen($find_site_id) > 0 && $find_site_id != "NOT_REF");
+	$site_filtered = ($find_site_id <> '' && $find_site_id != "NOT_REF");
 }
 
 $lAdmin->BeginPrologContent();

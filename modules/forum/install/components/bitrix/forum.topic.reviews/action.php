@@ -39,7 +39,7 @@ elseif ((empty($request["preview_comment"]) || $request["preview_comment"] == "N
 {
 	$strErrorMessage = "";
 	// 1.2 Check Post Text
-	if (strlen($post["REVIEW_TEXT"]) < 3)
+	if (mb_strlen($post["REVIEW_TEXT"]) < 3)
 	{
 		$arError[] = array(
 			"code" => "post is empty",
@@ -57,10 +57,10 @@ elseif ((empty($request["preview_comment"]) || $request["preview_comment"] == "N
 					function CheckCaptchaCode($userCode, $sid, $bUpperCode = true)
 					{
 						global $DB;
-						if (strlen($userCode)<=0 || strlen($sid)<=0)
+						if ($userCode == '' || $sid == '')
 							return false;
 						if ($bUpperCode)
-							$userCode = strtoupper($userCode);
+							$userCode = mb_strtoupper($userCode);
 						$res = $DB->Query("SELECT CODE FROM b_captcha WHERE ID = '".$DB->ForSQL($sid,32)."' ");
 						if (!$ar = $res->Fetch())
 							return false;
@@ -79,7 +79,7 @@ elseif ((empty($request["preview_comment"]) || $request["preview_comment"] == "N
 						if (!array_key_exists($sid, $_SESSION["CAPTCHA_CODE"]))
 							return False;
 						if ($bUpperCode)
-							$userCode = strtoupper($userCode);
+							$userCode = mb_strtoupper($userCode);
 						if ($_SESSION["CAPTCHA_CODE"][$sid] != $userCode)
 							return False;
 //						unset($_SESSION["CAPTCHA_CODE"][$sid]);
@@ -91,14 +91,14 @@ elseif ((empty($request["preview_comment"]) || $request["preview_comment"] == "N
 						if (!defined("CAPTCHA_COMPATIBILITY"))
 							return CForumTmpCaptcha::CheckCaptchaCode($userCode, $codeCrypt, $bUpperCode);
 
-						if (strlen($codeCrypt) <= 0)
+						if ($codeCrypt == '')
 							return False;
 
-						if (!array_key_exists("CAPTCHA_PASSWORD", $_SESSION) || strlen($_SESSION["CAPTCHA_PASSWORD"]) <= 0)
+						if (!array_key_exists("CAPTCHA_PASSWORD", $_SESSION) || $_SESSION["CAPTCHA_PASSWORD"] == '')
 							return False;
 
 						if ($bUpperCode)
-							$userCode = strtoupper($userCode);
+							$userCode = mb_strtoupper($userCode);
 
 						$code = $this->CryptData($codeCrypt, "D", $_SESSION["CAPTCHA_PASSWORD"]);
 
@@ -113,7 +113,7 @@ elseif ((empty($request["preview_comment"]) || $request["preview_comment"] == "N
 		else:
 			$cpt = new CCaptcha();
 		endif;
-		if (strlen($post["captcha_code"]) <= 0):
+		if ($post["captcha_code"] == ''):
 			if (!$cpt->CheckCode($post["captcha_word"], 0)):
 				$arError[] = array(
 					"code" => "captcha is empty",
@@ -159,7 +159,7 @@ elseif ((empty($request["preview_comment"]) || $request["preview_comment"] == "N
 				"MULTIPLE" => "N",
 				"NAME" => $sName,
 				"CODE" => $nameProperty)))
-				${strToUpper($nameProperty)} = 0;
+				${mb_strtoupper($nameProperty)} = 0;
 		}
 	}
 	// 1.5 Set NULL for topic_id if it was deleted
@@ -234,13 +234,13 @@ elseif ((empty($request["preview_comment"]) || $request["preview_comment"] == "N
 			$sImage = ""; $arSection = array();
 			$url = (empty($arParams["URL_TEMPLATES_DETAIL"]) ? $arResult["ELEMENT"]["DETAIL_PAGE_URL"] : $arParams["URL_TEMPLATES_DETAIL"]);
 			$SECTION_CODE_PATH = "";
-			if (strpos($arParams["URL_TEMPLATES_DETAIL"], "#SECTION_CODE#") !== false && intval($arResult["ELEMENT"]["IBLOCK_SECTION_ID"]) > 0):
+			if (mb_strpos($arParams["URL_TEMPLATES_DETAIL"], "#SECTION_CODE#") !== false && intval($arResult["ELEMENT"]["IBLOCK_SECTION_ID"]) > 0):
 				$db_res = CIBlockSection::GetList(array(), array("ID" => $arResult["ELEMENT"]["IBLOCK_SECTION_ID"]), false, array("ID", "NAME", "CODE"));
 				if ($db_res && $res = $db_res->Fetch()):
 					$arSection = $res;
 				endif;
 			endif;
-			if (strpos($arParams["URL_TEMPLATES_DETAIL"], "#SECTION_CODE_PATH#") !== false && intval($arResult["ELEMENT"]["IBLOCK_SECTION_ID"]) > 0):
+			if (mb_strpos($arParams["URL_TEMPLATES_DETAIL"], "#SECTION_CODE_PATH#") !== false && intval($arResult["ELEMENT"]["IBLOCK_SECTION_ID"]) > 0):
 				$db_res = CIBlockSection::GetNavChain(0, $arResult["ELEMENT"]["IBLOCK_SECTION_ID"], array("ID", "IBLOCK_SECTION_ID", "CODE"));
 				while ($a = $db_res->Fetch())
 					$SECTION_CODE_PATH .= urlencode($a["CODE"])."/";
@@ -334,7 +334,7 @@ elseif ((empty($request["preview_comment"]) || $request["preview_comment"] == "N
 		endif;
 		if (!empty($_FILES)):
 			foreach ($_FILES as $key => $val):
-				if (substr($key, 0, strlen("FILE_NEW")) == "FILE_NEW" && !empty($val["name"])):
+				if (mb_substr($key, 0, mb_strlen("FILE_NEW")) == "FILE_NEW" && !empty($val["name"])):
 					if ($post["AJAX_POST"] == "Y")
 						$val["name"] = $APPLICATION->ConvertCharset($val["name"], "UTF-8", LANG_CHARSET);
 
@@ -405,7 +405,7 @@ elseif ($post["save_product_review"] == "Y") // preview
 	$res = array();
 
 	foreach ($_FILES as $key => $val):
-		if ((substr($key, 0, strlen("FILE_NEW")) == "FILE_NEW") && !empty($val["name"])):
+		if ((mb_substr($key, 0, mb_strlen("FILE_NEW")) == "FILE_NEW") && !empty($val["name"])):
 			if ($post["AJAX_POST"] == "Y")
 				$val["name"] = $APPLICATION->ConvertCharset($val["name"], "UTF-8", LANG_CHARSET);
 			$arFiles[] = $val;

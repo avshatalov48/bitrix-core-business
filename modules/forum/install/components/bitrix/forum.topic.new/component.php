@@ -13,8 +13,8 @@ endif;
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$arParams["FID"] = intVal(intVal($arParams["FID"]) <= 0 ? $_REQUEST["FID"] : $arParams["FID"]);
-	$arParams["MID"] = (intVal($arParams["MID"]) <= 0 ? $_REQUEST["MID"] : $arParams["MID"]);
+	$arParams["FID"] = intval(intVal($arParams["FID"]) <= 0 ? $_REQUEST["FID"] : $arParams["FID"]);
+	$arParams["MID"] = (intval($arParams["MID"]) <= 0 ? $_REQUEST["MID"] : $arParams["MID"]);
 	$arParams["MESSAGE_TYPE"] = (empty($arParams["MESSAGE_TYPE"]) ? $_REQUEST["MESSAGE_TYPE"] : $arParams["MESSAGE_TYPE"]);
 	$arParams["MESSAGE_TYPE"] = ($arParams["MESSAGE_TYPE"]!="EDIT" ? "NEW" : "EDIT");
 /***************** URL *********************************************/
@@ -31,10 +31,10 @@ endif;
 	}
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["URL_TEMPLATES_".strToUpper($URL)]);
+		if (trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
+			$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
@@ -47,11 +47,11 @@ endif;
 		$arParams["AJAX_TYPE"] = "N";
 	$arParams["AJAX_CALL"] = ($_REQUEST["AJAX_CALL"] == "Y" ? "Y" : "N");
 	$arParams["AJAX_CALL"] = (($arParams["AJAX_TYPE"] == "Y" && $arParams["AJAX_CALL"] == "Y") ? "Y" : "N");
-	$arParams["VOTE_CHANNEL_ID"] = intVal($arParams["VOTE_CHANNEL_ID"]);
+	$arParams["VOTE_CHANNEL_ID"] = intval($arParams["VOTE_CHANNEL_ID"]);
 	$arParams["SHOW_VOTE"] = ($arParams["SHOW_VOTE"] == "Y" && $arParams["VOTE_CHANNEL_ID"] > 0 && IsModuleInstalled("vote") ? "Y" : "N");
 	$arParams["VOTE_GROUP_ID"] = (!is_array($arParams["VOTE_GROUP_ID"]) || empty($arParams["VOTE_GROUP_ID"]) ? array() : $arParams["VOTE_GROUP_ID"]);
 	if (!is_array($arParams['VOTE_UNIQUE'])) $arParams['VOTE_UNIQUE'] = array();
-	if (!(isset($arParams['VOTE_UNIQUE_IP_DELAY']) && strlen(trim($arParams['VOTE_UNIQUE_IP_DELAY'])) > 0 && strpos($arParams['VOTE_UNIQUE_IP_DELAY'], " ") !== false))
+	if (!(isset($arParams['VOTE_UNIQUE_IP_DELAY']) && trim($arParams['VOTE_UNIQUE_IP_DELAY']) <> '' && mb_strpos($arParams['VOTE_UNIQUE_IP_DELAY'], " ") !== false))
 		$arParams['VOTE_UNIQUE_IP_DELAY'] = "10 D";
 	$arParams["AUTOSAVE"] = CForumAutosave::GetInstance();
 /***************** STANDART ****************************************/
@@ -109,7 +109,7 @@ if ($arParams["MESSAGE_TYPE"] == "EDIT")
 			$arParams["TID"] = $arResult["TOPIC"]["ID"];
 			$arParams["FID"] = $arResult["FORUM"]["ID"];
 
-			if ($arParams["SHOW_VOTE"] == "Y" && $arResult["MESSAGE"]["PARAM1"] == "VT" && intVal($arResult["MESSAGE"]["PARAM2"]) > 0)
+			if ($arParams["SHOW_VOTE"] == "Y" && $arResult["MESSAGE"]["PARAM1"] == "VT" && intval($arResult["MESSAGE"]["PARAM2"]) > 0)
 			{
 				$db_res = CVoteQuestion::GetListEx(array("ID" => "ASC"), array("CHANNEL_ID" => $arParams["VOTE_CHANNEL_ID"], "VOTE_ID" => $arResult["MESSAGE"]["PARAM2"]));
 				if ($db_res && $res = $db_res->Fetch())
@@ -174,8 +174,8 @@ endif;
 $arResult["index"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_INDEX"], array());
 $arResult["list"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_LIST"], array("FID" => $arParams["FID"]));
 $arResult["read"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE"],
-	array("FID" => $arParams["FID"], "TID" => intVal($arParams["TID"]), "TITLE_SEO" => $arResult["TOPIC"]["TITLE_SEO"],
-		"MID"=>(intVal($arParams["MID"]) > 0 ? intVal($arParams["MID"]) : "s")));
+	array("FID" => $arParams["FID"], "TID" => intval($arParams["TID"]), "TITLE_SEO" => $arResult["TOPIC"]["TITLE_SEO"],
+		"MID"=>(intval($arParams["MID"]) > 0 ? intval($arParams["MID"]) : "s")));
 $arResult["URL"] = array(
 	"INDEX" => $arResult["index"],
 	"~INDEX" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_INDEX"], array()),
@@ -183,9 +183,9 @@ $arResult["URL"] = array(
 	"~LIST" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_LIST"], array("FID" => $arParams["FID"])),
 	"READ" => $arResult["read"],
 	"~READ" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_MESSAGE"],
-	array("FID" => $arParams["FID"], "TID" => intVal($arParams["TID"]),
-		"TITLE_SEO" => $arResult["TOPIC"]["TITLE_SEO"], "MID"=>(intVal($arParams["MID"]) > 0 ? intVal($arParams["MID"]) : "s"))));
-$arResult["VIEW"] = ((strToUpper($_REQUEST["MESSAGE_MODE"]) == "VIEW" && $_SERVER["REQUEST_METHOD"] == "POST") ? "Y" : "N");
+	array("FID" => $arParams["FID"], "TID" => intval($arParams["TID"]),
+		"TITLE_SEO" => $arResult["TOPIC"]["TITLE_SEO"], "MID"=>(intval($arParams["MID"]) > 0 ? intval($arParams["MID"]) : "s"))));
+$arResult["VIEW"] = ((mb_strtoupper($_REQUEST["MESSAGE_MODE"]) == "VIEW" && $_SERVER["REQUEST_METHOD"] == "POST") ? "Y" : "N");
 $_REQUEST["FILES"] = (is_array($_REQUEST["FILES"]) ? $_REQUEST["FILES"] : array());
 $_REQUEST["FILES_TO_UPLOAD"] = (is_array($_REQUEST["FILES_TO_UPLOAD"]) ? $_REQUEST["FILES_TO_UPLOAD"] : array());
 $post = $this->request->getPostList()->toArray();
@@ -373,7 +373,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $request->getPost("MESSAGE_TYPE") !=
 				{
 					$res = array();
 					foreach ($_FILES as $key => $val):
-						if (substr($key, 0, strLen("FILE_NEW")) == "FILE_NEW" && !empty($val["name"])):
+						if (mb_substr($key, 0, mb_strlen("FILE_NEW")) == "FILE_NEW" && !empty($val["name"])):
 							$arFiles[] = $_FILES[$key];
 						endif;
 					endforeach;
@@ -390,10 +390,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $request->getPost("MESSAGE_TYPE") !=
 					"EDITOR_EMAIL" => $_REQUEST["EDITOR_EMAIL"],
 					"EDIT_REASON" => $_REQUEST["EDIT_REASON"]);
 			}
-			$TID1 = ($arParams["MESSAGE_TYPE"]=="NEW") ? 0 : intVal($arParams["TID"]);
-			$MID1 = ($arParams["MESSAGE_TYPE"]=="NEW") ? 0 : intVal($arParams["MID"]);
+			$TID1 = ($arParams["MESSAGE_TYPE"]=="NEW") ? 0 : intval($arParams["TID"]);
+			$MID1 = ($arParams["MESSAGE_TYPE"]=="NEW") ? 0 : intval($arParams["MID"]);
 
-			$MID1 = intVal(ForumAddMessage($arParams["MESSAGE_TYPE"],
+			$MID1 = intval(ForumAddMessage($arParams["MESSAGE_TYPE"],
 				$arParams["FID"], $TID1, $MID1, $arFieldsG,
 				$strErrorMessage, $strOKMessage,
 				false,
@@ -414,14 +414,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $request->getPost("MESSAGE_TYPE") !=
 						$addParams["FORUM_SUBSCRIBE"] = "Y";
 				}
 				$arNote = array(
-					"code" => strToLower($arParams["MESSAGE_TYPE"]),
+					"code" => mb_strtolower($arParams["MESSAGE_TYPE"]),
 					"title" => $strOKMessage,
 					"link" => ForumAddPageParams(CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_MESSAGE"],
 						array(
-							"FID" => intVal($arParams["FID"]),
-							"TID" => intVal($arResult["MESSAGE"]["TOPIC_INFO"]["ID"]),
+							"FID" => intval($arParams["FID"]),
+							"TID" => intval($arResult["MESSAGE"]["TOPIC_INFO"]["ID"]),
 							"TITLE_SEO" => $arResult["MESSAGE"]["TOPIC_INFO"]["TITLE_SEO"],
-							"MID" => intVal($arParams["MID"])
+							"MID" => intval($arParams["MID"])
 						)
 					), $addParams));
 				if ($arParams["AJAX_CALL"] == "N")
@@ -434,7 +434,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $request->getPost("MESSAGE_TYPE") !=
 					$arResult["SHOW_MESSAGE_FOR_AJAX"] = "Y";
 				}
 			}
-			elseif ($arParams["MESSAGE_TYPE"] != "EDIT" && $arFieldsG["PARAM1"] == "VT" && intVal($arFieldsG["PARAM2"]) > 0)
+			elseif ($arParams["MESSAGE_TYPE"] != "EDIT" && $arFieldsG["PARAM1"] == "VT" && intval($arFieldsG["PARAM2"]) > 0)
 			{
 				CVote::Delete($arFieldsG["PARAM2"]);
 			}
@@ -445,16 +445,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $request->getPost("MESSAGE_TYPE") !=
 	{
 		$bVarsFromForm = true;
 		$arFields = array(
-			"FORUM_ID" => intVal($arParams["FID"]),
-			"TOPIC_ID" => intVal($arParams["TID"]),
-			"MESSAGE_ID" => intVal($arParams["MID"]),
-			"USER_ID" => intVal($GLOBALS["USER"]->GetID()));
+			"FORUM_ID" => intval($arParams["FID"]),
+			"TOPIC_ID" => intval($arParams["TID"]),
+			"MESSAGE_ID" => intval($arParams["MID"]),
+			"USER_ID" => intval($GLOBALS["USER"]->GetID()));
 		$arFiles = array();
 		$arFilesExists = array();
 		$res = array();
 
 		foreach ($_FILES as $key => $val):
-			if (substr($key, 0, strLen("FILE_NEW")) == "FILE_NEW" && !empty($val["name"])):
+			if (mb_substr($key, 0, mb_strlen("FILE_NEW")) == "FILE_NEW" && !empty($val["name"])):
 				$arFiles[] = $_FILES[$key];
 			endif;
 		endforeach;
@@ -525,7 +525,7 @@ if ($arResult["SHOW_MESSAGE_FOR_AJAX"] == "Y")
 		$res["FILES_PARSED"] = $parser->arFilesIDParsed;
 //				************************message attach img****************************************
 		$res["ATTACH_IMG"] = "";
-		if (intVal($res["~ATTACH_IMG"])>0 && in_array($arResult["FORUM"]["ALLOW_UPLOAD"], array("Y", "A", "F")))
+		if (intval($res["~ATTACH_IMG"])>0 && in_array($arResult["FORUM"]["ALLOW_UPLOAD"], array("Y", "A", "F")))
 			$res["ATTACH_IMG"] = CFile::ShowFile($res["~ATTACH_IMG"], 0, 300, 300, true, "border=0", false);
 
 		if (!empty($res["EDITOR_ID"]))
@@ -533,7 +533,7 @@ if ($arResult["SHOW_MESSAGE_FOR_AJAX"] == "Y")
 			$res["EDITOR_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"], array("UID" => $res["EDITOR_ID"]));
 		}
 
-		if (strLen(trim($res["EDIT_DATE"])) > 0)
+		if (trim($res["EDIT_DATE"]) <> '')
 		{
 			$res["EDIT_DATE"] = CForumFormat::DateFormat($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($res["EDIT_DATE"], CSite::GetDateFormat()));
 		}
@@ -541,8 +541,8 @@ if ($arResult["SHOW_MESSAGE_FOR_AJAX"] == "Y")
 	}
 }
 /************** Navigation *****************************************/
-if (intVal($arResult["FORUM"]["FORUM_GROUP_ID"]) > 0):
-	$PARENT_ID = intVal($arResult["FORUM"]["FORUM_GROUP_ID"]);
+if (intval($arResult["FORUM"]["FORUM_GROUP_ID"]) > 0):
+	$PARENT_ID = intval($arResult["FORUM"]["FORUM_GROUP_ID"]);
 	while ($PARENT_ID > 0)
 	{
 		$res = $arResult["GROUPS"][$PARENT_ID];
@@ -552,7 +552,7 @@ if (intVal($arResult["FORUM"]["FORUM_GROUP_ID"]) > 0):
 			"~GROUP" => CComponentEngine::MakePathFromTemplate(
 				$arParams["~URL_TEMPLATES_FORUMS"], array("GID" => $PARENT_ID)));
 		$arResult["GROUP_NAVIGATION"][] = $res;
-		$PARENT_ID = intVal($arResult["GROUPS"][$PARENT_ID]["PARENT_ID"]);
+		$PARENT_ID = intval($arResult["GROUPS"][$PARENT_ID]["PARENT_ID"]);
 	}
 	$arResult["GROUP_NAVIGATION"] = array_reverse($arResult["GROUP_NAVIGATION"]);
 endif;

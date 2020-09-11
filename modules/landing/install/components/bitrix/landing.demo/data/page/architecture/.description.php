@@ -256,10 +256,10 @@ return array(
 			<div class="landing-block-node-img col-md-6 g-min-height-300 g-bg-img-hero g-px-0 g-bg-size-cover" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/597x354/img1.png\');"></div>
 			
 			<div class="col-md-6 text-center text-md-left g-py-50 g-py-100--md g-px-15 g-px-50--md">
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-default g-color-white g-mb-25 js-animation fadeInUp animated"><p style="text-align: left;"><span style="font-family: inherit;font-size: 1rem;">RESIDENTIAL BUILDINGS PROJECTS</span></p></h3>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-color-white g-mb-25 js-animation fadeInUp animated"><p style="text-align: left;"><span style="font-family: inherit;font-size: 1rem;">RESIDENTIAL BUILDINGS PROJECTS</span></p></h3>
 				<div class="landing-block-node-text g-mb-30 g-color-gray-light-v2 js-animation fadeInUp animated"><p style="text-align: left;">Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna.</p></div>
 				<div class="landing-block-node-button-container">
-					<a class="landing-block-node-button text-uppercase btn btn-xl u-btn-primary g-font-weight-700 g-font-size-12 g-rounded-50 js-animation fadeInUp animated" href="#" tabindex="0" target="_self">VIEW PROJECT</a>
+					<a class="landing-block-node-button text-uppercase btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary g-font-weight-700 g-font-size-12 g-rounded-50 js-animation fadeInUp animated" href="#" tabindex="0" target="_self">VIEW PROJECT</a>
 				</div>
 			</div>
 		</div>
@@ -474,7 +474,7 @@ return array(
                          data-speed="5000"
                          data-rows="2"
                          data-slides-show="2"
-                         data-arrows-classes="u-arrow-v1 g-pos-abs g-bottom-100x g-right-0 g-width-35 g-height-35 g-font-size-default g-color-gray g-color-white--hover g-bg-gray-light-v5 g-bg-primary--hover g-mb-5 g-transition-0_2 g-transition--ease-in"
+                         data-arrows-classes="u-arrow-v1 g-pos-abs g-bottom-100x g-right-0 g-width-35 g-height-35 g-color-gray g-color-white--hover g-bg-gray-light-v5 g-bg-primary--hover g-mb-5 g-transition-0_2 g-transition--ease-in"
                          data-arrow-left-classes="fa fa-angle-left g-mr-50"
                          data-arrow-right-classes="fa fa-angle-right g-mr-5"
 						 data-responsive=\'[{
@@ -490,7 +490,7 @@ return array(
 						   }]\'>
                         <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5">
                             <div class="g-parent g-pos-rel g-overflow-hidden">
-                                <img class="landing-block-node-carousel-element-img img-fluid g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img9.jpg" alt="" />
+                                <img class="landing-block-node-carousel-element-img img-fluid w-100 g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img9.jpg" alt="" />
                                 <div class="landing-block-node-carousel-element-img-hover g-pos-abs g-top-0 g-left-0 w-100 h-100 g-bg-primary-opacity-0_8 g-color-white opacity-0 g-opacity-1--parent-hover g-pa-25 g-transition-0_3 g-transition--ease-in">
                                     <h3 class="landing-block-node-carousel-element-title text-uppercase g-font-weight-700 g-color-white mb-0 g-font-size-14 g-line-height-1_3 g-letter-spacing-1_5">RESIDENTIAL BUILDINGS PROJECTS</h3>
                                     <div class="landing-block-node-carousel-element-text g-line-height-1_5--hover g-font-size-12 g-transition-0_3 g-transition--ease-in g-color-gray-light-v4"><p><br /></p></div>
@@ -500,7 +500,7 @@ return array(
 						
                         <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5">
                             <div class="g-parent g-pos-rel g-overflow-hidden">
-                                <img class="landing-block-node-carousel-element-img img-fluid g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img10.jpg" alt="" />
+                                <img class="landing-block-node-carousel-element-img img-fluid w-100 g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img10.jpg" alt="" />
                                 <div class="landing-block-node-carousel-element-img-hover g-pos-abs g-top-0 g-left-0 w-100 h-100 g-bg-primary-opacity-0_8 g-color-white opacity-0 g-opacity-1--parent-hover g-pa-25 g-transition-0_3 g-transition--ease-in">
                                     <h3 class="landing-block-node-carousel-element-title text-uppercase g-font-weight-700 g-color-white mb-0 g-font-size-14 g-line-height-1_3 g-letter-spacing-1_5">RESIDENTIAL BUILDINGS PROJECTS</h3>
                                     <div class="landing-block-node-carousel-element-text g-line-height-1_5--hover g-font-size-12 g-transition-0_3 g-transition--ease-in g-color-gray-light-v4"><p><br /></p></div>
@@ -510,7 +510,7 @@ return array(
 
                         <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5">
                             <div class="g-parent g-pos-rel g-overflow-hidden">
-                                <img class="landing-block-node-carousel-element-img img-fluid g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img11.jpg" alt="" />
+                                <img class="landing-block-node-carousel-element-img img-fluid w-100 g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img11.jpg" alt="" />
                                 <div class="landing-block-node-carousel-element-img-hover g-pos-abs g-top-0 g-left-0 w-100 h-100 g-bg-primary-opacity-0_8 g-color-white opacity-0 g-opacity-1--parent-hover g-pa-25 g-transition-0_3 g-transition--ease-in">
                                     <h3 class="landing-block-node-carousel-element-title text-uppercase g-font-weight-700 g-color-white mb-0 g-font-size-14 g-line-height-1_3 g-letter-spacing-1_5">RESIDENTIAL BUILDINGS PROJECTS</h3>
                                     <div class="landing-block-node-carousel-element-text g-line-height-1_5--hover g-font-size-12 g-transition-0_3 g-transition--ease-in g-color-gray-light-v4"><p><br /></p></div>
@@ -520,7 +520,7 @@ return array(
 
                         <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5">
                             <div class="g-parent g-pos-rel g-overflow-hidden">
-                                <img class="landing-block-node-carousel-element-img img-fluid g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img12.jpg" alt="" />
+                                <img class="landing-block-node-carousel-element-img img-fluid w-100 g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img12.jpg" alt="" />
                                 <div class="landing-block-node-carousel-element-img-hover g-pos-abs g-top-0 g-left-0 w-100 h-100 g-bg-primary-opacity-0_8 g-color-white opacity-0 g-opacity-1--parent-hover g-pa-25 g-transition-0_3 g-transition--ease-in">
                                     <h3 class="landing-block-node-carousel-element-title text-uppercase g-font-weight-700 g-color-white mb-0 g-font-size-14 g-line-height-1_3 g-letter-spacing-1_5">RESIDENTIAL BUILDINGS PROJECTS</h3>
                                     <div class="landing-block-node-carousel-element-text g-line-height-1_5--hover g-font-size-12 g-transition-0_3 g-transition--ease-in g-color-gray-light-v4"><p><br /></p></div>
@@ -530,7 +530,7 @@ return array(
 
                         <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5">
                             <div class="g-parent g-pos-rel g-overflow-hidden">
-                                <img class="landing-block-node-carousel-element-img img-fluid g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img5.jpg" alt="" />
+                                <img class="landing-block-node-carousel-element-img img-fluid w-100 g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img5.jpg" alt="" />
                                 <div class="landing-block-node-carousel-element-img-hover g-pos-abs g-top-0 g-left-0 w-100 h-100 g-bg-primary-opacity-0_8 g-color-white opacity-0 g-opacity-1--parent-hover g-pa-25 g-transition-0_3 g-transition--ease-in">
                                     <h3 class="landing-block-node-carousel-element-title text-uppercase g-font-weight-700 g-color-white mb-0 g-font-size-14 g-line-height-1_3 g-letter-spacing-1_5">RESIDENTIAL BUILDINGS PROJECTS</h3>
                                     <div class="landing-block-node-carousel-element-text g-line-height-1_5--hover g-font-size-12 g-transition-0_3 g-transition--ease-in g-color-gray-light-v4"><p><br /></p></div>
@@ -540,7 +540,7 @@ return array(
 
                         <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5">
                             <div class="g-parent g-pos-rel g-overflow-hidden">
-                                <img class="landing-block-node-carousel-element-img img-fluid g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img6.jpg" alt="" />
+                                <img class="landing-block-node-carousel-element-img img-fluid w-100 g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img6.jpg" alt="" />
                                 <div class="landing-block-node-carousel-element-img-hover g-pos-abs g-top-0 g-left-0 w-100 h-100 g-bg-primary-opacity-0_8 g-color-white opacity-0 g-opacity-1--parent-hover g-pa-25 g-transition-0_3 g-transition--ease-in">
                                     <h3 class="landing-block-node-carousel-element-title text-uppercase g-font-weight-700 g-color-white mb-0 g-font-size-14 g-line-height-1_3 g-letter-spacing-1_5">RESIDENTIAL BUILDINGS PROJECTS</h3>
                                     <div class="landing-block-node-carousel-element-text g-line-height-1_5--hover g-font-size-12 g-transition-0_3 g-transition--ease-in g-color-gray-light-v4"><p><br /></p></div>

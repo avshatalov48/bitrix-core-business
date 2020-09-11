@@ -41,7 +41,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 					<div class="connector-callback-app">
 						<div class="connector-callback-app-title connector-callback-app-title-blue"><?=Loc::getMessage('B24C_TEL_MOBILE_APP')?></div>
 						<div class="connector-callback-app-flex">
-							<a href="https://itunes.apple.com/<?=LANGUAGE_ID == 'en/' ? '' : LANGUAGE_ID.'/'?>app/bitrix24/id561683423?mt=8" class="connector-callback-app-appstore">APP STORE</a>
+							<a href="https://itunes.apple.com/<?=LANGUAGE_ID === 'en' ? '' : LANGUAGE_ID.'/'?>app/bitrix24/id561683423?mt=8" class="connector-callback-app-appstore">APP STORE</a>
 							<a href="https://play.google.com/store/apps/details?id=com.bitrix24.android&hl=<?=LANGUAGE_ID?>" class="connector-callback-app-google">GOOGLE PLAY</a>
 						</div>
 					</div>

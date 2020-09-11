@@ -1,6 +1,8 @@
 import {Uri, Cache, Loc, Reflection, Type, Http, ajax, Text} from 'main.core';
 import {Env} from 'landing.env';
-import type {Block, Landing, Site, Template, CreatePageOptions} from './types';
+import type {Block, Landing, Site, Template, CreatePageOptions, SourceResponse, PreparedResponse} from './types';
+
+let additionalRequestCompleted = true;
 
 /**
  * @memberOf BX.Landing
@@ -17,6 +19,48 @@ export class Backend
 		return Backend.instance;
 	}
 
+	static makeResponse(xhr: XMLHttpRequest, sourceResponse: SourceResponse = {}): PreparedResponse
+	{
+		const type = (() => {
+			if (Type.isStringFilled(sourceResponse.type))
+			{
+				return sourceResponse.type;
+			}
+
+			if (Type.isPlainObject(sourceResponse) && Object.values(sourceResponse).length > 0)
+			{
+				const allSuccess = Object.values(sourceResponse).every((item) => {
+					return item.type === 'success';
+				});
+
+				if (allSuccess)
+				{
+					return 'success';
+				}
+			}
+
+			if (Type.isArray(sourceResponse))
+			{
+				return 'other';
+			}
+
+			return 'error';
+		})();
+
+		if (type === 'other')
+		{
+			return sourceResponse;
+		}
+
+		return {
+			result: null,
+			type,
+			...sourceResponse,
+			status: xhr.status,
+			authorized: xhr.getResponseHeader('X-Bitrix-Ajax-Status') !== 'Authorize',
+		};
+	}
+
 	static request({url, data}): Promise<any, any>
 	{
 		return new Promise((resolve, reject) => {
@@ -28,10 +72,39 @@ export class Backend
 				data: fd,
 				start: false,
 				preparePost: false,
-				onsuccess: (response) => {
+				onsuccess: (sourceResponse) => {
+					const response = Backend.makeResponse(xhr, sourceResponse);
+
+					if (Type.isStringFilled(response.sessid) && additionalRequestCompleted)
+					{
+						Loc.setMessage('bitrix_sessid', response.sessid);
+						additionalRequestCompleted = false;
+
+						const newData = {...data, sessid: Loc.getMessage('bitrix_sessid')};
+
+						Backend
+							.request({url, data: newData})
+							.then((newResponse) => {
+								additionalRequestCompleted = true;
+								resolve(newResponse);
+							})
+							.catch((newResponse) => {
+								additionalRequestCompleted = true;
+								reject(newResponse);
+							});
+
+						return;
+					}
+
+					if (!Type.isPlainObject(response))
+					{
+						resolve(response);
+						return;
+					}
+
 					if (
-						Type.isPlainObject(response)
-						&& response.type === 'error'
+						response.type === 'error'
+						|| response.authorized === false
 					)
 					{
 						reject(response);
@@ -40,7 +113,20 @@ export class Backend
 
 					resolve(response);
 				},
-				onfailure: reject,
+				onfailure: (sourceResponse) => {
+					if (sourceResponse === 'auth')
+					{
+						reject(
+							Backend.makeResponse(xhr),
+						);
+					}
+					else
+					{
+						reject(
+							Backend.makeResponse(xhr, sourceResponse),
+						);
+					}
+				},
 			});
 
 			xhr.send(fd);
@@ -389,6 +475,7 @@ export class Backend
 		const {
 			title,
 			siteId = envOptions.site_id,
+			siteType = envOptions.params.type,
 			code = Text.getRandom(16),
 			blockId,
 			menuCode,
@@ -415,6 +502,8 @@ export class Backend
 			fields: {
 				TITLE: title,
 				CODE: code,
+				//@todo: refactor
+				ADD_IN_MENU: (siteType === 'KNOWLEDGE' || siteType === 'GROUP') ? 'Y' : 'N'
 			},
 		};
 

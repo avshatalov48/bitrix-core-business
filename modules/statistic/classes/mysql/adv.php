@@ -94,10 +94,10 @@ class CAdv extends CAllAdv
 			$date2 = $arFilter["DATE2_PERIOD"];
 			$date_from = MkDateTime(ConvertDateTime($date1,"D.M.Y"),"d.m.Y");
 			$date_to = MkDateTime(ConvertDateTime($date2,"D.M.Y")." 23:59","d.m.Y H:i");
-			if (strlen($date1)>0)
+			if ($date1 <> '')
 			{
 				$filter_period = true;
-				if (strlen($date2)>0)
+				if ($date2 <> '')
 				{
 					$strSqlPeriod = "sum(if(D.DATE_STAT<FROM_UNIXTIME('$date_from'),0, if(D.DATE_STAT>FROM_UNIXTIME('$date_to'),0,";
 					$strT = ")))";
@@ -108,7 +108,7 @@ class CAdv extends CAllAdv
 					$strT = "))";
 				}
 			}
-			elseif (strlen($date2)>0)
+			elseif ($date2 <> '')
 			{
 				$filter_period = true;
 				$strSqlPeriod = "sum(if(D.DATE_STAT>FROM_UNIXTIME('$date_to'),0,";
@@ -124,11 +124,11 @@ class CAdv extends CAllAdv
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if( ($val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -292,11 +292,11 @@ class CAdv extends CAllAdv
 		$rate = 1;
 		$base_currency = GetStatisticBaseCurrency();
 		$view_currency = $base_currency;
-		if (strlen($base_currency)>0)
+		if ($base_currency <> '')
 		{
 			if (CModule::IncludeModule("currency"))
 			{
-				if ($CURRENCY!=$base_currency && strlen($CURRENCY)>0)
+				if ($CURRENCY!=$base_currency && $CURRENCY <> '')
 				{
 					$rate = CCurrencyRates::GetConvertFactor($base_currency, $CURRENCY);
 					$view_currency = $CURRENCY;
@@ -309,7 +309,7 @@ class CAdv extends CAllAdv
 			$strSqlSearch_h .= " and (".$sqlWhere.") ";
 
 		$group = false;
-		$find_group = (strlen($find_group)<=0) ? "NOT_REF" : $find_group;
+		$find_group = ($find_group == '') ? "NOT_REF" : $find_group;
 
 		$arrFields_1 = array(
 				"C_TIME_FIRST", "C_TIME_LAST", "CURRENCY",
@@ -352,9 +352,9 @@ class CAdv extends CAllAdv
 		if ($order!="asc")
 			$order = "desc";
 
-		$key = array_search(strtoupper($by),$arrFields);
+		$key = array_search(mb_strtoupper($by), $arrFields);
 		if ($key===NULL || $key===false)
-			$key = array_search("A.".strtoupper($by),$arrFields);
+			$key = array_search("A.".mb_strtoupper($by),$arrFields);
 
 		if ($key!==NULL && $key!==false)
 			$strSqlOrder = " ORDER BY ".$arrFields[$key];
@@ -566,7 +566,7 @@ class CAdv extends CAllAdv
 			";
 
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch) || strlen($strSqlSearch_h)>0 || $group || $filter_period);
+		$is_filtered = (IsFiltered($strSqlSearch) || $strSqlSearch_h <> '' || $group || $filter_period);
 		return $res;
 	}
 
@@ -609,10 +609,10 @@ class CAdv extends CAllAdv
 			$date2 = $arFilter["DATE2_PERIOD"];
 			$date_from = MkDateTime(ConvertDateTime($date1,"D.M.Y"),"d.m.Y");
 			$date_to = MkDateTime(ConvertDateTime($date2,"D.M.Y")." 23:59","d.m.Y H:i");
-			if (strlen($date1)>0)
+			if ($date1 <> '')
 			{
 				$filter_period = true;
-				if (strlen($date2)>0)
+				if ($date2 <> '')
 				{
 					$strSqlPeriod = "sum(if(AE.DATE_STAT<FROM_UNIXTIME('$date_from'),0, if(AE.DATE_STAT>FROM_UNIXTIME('$date_to'),0,";
 					$strT=")))";
@@ -623,7 +623,7 @@ class CAdv extends CAllAdv
 					$strT="))";
 				}
 			}
-			elseif (strlen($date2)>0)
+			elseif ($date2 <> '')
 			{
 				$filter_period = true;
 				$strSqlPeriod = "sum(if(AE.DATE_STAT>FROM_UNIXTIME('$date_to'),0,";
@@ -638,11 +638,11 @@ class CAdv extends CAllAdv
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if( ($val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -733,7 +733,7 @@ class CAdv extends CAllAdv
 		foreach($arSqlSearch_h as $sqlWhere)
 			$strSqlSearch_h .= " and (".$sqlWhere.") ";
 
-		$find_group = (strlen($find_group)<=0) ? "NOT_REF" : $find_group;
+		$find_group = ($find_group == '') ? "NOT_REF" : $find_group;
 
 		$sqlDays = "
 			sum(if(to_days(curdate())=to_days(AE.DATE_STAT),ifnull(AE.COUNTER,0),0))						COUNTER_TODAY,
@@ -817,7 +817,7 @@ class CAdv extends CAllAdv
 		}
 
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch) || $filter_period || strlen($strSqlSearch_h)>0 || $find_group!="NOT_REF");
+		$is_filtered = (IsFiltered($strSqlSearch) || $filter_period || $strSqlSearch_h <> '' || $find_group!="NOT_REF");
 		return $res;
 	}
 
@@ -841,10 +841,10 @@ class CAdv extends CAllAdv
 			$date2 = $arFilter["DATE2_PERIOD"];
 			$date_from = MkDateTime(ConvertDateTime($date1,"D.M.Y"),"d.m.Y");
 			$date_to = MkDateTime(ConvertDateTime($date2,"D.M.Y")." 23:59","d.m.Y H:i");
-			if (strlen($date1)>0)
+			if ($date1 <> '')
 			{
 				$filter_period = true;
-				if (strlen($date2)>0)
+				if ($date2 <> '')
 				{
 					$strSqlPeriod = "sum(if(AE.DATE_STAT<FROM_UNIXTIME('$date_from'),0, if(AE.DATE_STAT>FROM_UNIXTIME('$date_to'),0,";
 					$strT=")))";
@@ -855,7 +855,7 @@ class CAdv extends CAllAdv
 					$strT="))";
 				}
 			}
-			elseif (strlen($date2)>0)
+			elseif ($date2 <> '')
 			{
 				$filter_period = true;
 				$strSqlPeriod = "sum(if(AE.DATE_STAT>FROM_UNIXTIME('$date_to'),0,";
@@ -944,11 +944,11 @@ class CAdv extends CAllAdv
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if( ($val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "DATE1":
@@ -1069,11 +1069,11 @@ class CAdv extends CAllAdv
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if( ($val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "ID":

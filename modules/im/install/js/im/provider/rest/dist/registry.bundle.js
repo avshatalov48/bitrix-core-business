@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
-(function (exports,ui_vue_vuex,im_lib_logger,im_const) {
+(function (exports,ui_vue_vuex,im_const,im_lib_logger) {
 	'use strict';
 
 	/**
@@ -12,9 +12,7 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	 * @subpackage im
 	 * @copyright 2001-2019 Bitrix
 	 */
-	var BaseRestHandler =
-	/*#__PURE__*/
-	function () {
+	var BaseRestHandler = /*#__PURE__*/function () {
 	  babelHelpers.createClass(BaseRestHandler, null, [{
 	    key: "create",
 	    value: function create() {
@@ -69,9 +67,7 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	 * @copyright 2001-2019 Bitrix
 	 */
 
-	var CoreRestHandler =
-	/*#__PURE__*/
-	function (_BaseRestHandler) {
+	var CoreRestHandler = /*#__PURE__*/function (_BaseRestHandler) {
 	  babelHelpers.inherits(CoreRestHandler, _BaseRestHandler);
 
 	  function CoreRestHandler() {
@@ -269,9 +265,7 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	 * @subpackage im
 	 * @copyright 2001-2023 Bitrix
 	 */
-	var DialogRestHandler =
-	/*#__PURE__*/
-	function (_BaseRestHandler) {
+	var DialogRestHandler = /*#__PURE__*/function (_BaseRestHandler) {
 	  babelHelpers.inherits(DialogRestHandler, _BaseRestHandler);
 
 	  function DialogRestHandler(params) {
@@ -298,7 +292,7 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	    key: "handleImChatGetError",
 	    value: function handleImChatGetError(error) {
 	      if (error.ex.error === 'ACCESS_ERROR') {
-	        Logger.error('MobileRestAnswerHandler.handleImChatGetError: ACCESS_ERROR'); //	app.closeController();
+	        im_lib_logger.Logger.error('MobileRestAnswerHandler.handleImChatGetError: ACCESS_ERROR'); //	app.closeController();
 	      }
 	    }
 	  }, {
@@ -344,5 +338,5 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	exports.CoreRestHandler = CoreRestHandler;
 	exports.DialogRestHandler = DialogRestHandler;
 
-}((this.BX.Messenger.Provider.Rest = this.BX.Messenger.Provider.Rest || {}),BX,BX.Messenger.Lib,BX.Messenger.Const));
+}((this.BX.Messenger.Provider.Rest = this.BX.Messenger.Provider.Rest || {}),BX,BX.Messenger.Const,BX.Messenger.Lib));
 //# sourceMappingURL=registry.bundle.js.map

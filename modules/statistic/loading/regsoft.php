@@ -32,7 +32,7 @@ function PrepareQuotes(&$item)
 if ($fp_in = fopen($INPUT_CSV_FILE,"rb"))
 {
 	$upload_dir = $_SERVER["DOCUMENT_ROOT"]."/".COption::GetOptionString("main","upload_dir","/upload/"). "/statistic";
-	if (substr($OUTPUT_CSV_FILE, 0, strlen($upload_dir))==$upload_dir && $fp_out = fopen($OUTPUT_CSV_FILE,"wb"))
+	if (mb_substr($OUTPUT_CSV_FILE, 0, mb_strlen($upload_dir)) == $upload_dir && $fp_out = fopen($OUTPUT_CSV_FILE,"wb"))
 	{
 		$i = 0; // counter of the read valuable lines
 		$j = 0; // counter of the written to the resulting  file lines
@@ -79,7 +79,7 @@ if ($fp_in = fopen($INPUT_CSV_FILE,"rb"))
 					$arrRes[] = "USD";
 
 					// if short site identifier exists in Additional parameter then
-					if (strpos($ADDITIONAL_PARAMETER,$SITE_ID)!==false)
+					if (mb_strpos($ADDITIONAL_PARAMETER, $SITE_ID) !== false)
 					{
 						// write the line to the resulting CSV file
 						$j++;

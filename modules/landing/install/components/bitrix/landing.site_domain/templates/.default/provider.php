@@ -4,7 +4,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-use \Bitrix\Landing\Help;
+/** @var array $arResult */
+
+use \Bitrix\Landing\Manager;
 use \Bitrix\Main\Localization\Loc;
 
 $requestDomainName = $this->getComponent()->request('param');
@@ -34,7 +36,7 @@ if ($arResult['IS_FREE_DOMAIN'] != 'Y')
 					<div class="ui-ctl ui-ctl-textbox ui-ctl-w100">
 						<div class="ui-ctl-ext-after ui-ctl-icon-loader" id="domain-edit-loader" style="display: none;"></div>
 						<input type="text" name="param" value="<?= \htmlspecialcharsbx($requestDomainName ? $requestDomainName : $arResult['DOMAIN_NAME']);?>" <?
-							?>id="domain-edit-name" class="ui-ctl-element" placeholder="mydomain.ru">
+							?>id="domain-edit-name" class="ui-ctl-element" placeholder="mysite.<?= $arResult['TLD'][0];?>">
 					</div>
 				</div>
 				<button class="ui-btn ui-btn-light-border landing-domain-edit-check-btn" id="domain-edit-check">
@@ -55,10 +57,12 @@ if ($arResult['IS_FREE_DOMAIN'] != 'Y')
 			</div>
 		</div>
 		<div class="landing-domain-edit-agreement">
+			<?if (Manager::getZone() != 'ua'):?>
 			<?= Loc::getMessage('LANDING_TPL_AGREE_BY_SUBMIT', [
 				'#LINK1#' => '<a href="https://www.bitrix24.ru/about/domainfree.php" target="_blank">',
 				'#LINK2#' => '</a>'
 			]);?>
+			<?endif;?>
 		</div>
 	</div>
 </div>
@@ -77,7 +81,11 @@ if ($arResult['IS_FREE_DOMAIN'] != 'Y')
 			idDomainAnotherMore: BX('domain-edit-another-more'),
 			idDomainMessage: BX('domain-edit-message'),
 			idDomainLoader: BX('domain-edit-loader'),
-			saveBlockerInfo: '<?= !$arResult['FEATURE_FREE_AVAILABLE'] ? Help::getHelpLandingCode('FREE_DOMAIN_FOR_MONEY') : '';?>',
+			idDomainErrorAlert: BX('domain-error-alert'),
+			saveBlocker: <?= !$arResult['FEATURE_FREE_AVAILABLE'] ? 'true' : 'false';?>,
+			saveBlockerCallback: function() {
+				<?= \Bitrix\Landing\Restriction\Manager::getActionCode('limit_free_domen');?>
+			},
 			maxVisibleSuggested: 10,
 			tld: <?= \CUtil::PhpToJSObject($arResult['TLD'])?>,
 			promoBlock: BX('landing-domain-block-info'),

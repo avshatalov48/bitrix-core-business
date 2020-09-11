@@ -54,23 +54,6 @@ class Twilio extends Sender\BaseConfigurable
 		return is_array($from) ? $from : array();
 	}
 
-	public function getDefaultFrom()
-	{
-		$fromList = $this->getFromList();
-		if (count($fromList) > 0)
-		{
-			return $fromList[0]['id'];
-		}
-		return null;
-	}
-
-	public function setDefaultFrom($from)
-	{
-		//$from = (string)$from;
-		//$this->setOption('default_from', $from);
-		return $this;
-	}
-
 	public function register(array $fields)
 	{
 		$sid = (string)$fields['account_sid'];
@@ -135,7 +118,7 @@ class Twilio extends Sender\BaseConfigurable
 			$params['From'] = $this->getDefaultFrom();
 		}
 
-		if (is_string($params['From']) && strlen($params['From']) === 34) //unique id of the Messaging Service
+		if (is_string($params['From']) && mb_strlen($params['From']) === 34) //unique id of the Messaging Service
 		{
 			$params['MessagingServiceSid'] = $params['From'];
 			unset($params['From']);
@@ -194,7 +177,7 @@ class Twilio extends Sender\BaseConfigurable
 				array('accepted', 'queued', 'sending', 'sent', 'delivered', 'undelivered', 'failed')))
 			{
 				$result->setStatusText(
-					Loc::getMessage('MESSAGESERVICE_SENDER_SMS_TWILIO_MESSAGE_STATUS_'.strtoupper($resultData['status']))
+					Loc::getMessage('MESSAGESERVICE_SENDER_SMS_TWILIO_MESSAGE_STATUS_'.mb_strtoupper($resultData['status']))
 				);
 			}
 		}

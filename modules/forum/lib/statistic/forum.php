@@ -49,6 +49,6 @@ class Forum extends \Bitrix\Main\Update\Stepper
 		$res = is_array($res) ? $res : [];
 		$res[$forumId] = [];
 		Option::set("forum", "stat.forum.recalc", serialize($res));
-		self::bind(0);
+		static::bind(0);
 	}
 }

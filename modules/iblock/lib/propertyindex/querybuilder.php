@@ -462,7 +462,7 @@ class QueryBuilder
 		{
 			foreach ($value as $val)
 			{
-				if ($val <> '')
+				if ((string)$val <> '')
 				{
 					if ($lookup)
 					{
@@ -470,12 +470,12 @@ class QueryBuilder
 					}
 					else
 					{
-						$result[] = intval($val);
+						$result[] = (int)$val;
 					}
 				}
 			}
 		}
-		elseif ($value <> '')
+		elseif ((string)$value <> '')
 		{
 			if ($lookup)
 			{
@@ -483,7 +483,7 @@ class QueryBuilder
 			}
 			else
 			{
-				$result[] = intval($value);
+				$result[] = (int)$value;
 			}
 		}
 

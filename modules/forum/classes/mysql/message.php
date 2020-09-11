@@ -68,15 +68,12 @@ class CForumMessage extends CAllForumMessage
 
 		$strSql = "INSERT INTO b_forum_message(".$arInsert[0].$strDatePostField.") VALUES(".$arInsert[1].$strDatePostValue.")";
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		$ID = intVal($DB->LastID());
+		$ID = intval($DB->LastID());
 /***************** Attach ******************************************/
 		if (!empty($arFiles))
 			CForumFiles::UpdateByID($arFiles, array("FORUM_ID" => $arFields["FORUM_ID"],
 				"TOPIC_ID" => $arFields["TOPIC_ID"], "MESSAGE_ID" => $ID));
 /***************** Attach/******************************************/
-/***************** Quota *******************************************/
-		$_SESSION["SESS_RECOUNT_DB"] = "Y";
-
 		$USER_FIELD_MANAGER->Update("FORUM_MESSAGE", $ID, $arFields, (array_key_exists("USER_ID", $arFields) ? $arFields["USER_ID"] : false));
 
 		$arMessage = CForumMessage::GetByIDEx($ID, array("GET_FORUM_INFO" => "N", "GET_TOPIC_INFO" => "Y", "FILTER" => "Y"));
@@ -91,7 +88,7 @@ class CForumMessage extends CAllForumMessage
 
 		if ($arParams["SKIP_STATISTIC"] != "Y")
 		{
-			if (intVal($arMessage["AUTHOR_ID"]) > 0)
+			if (intval($arMessage["AUTHOR_ID"]) > 0)
 			{
 				CForumUser::SetStat($arMessage["AUTHOR_ID"], array("MESSAGE" => $arMessage));
 			}
@@ -209,7 +206,7 @@ class CForumMessage extends CAllForumMessage
 		foreach ($arFilter as $key => $val)
 		{
 			$key_res = CForumNew::GetFilterOperation($key);
-			$key = strtoupper($key_res["FIELD"]);
+			$key = mb_strtoupper($key_res["FIELD"]);
 			$strNegative = $key_res["NEGATIVE"];
 			$strOperation = $key_res["OPERATION"];
 
@@ -220,7 +217,7 @@ class CForumMessage extends CAllForumMessage
 				case "POST_MESSAGE_CHECK":
 				case "APPROVED":
 				case "NEW_TOPIC":
-					if (strlen($val)<=0)
+					if ($val == '')
 						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(FM.".$key." IS NULL OR LENGTH(FM.".$key.")<=0)";
 					else
 						$arSqlSearch[] = ($strNegative=="Y"?" FM.".$key." IS NULL OR NOT ":"")."(FM.".$key." ".$strOperation." '".$DB->ForSql($val)."' )";
@@ -231,17 +228,17 @@ class CForumMessage extends CAllForumMessage
 				case "FORUM_ID":
 				case "TOPIC_ID":
 				case "ATTACH_IMG":
-					if ( ($strOperation == "IN") && (!is_array($val)) && (strpos($val,",")>0) )
+					if ( ($strOperation == "IN") && (!is_array($val)) && (mb_strpos($val, ",") > 0) )
 						$val = explode(",", $val);
-					if (($strOperation!="IN") && (intVal($val) > 0))
-						$arSqlSearch[] = ($strNegative=="Y"?" FM.".$key." IS NULL OR NOT ":"")."(FM.".$key." ".$strOperation." ".intVal($val)." )";
-					elseif (($strOperation =="IN") && ((is_array($val) && sizeof($val)>0 && (array_sum($val) > 0)) || (strlen($val) > 0) ))
+					if (($strOperation!="IN") && (intval($val) > 0))
+						$arSqlSearch[] = ($strNegative=="Y"?" FM.".$key." IS NULL OR NOT ":"")."(FM.".$key." ".$strOperation." ".intval($val)." )";
+					elseif (($strOperation =="IN") && ((is_array($val) && sizeof($val)>0 && (array_sum($val) > 0)) || ($val <> '') ))
 					{
 						if (is_array($val))
 						{
 							$val_int = array();
 							foreach ($val as $v)
-								$val_int[] = intVal($v);
+								$val_int[] = intval($v);
 							$val = implode(", ", $val_int);
 						}
 						else
@@ -255,7 +252,7 @@ class CForumMessage extends CAllForumMessage
 					break;
 				case "EDIT_DATE":
 				case "POST_DATE":
-					if (strlen($val)<=0)
+					if ($val == '')
 						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(FM.".$key." IS NULL OR LENGTH(FM.".$key.")<=0)";
 					else
 						$arSqlSearch[] = ($strNegative=="Y"?" FM.".$key." IS NULL OR NOT ":"")."(FM.".$key." ".$strOperation." ".$DB->CharToDateFunction($DB->ForSql($val), "FULL")." )";
@@ -270,20 +267,20 @@ class CForumMessage extends CAllForumMessage
 							foreach ($value as $k => $v)
 							{
 								$k_res = CForumNew::GetFilterOperation($k);
-								$k = strToUpper($k_res["FIELD"]);
+								$k = mb_strtoupper($k_res["FIELD"]);
 								$strNegative = $k_res["NEGATIVE"];
 								$strOperation = $k_res["OPERATION"];
 								switch ($k)
 								{
 									case "TOPIC_ID":
 									case "FORUM_ID":
-										if (intVal($v)<=0)
+										if (intval($v)<=0)
 											$str[] = ($strNegative=="Y"?"NOT":"")."(FM.".$k." IS NULL OR FM.".$k."<=0)";
 										else
-											$str[] = ($strNegative=="Y"?" FM.".$k." IS NULL OR NOT ":"")."(FM.".$k." ".$strOperation." ".intVal($v)." )";
+											$str[] = ($strNegative=="Y"?" FM.".$k." IS NULL OR NOT ":"")."(FM.".$k." ".$strOperation." ".intval($v)." )";
 										break;
 									case "APPROVED":
-										if (strlen($v)<=0)
+										if ($v == '')
 											$str[] = ($strNegative=="Y"?"NOT":"")."(FM.APPROVED IS NULL OR LENGTH(FM.APPROVED)<=0)";
 										else
 											$str[] = ($strNegative=="Y"?" FM.APPROVED IS NULL OR NOT ":"")."FM.APPROVED ".$strOperation." '".$DB->ForSql($v)."' ";
@@ -304,7 +301,7 @@ class CForumMessage extends CAllForumMessage
 		if (!empty($arSqlSearch))
 			$strSqlSearch = " AND (".implode(") AND (", $arSqlSearch).") ";
 
-		if ($bCount || (is_array($arAddParams) && is_set($arAddParams, "bDescPageNumbering") && (intVal($arAddParams["nTopCount"])<=0)))
+		if ($bCount || (is_array($arAddParams) && is_set($arAddParams, "bDescPageNumbering") && (intval($arAddParams["nTopCount"])<=0)))
 		{
 			$strFrom = "FROM b_forum_message FM\n".$obUserFieldsSql->GetJoin("FM.ID")."\nWHERE 1 = 1 ".$strSqlSearch;
 			if($obUserFieldsSql->GetDistinct())
@@ -385,7 +382,7 @@ class CForumMessage extends CAllForumMessage
 				$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 				$iCnt = 0;
 				if ($db_res && $ar_res = $db_res->Fetch())
-					$iCnt = intVal($ar_res["CNT"]);
+					$iCnt = intval($ar_res["CNT"]);
 				if ($bCount)
 					return $iCnt;
 			}
@@ -394,7 +391,8 @@ class CForumMessage extends CAllForumMessage
 
 		foreach ($arOrder as $by=>$order)
 		{
-			$by = strtoupper($by); $order = strtoupper($order);
+			$by = mb_strtoupper($by);
+			$order = mb_strtoupper($order);
 			if ($order!="ASC") $order = "DESC";
 			if ($by == "AUTHOR_NAME") $arSqlOrder[] = " FM.AUTHOR_NAME ".$order." ";
 			elseif ($by == "EDIT_DATE") $arSqlOrder[] = " FM.EDIT_DATE ".$order." ";
@@ -466,13 +464,13 @@ class CForumMessage extends CAllForumMessage
 			WHERE 1 = 1 " . $strSqlSearch . "
 			" . $strSqlOrder;
 
-		$iNum = intVal($iNum);
-		if (($iNum>0) || (is_array($arAddParams) && (intVal($arAddParams["nTopCount"])>0)))
+		$iNum = intval($iNum);
+		if (($iNum>0) || (is_array($arAddParams) && (intval($arAddParams["nTopCount"])>0)))
 		{
-			$iNum = ($iNum > 0) ? $iNum : intVal($arAddParams["nTopCount"]);
+			$iNum = ($iNum > 0) ? $iNum : intval($arAddParams["nTopCount"]);
 			$strSql .= " LIMIT 0,".$iNum;
 		}
-		if (!$iNum && is_array($arAddParams) && is_set($arAddParams, "bDescPageNumbering") && (intVal($arAddParams["nTopCount"])<=0))
+		if (!$iNum && is_array($arAddParams) && is_set($arAddParams, "bDescPageNumbering") && (intval($arAddParams["nTopCount"])<=0))
 		{
 			$db_res =  new CDBResult();
 			$db_res->SetUserFields($USER_FIELD_MANAGER->GetUserFields("FORUM_MESSAGE"));
@@ -507,7 +505,7 @@ class CForumMessage extends CAllForumMessage
 		foreach ($arFilter as $key => $val)
 		{
 			$key_res = CForumNew::GetFilterOperation($key);
-			$key = strtoupper($key_res["FIELD"]);
+			$key = mb_strtoupper($key_res["FIELD"]);
 			$strNegative = $key_res["NEGATIVE"];
 			$strOperation = $key_res["OPERATION"];
 
@@ -522,7 +520,7 @@ class CForumMessage extends CAllForumMessage
 					$arIndexFields[] = $key;
 					if ($strOperation == "LIKE")
 						$val = "%".$val."%";
-					if (strlen($val)<=0)
+					if ($val == '')
 						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(FM.".$key." IS NULL OR LENGTH(FM.".$key.")<=0)";
 					else
 						$arSqlSearch[] = ($strNegative=="Y"?" FM.".$key." IS NULL OR NOT ":"")."(FM.".$key." ".$strOperation." '".$DB->ForSql($val)."' )";
@@ -546,17 +544,17 @@ class CForumMessage extends CAllForumMessage
 				case "TOPIC_ID":
 				case "ATTACH_IMG":
 					$arIndexFields[] = $key;
-					if ( ($strOperation == "IN") && (!is_array($val)) && (strpos($val,",")>0) )
+					if ( ($strOperation == "IN") && (!is_array($val)) && (mb_strpos($val, ",") > 0) )
 						$val = explode(",", $val);
-					if (($strOperation!="IN") && (intVal($val) > 0))
-						$arSqlSearch[] = ($strNegative=="Y"?" FM.".$key." IS NULL OR NOT ":"")."(FM.".$key." ".$strOperation." ".intVal($val)." )";
-					elseif (($strOperation =="IN") && ((is_array($val) && (array_sum($val) > 0)) || (strlen($val) > 0) ))
+					if (($strOperation!="IN") && (intval($val) > 0))
+						$arSqlSearch[] = ($strNegative=="Y"?" FM.".$key." IS NULL OR NOT ":"")."(FM.".$key." ".$strOperation." ".intval($val)." )";
+					elseif (($strOperation =="IN") && ((is_array($val) && (array_sum($val) > 0)) || ($val <> '') ))
 					{
 						if (is_array($val))
 						{
 							$val_int = array();
 							foreach ($val as $v)
-								$val_int[] = intVal($v);
+								$val_int[] = intval($v);
 							$val = implode(", ", $val_int);
 						}
 						else
@@ -569,33 +567,33 @@ class CForumMessage extends CAllForumMessage
 						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(FM.".$key." IS NULL OR FM.".$key."<=0)";
 					break;
 				case "POINTS_TO_AUTHOR_ID":
-					if (intVal($val) > 0)
+					if (intval($val) > 0)
 					{
 						$arSqlSelect["FR.POINTS"] = "FR.POINTS";
 						$arSqlSelect["FR.DATE_UPDATE"] = "FR.DATE_UPDATE";
-						$arSqlFrom["FR"] = "LEFT JOIN b_forum_user_points FR ON ((FM.AUTHOR_ID = FR.TO_USER_ID) AND (FR.FROM_USER_ID=".intVal($val)."))";
+						$arSqlFrom["FR"] = "LEFT JOIN b_forum_user_points FR ON ((FM.AUTHOR_ID = FR.TO_USER_ID) AND (FR.FROM_USER_ID=".intval($val)."))";
 					}
 					break;
 				case "POST_DATE":
 					$arIndexFields[] = $key;
-					if (strlen($val)<=0)
+					if ($val == '')
 						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(FM.".$key." IS NULL OR LENGTH(FM.".$key.")<=0)";
 					else
 						$arSqlSearch[] = ($strNegative=="Y"?" FM.".$key." IS NULL OR NOT ":"")."(FM.".$key." ".$strOperation." ".$DB->CharToDateFunction($DB->ForSql($val), "FULL").")";
 					break;
 				case "USER_ID":
 //					$arSqlSelect["LAST_VISIT"] = $DB->DateToCharFunction("FUT.LAST_VISIT", "FULL");
-					if(intVal($val) > 0)
+					if(intval($val) > 0)
 					{
 						$arSqlFrom["FUT"] = "
-							LEFT JOIN b_forum_user_topic FUT ON (FM.TOPIC_ID = FUT.TOPIC_ID AND FUT.USER_ID=".intVal($val).")";
+							LEFT JOIN b_forum_user_topic FUT ON (FM.TOPIC_ID = FUT.TOPIC_ID AND FUT.USER_ID=".intval($val).")";
 					}
 					break;
 				case "NEW_MESSAGE":
-					if (strLen($val) > 0 && intVal($arFilter["USER_ID"]) > 0)
+					if ($val <> '' && intval($arFilter["USER_ID"]) > 0)
 					{
 						$arSqlFrom["FUT"] = "
-						LEFT JOIN b_forum_user_topic FUT ON (FM.TOPIC_ID = FUT.TOPIC_ID AND FUT.USER_ID=".intVal($arFilter["USER_ID"]).")";
+						LEFT JOIN b_forum_user_topic FUT ON (FM.TOPIC_ID = FUT.TOPIC_ID AND FUT.USER_ID=".intval($arFilter["USER_ID"]).")";
 						$arSqlSearch[] = "
 							(FUT.LAST_VISIT IS NOT NULL AND FM.POST_DATE > FUT.LAST_VISIT)
 							OR
@@ -621,14 +619,14 @@ class CForumMessage extends CAllForumMessage
 						$arIndexFields[] = "FT.SOCNET_GROUP_ID";
 						$arSqlFrom["FT"] = "
 							LEFT JOIN b_forum_topic FT ON (FT.ID = FM.TOPIC_ID)";
-						$arSqlSearch[] = "FT.SOCNET_GROUP_ID = ".IntVal($val);
+						$arSqlSearch[] = "FT.SOCNET_GROUP_ID = ".intval($val);
 						$arSqlSelect[] = "FT.SOCNET_GROUP_ID as TOPIC_SOCNET_GROUP_ID";
 					break;
 				case "TOPIC_OWNER_ID":
 						$arIndexFields[] = "FT.OWNER_ID";
 						$arSqlFrom["FT"] = "
 							LEFT JOIN b_forum_topic FT ON (FT.ID = FM.TOPIC_ID)";
-						$arSqlSearch[] = "FT.OWNER_ID = ".IntVal($val);
+						$arSqlSearch[] = "FT.OWNER_ID = ".intval($val);
 						$arSqlSelect[] = "FT.OWNER_ID as TOPIC_OWNER_ID";
 					break;
 				case "TOPIC":
@@ -672,7 +670,7 @@ class CForumMessage extends CAllForumMessage
 					$arIndexFields[] = $key;
 					if ($strOperation == "LIKE")
 						$val = "%".$val."%";
-					if (strlen($val)<=0)
+					if ($val == '')
 						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(FT.".$key." IS NULL OR LENGTH(FT.".$key.")<=0)";
 					else
 						$arSqlSearch[] = ($strNegative=="Y"?" FT.".$key." IS NULL OR NOT ":"")."(FT.".$key." ".$strOperation." '".$DB->ForSql($val)."' )";
@@ -681,7 +679,8 @@ class CForumMessage extends CAllForumMessage
 		}
 		foreach ($arOrder as $by=>$order)
 		{
-			$by = strtoupper($by); $order = strtoupper($order);
+			$by = mb_strtoupper($by);
+			$order = mb_strtoupper($order);
 			if ($order!="ASC") $order = "DESC";
 			if (in_array($by, array("FORUM_ID", "TOPIC_ID", "USE_SMILES", "NEW_TOPIC", "APPROVED",
 				"POST_DATE", "POST_MESSAGE", "ATTACH_IMG", "PARAM1", "PARAM2",
@@ -718,7 +717,7 @@ class CForumMessage extends CAllForumMessage
 		{
 			foreach ($arSqlSelect as $key => $val)
 			{
-				if (substr($key, 0, 1) != "!")
+				if (mb_substr($key, 0, 1) != "!")
 					$arSqlGroup[$key] = $val;
 			}
 			if (!empty($arSqlGroup)):
@@ -726,7 +725,7 @@ class CForumMessage extends CAllForumMessage
 			endif;
 		}
 
-		if ($bCount || (is_set($arAddParams, "bDescPageNumbering") && intVal($arAddParams["nTopCount"]) <= 0))
+		if ($bCount || (is_set($arAddParams, "bDescPageNumbering") && intval($arAddParams["nTopCount"]) <= 0))
 		{
 			$strSql =
 				"SELECT
@@ -750,8 +749,8 @@ class CForumMessage extends CAllForumMessage
 				$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 				if ($ar_res = $db_res->Fetch())
 				{
-					$iCnt = intVal($ar_res["CNT"]);
-					$iLAST_MESSAGE_ID = intVal($ar_res["LAST_MESSAGE_ID"]);
+					$iCnt = intval($ar_res["CNT"]);
+					$iLAST_MESSAGE_ID = intval($ar_res["LAST_MESSAGE_ID"]);
 				}
 			}
 			else
@@ -760,7 +759,7 @@ class CForumMessage extends CAllForumMessage
 				$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 				if ($ar_res = $db_res->Fetch())
 				{
-					$iCnt = intVal($ar_res["CNT"]);
+					$iCnt = intval($ar_res["CNT"]);
 				}
 				if ($bCount === 4)
 				{
@@ -768,7 +767,7 @@ class CForumMessage extends CAllForumMessage
 					$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 					if ($ar_res = $db_res->Fetch())
 					{
-						$iLAST_MESSAGE_ID = intVal($ar_res["LAST_MESSAGE_ID"]);
+						$iLAST_MESSAGE_ID = intval($ar_res["LAST_MESSAGE_ID"]);
 					}
 				}
 			}
@@ -848,13 +847,13 @@ class CForumMessage extends CAllForumMessage
 				$strSqlOrder;
 		}
 
-		$iNum = intVal($iNum);
-		if ($iNum > 0 || intVal($arAddParams["nTopCount"]) > 0):
-			$iNum = ($iNum > 0) ? $iNum : intVal($arAddParams["nTopCount"]);
+		$iNum = intval($iNum);
+		if ($iNum > 0 || intval($arAddParams["nTopCount"]) > 0):
+			$iNum = ($iNum > 0) ? $iNum : intval($arAddParams["nTopCount"]);
 			$strSql .= "\nLIMIT 0,".$iNum;
 		endif;
 
-		if (!$iNum && is_array($arAddParams) && is_set($arAddParams, "bDescPageNumbering") && (intVal($arAddParams["nTopCount"])<=0))
+		if (!$iNum && is_array($arAddParams) && is_set($arAddParams, "bDescPageNumbering") && (intval($arAddParams["nTopCount"])<=0))
 		{
 			$db_res =  new CDBResult();
 			$db_res->NavQuery($strSql, $iCnt, $arAddParams);
@@ -883,16 +882,16 @@ class CForumFiles extends CAllForumFiles
 		$strSqlSearch = "";
 		$strSqlOrder = "";
 		$iCnt = 0;
-		$iNum = intVal($iNum);
+		$iNum = intval($iNum);
 		$arFilter = (is_array($arFilter) ? $arFilter : array());
 		$arAddParams = (is_array($arAddParams) ? $arAddParams : array());
-		if (intVal($arAddParams["nTopCount"]) > 0)
+		if (intval($arAddParams["nTopCount"]) > 0)
 			unset($arAddParams["bDescPageNumbering"]);
 
 		foreach ($arFilter as $key => $val)
 		{
 			$key_res = CForumNew::GetFilterOperation($key);
-			$key = strtoupper($key_res["FIELD"]);
+			$key = mb_strtoupper($key_res["FIELD"]);
 			$strNegative = $key_res["NEGATIVE"];
 			$strOperation = $key_res["OPERATION"];
 
@@ -902,7 +901,7 @@ class CForumFiles extends CAllForumFiles
 				case "AUTHOR_NAME":
 				case "POST_MESSAGE_CHECK":
 				case "APPROVED":
-					if (strlen($val)<=0)
+					if ($val == '')
 						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(FM.".$key." IS NULL OR LENGTH(FM.".$key.")<=0)";
 					else
 						$arSqlSearch[] = ($strNegative=="Y"?" FM.".$key." IS NULL OR NOT ":"")."(FM.".$key." ".$strOperation." '".$DB->ForSql($val)."' )";
@@ -918,15 +917,15 @@ class CForumFiles extends CAllForumFiles
 				case "FORUM_ID":
 				case "TOPIC_ID":
 				case "AUTHOR_ID":
-					if (($strOperation!="IN") && (intVal($val) > 0))
-						$arSqlSearch[] = ($strNegative=="Y"?" FM.".$key." IS NULL OR NOT ":"")."(FM.".$key." ".$strOperation." ".intVal($val)." )";
-					elseif ($strOperation == "IN" && (is_array($val) && array_sum($val) > 0 || is_string($val) && strlen($val) > 0))
+					if (($strOperation!="IN") && (intval($val) > 0))
+						$arSqlSearch[] = ($strNegative=="Y"?" FM.".$key." IS NULL OR NOT ":"")."(FM.".$key." ".$strOperation." ".intval($val)." )";
+					elseif ($strOperation == "IN" && (is_array($val) && array_sum($val) > 0 || is_string($val) && $val <> ''))
 					{
 						if (is_array($val))
 						{
 							$val_int = array();
 							foreach ($val as $v)
-								$val_int[] = intVal($v);
+								$val_int[] = intval($v);
 							$val = implode(", ", $val_int);
 						}
 						$arSqlSearch[] = ($strNegative=="Y"?" NOT ":"")."(FM.".$key." IN (".$DB->ForSql($val).") )";
@@ -938,23 +937,23 @@ class CForumFiles extends CAllForumFiles
 				case "FILE_FORUM_ID":
 				case "FILE_TOPIC_ID":
 				case "FILE_MESSAGE_ID":
-					$key = substr($key, 5);
-					if ($strOperation != "IN" && intVal($val) > 0)
+				$key = mb_substr($key, 5);
+					if ($strOperation != "IN" && intval($val) > 0)
 					{
-						$res = ($strNegative=="Y"?" FF.".$key." IS NULL OR NOT ":"")."(FF.".$key." ".$strOperation." ".intVal($val)." ) OR ".
+						$res = ($strNegative=="Y"?" FF.".$key." IS NULL OR NOT ":"")."(FF.".$key." ".$strOperation." ".intval($val)." ) OR ".
 							"".($strNegative=="Y"?"NOT":"")."(FF.".$key." IS NULL OR FF.".$key."<=0)";
 						$arSqlSearch[] = $res;
 						break;
 					}
-					elseif ($strOperation == "IN" && (is_array($val) && array_sum($val) > 0 || is_string($val) && strlen($val) > 0))
+					elseif ($strOperation == "IN" && (is_array($val) && array_sum($val) > 0 || is_string($val) && $val <> ''))
 					{
 						$val = (!is_array($val) ? explode(",", $val) : $val);
 						$val_int = array();
 						foreach ($val as $k => $v):
-							$val_int[] = intVal($v);
+							$val_int[] = intval($v);
 						endforeach;
 						$val = implode(",", $val_int);
-						if (strLen($val) > 0)
+						if ($val <> '')
 						{
 							$arSqlSearch[] = ($strNegative=="Y"?" NOT ":"")."(FF.".$key." IN (".$DB->ForSql($val).") )";
 							break;
@@ -965,20 +964,20 @@ class CForumFiles extends CAllForumFiles
 				case "FILE_ID":
 				case "MESSAGE_ID":
 				case "USER_ID":
-					if (($strOperation!="IN") && (intVal($val) > 0 || $val === 0))
+					if (($strOperation!="IN") && (intval($val) > 0 || $val === 0))
 					{
-						$arSqlSearch[] = ($strNegative=="Y"?" FF.".$key." IS NULL OR NOT ":"")."(FF.".$key." ".$strOperation." ".intVal($val)." )";
+						$arSqlSearch[] = ($strNegative=="Y"?" FF.".$key." IS NULL OR NOT ":"")."(FF.".$key." ".$strOperation." ".intval($val)." )";
 						break;
 					}
-					elseif ($strOperation =="IN" && (is_array($val) && array_sum($val) > 0 || strlen($val) > 0))
+					elseif ($strOperation =="IN" && (is_array($val) && array_sum($val) > 0 || $val <> ''))
 					{
 						$val = (!is_array($val) ? explode(",", $val) : $val);
 						$val_int = array();
 						foreach ($val as $k => $v):
-							$val_int[] = intVal($v);
+							$val_int[] = intval($v);
 						endforeach;
 						$val = implode(",", $val_int);
-						if (strLen($val) > 0)
+						if ($val <> '')
 						{
 							$arSqlSearch[] = ($strNegative=="Y"?" NOT ":"")."(FF.".$key." IN (".$DB->ForSql($val).") )";
 							break;
@@ -988,7 +987,7 @@ class CForumFiles extends CAllForumFiles
 					break;
 				case "EDIT_DATE":
 				case "POST_DATE":
-					if (strlen($val)<=0)
+					if ($val == '')
 						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(FM.".$key." IS NULL OR LENGTH(FM.".$key.")<=0)";
 					else
 						$arSqlSearch[] = ($strNegative=="Y"?" FM.".$key." IS NULL OR NOT ":"")."(FM.".$key." ".$strOperation." ".$DB->CharToDateFunction($DB->ForSql($val), "FULL")." )";
@@ -1003,20 +1002,20 @@ class CForumFiles extends CAllForumFiles
 							foreach ($value as $k => $v)
 							{
 								$k_res = CForumNew::GetFilterOperation($k);
-								$k = strToUpper($k_res["FIELD"]);
+								$k = mb_strtoupper($k_res["FIELD"]);
 								$strNegative = $k_res["NEGATIVE"];
 								$strOperation = $k_res["OPERATION"];
 								switch ($k)
 								{
 									case "TOPIC_ID":
 									case "FORUM_ID":
-										if (intVal($v)<=0)
+										if (intval($v)<=0)
 											$str[] = ($strNegative=="Y"?"NOT":"")."(FM.".$k." IS NULL OR FM.".$k."<=0)";
 										else
-											$str[] = ($strNegative=="Y"?" FM.".$k." IS NULL OR NOT ":"")."(FM.".$k." ".$strOperation." ".intVal($v)." )";
+											$str[] = ($strNegative=="Y"?" FM.".$k." IS NULL OR NOT ":"")."(FM.".$k." ".$strOperation." ".intval($v)." )";
 										break;
 									case "APPROVED":
-										if (strlen($v)<=0)
+										if ($v == '')
 											$str[] = ($strNegative=="Y"?"NOT":"")."(FM.APPROVED IS NULL OR LENGTH(FM.APPROVED)<=0)";
 										else
 											$str[] = ($strNegative=="Y"?" FM.APPROVED IS NULL OR NOT ":"")."FM.APPROVED ".$strOperation." '".$DB->ForSql($v)."' ";
@@ -1036,7 +1035,8 @@ class CForumFiles extends CAllForumFiles
 
 		foreach ($arOrder as $by=>$order)
 		{
-			$by = strtoupper($by); $order = strtoupper($order);
+			$by = mb_strtoupper($by);
+			$order = mb_strtoupper($order);
 			if ($order!="ASC") $order = "DESC";
 			if ($by == "FILE_ID") $arSqlOrder[] = " FF.FILE_ID ".$order." ";
 			elseif ($by == "FORUM_ID") $arSqlOrder[] = " FF.FORUM_ID ".$order." ";
@@ -1062,9 +1062,9 @@ class CForumFiles extends CAllForumFiles
 			WHERE 1 = 1
 			".$strSqlSearch."
 			".$strSqlOrder;
-		if ($iNum > 0 || intVal($arAddParams["nTopCount"]) > 0)
+		if ($iNum > 0 || intval($arAddParams["nTopCount"]) > 0)
 		{
-			$iNum = ($iNum > 0) ? $iNum : intVal($arAddParams["nTopCount"]);
+			$iNum = ($iNum > 0) ? $iNum : intval($arAddParams["nTopCount"]);
 			$strSql = "SELECT * FROM(".$strSql.") WHERE ROWNUM<=".$iNum;
 		}
 		elseif (is_set($arAddParams, "bDescPageNumbering"))
@@ -1073,7 +1073,7 @@ class CForumFiles extends CAllForumFiles
 			$strSql1 = "SELECT COUNT(FM.ID) as CNT FROM b_forum_message FM WHERE 1 = 1 ".$strSqlSearch;
 			$db_res = $DB->Query($strSql1, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			if ($ar_res = $db_res->Fetch())
-				$iCnt = intVal($ar_res["CNT"]);
+				$iCnt = intval($ar_res["CNT"]);
 			$db_res =  new CDBResult();
 			$db_res->NavQuery($strSql, $iCnt, $arAddParams);
 		}

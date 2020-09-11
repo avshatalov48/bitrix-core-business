@@ -43,18 +43,18 @@ if (!function_exists("__array_merge"))
 		"message" => "PAGE_NAME=message&FID=#FID#&TID=#TID#&MID=#MID#");
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		if (trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
+			$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["SHOW_FORUM_ANOTHER_SITE"] = ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y" ? "Y" : "N");
 	$arParams["FID_RANGE"] = (is_array($arParams["FID_RANGE"]) && !empty($arParams["FID_RANGE"]) ? $arParams["FID_RANGE"] : array());
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
-	$arParams["PAGE_NAVIGATION_WINDOW"] = intVal(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
+	$arParams["PAGE_NAVIGATION_WINDOW"] = intval(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
 	$arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
-	$arParams["TOPICS_PER_PAGE"] = intVal(intVal($arParams["TOPICS_PER_PAGE"]) > 0 ? $arParams["TOPICS_PER_PAGE"] : COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"));
+	$arParams["TOPICS_PER_PAGE"] = intval(intVal($arParams["TOPICS_PER_PAGE"]) > 0 ? $arParams["TOPICS_PER_PAGE"] : COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"));
 /***************** STANDART ****************************************/
 	$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
 	$arParams["SET_NAVIGATION"] = ($arParams["SET_NAVIGATION"] == "N" ? "N" : "Y");
@@ -72,7 +72,7 @@ if (!function_exists("__array_merge"))
 $arResult["FID"] = (is_array($arParams["FID"]) ? $arParams["FID"] : array($arParams["FID"]));
 $arResult["ERROR_MESSAGE"] = "";
 $arResult["SHOW_FORUMS"] = "Y";
-$arResult["SHOW_RESULT"] = (strLen($q) > 0 || !empty($_REQUEST["tags"]) ? "Y" : "N");
+$arResult["SHOW_RESULT"] = ($q <> '' || !empty($_REQUEST["tags"]) ? "Y" : "N");
 $arResult["FORUMS"] = array();
 $arResult["GROUPS_FORUMS"] = array(); // declared in result_modifier.php
 $arResult["GROUPS"] = CForumGroup::GetByLang(LANGUAGE_ID);
@@ -161,7 +161,7 @@ foreach ($arForums as $PARENT_ID => $res)
 $arResult["GROUPS_FORUMS"] = $arGroups;
 $arParams["FID"] = array_intersect($arParams["FID"], array_keys($arResult["FORUMS"]));
 /************** Search data ****************************************/
-if (strLen($_REQUEST["q"]) > 0 || !empty($_REQUEST["tags"])):
+if ($_REQUEST["q"] <> '' || !empty($_REQUEST["tags"])):
 	if ($_REQUEST["order"] == "date"):
 		$arResult["order"]["active"] = "date";
 		$aSort = array("DATE_CHANGE"=>"DESC");
@@ -174,10 +174,10 @@ if (strLen($_REQUEST["q"]) > 0 || !empty($_REQUEST["tags"])):
 		"SITE_ID" => SITE_ID,
 		"QUERY" => $q, 
 		"TAGS" => $_REQUEST["tags"] ? $_REQUEST["tags"] : "");
-	if (intVal($_REQUEST["DATE_CHANGE"]) > 0)
+	if (intval($_REQUEST["DATE_CHANGE"]) > 0)
 	{
 		$arFilter1["DATE_CHANGE"] = Date(CDatabase::DateFormatToPHP(CLang::GetDateFormat("FULL", LANGUAGE_ID)), 
-			time()-(intVal($_REQUEST["DATE_CHANGE"])*24*3600)+CTimeZone::GetOffset());
+			time()-(intval($_REQUEST["DATE_CHANGE"])*24*3600)+CTimeZone::GetOffset());
 	}
 	$arFilter2 = array();
 	if (!empty($arParams["FID_RANGE"]) || !empty($arParams["FID"]))
@@ -222,7 +222,7 @@ if (strLen($_REQUEST["q"]) > 0 || !empty($_REQUEST["tags"])):
 			$arResult["TOPICS"] = [];
 			do
 			{
-				if (intVal($res["ITEM_ID"]) > 0)
+				if (intval($res["ITEM_ID"]) > 0)
 				{
 					$res["URL"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE"], 
 						array("FID" => $res["PARAM1"], "TID"=>$res["PARAM2"], "TITLE_SEO"=>$res["PARAM2"], "MID" => $res["ITEM_ID"]));
@@ -239,8 +239,8 @@ if (strLen($_REQUEST["q"]) > 0 || !empty($_REQUEST["tags"])):
 
 				$res["BODY_FORMATED"] = preg_replace("#\[/?(quote|b|i|u|code|url).*?\]#i", "", $res["BODY_FORMATED"]);
 				$res["DATE_CHANGE"] = CForumFormat::DateFormat($arParams["DATE_FORMAT"], MakeTimeStamp($res["DATE_CHANGE"], CSite::GetDateFormat()));
-				if (strpos($res["SITE_URL"], "#message") !== false)
-					$res["SITE_URL"] = substr($res["SITE_URL"], 0, strpos($res["SITE_URL"], "#message"));
+				if (mb_strpos($res["SITE_URL"], "#message") !== false)
+					$res["SITE_URL"] = mb_substr($res["SITE_URL"], 0, mb_strpos($res["SITE_URL"], "#message"));
 					
 				$res["TAGS"] = array();
 				if (!empty($res["~TAGS_FORMATED"]))
@@ -260,7 +260,7 @@ if (strLen($_REQUEST["q"]) > 0 || !empty($_REQUEST["tags"])):
 			}
 			while ($res = $obSearch->GetNext());
 		}
-		if (strpos($arParams["URL_TEMPLATES_READ"], "#TITLE_SEO#") !== false && !empty($topics))
+		if (mb_strpos($arParams["URL_TEMPLATES_READ"], "#TITLE_SEO#") !== false && !empty($topics))
 		{
 			$db_res2 = CForumTopic::GetList(array(), array("@ID" => array_keys($topics)));
 			while($db_res2 && ($res2 = $db_res2->Fetch()))
@@ -270,7 +270,7 @@ if (strLen($_REQUEST["q"]) > 0 || !empty($_REQUEST["tags"])):
 					foreach ($topics[$res2["ID"]] as $key)
 					{
 						$res = $arResult["TOPICS"][$key];
-						if (intVal($res["ITEM_ID"]) > 0)
+						if (intval($res["ITEM_ID"]) > 0)
 						{
 							$res["URL"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE"],
 								array("FID" => $res["PARAM1"], "TID"=>$res["PARAM2"], "TITLE_SEO"=>$res2["TITLE_SEO"], "MID" => $res["ITEM_ID"]));

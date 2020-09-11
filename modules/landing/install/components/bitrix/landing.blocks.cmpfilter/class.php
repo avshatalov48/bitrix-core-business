@@ -81,9 +81,16 @@ class LandingUtilsCmpFilterComponent extends \CBitrixComponent
 				);
 			}
 			$obSearch->navStart(500);
+			$found = false;
 			while ($row = $obSearch->fetch())
 			{
+				$found = true;
 				$filter['ID'][] = $row['ITEM_ID'];
+			}
+			if (!$found)
+			{
+				unset($filter['ID']);
+				$filter['*SEARCHABLE_CONTENT'] = $q;
 			}
 		}
 		else

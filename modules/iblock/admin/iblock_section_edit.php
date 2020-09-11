@@ -1379,6 +1379,7 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 				<a id="modeChangeToFlat" style="display: none;" href="javascript:setMode(BX('table_SECTION_PROPERTY'), 'flat')"><?echo GetMessage("IBSEC_E_PROP_FLAT_MODE");?></a>
 		</td></tr>
 		<tr><td align="center" colspan="2">
+			<? echo $editor->getEditorHtml(); ?>
 			<table class="internal" id="table_SECTION_PROPERTY" style="border-left: none !important; border-right: none !important;">
 			<tr
 				id="tr_HEADING"
@@ -1581,7 +1582,8 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 				<?
 					if (!is_array($arLink) || $arLink["INHERITED"] == "N")
 					{
-						echo $editor->getControlHtml('SECTION_PROPERTY['.$arProp['ID'].'][FILTER_HINT]', $arLink['FILTER_HINT'], 255);
+						$filterHint = (is_array($arLink) ? (string)$arLink['FILTER_HINT'] : '');
+						echo $editor->getControlHtml('SECTION_PROPERTY['.$arProp['ID'].'][FILTER_HINT]', $filterHint, 255);
 					}
 					elseif ($arLink['FILTER_HINT'] <> '')
 					{
@@ -2001,7 +2003,8 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 				<td><?
 					if (!is_array($arLink) || $arLink["INHERITED"] == "N")
 					{
-						echo $editor->getControlHtml('SECTION_PROPERTY['.$arProp['ID'].'][FILTER_HINT]', $arLink['FILTER_HINT'], 255);
+						$filterHint = (is_array($arLink) ? (string)$arLink['FILTER_HINT'] : '');
+						echo $editor->getControlHtml('SECTION_PROPERTY['.$arProp['ID'].'][FILTER_HINT]', $filterHint, 255);
 					}
 					elseif ($arLink['FILTER_HINT'] <> '')
 					{

@@ -82,7 +82,7 @@ foreach($arrLegend as $keyL => $arrL)
 
 
 if (function_exists("ImageCreate")) :
-if (strlen($strError)<=0 && count($arrLegend)>0 && count($arrDays)>1) :
+if ($strError == '' && count($arrLegend)>0 && count($arrDays)>1) :
 	$width = COption::GetOptionString("statistic", "GRAPH_WEIGHT");
 	$height = COption::GetOptionString("statistic", "GRAPH_HEIGHT");
 ?>
@@ -176,7 +176,7 @@ if (is_array($arrSEARCHERS))
 		if ($ka!==false && $kb!==false)
 		{
 			if ($ka==$kb) $ret=0;
-			elseif (strtolower($ka)>strtolower($kb)) $ret=1;
+			elseif (mb_strtolower($ka) > mb_strtolower($kb)) $ret=1;
 			else $ret=-1;
 		}
 		if ($ka===false && $kb!==false) $ret=1;

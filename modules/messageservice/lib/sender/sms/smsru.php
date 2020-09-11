@@ -79,29 +79,6 @@ class SmsRu extends Sender\BaseConfigurable
 		return is_array($from) ? $from : array();
 	}
 
-	public function getDefaultFrom()
-	{
-		$fromList = $this->getFromList();
-		$from = isset($fromList[0]) ? $fromList[0]['id'] : null;
-		//Try to find alphanumeric from
-		foreach ($fromList as $item)
-		{
-			if (!preg_match('#^[0-9]+$#', $item['id']))
-			{
-				$from = $item['id'];
-				break;
-			}
-		}
-		return $from;
-	}
-
-	public function setDefaultFrom($from)
-	{
-		//$from = (string)$from;
-		//$this->setOption('default_from', $from);
-		return $this;
-	}
-
 	public function isConfirmed()
 	{
 		return ($this->getOption('is_confirmed') === true);

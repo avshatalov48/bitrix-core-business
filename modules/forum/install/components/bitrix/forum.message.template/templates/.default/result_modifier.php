@@ -19,7 +19,7 @@ $arParams["ATTACH_MODE"] = (is_array($arParams["ATTACH_MODE"]) ? $arParams["ATTA
 $arParams["ATTACH_MODE"] = (!in_array("NAME", $arParams["ATTACH_MODE"]) && !in_array("THUMB", $arParams["ATTACH_MODE"]) ? array("NAME") : $arParams["ATTACH_MODE"]);
 $arParams["ATTACH_MODE"] = (in_array("NAME", $arParams["ATTACH_MODE"]) && in_array("THUMB", $arParams["ATTACH_MODE"]) ? "FULL" :
 	(in_array("THUMB", $arParams["ATTACH_MODE"]) ? "THUMB" : "LINK"));
-$arParams["ATTACH_SIZE"] = intVal(intVal($arParams["ATTACH_SIZE"]) > 0 ? $arParams["ATTACH_SIZE"] : 90);
+$arParams["ATTACH_SIZE"] = intval(intVal($arParams["ATTACH_SIZE"]) > 0 ? $arParams["ATTACH_SIZE"] : 90);
 
 $arParams["SHOW_RATING"] = ($arParams["SHOW_RATING"] == "Y" ? "Y" : "N");
 $arParams["RATING_ID"] = (is_array($arParams["RATING_ID"]) ? $arParams["RATING_ID"] : array($arParams["RATING_ID"]));

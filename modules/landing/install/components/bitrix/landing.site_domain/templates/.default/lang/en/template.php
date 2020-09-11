@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["LANDING_TPL_AGREE_BY_SUBMIT"] = "By clicking the button below, you agree to the #LINK1#Terms of Use#LINK2#";
 $MESS["LANDING_TPL_BITRIX24_DOMAIN_NAME"] = "Enter subdomain name:";
 $MESS["LANDING_TPL_BITRIX24_SUBTITLE"] = "Start your site on subdomain #POSTFIX#";
@@ -16,6 +16,8 @@ $MESS["LANDING_TPL_DOMAIN_FREE_AVAILABLE_TITLE"] = "Domain is active";
 $MESS["LANDING_TPL_DOMAIN_FREE_NOT_AVAILABLE_LABEL"] = "Please wait while your domain <b>#DOMAIN_NAME#</b> is being activated.";
 $MESS["LANDING_TPL_DOMAIN_FREE_NOT_AVAILABLE_TEXT"] = "Note that your site is currently unavailable at the previous address. You have to wait for the new domain to activate.";
 $MESS["LANDING_TPL_DOMAIN_FREE_NOT_AVAILABLE_TITLE"] = "Awaiting domain activation";
+$MESS["LANDING_TPL_ERROR_DOMAIN_CHECK"] = "Domain name can only include Latin characters, numbers and a minus sign. Also, it can end with \".#TLD#\" (e.g.: \"mysite.#TLD#\").";
+$MESS["LANDING_TPL_ERROR_DOMAIN_CHECK_DASH"] = "Domain name cannot start or end with a minus sign, or have multiple adjacent minus signs.";
 $MESS["LANDING_TPL_ERROR_DOMAIN_EMPTY"] = "Domain name cannot be empty";
 $MESS["LANDING_TPL_ERROR_DOMAIN_EXIST"] = "This domain already exists";
 $MESS["LANDING_TPL_ERROR_DOMAIN_EXIST_DELETED"] = "This domain already exists, but it was assigned to a site currently in the Recycle Bin. Please unassign the site first, then try again.";
@@ -47,4 +49,3 @@ $MESS["LANDING_TPL_TITLE_MENU"] = "Site URL";
 $MESS["LANDING_TPL_TITLE_MENU_BITRIX24"] = "Bitrix24 subdomain";
 $MESS["LANDING_TPL_TITLE_MENU_FREE"] = "Free domain name";
 $MESS["LANDING_TPL_TITLE_MENU_PRIVATE"] = "Own domain";
-?>

@@ -37,7 +37,7 @@ return array(
 			),
 			'style' => array(
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title text-left g-font-size-24 g-color-white font-weight-bold g-mb-0 g-letter-spacing-0',
+					0 => 'landing-block-node-title text-left g-font-size-24 g-color-white g-font-weight-700 g-mb-0 g-letter-spacing-0',
 				),
 				'.landing-block-node-phone' => array(
 					0 => 'landing-block-node-phone g-font-size-18 g-color-white-opacity-0_8 g-color-primary--hover',

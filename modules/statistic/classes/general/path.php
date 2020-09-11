@@ -12,7 +12,7 @@ class CPath
 		$counter = "P.".$COUNTER_TYPE;
 		$where_counter = "and P.".$COUNTER_TYPE.">0";
 
-		if (strlen($PARENT_ID)<=0 && $COUNTER_TYPE=="COUNTER")
+		if ($PARENT_ID == '' && $COUNTER_TYPE=="COUNTER")
 		{
 			$where_parent = "and (P.PARENT_PATH_ID is null or ".$DB->Length("P.PARENT_PATH_ID")."<=0)";
 		}
@@ -31,7 +31,7 @@ class CPath
 
 		if (is_array($arFilter))
 		{
-			if (strlen($arFilter["ADV"])>0)
+			if ($arFilter["ADV"] <> '')
 			{
 				$from_adv = " , b_stat_path_adv A ";
 				$where_adv = "and A.PATH_ID = P.PATH_ID and A.DATE_STAT = P.DATE_STAT ";
@@ -62,11 +62,11 @@ class CPath
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if( ($val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "PATH_ID":

@@ -136,7 +136,7 @@ $ar = array(
 	),
 );
 
-$iblockId = intval(substr($documentType[2], strlen("iblock_")));
+$iblockId = intval(mb_substr($documentType[2], mb_strlen("iblock_")));
 
 $obList = new CList($iblockId);
 foreach ($ar as $value)

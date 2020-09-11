@@ -11,9 +11,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @subpackage im
 	 * @copyright 2001-2019 Bitrix
 	 */
-	var LocalStorage =
-	/*#__PURE__*/
-	function () {
+	var LocalStorage = /*#__PURE__*/function () {
 	  function LocalStorage() {
 	    babelHelpers.classCallCheck(this, LocalStorage);
 	    this.enabled = null;

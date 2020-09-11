@@ -81,7 +81,7 @@ return array(
 					0 => 'landing-block-node-card-title g-max-width-800 mx-auto g-font-weight-700 g-mb-20 js-animation fadeInUp g-font-marmelad g-text-transform-none g-font-size-55 g-color-white-opacity-0_8 g-line-height-1',
 				),
 				'.landing-block-node-card-text' => array(
-					0 => 'landing-block-node-card-text g-max-width-800 mx-auto g-mb-35 js-animation fadeInUp g-font-marmelad g-font-size-90 font-weight-bold g-letter-spacing-minus-2 g-color-white-opacity-0_9 g-line-height-1',
+					0 => 'landing-block-node-card-text g-max-width-800 mx-auto g-mb-35 js-animation fadeInUp g-font-marmelad g-font-size-90 g-font-weight-700 g-letter-spacing-minus-2 g-color-white-opacity-0_9 g-line-height-1',
 				),
 				'.landing-block-node-card-img' => array(
 					0 => 'landing-block-node-card-img g-min-height-100vh g-flex-centered g-bg-cover g-bg-pos-center g-bg-img-hero g-bg-black-opacity-0_3--after',
@@ -159,16 +159,16 @@ return array(
 					0 => 'landing-block-node-img1 col-md-6 g-bg-img-hero g-min-height-400 js-animation fadeInLeft',
 				),
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title g-font-weight-600 mb-0 g-text-transform-none g-font-marmelad g-font-size-26 font-weight-bold g-line-height-0_7 g-color-gray-light-v1',
+					0 => 'landing-block-node-title g-font-weight-600 mb-0 g-text-transform-none g-font-marmelad g-font-size-26 g-font-weight-700 g-line-height-0_7 g-color-gray-light-v1',
 				),
 				'.landing-block-node-subtitle' => array(
 					0 => 'landing-block-node-subtitle g-font-weight-700 g-mb-25 g-font-marmelad font-weight-normal g-font-size-40 g-color-main g-line-height-0_7',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text g-mb-35 g-font-montserrat',
+					0 => 'landing-block-node-text g-mb-35',
 				),
 				'.landing-block-node-button' => array(
-					0 => 'landing-block-node-button btn btn-md text-uppercase u-btn-primary g-font-weight-700 g-font-size-11 g-brd-none g-py-10 g-px-25 g-rounded-50 g-brd-1',
+					0 => 'landing-block-node-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-py-10 g-rounded-50',
 				),
 				'.landing-block-node-button-container' => array(
 					0 => 'landing-block-node-button-container',
@@ -243,12 +243,12 @@ return array(
 					3 => '<p>Donec id elit non mi porta gravida at eget metus id elit mi egetine. </p>',
 				),
 				'.landing-block-node-element-list' => array(
-					0 => '<li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10 g-font-montserrat">Candy set<br /></li>
-                            <li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10 g-font-montserrat">flowers</li>
-                            <li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10 g-font-montserrat">plush </li>',
-					1 => '<li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10 g-font-montserrat">CANDY SET</li><li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10 g-font-montserrat">FLOWERS</li><li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10 g-font-montserrat">PLUSH </li>',
-					2 => '<li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10 g-font-montserrat">CANDY SET</li><li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10 g-font-montserrat">FLOWERS</li><li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10 g-font-montserrat">PLUSH </li>',
-					3 => '<li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10 g-font-montserrat">CANDY SET</li><li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10 g-font-montserrat">FLOWERS</li><li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10 g-font-montserrat">PLUSH </li>',
+					0 => '<li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10">Candy set<br /></li>
+                            <li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10">flowers</li>
+                            <li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10">plush </li>',
+					1 => '<li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10">CANDY SET</li><li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10">FLOWERS</li><li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10">PLUSH </li>',
+					2 => '<li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10">CANDY SET</li><li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10">FLOWERS</li><li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10">PLUSH </li>',
+					3 => '<li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10">CANDY SET</li><li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10">FLOWERS</li><li class="landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10">PLUSH </li>',
 				),
 			),
 			'style' => array(
@@ -265,24 +265,24 @@ return array(
 					3 => 'landing-block-node-element-title h5 g-mb-10 g-text-transform-none g-font-size-25 g-font-marmelad g-color-gray-dark-v4',
 				),
 				'.landing-block-node-element-text' => array(
-					0 => 'landing-block-node-element-text g-color-gray-dark-v4 g-font-montserrat',
-					1 => 'landing-block-node-element-text g-color-gray-dark-v4 g-font-montserrat',
-					2 => 'landing-block-node-element-text g-color-gray-dark-v4 g-font-montserrat',
-					3 => 'landing-block-node-element-text g-color-gray-dark-v4 g-font-montserrat',
+					0 => 'landing-block-node-element-text g-color-gray-dark-v4',
+					1 => 'landing-block-node-element-text g-color-gray-dark-v4',
+					2 => 'landing-block-node-element-text g-color-gray-dark-v4',
+					3 => 'landing-block-node-element-text g-color-gray-dark-v4',
 				),
 				'.landing-block-node-element-list-item' => array(
-					0 => 'landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10 g-font-montserrat',
-					1 => 'landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10 g-font-montserrat',
-					2 => 'landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10 g-font-montserrat',
-					3 => 'landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10 g-font-montserrat',
-					4 => 'landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10 g-font-montserrat',
-					5 => 'landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10 g-font-montserrat',
-					6 => 'landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10 g-font-montserrat',
-					7 => 'landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10 g-font-montserrat',
-					8 => 'landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10 g-font-montserrat',
-					9 => 'landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10 g-font-montserrat',
-					10 => 'landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10 g-font-montserrat',
-					11 => 'landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10 g-font-montserrat',
+					0 => 'landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10',
+					1 => 'landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10',
+					2 => 'landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10',
+					3 => 'landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10',
+					4 => 'landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10',
+					5 => 'landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10',
+					6 => 'landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10',
+					7 => 'landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10',
+					8 => 'landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10',
+					9 => 'landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10',
+					10 => 'landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10',
+					11 => 'landing-block-node-element-list-item g-brd-bottom g-brd-gray-light-v3 g-py-10',
 				),
 				'.landing-block-node-element-icon-container' => array(
 					0 => 'landing-block-node-element-icon-container d-block g-color-primary g-font-size-40 g-mb-15',
@@ -342,10 +342,10 @@ return array(
 					0 => 'landing-block-node-title g-line-height-1 g-font-weight-700 g-mb-20 g-text-transform-none g-color-primary g-font-marmelad g-font-size-76',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text g-mb-35 g-color-white g-font-montserrat',
+					0 => 'landing-block-node-text g-mb-35 g-color-white',
 				),
 				'.landing-block-node-button' => array(
-					0 => 'landing-block-node-button btn btn-xl u-btn-primary text-uppercase g-font-weight-700 g-font-size-12 g-rounded-50 g-py-15 g-px-40 g-mb-15',
+					0 => 'landing-block-node-button btn g-btn-primary g-btn-type-solid g-btn-px-l g-btn-size-md text-uppercase g-rounded-50 g-py-15 g-mb-15',
 				),
 				'#wrapper' => array(
 					0 => 'landing-block landing-block-node-img u-bg-overlay g-flex-centered g-bg-img-hero g-pt-80 g-pb-80 g-min-height-100vh g-bg-black-opacity-0_4--after',
@@ -382,7 +382,7 @@ return array(
 					0 => 'landing-block-node-title u-heading-v7__title g-font-weight-600 g-mb-20 js-animation fadeInUp font-weight-normal g-color-main g-font-marmelad g-font-size-65',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text g-color-gray-dark-v5 mb-0 g-font-montserrat js-animation fadeInUp',
+					0 => 'landing-block-node-text g-color-gray-dark-v5 mb-0 js-animation fadeInUp',
 				),
 				'.landing-block-node-icon-element@0' => array(
 					0 => 'landing-block-node-icon-element g-color-primary d-inline g-font-size-8'
@@ -539,29 +539,29 @@ return array(
 					2 => 'landing-block-node-card-title font-italic g-font-weight-700 g-color-white mb-0 g-font-marmelad g-font-size-24',
 				),
 				'.landing-block-node-card-subtitle' => array(
-					0 => 'landing-block-node-card-subtitle g-font-size-default g-color-white-opacity-0_6 g-font-montserrat',
-					1 => 'landing-block-node-card-subtitle g-font-size-default g-color-white-opacity-0_6 g-font-montserrat',
-					2 => 'landing-block-node-card-subtitle g-font-size-default g-color-white-opacity-0_6 g-font-montserrat',
+					0 => 'landing-block-node-card-subtitle g-color-white-opacity-0_6',
+					1 => 'landing-block-node-card-subtitle g-color-white-opacity-0_6',
+					2 => 'landing-block-node-card-subtitle g-color-white-opacity-0_6',
 				),
 				'.landing-block-node-card-price-subtitle' => array(
-					0 => 'landing-block-node-card-price-subtitle g-font-size-default g-color-gray-light-v1 g-font-montserrat',
-					1 => 'landing-block-node-card-price-subtitle g-font-size-default g-color-gray-light-v1 g-font-montserrat',
-					2 => 'landing-block-node-card-price-subtitle g-font-size-default g-color-gray-light-v1 g-font-montserrat',
+					0 => 'landing-block-node-card-price-subtitle g-color-gray-light-v1',
+					1 => 'landing-block-node-card-price-subtitle g-color-gray-light-v1',
+					2 => 'landing-block-node-card-price-subtitle g-color-gray-light-v1',
 				),
 				'.landing-block-node-card-price' => array(
-					0 => 'landing-block-node-card-price g-font-weight-700 g-color-primary g-font-size-24 g-mt-10 g-font-montserrat',
-					1 => 'landing-block-node-card-price g-font-weight-700 g-color-primary g-font-size-24 g-mt-10 g-font-montserrat',
-					2 => 'landing-block-node-card-price g-font-weight-700 g-color-primary g-font-size-24 g-mt-10 g-font-montserrat',
+					0 => 'landing-block-node-card-price g-font-weight-700 g-color-primary g-font-size-24 g-mt-10',
+					1 => 'landing-block-node-card-price g-font-weight-700 g-color-primary g-font-size-24 g-mt-10',
+					2 => 'landing-block-node-card-price g-font-weight-700 g-color-primary g-font-size-24 g-mt-10',
 				),
 				'.landing-block-node-card-text' => array(
-					0 => 'landing-block-node-card-text g-font-size-default g-color-gray-light-v1 g-mb-40 g-font-montserrat',
-					1 => 'landing-block-node-card-text g-font-size-default g-color-gray-light-v1 g-mb-40 g-font-montserrat',
-					2 => 'landing-block-node-card-text g-font-size-default g-color-gray-light-v1 g-mb-40 g-font-montserrat',
+					0 => 'landing-block-node-card-text g-color-gray-light-v1 g-mb-40',
+					1 => 'landing-block-node-card-text g-color-gray-light-v1 g-mb-40',
+					2 => 'landing-block-node-card-text g-color-gray-light-v1 g-mb-40',
 				),
 				'.landing-block-node-card-button' => array(
-					0 => 'landing-block-node-card-button btn text-uppercase u-btn-primary g-font-weight-700 g-font-size-12 g-py-15 g-rounded-50',
-					1 => 'landing-block-node-card-button btn text-uppercase u-btn-primary g-font-weight-700 g-font-size-12 g-py-15 g-rounded-50',
-					2 => 'landing-block-node-card-button btn text-uppercase u-btn-primary g-font-weight-700 g-font-size-12 g-py-15 g-rounded-50',
+					0 => 'landing-block-node-card-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-py-15 g-rounded-50',
+					1 => 'landing-block-node-card-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-py-15 g-rounded-50',
+					2 => 'landing-block-node-card-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-py-15 g-rounded-50',
 				),
 				'.landing-block-node-card-button-container' => array(
 					0 => 'landing-block-node-card-button-container mt-auto',
@@ -654,12 +654,12 @@ return array(
 					1 => 'landing-block-node-card-subtitle text-uppercase g-font-weight-700 g-font-size-12 g-color-primary g-mb-25',
 				),
 				'.landing-block-node-card-text' => array(
-					0 => 'landing-block-node-card-text js-animation fadeInRightBig g-font-size-default g-color-gray-light-v1 g-mb-40',
-					1 => 'landing-block-node-card-text js-animation fadeInLeft g-font-size-default g-color-gray-light-v1 g-mb-40',
+					0 => 'landing-block-node-card-text js-animation fadeInRightBig g-color-gray-light-v1 g-mb-40',
+					1 => 'landing-block-node-card-text js-animation fadeInLeft g-color-gray-light-v1 g-mb-40',
 				),
 				'.landing-block-node-card-button' => array(
-					0 => 'landing-block-node-card-button js-animation fadeInRightBig btn btn-xl text-uppercase u-btn-primary g-font-weight-700 g-font-size-12 g-pa-15 g-rounded-50',
-					1 => 'landing-block-node-card-button js-animation fadeInRightBig btn btn-xl text-uppercase u-btn-primary g-font-weight-700 g-font-size-12 g-pa-15 g-rounded-50',
+					0 => 'landing-block-node-card-button js-animation fadeInRightBig btn g-btn-primary g-btn-type-solid g-btn-size-sm g-btn-px-m text-uppercase g-pa-15 g-rounded-50',
+					1 => 'landing-block-node-card-button js-animation fadeInRightBig btn g-btn-primary g-btn-type-solid g-btn-size-sm g-btn-px-m text-uppercase g-pa-15 g-rounded-50',
 				),
 				'.landing-block-node-card-button-container' => array(
 					0 => 'landing-block-node-card-button-container',
@@ -700,7 +700,7 @@ return array(
 					0 => 'landing-block-node-title u-heading-v7__title g-font-weight-600 g-mb-20 js-animation fadeInUp font-weight-normal g-color-main g-font-marmelad g-font-size-65',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text g-color-gray-dark-v5 mb-0 g-font-montserrat js-animation fadeInUp',
+					0 => 'landing-block-node-text g-color-gray-dark-v5 mb-0 js-animation fadeInUp',
 				),
 				'.landing-block-node-icon-element@0' => array(
 					0 => 'landing-block-node-icon-element g-color-primary d-inline g-font-size-8'

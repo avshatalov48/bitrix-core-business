@@ -588,9 +588,10 @@ class Landing
 	/**
 	 * Checks that page also adding in some menu.
 	 * @param array $fields Landing data array.
+	 * @param bool $willAdded Flag that menu item will be added.
 	 * @return array
 	 */
-	protected static function checkAddingInMenu(array $fields)
+	protected static function checkAddingInMenu(array $fields, ?bool &$willAdded = null): array
 	{
 		$blockId = null;
 		$menuCode = null;
@@ -610,6 +611,8 @@ class Landing
 		{
 			return $fields;
 		}
+
+		$willAdded = true;
 
 		LandingCore::callback('OnAfterAdd',
 			function(\Bitrix\Main\Event $event) use ($blockId, $menuCode)
@@ -687,14 +690,27 @@ class Landing
 		$result = new PublicActionResult();
 		$error = new \Bitrix\Landing\Error;
 
+		$willAdded = false;
 		$siteId = intval($siteId);
-		$fields = self::checkAddingInMenu($fields);
+		$fields = self::checkAddingInMenu($fields, $willAdded);
 
 		$res = LandingCore::addByTemplate($siteId, $code, $fields);
 
 		if ($res->isSuccess())
 		{
 			$result->setResult($res->getId());
+			if (
+				!$willAdded &&
+				isset($fields['ADD_IN_MENU']) &&
+				isset($fields['TITLE']) &&
+				$fields['ADD_IN_MENU'] == 'Y'
+			)
+			{
+				Site::addLandingToMenu($siteId, [
+					'ID' => $res->getId(),
+					'TITLE' => $fields['TITLE']
+				]);
+			}
 		}
 		else
 		{

@@ -8,10 +8,10 @@ if (!function_exists("ForumUrlExtractTmp"))
 	function ForumUrlExtractTmp($s)
 	{
 		$x = 0;
-		while (strpos(",}])>.", substr($s, -1, 1))!==false)
+		while (mb_strpos(",}])>.", mb_substr($s, -1, 1)) !== false)
 		{
-			$s2 = substr($s, -1, 1);
-			$s = substr($s, 0, strlen($s)-1);
+			$s2 = mb_substr($s, -1, 1);
+			$s = mb_substr($s, 0, mb_strlen($s) - 1);
 		}
 		return "<a href=\"".$s."\" target=\"_blank\">".$s."</a>".$s2;
 	}
@@ -22,13 +22,13 @@ if (!function_exists("ForumNumberRusEnding"))
 	{
 		if (LANGUAGE_ID == "ru")
 		{
-			if (strlen($num)>1 && substr($num, strlen($num)-2, 1)=="1")
+			if (mb_strlen($num) > 1 && mb_substr($num, mb_strlen($num) - 2, 1) == "1")
 			{
 				return GetMessage("F_ENDING_OV");
 			}
 			else
 			{
-				$c = IntVal(substr($num, strlen($num)-1, 1));
+				$c = intval(mb_substr($num, mb_strlen($num) - 1, 1));
 				if ($c==0 || ($c>=5 && $c<=9))
 					return GetMessage("F_ENDING_OV");
 				elseif ($c==1)
@@ -39,7 +39,7 @@ if (!function_exists("ForumNumberRusEnding"))
 		}
 		else
 		{
-			if (IntVal($num)>1)
+			if (intval($num)>1)
 				return "s";
 			return "";
 		}
@@ -49,7 +49,7 @@ if (!function_exists("ForumNumberRusEnding"))
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$arParams["UID"] = trim(strLen($arParams["UID"]) <= 0 ? $_REQUEST["UID"] : $arParams["UID"]);
+	$arParams["UID"] = trim($arParams["UID"] == '' ? $_REQUEST["UID"] : $arParams["UID"]);
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
 			"read" => "PAGE_NAME=read&FID=#FID#&TID=#TID#",
@@ -66,10 +66,10 @@ if (!function_exists("ForumNumberRusEnding"))
 	}
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		if (trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
+			$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["FID_RANGE"] = (is_array($arParams["FID_RANGE"]) && !empty($arParams["FID_RANGE"]) ? $arParams["FID_RANGE"] : array());
@@ -77,9 +77,9 @@ if (!function_exists("ForumNumberRusEnding"))
 	$arParams["DATE_TIME_FORMAT"] = trim($arParams["DATE_TIME_FORMAT"]);
 	$arParams["DATE_FORMAT"] = trim($arParams["DATE_FORMAT"]);
 	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : '#NAME# #LAST_NAME#');
-	if(strlen($arParams["DATE_TIME_FORMAT"])<=0)
+	if($arParams["DATE_TIME_FORMAT"] == '')
 		$arParams["DATE_TIME_FORMAT"] = $GLOBALS["DB"]->DateFormatToPHP(CSite::GetDateFormat("FULL"));
-	if(strlen($arParams["DATE_FORMAT"])<=0)
+	if($arParams["DATE_FORMAT"] == '')
 		$arParams["DATE_FORMAT"] = $GLOBALS["DB"]->DateFormatToPHP(CSite::GetDateFormat("SHORT"));
 /***************** STANDART ****************************************/
 	if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
@@ -103,7 +103,7 @@ $bUserFound = $ar_res = false;
 if (!empty($arParams["UID"]))
 {
 	false;
-	$db_res = CUser::GetByID(intVal($arParams["UID"]));
+	$db_res = CUser::GetByID(intval($arParams["UID"]));
 	if (!($ar_res = $db_res->Fetch())):
 		$db_res = CUser::GetByLogin($arParams["UID"]);
 		$ar_res = $db_res->Fetch();
@@ -149,10 +149,10 @@ $arResult["FORUMS"] = array();
 
 $arResult["SHOW_BACK_URL"] = (($arResult["FID"] > 0 || $arResult["TID"] > 0 || $arResult["MID"] > 0) ? "Y" : "N");
 $arResult["SHOW_USER_INFO"] = "Y"; // out of date params
-$arResult["SHOW_EDIT_PROFILE"] = ($USER->IsAuthorized() && ((intVal($USER->GetID()) == $arParams["UID"] && $USER->CanDoOperation('edit_own_profile')) ||
+$arResult["SHOW_EDIT_PROFILE"] = ($USER->IsAuthorized() && ((intval($USER->GetID()) == $arParams["UID"] && $USER->CanDoOperation('edit_own_profile')) ||
 	$USER->IsAdmin()) ? "Y" : "N");
 $arResult["SHOW_VOTES"] = ((COption::GetOptionString("forum", "SHOW_VOTES", "Y") == "Y" && $USER->IsAuthorized()
-	&& (CForumUser::IsAdmin() || intVal($USER->GetParam("USER_ID"))!=$arParams["UID"])) ? "Y" : "N");
+	&& (CForumUser::IsAdmin() || intval($USER->GetParam("USER_ID"))!=$arParams["UID"])) ? "Y" : "N");
 $arResult["SHOW_RANK"] = 'Y';//(COption::GetOptionString("forum", "SHOW_VOTES", "Y") == "Y" ? "Y" : "N");
 /******************************************************************/
 $arResult["SHOW_ICQ"] = ((COption::GetOptionString("forum", "SHOW_ICQ_CONTACT", "N") != "Y") ? "N" : (($arParams["SEND_ICQ"] <= "A" || ($arParams["SEND_ICQ"] <= "E" && !$GLOBALS['USER']->IsAuthorized())) ? "N" : "Y"));
@@ -198,7 +198,7 @@ $arResult["user_post_all"] = $arResult["URL"]["USER_POSTS"];
 /************** Votings ********************************************/
 if ($arResult["SHOW_VOTES"] == "Y"):
 	if ($_GET["VOTE_USER"] == "Y" && $USER->IsAuthorized() && check_bitrix_sessid()):
-		ForumVote4User($arParams["UID"], $_GET["VOTES"], (strlen($_GET["CANCEL_VOTE"]) > 0 ? True : False), $strErrorMessage, $strOKMessage);
+		ForumVote4User($arParams["UID"], $_GET["VOTES"], ($_GET["CANCEL_VOTE"] <> '' ? True : False), $strErrorMessage, $strOKMessage);
 		if (empty($strErrorMessage)):
 			LocalRedirect($arResult["URL"]["~PROFILE_VIEW"]);
 		endif;
@@ -207,8 +207,8 @@ if ($arResult["SHOW_VOTES"] == "Y"):
 	$strNotesText = "";
 	$bCanVote = CForumUser::IsAdmin();
 	$bCanUnVote = False;
-	$arUserRank = CForumUser::GetUserRank(intVal($USER->GetParam("USER_ID")));
-	$arUserPoints = CForumUserPoints::GetByID(intVal($USER->GetParam("USER_ID")), $arParams["UID"]);
+	$arUserRank = CForumUser::GetUserRank(intval($USER->GetParam("USER_ID")));
+	$arUserPoints = CForumUserPoints::GetByID(intval($USER->GetParam("USER_ID")), $arParams["UID"]);
 	if ($arUserPoints)
 	{
 		$bCanUnVote = True;
@@ -218,14 +218,14 @@ if ($arResult["SHOW_VOTES"] == "Y"):
 		{
 			$strNotesText .= GetMessage("F_ALREADY_VOTED_ADMIN");
 		}
-		elseif (intVal($arUserPoints["POINTS"]) < intVal($arUserRank["VOTES"]))
+		elseif (intval($arUserPoints["POINTS"]) < intval($arUserRank["VOTES"]))
 		{
 			$bCanVote = True;
-			$strNotesText .= str_replace("#POINTS#", (intVal($arUserRank["VOTES"])-intVal($arUserPoints["POINTS"])), str_replace("#END#",
-				ForumNumberRusEnding((intVal($arUserRank["VOTES"])-intVal($arUserPoints["POINTS"]))), GetMessage("F_ALREADY_VOTED3")));
+			$strNotesText .= str_replace("#POINTS#", (intval($arUserRank["VOTES"])-intval($arUserPoints["POINTS"])), str_replace("#END#",
+				ForumNumberRusEnding((intval($arUserRank["VOTES"])-intval($arUserPoints["POINTS"]))), GetMessage("F_ALREADY_VOTED3")));
 		}
 	}
-	elseif (intVal($arUserRank["VOTES"]) > 0 || CForumUser::IsAdmin())
+	elseif (intval($arUserRank["VOTES"]) > 0 || CForumUser::IsAdmin())
 	{
 
 		$bCanVote = True;
@@ -244,9 +244,9 @@ if ($arResult["SHOW_VOTES"] == "Y"):
 	$arResult["bCanVote"] = $bCanVote;
 	$arResult["bCanUnVote"] = $bCanUnVote;
 	$arResult["titleVote"] = $strNotesText;
-	$arResult["SHOW_VOTES"] = (strlen($strNotesText) > 0 || $bCanVote || $bCanUnVote ? "Y" : "N");
+	$arResult["SHOW_VOTES"] = ($strNotesText <> '' || $bCanVote || $bCanUnVote ? "Y" : "N");
 	if (CForumUser::IsAdmin() && $bCanVote)
-		$arResult["VOTES"] = intVal($arUserRank["VOTES"]);
+		$arResult["VOTES"] = intval($arUserRank["VOTES"]);
 	if ($bCanUnVote):
 		$arResult["VOTE_ACTION"] = "UNVOTE";
 		$arResult["URL"]["~VOTE"] = $APPLICATION->GetCurPageParam("CANCEL_VOTE=Y&VOTE_USER=Y", array("sessid", "VOTE_USER", "VOTES", "CANCEL_VOTE"));
@@ -276,21 +276,21 @@ $arResult["~SHOW_NAME"] = CForumUser::GetFormattedNameByUserID(
 	));
 $arResult["SHOW_NAME"] = htmlspecialcharsbx($arResult["~SHOW_NAME"]);
 
-$arResult["SHOW_EDIT_PROFILE_TITLE"] = (intVal($USER->GetID())!=$arParams["UID"]) ? GetMessage("F_EDIT_THIS_PROFILE") : GetMessage("F_EDIT_YOUR_PROFILE");
-$arResult["SHOW_EDIT_PROFILE_TITLE_BOTTOM"] = ((intVal($USER->GetID())!=$arParams["UID"]) ? GetMessage("F_TO_CHANGE2") : GetMessage("F_TO_CHANGE3"))." ".GetMessage("F_TO_CHANGE4");
-if (strlen($arResult["USER"]["PERSONAL_WWW"]) > 0)
+$arResult["SHOW_EDIT_PROFILE_TITLE"] = (intval($USER->GetID())!=$arParams["UID"]) ? GetMessage("F_EDIT_THIS_PROFILE") : GetMessage("F_EDIT_YOUR_PROFILE");
+$arResult["SHOW_EDIT_PROFILE_TITLE_BOTTOM"] = ((intval($USER->GetID())!=$arParams["UID"]) ? GetMessage("F_TO_CHANGE2") : GetMessage("F_TO_CHANGE3"))." ".GetMessage("F_TO_CHANGE4");
+if ($arResult["USER"]["PERSONAL_WWW"] <> '')
 {
 	$arResult["USER"]["PERSONAL_WWW_FORMATED"] = $arResult["USER"]["PERSONAL_WWW"];
-	$strBValueTmp = substr($arResult["USER"]["PERSONAL_WWW_FORMATED"], 0, 6);
+	$strBValueTmp = mb_substr($arResult["USER"]["PERSONAL_WWW_FORMATED"], 0, 6);
 	if ($strBValueTmp!="http:/" && $strBValueTmp!="https:" && $strBValueTmp!="ftp://")
 		$arResult["USER"]["PERSONAL_WWW_FORMATED"] = "http://".$arResult["USER"]["PERSONAL_WWW_FORMATED"];
 	$arResult["USER"]["PERSONAL_WWW"] = "<noindex><a rel=\"nofollow\" href=\"".$arResult["USER"]["PERSONAL_WWW_FORMATED"]."\" target=\"_blank\">".$arResult["USER"]["PERSONAL_WWW_FORMATED"]."</a></noindex>";
 }
 
-if (strlen($arResult["USER"]["WORK_WWW"]) > 0)
+if ($arResult["USER"]["WORK_WWW"] <> '')
 {
 	$arResult["USER"]["WORK_WWW_FORMATED"] = $arResult["USER"]["WORK_WWW"];
-	$strBValueTmp = substr($arResult["USER"]["WORK_WWW_FORMATED"], 0, 6);
+	$strBValueTmp = mb_substr($arResult["USER"]["WORK_WWW_FORMATED"], 0, 6);
 	if ($strBValueTmp!="http:/" && $strBValueTmp!="https:" && $strBValueTmp!="ftp://")
 		$arResult["USER"]["WORK_WWW_FORMATED"] = "http://".$arResult["USER"]["WORK_WWW_FORMATED"];
 
@@ -308,7 +308,7 @@ if (!empty($arResult["USER"]["PERSONAL_LOCATION"]) && !empty($arResult["USER"]["
 $arResult["USER"]["PERSONAL_LOCATION"] .= $arResult["USER"]["PERSONAL_CITY"];
 
 $arResult["USER"]["WORK_LOCATION"] = GetCountryByID($arResult["USER"]["WORK_COUNTRY"]);
-if (strlen($arResult["USER"]["WORK_LOCATION"])>0 && strlen($arResult["USER"]["WORK_CITY"])>0)
+if ($arResult["USER"]["WORK_LOCATION"] <> '' && $arResult["USER"]["WORK_CITY"] <> '')
 	$arResult["USER"]["WORK_LOCATION"] .= ", ";
 $arResult["USER"]["WORK_LOCATION"] .= $arResult["USER"]["WORK_CITY"];
 
@@ -428,14 +428,14 @@ $arResult["ERROR_MESSAGE"] .= $strErrorMessage;
 $arResult["OK_MESSAGE"] .= $strOKMessage;
 /*******************************************************************/
 foreach ($arResult["USER"] as $key => $val):
-	if (substr($key, 0, 1) == "~")
-		$arResult["~f_".substr($key, 1)] = $val;
+	if (mb_substr($key, 0, 1) == "~")
+		$arResult["~f_".mb_substr($key, 1)] = $val;
 	else
 		$arResult["f_".$key] = $val;
 endforeach;
 foreach ($arResult["FORUM_USER"] as $key => $val):
-	if (substr($key, 0, 1) == "~")
-		$arResult["~fu_".substr($key, 1)] = $val;
+	if (mb_substr($key, 0, 1) == "~")
+		$arResult["~fu_".mb_substr($key, 1)] = $val;
 	else
 		$arResult["fu_".$key] = $val;
 endforeach;

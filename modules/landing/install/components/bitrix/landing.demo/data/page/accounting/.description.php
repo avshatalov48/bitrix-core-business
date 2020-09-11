@@ -103,7 +103,7 @@ return array(
 						Integer eu malesuada leo, placerat semper neque. Nullam id volutpat dui, quis luctus magna.
 						Suspendisse rutrum ipsum in quam semper laoreet. Praesent dictum nulla id viverra vehicula.</p></div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn btn-lg u-btn-primary g-font-weight-700 g-font-size-12 text-uppercase g-rounded-50 g-px-25 g-py-15" href="#" tabindex="-1" target="_self">VIEW PRESENTATION</a>
+						<a class="landing-block-node-card-button btn g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-rounded-50 g-py-15" href="#" tabindex="-1" target="_self">VIEW PRESENTATION</a>
 					</div>
 				</div>
 			</div>
@@ -120,7 +120,7 @@ return array(
 						Integer eu malesuada leo, placerat semper neque. Nullam id volutpat dui, quis luctus magna.
 						Suspendisse rutrum ipsum in quam semper laoreet. Praesent dictum nulla id viverra vehicula.<br /></p></div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn btn-lg u-btn-primary g-font-weight-700 g-font-size-12 text-uppercase g-rounded-50 g-px-25 g-py-15" href="#" tabindex="-1" target="_self">VIEW PRESENTATION</a>
+						<a class="landing-block-node-card-button btn g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-rounded-50 g-py-15" href="#" tabindex="-1" target="_self">VIEW PRESENTATION</a>
 					</div>
 				</div>
 			</div>
@@ -136,7 +136,7 @@ return array(
 						Integer eu malesuada leo, placerat semper neque. Nullam id volutpat dui, quis luctus magna.
 						Suspendisse rutrum ipsum in quam semper laoreet. Praesent dictum nulla id viverra vehicula.</p></div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn btn-lg u-btn-primary g-font-weight-700 g-font-size-12 text-uppercase g-rounded-50 g-px-25 g-py-15" href="#" tabindex="0" target="_self">VIEW PRESENTATION</a>
+						<a class="landing-block-node-card-button btn g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-rounded-50 g-py-15" href="#" tabindex="0" target="_self">VIEW PRESENTATION</a>
 					</div>
 				</div>
 			</div>
@@ -153,7 +153,7 @@ return array(
 						Integer eu malesuada leo, placerat semper neque. Nullam id volutpat dui, quis luctus magna.
 						Suspendisse rutrum ipsum in quam semper laoreet. Praesent dictum nulla id viverra vehicula.</p></div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn btn-lg u-btn-primary g-font-weight-700 g-font-size-12 text-uppercase g-rounded-50 g-px-25 g-py-15" href="#" tabindex="0" target="_self">VIEW PRESENTATION</a>
+						<a class="landing-block-node-card-button btn g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-rounded-50 g-py-15" href="#" tabindex="0" target="_self">VIEW PRESENTATION</a>
 					</div>
 				</div>
 			</div>
@@ -268,7 +268,7 @@ return array(
 	<div>
 		<div class="row mx-0">
 			<div class="col-md-6 text-center text-md-left g-py-50 g-py-100--md g-px-15 g-px-50--md">
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-default g-color-white g-mb-25 g-font-size-16 js-animation fadeInUp animated">
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-color-white g-mb-25 g-font-size-16 js-animation fadeInUp animated">
 					Part-time
 					cfo/controller</h3>
 				<div class="landing-block-node-text g-mb-30 js-animation fadeInUp animated g-font-size-14 g-color-gray-light-v1">
@@ -283,7 +283,7 @@ return array(
 						nulla vehicula risus pulvinar feugiat ullamcorper sit amet mi.</p>
 				</div>
 				<div class="landing-block-node-button-container">
-					<a class="landing-block-node-button text-uppercase btn btn-xl u-btn-primary g-font-weight-700 g-font-size-12 g-rounded-50 js-animation fadeInUp animated" href="#" tabindex="0">Contact us
+					<a class="landing-block-node-button text-uppercase btn g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-m g-rounded-50 js-animation fadeInUp animated" href="#" tabindex="0">Contact us
 						<span>for more info</span></a>
 				</div>
 			</div>
@@ -414,7 +414,7 @@ return array(
 			Pellentesque finibus convallis nulla vel placerat.
 		</div>
 		<div class="landing-block-node-button-container">
-			<a href="#" class="landing-block-node-button btn btn-xl u-btn-primary text-uppercase g-font-weight-700 g-font-size-12 g-rounded-50 g-py-15 g-px-40 g-mb-15">Buy
+			<a href="#" class="landing-block-node-button btn g-btn-primary g-btn-type-solid g-btn-px-l g-btn-size-md text-uppercase g-rounded-50 g-py-15 g-mb-15">Buy
 				full version</a>
 		</div>
 	</div>
@@ -629,7 +629,7 @@ return array(
                                 <li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12">FUSCE FRINGILLA IPSUM NEC<br /></li>
                                 <li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12">NULLAM VEL TURPIS<br /></li></ul>
                             <div class="landing-block-node-price-container">
-                            	<a class="landing-block-node-price-button btn btn-md text-uppercase u-btn-primary rounded-0 g-px-15" href="#" target="_self">ORDER NOW</a>
+                            	<a class="landing-block-node-price-button btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0" href="#" target="_self">ORDER NOW</a>
                         	</div>
                         </div>
                     </article>
@@ -652,7 +652,7 @@ return array(
 
                             <ul class="landing-block-node-price-list list-unstyled g-mb-25"><li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12">ETIAM MOLLIS IACULIS<br /></li><li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12">FUSCE FRINGILLA IPSUM<br /></li><li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12">SED PELLENTESQUE VELIT ANTE<br /></li><li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12">FUSCE FRINGILLA IPSUM NEC<br /></li><li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12">NULLAM VEL TURPIS</li></ul>
                             <div class="landing-block-node-price-container">
-                            	<a class="landing-block-node-price-button btn btn-md text-uppercase u-btn-primary rounded-0 g-px-15" href="#" target="_self">ORDER NOW</a>
+                            	<a class="landing-block-node-price-button btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0" href="#" target="_self">ORDER NOW</a>
                         	</div>
                         </div>
                     </article>
@@ -673,7 +673,7 @@ return array(
 
                             <ul class="landing-block-node-price-list list-unstyled g-mb-25"><li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12">ETIAM MOLLIS IACULIS<br /></li><li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12">FUSCE FRINGILLA IPSUM<br /></li><li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12">SED PELLENTESQUE VELIT ANTE<br /></li><li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12">FUSCE FRINGILLA IPSUM NEC<br /></li><li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12">NULLAM VEL TURPIS</li></ul>
                             <div class="landing-block-node-price-container">
-                            	<a class="landing-block-node-price-button btn btn-md text-uppercase u-btn-primary rounded-0 g-px-15" href="#" target="_self">ORDER NOW</a>
+                            	<a class="landing-block-node-price-button btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0" href="#" target="_self">ORDER NOW</a>
                         	</div>
                         </div>
                     </article>
@@ -694,7 +694,7 @@ return array(
 
                             <ul class="landing-block-node-price-list list-unstyled g-mb-25"><li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12">ETIAM MOLLIS IACULIS<br /></li><li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12">FUSCE FRINGILLA IPSUM<br /></li><li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12">SED PELLENTESQUE VELIT ANTE<br /></li><li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12">FUSCE FRINGILLA IPSUM NEC<br /></li><li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12">NULLAM VEL TURPIS</li></ul>
                             <div class="landing-block-node-price-container">
-                            	<a class="landing-block-node-price-button btn btn-md text-uppercase u-btn-primary rounded-0 g-px-15" href="#" target="_self">ORDER NOW</a>
+                            	<a class="landing-block-node-price-button btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0" href="#" target="_self">ORDER NOW</a>
                         	</div>
                         </div>
                     </article>
@@ -769,7 +769,7 @@ return array(
 		<div class="row">
 			<div class="col-sm-12 col-md-6 col-lg-6 g-mb-25 g-mb-0--lg">
 				<h2 class="landing-block-node-title text-uppercase g-color-white g-font-weight-700 g-font-size-16 g-mb-20">TEXT WIDGET</h2>
-				<p class="landing-block-node-text g-font-size-default g-color-gray-light-v1 g-mb-20 g-font-size-14">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vitae est lorem. Aenean imperdiet nisi a dolor condimentum, id ullamcorper lacus vestibulum. Praesent pulvinar gravida. Aenean lobortis ante ac porttitor eleifend.</p>
+				<p class="landing-block-node-text g-color-gray-light-v1 g-mb-20 g-font-size-14">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vitae est lorem. Aenean imperdiet nisi a dolor condimentum, id ullamcorper lacus vestibulum. Praesent pulvinar gravida. Aenean lobortis ante ac porttitor eleifend.</p>
 
 				<address class="g-mb-20">
 				

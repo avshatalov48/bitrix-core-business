@@ -17,7 +17,7 @@ function CheckFields()
 	global $strError, $str_REFERER1, $str_REFERER2, $err_mess, $ID, $statDB;
 
 	$str = "";
-	if (strlen(trim($str_REFERER1))<=0 && strlen(trim($str_REFERER2))<=0)
+	if (trim($str_REFERER1) == '' && trim($str_REFERER2) == '')
 		$str .= GetMessage("STAT_FORGOT_REFERER")."<br>";
 	elseif (intval($ID)<=0)
 	{
@@ -27,14 +27,14 @@ function CheckFields()
 			FROM
 				b_stat_adv
 			WHERE
-				REFERER1".((strlen($str_REFERER1)>0) ? "='".$statDB->ForSql($str_REFERER1,255)."'" : " is null")."
-			and REFERER2".((strlen($str_REFERER2)>0) ? "='".$statDB->ForSql($str_REFERER2,255)."'" : " is null")."
+				REFERER1".(($str_REFERER1 <> '') ? "='".$statDB->ForSql($str_REFERER1,255)."'" : " is null")."
+			and REFERER2".(($str_REFERER2 <> '') ? "='".$statDB->ForSql($str_REFERER2,255)."'" : " is null")."
 			";
 		$a = $statDB->Query($strSql, false, $err_mess.__LINE__);
 		if ($a->Fetch()) $str .= GetMessage("STAT_WRONG_REFERER")."<br>";
 	}
 	$strError .= $str;
-	if (strlen($str)>0) return false; else return true;
+	if ($str <> '') return false; else return true;
 }
 
 $aTabs = array(
@@ -49,7 +49,7 @@ $tabControl = new CAdminTabControl("tabControl", $aTabs);
 $ID = intval($ID);
 
 $base_currency = GetStatisticBaseCurrency();
-if (strlen($base_currency)>0)
+if ($base_currency <> '')
 {
 	if (CModule::IncludeModule("currency"))
 	{
@@ -78,7 +78,7 @@ if (strlen($base_currency)>0)
 	}
 }
 
-if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $STAT_RIGHT>="W" && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $STAT_RIGHT>="W" && check_bitrix_sessid())
 {
 	if($EVENTS_VIEW=="NOT_REF")
 		$EVENTS_VIEW="";
@@ -86,8 +86,8 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $STAT_RI
 	$str_REFERER1 = trim($str_REFERER1);
 	$str_REFERER2 = trim($str_REFERER2);
 	$arFields = array(
-		"REFERER1" => (strlen($str_REFERER1)<=0)? "null": "'".$str_REFERER1."'",
-		"REFERER2" => (strlen($str_REFERER1)<=0)? "null": "'".$str_REFERER2."'",
+		"REFERER1" => ($str_REFERER1 == '')? "null": "'".$str_REFERER1."'",
+		"REFERER2" => ($str_REFERER1 == '')? "null": "'".$str_REFERER2."'",
 		"EVENTS_VIEW" => "'".$str_EVENTS_VIEW."'",
 		"PRIORITY" => intval($str_PRIORITY),
 		"DESCRIPTION" => "'".$str_DESCRIPTION."'",
@@ -98,11 +98,11 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $STAT_RI
 		$rate_revenue = 1;
 		if ($currency_module=="Y")
 		{
-			if ($CURRENCY_COST!=$base_currency && strlen($CURRENCY_COST)>0)
+			if ($CURRENCY_COST!=$base_currency && $CURRENCY_COST <> '')
 			{
 				$rate_cost = CCurrencyRates::GetConvertFactor($CURRENCY_COST, $base_currency);
 			}
-			if ($CURRENCY_REVENUE!=$base_currency && strlen($CURRENCY_REVENUE)>0)
+			if ($CURRENCY_REVENUE!=$base_currency && $CURRENCY_REVENUE <> '')
 			{
 				$rate_revenue = CCurrencyRates::GetConvertFactor($CURRENCY_REVENUE, $base_currency);
 			}
@@ -115,7 +115,7 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $STAT_RI
 		else
 			$ID = $statDB->Insert("b_stat_adv", $arFields, $err_mess.__LINE__);
 
-		if (strlen($strError)<=0)
+		if ($strError == '')
 		{
 			$statDB->Query("DELETE FROM b_stat_adv_searcher WHERE ADV_ID = ".$ID, false, $err_mess.__LINE__);
 			if (is_array($arSEARCHERS))
@@ -170,9 +170,9 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $STAT_RI
 				}
 			}
 
-			if (strlen($strError)<=0)
+			if ($strError == '')
 			{
-				if (strlen($save)>0) LocalRedirect("adv_list.php?lang=".LANG);
+				if ($save <> '') LocalRedirect("adv_list.php?lang=".LANG);
 				else LocalRedirect($APPLICATION->GetCurPage()."?lang=".LANG."&ID=".$ID."&".$tabControl->ActiveTabParam());
 			}
 		}
@@ -208,7 +208,7 @@ else
 		$arPAGES_FROM[] = htmlspecialcharsbx($zr["PAGE"]);
 }
 
-if (strlen($strError) > 0)
+if ($strError <> '')
 {
 	$statDB->InitTableVarsForEdit("b_stat_adv", "", "str_");
 
@@ -289,7 +289,7 @@ if($strError)
 }
 ?>
 <a name="tb"></a>
-<?if (strlen($base_currency)<=0) : ?>
+<?if ($base_currency == '') : ?>
 <p><?=GetMessage("STAT_BASE_CURRENCY_NOT_INSTALLED").$base_currency?>&nbsp;[&nbsp;<a href="/bitrix/admin/settings.php?lang=<?=LANGUAGE_ID?>&mid=statistic"><?=GetMessage("STAT_CHOOSE_CURRENCY")?></a>&nbsp;]</p>
 <?endif;?>
 <form method="POST" action="<?=$APPLICATION->GetCurPage()?>?ID=<?=$ID?>&lang=<?=LANGUAGE_ID?>">

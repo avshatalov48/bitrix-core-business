@@ -88,7 +88,7 @@ endforeach;
 		</div>
 		
 		<div class="forum-topic-move">
-			<input type="checkbox" id="leaveLink" name="leaveLink" value="Y" checked="checked" />
+			<input type="checkbox" id="leaveLink" name="leaveLink" value="Y" />
 			<label for="leaveLink"><?=GetMessage("FM_LEAVE_LINK")?></label>
 		</div>
 	</div>

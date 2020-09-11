@@ -33,13 +33,13 @@ if (!empty($arResult["OK_MESSAGE"])):?>
 	<div class="forum-reply-fields">
 		<div class="forum-reply-field forum-reply-field-topic">	
 			<label for="newTID"><?=GetMessage("F_TOPIC_ID")?><span class="forum-required-field">*</span></label>
-			<input type="text" name="newTID" id="newTID" value="<?=intVal($_REQUEST["newTID"])?>" <?
+			<input type="text" name="newTID" id="newTID" value="<?=intval($_REQUEST["newTID"])?>" <?
 				?> onfocus="ForumSearchTopic(this, 'Y');" onblur="ForumSearchTopic(this, 'N');" size="2" />
 			<input type="button" name="search" value="..." onClick="window.open('<?=CUtil::JSEscape($arResult["topic_search"])?>', '', 'scrollbars=yes,resizable=yes,width=760,height=500,top='+Math.floor((screen.height - 560)/2-14)+',left='+Math.floor((screen.width - 760)/2-5));" />
 			<span id="TOPIC_INFO"><?
 				if (!empty($arResult["NEW_TOPIC"]["TOPIC"])):
 					?>&laquo;<?=$arResult["NEW_TOPIC"]["TOPIC"]["TITLE"]?>&raquo; ( <?=GetMessage("F_TITLE_ON_FORUM")?>: <?=$arResult["NEW_TOPIC"]["FORUM"]["NAME"]?>)<?
-				elseif (intVal($_REQUEST["newTID"]) > 0):
+				elseif (intval($_REQUEST["newTID"]) > 0):
 					?><?=GetMessage("F_TOPIC_NOT_FOUND")?><?
 				else:
 				endif;
@@ -147,7 +147,7 @@ BX.Forum = (BX.Forum || {});
 BX.Forum['topic_search'] = {
 	url : '<?=CUtil::JSEscape($arResult["topic_search"])?>',
 	object : false,
-	value : '<?=intVal($arResult["newTID"])?>',
+	value : '<?=intval($arResult["newTID"])?>',
 	action : 'search',
 	fined : {}};
 

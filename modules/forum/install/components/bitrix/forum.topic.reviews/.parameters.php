@@ -8,8 +8,8 @@ if ($db_res && ($res = $db_res->GetNext()))
 {
 	do 
 	{
-		$iForumDefault = intVal($res["ID"]);
-		$arForum[intVal($res["ID"])] = $res["NAME"];
+		$iForumDefault = intval($res["ID"]);
+		$arForum[intval($res["ID"])] = $res["NAME"];
 	}while ($res = $db_res->GetNext());
 }
 $arIBlockType = array();
@@ -31,7 +31,7 @@ $iIblockDefault = 0;
 while($arr=$rsIBlock->Fetch())
 {
 	if ($iIblockDefault <= 0)
-		$iIblockDefault = intVal($arr["ID"]);
+		$iIblockDefault = intval($arr["ID"]);
 	$arIBlock[$arr["ID"]] = "[".$arr["ID"]."] ".$arr["NAME"];
 }
 
@@ -82,7 +82,7 @@ $arComponentParameters = Array(
 			"PARENT" => "ADDITIONAL_SETTINGS",
 			"NAME" => GetMessage("F_MESSAGES_PER_PAGE"),
 			"TYPE" => "STRING",
-			"DEFAULT" => intVal(COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10"))),
+			"DEFAULT" => intval(COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10"))),
 		"PAGE_NAVIGATION_TEMPLATE" => Array(
 			"PARENT" => "ADDITIONAL_SETTINGS",
 			"NAME" => GetMessage("F_PAGE_NAVIGATION_TEMPLATE"),

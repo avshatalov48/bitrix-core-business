@@ -11,7 +11,7 @@
 		"URL_TEMPLATES_MESSAGE" =>  $arResult["URL_TEMPLATES_MESSAGE"],
 		"URL_TEMPLATES_PROFILE_VIEW" =>  $arResult["URL_TEMPLATES_PROFILE_VIEW"],
 
-		"PAGEN" => intVal($GLOBALS["NavNum"] + 1),
+		"PAGEN" => intval($GLOBALS["NavNum"] + 1),
 		"TOPICS_PER_PAGE" => $arParams["TOPICS_PER_PAGE"],
 		"MESSAGES_PER_PAGE" => $arParams["MESSAGES_PER_PAGE"],
 		"FID_RANGE" => $arParams["FID"],

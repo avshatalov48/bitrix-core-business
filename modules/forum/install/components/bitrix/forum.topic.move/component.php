@@ -30,12 +30,12 @@ if (!function_exists("__array_merge"))
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$arParams["FID"] = intVal(empty($arParams["FID"]) ? $_REQUEST["FID"] : $arParams["FID"]);
+	$arParams["FID"] = intval(empty($arParams["FID"]) ? $_REQUEST["FID"] : $arParams["FID"]);
 	if ($_SERVER['REQUEST_METHOD'] == "POST")
 		$arParams["TID"] = $_POST["TID"];
 	else 
 		$arParams["TID"] = (empty($arParams["TID"]) ? $_REQUEST["TID"] : $arParams["TID"]);
-	$arParams["newFID"] = intVal($_REQUEST["newFID"]);
+	$arParams["newFID"] = intval($_REQUEST["newFID"]);
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
 			"index" => "",
@@ -51,10 +51,10 @@ if (!function_exists("__array_merge"))
 	}
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		if (trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
+			$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
@@ -110,12 +110,12 @@ $cache_path_main = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$component
 /********************************************************************
 				Action
 ********************************************************************/
-if (strToUpper($_REQUEST["action"])=="MOVE" && check_bitrix_sessid())
+if (mb_strtoupper($_REQUEST["action"]) == "MOVE" && check_bitrix_sessid())
 {
 	$strErrorMessage = "";
 	$strOKMessage = "";
 	$result = false;
-	if (intVal($arParams["newFID"])<=0)
+	if (intval($arParams["newFID"])<=0)
 		$strErrorMessage = GetMessage("FM_EMPTY_DEST_FORUM").". \n";
 	else 
 	{
@@ -167,9 +167,9 @@ if ($db_res && ($res = $db_res->GetNext()))
 		$res["read"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_READ"], 
 			array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => "s"));
 		$res["read_last_message"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE"], 
-			array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => intVal($res["LAST_MESSAGE_ID"])))."#message".$res["LAST_MESSAGE_ID"];
-		$res["USER_START_HREF"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"], array("UID" => intVal($res["USER_START_ID"])));
-		$res["LAST_POSTER_HREF"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"], array("UID" => intVal($res["LAST_POSTER_ID"])));
+			array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => intval($res["LAST_MESSAGE_ID"])))."#message".$res["LAST_MESSAGE_ID"];
+		$res["USER_START_HREF"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"], array("UID" => intval($res["USER_START_ID"])));
+		$res["LAST_POSTER_HREF"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"], array("UID" => intval($res["LAST_POSTER_ID"])));
 		
 		$arResult["TOPICS"][$res["ID"]] = $res;
 	}while ($res = $db_res->GetNext());
@@ -216,7 +216,7 @@ $arGroupForum = array();
 foreach ($arForums as $res):
 	if ($res["ID"] == $arParams["FID"])
 		continue;
-	$arGroupForum[intVal($res["FORUM_GROUP_ID"])]["FORUMS"][] = $res;
+	$arGroupForum[intval($res["FORUM_GROUP_ID"])]["FORUMS"][] = $res;
 endforeach;
 /*******************************************************************/
 $arGroups = array();
@@ -244,7 +244,7 @@ foreach ($arGroupForum as $PARENT_ID => $res)
 $arResult["GROUPS_FORUMS"] = $arGroups;	
 /************** Group Navigation ***********************************/
 if ($arResult["FORUM"]["FORUM_GROUP_ID"] > 0):
-	$PARENT_ID = intVal($arResult["FORUM"]["FORUM_GROUP_ID"]);
+	$PARENT_ID = intval($arResult["FORUM"]["FORUM_GROUP_ID"]);
 	while ($PARENT_ID > 0)
 	{
 		$arResult["GROUP_NAVIGATION"][] = $arResult["GROUPS"][$PARENT_ID];
@@ -255,7 +255,7 @@ if ($arResult["FORUM"]["FORUM_GROUP_ID"] > 0):
 			$arResult["URL"]["~GROUP_".$PARENT_ID] = CComponentEngine::MakePathFromTemplate(
 				$arParams["~URL_TEMPLATES_FORUMS"], array("GID" => $PARENT_ID));
 		}
-		$PARENT_ID = intVal($arResult["GROUPS"][$PARENT_ID]["PARENT_ID"]);
+		$PARENT_ID = intval($arResult["GROUPS"][$PARENT_ID]["PARENT_ID"]);
 	}
 	$arResult["GROUP_NAVIGATION"] = array_reverse($arResult["GROUP_NAVIGATION"]);
 endif;

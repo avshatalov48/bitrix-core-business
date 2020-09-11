@@ -586,8 +586,6 @@ class Imap extends Mail\Helper\Mailbox
 			$this->lastSyncResult['newMessagesNotify'] += $result;
 		}
 
-		$this->pushSyncStatus($pushParams, true);
-
 		return $result;
 	}
 
@@ -664,7 +662,6 @@ class Imap extends Mail\Helper\Mailbox
 					if ($time < time() - $timeout)
 					{
 						$time = time();
-						$this->pushSyncStatus(['dir' => $dir->getPath()], true);
 					}
 				}
 
@@ -715,8 +712,6 @@ class Imap extends Mail\Helper\Mailbox
 		{
 			$pushParams['complete'] = $this->isTimeQuotaExceeded() ? -1 : 1;
 		}
-
-		$this->pushSyncStatus($pushParams, true);
 	}
 
 	protected function resyncDirInternal($dir)

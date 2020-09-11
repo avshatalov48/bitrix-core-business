@@ -58,12 +58,12 @@ $arFilter = Array(
 	"DATE2"		=> $find_date2
 );
 
-if (strlen($find_site_id)>0 && $find_site_id!="NOT_REF")
+if ($find_site_id <> '' && $find_site_id!="NOT_REF")
 	$site_filter="Y";
 else
 	$site_filter="N";
 
-if (strlen($arFilter["DATE1"])>0 || strlen($arFilter["DATE2"])>0)
+if ($arFilter["DATE1"] <> '' || $arFilter["DATE2"] <> '')
 	$is_filtered = true;
 else
 	$is_filtered = false;
@@ -76,7 +76,7 @@ $sTableID_tab1 = "t_stat_list_tab1";
 $oSort_tab1 = new CAdminSorting($sTableID_tab1);
 $lAdmin_tab1 = new CAdminList($sTableID_tab1, $oSort_tab1);
 $lAdmin_tab1->BeginCustomContent();
-if (strlen($strError)>0):
+if ($strError <> ''):
 	CAdminMessage::ShowMessage($strError);
 elseif ($_REQUEST["table_id"]=="" || $_REQUEST["table_id"]==$sTableID_tab1):
 	$arComm = CTraffic::GetCommonValues($arFilter);
@@ -290,7 +290,7 @@ $sTableID_tab2 = "t_stat_list_tab2";
 $oSort_tab2 = new CAdminSorting($sTableID_tab2);
 $lAdmin_tab2 = new CAdminList($sTableID_tab2, $oSort_tab2);
 $lAdmin_tab2->BeginCustomContent();
-if (strlen($strError) > 0):
+if ($strError <> ''):
 	CAdminMessage::ShowMessage($strError);
 elseif ($site_filter=="Y" && $_REQUEST["table_id"]==$sTableID_tab2):
 	CAdminMessage::ShowMessage(GetMessage("STAT_NO_DATA"));
@@ -464,15 +464,15 @@ $sTableID_tab3 = "t_stat_list_tab3";
 $oSort_tab3 = new CAdminSorting($sTableID_tab3);
 $lAdmin_tab3 = new CAdminList($sTableID_tab3, $oSort_tab3);
 $lAdmin_tab3->BeginCustomContent();
-if (strlen($strError) > 0):
+if ($strError <> ''):
 	CAdminMessage::ShowMessage($strError);
 elseif ($site_filter=="Y" && $_REQUEST["table_id"]==$sTableID_tab3):
 	CAdminMessage::ShowMessage(GetMessage("STAT_NO_DATA"));
 elseif ($_REQUEST["table_id"] == $sTableID_tab3):
 	$arEVENTF["DATE1_PERIOD"] = $arFilter["DATE1"];
 	$arEVENTF["DATE2_PERIOD"] = $arFilter["DATE2"];
-	if (strlen($e_by)<=0) $e_by = "s_stat";
-	if (strlen($e_order)<=0) $e_order = "desc";
+	if ($e_by == '') $e_by = "s_stat";
+	if ($e_order == '') $e_order = "desc";
 	$events = CStatEventType::GetList($e_by, $e_order, $arEVENTF, $is_filtered);
 	if ($e_by=="s_stat") $e_by = "s_today_counter";
 ?>
@@ -637,7 +637,7 @@ $sTableID_tab4 = "t_stat_list_tab4";
 $oSort_tab4 = new CAdminSorting($sTableID_tab4);
 $lAdmin_tab4 = new CAdminList($sTableID_tab4, $oSort_tab4);
 $lAdmin_tab4->BeginCustomContent();
-if (strlen($strError)>0):
+if ($strError <> ''):
 	CAdminMessage::ShowMessage($strError);
 elseif ($_REQUEST["table_id"]==$sTableID_tab4):
 	$referers = CTraffic::GetRefererList($by, $order, $arFilter, $is_filtered, false);
@@ -797,7 +797,7 @@ $sTableID_tab5 = "t_stat_list_tab5";
 $oSort_tab5 = new CAdminSorting($sTableID_tab5);
 $lAdmin_tab5 = new CAdminList($sTableID_tab5, $oSort_tab5);
 $lAdmin_tab5->BeginCustomContent();
-if (strlen($strError) > 0):
+if ($strError <> ''):
 	CAdminMessage::ShowMessage($strError);
 elseif ($_REQUEST["table_id"] == $sTableID_tab5):
 	$phrases = CTraffic::GetPhraseList($s_by, $s_order, $arFilter, $is_filtered, false);
@@ -979,15 +979,15 @@ $sTableID_tab6 = "t_stat_list_tab6";
 $oSort_tab6 = new CAdminSorting($sTableID_tab6);
 $lAdmin_tab6 = new CAdminList($sTableID_tab6, $oSort_tab6);
 $lAdmin_tab6->BeginCustomContent();
-if (strlen($strError) > 0):
+if ($strError <> ''):
 	CAdminMessage::ShowMessage($strError);
 elseif ($site_filter=="Y" && $_REQUEST["table_id"]==$sTableID_tab6):
 	CAdminMessage::ShowMessage(GetMessage("STAT_NO_DATA"));
 elseif ($_REQUEST["table_id"] == $sTableID_tab6):
 	$arSEARCHERF["DATE1_PERIOD"] = $arFilter["DATE1"];
 	$arSEARCHERF["DATE2_PERIOD"] = $arFilter["DATE2"];
-	if (strlen($f_by)<=0) $f_by = "s_stat";
-	if (strlen($f_order)<=0) $f_order = "desc";
+	if ($f_by == '') $f_by = "s_stat";
+	if ($f_order == '') $f_order = "desc";
 	$searchers = CSearcher::GetList($f_by, $f_order, $arSEARCHERF, $is_filtered);
 	if ($f_by=="s_stat") $f_by = "s_today_hits";
 ?>

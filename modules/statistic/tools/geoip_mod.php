@@ -29,7 +29,7 @@ class CCityLookup_geoip_mod extends CCityLookup
 		parent::__construct($arDBRecord);
 		if(!$arDBRecord)
 		{
-			if(array_key_exists("GEOIP_COUNTRY_CODE", $_SERVER) && strlen($_SERVER["GEOIP_COUNTRY_CODE"]) == 2)
+			if(array_key_exists("GEOIP_COUNTRY_CODE", $_SERVER) && mb_strlen($_SERVER["GEOIP_COUNTRY_CODE"]) == 2)
 			{
 				$this->is_installed = true;
 				$this->country_code = $_SERVER["GEOIP_COUNTRY_CODE"];
@@ -81,8 +81,8 @@ class CCityLookup_geoip_mod extends CCityLookup
 			"DESCRIPTION" => GetMessage("STAT_CITY_GEOIP_MOD_DESCR"),
 			"IS_INSTALLED" => $this->is_installed,
 			"CAN_LOOKUP_COUNTRY" => true,
-			"CAN_LOOKUP_CITY" => array_key_exists("GEOIP_REGION", $_SERVER) && strlen($_SERVER["GEOIP_REGION"]) == 2
-					&& array_key_exists("GEOIP_CITY", $_SERVER) && strlen($_SERVER["GEOIP_CITY"]) > 0,
+			"CAN_LOOKUP_CITY" => array_key_exists("GEOIP_REGION", $_SERVER) && mb_strlen($_SERVER["GEOIP_REGION"]) == 2
+					&& array_key_exists("GEOIP_CITY", $_SERVER) && $_SERVER["GEOIP_CITY"] <> '',
 		);
 	}
 
@@ -93,28 +93,28 @@ class CCityLookup_geoip_mod extends CCityLookup
 
 	function Lookup()
 	{
-		if(array_key_exists("GEOIP_COUNTRY_NAME", $_SERVER) && strlen($_SERVER["GEOIP_COUNTRY_NAME"]) > 0)
+		if(array_key_exists("GEOIP_COUNTRY_NAME", $_SERVER) && $_SERVER["GEOIP_COUNTRY_NAME"] <> '')
 		{
 			$this->country_full_name = $_SERVER["GEOIP_COUNTRY_NAME"];
 		}
-		if(array_key_exists("GEOIP_REGION", $_SERVER) && strlen($_SERVER["GEOIP_REGION"]) == 2)
+		if(array_key_exists("GEOIP_REGION", $_SERVER) && mb_strlen($_SERVER["GEOIP_REGION"]) == 2)
 		{
 			$this->region_name = $_SERVER["GEOIP_REGION"];
-			if(array_key_exists("GEOIP_CITY", $_SERVER) && strlen($_SERVER["GEOIP_CITY"]) > 0)
+			if(array_key_exists("GEOIP_CITY", $_SERVER) && $_SERVER["GEOIP_CITY"] <> '')
 			{
 				$this->city_name = $_SERVER["GEOIP_CITY"];
 			}
 		}
 		//Extended information
-		if(array_key_exists("GEOIP_CONTINENT_CODE", $_SERVER) && strlen($_SERVER["GEOIP_CONTINENT_CODE"]) > 0)
+		if(array_key_exists("GEOIP_CONTINENT_CODE", $_SERVER) && $_SERVER["GEOIP_CONTINENT_CODE"] <> '')
 		{
 			$this->continent_code = $_SERVER["GEOIP_CONTINENT_CODE"];
 		}
-		if(array_key_exists("GEOIP_LATITUDE", $_SERVER) && strlen($_SERVER["GEOIP_LATITUDE"]) > 0)
+		if(array_key_exists("GEOIP_LATITUDE", $_SERVER) && $_SERVER["GEOIP_LATITUDE"] <> '')
 		{
 			$this->latitude = $_SERVER["GEOIP_LATITUDE"];
 		}
-		if(array_key_exists("GEOIP_LONGITUDE", $_SERVER) && strlen($_SERVER["GEOIP_LONGITUDE"]) > 0)
+		if(array_key_exists("GEOIP_LONGITUDE", $_SERVER) && $_SERVER["GEOIP_LONGITUDE"] <> '')
 		{
 			$this->longitude = $_SERVER["GEOIP_LONGITUDE"];
 		}

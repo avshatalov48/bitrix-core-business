@@ -126,6 +126,7 @@ class Manager
 			self::REGISTERED_KEY_CODE => $code,
 			self::REGISTERED_KEY_LOCATION => $location,
 		];
+		
 		if($code !== 'main.core' && $code !== 'core')
 		{
 			\CJSCore::markExtensionLoaded($code);

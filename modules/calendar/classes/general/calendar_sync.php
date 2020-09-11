@@ -217,9 +217,12 @@ class CCalendarSync
 
 			if ($row = $pushResult->fetch())
 			{
-				if (!preg_match("/^\[(4\d\d)\][a-z0-9 ]*/i", $connectionData['LAST_RESULT']))
+				if (!GoogleApiPush::isConnectionError($connectionData['LAST_RESULT']))
 				{
-					GoogleApiPush::checkSectionsPush($localSections, $connectionData['ENTITY_ID'], $connectionData['ID']);
+					if (!GoogleApiPush::checkSectionsPush($localSections, $connectionData['ENTITY_ID'], $connectionData['ID']))
+					{
+						return false;
+					}
 					$bShouldClearCache = true;
 				}
 			}
@@ -228,6 +231,11 @@ class CCalendarSync
 		foreach ($localSections as $localCalendar)
 		{
 			$eventsSyncToken = self::syncCalendarEvents($localCalendar);
+			// Exit if we've got an error during connection to Google API
+			if ($eventsSyncToken === false)
+			{
+				return false;
+			}
 
 			CCalendarSect::Edit(array('arFields' => array('ID' => $localCalendar['ID'], 'SYNC_TOKEN' => $eventsSyncToken)));
 		}
@@ -243,10 +251,10 @@ class CCalendarSync
 	public static function syncCalendarEvents($localCalendar)
 	{
 		$googleApiConnection = new GoogleApiSync($localCalendar['OWNER_ID']);
-
+		// If we've got error from Google: save it and exit.
 		if ($error = $googleApiConnection->getTransportConnectionError())
 		{
-			CDavConnection::Update($localCalendar['CAL_DAV_CON'], array("LAST_RESULT" => $error), false);
+			CDavConnection::Update($localCalendar['CAL_DAV_CON'], ["LAST_RESULT" => $error], false);
 			return false;
 		}
 

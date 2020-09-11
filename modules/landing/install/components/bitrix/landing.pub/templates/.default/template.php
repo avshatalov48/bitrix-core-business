@@ -108,46 +108,26 @@ $landing->view([
 ]);
 
 // available view
-// @todo: needs to be refactored
-$check = Manager::checkFeature(
-	Manager::FEATURE_ALLOW_VIEW_PAGE,
+$check = \Bitrix\Landing\Restriction\Manager::isAllowed(
+	'limit_knowledge_base_number_page_view',
 	['ID' => $landing->getSiteId()]
 );
 if (!$check)
 {
-	Loc::loadMessages(
-		Manager::getDocRoot() . '/bitrix/components/bitrix/landing.start/templates/.default/template.php'
-	);
-	Extension::load([
-		'action_dialog', 'landing.loc'
-	]);
-	Asset::getInstance()->addJS(
-		'/bitrix/components/bitrix/landing.start/templates/.default/script.js'
-	);
 	?>
 	<script>
-		BX.message({
-			LANDING_TPL_JS_PAY_TARIFF_TITLE: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_JS_PAY_TARIFF_TITLE'));?>',
-			LANDING_TPL_JS_PAY_TARIFF: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_JS_PAY_TARIFF'));?>'
-		});
 		BX.ready(function()
 		{
-			if (typeof BX.Landing.PaymentAlertShow !== 'undefined')
-			{
-				BX.Landing.PaymentAlertShow({
-					message: '<?= \CUtil::jsEscape($component->getMessageType('LANDING_ERROR_NOT_ALLOW_VIEW_BY_PLAN'));?>',
-					type: 'alert'
-				});
-			}
+			document.body.style.opacity = 0.1;
+			top.BX.UI.InfoHelper.show('limit_knowledge_base_number_page_view');
 		});
 	</script>
 	<?
 }
 
 // hook for copyrights
-$enableHook = Manager::checkFeature(
-	Manager::FEATURE_ENABLE_ALL_HOOKS,
-	['hook' => 'copyright']
+$enableHook = \Bitrix\Landing\Restriction\Manager::isAllowed(
+	'limit_sites_powered_by'
 );
 if ($enableHook)
 {

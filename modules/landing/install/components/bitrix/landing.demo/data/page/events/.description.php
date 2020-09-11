@@ -125,7 +125,7 @@ return array(
 					</div>
 
 					<div class="col-md-3 text-md-right g-px-5">
-						<a class="landing-block-node-button btn btn-lg text-uppercase u-btn-white g-font-weight-700 g-font-size-11 g-color-white--hover g-bg-primary--hover g-brd-none rounded-0 g-py-18" href="#">Register Now</a>
+						<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-white rounded-0 g-py-18" href="#">Register Now</a>
 					</div>
 				</div>
 			</div>
@@ -357,7 +357,7 @@ return array(
 
 		<div class="landing-block-node-text g-color-white-opacity-0_7 g-mb-35">Nam sed erat aliquet libero aliquet commodo. Donec euismod augue non quam finibus, nec iaculis tellus gravida. Integer <p>efficitur eros ut dui laoreet, ut blandit turpis tincidunt.</p></div>
 		<div class="landing-block-node-button-container">
-			<a href="//www.youtube.com/watch?v=q4d8g9Dn3ww" class="landing-block-node-button btn btn-xl u-btn-primary text-uppercase g-font-weight-700 g-font-size-12 g-rounded-50 g-py-15 g-px-40 g-mb-15" target="_popup" data-url="//www.youtube.com/embed/q4d8g9Dn3ww?autoplay=1&amp;controls=1&amp;loop=0&amp;rel=0&amp;start=0&amp;html5=1&amp;v=q4d8g9Dn3ww">WATCH VIDEO</a>
+			<a href="//www.youtube.com/watch?v=q4d8g9Dn3ww" class="landing-block-node-button btn g-btn-primary g-btn-type-solid g-btn-px-l g-btn-size-md g-btn-primary text-uppercase g-rounded-50 g-py-15 g-mb-15" target="_popup" data-url="//www.youtube.com/embed/q4d8g9Dn3ww?autoplay=1&amp;controls=1&amp;loop=0&amp;rel=0&amp;start=0&amp;html5=1&amp;v=q4d8g9Dn3ww">WATCH VIDEO</a>
 		</div>
 	</div>
 </section>',
@@ -670,7 +670,7 @@ return array(
 
                             <ul class="landing-block-node-price-list list-unstyled g-mb-25"><li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12">Sed arcu erat, facilisis at tortor vel, blandit tristique enim. Donec dapibus neque consectetur tellus pretium, eget lacinia velit ullamcorper.</li></ul>
                             <div class="landing-block-node-price-container">
-                            	<a class="landing-block-node-price-button btn btn-md text-uppercase u-btn-primary rounded-0 g-px-15" href="#" target="_self">REGISTER NOW</a>
+                            	<a class="landing-block-node-price-button btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0" href="#" target="_self">REGISTER NOW</a>
                         	</div>
                         </div>
                     </article>
@@ -693,7 +693,7 @@ return array(
 
                             <ul class="landing-block-node-price-list list-unstyled g-mb-25"><li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12">Sed arcu erat, facilisis at tortor vel, blandit tristique enim. Donec dapibus neque consectetur tellus pretium, eget lacinia velit ullamcorper.</li></ul>
                             <div class="landing-block-node-price-container">
-                            	<a class="landing-block-node-price-button btn btn-md text-uppercase u-btn-primary rounded-0 g-px-15" href="#" target="_self">REGISTER NOW</a>
+                            	<a class="landing-block-node-price-button btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0" href="#" target="_self">REGISTER NOW</a>
                         	</div>
                         </div>
                     </article>
@@ -717,7 +717,7 @@ return array(
                             <ul class="landing-block-node-price-list list-unstyled g-mb-25"><li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12">Sed arcu erat, facilisis at tortor vel, blandit tristique enim. Donec dapibus neque consectetur tellus pretium, eget lacinia velit ullamcorper.</li></ul>
 
                             <div class="landing-block-node-price-container">
-                            	<a class="landing-block-node-price-button btn btn-md text-uppercase u-btn-primary rounded-0 g-px-15" href="#" target="_self">REGISTER NOW</a>
+                            	<a class="landing-block-node-price-button btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0" href="#" target="_self">REGISTER NOW</a>
                         	</div>
                         </div>
                     </article>

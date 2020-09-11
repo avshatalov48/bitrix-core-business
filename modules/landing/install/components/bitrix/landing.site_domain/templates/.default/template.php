@@ -36,7 +36,7 @@ Manager::setPageTitle(Loc::getMessage('LANDING_TPL_TITLE'));
 // errors
 if ($arResult['ERRORS'])
 {
-	?><div class="ui-alert ui-alert-danger"><?
+	?><div class="ui-alert ui-alert-danger" id="domain-error-alert"><?
 	foreach ($arResult['ERRORS'] as $error)
 	{
 		echo $error . '<br/>';
@@ -262,7 +262,9 @@ if (isset($menuItems[$tab]))
 				LANDING_TPL_ERROR_DOMAIN_EMPTY: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ERROR_DOMAIN_EMPTY'));?>',
 				LANDING_TPL_ALERT_TITLE: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ALERT_TITLE'));?>',
 				LANDING_TPL_DOMAIN_AVAILABLE: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_DOMAIN_AVAILABLE'));?>',
-				LANDING_TPL_ERROR_DOMAIN_INCORRECT: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ERROR_DOMAIN_INCORRECT'));?>'
+				LANDING_TPL_ERROR_DOMAIN_INCORRECT: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ERROR_DOMAIN_INCORRECT'));?>',
+				LANDING_TPL_ERROR_DOMAIN_CHECK_DASH: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ERROR_DOMAIN_CHECK_DASH'));?>',
+				LANDING_TPL_ERROR_DOMAIN_CHECK: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ERROR_DOMAIN_CHECK', ['#TLD#' => strtolower($arResult['TLD'][0])]));?>'
 			});
 		});
 	</script>

@@ -36,7 +36,7 @@ class ListExportExcelComponent extends CBitrixComponent
 		$this->arResult["IBLOCK_ID"] = $this->arIBlock["ID"];
 		$this->arResult["GRID_ID"] = "lists_list_elements_".$this->arResult["IBLOCK_ID"];
 		$this->arResult["FILTER_ID"] = "lists_list_elements_".$this->arResult["IBLOCK_ID"];
-		$this->arResult["ANY_SECTION"] = isset($_GET["list_section_id"]) && strlen($_GET["list_section_id"]) == 0;
+		$this->arResult["ANY_SECTION"] = isset($_GET["list_section_id"]) && $_GET["list_section_id"] == '';
 		$sectionUpperUrl = CHTTP::urlAddParams(str_replace(array("#list_id#", "#section_id#", "#group_id#"),
 			array($this->arResult["IBLOCK_ID"], 0, $params["SOCNET_GROUP_ID"]),
 			$params['LIST_URL']), array('list_section_id' => ""));
@@ -226,7 +226,7 @@ class ListExportExcelComponent extends CBitrixComponent
 		{
 			if (!count($gridColumns) || in_array($fieldId, $gridColumns))
 			{
-				if (substr($fieldId, 0, 9) == "PROPERTY_")
+				if (mb_substr($fieldId, 0, 9) == "PROPERTY_")
 					$arProperties[] = $fieldId;
 				else
 					$arSelect[] = $fieldId;
@@ -265,23 +265,23 @@ class ListExportExcelComponent extends CBitrixComponent
 				if (empty($value))
 					continue;
 			}
-			elseif(strlen($value) <= 0)
+			elseif($value == '')
 				continue;
 
-			if(substr($key, -5) == "_from")
+			if(mb_substr($key, -5) == "_from")
 			{
-				$new_key = substr($key, 0, -5);
+				$new_key = mb_substr($key, 0, -5);
 				$op = (!empty($filterData[$new_key."_numsel"]) && $filterData[$new_key."_numsel"] == "more") ? ">" : ">=";
 			}
-			elseif(substr($key, -3) == "_to")
+			elseif(mb_substr($key, -3) == "_to")
 			{
-				$new_key = substr($key, 0, -3);
+				$new_key = mb_substr($key, 0, -3);
 				$op = (!empty($filterData[$new_key."_numsel"]) && $filterData[$new_key."_numsel"] == "less") ? "<" : "<=";
 				if(array_key_exists($new_key, $dateFilter))
 				{
 					$dateFormat = $DB->dateFormatToPHP(Csite::getDateFormat());
 					$dateParse = date_parse_from_format($dateFormat, $value);
-					if(!strlen($dateParse["hour"]) && !strlen($dateParse["minute"]) && !strlen($dateParse["second"]))
+					if(!mb_strlen($dateParse["hour"]) && !mb_strlen($dateParse["minute"]) && !mb_strlen($dateParse["second"]))
 					{
 						$timeFormat = $DB->dateFormatToPHP(CSite::getTimeFormat());
 						$value .= " ".date($timeFormat, mktime(23, 59, 59, 0, 0, 0));
@@ -412,7 +412,7 @@ class ListExportExcelComponent extends CBitrixComponent
 						$field["CONTROL_SETTINGS"]["MODE"] = "EXCEL_EXPORT";
 						break;
 				}
-				$valueKey = (substr($fieldId, 0, 9) == "PROPERTY_") ? $fieldId : "~".$fieldId;
+				$valueKey = (mb_substr($fieldId, 0, 9) == "PROPERTY_") ? $fieldId : "~".$fieldId;
 				$field["VALUE"] = $listValues[$data["ID"]][$valueKey];
 				$data[$fieldId] = \Bitrix\Lists\Field::renderField($field);
 			}
@@ -525,12 +525,12 @@ class ListExportExcelComponent extends CBitrixComponent
 				);
 				if (!$canViewWorkflow)
 					continue;
-				if (strlen($workflowState["TEMPLATE_NAME"]) > 0)
+				if ($workflowState["TEMPLATE_NAME"] <> '')
 					$html .= "".$workflowState["TEMPLATE_NAME"].":\r\n";
 				else
 					$html .= "".(++$ii).":\r\n";
 
-				$html .= "".(strlen($workflowState["STATE_TITLE"]) > 0 ?
+				$html .= "".($workflowState["STATE_TITLE"] <> '' ?
 						$workflowState["STATE_TITLE"] : $workflowState["STATE_NAME"])."\r\n";
 			}
 		}

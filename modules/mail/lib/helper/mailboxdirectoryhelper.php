@@ -598,12 +598,12 @@ class MailboxDirectoryHelper
 
 		if (!empty($enableRows))
 		{
-			MailboxDirectory::updateSyncDirs($enableRows, MailboxDirectoryTable::ACTIVE);
+			MailboxDirectory::updateSyncDirs($enableRows, MailboxDirectoryTable::ACTIVE, $this->mailboxId);
 		}
 
 		if (!empty($disableRows))
 		{
-			MailboxDirectory::updateSyncDirs($disableRows, MailboxDirectoryTable::INACTIVE);
+			MailboxDirectory::updateSyncDirs($disableRows, MailboxDirectoryTable::INACTIVE, $this->mailboxId);
 		}
 
 		$mailboxHelper = Mailbox::createInstance($this->mailboxId);

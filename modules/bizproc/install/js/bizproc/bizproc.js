@@ -335,8 +335,14 @@ BizProcActivity = function()
 
 	ob.Settings = function (e)
 	{
+		var contentUrl = "/bitrix/admin/"+MODULE_ID+"_bizproc_activity_settings.php?mode=public&bxpublic=Y&lang="+BX.message('LANGUAGE_ID')+"&entity="+ENTITY;
+		if (document_type_signed)
+		{
+			contentUrl ="/bitrix/tools/bizproc_activity_settings.php?mode=public&bxpublic=Y&lang="+BX.message('LANGUAGE_ID')+"&dts="+document_type_signed;
+		}
+
 		(new BX.CDialog({
-			'content_url': "/bitrix/admin/"+MODULE_ID+"_bizproc_activity_settings.php?mode=public&bxpublic=Y&lang="+BX.message('LANGUAGE_ID')+"&entity="+ENTITY,
+			'content_url': contentUrl,
 			'content_post': 'id='+encodeURIComponent(ob.Name)+ '&' +
 				'decode=Y&' +
 				'document_type=' + encodeURIComponent(document_type) + '&' +
@@ -347,7 +353,7 @@ BizProcActivity = function()
 				'current_site_id=' + encodeURIComponent(CURRENT_SITE_ID) + '&' +
 				'sessid=' + BX.bitrix_sessid(),
 			'height': 500,
-			'width': 800
+			'width': 900
 			})).Show();
 	};
 
@@ -401,9 +407,9 @@ BizProcActivity = function()
 		}
 
 		if(s===false)
-			ob.div.className = 'activity';
+			ob.div.className = 'activity activity-modern';
 		else
-			ob.div.className = 'activityerr';
+			ob.div.className = 'activityerr activity-modern';
 
 		if (setFocus === true && s !== false)
 		{
@@ -414,55 +420,52 @@ BizProcActivity = function()
 	ob.Draw = function (divC)
 	{
 		ob.div = divC.appendChild(document.createElement('DIV'));
-		ob.div.className = 'activity';
+		ob.div.className = (ob.isUnknown ? 'activityerr' : 'activity') + ' activity-modern';
 		var d1 = ob.div.appendChild(document.createElement('DIV'));
 		d1.className = 'activityhead';
-		var d11 = d1.appendChild(document.createElement('DIV'));
-		d11.className = 'activityheadr';
-		var d111 = d11.appendChild(document.createElement('DIV'));
-		d111.className = 'activityheadl';
 
-		var a1 = d111.appendChild(document.createElement('A'));
+		var a1 = d1.appendChild(document.createElement('A'));
 		a1.className = 'activitydel';
 
 		a1.onclick = this.OnRemoveClick;// this!
 
-
-		var a2 = d111.appendChild(document.createElement('A'));
-		a2.className = 'activityset';
-
-		a2.onclick = this.OnSettingsClick;// this!
-
-		if(this.OnHideClick)
+		if (!ob.isUnknown)
 		{
-			var a3 = d111.appendChild(document.createElement('A'));
-			a3.className = 'activitymin';
+			var a2 = d1.appendChild(document.createElement('A'));
+			a2.className = 'activityset';
+			a2.onclick = this.OnSettingsClick;// this!
 
-			a3.onclick = this.OnHideClick;// this!
+			if (this.OnHideClick)
+			{
+				var a3 = d1.appendChild(document.createElement('A'));
+				a3.className = 'activitymin';
+				a3.onclick = this.OnHideClick;// this!
+			}
 		}
 
-
-		var sp = d111.appendChild(document.createElement('DIV'));
-		//sp.innerHTML = HTMLEncode(ob['Properties']['Title']);
-		sp.style.padding = '5px';
-		sp.style.cursor = 'move';
-		sp.onmousedown = function (e)
+		var sp = d1.appendChild(document.createElement('DIV'));
+		sp.style.padding = '9px';
+		if (ob.isUnknown)
 		{
-			if(!e)
-				e = window.event;
-
-			var div = DragNDrop.StartDrag(e, ob);
-
-			div.innerHTML = this.parentNode.parentNode.parentNode.parentNode.parentNode.innerHTML;
-			div.style.width = this.parentNode.parentNode.parentNode.parentNode.offsetWidth + 'px';
+			sp.style.cursor = 'not-allowed';
 		}
+		else
+		{
+			sp.style.cursor = 'move';
+			sp.onmousedown = function (e)
+			{
+				if(!e)
+					e = window.event;
 
-		//d111.style.height = '10px';
+				var div = DragNDrop.StartDrag(e, ob);
+
+				div.innerHTML = this.parentNode.parentNode.parentNode.innerHTML;
+				div.style.width = this.parentNode.parentNode.offsetWidth + 'px';
+			}
+		}
 
 		var d2 = ob.div.appendChild(document.createElement('DIV'));
-		d2.style.backgroundColor = '#ffffff';
-		d2.style.borderLeft = '2px #bebabb solid';
-		d2.style.borderRight = '2px #bebabb solid';
+		d2.style.backgroundColor = ob.isUnknown ? '#E6E6E6' : '#ffffff';
 		d2.style.overflowX = 'hidden';
 		d2.style.overflowY = 'hidden';
 		d2.style.height = (ob.activityHeight ? ob.activityHeight : '30px');
@@ -488,27 +491,40 @@ BizProcActivity = function()
 			act.setAttribute('title', ob['Properties']['Title']);
 		}
 
-		var d3 = ob.div.appendChild(document.createElement('DIV'));
-		d3.style.background = 'url(/bitrix/images/bizproc/act_b.gif)';
-		d3.style.height = '4px';
-		d3.style.overflowY = 'hidden';
-		var d33 = d3.appendChild(document.createElement('DIV'));
-		d33.style.background = 'url(/bitrix/images/bizproc/act_br.gif) right top no-repeat';
-		var d333 = d33.appendChild(document.createElement('DIV'));
-		d333.style.background = 'url(/bitrix/images/bizproc/act_bl.gif) left top no-repeat';
-		d333.style.height = '4px';
-
 		ob.div.style.margin = '0 auto';
 		ob.div.style.width = (ob.activityWidth ? ob.activityWidth : '170px');
 
 		if(ob.CheckFields && ob.CheckFields()===false)
 			ob.SetError(true);
+
+		this.drawEditorComment();
 	};
 
 	this.SetHeight = function (iHeight)
 	{
 		this.height = iHeight;
 	};
+
+	this.drawEditorComment = function()
+	{
+		if (
+			!this.div
+			|| !BX.getClass('BX.UI.Hint')
+			|| !ob['Properties']['EditorComment']
+			|| ob['Properties']['EditorComment'].length <= 0
+		)
+		{
+			return false;
+		}
+
+		var commentNode = this.div.appendChild(document.createElement('SPAN'));
+		commentNode.className = 'activity-comment';
+		commentNode.setAttribute('data-hint',
+			BX.util.nl2br(BX.util.htmlspecialchars(ob['Properties']['EditorComment']))
+		);
+
+		BX.UI.Hint.init(this.div);
+	}
 
 	ob.findChildById = function (id)
 	{
@@ -702,60 +718,7 @@ function _DragNDrop()
 UnknownBizProcActivity = function()
 {
 	var ob = new BizProcActivity();
-
-	ob.Draw = function (divC)
-	{
-		ob.div = divC.appendChild(document.createElement('DIV'));
-		ob.div.className = 'activityerr';
-		var d1 = ob.div.appendChild(document.createElement('DIV'));
-		d1.className = 'activityhead';
-		var d11 = d1.appendChild(document.createElement('DIV'));
-		d11.className = 'activityheadr';
-		var d111 = d11.appendChild(document.createElement('DIV'));
-		d111.className = 'activityheadl';
-
-		var a1 = d111.appendChild(document.createElement('A'));
-		a1.className = 'activitydel';
-
-		a1.onclick = this.OnRemoveClick;// this!
-
-		var sp = d111.appendChild(document.createElement('DIV'));
-		//sp.innerHTML = HTMLEncode(ob['Properties']['Title']);
-		sp.style.padding = '5px';
-		sp.style.cursor = 'not-allowed';
-
-		var d2 = ob.div.appendChild(document.createElement('DIV'));
-		d2.style.backgroundColor = '#E6E6E6';
-		d2.style.borderLeft = '2px #bebabb solid';
-		d2.style.borderRight = '2px #bebabb solid';
-		d2.style.overflowX = 'hidden';
-		d2.style.overflowY = 'hidden';
-		d2.style.height = (ob.activityHeight ? ob.activityHeight : '30px');
-
-		var act = d2.appendChild(document.createElement('DIV'));
-		act.style.background = 'url(/bitrix/images/bizproc/act_icon.gif) left center no-repeat';
-		act.style.height = '30px';
-		act.style.margin = '2px';
-		act.style.paddingLeft = '24px';
-		act.style.textAlign = 'left';
-		act.innerHTML = HTMLEncode(ob['Properties']['Title']);
-		act.setAttribute('title', ob['Properties']['Title']);
-
-		var d3 = ob.div.appendChild(document.createElement('DIV'));
-		d3.style.background = 'url(/bitrix/images/bizproc/act_bt.gif)';
-		d3.style.backgroundColor = '#E6E6E6';
-		d3.style.height = '4px';
-		d3.style.overflowY = 'hidden';
-		var d33 = d3.appendChild(document.createElement('DIV'));
-		d33.style.background = 'url(/bitrix/images/bizproc/act_br.gif) right top no-repeat';
-		var d333 = d33.appendChild(document.createElement('DIV'));
-		d333.style.background = 'url(/bitrix/images/bizproc/act_bl.gif) left top no-repeat';
-		d333.style.height = '4px';
-
-		ob.div.style.margin = '0 auto';
-		ob.div.style.width = (ob.activityWidth ? ob.activityWidth : '170px');
-	};
-
+	ob.isUnknown = true;
 	return ob;
 };
 

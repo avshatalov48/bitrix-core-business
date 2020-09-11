@@ -24,7 +24,7 @@
 								<span class="landing-block-node-menu-contactlink-title landing-block-node-card-title-style landing-semantic-text-medium g-color-main d-block text-uppercase g-font-size-13">
 									Call Us
 								</span>
-								<span class="landing-block-node-card-contactlink-text landing-block-node-card-text-style landing-semantic-link-small d-block g-color-gray-dark-v2 font-weight-bold g-text-decoration-none g-text-underline--hover">
+								<span class="landing-block-node-card-contactlink-text landing-block-node-card-text-style landing-semantic-link-small d-block g-color-gray-dark-v2 g-font-weight-700 g-text-decoration-none g-text-underline--hover">
 									#PHONE1#
 								</span>
 							</span>
@@ -41,7 +41,7 @@
 								<div class="landing-block-node-card-title landing-block-node-card-title-style landing-semantic-text-medium g-color-main text-uppercase g-font-size-13">
 									Opening time
 								</div>
-								<div class="landing-block-node-card-text landing-block-node-card-text-style landing-semantic-link-small g-color-gray-dark-v2 font-weight-bold">
+								<div class="landing-block-node-card-text landing-block-node-card-text-style landing-semantic-link-small g-color-gray-dark-v2 g-font-weight-700">
 									Mon-Sat: 08.00 -18.00
 								</div>
 							</div>
@@ -60,7 +60,7 @@
 								<span class="landing-block-node-menu-contactlink-title landing-block-node-card-title-style landing-semantic-text-medium g-color-main d-block text-uppercase g-font-size-13">
 									Email us
 								</span>
-								<span class="landing-block-node-card-contactlink-text landing-block-node-card-text-style landing-semantic-link-small d-block g-color-gray-dark-v2 font-weight-bold g-text-decoration-none g-text-underline--hover">
+								<span class="landing-block-node-card-contactlink-text landing-block-node-card-text-style landing-semantic-link-small d-block g-color-gray-dark-v2 g-font-weight-700 g-text-decoration-none g-text-underline--hover">
 									#EMAIL1#
 								</span>
 							</span>

@@ -83,7 +83,7 @@ class BizprocDocumentLists extends \BizprocDocument
 		}
 		foreach($elementProperty as $propertyId => $property)
 		{
-			if(strlen(trim($property['CODE'])) > 0)
+			if(trim($property['CODE']) <> '')
 				$propertyId = $property['CODE'];
 			else
 				$propertyId = $property['ID'];
@@ -110,15 +110,15 @@ class BizprocDocumentLists extends \BizprocDocument
 							$result = self::setArray($result, 'PROPERTY_'.$propertyId.'_PRINTABLE');
 							$result['PROPERTY_'.$propertyId][] = 'user_'.intval($user['ID']);
 							$result['PROPERTY_'.$propertyId.'_PRINTABLE'][] = '('.$user['LOGIN'].')'.
-								((strlen($user['NAME']) > 0 || strlen($user['LAST_NAME']) > 0) ? ' ' : '').$user['NAME'].
-								((strlen($user['NAME']) > 0 && strlen($user['LAST_NAME']) > 0) ? ' ' : '').$user['LAST_NAME'];
+								(($user['NAME'] <> '' || $user['LAST_NAME'] <> '') ? ' ' : '').$user['NAME'].
+								(($user['NAME'] <> '' && $user['LAST_NAME'] <> '') ? ' ' : '').$user['LAST_NAME'];
 						}
 						else
 						{
 							$result['PROPERTY_'.$propertyId] = 'user_'.intval($user['ID']);
 							$result['PROPERTY_'.$propertyId.'_PRINTABLE'] = '('.$user['LOGIN'].')'.
-								((strlen($user['NAME']) > 0 || strlen($user['LAST_NAME']) > 0) ? ' ' : '').$user['NAME'].
-								((strlen($user['NAME']) > 0 && strlen($user['LAST_NAME']) > 0) ? ' ' : '').$user['LAST_NAME'];
+								(($user['NAME'] <> '' || $user['LAST_NAME'] <> '') ? ' ' : '').$user['NAME'].
+								(($user['NAME'] <> '' && $user['LAST_NAME'] <> '') ? ' ' : '').$user['LAST_NAME'];
 						}
 					}
 				}
@@ -287,7 +287,7 @@ class BizprocDocumentLists extends \BizprocDocument
 	 */
 	public function getDocumentFields($documentType)
 	{
-		$iblockId = intval(substr($documentType, strlen("iblock_")));
+		$iblockId = intval(mb_substr($documentType, mb_strlen("iblock_")));
 		if ($iblockId <= 0)
 			throw new \CBPArgumentOutOfRangeException("documentType", $documentType);
 
@@ -302,7 +302,7 @@ class BizprocDocumentLists extends \BizprocDocument
 		$ignoreProperty = array();
 		while ($property = $propertyObject->fetch())
 		{
-			if (strlen(trim($property["CODE"])) > 0)
+			if (trim($property["CODE"]) <> '')
 			{
 				$key = "PROPERTY_".$property["CODE"];
 				$ignoreProperty["PROPERTY_".$property["ID"]] = "PROPERTY_".$property["CODE"];
@@ -323,10 +323,10 @@ class BizprocDocumentLists extends \BizprocDocument
 				"UserTypeSettings" => $property["USER_TYPE_SETTINGS"]
 			);
 
-			if(strlen(trim($property["CODE"])) > 0)
+			if(trim($property["CODE"]) <> '')
 				$result[$key]["Alias"] = "PROPERTY_".$property["ID"];
 
-			if (strlen($property["USER_TYPE"]) > 0)
+			if ($property["USER_TYPE"] <> '')
 			{
 				$result[$key]["TypeReal"] = $property["PROPERTY_TYPE"].":".$property["USER_TYPE"];
 

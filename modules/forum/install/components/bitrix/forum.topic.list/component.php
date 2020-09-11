@@ -16,7 +16,7 @@ endif;
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$arParams["FID"] = intVal(empty($arParams["FID"]) ? $arParams["DEFAULT_FID"] : $arParams["FID"]);
+	$arParams["FID"] = intval(empty($arParams["FID"]) ? $arParams["DEFAULT_FID"] : $arParams["FID"]);
 	$GLOBALS["FID"] = $arParams["FID"];
 	$arParams["USE_DESC_PAGE"] = ($arParams["USE_DESC_PAGE"] == "N" ? "N" : "Y");
 /***************** URL *********************************************/
@@ -38,22 +38,22 @@ endif;
 	}
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["URL_TEMPLATES_".strToUpper($URL)]);
+		if (trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
+			$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
-	$arParams["PAGEN"] = (intVal($arParams["PAGEN"]) <= 0 ? 1 : intVal($arParams["PAGEN"]));
-	$arParams["TOPICS_PER_PAGE"] = intVal($arParams["TOPICS_PER_PAGE"] > 0 ? $arParams["TOPICS_PER_PAGE"] : COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"));
-	$arParams["MESSAGES_PER_PAGE"] = intVal($arParams["MESSAGES_PER_PAGE"] > 0 ? $arParams["MESSAGES_PER_PAGE"] : COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10"));
+	$arParams["PAGEN"] = (intval($arParams["PAGEN"]) <= 0 ? 1 : intval($arParams["PAGEN"]));
+	$arParams["TOPICS_PER_PAGE"] = intval($arParams["TOPICS_PER_PAGE"] > 0 ? $arParams["TOPICS_PER_PAGE"] : COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"));
+	$arParams["MESSAGES_PER_PAGE"] = intval($arParams["MESSAGES_PER_PAGE"] > 0 ? $arParams["MESSAGES_PER_PAGE"] : COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10"));
 	$arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
 	$arParams["SHOW_FORUM_ANOTHER_SITE"] = ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y" ? "Y" : "N");
 
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
-	$arParams["PAGE_NAVIGATION_WINDOW"] = intVal(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
+	$arParams["PAGE_NAVIGATION_WINDOW"] = intval(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
 /***************** STANDART ****************************************/
 	if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
 		$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
@@ -142,7 +142,7 @@ CPageOption::SetOptionString("main", "nav_page_in_session", "N");
 /********************************************************************
 				Actions
 ********************************************************************/
-if (check_bitrix_sessid() && (strLen($ACTION) > 0))
+if (check_bitrix_sessid() && ($ACTION <> ''))
 {
 	$aMsg = array();
 	switch ($ACTION)
@@ -176,7 +176,7 @@ if (check_bitrix_sessid() && (strLen($ACTION) > 0))
 		break;
 		case "DEL_TOPIC":
 			if (ForumDeleteTopic($arResult["TID"], $strErrorMessage, $strOkMessage)):
-				if (isset($_REQUEST['NAV_PAGE']) && strpos($_REQUEST['NAV_PAGE'], ':') !== false)
+				if (isset($_REQUEST['NAV_PAGE']) && mb_strpos($_REQUEST['NAV_PAGE'], ':') !== false)
 				{
 					list($NavNum, $NavPageNomer) = explode(":", $_REQUEST['NAV_PAGE']);
 					LocalRedirect(ForumAddPageParams($arResult["URL"]["~TOPIC_LIST"], array("result" => "delele", "PAGEN_".intval($NavNum) => intval($NavPageNomer))));
@@ -197,7 +197,7 @@ if (check_bitrix_sessid() && (strLen($ACTION) > 0))
 		break;
 	}
 }
-elseif (!check_bitrix_sessid() && (strLen($ACTION) > 0))
+elseif (!check_bitrix_sessid() && ($ACTION <> ''))
 {
 	$strErrorMessage .= GetMessage("F_ERR_SESS_FINISH").".\n";
 }
@@ -310,9 +310,9 @@ if (empty($arResult["Topics"])) // cache miss or PAGE > 1
 			"~TOPIC" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_READ"],
 				array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => "s")),
 			"LAST_MESSAGE" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE"],
-				array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => intVal($res["LAST_MESSAGE_ID"]))),
+				array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => intval($res["LAST_MESSAGE_ID"]))),
 			"~LAST_MESSAGE" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_MESSAGE"],
-				array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => intVal($res["LAST_MESSAGE_ID"]))),
+				array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => intval($res["LAST_MESSAGE_ID"]))),
 			"MESSAGE_UNREAD" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE"],
 				array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => "unread_mid")),
 			"~MESSAGE_UNREAD" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_MESSAGE"],
@@ -347,7 +347,7 @@ if (empty($arResult["Topics"])) // cache miss or PAGE > 1
 			$res["LAST_POST_DATE"] = $res["ABS_LAST_POST_DATE"];
 			$res["LAST_POSTER_NAME"] = $res["ABS_LAST_POSTER_NAME"];
 			$res["LAST_MESSAGE_ID"] = $res["ABS_LAST_MESSAGE_ID"];
-			$res["mCnt"] = intVal($res["POSTS_UNAPPROVED"]);
+			$res["mCnt"] = intval($res["POSTS_UNAPPROVED"]);
 			$res["numMessages"] = $res["POSTS"] + $res["mCnt"];
 			$res["mCntURL"] = $res["URL"]["MODERATE_MESSAGE"];
 		}
@@ -359,8 +359,8 @@ if (empty($arResult["Topics"])) // cache miss or PAGE > 1
 		$res["numMessages"] = $res["numMessages"] + 1;
 		/*******************************************************************/
 		$res["pages"] = ForumShowTopicPages($res["numMessages"], $res["URL"]["TOPIC"],
-			"PAGEN_".$arParams["PAGEN"], intVal($arParams["MESSAGES_PER_PAGE"]));
-		$res["PAGES_COUNT"] = intVal(ceil($res["numMessages"]/$arParams["MESSAGES_PER_PAGE"]));
+			"PAGEN_".$arParams["PAGEN"], intval($arParams["MESSAGES_PER_PAGE"]));
+		$res["PAGES_COUNT"] = intval(ceil($res["numMessages"]/$arParams["MESSAGES_PER_PAGE"]));
 		/*******************************************************************/
 		$res["TITLE"] = $parser->wrap_long_words($res["TITLE"]);
 		$res["DESCRIPTION"] = $parser->wrap_long_words($res["DESCRIPTION"]);
@@ -394,9 +394,9 @@ if (empty($arResult["Topics"])) // cache miss or PAGE > 1
 					"~TOPIC" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_READ"],
 						array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => "s")),
 					"LAST_MESSAGE" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE"],
-						array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => intVal($res["LAST_MESSAGE_ID"]))),
+						array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => intval($res["LAST_MESSAGE_ID"]))),
 					"~LAST_MESSAGE" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_MESSAGE"],
-						array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => intVal($res["LAST_MESSAGE_ID"]))),
+						array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => intval($res["LAST_MESSAGE_ID"]))),
 					"MESSAGE_UNREAD" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE"],
 						array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => "unread_mid")),
 					"~MESSAGE_UNREAD" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_MESSAGE"],
@@ -444,8 +444,8 @@ for ($topicID = 0; $topicID < $topicCount; $topicID++)
 
 $arResult["TOPICS"] = $arResult["Topics"];
 /************** Navigation *****************************************/
-if (intVal($arResult["FORUM"]["FORUM_GROUP_ID"]) > 0):
-	$PARENT_ID = intVal($arResult["FORUM"]["FORUM_GROUP_ID"]);
+if (intval($arResult["FORUM"]["FORUM_GROUP_ID"]) > 0):
+	$PARENT_ID = intval($arResult["FORUM"]["FORUM_GROUP_ID"]);
 	while ($PARENT_ID > 0)
 	{
 		$res = $arResult["GROUPS"][$PARENT_ID];
@@ -455,7 +455,7 @@ if (intVal($arResult["FORUM"]["FORUM_GROUP_ID"]) > 0):
 			"~GROUP" => CComponentEngine::MakePathFromTemplate(
 				$arParams["~URL_TEMPLATES_FORUMS"], array("GID" => $PARENT_ID)));
 		$arResult["GROUP_NAVIGATION"][] = $res;
-		$PARENT_ID = intVal($arResult["GROUPS"][$PARENT_ID]["PARENT_ID"]);
+		$PARENT_ID = intval($arResult["GROUPS"][$PARENT_ID]["PARENT_ID"]);
 	}
 	$arResult["GROUP_NAVIGATION"] = array_reverse($arResult["GROUP_NAVIGATION"]);
 endif;

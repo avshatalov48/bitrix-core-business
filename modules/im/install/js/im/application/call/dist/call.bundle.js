@@ -6,9 +6,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	var RestAuth = Object.freeze({
 	  guest: 'guest'
 	});
-	var CallRestClient =
-	/*#__PURE__*/
-	function () {
+	var CallRestClient = /*#__PURE__*/function () {
 	  function CallRestClient(params) {
 	    babelHelpers.classCallCheck(this, CallRestClient);
 	    this.queryAuthRestore = false;
@@ -251,9 +249,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @subpackage mobile
 	 * @copyright 2001-2020 Bitrix
 	 */
-	var CallApplication =
-	/*#__PURE__*/
-	function () {
+	var CallApplication = /*#__PURE__*/function () {
 	  /* region 01. Initialize */
 	  function CallApplication() {
 	    var _this = this;

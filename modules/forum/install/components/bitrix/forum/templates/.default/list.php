@@ -10,10 +10,10 @@ if ($_SERVER['REQUEST_METHOD'] == "GET" && $_GET["ACTION"] == "FORUM_SUBSCRIBE")
 			"subscr_list" => "PAGE_NAME=subscr_list");
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (strLen(trim($res["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-			$res["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$res["~URL_TEMPLATES_".strToUpper($URL)] = $res["URL_TEMPLATES_".strToUpper($URL)];
-		$res["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($res["~URL_TEMPLATES_".strToUpper($URL)]);
+		if (trim($res["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
+			$res["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$res["~URL_TEMPLATES_".mb_strtoupper($URL)] = $res["URL_TEMPLATES_".mb_strtoupper($URL)];
+		$res["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($res["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 /********************************************************************
@@ -78,7 +78,7 @@ endif;
 		"URL_TEMPLATES_TOPIC_MOVE"	=>	$arResult["URL_TEMPLATES_TOPIC_MOVE"],
 		"URL_TEMPLATES_RSS" => $arResult["URL_TEMPLATES_RSS"],
 		
-		"PAGEN" => intVal($GLOBALS["NavNum"] + 1),
+		"PAGEN" => intval($GLOBALS["NavNum"] + 1),
 		"TOPICS_PER_PAGE"	=>	$arParams["TOPICS_PER_PAGE"],
 		"MESSAGES_PER_PAGE"	=>	$arParams["MESSAGES_PER_PAGE"],
 		"DATE_FORMAT"	=>	$arParams["DATE_FORMAT"],

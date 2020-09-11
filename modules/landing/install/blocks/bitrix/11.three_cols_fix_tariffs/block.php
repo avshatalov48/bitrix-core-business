@@ -28,7 +28,7 @@
                                 <li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12"><b>No</b> Proin laoreet accumsan nisl non</li>
                             </ul>
 							<div class="landing-block-node-price-container">
-								<a class="landing-block-node-price-button btn btn-md text-uppercase u-btn-primary rounded-0 g-px-15" href="#">Order Now</a>
+								<a class="landing-block-node-price-button btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0" href="#">Order Now</a>
 							</div>
                         </div>
                     </article>
@@ -59,7 +59,7 @@
                                 <li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12"><b>YES</b> Proin laoreet accumsan nisl non</li>
                             </ul>
 							<div class="landing-block-node-price-container">
-								<a class="landing-block-node-price-button btn btn-md text-uppercase u-btn-primary rounded-0 g-px-15" href="#">Order Now</a>
+								<a class="landing-block-node-price-button btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0" href="#">Order Now</a>
 							</div>
                         </div>
                     </article>
@@ -90,7 +90,7 @@
                                 <li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12"><b>YES</b> Proin laoreet accumsan nisl non</li>
                             </ul>
 							<div class="landing-block-node-price-container">
-								<a class="landing-block-node-price-button btn btn-md text-uppercase u-btn-primary rounded-0 g-px-15" href="#">Order Now</a>
+								<a class="landing-block-node-price-button btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0" href="#">Order Now</a>
 							</div>
                         </div>
                     </article>

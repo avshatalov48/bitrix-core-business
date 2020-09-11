@@ -4,9 +4,25 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+/** @var array $arParams */
+/** @var LandingBlocksHtmlComponent $component */
+/** @var \Bitrix\Landing\Landing $landing */
+/** @var \CMain $APPLICATION */
+
 use \Bitrix\Main\Localization\Loc;
 Loc::loadMessages(__FILE__);
 
+$domainId = 0;
+
+if (class_exists('\LandingPubComponent'))
+{
+	$landingInstance = \LandingPubComponent::getMainInstance();
+	if (isset($landingInstance['LANDING_INSTANCE']))
+	{
+		$landing = $landingInstance['LANDING_INSTANCE'];
+		$domainId = $landing->getDomainId();
+	}
+}
 
 if ($arParams['ENABLED'] != 'Y' && $arParams['EDIT_MODE'] == 'Y')
 {
@@ -34,8 +50,10 @@ else if ($arParams['EDIT_MODE'] == 'Y')
 }
 else if ($arParams['ENABLED'] == 'Y' || $arParams['PREVIEW_MODE'] == 'Y')
 {
-	echo $component->htmlspecialcharsback($arParams['~HTML_CODE']);
+	$content = $component->htmlspecialcharsback($arParams['~HTML_CODE']);
+	if (!$domainId)
+	{
+		$content = $component->sanitize($content);
+	}
+	echo $content;
 }
-
-
-

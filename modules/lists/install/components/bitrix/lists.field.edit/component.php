@@ -173,14 +173,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 						$strError = GetMessage("CC_BLFE_BAD_FIELD_ADD_READ_ONLY")."<br>";
 					break;
 				default:
-					if (is_string($arField["DEFAULT_VALUE"]) && strlen($arField["DEFAULT_VALUE"]) <= 0)
+					if (is_string($arField["DEFAULT_VALUE"]) && $arField["DEFAULT_VALUE"] == '')
 						$strError = GetMessage("CC_BLFE_BAD_FIELD_ADD_READ_ONLY")."<br>";
 					if (is_array($arField["DEFAULT_VALUE"]) && empty($arField["DEFAULT_VALUE"]))
 						$strError = GetMessage("CC_BLFE_BAD_FIELD_ADD_READ_ONLY")."<br>";
 			}
 		}
 
-		if(strlen($arField["NAME"]) <= 0)
+		if($arField["NAME"] == '')
 			$strError = GetMessage("CC_BLFE_BAD_FIELD_NAME")."<br>";
 
 		if($arField["TYPE"] == "PREVIEW_PICTURE")
@@ -208,7 +208,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 			$arField["LINK_IBLOCK_ID"] = intval($_POST["LINK_IBLOCK_ID"]);
 			$arIBLOCKS = CLists::GetIBlocks($arParams["~IBLOCK_TYPE_ID"], !$arParams["CAN_EDIT"], $arParams["~SOCNET_GROUP_ID"]);
 
-			if(substr($arField["TYPE"], 0, 1) == "G")
+			if(mb_substr($arField["TYPE"], 0, 1) == "G")
 				unset($arIBLOCKS[$arResult["IBLOCK_ID"]]);
 
 			if(!array_key_exists($arField["LINK_IBLOCK_ID"], $arIBLOCKS))
@@ -227,7 +227,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 			$arField["LIST"] = array();
 
 		//Import values from textarea
-		if(isset($_POST["LIST_TEXT_VALUES"]) && strlen($_POST["LIST_TEXT_VALUES"]))
+		if(isset($_POST["LIST_TEXT_VALUES"]) && mb_strlen($_POST["LIST_TEXT_VALUES"]))
 		{
 			$max_sort = 0;
 
@@ -245,7 +245,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 			foreach(explode("\n", $_POST["LIST_TEXT_VALUES"]) as $value_line)
 			{
 				$value = trim($value_line, " \t\n\r");
-				if(strlen($value) > 0 && !isset($arListMap[$value]))
+				if($value <> '' && !isset($arListMap[$value]))
 				{
 					$max_sort += 10;
 					$arListMap[$value] = "m".$max_sort;
@@ -414,7 +414,7 @@ if($bVarsFromForm)
 		{
 			if(array_key_exists("n".$n, $arResult["LIST"]))
 			{
-				if(strlen($arResult["LIST"]["n".$n]["VALUE"]) > 0)
+				if($arResult["LIST"]["n".$n]["VALUE"] <> '')
 					break;
 				else
 					unset($arResult["LIST"]["n".$n]);
@@ -530,7 +530,7 @@ else
 if(preg_match("/^(G|G:|E|E:)/", $data["TYPE"]))
 {
 	$arResult["LINK_IBLOCKS"] = CLists::GetIBlocks($arParams["~IBLOCK_TYPE_ID"], !$arParams["CAN_EDIT"], $arParams["~SOCNET_GROUP_ID"]);
-	if(substr($data["TYPE"], 0, 1) == "G")
+	if(mb_substr($data["TYPE"], 0, 1) == "G")
 		unset($arResult["LINK_IBLOCKS"][$arResult["IBLOCK_ID"]]);
 }
 

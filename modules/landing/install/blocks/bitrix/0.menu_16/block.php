@@ -27,7 +27,7 @@
 											<span class="landing-block-node-menu-contactlink-title landing-block-node-menu-contact-title-style landing-semantic-text-medium g-color-main d-block text-uppercase g-font-size-13">
 												Call Us
 											</span>
-											<span class="landing-block-node-menu-contactlink-text landing-block-node-menu-contact-text-style landing-semantic-link-small d-block g-color-gray-dark-v2 font-weight-bold g-text-decoration-none g-text-underline--hover">
+											<span class="landing-block-node-menu-contactlink-text landing-block-node-menu-contact-text-style landing-semantic-link-small d-block g-color-gray-dark-v2 g-font-weight-700 g-text-decoration-none g-text-underline--hover">
 												#PHONE1#
 											</span>
 										</span>
@@ -44,7 +44,7 @@
 											<div class="landing-block-node-menu-contact-title landing-block-node-menu-contact-title-style landing-semantic-text-medium g-color-main text-uppercase g-font-size-13">
 												Opening time
 											</div>
-											<div class="landing-block-node-menu-contact-value landing-block-node-menu-contact-text-style landing-semantic-link-small g-color-gray-dark-v2 font-weight-bold">
+											<div class="landing-block-node-menu-contact-value landing-block-node-menu-contact-text-style landing-semantic-link-small g-color-gray-dark-v2 g-font-weight-700">
 												Mon-Sat: 08.00 -18.00
 											</div>
 										</div>
@@ -62,7 +62,7 @@
 											<span class="landing-block-node-menu-contactlink-title  landing-block-node-menu-contact-title-style landing-semantic-text-medium g-color-main d-block text-uppercase g-font-size-13">
 												Email us
 											</span>
-											<span class="landing-block-node-menu-contactlink-text landing-block-node-menu-contact-text-style landing-semantic-link-small d-block g-color-gray-dark-v2 font-weight-bold g-text-decoration-none g-text-underline--hover">
+											<span class="landing-block-node-menu-contactlink-text landing-block-node-menu-contact-text-style landing-semantic-link-small d-block g-color-gray-dark-v2 g-font-weight-700 g-text-decoration-none g-text-underline--hover">
 												#EMAIL1#
 											</span>
 										</span>
@@ -109,7 +109,7 @@
 			<div class="container">
 				<!-- Navigation -->
 				<div class="collapse navbar-collapse align-items-center flex-sm-row g-mr-40--sm" id="navBar">
-					<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav w-100 g-ml-minus-15--lg text-uppercase font-weight-bold g-font-size-13 g-py-10--md">
+					<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav w-100 g-ml-minus-15--lg text-uppercase g-font-weight-700 g-font-size-13 g-py-10--md">
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#home"
 							   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Home

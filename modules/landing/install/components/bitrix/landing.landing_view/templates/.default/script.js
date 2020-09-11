@@ -633,12 +633,20 @@
 	}
 })();
 
-var landingAlertMessage = function landingAlertMessage(errorText, payment)
+var landingAlertMessage = function landingAlertMessage(errorText, payment, errorCode)
 {
-	if (
-		payment === true &&
-		typeof BX.Landing.PaymentAlertShow !== 'undefined'
-	)
+	if (payment === true && errorCode === 'PUBLIC_SITE_REACHED')
+	{
+		if (BX.message('LANDING_SITE_TYPE') === 'STORE')
+		{
+			top.BX.UI.InfoHelper.show('limit_shop_number');
+		}
+		else
+		{
+			top.BX.UI.InfoHelper.show('limit_sites_number');
+		}
+	}
+	else if (payment === true && typeof BX.Landing.PaymentAlertShow !== 'undefined')
 	{
 		BX.Landing.PaymentAlertShow({
 			message: errorText

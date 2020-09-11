@@ -339,7 +339,7 @@ class CForumAdminMessages extends \CBitrixComponent
 	{
 		$order = (new Bitrix\Main\Grid\Options($this->gridId))->GetSorting(["sort" => ["ID" => "ASC"]]);
 		$order = $order["sort"];
-		if (!is_array_assoc($order) ||
+		if (!is_array($order) ||
 			!empty(array_diff($order, ["DESC", "ASC", "desc", "asc"]))
 		)
 		{

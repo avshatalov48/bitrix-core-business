@@ -28,7 +28,7 @@ abstract class CListField
 		$this->_label = $label;
 		$this->_sort = intval($sort);
 
-		if($this->_iblock_id > 0 && strlen($this->_field_id))
+		if($this->_iblock_id > 0 && mb_strlen($this->_field_id))
 		{
 			$arField = $this->_read_from_cache($this->_field_id);
 			if(!$arField)
@@ -498,7 +498,7 @@ class CListPropertyField extends CListField
 				if(array_key_exists($id, $arFields) && $id != "IBLOCK_ID")
 					$this->_property[$id] = $arFields[$id];
 
-			if(strpos($newType, ":")!==false)
+			if(mb_strpos($newType, ":") !== false)
 				list($this->_property["PROPERTY_TYPE"], $this->_property["USER_TYPE"]) = explode(":", $newType);
 			else
 			{
@@ -544,7 +544,7 @@ class CListPropertyField extends CListField
 			else
 			{
 				$arFields["IBLOCK_ID"] = $iblock_id;
-				if(strpos($arFields["TYPE"], ":")!==false)
+				if(mb_strpos($arFields["TYPE"], ":") !== false)
 					list($arFields["PROPERTY_TYPE"], $arFields["USER_TYPE"]) = explode(":", $arFields["TYPE"]);
 				else
 					$arFields["PROPERTY_TYPE"] = $arFields["TYPE"];

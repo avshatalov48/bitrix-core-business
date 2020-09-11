@@ -259,7 +259,7 @@ class MessageTable extends Main\Entity\DataManager
 				if (!empty($res[$key]))
 				{
 					$res[$key] = \CFilterUnquotableWords::Filter($res[$key]);
-					if (strlen($res[$key]) <= 0)
+					if ($res[$key] == '')
 					{
 						$res[$key] = "*";
 					}
@@ -397,7 +397,7 @@ class MessageTable extends Main\Entity\DataManager
 				if (!empty($res[$key]))
 				{
 					$res[$key] = \CFilterUnquotableWords::Filter($res[$key]);
-					if (strlen($res[$key]) <= 0 )
+					if ($res[$key] == '' )
 					{
 						$res[$key] = "*";
 					}

@@ -7,22 +7,20 @@
  */
 namespace Bitrix\Sender\Posting;
 
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Application;
-
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Sender\Connector;
-use Bitrix\Sender\Integration;
-use Bitrix\Sender\Entity;
-use Bitrix\Sender\MailingSubscriptionTable;
-use Bitrix\Sender\Recipient;
-use Bitrix\Sender\Message;
-
-use Bitrix\Sender\PostingTable;
 use Bitrix\Sender\ContactTable;
-use Bitrix\Sender\MailingGroupTable;
-use Bitrix\Sender\PostingRecipientTable;
+use Bitrix\Sender\Entity;
+use Bitrix\Sender\Integration;
 use Bitrix\Sender\Internals\Model;
 use Bitrix\Sender\Internals\SqlBatch;
+use Bitrix\Sender\MailingGroupTable;
+use Bitrix\Sender\MailingSubscriptionTable;
+use Bitrix\Sender\Message;
+use Bitrix\Sender\PostingRecipientTable;
+use Bitrix\Sender\PostingTable;
+use Bitrix\Sender\Recipient;
 
 Loc::loadMessages(__FILE__);
 
@@ -77,11 +75,20 @@ class Builder
 	 *
 	 * @param integer $postingId Posting ID.
 	 * @param bool $checkDuplicates Check duplicates.
+	 * @param bool $prepareFields
+	 *
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
-	public function run($postingId, $checkDuplicates = true)
+	public function run($postingId, $checkDuplicates = true, $prepareFields = true)
 	{
 		$postingData = PostingTable::getList(array(
-			'select' => array('*', 'MESSAGE_TYPE' => 'MAILING_CHAIN.MESSAGE_CODE'),
+			'select' => array(
+				'*',
+				'MESSAGE_TYPE' => 'MAILING_CHAIN.MESSAGE_CODE',
+				'MESSAGE_ID' => 'MAILING_CHAIN.MESSAGE_ID'
+			),
 			'filter' => array('ID' => $postingId),
 			'limit' => 1
 		))->fetch();
@@ -106,6 +113,24 @@ class Builder
 			}
 		}
 
+		$messageFields = Model\MessageFieldTable::getList(
+			['filter' => ['=MESSAGE_ID' => $postingData['MESSAGE_ID']]]
+		)->fetchAll();
+
+		$personalizeFields = [];
+		foreach ($messageFields as $messageField)
+		{
+			if (!in_array(
+				$messageField['CODE'],
+				['MESSAGE_PERSONALIZE', 'SUBJECT_PERSONALIZE']
+			))
+			{
+				continue;
+			}
+
+			$personalizeFields[$messageField['CODE']] =
+				json_decode($messageField['VALUE'], true)[1];
+		}
 
 		$message = Message\Adapter::create($this->postingData['MESSAGE_TYPE']);
 		foreach ($message->getSupportedRecipientTypes() as $typeId)
@@ -116,7 +141,7 @@ class Builder
 			}
 
 			$this->typeId = $typeId;
-			$this->runForRecipientType();
+			$this->runForRecipientType($personalizeFields, $prepareFields);
 		}
 
 
@@ -128,7 +153,7 @@ class Builder
 		);
 	}
 
-	protected function runForRecipientType()
+	protected function runForRecipientType($usedPersonalizeFields = [], $prepareFields = true)
 	{
 		// fetch all connectors for getting emails
 		$groups = array();
@@ -169,7 +194,13 @@ class Builder
 				$connector->setFieldValues($group['ENDPOINT']['FIELDS']);
 			}
 
-			$this->fill($connector, $group['INCLUDE'], $group['GROUP_ID']);
+			$this->fill(
+				$connector,
+				$group['INCLUDE'],
+				$group['GROUP_ID'],
+				$usedPersonalizeFields,
+				$prepareFields
+			);
 		}
 
 		// update group counter of addresses
@@ -376,7 +407,63 @@ class Builder
 		}
 	}
 
-	protected function fill(Connector\Base $connector, $isInclude = false, $groupId = null)
+	protected function checkUsedFields($entityType, $ids, $usedPersonalizeFields, &$dataList)
+	{
+		$usedFields = [];
+		foreach ($usedPersonalizeFields as $personalizeField)
+		{
+			foreach ($personalizeField as $usedField)
+			{
+				$usedFieldExploded = explode('.', $usedField);
+				if (
+					$entityType == $usedFieldExploded[0] &&
+					isset
+					(
+						$usedFieldExploded[1]
+					))
+				{
+					unset($usedFieldExploded[0]);
+					$usedFields[$usedField] = implode('.', $usedFieldExploded);
+				}
+			}
+		}
+		$fields = Integration\Crm\Connectors\Helper::getData(
+			$entityType, $ids, $usedFields
+		);
+
+		foreach ($fields as &$entity)
+		{
+			foreach ($entity as $key => $field)
+			{
+				$entity[$entityType.'.'.$key] = $field;
+				unset($entity[$key]);
+			}
+		}
+
+		foreach($dataList as &$data)
+		{
+			if(
+				isset($fields[(int)$data['FIELDS']['CRM_ENTITY_ID']])
+				&& $data['FIELDS']['CRM_ENTITY_TYPE'] === $entityType
+			)
+			{
+				$data['FIELDS'] = array_merge(
+					$data['FIELDS'],
+					$fields[$data['FIELDS']['CRM_ENTITY_ID']]
+				);
+			}
+		}
+
+		return $usedFields;
+	}
+
+	protected function fill(
+		Connector\Base $connector,
+		$isInclude = false,
+		$groupId = null,
+		$usedPersonalizeFields = [],
+		$prepareFields = true
+	)
 	{
 		$count = 0;
 
@@ -400,7 +487,6 @@ class Builder
 				{
 					continue;
 				}
-
 				$dataList[$primary] = $data;
 
 				$count++;
@@ -416,7 +502,6 @@ class Builder
 			{
 				break;
 			}
-
 			$this->setRecipientIdentificators($dataList);
 			if ($isInclude)
 			{
@@ -442,6 +527,36 @@ class Builder
 				if (empty($dataList))
 				{
 					continue;
+				}
+
+				if(
+					count($usedPersonalizeFields) > 0
+				)
+				{
+					$preparedFields = [];
+
+					foreach($dataList as $data)
+					{
+						if(!isset($data['FIELDS']))
+						{
+							continue;
+						}
+
+						$field = $data['FIELDS'];
+						if(!isset($preparedFields[$field['CRM_ENTITY_TYPE']]))
+						{
+							$preparedFields[$field['CRM_ENTITY_TYPE']] = [];
+						}
+						$preparedFields[$field['CRM_ENTITY_TYPE']][] = $field['CRM_ENTITY_ID'];
+					}
+
+
+					foreach ($preparedFields as $entityType => $ids)
+					{
+						$this->checkUsedFields(
+							$entityType, $ids, $usedPersonalizeFields, $dataList
+						);
+					}
 				}
 
 				$this->addPostingRecipients($dataList);

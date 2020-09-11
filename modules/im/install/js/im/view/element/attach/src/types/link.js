@@ -72,8 +72,8 @@ export const AttachTypeLink =
 						<div v-if="element.PREVIEW" class="bx-im-element-attach-type-link-image" @click="openLink(element)">
 							<component :is="imageComponentName" :config="getImageConfig(element)" :color="color"/>
 						</div>
-						<div class="bx-im-element-attach-type-link-name" @click="openLink(element)" v-html="getLinkName(element)"></div>
-						<div v-if="element.DESC" class="bx-im-element-attach-type-link-desc" v-html="element.DESC"></div>
+						<div class="bx-im-element-attach-type-link-name" @click="openLink(element)">{{getLinkName(element)}}</div>
+						<div v-if="element.DESC" class="bx-im-element-attach-type-link-desc">{{element.DESC}}</div>
 					</div>
 				</template>
 			</div>

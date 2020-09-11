@@ -64,6 +64,11 @@ class CBPViewHelper
 		$withUsers = $withUsers ? 1 : 0;
 		$extendUserInfo = $extendUserInfo ? 1 : 0;
 
+		if (!$workflowId)
+		{
+			return ['COMPLETED' => [], 'RUNNING' => []];
+		}
+
 		if (!isset(self::$cachedTasks[$workflowId][$withUsers][$extendUserInfo]))
 		{
 			$tasks = array('COMPLETED' => array(), 'RUNNING' => array());

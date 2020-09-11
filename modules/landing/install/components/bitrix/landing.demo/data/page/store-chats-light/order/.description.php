@@ -15,13 +15,13 @@ return array(
 	'fields' => array(
 		'RULE' => NULL,
 		'ADDITIONAL_FIELDS' => array(
+			'B24BUTTON_CODE' => 'N',
 			'METAOG_TITLE' => Loc::getMessage('LANDING_DEMO_STORE_CHATS_LIGHT-ORDER-RICH_NAME'),
 			'METAOG_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_STORE_CHATS_LIGHT-ORDER-RICH_DESC'),
 			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/store-chats/order/preview.jpg',
 			'VIEW_USE' => 'N',
 			'VIEW_TYPE' => 'no',
 			'THEME_CODE' => '3corporate',
-
 		),
 	),
 	'layout' => array(

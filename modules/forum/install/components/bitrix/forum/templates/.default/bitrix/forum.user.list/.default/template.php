@@ -177,7 +177,7 @@ foreach ($arResult["USERS"] as $res):
 					</td>
 					<td class="forum-column-posts"><?
 	if ($res["NUM_POSTS"] > 0):
-					?><noindex><a rel="nofollow" href="<?=$res["URL"]["POSTS"]?>"><?=intVal($res["NUM_POSTS"])?></a></noindex><?
+					?><noindex><a rel="nofollow" href="<?=$res["URL"]["POSTS"]?>"><?=intval($res["NUM_POSTS"])?></a></noindex><?
 	else:
 					?>0<?
 	endif;
@@ -185,7 +185,7 @@ foreach ($arResult["USERS"] as $res):
 <?
 	if ($arResult["SHOW_VOTES"] == "Y"):
 ?>
-					<td class="forum-column-points"><?=intVal($res["POINTS"])?></td>
+					<td class="forum-column-points"><?=intval($res["POINTS"])?></td>
 <?
 	endif;
 ?>

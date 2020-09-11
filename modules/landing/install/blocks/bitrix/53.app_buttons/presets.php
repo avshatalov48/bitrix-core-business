@@ -11,7 +11,7 @@ $result = [
 	'app-store' => [
 		'name' => 'Download app from App Store',
 		'html' => '
-			<div class="landing-block-node-card col-md-3 col-lg-3 g-py-10"
+			<div class="landing-block-node-card g-px-10 g-py-10"
 				data-card-preset="app-store">
 				<a href="#" class="landing-block-node-button">
 					<img class="landing-block-node-button-img g-height-42"
@@ -34,7 +34,7 @@ $result = [
 	'play-market' => [
 		'name' => 'Download app from Play Market',
 		'html' => '
-			<div class="landing-block-node-card col-md-3 col-lg-3 g-py-10"
+			<div class="landing-block-node-card g-px-10 g-py-10"
 				 data-card-preset="play-market">
 				<a href="#" class="landing-block-node-button">
 					<img class="landing-block-node-button-img g-height-42" 
@@ -57,7 +57,7 @@ $result = [
 	'custom-picture' => [
 		'name' => Loc::getMessage('LANDING_BLOCK_53_CUSTOM_PICTURE'),
 		'html' => '
-			<div class="landing-block-node-card col-md-3 col-lg-3 g-py-10"
+			<div class="landing-block-node-card g-px-10 g-py-10"
 				 data-card-preset="custom-picture">
 				<a href="#" class="landing-block-node-button">
 					<img class="landing-block-node-button-img-custom g-height-42" 

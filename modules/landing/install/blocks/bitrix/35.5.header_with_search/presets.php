@@ -22,7 +22,7 @@ return [
 								<span class="landing-block-node-menu-contactlink-title landing-block-node-card-title-style g-color-main d-block text-uppercase g-font-size-13">
 									Email us
 								</span>
-								<span class="landing-block-node-card-contactlink-text landing-block-node-card-text-style d-block g-color-gray-dark-v2 font-weight-bold g-text-decoration-none g-text-underline--hover">
+								<span class="landing-block-node-card-contactlink-text landing-block-node-card-text-style d-block g-color-gray-dark-v2 g-font-weight-700 g-text-decoration-none g-text-underline--hover">
 									info@company24.com
 								</span>
 							</span>
@@ -56,7 +56,7 @@ return [
 								<div class="landing-block-node-card-title landing-block-node-card-title-style g-color-main text-uppercase g-font-size-13">
 									Opening time
 								</div>
-								<div class="landing-block-node-card-text landing-block-node-card-text-style g-color-gray-dark-v2 font-weight-bold">
+								<div class="landing-block-node-card-text landing-block-node-card-text-style g-color-gray-dark-v2 g-font-weight-700">
 									Mon-Sat: 08.00 -18.00
 								</div>
 							</div>

@@ -8,9 +8,6 @@
 
 namespace Bitrix\Sender\Integration\Crm\Connectors;
 
-use Bitrix\Crm\CompanyTable;
-use Bitrix\Crm\ContactTable;
-use Bitrix\Crm\LeadTable;
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\DB\SqlExpression;
@@ -33,6 +30,7 @@ Loc::loadMessages(__FILE__);
 class Helper
 {
 	public static $runtimeByEntity = [];
+	private const PERSONALIZE_NAMESPACE = "\\Bitrix\\Sender\\Integration\\Crm\\Connectors\\Personalize\\";
 
 	/**
 	 * Create Orm expression field for selecting multi field.
@@ -76,9 +74,95 @@ class Helper
 	public static function getPersonalizeList()
 	{
 		return array(
+			array('CODE' => 'CRM_ENTITY_TYPE'),
 			array('CODE' => 'CRM_ENTITY_TYPE_ID'),
 			array('CODE' => 'CRM_ENTITY_ID'),
 		);
+	}
+
+	public static function buildPersonalizeList($entityType)
+	{
+		$result = [];
+		$documentClass = self::PERSONALIZE_NAMESPACE.ucfirst($entityType);
+
+		if(!class_exists($documentClass, 'getEntityFields'))
+		{
+			return $result;
+		}
+
+		$items = [];
+		$fields = $documentClass::getEntityFields($entityType) ;
+		$counter = 0;
+		foreach ($fields as $fieldCode  => $field)
+		{
+			$items[$counter++] = [
+				'CODE' => $entityType.'.'.$fieldCode,
+				'NAME' => $field['Name'],
+				'DESC' => $field['Name'],
+			];
+			if(isset($field['personalizeCode']) && $field['personalizeCode'])
+			{
+				$items[$counter - 1]['CODE'] = implode(
+					"##",
+					Integration\Crm\Connectors\Personalize\BasePersonalize::getMap()[$field['personalizeCode']]
+				);
+			}
+		}
+
+		$result[] = [
+			'CODE' => $entityType,
+			'NAME' => Loc::getMessage('SENDER_INTEGRATION_CRM_CONNECTOR_'.$entityType),
+			'ITEMS' => $items
+		];
+
+		return $result;
+	}
+
+	public static function getData($entityType, $entityIds, $fields = ['*'])
+	{
+		$result = [];
+		$documentClass = self::PERSONALIZE_NAMESPACE.ucfirst($entityType);
+
+		if(!class_exists($documentClass, 'getData'))
+		{
+			return $result;
+		}
+
+		return $documentClass::getData($entityType, $entityIds, $fields);
+	}
+
+	public static function getPersonalizeFieldsFromConnectors($isTrigger = false)
+	{
+		$connectors = Connector\Manager::getConnectorList();
+		$items = [];
+
+		foreach ($connectors as $connector)
+		{
+			if(!($connector instanceof Connector\BaseFilter))
+			{
+				continue;
+			}
+
+			if(method_exists($connector, 'getPersonalizeList'))
+			{
+				$list = $connector->getPersonalizeList();
+				if($isTrigger)
+				{
+					foreach ($list as $key => $data)
+					{
+						if(isset($data['ITEMS']) && in_array($data['CODE'], ['LEAD', 'CONTACT', 'COMPANY']))
+						{
+							unset($list[$key]);
+						}
+					}
+				}
+				if(!empty($list))
+				{
+					$items = array_merge($items, $list);
+				}
+			}
+		}
+		return $items;
 	}
 
 	/**
@@ -588,6 +672,24 @@ class Helper
 		}
 	}
 
+	protected static function getDealCategoryFilter($values, &$filter, $extraCallbackParams = [])
+	{
+		$filter['DEAL'] = [];
+		foreach ($values as $k => $value)
+		{
+			if(is_null($value))
+			{
+				$filter['DEAL'][] = ['SGT_DEAL.ID', '=', $value];
+				$filter['DEAL']['JOIN_TYPE'] = 'LEFT';
+				unset($values[$k]);
+			}
+		}
+		if(!empty($values))
+		{
+			$filter['DEAL'][] = ['SGT_DEAL.CATEGORY_ID', 'in', $values];
+		}
+	}
+
 	/**
 	 * Callback on draw of result view.
 	 *
@@ -599,7 +701,7 @@ class Helper
 		switch ($row['CRM_ENTITY_TYPE_ID'])
 		{
 			case \CCrmOwnerType::Company:
-				$crmRow = CompanyTable::getRowById($row['CRM_ENTITY_ID']);
+				$crmRow = \Bitrix\Crm\CompanyTable::getRowById($row['CRM_ENTITY_ID']);
 				$row['~NAME'] = self::getResultViewTitle(
 					$row['CRM_ENTITY_TYPE_ID'],
 					$row['CRM_ENTITY_ID'],
@@ -609,7 +711,7 @@ class Helper
 				);
 				break;
 			case \CCrmOwnerType::Contact:
-				$crmRow = ContactTable::getRowById($row['CRM_ENTITY_ID']);
+				$crmRow = \Bitrix\Crm\ContactTable::getRowById($row['CRM_ENTITY_ID']);
 				$row['~NAME'] = self::getResultViewTitle(
 					$row['CRM_ENTITY_TYPE_ID'],
 					$row['CRM_ENTITY_ID'],
@@ -619,7 +721,7 @@ class Helper
 				);
 				break;
 			case \CCrmOwnerType::Lead:
-				$crmRow = LeadTable::getRowById($row['CRM_ENTITY_ID']);
+				$crmRow = \Bitrix\Crm\LeadTable::getRowById($row['CRM_ENTITY_ID']);
 				$row['CRM_LEAD'] = $row['~CRM_LEAD'] = self::getResultViewTitle(
 					$row['CRM_ENTITY_TYPE_ID'],
 					$row['CRM_ENTITY_ID'],

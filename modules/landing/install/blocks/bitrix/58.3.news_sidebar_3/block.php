@@ -10,7 +10,7 @@
 				<div class="landing-block-node-text landing-semantic-text-medium g-color-gray-dark-v2">
 					<p>Sed ultrices velit vitae tortor posuere and dial in the details.</p>
 				</div>
-				<a class="landing-block-node-button btn u-btn-outline-primary g-font-size-11 text-uppercase" href="#">
+				<a class="landing-block-node-button btn g-btn-type-outline g-btn-size-sm g-btn-px-m g-btn-primary rounded-0 text-uppercase" href="#">
 					Read more
 				</a>
 			</div>
@@ -26,7 +26,7 @@
 				<div class="landing-block-node-text landing-semantic-text-medium g-color-gray-dark-v2">
 					<p>This is where we sit down, grab a cup of coffee and dial in the details.</p>
 				</div>
-				<a class="landing-block-node-button btn u-btn-outline-primary g-font-size-11 text-uppercase" href="#">
+				<a class="landing-block-node-button btn g-btn-type-outline g-btn-size-sm g-btn-px-m g-btn-primary rounded-0 text-uppercase" href="#">
 					Read more
 				</a>
 			</div>
@@ -42,7 +42,7 @@
 				<div class="landing-block-node-text landing-semantic-text-medium g-color-gray-dark-v2">
 					<p>Ulvinar leo ultricies ut, grab a cup of coffee and dial in the details.</p>
 				</div>
-				<a class="landing-block-node-button btn u-btn-outline-primary g-font-size-11 text-uppercase" href="#">
+				<a class="landing-block-node-button btn g-btn-type-outline g-btn-size-sm g-btn-px-m g-btn-primary rounded-0 text-uppercase" href="#">
 					Read more
 				</a>
 			</div>

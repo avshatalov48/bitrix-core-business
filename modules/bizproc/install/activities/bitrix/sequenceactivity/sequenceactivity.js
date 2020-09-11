@@ -157,9 +157,8 @@ SequenceActivity = function()
 		if(ob.lastDrop)
 		{
 			var oActivity;
-			if(DragNDrop.obj.parentActivity && e.ctrlKey == false)
+			if(DragNDrop.obj.parentActivity && (e.ctrlKey == false && e.metaKey == false))
 			{
-
 				var i, pos = -1, pa = DragNDrop.obj.parentActivity;
 				for(i = 0; i<pa.childActivities.length; i++)
 				{

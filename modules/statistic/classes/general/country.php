@@ -17,11 +17,11 @@ class CCountry
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if( ($val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -124,11 +124,11 @@ class CCountry
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if( ($val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "COUNTRY_ID":
@@ -200,7 +200,7 @@ class CCountry
 		$total = sizeof($arLegend);
 		foreach ($arLegend as $key => $arr)
 		{
-			if (strlen($arCountryColor[$key])>0)
+			if ($arCountryColor[$key] <> '')
 			{
 				$color = $arCountryColor[$key];
 			}

@@ -10,7 +10,7 @@ ClearVars();
 IncludeModuleLangFile(__FILE__);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/prolog.php");
 
-$ID = IntVal($ID);
+$ID = intval($ID);
 $message = false;
 $arSysLangs = array();
 $arSysLangNames = array();
@@ -32,7 +32,7 @@ if ($REQUEST_METHOD=="POST" && $forumPermissions=="W" && (!empty($save) || !empt
 		"CODE" => $CODE);
 		
 	if (isset($VOTES))
-		$arFields["VOTES"] = IntVal($VOTES);
+		$arFields["VOTES"] = intval($VOTES);
 		
 	for ($i = 0; $i<count($arSysLangs); $i++)
 	{
@@ -49,12 +49,12 @@ if ($REQUEST_METHOD=="POST" && $forumPermissions=="W" && (!empty($save) || !empt
 		$res = CForumPoints::Update($ID, $arFields);
 	else
 		$res = CForumPoints::Add($arFields);
-	if (intVal($res) <= 0 && $e = $GLOBALS["APPLICATION"]->GetException())
+	if (intval($res) <= 0 && $e = $GLOBALS["APPLICATION"]->GetException())
 	{
 		$message = new CAdminMessage(($ID > 0 ? GetMessage("FORUM_PE_ERROR_UPDATE") : GetMessage("FORUM_PE_ERROR_ADD")), $e);
 		$bInitVars = True;
 	}
-	elseif (strlen($save)>0)
+	elseif ($save <> '')
 		LocalRedirect("forum_points.php?lang=".LANG."&".GetFilterParams("filter_", false));
 	else 
 		$ID = $res;

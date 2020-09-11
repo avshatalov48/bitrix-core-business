@@ -24,7 +24,7 @@ if ($arResult['SUCCESS'])
 	var isMenuShown = false;
 	var menu = null;
 
-	function showTileMenu(node, params)
+	function showTileMenuCustom(node, params)
 	{
 		var menuItems = [
 			{

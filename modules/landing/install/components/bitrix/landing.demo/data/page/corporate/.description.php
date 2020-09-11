@@ -236,10 +236,10 @@ return array(
 	<div>
 		<div class="row mx-0">
 			<div class="col-md-6 text-center text-md-left g-py-50 g-py-100--md g-px-15 g-px-50--md">
-				<h3 class="landing-block-node-title g-font-weight-700 g-font-size-default g-mb-25 g-color-black g-text-transform-none g-font-size-20">Release</h3>
+				<h3 class="landing-block-node-title g-font-weight-700 g-mb-25 g-color-black g-text-transform-none g-font-size-20">Release</h3>
 				<div class="landing-block-node-text g-mb-30 g-color-gray-dark-v2"><p>Now that your brand is all dressed up and ready to party, it i<span style="font-size: 1rem;">s time to release it to the world. By the way, let&prime;s celebrate already.</span></p></div>
 				<div class="landing-block-node-button-container">
-					<a class="landing-block-node-button text-uppercase btn btn-xl g-font-weight-700 g-font-size-12 g-rounded-50 u-btn-outline-darkgray" href="#" tabindex="0" target="_self">LEARN MORE</a>
+					<a class="landing-block-node-button text-uppercase btn g-btn-type-solid g-btn-size-md g-btn-px-m g-rounded-50 g-btn-primary" href="#" tabindex="0" target="_self">LEARN MORE</a>
 				</div>
 			</div>
 
@@ -335,7 +335,7 @@ return array(
 				'SORT' => '3500',
 				'CONTENT' => '<section class="landing-block landing-block-node-container text-center g-py-20 g-pt-20 g-pb-60">
         <div class="container">
-				<a class="landing-block-node-button btn btn-md text-uppercase g-px-15 g-rounded-50 u-btn-outline-darkgray" href="#" g-font-weight-700="" target="_self">VIEW ALL WORKS</a>
+				<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary text-uppercase g-rounded-50" href="#" g-font-weight-700="" target="_self">VIEW ALL WORKS</a>
         </div>
     </section>',
 			),
@@ -452,7 +452,7 @@ return array(
                                 <li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12 g-color-black-opacity-0_5"><span style="font-size: 1rem;">1610+ elements</span></li><li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12 g-color-black-opacity-0_5">24/7 support</li>
                                 <li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12 g-color-black-opacity-0_5">Limited domain and users</li></ul>
                             <div class="landing-block-node-price-container">
-                            	<a class="landing-block-node-price-button g-color-white-opacity-0_9 btn btn-md text-uppercase u-btn-primary rounded-0 g-px-15" href="#">Order Now</a>
+                            	<a class="landing-block-node-price-button g-color-white-opacity-0_9 btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0" href="#">Order Now</a>
 							</div>
                         </div>
                     </article>
@@ -479,7 +479,7 @@ return array(
                                 <li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12 g-color-black-opacity-0_5">Unlimited domain or user</li></ul>
 
                             <div class="landing-block-node-price-container">
-                            	<a class="landing-block-node-price-button g-color-white-opacity-0_9 btn btn-md text-uppercase u-btn-primary rounded-0 g-px-15" href="#">Order Now</a>
+                            	<a class="landing-block-node-price-button g-color-white-opacity-0_9 btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0" href="#">Order Now</a>
 							</div>
                         </div>
                     </article>
@@ -1033,7 +1033,7 @@ return array(
 	<div class="g-max-width-800 container text-center g-pos-rel g-z-index-1 mx-auto g-px-30">
 		<h2 class="landing-block-title h1 g-font-weight-400 mb-5 g-color-black">Company24 completes every project with experience hand.</h2>
 		<div class="landing-block-container">
-			<a class="landing-block-button btn u-btn-primary g-min-width-170 g-font-weight-500 g-font-size-13 text-uppercase g-rounded-30 g-px-30 g-py-14" href="#">Get Started</a>
+			<a class="landing-block-button btn g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-l text-uppercase g-rounded-30 g-py-14" href="#">Get Started</a>
 		</div>
 	</div>
 </section>',
@@ -1047,7 +1047,7 @@ return array(
 		<div class="row">
 			<div class="col-sm-12 col-md-6 col-lg-6 g-mb-25 g-mb-0--lg">
 				<h2 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-16 g-mb-20"></h2>
-				<p class="landing-block-node-text g-font-size-default g-color-gray-dark-v2 g-mb-20" ></p>
+				<p class="landing-block-node-text g-color-gray-dark-v2 g-mb-20" ></p>
 
 				<address class="g-color-gray-dark-v2 g-mb-20">
 				</address>

@@ -1409,15 +1409,18 @@ if($lAdmin->EditAction())
 						{
 							$v = [];
 							$pvObjectQuery = CIBlockElement::getPropertyValues(
-								$IBLOCK_ID, ["ID" => $ID], true, ["ID" => $prop_id]);
+								$IBLOCK_ID, ["ID" => $ID], true, ["ID" => $prop_id]
+							);
+							$propertyValues = $pvObjectQuery->fetch();
 							if (
-							$propertyValues = $pvObjectQuery->fetch() &&
+								!empty($propertyValues) &&
 								!empty($propertyValues["PROPERTY_VALUE_ID"][$prop_id])
 							)
 							{
 								$propertyValueId = $propertyValues["PROPERTY_VALUE_ID"][$prop_id];
 								$v[$propertyValueId] = CIBlock::makeFilePropArray($v, true);
 							}
+							unset($pvObjectQuery);
 						}
 						else
 						{
@@ -3131,7 +3134,7 @@ foreach (array_keys($rawRows) as $rowId)
 
 					$searchParams = array(
 						'IBLOCK_ID' => (string)$prop['LINK_IBLOCK_ID'],
-						'n' => urlencode($VALUE_NAME),
+						'n' => $VALUE_NAME,
 						'tableId' => 'iblockprop-'.Iblock\PropertyTable::TYPE_SECTION.'-'.$prop['ID'].'-'.$prop['LINK_IBLOCK_ID']
 					);
 					if ($aProp["LINK_IBLOCK_ID"] > 0)
@@ -3157,7 +3160,7 @@ foreach (array_keys($rawRows) as $rowId)
 
 					$searchParams = array(
 						'IBLOCK_ID' => (string)$prop['LINK_IBLOCK_ID'],
-						'n' => urlencode($VALUE_NAME),
+						'n' => $VALUE_NAME,
 						'tableId' => 'iblockprop-'.Iblock\PropertyTable::TYPE_ELEMENT.'-'.$prop['ID'].'-'.$prop['LINK_IBLOCK_ID']
 					);
 					if ($prop["LINK_IBLOCK_ID"] > 0)
@@ -3223,7 +3226,7 @@ foreach (array_keys($rawRows) as $rowId)
 
 					$searchParams = array(
 						'IBLOCK_ID' => (string)$prop['LINK_IBLOCK_ID'],
-						'n' => urlencode($VALUE_NAME),
+						'n' => $VALUE_NAME,
 						'tableId' => 'iblockprop-'.Iblock\PropertyTable::TYPE_SECTION.'-'.$aProp['ID'].'-'.$aProp['LINK_IBLOCK_ID']
 					);
 					if ($aProp["LINK_IBLOCK_ID"] > 0)
@@ -3241,7 +3244,7 @@ foreach (array_keys($rawRows) as $rowId)
 
 					$searchParams = array(
 						'IBLOCK_ID' => (string)$prop['LINK_IBLOCK_ID'],
-						'n' => urlencode($VALUE_NAME),
+						'n' => $VALUE_NAME,
 						'tableId' => 'iblockprop-'.Iblock\PropertyTable::TYPE_ELEMENT.'-'.$aProp['ID'].'-'.$aProp['LINK_IBLOCK_ID']
 					);
 					if ($aProp["LINK_IBLOCK_ID"] > 0)

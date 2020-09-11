@@ -11,9 +11,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @subpackage im
 	 * @copyright 2001-2019 Bitrix
 	 */
-	var RequestCollector =
-	/*#__PURE__*/
-	function () {
+	var RequestCollector = /*#__PURE__*/function () {
 	  function RequestCollector() {
 	    babelHelpers.classCallCheck(this, RequestCollector);
 	    this.list = {};

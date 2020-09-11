@@ -7,10 +7,10 @@
  */
 namespace Bitrix\Sender\Internals\CommonAjax;
 
-use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Access\Event\EventDictionary;
 use Bitrix\Main\Error;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
-
 use Bitrix\Sender\Security;
 
 Loc::loadMessages(__FILE__);

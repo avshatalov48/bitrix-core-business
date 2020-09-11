@@ -72,9 +72,7 @@ this.BX.Messenger = this.BX.Messenger || {};
      * @subpackage im
      * @copyright 2001-2020 Bitrix
      */
-    var RecentApplication =
-    /*#__PURE__*/
-    function () {
+    var RecentApplication = /*#__PURE__*/function () {
       /* region 01. Initialize */
       function RecentApplication() {
         var _this = this;

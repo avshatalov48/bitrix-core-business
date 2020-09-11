@@ -8,12 +8,11 @@
 
 namespace Bitrix\Sender\Integration\Sender\Connectors;
 
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Entity;
-
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Sender\Connector;
-use Bitrix\Sender\ListTable;
 use Bitrix\Sender\ContactTable;
+use Bitrix\Sender\ListTable;
 use Bitrix\Sender\Recipient\Type as RecipientType;
 
 Loc::loadMessages(__FILE__);
@@ -67,38 +66,12 @@ class Contact extends Connector\BaseFilter
 	}
 
 	/**
+	 *
 	 * @return \Bitrix\Main\DB\Result|array
 	 */
 	public function getData()
 	{
-		$listId = $this->getFieldValue('LIST_ID', null);
-		if (!$listId)
-		{
-			return array();
-		}
-
-		$resultDb = ContactTable::getList(array(
-			'select' => array('NAME', 'TYPE_ID', 'CODE', 'USER_ID'),
-			'filter' => array(
-				'=CONTACT_LIST.LIST_ID' => $listId
-			)
-		));
-		$resultDb->addFetchDataModifier(
-			function ($data)
-			{
-				$row = array(
-					'NAME' => $data['NAME'],
-					'USER_ID' => $data['USER_ID'],
-				);
-
-				$key = RecipientType::getCode($data['TYPE_ID']);
-				$row[$key] = $data['CODE'];
-
-				return $row;
-			}
-		);
-
-		return $resultDb;
+		return $this->getDataWithCustomSelect();
 	}
 
 	/**
@@ -120,4 +93,42 @@ class Contact extends Connector\BaseFilter
 
 		return $list;
 	}
+
+	/**
+	 * @param array $selectList
+	 *
+	 * @return array|\Bitrix\Main\DB\Result|\CAllDBResult
+	 */
+	public function getDataWithCustomSelect($selectList = [])
+	{
+		$listId = $this->getFieldValue('LIST_ID', null);
+		if (!$listId)
+		{
+			return array();
+		}
+
+		$resultDb = ContactTable::getList(
+			[
+				'select' => array_merge($selectList, ['NAME', 'TYPE_ID', 'CODE', 'USER_ID']),
+				'filter' => [
+					'=CONTACT_LIST.LIST_ID' => $listId
+				]
+			]
+		);
+		$resultDb->addFetchDataModifier(
+			function ($data)
+			{
+				$row = array(
+					'NAME' => $data['NAME'],
+					'USER_ID' => $data['USER_ID'],
+				);
+
+				$key = RecipientType::getCode($data['TYPE_ID']);
+				$row[$key] = $data['CODE'];
+
+				return $row;
+			}
+		);
+
+		return $resultDb;	}
 }

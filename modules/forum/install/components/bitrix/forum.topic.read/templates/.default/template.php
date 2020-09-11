@@ -16,7 +16,7 @@ $message = (is_array($message) ? $message : array($message));
 $arUserSettings = array("first_post" => "show");
 if ($arParams["SHOW_FIRST_POST"] == "Y" && $GLOBALS["USER"]->IsAuthorized())
 {
-	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".strToLower($GLOBALS["DB"]->type)."/favorites.php");
+	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
 	$arUserSettings = CUserOptions::GetOption("forum", "default_template", "");
 	$arUserSettings = (CheckSerializedData($arUserSettings) ? @unserialize($arUserSettings) : array());
 
@@ -113,7 +113,7 @@ if ($arParams["SHOW_FIRST_POST"] == "Y" && $arResult["NAV_RESULT"] && $arResult[
 		?><span class="forum-header-title-closed">[ <span><?=GetMessage("F_CLOSED")?></span> ]</span> <?
 	endif;
 	?><?=trim($arResult["TOPIC"]["TITLE"])?><?
-		if (strlen($arResult["TOPIC"]["DESCRIPTION"])>0): ?>, <?=trim($arResult["TOPIC"]["DESCRIPTION"])?><? endif;
+		if ($arResult["TOPIC"]["DESCRIPTION"] <> ''): ?>, <?=trim($arResult["TOPIC"]["DESCRIPTION"])?><? endif;
 	?></span></div>
 </div><?
 
@@ -122,7 +122,7 @@ if ($arParams["SHOW_FIRST_POST"] == "Y" && $arResult["NAV_RESULT"] && $arResult[
 		<div class="forum-block-inner">
 <?
 		$res = $arResult["MESSAGE_FIRST"];
-			if ($arParams["SHOW_VOTE"] == "Y" && $res["PARAM1"] == "VT" && intVal($res["PARAM2"]) > 0 && IsModuleInstalled("vote"))
+			if ($arParams["SHOW_VOTE"] == "Y" && $res["PARAM1"] == "VT" && intval($res["PARAM2"]) > 0 && IsModuleInstalled("vote"))
 			{
 				?>
 				<div class="forum-info-box forum-post-vote">
@@ -231,7 +231,7 @@ if (!$bShowedHeader)
 		?><span class="forum-header-title-closed">[ <span><?=GetMessage("F_CLOSED")?></span> ]</span> <?
 	}
 	?><?=trim($arResult["TOPIC"]["TITLE"])?><?
-		if (strlen($arResult["TOPIC"]["DESCRIPTION"])>0): ?>, <?=trim($arResult["TOPIC"]["DESCRIPTION"])?><? endif;
+		if ($arResult["TOPIC"]["DESCRIPTION"] <> ''): ?>, <?=trim($arResult["TOPIC"]["DESCRIPTION"])?><? endif;
 ?>
 	</span></div>
 <?
@@ -255,7 +255,7 @@ if (!empty($arResult["MESSAGE_LIST"]))
 	foreach ($arResult["MESSAGE_LIST"] as $res)
 	{
 		$iCount++;
-		if ($arParams["SHOW_VOTE"] == "Y" && $res["PARAM1"] == "VT" && intVal($res["PARAM2"]) > 0 && IsModuleInstalled("vote"))
+		if ($arParams["SHOW_VOTE"] == "Y" && $res["PARAM1"] == "VT" && intval($res["PARAM2"]) > 0 && IsModuleInstalled("vote"))
 		{
 			?>
 			<div class="forum-info-box forum-post-vote">
@@ -437,7 +437,7 @@ if ($arResult["VIEW"] == "Y"):
 endif;
 
 ?><script type="text/javascript">
-<?if (intVal($arParams["MID"]) > 0):?>
+<?if (intval($arParams["MID"]) > 0):?>
 location.hash = 'message<?=$arParams["MID"]?>';
 <?endif;?>
 if (typeof oText != "object")

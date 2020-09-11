@@ -110,6 +110,11 @@ class Double extends Base
 	 */
 	protected static function renderControl(FieldType $fieldType, array $field, $value, $allowSelection, $renderMode)
 	{
+		if ($allowSelection && !($renderMode & FieldType::RENDER_MODE_PUBLIC))
+		{
+			return static::renderControlSelector($field, $value, 'combine', '', $fieldType);
+		}
+
 		$name = static::generateControlName($field);
 		$controlId = static::generateControlId($field);
 		$className = static::generateControlClassName($fieldType, $field);
@@ -129,10 +134,6 @@ class Double extends Base
 				.htmlspecialcharsbx($name).'" value="'.htmlspecialcharsbx((string) $value).'"/>';
 		}
 
-		if ($allowSelection && !($renderMode & FieldType::RENDER_MODE_PUBLIC))
-		{
-			$renderResult .= static::renderControlSelector($field, null, false, '', $fieldType);
-		}
 		return $renderResult;
 	}
 

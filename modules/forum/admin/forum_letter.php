@@ -18,9 +18,9 @@
 /*******************************************************************/
 	$arFilter = array();
 	$find = trim($find);
-	if (strLen($find) > 0)
+	if ($find <> '')
 		$arFilter["%".htmlspecialcharsbx($find_type)] = "%".$find."%";
-	$DICTIONARY_ID = intVal($_REQUEST["DICTIONARY_ID"]);
+	$DICTIONARY_ID = intval($_REQUEST["DICTIONARY_ID"]);
 	if ($DICTIONARY_ID <= 0)
 		$lAdmin->AddFilterError(GetMessage("FLT_NOT_DICT")); 
 	$arFilter["DICTIONARY_ID"] = $DICTIONARY_ID;
@@ -31,7 +31,7 @@
 		{
 			$arFields = array_merge($arFields, array("DICTIONARY_ID"=>$DICTIONARY_ID));
 			$DB->StartTransaction();
-			$ID = IntVal($ID);
+			$ID = intval($ID);
 			if (!$lAdmin->IsUpdated($ID))
 				continue;
 	
@@ -61,7 +61,7 @@
 		{
 			foreach($arID as $ID)
 			{
-				if(strlen($ID)<=0)
+				if($ID == '')
 					continue;
 				$ID = intval($ID);
 				switch($_REQUEST['action'])

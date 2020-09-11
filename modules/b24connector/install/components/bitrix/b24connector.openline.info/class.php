@@ -53,7 +53,7 @@ class CB24ConnectorOpenlineInfoComponent extends \CBitrixComponent
 		foreach ($event->getResults() as $eventResult)
 		{
 			$eventResult = $eventResult->getParameters();
-			if (is_string($eventResult) && strlen($eventResult) > 0)
+			if (is_string($eventResult) && $eventResult <> '')
 			{
 				$message[] = '';
 				$message[] = $eventResult;

@@ -53,7 +53,7 @@ class CForumPageTemplate
 			while (($file = readdir($directory)) !== false)
 			{
 				if ($file != "." && $file != ".." && is_dir($dir.$file))
-					$arThemes[$file] = (!empty($arThemesMessages[$file]) ? $arThemesMessages[$file] : strtoupper(substr($file, 0, 1)).strtolower(substr($file, 1)));
+					$arThemes[$file] = (!empty($arThemesMessages[$file]) ? $arThemesMessages[$file] : mb_strtoupper(mb_substr($file, 0, 1)).mb_strtolower(mb_substr($file, 1)));
 			}
 			closedir($directory);
 		}

@@ -5,7 +5,7 @@
 				<span class="landing-block-icon-container landing-semantic-color-main col-2 col-md-1 text-right g-color-black g-font-size-22">
 					<i class="landing-block-icon fa fa-check"></i>
 				</span>
-				<h2 class="landing-block-title landing-semantic-title-small col-10 col-md-11 text-left g-color-black g-font-size-22 font-weight-bold g-ma-0">
+				<h2 class="landing-block-title landing-semantic-title-small col-10 col-md-11 text-left g-color-black g-font-size-22 g-font-weight-700 g-ma-0">
 					Change in ID for renting a room
 				</h2>
 			</div>
@@ -20,7 +20,7 @@
 				<span class="landing-block-icon-container landing-semantic-color-main col-2 col-md-1 text-right g-color-black g-font-size-22">
 					<i class="landing-block-icon fa fa-check"></i>
 				</span>
-				<h2 class="landing-block-title landing-semantic-title-small col-10 col-md-11 text-left g-color-black g-font-size-22 font-weight-bold g-ma-0">
+				<h2 class="landing-block-title landing-semantic-title-small col-10 col-md-11 text-left g-color-black g-font-size-22 g-font-weight-700 g-ma-0">
 					Change in ID for renting a room
 				</h2>
 			</div>
@@ -35,7 +35,7 @@
 				<span class="landing-block-icon-container landing-semantic-color-main col-2 col-md-1 text-right g-color-black g-font-size-22">
 					<i class="landing-block-icon fa fa-check"></i>
 				</span>
-				<h2 class="landing-block-title landing-semantic-title-small col-10 col-md-11 text-left g-color-black g-font-size-22 font-weight-bold g-ma-0">
+				<h2 class="landing-block-title landing-semantic-title-small col-10 col-md-11 text-left g-color-black g-font-size-22 g-font-weight-700 g-ma-0">
 					Change in ID for renting a room
 				</h2>
 			</div>
@@ -50,7 +50,7 @@
 				<span class="landing-block-icon-container landing-semantic-color-main col-2 col-md-1 text-right g-color-black g-font-size-22">
 					<i class="landing-block-icon fa fa-check"></i>
 				</span>
-				<h2 class="landing-block-title landing-semantic-title-small col-10 col-md-11 text-left g-color-black g-font-size-22 font-weight-bold g-ma-0">
+				<h2 class="landing-block-title landing-semantic-title-small col-10 col-md-11 text-left g-color-black g-font-size-22 g-font-weight-700 g-ma-0">
 					Change in ID for renting a room
 				</h2>
 			</div>

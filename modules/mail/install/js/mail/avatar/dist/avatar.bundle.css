@@ -1,0 +1,15 @@
+.mail-ui-avatar {
+	display: block;
+	border-radius: 50%;
+	text-align: center;
+	color: #fff;
+}
+
+.mail-ui-avatar-small {
+	width: 29px;
+	min-width: 29px;
+	height: 29px;
+	min-height: 29px;
+	font-size: 13px;
+	line-height: 29px;
+}

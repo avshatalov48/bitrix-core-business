@@ -17,12 +17,9 @@ Loc::loadMessages(__FILE__);
 /** @var array $arResult */
 $containerId = 'bx-sender-toloka-edit';
 
-Extension::load("main.ui.filter");
-Extension::load("ui.icons");
-Extension::load("ui.buttons");
-Extension::load("ui.buttons.icons");
-Extension::load("ui.notification");
-Extension::load('sender.toloka');
+\Bitrix\Main\Loader::includeModule('ui');
+
+Extension::load(["main.ui.filter", "ui.icons", "ui.buttons", "ui.buttons.icons", "ui.notification", "sender.toloka", "ui.sidepanel-content"]);
 
 $APPLICATION->IncludeComponent(
 	"bitrix:sender.ui.panel.title",
@@ -57,68 +54,56 @@ $APPLICATION->IncludeComponent(
 \Bitrix\UI\Toolbar\Facade\Toolbar::deleteFavoriteStar();
 ?>
 <div data-role="login" style="display: none" class="">
-	<div class="sender-toloka-field-container">
-		<div class="sender-toloka-field-section sender-toloka-field-section-social">
-			<div class="sender-toloka-field-box">
-				<div class="connector-icon ui-icon ui-icon-service-ya-toloka">
-					<i></i>
-				</div>
-			</div>
-			<div class="sender-toloka-field-box">
-				<div class="sender-toloka-field-main-subtitle">
-					<?=Loc::getMessage('SENDER_TOLOKA_TITLE')?>
-				</div>
-				<div class="sender-toloka-field-box-content">
-					<?=Loc::getMessage('SENDER_TOLOKA_CONNECT_DESCRIPTION')?>
-				</div>
-			</div>
+	<div class="ui-slider-section ui-slider-section-icon">
+		<div class="ui-icon ui-slider-icon ui-icon-service-ya-toloka">
+			<i></i>
+		</div>
+		<div class="ui-slider-content-box">
+			<div class="ui-slider-heading-3"><?=Loc::getMessage('SENDER_TOLOKA_TITLE')?></div>
+			<p class="ui-slider-paragraph-2"><?=Loc::getMessage('SENDER_TOLOKA_CONNECT_DESCRIPTION')?></p>
 		</div>
 	</div>
-	<div class="sender-toloka-field-container">
-		<div class="sender-toloka-field-section sender-toloka-field-section-control">
-			<div class="sender-toloka-step-text">
-				<label for="toloka-oauth-code">
-					<?=Loc::getMessage(
-						'SENDER_TOLOKA_OAUTH_TITLE'
-					)?>
-				</label>
-			</div>
-			<input type="text"
-				name="toloka-oauth-code"
-				id="toloka-oauth-code"
-				data-role="toloka-oauth-code"
-				size="50"
-				class="sender-toloka-field-control-input">
-
-			<div class="sender-toloka-step-text">
-				<input type="button"
-					onclick="window.Toloka.register();"
-					class="webform-small-button webform-small-button-accept"
-					value="<?=Loc::getMessage('SENDER_TOLOKA_CONNECT')?>">
-			</div>
-
+	<div class="ui-slider-section sender-toloka-field-section-control">
+		<div class="sender-toloka-step-text">
+			<label for="toloka-oauth-code">
+				<?=Loc::getMessage(
+					'SENDER_TOLOKA_OAUTH_TITLE'
+				)?>
+			</label>
 		</div>
+		<input type="text"
+			   name="toloka-oauth-code"
+			   id="toloka-oauth-code"
+			   data-role="toloka-oauth-code"
+			   size="50"
+			   class="sender-toloka-field-control-input">
+
+		<div class="sender-toloka-step-text">
+			<input type="button"
+				   onclick="window.Toloka.register();"
+				   class="webform-small-button webform-small-button-accept"
+				   value="<?=Loc::getMessage('SENDER_TOLOKA_CONNECT')?>">
+		</div>
+
 	</div>
-	<div class="sender-toloka-field-container">
-		<div class="sender-toloka-field-section sender-toloka-field-section-control">
-			<div class="sender-toloka-field-box">
-				<div class="sender-toloka-field-box-subtitle-darken">
-					<?=Loc::getMessage('SENDER_TOLOKA_CONNECT_INSTRUCTION')?>
-				</div>
-				<div class="sender-toloka-field-button-box">
-					<a onclick="top.BX.Helper.show('redirect=detail&code=11572528');"
-						class="sender-toloka-field-button sender-toloka-field-button-connect">
-						<div class="sender-toloka-field-button-icon"></div>
-						<div class="sender-toloka-field-button-text">
-							<div class="sender-toloka-field-button-subtitle">
-								<?=Loc::getMessage('SENDER_TOLOKA_CONNECT_HELP')?>
-							</div>
-							<div class="sender-toloka-field-button-name">
-								<?=Loc::getMessage('SENDER_TOLOKA_CONNECT_TITLE')?>
-							</div>
+	<div class="ui-slider-section sender-toloka-field-section-control">
+		<div class="sender-toloka-field-box">
+			<div class="sender-toloka-field-box-subtitle-darken">
+				<?=Loc::getMessage('SENDER_TOLOKA_CONNECT_INSTRUCTION')?>
+			</div>
+			<div class="sender-toloka-field-button-box">
+				<a onclick="top.BX.Helper.show('redirect=detail&code=11572528');"
+				   class="sender-toloka-field-button sender-toloka-field-button-connect">
+					<div class="sender-toloka-field-button-icon"></div>
+					<div class="sender-toloka-field-button-text">
+						<div class="sender-toloka-field-button-subtitle">
+							<?=Loc::getMessage('SENDER_TOLOKA_CONNECT_HELP')?>
 						</div>
-					</a>
-				</div>
+						<div class="sender-toloka-field-button-name">
+							<?=Loc::getMessage('SENDER_TOLOKA_CONNECT_TITLE')?>
+						</div>
+					</div>
+				</a>
 			</div>
 		</div>
 	</div>

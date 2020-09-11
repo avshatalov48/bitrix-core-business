@@ -425,11 +425,11 @@ class Date extends Base
 		return $value;
 	}
 
-	public static function internalizeValue(FieldType $fieldType, $objectName, $value)
+	public static function internalizeValue(FieldType $fieldType, $context, $value)
 	{
 		if ($value && is_string($value))
 		{
-			$offset = \CTimeZone::GetOffset();//($objectName === 'Document') ? \CTimeZone::GetOffset() : 0;
+			$offset = \CTimeZone::GetOffset();
 			try
 			{
 				$obj = (static::getType() === FieldType::DATE)
@@ -448,18 +448,24 @@ class Date extends Base
 		return $value;
 	}
 
-	public static function externalizeValue(FieldType $fieldType, $objectName, $value)
+	public static function externalizeValue(FieldType $fieldType, $context, $value)
 	{
 		//serialized date string
 		if (is_string($value) && preg_match('#(.+)\s\[([0-9\-]+)\]#', $value))
 		{
-			$value = static::internalizeValue($fieldType, $objectName, $value);
+			$value = static::internalizeValue($fieldType, $context, $value);
 		}
 
 		if ($value instanceof Value\Date)
 		{
-			return (string) $value->toSystemObject();
+			return $context === 'rest' ? $value->toSystemObject()->format('c') : (string) $value->toSystemObject();
 		}
+
+		if (is_string($value) && $context === 'rest')
+		{
+			return date('c', strtotime($value));
+		}
+
 		return $value;
 	}
 

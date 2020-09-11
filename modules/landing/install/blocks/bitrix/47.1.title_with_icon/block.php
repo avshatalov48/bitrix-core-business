@@ -1,7 +1,7 @@
 <section class="landing-block g-pt-80 g-pb-80">
 	<div class="container text-center g-max-width-800">
 		<div class="u-heading-v7-3 g-mb-30">
-			<h2 class="landing-block-node-title landing-semantic-title-medium js-animation fadeInUp u-heading-v7__title g-font-size-60 font-italic font-weight-bold g-mb-20">
+			<h2 class="landing-block-node-title landing-semantic-title-medium js-animation fadeInUp u-heading-v7__title g-font-size-60 font-italic g-font-weight-700 g-mb-20">
 				About
 				<span class="g-color-primary">Us</span></h2>
 

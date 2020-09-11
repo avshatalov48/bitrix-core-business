@@ -30,7 +30,7 @@ class CForumNew extends CAllForumNew
 		$arInsert = $DB->PrepareInsert("b_forum", $arFields);
 		$strSql = "INSERT INTO b_forum(".$arInsert[0].") VALUES(".$arInsert[1].")";
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		$ID = intVal($DB->LastID());
+		$ID = intval($DB->LastID());
 
 		if ($ID > 0)
 		{
@@ -277,7 +277,7 @@ class CForumGroup extends CAllForumGroup
 		$arInsert = $DB->PrepareInsert("b_forum_group", $arFields);
 		$strSql = "INSERT INTO b_forum_group(".$arInsert[0].") VALUES(".$arInsert[1].")";
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		$ID = intVal($DB->LastID());
+		$ID = intval($DB->LastID());
 
 		if (array_key_exists("LANG", $arFields))
 		{
@@ -299,7 +299,7 @@ class CForumGroup extends CAllForumGroup
 	public static function Update($ID, $arFields)
 	{
 		global $DB;
-		$ID = intVal($ID);
+		$ID = intval($ID);
 		if ($ID <= 0):
 			return false;
 		endif;

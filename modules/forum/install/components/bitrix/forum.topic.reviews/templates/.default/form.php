@@ -143,7 +143,7 @@ endif;
 		<?
 
 		/* CAPTHCA */
-		if (strLen($arResult["CAPTCHA_CODE"]) > 0):
+		if ($arResult["CAPTCHA_CODE"] <> ''):
 			?>
 			<div class="reviews-reply-field reviews-reply-field-captcha">
 				<input type="hidden" name="captcha_code" value="<?=$arResult["CAPTCHA_CODE"]?>"/>
@@ -179,7 +179,7 @@ endif;
 					endforeach;
 				endif;
 				if ($iCount < $arParams["FILES_COUNT"]):
-					$sFileSize = CFile::FormatSize(intVal(COption::GetOptionString("forum", "file_max_size", 5242880)));
+					$sFileSize = CFile::FormatSize(intval(COption::GetOptionString("forum", "file_max_size", 5242880)));
 					?>
 					<div class="reviews-upload-info" style="display:none;" id="upload_files_info_<?=$arParams["form_index"]?>">
 						<?

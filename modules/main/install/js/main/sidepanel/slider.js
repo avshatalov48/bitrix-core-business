@@ -24,7 +24,7 @@ BX.SidePanel.Slider = function(url, options)
 
 	this.url = this.contentCallback ? url : this.refineUrl(url);
 
-	this.zIndex = 3000;
+	this.zIndex = BX.prop.getInteger(options, 'zIndex', 3000);
 	this.offset = null;
 	this.width = BX.type.isNumber(options.width) ? options.width : null;
 	this.cacheable = options.cacheable !== false;

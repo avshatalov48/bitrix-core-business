@@ -171,7 +171,7 @@ abstract class RoleUtil
 		$query = [];
 		foreach ($permissions as $id => $value)
 		{
-			$query[] = '('. $this->roleId .', "'. $helper->forSql(trim($id)) .'", '. $value .')';
+			$query[] = '('. $this->roleId .', "'. $helper->forSql(trim($id)) .'", '. (int) $value .')';
 		}
 
 		if (empty($query))

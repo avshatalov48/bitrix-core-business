@@ -205,6 +205,7 @@ $tabControl->BeginCustomField("SECTION_PROPERTY", GetMessage("CAT_CEDIT_SECTION_
 	?>
 		<tr colspan="2"><td style="text-align: center;">
 			<?
+			echo $editor->getEditorHtml();
 			?>
 			<table class="internal" id="table_SECTION_PROPERTY">
 			<tr class="heading">
@@ -300,7 +301,8 @@ $tabControl->BeginCustomField("SECTION_PROPERTY", GetMessage("CAT_CEDIT_SECTION_
 					}
 					elseif (!is_array($arLink) || $arLink["INHERITED"] == "N")
 					{
-						echo $editor->getControlHtml('SECTION_PROPERTY['.$arProp['ID'].'][FILTER_HINT]', $arLink['FILTER_HINT'], 255);
+						$filterHint = (is_array($arLink) ? (string)$arLink['FILTER_HINT'] : '');
+						echo $editor->getControlHtml('SECTION_PROPERTY['.$arProp['ID'].'][FILTER_HINT]', $filterHint, 255);
 					}
 					elseif ($arLink['FILTER_HINT'] <> '')
 					{
@@ -598,7 +600,8 @@ $tabControl->BeginCustomField("SECTION_PROPERTY", GetMessage("CAT_CEDIT_SECTION_
 					}
 					elseif (!is_array($arLink) || $arLink["INHERITED"] == "N")
 					{
-						echo $editor->getControlHtml('SECTION_PROPERTY['.$arProp['ID'].'][FILTER_HINT]', $arLink['FILTER_HINT'], 255);
+						$filterHint = (is_array($arLink) ? (string)$arLink['FILTER_HINT'] : '');
+						echo $editor->getControlHtml('SECTION_PROPERTY['.$arProp['ID'].'][FILTER_HINT]', $filterHint, 255);
 					}
 					elseif ($arLink['FILTER_HINT'] <> '')
 					{

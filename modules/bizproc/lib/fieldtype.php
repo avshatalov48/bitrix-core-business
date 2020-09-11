@@ -405,40 +405,40 @@ class FieldType
 	}
 
 	/**
-	 * @param string $objectName Value owner name (Document, Variable etc.)
+	 * @param string $context Context identification (Document, Variable etc.)
 	 * @param mixed $value Field value.
 	 * @return mixed
 	 */
-	public function internalizeValue($objectName, $value)
+	public function internalizeValue($context, $value)
 	{
 		$typeClass = $this->typeClass;
 
 		if ($this->isMultiple())
 		{
-			return $typeClass::internalizeValueMultiple($this, $objectName, $value);
+			return $typeClass::internalizeValueMultiple($this, $context, $value);
 		}
 		else
 		{
-			return $typeClass::internalizeValueSingle($this, $objectName, $value);
+			return $typeClass::internalizeValueSingle($this, $context, $value);
 		}
 	}
 
 	/**
-	 * @param string $objectName Value owner name (Document, Variable etc.)
+	 * @param string $context Context identification (Document, Variable etc.)
 	 * @param mixed $value Field value.
 	 * @return mixed
 	 */
-	public function externalizeValue($objectName, $value)
+	public function externalizeValue($context, $value)
 	{
 		$typeClass = $this->typeClass;
 
 		if ($this->isMultiple())
 		{
-			return $typeClass::externalizeValueMultiple($this, $objectName, $value);
+			return $typeClass::externalizeValueMultiple($this, $context, $value);
 		}
 		else
 		{
-			return $typeClass::externalizeValueSingle($this, $objectName, $value);
+			return $typeClass::externalizeValueSingle($this, $context, $value);
 		}
 	}
 

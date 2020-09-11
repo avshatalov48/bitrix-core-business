@@ -137,7 +137,7 @@ if(($arID = $lAdmin->GroupAction()) && $STAT_RIGHT>="W")
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
 
 		$ID = intval($ID);
@@ -192,9 +192,9 @@ while($arRes = $rsData->NavNext(true, "f_"))
 
 	$row =& $lAdmin->AddRow($f_ID, $arRes);
 
-	$alt = (strlen($f_MESSAGE)>0) ? "\n".GetMessage("STAT_MESSAGE").":  ".$f_MESSAGE : "";
-	$alt .= (strlen($f_COMMENTS)>0) ? "\n".GetMessage("STAT_COMMENT").":  ".$f_COMMENTS : "";
-	$alt .= (strlen($f_URL_REDIRECT)>0) ? "\n".GetMessage("STAT_REDIRECT").":  ".$f_URL_REDIRECT : "";
+	$alt = ($f_MESSAGE <> '') ? "\n".GetMessage("STAT_MESSAGE").":  ".$f_MESSAGE : "";
+	$alt .= ($f_COMMENTS <> '') ? "\n".GetMessage("STAT_COMMENT").":  ".$f_COMMENTS : "";
+	$alt .= ($f_URL_REDIRECT <> '') ? "\n".GetMessage("STAT_REDIRECT").":  ".$f_URL_REDIRECT : "";
 	if ($f_LAMP=="green") :
 		$str = '<div class="lamp-green" title="'.GetMessage("STAT_LAMP_ACTIVE").' '.$alt.'"></div>';
 
@@ -205,7 +205,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	$row->AddViewField("LAMP", $str);
 
 
-	if (strlen($f_SITE_ID)>0) :
+	if ($f_SITE_ID <> '') :
 		$row->AddViewField("SITE_ID", '<a href="/bitrix/admin/site_edit.php?LID='.$f_SITE_ID.'&lang='.LANGUAGE_ID.'">'.$f_SITE_ID.'</a>');
 
 	else:
@@ -252,7 +252,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 		$row->AddViewField("MASK", $f_MASK_1.".".$f_MASK_2.".".$f_MASK_3.".".$f_MASK_4);
 	}
 
-	if (strlen($f_URL_FROM) > 0)
+	if ($f_URL_FROM <> '')
 	{
 		$row->AddViewField("URL_FROM", StatAdminListFormatURL($arRes["URL_FROM"], array(
 			"new_window" => false,
@@ -262,7 +262,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 		)));
 	}
 
-	if (strlen($f_URL_TO) > 0)
+	if ($f_URL_TO <> '')
 	{
 		$row->AddViewField("URL_TO", StatAdminListFormatURL($arRes["URL_TO"], array(
 			"new_window" => false,

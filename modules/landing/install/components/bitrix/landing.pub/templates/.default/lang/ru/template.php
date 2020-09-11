@@ -26,5 +26,4 @@ $MESS["LANDING_TPL_ACCESS_ASK_TITLE_KNOWLEDGE"] = "Запрос доступа";
 $MESS["LANDING_TPL_ACCESS_ASK_HEADER_KNOWLEDGE"] = "База знаний закрыта для публичного просмотра";
 $MESS["LANDING_TPL_ACCESS_ASK_DESCRIPTION_KNOWLEDGE"] = "Отправьте запрос одному из пользователей, чтобы получить разрешение на просмотр базы знаний.";
 $MESS["LANDING_TPL_ACCESS_ASK_SEND_KNOWLEDGE"] = "Запросить доступ";
-$MESS["LANDING_ERROR_NOT_ALLOW_VIEW_BY_PLAN_KNOWLEDGE"] = "На вашем тарифном плане есть ограничение по количеству созданных баз знаний. Чтобы работать с большим числом баз знаний, перейдите на другой тарифный план.";
 ?>

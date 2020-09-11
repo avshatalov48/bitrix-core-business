@@ -51,7 +51,7 @@ final class ForumCommentsComponent extends CBitrixComponent implements \Bitrix\M
 
 		\Bitrix\Main\Loader::includeModule("forum");
 
-		$this->componentId = $this->isAjaxRequest()? randString(7) : $this->randString();
+		$this->componentId = $this->isAjaxRequest() ? randString(7) : $this->randString();
 		$this->errorCollection = new ErrorCollection();
 
 		$this->prepareMobileData = IsModuleInstalled("mobile");
@@ -59,9 +59,15 @@ final class ForumCommentsComponent extends CBitrixComponent implements \Bitrix\M
 		if (is_callable(array('\Bitrix\MobileApp\Mobile', 'getApiVersion')) && \Bitrix\MobileApp\Mobile::getApiVersion() >= 1 &&
 			defined("BX_MOBILE") && BX_MOBILE === true)
 			$this->scope = self::STATUS_SCOPE_MOBILE;
+		$this->changeTemplate();
 
 		self::$index++;
 
+		$this->changeTemplate();
+	}
+
+	protected function changeTemplate()
+	{
 		$templateName = $this->getTemplateName();
 
 		if ((empty($templateName) || $templateName == ".default" || $templateName == "bitrix24"))
@@ -266,7 +272,7 @@ final class ForumCommentsComponent extends CBitrixComponent implements \Bitrix\M
 			$this->errorCollection->add(array(new Error(Loc::getMessage('F_ERR_FID_EMPTY'), self::ERROR_REQUIRED_PARAMETER)));
 		elseif (empty($this->arParams["ENTITY_TYPE"]))
 			$this->errorCollection->add(array(new Error(Loc::getMessage('F_ERR_ENT_EMPTY'), self::ERROR_REQUIRED_PARAMETER)));
-		elseif (strlen(trim($this->arParams["ENTITY_TYPE"])) !== 2 )
+		elseif (mb_strlen(trim($this->arParams["ENTITY_TYPE"])) !== 2 )
 			$this->errorCollection->add(array(new Error(Loc::getMessage('F_ERR_ENT_INVALID'), self::ERROR_REQUIRED_PARAMETER)));
 		// TODO allow to skip XML_ID
 		elseif (empty($this->arParams["ENTITY_XML_ID"]) || (intval($this->arParams['ENTITY_ID']) <= 0 && $this->arParams['ENTITY_ID'] !== 0))
@@ -274,7 +280,7 @@ final class ForumCommentsComponent extends CBitrixComponent implements \Bitrix\M
 
 		$this->arParams["NAME_TEMPLATE"] = empty($this->arParams["NAME_TEMPLATE"]) ? \CSite::GetNameFormat() : $this->arParams["NAME_TEMPLATE"];
 		$this->arParams["NAME_TEMPLATE"] = str_replace(array("#NOBR#","#/NOBR#"), "", $this->arParams["NAME_TEMPLATE"]);
-		$this->arParams["URL"] = strlen($this->arParams["URL"]) > 0 ? $this->arParams["URL"] : $this->getApplication()->GetCurPageParam();
+		$this->arParams["URL"] = $this->arParams["URL"] <> '' ? $this->arParams["URL"] : $this->getApplication()->GetCurPageParam("", ["IFRAME", "IFRAME_TYPE"]);
 	}
 
 	protected function prepareParams()
@@ -288,7 +294,7 @@ final class ForumCommentsComponent extends CBitrixComponent implements \Bitrix\M
 			include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
 			$this->captcha = new CCaptcha();
 			$captchaPass = COption::GetOptionString("main", "captcha_password", "");
-			if (strlen($captchaPass) <= 0)
+			if ($captchaPass == '')
 			{
 				$captchaPass = randString(10);
 				COption::SetOptionString("main", "captcha_password", $captchaPass);
@@ -379,8 +385,8 @@ final class ForumCommentsComponent extends CBitrixComponent implements \Bitrix\M
 			$code = $this->request->getPost("captcha_code");
 			$word = $this->request->getPost("captcha_word");
 
-			if (strlen($code) > 0 && !$this->captcha->CheckCodeCrypt($word, $code, COption::GetOptionString("main", "captcha_password", "")) ||
-				strlen($code) <= 0 && !$this->captcha->CheckCode($word, 0))
+			if ($code <> '' && !$this->captcha->CheckCodeCrypt($word, $code, COption::GetOptionString("main", "captcha_password", "")) ||
+				$code == '' && !$this->captcha->CheckCode($word, 0))
 			{
 				return false;
 			}
@@ -433,7 +439,7 @@ final class ForumCommentsComponent extends CBitrixComponent implements \Bitrix\M
 			$mid = $this->request->get("MID");
 			if ($post["comment_review"] == "Y")
 			{
-				$action = strtolower($post["REVIEW_ACTION"]) == "edit" ? "edit" : "add";
+				$action = mb_strtolower($post["REVIEW_ACTION"]) == "edit" ? "edit" : "add";
 			}
 			else
 			{
@@ -441,7 +447,7 @@ final class ForumCommentsComponent extends CBitrixComponent implements \Bitrix\M
 			}
 		}
 
-		$action = (is_string($action) ? strtolower($action) : $action);
+		$action = (is_string($action)? mb_strtolower($action) : $action);
 
 		$this->arResult["ACTION"] = $action;
 		$this->arResult["RESULT"] = $mid;
@@ -616,6 +622,16 @@ final class ForumCommentsComponent extends CBitrixComponent implements \Bitrix\M
 
 	public function navigateCommentAction()
 	{
+		$this->arParams["COMPONENT_AJAX"] = "Y";
+		$this->arParams["URL"] = $_SERVER["HTTP_REFERER"];
+		if ($this->request->getPost("scope") &&
+			$this->scope !== $this->request->getPost("scope")
+		)
+		{
+			$this->scope = $this->request->getPost("scope");
+			$this->changeTemplate();
+		}
+
 		$this->executeComponent();
 	}
 
@@ -625,6 +641,7 @@ final class ForumCommentsComponent extends CBitrixComponent implements \Bitrix\M
 		$this->arParams["URL"] = $_SERVER["HTTP_REFERER"];
 		$this->executeComponent();
 	}
+
 	public function readCommentAction()
 	{
 		$this->arParams["COMPONENT_AJAX"] = "Y";

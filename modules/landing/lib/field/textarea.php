@@ -24,7 +24,7 @@ class Textarea extends \Bitrix\Landing\Field\Text
 		?>name="<?= \htmlspecialcharsbx(isset($params['name_format'])
 				? str_replace('#field_code#', $this->code, $params['name_format'])
 				: $this->code)?>" <?
-		?> ><?= \htmlspecialcharsbx($this->value)?></textarea>
+		?> ><?= \htmlspecialcharsbx($this->value ? $this->value : $this->default)?></textarea>
 		<?
 	}
 

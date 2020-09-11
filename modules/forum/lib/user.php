@@ -1,16 +1,14 @@
 <?php
 namespace Bitrix\Forum;
 
-use \Bitrix\Main\Entity;
+use Bitrix\Main;
 use Bitrix\Main\Error;
-use \Bitrix\Main\Localization\Loc;
-use \Bitrix\Main\NotImplementedException;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\EntityError;
 use Bitrix\Main\ORM\Event;
 use Bitrix\Main\ORM\Fields\FieldError;
 use Bitrix\Main\Result;
 use Bitrix\Main\Type\DateTime;
-use Bitrix\Vote\VoteTable;
 
 
 Loc::loadMessages(__FILE__);
@@ -45,7 +43,7 @@ Loc::loadMessages(__FILE__);
  *
  * @package Bitrix\Forum
  */
-class UserTable extends \Bitrix\Main\Entity\DataManager
+class UserTable extends Main\Entity\DataManager
 {
 	/**
 	 * Returns DB table name for entity
@@ -151,100 +149,29 @@ class UserTable extends \Bitrix\Main\Entity\DataManager
 	}
 	public static function onBeforeAdd(Event $event)
 	{
-		$result = new \Bitrix\Main\ORM\EventResult();
-		if (($events = GetModuleEvents("forum", "onBeforeUserAdd", true)) && !empty($events))
+		$result = new Main\ORM\EventResult();
+		/** @var array $data */
+		$data = $event->getParameter("fields");
+		if ($res = UserTable::getList([
+			"select" => ["ID"],
+			"filter" => ["USER_ID" => $data["USER_ID"]]
+		])->fetch())
 		{
-			/** @var array $data */
-			$data = $event->getParameter("fields");
-			if ($res = UserTable::getList([
-				"select" => ["ID"],
-				"filter" => ["USER_ID" => $data["USER_ID"]]
-			])->fetch())
-			{
-				$result->addError(new EntityError("Error: User is already exists.", "event"));
-				return $result;
-			}
-			foreach ($events as $ev)
-			{
-				if (ExecuteModuleEventEx($ev, array(&$data)) === false)
-				{
-					$result->addError(new EntityError("Error: ".serialize($ev), "event"));
-					return $result;
-				}
-			}
-			if ($data != $event->getParameter("fields"))
-			{
-				$result->modifyFields($data);
-			}
+			$result->addError(new EntityError("Error: User is already exists.", "event"));
+			return $result;
 		}
+
 		return self::modifyData($event, $result);
 	}
 
-	/**
-	 * @param \Bitrix\Main\ORM\Event $event
-	 * @return void
-	 */
-	public static function onAfterAdd(\Bitrix\Main\ORM\Event $event)
+	public static function onBeforeUpdate(Main\ORM\Event $event)
 	{
-		$id = $event->getParameter("id");
-		$id = $id["ID"];
-		$fields = $event->getParameter("fields");
-		/***************** Event onAfterVoteAdd ****************************/
-		foreach (GetModuleEvents("forum", "onAfterUserAdd", true) as $event)
-			ExecuteModuleEventEx($event, [$id, $fields]);
-		/***************** /Event ******************************************/
-	}
-	/**
-	 * @param \Bitrix\Main\ORM\Event $event
-	 * @return \Bitrix\Main\ORM\EventResult|void
-	 * @throws \Bitrix\Main\ObjectException
-	 */
-	public static function onBeforeUpdate(\Bitrix\Main\ORM\Event $event)
-	{
-		$result = new \Bitrix\Main\ORM\EventResult();
-		if (($events = GetModuleEvents("forum", "onBeforeUserUpdate", true)) && !empty($events))
-		{
-			/** @var array $data */
-			$data = $event->getParameter("fields");
-			$id = $event->getParameter("id");
-			$id = $id["ID"];
-			foreach ($events as $ev)
-			{
-				if (ExecuteModuleEventEx($ev, array($id, &$data)) === false)
-				{
-					$result->addError(new EntityError("Error: ".serialize($ev), "event"));
-					return $result;
-				}
-			}
-			if ($data != $event->getParameter("fields"))
-			{
-				$result->modifyFields($data);
-			}
-		}
+		$result = new Main\ORM\EventResult();
+
 		return self::modifyData($event, $result);
 	}
 
-	/**
-	 * @param \Bitrix\Main\ORM\Event $event
-	 * @return void
-	 */
-	public static function onAfterUpdate(\Bitrix\Main\ORM\Event $event)
-	{
-		$id = $event->getParameter("id");
-		$id = $id["ID"];
-		$fields = $event->getParameter("fields");
-		/***************** Event onAfterVoteAdd ****************************/
-		foreach (GetModuleEvents("forum", "onAfterUserUpdate", true) as $event)
-			ExecuteModuleEventEx($event, [$id, $fields]);
-		/***************** /Event ******************************************/
-	}
-	/**
-	 * @param \Bitrix\Main\ORM\Event $event
-	 * @param \Bitrix\Main\ORM\EventResult $result
-	 * @return \Bitrix\Main\ORM\EventResult
-	 * @throws \Bitrix\Main\ObjectException
-	 */
-	private static function modifyData(\Bitrix\Main\ORM\Event $event, \Bitrix\Main\ORM\EventResult $result)
+	private static function modifyData(Main\ORM\Event $event, Main\ORM\EventResult $result)
 	{
 		$data = array_merge($event->getParameter("fields"), $result->getModified());
 		$fields = [];
@@ -253,9 +180,9 @@ class UserTable extends \Bitrix\Main\Entity\DataManager
 		if (array_key_exists("AVATAR", $data))
 		{
 			\CFile::ResizeImage($data["AVATAR"], array(
-				"width" => \Bitrix\Main\Config\Option::get("forum", "avatar_max_width", 100),
-				"height" => \Bitrix\Main\Config\Option::get("forum", "avatar_max_height", 100)));
-			$maxSize = \Bitrix\Main\Config\Option::get("forum", "file_max_size", 5242880);
+				"width" => Main\Config\Option::get("forum", "avatar_max_width", 100),
+				"height" => Main\Config\Option::get("forum", "avatar_max_height", 100)));
+			$maxSize = Main\Config\Option::get("forum", "file_max_size", 5242880);
 			if ($str = \CFile::CheckImageFile($data["AVATAR"], $maxSize))
 			{
 				$result->addError(new FieldError(static::getEntity()->getField("AVATAR"), $str));
@@ -272,7 +199,10 @@ class UserTable extends \Bitrix\Main\Entity\DataManager
 						$fields["AVATAR"]["old_file"] = $res["AVATAR"];
 					}
 				}
-				\CFile::SaveForDB($fields, "AVATAR", "forum/avatar");
+				if (!\CFile::SaveForDB($fields, "AVATAR", "forum/avatar"))
+				{
+					$result->unsetField("AVATAR");
+				}
 			}
 		}
 		//endregion
@@ -283,9 +213,9 @@ class UserTable extends \Bitrix\Main\Entity\DataManager
 		return $result;
 	}
 
-	public static function onBeforeDelete(\Bitrix\Main\ORM\Event $event)
+	public static function onBeforeDelete(Main\ORM\Event $event)
 	{
-		$result = new \Bitrix\Main\ORM\EventResult();
+		$result = new Main\ORM\EventResult();
 		$id = $event->getParameter("id");
 		$id = $id["ID"];
 		if (($events = GetModuleEvents("forum", "onBeforeUserDelete", true)) && !empty($events))
@@ -306,7 +236,7 @@ class UserTable extends \Bitrix\Main\Entity\DataManager
 		return $result;
 	}
 
-	public static function onAfterDelete(\Bitrix\Main\ORM\Event $event)
+	public static function onAfterDelete(Main\ORM\Event $event)
 	{
 		$id = $event->getParameter("id");
 		$id = $id["ID"];
@@ -318,11 +248,15 @@ class UserTable extends \Bitrix\Main\Entity\DataManager
 }
 
 class User {
-	use \Bitrix\Forum\Internals\EntityFabric;
-	use \Bitrix\Forum\Internals\EntityBaseMethods;
+	use Internals\EntityFabric;
+	use Internals\EntityBaseMethods;
+	/** @var int */
+	protected $id = 0;
+	/** @var array */
+	protected $data = [];
 	/** @var int */
 	protected $forumUserId = null;
-	/** @var boolean */
+	/** @var bool */
 	protected $locked = false;
 	/** @var array */
 	protected $groups;
@@ -357,7 +291,7 @@ class User {
 				$this->id = $user["USER_ID"];
 				$this->locked = ($user["ACTIVE"] !== "Y" || $user["ALLOW_POST"] !== "Y");
 			}
-			else if ($user = \Bitrix\Main\UserTable::getList(array(
+			elseif ($user = Main\UserTable::getList(array(
 				'select' => array('*'),
 				'filter' => array('ID' => (int)$id),
 				'limit' => 1,
@@ -365,17 +299,23 @@ class User {
 			{
 				$this->id = $user["ID"];
 				$this->locked = ($user["ACTIVE"] !== "Y");
+
+				$this->data["ALLOW_POST"] = "Y";
+				$this->data["SHOW_NAME"] = (\COption::GetOptionString("forum", "USER_SHOW_NAME", "Y") == "Y" ? "Y" : "N");
 			}
 			else
 			{
-				throw new \Bitrix\Main\ArgumentException("User was not found.");
+				throw new Main\ArgumentException("User was not found.");
 			}
 			$this->data = $user;
 			$this->data["NAME"] = $user["NAME"];
 			$this->data["SECOND_NAME"] = $user["SECOND_NAME"];
 			$this->data["LAST_NAME"] = $user["LAST_NAME"];
 			$this->data["LOGIN"] = $user["LOGIN"];
-			$this->data["VISIBLE_NAME"] = ($user["SHOW_NAME"] === "Y" ?  \CUser::FormatName(\CSite::getNameFormat(false), $user, true, false) : $this->data["LOGIN"]);
+			$this->data["ALLOW_POST"] = ($this->data["ALLOW_POST"] === "N" ? "N" : "Y");
+			if ($this->data["SHOW_NAME"] !== "Y" && $this->data["SHOW_NAME"] !== "N")
+				$this->data["SHOW_NAME"] = (\COption::GetOptionString("forum", "USER_SHOW_NAME", "Y") == "Y" ? "Y" : "N");
+			$this->data["VISIBLE_NAME"] = ($this->data["SHOW_NAME"] === "Y" ?  \CUser::FormatName(\CSite::getNameFormat(false), $user, true, false) : $this->data["LOGIN"]);
 			$this->editOwn = (\COption::GetOptionString("forum", "USER_EDIT_OWN_POST", "Y") == "Y");
 		}
 
@@ -399,7 +339,7 @@ class User {
 		static $helper = false;
 		if (!$connection)
 		{
-			$connection = \Bitrix\Main\Application::getConnection();
+			$connection = Main\Application::getConnection();
 			$helper = $connection->getSqlHelper();
 		}
 
@@ -407,14 +347,14 @@ class User {
 			"b_forum_user",
 			array("USER_ID"),
 			array(
-				"SHOW_NAME" => (\COption::GetOptionString("forum", "USER_SHOW_NAME", "Y") == "Y" ? "Y" : "N"),
-				"ALLOW_POST" => "Y",
+				"SHOW_NAME" => ($this->data["SHOW_NAME"] === "N" ? "N" : "Y"),
+				"ALLOW_POST" => ($this->data["ALLOW_POST"] === "N" ? "N" : "Y"),
 				"USER_ID" => $this->getId(),
-				"DATE_REG" => new \Bitrix\Main\DB\SqlExpression($helper->getCurrentDateTimeFunction()),
-				"LAST_VISIT" => new \Bitrix\Main\DB\SqlExpression($helper->getCurrentDateTimeFunction())
+				"DATE_REG" => new Main\DB\SqlExpression($helper->getCurrentDateTimeFunction()),
+				"LAST_VISIT" => new Main\DB\SqlExpression($helper->getCurrentDateTimeFunction())
 			),
 			array(
-				"LAST_VISIT" => new \Bitrix\Main\DB\SqlExpression($helper->getCurrentDateTimeFunction())
+				"LAST_VISIT" => new Main\DB\SqlExpression($helper->getCurrentDateTimeFunction())
 			)
 		);
 		if ($merge[0] != "")
@@ -488,12 +428,12 @@ class User {
 			"NUM_POSTS" => 0,
 			"POINTS" => 0
 		];
-		if ($res = \Bitrix\Forum\MessageTable::getList([
+		if ($res = MessageTable::getList([
 			"select" => ["CNT", "LAST_MESSAGE_ID"],
 			"filter" => ["AUTHOR_ID" => $this->getId(), "APPROVED" => "Y"],
 			"runtime" => [
-				new \Bitrix\Main\Entity\ExpressionField("CNT", "COUNT(*)"),
-				new \Bitrix\Main\Entity\ExpressionField("LAST_MESSAGE_ID", "MAX(%s)", ["ID"])
+				new Main\Entity\ExpressionField("CNT", "COUNT(*)"),
+				new Main\Entity\ExpressionField("LAST_MESSAGE_ID", "MAX(%s)", ["ID"])
 			],
 		])->fetch())
 		{
@@ -516,7 +456,11 @@ class User {
 		$this->data["NUM_POSTS"]++;
 		$this->data["POINTS"] = \CForumUser::GetUserPoints($this->getId(), array("INCREMENT" => $this->data["NUM_POSTS"]));
 		$this->data["LAST_POST"] = $message["ID"];
-		$this->save(["NUM_POSTS" => $this->data["NUM_POSTS"], "POINTS" => $this->data["POINTS"], "LAST_POST" => $message["ID"]]);
+		$this->save([
+			"NUM_POSTS" => new \Bitrix\Main\DB\SqlExpression('?# + 1', "NUM_POSTS"),
+			"POINTS" => $this->data["POINTS"],
+			"LAST_POST" => $message["ID"]
+		]);
 	}
 
 	public function decrementStatistic($message = null)
@@ -535,14 +479,13 @@ class User {
 
 		if ($this->forumUserId > 0)
 		{
-			$result = UserTable::update($this->forumUserId, $fields);
+			$result = User::update($this->forumUserId, $fields);
 		}
 		else
 		{
-			$result = UserTable::add($fields);
+			$result = User::add($fields);
 			if ($result->isSuccess())
 			{
-				$res = $result->getPrimary();
 				$this->forumUserId = $result->getPrimary();
 			}
 		}
@@ -557,22 +500,22 @@ class User {
 			$this->groups = [2];
 			if ($this->getId() <= 0 || $this->isLocked())
 			{
-				if (\Bitrix\Main\Config\Option::get("main", "new_user_registration", "") == "Y")
+				if (Main\Config\Option::get("main", "new_user_registration", "") == "Y")
 				{
-					$def_group = \Bitrix\Main\Config\Option::get("main", "new_user_registration_def_group", "");
+					$def_group = Main\Config\Option::get("main", "new_user_registration_def_group", "");
 					if($def_group != "" && ($res = explode(",", $def_group)))
 					{
 						$this->groups = array_merge($this->groups, $res);
 					}
 				}
 			}
-			else if ($USER instanceof \CUser && $this->getId() === $USER->GetID())
+			elseif ($USER instanceof \CUser && $this->getId() === $USER->GetID())
 			{
 				$this->groups = $USER->GetUserGroupArray();
 			}
 			else
 			{
-				$dbRes = \Bitrix\Main\UserGroupTable::getList(array(
+				$dbRes = Main\UserGroupTable::getList(array(
 					"select" => ["GROUP_ID"],
 					"filter" => ["USER_ID" => $this->getId()],
 					"order" => ["GROUP_ID" => "ASC"]
@@ -588,31 +531,32 @@ class User {
 
 	public function setPermissionOnForum($forum, $permission)
 	{
-		$forum = \Bitrix\Forum\Forum::getInstance($forum);
+		$forum = Forum::getInstance($forum);
 		$this->permissions[$forum->getId()] = $permission;
 		return $this;
 	}
 
 	public function getPermissionOnForum($forum)
 	{
-		$forum = \Bitrix\Forum\Forum::getInstance($forum);
+		$forum = Forum::getInstance($forum);
 		if (!array_key_exists($forum->getId(), $this->permissions))
 		{
 			$this->permissions[$forum->getId()] = $forum->getPermissionForUser($this);
 		}
 		return $this->permissions[$forum->getId()];
 	}
-	public function canModerate(\Bitrix\Forum\Forum $forum)
+
+	public function canModerate(Forum $forum)
 	{
 		return $this->getPermissionOnForum($forum->getId()) >= Permission::CAN_MODERATE;
 	}
 
-	public function canAddTopic(\Bitrix\Forum\Forum $forum)
+	public function canAddTopic(Forum $forum)
 	{
 		return $this->getPermissionOnForum($forum->getId()) >= Permission::CAN_ADD_TOPIC;
 	}
 
-	public function canAddMessage(\Bitrix\Forum\Topic $topic)
+	public function canAddMessage(Topic $topic)
 	{
 		if ($topic["STATE"] === Topic::STATE_OPENED && $topic["APPROVED"] === Topic::APPROVED_APPROVED)
 		{
@@ -621,7 +565,7 @@ class User {
 		return $this->getPermissionOnForum($topic->getForumId()) >= Permission::CAN_EDIT;
 	}
 
-	public function canEditTopic(\Bitrix\Forum\Topic $topic)
+	public function canEditTopic(Topic $topic)
 	{
 		if ($this->getPermissionOnForum($topic->getForumId()) >= Permission::CAN_EDIT)
 		{
@@ -642,7 +586,7 @@ class User {
 		return false;
 	}
 
-	public function canEditMessage(\Bitrix\Forum\Message $message)
+	public function canEditMessage(Message $message)
 	{
 		if ($this->getPermissionOnForum($message->getForumId()) >= Permission::CAN_EDIT)
 		{
@@ -658,7 +602,7 @@ class User {
 			{
 				return true;
 			}
-			$topic = \Bitrix\Forum\Topic::getById($message["TOPIC_ID"]);
+			$topic = Topic::getById($message["TOPIC_ID"]);
 			if ($topic["ABS_LAST_MESSAGE_ID"] == $message->getId())
 			{
 				return true;
@@ -667,17 +611,17 @@ class User {
 		return false;
 	}
 
-	public function canDeleteMessage(\Bitrix\Forum\Message $message)
+	public function canDeleteMessage(Message $message)
 	{
 		return $this->canEditMessage($message);
 	}
 
-	public function canEditForum(\Bitrix\Forum\Forum $forum)
+	public function canEditForum(Forum $forum)
 	{
 		return $this->getPermissionOnForum($forum->getId()) >= Permission::FULL_ACCESS;
 	}
 
-	public function canDeleteForum(\Bitrix\Forum\Forum $forum)
+	public function canDeleteForum(Forum $forum)
 	{
 		return $this->canEditForum($forum);
 	}
@@ -686,5 +630,91 @@ class User {
 	{
 		global $APPLICATION;
 		return (in_array(1, $groups) || $APPLICATION->GetGroupRight("forum", $groups) >= "W");
+	}
+
+	public static function add(array &$data)
+	{
+		$result = new \Bitrix\Main\ORM\Data\AddResult();
+		if (($events = GetModuleEvents("forum", "onBeforeUserAdd", true)) && !empty($events))
+		{
+			global $APPLICATION;
+			foreach ($events as $ev)
+			{
+				$APPLICATION->ResetException();
+
+				if (ExecuteModuleEventEx($ev, array(&$data)) === false)
+				{
+					$errorMessage = Loc::getMessage("FORUM_EVENT_BEFORE_USER_ADD");
+					if (($ex = $APPLICATION->GetException()) && ($ex instanceof \CApplicationException))
+					{
+						$errorMessage = $ex->getString();
+					}
+
+					$result->addError(new \Bitrix\Main\Error($errorMessage, "onBeforeUserAdd"));
+					return $result;
+				}
+			}
+		}
+
+		$dbResult = UserTable::add($data);
+
+		if (!$dbResult->isSuccess())
+		{
+			$result->addErrors($dbResult->getErrors());
+		}
+		else
+		{
+			$id = $dbResult->getId();
+			$result->setId($id);
+			foreach (GetModuleEvents("forum", "onAfterUserAdd", true) as $event)
+			{
+				ExecuteModuleEventEx($event, [$id, $data]);
+			}
+		}
+
+		return $result;
+	}
+
+	public static function update(int $id, array &$data)
+	{
+		unset($data["USER_ID"]);
+
+		$result = new Main\ORM\Data\UpdateResult();
+		$result->setPrimary(["ID" => $id]);
+
+		if (($events = GetModuleEvents("forum", "onBeforeUserUpdate", true)) && !empty($events))
+		{
+			global $APPLICATION;
+			foreach ($events as $ev)
+			{
+				$APPLICATION->ResetException();
+
+				if (ExecuteModuleEventEx($ev, array($id, &$data)) === false)
+				{
+					$errorMessage = Loc::getMessage("FORUM_EVENT_BEFORE_USER_UPDATE_ERROR");
+					if (($ex = $APPLICATION->GetException()) && ($ex instanceof \CApplicationException))
+					{
+						$errorMessage = $ex->getString();
+					}
+					$result->addError(new Main\Error($errorMessage, "onBeforeUserUpdate"));
+					return $result;
+				}
+			}
+		}
+
+		$dbResult = UserTable::update($id, $data);
+
+		if (!$dbResult->isSuccess())
+		{
+			$result->addErrors($dbResult->getErrors());
+		}
+		else
+		{
+			foreach (GetModuleEvents("forum", "onAfterUserUpdate", true) as $event)
+			{
+				ExecuteModuleEventEx($event, [$id, $data]);
+			}
+		}
+		return $result;
 	}
 }

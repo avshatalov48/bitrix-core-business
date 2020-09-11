@@ -88,9 +88,8 @@ if ($arResult["CAN_EXPORT"])
 {
 	if ($USER->isAuthorized())
 	{
-		$url = CHTTP::urlAddParams((strpos($APPLICATION->GetCurPageParam(), "?") == false) ?
-			$arResult["EXPORT_EXCEL_URL"] : $arResult["EXPORT_EXCEL_URL"].substr($APPLICATION->GetCurPageParam(),
-				strpos($APPLICATION->GetCurPageParam(), "?")), array("ncc" => "y"));
+		$url = CHTTP::urlAddParams((mb_strpos($APPLICATION->GetCurPageParam(), "?") == false) ?
+			$arResult["EXPORT_EXCEL_URL"] : $arResult["EXPORT_EXCEL_URL"].mb_substr($APPLICATION->GetCurPageParam(), mb_strpos($APPLICATION->GetCurPageParam(), "?")), array("ncc" => "y"));
 		$listAction[] = array(
 			"text" => Loc::getMessage("CT_BLL_EXPORT_IN_EXCEL"),
 			"url" => $url,

@@ -18,7 +18,7 @@ return [
 					</span>
 					<span class="landing-block-node-linkcontact-title d-block text-uppercase g-font-size-14 g-color-main g-mb-5">
 						Phone number</span>
-					<span class="landing-block-node-linkcontact-text g-text-decoration-none g-text-underline--hover g-font-size-14 font-weight-bold">
+					<span class="landing-block-node-linkcontact-text g-text-decoration-none g-text-underline--hover g-font-size-14 g-font-weight-700">
 						1-800-643-4500
 					</span>
 				</a>
@@ -47,7 +47,7 @@ return [
 					</span>
 					<span class="landing-block-node-contact-title d-block text-uppercase g-font-size-14 g-color-main g-mb-5">
 						Toll free</span>
-					<span class="landing-block-node-contact-text g-font-size-14 font-weight-bold">
+					<span class="landing-block-node-contact-text g-font-size-14 g-font-weight-700">
 						@company24
 					</span>
 				</div>

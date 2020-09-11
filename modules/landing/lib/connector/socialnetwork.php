@@ -32,9 +32,10 @@ class SocialNetwork
 	/**
 	 * Gets binding row by group id.
 	 * @param int $groupId Group id.
+	 * @param bool $checkAccess Check read access.
 	 * @return array
 	 */
-	public static function getBindingRow($groupId)
+	public static function getBindingRow(int $groupId, bool $checkAccess = true)
 	{
 		\Bitrix\Landing\Site\Type::setScope(
 			\Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP
@@ -49,7 +50,7 @@ class SocialNetwork
 
 			if ($bindings['ENTITY_TYPE'] == Binding\Entity::ENTITY_TYPE_SITE)
 			{
-				$hasAccess = Rights::hasAccessForSite(
+				$hasAccess = !$checkAccess || Rights::hasAccessForSite(
 					$bindings['ENTITY_ID'],
 					Rights::ACCESS_TYPES['read']
 				);
@@ -68,24 +69,17 @@ class SocialNetwork
 	 * @param int $groupId Group id.
 	 * @param bool $returnCreateLink If true and link is no exist, returns create link.
 	 * @return string
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
 	 */
 	public static function getSocNetMenuUrl($groupId, $returnCreateLink = true)
 	{
-		if (!self::userInGroup($groupId))
-		{
-			return '';
-		}
-
-		if (Option::get(Group::MODULE_ID, Group::CHECKER_OPTION.$groupId, '') == 'Y')
+		if (Option::get(Group::MODULE_ID, Group::CHECKER_OPTION . $groupId, '') == 'Y')
 		{
 			return '';
 		}
 
 		$link = '';
 		$groupId = intval($groupId);
-		$bindings = self::getBindingRow($groupId);
+		$bindings = self::getBindingRow($groupId, false);
 
 		// binding exist
 		if ($bindings)
@@ -96,7 +90,8 @@ class SocialNetwork
 		// binding don't exist, allow to create new one
 		else if (
 			$returnCreateLink &&
-			!self::isExtranet()
+			!self::isExtranet() &&
+			self::userInGroup($groupId)
 		)
 		{
 			$asset = \Bitrix\Main\Page\Asset::getInstance();

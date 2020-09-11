@@ -316,12 +316,16 @@ class Form
 				$block->save();
 			},
 		);
-		
-		// add attrs
-		$manifest['attrs'] = array(
-			'.bitrix24forms' => self::getAttrs(),
-		);
-		
+
+		if(
+			!array_key_exists('attrs', $manifest)
+			|| !is_array($manifest['attrs'])
+		)
+		{
+			$manifest['attrs'] = [];
+		}
+		$manifest['attrs']['.bitrix24forms'] = self::getAttrs();
+
 		return $manifest;
 	}
 

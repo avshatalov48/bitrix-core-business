@@ -2,7 +2,7 @@
 		style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1732x1155/img2.jpg);">
 	<div class="container u-bg-overlay__inner g-max-width-800">
 		<div class="landing-block-node-header text-center mx-auto u-heading-v2-2--bottom g-brd-primary g-mb-70">
-			<h2 class="landing-block-node-title landing-semantic-title-image-medium text-uppercase g-line-height-1_1 font-weight-bold g-font-size-26 g-color-white g-mb-15">
+			<h2 class="landing-block-node-title landing-semantic-title-image-medium text-uppercase g-line-height-1_1 g-font-weight-700 g-font-size-26 g-color-white g-mb-15">
 				Tour
 				services</h2>
 			<div class="landing-block-node-text landing-semantic-text-image-medium g-color-white-opacity-0_8 mb-0">
@@ -22,7 +22,7 @@
 						<span class="landing-block-node-card-icon-container u-icon-v1 u-icon-size--2xl g-line-height-1 g-color-white g-pull-50x-up">
 							<i class="landing-block-node-card-icon icon-transport-026 u-line-icon-pro"></i>
 						</span>
-						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium h6 text-uppercase font-weight-bold g-color-white g-mt-minus-35 g-mb-15">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium h6 text-uppercase g-font-weight-700 g-color-white g-mt-minus-35 g-mb-15">
 							International Shipping</h3>
 						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 mb-0">
 							<p>Fusce mauris eros, ullamcorper in gravida a, feugiat
@@ -40,7 +40,7 @@
 						<span class="landing-block-node-card-icon-container u-icon-v1 u-icon-size--2xl g-line-height-1 g-color-white g-pull-50x-up">
 							<i class="landing-block-node-card-icon icon-christmas-090 u-line-icon-pro"></i>
 						</span>
-						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium h6 text-uppercase font-weight-bold g-color-white g-mt-minus-35 g-mb-15">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium h6 text-uppercase g-font-weight-700 g-color-white g-mt-minus-35 g-mb-15">
 							Packaging</h3>
 						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 mb-0">
 							<p>Fusce mauris eros, ullamcorper in gravida a, feugiat
@@ -58,7 +58,7 @@
 						<span class="landing-block-node-card-icon-container u-icon-v1 u-icon-size--2xl g-line-height-1 g-color-white g-pull-50x-up">
 							<i class="landing-block-node-card-icon icon-travel-044 u-line-icon-pro"></i>
 						</span>
-						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium h6 text-uppercase font-weight-bold g-color-white g-mt-minus-35 g-mb-15">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium h6 text-uppercase g-font-weight-700 g-color-white g-mt-minus-35 g-mb-15">
 							Competitive
 							rates</h3>
 						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 mb-0">
@@ -77,7 +77,7 @@
 						<span class="landing-block-node-card-icon-container u-icon-v1 u-icon-size--2xl g-line-height-1 g-color-white g-pull-50x-up">
 							<i class="landing-block-node-card-icon icon-hotel-restaurant-249 u-line-icon-pro"></i>
 						</span>
-						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium h6 text-uppercase font-weight-bold g-color-white g-mt-minus-35 g-mb-15">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium h6 text-uppercase g-font-weight-700 g-color-white g-mt-minus-35 g-mb-15">
 							Quick
 							shipping</h3>
 						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 mb-0">
@@ -96,7 +96,7 @@
 						<span class="landing-block-node-card-icon-container u-icon-v1 u-icon-size--2xl g-line-height-1 g-color-white g-pull-50x-up">
 							<i class="landing-block-node-card-icon icon-hotel-restaurant-211 u-line-icon-pro"></i>
 						</span>
-						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium h6 text-uppercase font-weight-bold g-color-white g-mt-minus-35 g-mb-15">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium h6 text-uppercase g-font-weight-700 g-color-white g-mt-minus-35 g-mb-15">
 							Quality
 							protection</h3>
 						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 mb-0">
@@ -115,7 +115,7 @@
 						<span class="landing-block-node-card-icon-container u-icon-v1 u-icon-size--2xl g-line-height-1 g-color-white g-pull-50x-up">
 							  <i class="landing-block-node-card-icon icon-hotel-restaurant-234 u-line-icon-pro"></i>
 						</span>
-						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium h6 text-uppercase font-weight-bold g-color-white g-mt-minus-35 g-mb-15">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium h6 text-uppercase g-font-weight-700 g-color-white g-mt-minus-35 g-mb-15">
 							Shipping
 							anywhere</h3>
 						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 mb-0">

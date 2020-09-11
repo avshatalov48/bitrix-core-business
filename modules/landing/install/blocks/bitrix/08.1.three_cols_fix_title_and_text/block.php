@@ -4,8 +4,8 @@
 
                 <div class="landing-block-card js-animation fadeIn col-lg-4 g-mb-40 g-mb-0--lg">
                     <div class="landing-block-card-header text-uppercase u-heading-v2-4--bottom g-brd-primary g-mb-40">
-                        <h4 class="landing-block-node-subtitle landing-semantic-subtitle-small-primary h6 font-weight-bold g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20">Our projects</h4>
-                        <h2 class="landing-block-node-title landing-semantic-title-medium h1 u-heading-v2__title g-line-height-1_3 font-weight-bold g-font-size-40 g-mb-minus-10 g-text-break-word">We are the
+                        <h4 class="landing-block-node-subtitle landing-semantic-subtitle-small-primary h6 g-font-weight-700 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20">Our projects</h4>
+                        <h2 class="landing-block-node-title landing-semantic-title-medium h1 u-heading-v2__title g-line-height-1_3 g-font-weight-700 g-font-size-40 g-mb-minus-10 g-text-break-word">We are the
                             <br> best</h2>
                     </div>
 
@@ -18,8 +18,8 @@
 
                 <div class="landing-block-card js-animation fadeIn col-lg-4 g-mb-40 g-mb-0--lg">
                     <div class="landing-block-card-header text-uppercase u-heading-v2-4--bottom g-brd-primary g-mb-40">
-                        <h4 class="landing-block-node-subtitle landing-semantic-subtitle-small-primary h6 font-weight-bold g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20">Our projects</h4>
-                        <h2 class="landing-block-node-title landing-semantic-title-medium h1 u-heading-v2__title g-line-height-1_3 font-weight-bold g-font-size-40 g-mb-minus-10 g-text-break-word">We are the
+                        <h4 class="landing-block-node-subtitle landing-semantic-subtitle-small-primary h6 g-font-weight-700 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20">Our projects</h4>
+                        <h2 class="landing-block-node-title landing-semantic-title-medium h1 u-heading-v2__title g-line-height-1_3 g-font-weight-700 g-font-size-40 g-mb-minus-10 g-text-break-word">We are the
                             <br> best</h2>
                     </div>
 
@@ -32,8 +32,8 @@
 
                 <div class="landing-block-card js-animation fadeIn col-lg-4 g-mb-40 g-mb-0--lg">
                     <div class="landing-block-card-header text-uppercase u-heading-v2-4--bottom g-brd-primary g-mb-40">
-                        <h4 class="landing-block-node-subtitle landing-semantic-subtitle-small-primary h6 font-weight-bold g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20">Our projects</h4>
-                        <h2 class="landing-block-node-title landing-semantic-title-medium h1 u-heading-v2__title g-line-height-1_3 font-weight-bold g-font-size-40 g-mb-minus-10 g-text-break-word">We are the
+                        <h4 class="landing-block-node-subtitle landing-semantic-subtitle-small-primary h6 g-font-weight-700 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20">Our projects</h4>
+                        <h2 class="landing-block-node-title landing-semantic-title-medium h1 u-heading-v2__title g-line-height-1_3 g-font-weight-700 g-font-size-40 g-mb-minus-10 g-text-break-word">We are the
                             <br> best</h2>
                     </div>
 

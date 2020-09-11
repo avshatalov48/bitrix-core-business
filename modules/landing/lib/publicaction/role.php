@@ -34,7 +34,9 @@ class Role
 		{
 			$error->addError(
 				'FEATURE_NOT_AVAIL',
-				Loc::getMessage('LANDING_FEATURE_NOT_AVAIL_ERROR')
+				\Bitrix\Landing\Restriction\Manager::getSystemErrorMessage(
+					'limit_sites_access_permissions'
+				)
 			);
 			$result->setError($error);
 		}

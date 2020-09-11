@@ -11,7 +11,7 @@ endif;
 $arParams["SHOW_TAGS"] = ($arParams["SHOW_TAGS"] == "N" ? "N" : "Y");
 $res =  $_COOKIE[COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_FORUM_INFO"];
 $arResult["USER"] = array(
-	"SHOW_FILTER" => (strpos($res, "searchf=Y") !== false ? "Y" : "N")); 
+	"SHOW_FILTER" => (mb_strpos($res, "searchf=Y") !== false ? "Y" : "N"));
 if ($arResult["USER"]["SHOW_FILTER"] == "N")
 {
 	$arResult["USER"]["SHOW_FILTER"] = (!empty($_REQUEST["FORUM_ID"]) || !empty($_REQUEST["DATE_CHANGE"]) || 

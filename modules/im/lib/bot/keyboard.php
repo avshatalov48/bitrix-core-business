@@ -81,7 +81,7 @@ class Keyboard
 			return false;
 		}
 
-		$button['TEXT'] = htmlspecialcharsbx(trim($params['TEXT']));
+		$button['TEXT'] = trim($params['TEXT']);
 
 		$button['VOTE'] = $this->voteMode? 'Y': 'N';
 

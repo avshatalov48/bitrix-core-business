@@ -415,7 +415,7 @@ class CForumRestService extends IRestService
 			foreach (['urlPreview', 'urlShow', 'urlDownload'] as $field)
 			{
 				$url = $fileData[$key][$field];
-				if (is_string($url) && $url && strpos($url, 'http') !== 0)
+				if (is_string($url) && $url && mb_strpos($url, 'http') !== 0)
 				{
 					$fileData[$key][$field] = self::getPublicDomain().$url;
 				}
@@ -430,7 +430,7 @@ class CForumRestService extends IRestService
 		static $result = null;
 		if ($result === null)
 		{
-			$result = (\Bitrix\Main\Context::getCurrent()->getRequest()->isHttps() ? "https" : "http")."://".((defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME) > 0) ? SITE_SERVER_NAME : \Bitrix\Main\Config\Option::get("main", "server_name", $_SERVER['SERVER_NAME']));
+			$result = (\Bitrix\Main\Context::getCurrent()->getRequest()->isHttps() ? "https" : "http")."://".((defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '') ? SITE_SERVER_NAME : \Bitrix\Main\Config\Option::get("main", "server_name", $_SERVER['SERVER_NAME']));
 		}
 
 		return $result;

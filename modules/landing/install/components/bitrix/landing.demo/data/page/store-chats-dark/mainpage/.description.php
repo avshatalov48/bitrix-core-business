@@ -47,7 +47,7 @@ return array(
 			),
 			'style' => array(
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title g-color-white g-font-size-45 g-font-montserrat font-weight-bold',
+					0 => 'landing-block-node-title g-color-white g-font-size-45 g-font-montserrat g-font-weight-700',
 				),
 				'.landing-block-node-text' => array(
 					0 => 'landing-block-node-text g-color-white-opacity-0_8 g-font-size-22 g-font-montserrat',

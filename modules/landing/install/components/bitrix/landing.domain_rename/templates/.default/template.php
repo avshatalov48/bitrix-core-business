@@ -125,21 +125,6 @@ Loc::loadMessages(__FILE__);
 						</p>
 					<?endif;?>
 				</div>
-				<?if (!$arResult['CUSTOM_DOMAIN_AVAILABLE']):?>
-				<script type="text/javascript">
-					BX.ready(function()
-					{
-						if (typeof BX.Landing.PaymentAlert !== 'undefined')
-						{
-							BX.Landing.PaymentAlert({
-								nodes: [BX('landing-domain-name-<?= $counter?>'), BX('<?= $arParams['FIELD_ID'];?>_own')],
-								title: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_DOMAIN_DENIED_TITLE'));?>',
-								message: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_DOMAIN_DENIED_TEXT'));?>'
-							});
-						}
-					});
-				</script>
-				<?endif;?>
 				<?endif;?>
 			<?endforeach;?>
 		</div>

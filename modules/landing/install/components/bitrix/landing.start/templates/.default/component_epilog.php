@@ -4,7 +4,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 	die();
 }
 
-if (in_array($this->getTemplatePage(), ['site_domain', 'site_domain_switch']))
+if (in_array($this->getTemplatePage(), ['site_domain', 'site_domain_switch', 'site_cookies', 'notes']))
 {
 	\CMain::finalActions();
 }

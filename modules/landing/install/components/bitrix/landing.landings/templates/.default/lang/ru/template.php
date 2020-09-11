@@ -17,6 +17,7 @@ $MESS['LANDING_TPL_ACTION_VIEW'] = 'Редактировать';
 $MESS['LANDING_TPL_ACTION_COPYLINK'] = 'Копировать ссылку';
 $MESS['LANDING_TPL_ACTION_GOTO'] = 'Перейти на страницу';
 $MESS['LANDING_TPL_ACTION_PUBLIC'] = 'Опубликовать';
+$MESS['LANDING_TPL_ACTION_PUBLIC_CHANGED'] = 'Опубликовать изменения';
 $MESS['LANDING_TPL_ACTION_UNPUBLIC'] = 'Снять с публикации';
 $MESS['LANDING_TPL_ACTIONS'] = 'действия';
 $MESS['LANDING_TPL_PUBLIC'] = 'Опубликована';

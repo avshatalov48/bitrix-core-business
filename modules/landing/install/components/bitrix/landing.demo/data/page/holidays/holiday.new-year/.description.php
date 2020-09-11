@@ -74,10 +74,10 @@ return array(
 			),
 			'style' => array(
 				'.landing-block-node-card-title' => array(
-					0 => 'landing-block-node-card-title g-font-roboto-slab g-max-width-800 mx-auto text-uppercase g-font-weight-700 g-color-white g-mb-20 js-animation fadeInUp g-font-size-86 custom-text-shadow-9 g-line-height-1_2',
+					0 => 'landing-block-node-card-title g-max-width-800 mx-auto text-uppercase g-font-weight-700 g-color-white g-mb-20 js-animation fadeInUp g-font-size-86 custom-text-shadow-9 g-line-height-1_2',
 				),
 				'.landing-block-node-card-text' => array(
-					0 => 'landing-block-node-card-text g-max-width-800 g-color-white-opacity-0_9 mx-auto g-mb-35 js-animation fadeInUp g-font-montserrat',
+					0 => 'landing-block-node-card-text g-max-width-800 g-color-white-opacity-0_9 mx-auto g-mb-35 js-animation fadeInUp',
 				),
 				'.landing-block-node-card-img' => array(
 					0 => 'landing-block-node-card-img g-flex-centered g-bg-cover g-bg-pos-center g-bg-img-hero g-bg-black-opacity-0_5--after g-min-height-100vh',
@@ -109,7 +109,7 @@ return array(
 					0 => 'landing-block-node-subtitle h6 g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20',
 				),
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-font-size-40 g-mb-minus-10 text-uppercase g-font-roboto-slab g-color-main',
+					0 => 'landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-font-size-40 g-mb-minus-10 text-uppercase g-color-main',
 				),
 				'.landing-block-node-inner' => array(
 					0 => 'landing-block-node-inner text-uppercase text-center u-heading-v2-4--bottom g-brd-primary',
@@ -199,20 +199,20 @@ return array(
 					5 => 'landing-block-node-card js-animation col-md-6 g-mb-50 fadeInUp landing-card',
 				),
 				'.landing-block-node-card-title' => array(
-					0 => 'landing-block-node-card-title align-self-center u-heading-v1__title g-color-black g-font-weight-700 g-font-size-13 text-uppercase mb-0 g-font-montserrat',
-					1 => 'landing-block-node-card-title align-self-center u-heading-v1__title g-color-black g-font-weight-700 g-font-size-13 text-uppercase mb-0 g-font-montserrat',
-					2 => 'landing-block-node-card-title align-self-center u-heading-v1__title g-color-black g-font-weight-700 g-font-size-13 text-uppercase mb-0 g-font-montserrat',
-					3 => 'landing-block-node-card-title align-self-center u-heading-v1__title g-color-black g-font-weight-700 g-font-size-13 text-uppercase mb-0 g-font-montserrat',
-					4 => 'landing-block-node-card-title align-self-center u-heading-v1__title g-color-black g-font-weight-700 g-font-size-13 text-uppercase mb-0 g-font-montserrat',
-					5 => 'landing-block-node-card-title align-self-center u-heading-v1__title g-color-black g-font-weight-700 g-font-size-13 text-uppercase mb-0 g-font-montserrat',
+					0 => 'landing-block-node-card-title align-self-center u-heading-v1__title g-color-black g-font-weight-700 g-font-size-13 text-uppercase mb-0',
+					1 => 'landing-block-node-card-title align-self-center u-heading-v1__title g-color-black g-font-weight-700 g-font-size-13 text-uppercase mb-0',
+					2 => 'landing-block-node-card-title align-self-center u-heading-v1__title g-color-black g-font-weight-700 g-font-size-13 text-uppercase mb-0',
+					3 => 'landing-block-node-card-title align-self-center u-heading-v1__title g-color-black g-font-weight-700 g-font-size-13 text-uppercase mb-0',
+					4 => 'landing-block-node-card-title align-self-center u-heading-v1__title g-color-black g-font-weight-700 g-font-size-13 text-uppercase mb-0',
+					5 => 'landing-block-node-card-title align-self-center u-heading-v1__title g-color-black g-font-weight-700 g-font-size-13 text-uppercase mb-0',
 				),
 				'.landing-block-node-card-text' => array(
-					0 => 'landing-block-node-card-text mb-0 g-font-montserrat',
-					1 => 'landing-block-node-card-text mb-0 g-font-montserrat',
-					2 => 'landing-block-node-card-text mb-0 g-font-montserrat',
-					3 => 'landing-block-node-card-text mb-0 g-font-montserrat',
-					4 => 'landing-block-node-card-text mb-0 g-font-montserrat',
-					5 => 'landing-block-node-card-text mb-0 g-font-montserrat',
+					0 => 'landing-block-node-card-text mb-0',
+					1 => 'landing-block-node-card-text mb-0',
+					2 => 'landing-block-node-card-text mb-0',
+					3 => 'landing-block-node-card-text mb-0',
+					4 => 'landing-block-node-card-text mb-0',
+					5 => 'landing-block-node-card-text mb-0',
 				),
 				'.landing-block-node-card-price' => array(
 					0 => 'landing-block-node-card-price g-font-weight-700 g-font-size-13 g-color-white g-bg-primary g-rounded-3 g-py-4 g-px-12',
@@ -246,10 +246,10 @@ return array(
 			),
 			'style' => array(
 				'.landing-block-node-subtitle' => array(
-					0 => 'landing-block-node-subtitle g-font-weight-700 g-font-size-12 g-color-white g-mb-20 g-font-montserrat',
+					0 => 'landing-block-node-subtitle g-font-weight-700 g-font-size-12 g-color-white g-mb-20',
 				),
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-font-size-40 g-color-white g-mb-minus-10 g-font-roboto-slab',
+					0 => 'landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-font-size-40 g-color-white g-mb-minus-10',
 				),
 				'.landing-block-node-inner' => array(
 					0 => 'landing-block-node-inner text-uppercase text-center u-heading-v2-4--bottom g-brd-transparent',
@@ -284,10 +284,10 @@ return array(
 					0 => 'landing-block-node-container container g-max-width-800 js-animation fadeInDown text-center u-bg-overlay__inner g-mx-0',
 				),
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title g-font-weight-700 g-color-white g-mb-20 g-mt-20 g-font-roboto-slab g-text-transform-none g-font-size-65 g-line-height-1_2',
+					0 => 'landing-block-node-title g-font-weight-700 g-color-white g-mb-20 g-mt-20 g-text-transform-none g-font-size-65 g-line-height-1_2',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text g-color-white-opacity-0_7 g-mb-35 g-font-montserrat',
+					0 => 'landing-block-node-text g-color-white-opacity-0_7 g-mb-35',
 				),
 				'#wrapper' => array(
 					0 => 'landing-block landing-block-node-img u-bg-overlay g-flex-centered g-height-100vh g-bg-img-hero g-pt-80 g-pb-80 g-bg-black-opacity-0_4--after g-min-height-25vh',
@@ -354,10 +354,10 @@ return array(
 			),
 			'style' => array(
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title h6 g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20 g-font-montserrat',
+					0 => 'landing-block-node-title h6 g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20',
 				),
 				'.landing-block-node-subtitle' => array(
-					0 => 'landing-block-node-subtitle h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-font-size-40 g-mb-minus-10 g-font-roboto-slab',
+					0 => 'landing-block-node-subtitle h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-font-size-40 g-mb-minus-10',
 				),
 				'.landing-block-card' => array(
 					0 => 'landing-block-node-element landing-block-card col-md-6 col-lg-3 g-parent g-brd-around g-brd-gray-light-v4 g-brd-bottom-primary--hover g-brd-bottom-2--hover g-mb-30 g-mb-0--lg g-transition-0_2 g-transition--ease-in js-animation fadeInLeft landing-card',
@@ -366,16 +366,16 @@ return array(
 					3 => 'landing-block-node-element landing-block-card col-md-6 col-lg-3 g-parent g-brd-around g-brd-gray-light-v4 g-brd-bottom-primary--hover g-brd-bottom-2--hover g-mb-30 g-mb-0--lg g-transition-0_2 g-transition--ease-in js-animation fadeInLeft landing-card',
 				),
 				'.landing-block-node-element-title' => array(
-					0 => 'landing-block-node-element-title h5 text-uppercase g-color-black g-mb-10 g-font-montserrat',
-					1 => 'landing-block-node-element-title h5 text-uppercase g-color-black g-mb-10 g-font-montserrat',
-					2 => 'landing-block-node-element-title h5 text-uppercase g-color-black g-mb-10 g-font-montserrat',
-					3 => 'landing-block-node-element-title h5 text-uppercase g-color-black g-mb-10 g-font-montserrat',
+					0 => 'landing-block-node-element-title h5 text-uppercase g-color-black g-mb-10',
+					1 => 'landing-block-node-element-title h5 text-uppercase g-color-black g-mb-10',
+					2 => 'landing-block-node-element-title h5 text-uppercase g-color-black g-mb-10',
+					3 => 'landing-block-node-element-title h5 text-uppercase g-color-black g-mb-10',
 				),
 				'.landing-block-node-element-text' => array(
-					0 => 'landing-block-node-element-text g-color-gray-dark-v4 g-font-size-13--md g-font-montserrat',
-					1 => 'landing-block-node-element-text g-color-gray-dark-v4 g-font-size-13--md g-font-montserrat',
-					2 => 'landing-block-node-element-text g-color-gray-dark-v4 g-font-size-13--md g-font-montserrat',
-					3 => 'landing-block-node-element-text g-color-gray-dark-v4 g-font-size-13--md g-font-montserrat',
+					0 => 'landing-block-node-element-text g-color-gray-dark-v4 g-font-size-13--md',
+					1 => 'landing-block-node-element-text g-color-gray-dark-v4 g-font-size-13--md',
+					2 => 'landing-block-node-element-text g-color-gray-dark-v4 g-font-size-13--md',
+					3 => 'landing-block-node-element-text g-color-gray-dark-v4 g-font-size-13--md',
 				),
 				'.landing-block-node-element-icon-container' => array(
 					0 => 'landing-block-node-element-icon-container d-block g-color-primary g-font-size-40 g-mb-15',
@@ -413,7 +413,7 @@ return array(
 			),
 			'style' => array(
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-font-size-40 g-mb-minus-10 g-color-black-opacity-0_8 g-font-roboto-slab',
+					0 => 'landing-block-node-title u-heading-v2__title g-line-height-1_1 g-font-weight-700 g-font-size-40 g-mb-minus-10 g-color-black-opacity-0_8',
 				),
 				'.landing-block-node-subtitle' => array(
 					0 => 'landing-block-node-subtitle g-font-weight-700 g-font-size-12 g-mb-15 g-color-primary',

@@ -48,7 +48,7 @@ return array(
 	'style' => array(
 		'.landing-block-node-card-button' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_37.3.TWO_COLS_BLOCKS_CAROUSEL_STYLE_LANDINGBLOCKNODECARDBUTTON'),
-			'type' => array('border-color', 'button', 'animation'),
+			'type' => array('button', 'border-color', 'animation'),
 		),
 		'.landing-block-node-card-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_37.3.TWO_COLS_BLOCKS_CAROUSEL_NODES_LANDINGBLOCKNODECARD_TITLE'),

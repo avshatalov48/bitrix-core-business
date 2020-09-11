@@ -2,6 +2,7 @@
 namespace Bitrix\Landing\Hook\Page;
 
 use \Bitrix\Landing\Field;
+use \Bitrix\Landing\Manager;
 use \Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
@@ -54,12 +55,14 @@ class GaCounter extends \Bitrix\Landing\Hook\Page
 	}
 
 	/**
-	 * Gets message for locked state.
-	 * @return string
+	 * Locked or not current hook in free plan.
+	 * @return bool
 	 */
-	public function getLockedMessage()
+	public function isLocked()
 	{
-		return Loc::getMessage('LANDING_HOOK_GACOUNTER_LOCKED');
+		return !\Bitrix\Landing\Restriction\Manager::isAllowed(
+			'limit_sites_google_analytics'
+		);
 	}
 
 	/**
@@ -100,20 +103,23 @@ class GaCounter extends \Bitrix\Landing\Hook\Page
 		$counter = \CUtil::jsEscape($counter);
 		if ($counter)
 		{
-			\Bitrix\Main\Page\Asset::getInstance()->addString(
-'<!-- Global Site Tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=' . $counter . '" data-skip-moving="true"></script>
-<script type="text/javascript" data-skip-moving="true">
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments)};
-  gtag(\'js\', new Date());
-
-  gtag(\'config\', \'' . $counter . '\');
-</script>'
+			Manager::setPageView(
+				'AfterHeadOpen',
+				'<script async 
+					src="https://www.googletagmanager.com/gtag/js?id=' . $counter . '" 
+					data-skip-moving="true"
+				></script>'
+			);
+			Cookies::addCookieScript(
+				'ga',
+				'window.dataLayer = window.dataLayer || [];
+				function gtag(){dataLayer.push(arguments)};
+				gtag("js", new Date());
+				gtag("config", "' . $counter . '");'
 			);
 		}
 		// send analytics
-		$sendData = array();
+		$sendData = [];
 		if ($this->fields['SEND_CLICK']->getValue() == 'Y')
 		{
 			$sendData[] = 'click';

@@ -16,10 +16,10 @@ export class SearchResult
 	 */
 	scrollToFirstBlock()
 	{
-		let result = document.querySelector('.landing-highlight');
+		var result = document.querySelector('.landing-highlight');
 		if (result)
 		{
-			let parent = result.parentNode;
+			var parent = result.parentNode;
 			while (parent)
 			{
 				if (parent.classList.contains('block-wrapper'))

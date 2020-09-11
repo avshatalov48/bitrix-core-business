@@ -8,7 +8,7 @@ include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/statistic/colors.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/img.php");
 
 $diameter = COption::GetOptionString("statistic", "DIAGRAM_DIAMETER");
-if (strlen($diagram_type)>0) $diagram_type .= "_";
+if ($diagram_type <> '') $diagram_type .= "_";
 
 $str = (is_array($find_country_id)) ? implode(" | ",$find_country_id) : "";
 $arF = array(

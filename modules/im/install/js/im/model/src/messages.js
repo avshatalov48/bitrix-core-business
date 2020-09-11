@@ -1344,18 +1344,74 @@ export class MessagesModel extends VuexBuilderModel
 
 		let codeReplacement = [];
 
-		text = text.replace(/\[CODE\]\n?(.*?)\[\/CODE\]/sig, function(whole, text)
-		{
+		text = text.replace(/\[CODE\]\n?(.*?)\[\/CODE\]/sig, function(whole, text) {
 			let id = codeReplacement.length;
 			codeReplacement.push(text);
 			return '####REPLACEMENT_MARK_'+id+'####';
 		});
 
+		text = text.replace(/\[url=([^\]]+)\](.*?)\[\/url\]/ig, function(whole, link, text)
+		{
+			let tag = document.createElement('a');
+			tag.href = Utils.text.htmlspecialcharsback(link);
+			tag.target = '_blank';
+			tag.text = Utils.text.htmlspecialcharsback(text);
+
+			let allowList = [
+				"http:",
+				"https:",
+				"ftp:",
+				"file:",
+				"tel:",
+				"callto:",
+				"mailto:",
+				"skype:",
+				"viber:",
+			];
+			if (allowList.indexOf(tag.protocol) <= -1)
+			{
+				return whole;
+			}
+
+			return tag.outerHTML;
+		});
+
+		text = text.replace(/\[url\]([^\]]+)\[\/url\]/ig, function(whole, link)
+		{
+			link = Utils.text.htmlspecialcharsback(link);
+
+			let tag = document.createElement('a');
+			tag.href = link;
+			tag.target = '_blank';
+			tag.text = link;
+
+			let allowList = [
+				"http:",
+				"https:",
+				"ftp:",
+				"file:",
+				"tel:",
+				"callto:",
+				"mailto:",
+				"skype:",
+				"viber:",
+			];
+			if (allowList.indexOf(tag.protocol) <= -1)
+			{
+				return whole;
+			}
+
+			return tag.outerHTML;
+		});
+
 		text = text.replace(/\[LIKE\]/ig, '<span class="bx-smile bx-im-smile-like"></span>');
 		text = text.replace(/\[DISLIKE\]/ig, '<span class="bx-smile bx-im-smile-dislike"></span>');
 
+		text = text.replace(/\[BR\]/ig, '<br/>');
+		text = text.replace(/\[([buis])\](.*?)\[(\/[buis])\]/ig, (whole, open, inner, close) => '<'+open+'>'+inner+'<'+close+'>'); // TODO tag USER
+
 		// this code needs to be ported to im/install/js/im/view/message/body/src/body.js:229
-		text = text.replace(/\[CHAT=(imol\|)?([0-9]{1,})\](.*?)\[\/CHAT\]/ig, (whole, openlines, chatId, text) => openlines? text: '<span class="bx-im-mention" data-type="CHAT" data-value="chat'+chatId+'">'+text+'</span>'); // TODO tag CHAT
+		text = text.replace(/\[CHAT=(imol\|)?([0-9]{1,})\](.*?)\[\/CHAT\]/ig, (whole, openlines, chatId, inner) => openlines? inner: '<span class="bx-im-mention" data-type="CHAT" data-value="chat'+chatId+'">'+inner+'</span>'); // TODO tag CHAT
 
 		if (false && Utils.device.isMobile())
 		{
@@ -1377,7 +1433,6 @@ export class MessagesModel extends VuexBuilderModel
 		}
 
 		text = text.replace(/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/ig, (whole, number, text) => '<span class="bx-im-mention" data-type="CALL" data-value="'+Utils.text.htmlspecialchars(number)+'">'+text+'</span>'); // TODO tag CHAT
-
 
 		text = text.replace(/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/ig, (whole, historyId, text) => text); // TODO tag PCH
 

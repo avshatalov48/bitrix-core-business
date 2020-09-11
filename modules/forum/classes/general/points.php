@@ -48,7 +48,7 @@ class CAllForumPoints
 					if (is_array($res) && $res["LID"] == $arLang["LID"])
 					{
 						$arFields["LANG"][$key]["NAME"] = trim($res["NAME"]);
-						if (strLen($arFields["LANG"][$key]["NAME"]) > 0)
+						if ($arFields["LANG"][$key]["NAME"] <> '')
 						{
 							$bFound = True;
 							break;
@@ -67,7 +67,7 @@ class CAllForumPoints
 		if (is_set($arFields, "MIN_POINTS") || $ACTION=="ADD")
 		{
 			$arFields["MIN_POINTS"] = trim($arFields["MIN_POINTS"]);
-			if (strLen($arFields["MIN_POINTS"]) <= 0)
+			if ($arFields["MIN_POINTS"] == '')
 			{
 				$aMsg[] = array(
 					"id"=>'POINTS[MIN_POINTS]',
@@ -81,7 +81,7 @@ class CAllForumPoints
 			}
 			else
 			{
-				$arFields["MIN_POINTS"] = intVal($arFields["MIN_POINTS"]);
+				$arFields["MIN_POINTS"] = intval($arFields["MIN_POINTS"]);
 				$db_res = CForumPoints::GetList(array(), array("MIN_POINTS" => $arFields["MIN_POINTS"]));
 				if ($db_res && $res = $db_res->GetNext())
 				{
@@ -109,7 +109,7 @@ class CAllForumPoints
 	function Update($ID, $arFields)
 	{
 		global $DB;
-		$ID = intVal($ID);
+		$ID = intval($ID);
 		if ($ID <= 0)
 			return False;
 
@@ -137,7 +137,7 @@ class CAllForumPoints
 	function Delete($ID)
 	{
 		global $DB;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$DB->Query("DELETE FROM b_forum_points_lang WHERE POINTS_ID = ".$ID, True);
 		$DB->Query("DELETE FROM b_forum_points WHERE ID = ".$ID, True);
@@ -157,7 +157,7 @@ class CAllForumPoints
 		foreach ($arFilter as $key => $val)
 		{
 			$key_res = CForumNew::GetFilterOperation($key);
-			$key = strtoupper($key_res["FIELD"]);
+			$key = mb_strtoupper($key_res["FIELD"]);
 			$strNegative = $key_res["NEGATIVE"];
 			$strOperation = $key_res["OPERATION"];
 
@@ -165,13 +165,13 @@ class CAllForumPoints
 			{
 				case "ID":
 				case "MIN_POINTS":
-					if (IntVal($val)<=0)
+					if (intval($val)<=0)
 						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(FR.".$key." IS NULL OR FR.".$key."<=0)";
 					else
-						$arSqlSearch[] = ($strNegative=="Y"?" FR.".$key." IS NULL OR NOT ":"")."(FR.".$key." ".$strOperation." ".IntVal($val)." )";
+						$arSqlSearch[] = ($strNegative=="Y"?" FR.".$key." IS NULL OR NOT ":"")."(FR.".$key." ".$strOperation." ".intval($val)." )";
 					break;
 				case "CODE":
-					if (strlen($val)<=0)
+					if ($val == '')
 						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(FR.CODE IS NULL)";
 					else
 						$arSqlSearch[] = ($strNegative=="Y"?" FR.CODE IS NULL OR NOT ":"")."(FR.CODE ".$strOperation." '".$DB->ForSql($val)."' )";
@@ -183,7 +183,8 @@ class CAllForumPoints
 
 		foreach ($arOrder as $by=>$order)
 		{
-			$by = strtoupper($by); $order = strtoupper($order);
+			$by = mb_strtoupper($by);
+			$order = mb_strtoupper($order);
 			if ($order!="ASC") $order = "DESC";
 
 			if ($by == "ID") $arSqlOrder[] = " FR.ID ".$order." ";
@@ -221,7 +222,7 @@ class CAllForumPoints
 		foreach ($arFilter as $key => $val)
 		{
 			$key_res = CForumNew::GetFilterOperation($key);
-			$key = strtoupper($key_res["FIELD"]);
+			$key = mb_strtoupper($key_res["FIELD"]);
 			$strNegative = $key_res["NEGATIVE"];
 			$strOperation = $key_res["OPERATION"];
 
@@ -229,19 +230,19 @@ class CAllForumPoints
 			{
 				case "ID":
 				case "MIN_POINTS":
-					if (IntVal($val)<=0)
+					if (intval($val)<=0)
 						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(FR.".$key." IS NULL OR FR.".$key."<=0)";
 					else
-						$arSqlSearch[] = ($strNegative=="Y"?" FR.".$key." IS NULL OR NOT ":"")."(FR.".$key." ".$strOperation." ".IntVal($val)." )";
+						$arSqlSearch[] = ($strNegative=="Y"?" FR.".$key." IS NULL OR NOT ":"")."(FR.".$key." ".$strOperation." ".intval($val)." )";
 					break;
 				case "CODE":
-					if (strlen($val)<=0)
+					if ($val == '')
 						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(FR.CODE IS NULL)";
 					else
 						$arSqlSearch[] = ($strNegative=="Y"?" FR.CODE IS NULL OR NOT ":"")."(FR.CODE ".$strOperation." '".$DB->ForSql($val)."' )";
 					break;
 				case "LID":
-					if (strlen($val)<=0)
+					if ($val == '')
 						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(FRL.LID IS NULL OR ".($DB->type == "MSSQL" ? "LEN" : "LENGTH")."(FRL.LID)<=0)";
 					else
 						$arSqlSearch[] = ($strNegative=="Y"?" FRL.LID IS NULL OR NOT ":"")."(FRL.LID ".$strOperation." '".$DB->ForSql($val)."' )";
@@ -253,7 +254,8 @@ class CAllForumPoints
 
 		foreach ($arOrder as $by=>$order)
 		{
-			$by = strtoupper($by); $order = strtoupper($order);
+			$by = mb_strtoupper($by);
+			$order = mb_strtoupper($order);
 			if ($order!="ASC") $order = "DESC";
 
 			if ($by == "ID") $arSqlOrder[] = " FR.ID ".$order." ";
@@ -286,7 +288,7 @@ class CAllForumPoints
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$strSql =
 			"SELECT FR.ID, FR.MIN_POINTS, FR.CODE, FR.VOTES ".
 			"FROM b_forum_points FR ".
@@ -304,7 +306,7 @@ class CAllForumPoints
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$strSql =
 			"SELECT FR.ID, FR.MIN_POINTS, FR.CODE, FR.VOTES, FRL.LID, FRL.NAME ".
 			"FROM b_forum_points FR ".
@@ -323,7 +325,7 @@ class CAllForumPoints
 	{
 		global $DB;
 
-		$POINTS_ID = IntVal($POINTS_ID);
+		$POINTS_ID = intval($POINTS_ID);
 		$strSql =
 			"SELECT FRL.POINTS_ID, FRL.LID, FRL.NAME ".
 			"FROM b_forum_points_lang FRL ".
@@ -376,7 +378,7 @@ class CAllForumPoints2Post
 					"id"=>'POINTS2POST[MIN_NUM_POSTS]',
 					"text" => GetMessage("FORUM_PE_ERROR_MIN_NUM_POSTS_EMPTY"));
 			}
-			elseif (strlen($arFields["MIN_NUM_POSTS"]) > 18 || preg_match("/[^0-9]/", $arFields["MIN_NUM_POSTS"]))
+			elseif (mb_strlen($arFields["MIN_NUM_POSTS"]) > 18 || preg_match("/[^0-9]/", $arFields["MIN_NUM_POSTS"]))
 			{
 				$aMsg[] = array(
 					"id"=>'POINTS2POST[MIN_NUM_POSTS]',
@@ -384,7 +386,7 @@ class CAllForumPoints2Post
 			}
 			else
 			{
-				$arFields["MIN_NUM_POSTS"] = intVal($arFields["MIN_NUM_POSTS"]);
+				$arFields["MIN_NUM_POSTS"] = intval($arFields["MIN_NUM_POSTS"]);
 				$db_res = CForumPoints2Post::GetList(array(), array("MIN_NUM_POSTS" => $arFields["MIN_NUM_POSTS"]));
 				if ($db_res && $res = $db_res->GetNext())
 				{
@@ -401,7 +403,7 @@ class CAllForumPoints2Post
 			$arFields["POINTS_PER_POST"] = 0;
 		else {
 			$arFields["POINTS_PER_POST"] = round(doubleval($arFields["POINTS_PER_POST"]), 4);
-			if (strlen(round($arFields["POINTS_PER_POST"], 0)) > 14 || strlen(strstr($arFields["POINTS_PER_POST"], ".")) > 5 ||
+			if (mb_strlen(round($arFields["POINTS_PER_POST"], 0)) > 14 || mb_strlen(mb_strstr($arFields["POINTS_PER_POST"], ".")) > 5 ||
 				preg_match("/[^0-9.]/", $arFields["POINTS_PER_POST"]))
 				$aMsg[] = array(
 					"id" => 'POINTS2POST[POINTS_PER_POST]',
@@ -424,7 +426,7 @@ class CAllForumPoints2Post
 	function Update($ID, $arFields)
 	{
 		global $DB;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if ($ID<=0) return False;
 
 		if (!CForumPoints2Post::CheckFields("UPDATE", $arFields, $ID))
@@ -440,7 +442,7 @@ class CAllForumPoints2Post
 	function Delete($ID)
 	{
 		global $DB;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$DB->Query("DELETE FROM b_forum_points2post WHERE ID = ".$ID, True);
 
@@ -460,7 +462,7 @@ class CAllForumPoints2Post
 		foreach ($arFilter as $key => $val)
 		{
 			$key_res = CForumNew::GetFilterOperation($key);
-			$key = strtoupper($key_res["FIELD"]);
+			$key = mb_strtoupper($key_res["FIELD"]);
 			$strNegative = $key_res["NEGATIVE"];
 			$strOperation = $key_res["OPERATION"];
 
@@ -468,10 +470,10 @@ class CAllForumPoints2Post
 			{
 				case "ID":
 				case "MIN_NUM_POSTS":
-					if (IntVal($val)<=0)
+					if (intval($val)<=0)
 						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(FR.".$key." IS NULL OR FR.".$key."<=0)";
 					else
-						$arSqlSearch[] = ($strNegative=="Y"?" FR.".$key." IS NULL OR NOT ":"")."(FR.".$key." ".$strOperation." ".IntVal($val)." )";
+						$arSqlSearch[] = ($strNegative=="Y"?" FR.".$key." IS NULL OR NOT ":"")."(FR.".$key." ".$strOperation." ".intval($val)." )";
 					break;
 			}
 		}
@@ -480,7 +482,8 @@ class CAllForumPoints2Post
 
 		foreach ($arOrder as $by=>$order)
 		{
-			$by = strtoupper($by); $order = strtoupper($order);
+			$by = mb_strtoupper($by);
+			$order = mb_strtoupper($order);
 			if ($order!="ASC") $order = "DESC";
 			if ($by == "ID") $arSqlOrder[] = " FR.ID ".$order." ";
 			elseif ($by == "MIN_NUM_POSTS") $arSqlOrder[] = " FR.MIN_NUM_POSTS ".$order." ";
@@ -509,7 +512,7 @@ class CAllForumPoints2Post
 	{
 		global $DB;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$strSql =
 			"SELECT FR.ID, FR.MIN_NUM_POSTS, FR.POINTS_PER_POST ".
 			"FROM b_forum_points2post FR ".
@@ -551,9 +554,9 @@ class CAllForumUserPoints
 
 	function CheckFields($ACTION, &$arFields)
 	{
-		if ((is_set($arFields, "FROM_USER_ID") || $ACTION=="ADD") && IntVal($arFields["FROM_USER_ID"])<=0) return false;
-		if ((is_set($arFields, "TO_USER_ID") || $ACTION=="ADD") && IntVal($arFields["TO_USER_ID"])<=0) return false;
-		if ((is_set($arFields, "POINTS") || $ACTION=="ADD") && IntVal($arFields["POINTS"])<=0) return false;
+		if ((is_set($arFields, "FROM_USER_ID") || $ACTION=="ADD") && intval($arFields["FROM_USER_ID"])<=0) return false;
+		if ((is_set($arFields, "TO_USER_ID") || $ACTION=="ADD") && intval($arFields["TO_USER_ID"])<=0) return false;
+		if ((is_set($arFields, "POINTS") || $ACTION=="ADD") && intval($arFields["POINTS"])<=0) return false;
 
 		return True;
 	}
@@ -562,10 +565,10 @@ class CAllForumUserPoints
 	{
 		global $DB;
 
-		$FROM_USER_ID = IntVal($FROM_USER_ID);
+		$FROM_USER_ID = intval($FROM_USER_ID);
 		if ($FROM_USER_ID<=0) return False;
 
-		$TO_USER_ID = IntVal($TO_USER_ID);
+		$TO_USER_ID = intval($TO_USER_ID);
 		if ($TO_USER_ID<=0) return False;
 
 		if (!CForumUserPoints::CheckFields("UPDATE", $arFields))
@@ -604,10 +607,10 @@ class CAllForumUserPoints
 	{
 		global $DB;
 
-		$FROM_USER_ID = IntVal($FROM_USER_ID);
+		$FROM_USER_ID = intval($FROM_USER_ID);
 		if ($FROM_USER_ID<=0) return False;
 
-		$TO_USER_ID = IntVal($TO_USER_ID);
+		$TO_USER_ID = intval($TO_USER_ID);
 		if ($TO_USER_ID<=0) return False;
 
 		$DB->Query("DELETE FROM b_forum_user_points WHERE FROM_USER_ID = ".$FROM_USER_ID." AND TO_USER_ID = ".$TO_USER_ID);
@@ -642,7 +645,7 @@ class CAllForumUserPoints
 		foreach ($arFilter as $key => $val)
 		{
 			$key_res = CForumNew::GetFilterOperation($key);
-			$key = strtoupper($key_res["FIELD"]);
+			$key = mb_strtoupper($key_res["FIELD"]);
 			$strNegative = $key_res["NEGATIVE"];
 			$strOperation = $key_res["OPERATION"];
 
@@ -650,10 +653,10 @@ class CAllForumUserPoints
 			{
 				case "FROM_USER_ID":
 				case "TO_USER_ID":
-					if (IntVal($val)<=0)
+					if (intval($val)<=0)
 						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(FR.".$key." IS NULL OR FR.".$key."<=0)";
 					else
-						$arSqlSearch[] = ($strNegative=="Y"?" FR.".$key." IS NULL OR NOT ":"")."(FR.".$key." ".$strOperation." ".IntVal($val)." )";
+						$arSqlSearch[] = ($strNegative=="Y"?" FR.".$key." IS NULL OR NOT ":"")."(FR.".$key." ".$strOperation." ".intval($val)." )";
 					break;
 			}
 		}
@@ -662,7 +665,8 @@ class CAllForumUserPoints
 
 		foreach ($arOrder as $by=>$order)
 		{
-			$by = strtoupper($by); $order = strtoupper($order);
+			$by = mb_strtoupper($by);
+			$order = mb_strtoupper($order);
 			if ($order!="ASC") $order = "DESC";
 
 			if ($by == "FROM_USER_ID") $arSqlOrder[] = " FR.FROM_USER_ID ".$order." ";
@@ -691,11 +695,11 @@ class CAllForumUserPoints
 	{
 		global $DB;
 
-		$FROM_USER_ID = IntVal($FROM_USER_ID);
+		$FROM_USER_ID = intval($FROM_USER_ID);
 		if ($FROM_USER_ID<=0)
 			return False;
 
-		$TO_USER_ID = IntVal($TO_USER_ID);
+		$TO_USER_ID = intval($TO_USER_ID);
 		if ($TO_USER_ID<=0)
 			return False;
 
@@ -714,7 +718,7 @@ class CAllForumUserPoints
 	{
 		global $DB;
 
-		$TO_USER_ID = IntVal($TO_USER_ID);
+		$TO_USER_ID = intval($TO_USER_ID);
 		if ($TO_USER_ID<=0) return 0;
 
 		$strSql =
@@ -725,7 +729,7 @@ class CAllForumUserPoints
 
 		if ($res = $db_res->Fetch())
 		{
-			return IntVal($res["SM"]);
+			return intval($res["SM"]);
 		}
 		return 0;
 	}

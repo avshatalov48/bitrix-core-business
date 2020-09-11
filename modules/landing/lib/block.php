@@ -8,6 +8,7 @@ use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Landing\Internals;
 use \Bitrix\Landing\Assets;
 use \Bitrix\Landing\Block\Cache;
+use \Bitrix\Landing\Restriction;
 use \Bitrix\Landing\Node\Type as NodeType;
 use \Bitrix\Landing\PublicAction\Utils as UtilsAction;
 
@@ -408,9 +409,9 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 					{
 						$block->saveContent(self::getMessageBlock([
 							'HEADER' => Loc::getMessage('LANDING_BLOCK_SUBSCRIBE_EXP_HEADER'),
-							'MESSAGE' => Loc::getMessage('LANDING_BLOCK_SUBSCRIBE_EXP_MESSAGE'),
 							'BUTTON' => Loc::getMessage('LANDING_BLOCK_SUBSCRIBE_EXP_BUTTON'),
-							'LINK' => Manager::BUY_LICENSE_PATH
+							'LINK' => Manager::BUY_LICENSE_PATH,
+							'MESSAGE' => Restriction\Manager::getSystemErrorMessage('block_subscribe_expired')
 			  			], 'locked'));
 					}
 					$landing->addBlockToCollection($block);
@@ -2560,7 +2561,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			return;
 		}
 
-		foreach (['font', 'icon'] as $assetCode)
+		foreach (['font', 'icon', 'ext'] as $assetCode)
 		{
 			if (isset($this->assets[$assetCode]) && !isset($assets[$assetCode]))
 			{
@@ -2902,17 +2903,15 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		}
 
 		// check feature
-		$availableFeature = Manager::checkFeature(
-			Manager::FEATURE_DYNAMIC_BLOCK,
-			[
-				'targetBlockId' => $this->id
-			]
+		$availableFeature = Restriction\Manager::isAllowed(
+			'limit_sites_dynamic_blocks',
+			['targetBlockId' => $this->id]
 		);
 		if (!$availableFeature)
 		{
 			$this->saveContent($this::getMessageBlock([
 				'HEADER' => Loc::getMessage('LANDING_BLOCK_MESSAGE_ERROR_DYNAMIC_LIMIT_TITLE'),
-				'MESSAGE' => Loc::getMessage('LANDING_BLOCK_MESSAGE_ERROR_DYNAMIC_LIMIT_TEXT'),
+				'MESSAGE' => Restriction\Manager::getSystemErrorMessage('limit_sites_dynamic_blocks'),
 				'BUTTON' => Loc::getMessage('LANDING_BLOCK_MESSAGE_ERROR_LIMIT_BUTTON'),
 				'LINK' => Manager::BUY_LICENSE_PATH
 		  	], 'locked'));

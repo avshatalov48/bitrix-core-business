@@ -108,7 +108,8 @@ if ($arResult['ERRORS'])
 					{
 						top.window.opener.landingAlertMessage(
 							'<?= \CUtil::jsEscape($errorMessage);?>',
-							<?= $component->isTariffError($errorCode) ? 'true' : 'false';?>
+							<?= $component->isTariffError($errorCode) ? 'true' : 'false';?>,
+							'<?= $errorCode;?>'
 						);
 						top.window.close();
 					}
@@ -116,7 +117,8 @@ if ($arResult['ERRORS'])
 					{
 						landingAlertMessage(
 							'<?= \CUtil::jsEscape($errorMessage);?>',
-							<?= $component->isTariffError($errorCode) ? 'true' : 'false';?>
+							<?= $component->isTariffError($errorCode) ? 'true' : 'false';?>,
+							'<?= $errorCode;?>'
 						);
 					}
 				});
@@ -280,7 +282,8 @@ if (!$request->offsetExists('landing_mode')):
 	BX.ready(function()
 	{
 		BX.message({
-			LANDING_PUBLIC_PAGE_REACHED: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PUBLIC_PAGE_REACHED'));?>',
+			LANDING_SITE_TYPE: '<?= $arParams['TYPE'];?>',
+			LANDING_PUBLIC_PAGE_REACHED: '<?= \CUtil::jsEscape(\Bitrix\Landing\Restriction\Manager::getSystemErrorMessage('limit_sites_number_page'));?>',
 			LANDING_TPL_SETTINGS_SITE_URL: '<?= \CUtil::jsEscape($component->getMessageType('LANDING_TPL_SETTINGS_SITE_URL'));?>',
 			LANDING_TPL_SETTINGS_CATALOG_URL: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_SETTINGS_CATALOG_URL'));?>',
 			LANDING_TPL_SETTINGS_UNPUBLIC: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_SETTINGS_UNPUBLIC'));?>',
@@ -349,31 +352,18 @@ else
 		\htmlspecialcharsbx($arResult['LANDING']->getTitle())
 	);
 	// available view
-	// @todo: needs to be refactored
-	$check = Manager::checkFeature(
-		Manager::FEATURE_ALLOW_VIEW_PAGE,
+	$check = \Bitrix\Landing\Restriction\Manager::isAllowed(
+		'limit_knowledge_base_number_page_view',
 		['ID' => $arResult['LANDING']->getSiteId()]
 	);
 	if (!$check)
 	{
-		Loc::loadMessages(
-			Manager::getDocRoot() . '/bitrix/components/bitrix/landing.start/templates/.default/template.php'
-		);
 		?>
 		<script>
-			BX.message({
-				LANDING_TPL_JS_PAY_TARIFF_TITLE: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_JS_PAY_TARIFF_TITLE'));?>',
-				LANDING_TPL_JS_PAY_TARIFF: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_JS_PAY_TARIFF'));?>'
-			});
 			BX.ready(function()
 			{
-				if (typeof BX.Landing.PaymentAlertShow !== 'undefined')
-				{
-					BX.Landing.PaymentAlertShow({
-						message: '<?= \CUtil::jsEscape($component->getMessageType('LANDING_ERROR_NOT_ALLOW_VIEW_BY_PLAN'));?>',
-						type: 'alert'
-					});
-				}
+				document.body.style.opacity = 0.1;
+				top.BX.UI.InfoHelper.show('limit_knowledge_base_number_page_view');
 			});
 		</script>
 		<?

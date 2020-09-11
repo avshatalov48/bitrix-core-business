@@ -31,8 +31,10 @@ $skuIblockId = $classBlock->get('SKU_IBLOCK_ID') ?? '';
 				'DELIVERY_NO_SESSION' => 'Y',
 				'COMPATIBLE_MODE' => 'N',
 				'BASKET_POSITION' => 'before',
-				'ADDITIONAL_PICT_PROP_'.$iblockId => 'MORE_PHOTO',
-				'ADDITIONAL_PICT_PROP_'.$skuIblockId => 'MORE_PHOTO',
+				'ADDITIONAL_PICT_PROP' => array(
+					$iblockId => 'MORE_PHOTO',
+					$skuIblockId => 'MORE_PHOTO',
+				),
 				'BASKET_IMAGES_SCALING' => 'adaptive',
 				'SERVICES_IMAGES_SCALING' => 'adaptive',
 				'DISABLE_BASKET_REDIRECT' => 'Y',

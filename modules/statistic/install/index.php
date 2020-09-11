@@ -18,9 +18,7 @@ Class statistic extends CModule
 	{
 		$arModuleVersion = array();
 
-		$path = str_replace("\\", "/", __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen("/index.php"));
-		include($path."/version.php");
+		include(__DIR__.'/version.php');
 
 		if (is_array($arModuleVersion) && array_key_exists("VERSION", $arModuleVersion))
 		{
@@ -42,7 +40,7 @@ Class statistic extends CModule
 	{
 		global $DBType, $APPLICATION;
 
-		$node_id = strlen($arParams["DATABASE"]) > 0? intval($arParams["DATABASE"]): false;
+		$node_id = $arParams["DATABASE"] <> ''? intval($arParams["DATABASE"]): false;
 
 		if($node_id !== false)
 			$DB = $GLOBALS["DB"]->GetDBNodeConnection($node_id);
@@ -64,7 +62,7 @@ Class statistic extends CModule
 
 		if($no_tables == "Y")
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/statistic/install/db/".strtolower($DB->type)."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/statistic/install/db/".mb_strtolower($DB->type)."/install.sql");
 		}
 
 		if($this->errors !== false)
@@ -79,7 +77,7 @@ Class statistic extends CModule
 		RegisterModuleDependences("main", "OnBeforeProlog", "statistic", "CStatistics", "Keep", "100");
 		RegisterModuleDependences("main", "OnEpilog", "statistic", "CStatistics", "Set404", "100");
 		RegisterModuleDependences("main", "OnBeforeProlog", "statistic", "CStatistics", "StartBuffer", "1000");
-		RegisterModuleDependences("main", "OnAfterEpilog", "statistic", "CStatistics", "EndBuffer", "10");
+		RegisterModuleDependences("main", "OnEndBufferContent", "statistic", "CStatistics", "EndBuffer", "900");
 		RegisterModuleDependences("main", "OnEventLogGetAuditTypes", "statistic", "CStatistics", "GetAuditTypes", 10);
 
 		RegisterModuleDependences("statistic", "OnCityLookup", "statistic", "CCityLookup_geoip_mod", "OnCityLookup", "100");
@@ -89,7 +87,7 @@ Class statistic extends CModule
 
 		RegisterModuleDependences("cluster", "OnGetTableList", "statistic", "statistic", "OnGetTableList");
 
-		if (strlen($DATE_INSTALL_TABLES)>0)
+		if ($DATE_INSTALL_TABLES <> '')
 			COption::SetOptionString("main", "INSTALL_STATISTIC_TABLES", $DATE_INSTALL_TABLES, "Date of installation of statistics module tables");
 
 		if($node_id !== false)
@@ -137,7 +135,7 @@ Class statistic extends CModule
 		CAgent::AddAgent("CStatistics::CleanUpPathCache();","statistic", "N", 3600);
 
 		CAgent::RemoveAgent("SendDailyStatistics();","statistic");
-		if(strpos($_SERVER["SERVER_SOFTWARE"], "(Win32)")<=0)
+		if(mb_strpos($_SERVER["SERVER_SOFTWARE"], "(Win32)") <= 0)
 		{
 			$ndate = mktime(9, 0, 0, $arr["mon"], $arr["mday"], $arr["year"]);
 			CAgent::AddAgent("SendDailyStatistics();", "statistic", "Y", 86400, "", "Y", ConvertTimeStamp($ndate+CTimeZone::GetOffset(), "FULL"), 25);
@@ -145,9 +143,9 @@ Class statistic extends CModule
 
 		if($no_tables=="Y")
 		{
-			$arAllErrors[] = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]. "/bitrix/modules/statistic/install/db/".strtolower($DB->type)."/searchers.sql");
-			$arAllErrors[] = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]. "/bitrix/modules/statistic/install/db/".strtolower($DB->type)."/browsers.sql");
-			$arAllErrors[] = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]. "/bitrix/modules/statistic/install/db/".strtolower($DB->type)."/adv.sql");
+			$arAllErrors[] = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/statistic/install/db/".mb_strtolower($DB->type)."/searchers.sql");
+			$arAllErrors[] = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/statistic/install/db/".mb_strtolower($DB->type)."/browsers.sql");
+			$arAllErrors[] = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/statistic/install/db/".mb_strtolower($DB->type)."/adv.sql");
 		}
 
 		// ip-to-country
@@ -156,7 +154,7 @@ Class statistic extends CModule
 		if(!array_key_exists("CREATE_I2C_INDEX", $arParams) || ($arParams["CREATE_I2C_INDEX"] == "Y"))
 			i2c_create_db($total_reindex, $reindex_success, $step_reindex, $int_prev);
 
-		$fname = $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/statistic/install/db/".strtolower($DB->type)."/optimize.sql";
+		$fname = $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/statistic/install/db/".mb_strtolower($DB->type)."/optimize.sql";
 		if(file_exists($fname))
 		{
 			$arAllErrors[] = $DB->RunSQLBatch($fname);
@@ -195,7 +193,7 @@ Class statistic extends CModule
 		{
 			if(!array_key_exists("savedata", $arParams) || ($arParams["savedata"] != "Y"))
 			{
-				$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/statistic/install/db/".strtolower($DB->type)."/uninstall.sql");
+				$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/statistic/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
 				COption::RemoveOption("main","INSTALL_STATISTIC_TABLES");
 
 				$db_res = $GLOBALS["DB"]->Query("SELECT ID FROM b_file WHERE MODULE_ID = 'statistic'");
@@ -209,7 +207,7 @@ Class statistic extends CModule
 		UnRegisterModuleDependences("main", "OnEpilog", "statistic", "CStatistics", "Set404");
 		UnRegisterModuleDependences("main", "OnEventLogGetAuditTypes", "statistic", "CStatistics", "GetAuditTypes");
 		UnRegisterModuleDependences("main", "OnBeforeProlog", "statistic", "CStatistics", "StartBuffer");
-		UnRegisterModuleDependences("main", "OnAfterEpilog", "statistic", "CStatistics", "EndBuffer");
+		UnRegisterModuleDependences("main", "OnEndBufferContent", "statistic", "CStatistics", "EndBuffer");
 		UnRegisterModuleDependences("cluster", "OnGetTableList", "statistic", "statistic", "OnGetTableList");
 
 		UnRegisterModule("statistic");

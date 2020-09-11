@@ -12,9 +12,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @copyright 2001-2020 Bitrix
 	 */
 
-	var CoreApplication =
-	/*#__PURE__*/
-	function () {
+	var CoreApplication = /*#__PURE__*/function () {
 	  function CoreApplication() {
 	    babelHelpers.classCallCheck(this, CoreApplication);
 	    this.controller = new im_controller.Controller();

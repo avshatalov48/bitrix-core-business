@@ -58,7 +58,7 @@ $arFilter = Array(
 	"DATE2_PERIOD"	=> $find_date2
 );
 
-if (strlen($arFilter["DATE1_PERIOD"])>0 || strlen($arFilter["DATE2_PERIOD"])>0)
+if ($arFilter["DATE1_PERIOD"] <> '' || $arFilter["DATE2_PERIOD"] <> '')
 	$period = "Y";
 
 ##### graph
@@ -169,7 +169,7 @@ if (is_array($arrSEARCHERS)):
 		if ($ka!==false && $kb!==false)
 		{
 			if ($ka==$kb) $ret=0;
-			elseif (strtolower($ka)>strtolower($kb)) $ret=1;
+			elseif (mb_strtolower($ka) > mb_strtolower($kb)) $ret=1;
 			else $ret=-1;
 		}
 		if ($ka===false && $kb!==false) $ret=1;

@@ -96,7 +96,7 @@ return array(
 
 		<div class="landing-block-node-text g-mb-35 g-color-white g-font-size-36"><span style="font-weight: bold;">30% OFF</span></div>
 		<div class="landing-block-node-button-container">
-			<a href="#" class="landing-block-node-button btn btn-xl u-btn-primary text-uppercase g-font-weight-700 g-font-size-12 g-py-15 g-px-40 g-mb-15 rounded-0" target="_self">LEARN MORE</a>
+			<a href="#" class="landing-block-node-button btn g-btn-primary g-btn-type-solid g-btn-px-l g-btn-size-md text-uppercase g-py-15 g-mb-15 rounded-0" target="_self">LEARN MORE</a>
 		</div>
 	</div>
 </section>',
@@ -125,7 +125,7 @@ return array(
 							justo, rhoncus ut, imperdiet a, venenatis vitae, justo.</p>
 					</div>
 					<div class="landing-block-node-button-container">
-						<a class="landing-block-node-button btn btn-md text-uppercase u-btn-primary g-font-weight-700 g-font-size-11 g-brd-none rounded-0 g-py-10 g-px-25" href="#">View our procedures</a>
+						<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary rounded-0 g-py-10" href="#">View our procedures</a>
 					</div>
 				</div>
 			</div>
@@ -161,91 +161,77 @@ return array(
 				'SORT' => '1500',
 				'CONTENT' => '<section class="landing-block g-pt-80 g-pb-80">
 	<div class="container">
-		<div class="row">
+		<div class="row align-items-stretch">
 			<div class="col-md-6 col-lg-4 g-mb-30 g-mb-0--lg">
-				<!-- Article -->
-				<article class="text-center u-block-hover u-bg-overlay g-color-white g-bg-img-hero g-bg-black-opacity-0_3--after landing-block-node-block js-animation fadeInUp">
-					<!-- Article Image -->
-					<img class="landing-block-node-img1 w-100 u-block-hover__main--zoom-v1" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x867/img1.jpg" alt="" />
-					<!-- End Article Image -->
+				<article class="landing-block-node-block h-100 js-animation fadeInUp text-center u-block-hover u-bg-overlay g-color-white g-bg-black-opacity-0_3--after">
+					<div class="landing-block-node-img1 h-100 w-100 g-bg-img-hero u-block-hover__main--zoom-v1"
+						style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/800x867/img1.jpg);"
+					></div>
 
-					<!-- Article Content -->
 					<div class="u-block-hover__additional u-bg-overlay__inner g-pos-abs g-flex-middle g-brd-around g-brd-2 g-brd-white-opacity-0_3 g-pa-15 g-ma-20">
 						<div class="text-uppercase g-flex-middle-item">
-							<h3 class="landing-block-node-subtitle1 g-font-weight-700 g-font-size-18 g-color-white g-brd-bottom g-brd-2 g-brd-primary g-mb-20">
-								Facial massage</h3>
-							<div class="landing-block-node-title1 text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-30">
+							<h5 class="landing-block-node-subtitle1 landing-semantic-text-image-medium g-font-weight-700 g-font-size-18 g-color-white g-brd-bottom g-brd-2 g-brd-primary g-mb-20">
+								Face massage</h5>
+							<h4 class="landing-block-node-title1 landing-semantic-text-image-big text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-30">
 								<span style="font-weight: bold;">40% Off</span>
-							</div>
+							</h4>
 							<div class="landing-block-node-button1-container">
-								<a class="landing-block-node-button1 btn btn-md text-uppercase u-btn-primary g-font-weight-700 g-font-size-11 g-brd-none rounded-0 g-py-10 g-px-25" href="#">Contact us</a>
+								<a class="landing-block-node-button1 landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary rounded-0 g-py-10"
+								   href="#">Contact us</a>
 							</div>
 						</div>
 					</div>
-					<!-- End Article Content -->
 				</article>
-				<!-- End Article -->
 			</div>
 
 			<div class="col-md-6 col-lg-4 g-mb-30 g-mb-0--lg">
-				<!-- Article -->
-				<article class="text-center u-block-hover u-bg-overlay g-color-white g-bg-img-hero g-bg-black-opacity-0_3--after landing-block-node-block js-animation fadeInUp">
-					<!-- Article Image -->
-					<img class="landing-block-node-img2 w-100 u-block-hover__main--zoom-v1" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x867/img2.jpg" alt="" />
-					<!-- End Article Image -->
+				<article class="landing-block-node-block h-100 js-animation fadeInUp text-center u-block-hover u-bg-overlay g-color-white g-bg-black-opacity-0_3--after">
+					<div class="landing-block-node-img2 h-100 w-100 g-bg-img-hero u-block-hover__main--zoom-v1"
+						style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/800x867/img2.jpg);"
+					></div>
 
-					<!-- Article Content -->
 					<div class="u-block-hover__additional u-bg-overlay__inner g-pos-abs g-flex-middle g-brd-around g-brd-2 g-brd-white-opacity-0_3 g-pa-15 g-ma-20">
 						<div class="text-uppercase g-flex-middle-item">
-							<h3 class="landing-block-node-subtitle2 g-font-weight-700 g-font-size-16 g-color-white g-mb-5">
-								20% Discount</h3>
-							<div class="landing-block-node-title2 text-uppercase g-line-height-1 g-font-weight-700 g-font-size-28 g-mb-10">
-								<span style="font-weight: bold;">Spa products</span>
-							</div>
-							<h3 class="landing-block-node-text2 g-font-weight-700 g-font-size-16 g-color-white mb-0">
-								When you buy over 100$</h3>
+							<h5 class="landing-block-node-subtitle2 landing-semantic-text-image-medium g-font-weight-700 g-font-size-18 g-color-white g-mb-5">
+								20% Discount</h5>
+							<h4 class="landing-block-node-title2 landing-semantic-text-image-big text-uppercase g-line-height-1 g-font-weight-700 g-font-size-28 g-mb-10">
+								Products of spa
+							</h4>
+							<div class="landing-block-node-text2 landing-semantic-text-image-medium g-font-weight-700 g-color-white mb-0">
+								When you buy over 100$</div>
 						</div>
 					</div>
-					<!-- End Article Content -->
 				</article>
-				<!-- End Article -->
 			</div>
 
 			<div class="col-lg-4">
-				<!-- Article -->
-				<article class="landing-block-node-bg-mini text-center u-block-hover g-color-white g-bg-primary g-mb-30">
+				<article class="landing-block-node-bg-mini js-animation fadeInUp text-center u-block-hover g-color-white g-bg-primary g-mb-30">
 					<div class="g-brd-around g-brd-2 g-brd-white-opacity-0_3 g-pa-30 g-ma-20">
 						<div class="g-flex-middle-item">
-							<h3 class="landing-block-node-title-mini text-uppercase g-font-weight-700 g-font-size-18 g-color-white g-mb-10">
+							<h4 class="landing-block-node-title-mini landing-semantic-text-image-medium text-uppercase g-font-weight-700 g-font-size-18 g-color-white g-mb-10">
 								Relaxing
-								massage</h3>
-							<div class="landing-block-node-text-mini g-font-size-12 g-color-white mb-0">
+								massage</h4>
+							<div class="landing-block-node-text-mini landing-semantic-text-image-small g-font-size-12 g-color-white mb-0">
 								<p>Morbi ex urna, porttitor vel consequat non</p>
 							</div>
 						</div>
 					</div>
 				</article>
-				<!-- End Article -->
 
-				<!-- Article -->
-				<article class="text-center u-block-hover u-bg-overlay g-color-white g-bg-img-hero g-bg-black-opacity-0_3--after landing-block-node-block js-animation fadeInUp">
-					<!-- Article Image -->
-					<img class="landing-block-node-img-mini w-100 u-block-hover__main--zoom-v1" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x401/img1.jpg" alt="" />
-					<!-- End Article Image -->
+				<article class="landing-block-node-block js-animation fadeInUp text-center u-block-hover u-bg-overlay g-color-white g-bg-img-hero g-bg-black-opacity-0_3--after">
+					<img class="landing-block-node-img-mini w-100 u-block-hover__main--zoom-v1" src="https://cdn.bitrix24.site/bitrix/images/landing/business/800x401/img1.jpg"
+						 alt="">
 
-					<!-- Article Content -->
 					<div class="u-block-hover__additional u-bg-overlay__inner g-pos-abs g-flex-middle g-brd-around g-brd-2 g-brd-white-opacity-0_3 g-pa-15 g-ma-20">
 						<div class="g-flex-middle-item">
-							<h3 class="landing-block-node-title-mini text-uppercase g-font-weight-700 g-font-size-18 g-color-white g-mb-5">
-								1+1=1</h3>
-							<div class="landing-block-node-text-mini g-font-size-12 g-color-white mb-0">
+							<h4 class="landing-block-node-title-mini landing-semantic-text-image-medium text-uppercase g-font-weight-700 g-font-size-18 g-color-white g-mb-5">
+								1+1=1</h4>
+							<div class="landing-block-node-text-mini landing-semantic-text-image-small g-font-size-12 g-color-white mb-0">
 								<p>Morbi ex urna, porttitor vel consequat non</p>
 							</div>
 						</div>
 					</div>
-					<!-- End Article Content -->
 				</article>
-				<!-- End Article -->
 			</div>
 		</div>
 	</div>
@@ -343,10 +329,10 @@ return array(
 	<div>
 		<div class="row mx-0">
 			<div class="col-md-6 text-center text-md-left g-py-50 g-py-100--md g-px-15 g-px-50--md">
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-default g-mb-25 g-color-black g-font-size-22 js-animation fadeInUp animated">BODY CARE</h3>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-25 g-color-black g-font-size-22 js-animation fadeInUp animated">BODY CARE</h3>
 				<div class="landing-block-node-text g-mb-30 g-color-gray-dark-v5 js-animation fadeInUp animated"><p>Morbi massa justo, gravida sollicitudin tortor vel, dignissim viverra lectus. In varius blandit condimentum. Pellentesque rutrum mauris ornare libero.</p></div>
 				<div class="landing-block-node-button-container">
-					<a class="landing-block-node-button text-uppercase btn btn-xl g-font-weight-700 g-font-size-12 js-animation fadeInUp animated g-rounded-1 u-btn-outline-primary" href="#" tabindex="0" target="_self">VIEW MORE</a>
+					<a class="landing-block-node-button text-uppercase btn g-btn-type-solid g-btn-size-md g-btn-px-m js-animation fadeInUp animated g-rounded-1 g-btn-primary" href="#" tabindex="0" target="_self">VIEW MORE</a>
 				</div>
 			</div>
 
@@ -365,10 +351,10 @@ return array(
 			<div class="landing-block-node-img col-md-6 g-min-height-360 g-bg-img-hero g-px-0 g-bg-size-cover" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/800x457/img2.jpg\');" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb"></div>
 			
 			<div class="col-md-6 text-center text-md-left g-py-50 g-py-100--md g-px-15 g-px-50--md">
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-default g-mb-25 g-color-black g-font-size-22 js-animation fadeInUp animated">Face care</h3>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-25 g-color-black g-font-size-22 js-animation fadeInUp animated">Face care</h3>
 				<div class="landing-block-node-text g-mb-30 g-color-gray-light-v1 js-animation fadeInUp animated"><p>Morbi massa justo, gravida sollicitudin tortor vel, dignissim viverra lectus. In varius blandit condimentum. Pellentesque rutrum mauris ornare libero.</p></div>
 				<div class="landing-block-node-button-container">
-					<a class="landing-block-node-button text-uppercase btn btn-xl g-font-weight-700 g-font-size-12 js-animation fadeInUp animated rounded-0 u-btn-outline-primary" href="#" tabindex="0" target="_self">VIEW MORE</a>
+					<a class="landing-block-node-button text-uppercase btn g-btn-type-solid g-btn-size-md g-btn-px-m js-animation fadeInUp animated rounded-0 g-btn-primary" href="#" tabindex="0" target="_self">VIEW MORE</a>
 				</div>
 			</div>
 		</div>
@@ -383,10 +369,10 @@ return array(
 	<div>
 		<div class="row mx-0">
 			<div class="col-md-6 text-center text-md-left g-py-50 g-py-100--md g-px-15 g-px-50--md">
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-default g-mb-25 g-color-black g-font-size-22 js-animation fadeInUp animated">FOOT CARE</h3>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-25 g-color-black g-font-size-22 js-animation fadeInUp animated">FOOT CARE</h3>
 				<div class="landing-block-node-text g-mb-30 g-color-gray-dark-v5 js-animation fadeInUp animated"><p>Morbi massa justo, gravida sollicitudin tortor vel, dignissim viverra lectus. In varius blandit condimentum. Pellentesque rutrum mauris ornare libero.</p></div>
 				<div class="landing-block-node-button-container">
-					<a class="landing-block-node-button text-uppercase btn btn-xl g-font-weight-700 g-font-size-12 js-animation fadeInUp animated rounded-0 u-btn-outline-primary" href="#" tabindex="0" target="_self">VIEW MORE</a>
+					<a class="landing-block-node-button text-uppercase btn g-btn-type-solid g-btn-size-md g-btn-px-m js-animation fadeInUp animated rounded-0 g-btn-primary" href="#" tabindex="0" target="_self">VIEW MORE</a>
 				</div>
 			</div>
 
@@ -405,10 +391,10 @@ return array(
 			<div class="landing-block-node-img col-md-6 g-min-height-300 g-bg-img-hero g-px-0 g-bg-size-cover" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/800x457/img4.jpg\');" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb"></div>
 			
 			<div class="col-md-6 text-center text-md-left g-py-50 g-py-100--md g-px-15 g-px-50--md">
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-default g-mb-25 g-color-black g-font-size-22 js-animation fadeInUp animated">NAILS CARE</h3>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-25 g-color-black g-font-size-22 js-animation fadeInUp animated">NAILS CARE</h3>
 				<div class="landing-block-node-text g-mb-30 g-color-gray-dark-v5 js-animation fadeInUp animated"><p>Morbi massa justo, gravida sollicitudin tortor vel, dignissim viverra lectus. In varius blandit condimentum. Pellentesque rutrum mauris ornare libero.</p></div>
 				<div class="landing-block-node-button-container">
-					<a class="landing-block-node-button text-uppercase btn btn-xl g-font-weight-700 g-font-size-12 js-animation fadeInUp animated u-btn-outline-primary rounded-0" href="#" tabindex="0" target="_self">VIEW MORE</a>
+					<a class="landing-block-node-button text-uppercase btn g-btn-type-solid g-btn-size-md g-btn-px-m js-animation fadeInUp animated g-btn-primary rounded-0" href="#" tabindex="0" target="_self">VIEW MORE</a>
 				</div>
 			</div>
 		</div>

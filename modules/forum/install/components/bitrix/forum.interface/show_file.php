@@ -129,13 +129,13 @@ elseif (intval($arResult["FILE"]["MESSAGE_ID"]) > 0)
 	{
 		$arParams["PERMISSION"] = CForumNew::GetUserPermission($arResult["MESSAGE"]["FORUM_ID"], $USER->GetUserGroupArray());
 
-		if ($arParams["PERMISSION"] < "E" && (intVal($arResult["TOPIC"]["SOCNET_GROUP_ID"]) > 0 ||
-			intVal($arResult["TOPIC"]["OWNER_ID"]) > 0) && CModule::IncludeModule("socialnetwork"))
+		if ($arParams["PERMISSION"] < "E" && (intval($arResult["TOPIC"]["SOCNET_GROUP_ID"]) > 0 ||
+			intval($arResult["TOPIC"]["OWNER_ID"]) > 0) && CModule::IncludeModule("socialnetwork"))
 		{
 			$sPermission = $arParams["PERMISSION"];
 			$user_id = $USER->GetID();
-			$group_id = intVal($arResult["TOPIC"]["SOCNET_GROUP_ID"]);
-			$owner_id = intVal($arResult["TOPIC"]["OWNER_ID"]);
+			$group_id = intval($arResult["TOPIC"]["SOCNET_GROUP_ID"]);
+			$owner_id = intval($arResult["TOPIC"]["OWNER_ID"]);
 
 			if ($group_id):
 
@@ -162,7 +162,7 @@ elseif (intval($arResult["FILE"]["MESSAGE_ID"]) > 0)
 				if (count($arForumSites) > 0)
 				{
 					list($key, $val) = each($arForumSites);
-					if (strlen($key) > 0)
+					if ($key <> '')
 						$site_id_tmp = $key;
 					else
 						$site_id_tmp = false;

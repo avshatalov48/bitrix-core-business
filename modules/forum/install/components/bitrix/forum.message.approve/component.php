@@ -9,9 +9,9 @@ endif;
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$arParams["FID"] = intVal(intVal($arParams["FID"]) <= 0 ? $_REQUEST["FID"] : $arParams["FID"]);
-	$arParams["TID"] = intVal(intVal($arParams["TID"]) <= 0 ? $_REQUEST["TID"] : $arParams["TID"]);
-	$arParams["action"] = strToUpper(trim($_REQUEST["ACTION"]));
+	$arParams["FID"] = intval(intVal($arParams["FID"]) <= 0 ? $_REQUEST["FID"] : $arParams["FID"]);
+	$arParams["TID"] = intval(intVal($arParams["TID"]) <= 0 ? $_REQUEST["TID"] : $arParams["TID"]);
+$arParams["action"] = mb_strtoupper(trim($_REQUEST["ACTION"]));
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
 		"index" => "",
@@ -29,24 +29,24 @@ endif;
 	}
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		if (trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
+			$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["USER_FIELDS"] = (is_array($arParams["USER_FIELDS"]) ? $arParams["USER_FIELDS"] : array($arParams["USER_FIELDS"]));
 	if (!in_array("UF_FORUM_MESSAGE_DOC", $arParams["USER_FIELDS"]))
 		$arParams["USER_FIELDS"][] = "UF_FORUM_MESSAGE_DOC";
-	$arParams["MESSAGES_PER_PAGE"] = intVal(intVal($arParams["MESSAGES_PER_PAGE"]) > 0 ? $arParams["MESSAGES_PER_PAGE"] :
+	$arParams["MESSAGES_PER_PAGE"] = intval(intVal($arParams["MESSAGES_PER_PAGE"]) > 0 ? $arParams["MESSAGES_PER_PAGE"] :
 		COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10"));
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
-	$arParams["PAGE_NAVIGATION_WINDOW"] = intVal(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
+	$arParams["PAGE_NAVIGATION_WINDOW"] = intval(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
 
 	$arParams["PATH_TO_SMILE"] = "";
 
-	$arParams["WORD_LENGTH"] = intVal($arParams["WORD_LENGTH"]);
-	$arParams["IMAGE_SIZE"] = (intVal($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 300);
+	$arParams["WORD_LENGTH"] = intval($arParams["WORD_LENGTH"]);
+	$arParams["IMAGE_SIZE"] = (intval($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 300);
 
 	// Data and data-time format
 	$arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
@@ -131,11 +131,11 @@ if (check_bitrix_sessid())
 	if ($_SERVER['REQUEST_METHOD'] == "POST"):
 		$message = (empty($_POST["MID_ARRAY"]) ? $_POST["MID"] : $_POST["MID_ARRAY"]);
 		$message = (empty($message) ? $_POST["message_id"] : $message);
-		$action = strToUpper($_POST["ACTION"]);
+		$action = mb_strtoupper($_POST["ACTION"]);
 	else:
 		$message = (empty($_GET["MID_ARRAY"]) ? $_GET["MID"] : $_GET["MID_ARRAY"]);
 		$message = (empty($message) ? $_GET["message_id"] : $message);
-		$action = strToUpper($_GET["ACTION"]);
+		$action = mb_strtoupper($_GET["ACTION"]);
 	endif;
 	if (!is_array($message))
 		$message = explode(",", $message);
@@ -216,7 +216,7 @@ if ($db_Message && ($res = $db_Message->GetNext()))
 		$res["ALLOW"] = array_merge($arAllow, array("SMILES" => ($res["USE_SMILES"] == "Y" ? $arResult["FORUM"]["ALLOW_SMILES"] : "N")));
 		$res["~POST_MESSAGE_TEXT"] = (COption::GetOptionString("forum", "FILTER", "Y")=="Y" ? $res["~POST_MESSAGE_FILTER"] : $res["~POST_MESSAGE"]);
 		// Avatar
-		if (strLen($res["AVATAR"]) > 0):
+		if ($res["AVATAR"] <> ''):
 			$res["AVATAR"] = array("ID" => $res["AVATAR"]);
 			$res["AVATAR"]["FILE"] = CFile::GetFileArray($res["AVATAR"]["ID"]);
 			$res["AVATAR"]["HTML"] = CFile::ShowImage($res["AVATAR"]["FILE"], COption::GetOptionString("forum", "avatar_max_width", 100),
@@ -229,7 +229,7 @@ if ($db_Message && ($res = $db_Message->GetNext()))
 		$res["DESCRIPTION"] = $parser->wrap_long_words($res["DESCRIPTION"]);
 
 		$res["SIGNATURE"] = "";
-		if ($arResult["FORUM"]["ALLOW_SIGNATURE"] == "Y" && strlen($res["~SIGNATURE"]) > 0)
+		if ($arResult["FORUM"]["ALLOW_SIGNATURE"] == "Y" && $res["~SIGNATURE"] <> '')
 		{
 			$arAllow["SMILES"] = "N";
 			$res["SIGNATURE"] = $parser->convert($res["~SIGNATURE"], $arAllow);

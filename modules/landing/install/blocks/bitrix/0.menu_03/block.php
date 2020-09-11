@@ -12,7 +12,7 @@
 				<div id="navBar" class="collapse navbar-collapse">
 					<!-- Navigation -->
 					<div class="align-items-center flex-sm-row w-100">
-						<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav g-flex-right--xs text-uppercase w-100 font-weight-bold g-font-size-11 g-pt-20 g-pt-0--lg">
+						<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav g-flex-right--xs text-uppercase w-100 g-font-weight-700 g-font-size-11 g-pt-20 g-pt-0--lg">
 							<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 								<a href="#home"
 								   class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">Home</a>

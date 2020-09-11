@@ -42,12 +42,14 @@ class GTM extends \Bitrix\Landing\Hook\Page
 	}
 
 	/**
-	 * Gets message for locked state.
-	 * @return string
+	 * Locked or not current hook in free plan.
+	 * @return bool
 	 */
-	public function getLockedMessage()
+	public function isLocked()
 	{
-		return Loc::getMessage('LANDING_HOOK_GTM_LOCKED');
+		return !\Bitrix\Landing\Restriction\Manager::isAllowed(
+			'limit_sites_google_analytics'
+		);
 	}
 
 	/**
@@ -93,19 +95,21 @@ class GTM extends \Bitrix\Landing\Hook\Page
 		$counter = \CUtil::jsEscape($counter);
 		if ($counter)
 		{
-			Manager::setPageView('AfterHeadOpen',
-				'<!-- Google Tag Manager --><script data-skip-moving="true">' .
-				'(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({' .
-				'\'gtm.start\':new Date().getTime(),event:\'gtm.js\'});' .
-				'var f=d.getElementsByTagName(s)[0],j=d.createElement(s),' .
-				'dl=l!=\'dataLayer\'?\'&l=\'+l:\'\';j.async=true;' .
-				'j.src=\'https://www.googletagmanager.com/gtm.js?id=\'+i+dl;' .
-				'f.parentNode.insertBefore(j,f);})(window,document,\'script\',\'dataLayer\',\'' . $counter . '\');' .
-				'</script><!-- End Google Tag Manager -->');
-			Manager::setPageView('AfterBodyOpen', '<!-- Google Tag Manager (noscript) --><noscript>' .
-				'<iframe src="https://www.googletagmanager.com/ns.html?id=' . $counter . '" ' .
-				'height="0" width="0" style="display:none;visibility:hidden"></iframe>' .
-				'</noscript><!-- End Google Tag Manager (noscript) -->');
+			Cookies::addCookieScript(
+				'gtm',
+				'(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({\'gtm.start\':new Date().getTime(),event:\'gtm.js\'});
+				var f=d.getElementsByTagName(s)[0],
+				j=d.createElement(s),
+				dl=l!=\'dataLayer\'?\'&l=\'+l:\'\';
+				j.async=true;
+				j.src=\'https://www.googletagmanager.com/gtm.js?id=\'+i+dl;
+				f.parentNode.insertBefore(j,f);})(window,document,\'script\',\'dataLayer\',\'' . $counter . '\');'
+			);
+			Manager::setPageView(
+				'Noscript',
+				'<noscript>
+					<iframe src="https://www.googletagmanager.com/ns.html?id=' . $counter . '" height="0" width="0" style="display:none;visibility:hidden"></iframe>
+				</noscript>');
 		}
 	}
 }

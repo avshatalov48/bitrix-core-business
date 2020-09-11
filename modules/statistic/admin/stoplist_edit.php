@@ -19,7 +19,7 @@ InitBVar($ACTIVE);
 InitBVar($SAVE_STATISTIC);
 InitBVar($USER_AGENT_IS_NULL);
 // "save" on the current page was pressed
-if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $STAT_RIGHT>="W" && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $STAT_RIGHT>="W" && check_bitrix_sessid())
 {
 	$arFields = array(
 		"DATE_START" => $_POST["DATE_START"],
@@ -59,7 +59,7 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $STAT_RI
 
 	if($res)
 	{
-		if(strlen($_POST["save"]) > 0)
+		if($_POST["save"] <> '')
 			LocalRedirect("stoplist_list.php?lang=".LANG);
 		else
 			LocalRedirect($APPLICATION->GetCurPage()."?lang=".LANG."&ID=".$ID."&tabControl_active_tab=".urlencode($tabControl_active_tab));
@@ -158,7 +158,7 @@ $tabControl = new CAdminTabControl("tabControl", $aTabs);?>
 $tabControl->Begin();
 $tabControl->BeginNextTab();
 ?>
-	<? if (strlen($str_TIMESTAMP_X)>0) : ?>
+	<? if ($str_TIMESTAMP_X <> '') : ?>
 	<tr valign="center">
 		<td width="40%" align="right"><?echo GetMessage("STAT_TIMESTAMP")?></td>
 		<td width="60%"><?echo $str_TIMESTAMP_X?></td>
@@ -166,7 +166,7 @@ $tabControl->BeginNextTab();
 	<? endif; ?>
 	<tr valign="top" class="heading">
 		<td colspan="2"><?=GetMessage("STAT_ACTIVITY")?><?
-			if (strlen($str_LAMP)>0) :
+			if ($str_LAMP <> '') :
 				?>&nbsp;<?
 				if ($str_LAMP=="green") echo "<font class=\"stat_pointed\">(".GetMessage("STAT_GREEN_LAMP").")</span>";
 				else echo "<span class=\"stat_attention\">(".GetMessage("STAT_RED_LAMP").")</span>";

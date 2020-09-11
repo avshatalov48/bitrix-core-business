@@ -2239,11 +2239,8 @@ class CSocNetLogDestination
 		}
 
 		$arExternalAuthId = self::getExternalAuthIdBlackList();
-
-		if (!empty($arExternalAuthId))
-		{
-			$arFilter['!EXTERNAL_AUTH_ID'] = $arExternalAuthId;
-		}
+		$arExternalAuthId[] = 'email';
+		$arFilter['!EXTERNAL_AUTH_ID'] = $arExternalAuthId;
 
 		$arGroupBy = false;
 		$arSelectFields = array("ID", "NAME", "LAST_NAME", "SECOND_NAME", "LOGIN", "PERSONAL_PHOTO", "WORK_POSITION", "PERSONAL_PROFESSION", "EXTERNAL_AUTH_ID", "EMAIL", "IS_ONLINE");
@@ -2300,7 +2297,11 @@ class CSocNetLogDestination
 
 		$strSql =
 			"SELECT
-				".$arSqls["SELECT"].", CASE WHEN UM.VALUE_INT > 0 THEN 'employee' WHEN EXTERNAL_AUTH_ID = 'email' THEN 'email' ELSE 'extranet' END USER_TYPE 
+				".(
+					$bExtranetEnabled
+						? $arSqls["SELECT"].", CASE WHEN UM.VALUE_INT > 0 THEN 'employee' WHEN EXTERNAL_AUTH_ID = 'email' THEN 'email' ELSE 'extranet' END USER_TYPE"
+						: $arSqls["SELECT"].", CASE WHEN EXTERNAL_AUTH_ID = 'email' THEN 'email' ELSE 'employee' END USER_TYPE"
+				)." 
 			FROM b_user U
 				".$arSqls["FROM"]." ";
 

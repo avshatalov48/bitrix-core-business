@@ -104,7 +104,7 @@ return array(
 
 		<div class="landing-block-node-text g-color-white-opacity-0_7 g-mb-35 text-uppercase g-font-size-13 g-letter-spacing-4">Donec erat urna, tincidunt at leo non, blandit finibus ante.<br /> Nunc venenatis risus in finibus dapibus. Ut ac massa sodales, <br />&amp;nbsp;mattis enim id, efficitur tortor. Nullam </div>
 		<div class="landing-block-node-button-container">
-			<a href="#" class="landing-block-node-button btn btn-xl text-uppercase g-font-weight-700 g-font-size-12 g-py-15 g-px-40 g-mb-15 u-btn-outline-white rounded-0" target="_self">LEARN MORE</a>
+			<a href="#" class="landing-block-node-button btn g-btn-primary g-btn-type-solid g-btn-px-l g-btn-size-md text-uppercase g-py-15 g-mb-15 rounded-0" target="_self">LEARN MORE</a>
 		</div>
 	</div>
 </section>',
@@ -198,7 +198,7 @@ return array(
 
 					<div class="media-body align-self-center">
 						<h3 class="landing-block-node-card-title h5 text-uppercase g-font-weight-800">Criminal law</h3>
-						<div class="landing-block-node-card-text g-font-size-default g-color-gray-dark-v2 mb-0">
+						<div class="landing-block-node-card-text g-color-gray-dark-v2 mb-0">
 							<p>Proin dignissim eget enim id aliquam.
 								Proin ornare dictum leo, non elementum tellus molestie et. Vivamus sit amet scelerisque
 								leo.
@@ -222,7 +222,7 @@ return array(
 
 					<div class="media-body align-self-center">
 						<h3 class="landing-block-node-card-title h5 text-uppercase g-font-weight-800">Civil law</h3>
-						<div class="landing-block-node-card-text g-font-size-default g-color-gray-dark-v2 mb-0">
+						<div class="landing-block-node-card-text g-color-gray-dark-v2 mb-0">
 							<p>Nteger commodo est id erat bibendum, eu
 								convallis dolor tempus. Fusce mollis blandit eros. Nunc quis sapien in massa varius
 								convallis at sed justo. Praesent nec consectetur nibh, sed lobortis turpis.</p>
@@ -243,7 +243,7 @@ return array(
 
 					<div class="media-body align-self-center">
 						<h3 class="landing-block-node-card-title h5 text-uppercase g-font-weight-800">Business law</h3>
-						<div class="landing-block-node-card-text g-font-size-default g-color-gray-dark-v2 mb-0">
+						<div class="landing-block-node-card-text g-color-gray-dark-v2 mb-0">
 							<p>Aenean lobortis ante ac porttitor
 								eleifend. Morbi massa justo, gravida sollicitudin tortor vel, dignissim viverra lectus.
 								In
@@ -266,7 +266,7 @@ return array(
 
 					<div class="media-body align-self-center">
 						<h3 class="landing-block-node-card-title h5 text-uppercase g-font-weight-800">Tax law</h3>
-						<div class="landing-block-node-card-text g-font-size-default g-color-gray-dark-v2 mb-0">
+						<div class="landing-block-node-card-text g-color-gray-dark-v2 mb-0">
 							<p>Nam et nulla rutrum, dignissim eros
 								quis, dictum eros. In ullamcorper molestie neque, ac faucibus felis efficitur sed. Nam
 								et
@@ -290,10 +290,10 @@ return array(
 	<div>
 		<div class="row mx-0">
 			<div class="col-md-6 text-center text-md-left g-py-50 g-py-100--md g-px-15 g-px-50--md">
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-default g-color-white g-mb-25 g-font-size-35 js-animation fadeInUp">WHY CHOOSE US</h3>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-color-white g-mb-25 g-font-size-35 js-animation fadeInUp">WHY CHOOSE US</h3>
 				<div class="landing-block-node-text g-mb-30 g-color-gray-dark-v5 js-animation fadeInUp"><p><span style="color: rgb(245, 245, 245);">Sed feugiat porttitor nunc, non dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel faucibus ante. Nunc ullamcorper, justo a iaculis elementum, enim orci viverra eros, fringilla porttitor lorem eros vel</span></p><p><span style="font-size: 1rem;"><span style="font-weight: bold;"><span style="color: rgb(244, 67, 54);">+</span><span style="color: rgb(245, 245, 245);"> PROFESSIONAL STAFF</span></span></span></p><p><span style="color: rgb(245, 245, 245);">Cras sit amet varius velit. Maecenas porta condimentum tortor at sagittis. Cum sociis natoque penatibus et magnis disvarius velit</span></p><p><span style="font-weight: bold;"><span style="color: rgb(244, 67, 54);">+</span><span style="color: rgb(245, 245, 245);"> GREAT EXPERIENCE</span></span></p><p><span style="font-size: 1rem;color: rgb(245, 245, 245);">Proin dignissim eget enim id aliquam. Proin ornare dictum leo, non elementum tellus molestie et rutrum mauris ornare.</span></p><p><span style="font-weight: bold;"><span style="color: rgb(244, 67, 54);">+</span><span style="color: rgb(245, 245, 245);"> QUALIFIED SUPPORT</span></span></p><p><span style="font-size: 1rem;color: rgb(245, 245, 245);">Integer commodo est id erat bibendum, eu convallis dolor tempus. Fusce mollis blandit eros. Nunc quis sapien in massa varius convallis at sed justo.</span><br /></p></div>
 				<div class="landing-block-node-button-container">
-					<a class="landing-block-node-button text-uppercase btn btn-xl u-btn-primary g-font-weight-700 g-font-size-12 g-rounded-50 js-animation fadeInUp" href="#" tabindex="0">Contact us
+					<a class="landing-block-node-button text-uppercase btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary g-rounded-50 js-animation fadeInUp" href="#" tabindex="0">Contact us
 						<span>for more info</span></a>
 				</div>
 			</div>
@@ -313,10 +313,10 @@ return array(
 			<div class="landing-block-node-img col-md-6 g-min-height-300 g-bg-img-hero g-px-0 g-bg-size-cover" style="background-image: url(\'https://cdn.bitrix24.site/bitrix/images/landing/business/1200x914/img2.jpg\');" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb"></div>
 			
 			<div class="col-md-6 text-center text-md-left g-py-50 g-py-100--md g-px-15 g-px-50--md">
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-default g-color-white g-mb-25 g-font-size-35 js-animation fadeInUp">OUR BENEFITS</h3>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-color-white g-mb-25 g-font-size-35 js-animation fadeInUp">OUR BENEFITS</h3>
 				<div class="landing-block-node-text g-mb-30 g-color-gray-light-v2 js-animation fadeInUp"><p><span style="color: rgb(245, 245, 245);">Aenean lobortis ante ac porttitor eleifend. Morbi massa justo, gravida sollicitudin tortor vel, dignissim viverra lectus. In varius blandit condimentum. Pellentesque rutrum mauris ornare libero imperdiet pellentesque.</span><span style="font-size: 1.14286rem;font-weight: bold;color: rgb(244, 67, 54);"><br /><br />+</span><span style="font-size: 1.14286rem;font-weight: bold;color: rgb(245, 245, 245);"> FREE ADVICE</span><span style="color: rgb(245, 245, 245);"><br /></span></p><p><span style="color: rgb(245, 245, 245);">Praesent pulvinar gravida efficitur. Aenean bibendum purus eu nisi pulvinar venenatis vitae non velit. Sed et eleifend mi. Fusce dictum orci libero.</span></p><p><span style="font-weight: bold;color: rgb(244, 67, 54);">+</span><span style="font-weight: bold;color: rgb(245, 245, 245);"> DOCUMENTATION SUPPORT</span></p><p><span style="color: rgb(245, 245, 245);">Suspendisse pulvinar facilisis ligula vel pharetra. Vestibulum volutpat porttitor ex a rutrum. Aenean consectetur risus ultricies enim finibus lobortis non at ipsum.</span></p><p><span style="font-weight: bold;color: rgb(244, 67, 54);">+</span><span style="font-weight: bold;color: rgb(245, 245, 245);"> PROFESSIONAL TEAMS</span></p><p><span style="color: rgb(245, 245, 245);">Integer commodo est id erat bibendum, eu convallis dolor tempus. Fusce mollis blandit eros. Nunc quis sapien in massa varius convallis at sed justo.</span></p><p><span style="font-weight: bold;color: rgb(244, 67, 54);">+</span><span style="font-weight: bold;color: rgb(245, 245, 245);"> 60 YEARS OF EXPERIENCE</span></p><p><span style="color: rgb(245, 245, 245);">Ut a libero magna. Aenean sagittis nisi non ex venenatis, vel commodo tortor eleifend. Nunc feugiat, est quis rutrum sodales, nunc nibh pharetra nibh</span></p></div>
 				<div class="landing-block-node-button-container">
-					<a class="landing-block-node-button text-uppercase btn btn-xl u-btn-primary g-font-weight-700 g-font-size-12 g-rounded-50 js-animation fadeInUp" href="#" tabindex="0" target="_self">CONTACT US FOR MORE INFO</a>
+					<a class="landing-block-node-button text-uppercase btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary g-font-weight-700 g-font-size-12 g-rounded-50 js-animation fadeInUp" href="#" tabindex="0" target="_self">CONTACT US FOR MORE INFO</a>
 				</div>
 			</div>
 		</div>
@@ -481,7 +481,7 @@ return array(
 				'SORT' => '5500',
 				'CONTENT' => '<section class="landing-block text-center g-py-20 g-pt-0 g-pb-50">
         <div class="container">
-				<a class="landing-block-node-button btn btn-md text-uppercase u-btn-primary rounded-0 g-px-15" href="#" g-font-weight-700 target="_self">CONTACT US</a>
+				<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary text-uppercase g-btn-primary rounded-0" href="#" g-font-weight-700 target="_self">CONTACT US</a>
         </div>
     </section>',
 			),
@@ -533,7 +533,7 @@ return array(
                 <div class="text-center u-shadow-v10 g-bg-white g-pa-0-35-35--sm g-pa-0-20-20">
                     <img class="landing-block-node-img rounded-circle mx-auto g-width-100 g-brd-10 g-brd-around g-brd-gray-light-v5 g-pull-50x-up" src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x500/img1.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-                    <h4 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-default mb-0">Fred Penner</h4>
+                    <h4 class="landing-block-node-title text-uppercase g-font-weight-700 mb-0">Fred Penner</h4>
                     <div class="landing-block-node-subtitle text-uppercase g-font-style-normal g-font-weight-700 g-font-size-10 g-color-gray-dark-v5">Ruma</div>
                     <blockquote class="landing-block-node-text u-blockquote-v7 g-line-height-1_5 g-color-gray-dark-v5 g-bg-primary--before mb-0">&quot;Ut augue diam, lacinia fringilla erat eu, vehicula commodo quam. Aliquam eget accumsan ligula. Maecenas sit amet consectetur lectus. Suspendisse commodo et magna non pulvinar.&quot;</blockquote>
                 </div>
@@ -543,7 +543,7 @@ return array(
                 <div class="text-center u-shadow-v10 g-bg-white g-pa-0-35-35--sm g-pa-0-20-20">
                     <img class="landing-block-node-img rounded-circle mx-auto g-width-100 g-brd-10 g-brd-around g-brd-gray-light-v5 g-pull-50x-up" src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x500/img9.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-                    <h4 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-default mb-0">Amy Clayton</h4>
+                    <h4 class="landing-block-node-title text-uppercase g-font-weight-700 mb-0">Amy Clayton</h4>
                     <div class="landing-block-node-subtitle text-uppercase g-font-style-normal g-font-weight-700 g-font-size-10 g-color-gray-dark-v5">Abibas</div>
                     <blockquote class="landing-block-node-text u-blockquote-v7 g-line-height-1_5 g-color-gray-dark-v5 g-bg-primary--before mb-0">&quot;Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt.</blockquote>
                 </div>
@@ -553,7 +553,7 @@ return array(
                 <div class="text-center u-shadow-v10 g-bg-white g-pa-0-35-35--sm g-pa-0-20-20">
                     <img class="landing-block-node-img rounded-circle mx-auto g-width-100 g-brd-10 g-brd-around g-brd-gray-light-v5 g-pull-50x-up" src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x500/img3.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-                    <h4 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-default mb-0">Martina Saiz</h4>
+                    <h4 class="landing-block-node-title text-uppercase g-font-weight-700 mb-0">Martina Saiz</h4>
                     <div class="landing-block-node-subtitle text-uppercase g-font-style-normal g-font-weight-700 g-font-size-10 g-color-gray-dark-v5">Jonda</div>
                     <blockquote class="landing-block-node-text u-blockquote-v7 g-line-height-1_5 g-color-gray-dark-v5 g-bg-primary--before mb-0">&quot;Ut augue diam, lacinia fringilla erat eu, vehicula commodo quam. Aliquam eget accumsan ligula. Maecenas sit amet consectetur lectus. Suspendisse commodo et magna non pulvinar.&quot;</blockquote>
                 </div>
@@ -563,7 +563,7 @@ return array(
                 <div class="text-center u-shadow-v10 g-bg-white g-pa-0-35-35--sm g-pa-0-20-20">
                     <img class="landing-block-node-img rounded-circle mx-auto g-width-100 g-brd-10 g-brd-around g-brd-gray-light-v5 g-pull-50x-up" src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x500/img4.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-                    <h4 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-default mb-0">Joseph B. Seward</h4>
+                    <h4 class="landing-block-node-title text-uppercase g-font-weight-700 mb-0">Joseph B. Seward</h4>
                     <div class="landing-block-node-subtitle text-uppercase g-font-style-normal g-font-weight-700 g-font-size-10 g-color-gray-dark-v5">Aodi</div>
                     <blockquote class="landing-block-node-text u-blockquote-v7 g-line-height-1_5 g-color-gray-dark-v5 g-bg-primary--before mb-0">&quot;Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt.&quot;</blockquote>
                 </div>
@@ -573,7 +573,7 @@ return array(
                 <div class="text-center u-shadow-v10 g-bg-white g-pa-0-35-35--sm g-pa-0-20-20">
                     <img class="landing-block-node-img rounded-circle mx-auto g-width-100 g-brd-10 g-brd-around g-brd-gray-light-v5 g-pull-50x-up" src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x500/img10.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
-                    <h4 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-default mb-0">Julia B. Mcraflane</h4>
+                    <h4 class="landing-block-node-title text-uppercase g-font-weight-700 mb-0">Julia B. Mcraflane</h4>
                     <div class="landing-block-node-subtitle text-uppercase g-font-style-normal g-font-weight-700 g-font-size-10 g-color-gray-dark-v5">Spencet Group</div>
                     <blockquote class="landing-block-node-text u-blockquote-v7 g-line-height-1_5 g-color-gray-dark-v5 g-bg-primary--before mb-0">&quot;Maecenas sit amet consectetur lectus. Suspendisse commodo et magna non pulvinar. Quisque et ultricies sem, et vulputate dui. Morbi aliquam leo id ipsum tempus mollis.&quot;</blockquote>
                 </div>
@@ -901,7 +901,7 @@ return array(
 			<div class="col-sm-12 col-md-6 col-lg-6 g-mb-25 g-mb-0--lg">
 				<h2 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-16 g-mb-20">Contact
 					us</h2>
-				<div class="landing-block-node-text g-font-size-default g-color-gray-dark-v2 g-mb-20">
+				<div class="landing-block-node-text g-color-gray-dark-v2 g-mb-20">
 					<p>Lorem ipsum dolor sit amet, consectetur
 						adipiscing</p></div>
 

@@ -79,7 +79,7 @@ class CAllTraffic
 				$SITE_ID = SITE_ID;
 		}
 
-		if (strlen($SITE_ID)>0 && is_array($arParamSite) && count($arParamSite)>0)
+		if ($SITE_ID <> '' && is_array($arParamSite) && count($arParamSite)>0)
 		{
 			$arFields = array();
 			foreach($arParamSite as $name=>$value)

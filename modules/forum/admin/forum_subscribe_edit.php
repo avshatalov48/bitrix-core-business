@@ -15,7 +15,7 @@
 	$lAdmin = new CAdminList($sTableID, $oSort);
 	$lAdmin->InitFilter(array("FilterType_S", "Filter_S", "FORUM_ID_S", "DATE_FROM_S", "DATE_TO_S", "SUBSCR_TYPE_S"));
 //************************************!Check filter ***************************************************************
-	$USER_ID = intVal($USER_ID);
+	$USER_ID = intval($USER_ID);
 	$arFilter = array("USER_ID"=>$USER_ID);
 	$arMsg = array();
 	$err = false;
@@ -29,7 +29,7 @@
 	$DATE_FROM_S = trim($DATE_FROM_S);
 	$DATE_TO_S = trim($DATE_TO_S);
 	$DATE_FROM_S_DAYS_TO_BACK = intval($DATE_FROM_S_DAYS_TO_BACK);
-	if (strlen($DATE_FROM_S)>0 || strlen($DATE_TO_S)>0 || $DATE_FROM_S_DAYS_TO_BACK>0)
+	if ($DATE_FROM_S <> '' || $DATE_TO_S <> '' || $DATE_FROM_S_DAYS_TO_BACK>0)
 	{
 		$date1_stm = MkDateTime(ConvertDateTime($DATE_FROM_S,"D.M.Y"),"d.m.Y");
 		$date2_stm = MkDateTime(ConvertDateTime($DATE_TO_S,"D.M.Y")." 23:59","d.m.Y H:i");
@@ -43,26 +43,26 @@
 		if (!$date1_stm)
 			$arMsg[] = array("id"=>">=START_DATE", "text"=> GetMessage("FM_WRONG_DATE_FROM"));
 
-		if (!$date2_stm && strlen($DATE_TO_S)>0)
+		if (!$date2_stm && $DATE_TO_S <> '')
 			$arMsg[] = array("id"=>"<=START_DATE", "text"=> GetMessage("FM_WRONG_DATE_TO"));
 		elseif ($date1_stm && $date2_stm && ($date2_stm <= $date1_stm))
 			$arMsg[] = array("id"=>"find_date_timestamp2", "text"=> GetMessage("FM_WRONG_PERIOD"));
 	}
 	$Filter_S = trim($Filter_S);
-	$FilterType_S = strtolower(trim($FilterType_S));
-	if ((strLen($Filter_S) > 0) && in_array($FilterType_S, array("forum", "topic")))
-		$arFilter["".strToUpper($FilterType_S)] = $Filter_S;
+$FilterType_S = mb_strtolower(trim($FilterType_S));
+	if (($Filter_S <> '') && in_array($FilterType_S, array("forum", "topic")))
+		$arFilter["".mb_strtoupper($FilterType_S)] = $Filter_S;
 
 	$FORUM_ID_S = intval($FORUM_ID_S);
 	if ($FORUM_ID_S>0)
 		$arFilter["FORUM_ID"] = $FORUM_ID_S;
 
-	if (strlen($date1_stm)>0)
+	if ($date1_stm <> '')
 		$arFilter[">=START_DATE"] = $DATE_FROM_S;
-	if (strlen($date2_stm)>0)
+	if ($date2_stm <> '')
 		$arFilter["<=START_DATE"] = $DATE_TO_S;
 
-	if (strLen($SUBSCR_TYPE_S) > 0)
+	if ($SUBSCR_TYPE_S <> '')
 	{
 		switch ($SUBSCR_TYPE_S)
 		{
@@ -95,7 +95,7 @@
 		{
 			foreach($arID as $ID)
 			{
-				if(strlen($ID)<=0)
+				if($ID == '')
 					continue;
 				$ID = intval($ID);
 

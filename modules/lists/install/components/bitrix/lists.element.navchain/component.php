@@ -56,7 +56,7 @@ if($arParams["ADD_NAVCHAIN_GROUP"] === "Y" && $arParams["SOCNET_GROUP_ID"])
 
 		$feature = "group_lists";
 		$arEntityActiveFeatures = CSocNetFeatures::GetActiveFeaturesNames(SONET_ENTITY_GROUP, $arGroup["ID"]);
-		$strFeatureTitle = ((array_key_exists($feature, $arEntityActiveFeatures) && StrLen($arEntityActiveFeatures[$feature]) > 0) ? $arEntityActiveFeatures[$feature] : GetMessage("CC_BLEN_BREADCRUMB_LISTS"));
+		$strFeatureTitle = ((array_key_exists($feature, $arEntityActiveFeatures) && $arEntityActiveFeatures[$feature] <> '') ? $arEntityActiveFeatures[$feature] : GetMessage("CC_BLEN_BREADCRUMB_LISTS"));
 
 		$APPLICATION->AddChainItem($strFeatureTitle, $arResult["~LISTS_URL"]);
 	}

@@ -13,7 +13,7 @@
 					<div class="landing-block-node-phone-subtitle landing-semantic-text-image-medium text-uppercase g-font-size-11 g-color-white mb-0 js-animation fadeInRight">
 						Support 24/7
 					</div>
-					<a class="landing-block-node-phone-link landing-semantic-link-image-medium g-font-size-22 g-mt-5 font-weight-bold g-color-white js-animation fadeInLeft"
+					<a class="landing-block-node-phone-link landing-semantic-link-image-medium g-font-size-22 g-mt-5 g-font-weight-700 g-color-white js-animation fadeInLeft"
 						href="tel:#PHONE1#">
 						#PHONE1#
 					</a>

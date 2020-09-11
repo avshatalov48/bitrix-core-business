@@ -149,14 +149,14 @@ if ($arParams["SEF_MODE"] == "Y")
 				}
 				if (in_array("TITLE_SEO", $params) && ($val == "TID" || $val == "TITLE_SEO"))
 				{
-					if (strpos($url, "#TID#") === false && strpos($url, "#TITLE_SEO#") === false)
+					if (mb_strpos($url, "#TID#") === false && mb_strpos($url, "#TITLE_SEO#") === false)
 					{
 						return false;
 					}
 					continue;
 				}
 				$val = (!empty($Aliases[$val]) ? $Aliases[$val] : $val);
-				if (strpos($url, "#".$val."#") === false):
+				if (mb_strpos($url, "#".$val."#") === false):
 					return false;
 				endif;
 			endforeach;
@@ -178,12 +178,12 @@ if ($arParams["SEF_MODE"] == "Y")
 	{
 		if (empty($arUrlTemplates[$url]))
 		{
-			$arResult["URL_TEMPLATES_".strToUpper($url)] = $arParams["SEF_FOLDER"].$arDefaultUrlTemplates404[$url];
+			$arResult["URL_TEMPLATES_".mb_strtoupper($url)] = $arParams["SEF_FOLDER"].$arDefaultUrlTemplates404[$url];
 		}
-		elseif (substr($arUrlTemplates[$url], 0, 1) == "/" || substr($arUrlTemplates[$url], 0, 4) == "http")
-			$arResult["URL_TEMPLATES_".strToUpper($url)] = $arUrlTemplates[$url];
+		elseif (mb_substr($arUrlTemplates[$url], 0, 1) == "/" || mb_substr($arUrlTemplates[$url], 0, 4) == "http")
+			$arResult["URL_TEMPLATES_".mb_strtoupper($url)] = $arUrlTemplates[$url];
 		else
-			$arResult["URL_TEMPLATES_".strToUpper($url)] = $arParams["SEF_FOLDER"].$arUrlTemplates[$url];
+			$arResult["URL_TEMPLATES_".mb_strtoupper($url)] = $arParams["SEF_FOLDER"].$arUrlTemplates[$url];
 	}
 
 	if ($arParams["SEF_MODE_NSEF"] == "Y" && (empty($componentPage) || $componentPage == "index") && !empty($_REQUEST["PAGE_NAME"]))
@@ -203,14 +203,14 @@ else
 		{
 			$arURL[$arVariableAliases[$k]] = "#".$v."#";
 		}
-		$arResult["URL_TEMPLATES_".strToUpper($url)] = $APPLICATION->GetCurPageParam(str_replace("%23", "#", http_build_query($arURL)),
+		$arResult["URL_TEMPLATES_".mb_strtoupper($url)] = $APPLICATION->GetCurPageParam(str_replace("%23", "#", http_build_query($arURL)),
 			array_merge($arVariableAliases, array("sessid", "result", "MESSAGE_TYPE", "PAGEN_".($GLOBALS["NavNum"] + 1))));
 	}
 }
 
 if (!empty($arVariables["PAGE_NAME"]))
 {
-	$componentPage = strToLower($arVariables["PAGE_NAME"]);
+	$componentPage = mb_strtolower($arVariables["PAGE_NAME"]);
 }
 
 $bFounded = false;
@@ -235,7 +235,7 @@ if (!$bFounded)
 	$folder404 = str_replace("\\", "/", $arParams["SEF_FOLDER"]);
 	if ($folder404 != "/")
 		$folder404 = "/".trim($folder404, "/ \t\n\r\0\x0B")."/";
-	if (substr($folder404, -1) == "/")
+	if (mb_substr($folder404, -1) == "/")
 		$folder404 .= "index.php";
 
 	if($folder404 != $APPLICATION->GetCurPage(true))
@@ -281,7 +281,7 @@ $arResult = array_merge(
 	$arResult);
 // BASE
 $arParams["FID"] = (is_array($arParams["FID"]) ? $arParams["FID"] : array());
-if ($arResult["TID"] <= 0 && strlen($arResult["TITLE_SEO"]) > 0)
+if ($arResult["TID"] <= 0 && $arResult["TITLE_SEO"] <> '')
 	$arResult["TID"] = intval(strtok($arResult["TITLE_SEO"], "-"));
 //$arParams["TID"] - topic id
 //$arParams["MID"] - message id || message id (pm)
@@ -324,7 +324,7 @@ $arParams['AJAX_POST'] = ($arParams["AJAX_POST"] == "Y" ? "Y" : "N");
 
 if (!isset($arParams["ATTACH_MODE"]))
 {
-	if (intVal($arParams["IMAGE_SIZE"]) > 0)
+	if (intval($arParams["IMAGE_SIZE"]) > 0)
 	{
 		$arParams["ATTACH_MODE"] = array("THUMB", "NAME");
 		$arParams["ATTACH_SIZE"] = $arParams["IMAGE_SIZE"];
@@ -335,14 +335,15 @@ if (!isset($arParams["ATTACH_MODE"]))
 		$arParams["ATTACH_SIZE"] = 0;
 	}
 }
-$arParams["IMAGE_SIZE"] = intVal(intVal($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 500);
+$arParams["IMAGE_SIZE"] = intval(intVal($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 500);
 $arParams["ATTACH_MODE"] = (is_array($arParams["ATTACH_MODE"]) ? $arParams["ATTACH_MODE"] : array("NAME"));
 $arParams["ATTACH_MODE"] = (!in_array("NAME", $arParams["ATTACH_MODE"]) && !in_array("THUMB", $arParams["ATTACH_MODE"]) ? array("NAME") : $arParams["ATTACH_MODE"]);
-$arParams["ATTACH_SIZE"] = intVal(intVal($arParams["ATTACH_SIZE"]) > 0 ? $arParams["ATTACH_SIZE"] : 90);
+$arParams["ATTACH_SIZE"] = intval(intVal($arParams["ATTACH_SIZE"]) > 0 ? $arParams["ATTACH_SIZE"] : 90);
 if (!array_key_exists("USER_FIELDS", $arParams))
 {
 	$arParams["USER_FIELDS"] = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFields("FORUM_MESSAGE", 0, LANGUAGE_ID);
 	$arParams["USER_FIELDS"] = (is_array($arParams["USER_FIELDS"]) ? array_keys($arParams["USER_FIELDS"]) : array());
+	$arParams["USER_FIELDS"] = array_intersect(["UF_FORUM_MESSAGE_DOC", "UF_FORUM_MESSAGE_VER"], $arParams["USER_FIELDS"]);
 }
 //$arParams["PATH_TO_AUTH_FORM"]
 $arParams["MINIMIZE_SQL"] = "N";
@@ -398,11 +399,11 @@ if (!$GLOBALS["USER"]->IsAuthorized() && COption::GetOptionString("forum", "USE_
 	$arParams["TMPLT_SHOW_BOTTOM"] = "";
 }
 
-$arParams["VOTE_CHANNEL_ID"] = intVal($arParams["VOTE_CHANNEL_ID"]);
+$arParams["VOTE_CHANNEL_ID"] = intval($arParams["VOTE_CHANNEL_ID"]);
 $arParams["SHOW_VOTE"] = ($arParams["SHOW_VOTE"] == "Y" && $arParams["VOTE_CHANNEL_ID"] > 0 && IsModuleInstalled("vote") ? "Y" : "N");
 if ($arParams["SHOW_VOTE"] == "Y"):
 	$arParams["VOTE_GROUP_ID"] = (!is_array($arParams["VOTE_GROUP_ID"]) || empty($arParams["VOTE_GROUP_ID"]) ? array() : $arParams["VOTE_GROUP_ID"]);
-	$arParams["VOTE_TEMPLATE"] = (strlen(trim($arParams["VOTE_TEMPLATE"])) > 0 ? trim($arParams["VOTE_TEMPLATE"]) : "light");
+	$arParams["VOTE_TEMPLATE"] = (trim($arParams["VOTE_TEMPLATE"]) <> '' ? trim($arParams["VOTE_TEMPLATE"]) : "light");
 endif;
 
 $arParams["RATING_ID"] = $arParams["RATING_ID"];
@@ -410,7 +411,7 @@ $arParams["RATING_ID"] = $arParams["RATING_ID"];
 CRatingsComponentsMain::GetShowRating($arParams);
 
 if ($arVariables["PAGE_NAME"] !== "rss" && CModule::IncludeModule("forum"))
-	ForumSetLastVisit((strpos($arVariables["PAGE_NAME"], "pm_") !== 0 ? $arResult["FID"] : 0), $arResult["TID"]);
+	ForumSetLastVisit((mb_strpos($arVariables["PAGE_NAME"], "pm_") !== 0 ? $arResult["FID"] : 0), $arResult["TID"]);
 
 $this->IncludeComponentTemplate($arVariables["PAGE_NAME"]);
 ?>

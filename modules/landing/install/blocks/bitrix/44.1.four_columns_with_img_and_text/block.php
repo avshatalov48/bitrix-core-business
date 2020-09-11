@@ -13,7 +13,7 @@
 					<!-- Article Content -->
 					<div class="info-v3-3__description-sm u-link-v2 g-pointer-events-none--parent-hover g-pos-cover g-flex-middle g-white-space-normal">
 						<div class="g-flex-middle-item g-px-30 g-pointer-events-all">
-							<h4 class="landing-block-node-card-title landing-semantic-subtitle-big h3 text-uppercase g-line-height-1 font-weight-bold
+							<h4 class="landing-block-node-card-title landing-semantic-subtitle-big h3 text-uppercase g-line-height-1 g-font-weight-700
 							g-mb-20 info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3">
 								<span style="font-weight: bold;" class="landing-semantic-subtitle-big g-transition-0_3 g-color-gray-dark-v2 g-color-white--parent-hover">Small</span><br>
 								Objects
@@ -45,7 +45,7 @@
 					<!-- Article Content -->
 					<div class="info-v3-3__description-sm u-link-v2 g-pointer-events-none--parent-hover g-pos-cover g-flex-middle g-white-space-normal">
 						<div class="g-flex-middle-item g-px-30 g-pointer-events-all">
-							<h4 class="landing-block-node-card-title landing-semantic-subtitle-big h3 text-uppercase g-line-height-1 font-weight-bold
+							<h4 class="landing-block-node-card-title landing-semantic-subtitle-big h3 text-uppercase g-line-height-1 g-font-weight-700
 							g-mb-20 info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3">
 								<span style="font-weight: bold;" class="landing-semantic-subtitle-big g-transition-0_3 g-color-gray-dark-v2 g-color-white--parent-hover">Medium</span><br>
 								Objects
@@ -77,7 +77,7 @@
 					<!-- Article Content -->
 					<div class="info-v3-3__description-sm u-link-v2 g-pointer-events-none--parent-hover g-pos-cover g-flex-middle g-white-space-normal">
 						<div class="g-flex-middle-item g-px-30 g-pointer-events-all">
-							<h4 class="landing-block-node-card-title landing-semantic-subtitle-big h3 text-uppercase g-line-height-1 font-weight-bold
+							<h4 class="landing-block-node-card-title landing-semantic-subtitle-big h3 text-uppercase g-line-height-1 g-font-weight-700
 							g-mb-20 info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3">
 								<span style="font-weight: bold;" class="landing-semantic-subtitle-big g-transition-0_3 g-color-gray-dark-v2 g-color-white--parent-hover">Large</span><br>
 								Objects
@@ -109,7 +109,7 @@
 					<!-- Article Content -->
 					<div class="info-v3-3__description-sm u-link-v2 g-pointer-events-none--parent-hover g-pos-cover g-flex-middle g-white-space-normal">
 						<div class="g-flex-middle-item g-px-30 g-pointer-events-all">
-							<h4 class="landing-block-node-card-title landing-semantic-subtitle-big h3 text-uppercase g-line-height-1 font-weight-bold
+							<h4 class="landing-block-node-card-title landing-semantic-subtitle-big h3 text-uppercase g-line-height-1 g-font-weight-700
 							g-mb-20 info-v3-3__title g-color-gray-dark-v2 g-color-white--parent-hover g-text-underline--none--hover g-transition-0_3">
 								<span style="font-weight: bold;" class="landing-semantic-subtitle-big g-transition-0_3 g-color-gray-dark-v2 g-color-white--parent-hover">XXXXL</span><br>
 								Objects

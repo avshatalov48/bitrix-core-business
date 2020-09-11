@@ -44,14 +44,31 @@ abstract class BaseConfigurable extends Base
 	 * Get default From.
 	 * @return null|string
 	 */
-	abstract public function getDefaultFrom();
+	public function getDefaultFrom()
+	{
+		$fromList = $this->getFromList();
+		$from = isset($fromList[0]) ? $fromList[0]['id'] : null;
+		//Try to find alphanumeric from
+		foreach ($fromList as $item)
+		{
+			if (!preg_match('#^[0-9]+$#', $item['id']))
+			{
+				$from = $item['id'];
+				break;
+			}
+		}
+		return $from;
+	}
 
 	/**
 	 * Set default From.
 	 * @param string $from From.
 	 * @return $this
 	 */
-	abstract public function setDefaultFrom($from);
+	public function setDefaultFrom($from)
+	{
+		return $this;
+	}
 
 	/**
 	 * Check can use state of sender.
@@ -172,7 +189,7 @@ abstract class BaseConfigurable extends Base
 		}
 
 		$port = Context::getCurrent()->getServer()->getServerPort();
-		if($port <> 80 && $port <> 443 && $port > 0 && strpos($host, ':') === false)
+		if($port <> 80 && $port <> 443 && $port > 0 && mb_strpos($host, ':') === false)
 		{
 			$host .= ':'.$port;
 		}
@@ -197,7 +214,7 @@ abstract class BaseConfigurable extends Base
 	{
 		$this->options = $options;
 		$providerId = $this->getId();
-		$providerType = strtolower($this->getType());
+		$providerType = mb_strtolower($this->getType());
 		Option::set('messageservice','sender.'.$providerType.'.'.$providerId, serialize($options));
 		return $this;
 	}
@@ -212,7 +229,7 @@ abstract class BaseConfigurable extends Base
 		if ($this->options === null)
 		{
 			$providerId = $this->getId();
-			$providerType = strtolower($this->getType());
+			$providerType = mb_strtolower($this->getType());
 			$optionsString = Option::get('messageservice', 'sender.'.$providerType.'.'.$providerId);
 			if (CheckSerializedData($optionsString))
 			{
@@ -267,7 +284,7 @@ abstract class BaseConfigurable extends Base
 	{
 		$this->options = array();
 		$providerId = $this->getId();
-		$providerType = strtolower($this->getType());
+		$providerType = mb_strtolower($this->getType());
 		Option::delete('messageservice', array('name' => 'sender.'.$providerType.'.'.$providerId));
 		return true;
 	}

@@ -92,11 +92,11 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 
 		$this->arResult['DOCUMENT_TYPE'] = $this->arParams['DOCUMENT_TYPE'];
 
-		$document_type = $this->arResult['DOCUMENT_TYPE'];
+		$documentType = $this->arResult['DOCUMENT_TYPE'];
 
 		$canWrite = false;
 
-		$ID = IntVal($this->arResult['ID']);
+		$ID = intval($this->arResult['ID']);
 		if($ID > 0)
 		{
 			$dbTemplatesList = CBPWorkflowTemplateLoader::GetList([], ["ID" =>$ID]);
@@ -108,7 +108,7 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 					$arTemplate["DOCUMENT_TYPE"]
 				);
 
-				$document_type = $arTemplate["DOCUMENT_TYPE"][2];
+				$documentType = $arTemplate["DOCUMENT_TYPE"][2];
 
 				$workflowTemplateName = $arTemplate["NAME"];
 				$workflowTemplateDescription = $arTemplate["DESCRIPTION"];
@@ -128,7 +128,7 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 
 		if($ID <= 0)
 		{
-			if(!$document_type)
+			if(!$documentType)
 			{
 				$APPLICATION->AuthForm(Loc::getMessage("ACCESS_DENIED")." ".Loc::getMessage("BIZPROC_WFEDIT_ERROR_TYPE"));
 			}
@@ -136,7 +136,7 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 			$canWrite = CBPDocument::CanUserOperateDocumentType(
 				CBPCanUserOperateOperation::CreateWorkflow,
 				$GLOBALS["USER"]->GetID(),
-				[MODULE_ID, ENTITY, $document_type]
+				[MODULE_ID, ENTITY, $documentType]
 			);
 
 			$workflowTemplateName = Loc::getMessage("BIZPROC_WFEDIT_DEFAULT_TITLE");
@@ -208,7 +208,7 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 			}
 
 			$arFields = [
-				"DOCUMENT_TYPE" => [MODULE_ID, ENTITY, $document_type],
+				"DOCUMENT_TYPE" => [MODULE_ID, ENTITY, $documentType],
 				//		"ACTIVE" 		=> $_POST["ACTIVE"],
 				"AUTO_EXECUTE" 	=> $_POST["workflowTemplateAutostart"],
 				"NAME" 			=> $_POST["workflowTemplateName"],
@@ -334,7 +334,7 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 
 					$r = CBPWorkflowTemplateLoader::ImportTemplate(
 						$ID,
-						[MODULE_ID, ENTITY, $document_type],
+						[MODULE_ID, ENTITY, $documentType],
 						$_POST["import_template_autostart"],
 						$_POST["import_template_name"],
 						$_POST["import_template_description"],
@@ -349,7 +349,7 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 			?>
 			<script>
 				<?if (intval($r) <= 0):?>
-				alert('<?= GetMessageJS("BIZPROC_WFEDIT_IMPORT_ERROR").(strlen($errTmp) > 0 ? ": ".CUtil::JSEscape($errTmp) : "" ) ?>');
+				alert('<?= GetMessageJS("BIZPROC_WFEDIT_IMPORT_ERROR").($errTmp <> '' ? ": ".CUtil::JSEscape($errTmp) : "" ) ?>');
 				<?else:?>
 				<?$ID = $r;?>
 				<?endif;
@@ -375,7 +375,7 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 
 		$runtime = CBPRuntime::GetRuntime();
 		$runtime->StartRuntime();
-		$arAllActivities = $runtime->SearchActivitiesByType("activity", [MODULE_ID, ENTITY, $document_type]);
+		$arAllActivities = $runtime->SearchActivitiesByType("activity", [MODULE_ID, ENTITY, $documentType]);
 
 		foreach ($arAllActivities as $activity)
 		{
@@ -386,7 +386,7 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 		}
 		$arAllActGroups['other'] = Loc::getMessage("BIZPROC_WFEDIT_CATEGORY_OTHER");
 
-		$this->arResult['DOCUMENT_TYPE'] = $document_type;
+		$this->arResult['DOCUMENT_TYPE'] = $documentType;
 
 		$this->arResult['ACTIVITY_GROUPS'] = $arAllActGroups;
 		$this->arResult['ACTIVITIES'] = $arAllActivities;
@@ -405,7 +405,7 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 
 		/** @var CBPDocumentService $documentService */
 		$documentService = $runtime->getDocumentService();
-		$this->arResult['DOCUMENT_FIELDS'] = $documentService->GetDocumentFields([MODULE_ID, ENTITY, $document_type]);
+		$this->arResult['DOCUMENT_FIELDS'] = $documentService->GetDocumentFields([MODULE_ID, ENTITY, $documentType]);
 
 		$this->arResult["ID"] = $ID;
 
@@ -417,6 +417,7 @@ class BizprocWorkflowEditComponent extends \CBitrixComponent
 		}
 
 		$this->arResult["USER_PARAMS"] = unserialize($userParamsStr);
+		$this->arResult["DOCUMENT_TYPE_SIGNED"] = \CBPDocument::signDocumentType([MODULE_ID, ENTITY, $documentType]);
 
 		if ($this->arParams['SET_TITLE'])
 		{

@@ -3,7 +3,8 @@ namespace Bitrix\Landing\Transfer;
 
 use \Bitrix\Landing\File;
 use \Bitrix\Landing\Site;
-use \Bitrix\Landing\Manager;
+use \Bitrix\Landing\Restriction;
+use \Bitrix\Landing\Site\Type;
 use \Bitrix\Main\Event;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Rest\Configuration;
@@ -151,14 +152,12 @@ class AppConfiguration
 
 		self::$processing = true;
 
-		if (!Manager::checkFeature(Manager::FEATURE_ALLOW_EXPORT))
+		if (Restriction\Manager::isAllowed('limit_sites_transfer'))
 		{
-			return null;
-		}
-
-		if ($access && isset(static::$entityList[$code]))
-		{
-			return Export\Site::nextStep($event);
+			if ($access && isset(static::$entityList[$code]))
+			{
+				return Export\Site::nextStep($event);
+			}
 		}
 
 		return null;
@@ -203,6 +202,7 @@ class AppConfiguration
 				$manifest = $setting->get(Configuration\Setting::SETTING_MANIFEST);
 				if (!empty($manifest['SITE_ID']))
 				{
+					Type::setScope($manifest['SITE_TYPE']);
 					$res = Site::getList([
 						'select' => [
 							'TITLE'
@@ -213,7 +213,6 @@ class AppConfiguration
 					]);
 					if ($row = $res->fetch())
 					{
-						$date = new \Bitrix\Main\Type\DateTime;
 						$structure = new Configuration\Structure($context);
 						$structure->setArchiveName(\CUtil::translit(
 							trim($row['TITLE']),

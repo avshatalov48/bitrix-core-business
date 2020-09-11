@@ -139,10 +139,11 @@ export class ImBasePullHandler
 
 		if (params.files)
 		{
-			let files = VuexBuilderModel.convertToArray(params.files);
+			let files = this.controller.application.prepareFilesBeforeSave(
+				VuexBuilderModel.convertToArray(params.files)
+			);
 			files.forEach(file =>
 			{
-				file = this.controller.application.prepareFilesBeforeSave(file);
 				if (
 					files.length === 1
 					&& params.message.templateFileId

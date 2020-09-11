@@ -30,8 +30,8 @@ $sTableID = "t_adv_graph_list";
 $oSort = new CAdminSorting($sTableID);
 $lAdmin = new CAdminList($sTableID, $oSort);
 
-if (strlen($DATE1)>0) $find_date1 = $DATE1;
-if (strlen($DATE2)>0) $find_date2 = $DATE2;
+if ($DATE1 <> '') $find_date1 = $DATE1;
+if ($DATE2 <> '') $find_date2 = $DATE2;
 
 $filter = new CAdminFilter(
 	$sTableID."_filter_id",
@@ -164,7 +164,7 @@ elseif (!$message)
 	if ($find_hits_back=="Y")
 		$s .= "&find_hits_back=Y";
 
-	if (strlen($s)>0)
+	if ($s <> '')
 	{
 		$graph_1 = "Y";
 		$str .= $s;

@@ -16,11 +16,11 @@
 
 /*******************************************************************/
 	$arFilter = array();
-	$ID = intVal($ID);
+	$ID = intval($ID);
 	$TITLE = trim($TITLE);
-	$TYPE = strtoupper(trim($_REQUEST["TYPE"]));
+$TYPE = mb_strtoupper(trim($_REQUEST["TYPE"]));
 	$arFilter = array("TYPE" => $TYPE);
-	if (strLen($TITLE) > 0)
+	if ($TITLE <> '')
 		$arFilter = array_merge($arFilter, array("%TITLE" => "%".$TITLE."%"));
 /*******************************************************************/
 	if ($lAdmin->EditAction() && $forumModulePermissions >= "W")
@@ -28,7 +28,7 @@
 		foreach ($FIELDS as $ID => $arFields)
 		{
 			$DB->StartTransaction();
-			$ID = IntVal($ID);
+			$ID = intval($ID);
 			if (!$lAdmin->IsUpdated($ID))
 				continue;
 			if (!CFilterDictionary::Update($ID, array("TITLE" => $arFields["TITLE"])))
@@ -55,7 +55,7 @@
 		{
 			foreach($arID as $ID)
 			{
-				if(strlen($ID)<=0)
+				if($ID == '')
 					continue;
 				$ID = intval($ID);
 				switch($_REQUEST['action'])

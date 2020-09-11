@@ -33,17 +33,17 @@ if($REQUEST_METHOD == "POST" && ($save!="" || $apply!="") && $STAT_RIGHT=="W" &&
 	$arEvent = $rsEvent->Fetch();
 
 	$statDB->PrepareFields("b_stat_event");
-	$sql_KEEP_DAYS = (strlen(trim($KEEP_DAYS))<=0) ? "null" : intval($KEEP_DAYS);
+	$sql_KEEP_DAYS = (trim($KEEP_DAYS) == '') ? "null" : intval($KEEP_DAYS);
 	$arFields = array(
-		"EVENT1"		=> (strlen(trim($EVENT1))>0) ? $str_EVENT1 : "",
-		"EVENT2"		=> (strlen(trim($EVENT2))>0) ? $str_EVENT2 : "",
+		"EVENT1"		=> (trim($EVENT1) <> '') ? $str_EVENT1 : "",
+		"EVENT2"		=> (trim($EVENT2) <> '') ? $str_EVENT2 : "",
 		"ADV_VISIBLE"		=> "'".$str_ADV_VISIBLE."'",
 		"NAME"			=> "'".$str_NAME."'",
 		"DESCRIPTION"		=> "'".$str_DESCRIPTION."'",
 		"KEEP_DAYS"		=> $sql_KEEP_DAYS,
 		"C_SORT"		=> "'".$str_C_SORT."'",
 		"DIAGRAM_DEFAULT"	=> "'".$str_DIAGRAM_DEFAULT."'",
-		"DYNAMIC_KEEP_DAYS"	=> (strlen(trim($DYNAMIC_KEEP_DAYS))<=0) ? "null" : intval($str_DYNAMIC_KEEP_DAYS)
+		"DYNAMIC_KEEP_DAYS"	=> (trim($DYNAMIC_KEEP_DAYS) == '') ? "null" : intval($str_DYNAMIC_KEEP_DAYS)
 		);
 	if($cEventType->CheckFields($arFields, $ID))
 	{

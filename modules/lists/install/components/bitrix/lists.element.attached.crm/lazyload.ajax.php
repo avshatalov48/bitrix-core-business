@@ -5,7 +5,7 @@ define('NO_AGENT_CHECK', true);
 define('PUBLIC_AJAX_MODE', true);
 define('DisableEventsCheck', true);
 
-$siteID = isset($_REQUEST['site']) ? substr(preg_replace('/[^a-z0-9_]/i', '', $_REQUEST['site']), 0, 2) : '';
+$siteID = isset($_REQUEST['site'])? mb_substr(preg_replace('/[^a-z0-9_]/i', '', $_REQUEST['site']), 0, 2) : '';
 if ($siteID !== '') define('SITE_ID', $siteID);
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');

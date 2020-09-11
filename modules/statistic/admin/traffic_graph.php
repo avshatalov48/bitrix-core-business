@@ -69,7 +69,7 @@ if(isset($_REQUEST["find_site_id"]))
 foreach($find_site_id as $k=>$v)
 {
 	$v = trim($v);
-	if(strlen($v) <= 0)
+	if($v == '')
 		unset($find_site_id[$k]);
 	else
 		$find_site_id[$k] = $v;

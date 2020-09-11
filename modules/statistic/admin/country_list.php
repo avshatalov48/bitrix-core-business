@@ -64,7 +64,7 @@ InitFilterEx($arSettings, $sTableID."_settings", "get");
 
 if($find_data_type===false)//Restore saved setting
 {
-	if (strlen($saved_group_by) > 0)
+	if ($saved_group_by <> '')
 		$find_data_type = $saved_group_by;
 	else
 		$find_data_type = "SESSIONS";
@@ -93,7 +93,7 @@ $arrDays = CCountry::GetGraphArray($arFilter, $arrLegend);
 
 $lAdmin->BeginCustomContent();
 
-if(strlen($strError)>0)
+if($strError <> '')
 	CAdminMessage::ShowMessage($strError);
 
 $found = false;
@@ -108,7 +108,7 @@ foreach($arrLegend as $key => $val)
 
 if (function_exists("ImageCreate")) :
 
-if ((strlen($strError)==0) && count($arrLegend)>0) :
+if (($strError == '') && count($arrLegend)>0) :
 ?>
 <?
 	$width = COption::GetOptionString("statistic", "GRAPH_WEIGHT");
@@ -177,7 +177,7 @@ if ((strlen($strError)==0) && count($arrLegend)>0) :
 					endif;
 					?>)</td>
 					<td class="number" nowrap><?
-					$flag = "/bitrix/images/statistic/flags/".strtolower($id).".gif";
+					$flag = "/bitrix/images/statistic/flags/".mb_strtolower($id).".gif";
 					if (file_exists($_SERVER["DOCUMENT_ROOT"].$flag)) :
 						?><img src="<?=$flag?>" width="20" height="13" border=0 alt=""><?
 					endif;
@@ -254,7 +254,7 @@ if ($found):
 					endif;
 					?>)</td>
 					<td class="number" nowrap><?
-					$flag = "/bitrix/images/statistic/flags/".strtolower($id).".gif";
+					$flag = "/bitrix/images/statistic/flags/".mb_strtolower($id).".gif";
 					if (file_exists($_SERVER["DOCUMENT_ROOT"].$flag)) :
 						?><img src="<?=$flag?>" width="20" height="13" border=0 alt=""><?
 					endif;
@@ -384,7 +384,7 @@ if (is_array($arrCOUNTRY)):
 		if ($ka!==false && $kb!==false)
 		{
 			if ($ka==$kb) $ret=0;
-			elseif (strtolower($ka)>strtolower($kb)) $ret=1;
+			elseif (mb_strtolower($ka) > mb_strtolower($kb)) $ret=1;
 			else $ret=-1;
 		}
 		if ($ka===false && $kb!==false) $ret=1;

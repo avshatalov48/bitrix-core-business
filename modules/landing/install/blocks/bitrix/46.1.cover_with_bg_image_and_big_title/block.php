@@ -6,7 +6,7 @@
 				<div class="landing-block-node-subtitle landing-semantic-subtitle-image-medium g-color-white g-font-size-20 text-uppercase g-letter-spacing-5 g-mb-50">
 					Hello! We are Company24
 				</div>
-				<h2 class="landing-block-node-title landing-semantic-title-image-big h2 d-inline-block g-brd-around g-brd-2 g-brd-white g-color-white font-weight-bold g-font-size-40 text-uppercase g-line-height-1_2 g-letter-spacing-5 g-py-12 g-px-20 g-mb-50">
+				<h2 class="landing-block-node-title landing-semantic-title-image-big h2 d-inline-block g-brd-around g-brd-2 g-brd-white g-color-white g-font-weight-700 g-font-size-40 text-uppercase g-line-height-1_2 g-letter-spacing-5 g-py-12 g-px-20 g-mb-50">
 					Photography and video</h2>
 				<div class="landing-block-node-text landing-semantic-subtitle-image-medium g-color-white g-font-size-20 text-uppercase g-letter-spacing-5 mb-0">
 					<p>Your best photo template</p>

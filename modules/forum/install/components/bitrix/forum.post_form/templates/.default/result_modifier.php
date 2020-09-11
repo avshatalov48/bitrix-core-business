@@ -12,12 +12,12 @@ CUtil::InitJSCore(array("ajax", "fx"));
 ********************************************************************/
 /***************** BASE ********************************************/
 $arParams["SHOW_TAGS"] = ($arParams["SHOW_TAGS"] != "N" ? "Y" : "N");
-$arParams["IMAGE_SIZE"] = (intVal($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 100);
-$arParams["SMILES_COUNT"] = (intVal($arParams["SMILES_COUNT"]) > 0 ? intVal($arParams["SMILES_COUNT"]) : 0);
+$arParams["IMAGE_SIZE"] = (intval($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 100);
+$arParams["SMILES_COUNT"] = (intval($arParams["SMILES_COUNT"]) > 0 ? intval($arParams["SMILES_COUNT"]) : 0);
 $arParams["form_index"] = $_REQUEST["INDEX"];
 if (!empty($arParams["form_index"]))
 	$arParams["form_index"] = preg_replace("/[^a-z0-9]/is", "_", $arParams["form_index"]);
-$arParams["tabIndex"] = intVal(intval($arParams["TAB_INDEX"]) > 0 ? $arParams["TAB_INDEX"] : 10);
+$arParams["tabIndex"] = intval(intval($arParams["TAB_INDEX"]) > 0 ? $arParams["TAB_INDEX"] : 10);
 $arParams["FORM_ID"] = "REPLIER".$arParams["form_index"];
 $arParams["EDITOR_CODE_DEFAULT"] = ($arParams["EDITOR_CODE_DEFAULT"] == "Y" ? "Y" : "N");
 $arResult["QUESTIONS"] = array_values($arResult["QUESTIONS"]);
@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_REQUEST['mfi_mode']) && ($_R
 			"FORUM_ID" => $arParams["FID"],
 			"TOPIC_ID" => $arParams["TID"],
 			"MESSAGE_ID" => $arParams["MID"],
-			"USER_ID" => intVal($GLOBALS["USER"]->GetID())
+			"USER_ID" => intval($GLOBALS["USER"]->GetID())
 		));
 }
 ?>

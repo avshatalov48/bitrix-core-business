@@ -104,6 +104,7 @@ class Site
 			return [
 				'SETTING' => [
 					'SITE_ID' => $siteId,
+					'SITE_TYPE' => $siteType,
 					'APP_USES_REQUIRED' => $usedApp
 				],
 				'NEXT' => false
@@ -298,7 +299,7 @@ class Site
 
 	/**
 	 * Final step.
-	 * @param Event $event
+	 * @param Event $event Event instance.
 	 * @return array
 	 */
 	public static function onFinish(Event $event): array

@@ -230,12 +230,12 @@ if ($arParams['TILE_MODE'] == 'view')
 									publicUrl: '<?= \htmlspecialcharsbx(\CUtil::jsEscape($item['PUBLIC_URL']));?>',
 									copyPage: '<?= \htmlspecialcharsbx(\CUtil::jsEscape($uriCopy->getUri()));?>',
 									deletePage: '#',
-									publicPage: '#',
 									editPage: '<?= \htmlspecialcharsbx(\CUtil::jsEscape($urlEdit));?>',
 							 		folderIndex: false,
 							 		isFolder: <?= ($item['FOLDER'] == 'Y') ? 'true' : 'false';?>,
 							 		isActive: <?= ($item['ACTIVE'] == 'Y') ? 'true' : 'false';?>,
 							 		isDeleted: <?= ($item['DELETED'] == 'Y') ? 'true' : 'false';?>,
+							 		wasModified: <?= ($item['WAS_MODIFIED'] == 'Y') ? 'true' : 'false';?>,
 									isEditDisabled: <?= ($arResult['ACCESS_SITE']['EDIT'] != 'Y') ? 'true' : 'false';?>,
 									isSettingsDisabled: <?= ($arResult['ACCESS_SITE']['SETTINGS'] != 'Y') ? 'true' : 'false';?>,
 									isPublicationDisabled: <?= ($arResult['ACCESS_SITE']['PUBLICATION'] != 'Y') ? 'true' : 'false';?>,
@@ -267,12 +267,12 @@ if ($arParams['TILE_MODE'] == 'view')
 									copyPage: '<?= \htmlspecialcharsbx(\CUtil::jsEscape($uriCopy->getUri()));?>',
 									movePage: '<?= \htmlspecialcharsbx(\CUtil::jsEscape($uriMove->getUri()));?>',
 									deletePage: '#',
-							 		publicPage: '#',
 									editPage: '<?= \htmlspecialcharsbx(\CUtil::jsEscape($urlEdit));?>',
 						 			folderIndex: <?= ($item['FOLDER'] == 'Y') ? 'true' : 'false';?>,
 							 		isFolder: <?= ($item['FOLDER'] == 'Y') ? 'true' : 'false';?>,
 							 		isActive: <?= ($item['ACTIVE'] == 'Y') ? 'true' : 'false';?>,
 							 		isDeleted: <?= ($item['DELETED'] == 'Y') ? 'true' : 'false';?>,
+									wasModified: <?= ($item['WAS_MODIFIED'] == 'Y') ? 'true' : 'false';?>,
 									isEditDisabled: <?= ($arResult['ACCESS_SITE']['EDIT'] != 'Y') ? 'true' : 'false';?>,
 									isSettingsDisabled: <?= ($arResult['ACCESS_SITE']['SETTINGS'] != 'Y') ? 'true' : 'false';?>,
 									isPublicationDisabled: <?= ($arResult['ACCESS_SITE']['PUBLICATION'] != 'Y') ? 'true' : 'false';?>,
@@ -403,6 +403,7 @@ if ($arParams['TILE_MODE'] == 'view')
 
 		tileGrid = new BX.Landing.TileGrid({
 			wrapper: wrapper,
+			siteType: '<?= $arParams['TYPE'];?>',
 			inner: BX('grid-tile-inner'),
 			tiles: title_list,
 			sizeSettings : {
@@ -488,6 +489,12 @@ if ($arParams['TILE_MODE'] == 'view')
 
 		function showTileMenu(node, params)
 		{
+			if (typeof showTileMenuCustom === 'function')
+			{
+				showTileMenuCustom(node, params);
+				return;
+			}
+
 			var menuItems = [
 				{
 					text: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_VIEW'));?>',
@@ -573,21 +580,17 @@ if ($arParams['TILE_MODE'] == 'view')
 				},
 				<?if ($arParams['DRAFT_MODE'] != 'Y'):?>
 				{
-					text: params.isActive
-						? '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_UNPUBLIC'));?>'
-						: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_PUBLIC'));?>',
-					href: params.publicPage,
-					disabled: params.isDeleted || params.isPublicationDisabled,
+					text: params.wasModified && params.isActive
+							? '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_PUBLIC_CHANGED'));?>'
+							: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_PUBLIC'));?>',
+					disabled: params.isDeleted || params.isPublicationDisabled || (!params.wasModified && params.isActive),
 					onclick: function(event)
 					{
 						event.preventDefault();
 
 						var successFunction = function()
 						{
-							tileGrid.action(
-								params.isActive
-									? 'Landing::unpublic'
-									: 'Landing::publication',
+							tileGrid.action('Landing::publication',
 								{
 									lid: params.ID
 								},
@@ -608,6 +611,30 @@ if ($arParams['TILE_MODE'] == 'view')
 							successFunction();
 							this.popupWindow.close();
 						}
+						menu.destroy();
+					}
+				},
+				{
+					text: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_UNPUBLIC'));?>',
+					disabled: params.isDeleted || params.isPublicationDisabled || !params.isActive,
+					onclick: function(event)
+					{
+						event.preventDefault();
+
+						var successFunction = function()
+						{
+							tileGrid.action(
+								'Landing::unpublic',
+								{
+									lid: params.ID
+								},
+								null,
+								'<?= \CUtil::jsEscape($this->getComponent()->getName());?>'
+							);
+						};
+
+						successFunction();
+						this.popupWindow.close();
 						menu.destroy();
 					}
 				},

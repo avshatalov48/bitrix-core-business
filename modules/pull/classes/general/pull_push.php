@@ -1,4 +1,7 @@
 <?
+
+use Bitrix\Main\Config\Option;
+
 IncludeModuleLangFile(__FILE__);
 require_once('pushservices/services_descriptions.php');
 
@@ -115,9 +118,11 @@ class CPushManager
 	const SEND_SKIP = 'SKIP';
 	const RECORD_NOT_FOUND = 'NOT_FOUND';
 
+	public const DEFAULT_APP_ID = "Bitrix24";
+
 	public static $pushServices = false;
 	protected static $appAliases = [];
-	private static $remoteProviderUrl = "https://cloud-messaging.bitrix24.com/send/";
+	private $remoteProviderUrl ;
 
 	public function __construct()
 	{
@@ -139,9 +144,10 @@ class CPushManager
 				}
 			}
 		}
+		$this->remoteProviderUrl = Option::get("pull", "push_service_url");
 	}
 
-	public static function DeleteFromQueueByTag($userId, $tag, $appId = 'Bitrix24')
+	public static function DeleteFromQueueByTag($userId, $tag, $appId = self::DEFAULT_APP_ID)
 	{
 		global $DB;
 		if ($tag == '' || intval($userId) == 0)
@@ -285,7 +291,7 @@ class CPushManager
 			$arFields['SOUND'] = $arParams['SOUND'];
 		}
 
-		$arFields['APP_ID'] = ($arParams['APP_ID'] <> '') ? $arParams['APP_ID'] : "Bitrix24";
+		$arFields['APP_ID'] = ($arParams['APP_ID'] <> '') ? $arParams['APP_ID'] : self::DEFAULT_APP_ID;
 
 		$groupMode = [
 			self::SEND_IMMEDIATELY => [],
@@ -486,7 +492,7 @@ class CPushManager
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	public static function GetDeviceInfo($userId, $options = Array(), $appId = 'Bitrix24')
+	public static function GetDeviceInfo($userId, $options = Array(), $appId = self::DEFAULT_APP_ID)
 	{
 		$result = [];
 		if (!is_array($userId))
@@ -801,8 +807,8 @@ class CPushManager
 			}
 			if($voipMessage)
 			{
-				$deviceType = $arDevice["VOIP_TYPE"] ?: $arDevice["DEVICE_TYPE"];
-				$deviceToken = $arDevice["VOIP_TOKEN"] ?: $arDevice["DEVICE_TOKEN"];
+				$deviceType = $arDevice["VOIP_TYPE"] && $arDevice["VOIP_TOKEN"] ? $arDevice["VOIP_TYPE"]: $arDevice["DEVICE_TYPE"];
+				$deviceToken = $arDevice["VOIP_TYPE"] && $arDevice["VOIP_TOKEN"] ? $arDevice["VOIP_TOKEN"] : $arDevice["DEVICE_TOKEN"];
 				if(isset(static::$pushServices[$deviceType]))
 				{
 					$arPushMessages[$deviceType][$deviceToken] = [
@@ -878,7 +884,7 @@ class CPushManager
 				"MessageBody" => $batch
 			];
 			$httpClient = new \Bitrix\Main\Web\HttpClient(["waitResponse" => true]);
-			$httpClient->query("POST", self::$remoteProviderUrl . "?key=" . md5($key), $postData);
+			$httpClient->query("POST", $this->remoteProviderUrl . "?key=" . md5($key), $postData);
 
 			return true;
 		}
@@ -886,7 +892,7 @@ class CPushManager
 		return false;
 	}
 
-	public static function DeleteFromQueueBySubTag($userId, $tag, $appId = 'Bitrix24')
+	public static function DeleteFromQueueBySubTag($userId, $tag, $appId = self::DEFAULT_APP_ID)
 	{
 		global $DB;
 		if ($tag == '' || intval($userId) == 0)
@@ -1029,7 +1035,7 @@ class CPushManager
 		return self::$pushServices;
 	}
 
-	public function sendBadges($userId = null, $appId = 'Bitrix24')
+	public function sendBadges($userId = null, $appId = self::DEFAULT_APP_ID)
 	{
 		return \Bitrix\Pull\MobileCounter::send($userId, $appId);
 	}

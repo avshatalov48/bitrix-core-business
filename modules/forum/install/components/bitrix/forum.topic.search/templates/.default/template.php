@@ -147,7 +147,7 @@ foreach ($arResult["TOPIC"] as $res):
 	<li>
 		<a class='tableheadtext' href="<?=$res["topic_id_search"]?>"><?=$res["TITLE"]?></a>
 <?
-	if (strLen(trim($res["DESCRIPTION"])) > 0)
+	if (trim($res["DESCRIPTION"]) <> '')
 	{
 		?>, <?=$res["DESCRIPTION"]?><?
 	}

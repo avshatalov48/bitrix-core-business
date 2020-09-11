@@ -128,7 +128,7 @@ class Connection
 		$href = 'javascript:void(0)';
 		$moduleAccess = $APPLICATION->GetGroupRight('b24connector');
 
-		if(strlen($title) <= 0)
+		if($title == '')
 			$title = Loc::getMessage('B24C_CONN_BUTT_CONNECT');
 
 		if(!Loader::includeModule('socialservices') || $moduleAccess <= "R")
@@ -162,7 +162,7 @@ class Connection
 		}
 
 		$result = '<a href="'.htmlspecialcharsbx($href).'"'.
-			(strlen($onclick) > 0 ? ' onclick="'.$onclick.'"' : '').
+			($onclick <> '' ? ' onclick="'.$onclick.'"' : '').
 			' class="'.$class.'" >'.
 			$title.'</a>';
 
@@ -261,7 +261,7 @@ class Connection
 	{
 		global $APPLICATION;
 
-		if(strlen($host) <= 0)
+		if($host == '')
 			return '';
 
 		if(!Loader::includeModule("socialservices"))
@@ -270,7 +270,7 @@ class Connection
 		$result = '';
 		$appId = self::getAppID();
 
-		if(strlen($appId) > 0)
+		if($appId <> '')
 		{
 			$result = $host.'apconnect/?client_id='.urlencode($appId).'&preset=ap&state='.urlencode(http_build_query(array(
 				'check_key' => \CSocServAuthManager::GetUniqueKey(),
@@ -295,7 +295,7 @@ class Connection
 		$appId = self::getAppID();
 		$result = '';
 
-		if(strlen($appId) > 0)
+		if($appId <> '')
 		{
 			$result = \CBitrix24NetOAuthInterface::NET_URL.'/oauth/select/?preset=ap&client_id='.urlencode($appId).'&state='.urlencode(http_build_query(array(
 				'check_key' => \CSocServAuthManager::GetUniqueKey(),
@@ -340,7 +340,7 @@ class Connection
 		{
 			$domain = self::getDomain();
 
-			if(strlen($domain) <= 0)
+			if($domain == '')
 				return '';
 
 			$result = 'https://'.htmlspecialcharsbx($domain).'/settings/openlines/'; //default for b24 cloud
@@ -404,11 +404,11 @@ class Connection
 		if(is_array($result))
 			return $result;
 
-		if(strlen($result) <= 0)
+		if($result == '')
 		{
 			$domain = self::getDomain();
 
-			if(strlen($domain) <= 0)
+			if($domain == '')
 				return '';
 
 			$result = 'https://'.htmlspecialcharsbx($domain).$defaultPath; //default for b24 cloud

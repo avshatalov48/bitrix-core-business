@@ -1,7 +1,7 @@
 <section class="landing-block g-pt-80 g-pb-80 g-bg-pattern-dark-v1">
 	<div class="container">
 		<div class="text-uppercase text-center g-mb-70">
-			<h2 class="landing-block-node-title landing-semantic-subtitle-medium-primary d-inline-block g-letter-spacing-0_5 font-weight-bold g-font-size-12 g-color-white g-brd-bottom g-brd-5 g-brd-white g-pb-8 g-mb-20">
+			<h2 class="landing-block-node-title landing-semantic-subtitle-medium-primary d-inline-block g-letter-spacing-0_5 g-font-weight-700 g-font-size-12 g-color-white g-brd-bottom g-brd-5 g-brd-white g-pb-8 g-mb-20">
 				Our services</h2>
 			<div class="landing-block-node-text landing-semantic-subtitle-image-small text-uppercase g-letter-spacing-3 g-font-size-12 g-color-white mb-0">
 				<p>Atveroreas Pin sdf hero vero eos et accusamus</p>
@@ -19,7 +19,7 @@
 					<!-- End Article Image -->
 
 					<div class="media-body align-self-center g-py-50 g-pl-40 g-pl-0--md g-pr-40">
-						<h3 class="landing-block-node-card-title landing-semantic-subtitle-medium h6 text-uppercase g-letter-spacing-4 font-weight-bold g-mb-20">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-medium h6 text-uppercase g-letter-spacing-4 g-font-weight-700 g-mb-20">
 							Photo sessions for
 							men</h3>
 						<div class="landing-block-node-card-text landing-semantic-text-small g-color-gray-dark-v5 mb-0">
@@ -42,7 +42,7 @@
 					<!-- End Article Image -->
 
 					<div class="media-body align-self-center g-py-50 g-pl-40 g-pl-0--md g-pr-40">
-						<h3 class="landing-block-node-card-title landing-semantic-subtitle-medium h6 text-uppercase g-letter-spacing-4 font-weight-bold g-mb-20">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-medium h6 text-uppercase g-letter-spacing-4 g-font-weight-700 g-mb-20">
 							Photo sessions for
 							women</h3>
 						<div class="landing-block-node-card-text landing-semantic-text-small g-color-gray-dark-v5 mb-0">
@@ -66,7 +66,7 @@
 					<!-- End Article Image -->
 
 					<div class="media-body align-self-center g-py-50 g-pl-40 g-pl-0--md g-pr-40">
-						<h3 class="landing-block-node-card-title landing-semantic-subtitle-medium h6 text-uppercase g-letter-spacing-4 font-weight-bold g-mb-20">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-medium h6 text-uppercase g-letter-spacing-4 g-font-weight-700 g-mb-20">
 							General photo
 							sessions</h3>
 						<div class="landing-block-node-card-text landing-semantic-text-small g-color-gray-dark-v5 mb-0">
@@ -90,7 +90,7 @@
 					<!-- End Article Image -->
 
 					<div class="media-body align-self-center g-py-50 g-pl-40 g-pl-0--md g-pr-40">
-						<h3 class="landing-block-node-card-title landing-semantic-subtitle-medium h6 text-uppercase g-letter-spacing-4 font-weight-bold g-mb-20">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-medium h6 text-uppercase g-letter-spacing-4 g-font-weight-700 g-mb-20">
 							Conceptual
 							photos</h3>
 						<div class="landing-block-node-card-text landing-semantic-text-small g-color-gray-dark-v5 mb-0">
@@ -114,7 +114,7 @@
 					<!-- End Article Image -->
 
 					<div class="media-body align-self-center g-py-50 g-pl-40 g-pl-0--md g-pr-40">
-						<h3 class="landing-block-node-card-title landing-semantic-subtitle-medium h6 text-uppercase g-letter-spacing-4 font-weight-bold g-mb-20">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-medium h6 text-uppercase g-letter-spacing-4 g-font-weight-700 g-mb-20">
 							City moments</h3>
 						<div class="landing-block-node-card-text landing-semantic-text-small g-color-gray-dark-v5 mb-0">
 							<p>Efficitur ipsum dolor sit amet, consectetur
@@ -137,7 +137,7 @@
 					<!-- End Article Image -->
 
 					<div class="media-body align-self-center g-py-50 g-pl-40 g-pl-0--md g-pr-40">
-						<h3 class="landing-block-node-card-title landing-semantic-subtitle-medium h6 text-uppercase g-letter-spacing-4 font-weight-bold g-mb-20">
+						<h3 class="landing-block-node-card-title landing-semantic-subtitle-medium h6 text-uppercase g-letter-spacing-4 g-font-weight-700 g-mb-20">
 							Nature & animals</h3>
 						<div class="landing-block-node-card-text landing-semantic-text-small g-color-gray-dark-v5 mb-0">
 							<p>Lobortis usce dolor libero, efficitur et lobortis

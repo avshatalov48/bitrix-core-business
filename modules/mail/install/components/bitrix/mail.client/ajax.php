@@ -306,7 +306,7 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 
 		$response = array(
 			'complete' => -1,
-			'status' => -1,
+			'status' => 0,
 			'sessid' => $sessionId,
 			'timestamp' => microtime(true),
 			'final' => true,
@@ -353,12 +353,10 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 					$response['updated'] += $lastSyncResult['updatedMessages'];
 					$response['deleted'] += $lastSyncResult['deletedMessages'];
 
-					$response['complete'] = true;
-
 					$response['timestamp'] = microtime(true);
 				}
 
-				$response['status'] = $mailboxHelper->getSyncStatus();
+				$response['complete'] = true;
 
 				$onlySyncCurrent = filter_var($onlySyncCurrent, FILTER_VALIDATE_BOOLEAN);
 				if (!$onlySyncCurrent && count($mailboxHelper->getDirsHelper()->getSyncDirs()) > 1)

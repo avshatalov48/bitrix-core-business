@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports, main_core, landing_loc, landing_ui_panel_base) {
+(function (exports,main_core,landing_loc,landing_ui_panel_base) {
 	'use strict';
 
 	function _templateObject4() {
@@ -52,9 +52,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	 * @memberOf BX.Landing.UI.Panel
 	 */
 
-	var Alert =
-	/*#__PURE__*/
-	function (_BasePanel) {
+	var Alert = /*#__PURE__*/function (_BasePanel) {
 	  babelHelpers.inherits(Alert, _BasePanel);
 	  babelHelpers.createClass(Alert, null, [{
 	    key: "getInstance",
@@ -114,6 +112,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    value: function show(type, text) {
 	      var _this4 = this;
 
+	      var hideSupportLink = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 	      var promise = Promise.resolve(this);
 
 	      if (this.isShown()) {
@@ -132,7 +131,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        }
 
 	        _this4.text.innerHTML = "".concat(text || type, " ");
-	        main_core.Dom.append(_this4.getSupportLink(), _this4.text);
+
+	        if (!hideSupportLink) {
+	          main_core.Dom.append(_this4.getSupportLink(), _this4.text);
+	        }
+
 	        return _this4;
 	      });
 	    }
@@ -162,6 +165,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          case 'es':
 	            url = 'https://helpdesk.bitrix24.es/ticket.php';
 	            break;
+
+	          default:
 	        }
 
 	        _this5.supportLink = BX.create('a', {
@@ -190,5 +195,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.Alert = Alert;
 
-}(this.BX.Landing.UI.Panel = this.BX.Landing.UI.Panel || {}, BX, BX.Landing, BX.Landing.UI.Panel));
+}((this.BX.Landing.UI.Panel = this.BX.Landing.UI.Panel || {}),BX,BX.Landing,BX.Landing.UI.Panel));
 //# sourceMappingURL=alert.bundle.js.map

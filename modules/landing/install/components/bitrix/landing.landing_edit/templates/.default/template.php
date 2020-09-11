@@ -9,9 +9,10 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var array $arResult */
 /** @var array $arParams */
 /** @var \CMain $APPLICATION */
-/** @var LandingEditComponent $component */
+/** @var \LandingEditComponent $component */
 
 use \Bitrix\Landing\Manager;
+use \Bitrix\Landing\Restriction;
 use \Bitrix\Main\Page\Asset;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\ModuleManager;
@@ -827,26 +828,15 @@ if ($arParams['SUCCESS_SAVE'])
 									<label class="ui-checkbox-label" for="checkbox-headblock-use">
 										<?= $pageFields['HEADBLOCK_USE']->getLabel();?>
 									</label>
-									<?if ($hooks['HEADBLOCK']->isLocked()):?>
-										<span class="landing-icon-lock"></span>
-										<script type="text/javascript">
-											BX.ready(function()
-											{
-												if (typeof BX.Landing.PaymentAlert !== 'undefined')
-												{
-													BX.Landing.PaymentAlert({
-														<?if ($pageFields['HEADBLOCK_USE']->isEmptyValue()):?>
-														nodes: [BX('checkbox-headblock-use'), BX('textarea-headblock-code')],
-														<?else:?>
-														nodes: [BX('textarea-headblock-code')],
-														<?endif;?>
-														title: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_HTML_DISABLED_TITLE'));?>',
-														message: '<?= \CUtil::jsEscape($hooks['HEADBLOCK']->getLockedMessage());?>'
-													});
-												}
-											});
-										</script>
-									<?endif;?>
+									<?
+									if ($hooks['HEADBLOCK']->isLocked())
+									{
+										echo Restriction\Manager::getLockIcon(
+											Restriction\Hook::getRestrictionCodeByHookCode('HEADBLOCK'),
+											['checkbox-headblock-use']
+										);
+									}
+									?>
 								<?endif;?>
 								<?if (isset($pageFields['HEADBLOCK_CODE'])):?>
 								<div class="ui-control-wrap">
@@ -928,7 +918,7 @@ if ($arParams['SUCCESS_SAVE'])
 		</div>
 	</div>
 
-	<div class="<?if ($request->get('IFRAME') == 'Y'){?>landing-edit-footer-fixed <?}?>pinable-block">
+	<div class="<?if (false && $request->get('IFRAME') == 'Y'){?>landing-edit-footer-fixed <?}?>pinable-block">
 		<div class="landing-form-footer-container">
 			<button id="landing-save-btn" type="submit" class="ui-btn ui-btn-success"  name="submit"  value="<?= Loc::getMessage('LANDING_TPL_BUTTON_' . ($arParams['SITE_ID'] ? 'SAVE' : 'ADD'));?>">
 				<?= Loc::getMessage('LANDING_TPL_BUTTON_' . ($arParams['LANDING_ID'] ? 'SAVE' : 'ADD'))?>

@@ -11,9 +11,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @subpackage im
 	 * @copyright 2001-2019 Bitrix
 	 */
-	var Timer =
-	/*#__PURE__*/
-	function () {
+	var Timer = /*#__PURE__*/function () {
 	  function Timer() {
 	    babelHelpers.classCallCheck(this, Timer);
 	    this.list = {};

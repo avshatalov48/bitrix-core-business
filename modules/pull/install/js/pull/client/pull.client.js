@@ -22,6 +22,10 @@
 	{
 		return;
 	}
+	else if (!window.BX.RestClient)
+	{
+		return;
+	}
 
 	var BX = window.BX;
 	var protobuf = window.protobuf;

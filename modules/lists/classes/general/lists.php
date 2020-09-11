@@ -103,7 +103,7 @@ class CLists
 		$arToDB = CLists::GetDefaultSocnetPermission();
 		foreach($arToDB as $role => $permission)
 			if(isset($arRoles[$role]))
-				$arToDB[$role] = substr($arRoles[$role], 0, 1);
+				$arToDB[$role] = mb_substr($arRoles[$role], 0, 1);
 		$arToDB["A"] = "X"; //Group owner always in charge
 		$arToDB["T"] = "D"; //Banned
 		$arToDB["Z"] = "D"; //and Request never get to list
@@ -348,9 +348,9 @@ class CLists
 					"NAME" => $arInputFields["SP_FIELD"],
 				);
 
-				if(substr($arInputFields["FIELD_ID"], 0, 9) == "PROPERTY_")
+				if(mb_substr($arInputFields["FIELD_ID"], 0, 9) == "PROPERTY_")
 				{
-					$arNewFields["ID"] = substr($arInputFields["FIELD_ID"], 9);
+					$arNewFields["ID"] = mb_substr($arInputFields["FIELD_ID"], 9);
 					$arNewFields["TYPE"] = "S";
 				}
 				else
@@ -1045,8 +1045,8 @@ class CLists
 		}
 
 		$cacheTime = defined('BX_COMP_MANAGED_CACHE') ? 3153600 : 3600*4;
-		$cacheId = 'lists-crm-attached-'.strtolower($entityType);
-		$cacheDir = '/lists/crm/attached/'.strtolower($entityType).'/';
+		$cacheId = 'lists-crm-attached-'.mb_strtolower($entityType);
+		$cacheDir = '/lists/crm/attached/'.mb_strtolower($entityType).'/';
 		$cache = new CPHPCache;
 		if($cache->initCache($cacheTime, $cacheId, $cacheDir))
 		{
@@ -1136,7 +1136,7 @@ class CLists
 					foreach($fields['USER_TYPE_SETTINGS'] as $entityType => $marker)
 					{
 						if($marker == 'Y')
-						 self::deleteListsCache('/lists/crm/attached/'.strtolower($entityType).'/');
+						 self::deleteListsCache('/lists/crm/attached/'.mb_strtolower($entityType).'/');
 					}
 				}
 			}
@@ -1160,7 +1160,7 @@ class CLists
 					foreach($fields['USER_TYPE_SETTINGS'] as $entityType => $marker)
 					{
 						if($marker == 'Y')
-							self::deleteListsCache('/lists/crm/attached/'.strtolower($entityType).'/');
+							self::deleteListsCache('/lists/crm/attached/'.mb_strtolower($entityType).'/');
 					}
 				}
 			}
@@ -1184,7 +1184,7 @@ class CLists
 					foreach($fields['USER_TYPE_SETTINGS'] as $entityType => $marker)
 					{
 						if($marker == 'Y')
-							self::deleteListsCache('/lists/crm/attached/'.strtolower($entityType).'/');
+							self::deleteListsCache('/lists/crm/attached/'.mb_strtolower($entityType).'/');
 					}
 				}
 			}
@@ -1511,7 +1511,7 @@ class CLists
 						}
 						else
 						{
-							if(strlen($value["VALUE"]) > 0)
+							if($value["VALUE"] <> '')
 								$properties[$propertyId][] = $value["VALUE"];
 						}
 					}
@@ -1521,13 +1521,13 @@ class CLists
 						{
 							foreach($value as $v)
 							{
-								if(strlen($v) > 0)
+								if($v <> '')
 									$properties[$propertyId][] = $v;
 							}
 						}
 						else
 						{
-							if(strlen($value) > 0)
+							if($value <> '')
 								$properties[$propertyId][] = $value;
 						}
 					}
@@ -1576,11 +1576,11 @@ class CLists
 									if($unserialize)
 										$value = $unserialize;
 								}
-								if (is_array($value) && strlen(trim($value["TEXT"])) > 0)
+								if (is_array($value) && trim($value["TEXT"]) <> '')
 								{
 									if (isset($value["TYPE"]))
 									{
-										$value["TYPE"] = strtoupper($value["TYPE"]);
+										$value["TYPE"] = mb_strtoupper($value["TYPE"]);
 										if ($value["TYPE"] == "HTML")
 											$propertyValues[] = HTMLToTxt($value["TEXT"]);
 									}

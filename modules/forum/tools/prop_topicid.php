@@ -35,17 +35,17 @@ class CIBlockPropertyTopicID
 	{
 		if (CModule::IncludeModule("forum"))
 		{
-			if (intVal($value["VALUE"]) <= 0)
+			if (intval($value["VALUE"]) <= 0)
 			{
 				$value["VALUE"] = '';
 				$res = '';
 			}
 			else
 			{
-				$value["VALUE"] = intVal($value["VALUE"]);
+				$value["VALUE"] = intval($value["VALUE"]);
 				$arTopic = CForumTopic::GetByID($value["VALUE"]);
 				if ($arTopic)
-					$res = "[<a title='".GetMessage("IBLOCK_PROP_FORUM_VIEW_TOPIC")."' class='tablebodylink' href='/bitrix/admin/forum_topics.php?lang=".LANG."'>".intVal($arTopic["ID"])."</a>] (".htmlspecialcharsbx($arTopic["TITLE"]).") ";
+					$res = "[<a title='".GetMessage("IBLOCK_PROP_FORUM_VIEW_TOPIC")."' class='tablebodylink' href='/bitrix/admin/forum_topics.php?lang=".LANG."'>".intval($arTopic["ID"])."</a>] (".htmlspecialcharsbx($arTopic["TITLE"]).") ";
 				else
 					$res = "&nbsp;".GetMessage("MAIN_NOT_FOUND");
 			}
@@ -86,16 +86,16 @@ class CIBlockPropertyTopicID
 	//DB form of the value
 	function ConvertToDB($arProperty, $value)
 	{
-		if(strlen($value["VALUE"])>0)
-			$value["VALUE"] = intVal($value["VALUE"]);
+		if($value["VALUE"] <> '')
+			$value["VALUE"] = intval($value["VALUE"]);
 		return $value;
 	}
 
 	function ConvertFromDB($arProperty, $value)
 	{
-		if(strlen($value["VALUE"])>0)
+		if($value["VALUE"] <> '')
 		{
-			$value["VALUE"] = intVal($value["VALUE"]);
+			$value["VALUE"] = intval($value["VALUE"]);
 		}
 		return $value;
 	}

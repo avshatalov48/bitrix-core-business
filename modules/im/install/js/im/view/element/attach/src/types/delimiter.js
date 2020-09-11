@@ -32,6 +32,6 @@ export const AttachTypeDelimiter =
 				}
 			}
 		},
-		template: `<div class="bx-im-element-attach-type-delimiter" :style="styles">Delimiter</div>`
+		template: `<div class="bx-im-element-attach-type-delimiter" :style="styles"></div>`
 	},
 };

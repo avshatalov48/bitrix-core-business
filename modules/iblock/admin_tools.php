@@ -1028,55 +1028,66 @@ class CEditorPopupControl
 	protected $width;
 	protected $height;
 	protected $initHtml = false;
+	/** @var bool  */
+	protected $filemanIncluded = null;
 
-	function __construct($width = 420, $height = 200)
+	public function __construct(int $width = 420, int $height = 200)
 	{
-		$this->width = intval($width);
-		$this->height = intval($height);
+		$this->width = $width;
+		$this->height = $height;
+		$this->filemanIncluded = Loader::includeModule('fileman');
 	}
 
-	function getControlHtml($name, $value, $maxLength = 255)
+	public function getEditorHtml(): string
 	{
 		$result = '';
-		if (!Loader::includeModule('fileman'))
-			return $result;
-
-		if (!$this->initHtml)
+		if (!$this->filemanIncluded || $this->initHtml)
 		{
-			$this->initHtml = true;
+			return $result;
+		}
+		$this->initHtml = true;
+		Main\Page\Asset::getInstance()->addJs('/bitrix/js/iblock/iblock_edit.js');
 
-			Main\Page\Asset::getInstance()->addJs('/bitrix/js/iblock/iblock_edit.js');
-
-			$result .= '<div id="popup_editor_start" style="display: none">';
-			ob_start();
-			$LHE = new CLightHTMLEditor;
-			$LHE->Show(array(
-				'height' => $height - 40,
-				'width' => '100%',
-				'content' => '',
-				'bResizable' => true,
-				'bUseFileDialogs' => false,
-				'bFloatingToolbar' => false,
-				'bArisingToolbar' => true,
-				'bAutoResize' => true,
-				'bSaveOnBlur' => true,
-				'bInitByJS' => true,
-				'jsObjName' => 'popup_editor',
-				'toolbarConfig' => array(
-					'Bold', 'Italic', 'Underline', 'Strike',
-					'CreateLink', 'DeleteLink',
-					'Source', 'BackColor', 'ForeColor',
-				),
-				'id' => 'popup_editor_id',
-			));
-			$result .= ob_get_contents();
-			ob_end_clean();
-			$result .= '</div>';
-			$result .= '<script>
+		$result .= '<div id="popup_editor_start" style="display: none">';
+		ob_start();
+		$LHE = new CLightHTMLEditor;
+		$LHE->Show(array(
+			'height' => $this->height - 40,
+			'width' => '100%',
+			'content' => '',
+			'bResizable' => true,
+			'bUseFileDialogs' => false,
+			'bFloatingToolbar' => false,
+			'bArisingToolbar' => true,
+			'bAutoResize' => true,
+			'bSaveOnBlur' => true,
+			'bInitByJS' => true,
+			'jsObjName' => 'popup_editor',
+			'toolbarConfig' => array(
+				'Bold', 'Italic', 'Underline', 'Strike',
+				'CreateLink', 'DeleteLink',
+				'Source', 'BackColor', 'ForeColor',
+			),
+			'id' => 'popup_editor_id',
+		));
+		$result .= ob_get_contents();
+		ob_end_clean();
+		$result .= '</div>';
+		$result .= '<script>
 				var popup_editor_dialog;
 				var popup_editor_manager = new JCPopupEditor('.$this->width.', '.$this->height.');
 			</script>';
-		}
+		return $result;
+	}
+
+	public function getControlHtml(string $name, string $value, $maxLength = 255): string
+	{
+		$result = '';
+		if (!$this->filemanIncluded)
+			return $result;
+
+		if (!$this->initHtml)
+			$result = $this->getEditorHtml();
 
 		$value = trim($value);
 		if ($value)

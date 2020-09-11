@@ -311,7 +311,7 @@ class Element implements Controllable, Errorable
 
 		foreach ($fields as $field)
 		{
-			if (strlen($field["CODE"]) > 0)
+			if ($field["CODE"] <> '')
 			{
 				$availableFields[] = "PROPERTY_".$field["CODE"];
 			}
@@ -742,7 +742,7 @@ class Element implements Controllable, Errorable
 
 		foreach ($documentStates as $documentState)
 		{
-			if (strlen($documentState["ID"]) <= 0)
+			if ($documentState["ID"] == '')
 			{
 				$startUpTemplate = true;
 				$tmpError = [];
@@ -787,7 +787,7 @@ class Element implements Controllable, Errorable
 
 		foreach ($documentStates as $documentState)
 		{
-			if (strlen($documentState["ID"]) <= 0)
+			if ($documentState["ID"] == '')
 			{
 				$errors = [];
 				$bizprocWorkflowId[$documentState["TEMPLATE_ID"]] = \CBPDocument::startWorkflow(
@@ -944,7 +944,7 @@ class Element implements Controllable, Errorable
 			$orderList = ["nulls,asc", "asc,nulls", "nulls,desc", "desc,nulls", "asc", "desc"];
 			foreach ($this->params["ELEMENT_ORDER"] as $fieldId => $orderParam)
 			{
-				$orderParam = strtolower($orderParam);
+				$orderParam = mb_strtolower($orderParam);
 				if (!in_array($orderParam, $orderList) || !in_array($fieldId, $availableFieldsIdForSort))
 				{
 					continue;

@@ -270,6 +270,7 @@ $fieldPrefix = 'CONFIGURATION_';
 							"VALUE" => $option['value'],
 							"TEMPLATE_TYPE" => $arParams['TEMPLATE_TYPE'],
 							"TEMPLATE_ID" => $arParams['TEMPLATE_ID'],
+							"IS_TRIGGER" => $arParams['IS_TRIGGER'],
 						),
 						null
 					);
@@ -324,8 +325,8 @@ $fieldPrefix = 'CONFIGURATION_';
 					$inputHtml = "<select name=\"$inputName\" class=\"bx-sender-form-control bx-sender-message-editor-field-select\">";
 					foreach ($option['items'] as $item)
 					{
-						$itemKey = htmlspecialcharsbx($item['code']);
-						$itemValue = htmlspecialcharsbx($item['value']);
+						$itemKey = htmlspecialcharsbx($item['code']??'');
+						$itemValue = htmlspecialcharsbx($item['value']??'');
 						$selected = $itemKey == $inputValue ? 'selected' : '';
 						$inputHtml .= "<option value=\"$itemKey\" $selected>$itemValue</option>";
 					}

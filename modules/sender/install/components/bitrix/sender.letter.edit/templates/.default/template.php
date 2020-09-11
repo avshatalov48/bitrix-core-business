@@ -179,6 +179,7 @@ CJSCore::Init(array('admin_interface'));
 					"TEMPLATE_TYPE" => $arResult['ROW']['TEMPLATE_TYPE'],
 					"TEMPLATE_ID" => $arResult['ROW']['TEMPLATE_ID'],
 					"CAN_EDIT" => $arParams['CAN_EDIT'],
+					"IS_TRIGGER" => $arParams['IS_TRIGGER'],
 				),
 				false
 			);

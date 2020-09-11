@@ -15,7 +15,7 @@ if (!function_exists("__array_stretch"))
 	{
 		$arResult = array();
 		
-		if (intVal($arGroup["ID"]) > 0)
+		if (intval($arGroup["ID"]) > 0)
 		{
 			$arResult["GROUP_".$arGroup["ID"]] = $arGroup;
 			unset($arResult["GROUP_".$arGroup["ID"]]["GROUPS"]);

@@ -161,7 +161,7 @@ foreach ($arResult["DATA"] as $row)
 		}
 		else if (
 			in_array($fieldId, ["ACTIVE", "ASK_GUEST_EMAIL", "USE_CAPTCHA", "INDEXATION", "DEDUPLICATION", "MODERATION"]) ||
-			substr($fieldId, 0, 6) == "ALLOW_"
+			mb_substr($fieldId, 0, 6) == "ALLOW_"
 		)
 		{
 			$gridRow["columns"][$fieldId] = $field == "Y" ? GetMessage("admin_lib_list_yes") : GetMessage("admin_lib_list_no");

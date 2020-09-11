@@ -214,12 +214,12 @@ class CAllRatingsComponentsForum
 	{
 		if ($arParams['ENTITY_TYPE_ID'] == 'FORUM_TOPIC')
 		{
-			$arTopic = CForumTopic::GetByID(IntVal($arParams['ENTITY_ID']));
+			$arTopic = CForumTopic::GetByID(intval($arParams['ENTITY_ID']));
 			return $arTopic['USER_START_ID'];
 		}
 		elseif ($arParams['ENTITY_TYPE_ID'] == 'FORUM_POST')
 		{
-			$arMessage = CForumMessage::GetByID(IntVal($arParams['ENTITY_ID']));
+			$arMessage = CForumMessage::GetByID(intval($arParams['ENTITY_ID']));
 			return $arMessage['AUTHOR_ID'];
 		}
 		return false;

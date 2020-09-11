@@ -56,7 +56,7 @@ return [
 			],
 			'style' => [
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title text-uppercase g-font-weight-300 g-mb-30 g-color-white font-weight-bold g-font-size-46',
+					0 => 'landing-block-node-title text-uppercase g-font-weight-300 g-mb-30 g-color-white g-font-weight-700 g-font-size-46',
 				],
 				'.landing-block-node-text' => [
 					0 => 'landing-block-node-text form-text g-opacity-0_8 g-color-white',

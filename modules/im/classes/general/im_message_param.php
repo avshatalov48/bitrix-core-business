@@ -778,7 +778,7 @@ class CIMMessageParamAttach
 		if (!isset($params['NAME']) || trim($params['NAME']) == '')
 			return false;
 
-		$add['NAME'] = htmlspecialcharsbx(trim($params['NAME']));
+		$add['NAME'] = self::removeNewLine($params['NAME']);
 		$add['AVATAR_TYPE'] = 'USER';
 
 		if (isset($params['NETWORK_ID']))
@@ -854,7 +854,7 @@ class CIMMessageParamAttach
 
 		if (isset($params['NAME']))
 		{
-			$result['NAME'] = htmlspecialcharsbx(trim($params['NAME']));
+			$result['NAME'] = self::removeNewLine(trim($params['NAME']));
 		}
 		if (isset($params['LINK']))
 		{
@@ -863,8 +863,7 @@ class CIMMessageParamAttach
 
 		if (isset($params['DESC']))
 		{
-			$params['DESC'] = htmlspecialcharsbx(str_replace(Array('<br>', '<br/>', '<br />'), '#BR#', trim($params['DESC'])));
-			$result['DESC'] = str_replace(array('#BR#', '[br]', '[BR]'), '<br/>', $params['DESC']);
+			$result['DESC'] = self::removeNewLine(trim($params['DESC']));
 		}
 
 		if (isset($params['HTML']))
@@ -916,7 +915,7 @@ class CIMMessageParamAttach
 
 		if (isset($params['NAME']))
 		{
-			$add['NAME'] = htmlspecialcharsbx(trim($params['NAME']));
+			$add['NAME'] = self::removeNewLine(trim($params['NAME']));
 		}
 		if (isset($params['LINK']))
 		{
@@ -925,8 +924,7 @@ class CIMMessageParamAttach
 
 		if (isset($params['DESC']))
 		{
-			$params['DESC'] = htmlspecialcharsbx(str_replace(Array('<br>', '<br/>', '<br />'), '#BR#', trim($params['DESC'])));
-			$add['DESC'] = str_replace(array('#BR#', '[br]', '[BR]'), '<br/>', $params['DESC']);
+			$add['DESC'] = self::removeNewLine(trim($params['DESC']));
 		}
 
 		if (isset($params['HTML']))
@@ -973,7 +971,8 @@ class CIMMessageParamAttach
 		if ($message == '')
 			return false;
 
-		$message = htmlspecialcharsbx(str_replace(Array('<br>', '<br/>', '<br />'), '#BR#', $message));
+		$message = nl2br($message);
+		$message = (str_replace(Array('<br>', '<br/>', '<br />', '#BR#'), '[BR]', $message));
 
 		$this->result['BLOCKS'][]['MESSAGE'] = $message;
 
@@ -1016,9 +1015,10 @@ class CIMMessageParamAttach
 				$result['DISPLAY'] = 'BLOCK';
 			}
 
-			$result['NAME'] = htmlspecialcharsbx(trim($grid['NAME']));
+			$result['NAME'] = self::removeNewLine(trim($grid['NAME']));
 
-			$result['VALUE'] = htmlspecialcharsbx(str_replace(Array('<br>', '<br/>', '<br />'), '#BR#', trim($grid['VALUE'])));
+			$grid['VALUE'] = nl2br($grid['VALUE']);
+			$result['VALUE'] = (str_replace(Array('<br>', '<br/>', '<br />', '#BR#'), '[BR]', trim($grid['VALUE'])));
 
 			if (preg_match('/^#([a-fA-F0-9]){3}(([a-fA-F0-9]){3})?\b$/D', $grid['COLOR']))
 			{
@@ -1068,7 +1068,7 @@ class CIMMessageParamAttach
 
 			if (isset($images['NAME']) && trim($images['NAME']) <> '')
 			{
-				$result['NAME'] = htmlspecialcharsbx(trim($images['NAME']));
+				$result['NAME'] = (trim($images['NAME']));
 			}
 
 			$result['LINK'] = htmlspecialcharsbx($images['LINK']);
@@ -1113,7 +1113,7 @@ class CIMMessageParamAttach
 
 			if (isset($files['NAME']) && trim($files['NAME']) <> '')
 			{
-				$result['NAME'] = htmlspecialcharsbx(trim($files['NAME']));
+				$result['NAME'] = self::removeNewLine(trim($files['NAME']));
 			}
 
 			if (isset($files['SIZE']) && intval($files['SIZE']) > 0)
@@ -1153,6 +1153,12 @@ class CIMMessageParamAttach
 	private static function decodeBbCode($message)
 	{
 		return \Bitrix\Im\Text::parse($message, Array('SAFE' => 'N'));
+	}
+
+	private static function removeNewLine($text)
+	{
+		$text = preg_replace('/\R/u', ' ', $text);
+		return $text;
 	}
 
 	public static function GetAttachByJson($array)
@@ -1276,27 +1282,6 @@ class CIMMessageParamAttach
 		{
 			$isCollection = false;
 			$attach = array($attach);
-		}
-
-		foreach ($attach as $attachId => $attachValue)
-		{
-			if (isset($attachValue['BLOCKS']))
-			{
-				foreach ($attachValue['BLOCKS'] as $blockId => $block)
-				{
-					if (isset($block['GRID']))
-					{
-						foreach ($block['GRID'] as $key => $value)
-						{
-							$attach[$attachId]['BLOCKS'][$blockId]['GRID'][$key]['VALUE'] = self::decodeBbCode($value['VALUE']);
-						}
-					}
-					else if (isset($block['MESSAGE']))
-					{
-						$attach[$attachId]['BLOCKS'][$blockId]['MESSAGE'] = self::decodeBbCode($block['MESSAGE']);
-					}
-				}
-			}
 		}
 
 		return $isCollection? $attach: $attach[0];

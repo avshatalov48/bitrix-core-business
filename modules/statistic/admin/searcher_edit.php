@@ -21,9 +21,9 @@ function CheckFields()
 {
 	global $strError, $str_NAME;
 	$str = "";
-	if (strlen(trim($str_NAME))<=0) $str .= GetMessage("STAT_FORGOT_NAME")."<br>";
+	if (trim($str_NAME) == '') $str .= GetMessage("STAT_FORGOT_NAME")."<br>";
 	$strError .= $str;
-	if (strlen($str)>0) return false; else return true;
+	if ($str <> '') return false; else return true;
 }
 
 function Set_Params()
@@ -47,12 +47,12 @@ function Set_Params()
 		$b = $statDB->Query($strSql, false, $err_mess.__LINE__);
 		if ($br=$b->Fetch())
 		{
-			if (strlen(trim($$var_DOMAIN))<=0)
+			if (trim($$var_DOMAIN) == '')
 				$statDB->Query("DELETE FROM b_stat_searcher_params WHERE ID='".intval($$var_PARAM_ID)."'", false, $err_mess.__LINE__);
 			else
 				$statDB->Update("b_stat_searcher_params",$arFields,"WHERE ID='".intval($$var_PARAM_ID)."'",$err_mess.__LINE__);
 		}
-		elseif (strlen(trim($$var_DOMAIN))>0)
+		elseif (trim($$var_DOMAIN) <> '')
 		{
 				$arFields["SEARCHER_ID"] = intval($ID);
 				$statDB->Insert("b_stat_searcher_params",$arFields, $err_mess.__LINE__);
@@ -66,22 +66,22 @@ InitBVar($SAVE_STATISTIC);
 InitBVar($DIAGRAM_DEFAULT);
 InitBVar($CHECK_ACTIVITY);
 
-if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $STAT_RIGHT>="W" && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $STAT_RIGHT>="W" && check_bitrix_sessid())
 {
 	$strSql = "SELECT HIT_KEEP_DAYS FROM b_stat_searcher WHERE ID = $ID";
 	$rsSearcher = $statDB->Query($strSql, false, $err_mess.__LINE__);
 	$arSearcher = $rsSearcher->Fetch();
 
 	$statDB->PrepareFields("b_stat_searcher");
-	$sql_HIT_KEEP_DAYS = (strlen($HIT_KEEP_DAYS)<=0) ? "null" : intval($HIT_KEEP_DAYS);
+	$sql_HIT_KEEP_DAYS = ($HIT_KEEP_DAYS == '') ? "null" : intval($HIT_KEEP_DAYS);
 	$arFields = array(
 		"ACTIVE"			=> "'".$str_ACTIVE."'",
 		"SAVE_STATISTIC"	=> "'".$str_SAVE_STATISTIC."'",
 		"DIAGRAM_DEFAULT"	=> "'".$str_DIAGRAM_DEFAULT."'",
 		"NAME"				=> "'".$str_NAME."'",
-		"USER_AGENT"		=> (strlen($USER_AGENT)<=0) ? "null" : "'".$str_USER_AGENT."'",
+		"USER_AGENT"		=> ($USER_AGENT == '') ? "null" : "'".$str_USER_AGENT."'",
 		"HIT_KEEP_DAYS"		=> $sql_HIT_KEEP_DAYS,
-		"DYNAMIC_KEEP_DAYS"	=> (strlen($DYNAMIC_KEEP_DAYS)<=0) ? "null" : intval($DYNAMIC_KEEP_DAYS),
+		"DYNAMIC_KEEP_DAYS"	=> ($DYNAMIC_KEEP_DAYS == '') ? "null" : intval($DYNAMIC_KEEP_DAYS),
 		"CHECK_ACTIVITY"	=> "'".$str_CHECK_ACTIVITY."'"
 		);
 	if (CheckFields())
@@ -103,10 +103,10 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $STAT_RI
 			if (intval($ID)>0) Set_Params();
 			$new = "Y";
 		}
-		if (strlen($strError)<=0)
+		if ($strError == '')
 		{
 			$statDB->Commit();
-			if (strlen($save)>0) LocalRedirect("searcher_list.php?lang=".LANG);
+			if ($save <> '') LocalRedirect("searcher_list.php?lang=".LANG);
 			elseif ($new=="Y") LocalRedirect($APPLICATION->GetCurPage()."?lang=".LANG."&ID=".$ID);
 		}
 		else $statDB->Rollback();
@@ -124,7 +124,7 @@ if (!($searcher->ExtractFields()))
 	$str_NAME = htmlspecialcharsbx($nm);
 	$str_CHECK_ACTIVITY="Y";
 }
-if (strlen($strError)>0) $statDB->InitTableVarsForEdit("b_stat_searcher", "", "str_");
+if ($strError <> '') $statDB->InitTableVarsForEdit("b_stat_searcher", "", "str_");
 
 if ($ID>0) $sDocTitle = GetMessage("STAT_EDIT_RECORD", array("#ID#" => $ID));
 else $sDocTitle = GetMessage("STAT_NEW_RECORD");

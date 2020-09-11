@@ -1,13 +1,13 @@
 this.BX = this.BX || {};
-(function (exports, main_core, landing_env) {
+(function (exports,main_core,landing_env) {
 	'use strict';
 
+	var additionalRequestCompleted = true;
 	/**
 	 * @memberOf BX.Landing
 	 */
-	var Backend =
-	/*#__PURE__*/
-	function () {
+
+	var Backend = /*#__PURE__*/function () {
 	  function Backend() {
 	    babelHelpers.classCallCheck(this, Backend);
 	    babelHelpers.defineProperty(this, "cache", new main_core.Cache.MemoryCache());
@@ -383,6 +383,8 @@ this.BX = this.BX || {};
 	      var title = options.title,
 	          _options$siteId = options.siteId,
 	          siteId = _options$siteId === void 0 ? envOptions.site_id : _options$siteId,
+	          _options$siteType = options.siteType,
+	          siteType = _options$siteType === void 0 ? envOptions.params.type : _options$siteType,
 	          _options$code = options.code,
 	          code = _options$code === void 0 ? main_core.Text.getRandom(16) : _options$code,
 	          blockId = options.blockId,
@@ -404,7 +406,9 @@ this.BX = this.BX || {};
 	        code: templateCode,
 	        fields: {
 	          TITLE: title,
-	          CODE: code
+	          CODE: code,
+	          //@todo: refactor
+	          ADD_IN_MENU: siteType === 'KNOWLEDGE' || siteType === 'GROUP' ? 'Y' : 'N'
 	        }
 	      };
 
@@ -429,6 +433,45 @@ this.BX = this.BX || {};
 	      return Backend.instance;
 	    }
 	  }, {
+	    key: "makeResponse",
+	    value: function makeResponse(xhr) {
+	      var sourceResponse = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+	      var type = function () {
+	        if (main_core.Type.isStringFilled(sourceResponse.type)) {
+	          return sourceResponse.type;
+	        }
+
+	        if (main_core.Type.isPlainObject(sourceResponse) && Object.values(sourceResponse).length > 0) {
+	          var allSuccess = Object.values(sourceResponse).every(function (item) {
+	            return item.type === 'success';
+	          });
+
+	          if (allSuccess) {
+	            return 'success';
+	          }
+	        }
+
+	        if (main_core.Type.isArray(sourceResponse)) {
+	          return 'other';
+	        }
+
+	        return 'error';
+	      }();
+
+	      if (type === 'other') {
+	        return sourceResponse;
+	      }
+
+	      return babelHelpers.objectSpread({
+	        result: null,
+	        type: type
+	      }, sourceResponse, {
+	        status: xhr.status,
+	        authorized: xhr.getResponseHeader('X-Bitrix-Ajax-Status') !== 'Authorize'
+	      });
+	    }
+	  }, {
 	    key: "request",
 	    value: function request(_ref7) {
 	      var url = _ref7.url,
@@ -442,15 +485,47 @@ this.BX = this.BX || {};
 	          data: fd,
 	          start: false,
 	          preparePost: false,
-	          onsuccess: function onsuccess(response) {
-	            if (main_core.Type.isPlainObject(response) && response.type === 'error') {
+	          onsuccess: function onsuccess(sourceResponse) {
+	            var response = Backend.makeResponse(xhr, sourceResponse);
+
+	            if (main_core.Type.isStringFilled(response.sessid) && additionalRequestCompleted) {
+	              main_core.Loc.setMessage('bitrix_sessid', response.sessid);
+	              additionalRequestCompleted = false;
+	              var newData = babelHelpers.objectSpread({}, data, {
+	                sessid: main_core.Loc.getMessage('bitrix_sessid')
+	              });
+	              Backend.request({
+	                url: url,
+	                data: newData
+	              }).then(function (newResponse) {
+	                additionalRequestCompleted = true;
+	                resolve(newResponse);
+	              }).catch(function (newResponse) {
+	                additionalRequestCompleted = true;
+	                reject(newResponse);
+	              });
+	              return;
+	            }
+
+	            if (!main_core.Type.isPlainObject(response)) {
+	              resolve(response);
+	              return;
+	            }
+
+	            if (response.type === 'error' || response.authorized === false) {
 	              reject(response);
 	              return;
 	            }
 
 	            resolve(response);
 	          },
-	          onfailure: reject
+	          onfailure: function onfailure(sourceResponse) {
+	            if (sourceResponse === 'auth') {
+	              reject(Backend.makeResponse(xhr));
+	            } else {
+	              reject(Backend.makeResponse(xhr, sourceResponse));
+	            }
+	          }
 	        });
 	        xhr.send(fd);
 	      });
@@ -461,5 +536,5 @@ this.BX = this.BX || {};
 
 	exports.Backend = Backend;
 
-}(this.BX.Landing = this.BX.Landing || {}, BX, BX.Landing));
+}((this.BX.Landing = this.BX.Landing || {}),BX,BX.Landing));
 //# sourceMappingURL=backend.bundle.js.map

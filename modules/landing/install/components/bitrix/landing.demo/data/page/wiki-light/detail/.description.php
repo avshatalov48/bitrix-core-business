@@ -60,7 +60,7 @@ return [
 					0 => 'landing-block js-animation fadeInUp g-pb-auto container g-max-width-container g-pt-50 g-pl-10',
 				],
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title g-font-weight-400 g-my-0 text-left g-font-size-38 g-color-black font-weight-bold g-max-width-100x',
+					0 => 'landing-block-node-title g-font-weight-400 g-my-0 text-left g-font-size-38 g-color-black g-font-weight-700 g-max-width-100x',
 				],
 			],
 		],
@@ -115,7 +115,7 @@ return [
 					0 => 'landing-block-node-img g-width-60 g-height-60 g-object-fit-cover g-rounded-50x',
 				],
 				'.landing-block-node-title' => [
-					0 => 'landing-block-node-title g-letter-spacing-inherit g-line-height-2 font-weight-bold g-color-primary g-mb-auto g-font-size-16',
+					0 => 'landing-block-node-title g-letter-spacing-inherit g-line-height-2 g-font-weight-700 g-color-primary g-mb-auto g-font-size-16',
 				],
 				'.landing-block-node-subtitle' => [
 					0 => 'landing-block-node-subtitle g-color-black g-font-size-12 g-letter-spacing-inherit',

@@ -3,8 +3,8 @@ if (empty($arParams["~MESSAGE"]))
 	return false;
 /************************ Default Params ***************************/
 $res = $arParams["~MESSAGE"];
-$iNumber = intVal($arParams["NUMBER"] > 0 ? $arParams["NUMBER"] : 1); // message number in list
-$iCount = intVal($arParams["COUNT"] > 0 ? $arParams["COUNT"] : 0); // messages count
+$iNumber = intval($arParams["NUMBER"] > 0 ? $arParams["NUMBER"] : 1); // message number in list
+$iCount = intval($arParams["COUNT"] > 0 ? $arParams["COUNT"] : 0); // messages count
 
 $arRatingResult = $arParams["~arRatingResult"];
 $arRatingVote = $arParams["~arRatingVote"];
@@ -53,17 +53,18 @@ include_once(__DIR__."/script.php");
 <?
 		endif;
 
-		if (strLen(trim($res["AUTHOR_STATUS"]))):
-?>
-					<div class="forum-user-status <?=(!empty($res["AUTHOR_STATUS_CODE"]) ? "forum-user-".$res["AUTHOR_STATUS_CODE"]."-status" : "")?>"><?
-						?><span><?=htmlspecialcharsbx($res["AUTHOR_STATUS"])?></span></div>
+if(trim($res["AUTHOR_STATUS"]) <> ''):
+	?>
+	<div
+		class="forum-user-status <?= (!empty($res["AUTHOR_STATUS_CODE"])? "forum-user-".$res["AUTHOR_STATUS_CODE"]."-status" : "") ?>"><?
+		?><span><?= htmlspecialcharsbx($res["AUTHOR_STATUS"]) ?></span></div>
 <?
-		endif;
+endif;
 
 ?>
 					<div class="forum-user-additional">
 <?
-		if (intVal($res["NUM_POSTS"]) > 0):
+		if (intval($res["NUM_POSTS"]) > 0):
 ?>
 						<span><?=GetMessage("F_NUM_MESS")?> <span><noindex><a rel="nofollow" href="<?=$res["URL"]["AUTHOR_POSTS"]?>"><?
 							?><?=$res["NUM_POSTS"]?></a></noindex></span></span>
@@ -78,7 +79,7 @@ include_once(__DIR__."/script.php");
 				$res["URL"]["AUTHOR_VOTE"] = (!!$res["URL"]["~AUTHOR_VOTE"] ? $res["URL"]["~AUTHOR_VOTE"] : $res["URL"]["AUTHOR_VOTE"]);
 						?>&nbsp;(<span class="forum-vote-user"><?
 							?><noindex><a rel="nofollow" <?
-								if (strpos($res["URL"]["AUTHOR_VOTE"], "sessid=") === false):?>onclick="this.href+='<?=(strpos($res["URL"]["AUTHOR_VOTE"], "?")===false?"?":"&").bitrix_sessid_get()?>';return true;" <?endif;
+								if (mb_strpos($res["URL"]["AUTHOR_VOTE"], "sessid=") === false):?>onclick="this.href+='<?=(mb_strpos($res["URL"]["AUTHOR_VOTE"], "?") === false?"?":"&").bitrix_sessid_get()?>';return true;" <?endif;
 								?>href="<?=$res["URL"]["AUTHOR_VOTE"]?>" title="<?
 								?><?=($res["VOTES"]["ACTION"] == "VOTE" ? GetMessage("F_NO_VOTE_DO") : GetMessage("F_NO_VOTE_UNDO"));?>"><?
 								?><?=($res["VOTES"]["ACTION"] == "VOTE" ? "+" : "-");?></a></noindex></span>)<?
@@ -105,7 +106,7 @@ include_once(__DIR__."/script.php");
 			?></span><?
 		}
 	}
-		if (strlen($res["~DATE_REG"]) > 0):
+		if ($res["~DATE_REG"] <> ''):
 ?>
 						<span><?=GetMessage("F_DATE_REGISTER")?> <span><?=$res["DATE_REG"]?></span></span>
 <?
@@ -113,7 +114,7 @@ include_once(__DIR__."/script.php");
 ?>
 					</div>
 <?
-		if (strlen($res["DESCRIPTION"]) > 0):
+		if ($res["DESCRIPTION"] <> ''):
 ?>
 					<div class="forum-user-description"><span><?=$res["DESCRIPTION"]?></span></div>
 <?
@@ -250,7 +251,7 @@ if (!empty($res["FILES"]))
 				</span></div><?
 				endif;
 
-				if (strLen($res["SIGNATURE"]) > 0):
+				if ($res["SIGNATURE"] <> ''):
 ?>
 					<div class="forum-user-signature">
 						<div class="forum-signature-line"></div>

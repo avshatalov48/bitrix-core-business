@@ -192,10 +192,7 @@ elseif($arResult['userField']['SETTINGS']['DISPLAY'] === SectionType::DISPLAY_LI
 				</option>
 EOL;
 		}
-		if(
-			$arResult['userField']['MANDATORY'] !== 'Y'
-			&& $arResult['userField']['MULTIPLE'] !== 'Y'
-		)
+		if($arResult['userField']['MANDATORY'] !== 'Y')
 		{
 			?>
 			<option

@@ -9,6 +9,7 @@
 
 import {BaseRestHandler} from "./base.rest";
 import {EventType} from "im.const";
+import {Logger} from "im.lib.logger";
 
 export class DialogRestHandler extends BaseRestHandler
 {

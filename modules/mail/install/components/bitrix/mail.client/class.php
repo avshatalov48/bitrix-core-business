@@ -52,6 +52,7 @@ class CMailClientComponent extends CBitrixComponent
 				'msg_view'    => 'message/#id#',
 				'msg_list'    => 'list/#id#',
 				'config_dirs' => 'config/dirs',
+                'addressbook' => 'addressbook',
 			);
 		}
 		else
@@ -66,12 +67,14 @@ class CMailClientComponent extends CBitrixComponent
 				'msg_view'    => 'page=msg_view&id=#id#',
 				'msg_list'    => 'page=msg_list&id=#id#',
 				'config_dirs' => 'page=config_dirs',
+                'addressbook' => 'page=addressbook',
 			);
 		}
 
 		if ($this->arParams['SEF_MODE'] == 'Y')
 		{
 			$urlTemplates  = \CComponentEngine::makeComponentUrlTemplates($defaultUrlTemplates, $this->arParams['SEF_URL_TEMPLATES']);
+
 			$componentPage = \CComponentEngine::parseComponentPath($this->arParams['SEF_FOLDER'], $urlTemplates, $variables);
 
 			foreach ($urlTemplates as $page => $path)

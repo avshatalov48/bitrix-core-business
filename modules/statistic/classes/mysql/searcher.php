@@ -43,10 +43,10 @@ class CSearcher extends CAllSearcher
 			$date2 = $arFilter["DATE2_PERIOD"];
 			$date_from = MkDateTime(ConvertDateTime($date1,"D.M.Y"),"d.m.Y");
 			$date_to = MkDateTime(ConvertDateTime($date2,"D.M.Y")." 23:59","d.m.Y H:i");
-			if (CheckDateTime($date1) && strlen($date1)>0)
+			if (CheckDateTime($date1) && $date1 <> '')
 			{
 				$filter_period = true;
-				if (strlen($date2)>0)
+				if ($date2 <> '')
 				{
 					$strSqlPeriod = "sum(if(D.DATE_STAT<FROM_UNIXTIME('$date_from'),0, if(D.DATE_STAT>FROM_UNIXTIME('$date_to'),0,";
 					$strT=")))";
@@ -57,7 +57,7 @@ class CSearcher extends CAllSearcher
 					$strT="))";
 				}
 			}
-			elseif (CheckDateTime($date2) && strlen($date2)>0)
+			elseif (CheckDateTime($date2) && $date2 <> '')
 			{
 				ResetFilterLogic();
 				$filter_period = true;
@@ -74,11 +74,11 @@ class CSearcher extends CAllSearcher
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if( ($val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -183,7 +183,7 @@ class CSearcher extends CAllSearcher
 		";
 
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch) || $filter_period || strlen($strSqlSearch_h)>0);
+		$is_filtered = (IsFiltered($strSqlSearch) || $filter_period || $strSqlSearch_h <> '');
 		return $res;
 	}
 
@@ -223,11 +223,11 @@ class CSearcher extends CAllSearcher
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if( ($val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "DATE1":

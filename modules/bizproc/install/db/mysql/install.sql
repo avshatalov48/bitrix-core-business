@@ -105,7 +105,8 @@ CREATE TABLE b_bp_task (
 	DOCUMENT_NAME varchar(255) null,
 	primary key (ID),
 	index ix_bp_tasks_sort(OVERDUE_DATE, MODIFIED),
-	index ix_bp_tasks_wf(WORKFLOW_ID)
+	index ix_bp_tasks_wf(WORKFLOW_ID),
+	index ix_bp_tasks_modified (MODIFIED)
 );
 
 CREATE TABLE b_bp_task_user (

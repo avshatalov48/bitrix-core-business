@@ -141,9 +141,16 @@ class User extends Base
 			$value = array($value);
 		}
 
+		$isPublic = ($renderMode & FieldType::RENDER_MODE_PUBLIC);
+
 		$valueString = \CBPHelper::usersArrayToString($value, null, $fieldType->getDocumentType());
 
-		if ($renderMode & FieldType::RENDER_MODE_PUBLIC)
+		if ($allowSelection && !$isPublic)
+		{
+			return static::renderControlSelector($field, $valueString, 'combine', '', $fieldType);
+		}
+
+		if ($isPublic)
 		{
 			\CUtil::InitJSCore(['bp_user_selector']);
 			$name = static::generateControlName($field);
@@ -281,4 +288,29 @@ HTML;
 		static::cleanErrors();
 		return static::extractValue($fieldType, $field, $request);
 	}
+
+	public static function externalizeValue(FieldType $fieldType, $context, $value)
+	{
+		$useExtraction = $fieldType->getSettings()['ExternalExtract'] ?? false;
+		if ($useExtraction && $value)
+		{
+			$docId = $fieldType->getDocumentId() ?: $fieldType->getDocumentType();
+			return \CBPHelper::ExtractUsers($value, $docId, true);
+		}
+
+		return parent::externalizeValue($fieldType, $context, $value);
+	}
+
+	public static function externalizeValueMultiple(FieldType $fieldType, $context, $value)
+	{
+		$useExtraction = $fieldType->getSettings()['ExternalExtract'] ?? false;
+		if ($useExtraction && $value)
+		{
+			$docId = $fieldType->getDocumentId() ?: $fieldType->getDocumentType();
+			return \CBPHelper::ExtractUsers($value, $docId);
+		}
+
+		return parent::externalizeValueMultiple($fieldType, $context, $value);
+	}
+
 }

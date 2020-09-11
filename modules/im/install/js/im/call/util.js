@@ -360,51 +360,6 @@
 			return parseInt(BX.message('turn_server_max_users'));
 		},
 
-		/**
-		 * Returns bitrate cap for the required video quality level
-		 * @param quality
-		 * @returns {number}
-		 */
-		getMaxBitrate: function(quality)
-		{
-			switch (quality)
-			{
-				case BX.Call.Quality.VeryHigh:
-					return 0;
-				case BX.Call.Quality.High:
-					return 1000;
-				case BX.Call.Quality.Medium:
-					return 500;
-				case BX.Call.Quality.Low:
-					return 250;
-				case BX.Call.Quality.VeryLow:
-					return 100;
-			}
-		},
-
-		/**
-		 * Returns max allowed video resolution for the selected quality level
-		 * @param quality
-		 * @param allowHd
-		 * @returns {{width: number, height: number}}
-		 */
-		getMaxResolution: function(quality, allowHd)
-		{
-			switch (quality)
-			{
-				case BX.Call.Quality.VeryHigh:
-					return allowHd ? {width: 1280, height: 720} : {width: 640, height: 360};
-				case BX.Call.Quality.High:
-					return {width: 640, height: 360};
-				case BX.Call.Quality.Medium:
-					return {width: 320, height: 180};
-				case BX.Call.Quality.Low:
-					return {width: 320, height: 180};
-				case BX.Call.Quality.VeryLow:
-					return {width: 320, height: 180};
-			}
-		},
-
 		getLogMessage: function()
 		{
 			var text = BX.Call.Util.getDateForLog();

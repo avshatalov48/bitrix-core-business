@@ -166,7 +166,7 @@ return array(
 					<div class="g-color-white g-pa-40-30-30">
 						<h3 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-22 g-color-white g-mb-25">
 							Innovative</h3>
-						<div class="landing-block-node-card-text g-font-size-default g-color-white-opacity-0_8 mb-0">
+						<div class="landing-block-node-card-text g-color-white-opacity-0_8 mb-0">
 							<p>Aliquam lorem ante, dapibus in,
 								viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet.
 								Quisque rutrum.
@@ -187,7 +187,7 @@ return array(
 					<div class="g-color-white g-pa-40-30-30">
 						<h3 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-22 g-color-white g-mb-25">
 							Easy</h3>
-						<div class="landing-block-node-card-text g-font-size-default g-color-white-opacity-0_8 mb-0">
+						<div class="landing-block-node-card-text g-color-white-opacity-0_8 mb-0">
 							<p>Aliquam lorem ante, dapibus in,
 								viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet.
 								Quisque rutrum.
@@ -208,7 +208,7 @@ return array(
 					<div class="g-color-white g-pa-40-30-30">
 						<h3 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-22 g-color-white g-mb-25">
 							Modern</h3>
-						<div class="landing-block-node-card-text g-font-size-default g-color-white-opacity-0_8 mb-0">
+						<div class="landing-block-node-card-text g-color-white-opacity-0_8 mb-0">
 							<p>Aliquam lorem ante, dapibus in,
 								viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet.
 								Quisque rutrum.
@@ -229,7 +229,7 @@ return array(
 					<div class="g-color-white g-pa-40-30-30">
 						<h3 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-22 g-color-white g-mb-25">
 							Simple</h3>
-						<div class="landing-block-node-card-text g-font-size-default g-color-white-opacity-0_8 mb-0">
+						<div class="landing-block-node-card-text g-color-white-opacity-0_8 mb-0">
 							<p>Aliquam lorem ante, dapibus in,
 								viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet.
 								Quisque rutrum.
@@ -399,7 +399,7 @@ return array(
 
 		<div class="landing-block-node-text g-color-white-opacity-0_7 g-mb-35">Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Maecenas ac nulla vehicula risus pulvinar feugiat ullamcorper sit amet mi. Nam placerat efficitur dui, quis mattis magna.</div>
 		<div class="landing-block-node-button-container">
-			<a href="//www.youtube.com/watch?v=q4d8g9Dn3ww" class="landing-block-node-button btn btn-xl u-btn-primary text-uppercase g-font-weight-700 g-font-size-12 g-rounded-50 g-py-15 g-px-40 g-mb-15" target="_popup" data-embed="//www.youtube.com/embed/-MUtzI7vK-o?autoplay=1&amp;controls=1&amp;loop=0&amp;rel=0&amp;start=0&amp;html5=1" data-url="//www.youtube.com/embed/q4d8g9Dn3ww?autoplay=1&amp;controls=1&amp;loop=0&amp;rel=0&amp;start=0&amp;html5=1&amp;v=q4d8g9Dn3ww">WATCH VIDEO</a>
+			<a href="//www.youtube.com/watch?v=q4d8g9Dn3ww" class="landing-block-node-button btn g-btn-primary g-btn-type-solid g-btn-px-l g-btn-size-md text-uppercase g-rounded-50 g-py-15 g-mb-15" target="_popup" data-embed="//www.youtube.com/embed/-MUtzI7vK-o?autoplay=1&amp;controls=1&amp;loop=0&amp;rel=0&amp;start=0&amp;html5=1" data-url="//www.youtube.com/embed/q4d8g9Dn3ww?autoplay=1&amp;controls=1&amp;loop=0&amp;rel=0&amp;start=0&amp;html5=1&amp;v=q4d8g9Dn3ww">WATCH VIDEO</a>
 		</div>
 	</div>
 </section>',
@@ -582,7 +582,7 @@ return array(
 
 						<div class="media-body align-self-center">
 							<h4 class="landing-block-node-card-title h6 text-uppercase g-font-weight-700 g-color-black g-mb-15">Awesome features</h4>
-							<div class="landing-block-node-card-text g-font-size-default mb-0">
+							<div class="landing-block-node-card-text mb-0">
 								<p>Vestibulum vulputate lobortis tortor non tempus. Proin
 									in ex blandit velit imperdiet tincidunt sit amet at quam. Nam ac ultrices urna, sit
 									amet fermentum magna. Nulla eu mattis augue.</p>
@@ -600,7 +600,7 @@ return array(
 						<div class="media-body align-self-center">
 							<h4 class="landing-block-node-card-title h6 text-uppercase g-font-weight-700 g-color-black g-mb-15">Beautiful and modern
 								design</h4>
-							<div class="landing-block-node-card-text g-font-size-default mb-0">
+							<div class="landing-block-node-card-text mb-0">
 								<p>Araesent blandit hendrerit justo sed egestas. Proin
 									tincidunt purus in tortor cursus fermentum. Proin laoreet erat vitae dui blandit,
 									vitae faucibus lacus auctor. Proin ornare sit amet arcu at aliquam.</p>
@@ -641,13 +641,13 @@ return array(
 						<!-- Card -->
 						<div class="landing-block-node-card card rounded-0 g-bg-primary g-color-white g-brd-none">
 							<div class="u-accordion__header g-pa-20">
-								<h5 class="landing-block-node-card-title mb-0 text-uppercase g-font-size-default g-font-weight-700 g-color-white">
+								<h5 class="landing-block-node-card-title mb-0 text-uppercase g-font-weight-700 g-color-white">
 									Awesome features
 								</h5>
 							</div>
 
 							<div>
-								<div class="landing-block-node-card-text u-accordion__body g-font-size-default g-pa-0-20-20">
+								<div class="landing-block-node-card-text u-accordion__body g-pa-0-20-20">
 									Anim pariatur cliche
 									reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf
 									moon
@@ -662,13 +662,13 @@ return array(
 						<!-- Card -->
 						<div class="landing-block-node-card card rounded-0 g-bg-primary-dark-v2 g-color-white g-brd-none">
 							<div class="u-accordion__header g-pa-20">
-								<h5 class="landing-block-node-card-title mb-0 text-uppercase g-font-size-default g-font-weight-700 g-color-white">
+								<h5 class="landing-block-node-card-title mb-0 text-uppercase g-font-weight-700 g-color-white">
 									Modern and creative design
 								</h5>
 							</div>
 
 							<div>
-								<div class="landing-block-node-card-text u-accordion__body g-font-size-default g-pa-0-20-20">
+								<div class="landing-block-node-card-text u-accordion__body g-pa-0-20-20">
 									Anim pariatur cliche
 									reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf
 									moon
@@ -683,13 +683,13 @@ return array(
 						<!-- Card -->
 						<div class="landing-block-node-card card rounded-0 g-bg-primary g-color-white g-brd-none">
 							<div class="u-accordion__header g-pa-20">
-								<h5 class="landing-block-node-card-title mb-0 text-uppercase g-font-size-default g-font-weight-700 g-color-white">
+								<h5 class="landing-block-node-card-title mb-0 text-uppercase g-font-weight-700 g-color-white">
 									Regular updates
 								</h5>
 							</div>
 
 							<div>
-								<div class="landing-block-node-card-text u-accordion__body g-font-size-default g-pa-0-20-20">
+								<div class="landing-block-node-card-text u-accordion__body g-pa-0-20-20">
 									Anim pariatur cliche
 									reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf
 									moon
@@ -747,12 +747,12 @@ return array(
 
 					<h4 class="landing-block-node-card-title h6 text-uppercase g-font-weight-700 g-color-white g-mb-15">
 						User Manual</h4>
-					<div class="landing-block-node-card-text g-font-size-default g-color-white-opacity-0_8 g-mb-30 js-animation fadeInLeft">
+					<div class="landing-block-node-card-text g-color-white-opacity-0_8 g-mb-30 js-animation fadeInLeft">
 						<p>Sed feugiat porttitor nunc, non
 							dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem.</p>
 					</div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn btn-lg text-uppercase u-btn-white g-font-weight-700 g-font-size-12 g-rounded-10 g-px-25 g-py-12 mb-0 js-animation fadeInLeft" href="#">Learn more</a>
+						<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-white g-rounded-10 g-py-12 mb-0 js-animation fadeInLeft" href="#">Learn more</a>
 					</div>
 				</div>
 			</div>
@@ -766,7 +766,7 @@ return array(
 
 					<h4 class="landing-block-node-card-title h6 text-uppercase g-font-weight-700 g-color-white g-mb-15">
 						Made with love</h4>
-					<div class="landing-block-node-card-text g-font-size-default g-color-white-opacity-0_8 g-mb-30 js-animation fadeInLeft">
+					<div class="landing-block-node-card-text g-color-white-opacity-0_8 g-mb-30 js-animation fadeInLeft">
 						<p>Sed feugiat porttitor nunc, non
 							dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel
 							faucibus ante. Nunc ullamcorper, justo a iaculis elementum, enim orci viverra eros,
@@ -774,7 +774,7 @@ return array(
 							porttitor lorem eros vel odio.</p>
 					</div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn btn-lg text-uppercase u-btn-white g-font-weight-700 g-font-size-12 g-rounded-10 g-px-25 g-py-12 mb-0 js-animation fadeInLeft" href="#">Learn more</a>
+						<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-white g-rounded-10 g-py-12 mb-0 js-animation fadeInLeft" href="#">Learn more</a>
 					</div>
 				</div>
 			</div>
@@ -788,13 +788,13 @@ return array(
 
 					<h4 class="landing-block-node-card-title h6 text-uppercase g-font-weight-700 g-color-white g-mb-15">
 						Usability and progresion</h4>
-					<div class="landing-block-node-card-text g-font-size-default g-color-white-opacity-0_8 g-mb-30 js-animation fadeInLeft">
+					<div class="landing-block-node-card-text g-color-white-opacity-0_8 g-mb-30 js-animation fadeInLeft">
 						<p>Sed feugiat porttitor nunc, non
 							dignissim ipsum vestibulum in. Donec in blandit dolor. Vivamus a fringilla lorem, vel
 							faucibus ante. Nunc ullamcorper.</p>
 					</div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn btn-lg text-uppercase u-btn-white g-font-weight-700 g-font-size-12 g-rounded-10 g-px-25 g-py-12 mb-0 js-animation fadeInLeft" href="#">Learn more</a>
+						<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-white g-rounded-10 g-py-12 mb-0 js-animation fadeInLeft" href="#">Learn more</a>
 					</div>
 				</div>
 			</div>
@@ -969,7 +969,7 @@ return array(
 			<div class="fade show active">
 				<div class="landing-block-node-card g-brd-bottom g-brd-gray-light-v5 g-py-40 js-animation slideInUp">
 					<h4 class="landing-block-node-card-title h6 text-uppercase g-font-weight-700 g-mb-10">Integer ut sollicitudin justo</h4>
-					<p class="landing-block-node-card-text g-font-size-default g-mb-30">Vivamus imperdiet condimentum diam, eget placerat felis
+					<p class="landing-block-node-card-text g-mb-30">Vivamus imperdiet condimentum diam, eget placerat felis
 						consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum ivamus
 						imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac
 						adipiscing nunc.</p>
@@ -979,7 +979,7 @@ return array(
 				<div class="landing-block-node-card g-brd-bottom g-brd-gray-light-v5 g-py-40 js-animation slideInUp">
 					<h4 class="landing-block-node-card-title h6 text-uppercase g-font-weight-700 g-mb-10">Vestibulum ante ipsum primis in faucibus
 						orci luctus et ultrices</h4>
-					<p class="landing-block-node-card-text g-font-size-default g-mb-30">Vivamus imperdiet condimentum diam, eget placerat felis
+					<p class="landing-block-node-card-text g-mb-30">Vivamus imperdiet condimentum diam, eget placerat felis
 						consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum ivamus
 						imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac
 						adipiscing nunc.</p>
@@ -989,7 +989,7 @@ return array(
 				<div class="landing-block-node-card g-brd-bottom g-brd-gray-light-v5 g-py-40 js-animation slideInUp">
 					<h4 class="landing-block-node-card-title h6 text-uppercase g-font-weight-700 g-mb-10">Maecenas ac nulla vehicula risus pulvinar
 						feugiat ullamcorper sit amet mi</h4>
-					<p class="landing-block-node-card-text g-font-size-default g-mb-30">Vivamus imperdiet condimentum diam, eget placerat felis
+					<p class="landing-block-node-card-text g-mb-30">Vivamus imperdiet condimentum diam, eget placerat felis
 						consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum ivamus
 						imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac
 						adipiscing nunc.</p>
@@ -999,7 +999,7 @@ return array(
 				<div class="landing-block-node-card g-brd-bottom g-brd-gray-light-v5 g-py-40 js-animation slideInUp">
 					<h4 class="landing-block-node-card-title h6 text-uppercase g-font-weight-700 g-mb-10">Praesent blandit hendrerit justo sed
 						egestas</h4>
-					<p class="landing-block-node-card-text g-font-size-default g-mb-30">Vivamus imperdiet condimentum diam, eget placerat felis
+					<p class="landing-block-node-card-text g-mb-30">Vivamus imperdiet condimentum diam, eget placerat felis
 						consectetur id. Donec eget orci metus, ac adipiscing nunc. Pellentesque fermentum ivamus
 						imperdiet condimentum diam, eget placerat felis consectetur id. Donec eget orci metus, ac
 						adipiscing nunc.</p>

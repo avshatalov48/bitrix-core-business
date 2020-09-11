@@ -46,8 +46,8 @@ class CCommentUFs
 				"FORUM_ID" => $arParams["FORUM_ID"],
 				"TOPIC_ID" => $arResult["FORUM_TOPIC_ID"],
 				"APPROVED_AND_MINE" => $GLOBALS["USER"]->GetId(),
-				">ID" => intVal(min($res)) - 1,
-				"<ID" => intVal(max($res)) + 1);
+				">ID" => intval(min($res)) - 1,
+				"<ID" => intval(max($res)) + 1);
 			if ($arFilter[">ID"] <= 0)
 				unset($arFilter[">ID"]);
 			if ($arResult["USER"]["RIGHTS"]["MODERATE"] == "Y")

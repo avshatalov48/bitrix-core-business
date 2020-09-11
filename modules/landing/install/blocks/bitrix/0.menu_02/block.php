@@ -13,7 +13,7 @@
 
 				<!-- Navigation -->
 				<div class="collapse navbar-collapse align-items-center flex-sm-row" id="navBar">
-					<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav text-uppercase font-weight-bold g-font-size-11 ml-auto g-pt-20 g-pt-0--lg">
+					<ul class="landing-block-node-menu-list js-scroll-nav navbar-nav text-uppercase g-font-weight-700 g-font-size-11 ml-auto g-pt-20 g-pt-0--lg">
 						<li class="landing-block-node-menu-list-item nav-item g-mx-15--lg g-mb-7 g-mb-0--lg">
 							<a href="#about" class="landing-block-node-menu-list-item-link landing-semantic-menu-h-text nav-link p-0">About</a>
 						</li>

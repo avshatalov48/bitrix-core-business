@@ -109,8 +109,8 @@ if (IsModuleInstalled("vote"))
 					"DEFAULT" => "", 
 					"REFRESH" => "Y");
 			reset($arVoteChannels);
-			if (intVal($arCurrentValues["VOTE_CHANNEL_ID"]) > 0)
-				$voteId = intVal($arCurrentValues["VOTE_CHANNEL_ID"]);
+			if (intval($arCurrentValues["VOTE_CHANNEL_ID"]) > 0)
+				$voteId = intval($arCurrentValues["VOTE_CHANNEL_ID"]);
 			else
 				$voteId = key($arVoteChannels);
 			if (!empty($voteId))
@@ -120,7 +120,7 @@ if (IsModuleInstalled("vote"))
 				$db_res = CGroup::GetList($by = "c_sort", $order = "asc");
 				while($res = $db_res -> Fetch())
 				{
-					if ((isset($arPermissions[$res["ID"]]) && intVal($arPermissions[$res["ID"]]) >= 2) || intVal($res["ID"]) == 1):
+					if ((isset($arPermissions[$res["ID"]]) && intval($arPermissions[$res["ID"]]) >= 2) || intval($res["ID"]) == 1):
 						$arUGroupsEx[$res["ID"]] = $res["NAME"]."[".$res["ID"]."]";
 					endif;
 				}

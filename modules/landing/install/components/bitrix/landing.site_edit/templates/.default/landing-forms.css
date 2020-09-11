@@ -344,6 +344,7 @@
 
 .ui-checkbox-hidden-input .ui-checkbox-label {
 	margin-bottom: 12px;
+	vertical-align: top;
 }
 
 .ui-checkbox-hidden-input .ui-input,
@@ -1026,4 +1027,8 @@
 	height: 39px;
 	margin-top: 7px;
 	opacity: 1;
+}
+
+.ui-form-right-cell .tariff-lock {
+	margin-left: 4px;
 }

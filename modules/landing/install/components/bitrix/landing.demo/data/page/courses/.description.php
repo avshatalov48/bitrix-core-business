@@ -119,13 +119,13 @@ return array(
 				'SORT' => '500',
 				'CONTENT' => '<section class="landing-block g-pt-30 g-pb-30">
 	<div class="container-fluid g-px-30">
-		<div class="js-carousel g-pos-rel g-mx-minus-15"
+		<div class="js-carousel g-pos-rel g-mx-minus-15 row"
 			 data-infinite="true"
-			 data-autoplay="true"
+			 data-autoplay="false"
 			 data-slides-show="3"
 			 data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-45 g-height-45 g-font-size-40 g-color-white g-bg-primary"
-			 data-arrow-left-classes="fa fa-angle-left g-left-minus-25"
-			 data-arrow-right-classes="fa fa-angle-right g-right-minus-25"
+			 data-arrow-left-classes="fa fa-angle-left g-left-minus-15"
+			 data-arrow-right-classes="fa fa-angle-right g-right-minus-15"
 			 data-responsive=\'[{
                  "breakpoint": 1200,
                  "settings": {
@@ -141,175 +141,172 @@ return array(
                  "settings": {
                    "slidesToShow": 1
                  }
+               }]\'
+			 data-init-classes-exclude=\'[{
+                 "selector": ".landing-block-node-card",
+                 "class": "col-12 col-sm-6 col-lg-4"
+               }, {
+                 "selector": ".js-carousel",
+                 "class": "row"
                }]\'>
-			<div class="landing-block-node-card js-slide g-px-15">
-				<!-- Article -->
+			<div class="landing-block-node-card js-slide g-px-15 col-12 col-sm-6 col-lg-4">
 				<article class="g-pos-rel">
-					<figure class="u-bg-overlay g-bg-black-opacity-0_5--after">
+					<figure class="landing-block-node-card-img-container u-bg-overlay g-bg-black-opacity-0_5--after g-pointer-events-before-after-none">
 						<img class="landing-block-node-card-img img-fluid w-100"
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/695x1135/img1.jpg" alt="">
 					</figure>
 
 					<header class="g-pos-abs g-bottom-0 g-left-0 w-100 g-color-white g-pa-30">
 						<div>
-							<span class="landing-block-node-card-icon-container g-color-primary">
-								<i class="landing-block-node-card-icon fa fa-calendar g-font-size-22 g-mr-10"></i>
+							<span class="landing-block-node-card-icon-container g-color-primary g-font-size-22 g-mr-10">
+								<i class="landing-block-node-card-icon fa fa-calendar"></i>
 							</span>
-							<div class="landing-block-node-card-subtitle d-inline-block text-uppercase g-font-weight-700 g-font-size-12 g-color-white g-mb-10">
+							<div class="landing-block-node-card-subtitle landing-semantic-subtitle-image-small d-inline-block text-uppercase g-font-weight-700 g-font-size-12 g-color-white g-mb-10">
 								<p>Duration, 3 Months.</p>
 							</div>
 						</div>
-						<h2 class="landing-block-node-card-title text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-10">
+						<h2 class="landing-block-node-card-title landing-semantic-title-image-small text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-10">
 							Dance courses
 						</h2>
-						<div class="landing-block-node-card-text g-font-size-default g-color-white-opacity-0_8 g-mb-30">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 g-mb-30">
 							<p>Curabitur eget tortor sed urna
 								faucibus iaculis id et nulla.</p>
 						</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button btn btn-xl text-uppercase u-btn-primary g-font-weight-700 g-font-size-13 g-bg-transparent--hover g-brd-3 rounded-0 g-py-15 g-px-25"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-bg-transparent--hover rounded-0 g-py-15"
 							   href="#">Learn More</a>
 						</div>
 					</header>
 				</article>
-				<!-- End Article -->
 			</div>
 
-			<div class="landing-block-node-card js-slide g-px-15">
-				<!-- Article -->
+			<div class="landing-block-node-card js-slide g-px-15 col-12 col-sm-6 col-lg-4">
 				<article class="g-pos-rel">
-					<figure class="u-bg-overlay g-bg-black-opacity-0_5--after">
+					<figure class="landing-block-node-card-img-container u-bg-overlay g-bg-black-opacity-0_5--after g-pointer-events-before-after-none">
 						<img class="landing-block-node-card-img img-fluid w-100"
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/695x1135/img2.jpg" alt="">
 					</figure>
 
 					<header class="g-pos-abs g-bottom-0 g-left-0 w-100 g-color-white g-pa-30">
 						<div>
-							<span class="landing-block-node-card-icon-container g-color-primary">
-								<i class="landing-block-node-card-icon fa fa-calendar g-font-size-22 g-mr-10"></i>
+							<span class="landing-block-node-card-icon-container g-color-primary g-font-size-22 g-mr-10">
+								<i class="landing-block-node-card-icon fa fa-calendar"></i>
 							</span>
-							<div class="landing-block-node-card-subtitle d-inline-block text-uppercase g-font-weight-700 g-font-size-12 g-color-white g-mb-10">
+							<div class="landing-block-node-card-subtitle landing-semantic-subtitle-image-small d-inline-block text-uppercase g-font-weight-700 g-font-size-12 g-color-white g-mb-10">
 								<p>Duration, 4 Months.</p>
 							</div>
 						</div>
-						<h2 class="landing-block-node-card-title text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-10">
+						<h2 class="landing-block-node-card-title landing-semantic-title-image-small text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-10">
 							Creative photos
 						</h2>
-						<div class="landing-block-node-card-text g-font-size-default g-color-white-opacity-0_8 g-mb-30">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 g-mb-30">
 							<p>Curabitur eget tortor sed urna
 								faucibus iaculis id et nulla.</p>
 						</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button btn btn-xl text-uppercase u-btn-primary g-font-weight-700 g-font-size-13 g-bg-transparent--hover g-brd-3 rounded-0 g-py-15 g-px-25"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-bg-transparent--hover rounded-0 g-py-15"
 							   href="#">Learn More</a>
 						</div>
 					</header>
 				</article>
-				<!-- End Article -->
 			</div>
 
-			<div class="landing-block-node-card js-slide g-px-15">
-				<!-- Article -->
+			<div class="landing-block-node-card js-slide g-px-15 col-12 col-sm-6 col-lg-4">
 				<article class="g-pos-rel">
-					<figure class="u-bg-overlay g-bg-black-opacity-0_5--after">
+					<figure class="landing-block-node-card-img-container u-bg-overlay g-bg-black-opacity-0_5--after g-pointer-events-before-after-none">
 						<img class="landing-block-node-card-img img-fluid w-100"
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/695x1135/img3.jpg" alt="">
 					</figure>
 
 					<header class="g-pos-abs g-bottom-0 g-left-0 w-100 g-color-white g-pa-30">
 						<div>
-							<span class="landing-block-node-card-icon-container g-color-primary">
-								<i class="landing-block-node-card-icon fa fa-calendar g-font-size-22 g-mr-10"></i>
+							<span class="landing-block-node-card-icon-container g-color-primary g-font-size-22 g-mr-10">
+								<i class="landing-block-node-card-icon fa fa-calendar"></i>
 							</span>
-							<div class="landing-block-node-card-subtitle d-inline-block text-uppercase g-font-weight-700 g-font-size-12 g-color-white g-mb-10">
+							<div class="landing-block-node-card-subtitle landing-semantic-subtitle-image-small d-inline-block text-uppercase g-font-weight-700 g-font-size-12 g-color-white g-mb-10">
 								<p>Duration, 10 Months.</p>
 							</div>
 						</div>
-						<h2 class="landing-block-node-card-title text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-10">
+						<h2 class="landing-block-node-card-title landing-semantic-title-image-small text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-10">
 							Art for all
 						</h2>
-						<div class="landing-block-node-card-text g-font-size-default g-color-white-opacity-0_8 g-mb-30">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 g-mb-30">
 							<p>Curabitur eget tortor sed urna
 								faucibus iaculis id et nulla.</p>
 						</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button btn btn-xl text-uppercase u-btn-primary g-font-weight-700 g-font-size-13 g-bg-transparent--hover g-brd-3 rounded-0 g-py-15 g-px-25"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-bg-transparent--hover rounded-0 g-py-15"
 							   href="#">Learn More</a>
 						</div>
 					</header>
 				</article>
-				<!-- End Article -->
 			</div>
 
-			<div class="landing-block-node-card js-slide g-px-15">
-				<!-- Article -->
+			<div class="landing-block-node-card js-slide g-px-15 col-12 col-sm-6 col-lg-4">
 				<article class="g-pos-rel">
-					<figure class="u-bg-overlay g-bg-black-opacity-0_5--after">
+					<figure class="landing-block-node-card-img-container u-bg-overlay g-bg-black-opacity-0_5--after g-pointer-events-before-after-none">
 						<img class="landing-block-node-card-img img-fluid w-100"
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/695x1135/img4.jpg" alt="">
 					</figure>
 
 					<header class="g-pos-abs g-bottom-0 g-left-0 w-100 g-color-white g-pa-30">
 						<div>
-							<span class="landing-block-node-card-icon-container g-color-primary">
-								<i class="landing-block-node-card-icon fa fa-calendar g-font-size-22 g-mr-10"></i>
+							<span class="landing-block-node-card-icon-container g-color-primary g-font-size-22 g-mr-10">
+								<i class="landing-block-node-card-icon fa fa-calendar"></i>
 							</span>
-							<div class="landing-block-node-card-subtitle d-inline-block text-uppercase g-font-weight-700 g-font-size-12 g-color-white g-mb-10">
+							<div class="landing-block-node-card-subtitle landing-semantic-subtitle-image-small d-inline-block text-uppercase g-font-weight-700 g-font-size-12 g-color-white g-mb-10">
 								<p>Duration, 8 Months.</p>
 							</div>
 						</div>
-						<h2 class="landing-block-node-card-title text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-10">
+						<h2 class="landing-block-node-card-title landing-semantic-title-image-small text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-10">
 							Painting
 						</h2>
-						<div class="landing-block-node-card-text g-font-size-default g-color-white-opacity-0_8 g-mb-30">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 g-mb-30">
 							<p>Curabitur eget tortor sed urna
 								faucibus iaculis id et nulla.</p>
 						</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button btn btn-xl text-uppercase u-btn-primary g-font-weight-700 g-font-size-13 g-bg-transparent--hover g-brd-3 rounded-0 g-py-15 g-px-25"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-bg-transparent--hover rounded-0 g-py-15"
 							   href="#">Learn More</a>
 						</div>
 					</header>
 				</article>
-				<!-- End Article -->
 			</div>
 
-			<div class="landing-block-node-card js-slide g-px-15">
-				<!-- Article -->
+			<div class="landing-block-node-card js-slide g-px-15 col-12 col-sm-6 col-lg-4">
 				<article class="g-pos-rel">
-					<figure class="u-bg-overlay g-bg-black-opacity-0_5--after">
+					<figure class="landing-block-node-card-img-container u-bg-overlay g-bg-black-opacity-0_5--after g-pointer-events-before-after-none">
 						<img class="landing-block-node-card-img img-fluid w-100"
 							 src="https://cdn.bitrix24.site/bitrix/images/landing/business/695x1135/img5.jpg" alt="">
 					</figure>
 
-
 					<header class="g-pos-abs g-bottom-0 g-left-0 w-100 g-color-white g-pa-30">
 						<div>
-							<span class="landing-block-node-card-icon-container g-color-primary">
-								<i class="landing-block-node-card-icon fa fa-calendar g-font-size-22 g-mr-10"></i>
+							<span class="landing-block-node-card-icon-container g-color-primary g-font-size-22 g-mr-10">
+								<i class="landing-block-node-card-icon fa fa-calendar"></i>
 							</span>
-							<div class="landing-block-node-card-subtitle d-inline-block text-uppercase g-font-weight-700 g-font-size-12 g-color-white g-mb-10">
+							<div class="landing-block-node-card-subtitle landing-semantic-subtitle-image-small d-inline-block text-uppercase g-font-weight-700 g-font-size-12 g-color-white g-mb-10">
 								<p>Duration, 7 Months.</p>
 							</div>
 						</div>
-						<h2 class="landing-block-node-card-title text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-10">
+						<h2 class="landing-block-node-card-title landing-semantic-title-image-small text-uppercase g-line-height-1 g-font-weight-700 g-font-size-40 g-mb-10">
 							Courses for elderly
 						</h2>
-						<div class="landing-block-node-card-text g-font-size-default g-color-white-opacity-0_8 g-mb-30">
+						<div class="landing-block-node-card-text landing-semantic-text-image-medium g-color-white-opacity-0_8 g-mb-30">
 							<p>Curabitur eget tortor sed urna
 								faucibus iaculis id et nulla.</p>
 						</div>
 						<div class="landing-block-node-card-button-container">
-							<a class="landing-block-node-card-button btn btn-xl text-uppercase u-btn-primary g-font-weight-700 g-font-size-13 g-bg-transparent--hover g-brd-3 rounded-0 g-py-15 g-px-25"
+							<a class="landing-block-node-card-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-bg-transparent--hover rounded-0 g-py-15"
 							   href="#">Learn More</a>
 						</div>
 					</header>
 				</article>
-				<!-- End Article -->
 			</div>
 		</div>
 	</div>
-</section>',
+</section>
+',
 			),
 		'31.1.two_cols_text_img' =>
 			array (
@@ -319,10 +316,10 @@ return array(
 	<div>
 		<div class="row mx-0">
 			<div class="col-md-6 text-center text-md-left g-py-50 g-py-100--md g-px-15 g-px-50--md">
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-default g-mb-25 g-color-black g-font-size-27 js-animation fadeInUp animated">QUALITY RESULTS WITH US</h3>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-mb-25 g-color-black g-font-size-27 js-animation fadeInUp animated">QUALITY RESULTS WITH US</h3>
 				<div class="landing-block-node-text g-mb-30 g-color-gray-dark-v2 js-animation fadeInUp animated"><p>Etiam dolor tortor, egestas a libero eget, sollicitudin maximus nulla. Nunc vitae maximus ipsum. Vestibulum sodales nisi massa, vitae blandit massa luctus id.</p></div>
 				<div class="landing-block-node-button-container">
-					<a class="landing-block-node-button text-uppercase btn btn-xl u-btn-primary g-font-weight-700 g-font-size-12 js-animation fadeInUp animated rounded-0" href="#" tabindex="0" target="_self">VIEW OUR PROMO VIDEO</a>
+					<a class="landing-block-node-button text-uppercase btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary js-animation fadeInUp animated rounded-0" href="#" tabindex="0" target="_self">VIEW OUR PROMO VIDEO</a>
 				</div>
 			</div>
 
@@ -760,7 +757,7 @@ return array(
 
                             <ul class="landing-block-node-price-list list-unstyled g-mb-25"><li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12">Fusce dolor libero, efficitur et lobortis at, faucibus nec nunc. Proin fermentum turpis eget. Praesent malesuada facilisis maximus. Integer blandit velit nec purus convallis.</li></ul>
                             <div class="landing-block-node-price-container">
-                            	<a class="landing-block-node-price-button btn btn-md text-uppercase u-btn-primary rounded-0 g-px-15" href="#">Order Now</a>
+                            	<a class="landing-block-node-price-button btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0" href="#">Order Now</a>
                         	</div>
                         </div>
                     </article>
@@ -786,7 +783,7 @@ return array(
                             <ul class="landing-block-node-price-list list-unstyled g-mb-25"><li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12">Fusce dolor libero, efficitur et lobortis at, faucibus nec nunc. Proin fermentum turpis eget. Praesent malesuada facilisis maximus. Integer blandit velit nec purus convallis.</li></ul>
 
 							<div class="landing-block-node-price-container">
-                            	<a class="landing-block-node-price-button btn btn-md text-uppercase u-btn-primary rounded-0 g-px-15" href="#">Order Now</a>
+                            	<a class="landing-block-node-price-button btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0" href="#">Order Now</a>
                         	</div>
                         </div>
                     </article>
@@ -810,7 +807,7 @@ return array(
                             <ul class="landing-block-node-price-list list-unstyled g-mb-25"><li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12">Fusce dolor libero, efficitur et lobortis at, faucibus nec nunc. Proin fermentum turpis eget. Praesent malesuada facilisis maximus. Integer blandit velit nec purus convallis.</li></ul>
 
 							<div class="landing-block-node-price-container">
-                            	<a class="landing-block-node-price-button btn btn-md text-uppercase u-btn-primary rounded-0 g-px-15" href="#">Order Now</a>
+                            	<a class="landing-block-node-price-button btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0" href="#">Order Now</a>
                         	</div>
                         </div>
                     </article>
@@ -1104,7 +1101,7 @@ return array(
 		<div class="row">
 			<div class="col-sm-12 col-md-6 col-lg-6 g-mb-25 g-mb-0--lg">
 				<h2 class="landing-block-node-title text-uppercase g-color-white g-font-weight-700 g-font-size-16 g-mb-20">Company24 courses</h2>
-				<div class="landing-block-node-text g-font-size-default g-mb-20 g-color-gray-light-v5"><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vitae est lorem. Aenean imperdiet nisi a dolor condimentum, id ullamcorper lacus vestibulum.</p></div>
+				<div class="landing-block-node-text g-mb-20 g-color-gray-light-v5"><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vitae est lorem. Aenean imperdiet nisi a dolor condimentum, id ullamcorper lacus vestibulum.</p></div>
 
 				<address class="g-color-gray-light-v1 g-mb-20">
 				

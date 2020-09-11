@@ -41,11 +41,11 @@ return array(
 			),
 			'.landing-block-node-title' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_52_3-TITLE'),
-				'type' => 'typo',
+				'type' => ['typo'],
 			),
 			'.landing-block-node-text' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_52_3-TEXT'),
-				'type' => 'typo',
+				'type' => ['typo'],
 			),
 			'.landing-block-node-button' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_52_3-BTN'),

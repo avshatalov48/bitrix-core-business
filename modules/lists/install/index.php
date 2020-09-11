@@ -18,9 +18,7 @@ Class lists extends CModule
 	{
 		$arModuleVersion = array();
 
-		$path = str_replace("\\", "/", __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen("/index.php"));
-		include($path."/version.php");
+		include(__DIR__.'/version.php');
 
 		$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 		$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
@@ -41,7 +39,7 @@ Class lists extends CModule
 		// Database tables creation
 		if(!$DB->Query("SELECT 'x' FROM b_lists_permission WHERE 1=0", true))
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/lists/install/db/".strtolower($DB->type)."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/lists/install/db/".mb_strtolower($DB->type)."/install.sql");
 		}
 
 		if($this->errors !== false)
@@ -119,7 +117,7 @@ Class lists extends CModule
 			);
 		}
 
-		if ($isSocnetInstalled && strlen($socnet_iblock_type_id) <= 0)
+		if ($isSocnetInstalled && $socnet_iblock_type_id == '')
 		{
 			$arTypes[] = array(
 				"ID" => "lists_socnet",
@@ -148,7 +146,7 @@ Class lists extends CModule
 				foreach($arLanguages as $languageID)
 				{
 					IncludeModuleLangFile(__FILE__, $languageID);
-					$code = strtoupper($arType["ID"]);
+					$code = mb_strtoupper($arType["ID"]);
 					$arType["LANG"][$languageID]["NAME"] = GetMessage($code."_TYPE_NAME");
 					$arType["LANG"][$languageID]["ELEMENT_NAME"] = GetMessage($code."_ELEMENT_NAME");
 					if ($arType["SECTIONS"] == "Y")
@@ -170,7 +168,7 @@ Class lists extends CModule
 		{
 			$gr = COption::GetOptionString("main", "~controller_group_name", "");
 			if($gr != "")
-				$defaultLang = substr($gr, 0, 2);
+				$defaultLang = mb_substr($gr, 0, 2);
 			if($defaultLang == "ua")
 				$defaultLang = "ru";
 		}
@@ -186,7 +184,7 @@ Class lists extends CModule
 		\Bitrix\Lists\Importer::installProcesses($defaultLang);
 		\Bitrix\Main\Config\Option::set("lists", "livefeed_url", "/bizproc/processes/");
 
-		if ($isSocnetInstalled && strlen($socnet_iblock_type_id) <= 0)
+		if ($isSocnetInstalled && $socnet_iblock_type_id == '')
 		{
 			COption::SetOptionString("lists", "socnet_iblock_type_id", "lists_socnet");
 			CLists::EnableSocnet(true);
@@ -204,7 +202,7 @@ Class lists extends CModule
 
 		if(!array_key_exists("savedata", $arParams) || $arParams["savedata"] != "Y")
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/lists/install/db/".strtolower($DB->type)."/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/lists/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
 		}
 
 		UnRegisterModuleDependences("iblock", "OnAfterIBlockUpdate", "lists", "CLists", "OnAfterIBlockUpdate");
@@ -281,7 +279,7 @@ Class lists extends CModule
 	function DoInstall()
 	{
 		global $DB, $APPLICATION, $USER, $step;
-		$step = IntVal($step);
+		$step = intval($step);
 
 		if(!$USER->IsAdmin())
 			return;
@@ -314,7 +312,7 @@ Class lists extends CModule
 		global $DB, $APPLICATION, $USER, $step;
 		if($USER->IsAdmin())
 		{
-			$step = IntVal($step);
+			$step = intval($step);
 			if($step < 2)
 			{
 				$APPLICATION->IncludeAdminFile(GetMessage("LISTS_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/lists/install/unstep1.php");

@@ -10,6 +10,7 @@ use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\Rights;
 use \Bitrix\Landing\TemplateRef;
 use \Bitrix\Landing\Domain\Register;
+use \Bitrix\Landing\Site\Cookies;
 use \Bitrix\Main\Localization\Loc;
 
 \CBitrixComponent::includeComponentClass('bitrix:landing.base.form');
@@ -115,6 +116,8 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 			$this->checkParam('TYPE', '');
 			$this->checkParam('PAGE_URL_SITES', '');
 			$this->checkParam('PAGE_URL_LANDING_VIEW', '');
+			$this->checkParam('PAGE_URL_SITE_DOMAIN', '');
+			$this->checkParam('PAGE_URL_SITE_COOKIES', '');
 			$this->checkParam('TEMPLATE', '');
 
 			\Bitrix\Landing\Site\Type::setScope(
@@ -132,6 +135,8 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 			$this->arResult['SHOW_RIGHTS'] = Rights::isAdmin() && Rights::isExtendedMode();
 			$this->arResult['SETTINGS'] = [];
 			$this->arResult['REGISTER'] = Register::getInstance();
+			$this->arResult['SITE_INCLUDES_SCRIPT'] = Cookies::isSiteIncludesScript($this->id);
+			$this->arResult['COOKIES_AGREEMENT'] = Cookies::getMainAgreement();
 
 			if (
 				!defined('LANDING_DISABLE_B24_MODE') &&
@@ -217,9 +222,6 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 				$this->arResult['HOOKS'] = $this->getHooks();
 				$this->arResult['TEMPLATES_REF'] = TemplateRef::getForSite($this->id);
 			}
-			$this->arResult['CUSTOM_DOMAIN'] = Manager::checkFeature(
-				Manager::FEATURE_CUSTOM_DOMAIN
-			);
 		}
 
 		// callback for update site

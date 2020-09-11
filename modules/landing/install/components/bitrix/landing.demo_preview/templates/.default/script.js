@@ -465,8 +465,9 @@
 						if (typeof top.BX.SidePanel !== 'undefined')
 						{
 							setTimeout(function() {
+								top.BX.onCustomEvent('Landing:onDemoCreateStart');
 								top.BX.SidePanel.Instance.close();
-							}, 300);
+							}, 100);
 						}
 					}
 				});

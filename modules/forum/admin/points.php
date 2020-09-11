@@ -26,7 +26,7 @@ if ($lAdmin->EditAction() && $forumModulePermissions >= "W")
 	foreach ($FIELDS as $ID => $arFields)
 	{
 		$DB->StartTransaction();
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		if (!$lAdmin->IsUpdated($ID))
 			continue;
@@ -61,7 +61,7 @@ if (($arID = $lAdmin->GroupAction()) && $forumModulePermissions >= "W")
 
 	foreach ($arID as $ID)
 	{
-		if (strlen($ID) <= 0)
+		if ($ID == '')
 			continue;
 
 		switch ($_REQUEST['action'])

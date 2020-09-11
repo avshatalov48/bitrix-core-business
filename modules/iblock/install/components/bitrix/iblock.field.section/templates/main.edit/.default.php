@@ -35,9 +35,8 @@ $component = $this->getComponent();
 				foreach($arResult['userField']['USER_TYPE']['FIELDS'] as $key => $val)
 				{
 					$isSelected = (
-						in_array((string)$key, $arResult['value'], true)
-						&&
-						(
+						in_array($key, $arResult['value'])
+						&& (
 							(!$isWasSelect) || ($arResult['userField']['MULTIPLE'] === 'Y')
 						)
 					);
@@ -184,8 +183,8 @@ EOT;
 			}
 
 			$isSelected = (
-				in_array((string)$key, $arResult['value'], true) &&
-				(
+				in_array($key, $arResult['value'])
+				&& (
 					(!$isWasSelect) ||
 					($arResult['userField']['MULTIPLE'] === 'Y')
 				));

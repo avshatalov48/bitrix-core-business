@@ -822,10 +822,12 @@ class CBPDocument
 	{
 		$GLOBALS["BP_AddShowParameterInit_".$module."_".$entity."_".$document_type] = 1;
 		CUtil::InitJSCore(array("window", "ajax"));
+
+		$dts = \CBPDocument::signDocumentType([$module, $entity, $document_type]);
 ?>
 <script src="/bitrix/js/bizproc/bizproc.js"></script>
 <script>
-	function BPAShowSelector(id, type, mode, arCurValues, arDocumentType)
+	function BPAShowSelector(id, type, mode, arCurValues)
 	{
 		<?if($type=="only_users"):?>
 		var def_mode = "only_users";
@@ -840,14 +842,11 @@ class CBPDocument
 		var documentType = '<?=CUtil::JSEscape($document_type)?>';
 		var documentId = '<?=CUtil::JSEscape($document_id)?>';
 
-		/*if (arDocumentType && arDocumentType.length == 3)
-		{
-			module = arDocumentType[0];
-			entity = arDocumentType[1];
-			documentType = arDocumentType[2];
-		}*/
-
 		var loadAccessLib = (typeof BX.Access === 'undefined');
+
+		var contentUrl = '/bitrix/tools/bizproc/compatible_selector.php?mode=public&bxpublic=Y&lang=<?=LANGUAGE_ID?>'
+ 			+'&dts=<?=CUtil::JSEscape($dts)?>'
+			+(loadAccessLib? '&load_access_lib=Y':'');
 
 		if (mode == "only_users")
 		{
@@ -883,10 +882,7 @@ class CBPDocument
 
 			BX.WindowManager.setStartZIndex(1150);
 			(new BX.CDialog({
-				'content_url': '/bitrix/admin/'+module
-					+'_bizproc_selector.php?mode=public&bxpublic=Y&lang=<?=LANGUAGE_ID?>&entity='
-					+entity
-					+(loadAccessLib? '&load_access_lib=Y':''),
+				'content_url': contentUrl,
 				'content_post': {
 					'document_type': documentType,
 					'document_id': documentId,
@@ -948,10 +944,7 @@ class CBPDocument
 			JSToPHPHidd(p, arWorkflowTemplateCur, 'arWorkflowTemplate');
 
 			(new BX.CDialog({
-				'content_url': '/bitrix/admin/'
-					+module+'_bizproc_selector.php?mode=public&bxpublic=Y&lang=<?=LANGUAGE_ID?>&entity='
-					+entity
-					+(loadAccessLib? '&load_access_lib=Y':''),
+				'content_url': contentUrl,
 				'content_post': p,
 				'height': 425,
 				'width': 485
@@ -969,71 +962,57 @@ class CBPDocument
 		else
 			$id = md5(uniqid());
 
-		if($type == "text")
+		$cols = $arParams['size']>0?intval($arParams['size']):70;
+		$defaultRows = $type == "user" ? 3 : 1;
+		$rows = max(($arParams['rows']>0?intval($arParams['rows']):$defaultRows), min(5, ceil(mb_strlen($values) / $cols)));
+
+		if($type == "user")
 		{
-			$s = '<table cellpadding="0" cellspacing="0" border="0"><tr><td valign="top"><textarea ';
-			$s .= 'rows="'.($arParams['rows']>0?intval($arParams['rows']):5).'" ';
-			$s .= 'cols="'.($arParams['cols']>0?intval($arParams['cols']):50).'" ';
-			if (!empty($arParams['maxlength']))
-			{
-				$s .= 'maxlength="'.intval($arParams['maxlength']).'" ';
-			}
+			$s = '<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td valign="top">';
+			$s .= '<textarea onkeydown="if(event.keyCode==45)BPAShowSelector(\''.Cutil::JSEscape(htmlspecialcharsbx($id)).'\', \''.Cutil::JSEscape($type).'\');" ';
+			$s .= 'rows="'.$rows.'" ';
+			$s .= 'cols="'.$cols.'" ';
 			$s .= 'name="'.htmlspecialcharsbx($name).'" ';
 			$s .= 'id="'.htmlspecialcharsbx($id).'" ';
-			$s .= '>'.htmlspecialcharsbx($values);
-			$s .= '</textarea></td>';
-			$s .= '<td valign="top" style="padding-left:4px">';
-			$s .= CBPHelper::renderControlSelectorButton($id, $type);
-			$s .= '</td></tr></table>';
-		}
-		elseif($type == "user")
-		{
-			$s = '<table cellpadding="0" cellspacing="0" border="0"><tr><td valign="top"><textarea onkeydown="if(event.keyCode==45)BPAShowSelector(\''.Cutil::JSEscape(htmlspecialcharsbx($id)).'\', \''.Cutil::JSEscape($type).'\');" ';
-			$s .= 'rows="'.($arParams['rows']>0?intval($arParams['rows']):3).'" ';
-			$s .= 'cols="'.($arParams['cols']>0?intval($arParams['cols']):45).'" ';
-			$s .= 'name="'.htmlspecialcharsbx($name).'" ';
-			$s .= 'id="'.htmlspecialcharsbx($id).'">'.htmlspecialcharsbx($values).'</textarea>';
-			$s .= '</td><td valign="top" style="padding-left:4px">';
+			$s .= 'style="width: 100%"';
+			$s .= '>'.htmlspecialcharsbx($values).'</textarea>';
+			$s .= '</td><td valign="top" style="padding-left:4px" width="30">';
 			$s .= CBPHelper::renderControlSelectorButton($id, $type, array('title' => GetMessage("BIZPROC_AS_SEL_FIELD_BUTTON").' (Insert)'));
 			$s .= '</td></tr></table>';
 		}
 		elseif($type == "bool")
 		{
-			$s = '<select name="'.htmlspecialcharsbx($name).'"><option value=""></option><option value="Y"'.($values=='Y'?' selected':'').'>'.GetMessage('MAIN_YES').'</option><option value="N"'.($values=='N'?' selected':'').'>'.GetMessage('MAIN_NO').'</option>';
-			$s .= '<input type="text" ';
-			$s .= 'size="20" ';
+			$s = '<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td valign="top" width="30">';
+			$s .= '<select name="'.htmlspecialcharsbx($name).'"><option value=""></option><option value="Y"'.($values=='Y'?' selected':'').'>'.GetMessage('MAIN_YES').'</option><option value="N"'.($values=='N'?' selected':'').'>'.GetMessage('MAIN_NO').'</option>';
+			$s .= '</td><td style="padding-left:4px"><textarea ';
+			$s .= 'rows="'.$rows.'" ';
+			$s .= 'cols="'.$cols.'" ';
 			$s .= 'name="'.htmlspecialcharsbx($name).'_X" ';
 			$s .= 'id="'.htmlspecialcharsbx($id).'" ';
-			$s .= 'value="'.($values=="Y" || $values=="N"?"":htmlspecialcharsbx($values)).'"> ';
+			$s .= 'style="width: 100%"';
+			$s .= '>'.($values=="Y" || $values=="N"?"":htmlspecialcharsbx($values));
+			$s .= '</textarea></td>';
+			$s .= '<td valign="top" style="padding-left:4px" width="30">';
 			$s .= CBPHelper::renderControlSelectorButton($id, $type);
+			$s .= '</td></tr></table>';
 		}
 		elseif ($type == 'datetime')
 		{
-			$cols = $arParams['size']>0?intval($arParams['size']):30;
-			$rows = max(1, min(5, ceil(mb_strlen($values) / $cols)));
-
-			$s = '<table cellpadding="0" cellspacing="0" border="0"><tr><td valign="top"><span style="white-space:nowrap;"><textarea ';
+			$s = '<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td valign="top"><textarea ';
 			$s .= 'rows="'.$rows.'" ';
 			$s .= 'cols="'.$cols.'" ';
-			if (!empty($arParams['maxlength']))
-			{
-				$s .= 'maxlength="'.intval($arParams['maxlength']).'" ';
-			}
 			$s .= 'name="'.htmlspecialcharsbx($name).'" ';
 			$s .= 'id="'.htmlspecialcharsbx($id).'" ';
+			$s .= 'style="width: 100%"';
 			$s .= '>'.htmlspecialcharsbx($values);
-			$s .= '</textarea>'.CAdminCalendar::Calendar(htmlspecialcharsbx($name), "", "", true).'</span></td>';
-			$s .= '<td valign="top" style="padding-left:4px">';
+			$s .= '</textarea></td><td valign="top" style="padding-left:4px" width="20">'.CAdminCalendar::Calendar(htmlspecialcharsbx($name), "", "", true).'</td>';
+			$s .= '<td valign="top" style="padding-left:4px" width="30">';
 			$s .= CBPHelper::renderControlSelectorButton($id, $type);
 			$s .= '</td></tr></table>';
 		}
 		else
 		{
-			$cols = $arParams['size']>0?intval($arParams['size']):70;
-			$rows = max(1, min(5, ceil(mb_strlen($values) / $cols)));
-
-
-			$s = '<table cellpadding="0" cellspacing="0" border="0"><tr><td valign="top"><textarea ';
+			$s = '<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td valign="top"><textarea ';
 			$s .= 'rows="'.$rows.'" ';
 			$s .= 'cols="'.$cols.'" ';
 			if (!empty($arParams['maxlength']))
@@ -1042,9 +1021,10 @@ class CBPDocument
 			}
 			$s .= 'name="'.htmlspecialcharsbx($name).'" ';
 			$s .= 'id="'.htmlspecialcharsbx($id).'" ';
+			$s .= 'style="width: 100%"';
 			$s .= '>'.htmlspecialcharsbx($values);
 			$s .= '</textarea></td>';
-			$s .= '<td valign="top" style="padding-left:4px">';
+			$s .= '<td valign="top" style="padding-left:4px" width="30">';
 			$s .= CBPHelper::renderControlSelectorButton($id, $type);
 			$s .= '</td></tr></table>';
 		}
@@ -1621,28 +1601,53 @@ class CBPDocument
 
 	public static function signParameters(array $parameters)
 	{
-		$signer = new Main\Security\Sign\Signer;
-		$jsonData = Main\Web\Json::encode($parameters);
-
-		return $signer->sign($jsonData, 'bizproc_wf_params');
+		return self::signArray($parameters, 'bizproc_wf_params');
 	}
 
 	/**
 	 * @param string $unsignedData
 	 * @return array
 	 */
-	public static function unsignParameters($unsignedData)
+	public static function unSignParameters($unsignedData)
+	{
+		return self::unSignArray($unsignedData, 'bizproc_wf_params');
+	}
+
+	public static function signDocumentType(array $documentType)
+	{
+		return self::signArray($documentType, 'bizproc_document_type');
+	}
+
+	/**
+	 * @param string $unsignedData
+	 * @return array|null Document type.
+	 */
+	public static function unSignDocumentType($unsignedData): ?array
+	{
+		$dt =  self::unSignArray($unsignedData, 'bizproc_document_type');
+		return $dt ?: null;
+	}
+
+	private static function signArray(array $source, $salt)
+	{
+		$signer = new Main\Security\Sign\Signer;
+		$jsonData = Main\Web\Json::encode($source);
+
+		return $signer->sign($jsonData, $salt);
+	}
+
+	private static function unSignArray(string $unsignedSource, $salt)
 	{
 		$signer = new Main\Security\Sign\Signer;
 
 		try
 		{
-			$unsigned = $signer->unsign($unsignedData, 'bizproc_wf_params');
+			$unsigned = $signer->unsign($unsignedSource, $salt);
 			$result = Main\Web\Json::decode($unsigned);
 		}
 		catch (\Exception $e)
 		{
-			$result = array();
+			$result = [];
 		}
 
 		return $result;

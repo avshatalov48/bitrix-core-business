@@ -86,7 +86,7 @@ $width = COption::GetOptionString("statistic", "GRAPH_WEIGHT");
 $height = COption::GetOptionString("statistic", "GRAPH_HEIGHT");
 $diameter = COption::GetOptionString("statistic", "DIAGRAM_DIAMETER");
 
-if(strlen($strError)>0):
+if($strError <> ''):
 	CAdminMessage::ShowMessage($strError);
 elseif(!function_exists("ImageCreate")) :
 	CAdminMessage::ShowMessage(GetMessage("STAT_GD_NOT_INSTALLED"));

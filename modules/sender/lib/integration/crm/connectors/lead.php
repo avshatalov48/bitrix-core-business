@@ -8,17 +8,16 @@
 
 namespace Bitrix\Sender\Integration\Crm\Connectors;
 
-use Bitrix\Main\DB\Result;
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Entity;
-use Bitrix\Main\Page\Asset;
-use Bitrix\Main\UI\Filter\AdditionalDateType;
-
-use Bitrix\Sender\Connector\BaseFilter as ConnectorBaseFilter;
-use Bitrix\Sender\Connector\ResultView;
-
 use Bitrix\Crm\LeadTable;
 use Bitrix\Crm\PhaseSemantics;
+use Bitrix\Main\DB\Result;
+use Bitrix\Main\Entity;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Page\Asset;
+use Bitrix\Main\UI\Filter\AdditionalDateType;
+use Bitrix\Sender\Connector\BaseFilter as ConnectorBaseFilter;
+use Bitrix\Sender\Connector\ResultView;
 
 Loc::loadMessages(__FILE__);
 
@@ -53,7 +52,7 @@ class Lead extends ConnectorBaseFilter
 	 *
 	 * @return null|Entity\Query
 	 */
-	public function getQuery()
+	public function getQuery($selectList = [])
 	{
 		$filter = Helper::getFilterByFields(
 			self::getUiFilterFields(),
@@ -74,10 +73,17 @@ class Lead extends ConnectorBaseFilter
 
 		$query = new Entity\Query(LeadTable::getEntity());
 		$query->setFilter($filter);
-		$query->setSelect([
-			$nameExprField, 'CRM_ENTITY_ID' => 'ID', 'CRM_ENTITY_TYPE_ID',
-			'CRM_CONTACT_ID' => 'CONTACT_ID', 'CRM_COMPANY_ID' => 'COMPANY_ID',
-		]);
+		$query->setSelect(array_merge($selectList, [
+			$nameExprField,
+			'CRM_ENTITY_ID' => 'ID',
+			'CRM_ENTITY_TYPE_ID',
+			'CRM_ENTITY_TYPE',
+			'CRM_CONTACT_ID' => 'CONTACT_ID',
+			'CRM_COMPANY_ID' => 'COMPANY_ID',
+		]));
+
+		$query->registerRuntimeField(new Entity\ExpressionField('CRM_ENTITY_TYPE', '\''.\CCrmOwnerType::LeadName.'\''));
+
 		$query->registerRuntimeField(Helper::createExpressionMultiField(
 			\CCrmOwnerType::LeadName,
 			'EMAIL'
@@ -136,19 +142,7 @@ class Lead extends ConnectorBaseFilter
 	 */
 	public function getData()
 	{
-		if (!$this->hasFieldValues())
-		{
-			return array();
-		}
-
-		$query = $this->getQuery();
-		if ($this->getResultView()->hasNav())
-		{
-			$query->setOffset($this->getResultView()->getNav()->getOffset());
-			$query->setLimit($this->getResultView()->getNav()->getLimit());
-		}
-
-		return QueryData::getData($query, $this->getDataTypeId());
+		return $this->getDataWithCustomSelect();
 	}
 
 	/**
@@ -158,7 +152,10 @@ class Lead extends ConnectorBaseFilter
 	 */
 	public static function getPersonalizeList()
 	{
-		return Helper::getPersonalizeList();
+		return Loader::includeModule('crm') ? array_merge(
+			Helper::getPersonalizeList(),
+			Helper::buildPersonalizeList(\CCrmOwnerType::LeadName)
+		) : Helper::getPersonalizeList();
 	}
 
 	/**
@@ -433,5 +430,27 @@ class Lead extends ConnectorBaseFilter
 	public function getStatFields()
 	{
 		return ['PRODUCT_ROW.PRODUCT_ID'];
+	}
+
+	/**
+	 * @param array $selectList
+	 *
+	 * @return array|Result|\CAllDBResult
+	 */
+	public function getDataWithCustomSelect($selectList = [])
+	{
+		if (!$this->hasFieldValues())
+		{
+			return array();
+		}
+
+		$query = $this->getQuery();
+		if ($this->getResultView()->hasNav())
+		{
+			$query->setOffset($this->getResultView()->getNav()->getOffset());
+			$query->setLimit($this->getResultView()->getNav()->getLimit());
+		}
+
+		return QueryData::getData($query, $this->getDataTypeId());
 	}
 }

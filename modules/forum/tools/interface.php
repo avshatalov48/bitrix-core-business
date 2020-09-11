@@ -41,7 +41,7 @@ class CForumHTMLPresrnation
 		
 		if ((empty($arFields)) || !is_array($arFields["params"]))
 			return false;
-		if (strLen($arForm["formName"]) <= 0)
+		if ($arForm["formName"] == '')
 			$arForm["formName"] = "form1";
 		if (empty($arForm["formMethod"]))
 			$arForm["formMethod"] = "get";

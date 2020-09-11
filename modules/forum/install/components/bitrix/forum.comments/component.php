@@ -20,19 +20,18 @@ $URL_NAME_DEFAULT = array(
 	);
 foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 {
-	if (empty($arParams["URL_TEMPLATES_".strToUpper($URL)]))
+	if (empty($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]))
 		continue;
-	$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-	$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+	$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
+	$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 }
-
 /***************** ADDITIONAL **************************************/
 $arParams["EDITOR_CODE_DEFAULT"] = ($arParams["EDITOR_CODE_DEFAULT"] == "Y" ? "Y" : "N");
 $arParams["SHOW_MINIMIZED"] = ($arParams["SHOW_MINIMIZED"] == "Y" ? "Y" : "N");
-$arParams["IMAGE_SIZE"] = (intVal($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 600);
+$arParams["IMAGE_SIZE"] = (intval($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 600);
 $arParams["IMAGE_HTML_SIZE"] = intval($arParams["IMAGE_HTML_SIZE"]);
 $arParams["IMAGE_HTML_SIZE"] = ($arParams["IMAGE_SIZE"] > $arParams["IMAGE_HTML_SIZE"] && $arParams["IMAGE_HTML_SIZE"] > 0 ? $arParams["IMAGE_HTML_SIZE"] : 0);
-$arParams["MESSAGES_PER_PAGE"] = intVal($arParams["MESSAGES_PER_PAGE"] > 0 ? $arParams["MESSAGES_PER_PAGE"] : COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10"));
+$arParams["MESSAGES_PER_PAGE"] = intval($arParams["MESSAGES_PER_PAGE"] > 0 ? $arParams["MESSAGES_PER_PAGE"] : COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10"));
 $arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 $arParams["NAME_TEMPLATE"] = empty($arParams["NAME_TEMPLATE"]) ? "" : str_replace(array("#NOBR#","#/NOBR#"), array("",""), $arParams["NAME_TEMPLATE"]);
 $arParams["PREORDER"] = ($arParams["PREORDER"] == "Y" ? "Y" : "N");
@@ -122,7 +121,8 @@ if ($USER->IsAuthorized())
 		"SECOND_NAME"	=>	$USER->GetSecondName(),
 		"LOGIN"			=>	$USER->GetLogin()
 	));
-	$arResult["USER"]["SHOWED_NAME"] = trim($_SESSION["FORUM"]["SHOW_NAME"] == "Y" ? $tmpName : $USER->getLogin());
+
+	$arResult["USER"]["SHOWED_NAME"] = trim($this->feed->getUser()->getParam("SHOW_NAME") == "Y" ? $tmpName : $USER->getLogin());
 	$arResult["USER"]["SHOWED_NAME"] = trim(!empty($arResult["USER"]["SHOWED_NAME"]) ? $arResult["USER"]["SHOWED_NAME"] : $USER->getLogin());
 }
 
@@ -216,28 +216,6 @@ if ($arResult["SHOW_POST_FORM"] == "Y")
 		$arResult["CAPTCHA_CODE"] = htmlspecialcharsbx($this->captcha->getCodeCrypt());
 	}
 }
-
-/********************************************************************
-				Input params II
-********************************************************************/
-/************** URL ************************************************/
-if (empty($arParams["~URL_TEMPLATES_READ"]) && !empty($arResult["FORUM"]["PATH2FORUM_MESSAGE"]))
-	$arParams["~URL_TEMPLATES_READ"] = $arResult["FORUM"]["PATH2FORUM_MESSAGE"];
-elseif (empty($arParams["~URL_TEMPLATES_READ"]))
-	$arParams["~URL_TEMPLATES_READ"] = $APPLICATION->GetCurPage()."?PAGE_NAME=read&FID=#FID#&TID=#TID#&MID=#MID#";
-$arParams["~URL_TEMPLATES_READ"] = str_replace(array("#FORUM_ID#", "#TOPIC_ID#", "#MESSAGE_ID#"),
-		array("#FID#", "#TID#", "#MID#"), $arParams["~URL_TEMPLATES_READ"]);
-$arParams["URL_TEMPLATES_READ"] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_READ"]);
-//
-// Link to forum
-$arResult["read"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_READ"],
-	array("FID" => $arParams["FORUM_ID"], "TID" => $arResult["FORUM_TOPIC_ID"], "TITLE_SEO" => $arResult["TOPIC"]["TITLE_SEO"],
-		"MID" => "s", "PARAM1" => $arParams['ENTITY_TYPE'], "PARAM2" => $arParams["ENTITY_ID"]));
-$messageUrl =
-/********************************************************************
-				/Input params
-********************************************************************/
-
 /********************************************************************
 				Data
 ********************************************************************/
@@ -247,9 +225,9 @@ $arResult["UNREAD_MID"] = 0;
 if ($arResult["FORUM_TOPIC_ID"] > 0)
 {
 	$pager_number = $GLOBALS["NavNum"] + 1;
-	$arResult["UNREAD_MID"] = intVal(ForumGetFirstUnreadMessage($arParams["FORUM_ID"], $arResult["FORUM_TOPIC_ID"]));
+	$arResult["UNREAD_MID"] = intval(ForumGetFirstUnreadMessage($arParams["FORUM_ID"], $arResult["FORUM_TOPIC_ID"]));
 
-	$MID = intVal($_REQUEST["MID"]);
+	$MID = intval($_REQUEST["MID"]);
 	unset($_GET["MID"]); unset($GLOBALS["MID"]);
 	if (isset($arResult['RESULT']) && intval($arResult['RESULT']) > 0)
 	{
@@ -260,7 +238,7 @@ if ($arResult["FORUM_TOPIC_ID"] > 0)
 	elseif ($arResult["UNREAD_MID"] > 0 && ($MID > 0 && $MID > $arResult["UNREAD_MID"] || $MID <= 0))
 		$MID = $arResult["UNREAD_MID"];
 	ForumSetReadTopic($arParams["FORUM_ID"], $arResult["FORUM_TOPIC_ID"]);
-	if (intVal($MID) > 0)
+	if (intval($MID) > 0)
 	{
 		$pageNo = CForumMessage::GetMessagePage(
 			$MID,
@@ -304,7 +282,7 @@ $cache_id = "forum_comment_".serialize($ar_cache_id);
 if ($arResult['DO_NOT_CACHE'] || $this->StartResultCache($arParams["CACHE_TIME"], $cache_id))
 {
 	$auxSuffix = false;
-	switch (strtolower($arParams['ENTITY_TYPE']))
+	switch(mb_strtolower($arParams['ENTITY_TYPE']))
 	{
 		case \Bitrix\Forum\Comments\TaskEntity::ENTITY_TYPE:
 			$auxSuffix = 'TASK';
@@ -334,8 +312,8 @@ if ($arResult['DO_NOT_CACHE'] || $this->StartResultCache($arParams["CACHE_TIME"]
 			if (!empty($arParams["NAME_TEMPLATE"]))
 				$arFields["sNameTemplate"] = $arParams["NAME_TEMPLATE"];
 
-			if ((intVal($MID) > 0) && ($pageNo > 0))
-				$arFields["iNumPage"] = intVal($pageNo);
+			if ((intval($MID) > 0) && ($pageNo > 0))
+				$arFields["iNumPage"] = intval($pageNo);
 
 			$arFilter = array("FORUM_ID"=>$arParams["FORUM_ID"], "TOPIC_ID"=>$arResult["FORUM_TOPIC_ID"], "!PARAM1" => $arParams['ENTITY_TYPE']);
 			if ($arResult["USER"]["RIGHTS"]["MODERATE"] != "Y") $arFilter["APPROVED_AND_MINE"] = $GLOBALS["USER"]->GetId();
@@ -352,10 +330,10 @@ if ($arResult['DO_NOT_CACHE'] || $this->StartResultCache($arParams["CACHE_TIME"]
 				$arResult["NAV_STYLE"] = $APPLICATION->GetAdditionalCSS();
 				$arResult["PAGE_COUNT"] = $db_res->NavPageCount;
 				$arResult['PAGE_NUMBER'] = $db_res->NavPageNomer;
-				$number = intVal($db_res->NavPageNomer-1)*$arParams["MESSAGES_PER_PAGE"] + 1;
+				$number = intval($db_res->NavPageNomer-1)*$arParams["MESSAGES_PER_PAGE"] + 1;
 				$GLOBALS['forumComponent'] = &$this;
-				$FormatDate = (strpos($arParams["DATE_TIME_FORMAT"], 'a') !== false ? 'g:i a' :
-					(strpos($arParams["DATE_TIME_FORMAT"], 'A') !== false ? 'g:i A' : 'G:i'));
+				$FormatDate = (mb_strpos($arParams["DATE_TIME_FORMAT"], 'a') !== false ? 'g:i a' :
+					(mb_strpos($arParams["DATE_TIME_FORMAT"], 'A') !== false ? 'g:i A' : 'G:i'));
 				$url = (new \Bitrix\Main\Web\Uri($arParams["URL"]))
 					->deleteParams(["MID", "ID", "sessid", "AJAX_POST", "ENTITY_XML_ID", "ENTITY_TYPE", "ENTITY_ID", "REVIEW_ACTION", "MODE", "FILTER", "result", "ACTION"]);
 				while ($res = $db_res->GetNext())
@@ -419,7 +397,7 @@ if ($arResult['DO_NOT_CACHE'] || $this->StartResultCache($arParams["CACHE_TIME"]
 							$res["AUTHOR_NAME"] = htmlspecialcharsbx($name);
 						}
 					}
-					$res["AUTHOR_ID"] = intVal($res["AUTHOR_ID"]);
+					$res["AUTHOR_ID"] = intval($res["AUTHOR_ID"]);
 					$res["AUTHOR_URL"] = "";
 					if (!empty($arParams["URL_TEMPLATES_PROFILE_VIEW"]))
 					{

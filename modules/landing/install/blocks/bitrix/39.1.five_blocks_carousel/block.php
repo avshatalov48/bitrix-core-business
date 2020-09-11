@@ -37,7 +37,7 @@
 						<span style="font-weight: bold;">$3.500</span>
 						/ per month
 					</div>
-					<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 font-weight-bold g-font-size-16 g-mb-10">
+					<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 g-font-weight-700 g-font-size-16 g-mb-10">
 						Ut pulvinar tellus sed elit luctus
 					</h3>
 					<div class="text-uppercase g-font-size-12">
@@ -88,7 +88,7 @@
 						<span style="font-weight: bold;">$3.500</span>
 						/ per month
 					</div>
-					<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 font-weight-bold g-font-size-16 g-mb-10">
+					<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 g-font-weight-700 g-font-size-16 g-mb-10">
 						Ut pulvinar tellus sed elit luctus
 					</h3>
 					<div class="text-uppercase g-font-size-12">
@@ -137,7 +137,7 @@
 						<span style="font-weight: bold;">$3.500</span>
 						/ per month
 					</div>
-					<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 font-weight-bold g-font-size-16 g-mb-10">
+					<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 g-font-weight-700 g-font-size-16 g-mb-10">
 						Ut pulvinar tellus sed elit luctus
 					</h3>
 					<div class="text-uppercase g-font-size-12">
@@ -186,7 +186,7 @@
 						<span style="font-weight: bold;">$3.500</span>
 						/ per month
 					</div>
-					<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 font-weight-bold g-font-size-16 g-mb-10">
+					<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 g-font-weight-700 g-font-size-16 g-mb-10">
 						Ut pulvinar tellus sed elit luctus
 					</h3>
 					<div class="text-uppercase g-font-size-12">
@@ -235,7 +235,7 @@
 						<span style="font-weight: bold;">$3.500</span>
 						/ per month
 					</div>
-					<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 font-weight-bold g-font-size-16 g-mb-10">
+					<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 g-font-weight-700 g-font-size-16 g-mb-10">
 						Ut pulvinar tellus sed elit luctus
 					</h3>
 					<div class="text-uppercase g-font-size-12">
@@ -284,7 +284,7 @@
 						<span style="font-weight: bold;">$3.500</span>
 						/ per month
 					</div>
-					<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 font-weight-bold g-font-size-16 g-mb-10">
+					<h3 class="landing-block-node-card-title landing-semantic-subtitle-image-medium text-uppercase g-line-height-1_4 g-font-weight-700 g-font-size-16 g-mb-10">
 						Ut pulvinar tellus sed elit luctus
 					</h3>
 					<div class="text-uppercase g-font-size-12">

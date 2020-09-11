@@ -94,7 +94,7 @@ function i2c_create_db(
 				$ip_to = TrimEx($arr[1],"\"");
 				$country_id = TrimEx($arr[2],"\"");
 			}
-			if (strlen($country_id)<=0 && strlen($country_id)!=2) continue;
+			if ($country_id == '' && mb_strlen($country_id) != 2) continue;
 
 			$ip_from_p = str_pad($ip_from, 10, "0", STR_PAD_LEFT);
 			$ip_to_p = str_pad($ip_to, 10, "0", STR_PAD_LEFT);
@@ -207,7 +207,7 @@ function i2c_load_countries(
 					$country_name = trim($arr[$ix_countryName], "\"");
 					if($bMaxMind)
 					{
-						if(strlen($country_id) != 2)
+						if(mb_strlen($country_id) != 2)
 							continue;
 						$country_short_name = "";
 					}
@@ -219,8 +219,8 @@ function i2c_load_countries(
 					$arFields["NAME"] = "'".$DB->ForSql($country_name, 50)."'";
 					$arFields["SHORT_NAME"] = "'".$DB->ForSql($country_short_name, 3)."'";
 
-					$rows = $DB->Update("b_stat_country", $arFields, "WHERE ID='".$DB->ForSql(strtoupper($country_id), 2)."'", $err_mess.__LINE__);
-					if(intval($rows)<=0 && strlen($country_id)>0 && strlen($country_name)>0)
+					$rows = $DB->Update("b_stat_country", $arFields, "WHERE ID='".$DB->ForSql(mb_strtoupper($country_id), 2)."'", $err_mess.__LINE__);
+					if(intval($rows)<=0 && $country_id <> '' && $country_name <> '')
 					{
 						$strSql = "
 							INSERT INTO b_stat_country (ID, SHORT_NAME, NAME) VALUES (
@@ -331,14 +331,14 @@ function i2c_search_in_db($ip, $idx, $db_name=IP_DB_FILENAME)
 			break;
 		}
 		$record = fread($ipdb,$record_size);
-		if (strlen($record)!=$record_size)
+		if (mb_strlen($record) != $record_size)
 		{
 			$country = "N0";
 			break;
 		}
-		$range_start = (float) substr($record, 0, $i1_size);
-		$range_end   = (float) substr($record, $i1_size, $i2_size);
-		$country     = substr($record, $i1_size + $i2_size, $cn_size);
+		$range_start = (float)mb_substr($record, 0, $i1_size);
+		$range_end   = (float)mb_substr($record, $i1_size, $i2_size);
+		$country = mb_substr($record, $i1_size + $i2_size, $cn_size);
 		$idx[0] += 1;
 	}
 	fclose($ipdb);

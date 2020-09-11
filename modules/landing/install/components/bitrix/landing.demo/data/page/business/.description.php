@@ -101,11 +101,11 @@ return array(
 		<div class="container text-center g-max-width-800">
 			<div class="landing-block-node-text-container info-v3-4 g-bg-primary-opacity-0_9 g-pa-20 g-pa-60--md js-animation fadeInLeft">
 				<div class="g-pos-rel g-z-index-3">
-					<h3 class="landing-block-node-small-title h3 text-uppercase g-letter-spacing-3 g-font-size-default g-color-white g-mb-10">We are Company24</h3>
+					<h3 class="landing-block-node-small-title h3 text-uppercase g-letter-spacing-3 g-color-white g-mb-10">We are Company24</h3>
 					<h2 class="landing-block-node-title h2 text-uppercase g-color-white g-letter-spacing-5 g-font-weight-400 g-font-size-25 g-font-size-35--md g-mb-20">BUSINESS &amp; CORPORATION</h2>
 					<div class="landing-block-node-text g-line-height-1_8 g-letter-spacing-3 g-color-white g-mb-20">Sed feugiat porttitor nunc, non dignissim
 						<br /> ipsum vestibulum in. Donec in blandit dolor.</div>
-					<a href="#" class="landing-block-node-button btn text-uppercase u-btn-outline-white rounded-0" target="_self">LEARN MORE</a>
+					<a href="#" class="landing-block-node-button btn text-uppercase g-btn-type-outline g-btn-white g-btn-size-md g-btn-px-m rounded-0" target="_self">LEARN MORE</a>
 				</div>
 			</div>
 		</div>
@@ -413,7 +413,7 @@ return array(
 				<br /> tristique senectus et netus et malesuada fames ac turpis egestas.</p>
 		</div>
 		<div class="landing-block-node-button-container">
-			<a class="landing-block-node-button btn btn-md text-uppercase u-btn-primary rounded-0 g-px-15 g-font-weight-700" href="#" target="_self">Learn more</a>
+			<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0" href="#" target="_self">Learn more</a>
 		</div>
 	</div>
 </section>',
@@ -446,7 +446,7 @@ return array(
                          data-speed="5000"
                          data-rows="2"
                          data-slides-show="2"
-                         data-arrows-classes="u-arrow-v1 g-pos-abs g-bottom-100x g-right-0 g-width-35 g-height-35 g-font-size-default g-color-gray g-color-white--hover g-bg-gray-light-v5 g-bg-primary--hover g-mb-5 g-transition-0_2 g-transition--ease-in"
+                         data-arrows-classes="u-arrow-v1 g-pos-abs g-bottom-100x g-right-0 g-width-35 g-height-35 g-color-gray g-color-white--hover g-bg-gray-light-v5 g-bg-primary--hover g-mb-5 g-transition-0_2 g-transition--ease-in"
                          data-arrow-left-classes="fa fa-angle-left g-mr-50"
                          data-arrow-right-classes="fa fa-angle-right g-mr-5"
 						 data-responsive=\'[{
@@ -462,7 +462,7 @@ return array(
 						   }]\'>
                         <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5">
                             <div class="g-parent g-pos-rel g-overflow-hidden">
-                                <img class="landing-block-node-carousel-element-img img-fluid g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img9.jpg" alt="" />
+                                <img class="landing-block-node-carousel-element-img img-fluid w-100 g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img9.jpg" alt="" />
                                 <div class="landing-block-node-carousel-element-img-hover g-pos-abs g-top-0 g-left-0 w-100 h-100 g-bg-primary-opacity-0_8 g-color-white opacity-0 g-opacity-1--parent-hover g-pa-25 g-transition-0_3 g-transition--ease-in">
                                     <h3 class="landing-block-node-carousel-element-title text-uppercase g-font-weight-700 g-font-size-16 g-color-white mb-0">The moon ltd</h3>
                                     <div class="landing-block-node-carousel-element-text g-line-height-1_5--hover g-font-size-12 g-color-gray-light-v4 g-transition-0_3 g-transition--ease-in">
@@ -474,7 +474,7 @@ return array(
 
                         <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5">
                             <div class="g-parent g-pos-rel g-overflow-hidden">
-                                <img class="landing-block-node-carousel-element-img img-fluid g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img10.jpg" alt="" />
+                                <img class="landing-block-node-carousel-element-img img-fluid w-100 g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img10.jpg" alt="" />
                                 <div class="landing-block-node-carousel-element-img-hover g-pos-abs g-top-0 g-left-0 w-100 h-100 g-bg-primary-opacity-0_8 g-color-white opacity-0 g-opacity-1--parent-hover g-pa-25 g-transition-0_3 g-transition--ease-in">
                                     <h3 class="landing-block-node-carousel-element-title text-uppercase g-font-weight-700 g-font-size-16 g-color-white mb-0">Support &amp; development</h3>
                                     <div class="landing-block-node-carousel-element-text g-line-height-1_5--hover g-font-size-12 g-color-gray-light-v4 g-transition-0_3 g-transition--ease-in">
@@ -486,7 +486,7 @@ return array(
 
                         <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5">
                             <div class="g-parent g-pos-rel g-overflow-hidden">
-                                <img class="landing-block-node-carousel-element-img img-fluid g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img11.jpg" alt="" />
+                                <img class="landing-block-node-carousel-element-img img-fluid w-100 g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img11.jpg" alt="" />
                                 <div class="landing-block-node-carousel-element-img-hover g-pos-abs g-top-0 g-left-0 w-100 h-100 g-bg-primary-opacity-0_8 g-color-white opacity-0 g-opacity-1--parent-hover g-pa-25 g-transition-0_3 g-transition--ease-in">
                                     <h3 class="landing-block-node-carousel-element-title text-uppercase g-font-weight-700 g-font-size-16 g-color-white mb-0">Boston global</h3>
                                     <div class="landing-block-node-carousel-element-text g-line-height-1_5--hover g-font-size-12 g-color-gray-light-v4 g-transition-0_3 g-transition--ease-in">
@@ -498,7 +498,7 @@ return array(
 
                         <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5">
                             <div class="g-parent g-pos-rel g-overflow-hidden">
-                                <img class="landing-block-node-carousel-element-img img-fluid g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img12.jpg" alt="" />
+                                <img class="landing-block-node-carousel-element-img img-fluid w-100 g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img12.jpg" alt="" />
                                 <div class="landing-block-node-carousel-element-img-hover g-pos-abs g-top-0 g-left-0 w-100 h-100 g-bg-primary-opacity-0_8 g-color-white opacity-0 g-opacity-1--parent-hover g-pa-25 g-transition-0_3 g-transition--ease-in">
                                     <h3 class="landing-block-node-carousel-element-title text-uppercase g-font-weight-700 g-font-size-16 g-color-white mb-0">Marketing group</h3>
                                     <div class="landing-block-node-carousel-element-text g-line-height-1_5--hover g-font-size-12 g-color-gray-light-v4 g-transition-0_3 g-transition--ease-in">
@@ -510,7 +510,7 @@ return array(
 
                         <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5">
                             <div class="g-parent g-pos-rel g-overflow-hidden">
-                                <img class="landing-block-node-carousel-element-img img-fluid g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img5.jpg" alt="" />
+                                <img class="landing-block-node-carousel-element-img img-fluid w-100 g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img5.jpg" alt="" />
                                 <div class="landing-block-node-carousel-element-img-hover g-pos-abs g-top-0 g-left-0 w-100 h-100 g-bg-primary-opacity-0_8 g-color-white opacity-0 g-opacity-1--parent-hover g-pa-25 g-transition-0_3 g-transition--ease-in">
                                     <h3 class="landing-block-node-carousel-element-title text-uppercase g-font-weight-700 g-font-size-16 g-color-white mb-0">The moon ltd</h3>
                                     <div class="landing-block-node-carousel-element-text g-line-height-1_5--hover g-font-size-12 g-color-gray-light-v4 g-transition-0_3 g-transition--ease-in">
@@ -522,7 +522,7 @@ return array(
 
                         <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5">
                             <div class="g-parent g-pos-rel g-overflow-hidden">
-                                <img class="landing-block-node-carousel-element-img img-fluid g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img6.jpg" alt="" />
+                                <img class="landing-block-node-carousel-element-img img-fluid w-100 g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img6.jpg" alt="" />
                                 <div class="landing-block-node-carousel-element-img-hover g-pos-abs g-top-0 g-left-0 w-100 h-100 g-bg-primary-opacity-0_8 g-color-white opacity-0 g-opacity-1--parent-hover g-pa-25 g-transition-0_3 g-transition--ease-in">
                                     <h3 class="landing-block-node-carousel-element-title text-uppercase g-font-weight-700 g-font-size-16 g-color-white mb-0">Support &amp; development</h3>
                                     <div class="landing-block-node-carousel-element-text g-line-height-1_5--hover g-font-size-12 g-color-gray-light-v4 g-transition-0_3 g-transition--ease-in">
@@ -534,7 +534,7 @@ return array(
 
                         <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5">
                             <div class="g-parent g-pos-rel g-overflow-hidden">
-                                <img class="landing-block-node-carousel-element-img img-fluid g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img7.jpg" alt="" />
+                                <img class="landing-block-node-carousel-element-img img-fluid w-100 g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img7.jpg" alt="" />
                                 <div class="landing-block-node-carousel-element-img-hover g-pos-abs g-top-0 g-left-0 w-100 h-100 g-bg-primary-opacity-0_8 g-color-white opacity-0 g-opacity-1--parent-hover g-pa-25 g-transition-0_3 g-transition--ease-in">
                                     <h3 class="landing-block-node-carousel-element-title text-uppercase g-font-weight-700 g-font-size-16 g-color-white mb-0">Boston global</h3>
                                     <div class="landing-block-node-carousel-element-text g-line-height-1_5--hover g-font-size-12 g-color-gray-light-v4 g-transition-0_3 g-transition--ease-in">
@@ -546,7 +546,7 @@ return array(
 
                         <div class="landing-block-node-carousel-element landing-block-card-carousel-element js-slide g-pa-5">
                             <div class="g-parent g-pos-rel g-overflow-hidden">
-                                <img class="landing-block-node-carousel-element-img img-fluid g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img8.jpg" alt="" />
+                                <img class="landing-block-node-carousel-element-img img-fluid w-100 g-transform-scale-1_1--parent-hover g-transition-0_3 g-transition--ease-in" src="https://cdn.bitrix24.site/bitrix/images/landing/business/400x269/img8.jpg" alt="" />
                                 <div class="landing-block-node-carousel-element-img-hover g-pos-abs g-top-0 g-left-0 w-100 h-100 g-bg-primary-opacity-0_8 g-color-white opacity-0 g-opacity-1--parent-hover g-pa-25 g-transition-0_3 g-transition--ease-in">
                                     <h3 class="landing-block-node-carousel-element-title text-uppercase g-font-weight-700 g-font-size-16 g-color-white mb-0">Marketing group</h3>
                                     <div class="landing-block-node-carousel-element-text g-line-height-1_5--hover g-font-size-12 g-color-gray-light-v4 g-transition-0_3 g-transition--ease-in">
@@ -684,7 +684,7 @@ return array(
                                 <li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12"><b>No</b> Proin laoreet accumsan nisl non</li>
                             </ul>
                             <div class="landing-block-node-price-container">
-                            	<a class="landing-block-node-price-button btn btn-md text-uppercase u-btn-primary rounded-0 g-px-15" href="#">Order Now</a>
+                            	<a class="landing-block-node-price-button btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0" href="#">Order Now</a>
                         	</div>
                         </div>
                     </article>
@@ -715,7 +715,7 @@ return array(
                                 <li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12"><b>YES</b> Proin laoreet accumsan nisl non</li>
                             </ul>
                             <div class="landing-block-node-price-container">
-                            	<a class="landing-block-node-price-button btn btn-md text-uppercase u-btn-primary rounded-0 g-px-15" href="#">Order Now</a>
+                            	<a class="landing-block-node-price-button btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0" href="#">Order Now</a>
 							</div>                        
                         </div>
                     </article>
@@ -746,7 +746,7 @@ return array(
                                 <li class="landing-block-node-price-list-item g-brd-bottom g-brd-gray-light-v3 g-py-12"><b>YES</b> Proin laoreet accumsan nisl non</li>
                             </ul>
 							<div class="landing-block-node-price-container">
-                            	<a class="landing-block-node-price-button btn btn-md text-uppercase u-btn-primary rounded-0 g-px-15" href="#">Order Now</a>
+                            	<a class="landing-block-node-price-button btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0" href="#">Order Now</a>
                         	</div>
                         </div>
                     </article>
@@ -954,7 +954,7 @@ return array(
 				<br /> tristique senectus et netus et malesuada fames ac turpis egestas.</p>
 		</div>
 		<div class="landing-block-node-button-container">
-			<a class="landing-block-node-button btn btn-md text-uppercase u-btn-primary rounded-0 g-px-15 g-font-weight-700" href="#">Projects</a>
+			<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0 g-px-15 g-font-weight-700" href="#">Projects</a>
 		</div>
 	</div>
 </section>',

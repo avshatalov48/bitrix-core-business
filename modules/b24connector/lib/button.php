@@ -28,9 +28,9 @@ class Button
 	public static function getTypeList()
 	{
 		return array(
-			self::ENUM_TYPE_OPEN_LINE => Loc::getMessage('B24C_BUTTON_TYPE_NAME_' . strtoupper(self::ENUM_TYPE_OPEN_LINE)),
-			self::ENUM_TYPE_CRM_FORM => Loc::getMessage('B24C_BUTTON_TYPE_NAME_' . strtoupper(self::ENUM_TYPE_CRM_FORM)),
-			self::ENUM_TYPE_CALLBACK => Loc::getMessage('B24C_BUTTON_TYPE_NAME_' . strtoupper(self::ENUM_TYPE_CALLBACK))
+			self::ENUM_TYPE_OPEN_LINE => Loc::getMessage('B24C_BUTTON_TYPE_NAME_'.mb_strtoupper(self::ENUM_TYPE_OPEN_LINE)),
+			self::ENUM_TYPE_CRM_FORM => Loc::getMessage('B24C_BUTTON_TYPE_NAME_'.mb_strtoupper(self::ENUM_TYPE_CRM_FORM)),
+			self::ENUM_TYPE_CALLBACK => Loc::getMessage('B24C_BUTTON_TYPE_NAME_'.mb_strtoupper(self::ENUM_TYPE_CALLBACK))
 		);
 	}
 

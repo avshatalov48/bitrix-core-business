@@ -10,6 +10,7 @@ use \Bitrix\Landing\Landing;
 use \Bitrix\Landing\Rights;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\Transfer;
+use \Bitrix\Landing\Restriction;
 use \Bitrix\Main\ModuleManager;
 use \Bitrix\Main\Loader;
 use \Bitrix\Main\Config\Option;
@@ -28,6 +29,53 @@ class LandingSitesComponent extends LandingBaseComponent
 	 * @var array
 	 */
 	protected $rights = [];
+
+	/**
+	 * Gets additional access filter for sites.
+	 * @param string $accessCode Access code for filter.
+	 * @return array
+	 */
+	protected function getAdditionalAccessFilter(string $accessCode)
+	{
+		$filter = ['ID' => [-1]];
+		$accessTypes = Rights::ACCESS_TYPES;
+
+		if (Rights::isAdmin())
+		{
+			return [];
+		}
+		if (!isset($accessTypes[$accessCode]))
+		{
+			return [];
+		}
+
+		// get all sites first
+		$ids = [];
+		$res = Site::getList([
+			'select' => [
+				'ID'
+			],
+			'filter' => [
+				'=TYPE' => $this->arParams['TYPE']
+			]
+		]);
+		while ($row = $res->fetch())
+		{
+			$ids[] = $row['ID'];
+		}
+
+		// get rights for all sites
+		$this->rights = Rights::getOperationsForSite($ids);
+		foreach ($this->rights as $siteId => $rights)
+		{
+			if (in_array($accessTypes[$accessCode], $rights))
+			{
+				$filter['ID'][] = $siteId;
+			}
+		}
+
+		return $filter;
+	}
 
 	/**
 	 * Returns sites of main module.
@@ -118,7 +166,6 @@ class LandingSitesComponent extends LandingBaseComponent
 		if ($init)
 		{
 			// params
-			$b24 = Manager::isB24();
 			$puny = new \CBXPunycode;
 			$deletedLTdays = Manager::getDeletedLT();
 			$landingNull = Landing::createInstance(0);
@@ -131,6 +178,7 @@ class LandingSitesComponent extends LandingBaseComponent
 			$this->checkParam('PAGE_URL_LANDING_EDIT', '');
 			$this->checkParam('PAGE_URL_SITE_DOMAIN_SWITCH', '');
 			$this->checkParam('DRAFT_MODE', 'N');
+			$this->checkParam('ACCESS_CODE', '');
 			$this->checkParam('~AGREEMENT', []);
 
 			\Bitrix\Landing\Hook::setEditMode(true);
@@ -172,7 +220,11 @@ class LandingSitesComponent extends LandingBaseComponent
 			{
 				$filter['=TYPE'] = $this->arParams['TYPE'];
 			}
-			$this->arResult['EXPORT_DISABLED'] = Manager::checkFeature(Manager::FEATURE_ALLOW_EXPORT) ? 'N' : 'Y';
+			if ($this->arParams['ACCESS_CODE'])
+			{
+				$filter[] = $this->getAdditionalAccessFilter($this->arParams['ACCESS_CODE']);
+			}
+			$this->arResult['EXPORT_DISABLED'] = Restriction\Manager::isAllowed('limit_sites_transfer') ? 'N' : 'Y';
 			$this->arResult['SMN_SITES'] = $this->getSmnSites();
 			$this->arResult['IS_DELETED'] = LandingFilterComponent::isDeleted();
 			$this->arResult['SITES'] = $this->getSites([

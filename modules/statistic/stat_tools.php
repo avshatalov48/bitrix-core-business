@@ -5,21 +5,21 @@ IncludeModuleLangFile(__FILE__);
 function __GoogleAd($set_new_adv=false, $r1=false, $r2=false, $s="http://pagead2.googlesyndication.com/")
 {
 	if (intval($_SESSION["SESS_SESSION_ID"])<=0 &&
-		strlen($_SERVER["HTTP_REFERER"])>0 &&
-		strncmp($s, $_SERVER["HTTP_REFERER"], strlen($s))==0)
+		$_SERVER["HTTP_REFERER"] <> '' &&
+		strncmp($s, $_SERVER["HTTP_REFERER"], mb_strlen($s))==0)
 	{
 		$arr = parse_url($_SERVER["HTTP_REFERER"]);
-		if (strlen($arr["query"])>0)
+		if ($arr["query"] <> '')
 		{
 			parse_str($arr["query"], $ar);
-			if (strlen($ar["url"])>0)
+			if ($ar["url"] <> '')
 			{
 				$_SERVER["HTTP_REFERER"] = $ar["url"];
 				if ($set_new_adv)
 				{
 					__SetReferer("referer1", "REFERER1_SYN");
 					__SetReferer("referer2", "REFERER2_SYN");
-					if (strlen($_SESSION["referer1"])<=0 && strlen($_SESSION["referer2"])<=0)
+					if ($_SESSION["referer1"] == '' && $_SESSION["referer2"] == '')
 					{
 						__GetReferringSite($protocol, $site_port, $site, $page, $_SERVER["HTTP_REFERER"]);
 						$_SESSION["referer1"] = ($r1!==false) ? $r1 : "google_adwords";
@@ -56,17 +56,17 @@ function __GetReferringSite(
 
 	if(!empty($URL_FROM))
 	{
-		$protocol = substr($URL_FROM, 0, 7);
+		$protocol = mb_substr($URL_FROM, 0, 7);
 		if($protocol == "http://")
 		{
-			$server_name = substr($URL_FROM, 7);
+			$server_name = mb_substr($URL_FROM, 7);
 		}
 		else
 		{
-			$protocol = substr($URL_FROM, 0, 8);
+			$protocol = mb_substr($URL_FROM, 0, 8);
 			if($protocol == "https://")
 			{
-				$server_name = substr($URL_FROM, 8);
+				$server_name = mb_substr($URL_FROM, 8);
 			}
 			else
 			{
@@ -77,20 +77,20 @@ function __GetReferringSite(
 
 		if(!empty($server_name))
 		{
-			$p = strpos($server_name, "/");
+			$p = mb_strpos($server_name, "/");
 			if($p > 0)
-				$server_name = substr($server_name, 0, $p);
+				$server_name = mb_substr($server_name, 0, $p);
 
-			$server_name = strtolower($server_name);
+			$server_name = mb_strtolower($server_name);
 
-			$p = strpos($server_name,":");
+			$p = mb_strpos($server_name, ":");
 			if($p > 0)
-				$server_name_wo_port = substr($server_name, 0, $p);
+				$server_name_wo_port = mb_substr($server_name, 0, $p);
 			else
 				$server_name_wo_port = $server_name;
 
-			$PAGE_FROM = substr($URL_FROM, strlen($protocol.$server_name));
-			if(strlen($PAGE_FROM) <= 0)
+			$PAGE_FROM = mb_substr($URL_FROM, mb_strlen($protocol.$server_name));
+			if($PAGE_FROM == '')
 				$PAGE_FROM = "/";
 		}
 
@@ -107,7 +107,7 @@ function __SetReferer($referer, $syn)
 {
 	stat_session_register($referer);
 	global $$referer;
-	if (strlen($_SESSION[$referer])<=0)
+	if ($_SESSION[$referer] == '')
 	{
 		$_SESSION[$referer] = $$referer;
 		$arr=explode(",",COption::GetOptionString("statistic", $syn));
@@ -115,7 +115,7 @@ function __SetReferer($referer, $syn)
 		{
 			$s = trim($s);
 			global $$s;
-			if (strlen($$s)>0)
+			if ($$s <> '')
 			{
 				$_SESSION[$referer] = $$s;
 				break;
@@ -163,7 +163,7 @@ function __ModifyATags($matches)
 	global $arHashLink;
 	$link = $matches[3];
 
-	if (strlen($link) && !__IsHiddenLink($link) && !preg_match("/<img/i", $matches[0]))
+	if (mb_strlen($link) && !__IsHiddenLink($link) && !preg_match("/<img/i", $matches[0]))
 	{
 
 		$link = __GetFullRequestUri(__GetFullCurPage($link));
@@ -256,7 +256,7 @@ function __GetPage($page=false, $with_imp_params=true, $curdir=false)
 	else
 	{
 		$page = str_replace("\\","/",$page);
-		if(substr($page, 0, 1)!=="/" && strpos($page, "://")===false)
+		if(mb_substr($page, 0, 1) !== "/" && mb_strpos($page, "://") === false)
 		{
 			$curdir = ($curdir!==false) ? $curdir : __GetCurrentDir();
 			$page = Rel2Abs($curdir, $page);
@@ -264,12 +264,12 @@ function __GetPage($page=false, $with_imp_params=true, $curdir=false)
 		$check_path = true;
 	}
 
-	$found = strpos($page, "?");
-	$sPath = ($found? substr($page, 0, $found) : $page);
+	$found = mb_strpos($page, "?");
+	$sPath = ($found? mb_substr($page, 0, $found) : $page);
 	if ($check_path)
 	{
 		$sPath = str_replace("\\","/",$sPath);
-		$last_char = substr($sPath, -1);
+		$last_char = mb_substr($sPath, -1);
 		if($last_char != "/" && @is_dir($_SERVER["DOCUMENT_ROOT"].$sPath))
 			$sPath .= "/";
 	}
@@ -304,15 +304,15 @@ function __GetPage($page=false, $with_imp_params=true, $curdir=false)
 	}
 
 	$ar = explode("?", $sPath);
-	if(strlen($ar[0]) > 0)
+	if($ar[0] <> '')
 	{
 		$arTail = explode(",", COption::GetOptionString("statistic", "DIRECTORY_INDEX"));
 		foreach($arTail as $tail)
 		{
 			$tail = "/".trim($tail);
-			if(substr($ar[0], -strlen($tail))==$tail)
+			if(mb_substr($ar[0], -mb_strlen($tail)) == $tail)
 			{
-				$ar[0] = substr($ar[0], 0, strlen($ar[0])-strlen($tail)+1);
+				$ar[0] = mb_substr($ar[0], 0, mb_strlen($ar[0]) - mb_strlen($tail) + 1);
 				break;
 			}
 		}
@@ -343,16 +343,16 @@ function __GetFullRequestUri($url=false, $host=false, $port=false, $protocol=fal
 	if ($protocol===false) $protocol = CMain::IsHTTPS() ? "https" : "http";
 
 	$res = "";
-	$host_exists = (strpos($url, "http://")===false && strpos($url, "https://")===false) ? false : true;
+	$host_exists = (mb_strpos($url, "http://") === false && mb_strpos($url, "https://") === false) ? false : true;
 	if (!$host_exists)
 	{
-		if (strlen($protocol)>0) $res = $protocol."://";
-		if (strlen($host)>0) $res .= $host;
-		if (intval($port)>0 && intval($port)!=80 && intval($port)!=443 && strpos($host, ":")===false) $res .= ":".$port;
+		if ($protocol <> '') $res = $protocol."://";
+		if ($host <> '') $res .= $host;
+		if (intval($port)>0 && intval($port)!=80 && intval($port)!=443 && mb_strpos($host, ":") === false) $res .= ":".$port;
 	}
-	if (strlen($url)>0) $res .= $url;
+	if ($url <> '') $res .= $url;
 
-	if(strpos($res, "/bitrix/admin/")!==false)
+	if(mb_strpos($res, "/bitrix/admin/") !== false)
 	{
 		$res = str_replace("&mode=list", "", $res);
 		$res = str_replace("&mode=frame", "", $res);
@@ -365,7 +365,7 @@ function __GetFullRequestUri($url=false, $host=false, $port=false, $protocol=fal
 function GetStatisticBaseCurrency()
 {
 	$base_currency = trim(COption::GetOptionString("statistic", "BASE_CURRENCY"));
-	if ($base_currency!="xxx" && strlen($base_currency)>0)
+	if ($base_currency!="xxx" && $base_currency <> '')
 	{
 		if (CModule::IncludeModule("currency"))
 		{
@@ -430,13 +430,13 @@ function LoadEventsBySteps(
 				$CHARGEBACK = ($CHARGEBACK=="Y") ? "Y" : "N";
 				if ($EVENT_ID>0)
 				{
-					if (strlen($base_currency)<=0)
+					if ($base_currency == '')
 					{
 						$base_currency = GetStatisticBaseCurrency();
 					}
-					if (strlen($base_currency)>0)
+					if ($base_currency <> '')
 					{
-						if ($CURRENCY!=$base_currency && strlen(trim($CURRENCY))>0)
+						if ($CURRENCY!=$base_currency && trim($CURRENCY) <> '')
 						{
 							if (CModule::IncludeModule("currency"))
 							{
@@ -956,7 +956,7 @@ function AdminListCheckDate(&$lAdmin, $arDates)
 
 	$ok1 = false;
 	list($id1, $date1) = each($arDates);
-	if(strlen($date1)>0)
+	if($date1 <> '')
 	{
 		if(!CheckDateTime($date1))
 		{
@@ -973,7 +973,7 @@ function AdminListCheckDate(&$lAdmin, $arDates)
 
 	$ok2 = false;
 	list($id2, $date2) = each($arDates);
-	if(strlen($date2)>0)
+	if($date2 <> '')
 	{
 		if(!CheckDateTime($date2))
 		{
@@ -1061,8 +1061,8 @@ function StatAdminListFormatURL($url, $arOptions = array())
 	$htmlA .= '>';
 
 	$url_display = $url;
-	if($max_display_chars > 0 && strlen($url) >= $max_display_chars)
-		$url_display = substr($url, 0, intval($max_display_chars*0.7)).'...'.substr($url, -intval($max_display_chars*0.2));
+	if($max_display_chars > 0 && mb_strlen($url) >= $max_display_chars)
+		$url_display = mb_substr($url, 0, intval($max_display_chars * 0.7)).'...'.mb_substr($url, -intval($max_display_chars * 0.2));
 
 	if($chars_per_line > 0)
 	{
@@ -1085,7 +1085,7 @@ function is_utf8_url($url)
 	{
 		$arBytes = array();
 		foreach($match[1] as $hex)
-			$arBytes[] = hexdec(substr($hex, 1));
+			$arBytes[] = hexdec(mb_substr($hex, 1));
 		$is_utf = 0;
 		foreach($arBytes as $i => $byte)
 		{

@@ -117,13 +117,30 @@ class CBPStartWorkflowActivity
 		//if Multiple, take only first Id
 		if (is_array($documentId[2]))
 		{
-			reset($documentId[2]);
-			$documentId[2] = current($documentId[2]);
+			$documentId[2] = reset($documentId[2]);
 		}
 
 		/** @var CBPDocumentService $documentService */
 		$documentService = CBPRuntime::GetRuntime()->GetService('DocumentService');
 		$documentId = $documentService->normalizeDocumentId($documentId);
+
+		//check Document type
+		try
+		{
+			$realDocumentType = $documentService->GetDocumentType($documentId)[2];
+		}
+		catch (Exception $e)
+		{
+			$realDocumentType = null;
+		}
+
+		if (!$realDocumentType || $realDocumentType != $template['DOCUMENT_TYPE'][2])
+		{
+			$this->WriteToTrackingService(
+				$realDocumentType ? GetMessage("BPSWFA_DOCTYPE_ERROR") : GetMessage("BPSWFA_DOCTYPE_NOT_FOUND_ERROR")
+			);
+			return CBPActivityExecutionStatus::Closed;
+		}
 
 		$parameters = $this->TemplateParameters;
 		if (!is_array($parameters))
@@ -186,11 +203,22 @@ class CBPStartWorkflowActivity
 		return CBPActivityExecutionStatus::Executing;
 	}
 
-	public static function GetPropertiesDialog($documentType, $activityName, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $currentValues = null, $formName = "")
+	public static function GetPropertiesDialog($documentType, $activityName, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $currentValues = null, $formName = "", $popupWindow, $siteId = '')
 	{
 		$runtime = CBPRuntime::GetRuntime();
 		/** @var CBPDocumentService $documentService */
 		$documentService = $runtime->GetService("DocumentService");
+
+		$dialog = new \Bitrix\Bizproc\Activity\PropertiesDialog(__FILE__, array(
+			'documentType' => $documentType,
+			'activityName' => $activityName,
+			'workflowTemplate' => $arWorkflowTemplate,
+			'workflowParameters' => $arWorkflowParameters,
+			'workflowVariables' => $arWorkflowVariables,
+			'currentValues' => $currentValues,
+			'formName' => $formName,
+			'siteId' => $siteId
+		));
 
 		$entities = $types = $templates = [];
 		$currentEntity = $currentType = $currentTemplateId = $templateParametersRender = '';
@@ -250,30 +278,52 @@ class CBPStartWorkflowActivity
 		if ($currentTemplateId)
 		{
 			$templates = self::getTemplatesList($currentType);
-			$templateParametersRender = self::renderTemplateParametersForm($documentType, $currentTemplateId, $formName, $currentValues['template']);
+			if($formName === 'bizproc_automation_robot_dialog')
+			{
+				$templateParametersRender = self::renderRobotTemplateParametersForm(
+					$dialog,
+					$currentTemplateId,
+					$currentValues['template']
+				);
+			}
+			else
+			{
+				$templateParametersRender = self::renderTemplateParametersForm(
+					$documentType,
+					$currentTemplateId,
+					$formName,
+					$currentValues['template']
+				);
+			}
 		}
 
-		return $runtime->ExecuteResourceFile(
-			__FILE__,
-			"properties_dialog.php",
-			array(
-				'isAdmin' => static::checkAdminPermissions(),
-				'documentType' => $documentType,
+		$dialog->setMap(array(
+			'DOCUMENT_ID' => [
+				'Name' => GetMessage('BPSWFA_PD_DOCUMENT_ID'),
+				'FieldName' => 'document_id',
+				'Type' => FieldType::STRING,
+				'Required' => true
+			]
+		));
 
-				'entities' => $entities,
-				'types' => $types,
-				'templates' => $templates,
+		$dialog->setRuntimeData(array(
+			'isAdmin' => static::checkAdminPermissions(),
+			'documentType' => $documentType,
 
-				'documentId' => !empty($currentValues['document_id']) ? $currentValues['document_id'] : null,
-				'useSubscription' => $currentValues['use_subscription'],
-				'currentEntity' => $currentEntity,
-				'currentType' => $currentType,
-				'currentTemplateId' => $currentTemplateId,
-				'templateParametersRender' => $templateParametersRender,
+			'entities' => $entities,
+			'types' => $types,
+			'templates' => $templates,
 
-				"formName" => $formName,
-			)
-		);
+			'documentId' => !empty($currentValues['document_id']) ? $currentValues['document_id'] : null,
+			'useSubscription' => $currentValues['use_subscription'],
+			'currentEntity' => $currentEntity,
+			'currentType' => $currentType,
+			'currentTemplateId' => $currentTemplateId,
+			'templateParametersRender' => $templateParametersRender,
+
+			"formName" => $formName,
+		));
+		return $dialog;
 	}
 
 	public static function GetPropertiesDialogValues($documentType, $activityName, &$workflowTemplate, &$arWorkflowParameters, &$arWorkflowVariables, $currentValues, &$errors)
@@ -363,10 +413,37 @@ class CBPStartWorkflowActivity
 
 		if (!empty($request['template_id']) && !empty($request['form_name']))
 		{
-			$result = self::renderTemplateParametersForm($request['document_type'], $request['template_id'], $request['form_name']);
+			if(isset($request['isRobot']) && $request['isRobot'] === 'y')
+			{
+				$result = self::renderRobotTemplateParametersForm(
+					self::jsObjectToPropertiesDialog($request['properties_dialog']),
+					$request['template_id']
+				);
+			}
+			else
+			{
+				$result = self::renderTemplateParametersForm(
+					$request['document_type'],
+					$request['template_id'],
+					$request['form_name']
+				);
+			}
 		}
 
 		return $result;
+	}
+
+	protected static function jsObjectToPropertiesDialog(array $dialog)
+	{
+		return new \Bitrix\Bizproc\Activity\PropertiesDialog(__FILE__, array(
+			'documentType' => $dialog['documentType'],
+			'activityName' => $dialog['activityName'],
+			'workflowTemplate' => $dialog['workflowTemplate'],
+			'workflowParameters' => $dialog['workflowParameters'],
+			'currentValues' => isset($dialog['currentValues']) ? $dialog['currentValues'] : array(),
+			'formName' => $dialog['formName'],
+			'siteId' => $dialog['siteId']
+		));
 	}
 
 	private static function checkAdminPermissions()
@@ -491,6 +568,33 @@ class CBPStartWorkflowActivity
 							true
 						)
 					.'</td></tr>';
+				}
+			}
+		}
+		return $result;
+	}
+
+	private static function renderRobotTemplateParametersForm($dialog, $templateId, array $currentValues = array())
+	{
+		$result = '';
+		$template = self::getTemplate($templateId);
+		if($template)
+		{
+			if(!empty($template['PARAMETERS']))
+			{
+				$result .= '<div class="bizproc-automation-popup-settings">';
+				$result .= GetMessage('BPSWFA_TEMPLATE_PARAMETERS') . ": ";
+				$result .= '</div>';
+
+				foreach ($template['PARAMETERS'] as $fieldId => $field)
+				{
+					$field['FieldName'] = 'bpswfatemplate_' . $fieldId;
+					$result .= '<div class="bizproc-automation-popup-settings">';
+					$result .= "<span class=bizproc-automation-popup-settings-title>{$field['Name']}: </span>";
+
+					$result .= $dialog->renderFieldControl($field, $currentValues[$fieldId]);
+
+					$result .= '</div>';
 				}
 			}
 		}

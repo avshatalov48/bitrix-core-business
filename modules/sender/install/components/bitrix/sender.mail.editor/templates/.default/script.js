@@ -94,14 +94,17 @@
 			return;
 		}
 
-		BX.extend(PlaceHolderSelectorList, window.BXHtmlEditor.DropDownList);
-		window.BXHtmlEditor.Controls['placeholder_selector'] = PlaceHolderSelectorList;
+		BX.extend(PlaceHolderSelectorButton, window.BXHtmlEditor.Button);
+		window.BXHtmlEditor.Controls['placeholder_selector'] = PlaceHolderSelectorButton;
+		buildPrototypes();
 
+		//
 		BX.addCustomEvent(
 			editor,
-			"PlaceHolderSelectorListCreate",
-			this.onPlaceHolderSelectorListCreate.bind(this)
+			"PlaceHolderSelectorButtonCreate",
+			this.onPlaceHolderSelectorButtonCreate.bind(this)
 		);
+
 		BX.addCustomEvent(
 			editor,
 			"GetControlsMap",
@@ -119,9 +122,9 @@
 			offsetWidth: 32
 		});
 	};
-	Editor.prototype.onPlaceHolderSelectorListCreate = function (placeHolderSelectorList)
+	Editor.prototype.onPlaceHolderSelectorButtonCreate = function (PlaceHolderSelectorButton)
 	{
-		placeHolderSelectorList.placeHolders = this.placeHolders;
+		PlaceHolderSelectorButton.placeHolders = this.placeHolders;
 	};
 	Editor.prototype.isSupportedTemplateUri = function ()
 	{
@@ -163,18 +166,20 @@
 	};
 
 
-	function PlaceHolderSelectorList(editor, wrap)
+	PlaceHolderSelectorButton = function(editor, wrap)
 	{
-		var title = BX.Sender.Mail.Editor.mess.placeHolderTitle;
 		// Call parent constructor
-		PlaceHolderSelectorList.superclass.constructor.apply(this, arguments);
+		PlaceHolderSelectorButton.superclass.constructor.apply(this, arguments);
 		this.id = 'placeholder_selector';
-		this.title = title;
-		this.action = 'insertHTML';
-		this.zIndex = 3008;
-
+		this.title = '\#';
+		// this.action = 'insertHTML';
 		this.placeHolders = [];
-		editor.On('PlaceHolderSelectorListCreate', [this]);
+		
+		this.className = 'bxhtmled-top-bar-btn';
+		this.activeClassName = 'bxhtmled-top-bar-btn-active';
+		this.disabledClassName = 'bxhtmled-top-bar-btn-disabled';
+
+		editor.On('PlaceHolderSelectorButtonCreate', [this]);
 
 		this.disabledForTextarea = false;
 		this.arValues = [];
@@ -182,40 +187,94 @@
 		for (var i in this.placeHolders)
 		{
 			var value = this.placeHolders[i];
-			value.value = '#' + value.CODE + '#';
-			this.arValues.push(
-				{
-					id: value.CODE,
-					name: value.NAME,
-					topName: title,
-					title: value.value + ' - ' + value.DESC,
-					className: '',
-					style: '',
-					action: 'insertHTML',
-					value: value.value
-				}
-			);
+			this.arValues.push(this.buildPlaceHolders(value));
 		}
 
 		this.Create();
-		this.pCont.innerHTML = title;
+		this.pCont.innerHTML = this.title;
 
+		this.menu = new BX.Main.Menu({
+			id: this.id,
+			bindElement: this.GetCont(),
+			items: this.arValues,
+			maxHeight: 300
+		});
+
+		this.menuItem = new BX.Main.MenuItem();
+		BX.bind(this.pCont, 'click', BX.proxy(this.OnClick, this));
 		if (wrap)
 		{
 			wrap.appendChild(this.GetCont());
 		}
 	}
 
+	buildPrototypes = function () {
+		PlaceHolderSelectorButton.prototype.buildPlaceHolders = function(placeHolder, title) {
+				var _this = this;
+				var value = {
+					text: placeHolder.NAME,
+					topName: title,
+					title: placeHolder.DESC,
+					className: '',
+					style: '',
+					action: 'insertHTML',
+				};
+
+				if (typeof placeHolder.ITEMS !== 'undefined')
+				{
+					value['items'] = [];
+					value['className'] = 'bxhtmled-style-heading-more';
+
+					for (var i in placeHolder.ITEMS)
+					{
+						value['items'].push(this.buildPlaceHolders(placeHolder.ITEMS[i]))
+					}
+				}
+
+				if (typeof value['items'] === 'undefined')
+				{
+					value['dataset'] = {
+						value: '#' + placeHolder.CODE + '#'
+					};
+					value['onclick'] = function(event, item)
+					{
+						if (typeof item.dataset.value !== 'undefined' &&
+							_this.editor.action.IsSupported('insertHTML'))
+						{
+							_this.editor.action.Exec('insertHTML', item.dataset.value);
+							_this.menu.close();
+						}
+					};
+				}
+				else
+				{
+					value['id'] = placeHolder.CODE;
+				}
+
+				return value;
+			};
+
+			PlaceHolderSelectorButton.prototype.Check= BX.DoNothing;
+			PlaceHolderSelectorButton.prototype.GetValue= BX.DoNothing;
+			PlaceHolderSelectorButton.prototype.SetValue= BX.DoNothing;
+			PlaceHolderSelectorButton.prototype.OnMouseUp= BX.DoNothing;
+			PlaceHolderSelectorButton.prototype.OnMouseDown= BX.DoNothing;
+
+			PlaceHolderSelectorButton.prototype.OnClick = function()
+			{
+				this.menu.show();
+			}
+	}
+
 	setTimeout(function () {
 		if (window.BXHtmlEditor)
 		{
-			BX.extend(PlaceHolderSelectorList, window.BXHtmlEditor.DropDownList);
-			window.BXHtmlEditor.Controls['placeholder_selector'] = PlaceHolderSelectorList;
+			BX.extend(PlaceHolderSelectorButton, window.BXHtmlEditor.Button);
+			window.BXHtmlEditor.Controls['placeholder_selector'] = PlaceHolderSelectorButton;
 		}
 	}, 300);
 
 	BX.Sender.Mail.Editor = new Editor();
-
 
 	if (BX.Sender.Message.Editor.setAdaptedInstance)
 	{

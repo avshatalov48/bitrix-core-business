@@ -30,13 +30,13 @@ if(!function_exists("GetUserName"))
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$arParams["pm_version"] = intVal(COption::GetOptionString("forum", "UsePMVersion", "2"));
+	$arParams["pm_version"] = intval(COption::GetOptionString("forum", "UsePMVersion", "2"));
 	
-	$arParams["FID"] = intVal(intVal($arParams["FID"]) <= 0 ? $_REQUEST["FID"] : $arParams["FID"]);
-	$arParams["FID"] = intVal(intVal($arParams["FID"]) <= 0 ? 1 : $arParams["FID"]);
+	$arParams["FID"] = intval(intVal($arParams["FID"]) <= 0 ? $_REQUEST["FID"] : $arParams["FID"]);
+	$arParams["FID"] = intval(intVal($arParams["FID"]) <= 0 ? 1 : $arParams["FID"]);
 	if ($arParams["pm_version"] == 2 && ($arParams["FID"] > 1 && $arParams["FID"] < 4))
 		$arParams["FID"] = 3;
-	$arParams["UID"] = intVal($USER->GetId());
+	$arParams["UID"] = intval($USER->GetId());
 /***************** Sorting *****************************************/
 	InitSorting($GLOBALS["APPLICATION"]->GetCurPage()."?PAGE_NAME=pm_list&FID=".$arParams["FID"]);
 	global $by, $order;
@@ -54,20 +54,20 @@ if(!function_exists("GetUserName"))
 		"pm_folder" => "PAGE_NAME=pm_folder");
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
+		if (trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
+			$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
 		if (!empty($by) && !in_array($URL, array("profile_view", "pm_read", "pm_edit")))
 		{
-			$arParams["~URL_TEMPLATES_".strToUpper($URL)] = ForumAddPageParams($arParams["URL_TEMPLATES_".strToUpper($URL)], 
+			$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = ForumAddPageParams($arParams["URL_TEMPLATES_".mb_strtoupper($URL)],
 				array("by" => $by, "order" => $order), false, false);
 		}
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
-	$arParams["PAGE_NAVIGATION_WINDOW"] = intVal(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
-	$arParams["PM_PER_PAGE"] = intVal($arParams["PM_PER_PAGE"] > 0 ? $arParams["PM_PER_PAGE"] : 20);
+	$arParams["PAGE_NAVIGATION_WINDOW"] = intval(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
+	$arParams["PM_PER_PAGE"] = intval($arParams["PM_PER_PAGE"] > 0 ? $arParams["PM_PER_PAGE"] : 20);
 	$arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 	$arParams["NAME_TEMPLATE"] = str_replace(array("#NOBR#","#/NOBR#"), "",
@@ -89,7 +89,7 @@ if(!function_exists("GetUserName"))
 $arResult["ERROR_MESSAGE"] = "";
 $arResult["OK_MESSAGE"] = "";
 if (!empty($_REQUEST["result"])):
-	switch (strToLower($_REQUEST["result"]))
+	switch(mb_strtolower($_REQUEST["result"]))
 	{
 		case "delete":
 			$arResult["OK_MESSAGE"] = GetMessage("PM_OK_ALL_DELETE");
@@ -126,7 +126,7 @@ $message = (is_array($_REQUEST["message"]) && !empty($_REQUEST["message"]) ? $_R
 /********************************************************************
 				Action
 ********************************************************************/
-$arResult["action"] = strToLower($_REQUEST["action"]);
+$arResult["action"] = mb_strtolower($_REQUEST["action"]);
 if (!empty($arResult["action"]))
 {
 	$arError = array();
@@ -148,14 +148,14 @@ if (!empty($arResult["action"]))
 			else 
 				$strOK .= str_replace("#MID#", $MID, GetMessage("PM_OK_DELETE"));
 		endforeach;
-	elseif (($arResult["action"] == "copy" || $arResult["action"] == "move") && intVal($_REQUEST["folder_id"]) <= 0):
+	elseif (($arResult["action"] == "copy" || $arResult["action"] == "move") && intval($_REQUEST["folder_id"]) <= 0):
 		$arError[] = array("id" => "BAD_DATA", "text" => GetMessage("PM_ERR_MOVE_NO_FOLDER"));
 	elseif ($arResult["action"] == "copy" || $arResult["action"] == "move"):
-		$folder_id = intVal($_REQUEST["folder_id"]);
+		$folder_id = intval($_REQUEST["folder_id"]);
 		foreach ($message as $MID) 
 		{
 			$arrVars = array(
-				"FOLDER_ID" => intVal($folder_id),
+				"FOLDER_ID" => intval($folder_id),
 				"USER_ID" => $USER->GetId());
 			if ($folder_id == 4 || $arResult["action"] != "move")
 				$arrVars["IS_READ"] = "Y";
@@ -178,13 +178,13 @@ if (!empty($arResult["action"]))
 			endif;
 		}
 	endif;
-	BXClearCache(true, "/bitrix/forum/user/".intVal($USER->GetID())."/");
+	BXClearCache(true, "/bitrix/forum/user/".intval($USER->GetID())."/");
 	$arComponentPath = array("bitrix:forum");
 	foreach ($arComponentPath as $path)
 	{
 		$componentRelativePath = CComponentEngine::MakeComponentPath($path);
 		$arComponentDescription = CComponentUtil::GetComponentDescr($path);
-		if (strLen($componentRelativePath) <= 0 || !is_array($arComponentDescription)):
+		if ($componentRelativePath == '' || !is_array($arComponentDescription)):
 			continue;
 		elseif (!array_key_exists("CACHE_PATH", $arComponentDescription)):
 			continue;
@@ -232,7 +232,7 @@ elseif (1 < $arParams["FID"] && $arParams["FID"] <= 3)
 	$SortingField = "RECIPIENT_NAME";
 }
 $arResult["SortingEx"]["POST_SUBJ"] = SortingEx("post_subj");
-$arResult["SortingEx"]["AUTHOR_NAME"] = SortingEx(strToLower($SortingField));
+$arResult["SortingEx"]["AUTHOR_NAME"] = SortingEx(mb_strtolower($SortingField));
 $arResult["SortingEx"]["POST_DATE"] = SortingEx("post_date");
 
 $arFilter = array("USER_ID"=>$arParams["UID"], "FOLDER_ID"=>$arParams["FID"]);
@@ -283,7 +283,7 @@ if ($resFolder && $resF = $resFolder->GetNext())
 {
 	do
 	{
-		$arResult["UserFolder"][intVal($resF["ID"])] = $resF;
+		$arResult["UserFolder"][intval($resF["ID"])] = $resF;
 	}
 	while ($resF = $resFolder->GetNext());
 }

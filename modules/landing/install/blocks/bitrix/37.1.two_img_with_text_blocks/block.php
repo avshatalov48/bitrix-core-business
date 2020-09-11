@@ -12,7 +12,7 @@
 								bibendum purus eu nisi pulvinar
 								venenatis vitae non velit.</p></div>
 						<div class="landing-block-node-button-container">
-							<a class="landing-block-node-button landing-semantic-link-medium-white js-animation fadeIn btn btn-md text-uppercase u-btn-primary font-weight-bold g-font-size-11 g-color-gray-dark-v1 g-color-gray-dark-v1--hover rounded-0 g-py-10 g-px-25"
+							<a class="landing-block-node-button landing-semantic-link-medium-white js-animation fadeIn btn text-uppercase g-btn-primary rounded-0 g-btn-type-solid g-btn-primary g-btn-size-sm g-btn-px-l g-py-10 g-color-black"
 							   href="#">Join Us</a>
 						</div>
 					</div>
@@ -42,7 +42,7 @@
 								bibendum purus eu nisi pulvinar
 								venenatis vitae non velit.</p></div>
 						<div class="landing-block-node-button-container">
-							<a class="landing-block-node-button landing-semantic-link-medium-white js-animation fadeIn btn btn-md text-uppercase u-btn-primary font-weight-bold g-font-size-11 g-color-gray-dark-v1 g-color-gray-dark-v1--hover rounded-0 g-py-10 g-px-25"
+							<a class="landing-block-node-button landing-semantic-link-medium-white js-animation fadeIn btn text-uppercase g-btn-primary rounded-0 g-btn-type-solid g-btn-primary g-btn-size-sm g-btn-px-l g-py-10 g-color-black"
 						   href="#">Join Us</a>
 						</div>
 					</div>

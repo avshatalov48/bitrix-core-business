@@ -47,16 +47,16 @@ DeleteParam(array("result"));
 			"detail" => "PAGE_NAME=detail&SECTION_ID=#SECTION_ID#&ELEMENT_ID=#ELEMENT_ID#");
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (empty($arParams["URL_TEMPLATES_".strToUpper($URL)]))
+		if (empty($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]))
 			continue;
-		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 $arParams["USER_FIELDS"] = (is_array($arParams["USER_FIELDS"]) ? $arParams["USER_FIELDS"] : (empty($arParams["USER_FIELDS"]) ? array() : array($arParams["USER_FIELDS"])));
 if (!in_array("UF_FORUM_MESSAGE_DOC", $arParams["USER_FIELDS"]))
 	$arParams["USER_FIELDS"][] = "UF_FORUM_MESSAGE_DOC";
-$arParams["IMAGE_SIZE"] = (intVal($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 300);
+$arParams["IMAGE_SIZE"] = (intval($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 300);
 $arParams["PATH_TO_SMILE"] = "";
 $arParams["POST_FIRST_MESSAGE"] = "Y";
 $arParams["POST_FIRST_MESSAGE_TEMPLATE"] = trim($arParams["POST_FIRST_MESSAGE_TEMPLATE"]);
@@ -67,7 +67,7 @@ $arParams["EDITOR_CODE_DEFAULT"] = ($arParams["EDITOR_CODE_DEFAULT"] == "Y" ? "Y
 
 $arParams["SUBSCRIBE_AUTHOR_ELEMENT"] = ($arParams["SUBSCRIBE_AUTHOR_ELEMENT"] == "Y" ? "Y" : "N");
 
-$arParams["MESSAGES_PER_PAGE"] = intVal($arParams["MESSAGES_PER_PAGE"] > 0 ? $arParams["MESSAGES_PER_PAGE"] : COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10"));
+$arParams["MESSAGES_PER_PAGE"] = intval($arParams["MESSAGES_PER_PAGE"] > 0 ? $arParams["MESSAGES_PER_PAGE"] : COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10"));
 $arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
 $arParams["PAGE_NAVIGATION_TEMPLATE"] = (!empty($arParams["PAGE_NAVIGATION_TEMPLATE"]) ? $arParams["PAGE_NAVIGATION_TEMPLATE"] : "modern");
 
@@ -364,11 +364,11 @@ if ($arResult["FORUM_TOPIC_ID"] > 0)
 			"nPageSize" => $arParams["MESSAGES_PER_PAGE"],
 			"bShowAll" => false,
 			"sNameTemplate" => $arParams["NAME_TEMPLATE"]);
-		$MID = intVal($_REQUEST["MID"]);
+		$MID = intval($_REQUEST["MID"]);
 		unset($_GET["MID"]); unset($GLOBALS["MID"]);
 		if (isset($arResult['RESULT']) && intval($arResult['RESULT']) > 0)
 			$MID = $arResult['RESULT'];
-		if (intVal($MID) > 0)
+		if (intval($MID) > 0)
 		{
 			$page_number = CForumMessage::GetMessagePage(
 				$MID,
@@ -382,7 +382,7 @@ if ($arResult["FORUM_TOPIC_ID"] > 0)
 				)
 			);
 			if ($page_number > 0)
-				$arFields["iNumPage"] = intVal($page_number);
+				$arFields["iNumPage"] = intval($page_number);
 		}
 
 		$arFilter = array("FORUM_ID"=>$arParams["FORUM_ID"], "TOPIC_ID"=>$arResult["FORUM_TOPIC_ID"], "!PARAM1" => "IB");
@@ -397,7 +397,7 @@ if ($arResult["FORUM_TOPIC_ID"] > 0)
 			$arResult["NAV_STYLE"] = $APPLICATION->GetAdditionalCSS();
 			$arResult["PAGE_COUNT"] = $db_res->NavPageCount;
 			$arResult['PAGE_NUMBER'] = $db_res->NavPageNomer;
-			$number = intVal($db_res->NavPageNomer-1)*$arParams["MESSAGES_PER_PAGE"] + 1;
+			$number = intval($db_res->NavPageNomer-1)*$arParams["MESSAGES_PER_PAGE"] + 1;
 			while ($res = $db_res->GetNext())
 			{
 /************** Message info ***************************************/
@@ -594,7 +594,7 @@ if ($arResult["SHOW_POST_FORM"] == "Y")
 		include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
 		$cpt = new CCaptcha();
 		$captchaPass = COption::GetOptionString("main", "captcha_password", "");
-		if (strLen($captchaPass) <= 0)
+		if ($captchaPass == '')
 		{
 			$captchaPass = randString(10);
 			COption::SetOptionString("main", "captcha_password", $captchaPass);

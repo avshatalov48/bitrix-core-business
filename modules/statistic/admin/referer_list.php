@@ -183,7 +183,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 
 	$row->AddViewField("FAKE_NUM",($rsData->NavPageNomer-1)*$rsData->NavPageSize + (++$i));
 
-	if (strlen($f_URL_FROM) >=55)
+	if (mb_strlen($f_URL_FROM) >= 55)
 	{
 		$uri_type="";
 		$stripped=$f_URL_FROM;
@@ -194,7 +194,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 			$stripped = $match[2];
 		}
 
-		$txt = '<span class="'.($f_URL_404=="Y" ? "stat_attention" : "").'">'.$uri_type.'://'.substr($stripped, 0, 30).'...'.substr($stripped, -10).'</span>';
+		$txt = '<span class="'.($f_URL_404 == "Y"? "stat_attention" : "").'">'.$uri_type.'://'.mb_substr($stripped, 0, 30).'...'.mb_substr($stripped, -10).'</span>';
 	}
 	else
 		$txt = '<span class="'.($f_URL_404=="Y" ? "stat_attention" : "").'">'.$f_URL_FROM.'</span>';

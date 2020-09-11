@@ -1105,6 +1105,10 @@ class LandingPubComponent extends LandingBaseComponent
 				{
 					$isUtf = defined('BX_UTF') && BX_UTF === true;
 					$outputContent = $event->getParameter('outputContent');
+					if (strpos($outputContent, '<?') !== false)
+					{
+						return $outputContent;
+					}
 					if (!$isUtf)
 					{
 						[$outputContent, $query] = \Bitrix\Main\Text\Encoding::convertEncoding(
@@ -1261,6 +1265,26 @@ class LandingPubComponent extends LandingBaseComponent
 	}
 
 	/**
+	 * Checks if this site is binding to socialnet opened group.
+	 * @param int $siteId Site id.
+	 * @return bool
+	 */
+	protected function isOpenedGroupSite(int $siteId): bool
+	{
+		\CBitrixComponent::includeComponentClass('bitrix:landing.socialnetwork.group_redirect');
+
+		$groupId = \LandingSocialnetworkGroupRedirectComponent::getGroupIdBySiteId(
+			$siteId
+		);
+		if ($groupId && \Bitrix\Main\Loader::includeModule('socialnetwork'))
+		{
+			return \CSocNetGroup::canUserReadGroup(Manager::getUserId(), $groupId);
+		}
+
+		return false;
+	}
+
+	/**
 	 * Base executable method.
 	 * @return void
 	 */
@@ -1339,11 +1363,12 @@ class LandingPubComponent extends LandingBaseComponent
 				{
 					Landing::setPreviewMode(true);
 				}
-				self::$landingMain['LANDING_ID'] = $lid;
 				$landing = Landing::createInstance($lid, [
 					'check_permissions' => $this->arParams['CHECK_PERMISSIONS'] == 'Y',
 					'disable_link_preview' => $this->arParams['DRAFT_MODE'] == 'Y'
 				]);
+				self::$landingMain['LANDING_ID'] = $lid;
+				self::$landingMain['LANDING_INSTANCE'] = $landing;
 				$this->arResult['LANDING'] = $landing;
 				$this->arResult['DOMAIN'] = $this->getParentDomain();
 				$this->arResult['COPY_LINK'] = $this->getCopyLinkPath();
@@ -1502,6 +1527,11 @@ class LandingPubComponent extends LandingBaseComponent
 							'check_permissions' => false,
 							'blocks_limit' => 0
 						]);
+						if ($this->isOpenedGroupSite($this->arResult['REAL_LANDING']->getSiteId()))
+						{
+							$this->executeComponent();
+							return;
+						}
 						if (!\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24'))
 						{
 							$this->setHttpStatusOnce($this::ERROR_STATUS_FORBIDDEN);

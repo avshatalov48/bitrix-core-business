@@ -40,9 +40,6 @@ return array(
 			'SETTINGS_SHOW_OLD_PRICE' => 'Y',
 			'SETTINGS_SHOW_DISCOUNT_PERCENT' => 'Y',
 			'SETTINGS_USE_ENHANCED_ECOMMERCE' => 'Y',
-			'FONTS_CODE' => '<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Russo+One" data-font="g-font-russo-one" as="style"></noscript>
-<link rel="preload" href="https://fonts.googleapis.com/css?family=Russo+One" data-font="g-font-russo-one" as="style" onload="this.removeAttribute(\'onload\');this.rel=\'stylesheet\'">
-<style data-id="g-font-russo-one">.g-font-russo-one { font-family: "Russo One", sans-serif; }</style>',
 			'METAOG_TITLE' => Loc::getMessage('LANDING_DEMO_BLACKFRIDAY-TITLE'),
 			'METAOG_DESCRIPTION' => Loc::getMessage('LANDING_DEMO_BLACKFRIDAY-DESCRIPTION'),
 			'METAOG_IMAGE' => 'https://cdn.bitrix24.site/bitrix/images/demo/page/holidays/holiday.blackfriday/preview.jpg',
@@ -105,13 +102,13 @@ return array(
 					0 => 'landing-block-node-card-price u-ribbon-v1 text-uppercase g-pos-rel g-line-height-1_2 g-font-weight-700 g-font-size-16 g-font-size-18 g-pa-10 g-mb-10 g-color-white-opacity-0_9 g-bg-lightblue-opacity-0_1',
 				),
 				'.landing-block-node-card-title' => array(
-					0 => 'landing-block-node-card-title text-uppercase g-pos-rel g-font-weight-700 g-color-white g-mb-10 g-font-russo-one g-font-size-60 g-letter-spacing-1 g-line-height-1_1',
+					0 => 'landing-block-node-card-title text-uppercase g-pos-rel g-font-weight-700 g-color-white g-mb-10 g-font-size-60 g-letter-spacing-1 g-line-height-1_1',
 				),
 				'.landing-block-node-card-text' => array(
 					0 => 'landing-block-node-card-text g-mb-20 g-color-white g-font-size-16 g-letter-spacing-0 g-line-height-0',
 				),
 				'.landing-block-node-card-button' => array(
-					0 => 'landing-block-node-card-button btn btn-md text-uppercase g-font-weight-700 g-font-size-12 g-py-10 g-px-25 g-color-white-opacity-0_9 u-btn-outline-red g-brd-3 g-rounded-3',
+					0 => 'landing-block-node-card-button btn g-btn-type-solid g-btn-px-l g-btn-size-sm text-uppercase g-btn-red text-uppercase g-py-10 g-color-white-opacity-0_9 g-rounded-3',
 				),
 				'.landing-block-node-card-bgimg' => array(
 					0 => 'landing-block-node-card-bgimg g-bg-img-hero u-bg-overlay g-bg-black-opacity-0_4--after d-flex align-items-center justify-content-center w-100 h-100 g-min-height-100vh',
@@ -147,13 +144,13 @@ return array(
 			),
 			'style' => array(
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title g-font-weight-300 g-font-russo-one g-color-lightred g-font-size-55',
+					0 => 'landing-block-node-title g-font-weight-300 g-color-lightred g-font-size-55',
 				),
 				'.landing-block-node-number-number' => array(
-					0 => 'landing-block-node-number-number landing-block-node-number-number-days g-color-black g-font-size-25 g-font-size-36--sm mb-0 g-font-russo-one',
-					1 => 'landing-block-node-number-number landing-block-node-number-number-days g-color-black g-font-size-25 g-font-size-36--sm mb-0 g-font-russo-one',
-					2 => 'landing-block-node-number-number landing-block-node-number-number-days g-color-black g-font-size-25 g-font-size-36--sm mb-0 g-font-russo-one',
-					3 => 'landing-block-node-number-number landing-block-node-number-number-days g-color-black g-font-size-25 g-font-size-36--sm mb-0 g-font-russo-one',
+					0 => 'landing-block-node-number-number landing-block-node-number-number-days g-color-black g-font-size-25 g-font-size-36--sm mb-0',
+					1 => 'landing-block-node-number-number landing-block-node-number-number-days g-color-black g-font-size-25 g-font-size-36--sm mb-0',
+					2 => 'landing-block-node-number-number landing-block-node-number-number-days g-color-black g-font-size-25 g-font-size-36--sm mb-0',
+					3 => 'landing-block-node-number-number landing-block-node-number-number-days g-color-black g-font-size-25 g-font-size-36--sm mb-0',
 				),
 				'.landing-block-node-number-text@0' => array(
 					0 => 'landing-block-node-number-text landing-block-node-number-text-days g-color-black g-font-size-10 g-font-size-12--sm',
@@ -198,7 +195,7 @@ return array(
 			),
 			'style' => array(
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title g-font-weight-400 g-my-0 g-color-white g-font-russo-one g-font-size-55 container g-pl-0 g-pr-0',
+					0 => 'landing-block-node-title g-font-weight-400 g-my-0 g-color-white g-font-size-55 container g-pl-0 g-pr-0',
 				),
 				'#wrapper' => array(
 					0 => 'landing-block js-animation g-bg-primary-dark-v3 g-pb-0 g-pt-45 animation-none text-center',
@@ -251,9 +248,9 @@ return array(
 					2 => 'landing-block-node-card js-animation fadeInUp col-md-6 g-mb-40 col-lg-4 g-mb-0--last',
 				),
 				'.landing-block-node-card-text' => array(
-					0 => 'landing-block-node-card-text g-font-size-default mb-0 g-color-gray-light-v2',
-					1 => 'landing-block-node-card-text g-font-size-default mb-0 g-color-gray-light-v2',
-					2 => 'landing-block-node-card-text g-font-size-default mb-0 g-color-gray-light-v2',
+					0 => 'landing-block-node-card-text mb-0 g-color-gray-light-v2',
+					1 => 'landing-block-node-card-text mb-0 g-color-gray-light-v2',
+					2 => 'landing-block-node-card-text mb-0 g-color-gray-light-v2',
 				),
 				'.landing-block-node-card-title' => array(
 					0 => 'landing-block-node-card-title h5 text-uppercase g-font-weight-800 g-color-white',

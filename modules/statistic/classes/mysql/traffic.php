@@ -20,11 +20,11 @@ class CTraffic extends CAllTraffic
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if( ($val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "DATE1":
@@ -154,11 +154,11 @@ class CTraffic extends CAllTraffic
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if( ($val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -326,7 +326,7 @@ class CTraffic extends CAllTraffic
 		$DB = CDatabase::GetModuleConnection('statistic');
 
 		$site_id = $arFilter["SITE_ID"];
-		if(strlen($site_id)>0 && $site_id!="NOT_REF")
+		if($site_id <> '' && $site_id!="NOT_REF")
 		{
 			$site_filter = true;
 			$strSqlSearch = " and SITE_ID = '".$DB->ForSql($site_id, 2)."' ";
@@ -339,11 +339,11 @@ class CTraffic extends CAllTraffic
 
 		$date1 = $arFilter["DATE1"];
 		$date2 = $arFilter["DATE2"];
-		if(strlen($date1)>0 && CheckDateTime($date1))
+		if($date1 <> '' && CheckDateTime($date1))
 		{
 			$is_filtered = true;
 			$date_from = MkDateTime(ConvertDateTime($date1,"D.M.Y"),"d.m.Y");
-			if(strlen($date2)>0 && CheckDateTime($date2))
+			if($date2 <> '' && CheckDateTime($date2))
 			{
 				$date_to = MkDateTime(ConvertDateTime($date2,"D.M.Y")." 23:59","d.m.Y H:i");
 				$strSqlPeriod = "sum(if(DATE_STAT<FROM_UNIXTIME('$date_from'),0, if(DATE_STAT>FROM_UNIXTIME('$date_to'),0,";
@@ -355,7 +355,7 @@ class CTraffic extends CAllTraffic
 				$strT="))";
 			}
 		}
-		elseif(strlen($date2)>0 && CheckDateTime($date2))
+		elseif($date2 <> '' && CheckDateTime($date2))
 		{
 			$is_filtered = true;
 			$date_to = MkDateTime(ConvertDateTime($date2,"D.M.Y")." 23:59","d.m.Y H:i");
@@ -441,7 +441,7 @@ class CTraffic extends CAllTraffic
 		$DB = CDatabase::GetModuleConnection('statistic');
 
 		$site_id = $arFilter["SITE_ID"];
-		if (strlen($site_id)>0 && $site_id!="NOT_REF")
+		if ($site_id <> '' && $site_id!="NOT_REF")
 		{
 			$is_filtered = true;
 			$strSqlSearch = " and SITE_ID = '".$DB->ForSql($site_id, 2)."' ";
@@ -456,15 +456,15 @@ class CTraffic extends CAllTraffic
 		$date2 = $arFilter["DATE2"];
 		$date_from = MkDateTime(ConvertDateTime($date1,"D.M.Y"),"d.m.Y");
 		$date_to = MkDateTime(ConvertDateTime($date2,"D.M.Y")." 23:59","d.m.Y H:i");
-		if (strlen($date1)>0)
+		if ($date1 <> '')
 		{
 			$date_filtered = $is_filtered = true;
-			if (strlen($date2)>0)
+			if ($date2 <> '')
 				$strSqlPeriod = " sum(if(DATE_HIT<FROM_UNIXTIME('$date_from'),0, if(date_hit>FROM_UNIXTIME('$date_to'),0,1)))";
 			else
 				$strSqlPeriod = " sum(if(DATE_HIT<FROM_UNIXTIME('$date_from'),0,1))";
 		}
-		elseif (strlen($date2)>0)
+		elseif ($date2 <> '')
 		{
 			$date_filtered = $is_filtered = true;
 			$strSqlPeriod = " sum(if(DATE_HIT>FROM_UNIXTIME('$date_to'),0,1))";
@@ -531,7 +531,7 @@ class CTraffic extends CAllTraffic
 		$strSqlSearch = "";
 
 		$site_id = $arFilter["SITE_ID"];
-		if (strlen($site_id)>0 && $site_id!="NOT_REF")
+		if ($site_id <> '' && $site_id!="NOT_REF")
 		{
 			$is_filtered = true;
 			$strSqlSearch = " and SITE_ID = '".$DB->ForSql($site_id, 2)."' ";
@@ -541,15 +541,15 @@ class CTraffic extends CAllTraffic
 		$date2 = $arFilter["DATE2"];
 		$date_from = MkDateTime(ConvertDateTime($date1,"D.M.Y"),"d.m.Y");
 		$date_to = MkDateTime(ConvertDateTime($date2,"D.M.Y")." 23:59","d.m.Y H:i");
-		if (strlen($date1)>0)
+		if ($date1 <> '')
 		{
 			$date_filtered = $is_filtered = true;
-			if (strlen($date2)>0)
+			if ($date2 <> '')
 				$strSqlPeriod = " sum(if(DATE_HIT<FROM_UNIXTIME('$date_from'),0, if(date_hit>FROM_UNIXTIME('$date_to'),0,1)))";
 			else
 				$strSqlPeriod = " sum(if(DATE_HIT<FROM_UNIXTIME('$date_from'),0,1))";
 		}
-		elseif (strlen($date2)>0)
+		elseif ($date2 <> '')
 		{
 			$date_filtered = $is_filtered = true;
 			$strSqlPeriod = " sum(if(DATE_HIT>FROM_UNIXTIME('$date_to'),0,1))";

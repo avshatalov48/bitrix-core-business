@@ -221,16 +221,16 @@ class PostingTable extends Entity\DataManager
 		}
 	}
 
-
 	/**
 	 * @param $postingId
 	 * @param bool $checkDuplicate
+	 * @param bool $prepareFields
+	 *
 	 * @return bool
-	 * @throws \Bitrix\Main\ArgumentException
 	 */
-	public static function initGroupRecipients($postingId, $checkDuplicate = true)
+	public static function initGroupRecipients($postingId, $checkDuplicate = true, $prepareFields = true)
 	{
-		PostingBuilder::create()->run($postingId, $checkDuplicate);
+		PostingBuilder::create()->run($postingId, $checkDuplicate, $prepareFields);
 
 		return true;
 	}

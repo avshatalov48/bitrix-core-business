@@ -86,7 +86,7 @@ return array(
 					0 => 'landing-block-node-card-title g-line-height-1_2 g-font-weight-700 g-color-white mb-0 g-mb-35--md g-text-transform-none g-font-size-16',
 				),
 				'.landing-block-node-card-button' => array(
-					0 => 'landing-block-node-card-button btn g-mt-20 g-mt-0--md text-uppercase u-btn-primary g-font-weight-700 g-font-size-10 g-font-size-14--md g-py-7 g-px-10 g-py-15--md g-px-40--md rounded-0',
+					0 => 'landing-block-node-card-button btn g-btn-type-solid g-btn-size-md g-btn-px-l g-mt-20 g-mt-0--md text-uppercase g-btn-primary g-py-7 g-py-15--md rounded-0',
 				),
 				'.landing-block-node-card-img' => array(
 					0 => 'landing-block-node-card-img g-flex-centered g-bg-cover g-bg-pos-center g-bg-img-hero g-bg-black-opacity-0_4--after g-min-height-60vh h-100 g-pt-10 g-pb-30',

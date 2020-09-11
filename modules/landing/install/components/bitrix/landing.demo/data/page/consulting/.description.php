@@ -100,7 +100,7 @@ return array(
 				<div class="container text-center g-max-width-800 g-z-index-1 js-animation landing-block-node-container fadeInLeftBig animated g-mx-0">
 					<h2 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-36 g-color-white g-mb-20">WE ARE CREATIVE TECHNOLOGY COMPANY </h2>
 					<div class="landing-block-node-card-text g-max-width-645 mx-auto g-mb-35 g-font-size-24 g-color-white g-line-height-1_2"><p>Creative freedom matters user experience.<br /><span style="font-size: 1.71429rem;">We minimize the gap between technology and its audience.</span></p></div>
-					<a class="landing-block-node-card-button btn btn-lg u-btn-primary g-font-weight-700 g-font-size-12 text-uppercase g-rounded-50 g-px-25 g-py-15" href="#" tabindex="-1" target="_self">LEARN MORE</a>
+					<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary text-uppercase g-rounded-50 g-py-15" href="#" tabindex="-1" target="_self">LEARN MORE</a>
 				</div>
 			</div>
 			<!-- End Promo Block -->
@@ -112,7 +112,7 @@ return array(
 					<h2 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-color-white g-mb-20 g-font-size-36">WE DO THINGS DIFFERENTLY </h2>
 					<div class="landing-block-node-card-text g-max-width-645 mx-auto g-mb-35 g-font-size-24 g-color-white g-line-height-1_2"><p>Creative freedom matters user experience.</p><p>We minimize the gap between technology and its audience.</p></div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn btn-lg u-btn-primary g-font-weight-700 g-font-size-12 text-uppercase g-rounded-50 g-px-25 g-py-15" href="#" tabindex="0" target="_self">LEARN MORE</a>
+						<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary text-uppercase g-rounded-50 g-py-15" href="#" tabindex="0" target="_self">LEARN MORE</a>
 					</div>
 				</div>
 			</div>
@@ -126,7 +126,7 @@ return array(
 					<h2 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-36 g-color-white g-mb-20">DEDICATED ADVANCED TEAM</h2>
 					<div class="landing-block-node-card-text g-max-width-645 mx-auto g-mb-35 g-font-size-24 g-color-white g-line-height-1_2"><p>We are creative technology company providing </p><p>key digital services on web and mobile.</p></div>
 					<div class="landing-block-node-card-button-container">
-						<a class="landing-block-node-card-button btn btn-lg u-btn-primary g-font-weight-700 g-font-size-12 text-uppercase g-rounded-50 g-px-25 g-py-15" href="#" tabindex="0" target="_self">LEARN MORE</a>
+						<a class="landing-block-node-card-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary text-uppercase g-rounded-50 g-py-15" href="#" tabindex="0" target="_self">LEARN MORE</a>
 					</div>
 				</div>
 			</div>
@@ -167,7 +167,7 @@ return array(
 					</span>
 				<h3 class="landing-block-node-card-number mb-0 g-font-size-20 g-color-black-opacity-0_9"><span style="font-weight: bold;">01.</span></h3>
 				<div class="landing-block-node-card-number-title text-uppercase g-font-weight-700 g-mb-20 g-font-size-20 g-color-primary">consult</div>
-				<div class="landing-block-node-card-text g-font-size-default mb-0 g-color-gray-dark-v4">
+				<div class="landing-block-node-card-text mb-0 g-color-gray-dark-v4">
 					<p>Sed feugiat porttitor nunc Etiam
 						gravida ex justo ac rhoncus purus tristique ut.
 					</p>
@@ -180,7 +180,7 @@ return array(
 					</span>
 				<h3 class="landing-block-node-card-number mb-0 g-font-size-20 g-color-black-opacity-0_9"><span style="font-weight: bold;">02.</span></h3>
 				<div class="landing-block-node-card-number-title text-uppercase g-font-weight-700 g-mb-20 g-font-size-20 g-color-primary">CREATE</div>
-				<div class="landing-block-node-card-text g-font-size-default mb-0 g-color-gray-dark-v4">
+				<div class="landing-block-node-card-text mb-0 g-color-gray-dark-v4">
 					<p>Ivitae blandit massa luctus fermentum
 						lorem quis elit maximus, vitae
 					</p>
@@ -193,7 +193,7 @@ return array(
 					</span>
 				<h3 class="landing-block-node-card-number mb-0 g-font-size-20 g-color-black-opacity-0_9"><span style="font-weight: bold;">03.</span></h3>
 				<div class="landing-block-node-card-number-title text-uppercase g-font-weight-700 g-mb-20 g-font-size-20 g-color-primary">RELEASE</div>
-				<div class="landing-block-node-card-text g-font-size-default mb-0 g-color-gray-dark-v4">
+				<div class="landing-block-node-card-text mb-0 g-color-gray-dark-v4">
 					<p>Curabitur eget tortor sed urna
 						faucibus iaculis id et nulla sed fringilla quam
 					</p>
@@ -241,10 +241,10 @@ return array(
 	<div>
 		<div class="row mx-0">
 			<div class="col-md-6 text-center text-md-left g-py-50 g-py-100--md g-px-15 g-px-50--md">
-				<h3 class="landing-block-node-title g-font-weight-700 g-font-size-default g-mb-25 g-color-black g-font-size-22 g-text-transform-none js-animation fadeInUp animated"><span style="font-weight: normal;">Our Vision and Mission</span></h3>
+				<h3 class="landing-block-node-title g-font-weight-700 g-mb-25 g-color-black g-font-size-22 g-text-transform-none js-animation fadeInUp animated"><span style="font-weight: normal;">Our Vision and Mission</span></h3>
 				<div class="landing-block-node-text g-mb-30 g-line-height-1_5 g-color-gray-dark-v2 js-animation fadeInUp animated"><p><span style="">We aim high at being focused on building relationships with our clients and community. Working together on the daily requires each individual to let the greater good of the team&amp;#039;s work surface above their own ego.</span></p><p><span style=""><span style="font-size: 1rem;"><span style="font-weight: bold;">31500+</span> </span><span style="font-size: 1rem;">Happy clients all over the world</span></span></p><p><span style=""><span style="font-weight: bold;">&amp;#8470;1</span> <span style="font-size: 1rem;">WrapBootstrap theme of all time</span></span></p><p><span style=""><span style="font-size: 1rem;"><span style="font-weight: bold;">1610+</span> </span><span style="font-size: 1rem;">UI Elements &amp; Features</span></span></p></div>
 				<div class="landing-block-node-button-container">
-					<a class="landing-block-node-button text-uppercase btn btn-xl g-font-weight-700 g-font-size-12 g-rounded-50 js-animation fadeInUp animated u-btn-outline-primary" href="#" tabindex="0">Contact us
+					<a class="landing-block-node-button text-uppercase btn g-btn-primary g-btn-type-solid g-btn-size-md g-btn-px-m g-rounded-50 js-animation fadeInUp animated" href="#" tabindex="0">Contact us
 						<span>for more info</span></a>
 				</div>
 			</div>
@@ -379,7 +379,7 @@ return array(
 				'SORT' => '4000',
 				'CONTENT' => '<section class="landing-block landing-block-node-container text-center g-py-20 g-pb-60 g-pt-20">
         <div class="container">
-				<a class="landing-block-node-button btn btn-md text-uppercase g-px-15 u-btn-outline-primary g-rounded-50" href="#" g-font-weight-700="" target="_self">JOIN COMPANY24</a>
+				<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary text-uppercase g-rounded-50" href="#" g-font-weight-700="" target="_self">JOIN COMPANY24</a>
         </div>
     </section>',
 			),
@@ -470,7 +470,7 @@ return array(
 				'SORT' => '5500',
 				'CONTENT' => '<section class="landing-block landing-block-node-container text-center g-py-20 g-bg-secondary g-pb-60 g-pt-20">
         <div class="container">
-				<a class="landing-block-node-button btn btn-md text-uppercase g-px-15 g-rounded-50 u-btn-outline-primary" href="#" g-font-weight-700="" target="_self">Purchase Company24</a>
+				<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary text-uppercase g-px-15 g-rounded-50" href="#" g-font-weight-700="" target="_self">Purchase Company24</a>
         </div>
     </section>',
 			),
@@ -486,7 +486,7 @@ return array(
 			<a href="#" target="_self">VIEW ALL OUR WORKS</a>
 		</div>
 		<div class="landing-block-node-button-container">
-			<a href="#" class="landing-block-node-button btn btn-xl text-uppercase g-font-weight-700 g-font-size-12 g-rounded-50 g-py-15 g-px-40 g-mb-15 u-btn-primary g-color-white" target="_self">VIEW ALL OUR WORKS</a>
+			<a href="#" class="landing-block-node-button btn g-btn-primary g-btn-type-solid g-btn-px-l g-btn-size-md text-uppercase g-rounded-50 g-py-15 g-mb-15 g-color-white" target="_self">VIEW ALL OUR WORKS</a>
 		</div>
 	</div>
 </section>',
@@ -581,7 +581,7 @@ return array(
 				'SORT' => '8000',
 				'CONTENT' => '<section class="landing-block landing-block-node-container text-center g-py-20 g-pb-60 g-pt-20">
         <div class="container">
-				<a class="landing-block-node-button btn btn-md text-uppercase g-px-15 g-rounded-50 u-btn-outline-primary" href="#" g-font-weight-700="" target="_self">VIEW ALL COMPANY24 WORKS</a>
+				<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary text-uppercase g-rounded-50" href="#" g-font-weight-700="" target="_self">VIEW ALL COMPANY24 WORKS</a>
         </div>
     </section>',
 			),
@@ -737,7 +737,7 @@ return array(
 				'SORT' => '9500',
 				'CONTENT' => '<section class="landing-block landing-block-node-container text-center g-py-20 g-bg-secondary g-pt-20 g-pb-60">
         <div class="container">
-				<a class="landing-block-node-button btn btn-md text-uppercase g-px-15 u-btn-outline-primary g-rounded-50" href="#" g-font-weight-700="" target="_self">READ MORE NEWS</a>
+				<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary text-uppercase g-rounded-50" href="#" g-font-weight-700="" target="_self">READ MORE NEWS</a>
         </div>
     </section>',
 			),

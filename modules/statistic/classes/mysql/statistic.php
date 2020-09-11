@@ -7,7 +7,7 @@ class CStatistics extends CAllStatistics
 	{
 		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
-		if (strlen($cleanup_date)>0)
+		if ($cleanup_date <> '')
 		{
 			$stmp = MkDateTime(ConvertDateTime($cleanup_date,"D.M.Y"),"d.m.Y");
 			if ($stmp)
@@ -572,7 +572,7 @@ class CStatistics extends CAllStatistics
 				$SITE_ID = SITE_ID;
 			}
 		}
-		if (strlen($SITE_ID)>0)
+		if ($SITE_ID <> '')
 		{
 			$strSql = "SELECT D.ID FROM b_stat_day_site D WHERE D.DATE_STAT=CURDATE() AND SITE_ID = '".$DB->ForSql($SITE_ID, 2)."'";
 			$rs = $DB->Query($strSql, false, $err_mess.__LINE__);

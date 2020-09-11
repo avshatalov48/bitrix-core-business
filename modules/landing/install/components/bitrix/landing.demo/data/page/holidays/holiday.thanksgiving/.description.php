@@ -97,13 +97,13 @@ Send your Thanksgiving wishes with special Bitrix24 Thanksgiving Template. Your 
 					0 => 'landing-block-node-button-container',
 				),
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title g-font-weight-700 g-color-white g-mb-20 g-text-transform-none g-font-montserrat g-font-size-86 g-line-height-1_2',
+					0 => 'landing-block-node-title g-font-weight-700 g-color-white g-mb-20 g-text-transform-none g-font-size-86 g-line-height-1_2',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text g-color-white-opacity-0_7 g-mb-35 g-font-montserrat',
+					0 => 'landing-block-node-text g-color-white-opacity-0_7 g-mb-35',
 				),
 				'.landing-block-node-button' => array(
-					0 => 'landing-block-node-button btn btn-xl u-btn-primary text-uppercase g-font-weight-700 g-font-size-12 g-rounded-50 g-py-15 g-px-40',
+					0 => 'landing-block-node-button btn g-btn-primary g-btn-type-solid g-btn-px-l g-btn-size-md text-uppercase g-rounded-50 g-py-15',
 				),
 				'#wrapper' => array(
 					0 => 'landing-block landing-block-node-img u-bg-overlay g-flex-centered g-min-height-100vh g-bg-img-hero g-bg-black-opacity-0_5--after g-pt-80 g-pb-80',
@@ -161,10 +161,10 @@ Send your Thanksgiving wishes with special Bitrix24 Thanksgiving Template. Your 
 			),
 			'style' => array(
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title js-animation fadeInUp u-heading-v7__title font-italic g-font-weight-600 g-mb-20 g-font-montserrat g-font-size-75',
+					0 => 'landing-block-node-title js-animation fadeInUp u-heading-v7__title font-italic g-font-weight-600 g-mb-20 g-font-size-75',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text js-animation fadeInUp g-color-gray-dark-v5 mb-0 g-pb-1 g-font-montserrat',
+					0 => 'landing-block-node-text js-animation fadeInUp g-color-gray-dark-v5 mb-0 g-pb-1',
 				),
 				'.landing-block-node-icon-element@0' => array(
 					0 => 'landing-block-node-icon-element g-color-primary d-inline g-font-size-8',
@@ -252,16 +252,16 @@ Send your Thanksgiving wishes with special Bitrix24 Thanksgiving Template. Your 
 					0 => 'landing-block-node-img1 col-md-6 g-bg-img-hero g-min-height-400 js-animation fadeInLeft',
 				),
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title g-font-weight-600 mb-0 g-font-montserrat g-text-transform-none g-font-size-30',
+					0 => 'landing-block-node-title g-font-weight-600 mb-0 g-text-transform-none g-font-size-30',
 				),
 				'.landing-block-node-subtitle' => array(
-					0 => 'landing-block-node-subtitle g-font-weight-700 g-font-size-20 g-color-primary g-mb-25 g-font-montserrat',
+					0 => 'landing-block-node-subtitle g-font-weight-700 g-font-size-20 g-color-primary g-mb-25',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text g-mb-35 g-font-montserrat',
+					0 => 'landing-block-node-text g-mb-35',
 				),
 				'.landing-block-node-button' => array(
-					0 => 'landing-block-node-button btn btn-md text-uppercase u-btn-primary g-font-weight-700 g-font-size-11 g-brd-none g-py-10 g-px-25 g-rounded-50',
+					0 => 'landing-block-node-button btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary g-py-10 g-rounded-50',
 				),
 				'.landing-block-node-button-container' => array(
 					0 => 'landing-block-node-button-container',
@@ -322,10 +322,10 @@ Send your Thanksgiving wishes with special Bitrix24 Thanksgiving Template. Your 
 			),
 			'style' => array(
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title js-animation fadeInUp u-heading-v7__title font-italic g-font-weight-600 g-mb-20 g-font-montserrat g-font-size-75 g-color-white',
+					0 => 'landing-block-node-title js-animation fadeInUp u-heading-v7__title font-italic g-font-weight-600 g-mb-20 g-font-size-75 g-color-white',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text js-animation fadeInUp mb-0 g-pb-1 g-font-montserrat g-color-white-opacity-0_8',
+					0 => 'landing-block-node-text js-animation fadeInUp mb-0 g-pb-1 g-color-white-opacity-0_8',
 				),
 				'.landing-block-node-icon-element@0' => array(
 					0 => 'landing-block-node-icon-element d-inline g-color-white d-inline g-font-size-8',
@@ -377,13 +377,13 @@ Send your Thanksgiving wishes with special Bitrix24 Thanksgiving Template. Your 
 			),
 			'style' => array(
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title g-font-weight-700 g-font-size-default g-mb-25 js-animation fadeInUp g-color-white g-font-size-30 g-text-transform-none g-font-montserrat',
+					0 => 'landing-block-node-title g-font-weight-700 g-mb-25 js-animation fadeInUp g-color-white g-font-size-30 g-text-transform-none',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text g-mb-30 js-animation fadeInUp g-color-white-opacity-0_8 g-font-montserrat',
+					0 => 'landing-block-node-text g-mb-30 js-animation fadeInUp g-color-white-opacity-0_8',
 				),
 				'.landing-block-node-button' => array(
-					0 => 'landing-block-node-button text-uppercase btn btn-xl g-font-weight-700 g-font-size-12 js-animation fadeInUp u-btn-primary g-color-white g-rounded-50',
+					0 => 'landing-block-node-button text-uppercase btn g-btn-type-solid g-btn-size-md g-btn-px-m js-animation fadeInUp g-btn-primary g-color-white g-rounded-50',
 				),
 				'.landing-block-node-button-container' => array(
 					0 => 'landing-block-node-button-container',
@@ -444,10 +444,10 @@ Send your Thanksgiving wishes with special Bitrix24 Thanksgiving Template. Your 
 			),
 			'style' => array(
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title js-animation fadeInUp u-heading-v7__title font-italic g-font-weight-600 g-mb-20 g-font-montserrat g-font-size-75',
+					0 => 'landing-block-node-title js-animation fadeInUp u-heading-v7__title font-italic g-font-weight-600 g-mb-20 g-font-size-75',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text js-animation fadeInUp g-color-gray-dark-v5 mb-0 g-pb-1 g-font-montserrat',
+					0 => 'landing-block-node-text js-animation fadeInUp g-color-gray-dark-v5 mb-0 g-pb-1',
 				),
 				'.landing-block-node-icon-element@0' => array(
 					0 => 'landing-block-node-icon-element d-inline g-color-primary d-inline g-font-size-8',
@@ -552,13 +552,13 @@ Send your Thanksgiving wishes with special Bitrix24 Thanksgiving Template. Your 
 					0 => 'landing-block-node-button-container',
 				),
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title g-line-height-1 g-font-weight-700 g-color-white g-mb-20 g-text-transform-none g-font-montserrat g-font-size-60',
+					0 => 'landing-block-node-title g-line-height-1 g-font-weight-700 g-color-white g-mb-20 g-text-transform-none g-font-size-60',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text g-color-white-opacity-0_7 g-mb-35 g-font-montserrat',
+					0 => 'landing-block-node-text g-color-white-opacity-0_7 g-mb-35',
 				),
 				'.landing-block-node-button' => array(
-					0 => 'landing-block-node-button btn btn-xl u-btn-primary text-uppercase g-font-weight-700 g-font-size-12 g-rounded-50 g-py-15 g-px-40',
+					0 => 'landing-block-node-button btn g-btn-primary g-btn-type-solid g-btn-px-l g-btn-size-md text-uppercase g-rounded-50 g-py-15',
 				),
 				'#wrapper' => array(
 					0 => 'landing-block landing-block-node-img u-bg-overlay g-flex-centered g-min-height-100vh g-bg-img-hero g-bg-black-opacity-0_5--after g-pt-80 g-pb-80',
@@ -608,10 +608,10 @@ Send your Thanksgiving wishes with special Bitrix24 Thanksgiving Template. Your 
 			),
 			'style' => array(
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title js-animation fadeInUp u-heading-v7__title font-italic g-font-weight-600 g-mb-20 g-font-montserrat g-font-size-50',
+					0 => 'landing-block-node-title js-animation fadeInUp u-heading-v7__title font-italic g-font-weight-600 g-mb-20 g-font-size-50',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text js-animation fadeInUp g-color-gray-dark-v5 mb-0 g-pb-1 g-font-montserrat',
+					0 => 'landing-block-node-text js-animation fadeInUp g-color-gray-dark-v5 mb-0 g-pb-1',
 				),
 				'.landing-block-node-icon-element@0' => array(
 					0 => 'landing-block-node-icon-element d-inline g-color-primary d-inline g-font-size-8',
@@ -652,19 +652,19 @@ Send your Thanksgiving wishes with special Bitrix24 Thanksgiving Template. Your 
 			),
 			'style' => array(
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title g-font-weight-300 g-font-montserrat g-font-size-16',
+					0 => 'landing-block-node-title g-font-weight-300 g-font-size-16',
 				),
 				'.landing-block-node-number-number' => array(
-					0 => 'landing-block-node-number-number landing-block-node-number-number-days g-color-black g-font-size-25 g-font-size-36--sm mb-0 g-font-montserrat',
-					1 => 'landing-block-node-number-number landing-block-node-number-number-days g-color-black g-font-size-25 g-font-size-36--sm mb-0 g-font-montserrat',
-					2 => 'landing-block-node-number-number landing-block-node-number-number-days g-color-black g-font-size-25 g-font-size-36--sm mb-0 g-font-montserrat',
-					3 => 'landing-block-node-number-number landing-block-node-number-number-days g-color-black g-font-size-25 g-font-size-36--sm mb-0 g-font-montserrat',
+					0 => 'landing-block-node-number-number landing-block-node-number-number-days g-color-black g-font-size-25 g-font-size-36--sm mb-0',
+					1 => 'landing-block-node-number-number landing-block-node-number-number-days g-color-black g-font-size-25 g-font-size-36--sm mb-0',
+					2 => 'landing-block-node-number-number landing-block-node-number-number-days g-color-black g-font-size-25 g-font-size-36--sm mb-0',
+					3 => 'landing-block-node-number-number landing-block-node-number-number-days g-color-black g-font-size-25 g-font-size-36--sm mb-0',
 				),
 				'.landing-block-node-number-text' => array(
-					0 => 'landing-block-node-number-text landing-block-node-number-text-days g-color-black g-font-size-10 g-font-size-12--sm g-font-montserrat',
-					1 => 'landing-block-node-number-text landing-block-node-number-text-days g-color-black g-font-size-10 g-font-size-12--sm g-font-montserrat',
-					2 => 'landing-block-node-number-text landing-block-node-number-text-days g-color-black g-font-size-10 g-font-size-12--sm g-font-montserrat',
-					3 => 'landing-block-node-number-text landing-block-node-number-text-days g-color-black g-font-size-10 g-font-size-12--sm g-font-montserrat',
+					0 => 'landing-block-node-number-text landing-block-node-number-text-days g-color-black g-font-size-10 g-font-size-12--sm',
+					1 => 'landing-block-node-number-text landing-block-node-number-text-days g-color-black g-font-size-10 g-font-size-12--sm',
+					2 => 'landing-block-node-number-text landing-block-node-number-text-days g-color-black g-font-size-10 g-font-size-12--sm',
+					3 => 'landing-block-node-number-text landing-block-node-number-text-days g-color-black g-font-size-10 g-font-size-12--sm',
 				),
 				'.landing-block-node-number-delimiter@0' => array(
 					0 => 'landing-block-node-number-delimiter u-countdown--days-hide d-inline-block align-top g-font-size-25 g-font-size-36--sm',

@@ -11,9 +11,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @subpackage im
 	 * @copyright 2001-2019 Bitrix
 	 */
-	var Logger =
-	/*#__PURE__*/
-	function () {
+	var Logger = /*#__PURE__*/function () {
 	  function Logger() {
 	    babelHelpers.classCallCheck(this, Logger);
 	    this.enabled = null;

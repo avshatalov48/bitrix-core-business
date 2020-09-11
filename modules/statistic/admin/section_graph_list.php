@@ -11,9 +11,9 @@ $is_dir = $_REQUEST["is_dir"] == "Y"? "Y": "N";
 $section = is_string($_REQUEST["section"]) && preg_match('#^(http://|https://|/)#', $_REQUEST["section"])? $_REQUEST["section"]: "";
 
 if (isset($set_default) && $set_default=="Y" &&
-	strlen($find_hits)<=0 &&
-	strlen($find_enter_points)<=0 &&
-	strlen($find_exit_points)<=0)
+	$find_hits == '' &&
+	$find_enter_points == '' &&
+	$find_exit_points == '')
 {
 	$find_hits = "Y";
 	$find_enter_points = "Y";
@@ -47,7 +47,7 @@ $APPLICATION->SetTitle($strTitle);
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_admin.php");
 
-if (strlen($find_adv_str)>0) :
+if ($find_adv_str <> '') :
 	echo "<h2>".GetMessage("STAT_ADV_LIST")."</h2><p>";
 	$rsAdv = CAdv::GetList($v1="s_dropdown",$v2="asc", Array("ID" => $str), $v3, "", $v4, $v5);
 	while ($arAdv = $rsAdv->GetNext()) :
@@ -72,7 +72,7 @@ if(isset($find_adv) && is_array($find_adv) && count($find_adv)>0)
 		$s .= "&amp;adv[]=".urlencode($adv_id);
 }
 
-if (strlen($site_id)>0)
+if ($site_id <> '')
 	$show_site_id = "[<a target=\"_blank\" href=\"".htmlspecialcharsbx("/bitrix/admin/site_edit.php?LID=".urlencode($site_id)."&lang=".LANGUAGE_ID)."\">".htmlspecialcharsbx($site_id)."</a>]&nbsp;";
 else
 	$show_site_id = "";

@@ -48,7 +48,7 @@ InitFilterEx($arSettings, $sTableID."_settings", "get");
 
 if($find_data_type===false)//Restore saved setting
 {
-	if (strlen($saved_group_by) > 0)
+	if ($saved_group_by <> '')
 		$find_data_type = $saved_group_by;
 	else
 		$find_data_type = "SESSIONS";
@@ -68,7 +68,7 @@ $arFilter = Array(
 	"DATE1" => $find_date1,
 	"DATE2" => $find_date2
 );
-if(strlen($arFilter["COUNTRY_ID"]) == 2)
+if(mb_strlen($arFilter["COUNTRY_ID"]) == 2)
 {
 	$arrDays = CCity::GetGraphArray($arFilter, $arrLegend, $find_data_type, 20);
 	$arrTotalDays = CCity::GetGraphArray($arFilter, $arrTotalLegend, "TOTAL_".$find_data_type, 20);

@@ -42,7 +42,7 @@ GetMessage("FR_ADMINISTRATOR");
 */
 		$arMess = IncludeModuleLangFile(__FILE__, $res["LID"], true);
 		foreach ($name as $k => $v):
-			$mess = $arMess["FR_".strToUpper($k)];
+			$mess = $arMess["FR_".mb_strtoupper($k)];
 			$name[$k] = (!empty($mess) ? $mess : $name[$k]);
 		endforeach;
 		$arNameStatusesDefault[$res["LID"]] = $name;
@@ -63,7 +63,7 @@ GetMessage("FR_ADMINISTRATOR");
 			unset($arNameStatuses[$k]); 
 	endforeach;
 }
-if ($_SERVER["REQUEST_METHOD"] == "POST" && $FORUM_RIGHT == "W" && strlen($_REQUEST["Update"]) > 0 && check_bitrix_sessid())
+if ($_SERVER["REQUEST_METHOD"] == "POST" && $FORUM_RIGHT == "W" && $_REQUEST["Update"] <> '' && check_bitrix_sessid())
 {
 	COption::SetOptionString("forum", "avatar_max_size", $_REQUEST["avatar_max_size"]);
 	COption::SetOptionString("forum", "avatar_max_width", $_REQUEST["avatar_max_width"]);
@@ -265,7 +265,7 @@ $tabControl->BeginNextTab();
 		<td><?=GetMessage("FORUM_PRIVATE_MESSAGE")?>:</td>
 		<td>
 			<?$val = COption::GetOptionString("forum", "MaxPrivateMessages", 100);?>
-			<input type="text" size="35" maxlength="255" value="<?=intVal($val)?>" name="MaxPrivateMessages"></td>
+			<input type="text" size="35" maxlength="255" value="<?=intval($val)?>" name="MaxPrivateMessages"></td>
 	</tr>
 	<tr class="heading">
 		<td colspan="2"><?=GetMessage("F_SEARCH_HEADER")?></td>
@@ -274,7 +274,7 @@ $tabControl->BeginNextTab();
 		<td><?=GetMessage("F_SEARCH_COUNT")?>:</td>
 		<td>
 			<?$val = COption::GetOptionString("forum", "search_message_count", 50);?>
-			<input type="text" size="35" maxlength="255" value="<?=intVal($val)?>" name="search_message_count"></td>
+			<input type="text" size="35" maxlength="255" value="<?=intval($val)?>" name="search_message_count"></td>
 	</tr>
 	<tr class="heading"><td colspan="2"><?=GetMessage("F_FORUM_STATUSES")?></td></tr>
 	<tr>

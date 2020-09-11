@@ -23,11 +23,11 @@ class CReferer
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if( ($val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -88,7 +88,7 @@ class CReferer
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
 		$grby = ($find_group=="U" || $find_group=="S") ? $find_group : "";
 
-		if (strlen($grby)<=0)
+		if ($grby == '')
 		{
 			if ($by == "s_id")					$strSqlOrder = " ORDER BY L.ID ";
 			elseif ($by == "s_site_id")			$strSqlOrder = " ORDER BY L.SITE_ID ";

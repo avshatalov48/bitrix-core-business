@@ -30,7 +30,7 @@ if (is_array($arResult["RECORDS"]))
 {
 	foreach ($arResult["RECORDS"] as &$record)
 	{
-		if (strlen($record['data']["DOCUMENT_URL"]) > 0 && strlen($record['data']["DOCUMENT_NAME"]) > 0)
+		if ($record['data']["DOCUMENT_URL"] <> '' && $record['data']["DOCUMENT_NAME"] <> '')
 		{
 			$record['data']['DOCUMENT_NAME'] = '<a href="'.htmlspecialcharsbx($record['data']["DOCUMENT_URL"]).'" class="lists-folder-title-link">'.htmlspecialcharsbx($record['data']['DOCUMENT_NAME']).'</a>';
 		}

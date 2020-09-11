@@ -42,12 +42,14 @@ class YaCounter extends \Bitrix\Landing\Hook\Page
 	}
 
 	/**
-	 * Gets message for locked state.
-	 * @return string
+	 * Locked or not current hook in free plan.
+	 * @return bool
 	 */
-	public function getLockedMessage()
+	public function isLocked()
 	{
-		return Loc::getMessage('LANDING_HOOK_YACOUNTER_LOCKED');
+		return !\Bitrix\Landing\Restriction\Manager::isAllowed(
+			'limit_sites_google_analytics'
+		);
 	}
 
 	/**
@@ -93,27 +95,25 @@ class YaCounter extends \Bitrix\Landing\Hook\Page
 		$counter = \CUtil::jsEscape($counter);
 		if ($counter)
 		{
-			Manager::setPageView('AfterHeadOpen',
-'<!-- Yandex.Metrika counter -->
-<script type="text/javascript" data-skip-moving="true">
-   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-   m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-
-   ym(' . $counter . ', "init", {
-        id:' . $counter . ',
-        clickmap:true,
-        trackLinks:true,
-        accurateTrackBounce:true,
-        webvisor:true,
-		trackHash:true
-   });
-</script>
-<!-- /Yandex.Metrika counter -->'
+			Cookies::addCookieScript(
+				'ym',
+				'(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+				m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+				(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+				ym(\'' . $counter . '\', "init", {
+					id:\'' . $counter . '\',
+					clickmap:true,
+					trackLinks:true,
+					accurateTrackBounce:true,
+					webvisor:true,
+					trackHash:true
+				});'
 			);
 			Manager::setPageView(
-				'AfterBodyOpen',
-				'<noscript><div><img src="https://mc.yandex.ru/watch/' . $counter . '" style="position:absolute; left:-9999px;" alt="" /></div></noscript>'
+				'Noscript',
+				'<noscript>
+					<img src="https://mc.yandex.ru/watch/' . $counter . '" style="position:absolute; left:-9999px;" alt="" />
+				</noscript>'
 			);
 		}
 	}

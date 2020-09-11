@@ -7,11 +7,11 @@ endif;
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$arParams["TYPE"] = strToUpper(empty($arParams["TYPE"]) ? $_REQUEST["TYPE"] : $arParams["TYPE"]);
+$arParams["TYPE"] = mb_strtoupper(empty($arParams["TYPE"])? $_REQUEST["TYPE"] : $arParams["TYPE"]);
 	$arParams["TYPE"] = ($arParams["TYPE"]!="ICQ") ? "MAIL" : "ICQ";
 	$arParams["SEND_MAIL"] = empty($arParams["SEND_MAIL"]) ? "E" : $arParams["SEND_MAIL"];
 	$arParams["SEND_ICQ"] = empty($arParams["SEND_ICQ"]) ? "A" : $arParams["SEND_ICQ"];
-	$arParams["UID"] = intVal(empty($arParams["UID"]) ? $_REQUEST["UID"] : $arParams["UID"]);
+	$arParams["UID"] = intval(empty($arParams["UID"]) ? $_REQUEST["UID"] : $arParams["UID"]);
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
 			"message_send" => "PAGE_NAME=message_send&UID=#UID#&TYPE=#TYPE#",
@@ -19,10 +19,10 @@ endif;
 		);
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (!isset($arParams["URL_TEMPLATES_".strToUpper($URL)]))
-			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["URL_TEMPLATES_".strToUpper($URL)]);
+		if (!isset($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]))
+			$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["NAME_TEMPLATE"] = str_replace(array("#NOBR#","#/NOBR#"), "",
@@ -39,10 +39,10 @@ endif;
 				/Input params
 ********************************************************************/
 
-if ($arParams["SEND_".strToUpper($arParams["TYPE"])] <= "A"):
+if ($arParams["SEND_".mb_strtoupper($arParams["TYPE"])] <= "A"):
 	ShowError($arParams["TYPE"] != "ICQ" ? GetMessage("F_NO_ACCESS") : GetMessage("F_NO_ICQ"));
 	return false;
-elseif ($arParams["SEND_".strToUpper($arParams["TYPE"])] <= "E" && !$USER->IsAuthorized()):
+elseif ($arParams["SEND_".mb_strtoupper($arParams["TYPE"])] <= "E" && !$USER->IsAuthorized()):
 	$GLOBALS["APPLICATION"]->AuthForm($arParams["TYPE"] == "MAIL" ? GetMessage("F_NO_AUTH_MAIL") : GetMessage("F_NO_AUTH_ICQ"));
 	return false;
 endif;
@@ -67,9 +67,9 @@ $arResult["URL"] = array(
 	"RECIPIENT" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"], array("UID" => $arParams["UID"])), 
 	"~RECIPIENT" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PROFILE_VIEW"], array("UID" => $arParams["UID"])),
 	"MESSAGE_SEND" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE_SEND"],
-		array("UID" => $arParams["UID"], "TYPE" => strtolower($arParams["TYPE"]))),
+		array("UID" => $arParams["UID"], "TYPE" => mb_strtolower($arParams["TYPE"]))),
 	"~MESSAGE_SEND" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_MESSAGE_SEND"],
-		array("UID" => $arParams["UID"], "TYPE" => strtolower($arParams["TYPE"])))
+		array("UID" => $arParams["UID"], "TYPE" => mb_strtolower($arParams["TYPE"])))
 );
 
 $arResult["profile_view"] = $arResult["URL"]["RECIPIENT"];
@@ -110,11 +110,11 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["ACTION"] == "SEND" && check_bi
 	$userSend["E-MAIL"] = trim(empty($userSend["E-MAIL"]) ? $_POST["EMAIL"] : $userSend["E-MAIL"]);
 	
 	// Use captcha
-	if (($arParams["SEND_".strToUpper($arParams["TYPE"])] < "Y") && !$USER->IsAuthorized())
+	if (($arParams["SEND_".mb_strtoupper($arParams["TYPE"])] < "Y") && !$USER->IsAuthorized())
 	{
 		include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
 		$cpt = new CCaptcha();
-		if (strlen($_REQUEST["captcha_code"]) > 0)
+		if ($_REQUEST["captcha_code"] <> '')
 		{
 			$captchaPass = COption::GetOptionString("main", "captcha_password", "");
 			if (!$cpt->CheckCodeCrypt($_REQUEST["captcha_word"], $_REQUEST["captcha_code"], $captchaPass))
@@ -138,9 +138,9 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["ACTION"] == "SEND" && check_bi
 		$arError[] = array("id" => "NO_SUBJECT", "text" => GetMessage("F_NO_SUBJECT"));
 	if (empty($_POST["MESSAGE"]))
 		$arError[] = array("id" => "NO_MESSAGE", "text" => GetMessage("F_NO_MESSAGE"));
-	if ($arParams["TYPE"]=="ICQ" && strlen($userRec["PERSONAL_ICQ"])<=0)
+	if ($arParams["TYPE"]=="ICQ" && $userRec["PERSONAL_ICQ"] == '')
 		$arError[] = array("id" => "NO_ICQ", "text" => GetMessage("F_NO_ICQ_NUM"));
-	if ($arParams["TYPE"]=="MAIL" && strlen($userRec["EMAIL"])<=0)
+	if ($arParams["TYPE"]=="MAIL" && $userRec["EMAIL"] == '')
 		$arError[] = array("id" => "NO_MAIL_D", "text" => GetMessage("F_NO_EMAIL_D"));
 
 	if (empty($arError))
@@ -193,12 +193,12 @@ if ($USER->IsAuthorized())
 	$arResult["ShowMyName"] = $userSend["FULL_NAME"];
 	$arResult["AuthorContacts"] = $arParams["TYPE"]=="ICQ" ? $userSend["PERSONAL_ICQ"] : $USER->GetEmail();
 }
-elseif ($arParams["SEND_".strToUpper($arParams["TYPE"])] < "Y" && !$USER->IsAuthorized())
+elseif ($arParams["SEND_".mb_strtoupper($arParams["TYPE"])] < "Y" && !$USER->IsAuthorized())
 {
 	include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
 	$cpt = new CCaptcha();
 	$captchaPass = COption::GetOptionString("main", "captcha_password", "");
-	if (strlen($captchaPass) <= 0)
+	if ($captchaPass == '')
 	{
 		$captchaPass = randString(10);
 		COption::SetOptionString("main", "captcha_password", $captchaPass);

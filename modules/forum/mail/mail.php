@@ -34,7 +34,7 @@ class CForumEMail
 		$strSql = 'SELECT *
 			FROM b_forum_email
 			WHERE FORUM_ID = '.intval($FID).($SOCNET_GROUP_ID>0?' AND SOCNET_GROUP_ID = '.intval($SOCNET_GROUP_ID):'').'
-			ORDER BY EMAIL_GROUP '.(strtoupper($DB->type)=='ORACLE'?' NULLS LAST':'');
+			ORDER BY EMAIL_GROUP '.($DB->type == 'ORACLE'?' NULLS LAST':'');
 
 		$dbr = $DB->Query($strSql);
 		return $dbr->Fetch();
@@ -247,7 +247,7 @@ class CForumEMail
 				if($arRes["EMAIL_GROUP"]!='' && !in_array(CMailUtil::ExtractMailAddress($arRes["EMAIL_GROUP"]), $arEmails))
 					continue;
 
-				if($arRes["SUBJECT_SUF"]!='' && strpos($arMessageFields["SUBJECT"], $arRes["SUBJECT_SUF"])===false)
+				if($arRes["SUBJECT_SUF"]!='' && mb_strpos($arMessageFields["SUBJECT"], $arRes["SUBJECT_SUF"]) === false)
 					continue;
 
 				$arMessageFields["FORUM_EMAIL_FILTER"] = $arRes;
@@ -275,12 +275,12 @@ class CForumEMail
 			return false;
 
 		// Найдем кто отправитель
-		$message_email = (strlen($arMessageFields["FIELD_REPLY_TO"])>0) ? $arMessageFields["FIELD_REPLY_TO"] : $arMessageFields["FIELD_FROM"];
-		$message_email_addr = strtolower(CMailUtil::ExtractMailAddress($message_email));
+		$message_email = ($arMessageFields["FIELD_REPLY_TO"] <> '') ? $arMessageFields["FIELD_REPLY_TO"] : $arMessageFields["FIELD_FROM"];
+		$message_email_addr = mb_strtolower(CMailUtil::ExtractMailAddress($message_email));
 
 		$o = "LAST_LOGIN"; $b = "DESC";
 		$res = CUser::GetList($o, $b, Array("ACTIVE" => "Y", "EMAIL"=>$message_email_addr));
-		if(($arUser = $res->Fetch()) && strtolower(CMailUtil::ExtractMailAddress($arUser["EMAIL"]))==$message_email_addr)
+		if(($arUser = $res->Fetch()) && mb_strtolower(CMailUtil::ExtractMailAddress($arUser["EMAIL"])) == $message_email_addr)
 			$AUTHOR_USER_ID = $arUser["ID"];
 		elseif($arParams["NOT_MEMBER_POST"]=="Y")
 		{
@@ -328,10 +328,10 @@ class CForumEMail
 
 		$body = $arMessageFields["BODY"];
 		//$body = preg_replace("/(\r\n)+/", "\r\n", $body);
-		$p = strpos($body, "\r\nFrom:");
+		$p = mb_strpos($body, "\r\nFrom:");
 		if($p>0)
 		{
-			$body = substr($body, 0, $p)."\r\n[CUT]".substr($body, $p)."[/CUT]";
+			$body = mb_substr($body, 0, $p)."\r\n[CUT]".mb_substr($body, $p)."[/CUT]";
 		}
 
 
@@ -343,8 +343,8 @@ class CForumEMail
 
 		// Найдем какая тема
 		$arFields = Array();
-		$FORUM_ID = IntVal($arParams["FORUM_ID"]);
-		$SOCNET_GROUP_ID = IntVal($arParams["SOCNET_GROUP_ID"]);
+		$FORUM_ID = intval($arParams["FORUM_ID"]);
+		$SOCNET_GROUP_ID = intval($arParams["SOCNET_GROUP_ID"]);
 		$TOPIC_ID = 0;
 		global $DB;
 		if($arMessageFields["IN_REPLY_TO"]!='')
@@ -383,9 +383,9 @@ class CForumEMail
 				$bSHOW_NAME = ($res["SHOW_NAME"]=="Y");
 
 			if ($bSHOW_NAME)
-				$AUTHOR_NAME = $arUser["NAME"].(strlen($arUser["NAME"])<=0 || strlen($arUser["LAST_NAME"])<=0?"":" ").$arUser["LAST_NAME"];
+				$AUTHOR_NAME = $arUser["NAME"].($arUser["NAME"] == '' || $arUser["LAST_NAME"] == ''?"":" ").$arUser["LAST_NAME"];
 
-			if (strlen(Trim($AUTHOR_NAME))<=0)
+			if (Trim($AUTHOR_NAME) == '')
 				$AUTHOR_NAME = $arUser["LOGIN"];
 		}
 		else
@@ -419,7 +419,7 @@ class CForumEMail
 			$arTopicFields["LAST_POSTER_NAME"] = $AUTHOR_NAME;
 
 			$TOPIC_ID = CForumTopic::Add($arTopicFields);
-			if(IntVal($TOPIC_ID)<=0)
+			if(intval($TOPIC_ID)<=0)
 			{
 				CMailLog::AddMessage(
 					Array(
@@ -527,7 +527,7 @@ class CForumEMail
 
 		$strErrorMessage = '';
 		$MESSAGE_ID = CForumMessage::Add($arFields, false);
-		if (intVal($MESSAGE_ID)<=0)
+		if (intval($MESSAGE_ID)<=0)
 		{
 			$str = $GLOBALS['APPLICATION']->GetException();
 			if ($str && $str->GetString())

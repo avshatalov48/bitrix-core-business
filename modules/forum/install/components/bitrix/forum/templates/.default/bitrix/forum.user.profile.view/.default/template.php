@@ -8,7 +8,7 @@ $GLOBALS['APPLICATION']->AddHeadScript("/bitrix/js/main/utils.js");
 $arParams["SHOW_MAIL"] = (($arParams["SEND_MAIL"] <= "A" || ($arParams["SEND_MAIL"] <= "E" && !$GLOBALS['USER']->IsAuthorized())) ? "N" : "Y");
 
 /************** User options **************************************/
-require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".strToLower($GLOBALS["DB"]->type)."/favorites.php");
+require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
 $arUserOptions = CUserOptions::GetOption("forum", "profile", "", $arParams["UID"]);
 $arUserOptions = (CheckSerializedData($arUserOptions) ? @unserialize($arUserOptions) : array());
 
@@ -28,7 +28,7 @@ if ($arResult["SHOW_EDIT_PROFILE"] == "Y" && check_bitrix_sessid() && !empty($_R
 		$arUserOptions["hide"][] = $_REQUEST["option"];
 		$bUpdate = true;
 	elseif ($_REQUEST["value"] != "hide" && in_array($_REQUEST["option"], $arUserOptions["hide"])):
-		$key = intVal(array_search($_REQUEST["option"], $arUserOptions["hide"]));
+		$key = intval(array_search($_REQUEST["option"], $arUserOptions["hide"]));
 		unset($arUserOptions["hide"][$key]);
 		$bUpdate = true;
 	endif;
@@ -133,7 +133,7 @@ endif;
 ?>
 					<div class="forum-user-additional">
 <?
-if (intVal($arResult["FORUM_USER"]["NUM_POSTS"]) > 0):
+if (intval($arResult["FORUM_USER"]["NUM_POSTS"]) > 0):
 ?>
 						<span><?=GetMessage("F_NUM_MESS")?> <span><?=$arResult["FORUM_USER"]["NUM_POSTS"]?></span></span>
 <?
@@ -154,7 +154,7 @@ if ($arResult["SHOW_RANK"] == "Y"):
 <?
 	if ($arResult["SHOW_POINTS"] == "Y"):
 ?>
-						<span><?=GetMessage("F_NUM_VOTES")?> <span><?=intVal($arResult["USER_POINTS"])?></span></span>
+						<span><?=GetMessage("F_NUM_VOTES")?> <span><?=intval($arResult["USER_POINTS"])?></span></span>
 <?
 	endif;
 endif;
@@ -215,7 +215,7 @@ endif;
 ?>
 					</div>
 <?
-		if (strlen($arResult["FORUM_USER"]["DESCRIPTION"]) > 0):
+		if ($arResult["FORUM_USER"]["DESCRIPTION"] <> ''):
 ?>
 					<div class="forum-user-description"><span><?=$arResult["FORUM_USER"]["DESCRIPTION"]?></span></div>
 <?
@@ -446,7 +446,7 @@ if ($arResult["USER"]["SHOW_PANELS"]["user_prop"] != "N" && $arResult["USER_PROP
 	$iCount = 0;
 	foreach ($arResult["USER_PROPERTIES"]["DATA"] as $FIELD_NAME => $arUserField):
 		$res = $arUserField["VALUE"];
-		if($arUserField["ENTITY_VALUE_ID"] < 1 && strlen($arUserField["SETTINGS"]["DEFAULT_VALUE"]) > 0)
+		if($arUserField["ENTITY_VALUE_ID"] < 1 && $arUserField["SETTINGS"]["DEFAULT_VALUE"] <> '')
 			$res = $arUserField["SETTINGS"]["DEFAULT_VALUE"];
 		if (empty($res))
 			continue;
@@ -498,14 +498,14 @@ endif;
 						?><?=GetMessage("F_SEND_PM")?></a></noindex></span>&nbsp;&nbsp;
 <?
 		endif;
-		if ($arParams["SHOW_MAIL"] == "Y" && strlen($arResult["USER"]["EMAIL"]) > 0):
+		if ($arParams["SHOW_MAIL"] == "Y" && $arResult["USER"]["EMAIL"] <> ''):
 			$bEmptyCell = false;
 ?>
 					<span class="forum-contact-email"><?
 						?><noindex><a rel="nofollow" href="<?=$arResult["URL"]["USER_EMAIL"]?>" title="<?=GetMessage("F_SEND_EMAIL_ALT")?>">E-mail</a></noindex></span>&nbsp;&nbsp;
 <?
 		endif;
-		if ($arResult["SHOW_ICQ"] == "Y" && strLen($arResult["USER"]["PERSONAL_ICQ"]) > 0):
+		if ($arResult["SHOW_ICQ"] == "Y" && $arResult["USER"]["PERSONAL_ICQ"] <> ''):
 			$bEmptyCell = false;
 ?>
 					<span class="forum-contact-icq">
@@ -546,7 +546,7 @@ endif;
 ?>
 								&nbsp;&nbsp;<span class="forum-user-messages">
 									<noindex><a rel="nofollow" href="<?=$arResult["arTopic"]["read"]?>" title="<?=htmlspecialcharsbx($arResult["arTopic"]["~TITLE"])?><?
-										if (strlen($arResult["arTopic"]["~DESCRIPTION"])>0):
+										if ($arResult["arTopic"]["~DESCRIPTION"] <> ''):
 											?>, <?=htmlspecialcharsbx($arResult["arTopic"]["~DESCRIPTION"])?><?
 										endif;?>"><?=GetMessage("F_LAST_MESSAGE")?></a></noindex></span>
 <?
@@ -572,7 +572,7 @@ endif;
 ?>
 				<form method="get" action="<?=$APPLICATION->GetCurPageParam()?>" class="forum-form">
 				<?if ($arResult["bCanVote"]):?>
-					<input type="text" name="VOTES" size="5" value="<?=intVal($arResult["VOTES"])?>" id="votes" />
+					<input type="text" name="VOTES" size="5" value="<?=intval($arResult["VOTES"])?>" id="votes" />
 				<?endif;?>
 				<input type="hidden" name="UID" value="<?=$arParams["UID"]?>"/>
 				<input type="hidden" name="FID" value="<?=$arResult["FID"]?>"/>

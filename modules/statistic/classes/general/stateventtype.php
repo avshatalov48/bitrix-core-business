@@ -46,11 +46,11 @@ class CAllStatEventType
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if( ($val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "EVENT_ID":
@@ -84,7 +84,7 @@ class CAllStatEventType
 				$arrDays[$arD["DATE_STAT"]][$arD["EVENT_ID"]]["COUNTER"] = $arD["COUNTER"];
 				$arrDays[$arD["DATE_STAT"]][$arD["EVENT_ID"]]["MONEY"] = $arD["MONEY"];
 				$arrLegend[$arD["EVENT_ID"]]["COUNTER_TYPE"] = "DETAIL";
-				$arrLegend[$arD["EVENT_ID"]]["NAME"] = (strlen($arD["NAME"])>0) ? $arD["NAME"] : $arD["EVENT1"]." / ".$arD["EVENT2"];
+				$arrLegend[$arD["EVENT_ID"]]["NAME"] = ($arD["NAME"] <> '') ? $arD["NAME"] : $arD["EVENT1"]." / ".$arD["EVENT2"];
 			}
 			elseif ($summa=="Y")
 			{
@@ -115,12 +115,12 @@ class CAllStatEventType
 
 		if ($EVENT_ID<=0)
 		{
-			if (strlen($event1)>0 || strlen($event2)>0)
+			if ($event1 <> '' || $event2 <> '')
 			{
 				// save to database
 				$arFields = Array(
-					"EVENT1"		=> (strlen($event1)>0) ? "'".$DB->ForSql($event1,200)."'" : "null",
-					"EVENT2"		=> (strlen($event2)>0) ? "'".$DB->ForSql($event2,200)."'" : "null",
+					"EVENT1"		=> ($event1 <> '') ? "'".$DB->ForSql($event1,200)."'" : "null",
+					"EVENT2"		=> ($event2 <> '') ? "'".$DB->ForSql($event2,200)."'" : "null",
 					"DATE_ENTER"	=> "null"
 					);
 				$EVENT_ID = $DB->Insert("b_stat_event", $arFields, $err_mess.__LINE__);
@@ -135,8 +135,8 @@ class CAllStatEventType
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$event1 = $DB->ForSql(trim($event1),200);
 		$event2 = $DB->ForSql(trim($event2),200);
-		$where1 = (strlen($event1)<=0) ? "(EVENT1='' or EVENT1 is null)" : "(EVENT1 = '$event1')";
-		$where2 = (strlen($event2)<=0) ? "(EVENT2='' or EVENT2 is null)" : "(EVENT2 = '$event2')";
+		$where1 = ($event1 == '') ? "(EVENT1='' or EVENT1 is null)" : "(EVENT1 = '$event1')";
+		$where2 = ($event2 == '') ? "(EVENT2='' or EVENT2 is null)" : "(EVENT2 = '$event2')";
 		$strSql = "
 			SELECT
 				ID as EVENT_ID,
@@ -171,9 +171,9 @@ class CAllStatEventType
 	{
 		$aMsg = array();
 
-		if(is_set($arFields, "EVENT1") && strlen($arFields["EVENT1"])<=0)
+		if(is_set($arFields, "EVENT1") && $arFields["EVENT1"] == '')
 			$aMsg[] = array("id"=>"EVENT1", "text"=>GetMessage("STAT_FORGOT_EVENT1"));
-		if(is_set($arFields, "EVENT2") && strlen($arFields["EVENT2"])<=0)
+		if(is_set($arFields, "EVENT2") && $arFields["EVENT2"] == '')
 			$aMsg[] = array("id"=>"EVENT2", "text"=>GetMessage("STAT_FORGOT_EVENT2"));
 		if(intval($ID)==0)
 		{

@@ -48,7 +48,7 @@ class Imap
 	{
 		$this->reset();
 
-		$strict = PHP_VERSION_ID < 50600 ? false : (bool) $strict;
+		$strict = (bool) $strict;
 
 		$this->options = array(
 			'host'    => $host,

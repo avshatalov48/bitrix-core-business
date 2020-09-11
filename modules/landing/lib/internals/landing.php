@@ -105,6 +105,11 @@ class LandingTable extends Entity\DataManager
 				'Bitrix\Landing\Internals\SiteTable',
 				array('=this.SITE_ID' => 'ref.ID')
 			),
+			'AREAS' => new Entity\ReferenceField(
+				'AREAS',
+				'Bitrix\Landing\Internals\TemplateRefTable',
+				array('=this.ID' => 'ref.LANDING_ID')
+			),
 			'SITEMAP' => new Entity\StringField('SITEMAP', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_LANDING_SITEMAP'),
 				'default_value' => 'N'
@@ -121,7 +126,7 @@ class LandingTable extends Entity\DataManager
 			)),
 			'VERSION' => new Entity\IntegerField('VERSION', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_VERSION'),
-				'default_value' => 5
+				'default_value' => 8
 			)),
 			'CREATED_BY_ID' => new Entity\IntegerField('CREATED_BY_ID', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_CREATED_BY_ID'),

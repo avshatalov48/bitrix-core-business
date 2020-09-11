@@ -76,8 +76,8 @@ return array(
 					1 => 'landing-block-node-card-text mb-0 g-color-white-opacity-0_8',
 				),
 				'.landing-block-node-card-title' => array(
-					0 => 'landing-block-node-card-title h5 font-weight-bold g-color-white g-text-transform-none g-font-size-15',
-					1 => 'landing-block-node-card-title h5 font-weight-bold g-color-white g-text-transform-none g-font-size-15',
+					0 => 'landing-block-node-card-title h5 g-font-weight-700 g-color-white g-text-transform-none g-font-size-15',
+					1 => 'landing-block-node-card-title h5 g-font-weight-700 g-color-white g-text-transform-none g-font-size-15',
 				),
 				'#wrapper' => array(
 					0 => 'landing-block g-pt-20 g-pb-10 u-block-border-none g-theme-bitrix-bg-dark-v3',
@@ -103,7 +103,7 @@ return array(
 			),
 			'style' => array(
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title font-weight-bold mb-0 g-mb-15 g-color-white g-text-transform-none g-font-size-28',
+					0 => 'landing-block-node-title g-font-weight-700 mb-0 g-mb-15 g-color-white g-text-transform-none g-font-size-28',
 				),
 				'.landing-block-node-text-container' => array(
 					0 => 'landing-block-node-text-container js-animation animation-none col-md-6 col-lg-6 g-pb-20 g-pb-0--md',

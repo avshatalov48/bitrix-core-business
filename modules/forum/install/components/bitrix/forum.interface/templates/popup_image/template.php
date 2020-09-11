@@ -38,7 +38,7 @@ if ($arParams["HTML_SIZE"] !== null && $arParams["MAX_SIZE"] !== null)
 	$arParams["HTML_SIZE"]["height"] = min($arParams["HTML_SIZE"]["height"], $arParams["MAX_SIZE"]["height"]);
 }
 $arParams["FAMILY"] = trim($arParams["FAMILY"]);
-$arParams["FAMILY"] = strtolower(empty($arParams["FAMILY"]) ? "forum" : $arParams["FAMILY"]);
+$arParams["FAMILY"] = mb_strtolower(empty($arParams["FAMILY"])? "forum" : $arParams["FAMILY"]);
 $arParams["FAMILY"] = preg_replace("/[^a-z]/is", "", $arParams["FAMILY"]);
 $arParams["RETURN"] = ($arParams["RETURN"] == "Y" ? "Y" : "N");
 $arParams["MODE"] = trim($arParams["MODE"]);
@@ -46,8 +46,8 @@ $arParams["MODE"] = trim($arParams["MODE"]);
 // *************************/Input params***************************************************************
 
 $img["~src"] = $arParams["URL"];
-$img["src_download"] = $arParams["URL"].(strpos($arParams["URL"], '?') !== false ? '&' : '?')."action=download";
-$img["src"] = $arParams["URL"].(strpos($arParams["URL"], '?') !== false ? '&' : '?').($arParams["MAX_SIZE"] !== null ? http_build_query($arParams["MAX_SIZE"]) : "");
+$img["src_download"] = $arParams["URL"].(mb_strpos($arParams["URL"], '?') !== false ? '&' : '?')."action=download";
+$img["src"] = $arParams["URL"].(mb_strpos($arParams["URL"], '?') !== false ? '&' : '?').($arParams["MAX_SIZE"] !== null ? http_build_query($arParams["MAX_SIZE"]) : "");
 
 // HTML size
 $bNeedCreatePicture = false;

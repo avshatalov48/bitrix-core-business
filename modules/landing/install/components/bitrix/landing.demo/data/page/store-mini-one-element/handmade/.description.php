@@ -104,7 +104,7 @@ return array(
 				'.landing-block-node-icon' => array(
 					0 => 'landing-block-node-icon fa fa-heart g-font-size-8',
 					1 => 'landing-block-node-icon fa fa-heart g-font-size-11',
-					2 => 'landing-block-node-icon fa fa-heart g-font-size-default',
+					2 => 'landing-block-node-icon fa fa-heart',
 					3 => 'landing-block-node-icon fa fa-heart g-font-size-11',
 					4 => 'landing-block-node-icon fa fa-heart g-font-size-8',
 				),
@@ -122,7 +122,7 @@ return array(
 				'.landing-block-node-icon' => array(
 					0 => 'landing-block-node-icon fa fa-heart g-font-size-8',
 					1 => 'landing-block-node-icon fa fa-heart g-font-size-11',
-					2 => 'landing-block-node-icon fa fa-heart g-font-size-default',
+					2 => 'landing-block-node-icon fa fa-heart',
 				),
 				'#wrapper' => array(
 					0 => 'landing-block g-pt-40 g-pb-20 g-theme-business-bg-blue-dark-v1-opacity-0_9',
@@ -157,7 +157,7 @@ return array(
 					0 => 'landing-block-node-card js-animation fadeInUp col-md-6 g-mb-40 animated col-lg-4 g-mb-0--last',
 				),
 				'.landing-block-node-card-text' => array(
-					0 => 'landing-block-node-card-text g-font-size-default mb-0 g-font-size-14 g-color-lightblue-v1',
+					0 => 'landing-block-node-card-text mb-0 g-font-size-14 g-color-lightblue-v1',
 				),
 				'.landing-block-node-card-title' => array(
 					0 => 'landing-block-node-card-title h5 g-font-weight-800 g-text-transform-none g-font-size-25 g-color-lightblue',
@@ -178,7 +178,7 @@ return array(
 				'.landing-block-node-icon' => array(
 					0 => 'landing-block-node-icon fa fa-heart g-font-size-8',
 					1 => 'landing-block-node-icon fa fa-heart g-font-size-11',
-					2 => 'landing-block-node-icon fa fa-heart g-font-size-default',
+					2 => 'landing-block-node-icon fa fa-heart',
 					3 => 'landing-block-node-icon fa fa-heart g-font-size-11',
 					4 => 'landing-block-node-icon fa fa-heart g-font-size-8',
 				),
@@ -196,7 +196,7 @@ return array(
 				'.landing-block-node-icon' => array(
 					0 => 'landing-block-node-icon fa fa-heart g-font-size-8',
 					1 => 'landing-block-node-icon fa fa-heart g-font-size-11',
-					2 => 'landing-block-node-icon fa fa-heart g-font-size-default',
+					2 => 'landing-block-node-icon fa fa-heart',
 				),
 				'#wrapper' => array(
 					0 => 'landing-block g-bg-main g-pt-35 g-pb-30',
@@ -250,7 +250,7 @@ return array(
 				'.landing-block-node-icon' => array(
 					0 => 'landing-block-node-icon fa fa-heart g-font-size-8',
 					1 => 'landing-block-node-icon fa fa-heart g-font-size-11',
-					2 => 'landing-block-node-icon fa fa-heart g-font-size-default',
+					2 => 'landing-block-node-icon fa fa-heart',
 					3 => 'landing-block-node-icon fa fa-heart g-font-size-11',
 					4 => 'landing-block-node-icon fa fa-heart g-font-size-8',
 				),
@@ -268,7 +268,7 @@ return array(
 				'.landing-block-node-icon' => array(
 					0 => 'landing-block-node-icon fa fa-heart g-font-size-8',
 					1 => 'landing-block-node-icon fa fa-heart g-font-size-11',
-					2 => 'landing-block-node-icon fa fa-heart g-font-size-default',
+					2 => 'landing-block-node-icon fa fa-heart',
 				),
 				'#wrapper' => array(
 					0 => 'landing-block g-pb-0 g-bg-main g-pt-35',
@@ -337,7 +337,7 @@ return array(
 				'.landing-block-node-icon' => array(
 					0 => 'landing-block-node-icon fa fa-heart g-font-size-8',
 					1 => 'landing-block-node-icon fa fa-heart g-font-size-11',
-					2 => 'landing-block-node-icon fa fa-heart g-font-size-default',
+					2 => 'landing-block-node-icon fa fa-heart',
 					3 => 'landing-block-node-icon fa fa-heart g-font-size-11',
 					4 => 'landing-block-node-icon fa fa-heart g-font-size-8',
 				),
@@ -355,7 +355,7 @@ return array(
 				'.landing-block-node-icon' => array(
 					0 => 'landing-block-node-icon fa fa-heart g-font-size-8',
 					1 => 'landing-block-node-icon fa fa-heart g-font-size-11',
-					2 => 'landing-block-node-icon fa fa-heart g-font-size-default',
+					2 => 'landing-block-node-icon fa fa-heart',
 				),
 				'#wrapper' => array(
 					0 => 'landing-block g-theme-business-bg-blue-dark-v1-opacity-0_9 g-pt-40 g-pb-0',

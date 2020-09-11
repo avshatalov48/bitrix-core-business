@@ -68,11 +68,11 @@ endwhile;
 
 $max_date = mktime(24,59,59,$arMaxMin["MAX_MONTH"], $arMaxMin["MAX_DAY"], $arMaxMin["MAX_YEAR"]);
 $min_date = mktime(0,0,0,$arMaxMin["MIN_MONTH"], $arMaxMin["MIN_DAY"], $arMaxMin["MIN_YEAR"]);
-if(strlen($arFilter["DATE1"])>0)
+if($arFilter["DATE1"] <> '')
 	$mindate = $arFilter["DATE1"];
 else
 	$mindate = GetTime($min_date);
-if (strlen($arFilter["DATE2"])>0)
+if ($arFilter["DATE2"] <> '')
 	$maxdate = $arFilter["DATE2"];
 else $maxdate = GetTime($max_date);
 $arF = Array(
@@ -90,7 +90,7 @@ $arFooter[] = array(
 	);
 $arFooter[] = array(
 	"title"=>GetMessage("STAT_TOTAL"),
-	"value"=>(strlen($arF["DATE1_PERIOD"])>0 || strlen($arF["DATE2_PERIOD"])>0)?intval($arEventType["PERIOD_COUNTER"]):intval($arEventType["TOTAL_COUNTER"]),
+	"value"=>($arF["DATE1_PERIOD"] <> '' || $arF["DATE2_PERIOD"] <> '')?intval($arEventType["PERIOD_COUNTER"]):intval($arEventType["TOTAL_COUNTER"]),
 	);
 $arFooter[] = array(
 	"title"=>GetMessage("STAT_TOTAL_TIME"),

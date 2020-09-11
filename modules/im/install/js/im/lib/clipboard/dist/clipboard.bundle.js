@@ -11,9 +11,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
-	var Clipboard =
-	/*#__PURE__*/
-	function () {
+	var Clipboard = /*#__PURE__*/function () {
 	  function Clipboard() {
 	    babelHelpers.classCallCheck(this, Clipboard);
 	  }

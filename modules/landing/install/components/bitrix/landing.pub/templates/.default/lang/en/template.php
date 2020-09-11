@@ -1,5 +1,4 @@
 <?
-$MESS["LANDING_ERROR_NOT_ALLOW_VIEW_BY_PLAN_KNOWLEDGE"] = "You cannot create more knowledge bases on your current plan. Please upgrade to create a new knowledge base.";
 $MESS["LANDING_TPL_ACCESS_ASK_DESCRIPTION_KNOWLEDGE"] = "Send a request to one of the users for read access to this knowledge base.";
 $MESS["LANDING_TPL_ACCESS_ASK_HEADER_KNOWLEDGE"] = "This knowledge base is private";
 $MESS["LANDING_TPL_ACCESS_ASK_SEND_KNOWLEDGE"] = "Request access";

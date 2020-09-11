@@ -22,11 +22,11 @@ $yesterday = GetTime(time()-86400);
 $b_yesterday = GetTime(time()-172800);
 
 $base_currency = GetStatisticBaseCurrency();
-if (strlen($base_currency)>0 && CModule::IncludeModule("currency"))
+if ($base_currency <> '' && CModule::IncludeModule("currency"))
 {
 	$currency_module = "Y";
 	$base_currency = GetStatisticBaseCurrency();
-	$view_currency = (strlen($find_currency)>0 && $find_currency!="NOT_REF") ? $find_currency : $base_currency;
+	$view_currency = ($find_currency <> '' && $find_currency!="NOT_REF") ? $find_currency : $base_currency;
 	$arrCurrency = array();
 	$rsCur = CCurrency::GetList(($v1="sort"), ($v2="asc"));
 	$arrRefID = array();
@@ -76,11 +76,11 @@ function CheckFilter()
 
 	foreach($arr as $ar)
 	{
-		if (strlen($ar["date1"])>0 && !CheckDateTime($ar["date1"]))
+		if ($ar["date1"] <> '' && !CheckDateTime($ar["date1"]))
 			$lAdmin->AddFilterError($ar["mess1"]);
-		if (strlen($ar["date2"])>0 && !CheckDateTime($ar["date2"]))
+		if ($ar["date2"] <> '' && !CheckDateTime($ar["date2"]))
 			$lAdmin->AddFilterError($ar["mess2"]);
-		if (strlen($ar["date1"])>0 && strlen($ar["date2"])>0 &&
+		if ($ar["date1"] <> '' && $ar["date2"] <> '' &&
 		$statDB->CompareDates($ar["date1"], $ar["date2"])==1)
 			$lAdmin->AddFilterError($ar["mess3"]);
 	}
@@ -188,7 +188,7 @@ if(($arID = $lAdmin->GroupAction()) && $STAT_RIGHT>="W")
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
 		$ID = intval($ID);
 		switch($_REQUEST['action'])
@@ -276,7 +276,7 @@ $arHeaders[]=
 		"align"		=>"right",
 		"default"	=>true,
 	);
-$bIsPeriod=(strlen($arFilter["DATE1_PERIOD"])>0 || strlen($arFilter["DATE1_PERIOD"])>0);
+$bIsPeriod=($arFilter["DATE1_PERIOD"] <> '' || $arFilter["DATE1_PERIOD"] <> '');
 if($bIsPeriod)
 
 $arHeaders[]=

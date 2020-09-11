@@ -68,7 +68,8 @@
 
 				this.stack.push({
 					action: error.action,
-					description: availableActions[error.action]
+					description: availableActions[error.action],
+					hideSupportLink: error.hideSupportLink
 				});
 
 				return this.show();
@@ -87,7 +88,10 @@
 				var stack = clone(this.stack);
 				this.stack = [];
 				var text = stack.map(this.createErrorMessage, this).join("");
-				BX.Landing.UI.Panel.Alert.getInstance().show("error", text);
+				var hideSupportLink = stack.some(function(item) {
+					return item.hideSupportLink === true;
+				});
+				BX.Landing.UI.Panel.Alert.getInstance().show("error", text, hideSupportLink);
 			}.bind(this), 100);
 		},
 

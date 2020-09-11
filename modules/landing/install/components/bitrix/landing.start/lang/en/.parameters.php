@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["LANDING_CMP_PAR_DRAFT_MODE"] = "Always use Draft mode";
 $MESS["LANDING_CMP_PAR_EDIT_DONT_LEAVE_FRAME"] = "Don't leave frame";
 $MESS["LANDING_CMP_PAR_EDIT_FULL_PUBLICATION"] = "By default, publish all site pages in the editor";
@@ -14,7 +14,9 @@ $MESS["LANDING_CMP_PAR_SM_ROLES"] = "Roles";
 $MESS["LANDING_CMP_PAR_SM_ROLE_EDIT"] = "Role edit page";
 $MESS["LANDING_CMP_PAR_SM_SITE"] = "Site page (list of landings)";
 $MESS["LANDING_CMP_PAR_SM_SITES"] = "Sites";
+$MESS["LANDING_CMP_PAR_SM_SITE_COOKIES"] = "Cookies edit page";
 $MESS["LANDING_CMP_PAR_SM_SITE_DOMAIN"] = "Site domain edit page";
+$MESS["LANDING_CMP_PAR_SM_SITE_DOMAIN_SWITCH"] = "Domain switch page";
 $MESS["LANDING_CMP_PAR_SM_SITE_EDIT"] = "Site edit page";
 $MESS["LANDING_CMP_PAR_STRICT_TYPE"] = "Strict match";
 $MESS["LANDING_CMP_PAR_TILE_LANDING_MODE"] = "On page tile click";
@@ -33,4 +35,3 @@ $MESS["LANDING_CMP_PAR_VAR_ROLE_EDIT"] = "Role ID variable (edit)";
 $MESS["LANDING_CMP_PAR_VAR_SITE"] = "URL parameter for site ID (view)";
 $MESS["LANDING_CMP_PAR_VAR_SITES"] = "URL parameter for sites page";
 $MESS["LANDING_CMP_PAR_VAR_SITE_EDIT"] = "URL parameter for site ID (edit)";
-?>

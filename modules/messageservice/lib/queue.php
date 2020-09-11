@@ -45,7 +45,12 @@ class Queue
 			return "";
 		}
 
-		return static::sendMessages();
+		if (!\CMain::forkActions([get_called_class(), "sendMessages"]))
+		{
+			static::sendMessages();
+		}
+
+		return "";
 	}
 
 	/**
@@ -56,12 +61,6 @@ class Queue
 	 */
 	public static function sendMessages()
 	{
-		if(defined("BX_FORK_AGENTS_AND_EVENTS_FUNCTION"))
-		{
-			if(\CMain::forkActions(array(get_called_class(), "sendMessages")))
-				return "";
-		}
-
 		$connection = Application::getConnection();
 		$lockTag = \CMain::getServerUniqID().'_b_messageservice_message';
 

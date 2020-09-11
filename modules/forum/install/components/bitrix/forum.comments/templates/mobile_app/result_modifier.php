@@ -7,11 +7,11 @@
  * @var CBitrixComponentTemplate $this
  * @var ForumCommentsComponent $this->__component
  */
-if ($arResult["ERROR_MESSAGE"] && strpos($arResult["ERROR_MESSAGE"], "MID=") !== false)
+if ($arResult["ERROR_MESSAGE"] && mb_strpos($arResult["ERROR_MESSAGE"], "MID=") !== false)
 {
 	$arResult["ERROR_MESSAGE"] = preg_replace(array("/\(MID\=\d+\)/is", "/\s\s/", "/\s\./"), array("", " ", "."), $arResult["ERROR_MESSAGE"]);
 }
-if ($arResult["OK_MESSAGE"] && strpos($arResult["OK_MESSAGE"], "MID=") !== false)
+if ($arResult["OK_MESSAGE"] && mb_strpos($arResult["OK_MESSAGE"], "MID=") !== false)
 {
 	$arResult["OK_MESSAGE"] = preg_replace(array("/\(MID\=\d+\)/is", "/\s\s/", "/\s\./"), array("", " ", "."), $arResult["OK_MESSAGE"]);
 }

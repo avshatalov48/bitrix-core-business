@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["LANDING_TPL_ACTION_INSTALL_B24"] = "Install Bitrix24 integration module";
 $MESS["LANDING_TPL_ACTION_SETTINGS"] = "Edit settings";
 $MESS["LANDING_TPL_ACTION_SHOW"] = "Show";
@@ -38,6 +38,9 @@ $MESS["LANDING_TPL_HEADER_FOOTER_HEADER"] = "Header page";
 $MESS["LANDING_TPL_HEADER_FOOTER_HEADER_HELP"] = "This is the topmost part of the site layout. Common uses include logo, company name, menu and other user interface controls visible on all the site pages.";
 $MESS["LANDING_TPL_HEADER_FOOTER_USE"] = "Select";
 $MESS["LANDING_TPL_HOOK_BACKGROUND_USE"] = "Default site background";
+$MESS["LANDING_TPL_HOOK_COOKIES_EDIT_DESCRIPTIONS"] = "Edit cookie descriptions";
+$MESS["LANDING_TPL_HOOK_COOKIES_SCRIPT_WARN"] = "Your site uses third-party HTML code. Provide information about the code that collects and processes cookies.";
+$MESS["LANDING_TPL_HOOK_COOKIES_VIEW"] = "Appearance";
 $MESS["LANDING_TPL_HOOK_FAVICON_EDIT"] = "edit";
 $MESS["LANDING_TPL_HOOK_GMAP"] = "Map keys";
 $MESS["LANDING_TPL_HOOK_HEADBLOCK_USE"] = "Add/edit for entire site";
@@ -88,4 +91,3 @@ $MESS["LANDING_TPL_TITLE_EDIT_GROUP"] = "Knowledge base settings";
 $MESS["LANDING_TPL_TITLE_EDIT_KNOWLEDGE"] = "Knowledge base settings";
 $MESS["LANDING_TPL_TITLE_EDIT_PAGE"] = "Site settings";
 $MESS["LANDING_TPL_TITLE_EDIT_STORE"] = "Online store settings";
-?>

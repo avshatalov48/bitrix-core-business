@@ -116,11 +116,11 @@ class CBPUpdateListsDocumentActivity
 			$listsDocumentFields = self::getDocumentFields($documentType);
 			foreach ($arCurrentValues as $key => $value)
 			{
-				if (strpos($key, 'fields__') !== 0)
+				if (mb_strpos($key, 'fields__') !== 0)
 				{
 					continue;
 				}
-				$key = substr($key, 8);
+				$key = mb_substr($key, 8);
 
 				$property = $listsDocumentFields[$key];
 
@@ -200,20 +200,20 @@ class CBPUpdateListsDocumentActivity
 		$documentService = $runtime->GetService("DocumentService");
 		$arDocumentFields = $documentType ? $documentService->GetDocumentFields($documentType) : [];
 
-		$iblockId = $documentType? substr($documentType[2], 7) : null;
+		$iblockId = $documentType? mb_substr($documentType[2], 7) : null;
 		$listFields = $iblockId? static::getVisibleFieldsList($iblockId) : [];
 
 		foreach ($arCurrentValues as $fieldKey => $fieldValue)
 		{
-			if (strpos($fieldKey, 'fields__') !== 0)
+			if (mb_strpos($fieldKey, 'fields__') !== 0)
 			{
 				continue;
 			}
-			$fieldKey = substr($fieldKey, 8);
+			$fieldKey = mb_substr($fieldKey, 8);
 
-			if (substr($fieldKey, -5) === '_text')
+			if (mb_substr($fieldKey, -5) === '_text')
 			{
-				$fieldKey = substr($fieldKey, 0, -5);
+				$fieldKey = mb_substr($fieldKey, 0, -5);
 				if (isset($arCurrentValues['fields__'.$fieldKey]))
 				{
 					continue;
@@ -300,7 +300,7 @@ class CBPUpdateListsDocumentActivity
 		$documentService = CBPRuntime::GetRuntime(true)->GetService("DocumentService");
 		$fields = $documentService->GetDocumentFields($documentType);
 
-		$listFields = static::getVisibleFieldsList(substr($documentType[2], 7));
+		$listFields = static::getVisibleFieldsList(mb_substr($documentType[2], 7));
 
 		foreach ($fields as $fieldKey => $fieldValue)
 		{
@@ -320,7 +320,7 @@ class CBPUpdateListsDocumentActivity
 		$result = array();
 		foreach ($listFields as $key => $field)
 		{
-			if (strpos($key, 'PROPERTY_') === 0)
+			if (mb_strpos($key, 'PROPERTY_') === 0)
 			{
 				if (!empty($field['CODE']))
 					$key = 'PROPERTY_'.$field['CODE'];

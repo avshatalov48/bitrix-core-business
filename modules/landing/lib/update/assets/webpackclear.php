@@ -73,6 +73,7 @@ final class WebpackClear extends Stepper
 			'select' => ['ID'],
 			'filter' => [
 				'%ORIGINAL_NAME' => self::WEBPACK_NAME_MASK,
+				'=MODULE_ID' => self::MODULE_ID,
 			],
 		]);
 		while ($row = $dbFiles->fetch())

@@ -93,7 +93,7 @@ return array(
 		<div class="landing-block-node-card landing-block-node-card-bgimg js-slide d-flex align-items-end u-bg-overlay g-min-height-100vh g-min-height-600 g-bg-img-hero g-bg-black-opacity-0_5--after"
 			 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1080/img7.jpg);">
 			<div class="u-bg-overlay__inner w-100">
-				<div class="g-max-width-645 py-0 g-px-30 g-pb-30" data-stop-propagation>
+				<div class="g-max-width-645 py-0 g-px-30 g-pb-30">
 					<h2 class="landing-block-node-card-title js-animation fadeInUp g-font-montserrat g-line-height-1 g-font-weight-700 g-font-size-90 g-color-white g-mb-15">
 						Company24 agency</h2>
 					<div class="landing-block-node-card-text-container js-animation fadeInUp row align-items-start">
@@ -105,7 +105,7 @@ return array(
 						</div>
 						<div class="col-md-3">
 							<a href="#"
-							   class="landing-block-node-card-button text-uppercase btn u-btn-outline-white btn-md rounded-0">
+							   class="landing-block-node-card-button text-uppercase btn g-btn-outline-white g-btn-type-outline g-btn-white g-btn-size-md g-btn-px-m rounded-0">
 								Read more
 							</a>
 						</div>
@@ -117,7 +117,7 @@ return array(
 		<div class="landing-block-node-card landing-block-node-card-bgimg js-slide d-flex align-items-end u-bg-overlay g-min-height-100vh g-min-height-600 g-bg-img-hero g-bg-black-opacity-0_5--after"
 			 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1080/img8.jpg);">
 			<div class="u-bg-overlay__inner w-100">
-				<div class="g-max-width-645 py-0 g-px-30 g-pb-30" data-stop-propagation>
+				<div class="g-max-width-645 py-0 g-px-30 g-pb-30">
 					<h2 class="landing-block-node-card-title js-animation fadeInUp g-font-montserrat g-line-height-1 g-font-weight-700 g-font-size-90 g-color-white g-mb-15">
 						So smooth!</h2>
 					<div class="landing-block-node-card-text-container js-animation fadeInUp row align-items-start">
@@ -129,7 +129,7 @@ return array(
 						</div>
 						<div class="col-md-3">
 							<a href="#"
-							   class="landing-block-node-card-button text-uppercase btn u-btn-outline-white btn-md rounded-0">
+							   class="landing-block-node-card-button text-uppercase btn g-btn-outline-white g-btn-type-outline g-btn-white g-btn-size-md g-btn-px-m rounded-0">
 								Read more
 							</a>
 						</div>
@@ -284,7 +284,7 @@ return array(
 				'SORT' => '2000',
 				'CONTENT' => '<section class="landing-block text-center g-py-20 g-bg-secondary g-pb-7">
         <div class="container">
-				<a class="landing-block-node-button btn btn-md text-uppercase u-btn-primary rounded-0 g-px-15" href="#" g-font-weight-700 target="_self">GET IN TOUCH</a>
+				<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary text-uppercase rounded-0" href="#" g-font-weight-700 target="_self">GET IN TOUCH</a>
         </div>
     </section>',
 			),
@@ -319,7 +319,7 @@ return array(
 					</span>
 				<h3 class="landing-block-node-card-number mb-0 g-color-black g-font-size-15">WEB DESIGN</h3>
 				<div class="landing-block-node-card-number-title text-uppercase g-font-weight-700 g-font-size-11 g-color-white g-mb-20"> </div>
-				<div class="landing-block-node-card-text g-font-size-default mb-0 g-color-black-opacity-0_6"><p>Quisque rhoncus euismod pulvinar. Nulla non arcu at lectus. Vestibulum fringilla velit rhoncus euismod rhoncus turpis</p></div>
+				<div class="landing-block-node-card-text mb-0 g-color-black-opacity-0_6"><p>Quisque rhoncus euismod pulvinar. Nulla non arcu at lectus. Vestibulum fringilla velit rhoncus euismod rhoncus turpis</p></div>
 			</div>
 
 			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-3 text-center g-mb-40 g-mb-0--lg animated ">
@@ -328,7 +328,7 @@ return array(
 					</span>
 				<h3 class="landing-block-node-card-number mb-0 g-color-black g-font-size-15">GRAPHIC DESIGN</h3>
 				<div class="landing-block-node-card-number-title text-uppercase g-font-weight-700 g-font-size-11 g-color-white g-mb-20"> </div>
-				<div class="landing-block-node-card-text g-font-size-default mb-0 g-color-black-opacity-0_6"><p>Quisque rhoncus euismod pulvinar. Nulla non arcu at lectus. Vestibulum fringilla velit rhoncus euismod rhoncus turpis</p></div>
+				<div class="landing-block-node-card-text mb-0 g-color-black-opacity-0_6"><p>Quisque rhoncus euismod pulvinar. Nulla non arcu at lectus. Vestibulum fringilla velit rhoncus euismod rhoncus turpis</p></div>
 			</div>
 
 			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-3 text-center g-mb-40 g-mb-0--lg animated ">
@@ -337,7 +337,7 @@ return array(
 					</span>
 				<h3 class="landing-block-node-card-number mb-0 g-color-black g-font-size-15">UI/UX</h3>
 				<div class="landing-block-node-card-number-title text-uppercase g-font-weight-700 g-font-size-11 g-color-white g-mb-20"> </div>
-				<div class="landing-block-node-card-text g-font-size-default mb-0 g-color-black-opacity-0_6"><p>Quisque rhoncus euismod pulvinar. Nulla non arcu at lectus. Vestibulum fringilla velit rhoncus euismod rhoncus turpis</p></div>
+				<div class="landing-block-node-card-text mb-0 g-color-black-opacity-0_6"><p>Quisque rhoncus euismod pulvinar. Nulla non arcu at lectus. Vestibulum fringilla velit rhoncus euismod rhoncus turpis</p></div>
 			</div>
 
 			<div class="landing-block-node-card js-animation fadeInUp col-md-6 col-lg-3 text-center g-mb-40 g-mb-0--lg animated ">
@@ -346,7 +346,7 @@ return array(
 					</span>
 				<h3 class="landing-block-node-card-number mb-0 g-color-black g-font-size-15">BRANDING</h3>
 				<div class="landing-block-node-card-number-title text-uppercase g-font-weight-700 g-font-size-11 g-color-white g-mb-20"> </div>
-				<div class="landing-block-node-card-text g-font-size-default mb-0 g-color-black-opacity-0_6"><p>Quisque rhoncus euismod pulvinar. Nulla non arcu at lectus. Vestibulum fringilla velit rhoncus euismod rhoncus turpis</p></div>
+				<div class="landing-block-node-card-text mb-0 g-color-black-opacity-0_6"><p>Quisque rhoncus euismod pulvinar. Nulla non arcu at lectus. Vestibulum fringilla velit rhoncus euismod rhoncus turpis</p></div>
 			</div>
 		</div>
 	</div>
@@ -378,10 +378,10 @@ return array(
 	<div>
 		<div class="row mx-0">
 			<div class="col-md-6 text-center text-md-left g-py-50 g-py-100--md g-px-15 g-px-50--md">
-				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-font-size-default g-color-white g-mb-25 js-animation fadeInUp">USER INTERFACE</h3>
+				<h3 class="landing-block-node-title text-uppercase g-font-weight-700 g-color-white g-mb-25 js-animation fadeInUp">USER INTERFACE</h3>
 				<div class="landing-block-node-text g-mb-30 g-color-gray-light-v2 js-animation fadeInUp"><p><span style="font-weight: bold;"><span style="color: rgb(245, 245, 245);">1. DISCUSS WITH CLIENT</span><br /></span><span style="">Quisque rhoncus euismod pulvinar. Nulla non arcu at lectus. Vestibulum fringilla velit rhoncus euismod rhoncus turpis. Donec vel pharetra tellus. Sed non est lacus.<br /><br /></span><span style="font-weight: bold;">2. WIREFRAME<br /></span><span style="">Cras sit amet varius velit. Maecenas porta condimentum tortor at sagittis. Cum sociis natoque penatibus et magnis dis. Donec vel pharetra tellus. Sed non est lacus.<br /></span><span style="font-weight: bold;"><br />3. CREATIVE CONCEPT<br /></span><span style="">Nam in nisl volutpat ex bibendum sollicitudin. Praesent ac magna convallis, sagittis erat in, dapibus mauris. Donec vel pharetra tellus. Sed non est lacus.</span></p></div>
 				<div class="landing-block-node-button-container">
-					<a class="landing-block-node-button text-uppercase btn btn-xl u-btn-primary g-font-weight-700 g-font-size-12 g-rounded-50 js-animation fadeInUp" href="#" tabindex="0">Contact us
+					<a class="landing-block-node-button text-uppercase btn g-btn-type-solid g-btn-size-md g-btn-px-m g-btn-primary g-rounded-50 js-animation fadeInUp" href="#" tabindex="0">Contact us
 						<span>for more info</span></a>
 				</div>
 			</div>
@@ -630,7 +630,7 @@ return array(
 		<div class="landing-block-node-text g-color-gray-dark-v5"><p>Sed eget aliquet nisl. Proin laoreet accumsan nisl non vestibulum. Donec molestie, lorem nec sollicitudin elementum, mi justo posuere lectus, vitae ullamcorper orci mi vel massa. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.</p></div>
 
 		<div class="landing-block-node-button-container">
-			<a class="landing-block-node-button btn btn-md text-uppercase u-btn-primary rounded-0 g-px-15" href="#" g-font-weight-700 target="_self">SEND YOUR RESUME</a>
+			<a class="landing-block-node-button btn g-btn-type-solid g-btn-size-md g-btn-px-m text-uppercase g-btn-primary rounded-0" href="#" g-font-weight-700 target="_self">SEND YOUR RESUME</a>
 		</div>
 	</div>
 </section>',

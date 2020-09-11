@@ -65,7 +65,7 @@ return [
 			],
 			'style' => [
 				'.landing-block-node-text' => [
-					0 => 'landing-block-node-text g-pb-1 container text-left g-max-width-container g-font-size-75 g-color-white g-font-montserrat font-weight-bold',
+					0 => 'landing-block-node-text g-pb-1 container text-left g-max-width-container g-font-size-75 g-color-white g-font-montserrat g-font-weight-700',
 				],
 				'#wrapper' => [
 					0 => 'landing-block js-animation g-pt-auto g-pb-auto g-bg-transparent animation-none',
@@ -170,7 +170,7 @@ return [
 			],
 			'style' => [
 				'.landing-block-node-button' => [
-					0 => 'landing-block-node-button btn btn-sm btn-lg--sm text-uppercase rounded-0 g-color-white g-color-white--hover u-theme-bitrix-btn-v4 g-font-montserrat g-font-size-15 g-px-90 g-py-20 g-letter-spacing-2',
+					0 => 'landing-block-node-button btn g-btn-type-solid g-btn-size-md g-btn-px-l text-uppercase rounded-0 g-color-white g-color-white--hover g-theme-bitrix-btn-v4 g-font-montserrat g-py-20 g-letter-spacing-2',
 				],
 				'#wrapper' => [
 					0 => 'landing-block text-center g-pt-20 g-pb-20 g-bg-transparent',

@@ -108,7 +108,7 @@ class Topic extends \Bitrix\Main\Update\Stepper
 			"reindexFirst" => true
 		];
 		Option::set("forum", "search.reindex.topic", serialize($res));
-		self::bind(0);
+		static::bind(0);
 	}
 
 	public static function reindex(int $topicId)
@@ -119,6 +119,6 @@ class Topic extends \Bitrix\Main\Update\Stepper
 		$res = is_array($res) ? $res : [];
 		$res[$topicId] = [];
 		Option::set("forum", "search.reindex.topic", serialize($res));
-		self::bind(0);
+		static::bind(0);
 	}
 }

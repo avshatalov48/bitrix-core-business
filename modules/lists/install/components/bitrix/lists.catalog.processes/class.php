@@ -65,7 +65,7 @@ class ListsCatalogProcessesComponent extends CBitrixComponent
 			{
 				$gr = COption::GetOptionString("main", "~controller_group_name", "");
 				if($gr != "")
-					$defaultLang = substr($gr, 0, 2);
+					$defaultLang = mb_substr($gr, 0, 2);
 				if($defaultLang == "ua")
 					$defaultLang = "ru";
 			}

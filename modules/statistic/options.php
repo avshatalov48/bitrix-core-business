@@ -5,12 +5,12 @@ IncludeModuleLangFile(__FILE__);
 function CheckFDate($date, $mess) // date check
 {
 	global $strError;
-	if (strlen($date)>0)
+	if ($date <> '')
 	{
 		$str = "";
 		if (!CheckDateTime($date)) $str.= $mess."<br>";
 		$strError .= $str;
-		if (strlen($str)>0) return false;
+		if ($str <> '') return false;
 	}
 	return true;
 }
@@ -36,7 +36,7 @@ if ($STAT_RIGHT>="R"):
 	$aTabs = array(
 		array("DIV" => "fedit2", "TAB" => GetMessage("STAT_OPT_TAB_CLEANUP"), "ICON" => "statistic_settings", "TITLE" => GetMessage("STAT_OPT_TAB_CLEANUP_TITLE")),
 	);
-	if (strtolower($statDB->type)=="mysql")
+	if (mb_strtolower($statDB->type) == "mysql")
 		$aTabs[] = array("DIV" => "fedit3", "TAB" => GetMessage("STAT_OPT_TAB_OPTIMIZE"), "ICON" => "statistic_settings", "TITLE" => GetMessage("STAT_OPT_TAB_OPTIMIZE_TITLE"));
 	if($STAT_RIGHT>="W" && ($bCheckForDDL = CStatistics::CheckForDDL()))
 	{
@@ -44,7 +44,7 @@ if ($STAT_RIGHT>="R"):
 	}
 	$tabControl2 = new CAdminTabControl("tabControl2", $aTabs, true, true);
 
-	if ($REQUEST_METHOD=="POST" && $STAT_RIGHT=="W" && strlen($RestoreDefaults)>0 && check_bitrix_sessid())
+	if ($REQUEST_METHOD=="POST" && $STAT_RIGHT=="W" && $RestoreDefaults <> '' && check_bitrix_sessid())
 	{
 		COption::RemoveOption($module_id);
 		$z = CGroup::GetList($v1="id",$v2="asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
@@ -153,7 +153,7 @@ if ($STAT_RIGHT>="R"):
 		),
 	);
 
-	if($REQUEST_METHOD=="POST" && strlen($Update.$Apply)>0 && $STAT_RIGHT>="W" && check_bitrix_sessid())
+	if($REQUEST_METHOD=="POST" && $Update.$Apply <> '' && $STAT_RIGHT>="W" && check_bitrix_sessid())
 	{
 		if (CheckFDate($next_exec, GetMessage("STAT_OPT_WRONG_NEXT_EXEC")))
 		{
@@ -192,7 +192,7 @@ if ($STAT_RIGHT>="R"):
 			$statDB->Query("DELETE FROM b_stat_browser", false, $err_mess.__LINE__);
 			foreach ($arr as $u)
 			{
-				if (strlen($u)>0)
+				if ($u <> '')
 				{
 					$arFields = Array("USER_AGENT" => "'".$statDB->ForSql($u,255)."'");
 					$statDB->Insert("b_stat_browser",$arFields, $err_mess.__LINE__);
@@ -222,7 +222,7 @@ if ($STAT_RIGHT>="R"):
 				COption::SetOptionString($module_id, "SKIP_STATISTIC_IP_RANGES", "");
 
 			CAgent::RemoveAgent("SendDailyStatistics();","statistic");
-			if (strlen($next_exec)>0)
+			if ($next_exec <> '')
 			{
 				CAgent::AddAgent("SendDailyStatistics();","statistic","Y", 86400,"","Y",$next_exec);
 			}
@@ -245,7 +245,7 @@ if ($STAT_RIGHT>="R"):
 
 		if($strError=="")
 		{
-			if(strlen($Update)>0 && strlen($_REQUEST["back_url_settings"])>0)
+			if($Update <> '' && $_REQUEST["back_url_settings"] <> '')
 				LocalRedirect($_REQUEST["back_url_settings"]);
 			else
 				LocalRedirect($APPLICATION->GetCurPage()."?mid=".urlencode($mid)."&lang=".urlencode(LANGUAGE_ID)."&back_url_settings=".urlencode($_REQUEST["back_url_settings"])."&".$tabControl->ActiveTabParam());
@@ -270,7 +270,7 @@ if ($STAT_RIGHT>="R"):
 	$arSKIP_STATISTIC_GROUPS = explode(",", COption::GetOptionString($module_id, "SKIP_STATISTIC_GROUPS"));
 	$SKIP_STATISTIC_IP_RANGES = COption::GetOptionString($module_id, "SKIP_STATISTIC_IP_RANGES");
 
-	if (strlen($cleanup)>0 && $REQUEST_METHOD=="POST" && $STAT_RIGHT>="W" && check_bitrix_sessid())
+	if ($cleanup <> '' && $REQUEST_METHOD=="POST" && $STAT_RIGHT>="W" && check_bitrix_sessid())
 	{
 		if (CheckFDate($cleanup_date, GetMessage("STAT_OPT_WRONG_CLEANUP_DATE")))
 		{
@@ -291,7 +291,7 @@ if ($STAT_RIGHT>="R"):
 		}
 	}
 
-	if(strlen($runsql)>0 && $REQUEST_METHOD=="POST" && $STAT_RIGHT>="W" && check_bitrix_sessid())
+	if($runsql <> '' && $REQUEST_METHOD=="POST" && $STAT_RIGHT>="W" && check_bitrix_sessid())
 	{
 		set_time_limit(0);
 		ignore_user_abort(true);
@@ -318,11 +318,11 @@ if ($STAT_RIGHT>="R"):
 		}
 	}
 
-	if (strlen($optimize)>0 && $REQUEST_METHOD=="POST" && $STAT_RIGHT>="W" && check_bitrix_sessid())
+	if ($optimize <> '' && $REQUEST_METHOD=="POST" && $STAT_RIGHT>="W" && check_bitrix_sessid())
 	{
 		set_time_limit(0);
 		ignore_user_abort(true);
-		$fname = $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/statistic/install/db/".strtolower($statDB->type). "/optimize.sql";
+		$fname = $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/statistic/install/db/".mb_strtolower($statDB->type). "/optimize.sql";
 		if (file_exists($fname))
 		{
 			$arErrors = $statDB->RunSQLBatch($fname);
@@ -337,9 +337,9 @@ if ($STAT_RIGHT>="R"):
 		}
 	}
 
-	if(strlen($strError)>0)
+	if($strError <> '')
 		CAdminMessage::ShowMessage($strError);
-	if(strlen($_SESSION["STAT_strNote"])>0)
+	if($_SESSION["STAT_strNote"] <> '')
 	{
 		CAdminMessage::ShowNote($_SESSION["STAT_strNote"]);
 		unset($_SESSION["STAT_strNote"]);
@@ -354,7 +354,7 @@ if ($STAT_RIGHT>="R"):
 			<?echo GetMessage("STAT_OPT_DAILY_REPORT_TIME2")?>
 		</td>
 		<td nowrap width="60%"><?
-			if (strlen($next_exec)<=0 || strlen($strError)<=0)
+			if ($next_exec == '' || $strError == '')
 			{
 				$strSql = "
 					SELECT ".$DB->DateToCharFunction("NEXT_EXEC")."	NEXT_EXEC
@@ -372,7 +372,7 @@ if ($STAT_RIGHT>="R"):
 	<?
 	foreach($arOPTIONS["TAB1"] as $key => $Option):
 		if (!is_array($Option)):
-			if($key == "USE_AUTO_OPTIMIZE" && strtolower($statDB->type) == "mysql"):?>
+			if($key == "USE_AUTO_OPTIMIZE" && mb_strtolower($statDB->type) == "mysql"):?>
 				<tr>
 					<td><label for="<?=$key?>"><?echo GetMessage("STAT_OPT_USE_AUTO_OPTIMIZE")?></label></td>
 					<td nowrap><input type="checkbox" name="<?=$key?>" id="<?=$key?>" value="Y" <?if(${$key}=="Y") echo "checked";?>></td>
@@ -567,12 +567,12 @@ if ($STAT_RIGHT>="R"):
 	endforeach;
 
 	$arTABLES = array();
-	if(strtolower($statDB->type) == "mysql")
+	if(mb_strtolower($statDB->type) == "mysql")
 	{
 		$strSql = "SHOW TABLE STATUS like 'b_stat_%'";
 		$rs = $statDB->Query($strSql,false,$err_mess.__LINE__);
 		while($ar = $rs->Fetch())
-			$arTABLES[strtolower(trim($ar["Name"]))] = $ar["Rows"];
+			$arTABLES[mb_strtolower(trim($ar["Name"]))] = $ar["Rows"];
 	}
 
 	$tabControl->BeginNextTab();
@@ -589,13 +589,13 @@ if ($STAT_RIGHT>="R"):
 				<td width="40%"><?echo $Option[1]?></td>
 				<td nowrap width="60%">
 					<?if($type[0]=="text"):
-						if (strlen($Option[4])>0)
+						if ($Option[4] <> '')
 						{
 							$count = 0;
 							$arr = explode(",",$Option[4]);
-							if(strtolower($statDB->type) == "mysql")
+							if(mb_strtolower($statDB->type) == "mysql")
 							{
-								foreach($arr as $table) $count += intval($arTABLES[strtolower(trim($table))]);
+								foreach($arr as $table) $count += intval($arTABLES[mb_strtolower(trim($table))]);
 							}
 							else
 							{
@@ -610,10 +610,10 @@ if ($STAT_RIGHT>="R"):
 						}
 						?>
 						<input type="text" size="<?echo $type[1]?>" maxlength="255" value="<?echo htmlspecialcharsbx($val)?>" name="<?echo htmlspecialcharsbx($Option[0])?>"><?
-						if(strlen($Option[3]) > 0):?>
+						if($Option[3] <> ''):?>
 							&nbsp;<label for="<?echo htmlspecialcharsbx($Option[0])?>_clear"><?echo GetMessage("STAT_OPT_TIME_CLEAR")?>:</label>&nbsp;<input type="checkbox" name="<?echo htmlspecialcharsbx($Option[0])?>_clear" id="<?echo htmlspecialcharsbx($Option[0])?>_clear" value="Y">
 						<?endif;?>
-						<?if(strlen($Option[4]) > 0):?>
+						<?if($Option[4] <> ''):?>
 							&nbsp;&nbsp;(<?echo GetMessage("STAT_OPT_TIME_RECORDS")?>&nbsp;<?echo $count?>)
 						<?endif;?>
 					<?endif?>
@@ -704,14 +704,14 @@ if ($STAT_RIGHT>="R"):
 	<?$tabControl->Buttons();?>
 	<input <?if ($STAT_RIGHT<"W") echo "disabled" ?> type="submit" name="Update" value="<?=GetMessage("MAIN_SAVE")?>" title="<?=GetMessage("MAIN_OPT_SAVE_TITLE")?>" class="adm-btn-save">
 	<input <?if ($STAT_RIGHT<"W") echo "disabled" ?> type="submit" name="Apply" value="<?=GetMessage("MAIN_OPT_APPLY")?>" title="<?=GetMessage("MAIN_OPT_APPLY_TITLE")?>">
-	<?if(strlen($_REQUEST["back_url_settings"])>0):?>
+	<?if($_REQUEST["back_url_settings"] <> ''):?>
 		<input <?if ($STAT_RIGHT<"W") echo "disabled" ?> type="button" name="Cancel" value="<?=GetMessage("MAIN_OPT_CANCEL")?>" title="<?=GetMessage("MAIN_OPT_CANCEL_TITLE")?>" onclick="window.location='<?echo htmlspecialcharsbx(CUtil::addslashes($_REQUEST["back_url_settings"]))?>'">
 		<input type="hidden" name="back_url_settings" value="<?=htmlspecialcharsbx($_REQUEST["back_url_settings"])?>">
 	<?endif?>
 	<input <?if ($STAT_RIGHT<"W") echo "disabled" ?> type="submit" name="RestoreDefaults" title="<?echo GetMessage("MAIN_HINT_RESTORE_DEFAULTS")?>" OnClick="return confirm('<?echo GetMessageJS("MAIN_HINT_RESTORE_DEFAULTS_WARNING")?>')" value="<?echo GetMessage("MAIN_RESTORE_DEFAULTS")?>">
 	<?=bitrix_sessid_post();?>
 	<?$tabControl->End();?>
-	<?if(strlen($_REQUEST["back_url_settings"])>0):?>
+	<?if($_REQUEST["back_url_settings"] <> ''):?>
 		<input type="hidden" name="back_url_settings" value="<?=htmlspecialcharsbx($_REQUEST["back_url_settings"])?>">
 	<?endif?>
 	</form>
@@ -738,13 +738,13 @@ if ($STAT_RIGHT>="R"):
 				document.cleanupform.submit();
 		}
 	</script>
-	<?if(strlen($_REQUEST["back_url_settings"])>0):?>
+	<?if($_REQUEST["back_url_settings"] <> ''):?>
 		<input type="hidden" name="back_url_settings" value="<?=htmlspecialcharsbx($_REQUEST["back_url_settings"])?>">
 	<?endif?>
 	<?=bitrix_sessid_post();?>
 	</form>
 
-	<?if (strtolower($statDB->type)=="mysql"):?>
+	<?if (mb_strtolower($statDB->type) == "mysql"):?>
 		<form name="optimizeform" method="POST" action="<?echo $APPLICATION->GetCurPage()?>?mid=<?=htmlspecialcharsbx($mid)?>&amp;lang=<?=LANGUAGE_ID?>">
 		<?$tabControl2->BeginNextTab();?>
 		<tr>
@@ -759,7 +759,7 @@ if ($STAT_RIGHT>="R"):
 			</td>
 		</tr>
 		<?$tabControl2->EndTab();?>
-		<?if(strlen($_REQUEST["back_url_settings"])>0):?>
+		<?if($_REQUEST["back_url_settings"] <> ''):?>
 			<input type="hidden" name="back_url_settings" value="<?=htmlspecialcharsbx($_REQUEST["back_url_settings"])?>">
 		<?endif?>
 		<?=bitrix_sessid_post();?>
@@ -786,7 +786,7 @@ if ($STAT_RIGHT>="R"):
 			</td>
 		</tr>
 		<?$tabControl2->EndTab();?>
-		<?if(strlen($_REQUEST["back_url_settings"])>0):?>
+		<?if($_REQUEST["back_url_settings"] <> ''):?>
 			<input type="hidden" name="back_url_settings" value="<?=htmlspecialcharsbx($_REQUEST["back_url_settings"])?>">
 		<?endif?>
 		<?=bitrix_sessid_post();?>

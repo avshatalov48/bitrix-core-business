@@ -7,18 +7,17 @@
  */
 namespace Bitrix\Sender;
 
+use Bitrix\Main\Application;
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Type;
-use Bitrix\Main\Config\Option;
-use Bitrix\Main\Application;
 use Bitrix\Main\SiteTable;
-
+use Bitrix\Main\Type;
 use Bitrix\Sender\Entity\Letter;
-use Bitrix\Sender\Message;
-use Bitrix\Sender\Trigger;
-use Bitrix\Sender\Runtime;
 use Bitrix\Sender\Internals\Model;
+use Bitrix\Sender\Message;
+use Bitrix\Sender\Runtime;
+use Bitrix\Sender\Trigger;
 
 Loc::loadMessages(__FILE__);
 
@@ -268,9 +267,14 @@ class MailingChainTable extends Entity\DataManager
 
 	/**
 	 * @param integer $mailingChainId
+	 * @param bool $prepareFields
+	 *
 	 * @return int|null
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
-	public static function initPosting($mailingChainId)
+	public static function initPosting($mailingChainId, $prepareFields = true)
 	{
 		$postingId = null;
 		$chainPrimary = array('ID' => $mailingChainId);
@@ -316,7 +320,7 @@ class MailingChainTable extends Entity\DataManager
 
 		if($postingId && $mailingChain['IS_TRIGGER'] != 'Y')
 		{
-			PostingTable::initGroupRecipients($postingId);
+			PostingTable::initGroupRecipients($postingId, true, $prepareFields);
 		}
 
 		return $postingId;
@@ -383,7 +387,7 @@ class MailingChainTable extends Entity\DataManager
 		{
 			if(array_key_exists('STATUS', $data['fields']) && $data['fields']['STATUS'] == static::STATUS_NEW)
 			{
-				static::initPosting($data['primary']['ID']);
+				static::initPosting($data['primary']['ID'], false);
 			}
 
 			Runtime\Job::actualizeByLetterId($data['primary']['ID']);

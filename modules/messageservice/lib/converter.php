@@ -100,7 +100,7 @@ class Converter
 
 		foreach ($langFields['NAME'] as $langId => $langName)
 		{
-			$langCode = strtolower($langId);
+			$langCode = mb_strtolower($langId);
 			if ($langCode === '*')
 				$langCode = '**';
 

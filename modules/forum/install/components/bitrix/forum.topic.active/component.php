@@ -10,8 +10,8 @@ if (!function_exists("CheckLastTopicsFilter"))
 		global $DB, $strError, $FilterArr, $MESS;
 		foreach ($FilterArr as $s) global ${$s};
 		$str = "";
-		if (strlen($find_date1)>0 && !$DB->IsDate($find_date1)) $str .= GetMessage("FL_INCORRECT_LAST_MESSAGE_DATE")."<br>";
-		elseif (strlen($find_date2)>0 && !$DB->IsDate($find_date2)) $str .= GetMessage("FL_INCORRECT_LAST_MESSAGE_DATE")."<br>";
+		if ($find_date1 <> '' && !$DB->IsDate($find_date1)) $str .= GetMessage("FL_INCORRECT_LAST_MESSAGE_DATE")."<br>";
+		elseif ($find_date2 <> '' && !$DB->IsDate($find_date2)) $str .= GetMessage("FL_INCORRECT_LAST_MESSAGE_DATE")."<br>";
 		$strError .= $str;
 		return (empty($str) ? true : false);
 	}
@@ -44,7 +44,7 @@ $strError = "";
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$arParams["FID"] = intVal((intVal($arParams["FID"]) <= 0 ? $_REQUEST["FID"] : $arParams["FID"]));
+	$arParams["FID"] = intval((intVal($arParams["FID"]) <= 0 ? $_REQUEST["FID"] : $arParams["FID"]));
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
 			"index" => "",
@@ -56,22 +56,22 @@ $strError = "";
 		$arParams["URL_TEMPLATES_MESSAGE"] = $arParams["URL_TEMPLATES_READ"];
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		if (trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
+			$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
-	$arParams["PAGEN"] = (intVal($arParams["PAGEN"]) <= 0 ? 1 : intVal($arParams["PAGEN"]));
-	$arParams["MESSAGES_PER_PAGE"] = intVal(empty($arParams["MESSAGES_PER_PAGE"]) ? COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10") : $arParams["MESSAGES_PER_PAGE"]);
-	$arParams["TOPICS_PER_PAGE"] = intVal(empty($arParams["TOPICS_PER_PAGE"]) ? COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10") : $arParams["TOPICS_PER_PAGE"]);
+	$arParams["PAGEN"] = (intval($arParams["PAGEN"]) <= 0 ? 1 : intval($arParams["PAGEN"]));
+	$arParams["MESSAGES_PER_PAGE"] = intval(empty($arParams["MESSAGES_PER_PAGE"]) ? COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10") : $arParams["MESSAGES_PER_PAGE"]);
+	$arParams["TOPICS_PER_PAGE"] = intval(empty($arParams["TOPICS_PER_PAGE"]) ? COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10") : $arParams["TOPICS_PER_PAGE"]);
 	$arParams["FID_RANGE"] = (is_array($arParams["FID_RANGE"]) && !empty($arParams["FID_RANGE"]) ? $arParams["FID_RANGE"] : array());
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
-	$arParams["PAGE_NAVIGATION_WINDOW"] = intVal(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
+	$arParams["PAGE_NAVIGATION_WINDOW"] = intval(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
 	$arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
-	$arParams["WORD_LENGTH"] = intVal($arParams["WORD_LENGTH"]);
+	$arParams["WORD_LENGTH"] = intval($arParams["WORD_LENGTH"]);
 	$arParams["SHOW_FORUM_ANOTHER_SITE"] = ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y" ? "Y" : "N");
 /***************** STANDART ****************************************/
 	if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
@@ -121,15 +121,15 @@ $set_default = (!is_set($_REQUEST, "find_forum") ? (empty($_SESSION["SESS_ADMIN"
 $set_filter = (is_set($_REQUEST, "set_filter") || $set_default == "Y" ? "set" : "get");
 $find_date1 = $_REQUEST["find_date1"];
 $find_date2 = $_REQUEST["find_date2"];
-$find_forum = intVal($_REQUEST["find_forum"]);
-$find_date1_DAYS_TO_BACK = intVal($set_default == "Y" ? 2 : $find_date1_DAYS_TO_BACK);
+$find_forum = intval($_REQUEST["find_forum"]);
+$find_date1_DAYS_TO_BACK = intval($set_default == "Y" ? 2 : $find_date1_DAYS_TO_BACK);
 InitFilterEx($FilterArr, "LAST_TOPICS_LIST", $set_filter, true);
 if (!empty($_REQUEST["del_filter"])): 
 	DelFilterEx($FilterArr, "LAST_TOPICS_LIST", true);
 endif;
 $find_date1 = $GLOBALS["find_date1"];
 $find_date2 = $GLOBALS["find_date2"];
-$find_forum = $GLOBALS["find_forum"] = intVal($GLOBALS["find_forum"]);
+$find_forum = $GLOBALS["find_forum"] = intval($GLOBALS["find_forum"]);
 $find_date1_DAYS_TO_BACK = $GLOBALS["find_date1_DAYS_TO_BACK"];
 /********************************************************************
 				/Default values
@@ -186,7 +186,7 @@ endif;
 $arGroupForum = array();
 $arGroups = array();
 foreach ($arForums as $res)
-	$arGroupForum[intVal($res["FORUM_GROUP_ID"])]["FORUM"][] = $res;
+	$arGroupForum[intval($res["FORUM_GROUP_ID"])]["FORUM"][] = $res;
 foreach ($arGroupForum as $PARENT_ID => $res)
 {
 	$bResult = true;
@@ -215,11 +215,11 @@ if (!CForumUser::IsAdmin()):
 	$arFilter["PERMISSION"] = $USER->GetGroups();
 endif;
 $find_forum = (!empty($arResult["FORUMS"][$find_forum]) ? $find_forum : 0);
-if (intVal($find_forum) > 0): 
-	$arFilter["FORUM_ID"] = intVal($find_forum); 
+if (intval($find_forum) > 0):
+	$arFilter["FORUM_ID"] = intval($find_forum);
 endif;
 if (CheckLastTopicsFilter()):
-	if (intVal($find_date1) > 0) 
+	if (intval($find_date1) > 0)
 		$arFilter[">=LAST_POST_DATE"] = $find_date1;
 	if (intval($find_date2) > 0)
 		$arFilter["<=LAST_POST_DATE"] = GetTime(AddToTimeStamp(array("DD"=>1), CTimeZone::GetOffset()+MakeTimeStamp($find_date2, CLang::GetDateFormat('FULL', false)))); 
@@ -249,7 +249,7 @@ if ($_REQUEST["ACTION"] == "SET_BE_READ")
 	elseif (!check_bitrix_sessid()):
 	elseif ($_REQUEST["FID"] == "all"):
 		ForumSetReadForum(false);
-	elseif (intVal($_REQUEST["FID"]) > 0 && $_REQUEST["FID"] == $find_forum):
+	elseif (intval($_REQUEST["FID"]) > 0 && $_REQUEST["FID"] == $find_forum):
 		ForumSetReadForum($_REQUEST["FID"]);
 	elseif (!empty($_REQUEST["TID"])):
 		$arFilterAction = $arFilter;
@@ -326,9 +326,9 @@ while ($res = $rsTopics->GetNext())
 		"~TOPIC" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_READ"], 
 			array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"],  "MID" => "s")),
 		"LAST_MESSAGE" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE"], 
-			array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => intVal($res["LAST_MESSAGE_ID"]))),
+			array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => intval($res["LAST_MESSAGE_ID"]))),
 		"~LAST_MESSAGE" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_MESSAGE"], 
-			array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => intVal($res["LAST_MESSAGE_ID"]))),
+			array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => intval($res["LAST_MESSAGE_ID"]))),
 		"MESSAGE_UNREAD" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE"], 
 				array("FID" => $res["FORUM_ID"], "TID" => $res["ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => "unread_mid")),
 		"~MESSAGE_UNREAD" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_MESSAGE"], 
@@ -348,7 +348,7 @@ while ($res = $rsTopics->GetNext())
 		$res["LAST_POST_DATE"] = $res["ABS_LAST_POST_DATE"];
 		$res["LAST_POSTER_NAME"] = $res["ABS_LAST_POSTER_NAME"];
 		$res["LAST_MESSAGE_ID"] = $res["ABS_LAST_MESSAGE_ID"];
-		$res["mCnt"] = intVal($res["POSTS_UNAPPROVED"]);
+		$res["mCnt"] = intval($res["POSTS_UNAPPROVED"]);
 		$res["numMessages"] = $res["POSTS"] + $res["mCnt"];
 		$res["mCntURL"] = $res["URL"]["MODERATE_MESSAGE"];
 	else:
@@ -357,7 +357,7 @@ while ($res = $rsTopics->GetNext())
 /*******************************************************************/
 	$res["numMessages"] = $res["numMessages"] + 1;
 /*******************************************************************/
-	$res["PAGES_COUNT"] = intVal(ceil($res["numMessages"]/$arParams["MESSAGES_PER_PAGE"]));
+	$res["PAGES_COUNT"] = intval(ceil($res["numMessages"]/$arParams["MESSAGES_PER_PAGE"]));
 /*******************************************************************/
 	$res["TITLE"] = $parser->wrap_long_words($res["TITLE"]);
 	$res["DESCRIPTION"] = $parser->wrap_long_words($res["DESCRIPTION"]);
@@ -378,7 +378,7 @@ while ($res = $rsTopics->GetNext())
 	$res["UserPermission"] = $res["PERMISSION"];
 	$res["image_prefix"] = ($res["STATE"]!="Y") ? "closed_" : "";
 	$res["ForumShowTopicPages"] = ForumShowTopicPages($res["numMessages"], $res["read"], "PAGEN_".$arParams["PAGEN"], 
-		intVal($arParams["MESSAGES_PER_PAGE"]));
+		intval($arParams["MESSAGES_PER_PAGE"]));
 /************** For custom template/********************************/
 	$arResult["TOPICS"][$res["ID"]] = $res;
 }

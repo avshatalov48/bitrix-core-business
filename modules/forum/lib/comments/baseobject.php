@@ -76,7 +76,7 @@ abstract class BaseObject
 		{
 			$protoEntity = Entity::getEntityByType("default");
 			if (!array_key_exists('xml_id', $id) || empty($id["xml_id"]))
-				$id['xml_id'] = strtoupper($id["type"]."_".$id['id']);
+				$id['xml_id'] = mb_strtoupper($id["type"]."_".$id['id']);
 		}
 		elseif (!array_key_exists('xml_id', $id) || empty($id["xml_id"]))
 			$id['xml_id'] = $protoEntity["xmlIdPrefix"]."_".$id['id'];
@@ -119,7 +119,7 @@ abstract class BaseObject
 		$event = new Event("forum", "OnCommentTopicAdd", array($this->getEntity()->getType(), $this->getEntity()->getId(), $post, &$topic));
 		$event->send();
 
-		if (strlen($topic["AUTHOR_NAME"]) <= 0)
+		if ($topic["AUTHOR_NAME"] == '')
 			$topic["AUTHOR_NAME"] = ($topic["AUTHOR_ID"] <= 0 ? Loc::getMessage("FORUM_USER_SYSTEM") : self::getUserName($topic["AUTHOR_ID"]));
 
 		$topic = array_merge($topic, array(

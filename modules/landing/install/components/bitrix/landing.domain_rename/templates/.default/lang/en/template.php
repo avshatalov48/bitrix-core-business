@@ -1,7 +1,5 @@
 <?php
 $MESS["LANDING_TPL_DOMAIN_ATTENTION"] = "Attention!";
-$MESS["LANDING_TPL_DOMAIN_DENIED_TEXT"] = "Own domains can be used on commercial plans only.";
-$MESS["LANDING_TPL_DOMAIN_DENIED_TITLE"] = "Free Plan Restriction";
 $MESS["LANDING_TPL_DOMAIN_ERROR_EMPTY"] = "Domain name cannot be empty.";
 $MESS["LANDING_TPL_DOMAIN_NAME_B24"] = "Bitrix24 Subdomain";
 $MESS["LANDING_TPL_DOMAIN_NAME_OWN"] = "Own Domain";

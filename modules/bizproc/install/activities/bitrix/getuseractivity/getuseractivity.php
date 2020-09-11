@@ -67,6 +67,29 @@ class CBPGetUserActivity
 		return array_values($arUsers);
 	}
 
+	protected function getActiveUsers(array $users) : array
+	{
+		if (empty($users))
+		{
+			return [];
+		}
+
+		$dbUsers = CUser::GetList(
+			($sortBy = 'id'), ($sortOrder = 'asc'),
+			array(
+				'ID' => implode(' | ', $users),
+				'ACTIVE' => 'Y'
+			)
+		);
+
+		$activeUsers = array();
+		while($user = $dbUsers->Fetch())
+		{
+			$activeUsers[] = $user["ID"];
+		}
+		return $activeUsers;
+	}
+
 	public function Execute()
 	{
 		if (!CModule::IncludeModule("intranet"))
@@ -87,7 +110,10 @@ class CBPGetUserActivity
 		$arUsers = array();
 		if ($this->UserType == "boss")
 		{
-			$arUsers = $this->GetUsersList($this->UserParameter, false);
+			$arUsers = $this->getActiveUsers(
+				$this->GetUsersList($this->UserParameter, false)
+			);
+
 			if (count($arUsers) <= 0)
 			{
 				$this->GetUser = null;
@@ -142,7 +168,9 @@ class CBPGetUserActivity
 		}
 		if ($this->UserType == "random")
 		{
-			$arUsers = $this->GetUsersList($this->UserParameter, $skipAbsent, $skipTimeman);
+			$arUsers = $this->getActiveUsers(
+				$this->GetUsersList($this->UserParameter, $skipAbsent, $skipTimeman)
+			);
 
 			if (count($arUsers) > 0)
 			{

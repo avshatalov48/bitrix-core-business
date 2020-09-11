@@ -69,7 +69,6 @@ class Speed extends \Bitrix\Landing\Hook\Page
 		{
 			$data = [$data];
 		}
-
 		if (
 			$this->fields[$field]
 			&& ($hookData = $this->fields[$field]->getValue())

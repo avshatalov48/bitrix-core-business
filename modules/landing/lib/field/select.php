@@ -28,6 +28,7 @@ class Select extends \Bitrix\Landing\Field
 	{
 		$this->code = mb_strtoupper($code);
 		$this->value = null;
+		$this->default = isset($params['default']) ? $params['default'] : null;
 		$this->id = isset($params['id']) ? $params['id'] : '';
 		$this->title = isset($params['title']) ? $params['title'] : '';
 		$this->multiple = isset($params['multiple']) && $params['multiple'];
@@ -84,17 +85,8 @@ class Select extends \Bitrix\Landing\Field
 	}
 
 	/**
-	 * Magic method return value as string.
-	 * @return string
-	 */
-	public function __toString()
-	{
-		return (string)$this->value;
-	}
-	
-	
-	/**
-	 * Create select name in correct format
+	 * Creates select name in correct format.
+	 * @return string $nameFormat Formatted name.
 	 * @return string
 	 */
 	public function getName($nameFormat)
@@ -103,8 +95,7 @@ class Select extends \Bitrix\Landing\Field
 			? str_replace('#field_code#', $this->code, $nameFormat)
 			: $this->code);
 	}
-	
-	
+
 	/**
 	 * Get options as array
 	 * @return array

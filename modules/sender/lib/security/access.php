@@ -56,6 +56,7 @@ class Access
 	private function __construct(User $user)
 	{
 		$this->user = $user;
+		self::registerEvent(EventDictionary::EVENT_ON_AFTER_CHECK);
 		$this->permissions = Permission::getByUserId($this->user->getId());
 	}
 

@@ -94,3 +94,11 @@
 	display: block;
 	word-wrap: break-word;
 }
+
+.landing-slider-no-background .ui-side-panel-wrap-workarea {
+	background: transparent;
+}
+
+.landing-slider-no-background .landing-template-preview-body {
+	padding: 0;
+}

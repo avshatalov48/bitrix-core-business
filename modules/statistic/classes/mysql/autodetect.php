@@ -20,11 +20,11 @@ class CAutoDetect
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if( ($val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "LAST":
@@ -92,7 +92,7 @@ class CAutoDetect
 		";
 
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		$is_filtered = (IsFiltered($strSqlSearch) || strlen($strSqlSearch_h)>0);
+		$is_filtered = (IsFiltered($strSqlSearch) || $strSqlSearch_h <> '');
 		return $res;
 	}
 }

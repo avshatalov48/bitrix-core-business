@@ -246,7 +246,7 @@ return array(
 			),
 			'style' => array(
 				'.landing-block-node-block' => array(
-					0 => 'landing-block-node-block js-animation fadeInUp text-center u-block-hover u-bg-overlay g-color-white g-bg-img-hero g-bg-black-opacity-0_3--after animated',
+					0 => 'landing-block-node-block js-animation fadeInUp text-center u-block-hover u-bg-overlay g-color-white h-100 g-bg-black-opacity-0_3--after animated',
 				),
 				'.landing-block-node-subtitle1' => array(
 					0 => 'landing-block-node-subtitle1 g-font-weight-700 g-color-white g-brd-bottom g-brd-2 g-mb-20 g-font-size-16 g-text-transform-none g-brd-transparent',
@@ -261,7 +261,7 @@ return array(
 					0 => 'landing-block-node-title2 g-line-height-1 g-font-weight-700 g-mb-10 g-text-transform-none g-font-size-30',
 				),
 				'.landing-block-node-button1' => array(
-					0 => 'landing-block-node-button1 btn btn-md text-uppercase u-btn-primary g-font-weight-700 g-font-size-11 g-brd-none rounded-0 g-py-10 g-px-25',
+					0 => 'landing-block-node-button1 btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-primary rounded-0 g-py-10',
 				),
 				'.landing-block-node-text2' => array(
 					0 => 'landing-block-node-text2 g-font-weight-700 g-color-white mb-0 g-text-transform-none',

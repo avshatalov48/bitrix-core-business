@@ -26,8 +26,10 @@ $skuIblockId = $classBlock->get('SKU_IBLOCK_ID') ?? '';
 					'DELETE',
 					'DELAY',
 				),
-				'ADDITIONAL_PICT_PROP_'.$iblockId => 'MORE_PHOTO',
-				'ADDITIONAL_PICT_PROP_'.$skuIblockId => 'MORE_PHOTO',
+				'ADDITIONAL_PICT_PROP' => array(
+					$iblockId => 'MORE_PHOTO',
+					$skuIblockId => 'MORE_PHOTO',
+				),
 				'AJAX_MODE' => 'N',
 				'AJAX_OPTION_JUMP' => 'N',
 				'AJAX_OPTION_STYLE' => 'Y',

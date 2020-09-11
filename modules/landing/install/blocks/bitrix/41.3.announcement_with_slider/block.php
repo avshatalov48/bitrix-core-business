@@ -4,7 +4,7 @@
 			 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1281/img1.jpg);">
 			<div class="landing-block-node-container js-animation fadeInUp container g-max-width-750 u-bg-overlay__inner g-mb-60">
 
-				<h2 class="landing-block-node-title landing-semantic-title-image-big text-center text-uppercase h2 font-weight-bold g-font-size-60 g-color-white g-mb-30 g-mb-70--md">
+				<h2 class="landing-block-node-title landing-semantic-title-image-big text-center text-uppercase h2 g-font-weight-700 g-font-size-60 g-color-white g-mb-30 g-mb-70--md">
 					UI & UX Design 2020</h2>
 
 				<div class="row g-mx-minus-5">
@@ -40,7 +40,7 @@
 					</div>
 
 					<div class="col-md-3 col-lg-3 text-md-right g-px-5">
-						<a class="landing-block-node-button landing-semantic-link-image-medium btn btn-lg text-uppercase u-btn-white font-weight-bold g-font-size-11 g-color-white--hover g-bg-primary--hover g-brd-none rounded-0 g-py-18"
+						<a class="landing-block-node-button landing-semantic-link-image-medium btn g-btn-type-solid g-btn-size-sm g-btn-px-l text-uppercase g-btn-white rounded-0 g-py-18"
 						   href="#">Register Now</a>
 					</div>
 				</div>
@@ -64,7 +64,7 @@
 
 					<div class="landing-block-node-inner-block landing-semantic-bg-color-main col-md-6 col-lg-6 d-flex g-min-height-50vh g-theme-event-color-gray-dark-v1 g-py-80 g-py-20--md g-px-50">
 						<div class="align-self-center w-100">
-							<h2 class="landing-block-node-block-title landing-semantic-title-medium text-uppercase font-weight-bold g-font-size-30 g-color-primary g-mb-10">
+							<h2 class="landing-block-node-block-title landing-semantic-title-medium text-uppercase g-font-weight-700 g-font-size-30 g-color-primary g-mb-10">
 								About The
 								Event</h2>
 							<h3 class="landing-block-node-block-subtitle landing-semantic-subtitle-small text-uppercase g-font-size-13 g-color-white g-mb-20">

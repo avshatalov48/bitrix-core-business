@@ -1,4 +1,4 @@
-BX.namespace('BX.Bizproc');
+;BX.namespace('BX.Bizproc');
 if (typeof BX.Bizproc.doInlineTask === 'undefined')
 {
 	BX.Bizproc.doInlineTask = function (parameters, callback, scope)

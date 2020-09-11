@@ -453,7 +453,7 @@ class User
 
 	public static function getDefaultEmailFrom($serverName = false)
 	{
-		if (defined("BX24_HOST_NAME"))
+		if (Main\ModuleManager::isModuleInstalled('bitrix24') && defined("BX24_HOST_NAME"))
 		{
 			if(preg_match("/\\.bitrix24\\.([a-z]+|com\\.br)$/i", BX24_HOST_NAME))
 			{
@@ -463,14 +463,17 @@ class User
 			{
 				$domain = str_replace(".", "-", BX24_HOST_NAME).".bitrix24.com";
 			}
+
+			$defaultEmailFrom = "info@".$domain;
 		}
 		else
 		{
-			$domain = Main\Config\Option::get('main', 'server_name', $GLOBALS["SERVER_NAME"]);
-			$domain = ($serverName ?: $domain);
+			$defaultEmailFrom = Main\Config\Option::get('main', 'email_from', '');
+			if ($defaultEmailFrom == '')
+			{
+				$defaultEmailFrom = "info@".($serverName ?: Main\Config\Option::get('main', 'server_name', $GLOBALS["SERVER_NAME"]));
+			}
 		}
-
-		$defaultEmailFrom = "info@".$domain;
 
 		return $defaultEmailFrom;
 	}

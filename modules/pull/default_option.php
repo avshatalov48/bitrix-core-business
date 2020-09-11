@@ -1,5 +1,5 @@
 <?php
-$pull_default_option = array(
+$temporary = array(
 	'path_to_listener' => "http://#DOMAIN#/bitrix/sub/",
 	'path_to_listener_secure' => "https://#DOMAIN#/bitrix/sub/",
 	'path_to_modern_listener' => "http://#DOMAIN#/bitrix/sub/",
@@ -17,6 +17,7 @@ $pull_default_option = array(
 	'nginx_headers' => 'Y',
 	'push' => 'N',
 	'push_message_per_hit' => 100,
+	'push_service_url' => "https://cloud-messaging.bitrix24.com/send/",
 	'websocket' => 'Y',
 	'signature_key' => '',
 	'signature_algo' => 'sha1',
@@ -32,5 +33,11 @@ $pull_default_option = array(
 if (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/php_interface/pull.php"))
 {
 	include($_SERVER["DOCUMENT_ROOT"]."/bitrix/php_interface/pull.php");
+	if (isset($pull_default_option))
+	{
+		$temporary = array_merge($temporary, $pull_default_option);
+	}
 }
+$pull_default_option = $temporary;
+unset($temporary);
 ?>

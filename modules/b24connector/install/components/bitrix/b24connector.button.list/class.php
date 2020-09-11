@@ -79,7 +79,7 @@ class B24CButtonsListComponent extends \CBitrixComponent
 			elseif(!empty($this->arParams['EMPTY_BUTTON']['URL_METHOD']) && is_callable($this->arParams['EMPTY_BUTTON']['URL_METHOD']))
 				$url = call_user_func($this->arParams['EMPTY_BUTTON']['URL_METHOD']);
 
-			if(strlen($url) > 0)
+			if($url <> '')
 			{
 				$this->arResult['EMPTY_BUTTON'] = array(
 					'TITLE' => 	$this->arParams['EMPTY_BUTTON']['TITLE'],

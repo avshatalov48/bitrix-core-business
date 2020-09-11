@@ -2,10 +2,10 @@
 
 //************************* Input params***************************************************************
 //************************* BASE **********************************************************************
-$arParams["FILE"] = (is_array($arParams["FILE"]) ? $arParams["FILE"] : intVal($arParams["FILE"]));
+$arParams["FILE"] = (is_array($arParams["FILE"]) ? $arParams["FILE"] : intval($arParams["FILE"]));
 //************************* ADDITIONAL ****************************************************************
 $arParams["SHOW_MODE"] = (in_array($arParams["SHOW_MODE"], array("LINK", "THUMB", "FULL", "RSS")) ? $arParams["SHOW_MODE"] : "FULL");
-$arParams["MAX_FILE_SIZE"] = intVal($arParams["MAX_FILE_SIZE"] > 0 ? $arParams["MAX_FILE_SIZE"] : 100)*1024*1024;
+$arParams["MAX_FILE_SIZE"] = intval($arParams["MAX_FILE_SIZE"] > 0 ? $arParams["MAX_FILE_SIZE"] : 100)*1024*1024;
 //$arParams["SIZE"] user data in img tag <img width=... height=...>
 if (!is_array($arParams["MAX_SIZE"]))
 	$arParams["MAX_SIZE"] = ($arParams["WIDTH"] > 0 ? array("width" => $arParams["WIDTH"]) : array()) +
@@ -17,16 +17,16 @@ $arParams["FAMILY"] = CUtil::addslashes(empty($arParams["FAMILY"]) ? "FORUM" : $
 $arParams["RETURN"] = ($arParams["RETURN"] == "Y" || $arParams["RETURN"] == "ARRAY" ? $arParams["RETURN"] : "N");
 //$arParams["SHOW_LINK"] = ($arParams["SHOW_LINK"] == "Y" ? "Y" : "N");
 $arParams["ADDITIONAL_URL"] = htmlspecialcharsbx(trim($arParams["ADDITIONAL_URL"]));
-$arParams["SERVER_NAME"] = (defined("SITE_SERVER_NAME") && strLen(SITE_SERVER_NAME) > 0) ? SITE_SERVER_NAME : COption::GetOptionString("main", "server_name");
+$arParams["SERVER_NAME"] = (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '') ? SITE_SERVER_NAME : COption::GetOptionString("main", "server_name");
 $arParams["NAME_TEMPLATE"] = str_replace(array("#NOBR#","#/NOBR#"), "", (!!$arParams["NAME_TEMPLATE"] ? $arParams["NAME_TEMPLATE"] : CSite::GetDefaultNameFormat()));
 // *************************/Input params***************************************************************
 
 // ************************* Default params*************************************************************
 $arResult["FILE"] = $arParams["FILE"];
-if (!is_array($arParams["FILE"]) && intVal($arParams["FILE"]) > 0)
+if (!is_array($arParams["FILE"]) && intval($arParams["FILE"]) > 0)
 	$arResult["FILE"] = CFile::GetFileArray($arParams["FILE"]);
 $arResult["FILE"]["~SRC"] = $arResult["FILE"]["SRC"];
-if (intVal($arResult["FILE"]["ID"]) > 0)
+if (intval($arResult["FILE"]["ID"]) > 0)
 	$arResult["FILE"]["SRC"] = "/bitrix/components/bitrix/forum.interface/show_file.php?fid=".
 		htmlspecialcharsbx($arResult["FILE"]["ID"]).
 		(!empty($arParams["ADDITIONAL_URL"]) ? "&".$arParams["ADDITIONAL_URL"] : "");
@@ -44,12 +44,12 @@ if (is_array($arResult["FILE"]) && !empty($arResult["FILE"]["SRC"]))
 {
 	$arResult["FILE"]["FULL_SRC"] = CHTTP::URN2URI($arResult["FILE"]["SRC"], $arParams["SERVER_NAME"]);
 
-	$ct = strToLower($arResult["FILE"]["CONTENT_TYPE"]);
+	$ct = mb_strtolower($arResult["FILE"]["CONTENT_TYPE"]);
 	if ($arParams["SHOW_MODE"] == "LINK")
 	{
 		// do nothing
 	}
-	elseif ($arParams["MAX_FILE_SIZE"] >= $arResult["FILE"]["FILE_SIZE"] && substr($ct, 0, 6) == "image/")
+	elseif ($arParams["MAX_FILE_SIZE"] >= $arResult["FILE"]["FILE_SIZE"] && mb_substr($ct, 0, 6) == "image/")
 	{
 		$arResult["RETURN_DATA"] = $GLOBALS["APPLICATION"]->IncludeComponent(
 			"bitrix:forum.interface",
@@ -77,11 +77,11 @@ if (is_array($arResult["FILE"]) && !empty($arResult["FILE"]["SRC"]))
 
 	$attributes = Bitrix\Main\UI\Viewer\ItemAttributes::buildByFileData($arResult["FILE"], $arResult["FILE"]["SRC"]);
 
-	$size = (intVal($arResult["FILE"]["FILE_SIZE"]) > 0 ? CFile::FormatSize(intval($arResult['FILE']['FILE_SIZE'])) : '');
+	$size = (intval($arResult["FILE"]["FILE_SIZE"]) > 0 ? CFile::FormatSize(intval($arResult['FILE']['FILE_SIZE'])) : '');
 	$sTitle = (!empty($arResult["FILE"]["ORIGINAL_NAME"]) ? $arResult["FILE"]["ORIGINAL_NAME"] : GetMessage("FRM_DOWNLOAD"));
 	$file_ext = GetFileExtension($arResult["FILE"]["ORIGINAL_NAME"]);
 	$arData["TITLE"] = "<a href=\"".$arResult["FILE"]["SRC"]."&action=download"."\" class=\"forum-file forum-file-".$file_ext."\" ".
-		(!empty($arResult["RETURN_DATA"]) ?: ( substr($ct, 0, 6) == "image/" ?
+		(!empty($arResult["RETURN_DATA"]) ?: (mb_substr($ct, 0, 6) == "image/" ?
 			" data-bx-viewer=\"image\" data-bx-src=\"".$arResult["FILE"]["SRC"]."\" ".
 			" data-bx-title=\"".htmlspecialcharsbx($arResult["FILE"]["ORIGINAL_NAME"])."\" ".
 			" data-bx-owner=\"".htmlspecialcharsbx($arResult["FILE"]["OWNER"])."\" ".

@@ -386,4 +386,30 @@ HTML;
 		return $value;
 	}
 
+	public static function externalizeValue(FieldType $fieldType, $context, $value)
+	{
+		if ($context === 'rest' && is_numeric($value))
+		{
+			return \CRestUtil::GetFile($value);
+		}
+
+		return parent::externalizeValue($fieldType, $context, $value);
+	}
+
+	public static function internalizeValue(FieldType $fieldType, $context, $value)
+	{
+		if ($context === 'rest')
+		{
+			$fileFields = \CRestUtil::saveFile($value);
+
+			if ($fileFields)
+			{
+				$fileFields['MODULE_ID'] = 'bizproc';
+				return (int) \CFile::saveFile($fileFields, 'bizproc_rest', true);
+			}
+		}
+
+		return parent::internalizeValue($fieldType, $context, $value);
+	}
+
 }

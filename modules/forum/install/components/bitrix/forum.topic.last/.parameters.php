@@ -82,7 +82,7 @@ $arComponentParameters = Array(
 			"PARENT" => "PAGER_SETTINGS",
 			"NAME" => GetMessage("F_TOPICS_PER_PAGE"),
 			"TYPE" => "STRING",
-			"DEFAULT" => intVal(COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"))),
+			"DEFAULT" => intval(COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"))),
 
 		"CACHE_TAG" => Array(
 			"PARENT" => "CACHE_SETTINGS",

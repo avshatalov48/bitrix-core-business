@@ -26,7 +26,7 @@
 							<div class="landing-block-node-person-text landing-semantic-text-medium mb-4">
 								<p>I am a 32-year old man from Canada and I am passionate about everything related to web development. I strive to figure out the right solutions for your look to stand out amongst the rest.</p>
 							</div>
-							<a class="landing-block-node-person-link landing-semantic-link-medium u-link-v5 g-color-text g-color-primary--hover font-weight-bold" href="#">See Projects</a>
+							<a class="landing-block-node-person-link landing-semantic-link-medium u-link-v5 g-color-text g-color-primary--hover g-font-weight-700" href="#">See Projects</a>
 						</div>
 					</div>
 				</div>
@@ -50,7 +50,7 @@
 							<div class="landing-block-node-person-text landing-semantic-text-medium mb-4">
 								<p>I've got your front end and back end needs covered. I'm always looking for strategies to make your brand's needs fit with today's development languages.</p>
 							</div>
-							<a class="landing-block-node-person-link landing-semantic-link-medium u-link-v5 g-color-text g-color-primary--hover font-weight-bold" href="#">See Projects</a>
+							<a class="landing-block-node-person-link landing-semantic-link-medium u-link-v5 g-color-text g-color-primary--hover g-font-weight-700" href="#">See Projects</a>
 						</div>
 					</div>
 				</div>
@@ -74,7 +74,7 @@
 							<div class="landing-block-node-person-text landing-semantic-text-medium mb-4">
 								<p>I am Monica and I aim high at being focused on building relationships with our clients and community.</p>
 							</div>
-							<a class="landing-block-node-person-link landing-semantic-link-medium u-link-v5 g-color-text g-color-primary--hover font-weight-bold" href="#">See Projects</a>
+							<a class="landing-block-node-person-link landing-semantic-link-medium u-link-v5 g-color-text g-color-primary--hover g-font-weight-700" href="#">See Projects</a>
 						</div>
 					</div>
 				</div>
@@ -98,7 +98,7 @@
 							<div class="landing-block-node-person-text landing-semantic-text-medium mb-4">
 								<p>I'm Tina Krueger, an excitable lead designer. I live with an intense passion for web development.</p>
 							</div>
-							<a class="landing-block-node-person-link landing-semantic-link-medium u-link-v5 g-color-text g-color-primary--hover font-weight-bold" href="#">See Projects</a>
+							<a class="landing-block-node-person-link landing-semantic-link-medium u-link-v5 g-color-text g-color-primary--hover g-font-weight-700" href="#">See Projects</a>
 						</div>
 					</div>
 				</div>
@@ -122,7 +122,7 @@
 							<div class="landing-block-node-person-text landing-semantic-text-medium mb-4">
 								<p>Understanding who you are and what you want is my strategy for your brand. I am always figuring out ways to capture your vision, so people can get on board.</p>
 							</div>
-							<a class="landing-block-node-person-link landing-semantic-link-medium u-link-v5 g-color-text g-color-primary--hover font-weight-bold" href="#">See Projects</a>
+							<a class="landing-block-node-person-link landing-semantic-link-medium u-link-v5 g-color-text g-color-primary--hover g-font-weight-700" href="#">See Projects</a>
 						</div>
 					</div>
 				</div>
@@ -146,7 +146,7 @@
 							<div class="landing-block-node-person-text landing-semantic-text-medium mb-4">
 								<p>I am an ambitious workaholic, but apart from that, pretty simple person. Whether it's branding, print, UI + UX I've got you covered.</p>
 							</div>
-							<a class="landing-block-node-person-link landing-semantic-link-medium u-link-v5 g-color-text g-color-primary--hover font-weight-bold" href="#">See Projects</a>
+							<a class="landing-block-node-person-link landing-semantic-link-medium u-link-v5 g-color-text g-color-primary--hover g-font-weight-700" href="#">See Projects</a>
 						</div>
 					</div>
 				</div>

@@ -34,11 +34,11 @@ return array(
 		'nodes' => array(
 			'.landing-block-node-subtitle' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_3_ONE_COL_BIG_WITH_IMG_STYLE_LANDINGBLOCKNODESUBTITLE'),
-				'type' => 'typo',
+				'type' => ['typo'],
 			),
 			'.landing-block-node-title' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_3_ONE_COL_BIG_WITH_IMG_STYLE_LANDINGBLOCKNODETITLE'),
-				'type' => 'typo',
+				'type' => ['typo'],
 			),
 			'.landing-block-node-inner' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_3_ONE_COL_BIG_WITH_IMG_STYLE_LANDINGBLOCKNODEINNER'),

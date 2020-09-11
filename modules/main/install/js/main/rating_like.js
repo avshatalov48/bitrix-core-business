@@ -130,6 +130,7 @@ RatingLike.Draw = function(likeId, params)
 			&& BX.type.isPlainObject(usersData)
 		)
 		{
+			usersData.TOP = Object.values(usersData.TOP);
 			var recalcNeeded = (usersData.TOP.length < 2);
 
 			for(var k in usersData.TOP)
@@ -493,6 +494,8 @@ RatingLike.ClickVote = function(likeId, userReaction, forceAdd)
 
 		if (dataUsers)
 		{
+			dataUsers.TOP = Object.values(dataUsers.TOP);
+
 			BXRL[likeId].topUsersText.innerHTML = BXRL.render.getTopUsersText({
 				you: !active,
 				top: dataUsers.TOP,
@@ -1216,6 +1219,8 @@ RatingLike.Vote = function(likeId, voteAction, voteReaction, voteReactionOld)
 			&& BXRL[likeId].version == 2
 		)
 		{
+			dataUsers.TOP = Object.values(dataUsers.TOP);
+
 			BXRL[likeId].topUsersText.innerHTML = BXRL.render.getTopUsersText({
 				you: (voteAction == 'cancel'), // negative
 				top: dataUsers.TOP,

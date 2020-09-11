@@ -308,7 +308,7 @@ while($arRes = $rsData->Fetch())
 		$USER_NAME = $arrUsers[$arRes["LAST_USER_ID"]]["USER_NAME"];
 		$LOGIN = $arrUsers[$arRes["LAST_USER_ID"]]["LOGIN"];
 
-		if (strlen($LOGIN) > 0)
+		if ($LOGIN <> '')
 			$str .= " (".$LOGIN.")".$USER_NAME;
 
 		if ($arRes["USER_AUTH"] != "Y")

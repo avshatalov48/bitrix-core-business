@@ -529,11 +529,7 @@ class LandingViewComponent extends LandingBaseComponent
 				$options['helps'] = [
 					'DYNAMIC_BLOCKS' => \Bitrix\Landing\Help::getHelpUrl('DYNAMIC_BLOCKS')
 				];
-				$options['features'] = [
-					Manager::FEATURE_DYNAMIC_BLOCK => Manager::checkFeature(
-						Manager::FEATURE_DYNAMIC_BLOCK
-					)
-				];
+				$options['features'] = [];
 				$options['rights'] = Rights::getOperationsForSite(
 					$landing->getSiteId()
 				);

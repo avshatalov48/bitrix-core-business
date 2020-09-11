@@ -95,13 +95,13 @@ return array(
 					0 => 'landing-block-node-button-container',
 				),
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title text-uppercase g-font-weight-700 g-color-white g-mb-20 g-font-size-55 g-font-roboto-slab g-line-height-1_4',
+					0 => 'landing-block-node-title text-uppercase g-font-weight-700 g-color-white g-mb-20 g-font-size-55 g-line-height-1_4',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text g-mb-35 g-color-white g-font-size-14',
+					0 => 'landing-block-node-text g-mb-35 g-color-white',
 				),
 				'.landing-block-node-button' => array(
-					0 => 'landing-block-node-button btn btn-xl u-btn-primary text-uppercase g-font-weight-700 g-font-size-12 g-rounded-50 g-py-15 g-px-40',
+					0 => 'landing-block-node-button btn g-btn-primary g-btn-type-solid g-btn-px-l g-btn-size-md text-uppercase g-rounded-50 g-py-15',
 				),
 				'#wrapper' => array(
 					0 => 'landing-block landing-block-node-img u-bg-overlay g-flex-centered g-min-height-100vh g-bg-img-hero g-bg-black-opacity-0_5--after g-pt-80 g-pb-80 g-bg-attachment-scroll',
@@ -124,7 +124,7 @@ return array(
 					0 => 'landing-block-node-subtitle h6 g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20',
 				),
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-mb-minus-10 g-font-roboto-slab g-font-size-40',
+					0 => 'landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-mb-minus-10 g-font-size-40',
 				),
 				'.landing-block-node-inner' => array(
 					0 => 'landing-block-node-inner text-uppercase text-center u-heading-v2-4--bottom g-brd-primary',
@@ -176,14 +176,14 @@ return array(
 					2 => 'landing-block-card js-animation fadeIn landing-block-node-block col-md-4 g-mb-30 g-mb-0--md g-pt-10 ',
 				),
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title text-uppercase g-font-weight-700 g-font-size-18 g-color-black g-mb-20 g-font-roboto-slab',
-					1 => 'landing-block-node-title text-uppercase g-font-weight-700 g-font-size-18 g-color-black g-mb-20 g-font-roboto-slab',
-					2 => 'landing-block-node-title text-uppercase g-font-weight-700 g-font-size-18 g-color-black g-mb-20 g-font-roboto-slab',
+					0 => 'landing-block-node-title text-uppercase g-font-weight-700 g-font-size-18 g-color-black g-mb-20',
+					1 => 'landing-block-node-title text-uppercase g-font-weight-700 g-font-size-18 g-color-black g-mb-20',
+					2 => 'landing-block-node-title text-uppercase g-font-weight-700 g-font-size-18 g-color-black g-mb-20',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text g-color-gray-dark-v5 g-font-size-14',
-					1 => 'landing-block-node-text g-color-gray-dark-v5 g-font-size-14',
-					2 => 'landing-block-node-text g-color-gray-dark-v5 g-font-size-14',
+					0 => 'landing-block-node-text g-color-gray-da',
+					1 => 'landing-block-node-text g-color-gray-da',
+					2 => 'landing-block-node-text g-color-gray-dark-v5',
 				),
 				'#wrapper' => array(
 					0 => 'landing-block g-pt-10 g-pb-20',
@@ -221,10 +221,10 @@ return array(
 					0 => 'landing-block-node-subtitle h6 g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-mb-20 g-color-white',
 				),
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-font-size-40 g-color-white g-mb-minus-10 g-font-roboto-slab',
+					0 => 'landing-block-node-title h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-font-size-40 g-color-white g-mb-minus-10',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text g-color-white g-font-size-14',
+					0 => 'landing-block-node-text g-color-white',
 				),
 				'.landing-block-node-card-header' => array(
 					0 => 'landing-block-node-card-header text-uppercase u-heading-v2-4--bottom g-mb-40 g-brd-white',
@@ -270,13 +270,13 @@ return array(
 					0 => 'landing-block-node-button-container',
 				),
 				'.landing-block-node-title' => array(
-					0 => 'landing-block-node-title text-uppercase g-font-weight-700 g-color-white g-mb-20 g-font-size-55 g-font-roboto-slab g-line-height-1_4',
+					0 => 'landing-block-node-title text-uppercase g-font-weight-700 g-color-white g-mb-20 g-font-size-55 g-line-height-1_4',
 				),
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text g-mb-35 g-color-white g-font-size-14',
+					0 => 'landing-block-node-text g-mb-35 g-color-white',
 				),
 				'.landing-block-node-button' => array(
-					0 => 'landing-block-node-button btn btn-xl u-btn-primary text-uppercase g-font-weight-700 g-font-size-12 g-rounded-50 g-py-15 g-px-40',
+					0 => 'landing-block-node-button btn g-btn-primary g-btn-type-solid g-btn-px-l g-btn-size-md text-uppercase g-rounded-50 g-py-15',
 				),
 				'#wrapper' => array(
 					0 => 'landing-block landing-block-node-img u-bg-overlay g-flex-centered g-min-height-100vh g-bg-img-hero g-bg-black-opacity-0_5--after g-pt-80 g-pb-80 g-bg-attachment-fixed',
@@ -330,25 +330,25 @@ return array(
 					0 => 'landing-block-node-left col-md-6 col-lg-4 order-2 order-md-1 g-theme-photography-bg-gray-dark-v4',
 				),
 				'.landing-block-node-left-title' => array(
-					0 => 'landing-block-node-left-title js-animation fadeIn text-uppercase g-font-weight-700 g-font-size-20 g-color-white g-mb-10 g-font-roboto-slab',
+					0 => 'landing-block-node-left-title js-animation fadeIn text-uppercase g-font-weight-700 g-font-size-20 g-color-white g-mb-10',
 				),
 				'.landing-block-node-left-text' => array(
-					0 => 'landing-block-node-left-text js-animation fadeIn g-color-gray-light-v2 g-font-size-14',
+					0 => 'landing-block-node-left-text js-animation fadeIn g-color-gray-light-v2',
 				),
 				'.landing-block-node-center' => array(
-					0 => 'landing-block-node-center col-md-6 col-lg-4 order-1 order-md-2 g-flex-centered g-bg-black',
+					0 => 'landing-block-node-center col-md-6 col-lg-4 order-1 order-md-2 d-flex justify-content-center flex-column g-bg-black g-pa-30',
 				),
 				'.landing-block-node-center-subtitle' => array(
 					0 => 'landing-block-node-center-subtitle js-animation fadeIn h6 g-font-weight-800 g-font-size-12 g-letter-spacing-1 g-color-primary g-mb-20',
 				),
 				'.landing-block-node-center-title' => array(
-					0 => 'landing-block-node-center-title js-animation fadeIn h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-font-size-40 g-color-white g-mb-minus-10 g-font-roboto-slab',
+					0 => 'landing-block-node-center-title js-animation fadeIn h1 u-heading-v2__title g-line-height-1_3 g-font-weight-600 g-font-size-40 g-color-white g-mb-minus-10',
 				),
 				'.landing-block-node-center-text' => array(
-					0 => 'landing-block-node-center-text js-animation fadeIn g-color-gray-light-v2 g-font-size-14',
+					0 => 'landing-block-node-center-text js-animation fadeIn g-color-gray-light-v2',
 				),
 				'.landing-block-node-header' => array(
-					0 => 'landing-block-node-header text-uppercase u-heading-v2-4--bottom g-brd-primary g-mb-40',
+					0 => 'landing-block-node-header text-center text-uppercase u-heading-v2-4--bottom g-brd-primary g-mb-40',
 				),
 				'#wrapper' => array(
 					0 => 'landing-block container-fluid px-0',
@@ -384,7 +384,7 @@ return array(
 			),
 			'style' => array(
 				'.landing-block-node-text' => array(
-					0 => 'landing-block-node-text mr-1 js-animation animation-none animated g-font-size-14',
+					0 => 'landing-block-node-text mr-1 js-animation animation-none animated',
 				),
 				'#wrapper' => array(
 					0 => 'landing-block g-brd-top g-brd-gray-dark-v2 js-animation animation-none animated g-bg-black',

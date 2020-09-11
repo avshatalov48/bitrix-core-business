@@ -59,7 +59,7 @@ foreach ($arResult["MESSAGES"] as $res):
 				$voteEntityId = $res["ID"];
 
 				$voteId = $voteEntityType.'_'.$voteEntityId.'-'.(time()+rand(0, 1000));
-				$emotion = (!empty($res['RATING']["USER_REACTION"]) ? strtoupper($res['RATING']["USER_REACTION"]) : 'LIKE');
+				$emotion = (!empty($res['RATING']["USER_REACTION"])? mb_strtoupper($res['RATING']["USER_REACTION"]) : 'LIKE');
 
 				$likeTemplate = (
 					$arResult["isIntranetInstalled"]
@@ -72,7 +72,7 @@ foreach ($arResult["MESSAGES"] as $res):
 					"ENTITY_TYPE_ID" => $voteEntityType,
 					"ENTITY_ID" => $voteEntityId,
 					"OWNER_ID" => $res["AUTHOR_ID"],
-					"PATH_TO_USER_PROFILE" => strlen($arParams["PATH_TO_USER"]) > 0? $arParams["PATH_TO_USER"]: $arParams["~URL_TEMPLATES_PROFILE_VIEW"],
+					"PATH_TO_USER_PROFILE" => $arParams["PATH_TO_USER"] <> ''? $arParams["PATH_TO_USER"]: $arParams["~URL_TEMPLATES_PROFILE_VIEW"],
 					"VOTE_ID" => $voteId
 				);
 
@@ -186,7 +186,7 @@ endforeach;
 </div>
 <?
 
-if (strlen($arResult["NAV_STRING"]) > 0 && $arResult["NAV_RESULT"]->NavPageCount > 1):
+if ($arResult["NAV_STRING"] <> '' && $arResult["NAV_RESULT"]->NavPageCount > 1):
 ?>
 <div class="reviews-navigation-box reviews-navigation-bottom">
 	<div class="reviews-page-navigation">

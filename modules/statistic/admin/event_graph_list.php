@@ -107,7 +107,7 @@ if(is_array($find_events) && count($find_events)>0)
 
 	if (function_exists("ImageCreate"))
 	{
-		if (strlen($strError)<=0 && count($arrLegend)>0 && count($arrDays) > 1) :
+		if ($strError == '' && count($arrLegend)>0 && count($arrDays) > 1) :
 			$width = COption::GetOptionString("statistic", "GRAPH_WEIGHT");
 			$height = COption::GetOptionString("statistic", "GRAPH_HEIGHT");
 			?>

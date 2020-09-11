@@ -203,9 +203,9 @@ textarea.sender-toloka-input
 	box-shadow: inset 0 0 0 1px #C6CDD3;
 }
 
-.sender-toloka-field-container {
-	margin: 20px;
-}
+/*.sender-toloka-field-container {*/
+/*	margin: 20px;*/
+/*}*/
 
 .sender-toloka-field-section {
 	display: block;
@@ -1862,6 +1862,6 @@ span.sender-toloka-public-link-inner-copy-button-item {
 }
 
 .bx-sender-form-control-danger{
-	-webkit-box-shadow: inset 0 0 0 1px red !important;
-	box-shadow: inset 0 0 0 1px red !important;
+	-webkit-box-shadow: inset 0 0 0 1px #ff5752 !important;
+	box-shadow: inset 0 0 0 1px #ff5752 !important;
 }

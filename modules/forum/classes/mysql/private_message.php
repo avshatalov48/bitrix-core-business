@@ -26,7 +26,7 @@ class CForumPrivateMessage extends CAllForumPrivateMessage
 		foreach ($arFilter as $key => $val)
 		{
 			$key_res = CForumNew::GetFilterOperation($key);
-			$key = strtoupper($key_res["FIELD"]);
+			$key = mb_strtoupper($key_res["FIELD"]);
 			$strNegative = $key_res["NEGATIVE"];
 			$strOperation = $key_res["OPERATION"];
 
@@ -37,43 +37,43 @@ class CForumPrivateMessage extends CAllForumPrivateMessage
 				case "AUTHOR_ID":
 				case "RECIPIENT_ID":
 				case "USER_ID":
-					if (IntVal($val)<=0)
+					if (intval($val)<=0)
 						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(PM.".$key." IS NULL OR PM.".$key."<=0)";
-					elseif (strToUpper($strOperation) == "IN")
-						$arSqlSearch[] = ($strNegative=="Y"?" PM.".$key." IS NULL OR NOT ":"")."(PM.".$key." ".$strOperation." (".IntVal($val).") )";
+					elseif (mb_strtoupper($strOperation) == "IN")
+						$arSqlSearch[] = ($strNegative=="Y"?" PM.".$key." IS NULL OR NOT ":"")."(PM.".$key." ".$strOperation." (".intval($val).") )";
 					else
-						$arSqlSearch[] = ($strNegative=="Y"?" PM.".$key." IS NULL OR NOT ":"")."(PM.".$key." ".$strOperation." ".IntVal($val)." )";
+						$arSqlSearch[] = ($strNegative=="Y"?" PM.".$key." IS NULL OR NOT ":"")."(PM.".$key." ".$strOperation." ".intval($val)." )";
 					break;
 				case "OWNER_ID":
 					if (COption::GetOptionString("forum", "UsePMVersion", "2") == 2)
 					{
 						$user_id = 0;
-						if (is_array($val) && intVal($val["USER_ID"]) > 0)
-							$user_id = intVal($val["USER_ID"]);
+						if (is_array($val) && intval($val["USER_ID"]) > 0)
+							$user_id = intval($val["USER_ID"]);
 						else
-							$user_id = intVal($val);
+							$user_id = intval($val);
 						$arSqlSearch[] = 
 							"(PM.USER_ID=".$user_id." AND ((PM.FOLDER_ID=2) OR (PM.FOLDER_ID=3)))";
 					}
 					else 
 					{
 						$arSqlSearch[] = 
-							"((PM.AUTHOR_ID=".intVal($val).") AND (PM.IS_READ='N')) OR (PM.USER_ID=".intVal($val)." AND (PM.FOLDER_ID=2))";
+							"((PM.AUTHOR_ID=".intval($val).") AND (PM.IS_READ='N')) OR (PM.USER_ID=".intval($val)." AND (PM.FOLDER_ID=2))";
 					}
 					break;
 				case "POST_SUBJ":
 				case "POST_MESSAGE":
 				case "USE_SMILES":
 				case "IS_READ":
-					if (strlen($val)<=0)
+					if ($val == '')
 						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(PM.".$key." IS NULL OR LENGTH(PM.".$key.")<=0)";
-					elseif (strToUpper($strOperation) == "IN")
+					elseif (mb_strtoupper($strOperation) == "IN")
 						$arSqlSearch[] = ($strNegative=="Y"?" PM.".$key." IS NULL OR NOT ":"")."(PM.".$key." ".$strOperation." ('".$DB->ForSql($val)."') )";
 					else
 						$arSqlSearch[] = ($strNegative=="Y"?" PM.".$key." IS NULL OR NOT ":"")."(PM.".$key." ".$strOperation." '".$DB->ForSql($val)."' )";
 				break;
 				case "POST_DATE":
-					if (strlen($val)<=0)
+					if ($val == '')
 						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(PM.".$key." IS NULL OR LENGTH(PM.".$key.")<=0)";
 					else
 						$arSqlSearch[] = ($strNegative=="Y"?" PM.".$key." IS NULL OR NOT ":"")."(PM.".$key." ".$strOperation." ".$DB->CharToDateFunction($DB->ForSql($val), "FULL")." )";
@@ -95,7 +95,8 @@ class CForumPrivateMessage extends CAllForumPrivateMessage
 
 		foreach ($arOrder as $by=>$order)
 		{
-			$by = strtoupper($by); $order = strtoupper($order);
+			$by = mb_strtoupper($by);
+			$order = mb_strtoupper($order);
 			if ($order!="ASC") $order = "DESC";
 			
 			if ($by == "AUTHOR_NAME") $arSqlOrder[] = " AUTHOR_NAME ".$order." ";

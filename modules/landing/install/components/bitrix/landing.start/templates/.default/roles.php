@@ -24,33 +24,20 @@ Loc::loadMessages(__FILE__);
 		{
 			var disableFunc = function(e)
 			{
-				var errorText = "<?= \CUtil::jsEscape(Loc::getMessage('LANDING_ROLES_UNAVAILABLE'));?>";
-				if (typeof BX.Landing.PaymentAlertShow !== "undefined")
-				{
-					BX.Landing.PaymentAlertShow({
-						message: errorText
-					});
-				}
-				else
-				{
-					var msg = BX.Landing.UI.Tool.ActionDialog.getInstance();
-					msg.show({
-						content: errorText,
-						confirm: 'OK',
-						contentColor: 'grey'
-					});
-				}
+				<?= \Bitrix\Landing\Restriction\Manager::getActionCode('limit_sites_access_permissions');?>
 				if (e)
 				{
 					e.preventDefault();
 				}
 			};
 			BX.bind(
-				BX("landing-rights-save"),
-				"click",
+				BX('landing-rights-save'),
+				'click',
 				BX.delegate(disableFunc)
 			);
-			disableFunc();
+			setTimeout(function() {
+				disableFunc();
+			}, 0);
 		});
 	</script>
 <?endif;?>

@@ -33,7 +33,7 @@ if (!function_exists("__array_merge"))
 ********************************************************************/
 /***************** BASE ********************************************/
 	$_REQUEST["search_template"] = trim($_REQUEST["search_template"]);
-	$_REQUEST["search_field"] = trim(strtolower($_REQUEST["search_field"]));
+	$_REQUEST["search_field"] = trim(mb_strtolower($_REQUEST["search_field"]));
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
 		"list" => "PAGE_NAME=list&FID=#FID#",
@@ -41,17 +41,17 @@ if (!function_exists("__array_merge"))
 		"topic_search" => "PAGE_NAME=topic_search");
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["URL_TEMPLATES_".strToUpper($URL)]);
+		if (trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
+			$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
-	$arParams["PAGE_NAVIGATION_WINDOW"] = intVal(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
+	$arParams["PAGE_NAVIGATION_WINDOW"] = intval(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
 	$arParams["SHOW_FORUM_ANOTHER_SITE"] = ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y" ? "Y" : "N");
 	$arParams["FID_RANGE"] = (is_array($arParams["FID_RANGE"]) && !empty($arParams["FID_RANGE"]) ? $arParams["FID_RANGE"] : array());
 	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
-	$arParams["TOPICS_PER_PAGE"] = intVal(intVal($arParams["TOPICS_PER_PAGE"]) > 0 ? $arParams["TOPICS_PER_PAGE"] : 
+	$arParams["TOPICS_PER_PAGE"] = intval(intVal($arParams["TOPICS_PER_PAGE"]) > 0 ? $arParams["TOPICS_PER_PAGE"] :
 		COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"));
 /********************************************************************
 				/Input params
@@ -60,8 +60,8 @@ if (!function_exists("__array_merge"))
 /********************************************************************
 				Default params
 ********************************************************************/
-$arResult["TID"] = intVal($_REQUEST["TID"]);
-$arResult["FID"] = intVal($_REQUEST["FID"]);
+$arResult["TID"] = intval($_REQUEST["TID"]);
+$arResult["FID"] = intval($_REQUEST["FID"]);
 $arResult["SELF_CLOSE"] = ($arResult["TID"] > 0 ? "Y" : "N");
 $arResult["TOPIC"] = array();
 $arResult["TOPICS"] = array();
@@ -172,13 +172,13 @@ if ($arResult["TID"] > 0)
 			array("FID" => $arResult["FORUM"]["ID"]));
 	}
 }
-elseif (strlen($_REQUEST["search_template"]) > 0) 
+elseif ($_REQUEST["search_template"] <> '') 
 {
 	$arFilter = array("@FORUM_ID" => array_keys($arResult["FORUMS"]));
-	if (intVal($_REQUEST["FID"]) > 0)
-		$arFilter["FORUM_ID"] = intVal($_REQUEST["FID"]);
+	if (intval($_REQUEST["FID"]) > 0)
+		$arFilter["FORUM_ID"] = intval($_REQUEST["FID"]);
 	if (($_REQUEST["search_field"] == "title") || ($_REQUEST["search_field"] == "description"))
-		$arFilter[strToUpper($_REQUEST["search_field"])] = $_REQUEST["search_template"];
+		$arFilter[mb_strtoupper($_REQUEST["search_field"])] = $_REQUEST["search_template"];
 	else
 		$arFilter["TITLE_ALL"] = $_REQUEST["search_template"];
 

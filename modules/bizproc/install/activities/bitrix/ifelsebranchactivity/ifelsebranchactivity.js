@@ -36,11 +36,18 @@ IfElseBranchActivity = function()
 		d.style.backgroundColor = '#ededed';
 		*/
 
-		var t = d.childNodes[0].childNodes[0].childNodes[0].childNodes[0].appendChild(_crt(1, 2));
-		t.rows[0].cells[0].innerHTML = BX.util.htmlspecialchars(ob.Properties['Title']);
+		var t = d.childNodes[0].childNodes[0].childNodes[0].childNodes[0].appendChild(_crt(1, 2))
 		t.rows[0].cells[0].title = ob.Properties['Title'];
 		t.rows[0].cells[0].width = '100%';
 		t.rows[0].cells[0].style.fontSize = '11px';
+
+		var textCell = t.rows[0].cells[0].appendChild(document.createElement('DIV'));
+		textCell.innerHTML = BX.util.htmlspecialchars(ob.Properties['Title']);
+		textCell.style.overflow = 'hidden';
+		textCell.style.width = '100px';
+		textCell.style.whiteSpace = 'nowrap';
+		textCell.style.textOverflow = 'ellipsis';
+
 		var setimg = t.rows[0].cells[1].appendChild(document.createElement('IMG'));
 		t.rows[0].cells[1].width = '1%';
 		t.rows[0].cells[1].vAlign = 'top';

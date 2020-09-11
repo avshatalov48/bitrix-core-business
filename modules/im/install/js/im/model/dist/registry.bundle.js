@@ -11,9 +11,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
-	var ApplicationModel =
-	/*#__PURE__*/
-	function (_VuexBuilderModel) {
+	var ApplicationModel = /*#__PURE__*/function (_VuexBuilderModel) {
 	  babelHelpers.inherits(ApplicationModel, _VuexBuilderModel);
 
 	  function ApplicationModel() {
@@ -270,9 +268,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
-	var CallApplicationModel =
-	/*#__PURE__*/
-	function (_VuexBuilderModel) {
+	var CallApplicationModel = /*#__PURE__*/function (_VuexBuilderModel) {
 	  babelHelpers.inherits(CallApplicationModel, _VuexBuilderModel);
 
 	  function CallApplicationModel() {
@@ -386,14 +382,11 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  return CallApplicationModel;
 	}(ui_vue_vuex.VuexBuilderModel);
 
-	/**
-	 * Bitrix Messenger
-	 * Messages model (Vuex Builder model)
-	 *
-	 * @package bitrix
-	 * @subpackage im
-	 * @copyright 2001-2020 Bitrix
-	 */
+	function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+
+	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 	var IntersectionType = {
 	  empty: 'empty',
 	  equal: 'equal',
@@ -401,9 +394,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  found: 'found',
 	  foundReverse: 'foundReverse'
 	};
-	var MessagesModel =
-	/*#__PURE__*/
-	function (_VuexBuilderModel) {
+	var MessagesModel = /*#__PURE__*/function (_VuexBuilderModel) {
 	  babelHelpers.inherits(MessagesModel, _VuexBuilderModel);
 
 	  function MessagesModel() {
@@ -916,9 +907,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          }
 
 	          mutationType.appliedType = payload.insertType;
-	          var _iteratorNormalCompletion = true;
-	          var _didIteratorError = false;
-	          var _iteratorError = undefined;
+
+	          var _iterator = _createForOfIteratorHelper(payload.data),
+	              _step;
 
 	          try {
 	            var _loop2 = function _loop2() {
@@ -948,22 +939,13 @@ this.BX.Messenger = this.BX.Messenger || {};
 	              }
 	            };
 
-	            for (var _iterator = payload.data[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	            for (_iterator.s(); !(_step = _iterator.n()).done;) {
 	              _loop2();
 	            }
 	          } catch (err) {
-	            _didIteratorError = true;
-	            _iteratorError = err;
+	            _iterator.e(err);
 	          } finally {
-	            try {
-	              if (!_iteratorNormalCompletion && _iterator.return != null) {
-	                _iterator.return();
-	              }
-	            } finally {
-	              if (_didIteratorError) {
-	                throw _iteratorError;
-	              }
-	            }
+	            _iterator.f();
 	          }
 
 	          chats = babelHelpers.toConsumableArray(new Set(chats));
@@ -1045,12 +1027,11 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          });
 
 	          if (state.saveMessageList[payload.chatId].length > 0) {
-	            var _iteratorNormalCompletion2 = true;
-	            var _didIteratorError2 = false;
-	            var _iteratorError2 = undefined;
+	            var _iterator2 = _createForOfIteratorHelper(payload.elements),
+	                _step2;
 
 	            try {
-	              for (var _iterator2 = payload.elements[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	              for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
 	                var id = _step2.value;
 
 	                if (state.saveMessageList[payload.chatId].includes(id)) {
@@ -1060,18 +1041,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	                }
 	              }
 	            } catch (err) {
-	              _didIteratorError2 = true;
-	              _iteratorError2 = err;
+	              _iterator2.e(err);
 	            } finally {
-	              try {
-	                if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
-	                  _iterator2.return();
-	                }
-	              } finally {
-	                if (_didIteratorError2) {
-	                  throw _iteratorError2;
-	                }
-	              }
+	              _iterator2.f();
 	            }
 	          }
 	        },
@@ -1220,12 +1192,11 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        return result;
 	      }
 
-	      var _iteratorNormalCompletion3 = true;
-	      var _didIteratorError3 = false;
-	      var _iteratorError3 = undefined;
+	      var _iterator3 = _createForOfIteratorHelper(elements),
+	          _step3;
 
 	      try {
-	        for (var _iterator3 = elements[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	        for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
 	          var id = _step3.value;
 
 	          if (cache.includes(id)) {
@@ -1243,18 +1214,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          }
 	        }
 	      } catch (err) {
-	        _didIteratorError3 = true;
-	        _iteratorError3 = err;
+	        _iterator3.e(err);
 	      } finally {
-	        try {
-	          if (!_iteratorNormalCompletion3 && _iterator3.return != null) {
-	            _iterator3.return();
-	          }
-	        } finally {
-	          if (_didIteratorError3) {
-	            throw _iteratorError3;
-	          }
-	        }
+	        _iterator3.f();
 	      }
 
 	      if (result.type === IntersectionType.found && cache.length === elements.length && result.foundElements.length === elements.length) {
@@ -1696,11 +1658,43 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        codeReplacement.push(text);
 	        return '####REPLACEMENT_MARK_' + id + '####';
 	      });
-	      text = text.replace(/\[LIKE\]/ig, '<span class="bx-smile bx-im-smile-like"></span>');
-	      text = text.replace(/\[DISLIKE\]/ig, '<span class="bx-smile bx-im-smile-dislike"></span>'); // this code needs to be ported to im/install/js/im/view/message/body/src/body.js:229
+	      text = text.replace(/\[url=([^\]]+)\](.*?)\[\/url\]/ig, function (whole, link, text) {
+	        var tag = document.createElement('a');
+	        tag.href = im_lib_utils.Utils.text.htmlspecialcharsback(link);
+	        tag.target = '_blank';
+	        tag.text = im_lib_utils.Utils.text.htmlspecialcharsback(text);
+	        var allowList = ["http:", "https:", "ftp:", "file:", "tel:", "callto:", "mailto:", "skype:", "viber:"];
 
-	      text = text.replace(/\[CHAT=(imol\|)?([0-9]{1,})\](.*?)\[\/CHAT\]/ig, function (whole, openlines, chatId, text) {
-	        return openlines ? text : '<span class="bx-im-mention" data-type="CHAT" data-value="chat' + chatId + '">' + text + '</span>';
+	        if (allowList.indexOf(tag.protocol) <= -1) {
+	          return whole;
+	        }
+
+	        return tag.outerHTML;
+	      });
+	      text = text.replace(/\[url\]([^\]]+)\[\/url\]/ig, function (whole, link) {
+	        link = im_lib_utils.Utils.text.htmlspecialcharsback(link);
+	        var tag = document.createElement('a');
+	        tag.href = link;
+	        tag.target = '_blank';
+	        tag.text = link;
+	        var allowList = ["http:", "https:", "ftp:", "file:", "tel:", "callto:", "mailto:", "skype:", "viber:"];
+
+	        if (allowList.indexOf(tag.protocol) <= -1) {
+	          return whole;
+	        }
+
+	        return tag.outerHTML;
+	      });
+	      text = text.replace(/\[LIKE\]/ig, '<span class="bx-smile bx-im-smile-like"></span>');
+	      text = text.replace(/\[DISLIKE\]/ig, '<span class="bx-smile bx-im-smile-dislike"></span>');
+	      text = text.replace(/\[BR\]/ig, '<br/>');
+	      text = text.replace(/\[([buis])\](.*?)\[(\/[buis])\]/ig, function (whole, open, inner, close) {
+	        return '<' + open + '>' + inner + '<' + close + '>';
+	      }); // TODO tag USER
+	      // this code needs to be ported to im/install/js/im/view/message/body/src/body.js:229
+
+	      text = text.replace(/\[CHAT=(imol\|)?([0-9]{1,})\](.*?)\[\/CHAT\]/ig, function (whole, openlines, chatId, inner) {
+	        return openlines ? inner : '<span class="bx-im-mention" data-type="CHAT" data-value="chat' + chatId + '">' + inner + '</span>';
 	      }); // TODO tag CHAT
 
 	      text = text.replace(/\[CALL(?:=(.+?))?\](.+?)?\[\/CALL\]/ig, function (whole, number, text) {
@@ -1848,17 +1842,12 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  return MessagesModel;
 	}(ui_vue_vuex.VuexBuilderModel);
 
-	/**
-	 * Bitrix Messenger
-	 * Dialogues model (Vuex Builder model)
-	 *
-	 * @package bitrix
-	 * @subpackage im
-	 * @copyright 2001-2020 Bitrix
-	 */
-	var DialoguesModel =
-	/*#__PURE__*/
-	function (_VuexBuilderModel) {
+	function _createForOfIteratorHelper$1(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$1(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+
+	function _unsupportedIterableToArray$1(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$1(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$1(o, minLen); }
+
+	function _arrayLikeToArray$1(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+	var DialoguesModel = /*#__PURE__*/function (_VuexBuilderModel) {
 	  babelHelpers.inherits(DialoguesModel, _VuexBuilderModel);
 
 	  function DialoguesModel() {
@@ -2254,12 +2243,11 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          _this3.saveState(state);
 	        },
 	        set: function set(state, payload) {
-	          var _iteratorNormalCompletion = true;
-	          var _didIteratorError = false;
-	          var _iteratorError = undefined;
+	          var _iterator = _createForOfIteratorHelper$1(payload),
+	              _step;
 
 	          try {
-	            for (var _iterator = payload[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	            for (_iterator.s(); !(_step = _iterator.n()).done;) {
 	              var element = _step.value;
 
 	              _this3.initCollection(state, {
@@ -2270,18 +2258,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	            } // TODO if payload.dialogId is IMOL, skip update cache
 
 	          } catch (err) {
-	            _didIteratorError = true;
-	            _iteratorError = err;
+	            _iterator.e(err);
 	          } finally {
-	            try {
-	              if (!_iteratorNormalCompletion && _iterator.return != null) {
-	                _iterator.return();
-	              }
-	            } finally {
-	              if (_didIteratorError) {
-	                throw _iteratorError;
-	              }
-	            }
+	            _iterator.f();
 	          }
 
 	          _this3.saveState(state);
@@ -2635,17 +2614,12 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  return DialoguesModel;
 	}(ui_vue_vuex.VuexBuilderModel);
 
-	/**
-	 * Bitrix Messenger
-	 * Users model (Vuex Builder model)
-	 *
-	 * @package bitrix
-	 * @subpackage im
-	 * @copyright 2001-2020 Bitrix
-	 */
-	var UsersModel =
-	/*#__PURE__*/
-	function (_VuexBuilderModel) {
+	function _createForOfIteratorHelper$2(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$2(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+
+	function _unsupportedIterableToArray$2(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$2(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$2(o, minLen); }
+
+	function _arrayLikeToArray$2(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+	var UsersModel = /*#__PURE__*/function (_VuexBuilderModel) {
 	  babelHelpers.inherits(UsersModel, _VuexBuilderModel);
 
 	  function UsersModel() {
@@ -2814,9 +2788,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	      return {
 	        set: function set(state, payload) {
-	          var _iteratorNormalCompletion = true;
-	          var _didIteratorError = false;
-	          var _iteratorError = undefined;
+	          var _iterator = _createForOfIteratorHelper$2(payload),
+	              _step;
 
 	          try {
 	            var _loop = function _loop() {
@@ -2877,22 +2850,13 @@ this.BX.Messenger = this.BX.Messenger || {};
 	              _this3.saveState(state);
 	            };
 
-	            for (var _iterator = payload[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	            for (_iterator.s(); !(_step = _iterator.n()).done;) {
 	              _loop();
 	            }
 	          } catch (err) {
-	            _didIteratorError = true;
-	            _iteratorError = err;
+	            _iterator.e(err);
 	          } finally {
-	            try {
-	              if (!_iteratorNormalCompletion && _iterator.return != null) {
-	                _iterator.return();
-	              }
-	            } finally {
-	              if (_didIteratorError) {
-	                throw _iteratorError;
-	              }
-	            }
+	            _iterator.f();
 	          }
 	        },
 	        update: function update(state, payload) {
@@ -3237,9 +3201,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  }, {
 	    key: "startAbsentCheckInterval",
 	    value: function startAbsentCheckInterval(state) {
-	      var _iteratorNormalCompletion2 = true;
-	      var _didIteratorError2 = false;
-	      var _iteratorError2 = undefined;
+	      var _iterator2 = _createForOfIteratorHelper$2(state.absentList),
+	          _step2;
 
 	      try {
 	        var _loop2 = function _loop2() {
@@ -3261,24 +3224,15 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          }
 	        };
 
-	        for (var _iterator2 = state.absentList[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
 	          var _ret = _loop2();
 
 	          if (_ret === "continue") continue;
 	        }
 	      } catch (err) {
-	        _didIteratorError2 = true;
-	        _iteratorError2 = err;
+	        _iterator2.e(err);
 	      } finally {
-	        try {
-	          if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
-	            _iterator2.return();
-	          }
-	        } finally {
-	          if (_didIteratorError2) {
-	            throw _iteratorError2;
-	          }
-	        }
+	        _iterator2.f();
 	      }
 	    }
 	  }, {
@@ -3288,9 +3242,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	      var intervalTime = 60000;
 	      setInterval(function () {
-	        var _iteratorNormalCompletion3 = true;
-	        var _didIteratorError3 = false;
-	        var _iteratorError3 = undefined;
+	        var _iterator3 = _createForOfIteratorHelper$2(_this5.store.state.users.onlineList),
+	            _step3;
 
 	        try {
 	          var _loop3 = function _loop3() {
@@ -3313,29 +3266,19 @@ this.BX.Messenger = this.BX.Messenger || {};
 	            }
 	          };
 
-	          for (var _iterator3 = _this5.store.state.users.onlineList[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	          for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
 	            var _ret2 = _loop3();
 
 	            if (_ret2 === "continue") continue;
 	          }
 	        } catch (err) {
-	          _didIteratorError3 = true;
-	          _iteratorError3 = err;
+	          _iterator3.e(err);
 	        } finally {
-	          try {
-	            if (!_iteratorNormalCompletion3 && _iterator3.return != null) {
-	              _iterator3.return();
-	            }
-	          } finally {
-	            if (_didIteratorError3) {
-	              throw _iteratorError3;
-	            }
-	          }
+	          _iterator3.f();
 	        }
 
-	        var _iteratorNormalCompletion4 = true;
-	        var _didIteratorError4 = false;
-	        var _iteratorError4 = undefined;
+	        var _iterator4 = _createForOfIteratorHelper$2(_this5.store.state.users.mobileOnlineList),
+	            _step4;
 
 	        try {
 	          var _loop4 = function _loop4() {
@@ -3358,24 +3301,15 @@ this.BX.Messenger = this.BX.Messenger || {};
 	            }
 	          };
 
-	          for (var _iterator4 = _this5.store.state.users.mobileOnlineList[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	          for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
 	            var _ret3 = _loop4();
 
 	            if (_ret3 === "continue") continue;
 	          }
 	        } catch (err) {
-	          _didIteratorError4 = true;
-	          _iteratorError4 = err;
+	          _iterator4.e(err);
 	        } finally {
-	          try {
-	            if (!_iteratorNormalCompletion4 && _iterator4.return != null) {
-	              _iterator4.return();
-	            }
-	          } finally {
-	            if (_didIteratorError4) {
-	              throw _iteratorError4;
-	            }
-	          }
+	          _iterator4.f();
 	        }
 	      }, intervalTime);
 	    }
@@ -3383,17 +3317,12 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  return UsersModel;
 	}(ui_vue_vuex.VuexBuilderModel);
 
-	/**
-	 * Bitrix Messenger
-	 * Files model (Vuex Builder model)
-	 *
-	 * @package bitrix
-	 * @subpackage im
-	 * @copyright 2001-2020 Bitrix
-	 */
-	var FilesModel =
-	/*#__PURE__*/
-	function (_VuexBuilderModel) {
+	function _createForOfIteratorHelper$3(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$3(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+
+	function _unsupportedIterableToArray$3(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$3(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$3(o, minLen); }
+
+	function _arrayLikeToArray$3(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+	var FilesModel = /*#__PURE__*/function (_VuexBuilderModel) {
 	  babelHelpers.inherits(FilesModel, _VuexBuilderModel);
 
 	  function FilesModel() {
@@ -3633,9 +3562,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          _this3.saveState(state);
 	        },
 	        set: function set(state, payload) {
-	          var _iteratorNormalCompletion = true;
-	          var _didIteratorError = false;
-	          var _iteratorError = undefined;
+	          var _iterator = _createForOfIteratorHelper$3(payload.data),
+	              _step;
 
 	          try {
 	            var _loop = function _loop() {
@@ -3663,22 +3591,13 @@ this.BX.Messenger = this.BX.Messenger || {};
 	              _this3.saveState(state);
 	            };
 
-	            for (var _iterator = payload.data[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	            for (_iterator.s(); !(_step = _iterator.n()).done;) {
 	              _loop();
 	            }
 	          } catch (err) {
-	            _didIteratorError = true;
-	            _iteratorError = err;
+	            _iterator.e(err);
 	          } finally {
-	            try {
-	              if (!_iteratorNormalCompletion && _iterator.return != null) {
-	                _iterator.return();
-	              }
-	            } finally {
-	              if (_didIteratorError) {
-	                throw _iteratorError;
-	              }
-	            }
+	            _iterator.f();
 	          }
 	        },
 	        update: function update(state, payload) {
@@ -4090,9 +4009,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
-	var RecentModel =
-	/*#__PURE__*/
-	function (_VuexBuilderModel) {
+	var RecentModel = /*#__PURE__*/function (_VuexBuilderModel) {
 	  babelHelpers.inherits(RecentModel, _VuexBuilderModel);
 
 	  function RecentModel() {

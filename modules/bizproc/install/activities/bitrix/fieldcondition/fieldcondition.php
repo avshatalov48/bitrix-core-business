@@ -62,7 +62,9 @@ class CBPFieldCondition
 				}
 			}
 			else
-				throw new Exception("Field '".$cond[0]."' is not found in document (if/else condition)");
+			{
+				$r = ($cond[1] === 'empty');
+			}
 
 			if ($joiner == static::CONDITION_JOINER_OR)
 			{

@@ -196,7 +196,7 @@ class MailboxDirectory
 		));
 	}
 
-	public static function updateSyncDirs(array $values, $val)
+	public static function updateSyncDirs(array $values, $val, $mailboxId)
 	{
 		$entity = MailboxDirectoryTable::getEntity();
 		$connection = $entity->getConnection();
@@ -210,6 +210,7 @@ class MailboxDirectory
 			Query::buildFilterSql(
 				$entity,
 				[
+					'=MAILBOX_ID' => $mailboxId,
 					'@DIR_MD5'    => $values,
 					'IS_DISABLED' => MailboxDirectoryTable::INACTIVE,
 				]

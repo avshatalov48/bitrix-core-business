@@ -345,7 +345,7 @@ else
 		$arResult["URL_TEMPLATES"]["catalog_processes"] = $APPLICATION->GetCurPage()."?mode=catalog";
 }
 
-$p = strpos($arResult["URL_TEMPLATES"]["bizproc_workflow_delete"], "?");
+$p = mb_strpos($arResult["URL_TEMPLATES"]["bizproc_workflow_delete"], "?");
 if($p === false)
 	$ch = "?";
 else

@@ -135,6 +135,8 @@ $editPage = $landingsPage . '&cmp=landing_edit&id=#landing_edit#';
 $editPage .= ($siteTemplate ? '&template=' . $siteTemplate : '');
 $editSite = $landingsPage . '&cmp=site_edit';
 $editSite .= ($siteTemplate ? '&template=' . $siteTemplate : '');
+$editCookies = $landingsPage . '&cmp=cookies_edit';
+$editCookies .= ($siteTemplate ? '&template=' . $siteTemplate : '');
 $viewPage ='landing_view.php?lang=' . LANGUAGE_ID . '&id=#landing_edit#&site=' . $site . '&template=' . $siteTemplate;
 
 if ($isFrame)
@@ -323,7 +325,20 @@ elseif ($cmp == 'site_edit')
 			'SITE_ID' => $siteId,
 			'PAGE_URL_SITES' => '',
 			'PAGE_URL_LANDING_VIEW' => $viewPage,
+			'PAGE_URL_SITE_COOKIES' => $editCookies,
 			'TEMPLATE' => $tpl
+		),
+		$component
+	);
+}
+elseif ($cmp == 'cookies_edit')
+{
+	$APPLICATION->IncludeComponent(
+		'bitrix:landing.site_cookies',
+		'.default',
+		array(
+			'TYPE' => $type,
+			'SITE_ID' => $siteId
 		),
 		$component
 	);

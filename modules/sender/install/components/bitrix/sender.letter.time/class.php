@@ -6,9 +6,11 @@ use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type;
 use Bitrix\Main\Web\Uri;
+use Bitrix\Sender\Access\ActionDictionary;
 use Bitrix\Sender\Dispatch;
 use Bitrix\Sender\Entity;
 use Bitrix\Sender\Integration;
+use Bitrix\Sender\Internals\CommonSenderComponent;
 use Bitrix\Sender\Internals\PrettyDate;
 use Bitrix\Sender\Security;
 
@@ -25,7 +27,7 @@ if (!Bitrix\Main\Loader::includeModule('sender'))
 
 Loc::loadMessages(__FILE__);
 
-class SenderLetterTimeComponent extends CBitrixComponent
+class SenderLetterTimeComponent extends CommonSenderComponent
 {
 	/** @var ErrorCollection $errors */
 	protected $errors;
@@ -274,28 +276,8 @@ class SenderLetterTimeComponent extends CBitrixComponent
 
 	public function executeComponent()
 	{
-		$this->errors = new \Bitrix\Main\ErrorCollection();
-		if (!Bitrix\Main\Loader::includeModule('sender'))
-		{
-			$this->errors->setError(new Error('Module `sender` is not installed.'));
-			$this->printErrors();
-			return;
-		}
-
-		$this->initParams();
-		if (!$this->checkRequiredParams())
-		{
-			$this->printErrors();
-			return;
-		}
-
-		if (!$this->prepareResult())
-		{
-			$this->printErrors();
-			return;
-		}
-
-		$this->includeComponentTemplate();
+		parent::executeComponent();
+		parent::prepareResultAndTemplate();
 	}
 
 	public function getMessage($messageCode, $replace = [])
@@ -310,5 +292,15 @@ class SenderLetterTimeComponent extends CBitrixComponent
 			array_values($replace),
 			$this->arParams['~MESS'][$messageCode]
 		);
+	}
+
+	public function getEditAction()
+	{
+		return $this->getViewAction();
+	}
+
+	public function getViewAction()
+	{
+		return ActionDictionary::ACTION_MAILING_VIEW;
 	}
 }

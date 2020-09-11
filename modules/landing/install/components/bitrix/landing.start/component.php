@@ -6,7 +6,6 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 
 use \Bitrix\Crm\WebForm\Preset;
 use \Bitrix\Landing\Rights;
-use \Bitrix\Landing\Role;
 use \Bitrix\Landing\Block;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Main\Localization\Loc;
@@ -92,11 +91,13 @@ $defaultUrlTemplates404 = array(
 	'site_edit' => 'site/edit/#site_edit#/',
 	'site_domain' => 'site/domain/#site_edit#/',
 	'site_domain_switch' => 'site/domain_switch/#site_edit#/',
+	'site_cookies' => 'site/cookies/#site_edit#/',
 	'landing_edit' => 'site/#site_show#/edit/#landing_edit#/',
 	'landing_view' => 'site/#site_show#/view/#landing_edit#/',
 	'domains' => 'domains/',
 	'domain_edit' => 'domain/edit/#domain_edit#/',
 	'roles' => 'roles/',
+	'notes' => 'notes/',
 	'role_edit' => 'role/edit/#role_edit#/'
 );
 $defaultVariableAliases = array(
@@ -107,7 +108,8 @@ $defaultVariableAliases = array(
 	'domain_edit' => 'domain_edit',
 	'domains' => 'domains',
 	'role_edit' => 'role_edit',
-	'roles' => 'roles'
+	'roles' => 'roles',
+	'notes' => 'notes'
 );
 $varToTpl = array(
 	'domains' => 'domains',
@@ -124,11 +126,13 @@ $utlTpls = array(
 	'site_edit' => array('site_edit'),
 	'site_domain' => array('site_edit'),
 	'site_domain_switch' => array('site_edit'),
+	'site_cookies' => array('site_edit'),
 	'landing_edit' => array('landing_edit', 'site_show'),
 	'landing_view' => array('landing_edit', 'site_show'),
 	'domains' => array(),
 	'domain_edit' => array('domain_edit'),
 	'roles' => array(),
+	'notes' => array(),
 	'role_edit' => array('role_edit')
 );
 
@@ -143,9 +147,7 @@ $landingTypes = \Bitrix\Landing\Site::getTypes();
 // template vars
 $arResult['AGREEMENT'] = array();
 $arResult['AGREEMENT_ACCEPTED'] = false;
-$arResult['CHECK_FEATURE_PERM'] = Manager::checkFeature(
-	Manager::FEATURE_PERMISSIONS_AVAILABLE
-);
+$arResult['CHECK_FEATURE_PERM'] = \Bitrix\Landing\Restriction\Manager::isAllowed('limit_sites_access_permissions');
 $arParams['ACTION_FOLDER'] = isset($arParams['ACTION_FOLDER']) ? $arParams['ACTION_FOLDER'] : 'folderId';
 $arParams['SEF_MODE'] = isset($arParams['SEF_MODE']) ? $arParams['SEF_MODE'] : 'Y';
 $arParams['SEF_FOLDER'] = isset($arParams['SEF_FOLDER']) ? $arParams['SEF_FOLDER'] : '/';
@@ -472,13 +474,15 @@ while ($row = $res->fetch())
 		AgreementTable::update($row['ID'], [
 			'NAME' => $actual['NAME'],
 			'AGREEMENT_TEXT' => $actual['TEXT'],
-			'LABEL_TEXT' => Loc::getMessage('LANDING_CMP_AGREEMENT_LABEL')
+			'LABEL_TEXT' => Loc::getMessage('LANDING_CMP_AGREEMENT_LABEL'),
+			'IS_AGREEMENT_TEXT_HTML' => 'Y'
 		]);
 	}
 	else if (!$row['LABEL_TEXT'])
 	{
 		AgreementTable::update($row['ID'], [
-			'LABEL_TEXT' => Loc::getMessage('LANDING_CMP_AGREEMENT_LABEL')
+			'LABEL_TEXT' => Loc::getMessage('LANDING_CMP_AGREEMENT_LABEL'),
+			'IS_AGREEMENT_TEXT_HTML' => 'Y'
 		]);
 	}
 	$agreements[$row['LANGUAGE_ID']]['ID'] = $row['ID'];
@@ -495,7 +499,8 @@ foreach ($agreements as $lng => $agreement)
 			'TYPE' => Agreement::TYPE_CUSTOM,
 			'NAME' => $agreement['NAME'],
 			'AGREEMENT_TEXT' => $agreement['TEXT'],
-			'LABEL_TEXT' => Loc::getMessage('LANDING_CMP_AGREEMENT_LABEL')
+			'LABEL_TEXT' => Loc::getMessage('LANDING_CMP_AGREEMENT_LABEL'),
+			'IS_AGREEMENT_TEXT_HTML' => 'Y'
 		));
 		if ($res->isSuccess())
 		{

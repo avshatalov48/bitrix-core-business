@@ -27,14 +27,14 @@ while ($ar = $rs->Fetch())
 	$arrADV_DETAIL[$ar["ID"]] = array("REFERER1" => $ar["REFERER1"], "REFERER2" => $ar["REFERER2"]);
 }
 
-if(strlen($find_referer1)>0)
+if($find_referer1 <> '')
 {
 	$find_adv=array();
 	foreach($arrADV_DETAIL as $ADV_ID=>$ADV_DETAIL)
 		if($ADV_DETAIL["REFERER1"]==$find_referer1 && !in_array($ADV_ID, $find_adv))
 			$find_adv[]=$ADV_ID;
 }
-if(strlen($find_referer2)>0)
+if($find_referer2 <> '')
 {
 	$find_adv=array();
 	foreach($arrADV_DETAIL as $ADV_ID=>$ADV_DETAIL)
@@ -57,7 +57,7 @@ InitFilterEx($arSettings, $sTableID."_settings", "get");
 
 if($find_diagram_type===false)//Restore saved setting
 {
-	if (strlen($saved_group_by) > 0)
+	if ($saved_group_by <> '')
 		$find_diagram_type = $saved_group_by;
 	else
 		$find_diagram_type = "COUNTER";
@@ -322,7 +322,7 @@ $lAdmin->BeginPrologContent();?>
 				endif;
 			$str .= "</a>";
 			else :
-				if(substr($arVal["URL"], -1) == "/")
+				if(mb_substr($arVal["URL"], -1) == "/")
 					$arVal["URL"] .= "index.php";
 				if ($arVal["URL_404"]=="Y") :
 					$str .= "<span class=\"stat_attention\">".htmlspecialcharsEx(TruncateText($arVal["URL"],45))."</span>";

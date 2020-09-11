@@ -12,9 +12,7 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
-	var ImBasePullHandler =
-	/*#__PURE__*/
-	function () {
+	var ImBasePullHandler = /*#__PURE__*/function () {
 	  babelHelpers.createClass(ImBasePullHandler, null, [{
 	    key: "create",
 	    value: function create() {
@@ -125,10 +123,8 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	      }
 
 	      if (params.files) {
-	        var files = ui_vue_vuex.VuexBuilderModel.convertToArray(params.files);
+	        var files = this.controller.application.prepareFilesBeforeSave(ui_vue_vuex.VuexBuilderModel.convertToArray(params.files));
 	        files.forEach(function (file) {
-	          file = _this.controller.application.prepareFilesBeforeSave(file);
-
 	          if (files.length === 1 && params.message.templateFileId && _this.store.state.files.index[params.chatId] && _this.store.state.files.index[params.chatId][params.message.templateFileId]) {
 	            _this.store.dispatch('files/update', {
 	              id: params.message.templateFileId,
@@ -500,9 +496,7 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	 * @subpackage im
 	 * @copyright 2001-2020 Bitrix
 	 */
-	var ImCallPullHandler =
-	/*#__PURE__*/
-	function () {
+	var ImCallPullHandler = /*#__PURE__*/function () {
 	  babelHelpers.createClass(ImCallPullHandler, null, [{
 	    key: "create",
 	    value: function create() {

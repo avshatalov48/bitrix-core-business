@@ -126,12 +126,11 @@ class StringType extends Base
 	 */
 	protected static function renderControl(FieldType $fieldType, array $field, $value, $allowSelection, $renderMode)
 	{
-		$renderResult = parent::renderControl($fieldType, $field, $value, $allowSelection, $renderMode);
 		if ($allowSelection && !($renderMode & FieldType::RENDER_MODE_PUBLIC))
 		{
-			$renderResult .= static::renderControlSelector($field, null, false, '', $fieldType);
+			return static::renderControlSelector($field, $value, 'combine', '', $fieldType);
 		}
-		return $renderResult;
+		return parent::renderControl($fieldType, $field, $value, $allowSelection, $renderMode);
 	}
 
 	/**

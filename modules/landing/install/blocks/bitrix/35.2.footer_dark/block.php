@@ -2,9 +2,9 @@
 	<div class="container">
 		<div class="row">
 			<div class="landing-block-node-main-card js-animation fadeInLeft col-sm-12 col-md-6 col-lg-6 g-mb-25 g-mb-0--lg">
-				<h2 class="landing-block-node-title landing-semantic-subtitle-small text-uppercase g-color-white font-weight-bold g-font-size-16 g-mb-20">
+				<h2 class="landing-block-node-title landing-semantic-subtitle-small text-uppercase g-color-white g-font-weight-700 g-font-size-16 g-mb-20">
 					Contact us</h2>
-				<div class="landing-block-node-text landing-semantic-text-medium g-font-size-default g-color-gray-light-v1 g-mb-20">
+				<div class="landing-block-node-text landing-semantic-text-medium g-color-gray-light-v1 g-mb-20">
 					<p>Lorem ipsum dolor sit amet, consectetur adipiscing</p></div>
 
 				<address class="g-mb-20">
@@ -23,7 +23,7 @@
 						</div>
 						<div>
 							<span class="landing-block-node-card-contact-text landing-semantic-text-medium g-color-gray-light-v1">Phone Number: </span>
-							<a class="landing-block-node-card-contact-link landing-semantic-link-medium g-color-gray-light-v1 font-weight-bold" href="tel:#PHONE1#" target="_blank">#PHONE1#</a>
+							<a class="landing-block-node-card-contact-link landing-semantic-link-medium g-color-gray-light-v1 g-font-weight-700" href="tel:#PHONE1#" target="_blank">#PHONE1#</a>
 						</div>
 					</div>
 
@@ -33,7 +33,7 @@
 						</div>
 						<div>
 							<span class="landing-block-node-card-contact-text landing-semantic-text-medium g-color-gray-light-v1">Email: </span>
-							<a class="landing-block-node-card-contact-link landing-semantic-link-medium g-color-gray-light-v1 font-weight-bold" href="mailto:#EMAIL1#" target="_blank">#EMAIL1#</a>
+							<a class="landing-block-node-card-contact-link landing-semantic-link-medium g-color-gray-light-v1 g-font-weight-700" href="mailto:#EMAIL1#" target="_blank">#EMAIL1#</a>
 						</div>
 					</div>
 				</address>
@@ -42,7 +42,7 @@
 
 
 			<div class="landing-block-node-column js-animation fadeInRight col-sm-12 col-md-2 col-lg-2 g-mb-25 g-mb-0--lg">
-				<h2 class="landing-block-node-title landing-semantic-subtitle-small text-uppercase g-color-white font-weight-bold g-font-size-16 g-mb-20">
+				<h2 class="landing-block-node-title landing-semantic-subtitle-small text-uppercase g-color-white g-font-weight-700 g-font-size-16 g-mb-20">
 					Categories</h2>
 				<ul class="landing-block-card-list1 list-unstyled g-mb-30">
 					<li class="landing-block-card-list1-item g-mb-10">
@@ -59,7 +59,7 @@
 			</div>
 
 			<div class="landing-block-node-column js-animation bounceInRight col-sm-12 col-md-2 col-lg-2 g-mb-25 g-mb-0--lg">
-				<h2 class="landing-block-node-title landing-semantic-subtitle-small text-uppercase g-color-white font-weight-bold g-font-size-16 g-mb-20">
+				<h2 class="landing-block-node-title landing-semantic-subtitle-small text-uppercase g-color-white g-font-weight-700 g-font-size-16 g-mb-20">
 					Customer Support</h2>
 				<ul class="landing-block-card-list2 list-unstyled g-mb-30">
 					<li class="landing-block-card-list2-item g-mb-10">
@@ -80,7 +80,7 @@
 			</div>
 
 			<div class="landing-block-node-column js-animation bounceInRight col-sm-12 col-md-2 col-lg-2">
-				<h2 class="landing-block-node-title landing-semantic-subtitle-small text-uppercase g-color-white font-weight-bold g-font-size-16 g-mb-20">
+				<h2 class="landing-block-node-title landing-semantic-subtitle-small text-uppercase g-color-white g-font-weight-700 g-font-size-16 g-mb-20">
 					Top Link</h2>
 				<ul class="landing-block-card-list1 list-unstyled g-mb-30">
 					<li class="landing-block-card-list3-item g-mb-10">

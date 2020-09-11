@@ -297,12 +297,12 @@ class Forum implements \ArrayAccess {
 		$this->id = $id;
 		if ($id <= 0)
 		{
-			throw new \Bitrix\Main\ArgumentNullException("Forum id");
+			throw new \Bitrix\Main\ArgumentNullException("Forum id is null.");
 		}
 		$this->data = ForumTable::getMainData($this->id);
 		if (empty($this->data))
 		{
-			throw new \Bitrix\Main\ObjectNotFoundException("Forum is not found.");
+			throw new \Bitrix\Main\ObjectNotFoundException("Forum with id {$this->id} is not found.");
 		}
 		$this->bindEvents();
 		$this->errorCollection = new \Bitrix\Main\ErrorCollection();
@@ -413,7 +413,7 @@ class Forum implements \ArrayAccess {
 			PermissionTable::add([
 				"FORUM_ID" => $this->id,
 				"GROUP_ID" => $key,
-				"PERMISSION" => strtoupper($val)
+				"PERMISSION" => mb_strtoupper($val)
 			]);
 		}
 		foreach (GetModuleEvents("forum", "onAfterPermissionSet", true) as $arEvent)

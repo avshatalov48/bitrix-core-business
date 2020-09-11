@@ -62,7 +62,7 @@ class Block extends \Bitrix\Main\Update\Stepper
 
 		// reg stepper
 		\Bitrix\Main\Update\Stepper::bindClass(
-			'\Bitrix\Landing\Update\Block', 'landing', 300
+			'Bitrix\Landing\Update\Block', 'landing', 300
 		);
 	}
 

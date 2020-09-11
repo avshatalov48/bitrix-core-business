@@ -78,7 +78,15 @@ export const AttachTypeGrid =
 					return '';
 				}
 
-				return MessagesModel.decodeBbCode({text: element.VALUE});
+				let text = Utils.text.htmlspecialchars(element.VALUE);
+				
+				text = text.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/ig, (whole, userId, userName) => {
+					const user = this.$store.getters['users/get'](userId);
+					userName = user? Utils.text.htmlspecialchars(user.name): userName;
+					return '<span class="bx-im-mention" data-type="USER" data-value="'+userId+'">'+userName+'</span>'
+				});
+
+				return MessagesModel.decodeBbCode({text});
 			},
 		},
 		computed:
@@ -93,7 +101,7 @@ export const AttachTypeGrid =
 				<template v-if="type === 'block'">
 					<template v-for="(element, index) in config.GRID">
 						<div class="bx-im-element-attach-type-grid-display bx-im-element-attach-type-display-block" :style="{width: getWidth(element)}">
-							<div class="bx-im-element-attach-type-grid-element-name" v-html="element.NAME"></div>
+							<div class="bx-im-element-attach-type-grid-element-name">{{element.NAME}}</div>
 							<template v-if="element.LINK">
 								<div class="bx-im-element-attach-type-grid-element-value bx-im-element-attach-type-grid-element-value-link" @click="openLink(element)" v-html="getValue(element)"></div>
 							</template>
@@ -106,12 +114,12 @@ export const AttachTypeGrid =
 				<template v-else-if="type === 'line'">
 					<template v-for="(element, index) in config.GRID">
 						<div class="bx-im-element-attach-type-grid-display bx-im-element-attach-type-display-card" :style="{width: getWidth(element)}">
-							<div class="bx-im-element-attach-type-grid-element-name" v-html="element.NAME"></div>
+							<div class="bx-im-element-attach-type-grid-element-name">{{element.NAME}}</div>
 							<template v-if="element.LINK">
-								<div class="bx-im-element-attach-type-grid-element-value bx-im-element-attach-type-grid-element-value-link" @click="openLink(element)" v-html="getValue(element)" :style="{color: element.COLOR? element.COLOR: ''}"></div>
+								<div class="bx-im-element-attach-type-grid-element-value bx-im-element-attach-type-grid-element-value-link" @click="openLink(element)" :style="{color: element.COLOR? element.COLOR: ''}" v-html="getValue(element)"></div>
 							</template>
 							<template v-else>
-								<div class="bx-im-element-attach-type-grid-element-value" v-html="getValue(element)" :style="{color: element.COLOR? element.COLOR: ''}"></div>
+								<div class="bx-im-element-attach-type-grid-element-value" :style="{color: element.COLOR? element.COLOR: ''}" v-html="getValue(element)"></div>
 							</template>
 						</div>
 					</template>
@@ -123,14 +131,14 @@ export const AttachTypeGrid =
 								<template v-for="(element, index) in config.GRID">
 									<tr>
 										<template v-if="element.NAME">
-											<td class="bx-im-element-attach-type-grid-element-name" :colspan="element.VALUE? 1: 2" v-html="element.NAME" :style="{width: getWidth(element)}"></td>
+											<td class="bx-im-element-attach-type-grid-element-name" :colspan="element.VALUE? 1: 2" :style="{width: getWidth(element)}">{{element.NAME}}</td>
 										</template>
 										<template v-if="element.VALUE">
 											<template v-if="element.LINK">
-												<td class="bx-im-element-attach-type-grid-element-value bx-im-element-attach-type-grid-element-value-link" @click="openLink(element)" v-html="getValue(element)" :colspan="element.NAME? 1: 2" :style="{color: element.COLOR? element.COLOR: ''}"></td>
+												<td class="bx-im-element-attach-type-grid-element-value bx-im-element-attach-type-grid-element-value-link" @click="openLink(element)" :colspan="element.NAME? 1: 2" :style="{color: element.COLOR? element.COLOR: ''}" v-html="getValue(element)"></td>
 											</template>
 											<template v-else>
-												<td class="bx-im-element-attach-type-grid-element-value" v-html="getValue(element)" :colspan="element.NAME? 1: 2" :style="{color: element.COLOR? element.COLOR: ''}"></td>
+												<td class="bx-im-element-attach-type-grid-element-value" :colspan="element.NAME? 1: 2" :style="{color: element.COLOR? element.COLOR: ''}" v-html="getValue(element)"></td>
 											</template>
 										</template>
 									</tr>

@@ -10,6 +10,16 @@ IncludeModuleLangFile(__FILE__);
 if(!$USER->IsAuthorized())
 	die('<script>alert("'.GetMessageJS("ACCESS_DENIED").'");</script>');
 
+if (!defined('MODULE_ID') && !defined('ENTITY') && isset($_REQUEST['dts']))
+{
+	$dts = \CBPDocument::unSignDocumentType($_REQUEST['dts']);
+	if ($dts)
+	{
+		define('MODULE_ID', $dts[0]);
+		define('ENTITY', $dts[1]);
+	}
+}
+
 CBPHelper::decodeTemplatePostData($_POST);
 
 $documentType = array(MODULE_ID, ENTITY, $_POST['document_type']);
@@ -85,7 +95,7 @@ switch($_POST['fieldType'])
 
 	case "date":
 	case "datetime":
-		$arFilter = Array("datetime", "date", 'mixed', 'UF:date');
+		$arFilter = ["datetime", "date", 'mixed', 'UF:date', 'string'];
 		break;
 
 	case "user":
@@ -225,8 +235,10 @@ function BPSHideShow(id)
 		<td>
 			<select id="BPSId2S" size="13" style="width:100%" ondblclick="BPSVInsert(this.value)">
 				<?foreach($documentFields as $fieldId => $documentField):?>
-					<?if($arFilter===false || in_array($documentField["BaseType"], $arFilter)):?>
-						<option value="{=Document:<?=$fieldId?>}"><?=htmlspecialcharsbx($documentField['Name'])?></option>
+					<?if($arFilter===false || in_array($documentField["BaseType"], $arFilter)):
+						$expr = sprintf('{{%s}}', $documentField['Name']);
+					?>
+						<option value="<?=htmlspecialcharsbx($expr)?>"><?=htmlspecialcharsbx($documentField['Name'])?></option>
 					<?endif?>
 				<?endforeach?>
 			</select>

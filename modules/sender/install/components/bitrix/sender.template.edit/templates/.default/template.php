@@ -110,6 +110,7 @@ CJSCore::Init(array('admin_interface'));
 									"TEMPLATE_ID" => '',
 									"CONTENT_URL" => $arResult['ROW']['CONTENT_URL'],
 									"IS_TEMPLATE_MODE" => false,
+									"IS_TRIGGER" => false,
 								),
 								null
 							);

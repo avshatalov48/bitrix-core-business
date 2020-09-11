@@ -17,9 +17,9 @@ return array(
 		'ADDITIONAL_FIELDS' => array(
 			'THEME_CODE' => '1construction',
 			'THEMEFONTS_CODE' => 'g-font-alegreya-sans',
-'THEMEFONTS_CODE_H' => 'g-font-alegreya-sans',
-'THEMEFONTS_SIZE' => '1.14286',
-'THEMEFONTS_USE' => 'Y',
+			'THEMEFONTS_CODE_H' => 'g-font-alegreya-sans',
+			'THEMEFONTS_SIZE' => '1.14286',
+			'THEMEFONTS_USE' => 'Y',
 			'B24BUTTON_CODE' => $buttons[0],
 			'UP_SHOW' => 'Y',
 		)

@@ -4,7 +4,7 @@ $control_id = $arParams['CONTROL_ID'];
 $textarea_id = $arParams['INPUT_NAME_STRING'] ? $arParams['INPUT_NAME_STRING'] : 'visual_'.$control_id;
 
 $INPUT_VALUE = array();
-if(isset($arParams['INPUT_VALUE_STRING']) && strlen($arParams['INPUT_VALUE_STRING']))
+if(isset($arParams['INPUT_VALUE_STRING']) && mb_strlen($arParams['INPUT_VALUE_STRING']))
 {
 	$arTokens = preg_split('/(?<=])[\n;,]+/', $arParams['~INPUT_VALUE_STRING']);
 	foreach($arTokens as $key => $token)

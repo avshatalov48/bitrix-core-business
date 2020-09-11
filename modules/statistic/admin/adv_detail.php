@@ -100,7 +100,7 @@ $sTableID_tab1 = "t_adv_detail_tab1";
 $sTableID_tab2 = "t_adv_detail_tab2";
 $sTableID_tab3 = "t_adv_detail_tab3";
 
-if(strlen($strError)<=0 && (
+if($strError == '' && (
 	$_REQUEST["table_id"]=="" ||
 	$_REQUEST["table_id"]==$sTableID_tab1 ||
 	$_REQUEST["table_id"]==$sTableID_tab2 ||
@@ -115,7 +115,7 @@ if(strlen($strError)<=0 && (
 		// init period data
 		reset($arrREF_ID_2);
 		foreach($arrREF_ID_2 as $key)
-			${"f_".$key} = $arrGROUP_DAYS[${"f_".strtoupper($find_type)}][$key];
+			${"f_".$key} = $arrGROUP_DAYS[${"f_".mb_strtoupper($find_type)}][$key];
 	}
 }
 
@@ -163,7 +163,7 @@ function create_event_list(&$lAdmin, $show_money=false, $get_total_events=false)
 	global $f_EVENTS_VIEW;
 	global $arFilter;
 
-	$show_events = (strlen($f_EVENTS_VIEW)<=0) ? COption::GetOptionString("statistic", "ADV_EVENTS_DEFAULT") : $f_EVENTS_VIEW;
+	$show_events = ($f_EVENTS_VIEW == '') ? COption::GetOptionString("statistic", "ADV_EVENTS_DEFAULT") : $f_EVENTS_VIEW;
 	$arF = array();
 	$arF["DATE1_PERIOD"] = $arFilter["DATE1_PERIOD"];
 	$arF["DATE2_PERIOD"] = $arFilter["DATE2_PERIOD"];
@@ -368,7 +368,7 @@ function create_event_list(&$lAdmin, $show_money=false, $get_total_events=false)
 			);
 	endif;
 	global $find_date1_period,$find_date2_period,$is_filtered;
-	if ((strlen($find_date1_period)>0 || strlen($find_date2_period)>0) && $is_filtered):
+	if (($find_date1_period <> '' || $find_date2_period <> '') && $is_filtered):
 		$arHeaders[]=
 			array(	"id"		=>"period",
 				"content"	=>GetMessage("STAT_PERIOD")."<br>".GetMessage("STAT_STRAIGHT"),
@@ -470,7 +470,7 @@ function create_event_list(&$lAdmin, $show_money=false, $get_total_events=false)
 				$show_money
 			);
 			$row->AddViewField("bef_yesterday_back", $strHTML);
-			if ((strlen($find_date1_period)>0 || strlen($find_date2_period)>0) && $is_filtered):
+			if (($find_date1_period <> '' || $find_date2_period <> '') && $is_filtered):
 				$strHTML=event_format_link(
 					array("C"=>$e_COUNTER_PERIOD,"M"=>$e_MONEY_PERIOD),
 					$f_GUESTS_PERIOD,
@@ -521,7 +521,7 @@ function create_event_list(&$lAdmin, $show_money=false, $get_total_events=false)
 	$row->AddViewField("yesterday_back", $arSum["YESTERDAY_BACK"]);
 	$row->AddViewField("bef_yesterday", $arSum["BEF_YESTERDAY"]);
 	$row->AddViewField("bef_yesterday_back", $arSum["BEF_YESTERDAY_BACK"]);
-	if ((strlen($find_date1_period)>0 || strlen($find_date2_period)>0) && $is_filtered):
+	if (($find_date1_period <> '' || $find_date2_period <> '') && $is_filtered):
 		$row->AddViewField("period", $arSum["PERIOD"]);
 		$row->AddViewField("period_back", $arSum["PERIOD_BACK"]);
 	endif;
@@ -547,7 +547,7 @@ else
 $lAdmin_tab1->onLoadScript = "BX.adminPanel.setTitle('".CUtil::JSEscape(GetMessage("STAT_ADV_CAMPAIGN_TITLE")." ".$title)."');";
 
 $lAdmin_tab1->BeginCustomContent();
-if(strlen($strError)>0):
+if($strError <> ''):
 	$m = new CAdminMessage($strError);
 	echo $m->Show();
 elseif($ar==false):
@@ -561,7 +561,7 @@ elseif($_REQUEST["table_id"]=="" || $_REQUEST["table_id"]==$sTableID_tab1):
 		<td colspan="2" nowrap><?echo GetMessage("STAT_TODAY")?><br><?=$now_date?></td>
 		<td colspan="2" nowrap><?echo GetMessage("STAT_YESTERDAY")?><br><?=$yesterday_date?></td>
 		<td colspan="2" nowrap><?echo GetMessage("STAT_BEFYESTERDAY")?><br><?=$bef_yesterday_date?></td>
-		<?if ((strlen($find_date1_period)>0 || strlen($find_date2_period)>0) && $is_filtered):?>
+		<?if (($find_date1_period <> '' || $find_date2_period <> '') && $is_filtered):?>
 		<td colspan="2"><?echo GetMessage("STAT_PERIOD")?><br><?=$arFilter["DATE1_PERIOD"]?>&nbsp;- <?=$arFilter["DATE2_PERIOD"]?></td>
 		<?endif;?>
 		<td colspan="2" nowrap><?echo GetMessage("STAT_TOTAL")?><br><?
@@ -664,7 +664,7 @@ elseif($_REQUEST["table_id"]=="" || $_REQUEST["table_id"]==$sTableID_tab1):
 				?>&nbsp;<?
 			endif;
 		?></td>
-		<?if ((strlen($find_date1_period)>0 || strlen($find_date2_period)>0) && $is_filtered):?>
+		<?if (($find_date1_period <> '' || $find_date2_period <> '') && $is_filtered):?>
 		<td align="right"><?
 			if (intval($f_SESSIONS_PERIOD)>0):
 				?><a target="_blank" title="<?echo GetMessage("STAT_SESSIONS_LIST")?>" href="session_list.php?lang=<?=LANGUAGE_ID?>&amp;find_date1=<?=urlencode($find_date1_period); ?>&amp;find_date2=<?=urlencode($find_date2_period)?>&amp;<?
@@ -727,7 +727,7 @@ elseif($_REQUEST["table_id"]=="" || $_REQUEST["table_id"]==$sTableID_tab1):
 		<td align="right"><?echo intval($f_GUESTS_BACK_YESTERDAY)>0 ? intval($f_GUESTS_BACK_YESTERDAY).'<span class="required">*</span>' : "&nbsp;"?></td>
 		<td align="right"><?echo intval($f_GUESTS_BEF_YESTERDAY)>0 ? intval($f_GUESTS_BEF_YESTERDAY) : "&nbsp;"?></td>
 		<td align="right"><?echo intval($f_GUESTS_BACK_BEF_YESTERDAY)>0 ? intval($f_GUESTS_BACK_BEF_YESTERDAY).'<span class="required">*</span>' : "&nbsp;"?></td>
-		<?if ((strlen($find_date1_period)>0 || strlen($find_date2_period)>0) && $is_filtered):?>
+		<?if (($find_date1_period <> '' || $find_date2_period <> '') && $is_filtered):?>
 		<td align="right"><?echo intval($f_GUESTS_PERIOD)>0 ? intval($f_GUESTS_PERIOD) : "&nbsp;"?></td>
 		<td align="right"><?echo intval($f_GUESTS_BACK_PERIOD)>0 ? intval($f_GUESTS_BACK_PERIOD).'<span class="required">*</span>' : "&nbsp;"?></td>
 		<?endif;?>
@@ -742,7 +742,7 @@ elseif($_REQUEST["table_id"]=="" || $_REQUEST["table_id"]==$sTableID_tab1):
 		<td align="right">&nbsp;</td>
 		<td align="right"><?echo intval($f_NEW_GUESTS_BEF_YESTERDAY)>0 ? intval($f_NEW_GUESTS_BEF_YESTERDAY) : "&nbsp;"?></td>
 		<td align="right">&nbsp;</td>
-		<?if ((strlen($find_date1_period)>0 || strlen($find_date2_period)>0) && $is_filtered):?>
+		<?if (($find_date1_period <> '' || $find_date2_period <> '') && $is_filtered):?>
 		<td align="right"><?echo (intval($f_NEW_GUESTS_PERIOD)>0 ? intval($f_NEW_GUESTS_PERIOD) : "&nbsp;")?></td>
 		<td align="right">&nbsp;</td>
 		<?endif;?>
@@ -757,7 +757,7 @@ elseif($_REQUEST["table_id"]=="" || $_REQUEST["table_id"]==$sTableID_tab1):
 		<td align="right"><?echo intval($f_HOSTS_BACK_YESTERDAY)>0 ? intval($f_HOSTS_BACK_YESTERDAY).'<span class="required">*</span>' : "&nbsp;"?></td>
 		<td align="right"><?echo intval($f_C_HOSTS_BEF_YESTERDAY)>0 ? intval($f_C_HOSTS_BEF_YESTERDAY) : "&nbsp;"?></td>
 		<td align="right"><?echo intval($f_HOSTS_BACK_BEF_YESTERDAY)>0 ? intval($f_HOSTS_BACK_BEF_YESTERDAY).'<span class="required">*</span>' : "&nbsp;"?></td>
-		<?if ((strlen($find_date1_period)>0 || strlen($find_date2_period)>0) && $is_filtered):?>
+		<?if (($find_date1_period <> '' || $find_date2_period <> '') && $is_filtered):?>
 		<td align="right"><?echo intval($f_C_HOSTS_PERIOD) ? intval($f_C_HOSTS_PERIOD) : "&nbsp;"?></td>
 		<td align="right"><?echo intval($f_HOSTS_BACK_PERIOD) ? intval($f_HOSTS_BACK_PERIOD).'<span class="required">*</span>' : "&nbsp;"?></td>
 		<?endif;?>
@@ -772,7 +772,7 @@ elseif($_REQUEST["table_id"]=="" || $_REQUEST["table_id"]==$sTableID_tab1):
 		<td align="right"><?echo intval($f_HITS_BACK_YESTERDAY)>0 ? intval($f_HITS_BACK_YESTERDAY).'<span class="required">*</span>' : "&nbsp;"?></td>
 		<td align="right"><?echo intval($f_HITS_BEF_YESTERDAY)>0 ? intval($f_HITS_BEF_YESTERDAY) : "&nbsp;"?></td>
 		<td align="right"><?echo intval($f_HITS_BACK_BEF_YESTERDAY)>0 ? intval($f_HITS_BACK_BEF_YESTERDAY).'<span class="required">*</span>' : "&nbsp;"?></td>
-		<?if ((strlen($find_date1_period)>0 || strlen($find_date2_period)>0) && $is_filtered):?>
+		<?if (($find_date1_period <> '' || $find_date2_period <> '') && $is_filtered):?>
 		<td align="right"><?echo intval($f_HITS_PERIOD)>0 ? intval($f_HITS_PERIOD) : "&nbsp;"?></td>
 		<td align="right"><?echo intval($f_HITS_BACK_PERIOD)>0 ? intval($f_HITS_BACK_PERIOD).'<span class="required">*</span>' : "&nbsp;"?></td>
 		<?endif;?>
@@ -829,7 +829,7 @@ $oSort_tab2 = new CAdminSorting($sTableID_tab2);
 $lAdmin_tab2 = new CAdminList($sTableID_tab2, $oSort_tab2);
 $lAdmin_tab2->InitFilter(array());
 $lAdmin_tab2->BeginPrologContent();
-if(strlen($strError)>0):
+if($strError <> ''):
 	CAdminMessage::ShowMessage($strError);
 elseif($ar==false):
 	CAdminMessage::ShowMessage(GetMessage("STAT_NO_DATA_FOR_FILTER"));
@@ -906,7 +906,7 @@ endif; //$STAT_RIGHT > "M"
 $oSort_tab3 = new CAdminSorting($sTableID_tab3, "s_def", "desc");
 $lAdmin_tab3 = new CAdminList($sTableID_tab3, $oSort_tab3);
 $lAdmin_tab3->InitFilter(array());
-if(strlen($strError)>0):
+if($strError <> ''):
 	CAdminMessage::ShowMessage($strError);
 elseif($site_filter=="Y" && $_REQUEST["table_id"]==$sTableID_tab3):
 	CAdminMessage::ShowMessage(GetMessage("STAT_NO_DATA"));
@@ -920,7 +920,7 @@ if($_REQUEST["table_id"]==$sTableID_tab3)
 $sTableID_tab4 = "t_visit_section_list_ENTER_COUNTER";
 $lAdmin_tab4 = new CAdminList($sTableID_tab4);
 $lAdmin_tab4->BeginCustomContent();
-if(strlen($strError)>0):
+if($strError <> ''):
 	CAdminMessage::ShowMessage($strError);
 elseif($_REQUEST["table_id"]==$sTableID_tab4):
 ?>
@@ -934,7 +934,7 @@ if($_REQUEST["table_id"]==$sTableID_tab4)
 $sTableID_tab5 = "t_visit_section_list_EXIT_COUNTER";
 $lAdmin_tab5 = new CAdminList($sTableID_tab5);
 $lAdmin_tab5->BeginCustomContent();
-if(strlen($strError)>0):
+if($strError <> ''):
 	CAdminMessage::ShowMessage($strError);
 elseif($_REQUEST["table_id"]==$sTableID_tab5):
 ?>
@@ -948,7 +948,7 @@ if($_REQUEST["table_id"]==$sTableID_tab5)
 $sTableID_tab6 = "t_visit_section_list_COUNTER";
 $lAdmin_tab6 = new CAdminList($sTableID_tab6);
 $lAdmin_tab6->BeginCustomContent();
-if(strlen($strError)>0):
+if($strError <> ''):
 	CAdminMessage::ShowMessage($strError);
 elseif($_REQUEST["table_id"]==$sTableID_tab6):
 ?>
@@ -962,7 +962,7 @@ if($_REQUEST["table_id"]==$sTableID_tab6)
 $sTableID_tab7 = "t_path_list_COUNTER";
 $lAdmin_tab7 = new CAdminList($sTableID_tab7);
 $lAdmin_tab7->BeginCustomContent();
-if(strlen($strError)>0):
+if($strError <> ''):
 	CAdminMessage::ShowMessage($strError);
 elseif($_REQUEST["table_id"]==$sTableID_tab7):
 ?>
@@ -976,7 +976,7 @@ if($_REQUEST["table_id"]==$sTableID_tab7)
 $sTableID_tab8 = "t_path_list_COUNTER_FULL_PATH";
 $lAdmin_tab8 = new CAdminList($sTableID_tab8);
 $lAdmin_tab8->BeginCustomContent();
-if(strlen($strError)>0):
+if($strError <> ''):
 	CAdminMessage::ShowMessage($strError);
 elseif($_REQUEST["table_id"]==$sTableID_tab8):
 ?>
@@ -990,7 +990,7 @@ if($_REQUEST["table_id"]==$sTableID_tab8)
 $sTableID_tab9 = "t_adv_graph_list";
 $lAdmin_tab9 = new CAdminList($sTableID_tab9);
 $lAdmin_tab9->BeginCustomContent();
-if(strlen($strError)>0):
+if($strError <> ''):
 	CAdminMessage::ShowMessage($strError);
 elseif($_REQUEST["table_id"]==$sTableID_tab9):
 ?>

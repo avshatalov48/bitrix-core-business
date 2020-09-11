@@ -79,7 +79,8 @@ if ($arResult['IS_FREE_DOMAIN'] == 'Y')
 			idDomainMessage: BX('domain-edit-message'),
 			idDomainLoader: BX('domain-edit-loader'),
 			idDomainDnsInfo: BX('domain-edit-dnsinfo'),
-			idDomainSubmit: BX('domain-edit-submit')
+			idDomainSubmit: BX('domain-edit-submit'),
+			idDomainErrorAlert: BX('domain-error-alert')
 		});
 	});
 </script>

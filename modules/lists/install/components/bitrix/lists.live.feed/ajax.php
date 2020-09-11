@@ -137,7 +137,7 @@ class LiveFeedAjaxController extends Controller
 		$idRight = array_search('iblock_full', $rightsList);
 		foreach($rights as $keyRight => $right)
 		{
-			$res = strpos($right['GROUP_CODE'], 'U');
+			$res = mb_strpos($right['GROUP_CODE'], 'U');
 			if($res === 0)
 			{
 				$arraySearch = array_search($right['GROUP_CODE'], $selectUsers);
@@ -390,10 +390,10 @@ class LiveFeedAjaxController extends Controller
 		$nameTemplate = CSite::GetNameFormat(false);
 		foreach($rights as $right)
 		{
-			$res = strpos($right['GROUP_CODE'], 'U');
+			$res = mb_strpos($right['GROUP_CODE'], 'U');
 			if($right['TASK_ID'] == $idRight && $res === 0)
 			{
-				$userId = substr($right['GROUP_CODE'], 1);
+				$userId = mb_substr($right['GROUP_CODE'], 1);
 				$users = CUser::GetList($by="id", $order="asc",
 					array('ID' => $userId),
 					array('FIELDS' => array('ID', 'PERSONAL_PHOTO', 'NAME', 'LAST_NAME'))
@@ -642,10 +642,10 @@ class LiveFeedAjaxController extends Controller
 		$count = 0;
 		foreach($rights as $right)
 		{
-			$res = strpos($right['GROUP_CODE'], 'U');
+			$res = mb_strpos($right['GROUP_CODE'], 'U');
 			if($right['TASK_ID'] == $idRight && $res === 0)
 			{
-				$userId = substr($right['GROUP_CODE'], 1);
+				$userId = mb_substr($right['GROUP_CODE'], 1);
 				$userGroups = CUser::getUserGroup($userId);
 				if(!in_array(1, $userGroups))
 				{
@@ -838,12 +838,12 @@ class LiveFeedAjaxController extends Controller
 					{
 						if(is_array($value))
 						{
-							if(strlen($value["VALUE"]))
+							if($value["VALUE"] <> '')
 							{
 								$value = str_replace(" ", "", str_replace(",", ".", $value["VALUE"]));
-								if (!is_numeric($value))
+								if(!is_numeric($value))
 								{
-									$this->errorCollection->add(array(new Error(Loc::getMessage('LISTS_IS_VALIDATE_FIELD_ERROR', array('#NAME#'=>$field['NAME'])))));
+									$this->errorCollection->add(array(new Error(Loc::getMessage('LISTS_IS_VALIDATE_FIELD_ERROR', array('#NAME#' => $field['NAME'])))));
 									$this->sendJsonErrorResponse();
 								}
 								$props[$field["ID"]][$key] = doubleval($value);
@@ -852,12 +852,12 @@ class LiveFeedAjaxController extends Controller
 						}
 						else
 						{
-							if(strlen($value))
+							if($value <> '')
 							{
 								$value = str_replace(" ", "", str_replace(",", ".", $value));
-								if (!is_numeric($value))
+								if(!is_numeric($value))
 								{
-									$this->errorCollection->add(array(new Error(Loc::getMessage('LISTS_IS_VALIDATE_FIELD_ERROR', array('#NAME#'=>$field['NAME'])))));
+									$this->errorCollection->add(array(new Error(Loc::getMessage('LISTS_IS_VALIDATE_FIELD_ERROR', array('#NAME#' => $field['NAME'])))));
 									$this->sendJsonErrorResponse();
 								}
 								$props[$field["ID"]][$key] = doubleval($value);
@@ -869,12 +869,12 @@ class LiveFeedAjaxController extends Controller
 				{
 					if(is_array($_POST[$fieldId]))
 					{
-						if(strlen($_POST[$fieldId]["VALUE"]))
+						if($_POST[$fieldId]["VALUE"] <> '')
 						{
 							$value = str_replace(" ", "", str_replace(",", ".", $_POST[$fieldId]["VALUE"]));
-							if (!is_numeric($value))
+							if(!is_numeric($value))
 							{
-								$this->errorCollection->add(array(new Error(Loc::getMessage('LISTS_IS_VALIDATE_FIELD_ERROR', array('#NAME#'=>$field['NAME'])))));
+								$this->errorCollection->add(array(new Error(Loc::getMessage('LISTS_IS_VALIDATE_FIELD_ERROR', array('#NAME#' => $field['NAME'])))));
 								$this->sendJsonErrorResponse();
 							}
 							$props[$field["ID"]] = doubleval($value);
@@ -882,12 +882,12 @@ class LiveFeedAjaxController extends Controller
 					}
 					else
 					{
-						if(strlen($_POST[$fieldId]))
+						if($_POST[$fieldId] <> '')
 						{
 							$value = str_replace(" ", "", str_replace(",", ".", $_POST[$fieldId]));
-							if (!is_numeric($value))
+							if(!is_numeric($value))
 							{
-								$this->errorCollection->add(array(new Error(Loc::getMessage('LISTS_IS_VALIDATE_FIELD_ERROR', array('#NAME#'=>$field['NAME'])))));
+								$this->errorCollection->add(array(new Error(Loc::getMessage('LISTS_IS_VALIDATE_FIELD_ERROR', array('#NAME#' => $field['NAME'])))));
 								$this->sendJsonErrorResponse();
 							}
 							$props[$field["ID"]] = doubleval($value);
@@ -926,7 +926,7 @@ class LiveFeedAjaxController extends Controller
 		$stringError = '';
 		foreach ($documentStates as $documentState)
 		{
-			if(strlen($documentState["ID"]) <= 0)
+			if($documentState["ID"] == '')
 			{
 				$errors = array();
 				$bizprocParametersValues[$documentState['TEMPLATE_ID']] = CBPDocument::StartWorkflowParametersValidate(
@@ -953,7 +953,7 @@ class LiveFeedAjaxController extends Controller
 			$bizProcWorkflowId = array();
 			foreach($documentStates as $documentState)
 			{
-				if(strlen($documentState["ID"]) <= 0)
+				if($documentState["ID"] == '')
 				{
 					$errorsTmp = array();
 
@@ -1115,7 +1115,7 @@ class LiveFeedAjaxController extends Controller
 				);
 				if($field['MULTIPLE'] == 'Y')
 				{
-					if(is_array($field['DEFAULT_VALUE']) || strlen($field['DEFAULT_VALUE']))
+					if(is_array($field['DEFAULT_VALUE']) || mb_strlen($field['DEFAULT_VALUE']))
 						$this->lists['DATA'][$fieldId]['n1'] = array('VALUE' => '', 'DESCRIPTION' => '');
 				}
 			}
@@ -1709,7 +1709,7 @@ class LiveFeedAjaxController extends Controller
 					}
 				}
 				$randomGenerator = new Bitrix\Main\Type\RandomSequence($fieldId);
-				$randString = strtolower($randomGenerator->randString(6));
+				$randString = mb_strtolower($randomGenerator->randString(6));
 				$html = '';
 				global $APPLICATION;
 				ob_start();
@@ -1824,7 +1824,7 @@ class LiveFeedAjaxController extends Controller
 				$workflowParameters = $documentState['TEMPLATE_PARAMETERS'];
 				if(!is_array($workflowParameters))
 					$workflowParameters = array();
-				if(strlen($documentState["ID"]) <= 0 && $templateId > 0)
+				if($documentState["ID"] == '' && $templateId > 0)
 				{
 					$parametersValues = array();
 					$keys = array_keys($workflowParameters);

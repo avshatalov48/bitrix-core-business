@@ -4,11 +4,11 @@ $iIndex = rand();
 if ($_SERVER['REQUEST_METHOD'] == "POST"):
 	$message = (empty($_POST["MID_ARRAY"]) ? $_POST["MID"] : $_POST["MID_ARRAY"]);
 	$message = (empty($message) ? $_POST["message_id"] : $message);
-	$action = strToUpper($_POST["ACTION"]);
+	$action = mb_strtoupper($_POST["ACTION"]);
 else:
 	$message = (empty($_GET["MID_ARRAY"]) ? $_GET["MID"] : $_GET["MID_ARRAY"]);
 	$message = (empty($message) ? $_GET["message_id"] : $message);
-	$action = strToUpper($_GET["ACTION"]);
+	$action = mb_strtoupper($_GET["ACTION"]);
 endif;
 $message = (is_array($message) ? $message : array($message));
 $iCount = count($arResult["MESSAGE_LIST"]);

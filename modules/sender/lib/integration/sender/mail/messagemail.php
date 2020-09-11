@@ -8,27 +8,25 @@
 
 namespace Bitrix\Sender\Integration\Sender\Mail;
 
+use Bitrix\Fileman\Block;
 use Bitrix\Main\Application;
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Config\Option;
-use Bitrix\Main\Result;
 use Bitrix\Main\Error;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Mail;
-
+use Bitrix\Main\Result;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Web\DOM\Document;
-use Bitrix\Main\Loader;
 use Bitrix\Main\Web\DOM\StyleInliner;
-use Bitrix\Fileman\Block;
-
-use Bitrix\Sender\Integration;
-use Bitrix\Sender\Transport;
-use Bitrix\Sender\Message;
 use Bitrix\Sender\Entity;
-use Bitrix\Sender\Templates;
+use Bitrix\Sender\Integration;
+use Bitrix\Sender\Integration\Crm\Connectors\Helper;
+use Bitrix\Sender\Message;
 use Bitrix\Sender\Posting;
-
 use Bitrix\Sender\PostingRecipientTable;
+use Bitrix\Sender\Templates;
+use Bitrix\Sender\Transport;
 
 Loc::loadMessages(__FILE__);
 
@@ -110,12 +108,25 @@ class MessageMail implements Message\iBase, Message\iMailable
 						function ($item)
 						{
 							return array(
-								'id' => '#' . $item['CODE'] . '#',
+//								'id' => '#' . $item['CODE'] . '#',
 								'text' => $item['NAME'],
 								'title' => $item['DESC'],
+								'items' => $item['ITEMS']?array_map(
+									function ($item)
+									{
+										return array(
+											'id' => '#' . $item['CODE'] . '#',
+											'text' => $item['NAME'],
+											'title' => $item['DESC']
+										);
+									}, $item['ITEMS']
+								) : []
 							);
 						},
-						PostingRecipientTable::getPersonalizeList()
+						array_merge(
+							Helper::getPersonalizeFieldsFromConnectors(),
+							PostingRecipientTable::getPersonalizeList()
+						)
 					),
 				),
 			),

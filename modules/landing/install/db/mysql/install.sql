@@ -321,7 +321,6 @@ create table if not exists b_landing_filter_block (
     FILTER_ID int(18) not null,
     BLOCK_ID int(18) not null,
     PRIMARY KEY(ID),
-    INDEX IX_B_FILTER_ID (FILTER_ID),
     UNIQUE IX_B_FILTER_BLOCK (FILTER_ID, BLOCK_ID)
 );
 
@@ -372,4 +371,20 @@ create table if not exists b_landing_chat_binding
     PRIMARY KEY(ID),
     INDEX IX_B_CHAT (INTERNAL_CHAT_ID),
     INDEX IX_B_ENTITY (ENTITY_ID, ENTITY_TYPE)
+);
+
+create table if not exists b_landing_cookies_agreement
+(
+	ID int(18) not null auto_increment,
+	ACTIVE char(1) not null default 'Y',
+	SITE_ID int(18) not null,
+	CODE varchar(50) not null,
+	TITLE varchar(255) default null,
+	CONTENT mediumtext not null,
+	CREATED_BY_ID int(18) not null,
+	MODIFIED_BY_ID int(18) not null,
+	DATE_CREATE timestamp null,
+	DATE_MODIFY timestamp not null,
+	PRIMARY KEY(ID),
+	INDEX IX_B_SITE (SITE_ID, CODE)
 );

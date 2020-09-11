@@ -24,7 +24,7 @@ function __forum_chapter_menu_gen()
 if($APPLICATION->GetGroupRight("forum") != "D")
 {
 	if ((method_exists($this, "IsSectionActive") && ($this->IsSectionActive("menu_forum_filter_DW") || 
-		$this->IsSectionActive("menu_forum_filter_DT"))) || ($_REQUEST["TYPE"] == "W" || $_REQUEST["TYPE"] == "T" || intVal($_REQUEST["DICTIONARY_ID"]) > 0))
+		$this->IsSectionActive("menu_forum_filter_DT"))) || ($_REQUEST["TYPE"] == "W" || $_REQUEST["TYPE"] == "T" || intval($_REQUEST["DICTIONARY_ID"]) > 0))
 	{
 		$Dict = __forum_chapter_menu_gen();
 	}

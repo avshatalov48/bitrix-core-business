@@ -38,7 +38,8 @@ class Landing extends \CModule
 		],
 		'main' => [
 			'onBeforeSiteDelete' => ['\Bitrix\Landing\Site', 'onBeforeMainSiteDelete'],
-			'onSiteDelete' => ['\Bitrix\Landing\Site', 'onMainSiteDelete']
+			'onSiteDelete' => ['\Bitrix\Landing\Site', 'onMainSiteDelete'],
+			'onUserConsentProviderList' => ['\Bitrix\Landing\Site\Cookies', 'onUserConsentProviderList']
 		],
 		'mobile' => [
 			'onMobileMenuStructureBuilt' => ['\Bitrix\Landing\Connector\Mobile', 'onMobileMenuStructureBuilt']
@@ -729,20 +730,23 @@ class Landing extends \CModule
 			);
 		}
 
-		// clear all providers in domains
-		$res = Domain::getList([
-			'select' => [
-				'ID'
-			],
-			'filter' => [
-				'!=PROVIDER' => null
-			]
-		]);
-		while ($row = $res->fetch())
+		if (\Bitrix\Main\Loader::includeModule('landing'))
 		{
-			Domain::update($row['ID'], [
-				'PROVIDER' => null
+			// clear all providers in domains
+			$res = Domain::getList([
+				'select' => [
+					'ID'
+				],
+				'filter' => [
+					'!=PROVIDER' => null
+				]
 			]);
+			while ($row = $res->fetch())
+			{
+				Domain::update($row['ID'], [
+					'PROVIDER' => null
+				]);
+			}
 		}
 
 		unset($keyForDelete, $key);

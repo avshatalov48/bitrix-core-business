@@ -13,9 +13,9 @@
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/prolog.php");
 	
 	$bVarsFromForm = false;
-	$ID = IntVal($ID);
+	$ID = intval($ID);
 	$ID = ($ID < 0) ? 0 : $ID;
-	$DICTIONARY_ID = intVal($_REQUEST["DICTIONARY_ID"]);
+	$DICTIONARY_ID = intval($_REQUEST["DICTIONARY_ID"]);
 	$DICTIONARY_ID = ($DICTIONARY_ID < 0) ? 0 : $DICTIONARY_ID;
 	$arFields = array();
 /*******************************************************************/

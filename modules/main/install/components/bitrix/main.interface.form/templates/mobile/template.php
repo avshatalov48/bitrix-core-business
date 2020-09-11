@@ -553,7 +553,8 @@ array_unshift($tab["fields"], array(
 									"MOBILE" => "Y",
 									"CAN_EDIT" => false,
 									"formId" => $arParams["FORM_ID"],
-									'mode' => 'main.view'
+									'mode' => 'main.view',
+									'mediaType' => 'mobile'
 								),
 								$component,
 								array("HIDE_ICONS" => "Y")
@@ -578,7 +579,8 @@ array_unshift($tab["fields"], array(
 									"MOBILE" => "Y",
 									"CAN_EDIT" => true,
 									"formId" => $arParams["FORM_ID"],
-									'mode' => 'main.edit'
+									'mode' => 'main.edit',
+									'mediaType' => 'mobile'
 								),
 								$component,
 								array("HIDE_ICONS" => "Y")

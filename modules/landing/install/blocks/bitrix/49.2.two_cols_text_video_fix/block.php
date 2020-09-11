@@ -14,7 +14,7 @@
 
 			<div class="landing-block-node-text-container d-flex js-animation slideInRight col-md-6 col-lg-6">
 				<div>
-					<h2 class="landing-block-node-title landing-semantic-title-small text-uppercase font-weight-bold g-font-size-26 mb-0 g-mb-15">
+					<h2 class="landing-block-node-title landing-semantic-title-small text-uppercase g-font-weight-700 g-font-size-26 mb-0 g-mb-15">
 						Quality results with us
 					</h2>
 					<div class="landing-block-node-text landing-semantic-text-medium g-color-gray-dark-v4">

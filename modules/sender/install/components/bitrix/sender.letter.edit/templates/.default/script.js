@@ -62,49 +62,7 @@
 
 			var self = this;
 
-			BX.addCustomEvent("SidePanel.Slider:onClose", function(event) {
-				var slider = event.getSlider();
-				self.popupWindow = BX.PopupWindowManager.create(
-					'sender-letter-on-slider-close',
-					null,
-					{
-						content: self.mess.applyClose,
-						titleBar: self.mess.applyCloseTitle,
-						width: 400,
-						height: 200,
-						padding: 10,
-						closeByEsc: true,
-						contentColor: 'white',
-						angle: false,
-						buttons: [
-							new BX.PopupWindowButton({
-								text: self.mess.applyYes,
-								className: "popup-window-button-accept",
-								events: {
-									click: function() {
-										slider.data = {close: true}
-										slider.close();
-									}
-								}
-							}),
-							new BX.PopupWindowButton({
-								text: self.mess.applyCancel,
-								className: "popup-window-button-cancel",
-								events: {
-									click: function() {
-										this.popupWindow.close();
-									}
-								}
-							})
-						]
-					}
-				).show();
-
-				if(typeof slider.data.close === 'undefined' || slider.data.close === false)
-				{
-					event.denyAction();
-				}
-			});
+			BX.addCustomEvent("SidePanel.Slider:onClose", this.onPopupClose.bind(this));
 		}
 
 		Page.initButtons();
@@ -128,6 +86,55 @@
 			this.context.classList.add('bx-sender-letter-ms-ie');
 		}
 	};
+	Letter.prototype.onPopupClose = function(event) {
+		var slider = event.getSlider();
+
+		if(!this.isSaved)
+		{
+			self.popupWindow = BX.PopupWindowManager.create(
+				'sender-letter-on-slider-close',
+				null,
+				{
+					content: this.mess.applyClose,
+					titleBar: this.mess.applyCloseTitle,
+					width: 400,
+					height: 200,
+					padding: 10,
+					closeByEsc: true,
+					contentColor: 'white',
+					angle: false,
+					buttons: [
+						new BX.PopupWindowButton({
+							text: this.mess.applyYes,
+							className: "popup-window-button-accept",
+							events: {
+								click: function() {
+									slider.data = {close: true}
+									slider.close();
+								}
+							}
+						}),
+						new BX.PopupWindowButton({
+							text: this.mess.applyCancel,
+							className: "popup-window-button-cancel",
+							events: {
+								click: function() {
+									this.popupWindow.close();
+								}
+							}
+						})
+					]
+				}
+			).show();
+
+
+			if(typeof slider.data.close === 'undefined' || slider.data.close === false)
+			{
+				event.denyAction();
+			}
+		}
+	};
+
 	Letter.prototype.isMSBrowser = function ()
 	{
 		return window.navigator.userAgent.match(/(Trident\/|MSIE|Edge\/)/) !== null;

@@ -14,9 +14,9 @@ endif;
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-	$arParams["UID"] = intVal($_REQUEST["UID"]);
-	$arParams["UID"] = intVal((!CForumUser::IsAdmin() || $arParams["UID"] <= 0) ? $USER->GetID() : $arParams["UID"]);
-	$arParams["ACTION"] = strToUpper($_REQUEST["ACTION"]);
+	$arParams["UID"] = intval($_REQUEST["UID"]);
+	$arParams["UID"] = intval((!CForumUser::IsAdmin() || $arParams["UID"] <= 0) ? $USER->GetID() : $arParams["UID"]);
+$arParams["ACTION"] = mb_strtoupper($_REQUEST["ACTION"]);
 /***************** URL *********************************************/
 	if (empty($arParams["URL_TEMPLATES_MESSAGE"]) && !empty($arParams["URL_TEMPLATES_READ"]))
 		$arParams["URL_TEMPLATES_MESSAGE"] = $arParams["URL_TEMPLATES_READ"];
@@ -32,18 +32,18 @@ endif;
 	}
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
-			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		if (trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
+			$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
+		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	// Data and data-time format
-	$arParams["TOPICS_PER_PAGE"] = intVal($arParams["TOPICS_PER_PAGE"] > 0 ? $arParams["TOPICS_PER_PAGE"] : COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"));
+	$arParams["TOPICS_PER_PAGE"] = intval($arParams["TOPICS_PER_PAGE"] > 0 ? $arParams["TOPICS_PER_PAGE"] : COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"));
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
-	$arParams["PAGE_NAVIGATION_WINDOW"] = intVal(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
+	$arParams["PAGE_NAVIGATION_WINDOW"] = intval(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
 /***************** STANDART ****************************************/
 	$arParams["SET_NAVIGATION"] = ($arParams["SET_NAVIGATION"] == "N" ? "N" : "Y");
 	$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
@@ -129,18 +129,18 @@ if ($db_res && $res = $db_res->GetNext())
 		$arResult["~TOPICS"][] = $res["TOPIC_ID"];
 
 		$res["START_DATE"] = trim($res["START_DATE"]);
-		if (strLen($res["START_DATE"]) > 0)
+		if ($res["START_DATE"] <> '')
 			$res["START_DATE"] = CForumFormat::DateFormat($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($res["START_DATE"], CSite::GetDateFormat()));;
 			
-		$res["SUBSCRIBE_TYPE"] = (intVal($res["TOPIC_ID"]) > 0 ? "TOPIC" : ($res["NEW_TOPIC_ONLY"] == "Y" ? "NEW_TOPIC_ONLY" : "ALL_MESSAGES"));
-		$res["LAST_SEND"] = intVal($res["LAST_SEND"]);
+		$res["SUBSCRIBE_TYPE"] = (intval($res["TOPIC_ID"]) > 0 ? "TOPIC" : ($res["NEW_TOPIC_ONLY"] == "Y" ? "NEW_TOPIC_ONLY" : "ALL_MESSAGES"));
+		$res["LAST_SEND"] = intval($res["LAST_SEND"]);
 		
 		$res["read"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_READ"], 
 			array("FID" => $res["FORUM_ID"], "TID" => $res["TOPIC_ID"], "TITLE_SEO" => $res["TITLE_SEO"], "MID" => "s"));
 		$res["list"] =  CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_LIST"], array("FID" => $res["FORUM_ID"]));
 		$res["read_last_send"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE"], 
-			array("FID" => $res["FORUM_ID"], "TID" => $res["TOPIC_ID"], "TITLE_SEO" => $res["TITLE_SEO"],  "MID" => intVal($res["LAST_SEND"]))).
-				"#message".intVal($res["LAST_SEND"]);
+			array("FID" => $res["FORUM_ID"], "TID" => $res["TOPIC_ID"], "TITLE_SEO" => $res["TITLE_SEO"],  "MID" => intval($res["LAST_SEND"]))).
+				"#message".intval($res["LAST_SEND"]);
 		$res["subscr_delete"] = ForumAddPageParams($arResult["CURRENT_PAGE"], 
 						array("SID" => $res["ID"], "ACTION" => "DEL"))."&amp;".bitrix_sessid_get();
 		$res["URL"] = array(

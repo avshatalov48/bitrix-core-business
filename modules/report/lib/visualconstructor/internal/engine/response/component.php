@@ -47,6 +47,8 @@ final class Component extends Json implements Errorable
 	public function __construct($componentName, $templateName = '', $params = [], $additionalResponseParams = [], $parentComponent = [], $functionParams = [], $status = self::STATUS_SUCCESS, ErrorCollection $errorCollection = null)
 	{
 		$this->asset = Asset::getInstance();
+
+		// Temporary fix
 		$this->asset->disableOptimizeCss();
 		$this->asset->disableOptimizeJs();
 
@@ -81,8 +83,8 @@ final class Component extends Json implements Errorable
 
 	private function collectAssetsPathList()
 	{
-		$this->asset->getJs();
 		$this->asset->getCss();
+		$this->asset->getJs();
 		$this->asset->getStrings();
 
 		$this->jsPathList = $this->asset->getTargetList('JS');
@@ -132,13 +134,13 @@ final class Component extends Json implements Errorable
 	 */
 	private function getStringList()
 	{
-		$stringList = [];
+		$strings = [];
 		foreach($this->cssPathList as $targetAsset)
 		{
 			$assetInfo = $this->asset->getAssetInfo($targetAsset['NAME'], AssetMode::ALL);
 			if (!empty($assetInfo['STRINGS']))
 			{
-				$stringList = array_merge($stringList, $assetInfo['STRINGS']);
+				$strings = array_merge($strings, $assetInfo['STRINGS']);
 			}
 		}
 
@@ -147,11 +149,12 @@ final class Component extends Json implements Errorable
 			$assetInfo = $this->asset->getAssetInfo($targetAsset['NAME'], AssetMode::ALL);
 			if (!empty($assetInfo['STRINGS']))
 			{
-				$stringList = array_merge($stringList, $assetInfo['STRINGS']);
+				$strings = array_merge($strings, $assetInfo['STRINGS']);
 			}
 		}
 
-		return $stringList;
+		$strings[] = $this->asset->showFilesList();
+		return $strings;
 	}
 
 	/**

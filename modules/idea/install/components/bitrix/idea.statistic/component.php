@@ -12,7 +12,7 @@ if (!CModule::IncludeModule('idea'))
 	return;
 }
 
-if(strlen($arParams["BLOG_URL"])==0)
+if($arParams["BLOG_URL"] == '')
 	return;
 
 $arResult = array();

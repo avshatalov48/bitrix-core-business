@@ -22,6 +22,14 @@ if(!CModule::IncludeModule("rest"))
 
 $request = \Bitrix\Main\Context::getCurrent()->getRequest();
 
+$arResult['SUBSCRIPTION_AVAILABLE'] = \Bitrix\Rest\Marketplace\Client::isSubscriptionAvailable();
+$arResult['SUBSCRIPTION_BUY_URL'] = '/settings/license_buy.php?product=subscr';
+$arResult['ANALYTIC_FROM'] = '';
+if (!empty($request->get('from')))
+{
+	$arResult['ANALYTIC_FROM'] = htmlspecialcharsbx($request->get('from'));
+}
+
 $arParams['APP'] = !empty($arParams['APP']) ? $arParams['APP'] : $_GET['app'];
 
 $ver = false;
@@ -139,8 +147,7 @@ if($request->isPost() && $request['install'] && check_bitrix_sessid())
 	}
 	else
 	{
-		$obRestDesc = new \CRestProvider();
-		$arRestDesc = $obRestDesc->getDescription();
+		$scopeList = \CRestUtil::getScopeList();
 		\Bitrix\Main\Localization\Loc::loadMessages($_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/rest/scope.php');
 		$arResult['SCOPE_DENIED'] = array();
 		if(is_array($arResult['APP']['RIGHTS']))
@@ -148,10 +155,10 @@ if($request->isPost() && $request['install'] && check_bitrix_sessid())
 			foreach($arResult['APP']['RIGHTS'] as $key => $scope)
 			{
 				$arResult['APP']['RIGHTS'][$key] = [
-					"TITLE" => Loc::getMessage("REST_SCOPE_".strtoupper($key)) ?: $scope,
-					"DESCRIPTION" => Loc::getMessage("REST_SCOPE_".strtoupper($key)."_DESCRIPTION")
+					"TITLE" => Loc::getMessage("REST_SCOPE_".mb_strtoupper($key)) ?: $scope,
+					"DESCRIPTION" => Loc::getMessage("REST_SCOPE_".mb_strtoupper($key)."_DESCRIPTION")
 				];
-				if(!array_key_exists($key, $arRestDesc))
+				if(!in_array($key, $scopeList, true))
 				{
 					$arResult['SCOPE_DENIED'][$key] = 1;
 				}
@@ -171,7 +178,7 @@ if($request->isPost() && $request['install'] && check_bitrix_sessid())
 }
 else
 {
-	if(is_array($arResult["APP"]["PRICE"]) && !empty($arResult["APP"]["PRICE"]) && $arResult['ADMIN'])
+	if($arResult["APP"]['FREE'] === 'N' && is_array($arResult["APP"]["PRICE"]) && !empty($arResult["APP"]["PRICE"]) && $arResult['ADMIN'])
 	{
 		$arResult['BUY'] = array();
 		foreach($arResult["APP"]["PRICE"] as $num => $price)

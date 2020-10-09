@@ -142,7 +142,7 @@ if($strWarning == "")
 			{
 				if(is_array($value) && count($value) == 1 && isset($value[0]) && $value[0] == "")
 					$aPostValues[$name] = array();
-				elseif($bLimitPhpAccess && substr($value, 0, 2) == '={' && substr($value, -1) == '}')
+				elseif($bLimitPhpAccess && mb_substr($value, 0, 2) == '={' && mb_substr($value, -1) == '}')
 					$aPostValues[$name] = $arValues[$name];
 			}
 
@@ -178,7 +178,7 @@ if($strWarning == "")
 				$functionParams.
 				"\n);";
 
-			$filesrc_for_save = substr($filesrc, 0, $arComponent["START"]).$code.substr($filesrc, $arComponent["END"]);
+			$filesrc_for_save = mb_substr($filesrc, 0, $arComponent["START"]).$code.mb_substr($filesrc, $arComponent["END"]);
 
 			$f = $io->GetFile($abs_path);
 			$arUndoParams = array(

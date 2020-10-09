@@ -3,7 +3,7 @@
 <?
 foreach ($arResult["SITES"] as $key => $arSite):
 ?>
-	<option value="<?if(is_array($arSite['DOMAINS']) && strlen($arSite['DOMAINS'][0]) > 0 || strlen($arSite['DOMAINS']) > 0):?>http://<?endif?><?=(is_array($arSite["DOMAINS"]) ? $arSite["DOMAINS"][0] : $arSite["DOMAINS"])?><?=$arSite["DIR"]?>" <?if ($arSite["CURRENT"] == "Y"):?>SELECTED="1"<?endif;?>><?=$arSite["NAME"]?></option>
+	<option value="<?if(is_array($arSite['DOMAINS']) && $arSite['DOMAINS'][0] <> '' || $arSite['DOMAINS'] <> ''):?>http://<?endif?><?=(is_array($arSite["DOMAINS"]) ? $arSite["DOMAINS"][0] : $arSite["DOMAINS"])?><?=$arSite["DIR"]?>" <?if ($arSite["CURRENT"] == "Y"):?>SELECTED="1"<?endif;?>><?=$arSite["NAME"]?></option>
 <?
 endforeach;
 ?>

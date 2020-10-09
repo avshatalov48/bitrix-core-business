@@ -51,10 +51,10 @@ class CSeoPageChecker
 			$this->__lang = $arRes['LANGUAGE_ID'];
 			$this->__server_name = $arRes['SERVER_NAME'];
 
-			if (strlen($this->__server_name) <= 0)
+			if ($this->__server_name == '')
 				$this->__server_name = COption::GetOptionString('main', 'server_name', '');
 
-			if (strlen($this->__server_name) > 0)
+			if ($this->__server_name <> '')
 			{
 				$this->__url = (CMain::IsHTTPS() ? "https://" : "http://")
 					.CBXPunycode::ToASCII($this->__server_name, $e = null)
@@ -63,7 +63,7 @@ class CSeoPageChecker
 				if(!$get || $this->GetHTTPData())
 					return true;
 				
-				if($this->bError && strlen($this->errorString) > 0)
+				if($this->bError && $this->errorString <> '')
 					$APPLICATION->ThrowException($this->errorString);
 				
 				return false;
@@ -128,7 +128,7 @@ class CSeoPageChecker
 	{
 		if($this->pcre_backtrack_limit === false)
 			$this->pcre_backtrack_limit = intval(ini_get("pcre.backtrack_limit"));
-		$text_len = function_exists('mb_strlen') ? mb_strlen($this->__result_data, 'latin1') : strlen($this->__result_data);
+		$text_len = function_exists('mb_strlen')? mb_strlen($this->__result_data, 'latin1') : mb_strlen($this->__result_data);
 		$text_len++;
 		if($this->pcre_backtrack_limit > 0 && $this->pcre_backtrack_limit < $text_len)
 		{
@@ -200,12 +200,12 @@ class CSeoPageChecker
 
 			foreach ($arRes[2] as $key => $attrs)
 			{
-				if (false !== strpos($attrs, 'rel="nofollow"'))
+				if (false !== mb_strpos($attrs, 'rel="nofollow"'))
 					$this->__result_extended['NOFOLLOW'][] = $arRes[0][$key];
-				if (false !== ($pos = strpos($attrs, 'href="')))
+				if (false !== ($pos = mb_strpos($attrs, 'href="')))
 				{
-					$pos1 = strpos($attrs, '"', $pos + 6);
-					$url = substr($attrs, $pos, $pos1-$pos);
+					$pos1 = mb_strpos($attrs, '"', $pos + 6);
+					$url = mb_substr($attrs, $pos, $pos1 - $pos);
 
 					if ($this->IsOuterUrl($url))
 					{
@@ -350,7 +350,7 @@ class CSeoPageChecker
 
 		return array(
 			'URL' => $this->__url,
-			'TOTAL_LENGTH' => function_exists('mb_strlen') ? mb_strlen($this->__result_data, 'latin1') : strlen($this->__result_data),
+			'TOTAL_LENGTH' => function_exists('mb_strlen')? mb_strlen($this->__result_data, 'latin1') : mb_strlen($this->__result_data),
 			'TOTAL_WORDS_COUNT' => $this->__index_total_len ? $this->__index_total_len : '-',
 			'UNIQUE_WORDS_COUNT' => $this->__index_total_len ? count($this->__index['TOTAL']) : '-',
 			'META_KEYWORDS' => $this->__result_meta['KEYWORDS'],
@@ -434,7 +434,7 @@ class CSeoPageChecker
 		if (strncmp($url, 'mailto:', 7) === 0) return false;
 		if (strncmp($url, 'javascript:', 11) === 0) return false;
 
-		$pos = strpos($url, '://');
+		$pos = mb_strpos($url, '://');
 		if ($pos === false) return false;
 
 		static $arDomainNames = null;
@@ -453,18 +453,18 @@ class CSeoPageChecker
 			$arDomainNames = array_values(array_unique($arDomainNames));
 		}
 
-		$url = substr($url, $pos+3);
-		$pos = strpos($url, '/');
+		$url = mb_substr($url, $pos + 3);
+		$pos = mb_strpos($url, '/');
 
 		if ($pos === false)
 		{
-			$pos = strlen($url);
+			$pos = mb_strlen($url);
 		}
 
-		$domain = substr($url, 0, $pos);
-		if (substr($domain, 0, 4) == 'www.')
+		$domain = mb_substr($url, 0, $pos);
+		if (mb_substr($domain, 0, 4) == 'www.')
 		{
-			$domain = substr($domain, 4);
+			$domain = mb_substr($domain, 4);
 		}
 
 		if ($domain)

@@ -13,23 +13,21 @@ $component = $this->getComponent();
 	<?php
 	foreach($arResult['value'] as $value)
 	{
+		$iconAttributes = ['class' => $component->getHtmlBuilder()->getCssClassName() . ' icon'];
+		if(!isset($value['attrList']['readonly']))
+		{
+			$iconAttributes['onclick'] = '
+				BX.calendar({
+					node: this.previousElementSibling, 
+					field: this.previousElementSibling, 
+					bTime: false, 
+					bSetFocus: false
+				})';
+		}
 		?>
 		<span class="fields date field-item">
-			<input
-				<?= $component->getHtmlBuilder()->buildTagAttributes($value['attrList']) ?>
-			>
-			<i
-				<?= $component->getHtmlBuilder()->buildTagAttributes([
-					'class' => $component->getHtmlBuilder()->getCssClassName() . ' icon',
-					'onclick' => 'BX.calendar({
-						node: this.previousElementSibling, 
-						field: this.previousElementSibling, 
-						bTime: false, 
-						bSetFocus: false
-					})'
-				]) ?>
-			>
-			</i>
+			<input <?= $component->getHtmlBuilder()->buildTagAttributes($value['attrList']) ?>>
+			<i <?= $component->getHtmlBuilder()->buildTagAttributes($iconAttributes) ?>></i>
 		</span>
 		<?php
 	}

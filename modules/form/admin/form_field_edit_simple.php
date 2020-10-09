@@ -1,13 +1,4 @@
 <?
-/*
-##############################################
-# Bitrix: SiteManager                        #
-# Copyright (c) 2004 - 2006 Bitrix           #
-# http://www.bitrix.ru                       #
-# mailto:admin@bitrix.ru                     #
-##############################################
-*/
-
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/form/prolog.php");
 
@@ -28,18 +19,11 @@ $old_module_version = CForm::IsOldVersion();
 
 $aTabs = array ();
 $aTabs[]=array("DIV" => "edit1", "TAB" => GetMessage("FORM_PROP"), "ICON" => "form_edit", "TITLE" => GetMessage("FORM_PROP_TITLE"));
-#$aTabs[]=array("DIV" => "edit2", "TAB" => GetMessage("FORM_QUESTION"), "ICON" => "form_edit", "TITLE" => GetMessage("FORM_TITLE"));
-#$aTabs[]=array("DIV" => "edit3", "TAB" => GetMessage("FORM_ANSWER"), "ICON" => "form_edit", "TITLE" => GetMessage("FORM_ANSWER_LIST"));
 $aTabs[] = array("DIV" => "edit7", "TAB" => GetMessage("FORM_VAL"), "ICON" => "form_edit", "TITLE" => GetMessage("FORM_VAL_TITLE"));
 $aTabs[]=array("DIV" => "edit6", "TAB" => GetMessage("FORM_COMMENT_TOP"), "ICON" => "form_edit", "TITLE" => GetMessage("FORM_COMMENTS"));
 
-
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 $err_message = null;
-
-/***************************************************************************
-                           GET | POST processing
-***************************************************************************/
 
 $WEB_FORM_ID = intval($WEB_FORM_ID);
 $arForm = CForm::GetByID_admin($WEB_FORM_ID);
@@ -66,14 +50,14 @@ InitBVar($additional);
 if (intval($copy_id)>0 && check_bitrix_sessid() && $F_RIGHT >= 30)
 {
 	$new_id = CFormField::Copy($copy_id);
-	if (strlen($strError)<=0 && intval($new_id)>0)
+	if ($strError == '' && intval($new_id)>0)
 	{
 		LocalRedirect("form_field_edit_simple.php?ID=".$new_id."&additional=".$additional."&WEB_FORM_ID=".$WEB_FORM_ID."&lang=".LANGUAGE_ID ."&strError=".urlencode($strError));
 	}
 }
 
 //get/post processing
-if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $F_RIGHT >= 30 && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $F_RIGHT >= 30 && check_bitrix_sessid())
 {
 	$arIMAGE = $_FILES["IMAGE_ID"];
 	$arIMAGE["MODULE_ID"] = "form";
@@ -122,7 +106,7 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $F_RIGHT
 
 			$arrA = array();
 			$arrA["ID"] = $pid;
-			$arrA["MESSAGE"] = strlen($MESSAGE[$i]) > 0 ? $MESSAGE[$i] : " ";
+			$arrA["MESSAGE"] = $MESSAGE[$i] <> '' ? $MESSAGE[$i] : " ";
 			$arrA["VALUE"] = $VALUE[$i];
 			$arrA["C_SORT"] = $SORT[$i];
 			$arrA["ACTIVE"] = "Y";
@@ -196,9 +180,9 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $F_RIGHT
 			}
 		}
 
-		if (strlen($strError)<=0)
+		if ($strError == '')
 		{
-			if (strlen($save)>0) LocalRedirect("form_field_list.php?WEB_FORM_ID=".$WEB_FORM_ID."&additional=". $additional."&lang=".LANGUAGE_ID);
+			if ($save <> '') LocalRedirect("form_field_list.php?WEB_FORM_ID=".$WEB_FORM_ID."&additional=". $additional."&lang=".LANGUAGE_ID);
 			else LocalRedirect("form_field_edit_simple.php?ID=".$ID."&WEB_FORM_ID=".$WEB_FORM_ID."&additional=". $additional."&lang=".LANGUAGE_ID."&".$tabControl->ActiveTabParam());
 		}
 	}
@@ -216,7 +200,7 @@ if (!$rsField || !$rsField->ExtractFields())
 	$str_IN_EXCEL_TABLE = "Y";
 }
 
-if (strlen($strError)>0) $DB->InitTableVarsForEdit("b_form_field", "", "str_");
+if ($strError <> '') $DB->InitTableVarsForEdit("b_form_field", "", "str_");
 
 if ($ID>0) $sDocTitle = str_replace("#ID#", $ID, GetMessage("FORM_EDIT_RECORD"));
 else $sDocTitle = GetMessage("FORM_NEW_RECORD");
@@ -226,9 +210,6 @@ else $sDocTitle = GetMessage("FORM_NEW_RECORD");
 
 $APPLICATION->SetTitle($sDocTitle);
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-/***************************************************************************
-                               HTML form
-****************************************************************************/
 
 $context = new CAdminContextMenuList($arForm['ADMIN_MENU']);
 $context->Show();
@@ -335,7 +316,7 @@ $tabControl->Begin();
 //********************
 $tabControl->BeginNextTab();
 ?>
-	<? if (strlen($str_TIMESTAMP_X)>0) : ?>
+	<? if ($str_TIMESTAMP_X <> '') : ?>
 	<tr>
 		<td><?=GetMessage("FORM_TIMESTAMP")?></td>
 		<td><?=$str_TIMESTAMP_X?></td>
@@ -809,4 +790,4 @@ $tabControl->End();
 ?>
 </form>
 
-<? require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php"); ?>
+<? require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

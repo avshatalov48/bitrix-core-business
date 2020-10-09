@@ -10,4 +10,5 @@ $MESS["AUTH_SECURE_NOTE"]="Перед отправкой формы пароль
 $MESS["system_auth_captcha"] = "Введите символы с картинки";
 $MESS["change_pass_phone_number"] = "Номер телефона";
 $MESS["change_pass_code"] = "Проверочный код";
+$MESS["system_change_pass_current_pass"] = "Текущий пароль";
 ?>

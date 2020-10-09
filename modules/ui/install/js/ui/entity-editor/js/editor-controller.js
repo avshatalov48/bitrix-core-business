@@ -310,10 +310,16 @@ if (typeof BX.UI.EntityEditorController === 'undefined')
 			}
 		},
 
+		release: function()
+		{
+		},
 		rollback: function()
 		{
 		},
-
+		validate: function()
+		{
+			return null;
+		},
 		innerCancel: function()
 		{
 		},

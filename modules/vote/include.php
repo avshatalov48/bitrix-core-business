@@ -4,7 +4,7 @@ global $DB, $MESS, $APPLICATION, $voteCache;
 require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/admin_tools.php");
 require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/filter_tools.php");
 require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/vote_tools.php");
-require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/classes/".strtolower($DB->type)."/channel.php");
+require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/classes/".mb_strtolower($DB->type)."/channel.php");
 IncludeModuleLangFile(__FILE__);
 
 if (!defined("VOTE_CACHE_TIME"))
@@ -20,15 +20,13 @@ $GLOBALS["VOTE_CACHE_VOTING"] = array();
 $GLOBALS["aVotePermissions"] = array(
 	"reference_id" => array(0, 1, 2, /*3, */4),
 	"reference" => array(GetMessage("VOTE_DENIED"), GetMessage("VOTE_READ"), GetMessage("VOTE_WRITE"), /*GetMessage("VOTE_EDIT_MY_OWN"), */GetMessage("VOTE_EDIT")));
-$_SESSION["VOTE"] = (is_array($_SESSION["VOTE"]) ? $_SESSION["VOTE"] : array());
-$_SESSION["VOTE"]["VOTES"] = (is_array($_SESSION["VOTE"]["VOTES"]) ? $_SESSION["VOTE"]["VOTES"] : array());
 
 CModule::AddAutoloadClasses("vote", array(
-	"CVoteAnswer" => "classes/".strtolower($DB->type)."/answer.php",
-	"CVoteEvent" => "classes/".strtolower($DB->type)."/event.php",
-	"CVoteQuestion" => "classes/".strtolower($DB->type)."/question.php", 
-	"CVoteUser" => "classes/".strtolower($DB->type)."/user.php", 
-	"CVote" => "classes/".strtolower($DB->type)."/vote.php",
+	"CVoteAnswer" => "classes/".mb_strtolower($DB->type)."/answer.php",
+	"CVoteEvent" => "classes/".mb_strtolower($DB->type)."/event.php",
+	"CVoteQuestion" => "classes/".mb_strtolower($DB->type)."/question.php",
+	"CVoteUser" => "classes/".mb_strtolower($DB->type)."/user.php",
+	"CVote" => "classes/".mb_strtolower($DB->type)."/vote.php",
 	"CVoteCacheManager" => "classes/general/functions.php",
 	"CVoteNotifySchema" => "classes/general/im.php",
 	"bitrix\\vote\\answertable" => "lib/answer.php",
@@ -138,7 +136,7 @@ function VoteVoteEditFromArray($CHANNEL_ID, $VOTE_ID = false, $arFields = array(
 	if (!empty($arFieldsVote["TITLE"]) && !empty($arVote["TITLE"]))
 	{
 		$q = reset($arQuestions);
-		if ($arVote["TITLE"] == substr($q["QUESTION"], 0, strlen($arVote["TITLE"])))
+		if ($arVote["TITLE"] == mb_substr($q["QUESTION"], 0, mb_strlen($arVote["TITLE"])))
 			unset($arFieldsVote["TITLE"]);
 	}
 /************** Check Data *****************************************/

@@ -2,7 +2,7 @@
 \Bitrix\Main\Localization\Loc::loadMessages(__FILE__);
 if (empty($arResult["ELEMENTS_LIST"])):
 	return true;
-elseif (!$this->__component->__parent || strpos($this->__component->__parent->__name, "photogallery") === false):
+elseif (!$this->__component->__parent || mb_strpos($this->__component->__parent->__name, "photogallery") === false):
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/photogallery/templates/.default/style.css');
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/photogallery/templates/.default/themes/gray/style.css');
 endif;
@@ -24,14 +24,14 @@ $arTemplates = array(
 // PICTURE
 $temp = array("STRING" => preg_replace("/[^0-9]/is", "/", $arParams["THUMBNAIL_SIZE"]));
 list($temp["WIDTH"], $temp["HEIGHT"]) = explode("/", $temp["STRING"]);
-$arParams["THUMBNAIL_SIZE"] = (intVal($temp["WIDTH"]) > 0 ? intVal($temp["WIDTH"]) : 120);
-if ($arParams["PICTURES_SIGHT"] != "standart" && intVal($arParams["PICTURES"][$arParams["PICTURES_SIGHT"]]["size"]) > 0)
+$arParams["THUMBNAIL_SIZE"] = (intval($temp["WIDTH"]) > 0 ? intval($temp["WIDTH"]) : 120);
+if ($arParams["PICTURES_SIGHT"] != "standart" && intval($arParams["PICTURES"][$arParams["PICTURES_SIGHT"]]["size"]) > 0)
 	$arParams["THUMBNAIL_SIZE"] = $arParams["PICTURES"][$arParams["PICTURES_SIGHT"]]["size"];
-$arParams["PERCENT"] = (intVal($arParams["PERCENT"]) > 0 ? intVal($arParams["PERCENT"]) : 60);
+$arParams["PERCENT"] = (intval($arParams["PERCENT"]) > 0 ? intval($arParams["PERCENT"]) : 60);
 $arParams["percent_width"] = $arParams["percent_height"] = 100;
 $arParams["ID"] = md5(serialize(array("default", $arParams["FILTER"], $arParams["SORTING"])));
 
-$arParams["~TEMPLATE"] = trim(strtolower($arParams["TEMPLATE"]));
+$arParams["~TEMPLATE"] = trim(mb_strtolower($arParams["TEMPLATE"]));
 $arParams["~TEMPLATE"] = ($arParams["~TEMPLATE"] == ".default" ? "default" : $arParams["~TEMPLATE"]);
 $arParams["~TEMPLATE"] = (array_key_exists($arParams["~TEMPLATE"], $arTemplates) ? $arParams["~TEMPLATE"] : "");
 if ($arParams["~SQUARE"] == "Y")
@@ -50,7 +50,7 @@ else
 
 	if ($GLOBALS['USER']->IsAuthorized())
 	{
-		require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".strToLower($GLOBALS["DB"]->type)."/favorites.php");
+		require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
 		$arTemplateParams = CUserOptions::GetOption('photogallery', 'template');
 		$arTemplateParams = (!is_array($arTemplateParams) ? array() : $arTemplateParams);
 		$arParams["TEMPLATE"] = $arTemplateParams['template'];
@@ -91,7 +91,7 @@ endif;
 $arParams["SHOW_RATING"] = ($arParams["SHOW_RATING"] == "Y" ? "Y" : "N");
 $arParams["SHOW_SHOWS"] = ($arParams["SHOW_SHOWS"] == "Y" ? "Y" : "N");
 $arParams["SHOW_COMMENTS"] = ($arParams["SHOW_COMMENTS"] == "Y" ? "Y" : "N");
-$arParams["COMMENTS_TYPE"] = (strToLower($arParams["COMMENTS_TYPE"]) == "forum" ? "forum" : "blog");
+$arParams["COMMENTS_TYPE"] = (mb_strtolower($arParams["COMMENTS_TYPE"]) == "forum" ? "forum" : "blog");
 $arParams["SHOW_DATETIME"] = ($arParams["SHOW_DATETIME"] == "Y" ? "Y" : "N");
 $arParams["SHOW_ANCHOR"] = $arResult["USER_HAVE_ACCESS"];
 $arParams["SHOW_DESCRIPTION"] = ($arParams["SHOW_DESCRIPTION"] == "Y" ? "Y" : "N");
@@ -227,7 +227,7 @@ foreach ($arResult["ELEMENTS_LIST"]	as $key => $arItem):
 	$arItem["TITLE"] = $title.($arItem["ACTIVE"] != "Y" ? GetMessage("P_PHOTO_NOT_APPROVED") : "");
 
 	if ($arParams["SHOW_COMMENTS"] != "N")
-		$arItem["COMMENTS"] = intVal($arParams["COMMENTS_TYPE"] != "blog" ?
+		$arItem["COMMENTS"] = intval($arParams["COMMENTS_TYPE"] != "blog" ?
 			$arItem["PROPERTIES"]["FORUM_MESSAGE_CNT"]["VALUE"] : $arItem["PROPERTIES"]["BLOG_COMMENTS_CNT"]["VALUE"]);
 	call_user_func("__photo_template_".$sTemplateName, $arItem, $arParams, $this);
 endforeach;
@@ -267,7 +267,7 @@ if ($arParams["SHOW_FORM"] == "Y"):
 					<select name="TO_SECTION_ID"><?
 					foreach ($arResult["SECTIONS_LIST"] as $key => $val):
 						?><option value="<?=$key?>" <?
-							?> <?=((intVal($arParams["SECTION_ID"]) == intVal($key)) ? " selected='selected'" : "")?>><?=$val?></option><?
+							?> <?=((intval($arParams["SECTION_ID"]) == intval($key)) ? " selected='selected'" : "")?>><?=$val?></option><?
 					endforeach;
 					?></select><?
 					?><input type="button" name="name_submit" value="OK" onclick="Move(this.form)"  style="margin-left:0.2em;" />

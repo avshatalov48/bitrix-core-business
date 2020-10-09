@@ -5,7 +5,7 @@
 //***************** BASE *******************************************/
 $res = array("STRING" => preg_replace("/[^0-9]/is", "/", $arParams["THUMBNAIL_SIZE"]));
 list($res["WIDTH"], $res["HEIGHT"]) = explode("/", $res["STRING"]);
-$arParams["THUMBNAIL_SIZE"] = (intVal($res["WIDTH"]) > 0 ? intVal($res["WIDTH"]) : 100);
+$arParams["THUMBNAIL_SIZE"] = (intval($res["WIDTH"]) > 0 ? intval($res["WIDTH"]) : 100);
 
 
 $arParams["USE_PERMISSIONS"] = ($arParams["USE_PERMISSIONS"] == "Y");
@@ -17,11 +17,11 @@ $arParams["GROUP_PERMISSIONS"] = (!is_array($arParams["GROUP_PERMISSIONS"]) ? ar
 
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		$arParams[strToUpper($URL)."_URL"] = trim($arParams[strToUpper($URL)."_URL"]);
-		if (empty($arParams[strToUpper($URL)."_URL"]))
-			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[mb_strtoupper($URL)."_URL"] = trim($arParams[mb_strtoupper($URL)."_URL"]);
+		if (empty($arParams[mb_strtoupper($URL)."_URL"]))
+			$arParams[mb_strtoupper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~".mb_strtoupper($URL)."_URL"] = $arParams[mb_strtoupper($URL)."_URL"];
+		$arParams[mb_strtoupper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".mb_strtoupper($URL)."_URL"]);
 	}
 //***************** ADDITTIONAL ************************************/
 //***************** STANDART ***************************************/
@@ -107,7 +107,7 @@ if (!empty($arParams["ADDITIONAL_SIGHTS"]))
 	if (empty($arParams["PICTURES_SIGHT"]) && !empty($arParams["PICTURES"])):
 		if ($GLOBALS["USER"]->IsAuthorized())
 		{
-			require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".strToLower($GLOBALS["DB"]->type)."/favorites.php");
+			require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
 			$arTemplateParams = CUserOptions::GetOption('photogallery', 'template');
 			$arTemplateParams = (!is_array($arTemplateParams) ? array() : $arTemplateParams);
 			$arParams["PICTURES_SIGHT"] = $arTemplateParams['sight'];
@@ -124,7 +124,7 @@ if (!empty($arParams["ADDITIONAL_SIGHTS"]))
 				$_SESSION['photogallery']['sight'] = $arParams["PICTURES_SIGHT"] = $_REQUEST["PICTURES_SIGHT"];
 		}
 	elseif ($arParams["PICTURES_SIGHT"] != "real" && $arParams["PICTURES_SIGHT"] != "detail"):
-		$arParams["PICTURES_SIGHT"]	= substr($arParams["PICTURES_SIGHT"], 5);
+		$arParams["PICTURES_SIGHT"] = mb_substr($arParams["PICTURES_SIGHT"], 5);
 	endif;
 }
 
@@ -172,22 +172,22 @@ foreach($arResult["SEARCH"] as $key => $arItem)
 	{
 		$arElement = $obElement->GetFields();
 
-		if (strToUpper($arParams["PICTURES_SIGHT"]) == "DETAIL" && !empty($arElement["DETAIL_PICTURE"]))
+		if (mb_strtoupper($arParams["PICTURES_SIGHT"]) == "DETAIL" && !empty($arElement["DETAIL_PICTURE"]))
 			$arElement["~PICTURE"] = $arElement["DETAIL_PICTURE"];
-		elseif (!empty($arElement["PROPERTIES"][strToUpper($arParams["PICTURES_SIGHT"])."_PICTURE"]["VALUE"]))
-			$arElement["~PICTURE"] = $arElement["PROPERTIES"][strToUpper($arParams["PICTURES_SIGHT"])."_PICTURE"]["VALUE"];
+		elseif (!empty($arElement["PROPERTIES"][mb_strtoupper($arParams["PICTURES_SIGHT"])."_PICTURE"]["VALUE"]))
+			$arElement["~PICTURE"] = $arElement["PROPERTIES"][mb_strtoupper($arParams["PICTURES_SIGHT"])."_PICTURE"]["VALUE"];
 		else
 			$arElement["~PICTURE"] = $arElement["PREVIEW_PICTURE"];
 
 		$arElement["PICTURE"] = CFile::GetFileArray($arElement["~PICTURE"]);
 		if (!empty($arParams["PICTURES_SIGHT"]) && $arParams["PICTURES"][$arParams["PICTURES_SIGHT"]])
 		{
-			$size = intVal($arParams["PICTURES"][$arParams["PICTURES_SIGHT"]]["size"]);
+			$size = intval($arParams["PICTURES"][$arParams["PICTURES_SIGHT"]]["size"]);
 			if ($size > 0 && ($arElement["PICTURE"]["WIDTH"] > $size || $arElement["PICTURE"]["HEIGHT"] > $size))
 			{
 				$koeff = min($size / $arElement["PICTURE"]["WIDTH"], $size / $arElement["PICTURE"]["HEIGHT"]);
-				$arElement["PICTURE"]["WIDTH"] = intVal($arElement["PICTURE"]["WIDTH"] * $koeff);
-				$arElement["PICTURE"]["HEIGHT"] = intVal($arElement["PICTURE"]["HEIGHT"] * $koeff);
+				$arElement["PICTURE"]["WIDTH"] = intval($arElement["PICTURE"]["WIDTH"] * $koeff);
+				$arElement["PICTURE"]["HEIGHT"] = intval($arElement["PICTURE"]["HEIGHT"] * $koeff);
 			}
 		}
 

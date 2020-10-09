@@ -214,7 +214,7 @@ while ($arCCard = $dbRes->NavNext(false))
 	$row =& $lAdmin->AddRow($arCCard["ID"], $arCCard, $editUrl, GetMessage("SALE_EDIT_DESCR"));
 
 	$row->AddField("ID", "<a href=\"".$editUrl."\">".$arCCard["ID"]."</a>");
-	$row->AddField("NAME", $arCCard["NAME"], false, false);
+	$row->AddField("NAME", htmlspecialcharsbx($arCCard["NAME"]), false, false);
 	$row->AddField("ACTIVE", (($arCCard["ACTIVE"]=="Y") ? GetMessage("SPS_YES") : GetMessage("SPS_NO")));
 	$row->AddField("SORT", $arCCard["SORT"], false, false);
 
@@ -225,7 +225,11 @@ while ($arCCard = $dbRes->NavNext(false))
 	}
 
 	$row->AddField("LOGOTIP", $arCCard["LOGOTIP"]);
-	$row->AddField("DESCRIPTION", $arCCard["DESCRIPTION"], false, false);
+
+	$sanitizer = new CBXSanitizer();
+	$sanitizer->SetLevel(\CBXSanitizer::SECURE_LEVEL_LOW);
+	$description = $sanitizer->SanitizeHtml($arCCard["DESCRIPTION"]);
+	$row->AddField("DESCRIPTION", $description, false, true);
 
 	$pTypes = '';
 	$aFiles = '';

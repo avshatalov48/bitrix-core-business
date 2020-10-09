@@ -187,7 +187,7 @@ class ManagedCache
 		}
 		else
 		{
-			$salt = "/".substr(md5($BX_STATE), 0, 3);
+			$salt = "/".mb_substr(md5($BX_STATE), 0, 3);
 		}
 
 		$path = "/".SITE_ID.$relativePath.$salt;

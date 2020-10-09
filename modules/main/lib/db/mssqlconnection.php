@@ -164,7 +164,7 @@ class MssqlConnection extends Connection
 		$tableName = preg_replace("/[^A-Za-z0-9%_]+/i", "", $tableName);
 		$tableName = Trim($tableName);
 
-		if (strlen($tableName) <= 0)
+		if ($tableName == '')
 			return false;
 
 		$result = $this->queryScalar(
@@ -236,7 +236,7 @@ class MssqlConnection extends Connection
 			}
 			else
 			{
-				if (substr($indexColumnList, 0, strlen($columnsList)) === $columnsList)
+				if (mb_substr($indexColumnList, 0, mb_strlen($columnsList)) === $columnsList)
 					return $indexName;
 			}
 		}
@@ -421,7 +421,7 @@ class MssqlConnection extends Connection
 			if ($version != null)
 			{
 				$version = trim($version);
-				$this->versionExpress = (strpos($version, "Express Edition") > 0);
+				$this->versionExpress = (mb_strpos($version, "Express Edition") > 0);
 				preg_match("#[0-9]+\\.[0-9]+\\.[0-9]+#", $version, $arr);
 				$this->version = $arr[0];
 			}

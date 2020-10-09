@@ -914,14 +914,14 @@ class CBitrixComponent
 
 				if ($templateCachedData && is_array($templateCachedData))
 				{
-					if (array_key_exists("additionalCSS", $templateCachedData) && strlen($templateCachedData["additionalCSS"]) > 0)
+					if (array_key_exists("additionalCSS", $templateCachedData) && $templateCachedData["additionalCSS"] <> '')
 					{
 						$APPLICATION->SetAdditionalCSS($templateCachedData["additionalCSS"]);
 						if($this->__parent)
 							$this->__parent->addChildCSS($templateCachedData["additionalCSS"]);
 					}
 
-					if (array_key_exists("additionalJS", $templateCachedData) && strlen($templateCachedData["additionalJS"]) > 0)
+					if (array_key_exists("additionalJS", $templateCachedData) && $templateCachedData["additionalJS"] <> '')
 					{
 						$APPLICATION->AddHeadScript($templateCachedData["additionalJS"]);
 						if($this->__parent)
@@ -1410,9 +1410,9 @@ class CBitrixComponent
 		if (!$arParams['ICON'] && !$arParams['SRC'] && !$arParams['IMAGE'])
 			$arParams['ICON'] = 'bx-context-toolbar-delete-icon';
 
-		if (substr($deleteLink, 0, 11) != 'javascript:')
+		if (mb_substr($deleteLink, 0, 11) != 'javascript:')
 		{
-			if (false === strpos($deleteLink, 'return_url='))
+			if (false === mb_strpos($deleteLink, 'return_url='))
 				$deleteLink.= '&return_url='.urlencode($APPLICATION->getCurPageParam());
 
 			$deleteLink.= '&'.bitrix_sessid_get();

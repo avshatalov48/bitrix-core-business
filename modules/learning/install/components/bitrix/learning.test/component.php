@@ -21,12 +21,12 @@ $errors = array();
 //Params
 $arParams["PAGE_WINDOW"] = (isset($arParams["PAGE_WINDOW"]) && intval($arParams["PAGE_WINDOW"]) > 0 ? intval($arParams["PAGE_WINDOW"]) : "10");
 $arParams["SHOW_TIME_LIMIT"] = (isset($arParams["SHOW_TIME_LIMIT"]) && $arParams["SHOW_TIME_LIMIT"] == "N" ? "N" : "Y");
-$arParams["GRADEBOOK_TEMPLATE"] = (strlen($arParams["GRADEBOOK_TEMPLATE"]) > 0 ? htmlspecialcharsbx($arParams["GRADEBOOK_TEMPLATE"]) : "");
+$arParams["GRADEBOOK_TEMPLATE"] = ($arParams["GRADEBOOK_TEMPLATE"] <> '' ? htmlspecialcharsbx($arParams["GRADEBOOK_TEMPLATE"]) : "");
 //$arParams["CHECK_PERMISSIONS"] = (isset($arParams["CHECK_PERMISSIONS"]) && $arParams["CHECK_PERMISSIONS"]=="N" ? "N" : "Y");
 $arParams["TEST_ID"] = (isset($arParams["TEST_ID"]) && intval($arParams["TEST_ID"]) > 0 ? intval($arParams["TEST_ID"]) : intval($_REQUEST["TEST_ID"]));
 $arParams["COURSE_ID"] = (isset($arParams["COURSE_ID"]) && intval($arParams["COURSE_ID"]) > 0 ? intval($arParams["COURSE_ID"]) : intval($_REQUEST["COURSE_ID"]));
 
-if (strlen($arParams["PAGE_NUMBER_VARIABLE"]) <=0 || !preg_match("#^[A-Za-z_][A-Za-z01-9_]*$#", $arParams["PAGE_NUMBER_VARIABLE"]))
+if ($arParams["PAGE_NUMBER_VARIABLE"] == '' || !preg_match("#^[A-Za-z_][A-Za-z01-9_]*$#", $arParams["PAGE_NUMBER_VARIABLE"]))
 	$arParams["PAGE_NUMBER_VARIABLE"] = "PAGE";
 
 //Course
@@ -397,7 +397,7 @@ if (!sizeof($errors))
 										"ATTEMPT_ID" => $sessAttemptID,
 										"TEST_NAME" => $arTest["NAME"],
 										"COURSE_NAME" => $courseName,
-										"USER" => "(".$USER->GetLogin().")".(strlen($USER->GetFullName()) > 0 ? " ".$USER->GetFullName() : ""),
+										"USER" => "(".$USER->GetLogin().")".($USER->GetFullName() <> '' ? " ".$USER->GetFullName() : ""),
 										"DATE" => date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL")), time()),
 										"QUESTION_TEXT" => $arQuestion["NAME"],
 										"ANSWER_TEXT" => $_REQUEST["answer"],
@@ -449,7 +449,7 @@ if (!sizeof($errors))
 		}
 
 		//User wants to finish
-		if ((strlen($_REQUEST["finish"])>0) && $sessAttemptID)
+		if (($_REQUEST["finish"] <> '') && $sessAttemptID)
 		{
 			$rsAttempt = new CTestAttempt;
 			$rsAttempt->AttemptFinished($sessAttemptID);
@@ -703,7 +703,7 @@ if ($bCanEdit)
 		array(
 			"TEXT" => GetMessage("LEARNING_COURSES_TEST_DELETE"),
 			"TITLE" => GetMessage("LEARNING_COURSES_TEST_DELETE"),
-			"URL" => "javascript:if(confirm('".GetMessage("LEARNING_COURSES_TEST_DELETE_CONF")."'))jsUtils.Redirect([], '".CUtil::JSEscape("/bitrix/admin/learn_test_admin.php?ID=".$arParams["TEST_ID"]."&action=delete&lang=".LANGUAGE_ID."&".bitrix_sessid_get()."&COURSE_ID=".$arParams["COURSE_ID"]).(strlen($deleteReturnUrl) ? "&return_url=".urlencode($deleteReturnUrl) : "")."')",
+			"URL" => "javascript:if(confirm('".GetMessage("LEARNING_COURSES_TEST_DELETE_CONF")."'))jsUtils.Redirect([], '".CUtil::JSEscape("/bitrix/admin/learn_test_admin.php?ID=".$arParams["TEST_ID"]."&action=delete&lang=".LANGUAGE_ID."&".bitrix_sessid_get()."&COURSE_ID=".$arParams["COURSE_ID"]).($deleteReturnUrl <> ''? "&return_url=".urlencode($deleteReturnUrl) : "")."')",
 			"ICON" => "bx-context-toolbar-delete-icon",
 			"ID" => "bx-context-toolbar-delete-test",
 		),

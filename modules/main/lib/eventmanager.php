@@ -54,8 +54,8 @@ class EventManager
 			"TO_NAME" => $this->formatEventName(array("CALLBACK" => $callback)),
 		);
 
-		$fromModuleId = strtoupper($fromModuleId);
-		$eventType = strtoupper($eventType);
+		$fromModuleId = mb_strtoupper($fromModuleId);
+		$eventType = mb_strtoupper($eventType);
 
 		if (!isset($this->handlers[$fromModuleId]) || !is_array($this->handlers[$fromModuleId]))
 		{
@@ -110,8 +110,8 @@ class EventManager
 
 	public function removeEventHandler($fromModuleId, $eventType, $iEventHandlerKey)
 	{
-		$fromModuleId = strtoupper($fromModuleId);
-		$eventType = strtoupper($eventType);
+		$fromModuleId = mb_strtoupper($fromModuleId);
+		$eventType = mb_strtoupper($eventType);
 
 		if (is_array($this->handlers[$fromModuleId][$eventType]))
 		{
@@ -163,7 +163,7 @@ class EventManager
 		$sort = intval($sort);
 		$version = intval($version);
 
-		$uniqueID = md5(strtolower($fromModuleId.'.'.$eventType.'.'.$toModuleId.'.'.$toPath.'.'.$toClass.'.'.$toMethod.'.'.$toMethodArg.'.'.$version));
+		$uniqueID = md5(mb_strtolower($fromModuleId.'.'.$eventType.'.'.$toModuleId.'.'.$toPath.'.'.$toClass.'.'.$toMethod.'.'.$toMethodArg.'.'.$version));
 
 		$con = Application::getConnection();
 		$sqlHelper = $con->getSqlHelper();
@@ -243,9 +243,9 @@ class EventManager
 						"TO_METHOD" => $ar["TO_METHOD"]
 					)
 				);
-				$ar["~FROM_MODULE_ID"] = strtoupper($ar["FROM_MODULE_ID"]);
-				$ar["~MESSAGE_ID"] = strtoupper($ar["MESSAGE_ID"]);
-				if (strlen($ar["TO_METHOD_ARG"]) > 0)
+				$ar["~FROM_MODULE_ID"] = mb_strtoupper($ar["FROM_MODULE_ID"]);
+				$ar["~MESSAGE_ID"] = mb_strtoupper($ar["MESSAGE_ID"]);
+				if ($ar["TO_METHOD_ARG"] <> '')
 				{
 					$ar["TO_METHOD_ARG"] = unserialize($ar["TO_METHOD_ARG"]);
 				}
@@ -333,8 +333,8 @@ class EventManager
 			$this->loadEventHandlers();
 		}
 
-		$eventModuleId = strtoupper($eventModuleId);
-		$eventType = strtoupper($eventType);
+		$eventModuleId = mb_strtoupper($eventModuleId);
+		$eventType = mb_strtoupper($eventType);
 
 		if (!isset($this->handlers[$eventModuleId]) || !isset($this->handlers[$eventModuleId][$eventType]))
 		{

@@ -14,8 +14,8 @@ ShowMessage($arParams["~AUTH_RESULT"]);
 
 <?if($arResult["SHOW_FORM"]):?>
 
-<form method="post" action="<?=$arResult["AUTH_FORM"]?>" name="bform">
-	<?if (strlen($arResult["BACKURL"]) > 0): ?>
+<form method="post" action="<?=$arResult["AUTH_URL"]?>" name="bform">
+	<?if ($arResult["BACKURL"] <> ''): ?>
 	<input type="hidden" name="backurl" value="<?=$arResult["BACKURL"]?>" />
 	<? endif ?>
 	<input type="hidden" name="AUTH_FORM" value="Y">
@@ -44,14 +44,27 @@ ShowMessage($arParams["~AUTH_RESULT"]);
 				<td><span class="starrequired">*</span><?=GetMessage("AUTH_LOGIN")?></td>
 				<td><input type="text" name="USER_LOGIN" maxlength="50" value="<?=$arResult["LAST_LOGIN"]?>" class="bx-auth-input" /></td>
 			</tr>
+<?
+	if($arResult["USE_PASSWORD"]):
+?>
+			<tr>
+				<td><span class="starrequired">*</span><?echo GetMessage("sys_auth_changr_pass_current_pass")?></td>
+				<td><input type="password" name="USER_CURRENT_PASSWORD" maxlength="255" value="<?=$arResult["USER_CURRENT_PASSWORD"]?>" class="bx-auth-input" autocomplete="new-password" /></td>
+			</tr>
+<?
+	else:
+?>
 			<tr>
 				<td><span class="starrequired">*</span><?=GetMessage("AUTH_CHECKWORD")?></td>
 				<td><input type="text" name="USER_CHECKWORD" maxlength="50" value="<?=$arResult["USER_CHECKWORD"]?>" class="bx-auth-input" autocomplete="off" /></td>
 			</tr>
+<?
+	endif
+?>
 <?endif?>
 			<tr>
 				<td><span class="starrequired">*</span><?=GetMessage("AUTH_NEW_PASSWORD_REQ")?></td>
-				<td><input type="password" name="USER_PASSWORD" maxlength="255" value="<?=$arResult["USER_PASSWORD"]?>" class="bx-auth-input" autocomplete="off" />
+				<td><input type="password" name="USER_PASSWORD" maxlength="255" value="<?=$arResult["USER_PASSWORD"]?>" class="bx-auth-input" autocomplete="new-password" />
 <?if($arResult["SECURE_AUTH"]):?>
 				<span class="bx-auth-secure" id="bx_auth_secure" title="<?echo GetMessage("AUTH_SECURE_NOTE")?>" style="display:none">
 					<div class="bx-auth-secure-icon"></div>
@@ -69,7 +82,7 @@ document.getElementById('bx_auth_secure').style.display = 'inline-block';
 			</tr>
 			<tr>
 				<td><span class="starrequired">*</span><?=GetMessage("AUTH_NEW_PASSWORD_CONFIRM")?></td>
-				<td><input type="password" name="USER_CONFIRM_PASSWORD" maxlength="255" value="<?=$arResult["USER_CONFIRM_PASSWORD"]?>" class="bx-auth-input" autocomplete="off" /></td>
+				<td><input type="password" name="USER_CONFIRM_PASSWORD" maxlength="255" value="<?=$arResult["USER_CONFIRM_PASSWORD"]?>" class="bx-auth-input" autocomplete="new-password" /></td>
 			</tr>
 		<?if($arResult["USE_CAPTCHA"]):?>
 			<tr>
@@ -81,7 +94,7 @@ document.getElementById('bx_auth_secure').style.display = 'inline-block';
 			</tr>
 			<tr>
 				<td><span class="starrequired">*</span><?echo GetMessage("system_auth_captcha")?></td>
-				<td><input type="text" name="captcha_word" maxlength="50" value="" /></td>
+				<td><input type="text" name="captcha_word" maxlength="50" value="" autocomplete="off" /></td>
 			</tr>
 		<?endif?>
 		</tbody>

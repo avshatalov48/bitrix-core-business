@@ -35,7 +35,7 @@ else:
 			if ($iEl == 0):
 				?> <div style="float:left;  width: <?=$iWidth?>%">  <?
 			endif;
-			$sCurLetter = strtoupper(substr($arSect['NAME'], 0, 1));
+			$sCurLetter = mb_strtoupper(mb_substr($arSect['NAME'], 0, 1));
 			if ($sPrevLetter != $sCurLetter) :
 				$sPrevLetter = $sCurLetter;
 			?>
@@ -80,7 +80,7 @@ else:
 				?> <div style="float:left;  width: <?=$iWidth?>%">  <?
 			endif;
 
-			$sCurLetter = strtoupper(substr($arPage['NAME'], 0, 1));
+			$sCurLetter = mb_strtoupper(mb_substr($arPage['NAME'], 0, 1));
 			if ($sPrevLetter != $sCurLetter):
 				$sPrevLetter = $sCurLetter;
 				?>

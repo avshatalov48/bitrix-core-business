@@ -18,19 +18,19 @@ if(empty($arParams['SEF_MODE']))
 
 if(empty($arParams['SOCNET_GROUP_ID']) && $arParams['IN_COMPLEX'] == 'Y')
 {
-	if (strpos($this->GetParent()->GetName(), 'socialnetwork') !== false &&
+	if (mb_strpos($this->GetParent()->GetName(), 'socialnetwork') !== false &&
 		!empty($this->GetParent()->arResult['VARIABLES']['group_id']))
 		$arParams['SOCNET_GROUP_ID'] = $this->GetParent()->arResult['VARIABLES']['group_id'];
 }
 
 $arParams['PATH_TO_POST'] = trim($arParams['PATH_TO_POST']);
-if(strlen($arParams['PATH_TO_POST'])<=0)
+if($arParams['PATH_TO_POST'] == '')
 	$arParams['PATH_TO_POST'] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?$arParams[PAGE_VAR]=#wiki_name#");
 
 $arParams['PATH_TO_CATEGORY'] = trim($arParams['PATH_TO_POST']);
 
 $arParams['PATH_TO_CATEGORIES'] = trim($arParams['PATH_TO_CATEGORIES']);
-if(strlen($arParams['PATH_TO_CATEGORIES'])<=0)
+if($arParams['PATH_TO_CATEGORIES'] == '')
 {
 	$arParams['PATH_TO_CATEGORIES'] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?$arParams[OPER_VAR]=categories");
 	if ($arParams['IN_COMPLEX'] == 'Y' && $arParams['SEF_MODE'] == "Y")
@@ -38,7 +38,7 @@ if(strlen($arParams['PATH_TO_CATEGORIES'])<=0)
 }
 
 $arParams['PATH_TO_USER'] = trim($arParams['PATH_TO_USER']);
-if(strlen($arParams['PATH_TO_USER'])<=0)
+if($arParams['PATH_TO_USER'] == '')
 {
 	if ($arParams['IN_COMPLEX'] == 'Y' && $arParams['SEF_MODE'] == 'Y')
 		$arParams['PATH_TO_USER'] = $this->GetParent()->arParams['PATH_TO_USER'];
@@ -222,7 +222,7 @@ $arResult['CATEGORIES'] = array();
 $dbCatList->NavStart($arParams['CATEGORY_COUNT'], false);
 
 while($arCat = $dbCatList->GetNext())
-	$arResult['CATEGORIES'][strtolower($arCat["NAME"])]=$arCat;
+	$arResult['CATEGORIES'][mb_strtolower($arCat["NAME"])]=$arCat;
 
 $arResult['DB_LIST'] = &$dbCatList;
 $arCatName = $categories->getItemsNames();
@@ -243,13 +243,13 @@ if (!empty($arCatName))
 
 	$rsElement = CIBlockElement::GetList(array(), $arFilter, false, false, Array());
 	while($arElement = $rsElement->GetNext())
-		$arCatNameExists[] = substr($arElement['NAME'], strpos($arElement['NAME'], ':') + 1);
+		$arCatNameExists[] = mb_substr($arElement['NAME'], mb_strpos($arElement['NAME'], ':') + 1);
 
 	if (!empty($arCatNameExists))
 	{
 		foreach ($arCatNameExists as $sCatName)
 		{
-			$sCatNameLow = strtolower($sCatName);
+			$sCatNameLow = mb_strtolower($sCatName);
 			if (isset($arResult['CATEGORIES'][$sCatNameLow]))
 			{
 				$arResult['CATEGORIES'][$sCatNameLow]['IS_RED'] = 'N';

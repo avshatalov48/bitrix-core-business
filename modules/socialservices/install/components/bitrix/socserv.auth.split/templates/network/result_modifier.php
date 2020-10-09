@@ -16,7 +16,7 @@ if(\Bitrix\Main\Loader::includeModule('socialservices'))
 
 	$arResult['NETWORK_ACCOUNT'] = $dbRes->fetch();
 
-	if(is_array($arResult['NETWORK_ACCOUNT']) && strlen($arResult['NETWORK_ACCOUNT']['PERSONAL_WWW']) <= 0)
+	if(is_array($arResult['NETWORK_ACCOUNT']) && $arResult['NETWORK_ACCOUNT']['PERSONAL_WWW'] == '')
 	{
 		$arResult['NETWORK_ACCOUNT']['PERSONAL_WWW'] = CSocServBitrix24Net::NETWORK_URL.'/id'.$arResult['NETWORK_ACCOUNT']['XML_ID'].'/';
 	}

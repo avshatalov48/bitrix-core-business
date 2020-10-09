@@ -79,7 +79,7 @@ class User extends \IRestService
 
 		foreach(static::getDefaultAllowedUserFields() as $key => $field)
 		{
-			if(substr($field, 0, 3) === 'UF_' && !array_key_exists($field, $fields))
+			if(mb_substr($field, 0, 3) === 'UF_' && !array_key_exists($field, $fields))
 			{
 				static::unsetDefaultAllowedUserField($key);
 			}
@@ -163,13 +163,13 @@ class User extends \IRestService
 		$fieldsList = $USER_FIELD_MANAGER->getUserFields('USER', 0, LANGUAGE_ID);
 		foreach (static::getDefaultAllowedUserFields() as $key)
 		{
-			if(substr($key, 0, 3) != 'UF_')
+			if(mb_substr($key, 0, 3) != 'UF_')
 			{
 				$lkey = isset($langMessages[$key]) ? $key : str_replace('PERSONAL_', 'USER_', $key);
 				$res[$key] = isset($langMessages[$lkey]) ? $langMessages[$lkey] : $key;
-				if(substr($res[$key], -1) == ':')
+				if(mb_substr($res[$key], -1) == ':')
 				{
-					$res[$key] = substr($res[$key], 0, -1);
+					$res[$key] = mb_substr($res[$key], 0, -1);
 				}
 			}
 			else

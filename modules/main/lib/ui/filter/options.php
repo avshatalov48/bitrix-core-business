@@ -250,13 +250,13 @@ class Options
 		global $USER;
 
 		if ($USER->isAuthorized() ||
-			(!$USER->isAuthorized() && !isset($_SESSION["main.ui.filter.presets"][$id])))
+			(!$USER->isAuthorized() && !isset(\Bitrix\Main\Application::getInstance()->getSession()["main.ui.filter.presets"][$id])))
 		{
 			$options = \CUserOptions::getOption("main.ui.filter.presets", $id, array(), self::getUserId());
 		}
 		else
 		{
-			$options = $_SESSION["main.ui.filter.presets"][$id];
+			$options = \Bitrix\Main\Application::getInstance()->getSession()["main.ui.filter.presets"][$id];
 		}
 
 		return $options;
@@ -274,7 +274,7 @@ class Options
 		global $USER;
 
 		if ($USER->isAuthorized() ||
-			(!$USER->isAuthorized() && !isset($_SESSION["main.ui.filter"][$this->getId()]["options"])))
+			(!$USER->isAuthorized() && !isset(\Bitrix\Main\Application::getInstance()->getSession()["main.ui.filter"][$this->getId()]["options"])))
 		{
 			$options = \CUserOptions::getOption("main.ui.filter", $id, array(), self::getUserId());
 
@@ -285,7 +285,7 @@ class Options
 		}
 		else
 		{
-			$options = $_SESSION["main.ui.filter"][$this->getId()]["options"];
+			$options = \Bitrix\Main\Application::getInstance()->getSession()["main.ui.filter"][$this->getId()]["options"];
 		}
 
 		return $options;
@@ -486,7 +486,7 @@ class Options
 	 */
 	public function getSessionFilterId()
 	{
-		return $_SESSION["main.ui.filter"][$this->getId()]["filter"];
+		return \Bitrix\Main\Application::getInstance()->getSession()["main.ui.filter"][$this->getId()]["filter"];
 	}
 
 
@@ -497,7 +497,7 @@ class Options
 	 */
 	public function getAdditionalPresetFields($presetId)
 	{
-		$additional = $_SESSION["main.ui.filter"][$this->getId()]["filters"][$presetId]["additional"];
+		$additional = \Bitrix\Main\Application::getInstance()->getSession()["main.ui.filter"][$this->getId()]["filters"][$presetId]["additional"];
 		return is_array($additional) ? $additional : array();
 	}
 
@@ -509,7 +509,7 @@ class Options
 	 */
 	public function setAdditionalPresetFields($presetId, $additional = array())
 	{
-		$_SESSION["main.ui.filter"][$this->getId()]["filters"][$presetId]["additional"] = $additional;
+		\Bitrix\Main\Application::getInstance()->getSession()["main.ui.filter"][$this->getId()]["filters"][$presetId]["additional"] = $additional;
 	}
 
 
@@ -542,7 +542,7 @@ class Options
 		if (self::isSetFromRequest($request))
 		{
 			$settings = self::fetchSettingsFromQuery($fields, $this->getRequest());
-			$clear = strtoupper($request->get("clear_filter")) == "Y";
+			$clear = mb_strtoupper($request->get("clear_filter")) == "Y";
 
 			if ($settings !== null || $clear)
 			{
@@ -599,7 +599,7 @@ class Options
 	 */
 	public static function isDateField($key = "")
 	{
-		return is_string($key) && substr($key, -8) === "_datesel";
+		return is_string($key) && mb_substr($key, -8) === "_datesel";
 	}
 
 
@@ -666,7 +666,7 @@ class Options
 
 	public static function isNumberField($key = "")
 	{
-		return is_string($key) && substr($key, -7) === "_numsel";
+		return is_string($key) && mb_substr($key, -7) === "_numsel";
 	}
 
 
@@ -686,7 +686,7 @@ class Options
 				}
 			}
 
-			if (($field !== "" && strpos($key, -6) !== "_label") || $isStrictField)
+			if (($field !== "" && mb_strpos($key, -6) !== "_label") || $isStrictField)
 			{
 				if (self::isDateField($key))
 				{
@@ -700,7 +700,7 @@ class Options
 					$resultFields = array_merge($resultFields, $number);
 				}
 
-				elseif (substr($key, -5) !== "_from" && substr($key, -3) !== "_to")
+				elseif (mb_substr($key, -5) !== "_from" && mb_substr($key, -3) !== "_to")
 				{
 					$resultFields[$key] = $field;
 				}
@@ -773,7 +773,7 @@ class Options
 	 */
 	public function getSearchString()
 	{
-		$search = $_SESSION["main.ui.filter"][$this->id]["filter_search"];
+		$search = \Bitrix\Main\Application::getInstance()->getSession()["main.ui.filter"][$this->id]["filter_search"];
 		return is_string($search) ? $search : "";
 	}
 
@@ -798,7 +798,7 @@ class Options
 			}
 			else
 			{
-				$_SESSION["main.ui.filter.presets"][$this->getCommonPresetsId()] = $presets;
+				\Bitrix\Main\Application::getInstance()->getSession()["main.ui.filter.presets"][$this->getCommonPresetsId()] = $presets;
 			}
 		}
 
@@ -809,7 +809,7 @@ class Options
 		}
 		else
 		{
-			$_SESSION["main.ui.filter"][$this->getId()]["options"] = $this->options;
+			\Bitrix\Main\Application::getInstance()->getSession()["main.ui.filter"][$this->getId()]["options"] = $this->options;
 		}
 	}
 
@@ -997,7 +997,7 @@ class Options
 			$this->options["default"] = self::findDefaultPresetId($this->options["default_presets"]);
 			$this->options["use_pin_preset"] = true;
 			$this->options["filter"] = $this->options["default"];
-			unset($_SESSION["main.ui.filter"][$this->id]["filter"]);
+			unset(\Bitrix\Main\Application::getInstance()->getSession()["main.ui.filter"][$this->id]["filter"]);
 		}
 	}
 
@@ -1051,16 +1051,16 @@ class Options
 				$params = is_array($params) ? $params : [];
 
 				$isApplyFilter = (
-					(strtoupper($request->get("apply_filter")) == "Y") ||
-					(strtoupper($params["apply_filter"]) == "Y")
+					(mb_strtoupper($request->get("apply_filter")) == "Y") ||
+					(mb_strtoupper($params["apply_filter"]) == "Y")
 				);
 				$isClearFilter = (
-					(strtoupper($request->get("clear_filter")) == "Y") ||
-					(strtoupper($params["clear_filter"]) == "Y")
+					(mb_strtoupper($request->get("clear_filter")) == "Y") ||
+					(mb_strtoupper($params["clear_filter"]) == "Y")
 				);
 				$isWithPreset = (
-					(strtoupper($request->get("with_preset")) == "Y") ||
-					(strtoupper($params["with_preset"]) == "Y")
+					(mb_strtoupper($request->get("with_preset")) == "Y") ||
+					(mb_strtoupper($params["with_preset"]) == "Y")
 				);
 				$currentPresetId = $this->getCurrentFilterId();
 
@@ -1072,7 +1072,7 @@ class Options
 					|| $useRequest === false
 				)
 				{
-					$_SESSION["main.ui.filter"][$this->id]["filter"] = $presetId;
+					\Bitrix\Main\Application::getInstance()->getSession()["main.ui.filter"][$this->id]["filter"] = $presetId;
 				}
 
 			}
@@ -1101,7 +1101,7 @@ class Options
 			{
 				if (array_key_exists("FIND", $settings["fields"]))
 				{
-					$_SESSION["main.ui.filter"][$this->id]["filter_search"] = $settings["fields"]["FIND"];
+					\Bitrix\Main\Application::getInstance()->getSession()["main.ui.filter"][$this->id]["filter_search"] = $settings["fields"]["FIND"];
 					unset($settings["fields"]["FIND"]);
 				}
 
@@ -1618,7 +1618,7 @@ class Options
 	 */
 	public function reset()
 	{
-		$_SESSION["main.ui.filter"][$this->id] = null;
+		\Bitrix\Main\Application::getInstance()->getSession()["main.ui.filter"][$this->id] = null;
 	}
 
 
@@ -1639,8 +1639,8 @@ class Options
 	{
 		\CUserOptions::deleteOption("main.ui.filter", $filterId);
 		\CUserOptions::deleteOption("main.ui.filter.presets", $filterId);
-		unset($_SESSION["main.ui.filter"][$filterId]);
-		unset($_SESSION["main.ui.filter.presets"][$filterId]);
+		unset(\Bitrix\Main\Application::getInstance()->getSession()["main.ui.filter"][$filterId]);
+		unset(\Bitrix\Main\Application::getInstance()->getSession()["main.ui.filter.presets"][$filterId]);
 	}
 
 

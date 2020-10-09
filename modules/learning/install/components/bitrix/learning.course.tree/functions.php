@@ -13,26 +13,26 @@ if (!function_exists("_IsItemSelected"))
 
 		foreach($arLinks as $tested_link)
 		{
-			if (strlen($tested_link) <= 0)
+			if ($tested_link == '')
 				continue;
 
 			$tested_link = trim(Rel2Abs($cur_dir, $tested_link));
 
-			if(strpos($cur_page, $tested_link)===0)
+			if(mb_strpos($cur_page, $tested_link) === 0)
 			{
 				$selected = true;
 				break;
 			}
-			if(($pos = strpos($tested_link, "?"))!==false)
+			if(($pos = mb_strpos($tested_link, "?"))!==false)
 			{
 
-				if(substr($tested_link, 0, $pos)==$cur_page)
+				if(mb_substr($tested_link, 0, $pos) == $cur_page)
 				{
-					$params = explode("&", substr($tested_link, $pos+1));
+					$params = explode("&", mb_substr($tested_link, $pos + 1));
 					$bOK = true;
 					foreach($params as $param)
 					{
-						$eqpos=strpos($param, "=");
+						$eqpos = mb_strpos($param, "=");
 						$varvalue="";
 						if($eqpos===false)
 							$varname = $param;
@@ -40,8 +40,8 @@ if (!function_exists("_IsItemSelected"))
 							continue;
 						else
 						{
-							$varname = substr($param, 0, $eqpos);
-							$varvalue = urldecode(substr($param, $eqpos+1));
+							$varname = mb_substr($param, 0, $eqpos);
+							$varvalue = urldecode(mb_substr($param, $eqpos + 1));
 						}
 
 						$globvarvalue = isset($GLOBALS[$varname])?$GLOBALS[$varname]:"";

@@ -1126,8 +1126,7 @@ $arVisibleColumnsMap["EXTERNAL_ID"] = true;
 $measureList[0] = ' ';
 if ($bCatalog)
 {
-	if (isset($arVisibleColumnsMap['CATALOG_QUANTITY_RESERVED']) || isset($arVisibleColumnsMap['CATALOG_MEASURE']))
-		$arVisibleColumnsMap['CATALOG_TYPE'] = true;
+	$arVisibleColumnsMap['CATALOG_TYPE'] = true;
 
 	$boolPriceInc = false;
 	if ($boolCatalogPurchasInfo)
@@ -3130,7 +3129,7 @@ foreach (array_keys($rawRows) as $rowId)
 				}
 				elseif(($prop['PROPERTY_TYPE']=='G'))
 				{
-					$VALUE_NAME = 'FIELDS['.$itemId.'][PROPERTY_'.$prop['ID'].']['.$valueId.']';
+					$VALUE_NAME = 'FIELDS['.$itemType.$itemId.'][PROPERTY_'.$prop['ID'].']['.$valueId.']';
 
 					$searchParams = array(
 						'IBLOCK_ID' => (string)$prop['LINK_IBLOCK_ID'],
@@ -3222,7 +3221,7 @@ foreach (array_keys($rawRows) as $rowId)
 				}
 				elseif($aProp['PROPERTY_TYPE']=='G')
 				{
-					$VALUE_NAME = 'FIELDS['.$itemId.'][PROPERTY_'.$aProp['ID'].'][n0]';
+					$VALUE_NAME = 'FIELDS['.$itemType.$itemId.'][PROPERTY_'.$aProp['ID'].'][n0]';
 
 					$searchParams = array(
 						'IBLOCK_ID' => (string)$prop['LINK_IBLOCK_ID'],

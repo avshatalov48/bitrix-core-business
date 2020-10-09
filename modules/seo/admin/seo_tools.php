@@ -11,7 +11,7 @@ if (!$USER->CanDoOperation('seo_tools'))
 $io = CBXVirtualIo::GetInstance();
 
 $path = "/";
-if (isset($_REQUEST["path"]) && strlen($_REQUEST["path"]) > 0)
+if (isset($_REQUEST["path"]) && $_REQUEST["path"] <> '')
 {
 	$path = $_REQUEST["path"];
 	$path = $io->CombinePath("/", $path);
@@ -21,9 +21,9 @@ if (isset($_REQUEST["path"]) && strlen($_REQUEST["path"]) > 0)
 $documentRoot = CSite::GetSiteDocRoot($_REQUEST['site']);
 $absoluteFilePath = $documentRoot.$path;
 
-if (false !== ($pos = strrpos($absoluteFilePath, '/')))
+if (false !== ($pos = mb_strrpos($absoluteFilePath, '/')))
 {
-	$absoluteDirPath = substr($absoluteFilePath, 0, $pos);
+	$absoluteDirPath = mb_substr($absoluteFilePath, 0, $pos);
 }
 
 $bReadOnly = false;
@@ -51,7 +51,7 @@ elseif (!$USER->CanDoFileOperation('fm_edit_existent_file',array($_REQUEST['site
 function SeoShowHelp($topic)
 {
 	$msg = GetMessage('SEO_HELP_'.$topic);
-	if (strlen($msg) > 0)
+	if ($msg <> '')
 	{
 		$msg = ShowJSHint($msg, array('return' => true));
 	}
@@ -67,7 +67,7 @@ $bStatsRights = $APPLICATION->GetGroupRight("statistic") >= 'M'; // view stats w
 
 //get site settings
 $site = SITE_ID;
-if (isset($_REQUEST["site"]) && strlen($_REQUEST["site"]) > 0)
+if (isset($_REQUEST["site"]) && $_REQUEST["site"] <> '')
 {
 	$obSite = CSite::GetByID($_REQUEST["site"]);
 	if ($arSite = $obSite->Fetch())
@@ -77,9 +77,9 @@ if (isset($_REQUEST["site"]) && strlen($_REQUEST["site"]) > 0)
 	}
 }
 //find server name in other places
-if (strlen($serverName) <= 0)
+if ($serverName == '')
 	$serverName = COption::GetOptionString('main', 'server_name', '');
-if (strlen($serverName) <= 0)
+if ($serverName == '')
 	$serverName = $_SERVER['SERVER_NAME'];
 
 $serverName = str_replace(array("https://", "http://"), '', $serverName);
@@ -87,33 +87,41 @@ $protocol = \CMain::IsHTTPS() ? "https://" : "http://";
 
 $serverPort = intval($_SERVER['SERVER_PORT']);
 $serverHost = $_SERVER['HTTP_HOST'];
-if(strlen($serverPort)>0 && strlen($serverHost)>0)
-	if(strpos($serverHost, $serverPort) !== false || ($serverPort!=80 && $serverPort!=443))
+if($serverPort <> '' && $serverHost <> '')
+	if(mb_strpos($serverHost, $serverPort) !== false || ($serverPort!=80 && $serverPort!=443))
 		$serverName .= ":".$serverPort;
 
 //lang
-if (!isset($_REQUEST["lang"]) || strlen($_REQUEST["lang"]) <= 0)
+if (!isset($_REQUEST["lang"]) || $_REQUEST["lang"] == '')
 	$lang = LANGUAGE_ID;
 
 // title changers
-if (strlen($_REQUEST['title_changer_name']))
+if($_REQUEST['title_changer_name'] <> '')
+{
 	$titleChangerName = $_REQUEST['title_changer_name'];
+}
 
-if (strlen($_REQUEST['title_changer_link']) > 0)
+if ($_REQUEST['title_changer_link'] <> '')
 	$titleChangerLink = base64_decode($_REQUEST['title_changer_link']);
 
-if (strlen($_REQUEST['title_final']))
+if($_REQUEST['title_final'] <> '')
+{
 	$titleFinal = base64_decode($_REQUEST['title_final']);
+}
 
 // browser title changers
-if (strlen($_REQUEST['title_win_changer_name']))
+if($_REQUEST['title_win_changer_name'] <> '')
+{
 	$titleWinChangerName = $_REQUEST['title_win_changer_name'];
+}
 
-if (strlen($_REQUEST['title_win_changer_link']) > 0)
+if ($_REQUEST['title_win_changer_link'] <> '')
 	$titleWinChangerLink = base64_decode($_REQUEST['title_win_changer_link']);
 
-if (strlen($_REQUEST['title_win_final']))
+if($_REQUEST['title_win_final'] <> '')
+{
 	$titleWinFinal = base64_decode($_REQUEST['title_win_final']);
+}
 
 //back url processing
 $back_url = (isset($_REQUEST["back_url"]) ? $_REQUEST["back_url"] : "");
@@ -128,7 +136,7 @@ if (isset($_REQUEST['loadtab']))
 
 	$searchers = COption::GetOptionString('seo', 'searchers_list', '');
 	$arSearchers = array();
-	if (strlen($searchers) > 0)
+	if ($searchers <> '')
 	{
 		$arSearchers = explode(',', $searchers);
 		$arSearcherHits = array();
@@ -395,7 +403,7 @@ if (isset($_REQUEST['loadtab']))
 			$arReferers = array();
 			while ($arRes = $dbRes->Fetch())
 			{
-				if (strlen($arRes['URL_FROM']) > 0)
+				if ($arRes['URL_FROM'] <> '')
 				{
 					if (!is_array($arReferers[$arRes['URL_FROM']]))
 					{
@@ -420,7 +428,7 @@ if (isset($_REQUEST['loadtab']))
 				$dbRes->NavStart(50, false, 0);
 				while ($arRes = $dbRes->Fetch())
 				{
-					if (strlen($arRes['URL_FROM']) > 0 && ($arUrl = parse_url($arRes['URL_FROM'])))
+					if ($arRes['URL_FROM'] <> '' && ($arUrl = parse_url($arRes['URL_FROM'])))
 					{
 						if ($arUrl['port'] != '' && $arUrl['port'] != 80)
 							$arUrl['host'] .= ':'.$arUrl['port'];
@@ -516,7 +524,7 @@ elseif ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]))
 	if(!$bReadOnly)
 	{
 		//Title
-		if (isset($_POST["pageTitle"]) && strlen($_POST["pageTitle"]) > 0)
+		if (isset($_POST["pageTitle"]) && $_POST["pageTitle"] <> '')
 		{
 			$fileContent = SetPrologTitle($fileContent, $_POST["pageTitle"]);
 		}
@@ -596,13 +604,13 @@ if(is_array($arFilemanProperties))
 			$arGlobalProperties[$propertyCode] = "";
 
 		unset($arDirProperties[$propertyCode]);
-		unset($arInheritProperties[strtoupper($propertyCode)]);
+		unset($arInheritProperties[mb_strtoupper($propertyCode)]);
 	}
 }
 
 foreach ($arDirProperties as $propertyCode => $propertyValue)
 {
-	unset($arInheritProperties[strtoupper($propertyCode)]);
+	unset($arInheritProperties[mb_strtoupper($propertyCode)]);
 }
 
 $counters = COption::GetOptionString('seo', 'counters', SEO_COUNTERS_DEFAULT);
@@ -653,7 +661,7 @@ div#bx_page_extended_data div {height: 140px; width: 99%; overflow: auto; margin
 
 </style>
 <?
-if (strlen($counters) > 0):
+if ($counters <> ''):
 	$counters = str_replace(array('#DOMAIN#'), array($serverName), $counters);
 
 foreach(GetModuleEvents("seo", "OnSeoCountersGetList", true) as $arEvent)
@@ -744,7 +752,7 @@ if ($propertyCode = COption::GetOptionString('seo', 'property_internal_keywords'
 		}
 		$arInnerKeywords = $k;
 	}
-	if (strlen($arInnerKeywords) > 0)
+	if ($arInnerKeywords <> '')
 	{
 		$arInnerKeywords = explode(',', $arInnerKeywords);
 	}
@@ -835,7 +843,7 @@ $tabControl->BeginNextTab();
 	
 	if ($propertyCode = COption::GetOptionString('seo', 'property_window_title', 'title')):
 		$value = $arGlobalProperties[$propertyCode] ? $arGlobalProperties[$propertyCode] : $arDirProperties[$propertyCode];
-		if (strlen($value) <= 0)
+		if ($value == '')
 		{
 			$value = $APPLICATION->GetDirProperty($propertyCode, array($site, $path));
 		}
@@ -889,7 +897,7 @@ $tabControl->BeginNextTab();
 		<td><?echo $arFilemanProperties[$propertyCode]?>: <?echo SeoShowHelp('property_'.$key)?></td>
 		<td><input type="hidden" name="PROPERTY[<?=HtmlFilter::encode($propertyCode)?>][CODE]" value="<?=HtmlFilter::encode($propertyCode)?>" />
 		<?
-		if (strlen($value) <= 0):
+		if ($value == ''):
 			$value = $APPLICATION->GetDirProperty($propertyCode, array($site, $path));
 		?>
 			<div id="bx_view_property_<?=HtmlFilter::encode($propertyCode)?>" style="overflow:hidden;padding:2px 12px 2px 2px; border:1px solid #F8F9FC; width:90%; cursor:text; box-sizing:border-box; -moz-box-sizing:border-box;background-color:transparent; background-position:right; background-repeat:no-repeat; height: 22px;" onclick="BXEditProperty('<?=$propertyCode?>')" onmouseover="this.style.borderColor = '#434B50 #ADC0CF #ADC0CF #434B50';" onmouseout="this.style.borderColor = '#F8F9FC'" class="edit-field"><?=htmlspecialcharsEx($value)?></div>
@@ -1099,7 +1107,7 @@ window.BXSetStatsError = function(error)
 	var err_str = '<?echo CUtil::JSEscape(BeginNote())?>';
 	err_str +=  error;
 <?
-if (false === strpos(COption::GetOptionString('main', 'server_name', ''), ':')):
+if (false === mb_strpos(COption::GetOptionString('main', 'server_name', ''), ':')):
 ?>
 	if (window.location.port && window.location.port != '80')
 		err_str += '<br /><br /><?echo CUtil::JSEscape(GetMessage('SEO_PAGE_CONNECTION_ERROR_HINT'))?>';

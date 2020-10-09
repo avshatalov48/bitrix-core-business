@@ -167,7 +167,7 @@ class Address
 	 */
 	public function setEmail($email)
 	{
-		$email = strtolower(trim($email));
+		$email = mb_strtolower(trim($email));
 		if (!$this->checkMail($email))
 		{
 			$email = null;

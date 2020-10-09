@@ -18,6 +18,37 @@ if(!is_array($arParams["~AUTH_RESULT"]) && $arParams["~AUTH_RESULT"] <> '')
 
 $arResult["SHOW_FORM"] = !(is_array($arParams["~AUTH_RESULT"]) && $arParams["~AUTH_RESULT"]["TYPE"] == "OK");
 
+$arResult["USE_PASSWORD"] = false;
+if($arParams["~AUTH_RESULT"]["TYPE"] == "ERROR" && $arParams["~AUTH_RESULT"]["ERROR_TYPE"] == "CHANGE_PASSWORD")
+{
+	//it's required to change the password after N days, use password instead of checkword
+	$arResult["USE_PASSWORD"] = true;
+	//from the login form
+	$_REQUEST["USER_PASSWORD"] = "";
+}
+if(isset($_REQUEST["USER_CURRENT_PASSWORD"]))
+{
+	$arResult["USE_PASSWORD"] = true;
+}
+
+//stored in the system.auth.forgotpasswd/component.php
+$arResult["USER_PHONE_NUMBER"] = $_SESSION["system.auth.changepasswd"]["USER_PHONE_NUMBER"];
+
+$arResult["PHONE_REGISTRATION"] = (
+	COption::GetOptionString("main", "new_user_phone_auth", "N") == "Y"
+	&& $arResult["USER_PHONE_NUMBER"] <> ''
+	&& $arResult["USE_PASSWORD"] == false
+);
+
+if($arResult["PHONE_REGISTRATION"])
+{
+	$arResult["PHONE_CODE_RESEND_INTERVAL"] = CUser::PHONE_CODE_RESEND_INTERVAL;
+	$arResult["SIGNED_DATA"] = \Bitrix\Main\Controller\PhoneAuth::signData([
+		'phoneNumber' => $arResult["USER_PHONE_NUMBER"],
+		'smsTemplate' => "SMS_USER_RESTORE_PASSWORD"
+	]);
+}
+
 $arParamsToDelete = array(
 	"login",
 	"logout",
@@ -28,19 +59,6 @@ $arParamsToDelete = array(
 	"confirm_code",
 	"confirm_user_id",
 );
-
-//stored in the system.auth.forgotpasswd/component.php
-$arResult["USER_PHONE_NUMBER"] = $_SESSION["system.auth.changepasswd"]["USER_PHONE_NUMBER"];
-
-$arResult["PHONE_REGISTRATION"] = (COption::GetOptionString("main", "new_user_phone_auth", "N") == "Y" && $arResult["USER_PHONE_NUMBER"] <> '');
-if($arResult["PHONE_REGISTRATION"])
-{
-	$arResult["PHONE_CODE_RESEND_INTERVAL"] = CUser::PHONE_CODE_RESEND_INTERVAL;
-	$arResult["SIGNED_DATA"] = \Bitrix\Main\Controller\PhoneAuth::signData([
-		'phoneNumber' => $arResult["USER_PHONE_NUMBER"],
-		'smsTemplate' => "SMS_USER_RESTORE_PASSWORD"
-	]);
-}
 
 if(defined("AUTH_404"))
 {
@@ -57,11 +75,15 @@ $arResult["AUTH_AUTH_URL"] = $APPLICATION->GetCurPageParam("login=yes",$arParams
 
 foreach ($arResult as $key => $value)
 {
-	if (!is_array($value)) $arResult[$key] = htmlspecialcharsbx($value);
+	if (!is_array($value) && !is_bool($value))
+	{
+		$arResult[$key] = htmlspecialcharsbx($value);
+	}
 }
 
 $arRequestParams = array(
 	"USER_CHECKWORD",
+	"USER_CURRENT_PASSWORD",
 	"USER_PASSWORD",
 	"USER_CONFIRM_PASSWORD",
 );
@@ -99,12 +121,12 @@ if(!CMain::IsHTTPS() && COption::GetOptionString('main', 'use_encrypted_auth', '
 	if(($arKeys = $sec->LoadKeys()))
 	{
 		$sec->SetKeys($arKeys);
-		$sec->AddToForm('bform', array('USER_PASSWORD', 'USER_CONFIRM_PASSWORD'));
+		$sec->AddToForm('bform', ['USER_PASSWORD', 'USER_CONFIRM_PASSWORD', 'USER_CURRENT_PASSWORD']);
 		$arResult["SECURE_AUTH"] = true;
 	}
 }
 
-$arResult["USE_CAPTCHA"] = (COption::GetOptionString("main", "captcha_restoring_password", "N") == "Y");
+$arResult["USE_CAPTCHA"] = (COption::GetOptionString("main", "captcha_restoring_password", "N") == "Y" || $APPLICATION->NeedCAPTHAForLogin($arResult["~LAST_LOGIN"]));
 if($arResult["USE_CAPTCHA"])
 {
 	$arResult["CAPTCHA_CODE"] = htmlspecialcharsbx($APPLICATION->CaptchaGetCode());

@@ -51,7 +51,7 @@ class Stack extends Column
 		{
 			foreach ($data as $valueKey => $value)
 			{
-				if (strpos($valueKey, 'value_') === 0 && $value === 0)
+				if (mb_strpos($valueKey, 'value_') === 0 && $value === 0)
 				{
 					unset($data[$valueKey]);
 				}

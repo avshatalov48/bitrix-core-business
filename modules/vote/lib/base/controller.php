@@ -279,7 +279,7 @@ abstract class Controller
 	protected function resolveAction()
 	{
 		$listOfActions = array_change_key_case($this->listActions(), CASE_LOWER);
-		$action = strtolower($this->action);
+		$action = mb_strtolower($this->action);
 
 		if(!isset($listOfActions[$action]))
 			throw new NotSupportedException(Loc::getMessage(
@@ -325,7 +325,7 @@ abstract class Controller
 		$description = array_merge(
 			array(
 				'method' => array('GET'),
-				'name' => (is_string($description) && strlen($description) > 0 ? $description : $action),
+				'name' => (is_string($description) && $description <> '' ? $description : $action),
 				'need_auth' => true,
 				'check_sessid' => true,
 				'redirect_on_auth' => true
@@ -480,7 +480,7 @@ abstract class Controller
 	{
 		foreach ($required as $item)
 		{
-			if(!isset($inputParams[$item]) || (!$inputParams[$item] && !(is_string($inputParams[$item]) && strlen($inputParams[$item]))))
+			if(!isset($inputParams[$item]) || (!$inputParams[$item] && !(is_string($inputParams[$item]) && mb_strlen($inputParams[$item]))))
 			{
 				$this->errorCollection->add(array(new Error(Loc::getMessage('VOTE_CONTROLLER_ERROR_REQUIRED_PARAMETER', array('#PARAM#' => $item)), self::ERROR_REQUIRED_PARAMETER)));
 				return false;

@@ -19,7 +19,7 @@ define("HELP_FILE", "settings/settings/settings.php");
 if(!$USER->CanDoOperation('view_other_settings') && !$USER->CanDoOperation('edit_other_settings'))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-if(strpos($_REQUEST["back_url_settings"], '/') !== 0 || strpos($_REQUEST["back_url_settings"], '//') === 0)
+if(mb_strpos($_REQUEST["back_url_settings"], '/') !== 0 || mb_strpos($_REQUEST["back_url_settings"], '//') === 0)
 	$_REQUEST["back_url_settings"] = '';
 
 IncludeModuleLangFile(__FILE__);
@@ -105,7 +105,7 @@ function __AdmSettingsSaveOption($module_id, $arOption)
 
 	if ($isChoiceSites)
 	{
-		if (isset($_REQUEST[$name."_all"]) && strlen($_REQUEST[$name."_all"]) > 0)
+		if (isset($_REQUEST[$name."_all"]) && $_REQUEST[$name."_all"] <> '')
 			COption::SetOptionString($module_id, $name, $_REQUEST[$name."_all"], $arOption[1]);
 		else
 			COption::RemoveOption($module_id, $name);
@@ -116,7 +116,7 @@ function __AdmSettingsSaveOption($module_id, $arOption)
 		));
 		while ($site = $queryObject->fetch())
 		{
-			if (isset($_REQUEST[$name."_".$site["LID"]]) && strlen($_REQUEST[$name."_".$site["LID"]]) > 0 &&
+			if (isset($_REQUEST[$name."_".$site["LID"]]) && $_REQUEST[$name."_".$site["LID"]] <> '' &&
 				!isset($_REQUEST[$name."_all"]))
 			{
 				$val = $_REQUEST[$name."_".$site["LID"]];
@@ -320,7 +320,7 @@ function renderLable($Option, array $listSite, $siteValue = "")
 			echo "<label for='".htmlspecialcharsbx($Option[0])."'>".$Option[1]."</label>";
 		else
 			echo $Option[1];
-		if (strlen($sup_text) > 0)
+		if ($sup_text <> '')
 		{
 			?><span class="required"><sup><?=$sup_text?></sup></span><?
 		}

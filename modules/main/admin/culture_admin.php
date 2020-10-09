@@ -70,13 +70,13 @@ if(($arID = $adminList->GroupAction()) && $isAdmin)
 
 $APPLICATION->SetTitle(Loc::getMessage("TITLE"));
 
-$sortBy = strtoupper($sorting->getField());
+$sortBy = mb_strtoupper($sorting->getField());
 if(!CultureTable::getEntity()->hasField($sortBy))
 {
 	$sortBy = "NAME";
 }
 
-$sortOrder = strtoupper($sorting->getOrder());
+$sortOrder = mb_strtoupper($sorting->getOrder());
 if($sortOrder <> "DESC")
 {
 	$sortOrder = "ASC";

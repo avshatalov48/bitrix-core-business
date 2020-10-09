@@ -18,14 +18,14 @@ if (!CModule::IncludeModule("learning"))
 //Params
 $arParams["TESTS_LIST_TEMPLATE"] = 
 (
-	strlen($arParams["TESTS_LIST_TEMPLATE"]) > 0 ?
+	$arParams["TESTS_LIST_TEMPLATE"] <> '' ?
 	htmlspecialcharsbx($arParams["TESTS_LIST_TEMPLATE"]) :
 	"course/test_list.php?COURSE_ID=#COURSE_ID#"
 );
 
 $arParams["COURSE_DETAIL_TEMPLATE"] = 
 (
-	strlen($arParams["COURSE_DETAIL_TEMPLATE"]) > 0 ? 
+	$arParams["COURSE_DETAIL_TEMPLATE"] <> '' ? 
 	htmlspecialcharsbx($arParams["COURSE_DETAIL_TEMPLATE"]):
 	"course/index.php?COURSE_ID=#COURSE_ID#"
 );

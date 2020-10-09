@@ -522,12 +522,14 @@ const prepareForm = function(form, gridId/*, gridInstanceId*/) {
 	if (grid)
 	{
 		const rows = grid.getRows().getRows();
-		let attrs, id;
 		rows.forEach(function(current) {
-			if (current.getIndex() < 1)
+			if (current.getIndex() < 1 || current.getId() === "template_0")
+			{
 				return;
-			id = current.getId();
-			form.appendChild(BX.create('INPUT', {
+			}
+			const id = current.getId();
+
+			form.appendChild(BX.create("INPUT", {
 					props : {
 						type : "hidden",
 						name : "ANSWER[" + id.toLowerCase() + "][ID]",
@@ -535,7 +537,7 @@ const prepareForm = function(form, gridId/*, gridInstanceId*/) {
 					}
 				}
 			));
-			attrs = BX.parseJSON(BX.data(current.getNode(), "item"), current);
+			const attrs = BX.parseJSON(BX.data(current.getNode(), "item"), current);
 			var func = function(prefix, params, depth)
 			{
 				var key;

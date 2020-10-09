@@ -193,17 +193,21 @@ class CacheEngineXCache
 	public function clean($baseDir, $initDir = false, $filename = false)
 	{
 		$key = false;
-		if (strlen($filename))
+		if($filename <> '')
 		{
 			$baseDirVersion = xcache_get($this->sid.$baseDir);
-			if ($baseDirVersion === null)
+			if($baseDirVersion === null)
+			{
 				return;
+			}
 
-			if ($initDir !== false)
+			if($initDir !== false)
 			{
 				$initDirVersion = xcache_get($baseDirVersion."|".$initDir);
-				if ($initDirVersion === null)
+				if($initDirVersion === null)
+				{
 					return;
+				}
 			}
 			else
 			{
@@ -215,11 +219,13 @@ class CacheEngineXCache
 		}
 		else
 		{
-			if (strlen($initDir))
+			if($initDir <> '')
 			{
 				$baseDirVersion = xcache_get($this->sid.$baseDir);
-				if ($baseDirVersion === null)
+				if($baseDirVersion === null)
+				{
 					return;
+				}
 
 				xcache_unset($baseDirVersion."|".$initDir);
 			}
@@ -276,7 +282,7 @@ class CacheEngineXCache
 				}
 			}
 
-			$this->read = strlen($allVars);
+			$this->read = mb_strlen($allVars);
 			$allVars = unserialize($allVars);
 		}
 
@@ -320,7 +326,7 @@ class CacheEngineXCache
 		}
 
 		$allVars = serialize($allVars);
-		$this->written = strlen($allVars);
+		$this->written = mb_strlen($allVars);
 
 		$key = $baseDirVersion."|".$initDirVersion."|".$filename;
 		xcache_set($key, $allVars, intval($TTL) * $this->ttlMultiplier);

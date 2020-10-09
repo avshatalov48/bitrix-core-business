@@ -36,18 +36,18 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["action"]=="import" && $isAdmin 
 	}
 	else
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 		{
 			$ID = basename($_FILES['tpath_file']['name']);
 			if($p = bxstrrpos($ID, ".gz"))
-				$ID = substr($ID, 0, $p);
+				$ID = mb_substr($ID, 0, $p);
 			if($p = bxstrrpos($ID, ".tar"))
-				$ID = substr($ID, 0, $p);
+				$ID = mb_substr($ID, 0, $p);
 			$ID = str_replace("\\", "", $ID);
 			$ID = str_replace("/", "", $ID);
 		}
 
-		if(strlen($ID)<=0)
+		if($ID == '')
 		{
 			$strError .= GetMessage("MAIN_TEMPLATE_LOAD_ERR_ID");
 		}
@@ -66,7 +66,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["action"]=="import" && $isAdmin 
 					$strOK .= str_replace("#TEMPLATE_NAME#", $ID, GetMessage("MAIN_TEMPLATE_LOAD_OK"));
 
 					$SITE_ID = $_POST["SITE_ID"];
-					if(strlen($SITE_ID)>0 && $SITE_ID!="NOT_REF")
+					if($SITE_ID <> '' && $SITE_ID!="NOT_REF")
 					{
 						$db_site = CSite::GetByID($SITE_ID);
 						if($ar_site = $db_site->Fetch())
@@ -76,7 +76,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["action"]=="import" && $isAdmin 
 							$bW = false;
 							while($v = $dbSiteRes->Fetch())
 							{
-								if(!$bW && strlen(Trim($v["CONDITION"]))<=0)
+								if(!$bW && Trim($v["CONDITION"]) == '')
 								{
 									$v["TEMPLATE"] = $ID;
 									$bW = true;
@@ -113,7 +113,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["action"]=="import" && $isAdmin 
 		}
 	}
 
-	if(strlen($strError)>0)
+	if($strError <> '')
 		$bVarsFromForm = true;
 	elseif($_POST["goto_edit"] == "Y")
 		LocalRedirect(BX_ROOT."/admin/template_edit.php?lang=".LANGUAGE_ID."&ID=".$ID);

@@ -43,7 +43,7 @@ if(count($arParams['ENTITY_TYPE']) <= 0)
 }
 
 $arParams['NAME'] = trim($arParams['NAME']);
-if(strlen($arParams['NAME']) <= 0)
+if($arParams['NAME'] == '')
 {
 	$arParams['NAME'] = 'restCrmSelector';
 }

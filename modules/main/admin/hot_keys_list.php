@@ -39,7 +39,7 @@ if ($isAdmin)
 	{
 		foreach($FIELDS as $ID=>$arFields)
 		{
-			$ID = IntVal($ID);
+			$ID = intval($ID);
 			if($ID <= 0)
 				continue;
 			if(!$hotKeyCodes->Update($ID, $arFields))
@@ -61,7 +61,7 @@ if ($isAdmin)
 
 		foreach($arID as $ID)
 		{
-			$ID = IntVal($ID);
+			$ID = intval($ID);
 
 			if($ID <= 0)
 				continue;

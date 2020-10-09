@@ -21,9 +21,9 @@ class CLearningGroupMember
 {
 	/**
 	 * Creates new learning group <-> member pair
-	 * 
+	 *
 	 * @param array $arFields
-	 * 
+	 *
 	 * @return bool true/false (false - on error)
 	 */
 	public static function add($arFields)
@@ -50,12 +50,12 @@ class CLearningGroupMember
 
 	/**
 	 * Get list of existing learning group <-> member pairs
-	 * 
+	 *
 	 * @param array $arOrder
 	 * @param array $arFilter
 	 * @param array $arSelect
 	 * @param array $arNavParams
-	 * 
+	 *
 	 * @return CDBResult
 	 */
 	public static function getList($arOrder, $arFilter, $arSelect = array(), $arNavParams = array())
@@ -73,11 +73,12 @@ class CLearningGroupMember
 		if (!is_array($arOrder))
 			$arOrder = array();
 
+		$arSqlOrder = [];
 		foreach ($arOrder as $by => $order)
 		{
 			$by = (string) $by;
 			$needle = null;
-			$order = strtolower($order);
+			$order = mb_strtolower($order);
 
 			if ($order != "asc")
 				$order = "desc";
@@ -100,7 +101,7 @@ class CLearningGroupMember
 		$arSqlSelect = array();
 		foreach ($arSelect as $field)
 		{
-			$field = strtoupper($field);
+			$field = mb_strtoupper($field);
 			if (array_key_exists($field, $arFields))
 				$arSqlSelect[$field] = $arFields[$field] . ' AS ' . $field;
 		}
@@ -123,7 +124,7 @@ class CLearningGroupMember
 			FROM
 				b_learn_groups_member LGM
 				LEFT JOIN b_user U ON U.ID = LGM.USER_ID
-				" 
+				"
 			. (sizeof($arSqlSearch) ? " WHERE " . implode(" AND ", $arSqlSearch) : "") . " ";
 
 		$strSql .= $strFrom;
@@ -168,9 +169,9 @@ class CLearningGroupMember
 
 	/**
 	 * Removes existing learning group <-> member pairs
-	 * 
+	 *
 	 * @param int $groupId
-	 * 
+	 *
 	 * @return bool false on error, or true - if no errors detected
 	 */
 	public static function deleteByGroup($groupId)
@@ -188,9 +189,9 @@ class CLearningGroupMember
 
 	/**
 	 * Removes existing learning group <-> member pairs
-	 * 
+	 *
 	 * @param int $userId
-	 * 
+	 *
 	 * @return bool false on error, or true - if no errors detected
 	 */
 	public static function deleteByUser($userId)
@@ -208,10 +209,10 @@ class CLearningGroupMember
 
 	/**
 	 * Removes existing learning group <-> member pairs
-	 * 
+	 *
 	 * @param int $userId
 	 * @param int $groupId
-	 * 
+	 *
 	 * @return bool false on error, or true - if no errors detected
 	 */
 	public static function delete($userId, $groupId)
@@ -279,7 +280,7 @@ class CLearningGroupMember
 			$key = $res["FIELD"];
 			$cOperationType = $res["OPERATION"];
 
-			$key = strtoupper($key);
+			$key = mb_strtoupper($key);
 
 			switch ($key)
 			{

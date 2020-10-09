@@ -64,8 +64,8 @@ if($arParams["SEF_MODE"] == "Y")
 	$arVariableAliases = CComponentEngine::MakeComponentVariableAliases($arDefaultVariableAliases404, $arParams["VARIABLE_ALIASES"]);
 
 	$requestURL = $APPLICATION->GetCurPage(true);
-	if (strpos($requestURL, "#photo") !== false)
-		$requestURL = rtrim(substr($requestURL, 0, strpos($requestURL, "#")), "/")."/index.php";
+	if (mb_strpos($requestURL, "#photo") !== false)
+		$requestURL = rtrim(mb_substr($requestURL, 0, mb_strpos($requestURL, "#")), "/")."/index.php";
 	else
 		$requestURL = false;
 
@@ -91,7 +91,7 @@ if($arParams["SEF_MODE"] == "Y")
 	{
 		if (empty($arUrlTemplates[$url]))
 			$arResult["URL_TEMPLATES"][$url] = $arParams["SEF_FOLDER"].$arDefaultUrlTemplates404[$url];
-		elseif (substr($arUrlTemplates[$url], 0, 1) == "/")
+		elseif (mb_substr($arUrlTemplates[$url], 0, 1) == "/")
 			$arResult["URL_TEMPLATES"][$url] = $arUrlTemplates[$url];
 		else
 			$arResult["URL_TEMPLATES"][$url] = $arParams["SEF_FOLDER"].$arUrlTemplates[$url];
@@ -144,7 +144,7 @@ if ($componentPage == "index" && $arParams["SET_STATUS_404"] == "Y" && $arParams
 	$folder404 = str_replace("\\", "/", $arParams["SEF_FOLDER"]);
 	if ($folder404 != "/")
 		$folder404 = "/".trim($folder404, "/ \t\n\r\0\x0B")."/";
-	if (substr($folder404, -1) == "/")
+	if (mb_substr($folder404, -1) == "/")
 		$folder404 .= "index.php";
 
 	if($folder404 != $APPLICATION->GetCurPage(true))
@@ -154,13 +154,13 @@ if ($componentPage == "index" && $arParams["SET_STATUS_404"] == "Y" && $arParams
 	}
 }
 
-if ($_SERVER['REQUEST_METHOD'] == "POST" && (intVal($arVariables["ELEMENT_ID"]) > 0 || strLen($arVariables["ELEMENT_CODE"]) > 0) && intVal($arResult["VARIABLES"]["SECTION_ID"]) <= 0)
+if ($_SERVER['REQUEST_METHOD'] == "POST" && (intval($arVariables["ELEMENT_ID"]) > 0 || $arVariables["ELEMENT_CODE"] <> '') && intval($arResult["VARIABLES"]["SECTION_ID"]) <= 0)
 {
 	CModule::IncludeModule("iblock");
-	if (intVal($arVariables["ELEMENT_ID"]) > 0)
-		$rsElement = CIBlockElement::GetList(array(), array("ID" => intVal($arVariables["ELEMENT_ID"])));
+	if (intval($arVariables["ELEMENT_ID"]) > 0)
+		$rsElement = CIBlockElement::GetList(array(), array("ID" => intval($arVariables["ELEMENT_ID"])));
 	else
-		$rsElement = CIBlockElement::GetList(array(), array("CODE" => intVal($arVariables["ELEMENT_CODE"])));
+		$rsElement = CIBlockElement::GetList(array(), array("CODE" => intval($arVariables["ELEMENT_CODE"])));
 
 	if($arElement = $rsElement->Fetch())
 	{
@@ -171,7 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && (intVal($arVariables["ELEMENT_ID"]) 
 }
 
 // TEMPLATE TABLE
-$arParams["CELL_COUNT"] = intVal($arParams["CELL_COUNT"]);
+$arParams["CELL_COUNT"] = intval($arParams["CELL_COUNT"]);
 
 $arResult["URL_TEMPLATES"]["sections_top"] = $arResult["URL_TEMPLATES"]["index"];
 $arResult = array(
@@ -210,16 +210,16 @@ $arParams["SHOW_NAVIGATION"] = $arParams["SHOW_NAVIGATION"] == "Y" ? "Y" : "N";
 $arParams["PAGE_NAVIGATION_TEMPLATE"] = (!empty($arParams["PAGE_NAVIGATION_TEMPLATE"]) ? $arParams["PAGE_NAVIGATION_TEMPLATE"] : "modern");
 
 // SECTION
-$arParams["SECTION_PAGE_ELEMENTS"] = (is_set($arParams["SECTION_PAGE_ELEMENTS"]) ? intVal($arParams["SECTION_PAGE_ELEMENTS"]) : 10);
+$arParams["SECTION_PAGE_ELEMENTS"] = (is_set($arParams["SECTION_PAGE_ELEMENTS"]) ? intval($arParams["SECTION_PAGE_ELEMENTS"]) : 10);
 $arParams["SECTION_SORT_BY"] = (is_set($arParams["SECTION_SORT_BY"]) ? $arParams["SECTION_SORT_BY"] : "UF_DATE");
-$arParams["SECTION_SORT_ORD"] = (strToUpper($arParams["SECTION_SORT_ORD"]) != "DESC" ? "ASC" : "DESC");
+$arParams["SECTION_SORT_ORD"] = (mb_strtoupper($arParams["SECTION_SORT_ORD"]) != "DESC" ? "ASC" : "DESC");
 
 // ELEMENTS
-$arParams["ELEMENTS_PAGE_ELEMENTS"] = (is_set($arParams["ELEMENTS_PAGE_ELEMENTS"]) ? intVal($arParams["ELEMENTS_PAGE_ELEMENTS"]) : 100);
+$arParams["ELEMENTS_PAGE_ELEMENTS"] = (is_set($arParams["ELEMENTS_PAGE_ELEMENTS"]) ? intval($arParams["ELEMENTS_PAGE_ELEMENTS"]) : 100);
 $arParams["ELEMENT_SORT_FIELD"] = (is_set($arParams["ELEMENT_SORT_FIELD"]) ? $arParams["ELEMENT_SORT_FIELD"] : "SORT");
-$arParams["ELEMENT_SORT_ORDER"] = (strToUpper($arParams["ELEMENT_SORT_ORDER"]) != "DESC" ? "ASC" : "DESC");
+$arParams["ELEMENT_SORT_ORDER"] = (mb_strtoupper($arParams["ELEMENT_SORT_ORDER"]) != "DESC" ? "ASC" : "DESC");
 $arParams["ELEMENT_SORT_FIELD1"] = (is_set($arParams["ELEMENT_SORT_FIELD"]) ? $arParams["ELEMENT_SORT_FIELD"] : "");
-$arParams["ELEMENT_SORT_ORDER1"] = (strToUpper($arParams["ELEMENT_SORT_ORDER"]) != "DESC" ? "ASC" : "DESC");
+$arParams["ELEMENT_SORT_ORDER1"] = (mb_strtoupper($arParams["ELEMENT_SORT_ORDER"]) != "DESC" ? "ASC" : "DESC");
 $arParams["ELEMENTS_USE_DESC_PAGE"] = ($arParams["ELEMENTS_USE_DESC_PAGE"] == "N" ? "N" : "Y");
 
 //$arParams["ELEMENTS_LAST_COUNT"]
@@ -259,7 +259,7 @@ $arParams["ALBUM_PHOTO_THUMBS_SIZE"] = intval(intval($arParams["ALBUM_PHOTO_THUM
 $arParams["THUMBNAIL_SIZE"] = intval($arParams["THUMBNAIL_SIZE"]) > 0 ? intval($arParams["THUMBNAIL_SIZE"]) : 90;
 // For displaying albums list
 $arParams["PHOTO_LIST_MODE"] = $arParams["PHOTO_LIST_MODE"] == "N" ? "N" : "Y";
-$arParams["SHOWN_ITEMS_COUNT"] = intVal($arParams["SHOWN_ITEMS_COUNT"]) > 0 ? intVal($arParams["SHOWN_ITEMS_COUNT"]) : 6;
+$arParams["SHOWN_ITEMS_COUNT"] = intval($arParams["SHOWN_ITEMS_COUNT"]) > 0 ? intval($arParams["SHOWN_ITEMS_COUNT"]) : 6;
 
 //$arParams["ADDITIONAL_SIGHTS"]
 //$arParams["PICTURES_SIGHT"]
@@ -332,7 +332,7 @@ $arParams["UPLOADER_TYPE"] = "form";
 //$arParams["COLOR_OLD"]
 //$arParams["TAGS_SHOW_CHAIN"]
 //$arParams["TEMPLATE_LIST"]
-$arParams["ELEMENTS_PAGE_ELEMENTS"] = intVal($arParams["ELEMENTS_PAGE_ELEMENTS"]);
+$arParams["ELEMENTS_PAGE_ELEMENTS"] = intval($arParams["ELEMENTS_PAGE_ELEMENTS"]);
 $arParams["ELEMENTS_PAGE_ELEMENTS"] = ($arParams["ELEMENTS_PAGE_ELEMENTS"] > 0 ? $arParams["ELEMENTS_PAGE_ELEMENTS"] : 50);
 
 /****************** TEMPLATES **************************************/
@@ -341,7 +341,7 @@ $arParams["ELEMENTS_PAGE_ELEMENTS"] = ($arParams["ELEMENTS_PAGE_ELEMENTS"] > 0 ?
 //$arParams["SHOW_PAGE_NAVIGATION"]
 //$arParams["SQUARE"]
 //$arParams["PERCENT"]
-$arParams["SLIDER_COUNT_CELL"] = intVal($arParams["SLIDER_COUNT_CELL"]);
+$arParams["SLIDER_COUNT_CELL"] = intval($arParams["SLIDER_COUNT_CELL"]);
 $arParams["SLIDER_COUNT_CELL"] = ($arParams["SLIDER_COUNT_CELL"] > 0 ? $arParams["SLIDER_COUNT_CELL"] : 3);
 //$arParams["B_ACTIVE_IS_FINED"]
 //$arParams["SHOW_DESCRIPTION"]
@@ -358,16 +358,16 @@ $arParams["FONT_MAX"] = (empty($arParams["TAGS_FONT_MAX"]) ? "35" : $arParams["T
 $arParams["FONT_MIN"] = (empty($arParams["TAGS_FONT_MIN"]) ? "10" : $arParams["TAGS_FONT_MIN"]);
 $arParams["COLOR_NEW"] = (empty($arParams["TAGS_COLOR_NEW"]) ? "3E74E6" : $arParams["TAGS_COLOR_NEW"]);
 $arParams["COLOR_OLD"] = (empty($arParams["TAGS_COLOR_OLD"]) ? "C0C0C0" : $arParams["TAGS_COLOR_OLD"]);
-$arParams["PAGE_RESULT_COUNT"] = (intVal($arParams["ELEMENTS_PAGE_ELEMENTS"]) > 0 ? $arParams["ELEMENTS_PAGE_ELEMENTS"] : 50);
+$arParams["PAGE_RESULT_COUNT"] = (intval($arParams["ELEMENTS_PAGE_ELEMENTS"]) > 0 ? $arParams["ELEMENTS_PAGE_ELEMENTS"] : 50);
 
 //MAIN PAGE
 $arParams["SHOW_LINK_ON_MAIN_PAGE"] = (isset($arParams["SHOW_LINK_ON_MAIN_PAGE"]) ? $arParams["SHOW_LINK_ON_MAIN_PAGE"] : array("id", "rating", "comments", "shows"));
 $arParams["SHOW_ON_MAIN_PAGE"] = (in_array($arParams["SHOW_ON_MAIN_PAGE"], array("rating", "id", "comments", "shows")) ? $arParams["SHOW_ON_MAIN_PAGE"] : "none");
 $arParams["SHOW_ON_MAIN_PAGE_POSITION"] = ($arParams["SHOW_ON_MAIN_PAGE_POSITION"] == "right" ? "right" : "left");
 $arParams["SHOW_ON_MAIN_PAGE_TYPE"] = (in_array($arParams["SHOW_ON_MAIN_PAGE_TYPE"], array("count", "time")) ? $arParams["SHOW_ON_MAIN_PAGE_TYPE"] : "none");
-$arParams["SHOW_ON_MAIN_PAGE_COUNT"] = intVal($arParams["SHOW_ON_MAIN_PAGE_COUNT"]);
+$arParams["SHOW_ON_MAIN_PAGE_COUNT"] = intval($arParams["SHOW_ON_MAIN_PAGE_COUNT"]);
 $arParams["SHOW_PHOTO_ON_DETAIL_LIST"] = (in_array($arParams["SHOW_PHOTO_ON_DETAIL_LIST"], array("none", "show_period", "show_count", "show_time")) ? $arParams["SHOW_PHOTO_ON_DETAIL_LIST"] : "show_count");
-$arParams["SHOW_PHOTO_ON_DETAIL_LIST_COUNT"] = intVal($arParams["SHOW_PHOTO_ON_DETAIL_LIST_COUNT"]);
+$arParams["SHOW_PHOTO_ON_DETAIL_LIST_COUNT"] = intval($arParams["SHOW_PHOTO_ON_DETAIL_LIST_COUNT"]);
 
 // VOTE
 $arParams["USE_RATING"] = ($arParams["USE_RATING"] == "Y" ? "Y" : "N");

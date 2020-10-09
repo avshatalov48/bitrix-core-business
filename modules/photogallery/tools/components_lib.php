@@ -199,10 +199,10 @@ class CPGalleryInterface
 
 					$arSection["SECTIONS_CNT"] = 0;
 					if (($arSection["RIGHT_MARGIN"] - $arSection["LEFT_MARGIN"]) > 1)
-						$arSection["SECTIONS_CNT"] = intVal(CIBlockSection::GetCount(array("SECTION_ID" => $arSection["ID"])));
+						$arSection["SECTIONS_CNT"] = intval(CIBlockSection::GetCount(array("SECTION_ID" => $arSection["ID"])));
 
 					$arSection["SECTION_ELEMENTS_CNT"] = $arSection["SECTION_ELEMENTS_CNT_ALL"] = $arSection["ELEMENTS_CNT"] = 0;
-					$arSection["ELEMENTS_CNT_ALL"] = intVal(CIBlockSection::GetSectionElementsCount(
+					$arSection["ELEMENTS_CNT_ALL"] = intval(CIBlockSection::GetSectionElementsCount(
 							$arSection["ID"], array("CNT_ALL" => "Y")));
 
 					// if section not empty
@@ -223,7 +223,7 @@ class CPGalleryInterface
 						}
 						if ($this->User["Permission"] < "U")
 						{
-							$arSection["ELEMENTS_CNT"] = intVal(CIBlockSection::GetSectionElementsCount($arSection["ID"], array("CNT_ACTIVE" => "Y")));
+							$arSection["ELEMENTS_CNT"] = intval(CIBlockSection::GetSectionElementsCount($arSection["ID"], array("CNT_ACTIVE" => "Y")));
 						}
 						else
 						{
@@ -315,7 +315,7 @@ class CPGalleryInterface
 	function GetPermission()
 	{
 		static $arResult = array();
-		$user_id = intVal($GLOBALS["USER"]->GetID());
+		$user_id = intval($GLOBALS["USER"]->GetID());
 		$user_groups = $GLOBALS["USER"]->GetGroups();
 
 		if (!$this->IBlockID)
@@ -488,7 +488,7 @@ class CPGalleryInterface
 	private static function GetUniqAjaxId()
 	{
 		$uniq = COption::GetOptionString("photogallery", "~uniq_ajax_id", "");
-		if(strlen($uniq) <= 0)
+		if($uniq == '')
 		{
 			$uniq = md5(uniqid(rand(), true));
 			COption::SetOptionString("photogallery", "~uniq_ajax_id", $uniq);

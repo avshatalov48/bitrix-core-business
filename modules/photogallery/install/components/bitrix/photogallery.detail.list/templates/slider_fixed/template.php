@@ -1,7 +1,7 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 if (empty($arResult["ELEMENTS_LIST"])):
 	return true;
-elseif (!$this->__component->__parent || strpos($this->__component->__parent->__name, "photogallery") === false):
+elseif (!$this->__component->__parent || mb_strpos($this->__component->__parent->__name, "photogallery") === false):
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/photogallery/templates/.default/style.css');
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/photogallery/templates/.default/themes/gray/style.css');
 endif;
@@ -12,12 +12,12 @@ CAjax::Init();
 /********************************************************************
 				Input params
 ********************************************************************/
-$arParams["ELEMENT_ID"] = intVal($arParams["ELEMENT_ID"]); // active element
-$arParams["SLIDER_COUNT_CELL"] = (intVal($arParams["SLIDER_COUNT_CELL"]) <= 0 ? 4 : $arParams["SLIDER_COUNT_CELL"]);
+$arParams["ELEMENT_ID"] = intval($arParams["ELEMENT_ID"]); // active element
+$arParams["SLIDER_COUNT_CELL"] = (intval($arParams["SLIDER_COUNT_CELL"]) <= 0 ? 4 : $arParams["SLIDER_COUNT_CELL"]);
 
 $temp = array("STRING" => preg_replace("/[^0-9]/is", "/", $arParams["THUMBNAIL_SIZE"]));
 list($temp["WIDTH"], $temp["HEIGHT"]) = explode("/", $temp["STRING"]);
-$arParams["THUMBNAIL_SIZE"] = (intVal($temp["WIDTH"]) > 0 ? intVal($temp["WIDTH"]) : 200);
+$arParams["THUMBNAIL_SIZE"] = (intval($temp["WIDTH"]) > 0 ? intval($temp["WIDTH"]) : 200);
 if ($arParams["PICTURES_SIGHT"] != "standart" && $arParams["PICTURES"][$arParams["PICTURES_SIGHT"]]["size"] > 0)
 	$arParams["THUMBNAIL_SIZE"] = $arParams["PICTURES"][$arParams["PICTURES_SIGHT"]]["size"];
 $arParams["THUMBNAIL_SIZE"] = ($arParams["THUMBNAIL_SIZE"] > 0 ? $arParams["THUMBNAIL_SIZE"] : 200);
@@ -91,7 +91,7 @@ for ($ii = $first; $ii <= $last; $ii++)
 	$arResult["ELEMENTS_CURR"][] = $arResult["ELEMENTS_LIST_JS"][$keys[$ii]];
 }
 
-$arParams["SLIDER_COUNT_CELL"] = intVal($arParams["SLIDER_COUNT_CELL"]);
+$arParams["SLIDER_COUNT_CELL"] = intval($arParams["SLIDER_COUNT_CELL"]);
 $panelHeight =
 	$arParams["THUMBNAIL_SIZE"]
 	+ 1*2 		// image border
@@ -185,11 +185,11 @@ function to_init_<?=$package_id?>()
 	var SliderCopy = new BPCSlider(
 		<?=CUtil::PhpToJSObject(array_values($arResult['ELEMENTS_LIST_JS']))?>, // array of elements
 		<?=$active_element?>, // active element
-		<?=intVal($count_elements)?>, // count elements
+		<?=intval($count_elements)?>, // count elements
 		<?=$number_element?>,
 		'');
 
-	SliderCopy.windowsize = <?=intVal($arParams["SLIDER_COUNT_CELL"])?>;
+	SliderCopy.windowsize = <?=intval($arParams["SLIDER_COUNT_CELL"])?>;
 	SliderCopy.ShowItem = function(item_id, number)
 	{
 		var res = this.oSource.Data[item_id];
@@ -233,7 +233,7 @@ function to_init_<?=$package_id?>()
 			}
 
 			if (this.active == 1 && arrID[id] == 'prev' ||
-				((this.active + this.windowsize-1) >= <?=intVal($count_elements)?>) && arrID[id] == 'next')
+				((this.active + this.windowsize-1) >= <?=intval($count_elements)?>) && arrID[id] == 'next')
 			{
 				node.className = node.__className + "-disabled";
 				for (event_name in event_names)

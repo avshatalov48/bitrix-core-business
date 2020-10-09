@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["EDIT_LANG_TITLE"] = "Редактирование региональных настроек";
 $MESS["NEW_LANG_TITLE"] = "Добавление региональных настроек";
 $MESS["RECORD_LIST"] = "Список";
@@ -39,10 +39,10 @@ $MESS["main_culture_edit_tab"] = "Форматы вывода";
 $MESS["main_culture_edit_tab_title"] = "Дополнительные форматы вывода";
 $MESS["main_culture_edit_date_formats"] = "Форматы даты";
 $MESS["main_culture_edit_short_date1"] = "Дата в числовом формате:";
-$MESS["main_culture_edit_medium_date1"] = "День, месяц (сокращенный) и год:";
-$MESS["main_culture_edit_long_date1"] = "День, месяц и год:";
-$MESS["main_culture_edit_full_date1"] = "День недели, день, месяц и год:";
-$MESS["main_culture_edit_day_month1"] = "День и месяц:";
+$MESS["main_culture_edit_medium_date1"] = "Число, месяц (сокращенный) и год:";
+$MESS["main_culture_edit_long_date1"] = "Число, месяц и год:";
+$MESS["main_culture_edit_full_date1"] = "День недели, число, месяц и год:";
+$MESS["main_culture_edit_day_month1"] = "Число и месяц:";
 $MESS["main_culture_edit_time_formats"] = "Форматы времени";
 $MESS["main_culture_edit_short_time1"] = "Время без секунд:";
 $MESS["main_culture_edit_long_time1"] = "Время с секундами:";
@@ -55,8 +55,7 @@ $MESS["main_culture_numbers_decimal_sep"] = "Десятичный раздели
 $MESS["main_culture_numbers_decimals"] = "Десятичных разрядов после разделителя:";
 $MESS["main_culture_numbers_example"] = "Пример:";
 $MESS["main_culture_edit_note_currencies"] = "Настроить форматы вывода денежных сумм вы можете на странице <a href=\"/bitrix/admin/currencies.php?lang=#LANG#\">списка валют</a>.";
-$MESS["main_culture_edit_day_short_month"] = "День и месяц (сокращенный):";
-$MESS["main_culture_edit_day_of_week_month"] = "День недели, день и месяц:";
-$MESS["main_culture_edit_short_day_of_week_month"] = "День недели (сокращенный), день и месяц:";
-$MESS["main_culture_edit_short_day_of_week_short_month"] = "День недели (сокращенный), день и месяц (сокращенный):";
-?>
+$MESS["main_culture_edit_day_short_month"] = "Число и месяц (сокращенный):";
+$MESS["main_culture_edit_day_of_week_month"] = "День недели, число и месяц:";
+$MESS["main_culture_edit_short_day_of_week_month"] = "День недели (сокращенный), число и месяц:";
+$MESS["main_culture_edit_short_day_of_week_short_month"] = "День недели (сокращенный), число и месяц (сокращенный):";

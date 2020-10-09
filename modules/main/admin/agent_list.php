@@ -40,25 +40,25 @@ function CheckFilter($FilterArr) // проверка введенных полей
 		global $$f;
 
 	$str = "";
-	if(strlen(trim($find_last_exec))>0)
+	if(trim($find_last_exec) <> '')
 	{
 		$date_1_ok = false;
 		$date1_stm = MkDateTime(FmtDate($find_last_exec,"D.M.Y"),"d.m.Y");
-		if (!$date1_stm && strlen(trim($find_last_exec))>0)
+		if (!$date1_stm && trim($find_last_exec) <> '')
 			$str.= GetMessage("MAIN_AGENT_WRONG_LAST_EXEC")."<br>";
 		else $date_1_ok = true;
 	}
 
-	if(strlen(trim($find_next_exec))>0)
+	if(trim($find_next_exec) <> '')
 	{
 		$date_1_ok = false;
 		$date1_stm = MkDateTime(FmtDate($find_next_exec,"D.M.Y"),"d.m.Y");
-		if (!$date1_stm && strlen(trim($find_next_exec))>0)
+		if (!$date1_stm && trim($find_next_exec) <> '')
 			$str.= GetMessage("MAIN_AGENT_WRONG_NEXT_EXEC")."<br>";
 		else $date_1_ok = true;
 	}
 
-	if(strlen($str)>0)
+	if($str <> '')
 	{
 		global $lAdmin;
 		$lAdmin->AddFilterError($str);
@@ -93,7 +93,7 @@ if($lAdmin->EditAction() && $isAdmin)
 	foreach($FIELDS as $ID=>$arFields)
 	{
 		$DB->StartTransaction();
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		if(!$lAdmin->IsUpdated($ID))
 			continue;
@@ -122,7 +122,7 @@ if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 
 	foreach ($arID as $ID)
 	{
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if($ID<=0)
 			continue;
 

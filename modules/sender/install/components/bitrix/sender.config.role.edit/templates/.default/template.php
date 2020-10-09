@@ -44,7 +44,7 @@ if($arResult['DEAL_CATEGORIES'])
 	{
 		if($dealCategory['id'] === $arParams['ID'])
 		{
-			$text = $dealCategory['text'];
+			$text = htmlspecialcharsback($dealCategory['text']);
 			break;
 		}
 	}

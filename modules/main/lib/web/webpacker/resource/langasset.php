@@ -74,7 +74,7 @@ class LangAsset extends Asset
 		foreach ($messages as $code => $value)
 		{
 			unset($messages[$code]);
-			$code = str_replace('_', ' ', strtolower($code));
+			$code = str_replace('_', ' ', mb_strtolower($code));
 			$code = str_replace(' ', '', ucwords($code));
 			$code = lcfirst($code);
 			$messages[$code] = $value;
@@ -96,13 +96,13 @@ class LangAsset extends Asset
 		{
 			foreach ($prefixes as $prefix)
 			{
-				if (strpos($code, $prefix) !== 0)
+				if (mb_strpos($code, $prefix) !== 0)
 				{
 					continue;
 				}
 
 				unset($messages[$code]);
-				$code = substr($code, strlen($prefix));
+				$code = mb_substr($code, mb_strlen($prefix));
 				$messages[$code] = $value;
 			}
 		}

@@ -24,7 +24,7 @@ class SiteTable extends ORM\Data\DataManager
 		if (!isset(self::$documentRootCache[$siteId]))
 		{
 			$ar = SiteTable::getRow(array("filter" => array("LID" => $siteId)));
-			if ($ar && ($docRoot = $ar["DOC_ROOT"]) && (strlen($docRoot) > 0))
+			if ($ar && ($docRoot = $ar["DOC_ROOT"]) && ($docRoot <> ''))
 			{
 				if (!IO\Path::isAbsolute($docRoot))
 					$docRoot = IO\Path::combine(Application::getDocumentRoot(), $docRoot);

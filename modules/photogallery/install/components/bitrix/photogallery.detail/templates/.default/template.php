@@ -4,19 +4,19 @@
 ********************************************************************/
 $temp = array("STRING" => preg_replace("/[^0-9]/is", "/", $arParams["THUMBNAIL_SIZE"]));
 list($temp["WIDTH"], $temp["HEIGHT"]) = explode("/", $temp["STRING"]);
-$arParams["THUMBNAIL_SIZE"] = (intVal($temp["WIDTH"]) > 0 ? intVal($temp["WIDTH"]) : 300);
+$arParams["THUMBNAIL_SIZE"] = (intval($temp["WIDTH"]) > 0 ? intval($temp["WIDTH"]) : 300);
 $arParams["SHOW_TAGS"] = ($arParams["SHOW_TAGS"] == "Y" ? "Y" : "N");
 /********************************************************************
 				/Input params
 ********************************************************************/
-if (!$this->__component->__parent || strpos($this->__component->__parent->__name, "photogallery") === false):
+if (!$this->__component->__parent || mb_strpos($this->__component->__parent->__name, "photogallery") === false):
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/photogallery/templates/.default/style.css');
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/photogallery/templates/.default/themes/gray/style.css');
 endif;
 
 CUtil::InitJSCore(array('window', 'ajax'));
 $GLOBALS['APPLICATION']->AddHeadScript('/bitrix/components/bitrix/photogallery/templates/.default/script.js');
-$arParams["THUMBNAIL_SIZE"] = (intVal($temp["WIDTH"]) > 0 ? intVal($temp["WIDTH"]) : 300);
+$arParams["THUMBNAIL_SIZE"] = (intval($temp["WIDTH"]) > 0 ? intval($temp["WIDTH"]) : 300);
 // EbK
 $GLOBALS['APPLICATION']->IncludeComponent("bitrix:main.calendar", "", array("SILENT" => "Y"), $component, array("HIDE_ICONS" => "Y"));
 if ($arParams["SHOW_TAGS"] == "Y" && IsModuleInstalled("search")):

@@ -19,7 +19,7 @@ if($arResult['additionalParameters']['VALUE'])
 		href="<?= $url ?>"
 		<?= ($popup !== 'N' ? ' target="_blank"' : '') ?>
 	>
-		<?= HtmlFilter::encode($arResult['additionalParameters']['VALUE']) ?>
+		<?= $arResult['additionalParameters']['VALUE'] ?>
 	</a>
 	<?php
 }

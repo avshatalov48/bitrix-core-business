@@ -111,11 +111,11 @@ class CPhotogalleryElement
 			if ($db_res && $res = $db_res->Fetch())
 			{
 				$GLOBALS["PHOTOGALLERY_VARS"]["arGalleries"][$res["ID"]] = $res; 
-				$iGalleryID = $GLOBALS["PHOTOGALLERY_VARS"]["arGalleriesID"][$arSection["ID"]] = intVal($res["ID"]); 
+				$iGalleryID = $GLOBALS["PHOTOGALLERY_VARS"]["arGalleriesID"][$arSection["ID"]] = intval($res["ID"]);
 			}
 		}
 		$arGallery = array(); 
-		$iGalleryID = intVal($iGalleryID); 
+		$iGalleryID = intval($iGalleryID);
 		if ($iGalleryID > 0)
 		{
 			if (empty($GLOBALS["PHOTOGALLERY_VARS"]["arGalleries"][$iGalleryID]))

@@ -47,7 +47,7 @@ foreach ($arResult["ELEMENTS_ROWS"] as $row)
 		'onclick' => "BX.rest.Marketplace.setRights('".$row["ID"]."');",
 	);
 
-	if(strlen($row['URL_INSTALL']) > 0)
+	if($row['URL_INSTALL'] <> '')
 	{
 		$actions["reinstall"] = array(
 			'text' => Loc::getMessage('APP_REINSTALL'),

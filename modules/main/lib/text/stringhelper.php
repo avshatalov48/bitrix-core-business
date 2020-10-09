@@ -28,7 +28,7 @@ class StringHelper
 
 		if (empty($cache[$str]))
 		{
-			$cache[$str] = strtoupper($str);
+			$cache[$str] = mb_strtoupper($str);
 		}
 
 		return $cache[$str];
@@ -43,7 +43,7 @@ class StringHelper
 	 */
 	public static function camel2snake($str)
 	{
-		return strtolower(preg_replace('/(.)([A-Z])/', '$1_$2', $str));
+		return mb_strtolower(preg_replace('/(.)([A-Z])/', '$1_$2', $str));
 	}
 
 	/**
@@ -55,7 +55,7 @@ class StringHelper
 	 */
 	public static function snake2camel($str)
 	{
-		$str = str_replace('_', ' ', strtolower($str));
+		$str = str_replace('_', ' ', mb_strtolower($str));
 		return str_replace(' ', '', ucwords($str));
 	}
 }

@@ -37,7 +37,7 @@ class CBPSocNetMessageActivity
 			"=DATE_CREATE" => $GLOBALS["DB"]->CurrentTimeFunction(),
 			"MESSAGE_TYPE" => SONET_MESSAGE_SYSTEM,
 			"FROM_USER_ID" => $arMessageUserFrom,
-			"MESSAGE" => CBPHelper::ConvertTextForMail($this->MessageText),
+			"MESSAGE" => $this->getMessageText(),
 		);
 		$ar = array();
 		foreach ($arMessageUserTo as $userTo)
@@ -53,6 +53,35 @@ class CBPSocNetMessageActivity
 		return CBPActivityExecutionStatus::Closed;
 	}
 
+	private function getMessageText($isRobot = false)
+	{
+		$messageText = $this->MessageText;
+		if ($messageText)
+		{
+			$messageText = strip_tags($messageText);
+			if ($isRobot)
+			{
+				$CCTP = new CTextParser();
+				$CCTP->allow = array(
+					"HTML" => "N",
+					"USER" => "N",
+					"ANCHOR" => "Y",
+					"BIU" => "Y",
+					"IMG" => "N", "QUOTE" => "N", "CODE" => "N",
+					"FONT" => "Y", "LIST" => "Y",
+					"SMILES" => "N", "NL2BR" => "Y", "VIDEO" => "N", "TABLE" => "N",
+					"CUT_ANCHOR" => "N", "ALIGN" => "N"
+				);
+				$messageText = $CCTP->convertText($messageText);
+			}
+			else
+			{
+				$messageText = CBPHelper::ConvertTextForMail($this->MessageText);
+			}
+		}
+		return $messageText;
+	}
+
 	private function sendRobotMessage()
 	{
 		$runtime = CBPRuntime::GetRuntime();
@@ -60,18 +89,7 @@ class CBPSocNetMessageActivity
 		/** @var CBPDocumentService $documentService */
 		$documentService = $runtime->GetService('DocumentService');
 
-		$messageText = $this->MessageText;
-
-		$CCTP = new CTextParser();
-		$CCTP->allow = array(
-			"HTML" => "N",
-			"USER" => "N",
-			"ANCHOR" => "Y",
-			"BIU" => "Y",
-			"IMG" => "Y", "QUOTE" => "N", "CODE" => "N", "FONT" => "Y", "LIST" => "Y",
-			"SMILES" => "N", "NL2BR" => "Y", "VIDEO" => "N", "TABLE" => "N",
-			"CUT_ANCHOR" => "N", "ALIGN" => "N"
-		);
+		$messageText = $this->getMessageText(true);
 
 		$attach = new CIMMessageParamAttach(1, '#468EE5');
 		$attach->AddUser(Array(
@@ -88,7 +106,7 @@ class CBPSocNetMessageActivity
 
 		$attach->AddDelimiter();
 		$attach->AddHtml('<span style="color: #6E6E6E">'.
-			$CCTP->convertText($messageText)
+			$messageText
 			.'</span>'
 		);
 

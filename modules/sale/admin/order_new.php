@@ -1340,7 +1340,7 @@ if (
 				"ALLOW_EMPTY_CITY" => "Y",
 				"LOCATION_VALUE" => $location,
 				"COUNTRY" => "",
-				"ONCITYCHANGE" => "fChangeLocationCity();",
+				"ONCITYCHANGE" => "fChangeLocationCity",
 			),
 			array(
 				"ID" => $location,

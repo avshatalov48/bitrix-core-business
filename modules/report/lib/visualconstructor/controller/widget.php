@@ -483,7 +483,7 @@ class Widget extends \Bitrix\Report\VisualConstructor\Controller\Base
 	 */
 	private function isReportPseudo($reportId)
 	{
-		return (strpos($reportId, '_pseudo') === 0);
+		return (mb_strpos($reportId, '_pseudo') === 0);
 	}
 
 

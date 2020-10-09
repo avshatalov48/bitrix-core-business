@@ -8,7 +8,7 @@ use Bitrix\Main\Web\Json;
 if(
 	($arResult['userField']['ENTITY_VALUE_ID'] < 1)
 	&&
-	strlen($arResult['userField']['SETTINGS']['DEFAULT_VALUE'])
+	mb_strlen($arResult['userField']['SETTINGS']['DEFAULT_VALUE'])
 )
 {
 	$arResult['additionalParameters']['VALUE'] =

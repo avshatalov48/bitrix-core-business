@@ -87,7 +87,7 @@ final class UserFieldHelper
 	{
 		if(static::getInstance()->parseUserFieldEntityId($field['ENTITY_ID']))
 		{
-			if (substr($field['FIELD_NAME'], -4) == '_REF')
+			if (mb_substr($field['FIELD_NAME'], -4) == '_REF')
 			{
 				/**
 				 * postfix _REF reserved for references to other highloadblocks

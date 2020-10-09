@@ -1,8 +1,8 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 // ************************* Input params***************************************************************
 $arParams["SHOW_LINK_TO_FORUM"] = ($arParams["SHOW_LINK_TO_FORUM"] == "N" ? "N" : "Y");
-$arParams["FILES_COUNT"] = intVal(intVal($arParams["FILES_COUNT"]) > 0 ? $arParams["FILES_COUNT"] : 1);
-$arParams["IMAGE_SIZE"] = (intVal($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 100);
+$arParams["FILES_COUNT"] = intval(intVal($arParams["FILES_COUNT"]) > 0 ? $arParams["FILES_COUNT"] : 1);
+$arParams["IMAGE_SIZE"] = (intval($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 100);
 if (LANGUAGE_ID == 'ru'):
 	$path = str_replace(array("\\", "//"), "/", dirname(__FILE__)."/ru/script.php");
 	include($path);
@@ -29,7 +29,7 @@ $arResult["MESSAGES_REV"] = array_reverse($arResult["MESSAGES"], true);
 		<div onmouseout="BX.removeClass(this, 'photo-comment-info-text-hover')" onmouseover="BX.addClass(this, 'photo-comment-info-text-hover')" class="photo-comment-info-text">
 <			div class="photo-comment-info">
 				<a name="message<?=$res["ID"]?>"></a>
-				<?if (intVal($res["AUTHOR_ID"]) > 0 && !empty($res["AUTHOR_URL"])):?>
+				<?if (intval($res["AUTHOR_ID"]) > 0 && !empty($res["AUTHOR_URL"])):?>
 				<a class="photo-comment-name" href="<?=$res["AUTHOR_URL"]?>"><?=$res["AUTHOR_NAME"]?></a>
 				<?else:?>
 				<a class="photo-comment-name" href="javascript:void(0);"><?=$res["AUTHOR_NAME"]?></a>
@@ -43,7 +43,7 @@ $arResult["MESSAGES_REV"] = array_reverse($arResult["MESSAGES"], true);
 							"ENTITY_ID" => $res["ID"],
 							"OWNER_ID" => $res["AUTHOR_ID"],
 							"AJAX_MODE" => 'Y',
-							"PATH_TO_USER_PROFILE" => strlen($arParams["PATH_TO_USER"]) > 0? $arParams["PATH_TO_USER"]: $arParams["~URL_TEMPLATES_PROFILE_VIEW"]
+							"PATH_TO_USER_PROFILE" => $arParams["PATH_TO_USER"] <> ''? $arParams["PATH_TO_USER"]: $arParams["~URL_TEMPLATES_PROFILE_VIEW"]
 						);
 					if (!isset($res['RATING']))
 						$res['RATING'] = array(
@@ -116,7 +116,7 @@ if (!$arResult["IS_AUTHORIZED"]):?>
 		<div class="reviews-reply-field reviews-reply-field-text">
 			<textarea class="photo-textarea" name="REVIEW_TEXT" id="REVIEW_TEXT"><?=$arResult["REVIEW_TEXT"];?></textarea>
 		</div>
-<?/* CAPTHCA */if (strLen($arResult["CAPTCHA_CODE"]) > 0):?>
+<?/* CAPTHCA */if ($arResult["CAPTCHA_CODE"] <> ''):?>
 		<div class="photo-forum-capcha-cont">
 			<img class="photo-forum-capcha-img" src="/bitrix/tools/captcha.php?captcha_code=<?=$arResult["CAPTCHA_CODE"]?>" alt="<?=GetMessage("F_CAPTCHA_TITLE")?>"/>
 			<label class="photo-forum-capcha-label" for="captcha_word" ><?=GetMessage("F_CAPTCHA_PROMT")?></label>

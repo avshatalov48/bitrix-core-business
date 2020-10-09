@@ -192,18 +192,18 @@ class CacheEngineApc
 	public function clean($baseDir, $initDir = false, $filename = false)
 	{
 		$key = false;
-		if (strlen($filename))
+		if($filename <> '')
 		{
 			$baseDirVersion = apc_fetch($this->sid.$baseDir);
-			if ($baseDirVersion === false)
+			if($baseDirVersion === false)
 			{
 				return;
 			}
 
-			if ($initDir !== false)
+			if($initDir !== false)
 			{
 				$initDirVersion = apc_fetch($baseDirVersion."|".$initDir);
-				if ($initDirVersion === false)
+				if($initDirVersion === false)
 				{
 					return;
 				}
@@ -218,10 +218,10 @@ class CacheEngineApc
 		}
 		else
 		{
-			if (strlen($initDir))
+			if($initDir <> '')
 			{
 				$baseDirVersion = apc_fetch($this->sid.$baseDir);
-				if ($baseDirVersion === false)
+				if($baseDirVersion === false)
 				{
 					return;
 				}
@@ -286,7 +286,7 @@ class CacheEngineApc
 				}
 			}
 
-			$this->read = strlen($allVars);
+			$this->read = mb_strlen($allVars);
 			$allVars = unserialize($allVars);
 		}
 
@@ -334,7 +334,7 @@ class CacheEngineApc
 		}
 
 		$allVars = serialize($allVars);
-		$this->written = strlen($allVars);
+		$this->written = mb_strlen($allVars);
 
 		$key = $baseDirVersion."|".$initDirVersion."|".$filename;
 		apc_store($key, $allVars, intval($TTL) * $this->ttlMultiplier);

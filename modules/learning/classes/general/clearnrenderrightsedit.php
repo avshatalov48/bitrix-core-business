@@ -45,7 +45,7 @@ class CLearnRenderRightsEdit
 		foreach($arPossibleRights as $taskId => $arRightsData)
 		{
 			$selected = '';
-			if (strtoupper($arRightsData['name']) === 'LEARNING_LESSON_ACCESS_DENIED')
+			if (mb_strtoupper($arRightsData['name']) === 'LEARNING_LESSON_ACCESS_DENIED')
 				$selected = ' selected="selected" ';
 			$sSelect .= '<option value="' . (int) $taskId . '" ' . $selected . '>' . htmlspecialcharsex($arRightsData['name_human']) . '</option>';
 		}
@@ -113,10 +113,14 @@ class CLearnRenderRightsEdit
 							class="access-delete"
 							style="position:relative; top:1px; margin-right:3px;"
 						></span><?php
-						if (strlen($arNames[$symbol]['provider']))
-							echo htmlspecialcharsex($arNames[$symbol]['provider'] . ' ' . $arNames[$symbol]['name']);
-						else
-							echo htmlspecialcharsex($arNames[$symbol]['name']);
+							if($arNames[$symbol]['provider'] <> '')
+							{
+								echo htmlspecialcharsex($arNames[$symbol]['provider'].' '.$arNames[$symbol]['name']);
+							}
+							else
+							{
+								echo htmlspecialcharsex($arNames[$symbol]['name']);
+							}
 						?>:&nbsp;
 					</div>
 					</td>

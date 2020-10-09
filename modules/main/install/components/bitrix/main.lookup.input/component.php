@@ -42,7 +42,7 @@ $arParams['NAME_TEMPLATE'] = empty($arParams['NAME_TEMPLATE']) ? CSite::GetNameF
 
 if (isset($arParams['INPUT_VALUE_STRING']))
 {
-	if (strlen($arParams['INPUT_VALUE_STRING']) > 0)
+	if ($arParams['INPUT_VALUE_STRING'] <> '')
 	{
 		$arTokens = preg_split('/(?<=])[\n;,]+/', $arParams['~INPUT_VALUE_STRING']);
 		$arTokens = array_unique($arTokens);
@@ -50,7 +50,7 @@ if (isset($arParams['INPUT_VALUE_STRING']))
 		foreach ($arTokens as $key => $token)
 		{
 			$arTokens[$key] = trim($token);
-			if (strlen($arTokens[$key]) <= 0)
+			if ($arTokens[$key] == '')
 				unset($arTokens[$key]);
 		}
 

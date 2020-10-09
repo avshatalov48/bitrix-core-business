@@ -130,8 +130,8 @@ class FormVkontakte extends LeadAds\Form
 				'name' => self::encodeString($data['NAME'], 100),
 				'title' => self::encodeString($data['TITLE'] ?: ' ', 60),
 				'description' => self::encodeString($data['DESCRIPTION'] ?: ' ', 600),
-				'policy_link_url' => substr($privacyPolicy, 0, 200),
-				'site_link_url' => substr($data['SUCCESS_URL'], 0, 200),
+				'policy_link_url' => mb_substr($privacyPolicy, 0, 200),
+				'site_link_url' => mb_substr($data['SUCCESS_URL'], 0, 200),
 				'questions' => Json::encode($questions)
 			)
 		);
@@ -305,7 +305,7 @@ class FormVkontakte extends LeadAds\Form
 			'UTF-8'
 		);
 
-		return substr($text, 0, $length);
+		return mb_substr($text, 0, $length);
 	}
 
 	protected function subscribeAppToPageEvents($pageAccessToken)
@@ -346,12 +346,12 @@ class FormVkontakte extends LeadAds\Form
 		{
 			foreach ($values as $index => $value)
 			{
-				if (strpos($value, static::$fieldKeyPrefix) !== 0)
+				if (mb_strpos($value, static::$fieldKeyPrefix) !== 0)
 				{
 					continue;
 				}
 
-				$values[$index] = substr($value, strlen(static::$fieldKeyPrefix));
+				$values[$index] = mb_substr($value, mb_strlen(static::$fieldKeyPrefix));
 			}
 
 			$fieldName = $mapper->getCrmName($key);

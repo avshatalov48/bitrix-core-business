@@ -42,7 +42,7 @@ abstract class UserFieldProxy
 			throw new Main\ArgumentTypeException('prefix', 'string');
 		}
 
-		$this->namePrefix = $prefix !== '' ? strtoupper($prefix) : '';
+		$this->namePrefix = $prefix !== ''? mb_strtoupper($prefix) : '';
 	}
 	public static function getFields()
 	{
@@ -252,16 +252,16 @@ abstract class UserFieldProxy
 			$errors[] = "The 'FIELD_NAME' field is not found.";
 		}
 
-		$fieldName = strtoupper($fieldName);
+		$fieldName = mb_strtoupper($fieldName);
 		$prefix = $this->namePrefix;
 		if($prefix !== '')
 		{
 			$fullPrefix = 'UF_'.$prefix.'_';
-			$fullPrefixLen = strlen($fullPrefix);
+			$fullPrefixLen = mb_strlen($fullPrefix);
 			if(strncmp($fieldName, $fullPrefix, $fullPrefixLen) !== 0)
 			{
 				$fieldName = strncmp($fieldName, 'UF_', 3) === 0
-					? $fullPrefix.substr($fieldName, 3)
+					? $fullPrefix.mb_substr($fieldName, 3)
 					: $fullPrefix.$fieldName;
 			}
 		}
@@ -293,9 +293,9 @@ abstract class UserFieldProxy
 		self::prepareLabels($fields, 'ERROR_MESSAGE', $defaultLabel);
 		self::prepareLabels($fields, 'HELP_MESSAGE', $defaultLabel);
 
-		$fields['MULTIPLE'] = isset($fields['MULTIPLE']) && strtoupper($fields['MULTIPLE']) === 'Y' ? 'Y' : 'N';
-		$fields['MANDATORY'] = isset($fields['MANDATORY']) && strtoupper($fields['MANDATORY']) === 'Y' ? 'Y' : 'N';
-		$fields['SHOW_FILTER'] = isset($fields['SHOW_FILTER']) && strtoupper($fields['SHOW_FILTER']) === 'Y' ? 'E' : 'N'; // E - 'By mask' is default
+		$fields['MULTIPLE'] = isset($fields['MULTIPLE']) && mb_strtoupper($fields['MULTIPLE']) === 'Y' ? 'Y' : 'N';
+		$fields['MANDATORY'] = isset($fields['MANDATORY']) && mb_strtoupper($fields['MANDATORY']) === 'Y' ? 'Y' : 'N';
+		$fields['SHOW_FILTER'] = isset($fields['SHOW_FILTER']) && mb_strtoupper($fields['SHOW_FILTER']) === 'Y' ? 'E' : 'N'; // E - 'By mask' is default
 
 		$isMultiple = isset($fields['MULTIPLE']) && $fields['MULTIPLE'] === 'Y';
 
@@ -333,7 +333,7 @@ abstract class UserFieldProxy
 					&& $settings['DEFAULT_VALUE'] > 0 ? 1 : 0;
 
 				$display = isset($settings['DISPLAY']) ? $settings['DISPLAY'] : '';
-				$effectiveSettings['DISPLAY'] = $display !== '' ? strtoupper($display) : 'CHECKBOX';
+				$effectiveSettings['DISPLAY'] = $display !== ''? mb_strtoupper($display) : 'CHECKBOX';
 
 				$fields['MULTIPLE'] = 'N';
 				break;
@@ -351,14 +351,14 @@ abstract class UserFieldProxy
 					'VALUE' => isset($defaultValue['VALUE'])
 						? \CRestUtil::unConvertDateTime($defaultValue['VALUE']) : '',
 					'TYPE' => isset($defaultValue['TYPE']) && $defaultValue['TYPE'] !== ''
-						? strtoupper($defaultValue['TYPE']) : 'NONE'
+						? mb_strtoupper($defaultValue['TYPE']) : 'NONE'
 				);
 				break;
 			}
 			case 'enumeration':
 			{
 				$display = isset($settings['DISPLAY']) ? $settings['DISPLAY'] : '';
-				$effectiveSettings['DISPLAY'] = $display !== '' ? strtoupper($display) : 'LIST';
+				$effectiveSettings['DISPLAY'] = $display !== ''? mb_strtoupper($display) : 'LIST';
 
 				$height = isset($settings['LIST_HEIGHT']) ? (int)$settings['LIST_HEIGHT'] : 0;
 				$effectiveSettings['LIST_HEIGHT'] = $height > 0 ? $height : 1;
@@ -393,7 +393,7 @@ abstract class UserFieldProxy
 
 					if(isset($item['DEF']))
 					{
-						$isDefault = strtoupper($item['DEF']) === 'Y';
+						$isDefault = mb_strtoupper($item['DEF']) === 'Y';
 						if($isMultiple)
 						{
 							$effectiveItem['DEF'] = $isDefault ? 'Y' : 'N';
@@ -427,12 +427,12 @@ abstract class UserFieldProxy
 				$effectiveSettings['DEFAULT_VALUE'] = isset($settings['DEFAULT_VALUE']) ? $settings['DEFAULT_VALUE'] : '';
 
 				$display = isset($settings['DISPLAY']) ? $settings['DISPLAY'] : '';
-				$effectiveSettings['DISPLAY'] = $display !== '' ? strtoupper($display) : 'LIST';
+				$effectiveSettings['DISPLAY'] = $display !== ''? mb_strtoupper($display) : 'LIST';
 
 				$height = isset($settings['LIST_HEIGHT']) ? (int)$settings['LIST_HEIGHT'] : 0;
 				$effectiveSettings['LIST_HEIGHT'] = $height > 0 ? $height : 1;
 				$effectiveSettings['ACTIVE_FILTER'] = isset($settings['ACTIVE_FILTER'])
-					&& strtoupper($settings['ACTIVE_FILTER']) === 'Y' ? 'Y' : 'N';
+					&& mb_strtoupper($settings['ACTIVE_FILTER']) === 'Y' ? 'Y' : 'N';
 				break;
 			}
 			case 'crm_status':
@@ -442,10 +442,10 @@ abstract class UserFieldProxy
 			}
 			case 'crm':
 			{
-				$effectiveSettings['LEAD'] = isset($settings['LEAD']) && strtoupper($settings['LEAD']) === 'Y' ? 'Y' : 'N';
-				$effectiveSettings['CONTACT'] = isset($settings['CONTACT']) && strtoupper($settings['CONTACT']) === 'Y' ? 'Y' : 'N';
-				$effectiveSettings['COMPANY'] = isset($settings['COMPANY']) && strtoupper($settings['COMPANY']) === 'Y' ? 'Y' : 'N';
-				$effectiveSettings['DEAL'] = isset($settings['DEAL']) && strtoupper($settings['DEAL']) === 'Y' ? 'Y' : 'N';
+				$effectiveSettings['LEAD'] = isset($settings['LEAD']) && mb_strtoupper($settings['LEAD']) === 'Y' ? 'Y' : 'N';
+				$effectiveSettings['CONTACT'] = isset($settings['CONTACT']) && mb_strtoupper($settings['CONTACT']) === 'Y' ? 'Y' : 'N';
+				$effectiveSettings['COMPANY'] = isset($settings['COMPANY']) && mb_strtoupper($settings['COMPANY']) === 'Y' ? 'Y' : 'N';
+				$effectiveSettings['DEAL'] = isset($settings['DEAL']) && mb_strtoupper($settings['DEAL']) === 'Y' ? 'Y' : 'N';
 				break;
 			}
 			case 'employee':
@@ -729,7 +729,7 @@ abstract class UserFieldProxy
 
 		if(isset($fields['SHOW_FILTER']))
 		{
-			$fields['SHOW_FILTER'] = strtoupper($fields['SHOW_FILTER']) === 'Y' ? 'E' : 'N'; // E - 'By mask' is default
+			$fields['SHOW_FILTER'] = mb_strtoupper($fields['SHOW_FILTER']) === 'Y' ? 'E' : 'N'; // E - 'By mask' is default
 		}
 
 		switch ($userTypeID)
@@ -779,7 +779,7 @@ abstract class UserFieldProxy
 				if(isset($settings['DISPLAY']))
 				{
 					$effectiveSettings['DISPLAY'] = $settings['DISPLAY'] !== ''
-						? strtoupper($settings['DISPLAY']) : 'CHECKBOX';
+						? mb_strtoupper($settings['DISPLAY']) : 'CHECKBOX';
 				}
 
 				unset($fields['MULTIPLE']);
@@ -799,7 +799,7 @@ abstract class UserFieldProxy
 						'VALUE' => isset($defaultValue['VALUE'])
 							? \CRestUtil::unConvertDateTime($defaultValue['VALUE']) : '',
 						'TYPE' => isset($defaultValue['TYPE']) && $defaultValue['TYPE'] !== ''
-							? strtoupper($defaultValue['TYPE']) : 'NONE'
+							? mb_strtoupper($defaultValue['TYPE']) : 'NONE'
 					);
 				}
 				break;
@@ -809,7 +809,7 @@ abstract class UserFieldProxy
 				if(isset($settings['DISPLAY']))
 				{
 					$effectiveSettings['DISPLAY'] = $settings['DISPLAY'] !== ''
-						? strtoupper($settings['DISPLAY']) : 'LIST';
+						? mb_strtoupper($settings['DISPLAY']) : 'LIST';
 				}
 
 				if(isset($settings['LIST_HEIGHT']))
@@ -844,7 +844,7 @@ abstract class UserFieldProxy
 						if($itemID > 0)
 						{
 							$itemKey = strval($itemID);
-							if(isset($item['DEL']) && strtoupper($item['DEL']) === 'Y')
+							if(isset($item['DEL']) && mb_strtoupper($item['DEL']) === 'Y')
 							{
 								$effectiveItem['DEL'] = 'Y';
 							}
@@ -857,7 +857,7 @@ abstract class UserFieldProxy
 
 						if(isset($item['DEF']))
 						{
-							$isDefault = strtoupper($item['DEF']) === 'Y';
+							$isDefault = mb_strtoupper($item['DEF']) === 'Y';
 							if($isMultiple)
 							{
 								$effectiveItem['DEF'] = $isDefault ? 'Y' : 'N';
@@ -909,7 +909,7 @@ abstract class UserFieldProxy
 				if(isset($settings['DISPLAY']))
 				{
 					$effectiveSettings['DISPLAY'] = $settings['DISPLAY'] !== ''
-						? strtoupper($settings['DISPLAY']) : 'LIST';
+						? mb_strtoupper($settings['DISPLAY']) : 'LIST';
 				}
 
 				if(isset($settings['LIST_HEIGHT']))
@@ -919,7 +919,7 @@ abstract class UserFieldProxy
 
 				if(isset($settings['ACTIVE_FILTER']))
 				{
-					$effectiveSettings['ACTIVE_FILTER'] = strtoupper($settings['ACTIVE_FILTER']) === 'Y' ? 'Y' : 'N';
+					$effectiveSettings['ACTIVE_FILTER'] = mb_strtoupper($settings['ACTIVE_FILTER']) === 'Y' ? 'Y' : 'N';
 				}
 
 				break;
@@ -936,22 +936,22 @@ abstract class UserFieldProxy
 			{
 				if(isset($settings['LEAD']))
 				{
-					$effectiveSettings['LEAD'] = strtoupper($settings['LEAD']) === 'Y' ? 'Y' : 'N';
+					$effectiveSettings['LEAD'] = mb_strtoupper($settings['LEAD']) === 'Y' ? 'Y' : 'N';
 				}
 
 				if(isset($settings['CONTACT']))
 				{
-					$effectiveSettings['CONTACT'] = strtoupper($settings['CONTACT']) === 'Y' ? 'Y' : 'N';
+					$effectiveSettings['CONTACT'] = mb_strtoupper($settings['CONTACT']) === 'Y' ? 'Y' : 'N';
 				}
 
 				if(isset($settings['COMPANY']))
 				{
-					$effectiveSettings['COMPANY'] = strtoupper($settings['COMPANY']) === 'Y' ? 'Y' : 'N';
+					$effectiveSettings['COMPANY'] = mb_strtoupper($settings['COMPANY']) === 'Y' ? 'Y' : 'N';
 				}
 
 				if(isset($settings['DEAL']))
 				{
-					$effectiveSettings['DEAL'] = strtoupper($settings['DEAL']) === 'Y' ? 'Y' : 'N';
+					$effectiveSettings['DEAL'] = mb_strtoupper($settings['DEAL']) === 'Y' ? 'Y' : 'N';
 				}
 				break;
 			}

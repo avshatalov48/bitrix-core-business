@@ -1157,7 +1157,7 @@ class CIMMessageParamAttach
 
 	private static function removeNewLine($text)
 	{
-		$text = preg_replace('/\R/u', ' ', $text);
+		$text = preg_replace('/\R/'.BX_UTF_PCRE_MODIFIER, ' ', $text);
 		return $text;
 	}
 

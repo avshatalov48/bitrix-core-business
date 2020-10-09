@@ -71,6 +71,15 @@ class Keyboard
 				$button['APP_PARAMS'] = $params['APP_PARAMS'];
 			}
 		}
+		else if (
+			isset($params['ACTION'])
+			&& in_array($params['ACTION'], ['PUT', 'SEND', 'COPY', 'CALL', 'DIALOG'])
+			&& trim($params['ACTION_VALUE']) <> ''
+		)
+		{
+			$button['ACTION'] = $params['ACTION'];
+			$button['ACTION_VALUE'] = $params['ACTION_VALUE'];
+		}
 		else if ($this->botId > 0 && isset($params['COMMAND']) && trim($params['COMMAND']) <> '')
 		{
 			$button['COMMAND'] = mb_substr($params['COMMAND'], 0, 1) == '/'? mb_substr($params['COMMAND'], 1) : $params['COMMAND'];

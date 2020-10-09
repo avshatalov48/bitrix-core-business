@@ -457,7 +457,7 @@ class CacheEngineFiles
 			|| preg_match("/^(\\d{12})/", $header, $match)
 		)
 		{
-			if (strlen($match[1]) <= 0 || doubleval($match[1]) < time())
+			if ($match[1] == '' || doubleval($match[1]) < time())
 				return true;
 		}
 

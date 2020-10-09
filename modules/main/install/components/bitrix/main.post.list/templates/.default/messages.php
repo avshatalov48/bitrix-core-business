@@ -12,7 +12,7 @@ if (!function_exists("__mpl_get_avatar"))
 			{
 				$u = CUser::GetByID($USER->GetID())->Fetch();
 				if (
-					intVal($u["PERSONAL_PHOTO"]) <= 0
+					intval($u["PERSONAL_PHOTO"]) <= 0
 					&& \Bitrix\Main\ModuleManager::isModuleInstalled('socialnetwork')
 				)
 				{

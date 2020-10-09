@@ -43,13 +43,8 @@ $aTabs[]=array("DIV" => "edit4", "TAB" => GetMessage("FORM_RESULTS"), "ICON" => 
 $aTabs[]=array("DIV" => "edit5", "TAB" => GetMessage("FORM_FILTER"), "ICON" => "form_edit", "TITLE" => GetMessage("FORM_FILTER_TYPE"));
 $aTabs[]=array("DIV" => "edit6", "TAB" => GetMessage("FORM_COMMENT_TOP"), "ICON" => "form_edit", "TITLE" => GetMessage("FORM_COMMENTS"));
 
-
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 $message = null;
-
-/***************************************************************************
-                           GET | POST processing
-***************************************************************************/
 
 $WEB_FORM_ID = intval($_REQUEST['WEB_FORM_ID']);
 $ID = intval($_REQUEST['ID']);
@@ -76,13 +71,13 @@ if($F_RIGHT<25) $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 if ($copy_id > 0 && $F_RIGHT >= 30 && check_bitrix_sessid())
 {
 	$new_id = CFormField::Copy($copy_id);
-	if (strlen($strError)<=0 && intval($new_id)>0)
+	if ($strError == '' && intval($new_id)>0)
 	{
 		LocalRedirect("form_field_edit.php?ID=".$new_id."&additional=".$additional."&WEB_FORM_ID=".$WEB_FORM_ID."&lang=".LANGUAGE_ID ."&strError=".urlencode($strError));
 	}
 }
 
-if ((strlen($_REQUEST['save']) > 0 || strlen($_REQUEST['apply']) > 0) && $_SERVER['REQUEST_METHOD']=="POST" && $F_RIGHT>=30 && check_bitrix_sessid())
+if (($_REQUEST['save'] <> '' || $_REQUEST['apply'] <> '') && $_SERVER['REQUEST_METHOD']=="POST" && $F_RIGHT>=30 && check_bitrix_sessid())
 {
 	$arIMAGE = $_FILES["IMAGE_ID"];
 	$arIMAGE["MODULE_ID"] = "form";
@@ -166,14 +161,7 @@ if ((strlen($_REQUEST['save']) > 0 || strlen($_REQUEST['apply']) > 0) && $_SERVE
 		$arFields["arFILTER_FIELD"] = $_REQUEST['arFILTER_FIELD'];
 	}
 
-	/*
-	print "<pre>";
-	print_r($arFields);
-	print "</pre>";
-	die();
-	*/
-
-	if (strlen($strError) <= 0)
+	if ($strError == '')
 	{
 		$res = intval(CFormField::Set($arFields, $ID));
 		if ($res > 0)
@@ -197,9 +185,9 @@ if ((strlen($_REQUEST['save']) > 0 || strlen($_REQUEST['apply']) > 0) && $_SERVE
 				}
 			}
 
-			if (strlen($strError)<=0)
+			if ($strError == '')
 			{
-				if (strlen($_REQUEST['save'])>0)
+				if ($_REQUEST['save'] <> '')
 					LocalRedirect("form_field_list.php?WEB_FORM_ID=".$WEB_FORM_ID."&additional=". $additional."&lang=".LANGUAGE_ID);
 				else
 					LocalRedirect("form_field_edit.php?ID=".$ID."&WEB_FORM_ID=".$WEB_FORM_ID."&additional=". $additional."&lang=".LANGUAGE_ID."&".$tabControl->ActiveTabParam());
@@ -238,7 +226,7 @@ if ($additional!="Y")
 #############################
 }
 
-if (strlen($strError)>0) $DB->InitTableVarsForEdit("b_form_field", "", "str_");
+if ($strError <> '') $DB->InitTableVarsForEdit("b_form_field", "", "str_");
 
 if ($additional=="Y")
 {
@@ -254,9 +242,6 @@ else
 $APPLICATION->SetTitle($sDocTitle);
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-/***************************************************************************
-                               HTML form
-****************************************************************************/
 
 $context = new CAdminContextMenuList($arForm['ADMIN_MENU']);
 $context->Show();
@@ -346,37 +331,6 @@ if ($F_RIGHT>=30 && $ID>0)
 	$context->Show();
 }
 
-/*
-echo '<pre>'; print_r($arForm); echo '</pre>';
-
-$aMenu[] = array("NEWBAR"=>"Y");
-
-$aMenu[] = array(
-	"TEXT"			=> GetMessage("FORM_STATUSES")." [".$arForm["STATUSES"]."]",
-	"LINK"			=> "/bitrix/admin/form_status_list.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=".$WEB_FORM_ID,
-	"TEXT_PARAM"	=> " [<a title=".GetMessage("FORM_ADD_STATUS")."  href='/bitrix/admin/form_status_edit.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=".$WEB_FORM_ID."'>+</a>]",
-	"TITLE"			=> GetMessage("FORM_STATUSES_ALT")
-	);
-if ($additional!="Y")
-{
-	$aMenu[] = array(
-		"TEXT"			=> GetMessage("FORM_FIELDS")." [".$arForm["C_FIELDS"]."]",
-		"LINK"			=> "/bitrix/admin/form_field_list.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=".$WEB_FORM_ID."&additional=Y",
-		"TEXT_PARAM"	=> " [<a title=".GetMessage("FORM_ADD_FIELD")."  href='/bitrix/admin/form_field_edit.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=".$WEB_FORM_ID."&additional=Y'>+</a>]",
-		"TITLE"			=> GetMessage("FORM_FIELDS_ALT")
-		);
-}
-else
-{
-	$aMenu[] = array(
-		"TEXT"			=> GetMessage("FORM_QUESTIONS")." [".$arForm["QUESTIONS"]."]",
-		"LINK"			=> "/bitrix/admin/form_field_list.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=".$WEB_FORM_ID,
-		"TEXT_PARAM"	=> " [<a title=".GetMessage("FORM_ADD_QUESTION")."  href='/bitrix/admin/form_field_edit.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=".$WEB_FORM_ID."'>+</a>]",
-		"TITLE"			=> GetMessage("FORM_QUESTIONS_ALT")
-		);
-}
-*/
-
 if($strError)
 {
 	$aMsg=array();
@@ -434,7 +388,7 @@ $tabControl->Begin();
 //********************
 $tabControl->BeginNextTab();
 ?>
-	<?if (strlen($str_TIMESTAMP_X)>0) : ?>
+	<?if ($str_TIMESTAMP_X <> '') : ?>
 	<tr>
 		<td><?=GetMessage("FORM_TIMESTAMP")?></td>
 		<td><?=$str_TIMESTAMP_X?></td>
@@ -652,7 +606,13 @@ BX.ready(function() {
 				$count = $i;
 				$s = intval(max($arSort))+100;
 				while ($i<=$count) :
-					if (strlen($strError)>0)
+					$message = '';
+					$value = '';
+					$ftype = '';
+					$width = '';
+					$height = '';
+					$param = '';
+					if ($strError <> '')
 					{
 						$message = htmlspecialcharsbx(${"MESSAGE_".$i});
 						$value = htmlspecialcharsbx(${"VALUE_".$i});
@@ -661,8 +621,8 @@ BX.ready(function() {
 						$height = htmlspecialcharsbx(${"FIELD_HEIGHT_".$i});
 						$param = htmlspecialcharsbx(${"FIELD_PARAM_".$i});
 					}
-					if (strlen($ftype)<=0) $ftype = $p_FIELD_TYPE;
-					if (strlen($ftype)<=0) $ftype = "text";
+					if ($ftype == '') $ftype = $p_FIELD_TYPE;
+					if ($ftype == '') $ftype = "text";
 				?>
 				<input type="hidden" name="ANSWER[]" value="<?=$i?>" />
 				<input type="hidden" name="ANSWER_ID_<?=$i?>" value="0" />
@@ -676,7 +636,7 @@ BX.ready(function() {
 					<td nowrap="nowrap"><input <?if ($ftype!="text" && $ftype!="textarea" && $ftype!="image" && $ftype!="date" && $ftype != 'email') echo "disabled"?> type="text" id="FIELD_WIDTH_<?=$i?>" name="FIELD_WIDTH_<?=$i?>" value="<?=$width?>" size="3" /></td>
 					<td nowrap="nowrap"><input <?if ($ftype!="textarea" && $ftype!="multiselect") echo "disabled"?> type="text" id="FIELD_HEIGHT_<?=$i?>" name="FIELD_HEIGHT_<?=$i?>" value="<?=$height?>" size="3" /></td>
 					<td nowrap="nowrap"><input type="text" name="FIELD_PARAM_<?=$i?>" value="<?=$param?>" size="8" /></td>
-					<td nowrap="nowrap"><input type="text" name="C_SORT_<?=$i?>" value="<?echo (strlen(${"C_SORT_".$i})>0 && strlen($message)>0) ? htmlspecialcharsbx(${"C_SORT_".$i}) : $s?>" size="3" /></td>
+					<td nowrap="nowrap"><input type="text" name="C_SORT_<?=$i?>" value="<?echo (${"C_SORT_".$i} <> '' && $message <> '') ? htmlspecialcharsbx(${"C_SORT_".$i}) : $s?>" size="3" /></td>
 					<td><?
 					echo InputType("checkbox", "ACTIVE_".$i, "Y", "Y", false);?></td>
 					<td>&nbsp;</td>

@@ -18,10 +18,10 @@ $APPLICATION->AddHeadScript('/bitrix/js/crm/crm.js');
 
 $fieldName = $arParams['arUserField']['~FIELD_NAME'];
 $formName = isset($arParams['form_name']) ? strval($arParams['form_name']) : '';
-$fieldUID = strtolower(str_replace('_', '-', $fieldName));
+$fieldUID = mb_strtolower(str_replace('_', '-', $fieldName));
 if($formName !== '')
 {
-	$fieldUID = strtolower(str_replace('_', '-', $formName)).'-'.$fieldUID;
+	$fieldUID = mb_strtolower(str_replace('_', '-', $formName)).'-'.$fieldUID;
 }
 $randString = $this->randString();
 $jsObject = 'CrmEntitySelector_'.$randString;

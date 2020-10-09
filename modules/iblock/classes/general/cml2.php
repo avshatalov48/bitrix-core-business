@@ -195,14 +195,14 @@ class CIBlockCMLImport
 
 				if(preg_match("/<"."\\?XML[^>]{1,}encoding=[\"']([^>\"']{1,})[\"'][^>]{0,}\\?".">/i", $header, $matches))
 				{
-					if(mb_strtoupper($matches[1]) !== mb_strtoupper(LANG_CHARSET))
+					if(strtoupper($matches[1]) !== strtoupper(LANG_CHARSET))
 						$header = $APPLICATION->ConvertCharset($header, $matches[1], LANG_CHARSET);
 				}
 
 				foreach(array(LANGUAGE_ID, "en", "ru") as $lang)
 				{
 					$mess = Main\Localization\Loc::loadLanguageFile(__FILE__, $lang);
-					if(mb_strpos($header, "<".$mess["IBLOCK_XML2_COMMERCE_INFO"]) !== false)
+					if(strpos($header, "<".$mess["IBLOCK_XML2_COMMERCE_INFO"]) !== false)
 						return $lang;
 				}
 			}
@@ -2073,7 +2073,7 @@ class CIBlockCMLImport
 		if (!$arProperty)
 			return true;
 
-		$tableName = 'b_'.mb_strtolower($arProperty["CODE"]);
+		$tableName = 'b_'.strtolower($arProperty["CODE"]);
 		if ($arProperty["USER_TYPE_SETTINGS"]["TABLE_NAME"] == '')
 		{
 			$hlblock = Bitrix\Highloadblock\HighloadBlockTable::getList(array(
@@ -2087,7 +2087,7 @@ class CIBlockCMLImport
 				if ($highBlockName == "")
 					return GetMessage("IBLOCK_XML2_HBLOCK_NAME_IS_INVALID");
 
-				$highBlockName = mb_strtoupper(mb_substr($highBlockName, 0, 1)).mb_substr($highBlockName, 1);
+				$highBlockName = strtoupper(substr($highBlockName, 0, 1)).substr($highBlockName, 1);
 				$data = array(
 					'NAME' => $highBlockName,
 					'TABLE_NAME' => $tableName,
@@ -2556,7 +2556,7 @@ class CIBlockCMLImport
 				$counter["CRC"]++;
 
 				$arXMLElement = $this->_xml_file->GetAllChildrenArray($arParent);
-				$hashPosition = mb_strrpos($arXMLElement[$this->mess["IBLOCK_XML2_ID"]], "#");
+				$hashPosition = strrpos($arXMLElement[$this->mess["IBLOCK_XML2_ID"]], "#");
 
 				if(!$this->next_step["bOffer"] && $this->use_offers)
 				{
@@ -2959,9 +2959,9 @@ class CIBlockCMLImport
 
 			if($this->bCatalog && $this->next_step["bOffer"])
 			{
-				$p = mb_strpos($arXMLElement[$this->mess["IBLOCK_XML2_ID"]], "#");
+				$p = strpos($arXMLElement[$this->mess["IBLOCK_XML2_ID"]], "#");
 				if ($p !== false)
-					$link_xml_id = mb_substr($arXMLElement[$this->mess["IBLOCK_XML2_ID"]], 0, $p);
+					$link_xml_id = substr($arXMLElement[$this->mess["IBLOCK_XML2_ID"]], 0, $p);
 				else
 					$link_xml_id = $arXMLElement[$this->mess["IBLOCK_XML2_ID"]];
 				$arElement["PROPERTY_VALUES"][$this->PROPERTY_MAP["CML2_LINK"]] = array(
@@ -3155,7 +3155,7 @@ class CIBlockCMLImport
 							{
 								if(!$PROPERTY_VALUE_ID)
 									unset($arElement["PROPERTY_VALUES"][$prop_id][$PROPERTY_VALUE_ID]);
-								elseif(mb_substr($PROPERTY_VALUE_ID, 0, 1) !== "n")
+								elseif(strncmp($PROPERTY_VALUE_ID, "n", 1) !== 0)
 									$arElement["PROPERTY_VALUES"][$prop_id][$PROPERTY_VALUE_ID] = array(
 										"tmp_name" => "",
 										"del" => "Y",
@@ -3295,7 +3295,7 @@ class CIBlockCMLImport
 					)
 					{
 						$arElement["PREVIEW_TEXT"] = $value[$this->mess["IBLOCK_XML2_VALUE"]];
-						if(mb_strpos($arElement["PREVIEW_TEXT"], "<") !== false)
+						if(strpos($arElement["PREVIEW_TEXT"], "<") !== false)
 							$arElement["PREVIEW_TEXT_TYPE"] = "html";
 						else
 							$arElement["PREVIEW_TEXT_TYPE"] = "text";
@@ -3416,7 +3416,7 @@ class CIBlockCMLImport
 					{
 						if(!$PROPERTY_VALUE_ID)
 							unset($arElement["PROPERTY_VALUES"][$prop_id][$PROPERTY_VALUE_ID]);
-						elseif(mb_substr($PROPERTY_VALUE_ID, 0, 1) !== "n")
+						elseif(strncmp($PROPERTY_VALUE_ID, "n", 1) !== 0)
 							$arElement["PROPERTY_VALUES"][$prop_id][$PROPERTY_VALUE_ID] = array(
 								"tmp_name" => "",
 								"del" => "Y",
@@ -4048,7 +4048,7 @@ class CIBlockCMLImport
 			"XML_ID" => $arXMLElement[$this->mess["IBLOCK_XML2_ID"]],
 		);
 
-		$hashPosition = mb_strrpos($arElement["XML_ID"], "#");
+		$hashPosition = strrpos($arElement["XML_ID"], "#");
 		if (
 			$this->use_offers
 			&& $hashPosition === false && !$this->force_offers
@@ -4581,8 +4581,8 @@ class CIBlockCMLImport
 			);
 
 			if (
-				mb_strlen($price[$this->mess["IBLOCK_XML2_QUANTITY_FROM"]])
-				|| mb_strlen($price[$this->mess["IBLOCK_XML2_QUANTITY_TO"]])
+				(isset($price[$this->mess["IBLOCK_XML2_QUANTITY_FROM"]]) && (string)$price[$this->mess["IBLOCK_XML2_QUANTITY_FROM"]] != '')
+				|| (isset($price[$this->mess["IBLOCK_XML2_QUANTITY_TO"]]) && (string)$price[$this->mess["IBLOCK_XML2_QUANTITY_TO"]] != '')
 			)
 			{
 				$arPrice["QUANTITY_FROM"] = $price[$this->mess["IBLOCK_XML2_QUANTITY_FROM"]];
@@ -6184,7 +6184,7 @@ class CIBlockCMLExport
 			foreach($arProp["VALUES"] as $arValue)
 			{
 				$value = $arValue["VALUE"];
-				if(is_array($value) || mb_strlen($value))
+				if(is_array($value) || (string)$value != '')
 				{
 					$bEmpty = false;
 					$bSerialized = false;

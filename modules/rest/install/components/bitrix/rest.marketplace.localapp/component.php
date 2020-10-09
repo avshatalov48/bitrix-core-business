@@ -42,7 +42,7 @@ if($arParams["SEF_MODE"] == "Y")
 		$arVariables
 	);
 
-	if(strlen($componentPage) <= 0)
+	if($componentPage == '')
 	{
 		$componentPage = "index";
 	}
@@ -63,7 +63,7 @@ else
 	CComponentEngine::InitComponentVariables(false, $arComponentVariables, $arVariableAliases, $arVariables);
 
 	$componentPage = "";
-	if(strlen($arVariables["id"]) > 0)
+	if($arVariables["id"] <> '')
 	{
 		$componentPage = "edit";
 	}

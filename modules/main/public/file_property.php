@@ -15,11 +15,11 @@ $io = CBXVirtualIo::GetInstance();
 
 //Page path
 $path = "/";
-if (isset($_REQUEST["path"]) && strlen($_REQUEST["path"]) > 0)
+if (isset($_REQUEST["path"]) && $_REQUEST["path"] <> '')
 	$path = $io->CombinePath("/", $_REQUEST["path"]);
 
 //Lang
-if (!isset($_REQUEST["lang"]) || strlen($_REQUEST["lang"]) <= 0)
+if (!isset($_REQUEST["lang"]) || $_REQUEST["lang"] == '')
 	$lang = LANGUAGE_ID;
 
 //BackUrl
@@ -27,7 +27,7 @@ $back_url = (isset($_REQUEST["back_url"]) ? $_REQUEST["back_url"] : "");
 
 //Site ID
 $site = SITE_ID;
-if (isset($_REQUEST["site"]) && strlen($_REQUEST["site"]) > 0)
+if (isset($_REQUEST["site"]) && $_REQUEST["site"] <> '')
 {
 	$obSite = CSite::GetByID($_REQUEST["site"]);
 	if ($arSite = $obSite->Fetch())
@@ -59,7 +59,7 @@ elseif ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]))
 	CUtil::JSPostUnescape();
 
 	//Title
-	if (isset($_POST["pageTitle"]) && strlen($_POST["pageTitle"]) > 0)
+	if (isset($_POST["pageTitle"]) && $_POST["pageTitle"] <> '')
 		$fileContent = SetPrologTitle($fileContent, $_POST["pageTitle"]);
 
 	//Properties
@@ -115,13 +115,13 @@ $arDirProperties = Array();
 if ($strWarning != "")
 {
 	//Restore post values if error occured
-	$pageTitle = (isset($_POST["pageTitle"]) && strlen($_POST["pageTitle"]) > 0 ? $_POST["pageTitle"] : "");
+	$pageTitle = (isset($_POST["pageTitle"]) && $_POST["pageTitle"] <> '' ? $_POST["pageTitle"] : "");
 
 	if (isset($_POST["PROPERTY"]) && is_array($_POST["PROPERTY"]))
 	{
 		foreach ($_POST["PROPERTY"] as $arProperty)
 		{
-			if (isset($arProperty["VALUE"]) && strlen($arProperty["VALUE"]) > 0)
+			if (isset($arProperty["VALUE"]) && $arProperty["VALUE"] <> '')
 				$arDirProperties[$arProperty["CODE"]] = $arProperty["VALUE"];
 		}
 	}
@@ -144,14 +144,14 @@ if (IsModuleInstalled("search"))
 	$tagPropertyCode = COption::GetOptionString("search", "page_tag_property","tags");
 	$tagPropertyValue = "";
 
-	if ($strWarning != "" && isset($_POST["TAGS"]) && strlen($_POST["TAGS"]) > 0) //Restore post value if error occured
+	if ($strWarning != "" && isset($_POST["TAGS"]) && $_POST["TAGS"] <> '') //Restore post value if error occured
 		$tagPropertyValue = $_POST["TAGS"];
 	elseif (array_key_exists($tagPropertyCode, $arDirProperties))
 		$tagPropertyValue = $arDirProperties[$tagPropertyCode];
 
 	unset($arFilemanProperties[$tagPropertyCode]);
 	unset($arDirProperties[$tagPropertyCode]);
-	unset($arInheritProperties[strtoupper($tagPropertyCode)]);
+	unset($arInheritProperties[mb_strtoupper($tagPropertyCode)]);
 }
 
 //Delete equal properties
@@ -164,11 +164,11 @@ foreach ($arFilemanProperties as $propertyCode => $propertyDesc)
 		$arGlobalProperties[$propertyCode] = "";
 
 	unset($arDirProperties[$propertyCode]);
-	unset($arInheritProperties[strtoupper($propertyCode)]);
+	unset($arInheritProperties[mb_strtoupper($propertyCode)]);
 }
 
 foreach ($arDirProperties as $propertyCode => $propertyValue)
-	unset($arInheritProperties[strtoupper($propertyCode)]);
+	unset($arInheritProperties[mb_strtoupper($propertyCode)]);
 ?>
 
 
@@ -230,7 +230,7 @@ foreach ($arGlobalProperties as $propertyCode => $propertyValue):?>
 
 	<tr style="height:30px;">
 		<td class="bx-popup-label bx-width30"><?=(
-			strlen($arFilemanProperties[$propertyCode]) > 0 ? 
+			$arFilemanProperties[$propertyCode] <> '' ? 
 				htmlspecialcharsEx($arFilemanProperties[$propertyCode]) : 
 				htmlspecialcharsEx($propertyCode))
 		?>:</td>
@@ -238,7 +238,7 @@ foreach ($arGlobalProperties as $propertyCode => $propertyValue):?>
 
 		<?$inheritValue = $APPLICATION->GetDirProperty($propertyCode, Array($site, $path));?>
 
-		<?if (strlen($inheritValue) > 0 && strlen($propertyValue) <= 0):
+		<?if ($inheritValue <> '' && $propertyValue == ''):
 			$jsInheritPropIds .= ",".$propertyIndex;
 		?>
 

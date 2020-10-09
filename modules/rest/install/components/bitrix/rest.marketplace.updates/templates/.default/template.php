@@ -51,7 +51,7 @@ if (is_array($arResult["ITEMS"]) && !empty($arResult["ITEMS"])):
 ?>
 				<a href="<?=$appUrl?>" class="mp_sc_ls_shadow"></a>
 				<div class="mp_sc_ls_container">
-					<a class="mp_sc_ls_title" href="<?=$appUrl?>"><?=htmlspecialcharsbx(strlen($app["NAME"]) <= 50 ? $app["NAME"] :  substr($app["NAME"], 0, 50)."...")?></a>
+					<a class="mp_sc_ls_title" href="<?=$appUrl?>"><?=htmlspecialcharsbx(mb_strlen($app["NAME"]) <= 50 ? $app["NAME"] : mb_substr($app["NAME"], 0, 50)."...")?></a>
 					<!--<span class="mp_sc_ls_stars">12</span>-->
 				</div>
 			</div>

@@ -20,7 +20,7 @@ import {Clipboard} from 'im.lib.clipboard';
 import 'ui.notification';
 import 'ui.buttons';
 import {ImCallPullHandler} from "im.provider.pull";
-import {CallApplicationErrorCode, CallErrorCode} from "im.const";
+import {CallApplicationErrorCode, CallErrorCode, EventType} from "im.const";
 
 // core
 import {Loc} from "main.core";
@@ -53,7 +53,6 @@ export class CallApplication
 		this.initPromise = new BX.Promise;
 
 		this.params = params;
-		console.trace(params);
 		this.params.userId = this.params.userId? parseInt(this.params.userId): 0;
 		this.params.siteId = this.params.siteId || '';
 		this.params.chatId = this.params.chatId? parseInt(this.params.chatId): 0;
@@ -976,6 +975,11 @@ export class CallApplication
 			notify.close();
 			this.toggleChat();
 		});
+	}
+
+	insertText(params = {})
+	{
+		this.template.$emit(EventType.textarea.insertText, params);
 	}
 
 	addMessage(text = '', file = null)

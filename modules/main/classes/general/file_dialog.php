@@ -36,13 +36,13 @@ class CAdminFileDialog
 
 			while (!$io->DirectoryExists($rootPath.$path))
 			{
-				$rpos = strrpos($path, '/');
+				$rpos = mb_strrpos($path, '/');
 				if ($rpos === false || $rpos < 1)
 				{
 					$path = '/';
 					break;
 				}
-				$path = rtrim(substr($path, 0, $rpos), "/\\");
+				$path = rtrim(mb_substr($path, 0, $rpos), "/\\");
 			}
 			if (!$path || $path == '')
 				$path = '/';
@@ -56,7 +56,7 @@ class CAdminFileDialog
 			else
 			{
 				$arConfig['event'] = preg_replace("/[^a-zA-Z0-9_]/i", "", $arConfig['event']);
-				if (strlen($arConfig['event']) <= 0)
+				if ($arConfig['event'] == '')
 					$functionError .= GetMessage("BX_FD_NO_EVENT").". ";
 			}
 
@@ -66,28 +66,28 @@ class CAdminFileDialog
 			}
 			else
 			{
-				if (isset($arConfig['arResultDest']["FUNCTION_NAME"]) && strlen($arConfig['arResultDest']["FUNCTION_NAME"]) > 0)
+				if (isset($arConfig['arResultDest']["FUNCTION_NAME"]) && $arConfig['arResultDest']["FUNCTION_NAME"] <> '')
 				{
 					$arConfig['arResultDest']["FUNCTION_NAME"] = preg_replace("/[^a-zA-Z0-9_]/i", "", $arConfig['arResultDest']["FUNCTION_NAME"]);
-					if (strlen($arConfig['arResultDest']["FUNCTION_NAME"]) <= 0)
+					if ($arConfig['arResultDest']["FUNCTION_NAME"] == '')
 						$functionError .= GetMessage("BX_FD_NO_RETURN_FNC").". ";
 					else
 						$resultDest = "FUNCTION";
 				}
-				elseif (isset($arConfig['arResultDest']["FORM_NAME"]) && strlen($arConfig['arResultDest']["FORM_NAME"]) > 0
-					&& isset($arConfig['arResultDest']["FORM_ELEMENT_NAME"]) && strlen($arConfig['arResultDest']["FORM_ELEMENT_NAME"]) > 0)
+				elseif (isset($arConfig['arResultDest']["FORM_NAME"]) && $arConfig['arResultDest']["FORM_NAME"] <> ''
+					&& isset($arConfig['arResultDest']["FORM_ELEMENT_NAME"]) && $arConfig['arResultDest']["FORM_ELEMENT_NAME"] <> '')
 				{
 					$arConfig['arResultDest']["FORM_NAME"] = preg_replace("/[^a-zA-Z0-9_]/i", "", $arConfig['arResultDest']["FORM_NAME"]);
 					$arConfig['arResultDest']["FORM_ELEMENT_NAME"] = preg_replace("/[^a-zA-Z0-9_]/i", "", $arConfig['arResultDest']["FORM_ELEMENT_NAME"]);
-					if (strlen($arConfig['arResultDest']["FORM_NAME"]) <= 0 || strlen($arConfig['arResultDest']["FORM_ELEMENT_NAME"]) <= 0)
+					if ($arConfig['arResultDest']["FORM_NAME"] == '' || $arConfig['arResultDest']["FORM_ELEMENT_NAME"] == '')
 						$functionError .= GetMessage("BX_FD_NO_RETURN_FRM").". ";
 					else
 						$resultDest = "FORM";
 				}
-				elseif (isset($arConfig['arResultDest']["ELEMENT_ID"]) && strlen($arConfig['arResultDest']["ELEMENT_ID"]) > 0)
+				elseif (isset($arConfig['arResultDest']["ELEMENT_ID"]) && $arConfig['arResultDest']["ELEMENT_ID"] <> '')
 				{
 					$arConfig['arResultDest']["ELEMENT_ID"] = preg_replace("/[^a-zA-Z0-9_]/i", "", $arConfig['arResultDest']["ELEMENT_ID"]);
-					if (strlen($arConfig['arResultDest']["ELEMENT_ID"]) <= 0)
+					if ($arConfig['arResultDest']["ELEMENT_ID"] == '')
 						$functionError .= GetMessage("BX_FD_NO_RETURN_ID").". ";
 					else
 						$resultDest = "ID";
@@ -103,7 +103,7 @@ class CAdminFileDialog
 			$functionError = GetMessage("BX_FD_NO_FILEMAN");
 		}
 
-		if (strlen($functionError) <= 0)
+		if ($functionError == '')
 		{
 			?>
 			<script>
@@ -313,7 +313,7 @@ if (window.jsUtils)
 		$Params['arSitesPP'] = $arSitesPP;
 		$Params['site'] = ($Params['site'] && isset($arSites[$Params['site']])) ? $Params['site'] : key($arSites); // Secure site var
 
-		if (!in_array(strtolower($Params['lang']), array('en', 'ru'))) // Secure lang var
+		if (!in_array(mb_strtolower($Params['lang']), array('en', 'ru'))) // Secure lang var
 		{
 			$res = CLanguage::GetByID($Params['lang']);
 			if($lang = $res->Fetch())
@@ -805,7 +805,7 @@ var FD_MESS =
 			$genTmb = COption::GetOptionString("fileman", "file_dialog_gen_thumb", "Y") == 'Y';
 		}
 
-		if(strlen($Params["site"]) > 2)
+		if(mb_strlen($Params["site"]) > 2)
 		{
 			if (!$USER->CanDoOperation('clouds_browse'))
 			{
@@ -991,7 +991,7 @@ arFDDirs['<?=$path_js?>'][<?=$ind?>] =
 				$imageAddProps = '';
 				if ($genTmb)
 				{
-					$ext = strtolower(GetFileExtension($name));
+					$ext = mb_strtolower(GetFileExtension($name));
 					if (in_array($ext, array('gif','jpg','jpeg','png','jpe','bmp'))) // It is image
 					{
 						$upload_dir = COption::GetOptionString("main", "upload_dir", "upload");
@@ -1098,11 +1098,11 @@ arFDPermission['<?=$path_js?>'] = {
 			}
 			else
 			{
-				if (strlen($dirname) > 0 && ($mess = self::CheckFileName($dirname)) !== true)
+				if ($dirname <> '' && ($mess = self::CheckFileName($dirname)) !== true)
 				{
 					$strWarning = $mess;
 				}
-				elseif(strlen($dirname) <= 0)
+				elseif($dirname == '')
 				{
 					$strWarning = GetMessage("FD_NEWFOLDER_ENTER_NAME");
 				}
@@ -1169,7 +1169,7 @@ arFDPermission['<?=$path_js?>'] = {
 		if ($strWarning == '')
 		{
 			// get parent dir path and load content
-			$parPath = substr($path, 0, strrpos($path, '/'));
+			$parPath = mb_substr($path, 0, mb_strrpos($path, '/'));
 			self::LoadItems(array('path' => $parPath, 'site' => $site, 'bAddToMenu' => $Params['bAddToMenu'], 'loadRecursively' => false, 'getFiles' => $Params['getFiles']));
 		}
 	}
@@ -1210,9 +1210,9 @@ arFDPermission['<?=$path_js?>'] = {
 				$type == 'file' &&
 				!$USER->CanDoOperation('edit_php') &&
 				(
-					substr($oldName, 0, 1) == "."
+					mb_substr($oldName, 0, 1) == "."
 					||
-					substr($name, 0, 1) == "."
+					mb_substr($name, 0, 1) == "."
 					||
 					(
 						HasScriptExtension($oldName) &&
@@ -1234,9 +1234,9 @@ arFDPermission['<?=$path_js?>'] = {
 				$strWarning = GetMessage("ACCESS_DENIED");
 			else
 			{
-				if (strlen($name) > 0 && ($mess = self::CheckFileName($name)) !== true)
+				if ($name <> '' && ($mess = self::CheckFileName($name)) !== true)
 					$strWarning = $mess;
-				else if(strlen($name) <= 0)
+				else if($name == '')
 					$strWarning = GetMessage("FD_ELEMENT_ENTER_NAME");
 				else
 				{
@@ -1384,7 +1384,7 @@ arFDPermission['<?=$path_js?>'] = {
 
 		$io = CBXVirtualIo::GetInstance();
 
-		if (isset($F["tmp_name"]) && strlen($F["tmp_name"]) > 0 && strlen($F["name"]) > 0 || is_uploaded_file($F["tmp_name"]))
+		if (isset($F["tmp_name"]) && $F["tmp_name"] <> '' && $F["name"] <> '' || is_uploaded_file($F["tmp_name"]))
 		{
 			global $APPLICATION, $USER;
 			$strWarning = '';
@@ -1399,14 +1399,14 @@ arFDPermission['<?=$path_js?>'] = {
 
 			$pathto = Rel2Abs($path, $filename);
 
-			if (strlen($filename) > 0 && ($mess = self::CheckFileName($filename)) !== true)
+			if ($filename <> '' && ($mess = self::CheckFileName($filename)) !== true)
 				$strWarning = $mess;
 
 			if($strWarning == '')
 			{
 				$fn = $io->ExtractNameFromPath($pathto);
 				if($USER->CanDoFileOperation('fm_upload_file', array($site, $pathto)) &&
-					($USER->IsAdmin() || (!HasScriptExtension($fn) && substr($fn, 0, 1) != "." && $io->ValidateFilenameString($fn)))
+					($USER->IsAdmin() || (!HasScriptExtension($fn) && mb_substr($fn, 0, 1) != "." && $io->ValidateFilenameString($fn)))
 				)
 				{
 					if(!$io->FileExists($rootPath.$pathto) || $_REQUEST["rewrite"] == "Y")

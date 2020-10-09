@@ -1,13 +1,4 @@
 <?
-/*
-##############################################
-# Bitrix: SiteManager                        #
-# Copyright (c) 2004 Bitrix                  #
-# http://www.bitrix.ru                       #
-# mailto:admin@bitrix.ru                     #
-##############################################
-*/
-
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/form/prolog.php");
 
@@ -61,7 +52,7 @@ if($F_RIGHT<25) $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 if (intval($copy_id)>0 && check_bitrix_sessid() && $F_RIGHT >= 30)
 {
 	$new_id = CFormStatus::Copy($copy_id);
-	if (strlen($strError)<=0 && intval($new_id)>0)
+	if ($strError == '' && intval($new_id)>0)
 	{
 		LocalRedirect("form_status_edit.php?ID=".$new_id."&WEB_FORM_ID=".$WEB_FORM_ID."&lang=".LANGUAGE_ID ."&strError=".urlencode($strError));
 	}
@@ -69,7 +60,7 @@ if (intval($copy_id)>0 && check_bitrix_sessid() && $F_RIGHT >= 30)
 
 $DEFAULT_STATUS_ID = intval(CFormStatus::GetDefault($WEB_FORM_ID));
 
-if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $F_RIGHT >= 30 && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $F_RIGHT >= 30 && check_bitrix_sessid())
 {
 	$arFields = array(
 		"FORM_ID"				=> $WEB_FORM_ID,
@@ -87,14 +78,13 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $F_RIGHT
 		"arPERMISSION_DELETE"	=> $arPERMISSION_DELETE,
 		"arMAIL_TEMPLATE"		=> $arMAIL_TEMPLATE,
 		);
-		//echo "<pre>"; print_r($arFields); echo "</pre>"; die();
 	$res = intval(CFormStatus::Set($arFields, $ID));
 	if ($res>0)
 	{
 		$ID = $res;
-		if (strlen($strError)<=0)
+		if ($strError == '')
 		{
-			if (strlen($save)>0) LocalRedirect("form_status_list.php?WEB_FORM_ID=".$WEB_FORM_ID."&lang=".LANGUAGE_ID);
+			if ($save <> '') LocalRedirect("form_status_list.php?WEB_FORM_ID=".$WEB_FORM_ID."&lang=".LANGUAGE_ID);
 			else LocalRedirect("form_status_edit.php?ID=".$ID."&WEB_FORM_ID=".$WEB_FORM_ID."&lang=".LANGUAGE_ID."&".$tabControl->ActiveTabParam());
 		}
 	}
@@ -116,14 +106,14 @@ else
 {
 	CFormStatus::GetPermissionList($ID, $arPERMISSION_VIEW, $arPERMISSION_MOVE, $arPERMISSION_EDIT, $arPERMISSION_DELETE);
 
-	if (strlen($strError)<=0)
+	if ($strError == '')
 	{
 		//$arSITE = CForm::GetSiteArray($ID);
 		$arMAIL_TEMPLATE = CFormStatus::GetMailTemplateArray($ID);
 	}
 }
 
-if (strlen($strError)>0) $DB->InitTableVarsForEdit("b_form_status", "", "str_");
+if ($strError <> '') $DB->InitTableVarsForEdit("b_form_status", "", "str_");
 
 $sDocTitle = ($ID>0) ? str_replace("#ID#", $ID, GetMessage("FORM_EDIT_RECORD")) : GetMessage("FORM_NEW_RECORD");
 $APPLICATION->SetTitle($sDocTitle);
@@ -196,7 +186,7 @@ $tabControl->Begin();
 //********************
 $tabControl->BeginNextTab();
 ?>
-	<? if (strlen($str_TIMESTAMP_X)>0 && $str_TIMESTAMP_X!="00.00.0000 00:00:00") : ?>
+	<? if ($str_TIMESTAMP_X <> '' && $str_TIMESTAMP_X!="00.00.0000 00:00:00") : ?>
 	<tr>
 		<td><?=GetMessage("FORM_TIMESTAMP")?></td>
 		<td><?=$str_TIMESTAMP_X?></td>
@@ -369,7 +359,6 @@ function DeleteMailTemplate(template_id)
 		<td width="60%" valign="top" nowrap style="padding:0px" id="form_templates">
 			<?
 			$arr = CFormStatus::GetTemplateList($ID);
-			//echo '<pre>'; print_r($arr); echo '</pre>';
 			if (is_array($arr) && count($arr)>0):
 				$arrMAIL = array();
 				reset($arr);
@@ -439,8 +428,8 @@ $tabControl->BeginNextTab();
 	{
 		$reference_id = $zr["REFERENCE_ID"];
 		$reference = $zr["REFERENCE"];
-		if (strlen($reference_id)<=0) $reference_id = $zr["reference_id"];
-		if (strlen($reference)<=0) $reference = $zr["reference"];
+		if ($reference_id == '') $reference_id = $zr["reference_id"];
+		if ($reference == '') $reference = $zr["reference"];
 		$arr_ref[] = $reference;
 		$arr_ref_id[] = $reference_id;
 	}
@@ -475,4 +464,4 @@ $tabControl->Buttons(array("disabled"=>($F_RIGHT<30), "back_url"=>"form_list.php
 $tabControl->End();
 ?>
 </form>
-<? require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php"); ?>
+<? require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

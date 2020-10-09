@@ -237,6 +237,12 @@ abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 	public function sysRemove($srPrimary)
 	{
 		$object = $this->_objects[$srPrimary];
+
+		if (empty($object))
+		{
+			$object = $this->entity->wakeUpObject($srPrimary);
+		}
+
 		unset($this->_objects[$srPrimary]);
 
 		if (!isset($this->_objectsChanges[$srPrimary]) || $this->_objectsChanges[$srPrimary] != static::OBJECT_ADDED)
@@ -524,15 +530,15 @@ abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 	 */
 	public function __call($name, $arguments)
 	{
-		$first3 = substr($name, 0, 3);
-		$last4 = substr($name, -4);
+		$first3 = mb_substr($name, 0, 3);
+		$last4 = mb_substr($name, -4);
 
 		// group getter
 		if ($first3 == 'get' && $last4 == 'List')
 		{
-			$fieldName = EntityObject::sysMethodToFieldCase(substr($name, 3, -4));
+			$fieldName = EntityObject::sysMethodToFieldCase(mb_substr($name, 3, -4));
 
-			if (!strlen($fieldName))
+			if ($fieldName == '')
 			{
 				$fieldName = StringHelper::strtoupper($arguments[0]);
 
@@ -555,13 +561,13 @@ abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 			}
 		}
 
-		$last10 = substr($name, -10);
+		$last10 = mb_substr($name, -10);
 
 		if ($first3 == 'get' && $last10 == 'Collection')
 		{
-			$fieldName = EntityObject::sysMethodToFieldCase(substr($name, 3, -10));
+			$fieldName = EntityObject::sysMethodToFieldCase(mb_substr($name, 3, -10));
 
-			if (!strlen($fieldName))
+			if ($fieldName == '')
 			{
 				$fieldName = StringHelper::strtoupper($arguments[0]);
 
@@ -584,12 +590,12 @@ abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 			}
 		}
 
-		$first4 = substr($name, 0, 4);
+		$first4 = mb_substr($name, 0, 4);
 
 		// filler
 		if ($first4 == 'fill')
 		{
-			$fieldName = EntityObject::sysMethodToFieldCase(substr($name, 4));
+			$fieldName = EntityObject::sysMethodToFieldCase(mb_substr($name, 4));
 
 			// check if field exists
 			if ($this->_entity->hasField($fieldName))

@@ -138,10 +138,10 @@ class AnnotationReader
 				$value = (float)$valueInString;
 			}
 		}
-		elseif (substr($valueInString, 0, 1) === '[' && substr($valueInString, -1, 1) === ']')
+		elseif (mb_substr($valueInString, 0, 1) === '[' && mb_substr($valueInString, -1, 1) === ']')
 		{
 			$list = array();
-			$valueInString = substr($valueInString, 1, -1);
+			$valueInString = mb_substr($valueInString, 1, -1);
 			foreach (explode(',', $valueInString) as $listValue)
 			{
 				$listValue = trim($listValue);

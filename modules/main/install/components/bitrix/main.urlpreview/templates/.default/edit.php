@@ -4,7 +4,7 @@ $this->addExternalCss("/bitrix/css/main/font-awesome.css");
 
 <div
 	class="urlpreview urlpreview__edit"
-	<?= strlen($arResult['STYLE']) > 0 ? 'style="'.$arResult['STYLE'].'"' : '' ?>
+	<?= $arResult['STYLE'] <> '' ? 'style="'.$arResult['STYLE'].'"' : '' ?>
 	id="<?= $arResult['ELEMENT_ID']?>"
 	data-field-id="<?= $arResult['FIELD_ID']?>"
 	<?= isset($arResult['SELECTED_IMAGE']) ? 'data-image-id="'.$arResult['SELECTED_IMAGE'].'"' : ''?>

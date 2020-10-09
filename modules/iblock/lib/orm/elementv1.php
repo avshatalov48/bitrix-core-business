@@ -36,7 +36,7 @@ abstract class ElementV1 extends CommonElement
 		if ($field instanceof PropertyReference)
 		{
 			// for v1 preferable to change existing object (sel+upd) instead of new (del+ins)
-			if (!$this->sysIsFilled($fieldName))
+			if ($this->state !== State::RAW && !$this->sysIsFilled($fieldName))
 			{
 				$this->fill($fieldName);
 			}

@@ -287,7 +287,7 @@ class CWikiSecurity
 		{
 			foreach($this->_filters as $ch => $filters)
 			{
-				if($ch == '' || strpos($str2, $ch) !== false)
+				if($ch == '' || mb_strpos($str2, $ch) !== false)
 				{
 					$str2 = $strX;
 					$strX = preg_replace($filters[1], $filters[0], $str2);

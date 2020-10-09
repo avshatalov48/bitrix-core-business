@@ -37,6 +37,8 @@ class Tracking
 	 */
 	public static function getTag($moduleId, $fields)
 	{
+
+		$moduleId = str_replace(".", "--", $moduleId);
 		return $moduleId . "." . base64_encode(json_encode($fields));
 	}
 
@@ -49,7 +51,7 @@ class Tracking
 	public static function parseTag($tag)
 	{
 		$data = explode(".", $tag);
-		$moduleId = $data[0];
+		$moduleId = str_replace("--", ".", $data[0]);
 		unset($data[0]);
 
 		return array('MODULE_ID' => $moduleId, 'FIELDS' => (array) json_decode(base64_decode(implode('.', $data))));
@@ -155,7 +157,7 @@ class Tracking
 			$uri .= "/tools/track_mail_$opCode.php";
 		}
 
-		$uri = $uri . (strpos($uri, "?") === false ? "?" : "&");
+		$uri = $uri . (mb_strpos($uri, "?") === false ? "?" : "&");
 		$uri .= 'tag=' . urlencode($tag);
 
 		return $uri;

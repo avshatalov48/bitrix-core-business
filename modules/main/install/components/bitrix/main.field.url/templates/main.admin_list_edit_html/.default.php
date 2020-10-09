@@ -10,5 +10,6 @@ $component = $this->getComponent();
 ?>
 
 <input
-	<?= $component->getHtmlBuilder()->buildTagAttributes($arResult['fieldValues']['attrList']) ?>
+	<?= $component->getHtmlBuilder()->buildTagAttributes($arResult['attrList']) ?>
+	value="<?= $arResult['additionalParameters']['VALUE'] ?>"
 >

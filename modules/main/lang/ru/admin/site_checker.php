@@ -184,7 +184,7 @@ $MESS["SC_HELP_CHECK_MBSTRING"] = "Модуль mbstring необходим дл
 
 Если параметры не соответствуют требуемым, то в разных местах будут появляться совершенно непредсказуемые ошибки: частично обрезанный текст, неработающий импорт xml, система обновлений и т.д.
 
-<b>Обратите внимание</b>, что параметр <b>mbstring.func_overload</b> определяется в глобальном файле настроек php.ini (или для виртуального сервера в httpd.conf), а кодировку можно переопределить в .htaccess.
+<b>Обратите внимание</b>, что параметр <b>mbstring.func_overload</b> определяется в глобальном файле настроек php.ini, а кодировку можно переопределить в .htaccess.
 
 Для сайта в UTF-8 необходимо установить в <i>/bitrix/php_interface/dbconn.php</i> код:
 <code>define('BX_UTF', true);</code>
@@ -587,4 +587,7 @@ $MESS["MAIN_SC_NO_PULL_EXTERNAL"] = "Внешнее подключение к п
 $MESS["MAIN_CATDOC_WARN"] = "Ошибочная версия catdoc: #VERSION#<br>
 Подробности: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=679877<br>
 Установите более раннюю версию catdoc или новую версию с исправлением.";
+$MESS["MAIN_SC_ENC_EQUAL"] = "Значения mbstring.internal_encoding и default_charset не совпадают. Рекомендуется очистить mbstring.internal_encoding и установить default_charset.";
+$MESS["MAIN_SC_ENC_UTF"] = "Значение default_charset должно быть установлено в UTF-8.";
+$MESS["MAIN_SC_ENC_NON_UTF"] = "Значение default_charset должно быть установлено в кодировку, отличную от UTF-8.";
 ?>

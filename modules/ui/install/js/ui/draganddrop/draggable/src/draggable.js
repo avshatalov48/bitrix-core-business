@@ -1175,8 +1175,6 @@ export class Draggable extends EventEmitter
 			endContainer: this.lastOverContainer,
 		});
 
-		this.emit('end', dragEndEvent);
-
 		const {source, draggable} = this.dragStartEvent.data;
 
 		if (this.getOptions().type !== Draggable.HEADLESS)
@@ -1246,6 +1244,8 @@ export class Draggable extends EventEmitter
 		this.invalidateCache();
 		Dom.removeClass(document.body, 'ui-draggable--disable-user-select');
 		Dom.removeClass(document.body, `ui-draggable--type-${this.getOptions().type}`);
+
+		this.emit('end', dragEndEvent); // todo test in default
 	}
 
 	onDragDrop(event: DragDropSensorEvent)

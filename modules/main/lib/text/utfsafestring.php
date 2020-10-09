@@ -16,10 +16,10 @@ class UtfSafeString
 		if (Application::isUtfMode())
 		{
 			//mb_strrpos does not work on invalid UTF-8 strings
-			$ln = strlen($needle);
-			for ($i = strlen($haystack) - $ln; $i >= 0; $i--)
+			$ln = mb_strlen($needle);
+			for ($i = mb_strlen($haystack) - $ln; $i >= 0; $i--)
 			{
-				if (substr($haystack, $i, $ln) == $needle)
+				if (mb_substr($haystack, $i, $ln) == $needle)
 				{
 					return $i;
 				}
@@ -27,7 +27,7 @@ class UtfSafeString
 			return false;
 		}
 
-		return strrpos($haystack, $needle);
+		return mb_strrpos($haystack, $needle);
 	}
 
 	public static function rtrimInvalidUtf($string)
@@ -84,8 +84,8 @@ class UtfSafeString
 	 */
 	public static function pad($string, $padLen, $padStr = ' ', $padType = STR_PAD_RIGHT)
 	{
-		$strLength = strlen($string);
-		$padStrLength = strlen($padStr);
+		$strLength = mb_strlen($string);
+		$padStrLength = mb_strlen($padStr);
 		if (!$strLength && ($padType == STR_PAD_RIGHT || $padType == STR_PAD_LEFT))
 		{
 			$strLength = 1; // @debug
@@ -100,20 +100,20 @@ class UtfSafeString
 		if ($padType == STR_PAD_RIGHT)
 		{
 			$result = $string . str_repeat($padStr, $repeat);
-			$result = substr($result, 0, $padLen);
+			$result = mb_substr($result, 0, $padLen);
 		}
 		else if ($padType == STR_PAD_LEFT)
 		{
 			$result = str_repeat($padStr, $repeat) . $string;
-			$result = substr($result, -$padLen);
+			$result = mb_substr($result, -$padLen);
 		}
 		else if ($padType == STR_PAD_BOTH)
 		{
 			$length = ($padLen - $strLength) / 2;
 			$repeat = ceil($length / $padStrLength);
-			$result = substr(str_repeat($padStr, $repeat), 0, floor($length))
-				. $string
-				. substr(str_repeat($padStr, $repeat), 0, ceil($length));
+			$result = mb_substr(str_repeat($padStr, $repeat), 0, floor($length))
+				.$string
+				.mb_substr(str_repeat($padStr, $repeat), 0, ceil($length));
 		}
 
 		return $result;

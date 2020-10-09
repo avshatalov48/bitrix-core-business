@@ -81,7 +81,7 @@ unset($arUser);
 $arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y" );
 if ($arParams["SET_TITLE"] == "Y")
 {
-	if(strlen($arResult["USER"]["LAST_NAME"])>0 || strlen($arResult["USER"]["NAME"])>0)
+	if($arResult["USER"]["LAST_NAME"] <> '' || $arResult["USER"]["NAME"] <> '')
 		$APPLICATION->SetTitle(CUser::FormatName($arParams["NAME_TEMPLATE"], $arResult["USER"]));
 	else
 		$APPLICATION->SetTitle($arResult["USER"]["LOGIN"]);

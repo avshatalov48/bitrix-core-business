@@ -15,7 +15,7 @@ if ($FM_RIGHT=="D") $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/interface/admin_styles.css");
 
-if (strlen($APPLICATION->GetAdditionalCSS())>0)
+if ($APPLICATION->GetAdditionalCSS() <> '')
 {
 	require($_SERVER["DOCUMENT_ROOT"].$APPLICATION->GetAdditionalCSS());
 }

@@ -48,7 +48,7 @@ class OracleSqlHelper extends SqlHelper
 	 */
 	public function quote($identifier)
 	{
-		return parent::quote(strtoupper($identifier));
+		return parent::quote(mb_strtoupper($identifier));
 	}
 
 	/**
@@ -74,7 +74,7 @@ class OracleSqlHelper extends SqlHelper
 		if ($maxLength <= 0 || $maxLength > 2000)
 			$maxLength = 2000;
 
-		$value = substr($value, 0, $maxLength);
+		$value = mb_substr($value, 0, $maxLength);
 
 		if (\Bitrix\Main\Application::isUtfMode())
 		{
@@ -185,7 +185,7 @@ class OracleSqlHelper extends SqlHelper
 		$format = str_replace("HH", "HH24", $format);
 		$format = str_replace("GG", "HH24", $format);
 
-		if (strpos($format, 'HH24') === false)
+		if (mb_strpos($format, 'HH24') === false)
 		{
 			$format = str_replace("H", "HH", $format);
 		}
@@ -194,11 +194,11 @@ class OracleSqlHelper extends SqlHelper
 
 		$format = str_replace("MI", "II", $format);
 
-		if (strpos($format, 'MMMM') !== false)
+		if (mb_strpos($format, 'MMMM') !== false)
 		{
 			$format = str_replace("MMMM", "MONTH", $format);
 		}
-		elseif (strpos($format, 'MM') === false)
+		elseif (mb_strpos($format, 'MM') === false)
 		{
 			$format = str_replace("M", "MON", $format);
 		}
@@ -379,7 +379,7 @@ class OracleSqlHelper extends SqlHelper
 	{
 		if ($value !== null)
 		{
-			if (strlen($value) == 19)
+			if (mb_strlen($value) == 19)
 			{
 				//preferable format: NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'
 				$value = new Type\DateTime($value, "Y-m-d H:i:s");
@@ -464,7 +464,7 @@ class OracleSqlHelper extends SqlHelper
 	{
 		if ($value !== null)
 		{
-			if ((strlen($value) == 19) && preg_match("#^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$#", $value))
+			if ((mb_strlen($value) == 19) && preg_match("#^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$#", $value))
 			{
 				return new Type\DateTime($value, "Y-m-d H:i:s");
 			}
@@ -537,7 +537,7 @@ class OracleSqlHelper extends SqlHelper
 			}
 			else
 			{
-				return 'varchar2('.max(strlen($values[0]), strlen($values[1])).' char)';
+				return 'varchar2('.max(mb_strlen($values[0]), mb_strlen($values[1])).' char)';
 			}
 		}
 		elseif ($field instanceof ORM\Fields\EnumField)

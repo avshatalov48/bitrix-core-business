@@ -1,9 +1,4 @@
 <?
-
-/***************************************
-		Результат веб-формы
-***************************************/
-
 class CFormResult extends CAllFormResult
 {
 	function err_mess()
@@ -13,7 +8,6 @@ class CFormResult extends CAllFormResult
 		return "<br>Module: ".$module_id." (".$arModuleVersion["VERSION"].")<br>Class: CFormResult<br>File: ".__FILE__;
 	}
 
-	// список результатов
 	function GetList($WEB_FORM_ID, &$by, &$order, $arFilter=Array(), &$is_filtered, $CHECK_RIGHTS="Y", $records_limit=false)
 	{
 		$err_mess = (CFormResult::err_mess())."<br>Function: GetList<br>Line: ";
@@ -79,28 +73,25 @@ class CFormResult extends CAllFormResult
 			}
 			if (is_array($arrFORM_FILTER)) $arrFORM_FILTER_KEYS = array_keys($arrFORM_FILTER);
 
-			//echo "arFilter:<pre>"; print_r($arFilter); echo "</pre>";
-			//echo "arrFORM_FILTER:<pre>"; print_r($arrFORM_FILTER); echo "</pre>";
-			//echo "arrFORM_FILTER_KEYS:<pre>"; print_r($arrFORM_FILTER_KEYS); echo "</pre>";
-
 			$t = 0;
 			$filter_keys = array_keys($arFilter);
-			for ($i=0; $i<count($filter_keys); $i++)
+			$keyCount = count($filter_keys);
+			for ($i=0; $i<$keyCount; $i++)
 			{
 				$key = $filter_keys[$i];
 				$val = $arFilter[$filter_keys[$i]];
 				if(is_array($val))
 				{
-					if(count($val) <= 0)
+					if(empty($val))
 						continue;
 				}
 				else
 				{
-				if( (strlen($val) <= 0) || ($val === "NOT_REF") )
-					continue;
+					if((string)$val == '' || $val === "NOT_REF")
+						continue;
 				}
-				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys)) ? true : false;
-				$key = strtoupper($key);
+				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys));
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -168,80 +159,119 @@ class CFormResult extends CAllFormResult
 									$arr["WHERE"][] = "(".$A.".RESULT_ID=R.ID and ".$A.".FIELD_ID='".$arrF["ID"]."')";
 									$arr["FIELDS"][] = $arrF["ID"];
 								}
-								switch(strtoupper($arrF["FILTER_TYPE"]))
+								switch(mb_strtoupper($arrF["FILTER_TYPE"]))
 								{
 									case "EXIST":
 
-										if ($arrF["PARAMETER_NAME"]=="ANSWER_TEXT")
+										if($arrF["PARAMETER_NAME"] == "ANSWER_TEXT")
+										{
 											$arSqlSearch[] = "length(".$A.".ANSWER_TEXT)+0>0";
+										}
 
-										elseif ($arrF["PARAMETER_NAME"]=="ANSWER_VALUE")
+										elseif($arrF["PARAMETER_NAME"] == "ANSWER_VALUE")
+										{
 											$arSqlSearch[] = "length(".$A.".ANSWER_VALUE)+0>0";
+										}
 
-										elseif ($arrF["PARAMETER_NAME"]=="USER")
+										elseif($arrF["PARAMETER_NAME"] == "USER")
+										{
 											$arSqlSearch[] = "length(".$A.".USER_TEXT)+0>0";
+										}
 
 										break;
 									case "TEXT":
-										$match = ($arFilter[$key."_exact_match"]=="Y") ? "N" : "Y";
+										$match = ($arFilter[$key."_exact_match"] == "Y")? "N" : "Y";
 										$sql = "";
 
-										if ($arrF["PARAMETER_NAME"]=="ANSWER_TEXT")
+										if($arrF["PARAMETER_NAME"] == "ANSWER_TEXT")
+										{
 											$sql = GetFilterQuery($A.".ANSWER_TEXT_SEARCH", ToUpper($val), $match);
+										}
 
-										elseif ($arrF["PARAMETER_NAME"]=="ANSWER_VALUE")
+										elseif($arrF["PARAMETER_NAME"] == "ANSWER_VALUE")
+										{
 											$sql = GetFilterQuery($A.".ANSWER_VALUE_SEARCH", ToUpper($val), $match);
+										}
 
-										elseif ($arrF["PARAMETER_NAME"]=="USER")
+										elseif($arrF["PARAMETER_NAME"] == "USER")
+										{
 											$sql = GetFilterQuery($A.".USER_TEXT_SEARCH", ToUpper($val), $match);
+										}
 
-										if ($sql!=="0" && strlen(trim($sql))>0) $arSqlSearch[] = $sql;
+										if($sql !== "0" && trim($sql) <> '')
+										{
+											$arSqlSearch[] = $sql;
+										}
 										break;
 									case "DROPDOWN":
 									case "ANSWER_ID":
-											$arSqlSearch[] = $A.".ANSWER_ID=".intval($val);
+										$arSqlSearch[] = $A.".ANSWER_ID=".intval($val);
 										break;
 									case "DATE":
-										if ($arrF["PARAMETER_NAME"]=="USER")
+										if($arrF["PARAMETER_NAME"] == "USER")
 										{
-											if (CheckDateTime($val))
+											if(CheckDateTime($val))
 											{
-												if ($arrF["SIDE"]=="1")
+												if($arrF["SIDE"] == "1")
+												{
 													$arSqlSearch[] = $A.".USER_DATE>=".$DB->CharToDateFunction($val, "SHORT");
-												elseif ($arrF["SIDE"]=="2")
+												}
+												elseif($arrF["SIDE"] == "2")
+												{
 													$arSqlSearch[] = $A.".USER_DATE<".$DB->CharToDateFunction($val, "SHORT")." + INTERVAL 1 DAY";
-												elseif ($arrF["SIDE"]=="0")
+												}
+												elseif($arrF["SIDE"] == "0")
+												{
 													$arSqlSearch[] = $A.".USER_DATE=".$DB->CharToDateFunction($val);
+												}
 											}
 										}
 										break;
 									case "INTEGER":
-										if ($arrF["PARAMETER_NAME"]=="USER")
+										if($arrF["PARAMETER_NAME"] == "USER")
 										{
-											if ($arrF["SIDE"]=="1")
+											if($arrF["SIDE"] == "1")
+											{
 												$arSqlSearch[] = $A.".USER_TEXT+0>=".intval($val);
-											elseif ($arrF["SIDE"]=="2")
+											}
+											elseif($arrF["SIDE"] == "2")
+											{
 												$arSqlSearch[] = $A.".USER_TEXT+0<=".intval($val);
-											elseif ($arrF["SIDE"]=="0")
+											}
+											elseif($arrF["SIDE"] == "0")
+											{
 												$arSqlSearch[] = $A.".USER_TEXT='".intval($val)."'";
+											}
 										}
-										elseif ($arrF["PARAMETER_NAME"]=="ANSWER_TEXT")
+										elseif($arrF["PARAMETER_NAME"] == "ANSWER_TEXT")
 										{
-											if ($arrF["SIDE"]=="1")
+											if($arrF["SIDE"] == "1")
+											{
 												$arSqlSearch[] = $A.".ANSWER_TEXT+0>=".intval($val);
-											elseif ($arrF["SIDE"]=="2")
+											}
+											elseif($arrF["SIDE"] == "2")
+											{
 												$arSqlSearch[] = $A.".ANSWER_TEXT+0<=".intval($val);
-											elseif ($arrF["SIDE"]=="0")
+											}
+											elseif($arrF["SIDE"] == "0")
+											{
 												$arSqlSearch[] = $A.".ANSWER_TEXT='".intval($val)."'";
+											}
 										}
-										elseif ($arrF["PARAMETER_NAME"]=="ANSWER_VALUE")
+										elseif($arrF["PARAMETER_NAME"] == "ANSWER_VALUE")
 										{
-											if ($arrF["SIDE"]=="1")
+											if($arrF["SIDE"] == "1")
+											{
 												$arSqlSearch[] = $A.".ANSWER_VALUE+0>=".intval($val);
-											elseif ($arrF["SIDE"]=="2")
+											}
+											elseif($arrF["SIDE"] == "2")
+											{
 												$arSqlSearch[] = $A.".ANSWER_VALUE+0<=".intval($val);
-											elseif ($arrF["SIDE"]=="0")
+											}
+											elseif($arrF["SIDE"] == "0")
+											{
 												$arSqlSearch[] = $A.".ANSWER_VALUE='".intval($val)."'";
+											}
 										}
 										break;
 								}
@@ -273,8 +303,8 @@ class CFormResult extends CAllFormResult
 			$str1 = implode(",\n				",$arr["TABLES"]);
 		if (is_array($arr["WHERE"]))
 			$str2 = implode("\n			and ",$arr["WHERE"]);
-		if (strlen($str1)>0) $str1 = ",\n				".$str1;
-		if (strlen($str2)>0) $str2 = "\n			and ".$str2;
+		if ($str1 <> '') $str1 = ",\n				".$str1;
+		if ($str2 <> '') $str2 = "\n			and ".$str2;
 
 		if ($records_limit===false)
 		{
@@ -289,8 +319,6 @@ class CFormResult extends CAllFormResult
 			}
 		}
 
-		//this hack is for mysql <3.23. we no longer support that dino.
-		//$DB->Query("SET SQL_BIG_TABLES=1", false, $err_mess.__LINE__);
 		if ($CHECK_RIGHTS!="Y" || $F_RIGHT >= 30 || CForm::IsAdmin())
 		{
 			$strSql = "
@@ -315,7 +343,6 @@ class CFormResult extends CAllFormResult
 				$records_limit
 				";
 			$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-			//echo '<pre>'.$strSql.'</pre>';
 		}
 		elseif ($F_RIGHT>=15)
 		{
@@ -360,8 +387,6 @@ class CFormResult extends CAllFormResult
 			$res = new CDBResult();
 			$res->InitFromArray(array());
 		}
-		//echo "<pre>".$strSql."</pre>";
-		//echo "<pre>".$strSqlSearch."</pre>";
 		$is_filtered = (IsFiltered($strSqlSearch));
 		return $res;
 	}
@@ -395,7 +420,6 @@ class CFormResult extends CAllFormResult
 		return $res;
 	}
 
-	// права на результат
 	function GetPermissions($RESULT_ID, &$CURRENT_STATUS_ID)
 	{
 		$err_mess = (CFormResult::err_mess())."<br>Function: GetPermissions<br>Line: ";
@@ -456,7 +480,3 @@ class CFormResult extends CAllFormResult
 		$DB->Query($strSql, false, $err_mess.__LINE__);
 	}
 }
-
-
-
-?>

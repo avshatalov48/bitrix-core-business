@@ -137,6 +137,11 @@ class Extension
 					$config["lang"] = $extensionPath."/config.php";
 				}
 			}
+
+			if (!isset($config['settings']) || !is_array($config['settings']))
+			{
+				$config['settings'] = [];
+			}
 		}
 
 
@@ -278,6 +283,13 @@ class Extension
 					$assets['css'][] = $config['css'];
 				}
 			}
+
+			if (isset($config['post_rel']))
+			{
+				$relAssets = static::getAssets($config['post_rel']);
+				$assets['js'] = array_merge($assets['js'], $relAssets['js']);
+				$assets['css'] = array_merge($assets['css'], $relAssets['css']);
+			}
 		}
 
 		$assets['js'] = array_unique($assets['js']);
@@ -357,23 +369,23 @@ class Extension
 
 				if(is_array($callbackResult))
 				{
-					foreach($callbackResult as $key => $value)
+					foreach($callbackResult as $option => $value)
 					{
 						if(!is_array($value))
 						{
 							$value = array($value);
 						}
 
-						if(!isset($extension[1][$key]))
+						if(!isset($extension[1][$option]))
 						{
-							$extension[1][$key] = array();
+							$extension[1][$option] = array();
 						}
-						elseif(!is_array($extension[1][$key]))
+						elseif(!is_array($extension[1][$option]))
 						{
-							$extension[1][$key] = array($extension[1][$key]);
+							$extension[1][$option] = array($extension[1][$option]);
 						}
 
-						$extensions[$index][1][$key] = array_merge($extension[1][$key], $value);
+						$extensions[$index][1][$option] = array_merge($extension[1][$option], $value);
 					}
 				}
 
@@ -388,21 +400,30 @@ class Extension
 			'lang_additional' => [],
 			'layout' => [],
 			'options' => [],
+			'settings' => [],
 		];
 
+		$options = array_keys($result);
 		foreach ($extensions as $extension)
 		{
-			foreach (['js', 'css', 'lang', 'lang_additional', 'layout', 'options'] as $key)
+			$extensionName = $extension[0];
+			$config = $extension[1];
+
+			foreach ($options as $option)
 			{
-				if (is_array($extension[1]) && array_key_exists($key, $extension[1]))
+				if (is_array($config) && array_key_exists($option, $config))
 				{
-					if (is_array($extension[1][$key]))
+					if ($option === 'settings' && is_array($config[$option]) && !empty($config[$option]))
 					{
-						$result[$key] = array_merge($result[$key], $extension[1][$key]);
+						$result[$option][$extensionName] = $config[$option];
+					}
+					else if (is_array($config[$option]))
+					{
+						$result[$option] = array_merge($result[$option], $config[$option]);
 					}
 					else
 					{
-						$result[$key][] = $extension[1][$key];
+						$result[$option][] = $config[$option];
 					}
 				}
 			}
@@ -443,33 +464,7 @@ class Extension
 		{
 			foreach ($config['rel'] as $dependencyName)
 			{
-				if(in_array($dependencyName, $alreadyResolved))
-				{
-					continue;
-				}
-
-				$dependencyConfig = self::getConfig($dependencyName);
-				if ($dependencyConfig === null)
-				{
-					$namespaces = explode(".", $dependencyName);
-					if (count($namespaces) == 1)
-					{
-						$dependencyConfig = self::getCoreConfigForDependencyList($dependencyName, $storeConfig, $resultList, $alreadyResolved);
-					}
-				}
-
-				if(empty($dependencyConfig['rel']))
-				{
-					if ($storeConfig)
-					{
-						$resultList[] = [$dependencyName, $dependencyConfig];
-					}
-					else
-					{
-						$resultList[] = $dependencyName;
-					}
-				}
-				else if(!in_array($dependencyName, $alreadyResolved))
+				if (!in_array($dependencyName, $alreadyResolved))
 				{
 					self::getDependencyListRecursive($dependencyName, $storeConfig, true, $resultList, $alreadyResolved);
 				}
@@ -485,6 +480,17 @@ class Extension
 			else
 			{
 				$resultList[] = $name;
+			}
+		}
+
+		if ($config && !empty($config['post_rel']))
+		{
+			foreach ($config['post_rel'] as $dependencyName)
+			{
+				if (!in_array($dependencyName, $alreadyResolved))
+				{
+					self::getDependencyListRecursive($dependencyName, $storeConfig, true, $resultList, $alreadyResolved);
+				}
 			}
 		}
 

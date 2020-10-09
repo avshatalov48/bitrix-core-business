@@ -54,10 +54,10 @@ class CFormValidatorINN
 		{
 			$value = strval($value);
 
-			if (strlen($value) <= 0) continue;
+			if ($value == '') continue;
 
 			// check inn
-			$lenValue = strlen($value);
+			$lenValue = mb_strlen($value);
 			if ($lenValue > 0)
 			{
 				$res = true;
@@ -111,7 +111,7 @@ class CFormValidatorINN
 	{
 		$arCheck = array(41,37,31,29,23,19,17,13,7,5,3);
 
-		$lenValue = strlen($value);
+		$lenValue = mb_strlen($value);
 		if ($lenValue == 10)
 		{
 			$arCheckArrays = array(
@@ -142,7 +142,7 @@ class CFormValidatorINN
 
 			if ($checkNum == 10 || $checkNum == 11) $checkNum = 0;
 
-			if ($checkNum != intval(substr($value, -$checkKey-1, 1)))
+			if ($checkNum != intval(mb_substr($value, -$checkKey - 1, 1)))
 				return false;
 		}
 

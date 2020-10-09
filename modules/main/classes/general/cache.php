@@ -124,7 +124,7 @@ class CPageCache
 	function GetPath($uniq_str)
 	{
 		$un = md5($uniq_str);
-		return substr($un, 0, 2)."/".$un.".html";
+		return mb_substr($un, 0, 2)."/".$un.".html";
 	}
 
 	function Clean($uniq_str, $initdir = false, $basedir = "cache")
@@ -172,17 +172,17 @@ class CPageCache
 		{
 			if(isset($_GET["clear_cache_session"]))
 			{
-				if(strtoupper($_GET["clear_cache_session"])=="Y")
-					$_SESSION["SESS_CLEAR_CACHE"] = "Y";
-				elseif(strlen($_GET["clear_cache_session"]) > 0)
-					unset($_SESSION["SESS_CLEAR_CACHE"]);
+				if(mb_strtoupper($_GET["clear_cache_session"]) == "Y")
+					\Bitrix\Main\Application::getInstance()->getKernelSession()["SESS_CLEAR_CACHE"] = "Y";
+				elseif($_GET["clear_cache_session"] <> '')
+					unset(\Bitrix\Main\Application::getInstance()->getKernelSession()["SESS_CLEAR_CACHE"]);
 			}
 
-			if(isset($_GET["clear_cache"]) && strtoupper($_GET["clear_cache"])=="Y")
+			if(isset($_GET["clear_cache"]) && mb_strtoupper($_GET["clear_cache"]) == "Y")
 				return false;
 		}
 
-		if(isset($_SESSION["SESS_CLEAR_CACHE"]) && $_SESSION["SESS_CLEAR_CACHE"] == "Y")
+		if(isset(\Bitrix\Main\Application::getInstance()->getKernelSession()["SESS_CLEAR_CACHE"]) && \Bitrix\Main\Application::getInstance()->getSession()["SESS_CLEAR_CACHE"] == "Y")
 			return false;
 
 		if(!$this->_cache->read($this->content, $this->basedir, $this->initdir, $this->filename, $this->TTL))
@@ -274,7 +274,7 @@ class CPageCache
 			\Bitrix\Main\Diag\CacheTracker::add($written, $path, $this->basedir, $this->initdir, $this->filename, "W");
 		}
 
-		if(strlen($arAllVars)>0)
+		if($arAllVars <> '')
 			ob_end_flush();
 		else
 			ob_end_clean();
@@ -336,7 +336,7 @@ function BXClearCache($full=false, $initdir="")
 				if(!unlink($path."/".$file))
 					$res = false;
 			}
-			elseif(substr($file, -5)==".html")
+			elseif(mb_substr($file, -5) == ".html")
 			{
 				$obCache = new CPHPCache();
 				if($obCache->IsCacheExpired($path."/".$file))
@@ -346,7 +346,7 @@ function BXClearCache($full=false, $initdir="")
 						$res = false;
 				}
 			}
-			elseif(substr($file, -4)==".php")
+			elseif(mb_substr($file, -4) == ".php")
 			{
 				$obCache = new CPHPCache();
 				if($obCache->IsCacheExpired($path."/".$file))

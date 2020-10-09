@@ -216,6 +216,7 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 			"INITIATED_BY_USER_PHOTO" => Array("FIELD" => "U1.PERSONAL_PHOTO", "TYPE" => "int", "FROM" => "LEFT JOIN b_user U1 ON (UG.INITIATED_BY_USER_ID = U1.ID)"),
 			"INITIATED_BY_USER_GENDER" => Array("FIELD" => "U1.PERSONAL_GENDER", "TYPE" => "string", "FROM" => "LEFT JOIN b_user U1 ON (UG.INITIATED_BY_USER_ID = U1.ID)"),
 			"RAND" => Array("FIELD" => "RAND()", "TYPE" => "string"),
+			"SCRUM_OWNER_ID" => Array("FIELD" => "G.SCRUM_OWNER_ID", "TYPE" => "int"),
 		);
 		$arFields["USER_IS_ONLINE"] = Array("FIELD" => "IF(U.LAST_ACTIVITY_DATE > DATE_SUB(NOW(), INTERVAL ".$online_interval." SECOND), 'Y', 'N')", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (UG.USER_ID = U.ID)");
 

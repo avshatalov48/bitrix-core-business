@@ -462,7 +462,7 @@ BX.Kanban.DropZone.prototype =
 	 */
 	render: function()
 	{
-		this.getNameContainer().innerHTML = this.getName();
+		this.getNameContainer().textContent = this.getName();
 		this.getBgContainer().style.backgroundColor = "#" + this.getColor();
 
 		return this.getContainer();

@@ -24,9 +24,7 @@ Class conversion extends CModule
 	{
 		$arModuleVersion = array();
 
-		$path = str_replace("\\", "/", __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen("/index.php"));
-		include($path."/version.php");
+		include(__DIR__.'/version.php');
 
 		$this->MODULE_VERSION = $arModuleVersion['VERSION'];
 		$this->MODULE_VERSION_DATE = $arModuleVersion['VERSION_DATE'];
@@ -57,7 +55,7 @@ Class conversion extends CModule
 				Option::set('conversion', 'GENERATE_INITIAL_DATA', 'generated');
 			}
 
-			$DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/conversion/install/db/'.strtolower($DB->type).'/install.sql');
+			$DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/conversion/install/db/'.mb_strtolower($DB->type).'/install.sql');
 		}
 
 		ModuleManager::registerModule('conversion');
@@ -84,7 +82,7 @@ Class conversion extends CModule
 		if ($params['SAVE_TABLES'] !== 'Y')
 		{
 			global $DB;
-			$DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/conversion/install/db/'.strtolower($DB->type).'/uninstall.sql');
+			$DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/conversion/install/db/'.mb_strtolower($DB->type).'/uninstall.sql');
 
 			Option::delete('conversion', array('name' => 'START_DATE_TIME'      ));
 			Option::delete('conversion', array('name' => 'BASE_CURRENCY'        ));

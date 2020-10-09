@@ -1,5 +1,5 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
-if (!$this->__component->__parent || strpos($this->__component->__parent->__name, "photogallery") === false)
+if (!$this->__component->__parent || mb_strpos($this->__component->__parent->__name, "photogallery") === false)
 {
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/photogallery/templates/.default/style.css');
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/photogallery/templates/.default/themes/gray/style.css');

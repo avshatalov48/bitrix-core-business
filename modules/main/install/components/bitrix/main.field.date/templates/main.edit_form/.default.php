@@ -79,7 +79,7 @@ else if($arResult['userField']['EDIT_IN_LIST'] === 'Y')
 		);
 	}
 }
-elseif(strlen($arResult['additionalParameters']['VALUE']))
+elseif($arResult['additionalParameters']['VALUE'] <> '')
 {
 	foreach($arResult['value'] as $key => $value)
 	{

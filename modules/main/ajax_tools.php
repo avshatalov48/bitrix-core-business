@@ -22,14 +22,14 @@ class CAjax
 		$trace_current = $trace_count-1;
 		for ($i = 0; $i<$trace_count; $i++)
 		{
-			if (strtolower($aTrace[$i]['function']) == 'includecomponent' && (($c = strtolower($aTrace[$i]['class'])) == 'callmain' || $c == 'cmain'))
+			if (mb_strtolower($aTrace[$i]['function']) == 'includecomponent' && (($c = mb_strtolower($aTrace[$i]['class'])) == 'callmain' || $c == 'cmain'))
 			{
 				$trace_current = $i;
 				break;
 			}
 		}
 
-		$sSrcFile = strtolower(str_replace("\\", "/", $aTrace[$trace_current]["file"]));
+		$sSrcFile = mb_strtolower(str_replace("\\", "/", $aTrace[$trace_current]["file"]));
 		$iSrcLine = intval($aTrace[$trace_current]["line"]);
 
 		$bSrcFound = false;
@@ -38,31 +38,31 @@ class CAjax
 		{
 			// try to covert absolute path to file within DOCUMENT_ROOT
 			$doc_root = rtrim(str_replace(Array("\\\\", "//", "\\"), Array("\\", "/", "/"), realpath($_SERVER["DOCUMENT_ROOT"])), "\\/");
-			$doc_root = strtolower($doc_root);
+			$doc_root = mb_strtolower($doc_root);
 
-			if(strpos($sSrcFile, $doc_root."/") === 0)
+			if(mb_strpos($sSrcFile, $doc_root."/") === 0)
 			{
 				//within
-				$sSrcFile = substr($sSrcFile, strlen($doc_root));
+				$sSrcFile = mb_substr($sSrcFile, mb_strlen($doc_root));
 				$bSrcFound = true;
 			}
 			else
 			{
 				//outside
-				$sRealBitrix = strtolower(str_replace("\\", "/", realpath($_SERVER["DOCUMENT_ROOT"]."/bitrix")));
+				$sRealBitrix = mb_strtolower(str_replace("\\", "/", realpath($_SERVER["DOCUMENT_ROOT"]."/bitrix")));
 
-				if(strpos($sSrcFile, substr($sRealBitrix, 0, -6)) === 0)
+				if(mb_strpos($sSrcFile, mb_substr($sRealBitrix, 0, -6)) === 0)
 				{
-					$sSrcFile = substr($sSrcFile, strlen($sRealBitrix) - 7);
+					$sSrcFile = mb_substr($sSrcFile, mb_strlen($sRealBitrix) - 7);
 					$bSrcFound = true;
 				}
 				else
 				{
 					// special hack
-					$sRealBitrixModules = substr(strtolower(str_replace("\\", "/", realpath($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main"))), 0, -5);
-					if(strpos($sSrcFile, $sRealBitrixModules) === 0)
+					$sRealBitrixModules = mb_substr(mb_strtolower(str_replace("\\", "/", realpath($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main"))), 0, -5);
+					if(mb_strpos($sSrcFile, $sRealBitrixModules) === 0)
 					{
-						$sSrcFile = "/bitrix/modules".substr($sSrcFile, strlen($sRealBitrixModules));
+						$sSrcFile = "/bitrix/modules".mb_substr($sSrcFile, mb_strlen($sRealBitrixModules));
 						$bSrcFound = true;
 					}
 					else
@@ -71,10 +71,10 @@ class CAjax
 						$matches = array();
 						if (preg_match("#(?<=/modules/)[^/]+(?=/install/components/bitrix/)#", $sSrcFile, $matches))
 						{
-							$sRealBitrixComponentsDir = strtolower(str_replace("\\", "/", realpath($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$matches[0]."/install/components/bitrix")));
-							if(strpos($sSrcFile, $sRealBitrixComponentsDir) === 0)
+							$sRealBitrixComponentsDir = mb_strtolower(str_replace("\\", "/", realpath($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$matches[0]."/install/components/bitrix")));
+							if(mb_strpos($sSrcFile, $sRealBitrixComponentsDir) === 0)
 							{
-								$sSrcFile = "/bitrix/components/bitrix".substr($sSrcFile, strlen($sRealBitrixComponentsDir));
+								$sSrcFile = "/bitrix/components/bitrix".mb_substr($sSrcFile, mb_strlen($sRealBitrixComponentsDir));
 								$bSrcFound = true;
 							}
 						}
@@ -88,7 +88,7 @@ class CAjax
 
 		$session_string = $sSrcFile.'|'.$iSrcLine.'|'.$componentName;
 
-		if (strlen($componentTemplate) > 0)
+		if ($componentTemplate <> '')
 			$session_string .= '|'.$componentTemplate;
 		else
 			$session_string .= '|.default';
@@ -115,11 +115,11 @@ class CAjax
 
 	public static function AddSessionParam($url, $ajax_id = false)
 	{
-		$url_anchor = strstr($url, '#');
+		$url_anchor = mb_strstr($url, '#');
 		if ($url_anchor !== false)
-			$url = substr($url, 0, -strlen($url_anchor));
+			$url = mb_substr($url, 0, -mb_strlen($url_anchor));
 
-		$url .= strpos($url, "?") === false ? '?' : '&';
+		$url .= mb_strpos($url, "?") === false ? '?' : '&';
 		$url .= CAjax::GetSessionParam($ajax_id);
 
 		if (is_set($_REQUEST['AJAX_CALL'])) $url .= '&AJAX_CALL=Y';
@@ -207,14 +207,14 @@ else
 	{
 		global $APPLICATION;
 
-		$pos = strpos($str, 'view');
+		$pos = mb_strpos($str, 'view');
 		if ($pos !== 0)
 		{
 			$APPLICATION->ThrowException(GetMessage('AJAX_REDIRECTOR_BAD_URL'));
 			return false;
 		}
 
-		$str = str_replace(array("\r", "\n"), "", substr($str, 4));
+		$str = str_replace(array("\r", "\n"), "", mb_substr($str, 4));
 
 		if (preg_match("'^(/bitrix/|http://|https://|ftp://)'i", $str))
 		{

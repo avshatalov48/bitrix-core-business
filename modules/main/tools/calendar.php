@@ -57,9 +57,9 @@ function InsertPeriod(valDate1, valDate2)
 $aMonths = array(GetMessage("calend_jan"), GetMessage("calend_feb"), GetMessage("calend_mar"), GetMessage("calend_apr"), GetMessage("calend_may"), GetMessage("calend_jun"), GetMessage("calend_jul"), GetMessage("calend_aug"), GetMessage("calend_sep"), GetMessage("calend_okt"), GetMessage("calend_nov"), GetMessage("calend_des"));
 
 global $DB;
-$iH=IntVal(FmtDate($date,"H"));
-$iI=IntVal(FmtDate($date,"I"));
-$iS=IntVal(FmtDate($date,"S"));
+$iH=intval(FmtDate($date,"H"));
+$iI=intval(FmtDate($date,"I"));
+$iS=intval(FmtDate($date,"S"));
 if($iH+$iI+$iS>0)
 	$dtformat = "FULL";
 else

@@ -47,7 +47,7 @@ function ShowPanel()
 function GetPanel()
 {
 	$panel = CTopPanel::GetPanelHtml();
-	if (strlen($panel) > 0)
+	if ($panel <> '')
 		return 	"<tr><td id=\"panel\">".$panel."</td></tr>";
 
 }

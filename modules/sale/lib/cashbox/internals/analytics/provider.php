@@ -55,6 +55,7 @@ final class Provider extends Analytics\Provider
 	{
 		return [
 			\Bitrix\Sale\Cashbox\CashboxOrangeData::class,
+			\Bitrix\Sale\Cashbox\CashboxCheckbox::class,
 		];
 	}
 

@@ -32,36 +32,36 @@ $arParams["POST_BIND_STATUS_DEFAULT"] = intval($arParams["POST_BIND_STATUS_DEFAU
 $arParams["ID"] = intval($arParams["ID"]);
 $arParams["BLOG_URL"] = preg_replace("/[^a-zA-Z0-9_-]/is", "", Trim($arParams["BLOG_URL"]));
 		
-if(strLen($arParams["BLOG_VAR"])<=0)
+if($arParams["BLOG_VAR"] == '')
 	$arParams["BLOG_VAR"] = "blog";
-if(strLen($arParams["PAGE_VAR"])<=0)
+if($arParams["PAGE_VAR"] == '')
 	$arParams["PAGE_VAR"] = "page";
-if(strLen($arParams["USER_VAR"])<=0)
+if($arParams["USER_VAR"] == '')
 	$arParams["USER_VAR"] = "id";
-if(strLen($arParams["POST_VAR"])<=0)
+if($arParams["POST_VAR"] == '')
 	$arParams["POST_VAR"] = "id";
 	
 $arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
-if(strlen($arParams["PATH_TO_BLOG"])<=0)
+if($arParams["PATH_TO_BLOG"] == '')
 	$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
 
 $arParams["PATH_TO_POST"] = trim($arParams["PATH_TO_POST"]);
-if(strlen($arParams["PATH_TO_POST"])<=0)
+if($arParams["PATH_TO_POST"] == '')
 	$arParams["PATH_TO_POST"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
 
 $arParams["PATH_TO_POST_EDIT"] = trim($arParams["PATH_TO_POST_EDIT"]);
-if(strlen($arParams["PATH_TO_POST_EDIT"])<=0)
+if($arParams["PATH_TO_POST_EDIT"] == '')
 	$arParams["PATH_TO_POST_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post_edit&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if(strlen($arParams["PATH_TO_USER"])<=0)
+if($arParams["PATH_TO_USER"] == '')
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_DRAFT"] = trim($arParams["PATH_TO_DRAFT"]);
-if(strlen($arParams["PATH_TO_DRAFT"])<=0)
+if($arParams["PATH_TO_DRAFT"] == '')
 	$arParams["PATH_TO_DRAFT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=draft&".$arParams["BLOG_VAR"]."=#blog#");
 	
-$arParams["PATH_TO_SMILE"] = strlen(trim($arParams["PATH_TO_SMILE"]))<=0 ? false : trim($arParams["PATH_TO_SMILE"]);
+$arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]) == '' ? false : trim($arParams["PATH_TO_SMILE"]);
 //$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 
 $arParams["SMILES_COUNT"] = intval($arParams["SMILES_COUNT"]);
@@ -73,7 +73,7 @@ $arParams["IMAGE_MAX_HEIGHT"] = intval($arParams["IMAGE_MAX_HEIGHT"]);
 
 $arParams["EDITOR_RESIZABLE"] = $arParams["EDITOR_RESIZABLE"] !== "N";
 $arParams["EDITOR_CODE_DEFAULT"] = $arParams["EDITOR_CODE_DEFAULT"] === "Y";
-$arParams["EDITOR_DEFAULT_HEIGHT"] = intVal($arParams["EDITOR_DEFAULT_HEIGHT"]);
+$arParams["EDITOR_DEFAULT_HEIGHT"] = intval($arParams["EDITOR_DEFAULT_HEIGHT"]);
 if(intval($arParams["EDITOR_DEFAULT_HEIGHT"]) <= 0)
 	$arParams["EDITOR_DEFAULT_HEIGHT"] = 300;
 
@@ -89,7 +89,7 @@ if($arParams["DISABLE_SONET_LOG"] != "Y")
 	$arParams["DISABLE_SONET_LOG"] = "N";
 
 $arBlog = CBlog::GetByUrl($arParams["BLOG_URL"]);
-if(IntVal($arParams["ID"]) > 0)
+if(intval($arParams["ID"]) > 0)
 	$arResult["perms"] = CBlogPost::GetBlogUserPostPerms($arParams["ID"], $arResult["UserID"]);
 else
 	$arResult["perms"] = CBlog::GetBlogUserPostPerms($arBlog["ID"], $arResult["UserID"]);
@@ -139,7 +139,7 @@ if ((!empty($arBlog) && $arBlog["ACTIVE"] == "Y") ||
 				$APPLICATION->RestartBuffer();
 				header("Pragma: no-cache");
 
-				if(check_bitrix_sessid() || strlen($_REQUEST["sessid"]) <= 0)
+				if(check_bitrix_sessid() || $_REQUEST["sessid"] == '')
 				{
 					$arFields = Array();
 					if ($_FILES["BLOG_UPLOAD_FILE"]["size"] > 0)
@@ -228,8 +228,8 @@ if ((!empty($arBlog) && $arBlog["ACTIVE"] == "Y") ||
 				if ($_REQUEST["AJAX"] == "Y")
 					CUtil::JSPostUnescape();
 				$arSite = CSite::GetByID(SITE_ID)->Fetch();
-				$serverName = ( strlen($arSite["SERVER_NAME"]) <=0 ?
-						(defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME) > 0 ? SITE_SERVER_NAME : COption::GetOptionString("main", "server_name", "www.bitrixsoft.com")) :
+				$serverName = ( $arSite["SERVER_NAME"] == '' ?
+						(defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '' ? SITE_SERVER_NAME : COption::GetOptionString("main", "server_name", "www.bitrixsoft.com")) :
 						$_SERVER["HTTP_HOST"]
 				);
 				if (!$_POST["apply"] && !$_POST["save"]) // Save on button click
@@ -268,8 +268,8 @@ if ((!empty($arBlog) && $arBlog["ACTIVE"] == "Y") ||
 					{
 						foreach($_POST["CATEGORY_ID"] as $v)
 						{
-							if(substr($v, 0, 4) == "new_")
-								$CATEGORYtmp[] = CBlogCategory::Add(array("BLOG_ID"=>$arBlog["ID"],"NAME"=>substr($v, 4)));
+							if(mb_substr($v, 0, 4) == "new_")
+								$CATEGORYtmp[] = CBlogCategory::Add(array("BLOG_ID"=>$arBlog["ID"],"NAME"=> mb_substr($v, 4)));
 							else
 								$CATEGORYtmp[] = $v;
 						}
@@ -277,9 +277,9 @@ if ((!empty($arBlog) && $arBlog["ACTIVE"] == "Y") ||
 					$CATEGORY_ID = implode(",", $CATEGORYtmp);
 
 					$DATE_PUBLISH = $_POST["DATE_PUBLISH"];
-					if(strlen($_POST["DATE_PUBLISH_DEF"]) > 0)
+					if($_POST["DATE_PUBLISH_DEF"] <> '')
 						$DATE_PUBLISH = $_POST["DATE_PUBLISH_DEF"];
-					elseif (strlen($_POST["DATE_PUBLISH"])<=0)
+					elseif ($_POST["DATE_PUBLISH"] == '')
 						$DATE_PUBLISH = ConvertTimeStamp(time()+CTimeZone::GetOffset(), "FULL");
 
 					$PUBLISH_STATUS = BLOG_PUBLISH_STATUS_PUBLISH;
@@ -298,7 +298,7 @@ if ((!empty($arBlog) && $arBlog["ACTIVE"] == "Y") ||
 						"PATH" => CComponentEngine::MakePathFromTemplate(htmlspecialcharsBack($arParams["PATH_TO_POST"]), array("blog" => $arBlog["URL"], "post_id" => "#post_id#", "user_id" => $arBlog["OWNER_ID"], "group_id" => $arParams["SOCNET_GROUP_ID"]))
 					);
 					$_POST["CODE"] = trim($_POST["CODE"]);
-					if($arParams["ALLOW_POST_CODE"] && strlen($_POST["CODE"]) > 0)
+					if($arParams["ALLOW_POST_CODE"] && $_POST["CODE"] <> '')
 					{
 						$arFields["CODE"] = $_POST["CODE"];
 						$arPCFilter = array("BLOG_ID" => $arBlog["ID"], "CODE" => $arFields["CODE"]);
@@ -318,7 +318,7 @@ if ((!empty($arBlog) && $arBlog["ACTIVE"] == "Y") ||
 							while ($db->Fetch());
 						}
 					}
-					if($_POST["POST_MESSAGE_TYPE"] == "html" && strlen($_POST["POST_MESSAGE_HTML"]) <= 0)
+					if($_POST["POST_MESSAGE_TYPE"] == "html" && $_POST["POST_MESSAGE_HTML"] == '')
 						$arFields["DETAIL_TEXT"] = $_POST["POST_MESSAGE"];
 
 					$arFields["PERMS_POST"] = array();
@@ -445,7 +445,7 @@ if ((!empty($arBlog) && $arBlog["ACTIVE"] == "Y") ||
 					}
 				}
 
-				if ($arParams["ID"] > 0 && strlen($arResult["ERROR_MESSAGE"])<=0 && $arResult["preview"] != "Y") // Edit post
+				if ($arParams["ID"] > 0 && $arResult["ERROR_MESSAGE"] == '' && $arResult["preview"] != "Y") // Edit post
 				{
 					$arResult["PostToShow"]["TITLE"] = $arPost["TITLE"];
 					$arResult["PostToShow"]["DETAIL_TEXT"] = $arPost["DETAIL_TEXT"];
@@ -487,7 +487,7 @@ if ((!empty($arBlog) && $arBlog["ACTIVE"] == "Y") ||
 					$arResult["PostToShow"]["DATE_PUBLISH"] = $_POST["DATE_PUBLISH"] ? htmlspecialcharsEx($_POST["DATE_PUBLISH"]) : ConvertTimeStamp(time()+CTimeZone::GetOffset(),"FULL");
 
 					$arResult["PostToShow"]["FAVORITE_SORT"] = htmlspecialcharsEx($_POST["FAVORITE_SORT"]);
-					if($_POST["POST_MESSAGE_TYPE"] == "html" && strlen($_POST["POST_MESSAGE_HTML"]) <= 0)
+					if($_POST["POST_MESSAGE_TYPE"] == "html" && $_POST["POST_MESSAGE_HTML"] == '')
 					{
 						$arResult["PostToShow"]["DETAIL_TEXT"] = htmlspecialcharsEx($_POST["POST_MESSAGE"]);
 						$arResult["PostToShow"]["~DETAIL_TEXT"] = $_POST["POST_MESSAGE"];
@@ -528,22 +528,22 @@ if ((!empty($arBlog) && $arBlog["ACTIVE"] == "Y") ||
 
 					foreach($arResult["BLOG_POST_PERMS"] as  $v)
 					{
-						if(strlen($arResult["post_everyone_max_rights"]) > 0 && $v <= $arResult["post_everyone_max_rights"])
+						if($arResult["post_everyone_max_rights"] <> '' && $v <= $arResult["post_everyone_max_rights"])
 							$arResult["ar_post_everyone_rights"][] = $v;
-						if(strlen($arResult["post_auth_user_max_rights"]) > 0 && $v <= $arResult["post_auth_user_max_rights"])
+						if($arResult["post_auth_user_max_rights"] <> '' && $v <= $arResult["post_auth_user_max_rights"])
 							$arResult["ar_post_auth_user_rights"][] = $v;
-						if(strlen($arResult["post_group_user_max_rights"]) > 0 && $v <= $arResult["post_group_user_max_rights"])
+						if($arResult["post_group_user_max_rights"] <> '' && $v <= $arResult["post_group_user_max_rights"])
 							$arResult["ar_post_group_user_rights"][] = $v;
 
 					}
 
 					foreach($arResult["BLOG_COMMENT_PERMS"] as  $v)
 					{
-						if(strlen($arResult["comment_everyone_max_rights"]) > 0 && $v <= $arResult["comment_everyone_max_rights"])
+						if($arResult["comment_everyone_max_rights"] <> '' && $v <= $arResult["comment_everyone_max_rights"])
 							$arResult["ar_comment_everyone_rights"][] = $v;
-						if(strlen($arResult["comment_auth_user_max_rights"]) > 0 && $v <= $arResult["comment_auth_user_max_rights"])
+						if($arResult["comment_auth_user_max_rights"] <> '' && $v <= $arResult["comment_auth_user_max_rights"])
 							$arResult["ar_comment_auth_user_rights"][] = $v;
-						if(strlen($arResult["comment_group_user_max_rights"]) > 0 && $v <= $arResult["comment_group_user_max_rights"])
+						if($arResult["comment_group_user_max_rights"] <> '' && $v <= $arResult["comment_group_user_max_rights"])
 							$arResult["ar_comment_group_user_rights"][] = $v;
 					}
 				}
@@ -597,12 +597,12 @@ if ((!empty($arBlog) && $arBlog["ACTIVE"] == "Y") ||
 					}
 				}
 
-				if(strpos($arResult["PostToShow"]["CATEGORY_ID"], ",")!==false)
+				if(mb_strpos($arResult["PostToShow"]["CATEGORY_ID"], ",") !== false)
 					$arResult["PostToShow"]["CATEGORY_ID"] = explode(",", trim($arResult["PostToShow"]["CATEGORY_ID"]));
 
 				$arResult["Category"] = Array();
 
-				if(strlen($arResult["PostToShow"]["CategoryText"]) <= 0)
+				if($arResult["PostToShow"]["CategoryText"] == '')
 				{
 					$res = CBlogCategory::GetList(array("NAME"=>"ASC"),array("BLOG_ID"=>$arBlog["ID"]));
 					while ($arCategory=$res->GetNext())
@@ -622,7 +622,7 @@ if ((!empty($arBlog) && $arBlog["ACTIVE"] == "Y") ||
 
 						$arResult["Category"][$arCategory["ID"]] = $arCategory;
 					}
-					$arResult["PostToShow"]["CategoryText"] = substr($arResult["PostToShow"]["CategoryText"], 0, strlen($arResult["PostToShow"]["CategoryText"])-2);
+					$arResult["PostToShow"]["CategoryText"] = mb_substr($arResult["PostToShow"]["CategoryText"], 0, mb_strlen($arResult["PostToShow"]["CategoryText"]) - 2);
 				}
 
 				$arResult["POST_PROPERTIES"] = array("SHOW" => "N");
@@ -637,7 +637,7 @@ if ((!empty($arBlog) && $arBlog["ACTIVE"] == "Y") ||
 						{
 							if (!in_array($FIELD_NAME, $arParams["POST_PROPERTY"]))
 								continue;
-							$arPostField["EDIT_FORM_LABEL"] = strLen($arPostField["EDIT_FORM_LABEL"]) > 0 ? $arPostField["EDIT_FORM_LABEL"] : $arPostField["FIELD_NAME"];
+							$arPostField["EDIT_FORM_LABEL"] = $arPostField["EDIT_FORM_LABEL"] <> '' ? $arPostField["EDIT_FORM_LABEL"] : $arPostField["FIELD_NAME"];
 							$arPostField["EDIT_FORM_LABEL"] = htmlspecialcharsEx($arPostField["EDIT_FORM_LABEL"]);
 							$arPostField["~EDIT_FORM_LABEL"] = $arPostField["EDIT_FORM_LABEL"];
 							if ($FIELD_NAME == "UF_STATUS" && !empty($arParams["POST_BIND_STATUS_DEFAULT"]))
@@ -652,8 +652,8 @@ if ((!empty($arBlog) && $arBlog["ACTIVE"] == "Y") ||
 				$serverName = "http://".$serverName;
 
 				$arResult["PATH_TO_POST"] = CComponentEngine::MakePathFromTemplate(htmlspecialcharsBack($arParams["PATH_TO_POST"]), array("blog" => $arBlog["URL"], "post_id" => "#post_id#", "user_id" => $arBlog["OWNER_ID"], "group_id" => $arParams["SOCNET_GROUP_ID"]));
-				$arResult["PATH_TO_POST1"] = $serverName.substr($arResult["PATH_TO_POST"], 0, strpos($arResult["PATH_TO_POST"], "#post_id#"));
-				$arResult["PATH_TO_POST2"] = substr($arResult["PATH_TO_POST"], strpos($arResult["PATH_TO_POST"], "#post_id#") + strlen("#post_id#"));
+				$arResult["PATH_TO_POST1"] = $serverName.mb_substr($arResult["PATH_TO_POST"], 0, mb_strpos($arResult["PATH_TO_POST"], "#post_id#"));
+				$arResult["PATH_TO_POST2"] = mb_substr($arResult["PATH_TO_POST"], mb_strpos($arResult["PATH_TO_POST"], "#post_id#") + mb_strlen("#post_id#"));
 			}
 		}
 		else

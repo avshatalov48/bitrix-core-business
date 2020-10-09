@@ -5,7 +5,7 @@ define('DisableEventsCheck', true);
 
 if(isset($_POST['site']) && (string) $_POST['site'] != '')
 {
-	$siteId = substr(trim((string) $_POST['site']), 0, 2);
+	$siteId = mb_substr(trim((string)$_POST['site']), 0, 2);
 	if(preg_match('#^[a-zA-Z0-9]{2}$#', $siteId))
 	{
 		define('SITE_ID', $siteId);

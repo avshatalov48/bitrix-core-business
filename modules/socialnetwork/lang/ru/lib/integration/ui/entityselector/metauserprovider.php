@@ -1,0 +1,3 @@
+<?
+$MESS["SOCNET_ENTITY_SELECTOR_ALL_EMPLOYEES"] = "Все сотрудники";
+$MESS["SOCNET_ENTITY_SELECTOR_ALL_USERS"] = "Все пользователи";

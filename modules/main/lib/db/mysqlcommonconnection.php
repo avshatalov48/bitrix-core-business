@@ -13,18 +13,7 @@ abstract class MysqlCommonConnection extends Connection
 	protected $engine = "";
 
 	/**
-	 * $configuration may contain following keys:
-	 * <ul>
-	 * <li>host
-	 * <li>database
-	 * <li>login
-	 * <li>password
-	 * <li>initCommand
-	 * <li>options
-	 * <li>engine
-	 * </ul>
-	 *
-	 * @param array $configuration Array of Name => Value pairs.
+	 * @inheritDoc
 	 */
 	public function __construct(array $configuration)
 	{
@@ -33,18 +22,14 @@ abstract class MysqlCommonConnection extends Connection
 	}
 
 	/**
-	 * Checks if a table exists.
-	 *
-	 * @param string $tableName The table name.
-	 *
-	 * @return boolean
+	 * @inheritDoc
 	 */
 	public function isTableExists($tableName)
 	{
 		$tableName = preg_replace("/[^a-z0-9%_]+/i", "", $tableName);
 		$tableName = trim($tableName);
 
-		if (strlen($tableName) <= 0)
+		if ($tableName == '')
 		{
 			return false;
 		}
@@ -55,15 +40,7 @@ abstract class MysqlCommonConnection extends Connection
 	}
 
 	/**
-	 * Checks if an index exists.
-	 * Actual columns in the index may differ from requested.
-	 * $columns may present an "prefix" of actual index columns.
-	 *
-	 * @param string $tableName A table name.
-	 * @param array  $columns An array of columns in the index.
-	 *
-	 * @return boolean
-	 * @throws \Bitrix\Main\Db\SqlQueryException
+	 * @inheritDoc
 	 */
 	public function isIndexExists($tableName, array $columns)
 	{
@@ -71,14 +48,7 @@ abstract class MysqlCommonConnection extends Connection
 	}
 
 	/**
-	 * Returns the name of an index.
-	 *
-	 * @param string $tableName A table name.
-	 * @param array $columns An array of columns in the index.
-	 * @param bool $strict The flag indicating that the columns in the index must exactly match the columns in the $arColumns parameter.
-	 *
-	 * @return string|null Name of the index or null if the index doesn't exist.
-	 * @throws \Bitrix\Main\Db\SqlQueryException
+	 * @inheritDoc
 	 */
 	public function getIndexName($tableName, array $columns, $strict = false)
 	{
@@ -110,7 +80,7 @@ abstract class MysqlCommonConnection extends Connection
 			}
 			else
 			{
-				if (substr($indexColumnList, 0, strlen($columnsList)) === $columnsList)
+				if (mb_substr($indexColumnList, 0, mb_strlen($columnsList)) === $columnsList)
 					return $indexName;
 			}
 		}
@@ -119,13 +89,7 @@ abstract class MysqlCommonConnection extends Connection
 	}
 
 	/**
-	 * Returns fields objects according to the columns of a table.
-	 * Table must exists.
-	 *
-	 * @param string $tableName The table name.
-	 *
-	 * @return ScalarField[] An array of objects with columns information.
-	 * @throws \Bitrix\Main\Db\SqlQueryException
+	 * @inheritDoc
 	 */
 	public function getTableFields($tableName)
 	{
@@ -147,14 +111,7 @@ abstract class MysqlCommonConnection extends Connection
 	}
 
 	/**
-	 * @param string        $tableName     Name of the new table.
-	 * @param ScalarField[] $fields        Array with columns descriptions.
-	 * @param string[]      $primary       Array with primary key column names.
-	 * @param string[]      $autoincrement Which columns will be auto incremented ones.
-	 *
-	 * @return void
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\Db\SqlQueryException
+	 * @inheritDoc
 	 */
 	public function createTable($tableName, $fields, $primary = array(), $autoincrement = array())
 	{
@@ -246,10 +203,10 @@ abstract class MysqlCommonConnection extends Connection
 		$indexTypeSql = '';
 
 		if ($indexType !== null
-			&& in_array(strtoupper($indexType), [static::INDEX_UNIQUE, static::INDEX_FULLTEXT, static::INDEX_SPATIAL], true)
+			&& in_array(mb_strtoupper($indexType), [static::INDEX_UNIQUE, static::INDEX_FULLTEXT, static::INDEX_SPATIAL], true)
 		)
 		{
-			$indexTypeSql = strtoupper($indexType);
+			$indexTypeSql = mb_strtoupper($indexType);
 		}
 
 		$sql = 'CREATE '.$indexTypeSql.' INDEX '.$sqlHelper->quote($indexName).' ON '.$sqlHelper->quote($tableName)
@@ -259,13 +216,7 @@ abstract class MysqlCommonConnection extends Connection
 	}
 
 	/**
-	 * Renames the table. Renamed table must exists and new name must not be occupied by any database object.
-	 *
-	 * @param string $currentName Old name of the table.
-	 * @param string $newName New name of the table.
-	 *
-	 * @return void
-	 * @throws \Bitrix\Main\Db\SqlQueryException
+	 * @inheritDoc
 	 */
 	public function renameTable($currentName, $newName)
 	{
@@ -273,12 +224,7 @@ abstract class MysqlCommonConnection extends Connection
 	}
 
 	/**
-	 * Drops the table.
-	 *
-	 * @param string $tableName Name of the table to be dropped.
-	 *
-	 * @return void
-	 * @throws \Bitrix\Main\Db\SqlQueryException
+	 * @inheritDoc
 	 */
 	public function dropTable($tableName)
 	{
@@ -290,10 +236,7 @@ abstract class MysqlCommonConnection extends Connection
 	 *********************************************************/
 
 	/**
-	 * Starts new database transaction.
-	 *
-	 * @return void
-	 * @throws \Bitrix\Main\Db\SqlQueryException
+	 * @inheritDoc
 	 */
 	public function startTransaction()
 	{
@@ -301,10 +244,7 @@ abstract class MysqlCommonConnection extends Connection
 	}
 
 	/**
-	 * Commits started database transaction.
-	 *
-	 * @return void
-	 * @throws \Bitrix\Main\Db\SqlQueryException
+	 * @inheritDoc
 	 */
 	public function commitTransaction()
 	{
@@ -312,14 +252,48 @@ abstract class MysqlCommonConnection extends Connection
 	}
 
 	/**
-	 * Rollbacks started database transaction.
-	 *
-	 * @return void
-	 * @throws \Bitrix\Main\Db\SqlQueryException
+	 * @inheritDoc
 	 */
 	public function rollbackTransaction()
 	{
 		$this->query("ROLLBACK");
+	}
+
+	/*********************************************************
+	 * Global named lock
+	 *********************************************************/
+
+	/**
+	 * @inheritDoc
+	 */
+	public function lock($name, $timeout = 0)
+	{
+		$timeout = (int)$timeout;
+		$name = $this->getLockName($name);
+
+		$lock = $this->query("SELECT GET_LOCK('{$name}', {$timeout}) as L")->fetch();
+
+		return ($lock["L"] == "1");
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function unlock($name)
+	{
+		$name = $this->getLockName($name);
+
+		$lock = $this->query("SELECT RELEASE_LOCK('{$name}') as L")->fetch();
+
+		return ($lock["L"] == "1");
+	}
+
+	protected function getLockName($name)
+	{
+		$unique = \CMain::GetServerUniqID();
+
+		//64 characters max for mysql 5.7+
+		return $unique.md5($name);
 	}
 
 	/*********************************************************

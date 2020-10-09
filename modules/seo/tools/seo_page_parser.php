@@ -17,7 +17,7 @@ $arCallbacks = array('set_stats' => 'window.BXSetStats', 'set_keywords_stats' =>
 if (
 	$_SERVER['REQUEST_METHOD'] == 'POST'
 	&& check_bitrix_sessid()
-	&& $_REQUEST['url'] && substr($_REQUEST['url'], 0, 1) == '/'
+	&& $_REQUEST['url'] && mb_substr($_REQUEST['url'], 0, 1) == '/'
 	&& $_REQUEST['site']
 	&& $_REQUEST['callback']
 	&& array_key_exists($_REQUEST['callback'], $arCallbacks)
@@ -59,12 +59,12 @@ if (
 		if ($bGetFullInfo)
 		{
 			$extended = $obChecker->GetExtendedData();
-			if (strlen($extended['META_DESCRIPTION']) > 0)
+			if ($extended['META_DESCRIPTION'] <> '')
 				$extended['META_DESCRIPTION'] = array($extended['META_DESCRIPTION']);
 			else
 				$extended['META_DESCRIPTION'] = array();
 
-			if (strlen($extended['META_KEYWORDS']) > 0)
+			if ($extended['META_KEYWORDS'] <> '')
 				$extended['META_KEYWORDS'] = array($extended['META_KEYWORDS']);
 			else
 				$extended['META_KEYWORDS'] = array();

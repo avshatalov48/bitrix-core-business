@@ -16,7 +16,7 @@ class MysqliSqlHelper extends MysqlCommonSqlHelper
 	public function forSql($value, $maxLength = 0)
 	{
 		if ($maxLength > 0)
-			$value = substr($value, 0, $maxLength);
+			$value = mb_substr($value, 0, $maxLength);
 
 		$con = $this->connection->getResource();
 		/** @var $con \mysqli */

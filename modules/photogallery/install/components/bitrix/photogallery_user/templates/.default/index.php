@@ -13,11 +13,11 @@
 		"upload" => "PAGE_NAME=upload&SECTION_ID=#SECTION_ID#&ACTION=upload");
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		$arParams[strToUpper($URL)."_URL"] = trim($arResult["URL_TEMPLATES"][strToLower($URL)]);
-		if (empty($arParams[strToUpper($URL)."_URL"]))
-			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPageParam($URL_VALUE, array("PAGE_NAME", "SECTION_ID", "ELEMENT_ID", "ACTION", "sessid", "edit", "order"));
-		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[mb_strtoupper($URL)."_URL"] = trim($arResult["URL_TEMPLATES"][mb_strtolower($URL)]);
+		if (empty($arParams[mb_strtoupper($URL)."_URL"]))
+			$arParams[mb_strtoupper($URL)."_URL"] = $APPLICATION->GetCurPageParam($URL_VALUE, array("PAGE_NAME", "SECTION_ID", "ELEMENT_ID", "ACTION", "sessid", "edit", "order"));
+		$arParams["~".mb_strtoupper($URL)."_URL"] = $arParams[mb_strtoupper($URL)."_URL"];
+		$arParams[mb_strtoupper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".mb_strtoupper($URL)."_URL"]);
 	}
 //***************** ADDITTIONAL ************************************/
 	$arParams["SHOW_TAGS"] = ($arParams["SHOW_TAGS"] == "Y" ? "Y" : "N");
@@ -113,7 +113,7 @@ return false;
 }
 
 $sDetailListUrl = CComponentEngine::MakePathFromTemplate($arParams["DETAIL_LIST_URL"], array());
-$sDetailListUrl .= (strpos($sDetailListUrl, "?") === false ? "?" : "&");
+$sDetailListUrl .= (mb_strpos($sDetailListUrl, "?") === false ? "?" : "&");
 $sBestPhoto = "";
 $sBestPhotos = "";
 $arError = array();

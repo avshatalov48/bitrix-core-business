@@ -289,7 +289,7 @@ abstract class Controller
 	protected function resolveAction()
 	{
 		$listOfActions = $this->normalizeListOfAction($this->listActions());
-		$action = strtolower($this->action);
+		$action = mb_strtolower($this->action);
 
 		if(!isset($listOfActions[$action]))
 		{
@@ -590,7 +590,7 @@ abstract class Controller
 		foreach ($required as $item)
 		{
 			if(!isset($inputParams[$item]) || (!$inputParams[$item] &&
-				!(is_string($inputParams[$item]) && strlen($inputParams[$item]))))
+				!(is_string($inputParams[$item]) && mb_strlen($inputParams[$item]))))
 			{
 				$this->errorCollection->add(array(new Error(
 					Loc::getMessage('REPORT_CONTROLLER_ERROR_REQUIRED_PARAMETER',

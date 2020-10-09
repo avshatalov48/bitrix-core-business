@@ -3,7 +3,7 @@
 // {
 	// $url = CComponentEngine::MakePathFromTemplate($arResult["URL_TEMPLATES"]["section_edit"], array("SECTION_ID" => intval($arResult["VARIABLES"]["SECTION_ID"]), "ACTION" => "new"));
 // }
-if ($arParams["SHOW_NAVIGATION"] == "Y" && strtolower($arResult["PAGE_NAME"]) != "index")
+if ($arParams["SHOW_NAVIGATION"] == "Y" && mb_strtolower($arResult["PAGE_NAME"]) != "index")
 {
 	// text from main
 	CMain::InitPathVars($site, $path);
@@ -18,14 +18,14 @@ if ($arParams["SHOW_NAVIGATION"] == "Y" && strtolower($arResult["PAGE_NAME"]) !=
 		{
 			$sSectionName = "";
 			include($chain_file_name);
-			if(strlen($sSectionName)>0)
+			if($sSectionName <> '')
 				$arChain[] = Array("TITLE"=>$sSectionName, "LINK"=>$path."/");
 		}
 
 		$pos = bxstrrpos($path, "/");
-		if($path.'/' == SITE_DIR || strlen($path) <= 0 || $pos === false)
+		if($path.'/' == SITE_DIR || $path == '' || $pos === false)
 			break;
-		$path = substr($path, 0, $pos+1);
+		$path = mb_substr($path, 0, $pos + 1);
 	}
 
 	if ($arResult["PAGE_NAME"] == "detail" /* || $arResult["PAGE_NAME"] == "section"*/)

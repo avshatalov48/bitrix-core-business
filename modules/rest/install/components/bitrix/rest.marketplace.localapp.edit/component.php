@@ -88,7 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 		"MOBILE" => isset($_POST["MOBILE"]) ? "Y" : "N",
 	);
 
-	if(strlen($arFields['APP_NAME']) <= 0)
+	if($arFields['APP_NAME'] == '')
 	{
 		$arResult["ERROR"] = \Bitrix\Main\Localization\Loc::getMessage("MP_ERROR_EMPTY_NAME");
 	}
@@ -123,7 +123,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 
 	if(empty($arResult['ERROR']))
 	{
-		if(strlen($arFields['URL']) <= 0)
+		if($arFields['URL'] == '')
 		{
 			$arResult["ERROR"] = \Bitrix\Main\Localization\Loc::getMessage("MP_ERROR_INCORRECT_URL");
 		}

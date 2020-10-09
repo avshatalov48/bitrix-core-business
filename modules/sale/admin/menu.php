@@ -176,30 +176,38 @@ if ($APPLICATION->GetGroupRight("sale")!="D")
 	/* CASHBOX Begin*/
 	if ($APPLICATION->GetGroupRight("sale") == "W")
 	{
-		$isAvailable = true;
-
+		$currentZone = '';
 		if (Loader::includeModule("bitrix24"))
 		{
-			$isAvailable = \CBitrix24::getLicensePrefix() === 'ru';
+			$currentZone = \CBitrix24::getLicensePrefix();
 		}
 		elseif (Loader::includeModule('intranet'))
 		{
-			$isAvailable = CIntranetUtils::getPortalZone() === 'ru';
+			$currentZone = \CIntranetUtils::getPortalZone();
+		}
+
+		$isAvailable = true;
+		if (
+			$currentZone !== ''
+			&& !in_array($currentZone, ['ru', 'ua'])
+		)
+		{
+			$isAvailable = false;
 		}
 
 		if ($isAvailable)
 		{
-			$arMenu = array(
+			$arMenu = [
 				"parent_menu" => "global_menu_store",
 				"sort" => 300,
 				"text" => GetMessage("SALE_CASHBOX_TITLE"),
 				"title" => GetMessage("SALE_CASHBOX"),
 				"icon" => "crm-cashbox-icon",
-				"url" => "sale_cashbox.php?lang=".LANGUAGE_ID,
+				"url" => $currentZone !== 'ua' ? "sale_cashbox.php?lang=".LANGUAGE_ID : '',
 				"page_icon" => "sale_page_icon_crm",
 				"items_id" => "menu_sale_cashbox",
-				"items" => Array(),
-			);
+				"items" => [],
+			];
 
 			$arMenu["items"][] = array(
 				"text" => GetMessage("SALE_CASHBOX_LIST"),

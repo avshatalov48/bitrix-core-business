@@ -74,7 +74,7 @@ class CAdminList
 	public function AddHeaders($aParams)
 	{
 		if (isset($_REQUEST['showallcol']) && $_REQUEST['showallcol'])
-			$_SESSION['SHALL'] = ($_REQUEST['showallcol'] == 'Y');
+			\Bitrix\Main\Application::getInstance()->getSession()['SHALL'] = ($_REQUEST['showallcol'] == 'Y');
 
 		$aOptions = CUserOptions::GetOption("list", $this->table_id, array());
 
@@ -98,7 +98,7 @@ class CAdminList
 			$param["__sort"] = -1;
 			$this->aHeaders[$param["id"]] = $param;
 			if (
-				(isset($_SESSION['SHALL']) && $_SESSION['SHALL'])
+				(isset(\Bitrix\Main\Application::getInstance()->getSession()['SHALL']) && \Bitrix\Main\Application::getInstance()->getSession()['SHALL'])
 				|| ($bEmptyCols && $param["default"] == true)
 				|| isset($userColumns[$param["id"]])
 			)
@@ -257,7 +257,7 @@ class CAdminList
 							$keys = array_keys($fields);
 							foreach($keys as $key)
 							{
-								if(($c = substr($key, 0, 1)) == '~' || $c == '=')
+								if(($c = mb_substr($key,0,1)) == '~' || $c == '=')
 								{
 									unset($arrays[$i]["FIELDS"][$id][$key]);
 								}
@@ -276,9 +276,34 @@ class CAdminList
 	 *
 	 * @return array
 	 */
-	public function GetEditFields()
+	public function GetEditFields(): array
 	{
-		return (isset($_REQUEST['FIELDS']) && is_array($_REQUEST['FIELDS']) ? $_REQUEST['FIELDS'] : []);
+		$result = [];
+		if (isset($_REQUEST['FIELDS']) && is_array($_REQUEST['FIELDS']))
+		{
+			foreach (array_keys($_REQUEST['FIELDS']) as $id)
+			{
+				if (empty($id) || !$this->IsUpdated($id))
+				{
+					continue;
+				}
+				$result[$id] = $_REQUEST['FIELDS'][$id];
+			}
+		}
+		return $result;
+	}
+
+	/**
+	 * Copy files from uploader to edit fields.
+	 *
+	 * @return void
+	 */
+	public function ConvertFilesToEditFields(): void
+	{
+		if (!empty($_FILES['FIELDS']) && is_array($_FILES['FIELDS']))
+		{
+			CFile::ConvertFilesToPost($_FILES['FIELDS'], $_REQUEST['FIELDS']);
+		}
 	}
 
 	/**
@@ -372,15 +397,15 @@ class CAdminList
 		if ($this->isPublicMode)
 		{
 			$selfFolderUrl = (defined("SELF_FOLDER_URL") ? SELF_FOLDER_URL : "/bitrix/admin/");
-			if (strpos($url, $selfFolderUrl) === false)
+			if (mb_strpos($url,$selfFolderUrl) === false)
 			{
 				$url = $selfFolderUrl.$url;
 			}
 		}
 
-		if(strpos($url, "lang=")===false)
+		if(mb_strpos($url,"lang=")===false)
 		{
-			if(strpos($url, "?")===false)
+			if(mb_strpos($url,"?")===false)
 				$url .= '?';
 			else
 				$url .= '&';
@@ -391,9 +416,9 @@ class CAdminList
 
 	public function ActionAjaxReload($url)
 	{
-		if(strpos($url, "lang=")===false)
+		if(mb_strpos($url,"lang=")===false)
 		{
-			if(strpos($url, "?")===false)
+			if(mb_strpos($url,"?")===false)
 				$url .= '?';
 			else
 				$url .= '&';
@@ -407,16 +432,16 @@ class CAdminList
 		$res = '';
 		if($url)
 		{
-			if(strpos($url, "lang=")===false)
+			if(mb_strpos($url,"lang=")===false)
 			{
-				if(strpos($url, "?")===false)
+				if(mb_strpos($url,"?")===false)
 					$url .= '?';
 				else
 					$url .= '&';
 				$url .= 'lang='.LANGUAGE_ID;
 			}
 
-			if(strpos($url, "mode=")===false)
+			if(mb_strpos($url,"mode=")===false)
 				$url .= '&mode=frame';
 
 			$res = 'BX(\'form_'.$this->table_id.'\').action=\''.CUtil::AddSlashes($url).'\';';
@@ -505,7 +530,7 @@ class CAdminList
 	{
 		global $set_default;
 		$sTableID = $this->table_id;
-		return $set_default=="Y" && (!isset($_SESSION["SESS_ADMIN"][$sTableID]) || empty($_SESSION["SESS_ADMIN"][$sTableID]));
+		return $set_default=="Y" && (!isset(\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"][$sTableID]) || empty(\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"][$sTableID]));
 	}
 
 	public function &AddRow($id = false, $arRes = Array(), $link = false, $title = false)
@@ -609,7 +634,7 @@ class CAdminList
 
 		if(
 			(isset($_REQUEST['ajax_debugx']) && $_REQUEST['ajax_debugx']=='Y')
-			|| (isset($_SESSION['AJAX_DEBUGX']) && $_SESSION['AJAX_DEBUGX'])
+			|| (isset(\Bitrix\Main\Application::getInstance()->getSession()['AJAX_DEBUGX']) && \Bitrix\Main\Application::getInstance()->getSession()['AJAX_DEBUGX'])
 		)
 			echo '<form method="POST" '.($this->bMultipart?' enctype="multipart/form-data" ':'').' onsubmit="CheckWin();ShowWaitWindow();" target="frame_debug" id="form_'.$this->table_id.'" name="form_'.$this->table_id.'" action="'.htmlspecialcharsbx($APPLICATION->GetCurPageParam("mode=frame", array("mode"))).'">';
 		else
@@ -934,7 +959,7 @@ class CAdminList
 
 		if(
 			(isset($_REQUEST['ajax_debugx']) && $_REQUEST['ajax_debugx']=='Y')
-			|| (isset($_SESSION['AJAX_DEBUGX']) && $_SESSION['AJAX_DEBUGX'])
+			|| (isset(\Bitrix\Main\Application::getInstance()->getSession()['AJAX_DEBUGX']) && \Bitrix\Main\Application::getInstance()->getSession()['AJAX_DEBUGX'])
 		)
 		{
 			echo '<script>

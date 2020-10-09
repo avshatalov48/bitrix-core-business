@@ -4551,7 +4551,7 @@ class CAdvBanner_all
 		global $APPLICATION, $USER;
 
 		$debug = null;
-		if($_SESSION["SESS_SHOW_INCLUDE_TIME_EXEC"]=="Y" && $USER->IsAdmin())
+		if(\Bitrix\Main\Application::getInstance()->getKernelSession()["SESS_SHOW_INCLUDE_TIME_EXEC"]=="Y" && $USER->IsAdmin())
 		{
 			$debug = new CDebugInfo();
 			$debug->Start();

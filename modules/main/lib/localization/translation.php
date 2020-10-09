@@ -132,11 +132,11 @@ class Translation
 			{
 				$encoding = 'utf-8';
 			}
-			elseif (defined('SITE_CHARSET') && (strlen(SITE_CHARSET) > 0))
+			elseif (defined('SITE_CHARSET') && (SITE_CHARSET <> ''))
 			{
 				$encoding = SITE_CHARSET;
 			}
-			elseif (defined('LANG_CHARSET') && (strlen(LANG_CHARSET) > 0))
+			elseif (defined('LANG_CHARSET') && (LANG_CHARSET <> ''))
 			{
 				$encoding = LANG_CHARSET;
 			}
@@ -159,7 +159,7 @@ class Translation
 				{
 					$encoding = Configuration::getValue('default_charset');
 				}
-				elseif (defined('BX_DEFAULT_CHARSET') && (strlen(BX_DEFAULT_CHARSET) > 0))
+				elseif (defined('BX_DEFAULT_CHARSET') && (BX_DEFAULT_CHARSET <> ''))
 				{
 					$encoding = BX_DEFAULT_CHARSET;
 				}
@@ -169,7 +169,7 @@ class Translation
 				}
 			}
 
-			self::$currentEncoding = strtolower($encoding);
+			self::$currentEncoding = mb_strtolower($encoding);
 		}
 
 		return self::$currentEncoding;
@@ -358,11 +358,11 @@ class Translation
 			return $langFile;
 		}
 
-		if (strpos($langFile, '\\') !== false)
+		if (mb_strpos($langFile, '\\') !== false)
 		{
 			$langFile = str_replace('\\', '/', $langFile);
 		}
-		if (strpos($langFile, '//') !== false)
+		if (mb_strpos($langFile, '//') !== false)
 		{
 			$langFile = str_replace('//', '/', $langFile);
 		}
@@ -370,7 +370,7 @@ class Translation
 		// linked
 		if (self::getDeveloperRepositoryPath() !== null)
 		{
-			if (strpos($langFile, self::getDeveloperRepositoryPath()) === 0)
+			if (mb_strpos($langFile, self::getDeveloperRepositoryPath()) === 0)
 			{
 				$langFile = str_replace(
 					self::getDeveloperRepositoryPath(). '/',

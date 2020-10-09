@@ -54,19 +54,25 @@ class CPHPCacheMemcache implements ICacheBackend
 	{
 		if(is_object(self::$obMemcache))
 		{
-			if(strlen($filename))
+			if($filename <> '')
 			{
 				if(!isset(self::$basedir_version[$basedir]))
+				{
 					self::$basedir_version[$basedir] = self::$obMemcache->get($this->sid.$basedir);
+				}
 
 				if(self::$basedir_version[$basedir] === false || self::$basedir_version[$basedir] === '')
+				{
 					return true;
+				}
 
 				if($initdir !== false)
 				{
 					$initdir_version = self::$obMemcache->get(self::$basedir_version[$basedir]."|".$initdir);
 					if($initdir_version === false || $initdir_version === '')
+					{
 						return true;
+					}
 				}
 				else
 				{
@@ -77,20 +83,26 @@ class CPHPCacheMemcache implements ICacheBackend
 			}
 			else
 			{
-				if(strlen($initdir))
+				if($initdir <> '')
 				{
 					if(!isset(self::$basedir_version[$basedir]))
+					{
 						self::$basedir_version[$basedir] = self::$obMemcache->get($this->sid.$basedir);
+					}
 
 					if(self::$basedir_version[$basedir] === false || self::$basedir_version[$basedir] === '')
+					{
 						return true;
+					}
 
 					self::$obMemcache->replace(self::$basedir_version[$basedir]."|".$initdir, "", 0, 1);
 				}
 				else
 				{
 					if(isset(self::$basedir_version[$basedir]))
+					{
 						unset(self::$basedir_version[$basedir]);
+					}
 
 					self::$obMemcache->replace($this->sid.$basedir, "", 0, 1);
 				}

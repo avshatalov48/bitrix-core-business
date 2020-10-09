@@ -93,7 +93,7 @@ class CB24Updater
 	private static function GetServerUniqID()
 	{
 		$uniq = self::GetOption("server_uniq_id", "");
-		if (strlen($uniq) <= 0)
+		if ($uniq == '')
 		{
 			$uniq = md5(uniqid(rand(), true));
 			self::SetOption("server_uniq_id", $uniq);
@@ -188,7 +188,7 @@ class CB24Updater
 		if ($arResult = $dbResult->Fetch())
 		{
 			$val = $arResult["VALUE"];
-			if (strlen($val) > 0)
+			if ($val <> '')
 			{
 				$arDBVersions = unserialize($val);
 				if (!is_array($arDBVersions))
@@ -229,7 +229,7 @@ class CB24Updater
 			$errorMessage = "";
 			$arVersions = CUpdateClient::GetCurrentModules($errorMessage, false);
 			$generationDate = time();
-			if (strlen($errorMessage) <= 0)
+			if ($errorMessage == '')
 			{
 				$f = fopen($this->versionsFileName, "w");
 				fwrite($f, "<"."?\n");
@@ -337,7 +337,7 @@ class CB24Updater
 
 	public function UpdateFromVersion($moduleId, $dbVersion)
 	{
-		if (strlen($moduleId) <= 0)
+		if ($moduleId == '')
 			return;
 
 		$errorMessage = "";
@@ -403,14 +403,14 @@ class CB24Updater
 
 				syslog(LOG_INFO, $_SERVER["HTTP_HOST"]."\tend\t".$moduleId.$arUpdaters[$i1][0]."\t".$errorMessageTmp);
 
-				if (strlen($errorMessageTmp) > 0)
+				if ($errorMessageTmp <> '')
 					$errorMessage .= str_replace("#MODULE#", $moduleId, str_replace("#VER#", $arUpdaters[$i1][1], GetMessage("SUPP_UK_UPDN_ERR"))).": ".$errorMessageTmp.".";
 
 				$this->CollectDatabaseVersions("MODULE", $moduleId, $arUpdaters[$i1][1]);
 			}
 		}
 
-		if (strlen($errorMessage) > 0)
+		if ($errorMessage <> '')
 			CUpdateClient::AddMessage2Log("Database update error (".$moduleId."-".$dbVersion."): ".$errorMessage, "DUE");
 		else
 			CUpdateClient::AddMessage2Log("Database updated successfully (".$moduleId."-".$dbVersion.")", "DUS");

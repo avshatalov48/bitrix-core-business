@@ -85,7 +85,7 @@ class CTemplates
 				foreach($template_id as $v)
 					$arPath[] = BX_PERSONAL_ROOT."/templates/"._normalizePath($v)."/";
 			}
-			elseif(strlen($template_id)>0)
+			elseif($template_id <> '')
 			{
 				$arPath[] = BX_PERSONAL_ROOT."/templates/"._normalizePath($template_id)."/";
 			}
@@ -123,7 +123,7 @@ class CTemplates
 									continue;
 								if($val["SEPARATOR"]=="Y")
 									break;
-								if(strlen($val["PARENT"])>0 && $val["PARENT"]!=$sep_id)
+								if($val["PARENT"] <> '' && $val["PARENT"]!=$sep_id)
 									continue;
 
 								$arTemplateTemp[$k] = $val;
@@ -162,7 +162,7 @@ class CTemplates
 
 	public static function GetByID($id, $arCurrentValues = array(), $templateID = array())
 	{
-		$folder = substr($id, 0, strpos($id, "/"));
+		$folder = mb_substr($id, 0, mb_strpos($id, "/"));
 		$arRes = CTemplates::GetList(array("FOLDER"=>array($folder)), $arCurrentValues, $templateID);
 		$all_templates = $arRes[$folder];
 		if(is_set($all_templates, $id))
@@ -181,7 +181,7 @@ class CTemplates
 				foreach($arTemplateDescription as $path=>$desc)
 				{
 					$desc["REAL_PATH"] = $root.$init."/".$path;
-					if(strlen($desc["PARENT"])>0)
+					if($desc["PARENT"] <> '')
 						$desc["PARENT"] = $init."/".$desc["PARENT"];
 					$arTemplates[$init."/".$path] = $desc;
 				}
@@ -489,7 +489,7 @@ function GetFileTemplates($lang = LANG, $arTemplates = array())
 				{
 					if(is_dir($dirPath."/".$file))
 						continue;
-					if(substr($file, 0, 1) == ".")
+					if(mb_substr($file, 0, 1) == ".")
 						continue;
 
 					$path = $templDir."/".$file;
@@ -497,7 +497,7 @@ function GetFileTemplates($lang = LANG, $arTemplates = array())
 						continue;
 
 					$restmp = array(
-						"name" => substr($file, 0, bxstrrpos($file, ".")),
+						"name" => mb_substr($file, 0, bxstrrpos($file, ".")),
 						"file" => $file,
 						"sort" => 150,
 						"path" => $path,
@@ -531,7 +531,7 @@ function ParsePath($path, $bLast=false, $url=false, $param="", $bLogical = false
 		$url = BX_ROOT."/admin/fileman_admin.php";
 
 	$arSite = array();
-	if($site!==false && strlen($site)>0)
+	if($site!==false && $site <> '')
 	{
 		$res = CSite::GetByID($site);
 		if(!($arSite = $res->Fetch()))
@@ -544,7 +544,7 @@ function ParsePath($path, $bLast=false, $url=false, $param="", $bLogical = false
 	$full_path = "";
 	$prev_path = "";
 	$arPath = array();
-	if($bLast || strlen($path)>0 || strlen($site)>0)
+	if($bLast || $path <> '' || $site <> '')
 	{
 		$html_path = '<a href="'.$url.'?lang='.LANG.'&'.$addUrl.'">'.GetMessage("MAIN_ROOT_FOLDER").'</a>/';
 	}
@@ -555,7 +555,7 @@ function ParsePath($path, $bLast=false, $url=false, $param="", $bLogical = false
 
 	if($site!==false)
 	{
-		if($bLast || strlen($path)>0)
+		if($bLast || $path <> '')
 		{
 			$html_path .= '<a href="'.$url.'?lang='.LANG.'&'.$addUrl.'&amp;site='.$site.'">'.$arSite["NAME"].'</a>/';
 		}
@@ -570,7 +570,7 @@ function ParsePath($path, $bLast=false, $url=false, $param="", $bLogical = false
 	$last = "";
 	foreach($arDirPath as $i => $pathPart)
 	{
-		if(strlen($pathPart)<=0)
+		if($pathPart == '')
 			continue;
 
 		$prev_path = $full_path;
@@ -584,7 +584,7 @@ function ParsePath($path, $bLast=false, $url=false, $param="", $bLogical = false
 				continue;
 
 			include($io->GetPhysicalName($DOC_ROOT.$full_path."/.section.php"));
-			if(strlen($sSectionName)<=0)
+			if($sSectionName == '')
 				$sSectionName = GetMessage("admin_tools_no_name");
 		}
 
@@ -620,16 +620,16 @@ function CompareFiles($f1, $f2, $sort=array())
 {
 	$by = key($sort);
 	$order = $sort[$by];
-	if(strtolower($order)=="desc")
+	if(mb_strtolower($order) == "desc")
 	{
-		if($by=="size")	return IntVal($f1["SIZE"])<IntVal($f2["SIZE"]);
-		if($by=="timestamp") return IntVal($f1["TIMESTAMP"])<IntVal($f2["TIMESTAMP"]);
+		if($by=="size")	return intval($f1["SIZE"])<intval($f2["SIZE"]);
+		if($by=="timestamp") return intval($f1["TIMESTAMP"])<intval($f2["TIMESTAMP"]);
 		return $f1["NAME"]<$f2["NAME"];
 	}
 	else
 	{
-		if($by=="size")	return IntVal($f1["SIZE"])>IntVal($f2["SIZE"]);
-		if($by=="timestamp") return IntVal($f1["TIMESTAMP"])>IntVal($f2["TIMESTAMP"]);
+		if($by=="size")	return intval($f1["SIZE"])>intval($f2["SIZE"]);
+		if($by=="timestamp") return intval($f1["TIMESTAMP"])>intval($f2["TIMESTAMP"]);
 		return $f1["NAME"]>$f2["NAME"];
 	}
 }
@@ -644,10 +644,10 @@ function GetDirList($path, &$arDirs, &$arFiles, $arFilter=array(), $sort=array()
 	$arDirs=array();
 	$arFiles=array();
 
-	$exts = strtolower($arFilter["EXTENSIONS"]);
+	$exts = mb_strtolower($arFilter["EXTENSIONS"]);
 	$arexts=explode(",", $exts);
 	if(isset($arFilter["TYPE"]))
-		$type = strtoupper($arFilter["TYPE"]);
+		$type = mb_strtoupper($arFilter["TYPE"]);
 
 	$io = CBXVirtualIo::GetInstance();
 	$path = $io->CombinePath("/", $path);
@@ -737,26 +737,26 @@ function GetDirList($path, &$arDirs, &$arFiles, $arFilter=array(), $sort=array()
 
 		if ($bLogical)
 		{
-			if(strlen($arFilter["NAME"])>0 && strpos($arFile["LOGIC_NAME"], $arFilter["NAME"])===false)
+			if($arFilter["NAME"] <> '' && mb_strpos($arFile["LOGIC_NAME"], $arFilter["NAME"]) === false)
 				continue;
 		}
 		else
 		{
-			if(strlen($arFilter["NAME"])>0 && strpos($arFile["NAME"], $arFilter["NAME"])===false)
+			if($arFilter["NAME"] <> '' && mb_strpos($arFile["NAME"], $arFilter["NAME"]) === false)
 				continue;
 		}
 
 		//if(strlen($arFilter["NAME"])>0 && strpos($arFile["NAME"], $arFilter["NAME"])===false)
 		//	continue;
 
-		if(substr($arFile["ABS_PATH"], 0, strlen(BX_ROOT."/modules"))==BX_ROOT."/modules" && !$USER->CanDoOperation('edit_php') && !$task_mode)
+		if(mb_substr($arFile["ABS_PATH"], 0, mb_strlen(BX_ROOT."/modules")) == BX_ROOT."/modules" && !$USER->CanDoOperation('edit_php') && !$task_mode)
 			continue;
 
 		if ($arFile["PERMISSION"]=="U" && !$task_mode)
 		{
 			$ftype = GetFileType($arFile["NAME"]);
 			if ($ftype!="SOURCE" && $ftype!="IMAGE" && $ftype!="UNKNOWN") continue;
-			if (substr($arFile["NAME"], 0,1)==".") continue;
+			if (mb_substr($arFile["NAME"], 0, 1) == ".") continue;
 		}
 
 		if($child->IsDirectory())
@@ -768,7 +768,7 @@ function GetDirList($path, &$arDirs, &$arFiles, $arFilter=array(), $sort=array()
 		else
 		{
 			if($exts!="")
-				if(!in_array(strtolower(substr($file, bxstrrpos($file,".")+1)), $arexts))
+				if(!in_array(mb_strtolower(mb_substr($file, bxstrrpos($file, ".") + 1)), $arexts))
 					continue;
 
 			$arFile["TYPE"] = "F";
@@ -780,8 +780,8 @@ function GetDirList($path, &$arDirs, &$arFiles, $arFilter=array(), $sort=array()
 	if(is_array($sort) && count($sort)>0)
 	{
 		$by = key($sort);
-		$order = strtolower($sort[$by]);
-		$by = strtolower($by);
+		$order = mb_strtolower($sort[$by]);
+		$by = mb_strtolower($by);
 		if($order!="desc")
 			$order="asc";
 		if($by!="size" && $by!="timestamp" && $by!="name_nat")
@@ -865,15 +865,15 @@ function SetPrologTitle($prolog, $title)
 	}
 	else
 	{
-		$p = strpos($prolog, "prolog_before");
+		$p = mb_strpos($prolog, "prolog_before");
 		if($p===false)
-			$p = strpos($prolog, "prolog.php");
+			$p = mb_strpos($prolog, "prolog.php");
 		if($p===false)
-			$p = strpos($prolog, "header.php");
+			$p = mb_strpos($prolog, "header.php");
 
 		if($p===false)
 		{
-			if(strlen($title)<=0)
+			if($title == '')
 				$prolog = preg_replace("#<title>[^<]*</title>#i", "", $prolog);
 			elseif(preg_match("#<title>[^<]*</title>#i", $prolog))
 				$prolog = preg_replace("#<title>[^<]*</title>#i", "<title>".$title."</title>", $prolog);
@@ -882,8 +882,8 @@ function SetPrologTitle($prolog, $title)
 		}
 		else
 		{
-			$p = strpos(substr($prolog, $p), ")") + $p;
-			$prolog = substr($prolog, 0, $p+1).";\n\$APPLICATION->SetTitle(\"".EscapePHPString($title)."\")".substr($prolog, $p+1);
+			$p = mb_strpos(mb_substr($prolog, $p), ")") + $p;
+			$prolog = mb_substr($prolog, 0, $p + 1).";\n\$APPLICATION->SetTitle(\"".EscapePHPString($title)."\")".mb_substr($prolog, $p + 1);
 		}
 	}
 	return $prolog;
@@ -894,24 +894,24 @@ function SetPrologProperty($prolog, $property_key, $property_val)
 	if(preg_match("'(\\\$APPLICATION->SetPageProperty\\(\"".preg_quote(EscapePHPString($property_key), "'")."\" *, *)([\"\\'])(.*?)(?<!\\\\)([\"\\'])(\\);[\r\n]*)'i", $prolog, $regs)
 		|| preg_match("'(\\\$APPLICATION->SetPageProperty\\(\\'".preg_quote(EscapePHPString($property_key, "'"), "'")."\\' *, *)([\"\\'])(.*?)(?<!\\\\)([\"\\'])(\\);[\r\n]*)'i", $prolog, $regs))
 	{
-		if (strlen($property_val)<=0)
+		if ($property_val == '')
 			$prolog = str_replace($regs[1].$regs[2].$regs[3].$regs[4].$regs[5], "", $prolog);
 		else
 			$prolog = str_replace($regs[1].$regs[2].$regs[3].$regs[4].$regs[5], $regs[1].$regs[2].EscapePHPString($property_val, $regs[2]).$regs[4].$regs[5], $prolog);
 	}
 	else
 	{
-		if (strlen($property_val)>0)
+		if ($property_val <> '')
 		{
-			$p = strpos($prolog, "prolog_before");
+			$p = mb_strpos($prolog, "prolog_before");
 			if($p===false)
-				$p = strpos($prolog, "prolog.php");
+				$p = mb_strpos($prolog, "prolog.php");
 			if($p===false)
-				$p = strpos($prolog, "header.php");
+				$p = mb_strpos($prolog, "header.php");
 			if($p!==false)
 			{
-				$p = strpos(substr($prolog, $p), ")") + $p;
-				$prolog = substr($prolog, 0, $p+1).";\n\$APPLICATION->SetPageProperty(\"".EscapePHPString($property_key)."\", \"".EscapePHPString($property_val)."\")".substr($prolog, $p+1);
+				$p = mb_strpos(mb_substr($prolog, $p), ")") + $p;
+				$prolog = mb_substr($prolog, 0, $p + 1).";\n\$APPLICATION->SetPageProperty(\"".EscapePHPString($property_key)."\", \"".EscapePHPString($property_val)."\")".mb_substr($prolog, $p + 1);
 			}
 		}
 	}
@@ -920,7 +920,7 @@ function SetPrologProperty($prolog, $property_key, $property_val)
 
 function IsPHP($src)
 {
-	if(strpos($src, "<?")!==false)
+	if(mb_strpos($src, "<?") !== false)
 		return true;
 	if(preg_match("/(<script[^>]*language\\s*=\\s*)('|\"|)php('|\"|)([^>]*>)/i", $src))
 		return true;

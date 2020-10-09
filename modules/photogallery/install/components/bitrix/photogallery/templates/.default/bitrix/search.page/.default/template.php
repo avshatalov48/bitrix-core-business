@@ -5,7 +5,7 @@ if (!(IsModuleInstalled("search") && $arParams["SHOW_TAGS"] == "Y"))
 CModule::IncludeModule("photogallery");
 $arParams["SHOW_TAGS"] = ($arParams["SHOW_TAGS"] == "Y" ? "Y" : "N");
 $arParams["MAX_LENGTH"] = 200;
-$arParams["THUMBNAIL_SIZE"] = (intVal($arParams["THUMBNAIL_SIZE"]) > 0 ? intVal($arParams["THUMBNAIL_SIZE"]) : 100);
+$arParams["THUMBNAIL_SIZE"] = (intval($arParams["THUMBNAIL_SIZE"]) > 0 ? intval($arParams["THUMBNAIL_SIZE"]) : 100);
 $arParams["~TAGS"] = $arResult["REQUEST"]["~TAGS"];
 ?>
 <form action="" method="get">

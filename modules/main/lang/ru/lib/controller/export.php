@@ -2,7 +2,7 @@
 $MESS["MAIN_EXPORT_COMPLETED"] = "Формирование файла экспорта завершено.";
 $MESS["MAIN_EXPORT_ACTION_CANCEL"] = "Выгрузка данных отменена.";
 $MESS["MAIN_EXPORT_ACTION_EXPORT"] = "Обработано записей: #PROCESSED_ITEMS# из #TOTAL_ITEMS#. Размер файла: #FILE_SIZE_FORMAT#.";
-$MESS["MAIN_EXPORT_ACTION_UPLOAD"] = "Файл экспорта выгружается в облачное хранилище. Выгруженно: #UPLOADED_SIZE_FORMAT#.";
+$MESS["MAIN_EXPORT_ACTION_UPLOAD"] = "Файл экспорта выгружается в облачное хранилище. Выгружено: #UPLOADED_SIZE_FORMAT#.";
 $MESS["MAIN_EXPORT_ERROR_NO_CLOUD_BUCKET"] = "Облачное хранилище не подключено к порталу.";
 $MESS["MAIN_EXPORT_DOWNLOAD"] = "Скачать файл экспорта";
 $MESS["MAIN_EXPORT_CLEAR"] = "Удалить файл экспорта";

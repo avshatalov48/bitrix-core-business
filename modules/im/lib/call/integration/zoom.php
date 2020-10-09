@@ -5,6 +5,7 @@ namespace Bitrix\Im\Call\Integration;
 use Bitrix\Im\Common,
 	Bitrix\Im\Dialog;
 
+use Bitrix\Main\Error;
 use Bitrix\Main\Loader,
 	Bitrix\Main\Result,
 	Bitrix\Main\Type\DateTime,
@@ -19,7 +20,6 @@ class Zoom
 {
 	private const CONFERENCE_INSTANT_TYPE = 1;
 	private const CONFERENCE_SCHEDULED_TYPE = 2;
-	private const START_DATE_FORMAT = "Y-m-d\TH:i:s\Z";
 	private const DEFAULT_DURATION_MINUTES = "30";
 
 	private const PERSONAL_CHAT = 'dialog';
@@ -175,10 +175,12 @@ class Zoom
 
 		if (!is_array($existedConf) || (!empty($this->accessToken) && $this->isConferenceExpired($existedConf)))
 		{
-			$newConf = $this->requestNewChatConference();
-			if (is_array($newConf))
+			$newConfResult = $this->requestNewChatConference();
+			if ($newConfResult->isSuccess())
 			{
-				$confUrl = $newConf['join_url'];
+				$newConferenceData = $newConfResult->getData();
+
+				$confUrl = $newConferenceData['join_url'];
 			}
 		}
 		elseif (is_array($existedConf))
@@ -211,19 +213,21 @@ class Zoom
 		return null;
 	}
 
-	private function requestNewChatConference()
+	private function requestNewChatConference(): Result
 	{
-		$conference = null;
+		$result = new Result();
 
 		$startTime = (new DateTime())
 			->setTimeZone(new \DateTimeZone('UTC'))
 			->add('1 MINUTE')
-			->format(self::START_DATE_FORMAT);
+			->format(DATE_ATOM);
 
 		$randomSequence = new \Bitrix\Main\Type\RandomSequence($this->zoomChatName.$startTime);
 		$password = $randomSequence->randString(10);
 
 		$requestParams = [
+			'ENTITY_ID' => $this->chatId,
+			'ENTITY_TYPE_ID' => $this->chatType,
 			'topic' => $this->zoomChatName,
 			'type' => self::CONFERENCE_SCHEDULED_TYPE,
 			'start_time' => $startTime,
@@ -240,28 +244,20 @@ class Zoom
 
 		if ($this->zoomSocServ instanceof \CSocServZoom)
 		{
-			$conference = $this->zoomSocServ->createConference($requestParams);
-			$conference['join_url'] = $this->attachPasswordToUrl($conference['join_url'], $conference['encrypted_password']);
-
-			if (is_array($conference))
+			$createResult = $this->zoomSocServ->createConference($requestParams);
+			if (!$createResult->isSuccess())
 			{
-				$result = ZoomMeetingTable::add([
-					'ENTITY_TYPE_ID' => $this->chatType,
-					'CONFERENCE_EXTERNAL_ID' => $conference['id'],
-					'CONFERENCE_URL' => $conference['join_url'],
-					'CONFERENCE_PASSWORD' => $conference['encrypted_password'],
-					'ENTITY_ID' => $this->chatId,
-					'CONFERENCE_CREATED' => (new DateTime()),
-				]);
-
-				if (!$result->isSuccess())
-				{
-					return false;
-				}
+				return $result->addErrors($createResult->getErrors());
 			}
+			$conferenceData = $createResult->getData();
+
+		}
+		else
+		{
+			return $result->addError(new Error('Could not create zoom instance'));
 		}
 
-		return $conference;
+		return $result->setData($conferenceData);
 	}
 
 	/**
@@ -283,7 +279,6 @@ class Zoom
 
 	private function isConferenceExpired(array $confData): bool
 	{
-		$result = new Result();
 		$confId = $confData['CONFERENCE_EXTERNAL_ID'];
 		$conference = $this->requestConferenceById($confId);
 
@@ -292,22 +287,17 @@ class Zoom
 			return false;
 		}
 
-		$orm = ZoomMeetingTable::getList([
+		$meeting = ZoomMeetingTable::getRow([
 			'filter' => [
 				'=CONFERENCE_EXTERNAL_ID' => $confId,
 				'=ENTITY_TYPE_ID' => $this->chatType,
 			],
 			'select' => ['ID'],
-			'limit' => 1
 		]);
 
-		if ($conf = $orm->fetch())
+		if ($meeting !== null)
 		{
-			$deleteResult = ZoomMeetingTable::delete($conf['ID']);
-			if (!$deleteResult->isSuccess())
-			{
-				$result->addErrors($deleteResult->getErrors());
-			}
+			ZoomMeetingTable::delete($meeting['ID']);
 		}
 
 		return true;
@@ -394,20 +384,5 @@ class Zoom
 		}
 
 		return $zoomChatName;
-	}
-
-	private function attachPasswordToUrl(string $conferenceUrl, string $password): string
-	{
-		$url = new \Bitrix\Main\Web\Uri($conferenceUrl);
-		$queryParams = $url->getQuery();
-		$parsedParams = [];
-		parse_str($queryParams, $parsedParams);
-		if (!isset($parsedParams['pwd']))
-		{
-			$url->addParams(['pwd' => $password]);
-			$conferenceUrl = $url->getUri();
-		}
-
-		return $conferenceUrl;
 	}
 }

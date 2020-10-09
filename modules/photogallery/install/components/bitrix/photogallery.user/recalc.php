@@ -3,7 +3,7 @@ if (!CModule::IncludeModule("iblock")):
 	return 0;
 elseif (empty($arResult["GALLERY"])):
 	return 0;
-elseif ($arParams["PERMISSION"] < "W" && intVal($arResult["GALLERY"]["CREATED_BY"]) != intVal($GLOBALS["USER"]->GetId())):
+elseif ($arParams["PERMISSION"] < "W" && intval($arResult["GALLERY"]["CREATED_BY"]) != intval($GLOBALS["USER"]->GetId())):
 	return 0;
 elseif ($arResult["GALLERY"]["ELEMENTS_CNT"] > 0):
 	return 0;
@@ -41,7 +41,7 @@ $arFilter = array(
 	{
 		$arElement = $res->GetFields();
 		$arElements[] = $arElement;
-		if (intVal($arElement["PROPERTY_REAL_PICTURE_VALUE"]) > 0)
+		if (intval($arElement["PROPERTY_REAL_PICTURE_VALUE"]) > 0)
 			$arFile["ID"][] = $arElement["PROPERTY_REAL_PICTURE_VALUE"];
 		$arInfoRecalc["LAST_ELEMENT_ID"] = $arElement["ID"];
 	}
@@ -89,7 +89,7 @@ $arFilter = array(
 			$GLOBALS['APPLICATION']->RestartBuffer();
 			$arFields = array(
 				"STATUS" => "DONE",
-				"PERCENT" => intVal(doubleVal($arInfoRecalc["FILE_SIZE"])/$arParams["GALLERY_SIZE"]*100));
+				"PERCENT" => intval(doubleVal($arInfoRecalc["FILE_SIZE"])/$arParams["GALLERY_SIZE"]*100));
 			?><?=CUtil::PhpToJSObject($arFields);?><?
 			die();
 		}
@@ -117,7 +117,7 @@ $arFilter = array(
 			$GLOBALS['APPLICATION']->RestartBuffer();
 			$arFields = array(
 				"STATUS" => "CONTINUE",
-				"PERCENT" => intVal(intVal($arInfoRecalc["FILE_COUNT"])/$arResult["GALLERY"]["ELEMENTS_CNT"]*100));
+				"PERCENT" => intval(intVal($arInfoRecalc["FILE_COUNT"])/$arResult["GALLERY"]["ELEMENTS_CNT"]*100));
 			?><?=CUtil::PhpToJSObject($arFields);?><?
 			die();
 		}

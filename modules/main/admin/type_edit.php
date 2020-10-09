@@ -277,7 +277,7 @@ if ($arParams["ACTION"] == "UPDATE" && $arParams["DATA"]["EVENT_TYPE"] == EventT
 	if (is_array($arParams["DATA"]["TEMPLATES"])):
 		foreach ($arParams["DATA"]["TEMPLATES"] as $k => $v):
 ?><tr>
-	<td colspan="2">[<a href="/bitrix/admin/message_edit.php?ID=<?=$v["ID"]?>"><?=$v["ID"]?></a>]<?=(strlen(trim($v["SUBJECT"])) > 0 ? " " : "").htmlspecialcharsEx($v["SUBJECT"])?>
+	<td colspan="2">[<a href="/bitrix/admin/message_edit.php?ID=<?=$v["ID"]?>"><?=$v["ID"]?></a>]<?=(trim($v["SUBJECT"]) <> '' ? " " : "").htmlspecialcharsEx($v["SUBJECT"])?>
 	<?
 	$arLID = array();
 	$db_LID = CEventMessage::GetLang($v["ID"]);

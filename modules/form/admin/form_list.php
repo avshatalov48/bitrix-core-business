@@ -1,13 +1,4 @@
 <?
-/*
-#########################################
-# Bitrix: SiteManager			#
-# Copyright (c) 2004 - 2006 Bitrix	#
-# http://www.bitrix.ru		       	#
-# mailto:admin@bitrix.ru		#
-#########################################
-*/
-
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 $sTableID = "tbl_form_list";
@@ -24,8 +15,6 @@ if($FORM_RIGHT<="D") $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 CModule::IncludeModule("form");
 
 $bSimple = (COption::GetOptionString("form", "SIMPLE", "Y") == "Y") ? true : false;
-
-//require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/form/include.php");
 
 IncludeModuleLangFile(__FILE__);
 $err_mess = "File: ".__FILE__."<br>Line: ";
@@ -45,10 +34,6 @@ $arFilterFields = Array(
 $lAdmin->InitFilter($arFilterFields);
 
 $old_module_version = CForm::IsOldVersion();
-
-/***************************************************************************
-			   GET | POST processing
-****************************************************************************/
 
 $reset_id = intval($reset_id);
 if ($FORM_RIGHT=="W" && $reset_id>0 && check_bitrix_sessid()) CForm::Reset($reset_id);
@@ -84,7 +69,7 @@ if ($lAdmin->EditAction() && $FORM_RIGHT>="W" && check_bitrix_sessid())
 		if(!$lAdmin->IsUpdated($ID))
 			continue;
 		$DB->StartTransaction();
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$F_RIGHT = CForm::GetPermission($ID);
 		if ($F_RIGHT>=30)
 		{
@@ -116,9 +101,9 @@ if(($arID = $lAdmin->GroupAction()) && $FORM_RIGHT=="W" && check_bitrix_sessid()
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		switch($_REQUEST['action'])
 		{
 		case "delete":
@@ -175,13 +160,11 @@ $lAdmin->AddHeaders($headers);
 
 while($arRes = $rsData->NavNext(true, "f_"))
 {
-	//echo "<pre>"; print_r($arRes); echo "</pre>";
 	$row =& $lAdmin->AddRow($f_ID, $arRes);
 
 	//$F_RIGHT = CForm::GetPermission($f_ID);
 	$F_RIGHT = $f_F_RIGHT;
 
-	//echo $F_RIGHT;
 	unset($txt);
 	$arrSITE = CForm::GetSiteArray($f_ID);
 	reset($arrSITE);
@@ -265,13 +248,8 @@ if ($FORM_RIGHT=="W")
 	$lAdmin->AddAdminContextMenu($aContext);
 }
 
-
 // check list output mode
 $lAdmin->CheckListMode();
-
-/***************************************************************************
-							   HTML form
-****************************************************************************/
 
 $APPLICATION->SetTitle(GetMessage("FORM_PAGE_TITLE"));
 require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
@@ -280,7 +258,6 @@ require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_adm
 <a name="tb"></a>
 <form name="form1" method="GET" action="<?=$APPLICATION->GetCurPage()?>?">
 <?
-
 $oFilter = new CAdminFilter(
 	$sTableID."_filter",
 	array(
@@ -292,9 +269,7 @@ $oFilter = new CAdminFilter(
 );
 
 $oFilter->Begin();
-
 ?>
-
 <tr>
 	<td><b><?echo GetMessage("FORM_F_NAME")?></b></td>
 	<td><input type="text" name="find_name" size="47" value="<?echo htmlspecialcharsbx($find_name)?>"><?=InputType("checkbox", "find_name_exact_match", "Y", $find_name_exact_match, false, "", "title='".GetMessage("FORM_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
@@ -326,16 +301,12 @@ $oFilter->Begin();
 	<td><?echo GetMessage("FORM_F_DESCRIPTION")?></td>
 	<td><input type="text" name="find_description" size="47" value="<?echo htmlspecialcharsbx($find_description)?>"><?=InputType("checkbox", "find_description_exact_match", "Y", $find_description_exact_match, false, "", "title='".GetMessage("FORM_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
-
-
 <?
 $oFilter->Buttons(array("table_id"=>$sTableID, "url"=>$APPLICATION->GetCurPage()));
 $oFilter->End();
-#############################################################
 ?>
 </form>
-
 <?
 $lAdmin->DisplayList();
 
-require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php"); ?>
+require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

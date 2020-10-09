@@ -5,7 +5,6 @@
 # http://www.bitrixsoft.com                  #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
-$_SESSION['photogallery'] = (is_array($_SESSION['photogallery']) ? $_SESSION['photogallery'] : array());
 CModule::AddAutoloadClasses(
 	"photogallery",
 	array(
@@ -111,13 +110,13 @@ function PhotoShowError($arError, $arShowFields = array("ID", "NAME"), $bShowErr
 function PhotoGetBrowser()
 {
 	$Browser = "";
-	$str = strToLower($_SERVER['HTTP_USER_AGENT']);
-	if (strpos($str, "opera") !== false)
+	$str = mb_strtolower($_SERVER['HTTP_USER_AGENT']);
+	if (mb_strpos($str, "opera") !== false)
 		$Browser = "opera";
-	elseif (strpos($str, "msie") !== false)
+	elseif (mb_strpos($str, "msie") !== false)
 	{
 		$Browser = "ie";
-		if (strpos($str, "win") !== false)
+		if (mb_strpos($str, "win") !== false)
 			$Browser = "win_ie";
 	}
 	return $Browser;
@@ -159,8 +158,8 @@ function PhotoFormatDate($strDate, $format="DD.MM.YYYY HH:MI:SS", $new_format="D
 
 	$new_format = str_replace("MI","I", $new_format);
 	$new_format = preg_replace("/([DMYIHS])\\1+/is".BX_UTF_PCRE_MODIFIER, "\\1", $new_format);
-	$new_format_len = strlen($new_format);
-	$arFormat = preg_split('/[^0-9A-Za-z]/', strtoupper($format));
+	$new_format_len = mb_strlen($new_format);
+	$arFormat = preg_split('/[^0-9A-Za-z]/', mb_strtoupper($format));
 	$arDate = preg_split('/[^0-9]/', $strDate);
 	$arParsedDate=Array();
 	$bound = min(count($arFormat), count($arDate));
@@ -170,9 +169,9 @@ function PhotoFormatDate($strDate, $format="DD.MM.YYYY HH:MI:SS", $new_format="D
 		if(preg_match("/[^0-9]/", $arDate[$i], $matches))
 			$r = CDatabase::ForSql($arDate[$i], 4);
 		else
-			$r = intVal($arDate[$i]);
+			$r = intval($arDate[$i]);
 
-		$arParsedDate[substr($arFormat[$i], 0, 2)] = $r;
+		$arParsedDate[mb_substr($arFormat[$i], 0, 2)] = $r;
 	}
 	if (intval($arParsedDate["DD"])<=0 || intval($arParsedDate["MM"])<=0 || intval($arParsedDate["YY"])<=0)
 		return false;
@@ -192,13 +191,23 @@ function PhotoFormatDate($strDate, $format="DD.MM.YYYY HH:MI:SS", $new_format="D
 
 		for ($i = 0; $i < $new_format_len; $i++)
 		{
-			switch (substr($new_format, $i, 1))
+			switch(mb_substr($new_format, $i, 1))
 			{
-				case "F":$match=GetMessage("P_MONTH_".date("n", $ux_time));break;
-				case "M":$match=GetMessage("P_MON_".date("n", $ux_time));break;
-				case "l":$match=GetMessage("P_DAY_OF_WEEK_".date("w", $ux_time));break;
-				case "D":$match=GetMessage("P_DOW_".date("w", $ux_time));break;
-				default: $match = date(substr($new_format, $i, 1), $ux_time); break;
+				case "F":
+					$match = GetMessage("P_MONTH_".date("n", $ux_time));
+					break;
+				case "M":
+					$match = GetMessage("P_MON_".date("n", $ux_time));
+					break;
+				case "l":
+					$match = GetMessage("P_DAY_OF_WEEK_".date("w", $ux_time));
+					break;
+				case "D":
+					$match = GetMessage("P_DOW_".date("w", $ux_time));
+					break;
+				default:
+					$match = date(mb_substr($new_format, $i, 1), $ux_time);
+					break;
 			}
 			$strResult .= $match;
 		}
@@ -209,52 +218,86 @@ function PhotoFormatDate($strDate, $format="DD.MM.YYYY HH:MI:SS", $new_format="D
 			$arParsedDate["MM"] = 1;
 		for ($i = 0; $i < $new_format_len; $i++)
 		{
-			switch (substr($new_format, $i, 1))
+			switch(mb_substr($new_format, $i, 1))
 			{
 				case "F":
 					$match = str_pad($arParsedDate["MM"], 2, "0", STR_PAD_LEFT);
-					if (intVal($arParsedDate["MM"]) > 0)
-						$match=GetMessage("P_MONTH_".intVal($arParsedDate["MM"]));
+					if(intval($arParsedDate["MM"]) > 0)
+					{
+						$match = GetMessage("P_MONTH_".intval($arParsedDate["MM"]));
+					}
 					break;
 				case "M":
 					$match = str_pad($arParsedDate["MM"], 2, "0", STR_PAD_LEFT);
-					if (intVal($arParsedDate["MM"]) > 0)
-						$match=GetMessage("P_MON_".intVal($arParsedDate["MM"]));
+					if(intval($arParsedDate["MM"]) > 0)
+					{
+						$match = GetMessage("P_MON_".intval($arParsedDate["MM"]));
+					}
 					break;
 				case "l":
 					$match = str_pad($arParsedDate["DD"], 2, "0", STR_PAD_LEFT);
-					if (intVal($arParsedDate["DD"]) > 0)
-						$match = GetMessage("P_DAY_OF_WEEK_".intVal($arParsedDate["DD"]));
+					if(intval($arParsedDate["DD"]) > 0)
+					{
+						$match = GetMessage("P_DAY_OF_WEEK_".intval($arParsedDate["DD"]));
+					}
 					break;
 				case "D":
 					$match = str_pad($arParsedDate["DD"], 2, "0", STR_PAD_LEFT);
-					if (intVal($arParsedDate["DD"]) > 0)
-						$match = GetMessage("P_DOW_".intVal($arParsedDate["DD"]));
+					if(intval($arParsedDate["DD"]) > 0)
+					{
+						$match = GetMessage("P_DOW_".intval($arParsedDate["DD"]));
+					}
 					break;
-				case "d": $match = str_pad($arParsedDate["DD"], 2, "0", STR_PAD_LEFT); break;
-				case "m": $match = str_pad($arParsedDate["MM"], 2, "0", STR_PAD_LEFT); break;
-				case "j": $match = intVal($arParsedDate["MM"]); break;
-				case "Y": $match = str_pad($arParsedDate["YY"], 4, "0", STR_PAD_LEFT); break;
-				case "y": $match = substr($arParsedDate["YY"], 2);break;
-				case "H": $match = str_pad($arParsedDate["HH"], 2, "0", STR_PAD_LEFT); break;
-				case "i": $match = str_pad($arParsedDate["MI"], 2, "0", STR_PAD_LEFT); break;
-				case "S": $match = str_pad($arParsedDate["SS"], 2, "0", STR_PAD_LEFT); break;
+				case "d":
+					$match = str_pad($arParsedDate["DD"], 2, "0", STR_PAD_LEFT);
+					break;
+				case "m":
+					$match = str_pad($arParsedDate["MM"], 2, "0", STR_PAD_LEFT);
+					break;
+				case "j":
+					$match = intval($arParsedDate["MM"]);
+					break;
+				case "Y":
+					$match = str_pad($arParsedDate["YY"], 4, "0", STR_PAD_LEFT);
+					break;
+				case "y":
+					$match = mb_substr($arParsedDate["YY"], 2);
+					break;
+				case "H":
+					$match = str_pad($arParsedDate["HH"], 2, "0", STR_PAD_LEFT);
+					break;
+				case "i":
+					$match = str_pad($arParsedDate["MI"], 2, "0", STR_PAD_LEFT);
+					break;
+				case "S":
+					$match = str_pad($arParsedDate["SS"], 2, "0", STR_PAD_LEFT);
+					break;
 				case "g":
-					$match = intVal($arParsedDate["HH"]);
-					if ($match > 12)
-						$match = $match-12;
+					$match = intval($arParsedDate["HH"]);
+					if($match > 12)
+					{
+						$match = $match - 12;
+					}
 				case "a":
 				case "A":
-					$match = intVal($arParsedDate["HH"]);
-					if ($match > 12)
-						$match = ($match-12)." PM";
+					$match = intval($arParsedDate["HH"]);
+					if($match > 12)
+					{
+						$match = ($match - 12)." PM";
+					}
 					else
+					{
 						$match .= " AM";
+					}
 
-					if (substr($new_format, $i, 1) == "a")
-						$match = strToLower($match);
+					if(mb_substr($new_format,$i,1) == "a")
+					{
+						$match = mb_strtolower($match);
+					}
 
-				default: $match = substr($new_format, $i, 1); break;
+				default:
+					$match = mb_substr($new_format,$i,1);
+					break;
 			}
 			$strResult .= $match;
 		}
@@ -288,14 +331,14 @@ function PClearComponentCache($components, $arSite = array())
 	foreach($aComponents as $component_name)
 	{
 		$add_path = "";
-		if (strpos($component_name, "/") !== false)
+		if (mb_strpos($component_name, "/") !== false)
 		{
-			$add_path = substr($component_name, strpos($component_name, "/"));
-			$component_name = substr($component_name, 0, strpos($component_name, "/"));
+			$add_path = mb_substr($component_name,mb_strpos($component_name, "/"));
+			$component_name = mb_substr($component_name,0,mb_strpos($component_name, "/"));
 		}
 		$componentRelativePath = CComponentEngine::MakeComponentPath($component_name);
 
-		if (strlen($componentRelativePath) > 0)
+		if ($componentRelativePath <> '')
 		{
 			BXClearCache(true, "/".$componentRelativePath.$add_path);
 			foreach ($arSite as $siteId)
@@ -332,9 +375,9 @@ function PClearComponentCacheEx($iblockId = false, $arSections = array(), $arGal
 	{
 		$arSections = array_unique($arSections);
 		foreach($arSections as $sectionId)
-			$arCache[] = "photogallery/".$iblockId."/section".intVal($sectionId);
+			$arCache[] = "photogallery/".$iblockId."/section".intval($sectionId);
 	}
-	$arCache[] = "photogallery/".$iblockId."/section".intVal($sectionId);
+	$arCache[] = "photogallery/".$iblockId."/section".intval($sectionId);
 
 	if(is_array($arGalleries))
 	{
@@ -347,7 +390,7 @@ function PClearComponentCacheEx($iblockId = false, $arSections = array(), $arGal
 	{
 		$arUsers = array_unique($arUsers);
 		foreach($arUsers as $userId)
-			$arCache[] = "photogallery/".$iblockId."/user".intVal($userId);
+			$arCache[] = "photogallery/".$iblockId."/user".intval($userId);
 	}
 
 	$arSite = array();

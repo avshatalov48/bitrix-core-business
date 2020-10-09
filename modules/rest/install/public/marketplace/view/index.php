@@ -1,4 +1,4 @@
-<?php require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");?>
+<?php require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php");?>
 <?php $APPLICATION->IncludeComponent(
 	"bitrix:ui.sidepanel.wrapper",
 	"",
@@ -10,7 +10,7 @@
 			"SEF_MODE" => "Y",
 			"IS_SLIDER" => "Y",
 			"APP_VIEW" => $_GET['APP'],
-			"SEF_FOLDER" => SITE_DIR."marketplace/view/",
+			"SEF_FOLDER" => SITE_DIR . "marketplace/view/",
 			"USE_PADDING" => 'N'
 		),
 		"USE_PADDING" => false,
@@ -19,4 +19,4 @@
 		"PLAIN_VIEW" => (\CRestUtil::isSlider() ? "Y" : "N")
 	)
 );?>
-<?php require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>
+<?php require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/footer.php");?>

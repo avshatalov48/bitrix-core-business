@@ -301,7 +301,7 @@ abstract class TypeDataManager extends \Bitrix\Main\ORM\Data\DataManager
 		}
 		if (!is_array($type))
 		{
-			if (is_int($type) || is_numeric(substr($type, 0, 1)))
+			if (is_int($type) || is_numeric(mb_substr($type, 0, 1)))
 			{
 				// we have an id
 				$type = static::getById($type)->fetch();
@@ -499,7 +499,7 @@ abstract class TypeDataManager extends \Bitrix\Main\ORM\Data\DataManager
 	 */
 	public static function getMultipleValueTableName(array $type, array $userField): string
 	{
-		return $type['TABLE_NAME'].'_'.strtolower($userField['FIELD_NAME']);
+		return $type['TABLE_NAME'].'_'.mb_strtolower($userField['FIELD_NAME']);
 	}
 
 	public static function validateTableExisting($value, $primary, array $row, Field $field)

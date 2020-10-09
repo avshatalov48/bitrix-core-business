@@ -57,8 +57,8 @@ function _ShowUserPropertyField($name, $property_fields, $values, $bInitDef = fa
 				$html .= '&nbsp;';
 			$html .= '</td></tr>';
 
-			if(substr($key, -1, 1)=='n' && $max_val < intval(substr($key, 1)))
-				$max_val = intval(substr($key, 1));
+			if(mb_substr($key, -1, 1) == 'n' && $max_val < intval(mb_substr($key, 1)))
+				$max_val = intval(mb_substr($key, 1));
 			if($property_fields["MULTIPLE"] != "Y")
 			{
 				$bVarsFromForm = true;
@@ -69,11 +69,11 @@ function _ShowUserPropertyField($name, $property_fields, $values, $bInitDef = fa
 
 	if(!$bVarsFromForm && !$bMultiple)
 	{
-		$bDefaultValue = is_array($property_fields["DEFAULT_VALUE"]) || strlen($property_fields["DEFAULT_VALUE"]);
+		$bDefaultValue = is_array($property_fields["DEFAULT_VALUE"]) || mb_strlen($property_fields["DEFAULT_VALUE"]);
 
 		if($property_fields["MULTIPLE"]=="Y")
 		{
-			$cnt = IntVal($property_fields["MULTIPLE_CNT"]);
+			$cnt = intval($property_fields["MULTIPLE_CNT"]);
 			if($cnt <= 0 || $cnt > 30)
 				$cnt = 5;
 
@@ -152,7 +152,7 @@ class Learning_CIBlockPropertyUserID
 	function GetPropertyFieldHtml($arProperty, $value, $strHTMLControlName)
 	{
 		global $USER;
-		$default_value = intVal($value["VALUE"]);
+		$default_value = intval($value["VALUE"]);
 		$res = "";
 		if ($default_value == $USER->GetID())
 		{
@@ -174,7 +174,7 @@ class Learning_CIBlockPropertyUserID
 			$default_value = "";
 		}
 		$name_x = preg_replace("/([^a-z0-9])/is", "x", $strHTMLControlName["VALUE"]);
-		if (strLen(trim($strHTMLControlName["FORM_NAME"])) <= 0)
+		if (trim($strHTMLControlName["FORM_NAME"]) == '')
 			$strHTMLControlName["FORM_NAME"] = "form_element";
 
 		ob_start();
@@ -268,7 +268,7 @@ function Ch".$tag_name_x."()
 			{
 				DV_".$tag_name_x.".innerHTML = '<i>".GetMessage("LEARNING_USER_SELECTOR_WAIT")."</i>';
 
-				if (tv".$tag_name_x."!=".intVal($USER->GetID()).")
+				if (tv".$tag_name_x."!=".intval($USER->GetID()).")
 				{
 					document.getElementById(\"hiddenframe".$tag_name_escaped."\").src='/bitrix/admin/get_user.php?ID=' + tv".$tag_name_x."+'&strName=".$tag_name_escaped."&lang=".LANG.(defined("ADMIN_SECTION") && ADMIN_SECTION===true?"&admin_section=Y":"")."';
 					document.getElementById('SELECT".$tag_name_escaped."').value = 'SU';

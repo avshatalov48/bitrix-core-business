@@ -13,57 +13,57 @@ class CFavorites extends CAllFavorites
 		{
 			foreach ($arFilter as $key => $val)
 			{
-				if (strlen($val)<=0 || $val=="NOT_REF") continue;
-				switch(strtoupper($key))
+				if ((string)$val == '' || $val=="NOT_REF") continue;
+				switch(mb_strtoupper($key))
 				{
-				case "ID":
-					$arSqlSearch[] = GetFilterQuery("F.ID",$val,"N");
-					break;
-				case "USER_ID":
-					$arSqlSearch[] = "F.USER_ID = ".intval($val);
-					break;
-				case "MENU_FOR_USER":
-					$arSqlSearch[] = "(F.USER_ID=".intval($val)." OR F.COMMON='Y')";
-					break;
-				case "COMMON":
-					$arSqlSearch[] = "F.COMMON = '".$DB->ForSql($val,1)."'";
-					break;
-				case "LANGUAGE_ID":
-					$arSqlSearch[] = "F.LANGUAGE_ID = '".$DB->ForSql($val,2)."'";
-					break;
-				case "DATE1":
-					$arSqlSearch[] = "F.TIMESTAMP_X >= FROM_UNIXTIME('".MkDateTime(FmtDate($val,"D.M.Y"),"d.m.Y")."')";
-					break;
-				case "DATE2":
-					$arSqlSearch[] = "F.TIMESTAMP_X <= FROM_UNIXTIME('".MkDateTime(FmtDate($val,"D.M.Y")." 23:59:59","d.m.Y")."')";
-					break;
-				case "MODIFIED":
-					$arSqlSearch[] = GetFilterQuery("UM.ID, UM.LOGIN, UM.LAST_NAME, UM.NAME", $val);
-					break;
-				case "MODIFIED_ID":
-					$arSqlSearch[] = "F.MODIFIED_BY = ".intval($val);
-					break;
-				case "CREATED":
-					$arSqlSearch[] = GetFilterQuery("UC.ID, UC.LOGIN, UC.LAST_NAME, UC.NAME", $val);
-					break;
-				case "CREATED_ID":
-					$arSqlSearch[] = "F.CREATED_BY = ".intval($val);
-					break;
-				case "KEYWORDS":
-					$arSqlSearch[] = GetFilterQuery("F.COMMENTS", $val);
-					break;
-				case "NAME":
-					$arSqlSearch[] = GetFilterQuery("F.NAME", $val);
-					break;
-				case "URL":
-					$arSqlSearch[] = GetFilterQuery("F.URL", $val);
-					break;
-				case "MODULE_ID":
-					$arSqlSearch[] = "F.MODULE_ID='".$DB->ForSql($val,50)."'";
-					break;
-				case "MENU_ID":
-					$arSqlSearch[] = "F.MENU_ID='".$DB->ForSql($val,255)."'";
-					break;
+					case "ID":
+						$arSqlSearch[] = GetFilterQuery("F.ID", $val, "N");
+						break;
+					case "USER_ID":
+						$arSqlSearch[] = "F.USER_ID = ".intval($val);
+						break;
+					case "MENU_FOR_USER":
+						$arSqlSearch[] = "(F.USER_ID=".intval($val)." OR F.COMMON='Y')";
+						break;
+					case "COMMON":
+						$arSqlSearch[] = "F.COMMON = '".$DB->ForSql($val, 1)."'";
+						break;
+					case "LANGUAGE_ID":
+						$arSqlSearch[] = "F.LANGUAGE_ID = '".$DB->ForSql($val, 2)."'";
+						break;
+					case "DATE1":
+						$arSqlSearch[] = "F.TIMESTAMP_X >= FROM_UNIXTIME('".MkDateTime(FmtDate($val, "D.M.Y"), "d.m.Y")."')";
+						break;
+					case "DATE2":
+						$arSqlSearch[] = "F.TIMESTAMP_X <= FROM_UNIXTIME('".MkDateTime(FmtDate($val, "D.M.Y")." 23:59:59", "d.m.Y")."')";
+						break;
+					case "MODIFIED":
+						$arSqlSearch[] = GetFilterQuery("UM.ID, UM.LOGIN, UM.LAST_NAME, UM.NAME", $val);
+						break;
+					case "MODIFIED_ID":
+						$arSqlSearch[] = "F.MODIFIED_BY = ".intval($val);
+						break;
+					case "CREATED":
+						$arSqlSearch[] = GetFilterQuery("UC.ID, UC.LOGIN, UC.LAST_NAME, UC.NAME", $val);
+						break;
+					case "CREATED_ID":
+						$arSqlSearch[] = "F.CREATED_BY = ".intval($val);
+						break;
+					case "KEYWORDS":
+						$arSqlSearch[] = GetFilterQuery("F.COMMENTS", $val);
+						break;
+					case "NAME":
+						$arSqlSearch[] = GetFilterQuery("F.NAME", $val);
+						break;
+					case "URL":
+						$arSqlSearch[] = GetFilterQuery("F.URL", $val);
+						break;
+					case "MODULE_ID":
+						$arSqlSearch[] = "F.MODULE_ID='".$DB->ForSql($val, 50)."'";
+						break;
+					case "MENU_ID":
+						$arSqlSearch[] = "F.MENU_ID='".$DB->ForSql($val, 255)."'";
+						break;
 
 				}
 			}
@@ -72,8 +72,8 @@ class CFavorites extends CAllFavorites
 		$sOrder = "";
 		foreach($aSort as $key=>$val)
 		{
-			$ord = (strtoupper($val) <> "ASC"? "DESC":"ASC");
-			switch (strtoupper($key))
+			$ord = (mb_strtoupper($val) <> "ASC"? "DESC":"ASC");
+			switch (mb_strtoupper($key))
 			{
 				case "ID":		$sOrder .= ", F.ID ".$ord; break;
 				case "LANGUAGE_ID":	$sOrder .= ", F.LANGUAGE_ID ".$ord; break;
@@ -88,7 +88,7 @@ class CFavorites extends CAllFavorites
 				case "MENU_ID":		$sOrder .= ", F.MENU_ID ".$ord; break;
 			}
 		}
-		if (strlen($sOrder)<=0)
+		if ($sOrder == '')
 			$sOrder = "F.ID DESC";
 		$strSqlOrder = " ORDER BY ".TrimEx($sOrder,",");
 

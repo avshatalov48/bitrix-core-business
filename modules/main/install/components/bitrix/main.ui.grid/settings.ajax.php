@@ -9,7 +9,7 @@ use Bitrix\Main\Web;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 
-$response = new \Bitrix\Main\HttpResponse(\Bitrix\Main\Application::getInstance()->getContext());
+$response = new \Bitrix\Main\HttpResponse();
 $response->addHeader("Content-Type", "application/json");
 
 global $USER;

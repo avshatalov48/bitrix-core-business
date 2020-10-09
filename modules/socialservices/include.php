@@ -5,63 +5,7 @@ define("SOCSERV_AUTHORISATION_ERROR", 1);
 define("SOCSERV_REGISTRATION_DENY", 2);
 define("SOCSERV_DEFAULT_HTTP_TIMEOUT", 10);
 
-$arClasses = array(
-	"CSocServAuthManager" => "classes/general/authmanager.php",
-	"CSocServAuthDB" => "classes/".$DBType."/authmanager.php",
-	"CSocServUtil" => "classes/general/authmanager.php",
-	"CSocServAuth" => "classes/general/authmanager.php",
-	"CSocServOAuthTransport" => "classes/general/oauthtransport.php",
-	"CBitrix24NetOAuthInterface" => "classes/general/bitrix24net.php",
-	"CSocServBitrix24Net" => "classes/general/bitrix24net.php",
-	"CBitrix24NetTransport" => "classes/general/bitrix24net.php",
-	"CBitrix24NetPortalTransport" => "classes/general/bitrix24net.php",
-	"CSocServFacebook" => "classes/general/facebook.php",
-	"CFacebookInterface" => "classes/general/facebook.php",
-	"CSocServMyMailRu" => "classes/general/mailru.php",
-	"CSocServOpenID" => "classes/general/openid.php",
-	"CSocServYandex" => "classes/general/openid.php",
-	"CSocServMailRu" => "classes/general/openid.php",
-	"CSocServLivejournal" => "classes/general/openid.php",
-	"CSocServLiveinternet" => "classes/general/openid.php",
-	"CSocServBlogger" => "classes/general/openid.php",
-	"CSocServTwitter" => "classes/general/twitter.php",
-	"CTwitterInterface" => "classes/general/twitter.php",
-	"CSocServVKontakte" => "classes/general/vkontakte.php",
-	"CVKontakteOAuthInterface" => "classes/general/vkontakte.php",
-	"CMailRuOAuthInterface" => "classes/general/mailru.php",
-	"CSocServGoogleOAuth" => "classes/general/google.php",
-	"CGoogleOAuthInterface" => "classes/general/google.php",
-	"CSocServGooglePlusOAuth" => "classes/general/googleplus.php",
-	"CGooglePlusOAuthInterface" => "classes/general/googleplus.php",
-	"CSocServLiveIDOAuth" => "classes/general/liveidoauth.php",
-	"CSocServOffice365OAuth" => "classes/general/office365.php",
-	"COffice365OAuthInterface" => "classes/general/office365.php",
-	"COffice365OAuthInterfaceBeta" => "classes/general/office365.php",
-	"CSocServOdnoklassniki" => "classes/general/odnoklassniki.php",
-	"COpenIDClient" => "classes/general/openidclient.php",
-	"CSocServMessage" => "classes/".$DBType."/authmanager.php",
-	"CSocServBitrixOAuth" => "classes/general/bitrix24.php",
-	"CBitrixOAuthInterface" => "classes/general/bitrix24.php",
-	"CBitrixPHPAppTransport" => "classes/general/bitrix24.php",
-	"CSocServYandexAuth" => "classes/general/yandex.php",
-	"CYandexOAuthInterface" => "classes/general/yandex.php",
-	"CSocServDropboxAuth" => "classes/general/dropbox.php",
-	"CSocServBoxAuth" => "classes/general/box.php",
-	"CBoxOAuthInterface" => "classes/general/box.php",
-	"CBitrixServiceOAuthInterface" => "classes/general/bitrixservice.php",
-	"CBitrixServiceTransport" => "classes/general/bitrixservice.php",
-	"CBitrixSeoOAuthInterface" => "classes/general/bitrixseo.php",
-	"CBitrixSeoTransport" => "classes/general/bitrixseo.php",
-	"CSocServMailRu2" => "classes/general/mailru2.php",
-	"CMailRu2Interface" => "classes/general/mailru2.php",
-	"CSocServApple" => "classes/general/apple.php",
-	"CAppleInterface" => "classes/general/apple.php",
-	"CSocServZoom" => "classes/general/zoom.php",
-	"CZoomInterface" => "classes/general/zoom.php",
-	"socialservices" => "install/index.php",
-);
-
-CModule::AddAutoloadClasses("socialservices", $arClasses);
+require_once __DIR__.'/autoload.php';
 
 $arJSDescription = array(
 	'js' => '/bitrix/js/socialservices/ss_timeman.js',
@@ -128,23 +72,23 @@ class CSocServEventHandlers
 
 		$title = "";
 
-		$arEventParams = unserialize(strlen($arFields["~PARAMS"]) > 0 ? $arFields["~PARAMS"] : $arFields["PARAMS"]);
+		$arEventParams = unserialize($arFields["~PARAMS"] <> '' ? $arFields["~PARAMS"] : $arFields["PARAMS"]);
 		if (
 			in_array($arFields["ENTITY_TYPE"], array(SONET_SUBSCRIBE_ENTITY_GROUP, SONET_SUBSCRIBE_ENTITY_USER))
 			&& is_array($arEventParams)
 			&& count($arEventParams) > 0
 			&& array_key_exists("ENTITY_NAME", $arEventParams)
-			&& strlen($arEventParams["ENTITY_NAME"]) > 0
+			&& $arEventParams["ENTITY_NAME"] <> ''
 		)
 		{
-			if (!$bMail && strlen($arFields["URL"]) > 0)
+			if (!$bMail && $arFields["URL"] <> '')
 				$title_tmp = '<a href="'.$arFields["URL"].'">'.$arEventParams["ENTITY_NAME"].'</a>';
 			else
 				$title_tmp = $arEventParams["ENTITY_NAME"];
 		}
 		else
 		{
-			if (!$bMail && strlen($arFields["URL"]) > 0)
+			if (!$bMail && $arFields["URL"] <> '')
 				$title_tmp = '<a href="'.$arFields["URL"].'">'.$arFields["TITLE"].'</a>';
 			else
 				$title_tmp = $arFields["TITLE"];
@@ -158,7 +102,7 @@ class CSocServEventHandlers
 
 		$url = false;
 
-		if (strlen($arFields["URL"]) > 0)
+		if ($arFields["URL"] <> '')
 			$url = $arFields["URL"];
 
 		if (in_array($arFields["ENTITY_TYPE"], array(SONET_SUBSCRIBE_ENTITY_GROUP, SONET_SUBSCRIBE_ENTITY_USER)))
@@ -198,7 +142,7 @@ class CSocServEventHandlers
 		)
 			$arResult["EVENT_FORMATTED"]["LOG_DATE_FORMAT"] = ConvertTimeStamp($arEventParams["SOURCE_TIMESTAMP"], "FULL");
 
-		if (strlen($url) > 0)
+		if ($url <> '')
 			$arResult["EVENT_FORMATTED"]["URL"] = $url;
 
 		if (!$bMail)
@@ -250,7 +194,7 @@ class CSocServEventHandlers
 	function GetEntity_Data($arFields, $bMail)
 	{
 		$arEntity = array();
-		$arEventParams = unserialize(strlen($arFields["~PARAMS"]) > 0 ? $arFields["~PARAMS"] : $arFields["PARAMS"]);
+		$arEventParams = unserialize($arFields["~PARAMS"] <> '' ? $arFields["~PARAMS"] : $arFields["PARAMS"]);
 
 		global $arProviders;
 
@@ -303,7 +247,7 @@ class CSocServEventHandlers
 		if (
 			!$bMail
 			&& array_key_exists("URL", $arLog)
-			&& strlen($arLog["URL"]) > 0
+			&& $arLog["URL"] <> ''
 		)
 			$news_tmp = '<a href="'.$arLog["URL"].'">'.$arLog["TITLE"].'</a>';
 		else
@@ -325,7 +269,7 @@ class CSocServEventHandlers
 		if ($bMail)
 		{
 			$url = CSocNetLogTools::FormatEvent_GetURL($arLog, true);
-			if (strlen($url) > 0)
+			if ($url <> '')
 				$arResult["EVENT_FORMATTED"]["URL"] = $url;
 		}
 		else

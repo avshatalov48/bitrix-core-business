@@ -104,7 +104,7 @@ class AutomaticArea
 		$componentParams = $this->component->arParams;
 		if (isset($componentParams["COMPOSITE_FRAME_TYPE"]) && is_string($componentParams["COMPOSITE_FRAME_TYPE"]))
 		{
-			$type = strtoupper($componentParams["COMPOSITE_FRAME_TYPE"]);
+			$type = mb_strtoupper($componentParams["COMPOSITE_FRAME_TYPE"]);
 			if (in_array($type, static::getFrameTypes()))
 			{
 				return $type;
@@ -114,7 +114,7 @@ class AutomaticArea
 		$compositeOptions = Helper::getOptions();
 		if (isset($compositeOptions["FRAME_TYPE"]) && is_string($compositeOptions["FRAME_TYPE"]))
 		{
-			$type = strtoupper($compositeOptions["FRAME_TYPE"]);
+			$type = mb_strtoupper($compositeOptions["FRAME_TYPE"]);
 			if (in_array($type, static::getFrameTypes()))
 			{
 				return $type;

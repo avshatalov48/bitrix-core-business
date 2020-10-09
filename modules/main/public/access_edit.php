@@ -16,12 +16,12 @@ $io = CBXVirtualIo::GetInstance();
 
 //Folder path
 $path = "/";
-if (isset($_REQUEST["path"]) && strlen($_REQUEST["path"]) > 0)
+if (isset($_REQUEST["path"]) && $_REQUEST["path"] <> '')
 	$path = $io->CombinePath("/", $_REQUEST["path"]);
 
 //Site ID
 $site = SITE_ID;
-if (isset($_REQUEST["site"]) && strlen($_REQUEST["site"]) > 0)
+if (isset($_REQUEST["site"]) && $_REQUEST["site"] <> '')
 {
 	$obSite = CSite::GetByID($_REQUEST["site"]);
 	if ($arSite = $obSite->Fetch())
@@ -40,7 +40,7 @@ elseif (!$USER->CanDoFileOperation('fm_edit_permission', array($site, $path)))
 	$popupWindow->ShowError(GetMessage("EDIT_ACCESS_TO_DENIED")." \"".htmlspecialcharsbx($path)."\"");
 
 //Lang
-if (!isset($_REQUEST["lang"]) || strlen($_REQUEST["lang"]) <= 0)
+if (!isset($_REQUEST["lang"]) || $_REQUEST["lang"] == '')
 	$lang = LANGUAGE_ID;
 
 //BackUrl
@@ -61,7 +61,7 @@ while(true)
 	//Cut / from the end
 	$currentPath = rtrim($currentPath, "/");
 
-	if (strlen($currentPath) <= 0)
+	if ($currentPath == '')
 	{
 		$accessFile = "/.access.php";
 		$name = "/";
@@ -69,15 +69,15 @@ while(true)
 	else
 	{
 		//Find file or folder name
-		$position = strrpos($currentPath, "/");
+		$position = mb_strrpos($currentPath, "/");
 		if ($position === false)
 			break;
 
-		$name = substr($currentPath, $position+1);
+		$name = mb_substr($currentPath, $position + 1);
 		$name = TrimUnsafe($name); //security fix: under Windows "my." == "my"
 
 		//Find parent folder
-		$currentPath = substr($currentPath, 0, $position + 1);
+		$currentPath = mb_substr($currentPath, 0, $position + 1);
 		$accessFile = $currentPath.".access.php";
 	}
 
@@ -94,7 +94,7 @@ while(true)
 	if (isset($PERM[$name]) && is_array($PERM[$name]))
 		$arUserGroupsID = array_merge($arUserGroupsID, array_keys($PERM[$name]));
 
-	if (strlen($currentPath)<=0)
+	if ($currentPath == '')
 		break;
 }
 
@@ -282,9 +282,9 @@ foreach($arUserGroupsID as $access_code):
 	{
 		$permLetter = $currentPermission[$assignFileName][$access_code];
 
-		if (substr($permLetter, 0, 2) == "T_")
+		if (mb_substr($permLetter, 0, 2) == "T_")
 		{
-			$currentPerm = intval(substr($permLetter, 2));
+			$currentPerm = intval(mb_substr($permLetter, 2));
 			if (!array_key_exists($currentPerm, $arPermTypes))
 				$currentPerm = false;
 		}

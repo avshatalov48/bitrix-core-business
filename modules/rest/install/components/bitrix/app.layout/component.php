@@ -131,7 +131,7 @@ else
 $arParams['POPUP'] = isset($arParams['POPUP']) ? $arParams['POPUP'] : false;
 $arParams["IS_SLIDER"] =  isset($arParams['IS_SLIDER']) && $arParams['IS_SLIDER'] == 'Y';
 
-if(strlen($arParams['CODE']) <= 0)
+if($arParams['CODE'] == '')
 {
 	$componentPage = 'error';
 	$arResult['ERROR_MESSAGE'] = GetMessage('REST_AL_ERROR_APP_NOT_FOUND');
@@ -184,11 +184,11 @@ if(
 	$bHasAccess = \CRestUtil::checkAppAccess($arApp['ID']);
 
 	$arResult['APP_NAME'] = $arApp['MENU_NAME'];
-	if(strlen($arResult['APP_NAME']) <= 0)
+	if($arResult['APP_NAME'] == '')
 	{
 		$arResult['APP_NAME'] = $arApp['MENU_NAME_DEFAULT'];
 	}
-	if(strlen($arResult['APP_NAME']) <= 0)
+	if($arResult['APP_NAME'] == '')
 	{
 		$arResult['APP_NAME'] = $arApp['MENU_NAME_LICENSE'];
 	}
@@ -218,16 +218,16 @@ if(
 			return;
 		}
 
-		if(strlen($placementHandlerInfo['TITLE']) > 0)
+		if($placementHandlerInfo['TITLE'] <> '')
 		{
 			$arResult['APP_NAME'] = $placementHandlerInfo['TITLE'];
 		}
-		elseif(strlen($arResult['APP_NAME']) <= 0)
+		elseif($arResult['APP_NAME'] == '')
 		{
 			$arResult['APP_NAME'] = $arApp['APP_NAME'];
 		}
 	}
-	elseif(isset($arParams['LAZYLOAD']) || strlen($arResult['APP_NAME']) <= 0)
+	elseif(isset($arParams['LAZYLOAD']) || $arResult['APP_NAME'] == '')
 	{
 		$arResult['APP_NAME'] = $arApp['APP_NAME'];
 	}
@@ -237,7 +237,7 @@ if(
 			$bHasAccess
 			|| $arParams['PLACEMENT'] === \Bitrix\Rest\Api\UserFieldType::PLACEMENT_UF_TYPE
 		)
-		&& strlen($arResult['APP_NAME']) > 0)
+		&& $arResult['APP_NAME'] <> '')
 	{
 		$arResult['ID'] = $arApp['ID'];
 		$arResult['APP_ID'] = $arApp['CLIENT_ID'];
@@ -247,7 +247,7 @@ if(
 
 		// common application options set via setAppOption
 		$arResult['APP_OPTIONS'] = COption::GetOptionString("rest", "options_".$arResult['APP_ID'], "");
-		if(strlen($arResult['APP_OPTIONS']) > 0)
+		if($arResult['APP_OPTIONS'] <> '')
 			$arResult['APP_OPTIONS'] = unserialize($arResult['APP_OPTIONS']);
 		else
 			$arResult['APP_OPTIONS'] = array();
@@ -304,6 +304,16 @@ if(
 						);
 					}
 				}
+				elseif (
+					$arResult['AUTH']['error'] == 'ERROR_OAUTH'
+					&& $arResult['AUTH']['error_description'] == 'Subscription has been ended'
+				)
+				{
+					$arResult['PAYMENT_TYPE'] = \Bitrix\Rest\AppTable::STATUS_SUBSCRIPTION;
+					$componentPage = 'payment';
+					$this->IncludeComponentTemplate($componentPage);
+					return;
+				}
 
 				if($arResult['AUTH']['error'])
 				{
@@ -353,12 +363,6 @@ if(
 		$arResult['DETAIL_URL'] = str_replace("#code#", $arApp['CODE'], $arParams['DETAIL_URL']);
 
 		$arResult['APP_STATUS'] = \Bitrix\Rest\AppTable::getAppStatusInfo($arApp, $arResult['DETAIL_URL']);
-
-		$arResult["IS_SUBSCRIBE_PAID"] = COption::GetOptionString("bitrix24", "~mp24_paid", "N") == "Y";
-		if ($arResult["IS_SUBSCRIBE_PAID"])
-		{
-			$arResult["SUBSCRIBE_PAID_DATE"] = COption::GetOptionString("bitrix24", "~mp24_paid_date");
-		}
 
 		$arResult['APP_NEED_REINSTALL'] = $arApp['STATUS'] == \Bitrix\Rest\AppTable::STATUS_PAID && !isset($arApp['SHARED_KEY']);
 
@@ -443,7 +447,7 @@ if(
 
 	// get and parse application URL
 		$arResult['APP_URL'] = $arApp['URL'];
-		if(!$arResult['APP_INSTALLED'] && strlen($arApp['URL_INSTALL']) > 0)
+		if(!$arResult['APP_INSTALLED'] && $arApp['URL_INSTALL'] <> '')
 		{
 			if($arResult['IS_ADMIN'])
 			{
@@ -467,13 +471,13 @@ if(
 				$arResult['APP_STATUS']['STATUS'] == \Bitrix\Rest\AppTable::STATUS_DEMO
 				|| $arResult['APP_STATUS']['STATUS'] == \Bitrix\Rest\AppTable::STATUS_TRIAL
 			)
-			&& strlen($arApp['URL_DEMO']) > 0
+			&& $arApp['URL_DEMO'] <> ''
 		)
 		{
 			$arResult['APP_URL'] = $arApp['URL_DEMO'];
 		}
 
-		if(strlen($arResult['APP_URL']) <= 0)
+		if($arResult['APP_URL'] == '')
 		{
 			return;
 		}
@@ -529,9 +533,12 @@ if(
 
 		$componentPage = '';
 		if(
-			$arResult['APP_STATUS']['PAYMENT_EXPIRED'] == 'Y'
-			|| $arResult['APP_STATUS']['STATUS'] == \Bitrix\Rest\AppTable::STATUS_SUBSCRIPTION
-			&& !$arResult["IS_SUBSCRIBE_PAID"]
+			$arResult['APP_STATUS']['PAYMENT_EXPIRED'] === 'Y'
+			||
+			(
+				$arResult['APP_STATUS']['STATUS'] === \Bitrix\Rest\AppTable::STATUS_SUBSCRIPTION
+				&& !\Bitrix\Rest\Marketplace\Client::isSubscriptionAvailable()
+			)
 		)
 		{
 			$componentPage = 'payment';
@@ -561,7 +568,7 @@ if(
 		$this->IncludeComponentTemplate($componentPage);
 	}
 }
-elseif(strlen($appCode) > 0)
+elseif($appCode <> '')
 {
 	LocalRedirect(str_replace(
 		'#code#',

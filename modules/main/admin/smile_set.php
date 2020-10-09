@@ -20,7 +20,7 @@ if ($arID = $lAdmin->GroupAction())
 {
 	foreach ($arID as $ID)
 	{
-		if (strlen($ID) <= 0)
+		if ($ID == '')
 			continue;
 
 		if ($_REQUEST['action'] == 'delete')
@@ -37,7 +37,7 @@ if($lAdmin->EditAction())
 {
 	foreach($FIELDS as $ID=>$arFields)
 	{
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if($ID <= 0)
 			continue;
 
@@ -89,7 +89,7 @@ while ($arForum = $dbResultList->NavNext(true, "f_"))
 
 	$row->AddField("ID", $f_ID);
 	$row->AddField("SORT", $f_SORT);
-	$row->AddViewField("NAME", '<a title="'.GetMessage("SMILE_EDIT_DESCR").'" href="'."smile.php?SET_ID=".$f_ID."&lang=".LANG."&".GetFilterParams("filter_").'">'.(strlen($f_NAME)>0?$f_NAME: GetMessage('SMILE_SET_NAME', Array('#ID#' => $f_ID))).'</a>');
+	$row->AddViewField("NAME", '<a title="'.GetMessage("SMILE_EDIT_DESCR").'" href="'."smile.php?SET_ID=".$f_ID."&lang=".LANG."&".GetFilterParams("filter_").'">'.($f_NAME <> ''?$f_NAME: GetMessage('SMILE_SET_NAME', Array('#ID#' => $f_ID))).'</a>');
 	$row->AddViewField("SMILE_COUNT", $f_SMILE_COUNT);
 
 	$row->AddInputField("NAME", array("size"=>20));

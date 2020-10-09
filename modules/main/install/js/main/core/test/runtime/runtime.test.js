@@ -786,4 +786,128 @@ describe('Runtime', () => {
 			});
 		});
 	});
+
+	describe('#destroy', () => {
+		it('Should destroy plain object', () => {
+			const object = {
+				prop1: 1,
+				prop2: 2,
+				getAny() {
+					return 'any';
+				},
+			};
+
+			Runtime.destroy(object);
+
+			assert.throws(
+				() => {
+					void object.prop1;
+				},
+				'Uncaught Error: Object is destroyed',
+			);
+
+			assert.throws(
+				() => {
+					void object.prop2;
+				},
+				'Uncaught Error: Object is destroyed',
+			);
+
+			assert.throws(
+				() => {
+					object.getAny();
+				},
+				'Uncaught Error: Object is destroyed',
+			);
+
+			assert.throws(
+				() => {
+					object.toString();
+				},
+				'Uncaught Error: Object is destroyed',
+			);
+
+			assert.throws(
+				() => {
+					object.propertyIsEnumerable('prop1');
+				},
+				'Uncaught Error: Object is destroyed',
+			);
+		});
+
+		it('Should destroy ES6 class instance', () => {
+			class MyClass
+			{
+				constructor()
+				{
+					this.prop1 = 1;
+					this.prop2 = 2;
+				}
+
+				getAny()
+				{
+					return 'any';
+				}
+			}
+
+			const object = new MyClass();
+
+			Runtime.destroy(object);
+
+			assert.throws(
+				() => {
+					void object.prop1;
+				},
+				'Uncaught Error: Object is destroyed',
+			);
+
+			assert.throws(
+				() => {
+					void object.prop2;
+				},
+				'Uncaught Error: Object is destroyed',
+			);
+
+			assert.throws(
+				() => {
+					object.getAny();
+				},
+				'Uncaught Error: Object is destroyed',
+			);
+		});
+
+		it('Should does not throws if passed destroyed object', () => {
+			const object = {
+				prop1: 1,
+				prop2: 2,
+				getAny() {
+					return 'any';
+				},
+			};
+
+			Runtime.destroy(object);
+
+			assert.doesNotThrow(() => {
+				Runtime.destroy(object);
+			});
+		});
+
+		it('Should does not throws if passed primitive', () => {
+			assert.doesNotThrow(() => {
+				Runtime.destroy(1);
+			});
+
+			assert.doesNotThrow(() => {
+				Runtime.destroy(true);
+			});
+
+			assert.doesNotThrow(() => {
+				Runtime.destroy('string');
+			});
+
+			assert.doesNotThrow(() => {
+				Runtime.destroy(Symbol('111'));
+			});
+		});
+	});
 });

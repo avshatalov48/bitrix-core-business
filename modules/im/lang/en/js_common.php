@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CALL_RECORD_ERROR"] = "You can listen to the recording in your web browser.";
 $MESS["IM_AN_ACCESS"] = "You cannot post new messages to this chat.";
 $MESS["IM_APPS_LIST"] = "Show available apps";
@@ -69,6 +69,7 @@ $MESS["IM_CL_VIDEOCONF_CREATE_LINK_POPUP_DESC"] = "Invite colleagues and partner
 $MESS["IM_CL_VIDEOCONF_CREATE_SERVER_CALL_WARNING"] = "Server calls are not available. Video conference isn't going to be able to accommodate for more than four persons.";
 $MESS["IM_CL_VIDEOCONF_CREATE_TITLE"] = "Create a video conference";
 $MESS["IM_CL_VI_QUEUE"] = "Telephony queue";
+$MESS["IM_COPIED"] = "Copied";
 $MESS["IM_CRM_ABOUT_COMPANY"] = "Company";
 $MESS["IM_CRM_ABOUT_CONTACT"] = "Contact";
 $MESS["IM_CRM_ACTIVITIES"] = "Activities";
@@ -429,4 +430,3 @@ $MESS["IM_VIDEOCONF_MENU_CONFIRM_CHANGE_TEXT"] = "All the guest users will be re
 $MESS["IM_VIDEOCONF_MENU_COPY"] = "Copy link";
 $MESS["IM_VIDEOCONF_MENU_COPY_DONE"] = "Video conference link has been copied to the Clipboard.";
 $MESS["IM_YOU"] = "it's you";
-?>

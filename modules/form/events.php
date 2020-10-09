@@ -24,7 +24,7 @@ class CFormEventHandlers
 			$NEW_STATUS_ID = CFormStatus::GetDefault($WEB_FORM_ID);
 		
 		$dbRes = CFormStatus::GetByID($NEW_STATUS_ID);
-		if (!($arStatus = $dbRes->Fetch()) || strlen($arStatus['MAIL_EVENT_TYPE']) <= 0)
+		if (!($arStatus = $dbRes->Fetch()) || $arStatus['MAIL_EVENT_TYPE'] == '')
 			return;
 
 		$arTemplates = CFormStatus::GetMailTemplateArray($NEW_STATUS_ID);

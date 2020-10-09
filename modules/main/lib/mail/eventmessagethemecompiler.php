@@ -268,7 +268,7 @@ class EventMessageThemeCompiler
 			}
 		}
 
-		if(strlen($returnStylesString)>0)
+		if($returnStylesString <> '')
 		{
 			$returnStylesString = '<style type="text/css">'."\r\n".$returnStylesString."\r\n".'</style>';
 		}
@@ -298,7 +298,7 @@ class EventMessageThemeCompiler
 
 	protected function setTheme($site_template_id)
 	{
-		if(strlen($site_template_id)>0)
+		if($site_template_id <> '')
 		{
 			$result = \CSiteTemplate::GetByID($site_template_id);
 			if($templateFields = $result->Fetch())
@@ -422,7 +422,7 @@ class EventMessageThemeCompiler
 	public static function includeComponent($componentName, $componentTemplate, $arParams = array(), $parentComponent = null, $arFunctionParams = array())
 	{
 		$componentRelativePath = \CComponentEngine::MakeComponentPath($componentName);
-		if (StrLen($componentRelativePath) <= 0)
+		if ($componentRelativePath == '')
 			return False;
 
 		if (is_object($parentComponent))

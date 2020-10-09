@@ -113,7 +113,7 @@ class Helper
 	public function getContextAction($appId = 0)
 	{
 		$result = 'external';
-		$appId = intVal($appId);
+		$appId = intval($appId);
 		if($appId > 0)
 		{
 			$result = $this->prefixAppContext.$appId;
@@ -284,7 +284,7 @@ class Helper
 		$appList = $this->getBasicAppList();
 		foreach($appList as $manifest => $appCode)
 		{
-			UsageStatTable::logConfiguration($appCode, $this->prefixStatisticBasic.strtoupper($manifest));
+			UsageStatTable::logConfiguration($appCode, $this->prefixStatisticBasic . mb_strtoupper($manifest));
 		}
 		UsageStatTable::finalize();
 

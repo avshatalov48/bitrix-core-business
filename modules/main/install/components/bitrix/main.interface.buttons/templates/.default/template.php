@@ -41,7 +41,7 @@ $this->addExternalJs($templateFolder."/utils.js");
 			$itemClass = $arItem["CLASS"];
 			if ($arItem["IS_ACTIVE"])
 			{
-				if (isset($arParams["CLASS_ITEM_ACTIVE"]) && strlen($arParams["CLASS_ITEM_ACTIVE"]))
+				if (isset($arParams["CLASS_ITEM_ACTIVE"]) && mb_strlen($arParams["CLASS_ITEM_ACTIVE"]))
 				{
 					$itemClass .= " ".$arParams["CLASS_ITEM_ACTIVE"];
 				}

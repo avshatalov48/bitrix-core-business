@@ -124,7 +124,7 @@ class NumeratorSequenceTable extends DataManager
 			$result = static::add([
 				'NUMERATOR_ID'         => $numeratorId,
 				'KEY'                  => md5($numberHash),
-				'TEXT_KEY'             => substr($numberHash, 0, 50),
+				'TEXT_KEY'             => mb_substr($numberHash, 0, 50),
 				'LAST_INVOCATION_TIME' => $lastInvocationTime,
 				'NEXT_NUMBER'          => $defaultNumber,
 			]);
@@ -136,7 +136,7 @@ class NumeratorSequenceTable extends DataManager
 		}
 		catch (SqlQueryException $exc)
 		{
-			if (stripos($exc->getMessage(), "Duplicate entry") !== false)
+			if (mb_stripos($exc->getMessage(), "Duplicate entry") !== false)
 			{
 				return [];
 			}

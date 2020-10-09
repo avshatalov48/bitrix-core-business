@@ -133,8 +133,9 @@ class SqlTracker implements \Iterator
 	{
 		if ($this->logFilePath)
 		{
-			$header = "TIME: ".round($executionTime, 6)." SESSION: ".session_id()." ".$additional."\n";
-			$headerLength = strlen($header);
+			$sessionId = \Bitrix\Main\Application::getInstance()->getKernelSession()->getId();
+			$header = "TIME: ".round($executionTime, 6)." SESSION: ".$sessionId." ".$additional."\n";
+			$headerLength = mb_strlen($header);
 			$body = $this->formatSql($sql);
 			$trace = $this->formatTrace(\Bitrix\Main\Diag\Helper::getBackTrace($this->depthBackTrace, null, $traceSkip));
 			$footer = str_repeat("-", $headerLength);
@@ -184,7 +185,7 @@ class SqlTracker implements \Iterator
 				else
 				{
 					$skip = false;
-					$tabs = strlen($line) - strlen(ltrim($line, "\t"));
+					$tabs = mb_strlen($line) - mb_strlen(ltrim($line, "\t"));
 				}
 			}
 			if ($tabs)

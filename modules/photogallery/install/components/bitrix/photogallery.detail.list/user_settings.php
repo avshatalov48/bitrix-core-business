@@ -7,7 +7,7 @@ if(!function_exists("__UnEscape"))
 	{
 		if(is_array($item))
 			array_walk($item, '__UnEscape');
-		elseif (strpos($item, "%u") !== false)
+		elseif (mb_strpos($item, "%u") !== false)
 			$item = $GLOBALS["APPLICATION"]->UnJSEscape($item);
 		elseif (LANG_CHARSET != "UTF-8" && preg_match("/^.{1}/su", $item) == 1)
 			$item = $GLOBALS["APPLICATION"]->ConvertCharset($item, "UTF-8", LANG_CHARSET);
@@ -17,7 +17,7 @@ if(!function_exists("__UnEscape"))
 array_walk($_REQUEST, '__UnEscape');
 if (check_bitrix_sessid() && $GLOBALS["USER"]->IsAuthorized())
 {
-	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".strToLower($GLOBALS["DB"]->type)."/favorites.php");
+	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
 	$_REQUEST["picture_sight"] = (empty($_REQUEST["picture_sight"]) && !empty($_REQUEST["PICTURES_SIGHT"]) ? $_REQUEST["PICTURES_SIGHT"] : $_REQUEST["picture_sight"]); 
 	$arTemplateParams = CUserOptions::GetOption('photogallery', 'template');
 	$arTemplateParams = (!is_array($arTemplateParams) ? array() : $arTemplateParams);

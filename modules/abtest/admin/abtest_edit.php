@@ -30,7 +30,7 @@ foreach (Bitrix\ABTest\AdminHelper::getSiteCapacity(array_keys($arSites)) as $li
 	$arEstDays[$lid] = $value['est'];
 
 
-if ($REQUEST_METHOD == "POST" && (strlen($save) > 0 || strlen($apply) > 0) && check_bitrix_sessid())
+if ($REQUEST_METHOD == "POST" && ($save <> '' || $apply <> '') && check_bitrix_sessid())
 {
 	$arFields = array(
 		'SITE_ID'  => $SITE,
@@ -165,7 +165,7 @@ if ($REQUEST_METHOD == "POST" && (strlen($save) > 0 || strlen($apply) > 0) && ch
 		}
 		else
 		{
-			if (strlen($save) > 0)
+			if ($save <> '')
 				LocalRedirect('abtest_admin.php?lang='.LANG);
 			else
 				LocalRedirect($APPLICATION->getCurPage().'?lang='.LANG.'&ID='.$ID);

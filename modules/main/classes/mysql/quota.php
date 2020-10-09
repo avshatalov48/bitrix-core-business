@@ -14,7 +14,7 @@ class CDiskQuota extends CAllDiskQuota
 	{
 		global $DB;
 		$DBSize = 0;
-		if (($_SESSION["SESS_RECOUNT_DB"] == "Y") && (COption::GetOptionInt("main", "disk_space") > 0))
+		if ((\Bitrix\Main\Application::getInstance()->getSession()["SESS_RECOUNT_DB"] == "Y") && (COption::GetOptionInt("main", "disk_space") > 0))
 		{
 			$db_res = $DB->Query("SHOW TABLE STATUS FROM `".$DB->ForSql($DB->DBName)."`");
 			if ($db_res && ($res = $db_res->Fetch()))
@@ -28,7 +28,7 @@ class CDiskQuota extends CAllDiskQuota
 			COption::SetOptionString("main_size", "~db", $DBSize);
 			$params = array("status" => "d", "time" => time());
 			COption::SetOptionString("main_size", "~db_params", serialize($params));
-			unset($_SESSION["SESS_RECOUNT_DB"]);
+			unset(\Bitrix\Main\Application::getInstance()->getSession()["SESS_RECOUNT_DB"]);
 		}
 		else
 		{

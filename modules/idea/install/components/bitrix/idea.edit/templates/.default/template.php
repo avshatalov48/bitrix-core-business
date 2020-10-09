@@ -5,7 +5,7 @@
  * @var CMain $APPLICATION
  */
 
-if(strlen($arResult["FATAL_MESSAGE"]) > 0)
+if($arResult["FATAL_MESSAGE"] <> '')
 {
 ?>
 	<div class="blog-errors blog-note-box blog-note-error">
@@ -16,7 +16,7 @@ if(strlen($arResult["FATAL_MESSAGE"]) > 0)
 <?
 	return;
 }
-elseif(strlen($arResult["UTIL_MESSAGE"]) > 0)
+elseif($arResult["UTIL_MESSAGE"] <> '')
 {
 ?>
 	<div class="blog-textinfo blog-note-box">
@@ -31,7 +31,7 @@ elseif(strlen($arResult["UTIL_MESSAGE"]) > 0)
 ?>
 <div class="blog-post-edit">
 <?
-if(strlen($arResult["MESSAGE"]) > 0)
+if($arResult["MESSAGE"] <> '')
 {
 	?>
 	<div class="blog-textinfo blog-note-box">
@@ -41,7 +41,7 @@ if(strlen($arResult["MESSAGE"]) > 0)
 	</div>
 <?
 }
-if(strlen($arResult["ERROR_MESSAGE"]) > 0)
+if($arResult["ERROR_MESSAGE"] <> '')
 {
 	?>
 	<div class="blog-errors blog-note-box blog-note-error">
@@ -58,8 +58,8 @@ $className = "blog-post";
 $className .= " blog-post-first";
 $className .= " blog-post-alt";
 $className .= " blog-post-year-" . $arResult["postPreview"]["DATE_PUBLISH_Y"];
-$className .= " blog-post-month-" . IntVal($arResult["postPreview"]["DATE_PUBLISH_M"]);
-$className .= " blog-post-day-" . IntVal($arResult["postPreview"]["DATE_PUBLISH_D"]);
+$className .= " blog-post-month-" . intval($arResult["postPreview"]["DATE_PUBLISH_M"]);
+$className .= " blog-post-day-" . intval($arResult["postPreview"]["DATE_PUBLISH_D"]);
 ?>
 	<p><b><?=GetMessage("BLOG_PREVIEW_TITLE")?></b></p>
 	<div class="<?=$className?>">

@@ -2,6 +2,8 @@
 
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
+use Bitrix\Main\Text\HtmlFilter;
+
 /**
  * @var array $arResult
  */
@@ -26,7 +28,7 @@ $nodes = [$arResult['userField']['~id']];
 			<option
 				value="<?= $optionValue ?>"
 				<?= in_array($optionValue, $arResult['value']) ? ' selected="selected"' : '' ?>
-			><?= $optionName ?></option>
+			><?= HtmlFilter::encode($optionName) ?></option>
 			<?php
 		}
 	}
@@ -47,7 +49,7 @@ $nodes = [$arResult['userField']['~id']];
 				print '<br>';
 			}
 			$isFirst = false;
-			print $arResult['userField']['USER_TYPE']['FIELDS'][$value];
+			print HtmlFilter::encode($arResult['userField']['USER_TYPE']['FIELDS'][$value]);
 		}
 	}
 	?>

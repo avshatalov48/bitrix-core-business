@@ -245,9 +245,15 @@ if(
 				$arFields['EXTERNAL_AUTH_ID'] = $_POST["EXTERNAL_AUTH_ID"];
 
 			if ($ID == 1 && $COPY_ID <= 0)
+			{
 				$arFields["ACTIVE"] = "Y";
+				$arFields["BLOCKED"] = "N";
+			}
 			else
+			{
 				$arFields["ACTIVE"] = $_POST["ACTIVE"];
+				$arFields["BLOCKED"] = $_POST["BLOCKED"];
+			}
 
 			if($showGroupTabs && isset($_REQUEST["GROUP_ID_NUMBER"]))
 			{
@@ -410,7 +416,7 @@ if(
 						LocalRedirect($strRedirect_admin);
 					elseif($_POST["apply"] <> '')
 						LocalRedirect($strRedirect."&ID=".$ID."&".$tabControl->ActiveTabParam());
-					elseif(strlen($_POST["save_and_add"])>0)
+					elseif($_POST["save_and_add"] <> '')
 						LocalRedirect($strRedirect."&ID=0&".$tabControl->ActiveTabParam());
 				}
 				elseif($new=="Y")
@@ -431,6 +437,7 @@ if(!$user->ExtractFields("str_"))
 {
 	$ID = 0;
 	$str_ACTIVE = "Y";
+	$str_BLOCKED = "N";
 	$str_LID = CSite::GetDefSite();
 }
 else
@@ -611,6 +618,21 @@ if($ID <> 1 || $COPY_ID > 0):
 else:
 	$tabControl->HideField('ACTIVE');
 endif;
+
+$tabControl->BeginCustomField("BLOCKED", GetMessage("main_user_edit_blocked"));
+?>
+	<tr>
+		<td><?echo $tabControl->GetCustomLabelHTML()?></td>
+		<td>
+		<?if($canSelfEdit):?>
+			<input type="checkbox" name="BLOCKED" value="Y"<?if($str_BLOCKED == "Y") echo " checked"?>>
+		<?else:?>
+			<input type="checkbox" <?if($str_BLOCKED == "Y") echo " checked"?> disabled>
+			<input type="hidden" name="BLOCKED" value="<?=$str_BLOCKED;?>">
+		<?endif;?>
+	</tr>
+<?
+$tabControl->EndCustomField("BLOCKED", '<input type="hidden" name="BLOCKED" value="'.$str_BLOCKED.'">');
 
 $emailRequired = (COption::GetOptionString("main", "new_user_email_required", "Y") <> "N");
 $phoneRequired = (COption::GetOptionString("main", "new_user_phone_required", "N") == "Y");

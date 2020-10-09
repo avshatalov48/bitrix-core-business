@@ -11,12 +11,12 @@ if ($sRatingTemplate == "" || $sRatingTemplate == ".default")
 	$this->SetTemplateName($sRatingTemplate);
 }
 $arResult['ENTITY_TYPE_ID'] = $arParams['ENTITY_TYPE_ID'];
-$arResult['ENTITY_ID'] = IntVal($arParams['ENTITY_ID']);
-$arResult['OWNER_ID'] = IntVal($arParams['OWNER_ID']);
+$arResult['ENTITY_ID'] = intval($arParams['ENTITY_ID']);
+$arResult['OWNER_ID'] = intval($arParams['OWNER_ID']);
 $arResult['TOTAL_VALUE'] = floatval($arParams['TOTAL_VALUE']);
-$arResult['TOTAL_VOTES'] = IntVal($arParams['TOTAL_VOTES']);
-$arResult['TOTAL_POSITIVE_VOTES'] = IntVal($arParams['TOTAL_POSITIVE_VOTES']);
-$arResult['TOTAL_NEGATIVE_VOTES'] = IntVal($arParams['TOTAL_NEGATIVE_VOTES']);
+$arResult['TOTAL_VOTES'] = intval($arParams['TOTAL_VOTES']);
+$arResult['TOTAL_POSITIVE_VOTES'] = intval($arParams['TOTAL_POSITIVE_VOTES']);
+$arResult['TOTAL_NEGATIVE_VOTES'] = intval($arParams['TOTAL_NEGATIVE_VOTES']);
 $arResult['USER_HAS_VOTED'] = $arParams['USER_HAS_VOTED'] != 'Y'? 'N': 'Y';
 
 $arResult['AJAX_MODE'] = $arParams['AJAX_MODE'] != 'Y'? 'N': 'Y';
@@ -27,7 +27,7 @@ $arResult['PATH_TO_USER_PROFILE'] = $arParams['PATH_TO_USER_PROFILE'];
 
 $isLikeTemplate = in_array($sRatingTemplate, array("like", "like_graphic", "mobile_like", "like_react"));
 if ($isLikeTemplate)
-	$arResult['TOTAL_VOTES'] = IntVal($arParams['TOTAL_POSITIVE_VOTES']);
+	$arResult['TOTAL_VOTES'] = intval($arParams['TOTAL_POSITIVE_VOTES']);
 
 if (!array_key_exists('TOTAL_VALUE', $arParams) ||
 	!array_key_exists('TOTAL_VOTES', $arParams) ||

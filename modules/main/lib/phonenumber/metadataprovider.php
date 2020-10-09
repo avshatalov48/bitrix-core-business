@@ -55,7 +55,7 @@ class MetadataProvider
 	 */
 	public function getCountryMetadata($country)
 	{
-		$country = strtoupper($country);
+		$country = mb_strtoupper($country);
 		return isset($this->metadata[$country]) ?  $this->metadata[$country] : false;
 	}
 
@@ -82,7 +82,7 @@ class MetadataProvider
 
 		foreach ($metadata as $metadataRecord)
 		{
-			$country = strtoupper($metadataRecord['id']);
+			$country = mb_strtoupper($metadataRecord['id']);
 			if(!is_array($codeToCountries[$metadataRecord['countryCode']]))
 			{
 				$codeToCountries[$metadataRecord['countryCode']] = array();

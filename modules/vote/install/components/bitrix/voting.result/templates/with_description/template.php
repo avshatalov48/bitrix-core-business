@@ -29,7 +29,7 @@ endif;
 					?>">
 		<div class="vote-item-header">
 <?
-	if (strlen($arResult["VOTE"]["TITLE"]) > 0):
+	if ($arResult["VOTE"]["TITLE"] <> ''):
 ?>
 			<span class="vote-item-title"><?=$arResult["VOTE"]["TITLE"];?></span>
 <?
@@ -76,7 +76,7 @@ endif;
 		<div class="vote-item-counter"><span><?=GetMessage("VOTE_VOTES")?>:</span> <?=$arResult["VOTE"]["COUNTER"]?></div>
 
 <?
-	if (strlen($arResult["VOTE"]["TITLE"]) <= 0):
+	if ($arResult["VOTE"]["TITLE"] == ''):
 		if ($arResult["VOTE"]["LAMP"]=="green"):
 ?>
 		<div class="vote-item-lamp vote-item-lamp-green"><span class="active"><?=GetMessage("VOTE_IS_ACTIVE")?></span></div>

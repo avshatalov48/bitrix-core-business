@@ -124,7 +124,7 @@ class Base32
 		if (!is_string($base32String))
 			throw new ArgumentTypeException('base32String', 'string');
 
-		$base32String = strtoupper($base32String);
+		$base32String = mb_strtoupper($base32String);
 		$base32Array = str_split($base32String);
 
 		$string = '';

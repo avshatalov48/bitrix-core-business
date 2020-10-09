@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["ACCOUNT_INSERT"] = "The administrator has registered you on the site";
 $MESS["ACCOUNT_UPDATE"] = "The administrator has updated your personal information.";
 $MESS["ACTIVE"] = "Active:";
@@ -100,6 +100,7 @@ $MESS["USER_WWW"] = "Web page:";
 $MESS["USER_ZIP"] = "Zip:";
 $MESS["main_profile_decode_err"] = "Password decryption error (#ERRCODE#).";
 $MESS["main_profile_sess_expired"] = "Your session has expired. Please try again.";
+$MESS["main_user_edit_blocked"] = "Blocked:";
 $MESS["main_user_edit_phone_number"] = "Phone number:";
 $MESS["user_edit_form_groups"] = "User's Groups";
 $MESS["user_edit_form_settings"] = "Settings";
@@ -112,4 +113,3 @@ $MESS["user_edit_time_zones_auto_def"] = "(default)";
 $MESS["user_edit_time_zones_auto_no"] = "No, select from list";
 $MESS["user_edit_time_zones_auto_yes"] = "Yes, use browser settings";
 $MESS["user_edit_time_zones_zones"] = "Time Zone:";
-?>

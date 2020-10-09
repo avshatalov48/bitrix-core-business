@@ -12,7 +12,7 @@ if (CModule::IncludeModule("learning")):
 			$str_student_PUBLIC_PROFILE = "N";
 	}
 
-	if (strlen($strError)>0)
+	if ($strError <> '')
 	{
 		$DB->InitTableVarsForEdit("b_learn_student", "student_", "str_student_");
 	}
@@ -28,7 +28,7 @@ if (CModule::IncludeModule("learning")):
 		<td><textarea class="typearea" name="student_RESUME" style="width:50%; height:200px;"><?echo $str_student_RESUME; ?></textarea></td>
 	</tr>
 
-<?if (strlen($str_student_TRANSCRIPT)>0):?>
+<?if ($str_student_TRANSCRIPT <> ''):?>
 	<tr valign="top">
 		<td align="right"><?=GetMessage("learning_TRANSCRIPT");?>:</td>
 		<td>

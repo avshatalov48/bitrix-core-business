@@ -407,7 +407,7 @@ class ItemAttributes
 	protected function convertKeyToDataSet($key)
 	{
 		$key = str_replace('data-', '', $key);
-		$key = str_replace('-', ' ', strtolower($key));
+		$key = str_replace('-', ' ', mb_strtolower($key));
 
 		return lcfirst(str_replace(' ', '', ucwords($key)));
 	}

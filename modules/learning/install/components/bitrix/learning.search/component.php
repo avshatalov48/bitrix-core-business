@@ -11,11 +11,11 @@ if (!CModule::IncludeModule("search"))
 	return;
 }
 
-$arParams["PAGE_RESULT_COUNT"] = IntVal($arParams["PAGE_RESULT_COUNT"])>0 ? IntVal($arParams["PAGE_RESULT_COUNT"]): 20;
-if(strlen($arParams["SEARCH_PAGE"])<=0)
+$arParams["PAGE_RESULT_COUNT"] = intval($arParams["PAGE_RESULT_COUNT"])>0 ? intval($arParams["PAGE_RESULT_COUNT"]): 20;
+if($arParams["SEARCH_PAGE"] == '')
 	$arParams["SEARCH_PAGE"] = $APPLICATION->GetCurPage();
 $arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
-$arParams["NAV_TEMPLATE"] = (strlen($arParams["NAV_TEMPLATE"])>0 ? $arParams["NAV_TEMPLATE"] : "");
+$arParams["NAV_TEMPLATE"] = ($arParams["NAV_TEMPLATE"] <> '' ? $arParams["NAV_TEMPLATE"] : "");
 
 $arResult["~q"] = trim($_REQUEST["q"]);
 $arResult["~tags"] = trim($_REQUEST["tags"]);
@@ -41,7 +41,7 @@ $arFilter = array(
 	"CHECK_DATES"	=> "Y",
 	"TAGS" => $arResult["~tags"],
 );
-if(strlen($arResult["~where"])>0 && in_array($arResult["~where"], array_keys($arResult["WHERE"]))) {
+if($arResult["~where"] <> '' && in_array($arResult["~where"], array_keys($arResult["WHERE"]))) {
 	$arFilter["%ITEM_ID"]	= $arResult["~where"];
 }
 /*
@@ -57,7 +57,7 @@ else
 	$aSort=array("CUSTOM_RANK"=>"DESC", "RANK"=>"DESC", "DATE_CHANGE"=>"DESC");
 
 $arResult["SEARCH_RESULT"] = Array();
-if(strlen($arResult["~q"])>0 || strlen($arResult["~tags"])>0)
+if($arResult["~q"] <> '' || $arResult["~tags"] <> '')
 {
 $obSearch = new CSearch();
 $obSearch->Search($arFilter, $aSort);
@@ -74,7 +74,7 @@ if($obSearch->errorno==0)
 
 	if(count($arResult["SEARCH_RESULT"])>0)
 	{
-		if(strlen($arResult["~tags"])>0)
+		if($arResult["~tags"] <> '')
 			$arResult["ORDER_LINK"] = $APPLICATION->GetCurPageParam("tags=".urlencode($arResult["tags"])."&where=".urlencode($arResult["where"]), Array("tags", "where", "how"));
 		else
 			$arResult["ORDER_LINK"] = $APPLICATION->GetCurPageParam("q=".urlencode($arResult["q"])."&where=".urlencode($arResult["where"]), Array("q", "where", "how"));

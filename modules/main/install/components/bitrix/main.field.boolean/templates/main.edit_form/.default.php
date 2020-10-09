@@ -69,7 +69,7 @@ else
 	if(
 		isset($arResult['userField']['SETTINGS']['LABEL_CHECKBOX'])
 		&&
-		strlen($arResult['userField']['SETTINGS']['LABEL_CHECKBOX'])
+		mb_strlen($arResult['userField']['SETTINGS']['LABEL_CHECKBOX'])
 	)
 	{
 		$label = $arResult['userField']['SETTINGS']['LABEL_CHECKBOX'];

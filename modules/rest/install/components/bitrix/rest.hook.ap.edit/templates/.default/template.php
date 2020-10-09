@@ -112,7 +112,7 @@ if(is_array($arResult["SCOPE"])):
 		$scopeName = $c->encode(Loc::getMessage("REST_SCOPE_".toUpper($scope)));
 		$scope = $c->encode($scope);
 
-		if(strlen($scopeName) <= 0)
+		if($scopeName == '')
 		{
 			$scopeName = $scope;
 		}

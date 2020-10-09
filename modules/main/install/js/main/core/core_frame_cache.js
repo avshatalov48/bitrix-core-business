@@ -264,12 +264,17 @@
 
 		function processStrings()
 		{
+			if (BX.Type.isStringFilled(assets.html))
+			{
+				document.head.insertAdjacentHTML("beforeend", assets.html);
+			}
+
 			BX.evalGlobal(assets.inlineJS.join(";"));
 		}
 
 		function getAssets()
 		{
-			var result = { styles: [], inlineJS: [], externalJS: []};
+			var result = { styles: [], inlineJS: [], externalJS: [], html: "" };
 			if (!BX.type.isArray(block.PROPS.STRINGS) || block.PROPS.STRINGS.length < 1)
 			{
 				return result;
@@ -290,6 +295,7 @@
 			}
 
 			result.styles = parts.STYLE;
+			result.html = parts.HTML;
 
 			return result;
 		}

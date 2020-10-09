@@ -170,8 +170,8 @@ class OrmAnnotateCommand extends Command
 			{
 				if ($rawAnnotation{0} === ':')
 				{
-					$endPos = strpos($rawAnnotation, ' */');
-					$entityClass = substr($rawAnnotation, 1, $endPos-1);
+					$endPos = mb_strpos($rawAnnotation, ' */');
+					$entityClass = mb_substr($rawAnnotation, 1, $endPos - 1);
 					//$annotation = substr($rawAnnotation, $endPos + 3 + strlen(PHP_EOL));
 
 					$annotations[$entityClass] = '/* '.static::ANNOTATION_MARKER.rtrim($rawAnnotation);
@@ -313,7 +313,7 @@ class OrmAnnotateCommand extends Command
 			foreach ($this->excludedFiles as $excludedFile)
 			{
 				$currentPath = str_replace('\\', '/', $item->getPathname());
-				if (substr($currentPath, -strlen($excludedFile)) === $excludedFile)
+				if (mb_substr($currentPath, -mb_strlen($excludedFile)) === $excludedFile)
 				{
 					continue 2;
 				}
@@ -321,7 +321,7 @@ class OrmAnnotateCommand extends Command
 
 			/** @var $iterator \RecursiveDirectoryIterator */
 			/** @var $item \SplFileInfo */
-			if ($item->isFile() && $item->isReadable() && substr($item->getFilename(), -4) == '.php')
+			if ($item->isFile() && $item->isReadable() && mb_substr($item->getFilename(), -4) == '.php')
 			{
 				$this->debug($output,'handle file: '.$item->getPathname());
 
@@ -354,7 +354,7 @@ class OrmAnnotateCommand extends Command
 		{
 			$debugMsg = $class;
 
-			if (is_subclass_of($class, DataManager::class) && substr($class, -5) == 'Table')
+			if (is_subclass_of($class, DataManager::class) && mb_substr($class, -5) == 'Table')
 			{
 				$reflection = new \ReflectionClass($class);
 
@@ -484,7 +484,7 @@ class OrmAnnotateCommand extends Command
 		$code[] = "\t}"; // end class
 
 		// compatibility with default classes
-		if (strpos($objectClassName, Entity::DEFAULT_OBJECT_PREFIX) !== 0) // better to compare full classes definitions
+		if (mb_strpos($objectClassName, Entity::DEFAULT_OBJECT_PREFIX) !== 0) // better to compare full classes definitions
 		{
 			$defaultObjectClassName = Entity::getDefaultObjectClassName($entity->getName());
 
@@ -538,7 +538,7 @@ class OrmAnnotateCommand extends Command
 		$code[] = "\t}"; // end class
 
 		// compatibility with default classes
-		if (strpos($collectionClassName, Entity::DEFAULT_OBJECT_PREFIX) !== 0) // better to compare full classes definitions
+		if (mb_strpos($collectionClassName, Entity::DEFAULT_OBJECT_PREFIX) !== 0) // better to compare full classes definitions
 		{
 			$defaultCollectionClassName = Entity::getDefaultCollectionClassName($entity->getName());
 
@@ -809,7 +809,7 @@ class OrmAnnotateCommand extends Command
 		{
 			// try to find remote entity
 			$classParts = array_values(array_filter(
-				explode('\\', strtolower($entityClass))
+				explode('\\', mb_strtolower($entityClass))
 			));
 
 			if ($classParts[0] == 'bitrix')

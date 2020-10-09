@@ -191,7 +191,7 @@ class CRestConfigurationExportComponent extends CBitrixComponent implements Cont
 		{
 			$request = Application::getInstance()->getContext()->getRequest();
 			$code = preg_replace('/[^a-zA-Z0-9_]/', '', $request->getPost("code"));
-			$step = intVal($request->getPost("step"));
+			$step = intval($request->getPost("step"));
 			$next = htmlspecialcharsbx($request->getPost("next"));
 			if($code)
 			{
@@ -206,7 +206,7 @@ class CRestConfigurationExportComponent extends CBitrixComponent implements Cont
 				);
 				foreach ($items as $item)
 				{
-					if(!is_array($item['FILE_NAME']) && strlen($item['FILE_NAME']) > 0)
+					if(!is_array($item['FILE_NAME']) && $item['FILE_NAME'] <> '')
 					{
 						$structure->saveContent($code, $item['FILE_NAME'], $item['CONTENT']);
 					}
@@ -251,7 +251,7 @@ class CRestConfigurationExportComponent extends CBitrixComponent implements Cont
 		if($this->checkRequiredParams())
 		{
 			$request = Application::getInstance()->getContext()->getRequest();
-			$step = intVal($request->getPost("step"));
+			$step = intval($request->getPost("step"));
 			$next = htmlspecialcharsbx($request->getPost("next"));
 			$items = Manifest::callEventInit(
 				$this->arParams['MANIFEST_CODE'],

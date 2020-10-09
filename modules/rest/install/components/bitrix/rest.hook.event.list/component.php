@@ -98,7 +98,7 @@ foreach($eventDictionary as $event)
 while($event = $dbRes->fetch())
 {
 	$eventName = $eventDesc[ToUpper($event['EVENT_NAME'])]['name'];
-	if(strlen($eventName) <= 0)
+	if($eventName == '')
 	{
 		$eventName = $event['EVENT_NAME'];
 	}

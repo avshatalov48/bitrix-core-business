@@ -76,7 +76,7 @@ class CAllDiskQuota
 				if ($res["status"] == "done" || $res["status"] == "continue")
 				{
 					$properties = array(
-						"status" => substr($res["status"], 0, 1),
+						"status" => mb_substr($res["status"], 0, 1),
 						"file" => str_replace($abs_path, "", str_replace("//", "/", $res["last_file"])),
 						"time" => time());
 
@@ -101,7 +101,7 @@ class CAllDiskQuota
 			if ($res["status"] == "done" || $res["status"] == "continue")
 			{
 				$properties = array(
-					"status" => substr($res["status"], 0, 1),
+					"status" => mb_substr($res["status"], 0, 1),
 					"file" => str_replace($abs_path, "", str_replace("//", "/", $res["last_file"])),
 					"time" => time());
 
@@ -153,7 +153,7 @@ class CAllDiskQuota
 				{
 					$res[] = $path.$file;
 					$size += filesize($path.$file);
-					if ($check_time && intVal(getmicrotime() - START_EXEC_TIME) >= $this->max_execution_time)
+					if ($check_time && intval(getmicrotime() - START_EXEC_TIME) >= $this->max_execution_time)
 					{
 						return array("tree" => $res, "status" => "continue", "last_file" => $path.$file, "size" => $size);
 					}
@@ -213,7 +213,7 @@ class CAllDiskQuota
 
 						$res[] = $path_to_dir.$file;
 						$size += filesize($path_to_dir.$file);
-						if ($check_time && intVal(getmicrotime() - START_EXEC_TIME) >= $this->max_execution_time)
+						if ($check_time && intval(getmicrotime() - START_EXEC_TIME) >= $this->max_execution_time)
 						{
 							return array("tree" => $res, "status" => "continue", "last_file" => $path_to_dir.$file, "size" => $size);
 						}
@@ -236,7 +236,7 @@ class CAllDiskQuota
 		if ($id == "db")
 		{
 			if ($recount)
-				$_SESSION["SESS_RECOUNT_DB"] = "Y";
+				\Bitrix\Main\Application::getInstance()->getSession()["SESS_RECOUNT_DB"] = "Y";
 			$result = array("size" => COption::GetOptionString("main_size", "~db"));
 			$result["params"] = COption::GetOptionString("main_size", "~db_params");
 			if (!empty($result["params"]) && is_array(unserialize($result["params"])))
@@ -270,7 +270,7 @@ class CAllDiskQuota
 
 		if (COption::GetOptionInt("main_size", "~db") <= 0)
 		{
-			$_SESSION["SESS_RECOUNT_DB"] = "Y";
+			\Bitrix\Main\Application::getInstance()->getSession()["SESS_RECOUNT_DB"] = "Y";
 		}
 
 		$quota = doubleVal(COption::GetOptionInt("main", "disk_space")*1024*1024 -
@@ -300,23 +300,23 @@ class CAllDiskQuota
 			return false;
 
 		if (is_array($size))
-			$size = strlen(implode("", $size));
+			$size = mb_strlen(implode("", $size));
 		elseif (doubleval($size) > 0)
 			$size = doubleval($size);
 		else
-			$size = strlen($size);
+			$size = mb_strlen($size);
 
 		$size = doubleval($size);
 
-		$name = strtolower($type) == "db" ? "db" : "files";
+		$name = mb_strtolower($type) == "db" ? "db" : "files";
 
-		if (in_array(strtolower($action), array("delete", "del")))
+		if (in_array(mb_strtolower($action), array("delete", "del")))
 		{
 			COption::SetOptionString("main_size", "~".$name,
 				doubleval(COption::GetOptionInt("main_size", "~".$name) - $size));
 			return true;
 		}
-		if (in_array(strtolower($action), array("update", "insert", "add", "copy")))
+		if (in_array(mb_strtolower($action), array("update", "insert", "add", "copy")))
 		{
 			COption::SetOptionString("main_size", "~".$name,
 				doubleval(COption::GetOptionInt("main_size", "~".$name) + $size));
@@ -352,14 +352,14 @@ class CAllDiskQuota
 				elseif (is_set($params, "size"))
 					$size = $params["size"];
 				else
-					$size = strlen(serialize($params));
+					$size = mb_strlen(serialize($params));
 
 				if ($size !== false)
 					return ((double)$quota - $size) > 0;
 			}
 			if (!is_array($params) && doubleVal($params) > 0 && ((double)$quota - $params) > 0)
 				return true;
-			if (((double)$quota - strLen($params)) > 0)
+			if (((double)$quota - mb_strlen($params)) > 0)
 				return true;
 		}
 		return false;

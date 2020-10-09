@@ -261,7 +261,10 @@ class CCloudStorageService_GoogleStorage extends CCloudStorageService
 
 		if($this->status == 200)
 		{
-			return true;
+			if (isset($this->headers["Content-Length"]) && $this->headers["Content-Length"] > 0)
+				return $this->headers["Content-Length"];
+			else
+				return true;
 		}
 		elseif($this->status == 206)
 		{
@@ -397,6 +400,7 @@ class CCloudStorageService_GoogleStorage extends CCloudStorageService
 			"file" => array(),
 			"file_size" => array(),
 			"file_mtime" => array(),
+			"file_hash" => array(),
 		);
 
 		$filePath = trim($filePath, '/');
@@ -456,6 +460,7 @@ class CCloudStorageService_GoogleStorage extends CCloudStorageService
 						$result["file"][] = $APPLICATION->ConvertCharset(urldecode($file_name), "UTF-8", LANG_CHARSET);
 						$result["file_size"][] = $a["#"]["Size"][0]["#"];
 						$result["file_mtime"][] = mb_substr($a["#"]["LastModified"][0]["#"], 0, 19);
+						$result["file_hash"][] = trim($a["#"]["ETag"][0]["#"], '"');
 					}
 				}
 

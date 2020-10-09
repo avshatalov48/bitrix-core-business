@@ -14,21 +14,12 @@ class CAuthProvider
 
 	public function DeleteByUser($USER_ID)
 	{
-		global $DB;
-		$USER_ID = intval($USER_ID);
-
-		$DB->Query("delete from b_user_access where user_id=".$USER_ID." and provider_id='".$DB->ForSQL($this->id)."'");
-
-		CAccess::ClearStat($this->id, $USER_ID);
+		CAccess::RecalculateForUser($USER_ID, $this->id);
 	}
 
 	public function DeleteAll()
 	{
-		global $DB;
-
-		$DB->Query("delete from b_user_access where provider_id='".$DB->ForSQL($this->id)."' AND user_id > 0");
-
-		CAccess::ClearStat($this->id);
+		CAccess::RecalculateForProvider($this->id);
 	}
 }
 
@@ -71,26 +62,29 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 	public static function OnBeforeGroupUpdate($ID, &$arFields)
 	{
 		if(array_key_exists("ACTIVE", $arFields) || array_key_exists("USER_ID", $arFields))
-			self::DeleteByGroup($ID);
+		{
+			self::RecalculateForGroup($ID);
+		}
 		return true;
 	}
 
 	public static function OnAfterGroupAdd(&$arFields)
 	{
 		if(is_array($arFields["USER_ID"]) && !empty($arFields["USER_ID"]))
-			self::DeleteByGroup($arFields["ID"]);
+		{
+			self::RecalculateForGroup($arFields["ID"]);
+		}
 	}
 	
 	public static function OnBeforeGroupDelete($ID)
 	{
-		self::DeleteByGroup($ID);
+		self::RecalculateForGroup($ID);
 		return true;
 	}
 	
 	public static function OnAfterSetUserGroup($USER_ID)
 	{
-		$provider = new CGroupAuthProvider();
-		$provider->DeleteByUser($USER_ID);
+		CAccess::RecalculateForUser($USER_ID, self::ID);
 	}
 
 	public static function OnUserLogin($USER_ID)
@@ -100,26 +94,29 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 		$arGroups = $USER->GetUserGroupArray();
 		
 		$arCodes = array();
-		$res = CAccess::GetUserCodes($USER_ID, array("PROVIDER_ID"=>self::ID));
+		$res = CAccess::GetUserCodes($USER_ID, array("PROVIDER_ID" => self::ID));
 		while($arCode = $res->Fetch())
+		{
 			$arCodes[] = substr($arCode["ACCESS_CODE"], 1);
+		}
 		
 		sort($arCodes);
 		
 		if($arCodes <> $arGroups)
 		{
-			$provider = new CGroupAuthProvider();
-			$provider->DeleteByUser($USER_ID);
+			CAccess::RecalculateForUser($USER_ID, self::ID);
 		}
 	}
 
-	protected static function DeleteByGroup($ID)
+	protected static function RecalculateForGroup($ID)
 	{
 		global $DB;
 
-		$DB->Query("delete from b_user_access where user_id in (select user_id from b_user_group where group_id=".intval($ID).") and provider_id='".self::ID."'");
-
-		CAccess::ClearStat(self::ID);
+		$users = $DB->Query("select USER_ID from b_user_group where GROUP_ID=".intval($ID));
+		while($user = $users->Fetch())
+		{
+			CAccess::RecalculateForUser($user["USER_ID"], self::ID);
+		}
 	}
 
 	public function AjaxRequest()
@@ -136,7 +133,9 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 		
 		$search = urldecode($_REQUEST['search']);
 		
-		$dbRes = CGroup::GetList(($by="sort"), ($order=""), array("ANONYMOUS"=>"N", "NAME"=>$search));
+		$by = "sort";
+		$order = "";
+		$dbRes = CGroup::GetList($by, $order, array("ANONYMOUS"=>"N", "NAME"=>$search));
 		$dbRes->NavStart(13);
 		while ($arGroup = $dbRes->NavNext(false))
 		{
@@ -167,8 +166,10 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 		);
 		
 		$arLRU = CAccess::GetLastRecentlyUsed($this->id);
-		
-		$res = CGroup::GetList(($by="sort"), ($order=""), array("ANONYMOUS"=>"N"));
+
+		$by = "sort";
+		$order = "";
+		$res = CGroup::GetList($by, $order, array("ANONYMOUS"=>"N"));
 		while($arGroup = $res->Fetch())
 		{
 			$arItem = array(
@@ -213,7 +214,9 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 		if(!empty($aID))
 		{
 			$arResult = array();
-			$res = CGroup::GetList(($by="id"), ($order=""), array("ANONYMOUS"=>"N", "ID"=>implode("|", $aID)));
+			$by = "id";
+			$order = "";
+			$res = CGroup::GetList($by, $order, array("ANONYMOUS"=>"N", "ID"=>implode("|", $aID)));
 			while($arGroup = $res->Fetch())
 			{
 				$arResult["G".$arGroup["ID"]] = array("provider" => GetMessage("authprov_group_prov"), "name"=>$arGroup["NAME"]);
@@ -227,9 +230,11 @@ class CGroupAuthProvider extends CAuthProvider implements IProviderInterface
 
 class CUserAuthProvider extends CAuthProvider implements IProviderInterface
 {
+	const ID = 'user';
+
 	public function __construct()
 	{
-		$this->id = 'user';
+		$this->id = self::ID;
 	}
 
 	public function UpdateCodes($USER_ID)
@@ -275,10 +280,14 @@ class CUserAuthProvider extends CAuthProvider implements IProviderInterface
 		}
 
 		//be careful with field list because of CUser::FormatName()
-		$dbRes = CUser::GetList(($by = 'last_name'), ($order = 'asc'),
+		$by = 'last_name';
+		$order = 'asc';
+		$dbRes = CUser::GetList($by, $order,
 			$arFilter,
-			array("FIELDS" => array('ID', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'LOGIN', 'EMAIL')),
-			array('NAV_PARAMS' => array('nTopCount' => 20))
+			array(
+				"FIELDS" => array('ID', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'LOGIN', 'EMAIL'),
+				'NAV_PARAMS' => array('nTopCount' => 20),
+			)
 		);
 		while ($arUser = $dbRes->NavNext(false))
 		{
@@ -316,7 +325,9 @@ class CUserAuthProvider extends CAuthProvider implements IProviderInterface
 			$nameFormat = CSite::GetNameFormat(false);
 
 			//be careful with field list because of CUser::FormatName()
-			$res = CUser::GetList(($by="LAST_NAME"), ($order="asc"),
+			$by = "LAST_NAME";
+			$order = "asc";
+			$res = CUser::GetList($by, $order,
 				array("ID" => implode("|", $arLRU)),
 				array("FIELDS" => array('ID', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'LOGIN', 'EMAIL'))
 			);
@@ -363,7 +374,9 @@ class CUserAuthProvider extends CAuthProvider implements IProviderInterface
 
 			$arResult = array();
 			//be careful with field list because of CUser::FormatName()
-			$res = CUser::GetList(($by="id"), ($order=""),
+			$by = "id";
+			$order = "";
+			$res = CUser::GetList($by, $order,
 				array("ID" => implode("|", $aID)),
 				array("FIELDS" => array('ID', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'LOGIN', 'EMAIL'))
 			);
@@ -378,6 +391,17 @@ class CUserAuthProvider extends CAuthProvider implements IProviderInterface
 			return $arResult;
 		}
 		return false;
+	}
+
+	public static function OnUserLogin($USER_ID)
+	{
+		$res = CAccess::GetUserCodes($USER_ID, array("PROVIDER_ID" => self::ID));
+		$arCode = $res->Fetch();
+
+		if(!$arCode)
+		{
+			CAccess::RecalculateForUser($USER_ID, self::ID);
+		}
 	}
 }
 

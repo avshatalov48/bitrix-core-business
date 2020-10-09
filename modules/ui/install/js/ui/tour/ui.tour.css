@@ -102,8 +102,8 @@
 	opacity: 1;
 }
 
-.ui-tour-popup-btn-disabled {
-	opacity: .4;
+.ui-tour-popup-btn-hidden {
+	opacity: 0;
 	pointer-events: none;
 }
 

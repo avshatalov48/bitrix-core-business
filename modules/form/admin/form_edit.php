@@ -22,7 +22,7 @@ IncludeModuleLangFile(__FILE__);
 $err_mess = "File: ".__FILE__."<br>Line: ";
 define("HELP_FILE","form_list.php");
 $old_module_version = CForm::IsOldVersion();
-$bSimple = (COption::GetOptionString("form", "SIMPLE", "Y") == "Y") ? true : false;
+$bSimple = (COption::GetOptionString("form", "SIMPLE") == "Y");
 
 $bEditTemplate = $USER->CanDoOperation('edit_php');
 
@@ -63,7 +63,7 @@ if ($ID > 0)
 if ($copy_id > 0 && check_bitrix_sessid() && $F_RIGHT >= 30)
 {
 	$new_id = CForm::Copy($copy_id);
-	if (strlen($strError)<=0 && intval($new_id)>0)
+	if ($strError == '' && intval($new_id)>0)
 	{
 		LocalRedirect("/bitrix/admin/form_edit.php?ID=".$new_id."&lang=".LANGUAGE_ID);
 	}
@@ -101,7 +101,7 @@ while ($ar = $rs->Fetch())
 	$arrSites[$ar["ID"]] = $ar;
 }
 
-if ((strlen($_REQUEST['save'])>0 || strlen($_REQUEST['apply'])>0) && $_SERVER['REQUEST_METHOD']=="POST" && ($F_RIGHT>=30 || $ID<=0) && check_bitrix_sessid())
+if (($_REQUEST['save'] <> '' || $_REQUEST['apply'] <> '') && $_SERVER['REQUEST_METHOD']=="POST" && ($F_RIGHT>=30 || $ID<=0) && check_bitrix_sessid())
 {
 	$arIMAGE_ID = $_FILES["IMAGE_ID"];
 	$arIMAGE_ID["MODULE_ID"] = "form";
@@ -109,7 +109,7 @@ if ((strlen($_REQUEST['save'])>0 || strlen($_REQUEST['apply'])>0) && $_SERVER['R
 
 	$SID = $_REQUEST['SID'];
 
-	if ($bSimple && strlen($SID) <= 0)
+	if ($bSimple && $SID == '')
 	{
 		$SID = "SIMPLE_FORM_".randString(8);
 	}
@@ -160,7 +160,7 @@ if ((strlen($_REQUEST['save'])>0 || strlen($_REQUEST['apply'])>0) && $_SERVER['R
 		$arFields['TABLE_RESULT_TEMPLATE'] = $_REQUEST['TABLE_RESULT_TEMPLATE'];
 
 		$FORM_TEMPLATE = $_REQUEST['FORM_TEMPLATE'];
-		$USE_DEFAULT_TEMPLATE = $_REQUEST['USE_DEFAULT_TEMPLATE'] == "N" && strlen($FORM_TEMPLATE) > 0 ? "N" : "Y";
+		$USE_DEFAULT_TEMPLATE = $_REQUEST['USE_DEFAULT_TEMPLATE'] == "N" && $FORM_TEMPLATE <> '' ? "N" : "Y";
 
 		$arFields["FORM_TEMPLATE"] = $FORM_TEMPLATE;
 		$arFields["USE_DEFAULT_TEMPLATE"] = $USE_DEFAULT_TEMPLATE;
@@ -217,7 +217,7 @@ if ((strlen($_REQUEST['save'])>0 || strlen($_REQUEST['apply'])>0) && $_SERVER['R
 					{
 						foreach ($arQuestion["structure"] as $arAnswer)
 						{
-							if (strlen($arAnswer["MESSAGE"]) <= 0)
+							if ($arAnswer["MESSAGE"] == '')
 							{
 								if (
 									$arAnswer['ANS_NEW'] != 'Y'
@@ -280,8 +280,10 @@ if ((strlen($_REQUEST['save'])>0 || strlen($_REQUEST['apply'])>0) && $_SERVER['R
 			elseif (!$_REQUEST['USE_MAIL_TEMPLATE'] && count($arr['reference_id']) > 0)
 			{
 				reset($arr['reference_id']);
-				while (list($num,$tmp_id)=each($arr['reference_id']))
+				foreach ($arr['reference_id'] as $tmp_id)
+				{
 					CEventMessage::Delete($tmp_id);
+				}
 			}
 			$arr = CForm::GetTemplateList("MAIL","xxx",$res);
 
@@ -310,7 +312,7 @@ if ((strlen($_REQUEST['save'])>0 || strlen($_REQUEST['apply'])>0) && $_SERVER['R
 			}
 		}
 
-		if (strlen($strError)<=0 && $ID > 0)
+		if ($strError == '' && $ID > 0)
 		{
 			$arCrmParams = array(
 				'CRM_ID' => $_REQUEST['CRM_ID'],
@@ -324,9 +326,9 @@ if ((strlen($_REQUEST['save'])>0 || strlen($_REQUEST['apply'])>0) && $_SERVER['R
 
 		$ID = $res;
 
-		if (strlen($strError)<=0)
+		if ($strError == '')
 		{
-			if (strlen($_REQUEST['save'])>0)
+			if ($_REQUEST['save'] <> '')
 			{
 				if (!empty($_REQUEST["back_url"])) LocalRedirect("/".ltrim($_REQUEST["back_url"], "/"));
 				else LocalRedirect("/bitrix/admin/form_list.php?lang=".LANGUAGE_ID);
@@ -363,7 +365,7 @@ if (!$arForm || !extract($arForm, EXTR_PREFIX_ALL, 'str'))
 }
 else
 {
-	if (strlen($strError)<=0)
+	if ($strError == '')
 	{
 		$z = CForm::GetMenuList(array("FORM_ID"=>$ID), "N");
 		while ($zr = $z->Fetch()) ${"MENU_".$zr["LID"]} = $zr["MENU"];
@@ -376,7 +378,7 @@ else
 	}
 }
 
-if (strlen($strError)>0) $DB->InitTableVarsForEdit("b_form", "", "str_");
+if ($strError <> '') $DB->InitTableVarsForEdit("b_form", "", "str_");
 
 if ($ID>0)
 {
@@ -482,7 +484,10 @@ if($strError)
 	$aMsg=array();
 	$arrErr = explode("<br>",$strError);
 	reset($arrErr);
-	while (list(,$err)=each($arrErr)) $aMsg[]['text']=$err;
+	foreach ($arrErr as $err)
+	{
+		$aMsg[]['text'] = $err;
+	}
 
 	$e = new CAdminException($aMsg);
 	$GLOBALS["APPLICATION"]->ThrowException($e);
@@ -490,7 +495,7 @@ if($strError)
 	$message = new CAdminMessage(GetMessage("FORM_ERROR_SAVE"), $e);
 	echo $message->Show();
 }
-echo ShowNote($strNote);
+ShowNote($strNote);
 
 if ($bEditTemplate):
 ?>
@@ -517,6 +522,9 @@ $tabControl->Begin();
 //********************
 $tabControl->BeginNextTab();
 ?>
+	<tr class="heading">
+		<td colspan="2"><?=GetMessage('FORM_MAIN_SETTINGS_SECTION'); ?></td>
+	</tr>
 	<tr class="adm-detail-required-field">
 		<td width="40%"><?=GetMessage("FORM_NAME")?></td>
 		<td width="60%"><input type="text" name="NAME" size="60" maxlength="255" value="<?=htmlspecialcharsbx($str_NAME)?>"></td>
@@ -528,32 +536,13 @@ $tabControl->BeginNextTab();
 	</tr>
 	<?endif;?>
 	<tr>
-		<td><?=GetMessage("FORM_C_SORT")?></td>
-		<td><input type="text" name="C_SORT" size="5" maxlength="18" value="<?echo intval($str_C_SORT)?>"></td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("FORM_MENU")?></td>
-		<td>
-			<table border="0" cellspacing="1" cellpadding="2" style="width: 0%;"><?
-				reset($arFormMenuLang);
-				foreach ($arFormMenuLang as $arrL):
-				?>
-				<tr>
-					<td width="0%" nowrap><?=$arrL["NAME"]?></td>
-					<td><input type="text" name="MENU_<?=htmlspecialcharsbx($arrL["LID"], ENT_QUOTES)?>" size="30" value="<?=htmlspecialcharsex(${"MENU_".htmlspecialcharsbx($arrL["LID"], ENT_QUOTES)})?>"></td>
-				</tr>
-				<? endforeach; ?>
-			</table></td>
-	</tr>
-	<tr>
 		<td valign=top><?=GetMessage("FORM_SITE_CAPTION")?></td>
 		<td>
 			<div class="adm-list">
-
-
 		<?
 		reset($arrSites);
-		while(list($sid, $arrS) = each($arrSites)):
+		foreach ($arrSites as $sid => $arrS)
+		{
 			$checked = ((is_array($arSITE) && in_array($sid, $arSITE)) || ($ID<=0 && $def_site_id==$sid)) ? "checked" : "";
 			?>
 			<div class="adm-list-item">
@@ -561,14 +550,39 @@ $tabControl->BeginNextTab();
 				<div class="adm-list-label"><label for="<?=htmlspecialcharsbx($sid)?>"><?echo "[<a class=tablebodylink href='/bitrix/admin/site_edit.php?LID=".htmlspecialcharsbx($sid)."&lang=".LANGUAGE_ID."'>".htmlspecialcharsbx($sid)."</a>]&nbsp;".htmlspecialcharsbx($arrS["NAME"])?></label></div>
 			</div>
 			<?
-		endwhile;
+		}
 		?></div></td>
+	</tr>
+	<tr>
+		<td><?=GetMessage("FORM_C_SORT")?></td>
+		<td><input type="text" name="C_SORT" size="5" maxlength="18" value="<?echo intval($str_C_SORT)?>"></td>
+	</tr>
+	<tr class="heading">
+		<td colspan="2"><?=GetMessage('FORM_RESULT_MENU_SETTINGS'); ?></td>
+	</tr>
+	<tr>
+		<td colspan="2" style="white-space: nowrap; text-align: center; font-weight: bold; padding-bottom: 6px;"><?echo GetMessage("FORM_MENU_LANGUAGE_TITLE")?></td>
+	</tr>
+	<?
+	reset($arFormMenuLang);
+	foreach ($arFormMenuLang as $arrL):
+	?>
+		<tr>
+			<td style="white-space: nowrap;"><?=$arrL["NAME"]?></td>
+			<td><input type="text" name="MENU_<?=htmlspecialcharsbx($arrL["LID"], ENT_QUOTES)?>" size="30" value="<?=htmlspecialcharsex(${"MENU_".htmlspecialcharsbx($arrL["LID"], ENT_QUOTES)})?>"></td>
+		</tr>
+	<? endforeach; ?>
+	<tr>
+		<td colspan="2"><?=BeginNote().GetMessage('FORM_RESULT_MENU_NOTE').EndNote(); ?></td>
+	</tr>
+	<tr class="heading">
+		<td colspan="2"><?=GetMessage('FORM_ADDITIONAL_SETTINGS_SECTION'); ?></td>
 	</tr>
 <?
 	if ($bSimple)
 	{
 		$arr = CForm::GetTemplateList("MAIL","xxx",$ID);
-		if (count($arr['reference_id']) > 0)
+		if (!empty($arr['reference_id']))
 		{
 			$str_USE_MAIL = 'checked OnClick="template_warn()"';
 ?>
@@ -582,7 +596,9 @@ function template_warn()
 <?
 		}
 		else
+		{
 			$str_USE_MAIL = '';
+		}
 ?>
 	<tr>
 		<td><?=GetMessage("FORM_SEND_RESULTS")?></td>
@@ -613,7 +629,7 @@ $tabControl->BeginNextTab();
 		<td width="40%"><?=GetMessage("FORM_IMAGE")?></td>
 		<td width="60%"><?
 			echo CFile::InputFile("IMAGE_ID", 20, $str_IMAGE_ID);
-			if (!is_array($str_IMAGE_ID) && strlen($str_IMAGE_ID)>0 || is_array($str_IMAGE_ID) && count($str_IMAGE_ID) > 0):
+			if (!is_array($str_IMAGE_ID) && $str_IMAGE_ID <> '' || is_array($str_IMAGE_ID) && count($str_IMAGE_ID) > 0):
 				?><br><?
 				echo CFile::ShowImage($str_IMAGE_ID, 200, 200, "border=0", "", true);
 			endif;
@@ -771,8 +787,8 @@ var __arr_messages = {
 		$tpl = "";
 		while ($ar = $arTplList->Fetch())
 		{
-			if (strlen($tpl) == 0) $tpl = $ar["TEMPLATE"];
-			if (strlen(trim($ar["CONDITION"])) == 0)
+			if ($tpl == '') $tpl = $ar["TEMPLATE"];
+			if (trim($ar["CONDITION"]) == '')
 			{
 				$tpl = $ar["TEMPLATE"];
 				break;
@@ -1576,7 +1592,7 @@ function addCrmField(cv, fv, bSkipCheck)
 		<option value="Y"><?=GetMessage('FORM_FIELD_CRM_NEW')?></option>
 <?
 	foreach ($arCRMServers as $arCrm):
-		if (strlen($arCrm['NAME']) <= 0)
+		if ($arCrm['NAME'] == '')
 		{
 			$arCrm['NAME'] = GetMessage('FORM_TAB_CRM_UNTITLED');
 		}
@@ -1663,7 +1679,7 @@ $tabControl->BeginNextTab();
 		unset($arr['reference_id'][4]);
 		$arrSelect=array();
 		reset($arr['reference_id']);
-		while(list($num,)=each($arr['reference_id']))
+		foreach (array_keys($arr['reference_id']) as $num)
 		{
 			$arrSelect['reference_id'][]=$arr['reference_id'][$num];
 			$arrSelect['reference'][]=$arr['reference'][$num];
@@ -1675,30 +1691,30 @@ $tabControl->BeginNextTab();
 	}
 
 	reset($arGroups);
-	while (list(,$group)=each($arGroups)) :
+	foreach ($arGroups as $group)
+	{
 	?>
 	<tr>
-		<td width="40%"><?=$group["NAME"].":"?></td>
+		<td width="40%"><?= $group["NAME"].":" ?></td>
 		<td width="60%"><?
-		$perm = CForm::GetPermission($ID, array($group["ID"]), "Y");
+			$perm = CForm::GetPermission($ID, array($group["ID"]), "Y");
 
-		// for simple method: change 20 (work with other results) access mode to 15
-		/*
-		if ($bSimple)
-			$perm = $perm==20 ? 15 : $perm;
-		*/
+			// for simple method: change 20 (work with other results) access mode to 15
+			/*
+			if ($bSimple)
+				$perm = $perm==20 ? 15 : $perm;
+			*/
 
-		echo SelectBoxFromArray("PERMISSION_".$group["ID"], $arrSelect, $perm, "", 'style="width: 80%;"');
-		?></td>
+			echo SelectBoxFromArray("PERMISSION_".$group["ID"], $arrSelect, $perm, "", 'style="width: 80%;"');
+			?></td>
 	</tr>
-	<?endwhile;?>
-<?
+	<?
+	}
 
 $tabControl->EndTab();
-$tabControl->Buttons(array("disabled"=>(!(($ID>0 && $F_RIGHT>=30) || CForm::IsAdmin())), "back_url"=>(strlen($back_url) > 0 ? $back_url : "form_list.php?lang=".LANGUAGE_ID)));
+$tabControl->Buttons(array("disabled"=>(!(($ID>0 && $F_RIGHT>=30) || CForm::IsAdmin())), "back_url"=>($back_url <> '' ? $back_url : "form_list.php?lang=".LANGUAGE_ID)));
 $tabControl->End();
 ?>
 </form>
 <?
 require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
-?>

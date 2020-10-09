@@ -16,38 +16,38 @@ if (empty($arParams["INDEX_URL"]) && !empty($arParams["SECTIONS_TOP_URL"]))
 /***************** BASE ********************************************/
 	$arParams["BX_PHOTO_AJAX"] = isset($_REQUEST["bx_photo_ajax"]);
 	$arParams["ACTION_URL"] = CHTTP::urlDeleteParams(htmlspecialcharsback(POST_FORM_ACTION_URI), array("clear_cache", "bitrix_include_areas", "bitrix_show_mode", "back_url_admin", "bx_photo_ajax", "change_view_mode_data", "sessid"));
-	$arParams["ACTION_URL"] = $arParams["ACTION_URL"].(strpos($arParams["ACTION_URL"], "?") === false ? "?" : "&")."bx_photo_ajax=Y&sessid=".bitrix_sessid();
+	$arParams["ACTION_URL"] = $arParams["ACTION_URL"].(mb_strpos($arParams["ACTION_URL"], "?") === false ? "?" : "&")."bx_photo_ajax=Y&sessid=".bitrix_sessid();
 
 	$arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
 	$arParams["IBLOCK_ID"] = intval($arParams["IBLOCK_ID"]);
 	$iblockId = $arParams["IBLOCK_ID"];
-	$arParams["SECTION_ID"] = intVal($arParams["SECTION_ID"]);
+	$arParams["SECTION_ID"] = intval($arParams["SECTION_ID"]);
 	$arParams["USER_ALIAS"] = preg_replace("/[^a-z0-9\_]+/is" , "", $arParams["USER_ALIAS"]);
 	$arParams["BEHAVIOUR"] = ($arParams["BEHAVIOUR"] == "USER" ? "USER" : "SIMPLE");
 	$arParams["PERMISSION_EXTERNAL"] = trim($arParams["PERMISSION"]);
 
 	$arParams["ACTION"] = (empty($arParams["ACTION"]) ? $_REQUEST["ACTION"] : $arParams["ACTION"]);
-	$arParams["ACTION"] = strToUpper(empty($arParams["ACTION"]) ? "EDIT" : $arParams["ACTION"]);
+$arParams["ACTION"] = mb_strtoupper(empty($arParams["ACTION"])? "EDIT" : $arParams["ACTION"]);
 
 	$arParams["AJAX_CALL"] = ($_REQUEST["AJAX_CALL"] == "Y" ? "Y" : "N");
 	$arResult["JSID"] = '1';
 
 	$arParams["USE_PHOTO_TITLE"] = ($arParams["USE_PHOTO_TITLE"] == "Y" ? "Y" : "N");
-	$arParams["PAGE_ELEMENTS"] = (intVal($arParams["PAGE_ELEMENTS"]) > 0 ? intVal($arParams["PAGE_ELEMENTS"]) : 20);
-	$arParams["THUMBNAIL_SIZE"] = (intVal($arParams["THUMBNAIL_SIZE"]) > 0 ? intVal($arParams["THUMBNAIL_SIZE"]) : 100);
-	$arParams["ALBUM_PHOTO_THUMBS_WIDTH"] = (intVal($arParams["ALBUM_PHOTO_THUMBS_WIDTH"]) > 0 ? intVal($arParams["ALBUM_PHOTO_THUMBS_WIDTH"]) : 110);
+	$arParams["PAGE_ELEMENTS"] = (intval($arParams["PAGE_ELEMENTS"]) > 0 ? intval($arParams["PAGE_ELEMENTS"]) : 20);
+	$arParams["THUMBNAIL_SIZE"] = (intval($arParams["THUMBNAIL_SIZE"]) > 0 ? intval($arParams["THUMBNAIL_SIZE"]) : 100);
+	$arParams["ALBUM_PHOTO_THUMBS_WIDTH"] = (intval($arParams["ALBUM_PHOTO_THUMBS_WIDTH"]) > 0 ? intval($arParams["ALBUM_PHOTO_THUMBS_WIDTH"]) : 110);
 
 	$arParams['AFTER_UPLOAD_IDS'] = array();
 	if (isset($_REQUEST['uploader_redirect']) && $_REQUEST['uploader_redirect'] == "Y" && isset($_SESSION['arUploadedPhotos']))
 	{
 		foreach($_SESSION['arUploadedPhotos'] as $uplId)
-			if (intVal($uplId) > 0)
-				$arParams['AFTER_UPLOAD_IDS'][] = intVal($uplId);
+			if (intval($uplId) > 0)
+				$arParams['AFTER_UPLOAD_IDS'][] = intval($uplId);
 	}
 	//$arParams['AFTER_UPLOAD_MODE'] = count($arParams['AFTER_UPLOAD_IDS']) == 0 ? 'N' : 'Y';
 	$arParams['AFTER_UPLOAD_MODE'] = 'N';
 
-	$arParams["PAGE_ELEMENTS"] = intVal($arParams["PAGE_ELEMENTS"]);
+	$arParams["PAGE_ELEMENTS"] = intval($arParams["PAGE_ELEMENTS"]);
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
 		"index" => "",
@@ -60,17 +60,17 @@ if (empty($arParams["INDEX_URL"]) && !empty($arParams["SECTIONS_TOP_URL"]))
 
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		$arParams[strToUpper($URL)."_URL"] = trim($arParams[strToUpper($URL)."_URL"]);
-		if (empty($arParams[strToUpper($URL)."_URL"]))
-			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[mb_strtoupper($URL)."_URL"] = trim($arParams[mb_strtoupper($URL)."_URL"]);
+		if (empty($arParams[mb_strtoupper($URL)."_URL"]))
+			$arParams[mb_strtoupper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~".mb_strtoupper($URL)."_URL"] = $arParams[mb_strtoupper($URL)."_URL"];
+		$arParams[mb_strtoupper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".mb_strtoupper($URL)."_URL"]);
 	}
 
 /***************** ADDITIONAL **************************************/
 	$arParams["DATE_TIME_FORMAT"] = trim(!empty($arParams["DATE_TIME_FORMAT"]) ? $arParams["DATE_TIME_FORMAT"] : $GLOBALS["DB"]->DateFormatToPHP(CSite::GetDateFormat("SHORT")));
 	$arParams["SHOW_PHOTO_USER"] = ($arParams["SHOW_PHOTO_USER"] == "Y" ? "Y" : "N");// hidden params for custom components
-	$arParams["GALLERY_AVATAR_SIZE"] = intVal(intVal($arParams["GALLERY_AVATAR_SIZE"]) > 0 ? $arParams["GALLERY_AVATAR_SIZE"] : 50);
+	$arParams["GALLERY_AVATAR_SIZE"] = intval(intVal($arParams["GALLERY_AVATAR_SIZE"]) > 0 ? $arParams["GALLERY_AVATAR_SIZE"] : 50);
 	$arParams["SET_STATUS_404"] = ($arParams["SET_STATUS_404"] == "Y" ? "Y" : "N");
 /***************** STANDART ****************************************/
 	$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y"); //Turn on by default
@@ -174,7 +174,7 @@ elseif($_REQUEST["save_edit"] == "Y" || $_REQUEST["edit"] == "Y")
 
 			foreach ($_REQUEST as $key => $val)
 			{
-				if (substr($key, 0, 3) == "UF_")
+				if (mb_substr($key, 0, 3) == "UF_")
 					$GLOBALS[$key] = $val;
 			}
 
@@ -286,9 +286,9 @@ elseif($_REQUEST["save_edit"] == "Y" || $_REQUEST["edit"] == "Y")
 						"PREVIEW_TEXT_TYPE" => "text"
 					);
 
-					if ($multiAction == 'move' && intVal($_POST["move_to"] > 0))
+					if ($multiAction == 'move' && intval($_POST["move_to"] > 0))
 					{
-						$arFields["IBLOCK_SECTION"] = intVal($_POST["move_to"]);
+						$arFields["IBLOCK_SECTION"] = intval($_POST["move_to"]);
 					}
 
 					if ($arParams['USE_PHOTO_TITLE'] != 'N')
@@ -374,7 +374,7 @@ elseif($_REQUEST["save_edit"] == "Y" || $_REQUEST["edit"] == "Y")
 				$arFields["IBLOCK_SECTION_ID"] = $arResult["GALLERY"]["ID"];
 			}
 		}
-		elseif (intVal($_REQUEST["IBLOCK_SECTION_ID"]) > 0)
+		elseif (intval($_REQUEST["IBLOCK_SECTION_ID"]) > 0)
 		{
 			$arFields["IBLOCK_SECTION_ID"] = $_REQUEST["IBLOCK_SECTION_ID"];
 		}
@@ -439,10 +439,10 @@ elseif($_REQUEST["save_edit"] == "Y" || $_REQUEST["edit"] == "Y")
 				ExecuteModuleEventEx($arEvent, array($arResult["SECTION"]["ID"], $arEventFields, $arParams, $arResult));
 
 			// /Must Be deleted
-			if ($arParams["BEHAVIOUR"] == "USER" && intVal($arResult["SECTION"]["IBLOCK_SECTION_ID"]) == intVal($arResult["GALLERY"]["ID"]))
+			if ($arParams["BEHAVIOUR"] == "USER" && intval($arResult["SECTION"]["IBLOCK_SECTION_ID"]) == intval($arResult["GALLERY"]["ID"]))
 				$arResult["URL"] = CComponentEngine::MakePathFromTemplate($arParams["~GALLERY_URL"],
 				array("USER_ALIAS" => $arParams["USER_ALIAS"]));
-			elseif (intVal($arResult["SECTION"]["IBLOCK_SECTION_ID"]) > 0)
+			elseif (intval($arResult["SECTION"]["IBLOCK_SECTION_ID"]) > 0)
 				$arResult["URL"] = CComponentEngine::MakePathFromTemplate($arParams["~SECTION_URL"],
 				array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $arResult["SECTION"]["IBLOCK_SECTION_ID"]));
 			else
@@ -530,7 +530,7 @@ if ($oPhoto)
 			"ACTIVE" => "Y",
 			"IBLOCK_ID" => $iblockId,
 			"IBLOCK_ACTIVE" => "Y",
-			"SECTION_ID" => intVal($arParams["SECTION_ID"])
+			"SECTION_ID" => intval($arParams["SECTION_ID"])
 		);
 
 		// GALLERY INFO
@@ -558,11 +558,11 @@ if ($oPhoto)
 				$res["DETAIL_PICTURE"] = CFile::GetFileArray($res["DETAIL_PICTURE"]);
 				//$res["PREVIEW_PICTURE"] = CFile::GetFileArray($res["PREVIEW_PICTURE"]);
 
-				$res["SECTIONS_CNT"] = intVal(CIBlockSection::GetCount(array("IBLOCK_ID" => $iblockId, "SECTION_ID" => $res["ID"])));
+				$res["SECTIONS_CNT"] = intval(CIBlockSection::GetCount(array("IBLOCK_ID" => $iblockId, "SECTION_ID" => $res["ID"])));
 
-				$res["ELEMENTS_CNT"] = intVal(CIBlockSection::GetSectionElementsCount($res["ID"], array("CNT_ACTIVE" => "Y")));
+				$res["ELEMENTS_CNT"] = intval(CIBlockSection::GetSectionElementsCount($res["ID"], array("CNT_ACTIVE" => "Y")));
 				if ($arParams["PERMISSION"] >= "U")
-					$res["ELEMENTS_CNT_ALL"] = intVal(CIBlockSection::GetSectionElementsCount($res["ID"], array("CNT_ALL"=>"Y")));
+					$res["ELEMENTS_CNT_ALL"] = intval(CIBlockSection::GetSectionElementsCount($res["ID"], array("CNT_ALL"=>"Y")));
 
 				if ($arParams["PERMISSION"] < "U" && $res["ELEMENTS_CNT"] <= 0)
 					continue;
@@ -586,7 +586,7 @@ if ($oPhoto)
 					}
 					$res["~DROP_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["~SECTION_EDIT_URL"],
 						array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $res["ID"], "ACTION" => "drop")).
-						(strpos($arParams["~SECTION_EDIT_URL"], "?") === false ? "?" : "&").bitrix_sessid_get()."&edit=Y";
+						(mb_strpos($arParams["~SECTION_EDIT_URL"], "?") === false ? "?" : "&").bitrix_sessid_get()."&edit=Y";
 					$res["DROP_LINK"] = htmlspecialcharsbx($res["~DROP_LINK"]);
 				}
 				$arResult["SECTIONS"][$res["ID"]] = $res;
@@ -613,7 +613,7 @@ if ($oPhoto)
 			{
 				CPageOption::SetOptionString("main", "nav_page_in_session", "N");
 				$arNavParams = array(
-					"iNumPage" => (isset($_REQUEST['bx_photo_nav_page']) ? intVal($_REQUEST['bx_photo_nav_page']) : 1),
+					"iNumPage" => (isset($_REQUEST['bx_photo_nav_page']) ? intval($_REQUEST['bx_photo_nav_page']) : 1),
 					"nPageSize" => $arParams["PAGE_ELEMENTS"],
 					"bDescPageNumbering" => ($arParams["USE_DESC_PAGE"] == "N" ? false : true),
 					"bShowAll" => false
@@ -673,10 +673,10 @@ if ($oPhoto)
 
 				$arElement["URL"] = htmlspecialcharsbx($arElement["~URL"]);
 				$arResult["PHOTOS_JS"][$arElement["ID"]] = array(
-					"id" => intVal($arElement["ID"]),
+					"id" => intval($arElement["ID"]),
 					"src" => $arElement["PREVIEW_PICTURE"]["SRC"],
-					"width" => intVal($arElement["PREVIEW_PICTURE"]["WIDTH"]),
-					"height" => intVal($arElement["PREVIEW_PICTURE"]["HEIGHT"]),
+					"width" => intval($arElement["PREVIEW_PICTURE"]["WIDTH"]),
+					"height" => intval($arElement["PREVIEW_PICTURE"]["HEIGHT"]),
 					"title" => $arElement["NAME"],
 					"description" => $arElement["~DETAIL_TEXT"],
 					"tags" => $arElement["~TAGS"],
@@ -829,7 +829,7 @@ if ($bVarsFromForm)
 	$arResult["FORM"]["DATE"]["VALUE"] =  htmlspecialcharsbx($_REQUEST["UF_DATE"]);
 }
 
-if (intVal($arResult["SECTION"]["ID"]) > 0)
+if (intval($arResult["SECTION"]["ID"]) > 0)
 {
 	$arResult["URL"] = CComponentEngine::MakePathFromTemplate($arParams["SECTION_URL"],
 		array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $arResult["SECTION"]["ID"]));
@@ -870,7 +870,7 @@ $arResult["SECTION"]["~DROP_LINK"] = CComponentEngine::MakePathFromTemplate(
 		"ACTION" => "drop"
 	));
 
-	$arResult["SECTION"]["~DROP_LINK"] .= (strpos($arResult["SECTION"]["~DROP_LINK"], "?") === false ? "?" : "&").bitrix_sessid_get()."&edit=Y";
+	$arResult["SECTION"]["~DROP_LINK"] .= (mb_strpos($arResult["SECTION"]["~DROP_LINK"], "?") === false ? "?" : "&").bitrix_sessid_get()."&edit=Y";
 
 $arResult["SECTION"]["EDIT_ICON_LINK"] = htmlspecialcharsbx($arResult["SECTION"]["~EDIT_ICON_LINK"]);
 $arResult["SECTION"]["DROP_LINK"] = htmlspecialcharsbx($arResult["SECTION"]["~DROP_LINK"]);

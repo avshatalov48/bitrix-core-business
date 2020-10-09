@@ -71,7 +71,7 @@ if($USER->IsAuthorized() && check_bitrix_sessid())
 		case "open_tab_save":
 
 			if(isset($_REQUEST["id"]) && isset($_REQUEST["filter_id"]))
-				$_SESSION[CAdminFilter::SESS_PARAMS_NAME][$_REQUEST["filter_id"]]["activeTabId"] = $_REQUEST["id"];
+				\Bitrix\Main\Application::getInstance()->getSession()[CAdminFilter::SESS_PARAMS_NAME][$_REQUEST["filter_id"]]["activeTabId"] = $_REQUEST["id"];
 
 			$res = true;
 
@@ -82,9 +82,9 @@ if($USER->IsAuthorized() && check_bitrix_sessid())
 			if(isset($_REQUEST["id"]) && isset($_REQUEST["filter_id"]))
 			{
 				if($_REQUEST["id"] != "false")
-					$_SESSION[CAdminFilter::SESS_PARAMS_NAME][$_REQUEST["filter_id"]]["filteredId"] = $_REQUEST["id"];
+					\Bitrix\Main\Application::getInstance()->getSession()[CAdminFilter::SESS_PARAMS_NAME][$_REQUEST["filter_id"]]["filteredId"] = $_REQUEST["id"];
 				else
-					unset($_SESSION[CAdminFilter::SESS_PARAMS_NAME][$_REQUEST["filter_id"]]["filteredId"]);
+					unset(\Bitrix\Main\Application::getInstance()->getSession()[CAdminFilter::SESS_PARAMS_NAME][$_REQUEST["filter_id"]]["filteredId"]);
 			}
 
 			$res = true;

@@ -15,7 +15,7 @@ if(!$id)
 }
 
 $metadata = UrlMetadataTable::getById($id)->fetch();
-if($metadata['EMBED'] && !empty($metadata['EMBED']) && strpos($metadata['EMBED'], '<iframe') === false)
+if($metadata['EMBED'] && !empty($metadata['EMBED']) && mb_strpos($metadata['EMBED'], '<iframe') === false)
 {
 	echo $metadata['EMBED'];
 }

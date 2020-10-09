@@ -44,7 +44,7 @@ if($REQUEST_METHOD == "POST" && ($save!="" || $apply!="") && $isAdmin && check_b
 	else
 	{
 		$message = implode("\n", CBXShortUri::GetErrors());
-		if(strlen($message) <= 0)
+		if($message == '')
 			$message = GetMessage("SU_EF_save_error");
 		$message = new CAdminMessage($message);
 		$bVarsFromForm = true;

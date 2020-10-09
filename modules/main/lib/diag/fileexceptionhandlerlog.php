@@ -22,7 +22,7 @@ class FileExceptionHandlerLog
 			$this->logFile = $options["file"];
 
 		$this->logFile = preg_replace("'[\\\\/]+'", "/", $this->logFile);
-		if ((substr($this->logFile, 0, 1) !== "/") && !preg_match("#^[a-z]:/#", $this->logFile))
+		if ((mb_substr($this->logFile, 0, 1) !== "/") && !preg_match("#^[a-z]:/#", $this->logFile))
 			$this->logFile = Main\Application::getDocumentRoot()."/".$this->logFile;
 
 		$this->logFileHistory = $this->logFile.".old";

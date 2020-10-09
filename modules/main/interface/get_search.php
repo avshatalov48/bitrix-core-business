@@ -71,9 +71,9 @@ function GetStrings(&$item, $key, $p)
 				{
 					for($j = $c-1; $j >= 0; $j--)
 					{
-						$prefix = substr($item["text"], 0, $arMatches[2][$j][1]);
-						$instr  = substr($item["text"], $arMatches[2][$j][1], strlen($arMatches[2][$j][0]));
-						$suffix = substr($item["text"], $arMatches[2][$j][1]+strlen($arMatches[2][$j][0]));
+						$prefix = mb_substr($item["text"], 0, $arMatches[2][$j][1]);
+						$instr = mb_substr($item["text"], $arMatches[2][$j][1], mb_strlen($arMatches[2][$j][0]));
+						$suffix = mb_substr($item["text"], $arMatches[2][$j][1] + mb_strlen($arMatches[2][$j][0]));
 						$item["text"] = $prefix."<b>".$instr."</b>".$suffix;
 					}
 				}

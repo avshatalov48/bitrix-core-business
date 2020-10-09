@@ -24,7 +24,7 @@ if($APPLICATION->GetGroupRight("form")>"D")
 		$z = CForm::GetMenuList(array("LID"=>LANGUAGE_ID));
 		while ($zr=$z->GetNext())
 		{
-			if (strlen($zr["MENU"])>0)
+			if ($zr["MENU"] <> '')
 			{
 				$alt = str_replace("#NAME#",$zr["NAME"],htmlspecialcharsbx(GetMessage("FORM_RESULTS_ALT")));
 				$arFormsList[] = array(
@@ -38,7 +38,7 @@ if($APPLICATION->GetGroupRight("form")>"D")
 						"form_result_view.php?WEB_FORM_ID=".$zr["ID"]
 					),
 					"title" => $alt
-				 );
+				);
 			}
 		}
 	}

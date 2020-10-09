@@ -76,7 +76,7 @@ foreach ($arResult['FILES'] as $file)
 	$rep = array($arResult['UID'], $arResult['controlName'], (array_key_exists("IMAGE", $file) ? "image" : "file"));
 	foreach ($file as $fieldName => $fieldValue)
 	{
-		$pat[] = "#".strtolower($fieldName)."#";
+		$pat[] = "#".mb_strtolower($fieldName)."#";
 		$rep[] = $fieldValue;
 
 	}

@@ -807,6 +807,27 @@
 	  }
 	}
 
+	function fetchExtensionSettings(html) {
+	  if (Type.isStringFilled(html)) {
+	    var scripts = html.match(/<script type="extension\/settings" \b[^>]*>([\s\S]*?)<\/script>/g);
+
+	    if (Type.isArrayFilled(scripts)) {
+	      return scripts.map(function (script) {
+	        var _script$match = script.match(/data-extension="(.[a-z0-9_.-]+)"/),
+	            _script$match2 = babelHelpers.slicedToArray(_script$match, 2),
+	            extension = _script$match2[1];
+
+	        return {
+	          extension: extension,
+	          script: script
+	        };
+	      });
+	    }
+	  }
+
+	  return [];
+	}
+
 	var Extension =
 	/*#__PURE__*/
 	function () {
@@ -820,6 +841,7 @@
 	    this.inlineScripts = result.SCRIPT.reduce(inlineScripts, []);
 	    this.externalScripts = result.SCRIPT.reduce(externalScripts, []);
 	    this.externalStyles = result.STYLE.reduce(externalStyles, []);
+	    this.settingsScripts = fetchExtensionSettings(result.HTML);
 	  }
 
 	  babelHelpers.createClass(Extension, [{
@@ -833,8 +855,14 @@
 	      }
 
 	      if (!this.loadPromise && this.state) {
-	        this.state = 'load'; // eslint-disable-next-line
+	        this.state = 'load';
+	        this.settingsScripts.forEach(function (entry) {
+	          var isLoaded = !!document.querySelector("script[data-extension=\"".concat(entry.extension, "\"]"));
 
+	          if (!isLoaded) {
+	            document.body.insertAdjacentHTML('beforeend', entry.script);
+	          }
+	        });
 	        this.inlineScripts.forEach(BX.evalGlobal);
 	        this.loadPromise = Promise.all([loadAll(this.externalScripts), loadAll(this.externalStyles)]).then(function () {
 	          _this.state = 'loaded';
@@ -1219,6 +1247,42 @@
 	      var orders = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
 	      var comparator = createComparator(fields, orders);
 	      return Object.values(collection).sort(comparator);
+	    }
+	  }, {
+	    key: "destroy",
+	    value: function destroy(target) {
+	      var errorMessage = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'Object is destroyed';
+
+	      if (Type.isObject(target)) {
+	        var onPropertyAccess = function onPropertyAccess() {
+	          throw new Error(errorMessage);
+	        };
+
+	        var ownProperties = Object.keys(target);
+
+	        var prototypeProperties = function () {
+	          var targetPrototype = Object.getPrototypeOf(target);
+
+	          if (Type.isObject(targetPrototype)) {
+	            return Object.getOwnPropertyNames(targetPrototype);
+	          }
+
+	          return [];
+	        }();
+
+	        var uniquePropertiesList = babelHelpers.toConsumableArray(new Set([].concat(babelHelpers.toConsumableArray(ownProperties), babelHelpers.toConsumableArray(prototypeProperties))));
+	        uniquePropertiesList.filter(function (name) {
+	          var descriptor = Object.getOwnPropertyDescriptor(target, name);
+	          return !/__(.+)__/.test(name) && (!Type.isObject(descriptor) || descriptor.configurable === true);
+	        }).forEach(function (name) {
+	          Object.defineProperty(target, name, {
+	            get: onPropertyAccess,
+	            set: onPropertyAccess,
+	            configurable: false
+	          });
+	        });
+	        Object.setPrototypeOf(target, null);
+	      }
 	    }
 	  }]);
 	  return Runtime;

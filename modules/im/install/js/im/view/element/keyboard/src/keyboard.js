@@ -66,7 +66,17 @@ Vue.component('bx-im-view-element-keyboard',
 				return false;
 			}
 
-			if (button.FUNCTION)
+			if (button.ACTION && button.ACTION_VALUE.toString())
+			{
+				this.$emit('click', {action: 'ACTION', params: {
+					dialogId: this.dialogId,
+					messageId: this.messageId,
+					botId: button.BOT_ID,
+					action: button.ACTION,
+					value: button.ACTION_VALUE,
+				}});
+			}
+			else if (button.FUNCTION)
 			{
 				let execFunction = button.FUNCTION.toString()
 					.replace('#MESSAGE_ID#', this.messageId)
@@ -152,6 +162,15 @@ Vue.component('bx-im-view-element-keyboard',
 				}
 
 				if (!Utils.platform.isBitrixMobile() && button.CONTEXT === 'MOBILE')
+				{
+					return false;
+				}
+
+				// TODO activate this buttons
+				if (
+					!Utils.platform.isBitrixMobile()
+					&& (button.ACTION === 'DIALOG' || button.ACTION === 'CALL')
+				)
 				{
 					return false;
 				}

@@ -109,7 +109,7 @@ class CModule
 			{
 				foreach($arTask["OPERATIONS"] as $operation_name)
 				{
-					$operation_name = substr($operation_name, 0, 50);
+					$operation_name = mb_substr($operation_name, 0, 50);
 
 					if(!isset($arDBOperations[$operation_name]))
 					{
@@ -127,7 +127,7 @@ class CModule
 				}
 			}
 
-			$task_name = substr($task_name, 0, 100);
+			$task_name = mb_substr($task_name, 0, 100);
 			$sqlTaskName = $DB->ForSQL($task_name);
 
 			if(!isset($arDBTasks[$task_name]) && $task_name <> '')

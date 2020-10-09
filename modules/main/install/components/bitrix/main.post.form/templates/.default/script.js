@@ -2930,7 +2930,11 @@ window.BxInsertMention = function (params)
 			}
 		}
 
-		window['BXfpdStopMent' + formID]();
+		if (window['BXfpdStopMent' + formID])
+		{
+			window['BXfpdStopMent' + formID]();
+		}
+
 		MPFMention["text"] = '';
 
 		if(editor.GetViewMode() == 'wysiwyg') // WYSIWYG

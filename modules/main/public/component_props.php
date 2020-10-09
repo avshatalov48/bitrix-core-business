@@ -67,8 +67,8 @@ else
 		$aComponents = array();
 		foreach($arScripts as $script)
 		{
-			$nLineFrom = substr_count(substr($filesrc, 0, $script[0]), "\n")+1;
-			$nLineTo = substr_count(substr($filesrc, 0, $script[1]), "\n")+1;
+			$nLineFrom = substr_count(mb_substr($filesrc, 0, $script[0]), "\n")+1;
+			$nLineTo = substr_count(mb_substr($filesrc, 0, $script[1]), "\n")+1;
 			if($nLineFrom <= $src_line && $nLineTo >= $src_line)
 				$aComponents[] = $script;
 			if($nLineTo > $src_line)
@@ -112,7 +112,7 @@ if($strWarning == "")
 			else
 				$code = "<"."?".($arRes["VARIABLE"]?$arRes["VARIABLE"]."=":"")."\$APPLICATION->IncludeFile(\"".$_GET["path"]."\");?".">";
 
-			$filesrc_for_save = substr($filesrc, 0, $aComponent[0]).$code.substr($filesrc, $aComponent[1]);
+			$filesrc_for_save = mb_substr($filesrc, 0, $aComponent[0]).$code.mb_substr($filesrc, $aComponent[1]);
 
 			if($APPLICATION->SaveFileContent($abs_path, $filesrc_for_save))
 			{
@@ -174,36 +174,43 @@ if($prop["COLS"]<1)
 
 if($prop["MULTIPLE"]=='Y')
 {
-	$prop["CNT"] = IntVal($prop["CNT"]);
+	$prop["CNT"] = intval($prop["CNT"]);
 	if($prop["CNT"]<1)
 		$prop["CNT"] = 1;
 }
 
-switch(strtoupper($prop["TYPE"]))
+switch(mb_strtoupper($prop["TYPE"]))
 {
 	case "LIST":
-		$prop["SIZE"] = ($prop["MULTIPLE"]=='Y' && IntVal($prop["SIZE"])<=1 ? '3' : $prop["SIZE"]);
-		if(intval($prop["SIZE"])<=0)
+		$prop["SIZE"] = ($prop["MULTIPLE"] == 'Y' && intval($prop["SIZE"]) <= 1? '3' : $prop["SIZE"]);
+		if(intval($prop["SIZE"]) <= 0)
+		{
 			$prop["SIZE"] = 1;
+		}
 
-		$res .= '<select name="'.$ID.($prop["MULTIPLE"]=="Y"?'[]':'').'"'.
-			($prop["MULTIPLE"]=="Y"?
-				' multiple ':
-				($prop['ADDITIONAL_VALUES']!=='N'?
-				' onChange="this.form.elements[\''.$ID.'_alt\'].disabled = (this.selectedIndex!=0);" '
-				:'')
+		$res .= '<select name="'.$ID.($prop["MULTIPLE"] == "Y"? '[]' : '').'"'.
+			($prop["MULTIPLE"] == "Y"?
+				' multiple ' :
+				($prop['ADDITIONAL_VALUES'] !== 'N'?
+					' onChange="this.form.elements[\''.$ID.'_alt\'].disabled = (this.selectedIndex!=0);" '
+					: '')
 			).
 			' size="'.$prop["SIZE"].'">';
 
 		if(!is_array($prop["VALUES"]))
+		{
 			$prop["VALUES"] = Array();
+		}
 
-		$tmp = ''; $bFound = false;
-		foreach($prop["VALUES"] as $v_id=>$v_name)
+		$tmp = '';
+		$bFound = false;
+		foreach($prop["VALUES"] as $v_id => $v_name)
 		{
 			$key = array_search($v_id, $val);
-			if($key===FALSE || $key===NULL)
+			if($key === FALSE || $key === NULL)
+			{
 				$tmp .= '<option value="'.htmlspecialcharsbx($v_id).'">'.htmlspecialcharsbx($v_name).'</option>';
+			}
 			else
 			{
 				unset($val[$key]);
@@ -211,94 +218,136 @@ switch(strtoupper($prop["TYPE"]))
 				$tmp .= '<option value="'.htmlspecialcharsbx($v_id).'" selected>'.htmlspecialcharsbx($v_name).'</option>';
 			}
 		}
-		if($prop['ADDITIONAL_VALUES']!=='N')
-			$res .= '<option value=""'.(!$bFound?' selected':'').'>'.($prop["MULTIPLE"]=="Y"?GetMessage("comp_prop_not_sel"):GetMessage("comp_prop_other").' -&gt;').'</option>';
+		if($prop['ADDITIONAL_VALUES'] !== 'N')
+		{
+			$res .= '<option value=""'.(!$bFound? ' selected' : '').'>'.($prop["MULTIPLE"] == "Y"? GetMessage("comp_prop_not_sel") : GetMessage("comp_prop_other").' -&gt;').'</option>';
+		}
 		$res .= $tmp;
 		$res .= '</select>';
-		if($prop['ADDITIONAL_VALUES']!=='N')
+		if($prop['ADDITIONAL_VALUES'] !== 'N')
 		{
-			if($prop["MULTIPLE"]=='Y')
+			if($prop["MULTIPLE"] == 'Y')
 			{
 				reset($val);
 				foreach($val as $v)
 				{
 					$res .= '<br>';
-					if($prop['ROWS']>1)
+					if($prop['ROWS'] > 1)
+					{
 						$res .= '<textarea name="'.$ID.'[]" cols='.$prop["COLS"].'>'.htmlspecialcharsbx($v).'</textarea>';
+					}
 					else
+					{
 						$res .= '<input type="text" name="'.$ID.'[]" size='.$prop["COLS"].' value="'.htmlspecialcharsbx($v).'">';
+					}
 				}
 
-				for($i=0; $i<$prop["CNT"]; $i++)
+				for($i = 0; $i < $prop["CNT"]; $i++)
 				{
 					$res .= '<br>';
-					if($prop['ROWS']>1)
+					if($prop['ROWS'] > 1)
+					{
 						$res .= '<textarea name="'.$ID.'[]" cols='.$prop["COLS"].'></textarea>';
+					}
 					else
+					{
 						$res .= '<input type="text" name="'.$ID.'[]" size='.$prop["COLS"].' value="">';
+					}
 				}
 				$res .= '<input type="button" value="+" onClick="var span = document.createElement(\'SPAN\'); this.parentNode.insertBefore(span, this); span.innerHTML=\''.
-						'<br>';
-				if($prop['ROWS']>1)
+					'<br>';
+				if($prop['ROWS'] > 1)
+				{
 					$res .= '<textarea name=\\\''.$ID.'[]\\\' cols=\\\''.$prop["COLS"].'\\\'></textarea>';
+				}
 				else
+				{
 					$res .= '<input type=\\\'text\\\' name=\\\''.$ID.'[]\\\' size=\\\''.$prop["COLS"].'\\\'>';
+				}
 
 				$res .= '\'">';
 			}
 			else
 			{
 				$res .= '<br>';
-				if($prop['ROWS']>1)
-					$res .= '<textarea name="'.$ID.'_alt" '.($bFound?' disabled ':'').' cols='.$prop["COLS"].'>'.htmlspecialcharsbx(count($val)>0?$val[0]:'').'</textarea>';
+				if($prop['ROWS'] > 1)
+				{
+					$res .= '<textarea name="'.$ID.'_alt" '.($bFound? ' disabled ' : '').' cols='.$prop["COLS"].'>'.htmlspecialcharsbx(count($val) > 0? $val[0] : '').'</textarea>';
+				}
 				else
-					$res .= '<input type="text" name="'.$ID.'_alt" '.($bFound?' disabled ':'').'size='.$prop["COLS"].' value="'.htmlspecialcharsbx(count($val)>0?$val[0]:'').'">';
+				{
+					$res .= '<input type="text" name="'.$ID.'_alt" '.($bFound? ' disabled ' : '').'size='.$prop["COLS"].' value="'.htmlspecialcharsbx(count($val) > 0? $val[0] : '').'">';
+				}
 			}
 		}
 		break;
 	default:
-		if($prop["MULTIPLE"]=='Y')
+		if($prop["MULTIPLE"] == 'Y')
 		{
 			$bBr = false;
 			foreach($val as $v)
 			{
 				if($bBr)
+				{
 					$res .= '<br>';
+				}
 				else
+				{
 					$bBr = true;
-				if($prop['ROWS']>1)
+				}
+				if($prop['ROWS'] > 1)
+				{
 					$res .= '<textarea name="'.$ID.'[]" cols='.$prop["COLS"].'>'.htmlspecialcharsbx($v).'</textarea>';
+				}
 				else
+				{
 					$res .= '<input type="text" name="'.$ID.'[]" size='.$prop["COLS"].' value="'.htmlspecialcharsbx($v).'">';
+				}
 			}
 
-			for($i=0; $i<$prop["CNT"]; $i++)
+			for($i = 0; $i < $prop["CNT"]; $i++)
 			{
 				if($bBr)
+				{
 					$res .= '<br>';
+				}
 				else
+				{
 					$bBr = true;
-				if($prop['ROWS']>1)
+				}
+				if($prop['ROWS'] > 1)
+				{
 					$res .= '<textarea name="'.$ID.'[]" cols='.$prop["COLS"].'></textarea>';
+				}
 				else
+				{
 					$res .= '<input type="text" name="'.$ID.'[]" size='.$prop["COLS"].' value="">';
+				}
 			}
 
 			$res .= '<input type="button" value="+" onClick="var span = document.createElement(\'SPAN\'); this.parentNode.insertBefore(span, this); span.innerHTML=\''.
-					'<br>';
-			if($prop['ROWS']>1)
+				'<br>';
+			if($prop['ROWS'] > 1)
+			{
 				$res .= '<textarea name=\\\''.$ID.'[]\\\' cols=\\\''.$prop["COLS"].'\\\'></textarea>';
+			}
 			else
+			{
 				$res .= '<input type=\\\'text\\\' name=\\\''.$ID.'[]\\\' size=\\\''.$prop["COLS"].'\\\'>';
+			}
 
 			$res .= '\'">';
 		}
 		else
 		{
-			if($prop['ROWS']>1)
+			if($prop['ROWS'] > 1)
+			{
 				$res .= '<textarea name="'.$ID.'" cols='.$prop["COLS"].'>'.htmlspecialcharsbx($val).'</textarea>';
+			}
 			else
+			{
 				$res .= '<input name="'.$ID.'" size='.$prop["COLS"].' value="'.htmlspecialcharsbx($val).'" type="text">';
+			}
 		}
 		break;
 }

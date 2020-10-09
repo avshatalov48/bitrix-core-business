@@ -12,7 +12,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /************************************************************************************************************/
 
 //$arParams["EDIT_MODE"] = in_array($arParams["EDIT_MODE"], array("php", "html", "text")) ? $arParams["EDIT_MODE"] : "html";
-$arParams["EDIT_TEMPLATE"] = strlen($arParams["EDIT_TEMPLATE"]) > 0 ? $arParams["EDIT_TEMPLATE"] : $arParams["AREA_FILE_SHOW"]."_inc.php";
+$arParams["EDIT_TEMPLATE"] = $arParams["EDIT_TEMPLATE"] <> '' ? $arParams["EDIT_TEMPLATE"] : $arParams["AREA_FILE_SHOW"]."_inc.php";
 
 // check params values
 $bHasPath = ($arParams["AREA_FILE_SHOW"] == 'file');
@@ -23,7 +23,7 @@ $io = CBXVirtualIo::GetInstance();
 if (!$bHasPath)
 {
 	$arParams["AREA_FILE_SHOW"] = $arParams["AREA_FILE_SHOW"] == "sect" ? "sect" : "page";
-	$arParams["AREA_FILE_SUFFIX"] = strlen($arParams["AREA_FILE_SUFFIX"]) > 0 ? $arParams["AREA_FILE_SUFFIX"] : "inc";
+	$arParams["AREA_FILE_SUFFIX"] = $arParams["AREA_FILE_SUFFIX"] <> '' ? $arParams["AREA_FILE_SUFFIX"] : "inc";
 	$arParams["AREA_FILE_RECURSIVE"] = $arParams["AREA_FILE_RECURSIVE"] == "N" ? "N" : "Y";
 
 
@@ -31,19 +31,19 @@ if (!$bHasPath)
 	if ($arParams["AREA_FILE_SHOW"] == "page")
 	{
 		// if page in SEF mode check real path
-		if (strlen($sRealFilePath) > 0)
+		if ($sRealFilePath <> '')
 		{
-			$slash_pos = strrpos($sRealFilePath, "/");
-			$sFilePath = substr($sRealFilePath, 0, $slash_pos+1);
-			$sFileName = substr($sRealFilePath, $slash_pos+1);
-			$sFileName = substr($sFileName, 0, strlen($sFileName)-4)."_".$arParams["AREA_FILE_SUFFIX"].".php";
+			$slash_pos = mb_strrpos($sRealFilePath, "/");
+			$sFilePath = mb_substr($sRealFilePath, 0, $slash_pos + 1);
+			$sFileName = mb_substr($sRealFilePath, $slash_pos + 1);
+			$sFileName = mb_substr($sFileName, 0, mb_strlen($sFileName) - 4)."_".$arParams["AREA_FILE_SUFFIX"].".php";
 		}
 		// otherwise use current
 		else
 		{
 			$sFilePath = $APPLICATION->GetCurDir();
-			$sFileName = substr($APPLICATION->GetCurPage(true), 0, strlen($APPLICATION->GetCurPage(true))-4)."_".$arParams["AREA_FILE_SUFFIX"].".php";
-			$sFileName = substr($sFileName, strlen($sFilePath));
+			$sFileName = mb_substr($APPLICATION->GetCurPage(true), 0, mb_strlen($APPLICATION->GetCurPage(true)) - 4)."_".$arParams["AREA_FILE_SUFFIX"].".php";
+			$sFileName = mb_substr($sFileName, mb_strlen($sFilePath));
 		}
 
 		$sFilePathTMP = $sFilePath;
@@ -52,10 +52,10 @@ if (!$bHasPath)
 	else
 	{
 		// if page is in SEF mode - check real path
-		if (strlen($sRealFilePath) > 0)
+		if ($sRealFilePath <> '')
 		{
-			$slash_pos = strrpos($sRealFilePath, "/");
-			$sFilePath = substr($sRealFilePath, 0, $slash_pos+1);
+			$slash_pos = mb_strrpos($sRealFilePath, "/");
+			$sFilePath = mb_substr($sRealFilePath, 0, $slash_pos + 1);
 		}
 		// otherwise use current
 		else
@@ -76,9 +76,9 @@ if (!$bHasPath)
 			do
 			{
 				// back one level
-				if (substr($sFilePath, -1) == "/") $sFilePath = substr($sFilePath, 0, -1);
-				$slash_pos = strrpos($sFilePath, "/");
-				$sFilePath = substr($sFilePath, 0, $slash_pos+1);
+				if (mb_substr($sFilePath, -1) == "/") $sFilePath = mb_substr($sFilePath, 0, -1);
+				$slash_pos = mb_strrpos($sFilePath, "/");
+				$sFilePath = mb_substr($sFilePath, 0, $slash_pos + 1);
 
 				$bFileFound = $io->FileExists($_SERVER['DOCUMENT_ROOT'].$sFilePath.$sFileName);
 
@@ -91,13 +91,13 @@ if (!$bHasPath)
 }
 else
 {
-	if (substr($arParams['PATH'], 0, 1) != '/')
+	if (mb_substr($arParams['PATH'], 0, 1) != '/')
 	{
 		// if page in SEF mode check real path
-		if (strlen($sRealFilePath) > 0)
+		if ($sRealFilePath <> '')
 		{
-			$slash_pos = strrpos($sRealFilePath, "/");
-			$sFilePath = substr($sRealFilePath, 0, $slash_pos+1);
+			$slash_pos = mb_strrpos($sRealFilePath, "/");
+			$sFilePath = mb_substr($sRealFilePath, 0, $slash_pos + 1);
 		}
 		// otherwise use current
 		else
@@ -108,9 +108,9 @@ else
 		$arParams['PATH'] = Rel2Abs($sFilePath, $arParams['PATH']);
 	}
 
-	$slash_pos = strrpos($arParams['PATH'], "/");
-	$sFilePath = substr($arParams['PATH'], 0, $slash_pos+1);
-	$sFileName = substr($arParams['PATH'], $slash_pos+1);
+	$slash_pos = mb_strrpos($arParams['PATH'], "/");
+	$sFilePath = mb_substr($arParams['PATH'], 0, $slash_pos + 1);
+	$sFileName = mb_substr($arParams['PATH'], $slash_pos + 1);
 
 	$bFileFound = $io->FileExists($_SERVER['DOCUMENT_ROOT'].$sFilePath.$sFileName);
 

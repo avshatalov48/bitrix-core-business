@@ -44,7 +44,7 @@ $tabControl = new CAdminTabControl("tabControl", $aTabs);
 if($_SERVER["REQUEST_METHOD"]=="POST" && ($_POST["save"] <> '' || $_POST["apply"] <> '') && $USER->CanDoOperation('edit_tasks') && check_bitrix_sessid())
 {
 	$aMsg = Array();
-	$LETTER = strtoupper($_POST["LETTER"]);
+	$LETTER = mb_strtoupper($_POST["LETTER"]);
 	$arFields = array
 	(
 		"NAME" => $_POST["NAME"],
@@ -163,7 +163,7 @@ if($message)
 <?=bitrix_sessid_post()?>
 <input type="hidden" name="lang" value="<?echo LANG?>">
 <input type="hidden" name="ID" value="<?echo $ID?>">
-<?if(strlen($COPY_ID)>0):?><input type="hidden" name="COPY_ID" value="<?echo htmlspecialcharsbx($COPY_ID)?>"><?endif?>
+<?if($COPY_ID <> ''):?><input type="hidden" name="COPY_ID" value="<?echo htmlspecialcharsbx($COPY_ID)?>"><?endif?>
 <?
 $tabControl->Begin();
 

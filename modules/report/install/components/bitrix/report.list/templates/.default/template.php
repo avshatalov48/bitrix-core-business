@@ -13,7 +13,7 @@ CJSCore::Init(array('report', 'socnetlogdest'));
 
 $GLOBALS['APPLICATION']->SetTitle(GetMessage('REPORT_LIST'));
 
-$ownerId = htmlspecialcharsbx(strtolower($arResult['OWNER_ID']));
+$ownerId = htmlspecialcharsbx(mb_strtolower($arResult['OWNER_ID']));
 $containerID = 'reports_list_table_'.$ownerId;
 $jsClass = 'ReportListClass_'.$arResult['randomString'];
 

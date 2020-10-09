@@ -113,7 +113,7 @@ final class FileStorage extends AbstractStorage
 		if ($this->exists())
 		{
 			$content = $this->read();
-			return $content !== false ? substr($content, -35, 32) : false;
+			return $content !== false? mb_substr($content, -35, 32) : false;
 		}
 
 		return false;
@@ -180,7 +180,7 @@ final class FileStorage extends AbstractStorage
 	public static function deleteRecursive($relativePath = "", $validTime = 0)
 	{
 		$bytes = 0.0;
-		if (strpos($relativePath, "..") !== false)
+		if (mb_strpos($relativePath, "..") !== false)
 		{
 			return $bytes;
 		}

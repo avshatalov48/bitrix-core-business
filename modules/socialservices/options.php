@@ -100,7 +100,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["Update"].$_POST["Apply"].$_PO
 		COption::SetOptionString("socialservices", "allow_registration", $_REQUEST["allow_registration"] == "N" ? "N" : "Y");
 	}
 
-	if(strlen($_REQUEST["back_url_settings"]) > 0)
+	if($_REQUEST["back_url_settings"] <> '')
 	{
 		if($_POST["Apply"] <> '' || $_POST["RestoreDefaults"] <> '')
 			LocalRedirect($APPLICATION->GetCurPage()."?mid=".urlencode($module_id)."&lang=".urlencode(LANGUAGE_ID)."&back_url_settings=".urlencode($_REQUEST["back_url_settings"])."&".$tabControl->ActiveTabParam().($_REQUEST["siteTabControl_active_tab"] <> ''? "&siteTabControl_active_tab=".urlencode($_REQUEST["siteTabControl_active_tab"]):''));

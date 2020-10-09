@@ -9,6 +9,7 @@ namespace Bitrix\Main\Controller;
 
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Security\Mfa;
 
 class AuthCode extends Main\Engine\Controller
 {
@@ -84,8 +85,20 @@ class AuthCode extends Main\Engine\Controller
 
 		if($result->isSuccess())
 		{
-			if(!$USER->IsAuthorized() && $shortCode->getUser()->getActive())
+			$codeUser = $shortCode->getUser();
+			if(!$USER->IsAuthorized() && $codeUser->getActive() && !$codeUser->getBlocked())
 			{
+				if(Main\Loader::includeModule("security"))
+				{
+					if(Mfa\Otp::verifyUser(["USER_ID" => $params["userId"]]) == false)
+					{
+						$this->addError(new Main\Error(Loc::getMessage("main_authcode_otp_required"), 'ERR_OTP_REQUIRED'));
+
+						$this->checkOtpCaptcha();
+
+						return null;
+					}
+				}
 				$USER->Authorize($params["userId"]);
 			}
 			return true;
@@ -105,6 +118,51 @@ class AuthCode extends Main\Engine\Controller
 		}
 	}
 
+	/**
+	 * Verifies the code and authorizes the user on success.
+	 * @param string $otp OTP code
+	 * @param string $captchaSid If needed
+	 * @param string $captchaWord If needed
+	 * @return bool|null
+	 */
+	public function loginByOtpAction($otp, $captchaSid = "", $captchaWord = "")
+	{
+		global $USER;
+
+		$authResult = $USER->LoginByOtp($otp, "N", $captchaWord, $captchaSid);
+
+		if($authResult !== true)
+		{
+			$this->addError(new Main\Error($authResult["MESSAGE"], "ERR_OTP_CODE"));
+
+			if(Main\Loader::includeModule("security"))
+			{
+				$this->checkOtpCaptcha();
+			}
+			return null;
+		}
+
+		return true;
+	}
+
+	protected function checkOtpCaptcha()
+	{
+		global $APPLICATION;
+
+		if(Mfa\Otp::isCaptchaRequired())
+		{
+			$this->addError(
+				new Main\Error(
+					Loc::getMessage("main_authcode_otp_captcha_required"),
+					'ERR_OTP_CAPTCHA_REQUIRED',
+					[
+						"captchaSid" => $APPLICATION->CaptchaGetCode(),
+					]
+				)
+			);
+		}
+	}
+
 	public function configureActions()
 	{
 		return [
@@ -114,6 +172,11 @@ class AuthCode extends Main\Engine\Controller
 				],
 			],
 			'confirm' => [
+				'-prefilters' => [
+					Main\Engine\ActionFilter\Authentication::class,
+				],
+			],
+			'loginByOtp' => [
 				'-prefilters' => [
 					Main\Engine\ActionFilter\Authentication::class,
 				],

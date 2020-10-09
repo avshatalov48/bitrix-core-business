@@ -2,7 +2,7 @@
 <?
 if ($arParams['SILENT'] == 'Y') return;
 
-$cnt = strlen($arParams['INPUT_NAME_FINISH']) > 0 ? 2 : 1;
+$cnt = $arParams['INPUT_NAME_FINISH'] <> '' ? 2 : 1;
 
 for ($i = 0; $i < $cnt; $i++):
 	if ($arParams['SHOW_INPUT'] == 'Y'):

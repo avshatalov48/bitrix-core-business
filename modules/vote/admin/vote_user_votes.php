@@ -35,23 +35,23 @@ function CheckFilter()
 	$find_date_1 = trim($find_date_1);
 	$find_date_2 = trim($find_date_2);
 
-	if (strlen($find_date_1)>0 || strlen($find_date_2)>0)
+	if ($find_date_1 <> '' || $find_date_2 <> '')
 	{
 		$date_1_stm = MkDateTime(ConvertDateTime($find_date_1,"D.M.Y"),"d.m.Y");
 		$date_2_stm = MkDateTime(ConvertDateTime($find_date_2,"D.M.Y")." 23:59:59","d.m.Y H:i:s");
-		if (!$date_1_stm && strlen(trim($find_date_1))>0)
+		if (!$date_1_stm && trim($find_date_1) <> '')
 		{
 			$bGotErr = true;
 			$lAdmin->AddUpdateError(GetMessage("VOTE_WRONG_DATE_FROM"));
 		}
 
-		if (!$date_2_stm && strlen(trim($find_date_2))>0)
+		if (!$date_2_stm && trim($find_date_2) <> '')
 		{
 			$bGotErr = true;
 			$lAdmin->AddUpdateError(GetMessage("VOTE_WRONG_DATE_TILL"));
 		}
 
-		if (!$bGotErr && $date_2_stm <= $date_1_stm && strlen($date_2_stm)>0)
+		if (!$bGotErr && $date_2_stm <= $date_1_stm && $date_2_stm <> '')
 		{
 			$bGotErr = true;
 			$lAdmin->AddUpdateErro(GetMessage("VOTE_WRONG_FROM_TILL"));
@@ -114,7 +114,7 @@ if ($lAdmin->EditAction() && $VOTE_RIGHT>="W" && check_bitrix_sessid())
 		if(!$lAdmin->IsUpdated($ID))
 			continue;
 		$DB->StartTransaction();
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		InitBVar($arFields["VALID"]);
 		$arFieldsStore = Array(
 			"VALID"	=> "'$arFields[VALID]'",
@@ -140,9 +140,9 @@ if(($arID = $lAdmin->GroupAction()) && $VOTE_RIGHT=="W" && check_bitrix_sessid()
 
 		foreach($arID as $ID)
 		{
-				if(strlen($ID)<=0)
+				if($ID == '')
 						continue;
-				$ID = IntVal($ID);
+				$ID = intval($ID);
 				switch($_REQUEST['action'])
 				{
 				case "delete":
@@ -188,7 +188,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	if (CModule::IncludeModule("statistic"))
 		$row->AddViewField("STAT_SESSION_ID","<a title=\"".GetMessage("VOTE_SESSIONU_LIST_TITLE")."\" href=\"session_list.php?lang=".LANGUAGE_ID."&find_id=$f_STAT_SESSION_ID&set_filter=Y\">$f_STAT_SESSION_ID</a>");
 
-	if (strlen($f_TITLE)>0)
+	if ($f_TITLE <> '')
 		$txt= "[<a title='".GetMessage("VOTE_EDIT_TITLE")."' href='vote_edit.php?lang=".LANGUAGE_ID."&ID=$f_VOTE_ID'>$f_VOTE_ID</a>] $f_TITLE";
 	elseif ($f_DESCRIPTION_TYPE=="html")
 		$txt= "[<a title='".GetMessage("VOTE_EDIT_TITLE")."' href='vote_edit.php?lang=".LANGUAGE_ID."&ID=$f_VOTE_ID'>$f_VOTE_ID</a>] ".TruncateText(strip_tags(htmlspecialcharsback($f_DESCRIPTION)),50);

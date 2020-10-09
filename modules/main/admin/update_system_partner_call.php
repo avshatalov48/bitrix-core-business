@@ -54,10 +54,10 @@ if ($loadResult == "S")
 	{
 		for ($i = 0, $cnt = count($arUpdateDescription["DATA"]["#"]["ITEM"]); $i < $cnt; $i++)
 		{
-			if (strlen($message) > 0)
+			if ($message <> '')
 				$message .= ", ";
 			$message .= $arUpdateDescription["DATA"]["#"]["ITEM"][$i]["@"]["NAME"];
-			if (strlen($arUpdateDescription["DATA"]["#"]["ITEM"][$i]["@"]["VALUE"]) > 0)
+			if ($arUpdateDescription["DATA"]["#"]["ITEM"][$i]["@"]["VALUE"] <> '')
 				$message .= " (".$arUpdateDescription["DATA"]["#"]["ITEM"][$i]["@"]["VALUE"].")";
 		}
 	}
@@ -66,7 +66,7 @@ if ($loadResult == "S")
 }
 elseif ($loadResult == "E")
 {
-	if (strlen($errorMessage) <= 0)
+	if ($errorMessage == '')
 		$errorMessage = "[CL02] ".GetMessage("SUPC_ME_PACK");
 	CUpdateClientPartner::AddMessage2Log($errorMessage, "CL02");
 }
@@ -82,7 +82,7 @@ elseif ($loadResult == "F")
 	CUpdateClientPartner::AddMessage2Log(GetMessage("SUPC_ME_LOAD"), "CL01");
 }*/
 
-if (StrLen($errorMessage) <= 0)
+if ($errorMessage == '')
 {
 	$temporaryUpdatesDir = "";
 	if (!CUpdateClientPartner::UnGzipArchive($temporaryUpdatesDir, $errorMessage, true))
@@ -92,7 +92,7 @@ if (StrLen($errorMessage) <= 0)
 	}
 }
 
-if (strlen($errorMessage) <= 0)
+if ($errorMessage == '')
 {
 	if (!CUpdateClientPartner::CheckUpdatability($temporaryUpdatesDir, $errorMessage))
 	{
@@ -108,7 +108,7 @@ $arStepUpdateInfo = $arUpdateDescription;
 	//CUpdateClientPartner::AddMessage2Log(print_r($arStepUpdateInfo, true), "!!!!!");
 }*/
 
-if (StrLen($errorMessage) <= 0)
+if ($errorMessage == '')
 {
 	if (isset($arStepUpdateInfo["DATA"]["#"]["ERROR"]))
 	{
@@ -119,7 +119,7 @@ if (StrLen($errorMessage) <= 0)
 
 $arItemsUpdated = array();
 $arItemsUpdatedDescr = array();
-if (StrLen($errorMessage) <= 0)
+if ($errorMessage == '')
 {
 	if (isset($arStepUpdateInfo["DATA"]["#"]["ITEM"]))
 	{
@@ -131,7 +131,7 @@ if (StrLen($errorMessage) <= 0)
 	}
 }
 
-if (StrLen($errorMessage) <= 0)
+if ($errorMessage == '')
 {
 	if (isset($arStepUpdateInfo["DATA"]["#"]["NOUPDATES"]))
 	{
@@ -141,7 +141,7 @@ if (StrLen($errorMessage) <= 0)
 	}
 	else
 	{
-		if (strlen($errorMessage) <= 0)
+		if ($errorMessage == '')
 		{
 			if (!CUpdateClientPartner::UpdateStepModules($temporaryUpdatesDir, $errorMessage))
 			{
@@ -150,7 +150,7 @@ if (StrLen($errorMessage) <= 0)
 			}
 		}
 
-		if (StrLen($errorMessage) > 0)
+		if ($errorMessage <> '')
 		{
 			CUpdateClientPartner::AddMessage2Log("Error: ".$errorMessage, "UPD_ERROR");
 			echo "ERR".$errorMessage;
@@ -163,7 +163,7 @@ if (StrLen($errorMessage) <= 0)
 			foreach ($arItemsUpdated as $key => $value)
 			{
 				$strModuleDescr = "";
-				if (strlen($arItemsUpdatedDescr[$key]) > 0)
+				if ($arItemsUpdatedDescr[$key] <> '')
 				{
 					$strModuleDescr = "<br>".htmlspecialcharsback($arItemsUpdatedDescr[$key]);
 					$strModuleDescr = preg_replace("#</?pre>#i", " ", $strModuleDescr);
@@ -171,11 +171,11 @@ if (StrLen($errorMessage) <= 0)
 					$strModuleDescr = addslashes($strModuleDescr);
 				}
 
-				CUpdateClientPartner::AddMessage2Log("Updated: ".$key.((StrLen($value) > 0) ? " (".$value.")" : "").$strModuleDescr, "UPD_SUCCESS");
+				CUpdateClientPartner::AddMessage2Log("Updated: ".$key.(($value <> '') ? " (".$value.")" : "").$strModuleDescr, "UPD_SUCCESS");
 				if(COption::GetOptionString("main", "event_log_marketplace", "Y") === "Y")
 					CEventLog::Log("INFO", "MP_MODULE_DOWNLOADED", "main", $key, $value);
 
-				echo ($bFirst ? "" : ", ").$key.((StrLen($value) > 0) ? " (".$value.")" : "");
+				echo ($bFirst ? "" : ", ").$key.(($value <> '') ? " (".$value.")" : "");
 				$bFirst = False;
 			}
 		}

@@ -67,7 +67,7 @@ class CEditArea
 			else
 			{
 				//skip duplicate buttons
-				if (isset($arIcon["ID"]) && strlen($arIcon["ID"]) > 0)
+				if (isset($arIcon["ID"]) && $arIcon["ID"] <> '')
 				{
 					if (!array_key_exists("ICONS_ID", $this->includeAreaIcons) || !is_array($this->includeAreaIcons["ICONS_ID"]))
 						$this->includeAreaIcons["ICONS_ID"] = Array($arIcon["ID"]);
@@ -229,10 +229,10 @@ class CEditArea
 	function GetJSIcon($arIcon)
 	{
 		$url = $arIcon['URL'];
-		if (strlen($url) > 0)
+		if ($url <> '')
 		{
-			if(strtolower(substr($url, 0, 11)) == 'javascript:')
-				$url = substr($url, 11);
+			if(mb_strtolower(mb_substr($url, 0, 11)) == 'javascript:')
+				$url = mb_substr($url, 11);
 			else
 				$url = 'jsUtils.Redirect([], \''.CUtil::JSEscape($url).'\')';
 		}
@@ -271,8 +271,8 @@ class CEditArea
 			if ($aMenuItem['URL'])
 			{
 				$u = $aMenuItem['URL'];
-				if(strtolower(substr($u, 0, 11)) == 'javascript:')
-					$u = substr($u, 11);
+				if(mb_strtolower(mb_substr($u, 0, 11)) == 'javascript:')
+					$u = mb_substr($u, 11);
 				else
 					$u = 'jsUtils.Redirect([], \''.CUtil::JSEscape($u).'\')';
 
@@ -361,30 +361,30 @@ class CComponentPanel
 		if($this->iSrcLine > 0 && $this->sSrcFile <> "")
 		{
 			// try to convert absolute path to file within DOCUMENT_ROOT
-			$lowerScrFile = strtolower($this->sSrcFile);
-			$docRoot = strtolower(str_replace("\\", "/", realpath($_SERVER["DOCUMENT_ROOT"])));
-			if(strpos($lowerScrFile, $docRoot."/") === 0)
+			$lowerScrFile = mb_strtolower($this->sSrcFile);
+			$docRoot = mb_strtolower(str_replace("\\", "/", realpath($_SERVER["DOCUMENT_ROOT"])));
+			if(mb_strpos($lowerScrFile, $docRoot."/") === 0)
 			{
 				//within
-				$this->sSrcFile = substr($this->sSrcFile, strlen($docRoot));
+				$this->sSrcFile = mb_substr($this->sSrcFile, mb_strlen($docRoot));
 				$this->bSrcFound = true;
 			}
 			else
 			{
 				//bitrix outside
-				$realBitrix = strtolower(str_replace("\\", "/", realpath($_SERVER["DOCUMENT_ROOT"]."/bitrix")));
-				if(strpos($lowerScrFile, substr($realBitrix, 0, -6)) === 0)
+				$realBitrix = mb_strtolower(str_replace("\\", "/", realpath($_SERVER["DOCUMENT_ROOT"]."/bitrix")));
+				if(mb_strpos($lowerScrFile, mb_substr($realBitrix, 0, -6)) === 0)
 				{
-					$this->sSrcFile = substr($this->sSrcFile, strlen($realBitrix) - 7);
+					$this->sSrcFile = mb_substr($this->sSrcFile, mb_strlen($realBitrix) - 7);
 					$this->bSrcFound = true;
 				}
 				else
 				{
 					//local outside
-					$realLocal = strtolower(str_replace("\\", "/", realpath($_SERVER["DOCUMENT_ROOT"]."/local")));
-					if(strpos($lowerScrFile, substr($realLocal, 0, -5)) === 0)
+					$realLocal = mb_strtolower(str_replace("\\", "/", realpath($_SERVER["DOCUMENT_ROOT"]."/local")));
+					if($realLocal && mb_strpos($lowerScrFile, mb_substr($realLocal, 0, -5)) === 0)
 					{
-						$this->sSrcFile = substr($this->sSrcFile, strlen($realLocal) - 6);
+						$this->sSrcFile = mb_substr($this->sSrcFile, mb_strlen($realLocal) - 6);
 						$this->bSrcFound = true;
 					}
 				}
@@ -476,7 +476,7 @@ class CComponentPanel
 					);
 				}
 
-				if($USER->CanDoOperation('edit_php') && strlen($template->GetSiteTemplate()) > 0)
+				if($USER->CanDoOperation('edit_php') && $template->GetSiteTemplate() <> '')
 				{
 					//edit template copied to site template
 					$arIcons[] = array(
@@ -495,7 +495,7 @@ class CComponentPanel
 						'TITLE' => GetMessage("main_comp_edit_templ"),
 						'IN_MENU' => true
 					);
-					if(strlen($template->GetFolder()) > 0)
+					if($template->GetFolder() <> '')
 					{
 						if(file_exists($_SERVER["DOCUMENT_ROOT"].$template->GetFolder()."/style.css"))
 						{
@@ -596,7 +596,7 @@ class CComponentPanel
 			//clear cache
 			if(array_key_exists("CACHE_PATH", $arComponentDescription) && $USER->CanDoOperation('cache_control'))
 			{
-				if(strlen($arComponentDescription["CACHE_PATH"]) > 0)
+				if($arComponentDescription["CACHE_PATH"] <> '')
 				{
 					$arIcons[] = array(
 						"URL" => "javascript:jsComponentUtils.ClearCache('component_name=".urlencode(CUtil::addslashes($this->componentName))."&site_id=".SITE_ID."&".bitrix_sessid_get()."');",

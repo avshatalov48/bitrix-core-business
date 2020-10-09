@@ -129,7 +129,7 @@ class Yandex extends Engine\YandexBase implements IEngine
 		$serviceUrl = $this->getServiceUrl($this->userId, NULL, self::API_HOSTS_URL);
 		$queryResult = $this->query($serviceUrl, 'GET');
 		
-		if ($queryResult && $queryResult->getStatus() == self::HTTP_STATUS_OK && strlen($queryResult->getResult()) > 0)
+		if ($queryResult && $queryResult->getStatus() == self::HTTP_STATUS_OK && $queryResult->getResult() <> '')
 		{
 			$resultConverted = array();
 			$result = Json::decode($queryResult->getResult());
@@ -186,7 +186,7 @@ class Yandex extends Engine\YandexBase implements IEngine
 		$serviceUrl = $this->getServiceUrl($this->userId, $hostId);
 		$queryResult = $this->query($serviceUrl, 'GET');
 		
-		if ($queryResult->getStatus() == self::HTTP_STATUS_OK && strlen($queryResult->getResult()) > 0)
+		if ($queryResult->getStatus() == self::HTTP_STATUS_OK && $queryResult->getResult() <> '')
 			return Json::decode($queryResult->getResult());
 		else
 			throw new Engine\YandexException($queryResult);
@@ -200,7 +200,7 @@ class Yandex extends Engine\YandexBase implements IEngine
 		$serviceUrl = $this->getServiceUrl($this->userId, $hostId, self::API_SUMMARY_URL);
 		$queryResult = $this->query($serviceUrl, 'GET');
 		
-		if ($queryResult->getStatus() == self::HTTP_STATUS_OK && strlen($queryResult->getResult()) > 0)
+		if ($queryResult->getStatus() == self::HTTP_STATUS_OK && $queryResult->getResult() <> '')
 			return Json::decode($queryResult->getResult());
 		else
 			throw new Engine\YandexException($queryResult);
@@ -232,7 +232,7 @@ class Yandex extends Engine\YandexBase implements IEngine
 		$serviceUrl .= '&query_indicator=AVG_CLICK_POSITION';
 		
 		$queryResult = $this->query($serviceUrl, 'GET');
-		if ($queryResult->getStatus() == self::HTTP_STATUS_OK && strlen($queryResult->getResult()) > 0)
+		if ($queryResult->getStatus() == self::HTTP_STATUS_OK && $queryResult->getResult() <> '')
 			$queriesShows = Json::decode($queryResult->getResult());
 		else
 			throw new Engine\YandexException($queryResult);
@@ -331,7 +331,7 @@ class Yandex extends Engine\YandexBase implements IEngine
 		$serviceUrl = $this->getServiceUrl($this->userId, $hostId, self::API_ORIGINAL_TEXTS_URL, $params);
 		$queryResult = $this->query($serviceUrl, 'GET', $params);
 		
-		if ($queryResult->getStatus() == self::HTTP_STATUS_OK && strlen($queryResult->getResult()) > 0)
+		if ($queryResult->getStatus() == self::HTTP_STATUS_OK && $queryResult->getResult() <> '')
 			return Json::decode($queryResult->getResult());
 		else
 			throw new Engine\YandexException($queryResult);
@@ -357,7 +357,7 @@ class Yandex extends Engine\YandexBase implements IEngine
 		$serviceUrl = $this->getServiceUrl($this->userId, $hostId, self::API_ORIGINAL_TEXTS_URL);
 		$queryResult = $this->query($serviceUrl, 'POST', $data);
 		
-		if ($queryResult->getStatus() == self::HTTP_STATUS_CREATED && strlen($queryResult->getResult()) > 0)
+		if ($queryResult->getStatus() == self::HTTP_STATUS_CREATED && $queryResult->getResult() <> '')
 			return $queryResult->getResult();
 		else
 			throw new Engine\YandexException($queryResult);
@@ -382,7 +382,7 @@ class Yandex extends Engine\YandexBase implements IEngine
 		$serviceUrl = $this->getServiceUrl($this->userId, NULL, self::API_HOSTS_URL);
 		$queryResult = $this->query($serviceUrl, 'POST', $data);
 		
-		if ($queryResult->getStatus() == self::HTTP_STATUS_CREATED && strlen($queryResult->getResult()) > 0)
+		if ($queryResult->getStatus() == self::HTTP_STATUS_CREATED && $queryResult->getResult() <> '')
 			return array($domain => true);
 		else
 			throw new Engine\YandexException($queryResult);
@@ -403,7 +403,7 @@ class Yandex extends Engine\YandexBase implements IEngine
 		$serviceUrl = $this->getServiceUrl($this->userId, $hostId, self::API_VERIFICATION_URL);
 		$queryResult = $this->query($serviceUrl, 'GET');
 		
-		if ($queryResult->getStatus() == self::HTTP_STATUS_OK && strlen($queryResult->getResult()) > 0)
+		if ($queryResult->getStatus() == self::HTTP_STATUS_OK && $queryResult->getResult() <> '')
 		{
 			$result = Json::decode($queryResult->getResult());
 			if ($result['verification_state'] != self::VERIFIED_STATE_VERIFIED)
@@ -427,7 +427,7 @@ class Yandex extends Engine\YandexBase implements IEngine
 		
 		$serviceUrl = $this->getServiceUrl($this->userId, $hostId, self::API_VERIFICATION_URL, array('verification_type' => $verType));
 		$queryResult = $this->query($serviceUrl, 'POST');
-		if ($queryResult->getStatus() == self::HTTP_STATUS_OK && strlen($queryResult->getResult()) > 0)
+		if ($queryResult->getStatus() == self::HTTP_STATUS_OK && $queryResult->getResult() <> '')
 		{
 			$result = Json::decode($queryResult->getResult());
 			

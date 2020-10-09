@@ -23,7 +23,7 @@ class CUndo
 
 		$DB->Add("b_undo", $arFields, Array("CONTENT"));
 
-		$CACHE_MANAGER->Clean(substr($ID, 0, 3), "b_undo");
+		$CACHE_MANAGER->Clean(mb_substr($ID, 0, 3), "b_undo");
 
 		return $ID;
 	}
@@ -35,7 +35,7 @@ class CUndo
 			return false;
 
 		$arUndo = null;
-		$cacheId = substr($ID, 0, 3);
+		$cacheId = mb_substr($ID, 0, 3);
 		if ($CACHE_MANAGER->Read(48 * 3600, $cacheId, "b_undo"))
 		{
 			$arUndoCache = $CACHE_MANAGER->Get($cacheId);
@@ -57,7 +57,7 @@ class CUndo
 			return false;
 
 		// Include module
-		if ($arUndo['MODULE_ID'] && strlen($arUndo['MODULE_ID']) > 0)
+		if ($arUndo['MODULE_ID'] && $arUndo['MODULE_ID'] <> '')
 		{
 			if (!CModule::IncludeModule($arUndo['MODULE_ID']))
 				return false;
@@ -67,7 +67,7 @@ class CUndo
 		$arParams = unserialize($arUndo['CONTENT']);
 
 		// Check and call Undo handler
-		$p = strpos($arUndo['UNDO_HANDLER'], "::");
+		$p = mb_strpos($arUndo['UNDO_HANDLER'], "::");
 		if ($p === false)
 		{
 			if (function_exists($arUndo['UNDO_HANDLER'])) // function
@@ -77,10 +77,10 @@ class CUndo
 		}
 		else
 		{
-			$className = substr($arUndo['UNDO_HANDLER'], 0, $p);
+			$className = mb_substr($arUndo['UNDO_HANDLER'], 0, $p);
 			if (class_exists($className)) //class
 			{
-				$methodName = substr($arUndo['UNDO_HANDLER'], $p + 2);
+				$methodName = mb_substr($arUndo['UNDO_HANDLER'], $p + 2);
 				if (method_exists($className, $methodName)) //static method
 				{
 					call_user_func_array(array($className, $methodName), array($arParams, $arUndo['UNDO_TYPE']));
@@ -116,7 +116,7 @@ class CUndo
 		{
 			foreach ($arFilter as $key => $val)
 			{
-				$n = strtoupper($key);
+				$n = mb_strtoupper($key);
 				if ($n == '%ID')
 					$arSqlSearch[] = "(U.ID like '".$DB->ForSql($val)."')";
 				elseif ($n == 'ID' || $n == 'USER_ID')
@@ -129,10 +129,10 @@ class CUndo
 		$strOrderBy = '';
 		foreach ($arOrder as $by => $order)
 		{
-			$by = strtoupper($by);
+			$by = mb_strtoupper($by);
 			if (isset($arFields[$by]))
 			{
-				$strOrderBy .= $arFields[$by]["FIELD_NAME"].' '.(strtolower($order) == 'desc'? 'desc'.(strtoupper($DB->type) == "ORACLE"? " NULLS LAST": ""): 'asc'.(strtoupper($DB->type) == "ORACLE"? " NULLS FIRST": "")).',';
+				$strOrderBy .= $arFields[$by]["FIELD_NAME"].' '.(mb_strtolower($order) == 'desc'? 'desc'.($DB->type == "ORACLE"? " NULLS LAST": ""): 'asc'.($DB->type == "ORACLE"? " NULLS FIRST": "")).',';
 			}
 		}
 
@@ -165,7 +165,7 @@ class CUndo
 
 		$DB->Query("DELETE FROM b_undo WHERE ID='".$DB->ForSql($ID)."'");
 
-		$CACHE_MANAGER->Clean(substr($ID, 0, 3), "b_undo");
+		$CACHE_MANAGER->Clean(mb_substr($ID, 0, 3), "b_undo");
 	}
 
 	public static function CleanUpOld()
@@ -183,24 +183,25 @@ class CUndo
 
 	public static function ShowUndoMessage($ID)
 	{
-		$_SESSION['BX_UNDO_ID'] = $ID;
+		\Bitrix\Main\Application::getInstance()->getSession()['BX_UNDO_ID'] = $ID;
 	}
 
 	public static function CheckNotifyMessage()
 	{
 		global $USER, $APPLICATION;
-		if (!is_array($_SESSION) || !array_key_exists("BX_UNDO_ID", $_SESSION))
+		$session = \Bitrix\Main\Application::getInstance()->getSession();
+		if (!$session->isStarted() || !$session->has('BX_UNDO_ID'))
 			return;
 
-		$ID = $_SESSION['BX_UNDO_ID'];
-		unset($_SESSION['BX_UNDO_ID']);
+		$ID = $session['BX_UNDO_ID'];
+		unset($session['BX_UNDO_ID']);
 
 		$arUndoList = CUndo::GetList(array('arFilter' => array('ID' => $ID, 'USER_ID' => $USER->GetId())));
 		if (!$arUndoList)
 			return;
 
 		$arUndo = $arUndoList[0];
-		$detail = GetMessage('MAIN_UNDO_TYPE_'.strtoupper($arUndo['UNDO_TYPE']));
+		$detail = GetMessage('MAIN_UNDO_TYPE_'.mb_strtoupper($arUndo['UNDO_TYPE']));
 
 		$s = "
 <script>
@@ -267,7 +268,7 @@ class CAutoSave
 
 		if ($USER->IsAuthorized())
 		{
-			if (isset($_REQUEST['autosave_id']) && strlen($_REQUEST['autosave_id']) == 33)
+			if (isset($_REQUEST['autosave_id']) && mb_strlen($_REQUEST['autosave_id']) == 33)
 			{
 				$this->bSkipRestore = true;
 				$this->autosaveId = preg_replace("/[^a-z0-9_]/i", "", $_REQUEST['autosave_id']);
@@ -332,7 +333,7 @@ class CAutoSave
 		$ID = $this->GetID();
 		$DB->Query("DELETE FROM b_undo WHERE ID='".$DB->ForSQL($ID)."' AND USER_ID='".$USER->GetID()."'");
 
-		$CACHE_MANAGER->Clean(substr($ID, 0, 3), "b_undo");
+		$CACHE_MANAGER->Clean(mb_substr($ID, 0, 3), "b_undo");
 
 		return true;
 	}
@@ -368,7 +369,7 @@ class CAutoSave
 			$DB->Add("b_undo", $arFields, array("CONTENT"), "", true);
 		}
 
-		$CACHE_MANAGER->Clean(substr($ID, 0, 3), "b_undo");
+		$CACHE_MANAGER->Clean(mb_substr($ID, 0, 3), "b_undo");
 		return true;
 	}
 
@@ -408,7 +409,7 @@ class CAutoSave
 		{
 			$param = ToUpper($param);
 
-			if (substr($param, -2) == 'ID' || array_key_exists($param, self::$arImportantParams))
+			if (mb_substr($param, -2) == 'ID' || array_key_exists($param, self::$arImportantParams))
 				$arParams[$param] = $value;
 		}
 

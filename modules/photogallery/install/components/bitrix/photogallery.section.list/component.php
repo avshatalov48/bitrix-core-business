@@ -14,7 +14,7 @@ CPageOption::SetOptionString("main", "nav_page_in_session", "N");
 //***************** BASE *******************************************/
 	$arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
 	$arParams["IBLOCK_ID"] = intval($arParams["IBLOCK_ID"]);
-	$arParams["SECTION_ID"] = intVal($arParams["SECTION_ID"]);
+	$arParams["SECTION_ID"] = intval($arParams["SECTION_ID"]);
 	$arParams["BEHAVIOUR"] = ($arParams["BEHAVIOUR"] == "USER" ? "USER" : "SIMPLE");
 	$arParams["USER_ALIAS"] = preg_replace("/[^a-z0-9\_]+/is" , "", $arParams["USER_ALIAS"]);
 	$arParams["PERMISSION_EXTERNAL"] = trim($arParams["PERMISSION"]);
@@ -26,11 +26,11 @@ CPageOption::SetOptionString("main", "nav_page_in_session", "N");
 	$arParams["PHOTO_LIST_MODE"] = $arParams["PHOTO_LIST_MODE"] == "N" ? "N" : "Y";
 	if ($arParams["PHOTO_LIST_MODE"] == "Y")
 	{
-		$arParams["SHOWN_ITEMS_COUNT"] = intVal($arParams["SHOWN_ITEMS_COUNT"]) > 0 ? intVal($arParams["SHOWN_ITEMS_COUNT"]) : 6;
-		$arParams["ELEMENT_SORT_FIELD"] = (empty($arParams["ELEMENT_SORT_FIELD"]) ? "SORT" : strToUpper($arParams["ELEMENT_SORT_FIELD"]));
-		$arParams["ELEMENT_SORT_ORDER"] = (strToUpper($arParams["ELEMENT_SORT_ORDER"]) != "DESC" ? "ASC" : "DESC");
-		$arParams["ELEMENT_SORT_FIELD1"] = (empty($arParams["ELEMENT_SORT_FIELD1"]) ? "ID" : strToUpper($arParams["ELEMENT_SORT_FIELD1"]));
-		$arParams["ELEMENT_SORT_ORDER1"] = (strToUpper($arParams["ELEMENT_SORT_ORDER1"]) != "DESC" ? "ASC" : "DESC");
+		$arParams["SHOWN_ITEMS_COUNT"] = intval($arParams["SHOWN_ITEMS_COUNT"]) > 0 ? intval($arParams["SHOWN_ITEMS_COUNT"]) : 6;
+		$arParams["ELEMENT_SORT_FIELD"] = (empty($arParams["ELEMENT_SORT_FIELD"])? "SORT" : mb_strtoupper($arParams["ELEMENT_SORT_FIELD"]));
+		$arParams["ELEMENT_SORT_ORDER"] = (mb_strtoupper($arParams["ELEMENT_SORT_ORDER"]) != "DESC" ? "ASC" : "DESC");
+		$arParams["ELEMENT_SORT_FIELD1"] = (empty($arParams["ELEMENT_SORT_FIELD1"])? "ID" : mb_strtoupper($arParams["ELEMENT_SORT_FIELD1"]));
+		$arParams["ELEMENT_SORT_ORDER1"] = (mb_strtoupper($arParams["ELEMENT_SORT_ORDER1"]) != "DESC" ? "ASC" : "DESC");
 	}
 
 	//***************** URL ********************************************/
@@ -50,22 +50,22 @@ CPageOption::SetOptionString("main", "nav_page_in_session", "N");
 
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		$arParams[strToUpper($URL)."_URL"] = trim($arParams[strToUpper($URL)."_URL"]);
-		if (empty($arParams[strToUpper($URL)."_URL"]))
-			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[mb_strtoupper($URL)."_URL"] = trim($arParams[mb_strtoupper($URL)."_URL"]);
+		if (empty($arParams[mb_strtoupper($URL)."_URL"]))
+			$arParams[mb_strtoupper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~".mb_strtoupper($URL)."_URL"] = $arParams[mb_strtoupper($URL)."_URL"];
+		$arParams[mb_strtoupper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".mb_strtoupper($URL)."_URL"]);
 	}
 //***************** ADDITIONAL **************************************/
 	$arParams["PASSWORD_CHECKED"] = true;
 
-	$arParams["ALBUM_PHOTO_SIZE"] = (intVal($arParams["ALBUM_PHOTO_SIZE"]) > 0 ? intVal($arParams["ALBUM_PHOTO_SIZE"]) : 150);
-	$arParams["ALBUM_PHOTO_THUMBS_SIZE"] = (intVal($arParams["ALBUM_PHOTO_THUMBS_SIZE"]) > 0 ? intVal($arParams["ALBUM_PHOTO_THUMBS_SIZE"]) : 70);
-	$arParams["SECTION_LIST_THUMBNAIL_SIZE"] = (intVal($arParams["SECTION_LIST_THUMBNAIL_SIZE"]) > 0 ? intVal($arParams["SECTION_LIST_THUMBNAIL_SIZE"]) : 70);
+	$arParams["ALBUM_PHOTO_SIZE"] = (intval($arParams["ALBUM_PHOTO_SIZE"]) > 0 ? intval($arParams["ALBUM_PHOTO_SIZE"]) : 150);
+	$arParams["ALBUM_PHOTO_THUMBS_SIZE"] = (intval($arParams["ALBUM_PHOTO_THUMBS_SIZE"]) > 0 ? intval($arParams["ALBUM_PHOTO_THUMBS_SIZE"]) : 70);
+	$arParams["SECTION_LIST_THUMBNAIL_SIZE"] = (intval($arParams["SECTION_LIST_THUMBNAIL_SIZE"]) > 0 ? intval($arParams["SECTION_LIST_THUMBNAIL_SIZE"]) : 70);
 
-	$arParams["PAGE_ELEMENTS"] = intVal($arParams["PAGE_ELEMENTS"]);
+	$arParams["PAGE_ELEMENTS"] = intval($arParams["PAGE_ELEMENTS"]);
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
-	$arParams["PAGE_NAVIGATION_WINDOW"] = intVal(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 5);
+	$arParams["PAGE_NAVIGATION_WINDOW"] = intval(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 5);
 
 	$arParams["DATE_TIME_FORMAT"] = trim(!empty($arParams["DATE_TIME_FORMAT"]) ? $arParams["DATE_TIME_FORMAT"] :
 		$GLOBALS["DB"]->DateFormatToPHP(CSite::GetDateFormat("SHORT")));
@@ -171,7 +171,7 @@ if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $c
 	$arResult["NAV_STRING"] = $res["NAV_STRING"];
 	$arResult["NAV_RESULT"] = $res["NAV_RESULT"];
 
-	$GLOBALS['NavNum'] = intVal($GLOBALS['NavNum']) + 1;
+	$GLOBALS['NavNum'] = intval($GLOBALS['NavNum']) + 1;
 }
 else
 {
@@ -180,7 +180,7 @@ else
 		"ACTIVE" => "Y",
 		"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 		"IBLOCK_ACTIVE" => "Y",
-		"SECTION_ID" => intVal($arParams["SECTION_ID"])
+		"SECTION_ID" => intval($arParams["SECTION_ID"])
 	);
 
 	// GALLERY INFO
@@ -216,15 +216,15 @@ else
 			$res["PICTURE"] = CFile::GetFileArray($res["PICTURE"]);
 			$res["DETAIL_PICTURE"] = CFile::GetFileArray($res["DETAIL_PICTURE"]);
 
-			$res["SECTIONS_CNT"] = intVal(CIBlockSection::GetCount(array("IBLOCK_ID" => $arParams["IBLOCK_ID"], "SECTION_ID" => $res["ID"])));
+			$res["SECTIONS_CNT"] = intval(CIBlockSection::GetCount(array("IBLOCK_ID" => $arParams["IBLOCK_ID"], "SECTION_ID" => $res["ID"])));
 
 			if (isset($res["ELEMENT_CNT"]))
-				$res["ELEMENTS_CNT"] = intVal($res["ELEMENT_CNT"]);
+				$res["ELEMENTS_CNT"] = intval($res["ELEMENT_CNT"]);
 			else
-				$res["ELEMENTS_CNT"] = intVal(CIBlockSection::GetSectionElementsCount($res["ID"], array("CNT_ACTIVE" => "Y")));
+				$res["ELEMENTS_CNT"] = intval(CIBlockSection::GetSectionElementsCount($res["ID"], array("CNT_ACTIVE" => "Y")));
 
 			if ($arParams["PERMISSION"] >= "U")
-				$res["ELEMENTS_CNT_ALL"] = intVal(CIBlockSection::GetSectionElementsCount($res["ID"], array("CNT_ALL"=>"Y")));
+				$res["ELEMENTS_CNT_ALL"] = intval(CIBlockSection::GetSectionElementsCount($res["ID"], array("CNT_ALL"=>"Y")));
 
 			if ($arParams["PERMISSION"] < "U" && $res["ELEMENTS_CNT"] <= 0)
 				continue;
@@ -248,7 +248,7 @@ else
 				}
 				$res["~DROP_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["~SECTION_EDIT_URL"],
 					array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $res["ID"], "ACTION" => "drop")).
-					(strpos($arParams["~SECTION_EDIT_URL"], "?") === false ? "?" : "&")."edit=Y";
+					(mb_strpos($arParams["~SECTION_EDIT_URL"], "?") === false ? "?" : "&")."edit=Y";
 				$res["DROP_LINK"] = htmlspecialcharsbx($res["~DROP_LINK"]);
 			}
 			$arResult["SECTIONS"][$res["ID"]] = $res;

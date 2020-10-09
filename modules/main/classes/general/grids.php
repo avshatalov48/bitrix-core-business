@@ -91,9 +91,9 @@ class CGridOptions
 		$key = '';
 		if(isset($_REQUEST[$arParams["vars"]["by"]]))
 		{
-			$_SESSION["main.interface.grid"][$this->grid_id]["sort_by"] = $_REQUEST[$arParams["vars"]["by"]];
+			\Bitrix\Main\Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["sort_by"] = $_REQUEST[$arParams["vars"]["by"]];
 		}
-		elseif(!isset($_SESSION["main.interface.grid"][$this->grid_id]["sort_by"]))
+		elseif(!isset(\Bitrix\Main\Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["sort_by"]))
 		{
 			if($this->options["sort_by"] <> '')
 			{
@@ -106,16 +106,16 @@ class CGridOptions
 				$key = $this->options["last_sort_by"];
 			}
 		}
-		if(isset($_SESSION["main.interface.grid"][$this->grid_id]["sort_by"]))
-			$key = $_SESSION["main.interface.grid"][$this->grid_id]["sort_by"];
+		if(isset(\Bitrix\Main\Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["sort_by"]))
+			$key = \Bitrix\Main\Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["sort_by"];
 
 		if($key <> '')
 		{
 			if(isset($_REQUEST[$arParams["vars"]["order"]]))
 			{
-				$_SESSION["main.interface.grid"][$this->grid_id]["sort_order"] = $_REQUEST[$arParams["vars"]["order"]];
+				\Bitrix\Main\Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["sort_order"] = $_REQUEST[$arParams["vars"]["order"]];
 			}
-			elseif(!isset($_SESSION["main.interface.grid"][$this->grid_id]["sort_order"]))
+			elseif(!isset(\Bitrix\Main\Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["sort_order"]))
 			{
 				if($this->options["sort_order"] <> '')
 				{
@@ -130,8 +130,8 @@ class CGridOptions
 					$arResult["sort"] = array($key => reset($arParams["sort"]));
 				}
 			}
-			if(isset($_SESSION["main.interface.grid"][$this->grid_id]["sort_order"]))
-				$arResult["sort"] = array($key => $_SESSION["main.interface.grid"][$this->grid_id]["sort_order"]);
+			if(isset(\Bitrix\Main\Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["sort_order"]))
+				$arResult["sort"] = array($key => \Bitrix\Main\Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["sort_order"]);
 		}
 
 		return $arResult;
@@ -188,10 +188,10 @@ class CGridOptions
 				}
 				else
 				{
-					unset($_SESSION["main.interface.grid"][$this->grid_id]["filter"][$field["id"]."_datesel"]);
-					unset($_SESSION["main.interface.grid"][$this->grid_id]["filter"][$field["id"]."_from"]);
-					unset($_SESSION["main.interface.grid"][$this->grid_id]["filter"][$field["id"]."_to"]);
-					unset($_SESSION["main.interface.grid"][$this->grid_id]["filter"][$field["id"]."_days"]);
+					unset(\Bitrix\Main\Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["filter"][$field["id"]."_datesel"]);
+					unset(\Bitrix\Main\Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["filter"][$field["id"]."_from"]);
+					unset(\Bitrix\Main\Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["filter"][$field["id"]."_to"]);
+					unset(\Bitrix\Main\Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["filter"][$field["id"]."_days"]);
 				}
 				continue;
 			}
@@ -206,14 +206,14 @@ class CGridOptions
 				if($_REQUEST[$field["id"]."_from"] <> '')
 					$aRes[$field["id"]."_from"] = $_REQUEST[$field["id"]."_from"];
 				else
-					unset($_SESSION["main.interface.grid"][$this->grid_id]["filter"][$field["id"]."_from"]);
+					unset(\Bitrix\Main\Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["filter"][$field["id"]."_from"]);
 			}
 			if(isset($_REQUEST[$field["id"]."_to"]))
 			{
 				if($_REQUEST[$field["id"]."_to"] <> '')
 					$aRes[$field["id"]."_to"] = $_REQUEST[$field["id"]."_to"];
 				else
-					unset($_SESSION["main.interface.grid"][$this->grid_id]["filter"][$field["id"]."_to"]);
+					unset(\Bitrix\Main\Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["filter"][$field["id"]."_to"]);
 			}
 
 			//filtered outside, we don't control the filter field value
@@ -232,7 +232,7 @@ class CGridOptions
 				if(is_array($_REQUEST[$field["id"]]) && !empty($_REQUEST[$field["id"]]) && reset($_REQUEST[$field["id"]]) <> '' || !is_array($_REQUEST[$field["id"]]) && $_REQUEST[$field["id"]] <> '')
 					$aRes[$field["id"]] = $_REQUEST[$field["id"]];
 				else
-					unset($_SESSION["main.interface.grid"][$this->grid_id]["filter"][$field["id"]]);
+					unset(\Bitrix\Main\Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["filter"][$field["id"]]);
 			}
 		}
 
@@ -246,15 +246,15 @@ class CGridOptions
 
 		if(!empty($aRes))
 		{
-			$_SESSION["main.interface.grid"][$this->grid_id]["filter"] = $aRes;
+			\Bitrix\Main\Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["filter"] = $aRes;
 		}
 		elseif($_REQUEST["clear_filter"] <> '')
 		{
-			$_SESSION["main.interface.grid"][$this->grid_id]["filter"] = array();
+			\Bitrix\Main\Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["filter"] = array();
 		}
-		elseif(is_array($_SESSION["main.interface.grid"][$this->grid_id]["filter"]))
+		elseif(is_array(\Bitrix\Main\Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["filter"]))
 		{
-			$aRes = $_SESSION["main.interface.grid"][$this->grid_id]["filter"];
+			$aRes = \Bitrix\Main\Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["filter"];
 		}
 		else
 		{
@@ -296,7 +296,7 @@ class CGridOptions
 				}
 				if(!empty($aRes))
 				{
-					$_SESSION["main.interface.grid"][$this->grid_id]["filter"] = $aRes;
+					\Bitrix\Main\Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["filter"] = $aRes;
 				}
 			}
 		}
@@ -396,8 +396,8 @@ class CGridOptions
 		$this->currentView = $view_id;
 
 		//get sorting from view, not session
-		unset($_SESSION["main.interface.grid"][$this->grid_id]["sort_by"]);
-		unset($_SESSION["main.interface.grid"][$this->grid_id]["sort_order"]);
+		unset(\Bitrix\Main\Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["sort_by"]);
+		unset(\Bitrix\Main\Application::getInstance()->getSession()["main.interface.grid"][$this->grid_id]["sort_order"]);
 	}
 	
 	public function SetFilterRows($rows, $filter_id='')

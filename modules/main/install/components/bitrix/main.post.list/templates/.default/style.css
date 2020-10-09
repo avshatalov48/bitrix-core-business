@@ -238,6 +238,9 @@ a.feed-time.feed-com-time:hover {
 }
 
 .feed-com-avatar img {
+	position: absolute;
+	top: 0;
+	left: 0;
 	width: 37px;
 	height: 37px;
 	background-color: #fff;

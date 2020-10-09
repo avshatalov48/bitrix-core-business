@@ -103,7 +103,7 @@ class Event
 		}
 
 		$senderId = Main\Config\Option::get("main", "sms_default_service");
-		if(strlen($senderId) <= 0)
+		if($senderId == '')
 		{
 			//messageservice will try to use any available sender
 			$senderId = null;

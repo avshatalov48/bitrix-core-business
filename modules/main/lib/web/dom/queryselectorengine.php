@@ -157,10 +157,10 @@ class QuerySelectorEngine extends QueryEngine
 
 		if(isset($list[1]))
 		{
-			$operation = substr($list[0], -1);
+			$operation = mb_substr($list[0], -1);
 			if(in_array($operation, $operations))
 			{
-				$result['name'] = trim(substr($list[0], 0, -1));
+				$result['name'] = trim(mb_substr($list[0], 0, -1));
 				$result['operation'] = $operation;
 			}
 			else
@@ -189,14 +189,14 @@ class QuerySelectorEngine extends QueryEngine
 		$path = array();
 
 		$string = trim($string);
-		$length = strlen($string);
+		$length = mb_strlen($string);
 
 		$i = 0;
 		while($i < $length)
 		{
 			$operator = '';
 
-			$char = substr($string, $i, 1);
+			$char = mb_substr($string, $i, 1);
 			switch($char)
 			{
 				case '#':
@@ -274,12 +274,12 @@ class QuerySelectorEngine extends QueryEngine
 
 		while(++$i < $length)
 		{
-			$char = substr($string, $i, 1);
+			$char = mb_substr($string, $i, 1);
 			if($char === '\\')
 			{
 				if($escapeNext)
 				{
-					$buffer = substr($buffer, 0, -1);
+					$buffer = mb_substr($buffer, 0, -1);
 					$escapeNext = false;
 				}
 				else
@@ -291,7 +291,7 @@ class QuerySelectorEngine extends QueryEngine
 			{
 				if($escapeNext)
 				{
-					$buffer = substr($buffer, 0, -1);
+					$buffer = mb_substr($buffer, 0, -1);
 					$escapeNext = false;
 				}
 				else

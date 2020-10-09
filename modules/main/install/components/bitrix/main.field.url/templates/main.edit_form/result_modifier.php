@@ -40,15 +40,10 @@ foreach($arResult['value'] as $key => $value)
 	if(
 		$arResult['userField']['ENTITY_VALUE_ID'] < 1
 		&&
-		strlen($arResult['userField']['SETTINGS']['DEFAULT_VALUE'])
+		mb_strlen($arResult['userField']['SETTINGS']['DEFAULT_VALUE'])
 	)
 	{
-		$value = HtmlFilter::encode($arResult['userField']['SETTINGS']['DEFAULT_VALUE']);
-	}
-
-	if(!empty($value))
-	{
-		$value = HtmlFilter::encode($value);
+		$value = $arResult['userField']['SETTINGS']['DEFAULT_VALUE'];
 	}
 
 	$attrList['name'] = str_replace('[]', '[' . $key . ']', $arResult['fieldName']);

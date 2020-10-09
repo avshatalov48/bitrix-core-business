@@ -2,6 +2,7 @@
 namespace Bitrix\Rest;
 
 use Bitrix\Main;
+use Bitrix\Rest\Preset\EventController;
 
 /**
  * Class AppLangTable
@@ -88,5 +89,10 @@ class AppLangTable extends Main\Entity\DataManager
 		return array(
 			new Main\Entity\Validator\Length(null, 500),
 		);
+	}
+
+	public static function onAfterAdd(Main\Entity\Event $event)
+	{
+		EventController::onAddAppLang($event);
 	}
 }

@@ -120,7 +120,7 @@ class Base
 					'items' => ['' => ''] + \CCrmStatus::getStatusList($uf['SETTINGS']['ENTITY_TYPE'])
 				];
 			}
-			elseif(substr($uf['USER_TYPE']['USER_TYPE_ID'], 0, 5) === 'rest_')
+			elseif(mb_substr($uf['USER_TYPE']['USER_TYPE_ID'], 0, 5) === 'rest_')
 			{
 				// skip REST type fields here
 				continue;
@@ -141,7 +141,7 @@ class Base
 
 			$gridHeaders[$FIELD_NAME] = array(
 				'id' => $FIELD_NAME,
-				'name' => htmlspecialcharsbx(strlen($uf['LIST_COLUMN_LABEL']) > 0 ? $uf['LIST_COLUMN_LABEL'] : $FIELD_NAME),
+				'name' => htmlspecialcharsbx($uf['LIST_COLUMN_LABEL'] <> '' ? $uf['LIST_COLUMN_LABEL'] : $FIELD_NAME),
 				'sort' => $uf['MULTIPLE'] == 'N' ? $FIELD_NAME : false,
 				'default' => $uf['SHOW_IN_LIST'] == 'Y',
 				'editable' => $editable,

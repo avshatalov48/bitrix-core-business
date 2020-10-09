@@ -211,6 +211,7 @@
 	.bx-im-fullscreen-adaptive .bx-messenger-panel-call-audio:before { background-position: -58px -379px; }
 	.bx-im-fullscreen-adaptive .bx-messenger-panel-chat { overflow: hidden; padding-left: 26px; padding-right: 0; width: 0; }
 	.bx-im-fullscreen-adaptive .bx-messenger-content-item-avatar { opacity: 0; }
+	.bx-im-fullscreen-adaptive .bx-messenger-content-item-1 .bx-messenger-keyboard { margin-right: 28px; }
 	.bx-im-fullscreen-adaptive .bx-messenger-message-extra { margin: 0 31px 0 61px; }
 	.bx-im-fullscreen-adaptive .bx-messenger-content-item-2 .bx-messenger-content-item-avatar { opacity: 1; }
 	.bx-im-fullscreen-adaptive .bx-messenger-content-item-content { margin-right: 31px; }

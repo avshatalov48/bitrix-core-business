@@ -80,7 +80,7 @@ class EntityUFDataProvider extends DataProvider
 					$fieldLabel = $userField['EDIT_FORM_LABEL'];
 				}
 			}
-			if (strlen($fieldLabel) <= 0)
+			if ($fieldLabel == '')
 			{
 				$fieldLabel = $fieldName;
 			}

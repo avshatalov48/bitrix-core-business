@@ -1,8 +1,4 @@
 <?
-/*********************************************
-	Устаревшие функции (для совместимости)
-*********************************************/
-
 class CFormOutput_old
 {
 	/**
@@ -60,7 +56,7 @@ class CFormOutput_old
 		if ($this->WEB_FORM_ID > 0)
 		{
 			//  insert chain item
-			if (strlen($this->arParams["CHAIN_ITEM_TEXT"]) > 0)
+			if ($this->arParams["CHAIN_ITEM_TEXT"] <> '')
 			{
 				$APPLICATION->AddChainItem($this->arParams["CHAIN_ITEM_TEXT"], $this->arParams["CHAIN_ITEM_LINK"]);
 			}
@@ -157,9 +153,6 @@ class CFormOutput_old
 		return empty($this->__error_msg);
 	}
 
-/*****************************************/
-	/*              Filter methods. Move to component     */
-	/*****************************************/
 	function __checkFilter(&$str_error) // check of filter values
 	{
 		global $strError, $MESS, $arrFORM_FILTER;
@@ -208,7 +201,7 @@ class CFormOutput_old
 		}
 		$strError .= $str;
 		$str_error .= $str;
-		if (strlen($str)>0) return false; else return true;
+		if ($str <> '') return false; else return true;
 	}
 
 	function __prepareFilter()
@@ -255,11 +248,11 @@ class CFormOutput_old
 			else $FilterArr[] = $fname;
 		}
 		$sess_filter = "FORM_RESULT_LIST_".$this->WEB_FORM_NAME;
-		if (strlen($_REQUEST["set_filter"])>0)
+		if ($_REQUEST["set_filter"] <> '')
 			InitFilterEx($FilterArr,$sess_filter,"set");
 		else
 			InitFilterEx($FilterArr,$sess_filter,"get");
-		if (strlen($_REQUEST["del_filter"])>0)
+		if ($_REQUEST["del_filter"] <> '')
 		{
 			DelFilterEx($FilterArr,$sess_filter);
 		}
@@ -331,7 +324,7 @@ class CFormOutput_old
 
 		$this->arParams['USE_EXTENDED_ERRORS'] = 'N';
 
-		if (strlen($_REQUEST["web_form_submit"])>0 || strlen($_REQUEST["web_form_apply"])>0)
+		if ($_REQUEST["web_form_submit"] <> '' || $_REQUEST["web_form_apply"] <> '')
 		{
 			$this->arrVALUES = $_REQUEST;
 
@@ -355,16 +348,16 @@ class CFormOutput_old
 
 						$this->strFormNote = GetMessage("FORM_DATA_SAVED");
 
-						if (strlen($_REQUEST["web_form_submit"])>0 && !(defined("ADMIN_SECTION") && ADMIN_SECTION===true))
+						if ($_REQUEST["web_form_submit"] <> '' && !(defined("ADMIN_SECTION") && ADMIN_SECTION===true))
 						{
-							LocalRedirect($this->arParams["LIST_URL"].(strpos($this->arParams["LIST_URL"], "?") === false ? "?" : "&")."WEB_FORM_ID=".$this->WEB_FORM_ID."&strFormNote=".urlencode($this->strFormNote));
+							LocalRedirect($this->arParams["LIST_URL"].(mb_strpos($this->arParams["LIST_URL"], "?") === false ? "?" : "&")."WEB_FORM_ID=".$this->WEB_FORM_ID."&strFormNote=".urlencode($this->strFormNote));
 						}
 
 						if (defined("ADMIN_SECTION") && ADMIN_SECTION === true)
 						{
-							if (strlen($_REQUEST["web_form_submit"])>0)
+							if ($_REQUEST["web_form_submit"] <> '')
 								LocalRedirect(BX_ROOT."/admin/form_result_list.php?lang=".LANG."&WEB_FORM_ID=".$this->WEB_FORM_ID."&strFormNote=".urlencode($this->strFormNote));
-							elseif (strlen($_REQUEST["web_form_apply"])>0)
+							elseif ($_REQUEST["web_form_apply"] <> '')
 								LocalRedirect(BX_ROOT."/admin/form_result_edit.php?lang=".LANG."&WEB_FORM_ID=".$this->WEB_FORM_ID."&RESULT_ID=".$this->RESULT_ID."&strFormNote=".urlencode($this->strFormNote));
 							die();
 						}
@@ -386,13 +379,13 @@ class CFormOutput_old
 
 							if ($this->F_RIGHT >= 15)
 							{
-								if (strlen($_REQUEST["web_form_submit"])>0 && strlen($this->arParams["LIST_URL"])>0)
+								if ($_REQUEST["web_form_submit"] <> '' && $this->arParams["LIST_URL"] <> '')
 								{
-									LocalRedirect($this->arParams["LIST_URL"].(strpos($this->arParams["LIST_URL"], "?") === false ? "?" : "&")."lang=".LANGUAGE_ID."&WEB_FORM_ID=".$this->WEB_FORM_ID."&RESULT_ID=".$this->RESULT_ID."&strFormNote=".urlencode($this->strFormNote));
+									LocalRedirect($this->arParams["LIST_URL"].(mb_strpos($this->arParams["LIST_URL"], "?") === false ? "?" : "&")."lang=".LANGUAGE_ID."&WEB_FORM_ID=".$this->WEB_FORM_ID."&RESULT_ID=".$this->RESULT_ID."&strFormNote=".urlencode($this->strFormNote));
 								}
-								elseif (strlen($_REQUEST["web_form_apply"])>0 && strlen($this->arParams["EDIT_URL"])>0)
+								elseif ($_REQUEST["web_form_apply"] <> '' && $this->arParams["EDIT_URL"] <> '')
 								{
-									LocalRedirect($this->arParams["EDIT_URL"].(strpos($this->arParams["EDIT_URL"], "?") === false ? "?" : "&")."RESULT_ID=".$this->RESULT_ID."&strFormNote=".urlencode($this->strFormNote));
+									LocalRedirect($this->arParams["EDIT_URL"].(mb_strpos($this->arParams["EDIT_URL"], "?") === false ? "?" : "&")."RESULT_ID=".$this->RESULT_ID."&strFormNote=".urlencode($this->strFormNote));
 								}
 
 								$return = true;
@@ -412,7 +405,7 @@ class CFormOutput_old
 		}
 
 		$strReturn = $this->IncludeFormCustomTemplate();
-		if (strlen($strReturn) <= 0)
+		if ($strReturn == '')
 		{
 			ob_start();
 			$GLOBALS["FORM"] =& $this; // create interface for template
@@ -499,7 +492,7 @@ class CFormOutput_old
 		if ($this->RESULT_ID > 0) $arResult["RESULT_ID"] = $this->RESULT_ID;
 		$arResult["F_RIGHT"] = $this->F_RIGHT;
 
-		if (strlen($_REQUEST["web_form_submit"])>0 || strlen($_REQUEST["web_form_apply"])>0)
+		if ($_REQUEST["web_form_submit"] <> '' || $_REQUEST["web_form_apply"] <> '')
 		{
 			$this->arrVALUES = $_REQUEST;
 
@@ -524,30 +517,29 @@ class CFormOutput_old
 
 						$this->strFormNote = GetMessage("FORM_DATA_SAVED");
 
-						if (strlen($_REQUEST["web_form_submit"])>0 && !(defined("ADMIN_SECTION") && ADMIN_SECTION===true))
+						if ($_REQUEST["web_form_submit"] <> '' && !(defined("ADMIN_SECTION") && ADMIN_SECTION===true))
 						{
 							if ($this->arParams["SEF_MODE"] == "Y")
 								LocalRedirect($this->arParams["LIST_URL"]."?strFormNote=".urlencode($this->strFormNote));
 							else
-								LocalRedirect($this->arParams["LIST_URL"].(strpos($this->arParams["LIST_URL"], "?") === false ? "?" : "&")."WEB_FORM_ID=".$this->WEB_FORM_ID."&strFormNote=".urlencode($this->strFormNote));
+								LocalRedirect($this->arParams["LIST_URL"].(mb_strpos($this->arParams["LIST_URL"], "?") === false ? "?" : "&")."WEB_FORM_ID=".$this->WEB_FORM_ID."&strFormNote=".urlencode($this->strFormNote));
 
 							die();
 						}
 
-						if (strlen($_REQUEST["web_form_apply"])>0 && !(defined("ADMIN_SECTION") && ADMIN_SECTION===true) && $this->arParams["SEF_MODE"] == "Y")
+						if ($_REQUEST["web_form_apply"] <> '' && !(defined("ADMIN_SECTION") && ADMIN_SECTION===true) && $this->arParams["SEF_MODE"] == "Y")
 						{
-							// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-							LocalRedirect($this->arParams["EDIT_URL"].(strpos($this->arParams["EDIT_URL"], "?") === false ? "?" : "&")."strFormNote=".urlencode($this->strFormNote));
+							LocalRedirect($this->arParams["EDIT_URL"].(mb_strpos($this->arParams["EDIT_URL"], "?") === false ? "?" : "&")."strFormNote=".urlencode($this->strFormNote));
 							die();
 						}
 
 						if (defined("ADMIN_SECTION") && ADMIN_SECTION === true)
 						{
-							if (strlen($_REQUEST["web_form_submit"])>0)
+							if ($_REQUEST["web_form_submit"] <> '')
 							{
 								LocalRedirect(BX_ROOT."/admin/form_result_list.php?lang=".LANG."&WEB_FORM_ID=".$this->WEB_FORM_ID."&strFormNote=".urlencode($this->strFormNote));
 							}
-							elseif (strlen($_REQUEST["web_form_apply"])>0)
+							elseif ($_REQUEST["web_form_apply"] <> '')
 							{
 								LocalRedirect(BX_ROOT."/admin/form_result_edit.php?lang=".LANG."&WEB_FORM_ID=".$this->WEB_FORM_ID."&RESULT_ID=".$this->RESULT_ID."&strFormNote=".urlencode($this->strFormNote));
 							}
@@ -566,20 +558,20 @@ class CFormOutput_old
 
 							if ($this->F_RIGHT >= 15)
 							{
-								if (strlen($_REQUEST["web_form_submit"])>0 && strlen($this->arParams["LIST_URL"])>0)
+								if ($_REQUEST["web_form_submit"] <> '' && $this->arParams["LIST_URL"] <> '')
 								{
 									if ($this->arParams["SEF_MODE"] == "Y")
 										LocalRedirect($this->arParams["LIST_URL"]."?strFormNote=".urlencode($this->strFormNote));
 									else
-										LocalRedirect($this->arParams["LIST_URL"].(strpos($this->arParams["LIST_URL"], "?") === false ? "?" : "&")."WEB_FORM_ID=".$this->WEB_FORM_ID."&RESULT_ID=".$this->RESULT_ID."&strFormNote=".urlencode($this->strFormNote));
+										LocalRedirect($this->arParams["LIST_URL"].(mb_strpos($this->arParams["LIST_URL"], "?") === false ? "?" : "&")."WEB_FORM_ID=".$this->WEB_FORM_ID."&RESULT_ID=".$this->RESULT_ID."&strFormNote=".urlencode($this->strFormNote));
 									die();
 								}
-								elseif (strlen($_REQUEST["web_form_apply"])>0 && strlen($this->arParams["EDIT_URL"])>0)
+								elseif ($_REQUEST["web_form_apply"] <> '' && $this->arParams["EDIT_URL"] <> '')
 								{
 									if ($this->arParams["SEF_MODE"] == "Y")
 										LocalRedirect(str_replace("#RESULT_ID#", $this->RESULT_ID. $this->arParams["EDIT_URL"])."?strFormNote=".urlencode($this->strFormNote));
 									else
-										LocalRedirect($this->arParams["EDIT_URL"].(strpos($this->arParams["EDIT_URL"], "?") === false ? "?" : "&")."RESULT_ID=".$this->RESULT_ID."&strFormNote=".urlencode($this->strFormNote));
+										LocalRedirect($this->arParams["EDIT_URL"].(mb_strpos($this->arParams["EDIT_URL"], "?") === false ? "?" : "&")."RESULT_ID=".$this->RESULT_ID."&strFormNote=".urlencode($this->strFormNote));
 									die();
 								}
 
@@ -641,7 +633,6 @@ class CFormOutput_old
 	function CaptchaInitialize()
 	{
 		$this->CAPTCHACode = $GLOBALS["APPLICATION"]->CaptchaGetCode();
-		//echo $this->CAPTCHACode;
 	}
 
 	function ShowAnswer($FIELD_SID)
@@ -662,7 +653,7 @@ class CFormOutput_old
 			{
 				$i++;
 
-				if (strlen(trim($arrA["USER_TEXT"]))>0)
+				if (trim($arrA["USER_TEXT"]) <> '')
 				{
 					if (intval($arrA["USER_FILE_ID"])>0)
 					{
@@ -672,16 +663,16 @@ class CFormOutput_old
 					else $out .= TxtToHTML($arrA["USER_TEXT"],true,50)."<br />";
 				}
 
-				if (strlen(trim($arrA["ANSWER_TEXT"]))>0)
+				if (trim($arrA["ANSWER_TEXT"]) <> '')
 				{
 					$answer = "[<span class='form-anstext'>".TxtToHTML($arrA["ANSWER_TEXT"],true,50)."</span>]";
-					if (strlen(trim($arrA["ANSWER_VALUE"]))>0) $answer .= "&nbsp;"; else $answer .= "<br />";
+					if (trim($arrA["ANSWER_VALUE"]) <> '') $answer .= "&nbsp;"; else $answer .= "<br />";
 					$out .= $answer;
 				}
 
 				if ($this->arParams["SHOW_ANSWER_VALUE"]=="Y")
 				{
-					if (strlen(trim($arrA["ANSWER_VALUE"]))>0)
+					if (trim($arrA["ANSWER_VALUE"]) <> '')
 						$out .= "(<span class='form-ansvalue'>".TxtToHTML($arrA["ANSWER_VALUE"],true,50)."</span>)<br />";
 				}
 
@@ -708,4 +699,3 @@ class CFormOutput_old
 		return $out;
 	}
 }
-?>

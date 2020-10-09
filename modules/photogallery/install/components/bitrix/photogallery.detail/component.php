@@ -12,9 +12,9 @@ elseif (intval($arParams["ELEMENT_ID"]) <= 0)
 /********************************************************************
 				For custom components
 ********************************************************************/
-$arParams["COMMENTS_TYPE"] = strtoupper($arParams["COMMENTS_TYPE"]);
-$arParams["ELEMENT_SORT_FIELD"] = strtoupper($arParams["ELEMENT_SORT_FIELD"]);
-$arParams["ELEMENT_SORT_FIELD1"] = strtoupper($arParams["ELEMENT_SORT_FIELD1"]);
+$arParams["COMMENTS_TYPE"] = mb_strtoupper($arParams["COMMENTS_TYPE"]);
+$arParams["ELEMENT_SORT_FIELD"] = mb_strtoupper($arParams["ELEMENT_SORT_FIELD"]);
+$arParams["ELEMENT_SORT_FIELD1"] = mb_strtoupper($arParams["ELEMENT_SORT_FIELD1"]);
 $arParams["PROPERTY_CODE"] = (!is_array($arParams["PROPERTY_CODE"]) ? array() : $arParams["PROPERTY_CODE"]);
 //if ($arParams["SHOW_RATING"] == "Y")
 {
@@ -70,10 +70,10 @@ if (!empty($arParams["ELEMENT_SORT_FIELD1"]))
 	$arParams["PERMISSION_EXTERNAL"] = trim($arParams["PERMISSION"]);
 	$arParams["BEHAVIOUR"] = ($arParams["BEHAVIOUR"] == "USER" ? "USER" : "SIMPLE");
 
-	$arParams["ELEMENT_SORT_FIELD"] = (empty($arParams["ELEMENT_SORT_FIELD"]) ? false : strToUpper($arParams["ELEMENT_SORT_FIELD"]));
-	$arParams["ELEMENT_SORT_ORDER"] = (strToUpper($arParams["ELEMENT_SORT_ORDER"])!="DESC" ? "ASC" : "DESC");
-	$arParams["ELEMENT_SORT_FIELD1"] = (empty($arParams["ELEMENT_SORT_FIELD1"]) ? false : strToUpper($arParams["ELEMENT_SORT_FIELD1"]));
-	$arParams["ELEMENT_SORT_ORDER1"] = (strToUpper($arParams["ELEMENT_SORT_ORDER1"]) != "DESC" ? "ASC" : "DESC");
+	$arParams["ELEMENT_SORT_FIELD"] = (empty($arParams["ELEMENT_SORT_FIELD"])? false : mb_strtoupper($arParams["ELEMENT_SORT_FIELD"]));
+	$arParams["ELEMENT_SORT_ORDER"] = (mb_strtoupper($arParams["ELEMENT_SORT_ORDER"]) != "DESC" ? "ASC" : "DESC");
+	$arParams["ELEMENT_SORT_FIELD1"] = (empty($arParams["ELEMENT_SORT_FIELD1"])? false : mb_strtoupper($arParams["ELEMENT_SORT_FIELD1"]));
+	$arParams["ELEMENT_SORT_ORDER1"] = (mb_strtoupper($arParams["ELEMENT_SORT_ORDER1"]) != "DESC" ? "ASC" : "DESC");
 	$arParams["ELEMENT_SELECT_FIELDS"] = (is_array($arParams["ELEMENT_SELECT_FIELDS"]) ? $arParams["ELEMENT_SELECT_FIELDS"] : array());
 	$arParams["PROPERTY_CODE"] = (!is_array($arParams["PROPERTY_CODE"]) ? array() : $arParams["PROPERTY_CODE"]);
 	foreach($arParams["PROPERTY_CODE"] as $key => $val)
@@ -95,15 +95,15 @@ if (!empty($arParams["ELEMENT_SORT_FIELD1"]))
 			"&SECTION_ID=#SECTION_ID#&ACTION=upload");
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		$arParams[strToUpper($URL)."_URL"] = trim($arParams[strToUpper($URL)."_URL"]);
-		if (empty($arParams[strToUpper($URL)."_URL"]))
-			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[mb_strtoupper($URL)."_URL"] = trim($arParams[mb_strtoupper($URL)."_URL"]);
+		if (empty($arParams[mb_strtoupper($URL)."_URL"]))
+			$arParams[mb_strtoupper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~".mb_strtoupper($URL)."_URL"] = $arParams[mb_strtoupper($URL)."_URL"];
+		$arParams[mb_strtoupper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".mb_strtoupper($URL)."_URL"]);
 	}
 //***************** ADDITIONAL **************************************/
 	$arParams["PASSWORD_CHECKED"] = true;
-	$arParams["COMMENTS_TYPE"] = strToUpper($arParams["COMMENTS_TYPE"]);
+$arParams["COMMENTS_TYPE"] = mb_strtoupper($arParams["COMMENTS_TYPE"]);
 	$arParams["USE_PERMISSIONS"] = ($arParams["USE_PERMISSIONS"]=="Y" ? "Y" : "N");
 	if(!is_array($arParams["GROUP_PERMISSIONS"]))
 		$arParams["GROUP_PERMISSIONS"] = array(2);
@@ -128,7 +128,7 @@ if (!empty($arParams["ELEMENT_SORT_FIELD1"]))
 				Main Data
 ********************************************************************/
 $arResult["ELEMENT"] = array();
-$ELEMENT_ID = intVal($arParams["ELEMENT_ID"]);
+$ELEMENT_ID = intval($arParams["ELEMENT_ID"]);
 $cache = new CPHPCache;
 $cache_path = "/".SITE_ID."/photogallery/".$arParams["IBLOCK_ID"]."/section".$arParams["SECTION_ID"];
 
@@ -169,10 +169,10 @@ else
 	);
 	foreach ($arParams["ELEMENT_SELECT_FIELDS"] as $val)
 	{
-		$val = strtoupper($val);
-		if (strpos($val, "PROPERTY_") !== false && !in_array($val, $arParams["PROPERTY_CODE"]))
+		$val = mb_strtoupper($val);
+		if (mb_strpos($val, "PROPERTY_") !== false && !in_array($val, $arParams["PROPERTY_CODE"]))
 			$arParams["PROPERTY_CODE"][] = $val;
-		elseif (strpos($val, "PROPERTY_") === false && !in_array($val, $arSelect))
+		elseif (mb_strpos($val, "PROPERTY_") === false && !in_array($val, $arSelect))
 			$arSelect[] = $val;
 	}
 
@@ -195,7 +195,7 @@ else
 		return 0;
 	}
 
-	if ($arParams["SECTION_ID"] != $arElement["IBLOCK_SECTION_ID"] && intVal($arParams["SECTION_ID"]) > 0)
+	if ($arParams["SECTION_ID"] != $arElement["IBLOCK_SECTION_ID"] && intval($arParams["SECTION_ID"]) > 0)
 	{
 		$url = CComponentEngine::MakePathFromTemplate($arParams["~DETAIL_URL"],
 			array("USER_ALIAS" => $arParams["USER_ALIAS"],
@@ -213,7 +213,7 @@ else
 	foreach ($arParams["PROPERTY_CODE"] as $pid)
 	{
 		$prop = &$arElement["PROPERTIES"][$pid];
-		if ((is_array($prop["VALUE"]) && count($prop["VALUE"]) > 0) || (!is_array($prop["VALUE"]) && strlen($prop["VALUE"]) > 0))
+		if ((is_array($prop["VALUE"]) && count($prop["VALUE"]) > 0) || (!is_array($prop["VALUE"]) && $prop["VALUE"] <> ''))
 		{
 			$arElement["DISPLAY_PROPERTIES"][$pid] = CIBlockFormatProperties::GetDisplayValue($arElement, $prop, "news_out");
 		}
@@ -235,7 +235,7 @@ else
 		foreach ($ar as $name => $tags)
 		{
 			$ar["~TAGS_URL"] = CComponentEngine::MakePathFromTemplate($arParams["~SEARCH_URL"], array()).
-				(strpos($arParams["~SEARCH_URL"], "?") === false ? "?" : "&")."tags=";
+				(mb_strpos($arParams["~SEARCH_URL"], "?") === false ? "?" : "&")."tags=";
 			$ar["TAGS_URL"] = htmlspecialcharsbx($ar["~TAGS_URL"]).urlencode($tags);
 			$ar["TAGS_NAME"] = htmlspecialcharsex($tags);
 			$arElement["TAGS_LIST"][] = $ar;
@@ -372,7 +372,7 @@ else
 				Prepare Data
 ********************************************************************/
 /************** Custom Components **********************************/
-$ii = $arResult["ELEMENTS_LIST_CURRENT_NUMBER"] = intVal($arResult["ELEMENTS_LIST"]["PREV_ELEMENT_COUNT"]);
+$ii = $arResult["ELEMENTS_LIST_CURRENT_NUMBER"] = intval($arResult["ELEMENTS_LIST"]["PREV_ELEMENT_COUNT"]);
 $arResult["ELEMENTS_LIST"] = array(
 	$ii - 2 => $arResult["ELEMENTS_LIST"]["PREV_ELEMENT"],
 	$ii => $arResult["ELEMENTS_LIST"]["NEXT_ELEMENT"]
@@ -402,7 +402,7 @@ if ($arParams["PERMISSION"] >= "U")
 	$arResult["ELEMENT"]["~DROP_URL"] = CComponentEngine::MakePathFromTemplate($arParams["~DETAIL_EDIT_URL"],
 		array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $arParams["SECTION_ID"],
 			"ELEMENT_ID" => $arResult["ELEMENT"]["ID"], "ACTION" => "drop")).
-			(strpos($arParams["~DETAIL_EDIT_URL"], "?") === false ? "?" : "&").bitrix_sessid_get();
+			(mb_strpos($arParams["~DETAIL_EDIT_URL"], "?") === false ? "?" : "&").bitrix_sessid_get();
 	$arResult["ELEMENT"]["DROP_URL"] = htmlspecialcharsbx($arResult["ELEMENT"]["~DROP_URL"]);
 }
 

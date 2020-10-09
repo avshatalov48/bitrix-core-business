@@ -102,7 +102,7 @@ final class Converter
 			$string = preg_replace('/(\d+)([A-Za-z])/', '$1_$2', $string);
 			$string = preg_replace('/([A-Za-z])(\d)/', '$1_$2', $string);
 			$string = preg_replace('/([^_])([A-Z])/', '$1_$2', $string);
-			$string = strtolower($string);
+			$string = mb_strtolower($string);
 		}
 
 		if ($this->format & self::TO_CAMEL)
@@ -112,12 +112,12 @@ final class Converter
 
 		if ($this->format & self::TO_LOWER)
 		{
-			$string = strtolower($string);
+			$string = mb_strtolower($string);
 		}
 
 		if ($this->format & self::TO_UPPER)
 		{
-			$string = strtoupper($string);
+			$string = mb_strtoupper($string);
 		}
 
 		if ($this->format & self::UC_FIRST)

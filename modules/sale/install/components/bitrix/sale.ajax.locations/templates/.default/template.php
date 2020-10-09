@@ -7,6 +7,8 @@ if ($arParams["AJAX_CALL"] != "Y"
 	&& $arParams["PUBLIC"] != "N"
 	&& $arParams["SHOW_QUICK_CHOOSE"] == "Y"):
 	$isChecked = "";
+	$onCityChange = htmlspecialcharsbx(CUtil::JSEscape($arResult["ONCITYCHANGE"]));
+
 	foreach ($arParams["LOC_DEFAULT"] as $val):
 		$checked = "";
 
@@ -17,7 +19,7 @@ if ($arParams["AJAX_CALL"] != "Y"
 			$disabled = true;
 		}?>
 
-		<div><input onChange="<?=$arParams["ONCITYCHANGE"]?>;" <?=$checked?> type="radio" name="NEW_LOCATION_<?=$arParams["ORDER_PROPS_ID"]?>" value="<?=$val["ID"]?>" id="loc_<?=$val["ID"]?>" /><label for="loc_<?=$val["ID"]?>"><?=$val["LOC_DEFAULT_NAME"]?></label></div>
+		<div><input onChange="if(window['<?=$onCityChange?>'] && typeof window['<?=$onCityChange?>'] === 'function') window['<?=$onCityChange?>']();" <?=$checked?> type="radio" name="NEW_LOCATION_<?=$arParams["ORDER_PROPS_ID"]?>" value="<?=$val["ID"]?>" id="loc_<?=$val["ID"]?>" /><label for="loc_<?=$val["ID"]?>"><?=$val["LOC_DEFAULT_NAME"]?></label></div>
 	<?endforeach;?>
 
 	<input <? if($isChecked!="Y") echo 'checked';?> type="radio" onclick="newlocation(<?=$arParams["ORDER_PROPS_ID"]?>);" name="NEW_LOCATION_<?=$arParams["ORDER_PROPS_ID"]?>" value="0" id="loc_0" /><label for="loc_0"><?=GetMessage("LOC_DEFAULT_NAME_NULL")?></label>
@@ -40,8 +42,10 @@ else
 
 <?if (count($arResult["COUNTRY_LIST"]) > 0):?>
 	<?
+	$onCityChange = htmlspecialcharsbx(CUtil::JSEscape($arResult["ONCITYCHANGE"]));
+
 	if ($arResult["EMPTY_CITY"] == "Y" && $arResult["EMPTY_REGION"] == "Y")
-		$change = $arParams["ONCITYCHANGE"];
+		$change = "if(window['{$onCityChange}'] && typeof window['{$onCityChange}'] === 'function') window['{$onCityChange}']();";
 	else
 		$change = "getLocation(this.value, '', '', ".$arResult["JS_PARAMS"].", '".CUtil::JSEscape($arParams["SITE_ID"])."', '".$arParams['ADMIN_SECTION']."')";
 	?>
@@ -88,8 +92,10 @@ else
 	endif;?>
 
 	<?
+	$onCityChange = htmlspecialcharsbx(CUtil::JSEscape($arResult["ONCITYCHANGE"]));
+
 	if ($arResult["EMPTY_CITY"] == "Y")
-		$change = $arParams["ONCITYCHANGE"];
+		$change = "if(window['{$onCityChange}'] && typeof window['{$onCityChange}'] === 'function') window['{$onCityChange}']();";
 	else
 		$change = "decideRegionOrCity(".$arParams["COUNTRY"].", this.value, '', ".$arResult["JS_PARAMS"].", '".CUtil::JSEscape($arParams["SITE_ID"])."', '".$arParams['ADMIN_SECTION']."', '".$idAttrValue."')";
 	?>
@@ -129,7 +135,15 @@ else
 	<?if($cDisabled):?>
 		<div style="display:none">
 	<?endif?>
-	<select <?=$id?> <?if($disabled) echo "disabled";?> name="<?=$arParams["CITY_INPUT_NAME"]?>"<?if ($arParams["ONCITYCHANGE"] <> ''):?> onchange="<?=$arParams["ONCITYCHANGE"]?>"<?endif;?> type="location">
+
+	<?if(isset($arResult["ONCITYCHANGE"]) && (string)$arResult["ONCITYCHANGE"] !== ''):?>
+		<?$onCityChange = htmlspecialcharsbx(CUtil::JSEscape($arResult["ONCITYCHANGE"]));?>
+		<?$change = "if(window['{$onCityChange}'] && typeof window['{$onCityChange}'] === 'function') window['{$onCityChange}']();";?>
+	<?else:?>
+		<?$change = "";?>
+	<?endif?>
+
+	<select <?=$id?> <?if($disabled) echo "disabled";?> name="<?=$arParams["CITY_INPUT_NAME"]?>"<?if($change <> ''):?> onchange="<?=$change?>"<?endif;?> type="location">
 		<option><?echo GetMessage('SAL_CHOOSE_CITY')?></option>
 		<?foreach ($arResult["CITY_LIST"] as $arCity):?>
 			<option value="<?=$arCity["ID"]?>"<?if ($arCity["ID"] == $arParams["CITY"]):?> selected="selected"<?endif;?>><?=($arCity['CITY_ID'] > 0 ? $arCity["CITY_NAME"] : GetMessage('SAL_CHOOSE_CITY_OTHER'))?></option>
@@ -171,7 +185,7 @@ else
 		{
 			getLocation.apply(window, arguments);
 		}
-		else if(<?=mb_strlen($arParams['ONCITYCHANGE'])?> > 0)
+		else if(<?=mb_strlen($arResult['ONCITYCHANGE'])?> > 0)
 		{
 			var citySelector = BX(idAttrValue);
 
@@ -184,7 +198,12 @@ else
 					firstOpt.selected = 'selected';
 
 					BX.hide(citySelector);
-					<?=$arParams['ONCITYCHANGE']?>;
+					var onCityChangeCallback = '<?=CUtil::JSEscape($arResult["ONCITYCHANGE"])?>';
+
+					if(window[onCityChangeCallback] && typeof window[onCityChangeCallback] === 'function')
+					{
+						window[onCityChangeCallback]();
+					}
 				}
 			}
 		}

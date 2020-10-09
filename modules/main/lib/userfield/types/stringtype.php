@@ -108,7 +108,7 @@ class StringType extends BaseType
 		);
 
 		$msg = [];
-		if($value != '' && strlen($value) < $userField['SETTINGS']['MIN_LENGTH'])
+		if($value != '' && mb_strlen($value) < $userField['SETTINGS']['MIN_LENGTH'])
 		{
 			$msg[] = [
 				'id' => $userField['FIELD_NAME'],
@@ -122,7 +122,7 @@ class StringType extends BaseType
 		}
 		if(
 			$userField['SETTINGS']['MAX_LENGTH'] > 0
-			&& strlen($value) > $userField['SETTINGS']['MAX_LENGTH']
+			&& mb_strlen($value) > $userField['SETTINGS']['MAX_LENGTH']
 		)
 		{
 			$msg[] = [

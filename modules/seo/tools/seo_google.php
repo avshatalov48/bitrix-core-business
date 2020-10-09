@@ -21,7 +21,7 @@ if(isset($_REQUEST['action']) && check_bitrix_sessid())
 	$res = array();
 
 	$arDomain = null;
-	if(isset($_REQUEST['domain']) && strlen($_REQUEST['domain']) > 0)
+	if(isset($_REQUEST['domain']) && $_REQUEST['domain'] <> '')
 	{
 		$bFound = false;
 		$arDomains = \CSeoUtils::getDomainsList();
@@ -73,10 +73,10 @@ if(isset($_REQUEST['action']) && check_bitrix_sessid())
 							// paranoia?
 							$filename = preg_replace("/^(.*?)\..*$/", "\\1.html", $filename);
 
-							if(strlen($filename) > 0)
+							if($filename <> '')
 							{
 								$path = Path::combine((
-									strlen($arDomain['SITE_DOC_ROOT']) > 0
+									$arDomain['SITE_DOC_ROOT'] <> ''
 										? $arDomain['SITE_DOC_ROOT']
 										: $_SERVER['DOCUMENT_ROOT']
 									), $arDomain['SITE_DIR'], $filename);

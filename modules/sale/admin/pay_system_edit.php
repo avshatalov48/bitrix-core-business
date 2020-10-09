@@ -1,6 +1,7 @@
 <?php
 use Bitrix\Sale;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Application;
 use Bitrix\Sale\Internals\PaySystemActionTable;
 use Bitrix\Main\Page\Asset;
@@ -195,7 +196,7 @@ if ($server->getRequestMethod() == "POST"
 			"ENTITY_REGISTRY_TYPE" => \Bitrix\Sale\Registry::REGISTRY_TYPE_ORDER,
 			"SORT" => $sort,
 			"ENCODING" => $request->get('ENCODING'),
-			"DESCRIPTION" => $request->get('DESCRIPTION'),
+			"DESCRIPTION" => htmlspecialcharsback($request->get('DESCRIPTION')),
 			"ACTION_FILE" => $actionFile,
 			'PS_MODE' => ($request->get('PS_MODE')) ? $request->get('PS_MODE') : '',
 			'XML_ID' => ($request->get('XML_ID')) ?: PaySystem\Manager::generateXmlId()
@@ -759,6 +760,9 @@ $tabControl->BeginNextTab();
 		<td width="60%" valign="top">
 			<?
 				$description = $request->get('DESCRIPTION') ? $request->get('DESCRIPTION') : $paySystem['DESCRIPTION'];
+				$CBXSanitizer = new \CBXSanitizer;
+				$CBXSanitizer->SetLevel(\CBXSanitizer::SECURE_LEVEL_LOW);
+				$description = $CBXSanitizer->SanitizeHtml($description);
 			?>
 			<?=wrapDescrLHE("DESCRIPTION", $description, "hndl_dscr_".$id);?>
 			<script language="JavaScript">setLHEClass('bxlhe_frame_hndl_dscr_<?=$id;?>'); </script>
@@ -823,8 +827,16 @@ $tabControl->BeginNextTab();
 		</td>
 	</tr>
 	<?
-	$licensePrefix = CModule::IncludeModule("bitrix24") ? \CBitrix24::getLicensePrefix() : "";
-	if (!IsModuleInstalled("bitrix24") || in_array($licensePrefix, array("ru"))):
+	$licensePrefix = 'ru';
+	if (Loader::includeModule("bitrix24"))
+	{
+		$licensePrefix = \CBitrix24::getLicensePrefix();
+	}
+	elseif (Loader::includeModule('intranet'))
+	{
+		$licensePrefix = \CIntranetUtils::getPortalZone();
+	}
+	if (in_array($licensePrefix, array("ru", "ua"))):
 	?>
 	<tr>
 		<td width="40%" align="right"><label for="CAN_PRINT_CHECK"><?=Loc::getMessage("SPS_CAN_PRINT_CHECK");?>:</label></td>

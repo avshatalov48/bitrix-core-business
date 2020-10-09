@@ -65,9 +65,9 @@ class AccountFacebook extends Account implements IRequestDirectly
 	{
 		$result = new ResponseFacebook();
 
-		if (substr($accountId, 0, 4) === 'act_')
+		if (mb_substr($accountId, 0, 4) === 'act_')
 		{
-			$accountId = substr($accountId, 4);
+			$accountId = mb_substr($accountId, 4);
 		}
 
 		$fields = [

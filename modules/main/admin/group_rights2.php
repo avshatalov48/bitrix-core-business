@@ -20,7 +20,7 @@ while($zr = $z->Fetch())
 	$arGROUPS[] = $ar;
 }
 
-if($REQUEST_METHOD=="POST" && strlen($Update)>0 && $USER->IsAdmin() && check_bitrix_sessid())
+if($REQUEST_METHOD=="POST" && $Update <> '' && $USER->IsAdmin() && check_bitrix_sessid())
 {
 	// установка прав групп
 	COption::SetOptionString($module_id, "GROUP_DEFAULT_TASK", $GROUP_DEFAULT_TASK, "Task for groups by default");
@@ -35,7 +35,7 @@ if($REQUEST_METHOD=="POST" && strlen($Update)>0 && $USER->IsAdmin() && check_bit
 			$arTasksInModule[$value["ID"]] = Array('ID'=>$tid);
 
 		$rt = ($tid) ? CTask::GetLetter($tid) : '';
-		if (strlen($rt) > 0 && $rt != "NOT_REF")
+		if ($rt <> '' && $rt != "NOT_REF")
 			$APPLICATION->SetGroupRight($module_id, $value["ID"], $rt);
 		else
 			$APPLICATION->DelGroupRight($module_id, array($value["ID"]));

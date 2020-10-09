@@ -17,14 +17,14 @@ if (!$GLOBALS["USER"]->IsAuthorized())
 	$arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
 	$arParams["IBLOCK_ID"] = intval($arParams["IBLOCK_ID"]);
 	$arParams["USER_ALIAS"] = trim($arParams["USER_ALIAS"]);
-	$arParams["GALLERY_ID"] = intVal($_REQUEST["GALLERY_ID"]);
-	$arParams["SOCNET_GROUP_ID"] = intVal($arParams["SOCNET_GROUP_ID"]);
+	$arParams["GALLERY_ID"] = intval($_REQUEST["GALLERY_ID"]);
+	$arParams["SOCNET_GROUP_ID"] = intval($arParams["SOCNET_GROUP_ID"]);
 	$arParams["PERMISSION_EXTERNAL"] = trim($arParams["PERMISSION"]);
-	$arParams["ACTION"] = strToUpper(empty($arParams["ACTION"]) ? $_REQUEST["ACTION"] : $arParams["ACTION"]);
+$arParams["ACTION"] = mb_strtoupper(empty($arParams["ACTION"])? $_REQUEST["ACTION"] : $arParams["ACTION"]);
 	$arParams["ACTION"] = (in_array($arParams["ACTION"], array("CREATE", "EDIT", "DROP")) ? $arParams["ACTION"] : "CREATE");
 	$arParams["ACTION"] = (!empty($arParams["USER_ALIAS"]) || !empty($arParams["GALLERY_ID"]) ? $arParams["ACTION"] : "CREATE");
 
-	$arParams["USER_ID"] = intVal($GLOBALS["USER"]->GetId());
+	$arParams["USER_ID"] = intval($GLOBALS["USER"]->GetId());
 	$arParams["PATH_TO_TMP"] = CTempFile::GetDirectoryName(12, "uploader");
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
@@ -35,22 +35,22 @@ if (!$GLOBALS["USER"]->IsAuthorized())
 
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		$arParams[strToUpper($URL)."_URL"] = trim($arParams[strToUpper($URL)."_URL"]);
-		if (empty($arParams[strToUpper($URL)."_URL"]))
-			$arParams[strToUpper($URL)."_URL"] = $GLOBALS["APPLICATION"]->GetCurPageParam($URL_VALUE, array("PAGE_NAME", "SECTION_ID", "USER_ALIAS", "ACTION", "AJAX_CALL", "sessid", "login"));
-		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[mb_strtoupper($URL)."_URL"] = trim($arParams[mb_strtoupper($URL)."_URL"]);
+		if (empty($arParams[mb_strtoupper($URL)."_URL"]))
+			$arParams[mb_strtoupper($URL)."_URL"] = $GLOBALS["APPLICATION"]->GetCurPageParam($URL_VALUE, array("PAGE_NAME", "SECTION_ID", "USER_ALIAS", "ACTION", "AJAX_CALL", "sessid", "login"));
+		$arParams["~".mb_strtoupper($URL)."_URL"] = $arParams[mb_strtoupper($URL)."_URL"];
+		$arParams[mb_strtoupper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".mb_strtoupper($URL)."_URL"]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["ONLY_ONE_GALLERY"] = ($arParams["ONLY_ONE_GALLERY"] == "N" ? "N" : "Y");
 	$arParams["GALLERY_GROUPS"] = (is_array($arParams["GALLERY_GROUPS"]) ? $arParams["GALLERY_GROUPS"] : array());
 
-	$arParams["GALLERY_AVATAR_SIZE"] = (intVal($arParams["GALLERY_AVATAR_SIZE"]) > 0 ? intVal($arParams["GALLERY_AVATAR_SIZE"]) : 50);
+	$arParams["GALLERY_AVATAR_SIZE"] = (intval($arParams["GALLERY_AVATAR_SIZE"]) > 0 ? intval($arParams["GALLERY_AVATAR_SIZE"]) : 50);
 	$arParams["GALLERY_AVATAR"] = array(
 		"WIDTH" => $arParams["GALLERY_AVATAR_SIZE"],
 		"HEIGHT" => $arParams["GALLERY_AVATAR_SIZE"]
 	);
-	$arParams["GALLERY_AVATAR_THUMBS_SIZE"] = (intVal($arParams["GALLERY_AVATAR_THUMBS_SIZE"]) > 0 ? intVal($arParams["GALLERY_AVATAR_THUMBS_SIZE"]) : $arParams["GALLERY_AVATAR_SIZE"]);
+	$arParams["GALLERY_AVATAR_THUMBS_SIZE"] = (intval($arParams["GALLERY_AVATAR_THUMBS_SIZE"]) > 0 ? intval($arParams["GALLERY_AVATAR_THUMBS_SIZE"]) : $arParams["GALLERY_AVATAR_SIZE"]);
 	$arParams["GALLERY_AVATAR_THUMBS"] = array(
 		"WIDTH" => $arParams["GALLERY_AVATAR_THUMBS_SIZE"],
 		"HEIGHT" => $arParams["GALLERY_AVATAR_THUMBS_SIZE"]);
@@ -139,7 +139,7 @@ else
 		}
 	}
 
-	$arParams["USER_ID"] = intVal($arResult["GALLERY"]["CREATED_BY"]);
+	$arParams["USER_ID"] = intval($arResult["GALLERY"]["CREATED_BY"]);
 	// 1. Get User info
 	$db_res = CUser::GetByID($arParams["USER_ID"]);
 	if ($db_res && $res = $db_res->GetNext())
@@ -191,7 +191,7 @@ elseif (!empty($_REQUEST["save"]))
 		$arError = array("code" => 100);
 	elseif(empty($_REQUEST["CODE"]))
 		$arError = array("code" => 201);
-	elseif (preg_match("/[^a-z0-9_]/is", $_REQUEST["CODE"]) || strtolower($_REQUEST["CODE"]) == "empty")
+	elseif (preg_match("/[^a-z0-9_]/is", $_REQUEST["CODE"]) || mb_strtolower($_REQUEST["CODE"]) == "empty")
 	{
 		$arError = array(
 			"code" => "CODE_BAD",
@@ -199,7 +199,7 @@ elseif (!empty($_REQUEST["save"]))
 	}
 	else
 	{
-		$ID = intVal($_REQUEST["ID"]);
+		$ID = intval($_REQUEST["ID"]);
 		if ($arResult["GALLERY"]["CODE"] != $_REQUEST["CODE"])
 		{
 			$arFilter = array(

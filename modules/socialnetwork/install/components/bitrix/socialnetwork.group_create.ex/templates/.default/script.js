@@ -390,6 +390,12 @@ BX.BXGCE.init = function(params) {
 		}
 	}
 
+	this.isScrumProject = params.isScrumProject;
+	if (parseInt(this.groupId, 10) > 0)
+	{
+		this.makeAdditionalCustomizationForm();
+	}
+
 	var
 		i = null,
 		cnt = null;
@@ -913,6 +919,66 @@ BX.BXGCE.recalcFormPartProject = function (isChecked) {
 	}
 };
 
+BX.BXGCE.makeAdditionalCustomizationForm = function()
+{
+	if (this.isScrumProject)
+	{
+		this.updatePageTitle();
+
+		this.createHiddenInputs();
+
+		this.hideBlocksForScrumProject();
+	}
+	else
+	{
+		this.hideScrumBlocks();
+	}
+};
+
+BX.BXGCE.hideBlocksForScrumProject = function ()
+{
+
+	var typeBlock = document.getElementById('additional-block-type');
+	if (typeBlock)
+	{
+		BX.addClass(typeBlock, 'sgcp-hide-scrum-project');
+	}
+
+	var subjectBlock = document.getElementById('GROUP_SUBJECT_ID_LABEL_block');
+	if (subjectBlock)
+	{
+		BX.addClass(subjectBlock.closest('.social-group-create-options-item'), 'sgcp-hide-scrum-project');
+	}
+};
+
+BX.BXGCE.updatePageTitle = function ()
+{
+	document.title = BX.message('SONET_GCE_T_SCRUM_PAGE_TITLE');
+	BX.SidePanel.Instance.updateBrowserTitle();
+	BX.html(document.getElementById('pagetitle'), document.title);
+};
+
+BX.BXGCE.hideScrumBlocks = function ()
+{
+	document.querySelectorAll('#scrum-block').forEach(function (scrumBlock)
+	{
+		BX.addClass(scrumBlock, 'sgcp-hide-scrum-project');
+	});
+};
+
+BX.BXGCE.createHiddenInputs = function ()
+{
+	document.forms['sonet_group_create_popup_form'].appendChild(
+		BX.create('input', {
+			attrs : {
+				type : 'hidden',
+				name: 'SCRUM_PROJECT',
+				value: 'Y'
+			}
+		})
+	);
+};
+
 BX.BXGCE.recalcForm = function (params) {
 	var type = (
 		typeof params != 'undefined'
@@ -930,6 +996,9 @@ BX.BXGCE.recalcForm = function (params) {
 	}
 
 	this.recalcFormPartProject(this.types[type].PROJECT == 'Y');
+
+	this.isScrumProject = this.types[type].hasOwnProperty('SCRUM_PROJECT');
+	this.makeAdditionalCustomizationForm();
 
 	if (BX('GROUP_OPENED'))
 	{

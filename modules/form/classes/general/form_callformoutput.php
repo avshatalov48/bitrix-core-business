@@ -143,7 +143,7 @@ class CAllFormOutput extends CFormOutput_old
 		global $CACHE_MANAGER;
 
 		// if no tpl at all - return false
-		if (strlen($this->arForm["FORM_TEMPLATE"]) <= 0 || $this->arForm["USE_DEFAULT_TEMPLATE"] != "N")
+		if ($this->arForm["FORM_TEMPLATE"] == '' || $this->arForm["USE_DEFAULT_TEMPLATE"] != "N")
 		{
 			$this->arForm["USE_DEFAULT_TEMPLATE"] = "Y";
 			return false;
@@ -207,7 +207,7 @@ class CAllFormOutput extends CFormOutput_old
 		if (is_array($this->__form_validate_errors))
 			return count($this->__form_validate_errors) > 0;
 		else
-			return strlen($this->__form_validate_errors) > 0;
+			return $this->__form_validate_errors <> '';
 	}
 
 	/**
@@ -276,7 +276,7 @@ class CAllFormOutput extends CFormOutput_old
 	 */
 	function isFormNote()
 	{
-		return strlen($this->strFormNote) > 0;
+		return $this->strFormNote <> '';
 	}
 
 	/**
@@ -436,7 +436,7 @@ class CAllFormOutput extends CFormOutput_old
 			}
 		}
 
-		if (strlen($css_style) > 0) $ret = "<span class=\"".$css_style."\">".$ret."</span>";
+		if ($css_style <> '') $ret = "<span class=\"".$css_style."\">".$ret."</span>";
 
 		if (is_array($this->__form_validate_errors) && array_key_exists($FIELD_SID, $this->__form_validate_errors))
 			$ret = '<span class="form-error-fld" title="'.htmlspecialcharsbx($this->__form_validate_errors[$FIELD_SID]).'"></span>'."\r\n".$ret;
@@ -489,13 +489,13 @@ class CAllFormOutput extends CFormOutput_old
 		{
 			$arImageParams = array();
 
-			if (strlen($sAlign) > 0) $arImageParams[] = sprintf("align=\"%s\"", $sAlign);
-			if (strlen($sHSpace) > 0) $arImageParams[] = sprintf("hspace=\"%s\"", $sHSpace);
-			if (strlen($sVSpace) > 0) $arImageParams[] = sprintf("vspace=\"%s\"", $sVSpace);
-			if (strlen($sBorder) > 0) $arImageParams[] = sprintf("border=\"%s\"", $sBorder);
+			if ($sAlign <> '') $arImageParams[] = sprintf("align=\"%s\"", $sAlign);
+			if ($sHSpace <> '') $arImageParams[] = sprintf("hspace=\"%s\"", $sHSpace);
+			if ($sVSpace <> '') $arImageParams[] = sprintf("vspace=\"%s\"", $sVSpace);
+			if ($sBorder <> '') $arImageParams[] = sprintf("border=\"%s\"", $sBorder);
 			else $arImageParams[] = "border=\"0\"";
 
-			if (strlen($strPopupTitle) <= 0) $strPopupTitle = false;
+			if ($strPopupTitle == '') $strPopupTitle = false;
 
 			if (empty($this->__form_input_caption_image_cache[$FIELD_SID]))
 			{
@@ -504,7 +504,7 @@ class CAllFormOutput extends CFormOutput_old
 
 			$ret = $this->__form_input_caption_image_cache[$FIELD_SID];
 
-			if (strtoupper($sAlign) == "CENTER") $ret = "<div align=\"center\">".$ret."</div>";
+			if (mb_strtoupper($sAlign) == "CENTER") $ret = "<div align=\"center\">".$ret."</div>";
 
 			return $ret;
 		}
@@ -543,15 +543,20 @@ class CAllFormOutput extends CFormOutput_old
 			$res = "";
 
 			reset($this->arAnswers[$FIELD_SID]);
-			if (is_array($this->arDropDown[$FIELD_SID])) reset($this->arDropDown[$FIELD_SID]);
-			if (is_array($this->arMutiselect[$FIELD_SID])) reset($this->arMutiselect[$FIELD_SID]);
+			if (is_array($this->arDropDown[$FIELD_SID]))
+				reset($this->arDropDown[$FIELD_SID]);
+			if (is_array($this->arMutiselect[$FIELD_SID]))
+				reset($this->arMutiselect[$FIELD_SID]);
 
-			while (list($key, $arAnswer) = each($this->arAnswers[$FIELD_SID]))
+			foreach ($this->arAnswers[$FIELD_SID] as $key => $arAnswer)
 			{
-				if ($arAnswer["FIELD_TYPE"]=="dropdown" && $show_dropdown=="Y") continue;
-				if ($arAnswer["FIELD_TYPE"]=="multiselect" && $show_multiselect=="Y") continue;
+				if ($arAnswer["FIELD_TYPE"]=="dropdown" && $show_dropdown=="Y")
+					continue;
+				if ($arAnswer["FIELD_TYPE"]=="multiselect" && $show_multiselect=="Y")
+					continue;
 
-				if ($key > 0) $res .= "<br />";
+				if ($key > 0)
+					$res .= "<br />";
 
 				switch ($arAnswer["FIELD_TYPE"])
 				{
@@ -567,7 +572,7 @@ class CAllFormOutput extends CFormOutput_old
 							$arAnswer["FIELD_PARAM"]
 						);
 
-						if (strlen($ans_id) > 0)
+						if ($ans_id <> '')
 						{
 							$res .= $input;
 							$res .= "<label for=\"".$ans_id."\">";
@@ -594,7 +599,7 @@ class CAllFormOutput extends CFormOutput_old
 							$arAnswer["FIELD_PARAM"]
 						);
 
-						if (strlen($ans_id) > 0)
+						if ($ans_id <> '')
 						{
 							$res .= $input;
 							$res .= "<label for=\"".$ans_id."\">";
@@ -634,7 +639,7 @@ class CAllFormOutput extends CFormOutput_old
 						}
 						break;
 					case "text":
-						if (strlen(trim($arAnswer["MESSAGE"]))>0)
+						if (trim($arAnswer["MESSAGE"]) <> '')
 						{
 							$res .= "<span class=\"".$caption_css_class."\">".$arAnswer["MESSAGE"]."</span><br />";
 						}
@@ -663,7 +668,7 @@ class CAllFormOutput extends CFormOutput_old
 						break;
 
 					case "password":
-						if (strlen(trim($arAnswer["MESSAGE"]))>0)
+						if (trim($arAnswer["MESSAGE"]) <> '')
 						{
 							$res .= "<span class=\"".$caption_css_class."\">".$arAnswer["MESSAGE"]."</span><br />";
 						}
@@ -675,7 +680,7 @@ class CAllFormOutput extends CFormOutput_old
 							$arAnswer["FIELD_PARAM"]);
 						break;
 					case "email":
-						if (strlen(trim($arAnswer["MESSAGE"]))>0)
+						if (trim($arAnswer["MESSAGE"]) <> '')
 						{
 							$res .= "<span class=\"".$caption_css_class."\">".$arAnswer["MESSAGE"]."</span><br />";
 						}
@@ -687,7 +692,7 @@ class CAllFormOutput extends CFormOutput_old
 							$arAnswer["FIELD_PARAM"]);
 						break;
 					case "url":
-						if (strlen(trim($arAnswer["MESSAGE"]))>0)
+						if (trim($arAnswer["MESSAGE"]) <> '')
 						{
 							$res .= "<span class=\"".$caption_css_class."\">".$arAnswer["MESSAGE"]."</span><br />";
 						}
@@ -699,7 +704,7 @@ class CAllFormOutput extends CFormOutput_old
 							$arAnswer["FIELD_PARAM"]);
 						break;
 					case "textarea":
-						if (strlen(trim($arAnswer["MESSAGE"]))>0)
+						if (trim($arAnswer["MESSAGE"]) <> '')
 						{
 							$res .= "<span class=\"".$caption_css_class."\">".$arAnswer["MESSAGE"]."</span><br />";
 						}
@@ -713,7 +718,7 @@ class CAllFormOutput extends CFormOutput_old
 							);
 						break;
 					case "date":
-						if (strlen(trim($arAnswer["MESSAGE"]))>0)
+						if (trim($arAnswer["MESSAGE"]) <> '')
 						{
 							$res .= "<span class=\"".$caption_css_class."\">".$arAnswer["MESSAGE"]." (".CSite::GetDateFormat("SHORT").")</span><br />";
 						}
@@ -726,7 +731,7 @@ class CAllFormOutput extends CFormOutput_old
 							$arAnswer["FIELD_PARAM"]);
 						break;
 					case "image":
-						if (strlen(trim($arAnswer["MESSAGE"]))>0)
+						if (trim($arAnswer["MESSAGE"]) <> '')
 						{
 							$res .= "<span class=\"".$caption_css_class."\">".$arAnswer["MESSAGE"]."</span><br />";
 						}
@@ -755,7 +760,7 @@ class CAllFormOutput extends CFormOutput_old
 							$arAnswer["FIELD_PARAM"]);
 						break;
 					case "file":
-						if (strlen(trim($arAnswer["MESSAGE"]))>0)
+						if (trim($arAnswer["MESSAGE"]) <> '')
 						{
 							$res .= "<span class=\"".$caption_css_class."\">".$arAnswer["MESSAGE"]."</span><br />";
 						}
@@ -830,7 +835,7 @@ class CAllFormOutput extends CFormOutput_old
 	 */
 	function isUseCaptcha()
 	{
-		return $this->arForm["USE_CAPTCHA"] == "Y" && strlen($this->CAPTCHACode) > 0;
+		return $this->arForm["USE_CAPTCHA"] == "Y" && $this->CAPTCHACode <> '';
 	}
 
 	/**
@@ -878,7 +883,7 @@ class CAllFormOutput extends CFormOutput_old
 	 */
 	function ShowSubmitButton($caption = "", $css_style = "")
 	{
-		$button_value = strlen(trim($caption)) > 0 ? trim($caption) : (strlen(trim($this->arForm["BUTTON"]))<=0 ? GetMessage("FORM_ADD") : $this->arForm["BUTTON"]);
+		$button_value = trim($caption) <> '' ? trim($caption) : (trim($this->arForm["BUTTON"]) == '' ? GetMessage("FORM_ADD") : $this->arForm["BUTTON"]);
 
 		return "<input ".(intval($this->F_RIGHT)<10 ? "disabled" : "")." type=\"submit\" name=\"web_form_submit\" value=\"".htmlspecialcharsbx($button_value)."\"".(!empty($css_style) ? " class=\"".$css_style."\"" : "")." />";
 	}
@@ -891,7 +896,7 @@ class CAllFormOutput extends CFormOutput_old
 	 */
 	function ShowApplyButton($caption = "", $css_style = "")
 	{
-		$button_value = strlen(trim($caption)) > 0 ? trim($caption) : GetMessage("FORM_APPLY");
+		$button_value = trim($caption) <> '' ? trim($caption) : GetMessage("FORM_APPLY");
 
 		return "<input type=\"hidden\" name=\"web_form_apply\" value=\"Y\" /><input ".((intval($this->F_RIGHT)<10) ? "disabled" : "")." type=\"submit\" name=\"web_form_apply\" value=\"".htmlspecialcharsbx($button_value)."\"".(!empty($css_style) ? " class=\"".$css_style."\"" : "")." />";
 	}
@@ -904,7 +909,7 @@ class CAllFormOutput extends CFormOutput_old
 	 */
 	function ShowResetButton($caption = "", $css_style = "")
 	{
-		$button_value = strlen(trim($caption)) > 0 ? trim($caption) : GetMessage("FORM_RESET");
+		$button_value = trim($caption) <> '' ? trim($caption) : GetMessage("FORM_RESET");
 
 		return "<input type=\"reset\" value=\"".htmlspecialcharsbx($button_value)."\"".(!empty($css_style) ? " class=\"".$css_style."\"" : "")." />";
 	}
@@ -919,7 +924,7 @@ class CAllFormOutput extends CFormOutput_old
 	{
 		$ret = $this->arForm["DESCRIPTION_TYPE"] == "html" ? trim($this->arForm["DESCRIPTION"]) : nl2br(htmlspecialcharsbx(trim($this->arForm["DESCRIPTION"])));
 
-		if (strlen($css_style) > 0) $ret = "<div class=\"".$css_style."\">".$ret."</div>";
+		if ($css_style <> '') $ret = "<div class=\"".$css_style."\">".$ret."</div>";
 
 		return $ret;
 	}
@@ -931,7 +936,7 @@ class CAllFormOutput extends CFormOutput_old
 	 */
 	function isFormDescription()
 	{
-		return strlen(trim($this->arForm["DESCRIPTION"])) > 0;
+		return trim($this->arForm["DESCRIPTION"]) <> '';
 	}
 
 	/**
@@ -954,22 +959,22 @@ class CAllFormOutput extends CFormOutput_old
 		{
 			$arImageParams = array();
 
-			if (strlen($sAlign) > 0) $arImageParams[] = sprintf("align=\"%s\"", $sAlign);
-			if (strlen($sHSpace) > 0) $arImageParams[] = sprintf("hspace=\"%s\"", $sHSpace);
-			if (strlen($sVSpace) > 0) $arImageParams[] = sprintf("vspace=\"%s\"", $sVSpace);
-			if (strlen($sBorder) > 0) $arImageParams[] = sprintf("border=\"%s\"", $sBorder);
+			if ($sAlign <> '') $arImageParams[] = sprintf("align=\"%s\"", $sAlign);
+			if ($sHSpace <> '') $arImageParams[] = sprintf("hspace=\"%s\"", $sHSpace);
+			if ($sVSpace <> '') $arImageParams[] = sprintf("vspace=\"%s\"", $sVSpace);
+			if ($sBorder <> '') $arImageParams[] = sprintf("border=\"%s\"", $sBorder);
 			else $arImageParams[] = "border=\"0\"";
 
-			if (strlen($strPopupTitle) <= 0) $strPopupTitle = false;
+			if ($strPopupTitle == '') $strPopupTitle = false;
 
-			if (strlen($this->__form_image_cache) <= 0)
+			if ($this->__form_image_cache == '')
 			{
 				$this->__form_image_cache = CFile::ShowImage($this->arForm["IMAGE_ID"], $iMaxW, $iMaxH, implode(" ", $arImageParams), $strImageUrl, $bPopup == "Y", $strPopupTitle);
 			}
 
 			$ret = $this->__form_image_cache;
 
-			if (strtoupper($sAlign) == "CENTER") $ret = "<div align=\"center\">".$ret."</div>";
+			if (mb_strtoupper($sAlign) == "CENTER") $ret = "<div align=\"center\">".$ret."</div>";
 
 			$this->__form_image_cache = $ret;
 
@@ -996,7 +1001,7 @@ class CAllFormOutput extends CFormOutput_old
 	{
 		$ret = trim(htmlspecialcharsbx($this->arForm["NAME"]));
 
-		if (strlen($css_style) > 0) $ret = "<div class=\"".$css_style."\">".$ret."</div>";
+		if ($css_style <> '') $ret = "<div class=\"".$css_style."\">".$ret."</div>";
 
 		return $ret;
 	}
@@ -1008,7 +1013,7 @@ class CAllFormOutput extends CFormOutput_old
 	 */
 	function isFormTitle()
 	{
-		return strlen(trim($this->arForm["NAME"])) > 0;
+		return trim($this->arForm["NAME"]) <> '';
 	}
 
 	function ShowResultStatusForm()
@@ -1053,7 +1058,7 @@ class CAllFormOutput extends CFormOutput_old
 	{
 		$format = CLang::GetDateFormat("SHORT");
 
-		if (strlen($css_style) > 0) return '<span class="'.$css_style.'">'.$format.'</span>';
+		if ($css_style <> '') return '<span class="'.$css_style.'">'.$format.'</span>';
 		else return $format;
 	}
 
@@ -1078,7 +1083,7 @@ class CAllFormOutput extends CFormOutput_old
 			foreach ($arrFS as $key => $arField)
 			{
 				$cur_str = "";
-				if (strlen(trim($arField["FIELD_SID"]))<=0) $cur_str .= GetMessage("FORM_ERROR_FORGOT_SID")."<br>";
+				if (trim($arField["FIELD_SID"]) == '') $cur_str .= GetMessage("FORM_ERROR_FORGOT_SID")."<br>";
 				elseif (preg_match("/[^A-Za-z_01-9]/",$arField["FIELD_SID"])) $cur_str .= GetMessage("FORM_ERROR_INCORRECT_SID")."<br>";
 				elseif (in_array($arField['FIELD_SID'], $arFldSIDs))
 				{

@@ -17,7 +17,7 @@ IncludeModuleLangFile(__FILE__);
 IncludeModuleLangFile(dirname(__FILE__)."/epilog_main_admin.php");
 IncludeModuleLangFile(dirname(__FILE__)."/epilog_auth_admin.php");
 
-if(strlen($APPLICATION->GetTitle())<=0)
+if($APPLICATION->GetTitle() == '')
 	$APPLICATION->SetTitle(GetMessage("MAIN_PROLOG_ADMIN_AUTH_TITLE"));
 
 $aUserOpt = CUserOptions::GetOption("admin_panel", "settings");

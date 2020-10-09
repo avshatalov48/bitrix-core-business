@@ -1557,29 +1557,54 @@ if (!(false == B_ADMIN_SUBELEMENTS_LIST && $bCopy))
 
 		$row->AddViewField("ID", $itemId);
 
-		if ($publicMode)
-		{
-			$contentLockedUserName = '['.$arRes['WF_LOCKED_BY'].']&nbsp;'.$arRes['LOCKED_USER_NAME'];
-			$contentUserName = '['.$arRes['MODIFIED_BY'].']&nbsp;'.$arRes['USER_NAME'];
-			$contentCreatedUserName = '['.$arRes['CREATED_BY'].']&nbsp;'.$arRes['CREATED_USER_NAME'];
-		}
-		else
-		{
-			$contentLockedUserName = '[<a href="'.$selfFolderUrl.'user_edit.php?lang='.LANGUAGE_ID.'&ID='.$arRes['WF_LOCKED_BY'].'" title="'.Loc::getMessage("IBEL_A_USERINFO").'">'.$arRes['WF_LOCKED_BY'].'</a>]&nbsp;'.$arRes['LOCKED_USER_NAME'];
-			$contentUserName = '[<a href="'.$selfFolderUrl.'user_edit.php?lang='.LANGUAGE_ID.'&ID='.$arRes['MODIFIED_BY'].'" title="'.Loc::getMessage("IBEL_A_USERINFO").'">'.$arRes['MODIFIED_BY'].'</a>]&nbsp;'.$arRes['USER_NAME'];
-			$contentCreatedUserName = '[<a href="'.$selfFolderUrl.'user_edit.php?lang='.LANGUAGE_ID.'&ID='.$arRes['CREATED_BY'].'" title="'.Loc::getMessage("IBEL_A_USERINFO").'">'.$arRes['CREATED_BY'].'</a>]&nbsp;'.$arRes['CREATED_USER_NAME'];
-		}
 		if (isset($arRes['LOCKED_USER_NAME']) && $arRes['LOCKED_USER_NAME'] != '')
+		{
+			$arRes['LOCKED_USER_NAME'] = htmlspecialcharsEx($arRes['LOCKED_USER_NAME']);
+			if ($publicMode)
+			{
+				$contentLockedUserName = '['.$arRes['WF_LOCKED_BY'].']&nbsp;'.$arRes['LOCKED_USER_NAME'];
+			}
+			else
+			{
+				$contentLockedUserName = '[<a href="'.$selfFolderUrl.'user_edit.php?lang='.LANGUAGE_ID.'&ID='.$arRes['WF_LOCKED_BY'].'" title="'.Loc::getMessage("IBEL_A_USERINFO").'">'.$arRes['WF_LOCKED_BY'].'</a>]&nbsp;'.$arRes['LOCKED_USER_NAME'];
+			}
 			$row->AddViewField("LOCKED_USER_NAME", $contentLockedUserName);
+			unset($contentLockedUserName);
+		}
 		if (isset($arRes['USER_NAME']) && $arRes['USER_NAME'] != '')
+		{
+			$arRes['USER_NAME'] = htmlspecialcharsEx($arRes['USER_NAME']);
+			if ($publicMode)
+			{
+				$contentUserName = '['.$arRes['MODIFIED_BY'].']&nbsp;'.$arRes['USER_NAME'];
+			}
+			else
+			{
+				$contentUserName = '[<a href="'.$selfFolderUrl.'user_edit.php?lang='.LANGUAGE_ID.'&ID='.$arRes['MODIFIED_BY'].'" title="'.Loc::getMessage("IBEL_A_USERINFO").'">'.$arRes['MODIFIED_BY'].'</a>]&nbsp;'.$arRes['USER_NAME'];
+			}
 			$row->AddViewField("USER_NAME", $contentUserName);
-		$row->AddViewField("CREATED_USER_NAME", $contentCreatedUserName);
+			unset($contentUserName);
+		}
+		if (isset($arRes['CREATED_USER_NAME']) && $arRes['CREATED_USER_NAME'] != '')
+		{
+			$arRes['CREATED_USER_NAME'] = htmlspecialcharsEx($arRes['CREATED_USER_NAME']);
+			if ($publicMode)
+			{
+				$contentCreatedUserName = '['.$arRes['CREATED_BY'].']&nbsp;'.$arRes['CREATED_USER_NAME'];
+			}
+			else
+			{
+				$contentCreatedUserName = '[<a href="'.$selfFolderUrl.'user_edit.php?lang='.LANGUAGE_ID.'&ID='.$arRes['CREATED_BY'].'" title="'.Loc::getMessage("IBEL_A_USERINFO").'">'.$arRes['CREATED_BY'].'</a>]&nbsp;'.$arRes['CREATED_USER_NAME'];
+			}
+			$row->AddViewField("CREATED_USER_NAME", $contentCreatedUserName);
+			unset($contentCreatedUserName);
+		}
 
 		if ($boolSubWorkFlow || $boolSubBizproc)
 		{
 			$lamp = '<span class="adm-lamp adm-lamp-in-list adm-lamp-'.$lockStatus.'"></span>';
 			if ($lockStatus=='red' && $arRes_orig['LOCKED_USER_NAME']!='')
-				$row->AddViewField("LOCK_STATUS", $lamp.$arRes_orig['LOCKED_USER_NAME']);
+				$row->AddViewField("LOCK_STATUS", $lamp.htmlspecialcharsEx($arRes_orig['LOCKED_USER_NAME']));
 			else
 				$row->AddViewField("LOCK_STATUS", $lamp);
 		}

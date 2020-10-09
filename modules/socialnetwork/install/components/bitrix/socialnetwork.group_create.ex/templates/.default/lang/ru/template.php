@@ -115,4 +115,12 @@ $MESS["SONET_GCE_T_TITLE_EDIT_PROJECT"] = "Редактировать проек
 $MESS["SONET_GCE_T_ADD_DEPT_HINT"] = "При выборе отдела все сотрудники сразу станут участниками группы без подтверждения.";
 $MESS["SONET_GCE_T_ADD_DEPT_HINT_PROJECT"] = "При выборе отдела все сотрудники сразу станут участниками проекта без подтверждения.";
 $MESS["SONET_GCE_T_PARAMS_LANDING"] = "Для публикации";
+$MESS["SONET_GCE_T_SCRUM_SPRINT_DURATION"] = "Длительность спринта";
+$MESS["SONET_GCE_T_SCRUM_MASTER"] = "SCRUM мастер";
+$MESS["SONET_GCE_T_CHANGE_SCRUM_MASTER"] = "Назначить мастера";
+$MESS["SONET_GCE_T_CHANGE_SCRUM_MASTER_MORE"] = "Сменить";
+$MESS["SONET_GCE_T_SCRUM_OWNER"] = "SCRUM владелец";
+$MESS["SONET_GCE_T_CHANGE_SCRUM_OWNER"] = "Назначить владельца";
+$MESS["SONET_GCE_T_CHANGE_SCRUM_OWNER_MORE"] = "Сменить";
+$MESS["SONET_GCE_T_SCRUM_PAGE_TITLE"] = "Создать SCRUM проект";
 ?>

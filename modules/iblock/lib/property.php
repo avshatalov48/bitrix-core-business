@@ -9,6 +9,7 @@
 namespace Bitrix\Iblock;
 
 use Bitrix\Iblock\ORM\ElementEntity;
+use Bitrix\Iblock\ORM\ElementV1Entity;
 use Bitrix\Iblock\ORM\PropertyToField;
 use Bitrix\Iblock\ORM\ValueStorageTable;
 use Bitrix\Main\ORM\Entity;
@@ -119,7 +120,7 @@ class Property extends EO_Property
 			$this->valueEntity->getField('VALUE')->configureColumnName($realValueColumnName);
 
 			// add generic value field
-			if ($realValueColumnName !== 'VALUE')
+			if ($elementEntity instanceof ElementV1Entity && $realValueColumnName !== 'VALUE')
 			{
 				$this->valueEntity->addField(
 					(new StringField(ValueStorageTable::GENERIC_VALUE_FIELD_NAME))->configureColumnName('VALUE')

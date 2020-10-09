@@ -14,7 +14,7 @@
 	display: inline-block;
 }
 
-span[data-bx-vote-button="stopOrResume"] {
+.bx-vote-button-resume, .bx-vote-button-resubmit, .bx-vote-button-stop {
 	margin: 0 12px 0 12px;
 }
 

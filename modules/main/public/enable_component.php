@@ -53,11 +53,11 @@ if($strWarning == "")
 			"\$APPLICATION->IncludeComponent(\"".$arComponent["DATA"]["COMPONENT_NAME"]."\", ".
 			"\"".$arComponent["DATA"]["TEMPLATE_NAME"]."\", ".
 			"array(\r\n\t".PHPParser::ReturnPHPStr2($arComponent["DATA"]["PARAMS"])."\r\n\t)".
-			",\r\n\t".(strlen($arComponent["DATA"]["PARENT_COMP"]) > 0? $arComponent["DATA"]["PARENT_COMP"] : "false").
+			",\r\n\t".($arComponent["DATA"]["PARENT_COMP"] <> ''? $arComponent["DATA"]["PARENT_COMP"] : "false").
 			",\r\n\t"."array(\r\n\t".PHPParser::ReturnPHPStr2($arComponent["DATA"]["FUNCTION_PARAMS"])."\r\n\t)".
 			"\r\n);";
 
-		$filesrc_for_save = substr($filesrc, 0, $arComponent["START"]).$code.substr($filesrc, $arComponent["END"]);
+		$filesrc_for_save = mb_substr($filesrc, 0, $arComponent["START"]).$code.mb_substr($filesrc, $arComponent["END"]);
 
 		$f = $io->GetFile($abs_path);
 		$arUndoParams = array(

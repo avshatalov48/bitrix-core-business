@@ -284,8 +284,8 @@ if (\CLearnAccessMacroses::CanViewAdminMenu())
 		&& ($_GET['admin_mnu_module_id'] === 'learning')
 	)
 	{
-		$strLessonIds = substr($_GET['admin_mnu_menu_id'], strlen('menu_learning_courses_new_'));
-		if (strlen($strLessonIds) > 0)
+		$strLessonIds = mb_substr($_GET['admin_mnu_menu_id'], mb_strlen('menu_learning_courses_new_'));
+		if ($strLessonIds <> '')
 		{
 			$arLessonIds = explode('_', $strLessonIds);
 			if ( is_array($arLessonIds) && (count($arLessonIds) > 0) )

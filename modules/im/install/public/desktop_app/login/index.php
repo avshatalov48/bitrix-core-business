@@ -17,6 +17,15 @@ if ($_SERVER["REQUEST_METHOD"] == "OPTIONS")
 define("BX_SKIP_USER_LIMIT_CHECK", true);
 define("ADMIN_SECTION",false);
 require($_SERVER["DOCUMENT_ROOT"]."/desktop_app/headers.php");
+
+if (!defined("BX_FORCE_DISABLE_SEPARATED_SESSION_MODE"))
+{
+	if (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('%Bitrix24.Disk/([0-9.]+)%i', $_SERVER['HTTP_USER_AGENT']))
+	{
+		define("BX_FORCE_DISABLE_SEPARATED_SESSION_MODE", true);
+	}
+}
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 
 if (!CModule::IncludeModule('im'))

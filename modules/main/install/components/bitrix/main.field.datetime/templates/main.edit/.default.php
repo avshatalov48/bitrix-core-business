@@ -10,26 +10,29 @@ $component = $this->getComponent();
 ?>
 
 <span class="fields datetime field-wrap">
-	<?php foreach($arResult['value'] as $value): ?>
-		<span class="fields datetime field-item">
-			<input
-				<?= $component->getHtmlBuilder()->buildTagAttributes($value['attrList']) ?>
-			>
-			<i <?= $component->getHtmlBuilder()->buildTagAttributes([
-				'class' => $component->getHtmlBuilder()->getCssClassName() . ' icon',
-				'onclick' => 'BX.calendar({
+	<?php
+	foreach($arResult['value'] as $value)
+	{
+		$iconAttributes = ['class' => $component->getHtmlBuilder()->getCssClassName() . ' icon'];
+		if(!isset($value['attrList']['readonly']))
+		{
+			$iconAttributes['onclick'] = '
+				BX.calendar({
 					node: this.previousElementSibling, 
 					field: this.previousElementSibling, 
 					bTime: true, 
 					bSetFocus: false,
-					bUseSecond: '.$arResult['useSecond'].'
-				})'
-			]) ?>>
-			</i>
+					bUseSecond: ' . $arResult['useSecond'] . '
+				})';
+		}
+		?>
+		<span class="fields datetime field-item">
+			<input <?= $component->getHtmlBuilder()->buildTagAttributes($value['attrList']) ?>>
+			<i <?= $component->getHtmlBuilder()->buildTagAttributes($iconAttributes) ?>></i>
 		</span>
-	<?php endforeach; ?>
+		<?php
+	}
 
-	<?php
 	if(
 		$arResult['userField']['MULTIPLE'] === 'Y'
 		&&

@@ -69,7 +69,7 @@ class RobotsFile
 
 	public function parseRule($strRule)
 	{
-		if(substr($strRule, 0, 1) == '#')
+		if(mb_substr($strRule, 0, 1) == '#')
 		{
 			return array($strRule);
 		}
@@ -140,7 +140,7 @@ class RobotsFile
 				{
 					$line = trim($line);
 
-					if(strlen($line) > 0)
+					if($line <> '')
 					{
 						$rule = $this->parseRule($line);
 						if(ToUpper($rule[0]) == $strSectionCompare)

@@ -771,7 +771,7 @@ this.BX.UI = this.BX.UI || {};
 	        enumItem = new EnumItem();
 	      }
 
-	      var node = main_core.Tag.render(_templateObject10(), enumItem.getValue(), function (event) {
+	      var node = main_core.Tag.render(_templateObject10(), main_core.Text.encode(enumItem.getValue()), function (event) {
 	        event.preventDefault();
 
 	        _this3.deleteEnumItem(enumItem);

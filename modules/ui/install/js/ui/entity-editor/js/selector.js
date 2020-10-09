@@ -14,6 +14,7 @@ if(typeof(BX.UI.SelectorMenuItem) === "undefined")
 		{
 			this._settings = settings;
 			this._emitter = new BX.Event.EventEmitter();
+			this._emitter.setEventNamespace('BX.UI.SelectorMenuItem');
 
 			var listener = BX.prop.getFunction(BX.prop.getObject(this._settings, "events", {}), "select", null);
 			if(listener)
@@ -56,7 +57,7 @@ if(typeof(BX.UI.SelectorMenuItem) === "undefined")
 				{
 					text: text,
 					onclick: function(){
-						this._emitter.emit("BX.UI.SelectorMenuItem:select", { item: this });
+						this._emitter.emit("select", { item: this });
 					}.bind(this),
 					className: BX.prop.getString(this._settings, "className", "")
 				}
@@ -64,11 +65,11 @@ if(typeof(BX.UI.SelectorMenuItem) === "undefined")
 		},
 		addOnSelectListener: function(listener)
 		{
-			this._emitter.subscribe("BX.UI.SelectorMenuItem:select", listener);
+			this._emitter.subscribe("select", listener);
 		},
 		removeOnSelectListener: function(listener)
 		{
-			this._emitter.unsubscribe("BX.UI.SelectorMenuItem:select", listener);
+			this._emitter.unsubscribe("select", listener);
 		}
 	};
 	BX.UI.SelectorMenuItem.create = function(settings)
@@ -111,6 +112,7 @@ if(typeof(BX.UI.SelectorMenu) === "undefined")
 			}
 
 			this._emitter = new BX.Event.EventEmitter();
+			this._emitter.setEventNamespace('BX.UI.SelectorMenu');
 		},
 		getId: function()
 		{
@@ -182,16 +184,16 @@ if(typeof(BX.UI.SelectorMenu) === "undefined")
 		},
 		addOnSelectListener: function(listener)
 		{
-			this._emitter.subscribe("BX.UI.SelectorMenu:select", listener);
+			this._emitter.subscribe("select", listener);
 		},
 		removeOnSelectListener: function(listener)
 		{
-			this._emitter.unsubscribe("BX.UI.SelectorMenu:select", listener);
+			this._emitter.unsubscribe("select", listener);
 		},
 		onItemSelect: function(event)
 		{
 			this.close();
-			this._emitter.emit("BX.UI.SelectorMenu:select", { menu: this, item: event.data["item"] });
+			this._emitter.emit("select", { menu: this, item: event.data["item"] });
 		},
 		onPopupShow: function()
 		{

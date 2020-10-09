@@ -807,14 +807,14 @@ abstract class EntityObject implements ArrayAccess
 	 */
 	public function __call($name, $arguments)
 	{
-		$first3 = substr($name, 0, 3);
+		$first3 = mb_substr($name, 0, 3);
 
 		// regular getter
 		if ($first3 == 'get')
 		{
-			$fieldName = self::sysMethodToFieldCase(substr($name, 3));
+			$fieldName = self::sysMethodToFieldCase(mb_substr($name, 3));
 
-			if (!strlen($fieldName))
+			if ($fieldName == '')
 			{
 				$fieldName = StringHelper::strtoupper($arguments[0]);
 
@@ -846,10 +846,10 @@ abstract class EntityObject implements ArrayAccess
 		// regular setter
 		if ($first3 == 'set')
 		{
-			$fieldName = self::sysMethodToFieldCase(substr($name, 3));
+			$fieldName = self::sysMethodToFieldCase(mb_substr($name, 3));
 			$value = $arguments[0];
 
-			if (!strlen($fieldName))
+			if ($fieldName == '')
 			{
 				$fieldName = StringHelper::strtoupper($arguments[0]);
 				$value = $arguments[1];
@@ -891,9 +891,9 @@ abstract class EntityObject implements ArrayAccess
 
 		if ($first3 == 'has')
 		{
-			$fieldName = self::sysMethodToFieldCase(substr($name, 3));
+			$fieldName = self::sysMethodToFieldCase(mb_substr($name, 3));
 
-			if (!strlen($fieldName))
+			if ($fieldName == '')
 			{
 				$fieldName = StringHelper::strtoupper($arguments[0]);
 
@@ -915,12 +915,12 @@ abstract class EntityObject implements ArrayAccess
 			}
 		}
 
-		$first4 = substr($name, 0, 4);
+		$first4 = mb_substr($name, 0, 4);
 
 		// filler
 		if ($first4 == 'fill')
 		{
-			$fieldName = self::sysMethodToFieldCase(substr($name, 4));
+			$fieldName = self::sysMethodToFieldCase(mb_substr($name, 4));
 
 			// no custom/personal method for fill
 
@@ -931,15 +931,15 @@ abstract class EntityObject implements ArrayAccess
 			}
 		}
 
-		$first5 = substr($name, 0, 5);
+		$first5 = mb_substr($name, 0, 5);
 
 		// relation adder
 		if ($first5 == 'addTo')
 		{
-			$fieldName = self::sysMethodToFieldCase(substr($name, 5));
+			$fieldName = self::sysMethodToFieldCase(mb_substr($name, 5));
 			$value = $arguments[0];
 
-			if (!strlen($fieldName))
+			if ($fieldName == '')
 			{
 				$fieldName = StringHelper::strtoupper($arguments[0]);
 				$value = $arguments[1];
@@ -965,9 +965,9 @@ abstract class EntityObject implements ArrayAccess
 		// unsetter
 		if ($first5 == 'unset')
 		{
-			$fieldName = self::sysMethodToFieldCase(substr($name, 5));
+			$fieldName = self::sysMethodToFieldCase(mb_substr($name, 5));
 
-			if (!strlen($fieldName))
+			if ($fieldName == '')
 			{
 				$fieldName = StringHelper::strtoupper($arguments[0]);
 
@@ -992,9 +992,9 @@ abstract class EntityObject implements ArrayAccess
 		// resetter
 		if ($first5 == 'reset')
 		{
-			$fieldName = self::sysMethodToFieldCase(substr($name, 5));
+			$fieldName = self::sysMethodToFieldCase(mb_substr($name, 5));
 
-			if (!strlen($fieldName))
+			if ($fieldName == '')
 			{
 				$fieldName = StringHelper::strtoupper($arguments[0]);
 
@@ -1025,14 +1025,14 @@ abstract class EntityObject implements ArrayAccess
 			}
 		}
 
-		$first9 = substr($name, 0, 9);
+		$first9 = mb_substr($name, 0, 9);
 
 		// relation mass remover
 		if ($first9 == 'removeAll')
 		{
-			$fieldName = self::sysMethodToFieldCase(substr($name, 9));
+			$fieldName = self::sysMethodToFieldCase(mb_substr($name, 9));
 
-			if (!strlen($fieldName))
+			if ($fieldName == '')
 			{
 				$fieldName = StringHelper::strtoupper($arguments[0]);
 
@@ -1054,15 +1054,15 @@ abstract class EntityObject implements ArrayAccess
 			}
 		}
 
-		$first10 = substr($name, 0, 10);
+		$first10 = mb_substr($name, 0, 10);
 
 		// relation remover
 		if ($first10 == 'removeFrom')
 		{
-			$fieldName = self::sysMethodToFieldCase(substr($name, 10));
+			$fieldName = self::sysMethodToFieldCase(mb_substr($name, 10));
 			$value = $arguments[0];
 
-			if (!strlen($fieldName))
+			if ($fieldName == '')
 			{
 				$fieldName = StringHelper::strtoupper($arguments[0]);
 				$value = $arguments[1];
@@ -1085,14 +1085,14 @@ abstract class EntityObject implements ArrayAccess
 			}
 		}
 
-		$first12 = substr($name, 0, 12);
+		$first12 = mb_substr($name, 0, 12);
 
 		// actual value getter
 		if ($first12 == 'remindActual')
 		{
-			$fieldName = self::sysMethodToFieldCase(substr($name, 12));
+			$fieldName = self::sysMethodToFieldCase(mb_substr($name, 12));
 
-			if (!strlen($fieldName))
+			if ($fieldName == '')
 			{
 				$fieldName = StringHelper::strtoupper($arguments[0]);
 
@@ -1115,14 +1115,14 @@ abstract class EntityObject implements ArrayAccess
 			}
 		}
 
-		$first7 = substr($name, 0, 7);
+		$first7 = mb_substr($name, 0, 7);
 
 		// strict getter
 		if ($first7 == 'require')
 		{
-			$fieldName = self::sysMethodToFieldCase(substr($name, 7));
+			$fieldName = self::sysMethodToFieldCase(mb_substr($name, 7));
 
-			if (!strlen($fieldName))
+			if ($fieldName == '')
 			{
 				$fieldName = StringHelper::strtoupper($arguments[0]);
 
@@ -1145,15 +1145,15 @@ abstract class EntityObject implements ArrayAccess
 			}
 		}
 
-		$first2 = substr($name, 0, 2);
-		$last6 = substr($name, -6);
+		$first2 = mb_substr($name, 0, 2);
+		$last6 = mb_substr($name, -6);
 
 		// actual value checker
 		if ($first2 == 'is' && $last6 =='Filled')
 		{
-			$fieldName = self::sysMethodToFieldCase(substr($name, 2, -6));
+			$fieldName = self::sysMethodToFieldCase(mb_substr($name, 2, -6));
 
-			if (!strlen($fieldName))
+			if ($fieldName == '')
 			{
 				$fieldName = StringHelper::strtoupper($arguments[0]);
 
@@ -1184,14 +1184,14 @@ abstract class EntityObject implements ArrayAccess
 			}
 		}
 
-		$last7 = substr($name, -7);
+		$last7 = mb_substr($name, -7);
 
 		// runtime value checker
 		if ($first2 == 'is' && $last7 == 'Changed')
 		{
-			$fieldName = self::sysMethodToFieldCase(substr($name, 2, -7));
+			$fieldName = self::sysMethodToFieldCase(mb_substr($name, 2, -7));
 
-			if (!strlen($fieldName))
+			if ($fieldName == '')
 			{
 				$fieldName = StringHelper::strtoupper($arguments[0]);
 

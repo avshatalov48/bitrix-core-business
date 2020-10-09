@@ -22,12 +22,12 @@ ClearVars();
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/tar_gz.php");
 
 set_time_limit(0);
-$STEP = IntVal($STEP);
+$STEP = intval($STEP);
 if ($STEP <= 0)
 	$STEP = 1;
-if ($REQUEST_METHOD == "POST" && strlen($backButton) > 0)
+if ($REQUEST_METHOD == "POST" && $backButton <> '')
 	$STEP = $STEP - 2;
-if ($REQUEST_METHOD == "POST" && strlen($backButton2) > 0)
+if ($REQUEST_METHOD == "POST" && $backButton2 <> '')
 	$STEP = 1;
 
 $COURSE_ID = intval($COURSE_ID);
@@ -43,7 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $STEP > 1 && check_bitrix_sessid())
 		if (!$arCourse = $res->GetNext())
 			$strError .= GetMessage("LEARNING_BAD_COURSE")."<br>";
 
-		if (strlen($strError) > 0)
+		if ($strError <> '')
 			$STEP = 1;
 	}
 
@@ -71,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $STEP > 1 && check_bitrix_sessid())
 
 		$DATA_FILE_NAME = $exportFolder . BX_basename($DATA_FILE_NAME);
 
-		if (strlen($DATA_FILE_NAME) <= 0)
+		if ($DATA_FILE_NAME == '')
 		{
 			$strError .= GetMessage("LEARNING_NO_DATA_FILE")."<br>";
 		}
@@ -81,7 +81,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $STEP > 1 && check_bitrix_sessid())
 			if(!extension_loaded('zlib') || !function_exists("gzcompress"))
 				$bUseCompression = false;
 
-			if (substr($DATA_FILE_NAME, -6) != "tar.gz")
+			if (mb_substr($DATA_FILE_NAME, -6) != "tar.gz")
 				$DATA_FILE_NAME .= ".tar.gz";
 
 			if (is_file($_SERVER["DOCUMENT_ROOT"].$DATA_FILE_NAME))
@@ -105,7 +105,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $STEP > 1 && check_bitrix_sessid())
 			{
 				$package = new CCoursePackage($COURSE_ID);
 
-				if (strlen($package->LAST_ERROR) <= 0)
+				if ($package->LAST_ERROR == '')
 				{
 					$success = $package->CreatePackage($tmp_dir);
 
@@ -135,7 +135,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $STEP > 1 && check_bitrix_sessid())
 			}
 		}
 
-		if (strlen($strError) > 0)
+		if ($strError <> '')
 			$STEP = 2;
 	}
 }
@@ -186,7 +186,7 @@ if ($STEP < 2)
 				$course = CCourse::GetList(array("SORT" => "ASC"), array('ACCESS_OPERATIONS' => CLearnAccess::OP_LESSON_READ | CLearnAccess::OP_LESSON_WRITE));
 				while ($course->ExtractFields("f_"))
 				{
-					?><option value="<?echo $f_ID ?>" <?if (IntVal($f_ID)==$COURSE_ID) echo "selected";?>><?echo $f_NAME ?></option><?
+					?><option value="<?echo $f_ID ?>" <?if (intval($f_ID)==$COURSE_ID) echo "selected";?>><?echo $f_NAME ?></option><?
 				}
 				?>
 			</select>
@@ -211,7 +211,7 @@ if ($STEP == 2)
 	<tr>
 		<td><?echo GetMessage("LEARNING_DATA_FILE_NAME1") ?>:<br>&nbsp;</td>
 		<td valign="top">
-			<input type="text" name="DATA_FILE_NAME" size="40" value="<?echo (strlen($DATA_FILE_NAME)>0)?htmlspecialcharsbx($DATA_FILE_NAME):"package".$COURSE_ID.".tar.gz"?>"><br>
+			<input type="text" name="DATA_FILE_NAME" size="40" value="<?echo ($DATA_FILE_NAME <> '')?htmlspecialcharsbx($DATA_FILE_NAME):"package".$COURSE_ID.".tar.gz"?>"><br>
 			<small><?echo GetMessage("LEARNING_DATA_FILE_NAME1_DESC") ?></small>
 		</td>
 	</tr>
@@ -238,7 +238,7 @@ if ($STEP > 2)
 			$arAllowedPrefixes = array('http://', 'ftp://', 'https://', '/');
 			foreach ($arAllowedPrefixes as $prefix)
 			{
-				if (substr($DATA_FILE_NAME, 0, strlen($prefix)) === $prefix)
+				if (mb_substr($DATA_FILE_NAME, 0, mb_strlen($prefix)) === $prefix)
 				{
 					$tmp = $DATA_FILE_NAME;
 					break;

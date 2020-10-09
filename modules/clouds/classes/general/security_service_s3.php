@@ -5,8 +5,7 @@ class CCloudSecurityService_AmazonS3
 {
 	protected $status = 0;
 	protected $headers = array();
-	protected $errno = 0;
-	protected $errstr = '';
+	protected $error = false;
 	protected $result = '';
 
 	function GetLastRequestStatus()
@@ -195,9 +194,9 @@ class CCloudSecurityService_AmazonS3
 			;
 			$Signature = urlencode(base64_encode($this->hmacsha1($StringToSign, $secret_key)));
 
-			$obRequest = new CHTTP;
-			$obRequest->Query($RequestMethod, $RequestHost, 443, $RequestURI."?$RequestParams&Signature=$Signature", false, 'ssl://');
-			if (!$obRequest->result && $retry_count > 0)
+			$request = new Bitrix\Main\Web\HttpClient();
+			$is_ok = $request->query($RequestMethod, "https://$RequestHost$RequestURI?$RequestParams&Signature=$Signature");
+			if (!$is_ok && $retry_count > 0)
 			{
 				$retry_count--;
 				sleep($retry_timeout);
@@ -206,18 +205,17 @@ class CCloudSecurityService_AmazonS3
 			break;
 		}
 
-		$this->status = $obRequest->status;
-		$this->headers = $obRequest->headers;
-		$this->errno = $obRequest->errno;
-		$this->errstr = $obRequest->errstr;
-		$this->result = $obRequest->result;
+		$this->result = $request->getResult();
+		$this->status = $request->getStatus();
+		$this->headers = $request->getHeaders();
+		$this->error = $request->getError();
 
-		if($obRequest->status == 200)
+		if($this->status == 200)
 		{
-			if($obRequest->result)
+			if($this->result)
 			{
 				$obXML = new CDataXML;
-				$text = preg_replace("/<"."\\?XML.*?\\?".">/i", "", $obRequest->result);
+				$text = preg_replace("/<"."\\?XML.*?\\?".">/i", "", $this->result);
 				if($obXML->LoadString($text))
 				{
 					$arXML = $obXML->GetArray();
@@ -236,11 +234,11 @@ class CCloudSecurityService_AmazonS3
 				return array();
 			}
 		}
-		elseif($obRequest->status > 0)
+		elseif($this->status > 0)
 		{
-			if($obRequest->result)
+			if($this->result)
 			{
-				$APPLICATION->ThrowException(GetMessage('CLO_SECSERV_S3_XML_ERROR', array('#errmsg#'=>$obRequest->result)));
+				$APPLICATION->ThrowException(GetMessage('CLO_SECSERV_S3_XML_ERROR', array('#errmsg#'=>$this->result)));
 				return false;
 			}
 			$APPLICATION->ThrowException(GetMessage('CLO_SECSERV_S3_XML_PARSE_ERROR', array('#errno#'=>2)));

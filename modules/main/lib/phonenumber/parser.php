@@ -149,7 +149,7 @@ class Parser
 			$defaultCountry = \Bitrix\Main\Service\GeoIp\Manager::getCountryCode();
 		}
 
-		return strtoupper($defaultCountry);
+		return mb_strtoupper($defaultCountry);
 	}
 
 	/**
@@ -242,7 +242,7 @@ class Parser
 		}
 
 		// Validate local (significant) number length
-		if(strlen($localNumber) > static::MAX_LENGTH_FOR_NSN)
+		if(mb_strlen($localNumber) > static::MAX_LENGTH_FOR_NSN)
 		{
 			return $result;
 		}
@@ -284,8 +284,8 @@ class Parser
 		{
 			$extensionSeparator = $matches[0][0];
 			$separatorPosition = $matches[0][1];
-			$extension = substr($phoneNumber, $separatorPosition + 1);
-			$phoneNumber = substr($phoneNumber, 0, $separatorPosition);
+			$extension = mb_substr($phoneNumber, $separatorPosition + 1);
+			$phoneNumber = mb_substr($phoneNumber, 0, $separatorPosition);
 		}
 		return [$extensionSeparator, $extension];
 	}
@@ -297,7 +297,7 @@ class Parser
 	 */
 	protected function extractFormattedPhoneNumber($phoneNumber)
 	{
-		if (!$phoneNumber || strlen($phoneNumber) > static::MAX_INPUT_STRING_LENGTH)
+		if (!$phoneNumber || mb_strlen($phoneNumber) > static::MAX_INPUT_STRING_LENGTH)
 		{
 			return '';
 		}
@@ -314,7 +314,7 @@ class Parser
 			return '';
 		}
 
-		$result = substr($phoneNumber, $startsAt);
+		$result = mb_substr($phoneNumber, $startsAt);
 		$result = preg_replace('/'.$this->afterPhoneNumberEndPattern.'/', '', $result);
 		return $result;
 	}
@@ -326,7 +326,7 @@ class Parser
 	 */
 	protected function isViablePhoneNumber($phoneNumber)
 	{
-		return strlen($phoneNumber) >= static::MIN_LENGTH_FOR_NSN && preg_match('/'.$this->validPhoneNumberPattern.'/i', $phoneNumber);
+		return mb_strlen($phoneNumber) >= static::MIN_LENGTH_FOR_NSN && preg_match('/'.$this->validPhoneNumberPattern.'/i', $phoneNumber);
 	}
 
 	/**
@@ -351,7 +351,7 @@ class Parser
 		}
 
 		// Strip the leading '+' sign
-		$phoneNumber = substr($phoneNumber, 1);
+		$phoneNumber = mb_substr($phoneNumber, 1);
 
 		// Fast abortion: country codes do not begin with a '0'
 		if ($phoneNumber[0] === '0')
@@ -361,12 +361,12 @@ class Parser
 
 		for ($i = static::MAX_LENGTH_COUNTRY_CODE; $i > 0; $i--)
 		{
-			$countryCode = substr($phoneNumber, 0, $i);
+			$countryCode = mb_substr($phoneNumber, 0, $i);
 			if(MetadataProvider::getInstance()->isValidCountryCode($countryCode))
 			{
 				return array(
 					'countryCode' => $countryCode,
-					'localNumber' => substr($phoneNumber, $i)
+					'localNumber' => mb_substr($phoneNumber, $i)
 				);
 			}
 		}
@@ -383,7 +383,7 @@ class Parser
 		if (!$phoneNumber)
 			return '';
 
-		$isInternational = substr($phoneNumber, 0, 1) === $this->plusChar;
+		$isInternational = mb_substr($phoneNumber, 0, 1) === $this->plusChar;
 
 		// Remove non-digits (and strip the possible leading '+')
 		$phoneNumber = static::stripLetters($phoneNumber);
@@ -516,9 +516,9 @@ class Parser
 		else
 		{
 			// No transformation is required, just strip the prefix
-			$nationalSignificantNumber = substr($phoneNumber,strlen($nationalPrefixMatches[0]));
+			$nationalSignificantNumber = mb_substr($phoneNumber, mb_strlen($nationalPrefixMatches[0]));
 		}
-		$nationalPrefix = substr($phoneNumber, 0, strlen($phoneNumber) - strlen($nationalSignificantNumber));
+		$nationalPrefix = mb_substr($phoneNumber, 0, mb_strlen($phoneNumber) - mb_strlen($nationalSignificantNumber));
 
 		$nationalNumberRegex = '/^(?:' . $countryMetadata['generalDesc']['nationalNumberPattern'] . ')$/';
 		if(preg_match($nationalNumberRegex, $phoneNumber) && !preg_match($nationalNumberRegex, $nationalSignificantNumber))
@@ -545,10 +545,10 @@ class Parser
 	protected static function stripCountryCode(&$phoneNumber, $countryMetadata)
 	{
 		$countryCode = $countryMetadata['countryCode'];
-		if(strpos($phoneNumber, $countryCode) !== 0)
+		if(mb_strpos($phoneNumber, $countryCode) !== 0)
 			return false;
 
-		$possibleLocalNumber = substr($phoneNumber, strlen($countryCode));
+		$possibleLocalNumber = mb_substr($phoneNumber, mb_strlen($countryCode));
 		$nationalNumberRegex = '/^(?:' . $countryMetadata['generalDesc']['nationalNumberPattern'] . ')$/';
 
 		if(!preg_match($nationalNumberRegex, $phoneNumber) && preg_match($nationalNumberRegex, $possibleLocalNumber))

@@ -130,7 +130,7 @@ if($arParams["SEF_MODE"] == "Y")
 	{
 		if (empty($arUrlTemplates[$url]))
 			$arResult["URL_TEMPLATES"][$url] = $arParams["SEF_FOLDER"].$arDefaultUrlTemplates404[$url];
-		elseif (substr($arUrlTemplates[$url], 0, 1) == "/")
+		elseif (mb_substr($arUrlTemplates[$url], 0, 1) == "/")
 			$arResult["URL_TEMPLATES"][$url] = $arUrlTemplates[$url];
 		else
 			$arResult["URL_TEMPLATES"][$url] = $arParams["SEF_FOLDER"].$arUrlTemplates[$url];
@@ -158,7 +158,7 @@ if ($componentPage == "index" && $arParams["SET_STATUS_404"] == "Y")
 	$folder404 = str_replace("\\", "/", $arParams["SEF_FOLDER"]);
 	if ($folder404 != "/")
 		$folder404 = "/".trim($folder404, "/ \t\n\r\0\x0B")."/";
-	if (substr($folder404, -1) == "/")
+	if (mb_substr($folder404, -1) == "/")
 		$folder404 .= "index.php";
 
 	if($folder404 != $APPLICATION->GetCurPage(true))
@@ -171,7 +171,7 @@ if ($componentPage == "index" && $arParams["SET_STATUS_404"] == "Y")
 /***************** BASE ********************************************/
 $arParams["ONLY_ONE_GALLERY"] = ($arParams["ONLY_ONE_GALLERY"] == "N" ? "N" : "Y"); // only one gallery for user
 //$arParams["GALLERY_GROUPS"] - user groups who can create gallery
-$arParams["GALLERY_SIZE"] = intVal($arParams["GALLERY_SIZE"]); // size gallery in Mb
+$arParams["GALLERY_SIZE"] = intval($arParams["GALLERY_SIZE"]); // size gallery in Mb
 $arParams["GALLERY_SIZE"] = 0;
 
 $arParams["PAGE_NAVIGATION_TEMPLATE"] = (empty($arParams["PAGE_NAVIGATION_TEMPLATE"]) ? "modern" : $arParams["PAGE_NAVIGATION_TEMPLATE"]);
@@ -184,8 +184,8 @@ $arParams["ANALIZE_SOCNET_PERMISSION"] = ($arParams["ANALIZE_SOCNET_PERMISSION"]
 $arParams["USE_PERMISSIONS"] = "N";
 $arParams["GROUP_PERMISSIONS"] = array();
 
-$arParams["GALLERY_AVATAR_SIZE"] = intVal(intVal($arParams["GALLERY_AVATAR_SIZE"]) > 0 ? $arParams["GALLERY_AVATAR_SIZE"] : 50);
-$arParams["GALLERY_AVATAR_THUMBS_SIZE"] = intVal(intVal($arParams["GALLERY_AVATAR_THUMBS_SIZE"]) > 0 ?
+$arParams["GALLERY_AVATAR_SIZE"] = intval(intVal($arParams["GALLERY_AVATAR_SIZE"]) > 0 ? $arParams["GALLERY_AVATAR_SIZE"] : 50);
+$arParams["GALLERY_AVATAR_THUMBS_SIZE"] = intval(intVal($arParams["GALLERY_AVATAR_THUMBS_SIZE"]) > 0 ?
 	$arParams["GALLERY_AVATAR_THUMBS_SIZE"] : $arParams["GALLERY_AVATAR_SIZE"]);
 
 // Comments
@@ -202,11 +202,11 @@ $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 //
 /****************** COMPONENTS *************************************/
 // Tags cloud
-$arParams["ELEMENTS_PAGE_ELEMENTS"] = intVal($arParams["ELEMENTS_PAGE_ELEMENTS"]);
+$arParams["ELEMENTS_PAGE_ELEMENTS"] = intval($arParams["ELEMENTS_PAGE_ELEMENTS"]);
 $arParams["ELEMENTS_PAGE_ELEMENTS"] = ($arParams["ELEMENTS_PAGE_ELEMENTS"] > 0 ? $arParams["ELEMENTS_PAGE_ELEMENTS"] : 50);
 
 /****************** TEMPLATES **************************************/
-$arParams["SLIDER_COUNT_CELL"] = intVal($arParams["SLIDER_COUNT_CELL"]);
+$arParams["SLIDER_COUNT_CELL"] = intval($arParams["SLIDER_COUNT_CELL"]);
 $arParams["SLIDER_COUNT_CELL"] = ($arParams["SLIDER_COUNT_CELL"] > 0 ? $arParams["SLIDER_COUNT_CELL"] : 3);
 // Main
 $arParams["SHOW_ONLY_PUBLIC"] = ($arParams["SHOW_ONLY_PUBLIC"] == "N" ? "N" : "Y");
@@ -247,7 +247,7 @@ $arResult = array(
 	"URL_TEMPLATES" => $arResult["URL_TEMPLATES"],
 	"VARIABLES" => $arVariables,
 	"ALIASES" => (is_array($arVariableAliases) ? $arVariableAliases : array()),
-	"PAGE_NAME" => strToUpper($componentPage),
+	"PAGE_NAME" => mb_strtoupper($componentPage),
 	"backurl_encode" => urlencode($GLOBALS['APPLICATION']->GetCurPageParam())
 );
 
@@ -271,7 +271,7 @@ if ($_REQUEST["ACTION"] == "public" && $arParams["PERMISSION"] >= "W" && check_b
 		$url = $APPLICATION->GetCurPageParam("PAGE_NAME=detail_list", array("PAGE_NAME", "SECTION_ID", "ELEMENT_ID", "ACTION", "sessid", "edit", "AJAX_CALL"));
 	}
 	$url = CComponentEngine::MakePathFromTemplate($url, array());
-	if (strpos($url, "?") === false)
+	if (mb_strpos($url, "?") === false)
 		$url .= "?";
 	$url .= "&moderate=Y";
 	LocalRedirect($url);

@@ -1,0 +1,9 @@
+<?php
+$MESS['INTEGRATION_PRESET_PROVIDER_ERROR_BOT_REQUIRED_FIELD_EMPTY'] = 'Пожалуйста, заполните обязательные поля для создания бота';
+$MESS['INTEGRATION_PRESET_PROVIDER_ERROR_BOT_CREATE'] = 'Ошибка создания бота';
+$MESS['INTEGRATION_PRESET_PROVIDER_TITLE_PREFIX'] = 'Интеграция №#ID#';
+$MESS["INTEGRATION_PRESET_PROVIDER_ERROR_ACCESS_PLACEMENT"] = "Нет достаточных прав для использования виджета #PLACEMENT_CODE#";
+$MESS['INTEGRATION_PRESET_PROVIDER_ERROR_ACCESS_DENIED'] = 'Ошибка доступа';
+$MESS['INTEGRATION_PRESET_PROVIDER_ERROR_DELETE_WEBHOOK'] = 'Ошибка удаления вебхука';
+$MESS["INTEGRATION_PRESET_PROVIDER_ERROR_EMPTY_SCOPE"] = "Не указаны права доступа.";
+$MESS["INTEGRATION_PRESET_PROVIDER_ERROR_INCORRECT_URL"] = "Некорректная ссылка на приложение.";

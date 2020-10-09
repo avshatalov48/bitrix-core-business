@@ -8,7 +8,7 @@ class YandexDirectException extends SystemException
 	public function __construct(array $queryResult, \Exception $previous = null)
 	{
 		$errorMessage = $queryResult['error'];
-		if(strlen($errorMessage) > 0 && strlen($queryResult['error_description']) > 0)
+		if($errorMessage <> '' && $queryResult['error_description'] <> '')
 		{
 			$errorMessage .= ": ";
 		}

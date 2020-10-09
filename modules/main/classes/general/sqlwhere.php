@@ -186,8 +186,8 @@ class CAllSQLWhere
 		{
 			foreach($arFields as $key=>$arField)
 			{
-				$key = strtoupper($key);
-				if(!isset($this->fields[$key]) && is_array($arField) && strlen($arField["FIELD_NAME"])>0)
+				$key = mb_strtoupper($key);
+				if(!isset($this->fields[$key]) && is_array($arField) && $arField["FIELD_NAME"] <> '')
 				{
 					$ar = array();
 					$ar["TABLE_ALIAS"] = $arField["TABLE_ALIAS"];
@@ -214,17 +214,17 @@ class CAllSQLWhere
 
 	public function MakeOperation($key)
 	{
-		if(isset(self::$operations[$op = substr($key, 0, 3)]))
+		if(isset(self::$operations[$op = mb_substr($key, 0, 3)]))
 		{
-			return array("FIELD"=>substr($key, 3), "OPERATION"=>self::$operations[$op]);
+			return array("FIELD"=> mb_substr($key, 3), "OPERATION"=>self::$operations[$op]);
 		}
-		elseif(isset(self::$operations[$op = substr($key, 0, 2)]))
+		elseif(isset(self::$operations[$op = mb_substr($key, 0, 2)]))
 		{
-			return array("FIELD"=>substr($key, 2), "OPERATION"=>self::$operations[$op]);
+			return array("FIELD"=> mb_substr($key, 2), "OPERATION"=>self::$operations[$op]);
 		}
-		elseif(isset(self::$operations[$op = substr($key, 0, 1)]))
+		elseif(isset(self::$operations[$op = mb_substr($key, 0, 1)]))
 		{
-			return array("FIELD"=>substr($key, 1), "OPERATION"=>self::$operations[$op]);
+			return array("FIELD"=> mb_substr($key, 1), "OPERATION"=>self::$operations[$op]);
 		}
 		else
 		{
@@ -280,7 +280,7 @@ class CAllSQLWhere
 			{
 				$arRecursiveJoins = $arJoins;
 				$value = $this->GetQueryEx($value, $arRecursiveJoins, $level+1);
-				if(strlen($value)>0)
+				if($value <> '')
 					$result[] = "(".$value."\n".str_repeat("\t", $level).")";
 
 				foreach($arRecursiveJoins as $TABLE_ALIAS=>$bLeftJoin)
@@ -304,7 +304,7 @@ class CAllSQLWhere
 			else
 			{
 				$operation = $this->MakeOperation($key);
-				$key = strtoupper($operation["FIELD"]);
+				$key = mb_strtoupper($operation["FIELD"]);
 				$operation = $operation["OPERATION"];
 
 				if(isset($this->fields[$key]))
@@ -321,7 +321,7 @@ class CAllSQLWhere
 								&& (
 									($FIELD_TYPE=="int" && intval($value)==0)
 									|| ($FIELD_TYPE=="double" && doubleval($value)==0)
-									|| strlen($value)<=0
+									|| $value == ''
 								)
 							)
 						)
@@ -333,7 +333,7 @@ class CAllSQLWhere
 								|| (
 									($FIELD_TYPE=="int" && intval($value)!=0)
 									|| ($FIELD_TYPE=="double" && doubleval($value)!=0)
-									|| ($FIELD_TYPE!="int" && $FIELD_TYPE!="double" && is_scalar($value) && strlen($value)>0)
+									|| ($FIELD_TYPE!="int" && $FIELD_TYPE!="double" && is_scalar($value) && $value <> '')
 								)
 							)
 						)
@@ -382,8 +382,10 @@ class CAllSQLWhere
 								$operation,
 								$value,
 							));
-							if (strlen($res))
+							if($res <> '')
+							{
 								$result[] = $res;
+							}
 							break;
 					}
 				}
@@ -713,7 +715,7 @@ class CAllSQLWhere
 			{
 				$result[] = $this->_ExprEQ($FIELD_NAME, $FIELD_VALUE);
 			}
-			elseif (strlen($FIELD_VALUE) <= 0)
+			elseif ($FIELD_VALUE == '')
 				$result[] = $this->_Empty($FIELD_NAME);
 			else
 				$result[] = $this->_StringEQ($FIELD_NAME, $FIELD_VALUE);
@@ -723,7 +725,7 @@ class CAllSQLWhere
 				$result[] = "(".$this->_Upper($FIELD_NAME)." like upper('".implode("') OR ".$this->_Upper($FIELD_NAME)." like upper('", $FIELD_VALUE)."'))";
 			elseif (is_object($FIELD_VALUE))
 				$result[] = $this->_ExprEQ($FIELD_NAME, $FIELD_VALUE);
-			elseif(strlen($FIELD_VALUE)<=0)
+			elseif($FIELD_VALUE == '')
 				$result[] = $this->_Empty($FIELD_NAME);
 			else
 			{
@@ -742,7 +744,7 @@ class CAllSQLWhere
 				$result[] = "(".$this->_Upper($FIELD_NAME)." like '%".implode("%' ESCAPE '!' OR ".$this->_Upper($FIELD_NAME)." like '%", $FIELD_VALUE)."%' ESCAPE '!')";
 			elseif (is_object($FIELD_VALUE))
 				$result[] = $this->_Upper($FIELD_NAME)." like ".$FIELD_VALUE->compile()." ESCAPE '!'";
-			elseif (strlen($FIELD_VALUE) <= 0)
+			elseif ($FIELD_VALUE == '')
 				$result[] = $this->_Empty($FIELD_NAME);
 			else
 				$result[] = $this->_Upper($FIELD_NAME)." like '%".$FIELD_VALUE."%' ESCAPE '!'";
@@ -755,7 +757,7 @@ class CAllSQLWhere
 				$result[] = "(".$FIELD_NAME." like '".implode("' OR ".$FIELD_NAME." like '", $FIELD_VALUE)."')";
 			elseif (is_object($FIELD_VALUE))
 				$result[] = $this->_ExprEQ($FIELD_NAME, $FIELD_VALUE);
-			elseif (strlen($FIELD_VALUE) <= 0)
+			elseif ($FIELD_VALUE == '')
 				$result[] = $this->_Empty($FIELD_NAME);
 			else
 			{
@@ -774,7 +776,7 @@ class CAllSQLWhere
 				$result[] = $this->_StringNotIN($FIELD_NAME, $FIELD_VALUE);
 			elseif (is_object($FIELD_VALUE))
 				$result[] = $this->_ExprNotEQ($FIELD_NAME, $FIELD_VALUE);
-			elseif (strlen($FIELD_VALUE) <= 0)
+			elseif ($FIELD_VALUE == '')
 				$result[] = $this->_NotEmpty($FIELD_NAME);
 			else
 				$result[] = $this->_StringNotEQ($FIELD_NAME, $FIELD_VALUE);
@@ -787,7 +789,7 @@ class CAllSQLWhere
 				$result[] = "(".$this->_Upper($FIELD_NAME)." not like upper('".implode("') AND ".$this->_Upper($FIELD_NAME)." not like upper('", $FIELD_VALUE)."'))";
 			elseif (is_object($FIELD_VALUE))
 				$result[] = $this->_Upper($FIELD_NAME)." not like ".$FIELD_VALUE->compile();
-			elseif (strlen($FIELD_VALUE) <= 0)
+			elseif ($FIELD_VALUE == '')
 				$result[] = $this->_NotEmpty($FIELD_NAME);
 			else
 				$result[] = $this->_Upper($FIELD_NAME)." not like upper('".$FIELD_VALUE."')";
@@ -800,7 +802,7 @@ class CAllSQLWhere
 				$result[] = "(".$this->_Upper($FIELD_NAME)." not like '%".implode("%' ESCAPE '!' AND ".$this->_Upper($FIELD_NAME)." not like '%", $FIELD_VALUE)."%' ESCAPE '!')";
 			elseif (is_object($FIELD_VALUE))
 				$result[] = $this->_Upper($FIELD_NAME)." not like ".$FIELD_VALUE->compile();
-			elseif (strlen($FIELD_VALUE) <= 0)
+			elseif ($FIELD_VALUE == '')
 				$result[] = $this->_NotEmpty($FIELD_NAME);
 			else
 				$result[] = $this->_Upper($FIELD_NAME)." not like '%".$FIELD_VALUE."%' ESCAPE '!'";
@@ -813,7 +815,7 @@ class CAllSQLWhere
 				$result[] = "(".$FIELD_NAME." not like '".implode("' AND ".$FIELD_NAME." not like '", $FIELD_VALUE)."')";
 			elseif (is_object($FIELD_VALUE))
 				$result[] = $FIELD_NAME." not like ".$FIELD_VALUE->compile();
-			elseif (strlen($FIELD_VALUE) <= 0)
+			elseif ($FIELD_VALUE == '')
 				$result[] = $this->_NotEmpty($FIELD_NAME);
 			else
 				$result[] = $FIELD_NAME." not like '".$FIELD_VALUE."'";
@@ -880,7 +882,7 @@ class CAllSQLWhere
 				$this->bDistinctReqired = true;
 			break;
 		case "?":
-			if (is_scalar($FIELD_VALUE) && strlen($FIELD_VALUE))
+			if (is_scalar($FIELD_VALUE) && mb_strlen($FIELD_VALUE))
 			{
 				$q = GetFilterQuery($FIELD_NAME, $FIELD_VALUE);
 				// Check if error ("0" was returned)
@@ -945,7 +947,7 @@ class CAllSQLWhere
 				{
 					$FIELD_VALUE[] = $val->compile();
 				}
-				elseif (strlen($val))
+				elseif($val <> '')
 				{
 					$FIELD_VALUE[] = $DB->CharToDateFunction($val, $format);
 				}
@@ -963,7 +965,7 @@ class CAllSQLWhere
 		{
 			$FIELD_VALUE = $value->compile();
 		}
-		elseif (strlen($value))
+		elseif($value <> '')
 		{
 			$FIELD_VALUE = $DB->CharToDateFunction($value, $format);
 		}
@@ -984,7 +986,7 @@ class CAllSQLWhere
 				if ($isMultiple)
 					$this->bDistinctReqired = true;
 			}
-			elseif (strlen($value) <= 0)
+			elseif ($value == '')
 				$result[] = "(".$FIELD_NAME." IS NULL)";
 			else
 				$result[] = $FIELD_NAME." = ".$FIELD_VALUE;
@@ -995,7 +997,7 @@ class CAllSQLWhere
 		case "NM":
 			if (is_array($FIELD_VALUE))
 				$result[] = $FIELD_NAME." not in (".implode(", ", $FIELD_VALUE).")";
-			elseif (strlen($value) <= 0)
+			elseif ($value == '')
 				$result[] = "(".$FIELD_NAME." IS NOT NULL)";
 			else
 				$result[] = $FIELD_NAME." <> ".$FIELD_VALUE;

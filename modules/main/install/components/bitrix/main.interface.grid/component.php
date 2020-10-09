@@ -209,19 +209,19 @@ if($arParams["FORM_ID"] <> '' && $arParams["TAB_ID"] <> '')
 
 $arResult["CURRENT_URL"] = $uri->getUri();
 
-$sep = (strpos($arResult["CURRENT_URL"], "?") !== false? "&":"?");
+$sep = (mb_strpos($arResult["CURRENT_URL"], "?") !== false? "&":"?");
 
-reset($arParams["SORT"]);
-$aSort = each($arParams["SORT"]);
+$sortBy = key($arParams["SORT"]);
+$sortOrder = current($arParams["SORT"]);
 
 foreach($arResult["HEADERS"] as $id=>$header)
 {
 	if($header["sort"] <> '')
 	{
 		$arResult["HEADERS"][$id]["sort_state"] = "";
-		if(strtolower($header["sort"]) == strtolower($aSort["key"]))
+		if(mb_strtolower($header["sort"]) == mb_strtolower($sortBy))
 		{
-			if(strtolower($aSort["value"]) == "desc")
+			if(mb_strtolower($sortOrder) == "desc")
 				$arResult["HEADERS"][$id]["sort_state"] = "desc";
 			else
 				$arResult["HEADERS"][$id]["sort_state"] = "asc";

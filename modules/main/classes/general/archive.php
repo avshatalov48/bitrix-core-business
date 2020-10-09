@@ -153,7 +153,7 @@ class CBXArchive
 		{
 			if ($USER->CanDoFileOperation('fm_view_file', array(SITE_ID,$path)) &&
 			($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', array(SITE_ID, $path)) ||
-			!(HasScriptExtension($path) || substr(GetFileName($path), 0, 1) == ".")))
+			!(HasScriptExtension($path) || mb_substr(GetFileName($path), 0, 1) == ".")))
 			{
 				$result = true;
 			}

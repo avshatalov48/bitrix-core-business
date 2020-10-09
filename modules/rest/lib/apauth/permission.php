@@ -2,6 +2,7 @@
 namespace Bitrix\Rest\APAuth;
 
 use Bitrix\Main;
+use Bitrix\Rest\Preset\EventController;
 
 /**
  * Class PermissionTable
@@ -89,5 +90,10 @@ class PermissionTable extends Main\Entity\DataManager
 		}
 
 		return array_values($permissionList);
+	}
+
+	public static function onAfterAdd(Main\Entity\Event $event)
+	{
+		EventController::onAfterAddApPermission($event);
 	}
 }

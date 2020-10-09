@@ -7,7 +7,7 @@ class CLAnswer
 		global $DB;
 		$arMsg = Array();
 
-		if ( (is_set($arFields, "ANSWER") || $ID === false) && strlen(trim($arFields["ANSWER"])) <= 0)
+		if ( (is_set($arFields, "ANSWER") || $ID === false) && trim($arFields["ANSWER"]) == '')
 			$arMsg[] = array("id"=>"NAME", "text"=> GetMessage("LEARNING_BAD_NAME"));
 
 
@@ -120,7 +120,7 @@ class CLAnswer
 			$key = $res["FIELD"];
 			$cOperationType = $res["OPERATION"];
 
-			$key = strtoupper($key);
+			$key = mb_strtoupper($key);
 
 			switch ($key)
 			{
@@ -153,7 +153,7 @@ class CLAnswer
 
 		$strSqlSearch = "";
 		for($i=0; $i<count($arSqlSearch); $i++)
-			if(strlen($arSqlSearch[$i])>0)
+			if($arSqlSearch[$i] <> '')
 				$strSqlSearch .= " AND ".$arSqlSearch[$i]." ";
 
 		$strSql =
@@ -166,10 +166,11 @@ class CLAnswer
 		if (!is_array($arOrder))
 			$arOrder = Array();
 
+		$arSqlOrder = [];
 		foreach($arOrder as $by=>$order)
 		{
-			$by = strtolower($by);
-			$order = strtolower($order);
+			$by = mb_strtolower($by);
+			$order = mb_strtolower($order);
 			if ($order!="asc")
 				$order = "desc";
 
@@ -236,7 +237,7 @@ class CLAnswer
 
 		if ( ! empty($arIds) )
 		{
-			$arIds = array_map('intval', $arIds);			
+			$arIds = array_map('intval', $arIds);
 
 			$strSql = "SELECT QUESTION_ID, COUNT(*) AS ALL_CNT, SUM(CASE WHEN CORRECT = 'Y' THEN 1 ELSE 0 END) AS CORRECT_CNT 
 				FROM b_learn_test_result 

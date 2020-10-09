@@ -16,27 +16,35 @@ class BinaryString
 	 */
 	public static function getLength($str)
 	{
-		return function_exists('mb_strlen') ? mb_strlen($str, 'latin1') : strlen($str);
+		if (defined("BX_UTF"))
+		{
+			if (function_exists("mb_orig_strlen"))
+			{
+				return mb_orig_strlen($str);
+			}
+			return mb_strlen($str, '8bit');
+		}
+		return strlen($str);
 	}
 
 	/**
 	 * Binary version of substr.
 	 * @param $str
 	 * @param $start
+	 * @param array $args
 	 * @return string
 	 */
-	public static function getSubstring($str, $start)
+	public static function getSubstring($str, $start, ...$args)
 	{
-		if(function_exists('mb_substr'))
+		if (defined("BX_UTF"))
 		{
-			$length = (func_num_args() > 2? func_get_arg(2) : self::getLength($str));
-			return mb_substr($str, $start, $length, 'latin1');
+			if (function_exists("mb_orig_substr"))
+			{
+				return mb_orig_substr($str, $start, ...$args);
+			}
+			return mb_substr($str, $start, $args[0], '8bit');
 		}
-		if(func_num_args() > 2)
-		{
-			return substr($str, $start, func_get_arg(2));
-		}
-		return substr($str, $start);
+		return substr($str, $start, ...$args);
 	}
 
 	/**
@@ -54,10 +62,8 @@ class BinaryString
 			{
 				return mb_orig_strpos($haystack, $needle, $offset);
 			}
-
-			return mb_strpos($haystack, $needle, $offset, "latin1");
+			return mb_strpos($haystack, $needle, $offset, "8bit");
 		}
-
 		return strpos($haystack, $needle, $offset);
 	}
 
@@ -76,10 +82,8 @@ class BinaryString
 			{
 				return mb_orig_strrpos($haystack, $needle, $offset);
 			}
-
-			return mb_strrpos($haystack, $needle, $offset, "latin1");
+			return mb_strrpos($haystack, $needle, $offset, "8bit");
 		}
-
 		return strrpos($haystack, $needle, $offset);
 	}
 
@@ -98,10 +102,8 @@ class BinaryString
 			{
 				return mb_orig_stripos($haystack, $needle, $offset);
 			}
-
-			return mb_stripos($haystack, $needle, $offset, "latin1");
+			return mb_stripos($haystack, $needle, $offset, "8bit");
 		}
-
 		return stripos($haystack, $needle, $offset);
 	}
 
@@ -120,10 +122,8 @@ class BinaryString
 			{
 				return mb_orig_strripos($haystack, $needle, $offset);
 			}
-
-			return mb_strripos($haystack, $needle, $offset, "latin1");
+			return mb_strripos($haystack, $needle, $offset, "8bit");
 		}
-
 		return strripos($haystack, $needle, $offset);
 	}
 
@@ -140,10 +140,8 @@ class BinaryString
 			{
 				return mb_orig_strtolower($str);
 			}
-
-			return mb_strtolower($str, "latin1");
+			return mb_strtolower($str, "8bit");
 		}
-
 		return strtolower($str);
 	}
 }

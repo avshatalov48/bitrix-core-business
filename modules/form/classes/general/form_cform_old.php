@@ -1,8 +1,4 @@
 <?
-/*********************************************
-	Устаревшие функции (для совместимости)
-*********************************************/
-
 class CForm_old
 {
 	function GetFileValue($RESULT_ID, $ANSWER_ID)
@@ -15,14 +11,6 @@ class CForm_old
 		return $zr["USER_FILE_ID"];
 	}
 
-	/*
-	выводит HTML формы с учетом прав посетителя
-
-		WEB_FORM_VARNAME - идентификатор формы
-		VARS - массив значений для полей ввода
-		SHOW_TEMPLATE - имя шаблона формы
-		PREVIEW - если "Y" тогда кнопка "Сохранить" в шаблоне недоступна
-	*/
 	function Show($WEB_FORM_VARNAME, $arrVALUES=false, $SHOW_TEMPLATE=false, $PREVIEW="N")
 	{
 		global $DB, $MESS, $APPLICATION, $USER, $arrFIELDS;
@@ -38,10 +26,10 @@ class CForm_old
 			$F_RIGHT = CForm::GetPermission($WEB_FORM_ID);
 			if (intval($F_RIGHT)>=10)
 			{
-				if (strlen(trim($SHOW_TEMPLATE))>0) $template = $SHOW_TEMPLATE;
+				if (trim($SHOW_TEMPLATE) <> '') $template = $SHOW_TEMPLATE;
 				else
 				{
-					if (strlen(trim($arForm["SHOW_TEMPLATE"]))<=0) $template = "default.php";
+					if (trim($arForm["SHOW_TEMPLATE"]) == '') $template = "default.php";
 					else $template = $arForm["SHOW_TEMPLATE"];
 				}
 				$path = COption::GetOptionString("form","SHOW_TEMPLATE_PATH");
@@ -110,8 +98,6 @@ class CForm_old
 		*/
 	}
 
-	// возвращает hidden поля для формирования массива
-	// вопросов формы значения которых не нужно менять в момент редактирования результата
 	function GetClosedFields($WEB_FORM_ID, $arrFields)
 	{
 		$err_mess = (CAllForm::err_mess())."<br>Function: GetClosedFields<br>Line: ";

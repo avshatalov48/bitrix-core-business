@@ -43,12 +43,12 @@ else
 		}
 		?>
 		BX.onCustomEvent('onAddNewPhotoBlogComment', [{
-			count: '<?= intVal($arResult["Post"]["NUM_COMMENTS"])?>',
-			editId: '<?= intVal($_REQUEST["edit_id"])?>',
-			deletedComment: '<?= intVal($_REQUEST["delete_comment_id"])?>'
+			count: '<?= intval($arResult["Post"]["NUM_COMMENTS"])?>',
+			editId: '<?= intval($_REQUEST["edit_id"])?>',
+			deletedComment: '<?= intval($_REQUEST["delete_comment_id"])?>'
 		}]);
 	</script><?
-	if(strlen($arResult["COMMENT_ERROR"])>0)
+	if($arResult["COMMENT_ERROR"] <> '')
 	{
 		?>
 		<script>top.commentEr = 'Y';</script>
@@ -74,7 +74,7 @@ if(strlen($arResult["MESSAGE"])>0)
 }
 */
 
-if(strlen($arResult["ERROR_MESSAGE"])>0)
+if($arResult["ERROR_MESSAGE"] <> '')
 {
 	?>
 	<div class="blog-errors blog-note-box blog-note-error">
@@ -84,7 +84,7 @@ if(strlen($arResult["ERROR_MESSAGE"])>0)
 	</div>
 	<?
 }
-if(strlen($arResult["FATAL_MESSAGE"])>0)
+if($arResult["FATAL_MESSAGE"] <> '')
 {
 	?>
 	<div class="blog-errors blog-note-box blog-note-error">
@@ -104,7 +104,7 @@ else
 				top.bxBlogImageId = top.arImagesId.push('<?=$arResult["Image"]["ID"]?>');
 				top.arImages.push('<?=CUtil::JSEscape($arResult["Image"]["SRC"])?>');
 				top.bxBlogImageIdWidth = '<?=CUtil::JSEscape($arResult["Image"]["WIDTH"])?>';
-			<?elseif(strlen($arResult["ERROR_MESSAGE"]) > 0):?>
+			<?elseif($arResult["ERROR_MESSAGE"] <> ''):?>
 				top.bxBlogImageError = '<?=CUtil::JSEscape($arResult["ERROR_MESSAGE"])?>';
 			<?endif;?>
 		</script>
@@ -142,7 +142,7 @@ else
 					}
 
 					include($_SERVER["DOCUMENT_ROOT"].$templateFolder."/lhe.php");
-					if(strlen($arResult["NoCommentReason"]) > 0)
+					if($arResult["NoCommentReason"] <> '')
 					{
 						?>
 						<div id="nocommentreason" style="display:none;"><?=$arResult["NoCommentReason"]?></div>
@@ -187,7 +187,7 @@ else
 				if($comment["SHOW_AS_HIDDEN"] == "Y" || $comment["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLISH || $comment["SHOW_SCREENNED"] == "Y" || $comment["ID"] == "preview")
 				{
 					global $prevTab;
-					$tabCount = IntVal($tabCount);
+					$tabCount = intval($tabCount);
 					if($tabCount <= 5)
 						$paddingSize = 2.5 * $tabCount;
 					elseif($tabCount > 5 && $tabCount <= 10)
@@ -225,8 +225,8 @@ else
 							$aditStyle .= " blog-comment-new";
 						if($comment["AuthorIsAdmin"] == "Y")
 							$aditStyle = " blog-comment-admin";
-						if(IntVal($comment["AUTHOR_ID"]) > 0)
-							$aditStyle .= " blog-comment-user-".IntVal($comment["AUTHOR_ID"]);
+						if(intval($comment["AUTHOR_ID"]) > 0)
+							$aditStyle .= " blog-comment-user-".intval($comment["AUTHOR_ID"]);
 						if($comment["AuthorIsPostAuthor"] == "Y")
 							$aditStyle .= " blog-comment-author";
 						if($comment["PUBLISH_STATUS"] != BLOG_PUBLISH_STATUS_PUBLISH && $comment["ID"] != "preview")
@@ -265,7 +265,7 @@ else
 							if ($arParams['FETCH_USER_ALIAS'])
 								$comment["urlToAuthor"] = CPGalleryInterface::GetPathWithUserAlias($comment["urlToAuthor"], $comment["arUser"]["ID"], $arParams['IBLOCK_ID']);
 							?>
-							<?if (intVal($comment["arUser"]["ID"]) > 0 && !empty($comment["urlToAuthor"])):?>
+							<?if (intval($comment["arUser"]["ID"]) > 0 && !empty($comment["urlToAuthor"])):?>
 							<a class="photo-comment-name" href="<?=$comment["urlToAuthor"]?>"><?= $comment["AuthorName"]?></a>
 							<?else:?>
 							<span class="photo-comment-name"><?= $comment["AuthorName"]?></span>
@@ -297,7 +297,7 @@ else
 						</div>
 
 						<div class="blog-comment-content">
-							<?if(strlen($comment["TitleFormated"])>0):?>
+							<?if($comment["TitleFormated"] <> ''):?>
 								<b><?=$comment["TitleFormated"]?></b><br />
 							<?endif;?>
 							<?=$comment["TextFormated"]?>
@@ -307,7 +307,7 @@ else
 							<div class="blog-clear-float"></div>
 
 						<?
-						if(strlen($errorComment)>0 && $bCanUserComment === true && (IntVal($_POST["parentId"])==$comment["ID"] || IntVal($_POST["edit_id"]) == $comment["ID"]))
+						if($errorComment <> '' && $bCanUserComment === true && (intval($_POST["parentId"])==$comment["ID"] || intval($_POST["edit_id"]) == $comment["ID"]))
 						{
 							?>
 							<div class="blog-errors blog-note-box blog-note-error">
@@ -324,8 +324,8 @@ else
 						<div id="new_comment_cont_<?=$comment['ID']?>" style="padding-left:<?=$paddingSizeNew?>em;"></div>
 						<div id="new_comment_<?=$comment['ID']?>" style="display:none;"></div>
 						<?
-						if((strlen($errorComment) > 0 || strlen($_POST["preview"]) > 0)
-							&& (IntVal($_POST["parentId"])==$comment["ID"] || IntVal($_POST["edit_id"]) == $comment["ID"])
+						if(($errorComment <> '' || $_POST["preview"] <> '')
+							&& (intval($_POST["parentId"])==$comment["ID"] || intval($_POST["edit_id"]) == $comment["ID"])
 							&& $bCanUserComment===true)
 						{
 							?>
@@ -333,7 +333,7 @@ else
 							top.text<?=$comment["ID"]?> = text<?=$comment["ID"]?> = '<?=CUtil::JSEscape($_POST["comment"])?>';
 							top.title<?=$comment["ID"]?> = title<?=$comment["ID"]?> = '<?=CUtil::JSEscape($_POST["subject"])?>';
 							<?
-							if(IntVal($_POST["edit_id"]) == $comment["ID"])
+							if(intval($_POST["edit_id"]) == $comment["ID"])
 							{
 								?>editComment('<?=$comment["ID"]?>');<?
 							}
@@ -404,8 +404,8 @@ else
 				?>
 				<a class="photo-comments-add" href="#comments" onclick="return showComment('0')"><?=GetMessage("B_B_MS_ADD_COMMENT")?></a>
 				<?
-				if(strlen($arResult["COMMENT_ERROR"]) > 0 && strlen($_POST["parentId"]) < 2
-					&& IntVal($_POST["parentId"])==0 && IntVal($_POST["edit_id"]) <= 0)
+				if($arResult["COMMENT_ERROR"] <> '' && mb_strlen($_POST["parentId"]) < 2
+					&& intval($_POST["parentId"])==0 && intval($_POST["edit_id"]) <= 0)
 				{
 					?>
 					<div class="blog-errors blog-note-box blog-note-error">
@@ -425,8 +425,8 @@ else
 					<div id="new_comment_0" style="display:none;"></div>
 				</div>
 				<?
-				if((strlen($arResult["COMMENT_ERROR"])>0 || strlen($_POST["preview"]) > 0)
-					&& IntVal($_POST["parentId"]) == 0 && strlen($_POST["parentId"]) < 2 && IntVal($_POST["edit_id"]) <= 0)
+				if(($arResult["COMMENT_ERROR"] <> '' || $_POST["preview"] <> '')
+					&& intval($_POST["parentId"]) == 0 && mb_strlen($_POST["parentId"]) < 2 && intval($_POST["edit_id"]) <= 0)
 				{
 					?>
 					<script>
@@ -464,7 +464,7 @@ else
 		{
 			if($arResult["CanUserComment"] && count($arResult["Comments"])>2)
 			{
-				if(strlen($arResult["COMMENT_ERROR"])>0 && $_POST["parentId"] == "00" && strlen($_POST["parentId"]) > 1)
+				if($arResult["COMMENT_ERROR"] <> '' && $_POST["parentId"] == "00" && mb_strlen($_POST["parentId"]) > 1)
 				{
 					?>
 					<div class="blog-errors blog-note-box blog-note-error">
@@ -484,8 +484,8 @@ else
 				</div><br />
 
 				<?
-				if((strlen($arResult["COMMENT_ERROR"])>0 || strlen($_POST["preview"]) > 0)
-					&& $_POST["parentId"] == "00" && strlen($_POST["parentId"]) > 1)
+				if(($arResult["COMMENT_ERROR"] <> '' || $_POST["preview"] <> '')
+					&& $_POST["parentId"] == "00" && mb_strlen($_POST["parentId"]) > 1)
 				{
 					?>
 					<script>

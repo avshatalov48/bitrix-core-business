@@ -13,6 +13,8 @@ $component = $this->getComponent();
 
 CJSCore::init(['uf']);
 
+$arResult['isEnabled'] = ($arResult['userField']['EDIT_IN_LIST'] === 'Y');
+
 if($component->isMobileMode())
 {
 	Asset::getInstance()->addJs(

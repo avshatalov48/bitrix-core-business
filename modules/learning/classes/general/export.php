@@ -44,9 +44,9 @@ class CCoursePackage
 		}
 
 		//Define charset
-		if (strlen($charset) <= 0)
+		if ($charset == '')
 		{
-			if (defined("SITE_CHARSET") && strlen(SITE_CHARSET) > 0)
+			if (defined("SITE_CHARSET") && SITE_CHARSET <> '')
 				$charset = SITE_CHARSET;
 			else
 				$charset = "windows-1251";
@@ -93,11 +93,11 @@ class CCoursePackage
 	// 2012-04-18 Checked/modified for compatibility with new data model
 	function CreatePackage($PACKAGE_DIR)
 	{
-		if (strlen($this->LAST_ERROR)>0)
+		if ($this->LAST_ERROR <> '')
 			return false;
 
 		//Add last slash
-		if (substr($PACKAGE_DIR,-1, 1) != "/")
+		if (mb_substr($PACKAGE_DIR, -1, 1) != "/")
 			$PACKAGE_DIR .= "/";
 
 		$path = $_SERVER["DOCUMENT_ROOT"].$PACKAGE_DIR;
@@ -152,7 +152,7 @@ class CCoursePackage
 	{
 		global $DB;
 
-		if (strlen($this->LAST_ERROR)>0)
+		if ($this->LAST_ERROR <> '')
 			return false;
 
 		$this->createQuestionItems($this->arCourse["LESSON_ID"]);
@@ -225,21 +225,21 @@ class CCoursePackage
 		foreach ($this->arCourse as $key => $val)
 		{
 			$strDelayed = '';
-			$key = strtolower($key);
+			$key = mb_strtolower($key);
 
 			if ($key === 'site_id')
 				continue;
 
 			$str .= "<".$key.">";
-			if (in_array($key, $this->arDraftFields) && strlen($val) > 0)
+			if (in_array($key, $this->arDraftFields) && $val <> '')
 			{
 				$str .= "<![CDATA[".$this->_ReplaceImages($val, 1)."]]>";
 			}
-			elseif (in_array($key, $this->arDate) && strlen($val) > 0)
+			elseif (in_array($key, $this->arDate) && $val <> '')
 			{
 				$str .= MakeTimeStamp($val);
 			}
-			elseif (in_array($key, $this->arPicture) && strlen($val) > 0)
+			elseif (in_array($key, $this->arPicture) && $val <> '')
 			{
 				$src = CFile::GetPath($val);
 				$ext = GetFileExtension($src);
@@ -291,17 +291,17 @@ class CCoursePackage
 		{
 			$strDelayed = '';
 
-			$key = strtolower($key);
+			$key = mb_strtolower($key);
 
 			if ($key === 'site_id')
 				continue;
 
 			$str .= "<".$key.">";
-			if (in_array($key, $this->arDraftFields) && strlen($val) > 0)
+			if (in_array($key, $this->arDraftFields) && $val <> '')
 			{
 				$str .= "<![CDATA[".$this->_ReplaceImages($val, $res_id)."]]>";
 			}
-			elseif (in_array($key, $this->arPicture) && strlen($val) > 0)
+			elseif (in_array($key, $this->arPicture) && $val <> '')
 			{
 				$src = CFile::GetPath($val);
 				$ext = GetFileExtension($src);
@@ -316,7 +316,7 @@ class CCoursePackage
 						. '</' . $key . '_description' . '>';
 				}
 			}
-			elseif (in_array($key, $this->arDate) && strlen($val) > 0)
+			elseif (in_array($key, $this->arDate) && $val <> '')
 			{
 				$str .= MakeTimeStamp($val);
 			}
@@ -376,7 +376,7 @@ class CCoursePackage
 	{
 		global $DB;
 
-		if (strlen($this->LAST_ERROR)>0)
+		if ($this->LAST_ERROR <> '')
 			return false;
 
 		$str = "<"."?xml version=\"1.0\" encoding=\"".$this->charset."\"?".">\n";
@@ -438,7 +438,7 @@ class CCoursePackage
 
 		$str .= "<bitrix>";
 		$str .= "<description>";
-		if (strlen($arParams["DESCRIPTION"])>0)
+		if ($arParams["DESCRIPTION"] <> '')
 		{
 			$str .= "<![CDATA[".$this->_ReplaceImages($arParams["DESCRIPTION"], $res_id)."]]>";
 		}

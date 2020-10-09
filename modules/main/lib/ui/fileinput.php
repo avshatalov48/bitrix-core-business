@@ -238,9 +238,9 @@ HTML
 		if (empty($this->uploadSetts["allowUploadExt"]) && $this->uploadSetts["allowUpload"] == "F")
 			$this->uploadSetts["allowUpload"] = "A";
 		if (isset($this->elementSetts["id"]))
-			$this->id = 'bx_file_'.strtolower(preg_replace("/[^a-z0-9]/i", "_", $this->elementSetts["id"]));
+			$this->id = 'bx_file_'.mb_strtolower(preg_replace("/[^a-z0-9]/i", "_", $this->elementSetts["id"]));
 		else
-			$this->id = 'bx_file_'.strtolower(preg_replace("/[^a-z0-9]/i", "_", $this->elementSetts["name"]));
+			$this->id = 'bx_file_'.mb_strtolower(preg_replace("/[^a-z0-9]/i", "_", $this->elementSetts["name"]));
 
 		if ($inputs['upload'] === true)
 		{
@@ -277,7 +277,7 @@ HTML
 		if (!is_array($values) || is_array($values) && array_key_exists("tmp_name", $values))
 			$values = array($this->elementSetts["name"] => $values);
 		$maxIndex = 0;
-		$pattMaxIndex = strpos($this->elementSetts["name"], "#IND#") > 0 ? str_replace("#IND#", "(\\d+)", preg_quote($this->elementSetts["name"])) : null;
+		$pattMaxIndex = mb_strpos($this->elementSetts["name"], "#IND#") > 0 ? str_replace("#IND#", "(\\d+)", preg_quote($this->elementSetts["name"])) : null;
 		foreach($values as $inputName => $fileId)
 		{
 			if ($pattMaxIndex && preg_match("/".$pattMaxIndex."/", $inputName, $matches))
@@ -319,7 +319,7 @@ HTML
 			if ($this->uploadSetts["allowUpload"] == "I")
 				$hintMessage = Loc::getMessage("BXU_DNDMessage01");
 			else if ($this->uploadSetts["allowUpload"] == "F")
-				$hintMessage = Loc::getMessage("BXU_DNDMessage02", array("#ext#" => $this->uploadSetts["allowUploadExt"]));
+				$hintMessage = Loc::getMessage("BXU_DNDMessage02", array("#ext#" => htmlspecialcharsbx($this->uploadSetts["allowUploadExt"])));
 			else
 				$hintMessage = Loc::getMessage("BXU_DNDMessage03");
 
@@ -328,11 +328,11 @@ HTML
 		}
 		else
 		{
-			$maxCount = ($this->uploadSetts["maxCount"] > 0 ? GetMessage("BXU_DNDMessage5", array("#maxCount#" => $this->uploadSetts["maxCount"])) : "");
+			$maxCount = ($this->uploadSetts["maxCount"] > 0 ? GetMessage("BXU_DNDMessage5", array("#maxCount#" => htmlspecialcharsbx($this->uploadSetts["maxCount"]))) : "");
 			if ($this->uploadSetts["allowUpload"] == "I")
 				$hintMessage = Loc::getMessage("BXU_DNDMessage1", array("#maxCount#" => $maxCount));
 			else if ($this->uploadSetts["allowUpload"] == "F")
-				$hintMessage = Loc::getMessage("BXU_DNDMessage2", array("#ext#" => $this->uploadSetts["allowUploadExt"], "#maxCount#" => $maxCount));
+				$hintMessage = Loc::getMessage("BXU_DNDMessage2", array("#ext#" => htmlspecialcharsbx($this->uploadSetts["allowUploadExt"]), "#maxCount#" => $maxCount));
 			else
 				$hintMessage = Loc::getMessage("BXU_DNDMessage3", array("#maxCount#" => $maxCount));
 			if ($this->uploadSetts["maxSize"] > 0)
@@ -460,7 +460,7 @@ HTML;
 
 		if ($fileId > 0 && ($ar = \CFile::GetFileArray($fileId)) && is_array($ar))
 		{
-			$name = (strlen($ar['ORIGINAL_NAME'])>0?$ar['ORIGINAL_NAME']:$ar['FILE_NAME']);
+			$name = ($ar['ORIGINAL_NAME'] <> ''?$ar['ORIGINAL_NAME']:$ar['FILE_NAME']);
 			$result = array(
 				'fileId' => $fileId,
 				'id' => $fileId,
@@ -504,14 +504,14 @@ HTML;
 				($flTmp = \CBXVirtualIo::GetInstance()->GetFile($paths["tmp_name"])) && $flTmp->IsExists())
 			{
 				$ar = \CFile::GetImageSize($paths["tmp_name"]);
-				$name = is_string($file["name"]) && strlen($file["name"]) > 0 ? $file["name"] : $flTmp->getName();
+				$name = is_string($file["name"]) && $file["name"] <> '' ? $file["name"] : $flTmp->getName();
 				$result = array(
 					'id' => md5($file["tmp_name"]),
 					'name' => $name,
 					'description_name' => self::getInputName($inputName, "_descr"),
-					'description' => is_string($file["description"]) && strlen($file["description"]) > 0 ? $file["description"] : "",
+					'description' => is_string($file["description"]) && $file["description"] <> '' ? $file["description"] : "",
 					'size' => $flTmp->GetFileSize(),
-					'type' => is_string($file["type"]) && strlen($file["type"]) > 0 ? $file["type"] : $flTmp->getType(),
+					'type' => is_string($file["type"]) && $file["type"] <> '' ? $file["type"] : $flTmp->getType(),
 					'input_name' => $inputName,
 					'input_value' => $file["tmp_name"],
 					'entity' => "file",
@@ -550,8 +550,8 @@ HTML;
 	{
 		if ($type == "")
 			return $inputName;
-		$p = strpos($inputName, "[");
-		return  ($p > 0) ? substr($inputName, 0, $p).$type.substr($inputName, $p) : $inputName.$type;
+		$p = mb_strpos($inputName, "[");
+		return  ($p > 0) ? mb_substr($inputName, 0, $p).$type.mb_substr($inputName, $p) : $inputName.$type;
 	}
 
 	/**

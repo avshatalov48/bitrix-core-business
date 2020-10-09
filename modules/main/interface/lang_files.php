@@ -11,9 +11,9 @@ if ($APPLICATION->GetGroupRight("translate") <= "D")
 	return;
 }
 
-if (isset($_GET["show_lang_files"]) && in_array(strtoupper($_GET["show_lang_files"]), ['Y', 'N']))
+if (isset($_GET["show_lang_files"]) && in_array(mb_strtoupper($_GET["show_lang_files"]), ['Y', 'N']))
 {
-	$_SESSION["SHOW_LANG_FILES"] = strtoupper($_GET["show_lang_files"]) === 'Y' ? 'Y' : 'N';
+	$_SESSION["SHOW_LANG_FILES"] = mb_strtoupper($_GET["show_lang_files"]) === 'Y' ? 'Y' : 'N';
 }
 
 if (

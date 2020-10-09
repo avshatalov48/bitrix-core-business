@@ -21,10 +21,10 @@ class CBXVirtualIoFileSystem
 	{
 		if (is_null(self::$systemEncoding))
 		{
-			self::$systemEncoding = strtolower(defined("BX_FILE_SYSTEM_ENCODING") ? BX_FILE_SYSTEM_ENCODING : "");
+			self::$systemEncoding = mb_strtolower(defined("BX_FILE_SYSTEM_ENCODING")? BX_FILE_SYSTEM_ENCODING : "");
 			if (empty(self::$systemEncoding))
 			{
-				if (strtoupper(substr(PHP_OS, 0, 3)) === "WIN")
+				if (mb_strtoupper(mb_substr(PHP_OS, 0, 3)) === "WIN")
 					self::$systemEncoding = "windows-1251";
 				else
 					self::$systemEncoding = "utf-8";
@@ -35,16 +35,16 @@ class CBXVirtualIoFileSystem
 		{
 			if (defined('BX_UTF'))
 				self::$serverEncoding = "utf-8";
-			elseif (defined("SITE_CHARSET") && (strlen(SITE_CHARSET) > 0))
+			elseif (defined("SITE_CHARSET") && (SITE_CHARSET <> ''))
 				self::$serverEncoding = SITE_CHARSET;
-			elseif (defined("LANG_CHARSET") && (strlen(LANG_CHARSET) > 0))
+			elseif (defined("LANG_CHARSET") && (LANG_CHARSET <> ''))
 				self::$serverEncoding = LANG_CHARSET;
 			elseif (defined("BX_DEFAULT_CHARSET"))
 				self::$serverEncoding = BX_DEFAULT_CHARSET;
 			else
 				self::$serverEncoding = "windows-1251";
 
-			self::$serverEncoding = strtolower(self::$serverEncoding);
+			self::$serverEncoding = mb_strtolower(self::$serverEncoding);
 		}
 
 		if (self::$serverEncoding == self::$systemEncoding)
@@ -176,7 +176,7 @@ class CBXVirtualIoFileSystem
 
 	public function ExtractPathFromPath($path)
 	{
-		return substr($path, 0, -strlen($this->ExtractNameFromPath($path)) - 1);
+		return mb_substr($path, 0, -mb_strlen($this->ExtractNameFromPath($path)) - 1);
 	}
 
 	private function FormatPath($path)
@@ -200,7 +200,7 @@ class CBXVirtualIoFileSystem
 
 		$res = preg_replace($pattern, "/", $path);
 
-		if (strpos($res, "\0") !== false)
+		if (mb_strpos($res, "\0") !== false)
 			throw new \Bitrix\Main\IO\InvalidPathException($path);
 
 		$arPath = explode('/', $res);
@@ -224,7 +224,7 @@ class CBXVirtualIoFileSystem
 
 		$res = rtrim($res, $tailPattern);
 
-		if(substr($path, 0, 1) === "/" && substr($res, 0, 1) !== "/")
+		if(mb_substr($path, 0, 1) === "/" && mb_substr($res, 0, 1) !== "/")
 			$res = "/".$res;
 
 		if ($res === "")
@@ -240,7 +240,7 @@ class CBXVirtualIoFileSystem
 			return false;
 		}
 
-		if (strpos($path, "\0") !== false)
+		if (mb_strpos($path, "\0") !== false)
 		{
 			return false;
 		}
@@ -260,7 +260,7 @@ class CBXVirtualIoFileSystem
 
 	function ValidatePathString($path)
 	{
-		if(strlen($path) > 4096)
+		if(mb_strlen($path) > 4096)
 		{
 			return false;
 		}
@@ -329,9 +329,9 @@ class CBXVirtualIoFileSystem
 	{
 		$this->ClearErrors();
 
-		if (substr($path, 0, strlen($_SERVER["DOCUMENT_ROOT"])) == $_SERVER["DOCUMENT_ROOT"])
+		if (mb_substr($path, 0, mb_strlen($_SERVER["DOCUMENT_ROOT"])) == $_SERVER["DOCUMENT_ROOT"])
 		{
-			$pathTmp = substr($path, strlen($_SERVER["DOCUMENT_ROOT"]));
+			$pathTmp = mb_substr($path, mb_strlen($_SERVER["DOCUMENT_ROOT"]));
 			if (empty($pathTmp) || $pathTmp == '/')
 			{
 				$this->AddError("Can not delete the root folder of the project");
@@ -382,7 +382,7 @@ class CBXVirtualIoFileSystem
 	{
 		$this->ClearErrors();
 
-		if (strpos($pathTo."/", $pathFrom."/") === 0)
+		if (mb_strpos($pathTo."/", $pathFrom."/") === 0)
 		{
 			$this->AddError("Can not copy a file onto itself");
 			return false;
@@ -535,7 +535,7 @@ class CBXVirtualFileFileSystem
 
 	public function Open($mode)
 	{
-		$lmode = strtolower(substr($mode, 0, 1));
+		$lmode = mb_strtolower(mb_substr($mode, 0, 1));
 		$bExists = $this->IsExists();
 
 		if (
@@ -578,7 +578,7 @@ class CBXVirtualFileFileSystem
 		}
 		if (fwrite($fd, $data) === false)
 		{
-			$this->AddError(sprintf("Can not write %d bytes to file '%s'", strlen($data), $this->GetPathWithNameEncoded()));
+			$this->AddError(sprintf("Can not write %d bytes to file '%s'", mb_strlen($data), $this->GetPathWithNameEncoded()));
 			fclose($fd);
 			return false;
 		}

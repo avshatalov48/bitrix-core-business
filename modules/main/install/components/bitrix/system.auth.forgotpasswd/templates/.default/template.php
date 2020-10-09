@@ -5,7 +5,7 @@ ShowMessage($arParams["~AUTH_RESULT"]);
 ?>
 <form name="bform" method="post" target="_top" action="<?=$arResult["AUTH_URL"]?>">
 <?
-if (strlen($arResult["BACKURL"]) > 0)
+if ($arResult["BACKURL"] <> '')
 {
 ?>
 	<input type="hidden" name="backurl" value="<?=$arResult["BACKURL"]?>" />

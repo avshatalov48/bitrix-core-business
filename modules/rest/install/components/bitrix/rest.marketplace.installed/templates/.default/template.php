@@ -111,7 +111,7 @@ if (!$arResult['SLIDER'])
 						<?endif?>
 					</div>
 					<div class="rest-mp-installed-item-content-developer">
-						<?if (strlen($app["PARTNER_URL"]) > 0):?>
+						<?if ($app["PARTNER_URL"] <> ''):?>
 							<a href="<?=htmlspecialcharsbx($app["PARTNER_URL"])?>" target="_blank"><?=htmlspecialcharsbx($app["PARTNER_NAME"])?></a>
 						<?else:?>
 							<?=htmlspecialcharsbx($app["PARTNER_NAME"])?>

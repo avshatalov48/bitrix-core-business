@@ -36,7 +36,7 @@ if($arUserField["USER_TYPE"])
 		if(
 			$arUserField["ENTITY_VALUE_ID"] <= 0
 			&& !is_array($arUserField["SETTINGS"]["DEFAULT_VALUE"])
-			&& strlen($arUserField["SETTINGS"]["DEFAULT_VALUE"]) > 0
+			&& $arUserField["SETTINGS"]["DEFAULT_VALUE"] <> ''
 		)
 		{
 			$arResult["VALUE"] = $arParams["~arUserField"]["SETTINGS"]["DEFAULT_VALUE"];

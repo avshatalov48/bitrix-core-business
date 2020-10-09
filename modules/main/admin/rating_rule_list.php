@@ -48,7 +48,7 @@ if($lAdmin->EditAction())
 {
 	foreach($FIELDS as $ID=>$arFields)
 	{
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if($ID <= 0)
 			continue;
 
@@ -73,7 +73,7 @@ if(($arID = $lAdmin->GroupAction()))
 
 	foreach($arID as $ID)
 	{
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if($ID <= 0)
 			continue;
 		switch($_REQUEST['action'])

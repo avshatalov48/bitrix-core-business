@@ -26,9 +26,9 @@ if (! (Loader::includeModule('currency') && ($currencies = CurrencyManager::getC
 
 if ($MOD_RIGHT >= 'W' && check_bitrix_sessid())
 {
-	if ($REQUEST_METHOD == 'POST' && strlen($Update.$Apply.$RestoreDefaults) > 0)
+	if ($REQUEST_METHOD == 'POST' && $Update.$Apply.$RestoreDefaults <> '')
 	{
-		if (strlen($RestoreDefaults) > 0)
+		if ($RestoreDefaults <> '')
 		{
 			Config::setBaseCurrency(null);
 			$currency = Config::getBaseCurrency();
@@ -128,7 +128,7 @@ $tabControl->Begin();
 
 	<input type="submit" name="Update" <? if ($MOD_RIGHT < 'W') echo 'disabled'; ?> value="<?=GetMessage("MAIN_SAVE")?>" title="<?=GetMessage("MAIN_OPT_SAVE_TITLE")?>" class="adm-btn-save">
 	<input type="submit" name="Apply" <? if ($MOD_RIGHT < 'W') echo 'disabled'; ?> value="<?=GetMessage("MAIN_OPT_APPLY")?>" title="<?=GetMessage("MAIN_OPT_APPLY_TITLE")?>">
-	<?if(strlen($_REQUEST["back_url_settings"])>0):?>
+	<?if($_REQUEST["back_url_settings"] <> ''):?>
 		<input type="button" name="Cancel" value="<?=GetMessage("MAIN_OPT_CANCEL")?>" title="<?=GetMessage("MAIN_OPT_CANCEL_TITLE")?>" onclick="window.location='<?echo htmlspecialcharsbx(CUtil::addslashes($_REQUEST["back_url_settings"]))?>'">
 		<input type="hidden" name="back_url_settings" value="<?=htmlspecialcharsbx($_REQUEST["back_url_settings"])?>">
 	<?endif?>

@@ -33,7 +33,7 @@ if (array_key_exists("category_1", $arResult["VARIABLES"]))
 	}
 }
 //Prepare filter for life search (if pagination used)
-if(strlen($arResult["LIFE_SEARCH_QUERY"]) > 0)
+if($arResult["LIFE_SEARCH_QUERY"] <> '')
 	$arFilter["~TITLE"] = '%'.$arResult["LIFE_SEARCH_QUERY"].'%';
 ?>
 	<?//Side bar tools?>
@@ -229,7 +229,7 @@ if($USER->IsAuthorized())
 <?
 if($arParams["SET_NAV_CHAIN"] == "Y" || $arParams["SET_TITLE"] == "Y")
 {
-	if (strpos($pageMode, "user") !== false)
+	if (mb_strpos($pageMode, "user") !== false)
 	{
 		$title = "";
 		if($arResult["VARIABLES"]["user_id"] == $USER->GetID())
@@ -253,7 +253,7 @@ if($arParams["SET_NAV_CHAIN"] == "Y" || $arParams["SET_TITLE"] == "Y")
 				{
 					$APPLICATION->AddChainItem($arCategoryList[$val]["NAME"],
 						CComponentEngine::MakePathFromTemplate(
-							$arResult["PATH_TO_".$key.(strpos($pageMode, "status") !== false ? "_STATUS" : "")],
+							$arResult["PATH_TO_".$key.(mb_strpos($pageMode, "status") !== false ? "_STATUS" : "")],
 							array(
 								"category_1" => $categoryCode["~CATEGORY_1"],
 								"category_2" => $categoryCode["~CATEGORY_2"],

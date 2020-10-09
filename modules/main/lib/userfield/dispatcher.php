@@ -426,7 +426,7 @@ class Dispatcher
 						'SORT' => $enumItem['SORT'],
 					);
 
-					if(strlen($enumItem['XML_ID']) > 0)
+					if($enumItem['XML_ID'] <> '')
 					{
 						$itemDescription['XML_ID'] = $enumItem['XML_ID'];
 					}

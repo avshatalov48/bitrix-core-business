@@ -27,10 +27,10 @@ if (!(($event=\CVoteEvent::GetByID($EVENT_ID)->fetch()) && $event &&
 	die();
 }
 $VOTE_ID = intval($arVote["ID"]);
-if ($VOTE_RIGHT=="W" && $request->getRequestMethod() == "GET" && (strlen($request->getQuery("save")) > 0 || strlen($request->getQuery("apply")) > 0) && check_bitrix_sessid())
+if ($VOTE_RIGHT=="W" && $request->getRequestMethod() == "GET" && ($request->getQuery("save") <> '' || $request->getQuery("apply") <> '') && check_bitrix_sessid())
 {
 	\CVoteEvent::SetValid($EVENT_ID, $valid);
-	if (strlen($save)>0)
+	if ($save <> '')
 		LocalRedirect("vote_user_votes_table.php?lang=".LANGUAGE_ID."&VOTE_ID=".$VOTE_ID);
 }
 
@@ -73,7 +73,7 @@ $tabControl->BeginNextTab();
 	<tr>
 		<td><?=GetMessage("VOTE_VOTE")?></td>
 		<td> [<a class="tablebodylink" href="vote_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$arVote["ID"]?>" class="tablebodytext"><?=$arVote["ID"]?></a>]&nbsp;<?
-		if (strlen($arVote["TITLE"])>0) echo $arVote["TITLE"];
+		if ($arVote["TITLE"] <> '') echo $arVote["TITLE"];
 		elseif ($arVote["DESCRIPTION_TYPE"]=="html")
 			echo TruncateText(strip_tags($arVote["~DESCRIPTION"]),200);
 		else
@@ -217,12 +217,12 @@ $tabControl->BeginNextTab();
 												case 4:
 													$field_name = "vote_field_".$arAnswer["ID"];
 													$value = CVoteEvent::GetAnswer($EVENT_ID,$arAnswer["ID"]);
-													?><?if (strlen(trim($arAnswer["MESSAGE"]))>0):?><font class="text"><?=$arAnswer["MESSAGE"]?></font><br><?endif?><input type="text" name="<?=$field_name?>" value="<?=htmlspecialcharsbx($value)?>" size="<?=$arAnswer["FIELD_WIDTH"]?>" <?=$arAnswer["FIELD_PARAM"]?>><?
+													?><?if (trim($arAnswer["MESSAGE"]) <> ''):?><font class="text"><?=$arAnswer["MESSAGE"]?></font><br><?endif?><input type="text" name="<?=$field_name?>" value="<?=htmlspecialcharsbx($value)?>" size="<?=$arAnswer["FIELD_WIDTH"]?>" <?=$arAnswer["FIELD_PARAM"]?>><?
 													break;
 												case 5:
 													$field_name = "vote_memo_".$arAnswer["ID"];
 													$text = CVoteEvent::GetAnswer($EVENT_ID,$arAnswer["ID"]);
-													?><font class="text"><?if (strlen(trim($arAnswer["MESSAGE"]))>0) echo $arAnswer["MESSAGE"]."<br>"?></font><textarea name="<?=$field_name?>" <?=$arAnswer["FIELD_PARAM"]?> cols="<?=$arAnswer["FIELD_WIDTH"]?>" rows="<?=$arAnswer["FIELD_HEIGHT"]?>"><?=htmlspecialcharsbx($text)?></textarea><?
+													?><font class="text"><?if (trim($arAnswer["MESSAGE"]) <> '') echo $arAnswer["MESSAGE"]."<br>"?></font><textarea name="<?=$field_name?>" <?=$arAnswer["FIELD_PARAM"]?> cols="<?=$arAnswer["FIELD_WIDTH"]?>" rows="<?=$arAnswer["FIELD_HEIGHT"]?>"><?=htmlspecialcharsbx($text)?></textarea><?
 													break;
 											endswitch;
 											?></td>

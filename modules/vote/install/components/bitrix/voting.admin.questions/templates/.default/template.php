@@ -93,7 +93,7 @@ while($row = $data->fetch())
 		$gridRow["data"][$fieldId] = $field;
 	}
 	$gridRow["columns"]["QUESTION"] = ($row["QUESTION_TYPE"]=="text" ? htmlspecialcharsex($row["QUESTION"]) : HTMLToTxt($row["QUESTION"]));
-	$gridRow["columns"]["QUESTION_TYPE"] = strtolower($row["QUESTION_TYPE"]);
+	$gridRow["columns"]["QUESTION_TYPE"] = mb_strtolower($row["QUESTION_TYPE"]);
 	$gridRow["columns"]["ACTIVE"] = ($gridRow["data"]["ACTIVE"] == "Y" ? GetMessage("admin_lib_list_yes") : GetMessage("admin_lib_list_no"));
 	$gridRow["columns"]["REQUIRED"] = ($gridRow["data"]["REQUIRED"] == "Y" ? GetMessage("admin_lib_list_yes") : GetMessage("admin_lib_list_no"));
 	$gridRow["columns"]["DIAGRAM"] = ($gridRow["data"]["DIAGRAM"] == "Y" ? GetMessage("admin_lib_list_yes") : GetMessage("admin_lib_list_no"));

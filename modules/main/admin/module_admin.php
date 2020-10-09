@@ -45,7 +45,7 @@ foreach($folders as $folder)
 	{
 		while (false !== ($dir = readdir($handle)))
 		{
-			if(!isset($arModules[$dir]) && is_dir($_SERVER["DOCUMENT_ROOT"].$folder."/".$dir) && $dir!="." && $dir!=".." && $dir!="main" && strpos($dir, ".") === false)
+			if(!isset($arModules[$dir]) && is_dir($_SERVER["DOCUMENT_ROOT"].$folder."/".$dir) && $dir!="." && $dir!=".." && $dir!="main" && mb_strpos($dir, ".") === false)
 			{
 				$module_dir = $_SERVER["DOCUMENT_ROOT"].$folder."/".$dir;
 				if($info = CModule::CreateModuleObject($dir))
@@ -56,8 +56,8 @@ foreach($folders as $folder)
 					$arModules[$dir]["MODULE_VERSION"] = $info->MODULE_VERSION;
 					$arModules[$dir]["MODULE_VERSION_DATE"] = $info->MODULE_VERSION_DATE;
 					$arModules[$dir]["MODULE_SORT"] = $info->MODULE_SORT;
-					$arModules[$dir]["MODULE_PARTNER"] = (strpos($dir, ".") !== false) ? $info->PARTNER_NAME : "";
-					$arModules[$dir]["MODULE_PARTNER_URI"] = (strpos($dir, ".") !== false) ? $info->PARTNER_URI : "";
+					$arModules[$dir]["MODULE_PARTNER"] = (mb_strpos($dir, ".") !== false) ? $info->PARTNER_NAME : "";
+					$arModules[$dir]["MODULE_PARTNER_URI"] = (mb_strpos($dir, ".") !== false) ? $info->PARTNER_URI : "";
 					$arModules[$dir]["IsInstalled"] = $info->IsInstalled();
 				}
 			}
@@ -76,20 +76,20 @@ foreach($folders as $folder)
 $fb = ($id == 'fileman' && !$USER->CanDoOperation('fileman_install_control'));
 if($isAdmin && !$fb && check_bitrix_sessid())
 {
-	if(strlen($_REQUEST["uninstall"])>0 || strlen($_REQUEST["install"])>0)
+	if($_REQUEST["uninstall"] <> '' || $_REQUEST["install"] <> '')
 	{
 		$id = str_replace("\\", "", str_replace("/", "", $id));
 		if($Module = CModule::CreateModuleObject($id))
 		{
-			if($Module->IsInstalled() && strlen($_REQUEST["uninstall"])>0)
+			if($Module->IsInstalled() && $_REQUEST["uninstall"] <> '')
 			{
 				OnModuleInstalledEvent($id);
 				$Module->DoUninstall();
 				LocalRedirect($APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID);
 			}
-			elseif(!$Module->IsInstalled() && strlen($_REQUEST["install"]) > 0)
+			elseif(!$Module->IsInstalled() && $_REQUEST["install"] <> '')
 			{
-				if (strtolower($DB->type)=="mysql" && defined("MYSQL_TABLE_TYPE") && strlen(MYSQL_TABLE_TYPE)>0)
+				if ($DB->type == "MYSQL" && defined("MYSQL_TABLE_TYPE") && MYSQL_TABLE_TYPE <> '')
 				{
 					$DB->Query("SET storage_engine = '".MYSQL_TABLE_TYPE."'", true);
 				}
@@ -200,7 +200,7 @@ function DoAction(oEvent, action, module_id)
 foreach($arModules as $info) :
 ?>
 	<tr>
-		<td><b><?echo htmlspecialcharsex($info["MODULE_NAME"])?></b> <?echo htmlspecialcharsex(strlen($info["MODULE_PARTNER"]) > 0? " <b><i>(".str_replace(array("#NAME#", "#URI#"), array($info["MODULE_PARTNER"], $info["MODULE_PARTNER_URI"]), GetMessage("MOD_PARTNER_NAME")).")</i></b>" : "(".$info["MODULE_ID"].")") ?><br><?echo $info["MODULE_DESCRIPTION"]?></td>
+		<td><b><?echo htmlspecialcharsex($info["MODULE_NAME"])?></b> <?echo htmlspecialcharsex($info["MODULE_PARTNER"] <> ''? " <b><i>(".str_replace(array("#NAME#", "#URI#"), array($info["MODULE_PARTNER"], $info["MODULE_PARTNER_URI"]), GetMessage("MOD_PARTNER_NAME")).")</i></b>" : "(".$info["MODULE_ID"].")") ?><br><?echo $info["MODULE_DESCRIPTION"]?></td>
 		<td ondblclick="<?echo htmlspecialcharsbx("DoAction(event, 'version_down', '".CUtil::AddSlashes($info["MODULE_ID"])."')")?>" id="version_for_<?echo htmlspecialcharsbx($info["MODULE_ID"])?>"><?echo $info["MODULE_VERSION"]?></td>
 		<td nowrap><?echo CDatabase::FormatDate($info["MODULE_VERSION_DATE"], "YYYY-MM-DD HH:MI:SS", CLang::GetDateFormat("SHORT"));?></td>
 		<td nowrap><?if($info["IsInstalled"]):?><?echo GetMessage("MOD_INSTALLED")?><?else:?><span class="required"><?echo GetMessage("MOD_NOT_INSTALLED")?></span><?endif?></td>

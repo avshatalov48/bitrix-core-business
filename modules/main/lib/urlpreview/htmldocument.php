@@ -117,7 +117,7 @@ class HtmlDocument
 	 */
 	public function setTitle($title)
 	{
-		if(strlen($title) > 0)
+		if($title <> '')
 		{
 			$this->metadata['TITLE'] = $this->filterString($title);
 		}
@@ -139,7 +139,7 @@ class HtmlDocument
 	 */
 	public function setDescription($description)
 	{
-		if(strlen($description) > 0)
+		if($description <> '')
 		{
 			$this->metadata['DESCRIPTION'] = $this->filterString($description);
 		}
@@ -161,7 +161,7 @@ class HtmlDocument
 	 */
 	public function setImage($image)
 	{
-		if(strlen($image) > 0)
+		if($image <> '')
 		{
 			$imageUrl = $this->normalizeImageUrl($image);
 			if(!is_null($imageUrl) && $this->validateImage($imageUrl))
@@ -255,7 +255,7 @@ class HtmlDocument
 	 */
 	public function getEncoding()
 	{
-		if(strlen($this->htmlEncoding) > 0)
+		if($this->htmlEncoding <> '')
 		{
 			return $this->htmlEncoding;
 		}
@@ -279,7 +279,7 @@ class HtmlDocument
 
 		foreach($this->metaElements as $metaElement)
 		{
-			if(isset($metaElement['http-equiv']) && strtolower($metaElement['http-equiv']) == 'content-type')
+			if(isset($metaElement['http-equiv']) && mb_strtolower($metaElement['http-equiv']) == 'content-type')
 			{
 				if(preg_match('/charset=([\w\-]+)/', $metaElement['content'], $matches))
 				{
@@ -315,7 +315,7 @@ class HtmlDocument
 			$elementAttributes = array();
 			foreach($matches[1] as $k => $attributeName)
 			{
-				$attributeName = strtolower($attributeName);
+				$attributeName = mb_strtolower($attributeName);
 				$attributeValue = $matches[3][$k];
 				$elementAttributes[$attributeName] = $attributeValue;
 			}
@@ -338,13 +338,13 @@ class HtmlDocument
 		{
 			$this->metaElements = $this->extractElementAttributes('meta');
 		}
-		$name = strtolower($name);
+		$name = mb_strtolower($name);
 
 		foreach ($this->metaElements as $metaElement)
 		{
-			if ((isset($metaElement['name']) && strtolower($metaElement['name']) === $name
-				|| isset($metaElement['property']) && strtolower($metaElement['property']) === $name)
-				&& strlen($metaElement['content']) > 0)
+			if ((isset($metaElement['name']) && mb_strtolower($metaElement['name']) === $name
+				|| isset($metaElement['property']) && mb_strtolower($metaElement['property']) === $name)
+				&& $metaElement['content'] <> '')
 			{
 				return $metaElement['content'];
 			}
@@ -365,13 +365,13 @@ class HtmlDocument
 		{
 			$this->linkElements = $this->extractElementAttributes('link');
 		}
-		$rel = strtolower($rel);
+		$rel = mb_strtolower($rel);
 
 		foreach ($this->linkElements as $linkElement)
 		{
 			if(isset($linkElement['rel'])
-				&& strtolower($linkElement['rel']) == $rel
-				&& strlen($linkElement['href']) > 0)
+				&& mb_strtolower($linkElement['rel']) == $rel
+				&& $linkElement['href'] <> '')
 			{
 				return $linkElement['href'];
 			}
@@ -403,7 +403,7 @@ class HtmlDocument
 	 */
 	protected function convertRelativeUriToAbsolute($uri)
 	{
-		if(strpos($uri, '//') === 0)
+		if(mb_strpos($uri, '//') === 0)
 			$uri = $this->uri->getScheme().":".$uri;
 
 		if(preg_match('#^https?://#', $uri))
@@ -419,7 +419,7 @@ class HtmlDocument
 		}
 		else if(isset($pars['path']))
 		{
-			if(substr($pars['path'], 0, 1) !== '/')
+			if(mb_substr($pars['path'], 0, 1) !== '/')
 			{
 				$pathPrefix = preg_replace('/^(.+?)([^\/]*)$/', '$1', $this->uri->getPath());
 				$pars['path'] = $pathPrefix.$pars['path'];
@@ -455,7 +455,7 @@ class HtmlDocument
 	protected function normalizeImageUrl($url)
 	{
 		$url = $this->convertRelativeUriToAbsolute($url);
-		if(strlen($url) > self::MAX_IMAGE_URL_LENGTH)
+		if(mb_strlen($url) > self::MAX_IMAGE_URL_LENGTH)
 			$url = null;
 		return $url;
 	}
@@ -478,8 +478,8 @@ class HtmlDocument
 		if($httpClient->getStatus() !== 200)
 			return false;
 
-		$contentType = strtolower($httpClient->getHeaders()->getContentType());
-		if(strpos($contentType, 'image/') === 0)
+		$contentType = mb_strtolower($httpClient->getHeaders()->getContentType());
+		if(mb_strpos($contentType, 'image/') === 0)
 			return true;
 		else
 			return false;

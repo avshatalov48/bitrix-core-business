@@ -5,7 +5,7 @@ if ( ! CModule::IncludeModule('learning') )
 
 //Params
 $arParams["COURSE_ID"] = (isset($arParams["COURSE_ID"]) && intval($arParams["COURSE_ID"]) > 0 ? intval($arParams["COURSE_ID"]) : intval($_REQUEST["COURSE_ID"]));
-$arParams["SELF_TEST_TEMPLATE"] = (strlen($arParams["SELF_TEST_TEMPLATE"]) > 0 ? htmlspecialcharsbx($arParams["SELF_TEST_TEMPLATE"]) : "self.php?SELF_TEST_ID=#SELF_TEST_ID#");
+$arParams["SELF_TEST_TEMPLATE"] = ($arParams["SELF_TEST_TEMPLATE"] <> '' ? htmlspecialcharsbx($arParams["SELF_TEST_TEMPLATE"]) : "self.php?SELF_TEST_ID=#SELF_TEST_ID#");
 
 $CHAPTER_ID = ((isset($arParams["CHAPTER_ID"]) && intval($arParams["CHAPTER_ID"]) > 0) ? $arParams["CHAPTER_ID"] : $_REQUEST["CHAPTER_ID"]);
 if (CLearnPath::IsUrlencodedPath($CHAPTER_ID))
@@ -14,31 +14,31 @@ if (CLearnPath::IsUrlencodedPath($CHAPTER_ID))
 	$path->ImportUrlencoded($CHAPTER_ID);
 	$arParams['CHAPTER_ID'] = (int) $path->GetBottom();
 }
-elseif (substr($CHAPTER_ID, 0, 1) === '0')
+elseif (mb_substr($CHAPTER_ID, 0, 1) === '0')
 {
-	$arParams['CHAPTER_ID'] = (int) substr($CHAPTER_ID, 1);
+	$arParams['CHAPTER_ID'] = (int)mb_substr($CHAPTER_ID, 1);
 }
 else
 {
 	$arParams['CHAPTER_ID'] = (int) CLearnLesson::LessonIdByChapterId ($CHAPTER_ID);
 }
 
-if ( ! ( isset($arParams['LESSON_PATH']) && strlen($arParams['LESSON_PATH']) ) )
+if ( ! (isset($arParams['LESSON_PATH']) && mb_strlen($arParams['LESSON_PATH']) ) )
 {
 	$arParams['LESSON_PATH'] = '';
 
-	if (isset($_REQUEST['LESSON_PATH']) && strlen($_REQUEST['LESSON_PATH']))
+	if (isset($_REQUEST['LESSON_PATH']) && mb_strlen($_REQUEST['LESSON_PATH']))
 		$arParams['LESSON_PATH'] = $_REQUEST['LESSON_PATH'];
 }
 
 $strUrlencodedLessonPath = '';
-if (strlen($arParams['LESSON_PATH']) > 0)
+if ($arParams['LESSON_PATH'] <> '')
 	$strUrlencodedLessonPath = 'LESSON_PATH=' . $arParams['LESSON_PATH'];
 
 
 
-$arParams["CHAPTER_DETAIL_TEMPLATE"] = (strlen($arParams["CHAPTER_DETAIL_TEMPLATE"]) > 0 ? htmlspecialcharsbx($arParams["CHAPTER_DETAIL_TEMPLATE"]): "chapter.php?CHAPTER_ID=#CHAPTER_ID#");
-$arParams["LESSON_DETAIL_TEMPLATE"] = (strlen($arParams["LESSON_DETAIL_TEMPLATE"]) > 0 ? htmlspecialcharsbx($arParams["LESSON_DETAIL_TEMPLATE"]) : "lesson.php?LESSON_ID=#LESSON_ID#");
+$arParams["CHAPTER_DETAIL_TEMPLATE"] = ($arParams["CHAPTER_DETAIL_TEMPLATE"] <> '' ? htmlspecialcharsbx($arParams["CHAPTER_DETAIL_TEMPLATE"]): "chapter.php?CHAPTER_ID=#CHAPTER_ID#");
+$arParams["LESSON_DETAIL_TEMPLATE"] = ($arParams["LESSON_DETAIL_TEMPLATE"] <> '' ? htmlspecialcharsbx($arParams["LESSON_DETAIL_TEMPLATE"]) : "lesson.php?LESSON_ID=#LESSON_ID#");
 $arParams["CHECK_PERMISSIONS"] = (isset($arParams["CHECK_PERMISSIONS"]) && $arParams["CHECK_PERMISSIONS"]=="N" ? "N" : "Y");
 
 if ($arParams["CHECK_PERMISSIONS"] !== 'N')
@@ -264,7 +264,7 @@ if ($bCanEdit)
 	{
 		$parentLessonId = 0;
 		$lessonPath = "";
-		if (strlen($arParams["LESSON_PATH"]) > 0)
+		if ($arParams["LESSON_PATH"] <> '')
 		{
 			$path = new CLearnPath();
 			$path->ImportUrlencoded($arParams["LESSON_PATH"]);
@@ -286,7 +286,7 @@ if ($bCanEdit)
 		if ($parentLessonId)
 		{
 			$deleteReturnUrl = CComponentEngine::MakePathFromTemplate($parent->arResult["FOLDER"].$parent->arResult["URL_TEMPLATES"]["chapter.detail"], Array("CHAPTER_ID" => "0".$parentLessonId, "COURSE_ID" => $arParams["COURSE_ID"]));
-			$deleteReturnUrl .= strpos($deleteReturnUrl, "?") !== false ? "&" : "?";
+			$deleteReturnUrl .= mb_strpos($deleteReturnUrl, "?") !== false ? "&" : "?";
 			$deleteReturnUrl .= "LESSON_PATH=".$lessonPath;
 		}
 		else
@@ -319,7 +319,7 @@ if ($bCanEdit)
 		array(
 			"TEXT" => GetMessage("LEARNING_COURSES_CHAPTER_DELETE"),
 			"TITLE" => GetMessage("LEARNING_COURSES_CHAPTER_DELETE"),
-			"URL" => "javascript:if(confirm('".GetMessage("LEARNING_COURSES_CHAPTER_DELETE_CONF")."'))jsUtils.Redirect([], '".CUtil::JSEscape("/bitrix/admin/learn_unilesson_admin.php?ID=" . $arParams["CHAPTER_ID"] . "&action=delete&lang=".LANGUAGE_ID."&".bitrix_sessid_get()."&COURSE_ID=".$arParams["COURSE_ID"]).(strlen($deleteReturnUrl) ? "&return_url=".urlencode($deleteReturnUrl) : "")."')",
+			"URL" => "javascript:if(confirm('".GetMessage("LEARNING_COURSES_CHAPTER_DELETE_CONF")."'))jsUtils.Redirect([], '".CUtil::JSEscape("/bitrix/admin/learn_unilesson_admin.php?ID=" . $arParams["CHAPTER_ID"] . "&action=delete&lang=".LANGUAGE_ID."&".bitrix_sessid_get()."&COURSE_ID=".$arParams["COURSE_ID"]).($deleteReturnUrl <> ''? "&return_url=".urlencode($deleteReturnUrl) : "")."')",
 			"ICON" => "bx-context-toolbar-delete-icon",
 			"ID" => "bx-context-toolbar-delete-chapter",
 		),

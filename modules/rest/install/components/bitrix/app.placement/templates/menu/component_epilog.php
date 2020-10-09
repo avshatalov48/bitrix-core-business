@@ -32,7 +32,7 @@ if(!function_exists('restMenuBuildEventHandler'))
 			$appMenu = array();
 			foreach($appList as $app)
 			{
-				$itemText = strlen($app['TITLE']) > 0
+				$itemText = $app['TITLE'] <> ''
 					? $app['TITLE']
 					: $app['APP_NAME'];
 

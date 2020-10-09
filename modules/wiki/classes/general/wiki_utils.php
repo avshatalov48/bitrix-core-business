@@ -399,7 +399,7 @@ class CWikiUtils
 	static function htmlspecialcharsback($str, $end = true)
 	{
 		$str = rawurldecode($str);
-		while(strpos($str, '&amp;') !== false)
+		while(mb_strpos($str, '&amp;') !== false)
 			$str = self::htmlspecialchars_decode($str);
 		if($end)
 			$str = self::htmlspecialchars_decode($str);

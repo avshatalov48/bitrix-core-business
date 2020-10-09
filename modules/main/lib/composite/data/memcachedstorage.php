@@ -56,8 +56,8 @@ final class MemcachedStorage extends AbstractStorage
 		}
 		else
 		{
-			$this->props->size = strlen($content);
-			$this->props->size += strlen(serialize($this->props));
+			$this->props->size = mb_strlen($content);
+			$this->props->size += mb_strlen(serialize($this->props));
 		}
 
 		$this->memcached->set("~".$this->cacheKey, $this->props);

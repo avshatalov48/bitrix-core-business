@@ -10,6 +10,7 @@ use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\ORM\Fields\Relations\CascadePolicy;
+use Bitrix\Main\ORM\Fields\Relations\ManyToMany;
 use Bitrix\Main\ORM\Fields\Relations\OneToMany;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Fields\StringField;
@@ -353,6 +354,18 @@ class IblockTable extends DataManager
 
 		// set iblock to the entity
 		$elementEntity->setIblock($iblock);
+
+		// set relation with sections
+		SectionElementTable::getEntity()->addField(
+			(new Reference('REGULAR_ELEMENT_'.$iblock->getId(), $elementEntity,
+			Join::on('this.IBLOCK_ELEMENT_ID', 'ref.ID')->whereNull('this.ADDITIONAL_PROPERTY_ID')))
+		);
+
+		$elementEntity->addField((new ManyToMany('SECTIONS', SectionTable::class))
+			->configureMediatorEntity(SectionElementTable::class)
+			->configureLocalReference('REGULAR_ELEMENT_'.$iblock->getId())
+			->configureRemoteReference('IBLOCK_SECTION')
+		);
 
 		//$baseTypeList = \Bitrix\Iblock\Helpers\Admin\Property::getBaseTypeList(true);
 		$userTypeList = CIBlockProperty::GetUserType();

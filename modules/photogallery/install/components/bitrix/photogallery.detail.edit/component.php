@@ -13,7 +13,7 @@ if(!function_exists("__UnEscape"))
 	{
 		if(is_array($item))
 			array_walk($item, '__UnEscape');
-		elseif (strpos($item, "%u") !== false)
+		elseif (mb_strpos($item, "%u") !== false)
 			$item = $GLOBALS["APPLICATION"]->UnJSEscape($item);
 		elseif (LANG_CHARSET != "UTF-8" && preg_match("/^.{1}/su", $item) == 1)
 			$item = $GLOBALS["APPLICATION"]->ConvertCharset($item, "UTF-8", LANG_CHARSET);
@@ -24,14 +24,14 @@ if(!function_exists("__UnEscape"))
 ********************************************************************/
 //***************** BASE *******************************************/
 	$arParams["IBLOCK_TYPE"] = trim(!empty($arParams["IBLOCK_TYPE"]) ? $arParams["IBLOCK_TYPE"] : $_REQUEST["IBLOCK_TYPE"]);
-	$arParams["IBLOCK_ID"] = intVal(intVal($arParams["IBLOCK_ID"]) > 0 ? $arParams["IBLOCK_ID"] : $_REQUEST["IBLOCK_ID"]);
-	$arParams["SECTION_ID"] = intVal(intVal($arParams["SECTION_ID"]) > 0 ? $arParams["SECTION_ID"] : $_REQUEST["SECTION_ID"]);
-	$arParams["ELEMENT_ID"] = intVal(intVal($arParams["ELEMENT_ID"]) > 0 ? $arParams["ELEMENT_ID"] : $_REQUEST["ELEMENT_ID"]);
+	$arParams["IBLOCK_ID"] = intval(intVal($arParams["IBLOCK_ID"]) > 0 ? $arParams["IBLOCK_ID"] : $_REQUEST["IBLOCK_ID"]);
+	$arParams["SECTION_ID"] = intval(intVal($arParams["SECTION_ID"]) > 0 ? $arParams["SECTION_ID"] : $_REQUEST["SECTION_ID"]);
+	$arParams["ELEMENT_ID"] = intval(intVal($arParams["ELEMENT_ID"]) > 0 ? $arParams["ELEMENT_ID"] : $_REQUEST["ELEMENT_ID"]);
 	$arParams["USER_ALIAS"] = preg_replace("/[^a-z0-9\_]+/is" , "", $arParams["USER_ALIAS"]);
 	$arParams["BEHAVIOUR"] = ($arParams["BEHAVIOUR"] == "USER" ? "USER" : "SIMPLE");
 	$arParams["PERMISSION_EXTERNAL"] = trim($arParams["PERMISSION"]);
 	$arParams["ACTION"] = trim(empty($arParams["ACTION"]) ? $_REQUEST["ACTION"] : $arParams["ACTION"]);
-	$arParams["ACTION"] = strToUpper(empty($arParams["ACTION"]) ? "EDIT" : $arParams["ACTION"]);
+$arParams["ACTION"] = mb_strtoupper(empty($arParams["ACTION"])? "EDIT" : $arParams["ACTION"]);
 	$arParams["IS_SOCNET"] = ($arParams["IS_SOCNET"] == "Y" ? "Y" : "N");
 
 	$bParseTags = CModule::IncludeModule("search");
@@ -48,17 +48,17 @@ if(!function_exists("__UnEscape"))
 
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		$arParams[strToUpper($URL)."_URL"] = trim($arParams[strToUpper($URL)."_URL"]);
-		if (empty($arParams[strToUpper($URL)."_URL"]))
-			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[mb_strtoupper($URL)."_URL"] = trim($arParams[mb_strtoupper($URL)."_URL"]);
+		if (empty($arParams[mb_strtoupper($URL)."_URL"]))
+			$arParams[mb_strtoupper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~".mb_strtoupper($URL)."_URL"] = $arParams[mb_strtoupper($URL)."_URL"];
+		$arParams[mb_strtoupper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".mb_strtoupper($URL)."_URL"]);
 	}
 //***************** ADDITTIONAL ************************************/
 	$arParams["SHOW_TITLE"] = ($arParams["SHOW_TITLE"] == "N" ? "N" : "Y"); // Used to hide element name in the form
 
 	$arParams["DATE_TIME_FORMAT"] = trim($arParams["DATE_TIME_FORMAT"]);
-	if(strlen($arParams["DATE_TIME_FORMAT"])<=0)
+	if($arParams["DATE_TIME_FORMAT"] == '')
 		$arParams["DATE_TIME_FORMAT"] = $DB->DateFormatToPHP(CSite::GetDateFormat("FULL"));
 	$arParams["SET_STATUS_404"] = ($arParams["SET_STATUS_404"] == "Y" ? "Y" : "N");
 //***************** STANDART ***************************************/
@@ -290,7 +290,7 @@ if($_REQUEST["edit"] == "Y" || $arParams["ACTION"] == "DROP")
 			elseif ($arParams["SECTION_ID"] != $_REQUEST["TO_SECTION_ID"])
 			{
 				$result = array(
-					"SECTION_ID" => intVal($_REQUEST["TO_SECTION_ID"]),
+					"SECTION_ID" => intval($_REQUEST["TO_SECTION_ID"]),
 					"url" => CComponentEngine::MakePathFromTemplate($arParams["~DETAIL_URL"], array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $_REQUEST["TO_SECTION_ID"], "ELEMENT_ID" => $arResult["ELEMENT"]["ID"]))
 				);
 			}
@@ -302,7 +302,7 @@ if($_REQUEST["edit"] == "Y" || $arParams["ACTION"] == "DROP")
 				if ($db_res && $res = $db_res->GetNext())
 				{
 					$result = array(
-						"SECTION_ID" => intVal($_REQUEST["TO_SECTION_ID"]),
+						"SECTION_ID" => intval($_REQUEST["TO_SECTION_ID"]),
 						"TAGS" => $res["TAGS"],
 						"TITLE" => $res["NAME"],
 						"DESCRIPTION" => $res["DETAIL_TEXT"],
@@ -326,7 +326,7 @@ if($_REQUEST["edit"] == "Y" || $arParams["ACTION"] == "DROP")
 									"TAG_NAME" => $tags,
 									"TAG_URL" => CComponentEngine::MakePathFromTemplate($arParams["~SEARCH_URL"], array())
 								);
-								$arr["TAG_URL"] .= (strpos($arr["TAG_URL"], "?") === false ? "?" : "&")."tags=".$tags;
+								$arr["TAG_URL"] .= (mb_strpos($arr["TAG_URL"], "?") === false ? "?" : "&")."tags=".$tags;
 								$result["TAGS_LIST"][] = $arr;
 							}
 						}
@@ -335,7 +335,7 @@ if($_REQUEST["edit"] == "Y" || $arParams["ACTION"] == "DROP")
 				else
 				{
 					$result = array(
-						"SECTION_ID" => intVal($_REQUEST["TO_SECTION_ID"]),
+						"SECTION_ID" => intval($_REQUEST["TO_SECTION_ID"]),
 						"TAGS" => htmlspecialcharsEx($_REQUEST["TAGS"]),
 						"TITLE" => htmlspecialcharsEx($_REQUEST["TITLE"]),
 						"DESCRIPTION" => htmlspecialcharsEx($_REQUEST["DESCRIPTION"]),

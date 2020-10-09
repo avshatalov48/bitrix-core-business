@@ -1,4 +1,6 @@
 <?
+
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Application;
 use Bitrix\Main\Page;
@@ -77,7 +79,7 @@ if ($server->getRequestMethod() == "POST"
 	{
 		$adminSidePanelHelper->sendJsonErrorResponse($errorMessage);
 	}
-	
+
 	if (class_exists($handler))
 	{
 		$cashbox['SETTINGS'] = $handler::extractSettingsFromRequest($request);
@@ -315,8 +317,21 @@ $tabControl->BeginCustomField('HANDLER', GetMessage("SALE_CASHBOX_HANDLER"));
 <?
 $tabControl->EndCustomField('HANDLER', '');
 
-$tabControl->BeginCustomField('OFD', GetMessage("SALE_CASHBOX_OFD"));
+$zone = 'ru';
+if (Loader::includeModule("bitrix24"))
+{
+	$zone = \CBitrix24::getLicensePrefix();
+}
+elseif (Loader::includeModule('intranet'))
+{
+	$zone = \CIntranetUtils::getPortalZone();
+}
+if ($zone === 'ru')
+{
+	$tabControl->BeginCustomField('OFD', GetMessage("SALE_CASHBOX_OFD"));
+}
 ?>
+<?php if ($zone === 'ru'): ?>
 	<tr id="tr_OFD">
 		<td width="40%">
 			<span <?=(isset($requireFields['OFD']) ? 'class="adm-required-field"' : '')?>><?=Loc::getMessage("SALE_CASHBOX_OFD");?>:</span>
@@ -337,9 +352,12 @@ $tabControl->BeginCustomField('OFD', GetMessage("SALE_CASHBOX_OFD"));
 			</select>
 		</td>
 	</tr>
-
+<?php endif; ?>
 <?
-$tabControl->EndCustomField('OFD', '');
+if ($zone === 'ru')
+{
+	$tabControl->EndCustomField('OFD', '');
+}
 
 $name = $request->get('NAME') ? $request->get('NAME') : $cashbox['NAME'];
 $tabControl->AddEditField('NAME', Loc::getMessage("SALE_CASHBOX_NAME").':', true, array('SIZE' => 40), $name);
@@ -437,16 +455,26 @@ $tabControl->BeginCustomField('CASHBOX_SETTINGS', GetMessage("CASHBOX_SETTINGS")
 	<tbody id="sale-cashbox-settings-container"><?=$cashboxSettings?></tbody>
 <?$tabControl->EndCustomField('CASHBOX_SETTINGS');
 
-$tabControl->BeginNextFormTab();
+if ($zone === 'ru')
+{
+	$tabControl->BeginNextFormTab();
 
-ob_start();
-require_once($documentRoot."/bitrix/modules/sale/admin/cashbox_ofd_settings.php");
-$cashboxOfdSettings = ob_get_contents();
-ob_end_clean();
+	ob_start();
+	require_once($documentRoot."/bitrix/modules/sale/admin/cashbox_ofd_settings.php");
+	$cashboxOfdSettings = ob_get_contents();
+	ob_end_clean();
 
-$tabControl->BeginCustomField('OFD_SETTINGS', GetMessage("CASHBOX_OFD_SETTINGS"));?>
+	$tabControl->BeginCustomField('OFD_SETTINGS', GetMessage("CASHBOX_OFD_SETTINGS"));
+}
+?>
+<?php if ($zone === 'ru'): ?>
 	<tbody id="sale-cashbox-ofd-settings-container"><?=$cashboxOfdSettings?></tbody>
-<?$tabControl->EndCustomField('OFD_SETTINGS');
+<?php endif; ?>
+<?php
+if ($zone === 'ru')
+{
+	$tabControl->EndCustomField('OFD_SETTINGS');
+}
 
 $tabControl->Buttons(array("disabled" => ($saleModulePermissions < "W"), "back_url" => $listUrl));
 

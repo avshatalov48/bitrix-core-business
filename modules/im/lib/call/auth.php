@@ -222,7 +222,7 @@ class Auth
 		$cookie->setHttpOnly(false);
 		$context->getResponse()->addCookie($cookie);
 
-		$authCode = str_replace(self::AUTH_TYPE.'|', '', $_SESSION["SESS_AUTH"]["XML_ID"]);
+		$authCode = str_replace(self::AUTH_TYPE.'|', '', $USER->GetParam('XML_ID'));
 
 		$cookie = new \Bitrix\Main\Web\Cookie('BITRIX_CALL_HASH', $authCode, null, false);
 		$cookie->setHttpOnly(false);

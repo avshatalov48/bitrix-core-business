@@ -27,7 +27,7 @@ class GeoHash
 
 		$geohash = '';
 
-		while(strlen($geohash) < $length)
+		while(mb_strlen($geohash) < $length)
 		{
 			if($isEven)
 			{
@@ -79,7 +79,7 @@ class GeoHash
 		$longitudeInterval = static::$longitudeInterval;
 
 		$isEven = true;
-		$geohashLength = strlen($geohash);
+		$geohashLength = mb_strlen($geohash);
 		for($i = 0; $i < $geohashLength; $i++)
 		{
 			if(!isset($base32DecodeMap[$geohash[$i]]))

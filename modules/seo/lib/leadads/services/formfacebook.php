@@ -48,7 +48,7 @@ class FormFacebook extends LeadAds\Form
 			case 'tr':
 			case 'de':
 			case 'es':
-				$locale = strtolower($languageId) . '_' . strtoupper($languageId);
+				$locale = mb_strtolower($languageId).'_'.mb_strtoupper($languageId);
 				break;
 
 			case 'la':
@@ -170,7 +170,7 @@ class FormFacebook extends LeadAds\Form
 				),
 				'privacy_policy' => Json::encode($privacyPolicy),
 				'follow_up_action_url' => $data['SUCCESS_URL'],
-				'locale' => strtoupper($locale),
+				'locale' => mb_strtoupper($locale),
 				'context_card' => Json::encode($contextCard),
 				'questions' => Json::encode($questions)
 			)

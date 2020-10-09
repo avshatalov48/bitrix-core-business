@@ -94,7 +94,7 @@ class CComponentEngine
 	 */
 	public function hasNoVariables($pageTemplate)
 	{
-		return strpos($pageTemplate, "#") === false;
+		return mb_strpos($pageTemplate, "#") === false;
 	}
 	/**
 	 * Checks if page template.has greedy templates it it.
@@ -130,9 +130,9 @@ class CComponentEngine
 
 		foreach ($arUrlTemplates as $pageID => $pageTemplate)
 		{
-			$pos = strpos($pageTemplate, "?");
+			$pos = mb_strpos($pageTemplate, "?");
 			if ($pos !== false)
-				$pageTemplate = substr($pageTemplate, 0, $pos);
+				$pageTemplate = mb_substr($pageTemplate, 0, $pos);
 
 			if ($this->hasNoVariables($pageTemplate))
 				$resultNoHash[$pageID] = $pageTemplate;
@@ -166,7 +166,7 @@ class CComponentEngine
 			$pageTemplateReg = preg_replace("'#[^#]+?#'", "([^/]+?)", $pageTemplate);
 		}
 
-		if (substr($pageTemplateReg, -1, 1) == "/")
+		if (mb_substr($pageTemplateReg, -1, 1) == "/")
 			$pageTemplateReg .= "index\\.php";
 
 		$arValues = array();
@@ -222,10 +222,10 @@ class CComponentEngine
 			$folder404 = "/".trim($folder404, "/ \t\n\r\0\x0B")."/";
 
 		//SEF base URL must match curent URL (several components on the same page)
-		if(strpos($requestURL, $folder404) !== 0)
+		if(mb_strpos($requestURL, $folder404) !== 0)
 			return false;
 
-		$currentPageUrl = substr($requestURL, strlen($folder404));
+		$currentPageUrl = mb_substr($requestURL, mb_strlen($folder404));
 		$this->cacheSalt = md5($currentPageUrl);
 
 		$pageCandidates = array();

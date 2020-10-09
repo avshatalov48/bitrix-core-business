@@ -638,6 +638,59 @@ final class BusinessValue
 		return $all ? $allPersonTypes : $personTypes;
 	}
 
+	/**
+	 * @param $codeKey
+	 * @param array $oldMapping
+	 * @param array $newMapping
+	 * @param null $consumerKey
+	 * @param null $personTypeId
+	 * @return \Bitrix\Main\Entity\Result
+	 * @throws SystemException
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 */
+	public static function updateMapping($codeKey, array $oldMapping, array $newMapping, $consumerKey = null, $personTypeId = null): \Bitrix\Main\Entity\Result
+	{
+		if (!isset($oldMapping['PROVIDER_KEY'], $oldMapping['PROVIDER_VALUE']))
+		{
+			throw new \Bitrix\Main\ArgumentException("Parameters \$oldMapping['PROVIDER_KEY'] and \$oldMapping['PROVIDER_VALUE'] are required.", 'oldMapping');
+		}
+
+		$result = new \Bitrix\Main\Entity\Result();
+
+		$filter = [
+			'CODE_KEY' => $codeKey,
+			'PROVIDER_KEY' => $oldMapping['PROVIDER_KEY'],
+			'PROVIDER_VALUE' => $oldMapping['PROVIDER_VALUE'],
+		];
+
+		if ($consumerKey)
+		{
+			$filter['CONSUMER_KEY'] = $consumerKey;
+		}
+
+		if ($personTypeId)
+		{
+			$filter['PERSON_TYPE_ID'] = $personTypeId;
+		}
+
+		$businessValueResult = BusinessValueTable::getList(array(
+			'select' => ['CONSUMER_KEY', 'PERSON_TYPE_ID'],
+			'filter' => $filter,
+		));
+
+		while ($item = $businessValueResult->fetch())
+		{
+			$setMappingResult = self::setMapping($codeKey, $item['CONSUMER_KEY'], $item['PERSON_TYPE_ID'], $newMapping);
+			if (!$setMappingResult->isSuccess())
+			{
+				$result->addErrors($setMappingResult->getErrors());
+			}
+		}
+
+		return $result;
+	}
+
 	// DEPRECATED API //////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/** @deprecated */
@@ -1451,7 +1504,7 @@ class BusinessValueConsumer1C
 			}
 		}
 
-		$mapping = $mapping['PROVIDER_KEY'] 
+		$mapping = $mapping['PROVIDER_KEY']
 				? array(
 						'PROVIDER_KEY'   => $mapping['PROVIDER_KEY'  ],
 						'PROVIDER_VALUE' => $mapping['PROVIDER_VALUE'],

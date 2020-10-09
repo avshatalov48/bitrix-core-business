@@ -148,6 +148,7 @@ class VoteTable extends Entity\DataManager
 				"CHANNEL.ACTIVE", "ACTIVE", "DATE_START", "DATE_END", "CHANNEL.VOTE_SINGLE"])),
 			(new Reference("CHANNEL", ChannelTable::class, Join::on("this.CHANNEL_ID", "ref.ID"))),
 			(new Reference("QUESTION", QuestionTable::class, Join::on("this.ID", "ref.VOTE_ID"))),
+			(new Reference("USER", \Bitrix\Main\UserTable::class, Join::on("this.AUTHOR_ID", "ref.ID"))),
 		);
 	}
 	/**
@@ -296,7 +297,10 @@ class VoteTable extends Entity\DataManager
 						$fields["IMAGE_ID"]["old_file"] = $vote["IMAGE_ID"];
 					}
 				}
-				\CFile::SaveForDB($fields, "IMAGE_ID", "");
+				if (\CFile::SaveForDB($fields, "IMAGE_ID", "") === false)
+				{
+					$result->unsetField("IMAGE_ID");
+				}
 			}
 		}
 		//endregion
@@ -501,8 +505,8 @@ class Vote extends BaseObject implements \ArrayAccess
 				$images = array();
 				$vote = array();
 				foreach ($row as $key => $val)
-					if (strpos($key, "V_") === 0)
-						$vote[substr($key, 2)] = $val;
+					if (mb_strpos($key, "V_") === 0)
+						$vote[mb_substr($key, 2)] = $val;
 				$vote += array(
 						"IMAGE" => null,
 						"FIELD_NAME" => \Bitrix\Vote\Event::getExtrasFieldName($vote["ID"], "#ENTITY_ID#"),
@@ -515,8 +519,8 @@ class Vote extends BaseObject implements \ArrayAccess
 					$answer = array();
 					foreach ($row as $key => $val)
 					{
-						if (strpos($key, "A_") === 0)
-							$answer[substr($key, 2)] = $val;
+						if (mb_strpos($key, "A_") === 0)
+							$answer[mb_substr($key, 2)] = $val;
 					}
 					if ($answer["IMAGE_ID"] > 0)
 						$images[$answer["IMAGE_ID"]] = &$answer["IMAGE"];
@@ -526,8 +530,8 @@ class Vote extends BaseObject implements \ArrayAccess
 						$question = array();
 						foreach ($row as $key => $val)
 						{
-							if (strpos($key, "Q_") === 0)
-								$question[substr($key, 2)] = $val;
+							if (mb_strpos($key, "Q_") === 0)
+								$question[mb_substr($key, 2)] = $val;
 						}
 						$question += array(
 							"IMAGE" => null,
@@ -1166,7 +1170,7 @@ class Vote extends BaseObject implements \ArrayAccess
 							if (!array_key_exists("STAT", $this->questions[$questionId]["ANSWERS"][$answerId]))
 								$this->questions[$questionId]["ANSWERS"][$answerId]["STAT"] = [];
 							$stat = &$this->questions[$questionId]["ANSWERS"][$answerId]["STAT"];
-							if (strlen($event["BALLOT"][$questionId][$answerId]) > 0)
+							if ($event["BALLOT"][$questionId][$answerId] <> '')
 							{
 								$stat[$event["ID"]] = $row["USER"]." (".$event["BALLOT"][$questionId][$answerId].")";
 								$answerMessage[] = $event["BALLOT"][$questionId][$answerId];
@@ -1341,7 +1345,7 @@ HTML;
 						default :
 							$fieldName = ($answer["FIELD_TYPE"] == AnswerTypes::TEXT ? "vote_field_" : "vote_memo_") . $answer["ID"];
 							$value = trim($request[$fieldName]);
-							if (strlen($value) > 0)
+							if ($value <> '')
 							{
 								if (!array_key_exists($question["ID"], $data["MESSAGE"]))
 									$data["MESSAGE"][$question["ID"]] = [];

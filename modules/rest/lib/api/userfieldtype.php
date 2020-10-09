@@ -93,12 +93,12 @@ class UserFieldType extends \IRestService
 		$userTypeId = toLower($param['USER_TYPE_ID']);
 		$placementHandler = $param['HANDLER'];
 
-		if(strlen($userTypeId) <= 0)
+		if($userTypeId == '')
 		{
 			throw new ArgumentNullException("USER_TYPE_ID");
 		}
 
-		if(strlen($placementHandler) <= 0)
+		if($placementHandler == '')
 		{
 			throw new ArgumentNullException("HANDLER");
 		}
@@ -154,7 +154,7 @@ class UserFieldType extends \IRestService
 
 		$userTypeId = toLower($param['USER_TYPE_ID']);
 
-		if(strlen($userTypeId) <= 0)
+		if($userTypeId == '')
 		{
 			throw new ArgumentNullException("USER_TYPE_ID");
 		}
@@ -226,7 +226,7 @@ class UserFieldType extends \IRestService
 
 		$userTypeId = toLower($param['USER_TYPE_ID']);
 
-		if(strlen($userTypeId) <= 0)
+		if($userTypeId == '')
 		{
 			throw new ArgumentNullException("USER_TYPE_ID");
 		}

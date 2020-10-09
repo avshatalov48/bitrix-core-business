@@ -22,10 +22,10 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/img.php");
 		"vote_form" => "PAGE_NAME=vote_new&VOTE_ID=#VOTE_ID#",
 		"vote_result" => "PAGE_NAME=vote_result&VOTE_ID=#VOTE_ID#");
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE):
-		if (strlen(trim($arParams[strtoupper($URL)."_TEMPLATE"])) <= 0)
-			$arParams[strtoupper($URL)."_TEMPLATE"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~".strtoupper($URL)."_TEMPLATE"] = $arParams[strtoupper($URL)."_TEMPLATE"];
-		$arParams[strtoupper($URL)."_TEMPLATE"] = htmlspecialcharsbx($arParams["~".strtoupper($URL)."_TEMPLATE"]);
+		if (trim($arParams[mb_strtoupper($URL)."_TEMPLATE"]) == '')
+			$arParams[mb_strtoupper($URL)."_TEMPLATE"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~".mb_strtoupper($URL)."_TEMPLATE"] = $arParams[mb_strtoupper($URL)."_TEMPLATE"];
+		$arParams[mb_strtoupper($URL)."_TEMPLATE"] = htmlspecialcharsbx($arParams["~".mb_strtoupper($URL)."_TEMPLATE"]);
 	endforeach;
 /************** ADDITIONAL *****************************************/
 	$arParams["NEED_SORT"] = ($arParams["NEED_SORT"] == "N" ? "N" : "Y");
@@ -35,7 +35,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/img.php");
 	else
 		$arParams["CACHE_TIME"] = 0;
 
-	$arParams["ADDITIONAL_CACHE_ID"] = (isset($arParams["ADDITIONAL_CACHE_ID"]) && strlen($arParams["ADDITIONAL_CACHE_ID"]) > 0 ?
+	$arParams["ADDITIONAL_CACHE_ID"] = (isset($arParams["ADDITIONAL_CACHE_ID"]) && $arParams["ADDITIONAL_CACHE_ID"] <> '' ?
 		$arParams["ADDITIONAL_CACHE_ID"] : $USER->GetGroups() );
 /********************************************************************
 				/Input params

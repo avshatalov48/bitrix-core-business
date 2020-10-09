@@ -2499,18 +2499,18 @@ class CIMMessenger
 
 		if ($deviceType === IM_DESKTOP_MAC)
 		{
-			$lastTimestamp = (int)CUserOptions::GetOption('im', 'WindowsLastActivityDate', -1, $userId);
-			if ($lastTimestamp+86400*30 < time())
-			{
-				CUserOptions::SetOption('im', 'WindowsLastActivityDate', $timestamp, false, $userId);
-			}
-		}
-		else
-		{
 			$lastTimestamp = (int)CUserOptions::GetOption('im', 'MacLastActivityDate', -1, $userId);
 			if ($lastTimestamp+86400*30 < time())
 			{
 				CUserOptions::SetOption('im', 'MacLastActivityDate', $timestamp, false, $userId);
+			}
+		}
+		else
+		{
+			$lastTimestamp = (int)CUserOptions::GetOption('im', 'WindowsLastActivityDate', -1, $userId);
+			if ($lastTimestamp+86400*30 < time())
+			{
+				CUserOptions::SetOption('im', 'WindowsLastActivityDate', $timestamp, false, $userId);
 			}
 		}
 	}
@@ -2703,14 +2703,14 @@ class CIMMessenger
 		if ($cache && $userId == $USER->GetId())
 		{
 			if (
-				isset($_SESSION['SESS_AUTH']['SET_DESKTOP_ACTIVITY'])
-				&& intval($_SESSION['SESS_AUTH']['SET_DESKTOP_ACTIVITY'])+300 > time()
+				isset(\Bitrix\Main\Application::getInstance()->getKernelSession()['IM']['SET_DESKTOP_ACTIVITY'])
+				&& intval(\Bitrix\Main\Application::getInstance()->getKernelSession()['IM']['SET_DESKTOP_ACTIVITY'])+300 > time()
 			)
 			{
 				return false;
 			}
 
-			$_SESSION['SESS_AUTH']['SET_DESKTOP_ACTIVITY'] = time();
+			\Bitrix\Main\Application::getInstance()->getKernelSession()['IM']['SET_DESKTOP_ACTIVITY'] = time();
 		}
 
 		$userAgent = \Bitrix\Main\Context::getCurrent()->getRequest()->getUserAgent();
@@ -2729,14 +2729,14 @@ class CIMMessenger
 		if ($cache && $userId == $USER->GetId())
 		{
 			if (
-				isset($_SESSION['SESS_AUTH']['SET_DESKTOP_ACTIVITY_PULL'])
-				&& intval($_SESSION['SESS_AUTH']['SET_DESKTOP_ACTIVITY_PULL'])+self::GetSessionLifeTime() > time()
+				isset(\Bitrix\Main\Application::getInstance()->getKernelSession()['IM']['SET_DESKTOP_ACTIVITY_PULL'])
+				&& intval(\Bitrix\Main\Application::getInstance()->getKernelSession()['IM']['SET_DESKTOP_ACTIVITY_PULL'])+self::GetSessionLifeTime() > time()
 			)
 			{
 				return false;
 			}
 
-			$_SESSION['SESS_AUTH']['SET_DESKTOP_ACTIVITY_PULL'] = time();
+			\Bitrix\Main\Application::getInstance()->getKernelSession()['IM']['SET_DESKTOP_ACTIVITY_PULL'] = time();
 
 			if (CModule::IncludeModule("pull"))
 			{
@@ -2765,8 +2765,8 @@ class CIMMessenger
 		if ($userId <= 0)
 			return false;
 
-		unset($_SESSION['SESS_AUTH']['SET_DESKTOP_ACTIVITY']);
-		unset($_SESSION['SESS_AUTH']['SET_DESKTOP_ACTIVITY_PULL']);
+		unset(\Bitrix\Main\Application::getInstance()->getKernelSession()['IM']['SET_DESKTOP_ACTIVITY']);
+		unset(\Bitrix\Main\Application::getInstance()->getKernelSession()['IM']['SET_DESKTOP_ACTIVITY_PULL']);
 
 		CIMStatus::Set($userId, Array('DESKTOP_LAST_DATE' => null));
 

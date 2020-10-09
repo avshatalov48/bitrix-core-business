@@ -8,12 +8,12 @@ if (!CModule::IncludeModule("learning"))
 }
 
 //Params
-$arParams["CHAPTER_DETAIL_TEMPLATE"] = (strlen($arParams["CHAPTER_DETAIL_TEMPLATE"]) > 0 ? $arParams["CHAPTER_DETAIL_TEMPLATE"]: "chapter.php?CHAPTER_ID=#CHAPTER_ID#");
-$arParams["LESSON_DETAIL_TEMPLATE"] = (strlen($arParams["LESSON_DETAIL_TEMPLATE"]) > 0 ? $arParams["LESSON_DETAIL_TEMPLATE"] : "lesson.php?LESSON_ID=#LESSON_ID#");
-$arParams["SELF_TEST_TEMPLATE"] = (strlen($arParams["SELF_TEST_TEMPLATE"]) > 0 ? $arParams["SELF_TEST_TEMPLATE"] : "self.php?LESSON_ID=#LESSON_ID#");
-$arParams["TESTS_LIST_TEMPLATE"] = (strlen($arParams["TESTS_LIST_TEMPLATE"]) > 0 ? $arParams["TESTS_LIST_TEMPLATE"] :"course/test_list.php?COURSE_ID=#COURSE_ID#");
-$arParams["TEST_DETAIL_TEMPLATE"] = (strlen($arParams["TEST_DETAIL_TEMPLATE"]) > 0 ? $arParams["TEST_DETAIL_TEMPLATE"] :"course/test.php?COURSE_ID=#COURSE_ID#&TEST_ID=#TEST_ID#");
-$arParams["COURSE_DETAIL_TEMPLATE"] = (strlen($arParams["COURSE_DETAIL_TEMPLATE"]) > 0 ? $arParams["COURSE_DETAIL_TEMPLATE"] :"course/index.php?COURSE_ID=#COURSE_ID#");
+$arParams["CHAPTER_DETAIL_TEMPLATE"] = ($arParams["CHAPTER_DETAIL_TEMPLATE"] <> '' ? $arParams["CHAPTER_DETAIL_TEMPLATE"]: "chapter.php?CHAPTER_ID=#CHAPTER_ID#");
+$arParams["LESSON_DETAIL_TEMPLATE"] = ($arParams["LESSON_DETAIL_TEMPLATE"] <> '' ? $arParams["LESSON_DETAIL_TEMPLATE"] : "lesson.php?LESSON_ID=#LESSON_ID#");
+$arParams["SELF_TEST_TEMPLATE"] = ($arParams["SELF_TEST_TEMPLATE"] <> '' ? $arParams["SELF_TEST_TEMPLATE"] : "self.php?LESSON_ID=#LESSON_ID#");
+$arParams["TESTS_LIST_TEMPLATE"] = ($arParams["TESTS_LIST_TEMPLATE"] <> '' ? $arParams["TESTS_LIST_TEMPLATE"] :"course/test_list.php?COURSE_ID=#COURSE_ID#");
+$arParams["TEST_DETAIL_TEMPLATE"] = ($arParams["TEST_DETAIL_TEMPLATE"] <> '' ? $arParams["TEST_DETAIL_TEMPLATE"] :"course/test.php?COURSE_ID=#COURSE_ID#&TEST_ID=#TEST_ID#");
+$arParams["COURSE_DETAIL_TEMPLATE"] = ($arParams["COURSE_DETAIL_TEMPLATE"] <> '' ? $arParams["COURSE_DETAIL_TEMPLATE"] :"course/index.php?COURSE_ID=#COURSE_ID#");
 
 //Check permissions
 $arParams["CHECK_PERMISSIONS"] = (isset($arParams["CHECK_PERMISSIONS"]) && $arParams["CHECK_PERMISSIONS"]=="N" ? "N" : "Y");
@@ -112,8 +112,8 @@ if ($CHAPTER_ID > 0)
 		$oTmp->ImportUrlencoded($CHAPTER_ID);
 		$CHAPTER_ID = (int) $oTmp->GetBottom();
 	}
-	elseif (substr($CHAPTER_ID, 0, 1) === '0')
-		$CHAPTER_ID = (int) substr($CHAPTER_ID, 1);
+	elseif (mb_substr($CHAPTER_ID, 0, 1) === '0')
+		$CHAPTER_ID = (int)mb_substr($CHAPTER_ID, 1);
 	else
 		$CHAPTER_ID = (int) CLearnLesson::LessonIdByChapterId ($CHAPTER_ID);
 }
@@ -202,14 +202,18 @@ foreach ($arContents as $arContent)
 	$lessonCount++;
 
 	// quick hack due to low time
-	if (strlen($arContent['~#LESSON_PATH']))
+	if($arContent['~#LESSON_PATH'] <> '')
 	{
-		if ( ! strpos($itemURL, '?') )
+		if(!mb_strpos($itemURL, '?'))
+		{
 			$itemURL .= '?';
+		}
 		else
+		{
 			$itemURL .= '&';
+		}
 
-		$itemURL .= 'LESSON_PATH=' . $arContent['~#LESSON_PATH'];
+		$itemURL .= 'LESSON_PATH='.$arContent['~#LESSON_PATH'];
 	}
 
 	$arContent["URL"] = htmlspecialcharsbx($itemURL);

@@ -146,7 +146,7 @@ $arComponentParameters = Array(
 			'TYPE' => 'CHECKBOX',
 			'DEFAULT' => 'N',
 			'REFRESH' => 'Y',
-		)
+		),
 	)
 );
 
@@ -169,7 +169,7 @@ elseif($arCurrentValues['USE_REVIEW']=='Y')
 		'PARENT' => 'REVIEW_SETTINGS',
 		'NAME' => GetMessage('F_MESSAGES_PER_PAGE'),
 		'TYPE' => 'STRING',
-		'DEFAULT' => intVal(COption::GetOptionString('forum', 'MESSAGES_PER_PAGE', '10'))
+		'DEFAULT' => intval(COption::GetOptionString('forum', 'MESSAGES_PER_PAGE', '10'))
 	);
 	$arComponentParameters['PARAMETERS']['USE_CAPTCHA'] = Array(
 		'PARENT' => 'REVIEW_SETTINGS',
@@ -238,7 +238,16 @@ $arComponentParameters['PARAMETERS'] += Array(
 		'NAME' => GetMessage('T_IBLOCK_DESC_ADD_SECTIONS_CHAIN'),
 		'TYPE' => 'CHECKBOX',
 		'DEFAULT' => 'N',
-	)
+	),
+	'NAME_TEMPLATE' => array(
+		"TYPE" => "LIST",
+		"NAME" => GetMessage("WIKI_NAME_TEMPLATE"),
+		"VALUES" => CComponentUtil::GetDefaultNameTemplates(),
+		"MULTIPLE" => "N",
+		"ADDITIONAL_VALUES" => "Y",
+		"DEFAULT" => "",
+		"PARENT" => "ADDITIONAL_SETTINGS",
+	),
 );
 
 ?>

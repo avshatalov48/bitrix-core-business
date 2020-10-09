@@ -76,13 +76,13 @@ if($this->sort && $bNeedSort)
 		<td>
 			<select name="order_field">
 <?
-	$by = strtoupper($aOptions["by"]);
-	$order = strtoupper($aOptions["order"]);
+$by = mb_strtoupper($aOptions["by"]);
+$order = mb_strtoupper($aOptions["order"]);
 	foreach($aAllCols as $header)
 	{
 		if($header["sort"] <> "")
 		{
-			echo '<option value="'.$header["sort"].'"'.($by == strtoupper($header["sort"])? ' selected':'').'>'.($header["name"]<>""? $header["name"]:$header["content"]).'</option>';
+			echo '<option value="'.$header["sort"].'"'.($by == mb_strtoupper($header["sort"])? ' selected':'').'>'.($header["name"]<>""? $header["name"]:$header["content"]).'</option>';
 		}
 	}
 ?>

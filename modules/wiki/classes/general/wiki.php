@@ -553,7 +553,7 @@ class CWiki
 
 			foreach ($arPatterns as $arPattern)
 			{
-				if(strpos($newText, $arPattern["search"]) !== false)
+				if(mb_strpos($newText, $arPattern["search"]) !== false)
 				{
 					$newText = preg_replace($arPattern["pattern"], $arPattern["replacement"], $newText);
 					$bChanged = true;
@@ -562,7 +562,7 @@ class CWiki
 
 
 			if ($isCategory)
-				if(strpos($newText, $catSearch) !== false)
+				if(mb_strpos($newText, $catSearch) !== false)
 				{
 					$newText = $this->RenameCategoryOnPage($newText, $sCatName, $newName);
 					$bChanged = true;

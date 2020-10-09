@@ -45,11 +45,11 @@ class Router
 	{
 		static::init();
 
-		if(!is_string($route) || strlen($route) == 0)
+		if(!is_string($route) || $route == '')
 			throw new ArgumentException('Route could not be empty', '$route');
-		if(!is_string($handlerModule) || strlen($handlerModule) == 0)
+		if(!is_string($handlerModule) || $handlerModule == '')
 			throw new ArgumentException('Handler module could not be empty', '$handler');
-		if(!is_string($handlerClass) || strlen($handlerClass) == 0)
+		if(!is_string($handlerClass) || $handlerClass == '')
 			throw new ArgumentException('Handler class could not be empty', '$handler');
 
 		$newRoute = true;
@@ -94,9 +94,9 @@ class Router
 				//replace parameters variables with values
 				foreach($result['PARAMETERS'] as $parameterName => &$parameterValue)
 				{
-					if(strpos($parameterValue, '$') === 0)
+					if(mb_strpos($parameterValue, '$') === 0)
 					{
-						$variableName = substr($parameterValue, 1);
+						$variableName = mb_substr($parameterValue, 1);
 						if(isset($matches[$variableName]))
 						{
 							$parameterValue = $matches[$variableName];
@@ -139,8 +139,8 @@ class Router
 
 			uksort(static::$routeTable, function($a, $b)
 			{
-				$lengthOfA = strlen($a);
-				$lengthOfB = strlen($b);
+				$lengthOfA = mb_strlen($a);
+				$lengthOfB = mb_strlen($b);
 				if($lengthOfA > $lengthOfB)
 					return -1;
 				else if($lengthOfA == $lengthOfB)

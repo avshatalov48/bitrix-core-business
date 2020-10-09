@@ -141,10 +141,13 @@
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-ya.svg);}.ui-icon-service-ya-dialogs>i{--ui-icon-service-bg-color:#3a78db;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-ya-dialogs.svg); }
 
 .ui-icon-service-light-ya-dialogs > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-ya-dialogs.svg);}.ui-icon-service-ya-direct>i{--ui-icon-service-bg-color:#ffce00;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-ya-direct.svg);}.ui-icon-service-ya-toloka>i{background-color:#ea8428;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-toloka.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-ya-dialogs.svg);}.ui-icon-service-ya-direct>i{--ui-icon-service-bg-color:#ffce00;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-ya-direct.svg); }
 
 .ui-icon-service-light-ya-direct > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-ya-direct.svg);}.ui-icon-service-liveid>i{--ui-icon-service-bg-color:#fff;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-liveid.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-ya-direct.svg);}.ui-icon-service-ya-toloka>i{--ui-icon-service-bg-color:#ea8428;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-ya-toloka.svg); }
+
+.ui-icon-service-light-ya-toloka > i {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-ya-toloka.svg);}.ui-icon-service-liveid>i{--ui-icon-service-bg-color:#fff;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-liveid.svg); }
 
 .ui-icon-service-light-liveid > i {
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-liveid.svg);}.ui-icon-service-twitter>i{--ui-icon-service-bg-color:#1ea1f2;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-twitter.svg); }
@@ -176,6 +179,9 @@
 .ui-icon-service-light-messenger > i {
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-messenger.svg);}.ui-icon-service-infocall>i{--ui-icon-service-bg-color:#349ed0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-infocall.svg);}.ui-icon-service-audio-infocall>i{--ui-icon-service-bg-color:#3dc9db;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-audio-infocall.svg); }
 
+.ui-icon-service-light-audio-infocall > i {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-audio-infocall.svg); }
+
 .ui-icon-service-light-infocall > i {
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-audio-infocall.svg);}.ui-icon-service-deal>i{--ui-icon-service-bg-color:#349ed0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-deal.svg); }
 
@@ -197,10 +203,10 @@
 
 .ui-icon.ui-icon-service-light-sbbol > i,
 .ui-icon.ui-icon-service-light-sberbank > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-sberbank.svg);}.ui-icon-service-olx>i{background-color:#5b2b82;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-olx.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-sberbank.svg);}.ui-icon-service-olx>i{--ui-icon-service-bg-color:#5b2b82;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-olx.svg); }
 
 .ui-icon-service-light-olx > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-olx.svg);}.ui-icon.ui-icon-service-import>i{--ui-icon-service-bg-color:#6a89b0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-import.svg); }
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-olx.svg);}.ui-icon.ui-icon-service-import>i{--ui-icon-service-bg-color:#6a89b0;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-import.svg); }
 
 .ui-icon.ui-icon-service-light-import > i {
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-import.svg);}.ui-icon.ui-icon-service-zoom>i{--ui-icon-service-bg-color:#4690fb;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-zoom.svg);}.ui-icon.ui-icon-service-blue-zoom>i{--ui-icon-service-bg-color:transparent;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-blue-zoom.svg); }
@@ -213,7 +219,6 @@
 
 .ui-icon.ui-icon-service-light-wheel > i {
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-wheel.svg);}.ui-icon.ui-icon-service-play>i{--ui-icon-service-bg-color:#333;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-play.svg); }
-
 
 .ui-icon.ui-icon-service-light-play > i {
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-play.svg);}.ui-icon.ui-icon-service-other>i{--ui-icon-service-bg-color:#333;	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-other.svg); }

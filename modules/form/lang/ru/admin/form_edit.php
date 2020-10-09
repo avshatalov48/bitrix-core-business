@@ -9,7 +9,6 @@ $MESS["FORM_NEW_RECORD"] = "Новая форма";
 $MESS["FORM_RECORDS_LIST"] = "Список форм";
 $MESS["FORM_NAME"] = "Наименование:";
 $MESS["FORM_SID"] = "Символьный идентификатор:";
-$MESS["FORM_MENU"] = "Пункты меню<br>в административном разделе:";
 $MESS["FORM_SITE_CAPTION"] = "Сайты формы:";
 $MESS["FORM_GENERATE"] = "генерировать";
 $MESS["FORM_DESCRIPTION"] = "Описание";
@@ -167,4 +166,9 @@ $MESS["FORM_CRM_FILES_NOTE"] = "Выгрузка файловых полей в 
 $MESS["FORM_CRM_GOTOLIST"] = "настроить список";
 $MESS["FORM_CRM_TITLEBAR_NEW"] = "Новый сервер CRM";
 $MESS["FORM_CRM_ADD"] = "Добавить";
+$MESS["FORM_MAIN_SETTINGS_SECTION"] = "Основные параметры";
+$MESS["FORM_RESULT_MENU_SETTINGS"] = "Меню результатов в административном разделе";
+$MESS["FORM_RESULT_MENU_NOTE"] = "Внимание! Чтобы в административном меню слева в блоке результатов появилась ссылка на ответы формы, необходимо заполнить названия пунктов меню для языков установки. Если этого не сделать, ссылки не будет.";
+$MESS["FORM_ADDITIONAL_SETTINGS_SECTION"] = "Дополнительные настройки";
+$MESS["FORM_MENU_LANGUAGE_TITLE"] = "Название ссылки на результаты"
 ?>

@@ -41,7 +41,7 @@ class CBXShortUri
 		{
 			foreach ($arFilter as $key => $val)
 			{
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -104,10 +104,10 @@ class CBXShortUri
 		{
 			foreach ($arOrder as $key => $val)
 			{
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				if (!in_array($key, array("ID", "URI", "URI_CRC", "SHORT_URI", "SHORT_URI_CRC", "STATUS", "MODIFIED", "LAST_USED", "NUMBER_USED")))
 					continue;
-				$val = strtoupper($val);
+				$val = mb_strtoupper($val);
 				if (!in_array($val, array("ASC", "DESC")))
 					$val = "ASC";
 				if ($key == "MODIFIED")

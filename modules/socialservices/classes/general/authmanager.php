@@ -415,7 +415,7 @@ class CSocServAuthManager
 		$siteId = null;
 		if(isset($arSiteId[$userTwit['kp_user_id']]))
 			$siteId = $arSiteId[$userTwit['kp_user_id']];
-		if(strlen($siteId) <= 0)
+		if($siteId == '')
 			$siteId = SITE_ID;
 		if(isset($userTwit['text']))
 		{
@@ -433,7 +433,7 @@ class CSocServAuthManager
 				"GROUP_SITE_ID" => $siteId,
 				"OWNER_ID" => $arParams["USER_ID"],
 			);
-			$groupId = (is_array($arParams["GROUP_ID"]) ? IntVal($arParams["GROUP_ID"][0]) : IntVal($arParams["GROUP_ID"]));
+			$groupId = (is_array($arParams["GROUP_ID"]) ? intval($arParams["GROUP_ID"][0]) : intval($arParams["GROUP_ID"]));
 			if (isset($GLOBALS["BLOG_POST"]["BLOG_P_".$groupId."_".$arParams["USER_ID"]]) && !empty($GLOBALS["BLOG_POST"]["BLOG_P_".$groupId."_".$arParams["USER_ID"]]))
 			{
 				$arBlog = $GLOBALS["BLOG_POST"]["BLOG_P_".$groupId."_".$arParams["USER_ID"]];
@@ -456,7 +456,7 @@ class CSocServAuthManager
 				{
 					$arFields = array(
 						"=DATE_UPDATE" => $DB->CurrentTimeFunction(),
-						"GROUP_ID" => (is_array($arParams["GROUP_ID"])) ? IntVal($arParams["GROUP_ID"][0]) : IntVal($arParams["GROUP_ID"]),
+						"GROUP_ID" => (is_array($arParams["GROUP_ID"])) ? intval($arParams["GROUP_ID"][0]) : intval($arParams["GROUP_ID"]),
 						"ACTIVE" => "Y",
 						"ENABLE_COMMENTS" => "Y",
 						"ENABLE_IMG_VERIF" => "Y",
@@ -478,7 +478,7 @@ class CSocServAuthManager
 					$bRights = false;
 					$rsUser = CUser::GetByID($arParams["USER_ID"]);
 					$arUser = $rsUser->Fetch();
-					if(strlen($arUser["NAME"]."".$arUser["LAST_NAME"]) <= 0)
+					if($arUser["NAME"]."".$arUser["LAST_NAME"] == '')
 						$arFields["NAME"] = GetMessage("BLG_NAME")." ".$arUser["LOGIN"];
 					else
 						$arFields["NAME"] = GetMessage("BLG_NAME")." ".$arUser["NAME"]." ".$arUser["LAST_NAME"];
@@ -538,11 +538,11 @@ class CSocServAuthManager
 			$arFields["PERMS_POST"] = array();
 			$arFields["PERMS_COMMENT"] = array();
 			$arFields["MICRO"] = "N";
-			if(strlen($arFields["TITLE"]) <= 0)
+			if($arFields["TITLE"] == '')
 			{
 				$arFields["MICRO"] = "Y";
 				$arFields["TITLE"] = trim(blogTextParser::killAllTags($arFields["DETAIL_TEXT"]));
-				if(strlen($arFields["TITLE"]) <= 0)
+				if($arFields["TITLE"] == '')
 					$arFields["TITLE"] = GetMessage("BLOG_EMPTY_TITLE_PLACEHOLDER");
 			}
 
@@ -552,11 +552,11 @@ class CSocServAuthManager
 				$bOne = true;
 				foreach($userTwit['user_perms'] as $v => $k)
 				{
-					if(strlen($v) > 0 && is_array($k) && !empty($k))
+					if($v <> '' && is_array($k) && !empty($k))
 					{
 						foreach($k as $vv)
 						{
-							if(strlen($vv) > 0)
+							if($vv <> '')
 							{
 								$arFields["SOCNET_RIGHTS"][] = $vv;
 								if($v != "SG")
@@ -574,14 +574,14 @@ class CSocServAuthManager
 					$oGrId = 0;
 					foreach($userTwit['user_perms']["SG"] as $v)
 					{
-						if(strlen($v) > 0)
+						if($v <> '')
 						{
 							if($bFirst)
 							{
 								$bOnesg = true;
 								$bFirst = false;
 								$v = str_replace("SG", "", $v);
-								$oGrId = IntVal($v);
+								$oGrId = intval($v);
 							}
 							else
 							{
@@ -636,7 +636,7 @@ class CSocServAuthManager
 					CBlogPost::Notify($arFields, $arBlog, $arParamsNotify);
 				}
 			}
-			if ($newID > 0 && strlen($arResult["ERROR_MESSAGE"]) <= 0 && $arFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLISH) // Record saved successfully
+			if ($newID > 0 && $arResult["ERROR_MESSAGE"] == '' && $arFields["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLISH) // Record saved successfully
 			{
 				BXClearCache(true, "/".SITE_ID."/blog/last_messages_list/");
 
@@ -662,9 +662,9 @@ class CSocServAuthManager
 				{
 					foreach($_POST["SPERM"]["SG"] as $v)
 					{
-						$group_id_tmp = substr($v, 2);
-						if(IntVal($group_id_tmp) > 0)
-							CSocNetGroup::SetLastActivity(IntVal($group_id_tmp));
+						$group_id_tmp = mb_substr($v, 2);
+						if(intval($group_id_tmp) > 0)
+							CSocNetGroup::SetLastActivity(intval($group_id_tmp));
 					}
 				}
 			}
@@ -704,7 +704,7 @@ class CSocServAuthManager
 		{
 			if(isset($arUserTwit["statuses"]) && !empty($arUserTwit["statuses"]))
 				$lastTwitId = self::PostIntoBuzz($arUserTwit, $lastTwitId, $arSiteId);
-			elseif((is_array($arUserTwit["search_metadata"]) && isset($arUserTwit["search_metadata"]["max_id_str"])) &&	(strlen($arUserTwit["search_metadata"]["max_id_str"]) > 0))
+			elseif((is_array($arUserTwit["search_metadata"]) && isset($arUserTwit["search_metadata"]["max_id_str"])) &&	($arUserTwit["search_metadata"]["max_id_str"] <> ''))
 				$lastTwitId = $arUserTwit["search_metadata"]["max_id_str"];
 		}
 		$counter++;
@@ -936,12 +936,12 @@ class CSocServAuth
 
 		if($action === 'ADD')
 		{
-			if(isset($arFields["EXTERNAL_AUTH_ID"]) && strlen($arFields["EXTERNAL_AUTH_ID"])<=0)
+			if(isset($arFields["EXTERNAL_AUTH_ID"]) && $arFields["EXTERNAL_AUTH_ID"] == '')
 			{
 				return false;
 			}
 
-			if(isset($arFields["SITE_ID"]) && strlen($arFields["SITE_ID"])<=0)
+			if(isset($arFields["SITE_ID"]) && $arFields["SITE_ID"] == '')
 			{
 				$arFields["SITE_ID"] = SITE_ID;
 			}
@@ -967,7 +967,7 @@ class CSocServAuth
 		if(is_set($arFields, "PERSONAL_PHOTO"))
 		{
 			$res = CFile::CheckImageFile($arFields["PERSONAL_PHOTO"]);
-			if(strlen($res)>0)
+			if($res <> '')
 			{
 				unset($arFields["PERSONAL_PHOTO"]);
 			}
@@ -1001,7 +1001,7 @@ class CSocServAuth
 
 		if (is_set($arFields, "PERSONAL_PHOTO"))
 		{
-			if (strlen($arFields["PERSONAL_PHOTO"]["name"])<=0 && strlen($arFields["PERSONAL_PHOTO"]["del"])<=0)
+			if ($arFields["PERSONAL_PHOTO"]["name"] == '' && $arFields["PERSONAL_PHOTO"]["del"] == '')
 			{
 				unset($arFields["PERSONAL_PHOTO"]);
 			}
@@ -1626,10 +1626,10 @@ class CSocServUtil
 
 	public static function checkOAuthProxyParams()
 	{
-		if(isset($_REQUEST[self::OAUTH_PACK_PARAM]) && strlen($_REQUEST[self::OAUTH_PACK_PARAM]) > 0)
+		if(isset($_REQUEST[self::OAUTH_PACK_PARAM]) && $_REQUEST[self::OAUTH_PACK_PARAM] <> '')
 		{
 			$proxyString = base64_decode($_REQUEST[self::OAUTH_PACK_PARAM]);
-			if(strlen($proxyString) > 0)
+			if($proxyString <> '')
 			{
 				$arVars = array();
 				parse_str($proxyString, $arVars);
@@ -1656,7 +1656,7 @@ class CSocServAllMessage
 		{
 			return false;
 		}
-		if(($action == "ADD" && !isset($arFields["PROVIDER"])) || (isset($arFields["PROVIDER"]) && strlen($arFields["PROVIDER"])<=0))
+		if(($action == "ADD" && !isset($arFields["PROVIDER"])) || (isset($arFields["PROVIDER"]) && $arFields["PROVIDER"] == ''))
 		{
 			return false;
 		}

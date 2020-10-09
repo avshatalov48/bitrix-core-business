@@ -63,7 +63,7 @@ if(is_dir($wizardPath))
 else
 	$strError .= GetMessage("MAIN_WIZARD_EXPORT_ERROR");
 
-if (strlen($strError) > 0)
+if ($strError <> '')
 {
 	$APPLICATION->SetTitle(GetMessage("MAIN_WIZARD_EXPORT_ERROR"));
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");

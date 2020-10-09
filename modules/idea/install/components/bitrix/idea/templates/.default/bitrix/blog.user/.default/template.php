@@ -26,7 +26,7 @@ if($arParams["SET_NAV_CHAIN"] == "Y")
 	<?=$arResult["User"]["AVATAR_IMG"]?>
 	<table width="100%" cellspacing="2" cellpadding="3"><?
 			foreach ($arResult["DISPLAY_FIELDS"]['FIELDS_MAIN_DATA'] as $fieldName=>$Title):
-					if (StrLen($arResult["User"][$fieldName]) > 0):
+					if ($arResult["User"][$fieldName] <> ''):
 							?><tr valign="top">
 									<td width="40%"><?=$Title?>:</td>
 									<td width="60%"><?=$arResult["User"][$fieldName]?></td>
@@ -40,7 +40,7 @@ if($arParams["SET_NAV_CHAIN"] == "Y")
 <hr style="background: #E5E5E5; border:none; height:1px; line-height:1px; " />
 	<table width="100%" cellspacing="2" cellpadding="3"><?
 	foreach ($arResult["DISPLAY_FIELDS"]['FIELDS_CONTACT_DATA'] as $fieldName=>$Title):
-		if (StrLen($arResult["User"][$fieldName]) > 0):
+		if ($arResult["User"][$fieldName] <> ''):
 				?><tr valign="top">
 						<td width="40%"><?=$Title?>:</td>
 						<td width="60%"><?=$arResult["User"][$fieldName]?></td>
@@ -52,7 +52,7 @@ if($arParams["SET_NAV_CHAIN"] == "Y")
 <hr style="background: #E5E5E5; border:none; height:1px; line-height:1px; "/>
 	<table width="100%" cellspacing="2" cellpadding="3"><?
 			foreach ($arResult["DISPLAY_FIELDS"]['FIELDS_PERSONAL_DATA'] as $fieldName=>$Title):
-					if (StrLen($arResult["User"][$fieldName]) > 0):
+					if ($arResult["User"][$fieldName] <> ''):
 							?><tr valign="top">
 									<td width="40%"><?=$Title?>:</td>
 									<td width="60%"><?=$arResult["User"][$fieldName]?></td>

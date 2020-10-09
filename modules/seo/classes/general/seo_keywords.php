@@ -84,7 +84,7 @@ class CSeoKeywords
 			foreach ($arKeywords as $key => $value) 
 			{
 				$arKeywords[$key] = trim($value);
-				if (strlen($arKeywords[$key]) <= 0) 
+				if ($arKeywords[$key] == '')
 					unset($arKeywords[$key]);
 			}
 			

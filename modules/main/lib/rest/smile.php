@@ -36,12 +36,12 @@ class Smile extends \IRestService
 				{
 					$value = date('c', $value->getTimestamp());
 				}
-				else if (is_string($key) && in_array($key, $options['IMAGE_FIELD']) && is_string($value) && $value && strpos($value, 'http') !== 0)
+				else if (is_string($key) && in_array($key, $options['IMAGE_FIELD']) && is_string($value) && $value && mb_strpos($value, 'http') !== 0)
 				{
 					$value = self::getServerAddress().$value;
 				}
 
-				$key = str_replace('_', '', lcfirst(ucwords(strtolower($key), '_')));
+				$key = str_replace('_', '', lcfirst(ucwords(mb_strtolower($key), '_')));
 
 				$result[$key] = $value;
 			}

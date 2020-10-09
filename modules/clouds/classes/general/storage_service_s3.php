@@ -526,6 +526,17 @@ class CCloudStorageService_S3 extends CCloudStorageService
 		if(is_array($arFiles))
 			return true;
 
+		// The bucket already exists and user has specified wrong location
+		if (
+			$this->status == 301
+			&& $arBucket["LOCATION"] != ""
+			&& $this->GetLastRequestHeader('x-amz-bucket-region') != ''
+			&& $this->GetLastRequestHeader('x-amz-bucket-region') != $arBucket["LOCATION"]
+		)
+		{
+			return false;
+		}
+
 		if($arBucket["LOCATION"] != "")
 			$content =
 				'<CreateBucketConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">'.
@@ -1061,6 +1072,7 @@ class CCloudStorageService_S3 extends CCloudStorageService
 			"file" => array(),
 			"file_size" => array(),
 			"file_mtime" => array(),
+			"file_hash" => array(),
 		);
 
 		$filePath = trim($filePath, '/');
@@ -1124,6 +1136,7 @@ class CCloudStorageService_S3 extends CCloudStorageService
 							$result["file"][] = $APPLICATION->ConvertCharset($file_name, "UTF-8", LANG_CHARSET);
 							$result["file_size"][] = $a["#"]["Size"][0]["#"];
 							$result["file_mtime"][] = mb_substr($a["#"]["LastModified"][0]["#"], 0, 19);
+							$result["file_hash"][] = trim($a["#"]["ETag"][0]["#"], '"');
 							$lastKey = $a["#"]["Key"][0]["#"];
 							if ($pageSize > 0 && count($result["file"]) >= $pageSize)
 							{

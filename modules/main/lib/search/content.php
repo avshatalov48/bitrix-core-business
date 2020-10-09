@@ -51,11 +51,11 @@ class Content
 	{
 		if ((int)$type > 1)
 		{
-			$result = static::isIntegerToken($token) || strlen($token) >= Filter\Helper::getMinTokenSize();
+			$result = static::isIntegerToken($token) || mb_strlen($token) >= Filter\Helper::getMinTokenSize();
 		}
 		else
 		{
-			$result = strlen($token) >= Filter\Helper::getMinTokenSize();
+			$result = mb_strlen($token) >= Filter\Helper::getMinTokenSize();
 		}
 
 		return $result;

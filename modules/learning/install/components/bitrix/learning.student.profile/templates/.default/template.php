@@ -47,7 +47,7 @@
 		<td><input type="checkbox" name="PUBLIC_PROFILE" value="Y" <?if ($arResult["STUDENT"]["PUBLIC_PROFILE"]=="Y") echo "checked";?>></td>
 	</tr>
 
-	<?if (strlen($arResult["STUDENT"]["TRANSCRIPT"])>0):?>
+	<?if ($arResult["STUDENT"]["TRANSCRIPT"] <> ''):?>
 	<tr>
 		<td class="field-name"><?=GetMessage("LEARNING_TRANSCRIPT");?>:</td>
 		<td><a href="<?=$arResult["TRANSCRIPT_DETAIL_URL"]?>"><?=$arResult["STUDENT"]["TRANSCRIPT"]?>-<?=$arResult["STUDENT"]["USER_ID"]?></a></td>

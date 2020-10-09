@@ -374,17 +374,17 @@ AAAAElFTkSuQmCC") no-repeat scroll 0 0 transparent;
 						BX('reports-add_col-popup-cont'),
 						{tag:'input', attr:{type:'checkbox', name:'<?=CUtil::JSEscape($selElem['name'])?>'}}, true
 					),
-					'<?=strlen($selElem['aggr']) ? CUtil::JSEscape($selElem['aggr']) : ''?>',
-					'<?=strlen($selElem['alias']) ? CUtil::JSEscape($selElem['alias']) : ''?>',
+					'<?=$selElem['aggr'] <> ''? CUtil::JSEscape($selElem['aggr']) : ''?>',
+					'<?=$selElem['alias'] <> ''? CUtil::JSEscape($selElem['alias']) : ''?>',
 					<?=$num?>,
 					<?=($selElem['grouping']) ? 'true' : 'false'?>,
 					<?=($selElem['grouping_subtotal']) ? 'true' : 'false'?>);
 				<? endforeach; ?>
 
 		<? foreach ($arResult['preSettings']['select'] as $num => $selElem): ?>
-				<? if (strlen($selElem['prcnt'])): ?>
-					setPrcntView(<?=$num?>, '<?=CUtil::JSEscape($selElem['prcnt'])?>');
-					<? endif; ?>
+				<? if ($selElem['prcnt'] <> ''): ?>
+			setPrcntView(<?=$num?>, '<?=CUtil::JSEscape($selElem['prcnt'])?>');
+			<? endif; ?>
 				<? endforeach; ?>
 
 		<? if (array_key_exists("sort", $arResult["preSettings"])): ?>

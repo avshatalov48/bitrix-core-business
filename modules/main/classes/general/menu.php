@@ -36,10 +36,10 @@ class CMenu
 		global $USER;
 		if(
 			$this->debug !== false
-			&& $_SESSION["SESS_SHOW_INCLUDE_TIME_EXEC"] == "Y"
+			&& \Bitrix\Main\Application::getInstance()->getKernelSession()["SESS_SHOW_INCLUDE_TIME_EXEC"] == "Y"
 			&& (
 				$USER->IsAdmin()
-				|| $_SESSION["SHOW_SQL_STAT"]=="Y"
+				|| \Bitrix\Main\Application::getInstance()->getKernelSession()["SHOW_SQL_STAT"]=="Y"
 			)
 		)
 		{
@@ -73,7 +73,7 @@ class CMenu
 
 		while($Dir <> '')
 		{
-			if($site_dir !== false && (strlen(trim($Dir, "/")) < strlen(trim($site_dir, "/"))))
+			if($site_dir !== false && (mb_strlen(trim($Dir, "/")) < mb_strlen(trim($site_dir, "/"))))
 				break;
 
 			$Dir = rtrim($Dir, "/");
@@ -96,7 +96,7 @@ class CMenu
 			if($pos===false || $onlyCurrentDir == true)
 				break;
 
-			$Dir = substr($Dir, 0, $pos+1);
+			$Dir = mb_substr($Dir, 0, $pos + 1);
 		}
 
 		if($bMenuExt)
@@ -104,7 +104,7 @@ class CMenu
 			$Dir = $InitDir;
 			while($Dir <> '')
 			{
-				if($site_dir !== false && (strlen(trim($Dir, "/")) < strlen(trim($site_dir, "/"))))
+				if($site_dir !== false && (mb_strlen(trim($Dir, "/")) < mb_strlen(trim($site_dir, "/"))))
 					break;
 
 				$Dir = rtrim($Dir, "/");
@@ -130,7 +130,7 @@ class CMenu
 				if($pos===false || $onlyCurrentDir == true)
 					break;
 
-				$Dir = substr($Dir, 0, $pos+1);
+				$Dir = mb_substr($Dir, 0, $pos + 1);
 			}
 		}
 
@@ -158,7 +158,7 @@ class CMenu
 
 		$this->bMenuCalc = true;
 
-		if(strlen($this->template)>0 && file_exists($_SERVER["DOCUMENT_ROOT"].$this->template))
+		if($this->template <> '' && file_exists($_SERVER["DOCUMENT_ROOT"].$this->template))
 		{
 			$this->MenuTemplate = $_SERVER["DOCUMENT_ROOT"].$this->template;
 		}
@@ -277,9 +277,9 @@ class CMenu
 			if(!$bSkipMenuItem)
 				$ITEM_INDEX++;
 
-			if(($pos = strpos($LINK, "?"))!==false)
+			if(($pos = mb_strpos($LINK, "?"))!==false)
 				$ITEM_TYPE = "U";
-			elseif(substr($LINK, -1)=="/")
+			elseif(mb_substr($LINK, -1) == "/")
 				$ITEM_TYPE = "D";
 			else
 				$ITEM_TYPE = "P";
@@ -300,7 +300,7 @@ class CMenu
 					foreach($ADDITIONAL_LINKS as $link)
 					{
 						$tested_link = trim(Rel2Abs($this->MenuDir, $link));
-						if(strlen($tested_link)>0)
+						if($tested_link <> '')
 							$all_links[] = $tested_link;
 					}
 				}
@@ -336,7 +336,7 @@ class CMenu
 			if($SELECTED && !$bMultiSelect)
 			{
 				/** @noinspection PhpUndefinedVariableInspection */
-				$new_len = strlen($tested_link);
+				$new_len = mb_strlen($tested_link);
 				if($new_len > $cur_selected_len)
 				{
 					if($cur_selected !== -1)
@@ -403,18 +403,18 @@ class CMenu
 		//"/admin/"
 		//"/admin/index.php"
 		//"/admin/index.php?module=mail"
-		if(strpos($cur_page, $tested_link) === 0 || strpos($cur_page_no_index, $tested_link) === 0)
+		if(mb_strpos($cur_page, $tested_link) === 0 || mb_strpos($cur_page_no_index, $tested_link) === 0)
 			return true;
 
-		if(($pos = strpos($tested_link, "?")) !== false)
+		if(($pos = mb_strpos($tested_link, "?")) !== false)
 		{
-			if(($s = substr($tested_link, 0, $pos)) == $cur_page || $s == $cur_page_no_index)
+			if(($s = mb_substr($tested_link, 0, $pos)) == $cur_page || $s == $cur_page_no_index)
 			{
-				$params = explode("&", substr($tested_link, $pos+1));
+				$params = explode("&", mb_substr($tested_link, $pos + 1));
 				$bOK = true;
 				foreach($params as $param)
 				{
-					$eqpos = strpos($param, "=");
+					$eqpos = mb_strpos($param, "=");
 					$varvalue = "";
 					if($eqpos === false)
 					{
@@ -426,8 +426,8 @@ class CMenu
 					}
 					else
 					{
-						$varname = substr($param, 0, $eqpos);
-						$varvalue = urldecode(substr($param, $eqpos+1));
+						$varname = mb_substr($param, 0, $eqpos);
+						$varvalue = urldecode(mb_substr($param, $eqpos + 1));
 					}
 
 					$globvarvalue = (isset($GLOBALS[$varname])? $GLOBALS[$varname] : "");
@@ -608,10 +608,10 @@ class CMenuCustom
 		if (count($arItem) <= 0)
 			return;
 
-		if (!array_key_exists("TEXT", $arItem) || strlen(trim($arItem["TEXT"])) <= 0)
+		if (!array_key_exists("TEXT", $arItem) || trim($arItem["TEXT"]) == '')
 			return;
 
-		if (!array_key_exists("LINK", $arItem) || strlen(trim($arItem["LINK"])) <= 0)
+		if (!array_key_exists("LINK", $arItem) || trim($arItem["LINK"]) == '')
 			$arItem["LINK"] = "";
 
 		if (!array_key_exists("SELECTED", $arItem))

@@ -6,6 +6,7 @@ require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/prolog_befo
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Uri;
 use Bitrix\Main\Application;
+use Bitrix\Rest\Analytic;
 
 Loc::loadMessages(__FILE__);
 
@@ -43,7 +44,7 @@ if($request->isPost() && check_bitrix_sessid() && \Bitrix\Main\Loader::includeMo
 					$result = array("error" => Loc::getMessage('RMP_INSTALL_ERROR'));
 
 					$appDetailInfo = false;
-					if(strlen($code) > 0)
+					if($code <> '')
 					{
 						if(isset($request["check_hash"]) && isset($request["install_hash"]))
 						{
@@ -67,6 +68,7 @@ if($request->isPost() && check_bitrix_sessid() && \Bitrix\Main\Loader::includeMo
 							$queryFields = array(
 								'CLIENT_ID' => $appDetailInfo['APP_CODE'],
 								'VERSION' => $appDetailInfo['VER'],
+								'BY_SUBSCRIPTION' => $appDetailInfo['BY_SUBSCRIPTION'] === 'Y' ? 'Y' : 'N',
 							);
 
 							if(isset($request["check_hash"]) && isset($request["install_hash"]))
@@ -205,7 +207,7 @@ if($request->isPost() && check_bitrix_sessid() && \Bitrix\Main\Loader::includeMo
 									$uriString = \CRestUtil::getApplicationPage($appId);
 									$uri = new Uri($uriString);
 									$request = Application::getInstance()->getContext()->getRequest();
-									$ver = intVal($request->getPost("version"));
+									$ver = intval($request->getPost("version"));
 									$check_hash = $request->getPost("check_hash");
 									$install_hash = $request->getPost("install_hash");
 									$uri->addParams(
@@ -224,6 +226,12 @@ if($request->isPost() && check_bitrix_sessid() && \Bitrix\Main\Loader::includeMo
 										'open' => $appDetailInfo["OPEN_API"] !== "Y",
 										'installed' => $appFields['INSTALLED'] === 'Y',
 										'redirect' => $redirect,
+									);
+
+									Analytic::logToFile(
+										'finishInstall',
+										$request["code"],
+										$request["from"] ?? 'index'
 									);
 								}
 								else
@@ -284,6 +292,12 @@ if($request->isPost() && check_bitrix_sessid() && \Bitrix\Main\Loader::includeMo
 						\Bitrix\Rest\AppTable::update($appInfo['ID'], $appFields);
 
 						\Bitrix\Rest\AppLogTable::log($appInfo['ID'], \Bitrix\Rest\AppLogTable::ACTION_TYPE_UNINSTALL);
+
+						Analytic::logToFile(
+							'finishUninstall',
+							$appInfo["CODE"],
+							$request["from"] ?? 'index'
+						);
 
 						$result = array('success' => 1);
 					}
@@ -384,6 +398,15 @@ if($request->isPost() && check_bitrix_sessid() && \Bitrix\Main\Loader::includeMo
 
 				if($appId > 0)
 				{
+					$appInfo = \Bitrix\Rest\AppTable::getByClientId($appId);
+					if ($appInfo['CODE'])
+					{
+						Analytic::logToFile(
+							'setAppRight',
+							$appInfo['CODE'],
+							$appInfo['CODE']
+						);
+					}
 					\Bitrix\Rest\AppTable::setAccess($appId, $_POST["rights"]);
 					\Bitrix\Rest\PlacementTable::clearHandlerCache();
 					$result = array('success' => 1);
@@ -395,6 +418,91 @@ if($request->isPost() && check_bitrix_sessid() && \Bitrix\Main\Loader::includeMo
 			}
 
 		break;
+
+		case "activate_demo":
+			if ($admin)
+			{
+				if (!\Bitrix\Rest\OAuthService::getEngine()->isRegistered())
+				{
+					try
+					{
+						\Bitrix\Rest\OAuthService::register();
+						\Bitrix\Rest\OAuthService::getEngine()->getClient()->getApplicationList();
+					}
+					catch(\Bitrix\Main\SystemException $e)
+					{
+						$result = [
+							'error' => Loc::getMessage('REST_MP_CONFIG_ACTIVATE_ERROR'),
+							'error_description' => $e->getMessage(),
+							'error_code' => $e->getCode()
+						];
+					}
+				}
+				else
+				{
+					try
+					{
+						\Bitrix\Rest\OAuthService::getEngine()->getClient()->getApplicationList();
+					}
+					catch(\Bitrix\Main\SystemException $e)
+					{
+						$result = [
+							'error' => Loc::getMessage('REST_MP_CONFIG_ACTIVATE_ERROR'),
+							'error_description' => $e->getMessage(),
+							'error_code' => 4
+						];
+					}
+				}
+
+				if (\Bitrix\Rest\OAuthService::getEngine()->isRegistered())
+				{
+					$host = '';
+					if (defined('BX24_HOST_NAME'))
+					{
+						$host = BX24_HOST_NAME;
+					}
+					else
+					{
+						$server = \Bitrix\Main\Context::getCurrent()->getServer();
+						$host = $server->getHttpHost();
+					}
+
+					$queryField = [
+						'DEMO' => 'subscription',
+						'SITE' => $host
+					];
+
+					$httpClient = new \Bitrix\Main\Web\HttpClient();
+					if ($response = $httpClient->post('https://www.1c-bitrix.ru/buy_tmp/b24_coupon.php', $queryField))
+					{
+						if (mb_strpos($response, 'OK') === false)
+						{
+							$result = [
+								'error' => Loc::getMessage('REST_MP_CONFIG_ACTIVATE_ERROR'),
+								'error_code' => 2
+							];
+						}
+						else
+						{
+							$result = ['result' => true];
+						}
+					}
+				}
+				elseif (!$result['error'])
+				{
+					$result = [
+						'error' => Loc::getMessage('REST_MP_CONFIG_ACTIVATE_ERROR'),
+						'error_code' => 1
+					];
+				}
+			}
+			else
+			{
+				$result = ['error' => Loc::getMessage('RMP_ACCESS_DENIED')];
+			}
+
+			break;
+
 
 		default:
 			$result = array('error' => 'Unknown action');

@@ -31,7 +31,7 @@ if($bShowTime || $bShowStat || $bShowCacheStat)
 }
 
 $bShowExtTime = $bShowTime && !defined("ADMIN_SECTION") && $bShowStat;
-$DOCUMENT_ROOT_LEN = strlen($_SERVER["DOCUMENT_ROOT"]);
+$DOCUMENT_ROOT_LEN = mb_strlen($_SERVER["DOCUMENT_ROOT"]);
 
 if($bShowExtTime)
 {
@@ -43,11 +43,15 @@ if($bShowExtTime)
 	$PROLOG_AFTER_1 = (float)$sec + (float)$usec;
 	$PROLOG_AFTER = $PROLOG_AFTER_2 - $PROLOG_AFTER_1;
 
-	list($usec, $sec) = explode(" ", START_EXEC_AGENTS_2);
-	$AGENTS_2 = (float)$sec + (float)$usec;
-	list($usec, $sec) = explode(" ", START_EXEC_AGENTS_1);
-	$AGENTS_1 = (float)$sec + (float)$usec;
-	$AGENTS = $AGENTS_2 - $AGENTS_1;
+	$AGENTS = 0;
+	if(defined("START_EXEC_AGENTS_1") && defined("START_EXEC_AGENTS_2"))
+	{
+		list($usec, $sec) = explode(" ", START_EXEC_AGENTS_2);
+		$AGENTS_2 = (float)$sec + (float)$usec;
+		list($usec, $sec) = explode(" ", START_EXEC_AGENTS_1);
+		$AGENTS_1 = (float)$sec + (float)$usec;
+		$AGENTS = $AGENTS_2 - $AGENTS_1;
+	}
 
 	list($usec, $sec) = explode(" ", START_EXEC_PROLOG_BEFORE_1);
 	$PROLOG_BEFORE_1 = (float)$sec + (float)$usec;
@@ -109,7 +113,7 @@ if($bShowExtTime)
 	$state = "PB";
 	foreach($sqlTracker->getQueries() as $arQueryDebug)
 	{
-		if (strlen($arQueryDebug["BX_STATE"]) > 0)
+		if ($arQueryDebug["BX_STATE"] <> '')
 			$state = $arQueryDebug["BX_STATE"];
 
 		foreach($arAreas as $i => $arArea)
@@ -126,7 +130,7 @@ if($bShowExtTime)
 	$state = "PA";
 	foreach($APPLICATION->arIncludeDebug as $arIncludeDebug)
 	{
-		if (strlen($arIncludeDebug["BX_STATE"]) > 0)
+		if ($arIncludeDebug["BX_STATE"] <> '')
 			$state = $arIncludeDebug["BX_STATE"];
 
 		foreach($arAreas as $i => $arArea)
@@ -279,8 +283,8 @@ if ($bShowStat || $bShowCacheStat) //2
 				<?
 				foreach($arCacheDebug as $j => $cacheDebug)
 				{
-					if (substr($cacheDebug["path"], 0, $DOCUMENT_ROOT_LEN) === $_SERVER["DOCUMENT_ROOT"])
-						$path = '<a target="blank" href="/bitrix/admin/fileman_file_view.php?path='.urlencode(substr($cacheDebug["path"], $DOCUMENT_ROOT_LEN)).'&lang='.LANGUAGE_ID.'">'.htmlspecialcharsEx(substr($cacheDebug["path"], $DOCUMENT_ROOT_LEN)).'</a>';
+					if (mb_substr($cacheDebug["path"],0,$DOCUMENT_ROOT_LEN) === $_SERVER["DOCUMENT_ROOT"])
+						$path = '<a target="blank" href="/bitrix/admin/fileman_file_view.php?path='.urlencode(mb_substr($cacheDebug["path"],$DOCUMENT_ROOT_LEN)).'&lang='.LANGUAGE_ID.'">'.htmlspecialcharsEx(mb_substr($cacheDebug["path"],$DOCUMENT_ROOT_LEN)).'</a>';
 					else
 						$path = '&nbsp;';
 				?>
@@ -377,7 +381,7 @@ if ($bShowStat || $bShowCacheStat) //2
 					{
 						?><tr>
 							<td class="number" valign="top"><?echo $j?></td>
-							<td><a href="javascript:BX_DEBUG_INFO_<?=$i?>.ShowDetails('BX_DEBUG_INFO_<?=$i."_".$j?>')"><?echo htmlspecialcharsbx(substr($strSql, 0, 100))."..."?></a>&nbsp;(<?echo $query["COUNT"]?>) </td>
+							<td><a href="javascript:BX_DEBUG_INFO_<?=$i?>.ShowDetails('BX_DEBUG_INFO_<?=$i."_".$j?>')"><?echo htmlspecialcharsbx(mb_substr($strSql,0,100))."..."?></a>&nbsp;(<?echo $query["COUNT"]?>) </td>
 							<td class="number" valign="top"><?
 								$t = 0.0;
 								foreach($query["CALLS"] as $call)
@@ -486,8 +490,8 @@ if ($bShowStat || $bShowCacheStat) //2
 					<?
 					foreach($arIncludeDebug["CACHE"] as $j => $cacheDebug)
 					{
-						if (substr($cacheDebug["path"], 0, $DOCUMENT_ROOT_LEN) === $_SERVER["DOCUMENT_ROOT"])
-							$path = '<a target="blank" href="/bitrix/admin/fileman_file_view.php?path='.urlencode(substr($cacheDebug["path"], $DOCUMENT_ROOT_LEN)).'&lang='.LANGUAGE_ID.'">'.htmlspecialcharsEx(substr($cacheDebug["path"], $DOCUMENT_ROOT_LEN)).'</a>';
+						if (mb_substr($cacheDebug["path"],0,$DOCUMENT_ROOT_LEN) === $_SERVER["DOCUMENT_ROOT"])
+							$path = '<a target="blank" href="/bitrix/admin/fileman_file_view.php?path='.urlencode(mb_substr($cacheDebug["path"],$DOCUMENT_ROOT_LEN)).'&lang='.LANGUAGE_ID.'">'.htmlspecialcharsEx(mb_substr($cacheDebug["path"],$DOCUMENT_ROOT_LEN)).'</a>';
 						else
 							$path = '&nbsp;';
 					?>

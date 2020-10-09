@@ -246,4 +246,8 @@ $MESS["main_options_block_inactive"] = "Деактивировать давно 
 $MESS["main_options_phone_required"] = "Номер телефона является обязательным:";
 $MESS["main_options_email_register"] = "Регистрировать пользователей по email:";
 $MESS["main_options_sms_conf_note"] = "Номер телефона потребуется подтвердить через СМС.";
+$MESS["main_options_control_diplicates"] = "Контролировать загрузку дубликатов файлов:";
+$MESS["main_options_diplicates_max_size"] = "Максимальный размер файла для контроля дубликатов (Мб):";
+$MESS["MAIN_OPT_EVENT_LOG_BLOCK"] = "Записывать блокировку пользователя:";
+$MESS["MAIN_OPT_HISTORY_DAYS"] = "Сколько дней хранить историю:";
 ?>

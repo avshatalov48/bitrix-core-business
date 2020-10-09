@@ -94,7 +94,7 @@ class CAdminTabControl
 				{
 					foreach ($arCustomTabs as $key1 => $value1)
 					{
-						if (array_key_exists("SORT", $value1) && IntVal($value1["SORT"]) == $i)
+						if (array_key_exists("SORT", $value1) && intval($value1["SORT"]) == $i)
 						{
 							$arTabs[] = array_merge($value1, array("CUSTOM" => "Y"));
 							unset($arCustomTabs[$key1]);
@@ -312,7 +312,7 @@ echo '
 
 		if ($_REQUEST['subdialog'])
 		{
-			echo '<input type="hidden" name="suffix" value="'.substr($GLOBALS['obJSPopup']->suffix, 1).'" />';
+			echo '<input type="hidden" name="suffix" value="'.mb_substr($GLOBALS['obJSPopup']->suffix, 1).'" />';
 			echo '<input type="hidden" name="subdialog" value="Y" />';
 		}
 
@@ -327,7 +327,7 @@ echo '
 
 			if ($this->bPublicMode)
 			{
-				if (strlen($_REQUEST['from_module']))
+				if($_REQUEST['from_module'] <> '')
 				{
 					echo '<input type="hidden" name="from_module" value="'.htmlspecialcharsbx($_REQUEST['from_module']).'" />';
 				}
@@ -434,8 +434,10 @@ echo '
 
 		if ($this->bPublicMode)
 		{
-			if (strlen($_REQUEST['from_module']))
+			if($_REQUEST['from_module'] <> '')
+			{
 				echo '<input type="hidden" name="from_module" value="'.htmlspecialcharsbx($_REQUEST['from_module']).'" />';
+			}
 
 			if ($arJSButtons === false)
 			{
@@ -453,7 +455,7 @@ echo '
 ';
 				foreach ($arJSButtons as $key => $btn)
 				{
-					if (substr($btn, 0, 1) == '.')
+					if (mb_substr($btn, 0, 1) == '.')
 						$btn = $this->publicObject.$btn;
 					echo $key ? ',' : '', $btn, "\r\n"; // NO JSESCAPE HERE! string must contain valid js object
 				}

@@ -26,7 +26,7 @@ elseif(isset($_REQUEST["table_name"]) && check_bitrix_sessid())
 
 	$table_name = trim($_REQUEST["table_name"]);
 
-	if(strlen($table_name) > 0)
+	if($table_name <> '')
 	{
 		$arTables = array();
 		$rsTables = $DB->Query("show table status");
@@ -57,15 +57,15 @@ elseif(isset($_REQUEST["table_name"]) && check_bitrix_sessid())
 		}
 		else
 		{
-			if(substr($table_name, 0, 2) === "o|")
+			if(mb_substr($table_name, 0, 2) === "o|")
 			{
 				$op = "optimize";
-				$table_name = substr($table_name, 2);
+				$table_name = mb_substr($table_name, 2);
 			}
-			elseif(substr($table_name, 0, 2) === "a|")
+			elseif(mb_substr($table_name, 0, 2) === "a|")
 			{
 				$op = "analyze";
-				$table_name = substr($table_name, 2);
+				$table_name = mb_substr($table_name, 2);
 			}
 			else
 			{
@@ -217,7 +217,7 @@ else
 {
 	$APPLICATION->SetTitle(GetMessage("RDB_REPAIR_DATABASE"));
 	require_once(dirname(__FILE__)."/../include/prolog_admin_after.php");
-	if(strtolower($DB->type) == "mysql")
+	if($DB->type == "MYSQL")
 	{
 		if($_REQUEST["check_tables"]=="Y" && check_bitrix_sessid())
 		{
@@ -242,9 +242,9 @@ else
 				echo "<td align='right'>".number_format($arResult["Data_length"], 0, ',', ' ')."</td>";
 
 				if(
-					(empty($arResult["Type"]) && strlen($arResult["Comment"]) > 0 && empty($arResult["Engine"]))
-					|| (isset($arResult["Type"]) && (strtoupper($arResult["Type"]) == "MYISAM" || strtoupper($arResult["Type"]) == "INNODB"))
-					|| (isset($arResult["Engine"]) && (strtoupper($arResult["Engine"]) == "MYISAM" || strtoupper($arResult["Engine"]) == "INNODB"))
+					(empty($arResult["Type"]) && $arResult["Comment"] <> '' && empty($arResult["Engine"]))
+					|| (isset($arResult["Type"]) && (mb_strtoupper($arResult["Type"]) == "MYISAM" || mb_strtoupper($arResult["Type"]) == "INNODB"))
+					|| (isset($arResult["Engine"]) && (mb_strtoupper($arResult["Engine"]) == "MYISAM" || mb_strtoupper($arResult["Engine"]) == "INNODB"))
 				)
 				{
 					echo "<td>";

@@ -12,7 +12,7 @@ if (is_array($arParams["CHANNEL_SID"])):
 	foreach ($arParams["CHANNEL_SID"] as $v):
 		$v = trim(str_replace("-", "", $v));
 		$v = (preg_match("~^[A-Za-z0-9_]+$~", $v) ? $v : "");
-		if (strlen($v) > 0):
+		if ($v <> ''):
 			$arr[] = $v;
 		endif;
 	endforeach;
@@ -29,10 +29,10 @@ endif;
 		"vote_form" => "PAGE_NAME=vote_new&VOTE_ID=#VOTE_ID#",
 		"vote_result" => "PAGE_NAME=vote_result&VOTE_ID=#VOTE_ID#");
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE):
-		if (strlen(trim($arParams[strtoupper($URL)."_TEMPLATE"])) <= 0)
-			$arParams[strtoupper($URL)."_TEMPLATE"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~".strtoupper($URL)."_TEMPLATE"] = $arParams[strtoupper($URL)."_TEMPLATE"];
-		$arParams[strtoupper($URL)."_TEMPLATE"] = htmlspecialcharsbx($arParams["~".strtoupper($URL)."_TEMPLATE"]);
+		if (trim($arParams[mb_strtoupper($URL)."_TEMPLATE"]) == '')
+			$arParams[mb_strtoupper($URL)."_TEMPLATE"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~".mb_strtoupper($URL)."_TEMPLATE"] = $arParams[mb_strtoupper($URL)."_TEMPLATE"];
+		$arParams[mb_strtoupper($URL)."_TEMPLATE"] = htmlspecialcharsbx($arParams["~".mb_strtoupper($URL)."_TEMPLATE"]);
 	endforeach;
 /********************************************************************
 				/Input params

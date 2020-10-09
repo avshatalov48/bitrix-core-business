@@ -54,7 +54,7 @@ $arResult = array_merge($arResult, array(
 		"CONFIRM_CANCEL" => Loc::getMessage("MAIN_UI_FILTER__BUTTON_CANCEL")
 ));
 
-$filterSearchClass = "main-ui-filter-theme-".strtolower($arResult["THEME"]);
+$filterSearchClass = "main-ui-filter-theme-".mb_strtolower($arResult["THEME"]);
 if ($arResult["DISABLE_SEARCH"] || !$arParams["CONFIG"]["SEARCH"])
 {
 	$filterSearchClass .= " main-ui-filter-no-search";
@@ -98,7 +98,7 @@ if ($arResult["LIMITS_ENABLED"])
 <?
 $frame = $this->createFrame()->begin(false);
 
-$filterWrapperClass = "main-ui-filter-theme-".strtolower($arResult["THEME"]);
+$filterWrapperClass = "main-ui-filter-theme-".mb_strtolower($arResult["THEME"]);
 if ($arParams["VALUE_REQUIRED_MODE"] === true)
 {
 	$filterWrapperClass .= " main-ui-filter-value-required-mode";

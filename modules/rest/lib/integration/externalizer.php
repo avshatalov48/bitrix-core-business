@@ -11,7 +11,7 @@ use Bitrix\Sale\Result;
 /**
  * Class Externalizer
  * @package Bitrix\Catalog\Rest
- * экстерналайзер для работы с именованными списками|ответами
+ * externalizer for working with named lists | answers
  */
 final class Externalizer extends ModificationFieldsBase
 	implements Arrayable
@@ -70,7 +70,7 @@ final class Externalizer extends ModificationFieldsBase
 	/**
 	 * @param $data
 	 * @return array
-	 * экстерналайзер работает только с НЕ именнованым списком. id списка не передается
+	 * the externalizer works only with a NOT named list. list id is not supported
 	 */
 	private function externalize($fields)
 	{
@@ -101,7 +101,7 @@ final class Externalizer extends ModificationFieldsBase
 	/**
 	 * @param $data
 	 * @return int|null|string
-	 * обязательное именование (ключ в массиве) списка или результата в ответе
+	 * array key is required
 	 */
 	private function getIdList($data)
 	{

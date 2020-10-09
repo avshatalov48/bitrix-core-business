@@ -14,10 +14,10 @@ if(is_array($arResult["POST"]) && !empty($arResult["POST"]))
 		if(array_key_exists("DATA", $arPost["POST_PROPERTIES"])
 			&& array_key_exists(CIdeaManagment::UFOriginalIdField, $arPost["POST_PROPERTIES"]["DATA"])
 		)
-			if(strlen(trim($arPost["POST_PROPERTIES"]["DATA"][CIdeaManagment::UFOriginalIdField]["VALUE"]))>0)
+			if(trim($arPost["POST_PROPERTIES"]["DATA"][CIdeaManagment::UFOriginalIdField]["VALUE"]) <> '')
 			{
 				$DuplicateValue = htmlspecialcharsbx($arPost["POST_PROPERTIES"]["DATA"][CIdeaManagment::UFOriginalIdField]["VALUE"], ENT_QUOTES);
-		if(strpos($DuplicateValue, "://")!==false) //Link
+		if(mb_strpos($DuplicateValue, "://") !== false) //Link
 					$arResult["POST"][$key]["IS_DUPLICATE"] = $DuplicateValue;
 				else //Id
 					$arResult["POST"][$key]["IS_DUPLICATE"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_POST"], array("post_id" => $DuplicateValue));
@@ -67,7 +67,7 @@ if(is_array($arResult["POST"]) && !empty($arResult["POST"]))
 			"LINK" => false,
 		);
 
-		if(is_string($Category["NAME"]) && strlen($Category["NAME"])>0)
+		if(is_string($Category["NAME"]) && $Category["NAME"] <> '')
 			$arResult["POST"][$key]["IDEA_CATEGORY"]["NAME"] = $Category["NAME"];
 
 		if($arCategorySequence["CATEGORY_2"]!==false)

@@ -3,9 +3,7 @@ this.BX.UI = this.BX.UI || {};
 (function (exports,main_core_events,main_core) {
 	'use strict';
 
-	var BaseEvent =
-	/*#__PURE__*/
-	function (_Event$BaseEvent) {
+	var BaseEvent = /*#__PURE__*/function (_Event$BaseEvent) {
 	  babelHelpers.inherits(BaseEvent, _Event$BaseEvent);
 
 	  function BaseEvent(data) {
@@ -18,9 +16,7 @@ this.BX.UI = this.BX.UI || {};
 	  return BaseEvent;
 	}(main_core.Event.BaseEvent);
 
-	var DragStartSensorEvent =
-	/*#__PURE__*/
-	function (_BaseEvent) {
+	var DragStartSensorEvent = /*#__PURE__*/function (_BaseEvent) {
 	  babelHelpers.inherits(DragStartSensorEvent, _BaseEvent);
 
 	  function DragStartSensorEvent() {
@@ -31,9 +27,7 @@ this.BX.UI = this.BX.UI || {};
 	  return DragStartSensorEvent;
 	}(BaseEvent);
 
-	var Sensor =
-	/*#__PURE__*/
-	function (_EventEmitter) {
+	var Sensor = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(Sensor, _EventEmitter);
 
 	  function Sensor() {
@@ -154,9 +148,7 @@ this.BX.UI = this.BX.UI || {};
 	  return Sensor;
 	}(main_core_events.EventEmitter);
 
-	var DragMoveSensorEvent =
-	/*#__PURE__*/
-	function (_BaseEvent) {
+	var DragMoveSensorEvent = /*#__PURE__*/function (_BaseEvent) {
 	  babelHelpers.inherits(DragMoveSensorEvent, _BaseEvent);
 
 	  function DragMoveSensorEvent() {
@@ -167,9 +159,7 @@ this.BX.UI = this.BX.UI || {};
 	  return DragMoveSensorEvent;
 	}(BaseEvent);
 
-	var DragEndSensorEvent =
-	/*#__PURE__*/
-	function (_BaseEvent) {
+	var DragEndSensorEvent = /*#__PURE__*/function (_BaseEvent) {
 	  babelHelpers.inherits(DragEndSensorEvent, _BaseEvent);
 
 	  function DragEndSensorEvent() {
@@ -180,9 +170,7 @@ this.BX.UI = this.BX.UI || {};
 	  return DragEndSensorEvent;
 	}(BaseEvent);
 
-	var DragDropSensorEvent =
-	/*#__PURE__*/
-	function (_BaseEvent) {
+	var DragDropSensorEvent = /*#__PURE__*/function (_BaseEvent) {
 	  babelHelpers.inherits(DragDropSensorEvent, _BaseEvent);
 
 	  function DragDropSensorEvent() {
@@ -193,9 +181,7 @@ this.BX.UI = this.BX.UI || {};
 	  return DragDropSensorEvent;
 	}(BaseEvent);
 
-	var MouseSensor =
-	/*#__PURE__*/
-	function (_Sensor) {
+	var MouseSensor = /*#__PURE__*/function (_Sensor) {
 	  babelHelpers.inherits(MouseSensor, _Sensor);
 
 	  function MouseSensor() {
@@ -389,9 +375,7 @@ this.BX.UI = this.BX.UI || {};
 	  passive: false
 	});
 
-	var TouchSensor =
-	/*#__PURE__*/
-	function (_Sensor) {
+	var TouchSensor = /*#__PURE__*/function (_Sensor) {
 	  babelHelpers.inherits(TouchSensor, _Sensor);
 
 	  function TouchSensor() {
@@ -579,9 +563,7 @@ this.BX.UI = this.BX.UI || {};
 	  return TouchSensor;
 	}(Sensor);
 
-	var DragStartEvent =
-	/*#__PURE__*/
-	function (_BaseEvent) {
+	var DragStartEvent = /*#__PURE__*/function (_BaseEvent) {
 	  babelHelpers.inherits(DragStartEvent, _BaseEvent);
 
 	  function DragStartEvent() {
@@ -592,9 +574,7 @@ this.BX.UI = this.BX.UI || {};
 	  return DragStartEvent;
 	}(BaseEvent);
 
-	var DragMoveEvent =
-	/*#__PURE__*/
-	function (_BaseEvent) {
+	var DragMoveEvent = /*#__PURE__*/function (_BaseEvent) {
 	  babelHelpers.inherits(DragMoveEvent, _BaseEvent);
 
 	  function DragMoveEvent() {
@@ -605,9 +585,7 @@ this.BX.UI = this.BX.UI || {};
 	  return DragMoveEvent;
 	}(BaseEvent);
 
-	var DragOverEvent =
-	/*#__PURE__*/
-	function (_BaseEvent) {
+	var DragOverEvent = /*#__PURE__*/function (_BaseEvent) {
 	  babelHelpers.inherits(DragOverEvent, _BaseEvent);
 
 	  function DragOverEvent() {
@@ -618,9 +596,7 @@ this.BX.UI = this.BX.UI || {};
 	  return DragOverEvent;
 	}(BaseEvent);
 
-	var DragOverContainerEvent =
-	/*#__PURE__*/
-	function (_BaseEvent) {
+	var DragOverContainerEvent = /*#__PURE__*/function (_BaseEvent) {
 	  babelHelpers.inherits(DragOverContainerEvent, _BaseEvent);
 
 	  function DragOverContainerEvent() {
@@ -631,9 +607,7 @@ this.BX.UI = this.BX.UI || {};
 	  return DragOverContainerEvent;
 	}(BaseEvent);
 
-	var DragEnterEvent =
-	/*#__PURE__*/
-	function (_BaseEvent) {
+	var DragEnterEvent = /*#__PURE__*/function (_BaseEvent) {
 	  babelHelpers.inherits(DragEnterEvent, _BaseEvent);
 
 	  function DragEnterEvent() {
@@ -644,9 +618,7 @@ this.BX.UI = this.BX.UI || {};
 	  return DragEnterEvent;
 	}(BaseEvent);
 
-	var DragEnterContainerEvent =
-	/*#__PURE__*/
-	function (_BaseEvent) {
+	var DragEnterContainerEvent = /*#__PURE__*/function (_BaseEvent) {
 	  babelHelpers.inherits(DragEnterContainerEvent, _BaseEvent);
 
 	  function DragEnterContainerEvent() {
@@ -657,9 +629,7 @@ this.BX.UI = this.BX.UI || {};
 	  return DragEnterContainerEvent;
 	}(BaseEvent);
 
-	var DragOutEvent =
-	/*#__PURE__*/
-	function (_BaseEvent) {
+	var DragOutEvent = /*#__PURE__*/function (_BaseEvent) {
 	  babelHelpers.inherits(DragOutEvent, _BaseEvent);
 
 	  function DragOutEvent() {
@@ -670,9 +640,7 @@ this.BX.UI = this.BX.UI || {};
 	  return DragOutEvent;
 	}(BaseEvent);
 
-	var DragOutContainerEvent =
-	/*#__PURE__*/
-	function (_BaseEvent) {
+	var DragOutContainerEvent = /*#__PURE__*/function (_BaseEvent) {
 	  babelHelpers.inherits(DragOutContainerEvent, _BaseEvent);
 
 	  function DragOutContainerEvent() {
@@ -683,9 +651,7 @@ this.BX.UI = this.BX.UI || {};
 	  return DragOutContainerEvent;
 	}(BaseEvent);
 
-	var DragEndEvent =
-	/*#__PURE__*/
-	function (_BaseEvent) {
+	var DragEndEvent = /*#__PURE__*/function (_BaseEvent) {
 	  babelHelpers.inherits(DragEndEvent, _BaseEvent);
 
 	  function DragEndEvent() {
@@ -696,9 +662,7 @@ this.BX.UI = this.BX.UI || {};
 	  return DragEndEvent;
 	}(BaseEvent);
 
-	var DragOverDropzoneEvent =
-	/*#__PURE__*/
-	function (_BaseEvent) {
+	var DragOverDropzoneEvent = /*#__PURE__*/function (_BaseEvent) {
 	  babelHelpers.inherits(DragOverDropzoneEvent, _BaseEvent);
 
 	  function DragOverDropzoneEvent() {
@@ -709,9 +673,7 @@ this.BX.UI = this.BX.UI || {};
 	  return DragOverDropzoneEvent;
 	}(BaseEvent);
 
-	var DragEnterDropzoneEvent =
-	/*#__PURE__*/
-	function (_BaseEvent) {
+	var DragEnterDropzoneEvent = /*#__PURE__*/function (_BaseEvent) {
 	  babelHelpers.inherits(DragEnterDropzoneEvent, _BaseEvent);
 
 	  function DragEnterDropzoneEvent() {
@@ -722,9 +684,7 @@ this.BX.UI = this.BX.UI || {};
 	  return DragEnterDropzoneEvent;
 	}(BaseEvent);
 
-	var DragOutDropzoneEvent =
-	/*#__PURE__*/
-	function (_BaseEvent) {
+	var DragOutDropzoneEvent = /*#__PURE__*/function (_BaseEvent) {
 	  babelHelpers.inherits(DragOutDropzoneEvent, _BaseEvent);
 
 	  function DragOutDropzoneEvent() {
@@ -735,9 +695,7 @@ this.BX.UI = this.BX.UI || {};
 	  return DragOutDropzoneEvent;
 	}(BaseEvent);
 
-	var DragDropEvent =
-	/*#__PURE__*/
-	function (_BaseEvent) {
+	var DragDropEvent = /*#__PURE__*/function (_BaseEvent) {
 	  babelHelpers.inherits(DragDropEvent, _BaseEvent);
 
 	  function DragDropEvent() {
@@ -776,9 +734,7 @@ this.BX.UI = this.BX.UI || {};
 	 * @namespace BX.UI.DragAndDrop
 	 */
 
-	var Draggable =
-	/*#__PURE__*/
-	function (_EventEmitter) {
+	var Draggable = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(Draggable, _EventEmitter);
 
 	  function Draggable() {
@@ -1894,7 +1850,6 @@ this.BX.UI = this.BX.UI || {};
 	        end: this.lastOver,
 	        endContainer: this.lastOverContainer
 	      }));
-	      this.emit('end', dragEndEvent);
 	      var _this$dragStartEvent$2 = this.dragStartEvent.data,
 	          source = _this$dragStartEvent$2.source,
 	          draggable = _this$dragStartEvent$2.draggable;
@@ -1958,6 +1913,7 @@ this.BX.UI = this.BX.UI || {};
 	      this.invalidateCache();
 	      main_core.Dom.removeClass(document.body, 'ui-draggable--disable-user-select');
 	      main_core.Dom.removeClass(document.body, "ui-draggable--type-".concat(this.getOptions().type));
+	      this.emit('end', dragEndEvent); // todo test in default
 	    }
 	  }, {
 	    key: "onDragDrop",

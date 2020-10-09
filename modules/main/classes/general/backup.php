@@ -78,12 +78,12 @@ class CBackup
 		if (IntOption('dump_do_clouds'))
 		{
 			$clouds = self::$DOCUMENT_ROOT_SITE.BX_ROOT.'/backup/clouds/';
-			if (strpos($path, $clouds) === 0 || strpos($clouds, $path) === 0)
+			if (mb_strpos($path, $clouds) === 0 || mb_strpos($clouds, $path) === 0)
 				return false;
 		}
 		
 		## Backups
-		if (strpos($path, self::$DOCUMENT_ROOT_SITE.BX_ROOT.'/backup/') === 0)
+		if (mb_strpos($path, self::$DOCUMENT_ROOT_SITE.BX_ROOT.'/backup/') === 0)
 			return true;
 
 		## Symlinks
@@ -91,7 +91,7 @@ class CBackup
 		{
 			if (is_link($path))
 			{
-				if (strpos(realpath($path), self::$REAL_DOCUMENT_ROOT_SITE) !== false) // если симлинк ведет на папку внутри структуры сайта
+				if (mb_strpos(realpath($path), self::$REAL_DOCUMENT_ROOT_SITE) !== false) // если симлинк ведет на папку внутри структуры сайта
 					return true;
 			}
 		} ## File size
@@ -109,13 +109,13 @@ class CBackup
 		if ($dump_file_public == $dump_file_kernel) // если обе опции либо включены либо выключены
 			return !$dump_file_public;
 
-		if (strpos(self::$DOCUMENT_ROOT_SITE.BX_ROOT, $path) !== false) // на пути к /bitrix
+		if (mb_strpos(self::$DOCUMENT_ROOT_SITE.BX_ROOT, $path) !== false) // на пути к /bitrix
 			return false;
 
-		if (strpos($path, self::$DOCUMENT_ROOT_SITE.BX_ROOT) === false) // за пределами /bitrix
+		if (mb_strpos($path, self::$DOCUMENT_ROOT_SITE.BX_ROOT) === false) // за пределами /bitrix
 			return !$dump_file_public;
 
-		$path_root = substr($path, strlen(self::$DOCUMENT_ROOT_SITE));
+		$path_root = mb_substr($path, mb_strlen(self::$DOCUMENT_ROOT_SITE));
 		if (preg_match('#^/bitrix/(.settings.php|php_interface|templates)/([^/]*)#',$path_root.'/',$regs))
 			return !$dump_file_public;
 	
@@ -159,8 +159,8 @@ class CBackup
 			return false;
 
 		global $skip_mask_array;
-		
-		$path = substr($abs_path,strlen(self::$DOCUMENT_ROOT_SITE));
+
+		$path = mb_substr($abs_path, mb_strlen(self::$DOCUMENT_ROOT_SITE));
 		$path = str_replace('\\','/',$path);
 		
 		static $preg_mask_array;
@@ -174,21 +174,21 @@ class CBackup
 		reset($skip_mask_array);
 		foreach($skip_mask_array as $k => $mask)
 		{
-			if (strpos($mask,'/')===0) // absolute path
+			if (mb_strpos($mask, '/') === 0) // absolute path
 			{
-				if (strpos($mask,'*') === false) // нет звездочки
+				if (mb_strpos($mask, '*') === false) // нет звездочки
 				{
-					if (strpos($path.'/',$mask.'/') === 0)
+					if (mb_strpos($path.'/', $mask.'/') === 0)
 						return true;
 				}
 				elseif (preg_match('#^'.str_replace('*','[^/]*?',$preg_mask_array[$k]).'$#i',$path))
 					return true;
 			}
-			elseif (strpos($mask, '/')===false)
+			elseif (mb_strpos($mask, '/') === false)
 			{
-				if (strpos($mask,'*')===false)
+				if (mb_strpos($mask, '*') === false)
 				{
-					if (substr($path,-strlen($mask)) == $mask)
+					if (mb_substr($path, -mb_strlen($mask)) == $mask)
 						return true;
 				}
 				elseif (preg_match('#/[^/]*'.str_replace('*','[^/]*?',$preg_mask_array[$k]).'$#i',$path))
@@ -214,7 +214,7 @@ class CBackup
 		elseif (!($k xor $p))
 			$arc_name .= '_'.($b ? '' : 'no').'sql';
 
-		$arc_name .= '_'.substr(md5(uniqid(rand(), true)), 0, 8);
+		$arc_name .= '_'.mb_substr(md5(uniqid(rand(), true)), 0, 8);
 		return $arc_name;
 	}
 
@@ -239,7 +239,7 @@ class CBackup
 			$rsTables = $DB->Query("SHOW FULL TABLES WHERE TABLE_TYPE NOT LIKE 'VIEW'", false, '', array("fixed_connection"=>true));
 			while($arTable = $rsTables->Fetch())
 			{
-				list($key, $table) = each($arTable);
+				$table = current($arTable);
 
 				$rsIndexes = $DB->Query("SHOW INDEX FROM `".$DB->ForSql($table)."`", true, '', array("fixed_connection"=>true));
 				if($rsIndexes)
@@ -281,7 +281,7 @@ class CBackup
 			$rsTables = $DB->Query("SHOW FULL TABLES WHERE TABLE_TYPE LIKE 'VIEW'", false, '', array("fixed_connection"=>true));
 			while($arTable = $rsTables->Fetch())
 			{
-				list($key, $table) = each($arTable);
+				$table = current($arTable);
 				
 				$arState['TABLES'][$table] = array(
 					"TABLE_NAME" => $table,
@@ -499,7 +499,7 @@ class CBackup
 
 	public static function SkipTableData($table)
 	{
-		$table = strtolower($table);
+		$table = mb_strtolower($table);
 		if (preg_match("#^b_stat#", $table) && IntOption('dump_base_skip_stat'))
 			return true;
 		elseif (preg_match("#^b_search_#", $table) && !preg_match('#^(b_search_custom_rank|b_search_phrase)$#', $table) && IntOption('dump_base_skip_search'))
@@ -516,7 +516,7 @@ class CBackup
 
 		if (!$c)
 		{
-			$l = strrpos($file, '.');
+			$l = mb_strrpos($file, '.');
 			$num = CTar::substr($file,$l+1);
 			if (is_numeric($num))
 				$file = CTar::substr($file,0,$l+1).++$num;
@@ -562,7 +562,7 @@ class CDirScan
 	{
 		if ($this->startPath)
 		{
-			if (strpos($this->startPath.'/', $f.'/') === 0)
+			if (mb_strpos($this->startPath.'/', $f.'/') === 0)
 			{
 				if ($this->startPath == $f)
 					unset($this->startPath);
@@ -606,7 +606,7 @@ class CDirScan
 
 			while (($item = readdir($handle)) !== false)
 			{
-				if ($item == '.' || $item == '..' || false !== strpos($item,'\\'))
+				if ($item == '.' || $item == '..' || false !== mb_strpos($item, '\\'))
 					continue;
 
 				$f = $dir."/".$item;
@@ -729,7 +729,7 @@ class CDirRealScan extends CDirScan
 		$res = false;
 		if ($this->startPath)
 		{
-			if (strpos($this->startPath.'/', $f.'/') === 0)
+			if (mb_strpos($this->startPath.'/', $f.'/') === 0)
 			{
 				if ($this->startPath == $f)
 					unset($this->startPath);
@@ -1410,7 +1410,7 @@ class CTar
 
 		if (!$c)
 		{
-			$l = strrpos($file, '.');
+			$l = mb_strrpos($file, '.');
 			$num = self::substr($file,$l+1);
 			if (is_numeric($num))
 				$file = self::substr($file,0,$l+1).++$num;
@@ -1434,21 +1434,21 @@ class CTar
 	{
 		if (function_exists('mb_orig_substr'))
 			return $b === null ? mb_orig_substr($s, $a) : mb_orig_substr($s, $a, $b);
-		return $b === null ? substr($s, $a) : substr($s, $a, $b);
+		return $b === null? mb_substr($s, $a) : mb_substr($s, $a, $b);
 	}
 
 	public static function strlen($s)
 	{
 		if (function_exists('mb_orig_strlen'))
 			return mb_orig_strlen($s);
-		return strlen($s);
+		return mb_strlen($s);
 	}
 
 	public static function strpos($s, $a)
 	{
 		if (function_exists('mb_orig_strpos'))
 			return mb_orig_strpos($s, $a);
-		return strpos($s, $a);
+		return mb_strpos($s, $a);
 	}
 
 	function getDataSize($file)
@@ -1651,7 +1651,7 @@ class CloudDownload
 			{
 				if ($path.'/'.$dir == $this->last_bucket_path)
 					$this->last_bucket_path = '';
-				elseif (strpos($this->last_bucket_path, $path.'/'.$dir) !== 0)
+				elseif (mb_strpos($this->last_bucket_path, $path.'/'.$dir) !== 0)
 					continue;
 			}
 

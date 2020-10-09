@@ -118,6 +118,15 @@ class WorkgroupTable extends Entity\DataManager
 				'data_type' => 'boolean',
 				'values' => array('N','Y')
 			),
+			'SCRUM_OWNER_ID' => array(
+				'data_type' => 'integer',
+			),
+			'SCRUM_MASTER_ID' => array(
+				'data_type' => 'integer',
+			),
+			'SCRUM_SPRINT_DURATION' => array(
+				'data_type' => 'integer',
+			),
 		);
 
 		return $fieldsMap;

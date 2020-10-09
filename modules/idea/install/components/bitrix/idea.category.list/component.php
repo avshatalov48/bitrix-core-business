@@ -62,7 +62,7 @@ foreach($arResult["CATEGORY"] as $arCategory)
 	$index++;
 }
 
-if(array_key_exists("SELECTED_CATEGORY", $arParams) && strlen($arParams["SELECTED_CATEGORY"])>0)
+if(array_key_exists("SELECTED_CATEGORY", $arParams) && $arParams["SELECTED_CATEGORY"] <> '')
 {
 	$arSelected = $arResult["CATEGORY"][$arParams["SELECTED_CATEGORY"]];
 	if($arSelected)

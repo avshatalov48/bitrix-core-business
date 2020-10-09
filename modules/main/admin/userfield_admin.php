@@ -8,7 +8,7 @@ if(!$USER->CanDoOperation('view_other_settings'))
 IncludeModuleLangFile(__FILE__);
 
 $back_url = $_REQUEST["back_url"];
-if(substr($back_url, 0, 1) <> '/')
+if(mb_substr($back_url, 0, 1) <> '/')
 	$back_url = '';
 
 $sTableID = "tbl_user_type";
@@ -58,7 +58,7 @@ if($lAdmin->EditAction())
 			continue;
 		//Update
 		$DB->StartTransaction();
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if(!$obUserField->Update($ID, $arFields))
 		{
 			if($e = $APPLICATION->GetException())
@@ -81,9 +81,9 @@ if($arID = $lAdmin->GroupAction())
 	$obUserField = new CUserTypeEntity;
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		//Rights check
 		if($USER_FIELD_MANAGER->GetRights(false, $ID) < "W")
 			continue;

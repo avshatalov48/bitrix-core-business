@@ -6164,7 +6164,7 @@
 	      if (gridsCount === 1) {
 	        var tmpDiv = BX.create('div');
 	        var pageTitleNode = BX('pagetitle');
-	        var pageTitle = !!pageTitleNode ? '&laquo;' + pageTitleNode.innerText + '&raquo;' : '';
+	        var pageTitle = !!pageTitleNode ? '&laquo;' + pageTitleNode.innerHTML + '&raquo;' : '';
 	        tmpDiv.innerHTML = '<span>' + this.parent.getParam('SETTINGS_TITLE') + ' ' + pageTitle + '</span>';
 	        return tmpDiv.firstChild.innerText;
 	      }

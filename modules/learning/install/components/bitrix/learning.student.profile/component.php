@@ -17,7 +17,7 @@ if (!CModule::IncludeModule("learning"))
 
 //Params
 $arParams["TRANSCRIPT_DETAIL_TEMPLATE"] = (
-	strlen($arParams["TRANSCRIPT_DETAIL_TEMPLATE"]) > 0 ? 
+	$arParams["TRANSCRIPT_DETAIL_TEMPLATE"] <> '' ? 
 	htmlspecialcharsbx($arParams["TRANSCRIPT_DETAIL_TEMPLATE"]) : 
 	"certification/?TRANSCRIPT_ID=#TRANSCRIPT_ID#"
 );
@@ -35,12 +35,12 @@ if (!$arUser = $rsUser->GetNext())
 $strError = "";
 if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["ACTION"]=="EDIT" && $USER_ID > 0 && check_bitrix_sessid())
 {
-	if (strlen($_POST["EMAIL"])<=0)
+	if ($_POST["EMAIL"] == '')
 		$strError .= GetMessage("LEARNING_NO_MAIL")."<br />";
 	elseif (!check_email($_POST["EMAIL"]))
 		$strError .= GetMessage("LEARNING_BAD_MAIL")."<br />";
 
-	if (strlen($strError)<=0)
+	if ($strError == '')
 	{
 		$rsPhoto = $DB->Query("SELECT PERSONAL_PHOTO FROM b_user WHERE ID='$USER_ID'");
 		$arPhoto = $rsPhoto->Fetch();
@@ -67,7 +67,7 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["ACTION"]=="EDIT" && $USER_ID >
 			$strError .= $USER->LAST_ERROR."<br />";
 	}
 
-	if (strlen($strError)<=0)
+	if ($strError == '')
 	{
 		$arStudentFields = Array(
 			"RESUME" => $_POST["RESUME"],
@@ -124,7 +124,7 @@ if ($arStudent = $rsStudent->GetNext())
 
 
 //If post and error occured
-if ($_SERVER["REQUEST_METHOD"]=="POST" && strlen($arResult["ERROR_MESSAGE"]) > 0)
+if ($_SERVER["REQUEST_METHOD"]=="POST" && $arResult["ERROR_MESSAGE"] <> '')
 {
 	$arUserFields = $DB->GetTableFieldsList("b_user");
 	foreach ($arUserFields as $field)

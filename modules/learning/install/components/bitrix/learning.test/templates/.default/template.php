@@ -81,7 +81,7 @@
 			<?=$arResult["NAV"]["PAGE_NUMBER"]?> <?=GetMessage("LEARNING_QUESTION_OF");?> <?=$arResult["NAV"]["PAGE_COUNT"]?>
 		</div>
 		<div class="learn-question-name"><?=$arResult["QUESTION"]["NAME"]?>
-			<?if (strlen($arResult["QUESTION"]["DESCRIPTION"]) > 0):?>
+			<?if ($arResult["QUESTION"]["DESCRIPTION"] <> ''):?>
 				<br /><br /><?=$arResult["QUESTION"]["DESCRIPTION"]?>
 			<?endif?>
 
@@ -215,7 +215,7 @@
 		<a href="<?=$arResult["GRADEBOOK_URL"]?>"><?=GetMessage("LEARNING_PROFILE")?></a>
 		<?php endif?>
 
-	<?elseif (strlen($arResult["ERROR_MESSAGE"]) > 0):?>
+	<?elseif ($arResult["ERROR_MESSAGE"] <> ''):?>
 
 		<?ShowError($arResult["ERROR_MESSAGE"]);?>
 		<br />
@@ -228,7 +228,7 @@
 	<?else:?>
 
 		<?=GetMessage("LEARNING_TEST_NAME")?>: <?=$arResult["TEST"]["NAME"];?><br />
-		<?if (strlen($arResult["TEST"]["DESCRIPTION"]) > 0):?>
+		<?if ($arResult["TEST"]["DESCRIPTION"] <> ''):?>
 			<?=$arResult["TEST"]["DESCRIPTION"]?><br />
 		<?endif?>
 

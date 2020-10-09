@@ -115,7 +115,7 @@ class YandexBase extends BitrixEngine
 		{
 			$queryResult = self::query(self::QUERY_USER);
 
-			if($queryResult->getStatus() == self::HTTP_STATUS_OK && strlen($queryResult->getResult()) > 0)
+			if($queryResult->getStatus() == self::HTTP_STATUS_OK && $queryResult->getResult() <> '')
 			{
 				$res = Web\Json::decode($queryResult->getResult());
 

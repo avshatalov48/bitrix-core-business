@@ -32,7 +32,7 @@ $value = $arResult['additionalParameters']['VALUE'];
 	</option>
 	<option
 		value="0"
-		<?= (strlen($value) && !$value ? ' selected' : '') ?>
+		<?= (mb_strlen($value) && !$value ? ' selected' : '') ?>
 	>
 		<?= HtmlFilter::encode($label[0]) ?>
 	</option>

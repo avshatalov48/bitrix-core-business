@@ -10,7 +10,7 @@ $switcher = "BX('file-selectdialogswitcher-".$uid."')";
 $controlName = $arParams['INPUT_NAME'];
 $controlNameFull = $controlName . (($arParams['MULTIPLE'] == 'Y') ? '[]' : '');
 $arValue = $arResult['FILES'];
-$addClass = ((strpos($_SERVER['HTTP_USER_AGENT'], 'Mac OS') !== false) ? 'file-filemacos' : '');
+$addClass = ((mb_strpos($_SERVER['HTTP_USER_AGENT'], 'Mac OS') !== false) ? 'file-filemacos' : '');
 $controlNameFull1 = htmlspecialcharsbx($controlNameFull);
 $delOnclick = "window['BfileFD{$uid}'].agent.StopUpload(BX('wd-doc#element_id#'));";
 $thumb = <<<HTML

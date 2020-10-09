@@ -1,8 +1,4 @@
 <?
-/***************************************
-		Статус результата веб-формы
-***************************************/
-
 class CFormStatus extends CAllFormStatus
 {
 	function err_mess()
@@ -12,25 +8,28 @@ class CFormStatus extends CAllFormStatus
 		return "<br>Module: ".$module_id." (".$arModuleVersion["VERSION"].")<br>Class: CFormStatus<br>File: ".__FILE__;
 	}
 
-	// список статусов
 	function GetList($FORM_ID, &$by, &$order, $arFilter=array(), &$is_filtered)
 	{
 		$err_mess = (CFormStatus::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB, $strError;
 		$FORM_ID = intval($FORM_ID);
 		$arSqlSearch = Array();
-		$strSqlSearch = "";
+		$arSqlSearch_h = [];
+		$strSqlSearch_h = '';
 		if (is_array($arFilter))
 		{
 			$filter_keys = array_keys($arFilter);
-			for ($i=0; $i<count($filter_keys); $i++)
+			$keyCount = count($filter_keys);
+			for ($i=0; $i<$keyCount; $i++)
 			{
 				$key = $filter_keys[$i];
 				$val = $arFilter[$filter_keys[$i]];
-				if (strlen($val)<=0 || "$val"=="NOT_REF") continue;
-				if (is_array($val) && count($val)<=0) continue;
-				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys)) ? true : false;
-				$key = strtoupper($key);
+				if ((string)$val == '' || $val=="NOT_REF")
+					continue;
+				if (is_array($val) && empty($val))
+					continue;
+				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys));
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -53,7 +52,10 @@ class CFormStatus extends CAllFormStatus
 						break;
 				}
 			}
-			for($i=0; $i<count($arSqlSearch_h); $i++) $strSqlSearch_h .= " and (".$arSqlSearch_h[$i].") ";
+			if (!empty($arSqlSearch_h))
+			{
+				$strSqlSearch_h = ' and ('.implode(') and (', $arSqlSearch_h).') ';
+			}
 		}
 
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
@@ -95,7 +97,6 @@ class CFormStatus extends CAllFormStatus
 				$strSqlSearch_h
 			$strSqlOrder
 			";
-		//echo "<pre>".$strSql."</pre>";
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
 		$is_filtered = (IsFiltered($strSqlSearch));
 		return $res;
@@ -182,9 +183,7 @@ class CFormStatus extends CAllFormStatus
 				ORDER BY S.C_SORT
 				";
 		}
-		//echo "<pre>".$strSql."</pre>";
 		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
 		return $z;
 	}
 }
-?>

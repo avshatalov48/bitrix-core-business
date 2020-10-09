@@ -28,7 +28,7 @@ foreach ($arResult["VALUE"] as $res)
 		$first = false;
 	}
 
-	if (StrLen($arParams['arUserField']['PROPERTY_VALUE_LINK']) > 0)
+	if ($arParams['arUserField']['PROPERTY_VALUE_LINK'] <> '')
 	{
 		$res = '<a href="'.htmlspecialcharsbx(str_replace('#VALUE#', urlencode($res), $arParams['arUserField']['PROPERTY_VALUE_LINK'])).'">'.$res.'</a>';
 	}

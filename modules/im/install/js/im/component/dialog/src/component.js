@@ -12,6 +12,7 @@ import {Vuex} from "ui.vue.vuex";
 import {Logger} from "im.lib.logger";
 import {EventType, RestMethodHandler, RestMethod} from "im.const";
 import {Utils} from "im.lib.utils";
+import {Clipboard} from "im.lib.clipboard";
 import "im.view.dialog";
 import "im.view.quotepanel";
 
@@ -83,7 +84,7 @@ Vue.component('bx-im-component-dialog',
 		localize()
 		{
 			return Object.assign({},
-				Vue.getFilteredPhrases('MOBILE_CHAT_', this.$root.$bitrixMessages),
+				Vue.getFilteredPhrases('IM_DIALOG_', this.$root.$bitrixMessages),
 				Vue.getFilteredPhrases('IM_UTILS_', this.$root.$bitrixMessages),
 			);
 		},
@@ -410,11 +411,11 @@ Vue.component('bx-im-component-dialog',
 		{
 			if (event.type === 'put')
 			{
-				this.$root.$bitrixController.application.insertText({text: event.value+' '});
+				this.$root.$bitrixApplication.insertText({text: event.value+' '});
 			}
 			else if (event.type === 'send')
 			{
-				this.$root.$bitrixController.application.addMessage(event.value);
+				this.$root.$bitrixApplication.addMessage(event.value);
 			}
 			else
 			{
@@ -466,13 +467,66 @@ Vue.component('bx-im-component-dialog',
 		{
 			this.$root.$bitrixController.application.openMessageReactionList(event.message.id, event.values);
 		},
-		onDialogMessageClickByKeyboardButton(event)
-		{
-			this.$root.$bitrixController.application.execMessageKeyboardCommand(event);
-		},
 		onDialogMessageClickByChatTeaser(event)
 		{
-			this.$root.$bitrixController.application.execMessageOpenChatTeaser(event);
+			this.$root.$bitrixController.application.joinParentChat(data.message.id, 'chat'+data.message.params.CHAT_ID).then((dialogId) => {
+				this.openDialog(dialogId);
+			}).catch(() => {});
+
+			return true;
+		},
+		onDialogMessageClickByKeyboardButton(data)
+		{
+			if (data.action === 'ACTION')
+			{
+				let {dialogId, messageId, botId, action, value} = data.params;
+
+				if (action === 'SEND')
+				{
+					this.$root.$bitrixApplication.addMessage(value);
+					setTimeout(() => this.$root.$bitrixController.application.emit(EventType.dialog.scrollToBottom, {duration: 300, cancelIfScrollChange: false}), 300);
+				}
+				else if (action === 'PUT')
+				{
+					this.$root.$bitrixApplication.insertText({text: value+' '});
+				}
+				else if (action === 'CALL')
+				{
+					//this.openPhoneMenu(value);
+				}
+				else if (action === 'COPY')
+				{
+					Clipboard.copy(value);
+
+					BX.UI.Notification.Center.notify({
+						content: this.localize.IM_DIALOG_CLIPBOARD_COPY_SUCCESS,
+						autoHideDelay: 4000
+					});
+				}
+				else if (action === 'DIALOG')
+				{
+					//this.openDialog(value);
+				}
+
+				return true;
+			}
+
+			if (data.action === 'COMMAND')
+			{
+				let {dialogId, messageId, botId, command, params} = data.params;
+
+				this.$root.$bitrixController.restClient.callMethod(RestMethod.imMessageCommand, {
+					'MESSAGE_ID': messageId,
+					'DIALOG_ID': dialogId,
+					'BOT_ID': botId,
+					'COMMAND': command,
+					'COMMAND_PARAMS': params,
+				});
+
+				return true;
+			}
+
+			return false;
 		},
 		onDialogClick(event)
 		{
@@ -494,8 +548,8 @@ Vue.component('bx-im-component-dialog',
 								<div class="bx-mobilechat-help-title bx-mobilechat-help-title-sm bx-mobilechat-warning-msg" v-html="application.error.description"></div>
 							</template> 
 							<template v-else>
-								<div class="bx-mobilechat-help-title bx-mobilechat-help-title-md bx-mobilechat-warning-msg">{{localize.MOBILE_CHAT_ERROR_TITLE}}</div>
-								<div class="bx-mobilechat-help-title bx-mobilechat-help-title-sm bx-mobilechat-warning-msg">{{localize.MOBILE_CHAT_ERROR_DESC}}</div>
+								<div class="bx-mobilechat-help-title bx-mobilechat-help-title-md bx-mobilechat-warning-msg">{{localize.IM_DIALOG_ERROR_TITLE}}</div>
+								<div class="bx-mobilechat-help-title bx-mobilechat-help-title-sm bx-mobilechat-warning-msg">{{localize.IM_DIALOG_ERROR_DESC}}</div>
 							</template> 
 						</div>
 					</div>
@@ -508,12 +562,12 @@ Vue.component('bx-im-component-dialog',
 									<circle class="bx-mobilechat-loading-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"/>
 									<circle class="bx-mobilechat-loading-inner-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"/>
 								</svg>
-								<h3 class="bx-mobilechat-help-title bx-mobilechat-help-title-md bx-mobilechat-loading-msg">{{localize.MOBILE_CHAT_LOADING}}</h3>
+								<h3 class="bx-mobilechat-help-title bx-mobilechat-help-title-md bx-mobilechat-loading-msg">{{localize.IM_DIALOG_LOADING}}</h3>
 							</div>
 						</template>
 						<template v-else-if="dialogState == 'empty'">
 							<div class="bx-mobilechat-loading-window">
-								<h3 class="bx-mobilechat-help-title bx-mobilechat-help-title-md bx-mobilechat-loading-msg">{{localize.MOBILE_CHAT_EMPTY}}</h3>
+								<h3 class="bx-mobilechat-help-title bx-mobilechat-help-title-md bx-mobilechat-loading-msg">{{localize.IM_DIALOG_EMPTY}}</h3>
 							</div>
 						</template>
 						<template v-else>

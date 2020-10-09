@@ -54,7 +54,7 @@ class DoubleType extends BaseType
 			'MIN_VALUE' => $min,
 			'MAX_VALUE' => $max,
 			'DEFAULT_VALUE' => (
-			strlen($userField['SETTINGS']['DEFAULT_VALUE']) > 0 ?
+			$userField['SETTINGS']['DEFAULT_VALUE'] <> '' ?
 				(double)$userField['SETTINGS']['DEFAULT_VALUE'] : ''
 			)
 		];
@@ -92,7 +92,7 @@ class DoubleType extends BaseType
 		);
 
 		if(
-			strlen($value)
+			mb_strlen($value)
 			&& $userField['SETTINGS']['MIN_VALUE'] != 0
 			&& (double)$value < $userField['SETTINGS']['MIN_VALUE']
 		)
@@ -109,7 +109,7 @@ class DoubleType extends BaseType
 			];
 		}
 		if(
-			strlen($value)
+			mb_strlen($value)
 			&& $userField['SETTINGS']['MAX_VALUE'] != 0
 			&& (double)$value > $userField['SETTINGS']['MAX_VALUE']
 		)
@@ -167,9 +167,9 @@ class DoubleType extends BaseType
 	public static function onBeforeSave(array $userField, $value)
 	{
 		$value = str_replace([',', ' '], ['.', ''], $value);
-		if(strlen($value))
+		if($value <> '')
 		{
-			return round((double)$value, $userField['SETTINGS']['PRECISION']);
+			return (string) round((double)$value, $userField['SETTINGS']['PRECISION']);
 		}
 		return null;
 	}

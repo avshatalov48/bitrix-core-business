@@ -416,7 +416,7 @@ class CAdminFilter
 			$arBinds["FIELDS"] = $arFields["FIELDS"];
 
 
-		if(strlen($strUpdate) > 0)
+		if($strUpdate <> '')
 		{
 			$strSql = "UPDATE b_filters SET ".$strUpdate." WHERE ID=".$ID;
 			return $DB->QueryBind($strSql, $arBinds);
@@ -438,47 +438,51 @@ class CAdminFilter
 		{
 			foreach ($arFilter as $key => $val)
 			{
-				if (strlen($val)<=0 || $val=="NOT_REF")
+				if ((string)$val == '' || $val=="NOT_REF")
 					continue;
 
-				switch(strtoupper($key))
+				switch(mb_strtoupper($key))
 				{
-				case "ID":
-					$arSqlSearch[] = GetFilterQuery("F.ID",$val,"N");
-					break;
-				case "USER_ID":
-					if($getCommon)
-						$arSqlSearch[] = "F.USER_ID=".intval($val)." OR F.COMMON='Y'";
-					else
-						$arSqlSearch[] = "F.USER_ID = ".intval($val);
-					break;
-				case "FILTER_ID":
-					$arSqlSearch[] = "F.FILTER_ID = '".$DB->ForSql($val)."'";
-					break;
-				case "NAME":
-					$arSqlSearch[] = GetFilterQuery("F.NAME", $val);
-					break;
-				case "FIELDS":
-					$arSqlSearch[] = GetFilterQuery("F.FIELDS", $val);
-					break;
-				case "COMMON":
-					$arSqlSearch[] = "F.COMMON = '".$DB->ForSql($val,1)."'";
-					break;
-				case "PRESET":
-					$arSqlSearch[] = "F.PRESET = '".$DB->ForSql($val,1)."'";
-					break;
-				case "LANGUAGE_ID":
-					$arSqlSearch[] = "F.LANGUAGE_ID = '".$DB->ForSql($val,2)."'";
-					break;
-				case "PRESET_ID":
-					$arSqlSearch[] = GetFilterQuery("F.PRESET_ID", $val);
-					break;
-				case "SORT":
-					$arSqlSearch[] = GetFilterQuery("F.SORT", $val);
-					break;
-				case "SORT_FIELD":
-					$arSqlSearch[] = GetFilterQuery("F.SORT_FIELD", $val);
-					break;
+					case "ID":
+						$arSqlSearch[] = GetFilterQuery("F.ID", $val, "N");
+						break;
+					case "USER_ID":
+						if($getCommon)
+						{
+							$arSqlSearch[] = "F.USER_ID=".intval($val)." OR F.COMMON='Y'";
+						}
+						else
+						{
+							$arSqlSearch[] = "F.USER_ID = ".intval($val);
+						}
+						break;
+					case "FILTER_ID":
+						$arSqlSearch[] = "F.FILTER_ID = '".$DB->ForSql($val)."'";
+						break;
+					case "NAME":
+						$arSqlSearch[] = GetFilterQuery("F.NAME", $val);
+						break;
+					case "FIELDS":
+						$arSqlSearch[] = GetFilterQuery("F.FIELDS", $val);
+						break;
+					case "COMMON":
+						$arSqlSearch[] = "F.COMMON = '".$DB->ForSql($val, 1)."'";
+						break;
+					case "PRESET":
+						$arSqlSearch[] = "F.PRESET = '".$DB->ForSql($val, 1)."'";
+						break;
+					case "LANGUAGE_ID":
+						$arSqlSearch[] = "F.LANGUAGE_ID = '".$DB->ForSql($val, 2)."'";
+						break;
+					case "PRESET_ID":
+						$arSqlSearch[] = GetFilterQuery("F.PRESET_ID", $val);
+						break;
+					case "SORT":
+						$arSqlSearch[] = GetFilterQuery("F.SORT", $val);
+						break;
+					case "SORT_FIELD":
+						$arSqlSearch[] = GetFilterQuery("F.SORT_FIELD", $val);
+						break;
 				}
 			}
 		}
@@ -486,23 +490,45 @@ class CAdminFilter
 		$sOrder = "";
 		foreach($aSort as $key=>$val)
 		{
-			$ord = (strtoupper($val) <> "ASC"? "DESC":"ASC");
-			switch (strtoupper($key))
+			$ord = (mb_strtoupper($val) <> "ASC"? "DESC":"ASC");
+			switch(mb_strtoupper($key))
 			{
-				case "ID":		$sOrder .= ", F.ID ".$ord; break;
-				case "USER_ID":	$sOrder .= ", F.USER_ID ".$ord; break;
-				case "FILTER_ID":	$sOrder .= ", F.FILTER_ID ".$ord; break;
-				case "NAME":	$sOrder .= ", F.NAME ".$ord; break;
-				case "FIELDS":	$sOrder .= ", F.FIELDS ".$ord; break;
-				case "COMMON":	$sOrder .= ", F.COMMON ".$ord; break;
-				case "PRESET":	$sOrder .= ", F.PRESET ".$ord; break;
-				case "LANGUAGE_ID":	$sOrder .= ", F.LANGUAGE_ID ".$ord; break;
-				case "PRESET_ID":	$sOrder .= ", F.PRESET_ID ".$ord; break;
-				case "SORT":	$sOrder .= ", F.SORT ".$ord; break;
-				case "SORT_FIELD":	$sOrder .= ", F.SORT_FIELD ".$ord; break;
+				case "ID":
+					$sOrder .= ", F.ID ".$ord;
+					break;
+				case "USER_ID":
+					$sOrder .= ", F.USER_ID ".$ord;
+					break;
+				case "FILTER_ID":
+					$sOrder .= ", F.FILTER_ID ".$ord;
+					break;
+				case "NAME":
+					$sOrder .= ", F.NAME ".$ord;
+					break;
+				case "FIELDS":
+					$sOrder .= ", F.FIELDS ".$ord;
+					break;
+				case "COMMON":
+					$sOrder .= ", F.COMMON ".$ord;
+					break;
+				case "PRESET":
+					$sOrder .= ", F.PRESET ".$ord;
+					break;
+				case "LANGUAGE_ID":
+					$sOrder .= ", F.LANGUAGE_ID ".$ord;
+					break;
+				case "PRESET_ID":
+					$sOrder .= ", F.PRESET_ID ".$ord;
+					break;
+				case "SORT":
+					$sOrder .= ", F.SORT ".$ord;
+					break;
+				case "SORT_FIELD":
+					$sOrder .= ", F.SORT_FIELD ".$ord;
+					break;
 			}
 		}
-		if (strlen($sOrder)<=0)
+		if ($sOrder == '')
 			$sOrder = "F.ID ASC";
 		$strSqlOrder = " ORDER BY ".TrimEx($sOrder,",");
 
@@ -577,12 +603,12 @@ class CAdminFilter
 		if($aParams !== false)
 		{
 			$url = $aParams["url"];
-			if(strpos($url, "?")===false)
+			if(mb_strpos($url, "?") === false)
 				$url .= "?";
 			else
 				$url .= "&";
 
-			if(strpos($url, "lang=")===false)
+			if(mb_strpos($url, "lang=") === false)
 				$url .= "lang=".LANG;
 
 			if(!$this->url)
@@ -654,8 +680,8 @@ class CAdminFilter
 		}
 		else
 		{
-			$openedTabSes = $_SESSION[self::SESS_PARAMS_NAME][$this->id]["activeTabId"];
-			$filteredTab = $_SESSION[self::SESS_PARAMS_NAME][$this->id]["filteredId"];
+			$openedTabSes = \Bitrix\Main\Application::getInstance()->getSession()[self::SESS_PARAMS_NAME][$this->id]["activeTabId"];
+			$filteredTab = \Bitrix\Main\Application::getInstance()->getSession()[self::SESS_PARAMS_NAME][$this->id]["filteredId"];
 		}
 
 		echo '
@@ -665,7 +691,7 @@ class CAdminFilter
 		'.$this->id.' = new BX.AdminFilter("'.$this->id.'", ['.$sRowIds.']);
 		if (!BX.adminMenu)
 		{
-			BX.adminMenu = new BX.adminMenu();
+			BX.adminMenu = new BX.adminMenu();	
 		}
 		'.$this->id.'.state.init = true;
 		'.$this->id.'.state.folded = '.($this->arOptFlt["styleFolded"] == "Y" ? "true" : "false").';
@@ -708,7 +734,10 @@ class CAdminFilter
 				$filterUrl = CHTTP::urlAddParams($registerUrl, $arParamsAdd, array("encode","skip_empty"));
 
 				echo "
-		BX.adminMenu.registerItem('adm-filter-tab-".$this->id.'-'.$filter_id."', {URL:'".$filterUrl."', TITLE: true});";
+					if(BX.adminMenu && BX.adminMenu.registerItem) // todo: find true reason in sliders.
+					{
+						BX.adminMenu.registerItem('adm-filter-tab-".$this->id.'-'.$filter_id."', {URL:'".$filterUrl."', TITLE: true});
+					}";
 			}
 		}
 
@@ -753,7 +782,7 @@ class CAdminFilter
 			return false;
 
 		foreach ($aParams as $paramName => $value)
-			$_SESSION[self::SESS_PARAMS_NAME][$filterId][$paramName] = $value;
+			\Bitrix\Main\Application::getInstance()->getSession()[self::SESS_PARAMS_NAME][$filterId][$paramName] = $value;
 
 		return true;
 	}
@@ -761,7 +790,7 @@ class CAdminFilter
 	//experemental
 	private function IsFiltered()
 	{
-		$fltTable = $_SESSION["SESS_ADMIN"][$this->tableId];
+		$fltTable = \Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"][$this->tableId];
 
 		if(!isset($fltTable) || !is_array($fltTable))
 			return false;

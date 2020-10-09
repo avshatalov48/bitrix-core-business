@@ -70,7 +70,7 @@ $strError = "";
 if ($STEP <= 0)
 	$STEP = 1;
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($backButton) > 0)
+if ($_SERVER["REQUEST_METHOD"] == "POST" && $backButton <> '')
 	$STEP = 1;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && $STEP == 2 && check_bitrix_sessid())
@@ -80,7 +80,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $STEP == 2 && check_bitrix_sessid())
 		$strError .= GetMessage("LEARNING_BAD_SITE_ID")."<br>";
 
 
-	if (strlen($URL_DATA_FILE) > 0 )
+	if ($URL_DATA_FILE <> '' )
 	{
 		if ( ! CBXArchive::IsArchive($_SERVER["DOCUMENT_ROOT"] . $URL_DATA_FILE) )
 			$strError .= GetMessage("LEARNING_NOT_TAR_GZ")."<br>";
@@ -88,14 +88,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $STEP == 2 && check_bitrix_sessid())
 	else
 		$strError .= GetMessage("LEARNING_DATA_FILE_NOT_FOUND");
 
-	if (strlen($strError)<=0)
+	if ($strError == '')
 	{
 		$oArchiver = CBXArchive::GetArchive($_SERVER["DOCUMENT_ROOT"] . $URL_DATA_FILE);
 		if ($oArchiver === false)
 			$strError .= GetMessage("LEARNING_NOT_TAR_GZ") . "<br>";
 	}
 
-	if ((strlen($strError)<=0) && ($oArchiver !== false))
+	if (($strError == '') && ($oArchiver !== false))
 	{
 		$tmp_dir = BX_PERSONAL_ROOT."/tmp/learning/".uniqid(rand());
 		CheckDirPath($_SERVER["DOCUMENT_ROOT"].$tmp_dir);
@@ -105,7 +105,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $STEP == 2 && check_bitrix_sessid())
 			if (!isset($SCORM))
 			{
 				$package = new CCourseImport($tmp_dir, $SITE_ID);
-				if (!strlen($package->LAST_ERROR))
+				if ($package->LAST_ERROR == '')
 				{
 					if (!$package->ImportPackage())
 						$strError .= $package->LAST_ERROR;
@@ -118,7 +118,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $STEP == 2 && check_bitrix_sessid())
 			else
 			{
 				$package = new CCourseSCORM($tmp_dir, $SITE_ID);
-				if (!strlen($package->LAST_ERROR))
+				if ($package->LAST_ERROR == '')
 				{
 					if (!$package->ImportPackage())
 						$strError .= $package->LAST_ERROR;
@@ -145,7 +145,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $STEP == 2 && check_bitrix_sessid())
 		DeleteDirFilesEx($tmp_dir);
 	}
 
-	if (strlen($strError)>0)
+	if ($strError <> '')
 		$STEP = 1;
 }
 

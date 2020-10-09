@@ -215,7 +215,7 @@ class Random
 				function_exists('openssl_random_pseudo_bytes')
 				&& (
 					// PHP have strange behavior for "openssl_random_pseudo_bytes" on older PHP versions
-					!(strtolower(substr(PHP_OS, 0, 3)) === "win")
+					!(mb_strtolower(mb_substr(PHP_OS, 0, 3)) === "win")
 					|| version_compare(phpversion(),"5.4.0",">=")
 				)
 			);

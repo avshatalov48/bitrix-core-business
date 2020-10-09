@@ -2,7 +2,7 @@
 if (empty($arResult["ELEMENTS_LIST"]) || !is_array($arResult["ELEMENTS_LIST"])):
 	return true;
 endif;
-if (!$this->__component->__parent || strpos($this->__component->__parent->__name, "photogallery") === false):
+if (!$this->__component->__parent || mb_strpos($this->__component->__parent->__name, "photogallery") === false):
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/photogallery/templates/.default/style.css');
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/photogallery/templates/.default/themes/gray/style.css');
 ?>
@@ -24,8 +24,8 @@ endif;
 ********************************************************************/
 $temp = array("STRING" => preg_replace("/[^0-9]/is", "/", $arParams["THUMBNAIL_SIZE"]));
 list($temp["WIDTH"], $temp["HEIGHT"]) = explode("/", $temp["STRING"]);
-$arParams["THUMBNAIL_SIZE"] = (intVal($temp["WIDTH"]) > 0 ? intVal($temp["WIDTH"]) : 120);
-if ($arParams["PICTURES_SIGHT"] != "standart" && intVal($arParams["PICTURES"][$arParams["PICTURES_SIGHT"]]["size"]) > 0)
+$arParams["THUMBNAIL_SIZE"] = (intval($temp["WIDTH"]) > 0 ? intval($temp["WIDTH"]) : 120);
+if ($arParams["PICTURES_SIGHT"] != "standart" && intval($arParams["PICTURES"][$arParams["PICTURES_SIGHT"]]["size"]) > 0)
 	$arParams["THUMBNAIL_SIZE"] = $arParams["PICTURES"][$arParams["PICTURES_SIGHT"]]["size"];
 
 $arParams["SHOW_PAGE_NAVIGATION"] = (in_array($arParams["SHOW_PAGE_NAVIGATION"], array("none", "top", "bottom", "both")) ? 
@@ -35,7 +35,7 @@ $arParams["SHOW_RATING"] = ($arParams["SHOW_RATING"] == "Y" ? "Y" : "N");
 $arParams["SHOW_SHOWS"] = ($arParams["SHOW_SHOWS"] == "Y" ? "Y" : "N");
 $arParams["SHOW_COMMENTS"] = ($arParams["SHOW_COMMENTS"] == "Y" ? "Y" : "N");
 
-$arParams["GALLERY_AVATAR_SIZE"] = intVal(intVal($arParams["GALLERY_AVATAR_SIZE"]) > 0 ?  $arParams["GALLERY_AVATAR_SIZE"] : 50);
+$arParams["GALLERY_AVATAR_SIZE"] = intval(intVal($arParams["GALLERY_AVATAR_SIZE"]) > 0 ?  $arParams["GALLERY_AVATAR_SIZE"] : 50);
 /********************************************************************
 				Input params
 ********************************************************************/
@@ -67,8 +67,8 @@ foreach ($arResult["ELEMENTS_LIST"]	as $key => $arItem):
 		$coeff = $arParams["THUMBNAIL_SIZE"] / max($arItem["PICTURE"]["WIDTH"], $arItem["PICTURE"]["HEIGHT"]);
 		if ($coeff < 1)
 		{
-			$arItem["PICTURE"]["WIDTH"] = intVal($coeff * $arItem["PICTURE"]["WIDTH"]);
-			$arItem["PICTURE"]["HEIGHT"] = intVal($coeff * $arItem["PICTURE"]["HEIGHT"]);
+			$arItem["PICTURE"]["WIDTH"] = intval($coeff * $arItem["PICTURE"]["WIDTH"]);
+			$arItem["PICTURE"]["HEIGHT"] = intval($coeff * $arItem["PICTURE"]["HEIGHT"]);
 		}
 	}
 	$sTitle = htmlspecialcharsEx($arItem["~NAME"]);
@@ -99,7 +99,7 @@ foreach ($arResult["ELEMENTS_LIST"]	as $key => $arItem):
 									?>height:<?=$arItem["PICTURE"]["HEIGHT"]?>px;">
 								<img src="<?=$arItem["PICTURE"]["SRC"]?>" width="<?=$arItem["PICTURE"]["WIDTH"]?>" height="<?=$arItem["PICTURE"]["HEIGHT"]?>" <?
 									?>alt="<?=$sTitle?>" title="<?=$sTitle?>" border="0" <?
-									?>style="position:absolute;margin-left:-<?=intVal($arItem["PICTURE"]["WIDTH"]/2)?>px;left:50%;" />
+									?>style="position:absolute;margin-left:-<?=intval($arItem["PICTURE"]["WIDTH"]/2)?>px;left:50%;" />
 							</a>
 						</div>
 						<div></div>
@@ -137,11 +137,11 @@ foreach ($arResult["ELEMENTS_LIST"]	as $key => $arItem):
 				
 				if ($arParams["SHOW_SHOWS"] == "Y"):
 ?>
-						<div class="photo-photo-shows"><?=GetMessage("P_SHOWS")?>: <?=intVal($arItem["SHOW_COUNTER"])?></div>
+						<div class="photo-photo-shows"><?=GetMessage("P_SHOWS")?>: <?=intval($arItem["SHOW_COUNTER"])?></div>
 <?
 				endif;
 				if ($arParams["SHOW_COMMENTS"] == "Y"):
-					$comments = intVal($arParams["COMMENTS_TYPE"] == "FORUM" ? $arItem["PROPERTIES"]["FORUM_MESSAGE_CNT"]["VALUE"] : 
+					$comments = intval($arParams["COMMENTS_TYPE"] == "FORUM" ? $arItem["PROPERTIES"]["FORUM_MESSAGE_CNT"]["VALUE"] :
 					$arItem["PROPERTIES"]["BLOG_COMMENTS_CNT"]["VALUE"]); 
 					if ($comments > 0 ):
 ?>

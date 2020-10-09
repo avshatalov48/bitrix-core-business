@@ -87,27 +87,26 @@ ob_start();
 				?>bx-mpl-author-id="#AUTHOR_ID#" <?
 				?>bx-mpl-author-gender="#AUTHOR_PERSONAL_GENDER#" <?
 				?>bx-mpl-author-name="#AUTHOR_NAME#"><?=GetMessage("BLOG_C_REPLY")?></a><?
-			} ?>
-			<a href="#" <?
-			?>id="record-#FULL_ID#-actions" <?
-				?>bx-mpl-view-url="#VIEW_URL#" bx-mpl-view-show="#VIEW_SHOW#" <?
-				?>bx-mpl-edit-url="#EDIT_URL#" bx-mpl-edit-show="#EDIT_SHOW#" <?
-				?>bx-mpl-moderate-url="#MODERATE_URL#" bx-mpl-moderate-show="#MODERATE_SHOW#" bx-mpl-moderate-approved="#APPROVED#" <?
-				?>bx-mpl-delete-url="#DELETE_URL###ID#" bx-mpl-delete-show="#DELETE_SHOW#" <?
-				?>bx-mpl-createtask-show="#CREATETASK_SHOW#" <?
-				?>bx-mpl-post-entity-type="#POST_ENTITY_TYPE#" <?
-				?>bx-mpl-comment-entity-type="#COMMENT_ENTITY_TYPE#" <?
-				if (!!$arParams["bPublicPage"])
-				{
-				?>onclick="javascript:void(0); return BX.PreventDefault(this);" <?
-				}
-				else
-				{
-				?>onclick="BX.onCustomEvent(BX('<?=$eventNodeIdTemplate?>'), 'onShowActions', [this, '#ID#']); return BX.PreventDefault(this);" <?
-				}
-				?>class="feed-post-more-link feed-post-more-link-#VIEW_SHOW#-#EDIT_SHOW#-#MODERATE_SHOW#-#DELETE_SHOW#"><?
-				?><span class="feed-post-more-text"><?=GetMessage("BLOG_C_BUTTON_MORE")?></span><?
-			?></a>
+			}
+
+
+			if (!$arParams["bPublicPage"])
+			{
+				?><a href="#" <?
+				?> id="record-#FULL_ID#-actions" <?
+				?> bx-mpl-view-url="#VIEW_URL#" bx-mpl-view-show="#VIEW_SHOW#" <?
+				?> bx-mpl-edit-url="#EDIT_URL#" bx-mpl-edit-show="#EDIT_SHOW#" <?
+				?> bx-mpl-moderate-url="#MODERATE_URL#" bx-mpl-moderate-show="#MODERATE_SHOW#" bx-mpl-moderate-approved="#APPROVED#" <?
+				?> bx-mpl-delete-url="#DELETE_URL###ID#" bx-mpl-delete-show="#DELETE_SHOW#" <?
+				?> bx-mpl-createtask-show="#CREATETASK_SHOW#" <?
+				?> bx-mpl-post-entity-type="#POST_ENTITY_TYPE#" <?
+				?> bx-mpl-comment-entity-type="#COMMENT_ENTITY_TYPE#" <?
+				?> onclick="BX.onCustomEvent(BX('<?=$eventNodeIdTemplate?>'), 'onShowActions', [this, '#ID#']); return BX.PreventDefault(this);" <?
+				?> class="feed-post-more-link feed-post-more-link-#VIEW_SHOW#-#EDIT_SHOW#-#MODERATE_SHOW#-#DELETE_SHOW#"><?
+					?><span class="feed-post-more-text"><?=GetMessage("BLOG_C_BUTTON_MORE")?></span><?
+				?></a><?
+			}
+			?>
 			#AFTER_ACTIONS#
 		</div>
 		#AFTER_RECORD#<?
@@ -180,7 +179,6 @@ else
 $ajaxParams = [];
 if ($this->__component->__parent instanceof \Bitrix\Main\Engine\Contract\Controllerable)
 {
-	unset($params["USER_FIELDS_SETTINGS"]);
 	$ajaxParams = [
 		"componentName" => $this->__component->__parent->getName(),
 		"processComment" => method_exists($this->__component->__parent, "processCommentAction"),
@@ -264,8 +262,11 @@ if ($arParams["SHOW_POST_FORM"] == "Y")
 
 	?><div class="feed-com-add-box-outer" id="record-<?=$prefixNode?>-form-holder">
 
-		<div class="feed-com-avatar feed-com-avatar-<?=($AUTHOR_AVATAR == '/bitrix/images/1.gif' ? "N" : "Y")?>"><?
-			?><img width="37" height="37" src="<?=\CHTTP::urnEncode($AUTHOR_AVATAR)?>"><?
+		<div class="ui-icon ui-icon-common-user feed-com-avatar feed-com-avatar-<?=($AUTHOR_AVATAR == '/bitrix/images/1.gif' ? "N" : "Y")?>"><?
+			?>
+			<i></i>
+			<img width="37" height="37" src="<?=\CHTTP::urnEncode($AUTHOR_AVATAR)?>">
+			<?
 		?></div>
 
 		<div class="feed-com-add-box">

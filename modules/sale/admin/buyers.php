@@ -292,7 +292,7 @@ if ($publicMode && \Bitrix\Main\Loader::includeModule('crm'))
 	}
 
 	$gridColumns = $gridOptions->getUsedColumns();
-	$selectColumns = array_merge($gridColumns, ['ID']);
+	$selectColumns = array_merge($gridColumns, ['ID', 'EXTERNAL_AUTH_ID']);
 	$selectColumns = array_intersect($selectColumns, array_keys(\Bitrix\Main\UserTable::getMap()));
 
 	$navyParams = CDBResult::GetNavParams(CAdminUiResult::GetNavSize($sTableID));
@@ -457,6 +457,8 @@ else
 }
 
 $lAdmin->SetNavigationParams($resultUsersList, array("BASE_LINK" => $selfFolderUrl."sale_buyers.php"));
+$isIntranetInstalled = IsModuleInstalled('intranet');
+$isCrmInstalled = IsModuleInstalled('crm');
 
 while ($arBuyers = $resultUsersList->Fetch())
 {
@@ -469,6 +471,20 @@ while ($arBuyers = $resultUsersList->Fetch())
 
 	$profileUrl = $selfFolderUrl."sale_buyers_profile.php?USER_ID=".$userId."&lang=".LANGUAGE_ID;
 	$profileUrl = $adminSidePanelHelper->editUrlToPublicPage($profileUrl);
+
+	if(
+		$publicMode
+		&& $isIntranetInstalled
+		&& $isCrmInstalled
+		&& $arBuyers['EXTERNAL_AUTH_ID'] !== \Bitrix\Crm\Order\Buyer::AUTH_ID
+	)
+	{
+		$editUrl = '/company/personal/user/'.$userId.'/';
+	}
+	else
+	{
+		$editUrl = '/shop/buyer/'.$userId.'/edit/';
+	}
 
 	$row =& $lAdmin->AddRow($userId, $arBuyers, $profileUrl, GetMessage("BUYER_SUB_ACTION_PROFILE"));
 
@@ -516,7 +532,7 @@ while ($arBuyers = $resultUsersList->Fetch())
 		$arActions[] = array(
 			'ICON' => 'edit',
 			'TEXT' => GetMessage('BUYER_SUB_ACTION_EDIT_PROFILE'),
-			'LINK' => '/shop/buyer/'.$userId.'/edit/',
+			'LINK' => $editUrl,
 		);
 	}
 

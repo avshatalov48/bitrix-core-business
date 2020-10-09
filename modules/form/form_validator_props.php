@@ -24,12 +24,10 @@ while ($arValidatorInfo = $rsValidators->Fetch())
 }
 if ($bFound)
 {
-	if (is_array($arValidatorInfo["SETTINGS"]) || strlen($arValidatorInfo["SETTINGS"]) > 0)
+	if (is_array($arValidatorInfo["SETTINGS"]) || $arValidatorInfo["SETTINGS"] <> '')
 	{
 
 		$arSettings = call_user_func($arValidatorInfo["SETTINGS"]);
-
-		//echo "<pre>"; print_r($arSettings); echo "</pre>";
 ?>
 	<div class="description">
 		<p>

@@ -102,10 +102,10 @@ abstract class Item
 	 */
 	public function __call($name, $arguments)
 	{
-		$method = substr($name, 0, 3);
+		$method = mb_substr($name, 0, 3);
 		if (in_array($method, ['set', 'get']))
 		{
-			$key = lcfirst(substr($name, 3));
+			$key = lcfirst(mb_substr($name, 3));
 			return call_user_func_array(array($this, $method), array_merge([$key], $arguments));
 		}
 

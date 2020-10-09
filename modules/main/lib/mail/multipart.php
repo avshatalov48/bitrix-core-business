@@ -32,7 +32,7 @@ class Multipart extends Part
 	public function __construct()
 	{
 		parent::__construct();
-		$this->uniqueString = substr(uniqid(mt_rand(100, 999)), 0, 10);
+		$this->uniqueString = mb_substr(uniqid(mt_rand(100, 999)), 0, 10);
 		$this->setContentType(self::MIXED);
 	}
 

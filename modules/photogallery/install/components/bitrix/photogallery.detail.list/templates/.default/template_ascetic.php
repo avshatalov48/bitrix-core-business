@@ -44,12 +44,12 @@ if (!function_exists("__photo_template_ascetic"))
 			$arItem["PICTURE"]["WIDTH"] = $arParams["MAX_WIDTH"];
 			$arItem["PICTURE"]["HEIGHT"] = $arParams["MAX_HEIGHT"];
 		elseif ($arParams["percent_width"] <= 0):
-			$margin_top = 0 - intVal(($arItem["PICTURE"]["HEIGHT"] - $arParams["MAX_HEIGHT"])/2);
+			$margin_top = 0 - intval(($arItem["PICTURE"]["HEIGHT"] - $arParams["MAX_HEIGHT"])/2);
 			$arItem["PICTURE"]["HEIGHT"] = $arParams["MAX_HEIGHT"];
 			$sImage = '<div style="margin-top:'.$margin_top.'px;text-align:left;position:static;">'.$sImage.'</div>';
 		else:
-			$margin_left = round((0 - intVal(($arItem["PICTURE"]["WIDTH"] - $arParams["MAX_WIDTH"])/2)) * 100 / $arParams["MAX_WIDTH"], 2);
-			$margin_top = round((0 - intVal(($arItem["PICTURE"]["HEIGHT"] - $arParams["MAX_HEIGHT"])/2)) * 100 / $arParams["MAX_HEIGHT"], 2);
+			$margin_left = round((0 - intval(($arItem["PICTURE"]["WIDTH"] - $arParams["MAX_WIDTH"])/2)) * 100 / $arParams["MAX_WIDTH"], 2);
+			$margin_top = round((0 - intval(($arItem["PICTURE"]["HEIGHT"] - $arParams["MAX_HEIGHT"])/2)) * 100 / $arParams["MAX_HEIGHT"], 2);
 
 			$arItem["PICTURE"]["WIDTH"] = $arParams["MAX_WIDTH"];
 			$arItem["PICTURE"]["HEIGHT"] = $arParams["MAX_HEIGHT"];

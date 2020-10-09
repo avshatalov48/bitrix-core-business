@@ -2409,7 +2409,7 @@ REQ
 				case "string_equal":
 					if($cOperationType=="?")
 					{
-						if($val <> '')
+						if((string)$val <> '')
 							$res[] = GetFilterQuery($fname, $val, "N");
 					}
 					elseif($cOperationType=="S" || $cOperationType=="NS")
@@ -2418,7 +2418,7 @@ REQ
 						$res[] = ($cOperationType=="NB"?" ".$fname." IS NULL OR NOT ":"")."(".CIBlock::_Upper($fname)." ".$strOperation[0]." '".CIBlock::_Upper($DB->ForSql($val[0]))."' ".$strOperation[1]." '".CIBlock::_Upper($DB->ForSql($val[1]))."')";
 					else
 					{
-						if($val == '')
+						if((string)$val == '')
 							$res[] = ($cOperationType=="N"?"NOT":"")."(".$fname." IS NULL OR ".$DB->Length($fname)."<=0)";
 						else
 							$res[] = ($cOperationType=="N"?" ".$fname." IS NULL OR NOT ":"")."(".CIBlock::_Upper($fname).$strOperation.CIBlock::_Upper("'".$DB->ForSql($val)."'").")";
@@ -2427,7 +2427,7 @@ REQ
 				case "string":
 					if($cOperationType=="?")
 					{
-						if($val <> '')
+						if((string)$val <> '')
 						{
 							$sr = GetFilterQuery($fname, $val, "Y", array(), ($fname=="BE.SEARCHABLE_CONTENT" || $fname=="BE.DETAIL_TEXT" ? "Y" : "N"));
 							if($sr != "0")
@@ -2449,7 +2449,7 @@ REQ
 					}
 					else
 					{
-						if($val == '')
+						if((string)$val == '')
 							$res[] = ($bNegative? "NOT": "")."(".$fname." IS NULL OR ".$DB->Length($fname)."<=0)";
 						else
 							if($strOperation=="=" && $cOperationType!="I" && $cOperationType!="NI")
@@ -2522,7 +2522,7 @@ REQ
 					}
 					elseif($cOperationType=="?")
 					{
-						if($val <> '')
+						if((string)$val <> '')
 						{
 							$sr = GetFilterQuery($fname, $val, "Y", array(), ($fname=="BE.SEARCHABLE_CONTENT" || $fname=="BE.DETAIL_TEXT" ? "Y" : "N"));
 							if($sr != "0")
@@ -2537,7 +2537,7 @@ REQ
 						$res[] = ($cOperationType=="NS"?" ".$fname." IS NULL OR NOT ":"")."(".CIBlock::_Upper($fname)." LIKE ".CIBlock::_Upper("'%".CIBlock::ForLIKE($val)."%'").")";
 					else
 					{
-						if($val == '')
+						if((string)$val == '')
 							$res[] = ($bNegative? "NOT": "")."(".$fname." IS NULL OR ".$DB->Length($fname)."<=0)";
 						else
 							if($strOperation=="=" && $cOperationType!="I" && $cOperationType!="NI")

@@ -9,7 +9,6 @@ if (count($arResult['FORMS']) <= 0)
 ?>
 <div class="bx-mylist-layout">
 <?
-//echo '<pre>'; print_r($arResult); echo '</pre>';
 foreach ($arResult['FORMS'] as $FORM_ID => $arForm):
 ?>
 	<div class="bx-mylist-form" id="bx_mylist_form_<?echo $FORM_ID?>">

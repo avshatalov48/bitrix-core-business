@@ -20,15 +20,15 @@ Params:
  */
 
 $arParams["USER_ID"] = trim($arParams["USER_ID"]);
-if(strlen($arParams["USER_ID"]) <= 0)
+if($arParams["USER_ID"] == '')
 	$arParams["USER_ID"] = "confirm_user_id";
 
 $arParams["CONFIRM_CODE"] = trim($arParams["CONFIRM_CODE"]);
-if(strlen($arParams["CONFIRM_CODE"]) <= 0)
+if($arParams["CONFIRM_CODE"] == '')
 	$arParams["CONFIRM_CODE"] = "confirm_code";
 
 $arParams["LOGIN"] = trim($arParams["LOGIN"]);
-if(strlen($arParams["LOGIN"]) <= 0)
+if($arParams["LOGIN"] == '')
 	$arParams["LOGIN"] = "login";
 
 $arResult["~USER_ID"] = $_REQUEST[$arParams["USER_ID"]];
@@ -48,7 +48,7 @@ if($USER->IsAuthorized())
 }
 else
 {
-	if($arResult["USER_ID"] <= 0 && strlen($arResult["~LOGIN"]) > 0)
+	if($arResult["USER_ID"] <= 0 && $arResult["~LOGIN"] <> '')
 	{
 		$rsUser = CUser::GetByLogin($arResult["~LOGIN"]);
 	}
@@ -67,7 +67,7 @@ else
 		}
 		else
 		{
-			if(strlen($arResult["CONFIRM_CODE"]) <= 0)
+			if($arResult["CONFIRM_CODE"] == '')
 			{
 				$arResult["MESSAGE_TEXT"] = GetMessage("CC_BSAC_MESSAGE_E04");
 				$arResult["MESSAGE_CODE"] = "E04";

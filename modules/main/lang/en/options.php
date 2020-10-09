@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["FILL_TO_MAIL_M"] = "E-mail address in caption";
 $MESS["MAIN_ADMIN_DEFAULT_LANG"] = "Control Panel default language:";
 $MESS["MAIN_AUDIT_OPTIONS"] = "Events in Log";
@@ -36,8 +36,8 @@ $MESS["MAIN_OPTIMIZE_TRANSLATE_SETTINGS"] = "External Translation Engines";
 $MESS["MAIN_OPTIONS_AUTH_TEMPLATE"] = "System authentication component template (system.auth.*):";
 $MESS["MAIN_OPTIONS_AUTOCHECK"] = "Check for updates:";
 $MESS["MAIN_OPTIONS_AUTOCHECK_1"] = "Daily";
-$MESS["MAIN_OPTIONS_AUTOCHECK_30"] = "Monthly";
 $MESS["MAIN_OPTIONS_AUTOCHECK_7"] = "Weekly";
+$MESS["MAIN_OPTIONS_AUTOCHECK_30"] = "Monthly";
 $MESS["MAIN_OPTIONS_AUTOCHECK_NO"] = "Never";
 $MESS["MAIN_OPTIONS_IMAGES"] = "User profile images";
 $MESS["MAIN_OPTIONS_IMAGES_HEIGHT"] = "Max. height (px):";
@@ -151,7 +151,9 @@ $MESS["MAIN_OPT_BX_FAST_DOWNLOAD_HINT"] = "<a href=\"http://www.bitrixsoft.com/s
 $MESS["MAIN_OPT_CANCEL"] = "Cancel";
 $MESS["MAIN_OPT_CANCEL_TITLE"] = "Do not save changes and return";
 $MESS["MAIN_OPT_DIGEST_NOTE"] = "Note that HTTP Digest can only be used with the built-in authentication.";
+$MESS["MAIN_OPT_EVENT_LOG_BLOCK"] = "Log user ban event:";
 $MESS["MAIN_OPT_EXT_NOTE"] = "Install <a href=\"http://www.php.net/manual/en/book.openssl.php\">OpenSSL</a> PHP extension to enable secure authorization.";
+$MESS["MAIN_OPT_HISTORY_DAYS"] = "Days to keep the log:";
 $MESS["MAIN_OPT_HTTP_DIGEST"] = "Allow HTTP Digest authentication";
 $MESS["MAIN_OPT_PROFILE"] = "User profile";
 $MESS["MAIN_OPT_PROFILE_HYSTORY"] = "Keep history of user profile field updates:";
@@ -223,6 +225,8 @@ $MESS["group_rights_select"] = "(select group)";
 $MESS["main_option_mail_bulk"] = "Messages to send at a page request:";
 $MESS["main_option_mail_period"] = "Number of days to keep e-mail events:";
 $MESS["main_options_block_inactive"] = "Deactivate user accounts inactive (not logged in) for (days):";
+$MESS["main_options_control_diplicates"] = "Watch for file duplicates when uploading files:";
+$MESS["main_options_diplicates_max_size"] = "Don't try to detect duplicates if the file size is over (MB):";
 $MESS["main_options_email_register"] = "Register users using email:";
 $MESS["main_options_files"] = "File Settings";
 $MESS["main_options_mail"] = "E-mail Settings";
@@ -246,4 +250,3 @@ $MESS["main_sett_add_users"] = "Add users";
 $MESS["main_sett_public_panel"] = "Public Section Toolbar";
 $MESS["main_sett_public_panel_hide"] = "Never show the toolbar to users:";
 $MESS["main_sett_public_panel_show"] = "Always show toolbar for users:";
-?>

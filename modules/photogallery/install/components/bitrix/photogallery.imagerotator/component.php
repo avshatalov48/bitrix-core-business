@@ -59,12 +59,12 @@ if (is_array($res) && count($res) > 0):
 
 $maxChar = 28;
 if ($arParams['WIDTH'] != 300)
-	$maxChar = intVal(($arParams['WIDTH'] - 100) / 8);
+	$maxChar = intval(($arParams['WIDTH'] - 100) / 8);
 
 foreach($res as $photo):
 
-		if (strlen($photo['description']) > $maxChar)
-			$title = trim(substr($photo['description'], 0, $maxChar)).'...';
+		if (mb_strlen($photo['description']) > $maxChar)
+			$title = trim(mb_substr($photo['description'], 0, $maxChar)).'...';
 		else
 			$title = $photo['album_name'].' - '.$photo['description'];
 		$title = trim($title, ' -');

@@ -8,7 +8,7 @@ class CLTestMark
 		global $DB;
 		$arMsg = Array();
 
-		if ( (is_set($arFields, "MARK") || $ID === false) && strlen($arFields["MARK"]) <= 0)
+		if ( (is_set($arFields, "MARK") || $ID === false) && (string)$arFields["MARK"] == '')
 			$arMsg[] = array("id"=>"MARK", "text"=> GetMessage("LEARNING_BAD_MARK"));
 
 
@@ -157,7 +157,7 @@ class CLTestMark
 			$key = $res["FIELD"];
 			$cOperationType = $res["OPERATION"];
 
-			$key = strtoupper($key);
+			$key = mb_strtoupper($key);
 
 			switch ($key)
 			{
@@ -183,7 +183,7 @@ class CLTestMark
 
 		$strSqlSearch = "";
 		for($i=0; $i<count($arSqlSearch); $i++)
-			if(strlen($arSqlSearch[$i])>0)
+			if($arSqlSearch[$i] <> '')
 				$strSqlSearch .= " AND ".$arSqlSearch[$i]." ";
 
 		$strSql =
@@ -195,10 +195,11 @@ class CLTestMark
 		if (!is_array($arOrder))
 			$arOrder = Array();
 
+		$arSqlOrder = [];
 		foreach($arOrder as $by=>$order)
 		{
-			$by = strtolower($by);
-			$order = strtolower($order);
+			$by = mb_strtolower($by);
+			$order = mb_strtolower($order);
 			if ($order!="asc")
 				$order = "desc";
 

@@ -95,6 +95,15 @@ class Server
 	}
 
 	/**
+	 * Returns user agent.
+	 * @return string|null
+	 */
+	public function getUserAgent()
+	{
+		return $this->get("HTTP_USER_AGENT");
+	}
+
+	/**
 	 * Returns server port.
 	 *
 	 * @return string | null

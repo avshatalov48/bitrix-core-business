@@ -511,7 +511,7 @@ class UserFieldTable extends ORM\Data\DataManager
 
 	protected static function getUtsEntityTableNameBySrcEntity(ORM\Entity $srcEntity, $ufId = null)
 	{
-		return 'b_uts_'.strtolower($ufId ?: $srcEntity->getUfId());
+		return 'b_uts_'.mb_strtolower($ufId ?: $srcEntity->getUfId());
 	}
 
 	/**
@@ -642,7 +642,7 @@ class UserFieldTable extends ORM\Data\DataManager
 
 	protected static function getUtmEntityTableNameBySrcEntity(ORM\Entity $srcEntity, $ufId = null)
 	{
-		return 'b_utm_'.strtolower($ufId ?: $srcEntity->getUfId());
+		return 'b_utm_'.mb_strtolower($ufId ?: $srcEntity->getUfId());
 	}
 
 	/**
@@ -676,18 +676,18 @@ class UserFieldTable extends ORM\Data\DataManager
 	 */
 	public static function unserializeMultipleDatetime($value)
 	{
-		if (strlen($value))
+		if($value <> '')
 		{
 			$value = unserialize($value);
 
-			foreach ($value as &$singleValue)
+			foreach($value as &$singleValue)
 			{
 				try
 				{
 					//try new independent datetime format
 					$singleValue = new Type\DateTime($singleValue, static::MULTIPLE_DATETIME_FORMAT);
 				}
-				catch (ObjectException $e)
+				catch(ObjectException $e)
 				{
 					//try site format
 					$singleValue = new Type\DateTime($singleValue);
@@ -729,18 +729,18 @@ class UserFieldTable extends ORM\Data\DataManager
 	 */
 	public static function unserializeMultipleDate($value)
 	{
-		if (strlen($value))
+		if($value <> '')
 		{
 			$value = unserialize($value);
 
-			foreach ($value as &$singleValue)
+			foreach($value as &$singleValue)
 			{
 				try
 				{
 					//try new independent datetime format
 					$singleValue = new Type\Date($singleValue, static::MULTIPLE_DATE_FORMAT);
 				}
-				catch (ObjectException $e)
+				catch(ObjectException $e)
 				{
 					//try site format
 					$singleValue = new Type\Date($singleValue);

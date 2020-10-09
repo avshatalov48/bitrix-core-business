@@ -10,7 +10,7 @@ elseif (!IsModuleInstalled("iblock"))
 //***************** BASE *******************************************/
 	$arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
 	$arParams["IBLOCK_ID"] = intval($arParams["IBLOCK_ID"]);
-	$arParams["ELEMENT_ID"] = intVal($arParams["ELEMENT_ID"]);
+	$arParams["ELEMENT_ID"] = intval($arParams["ELEMENT_ID"]);
 
 	$arParams["COMMENTS_TYPE"] = ($arParams["COMMENTS_TYPE"] == "forum" ? "forum" : "blog");
 	$arParams["IS_SOCNET"] = ($arParams["IS_SOCNET"] == "Y" ? "Y" : "N");
@@ -21,11 +21,11 @@ elseif (!IsModuleInstalled("iblock"))
 	$URL_NAME_DEFAULT = array("detail" => "PAGE_NAME=detail&SECTION_ID=#SECTION_ID#&ELEMENT_ID=#ELEMENT_ID#");
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		$arParams[strToUpper($URL)."_URL"] = trim($arParams[strToUpper($URL)."_URL"]);
-		if (empty($arParams[strToUpper($URL)."_URL"]))
-			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPageParam($URL_VALUE, array("PAGE_NAME", "SECTION_ID", "ELEMENT_ID", "ACTION", "AJAX_CALL"));
-		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[mb_strtoupper($URL)."_URL"] = trim($arParams[mb_strtoupper($URL)."_URL"]);
+		if (empty($arParams[mb_strtoupper($URL)."_URL"]))
+			$arParams[mb_strtoupper($URL)."_URL"] = $APPLICATION->GetCurPageParam($URL_VALUE, array("PAGE_NAME", "SECTION_ID", "ELEMENT_ID", "ACTION", "AJAX_CALL"));
+		$arParams["~".mb_strtoupper($URL)."_URL"] = $arParams[mb_strtoupper($URL)."_URL"];
+		$arParams[mb_strtoupper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".mb_strtoupper($URL)."_URL"]);
 	}
 
 	$arParams["DETAIL_URL"] = CComponentEngine::MakePathFromTemplate($arParams["DETAIL_URL"], array("USER_ALIAS" => isset($arParams["USER_ALIAS"]) ? $arParams["USER_ALIAS"] : 'empty'));
@@ -36,7 +36,7 @@ elseif (!IsModuleInstalled("iblock"))
 	else
 		$arParams["CACHE_TIME"] = 0;
 
-	if (intVal($_REQUEST['ELEMENT_ID']) > 0 && $_REQUEST['save_photo_comment'] == 'Y')
+	if (intval($_REQUEST['ELEMENT_ID']) > 0 && $_REQUEST['save_photo_comment'] == 'Y')
 		PClearComponentCacheEx($arParams["IBLOCK_ID"], array(0, $arParams["SECTION_ID"]));
 /********************************************************************
 				/Input params
@@ -205,12 +205,12 @@ elseif ($arParams["COMMENTS_TYPE"] == "blog")
 		$arResult["ELEMENT"]["PROPETIES"] = array();
 		foreach ($arResult["ELEMENT"] as $key => $val)
 		{
-			if ((substr($key, 0, 9) == "PROPERTY_" && substr($key, -6, 6) == "_VALUE"))
-				$arResult["ELEMENT"]["PROPERTIES"][substr($key, 9, intVal(strLen($key)-15))] = array("VALUE" => $val);
+			if ((mb_substr($key, 0, 9) == "PROPERTY_" && mb_substr($key, -6, 6) == "_VALUE"))
+				$arResult["ELEMENT"]["PROPERTIES"][mb_substr($key, 9, intval(mb_strlen($key) - 15))] = array("VALUE" => $val);
 		}
 
 		$arGallery = array("CODE" => "");
-		if (strpos($arParams["~DETAIL_URL"], "#USER_ALIAS#") !== false)
+		if (mb_strpos($arParams["~DETAIL_URL"], "#USER_ALIAS#") !== false)
 		{
 			CModule::IncludeModule("iblock");
 			$arFilter = array(
@@ -250,7 +250,7 @@ elseif ($arParams["COMMENTS_TYPE"] == "blog")
 		$obProperty = new CIBlockProperty;
 		if (is_set($arResult["ELEMENT"]["PROPERTIES"], "BLOG_POST_ID"))
 		{
-			$iCommentID = intVal($arResult["ELEMENT"]["PROPERTIES"]["BLOG_POST_ID"]["VALUE"]);
+			$iCommentID = intval($arResult["ELEMENT"]["PROPERTIES"]["BLOG_POST_ID"]["VALUE"]);
 		}
 		else
 		{
@@ -259,7 +259,7 @@ elseif ($arParams["COMMENTS_TYPE"] == "blog")
 					"ACTIVE" => "Y",
 					"PROPERTY_TYPE" => "N",
 					"MULTIPLE" => "N",
-					"NAME" => (strLen(GetMessage("P_BLOG_POST_ID")) <= 0 ? "BLOG_POST_ID" : GetMessage("P_BLOG_POST_ID")),
+					"NAME" => (GetMessage("P_BLOG_POST_ID") == '' ? "BLOG_POST_ID" : GetMessage("P_BLOG_POST_ID")),
 					"CODE" => "BLOG_POST_ID"
 				)
 			);
@@ -272,7 +272,7 @@ elseif ($arParams["COMMENTS_TYPE"] == "blog")
 					"ACTIVE" => "Y",
 					"PROPERTY_TYPE" => "N",
 					"MULTIPLE" => "N",
-					"NAME" => (strLen(GetMessage("P_BLOG_COMMENTS_CNT")) <= 0 ? "P_BLOG_COMMENTS_CNT" : GetMessage("P_BLOG_COMMENTS_CNT")),
+					"NAME" => (GetMessage("P_BLOG_COMMENTS_CNT") == '' ? "P_BLOG_COMMENTS_CNT" : GetMessage("P_BLOG_COMMENTS_CNT")),
 					"CODE" => "BLOG_COMMENTS_CNT"
 				)
 			);
@@ -283,8 +283,8 @@ elseif ($arParams["COMMENTS_TYPE"] == "blog")
 			$arPost = CBlogPost::GetByID($iCommentID);
 			if (!$arPost)
 				$iCommentID = 0;
-			elseif (intVal($arPost["NUM_COMMENTS"]) > 0 && $arPost["NUM_COMMENTS"] != $arResult["ELEMENT"]["PROPERTIES"]["BLOG_COMMENTS_CNT"]["VALUE"])
-				CIBlockElement::SetPropertyValues($arParams["ELEMENT_ID"], $arParams["IBLOCK_ID"], intVal($arPost["NUM_COMMENTS"]), "BLOG_COMMENTS_CNT");
+			elseif (intval($arPost["NUM_COMMENTS"]) > 0 && $arPost["NUM_COMMENTS"] != $arResult["ELEMENT"]["PROPERTIES"]["BLOG_COMMENTS_CNT"]["VALUE"])
+				CIBlockElement::SetPropertyValues($arParams["ELEMENT_ID"], $arParams["IBLOCK_ID"], intval($arPost["NUM_COMMENTS"]), "BLOG_COMMENTS_CNT");
 		}
 
 		if (!$iCommentID && isset($_REQUEST["parentId"]))

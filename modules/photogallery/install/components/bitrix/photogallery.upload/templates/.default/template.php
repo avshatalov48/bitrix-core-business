@@ -14,7 +14,7 @@ $APPLICATION->AddHeadScript("/bitrix/components/bitrix/photogallery/templates/.d
 $APPLICATION->AddHeadScript("/bitrix/components/bitrix/photogallery.interface/templates/.default/script.js");
 $APPLICATION->AddHeadScript("/bitrix/components/bitrix/search.tags.input/templates/.default/script.js");
 
-if (!$this->__component->__parent || strpos($this->__component->__parent->__name, "photogallery") === false)
+if (!$this->__component->__parent || mb_strpos($this->__component->__parent->__name, "photogallery") === false)
 {
 	$APPLICATION->SetAdditionalCSS("/bitrix/components/bitrix/photogallery/templates/.default/style.css");
 	$APPLICATION->SetAdditionalCSS("/bitrix/components/bitrix/photogallery/templates/.default/themes/gray/style.css");
@@ -30,9 +30,9 @@ $arParams["SHOW_WATERMARK"] = ($arParams["SHOW_WATERMARK"] == "N" ? "N" : "Y");
 if ($arParams["USE_WATERMARK"] != "Y" || $arParams["WATERMARK"] != "Y")
 	$arParams["SHOW_WATERMARK"] = "N";
 
-$arParams["JPEG_QUALITY1"] = intVal($arParams["JPEG_QUALITY1"]) > 0 ? intVal($arParams["JPEG_QUALITY1"]) : 80;
-$arParams["JPEG_QUALITY2"] = intVal($arParams["JPEG_QUALITY2"]) > 0 ? intVal($arParams["JPEG_QUALITY2"]) : 90;
-$arParams["JPEG_QUALITY"] = intVal($arParams["JPEG_QUALITY"]) > 0 ? intVal($arParams["JPEG_QUALITY"]) : 90;
+$arParams["JPEG_QUALITY1"] = intval($arParams["JPEG_QUALITY1"]) > 0 ? intval($arParams["JPEG_QUALITY1"]) : 80;
+$arParams["JPEG_QUALITY2"] = intval($arParams["JPEG_QUALITY2"]) > 0 ? intval($arParams["JPEG_QUALITY2"]) : 90;
+$arParams["JPEG_QUALITY"] = intval($arParams["JPEG_QUALITY"]) > 0 ? intval($arParams["JPEG_QUALITY"]) : 90;
 $arParams["USER_SETTINGS"] = (is_array($arParams["USER_SETTINGS"]) ? $arParams["USER_SETTINGS"] : array());
 $arParams["id"] = getImageUploaderId("Uploader");
 /********************************************************************
@@ -46,11 +46,11 @@ $arWatermarkPos = array("TopLeft", "TopCenter", "TopRight", "CenterLeft", "Cente
 $arWatermarkDefault = array(
 	"additional" => "N",
 	"use" => "Y",
-	"type" => strtolower($arParams["WATERMARK_TYPE"]),
+	"type" => mb_strtolower($arParams["WATERMARK_TYPE"]),
 	"copyright" => "N",
 	"color" => $arParams["WATERMARK_COLOR"],
 	"position" => $arParams["WATERMARK_POSITION"],
-	"opacity" => (isset($arParams["WATERMARK_TRANSPARENCY"]) ? intVal($arParams["WATERMARK_TRANSPARENCY"]) : 50),
+	"opacity" => (isset($arParams["WATERMARK_TRANSPARENCY"]) ? intval($arParams["WATERMARK_TRANSPARENCY"]) : 50),
 	"text" => $arParams["WATERMARK_TEXT"],
 	"file" => $arParams["WATERMARK_FILE_REL"],
 	"fileWidth" => $arParams["WATERMARK_FILE_WIDTH"],
@@ -64,9 +64,9 @@ $arWatermark["copyright"] = ($arWatermark["copyright"] == "Y" ? "Y" : "N");
 $arWatermark["color"] = htmlspecialcharsbx($arWatermark["color"] ?: "#FF0000");
 $arWatermark["size"] = (in_array($arWatermark["size"], array("real", "big", "middle", "small")) ? $arWatermark["size"] : "real");
 $arWatermark["position"] = (in_array($arWatermark["position"], $arWatermarkPos) ? $arWatermark["position"] : "BottomRight");
-$arWatermark["opacity"] = intVal($arWatermark["opacity"] ?: 50);
+$arWatermark["opacity"] = intval($arWatermark["opacity"] ?: 50);
 $arWatermark["text"] = htmlspecialcharsbx($arWatermark["text"]);
-$arWatermark["original_size"] = intVal($arWatermark["original_size"]);
+$arWatermark["original_size"] = intval($arWatermark["original_size"]);
 $htmlSettings = array();
 
 if($arParams["SHOW_RESIZER"] == "Y")
@@ -352,7 +352,7 @@ if ($arParams["ORIGINAL_SIZE"] || $arResult["UPLOAD_MAX_FILE_SIZE_MB"] && $arPar
 	<p><?= GetMessage("P_MODERATION_NITICE");?></p>
 <?endif;?>
 <? if ($arParams["ORIGINAL_SIZE"]):?>
-	<p><?= GetMessage("P_MAX_FILE_DIMENTIONS_NOTICE", Array("#MAX_FILE_DIMENTIONS#" => intVal($arParams["ORIGINAL_SIZE"])));?></p>
+	<p><?= GetMessage("P_MAX_FILE_DIMENTIONS_NOTICE", Array("#MAX_FILE_DIMENTIONS#" => intval($arParams["ORIGINAL_SIZE"])));?></p>
 <?endif;?>
 <? if ($arResult["UPLOAD_MAX_FILE_SIZE_MB"] && $arParams["ALLOW_UPLOAD_BIG_FILES"] != "Y"):?>
 	<p><?= GetMessage("P_MAX_FILE_SIZE_NOTICE", Array("#POST_MAX_SIZE_STR#" => $arResult["UPLOAD_MAX_FILE_SIZE_MB"]));?></p>

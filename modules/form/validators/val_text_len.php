@@ -60,14 +60,14 @@ class CFormValidatorTextLen
 		foreach ($arValues as $value)
 		{
 			// check minimum length
-			if (strlen($value) < $arParams["LENGTH_FROM"])
+			if (mb_strlen($value) < $arParams["LENGTH_FROM"])
 			{
 				$APPLICATION->ThrowException(GetMessage("FORM_VALIDATOR_VAL_TEXT_LEN_ERROR_LESS"));
 				return false;
 			}
 
 			// check maximum length
-			if (strlen($value) > $arParams["LENGTH_TO"])
+			if (mb_strlen($value) > $arParams["LENGTH_TO"])
 			{
 				$APPLICATION->ThrowException(GetMessage("FORM_VALIDATOR_VAL_TEXT_LEN_ERROR_MORE"));
 				return false;

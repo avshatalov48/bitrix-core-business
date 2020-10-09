@@ -7,7 +7,7 @@ define("NO_AGENT_CHECK", true);
 define("DisableEventsCheck", true);
 
 $siteId = (isset($_REQUEST["SITE_ID"]) && is_string($_REQUEST["SITE_ID"])) ? trim($_REQUEST["SITE_ID"]): "";
-$siteId = substr(preg_replace("/[^a-z0-9_]/i", "", $siteId), 0, 2);
+$siteId = mb_substr(preg_replace("/[^a-z0-9_]/i", "", $siteId), 0, 2);
 
 if (!empty($siteId))
 {

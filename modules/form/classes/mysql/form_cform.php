@@ -1,8 +1,4 @@
 <?
-/***************************************
-			Web-form
-***************************************/
-
 class CForm extends CAllForm
 {
 	public static function err_mess()
@@ -12,7 +8,6 @@ class CForm extends CAllForm
 		return "<br>Module: ".$module_id." (".$arModuleVersion["VERSION"].")<br>Class: CForm<br>File: ".__FILE__;
 	}
 
-	// список веб-форм
 	public static function GetList(&$by, &$order, $arFilter=Array(), &$is_filtered, $min_permission=10)
 	{
 		$err_mess = (CForm::err_mess())."<br>Function: GetList<br>Line: ";
@@ -23,26 +18,27 @@ class CForm extends CAllForm
 		$strSqlSearch = "";
 		if (is_array($arFilter))
 		{
-			if (strlen($arFilter["SID"])>0) $arFilter["VARNAME"] = $arFilter["SID"];
-			elseif (strlen($arFilter["VARNAME"])>0) $arFilter["SID"] = $arFilter["VARNAME"];
+			if ($arFilter["SID"] <> '') $arFilter["VARNAME"] = $arFilter["SID"];
+			elseif ($arFilter["VARNAME"] <> '') $arFilter["SID"] = $arFilter["VARNAME"];
 
 			$filter_keys = array_keys($arFilter);
-			for ($i=0; $i<count($filter_keys); $i++)
+			$keyCount = count($filter_keys);
+			for ($i=0; $i<$keyCount; $i++)
 			{
 				$key = $filter_keys[$i];
 				$val = $arFilter[$filter_keys[$i]];
 				if(is_array($val))
 				{
-					if(count($val) <= 0)
+					if(empty($val))
 						continue;
 				}
 				else
 				{
-				if( (strlen($val) <= 0) || ($val === "NOT_REF") )
-					continue;
+					if((string)$val == '' || $val === "NOT_REF")
+						continue;
 				}
-				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys)) ? true : false;
-				$key = strtoupper($key);
+				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys));
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -151,7 +147,7 @@ class CForm extends CAllForm
 				$strSqlOrder
 				";
 		}
-		//echo "<pre>".$strSql."</pre>";
+
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
 		$is_filtered = (IsFiltered($strSqlSearch));
 		return $res;
@@ -182,7 +178,7 @@ class CForm extends CAllForm
 			GROUP BY
 				F.ID
 			";
-		//echo "<pre>".$strSql."</pre>";
+
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
 		return $res;
 	}
@@ -199,11 +195,9 @@ class CForm extends CAllForm
 			WHERE
 				$where
 			";
-		//echo "<pre>".$strSql."</pre>";
+
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
 		if ($arRes = $res->Fetch()) return $arRes["FT"];
 		else return "";
 	}
 }
-
-?>

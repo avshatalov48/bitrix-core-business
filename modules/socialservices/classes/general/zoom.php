@@ -1,13 +1,18 @@
 <?php
 
 use Bitrix\Main\ArgumentException;
+use Bitrix\Main\Engine\UrlManager;
+use Bitrix\Main\Error;
 use \Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ObjectPropertyException;
+use Bitrix\Main\Result;
 use Bitrix\Main\SystemException;
+use Bitrix\Main\Type\DateTime;
 use \Bitrix\Main\Web\HttpClient;
 use \Bitrix\Main\Web\Json;
 use \Bitrix\Main\Web\JWT;
 use Bitrix\Socialservices\UserTable;
+use Bitrix\Socialservices\ZoomMeetingTable;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -16,8 +21,16 @@ class CSocServZoom extends CSocServAuth
 	public const ID = 'zoom';
 	private const CONTROLLER_URL = 'https://www.bitrix24.ru/controller';
 	private const LOGIN_PREFIX = 'zoom_';
+	public const EMPTY_TYPE = "EMPTY";
 
 	protected $entityOAuth;
+
+	public function __construct($userId = null)
+	{
+		$this->getEntityOAuth();
+
+		parent::__construct($userId);
+	}
 
 	public function GetSettings()
 	{
@@ -131,7 +144,7 @@ class CSocServZoom extends CSocServAuth
 			}
 		}
 
-		if (strlen(SITE_ID) > 0)
+		if (SITE_ID <> '')
 		{
 			$arFields["SITE_ID"] = SITE_ID;
 		}
@@ -209,6 +222,14 @@ class CSocServZoom extends CSocServAuth
 				{
 					$arFields = $this->prepareUser($arUser);
 					$authError = $this->AuthorizeUser($arFields);
+
+					$userData = [
+						'externalUserId' => $arUser['id'],
+						'externalAccountId' => $arUser['account_id'],
+						'socServLogin' => $arFields['LOGIN'],
+					];
+					$zc = new \Bitrix\SocialServices\Integration\Zoom\ZoomController();
+					$zc->registerZoomUser($userData);
 				}
 			}
 		}
@@ -315,13 +336,179 @@ class CSocServZoom extends CSocServAuth
 
 	public function createConference($params)
 	{
-		$conference = null;
-		if ($this->getEntityOAuth()->GetAccessToken())
+		$result = new Result();
+		$conferenceData = null;
+		if (!$this->getEntityOAuth()->GetAccessToken())
 		{
-			$conference = $this->getEntityOAuth()->requestConference($params);
+			return $result->addError(new Error('Could not get oauth token'));
 		}
 
-		return $conference;
+		if (isset($params['ENTITY_TYPE_ID']))
+		{
+			$entityTypeId = $params['ENTITY_TYPE_ID'];
+			unset($params['ENTITY_TYPE_ID']);
+		}
+
+		if (isset($params['ENTITY_ID']))
+		{
+			$entityId = $params['ENTITY_ID'];
+			unset($params['ENTITY_ID']);
+		}
+
+		$requestConferenceResult = $this->getEntityOAuth()->requestConference($params);
+		if(!$requestConferenceResult->isSuccess())
+		{
+			return $result->addErrors($requestConferenceResult->getErrors());
+		}
+		$conferenceData = $requestConferenceResult->getData();
+
+		$userData = $this->getEntityOAuth()->getCurrentUser();
+		if(!is_array($userData))
+		{
+			return $result->addError(new Error('Cannot get user data'));
+		}
+		$conferenceData['externalUserId'] = $userData['id'];
+		$conferenceData['externalAccountId'] = $userData['account_id'];
+
+		$conference['join_url'] = $this->attachPasswordToUrl($conferenceData['join_url'], $conferenceData['encrypted_password']);
+
+		$startTimeStamp = \DateTime::createFromFormat(DATE_ATOM, $conferenceData['start_time'])->getTimestamp();
+		$startDateTime = DateTime::createFromTimestamp($startTimeStamp);
+
+		$params = [
+			'ENTITY_TYPE_ID' => ($entityTypeId ?? self::EMPTY_TYPE),
+			'ENTITY_ID' => ($entityId ?? 0),
+			'CONFERENCE_EXTERNAL_ID' => $conferenceData['id'],
+			'CONFERENCE_URL' => $conferenceData['join_url'],
+			'CONFERENCE_PASSWORD' => $conferenceData['encrypted_password'],
+			'CONFERENCE_CREATED' => (new DateTime()),
+			'CONFERENCE_STARTED' => $startDateTime,
+			'DURATION' => $conferenceData['duration'],
+			'TITLE' => $conferenceData['topic'],
+			'SHORT_LINK' => $this->getShortLink($conferenceData['id']),
+		];
+
+		$addResult = ZoomMeetingTable::add($params);
+		if (!$addResult->isSuccess())
+		{
+			return $result->addErrors($addResult->getErrors());
+		}
+		$conferenceData['bitrix_internal_id'] = $addResult->getId();
+
+		return $result->setData($conferenceData);
+	}
+
+	private function getShortLink(int $conferenceId): string
+	{
+		$host = UrlManager::getInstance()->getHostUrl();
+		$controllerUrl = \Bitrix\Main\Engine\UrlManager::getInstance()->create(
+			'crm.api.zoomUser.registerJoinMeeting',
+			['conferenceId' => $conferenceId]
+		)->getUri();
+
+		return $host.\CBXShortUri::GetShortUri($controllerUrl);
+	}
+
+	/**
+	 * Updates Zoom conference and saves the result in DB table.
+	 *
+	 * @param array $updateParams Params which uses for update (conference dates).
+	 * @return Result
+	 * @throws Exception
+	 */
+	public function updateConference(array $updateParams): Result
+	{
+		$result = new Result();
+		$params = [];
+
+		if (!$this->getEntityOAuth()->GetAccessToken())
+		{
+			return $result->addError(new Error('Could not get oauth token'));
+		}
+
+		$preparedData = $this->prepareDataToUpdate($updateParams);
+		if (empty($preparedData))
+		{
+			return $result;
+		}
+
+		$externalConferenceId = $preparedData['id'];
+		unset($preparedData['id']);
+
+		$requestConferenceResult = $this->getEntityOAuth()->updateConference($externalConferenceId, $preparedData);
+		if (!$requestConferenceResult->isSuccess())
+		{
+			return $result->addErrors($requestConferenceResult->getErrors());
+		}
+
+		if (isset($updateParams['start_time']))
+		{
+			$params['CONFERENCE_STARTED'] = DateTime::createFromUserTime($updateParams['start_time']);
+		}
+
+		if (isset($preparedData['duration']))
+		{
+			$params['DURATION'] = $preparedData['duration'];
+		}
+
+		if (!empty($params))
+		{
+			$addResult = ZoomMeetingTable::update($updateParams['meeting_id'], $params);
+			if (!$addResult->isSuccess())
+			{
+				return $result->addErrors($addResult->getErrors());
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Prepares start date and duration for update in Zoom, only if it is different from activity start date and duration.
+	 *
+	 * @param array $updateParams
+	 * @return array|null
+	 * @throws ArgumentException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 */
+	private function prepareDataToUpdate(array $updateParams): ?array
+	{
+		$preparedDataToUpdate = [];
+
+		//get activity start and end timestamps
+		$activityStartTimeStamp = DateTime::createFromUserTime($updateParams['start_time'])->getTimestamp();
+		$activityEndTimeStamp = DateTime::createFromUserTime($updateParams['end_time'])->getTimestamp();
+
+		$meetingData = ZoomMeetingTable::getRowById($updateParams['meeting_id']);
+		if (!$meetingData)
+		{
+			return null;
+		}
+
+		//Prepare start_time only if the activity start_time does not match the conference start_time.
+		$meetingStartTimeStamp = $meetingData['CONFERENCE_STARTED']->getTimestamp();
+		if ($meetingStartTimeStamp !== $activityStartTimeStamp)
+		{
+			$preparedDataToUpdate['start_time'] = DateTime::createFromUserTime($updateParams['start_time'])
+				->setTimeZone(new \DateTimeZone('UTC'))
+				->format(DATE_ATOM);
+		}
+
+		//Prepare duration only if the activity duration does not match the conference duration.
+		$currentActivityDuration = ($activityEndTimeStamp - $activityStartTimeStamp) / 60;
+		if ($currentActivityDuration !== (int)$meetingData['DURATION'])
+		{
+			$preparedDataToUpdate['duration'] = $currentActivityDuration;
+		}
+
+		//Continue only if duration or start_time has been changed ($preparedDataToUpdate is not empty).
+		if (!empty($preparedDataToUpdate))
+		{
+			$preparedDataToUpdate['id'] = $meetingData['CONFERENCE_EXTERNAL_ID'];
+		}
+
+		return $preparedDataToUpdate;
 	}
 
 	public function getConferenceById(int $confId): ?array
@@ -334,6 +521,33 @@ class CSocServZoom extends CSocServAuth
 
 		return $conference;
 	}
+
+	private function attachPasswordToUrl(string $conferenceUrl, string $password): string
+	{
+		$url = new \Bitrix\Main\Web\Uri($conferenceUrl);
+		$queryParams = $url->getQuery();
+		$parsedParams = [];
+		parse_str($queryParams, $parsedParams);
+		if (!isset($parsedParams['pwd']))
+		{
+			$url->addParams(['pwd' => $password]);
+			$conferenceUrl = $url->getUri();
+		}
+
+		return $conferenceUrl;
+	}
+
+	/**
+	 * Notifies Zoom that we comply with the user’s data policy after the user uninstalls Bitrix24 app.
+	 *
+	 * @param array $payload
+	 *
+	 * @return Result
+	 */
+	public function sendComplianceRequest(array $payload): Result
+	{
+		return $this->getEntityOAuth()->sendComplianceNotify($payload);
+	}
 }
 
 class CZoomInterface extends CSocServOAuthTransport
@@ -342,18 +556,20 @@ class CZoomInterface extends CSocServOAuthTransport
 
 	const AUTH_URL = 'https://zoom.us/oauth/authorize';
 	const TOKEN_URL = 'https://zoom.us/oauth/token';
+	const COMPLIANCE_URL = 'https://api.zoom.us/oauth/data/compliance';
 
 	private const API_ENDPOINT = 'https://api.zoom.us/v2/';
 
 	private const USER_INFO_URL = 'users/me';
 	private const CREATE_MEETING_ENDPOINT = 'users/me/meetings';
+	private const UPDATE_MEETING_ENDPOINT = 'meetings/';
 
 	protected $userId = false;
 	protected $responseData = array();
 	protected $idToken;
 
 	protected $scope = [
-		'meeting:write', 'user:read:admin'
+		'meeting:write', 'user:read:admin', 'meeting:read', 'recording:read'
 	];
 
 	public function __construct($appID = false, $appSecret = false, $code = false)
@@ -532,68 +748,158 @@ class CZoomInterface extends CSocServOAuthTransport
 			return false;
 		}
 
-		$http = new HttpClient();
-		$http->setTimeout($this->httpTimeout);
-		$http->setHeader('Authorization', 'Bearer ' . $this->access_token);
+		$endPoint = self::API_ENDPOINT . self::USER_INFO_URL;
+		$requestResult = $this->sendRequest(HttpClient::HTTP_GET, $endPoint);
 
-		$result = $http->get(self::API_ENDPOINT . self::USER_INFO_URL);
-
-		$http->getStatus();
-
-		try
-		{
-			return Json::decode($result);
-		}
-		catch (\Bitrix\Main\ArgumentException $e)
-		{
-			return false;
-		}
-	}
-
-	public function requestConference($params)
-	{
-		$http = new HttpClient();
-
-		$http->setHeader('Authorization', 'Bearer '.$this->access_token);
-		$http->setHeader('Content-type', 'application/json');
-		$requestResult = $http->post(self::API_ENDPOINT . self::CREATE_MEETING_ENDPOINT, json_encode($params));
-
-		try
-		{
-			$conference = Json::decode($requestResult);
-		}
-		catch (ArgumentException $e)
+		if (!$requestResult->isSuccess())
 		{
 			return null;
 		}
 
-		return $conference;
+		return $requestResult->getData();
 	}
 
-	public function getConferenceById($confId)
+	public function requestConference($params): Result
 	{
-		$conferenceData = null;
+		$result = new Result();
+
+		$endPoint = self::API_ENDPOINT . self::CREATE_MEETING_ENDPOINT;
+		$requestResult = $this->sendRequest(HttpClient::HTTP_POST, $endPoint, $params);
+
+		if (!$requestResult->isSuccess())
+		{
+			return $result->addErrors($requestResult->getErrors());
+		}
+		$response = $requestResult->getData();
+
+		if (isset($response['code']) && $response['code'] != 200)
+		{
+			// zoom api error
+			return $result->addError(new Error($response['message'], $response['code']));
+		}
+
+		return $result->setData($response);
+	}
+
+	public function updateConference(int $conferenceId, array $params): Result
+	{
+		$endPoint = self::API_ENDPOINT . self::UPDATE_MEETING_ENDPOINT . $conferenceId;
+
+		return $this->sendRequest(HttpClient::HTTP_PATCH, $endPoint, $params);
+	}
+
+	public function getConferenceById($confId): ?array
+	{
 		$newMeetingEndpoint = self::API_ENDPOINT. 'meetings/' . $confId;
+		$conferenceDataResult = $this->sendRequest(HttpClient::HTTP_GET, $newMeetingEndpoint);
 
-		$http = new HttpClient();
-		$http->setHeader('Authorization', 'Bearer '.$this->access_token);
-		$result = $http->get($newMeetingEndpoint);
-
-		try
-		{
-			$conferenceData = Json::decode($result);
-		}
-		catch (ArgumentException $e)
+		if (!$conferenceDataResult->isSuccess())
 		{
 			return null;
 		}
 
-		if ($conferenceData['id'] > 0)
+		$conferenceData = $conferenceDataResult->getData();
+		if (!is_array($conferenceData) || $conferenceData['id'] <= 0)
 		{
-			return $conferenceData;
+			return null;
 		}
 
-		return null;
+		return $conferenceData;
+	}
+
+	public function getConferenceFiles($confId): ?array
+	{
+		$endPoint = self::API_ENDPOINT . "/meetings/{$confId}/recordings";
+		$requestResult = $this->sendRequest(HttpClient::HTTP_GET, $endPoint);
+		if (!$requestResult->isSuccess())
+		{
+			return null;
+		}
+
+		return $requestResult->getData();
+	}
+
+	public function sendComplianceNotify(array $params): Result
+	{
+		$requestParams = [
+			'client_id' => $this->appID,
+			'user_id' => $params['user_id'],
+			'account_id' => $params['account_id'],
+			'deauthorization_event_received' => $params,
+			'compliance_completed' => true,
+		];
+
+		$result = new Result();
+		$http = new HttpClient([
+			'socketTimeout' => $this->httpTimeout,
+			'streamTimeout' => $this->httpTimeout,
+		]);
+
+		$http->setAuthorization($this->appID, $this->appSecret);
+		$http->setHeader('Content-type', 'application/json');
+		$requestResult = $http->post(self::COMPLIANCE_URL, Json::encode($requestParams));
+
+		try
+		{
+			$decodedData = Json::decode($requestResult);
+			$result->setData($decodedData);
+		}
+		catch (ArgumentException $e)
+		{
+			return $result->addError(new Error('Could not decode service response'));
+		}
+
+		return $result;
+	}
+
+	private function sendRequest(string $method, string $endPoint, array $params = []): Result
+	{
+		$result = new Result();
+
+		$http = new HttpClient(array(
+			'socketTimeout' => $this->httpTimeout,
+			'streamTimeout' => $this->httpTimeout,
+		));
+		$http->setHeader('Authorization', 'Bearer '.$this->access_token);
+
+		switch ($method)
+		{
+			case HttpClient::HTTP_PATCH:
+				$http->setHeader('Content-type', 'application/json');
+				$http->query(HttpClient::HTTP_PATCH, $endPoint, Json::encode($params));
+				if ($http->getStatus() != 204)
+				{
+					// zoom api error
+					$requestResult = $http->getResult();
+					$response = Json::decode($requestResult);
+					return $result->addError(new Error($response['message'], $response['code']));
+				}
+				return $result;
+
+			case HttpClient::HTTP_POST:
+				$http->setHeader('Content-type', 'application/json');
+				$requestResult = $http->post($endPoint, Json::encode($params));
+				break;
+
+			case HttpClient::HTTP_GET:
+				$requestResult = $http->get($endPoint);
+				break;
+
+			default:
+				return $result->addError(new Error('Unsupported request method'));
+		}
+
+		try
+		{
+			$decodedData = Json::decode($requestResult);
+			$result->setData($decodedData);
+		}
+		catch (ArgumentException $e)
+		{
+			return $result->addError(new Error('Could not decode service response'));
+		}
+
+		return $result;
 	}
 
 	/**
@@ -607,14 +913,14 @@ class CZoomInterface extends CSocServOAuthTransport
 	 */
 	public static function isConnected($userId): bool
 	{
-		$result = UserTable::getList([
+		$user = UserTable::getRow([
 			'filter' => [
 				'=USER_ID' => $userId,
 				'=EXTERNAL_AUTH_ID' => self::SERVICE_ID
 			]
 		]);
 
-		if ($user = $result->fetch())
+		if ($user !== null)
 		{
 			return true;
 		}

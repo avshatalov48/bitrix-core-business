@@ -52,7 +52,7 @@ class CFileCacheCleaner
 
 	function InitPath($PathToCheck)
 	{
-		if(strlen($PathToCheck) > 0)
+		if($PathToCheck <> '')
 		{
 			$PathToCheck = preg_replace("#[\\\\\\/]+#", "/", "/".$PathToCheck);
 			//Check if path does not contain any injection
@@ -69,10 +69,10 @@ class CFileCacheCleaner
 				}
 			}
 
-			if(strlen($base))
+			if($base <> '')
 			{
 				$this->_CurrentBase = $base;
-				$this->_CurrentPath = substr($PathToCheck, strlen($base));
+				$this->_CurrentPath = mb_substr($PathToCheck, mb_strlen($base));
 				return true;
 			}
 			else
@@ -145,7 +145,7 @@ class CFileCacheCleaner
 		{
 			return 1;//like an very old file
 		}
-		elseif(substr($FileName, -4) == ".php")
+		elseif(mb_substr($FileName, -4) == ".php")
 		{
 			$fd = fopen($FileName, "rb");
 			if($fd)
@@ -156,15 +156,15 @@ class CFileCacheCleaner
 					return doubleval($match[1]);
 			}
 		}
-		elseif(substr($FileName, -5) == ".html")
+		elseif(mb_substr($FileName, -5) == ".html")
 		{
 			$fd = fopen($FileName, "rb");
 			if($fd)
 			{
 				$header = fread($fd, 26);
 				fclose($fd);
-				if(substr($header, 0, 2) == "BX")
-					return doubleval(substr($header, 14, 12));
+				if(mb_substr($header, 0, 2) == "BX")
+					return doubleval(mb_substr($header, 14, 12));
 			}
 		}
 		return false;
@@ -235,7 +235,8 @@ class _CFileTree
 				return false;
 		}
 
-		$next = each($this->_dir);
+		$next = current($this->_dir);
+		next($this->_dir);
 
 		if($next === false)
 		{
@@ -245,15 +246,15 @@ class _CFileTree
 			else
 				return false;
 		}
-		elseif(is_file($next["value"]))
+		elseif(is_file($next))
 		{
 			//it's our target
-			return $next["value"];
+			return $next;
 		}
 		else
 		{
 			//it's dir or link try to go deeper
-			$this->_path = $next["value"];
+			$this->_path = $next;
 			$this->_dir = false;
 			return true;
 		}
@@ -271,7 +272,7 @@ class _CFileTree
 	{
 		$last_dir = self::ExtractFileFromPath($this->_path);
 		//We are not going to go up any more
-		if(strlen($this->_path."/") < strlen($this->_in_path))
+		if(mb_strlen($this->_path."/") < mb_strlen($this->_in_path))
 			return false;
 
 		$this->_dir = $this->ReadDir($this->_path);

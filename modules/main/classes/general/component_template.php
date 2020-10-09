@@ -257,7 +257,7 @@ class CBitrixComponentTemplate
 
 		if ($arData && is_array($arData))
 		{
-			if (array_key_exists("additionalCSS", $arData) && strlen($arData["additionalCSS"]) > 0)
+			if (array_key_exists("additionalCSS", $arData) && $arData["additionalCSS"] <> '')
 			{
 				$APPLICATION->SetAdditionalCSS($arData["additionalCSS"]);
 				//Check if parent component exists and plug css it to it's "collection"
@@ -265,7 +265,7 @@ class CBitrixComponentTemplate
 					$this->__component->__parent->addChildCSS($this->__folder."/style.css");
 			}
 
-			if (array_key_exists("additionalJS", $arData) && strlen($arData["additionalJS"]) > 0)
+			if (array_key_exists("additionalJS", $arData) && $arData["additionalJS"] <> '')
 			{
 				$APPLICATION->AddHeadScript($arData["additionalJS"]);
 				//Check if parent component exists and plug js it to it's "collection"
@@ -385,7 +385,7 @@ class CBitrixComponentTemplate
 			$this->__siteTemplate = $siteTemplate;
 		}
 
-		if (strlen($this->__siteTemplate) <= 0)
+		if ($this->__siteTemplate == '')
 			$this->__siteTemplate = ".default";
 
 		$this->__file = "";
@@ -401,7 +401,7 @@ class CBitrixComponentTemplate
 		$this->__component = &$component;
 
 		$this->__name = $this->__component->GetTemplateName();
-		if (strlen($this->__name) <= 0)
+		if ($this->__name == '')
 			$this->__name = ".default";
 
 		$this->__name = preg_replace("'[\\\\/]+'", "/", $this->__name);
@@ -411,7 +411,7 @@ class CBitrixComponentTemplate
 			$this->__name = ".default";
 
 		$this->__page = $this->__component->GetTemplatePage();
-		if (strlen($this->__page) <= 0)
+		if ($this->__page == '')
 			$this->__page = "template";
 
 		if (!$this->__SearchTemplate($customTemplatePath))
@@ -700,8 +700,8 @@ class CBitrixComponentTemplate
 					elseif (is_file($_SERVER["DOCUMENT_ROOT"].$fname))
 					{
 						$this->__file = $fname;
-						if (strpos($this->__name, "/") !== false)
-							$this->__folder = $folder["path"]."/".substr($this->__name, 0, bxstrrpos($this->__name, "/"));
+						if (mb_strpos($this->__name, "/") !== false)
+							$this->__folder = $folder["path"]."/".mb_substr($this->__name, 0, bxstrrpos($this->__name, "/"));
 					}
 				}
 				else
@@ -1007,7 +1007,7 @@ class CBitrixComponentTemplate
 	{
 		$templateName = trim($templateName, ". \r\n\t");
 		$arTemplateName = explode(".", $templateName);
-		return strtolower($arTemplateName[count($arTemplateName) - 1]);
+		return mb_strtolower($arTemplateName[count($arTemplateName) - 1]);
 	}
 
 	/**
@@ -1229,7 +1229,7 @@ class CBitrixComponentTemplate
 	public function createFrame($id = null, $autoContainer = true)
 	{
 		$this->frameMode = true;
-		if (!is_string($id) || strlen($id) === 0)
+		if (!is_string($id) || $id == '')
 		{
 			$id = $this->randString();
 		}

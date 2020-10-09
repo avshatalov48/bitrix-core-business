@@ -7,7 +7,7 @@ class CAllTest
 		global $DB;
 		$arMsg = array();
 
-		if ( (is_set($arFields, "NAME") || $ID === false) && strlen($arFields["NAME"]) <= 0)
+		if ( (is_set($arFields, "NAME") || $ID === false) && $arFields["NAME"] == '')
 		{
 			$arMsg[] = array("id"=>"NAME", "text"=> GetMessage("LEARNING_BAD_NAME"));
 		}
@@ -224,7 +224,7 @@ class CAllTest
 			$key = $res["FIELD"];
 			$cOperationType = $res["OPERATION"];
 
-			$key = strtoupper($key);
+			$key = mb_strtoupper($key);
 
 			switch ($key)
 			{
@@ -390,8 +390,8 @@ class CAllTest
 
 		foreach($arOrder as $by=>$order)
 		{
-			$by = strtolower($by);
-			$order = strtolower($order);
+			$by = mb_strtolower($by);
+			$order = mb_strtolower($order);
 
 			if ($order!="asc")
 				$order = "desc";

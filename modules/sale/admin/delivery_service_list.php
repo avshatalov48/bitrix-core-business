@@ -342,7 +342,11 @@ while ($service = $dbResultList->NavNext(false))
 
 	$logoHtml = intval($service["LOGOTIP"]) > 0 ? CFile::ShowImage(CFile::GetFileArray($service["LOGOTIP"]), 150, 150, "border=0", "", false) : "";
 	$row->AddField("LOGOTIP", $logoHtml);
-	$row->AddField("DESCRIPTION", $service["DESCRIPTION"], false, true);
+
+	$sanitizer = new CBXSanitizer();
+	$sanitizer->SetLevel(\CBXSanitizer::SECURE_LEVEL_LOW);
+	$description = $sanitizer->SanitizeHtml($service["DESCRIPTION"]);
+	$row->AddField("DESCRIPTION", $description, false, true);
 	$row->AddField("SORT", $service["SORT"]);
 	$row->AddField("ACTIVE", (($service["ACTIVE"]=="Y") ? Loc::getMessage("SALE_SDL_YES") : Loc::getMessage("SALE_SDL_NO")));
 	$row->AddField("ALLOW_EDIT_SHIPMENT", (($service["ALLOW_EDIT_SHIPMENT"]=="Y") ? Loc::getMessage("SALE_SDL_YES") : Loc::getMessage("SALE_SDL_NO")));

@@ -44,7 +44,7 @@ class CTestResult
 			$s = "";
 			foreach($arFields["RESPONSE"] as $val)
 				$s .= $val.",";
-			$arFields["RESPONSE"] = substr($s,0,-1);
+			$arFields["RESPONSE"] = mb_substr($s, 0, -1);
 		}
 
 		/*
@@ -240,10 +240,11 @@ class CTestResult
 		if (!is_array($arOrder))
 			$arOrder = Array();
 
+		$arSqlOrder = [];
 		foreach($arOrder as $by=>$order)
 		{
-			$by = strtolower($by);
-			$order = strtolower($order);
+			$by = mb_strtolower($by);
+			$order = mb_strtolower($order);
 			if ($order!="asc")
 				$order = "desc";
 
@@ -328,7 +329,7 @@ class CTestResult
 			$key = $res["FIELD"];
 			$cOperationType = $res["OPERATION"];
 
-			$key = strtoupper($key);
+			$key = mb_strtoupper($key);
 
 			switch ($key)
 			{

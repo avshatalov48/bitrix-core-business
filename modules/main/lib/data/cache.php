@@ -138,12 +138,12 @@ class Cache
 	{
 		$obj = static::createCacheEngine();
 		$class = get_class($obj);
-		if (($pos = strrpos($class, "\\")) !== false)
+		if (($pos = mb_strrpos($class, "\\")) !== false)
 		{
-			$class = substr($class, $pos + 1);
+			$class = mb_substr($class, $pos + 1);
 		}
 
-		return strtolower($class);
+		return mb_strtolower($class);
 	}
 
 	/**
@@ -203,7 +203,7 @@ class Cache
 		{
 			$scriptName = $v;
 		}
-		return "/".substr(md5($scriptName), 0, 3);
+		return "/".mb_substr(md5($scriptName), 0, 3);
 	}
 
 	/**
@@ -214,6 +214,13 @@ class Cache
 	{
 		global $USER;
 
+		$kernelSession = null;
+		$application = \Bitrix\Main\Application::getInstance();
+		if ($application->isExtendedKernelInitialized())
+		{
+			 $kernelSession = $application->getKernelSession();
+		}
+
 		if (isset(static::$clearCacheSession) || isset(static::$clearCache))
 		{
 			if (is_object($USER) && $USER->CanDoOperation('cache_control'))
@@ -222,11 +229,11 @@ class Cache
 				{
 					if (static::$clearCacheSession === true)
 					{
-						$_SESSION["SESS_CLEAR_CACHE"] = "Y";
+						$kernelSession["SESS_CLEAR_CACHE"] = "Y";
 					}
 					else
 					{
-						unset($_SESSION["SESS_CLEAR_CACHE"]);
+						unset($kernelSession["SESS_CLEAR_CACHE"]);
 					}
 				}
 
@@ -237,7 +244,7 @@ class Cache
 			}
 		}
 
-		if (isset($_SESSION["SESS_CLEAR_CACHE"]) && $_SESSION["SESS_CLEAR_CACHE"] === "Y")
+		if (isset($kernelSession["SESS_CLEAR_CACHE"]) && $kernelSession["SESS_CLEAR_CACHE"] === "Y")
 		{
 			return true;
 		}
@@ -248,7 +255,7 @@ class Cache
 	public static function getPath($uniqueString)
 	{
 		$un = md5($uniqueString);
-		return substr($un, 0, 2)."/".$un.".php";
+		return mb_substr($un, 0, 2)."/".$un.".php";
 	}
 
 	public function clean($uniqueString, $initDir = false, $baseDir = "cache")
@@ -436,7 +443,7 @@ class Cache
 			Diag\CacheTracker::add($written, $path, $this->baseDir, $this->initDir, $this->filename, "W");
 		}
 
-		if (strlen(ob_get_contents()) > 0)
+		if (ob_get_contents() <> '')
 		{
 			ob_end_flush();
 		}
@@ -503,7 +510,7 @@ class Cache
 						$res = false;
 					}
 				}
-				elseif (substr($file, -4) === ".php")
+				elseif (mb_substr($file, -4) === ".php")
 				{
 					$c = static::createInstance();
 					if ($c->isCacheExpired($path."/".$file))

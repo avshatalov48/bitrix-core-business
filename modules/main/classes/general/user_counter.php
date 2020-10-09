@@ -177,7 +177,7 @@ class CAllUserCounter
 		global $DB;
 
 		$user_id = intval($user_id);
-		if ($user_id < 0 || strlen($code) <= 0)
+		if ($user_id < 0 || $code == '')
 			return 0;
 
 		$strSQL = "
@@ -234,7 +234,7 @@ class CAllUserCounter
 	{
 		global $DB, $CACHE_MANAGER;
 
-		if (strlen($tag) <= 0 || strlen($code) <= 0)
+		if ($tag == '' || $code == '')
 			return false;
 
 		$strSQL = "
@@ -338,7 +338,7 @@ class CAllUserCounter
 				INNER JOIN b_pull_channel pc ON pc.USER_ID = uc.USER_ID
 				INNER JOIN b_user u ON u.ID = uc.USER_ID AND (CASE WHEN u.EXTERNAL_AUTH_ID IN ('".join("', '", \Bitrix\Main\UserTable::getExternalUserTypes())."') THEN 'Y' ELSE 'N' END) = 'N' AND u.LAST_ACTIVITY_DATE > ".$helper->addSecondsToDateTime('(-3600)')."
 				WHERE uc.USER_ID = ".intval($user_id).(
-					strlen($code) > 0
+					$code <> ''
 					? (
 						$bMultiple
 						? " AND uc.CODE LIKE '".$DB->ForSQL($code)."%'"
@@ -352,7 +352,7 @@ class CAllUserCounter
 			$pullMessage = Array();
 			while ($row = $res->Fetch())
 			{
-				$key = (strlen($code) > 0 ? $code : $row['CODE']);
+				$key = ($code <> '' ? $code : $row['CODE']);
 
 				if (!($row['CHANNEL_TYPE'] == 'private' || $row['CHANNEL_TYPE'] == 'shared' && $row['USER_ID'] == 0))
 				{
@@ -457,7 +457,7 @@ class CAllUserCounter
 	{
 		$result = $code;
 
-		if (strpos($code, self::LIVEFEED_CODE) === 0)
+		if (mb_strpos($code, self::LIVEFEED_CODE) === 0)
 		{
 			$result = self::LIVEFEED_CODE;
 		}

@@ -462,7 +462,13 @@
 					else
 					{
 						window.BX.MobileUI.TextField.show(this.params);
-						BX.onCustomEvent('main.post.form/mobile_simple', []);
+						if (
+							!BX.type.isNotEmptyObject(params)
+							|| !params.clear
+						)
+						{
+							BX.onCustomEvent('main.post.form/mobile_simple', []);
+						}
 					}
 
 					if (BX.type.isNotEmptyString(text))
@@ -782,11 +788,12 @@
 			setForm : function(extended) {
 				this.currentForm = (extended === true ? this.extendedForm : this.simpleForm);
 			},
-			init : function(comment) {
+			init : function(comment, params) {
 				this.comment = comment;
 				this.setForm(false);
 				this.simpleForm.init(comment.text, {
-					hideForm: (BX.type.isNotEmptyString(this.forumContext) && this.forumContext.toLowerCase() == 'task')
+					hideForm: (BX.type.isNotEmptyString(this.forumContext) && this.forumContext.toLowerCase() == 'task'),
+					clear: (BX.type.isNotEmptyObject(params) && BX.type.isBoolean(params.clear) && params.clear)
 				});
 			},
 			show : function(comment, edit) {

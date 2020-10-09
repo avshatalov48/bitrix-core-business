@@ -67,7 +67,7 @@ $adminList->initFilter($filterFields);
 
 function getFilterDate($date)
 {
-	if (!isset($date) || strlen(trim($date)) < 1)
+	if (!isset($date) || mb_strlen(trim($date)) < 1)
 	{
 		return null;
 	}
@@ -92,7 +92,7 @@ $filter = array(
 
 foreach ($filter as $key => $value)
 {
-	if (!strlen(trim($value)))
+	if (trim($value) == '')
 	{
 		unset($filter[$key]);
 	}
@@ -101,9 +101,9 @@ foreach ($filter as $key => $value)
 $pageEntity = PageTable::getEntity();
 
 //Sorting
-$sortBy = strtoupper($sorting->getField());
+$sortBy = mb_strtoupper($sorting->getField());
 $sortBy = $pageEntity->hasField($sortBy) ? $sortBy : "ID";
-$sortOrder = strtoupper($sorting->getOrder());
+$sortOrder = mb_strtoupper($sorting->getOrder());
 $sortOrder = $sortOrder !== "DESC" ? "ASC" : "DESC";
 
 //Navigation
@@ -197,7 +197,7 @@ while ($record = $pageList->fetch())
 
 	$pageCell = '<a href="//%s" target="_blank">%s</a><br><span>%s</span>';
 	$pageLink = htmlspecialcharsbx($record["HOST"].$record["URI"]);
-	$title = strlen(trim($record["TITLE"])) ? $record["TITLE"] : $pageLink;
+	$title = trim($record["TITLE"]) <> ''? $record["TITLE"] : $pageLink;
 	$title = htmlspecialcharsbx($title, ENT_COMPAT, false);
 
 	$row->addViewField("PAGE", sprintf($pageCell, $pageLink, $title, $pageLink));

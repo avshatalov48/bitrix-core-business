@@ -192,8 +192,8 @@ Class CIdeaManagmentInstall
 			{
 				$m = IncludeModuleLangFile(__FILE__, $Lang["LANGUAGE_ID"], true);
 				$arFields["LANG"][$Lang["LANGUAGE_ID"]] = array(
-					"NAME" => (strlen($m["IDEA_INSTALL_IBLOCK_TYPE"])==0 ? "Idea Management" : $m["IDEA_INSTALL_IBLOCK_TYPE"]),
-					"SECTION_NAME" => (strlen($m["IDEA_INSTALL_IBLOCK_SECTION_NAME"])==0 ? "Category" : $m["IDEA_INSTALL_IBLOCK_SECTION_NAME"]),
+					"NAME" => ($m["IDEA_INSTALL_IBLOCK_TYPE"] == '' ? "Idea Management" : $m["IDEA_INSTALL_IBLOCK_TYPE"]),
+					"SECTION_NAME" => ($m["IDEA_INSTALL_IBLOCK_SECTION_NAME"] == '' ? "Category" : $m["IDEA_INSTALL_IBLOCK_SECTION_NAME"]),
 				);
 			}
 
@@ -570,7 +570,7 @@ Class CIdeaManagmentInstall
 	}
 }
 
-if(strlen($_REQUEST["idea_install"]) > 0)
+if($_REQUEST["idea_install"] <> '')
 {
 	if($_REQUEST["demo"])
 	{

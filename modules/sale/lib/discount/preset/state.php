@@ -111,11 +111,7 @@ final class State extends Dictionary
 		{
 			return $state;
 		}
-		if (!CheckSerializedData($data))
-		{
-			return $state;
-		}
-		$data = unserialize($data, ['allowed_classes' => false]);
+		$data = unserialize($data, ['allowed_classes' => ['Bitrix\Main\Type\DateTime', 'DateTime']]);
 
 		return $state->set($data?: array());
 	}

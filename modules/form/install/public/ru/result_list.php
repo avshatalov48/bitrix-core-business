@@ -4,7 +4,7 @@ $APPLICATION->SetTitle("Анкеты");
 ?>
 <?
 $WEB_FORM_NAME = $_REQUEST["WEB_FORM_NAME"];
-if (strlen($WEB_FORM_NAME)<=0) $WEB_FORM_NAME = "ANKETA";
+if ($WEB_FORM_NAME == '') $WEB_FORM_NAME = "ANKETA";
 ?>
 <?
 $APPLICATION->IncludeFile("form/result_list/default.php", array(

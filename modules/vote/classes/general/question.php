@@ -49,7 +49,7 @@ class CAllVoteQuestion
 					"text" => GetMessage("VOTE_FORGOT_QUESTION"));
 			endif;
 		}
-		if (is_set($arFields, "IMAGE_ID") && strlen($arFields["IMAGE_ID"]["name"]) <= 0 && strlen($arFields["IMAGE_ID"]["del"]) <= 0)
+		if (is_set($arFields, "IMAGE_ID") && $arFields["IMAGE_ID"]["name"] == '' && $arFields["IMAGE_ID"]["del"] == '')
 		{
 			unset($arFields["IMAGE_ID"]);
 		}
@@ -77,8 +77,8 @@ class CAllVoteQuestion
 		if (is_set($arFields, "DIAGRAM_TYPE") && (empty($arFields["DIAGRAM_TYPE"]) || in_array($arFields["DIAGRAM_TYPE"], GetVoteDiagramArray()))):
 			$arFields["DIAGRAM_TYPE"] = VOTE_DEFAULT_DIAGRAM_TYPE;
 		endif;
-		if (is_set($arFields, "TEMPLATE")) $arFields["TEMPLATE"] = substr(trim($arFields["TEMPLATE"]), 0, 255);
-		if (is_set($arFields, "TEMPLATE_NEW")) $arFields["TEMPLATE_NEW"] = substr(trim($arFields["TEMPLATE_NEW"]), 0, 255);
+		if (is_set($arFields, "TEMPLATE")) $arFields["TEMPLATE"] = mb_substr(trim($arFields["TEMPLATE"]), 0, 255);
+		if (is_set($arFields, "TEMPLATE_NEW")) $arFields["TEMPLATE_NEW"] = mb_substr(trim($arFields["TEMPLATE_NEW"]), 0, 255);
 
 		if ((is_set($arFields, "TEMPLATE") ||is_set($arFields, "TEMPLATE_NEW")) &&
 			COption::GetOptionString("vote", "VOTE_COMPATIBLE_OLD_TEMPLATE", "N") == "Y")
@@ -120,7 +120,7 @@ class CAllVoteQuestion
 			&& is_array($arFields["IMAGE_ID"])
 			&& (
 				!array_key_exists("MODULE_ID", $arFields["IMAGE_ID"])
-				|| strlen($arFields["IMAGE_ID"]["MODULE_ID"]) <= 0
+				|| $arFields["IMAGE_ID"]["MODULE_ID"] == ''
 			)
 		)
 			$arFields["IMAGE_ID"]["MODULE_ID"] = "vote";
@@ -165,7 +165,7 @@ class CAllVoteQuestion
 			&& is_array($arFields["IMAGE_ID"])
 			&& (
 				!array_key_exists("MODULE_ID", $arFields["IMAGE_ID"])
-				|| strlen($arFields["IMAGE_ID"]["MODULE_ID"]) <= 0
+				|| $arFields["IMAGE_ID"]["MODULE_ID"] == ''
 			)
 		)
 			$arFields["IMAGE_ID"]["MODULE_ID"] = "vote";
@@ -267,7 +267,7 @@ class CAllVoteQuestion
 			$key_res = VoteGetFilterOperation($key);
 			$strNegative = $key_res["NEGATIVE"];
 			$strOperation = $key_res["OPERATION"];
-			$key = strtoupper($key_res["FIELD"]);
+			$key = mb_strtoupper($key_res["FIELD"]);
 
 			switch($key)
 			{
@@ -290,9 +290,9 @@ class CAllVoteQuestion
 			$arSqlSearch[] = "Q.VOTE_ID = ".$VOTE_ID;
 
 		// Order
-		$by1 = strtoupper(strpos($by, "s_") === 0 ? substr($by, 2) : $by);
+		$by1 = mb_strtoupper(mb_strpos($by, "s_") === 0? mb_substr($by, 2) : $by);
 		$order = ($order != "desc" ? "asc" : "desc");
-		$order1 = strtoupper($order);
+		$order1 = mb_strtoupper($order);
 		if (in_array($by1, array("ID", "TIMESTAMP_X", "ACTIVE", "DIAGRAM", "C_SORT", "REQUIRED"))):
 			$strSqlOrder = "Q.".$by1." ".$order1;
 		else:
@@ -330,7 +330,7 @@ class CAllVoteQuestion
 			$key_res = VoteGetFilterOperation($key);
 			$strNegative = $key_res["NEGATIVE"];
 			$strOperation = $key_res["OPERATION"];
-			$key = strtoupper($key_res["FIELD"]);
+			$key = mb_strtoupper($key_res["FIELD"]);
 
 			switch($key)
 			{
@@ -352,7 +352,7 @@ class CAllVoteQuestion
 					$arSqlSearch[] = $str;
 					break;
 				case "CHANNEL_ID":
-					if (strlen($val)<=0)
+					if ($val == '')
 						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(V.".$key." IS NULL OR V.".$key."<=0)";
 					else
 						$arSqlSearch[] = ($strNegative=="Y"?" V.".$key." IS NULL OR NOT ":"")."(V.".$key." ".$strOperation." ".intval($val).")";
@@ -370,7 +370,8 @@ class CAllVoteQuestion
 
 		foreach ($arOrder as $by => $order)
 		{
-			$by = strtoupper($by); $order = strtoupper($order);
+			$by = mb_strtoupper($by);
+			$order = mb_strtoupper($order);
 			$by = ($by == "ACTIVE" ? $by : "ID");
 			if ($order!="ASC") $order = "DESC";
 			if ($by == "ACTIVE") $arSqlOrder[] = " VQ.ACTIVE ".$order." ";

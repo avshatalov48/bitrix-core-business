@@ -11,14 +11,14 @@ class Vk extends OpenGraph
 	public function handle(HtmlDocument $document)
 	{
 		$uri = $document->getUri();
-		if(strpos($uri->getPath(), '/video') !== 0)
+		if(mb_strpos($uri->getPath(), '/video') !== 0)
 		{
 			return;
 		}
 
 		parent::handle($document);
 
-		if(strlen($document->getExtraField('VIDEO')) > 0 && $document->getExtraField('VIDEO_TYPE') == 'application/x-shockwave-flash')
+		if($document->getExtraField('VIDEO') <> '' && $document->getExtraField('VIDEO_TYPE') == 'application/x-shockwave-flash')
 		{
 			$ogVideo = $document->getExtraField('VIDEO');
 			$swfUri = new Uri($ogVideo);

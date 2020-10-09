@@ -49,12 +49,12 @@ class CComponentAjax
 		{
 			if ($_GET['bitrix_disable_ajax'] == 'N')
 			{
-				unset($_SESSION['bitrix_disable_ajax']);
+				unset(\Bitrix\Main\Application::getInstance()->getSession()['bitrix_disable_ajax']);
 			}
 
-			if ($_GET['bitrix_disable_ajax'] == 'Y' || $_SESSION['bitrix_disable_ajax'] == 'Y')
+			if ($_GET['bitrix_disable_ajax'] == 'Y' || \Bitrix\Main\Application::getInstance()->getSession()['bitrix_disable_ajax'] == 'Y')
 			{
-				$_SESSION['bitrix_disable_ajax'] = 'Y';
+				\Bitrix\Main\Application::getInstance()->getSession()['bitrix_disable_ajax'] = 'Y';
 				return null;
 			}
 		}
@@ -223,7 +223,7 @@ class CComponentAjax
 		if(preg_match("/^(#|mailto:|javascript:|callto:)/", $url))
 			return false;
 
-		if (strpos($url, '://') !== false)
+		if (mb_strpos($url, '://') !== false)
 			return false;
 
 		$url = preg_replace('/#.*/', '', $url);
@@ -236,7 +236,7 @@ class CComponentAjax
 			$test_str = '/bitrix/urlrewrite.php?SEF_APPLICATION_CUR_PAGE_URL=';
 			if (strncmp($url, $test_str, 52) === 0)
 			{
-				$url = urldecode(substr($url, 52));
+				$url = urldecode(mb_substr($url, 52));
 			}
 
 			$url = $this->__GetSEFRealUrl($url);
@@ -246,12 +246,12 @@ class CComponentAjax
 		}
 		else
 		{
-			if (strpos($url, '?') !== false)
-				$url = substr($url, 0, strpos($url, '?'));
+			if (mb_strpos($url, '?') !== false)
+				$url = mb_substr($url, 0, mb_strpos($url, '?'));
 
-			if (substr($url, -4) != '.php')
+			if (mb_substr($url, -4) != '.php')
 			{
-				if (substr($url, -1) != '/')
+				if (mb_substr($url, -1) != '/')
 					$url .= '/';
 
 				$url .= 'index.php';
@@ -265,12 +265,12 @@ class CComponentAjax
 			if ($this->arParams['SEF_MODE'] == 'Y')
 				$currentUrl = $this->__getSEFRealUrl($currentUrl);
 
-			if (strpos($currentUrl, '?') !== false)
-				$currentUrl = substr($currentUrl, 0, strpos($currentUrl, '?'));
+			if (mb_strpos($currentUrl, '?') !== false)
+				$currentUrl = mb_substr($currentUrl, 0, mb_strpos($currentUrl, '?'));
 
-			if (substr($currentUrl, -4) != '.php')
+			if (mb_substr($currentUrl, -4) != '.php')
 			{
-				if (substr($currentUrl, -1) != '/')
+				if (mb_substr($currentUrl, -1) != '/')
 					$currentUrl .= '/';
 
 				$currentUrl .= 'index.php';
@@ -301,7 +301,7 @@ class CComponentAjax
 	function _checkPcreLimit($data)
 	{
 		$pcre_backtrack_limit = intval(ini_get("pcre.backtrack_limit"));
-		$text_len = function_exists('mb_strlen') ? mb_strlen($data, 'latin1') : strlen($data);
+		$text_len = function_exists('mb_strlen')? mb_strlen($data, 'latin1') : mb_strlen($data);
 		$text_len++;
 
 		if ($pcre_backtrack_limit > 0 && $pcre_backtrack_limit < $text_len)
@@ -355,7 +355,7 @@ class CComponentAjax
 				if ($value == '')
 					continue;
 
-				$param_name = strtolower($arLinkParams[1][$pkey]);
+				$param_name = mb_strtolower($arLinkParams[1][$pkey]);
 
 				if ($param_name === 'href')
 					$url_key = $pkey;
@@ -377,11 +377,11 @@ class CComponentAjax
 				{
 					$real_url = $url;
 
-					$pos = strpos($url, '#');
+					$pos = mb_strpos($url, '#');
 					if ($pos !== false)
-						$real_url = substr($real_url, 0, $pos);
+						$real_url = mb_substr($real_url, 0, $pos);
 
-					$real_url .= strpos($url, '?') === false ? '?' : '&';
+					$real_url .= mb_strpos($url, '?') === false ? '?' : '&';
 					$real_url .= $add_param;
 
 					$url_str = CAjax::GetLinkEx($real_url, $url, $match[2], 'comp_'.$this->componentID, $strAdditional);
@@ -410,7 +410,7 @@ class CComponentAjax
 				$bIgnore = false;
 				foreach ($arIgnoreAttributes as $attr)
 				{
-					if (strpos($arData[$key], $attr.'="') !== false)
+					if (mb_strpos($arData[$key], $attr.'="') !== false)
 					{
 						$bIgnore = true;
 						break;
@@ -460,7 +460,7 @@ class CComponentAjax
 			{
 				$data = str_replace($out[0][$i], '', $data);
 
-				if (strlen($out[1][$i]) > 0 && strpos($out[1][$i], 'src=') !== false)
+				if ($out[1][$i] <> '' && mb_strpos($out[1][$i], 'src=') !== false)
 				{
 					$regexp_src = '/src="([^"]*)?"/i';
 					if (preg_match($regexp_src, $out[1][$i], $out1) != 0)
@@ -514,10 +514,10 @@ parent.bxcompajaxframeonload = function() {
 				for ($i = $cnt_old; $i<$cnt_new; $i++)
 				{
 					$css_path = $arCSSList[$i];
-					if(strtolower(substr($css_path, 0, 7)) != 'http://' && strtolower(substr($css_path, 0, 8)) != 'https://')
+					if(mb_strtolower(mb_substr($css_path, 0, 7)) != 'http://' && mb_strtolower(mb_substr($css_path, 0, 8)) != 'https://')
 					{
-						if(($p = strpos($css_path, "?"))>0)
-							$css_file = substr($css_path, 0, $p);
+						if(($p = mb_strpos($css_path, "?"))>0)
+							$css_file = mb_substr($css_path, 0, $p);
 						else
 							$css_file = $css_path;
 

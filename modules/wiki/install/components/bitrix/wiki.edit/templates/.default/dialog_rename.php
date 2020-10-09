@@ -3,7 +3,7 @@
 	<tr>
 		<td align="center" valign="middle">
 			<?
-			if(strlen($arResult['ERROR_MESSAGE'])<=0)
+			if($arResult['ERROR_MESSAGE'] == '')
 			{
 				$sCatName = '';
 				if (CWikiUtils::IsCategoryPage($arResult['ELEMENT']['NAME'] , $sCatName))

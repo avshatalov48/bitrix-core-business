@@ -50,18 +50,18 @@ $arFilterFields = array(
 function CheckFilter()
 {
 	$str = "";
-	if(strlen($_REQUEST["find_timestamp_x_1"])>0)
+	if($_REQUEST["find_timestamp_x_1"] <> '')
 	{
 		if(!CheckDateTime($_REQUEST["find_timestamp_x_1"], CSite::GetDateFormat("FULL")))
 			$str.= GetMessage("MAIN_EVENTLOG_WRONG_TIMESTAMP_X_FROM")."<br>";
 	}
-	if(strlen($_REQUEST["find_timestamp_x_2"])>0)
+	if($_REQUEST["find_timestamp_x_2"] <> '')
 	{
 		if(!CheckDateTime($_REQUEST["find_timestamp_x_2"], CSite::GetDateFormat("FULL")))
 			$str.= GetMessage("MAIN_EVENTLOG_WRONG_TIMESTAMP_X_TO")."<br>";
 	}
 
-	if(strlen($str) > 0)
+	if($str <> '')
 	{
 		global $lAdmin;
 		$lAdmin->AddFilterError($str);
@@ -101,7 +101,7 @@ if(CheckFilter())
 		$audit_type_id_filter = $find_audit_type;
 	}
 
-	if(!is_array($audit_type_id_filter) && strlen($find_audit_type_id))
+	if(!is_array($audit_type_id_filter) && mb_strlen($find_audit_type_id))
 	{
 		$audit_type_id_op = "";
 		$audit_type_id_filter = "(".$audit_type_id_filter.")|(".$find_audit_type_id.")";
@@ -214,7 +214,7 @@ while($db_res = $rsData->NavNext(true, "a_"))
 {
 	$row =& $lAdmin->AddRow($a_ID, $db_res);
 	$row->AddViewField("AUDIT_TYPE_ID", array_key_exists($a_AUDIT_TYPE_ID, $arAuditTypes)? preg_replace("/^\\[.*?\\]\\s+/", "", $arAuditTypes[$a_AUDIT_TYPE_ID]): $a_AUDIT_TYPE_ID);
-	if($bStatistic && strlen($a_GUEST_ID))
+	if($bStatistic && mb_strlen($a_GUEST_ID))
 	{
 		$row->AddViewField("GUEST_ID", '<a href="/bitrix/admin/hit_list.php?lang='.LANGUAGE_ID.'&amp;set_filter=Y&amp;find_guest_id='.$a_GUEST_ID.'&amp;find_guest_id_exact_match=Y">'.$a_GUEST_ID.'</a>');
 	}
@@ -225,7 +225,7 @@ while($db_res = $rsData->NavNext(true, "a_"))
 			$rsUser = CUser::GetByID($a_USER_ID);
 			if($arUser = $rsUser->GetNext())
 			{
-				$arUser["FULL_NAME"] = $arUser["NAME"].(strlen($arUser["NAME"])<=0 || strlen($arUser["LAST_NAME"])<=0?"":" ").$arUser["LAST_NAME"];
+				$arUser["FULL_NAME"] = $arUser["NAME"].($arUser["NAME"] == '' || $arUser["LAST_NAME"] == ''?"":" ").$arUser["LAST_NAME"];
 			}
 			$arUsersCache[$a_USER_ID] = $arUser;
 		}
@@ -244,12 +244,14 @@ while($db_res = $rsData->NavNext(true, "a_"))
 		case "USER_DELETE":
 		case "USER_GROUP_CHANGED":
 		case "USER_EDIT":
+		case "USER_BLOCKED":
+		case "SECURITY_OTP":
 			if(!array_key_exists($a_ITEM_ID, $arUsersCache))
 			{
 				$rsUser = CUser::GetByID($a_ITEM_ID);
 				if($arUser = $rsUser->GetNext())
 				{
-					$arUser["FULL_NAME"] = $arUser["NAME"].(strlen($arUser["NAME"])<=0 || strlen($arUser["LAST_NAME"])<=0?"":" ").$arUser["LAST_NAME"];
+					$arUser["FULL_NAME"] = $arUser["NAME"].($arUser["NAME"] == '' || $arUser["LAST_NAME"] == ''?"":" ").$arUser["LAST_NAME"];
 				}
 				$arUsersCache[$a_ITEM_ID] = $arUser;
 			}
@@ -365,16 +367,20 @@ while($db_res = $rsData->NavNext(true, "a_"))
 			break;
 		}
 	}
-	if(strlen($a_REQUEST_URI))
+	if($a_REQUEST_URI <> '')
 	{
 		$row->AddViewField("REQUEST_URI", htmlspecialcharsbx($a_REQUEST_URI));
 	}
-	if(strlen($a_DESCRIPTION))
+	if($a_DESCRIPTION <> '')
 	{
-		if(strncmp("==", $a_DESCRIPTION, 2)===0)
-			$DESCRIPTION = htmlspecialcharsbx(base64_decode(substr($a_DESCRIPTION, 2)));
+		if(strncmp("==", $a_DESCRIPTION, 2) === 0)
+		{
+			$DESCRIPTION = htmlspecialcharsbx(base64_decode(mb_substr($a_DESCRIPTION, 2)));
+		}
 		else
+		{
 			$DESCRIPTION = $a_DESCRIPTION;
+		}
 		//htmlspecialcharsback for <br> <BR> <br/>
 		$DESCRIPTION = preg_replace("#(&lt;)(\\s*br\\s*/{0,1})(&gt;)#is", "<\\2>", $DESCRIPTION);
 		$row->AddViewField("DESCRIPTION", $DESCRIPTION);

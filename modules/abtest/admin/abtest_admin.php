@@ -102,7 +102,7 @@ $lAdmin->addHeaders($arHeaders);
 
 
 $result = Bitrix\ABTest\ABTestTable::getList(array(
-	'order'  => array(strtoupper($by) => $order),
+	'order'  => array(mb_strtoupper($by) => $order),
 	'select' => array('*', 'USER_NAME' => 'USER.NAME', 'USER_LAST_NAME' => 'USER.LAST_NAME', 'USER_SECOND_NAME' => 'USER.SECOND_NAME', 'USER_TITLE' => 'USER.TITLE', 'USER_LOGIN' => 'USER.LOGIN')
 ));
 $result = new CAdminResult($result, $sTableID);

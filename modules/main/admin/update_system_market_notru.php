@@ -13,7 +13,7 @@ $sTableID = "tbl_updates_marketplace_list";
 $oSort = new CAdminSorting($sTableID, "NAME", "ASC");
 $lAdmin = new CAdminList($sTableID, $oSort);
 
-if ($_REQUEST["action"] == "load" && strlen($_REQUEST["id"]) > 0 && check_bitrix_sessid())
+if ($_REQUEST["action"] == "load" && $_REQUEST["id"] <> '' && check_bitrix_sessid())
 {
 	$errorMessage = "";
 	if (!CUpdateClientPartner::LoadModuleNoDemand($_REQUEST["id"], $errorMessage, "Y", false))
@@ -28,7 +28,7 @@ if ($_REQUEST["action"] == "load" && strlen($_REQUEST["id"]) > 0 && check_bitrix
 
 $errorMessage = "";
 $arCurrentModules = CUpdateClientPartner::GetCurrentModules($errorMessage);
-if (strlen($errorMessage) > 0)
+if ($errorMessage <> '')
 	$lAdmin->AddGroupError($errorMessage, 0);
 
 $arFilterFields = array(
@@ -40,16 +40,16 @@ $arFilterFields = array(
 $lAdmin->InitFilter($arFilterFields);
 
 $arFilter = array();
-if (strlen($filter_category) > 0)
+if ($filter_category <> '')
 	$arFilter["CATEGORY"] = $filter_category;
-if (strlen($filter_type) > 0)
+if ($filter_type <> '')
 	$arFilter["TYPE"] = $filter_type;
-if (strlen($filter_name) > 0)
+if ($filter_name <> '')
 	$arFilter["NAME"] = $filter_name;
 
 $errorMessage = "";
 $arModules = CUpdateClientPartner::SearchModulesEx(array($by => $order), $arFilter, (intval($_REQUEST["PAGEN_1"]) > 0 ? intval($_REQUEST["PAGEN_1"]) : 1), LANG, $errorMessage);
-if (strlen($errorMessage) > 0)
+if ($errorMessage <> '')
 	$lAdmin->AddGroupError($errorMessage, 0);
 
 $arResultListTmp = array();
@@ -99,7 +99,7 @@ while ($arResultItem = $dbResultList->Fetch())
 	$row->AddField("PARTNER", $arResultItem["PARTNER"]);
 
 	$strImage = "";
-	if (strlen($arResultItem["IMAGE"]) > 0)
+	if ($arResultItem["IMAGE"] <> '')
 		$strImage = '<img src="'.$arResultItem["IMAGE"].'" width="'.$arResultItem["IMAGE_WIDTH"].'" height="'.$arResultItem["IMAGE_HEIGHT"].'">';
 	$row->AddField("IMAGE", $strImage);
 

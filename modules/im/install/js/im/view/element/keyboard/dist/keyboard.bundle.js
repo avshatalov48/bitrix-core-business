@@ -65,7 +65,18 @@
 	        return false;
 	      }
 
-	      if (button.FUNCTION) {
+	      if (button.ACTION && button.ACTION_VALUE.toString()) {
+	        this.$emit('click', {
+	          action: 'ACTION',
+	          params: {
+	            dialogId: this.dialogId,
+	            messageId: this.messageId,
+	            botId: button.BOT_ID,
+	            action: button.ACTION,
+	            value: button.ACTION_VALUE
+	          }
+	        });
+	      } else if (button.FUNCTION) {
 	        var execFunction = button.FUNCTION.toString().replace('#MESSAGE_ID#', this.messageId).replace('#DIALOG_ID#', this.dialogId).replace('#USER_ID#', this.userId);
 	        eval(execFunction);
 	      } else if (button.APP_ID) {
@@ -130,6 +141,11 @@
 	        }
 
 	        if (!im_lib_utils.Utils.platform.isBitrixMobile() && button.CONTEXT === 'MOBILE') {
+	          return false;
+	        } // TODO activate this buttons
+
+
+	        if (!im_lib_utils.Utils.platform.isBitrixMobile() && (button.ACTION === 'DIALOG' || button.ACTION === 'CALL')) {
 	          return false;
 	        }
 

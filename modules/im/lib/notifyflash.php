@@ -29,7 +29,7 @@ class NotifyFlash
 
 	public function getEngineType(): string
 	{
-		return (string)\Bitrix\Main\Config\Option::get('im', 'notify_flash_engine_type', self::ENGINE_SESSION);
+		return (string)\Bitrix\Main\Config\Option::get('im', 'notify_flash_engine_type');
 	}
 
 	public function setEngineType(string $type): bool
@@ -168,6 +168,7 @@ class NotifyFlash
 
 		$cache = \Bitrix\Main\Data\Cache::createInstance();
 		$cache->initCache($this->cacheTtl, $this->getCacheId(), $this->cacheDir);
+		$cache->forceRewriting(true);
 
 		foreach ($this->commitList as $id => $type)
 		{

@@ -106,7 +106,7 @@ if(is_array($arResult["SCOPE"])):
 <?php
 	foreach($arResult["SCOPE"] as $scope):
 		$scopeName = GetMessage("REST_SCOPE_".toUpper($scope));
-		if(strlen($scopeName) <= 0)
+		if($scopeName == '')
 		{
 			$scopeName = $scope;
 		}

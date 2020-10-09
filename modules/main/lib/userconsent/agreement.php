@@ -322,13 +322,13 @@ class Agreement
 		$text = trim($text);
 		$maxLength = 50;
 		$pos = min(
-			strpos($text, "\n") ?: 50,
-			strpos($text, "<br>") ?: 50,
-			strpos($text, ".") ?: 50,
+			mb_strpos($text, "\n")?: 50,
+			mb_strpos($text, "<br>")?: 50,
+			mb_strpos($text, ".")?: 50,
 			$maxLength
 		);
 
-		return substr($text, 0, $pos);
+		return mb_substr($text, 0, $pos);
 	}
 
 	/**
@@ -376,9 +376,9 @@ class Agreement
 		if ($cutTitle)
 		{
 			$title = self::getTitleFromText($text);
-			if (strlen($title) !== 50 && $title === substr($text, 0, strlen($title)))
+			if (mb_strlen($title) !== 50 && $title === mb_substr($text, 0, mb_strlen($title)))
 			{
-				$text = trim(substr($text, strlen($title)));
+				$text = trim(mb_substr($text, mb_strlen($title)));
 			}
 		}
 

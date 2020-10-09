@@ -33,12 +33,7 @@ class CLearnHelper
 	public static function PatchLessonContentLinks($strContent, $contextCourseId = false)
 	{
 		static $arCourseLinksPatterns = array(
-			'?COURSE_ID={SELF}"',
-			'?COURSE_ID={SELF}\'',
-			'?COURSE_ID={SELF}&',
-			'&COURSE_ID={SELF}"',
-			'&COURSE_ID={SELF}\'',
-			'&COURSE_ID={SELF}&'
+			'{SELF}'
 		);
 
 		$argsCheck = is_string($strContent)
@@ -49,14 +44,14 @@ class CLearnHelper
 			return ($strContent);
 
 		$arCourseResolvedLinks = str_replace(
-			'{SELF}', 
+			'{SELF}',
 			(string) ((int) $contextCourseId),
 			$arCourseLinksPatterns
 		);
 
 		$rc = str_replace(
-			$arCourseLinksPatterns, 
-			$arCourseResolvedLinks, 
+			$arCourseLinksPatterns,
+			$arCourseResolvedLinks,
 			$strContent
 		);
 
@@ -77,37 +72,37 @@ class CLearnHelper
 
 	/**
 	 * This function builds subquery (for oracle) or comma-separated
-	 * list of lessons IDs (for mysql/mssql) for SQL WHERE clause, 
-	 * which selects/contains all child lessons (only childs, 
+	 * list of lessons IDs (for mysql/mssql) for SQL WHERE clause,
+	 * which selects/contains all child lessons (only childs,
 	 * without parent lesson). This functions prevents cycling.
-	 * 
+	 *
 	 * Warning: currently
-	 * 
+	 *
 	 * @example
 	 * on oracle SQLClauseForAllSubLessons(13) returns subquery:
 	 * SELECT b_learn_lesson_edges.TARGET_NODE
 	 * FROM b_learn_lesson_edges
 	 * START WITH b_learn_lesson_edges.SOURCE_NODE=13
 	 * CONNECT BY NOCYCLE PRIOR b_learn_lesson_edges.TARGET_NODE = b_learn_lesson_edges.SOURCE_NODE
-	 * 
+	 *
 	 * on mysql/mssql SQLClauseForAllSubLessons(13) returns list of child lessons:
 	 * 14, 16, 120, 875, 476
-	 * 
+	 *
 	 * Any of this strings can be used in WHERE IN(...our string...) clause.
-	 * 
+	 *
 	 * Complete example:
 	 * <?php
 	 * $parentLessonId = 447;
 	 * $clauseChilds = CLearnHelper::SQLClauseForAllSubLessons($parentLessonId);
 	 * $strSql = "
-	 * SELECT * 
-	 * FROM b_learn_lesson 
+	 * SELECT *
+	 * FROM b_learn_lesson
 	 * WHERE ID IN ($clauseChilds) OR (ID = $parentLessonId)";
 	 * // Selects list of all childs with parentLessonId included.
 	 * $CDBresult = $DB->Query ($strSql);
-	 * 
+	 *
 	 * @param int parent lesson id
-	 * @return string for using in WHERE IN() clause: sql subquery or 
+	 * @return string for using in WHERE IN() clause: sql subquery or
 	 * comma-separated list of lesson's ids.
 	 */
 	public static function SQLClauseForAllSubLessons ($parentLessonId)
@@ -115,13 +110,13 @@ class CLearnHelper
 		global $DBType;
 
 		if ( ! (
-			is_numeric($parentLessonId) 
-			&& is_int($parentLessonId + 0) 
-			) 
+			is_numeric($parentLessonId)
+			&& is_int($parentLessonId + 0)
+			)
 		)
 		{
 			throw new LearnException (
-				'$parentLessonId must be strictly castable to integer', 
+				'$parentLessonId must be strictly castable to integer',
 				LearnException::EXC_ERR_ALL_PARAMS);
 		}
 
@@ -133,7 +128,7 @@ class CLearnHelper
 				FROM b_learn_lesson_edges
 				START WITH b_learn_lesson_edges.SOURCE_NODE=" . ($parentLessonId + 0) . "
 				CONNECT BY NOCYCLE PRIOR b_learn_lesson_edges.TARGET_NODE = b_learn_lesson_edges.SOURCE_NODE";
-		
+
 			return ($rc);
 		}
 		elseif (($DBType === 'mysql') || ($DBType === 'mssql'))
@@ -147,9 +142,9 @@ class CLearnHelper
 			$arChildLessonsIdsEscaped = array_map('intval', $arChildLessonsIds);
 
 			$sqlChildLessonsIdsList = implode (', ', $arChildLessonsIdsEscaped);
-			
+
 			// No childs => nothing must be selected
-			if (strlen($sqlChildLessonsIdsList) == 0)
+			if ($sqlChildLessonsIdsList == '')
 				$sqlChildLessonsIdsList = 'NULL';		// NULL != any value. NULL != NULL too.
 
 			return ($sqlChildLessonsIdsList);
@@ -163,64 +158,64 @@ class CLearnHelper
 	 */
 	public static function MkOperationFilter($key)
 	{
-		if(substr($key, 0, 1)=="=") //Identical
+		if(mb_substr($key, 0, 1) == "=") //Identical
 		{
-			$key = substr($key, 1);
+			$key = mb_substr($key, 1);
 			$cOperationType = "I";
 		}
-		elseif(substr($key, 0, 2)=="!=") //not Identical
+		elseif(mb_substr($key, 0, 2) == "!=") //not Identical
 		{
-			$key = substr($key, 2);
+			$key = mb_substr($key, 2);
 			$cOperationType = "NI";
 		}
-		elseif(substr($key, 0, 1)=="%") //substring
+		elseif(mb_substr($key, 0, 1) == "%") //substring
 		{
-			$key = substr($key, 1);
+			$key = mb_substr($key, 1);
 			$cOperationType = "S";
 		}
-		elseif(substr($key, 0, 2)=="!%") //not substring
+		elseif(mb_substr($key, 0, 2) == "!%") //not substring
 		{
-			$key = substr($key, 2);
+			$key = mb_substr($key, 2);
 			$cOperationType = "NS";
 		}
-		elseif(substr($key, 0, 1)=="?") //logical
+		elseif(mb_substr($key, 0, 1) == "?") //logical
 		{
-			$key = substr($key, 1);
+			$key = mb_substr($key, 1);
 			$cOperationType = "?";
 		}
-		elseif(substr($key, 0, 2)=="><") //between
+		elseif(mb_substr($key, 0, 2) == "><") //between
 		{
-			$key = substr($key, 2);
+			$key = mb_substr($key, 2);
 			$cOperationType = "B";
 		}
-		elseif(substr($key, 0, 3)=="!><") //not between
+		elseif(mb_substr($key, 0, 3) == "!><") //not between
 		{
-			$key = substr($key, 3);
+			$key = mb_substr($key, 3);
 			$cOperationType = "NB";
 		}
-		elseif(substr($key, 0, 2)==">=") //greater or equal
+		elseif(mb_substr($key, 0, 2) == ">=") //greater or equal
 		{
-			$key = substr($key, 2);
+			$key = mb_substr($key, 2);
 			$cOperationType = "GE";
 		}
-		elseif(substr($key, 0, 1)==">")  //greater
+		elseif(mb_substr($key, 0, 1) == ">")  //greater
 		{
-			$key = substr($key, 1);
+			$key = mb_substr($key, 1);
 			$cOperationType = "G";
 		}
-		elseif(substr($key, 0, 2)=="<=")  //less or equal
+		elseif(mb_substr($key, 0, 2) == "<=")  //less or equal
 		{
-			$key = substr($key, 2);
+			$key = mb_substr($key, 2);
 			$cOperationType = "LE";
 		}
-		elseif(substr($key, 0, 1)=="<")  //less
+		elseif(mb_substr($key, 0, 1) == "<")  //less
 		{
-			$key = substr($key, 1);
+			$key = mb_substr($key, 1);
 			$cOperationType = "L";
 		}
-		elseif(substr($key, 0, 1)=="!") // not field LIKE val
+		elseif(mb_substr($key, 0, 1) == "!") // not field LIKE val
 		{
-			$key = substr($key, 1);
+			$key = mb_substr($key, 1);
 			$cOperationType = "N";
 		}
 		else
@@ -268,12 +263,12 @@ class CLearnHelper
 		{
 			$val = $vals[$i];
 
-			if(!$bSkipEmpty || strlen($val)>0 || (is_bool($val) && $val===false))
+			if(!$bSkipEmpty || (string)$val <> '' || (is_bool($val) && $val===false))
 			{
 				switch ($type)
 				{
 				case "string_equal":
-					if(strlen($val)<=0)
+					if((string)$val == '')
 						$res[] =
 						($cOperationType=="N"?"NOT":"").
 						"(".
@@ -290,10 +285,10 @@ class CLearnHelper
 				case "string":
 					if($cOperationType=="?")
 					{
-						if(strlen($val)>0)
+						if((string)$val <> '')
 							$res[] = GetFilterQuery($fname, $val, "Y",array(),"N");
 					}
-					elseif(strlen($val)<=0)
+					elseif((string)$val == '')
 					{
 						$res[] = ($cOperationType=="N"?"NOT":"")."(".$fname." IS NULL OR ".$DB->Length($fname)."<=0)";
 					}
@@ -303,21 +298,21 @@ class CLearnHelper
 							$res[] =
 							"(".
 							($cOperationType=="N"?" ".$fname." IS NULL OR NOT (":"").
-							(strtoupper($DB->type)=="ORACLE"?CCourse::_Upper($fname)." LIKE ".CCourse::_Upper("'".$DB->ForSqlLike($val)."'")." ESCAPE '\\'" : $fname." ".($strOperation=="="?"LIKE":$strOperation)." '".$DB->ForSqlLike($val)."'").
+							($DB->type == "ORACLE"?CCourse::_Upper($fname)." LIKE ".CCourse::_Upper("'".$DB->ForSqlLike($val)."'")." ESCAPE '\\'" : $fname." ".($strOperation=="="?"LIKE":$strOperation)." '".$DB->ForSqlLike($val)."'").
 							($cOperationType=="N"?")":"").
 							")";
 						else
 							$res[] =
 							"(".
 							($cOperationType=="N"?" ".$fname." IS NULL OR NOT (":"").
-							(strtoupper($DB->type)=="ORACLE"?CCourse::_Upper($fname).
+							($DB->type == "ORACLE"?CCourse::_Upper($fname).
 							" ".$strOperation." ".CCourse::_Upper("'".$DB->ForSql($val)."'")." " : $fname." ".$strOperation." '".$DB->ForSql($val)."'").
 							($cOperationType=="N"?")":"").
 							")";
 					}
 					break;
 				case "date":
-					if(strlen($val)<=0)
+					if((string)$val == '')
 						$res[] = ($cOperationType=="N"?"NOT":"")."(".$fname." IS NULL)";
 					else
 						$res[] =
@@ -328,7 +323,7 @@ class CLearnHelper
 						")";
 					break;
 				case "number":
-					if(strlen($val)<=0)
+					if((string)$val == '')
 						$res[] = ($cOperationType=="N"?"NOT":"")."(".$fname." IS NULL)";
 					else
 						$res[] =
@@ -349,7 +344,7 @@ class CLearnHelper
 				}
 
 				// INNER JOIN in this case
-				if(strlen($val)>0 && $cOperationType!="N")
+				if((string)$val <> '' && $cOperationType!="N")
 					$bFullJoin = true;
 				else
 					$bWasLeftJoin = true;
@@ -442,7 +437,7 @@ class CLearnHelper
 	public static function IsBaseFilenameSafe($filename)
 	{
 
-		$isUnSafe = IsFileUnsafe($filename) 
+		$isUnSafe = IsFileUnsafe($filename)
 			|| HasScriptExtension($filename)
 			|| ( ! (preg_match("#^[^\\\/:*?\"\'~%<>|]+$#is", $filename) > 0) );
 
@@ -452,7 +447,7 @@ class CLearnHelper
 
 	public static function CopyDirFiles($path_from, $path_to, $ReWrite = True, $Recursive = False)
 	{
-		if (strpos($path_to."/", $path_from."/")===0 || realpath($path_to) === realpath($path_from))
+		if (mb_strpos($path_to."/", $path_from."/") === 0 || realpath($path_to) === realpath($path_from))
 			return false;
 
 		if (is_dir($path_from))
@@ -462,7 +457,7 @@ class CLearnHelper
 		elseif(is_file($path_from))
 		{
 			$p = bxstrrpos($path_to, "/");
-			$path_to_dir = substr($path_to, 0, $p);
+			$path_to_dir = mb_substr($path_to, 0, $p);
 			CheckDirPath($path_to_dir."/");
 
 			if (file_exists($path_to) && !$ReWrite)

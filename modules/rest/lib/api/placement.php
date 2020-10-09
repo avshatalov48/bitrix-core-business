@@ -97,7 +97,7 @@ class Placement extends \IRestService
 		$placement = toUpper($params['PLACEMENT']);
 		$placementHandler = $params['HANDLER'];
 
-		if(strlen($placement) <= 0)
+		if($placement == '')
 		{
 			throw new ArgumentNullException("PLACEMENT");
 		}
@@ -107,7 +107,7 @@ class Placement extends \IRestService
 			throw new ArgumentException("Wrong value", "PLACEMENT");
 		}
 
-		if(strlen($placementHandler) <= 0)
+		if($placementHandler == '')
 		{
 			throw new ArgumentNullException("HANDLER");
 		}
@@ -201,7 +201,7 @@ class Placement extends \IRestService
 		$placement = toUpper($params['PLACEMENT']);
 		$placementHandler = $params['HANDLER'];
 
-		if(strlen($placement) <= 0)
+		if($placement == '')
 		{
 			throw new ArgumentNullException("PLACEMENT");
 		}
@@ -219,7 +219,7 @@ class Placement extends \IRestService
 				'=PLACEMENT' => $placement,
 			);
 
-			if(strlen($placementHandler) > 0)
+			if($placementHandler <> '')
 			{
 				$filter['=PLACEMENT_HANDLER'] = $placementHandler;
 			}

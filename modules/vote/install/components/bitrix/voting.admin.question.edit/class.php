@@ -400,7 +400,7 @@ namespace Bitrix\Vote\Component
 					$access = \CBXVirtualIo::GetInstance()->GetFile($directory->GetPath()."/.access.php");
 					$content = '<?$PERM["'.$directory->GetName().'"]["*"]="X";?>';
 
-					if (!$access->IsExists() || strpos($access->GetContents(), $content) === false)
+					if (!$access->IsExists() || mb_strpos($access->GetContents(), $content) === false)
 					{
 						if (($fd = $access->Open('ab')) && $fd)
 							fwrite($fd, $content);
@@ -527,7 +527,7 @@ namespace Bitrix\Vote\Component
 				{
 					if (is_array($a) && $a["ID"])
 					{
-						$id = substr($a["ID"], 1);
+						$id = mb_substr($a["ID"], 1);
 						$maxId = max($maxId, intval($id));
 					}
 				}
@@ -776,7 +776,7 @@ namespace Bitrix\Vote\Component
 						$data["IMAGE_ID"] = array_merge($imageFile, [ "tmp_name" => $newFile->GetPathWithName()]);
 						if(!defined("BX_TEMPORARY_FILES_DIRECTORY"))
 						{
-							$data["IMAGE_ID"] += ["relative_tmp_name" => "/".ltrim(substr($newFile->GetPathWithName(), strlen($_SERVER["DOCUMENT_ROOT"])), "/\\")];
+							$data["IMAGE_ID"] += ["relative_tmp_name" => "/".ltrim(mb_substr($newFile->GetPathWithName(), mb_strlen($_SERVER["DOCUMENT_ROOT"])), "/\\")];
 						}
 					}
 				}

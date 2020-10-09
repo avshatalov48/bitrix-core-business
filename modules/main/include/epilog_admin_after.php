@@ -28,10 +28,18 @@ $main_exec_time = round((getmicrotime()-START_EXEC_TIME), 4);
 
 if(!defined("ADMIN_AJAX_MODE") && ($_REQUEST["mode"] != 'excel'))
 {
+	//it's possible the method doesn't exist on update
+	$session = null;
+	$application = \Bitrix\Main\Application::getInstance();
+	if(method_exists($application, 'getKernelSession'))
+	{
+		$session = $application->getKernelSession();
+	}
+
 	$canEditPHP = $USER->CanDoOperation('edit_php');
-	$bShowTime = ($_SESSION["SESS_SHOW_TIME_EXEC"] == 'Y');
+	$bShowTime = ($session && $session["SESS_SHOW_TIME_EXEC"] == 'Y');
 	$bShowStat = ($DB->ShowSqlStat && $canEditPHP);
-	$bShowCacheStat = (\Bitrix\Main\Data\Cache::getShowCacheStat() && ($canEditPHP || $_SESSION["SHOW_CACHE_STAT"]=="Y"));
+	$bShowCacheStat = (\Bitrix\Main\Data\Cache::getShowCacheStat() && ($canEditPHP || ($session && $session["SHOW_CACHE_STAT"] == "Y")));
 
 	if($bShowTime || $bShowStat || $bShowCacheStat)
 	{
@@ -39,14 +47,6 @@ if(!defined("ADMIN_AJAX_MODE") && ($_REQUEST["mode"] != 'excel'))
 		include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/interface/debug_info.php");
 		$buffer .= ob_get_clean();
 	}
-}
-
-//it's possible to have no response on update
-$response = \Bitrix\Main\Context::getCurrent()->getResponse();
-if(!$response)
-{
-	echo $buffer;
-	$buffer = "";
 }
 
 CMain::FinalActions($buffer);

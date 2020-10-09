@@ -73,13 +73,13 @@ $APPLICATION->SetTitle(Loc::getMessage("log_notifications_title"));
 
 $types = CEventLog::GetEventTypes();
 
-$sortBy = strtoupper($sorting->getField());
+$sortBy = mb_strtoupper($sorting->getField());
 if(!LogNotificationTable::getEntity()->hasField($sortBy))
 {
 	$sortBy = "ID";
 }
 
-$sortOrder = strtoupper($sorting->getOrder());
+$sortOrder = mb_strtoupper($sorting->getOrder());
 if($sortOrder <> "DESC")
 {
 	$sortOrder = "ASC";

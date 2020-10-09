@@ -18,6 +18,7 @@ return [
 		'im.lib.logger',
 		'im.const',
 		'im.lib.utils',
+		'im.lib.clipboard',
 		'im.view.dialog',
 		'im.view.quotepanel',
 	],

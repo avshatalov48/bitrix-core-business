@@ -16,7 +16,7 @@ class Attr extends Node
 
 		$this->nodeType = self::ATTRIBUTE_NODE;
 
-		$this->name = strtolower($name);
+		$this->name = mb_strtolower($name);
 		$this->value = $value;
 	}
 

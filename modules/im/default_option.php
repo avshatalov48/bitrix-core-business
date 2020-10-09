@@ -1,6 +1,6 @@
 <?php
 $im_default_option = array(
-	'notify_flash_engine_type' => 'session',
+	'notify_flash_engine_type' => 'cache',
 	'general_chat_id' => 0,
 	'general_chat_message_join' => true,
 	'general_chat_message_leave' => false,

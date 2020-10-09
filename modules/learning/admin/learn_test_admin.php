@@ -137,9 +137,9 @@ if( ! $isReadOnly && ($arID = $lAdmin->GroupAction()) )
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		switch($_REQUEST['action'])
 		{
@@ -165,7 +165,7 @@ if( ! $isReadOnly && ($arID = $lAdmin->GroupAction()) )
 		}
 	}
 
-	if(isset($return_url) && strlen($return_url)>0 && check_bitrix_sessid())
+	if(isset($return_url) && $return_url <> '' && check_bitrix_sessid())
 		LocalRedirect($return_url);
 }
 

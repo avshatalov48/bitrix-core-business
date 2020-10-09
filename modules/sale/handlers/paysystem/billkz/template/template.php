@@ -162,12 +162,12 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 			<td style="text-align: center;"><b><nobr><?= Loc::getMessage('SALE_HPS_BILLKZ_KBE') ?></nobr></b></td>
 		</tr>
 		<tr class="ntb nbb">
-			<td><b><?= $params["SELLER_COMPANY_NAME"] ?></b></td>
-			<td colspan="2" style="text-align: center;"><?= $sellerRs ? $sellerRs : '&nbsp;' ?></td>
-			<td style="text-align: center;"><?= $params["SELLER_COMPANY_KBE"] ? $params["SELLER_COMPANY_KBE"] : '&nbsp;' ?></td>
+			<td><b><?= htmlspecialcharsbx($params["SELLER_COMPANY_NAME"]) ?></b></td>
+			<td colspan="2" style="text-align: center;"><?= $sellerRs ? htmlspecialcharsbx($sellerRs) : '&nbsp;' ?></td>
+			<td style="text-align: center;"><?= $params["SELLER_COMPANY_KBE"] ? htmlspecialcharsbx($params["SELLER_COMPANY_KBE"]) : '&nbsp;' ?></td>
 		</tr>
 		<tr class="ntb">
-			<td><?= $params["SELLER_COMPANY_BIN"] ? Loc::getMessage('SALE_HPS_BILLKZ_BIN').': '.$params["SELLER_COMPANY_BIN"] : '&nbsp;' ?></td>
+			<td><?= $params["SELLER_COMPANY_BIN"] ? Loc::getMessage('SALE_HPS_BILLKZ_BIN').': '.htmlspecialcharsbx($params["SELLER_COMPANY_BIN"]) : '&nbsp;' ?></td>
 			<td colspan="2">&nbsp;</td>
 			<td>&nbsp;</td>
 		</tr>
@@ -177,16 +177,16 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 			<td colspan="2" style="text-align: center;"><b><nobr><?= Loc::getMessage('SALE_HPS_BILLKZ_PAYMENT_PC') ?></nobr></b></td>
 		</tr>
 		<tr class="ntb">
-			<td><?= $sellerBank ? $sellerBank : '&nbsp;' ?></td>
-			<td style="text-align: center;"><?= $params["SELLER_COMPANY_BANK_BIC"] ? $params["SELLER_COMPANY_BANK_BIC"] : '&nbsp;' ?></td>
-			<td colspan="2" style="text-align: center;"><?= $params["PAYMENT_PC"] ? $params["PAYMENT_PC"] : '&nbsp;' ?></td>
+			<td><?= $sellerBank ? htmlspecialcharsbx($sellerBank) : '&nbsp;' ?></td>
+			<td style="text-align: center;"><?= $params["SELLER_COMPANY_BANK_BIC"] ? htmlspecialcharsbx($params["SELLER_COMPANY_BANK_BIC"]) : '&nbsp;' ?></td>
+			<td colspan="2" style="text-align: center;"><?= $params["PAYMENT_PC"] ? htmlspecialcharsbx($params["PAYMENT_PC"]) : '&nbsp;' ?></td>
 		</tr>
 		<? if ($params["BILLKZ_ORDER_SUBJECT"]): ?>
 		<tr class="ntb nbb">
 			<td colspan="4"><?= Loc::getMessage('SALE_HPS_BILLKZ_PAYMENT_PURPOSE') ?>:</td>
 		</tr>
 		<tr class="ntb">
-			<td colspan="4"><?= $params["BILLKZ_ORDER_SUBJECT"] ?></td>
+			<td colspan="4"><?= htmlspecialcharsbx($params["BILLKZ_ORDER_SUBJECT"]) ?></td>
 		</tr>
 		<? endif; ?>
 	</table>
@@ -221,7 +221,7 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 	?>
 	<tr>
 		<td style="font-size: 1.6em; font-weight: bold;">
-			<nobr><?=$params['BILLKZ_HEADER'];?> <?=Loc::getMessage('SALE_HPS_BILLKZ_SELLER_TITLE', array('#PAYMENT_NUM#' => $params["ACCOUNT_NUMBER"], '#PAYMENT_DATE#' => $dateValue));?></nobr>
+			<nobr><?=htmlspecialcharsbx($params['BILLKZ_HEADER']);?> <?=Loc::getMessage('SALE_HPS_BILLKZ_SELLER_TITLE', array('#PAYMENT_NUM#' => htmlspecialcharsbx($params["ACCOUNT_NUMBER"]), '#PAYMENT_DATE#' => htmlspecialcharsbx($dateValue)));?></nobr>
 		</td>
 	</tr>
 <?endif;?>
@@ -319,21 +319,21 @@ if ($params['BILLKZ_PAYER_SHOW'] == 'Y')
 		<col width="87%">
 	</colgroup>
 	<tr>
-		<td><?= !empty($sellerTitle) ? $sellerTitle : '&nbsp' ?></td>
-		<td><?= !empty($sellerInfo) ? $sellerInfo : '&nbsp' ?></td>
+		<td><?= !empty($sellerTitle) ? htmlspecialcharsbx($sellerTitle) : '&nbsp' ?></td>
+		<td><?= !empty($sellerInfo) ? htmlspecialcharsbx($sellerInfo) : '&nbsp' ?></td>
 	</tr>
 <? if ($params['BILLKZ_PAYER_SHOW'] == 'Y'): ?>
 	<tr><td colspan="2" style="padding: 0; line-height: 7pt;">&nbsp;</td></tr>
 	<tr>
-		<td><?= !empty($buyerTitle) ? $buyerTitle : '&nbsp' ?></td>
-		<td><?= !empty($buyerInfo) ? $buyerInfo : '&nbsp' ?></td>
+		<td><?= !empty($buyerTitle) ? htmlspecialcharsbx($buyerTitle) : '&nbsp' ?></td>
+		<td><?= !empty($buyerInfo) ? htmlspecialcharsbx($buyerInfo) : '&nbsp' ?></td>
 	</tr>
 <? endif; ?>
 <? if ($params['BUYER_PERSON_COMPANY_DOGOVOR']): ?>
 	<tr><td colspan="2" style="padding: 0; line-height: 7pt;">&nbsp;</td></tr>
 	<tr>
 		<td><?= Loc::getMessage('SALE_HPS_BILLKZ_BUYER_DOGOVOR') ?>:</td>
-		<td><?= $params['BUYER_PERSON_COMPANY_DOGOVOR'] ?></td>
+		<td><?= htmlspecialcharsbx($params['BUYER_PERSON_COMPANY_DOGOVOR']) ?></td>
 	</tr>
 <? endif; ?>
 </table>
@@ -357,7 +357,7 @@ foreach ($columnList as $column)
 	if ($params['BILLKZ_COLUMN_'.$column.'_SHOW'] == 'Y')
 	{
 		$arCols[$column] = array(
-			'NAME' => $params['BILLKZ_COLUMN_'.$column.'_TITLE'],
+			'NAME' => htmlspecialcharsbx($params['BILLKZ_COLUMN_'.$column.'_TITLE']),
 			'SORT' => $params['BILLKZ_COLUMN_'.$column.'_SORT']
 		);
 	}
@@ -368,7 +368,7 @@ if ($params['USER_COLUMNS'])
 	foreach ($params['USER_COLUMNS'] as $id => $val)
 	{
 		$arCols[$id] = array(
-			'NAME' => $val['NAME'],
+			'NAME' => htmlspecialcharsbx($val['NAME']),
 			'SORT' => $val['SORT']
 		);
 	}
@@ -719,7 +719,7 @@ for ($n = 1; $n <= $rowsCnt; $n++):
 					<?= $blank ? '&nbsp;' : CFile::ShowImage($params[$signParamName], 200, 50) ?>
 				</td>
 				<td style="white-space: nowrap; padding-left: 8pt;">
-					<?= !empty($executorInfo) ? ' / '.$executorInfo.' / ' : '&nbsp;' ?>
+					<?= !empty($executorInfo) ? ' / '.htmlspecialcharsbx($executorInfo).' / ' : '&nbsp;' ?>
 				</td>
 			</tr>
 		</table>

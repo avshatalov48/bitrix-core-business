@@ -20,7 +20,7 @@ $frm = "";
 
 IncludeTemplateLangFile(__FILE__);
 $APPLICATION->SetTemplateCSS("main/map/default.css");
-if(strlen($APPLICATION->GetTitle())<=0)
+if($APPLICATION->GetTitle() == '')
 	$APPLICATION->SetTitle(GetMessage("MAP_TITLE"));
 
 $arrMainMenu = explode(",",COption::GetOptionString("main","map_top_menu_type","top"));
@@ -55,7 +55,7 @@ function FindChild(&$map, $iCurrent)
 
 	$fpathtmp = $map[$iCurrent]["FULL_PATH"];
 	if($iCurrent>0 && $map[$iCurrent]["IS_DIR"]=="Y")
-		$fpathtmp = substr($map[$iCurrent]["FULL_PATH"], 0, strlen($map[$iCurrent]["FULL_PATH"])-1);
+		$fpathtmp = mb_substr($map[$iCurrent]["FULL_PATH"], 0, mb_strlen($map[$iCurrent]["FULL_PATH"]) - 1);
 
 	$nLevel = $map[$iCurrent]["LEVEL"];
 
@@ -139,7 +139,7 @@ print_r($levels);
 		}
 	}
 
-	if (strlen($sfch)>0)
+	if ($sfch <> '')
 	{
 		$unfolded_arr_temp=$unfolded_arr;
 		if (in_array($id,$unfolded_arr_temp))
@@ -217,11 +217,11 @@ function GetMapChilds($PARENT_PATH, $PARENT_ID)
 					if(count($aMenu)>4)
 					{
 						$CONDITION = $aMenu[4];
-						if(strlen($CONDITION)>0 && (!@eval("return ".$CONDITION.";")))
+						if($CONDITION <> '' && (!@eval("return ".$CONDITION.";")))
 							continue;
 					}
 
-					if (strlen($aMenu[1])>0)
+					if ($aMenu[1] <> '')
 					{
 						$search_child = true;
 						if(preg_match("'^(([A-Za-z]+://)|mailto:|javascript:)'i", $aMenu[1]))
@@ -235,7 +235,7 @@ function GetMapChilds($PARENT_PATH, $PARENT_ID)
 						$full_path = $PARENT_PATH;
 					}
 
-					if (strlen($full_path)>0)
+					if ($full_path <> '')
 					{
 						$FILE_ACCESS = (preg_match("'^(([A-Za-z]+://)|mailto:|javascript:)'i", $full_path)) ? "R" : $APPLICATION->GetFileAccessPermission($full_path);
 						if ($FILE_ACCESS!="D" && $aMenu[3]["SEPARATOR"]!="Y")
@@ -344,7 +344,7 @@ else
 					if(count($aMenu)>4)
 					{
 						$CONDITION = $aMenu[4];
-						if(strlen($CONDITION)>0 && (!@eval("return ".$CONDITION.";")))
+						if($CONDITION <> '' && (!@eval("return ".$CONDITION.";")))
 							continue;
 					}
 

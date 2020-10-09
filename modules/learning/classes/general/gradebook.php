@@ -153,7 +153,7 @@ class CAllGradeBook
 			$key = $res["FIELD"];
 			$cOperationType = $res["OPERATION"];
 
-			$key = strtoupper($key);
+			$key = mb_strtoupper($key);
 
 			switch ($key)
 			{
@@ -323,7 +323,7 @@ class CAllGradeBook
 				$arLID = $arFilter["SITE_ID"];
 			else
 			{
-				if (strlen($arFilter["SITE_ID"]) > 0)
+				if ($arFilter["SITE_ID"] <> '')
 					$arLID[] = $arFilter["SITE_ID"];
 			}
 
@@ -350,10 +350,12 @@ class CAllGradeBook
 		if (!is_array($arOrder))
 			$arOrder = array();
 
+		$arSqlOrder = [];
+
 		foreach($arOrder as $by=>$order)
 		{
-			$by = strtolower($by);
-			$order = strtolower($order);
+			$by = mb_strtolower($by);
+			$order = mb_strtolower($order);
 			if ($order!="asc")
 				$order = "desc";
 
@@ -379,14 +381,18 @@ class CAllGradeBook
 
 		$strSqlOrder = "";
 		DelDuplicateSort($arSqlOrder);
-		for ($i=0, $len = count($arSqlOrder); $i < $len; $i++)
-		{
-			if($i==0)
-				$strSqlOrder = " ORDER BY ";
-			else
-				$strSqlOrder .= ",";
 
-			$strSqlOrder .= $arSqlOrder[$i];
+		if (!empty($arSqlOrder))
+		{
+			for ($i=0, $len = count($arSqlOrder); $i < $len; $i++)
+			{
+				if($i==0)
+					$strSqlOrder = " ORDER BY ";
+				else
+					$strSqlOrder .= ",";
+
+				$strSqlOrder .= $arSqlOrder[$i];
+			}
 		}
 
 		$strSql .= $strSqlOrder;
@@ -446,7 +452,7 @@ class CAllGradeBook
 							END
 					)
 				) ".
-			(strlen($SqlSearchLang)<=2?"":
+			(mb_strlen($SqlSearchLang) <= 2?"":
 				"AND
 					EXISTS
 					(	SELECT 'x' FROM b_learn_course_site CS

@@ -113,7 +113,7 @@ if (isset($_REQUEST['MODE']) && $_REQUEST['MODE'] == 'SEARCH')
 				die();
 			}
 		}
-		elseif(strlen($matches[1]) > 0)
+		elseif($matches[1] <> '')
 		{
 			$search = $matches[1];
 		}

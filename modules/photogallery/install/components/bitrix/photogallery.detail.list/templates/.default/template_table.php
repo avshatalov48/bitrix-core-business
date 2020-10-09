@@ -49,8 +49,8 @@ if (!function_exists("__photo_template_table"))
 			$arItem["PICTURE"]["HEIGHT"] = $arParams["MAX_HEIGHT"];
 		endif;
 
-		$margin_left = 0 - intVal(($arItem["PICTURE"]["WIDTH"] - $arParams["MAX_WIDTH"])/2);
-		$margin_top = 0 - intVal(($arItem["PICTURE"]["HEIGHT"] - $arParams["MAX_HEIGHT"])/2);
+		$margin_left = 0 - intval(($arItem["PICTURE"]["WIDTH"] - $arParams["MAX_WIDTH"])/2);
+		$margin_top = 0 - intval(($arItem["PICTURE"]["HEIGHT"] - $arParams["MAX_HEIGHT"])/2);
 
 		$sImage = '<div style="margin-top:'.$margin_top.'px;margin-left:'.$margin_left.'px;text-align:left;position:static;">'.$sImage.'</div>';
 ?>
@@ -160,7 +160,7 @@ if (in_array("Y", $arShows))
 		if ($arItem["SHOW_COUNTER"] > 0):
 ?>
 				<div class="photo-photo-shows">
-					<?=GetMessage("P_SHOWS")?>: <?=intVal($arItem["SHOW_COUNTER"])?>
+					<?=GetMessage("P_SHOWS")?>: <?=intval($arItem["SHOW_COUNTER"])?>
 				</div>
 <?
 		else:

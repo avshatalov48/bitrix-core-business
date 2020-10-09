@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["ACTIVE"] = "Active:";
 $MESS["ADD"] = "Add";
 $MESS["ALL_SITES"] = "All Sites: ";
@@ -11,10 +11,12 @@ $MESS["GP_BLOCK_TIME"] = "Block user for (minutes)";
 $MESS["GP_CHECKWORD_TIMEOUT"] = "Checkword lifetime for password recovery (min)";
 $MESS["GP_LOGIN_ATTEMPTS"] = "Password entry attempts without using CAPTCHA";
 $MESS["GP_MAX_STORE_NUM"] = "Maximum number of computers to store authorization simultaneously";
+$MESS["GP_PASSWORD_CHANGE_DAYS"] = "Require the user to change their password after (days)";
 $MESS["GP_PASSWORD_DIGITS"] = "Password must contain digits (0-9)";
 $MESS["GP_PASSWORD_LENGTH"] = "Min. Password Length";
 $MESS["GP_PASSWORD_LOWERCASE"] = "Password must contain Latin lowercase letters (a-z)";
 $MESS["GP_PASSWORD_PUNCTUATION"] = "Password must contain punctuation marks (,.<>/?;:'\"[]{}\\|`~!@#\$%^&*()-_+=)";
+$MESS["GP_PASSWORD_UNIQUE_COUNT"] = "Number of recent passwords to check for uniqueness";
 $MESS["GP_PASSWORD_UPPERCASE"] = "Password must contain Latin uppercase letters (A-Z)";
 $MESS["GP_SESSION_IP_MASK"] = "Network mask to bind session";
 $MESS["GP_SESSION_TIMEOUT"] = "Session maximum life time (minutes)";
@@ -62,4 +64,3 @@ $MESS["USERS"] = "Users in the group";
 $MESS["USER_GROUP_DATE_FROM"] = "from";
 $MESS["USER_GROUP_DATE_TO"] = "to";
 $MESS["USER_LIST"] = "User";
-?>

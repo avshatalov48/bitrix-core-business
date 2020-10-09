@@ -308,8 +308,8 @@ if (IsModuleInstalled("blog") || IsModuleInstalled("forum"))
 				{
 					do
 					{
-						$arForum[intVal($res["ID"])] = $res["NAME"];
-						$fid = intVal($res["ID"]);
+						$arForum[intval($res["ID"])] = $res["NAME"];
+						$fid = intval($res["ID"]);
 					}while ($res = $db_res->GetNext());
 				}
 			}

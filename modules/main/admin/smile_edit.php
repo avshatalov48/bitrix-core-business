@@ -5,7 +5,7 @@ IncludeModuleLangFile(__FILE__);
 if(!$USER->CanDoOperation('edit_other_settings'))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-$ID = intVal($ID);
+$ID = intval($ID);
 $arError = $arSmile = $arFields = $arLang = array();
 
 /* LANGS */
@@ -22,7 +22,7 @@ $bInitVars = false;
 $APPLICATION->SetTitle($ID > 0 ? GetMessage("SMILE_EDIT_RECORD") : GetMessage("SMILE_NEW_RECORD"));
 
 $fileName = '';
-if ($REQUEST_METHOD == "POST" && (strlen($save) > 0 || strlen($apply) > 0 || strlen($save_and_add) > 0))
+if ($REQUEST_METHOD == "POST" && ($save <> '' || $apply <> '' || $save_and_add <> ''))
 {
 	if (isset($_FILES["IMAGE"]["name"]))
 		$fileName = RemoveScriptExtension($_FILES["IMAGE"]["name"]);
@@ -40,7 +40,7 @@ if ($REQUEST_METHOD == "POST" && (strlen($save) > 0 || strlen($apply) > 0 || str
 		
 		$arSmile = ($ID > 0 ? CSmile::getByID($ID) : $arSmile);
 		$res = CFile::CheckImageFile($_FILES["IMAGE"], 300000, 0, 0);
-		if (strLen($res) > 0)
+		if ($res <> '')
 		{
 			$arError[] = array(
 				"id" => "IMAGE", 
@@ -143,9 +143,9 @@ if ($REQUEST_METHOD == "POST" && (strlen($save) > 0 || strlen($apply) > 0 || str
 					);
 				}
 			}
-			LocalRedirect(strlen($apply) > 0?
+			LocalRedirect($apply <> ''?
 				"smile_edit.php?lang=".LANG."&ID=".$ID."&".GetFilterParams("filter_", false) :
-				(strlen($save_and_add) > 0 ?
+				($save_and_add <> '' ?
 					"smile_edit.php?lang=".LANG."&TYPE=".($arSmile['TYPE'] == CSmile::TYPE_ICON? CSmile::TYPE_ICON: CSmile::TYPE_SMILE)."&SET_ID=".intval($_REQUEST['SET_ID'])."&".GetFilterParams("filter_", false) :
 					"smile.php?SET_ID=".intval($_REQUEST['SET_ID'])."&lang=".LANG."&".GetFilterParams("filter_", false))
 			);
@@ -312,7 +312,7 @@ $tabControl->BeginNextTab();
 	</tr>
 	<?foreach ($arLang as $key => $val):?>
 	<tr>
-		<td><? $word = GetMessage('SMILE_IMAGE_NAME_'.strtoupper($key)); if (strlen($word) > 0) { echo $word; } else { echo $val["NAME"]; }?>:</td>
+		<td><? $word = GetMessage('SMILE_IMAGE_NAME_'.mb_strtoupper($key)); if ($word <> '') { echo $word; } else { echo $val["NAME"]; }?>:</td>
 		<td><input type="text" name="LANG[<?=$key?>]" value="<?=$arSmile["LANG"][$key]?>" size="40" /></td>
 	</tr>
 	<?endforeach;?>

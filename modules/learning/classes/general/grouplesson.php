@@ -22,9 +22,9 @@ class CLearningGroupLesson
 {
 	/**
 	 * Creates new learning group <-> lesson pair
-	 * 
+	 *
 	 * @param array $arFields
-	 * 
+	 *
 	 * @return bool true/false (false - on error)
 	 */
 	public static function add($arFields)
@@ -71,12 +71,12 @@ class CLearningGroupLesson
 
 	/**
 	 * Get list of existing learning group <-> lesson pairs
-	 * 
+	 *
 	 * @param array $arOrder
 	 * @param array $arFilter
 	 * @param array $arSelect
 	 * @param array $arNavParams
-	 * 
+	 *
 	 * @return CDBResult
 	 */
 	public static function getList($arOrder, $arFilter, $arSelect = array(), $arNavParams = array())
@@ -95,11 +95,12 @@ class CLearningGroupLesson
 		if (!is_array($arOrder))
 			$arOrder = array();
 
+		$arSqlOrder = [];
 		foreach ($arOrder as $by => $order)
 		{
 			$by = (string) $by;
 			$needle = null;
-			$order = strtolower($order);
+			$order = mb_strtolower($order);
 
 			if ($order != "asc")
 				$order = "desc";
@@ -122,7 +123,7 @@ class CLearningGroupLesson
 		$arSqlSelect = array();
 		foreach ($arSelect as $field)
 		{
-			$field = strtoupper($field);
+			$field = mb_strtoupper($field);
 			if (array_key_exists($field, $arFields))
 				$arSqlSelect[$field] = $arFields[$field] . ' AS ' . $field;
 		}
@@ -139,7 +140,7 @@ class CLearningGroupLesson
 		$strFrom = "
 			FROM
 				b_learn_groups_lesson LGL
-				" 
+				"
 			. (sizeof($arSqlSearch) ? " WHERE " . implode(" AND ", $arSqlSearch) : "") . " ";
 
 		$strSql .= $strFrom;
@@ -184,9 +185,9 @@ class CLearningGroupLesson
 
 	/**
 	 * Removes existing learning group <-> lesson pairs
-	 * 
+	 *
 	 * @param int $groupId
-	 * 
+	 *
 	 * @return bool false on error, or true - if no errors detected
 	 */
 	public static function deleteByGroup($groupId)
@@ -204,9 +205,9 @@ class CLearningGroupLesson
 
 	/**
 	 * Removes existing learning group <-> lesson pairs
-	 * 
+	 *
 	 * @param int $lessonId
-	 * 
+	 *
 	 * @return bool false on error, or true - if no errors detected
 	 */
 	public static function deleteByLesson($lessonId)
@@ -224,10 +225,10 @@ class CLearningGroupLesson
 
 	/**
 	 * Removes existing learning group <-> lesson pairs
-	 * 
+	 *
 	 * @param int $lessonId
 	 * @param int $groupId
-	 * 
+	 *
 	 * @return bool false on error, or true - if no errors detected
 	 */
 	public static function delete($lessonId, $groupId)
@@ -376,7 +377,7 @@ class CLearningGroupLesson
 			$key = $res["FIELD"];
 			$cOperationType = $res["OPERATION"];
 
-			$key = strtoupper($key);
+			$key = mb_strtoupper($key);
 
 			switch ($key)
 			{

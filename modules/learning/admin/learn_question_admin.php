@@ -38,7 +38,7 @@ if ($LESSON_ID === false)
 $uriLessonPath = $oPath->ExportUrlencoded();
 unset ($lessonPath);
 
-if (isset($from) && strlen($from) > 0)
+if (isset($from) && $from <> '')
 	$str_from = "&from=".htmlspecialcharsbx($from);
 else
 	$str_from = "";
@@ -144,7 +144,7 @@ if($arID = $lAdmin->GroupAction())
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
 		$ID = intval($ID);
 
@@ -254,8 +254,8 @@ foreach ($arQuestions as $arRes)
 	$row->AddInputField("POINT", Array("size"=>"3"));
 
 	$row->AddViewField("QUESTION_TYPE",
-		'<div title="' . GetMessage("LEARNING_QUESTION_TYPE_" . $f_QUESTION_TYPE)
-		. '" class="learning-question-' . strtolower($f_QUESTION_TYPE) . '"></div>');
+		'<div title="'.GetMessage("LEARNING_QUESTION_TYPE_".$f_QUESTION_TYPE)
+		.'" class="learning-question-'.mb_strtolower($f_QUESTION_TYPE) . '"></div>');
 
 	$index = '-';
 

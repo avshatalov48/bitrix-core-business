@@ -38,67 +38,38 @@ class DateTime extends Date
 				throw new Main\ObjectException("Incorrect date/time: ".$time);
 			}
 
-			$microseconds = 0;
-			if($parsedValue['fraction'] > 0)
+			if(isset($parsedValue["timestamp"]))
 			{
-				$microseconds = intval($parsedValue['fraction'] * 1000000);
+				$this->value->setTimestamp($parsedValue["timestamp"]);
 			}
-
-			$this->value->setDate($parsedValue['year'], $parsedValue['month'], $parsedValue['day']);
-			$this->value->setTime($parsedValue['hour'], $parsedValue['minute'], $parsedValue['second'], $microseconds);
-
-			if (
-				isset($parsedValue["relative"])
-				&& isset($parsedValue["relative"]["second"])
-				&& $parsedValue["relative"]["second"] != 0
-			)
+			else
 			{
-				$this->value->add(new \DateInterval("PT".$parsedValue["relative"]["second"]."S"));
-			}
+				if(isset($parsedValue["zone_type"]) && $parsedValue["zone_type"] == 1)
+				{
+					if(isset($parsedValue["zone"]) && $parsedValue["zone"] <> 0)
+					{
+						$this->setTimeZone(new \DateTimeZone(static::secondsToOffset($parsedValue["zone"])));
+					}
+				}
+
+				$microseconds = 0;
+				if($parsedValue['fraction'] > 0)
+				{
+					$microseconds = intval($parsedValue['fraction'] * 1000000);
+				}
+
+				$this->value->setDate($parsedValue['year'], $parsedValue['month'], $parsedValue['day']);
+				$this->value->setTime($parsedValue['hour'], $parsedValue['minute'], $parsedValue['second'], $microseconds);
+  			}
 		}
 	}
 
-	/**
-	 * @param string $format
-	 * @param string $time
-	 * @return array|bool
-	 */
-	protected function parse($format, $time)
+	public static function secondsToOffset($seconds)
 	{
-		$parsedValue = date_parse_from_format($format, $time);
-
-		//Ignore errors when format is longer than date
-		//or date string is longer than format
-		if ($parsedValue['error_count'] > 1)
-		{
-			$error = current($parsedValue['errors']);
-
-			if ($error === 'A two digit second could not be found')
-			{
-				//possibly missed seconds with am/pm format
-				$timestamp = strtotime($time);
-
-				if ($timestamp === false)
-				{
-					return false;
-				}
-
-				return [
-					"year" => date("Y", $timestamp),
-					"month" => date("n", $timestamp),
-					"day" => date("j", $timestamp),
-					"hour" => date("G", $timestamp),
-					"minute" => date("i", $timestamp),
-					"second" => date("s", $timestamp),
-				];
-			}
-			if ($error !== 'Trailing data' && $error !== 'Data missing')
-			{
-				return false;
-			}
-		}
-
-		return $parsedValue;
+		$absSeconds = abs($seconds);
+		$hours = sprintf("%02d", floor($absSeconds / 3600));
+		$minutes = gmdate("i", $absSeconds % 3600);
+		return ($seconds < 0? "-" : "+").$hours.$minutes;
 	}
 
 	/**
@@ -258,7 +229,6 @@ class DateTime extends Date
 	 */
 	public static function createFromPhp(\DateTime $datetime)
 	{
-		/** @var DateTime $d */
 		$d = new static();
 		$d->value = clone $datetime;
 		return $d;
@@ -273,7 +243,6 @@ class DateTime extends Date
 	 */
 	public static function createFromTimestamp($timestamp)
 	{
-		/** @var DateTime $d */
 		$d = new static();
 		$d->value->setTimestamp($timestamp);
 		return $d;

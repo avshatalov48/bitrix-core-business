@@ -18,9 +18,7 @@ class rest extends CModule
 	{
 		$arModuleVersion = array();
 
-		$path = str_replace("\\", "/", __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen("/index.php"));
-		include($path."/version.php");
+		include(__DIR__.'/version.php');
 
 		$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 		$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
@@ -36,7 +34,7 @@ class rest extends CModule
 		$this->errors = false;
 
 		// Database tables creation
-		if(strtolower($DB->type) !== 'mysql')
+		if($DB->type !== 'MYSQL')
 		{
 			$this->errors = array(
 				GetMessage('REST_DB_NOT_SUPPORTED'),
@@ -44,7 +42,7 @@ class rest extends CModule
 		}
 		elseif(!$DB->Query("SELECT 'x' FROM b_rest_app WHERE 1=0", true))
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/rest/install/db/".strtolower($DB->type)."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/rest/install/db/".mb_strtolower($DB->type)."/install.sql");
 		}
 
 		if($this->errors !== false)
@@ -112,9 +110,10 @@ class rest extends CModule
 
 		\CAgent::AddAgent("Bitrix\\Rest\\Marketplace\\Client::getNumUpdates();", "rest", "N", 86400);
 		\CAgent::AddAgent("Bitrix\\Rest\\EventOfflineTable::cleanProcessAgent();", "rest", "N", 86400);
-		\CAgent::AddAgent("Bitrix\\Rest\\UsageStatTable::cleanUpAgent();", "rest", "N", 86400);
 		\CAgent::AddAgent("Bitrix\\Rest\\LogTable::cleanUpAgent();", "rest", "N", 86400);
 		\CAgent::AddAgent('\Bitrix\Rest\Configuration\Helper::sendStatisticAgent();', "rest", "N",86400);
+		\CAgent::AddAgent('\\Bitrix\\Rest\\UsageStatTable::sendAgent();', "rest", "N", 3600);
+		\CAgent::AddAgent('\\Bitrix\\Rest\\UsageStatTable::cleanUpAgent();', "rest", "N", 3600);
 
 		return true;
 	}
@@ -127,7 +126,7 @@ class rest extends CModule
 
 		if(!array_key_exists("savedata", $arParams) || $arParams["savedata"] != "Y")
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/rest/install/db/".strtolower($DB->type)."/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/rest/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
 		}
 
 		if($this->errors !== false)
@@ -251,12 +250,12 @@ class rest extends CModule
 	function DoInstall()
 	{
 		global $APPLICATION, $USER, $step, $DB;
-		$step = IntVal($step);
+		$step = intval($step);
 
 		if(!$USER->IsAdmin())
 			return;
 
-		if(strtolower($DB->type) !== 'mysql')
+		if($DB->type !== 'MYSQL')
 		{
 			$APPLICATION->ThrowException(GetMessage('REST_DB_NOT_SUPPORTED'));
 			$APPLICATION->IncludeAdminFile(GetMessage("REST_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/rest/install/step1.php");
@@ -290,7 +289,7 @@ class rest extends CModule
 		global $APPLICATION, $USER, $step;
 		if($USER->IsAdmin())
 		{
-			$step = IntVal($step);
+			$step = intval($step);
 			if($step < 2)
 			{
 				$APPLICATION->IncludeAdminFile(GetMessage("REST_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/rest/install/unstep1.php");

@@ -22,6 +22,7 @@ use \Bitrix\Vote\Base\BaseObject;
 use \Bitrix\Vote\DBResult;
 use \Bitrix\Main\SystemException;
 use \Bitrix\Vote\Event;
+use \Bitrix\Main\ObjectNotFoundException;
 
 Loc::loadMessages(__FILE__);
 
@@ -174,14 +175,19 @@ class Attach extends BaseObject implements \ArrayAccess
 		{
 			$data = self::getData($this->id);
 			if (is_null($data))
-				throw new ArgumentNullException("Attach");
-			list($attach, $vote) = $data;
+			{
+				throw new ObjectNotFoundException("Attach");
+			}
+			[$attach, $vote] = $data;
 		}
 		if (!is_array($attach) || empty($attach))
-			throw new ArgumentException("Wrong attach id!");
-		if (!array_key_exists("MODULE_ID", $attach) || strlen($attach["MODULE_ID"]) <= 0)
+		{
+			throw new ObjectNotFoundException("Wrong attach id!");
+		}
+
+		if (!array_key_exists("MODULE_ID", $attach) || $attach["MODULE_ID"] == '')
 			throw new ArgumentNullException("module ID");
-		if (!array_key_exists("ENTITY_TYPE", $attach) || strlen($attach["ENTITY_TYPE"]) <= 0)
+		if (!array_key_exists("ENTITY_TYPE", $attach) || $attach["ENTITY_TYPE"] == '')
 			throw new ArgumentNullException("entity type");
 		if (array_key_exists("ID", $attach))
 			$this->id = intval($attach["ID"]);
@@ -271,14 +277,14 @@ class Attach extends BaseObject implements \ArrayAccess
 				$answer = [];
 				foreach ($res as $key => $val)
 				{
-					if (strpos($key, "O_") === 0)
-						$buffer["attach"][substr($key, 2)] = $val;
-					else if (strpos($key, "V_") === 0)
-						$buffer["vote"][substr($key, 2)] = $val;
-					else if (strpos($key, "Q_") === 0)
-						$buffer["question"][substr($key, 2)] = $val;
-					else if (strpos($key, "A_") === 0)
-						$answer[substr($key, 2)] = $val;
+					if (mb_strpos($key, "O_") === 0)
+						$buffer["attach"][mb_substr($key, 2)] = $val;
+					else if (mb_strpos($key, "V_") === 0)
+						$buffer["vote"][mb_substr($key, 2)] = $val;
+					else if (mb_strpos($key, "Q_") === 0)
+						$buffer["question"][mb_substr($key, 2)] = $val;
+					else if (mb_strpos($key, "A_") === 0)
+						$answer[mb_substr($key, 2)] = $val;
 				}
 				if ($buffer["attach"]["ID"] != $attach["ID"])
 				{
@@ -394,10 +400,10 @@ class Attach extends BaseObject implements \ArrayAccess
 				$attach = array();
 				$vote = array();
 				foreach ($res as $key => $val)
-					if (strpos($key, "O_") === 0)
-						$attach[substr($key, 2)] = $val;
-					else if (strpos($key, "V_") === 0)
-						$vote[substr($key, 2)] = $val;
+					if (mb_strpos($key, "O_") === 0)
+						$attach[mb_substr($key, 2)] = $val;
+					else if (mb_strpos($key, "V_") === 0)
+						$vote[mb_substr($key, 2)] = $val;
 				$vote["QUESTIONS"] = array();
 				$questions = &$vote["QUESTIONS"];
 				do
@@ -405,10 +411,10 @@ class Attach extends BaseObject implements \ArrayAccess
 					$question = array(); $answer = array();
 					foreach ($res as $key => $val)
 					{
-						if (strpos($key, "Q_") === 0)
-							$question[substr($key, 2)] = $val;
-						else if (strpos($key, "A_") === 0)
-							$answer[substr($key, 2)] = $val;
+						if (mb_strpos($key, "Q_") === 0)
+							$question[mb_substr($key, 2)] = $val;
+						else if (mb_strpos($key, "A_") === 0)
+							$answer[mb_substr($key, 2)] = $val;
 					}
 					$qid = "".$question["ID"];
 					if (!array_key_exists($qid, $questions))
@@ -615,10 +621,10 @@ class Attach extends BaseObject implements \ArrayAccess
 		]);
 		$this->getConnector()->checkFields($data);
 		Vote::checkData($data, $data["ID"]);
-		if (strlen($data["TITLE"]) <= 0 && is_array($data["QUESTIONS"]))
+		if ($data["TITLE"] == '' && is_array($data["QUESTIONS"]))
 		{
 			$q = reset($data["QUESTIONS"]);
-			if (is_array($q) && strlen($q["QUESTION"]) > 0)
+			if (is_array($q) && $q["QUESTION"] <> '')
 			{
 				$data["TITLE"] = $q["QUESTION"];
 			}
@@ -671,7 +677,7 @@ class Attach extends BaseObject implements \ArrayAccess
 			{
 				$id = $this->attach["ID"];
 			}
-			list($attach, $vote) = \Bitrix\Vote\Attach::getData($id);
+			[$attach, $vote] = \Bitrix\Vote\Attach::getData($id);
 			$this->attach = $attach;
 			$this->vote = $vote;
 		}

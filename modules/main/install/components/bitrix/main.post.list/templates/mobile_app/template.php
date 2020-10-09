@@ -9,6 +9,8 @@
  */
 use Bitrix\Main\Localization\Loc;
 
+global $USER;
+
 \Bitrix\Main\Page\Asset::getInstance()->addJs("/bitrix/components/bitrix/main.post.list/templates/.default/script.js");
 \Bitrix\Main\Page\Asset::getInstance()->addJs($templateFolder."/script.js");
 \Bitrix\Main\Page\Asset::getInstance()->addString('<link href="'.CUtil::GetAdditionalFileURL('/bitrix/js/ui/icons/base/ui.icons.base.css').'" type="text/css" rel="stylesheet" />');
@@ -131,7 +133,7 @@ ob_start();
 </div><?
 
 $avatar = \CFile::ResizeImageGet(
-	$_SESSION["SESS_AUTH"]["PERSONAL_PHOTO"],
+	$USER->GetParam("PERSONAL_PHOTO"),
 	array(
 		"width" => $arParams["AVATAR_SIZE"],
 		"height" => $arParams["AVATAR_SIZE"]

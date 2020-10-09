@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Main\Composite;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Composite\Debug;
 use Bitrix\Main\Composite\Debug\Logger;
 use Bitrix\Main\Composite\Internals\Model\PageTable;
@@ -10,6 +11,7 @@ use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
 use Bitrix\Main\EventManager;
+use Bitrix\Main\Engine\Response;
 use Bitrix\Main\IO\File;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -299,7 +301,7 @@ final class Engine
 			$stub = $dynamicArea->getStub();
 			self::replaceSessid($stub);
 
-			$params["dynamicBlocks"][$dynamicArea->getId()] = substr(md5($stub), 0, 12);
+			$params["dynamicBlocks"][$dynamicArea->getId()] = mb_substr(md5($stub), 0, 12);
 			if ($dynamicArea->getBrowserStorage())
 			{
 				$realId = $dynamicArea->getContainerId() !== null ? $dynamicArea->getContainerId() : "bxdynamic_".$id;
@@ -333,7 +335,7 @@ final class Engine
 			return null;
 		}
 
-		if (defined("BX_BUFFER_SHUTDOWN"))
+		if (defined("BX_BUFFER_SHUTDOWN") || !defined("B_EPILOG_INCLUDED"))
 		{
 			Logger::log(
 				array(
@@ -397,7 +399,7 @@ final class Engine
 	 */
 	public static function endBuffering(&$originalContent, $compositeContent)
 	{
-		if (!self::isEnabled() || $compositeContent === null || defined("BX_BUFFER_SHUTDOWN"))
+		if (!self::isEnabled() || $compositeContent === null || defined("BX_BUFFER_SHUTDOWN") || !defined("B_EPILOG_INCLUDED"))
 		{
 			//this happens when die() invokes in self::onBeforeLocalRedirect
 			if (self::isAjaxRequest() && self::$isRedirect === false)
@@ -481,7 +483,7 @@ final class Engine
 
 						if ($page->getStorage() instanceof Data\FileStorage)
 						{
-							$freeSpace = BinaryString::getLength($dividedData["static"]) + strlen($dividedData["md5"]);
+							$freeSpace = BinaryString::getLength($dividedData["static"]) + mb_strlen($dividedData["md5"]);
 							self::ensureFileQuota($freeSpace);
 						}
 
@@ -602,7 +604,7 @@ final class Engine
 				$realId = $dynamicArea->getContainerId() !== null ? $dynamicArea->getContainerId() : "bxdynamic_".$area->id;
 				$assets =  Asset::getInstance()->getAssetInfo($dynamicArea->getAssetId(), $dynamicArea->getAssetMode());
 				$areaContent = \CUtil::BinSubstr($content, $area->openTagEnd, $area->closingTagStart - $area->openTagEnd);
-				$areaContentMd5 = substr(md5($areaContent), 0, 12);
+				$areaContentMd5 = mb_substr(md5($areaContent), 0, 12);
 
 				$blockId = $dynamicArea->getId();
 				$hasSameContent = isset($pageBlocks[$blockId]) && $pageBlocks[$blockId] === $areaContentMd5;
@@ -681,10 +683,10 @@ final class Engine
 				break;
 			}
 
-			$idStart = $openTagStart + strlen($openTag);
+			$idStart = $openTagStart + mb_strlen($openTag);
 			$idLength = $endingPos - $idStart;
 			$areaId = \CUtil::BinSubstr($content, $idStart, $idLength);
-			$openTagEnd = $endingPos + strlen($ending);
+			$openTagEnd = $endingPos + mb_strlen($ending);
 
 			$realClosingTag = $closingTag.$areaId.$ending;
 			$closingTagStart = \CUtil::BinStrpos($content, $realClosingTag, $openTagEnd);
@@ -694,7 +696,7 @@ final class Engine
 				continue;
 			}
 
-			$closingTagEnd = $closingTagStart + strlen($realClosingTag);
+			$closingTagEnd = $closingTagStart + mb_strlen($realClosingTag);
 
 			$area = new \stdClass();
 			$area->id = $areaId;
@@ -714,7 +716,7 @@ final class Engine
 	{
 		$blocks = array();
 		$json = Context::getCurrent()->getServer()->get("HTTP_BX_CACHE_BLOCKS");
-		if ($json !== null && strlen($json) > 0)
+		if ($json !== null && $json <> '')
 		{
 			$blocks = json_decode($json, true);
 			if ($blocks === null)
@@ -763,7 +765,6 @@ final class Engine
 
 	public static function onBeforeLocalRedirect(&$url, $skip_security_check, $isExternal)
 	{
-		global $APPLICATION;
 		if (!self::isAjaxRequest() || ($isExternal && $skip_security_check !== true))
 		{
 			return;
@@ -787,19 +788,19 @@ final class Engine
 			)
 		);
 
-		if ($APPLICATION->buffered)
-		{
-			$APPLICATION->RestartBuffer();
-		}
-
 		self::$isRedirect = true;
 		Page::getInstance()->delete();
 
-		header("X-Bitrix-Composite: Ajax (error:redirect)");
-		self::sendRandHeader();
-		echo \CUtil::PhpToJSObject($response);
+		$response = new Response\Json($response);
+		$response->addHeader('X-Bitrix-Composite', 'Ajax (error:redirect)');
 
-		die(); //it provokes register_shutdown_function callback which invokes startBuffering/endBuffering
+		$bxRandom = Helper::getAjaxRandom();
+		if ($bxRandom !== false)
+		{
+			$response->addHeader('BX-RAND', $bxRandom);
+		}
+
+		Application::getInstance()->end(0, $response);
 	}
 
 	private static function ensureFileQuota($requiredFreeSpace = 0)
@@ -966,6 +967,7 @@ final class Engine
 
 			r.open("GET", u, true);
 			r.setRequestHeader("BX-ACTION-TYPE", "get_dynamic");
+			r.setRequestHeader("X-Bitrix-Composite", "get_dynamic");
 			r.setRequestHeader("BX-CACHE-MODE", m);
 			r.setRequestHeader("BX-CACHE-BLOCKS", v.dynamicBlocks ? JSON.stringify(v.dynamicBlocks) : "");
 			if (inv)

@@ -30,6 +30,7 @@
 	--ui-btn-text-shadow: none;
 	--ui-btn-text-shadow-hover: none;
 	--ui-btn-text-shadow-active: none;
+	--ui-btn-margin-left: 12px;
 	/**/
 	--ui-btn-clock-white: url(/bitrix/js/ui/buttons/src/css/images/ui-loader-clock-white.min.svg?v=1.2);
 	--ui-btn-clock-black: url(/bitrix/js/ui/buttons/src/css/images/ui-loader-clock-black.min.svg?v=1.2);
@@ -96,8 +97,11 @@
 }
 
 .ui-btn {
-	min-width: var(--ui-btn-min-width);
 	border-radius: 2px;
+}
+
+.ui-btn-min {
+	min-width: var(--ui-btn-min-width);
 }
 
 .ui-btn-double,
@@ -230,7 +234,7 @@ a.ui-btn-double:focus,
 .ui-btn-split + script + .ui-btn-split,
 .ui-ctl + .ui-btn,
 .ui-ctl + .ui-btn-double,
-.ui-ctl + .ui-btn-split { margin-left: 12px; }
+.ui-ctl + .ui-btn-split { margin-left: var(--ui-btn-margin-left); }
 
 .ui-btn-text {
 	overflow: hidden;
@@ -469,6 +473,8 @@ a.ui-btn-double:focus,
 	--ui-btn-color: #535c69;
 	--ui-btn-color-hover: #333;
 	--ui-btn-color-active: #000;
+	--ui-btn-padding: 0 6px;
+	/*--ui-btn-margin-left: 18px;*/
 }
 
 .ui-btn-light-border {

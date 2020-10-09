@@ -8,7 +8,7 @@ $arDiff = array_diff($arParams["GADGETS_FIXED"], $arResult["GADGETS_LIST"]);
 
 if (!empty($arDiff))
 {
-	if (array_key_exists("DEFAULT_ID", $arParams) && strlen(trim($arParams["DEFAULT_ID"])) > 0)
+	if (array_key_exists("DEFAULT_ID", $arParams) && trim($arParams["DEFAULT_ID"]) <> '')
 		$arUserOptionsDefault = CUserOptions::GetOption("intranet", "~gadgets_".$arParams["DEFAULT_ID"], false, 0);
 	else
 		$arUserOptionsDefault = false;
@@ -52,12 +52,12 @@ if (!empty($arDiff))
 				foreach($arParams as $id=>$p)
 				{
 					$pref = "G_".$gadget_id."_";
-					if(strpos($id, $pref)===0)
-						$arGadgetParams[substr($id, strlen($pref))]=$p;
+					if(mb_strpos($id, $pref) === 0)
+						$arGadgetParams[mb_substr($id, mb_strlen($pref))]=$p;
 
 					$pref = "GU_".$gadget_id."_";
-					if(strpos($id, $pref)===0 && !isset($arGadgetParams[substr($id, strlen($pref))]))
-						$arGadgetParams[substr($id, strlen($pref))]=$p;
+					if(mb_strpos($id, $pref) === 0 && !isset($arGadgetParams[mb_substr($id, mb_strlen($pref))]))
+						$arGadgetParams[mb_substr($id, mb_strlen($pref))]=$p;
 				}
 
 				$arGadgetDefault["SETTINGS"] = array_merge($arGadgetParams, $arGadgetDefault["SETTINGS"]);

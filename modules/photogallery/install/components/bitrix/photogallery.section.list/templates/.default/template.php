@@ -2,7 +2,7 @@
 /********************************************************************
 				Input params
 ********************************************************************/
-$arParams["ALBUM_PHOTO_SIZE"] = intVal($arParams["ALBUM_PHOTO_SIZE"]);
+$arParams["ALBUM_PHOTO_SIZE"] = intval($arParams["ALBUM_PHOTO_SIZE"]);
 
 /********************************************************************
 				/Input params
@@ -14,7 +14,7 @@ CAjax::Init();
 $GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/main/utils.js');
 
 $GLOBALS['APPLICATION']->AddHeadScript('/bitrix/components/bitrix/photogallery/templates/.default/script.js');
-if (!$this->__component->__parent || strpos($this->__component->__parent->__name, "photogallery") === false):
+if (!$this->__component->__parent || mb_strpos($this->__component->__parent->__name, "photogallery") === false):
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/photogallery/templates/.default/style.css');
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/photogallery/templates/.default/themes/gray/style.css');
 ?>

@@ -31,7 +31,7 @@ class CAdminNotify
 		if (!is_set($arFields['ENABLE_CLOSE']))
 			$arFields['ENABLE_CLOSE'] = 'Y';
 
-		if (is_set($arFields['TAG']) && strlen(trim($arFields['TAG']))>0)
+		if (is_set($arFields['TAG']) && trim($arFields['TAG']) <> '')
 		{
 			$arFields['TAG'] = trim($arFields['TAG']);
 			self::DeleteByTag($arFields['TAG']);
@@ -211,30 +211,30 @@ class CAdminNotify
 			for ($i=0, $ic=count($filter_keys); $i<$ic; $i++)
 			{
 				$val = $arFilter[$filter_keys[$i]];
-				if (strlen($val)<=0 || $val=='NOT_REF') continue;
-				switch(strtoupper($filter_keys[$i]))
+				if ((string)$val == '' || $val=='NOT_REF') continue;
+				switch(mb_strtoupper($filter_keys[$i]))
 				{
 					case 'ID':
 						$arSqlSearch[] = GetFilterQuery('AN.ID', $val, 'N');
-					break;
+						break;
 					case 'MODULE_ID':
 						$arSqlSearch[] = GetFilterQuery('AN.MODULE_ID', $val);
-					break;
+						break;
 					case 'TAG':
 						$arSqlSearch[] = GetFilterQuery('AN.TAG', $val);
-					break;
+						break;
 					case 'MESSAGE':
 						$arSqlSearch[] = GetFilterQuery('AN.MESSAGE', $val);
-					break;
+						break;
 					case 'ENABLE_CLOSE':
-						$arSqlSearch[] = ($val=='Y') ? "AN.ENABLE_CLOSE='Y'" : "AN.ENABLE_CLOSE='N'";
-					break;
+						$arSqlSearch[] = ($val == 'Y')? "AN.ENABLE_CLOSE='Y'" : "AN.ENABLE_CLOSE='N'";
+						break;
 					case 'LID':
 						$strSelect .= ", ANL.MESSAGE as MESSAGE_LANG";
 						$strFrom = 'LEFT JOIN b_admin_notify_lang ANL ON (AN.ID = ANL.NOTIFY_ID AND ANL.LID = \''.$DB->ForSQL($val).'\')';
 						break;
 					case 'PUBLIC_SECTION':
-						$arSqlSearch[] = ($val=='Y') ? "AN.PUBLIC_SECTION='Y'" : "AN.PUBLIC_SECTION='N'";
+						$arSqlSearch[] = ($val == 'Y')? "AN.PUBLIC_SECTION='Y'" : "AN.PUBLIC_SECTION='N'";
 				}
 			}
 		}
@@ -242,16 +242,22 @@ class CAdminNotify
 		$sOrder = '';
 		foreach($arSort as $key=>$val)
 		{
-			$ord = (strtoupper($val) <> 'ASC'? 'DESC':'ASC');
-			switch (strtoupper($key))
+			$ord = (mb_strtoupper($val) <> 'ASC'? 'DESC':'ASC');
+			switch(mb_strtoupper($key))
 			{
-				case 'ID':		$sOrder .= ', AN.ID '.$ord; break;
-				case 'MODULE_ID':	$sOrder .= ', AN.MODULE_ID '.$ord; break;
-				case 'ENABLE_CLOSE':	$sOrder .= ', AN.ENABLE_CLOSE '.$ord; break;
+				case 'ID':
+					$sOrder .= ', AN.ID '.$ord;
+					break;
+				case 'MODULE_ID':
+					$sOrder .= ', AN.MODULE_ID '.$ord;
+					break;
+				case 'ENABLE_CLOSE':
+					$sOrder .= ', AN.ENABLE_CLOSE '.$ord;
+					break;
 			}
 		}
 
-		if (strlen($sOrder)<=0)
+		if ($sOrder == '')
 			$sOrder = 'AN.ID DESC';
 
 		$strSqlOrder = ' ORDER BY '.TrimEx($sOrder,',');

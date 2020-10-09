@@ -13,7 +13,7 @@ if ($GLOBALS["install_step"] == 2):
 	else
 		echo CAdminMessage::ShowNote(GetMessage("MOD_INST_OK"));
 	
-	if (strlen($public_dir)>0) :
+	if ($public_dir <> '') :
 	?>
 	<p><?=GetMessage("MOD_DEMO_DIR")?></p>
 	<table border="0" cellspacing="0" cellpadding="3">
@@ -28,7 +28,7 @@ if ($GLOBALS["install_step"] == 2):
 			?>
 			<tr>
 				<td width="0%"><p>[<?=$site["ID"]?>] <?=$site["NAME"]?></p></td>
-				<td width="0%"><p><a href="<?if(strlen($site["SERVER_NAME"])>0) echo "http://".$site["SERVER_NAME"];?><?=$site["DIR"].$public_dir?>/vote_list.php"><?=$site["DIR"].$public_dir?>/vote_list.php</a></p></td>
+				<td width="0%"><p><a href="<?if($site["SERVER_NAME"] <> '') echo "http://".$site["SERVER_NAME"];?><?=$site["DIR"].$public_dir?>/vote_list.php"><?=$site["DIR"].$public_dir?>/vote_list.php</a></p></td>
 			</tr>
 			<?
 		}

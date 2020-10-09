@@ -17,6 +17,7 @@ if($arResult['fieldValues']['tag'] === 'input')
 	?>
 	<input
 		<?= $htmlBuilder->buildTagAttributes($arResult['fieldValues']['attrList']) ?>
+		value="<?= $arResult['additionalParameters']['VALUE'] ?>"
 	>
 	<?php
 }
@@ -25,6 +26,6 @@ else
 	?>
 	<textarea
 		<?= $htmlBuilder->buildTagAttributes($arResult['fieldValues']['attrList']) ?>
-	><?= $arResult['fieldValues']['value'] ?></textarea>
+	><?= $arResult['additionalParameters']['VALUE'] ?></textarea>
 	<?php
 }

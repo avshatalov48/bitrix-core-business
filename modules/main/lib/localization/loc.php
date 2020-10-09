@@ -134,16 +134,16 @@ final class Loc
 		if(isset($langDirCache[$path]))
 		{
 			$langDir = $langDirCache[$path];
-			$fileName = substr($file, (strlen($langDir)-5));
+			$fileName = mb_substr($file, (mb_strlen($langDir) - 5));
 		}
 		else
 		{
 			//let's find language folder
 			$langDir = $fileName = '';
 			$filePath = $file;
-			while(($slashPos = strrpos($filePath, '/')) !== false)
+			while(($slashPos = mb_strrpos($filePath, '/')) !== false)
 			{
-				$filePath = substr($filePath, 0, $slashPos);
+				$filePath = mb_substr($filePath, 0, $slashPos);
 				if ($openBasedir !== '' && strpos($filePath, $openBasedir) !== 0)
 				{
 					break;
@@ -152,7 +152,7 @@ final class Loc
 				if(is_dir($langPath))
 				{
 					$langDir = $langPath;
-					$fileName = substr($file, $slashPos);
+					$fileName = mb_substr($file, $slashPos);
 					$langDirCache[$path] = $langDir;
 					break;
 				}
@@ -307,7 +307,7 @@ final class Loc
 		$currentFile = null;
 		for($i = 3; $i >= 1; $i--)
 		{
-			if(stripos($trace[$i]["function"], "GetMessage") === 0)
+			if(mb_stripos($trace[$i]["function"], "GetMessage") === 0)
 			{
 				$currentFile = Path::normalize($trace[$i]["file"]);
 

@@ -405,6 +405,13 @@ class CIMNotify
 		$CCTP->allow["SMILES"] = "N";
 		$CCTP->allow["USER"] = "N";
 		$CCTP->allow["VIDEO"] = "N";
+		$CCTP->allow["FONT"] = "Y";
+		$CCTP->allow["QUOTE"] = "N";
+		$CCTP->allow["CODE"] = "N";
+		$CCTP->allow["LIST"] = "Y";
+		$CCTP->allow["TABLE"] = "Y";
+		$CCTP->allow["ALIGN"] = "N";
+		$CCTP->allow["P"] = "N";
 
 		if (isset($arFields['HIDE_LINK']) && $arFields['HIDE_LINK'] == 'Y')
 			$CCTP->allow["ANCHOR"] = "N";
@@ -441,7 +448,7 @@ class CIMNotify
 
 		if ($arFields['NOTIFY_TYPE'] == IM_NOTIFY_CONFIRM)
 		{
-			$arNotify['buttons'] = unserialize($arFields['NOTIFY_BUTTONS']);
+			$arNotify['buttons'] = unserialize($arFields['NOTIFY_BUTTONS'], ['allowed_classes' => false]);
 		}
 		else
 		{
@@ -818,7 +825,7 @@ class CIMNotify
 			return false;
 
 		$arRes['RELATION_USER_ID'] = $this->user_id;
-		$arRes['NOTIFY_BUTTONS'] = unserialize($arRes['NOTIFY_BUTTONS']);
+		$arRes['NOTIFY_BUTTONS'] = unserialize($arRes['NOTIFY_BUTTONS'], ['allowed_classes' => false]);
 
 		$resultMessages = Array();
 		if ($arRes['NOTIFY_TAG'] <> '')

@@ -623,7 +623,8 @@ if ($BUCKET_ID == -1 && !$bBitrixCloud)
 				foreach($arSitePath as $path => $val)
 				{
 					$path = rtrim(str_replace('\\','/',$path),'/');
-					list($k,$v) = each($val);
+					$k = key($val);
+					$v = current($val);
 					echo '<div><input type=checkbox id="dump_site_id'.$i.'" name="dump_site_id[]" value="'.htmlspecialcharsbx($k).'" '.(in_array($k, $dump_site_id) ? ' checked' : '').'> <label for="dump_site_id'.$i.'">'.htmlspecialcharsbx($v).'</label></div>';
 					$i++;
 				}

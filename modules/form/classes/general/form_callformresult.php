@@ -44,7 +44,7 @@ class CAllFormResult extends CFormResult_old
 		$err_mess = (CAllFormResult::err_mess())."<br>Function: GetAnswerFile<br>Line: ";
 
 		$RESULT_ID = intval($RESULT_ID);
-		if ($RESULT_ID<=0 || strlen(trim($HASH))<=0) return;
+		if ($RESULT_ID<=0 || trim($HASH) == '') return;
 
 		$strSql = "
 SELECT
@@ -104,19 +104,19 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 
 				if ($IN_EVENT1===false)
 				{
-					$event1 = (strlen($zr["STAT_EVENT1"])<=0) ? "form" : $zr["STAT_EVENT1"];
+					$event1 = ($zr["STAT_EVENT1"] == '') ? "form" : $zr["STAT_EVENT1"];
 				}
 				else $event1 = $IN_EVENT1;
 
 				if ($IN_EVENT2===false)
 				{
-					$event2 = (strlen($zr["STAT_EVENT2"])<=0) ? $zr["SID"] : $zr["STAT_EVENT2"];
+					$event2 = ($zr["STAT_EVENT2"] == '') ? $zr["SID"] : $zr["STAT_EVENT2"];
 				}
 				else $event2 = $IN_EVENT2;
 
 				if ($IN_EVENT3===false)
 				{
-					$event3 = strlen($zr["STAT_EVENT3"])<=0
+					$event3 = $zr["STAT_EVENT3"] == ''
 						? (
 							$GLOBALS['APPLICATION']->IsHTTPS() ? "https://" : "http://"
 						).$_SERVER["HTTP_HOST"]."/bitrix/admin/form_result_list.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=".$WEB_FORM_ID."&find_id=".$RESULT_ID."&find_id_exact_match=Y&set_filter=Y"
@@ -146,7 +146,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 			{
 				foreach($arrFIELD_SID as $field) $str .= ",'".$DB->ForSql($field,50)."'";
 				$str = TrimEx($str,",");
-				if (strlen($str)>0) $s = "and SID in ($str)";
+				if ($str <> '') $s = "and SID in ($str)";
 			}
 			$strSql = "SELECT ID, SID, SID as VARNAME FROM b_form_field WHERE FORM_ID='".$arrRES["FORM_ID"]."' ".$s;
 			$q = $DB->Query($strSql, false, $err_mess.__LINE__);
@@ -214,7 +214,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 								case "dropdown":
 									if (intval($arrResultAnswer["ANSWER_ID"])>0)
 									{
-										$fname = "form_".strtolower($FIELD_TYPE)."_".$FIELD_SID;
+										$fname = "form_".mb_strtolower($FIELD_TYPE)."_".$FIELD_SID;
 										$DB_VARS[$fname] = $arrResultAnswer["ANSWER_ID"];
 									}
 								break;
@@ -223,13 +223,13 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 								case "multiselect":
 									if (intval($arrResultAnswer["ANSWER_ID"])>0)
 									{
-										$fname = "form_".strtolower($FIELD_TYPE)."_".$FIELD_SID;
+										$fname = "form_".mb_strtolower($FIELD_TYPE)."_".$FIELD_SID;
 										$DB_VARS[$fname][] = $arrResultAnswer["ANSWER_ID"];
 									}
 								break;
 
 								case "date":
-									if (strlen($arrResultAnswer["USER_DATE"])>0)
+									if ($arrResultAnswer["USER_DATE"] <> '')
 									{
 										$arrResultAnswer["USER_TEXT"] = $DB->FormatDate(
 											$arrResultAnswer["USER_DATE"],
@@ -237,7 +237,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 											(MakeTimeStamp($arrResultAnswer["USER_TEXT"])+date('Z'))%86400 == 0 ? FORMAT_DATE : FORMAT_DATETIME
 										);
 
-										$fname = "form_".strtolower($FIELD_TYPE)."_".$arAnswer["ID"];
+										$fname = "form_".mb_strtolower($FIELD_TYPE)."_".$arAnswer["ID"];
 										$DB_VARS[$fname] = $arrResultAnswer["USER_TEXT"];
 									}
 
@@ -249,9 +249,9 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 								case "email":
 								case "url":
 								case "hidden":
-									if (strlen($arrResultAnswer["USER_TEXT"])>0)
+									if ($arrResultAnswer["USER_TEXT"] <> '')
 									{
-										$fname = "form_".strtolower($FIELD_TYPE)."_".$arAnswer["ID"];
+										$fname = "form_".mb_strtolower($FIELD_TYPE)."_".$arAnswer["ID"];
 										$DB_VARS[$fname] = $arrResultAnswer["USER_TEXT"];
 									}
 								break;
@@ -260,7 +260,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 								case "file":
 									if (intval($arrResultAnswer["USER_FILE_ID"])>0)
 									{
-										$fname = "form_".strtolower($FIELD_TYPE)."_".$arAnswer["ID"];
+										$fname = "form_".mb_strtolower($FIELD_TYPE)."_".$arAnswer["ID"];
 										$DB_VARS[$fname] = $arrResultAnswer["USER_FILE_ID"];
 									}
 								break;
@@ -275,14 +275,14 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 					$arrResultAnswer = $arrResultAnswers[$arQuestion["ID"]][0];
 					switch ($FIELD_TYPE) :
 						case "text":
-							if (strlen($arrResultAnswer["USER_TEXT"])>0)
+							if ($arrResultAnswer["USER_TEXT"] <> '')
 							{
 								$fname = "form_textarea_ADDITIONAL_".$arQuestion["ID"];
 								$DB_VARS[$fname] = $arrResultAnswer["USER_TEXT"];
 							}
 							break;
 						case "integer":
-							if (strlen($arrResultAnswer["USER_TEXT"])>0)
+							if ($arrResultAnswer["USER_TEXT"] <> '')
 							{
 								$fname = "form_text_ADDITIONAL_".$arQuestion["ID"];
 								$DB_VARS[$fname] = $arrResultAnswer["USER_TEXT"];
@@ -366,7 +366,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 							if ($arForm["USE_RESTRICTIONS"] == "Y" && intval($USER_ID) > 0)
 							{
 								$arFilter = array("USER_ID" => $USER_ID);
-								if (strlen($arForm["RESTRICT_STATUS"]) > 0)
+								if ($arForm["RESTRICT_STATUS"] <> '')
 								{
 									$arStatus = explode(",", $arForm["RESTRICT_STATUS"]);
 									$arFilter = array_merge($arFilter, array("STATUS_ID" => implode(" | ", $arStatus)));
@@ -386,7 +386,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 									}
 								}
 
-								if (strlen($strError) <= 0 && intval($arForm["RESTRICT_TIME"]) > 0)
+								if ($strError == '' && intval($arForm["RESTRICT_TIME"]) > 0)
 								{
 									$DC2 = time();
 									$DC1 = $DC2 - intval($arForm["RESTRICT_TIME"]);
@@ -406,7 +406,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 								}
 							}
 
-							if (strlen($strError) <= 0)
+							if ($strError == '')
 							{
 								// save result
 								$arFields = array(
@@ -421,8 +421,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 									"SENT_TO_CRM"		=> "'N'", // result can be sent only after adding
 									);
 
-								$dbEvents = GetModuleEvents('form', 'onBeforeResultAdd');
-								while ($arEvent = $dbEvents->Fetch())
+								foreach (GetModuleEvents('form', 'onBeforeResultAdd', true) as $arEvent)
 								{
 									ExecuteModuleEventEx($arEvent, array($WEB_FORM_ID, &$arFields, &$arrVALUES));
 
@@ -433,7 +432,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 									}
 								}
 
-								if (strlen($strError) <= 0)
+								if ($strError == '')
 									$RESULT_ID = $DB->Insert("b_form_result", $arFields, $err_mess.__LINE__);
 							}
 						}
@@ -603,9 +602,9 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 											$arIMAGE = isset($arrVALUES[$fname]) ? $arrVALUES[$fname] : $_FILES[$fname];
 											$arIMAGE["MODULE_ID"] = "form";
 											$fid = 0;
-											if (strlen(CFile::CheckImageFile($arIMAGE))<=0)
+											if (CFile::CheckImageFile($arIMAGE) == '')
 											{
-												if (strlen($arIMAGE["name"])>0)
+												if ($arIMAGE["name"] <> '')
 												{
 													$fid = CFile::SaveFile($arIMAGE, "form");
 													$fid = intval($fid);
@@ -647,7 +646,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 											$arFILE = isset($arrVALUES[$fname]) ? $arrVALUES[$fname] : $_FILES[$fname];
 											$arFILE["MODULE_ID"] = "form";
 
-											if (strlen($arFILE["name"])>0)
+											if ($arFILE["name"] <> '')
 											{
 												$original_name = $arFILE["name"];
 												$fid = 0;
@@ -699,9 +698,9 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 								if (is_array($arrANSWER_TEXT_upd)) $vl_ANSWER_TEXT = trim(implode(" ",$arrANSWER_TEXT_upd));
 								if (is_array($arrANSWER_VALUE_upd)) $vl_ANSWER_VALUE = trim(implode(" ",$arrANSWER_VALUE_upd));
 								if (is_array($arrUSER_TEXT_upd)) $vl_USER_TEXT = trim(implode(" ",$arrUSER_TEXT_upd));
-								if (strlen($vl_ANSWER_TEXT)<=0) $vl_ANSWER_TEXT = false;
-								if (strlen($vl_ANSWER_VALUE)<=0) $vl_ANSWER_VALUE = false;
-								if (strlen($vl_USER_TEXT)<=0) $vl_USER_TEXT = false;
+								if ($vl_ANSWER_TEXT == '') $vl_ANSWER_TEXT = false;
+								if ($vl_ANSWER_VALUE == '') $vl_ANSWER_VALUE = false;
+								if ($vl_USER_TEXT == '') $vl_USER_TEXT = false;
 								$arFields = array(
 									"ANSWER_TEXT_SEARCH"	=> $vl_ANSWER_TEXT,
 									"ANSWER_VALUE_SEARCH"	=> $vl_ANSWER_VALUE,
@@ -711,8 +710,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 							}
 						}
 
-						$dbEvents = GetModuleEvents('form', 'onAfterResultAdd');
-						while ($arEvent = $dbEvents->Fetch())
+						foreach (GetModuleEvents('form', 'onAfterResultAdd', true) as $arEvent)
 						{
 							ExecuteModuleEventEx($arEvent, array($WEB_FORM_ID, $RESULT_ID));
 						}
@@ -778,8 +776,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 
 						if ($bUpdateStatus)
 						{
-							$dbEvents = GetModuleEvents('form', 'onBeforeResultStatusChange');
-							while ($arEvent = $dbEvents->Fetch())
+							foreach (GetModuleEvents('form', 'onBeforeResultStatusChange', true) as $arEvent)
 							{
 								ExecuteModuleEventEx($arEvent, array($WEB_FORM_ID, $RESULT_ID, &$arFields["STATUS_ID"], $CHECK_RIGHTS));
 
@@ -788,13 +785,12 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 							}
 						}
 
-						if (strlen($strError) <= 0)
+						if ($strError == '')
 						{
 							// call status change handler
 							CForm::ExecHandlerBeforeChangeStatus($RESULT_ID, "UPDATE", $arFields["STATUS_ID"]);
 
-							$dbEvents = GetModuleEvents('form', 'onBeforeResultUpdate');
-							while ($arEvent = $dbEvents->Fetch())
+							foreach (GetModuleEvents('form', 'onBeforeResultUpdate', true) as $arEvent)
 							{
 								ExecuteModuleEventEx($arEvent, array($WEB_FORM_ID, $RESULT_ID, &$arFields, &$arrVALUES, $CHECK_RIGHTS));
 
@@ -805,13 +801,12 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 
 						$rows = 0;
 
-						if (strlen($strError) <= 0)
+						if ($strError == '')
 							$rows = $DB->Update("b_form_result", $arFields,"WHERE ID='".$RESULT_ID."'",$err_mess.__LINE__);
 
 						if ($bUpdateStatus)
 						{
-							$dbEvents = GetModuleEvents('form', 'onAfterResultStatusChange');
-							while ($arEvent = $dbEvents->Fetch())
+							foreach (GetModuleEvents('form', 'onAfterResultStatusChange', true) as $arEvent)
 							{
 								ExecuteModuleEventEx($arEvent, array($WEB_FORM_ID, $RESULT_ID, &$arFields["STATUS_ID"], $CHECK_RIGHTS));
 							}
@@ -1011,10 +1006,10 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 													$arIMAGE["del"] = $arrVALUES[$fname."_del"];
 													$arIMAGE["MODULE_ID"] = "form";
 													$fid = 0;
-													if (strlen($arIMAGE["name"])>0 || strlen($arIMAGE["del"])>0)
+													if ($arIMAGE["name"] <> '' || $arIMAGE["del"] <> '')
 													{
 														$new_file="Y";
-														if (strlen($arIMAGE["del"])>0 || strlen(CFile::CheckImageFile($arIMAGE))<=0)
+														if ($arIMAGE["del"] <> '' || CFile::CheckImageFile($arIMAGE) == '')
 														{
 															$fid = CFile::SaveFile($arIMAGE, "form");
 														}
@@ -1071,7 +1066,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 													$arFILE["MODULE_ID"] = "form";
 													$new_file="N";
 													$fid = 0;
-													if (strlen(trim($arFILE["name"]))>0 || strlen(trim($arFILE["del"]))>0)
+													if (trim($arFILE["name"]) <> '' || trim($arFILE["del"]) <> '')
 													{
 														$new_file="Y";
 														$original_name = $arFILE["name"];
@@ -1138,9 +1133,9 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 									if (is_array($arrANSWER_TEXT_upd)) $vl_ANSWER_TEXT = trim(implode(" ",$arrANSWER_TEXT_upd));
 									if (is_array($arrANSWER_VALUE_upd)) $vl_ANSWER_VALUE = trim(implode(" ",$arrANSWER_VALUE_upd));
 									if (is_array($arrUSER_TEXT_upd)) $vl_USER_TEXT = trim(implode(" ",$arrUSER_TEXT_upd));
-									if (strlen($vl_ANSWER_TEXT)<=0) $vl_ANSWER_TEXT = false;
-									if (strlen($vl_ANSWER_VALUE)<=0) $vl_ANSWER_VALUE = false;
-									if (strlen($vl_USER_TEXT)<=0) $vl_USER_TEXT = false;
+									if ($vl_ANSWER_TEXT == '') $vl_ANSWER_TEXT = false;
+									if ($vl_ANSWER_VALUE == '') $vl_ANSWER_VALUE = false;
+									if ($vl_USER_TEXT == '') $vl_USER_TEXT = false;
 									$arFields = array(
 										"ANSWER_TEXT_SEARCH"	=> $vl_ANSWER_TEXT,
 										"ANSWER_VALUE_SEARCH"	=> $vl_ANSWER_VALUE,
@@ -1201,8 +1196,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 								}
 							}
 
-							$dbEvents = GetModuleEvents('form', 'onAfterResultUpdate');
-							while ($arEvent = $dbEvents->Fetch())
+							foreach (GetModuleEvents('form', 'onAfterResultUpdate', true) as $arEvent)
 							{
 								ExecuteModuleEventEx($arEvent, array($WEB_FORM_ID, $RESULT_ID, $CHECK_RIGHTS));
 							}
@@ -1268,7 +1262,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 						//echo "<pre>".$strSql."</pre>";
 						$DB->Query($strSql, false, $err_mess.__LINE__);
 
-						if (strlen($VALUE)>0)
+						if ($VALUE <> '')
 						{
 
 							$FIELD_TYPE = $arField["FIELD_TYPE"];
@@ -1412,9 +1406,9 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 											if (is_array($arIMAGE) && count($arIMAGE)>0)
 											{
 												$arIMAGE["MODULE_ID"] = "form";
-												if (strlen(CFile::CheckImageFile($arIMAGE))<=0)
+												if (CFile::CheckImageFile($arIMAGE) == '')
 												{
-													if (!array_key_exists("MODULE_ID", $arIMAGE) || strlen($arIMAGE["MODULE_ID"]) <= 0)
+													if (!array_key_exists("MODULE_ID", $arIMAGE) || $arIMAGE["MODULE_ID"] == '')
 														$arIMAGE["MODULE_ID"] = "form";
 
 													$fid = CFile::SaveFile($arIMAGE, "form");
@@ -1492,9 +1486,9 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 							if (is_array($arrANSWER_TEXT_upd)) $vl_ANSWER_TEXT = trim(implode(" ",$arrANSWER_TEXT_upd));
 							if (is_array($arrANSWER_VALUE_upd)) $vl_ANSWER_VALUE = trim(implode(" ",$arrANSWER_VALUE_upd));
 							if (is_array($arrUSER_TEXT_upd)) $vl_USER_TEXT = trim(implode(" ",$arrUSER_TEXT_upd));
-							if (strlen($vl_ANSWER_TEXT)<=0) $vl_ANSWER_TEXT = false;
-							if (strlen($vl_ANSWER_VALUE)<=0) $vl_ANSWER_VALUE = false;
-							if (strlen($vl_USER_TEXT)<=0) $vl_USER_TEXT = false;
+							if ($vl_ANSWER_TEXT == '') $vl_ANSWER_TEXT = false;
+							if ($vl_ANSWER_VALUE == '') $vl_ANSWER_VALUE = false;
+							if ($vl_USER_TEXT == '') $vl_USER_TEXT = false;
 							$arFields = array(
 								"ANSWER_TEXT_SEARCH"	=> $vl_ANSWER_TEXT,
 								"ANSWER_VALUE_SEARCH"	=> $vl_ANSWER_VALUE,
@@ -1546,8 +1540,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 
 				if ($RIGHT_OK=="Y") // delete rights ok
 				{
-					$dbEvents = GetModuleEvents('form', 'onBeforeResultDelete');
-					while ($arEvent = $dbEvents->Fetch())
+					foreach (GetModuleEvents('form', 'onBeforeResultDelete', true) as $arEvent)
 					{
 						ExecuteModuleEventEx($arEvent, array($qr["FORM_ID"], $RESULT_ID, $CHECK_RIGHTS));
 
@@ -1558,7 +1551,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 						}
 					}
 
-					if (strlen($strError) <= 0)
+					if ($strError == '')
 					{
 						CForm::ExecHandlerBeforeChangeStatus($RESULT_ID, "DELETE");
 						if (CFormResult::Reset($RESULT_ID, true, "Y"))
@@ -1595,7 +1588,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 		if ($DELETE_FILES)
 		{
 			$sqlExc = "";
-			if (strlen($strExc)>0) $sqlExc = " and FIELD_ID not in ('$strExc') ";
+			if ($strExc <> '') $sqlExc = " and FIELD_ID not in ('$strExc') ";
 			// delete result files
 			$strSql = "SELECT USER_FILE_ID, ANSWER_ID FROM b_form_result_answer WHERE RESULT_ID='$RESULT_ID' and USER_FILE_ID>0 $sqlExc";
 			$z = $DB->Query($strSql, false, $err_mess.__LINE__);
@@ -1605,13 +1598,13 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 		if ($DELETE_ADDITIONAL=="Y")
 		{
 			$sqlExc = "";
-			if (strlen($strExc)>0) $sqlExc = " and FIELD_ID not in ('$strExc') ";
+			if ($strExc <> '') $sqlExc = " and FIELD_ID not in ('$strExc') ";
 			$DB->Query("DELETE FROM b_form_result_answer WHERE RESULT_ID='$RESULT_ID' $sqlExc", false, $err_mess.__LINE__);
 		}
 		else
 		{
 			$sqlExc = "";
-			if (strlen($strExc)>0) $sqlExc = "and F.ID not in ('".$strExc."'')";
+			if ($strExc <> '') $sqlExc = "and F.ID not in ('".$strExc."'')";
 			$strSql = "
 				SELECT
 					F.ID
@@ -1627,7 +1620,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 			$z = $DB->Query($strSql, false, $err_mess.__LINE__);
 			while ($zr=$z->Fetch()) $arrD[] = $zr["ID"];
 			if (is_array($arrD) && count($arrD)>0) $strD = implode(",",$arrD);
-			if (strlen($strD)>0)
+			if ($strD <> '')
 			{
 				$DB->Query("DELETE FROM b_form_result_answer WHERE RESULT_ID='$RESULT_ID' and FIELD_ID in ($strD)", false, $err_mess.__LINE__);
 			}
@@ -1683,8 +1676,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 
 			if ($RIGHT_OK=="Y")
 			{
-				$dbEvents = GetModuleEvents('form', 'onBeforeResultStatusChange');
-				while ($arEvent = $dbEvents->Fetch())
+				foreach (GetModuleEvents('form', 'onBeforeResultStatusChange', true) as $arEvent)
 				{
 					ExecuteModuleEventEx($arEvent, array($WEB_FORM_ID, $RESULT_ID, &$NEW_STATUS_ID, $CHECK_RIGHTS));
 
@@ -1692,7 +1684,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 						$strError .= $ex->GetString().'<br />';
 				}
 
-				if (strlen($strError) <= 0)
+				if ($strError == '')
 				{
 					// call handler before change status
 					CForm::ExecHandlerBeforeChangeStatus($RESULT_ID, "SET_STATUS", $NEW_STATUS_ID);
@@ -1702,8 +1694,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 						);
 					$DB->Update("b_form_result",$arFields,"WHERE ID='".$RESULT_ID."'",$err_mess.__LINE__);
 
-					$dbEvents = GetModuleEvents('form', 'onAfterResultStatusChange');
-					while ($arEvent = $dbEvents->Fetch())
+					foreach (GetModuleEvents('form', 'onAfterResultStatusChange', true) as $arEvent)
 					{
 						ExecuteModuleEventEx($arEvent, array($WEB_FORM_ID, $RESULT_ID, $NEW_STATUS_ID, $CHECK_RIGHTS));
 					}
@@ -1837,9 +1828,9 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 								if ($wr['ADDITIONAL'] == 'Y')
 									$arrA['FIELD_TYPE'] = $wr['FIELD_TYPE'];
 
-								$USER_TEXT_EXIST = (strlen(trim($arrA["USER_TEXT"]))>0);
-								$ANSWER_TEXT_EXIST = (strlen(trim($arrA["ANSWER_TEXT"]))>0);
-								$ANSWER_VALUE_EXIST = (strlen(trim($arrA["ANSWER_VALUE"]))>0);
+								$USER_TEXT_EXIST = (trim($arrA["USER_TEXT"]) <> '');
+								$ANSWER_TEXT_EXIST = (trim($arrA["ANSWER_TEXT"]) <> '');
+								$ANSWER_VALUE_EXIST = (trim($arrA["ANSWER_VALUE"]) <> '');
 								$USER_FILE_EXIST = (intval($arrA["USER_FILE_ID"])>0);
 
 								if ($arrTemplate["BODY_TYPE"]=="html")
@@ -1857,8 +1848,8 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 									)
 										continue;
 
-									if (strlen(trim($answer))>0) $answer .= "<br />";
-									if (strlen(trim($answer_raw))>0) $answer_raw .= ",";
+									if (trim($answer) <> '') $answer .= "<br />";
+									if (trim($answer_raw) <> '') $answer_raw .= ",";
 
 									if ($ANSWER_TEXT_EXIST)
 										$answer .= $arrA["ANSWER_TEXT"].': ';
@@ -1898,7 +1889,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 
 											if ($ANSWER_TEXT_EXIST)
 											{
-												$answer = substr($answer, 0, -2).' ';
+												$answer = mb_substr($answer, 0, -2).' ';
 												$answer_raw .= $arrA['ANSWER_TEXT'];
 											}
 
@@ -1958,8 +1949,8 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 									)
 										continue;
 
-									if (strlen(trim($answer)) > 0) $answer .= "\n";
-									if (strlen(trim($answer_raw)) > 0) $answer_raw .= ",";
+									if (trim($answer) <> '') $answer .= "\n";
+									if (trim($answer_raw) <> '') $answer_raw .= ",";
 
 									if ($ANSWER_TEXT_EXIST)
 										$answer .= $arrA["ANSWER_TEXT"].': ';
@@ -1990,7 +1981,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 
 											if ($ANSWER_TEXT_EXIST)
 											{
-												$answer = substr($answer, 0, -2).' ';
+												$answer = mb_substr($answer, 0, -2).' ';
 												$answer_raw .= $arrA['ANSWER_TEXT'];
 											}
 
@@ -2042,8 +2033,8 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 							}
 						}
 
-						$arEventFields[$wr["SID"]] = (strlen($answer)<=0) ? " " : $answer;
-						$arEventFields[$wr["SID"].'_RAW'] = (strlen($answer_raw)<=0) ? " " : $answer_raw;
+						$arEventFields[$wr["SID"]] = ($answer == '') ? " " : $answer;
+						$arEventFields[$wr["SID"].'_RAW'] = ($answer_raw == '') ? " " : $answer_raw;
 					}
 
 					CEvent::Send($arrTemplate["EVENT_NAME"], $arrTemplate["SITE_ID"], $arEventFields, "Y", $arrTemplate["ID"]);
@@ -2088,23 +2079,23 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 			{
 				foreach ($arFilterFields as $arr)
 				{
-					if (strlen($arr["SID"]) > 0)
+					if ($arr["SID"] <> '')
 						$arr["CODE"] = $arr["SID"];
 					else
 						$arr["SID"] = $arr["CODE"];
 
 					$FIELD_SID = $arr["SID"];
 
-					$FILTER_TYPE = (strlen($arr["FILTER_TYPE"]) > 0) ? $arr["FILTER_TYPE"] : "text";
+					$FILTER_TYPE = ($arr["FILTER_TYPE"] <> '') ? $arr["FILTER_TYPE"] : "text";
 
-					if (strtoupper($FILTER_TYPE) == "ANSWER_ID") $FILTER_TYPE = "dropdown";
+					if (mb_strtoupper($FILTER_TYPE) == "ANSWER_ID") $FILTER_TYPE = "dropdown";
 
-					$PARAMETER_NAME = (strlen($arr["PARAMETER_NAME"]) > 0) ? $arr["PARAMETER_NAME"] : "USER";
+					$PARAMETER_NAME = ($arr["PARAMETER_NAME"] <> '') ? $arr["PARAMETER_NAME"] : "USER";
 
 					$PART = $arr["PART"];
 
 					$FILTER_KEY = $arForm["SID"]."_".$FIELD_SID."_".$PARAMETER_NAME."_".$FILTER_TYPE;
-					if (strlen($PART) > 0) $FILTER_KEY .= "_".intval($PART);
+					if ($PART <> '') $FILTER_KEY .= "_".intval($PART);
 
 					$arrFilterReturn[$FILTER_KEY] = $arr["VALUE"];
 

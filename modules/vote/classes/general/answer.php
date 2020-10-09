@@ -35,7 +35,7 @@ class CAllVoteAnswer
 		if (is_set($arFields, "MESSAGE") || $ACTION == "ADD"):
 			//$arFields["MESSAGE"] = trim($arFields["MESSAGE"]);
 			$arFields["MESSAGE"] = ($arFields["MESSAGE"] != ' ') ? trim($arFields["MESSAGE"]):' ';
-			if (strlen($arFields["MESSAGE"]) <= 0):
+			if ($arFields["MESSAGE"] == ''):
 				$aMsg[] = array(
 					"id" => "MESSAGE", 
 					"text" => GetMessage("VOTE_FORGOT_MESSAGE"));
@@ -48,7 +48,7 @@ class CAllVoteAnswer
 			{
 				$arFields["IMAGE_ID"] = intval($arFields["IMAGE_ID"]);
 			}
-			else if (strlen($arFields["IMAGE_ID"]["name"]) <= 0 && strlen($arFields["IMAGE_ID"]["del"]) <= 0)
+			else if ($arFields["IMAGE_ID"]["name"] == '' && $arFields["IMAGE_ID"]["del"] == '')
 			{
 				unset($arFields["IMAGE_ID"]);
 			}
@@ -72,8 +72,8 @@ class CAllVoteAnswer
 		if (is_set($arFields, "FIELD_WIDTH") || $ACTION == "ADD") $arFields["FIELD_WIDTH"] = intval($arFields["FIELD_WIDTH"]);
 		if (is_set($arFields, "FIELD_HEIGHT") || $ACTION == "ADD") $arFields["FIELD_HEIGHT"] = intval($arFields["FIELD_HEIGHT"]);
 		
-		if (is_set($arFields, "FIELD_PARAM") || $ACTION == "ADD") $arFields["FIELD_PARAM"] = substr(trim($arFields["FIELD_PARAM"]), 0, 255) ?: "";
-		if (is_set($arFields, "COLOR") || $ACTION == "ADD") $arFields["COLOR"] = substr(trim($arFields["COLOR"]), 0, 7) ?: "";
+		if (is_set($arFields, "FIELD_PARAM") || $ACTION == "ADD") $arFields["FIELD_PARAM"] = mb_substr(trim($arFields["FIELD_PARAM"]), 0, 255)?: "";
+		if (is_set($arFields, "COLOR") || $ACTION == "ADD") $arFields["COLOR"] = mb_substr(trim($arFields["COLOR"]), 0, 7)?: "";
 		
 		if(!empty($aMsg))
 		{
@@ -217,7 +217,7 @@ class CAllVoteAnswer
 		{
 			if(empty($val) || $val === "NOT_REF")
 				continue;
-			$key = strtoupper($key);
+			$key = mb_strtoupper($key);
 			switch($key)
 			{
 				case "ID":
@@ -285,7 +285,7 @@ class CAllVoteAnswer
 			$key_res = VoteGetFilterOperation($key);
 			$strNegative = $key_res["NEGATIVE"];
 			$strOperation = $key_res["OPERATION"];
-			$key = strtoupper($key_res["FIELD"]);
+			$key = mb_strtoupper($key_res["FIELD"]);
 			
 			switch($key)
 			{
@@ -351,7 +351,8 @@ class CAllVoteAnswer
 		
 		foreach ($arOrder as $by => $order)
 		{
-			$by = strtoupper($by); $order = strtoupper($order);
+			$by = mb_strtoupper($by);
+			$order = mb_strtoupper($order);
 			$by = (in_array($by, array("ACTIVE", "QUESTION_ID", "C_SORT", "COUNTER")) ? $by : "ID");
 			if ($order!="ASC") $order = "DESC";
 			if ($by == "ACTIVE") $arSqlOrder[] = " VA.ACTIVE ".$order." ";

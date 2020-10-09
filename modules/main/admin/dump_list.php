@@ -183,7 +183,7 @@ if ($arID = $lAdmin->GroupAction())
 	foreach ($arID as $ID)
 	{
 
-		if (strlen($ID) <= 0)
+		if ($ID == '')
 			continue;
 
 		switch ($_REQUEST['action'])
@@ -417,10 +417,10 @@ while($f = $rsDirContent->NavNext(true, "f_"))
 			"ICON" => "archive",
 			"TEXT" => 'DEBUG - '.GetMessage("INTEGRITY_CHECK"),
 			"ACTION" =>
-			strpos($f['NAME'], '.enc.') ?
-			"if(k=prompt('".CUtil::JSEscape(GetMessage("INTEGRITY_CHECK"))."?')) document.location=\"/bitrix/admin/dump.php?f_id=".urlencode($f['NAME'])."&action=check_archive&".bitrix_sessid_get().'&dump_encrypt_key="+k;'
-			:
-			"if(confirm('".CUtil::JSEscape(GetMessage("INTEGRITY_CHECK"))."?')) document.location=\"/bitrix/admin/dump.php?f_id=".urlencode($f['NAME'])."&action=check_archive&".bitrix_sessid_get().'";'
+				mb_strpos($f['NAME'], '.enc.')?
+					"if(k=prompt('".CUtil::JSEscape(GetMessage("INTEGRITY_CHECK"))."?')) document.location=\"/bitrix/admin/dump.php?f_id=".urlencode($f['NAME'])."&action=check_archive&".bitrix_sessid_get().'&dump_encrypt_key="+k;'
+					:
+					"if(confirm('".CUtil::JSEscape(GetMessage("INTEGRITY_CHECK"))."?')) document.location=\"/bitrix/admin/dump.php?f_id=".urlencode($f['NAME'])."&action=check_archive&".bitrix_sessid_get().'";'
 		);
 	}
 

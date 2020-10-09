@@ -16,9 +16,7 @@ class form extends CModule
 	{
 		$arModuleVersion = array();
 
-		$path = str_replace("\\", "/", __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen("/index.php"));
-		include($path."/version.php");
+		include(__DIR__.'/version.php');
 
 		if (is_array($arModuleVersion) && array_key_exists("VERSION", $arModuleVersion))
 		{
@@ -86,7 +84,7 @@ class form extends CModule
 
 		if ($EMPTY=="Y")
 		{
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/form/install/db/".strtolower($DB->type)."/install.sql");
+			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/form/install/db/".mb_strtolower($DB->type)."/install.sql");
 		}
 
 		if (!empty($errors))
@@ -128,7 +126,7 @@ class form extends CModule
 		$FORM_RIGHT = $APPLICATION->GetGroupRight("form");
 		if ($FORM_RIGHT>="W")
 		{
-			$step = IntVal($step);
+			$step = intval($step);
 			if($step<2)
 			{
 				$APPLICATION->IncludeAdminFile(GetMessage("FORM_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/form/install/unstep1.php");
@@ -158,7 +156,7 @@ class form extends CModule
 		{
 			$errors = false;
 			// delete whole base
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/form/install/db/".strtolower($DB->type)."/uninstall.sql");
+			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/form/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
 
 			if (!empty($errors))
 			{

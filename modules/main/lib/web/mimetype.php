@@ -195,7 +195,7 @@ final class MimeType
 	
 	public static function getByFileExtension($extension)
 	{
-		$extension = strtolower($extension);
+		$extension = mb_strtolower($extension);
 		if (isset(self::$mimes[$extension]))
 		{
 			return self::$mimes[$extension];

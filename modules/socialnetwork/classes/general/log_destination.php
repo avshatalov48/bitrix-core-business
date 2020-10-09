@@ -374,7 +374,7 @@ class CSocNetLogDestination
 
 		if (
 			isset($arParams['ONLY_WITH_EMAIL'])
-			|| $arParams['ONLY_WITH_EMAIL'] !== 'Y'
+			&& $arParams['ONLY_WITH_EMAIL'] === 'Y'
 		)
 		{
 			$filter['!=EMAIL'] = false;

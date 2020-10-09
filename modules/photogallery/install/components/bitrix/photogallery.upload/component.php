@@ -1,10 +1,10 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
-$arParams["WATERMARK_MIN_PICTURE_SIZE"] = intVal($arParams["WATERMARK_MIN_PICTURE_SIZE"]);
+$arParams["WATERMARK_MIN_PICTURE_SIZE"] = intval($arParams["WATERMARK_MIN_PICTURE_SIZE"]);
 
 $test_str = '/bitrix/urlrewrite.php?SEF_APPLICATION_CUR_PAGE_URL=';
 if (strncmp(POST_FORM_ACTION_URI, $test_str, 52) === 0)
 {
-	$sUrlPath = urldecode(substr(POST_FORM_ACTION_URI, 52));
+	$sUrlPath = urldecode(mb_substr(POST_FORM_ACTION_URI, 52));
 	$sUrlPath = CHTTP::urlDeleteParams($sUrlPath, array("view_mode", "sessid", "uploader_redirect"), true);
 	$arParams["ACTION_URL"] = htmlspecialcharsbx("/bitrix/urlrewrite.php?SEF_APPLICATION_CUR_PAGE_URL=".urlencode($sUrlPath));
 }
@@ -34,7 +34,7 @@ if ($arParams["USE_WATERMARK"] == "Y")
 			{
 				$UploadError = "[IU_WM01] ".GetMessage("P_WM_IMG_ERROR01");
 			}
-			elseif(strlen($checkImgMsg) > 0 || $checkImgMsg === "")
+			elseif($checkImgMsg <> '' || $checkImgMsg === "")
 			{
 				$UploadError = "[IU_WM02] ".($checkImgMsg === "" ? GetMessage("P_WM_IMG_ERROR02") : $checkImgMsg);
 			}
@@ -50,7 +50,7 @@ if ($arParams["USE_WATERMARK"] == "Y")
 				$pathto = CTempFile::GetDirectoryName(1).'/'."watermark_".md5($file["name"]).GetFileExtension($file["name"]);
 				CheckDirPath($pathto);
 
-				$pathtoRel = substr($pathto, strlen($_SERVER["DOCUMENT_ROOT"]));
+				$pathtoRel = mb_substr($pathto, mb_strlen($_SERVER["DOCUMENT_ROOT"]));
 
 				if(!move_uploaded_file($file["tmp_name"], $pathto))
 					$UploadError = "[IU_WM03] ".GetMessage("P_WM_IMG_ERROR03");
@@ -87,8 +87,8 @@ $arParams["UPLOADER_TYPE"] = 'form';
 ********************************************************************/
 /***************** BASE ********************************************/
 	$arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
-	$arParams["IBLOCK_ID"] = intVal($arParams["IBLOCK_ID"]);
-	$arParams["SECTION_ID"] = intVal($arParams["SECTION_ID"]);
+	$arParams["IBLOCK_ID"] = intval($arParams["IBLOCK_ID"]);
+	$arParams["SECTION_ID"] = intval($arParams["SECTION_ID"]);
 	$arParams["USER_ALIAS"] = trim($arParams["USER_ALIAS"]);
 	$arParams["BEHAVIOUR"] = ($arParams["BEHAVIOUR"] == "USER" ? "USER" : "SIMPLE");
 	$arParams["PERMISSION_EXTERNAL"] = trim($arParams["PERMISSION"]);
@@ -112,18 +112,18 @@ $arParams["UPLOADER_TYPE"] = 'form';
 
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		$arParams[strToUpper($URL)."_URL"] = trim($arParams[strToUpper($URL)."_URL"]);
-		if (empty($arParams[strToUpper($URL)."_URL"]))
-			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[mb_strtoupper($URL)."_URL"] = trim($arParams[mb_strtoupper($URL)."_URL"]);
+		if (empty($arParams[mb_strtoupper($URL)."_URL"]))
+			$arParams[mb_strtoupper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~".mb_strtoupper($URL)."_URL"] = $arParams[mb_strtoupper($URL)."_URL"];
+		$arParams[mb_strtoupper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".mb_strtoupper($URL)."_URL"]);
 	}
 
 	$arParams["SUCCESS_URL"] = CHTTP::urlDeleteParams(CComponentEngine::MakePathFromTemplate($arParams["~SECTION_URL"], array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $arParams["SECTION_ID"])), array("sessid", "uploader_redirect"), true);
 
 	$arParams["REDIRECT_URL"] = $arParams["ACTION_URL"];
 	$arParams["REDIRECT_URL"] = CHTTP::urlDeleteParams($arParams["REDIRECT_URL"], array("clear_cache", "bitrix_include_areas", "bitrix_show_mode", "back_url_admin", "bx_photo_ajax", "change_view_mode_data", "sessid", "uploader_redirect"));
-	$arParams["REDIRECT_URL"] .= (strpos($arParams["REDIRECT_URL"], "?") === false ? "?" : "&")."uploader_redirect=Y&sessid=".bitrix_sessid();
+	$arParams["REDIRECT_URL"] .= (mb_strpos($arParams["REDIRECT_URL"], "?") === false ? "?" : "&")."uploader_redirect=Y&sessid=".bitrix_sessid();
 
 	$arParams["SIMPLE_FORM_URL"] = $APPLICATION->GetCurPageParam("view_mode=form&".bitrix_sessid_get(), array("view_mode", "sessid", "uploader_redirect"));
 	$arParams["MULTIPLE_FORM_URL"] = $APPLICATION->GetCurPageParam("view_mode=applet&".bitrix_sessid_get(), array("view_mode", "sessid", "uploader_redirect"));
@@ -134,7 +134,7 @@ $arParams["UPLOADER_TYPE"] = 'form';
 	$arParams["UPLOAD_MAX_FILE"] = 1;
 
 	$max_upload_size = min(_get_size(ini_get('post_max_size')), _get_size(ini_get('upload_max_filesize')));
-	$arResult["UPLOAD_MAX_FILE_SIZE"] = intVal($arParams["UPLOAD_MAX_FILE_SIZE"]);
+	$arResult["UPLOAD_MAX_FILE_SIZE"] = intval($arParams["UPLOAD_MAX_FILE_SIZE"]);
 	if ($arResult["UPLOAD_MAX_FILE_SIZE"] <= 0 || $arResult["UPLOAD_MAX_FILE_SIZE"] > $max_upload_size)
 		$arResult["UPLOAD_MAX_FILE_SIZE"] = $max_upload_size;
 	$arResult["UPLOAD_MAX_FILE_SIZE_MB"] = $arParams["UPLOAD_MAX_FILE_SIZE"];
@@ -165,7 +165,7 @@ $arParams["UPLOADER_TYPE"] = 'form';
 	// Sizes
 	$arParams['SIZES'] = array(1280, 1024, 800);
 
-	$arParams["ORIGINAL_SIZE"] = intVal($arParams["ORIGINAL_SIZE"]);
+	$arParams["ORIGINAL_SIZE"] = intval($arParams["ORIGINAL_SIZE"]);
 	$arParams['SIZES_SHOWN'] = array();
 	if (!in_array($arParams["ORIGINAL_SIZE"], $arParams['SIZES']) && $arParams["ORIGINAL_SIZE"] > 0)
 		$arParams['SIZES'] = array_merge(array($arParams["ORIGINAL_SIZE"]), $arParams['SIZES']);
@@ -212,11 +212,11 @@ $arParams["UPLOADER_TYPE"] = 'form';
 		}
 
 		$arParams["WATERMARK_COLOR"] = '#'.trim($arParams["WATERMARK_COLOR"], ' #');
-		$arParams["WATERMARK_SIZE"] = intVal($arParams["WATERMARK_SIZE"]);
+		$arParams["WATERMARK_SIZE"] = intval($arParams["WATERMARK_SIZE"]);
 		$arParams["WATERMARK_FILE_REL"] = '/'.trim($arParams["WATERMARK_FILE"], ' /');
 		$arParams["WATERMARK_FILE"] = str_replace(array("\\", "//"), "/", $_SERVER['DOCUMENT_ROOT'].$arParams["WATERMARK_FILE_REL"]);
 		$arParams["WATERMARK_FILE"] = (file_exists($arParams["WATERMARK_FILE"]) ? $arParams["WATERMARK_FILE"] : "");
-		$arParams["WATERMARK_FILE_ORDER"] = strtolower($arParams["WATERMARK_FILE_ORDER"]);
+		$arParams["WATERMARK_FILE_ORDER"] = mb_strtolower($arParams["WATERMARK_FILE_ORDER"]);
 		$arParams["WATERMARK_POSITION"] = trim($arParams["WATERMARK_POSITION"]);
 
 		if ($arParams["WATERMARK_FILE"] && CFile::IsImage($arParams["WATERMARK_FILE"]))
@@ -240,7 +240,7 @@ $arParams["UPLOADER_TYPE"] = 'form';
 			$arParams["WATERMARK_POSITION"] = "BottomRight";
 
 		$arParams["WATERMARK_TRANSPARENCY"] = trim($arParams["WATERMARK_TRANSPARENCY"]);
-		$arParams["WATERMARK_MIN_PICTURE_SIZE"] = (intVal($arParams["WATERMARK_MIN_PICTURE_SIZE"]) > 0 ? intVal($arParams["WATERMARK_MIN_PICTURE_SIZE"]) : 800);
+		$arParams["WATERMARK_MIN_PICTURE_SIZE"] = (intval($arParams["WATERMARK_MIN_PICTURE_SIZE"]) > 0 ? intval($arParams["WATERMARK_MIN_PICTURE_SIZE"]) : 800);
 
 		if (!function_exists("gd_info"))
 			$arParams["USE_WATERMARK"] = "N";
@@ -269,8 +269,8 @@ $arParams["UPLOADER_TYPE"] = 'form';
 	// Get user options
 	$arParams["USER_SETTINGS"] = CUserOptions::GetOption('main', $arParams["UPLOADER_ID"]);
 
-	$arParams["GALLERY_SIZE"] = intVal($arParams["GALLERY_SIZE"]) * 1024 * 1024;
-	$arParams["ALBUM_PHOTO_THUMBS"] = array("SIZE" => (intVal($arParams["ALBUM_PHOTO_THUMBS_WIDTH"]) > 0 ? intVal($arParams["ALBUM_PHOTO_THUMBS_WIDTH"]) : 120));
+	$arParams["GALLERY_SIZE"] = intval($arParams["GALLERY_SIZE"]) * 1024 * 1024;
+	$arParams["ALBUM_PHOTO_THUMBS"] = array("SIZE" => (intval($arParams["ALBUM_PHOTO_THUMBS_WIDTH"]) > 0 ? intval($arParams["ALBUM_PHOTO_THUMBS_WIDTH"]) : 120));
 
 	// Thumbnail size
 	$arParams["THUMBNAIL_SIZE"] = (intval($arParams["THUMBNAIL_SIZE"]) > 0) ? intval($arParams["THUMBNAIL_SIZE"]) : 90;
@@ -280,8 +280,8 @@ $arParams["UPLOADER_TYPE"] = 'form';
 	// We use only square thumbnails, so we increase thumbnail size for better quality
 	$thumbSize = round($arParams["THUMBNAIL_SIZE"] * 1.8);
 
-	$arParams["ORIGINAL_SIZE"] = intVal($arParams["ORIGINAL_SIZE"]);
-	$arParams["NEW_ALBUM_NAME"] = strLen(GetMessage("P_NEW_ALBUM")) > 0 ? GetMessage("P_NEW_ALBUM") : "New album";
+	$arParams["ORIGINAL_SIZE"] = intval($arParams["ORIGINAL_SIZE"]);
+	$arParams["NEW_ALBUM_NAME"] = GetMessage("P_NEW_ALBUM") <> '' ? GetMessage("P_NEW_ALBUM") : "New album";
 
 	/***************** STANDART ****************************************/
 	$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
@@ -322,7 +322,7 @@ if ($_REQUEST["uploader_redirect"] == "Y" && check_bitrix_sessid())
 		{
 			$arResult['ERROR_MESSAGE'] = "";
 			foreach ($arErrors as $err)
-				$arResult['ERROR_MESSAGE'] = '['.$err['id'].'] '.(strlen($err['text']) > 0 ? $err['text'] : GetMessage('P_UNKNOWN_ERROR'))."<br>";
+				$arResult['ERROR_MESSAGE'] = '['.$err['id'].'] '.($err['text'] <> '' ? $err['text'] : GetMessage('P_UNKNOWN_ERROR'))."<br>";
 		}
 	}
 }
@@ -369,7 +369,7 @@ if ($arParams["SECTION_ID"] > 0)
 	}
 }
 $arParams["ABS_PERMISSION"] = CIBlock::GetPermission($arParams["IBLOCK_ID"]);
-if ($arParams["ABS_PERMISSION"] < "W" && 0 < $arParams["GALLERY_SIZE"] && $arParams["GALLERY_SIZE"] < intVal($arResult["GALLERY"]["UF_GALLERY_SIZE"]))
+if ($arParams["ABS_PERMISSION"] < "W" && 0 < $arParams["GALLERY_SIZE"] && $arParams["GALLERY_SIZE"] < intval($arResult["GALLERY"]["UF_GALLERY_SIZE"]))
 	return ShowError(GetMessage("P_GALLERY_NOT_SIZE"));
 
 /********************************************************************

@@ -6,7 +6,7 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/classes/general/xml
 $APPLICATION->SetAdditionalCSS('/bitrix/gadgets/bitrix/weather/styles.css');
 
 if($arGadgetParams["CITY"]!='')
-	$url = 'region='.substr($arGadgetParams["CITY"], 1).'&ts='.time();
+	$url = 'region='.mb_substr($arGadgetParams["CITY"], 1).'&ts='.time();
 else
 	$url = 'ts='.time();
 
@@ -29,7 +29,7 @@ $node = $xml->SelectNodes('/info/region/title');
 
 <?
 $node = $xml->SelectNodes('/info/weather/day/day_part/temperature');
-$t = Intval($node->content);
+$t = intval($node->content);
 ?>
 <table width="90%">
 <tr>

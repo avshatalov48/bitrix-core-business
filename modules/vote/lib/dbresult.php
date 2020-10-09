@@ -22,9 +22,9 @@ class DBResult extends \CDBResult
 			$prefix = null;
 			foreach ($res as $k => $v)
 			{
-				if (strpos($k, "LAMP") !== false)
+				if (mb_strpos($k, "LAMP") !== false)
 				{
-					$prefix = substr($k, 0, strpos($k, "LAMP"));
+					$prefix = mb_substr($k, 0, mb_strpos($k, "LAMP"));
 					break;
 				}
 			}

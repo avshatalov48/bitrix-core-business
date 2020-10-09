@@ -547,6 +547,11 @@ abstract class Check
 						$item['nomenclature_code'] = $product['NOMENCLATURE_CODE'];
 					}
 
+					if (isset($product['BARCODE']))
+					{
+						$item['barcode'] = $product['BARCODE'];
+					}
+
 					if ($product['DISCOUNT'])
 					{
 						$item['discount'] = [
@@ -717,6 +722,7 @@ abstract class Check
 								$itemStore->getMarkingCode(),
 								$basketItem->getMarkingCodeGroup()
 							);
+							$item['BARCODE'] = $itemStore->getBarcode();
 
 							$result['PRODUCTS'][] = $item;
 						}
@@ -734,6 +740,11 @@ abstract class Check
 					}
 					else
 					{
+						$shipmentItemStoreCollection = $shipmentItem->getShipmentItemStoreCollection();
+						if (isset($shipmentItemStoreCollection[0]))
+						{
+							$item['BARCODE'] = $shipmentItemStoreCollection[0]->getField('BARCODE');
+						}
 						$result['PRODUCTS'][] = $item;
 					}
 				}

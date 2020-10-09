@@ -34,12 +34,14 @@ class CRestMarketplaceCategoryComponent extends \CBitrixComponent  implements \B
 
 	private function prepareUiFilter()
 	{
-		$categoryList = \Bitrix\Rest\Marketplace\Client::getCategories();
-		$this->arResult["CATEGORIES"] = $categoryList = (is_array($categoryList) ? $categoryList : []);
+		$categoryList = \Bitrix\Rest\Marketplace\Client::getCategoriesFull();
+		$this->arResult["CATEGORIES"] = (is_array($categoryList['ITEMS']) ? $categoryList['ITEMS'] : []);
+		$this->arResult["CATEGORIES_COUNT"] = ($categoryList['COUNT_TOTAL'] > 0 ? (int) $categoryList['COUNT_TOTAL'] : 0);
+
 		$categoryItems = array(
 			"all" => Loc::getMessage("MARKETPLACE_ALL_APPS")
 		);
-		foreach ($categoryList as $id => $category)
+		foreach ($this->arResult["CATEGORIES"] as $id => $category)
 		{
 			$categoryItems[$category["CODE"]] = $category["NAME"];
 		}
@@ -385,10 +387,10 @@ class CRestMarketplaceCategoryComponent extends \CBitrixComponent  implements \B
 
 			$items[$key]["INSTALLED"] = in_array($app["CODE"], $installedItems) ? "Y" : "N";
 
-			if ($app["FREE"] == "N" && is_array($app["PRICE"]) && !empty($app["PRICE"][1]))
-				$items[$key]["PRICE"] = Loc::getMessage("MARKETPLACE_APP_PRICE", array("#PRICE#" => $app["PRICE"][1]));
-			else if ($app["FREE"] == "N" && $app["BY_SUBSCRIPTION"] == "Y")
+			if ($app["BY_SUBSCRIPTION"] === "Y")
 				$items[$key]["PRICE"] = Loc::getMessage("MARKETPLACE_APP_SUBSCRIPTION");
+			elseif ($app["FREE"] === "N" && is_array($app["PRICE"]) && !empty($app["PRICE"][1]))
+				$items[$key]["PRICE"] = Loc::getMessage("MARKETPLACE_APP_PRICE", array("#PRICE#" => $app["PRICE"][1]));
 			else
 				$items[$key]["PRICE"] = Loc::getMessage("MARKETPLACE_APP_FREE");
 		}

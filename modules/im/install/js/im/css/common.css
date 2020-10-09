@@ -517,11 +517,16 @@
 .bx-notifier-item-button-cancel:hover, .bx-messenger-mark .popup-window-button-decline:hover {
 	background: #c9424c!important;
 }
-.bx-messenger-keyboard {  display: block;  margin: 3px 59px 0 61px; text-align: left; }
+.bx-messenger-keyboard {  display: block;  margin: 3px 59px 0 61px;}
 .bx-messenger-keyboard-button { display: block;  margin-top: 5px; }
 .bx-messenger-keyboard-button-line { display: inline-block; margin-right: 4px; }
-.bx-messenger-keyboard-button-text {  font: 13px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;  padding: 4px 10px; display: inline-block;  text-decoration: none; background-color: #e8e9eb; border-radius: 4px; color: #535c68; text-align: center;  min-width: 24px;  cursor: pointer; transition: opacity .5s; opacity: 1; }
-.bx-messenger-keyboard-button-text:hover { text-decoration: none; color: #000;  }
+.bx-messenger-keyboard-button-text,
+.bx-messenger-dark .bx-messenger-keyboard-button-text,
+.popup-window-dark.bx-messenger-mark .bx-messenger-keyboard-button-text { font: 13px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;  padding: 4px 10px; display: inline-block;  text-decoration: none; background-color: #e8e9eb; border-radius: 4px; color: #535c68; text-align: center;  min-width: 24px;  cursor: pointer; transition: opacity .5s; opacity: 1; }
+.bx-messenger-keyboard-button-text:hover,
+.bx-messenger-dark .bx-messenger-keyboard-button-text:hover,
+.popup-window-dark.bx-messenger-mark .bx-messenger-keyboard-button-text:hover { text-decoration: none; color: #000;  }
+
 .bx-messenger-keyboard-button-progress  { opacity: .5 }
 .bx-messenger-keyboard-button-ajax { display: inline-block; width: 29px; height: 29px; background: url("./../images/im-sprite-v37.png") no-repeat scroll -73px -998px; -webkit-animation: imRotate360 1.2s linear infinite; animation: imRotate360 1.2s linear infinite; position: absolute;}
 .bx-messenger-keyboard-new-line { display: block; }

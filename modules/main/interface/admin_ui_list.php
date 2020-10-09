@@ -57,11 +57,11 @@ class CAdminUiList extends CAdminList
 
 		if (!Context::isInternalRequest()
 			&& !(isset($_REQUEST["clear_nav"]) && $_REQUEST["clear_nav"] === "Y")
-			&& isset($_SESSION["ADMIN_PAGINATION_DATA"])
-			&& isset($_SESSION["ADMIN_PAGINATION_DATA"][$this->table_id])
+			&& isset(\Bitrix\Main\Application::getInstance()->getSession()["ADMIN_PAGINATION_DATA"])
+			&& isset(\Bitrix\Main\Application::getInstance()->getSession()["ADMIN_PAGINATION_DATA"][$this->table_id])
 		)
 		{
-			$paginationData = $_SESSION["ADMIN_PAGINATION_DATA"][$this->table_id];
+			$paginationData = \Bitrix\Main\Application::getInstance()->getSession()["ADMIN_PAGINATION_DATA"][$this->table_id];
 			if (isset($paginationData["PAGE_NUM"]))
 			{
 				$pageNum = (int)$paginationData["PAGE_NUM"];
@@ -75,11 +75,11 @@ class CAdminUiList extends CAdminList
 
 		if (Context::isInternalRequest())
 		{
-			if (!isset($_SESSION["ADMIN_PAGINATION_DATA"]))
+			if (!isset(\Bitrix\Main\Application::getInstance()->getSession()["ADMIN_PAGINATION_DATA"]))
 			{
-				$_SESSION["ADMIN_PAGINATION_DATA"] = array();
+				\Bitrix\Main\Application::getInstance()->getSession()["ADMIN_PAGINATION_DATA"] = array();
 			}
-			$_SESSION["ADMIN_PAGINATION_DATA"][$this->table_id] = array("PAGE_NUM" => $nav->getCurrentPage());
+			\Bitrix\Main\Application::getInstance()->getSession()["ADMIN_PAGINATION_DATA"][$this->table_id] = array("PAGE_NUM" => $nav->getCurrentPage());
 		}
 
 		return $nav;
@@ -206,11 +206,11 @@ class CAdminUiList extends CAdminList
 										{
 											foreach ($matchKeys as $matchKey)
 											{
-												if (!is_string($matchKey) || strlen(trim($matchKey)) == 0)
+												if (!is_string($matchKey) || trim($matchKey) == '')
 												{
 													continue;
 												}
-												if (strpos($matchKey, "[") === false && strpos($matchKey, "]") === false)
+												if (mb_strpos($matchKey, "[") === false && mb_strpos($matchKey, "]") === false)
 												{
 													$listPreparedKeys[] = $matchKey;
 												}
@@ -224,7 +224,7 @@ class CAdminUiList extends CAdminList
 								unset($arrays[$i]["FIELDS"][$id][$key]);
 							}
 
-							if(($c = substr($key, 0, 1)) == '~' || $c == '=')
+							if(($c = mb_substr($key, 0, 1)) == '~' || $c == '=')
 							{
 								unset($arrays[$i]["FIELDS"][$id][$key]);
 							}
@@ -363,19 +363,19 @@ class CAdminUiList extends CAdminList
 
 		foreach ($filterData as $fieldId => $fieldValue)
 		{
-			if ((is_array($fieldValue) && empty($fieldValue)) || (is_string($fieldValue) && strlen($fieldValue) <= 0))
+			if ((is_array($fieldValue) && empty($fieldValue)) || (is_string($fieldValue) && $fieldValue == ''))
 			{
 				continue;
 			}
 
-			if (substr($fieldId, -5) == "_from")
+			if (mb_substr($fieldId, -5) == "_from")
 			{
-				$realFieldId = substr($fieldId, 0, strlen($fieldId)-5);
+				$realFieldId = mb_substr($fieldId, 0, mb_strlen($fieldId) - 5);
 				if (!array_key_exists($realFieldId, $filterable))
 				{
 					continue;
 				}
-				if (substr($realFieldId, -2) == "_1")
+				if (mb_substr($realFieldId, -2) == "_1")
 				{
 					$arFilter[$realFieldId] = $fieldValue;
 				}
@@ -388,16 +388,16 @@ class CAdminUiList extends CAdminList
 					$arFilter[$filterPrefix.$realFieldId] = trim($fieldValue);
 				}
 			}
-			elseif (substr($fieldId, -3) == "_to")
+			elseif (mb_substr($fieldId, -3) == "_to")
 			{
-				$realFieldId = substr($fieldId, 0, strlen($fieldId)-3);
+				$realFieldId = mb_substr($fieldId, 0, mb_strlen($fieldId) - 3);
 				if (!array_key_exists($realFieldId, $filterable))
 				{
 					continue;
 				}
-				if (substr($realFieldId, -2) == "_1")
+				if (mb_substr($realFieldId, -2) == "_1")
 				{
-					$realFieldId = substr($realFieldId, 0, strlen($realFieldId)-2);
+					$realFieldId = mb_substr($realFieldId, 0, mb_strlen($realFieldId) - 2);
 					$arFilter[$realFieldId."_2"] = $fieldValue;
 				}
 				else
@@ -967,7 +967,7 @@ class CAdminUiList extends CAdminList
 								$field["view"]["showInfo"], $field["view"]["inputs"]) : "";
 							break;
 						case "html":
-							$value = (strlen(trim($field["view"]["value"])) > 0 ?
+							$value = (trim($field["view"]["value"]) <> '' ?
 								$field["view"]["value"] : (is_array($value) ? "" : $value));
 							break;
 						default:
@@ -1633,7 +1633,7 @@ class CAdminUiListActionPanel
 	 */
 	private static function prepareAction(array &$action)
 	{
-		$action["type"] = (!empty($action["type"]) ? strtolower($action["type"]) : "base");
+		$action["type"] = (!empty($action["type"])? mb_strtolower($action["type"]) : "base");
 		if ($action["type"] == "select")
 		{
 			if (!isset($action["controlName"]) && isset($action["name"]))
@@ -1998,7 +1998,7 @@ class CAdminUiSorting extends CAdminSorting
 		{
 			$order = reset($sorting['sort']);
 			$result['by'] = key($sorting['sort']);
-			$result['order'] = strtoupper($order) === 'ASC' ? 'ASC' : 'DESC';
+			$result['order'] = mb_strtoupper($order) === 'ASC' ? 'ASC' : 'DESC';
 		}
 
 		return $result;

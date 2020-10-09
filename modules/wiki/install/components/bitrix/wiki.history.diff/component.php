@@ -22,7 +22,7 @@ $arParams['NAME_TEMPLATE'] = empty($arParams['NAME_TEMPLATE']) ? CSite::GetNameF
 $arCache = array();
 if(empty($arParams['SOCNET_GROUP_ID']) && $arParams['IN_COMPLEX'] == 'Y')
 {
-	if (strpos($this->GetParent()->GetName(), 'socialnetwork') !== false &&
+	if (mb_strpos($this->GetParent()->GetName(), 'socialnetwork') !== false &&
 		!empty($this->GetParent()->arResult['VARIABLES']['group_id']))
 		$arParams['SOCNET_GROUP_ID'] = $this->GetParent()->arResult['VARIABLES']['group_id'];
 }
@@ -38,14 +38,14 @@ if(empty($arParams['PATH_TO_POST']))
 	$arParams['PATH_TO_HISTORY'] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?$arParams[PAGE_VAR]=#wiki_name#");
 
 $arParams['PATH_TO_USER'] = trim($arParams['PATH_TO_USER']);
-if(strlen($arParams['PATH_TO_USER'])<=0)
+if($arParams['PATH_TO_USER'] == '')
 {
 	if ($arParams['IN_COMPLEX'] == 'Y' && $arParams['SEF_MODE'] == "Y")
 		$arParams['PATH_TO_USER'] = $this->GetParent()->arParams['PATH_TO_USER'];
 }
 
 $arParams['PATH_TO_HISTORY_DIFF'] = trim($arParams['PATH_TO_HISTORY_DIFF']);
-if(strlen($arParams['PATH_TO_HISTORY_DIFF'])<=0)
+if($arParams['PATH_TO_HISTORY_DIFF'] == '')
 {
 	$arParams["PATH_TO_HISTORY_DIFF"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?$arParams[PAGE_VAR]=#wiki_name#");
 	if ($arParams['IN_COMPLEX'] == 'Y' && $arParams['SEF_MODE'] == 'Y')
@@ -53,7 +53,7 @@ if(strlen($arParams['PATH_TO_HISTORY_DIFF'])<=0)
 }
 
 $arParams['PATH_TO_DISCUSSION'] = trim($arParams['PATH_TO_DISCUSSION']);
-if(strlen($arParams['PATH_TO_DISCUSSION'])<=0)
+if($arParams['PATH_TO_DISCUSSION'] == '')
 	$arParams['PATH_TO_DISCUSSION'] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?$arParams[PAGE_VAR]=#wiki_name#");
 
 $DiffId = 0;

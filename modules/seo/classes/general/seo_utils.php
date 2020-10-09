@@ -3,22 +3,22 @@ class CSeoUtils
 {
 	public static function CleanURL($URL)
 	{
-		if (false !== ($pos = strpos($URL, '?')))
+		if (false !== ($pos = mb_strpos($URL, '?')))
 		{
-			$query = substr($URL, $pos+1);
-			$URL = substr($URL, 0, $pos);
+			$query = mb_substr($URL, $pos + 1);
+			$URL = mb_substr($URL, 0, $pos);
 
 			$arQuery = explode('&', $query);
 
 			$arExcludedParams = array('clear_cache', 'clear_cache_session', 'back_url_admin', 'back_url', 'backurl', 'login', 'logout', 'compress');
 			foreach ($arQuery as $key => $param)
 			{
-				if (false !== ($pos = strpos($param, '=')))
+				if (false !== ($pos = mb_strpos($param, '=')))
 				{
-					$param_name = ToLower(substr($param, 0, $pos));
+					$param_name = ToLower(mb_substr($param, 0, $pos));
 					if (
-						substr($param_name, 0, 7) == 'bitrix_'
-						|| substr($param_name, 0, 5) == 'show_'
+						mb_substr($param_name, 0, 7) == 'bitrix_'
+						|| mb_substr($param_name, 0, 5) == 'show_'
 						|| in_array($param_name, $arExcludedParams)
 					)
 					{
@@ -137,7 +137,7 @@ class CSeoUtils
 					'DATA' => $file,
 				);
 
-				if(strlen($arFileData['NAME']) <= 0)
+				if($arFileData['NAME'] == '')
 					$arFileData['NAME'] = GetMessage('SEO_DIR_LOGICAL_NO_NAME');
 
 				$arDirContent[] = $arFileData;

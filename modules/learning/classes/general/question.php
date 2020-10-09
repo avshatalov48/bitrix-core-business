@@ -7,18 +7,18 @@ class CLQuestion
 		global $DB, $USER;
 		$arMsg = Array();
 
-		if ( (is_set($arFields, "NAME") || $ID === false) && strlen(trim($arFields["NAME"])) <= 0)
+		if ( (is_set($arFields, "NAME") || $ID === false) && trim($arFields["NAME"]) == '')
 			$arMsg[] = array("id"=>"NAME", "text"=> GetMessage("LEARNING_BAD_NAME"));
 
 
 		if (is_set($arFields, "FILE_ID"))
 		{
 			$error = CFile::CheckImageFile($arFields["FILE_ID"]);
-			if (strlen($error)>0)
+			if ($error <> '')
 				$arMsg[] = array("id"=>"FILE_ID", "text"=> $error);
 		}
 
-		if(strlen($this->LAST_ERROR)<=0)
+		if($this->LAST_ERROR == '')
 		{
 			if (
 				($ID === false && !is_set($arFields, "LESSON_ID"))
@@ -97,7 +97,7 @@ class CLQuestion
 				&& is_array($arFields["FILE_ID"])
 				&& (
 					!array_key_exists("MODULE_ID", $arFields["FILE_ID"])
-					|| strlen($arFields["FILE_ID"]["MODULE_ID"]) <= 0
+					|| $arFields["FILE_ID"]["MODULE_ID"] == ''
 				)
 			)
 				$arFields["FILE_ID"]["MODULE_ID"] = "learning";
@@ -128,7 +128,7 @@ class CLQuestion
 
 		if (is_set($arFields, "FILE_ID"))
 		{
-			if(strlen($arFields["FILE_ID"]["name"])<=0 && strlen($arFields["FILE_ID"]["del"])<=0 && strlen($arFields["FILE_ID"]["description"])<=0)
+			if($arFields["FILE_ID"]["name"] == '' && $arFields["FILE_ID"]["del"] == '' && $arFields["FILE_ID"]["description"] == '')
 				unset($arFields["FILE_ID"]);
 			else
 			{
@@ -156,7 +156,7 @@ class CLQuestion
 				&& is_array($arFields["FILE_ID"])
 				&& (
 					!array_key_exists("MODULE_ID", $arFields["FILE_ID"])
-					|| strlen($arFields["FILE_ID"]["MODULE_ID"]) <= 0
+					|| $arFields["FILE_ID"]["MODULE_ID"] == ''
 				)
 			)
 				$arFields["FILE_ID"]["MODULE_ID"] = "learning";
@@ -260,7 +260,7 @@ class CLQuestion
 			$key = $res["FIELD"];
 			$cOperationType = $res["OPERATION"];
 
-			$key = strtoupper($key);
+			$key = mb_strtoupper($key);
 
 			switch ($key)
 			{
@@ -309,7 +309,7 @@ class CLQuestion
 
 						$sqlCourseLessonsIdsList = implode (', ', $arChildLessonForCourseEscaped);
 
-						if (strlen($sqlCourseLessonsIdsList) > 0)
+						if ($sqlCourseLessonsIdsList <> '')
 							$arSqlSearch[] = 'CQ.LESSON_ID IN (' . $sqlCourseLessonsIdsList . ')';
 					}
 					else
@@ -353,7 +353,7 @@ class CLQuestion
 			. " WHERE ";
 
 		$r = $obUserFieldsSql->GetFilter();
-		if (strlen($r) > 0)
+		if ($r <> '')
 			$arSqlSearch[] = "(".$r.")";
 
 		if ( ! empty($arSqlSearch) )
@@ -373,10 +373,11 @@ class CLQuestion
 		if (!is_array($arOrder))
 			$arOrder = Array();
 
+		$arSqlOrder = [];
 		foreach($arOrder as $by=>$order)
 		{
-			$by = strtolower($by);
-			$order = strtolower($order);
+			$by = mb_strtolower($by);
+			$order = mb_strtolower($order);
 			if ($order!="asc")
 				$order = "desc";
 
@@ -450,7 +451,7 @@ class CLQuestion
 		$strSqlSearch = "";
 		$cnt = count($arSqlSearch);
 		for($i=0; $i<$cnt; $i++)
-			if(strlen($arSqlSearch[$i])>0)
+			if($arSqlSearch[$i] <> '')
 				$strSqlSearch .= " AND ".$arSqlSearch[$i]." ";
 
 		$strSql =

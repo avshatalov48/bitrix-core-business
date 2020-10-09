@@ -62,9 +62,9 @@ function GDCSaveSettings($arParams, $POS)
 	{
 		foreach($items as $row=>$gdId)
 		{
-			if(substr($gdId, -2, 2) == "*H")
+			if(mb_substr($gdId, -2, 2) == "*H")
 			{
-				$gdId = substr($gdId, 0, -2);
+				$gdId = mb_substr($gdId, 0, -2);
 				$bHided = true;
 			}
 			else
@@ -161,18 +161,18 @@ class BXGadget
 
 	public static function GetById($id, $bWithParameters = false, $arAllCurrentValues = false)
 	{
-		$id = _normalizePath(strtolower($id));
+		$id = _normalizePath(mb_strtolower($id));
 
 		$folders = array(
 			"/bitrix/gadgets",
 			"/local/gadgets",
 		);
 
-		if(($p = strpos($id, "/"))>0)
+		if(($p = mb_strpos($id, "/"))>0)
 		{
 			//specific namespace
-			$arGdNS = array(substr($id, 0, $p));
-			$id = substr($id, $p+1);
+			$arGdNS = array(mb_substr($id, 0, $p));
+			$id = mb_substr($id, $p + 1);
 		}
 		else
 		{
@@ -227,14 +227,14 @@ class BXGadget
 						{
 							foreach($arAllCurrentValues as $k=>$v)
 							{
-								$pref = "G_".strtoupper($id)."_";
-								if(substr($k, 0, strlen($pref)) == $pref)
-									$arCurrentValues[substr($k, strlen($pref))] = $v;
+								$pref = "G_".mb_strtoupper($id)."_";
+								if(mb_substr($k, 0, mb_strlen($pref)) == $pref)
+									$arCurrentValues[mb_substr($k, mb_strlen($pref))] = $v;
 								else
 								{
-									$pref = "GU_".strtoupper($id)."_";
-									if(substr($k, 0, strlen($pref)) == $pref)
-										$arCurrentValues[substr($k, strlen($pref))] = $v;
+									$pref = "GU_".mb_strtoupper($id)."_";
+									if(mb_substr($k, 0, mb_strlen($pref)) == $pref)
+										$arCurrentValues[mb_substr($k, mb_strlen($pref))] = $v;
 								}
 							}
 						}
@@ -259,8 +259,8 @@ class BXGadget
 					$arDescription["PATH"] = $gdDir."/".$id;
 					$arDescription["PATH_SITEROOT"] = $gdDirSiteRoot."/".$id;
 
-					$arDescription["ID"] = strtoupper($id);
-					if($arDescription["ICON"] && substr($arDescription["ICON"], 0, 1)!="/")
+					$arDescription["ID"] = mb_strtoupper($id);
+					if($arDescription["ICON"] && mb_substr($arDescription["ICON"], 0, 1) != "/")
 						$arDescription["ICON"] = "/bitrix/gadgets/".$NS."/".$id."/".$arDescription["ICON"];
 
 					unset($arDescription["NOPARAMS"]);

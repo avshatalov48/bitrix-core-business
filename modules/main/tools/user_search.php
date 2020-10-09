@@ -64,37 +64,37 @@ function CheckFilter($FilterArr) // проверка введенных полей
 		global $$f;
 
 	$str = "";
-	if(strlen(trim($find_timestamp_1))>0 || strlen(trim($find_timestamp_2))>0)
+	if(trim($find_timestamp_1) <> '' || trim($find_timestamp_2) <> '')
 	{
 		$date_1_ok = false;
 		$date1_stm = MkDateTime(FmtDate($find_timestamp_1,"D.M.Y"),"d.m.Y");
 		$date2_stm = MkDateTime(FmtDate($find_timestamp_2,"D.M.Y")." 23:59","d.m.Y H:i");
-		if (!$date1_stm && strlen(trim($find_timestamp_1))>0)
+		if (!$date1_stm && trim($find_timestamp_1) <> '')
 			$str.= GetMessage("MAIN_WRONG_TIMESTAMP_FROM")."<br>";
 		else $date_1_ok = true;
-		if (!$date2_stm && strlen(trim($find_timestamp_2))>0)
+		if (!$date2_stm && trim($find_timestamp_2) <> '')
 			$str.= GetMessage("MAIN_WRONG_TIMESTAMP_TILL")."<br>";
-		elseif ($date_1_ok && $date2_stm <= $date1_stm && strlen($date2_stm)>0)
+		elseif ($date_1_ok && $date2_stm <= $date1_stm && $date2_stm <> '')
 			$str.= GetMessage("MAIN_FROM_TILL_TIMESTAMP")."<br>";
 	}
 
-	if(strlen(trim($find_last_login_1))>0 || strlen(trim($find_last_login_2))>0)
+	if(trim($find_last_login_1) <> '' || trim($find_last_login_2) <> '')
 	{
 		$date_1_ok = false;
 		$date1_stm = MkDateTime(FmtDate($find_last_login_1,"D.M.Y"),"d.m.Y");
 		$date2_stm = MkDateTime(FmtDate($find_last_login_2,"D.M.Y")." 23:59","d.m.Y H:i");
-		if(!$date1_stm && strlen(trim($find_last_login_1))>0)
+		if(!$date1_stm && trim($find_last_login_1) <> '')
 			$str.= GetMessage("MAIN_WRONG_LAST_LOGIN_FROM")."<br>";
 		else
 			$date_1_ok = true;
-		if(!$date2_stm && strlen(trim($find_last_login_2))>0)
+		if(!$date2_stm && trim($find_last_login_2) <> '')
 			$str.= GetMessage("MAIN_WRONG_LAST_LOGIN_TILL")."<br>";
-		elseif($date_1_ok && $date2_stm <= $date1_stm && strlen($date2_stm)>0)
+		elseif($date_1_ok && $date2_stm <= $date1_stm && $date2_stm <> '')
 			$str.= GetMessage("MAIN_FROM_TILL_LAST_LOGIN")."<br>";
 	}
 
 	$strError .= $str;
-	if(strlen($str)>0)
+	if($str <> '')
 	{
 		global $lAdmin;
 		$lAdmin->AddFilterError($str);
@@ -221,8 +221,7 @@ $lAdmin->CheckListMode();
 $APPLICATION->SetTitle(GetMessage("MAIN_PAGE_TITLE"));
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_admin.php")
 ?>
-<script language="JavaScript">
-<!--
+<script type="text/javascript">
 function SetValue(id)
 {
 	<?if ($JSFUNC <> ''){?>
@@ -234,7 +233,6 @@ function SetValue(id)
 	window.close();
 	<?}?>
 }
-//-->
 </script>
 <form name="find_form" method="GET" action="<?echo $APPLICATION->GetCurPage()?>?">
 <?

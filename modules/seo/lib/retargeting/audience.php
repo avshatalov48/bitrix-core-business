@@ -55,7 +55,7 @@ abstract class Audience extends BaseApiObject
 
 	public static function normalizeEmail($email)
 	{
-		return trim(strtolower($email));
+		return trim(mb_strtolower($email));
 	}
 
 	public static function normalizePhone($phone)
@@ -180,9 +180,9 @@ abstract class Audience extends BaseApiObject
 
 					case self::ENUM_CONTACT_TYPE_PHONE:
 						$contact = static::normalizePhone($contact);
-						if (substr($contact, 0, 1) == '8' && strlen($contact) > 8)
+						if (mb_substr($contact, 0, 1) == '8' && mb_strlen($contact) > 8)
 						{
-							$contactPhone = '+7' . substr($contact, 1);
+							$contactPhone = '+7'.mb_substr($contact, 1);
 						}
 						break;
 				}

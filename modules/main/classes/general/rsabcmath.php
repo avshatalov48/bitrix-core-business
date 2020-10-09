@@ -87,9 +87,9 @@ class CRsaBcmathProvider extends CRsaProvider
 	private static function bitlenght($in)
 	{
 		$t = self::int2raw($in);
-		$out = strlen($t) * 8;
+		$out = mb_strlen($t) * 8;
 	
-		$t = ord($t[strlen($t)-1]);
+		$t = ord($t[mb_strlen($t) - 1]);
 	
 		if(!$t) 
 		{
@@ -245,7 +245,7 @@ class CRsaBcmathProvider extends CRsaProvider
 	private static function raw2int($in)
 	{
 		$out = '0';
-		$n = strlen($in);
+		$n = mb_strlen($in);
 		while($n > 0)
 		{
 			$out = bcadd(bcmul($out, '256'), ord($in[--$n]));

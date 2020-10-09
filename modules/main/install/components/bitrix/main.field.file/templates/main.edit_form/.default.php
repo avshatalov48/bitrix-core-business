@@ -71,9 +71,9 @@ if($arResult['userField']['MULTIPLE'] === 'Y')
 }
 else
 {
-	if(($p = strpos($name, '[')))
+	if(($p = mb_strpos($name, '[')))
 	{
-		$strOldIdName = substr($name, 0, $p) . '_old_id' . substr($name, $p);
+		$strOldIdName = mb_substr($name, 0, $p).'_old_id'.mb_substr($name, $p);
 	}
 	else
 	{

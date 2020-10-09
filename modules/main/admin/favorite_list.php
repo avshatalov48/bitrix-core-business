@@ -30,13 +30,13 @@ function CheckFilter() // проверка введенных полей
 	$date_1_ok = false;
 	$date1_stm = MkDateTime(FmtDate($find_date1,"D.M.Y"),"d.m.Y");
 	$date2_stm = MkDateTime(FmtDate($find_date2,"D.M.Y")." 23:59","d.m.Y H:i");
-	if (!$date1_stm && strlen(trim($find_date1))>0)
+	if (!$date1_stm && trim($find_date1) <> '')
 		$lAdmin->AddFilterError(GetMessage("MAIN_WRONG_DATE_FROM"));
 	else
 		$date_1_ok = true;
-	if(!$date2_stm && strlen(trim($find_date2))>0)
+	if(!$date2_stm && trim($find_date2) <> '')
 		$lAdmin->AddFilterError(GetMessage("MAIN_WRONG_DATE_TILL"));
-	elseif($date_1_ok && $date2_stm <= $date1_stm && strlen($date2_stm)>0)
+	elseif($date_1_ok && $date2_stm <= $date1_stm && $date2_stm <> '')
 		$lAdmin->AddFilterError(GetMessage("MAIN_FROM_TILL_DATE"));
 	return count($lAdmin->arFilterErrors)==0;
 }
@@ -87,7 +87,7 @@ if($lAdmin->EditAction())
 {
 	foreach($FIELDS as $ID=>$arFields)
 	{
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if($ID <= 0)
 			continue;
 		if(!$lAdmin->IsUpdated($ID))
@@ -117,7 +117,7 @@ if(($arID = $lAdmin->GroupAction()))
 
 	foreach($arID as $ID)
 	{
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if($ID <= 0)
 			continue;
 		if(!$isAdmin)
@@ -168,7 +168,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	$row->AddInputField("NAME", array("size"=>20));
 	$row->AddViewField("NAME", '<a href="'.$f_URL.'" title="'.GetMessage("fav_list_go_title").'">'.$f_NAME.'</a>');
 	$row->AddInputField("URL", array("size"=>20));
-	$row->AddViewField("URL", '<a href="favorite_edit.php?ID='.$f_ID.'&amp;lang='.LANG.'" title="'.GetMessage("fav_list_edit_title").'">'.(strlen($f_URL)>60 && $_REQUEST["mode"]<>'excel'? substr($f_URL, 0, 60)."...":$f_URL).'</a>');
+	$row->AddViewField("URL", '<a href="favorite_edit.php?ID='.$f_ID.'&amp;lang='.LANG.'" title="'.GetMessage("fav_list_edit_title").'">'.(mb_strlen($f_URL) > 60 && $_REQUEST["mode"]<>'excel'? mb_substr($f_URL, 0, 60)."...":$f_URL).'</a>');
 	$row->AddInputField("C_SORT", array("size"=>5));
 	$row->AddViewField("MODIFIED_BY", '[<a title="'.GetMessage("MAIN_USER_PROFILE").'" href="user_edit.php?lang='.LANG.'&amp;ID='.$f_MODIFIED_BY.'">'.$f_MODIFIED_BY.'</a>] ('.$f_M_LOGIN.') '.$f_M_USER_NAME);
 	$row->AddViewField("USER_ID", ($f_USER_ID>0? '[<a title="'.GetMessage("MAIN_USER_PROFILE").'" href="user_edit.php?lang='.LANG.'&amp;ID='.$f_USER_ID.'">'.$f_USER_ID.'</a>] ('.$f_LOGIN.') '.$f_USER_NAME:''));

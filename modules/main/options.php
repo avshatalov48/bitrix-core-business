@@ -138,6 +138,8 @@ $arAllOptions = array(
 		Array("save_original_file_name", GetMessage("MAIN_OPTION_SAVE_ORIG_NAMES"), "N", Array("checkbox", "Y")),
 		Array("translit_original_file_name", GetMessage("MAIN_OPTION_TRANSLIT"), "N", Array("checkbox", "Y")),
 		Array("convert_original_file_name", GetMessage("MAIN_OPTION_FNAME_CONV_AUTO"), "Y", Array("checkbox", "Y")),
+		Array("control_file_duplicates", GetMessage("main_options_control_diplicates"), "N", Array("checkbox", "Y")),
+		Array("duplicates_max_size", GetMessage("main_options_diplicates_max_size") , "100", Array("text", "10")),
 		ModuleManager::isModuleInstalled('transformer')? Array("max_size_for_document_transformation", GetMessage("MAIN_OPTIONS_MAX_SIZE_FOR_DOCUMENT_TRANSFORMATION"), ModuleManager::isModuleInstalled('bitrix24')? 40 : 10, Array("text", "10")) : null,
 		ModuleManager::isModuleInstalled('transformer')? Array("max_size_for_video_transformation", GetMessage("MAIN_OPTIONS_MAX_SIZE_FOR_VIDEO_TRANSFORMATION"), "300", Array("text", "10")) : null,
 		Array("image_resize_quality", GetMessage("MAIN_OPTIONS_IMG_QUALITY"), "95", Array("text", "10")),
@@ -214,6 +216,7 @@ $arAllOptions = array(
 		Array("event_log_logout", GetMessage("MAIN_EVENT_LOG_LOGOUT"), "N", Array("checkbox", "Y")),
 		Array("event_log_login_success", GetMessage("MAIN_EVENT_LOG_LOGIN_SUCCESS"), "N", Array("checkbox", "Y")),
 		Array("event_log_login_fail", GetMessage("MAIN_EVENT_LOG_LOGIN_FAIL"), "N", Array("checkbox", "Y")),
+		Array("event_log_block_user", GetMessage("MAIN_OPT_EVENT_LOG_BLOCK"), "N", Array("checkbox", "Y")),
 		Array("event_log_register", GetMessage("MAIN_EVENT_LOG_REGISTER"), "N", Array("checkbox", "Y")),
 		Array("event_log_register_fail", GetMessage("MAIN_EVENT_LOG_REGISTER_FAIL"), "N", Array("checkbox", "Y")),
 		Array("event_log_password_request", GetMessage("MAIN_EVENT_LOG_PASSWORD_REQUEST"), "N", Array("checkbox", "Y")),
@@ -225,10 +228,11 @@ $arAllOptions = array(
 		Array("event_log_module_access", GetMessage("MAIN_EVENT_LOG_MODULE_ACCESS"), "N", Array("checkbox", "Y")),
 		Array("event_log_file_access", GetMessage("MAIN_EVENT_LOG_FILE_ACCESS"), "N", Array("checkbox", "Y")),
 		Array("event_log_task", GetMessage("MAIN_EVENT_LOG_TASK"), "N", Array("checkbox", "Y")),
-		Array("event_log_marketplace", GetMessage("MAIN_EVENT_LOG_MARKETPLACE"), "Y", Array("checkbox", "Y")),
+		Array("event_log_marketplace", GetMessage("MAIN_EVENT_LOG_MARKETPLACE"), "N", Array("checkbox", "Y")),
 
 		GetMessage("MAIN_OPT_PROFILE"),
 		Array("user_profile_history", GetMessage("MAIN_OPT_PROFILE_HYSTORY"), "N", Array("checkbox", "Y")),
+		Array("profile_history_cleanup_days", GetMessage("MAIN_OPT_HISTORY_DAYS"), "0", Array("text", 5)),
 	),
 	"update" => Array(
 		Array("update_devsrv", GetMessage("MAIN_OPTIONS_UPDATE_DEVSRV"), "N", Array("checkbox", "Y")),
@@ -419,7 +423,7 @@ function InsertAccess(arRights, divId, hiddenName)
 			var pr = BX.Access.GetProviderPrefix(provider, id);
 			var newDiv = document.createElement('DIV');
 			newDiv.style.marginBottom = '4px';
-			newDiv.innerHTML = '<input type=\"hidden\" name=\"'+hiddenName+'\" value=\"'+id+'\">' + (pr? pr+': ':'') + arRights[provider][id].name + '&nbsp;<a href=\"javascript:void(0);\" onclick=\"DeleteAccess(this, \\''+id+'\\')\" class=\"access-delete\"></a>';
+			newDiv.innerHTML = '<input type=\"hidden\" name=\"'+hiddenName+'\" value=\"'+id+'\">' + (pr? pr+': ':'') + BX.util.htmlspecialchars(arRights[provider][id].name) + '&nbsp;<a href=\"javascript:void(0);\" onclick=\"DeleteAccess(this, \\''+id+'\\')\" class=\"access-delete\"></a>';
 			div.appendChild(newDiv);
 		}
 	}
@@ -543,7 +547,7 @@ $aTabs = array(
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
 $SET_LICENSE_KEY = "";
-if($_SERVER["REQUEST_METHOD"]=="POST" && strlen($_POST["Update"])>0 && ($USER->CanDoOperation('edit_other_settings') && $USER->CanDoOperation('edit_groups')) && check_bitrix_sessid())
+if($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["Update"] <> '' && ($USER->CanDoOperation('edit_other_settings') && $USER->CanDoOperation('edit_groups')) && check_bitrix_sessid())
 {
 	if(LICENSE_KEY !== $_POST["SET_LICENSE_KEY"])
 	{
@@ -582,13 +586,13 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && strlen($_POST["Update"])>0 && ($USER->C
 
 		$subOrdGr = false;
 		$operations = CTask::GetOperations($tid);
-		if (strlen($tid) > 0 && (in_array($nID, $operations) || in_array($nID2, $operations)) && isset($_POST['subordinate_groups_'.$value["ID"]]))
+		if ($tid <> '' && (in_array($nID, $operations) || in_array($nID2, $operations)) && isset($_POST['subordinate_groups_'.$value["ID"]]))
 			$subOrdGr = $_POST['subordinate_groups_'.$value["ID"]];
 
 		CGroup::SetSubordinateGroups($value["ID"], $subOrdGr);
 
 		$rt = ($tid) ? CTask::GetLetter($tid) : '';
-		if (strlen($rt) > 0 && $rt != "NOT_REF")
+		if ($rt <> '' && $rt != "NOT_REF")
 			$APPLICATION->SetGroupRight($module_id, $value["ID"], $rt);
 		else
 			$APPLICATION->DelGroupRight($module_id, array($value["ID"]));
@@ -1057,7 +1061,7 @@ $tabControl->Begin();
 <?$tabControl->BeginNextTab();?>
 <?
 if(COption::GetOptionString("main", "controller_member", "N")!="Y"):
-	if(strlen($site_url)<=0)
+	if($site_url == '')
 		$site_url = ($APPLICATION->IsHTTPS()?"https://":"http://").$_SERVER['HTTP_HOST'];
 ?>
 	<script>
@@ -1194,7 +1198,7 @@ if(COption::GetOptionString("main", "controller_member", "N")!="Y"):
 			$res = array("size" => COption::GetOptionString("main_size", "~".$name));
 		}
 		$res["size"] = (float)$res["size"];
-		$res["status"] = (($res["status"] == "d") && (intVal(time() - $res["time"]) < 86400)) ? "done" : ($res["status"] == "c" ? "c" : "");
+		$res["status"] = (($res["status"] == "d") && (intval(time() - $res["time"]) < 86400)) ? "done" : ($res["status"] == "c" ? "c" : "");
 		$res["size_in_per"] = ($diskSpace > 0) ? round(($res["size"]/$diskSpace), 2) : 0;
 		$arParam[$name] = $res;
 		$usedSpace += $res["size"];
@@ -1207,11 +1211,11 @@ if(COption::GetOptionString("main", "controller_member", "N")!="Y"):
 	</label></td></tr>
 	<tr><td><div class="pbar-mark-green"></div></td><td><input type="radio" name="size" id="files" value="files" onclick="CheckButtons(this);" /><input type="hidden" name="result_files" id="result_files" value="<?=$arParam["files"]["status"]?>" /> <label for="files"><?=GetMessage("MAIN_OPTION_SIZE_DISTR")?>: <span id="div_files"><?=round(($arParam["files"]["size"]/1048576), 2)?></span>Mb</label>
 	(<span id="div_time_files"><?=date(CDatabase::DateFormatToPHP(CLang::GetDateFormat("FULL", LANG)), $arParam["files"]["time"])?></span>)</td></tr></table><?
-	$usedSpace = intVal(($usedSpace/$diskSpace)*100);
+	$usedSpace = intval(($usedSpace/$diskSpace)*100);
 ?><div class="pbar-outer">
-		<div id="pb_db" class="pbar-inner-red<?=($arParam["db"]["status"] == "done" ? "" : "-error")?>" style="width:<?=intVal($arParam["db"]["size_in_per"]*350)?>px; padding-left:<?=intVal($arParam["db"]["size_in_per"]*350)?>px;">&nbsp;</div><div id="pb_files" class="pbar-inner-green<?=($arParam["files"]["status"] == "done" ? "" : "-error")?>" style="width:<?=intVal($arParam["files"]["size_in_per"]*350)?>px; padding-left:<?=intVal($arParam["files"]["size_in_per"]*350)?>px;">&nbsp;</div>
+		<div id="pb_db" class="pbar-inner-red<?=($arParam["db"]["status"] == "done" ? "" : "-error")?>" style="width:<?=intval($arParam["db"]["size_in_per"]*350)?>px; padding-left:<?=intval($arParam["db"]["size_in_per"]*350)?>px;">&nbsp;</div><div id="pb_files" class="pbar-inner-green<?=($arParam["files"]["status"] == "done" ? "" : "-error")?>" style="width:<?=intval($arParam["files"]["size_in_per"]*350)?>px; padding-left:<?=intval($arParam["files"]["size_in_per"]*350)?>px;">&nbsp;</div>
 </div>
-<div class="pbar-title-outer"><div class="pbar-title-inner"><?=str_replace(array("#USED_SPACE#", "#DISK_QUOTA#"), array("<span id=\"used_size\">".intVal($usedSpace)."</span>%", COption::GetOptionInt("main", "disk_space")." Mb"), GetMessage("MAIN_OPTION_SIZE_PROGRESS_BAR"))?></div></div><br />
+<div class="pbar-title-outer"><div class="pbar-title-inner"><?=str_replace(array("#USED_SPACE#", "#DISK_QUOTA#"), array("<span id=\"used_size\">".intval($usedSpace)."</span>%", COption::GetOptionInt("main", "disk_space")." Mb"), GetMessage("MAIN_OPTION_SIZE_PROGRESS_BAR"))?></div></div><br />
 	<input type="button" id="butt_start" value="<?=GetMessage("MAIN_OPTION_SIZE_RECOUNT")?>" <?=((!$USER->CanDoOperation('edit_other_settings')) ? "disabled": "onclick=\"StartReCount()\"")?>  class="adm-btn-save"/>
 	<input type="button" id="butt_cont" value="<?=GetMessage("MAIN_OPTION_SIZE_CONTINUE")?>" disabled="disabled" <?=((!$USER->CanDoOperation('edit_other_settings')) ? "disabled":  "onclick=\"StartReCount('from_the_last')\"")?> />
 	<input type="button" id="butt_stop" value="<?=GetMessage("MAIN_OPTION_SIZE_STOP")?>" disabled="disabled" <?=((!$USER->CanDoOperation('edit_other_settings')) ? "disabled": "onclick=\"StopReCount()\"")?> />
@@ -1220,7 +1224,7 @@ if(COption::GetOptionString("main", "controller_member", "N")!="Y"):
 <?$tabControl->End();?>
 <?if ($USER->CanDoOperation('edit_other_settings')):?>
 <script language="JavaScript">
-var result = {'stop':false, 'done':true, 'error':false, 'db':{'size': <?=intVal($arParam["db"]["size"])?>}, 'files':{'size':<?=intVal($arParam["files"]["size"])?>}};
+var result = {'stop':false, 'done':true, 'error':false, 'db':{'size': <?=intval($arParam["db"]["size"])?>}, 'files':{'size':<?=intval($arParam["files"]["size"])?>}};
 diskSpace = <?=$diskSpace?>;
 window.onStepDone = function(name){
 	if (name && diskSpace > 0)

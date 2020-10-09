@@ -8,7 +8,7 @@ define("DisableEventsCheck", true);
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 
 if ($_POST['RATING_VOTE_LIST'] == 'Y'
-	&& strlen($_POST['RATING_VOTE_TYPE_ID']) > 0
+	&& $_POST['RATING_VOTE_TYPE_ID'] <> ''
 	&& intval($_POST['RATING_VOTE_ENTITY_ID']) > 0 && check_bitrix_sessid())
 {
 	$APPLICATION->RestartBuffer();
@@ -114,7 +114,7 @@ if ($_POST['RATING_VOTE_LIST'] == 'Y'
 	echo CUtil::PhpToJsObject($arVoteList);
 }
 else if ($_POST['RATING_VOTE'] == 'Y'
-	&& strlen($_POST['RATING_VOTE_TYPE_ID']) > 0
+	&& $_POST['RATING_VOTE_TYPE_ID'] <> ''
 	&& intval($_POST['RATING_VOTE_ENTITY_ID']) > 0 && check_bitrix_sessid())
 {
 	$arParams['ENTITY_TYPE_ID'] = $_POST['RATING_VOTE_TYPE_ID'];
@@ -197,7 +197,7 @@ else if ($_POST['RATING_VOTE'] == 'Y'
 	}
 } 
 else if ($_POST['RATING_RESULT'] == 'Y'
-	&& strlen($_POST['RATING_VOTE_TYPE_ID']) > 0
+	&& $_POST['RATING_VOTE_TYPE_ID'] <> ''
 	&& intval($_POST['RATING_VOTE_ENTITY_ID']) > 0 && check_bitrix_sessid())
 {
 	$arJSON = GetVoteResult($_POST['RATING_VOTE_TYPE_ID'], $_POST['RATING_VOTE_ENTITY_ID']);

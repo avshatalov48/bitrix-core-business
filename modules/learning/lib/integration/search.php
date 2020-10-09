@@ -63,10 +63,10 @@ class Search
 		$elementStartId = 0;
 		$indexElementType = "C"; // start reindex from courses
 
-		if (isset($nextStep["ID"]) && strlen($nextStep["ID"]) > 0)
+		if (isset($nextStep["ID"]) && $nextStep["ID"] <> '')
 		{
-			$indexElementType = substr($nextStep["ID"], 0, 1);
-			$elementStartId = intval(substr($nextStep["ID"], 1));
+			$indexElementType = mb_substr($nextStep["ID"], 0, 1);
+			$elementStartId = intval(mb_substr($nextStep["ID"], 1));
 		}
 
 		if ($indexElementType === "C")
@@ -194,9 +194,10 @@ class Search
 				"ID" => "U_".$courseId."_".$lesson["LESSON_ID"],
 				"ITEM_ID" => "U_".$courseId."_".$lesson["LESSON_ID"],
 				"PARAM1" => "L".$lesson["LESSON_ID"],
+				"PARAM2" => "C".$courseId,
 				"LAST_MODIFIED" => $lesson["TIMESTAMP_X"],
 				"TITLE" => $lesson["NAME"],
-				"BODY" => strlen($detailText) > 0 ? $detailText : $lesson["NAME"],
+				"BODY" => $detailText <> '' ? $detailText : $lesson["NAME"],
 				"SITE_ID" => static::getCoursePaths($lesson["LESSON_ID"], $entityType, $courseId),
 				"PERMISSIONS" => $permissions
 			];

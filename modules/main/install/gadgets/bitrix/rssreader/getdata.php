@@ -24,7 +24,7 @@ if (
 
 $arGadgetParams = $_SESSION["GD_RSS_PARAMS"][$rnd];
 
-$arGadgetParams["CNT"] = IntVal($arGadgetParams["CNT"]);
+$arGadgetParams["CNT"] = intval($arGadgetParams["CNT"]);
 if($arGadgetParams["CNT"] > 50)
 {
 	$arGadgetParams["CNT"] = 0;

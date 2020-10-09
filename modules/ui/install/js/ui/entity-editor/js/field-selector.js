@@ -1,5 +1,4 @@
 /**
- * @author Grigoriy Zavodov <zavodov@gmail.com>
  * @version 1.0
  * @copyright Bitrix Inc. 2019
  */
@@ -15,7 +14,6 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 		this._settings = {};
 		this._scheme = null;
 		this._excludedNames = null;
-		this._emitter = null;
 		this._contentWrapper = null;
 		this._popup = null;
 	};
@@ -32,7 +30,6 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 				throw "BX.UI.EntityEditorFieldSelector. Parameter 'scheme' is not found.";
 			}
 			this._excludedNames = BX.prop.getArray(this._settings, "excludedNames", []);
-			this._emitter = new BX.Event.EventEmitter();
 		},
 		getMessage: function(name)
 		{
@@ -52,11 +49,11 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 		},
 		addClosingListener: function(listener)
 		{
-			this._emitter.subscribe("BX.UI.EntityEditorFieldSelector:close", listener);
+			BX.Event.EventEmitter.subscribe("BX.UI.EntityEditorFieldSelector:close", listener);
 		},
 		removeClosingListener: function(listener)
 		{
-			this._emitter.unsubscribe("BX.UI.EntityEditorFieldSelector:close", listener);
+			BX.Event.EventEmitter.unsubscribe("BX.UI.EntityEditorFieldSelector:close", listener);
 		},
 		isOpened: function()
 		{
@@ -135,10 +132,6 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 			for(var i = 0, columnCount = columns.length; i < columnCount; i++)
 			{
 				var column = columns[i];
-				if(!this.isSchemeElementEnabled(column))
-				{
-					continue;
-				}
 
 				var sections = column.getElements();
 				for(var k = 0, sectionCount = sections.length; k < sectionCount; k++)
@@ -169,7 +162,7 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 					var parentName = section.getName();
 					var parentTitle = section.getTitle();
 
-					this._contentWrapper.appendChild(
+					container.appendChild(
 						BX.create(
 							"div",
 							{
@@ -256,7 +249,7 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 		},
 		onAcceptButtonClick: function()
 		{
-			this._emitter.emit(
+			BX.Event.EventEmitter.emit(
 				"BX.UI.EntityEditorFieldSelector:close",
 				{ sender: this, isCanceled: false, items: this.getSelectedItems() }
 			);
@@ -264,7 +257,7 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 		},
 		onCancelButtonClick: function()
 		{
-			this._emitter.emit(
+			BX.Event.EventEmitter.emit(
 				"BX.UI.EntityEditorFieldSelector:close",
 				{ sender: this, isCanceled: true }
 			);
@@ -299,6 +292,109 @@ if(typeof(BX.UI.EntityEditorFieldSelector) === "undefined")
 	{
 		var self = new BX.UI.EntityEditorFieldSelector(id, settings);
 		self.initialize(id, settings);
+		return self;
+	}
+}
+//endregion
+
+//region USER SELECTOR
+if(typeof(BX.UI.EntityEditorUserSelector) === "undefined")
+{
+	BX.UI.EntityEditorUserSelector = function()
+	{
+		this._id = "";
+		this._settings = {};
+	};
+
+	BX.UI.EntityEditorUserSelector.prototype =
+		{
+			initialize: function(id, settings)
+			{
+				this._id = id;
+				this._settings = settings ? settings : {};
+				this._isInitialized = false;
+				this._onlyUsers = BX.prop.getBoolean(this._settings, "onlyUsers", true);
+			},
+			getId: function()
+			{
+				return this._id;
+			},
+			open: function(anchor)
+			{
+				if(this._mainWindow && this._mainWindow === BX.SocNetLogDestination.containerWindow)
+				{
+					return;
+				}
+
+				if(!this._isInitialized)
+				{
+					BX.SocNetLogDestination.init(
+						{
+							name: this._id,
+							extranetUser:  false,
+							userSearchArea: "I",
+							bindMainPopup: { node: anchor, offsetTop: "5px", offsetLeft: "15px" },
+							callback: {
+								select : BX.delegate(this.onSelect, this),
+								unSelect: BX.delegate(this.onSelect, this)
+							},
+							showSearchInput: BX.prop.getBoolean(this._settings, "showSearchInput", true),
+							departmentSelectDisable: (this._onlyUsers ? true : false),
+							items:
+								{
+									users: BX.UI.EntityEditorUserSelector.users,
+									groups: {},
+									sonetgroups: (this._onlyUsers ? {} : BX.UI.EntityEditorUserSelector.socnetGroups),
+									department: BX.UI.EntityEditorUserSelector.department,
+									departmentRelation : BX.SocNetLogDestination.buildDepartmentRelation(BX.UI.EntityEditorUserSelector.department)
+								},
+							itemsLast: BX.UI.EntityEditorUserSelector.last,
+							itemsSelected: BX.prop.getObject(this._settings, "itemsSelected", {}),
+							isCrmFeed: false,
+							useClientDatabase: false,
+							destSort: {},
+							allowAddUser: false,
+							allowSearchCrmEmailUsers: false,
+							allowUserSearch: true
+						}
+					);
+					this._isInitialized = true;
+				}
+
+				BX.SocNetLogDestination.openDialog(this._id, { bindNode: anchor });
+				this._mainWindow = BX.SocNetLogDestination.containerWindow;
+			},
+			close: function()
+			{
+				if(this._mainWindow && this._mainWindow === BX.SocNetLogDestination.containerWindow)
+				{
+					BX.SocNetLogDestination.closeDialog();
+					this._mainWindow = null;
+					this._isInitialized = false;
+				}
+
+			},
+			onSelect: function(item, type, search, bUndeleted)
+			{
+				if(this._onlyUsers && type !== "users")
+				{
+					return;
+				}
+
+				var callback = BX.prop.getFunction(this._settings, "callback", null);
+				if(callback)
+				{
+					callback(this, item);
+				}
+			}
+		};
+
+	BX.UI.EntityEditorUserSelector.items = {};
+	BX.UI.EntityEditorUserSelector.create = function(id, settings)
+	{
+		var self = new BX.UI.EntityEditorUserSelector(id, settings);
+		self.initialize(id, settings);
+		this.items[self.getId()] = self;
 		return self;
 	}
 }

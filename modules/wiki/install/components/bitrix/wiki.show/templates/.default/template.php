@@ -104,7 +104,7 @@ else:
 					if ($arResult["isIntranetInstalled"])
 					{
 						$arRating = \CRatings::getRatingVoteResult($voteEntityType, $voteEntityId);
-						$emotion = (!empty($arRating["USER_REACTION"]) ? strtoupper($arRating["USER_REACTION"]) : 'LIKE');
+						$emotion = (!empty($arRating["USER_REACTION"])? mb_strtoupper($arRating["USER_REACTION"]) : 'LIKE');
 
 						?><span id="bx-ilike-button-<?=htmlspecialcharsbx($voteId)?>" class="feed-inform-ilike feed-new-like"><?
 							?><span class="bx-ilike-left-wrap<?=(isset($arRating["USER_HAS_VOTED"]) && $arRating["USER_HAS_VOTED"] == "Y" ? ' bx-you-like-button' : '')?>"><a href="#like" class="bx-ilike-text"><?=\CRatingsComponentsMain::getRatingLikeMessage($emotion)?></a></span><?

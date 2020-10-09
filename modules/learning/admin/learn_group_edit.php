@@ -84,7 +84,7 @@ $aTabs = array(
 $aTabs[] = $USER_FIELD_MANAGER->EditFormTab('LEARNING_LGROUPS');
 $tabControl = new CAdminForm("learningGroupResultTabControl", $aTabs);
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($Update)>0 && check_bitrix_sessid())
+if ($_SERVER["REQUEST_METHOD"] == "POST" && $Update <> '' && check_bitrix_sessid())
 {
 	if ($ACTIVE !== 'Y')
 		$ACTIVE = 'N';
@@ -196,9 +196,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($Update)>0 && check_bitrix_se
 	{
 		$DB->Commit();
 
-		if(strlen($apply)<=0)
+		if($apply == '')
 		{
-			if(strlen($return_url)>0)
+			if($return_url <> '')
 				LocalRedirect($return_url);
 			else
 				LocalRedirect("/bitrix/admin/learn_group_admin.php?lang=".LANG.GetFilterParams("filter_", false));
@@ -283,7 +283,7 @@ if (!isset($str_SORT))
 				$arLesson = $rsLesson->Fetch();
 
 				$curDir = $APPLICATION->GetCurDir();
-				if (substr($curDir, -1) !== '/')
+				if (mb_substr($curDir, -1) !== '/')
 					$curDir .= '/';
 			}
 			?>

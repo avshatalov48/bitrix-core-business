@@ -67,7 +67,7 @@ final class MaxMind extends Base
 
 			if(is_array($arRes))
 			{
-				if(strtolower(SITE_CHARSET) != 'utf-8')
+				if(mb_strtolower(SITE_CHARSET) != 'utf-8')
 					$arRes = Encoding::convertEncoding($arRes, 'UTF-8', SITE_CHARSET);
 
 				if ($status == 200)
@@ -122,9 +122,9 @@ final class MaxMind extends Base
 		$geoData = new Data();
 		
 		$geoData->ip = $ipAddress;
-		$geoData->lang = $lang = strlen($lang) > 0 ? $lang : 'en';
+		$geoData->lang = $lang = $lang <> '' ? $lang : 'en';
 
-		if(strlen($this->config['USER_ID']) <=0 || strlen($this->config['LICENSE_KEY']) <= 0)
+		if($this->config['USER_ID'] == '' || $this->config['LICENSE_KEY'] == '')
 		{
 			$dataResult->addError(new Error(Loc::getMessage('MAIN_SRV_GEOIP_MM_SETT_EMPTY')));
 			return $dataResult;

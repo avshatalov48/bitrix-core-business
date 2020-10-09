@@ -76,7 +76,7 @@ ShowMessage($arResult["MESSAGE_TEXT"])
 				</td>
 			</tr>
 			<?
-			if (strlen(trim($arResult["CHECKWORD"])) <= 0)
+			if (trim($arResult["CHECKWORD"]) == '')
 			{
 				?>
 				<tr>

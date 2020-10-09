@@ -36,7 +36,7 @@ class CVoteEvent extends CAllVoteEvent
 			$key_res = VoteGetFilterOperation($key);
 			$strNegative = $key_res["NEGATIVE"];
 			$strOperation = $key_res["OPERATION"];
-			$key = strtoupper($key_res["FIELD"]);
+			$key = mb_strtoupper($key_res["FIELD"]);
 			switch($key)
 			{
 				case "ID":

@@ -67,13 +67,16 @@ if(typeof BX.UI.EntityEditorToolPanel === "undefined")
 
 			this._isLocked = locked;
 
-			if(locked)
+			if (this._editButton)
 			{
-				BX.addClass(this._editButton, "ui-btn-clock");
-			}
-			else
-			{
-				BX.removeClass(this._editButton, "ui-btn-clock");
+				if(locked)
+				{
+					BX.addClass(this._editButton, "ui-btn-clock");
+				}
+				else
+				{
+					BX.removeClass(this._editButton, "ui-btn-clock");
+				}
 			}
 		},
 		disableSaveButton: function()

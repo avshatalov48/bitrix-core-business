@@ -22,7 +22,7 @@ $arComponentParameters = array(
 		"ID" => array(
 			"NAME" => GetMessage("CMDESKTOP_PARAMS_ID"),
 			"TYPE" => "STRING",
-			"DEFAULT" => "holder1".(strlen($_REQUEST["src_site"]) > 0 ? $_REQUEST["src_site"] : ""),
+			"DEFAULT" => "holder1".($_REQUEST["src_site"] <> '' ? $_REQUEST["src_site"] : ""),
 			"PARENT" => "DATA_SOURCE",
 		),
 		"CAN_EDIT" => array(

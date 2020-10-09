@@ -152,7 +152,6 @@ class MFIController
 	protected function sendJSResponse($response)
 	{
 		$this->getApplication()->restartBuffer();
-		while(ob_end_clean()); // hack!
 		header('Content-Type: text/html; charset='.LANG_CHARSET);
 		echo $response;
 		$this->end();
@@ -161,7 +160,6 @@ class MFIController
 	protected function sendJsonResponse($response)
 	{
 		$this->getApplication()->restartBuffer();
-		while(ob_end_clean()); // hack!
 		header('Content-Type:application/json; charset=UTF-8');
 		echo Json::encode($response);
 		$this->end();
@@ -309,7 +307,7 @@ class MFIController
 
 			try
 			{
-				if (strlen($res) > 0)
+				if ($res <> '')
 					throw new \Bitrix\Main\ArgumentException($res);
 				$tmp = $this->saveFile($file);
 
@@ -406,7 +404,6 @@ class MFIController
 		{
 
 			$this->getApplication()->RestartBuffer();
-			while(ob_end_clean()); // hack!
 
 			if ($this->validate($this->getCid(), $_REQUEST["s"]))
 				CFile::ViewByUser($file, array("content_type" => $file["CONTENT_TYPE"]));
@@ -483,7 +480,7 @@ class MFIController
 	 */
 	public function validate($value, $signature)
 	{
-		if (is_string($signature) && strlen($signature) > 0)
+		if (is_string($signature) && $signature <> '')
 		{
 			$value = self::prepareValueForSigner($value);
 			$signer = new \Bitrix\Main\Security\Sign\Signer;

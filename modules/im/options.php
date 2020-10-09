@@ -172,7 +172,6 @@ if($_POST['Update'].$_GET['RestoreDefaults'] <> '' && check_bitrix_sessid() && $
 			'correctText' => $_POST['CORRECT_TEXT'] == 'Y',
 			'panelPositionHorizontal' => $_POST['PANEL_POSITION_HORIZONTAL'],
 			'panelPositionVertical' => $_POST['PANEL_POSITION_VERTICAL'],
-			'loadLastMessage' => isset($_POST['LOAD_LAST_MESSAGE']),
 			'loadLastNotify' => isset($_POST['LOAD_LAST_NOTIFY']),
 			'privacyMessage' => $_POST['PRIVACY_MESSAGE'],
 			'privacyChat' => $_POST['PRIVACY_CHAT'],
@@ -186,7 +185,6 @@ if($_POST['Update'].$_GET['RestoreDefaults'] <> '' && check_bitrix_sessid() && $
 		COption::SetOptionString("im", "correct_text", $arSettings['correctText']);
 		COption::SetOptionString("im", "panel_position_horizontal", $arSettings['panelPositionHorizontal']);
 		COption::SetOptionString("im", "panel_position_vertical", $arSettings['panelPositionVertical']);
-		COption::SetOptionString("im", "load_last_message", $arSettings['loadLastMessage']);
 		COption::SetOptionString("im", "load_last_notify", $arSettings['loadLastNotify']);
 		COption::SetOptionString("im", "privacy_message", $arSettings['privacyMessage']);
 		COption::SetOptionString("im", "privacy_chat", $arSettings['privacyChat']);
@@ -288,10 +286,6 @@ $arReference = Array(
 	<tr>
 		<td class="adm-detail-content-cell-l" width="40%"><?=Loc::getMessage("IM_VIEW_GROUP")?>:</td>
 		<td class="adm-detail-content-cell-r" width="60%"><input type="checkbox" name="VIEW_GROUP" <?=(!$arSettingsDefault['viewGroup']?'checked="checked"' :'')?>></td>
-	</tr>
-	<tr>
-		<td class="adm-detail-content-cell-l" width="40%"><?=Loc::getMessage("IM_LOAD_LAST_MESSAGE")?>:</td>
-		<td class="adm-detail-content-cell-r" width="60%"><input type="checkbox" name="LOAD_LAST_MESSAGE" <?=($arSettingsDefault['loadLastMessage']?'checked="checked"' :'')?>></td>
 	</tr>
 	<tr>
 		<td class="adm-detail-content-cell-l" width="40%"><?=Loc::getMessage("IM_LOAD_LAST_NOTIFY")?>:</td>

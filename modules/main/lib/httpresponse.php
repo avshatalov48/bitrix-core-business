@@ -2,6 +2,7 @@
 namespace Bitrix\Main;
 
 use Bitrix\Main\Config;
+use Bitrix\Main\Engine;
 use Bitrix\Main\Web;
 
 class HttpResponse extends Response
@@ -16,8 +17,6 @@ class HttpResponse extends Response
 
 	/** @var \Bitrix\Main\Type\DateTime */
 	protected $lastModified;
-
-	protected $backgroundJobs = [];
 
 	public function __construct()
 	{
@@ -36,17 +35,39 @@ class HttpResponse extends Response
 		return $this;
 	}
 
+	/**
+	 * Flushes the content to the output buffer. All following output will be ignored.
+	 * @param string $text
+	 */
 	public function flush($text = '')
 	{
-		if (empty($this->backgroundJobs))
+		//clear all buffers - the response is responsible alone for its content
+		while (@ob_end_clean());
+
+		if (function_exists("fastcgi_finish_request"))
 		{
+			//php-fpm
 			$this->writeHeaders();
 			$this->writeBody($text);
+
+			fastcgi_finish_request();
 		}
 		else
 		{
-			$this->closeConnection($text);
-			$this->runBackgroundJobs();
+			//apache handler
+			ob_start();
+
+			$this->writeBody($text);
+
+			$size = ob_get_length();
+
+			$this->addHeader('Content-Length', $size);
+
+			$this->writeHeaders();
+
+			ob_end_flush();
+			@ob_flush();
+			flush();
 		}
 	}
 
@@ -183,7 +204,15 @@ class HttpResponse extends Response
 			}
 		}
 
-		foreach ($this->cookies as $cookie)
+		$cookies = $this->cookies;
+
+		$cookiesCrypter = new Web\CookiesCrypter();
+		if ($cookiesCrypter->hasEncryptedCookiesInSettings())
+		{
+			$cookies = $cookiesCrypter->encrypt(...array_values($this->cookies));
+		}
+
+		foreach ($cookies as $cookie)
 		{
 			$this->setCookie($cookie);
 		}
@@ -229,7 +258,7 @@ class HttpResponse extends Response
 	{
 		$httpStatus = Config\Configuration::getValue("http_status");
 
-		$cgiMode = (stristr(php_sapi_name(), "cgi") !== false);
+		$cgiMode = (mb_stristr(php_sapi_name(), "cgi") !== false);
 		if ($cgiMode && (($httpStatus == null) || ($httpStatus == false)))
 		{
 			$this->addHeader("Status", $status);
@@ -258,11 +287,11 @@ class HttpResponse extends Response
 			return $cgiStatus;
 		}
 
-		$prefixStatus = strtolower(Context::getCurrent()->getServer()->get("SERVER_PROTOCOL") . ' ');
-		$prefixStatusLength = strlen($prefixStatus);
+		$prefixStatus = mb_strtolower(Context::getCurrent()->getServer()->get("SERVER_PROTOCOL").' ');
+		$prefixStatusLength = mb_strlen($prefixStatus);
 		foreach ($this->getHeaders() as $name => $value)
 		{
-			if (substr(strtolower($name), 0, $prefixStatusLength) === $prefixStatus)
+			if (mb_substr(mb_strtolower($name), 0, $prefixStatusLength) === $prefixStatus)
 			{
 				return $name;
 			}
@@ -287,64 +316,57 @@ class HttpResponse extends Response
 		return $this;
 	}
 
-	public function addBackgroundJob(callable $job, array $args = [])
+	/**
+	 * @param $url
+	 * @return Engine\Response\Redirect
+	 */
+	final public function redirectTo($url): HttpResponse
 	{
-		$this->backgroundJobs[] = [$job, $args];
+		$redirectResponse = new Engine\Response\Redirect($url);
 
-		return $this;
+		return $this->copyHeadersTo($redirectResponse);
 	}
 
-	protected function runBackgroundJobs()
+	public function copyHeadersTo(HttpResponse $response): HttpResponse
 	{
-		$lastException = null;
+		$httpHeaders = $response->getHeaders();
 
-		foreach ($this->backgroundJobs as $job)
+		$status = $response->getStatus();
+		$previousStatus = $this->getStatus();
+		foreach ($this->getHeaders() as $headerName => $values)
 		{
-			try
+			if ($this->shouldIgnoreHeaderToClone($headerName))
 			{
-				call_user_func_array($job[0], $job[1]);
+				continue;
 			}
-			catch (\Exception $exception)
+
+			if ($status && $headerName === $previousStatus)
 			{
-				$lastException = $exception;
+				continue;
 			}
+
+			if ($httpHeaders->get($headerName))
+			{
+				continue;
+			}
+
+			$httpHeaders->add($headerName, $values);
 		}
 
-		if ($lastException !== null)
+		foreach ($this->getCookies() as $cookie)
 		{
-			throw $lastException;
+			$response->addCookie($cookie, false);
 		}
+
+		return $response;
 	}
 
-	private function closeConnection($content = "")
+	private function shouldIgnoreHeaderToClone($headerName)
 	{
-		while (@ob_end_clean());
-
-		if (function_exists("fastcgi_finish_request"))
-		{
-			$this->writeHeaders();
-			$this->writeBody($content);
-			fastcgi_finish_request();
-		}
-		else
-		{
-			ob_start();
-
-			echo $content;
-
-			$size = ob_get_length();
-
-			$this
-				->addHeader('Connection', 'close')
-				->addHeader('Content-Encoding', 'none')
-				->addHeader('Content-Length', $size)
-			;
-
-			$this->writeHeaders();
-
-			ob_end_flush();
-			@ob_flush();
-			flush();
-		}
+		return in_array(strtolower($headerName), [
+			'content-encoding',
+			'content-length',
+			'content-type',
+		], true);
 	}
 }

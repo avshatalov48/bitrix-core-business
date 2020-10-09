@@ -137,7 +137,7 @@ class DateTimeType extends DateType
 		if($userField['MULTIPLE'] === 'Y' && !($value instanceof Type\DateTime))
 		{
 			//Invalid value
-			if(strlen($value) <= 1)
+			if(mb_strlen($value) <= 1)
 			{
 				//will be ignored by the caller
 				return null;

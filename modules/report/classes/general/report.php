@@ -229,7 +229,7 @@ class CReport
 					$userId = (int)$row['USER_ID'];
 					if ($userId > 0)
 					{
-						if (strpos($row['NAME'], 'view_params_'.$id.'_') === 0)
+						if (mb_strpos($row['NAME'], 'view_params_'.$id.'_') === 0)
 							CUserOptions::DeleteOption('report', $row['NAME'], false, $userId);
 					}
 				}
@@ -446,9 +446,9 @@ class CReport
 				$eElementTitle = $treeElem['field']->getLangCode();
 
 				// PRCNT hack should not be here
-				if (substr($rElementTitle, -12) === '_PRCNT_FIELD')
+				if (mb_substr($rElementTitle, -12) === '_PRCNT_FIELD')
 				{
-					$messageCode = substr($rElementTitle, 0, -12).'_FIELD';
+					$messageCode = mb_substr($rElementTitle, 0, -12).'_FIELD';
 				}
 				else
 				{
@@ -484,9 +484,9 @@ class CReport
 			if (!isset($treeElem['isUF']) || !$treeElem['isUF'])
 			{
 				// PRCNT hack should not be here
-				if (substr($elementTitle, -12) === '_PRCNT_FIELD')
+				if (mb_substr($elementTitle, -12) === '_PRCNT_FIELD')
 				{
-					$messageCode = substr($elementTitle, 0, -12).'_FIELD';
+					$messageCode = mb_substr($elementTitle, 0, -12).'_FIELD';
 				}
 				else
 				{
@@ -510,7 +510,7 @@ class CReport
 				$humanTitle = $treeElem['fieldName'];
 			}
 
-			if (substr($elementTitle, -12) == '_PRCNT_FIELD')
+			if (mb_substr($elementTitle, -12) == '_PRCNT_FIELD')
 			{
 				$humanTitle .= ' (%)';
 			}
@@ -584,7 +584,7 @@ class CReport
 			$elem = $select[$elemIndex];
 			$result = false;
 
-			if (strlen($elem['prcnt']) > 0 && $elem['prcnt'] !== 'self_column')
+			if ($elem['prcnt'] <> '' && $elem['prcnt'] !== 'self_column')
 			{
 				$result = self::checkSelectViewElementCyclicDependency($select, $elem['prcnt']);
 			}
@@ -612,7 +612,7 @@ class CReport
 		$totalInfo = null;
 		$alias = null;
 
-		if (empty($elem['aggr']) && !strlen($elem['prcnt']))
+		if (empty($elem['aggr']) && !mb_strlen($elem['prcnt']))
 		{
 			$selectElem = $elem['name'];
 		}
@@ -796,21 +796,21 @@ class CReport
 				}
 			}
 
-			if (strlen($elem['prcnt']))
+			if($elem['prcnt'] <> '')
 			{
-				$alias = $alias . '_PRCNT';
+				$alias = $alias.'_PRCNT';
 				$dataType = 'integer';
 
-				if ($elem['prcnt'] == 'self_column')
+				if($elem['prcnt'] == 'self_column')
 				{
-					if (empty($expression))
+					if(empty($expression))
 					{
 						$expression = array('%s', $elem['name']);
 					}
 				}
 				else
 				{
-					if (empty($expression))
+					if(empty($expression))
 					{
 						$localDef = '%s';
 						$localMembers = array($elem['name']);
@@ -831,13 +831,13 @@ class CReport
 						$entity
 					);
 
-					if (is_array($remoteSelect) && !empty($remoteSelect['expression']))
+					if(is_array($remoteSelect) && !empty($remoteSelect['expression']))
 					{
 						// remote field is expression
 						$remoteDef = $remoteSelect['expression'][0];
 						$remoteMembers = array_slice($remoteSelect['expression'], 1);
 
-						$alias = $alias . '_FROM_' . $remoteAlias;
+						$alias = $alias.'_FROM_'.$remoteAlias;
 					}
 					else
 					{
@@ -846,7 +846,7 @@ class CReport
 						$remoteMembers = array($remoteSelect);
 
 						$remoteAlias = Entity\QueryChain::getAliasByDefinition($entity, $remoteSelect);
-						$alias = $alias . '_FROM_' . $remoteAlias;
+						$alias = $alias.'_FROM_'.$remoteAlias;
 					}
 
 					// Expression
@@ -857,7 +857,7 @@ class CReport
 					$expression = array_merge(array($exprDef), $localMembers, $remoteMembers);
 
 					// Total expression
-					if (!is_array($totalInfo))
+					if(!is_array($totalInfo))
 					{
 						$totalInfo = [];
 					}
@@ -895,9 +895,9 @@ class CReport
 			$title .= ' ('.GetMessage('REPORT_SELECT_CALC_VAR_'.$view['aggr']).')';
 		}
 
-		if (strlen($view['prcnt']))
+		if($view['prcnt'] <> '')
 		{
-			if ($view['prcnt'] == 'self_column')
+			if($view['prcnt'] == 'self_column')
 			{
 				$title .= ' (%)';
 			}
@@ -1094,12 +1094,12 @@ class CReport
 		foreach ($select as $k => $def)
 		{
 			if (
-				(is_string($def) && (substr($def, -11) == '.SHORT_NAME' || $def === 'SHORT_NAME'))
-				|| (is_array($def) && count($def['expression']) === 2 && substr($def['expression'][1], -11) == '.SHORT_NAME')
+				(is_string($def) && (mb_substr($def, -11) == '.SHORT_NAME' || $def === 'SHORT_NAME'))
+				|| (is_array($def) && count($def['expression']) === 2 && mb_substr($def['expression'][1], -11) == '.SHORT_NAME')
 			)
 			{
 				$definition = is_string($def) ? $def : $def['expression'][1];
-				$pre = substr($definition, 0, -11);
+				$pre = mb_substr($definition, 0, -11);
 				$_alias = Entity\QueryChain::getAliasByDefinition($entity, $definition);
 
 				$expression = self::getFormattedNameExpr($format, $pre);
@@ -1140,7 +1140,7 @@ class CReport
 				else
 				{
 					// add aggr
-					if (substr($def['expression'][0], 0, 14) == 'COUNT(DISTINCT')
+					if (mb_substr($def['expression'][0], 0, 14) == 'COUNT(DISTINCT')
 					{
 						$_alias = 'COUNT_DISTINCT_'.$_alias;
 					}
@@ -1282,7 +1282,7 @@ class CReport
 			{
 				if ($key !== 'LOGIC' && is_string($subFilter))
 				{
-					$sfId = substr($subFilter, 7);
+					$sfId = mb_substr($subFilter, 7);
 
 					if (array_key_exists($sfId, $filter))
 					{
@@ -1303,12 +1303,12 @@ class CReport
 		{
 			//$fullHumanTitles[$treeElem['fieldName']] = $treeElem['fullHumanTitle'];
 			$fullHumanTitle = $treeElem['fullHumanTitle'];
-			if (substr($treeElem['fieldName'], -11) == '.SHORT_NAME')    // hack for ticket 0037576
+			if (mb_substr($treeElem['fieldName'], -11) == '.SHORT_NAME')    // hack for ticket 0037576
 			{
-				$pos = strrpos($fullHumanTitle, ':');
+				$pos = mb_strrpos($fullHumanTitle, ':');
 				if ($pos !== false)
 				{
-					$fullHumanTitle = substr($fullHumanTitle, 0, $pos);
+					$fullHumanTitle = mb_substr($fullHumanTitle, 0, $pos);
 				}
 			}
 			$fullHumanTitles[$treeElem['fieldName']] = $fullHumanTitle;

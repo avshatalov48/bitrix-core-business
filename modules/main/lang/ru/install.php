@@ -64,6 +64,8 @@ $MESS["SC_NO_MYS_LIB_ER"] = "Функции MySQL не доступны в PHP."
 $MESS["SC_NO_PERE_LIB_ER"] = "Поддержка регулярных выражений не доступна в PHP.";
 $MESS["SC_NO_JSON_LIB_ER"] = "Поддержка JSON не доступна в PHP.";
 $MESS["SC_NO_OPENSSL_LIB_ER"] = "Поддержка Openssl не доступна в PHP.";
+$MESS["SC_FUNC_OVERLOAD_ER"] = "Параметр mbstring.func_overload должен быть равен 0.";
+$MESS["SC_NO_MBSTRING_LIB_ER"] = "Поддержка mbstring не доступна в PHP.";
 $MESS["SC_NO_HASH"] = "Нет поддержки hash функций в PHP.";
 $MESS["SC_VALUE"] = "Значение";
 $MESS["SC_DISK_BITRIX"] = "Ядро сайта";
@@ -281,8 +283,8 @@ $MESS["INST_ALLOW_CALL_REFERENCE"] = "Параметр allow_call_time_pass_refe
 $MESS["INST_UTF8_NOT_SUPPORT"] = "UTF-8 не поддерживается в PHP (не настроена библиотека mbstring)";
 $MESS["INST_JAVASCRIPT_DISABLED"] = "Для установки продукта необходимо включить JavaScript. По-видимому, JavaScript либо не поддерживается браузером, либо отключен. Измените настройки браузера и затем <a href=\"\">повторите попытку</a>.";
 $MESS["INS_UTF_PARAMS"] = "Установка продукта в кодировке UTF-8";
-$MESS["INST_UTF8_RECOMENDATION1"] = "Для установки продукта в кодировке UTF-8 необходимо установить библиотеку mbstring c параметрами mbstring.func_overload=2, default_charset=UTF-8.";
-$MESS["ERR_MBSTRING_EXISTS1"] = "Для установки продукта не в кодировке UTF-8 необходимо или установить для параметра mbstring.func_overload значение 0, или сделать значение default_charset отличным от UTF-8. В противном случае рекомендуется установить в кодировке UTF-8.";
+$MESS["INST_UTF8_RECOMENDATION2"] = "Для установки продукта в кодировке UTF-8 необходимо установить библиотеку mbstring, а также параметр default_charset=UTF-8.";
+$MESS["ERR_MBSTRING_EXISTS1"] = "Для установки продукта в кодировке, отличной от UTF-8, необходимо установить значение default_charset, не равным UTF-8. В противном случае, рекомендуется установить продукт в кодировке UTF-8.";
 $MESS["INST_UTF8_DEFAULT_ENCODING"] = "Значения параметров default_charset и mbstring.internal_encoding не совпадают. Рекомендуется удалить параметр mbstring.internal_encoding.";
 $MESS["BAD_LICENSE_KEY"] = "Вы ввели неправильный лицензионный ключ.";
 $MESS["NLS_LANGUAGE_TERRITORY"] = "язык_страна";

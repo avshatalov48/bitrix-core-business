@@ -1392,7 +1392,16 @@ class CAllIMContactList
 		}
 
 		if (intval($userId) <= 0)
-			$userId = $GLOBALS['USER']->GetID();
+		{
+			if ($GLOBALS['USER'] instanceof \CUser && $GLOBALS['USER']->getId() > 0)
+			{
+				$userId = $GLOBALS['USER']->getId();
+			}
+			else
+			{
+				return false;
+			}
+		}
 
 		if ($isChat)
 		{
@@ -1473,7 +1482,7 @@ class CAllIMContactList
 		else
 		{
 			$dialogId = intval($dialogId);
-			CIMContactList::DeleteRecent($dialogId);
+			\CIMContactList::DeleteRecent($dialogId, false, $userId);
 		}
 
 		if ($pullInclude)

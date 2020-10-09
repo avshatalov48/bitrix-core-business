@@ -56,7 +56,7 @@ class Storage implements Storable
 			"tmp_name" => $newFile,
 			"type" => $file["type"]
 		));
-		if (substr($newFile, -strlen($file['tmp_name'])) == $file['tmp_name'])
+		if (mb_substr($newFile, -mb_strlen($file['tmp_name'])) == $file['tmp_name'])
 		{
 
 		}
@@ -199,22 +199,22 @@ class CloudStorage extends Storage implements Storable
 		$result = new Result();
 		$absPath = \CTempFile::getAbsoluteRoot();
 		$relativePath = $path;
-		if (substr($path, 0, strlen($absPath)) == $absPath && strpos($path, "/bxu/") > 0)
-			$relativePath = substr($path, strpos($path, "/bxu/"));
+		if (mb_substr($path, 0, mb_strlen($absPath)) == $absPath && mb_strpos($path, "/bxu/") > 0)
+			$relativePath = mb_substr($path, mb_strpos($path, "/bxu/"));
 		$subdir = explode("/", trim($relativePath, "/"));
 		$filename = array_pop($subdir);
-		if (!isset($_SESSION["upload_tmp"]))
+		if (!isset(\Bitrix\Main\Application::getInstance()->getSession()["upload_tmp"]))
 		{
-			$_SESSION["upload_tmp"] = array();
+			\Bitrix\Main\Application::getInstance()->getSession()["upload_tmp"] = array();
 		}
 
-		if (!isset($_SESSION["upload_tmp"][$path]))
+		if (!isset(\Bitrix\Main\Application::getInstance()->getSession()["upload_tmp"][$path]))
 		{
-			$relativePath = $_SESSION["upload_tmp"][$path] =\CCloudTempFile::GetDirectoryName($bucket, 12).$filename;
+			$relativePath = \Bitrix\Main\Application::getInstance()->getSession()["upload_tmp"][$path] =\CCloudTempFile::GetDirectoryName($bucket, 12).$filename;
 		}
 		else
 		{
-			$relativePath = $_SESSION["upload_tmp"][$path];
+			$relativePath = \Bitrix\Main\Application::getInstance()->getSession()["upload_tmp"][$path];
 		}
 
 		$upload = new \CCloudStorageUpload($relativePath);

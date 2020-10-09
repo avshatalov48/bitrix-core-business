@@ -38,17 +38,17 @@ class ResponseGoogle extends Response
 				$data['error'] = $data['error']['message'];
 			}
 			$errorMessage = $data['error'];
-			if (strpos($errorMessage, 'AuthenticationError.CUSTOMER_NOT_FOUND') !== false
-				|| strpos($errorMessage, 'AuthenticationError.NOT_ADS_USER') !== false) // google user hasn't google ads accounts
+			if (mb_strpos($errorMessage, 'AuthenticationError.CUSTOMER_NOT_FOUND') !== false
+				|| mb_strpos($errorMessage, 'AuthenticationError.NOT_ADS_USER') !== false) // google user hasn't google ads accounts
 			{
 				$this->setData([]);
 				return;
 			}
-			if (strpos($errorMessage, 'UserListError.ADVERTISER_NOT_WHITELISTED_FOR_USING_UPLOADED_DATA') !== false)
+			if (mb_strpos($errorMessage, 'UserListError.ADVERTISER_NOT_WHITELISTED_FOR_USING_UPLOADED_DATA') !== false)
 			{
 				$errorMessage = Loc::getMessage('SEO_RETARGETING_SERVICE_RESPONSE_GOOGLE_CANT_ADD_AUDIENCE', ['#LINK#' => 'https://support.google.com/adspolicy/answer/6299717']);
 			}
-			if (strpos($errorMessage, 'UserListError.NAME_ALREADY_USED') !== false)
+			if (mb_strpos($errorMessage, 'UserListError.NAME_ALREADY_USED') !== false)
 			{
 				$errorMessage = Loc::getMessage('SEO_RETARGETING_SERVICE_RESPONSE_GOOGLE_NAME_ALREADY_USED');
 			}

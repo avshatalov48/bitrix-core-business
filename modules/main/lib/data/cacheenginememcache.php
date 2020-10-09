@@ -240,10 +240,10 @@ class CacheEngineMemcache implements ICacheEngine, ICacheEngineStat
 		$key = false;
 		if (is_object(self::$memcache))
 		{
-			if (strlen($filename))
+			if($filename <> '')
 			{
 				$this->getBaseDirVersion($baseDir, true);
-				if (self::$baseDirVersion[$baseDir] === false || self::$baseDirVersion[$baseDir] === '')
+				if(self::$baseDirVersion[$baseDir] === false || self::$baseDirVersion[$baseDir] === '')
 				{
 					return;
 				}
@@ -252,26 +252,26 @@ class CacheEngineMemcache implements ICacheEngine, ICacheEngineStat
 
 				$key = self::$baseDirVersion[$baseDir]."|".$initDirVersion."|".$filename;
 				$cachedData = self::$memcache->get($key);
-				if (is_array($cachedData))
+				if(is_array($cachedData))
 				{
-					self::$memcache->set($key . '|old', $cachedData, 0, 1);
+					self::$memcache->set($key.'|old', $cachedData, 0, 1);
 				}
 				self::$memcache->replace($key, "", 0, 1);
 			}
 			else
 			{
-				if (strlen($initDir))
+				if($initDir <> '')
 				{
 					$this->getBaseDirVersion($baseDir, true);
 
-					if (self::$baseDirVersion[$baseDir] === false || self::$baseDirVersion[$baseDir] === '')
+					if(self::$baseDirVersion[$baseDir] === false || self::$baseDirVersion[$baseDir] === '')
 					{
 						return;
 					}
 
 					$initDirKey = self::$baseDirVersion[$baseDir]."|".$initDir;
 					$initDirVersion = self::$memcache->get($initDirKey);
-					if ($initDirVersion === false || $initDirVersion === '')
+					if($initDirVersion === false || $initDirVersion === '')
 					{
 						self::$memcache->set($initDirKey.'|old', $initDirVersion, 0, 1);
 					}
@@ -280,7 +280,7 @@ class CacheEngineMemcache implements ICacheEngine, ICacheEngineStat
 				else
 				{
 					$this->getBaseDirVersion($baseDir, true);
-					if (isset(self::$baseDirVersion[$baseDir]))
+					if(isset(self::$baseDirVersion[$baseDir]))
 					{
 						self::$memcache->set($this->sid.$baseDir.'|old', self::$baseDirVersion[$baseDir], 0, 1);
 						unset(self::$baseDirVersion[$baseDir]);

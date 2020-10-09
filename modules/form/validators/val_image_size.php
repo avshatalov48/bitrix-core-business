@@ -85,7 +85,7 @@ class CFormValidatorImageSize
 			{
 				// if image successfully uploaded
 				if (
-					strlen($arImage["tmp_name"]) > 0
+					$arImage["tmp_name"] <> ''
 					&& ($arImageInfo = CFile::GetImageSize($arImage["tmp_name"]))
 				)
 				{

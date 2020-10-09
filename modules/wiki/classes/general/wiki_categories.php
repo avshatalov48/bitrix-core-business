@@ -6,7 +6,7 @@ class CWikiCategories
 
 	public function addItem($catParams)
 	{
-		$this->arItems[strtolower($catParams->sName)] = array(
+		$this->arItems[mb_strtolower($catParams->sName)] = array(
 			'TITLE' => $catParams->sTitle,
 			'NAME' => $catParams->sName,
 			'CNT' => $catParams->iItemsCount,

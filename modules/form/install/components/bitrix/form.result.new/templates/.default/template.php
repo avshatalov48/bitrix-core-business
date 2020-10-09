@@ -1,15 +1,12 @@
 <?
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
-?>
-<?if ($arResult["isFormErrors"] == "Y"):?><?=$arResult["FORM_ERRORS_TEXT"];?><?endif;?>
 
+if ($arResult["isFormErrors"] == "Y"):?><?=$arResult["FORM_ERRORS_TEXT"];?><?endif;?>
 <?=$arResult["FORM_NOTE"]?>
-
 <?if ($arResult["isFormNote"] != "Y")
 {
 ?>
 <?=$arResult["FORM_HEADER"]?>
-
 <table>
 <?
 if ($arResult["isFormDescription"] == "Y" || $arResult["isFormTitle"] == "Y" || $arResult["isFormImage"] == "Y")
@@ -17,9 +14,6 @@ if ($arResult["isFormDescription"] == "Y" || $arResult["isFormTitle"] == "Y" || 
 ?>
 	<tr>
 		<td><?
-/***********************************************************************************
-					form header
-***********************************************************************************/
 if ($arResult["isFormTitle"])
 {
 ?>
@@ -44,11 +38,6 @@ if ($arResult["isFormTitle"])
 	?>
 </table>
 <br />
-<?
-/***********************************************************************************
-						form questions
-***********************************************************************************/
-?>
 <table class="form-table data-table">
 	<thead>
 		<tr>
@@ -102,7 +91,7 @@ if($arResult["isUseCaptcha"] == "Y")
 	<tfoot>
 		<tr>
 			<th colspan="2">
-				<input <?=(intval($arResult["F_RIGHT"]) < 10 ? "disabled=\"disabled\"" : "");?> type="submit" name="web_form_submit" value="<?=htmlspecialcharsbx(strlen(trim($arResult["arForm"]["BUTTON"])) <= 0 ? GetMessage("FORM_ADD") : $arResult["arForm"]["BUTTON"]);?>" />
+				<input <?=(intval($arResult["F_RIGHT"]) < 10 ? "disabled=\"disabled\"" : "");?> type="submit" name="web_form_submit" value="<?=htmlspecialcharsbx(trim($arResult["arForm"]["BUTTON"]) == '' ? GetMessage("FORM_ADD") : $arResult["arForm"]["BUTTON"]);?>" />
 				<?if ($arResult["F_RIGHT"] >= 15):?>
 				&nbsp;<input type="hidden" name="web_form_apply" value="Y" /><input type="submit" name="web_form_apply" value="<?=GetMessage("FORM_APPLY")?>" />
 				<?endif;?>
@@ -117,4 +106,3 @@ if($arResult["isUseCaptcha"] == "Y")
 <?=$arResult["FORM_FOOTER"]?>
 <?
 } //endif (isFormNote)
-?>

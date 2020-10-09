@@ -9,12 +9,12 @@ if (!function_exists("__photo_template_default"))
 			function __photo_template_default_comments_ending($count)
 			{
 				$text = GetMessage("P_COMMENTS");
-				$count = intVal($count);
-				$iCount = intVal($count%100);
+				$count = intval($count);
+				$iCount = intval($count%100);
 
 				if (!(10 < $iCount && $iCount < 20))
 				{
-					$count = intVal($count % 10);
+					$count = intval($count % 10);
 					if ($count == 1)
 						$text = GetMessage("P_COMMENT");
 					elseif ($count > 1 && $count < 5)
@@ -30,12 +30,12 @@ if (!function_exists("__photo_template_default"))
 			function __photo_template_default_shows_ending($count)
 			{
 				$text = GetMessage("P_SHOWS");
-				$count = intVal($count);
-				$iCount = intVal($count%100);
+				$count = intval($count);
+				$iCount = intval($count%100);
 
 				if (!(10 < $iCount && $iCount < 20))
 				{
-					$count = intVal($count % 10);
+					$count = intval($count % 10);
 					if ($count == 1)
 						$text = GetMessage("P_SHOW");
 					elseif ($count > 1 && $count < 5)

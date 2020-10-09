@@ -4,7 +4,7 @@
 $arChainBody = array();
 foreach($arCHAIN as $item)
 {
-	if(strlen($item["LINK"])<strlen(SITE_DIR))
+	if(mb_strlen($item["LINK"]) < mb_strlen(SITE_DIR))
 		continue;
 	if($item["LINK"] <> "")
 		$arChainBody[] = '<a href="'.$item["LINK"].'">'.htmlspecialcharsex($item["TITLE"]).'</a>';

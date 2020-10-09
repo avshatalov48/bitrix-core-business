@@ -20,6 +20,10 @@ if (Loader::includeModule("bitrix24"))
 		$isAvailable = PaySystem\Manager::HANDLER_AVAILABLE_FALSE;
 	}
 }
+elseif (Loader::includeModule('intranet') && $portalZone !== 'ru')
+{
+	$isAvailable = PaySystem\Manager::HANDLER_AVAILABLE_FALSE;
+}
 
 $data = [
 	'NAME' => Loc::getMessage('SALE_HPS_BEPAID'),

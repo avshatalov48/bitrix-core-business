@@ -21,10 +21,7 @@ class Locker
 		$connection = static::getConnection();
 		if ($connection instanceof MysqlCommonConnection)
 		{
-			$lock = $connection->queryScalar(
-				sprintf("SELECT GET_LOCK('%s', %d)", md5($id), 0)
-			);
-			$result = $lock != "0";
+			$result = $connection->lock($id);
 		}
 
 		return $result;
@@ -42,9 +39,7 @@ class Locker
 		$connection = static::getConnection();
 		if ($connection instanceof MysqlCommonConnection)
 		{
-			$connection->queryExecute(
-				sprintf("DO RELEASE_LOCK('%s')", md5($id))
-			);
+			$connection->unlock($id);
 		}
 
 		return true;

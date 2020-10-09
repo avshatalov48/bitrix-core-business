@@ -20,7 +20,7 @@
 
 			if (($arrCol["ADDITIONAL"]=="Y" && $SHOW_ADDITIONAL=="Y") || $arrCol["ADDITIONAL"]!="Y") :
 				$colspan++;
-				if (strlen($arrCol["RESULTS_TABLE_TITLE"])<=0)
+				if ($arrCol["RESULTS_TABLE_TITLE"] == '')
 				{
 					$title = ($arrCol["TITLE_TYPE"]=="html") ? strip_tags($arrCol["TITLE"]) : htmlspecialcharsbx($arrCol["TITLE"]);
 				}
@@ -54,6 +54,7 @@
 		<td><?
 			if ($f_USER_ID>0) :
 				$rsUser = CUser::GetByID($f_USER_ID);
+				ClearVars("u_");
 				$rsUser->ExtractFields("u_");
 				$f_LOGIN = $u_LOGIN;
 				$f_USER_NAME = $u_NAME." ".$u_LAST_NAME;
@@ -84,19 +85,19 @@
 			$i = 0;
 			while (list($key,$arrA) = each($arrAnswer)):
 				$i++;
-						if (strlen(trim($arrA["USER_TEXT"]))>0)
+						if (trim($arrA["USER_TEXT"]) <> '')
 						{
 							if (intval($arrA["USER_FILE_ID"])<=0)
 								echo htmlspecialcharsbx($arrA["USER_TEXT"])."<br>";
 						}
 
-						if (strlen(trim($arrA["ANSWER_TEXT"]))>0)
+						if (trim($arrA["ANSWER_TEXT"]) <> '')
 						{
 							$answer = "[".htmlspecialcharsbx($arrA["ANSWER_TEXT"])."]";
-							if (strlen(trim($arrA["ANSWER_VALUE"]))>0 && $SHOW_ANSWER_VALUE=="Y") $answer .= "&nbsp;"; else $answer .= "<br>";
+							if (trim($arrA["ANSWER_VALUE"]) <> '' && $SHOW_ANSWER_VALUE=="Y") $answer .= "&nbsp;"; else $answer .= "<br>";
 							echo $answer;
 						}
-						if (strlen(trim($arrA["ANSWER_VALUE"]))>0 && $SHOW_ANSWER_VALUE=="Y")
+						if (trim($arrA["ANSWER_VALUE"]) <> '' && $SHOW_ANSWER_VALUE=="Y")
 							echo "(".htmlspecialcharsbx($arrA["ANSWER_VALUE"]).")<br>";
 
 						if (intval($arrA["USER_FILE_ID"])>0)

@@ -77,24 +77,29 @@ if($arParams['additionalParameters']['canDrop'] !== false)
 	</del>
 	<?php
 }
-?>
 
-<script>
+if ($arResult['isEnabled'])
+{
+	?>
 
-	BX.message(<?= \CUtil::PhpToJSObject([
-		'USER_TYPE_ENUM_NO_VALUE' => Loc::getMessage('USER_TYPE_ENUM_NO_VALUE')
-	]) ?>);
+	<script>
 
-	BX.ready(function ()
-	{
-		new BX.Mobile.Field.Enum(
-			<?= \CUtil::PhpToJSObject([
-				'name' => 'BX.Mobile.Field.Enum',
-				'nodes' => $nodes,
-				'restrictedMode' => true,
-				'formId' => $arParams['additionalParameters']['formId'],
-				'gridId' => $arParams['additionalParameters']['gridId']
-			])?>
-		);
-	});
-</script>
+		BX.message(<?= \CUtil::PhpToJSObject([
+			'USER_TYPE_ENUM_NO_VALUE' => Loc::getMessage('USER_TYPE_ENUM_NO_VALUE')
+		]) ?>);
+
+		BX.ready(function () {
+			new BX.Mobile.Field.Enum(
+				<?= \CUtil::PhpToJSObject([
+					'name' => 'BX.Mobile.Field.Enum',
+					'nodes' => $nodes,
+					'restrictedMode' => true,
+					'formId' => $arParams['additionalParameters']['formId'],
+					'gridId' => $arParams['additionalParameters']['gridId']
+				])?>
+			);
+		});
+	</script>
+
+	<?php
+}

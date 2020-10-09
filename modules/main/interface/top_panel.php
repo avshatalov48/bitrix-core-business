@@ -2,11 +2,11 @@
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 IncludeModuleLangFile(__FILE__);
 
-if($_GET["back_url_pub"] <> "" && !is_array($_GET["back_url_pub"]) && strpos($_GET["back_url_pub"], "/") === 0)
-	$_SESSION["BACK_URL_PUB"] = $_GET["back_url_pub"];
+if($_GET["back_url_pub"] <> "" && !is_array($_GET["back_url_pub"]) && mb_strpos($_GET["back_url_pub"], "/") === 0)
+	\Bitrix\Main\Application::getInstance()->getSession()["BACK_URL_PUB"] = $_GET["back_url_pub"];
 
-if($_GET["back_url_additional"] <> "" && !is_array($_GET["back_url_additional"]) && strpos($_GET["back_url_additional"], "/") === 0)
-	$_SESSION["BACK_URL_ADDITIONAL"] = $_GET["back_url_additional"];
+if($_GET["back_url_additional"] <> "" && !is_array($_GET["back_url_additional"]) && mb_strpos($_GET["back_url_additional"], "/") === 0)
+	\Bitrix\Main\Application::getInstance()->getSession()["BACK_URL_ADDITIONAL"] = $_GET["back_url_additional"];
 
 $params = DeleteParam(array("logout", "back_url_pub", "back_url_additional", "sessid"));
 
@@ -84,11 +84,11 @@ if($USER->IsAuthorized())
 
 	//Help
 	$module = (defined("ADMIN_MODULE_NAME")? ADMIN_MODULE_NAME: "main");
-	$page = (defined("HELP_FILE") && strpos(HELP_FILE, '/') === false? HELP_FILE : basename($APPLICATION->GetCurPage()));
+	$page = (defined("HELP_FILE") && mb_strpos(HELP_FILE, '/') === false? HELP_FILE : basename($APPLICATION->GetCurPage()));
 
 	$aActiveSection = $adminMenu->ActiveSection();
 	$section = $aActiveSection["help_section"]."/";
-	if (defined("HELP_FILE") && strpos(HELP_FILE, $section) === 0)
+	if (defined("HELP_FILE") && mb_strpos(HELP_FILE, $section) === 0)
 		$section = "";
 }
 
@@ -130,24 +130,61 @@ if (count($arLangMenu) > 1)
 
 $arPanelButtons[] = $arLangButton;
 
-$sPubUrl = ($_SESSION["BACK_URL_PUB"] <> ""?
-	htmlspecialcharsbx($_SESSION["BACK_URL_PUB"]).(strpos($_SESSION["BACK_URL_PUB"], "?") !== false? "&amp;":"?") : '/?').
+$sPubUrl = (\Bitrix\Main\Application::getInstance()->getSession()["BACK_URL_PUB"] <> ""?
+	htmlspecialcharsbx(\Bitrix\Main\Application::getInstance()->getSession()["BACK_URL_PUB"]).(mb_strpos(\Bitrix\Main\Application::getInstance()->getSession()["BACK_URL_PUB"], "?") !== false? "&amp;":"?") : '/?').
 	'back_url_admin='.urlencode($APPLICATION->GetCurPage().($params<>""? "?".$params:""));
 
-if (\Bitrix\Main\Config\Option::get("sale", "~IS_SALE_CRM_SITE_MASTER_FINISH") === "Y")
+if (\Bitrix\Main\Config\Option::get("sale", "~IS_SALE_CRM_SITE_MASTER_FINISH") === "Y"
+	&& $crmSiteId = \Bitrix\Main\Config\Option::get("sale", "~CRM_WIZARD_SITE_ID")
+)
 {
-	$defaultSite = \Bitrix\Main\SiteTable::getList([
-		"select" => ["SERVER_NAME"],
-		"filter" => ["=DEF" => "Y"]
-	])->fetch();
-	if ($defaultSite && isset($defaultSite["SERVER_NAME"]) && !empty($defaultSite["SERVER_NAME"]))
+	$defaultSite = $crmSite = [];
+	$siteList = \Bitrix\Main\SiteTable::getList([
+		"select" => ["DEF", "SERVER_NAME"],
+		"filter" => [
+			"LOGIC" => "OR",
+			[
+				"LID" => $crmSiteId
+			],
+			[
+				"=DEF" => "Y"
+			]
+		]
+	])->fetchAll();
+	foreach($siteList as $site)
 	{
-		$sPubUrl = ((\Bitrix\Main\Context::getCurrent()->getRequest()->isHttps() ? "https" : "http")."://".$defaultSite["SERVER_NAME"]).$sPubUrl;
+		if ($site["DEF"] === "Y")
+		{
+			$defaultSite = $site;
+		}
+		else
+		{
+			$crmSite = $site;
+		}
 	}
-	elseif ($serverName = \Bitrix\Main\Config\Option::get("main", "server_name"))
+
+	$crmServerName = '';
+	if ($crmSite && !empty($crmSite["SERVER_NAME"]))
 	{
-		$sPubUrl = ((\Bitrix\Main\Context::getCurrent()->getRequest()->isHttps() ? "https" : "http")."://".$serverName).$sPubUrl;
+		$crmServerName = $crmSite["SERVER_NAME"];
 	}
+
+	if (\Bitrix\Main\Application::getInstance()->getContext()->getServer()->getHttpHost() === $crmServerName)
+	{
+		$defaultServerName = '';
+		if ($defaultSite && !empty($defaultSite["SERVER_NAME"]))
+		{
+			$defaultServerName = $defaultSite["SERVER_NAME"];
+		}
+		elseif ($serverName = \Bitrix\Main\Config\Option::get("main", "server_name"))
+		{
+			$defaultServerName = $serverName;
+		}
+
+		$sPubUrl = (\Bitrix\Main\Context::getCurrent()->getRequest()->isHttps() ? "https" : "http")."://".$defaultServerName.$sPubUrl;
+	}
+
+	unset($defaultSite, $crmSite, $defaultServerName);
 }
 elseif (\Bitrix\Main\Config\Option::get("sale", "~IS_SALE_BSM_SITE_MASTER_FINISH") === "Y"
 	&& $additionalSiteId = \Bitrix\Main\Config\Option::get("sale", "~BSM_WIZARD_SITE_ID")
@@ -197,8 +234,8 @@ if($USER->IsAuthorized())
 			{
 				$isDefault = false;
 
-				$additionalSiteUrl = ($_SESSION["BACK_URL_ADDITIONAL"] <> ""
-					? htmlspecialcharsbx($_SESSION["BACK_URL_ADDITIONAL"]).(strpos($_SESSION["BACK_URL_ADDITIONAL"], "?") !== false? "&amp;":"?")
+				$additionalSiteUrl = (\Bitrix\Main\Application::getInstance()->getSession()["BACK_URL_ADDITIONAL"] <> ""
+					? htmlspecialcharsbx(\Bitrix\Main\Application::getInstance()->getSession()["BACK_URL_ADDITIONAL"]).(mb_strpos(\Bitrix\Main\Application::getInstance()->getSession()["BACK_URL_ADDITIONAL"], "?") !== false? "&amp;":"?")
 					: '/?').'back_url_admin='.urlencode($APPLICATION->GetCurPage().($params<>"" ? "?".$params : ""));
 
 				$additionalSiteHost = \Bitrix\Main\Context::getCurrent()->getRequest()->isHttps() ? "https://" : "http://";
@@ -224,7 +261,7 @@ if($USER->IsAuthorized())
 					"filter" => ["=DEF" => "Y"]
 				])->fetch();
 
-				if ($defaultSite && isset($defaultSite["SERVER_NAME"]) && !empty($defaultSite["SERVER_NAME"]))
+				if ($defaultSite && !empty($defaultSite["SERVER_NAME"]))
 				{
 					$defaultServerName = (\Bitrix\Main\Context::getCurrent()->getRequest()->isHttps() ? "https" : "http")."://".$defaultSite["SERVER_NAME"];
 				}
@@ -233,16 +270,16 @@ if($USER->IsAuthorized())
 					$defaultServerName = (\Bitrix\Main\Context::getCurrent()->getRequest()->isHttps() ? "https" : "http")."://".$serverName;
 				}
 
-				if ($defaultServerName)
+				if (isset($defaultServerName))
 				{
 					$isDefault = false;
 					$additionalTabTitle = GetMessage("adm_top_panel_view_b24_title");
 					$additionalTabMessage = GetMessage("admin_panel_b24");
 
-					$additionalSiteUrl = ($_SESSION["BACK_URL_ADDITIONAL"] <> ""
-							? htmlspecialcharsbx($_SESSION["BACK_URL_ADDITIONAL"]).(strpos($_SESSION["BACK_URL_ADDITIONAL"], "?") !== false? "&amp;":"?")
+					$additionalSiteUrl = (\Bitrix\Main\Application::getInstance()->getSession()["BACK_URL_ADDITIONAL"] <> ""
+							? htmlspecialcharsbx(\Bitrix\Main\Application::getInstance()->getSession()["BACK_URL_ADDITIONAL"]).(mb_strpos(\Bitrix\Main\Application::getInstance()->getSession()["BACK_URL_ADDITIONAL"], "?") !== false? "&amp;":"?")
 							: '/?').'back_url_admin='.urlencode($APPLICATION->GetCurPage().($params<>"" ? "?".$params : ""));
-					$defaultServerName = $defaultServerName.$additionalSiteUrl;
+					$defaultServerName .= $additionalSiteUrl;
 					?>
 					<a hidefocus="true" href="<?=BX_ROOT."/admin/index.php?lang=".LANGUAGE_ID?>" class="adm-header-btn adm-header-btn-admin"><?=GetMessage("admin_panel_admin")?></a>
 					<a hidefocus="true" href="<?=$defaultServerName?>" id="bx-panel-view-tab" class="adm-header-btn adm-header-btn-crm" title="<?=$additionalTabTitle?>"><?=$additionalTabMessage?></a>
@@ -347,7 +384,7 @@ if ($USER->IsAuthorized()):
 				"url" => urlencode("https://".$_SERVER["HTTP_HOST"].$APPLICATION->GetCurPageParam()),
 				"user_id" => $USER->GetID(),
 				"is_admin" => $USER->IsAdmin() ? 1 : 0,
-				"help_url" => urlencode("http://dev.1c-bitrix.ru/user_help/".$section.(defined("HELP_FILE") && strpos(HELP_FILE, '/') !== false?  HELP_FILE : $module."/".$page))
+				"help_url" => urlencode("http://dev.1c-bitrix.ru/user_help/".$section.(defined("HELP_FILE") && mb_strpos(HELP_FILE, '/') !== false?  HELP_FILE : $module."/".$page))
 			)
 		);
 		$frameOpenUrl = CHTTP::urlAddParams($helpUrl, array(

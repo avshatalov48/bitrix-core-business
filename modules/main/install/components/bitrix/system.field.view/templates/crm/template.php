@@ -29,7 +29,7 @@ $publicMode = isset($arParams["PUBLIC_MODE"]) && $arParams["PUBLIC_MODE"] === tr
 			}
 			else
 			{
-				$entityTypeLower = strtolower($entityType);
+				$entityTypeLower = mb_strtolower($entityType);
 
 				if($entityType == 'ORDER')
 				{

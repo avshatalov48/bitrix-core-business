@@ -60,15 +60,15 @@ else
 
 $transport = 'json';
 $method = ToLower($arVariables['method']);
-$point = strrpos($method, '.');
+$point = mb_strrpos($method, '.');
 
 if($point > 0)
 {
-	$check = substr($method, $point+1);
+	$check = mb_substr($method, $point + 1);
 	if(CRestServer::transportSupported($check))
 	{
 		$transport = $check;
-		$method = substr($method, 0, $point);
+		$method = mb_substr($method, 0, $point);
 	}
 }
 

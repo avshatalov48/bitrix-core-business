@@ -216,9 +216,9 @@ class CWikiParser
 				$sFileName = $arFile['ORIGINAL_NAME'];
 			}
 		}
-		else if (isset($this->arVersionFile[strtolower($sFile)]))
+		else if (isset($this->arVersionFile[mb_strtolower($sFile)]))
 		{
-			$sPath = $this->arVersionFile[strtolower($sFile)];
+			$sPath = $this->arVersionFile[mb_strtolower($sFile)];
 			$sFileName = $sFile;
 		}
 		else if (!empty($this->arFile))
@@ -274,7 +274,7 @@ class CWikiParser
 					$sReturn = '<img src="'.htmlspecialcharsbx($sPath).'" alt="'.htmlspecialcharsbx($sFileName).'"/>';
 			}
 		}
-		else if (strpos($sPath, 'http://') === 0)
+		else if (mb_strpos($sPath, 'http://') === 0)
 			$sReturn = ' [ <a href="'.htmlspecialcharsbx($sFile).'" title="'.GetMessage('FILE_FILE_DOWNLOAD').'">'.GetMessage('FILE_DOWNLOAD').'</a> ] ';
 		// otherwise the file
 		else
@@ -316,7 +316,7 @@ class CWikiParser
 			while($obElement = $rsElement->GetNextElement())
 			{
 				$arFields = $obElement->GetFields();
-				$this->arLinkExists[] = strtolower(CWikiUtils::htmlspecialcharsback($arFields['NAME'], true));
+				$this->arLinkExists[] = mb_strtolower(CWikiUtils::htmlspecialcharsback($arFields['NAME'], true));
 			}
 		}
 
@@ -352,7 +352,7 @@ class CWikiParser
 		global $arParams;
 
 		$sReturn = '';
-		if (in_array(strtolower($this->arLink[$matches[2]]), $this->arLinkExists))
+		if (in_array(mb_strtolower($this->arLink[$matches[2]]), $this->arLinkExists))
 		{
 			$sURL = CComponentEngine::MakePathFromTemplate($arParams['PATH_TO_POST'],
 				array(

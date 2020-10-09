@@ -19,7 +19,7 @@
 	<div class="learn-question-cloud">
 		<div class="learn-question-number"><?=GetMessage("LEARNING_QUESTION_S")?><br /><?=($index+1)?> <?=GetMessage("LEARNING_QUESTION_FROM");?> <?=$arResult["QUESTIONS_COUNT"]?></div>
 		<div class="learn-question-name"><?=$arQuestion["NAME"]?>
-		<?if (strlen($arQuestion["DESCRIPTION"]) > 0):?>
+		<?if ($arQuestion["DESCRIPTION"] <> ''):?>
 			<br /><br /><?=$arQuestion["DESCRIPTION"]?>
 		<?endif?>
 		<?if ($arQuestion["FILE"] !== false):?>
@@ -27,7 +27,7 @@
 		<?endif?>
 		</div>
 		<div id="INCORRECT_MESSAGE_FOR_QUESTION_<?php echo (int) $arQuestion['ID']; ?>" style="display:none; color:red;"><?php
-			if (strlen($arQuestion['INCORRECT_MESSAGE']) > 0)
+			if ($arQuestion['INCORRECT_MESSAGE'] <> '')
 				echo GetMessage('INCORRECT_QUESTION_MESSAGE') . ': ' . $arQuestion['INCORRECT_MESSAGE'];
 		?></div>
 	</div>
@@ -63,7 +63,7 @@
 		<?php endif;
 
 	$jsIncorrectBlockId = 'null';
-	if (strlen($arQuestion['INCORRECT_MESSAGE']) > 0)
+	if ($arQuestion['INCORRECT_MESSAGE'] <> '')
 		$jsIncorrectBlockId = "'INCORRECT_MESSAGE_FOR_QUESTION_" . (string) ((int) $arQuestion['ID']) . "'";
 	?>
 	<p><input type="submit" name="submit" disabled="disabled" 

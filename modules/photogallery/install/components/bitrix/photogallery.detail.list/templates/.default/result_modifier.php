@@ -34,7 +34,7 @@ $arParams1 = array(
 $arResult["VOTE_NAMES"] = array();
 foreach($arParams1["VOTE_NAMES"] as $k=>$v)
 {
-	if(strlen($v)>0)
+	if($v <> '')
 		$arResult["VOTE_NAMES"][]=htmlspecialcharsbx($v);
 	if(count($arResult["VOTE_NAMES"])>=$arParams1["MAX_VOTE"])
 		break;

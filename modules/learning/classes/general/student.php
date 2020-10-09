@@ -53,7 +53,7 @@ class CStudent
 		$TranscriptLength = intval($TranscriptLength);
 
 		$digits = "312467589";
-		$max = strlen($digits) - 1;
+		$max = mb_strlen($digits) - 1;
 
 		$str = "";
 
@@ -75,7 +75,7 @@ class CStudent
 
 			$arInsert = $DB->PrepareInsert("b_learn_student", $arFields, "learning");
 
-			if (strlen($arInsert[0]) <= 0 || strlen($arInsert[0])<= 0)
+			if ($arInsert[0] == '' || $arInsert[0] == '')
 				return false;
 
 			$strSql =
@@ -186,7 +186,7 @@ class CStudent
 			$key = $res["FIELD"];
 			$cOperationType = $res["OPERATION"];
 
-			$key = strtoupper($key);
+			$key = mb_strtoupper($key);
 
 			switch ($key)
 			{
@@ -220,7 +220,7 @@ class CStudent
 		$strSqlSearch = "";
 		for ($i = 0, $length = count($arSqlSearch); $i < $length; $i++)
 		{
-			if (strlen($arSqlSearch[$i]) > 0)
+			if ($arSqlSearch[$i] <> '')
 			{
 				$strSqlSearch .= " AND ".$arSqlSearch[$i]." ";
 			}
@@ -236,10 +236,11 @@ class CStudent
 		if (!is_array($arOrder))
 			$arOrder = Array();
 
+		$arSqlOrder = [];
 		foreach($arOrder as $by=>$order)
 		{
-			$by = strtolower($by);
-			$order = strtolower($order);
+			$by = mb_strtolower($by);
+			$order = mb_strtolower($order);
 			if ($order!="asc")
 				$order = "desc";
 

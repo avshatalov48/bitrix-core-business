@@ -131,7 +131,7 @@ class CMainInterfaceButtons extends CBitrixComponent
 	{
 		$id = $this->safeString($id);
 		$id = preg_replace("/[^a-z0-9_-]/i", "", $id);
-		$id = strtolower($id);
+		$id = mb_strtolower($id);
 
 		return $id;
 	}
@@ -248,7 +248,7 @@ class CMainInterfaceButtons extends CBitrixComponent
 			$result = str_replace('-', '_', $result);
 			$result = preg_replace("/[^a-z0-9_\/]/i", "", $result);
 			$result = join("_", array($this->arParams["ID"], $result));
-			$result = strtolower($result);
+			$result = mb_strtolower($result);
 		}
 
 		return $result;

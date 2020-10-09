@@ -47,7 +47,7 @@ if($_SERVER['REQUEST_METHOD']=="POST" && ($_POST['save']<>"" || $_POST['apply']<
 	{
 		if($apply <> "")
 		{
-			$_SESSION["SESS_ADMIN"]["RATING_RULE_EDIT_MESSAGE"]=array("MESSAGE"=>GetMessage("RATING_RULE_EDIT_SUCCESS"), "TYPE"=>"OK");
+			\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["RATING_RULE_EDIT_MESSAGE"]=array("MESSAGE"=>GetMessage("RATING_RULE_EDIT_SUCCESS"), "TYPE"=>"OK");
 			LocalRedirect("rating_rule_edit.php?ID=".$ID."&lang=".LANG);
 		}
 		else
@@ -113,10 +113,10 @@ if($ID>0)
 $context = new CAdminContextMenu($aMenu);
 $context->Show();
 
-if(is_array($_SESSION["SESS_ADMIN"]["RATING_RULE_EDIT_MESSAGE"]))
+if(is_array(\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["RATING_RULE_EDIT_MESSAGE"]))
 {
-	CAdminMessage::ShowMessage($_SESSION["SESS_ADMIN"]["RATING_RULE_EDIT_MESSAGE"]);
-	$_SESSION["SESS_ADMIN"]["RATING_RULE_EDIT_MESSAGE"]=false;
+	CAdminMessage::ShowMessage(\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["RATING_RULE_EDIT_MESSAGE"]);
+	\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["RATING_RULE_EDIT_MESSAGE"]=false;
 }
 
 if($message)
@@ -306,7 +306,7 @@ $conditionCount = count($arCurrentCondition['FIELDS']);
 						?>
 						<tr valign="top">
 							<td class="field-name" style="vertical-align:middle"><label><?=$arCurrentCondition['FIELDS'][$i]['NAME']?>:</label></td>
-							<td width="25%" style="vertical-align:middle"><input type="text" name="CONDITION_CONFIG[<?=$arCurrentCondition['ID']?>][<?=$arCurrentCondition['FIELDS'][$i]['ID']?>]" size="<?=IntVal($arCurrentCondition['FIELDS'][$i]['SIZE'])?>" value="<?=$strFieldValue?>"> <?=isset($arCurrentCondition['FIELDS'][$i]['NAME_DESC'])? $arCurrentCondition['FIELDS'][$i]['NAME_DESC']: ''?></td>
+							<td width="25%" style="vertical-align:middle"><input type="text" name="CONDITION_CONFIG[<?=$arCurrentCondition['ID']?>][<?=$arCurrentCondition['FIELDS'][$i]['ID']?>]" size="<?=intval($arCurrentCondition['FIELDS'][$i]['SIZE'])?>" value="<?=$strFieldValue?>"> <?=isset($arCurrentCondition['FIELDS'][$i]['NAME_DESC'])? $arCurrentCondition['FIELDS'][$i]['NAME_DESC']: ''?></td>
 						</tr>
 						<?
 					}

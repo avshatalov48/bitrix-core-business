@@ -9,7 +9,6 @@ if($arResult['userField']['SETTINGS']['ROWS'] < 2)
 	$tag = 'input';
 	$attrList = [
 		'size' => (int)$arResult['userField']['SETTINGS']['SIZE'],
-		'value' => $arResult['additionalParameters']['VALUE']
 	];
 }
 else
@@ -30,6 +29,5 @@ if($arResult['userField']['SETTINGS']['MAX_LENGTH'] > 0)
 
 $arResult['fieldValues'] = [
 	'attrList' => $attrList,
-	'tag' => $tag,
-	'value' => $arResult['additionalParameters']['VALUE']
+	'tag' => $tag
 ];

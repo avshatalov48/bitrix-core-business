@@ -28,7 +28,7 @@ $bInitVars = false;
 $APPLICATION->SetTitle($ID > 0 ? GetMessage("SMILE_EDIT_RECORD") : GetMessage("SMILE_NEW_RECORD"));
 
 $fileName = '';
-if ($_SERVER["REQUEST_METHOD"] == "POST" && (strlen($save) > 0 || strlen($apply) > 0))
+if ($_SERVER["REQUEST_METHOD"] == "POST" && ($save <> '' || $apply <> ''))
 {
 	if (isset($_FILES["IMAGE"]["name"]))
 		$fileName = RemoveScriptExtension($_FILES["IMAGE"]["name"]);
@@ -82,7 +82,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && (strlen($save) > 0 || strlen($apply)
 			LocalRedirect(
 				isset($_REQUEST['IMPORT'])?
 				"smile_import.php?lang=".LANG."&SET_ID=".$ID :
-				(strlen($save) > 0 ?
+				($save <> '' ?
 					"smile_set.php?GALLERY_ID=".$parentId."&lang=".LANG."&".GetFilterParams("filter_", false) :
 					"smile_set_edit.php?GALLERY_ID=".$parentId."&lang=".LANG."&ID=".$ID."&".GetFilterParams("filter_", false)));
 		}
@@ -177,7 +177,7 @@ $tabControl->BeginNextTab();
 	</tr>
 	<?foreach ($arLang as $key => $val):?>
 	<tr>
-		<td><? $word = GetMessage('SMILE_IMAGE_NAME_'.strtoupper($key)); if (strlen($word) > 0) { echo $word; } else { echo $val["NAME"]; }?>:</td>
+		<td><? $word = GetMessage('SMILE_IMAGE_NAME_'.mb_strtoupper($key)); if ($word <> '') { echo $word; } else { echo $val["NAME"]; }?>:</td>
 		<td><input type="text" name="NAME[<?=$key?>]" value="<?=$arSmileSet["NAME"][$key]?>" size="40" /></td>
 	</tr>
 	<?endforeach;?>

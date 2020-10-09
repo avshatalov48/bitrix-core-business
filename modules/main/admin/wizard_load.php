@@ -22,7 +22,7 @@ do
 		$strError .= GetMessage("MAIN_WIZARD_LOAD_ERROR_LOAD");
 		break;
 	}
-	elseif(GetFileExtension(strtolower($_FILES["wizardFile"]["name"])) != "gz")
+	elseif(GetFileExtension(mb_strtolower($_FILES["wizardFile"]["name"])) != "gz")
 	{
 		$strError .= GetMessage("MAIN_WIZARD_TAR_GZ");
 		break;

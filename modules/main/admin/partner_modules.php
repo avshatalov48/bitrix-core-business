@@ -27,15 +27,15 @@ $id = $_REQUEST["id"];
 $mod = $_REQUEST["mod"];
 $resultMod = $_REQUEST["result"];
 
-if($isAdmin && $_SERVER["REQUEST_METHOD"] == "POST" && strlen($_POST["module"]) > 0 && check_bitrix_sessid())
+if($isAdmin && $_SERVER["REQUEST_METHOD"] == "POST" && $_POST["module"] <> '' && check_bitrix_sessid())
 {
 	$moduleId = preg_replace("#[^a-zA-Z0-9.,-_]#i", "", $_POST["module"]);
-	if(strlen($moduleId) > 0)
+	if($moduleId <> '')
 	{
 		if($_POST["act"] == "unnotify")
 		{
 			$cModules = COption::GetOptionString("main", "mp_modules_date", "");
-			if(strlen($cModules) > 0)
+			if($cModules <> '')
 			{
 				$arModules = unserialize($cModules);
 
@@ -71,12 +71,12 @@ if($isAdmin && $_SERVER["REQUEST_METHOD"] == "POST" && strlen($_POST["module"]) 
 			$arrayId = preg_replace("#[^a-zA-Z0-9.,-_]#i", "", $_POST["array_id"]);
 			$moduleId = preg_replace("#[^a-zA-Z0-9.,-_]#i", "", $_POST["module"]);
 			$cMpModulesResult = COption::GetOptionString("main", "last_mp_modules_result", "");
-			if (strlen($cMpModulesResult) > 0)
+			if ($cMpModulesResult <> '')
 			{
 				$arModulesResult = unserialize($cMpModulesResult);
 				foreach ($arModulesResult[$arrayId] as $key => $arModule)
 				{
-					if (trim(strtoupper($key)) == trim(strtoupper($moduleId)))
+					if (trim(mb_strtoupper($key)) == trim(mb_strtoupper($moduleId)))
 					{
 						unset ($arModulesResult[$arrayId][$key]);
 					}
@@ -98,7 +98,7 @@ function OnModuleInstalledEvent($id, $installed, $Module)
 
 	$cModules = COption::GetOptionString("main", "mp_modules_date", "");
 	$arModules = array();
-	if(strlen($cModules) > 0)
+	if($cModules <> '')
 		$arModules = unserialize($cModules);
 
 	if($installed == "Y")
@@ -138,7 +138,7 @@ foreach($folders as $folder)
 		{
 			while (false !== ($dir = readdir($handle)))
 			{
-				if(!isset($arModules[$dir]) && is_dir($_SERVER["DOCUMENT_ROOT"].$folder."/".$dir) && $dir!="." && $dir!=".." && strpos($dir, ".") !== false)
+				if(!isset($arModules[$dir]) && is_dir($_SERVER["DOCUMENT_ROOT"].$folder."/".$dir) && $dir!="." && $dir!=".." && mb_strpos($dir, ".") !== false)
 				{
 					$module_dir = $_SERVER["DOCUMENT_ROOT"].$folder."/".$dir;
 					if($info = CModule::CreateModuleObject($dir))
@@ -233,12 +233,12 @@ if(!empty($arUpdateList["MODULE"]))
 $errorMessage = "";
 $errorMessageFull = "";
 $fb = ($id == 'fileman' && !$USER->CanDoOperation('fileman_install_control'));
-if((strlen($_REQUEST["uninstall"])>0 || strlen($_REQUEST["install"])>0 || strlen($_REQUEST["clear"])>0) && $isAdmin && !$fb && check_bitrix_sessid())
+if(($_REQUEST["uninstall"] <> '' || $_REQUEST["install"] <> '' || $_REQUEST["clear"] <> '') && $isAdmin && !$fb && check_bitrix_sessid())
 {
 	$id = str_replace("\\", "", str_replace("/", "", $id));
 	if($Module = CModule::CreateModuleObject($id))
 	{
-		if($Module->IsInstalled() && strlen($_REQUEST["uninstall"])>0)
+		if($Module->IsInstalled() && $_REQUEST["uninstall"] <> '')
 		{
 			OnModuleInstalledEvent($id, 'N', $Module);
 			if(COption::GetOptionString("main", "event_log_marketplace", "Y") === "Y")
@@ -256,9 +256,9 @@ if((strlen($_REQUEST["uninstall"])>0 || strlen($_REQUEST["install"])>0 || strlen
 			}
 
 		}
-		elseif(!$Module->IsInstalled() && strlen($_REQUEST["install"]) > 0)
+		elseif(!$Module->IsInstalled() && $_REQUEST["install"] <> '')
 		{
-			if (strtolower($DB->type)=="mysql" && defined("MYSQL_TABLE_TYPE") && strlen(MYSQL_TABLE_TYPE)>0)
+			if ($DB->type == "MYSQL" && defined("MYSQL_TABLE_TYPE") && MYSQL_TABLE_TYPE <> '')
 			{
 				$DB->Query("SET storage_engine = '".MYSQL_TABLE_TYPE."'", true);
 			}
@@ -279,9 +279,9 @@ if((strlen($_REQUEST["uninstall"])>0 || strlen($_REQUEST["install"])>0 || strlen
 			}
 
 		}
-	elseif(!$Module->IsInstalled() && strlen($_REQUEST["clear"]) > 0)
+	elseif(!$Module->IsInstalled() && $_REQUEST["clear"] <> '')
 		{
-			if(strlen($Module->MODULE_ID) > 0 && ($mdir = getLocalPath("modules/".$Module->MODULE_ID)) !== false)
+			if($Module->MODULE_ID <> '' && ($mdir = getLocalPath("modules/".$Module->MODULE_ID)) !== false)
 			{
 				if(COption::GetOptionString("main", "event_log_marketplace", "Y") === "Y")
 					CEventLog::Log("INFO", "MP_MODULE_DELETED", "main", $id);
@@ -349,7 +349,7 @@ while($info = $rsData->Fetch())
 		$name .= " <span style=\"color:red;\">".GetMessage("MOD_DEMO")."</span>";
 	$name .= "<br />".htmlspecialcharsbx($info["MODULE_DESCRIPTION"]);
 	$row->AddViewField("NAME", $name);
-	$row->AddViewField("PARTNER", ((strlen($info["MODULE_PARTNER"]) > 0) ? " ".str_replace(array("#NAME#", "#URI#"), array($info["MODULE_PARTNER"], $info["MODULE_PARTNER_URI"]), GetMessage("MOD_PARTNER_NAME"))."" : "&nbsp;"));
+	$row->AddViewField("PARTNER", (($info["MODULE_PARTNER"] <> '') ? " ".str_replace(array("#NAME#", "#URI#"), array($info["MODULE_PARTNER"], $info["MODULE_PARTNER_URI"]), GetMessage("MOD_PARTNER_NAME"))."" : "&nbsp;"));
 	$row->AddViewField("VERSION", $info["MODULE_VERSION"]);
 	$row->AddViewField("DATE_UPDATE", CDatabase::FormatDate($info["MODULE_VERSION_DATE"], "YYYY-MM-DD HH:MI:SS", CLang::GetDateFormat("SHORT")));
 	if($modules[$info["MODULE_ID"]]["FREE_MODULE"] != "Y")
@@ -473,7 +473,7 @@ while($info = $rsData->Fetch())
 	{
 		if($linkToBuy)
 		{
-			if(strlen($info["DATE_TO"]) > 0)
+			if($info["DATE_TO"] <> '')
 				$row->AddViewField("DATE_TO", "<span style=\"color:red;\">".$info["DATE_TO"]."</span><br /><a href=\"".str_replace("#CODE#", $info["ID"], $linkToBuyUpdate)."\" target=\"_blank\">".GetMessage("MOD_UPDATE_BUY")."</a>");
 			else
 				$row->AddViewField("DATE_TO", "<a href=\"".str_replace("#CODE#", $info["ID"], $linkToBuyUpdate)."\" target=\"_blank\">".GetMessage("MOD_UPDATE_BUY")."</a>");
@@ -503,20 +503,20 @@ $APPLICATION->SetTitle(GetMessage("TITLE"));
 require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/prolog_admin_after.php");
 
 
-if(strlen($mod) > 0 && $resultMod == "OK")
+if($mod <> '' && $resultMod == "OK")
 {
 	CAdminMessage::ShowNote(GetMessage("MOD_SMP_INSTALLED", Array("#MODULE_NAME#" => $arModules[$mod]["MODULE_NAME"])));
 }
-elseif(strlen($mod) > 0 && $resultMod == "DELOK")
+elseif($mod <> '' && $resultMod == "DELOK")
 {
 	CAdminMessage::ShowNote(GetMessage("MOD_SMP_UNINSTALLED", Array("#MODULE_NAME#" => $arModules[$mod]["MODULE_NAME"])));
 }
-elseif(strlen($mod) > 0 && $resultMod == "CLEAROK")
+elseif($mod <> '' && $resultMod == "CLEAROK")
 {
 	CAdminMessage::ShowNote(GetMessage("MOD_SMP_DELETED", Array("#MODULE_NAME#" => $mod)));
 }
 
-if(strlen($errorMessage) > 0)
+if($errorMessage <> '')
 {
 	CAdminMessage::ShowMessage(Array("DETAILS" => $errorMessageFull, "TYPE" => "ERROR", "MESSAGE" => $errorMessage, "HTML" => true));
 }

@@ -33,7 +33,7 @@ final class MainPostForm extends CBitrixComponent
 
 	private function prepareParams(&$arParams)
 	{
-		if(strlen($arParams["FORM_ID"]) <= 0)
+		if($arParams["FORM_ID"] == '')
 			$arParams["FORM_ID"] = "POST_FORM_".RandString(3);
 		$arParams['NAME_TEMPLATE'] = empty($arParams['NAME_TEMPLATE']) ? \CSite::GetNameFormat(false) : str_replace(array("#NOBR#","#/NOBR#"), "", $arParams["NAME_TEMPLATE"]);
 	}

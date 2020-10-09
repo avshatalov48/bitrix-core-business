@@ -52,7 +52,7 @@ foreach ($arResult['FILES'] as $file)
 	{
 		if($k == 'EXTENSION')
 			$k = 'ext';
-		$pat[] = "#".strtolower($k)."#"; $rep[] = $v;
+		$pat[] = "#".mb_strtolower($k)."#"; $rep[] = $v;
 	}
 	?><?=str_ireplace($pat, $rep, $f);
 }

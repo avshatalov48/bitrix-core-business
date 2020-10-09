@@ -47,6 +47,8 @@ if(typeof BX.UI.EntityConfig === "undefined")
 		this._id = "";
 		this._settings = {};
 		this._scope = BX.UI.EntityConfigScope.undefined;
+		this._userScopes = null;
+		this._userScopeId = null;
 		this._enableScopeToggle = true;
 
 		this._canUpdatePersonalConfiguration = true;
@@ -57,6 +59,9 @@ if(typeof BX.UI.EntityConfig === "undefined")
 		this._options = {};
 
 		this._isChanged = false;
+
+		this.categoryName = '';
+		this.moduleId = '';
 	};
 	BX.UI.EntityConfig.prototype =
 	{
@@ -65,6 +70,9 @@ if(typeof BX.UI.EntityConfig === "undefined")
 			this._id = BX.type.isNotEmptyString(id) ? id : BX.util.getRandomString(4);
 			this._settings = settings ? settings : {};
 			this._scope = BX.prop.getString(this._settings, "scope", BX.UI.EntityConfigScope.personal);
+			this._userScopes = BX.prop.getObject(this._settings, "userScopes", null);
+			this._userScopeId = BX.prop.getString(this._settings, "userScopeId", null);
+			this.moduleId = BX.prop.getString(this._settings, "moduleId", null);
 			this._enableScopeToggle = BX.prop.getBoolean(this._settings, "enableScopeToggle", true);
 
 			this._canUpdatePersonalConfiguration = BX.prop.getBoolean(this._settings, "canUpdatePersonalConfiguration", true);
@@ -82,6 +90,8 @@ if(typeof BX.UI.EntityConfig === "undefined")
 			}
 
 			this._options = BX.prop.getObject(this._settings, "options", {});
+
+			this.categoryName = BX.prop.getString(this._settings, 'categoryName', 'ui.form.editor')
 		},
 		findItemByName: function(name)
 		{
@@ -210,7 +220,10 @@ if(typeof BX.UI.EntityConfig === "undefined")
 		},
 		isChangeable: function()
 		{
-			if(this._scope === BX.UI.EntityConfigScope.common)
+			if(
+				this._scope === BX.UI.EntityConfigScope.common
+				|| this._scope === BX.UI.EntityConfigScope.custom
+			)
 			{
 				return this._canUpdateCommonConfiguration;
 			}
@@ -220,6 +233,10 @@ if(typeof BX.UI.EntityConfig === "undefined")
 			}
 
 			return false;
+		},
+		isCanChangeCommonConfiguration: function()
+		{
+			return this._canUpdateCommonConfiguration;
 		},
 		isChanged: function()
 		{
@@ -233,10 +250,16 @@ if(typeof BX.UI.EntityConfig === "undefined")
 		{
 			return this._scope;
 		},
-		setScope: function(scope)
+		setScope: function(scope, userScopeId, moduleId)
 		{
 			var promise = new BX.Promise();
-			if(!this._enableScopeToggle || this._scope === scope)
+			if(
+				!this._enableScopeToggle
+				||
+				(this._scope === scope && scope !== BX.UI.EntityConfigScope.custom)
+				||
+				(this._scope === scope && this._userScopeId === userScopeId)
+			)
 			{
 				window.setTimeout(
 					function(){ promise.fulfill(); },
@@ -246,16 +269,24 @@ if(typeof BX.UI.EntityConfig === "undefined")
 			}
 
 			this._scope = scope;
+			this._userScopeId = userScopeId;
+			this.moduleId = moduleId;
 
 			//Scope is changed - data collections are invalid.
 			this._data = [];
 			this._items = [];
 
-			BX.ajax.runComponentAction(
-				"bitrix:ui.form",
-				"setScope",
-				{ mode: "ajax", data: { guid: this._id, scope: this._scope } }
-			).then(function(){ promise.fulfill(); });
+			BX.ajax.runComponentAction('bitrix:ui.form.config', 'setScope', {
+				'data': {
+					categoryName: this.categoryName,
+					moduleId: this.moduleId,
+					guid: this._id,
+					scope: this._scope,
+					userScopeId: (this._userScopeId || 0)
+				}
+			}).then(function (response) {
+				promise.fulfill();
+			});
 
 			return promise;
 		},
@@ -316,7 +347,7 @@ if(typeof BX.UI.EntityConfig === "undefined")
 				return promise;
 			}
 
-			var data = { guid: this._id, config: this.toJSON(), params: { scope: this._scope } };
+			var data = { guid: this._id, config: this.toJSON(), params: { scope: this._scope }, categoryName: this.categoryName };
 			if(enableOptions)
 			{
 				data["params"]["options"] = this._options;
@@ -326,6 +357,11 @@ if(typeof BX.UI.EntityConfig === "undefined")
 			{
 				data["params"]["forAllUsers"] = "Y";
 				data["params"]["delete"] = "Y";
+			}
+
+			if (this._scope === BX.UI.EntityConfigScope.custom)
+			{
+				data['params']['userScopeId'] = this._userScopeId;
 			}
 
 			BX.ajax.runComponentAction(
@@ -339,7 +375,7 @@ if(typeof BX.UI.EntityConfig === "undefined")
 		},
 		reset: function(forAllUsers)
 		{
-			var data = { guid: this._id, params: { scope: this._scope } };
+			var data = { guid: this._id, params: { scope: this._scope }, categoryName: this.categoryName };
 			if(forAllUsers)
 			{
 				data["params"]["forAllUsers"] = "Y";
@@ -362,7 +398,7 @@ if(typeof BX.UI.EntityConfig === "undefined")
 			BX.ajax.runComponentAction(
 				"bitrix:ui.form",
 				"forceCommonScopeForAll",
-				{ mode: "ajax", data: { guid: this._id } }
+				{ mode: "ajax", data: { guid: this._id, categoryName: this.categoryName } }
 			).then(function(){ promise.fulfill(); });
 
 			return promise;
@@ -385,13 +421,36 @@ if(typeof BX.UI.EntityConfig === "undefined")
 
 			this._options[name] = value;
 
-			BX.userOptions.save(
-				"ui.entity.editor",
-				this._id + "_opts",
-				name,
-				value,
-				false
-			);
+			if(this._scope === BX.UI.EntityConfigScope.common)
+			{
+				BX.userOptions.save(
+					this.categoryName,
+					this._id + "_common_opts",
+					name,
+					value,
+					true
+				);
+			}
+			else if(this._scope === BX.UI.EntityConfigScope.custom)
+			{
+				BX.userOptions.save(
+					this.categoryName,
+					this._id + "_custom_opts_" + this._userScopeId,
+					name,
+					value,
+					true
+				);
+			}
+			else
+			{
+				BX.userOptions.save(
+					"crm.entity.editor",
+					this._id + "_opts",
+					name,
+					value,
+					false
+				);
+			}
 		}
 	};
 	BX.UI.EntityConfig.create = function(id, settings)
@@ -685,12 +744,14 @@ if(typeof BX.UI.EntityConfigField === "undefined")
 		BX.UI.EntityConfigField.superclass.constructor.apply(this);
 		this._index = -1;
 		this._optionFlags = 0;
+		this._options = {};
 
 	};
 	BX.extend(BX.UI.EntityConfigField, BX.UI.EntityConfigItem);
 	BX.UI.EntityConfigField.prototype.doInitialize = function()
 	{
 		this._optionFlags = BX.prop.getInteger(this._data, "optionFlags", 0);
+		this._options = BX.prop.getObject(this._data, "options", {});
 	};
 	BX.UI.EntityConfigField.prototype.toJSON = function()
 	{
@@ -701,6 +762,7 @@ if(typeof BX.UI.EntityConfigField === "undefined")
 		}
 
 		result["optionFlags"] = this._optionFlags;
+		result["options"] = this._options;
 		return result;
 	};
 	BX.UI.EntityConfigField.prototype.getIndex = function()

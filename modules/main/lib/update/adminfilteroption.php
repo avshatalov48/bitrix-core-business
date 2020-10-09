@@ -185,16 +185,16 @@ class AdminFilterOption extends Stepper
 			{
 				$searchResult = current($matches);
 				$oldDateType = $field["value"];
-				$dateFieldId = substr($fieldId, 0, $searchResult[1]);
+				$dateFieldId = mb_substr($fieldId, 0, $searchResult[1]);
 				$dateValue = array_key_exists($dateFieldId."_FILTER_DIRECTION", $oldFields) ?
 					$oldFields[$dateFieldId."_FILTER_DIRECTION"]["value"] : "";
 				$newDateType = $this->getNewDateType($oldDateType, $dateValue);
 
 				$custom = false;
-				if (substr($dateFieldId, -2) == "_1")
+				if (mb_substr($dateFieldId, -2) == "_1")
 				{
 					$custom = true;
-					$fieldId = substr($dateFieldId, 0, strlen($dateFieldId)-2);
+					$fieldId = mb_substr($dateFieldId, 0, mb_strlen($dateFieldId) - 2);
 				}
 				else
 				{
@@ -203,13 +203,13 @@ class AdminFilterOption extends Stepper
 
 				if (!$custom)
 				{
-					if ((substr($fieldId, -5) == "_from"))
+					if ((mb_substr($fieldId, -5) == "_from"))
 					{
-						$fieldId = substr($fieldId, 0, strlen($fieldId)-5);
+						$fieldId = mb_substr($fieldId, 0, mb_strlen($fieldId) - 5);
 					}
-					elseif ((substr($fieldId, -3) == "_to"))
+					elseif ((mb_substr($fieldId, -3) == "_to"))
 					{
-						$fieldId = substr($fieldId, 0, strlen($fieldId)-3);
+						$fieldId = mb_substr($fieldId, 0, mb_strlen($fieldId) - 3);
 					}
 				}
 
@@ -237,9 +237,9 @@ class AdminFilterOption extends Stepper
 				$newFields[$ratioFields[$fieldId]."_quarter"] = "";
 				$newFields[$ratioFields[$fieldId]."_year"] = "";
 			}
-			elseif (substr($fieldId, -2) === "_1")
+			elseif (mb_substr($fieldId, -2) === "_1")
 			{
-				$fieldId = substr($fieldId, 0, strlen($fieldId)-2);
+				$fieldId = mb_substr($fieldId, 0, mb_strlen($fieldId) - 2);
 				if (array_key_exists($fieldId, $ratioFields) && array_key_exists($fieldId."_2", $oldFields) &&
 					!array_key_exists($fieldId."_FILTER_PERIOD", $oldFields))
 				{
@@ -255,9 +255,9 @@ class AdminFilterOption extends Stepper
 				$newFields[$ratioFields[$fieldId]."_from"] = $field["value"];
 				$newFields[$ratioFields[$fieldId]."_to"] = $field["value"];
 			}
-			elseif (substr($fieldId, -6) === "_start")
+			elseif (mb_substr($fieldId, -6) === "_start")
 			{
-				$fieldId = substr($fieldId, 0, strlen($fieldId)-6);
+				$fieldId = mb_substr($fieldId, 0, mb_strlen($fieldId) - 6);
 				if (array_key_exists($fieldId, $ratioFields) && array_key_exists($fieldId."_end", $oldFields) &&
 					!array_key_exists($fieldId."_FILTER_PERIOD", $oldFields))
 				{
@@ -268,13 +268,13 @@ class AdminFilterOption extends Stepper
 			}
 			elseif ((bool)strtotime($field["value"]))
 			{
-				if ((substr($fieldId, -5) == "_from"))
+				if ((mb_substr($fieldId, -5) == "_from"))
 				{
-					$fieldId = substr($fieldId, 0, strlen($fieldId)-5);
+					$fieldId = mb_substr($fieldId, 0, mb_strlen($fieldId) - 5);
 				}
-				elseif ((substr($fieldId, -3) == "_to"))
+				elseif ((mb_substr($fieldId, -3) == "_to"))
 				{
-					$fieldId = substr($fieldId, 0, strlen($fieldId)-3);
+					$fieldId = mb_substr($fieldId, 0, mb_strlen($fieldId) - 3);
 				}
 				$from = "";
 				$to = "";
@@ -294,16 +294,16 @@ class AdminFilterOption extends Stepper
 					$newFields[$ratioFields[$fieldId]."_year"] = "";
 				}
 			}
-			elseif (substr($fieldId, -5) == "_from" && !array_key_exists($fieldId."_FILTER_DIRECTION", $oldFields))
+			elseif (mb_substr($fieldId, -5) == "_from" && !array_key_exists($fieldId."_FILTER_DIRECTION", $oldFields))
 			{
-				$fieldId = substr($fieldId, 0, strlen($fieldId)-5);
+				$fieldId = mb_substr($fieldId, 0, mb_strlen($fieldId) - 5);
 				$rangeType = (($oldFields[$fieldId."_from"] === $oldFields[$fieldId."_to"]) ? "exact" : "range");
 				$newFields[$ratioFields[$fieldId]."_numsel"] = $rangeType;
 				$newFields[$ratioFields[$fieldId]."_from"] = $field["value"];
 			}
-			elseif (substr($fieldId, -3) == "_to")
+			elseif (mb_substr($fieldId, -3) == "_to")
 			{
-				$fieldId = substr($fieldId, 0, strlen($fieldId)-3);
+				$fieldId = mb_substr($fieldId, 0, mb_strlen($fieldId) - 3);
 				if (!array_key_exists($fieldId."_from"."_FILTER_DIRECTION", $oldFields))
 				{
 					$rangeType = (($oldFields[$fieldId."_from"] === $oldFields[$fieldId."_to"]) ? "exact" : "range");

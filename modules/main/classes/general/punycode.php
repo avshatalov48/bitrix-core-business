@@ -110,9 +110,9 @@ class CBXPunycode
 			$this->encoding = $encoding;
 		elseif (self::$utfMode)
 			$this->encoding = "utf-8";
-		elseif (defined("SITE_CHARSET") && (strlen(SITE_CHARSET) > 0))
+		elseif (defined("SITE_CHARSET") && (SITE_CHARSET <> ''))
 			$this->encoding = SITE_CHARSET;
-		elseif (defined("LANG_CHARSET") && (strlen(LANG_CHARSET) > 0))
+		elseif (defined("LANG_CHARSET") && (LANG_CHARSET <> ''))
 			$this->encoding = LANG_CHARSET;
 		else
 			$this->encoding = "utf-8";
@@ -128,11 +128,11 @@ class CBXPunycode
 	{
 		$this->ClearErrors();
 
-		$domainName = strtolower(trim($domainName));
+		$domainName = mb_strtolower(trim($domainName));
 
-		$schemePosition = strpos($domainName, "://");
+		$schemePosition = mb_strpos($domainName, "://");
 		if ($schemePosition !== false)
-			$domainName = substr($domainName, $schemePosition + 3);
+			$domainName = mb_substr($domainName, $schemePosition + 3);
 
 		if ($this->encoding != "utf-8")
 			$domainName = \Bitrix\Main\Text\Encoding::convertEncoding($domainName, $this->encoding, "utf-8");
@@ -163,14 +163,14 @@ class CBXPunycode
 	{
 		$this->ClearErrors();
 
-		$domainName = strtolower(trim($domainName));
+		$domainName = mb_strtolower(trim($domainName));
 
 		$scheme = "";
-		$schemePosition = strpos($domainName, "://");
+		$schemePosition = mb_strpos($domainName, "://");
 		if ($schemePosition !== false)
 		{
-			$scheme = substr($domainName, 0, $schemePosition);
-			$domainName = substr($domainName, $schemePosition + 3);
+			$scheme = mb_substr($domainName, 0, $schemePosition);
+			$domainName = mb_substr($domainName, $schemePosition + 3);
 		}
 
 		$port = "";
@@ -223,14 +223,14 @@ class CBXPunycode
 	{
 		$this->ClearErrors();
 
-		$domainName = strtolower(trim($domainName));
+		$domainName = mb_strtolower(trim($domainName));
 
 		$scheme = "";
-		$schemePosition = strpos($domainName, "://");
+		$schemePosition = mb_strpos($domainName, "://");
 		if ($schemePosition !== false)
 		{
-			$scheme = substr($domainName, 0, $schemePosition);
-			$domainName = substr($domainName, $schemePosition + 3);
+			$scheme = mb_substr($domainName, 0, $schemePosition);
+			$domainName = mb_substr($domainName, $schemePosition + 3);
 		}
 
 		if ($this->encoding != "utf-8")
@@ -689,7 +689,7 @@ class CBXPunycode
 
 	private static function ByteLength($string)
 	{
-		return (function_exists('mb_strlen') ? mb_strlen($string, 'latin1') : strlen($string));
+		return (function_exists('mb_strlen')? mb_strlen($string, 'latin1') : mb_strlen($string));
 
 		/*
 		if (self::$utfMode)

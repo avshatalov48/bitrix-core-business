@@ -154,7 +154,7 @@ export class Configurator
 		}
 
 		const node = Tag.render`<div style="margin-bottom: 10px;" class="ui-ctl ui-ctl-textbox ui-ctl-w100 ui-ctl-row">
-			<input class="ui-ctl-element" type="text" value="${enumItem.getValue()}">
+			<input class="ui-ctl-element" type="text" value="${Text.encode(enumItem.getValue())}">
 			<div class="ui-userfieldfactory-configurator-remove-enum" onclick="${(event) => {
 				event.preventDefault();
 				this.deleteEnumItem(enumItem);

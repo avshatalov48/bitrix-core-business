@@ -2,6 +2,7 @@
 namespace Bitrix\Rest;
 
 use Bitrix\Main;
+use Bitrix\Rest\Preset\EventController;
 
 /**
  * Class EventTable
@@ -74,6 +75,9 @@ class EventTable extends Main\Entity\DataManager
 			),
 			'CONNECTOR_ID' => array(
 				'data_type' => 'string'
+			),
+			'INTEGRATION_ID' => array(
+				'data_type' => 'integer',
 			),
 			'REST_APP' => array(
 				'data_type' => 'Bitrix\Rest\AppTable',
@@ -164,6 +168,8 @@ class EventTable extends Main\Entity\DataManager
 
 		$fields = $event->getParameter('fields');
 		static::bind($fields['EVENT_NAME']);
+
+		EventController::onAfterAddEvent($event);
 
 		return $result;
 	}

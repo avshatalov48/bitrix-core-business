@@ -163,7 +163,7 @@ class CSocServGoogleOAuth extends CSocServAuth
 		$id = $arGoogleUser['id'];
 		$email = $arGoogleUser['email'];
 
-		if(strlen($arGoogleUser['email']) > 0)
+		if($arGoogleUser['email'] <> '')
 		{
 			$dbRes = \Bitrix\Main\UserTable::getList(array(
 				'filter' => array(
@@ -217,7 +217,7 @@ class CSocServGoogleOAuth extends CSocServAuth
 			? $arGoogleUser['link']
 			: $arGoogleUser['url'];
 
-		if(strlen(SITE_ID) > 0)
+		if(SITE_ID <> '')
 		{
 			$arFields["SITE_ID"] = SITE_ID;
 		}
@@ -280,7 +280,7 @@ class CSocServGoogleOAuth extends CSocServAuth
 				if(isset($arState['backurl']) || isset($arState['redirect_url']))
 				{
 					$url = !empty($arState['redirect_url']) ? $arState['redirect_url'] : $arState['backurl'];
-					if(substr($url, 0, 1) !== "#")
+					if(mb_substr($url, 0, 1) !== "#")
 					{
 						$parseUrl = parse_url($url);
 
@@ -291,7 +291,7 @@ class CSocServGoogleOAuth extends CSocServAuth
 						{
 							foreach($aRemove as $param)
 							{
-								if(strpos($value, $param . "=") === 0)
+								if(mb_strpos($value, $param."=") === 0)
 								{
 									unset($arUrlQuery[$key]);
 									break;
@@ -324,7 +324,7 @@ class CSocServGoogleOAuth extends CSocServAuth
 			$url = (isset($urlPath)) ? $urlPath.'?auth_service_id='.static::ID.'&auth_service_error='.$authError : $APPLICATION->GetCurPageParam(('auth_service_id='.static::ID.'&auth_service_error='.$authError), $aRemove);
 		}
 
-		if($addParams && CModule::IncludeModule("socialnetwork") && strpos($url, "current_fieldset=") === false)
+		if($addParams && CModule::IncludeModule("socialnetwork") && mb_strpos($url, "current_fieldset=") === false)
 		{
 			$url = (preg_match("/\?/", $url)) ? $url."&current_fieldset=SOCSERV" : $url."?current_fieldset=SOCSERV";
 		}
@@ -431,7 +431,7 @@ class CGoogleOAuthInterface extends CSocServOAuthTransport
 	protected function checkSavedScope()
 	{
 		$savedScope = \Bitrix\Main\Config\Option::get('socialservices', 'saved_scope_'.static::SERVICE_ID, '');
-		if(strlen($savedScope) > 0 && CheckSerializedData($savedScope))
+		if($savedScope <> '' && CheckSerializedData($savedScope))
 		{
 			$savedScope = unserialize($savedScope);
 			if(is_array($savedScope))

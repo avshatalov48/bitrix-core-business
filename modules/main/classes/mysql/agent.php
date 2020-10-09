@@ -14,6 +14,8 @@ class CAgent extends CAllAgent
 	{
 		global $CACHE_MANAGER;
 
+		define("START_EXEC_AGENTS_1", microtime());
+
 		define("BX_CHECK_AGENT_START", true);
 
 		//For a while agents will execute only on primary cluster group
@@ -37,18 +39,16 @@ class CAgent extends CAllAgent
 				return "";
 		}
 
-		return CAgent::ExecuteAgents($str_crontab);
+		$res = CAgent::ExecuteAgents($str_crontab);
+
+		define("START_EXEC_AGENTS_2", microtime());
+
+		return $res;
 	}
 
 	public static function ExecuteAgents($str_crontab)
 	{
 		global $DB, $CACHE_MANAGER, $pPERIOD;
-
-		if (defined("BX_FORK_AGENTS_AND_EVENTS_FUNCTION"))
-		{
-			if (CMain::ForkActions(array("CAgent", "ExecuteAgents"), array($str_crontab)))
-				return "";
-		}
 
 		$saved_time = 0;
 		$cache_id = "agents".$str_crontab;
@@ -58,8 +58,6 @@ class CAgent extends CAllAgent
 			if (time() < $saved_time)
 				return "";
 		}
-
-		$uniq = CMain::GetServerUniqID();
 
 		$strSql = "
 			SELECT 'x'
@@ -75,9 +73,7 @@ class CAgent extends CAllAgent
 		$db_result_agents = $DB->Query($strSql);
 		if ($db_result_agents->Fetch())
 		{
-			$db_lock = $DB->Query("SELECT GET_LOCK('".$uniq."_agent', 0) as L");
-			$ar_lock = $db_lock->Fetch();
-			if ($ar_lock["L"] == "0")
+			if(!\Bitrix\Main\Application::getConnection()->lock('agent'))
 				return "";
 		}
 		else
@@ -127,7 +123,7 @@ class CAgent extends CAllAgent
 			$DB->Query($strSql);
 		}
 
-		$DB->Query("SELECT RELEASE_LOCK('".$uniq."_agent')");
+		\Bitrix\Main\Application::getConnection()->unlock('agent');
 
 		/** @var callable|false $logFunction */
 		$logFunction = (defined("BX_AGENTS_LOG_FUNCTION") && function_exists(BX_AGENTS_LOG_FUNCTION)? BX_AGENTS_LOG_FUNCTION : false);
@@ -141,7 +137,7 @@ class CAgent extends CAllAgent
 			if ($logFunction)
 				$logFunction($arAgent, "start");
 
-			if (strlen($arAgent["MODULE_ID"])>0 && $arAgent["MODULE_ID"]!="main")
+			if ($arAgent["MODULE_ID"] <> '' && $arAgent["MODULE_ID"]!="main")
 			{
 				if (!CModule::IncludeModule($arAgent["MODULE_ID"]))
 					continue;

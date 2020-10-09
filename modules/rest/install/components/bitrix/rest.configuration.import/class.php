@@ -52,7 +52,7 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 
 	protected function prepareConfigurationUrl($url)
 	{
-		if ("UTF-8" !== strtoupper(LANG_CHARSET))
+		if ("UTF-8" !== mb_strtoupper(LANG_CHARSET))
 		{
 			$uri = new Uri($url);
 			$path = $uri->getPath();

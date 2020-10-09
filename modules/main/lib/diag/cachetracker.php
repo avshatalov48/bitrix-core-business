@@ -48,7 +48,7 @@ class CacheTracker
 		{
 			$func = $tr["class"].$tr["type"].$tr["function"];
 
-			if ($found < 0 && !isset(self::$skipUntil[strtolower($func)]))
+			if ($found < 0 && !isset(self::$skipUntil[mb_strtolower($func)]))
 			{
 				$found = count(self::$arCacheDebug);
 				self::$arCacheDebug[$found] = array(

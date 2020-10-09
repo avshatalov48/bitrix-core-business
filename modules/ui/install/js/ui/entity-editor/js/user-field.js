@@ -156,6 +156,17 @@ if(typeof BX.UI.EntityUserFieldManager === "undefined")
 				items.push({ name: "custom", title: BX.message("UI_ENTITY_EDITOR_UF_CUSTOM_TITLE"), legend: BX.message("UI_ENTITY_EDITOR_UF_CUSTOM_LEGEND") });
 			}
 
+			var event = new BX.Event.BaseEvent({
+				data: {
+					types: items
+				}
+			});
+			BX.Event.EventEmitter.emit('BX.UI.EntityUserFieldManager:getTypes', event);
+			if(BX.Type.isArray(event.getData().types))
+			{
+				items = event.getData().types;
+			}
+
 			return items;
 		},
 		getCreationPageUrl: function()
@@ -608,6 +619,10 @@ if(typeof BX.UI.EntityUserFieldLayoutLoader === "undefined")
 
 if(typeof BX.UI.EntityEditorUserField === "undefined")
 {
+	/**
+	 * @extends BX.UI.EntityEditorField
+	 * @constructor
+	 */
 	BX.UI.EntityEditorUserField = function()
 	{
 		BX.UI.EntityEditorUserField.superclass.constructor.apply(this);
@@ -856,6 +871,7 @@ if(typeof BX.UI.EntityEditorUserField === "undefined")
 			if(html !== "")
 			{
 				this.setupContentHtml(html);
+				this._hasLayout = true;
 			}
 			else
 			{
@@ -878,7 +894,18 @@ if(typeof BX.UI.EntityEditorUserField === "undefined")
 
 				var fieldParams = BX.clone(fieldInfo);
 				fieldParams["SIGNATURE"] = signature;
-
+				if(fieldType === BX.UI.EntityUserFieldType.file && BX.type.isObject(fieldParams["ADDITIONAL"]))
+				{
+					var ownerToken = BX.prop.getString(
+						BX.prop.getObject(fieldData, "EXTRAS", {}),
+						"OWNER_TOKEN",
+						""
+					);
+					if(ownerToken !== "")
+					{
+						fieldParams["ADDITIONAL"]["URL_TEMPLATE"] += "&owner_token=" + encodeURIComponent(ownerToken);
+					}
+				}
 				if(this.checkIfNotEmpty(fieldData))
 				{
 					var value = BX.prop.getArray(fieldData, "VALUE", null);
@@ -903,9 +930,8 @@ if(typeof BX.UI.EntityEditorUserField === "undefined")
 		else
 		{
 			this._innerWrapper.appendChild(document.createTextNode(BX.message("UI_ENTITY_EDITOR_FIELD_EMPTY")));
+			this._hasLayout = true;
 		}
-
-		this._hasLayout = true;
 	};
 	BX.UI.EntityEditorUserField.prototype.doRegisterLayout = function()
 	{
@@ -933,10 +959,6 @@ if(typeof BX.UI.EntityEditorUserField === "undefined")
 			fieldParams["ENTITY_VALUE_ID"] = 1;
 		}
 
-	};
-	BX.UI.EntityEditorUserField.prototype.doClearLayout = function(options)
-	{
-		this._innerWrapper = null;
 	};
 	BX.UI.EntityEditorUserField.prototype.validate = function()
 	{
@@ -1005,11 +1027,17 @@ if(typeof BX.UI.EntityEditorUserField === "undefined")
 			this._manager.registerActiveField(this);
 		}
 
-		BX.bindDelegate(
-			this._innerWrapper,
-			"bxchange",
-			{ tag: [ "input", "select", "textarea" ] },
-			this._changeHandler
+		//Add Change Listener after timeout for prevent markAsChanged call in process of field initialization.
+		window.setTimeout(
+			function(){
+				BX.bindDelegate(
+					this._innerWrapper,
+					"bxchange",
+					{ tag: [ "input", "select", "textarea" ] },
+					this._changeHandler
+				);
+			}.bind(this),
+			200
 		);
 
 		//HACK: Try to resolve employee change button
@@ -1038,20 +1066,30 @@ if(typeof BX.UI.EntityEditorUserField === "undefined")
 			this._hasLayout = true;
 		}
 
+		this.addExternalEventsHandlers();
+	};
+	BX.UI.EntityEditorUserField.prototype.addExternalEventsHandlers = function()
+	{
 		// Handler could be called by UF to trigger _changeHandler in complicated cases
-		BX.addCustomEvent(window, "onUIEntityEditorUserFieldExternalChanged", BX.proxy(function(fieldId){
-			if (fieldId == this._id && BX.type.isFunction(this._changeHandler))
-			{
-				this._changeHandler();
-			}
-		}, this));
+		BX.removeCustomEvent(window, "onUIEntityEditorUserFieldExternalChanged", BX.proxy(this.userFieldExternalChangedHandler, this));
+		BX.addCustomEvent(window, "onUIEntityEditorUserFieldExternalChanged", BX.proxy(this.userFieldExternalChangedHandler, this));
 
-		BX.addCustomEvent(window, "onUIEntityEditorUserFieldSetValidator", BX.proxy(function(fieldId, callback){
-			if (fieldId == this._id && BX.type.isFunction(callback))
-			{
-				this.validate = callback;
-			}
-		}, this));
+		BX.removeCustomEvent(window, "onUIEntityEditorUserFieldSetValidator", BX.proxy(this.userFieldSetValidatorHandler, this));
+		BX.addCustomEvent(window, "onUIEntityEditorUserFieldSetValidator", BX.proxy(this.userFieldSetValidatorHandler, this));
+	};
+	BX.UI.EntityEditorUserField.prototype.userFieldExternalChangedHandler = function(fieldId)
+	{
+		if (fieldId == this._id && BX.type.isFunction(this._changeHandler))
+		{
+			this._changeHandler();
+		}
+	};
+	BX.UI.EntityEditorUserField.prototype.userFieldSetValidatorHandler = function(fieldId, callback)
+	{
+		if (fieldId == this._id && BX.type.isFunction(callback))
+		{
+			this.validate = callback;
+		}
 	};
 	BX.UI.EntityEditorUserField.prototype.onLayoutLoaded = function(result)
 	{
@@ -1059,6 +1097,8 @@ if(typeof BX.UI.EntityEditorUserField === "undefined")
 		if(html !== "")
 		{
 			this.setupContentHtml(html);
+			this._hasLayout = true;
+			this.raiseLayoutEvent();
 		}
 	};
 	BX.UI.EntityEditorUserField.prototype.onEmployeeSelectorOpen = function(e)
@@ -1807,8 +1847,8 @@ if(typeof BX.UI.EntityEditorUserFieldConfigurator === "undefined")
 					this._isRequiredCheckBox = this.createOption(
 						{
 							caption: this._mandatoryConfigurator.getTitle() + ":",
-							labelSettings: { props: { className: "ui-entity-new-field-addiction-label" } },
-							containerSettings: { style: { alignItems: "center" } },
+							//labelSettings: { props: { className: "ui-entity-new-field-addiction-label" } },
+							containerSettings: { props: { className: "ui-entity-new-field-addiction-flex-row" } },
 							elements: this._mandatoryConfigurator.getButton().prepareLayout()
 						}
 					);
@@ -1945,7 +1985,7 @@ if(typeof BX.UI.EntityEditorUserFieldConfigurator === "undefined")
 					checkBox = this.createOption(
 						{
 							caption: this._mandatoryConfigurator.getTitle() + ":",
-							labelSettings: { props: { className: "ui-entity-new-field-addiction-label" } },
+							//labelSettings: { props: { className: "ui-entity-new-field-addiction-label" } },
 							containerSettings: { style: { alignItems: "center" } },
 							elements: this._mandatoryConfigurator.getButton().prepareLayout()
 						}

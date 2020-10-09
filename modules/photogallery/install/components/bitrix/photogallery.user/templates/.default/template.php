@@ -6,7 +6,7 @@ if (empty($arResult["GALLERY"]) || !$this->__component->__parent)
 /********************************************************************
 				Input params
 ********************************************************************/
-$arParams["GALLERY_AVATAR_SIZE"] = intVal(intVal($arParams["GALLERY_AVATAR_SIZE"]) > 0 ?  $arParams["GALLERY_AVATAR_SIZE"] : 50);
+$arParams["GALLERY_AVATAR_SIZE"] = intval(intVal($arParams["GALLERY_AVATAR_SIZE"]) > 0 ?  $arParams["GALLERY_AVATAR_SIZE"] : 50);
 /********************************************************************
 				/Input params
 ********************************************************************/

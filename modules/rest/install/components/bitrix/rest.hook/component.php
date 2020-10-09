@@ -44,7 +44,7 @@ if($arParams["SEF_MODE"] == "Y")
 		$arVariables
 	);
 
-	if(strlen($componentPage) <= 0)
+	if($componentPage == '')
 	{
 		$componentPage = "list";
 	}

@@ -51,7 +51,7 @@ else
 	}
 	window.bxBlogImageId = top.bxBlogImageId = '<?=$arResult["Image"]["ID"]?>';
 })();<?
-elseif(strlen($arResult["ERROR_MESSAGE"]) > 0):
+elseif($arResult["ERROR_MESSAGE"] <> ''):
 ?>alert('<?=$arResult["ERROR_MESSAGE"]?>');	<?
 endif;
 ?></script><?

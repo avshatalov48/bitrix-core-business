@@ -42,17 +42,18 @@ class CEventLog
 		$url = preg_replace("/(&?sessid=[0-9a-z]+)/", "", $_SERVER["REQUEST_URI"]);
 		$SITE_ID = defined("ADMIN_SECTION") && ADMIN_SECTION==true ? false : SITE_ID;
 
+		$session = \Bitrix\Main\Application::getInstance()->getSession();
 		$arFields = array(
 			"SEVERITY" => array_key_exists($arFields["SEVERITY"], $arSeverity)? $arFields["SEVERITY"]: "UNKNOWN",
-			"AUDIT_TYPE_ID" => strlen($arFields["AUDIT_TYPE_ID"]) <= 0? "UNKNOWN": $arFields["AUDIT_TYPE_ID"],
-			"MODULE_ID" => strlen($arFields["MODULE_ID"]) <= 0? "UNKNOWN": $arFields["MODULE_ID"],
-			"ITEM_ID" => strlen($arFields["ITEM_ID"]) <= 0? "UNKNOWN": $arFields["ITEM_ID"],
+			"AUDIT_TYPE_ID" => $arFields["AUDIT_TYPE_ID"] == ''? "UNKNOWN": $arFields["AUDIT_TYPE_ID"],
+			"MODULE_ID" => $arFields["MODULE_ID"] == ''? "UNKNOWN": $arFields["MODULE_ID"],
+			"ITEM_ID" => $arFields["ITEM_ID"] == ''? "UNKNOWN": $arFields["ITEM_ID"],
 			"REMOTE_ADDR" => $_SERVER["REMOTE_ADDR"],
 			"USER_AGENT" => $_SERVER["HTTP_USER_AGENT"],
 			"REQUEST_URI" => $url,
-			"SITE_ID" => strlen($arFields["SITE_ID"]) <= 0 ? $SITE_ID : $arFields["SITE_ID"],
+			"SITE_ID" => $arFields["SITE_ID"] == '' ? $SITE_ID : $arFields["SITE_ID"],
 			"USER_ID" => is_object($USER) && ($USER->GetID() > 0)? $USER->GetID(): false,
-			"GUEST_ID" => (isset($_SESSION) && array_key_exists("SESS_GUEST_ID", $_SESSION) && $_SESSION["SESS_GUEST_ID"] > 0? $_SESSION["SESS_GUEST_ID"]: false),
+			"GUEST_ID" => ($session->isStarted() && $session->has("SESS_GUEST_ID") && $session["SESS_GUEST_ID"] > 0? $session["SESS_GUEST_ID"]: false),
 			"DESCRIPTION" => $arFields["DESCRIPTION"],
 			"~TIMESTAMP_X" => $DB->GetNowFunction(),
 		);
@@ -64,6 +65,7 @@ class CEventLog
 	public static function CleanUpAgent()
 	{
 		global $DB;
+
 		$cleanup_days = COption::GetOptionInt("main", "event_log_cleanup_days", 7);
 		if($cleanup_days > 0)
 		{
@@ -71,6 +73,15 @@ class CEventLog
 			$date = mktime(0, 0, 0, $arDate[4]+1, $arDate[3]-$cleanup_days, 1900+$arDate[5]);
 			$DB->Query("DELETE FROM b_event_log WHERE TIMESTAMP_X <= ".$DB->CharToDateFunction(ConvertTimeStamp($date, "FULL")));
 		}
+
+		$historyCleanupDays = (int)COption::GetOptionInt("main", "profile_history_cleanup_days", 0);
+		if($historyCleanupDays > 0)
+		{
+			$date = new \Bitrix\Main\Type\Date();
+			$date->add("-{$historyCleanupDays}D");
+			\Bitrix\Main\UserProfileHistoryTable::deleteByFilter(["<DATE_INSERT" => $date]);
+		}
+
 		return "CEventLog::CleanUpAgent();";
 	}
 
@@ -95,15 +106,15 @@ class CEventLog
 				if(count($val) <= 0)
 					continue;
 			}
-			elseif(strlen($val) <= 0)
+			elseif((string)$val == '')
 			{
 				continue;
 			}
-			$key = strtoupper($key);
+			$key = mb_strtoupper($key);
 			switch($key)
 			{
 				case "ID":
-					$arSqlSearch[] = "L.ID=".IntVal($val);
+					$arSqlSearch[] = "L.ID=".intval($val);
 					break;
 				case "TIMESTAMP_X_1":
 					$arSqlSearch[] = "L.TIMESTAMP_X >= ".$DB->CharToDateFunction($DB->ForSql($val), "FULL");
@@ -118,15 +129,19 @@ class CEventLog
 						foreach($val as $value)
 						{
 							$value = trim($value);
-							if(strlen($value))
+							if($value <> '')
+							{
 								$arValues[$value] = $DB->ForSQL($value);
+							}
 						}
 					}
 					elseif(is_string($val))
 					{
 						$value = trim($val);
-						if(strlen($value))
+						if($value <> '')
+						{
 							$arValues[$value] = $DB->ForSQL($value);
+						}
 					}
 					if(!empty($arValues))
 						$arSqlSearch[] = "L.AUDIT_TYPE_ID in ('".implode("', '", $arValues)."')";
@@ -169,8 +184,8 @@ class CEventLog
 
 		foreach($arOrder as $by => $order)
 		{
-			$by = strtoupper($by);
-			$order = strtoupper($order);
+			$by = mb_strtoupper($by);
+			$order = mb_strtoupper($order);
 			if (array_key_exists($by, $arOFields))
 			{
 				if ($order != "ASC")
@@ -237,6 +252,7 @@ class CEventLog
 			"USER_LOGINBYHASH" => "[USER_LOGINBYHASH] ".GetMessage("MAIN_EVENTLOG_USER_LOGINBYHASH_FAILED"),
 			"USER_LOGOUT" => "[USER_LOGOUT] ".GetMessage("MAIN_EVENTLOG_USER_LOGOUT"),
 			"USER_PASSWORD_CHANGED" => "[USER_PASSWORD_CHANGED] ".GetMessage("MAIN_EVENTLOG_USER_PASSWORD_CHANGED"),
+			"USER_BLOCKED" => "[USER_BLOCKED] ".GetMessage("MAIN_EVENTLOG_USER_BLOCKED"),
 			"USER_REGISTER" => "[USER_REGISTER] ".GetMessage("MAIN_EVENTLOG_USER_REGISTER"),
 			"USER_REGISTER_FAIL" => "[USER_REGISTER_FAIL] ".GetMessage("MAIN_EVENTLOG_USER_REGISTER_FAIL"),
 			"USER_GROUP_CHANGED" => "[USER_GROUP_CHANGED] ".GetMessage("MAIN_EVENTLOG_GROUP"),

@@ -22,7 +22,7 @@ if(is_array($arResult["CommentsResult"][0]))
 		}
 
 		//message status\type
-		if(strlen($arComment["urlToShow"])>0)
+		if($arComment["urlToShow"] <> '')
 			$arResult["CommentsResult"][0][$key]["COMMENT_STATUS"] = "hidden";
 		else
 			$arResult["CommentsResult"][0][$key]["COMMENT_STATUS"] = "official";

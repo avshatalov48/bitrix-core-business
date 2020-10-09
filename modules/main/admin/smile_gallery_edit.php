@@ -5,7 +5,7 @@ IncludeModuleLangFile(__FILE__);
 if(!$USER->CanDoOperation('edit_other_settings'))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-$ID = intVal($ID);
+$ID = intval($ID);
 $arError = $arSmileSet = $arFields = $arLang = array();
 
 /* LANGS */
@@ -22,7 +22,7 @@ $bInitVars = false;
 $APPLICATION->SetTitle($ID > 0 ? GetMessage("SMILE_EDIT_RECORD") : GetMessage("SMILE_NEW_RECORD"));
 
 $fileName = '';
-if ($REQUEST_METHOD == "POST" && (strlen($save) > 0 || strlen($apply) > 0))
+if ($REQUEST_METHOD == "POST" && ($save <> '' || $apply <> ''))
 {
 	if (isset($_FILES["IMAGE"]["name"]))
 		$fileName = RemoveScriptExtension($_FILES["IMAGE"]["name"]);
@@ -72,7 +72,7 @@ if ($REQUEST_METHOD == "POST" && (strlen($save) > 0 || strlen($apply) > 0))
 		else
 		{
 			LocalRedirect(
-				(strlen($save) > 0 ?
+				($save <> '' ?
 					"smile_gallery.php?lang=".LANG."&".GetFilterParams("filter_", false) :
 					"smile_gallery_edit.php?lang=".LANG."&ID=".$ID."&".GetFilterParams("filter_", false)));
 		}
@@ -164,7 +164,7 @@ $tabControl->BeginNextTab();
 	</tr>
 	<?foreach ($arLang as $key => $val):?>
 	<tr>
-		<td><? $word = GetMessage('SMILE_IMAGE_NAME_'.strtoupper($key)); if (strlen($word) > 0) { echo $word; } else { echo $val["NAME"]; }?>:</td>
+		<td><? $word = GetMessage('SMILE_IMAGE_NAME_'.mb_strtoupper($key)); if ($word <> '') { echo $word; } else { echo $val["NAME"]; }?>:</td>
 		<td><input type="text" name="NAME[<?=$key?>]" value="<?=$arSmileSet["NAME"][$key]?>" size="40" /></td>
 	</tr>
 	<?endforeach;?>

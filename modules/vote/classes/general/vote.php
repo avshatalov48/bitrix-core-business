@@ -70,7 +70,7 @@ class CAllVote
 		if (is_set($arFields, "DATE_END") || $ACTION == "ADD")
 		{
 			$arFields["DATE_END"] = trim($arFields["DATE_END"]);
-			if (strlen($arFields["DATE_END"]) <= 0):
+			if ($arFields["DATE_END"] == ''):
 				if ($date_start != false):
 					$date_end = $date_start + 2592000;
 					$arFields["DATE_END"] = GetTime($date_end, "FULL");
@@ -112,7 +112,7 @@ class CAllVote
 					"text" => str_replace("#ID#", $vid, GetMessage("VOTE_WRONG_INTERVAL")));
 			endif;
 		}
-		if (is_set($arFields, "IMAGE_ID") && strlen($arFields["IMAGE_ID"]["name"]) <= 0 && strlen($arFields["IMAGE_ID"]["del"]) <= 0)
+		if (is_set($arFields, "IMAGE_ID") && $arFields["IMAGE_ID"]["name"] == '' && $arFields["IMAGE_ID"]["del"] == '')
 		{
 			unset($arFields["IMAGE_ID"]);
 		}

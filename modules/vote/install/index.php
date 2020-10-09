@@ -1,7 +1,7 @@
 <?
 global $MESS;
 $PathInstall = str_replace("\\", "/", __FILE__);
-$PathInstall = substr($PathInstall, 0, strlen($PathInstall)-strlen("/index.php"));
+$PathInstall = mb_substr($PathInstall, 0, mb_strlen($PathInstall) - mb_strlen("/index.php"));
 IncludeModuleLangFile($PathInstall."/install.php");
 IncludeModuleLangFile(__FILE__);
 
@@ -21,9 +21,7 @@ Class vote extends CModule
 	{
 		$arModuleVersion = array();
 
-		$path = str_replace("\\", "/", __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen("/index.php"));
-		include($path."/version.php");
+		include(__DIR__.'/version.php');
 
 		if (is_array($arModuleVersion) && array_key_exists("VERSION", $arModuleVersion))
 		{
@@ -66,7 +64,7 @@ Class vote extends CModule
 
 		// Database tables creation
 		if(!$DB->Query("SELECT 'x' FROM b_vote WHERE 1=0", true))
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/db/".strtolower($DB->type)."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/db/".mb_strtolower($DB->type)."/install.sql");
 
 		if($this->errors !== false)
 		{
@@ -98,7 +96,7 @@ Class vote extends CModule
 		if(!array_key_exists("savedata", $arParams) || $arParams["savedata"] != "Y")
 		{
 			$this->UnInstallUserFields();
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/db/".strtolower($DB->type)."/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
 		}
 
 		//delete agents
@@ -205,7 +203,7 @@ Class vote extends CModule
 		$VOTE_RIGHT = $APPLICATION->GetGroupRight("vote");
 		if ($VOTE_RIGHT=="W")
 		{
-			$step = IntVal($step);
+			$step = intval($step);
 			if($step<2)
 			{
 				$GLOBALS["install_step"] = 1;

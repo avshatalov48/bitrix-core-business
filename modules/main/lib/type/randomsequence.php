@@ -24,8 +24,8 @@ class RandomSequence
 	public function __construct($seed = "")
 	{
 		$md = md5($seed);
-		$this->mz = crc32(substr($md, 0, 16));
-		$this->mw = crc32(substr($md, -16));
+		$this->mz = crc32(mb_substr($md, 0, 16));
+		$this->mw = crc32(mb_substr($md, -16));
 	}
 
 	/**

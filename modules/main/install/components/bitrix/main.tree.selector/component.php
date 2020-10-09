@@ -45,7 +45,7 @@ $arParams['SHOW_INPUT'] = $arParams['SHOW_INPUT'] == 'Y' ? 'Y' : 'N'; // whether
 
 $arParams['INPUT_NAME'] = preg_match('/^[a-zA-Z0-9_]+$/', $arParams['INPUT_NAME']) ? $arParams['INPUT_NAME'] : false;
 $arParams['SITE_ID'] = preg_match('/^[a-zA-Z0-9_]+$/', $arParams['SITE_ID']) ? $arParams['SITE_ID'] : false;
-if(strlen($arParams['SITE_ID']) <= 0 || strlen($arParams['SITE_ID']) > 2)
+if($arParams['SITE_ID'] == '' || mb_strlen($arParams['SITE_ID']) > 2)
 	$arParams['SITE_ID'] = SITE_ID;
 $arParams['IS_EXTRANET'] = $arParams['IS_EXTRANET'] == 'Y' ? 'Y' : 'N'; // whether to show input field.
 

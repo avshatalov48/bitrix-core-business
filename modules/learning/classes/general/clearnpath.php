@@ -126,7 +126,7 @@ class CLearnPath implements ILearnPath
 	{
 		$tmp = urldecode($str);
 
-		if (strpos($tmp, self::DELIMITER) !== false)
+		if (mb_strpos($tmp, self::DELIMITER) !== false)
 			return (true);
 		else
 			return (false);
@@ -138,7 +138,7 @@ class CLearnPath implements ILearnPath
 		$this->arPath = array();
 
 		$tmp = urldecode($str);
-		if (strlen($tmp) == 0)
+		if ($tmp == '')
 		{
 			return;
 		}

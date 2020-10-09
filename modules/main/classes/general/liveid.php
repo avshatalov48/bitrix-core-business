@@ -717,7 +717,7 @@ class WindowsLiveLogin
 	function setSecret($secret)
 	{
 		$_force_delauth_nonprovisioned = $this->_force_delauth_nonprovisioned;
-		if (!$secret || (strlen($secret) < 16)) {
+		if (!$secret || (mb_strlen($secret) < 16)) {
 			if ($_force_delauth_nonprovisioned) {
 				return;
 			}
@@ -753,7 +753,7 @@ class WindowsLiveLogin
 		if (!$secret) {
 			return;
 		}
-		if (strlen($secret) < 16) {
+		if (mb_strlen($secret) < 16) {
 			WindowsLiveLogin::fatal("Error: setOldSecret: Secret key is expected to be non-null and longer than 16 characters.");
 		}
 
@@ -1384,15 +1384,15 @@ class WindowsLiveLogin
 
 		$ivLen = 16;
 		$token = WindowsLiveLogin::u64($token);
-		$len = strlen($token);
+		$len = mb_strlen($token);
 
 		if (!$token || ($len <= $ivLen) || (($len % $ivLen) != 0)) {
 			WindowsLiveLogin::debug("Error: decodeToken: Attempted to decode invalid token.");
 			return;
 		}
 
-		$iv      = substr($token, 0, 16);
-		$crypted = substr($token, 16);
+		$iv = mb_substr($token, 0, 16);
+		$crypted = mb_substr($token, 16);
 		$mode    = MCRYPT_MODE_CBC;
 		$enc     = MCRYPT_RIJNDAEL_128;
 		return mcrypt_decrypt($enc, $cryptkey, $crypted, $mode, $iv);
@@ -1697,12 +1697,12 @@ class WindowsLiveLogin
 		else
 			$key = hash("sha256", $key, true);
 
-		if (!$key || (strlen($key) < $keyLen)) {
+		if (!$key || (mb_strlen($key) < $keyLen)) {
 			WindowsLiveLogin::debug("Error: derive: Unable to derive key.");
 			return;
 		}
 
-		return substr($key, 0, $keyLen);
+		return mb_substr($key, 0, $keyLen);
 	}
 
 	/**

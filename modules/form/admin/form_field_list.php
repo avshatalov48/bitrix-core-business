@@ -29,7 +29,7 @@ if (false === $arForm)
 {
 	require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	echo "<a href='form_list.php?lang=".LANGUAGE_ID."' class='navchain'>".GetMessage("FORM_FORM_LIST")."</a>";
-	echo ShowError(GetMessage("FORM_NOT_FOUND"));
+	ShowError(GetMessage("FORM_NOT_FOUND"));
 	require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	die();
 }
@@ -45,7 +45,6 @@ if($FORM_RIGHT<="D") $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 $bSimple = (COption::GetOptionString("form", "SIMPLE", "Y") == "Y") ? true : false;
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/form/include.php");
 $err_mess = "File: ".__FILE__."<br>Line: ";
 $arFilterFields = Array(
 	"find_id",
@@ -70,9 +69,6 @@ InitBVar($additional);
 if ($additional!="Y") define("HELP_FILE","form_question_list.php");
 else define("HELP_FILE","form_field_list.php");
 
-/***************************************************************************
-                           GET | POST processing
-****************************************************************************/
 $F_RIGHT = CForm::GetPermission($WEB_FORM_ID);
 if($F_RIGHT<25) $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
@@ -117,7 +113,7 @@ if ($lAdmin->EditAction() && $FORM_RIGHT>="W" && $F_RIGHT>=30 && check_bitrix_se
 		if(!$lAdmin->IsUpdated($ID))
 			continue;
 		$DB->StartTransaction();
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$arFieldsStore = Array(
 			"TIMESTAMP_X"	=> $DB->GetNowFunction(),
@@ -154,9 +150,9 @@ if(($arID = $lAdmin->GroupAction()) && $FORM_RIGHT=="W" && $F_RIGHT>=30 && check
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 				continue;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		switch($_REQUEST['action'])
 		{
 			case "delete":
@@ -291,7 +287,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 		$arActions[] = array(
 			"ICON"=>"delete",
 			"TITLE"=>GetMessage("FORM_DELETE_FIELD"),
-			"ACTION"=>"if(confirm('".GetMessage("FORM_CONFIRM_DELETE")."')) ".$lAdmin->ActionDoGroup($f_ID, "delete", "&WEB_FORM_ID=".$WEB_FORM_ID."&additional=$additional"),
+			"ACTION"=>"if(confirm('".GetMessageJS("FORM_CONFIRM_DELETE")."')) ".$lAdmin->ActionDoGroup($f_ID, "delete", "&WEB_FORM_ID=".$WEB_FORM_ID."&additional=$additional"),
 			"TEXT"=>GetMessage("FORM_DELETE_FIELD")
 		);
 	}
@@ -339,9 +335,6 @@ $lAdmin->AddAdminContextMenu($aMenu);
 
 $lAdmin->CheckListMode();
 
-/***************************************************************************
-							   HTML form
-****************************************************************************/
 require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
 $context = new CAdminContextMenuList($arForm['ADMIN_MENU']);
@@ -359,8 +352,8 @@ if ($strError)
 if ($additional=="Y")
 {
 	$oFilter = new CAdminFilter(
-        	$sTableID."_filter",
-	        array(
+		$sTableID."_filter",
+		array(
 			GetMessage("FORM_FL_ID"),
 			GetMessage("FORM_FL_ACTIVE"),
 			GetMessage("FORM_FL_SID"),
@@ -369,14 +362,14 @@ if ($additional=="Y")
 			GetMessage("FORM_FL_EXCEL_INC"),
 			GetMessage("FORM_FL_FILTER_INC"),
 			GetMessage("FORM_FL_LOGIC"),
-	        )
+		)
 	);
 }
 else
 {
 	$oFilter = new CAdminFilter(
-        	$sTableID."_filter",
-	        array(
+		$sTableID."_filter",
+		array(
 			GetMessage("FORM_FL_ID"),
 			GetMessage("FORM_FL_ACTIVE"),
 			GetMessage("FORM_FL_SID"),
@@ -386,7 +379,7 @@ else
 			GetMessage("FORM_FL_EXCEL_INC"),
 			GetMessage("FORM_FL_FILTER_INC"),
 			GetMessage("FORM_FL_LOGIC"),
-	        )
+		)
 	);
 }
 $oFilter->Begin();
@@ -453,8 +446,7 @@ $oFilter->End();
 #############################################################
 ?>
 </form>
-
 <?
 $lAdmin->DisplayList();
 
-require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php"); ?>
+require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

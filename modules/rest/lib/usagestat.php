@@ -2,7 +2,7 @@
 namespace Bitrix\Rest;
 
 use Bitrix\Main;
-use Bitrix\Main\Web\HttpClient;
+use Bitrix\Main\DB\SqlQueryException;
 
 /**
  * Class UsageStatTable
@@ -42,8 +42,6 @@ use Bitrix\Main\Web\HttpClient;
  **/
 class UsageStatTable extends Main\Entity\DataManager
 {
-
-	const SEND_STATISTIC_URL = '';//todo: set current url
 
 	protected static $data = array();
 
@@ -242,14 +240,45 @@ class UsageStatTable extends Main\Entity\DataManager
 		);
 	}
 
+	public static function logMessage($clientId, $messageType)
+	{
+		static::increment(
+			UsageEntityTable::ENTITY_TYPE_APPLICATION,
+			$clientId,
+			UsageEntityTable::SUB_ENTITY_TYPE_SEND_MESSAGE,
+			$messageType
+		);
+	}
+
+	public static function logLanding($clientId, $type, $count = 1)
+	{
+		$entityKey = static::getEntityKey(
+			UsageEntityTable::ENTITY_TYPE_APPLICATION,
+			$clientId,
+			UsageEntityTable::SUB_ENTITY_TYPE_LANDING,
+			$type
+		);
+		if (!isset(static::$data[$entityKey]))
+		{
+			static::$data[$entityKey] = 0;
+		}
+		static::$data[$entityKey] += (int)$count;
+
+	}
+
 	protected static function increment($entityType, $entityId, $subEntityType, $subEntityName)
 	{
-		$entityKey = $entityType."|".$entityId."|".$subEntityType."|".$subEntityName;
+		$entityKey = static::getEntityKey($entityType, $entityId, $subEntityType, $subEntityName);
 		if (!isset(static::$data[$entityKey]))
 		{
 			static::$data[$entityKey] = 0;
 		}
 		static::$data[$entityKey]++;
+	}
+
+	protected static function getEntityKey($entityType, $entityId, $subEntityType, $subEntityName)
+	{
+		return $entityType . "|" . $entityId . "|" . $subEntityType . "|" . $subEntityName;
 	}
 
 	public static function finalize()
@@ -381,7 +410,7 @@ class UsageStatTable extends Main\Entity\DataManager
 		return "\\Bitrix\\Rest\\UsageStatTable::sendAgent();";
 	}
 
-	public static function sendDateStat($date)//todo: finish it
+	public static function sendDateStat($date)
 	{
 		$return = true;
 

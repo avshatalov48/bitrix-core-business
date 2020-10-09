@@ -25,7 +25,7 @@ if (CModule::IncludeModule("form"))
 
 	foreach ($arDefaultUrl as $action => $url)
 	{
-		if (strlen($arParams[$action.'_URL']) <= 0)
+		if ($arParams[$action.'_URL'] == '')
 		{
 			if (!is_set($arParams, 'SHOW_'.$action.'_PAGE') || $arParams['SHOW_'.$action.'_PAGE'] == 'Y')
 				$arParams[$action.'_URL'] = $url;
@@ -81,7 +81,7 @@ if (CModule::IncludeModule("form"))
 	}
 
 
-	if (strlen($arResult["ERROR"]) <= 0)
+	if ($arResult["ERROR"] == '')
 	{
 		// check WEB_FORM_ID and get web form data
 		$arParams["WEB_FORM_ID"] = CForm::GetDataByID($arParams["WEB_FORM_ID"], $arResult["arForm"], $arResult["arQuestions"], $arResult["arAnswers"], $arResult["arDropDown"], $arResult["arMultiSelect"], $arResult["bAdmin"] == 'Y' || $arParams["SHOW_ADDITIONAL"] == "Y" || $arParams["EDIT_ADDITIONAL"] == "Y" ? "ALL" : "N");
@@ -92,7 +92,7 @@ if (CModule::IncludeModule("form"))
 		if ($arParams["WEB_FORM_ID"] > 0)
 		{
 			//  insert chain item
-			if (strlen($arParams["CHAIN_ITEM_TEXT"]) > 0)
+			if ($arParams["CHAIN_ITEM_TEXT"] <> '')
 			{
 				$APPLICATION->AddChainItem($arParams["CHAIN_ITEM_TEXT"], $arParams["CHAIN_ITEM_LINK"]);
 			}
@@ -106,7 +106,7 @@ if (CModule::IncludeModule("form"))
 				//if (!empty($_REQUEST["strFormNote"])) $arResult["FORM_NOTE"] = $_REQUEST["strFormNote"];
 				if (!empty($_REQUEST["formresult"]))
 				{
-					$formResult = strtoupper($_REQUEST['formresult']);
+					$formResult = mb_strtoupper($_REQUEST['formresult']);
 					switch ($formResult)
 					{
 						case 'ADDOK':
@@ -167,13 +167,13 @@ if (CModule::IncludeModule("form"))
 	}
 
 	// if there's no error
-	if (strlen($arResult["ERROR"]) <= 0)
+	if ($arResult["ERROR"] == '')
 	{
 		// ************************************************************* //
 		//                                             get/post processing                                             //
 		// ************************************************************* //
 
-		if (strlen($_REQUEST["web_form_submit"])>0 || strlen($_REQUEST["web_form_apply"])>0)
+		if ($_REQUEST["web_form_submit"] <> '' || $_REQUEST["web_form_apply"] <> '')
 		{
 			$arResult["arrVALUES"] = $_REQUEST;
 
@@ -183,7 +183,7 @@ if (CModule::IncludeModule("form"))
 			if (
 				$arParams['USE_EXTENDED_ERRORS'] == 'Y' && (!is_array($arResult["FORM_ERRORS"]) || count($arResult["FORM_ERRORS"]) <= 0)
 				||
-				$arParams['USE_EXTENDED_ERRORS'] != 'Y' && strlen($arResult["FORM_ERRORS"]) <= 0
+				$arParams['USE_EXTENDED_ERRORS'] != 'Y' && $arResult["FORM_ERRORS"] == ''
 			)
 			{
 				// check session id
@@ -195,7 +195,7 @@ if (CModule::IncludeModule("form"))
 					{
 						$arResult["FORM_RESULT"] = 'editok';
 
-						if (strlen($_REQUEST["web_form_submit"])>0 && !(defined("ADMIN_SECTION") && ADMIN_SECTION===true))
+						if ($_REQUEST["web_form_submit"] <> '' && !(defined("ADMIN_SECTION") && ADMIN_SECTION===true))
 						{
 							if ($arParams["SEF_MODE"] == "Y")
 							{
@@ -213,7 +213,7 @@ if (CModule::IncludeModule("form"))
 								//LocalRedirect($arParams["LIST_URL"].(strpos($arParams["LIST_URL"], "?") === false ? "?" : "&")."WEB_FORM_ID=".$arParams["WEB_FORM_ID"]."&strFormNote=".urlencode($arResult["FORM_NOTE"]));
 								LocalRedirect(
 									$arParams["LIST_URL"]
-									.(strpos($arParams["LIST_URL"], "?") === false ? "?" : "&")
+									.(mb_strpos($arParams["LIST_URL"], "?") === false ? "?" : "&")
 									."WEB_FORM_ID=".$arParams["WEB_FORM_ID"]
 									."&RESULT_ID=".$arParams["RESULT_ID"]
 									."&formresult=".urlencode($arResult["FORM_RESULT"])
@@ -223,7 +223,7 @@ if (CModule::IncludeModule("form"))
 							die();
 						}
 
-						if (strlen($_REQUEST["web_form_apply"])>0 && !(defined("ADMIN_SECTION") && ADMIN_SECTION===true))
+						if ($_REQUEST["web_form_apply"] <> '' && !(defined("ADMIN_SECTION") && ADMIN_SECTION===true))
 						{
 							// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 							//LocalRedirect($arParams["EDIT_URL"].(strpos($arParams["EDIT_URL"], "?") === false ? "?" : "&")."strFormNote=".urlencode($arResult["FORM_NOTE"]));
@@ -263,11 +263,11 @@ if (CModule::IncludeModule("form"))
 
 						if (defined("ADMIN_SECTION") && ADMIN_SECTION === true)
 						{
-							if (strlen($_REQUEST["web_form_submit"])>0)
+							if ($_REQUEST["web_form_submit"] <> '')
 							{
 								LocalRedirect(BX_ROOT."/admin/form_result_list.php?lang=".LANG."&WEB_FORM_ID=".$arParams["WEB_FORM_ID"]."&formresult=".urlencode($arResult["FORM_RESULT"]));
 							}
-							elseif (strlen($_REQUEST["web_form_apply"])>0)
+							elseif ($_REQUEST["web_form_apply"] <> '')
 							{
 								LocalRedirect(BX_ROOT."/admin/form_result_edit.php?lang=".LANG."&WEB_FORM_ID=".$arParams["WEB_FORM_ID"]."&RESULT_ID=".$arParams["RESULT_ID"]."&form_result=".urlencode($arResult["FORM_RESULT"]));
 							}
@@ -291,7 +291,7 @@ if (CModule::IncludeModule("form"))
 			(
 				is_array($arResult["FORM_ERRORS"]) && count($arResult["FORM_ERRORS"]) > 0
 				||
-				!is_array($arResult['FORM_ERRORS']) && strlen($arResult["FORM_ERRORS"]) > 0
+				!is_array($arResult['FORM_ERRORS']) && $arResult["FORM_ERRORS"] <> ''
 			)
 			? "Y" : "N";
 
@@ -305,7 +305,7 @@ if (CModule::IncludeModule("form"))
 		//                                             output                                                                    //
 		// ************************************************************* //
 
-		if ($arParams["IGNORE_CUSTOM_TEMPLATE"] == "N" && $arResult["arForm"]["USE_DEFAULT_TEMPLATE"] == "N" && strlen($arResult["arForm"]["FORM_TEMPLATE"]) > 0)
+		if ($arParams["IGNORE_CUSTOM_TEMPLATE"] == "N" && $arResult["arForm"]["USE_DEFAULT_TEMPLATE"] == "N" && $arResult["arForm"]["FORM_TEMPLATE"] <> '')
 		{
 			$FORM = new CFormOutput();
 			// initialize template
@@ -364,7 +364,7 @@ if (CModule::IncludeModule("form"))
 				"RESULT_STAT_GUEST_ID" => $arResult["arResultData"]["STAT_GUEST_ID"],
 				"RESULT_STAT_SESSION_ID" => $arResult["arResultData"]["STAT_SESSION_ID"],
 
-				"isFormNote"			=> strlen($arResult["FORM_NOTE"]) ? "Y" : "N", // flag "is there a form note"
+				"isFormNote"			=> $arResult["FORM_NOTE"] <> ''? "Y" : "N", // flag "is there a form note"
 				"isAccessFormParams"	=> $arResult["F_RIGHT"] >= 25 ? "Y" : "N", // flag "does current user have access to form params"
 				"isStatisticIncluded"	=> CModule::IncludeModule('statistic') ? "Y" : "N", // flag "is statistic module included"
 
@@ -380,8 +380,8 @@ if (CModule::IncludeModule("form"))
 					trim($arResult["arForm"]["DESCRIPTION"]) :
 					nl2br(htmlspecialcharsbx(trim($arResult["arForm"]["DESCRIPTION"]))),
 
-				"isFormTitle"			=> strlen($arResult["arForm"]["NAME"]) > 0 ? "Y" : "N", // flag "does form have title"
-				"isFormDescription"		=> strlen($arResult["arForm"]["DESCRIPTION"]) > 0 ? "Y" : "N", // flag "does form have description"
+				"isFormTitle"			=> $arResult["arForm"]["NAME"] <> '' ? "Y" : "N", // flag "does form have title"
+				"isFormDescription"		=> $arResult["arForm"]["DESCRIPTION"] <> '' ? "Y" : "N", // flag "does form have description"
 				"isFormImage"			=> intval($arResult["arForm"]["IMAGE_ID"]) > 0 ? "Y" : "N", // flag "does form have image"
 				"isUseCaptcha"			=> $arResult["arForm"]["USE_CAPTCHA"] == "Y", // flag "does form use captcha"
 				"DATE_FORMAT"			=> CLang::GetDateFormat("SHORT"), // current site date format
@@ -399,7 +399,7 @@ if (CModule::IncludeModule("form"))
 			$arResult["FORM_IMAGE"]["URL"] = $arImage["SRC"];
 
 			// check image file existance and assign image data
-			if (substr($arImage["SRC"], 0, 1) == "/")
+			if (mb_substr($arImage["SRC"], 0, 1) == "/")
 			{
 				$arSize = CFile::GetImageSize($_SERVER["DOCUMENT_ROOT"].$arImage["SRC"]);
 				if (is_array($arSize))
@@ -466,7 +466,7 @@ if (CModule::IncludeModule("form"))
 					switch ($arAnswer["FIELD_TYPE"])
 					{
 						case "radio":
-							if (strpos($arAnswer["FIELD_PARAM"], "id=") === false)
+							if (mb_strpos($arAnswer["FIELD_PARAM"], "id=") === false)
 							{
 								$ans_id = $arAnswer["ID"];
 								$arAnswer["FIELD_PARAM"] .= " id=\"".$ans_id."\"";
@@ -478,12 +478,12 @@ if (CModule::IncludeModule("form"))
 
 							$value = CForm::GetRadioValue($FIELD_SID, $arAnswer, $arResult["arrVALUES"]);
 
-							if (strlen($arResult["FORM_ERRORS"]) > 0 || !$value || $value != $arAnswer["ID"])
+							if ($arResult["FORM_ERRORS"] <> '' || !$value || $value != $arAnswer["ID"])
 							{
 								if (
-									strpos(strtolower($arAnswer["FIELD_PARAM"]), "selected")!==false
+									mb_strpos(mb_strtolower($arAnswer["FIELD_PARAM"]), "selected") !== false
 									||
-									strpos(strtolower($arAnswer["FIELD_PARAM"]), "checked")!==false)
+									mb_strpos(mb_strtolower($arAnswer["FIELD_PARAM"]), "checked") !== false)
 									{
 										$arAnswer["FIELD_PARAM"] = preg_replace("/checked|selected/i", "", $arAnswer["FIELD_PARAM"]);
 									}
@@ -496,7 +496,7 @@ if (CModule::IncludeModule("form"))
 								$arAnswer["FIELD_PARAM"]);
 
 
-							if (strlen($ans_id) > 0)
+							if ($ans_id <> '')
 							{
 								$res .= $input;
 								$res .= "<label for=\"".$ans_id."\">".$arAnswer["MESSAGE"]."</label>";
@@ -510,7 +510,7 @@ if (CModule::IncludeModule("form"))
 
 							break;
 						case "checkbox":
-							if (strpos($arAnswer["FIELD_PARAM"], "id=") === false)
+							if (mb_strpos($arAnswer["FIELD_PARAM"], "id=") === false)
 							{
 								$ans_id = $arAnswer["ID"];
 								$arAnswer["FIELD_PARAM"] .= " id=\"".$ans_id."\"";
@@ -522,12 +522,12 @@ if (CModule::IncludeModule("form"))
 
 							$value = CForm::GetCheckBoxValue($FIELD_SID, $arAnswer, $arResult["arrVALUES"]);
 
-							if (strlen($arResult["FORM_ERRORS"]) > 0 || !$value)
+							if ($arResult["FORM_ERRORS"] <> '' || !$value)
 							{
 								if (
-									strpos(strtolower($arAnswer["FIELD_PARAM"]), "selected")!==false
+									mb_strpos(mb_strtolower($arAnswer["FIELD_PARAM"]), "selected") !== false
 									||
-									strpos(strtolower($arAnswer["FIELD_PARAM"]), "checked")!==false)
+									mb_strpos(mb_strtolower($arAnswer["FIELD_PARAM"]), "checked") !== false)
 									{
 										$arAnswer["FIELD_PARAM"] = preg_replace("/checked|selected/i", "", $arAnswer["FIELD_PARAM"]);
 									}
@@ -540,7 +540,7 @@ if (CModule::IncludeModule("form"))
 								$arAnswer["FIELD_PARAM"]);
 
 
-							if (strlen($ans_id) > 0)
+							if ($ans_id <> '')
 							{
 								$res .= $input."<label for=\"".$ans_id."\">".$arAnswer["MESSAGE"]."</label>";
 							}
@@ -557,7 +557,7 @@ if (CModule::IncludeModule("form"))
 							{
 								$value = CForm::GetDropDownValue($FIELD_SID, $arResult["arDropDown"], $arResult["arrVALUES"]);
 
-								if (strlen($arResult["FORM_ERROR"]) > 0)
+								if ($arResult["FORM_ERROR"] <> '')
 								{
 									$c = count($arDropDown[$FIELD_SID]["param"])-1;
 									for ($i=0;$i<=$c;$i++)
@@ -582,7 +582,7 @@ if (CModule::IncludeModule("form"))
 							{
 								$value = CForm::GetMultiSelectValue($FIELD_SID, $arResult["arMultiSelect"], $arResult["arrVALUES"]);
 
-								if (strlen($arResult["FORM_ERROR"]) > 0)
+								if ($arResult["FORM_ERROR"] <> '')
 								{
 									$c = count($arMultiSelect[$FIELD_SID]["param"])-1;
 									for ($i=0;$i<=$c;$i++)
@@ -603,7 +603,7 @@ if (CModule::IncludeModule("form"))
 
 							break;
 						case "text":
-							if (strlen(trim($arAnswer["MESSAGE"]))>0)
+							if (trim($arAnswer["MESSAGE"]) <> '')
 							{
 								$arResult["QUESTIONS"][$FIELD_SID]["HTML_CODE"][] = $arAnswer["MESSAGE"];
 							}
@@ -632,7 +632,7 @@ if (CModule::IncludeModule("form"))
 							break;
 
 						case "password":
-							if (strlen(trim($arAnswer["MESSAGE"]))>0)
+							if (trim($arAnswer["MESSAGE"]) <> '')
 							{
 								$arResult["QUESTIONS"][$FIELD_SID]["HTML_CODE"][] = $arAnswer["MESSAGE"];
 							}
@@ -648,7 +648,7 @@ if (CModule::IncludeModule("form"))
 
 							break;
 						case "email":
-							if (strlen(trim($arAnswer["MESSAGE"]))>0)
+							if (trim($arAnswer["MESSAGE"]) <> '')
 							{
 								$arResult["QUESTIONS"][$FIELD_SID]["HTML_CODE"][] = $arAnswer["MESSAGE"];
 							}
@@ -663,7 +663,7 @@ if (CModule::IncludeModule("form"))
 
 							break;
 						case "url":
-							if (strlen(trim($arAnswer["MESSAGE"]))>0)
+							if (trim($arAnswer["MESSAGE"]) <> '')
 							{
 								$arResult["QUESTIONS"][$FIELD_SID]["HTML_CODE"][] = $arAnswer["MESSAGE"];
 							}
@@ -678,7 +678,7 @@ if (CModule::IncludeModule("form"))
 
 							break;
 						case "textarea":
-							if (strlen(trim($arAnswer["MESSAGE"]))>0)
+							if (trim($arAnswer["MESSAGE"]) <> '')
 							{
 								$arResult["QUESTIONS"][$FIELD_SID]["HTML_CODE"][] = $arAnswer["MESSAGE"];
 							}
@@ -699,7 +699,7 @@ if (CModule::IncludeModule("form"))
 
 							break;
 						case "date":
-							if (strlen(trim($arAnswer["MESSAGE"]))>0)
+							if (trim($arAnswer["MESSAGE"]) <> '')
 							{
 								$res .= $arAnswer["MESSAGE"];
 							}
@@ -715,7 +715,7 @@ if (CModule::IncludeModule("form"))
 
 							break;
 						case "image":
-							if (strlen(trim($arAnswer["MESSAGE"]))>0)
+							if (trim($arAnswer["MESSAGE"]) <> '')
 							{
 								$res .= $arAnswer["MESSAGE"];
 							}
@@ -744,7 +744,7 @@ if (CModule::IncludeModule("form"))
 
 							break;
 						case "file":
-							if (strlen(trim($arAnswer["MESSAGE"]))>0)
+							if (trim($arAnswer["MESSAGE"]) <> '')
 							{
 								$res .= $arAnswer["MESSAGE"];
 							}
@@ -832,7 +832,7 @@ if (CModule::IncludeModule("form"))
 				$arResult["QUESTIONS"][$FIELD_SID]["IMAGE"]["URL"] = $arImage["SRC"];
 
 				// check image file existance and assign image data
-				if (substr($arImage["SRC"], 0, 1) == "/")
+				if (mb_substr($arImage["SRC"], 0, 1) == "/")
 				{
 					$arSize = CFile::GetImageSize($_SERVER["DOCUMENT_ROOT"].$arImage["SRC"]);
 					if (is_array($arSize))
@@ -875,7 +875,7 @@ if (CModule::IncludeModule("form"))
 			ob_end_clean();
 		}
 
-		$arResult["SUBMIT_BUTTON"] = "<input ".(intval($arResult["F_RIGHT"]) < 10 ? "disabled=\"disabled\"" : "")." type=\"submit\" name=\"web_form_submit\" value=\"".(strlen(trim($arResult["arForm"]["BUTTON"])) <= 0 ? GetMessage("FORM_ADD") : $arResult["arForm"]["BUTTON"])."\" />";
+		$arResult["SUBMIT_BUTTON"] = "<input ".(intval($arResult["F_RIGHT"]) < 10 ? "disabled=\"disabled\"" : "")." type=\"submit\" name=\"web_form_submit\" value=\"".(trim($arResult["arForm"]["BUTTON"]) == '' ? GetMessage("FORM_ADD") : $arResult["arForm"]["BUTTON"])."\" />";
 		$arResult["APPLY_BUTTON"] = "<input type=\"hidden\" name=\"web_form_apply\" value=\"Y\" /><input type=\"submit\" name=\"web_form_apply\" value=\"".GetMessage("FORM_APPLY")."\" />";
 		$arResult["RESET_BUTTON"] = "<input type=\"reset\" value=\"".GetMessage("FORM_RESET")."\" />";
 		$arResult["REQUIRED_STAR"] = $arResult["REQUIRED_SIGN"];

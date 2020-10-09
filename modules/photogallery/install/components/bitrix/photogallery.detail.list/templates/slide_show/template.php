@@ -48,7 +48,7 @@ if ($arResult["NAV_RESULT"]->bNavStart)
 	}
 }
 
-$arParams["ELEMENT_ID"] = intVal($arParams["ELEMENT_ID"]);
+$arParams["ELEMENT_ID"] = intval($arParams["ELEMENT_ID"]);
 
 ?><html><head>
 <link href="/bitrix/components/bitrix/photogallery.detail.list/templates/slide_show/style.css" type="text/css" rel="stylesheet" />
@@ -306,8 +306,8 @@ function to_init(e)
 
 		SlideSlider = new BPCSlider1(
 			<?=CUtil::PhpToJSObject($arResult['ELEMENT_FOR_JS'])?>, // array of elements
-			<?=intVal($arParams["ELEMENT_ID"])?>, // active element
-			<?=intVal($count_elements)?>, // count elements
+			<?=intval($arParams["ELEMENT_ID"])?>, // active element
+			<?=intval($count_elements)?>, // count elements
 			<?=$number_element?> // number element in set
 		);
 		var windowSize = GetWindowSize();

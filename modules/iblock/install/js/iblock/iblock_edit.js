@@ -372,7 +372,7 @@ JCIBlockAccess.prototype.InsertRights = function(obSelected)
 					row.cells[0].align = 'right';
 					row.cells[0].style.textAlign = 'right';
 					row.cells[0].style.verticalAlign = 'middle';
-					row.cells[0].innerHTML = BX.Access.GetProviderName(provider)+' '+obSelected[provider][id].name+':'+'<input type="hidden" name="'+this.variable_name+'[][RIGHT_ID]" value=""><input type="hidden" name="'+this.variable_name+'[][GROUP_CODE]" value="'+id+'">';
+					row.cells[0].innerHTML = BX.Access.GetProviderName(provider)+' '+BX.Text.encode(obSelected[provider][id].name)+':'+'<input type="hidden" name="'+this.variable_name+'[][RIGHT_ID]" value=""><input type="hidden" name="'+this.variable_name+'[][GROUP_CODE]" value="'+id+'">';
 					row.cells[1].align = 'left';
 					row.cells[1].innerHTML = this.sSelect + ' ' + '<a href="javascript:void(0);" onclick="JCIBlockAccess.DeleteRow(this, \''+id+'\', \''+this.variable_name+'\')" class="access-delete"></a><span title="'+BX.message('langApplyTitle')+'" id="overwrite_'+id+'"></span>';
 

@@ -15,7 +15,7 @@ function BXCreateSection(&$fileContent, &$sectionFileContent, &$absoluteFilePath
 {
 	//Check quota
 	$quota = new CDiskQuota();
-	if (!$quota->CheckDiskQuota(Array("FILE_SIZE" => strlen($fileContent) + strlen($sectionFileContent))))
+	if (!$quota->CheckDiskQuota(Array("FILE_SIZE" => mb_strlen($fileContent) + mb_strlen($sectionFileContent))))
 	{
 		$GLOBALS["APPLICATION"]->ThrowException($quota->LAST_ERROR, "BAD_QUOTA");
 		return false;
@@ -87,7 +87,7 @@ $io = CBXVirtualIo::GetInstance();
 
 //Page path
 $path = "/";
-if(isset($_REQUEST["path"]) && strlen($_REQUEST["path"]) > 0)
+if(isset($_REQUEST["path"]) && $_REQUEST["path"] <> '')
 	$path = $io->CombinePath("/", $_REQUEST["path"]);
 
 $documentRoot = CSite::GetSiteDocRoot($site);
@@ -113,7 +113,7 @@ if(!$USER->CanDoFileOperation("fm_edit_existent_file", Array($site, $path)))
 	$canEditNewPage = false;
 
 //Lang
-if(!isset($_REQUEST["lang"]) || strlen($_REQUEST["lang"]) <= 0)
+if(!isset($_REQUEST["lang"]) || $_REQUEST["lang"] == '')
 	$lang = LANGUAGE_ID;
 
 //BackUrl
@@ -121,7 +121,7 @@ $back_url = (isset($_REQUEST["back_url"]) ? $_REQUEST["back_url"] : "");
 
 //Template ID
 $templateID = false;
-if(isset($_REQUEST["templateID"]) && strlen($_REQUEST["templateID"]) > 0)
+if(isset($_REQUEST["templateID"]) && $_REQUEST["templateID"] <> '')
 {
 	$obTemplate = CSiteTemplate::GetByID($_REQUEST["templateID"]);
 	if($arSiteTemplate = $obTemplate->Fetch())
@@ -134,7 +134,7 @@ if($templateID === false)
 	$obTemplate = CSite::GetTemplateList($site);
 	while ($arSiteTemplate = $obTemplate->Fetch())
 	{
-		if (strlen($arSiteTemplate["CONDITION"]) <=0 )
+		if ($arSiteTemplate["CONDITION"] == '' )
 		{
 			$templateID = $arSiteTemplate["TEMPLATE"];
 			break;
@@ -176,7 +176,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]))
 	$absoluteFilePath = $io->CombinePath($documentRoot, $path, $fileName);
 
 	//Check filename
-	if (strlen($fileName) <= 0)
+	if ($fileName == '')
 		$strWarning = GetMessage("PAGE_NEW_FILE_NAME_EMPTY");
 	elseif (!$io->ValidateFilenameString($fileName))
 		$strWarning = GetMessage("PAGE_NEW_FILE_NAME_VALID_SYMBOLS");
@@ -229,7 +229,7 @@ if (IsModuleInstalled("fileman") && $USER->CanDoOperation("fileman_add_element_t
 		$actualDir = $menu->MenuDir;
 		$currentDir = rtrim($path, "/")."/";
 
-		if (strlen($actualDir) > 0)
+		if ($actualDir <> '')
 		{
 			$actualMenuFile = $actualDir.".".$type.".menu.php";
 			$fileOperation = ($io->FileExists($documentRoot.$actualMenuFile) ? "fm_edit_existent_file" : "fm_create_new_file" );
@@ -308,7 +308,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]) && $strWarn
 
 	//Title
 	$strSectionName = "";
-	if (strlen($pageTitle) > 0)
+	if ($pageTitle <> '')
 	{
 		$fileContent = SetPrologTitle($fileContent, $pageTitle);
 		if ($createNewFolder)
@@ -327,7 +327,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]) && $strWarn
 
 			if (preg_match("/[a-zA-Z_-~]+/i", $arProperty["CODE"]))
 			{
-				if ($createNewFolder && strlen($arProperty["VALUE"]) > 0)
+				if ($createNewFolder && $arProperty["VALUE"] <> '')
 				{
 					if($bNeedComma)
 						$strDirProperties .= ",\n";
@@ -344,7 +344,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]) && $strWarn
 	if ($createNewFolder)
 	{
 		$sectionFileContent = "<"."?\n".$strSectionName."\$arDirProperties = Array(\n".$strDirProperties."\n);\n"."?".">";
-		$sectionPath = substr($path, 1).$fileName;
+		$sectionPath = mb_substr($path, 1).$fileName;
 		$success = BXCreateSection($fileContent, $sectionFileContent, $absoluteFilePath, $sectionPath);
 
 		$arUndoParams = array(
@@ -387,7 +387,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]) && $strWarn
 	{
 		if(COption::GetOptionString($module_id, "log_page", "Y")=="Y")
 		{
-			$res_log['path'] = substr($arUndoParams['arContent']['path'], 1);
+			$res_log['path'] = mb_substr($arUndoParams['arContent']['path'], 1);
 			if (!$createNewFolder)
 				CEventLog::Log(
 					"content",
@@ -474,7 +474,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]) && $strWarn
 				$mt = COption::GetOptionString("fileman", "menutypes", $default_value, $site);
 				$mt = unserialize(str_replace("\\", "", $mt));
 				$res_log['menu_name'] = $mt[$menuType];
-				$res_log['path'] = substr(dirname($arUndoParams['arContent']['path']), 1);
+				$res_log['path'] = mb_substr(dirname($arUndoParams['arContent']['path']), 1);
 				CEventLog::Log(
 					"content",
 					"MENU_EDIT",
@@ -541,7 +541,7 @@ if ($strWarning != "" && isset($_POST["PROPERTY"]) && is_array($_POST["PROPERTY"
 	//Restore post values if error occured
 	foreach ($_POST["PROPERTY"] as $arProperty)
 	{
-		if (isset($arProperty["VALUE"]) && strlen($arProperty["VALUE"]) > 0)
+		if (isset($arProperty["VALUE"]) && $arProperty["VALUE"] <> '')
 			$arDirProperties[$arProperty["CODE"]] = $arProperty["VALUE"];
 	}
 }
@@ -562,7 +562,7 @@ if (!$createNewFolder && IsModuleInstalled("search"))
 	$tagPropertyCode = COption::GetOptionString("search", "page_tag_property","tags");
 	unset($arFilemanProperties[$tagPropertyCode]);
 	unset($arDirProperties[$tagPropertyCode]);
-	unset($arInheritProperties[strtoupper($tagPropertyCode)]);
+	unset($arInheritProperties[mb_strtoupper($tagPropertyCode)]);
 }
 
 $bSearchExists = (isset($tagPropertyCode) && CModule::IncludeModule("search"));
@@ -577,11 +577,11 @@ foreach ($arFilemanProperties as $propertyCode => $propertyDesc)
 		$arGlobalProperties[$propertyCode] = "";
 
 	unset($arDirProperties[$propertyCode]);
-	unset($arInheritProperties[strtoupper($propertyCode)]);
+	unset($arInheritProperties[mb_strtoupper($propertyCode)]);
 }
 
 foreach ($arDirProperties as $propertyCode => $propertyValue)
-	unset($arInheritProperties[strtoupper($propertyCode)]);
+	unset($arInheritProperties[mb_strtoupper($propertyCode)]);
 
 $bPropertyExists = (!empty($arGlobalProperties) || !empty($arDirProperties) || !empty($arInheritProperties));
 
@@ -757,7 +757,7 @@ foreach ($arGlobalProperties as $propertyCode => $propertyValue):?>
 
 	<tr style="height:30px;">
 		<td class="bx-popup-label bx-width30"><?=(
-			strlen($arFilemanProperties[$propertyCode]) > 0 ?
+			$arFilemanProperties[$propertyCode] <> '' ?
 				htmlspecialcharsEx($arFilemanProperties[$propertyCode]) :
 				htmlspecialcharsEx($propertyCode))
 		?>:</td>
@@ -765,7 +765,7 @@ foreach ($arGlobalProperties as $propertyCode => $propertyValue):?>
 
 		<?$inheritValue = $APPLICATION->GetDirProperty($propertyCode, Array($site, $path));?>
 
-		<?if (strlen($inheritValue) > 0 && strlen($propertyValue) <= 0):
+		<?if ($inheritValue <> '' && $propertyValue == ''):
 			$jsInheritPropIds .= ",".$propertyIndex;
 		?>
 

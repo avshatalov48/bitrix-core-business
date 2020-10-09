@@ -1,6 +1,6 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
-	$arParams['RATING_ID'] 		= IntVal($arParams['RATING_ID']);
-	$arParams['ENTITY_ID'] 		= IntVal($arParams['ENTITY_ID']);
+	$arParams['RATING_ID'] 		= intval($arParams['RATING_ID']);
+	$arParams['ENTITY_ID'] 		= intval($arParams['ENTITY_ID']);
 	if (isset($arParams['LINK']))
 		$arResult['LINK'] = $arParams['LINK'];
 

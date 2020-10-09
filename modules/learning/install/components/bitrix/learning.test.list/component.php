@@ -8,7 +8,7 @@ if (!CModule::IncludeModule("learning"))
 }
 
 $arParams["COURSE_ID"] = (isset($arParams["COURSE_ID"]) && intval($arParams["COURSE_ID"]) > 0 ? intval($arParams["COURSE_ID"]) : intval($_REQUEST["COURSE_ID"]));
-$arParams["TEST_DETAIL_TEMPLATE"] = (strlen($arParams["TEST_DETAIL_TEMPLATE"]) > 0 ? htmlspecialcharsbx($arParams["TEST_DETAIL_TEMPLATE"]) : 'test.php?TEST_ID=#TEST#');
+$arParams["TEST_DETAIL_TEMPLATE"] = ($arParams["TEST_DETAIL_TEMPLATE"] <> '' ? htmlspecialcharsbx($arParams["TEST_DETAIL_TEMPLATE"]) : 'test.php?TEST_ID=#TEST#');
 $arParams["CHECK_PERMISSIONS"] = (isset($arParams["CHECK_PERMISSIONS"]) && $arParams["CHECK_PERMISSIONS"]=="N" ? "N" : "Y");
 $arParams["TESTS_PER_PAGE"] = (intval($arParams["TESTS_PER_PAGE"]) > 0 ? intval($arParams["TESTS_PER_PAGE"]) : 20);
 
@@ -52,7 +52,7 @@ if ((int) $arParams["TESTS_PER_PAGE"] > 0)
 }
 
 
-if(strlen($arParams["FILTER_NAME"])<=0 || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
+if($arParams["FILTER_NAME"] == '' || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
 {
 	$arFilter = array(
 		"COURSE_ID"         => $arParams["COURSE_ID"],

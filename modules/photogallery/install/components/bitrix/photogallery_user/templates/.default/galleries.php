@@ -33,7 +33,7 @@
 		"SHOW_PAGE_NAVIGATION" => "bottom"
 	);
 
-	if (intVal($arResult["VARIABLES"]["USER_ID"]) > 0):?>
+	if (intval($arResult["VARIABLES"]["USER_ID"]) > 0):?>
 	<?$APPLICATION->IncludeComponent(
 		"bitrix:photogallery.gallery.list",
 		"",

@@ -33,7 +33,7 @@ BX.ready(function() {
 		new RatingLikeComments(
 			'<?=CUtil::JSEscape(htmlspecialcharsbx($arResult['VOTE_ID']))?>',
 			'<?=CUtil::JSEscape(htmlspecialcharsbx($arResult['ENTITY_TYPE_ID']))?>',
-			'<?=IntVal($arResult['ENTITY_ID'])?>',
+			'<?=intval($arResult['ENTITY_ID'])?>',
 			'<?=CUtil::JSEscape(htmlspecialcharsbx($arResult['VOTE_AVAILABLE']))?>'
 		);
 	};

@@ -2,21 +2,29 @@
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/img.php");
 
-global $arrSaveColor;
-if (CModule::IncludeModule("vote")) :
+$request = \Bitrix\Main\Context::getCurrent()->getRequest();
 
-$diameter = (intval($_REQUEST["dm"])>0) ? intval($_REQUEST["dm"]) : 150;
+$questionId = intval($request->get("qid"));
+if ($questionId <= 0 || !\Bitrix\Main\Loader::includeModule("vote"))
+{
+	return;
+}
 
-$res = CVoteAnswer::GetList($qid,($by="s_counter"),($order="desc"), array("ACTIVE" => "Y"), array("nTopCount" => 1000));
+$diameter = intval($request->get("dm"));
+$diameter = min(750, ($diameter > 0 ? $diameter : 150));
+
+$res = CVoteAnswer::GetList($questionId,($by="s_counter"),($order="desc"), array("ACTIVE" => "Y"), array("nTopCount" => 1000));
 $res->NavStart(1000);
 $totalRecords = $res->SelectedRowsCount();
-$arChart = array(); $color = "";
+$arChart = array();
+$color = "";
 $sum = 0;
 while ($arAnswer = $res->Fetch())
 {
-	$arChart[] = Array(
-		"COLOR"=>(strlen($arAnswer["COLOR"])>0 ? TrimEx($arAnswer["COLOR"],"#") : ($color = GetNextRGB($color, $totalRecords))),
-		"COUNTER" => $arAnswer["COUNTER"]);
+	$arChart[] = [
+		"COLOR" => ($arAnswer["COLOR"] <> '' ? TrimEx($arAnswer["COLOR"],"#") : ($color = GetNextRGB($color, $totalRecords))),
+		"COUNTER" => $arAnswer["COUNTER"]
+	];
 	$sum += $arAnswer["COUNTER"];
 }
 
@@ -32,6 +40,4 @@ if ($sum > 0)
 
 // displaying of the resulting image
 ShowImageHeader($ImageHandle);
-
-endif;
 ?>

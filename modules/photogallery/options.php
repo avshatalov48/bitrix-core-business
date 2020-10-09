@@ -21,16 +21,16 @@ if ($RIGHTS > "D"):
 		{
 			foreach ($_REQUEST["CODE"] as $key => $val)
 			{
-				$val = strToLower(trim($val));
-				if (preg_match("/[0-9]/", substr($val, 0, 1), $matches))
+				$val = mb_strtolower(trim($val));
+				if (preg_match("/[0-9]/", mb_substr($val, 0, 1), $matches))
 					continue;
 
-				if (!empty($val) && intVal($_REQUEST["SIZE"][$key]) > 0 && ($_REQUEST["DROP"][$key] != "Y"))
+				if (!empty($val) && intval($_REQUEST["SIZE"][$key]) > 0 && ($_REQUEST["DROP"][$key] != "Y"))
 				{
 					$_REQUEST["SIGHTS"][$key] = (empty($_REQUEST["SIGHTS"][$key]) ? $val : $_REQUEST["SIGHTS"][$key]);
 					$arSights[] = array(
-						"size" => intVal($_REQUEST["SIZE"][$key]),
-						"quality" => (intVal($_REQUEST["QUALITY"][$key]) <= 0 ? 95 : intVal($_REQUEST["QUALITY"][$key])),
+						"size" => intval($_REQUEST["SIZE"][$key]),
+						"quality" => (intval($_REQUEST["QUALITY"][$key]) <= 0 ? 95 : intval($_REQUEST["QUALITY"][$key])),
 						"title" => $_REQUEST["SIGHTS"][$key],
 						"code" =>  $val);
 				}

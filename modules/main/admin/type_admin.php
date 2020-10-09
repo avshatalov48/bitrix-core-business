@@ -44,9 +44,9 @@ $arFilterFields = Array(
 	"find_event_type",
 );
 $lAdmin->InitFilter($arFilterFields);
-if ($find <> '' && in_array(strtoupper($find_type), array('EVENT_NAME', 'NAME', 'DESCRIPTION')))
+if ($find <> '' && in_array(mb_strtoupper($find_type), array('EVENT_NAME', 'NAME', 'DESCRIPTION')))
 {
-	$arFilter["=%" . strtoupper($find_type)] = '%' . $find . '%';
+	$arFilter["=%".mb_strtoupper($find_type)] = '%' . $find . '%';
 }
 if ($find_type_id <> '')
 {
@@ -72,7 +72,7 @@ if(($arID = $lAdmin->GroupAction()) && $isAdmin && check_bitrix_sessid())
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID) <= 0)
+		if($ID == '')
 			continue;
 		switch($_REQUEST['action'])
 		{
@@ -148,7 +148,7 @@ if(isset($arFilter['MESSAGE_ID']))
 $resultDb = \Bitrix\Main\Mail\Internal\EventTypeTable::getList(array(
 	'filter' => $arFilter,
 	'runtime' => $runtimeList,
-	'order' => array('EVENT_NAME' => (strtoupper($order) == 'DESC' ? 'DESC' : 'ASC'))
+	'order' => array('EVENT_NAME' => (mb_strtoupper($order) == 'DESC' ? 'DESC' : 'ASC'))
 ));
 $resultTypeList = $resultDb->fetchAll();
 foreach($resultTypeList as $type)
@@ -240,7 +240,7 @@ foreach($resultList as $resultItem)
 		$templates = array();
 		foreach ($resultItem['TEMPLATES'] as $k)
 		{
-			$templates[$k] = "<a href=\"".BX_ROOT."/admin/message_edit.php?ID=".intVal($k)."&lang=".LANGUAGE_ID."\">".intVal($k)."</a>";
+			$templates[$k] = "<a href=\"".BX_ROOT."/admin/message_edit.php?ID=".intval($k)."&lang=".LANGUAGE_ID."\">".intval($k)."</a>";
 		}
 	}
 	$row->AddViewField("TEMPLATES", implode("<br />", $templates));

@@ -158,6 +158,7 @@ $MESS["IM_M_CALL_CLOSE_CHAT"] = "The call will end if you close the chat. Procee
 $MESS["IM_M_CALL_CLOSE_CHAT_NO"] = "Cancel";
 $MESS["IM_M_CALL_CLOSE_CHAT_YES"] = "Yes, end the call";
 $MESS["IM_M_CALL_EFP"] = "The call will end if you leave this page!";
+$MESS["IM_M_CALL_OPEN_CHAT"] = "Opening a new chat window will end the call. Continue?";
 $MESS["IM_M_CALL_REINVITE_PLACEHOLDER"] = "Select users";
 $MESS["IM_M_CALL_SCREEN"] = "Share screen";
 $MESS["IM_M_CALL_SCREEN_ERROR"] = "Screensharing is only available in the new version of the Bitrix24 desktop application. Install it now in order to be able to use this feature.";

@@ -63,9 +63,9 @@ class Consent
 			$parameters['URL'] = ($request->isHttps() ? "https" : "http")."://".$request->getHttpHost() . $request->getRequestUri();
 		}
 
-		if (strlen($parameters['URL']) > 4000)
+		if (mb_strlen($parameters['URL']) > 4000)
 		{
-			$parameters['URL'] = substr($parameters['URL'], 0, 4000);
+			$parameters['URL'] = mb_substr($parameters['URL'], 0, 4000);
 		}
 
 		if ($originatorId && $originId)

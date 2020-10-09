@@ -206,6 +206,14 @@ Vue.component('bx-im-view-textarea',
 					}
 					text = text+"\n";
 				}
+				else
+				{
+					if (textarea.value && !textarea.value.endsWith(' '))
+					{
+						text = ' '+text;
+					}
+				}
+
 				textarea.value = textarea.value.substring(0, selectionStart) + text + textarea.value.substring(selectionEnd, textarea.value.length);
 
 				if (focus)
@@ -232,6 +240,14 @@ Vue.component('bx-im-view-textarea',
 					}
 					text = text+"\n";
 				}
+				else
+				{
+					if (textarea.value && !textarea.value.endsWith(' '))
+					{
+						text = ' '+text;
+					}
+				}
+
 				textarea.value = textarea.value+text;
 
 				if (focus)

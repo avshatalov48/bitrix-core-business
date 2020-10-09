@@ -52,17 +52,17 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($edit_php || $lpa) && check_bitrix_s
 			for ($n = 0; $n<$l; $n++)
 			{
 				$start = $arPHP[$n][0];
-				$new_content .= LPA::EncodePHPTags(substr($content_,$end,$start-$end));
+				$new_content .= LPA::EncodePHPTags(mb_substr($content_, $end, $start - $end));
 				$end = $arPHP[$n][1];
 
 				//Trim php tags
 				$src = $arPHP[$n][2];
-				if (substr($src, 0, 5) == "<?php")
-					$src = '<?'.substr($src, 5);
+				if (mb_substr($src, 0, 5) == "<?php")
+					$src = '<?'.mb_substr($src, 5);
 
 				//If it's Component 2 - we handle it's params, non components2 will be erased
 				$comp2_begin = '<?$APPLICATION->INCLUDECOMPONENT(';
-				if (strtoupper(substr($src,0, strlen($comp2_begin))) == $comp2_begin)
+				if (mb_strtoupper(mb_substr($src, 0, mb_strlen($comp2_begin))) == $comp2_begin)
 				{
 					$arRes = PHPParser::CheckForComponent2($src);
 					if ($arRes)
@@ -74,7 +74,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($edit_php || $lpa) && check_bitrix_s
 						//all php fragments wraped by ={}
 						foreach ($arParams as $param_name => $paramval)
 						{
-							if (substr($paramval,0,2) == '={' && substr($paramval,-1) == '}')
+							if (mb_substr($paramval, 0, 2) == '={' && mb_substr($paramval, -1) == '}')
 								$arPHPparams[] = $param_name;
 						}
 
@@ -123,14 +123,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($edit_php || $lpa) && check_bitrix_s
 				}
 			}
 
-			$new_content .= LPA::EncodePHPTags(substr($content_,$end));
+			$new_content .= LPA::EncodePHPTags(mb_substr($content_, $end));
 			$CONTENT = $new_content;
 		}
 		else
 			$CONTENT = LPA::EncodePHPTags($new_content);
 
 		// Get array of PHP scripts from original template src
-		if(strlen($ID) > 0)
+		if($ID <> '')
 		{
 			$templ = CSiteTemplate::GetByID($ID);
 			if(!$templ->ExtractFields("str_"))
@@ -157,27 +157,27 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($edit_php || $lpa) && check_bitrix_s
 			for ($n = 0; $n<$l; $n++)
 			{
 				$start = $arPHP[$n][0];
-				$s_cont = substr($old_content, $end, $start - $end);
+				$s_cont = mb_substr($old_content, $end, $start - $end);
 				$end = $arPHP[$n][1];
 
 				if ($n == 0)
 					continue;
 
 				$src = $arPHP[$n][2];
-				if (strpos($s_cont, $wa) !== false)
+				if (mb_strpos($s_cont, $wa) !== false)
 				{
-					$s2 = substr($s_cont, strpos($s_cont, $wa) + strlen($wa)).$src;
+					$s2 = mb_substr($s_cont, mb_strpos($s_cont, $wa) + mb_strlen($wa)).$src;
 					continue;
 				}
 				//Trim php tags
-				$src = SubStr($src, ((SubStr($src, 0, 5) == "<?"."php") ? 5 : 2));
-				$src = SubStr($src, 0, -2);
+				$src = mb_substr($src, ((mb_substr($src, 0, 5) == "<?"."php")? 5 : 2));
+				$src = mb_substr($src, 0, -2);
 
 				$comp2_begin = '$APPLICATION->INCLUDECOMPONENT(';
 
 				$usrc = unifyPHPfragment($src);
 				if ($usrc == unifyPHPfragment('$APPLICATION->ShowPanel()') ||
-					strtoupper(substr($src,0, strlen($comp2_begin))) == $comp2_begin) // component 2.0 or another predefined fragment
+					mb_strtoupper(mb_substr($src, 0, mb_strlen($comp2_begin))) == $comp2_begin) // component 2.0 or another predefined fragment
 					continue;
 				$arPHPscripts[] = $src;
 			}
@@ -189,7 +189,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($edit_php || $lpa) && check_bitrix_s
 		while (preg_match('/#PHP\d{4}#/i', $CONTENT, $res_php, PREG_OFFSET_CAPTURE))
 		{
 			$php_begin = $res_php[0][1];
-			$php_fr_num = intval(substr($CONTENT, $php_begin + 4, 4)) - 1; // Number of PHP fragment from #PHPXXXX# conctruction
+			$php_fr_num = intval(mb_substr($CONTENT, $php_begin + 4, 4)) - 1; // Number of PHP fragment from #PHPXXXX# conctruction
 			if (isset($arPHPscripts[$php_fr_num]))
 			{
 				$codeFragment = '<?'.$arPHPscripts[$php_fr_num].'?>';
@@ -198,53 +198,53 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($edit_php || $lpa) && check_bitrix_s
 			{
 				$codeFragment = '<??>';
 			}
-			$CONTENT = substr($CONTENT, 0, $php_begin).$codeFragment.substr($CONTENT, $php_begin + 9);
+			$CONTENT = mb_substr($CONTENT, 0, $php_begin).$codeFragment.mb_substr($CONTENT, $php_begin + 9);
 		}
 
 		//Add ..->ShowPanel() & "Secutity Stubs"
 		$sp = '<?$APPLICATION->ShowPanel();?>';
 		$body = '<body>';
-		$body_pos = strpos($CONTENT, $body);
+		$body_pos = mb_strpos($CONTENT, $body);
 		if ($body_pos > 0)
-			$content_ = substr($CONTENT, 0, $body_pos + strlen($body)).$sp.substr($CONTENT, $body_pos + strlen($body));
+			$content_ = mb_substr($CONTENT, 0, $body_pos + mb_strlen($body)).$sp.mb_substr($CONTENT, $body_pos + mb_strlen($body));
 		else
 			$content_ = $CONTENT;
 
 		$wa = '#WORK_AREA#';
-		$wa_pos = strpos($content_, $wa, $body_pos);
+		$wa_pos = mb_strpos($content_, $wa, $body_pos);
 		if ($wa_pos > 0)
-			$content__ = $s1.substr($content_, 0, $wa_pos + strlen($wa)).$s2.substr($content_, $wa_pos + strlen($wa));
+			$content__ = $s1.mb_substr($content_, 0, $wa_pos + mb_strlen($wa)).$s2.mb_substr($content_, $wa_pos + mb_strlen($wa));
 
 		$CONTENT = $content__;
 	}
 	// *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *
 
-	if ($USER->CanDoFileOperation('fm_view_file', array(SITE_ID, BX_PERSONAL_ROOT."/templates/".$ID)) && strlen($ID) > 0)
+	if ($USER->CanDoFileOperation('fm_view_file', array(SITE_ID, BX_PERSONAL_ROOT."/templates/".$ID)) && $ID <> '')
 		CopyDirFiles($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/templates/".$ID, $_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/tmp/templates/__bx_preview", false, true);
 
-	if(strlen($CONTENT) > 0)
+	if($CONTENT <> '')
 	{
-		$p = strpos($CONTENT, "#WORK_AREA#");
+		$p = mb_strpos($CONTENT, "#WORK_AREA#");
 		if ($p === false)
 			$strWaring .= GetMessage('MAIN_TP_ERROR_WORK_AREA');
 
 		checkError($strWaring);
 
-		$header = substr($CONTENT, 0, $p);
+		$header = mb_substr($CONTENT, 0, $p);
 		if (!$APPLICATION->SaveFileContent($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/tmp/templates/__bx_preview/header.php", $header))
 			$strWaring .= GetMessage('MAIN_TP_ERROR_SAVE_FILE', Array('#FILE#' => 'header.php'));
 
-		$footer = substr($CONTENT, $p + strlen("#WORK_AREA#"));
+		$footer = mb_substr($CONTENT, $p + mb_strlen("#WORK_AREA#"));
 		if (!$APPLICATION->SaveFileContent($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/tmp/templates/__bx_preview/footer.php", $footer))
 			$strWaring .= GetMessage('MAIN_TP_ERROR_SAVE_FILE', Array('#FILE#' => 'footer.php'));
 	}
 
-	if(strlen($STYLES) == 0)
+	if($STYLES == '')
 		$STYLES = ' ';
 	if (!$APPLICATION->SaveFileContent($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/tmp/templates/__bx_preview/styles.css", $STYLES))
 		$strWaring .= GetMessage('MAIN_TP_ERROR_SAVE_FILE', Array('#FILE#' => 'styles.css'));
 
-	if(strlen($TEMPLATE_STYLES) == 0)
+	if($TEMPLATE_STYLES == '')
 		$TEMPLATE_STYLES = ' ';
 	if (!$APPLICATION->SaveFileContent($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/tmp/templates/__bx_preview/template_styles.css", $TEMPLATE_STYLES))
 		$strWaring .= GetMessage('MAIN_TP_ERROR_SAVE_FILE', Array('#FILE#' => 'template_styles.css'));
@@ -260,9 +260,9 @@ __status = true;
 
 function unifyPHPfragment($str)
 {
-	if (substr($str, -1) == ';')
-		$str = substr($str, 0, -1);
-	$str = strtolower($str);
+	if (mb_substr($str, -1) == ';')
+		$str = mb_substr($str, 0, -1);
+	$str = mb_strtolower($str);
 	$str = preg_replace("/\\s/i", "", $str);
 	return $str;
 }
@@ -275,7 +275,7 @@ function _replacer($str)
 
 function checkError($strWaring)
 {
-	if (strlen($strWaring) <= 0)
+	if ($strWaring == '')
 		return;
 	echo 'ERROR';
 

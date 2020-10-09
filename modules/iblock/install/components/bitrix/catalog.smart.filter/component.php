@@ -960,9 +960,7 @@ if ($arParams["XML_EXPORT"] === "Y" && $_REQUEST["mode"] === "xml")
 	while(ob_end_clean());
 	header("Content-Type: text/xml; charset=utf-8");
 	$error = "";
-	echo \Bitrix\Main\Text\Encoding::convertEncoding($xml, LANG_CHARSET, "utf-8", $error);
-	CMain::FinalActions();
-	die();
+	CMain::FinalActions(\Bitrix\Main\Text\Encoding::convertEncoding($xml, LANG_CHARSET, "utf-8", $error));
 }
 elseif(isset($_REQUEST["ajax"]) && $_REQUEST["ajax"] === "y")
 {
@@ -974,9 +972,7 @@ elseif(isset($_REQUEST["ajax"]) && $_REQUEST["ajax"] === "y")
 	$APPLICATION->RestartBuffer();
 	while(ob_end_clean());
 	header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
-	CMain::FinalActions();
-	echo $json;
-	die();
+	CMain::FinalActions($json);
 }
 else
 {

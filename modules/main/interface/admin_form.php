@@ -173,7 +173,7 @@ class CAdminForm extends CAdminTabControl
 
 				if($this->bCustomFields)
 				{
-					if(is_array($_SESSION["ADMIN_CUSTOM_FIELDS"]) && array_key_exists($this->name, $_SESSION["ADMIN_CUSTOM_FIELDS"]))
+					if(is_array(\Bitrix\Main\Application::getInstance()->getSession()["ADMIN_CUSTOM_FIELDS"]) && array_key_exists($this->name, \Bitrix\Main\Application::getInstance()->getSession()["ADMIN_CUSTOM_FIELDS"]))
 					{
 						$aAdditionalMenu[] = array(
 							"TEXT" => GetMessage("admin_lib_sett_sett_enable_text"),
@@ -197,7 +197,7 @@ class CAdminForm extends CAdminTabControl
 				if (count($aAdditionalMenu) > 1)
 				{
 					$sMenuUrl = "BX.adminShowMenu(this, ".htmlspecialcharsbx(CAdminPopup::PhpToJavaScript($aAdditionalMenu)).", {active_class: 'bx-settings-btn-active'});";
-					$bCustomFieldsOff = is_array($_SESSION["ADMIN_CUSTOM_FIELDS"]) && array_key_exists($this->name, $_SESSION["ADMIN_CUSTOM_FIELDS"]);
+					$bCustomFieldsOff = is_array(\Bitrix\Main\Application::getInstance()->getSession()["ADMIN_CUSTOM_FIELDS"]) && array_key_exists($this->name, \Bitrix\Main\Application::getInstance()->getSession()["ADMIN_CUSTOM_FIELDS"]);
 
 					$s .= '<span id="'.$this->name.'_settings_btn" class="adm-detail-settings adm-detail-settings-arrow'.($bCustomFieldsOff ? '' : ' adm-detail-settings-active').'" onclick="'.$sMenuUrl.'"></span>';
 				}
@@ -312,7 +312,7 @@ class CAdminForm extends CAdminTabControl
 					{
 						$arNewField = false;
 					}
-					elseif(strlen($content) > 0)
+					elseif($content <> '')
 					{
 						$arNewField = array(
 							"id" => $field_id,
@@ -376,18 +376,18 @@ class CAdminForm extends CAdminTabControl
 			ob_end_flush();
 		}
 
-		if(!is_array($_SESSION["ADMIN_CUSTOM_FIELDS"]))
-			$_SESSION["ADMIN_CUSTOM_FIELDS"] = array();
+		if(!is_array(\Bitrix\Main\Application::getInstance()->getSession()["ADMIN_CUSTOM_FIELDS"]))
+			\Bitrix\Main\Application::getInstance()->getSession()["ADMIN_CUSTOM_FIELDS"] = array();
 		$arDisabled = CUserOptions::GetOption("form", $this->name."_disabled", "N");
 		if(is_array($arDisabled) && $arDisabled["disabled"] === "Y")
 		{
-			$_SESSION["ADMIN_CUSTOM_FIELDS"][$this->name] = true;
+			\Bitrix\Main\Application::getInstance()->getSession()["ADMIN_CUSTOM_FIELDS"][$this->name] = true;
 			$this->tabs = $this->arSavedTabs;
 			$this->arFields = $this->arSystemFields;
 		}
 		else
 		{
-			unset($_SESSION["ADMIN_CUSTOM_FIELDS"][$this->name]);
+			unset(\Bitrix\Main\Application::getInstance()->getSession()["ADMIN_CUSTOM_FIELDS"][$this->name]);
 		}
 
 		if(isset($_REQUEST[$this->name."_active_tab"]))
@@ -416,8 +416,8 @@ class CAdminForm extends CAdminTabControl
 						foreach($arTab["FIELDS"] as $arField)
 						{
 							if(
-								(strlen($this->arFields[$arField["id"]]["custom_html"]) > 0)
-								|| (strlen($this->arFields[$arField["id"]]["html"]) > 0)
+								($this->arFields[$arField["id"]]["custom_html"] <> '')
+								|| ($this->arFields[$arField["id"]]["html"] <> '')
 							)
 							{
 								$p = array_search($arField["id"], $this->arFields[$this->group]["group"]);
@@ -463,14 +463,14 @@ class CAdminForm extends CAdminTabControl
 							}
 						}
 					}
-					elseif(strlen($this->arFields[$arField["id"]]["custom_html"]) > 0)
+					elseif($this->arFields[$arField["id"]]["custom_html"] <> '')
 					{
 						if($this->group_ajax)
 							echo preg_replace("#<script[^>]*>.*?</script>#im".BX_UTF_PCRE_MODIFIER, "", $this->arFields[$arField["id"]]["custom_html"]);
 						else
 							echo $this->arFields[$arField["id"]]["custom_html"];
 					}
-					elseif(strlen($this->arFields[$arField["id"]]["html"]) > 0)
+					elseif($this->arFields[$arField["id"]]["html"] <> '')
 					{
 						$rowClass = (
 							array_key_exists("rowClass", $this->arFields[$arField["id"]])
@@ -512,11 +512,11 @@ class CAdminForm extends CAdminTabControl
 		{
 			if($arField["required"])
 			{
-				if(strlen($this->arFields[$arField["id"]]["custom_html"]) > 0)
+				if($this->arFields[$arField["id"]]["custom_html"] <> '')
 				{
 					$requiredFields .= $this->arFields[$arField["id"]]["custom_html"];
 				}
-				elseif(strlen($this->arFields[$arField["id"]]["html"]) > 0)
+				elseif($this->arFields[$arField["id"]]["html"] <> '')
 				{
 					if($this->arFields[$arField["id"]]["delimiter"])
 						$requiredFields .= '<tr class="heading">';
@@ -573,7 +573,7 @@ class CAdminForm extends CAdminTabControl
 
 	function GetCustomLabel($id, $content)
 	{
-		$bColumnNeeded = substr($content, -1)==":";
+		$bColumnNeeded = mb_substr($content, -1) == ":";
 
 		if($id === false)
 			return $this->sCurrentLabel;
@@ -585,7 +585,7 @@ class CAdminForm extends CAdminTabControl
 
 	function GetCustomLabelHTML($id = false, $content = "")
 	{
-		$bColumnNeeded = substr($content, -1)==":";
+		$bColumnNeeded = mb_substr($content, -1) == ":";
 
 		if($id === false)
 			return ($this->bCurrentReq? '<span class="adm-required-field">'.htmlspecialcharsex($this->sCurrentLabel).'</span>': htmlspecialcharsex($this->sCurrentLabel));
@@ -957,8 +957,10 @@ class CAdminForm extends CAdminTabControl
 	{
 		if ($this->bPublicMode)
 		{
-			if (strlen($_REQUEST['from_module']))
+			if($_REQUEST['from_module'] <> '')
+			{
 				$this->sButtonsContent .= '<input type="hidden" name="from_module" value="'.htmlspecialcharsbx($_REQUEST['from_module']).'" />';
+			}
 
 			ob_start();
 			if ($arJSButtons === false)
@@ -977,7 +979,7 @@ class CAdminForm extends CAdminTabControl
 ';
 				foreach ($arJSButtons as $key => $btn)
 				{
-					if (substr($btn, 0, 1) == '.')
+					if (mb_substr($btn, 0, 1) == '.')
 						$btn = $this->publicObject.$btn;
 					echo $key ? ',' : '', $btn, "\r\n"; // NO JSESCAPE HERE! string must contain valid js object
 				}

@@ -80,7 +80,7 @@ bxDateInputs['<?=$fIndex?>'] = {
 <div id="hidden_<?=$fIndex?>" style="display:none;">
 	<div class="fields datetime">
 		<input type="text" name="#FIELD_NAME#" value=""<?
-	if (intVal($arParams["arUserField"]["SETTINGS"]["SIZE"]) > 0):
+	if (intval($arParams["arUserField"]["SETTINGS"]["SIZE"]) > 0):
 		?> size="<?=$arParams["arUserField"]["SETTINGS"]["SIZE"]?>"<?
 	endif;
 ?> class="fields datetime"><?

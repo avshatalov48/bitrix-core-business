@@ -10016,6 +10016,27 @@
 	  }
 	}
 
+	function fetchExtensionSettings(html) {
+	  if (Type.isStringFilled(html)) {
+	    var scripts = html.match(/<script type="extension\/settings" \b[^>]*>([\s\S]*?)<\/script>/g);
+
+	    if (Type.isArrayFilled(scripts)) {
+	      return scripts.map(function (script) {
+	        var _script$match = script.match(/data-extension="(.[a-z0-9_.-]+)"/),
+	            _script$match2 = babelHelpers.slicedToArray(_script$match, 2),
+	            extension = _script$match2[1];
+
+	        return {
+	          extension: extension,
+	          script: script
+	        };
+	      });
+	    }
+	  }
+
+	  return [];
+	}
+
 	var Extension =
 	/*#__PURE__*/
 	function () {
@@ -10029,6 +10050,7 @@
 	    this.inlineScripts = result.SCRIPT.reduce(inlineScripts, []);
 	    this.externalScripts = result.SCRIPT.reduce(externalScripts, []);
 	    this.externalStyles = result.STYLE.reduce(externalStyles, []);
+	    this.settingsScripts = fetchExtensionSettings(result.HTML);
 	  }
 
 	  babelHelpers.createClass(Extension, [{
@@ -10042,8 +10064,14 @@
 	      }
 
 	      if (!this.loadPromise && this.state) {
-	        this.state = 'load'; // eslint-disable-next-line
+	        this.state = 'load';
+	        this.settingsScripts.forEach(function (entry) {
+	          var isLoaded = !!document.querySelector("script[data-extension=\"".concat(entry.extension, "\"]"));
 
+	          if (!isLoaded) {
+	            document.body.insertAdjacentHTML('beforeend', entry.script);
+	          }
+	        });
 	        this.inlineScripts.forEach(BX.evalGlobal);
 	        this.loadPromise = Promise.all([loadAll(this.externalScripts), loadAll(this.externalStyles)]).then(function () {
 	          _this.state = 'loaded';
@@ -10157,9 +10185,9 @@
 	 */
 	function loadExtension(extension) {
 	  var extensions = makeIterable(extension);
-	  var isAllInitialized$$1 = isAllInitialized(extensions);
+	  var isAllInitialized$1 = isAllInitialized(extensions);
 
-	  if (isAllInitialized$$1) {
+	  if (isAllInitialized$1) {
 	    var initializedExtensions = extensions.map(getInitialized);
 	    return loadExtensions(initializedExtensions).then(mergeExports);
 	  }
@@ -10406,7 +10434,7 @@
 
 	  }, {
 	    key: "merge",
-	    value: function merge$$1() {
+	    value: function merge$1() {
 	      for (var _len3 = arguments.length, targets = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
 	        targets[_key3] = arguments[_key3];
 	      }
@@ -10428,6 +10456,42 @@
 	      var orders = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
 	      var comparator = createComparator(fields, orders);
 	      return Object.values(collection).sort(comparator);
+	    }
+	  }, {
+	    key: "destroy",
+	    value: function destroy(target) {
+	      var errorMessage = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'Object is destroyed';
+
+	      if (Type.isObject(target)) {
+	        var onPropertyAccess = function onPropertyAccess() {
+	          throw new Error(errorMessage);
+	        };
+
+	        var ownProperties = Object.keys(target);
+
+	        var prototypeProperties = function () {
+	          var targetPrototype = Object.getPrototypeOf(target);
+
+	          if (Type.isObject(targetPrototype)) {
+	            return Object.getOwnPropertyNames(targetPrototype);
+	          }
+
+	          return [];
+	        }();
+
+	        var uniquePropertiesList = babelHelpers.toConsumableArray(new Set([].concat(babelHelpers.toConsumableArray(ownProperties), babelHelpers.toConsumableArray(prototypeProperties))));
+	        uniquePropertiesList.filter(function (name) {
+	          var descriptor = Object.getOwnPropertyDescriptor(target, name);
+	          return !/__(.+)__/.test(name) && (!Type.isObject(descriptor) || descriptor.configurable === true);
+	        }).forEach(function (name) {
+	          Object.defineProperty(target, name, {
+	            get: onPropertyAccess,
+	            set: onPropertyAccess,
+	            configurable: false
+	          });
+	        });
+	        Object.setPrototypeOf(target, null);
+	      }
 	    }
 	  }]);
 	  return Runtime;
@@ -11998,9 +12062,6 @@
 	      }
 
 	      exports.isReady = true;
-	      break;
-
-	    default:
 	      break;
 	  }
 	}
@@ -14214,6 +14275,105 @@
 	babelHelpers.defineProperty(Cache, "MemoryCache", MemoryCache);
 	babelHelpers.defineProperty(Cache, "LocalStorageCache", LocalStorageCache);
 
+	function convertPath(path) {
+	  if (Type.isStringFilled(path)) {
+	    return path.split('.').reduce(function (acc, item) {
+	      item.split(/\[['"]?(.+?)['"]?\]/g).forEach(function (key) {
+	        if (Type.isStringFilled(key)) {
+	          acc.push(key);
+	        }
+	      });
+	      return acc;
+	    }, []);
+	  }
+
+	  return [];
+	}
+
+	var SettingsCollection =
+	/*#__PURE__*/
+	function () {
+	  function SettingsCollection() {
+	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	    babelHelpers.classCallCheck(this, SettingsCollection);
+
+	    if (Type.isPlainObject(options)) {
+	      Object.assign(this, options);
+	    }
+	  }
+
+	  babelHelpers.createClass(SettingsCollection, [{
+	    key: "get",
+	    value: function get(path) {
+	      var defaultValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+	      var convertedPath = convertPath(path);
+	      return convertedPath.reduce(function (acc, key) {
+	        if (!Type.isNil(acc) && acc !== defaultValue) {
+	          if (!Type.isUndefined(acc[key])) {
+	            return acc[key];
+	          }
+
+	          return defaultValue;
+	        }
+
+	        return acc;
+	      }, this);
+	    }
+	  }]);
+	  return SettingsCollection;
+	}();
+
+	function deepFreeze(target) {
+	  if (Type.isObject(target)) {
+	    Object.values(target).forEach(function (value) {
+	      deepFreeze(value);
+	    });
+	    return Object.freeze(target);
+	  }
+
+	  return target;
+	}
+
+	var settingsStorage = new Map();
+
+	var Extension$1 =
+	/*#__PURE__*/
+	function () {
+	  function Extension() {
+	    babelHelpers.classCallCheck(this, Extension);
+	  }
+
+	  babelHelpers.createClass(Extension, null, [{
+	    key: "getSettings",
+	    value: function getSettings(extensionName) {
+	      if (Type.isStringFilled(extensionName)) {
+	        if (settingsStorage.has(extensionName)) {
+	          return settingsStorage.get(extensionName);
+	        }
+
+	        var settingsScriptNode = document.querySelector("script[data-extension=\"".concat(extensionName, "\"]"));
+
+	        if (Type.isDomNode(settingsScriptNode)) {
+	          var decodedSettings = function () {
+	            try {
+	              return new SettingsCollection(JSON.parse(settingsScriptNode.innerHTML));
+	            } catch (error) {
+	              return new SettingsCollection();
+	            }
+	          }();
+
+	          var frozenSettings = deepFreeze(decodedSettings);
+	          settingsStorage.set(extensionName, frozenSettings);
+	          return frozenSettings;
+	        }
+	      }
+
+	      return deepFreeze(new SettingsCollection());
+	    }
+	  }]);
+	  return Extension;
+	}();
+
 	function getElement(element) {
 	  if (Type.isString(element)) {
 	    return document.getElementById(element);
@@ -14536,70 +14696,71 @@
 	  Object.assign(global.window.BX, exports);
 	}
 
-	exports.Type = Type;
-	exports.Reflection = Reflection;
-	exports.Text = Text;
-	exports.Dom = Dom;
+	exports.BaseError = BaseError;
 	exports.Browser = Browser;
+	exports.Cache = Cache;
+	exports.Dom = Dom;
 	exports.Event = Event;
+	exports.Extension = Extension$1;
+	exports.GetContext = GetContext;
+	exports.GetWindowInnerSize = GetWindowInnerSize;
+	exports.GetWindowScrollPos = GetWindowScrollPos;
+	exports.GetWindowScrollSize = GetWindowScrollSize;
+	exports.GetWindowSize = GetWindowSize;
 	exports.Http = Http;
-	exports.Runtime = Runtime;
 	exports.Loc = Loc;
+	exports.Reflection = Reflection;
+	exports.Runtime = Runtime;
 	exports.Tag = Tag;
+	exports.Text = Text;
+	exports.Type = Type;
 	exports.Uri = Uri;
 	exports.Validation = Validation;
-	exports.Cache = Cache;
-	exports.BaseError = BaseError;
-	exports.getClass = getClass;
-	exports.namespace = namespace;
-	exports.message = message$1;
-	exports.replace = replace;
-	exports.remove = remove;
-	exports.clean = clean;
-	exports.insertBefore = insertBefore;
-	exports.insertAfter = insertAfter;
-	exports.append = append;
-	exports.prepend = prepend;
-	exports.style = style;
-	exports.adjust = adjust;
-	exports.create = create;
-	exports.isShown = isShown;
 	exports.addClass = addClass;
-	exports.removeClass = removeClass;
-	exports.hasClass = hasClass;
-	exports.toggleClass = toggleClass;
-	exports.cleanNode = cleanNode;
-	exports.getCookie = getCookie;
-	exports.setCookie = setCookie;
+	exports.addCustomEvent = addCustomEvent;
+	exports.adjust = adjust;
+	exports.ajax = ajax;
+	exports.append = append;
 	exports.bind = bind$1;
-	exports.unbind = unbind$1;
-	exports.unbindAll = unbindAll$1;
 	exports.bindOnce = bindOnce$1;
-	exports.ready = ready$1;
-	exports.debugEnableFlag = debugEnableFlag;
-	exports.debugStatus = debugStatus;
+	exports.browser = browser;
+	exports.clean = clean;
+	exports.cleanNode = cleanNode;
+	exports.clone = clone$1;
+	exports.create = create;
+	exports.debounce = debounce;
 	exports.debug = debug$1;
 	exports.debugEnable = debugEnable;
-	exports.clone = clone$1;
-	exports.loadExt = loadExt;
-	exports.debounce = debounce;
-	exports.throttle = throttle;
+	exports.debugEnableFlag = debugEnableFlag;
+	exports.debugStatus = debugStatus;
+	exports.getClass = getClass;
+	exports.getCookie = getCookie;
+	exports.hasClass = hasClass;
 	exports.html = html;
-	exports.type = type;
-	exports.browser = browser;
-	exports.ajax = ajax;
-	exports.GetWindowScrollSize = GetWindowScrollSize;
-	exports.GetWindowScrollPos = GetWindowScrollPos;
-	exports.GetWindowInnerSize = GetWindowInnerSize;
-	exports.GetWindowSize = GetWindowSize;
-	exports.GetContext = GetContext;
-	exports.pos = pos;
-	exports.addCustomEvent = addCustomEvent;
+	exports.insertAfter = insertAfter;
+	exports.insertBefore = insertBefore;
+	exports.isShown = isShown;
+	exports.loadExt = loadExt;
+	exports.message = message$1;
+	exports.namespace = namespace;
 	exports.onCustomEvent = onCustomEvent;
-	exports.removeCustomEvent = removeCustomEvent;
+	exports.pos = pos;
+	exports.prepend = prepend;
+	exports.ready = ready$1;
+	exports.remove = remove;
 	exports.removeAllCustomEvents = removeAllCustomEvents;
+	exports.removeClass = removeClass;
+	exports.removeCustomEvent = removeCustomEvent;
+	exports.replace = replace;
+	exports.setCookie = setCookie;
+	exports.style = style;
+	exports.throttle = throttle;
+	exports.toggleClass = toggleClass;
+	exports.type = type;
+	exports.unbind = unbind$1;
+	exports.unbindAll = unbindAll$1;
 
-}((this.BX = this.BX || {})));
+}(this.BX = this.BX || {}));
 
 
 
@@ -14699,8 +14860,14 @@
 			var skipTag = false;
 			if ((matchType = matchScript[1].match(r.script_type)) !== null)
 			{
-				if(matchType[1] == 'text/html' || matchType[1] == 'text/template')
+				if(
+					matchType[1] == 'text/html'
+					|| matchType[1] == 'text/template'
+					|| matchType[1] == 'extension/settings'
+				)
+				{
 					skipTag = true;
+				}
 			}
 
 			if(skipTag)

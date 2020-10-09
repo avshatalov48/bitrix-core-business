@@ -48,7 +48,7 @@ if(count($arResult['CLIENT_ACCESS']) > 0)
 	foreach($arResult['CLIENT_ACCESS'] as $scope)
 	{
 		$scopeName = GetMessage("REST_SCOPE_".toUpper($scope));
-		if(strlen($scopeName) <= 0)
+		if($scopeName == '')
 		{
 			$scopeName = $scope;
 		}

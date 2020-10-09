@@ -60,13 +60,13 @@ class CFormValidatorNumSelected
 	{
 		global $APPLICATION;
 
-		if (strlen($arParams["NUMBER_FROM"]) > 0 && count($arValues) < $arParams["NUMBER_FROM"])
+		if ($arParams["NUMBER_FROM"] <> '' && count($arValues) < $arParams["NUMBER_FROM"])
 		{
 			$APPLICATION->ThrowException(GetMessage("FORM_VALIDATOR_VAL_NUM_SELECTED_ERROR_LESS"));
 			return false;
 		}
 
-		if (strlen($arParams["NUMBER_TO"]) > 0 && count($arValues) > $arParams["NUMBER_TO"])
+		if ($arParams["NUMBER_TO"] <> '' && count($arValues) > $arParams["NUMBER_TO"])
 		{
 			$APPLICATION->ThrowException(GetMessage("FORM_VALIDATOR_VAL_NUM_SELECTED_ERROR_MORE"));
 			return false;

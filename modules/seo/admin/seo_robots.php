@@ -103,14 +103,14 @@ $tabControl = new \CAdminTabControl("seoRobotsTabControl", $aTabs, true, true);
 
 $robotsFile = new RobotsFile($siteId);
 
-if($_SERVER['REQUEST_METHOD'] == 'POST' && check_bitrix_sessid() && strlen($_POST["save"]) > 0)
+if($_SERVER['REQUEST_METHOD'] == 'POST' && check_bitrix_sessid() && $_POST["save"] <> '')
 {
 	$robotsFile->putContents($_REQUEST['ROBOTS']);
 	LocalRedirect(BX_ROOT."/admin/seo_robots.php?lang=".LANGUAGE_ID.'&site_id='.$siteId."&".$tabControl->ActiveTabParam());
 }
 
 $hostName = $arCurrentSite['SERVER_NAME'];
-if(strlen($hostName) <= 0)
+if($hostName == '')
 {
 	$hostName = COption::GetOptionString('main', 'server_name', '');
 }

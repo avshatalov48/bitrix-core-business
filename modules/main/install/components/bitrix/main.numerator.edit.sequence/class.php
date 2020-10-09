@@ -136,7 +136,7 @@ class MainNumeratorEditSequence extends CBitrixComponent implements \Bitrix\Main
 				$this->addError(Loc::getMessage('MAIN_NUMERATOR_EDIT_SEQUENCE_ERROR_NUMBER_NOT_NUMERIC'));
 				continue;
 			}
-			if (stristr($compoundKeyString, self::DELIMITER) === false)
+			if (mb_stristr($compoundKeyString, self::DELIMITER) === false)
 			{
 				continue;
 			}

@@ -43,10 +43,10 @@ class NumberType
 	public static function getLogicFilter(array $data, array $filterFields)
 	{
 		$filter = [];
-		$keys = array_filter($data, function($key) { return (substr($key, 0-strlen(self::getPostfix())) == self::getPostfix()); }, ARRAY_FILTER_USE_KEY);
+		$keys = array_filter($data, function($key) { return (mb_substr($key, 0 - mb_strlen(self::getPostfix())) == self::getPostfix()); }, ARRAY_FILTER_USE_KEY);
 		foreach ($keys as $key => $val)
 		{
-			$id = substr($key, 0, 0-strlen(self::getPostfix()));
+			$id = mb_substr($key, 0, 0 - mb_strlen(self::getPostfix()));
 			switch($val)
 			{
 				case self::SINGLE:

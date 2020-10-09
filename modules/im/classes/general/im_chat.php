@@ -1600,6 +1600,7 @@ class CIMChat
 				$dbSubRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 				while ($arRes = $dbSubRes->Fetch())
 				{
+					//$ssqlLastId = intval($arRes['LAST_ID']);
 					$arRelations[] = $arRes;
 				}
 			}

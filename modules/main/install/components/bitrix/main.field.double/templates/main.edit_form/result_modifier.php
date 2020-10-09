@@ -11,7 +11,7 @@ $arResult['userField']['MULTIPLE'] === 'Y' ? 'top' : 'middle'
 if(
 	$arResult['userField']['ENTITY_VALUE_ID'] < 1
 	&&
-	strlen($arResult['userField']['SETTINGS']['DEFAULT_VALUE'])
+	mb_strlen($arResult['userField']['SETTINGS']['DEFAULT_VALUE'])
 )
 {
 	$value = htmlspecialcharsbx(
@@ -21,7 +21,7 @@ if(
 
 foreach($arResult['value'] as $key => $value)
 {
-	if(strlen($arUserField['SETTINGS']['VALUE']))
+	if($arUserField['SETTINGS']['VALUE'] <> '')
 	{
 		$value = round(
 			(double)$arResult['additionalParameters']['VALUE'],

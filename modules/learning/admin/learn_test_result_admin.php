@@ -73,7 +73,7 @@ if($lAdmin->EditAction()) // save from the list
 			continue;
 
 		$DB->StartTransaction();
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$ob = new CTestResult;
 		if(!$ob->Update($ID, $arFields))
@@ -104,7 +104,7 @@ if($arID = $lAdmin->GroupAction())
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
 
 		$ID = intval($ID);
@@ -166,7 +166,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 			$rsResponse = CLAnswer::GetByID((int) $responseID);
 			$arResponseData = $rsResponse->GetNext();
 
-			if (strlen($arRes['RESPONSE_TEXT']) > 0)
+			if ($arRes['RESPONSE_TEXT'] <> '')
 				$arRes['RESPONSE_TEXT'] .=  '<hr>';
 
 			$arRes['RESPONSE_TEXT'] .=  $arResponseData['ANSWER'];

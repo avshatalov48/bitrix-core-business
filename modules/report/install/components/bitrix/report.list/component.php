@@ -27,7 +27,7 @@ if($isPost && isset($_POST['HELPER_CLASS']))
 }
 
 if (!is_string($helperClassName)
-	|| strlen($helperClassName) < 1
+	|| mb_strlen($helperClassName) < 1
 	|| !class_exists($helperClassName)
 	|| !is_subclass_of($helperClassName, 'CReportHelper'))
 {

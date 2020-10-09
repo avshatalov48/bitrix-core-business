@@ -44,10 +44,10 @@ if (!function_exists("_GetAnswerArray1"))
 	$URL_NAME_DEFAULT = array(
 			"vote_result" => "PAGE_NAME=vote_result&VOTE_ID=#VOTE_ID#");
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE):
-		if (strlen(trim($arParams[strtoupper($URL)."_TEMPLATE"])) <= 0)
-			$arParams[strtoupper($URL)."_TEMPLATE"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~".strtoupper($URL)."_TEMPLATE"] = $arParams[strtoupper($URL)."_TEMPLATE"];
-		$arParams[strtoupper($URL)."_TEMPLATE"] = htmlspecialcharsbx($arParams["~".strtoupper($URL)."_TEMPLATE"]);
+		if (trim($arParams[mb_strtoupper($URL)."_TEMPLATE"]) == '')
+			$arParams[mb_strtoupper($URL)."_TEMPLATE"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~".mb_strtoupper($URL)."_TEMPLATE"] = $arParams[mb_strtoupper($URL)."_TEMPLATE"];
+		$arParams[mb_strtoupper($URL)."_TEMPLATE"] = htmlspecialcharsbx($arParams["~".mb_strtoupper($URL)."_TEMPLATE"]);
 	endforeach;
 /************** CACHE **********************************************/
 	if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
@@ -55,7 +55,7 @@ if (!function_exists("_GetAnswerArray1"))
 	else
 		$arParams["CACHE_TIME"] = 0;
 
-	$arParams["ADDITIONAL_CACHE_ID"] = (isset($arParams["ADDITIONAL_CACHE_ID"]) && strlen($arParams["ADDITIONAL_CACHE_ID"]) > 0 ?
+	$arParams["ADDITIONAL_CACHE_ID"] = (isset($arParams["ADDITIONAL_CACHE_ID"]) && $arParams["ADDITIONAL_CACHE_ID"] <> '' ?
 		$arParams["ADDITIONAL_CACHE_ID"] : $USER->GetGroups());
 /********************************************************************
 				/Input params
@@ -64,8 +64,8 @@ if ($GLOBALS["VOTING_OK"] == "Y"  && ($GLOBALS["VOTING_ID"] == $arParams["VOTE_I
 {
 	$strNavQueryString = DeleteParam(array("VOTE_ID", "VOTING_OK", "VOTE_SUCCESSFULL", "view_result", "view_form"));
 	$strNavQueryString = ($strNavQueryString <> "" ? "&" : "").$strNavQueryString;
-	$delimiter = (strpos($arParams["VOTE_RESULT_TEMPLATE"], "?") === false) ? "?":"&";
-	if (strpos($arParams["VOTE_RESULT_TEMPLATE"], "#VOTE_ID#") === false)
+	$delimiter = (mb_strpos($arParams["VOTE_RESULT_TEMPLATE"], "?") === false) ? "?":"&";
+	if (mb_strpos($arParams["VOTE_RESULT_TEMPLATE"], "#VOTE_ID#") === false)
 	{
 		$arParams["VOTE_RESULT_TEMPLATE"] .= $delimiter."VOTE_ID=".$_REQUEST["VOTE_ID"];
 		$url = CComponentEngine::makePathFromTemplate(
@@ -85,8 +85,8 @@ if ($GLOBALS["VOTING_OK"] == "Y"  && ($GLOBALS["VOTING_ID"] == $arParams["VOTE_I
 $arResult["URL"] = array(
 	"RESULT" => CComponentEngine::MakePathFromTemplate(
 		$arParams["VOTE_RESULT_TEMPLATE"].
-			(strpos($arParams["VOTE_RESULT_TEMPLATE"], "?") === false ? "?" : "&").
-			(strpos($arParams["VOTE_RESULT_TEMPLATE"], "#VOTE_ID#") === false ? "VOTE_ID=#VOTE_ID#&" : "").
+			(mb_strpos($arParams["VOTE_RESULT_TEMPLATE"], "?") === false ? "?" : "&").
+			(mb_strpos($arParams["VOTE_RESULT_TEMPLATE"], "#VOTE_ID#") === false ? "VOTE_ID=#VOTE_ID#&" : "").
 			"view_result=Y",
 		array("VOTE_ID" => $arParams["VOTE_ID"]))
 );

@@ -57,7 +57,7 @@ if (!empty($arParams["ADDITIONAL"]))
 {
 	$res = reset($arParams["ADDITIONAL"]);
 	$res = trim($res);
-	$addSpan = (substr($res, 0, 1) == "<");
+	$addSpan = (mb_substr($res, 0, 1) == "<");
 }
 $arParams["ADDITIONAL_TYPE"] = ($addSpan ? "html" : "popup");
 if ($arParams["TEXT"]["~SHOW"] != "Y")
@@ -268,7 +268,7 @@ $arParams["IMAGE"] = array("WIDTH" => 90, "HEIGHT" => 90);
 
 if (
 	IsModuleInstalled("extranet")
-	&& strlen(COption::GetOptionString("extranet", "extranet_site")) > 0
+	&& COption::GetOptionString("extranet", "extranet_site") <> ''
 )
 {
 	$arResult["EXTRANET_ROOT"] = array(

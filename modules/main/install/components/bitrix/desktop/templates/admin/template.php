@@ -149,7 +149,7 @@ if($arResult["PERMISSION"] > "R"):
 	<div class="bx-gadgets-header"><?
 		if (array_key_exists($arParams["DESKTOP_PAGE"], $arResult["DESKTOPS"]))
 		{
-			$title = (strlen($arResult["DESKTOPS"][$arParams["DESKTOP_PAGE"]]["NAME"]) > 0 ? $arResult["DESKTOPS"][$arParams["DESKTOP_PAGE"]]["NAME"] : str_replace("#NUM#", intval($arParams["DESKTOP_PAGE"] + 1), GetMessage("CMDESKTOP_TDEF_ADMIN_TITLE_DEFAULT")));
+			$title = ($arResult["DESKTOPS"][$arParams["DESKTOP_PAGE"]]["NAME"] <> '' ? $arResult["DESKTOPS"][$arParams["DESKTOP_PAGE"]]["NAME"] : str_replace("#NUM#", intval($arParams["DESKTOP_PAGE"] + 1), GetMessage("CMDESKTOP_TDEF_ADMIN_TITLE_DEFAULT")));
 			$title = str_replace("#TITLE#", $title, GetMessage("CMDESKTOP_TDEF_ADMIN_TITLE"));
 			?><h1 id="adm-title" class="adm-title" id=""><?=htmlspecialcharsbx($title)?></h1><?
 		}
@@ -208,7 +208,7 @@ endif;
 
 			if ($arGadget["COLOURFUL"])
 			{
-				?><div class="bx-gadgets-colourful bx-gadgets<?=(strlen($arGadget["TITLE_ICON_CLASS"]) > 0 ? " ".$arGadget["TITLE_ICON_CLASS"] : "")?>" id="t<?=$arGadget["ID"]?>">
+				?><div class="bx-gadgets-colourful bx-gadgets<?=($arGadget["TITLE_ICON_CLASS"] <> '' ? " ".$arGadget["TITLE_ICON_CLASS"] : "")?>" id="t<?=$arGadget["ID"]?>">
 					<div class="bx-gadgets-content">
 						<?=$arGadget["CONTENT"]?><?
 						if ($bChangable)
@@ -221,7 +221,7 @@ endif;
 			}
 			else
 			{
-				?><div class="bx-gadgets<?=(strlen($arGadget["TITLE_ICON_CLASS"]) > 0 ? " ".$arGadget["TITLE_ICON_CLASS"] : "")?>" id="t<?=$arGadget["ID"]?>">
+				?><div class="bx-gadgets<?=($arGadget["TITLE_ICON_CLASS"] <> '' ? " ".$arGadget["TITLE_ICON_CLASS"] : "")?>" id="t<?=$arGadget["ID"]?>">
 					<div class="bx-gadgets-top-wrap" onmousedown="return getGadgetHolder('<?=AddSlashes($arResult["ID"])?>').DragStart('<?=$arGadget["ID"]?>', event)">
 						<div class="bx-gadgets-top-center">
 							<div class="bx-gadgets-top-title"><?=$arGadget["TITLE"]?></div>

@@ -74,11 +74,11 @@ elseif ($GLOBALS["VOTING_OK"] == "Y" && $GLOBALS["VOTING_ID"] == $arParams["VOTE
 {
 	$var = array("VOTE_ID", "VOTING_OK", "VOTE_SUCCESSFULL", "view_result", "view_form");
 	$url = CComponentEngine::MakePathFromTemplate($arParams["VOTE_RESULT_TEMPLATE"], array("VOTE_ID" => $arResult["VOTE"]["ID"]));
-	if (strpos($url, "?") === false)
+	if (mb_strpos($url, "?") === false)
 	{
 		$url .= "?";
 	}
-	elseif (($token = substr($url, (strpos($url, "?") + 1))) && !empty($token) &&
+	elseif (($token = mb_substr($url, (mb_strpos($url, "?") + 1))) && !empty($token) &&
 		preg_match_all("/(?<=^|\&)\w+(?=$|\=)/is", $token, $matches))
 	{
 		$var = array_merge($var, $matches[0]);

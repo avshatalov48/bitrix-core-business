@@ -3438,7 +3438,7 @@ class CAllIBlockElement
 		}
 		$arFields["SEARCHABLE_CONTENT"] = ToUpper($arFields["SEARCHABLE_CONTENT"]);
 
-		if(!$this->CheckFields($arFields) || mb_strlen($strWarning))
+		if(!$this->CheckFields($arFields) || $strWarning != '')
 		{
 			$this->LAST_ERROR .= $strWarning;
 			$Result = false;

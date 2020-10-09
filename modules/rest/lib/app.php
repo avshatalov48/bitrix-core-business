@@ -7,6 +7,7 @@ use Bitrix\Main\EventResult;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Rest\Marketplace\Client;
 use Bitrix\Main\ORM\Fields\Relations\OneToMany;
+use Bitrix\Rest\Preset\EventController;
 
 Loc::loadMessages(__FILE__);
 
@@ -236,6 +237,7 @@ class AppTable extends Main\Entity\DataManager
 
 	public static function onAfterAdd(Main\Entity\Event $event)
 	{
+		EventController::onAddApp($event);
 		if(!static::$skipRemoteUpdate)
 		{
 			$data = $event->getParameters();
@@ -559,7 +561,7 @@ class AppTable extends Main\Entity\DataManager
 			$res['PAYMENT_EXPIRED'] = 'N';
 			$res['PAYMENT_ALLOW'] = 'Y';
 
-			if(strlen($app['DATE_FINISH']) > 0 && $app['STATUS'] != self::STATUS_FREE)
+			if($app['DATE_FINISH'] <> '' && $app['STATUS'] != self::STATUS_FREE)
 			{
 				$res['DAYS_LEFT'] = floor(
 					(MakeTimeStamp($app['DATE_FINISH']) - \CTimeZone::getOffset() - time()) / 86400
@@ -584,7 +586,7 @@ class AppTable extends Main\Entity\DataManager
 							&& $res['DAYS_LEFT'] < static::PAID_GRACE_PERIOD
 						)
 						{
-							if($app['IS_TRIALED'] == 'N' && strlen($app['URL_DEMO']) > 0)
+							if($app['IS_TRIALED'] == 'N' && $app['URL_DEMO'] <> '')
 							{
 								$res['STATUS'] = static::STATUS_DEMO;
 							}
@@ -630,7 +632,7 @@ class AppTable extends Main\Entity\DataManager
 		$appInfo = static::getByClientId($appId);
 		if($appInfo)
 		{
-			if(strlen($appInfo['ACCESS']) > 0)
+			if($appInfo['ACCESS'] <> '')
 			{
 				$rightsList = explode(",", $appInfo["ACCESS"]);
 

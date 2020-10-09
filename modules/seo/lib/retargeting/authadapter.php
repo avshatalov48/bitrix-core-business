@@ -136,7 +136,7 @@ class AuthAdapter
 
 	public function hasAuth()
 	{
-		return $this->canUseMultipleClients() ? count($this->getAuthorizedClientsList()) > 0 : strlen($this->getToken()) > 0;
+		return $this->canUseMultipleClients() ? count($this->getAuthorizedClientsList()) > 0 : $this->getToken() <> '';
 	}
 
 	public function canUseMultipleClients()
@@ -166,7 +166,7 @@ class AuthAdapter
 	public function getAuthorizedClientsList()
 	{
 		return array_filter($this->getClientList(), function ($item) {
-			return strlen($item['access_token']) > 0;
+			return $item['access_token'] <> '';
 		});
 	}
 

@@ -229,7 +229,7 @@ foreach($arParams["BUTTONS"] as $val)
 		foreach($arParams["TAGS"]["VALUE"] as $val)
 		{
 			$val = trim($val);
-			if(strlen($val) > 0)
+			if($val <> '')
 			{
 				$tags .= '<span class="feed-add-post-tags" data-tag="'.htmlspecialcharsbx($val).'">'.htmlspecialcharsEx($val);
 				$tags .= '<span class="feed-add-post-del-but"></span></span>';

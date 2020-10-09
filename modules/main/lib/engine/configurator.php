@@ -71,7 +71,7 @@ final class Configurator
 		{
 			$annotationReader = new AnnotationReader();
 
-			$lengthSuffix = strlen(Controllerable::METHOD_ACTION_SUFFIX);
+			$lengthSuffix = mb_strlen(Controllerable::METHOD_ACTION_SUFFIX);
 			$reflectionClass = new \ReflectionClass($controller);
 			foreach ($reflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC) as $method)
 			{
@@ -80,13 +80,13 @@ final class Configurator
 					continue;
 				}
 
-				$probablySuffix = substr($method->getName(), -$lengthSuffix);
+				$probablySuffix = mb_substr($method->getName(), -$lengthSuffix);
 				if ($probablySuffix !== Controllerable::METHOD_ACTION_SUFFIX)
 				{
 					continue;
 				}
 
-				$actionName = substr($method, 0, -$lengthSuffix);
+				$actionName = mb_substr($method, 0, -$lengthSuffix);
 				if ($this->isExists($configuration, $actionName))
 				{
 					//we have already config and don't have to grab annotations
@@ -114,7 +114,7 @@ final class Configurator
 	private function isExists(array $configuration, $actionName)
 	{
 		$listOfActions = array_change_key_case($configuration, CASE_LOWER);
-		$actionName = strtolower($actionName);
+		$actionName = mb_strtolower($actionName);
 
 		return isset($listOfActions[$actionName]);
 	}

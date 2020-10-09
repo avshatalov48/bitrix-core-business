@@ -82,7 +82,7 @@ class CPHPCacheFiles
 	{
 		$DOCUMENT_ROOT = rtrim($_SERVER["DOCUMENT_ROOT"], "/");
 
-		if(strlen($filename))
+		if($filename <> '')
 		{
 			$res = CPHPCacheFiles::_unlink($DOCUMENT_ROOT.$basedir.$initdir.$filename);
 			bx_accelerator_reset();
@@ -104,12 +104,18 @@ class CPHPCacheFiles
 						while($entry = readdir($dh))
 						{
 							if(preg_match("/^(\\.|\\.\\.|.*\\.~\\d+)\$/", $entry))
+							{
 								continue;
+							}
 
 							if(is_dir($sourceDir."/".$entry))
+							{
 								CPHPCacheFiles::clean($basedir, $entry);
+							}
 							elseif(is_file($sourceDir."/".$entry))
+							{
 								CPHPCacheFiles::_unlink($sourceDir."/".$entry);
+							}
 						}
 					}
 				}
@@ -126,20 +132,26 @@ class CPHPCacheFiles
 					if($target != '')
 					{
 						if(
-							$DB->Query("INSERT INTO b_cache_tag (SITE_ID, CACHE_SALT, RELATIVE_PATH, TAG)
+						$DB->Query("INSERT INTO b_cache_tag (SITE_ID, CACHE_SALT, RELATIVE_PATH, TAG)
 							VALUES ('*', '*', '".$DB->ForSQL($target)."', '*')")
 						)
 						{
 							if(@rename($DOCUMENT_ROOT.$source, $DOCUMENT_ROOT.$target))
+							{
 								$bDelayedDelete = true;
+							}
 						}
 					}
 				}
 
 				if($bDelayedDelete)
+				{
 					CPHPCacheFiles::_addAgent();
+				}
 				else
+				{
 					DeleteDirFilesEx($basedir.$initdir);
+				}
 
 				bx_accelerator_reset();
 			}
@@ -222,20 +234,20 @@ class CPHPCacheFiles
 				$contents = "<?";
 				$contents .= "\nif(\$INCLUDE_FROM_CACHE!='Y')return false;";
 				$contents .= "\n\$datecreate = '".str_pad(time(), 12, "0", STR_PAD_LEFT)."';";
-				$contents .= "\n\$dateexpire = '".str_pad(time() + IntVal($TTL), 12, "0", STR_PAD_LEFT)."';";
+				$contents .= "\n\$dateexpire = '".str_pad(time() + intval($TTL), 12, "0", STR_PAD_LEFT)."';";
 				$contents .= "\n\$ser_content = '".str_replace("'", "\'", str_replace("\\", "\\\\", serialize($arAllVars)))."';";
 				$contents .= "\nreturn true;";
 				$contents .= "\n?>";
 			}
 			else
 			{
-				$contents = "BX".str_pad(time(), 12, "0", STR_PAD_LEFT).str_pad(time() + IntVal($this->TTL), 12, "0", STR_PAD_LEFT);
+				$contents = "BX".str_pad(time(), 12, "0", STR_PAD_LEFT).str_pad(time() + intval($this->TTL), 12, "0", STR_PAD_LEFT);
 				$contents .= $arAllVars;
 			}
 
 			$this->written = fwrite($handle, $contents);
 			$this->path = $fn;
-			$len = function_exists('mb_strlen')? mb_strlen($contents, 'latin1'): strlen($contents);
+			$len = function_exists('mb_strlen')? mb_strlen($contents, 'latin1') : mb_strlen($contents);
 
 			fclose($handle);
 
@@ -267,7 +279,7 @@ class CPHPCacheFiles
 			|| preg_match("/^(\\d{12})/", $str_tmp, $arTmp)
 		)
 		{
-			if(strlen($arTmp[1]) <= 0 || doubleval($arTmp[1]) < time())
+			if($arTmp[1] == '' || doubleval($arTmp[1]) < time())
 				return true;
 		}
 

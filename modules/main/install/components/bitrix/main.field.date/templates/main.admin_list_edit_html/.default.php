@@ -9,7 +9,7 @@ if($arResult['userField']['EDIT_IN_LIST'] === 'Y')
 		$arResult['additionalParameters']['VALUE']
 	);
 }
-elseif(strlen($arResult['additionalParameters']['VALUE']))
+elseif($arResult['additionalParameters']['VALUE'] <> '')
 {
 	print $arResult['additionalParameters']['VALUE'];
 }

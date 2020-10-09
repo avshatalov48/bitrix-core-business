@@ -7,8 +7,8 @@
  */
 
 namespace Bitrix\Main\ORM\Fields;
+
 use Bitrix\Main\ORM\Entity;
-use Bitrix\Main\ORM\Fields\FieldTypeMask;
 use Bitrix\Main\ORM\Query\Chain;
 use Bitrix\Main\ORM\Data\Result;
 use Bitrix\Main\NotImplementedException;
@@ -77,7 +77,7 @@ class ExpressionField extends Field implements IReadable
 		$aggrFunctions;
 
 	/**
-	 * All fields in exression should be placed as %s (or as another placeholder for sprintf),
+	 * All fields in expression should be placed as %s (or as another placeholder for sprintf),
 	 * and the real field names being carrying in $buildFrom array (= args for sprintf)
 	 *
 	 * @param string            $name
@@ -334,8 +334,8 @@ class ExpressionField extends Field implements IReadable
 		{
 			$substring = $matches[0];
 
-			$subqPosition = strpos($query, $substring);
-			$subqStartPosition = $subqPosition + strlen($substring);
+			$subqPosition = mb_strpos($query, $substring);
+			$subqStartPosition = $subqPosition + mb_strlen($substring);
 
 			$bracketsCount = 1;
 			$currentPosition = $subqStartPosition;
@@ -343,7 +343,7 @@ class ExpressionField extends Field implements IReadable
 			// until initial bracket is closed
 			while ($bracketsCount > 0)
 			{
-				$symbol = substr($query, $currentPosition, 1);
+				$symbol = mb_substr($query, $currentPosition, 1);
 
 				if ($symbol == '')
 				{
@@ -363,7 +363,7 @@ class ExpressionField extends Field implements IReadable
 				$currentPosition++;
 			}
 
-			$query = substr($query, 0, $subqPosition) . substr($query, $currentPosition);
+			$query = mb_substr($query, 0, $subqPosition).mb_substr($query, $currentPosition);
 		}
 
 		return $query;

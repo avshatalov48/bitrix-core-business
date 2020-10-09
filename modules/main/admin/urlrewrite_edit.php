@@ -16,12 +16,12 @@ $aMsg = array();
 $message = null;
 $bVarsFromForm = false;
 
-if (StrLen($site_id) <= 0)
+if ($site_id == '')
 	LocalRedirect("/bitrix/admin/urlrewrite_list.php?lang=".LANG);
 
-if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $isAdmin && check_bitrix_sessid())
+if ($REQUEST_METHOD=="POST" && $Update <> '' && $isAdmin && check_bitrix_sessid())
 {
-	if (StrLen($CONDITION) <= 0)
+	if ($CONDITION == '')
 		$aMsg[] = array("id"=>"CONDITION", "text"=>GetMessage("MURL_NO_USL"));
 
 	if(empty($aMsg))
@@ -36,7 +36,7 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $isAdmin && check_bitrix_ses
 
 	if (empty($aMsg))
 	{
-		if (StrLen($CONDITION_OLD) > 0)
+		if ($CONDITION_OLD <> '')
 		{
 			UrlRewriter::update(
 				$site_id,
@@ -65,7 +65,7 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $isAdmin && check_bitrix_ses
 
 	if (empty($aMsg))
 	{
-		if (strlen($apply) <= 0)
+		if ($apply == '')
 			LocalRedirect("/bitrix/admin/urlrewrite_list.php?lang=".LANG."&filter_site_id=".UrlEncode($site_id)."&".GetFilterParams("filter_", false));
 	}
 	else
@@ -75,7 +75,7 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $isAdmin && check_bitrix_ses
 	}
 }
 
-if (StrLen($CONDITION) > 0)
+if ($CONDITION <> '')
 	$APPLICATION->SetTitle(GetMessage("MURL_EDIT"));
 else
 	$APPLICATION->SetTitle(GetMessage("MURL_ADD"));
@@ -124,7 +124,7 @@ $aMenu = array(
 	)
 );
 
-if (StrLen($CONDITION) > 0)
+if ($CONDITION <> '')
 {
 	$aMenu[] = array("SEPARATOR" => "Y");
 

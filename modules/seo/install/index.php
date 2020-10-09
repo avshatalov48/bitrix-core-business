@@ -16,9 +16,7 @@ class seo extends CModule
 	{
 		$arModuleVersion = array();
 
-		$path = str_replace("\\", "/", __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen("/index.php"));
-		include($path."/version.php");
+		include(__DIR__.'/version.php');
 
 		if (is_array($arModuleVersion) && array_key_exists("VERSION", $arModuleVersion))
 		{
@@ -48,7 +46,7 @@ class seo extends CModule
 
 		$this->errors = false;
 		if(!$DB->Query("SELECT 'x' FROM b_seo_search_engine", true))
-			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/seo/install/db/".strtolower($DB->type)."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/seo/install/db/".mb_strtolower($DB->type)."/install.sql");
 
 		if($this->errors !== false)
 		{
@@ -149,7 +147,7 @@ class seo extends CModule
 	function DoUninstall()
 	{
 		global $DOCUMENT_ROOT, $APPLICATION, $step;
-		$step = IntVal($step);
+		$step = intval($step);
 		if($step<2)
 		{
 			$APPLICATION->IncludeAdminFile(GetMessage("SEO_UNINSTALL_TITLE"), $DOCUMENT_ROOT."/bitrix/modules/seo/install/unstep1.php");
@@ -175,7 +173,7 @@ class seo extends CModule
 
 		if (!$arParams['savedata'])
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/seo/install/db/".strtolower($DB->type)."/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/seo/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
 
 			if(empty($this->errors))
 			{

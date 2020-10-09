@@ -1,13 +1,4 @@
 <?
-/*
-##############################################
-# Bitrix: SiteManager                        #
-# Copyright (c) 2004 - 2006 Bitrix           #
-# http://www.bitrix.ru                       #
-# mailto:admin@bitrix.ru                     #
-##############################################
-*/
-
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 CModule::IncludeModule("form");
@@ -27,7 +18,7 @@ if (false === $arForm)
 {
 	require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	echo "<a href='form_list.php?lang=".LANGUAGE_ID."' >".GetMessage("FORM_FORM_LIST")."</a>";
-	echo ShowError(GetMessage("FORM_NOT_FOUND"));
+	ShowError(GetMessage("FORM_NOT_FOUND"));
 	require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	die();
 }
@@ -59,10 +50,6 @@ $lAdmin->InitFilter($arFilterFields);
 
 InitSorting();
 $old_module_version = CForm::IsOldVersion();
-/***************************************************************************
-                            GET | POST
-****************************************************************************/
-
 
 $F_RIGHT = CForm::GetPermission($WEB_FORM_ID);
 if($F_RIGHT<25) $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
@@ -97,7 +84,7 @@ if ($lAdmin->EditAction() && $FORM_RIGHT>="W" && $F_RIGHT>=30 && check_bitrix_se
 		if(!$lAdmin->IsUpdated($ID))
 			continue;
 		$DB->StartTransaction();
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$arFieldsStore = Array(
 			"TIMESTAMP_X"	=> $DB->GetNowFunction(),
@@ -128,9 +115,9 @@ if(($arID = $lAdmin->GroupAction()) && $FORM_RIGHT=="W" && $F_RIGHT>=30 && check
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		switch($_REQUEST['action'])
 		{
 			case "delete":
@@ -253,9 +240,6 @@ $aMenu = array(
 $lAdmin->AddAdminContextMenu($aMenu);
 $lAdmin->CheckListMode();
 
-/***************************************************************************
-							   HTML form
-****************************************************************************/
 $sDocTitle = GetMessage("FORM_PAGE_TITLE");
 $APPLICATION->SetTitle(str_replace("#ID#","$WEB_FORM_ID",$sDocTitle));
 require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
@@ -275,13 +259,13 @@ echo ShowNote($strNote);
 <form name="form1" method="GET" action="<?=$APPLICATION->GetCurPage()?>">
 <?
 	$oFilter = new CAdminFilter(
-        	$sTableID."_filter",
-	        array(
+		$sTableID."_filter",
+		array(
 			GetMessage("FORM_FL_ID"),
 			GetMessage("FORM_FL_ACTIVE"),
 			GetMessage("FORM_FL_DESCR"),
 			GetMessage("FORM_FL_RESULTS"),
-	        )
+		)
 	);
 
 $oFilter->Begin();
@@ -318,4 +302,4 @@ $oFilter->End();
 <?
 $lAdmin->DisplayList();
 
-require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");?>
+require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

@@ -47,7 +47,7 @@ class Path
 		}
 		$pathTmp = preg_replace($pattern, "/", $path);
 
-		if (strpos($pathTmp, "\0") !== false)
+		if (mb_strpos($pathTmp, "\0") !== false)
 			throw new InvalidPathException($path);
 
 		if (preg_match("#(^|/)(\\.|\\.\\.)(/|\$)#", $pathTmp))
@@ -74,7 +74,7 @@ class Path
 
 		$pathTmp = rtrim($pathTmp, $tailPattern);
 
-		if (substr($path, 0, 1) === "/" && substr($pathTmp, 0, 1) !== "/")
+		if (mb_substr($path, 0, 1) === "/" && mb_substr($pathTmp, 0, 1) !== "/")
 			$pathTmp = "/".$pathTmp;
 
 		if ($pathTmp === '')
@@ -90,7 +90,7 @@ class Path
 		{
 			$pos = Text\UtfSafeString::getLastPosition($path, '.');
 			if ($pos !== false)
-				return substr($path, $pos + 1);
+				return mb_substr($path, $pos + 1);
 		}
 		return '';
 	}
@@ -101,14 +101,14 @@ class Path
 
 		$p = Text\UtfSafeString::getLastPosition($path, self::DIRECTORY_SEPARATOR);
 		if ($p !== false)
-			return substr($path, $p + 1);
+			return mb_substr($path, $p + 1);
 
 		return $path;
 	}
 
 	public static function getDirectory($path)
 	{
-		return substr($path, 0, -strlen(self::getName($path)) - 1);
+		return mb_substr($path, 0, -mb_strlen(self::getName($path)) - 1);
 	}
 
 	public static function convertLogicalToPhysical($path)
@@ -193,16 +193,16 @@ class Path
 	{
 		if (defined('BX_UTF'))
 			$logicalEncoding = "utf-8";
-		elseif (defined("SITE_CHARSET") && (strlen(SITE_CHARSET) > 0))
+		elseif (defined("SITE_CHARSET") && (SITE_CHARSET <> ''))
 			$logicalEncoding = SITE_CHARSET;
-		elseif (defined("LANG_CHARSET") && (strlen(LANG_CHARSET) > 0))
+		elseif (defined("LANG_CHARSET") && (LANG_CHARSET <> ''))
 			$logicalEncoding = LANG_CHARSET;
 		elseif (defined("BX_DEFAULT_CHARSET"))
 			$logicalEncoding = BX_DEFAULT_CHARSET;
 		else
 			$logicalEncoding = "windows-1251";
 
-		return strtolower($logicalEncoding);
+		return mb_strtolower($logicalEncoding);
 	}
 
 	protected static function getPhysicalEncoding()
@@ -210,12 +210,12 @@ class Path
 		$physicalEncoding = defined("BX_FILE_SYSTEM_ENCODING") ? BX_FILE_SYSTEM_ENCODING : "";
 		if ($physicalEncoding == "")
 		{
-			if (strtoupper(substr(PHP_OS, 0, 3)) === "WIN")
+			if (mb_strtoupper(mb_substr(PHP_OS, 0, 3)) === "WIN")
 				$physicalEncoding = "windows-1251";
 			else
 				$physicalEncoding = "utf-8";
 		}
-		return strtolower($physicalEncoding);
+		return mb_strtolower($physicalEncoding);
 	}
 
 	public static function combine()
@@ -294,7 +294,7 @@ class Path
 			return false;
 		}
 
-		if (strpos($path, "\0") !== false)
+		if (mb_strpos($path, "\0") !== false)
 		{
 			return false;
 		}
@@ -357,7 +357,7 @@ class Path
 
 	public static function isAbsolute($path)
 	{
-		return (substr($path, 0, 1) === "/") || preg_match("#^[a-z]:/#i", $path);
+		return (mb_substr($path, 0, 1) === "/") || preg_match("#^[a-z]:/#i", $path);
 	}
 
 	protected static function getDirectoryIndexArray()

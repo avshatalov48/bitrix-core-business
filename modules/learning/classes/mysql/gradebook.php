@@ -17,7 +17,7 @@ class CGradeBook extends CAllGradeBook
 			"LEFT JOIN b_learn_course C ON C.ID = T.COURSE_ID ".
 			"LEFT JOIN b_learn_lesson TUL ON TUL.ID = C.LINKED_LESSON_ID ".
 			"LEFT JOIN b_learn_test_mark TM ON G.TEST_ID = TM.TEST_ID ".
-			(strlen($SqlSearchLang) > 2 ? "LEFT JOIN b_learn_course_site CS ON C.ID = CS.COURSE_ID " : "")
+			(mb_strlen($SqlSearchLang) > 2 ? "LEFT JOIN b_learn_course_site CS ON C.ID = CS.COURSE_ID " : "")
 			. "WHERE
 				(TM.SCORE IS NULL
 				OR TM.SCORE =
@@ -28,7 +28,7 @@ class CGradeBook extends CAllGradeBook
 					LIMIT 1)
 				) ";
 
-		if (strlen($SqlSearchLang) > 2)
+		if (mb_strlen($SqlSearchLang) > 2)
 			$strSqlFrom .= " AND CS.SITE_ID IN (" . $SqlSearchLang . ")";
 
 		return ($strSqlFrom);

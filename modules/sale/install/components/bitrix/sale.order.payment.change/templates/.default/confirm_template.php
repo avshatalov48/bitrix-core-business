@@ -1,5 +1,8 @@
 <?
-require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
 use Bitrix\Main\Localization\Loc;
 
@@ -153,29 +156,27 @@ else
 		?>
 		<div class='row'>
 			<div class='col-xs-12'>
-				<p><?=Loc::getMessage("SOPC_ORDER_SUC", array("#ORDER_ID#"=>$arResult['ORDER_ID'],"#ORDER_DATE#"=>$arResult['ORDER_DATE']))?></p>
-				<p><?=Loc::getMessage("SOPC_PAYMENT_SUC", array("#PAYMENT_ID#"=>$arResult['PAYMENT_ID']))?></p>
-				<p><?=Loc::getMessage("SOPC_PAYMENT_SYSTEM_NAME", array("#PAY_SYSTEM_NAME#"=>$arResult['PAY_SYSTEM_NAME']))?></p>
+				<p><?=Loc::getMessage("SOPC_ORDER_SUC", array("#ORDER_ID#"=>htmlspecialcharsbx($arResult['ORDER_ID']),"#ORDER_DATE#"=>$arResult['ORDER_DATE']))?></p>
+				<p><?=Loc::getMessage("SOPC_PAYMENT_SUC", array("#PAYMENT_ID#"=>htmlspecialcharsbx($arResult['PAYMENT_ID'])))?></p>
+				<p><?=Loc::getMessage("SOPC_PAYMENT_SYSTEM_NAME", array("#PAY_SYSTEM_NAME#"=>htmlspecialcharsbx($arResult['PAY_SYSTEM_NAME'])))?></p>
 				<?
-				if (!$arResult['IS_CASH'] && mb_strlen($arResult['PAYMENT_LINK']))
+				if (!$arResult['IS_CASH'] && !empty($arResult['PAYMENT_LINK']))
 				{
 					?>
-					<p><?=Loc::getMessage("SOPC_PAY_LINK", array("#LINK#"=>$arResult['PAYMENT_LINK']))?></p>
+					<p><?=Loc::getMessage("SOPC_PAY_LINK", array("#LINK#"=>htmlspecialcharsbx($arResult['PAYMENT_LINK'])))?></p>
 					<?
 				}
 				?>
 			</div>
 		</div>
 		<?
-		if (!$arResult['IS_CASH'] && mb_strlen($arResult['PAYMENT_LINK']))
+		if (!$arResult['IS_CASH'] && !empty($arResult['PAYMENT_LINK']))
 		{
 			?>
 			<script type="text/javascript">
-				window.open("<?=$arResult['PAYMENT_LINK']?>");
+				window.open('<?=CUtil::JSEscape($arResult['PAYMENT_LINK'])?>');
 			</script>
 			<?
 		}
 	}
 }
-require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_after.php');
-?>

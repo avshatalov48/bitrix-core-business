@@ -98,7 +98,7 @@ class BooleanType extends BaseType
 		{
 			foreach($label as $key => $value)
 			{
-				if(strlen($userField['SETTINGS']['LABEL'][$key]) > 0)
+				if($userField['SETTINGS']['LABEL'][$key] <> '')
 				{
 					$label[$key] = $userField['SETTINGS']['LABEL'][$key];
 				}
@@ -153,7 +153,7 @@ class BooleanType extends BaseType
 		$result = [];
 		foreach($constants as $name => $value)
 		{
-			if(strpos($name, 'DISPLAY_') === 0)
+			if(mb_strpos($name, 'DISPLAY_') === 0)
 			{
 				$result[$name] = $value;
 			}

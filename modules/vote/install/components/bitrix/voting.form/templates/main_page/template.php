@@ -74,7 +74,7 @@
 				<?break?>
 
 				<?case 4://text field?>
-					<label><?if (strlen(trim($arAnswer["MESSAGE"]))>0):?>
+					<label><?if (trim($arAnswer["MESSAGE"]) <> ''):?>
 						<?=$arAnswer["MESSAGE"]?><br />
 					<?endif?>
 					<input type="text" name="vote_field_<?=$arAnswer["ID"]?>" value="<?=$value?>" size="<?=$arAnswer["FIELD_WIDTH"]?>" <?=$arAnswer["~FIELD_PARAM"]?> /></label>
@@ -82,7 +82,7 @@
 				<?break?>
 
 				<?case 5://memo?>
-					<label><?if (strlen(trim($arAnswer["MESSAGE"]))>0):?>
+					<label><?if (trim($arAnswer["MESSAGE"]) <> ''):?>
 						<?=$arAnswer["MESSAGE"]?><br />
 					<?endif?>
 					<textarea name="vote_memo_<?=$arAnswer["ID"]?>" <?=$arAnswer["~FIELD_PARAM"]?> cols="<?=$arAnswer["FIELD_WIDTH"]?>" rows="<?=$arAnswer["FIELD_HEIGHT"]?>"><?=$value?></textarea></label>

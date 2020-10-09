@@ -46,7 +46,7 @@ if($_REQUEST["action"] <> "" && $editable && check_bitrix_sessid())
 	}
 	if($sSuccessMsg <> "")
 	{
-		$_SESSION["ADMIN"]["USER_SETTINGS_MSG"] = $sSuccessMsg;
+		\Bitrix\Main\Application::getInstance()->getSession()["ADMIN"]["USER_SETTINGS_MSG"] = $sSuccessMsg;
 		LocalRedirect($APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&".$tabControl->ActiveTabParam());
 	}
 }
@@ -86,7 +86,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && $_REQUEST["Update"]=="Y" && $editable &
 		CUserOptions::SetOption("global", "settings", $aFields);
 		$sSuccessMsg .= GetMessage("user_sett_mess_save1")."<br>";
 
-		$_SESSION["ADMIN"]["USER_SETTINGS_MSG"] = $sSuccessMsg;
+		\Bitrix\Main\Application::getInstance()->getSession()["ADMIN"]["USER_SETTINGS_MSG"] = $sSuccessMsg;
 		LocalRedirect($APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID);
 	}
 	else
@@ -144,10 +144,10 @@ if($e = $APPLICATION->GetException())
 	echo $message->Show();
 }
 
-if(!empty($_SESSION["ADMIN"]["USER_SETTINGS_MSG"]))
+if(!empty(\Bitrix\Main\Application::getInstance()->getSession()["ADMIN"]["USER_SETTINGS_MSG"]))
 {
-	CAdminMessage::ShowMessage(array("MESSAGE"=>GetMessage("user_sett_mess_title"), "TYPE"=>"OK", "DETAILS"=>$_SESSION["ADMIN"]["USER_SETTINGS_MSG"], "HTML"=>true));
-	unset($_SESSION["ADMIN"]["USER_SETTINGS_MSG"]);
+	CAdminMessage::ShowMessage(array("MESSAGE"=>GetMessage("user_sett_mess_title"), "TYPE"=>"OK", "DETAILS"=>\Bitrix\Main\Application::getInstance()->getSession()["ADMIN"]["USER_SETTINGS_MSG"], "HTML"=>true));
+	unset(\Bitrix\Main\Application::getInstance()->getSession()["ADMIN"]["USER_SETTINGS_MSG"]);
 }
 ?>
 <form method="POST" name="form1" action="<?echo $APPLICATION->GetCurPage()?>">

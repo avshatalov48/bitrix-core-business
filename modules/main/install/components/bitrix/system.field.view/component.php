@@ -48,7 +48,7 @@ if($arParams["arUserField"]["USER_TYPE"])
 		switch($arParams["arUserField"]["USER_TYPE"]["BASE_TYPE"])
 		{
 			case "double":
-				if(strlen($res) > 0)
+				if($res <> '')
 					$res = round(doubleval($res), $arParams["arUserField"]["SETTINGS"]["PRECISION"]);
 				break;
 			case "int":

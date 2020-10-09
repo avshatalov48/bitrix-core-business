@@ -62,24 +62,29 @@ if (!function_exists("__FormResultListCheckFilter"))
 		$strError .= $str;
 		$str_error .= $str;
 
-		return strlen($str) <= 0;
+		return $str == '';
 	}
 }
 
 if (CModule::IncludeModule("form"))
 {
+	$GLOBALS['strError'] = '';
 	//  insert chain item
-	if (strlen($arParams["CHAIN_ITEM_TEXT"]) > 0)
+	if ($arParams["CHAIN_ITEM_TEXT"] <> '')
 	{
 		$APPLICATION->AddChainItem($arParams["CHAIN_ITEM_TEXT"], $arParams["CHAIN_ITEM_LINK"]);
 	}
 
 	// preparing additional parameters
-	$arResult["FORM_ERROR"] = $_REQUEST["strError"];
+	$arResult["FORM_ERROR"] = '';
+	if (isset($_REQUEST["strError"]) && is_string($_REQUEST["strError"]))
+	{
+		$arResult["FORM_ERROR"] = $_REQUEST["strError"];
+	}
 	//$arResult["FORM_NOTE"] = $_REQUEST["strFormNote"];
 	if (!empty($_REQUEST["formresult"]) && $_SERVER['REQUEST_METHOD'] != 'POST')
 	{
-		$formResult = strtoupper($_REQUEST['formresult']);
+		$formResult = mb_strtoupper($_REQUEST['formresult']);
 		switch ($formResult)
 		{
 			case 'ADDOK':
@@ -131,7 +136,7 @@ if (CModule::IncludeModule("form"))
 		$GLOBALS['strError'] = '';
 		CFormResult::Delete($del_id);
 
-		if (strlen($GLOBALS['strError']) <= 0)
+		if ($GLOBALS['strError'] == '')
 		{
 			LocalRedirect($APPLICATION->GetCurPageParam("", array("del_id", "sessid", 'formresult'), false));
 			exit();
@@ -151,7 +156,7 @@ if (CModule::IncludeModule("form"))
 				if ($del_id > 0) CFormResult::Delete($del_id); // rights check inside
 			}
 
-			if (strlen($GLOBALS['strError']) <= 0)
+			if ($GLOBALS['strError'] == '')
 			{
 				LocalRedirect($APPLICATION->GetCurPageParam("", array("delete", "sessid", 'formresult')));
 				exit();
@@ -159,7 +164,7 @@ if (CModule::IncludeModule("form"))
 		}
 	}
 
-	if (strlen($GLOBALS['strError']) > 0)
+	if ($GLOBALS['strError'] <> '')
 		$arResult["FORM_ERROR"] .= $GLOBALS['strError'];
 
 	if (intval($arParams["WEB_FORM_ID"])>0)
@@ -252,12 +257,12 @@ if (CModule::IncludeModule("form"))
 		}
 
 		$arParams["sess_filter"] = "FORM_RESULT_LIST_".$arParams["WEB_FORM_NAME"];
-		if (strlen($_REQUEST["set_filter"])>0)
+		if ($_REQUEST["set_filter"] <> '')
 			InitFilterEx($FilterArr,$arParams["sess_filter"],"set");
 		else
 			InitFilterEx($FilterArr,$arParams["sess_filter"],"get");
 
-		if (strlen($_REQUEST["del_filter"])>0)
+		if ($_REQUEST["del_filter"] <> '')
 		{
 			DelFilterEx($FilterArr,$arParams["sess_filter"]);
 		}
@@ -316,7 +321,7 @@ if (CModule::IncludeModule("form"))
 			}
 		}
 
-		if (strlen($_POST['save'])>0 && $_SERVER['REQUEST_METHOD']=="POST" && check_bitrix_sessid())
+		if ($_POST['save'] <> '' && $_SERVER['REQUEST_METHOD']=="POST" && check_bitrix_sessid())
 		{
 			// update results
 			if (isset($_POST["RESULT_ID"]) && is_array($_POST["RESULT_ID"]))
@@ -450,7 +455,10 @@ if (CModule::IncludeModule("form"))
 		{
 			$arFilter = array("IN_RESULTS_TABLE" => "Y");
 
-			$rsFields = CFormField::GetList($arParams["WEB_FORM_ID"], "ALL", ($v1="s_c_sort"), ($v2="asc"), $arFilter, $v3);
+			$v1="s_c_sort";
+			$v2="asc";
+			$v3 = false;
+			$rsFields = CFormField::GetList($arParams["WEB_FORM_ID"], "ALL", $v1, $v2, $arFilter, $v3);
 			while ($arField = $rsFields->Fetch())
 			{
 				$arResult["arrColumns"][$arField["ID"]] = $arField;
@@ -465,18 +473,18 @@ if (CModule::IncludeModule("form"))
 				{
 					foreach ($arAnswers as $a_key => $arrA)
 					{
-						if (strlen(trim($arrA["USER_TEXT"]))>0)
+						if (trim($arrA["USER_TEXT"]) <> '')
 							$arrA["USER_TEXT"] = intval($arrA["USER_FILE_ID"])>0 ? htmlspecialcharsbx($arrA["USER_TEXT"]) : TxtToHTML($arrA["USER_TEXT"], true, 100);
 
-						if (strlen(trim($arrA["USER_DATE"]))>0)
+						if (trim($arrA["USER_DATE"]) <> '')
 						{
 							$arrA["USER_TEXT"] = $DB->FormatDate($arrA["USER_DATE"], FORMAT_DATETIME, FORMAT_DATE);
 						}
 
-						if (strlen(trim($arrA["ANSWER_TEXT"]))>0)
+						if (trim($arrA["ANSWER_TEXT"]) <> '')
 							$arrA["ANSWER_TEXT"] = TxtToHTML($arrA["ANSWER_TEXT"],true,100);
 
-						if (strlen(trim($arrA["ANSWER_VALUE"]))>0)
+						if (trim($arrA["ANSWER_VALUE"]) <> '')
 							$arrA["ANSWER_VALUE"] = TxtToHTML($arrA["ANSWER_VALUE"],true,100);
 
 						if (intval($arrA["USER_FILE_ID"])>0)
@@ -506,7 +514,7 @@ if (CModule::IncludeModule("form"))
 
 		foreach ($arResult["arrColumns"] as $key => $arrCol)
 		{
-			if (strlen($arrCol["RESULTS_TABLE_TITLE"])<=0)
+			if ($arrCol["RESULTS_TABLE_TITLE"] == '')
 			{
 				$title = ($arrCol["TITLE_TYPE"]=="html") ? strip_tags($arrCol["TITLE"]) : htmlspecialcharsbx($arrCol["TITLE"]);
 				$title = TruncateText($title,100);
@@ -518,14 +526,14 @@ if (CModule::IncludeModule("form"))
 
 		$arResult["filter_id"] = rand(0, 10000);
 		$arResult["tf_name"] = COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_FORM_RESULT_FILTER";
-		if (strlen($arResult["tf"])<=0) $arResult["tf"] = $_REQUEST[$arResult["tf_name"]];
-		if (strlen($arResult["tf"])<=0) $arResult["tf"] = "none";
+		if ($arResult["tf"] == '') $arResult["tf"] = $_REQUEST[$arResult["tf_name"]];
+		if ($arResult["tf"] == '') $arResult["tf"] = "none";
 		$arResult["is_ie"] = IsIE();
 
 		$arResult["__find"] = array();
 		foreach ($GLOBALS as $key => $value)
 		{
-			if (substr($key, 0, 5) == "find_") $arResult["__find"][$key] = $value;
+			if (mb_substr($key, 0, 5) == "find_") $arResult["__find"][$key] = $value;
 		}
 
 		reset($arResult["arrFORM_FILTER"]);
@@ -534,7 +542,7 @@ if (CModule::IncludeModule("form"))
 		{
 			foreach ($arrF as $key => $arr)
 			{
-				if (strlen($arrF["FILTER_TITLE"])<=0)
+				if ($arrF["FILTER_TITLE"] == '')
 				{
 					$title = ($arrF["TITLE_TYPE"]=="html" ? strip_tags($arrF["TITLE"]) : htmlspecialcharsbx($arrF["TITLE"]));
 					$arrResult["arrFORM_FILTER"][$f_sid][$key]["FILTER_TITLE"] = TruncateText($title, 100);
@@ -567,11 +575,10 @@ if (CModule::IncludeModule("form"))
 	}
 	else
 	{
-		echo ShowError(GetMessage("FORM_INCORRECT_FORM_ID"));
+		ShowError(GetMessage("FORM_INCORRECT_FORM_ID"));
 	}
 }
 else
 {
-	echo ShowError(GetMessage("FORM_MODULE_NOT_INSTALLED"));
+	ShowError(GetMessage("FORM_MODULE_NOT_INSTALLED"));
 }
-?>

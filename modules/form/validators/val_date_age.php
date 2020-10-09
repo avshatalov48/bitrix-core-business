@@ -59,7 +59,7 @@ class CFormValidatorDateAge
 
 		foreach ($arValues as $value)
 		{
-			if (strlen($value) <= 0) continue;
+			if ($value == '') continue;
 
 			// prepare check numbers
 			$arValueCheck = ParseDateTime($value);
@@ -67,14 +67,14 @@ class CFormValidatorDateAge
 			$currentCheckSum = date("Y") + date("n")/12 + date("j")/365;
 
 			// check minimum age
-			if (strlen($arParams["AGE_TO"]) > 0 && $valueCheckSum < $currentCheckSum-$arParams["AGE_TO"])
+			if ($arParams["AGE_TO"] <> '' && $valueCheckSum < $currentCheckSum-$arParams["AGE_TO"])
 			{
 				$APPLICATION->ThrowException(GetMessage("FORM_VALIDATOR_VAL_DATE_AGE_ERROR_MORE"));
 				return false;
 			}
 
 			// check minimum age
-			if (strlen($arParams["AGE_FROM"]) > 0 && $valueCheckSum > $currentCheckSum-$arParams["AGE_FROM"])
+			if ($arParams["AGE_FROM"] <> '' && $valueCheckSum > $currentCheckSum-$arParams["AGE_FROM"])
 			{
 				$APPLICATION->ThrowException(GetMessage("FORM_VALIDATOR_VAL_DATE_AGE_ERROR_LESS"));
 				return false;

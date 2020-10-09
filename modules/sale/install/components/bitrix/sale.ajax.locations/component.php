@@ -475,13 +475,33 @@ if ($arResult["EMPTY_REGION"] == "Y" && $arResult["EMPTY_CITY"] == "Y")
 $arResult["LOCATION_STRING"] = $locationString;
 $arParams["JS_CITY_INPUT_NAME"] = CUtil::JSEscape($arParams["CITY_INPUT_NAME"]);
 
+$arResult["ONCITYCHANGE"] = '';
+
+if(isset($arParams["ONCITYCHANGE"]) && $arParams["ONCITYCHANGE"] !== '')
+{
+	if(is_array($arParams["ONCITYCHANGE_WHITE_LIST"]) && !empty($arParams["ONCITYCHANGE_WHITE_LIST"]))
+	{
+		$onCityChangeWhiteList = $arParams["ONCITYCHANGE_WHITE_LIST"];
+	}
+	else
+	{
+		$onCityChangeWhiteList = ['CrmProductRowSetLocation', 'fChangeLocationCity', 'submitForm'];
+	}
+
+	if(in_array($arParams["ONCITYCHANGE"], $onCityChangeWhiteList, true))
+	{
+		$arResult["ONCITYCHANGE"] = (string)$arParams["ONCITYCHANGE"];
+	}
+}
+
 $arTmpParams = array(
 	"COUNTRY_INPUT_NAME" => $arParams["COUNTRY_INPUT_NAME"],
 	"REGION_INPUT_NAME" => $arParams["REGION_INPUT_NAME"],
 	"CITY_INPUT_NAME" => $arParams["CITY_INPUT_NAME"],
 	"CITY_OUT_LOCATION" => $arParams["CITY_OUT_LOCATION"],
 	"ALLOW_EMPTY_CITY" => $arParams["ALLOW_EMPTY_CITY"],
-	"ONCITYCHANGE" => $arParams["ONCITYCHANGE"],
+	"ONCITYCHANGE_WHITE_LIST" => $arParams["ONCITYCHANGE_WHITE_LIST"],
+	"ONCITYCHANGE" => $arResult["ONCITYCHANGE"]
 );
 
 $arResult["JS_PARAMS"] = CUtil::PhpToJsObject($arTmpParams);

@@ -74,8 +74,8 @@ class UrlRewriter
 			$orderBy = array_shift($arOrderKeys);
 			$orderDir = $arOrder[$orderBy];
 
-			$orderBy = strtoupper($orderBy);
-			$orderDir = strtoupper($orderDir);
+			$orderBy = mb_strtoupper($orderBy);
+			$orderDir = mb_strtoupper($orderDir);
 
 			$orderDir = (($orderDir == "DESC") ? SORT_DESC : SORT_ASC);
 
@@ -99,10 +99,10 @@ class UrlRewriter
 			foreach ($arFilter as $keyFilter => $valueFilter)
 			{
 				$isNegative = false;
-				if (substr($keyFilter, 0, 1) == "!")
+				if (mb_substr($keyFilter, 0, 1) == "!")
 				{
 					$isNegative = true;
-					$keyFilter = substr($keyFilter, 1);
+					$keyFilter = mb_substr($keyFilter, 1);
 				}
 
 				if ($keyFilter == 'QUERY')
@@ -139,8 +139,8 @@ class UrlRewriter
 		elseif ($sortA < $sortB)
 			return -1;
 
-		$lenA = strlen($a["CONDITION"]);
-		$lenB = strlen($b["CONDITION"]);
+		$lenA = mb_strlen($a["CONDITION"]);
+		$lenB = mb_strlen($b["CONDITION"]);
 		if ($lenA < $lenB)
 			return 1;
 		elseif ($lenA > $lenB)
@@ -286,8 +286,8 @@ class UrlRewriter
 		uasort($arSites,
 			function($a, $b)
 			{
-				$la = strlen($a["path"]);
-				$lb = strlen($b["path"]);
+				$la = mb_strlen($a["path"]);
+				$lb = mb_strlen($b["path"]);
 				if ($la == $lb)
 				{
 					if ($a["site_id"] == $b["site_id"])
@@ -327,7 +327,7 @@ class UrlRewriter
 			$arAlreadyParsed[] = $site["root"];
 
 			if ($maxExecutionTime > 0 && !empty($ns["FLG"])
-				&& substr($ns["ID"]."/", 0, strlen($site["root"]."/")) != $site["root"]."/")
+				&& mb_substr($ns["ID"]."/", 0, mb_strlen($site["root"]."/")) != $site["root"]."/")
 			{
 				continue;
 			}
@@ -348,7 +348,7 @@ class UrlRewriter
 		$siteId = "";
 		foreach ($arSites as $site)
 		{
-			if (substr($pathAbs."/", 0, strlen($site["path"]."/")) == $site["path"]."/")
+			if (mb_substr($pathAbs."/", 0, mb_strlen($site["path"]."/")) == $site["path"]."/")
 			{
 				$siteId = $site["site_id"];
 				break;
@@ -370,11 +370,11 @@ class UrlRewriter
 					continue;
 
 				//this is not first step and we had stopped here, so go on to reindex
-				if ($maxExecutionTime <= 0 || strlen($ns["FLG"]) <= 0
-					|| (strlen($ns["FLG"]) > 0
-						&& substr($ns["ID"]."/", 0, strlen($child->getPath()."/")) == $child->getPath()."/"))
+				if ($maxExecutionTime <= 0 || $ns["FLG"] == ''
+					|| ($ns["FLG"] <> ''
+						&& mb_substr($ns["ID"]."/", 0, mb_strlen($child->getPath()."/")) == $child->getPath()."/"))
 				{
-					if (static::recursiveReindex($rootPath, substr($child->getPath(), strlen($rootPath)), $arSites, $maxExecutionTime, $ns) === false)
+					if (static::recursiveReindex($rootPath, mb_substr($child->getPath(), mb_strlen($rootPath)), $arSites, $maxExecutionTime, $ns) === false)
 						return false;
 				}
 				else //all done
@@ -385,14 +385,14 @@ class UrlRewriter
 			else
 			{
 				//not the first step and we found last file from previos one
-				if ($maxExecutionTime > 0 && strlen($ns["FLG"]) > 0
+				if ($maxExecutionTime > 0 && $ns["FLG"] <> ''
 					&& $ns["ID"] == $child->getPath())
 				{
 					$ns["FLG"] = "";
 				}
 				elseif (empty($ns["FLG"]))
 				{
-					$ID = static::reindexFile($siteId, $rootPath, substr($child->getPath(), strlen($rootPath)), $ns["max_file_size"]);
+					$ID = static::reindexFile($siteId, $rootPath, mb_substr($child->getPath(), mb_strlen($rootPath)), $ns["max_file_size"]);
 					if ($ID)
 						$ns["CNT"] = intval($ns["CNT"]) + 1;
 				}
@@ -495,21 +495,21 @@ class UrlRewriter
 			$inc = str_replace("'", "\\'", str_replace("*", ".*?", str_replace("?", ".", str_replace(".", "\\.", str_replace("\\", "/", $inc)))));
 			$arIncTmp = explode(";", $inc);
 			foreach ($arIncTmp as $preg_mask)
-				if (strlen(trim($preg_mask)) > 0)
+				if (trim($preg_mask) <> '')
 					$arInc[] = "'^".trim($preg_mask)."$'";
 
 			$exc = Config\Option::get("main", "urlrewrite_exclude_mask", "/bitrix/*;");
 			$exc = str_replace("'", "\\'", str_replace("*", ".*?", str_replace("?", ".", str_replace(".", "\\.", str_replace("\\", "/", $exc)))));
 			$arExcTmp = explode(";", $exc);
 			foreach ($arExcTmp as $preg_mask)
-				if (strlen(trim($preg_mask)) > 0)
+				if (trim($preg_mask) <> '')
 					$arExc[] = "'^".trim($preg_mask)."$'";
 
 			$searchMasksCache = array("exc" => $arExc, "inc" => $arInc);
 		}
 
 		$file = IO\Path::getName($path);
-		if (substr($file, 0, 1) === ".")
+		if (mb_substr($file, 0, 1) === ".")
 			return 0;
 
 		foreach ($arExc as $preg_mask)
@@ -589,7 +589,7 @@ class UrlRewriterRuleMaker
 	protected function _callback(array $match)
 	{
 		$this->variables[] = trim($match[0], "#");
-		if (substr($match[0], -6) == "_PATH#")
+		if (mb_substr($match[0], -6) == "_PATH#")
 		{
 			return "(.+?)";
 		}

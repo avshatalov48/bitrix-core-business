@@ -7,7 +7,7 @@ IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/form/errors.php
 
 define('FORM_CRM_DEFAULT_PATH', '/crm/configs/import/lead.php');
 
-$DBType = strtolower($DB->type);
+$DBType = mb_strtolower($DB->type);
 
 CModule::AddAutoloadClasses(
 	"form",
@@ -60,10 +60,9 @@ if ($handle)
 		if($filename == "." || $filename == "..")
 			continue;
 
-		if (!is_dir($path."/".$filename) && substr($filename, 0, 4) == "val_")
+		if (!is_dir($path."/".$filename) && mb_substr($filename, 0, 4) == "val_")
 		{
 			require_once($path."/".$filename);
 		}
 	}
 }
-?>

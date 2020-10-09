@@ -68,21 +68,21 @@ function CheckFilter($arFilterFields) // checking input fields
 		global ${$f};
 
 	$str = "";
-	if (strlen(trim($find_timestamp_1))>0 || strlen(trim($find_timestamp_2))>0)
+	if (trim($find_timestamp_1) <> '' || trim($find_timestamp_2) <> '')
 	{
 		$date_1_ok = false;
 		$date1_stm = MkDateTime(FmtDate($find_timestamp_1,"D.M.Y"),"d.m.Y");
 		$date2_stm = MkDateTime(FmtDate($find_timestamp_2,"D.M.Y")." 23:59","d.m.Y H:i");
-		if (!$date1_stm && strlen(trim($find_timestamp_1))>0)
+		if (!$date1_stm && trim($find_timestamp_1) <> '')
 			$str.= GetMessage("MAIN_WRONG_TIMESTAMP_FROM")."<br>";
 		else $date_1_ok = true;
-		if (!$date2_stm && strlen(trim($find_timestamp_2))>0)
+		if (!$date2_stm && trim($find_timestamp_2) <> '')
 			$str.= GetMessage("MAIN_WRONG_TIMESTAMP_TILL")."<br>";
-		elseif ($date_1_ok && $date2_stm <= $date1_stm && strlen($date2_stm)>0)
+		elseif ($date_1_ok && $date2_stm <= $date1_stm && $date2_stm <> '')
 			$str.= GetMessage("MAIN_FROM_TILL_TIMESTAMP")."<br>";
 	}
 	$lAdmin->AddFilterError($str);
-	if (strlen($str)>0)
+	if ($str <> '')
 		return false;
 	return true;
 }
@@ -156,10 +156,10 @@ if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$emessage = new CEventMessage;
 		switch($_REQUEST['action'])

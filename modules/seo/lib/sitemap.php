@@ -68,13 +68,13 @@ class SitemapTable extends Entity\DataManager
 
 	protected static function compileMask($mask)
 	{
-		if(strlen($mask) > 0)
+		if($mask <> '')
 		{
 			$arMask = preg_split("/[\s,;]+/", $mask);
 
 			foreach ($arMask as $key => $subMask)
 			{
-				if(strlen($subMask) > 0)
+				if($subMask <> '')
 				{
 					$arMask[$key] = str_replace(
 						array("___ALL___", "___ONE___"),
@@ -122,8 +122,8 @@ class SitemapTable extends Entity\DataManager
 
 				foreach($arSettings['FILE'] as $file => $value)
 				{
-					$pos = strrpos($file, '/');
-					$parentDir = $pos > 0 ? substr($file, 0, $pos) : '/';
+					$pos = mb_strrpos($file, '/');
+					$parentDir = $pos > 0? mb_substr($file, 0, $pos) : '/';
 
 					if(isset($arSettings['DIR'][$parentDir]) && $arSettings['DIR'][$parentDir] == $value)
 					{
@@ -140,8 +140,8 @@ class SitemapTable extends Entity\DataManager
 				{
 					if($dir != '/')
 					{
-						$pos = strrpos($dir, '/');
-						$parentDir = substr($dir, 0, $pos);
+						$pos = mb_strrpos($dir, '/');
+						$parentDir = mb_substr($dir, 0, $pos);
 
 						if($parentDir == '')
 							$parentDir = '/';

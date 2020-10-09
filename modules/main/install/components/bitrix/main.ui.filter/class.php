@@ -89,7 +89,7 @@ class CMainUiFilter extends CBitrixComponent
 			foreach ($this->arParams["MESSAGES"] as $key => $message)
 			{
 				if (
-					strpos($key, "MAIN_UI_FILTER__") !== false
+					mb_strpos($key, "MAIN_UI_FILTER__") !== false
 					&& isset($this->arResult[$key])
 				)
 				{
@@ -308,7 +308,7 @@ class CMainUiFilter extends CBitrixComponent
 	protected static function prepareValue(Array $field, Array $presetFields = array(), $prefix)
 	{
 		$fieldValuesKeys = array_keys($field["VALUES"]);
-		$fieldName = strpos($field["NAME"], $prefix) !== false ? str_replace($prefix, "", $field["NAME"]) : $field["NAME"];
+		$fieldName = mb_strpos($field["NAME"], $prefix) !== false ? str_replace($prefix, "", $field["NAME"]) : $field["NAME"];
 		$result = array();
 
 		foreach ($fieldValuesKeys as $key => $keyName)
@@ -328,7 +328,7 @@ class CMainUiFilter extends CBitrixComponent
 	protected static function prepareSubtype(Array $field, Array $presetFields = array(), $prefix)
 	{
 		$subTypes = $field["SUB_TYPES"];
-		$dateselName = strpos($field["NAME"], $prefix) === false ? $field["NAME"].$prefix : $field["NAME"];
+		$dateselName = mb_strpos($field["NAME"], $prefix) === false ? $field["NAME"].$prefix : $field["NAME"];
 		$result = $subTypes[0];
 
 		if (array_key_exists($dateselName, $presetFields))
@@ -463,7 +463,7 @@ class CMainUiFilter extends CBitrixComponent
 							$entityType = 'departments';
 						}
 
-						$provider = \Bitrix\Main\UI\Selector\Entities::getProviderByEntityType(strtoupper($entityType));
+						$provider = \Bitrix\Main\UI\Selector\Entities::getProviderByEntityType(mb_strtoupper($entityType));
 						if ($provider !== false)
 						{
 							$result["_label"][] = $provider->getItemName($val);
@@ -484,7 +484,7 @@ class CMainUiFilter extends CBitrixComponent
 						$entityType = 'departments';
 					}
 
-					$provider = \Bitrix\Main\UI\Selector\Entities::getProviderByEntityType(strtoupper($entityType));
+					$provider = \Bitrix\Main\UI\Selector\Entities::getProviderByEntityType(mb_strtoupper($entityType));
 					if ($provider !== false)
 					{
 						$result["_label"] = $provider->getItemName($value);
@@ -1092,7 +1092,7 @@ class CMainUiFilter extends CBitrixComponent
 				{
 					$ext = getFileExtension($file);
 
-					if ($ext === 'js' && !(strpos($file, 'map.js') !== false || strpos($file, 'min.js') !== false))
+					if ($ext === 'js' && !(mb_strpos($file, 'map.js') !== false || mb_strpos($file, 'min.js') !== false))
 					{
 						$tmpl->addExternalJs($relPath.$file);
 					}
@@ -1119,7 +1119,7 @@ class CMainUiFilter extends CBitrixComponent
 				{
 					$ext = getFileExtension($file);
 
-					if ($ext === 'css' && !(strpos($file, 'map.css') !== false || strpos($file, 'min.css') !== false))
+					if ($ext === 'css' && !(mb_strpos($file, 'map.css') !== false || mb_strpos($file, 'min.css') !== false))
 					{
 						$tmpl->addExternalCss($relPath.$file);
 					}
@@ -1222,7 +1222,7 @@ class CMainUiFilter extends CBitrixComponent
 		$theme = $this->getTheme();
 		if ($theme !== Theme::DEFAULT_FILTER)
 		{
-			$themePath = strtolower($theme);
+			$themePath = mb_strtolower($theme);
 			$themePath = $this->themesFolder.$themePath."/";
 
 			$this->includeStyles($themePath);
@@ -1260,7 +1260,7 @@ class CMainUiFilter extends CBitrixComponent
 	{
 		$themesPath = $this->getAbsoluteThemesPath();
 		$themeId = $this->getTheme();
-		$themeFolder = strtolower($themeId);
+		$themeFolder = mb_strtolower($themeId);
 		$defaultConfigPath = $themesPath."/".$this->configName;
 		$themeConfigPath = $themesPath."/".$themeFolder."/".$this->configName;
 		$defaultConfig = $this->getConfig($defaultConfigPath);

@@ -3285,6 +3285,11 @@ class ComponentHelper
 				'context' => (isset($params['CONTEXT']) && $params['CONTEXT'] <> '' ? $params['CONTEXT'] : 'BLOG_POST'),
 				'code' => 'U'.$userId
 			]);
+
+			if (Loader::includeModule('intranet') && class_exists('\Bitrix\Intranet\Integration\Mail\EmailUser'))
+			{
+				\Bitrix\Intranet\Integration\Mail\EmailUser::invite($userId);
+			}
 		}
 
 		return $result;

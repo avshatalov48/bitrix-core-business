@@ -86,7 +86,7 @@ if($mapId > 0)
 	}
 }
 
-if(strlen($siteId) > 0)
+if($siteId <> '')
 {
 	$dbSite = Main\SiteTable::getByPrimary($siteId);
 	$arSite = $dbSite->fetch();
@@ -108,7 +108,7 @@ if(strlen($siteId) > 0)
 				$host = $rule[1];
 				if(strncmp($host, 'https://', 8) === 0)
 				{
-					$host = substr($host, 8);
+					$host = mb_substr($host, 8);
 					$bDefaultHttps = true;
 				}
 				$arSite['DOMAINS'][] = $host;
@@ -133,7 +133,7 @@ if(strlen($siteId) > 0)
 	}
 }
 
-if(strlen($siteId) <= 0)
+if($siteId == '')
 {
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	ShowError(Loc::getMessage("SEO_ERROR_SITEMAP_NO_SITE"));
@@ -157,7 +157,7 @@ $tabControl = new \CAdminTabControl("seoSitemapTabControl", $aTabs, true, true);
 
 $errors = array();
 
-if($_SERVER['REQUEST_METHOD'] == 'POST' && check_bitrix_sessid() && (strlen($_POST["save"]) > 0 || strlen($_POST['apply']) > 0 || strlen($_POST['save_and_add']) > 0))
+if($_SERVER['REQUEST_METHOD'] == 'POST' && check_bitrix_sessid() && ($_POST["save"] <> '' || $_POST['apply'] <> '' || $_POST['save_and_add'] <> ''))
 {
 	$fileNameIndex = trim($_REQUEST['FILENAME_INDEX']);
 	$fileNameFiles = trim($_REQUEST['FILENAME_FILES']);
@@ -322,8 +322,8 @@ function seo_getIblock($iblockId, $sectionId, $sectionChecked, $elementChecked, 
 	$arIBlock = $dbIblock->Fetch();
 	if(is_array($arIBlock))
 	{
-		$bSection = strlen($arIBlock['SECTION_PAGE_URL']) > 0;
-		$bElement = strlen($arIBlock['DETAIL_PAGE_URL']) > 0;
+		$bSection = $arIBlock['SECTION_PAGE_URL'] <> '';
+		$bElement = $arIBlock['DETAIL_PAGE_URL'] <> '';
 
 		$dbRes = \CIBlockSection::GetList(
 			array('SORT' => 'ASC', 'NAME' => 'ASC'),
@@ -782,11 +782,11 @@ function setIblockActive(check, cont)
 		$r = RandString(8);
 		$d = $arRes['ID'];
 
-		$bList = strlen($arRes['LIST_PAGE_URL']) > 0;
+		$bList = $arRes['LIST_PAGE_URL'] <> '';
 		$bListChecked = $bList && (!is_array($arSitemap['SETTINGS']['IBLOCK_LIST']) || $arSitemap['SETTINGS']['IBLOCK_LIST'][$d] == 'Y');
-		$bSection = strlen($arRes['SECTION_PAGE_URL']) > 0;
+		$bSection = $arRes['SECTION_PAGE_URL'] <> '';
 		$bSectionChecked = $bSection && (!is_array($arSitemap['SETTINGS']['IBLOCK_SECTION']) || $arSitemap['SETTINGS']['IBLOCK_SECTION'][$d] == 'Y');
-		$bElement = strlen($arRes['DETAIL_PAGE_URL']) > 0;
+		$bElement = $arRes['DETAIL_PAGE_URL'] <> '';
 		$bElementChecked = $bElement && (!is_array($arSitemap['SETTINGS']['IBLOCK_ELEMENT']) || $arSitemap['SETTINGS']['IBLOCK_ELEMENT'][$d] == 'Y');
 
 		$bAuto = ($bElementChecked || $bSectionChecked) && $arSitemap['SETTINGS']['IBLOCK_AUTO'][$d] == 'Y';
@@ -895,7 +895,7 @@ function setForumActive(check, cont)
 
 		$r = RandString(8);
 		$d = $arRes['ID'];
-		$bTopic = strlen($arRes['PATH2FORUM_MESSAGE']) > 0;
+		$bTopic = $arRes['PATH2FORUM_MESSAGE'] <> '';
 		$bTopicChecked = $bTopic && (!is_array($arSitemap['SETTINGS']['FORUM_TOPIC']) || $arSitemap['SETTINGS']['FORUM_TOPIC'][$d] == 'Y');
 
 		$bAuto = $bTopicChecked && $arSitemap['SETTINGS']['FORUM_AUTO'][$d] == 'Y';

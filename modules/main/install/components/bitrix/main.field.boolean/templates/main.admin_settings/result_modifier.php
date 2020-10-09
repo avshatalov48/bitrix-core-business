@@ -21,7 +21,18 @@ elseif(is_array($arResult['userField']))
 	$defaultValue = $arResult['userField']['SETTINGS']['DEFAULT_VALUE'];
 	$display = $arResult['userField']['SETTINGS']['DISPLAY'];
 
-	$labelCheckbox = trim($arResult['userField']['SETTINGS']['LABEL_CHECKBOX']);
+	if (isset($arResult['userField']['SETTINGS']['LABEL_CHECKBOX']))
+	{
+		if (is_array($arResult['userField']['SETTINGS']['LABEL_CHECKBOX']))
+		{
+			$labelCheckbox = trim($arResult['userField']['SETTINGS']['LABEL_CHECKBOX'][LANGUAGE_ID]);
+		}
+		elseif (trim($arResult['userField']['SETTINGS']['LABEL_CHECKBOX']) <> '')
+		{
+			$labelCheckbox = trim($arResult['userField']['SETTINGS']['LABEL_CHECKBOX']);
+		}
+	}
+
 	if(empty($labelCheckbox))
 	{
 		$labelCheckbox = Loc::getMessage('MAIN_YES');

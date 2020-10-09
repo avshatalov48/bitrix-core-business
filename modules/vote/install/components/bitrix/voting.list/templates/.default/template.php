@@ -3,7 +3,7 @@ if (!$this->__component->__parent || empty($this->__component->__parent->__name)
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/voting.current/templates/.default/style.css');
 endif;
 
-if (strlen($arResult["NAV_STRING"]) > 0):
+if ($arResult["NAV_STRING"] <> ''):
 ?>
 <div class="vote-navigation-box vote-navigation-top">
 	<div class="vote-page-navigation">
@@ -45,7 +45,7 @@ foreach ($arResult["VOTES"] as $arVote):
 			</div>
 			
 <?
-	if (strlen($arVote["TITLE"]) > 0):
+	if ($arVote["TITLE"] <> ''):
 ?>
 			<span class="vote-item-title"><?=$arVote["TITLE"];?></span>
 <?
@@ -91,7 +91,7 @@ foreach ($arResult["VOTES"] as $arVote):
 ?>
 		<div class="vote-item-counter"><span><?=GetMessage("VOTE_VOTES")?>:</span> <?=$arVote["COUNTER"]?></div>
 <?
-	if (strlen($arVote["TITLE"]) <= 0):
+	if ($arVote["TITLE"] == ''):
 		if ($arVote["LAMP"]=="green"):
 ?>
 		<div class="vote-item-lamp vote-item-lamp-green"><span class="active"><?=GetMessage("VOTE_IS_ACTIVE")?></span></div>
@@ -133,7 +133,7 @@ endforeach;
 </ol>
 <?
 
-if (strlen($arResult["NAV_STRING"]) > 0):
+if ($arResult["NAV_STRING"] <> ''):
 ?>
 <div class="vote-navigation-box vote-navigation-bottom">
 	<div class="vote-page-navigation">

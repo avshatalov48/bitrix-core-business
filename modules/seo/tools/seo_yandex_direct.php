@@ -137,7 +137,7 @@ if(isset($action) && !$bNeedAuth)
 				if(is_array($phraseList))
 				{
 					$phraseList = array_values(array_unique($phraseList));
-					$geoList = strlen($geo) > 0 ? preg_split("/[^0-9\\-]+\\s*/", $geo) : array();
+					$geoList = $geo <> '' ? preg_split("/[^0-9\\-]+\\s*/", $geo) : array();
 
 					$phraseHash = md5(implode('|', $phraseList).'|||'.$geo);
 
@@ -209,7 +209,7 @@ if(isset($action) && !$bNeedAuth)
 				if(is_array($phraseList))
 				{
 					$phraseList = array_values(array_unique($phraseList));
-					$geoList = strlen($geo) > 0 ? preg_split("/[^0-9\-]+\\s*/", $geo) : array();
+					$geoList = $geo <> '' ? preg_split("/[^0-9\-]+\\s*/", $geo) : array();
 
 					$phraseHash = md5(implode('|', $phraseList).'|||'.$geo);
 

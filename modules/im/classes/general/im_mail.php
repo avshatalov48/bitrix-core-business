@@ -341,9 +341,9 @@ class CIMMail
 		if (COption::GetOptionString('extranet', 'extranet_site', '') == SITE_ID)
 			return false;
 
-		if (isset($_SESSION['aExtranetUser_'.$USER->GetID()][SITE_ID]))
+		if (isset(\Bitrix\Main\Application::getInstance()->getKernelSession()['aExtranetUser_'.$USER->GetID()][SITE_ID]))
 		{
-			if (!$_SESSION['aExtranetUser_'.$USER->GetID()][SITE_ID])
+			if (!\Bitrix\Main\Application::getInstance()->getKernelSession()['aExtranetUser_'.$USER->GetID()][SITE_ID])
 				return false;
 		}
 		else if (CModule::IncludeModule('extranet') && !CExtranet::IsIntranetUser())

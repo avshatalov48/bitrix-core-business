@@ -22,14 +22,43 @@ namespace Bitrix\Rest\Marketplace\Urls
 			return $instance;
 		}
 
-		public function getIndexUrl()
+		/**
+		 * @param $url string
+		 * @param $from string
+		 *
+		 * @return string
+		 */
+		public function addUrlFrom($url, $from) : string
 		{
-			return $this->getDir().$this->pages["index"];
+			if($from !== '')
+			{
+				if (mb_strpos($url, '?') === false)
+				{
+					$url .= '?from=' . $from;
+				}
+				else
+				{
+					$url .= '&from=' . $from;
+				}
+			}
+
+			return $url;
 		}
 
-		public function getDetailUrl($id = null)
+		public function getIndexUrl($from = '')
 		{
-			return $this->getReplacedId($this->pages["detail"], $id);
+			$url = $this->getDir() . $this->pages["index"];
+			$url = $this->addUrlFrom($url, $from);
+
+			return $url;
+		}
+
+		public function getDetailUrl($id = null, $from = '')
+		{
+			$url = $this->getReplacedId($this->pages["detail"], $id);
+			$url = $this->addUrlFrom($url, $from);
+
+			return $url;
 		}
 
 		public function getEditUrl($id = null)
@@ -54,7 +83,7 @@ namespace Bitrix\Rest\Marketplace\Urls
 				}
 			}
 			$res = \Bitrix\Main\IO\Path::combine([self::$localDir, $this->directory]);
-			if (substr($res, 0, -1) !== \Bitrix\Main\IO\Path::DIRECTORY_SEPARATOR)
+			if (mb_substr($res, 0, -1) !== \Bitrix\Main\IO\Path::DIRECTORY_SEPARATOR)
 				$res .= \Bitrix\Main\IO\Path::DIRECTORY_SEPARATOR;
 			return $res;
 		}
@@ -85,7 +114,8 @@ namespace Bitrix\Rest\Marketplace\Urls
 			"detail" => "detail/#ID#/",
 			"category" => "category/#ID#/",
 			"placement_view" => "view/#APP#/",
-			"placement" => "placement/#PLACEMENT_ID#/"
+			"placement" => "placement/#PLACEMENT_ID#/",
+			"booklet" => "booklet/#CODE#/"
 		];
 
 		public function getCategoryUrl($id = null)
@@ -99,7 +129,7 @@ namespace Bitrix\Rest\Marketplace\Urls
 
 		public function getPlacementUrl($placementId, $params)
 		{
-			$placementId = intVal($placementId);
+			$placementId = intval($placementId);
 			$replace = null;
 			$subject = null;
 			if ($placementId > 0)
@@ -123,6 +153,26 @@ namespace Bitrix\Rest\Marketplace\Urls
 				);
 				$url = $uri->getUri();
 			}
+			return $url;
+		}
+
+		public function getBooklet($code = null, $from = '')
+		{
+			$replace = null;
+			$subject = null;
+			if (!is_null($code))
+			{
+				$replace = [
+					"#CODE#"
+				];
+				$subject = [
+					$code
+				];
+			}
+			$url = $this->getReplaced($this->pages["booklet"], $replace, $subject);
+
+			$url = $this->addUrlFrom($url, $from);
+
 			return $url;
 		}
 
@@ -343,14 +393,19 @@ namespace Bitrix\Rest\Marketplace
 			return MarketplaceUrls::getInstance()->getCategoryUrl($id);
 		}
 
-		public static function getApplicationDetailUrl($id = null)
+		public static function getApplicationDetailUrl($id = null, $from = '')
 		{
-			return MarketplaceUrls::getInstance()->getDetailUrl($id);
+			return MarketplaceUrls::getInstance()->getDetailUrl($id, $from);
 		}
 		public static function getApplicationUrl($id = null)
 		{
 			return ApplicationUrls::getInstance()->getDetailUrl($id);
 		}
+
+		/**
+		 * @see \Bitrix\Rest\Url\DevOps
+		 * @deprecated
+		 */
 		public static function getApplicationAddUrl()
 		{
 			return LocalApplicationUrls::getInstance()->getIndexUrl();
@@ -370,11 +425,15 @@ namespace Bitrix\Rest\Marketplace
 			return MarketplaceUrls::getInstance()->getPlacementViewUrl($appCode, $params);
 		}
 
-		public static function getMarketplaceUrl()
+		public static function getMarketplaceUrl($from = '')
 		{
-			return MarketplaceUrls::getInstance()->getIndexUrl();
+			return MarketplaceUrls::getInstance()->getIndexUrl($from);
 		}
 
+		public static function getBookletUrl($code = null, $from = '')
+		{
+			return MarketplaceUrls::getInstance()->getBooklet($code, $from);
+		}
 
 		public static function getConfigurationUrl()
 		{

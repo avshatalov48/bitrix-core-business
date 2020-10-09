@@ -114,7 +114,7 @@ class StringField extends ScalarField
 
 		if ($this->size !== null)
 		{
-			$value = substr($value, 0, $this->size);
+			$value = mb_substr($value, 0, $this->size);
 		}
 
 		return $value;

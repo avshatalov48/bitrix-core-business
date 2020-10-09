@@ -142,7 +142,7 @@ if (is_array($arResult["ActiveFeatures"]) && count($arResult["ActiveFeatures"]) 
 	// for date
 	if (
 		array_key_exists("flt_date_datesel", $_REQUEST)
-		&& strlen($_REQUEST["flt_date_datesel"]) > 0
+		&& $_REQUEST["flt_date_datesel"] <> ''
 	)
 	{
 		$_REQUEST["flt_date_datesel"] = htmlspecialcharsbx($_REQUEST["flt_date_datesel"]);
@@ -227,7 +227,7 @@ if (is_array($arResult["ActiveFeatures"]) && count($arResult["ActiveFeatures"]) 
 
 	if (
 		array_key_exists("flt_ip", $_REQUEST)
-		&& strlen($_REQUEST["flt_ip"]) > 0
+		&& $_REQUEST["flt_ip"] <> ''
 	)
 	{
 		$ip = htmlspecialcharsbx($_REQUEST["flt_ip"]);
@@ -236,12 +236,12 @@ if (is_array($arResult["ActiveFeatures"]) && count($arResult["ActiveFeatures"]) 
 
 	function CheckFilter()
 	{
-		if(strlen($_REQUEST["flt_date_from"])>0)
+		if($_REQUEST["flt_date_from"] <> '')
 		{
 			if(!CheckDateTime($_REQUEST["flt_date_from"], CSite::GetDateFormat("FULL")))
 				return false;
 		}
-		if(strlen($_REQUEST["flt_date_to"])>0)
+		if($_REQUEST["flt_date_to"] <> '')
 		{
 			if(!CheckDateTime($_REQUEST["flt_date_to"], CSite::GetDateFormat("FULL")))
 				return false;

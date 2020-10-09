@@ -104,7 +104,7 @@ if(is_array($arResult["EVENTS"])):
 
 			if(array_key_exists($event, $arResult['EVENTS_DESC']))
 			{
-				$eventTitle = strlen($arResult['EVENTS_DESC'][$event]['name']) > 0
+				$eventTitle = $arResult['EVENTS_DESC'][$event]['name'] <> ''
 					? $arResult['EVENTS_DESC'][$event]['name']
 					: $arResult['EVENTS_DESC'][$event]['code'];
 				$eventDescription = '<b>'.$eventTitle.'</b><p>'.$arResult['EVENTS_DESC'][$event]['descr'].'</p>';

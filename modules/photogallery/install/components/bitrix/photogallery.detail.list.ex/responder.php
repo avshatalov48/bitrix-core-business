@@ -22,7 +22,7 @@ if (CPGalleryInterface::CheckSign($_REQUEST['sigh'], $_REQUEST["checkParams"]))
 	CUtil::JSPostUnEscape();
 	$arParams = array_merge($_REQUEST["checkParams"], $_REQUEST["reqParams"]);
 
-	$elementId = intVal($_REQUEST["ELEMENT_ID"]);
+	$elementId = intval($_REQUEST["ELEMENT_ID"]);
 	if ($_REQUEST['getRaiting'] == 'Y' && $arParams["USE_RATING"] == "Y" && $arParams["PERMISSION"] >= "R")
 	{
 		if ($arParams["DISPLAY_AS_RATING"] == "rating_main")

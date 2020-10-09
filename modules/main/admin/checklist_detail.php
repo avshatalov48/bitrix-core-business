@@ -49,7 +49,7 @@ if($_REQUEST["TEST_ID"] && $arPoints[$_REQUEST["TEST_ID"]])
 			break;
 	}
 	$arTotal = count($arPoints);
-	if(strlen($arPoints[$arTestID]["STATE"]["COMMENTS"]["SYSTEM"]["DETAIL"])>0)
+	if($arPoints[$arTestID]["STATE"]["COMMENTS"]["SYSTEM"]["DETAIL"] <> '')
 		$display="inline-block";
 	else
 		$display="none";

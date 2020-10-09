@@ -40,7 +40,7 @@ function CheckFilter($arFields)
 	global $strError;
 	$str = "";
 	$strError .= $str;
-	if(strlen($str)>0)
+	if($str <> '')
 	{
 		global $lAdmin;
 		$lAdmin->AddFilterError($str);
@@ -65,7 +65,7 @@ if($lAdmin->EditAction() && $USER->CanDoOperation('edit_tasks'))
 {
 	foreach($FIELDS as $ID=>$arFields)
 	{
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		if(!$lAdmin->IsUpdated($ID))
 			continue;
@@ -87,7 +87,7 @@ if(($arID = $lAdmin->GroupAction()) && $USER->CanDoOperation('edit_tasks'))
 	{
 		foreach($arID as $ID)
 		{
-			if(strlen($ID)<=0)
+			if($ID == '')
 				continue;
 			CTask::Delete($ID);
 		}
@@ -128,7 +128,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	$row =& $lAdmin->AddRow($f_ID, $arRes, "task_edit.php?lang=".LANGUAGE_ID."&ID=".$f_ID, GetMessage("MAIN_EDIT_TITLE"));
 	$row->AddViewField("ID", "<a href='task_edit.php?lang=".LANGUAGE_ID."&ID=".$f_ID."' title='".GetMessage("MAIN_EDIT_TITLE")."'>".$f_ID."</a>");
 
-	$sys = (strtoupper($f_SYS) == 'Y');
+	$sys = (mb_strtoupper($f_SYS) == 'Y');
 	$row->AddViewField("NAME", "<a href='task_edit.php?lang=".LANGUAGE_ID."&ID=".$f_ID."' title='".GetMessage("MAIN_EDIT_TITLE")."'>".$f_TITLE."</a>");
 	$row->AddViewField("DESCRIPTION", $f_DESC);
 	$row->AddViewField("MODULE_ID", htmlspecialcharsbx($arModuleRef[$f_MODULE_ID]));

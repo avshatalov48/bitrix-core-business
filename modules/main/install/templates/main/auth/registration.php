@@ -52,7 +52,7 @@ ShowMessage($arAuthResult);
 				</tr>
 				<tr valign="middle"> 
 					<td align="right" nowrap class="tablebody"><font class="starrequired">*</font><font  class="tablebodytext">E-Mail:</font></td>
-					<td align="left" class="tablebody"><input type="text" name="USER_EMAIL" size="30" maxlength="255" value="<?echo htmlspecialcharsbx(strlen($sf_EMAIL)>0? $sf_EMAIL:$USER_EMAIL)?>" class="inputtext"></td>
+					<td align="left" class="tablebody"><input type="text" name="USER_EMAIL" size="30" maxlength="255" value="<?echo htmlspecialcharsbx($sf_EMAIL <> ''? $sf_EMAIL:$USER_EMAIL)?>" class="inputtext"></td>
 				</tr>
 
 				<?
@@ -63,7 +63,7 @@ ShowMessage($arAuthResult);
 				{
 					if ($arUserField["MANDATORY"] != "Y")
 						continue;
-					$arUserField["EDIT_FORM_LABEL"] = htmlspecialcharsbx(strLen($arUserField["EDIT_FORM_LABEL"]) > 0 ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"]);
+					$arUserField["EDIT_FORM_LABEL"] = htmlspecialcharsbx($arUserField["EDIT_FORM_LABEL"] <> '' ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"]);
 				?><tr valign="top"> 
 					<td align="right" nowrap class="tablebody"><?if ($arUserField["MANDATORY"]=="Y"):?><span class="required">*</span><?endif;?><font  class="tablebodytext"><?=$arUserField["EDIT_FORM_LABEL"]?>:</font></td>
 					<td align="left" class="tablebody"><?$APPLICATION->IncludeComponent(

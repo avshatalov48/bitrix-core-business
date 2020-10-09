@@ -63,7 +63,7 @@ class CLearnRenderAdminUnilessonList
 
 		$oPath = false;
 		if (isset ($_GET['LESSON_PATH'])
-			&& (strlen($_GET['LESSON_PATH']) > 0)
+			&& ($_GET['LESSON_PATH'] <> '')
 		)
 		{
 			$oPath = new CLearnPath();
@@ -117,7 +117,7 @@ class CLearnRenderAdminUnilessonList
 		elseif (isset($_GET['order']))
 			$order = $_GET['order'];
 
-		$order = strtolower($order);
+		$order = mb_strtolower($order);
 		if ( ($orderBy !== false) && (($order === 'asc') || ($order === 'desc')) )
 			$this->arSortOrder = array ($orderBy => $order);
 
@@ -206,12 +206,12 @@ class CLearnRenderAdminUnilessonList
 		$oSort = new CAdminSorting($this->tableID, 'LESSON_ID', 'asc', 'learning_sort_by', 'learning_sort_order');	// sort initialization
 		$this->oList = new CAdminList($this->tableID, $oSort);		// list initialization
 
-		$GLOBALS['learning_sort_by'] = strtoupper($GLOBALS['learning_sort_by']);
-		$GLOBALS['learning_sort_order'] = strtoupper($GLOBALS['learning_sort_order']);
+		$GLOBALS['learning_sort_by'] = mb_strtoupper($GLOBALS['learning_sort_by']);
+		$GLOBALS['learning_sort_order'] = mb_strtoupper($GLOBALS['learning_sort_order']);
 		if ( ! in_array($GLOBALS['learning_sort_order'], array('ASC', 'DESC'), true) )
 			$GLOBALS['learning_sort_order'] = 'ASC';
 
-		if (strlen($GLOBALS['learning_sort_by']) > 0)
+		if ($GLOBALS['learning_sort_by'] <> '')
 			$this->arSortOrder = array($GLOBALS['learning_sort_by'] => $GLOBALS['learning_sort_order']);
 
 		$arFilterFields = array(
@@ -391,13 +391,13 @@ class CLearnRenderAdminUnilessonList
 
 	public function ProcessActionsOnList()
 	{
-		if (isset($_POST['action']) && (strlen($_POST['action']) !== 0))
+		if (isset($_POST['action']) && ($_POST['action'] <> ''))
 			$action = $_POST['action'];
-		elseif (isset($_GET['action']) && (strlen($_GET['action']) !== 0))
+		elseif (isset($_GET['action']) && ($_GET['action'] <> ''))
 			$action = $_GET['action'];
-		elseif (isset($_POST['action_button']) && (strlen($_POST['action_button']) !== 0))
+		elseif (isset($_POST['action_button']) && ($_POST['action_button'] <> ''))
 			$action = $_POST['action_button'];
-		elseif (isset($_GET['action_button']) && (strlen($_GET['action_button']) !== 0))
+		elseif (isset($_GET['action_button']) && ($_GET['action_button'] <> ''))
 			$action = $_GET['action_button'];
 		else
 			return ($this);		// nothing to do
@@ -510,12 +510,12 @@ class CLearnRenderAdminUnilessonList
 
 					case 'activate':
 					case 'deactivate':
-						if (strtolower($action) === 'deactivate')
+						if (mb_strtolower($action) === 'deactivate')
 						{
 							$this->EnsureLessonDeactivateAccess ($lessonId);
 							$arFields = Array('ACTIVE' => 'N');
 						}
-						elseif (strtolower($action) === 'activate')
+						elseif (mb_strtolower($action) === 'activate')
 						{
 							$this->EnsureLessonActivateAccess ($lessonId);
 							$arFields = Array('ACTIVE' => 'Y');
@@ -570,7 +570,7 @@ class CLearnRenderAdminUnilessonList
 					$errmsg = GetMessage('LEARNING_SAVE_ERROR') . '#' . $lessonId . ': '
 						. GetMessage('LEARNING_ACCESS_D');
 
-					if (strlen($errorText) > 0)
+					if ($errorText <> '')
 						$errmsg .= (': ' . $errorText);
 				}
 				else
@@ -578,7 +578,7 @@ class CLearnRenderAdminUnilessonList
 					// Some error occured during update operation
 					$errmsg = GetMessage('LEARNING_SAVE_ERROR') . $lessonId;
 
-					if (strlen($errorText) > 0)
+					if ($errorText <> '')
 						$errmsg .= ( ' (' . $errorText . ')' );
 				}
 
@@ -1266,7 +1266,7 @@ class CLearnRenderAdminUnilessonList
 		$parentLessonId = false;
 
 		// Button "level up" available only if LESSON_PATH available and parent exists in it
-		if (isset($_GET['LESSON_PATH']) && strlen($_GET['LESSON_PATH']) > 0)
+		if (isset($_GET['LESSON_PATH']) && $_GET['LESSON_PATH'] <> '')
 		{
 			$PROPOSE_RETURN_LESSON_PATH = '&PROPOSE_RETURN_LESSON_PATH=' . urlencode($_GET['LESSON_PATH']);
 			$oPath = new CLearnPath();
@@ -1535,7 +1535,7 @@ class CLearnRenderAdminUnilessonList
 					$errmsg = GetMessage('LEARNING_SAVE_ERROR') . ': '
 						. GetMessage('LEARNING_ACCESS_D');
 
-					if (strlen($errorText) > 0)
+					if ($errorText <> '')
 						$errmsg .= (': ' . $errorText);
 				}
 				else
@@ -1543,7 +1543,7 @@ class CLearnRenderAdminUnilessonList
 					// Some error occured during update operation
 					$errmsg = GetMessage('LEARNING_SAVE_ERROR') . $lessonId;
 
-					if (strlen($errorText) > 0)
+					if ($errorText <> '')
 						$errmsg .= ( ' (' . $errorText . ')' );
 				}
 
@@ -1679,7 +1679,7 @@ try
 	if ($oRE->IsNeedProcessActionsOnList())
 		$oRE->ProcessActionsOnList();
 
-	if (isset($_REQUEST['return_url']) && (strlen($_REQUEST['return_url']) > 0) && check_bitrix_sessid())
+	if (isset($_REQUEST['return_url']) && ($_REQUEST['return_url'] <> '') && check_bitrix_sessid())
 		LocalRedirect($_REQUEST['return_url']);
 
 
@@ -1714,7 +1714,7 @@ catch (Exception $e)
 	$strCAdminMessage = GetMessage('LEARNING_ERROR');
 
 	$errmsg = $e->GetMessage();
-	if (strlen($errmsg) > 0)
+	if ($errmsg <> '')
 		$strCAdminMessage .= ' (' . $e->GetMessage() . ')';
 }
 

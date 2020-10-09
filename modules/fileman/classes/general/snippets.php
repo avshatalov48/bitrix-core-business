@@ -684,7 +684,8 @@ window.arSnGroups['<?=$template?>']['<?= $key?>'] =
 			{
 				$contentSrc = $APPLICATION->GetFileContent($basePath."/.content.php");
 				$newPath = ltrim($io->ExtractPathFromPath($path).'/'.$params['new_name'], '/');
-				$contentSrc = preg_replace("/\\\$SNIPPETS\\['".$path."\\//", '$SNIPPETS[\''.$newPath.'/', $contentSrc);
+				$processedNewPath = CUtil::addslashes($newPath);
+				$contentSrc = preg_replace("/\\\$SNIPPETS\\['".$path."\\//", '$SNIPPETS[\''.$processedNewPath.'/', $contentSrc);
 				$APPLICATION->SaveFileContent($basePath."/.content.php", $contentSrc);
 			}
 

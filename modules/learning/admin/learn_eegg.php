@@ -29,7 +29,7 @@ try
 	if ($oRE->IsNeedProcessActionsOnList())
 		$oRE->ProcessActionsOnList();
 
-	if (isset($_REQUEST['return_url']) && (strlen($_REQUEST['return_url']) > 0) && check_bitrix_sessid())
+	if (isset($_REQUEST['return_url']) && ($_REQUEST['return_url'] <> '') && check_bitrix_sessid())
 		LocalRedirect($_REQUEST['return_url']);
 
 
@@ -46,7 +46,7 @@ catch (Exception $e)
 	$strCAdminMessage = GetMessage('LEARNING_ERROR');
 
 	$errmsg = $e->GetMessage();
-	if (strlen($errmsg) > 0)
+	if ($errmsg <> '')
 		$strCAdminMessage .= ' (' . $e->GetMessage() . ')';
 }
 
@@ -233,9 +233,9 @@ class CLearnRenderAdminExceptionsList
 				{
 					$argsCnt++;
 					$dots = '';
-					if (strlen($arArg) > 100)
+					if (mb_strlen($arArg) > 100)
 						$dots = '...';
-					echo '[' . $argsCnt . ']: ' . substr(serialize($arArg), 0, 100) . $dots . "\n";
+					echo '['.$argsCnt.']: '.mb_substr(serialize($arArg), 0, 100) . $dots . "\n";
 				}
 				echo "\n";
 			}

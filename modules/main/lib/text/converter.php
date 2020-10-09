@@ -33,7 +33,7 @@ abstract class Converter
 
 	public static function initTextType($textType)
 	{
-		$textType = strtolower($textType);
+		$textType = mb_strtolower($textType);
 		if ($textType != self::TEXT && $textType != self::HTML)
 			$textType = self::TEXT;
 		return $textType;

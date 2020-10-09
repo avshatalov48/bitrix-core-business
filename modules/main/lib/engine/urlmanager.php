@@ -73,12 +73,12 @@ final class UrlManager
 	 */
 	public function createByController(Controller $controller, $action, $params = array(), $absolute = false)
 	{
-		$name = strtolower(Resolver::getNameByController($controller));
+		$name = mb_strtolower(Resolver::getNameByController($controller));
 
 		list($vendor) = $this->getVendorAndModule($controller->getModuleId());
 		if ($vendor === 'bitrix')
 		{
-			$name = substr($name, strlen('bitrix:'));
+			$name = mb_substr($name, mb_strlen('bitrix:'));
 		}
 
 		return $this->create(
@@ -126,7 +126,7 @@ final class UrlManager
 		{
 			$path = str_replace('\\', '/', $path);
 		}
-		$pathWithoutLocal = substr($path, strpos($path, '/components/') + strlen('/components/'));
+		$pathWithoutLocal = mb_substr($path, mb_strpos($path, '/components/') + mb_strlen('/components/'));
 		list($vendor, $componentName) = explode('/', $pathWithoutLocal);
 
 		if (!$componentName)

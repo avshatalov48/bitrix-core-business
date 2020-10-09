@@ -1632,7 +1632,7 @@ class CLearnLesson implements ILearnLesson
 				$arLID = $arFilter['SITE_ID'];
 			else
 			{
-				if (strlen($arFilter['SITE_ID']) > 0)
+				if ($arFilter['SITE_ID'] <> '')
 					$arLID[] = $arFilter['SITE_ID'];
 			}
 
@@ -1642,13 +1642,13 @@ class CLearnLesson implements ILearnLesson
 		}
 
 		$r = $obUserFieldsSql->GetFilter();
-		if (strlen($r) > 0)
+		if ($r <> '')
 			$arSqlSearch[] = "(".$r.")";
 
 		$sqlSearch = '';
 		foreach ($arSqlSearch as $value)
 		{
-			if (strlen($value) > 0)
+			if ($value <> '')
 				$sqlSearch .= ' AND ' . $value;
 		}
 
@@ -1706,7 +1706,7 @@ class CLearnLesson implements ILearnLesson
 		// Ensure that all order fields will be selected
 		foreach ($arOrder as $by => $order)
 		{
-			$fieldName = strtoupper($by);
+			$fieldName = mb_strtoupper($by);
 			if ( ! in_array($fieldName, $arSelectFields) )
 				$arSelectFields[] = $fieldName;
 		}
@@ -1717,7 +1717,7 @@ class CLearnLesson implements ILearnLesson
 		$bDefaultSortFieldSelected = false;
 		foreach ($arSelectFields as $selectFieldName)
 		{
-			if (substr($selectFieldName, 0, 3) === 'UF_')
+			if (mb_substr($selectFieldName, 0, 3) === 'UF_')
 				continue;
 
 			if (!$bFirstPass)
@@ -1755,7 +1755,7 @@ class CLearnLesson implements ILearnLesson
 
 		$sqlLangConstraint = '';
 
-		if (strlen($SqlSearchLang) > 2)
+		if (mb_strlen($SqlSearchLang) > 2)
 		{
 			$sqlLangConstraint = "
 			AND
@@ -1788,16 +1788,16 @@ class CLearnLesson implements ILearnLesson
 		$arSqlOrder = array();
 		foreach($arOrder as $by => $order)
 		{
-			$by    = strtolower($by);
-			$order = strtolower($order);
+			$by = mb_strtolower($by);
+			$order = mb_strtolower($order);
 
 			if ($order !== 'asc')
 				$order = 'desc';
 
-			if ($s = $obUserFieldsSql->getOrder(strtolower($by)))
+			if ($s = $obUserFieldsSql->getOrder(mb_strtolower($by)))
 				$arSqlOrder[] = ' ' . $s . ' ' . $order . ' ';
 
-			if (substr($by, 0, 3) !== 'uf_')
+			if (mb_substr($by, 0, 3) !== 'uf_')
 			{
 				if ( ! isset($arMap[$by]) )
 				{
@@ -1894,7 +1894,7 @@ class CLearnLesson implements ILearnLesson
 			$key = $res["FIELD"];
 			$cOperationType = $res["OPERATION"];
 
-			$key = strtoupper($key);
+			$key = mb_strtoupper($key);
 
 			switch ($key)
 			{
@@ -1938,7 +1938,7 @@ class CLearnLesson implements ILearnLesson
 
 				case 'ACTIVE_FROM':
 				case 'ACTIVE_TO':
-					if (strlen($val) > 0)
+					if ($val <> '')
 					{
 						$arSqlSearch[] = "(TC." . $key . " " . ($cOperationType == "N" ? "<" : ">=")
 							. $DB->CharToDateFunction($DB->ForSql($val), "FULL")
@@ -1948,7 +1948,7 @@ class CLearnLesson implements ILearnLesson
 					break;
 
 				case "ACTIVE_DATE":
-					if(strlen($val) > 0)
+					if($val <> '')
 					{
 						$arSqlSearch[] = ($cOperationType == "N" ? " NOT" : "") 
 							. "((TC.ACTIVE_TO >= " . $DB->GetNowFunction() 
@@ -2022,7 +2022,7 @@ class CLearnLesson implements ILearnLesson
 				break;
 
 				default:
-					if (substr($key, 0, 3) !== 'UF_')
+					if (mb_substr($key, 0, 3) !== 'UF_')
 						throw new LearnException ('EA_PARAMS: unknown field ' . $key, LearnException::EXC_ERR_ALL_PARAMS);
 				break;
 			}

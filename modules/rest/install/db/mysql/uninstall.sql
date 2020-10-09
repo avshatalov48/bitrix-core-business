@@ -12,3 +12,4 @@ DROP TABLE IF EXISTS b_rest_app_log;
 DROP TABLE IF EXISTS b_rest_usage_entity;
 DROP TABLE IF EXISTS b_rest_usage_stat;
 DROP TABLE IF EXISTS b_rest_owner_entity;
+DROP TABLE IF EXISTS b_rest_integration;

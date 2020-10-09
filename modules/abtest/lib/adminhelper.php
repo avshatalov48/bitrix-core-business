@@ -29,12 +29,12 @@ class AdminHelper
 		$uri = new Web\Uri($url);
 
 		$path = \CHTTP::urnDecode($uri->getPath());
-		if (substr($path, -1, 1) == '/')
+		if (mb_substr($path, -1, 1) == '/')
 			$path .= 'index.php';
 
 		$file = new IO\File($docRoot.$path);
 		if ($file->isExists())
-			return substr($file->getPath(), strlen($docRoot));
+			return mb_substr($file->getPath(), mb_strlen($docRoot));
 
 		if ($rewriteRules = AdminHelper::getRewriteRules($site))
 		{
@@ -56,8 +56,8 @@ class AdminHelper
 					$file = new IO\File($docRoot.$path);
 					if ($file->isExists())
 					{
-						$pathTmp  = str_replace('.', '', strtolower(ltrim($path, '/\\')));
-						$pathTmp7 = substr($pathTmp, 0, 7);
+						$pathTmp  = str_replace('.', '', mb_strtolower(ltrim($path, '/\\')));
+						$pathTmp7 = mb_substr($pathTmp, 0, 7);
 
 						if ($pathTmp7 == 'upload/' || $pathTmp7 == 'bitrix/')
 							continue;
@@ -65,7 +65,7 @@ class AdminHelper
 						if ($file->getExtension() != 'php')
 							continue;
 
-						return substr($file->getPath(), strlen($docRoot));
+						return mb_substr($file->getPath(), mb_strlen($docRoot));
 					}
 				}
 			}

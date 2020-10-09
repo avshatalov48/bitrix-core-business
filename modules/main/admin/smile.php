@@ -42,7 +42,7 @@ if ($arID = $lAdmin->GroupAction())
 
 	foreach ($arID as $ID)
 	{
-		if (strlen($ID) <= 0)
+		if ($ID == '')
 			continue;
 
 		if ($_REQUEST['action'] == 'delete')
@@ -55,7 +55,7 @@ if($lAdmin->EditAction())
 {
 	foreach($FIELDS as $ID=>$arFields)
 	{
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		if($ID <= 0)
 			continue;
 
@@ -106,11 +106,11 @@ while ($arForum = $dbResultList->NavNext(true, "f_"))
 	$row->AddField("SORT", $f_SORT);
 	$row->AddField("TYPE", ($f_TYPE==CSmile::TYPE_ICON? GetMessage("SMILE_TYPE_ICON"): GetMessage("SMILE_TYPE_SMILE")));
 
-	$row->AddViewField("SET_NAME", '<a title="'.GetMessage("SMILE_EDIT_DESCR").'" href="'."smile_set_edit.php?ID=".$f_SET_ID."&lang=".LANG."&".GetFilterParams("filter_").'">'.(strlen($f_SET_NAME)>0?$f_SET_NAME: GetMessage('SMILE_SET_NO_NAME', Array('#ID#' => $f_SET_ID))).'</a>');
-	$row->AddViewField("NAME", '<a title="'.GetMessage("SMILE_EDIT_DESCR").'" href="'."smile_edit.php?ID=".$f_ID."&lang=".LANG."&".GetFilterParams("filter_").'">'.(strlen($f_NAME)>0?$f_NAME: GetMessage('SMILE_NO_NAME')).'</a>');
+	$row->AddViewField("SET_NAME", '<a title="'.GetMessage("SMILE_EDIT_DESCR").'" href="'."smile_set_edit.php?ID=".$f_SET_ID."&lang=".LANG."&".GetFilterParams("filter_").'">'.($f_SET_NAME <> ''?$f_SET_NAME: GetMessage('SMILE_SET_NO_NAME', Array('#ID#' => $f_SET_ID))).'</a>');
+	$row->AddViewField("NAME", '<a title="'.GetMessage("SMILE_EDIT_DESCR").'" href="'."smile_edit.php?ID=".$f_ID."&lang=".LANG."&".GetFilterParams("filter_").'">'.($f_NAME <> ''?$f_NAME: GetMessage('SMILE_NO_NAME')).'</a>');
 
 	$row->AddField("TYPING", $f_TYPING);
-	$row->AddField("ICON", "<img src=\"".($f_TYPE == CSmile::TYPE_ICON? CSmile::PATH_TO_ICON: CSmile::PATH_TO_SMILE).$f_SET_ID."/".$f_IMAGE."\" border=\"0\" ".((IntVal($f_IMAGE_WIDTH) > 0) ? "width=\"".$f_IMAGE_WIDTH."\"" : "")." ".((IntVal($f_IMAGE_HEIGHT) > 0) ? "height=\"".$f_IMAGE_HEIGHT."\"" : "" ).">");
+	$row->AddField("ICON", "<img src=\"".($f_TYPE == CSmile::TYPE_ICON? CSmile::PATH_TO_ICON: CSmile::PATH_TO_SMILE).$f_SET_ID."/".$f_IMAGE."\" border=\"0\" ".((intval($f_IMAGE_WIDTH) > 0) ? "width=\"".$f_IMAGE_WIDTH."\"" : "")." ".((intval($f_IMAGE_HEIGHT) > 0) ? "height=\"".$f_IMAGE_HEIGHT."\"" : "" ).">");
 	$row->AddField("IMAGE", ($f_TYPE == CSmile::TYPE_ICON? CSmile::PATH_TO_ICON: CSmile::PATH_TO_SMILE).$f_SET_ID."/".$f_IMAGE);
 
 	$row->AddInputField("NAME", array("size"=>20));

@@ -239,6 +239,18 @@
 					this.addWriter(authorId, authorName, authorAvatar, timeL);
 				}
 			}.bind(this),
+			OnUCCommentRecalculate: function (entityId) {
+				if (this.getXmlId() !== entityId) {
+					return;
+				}
+
+				var ii,
+					nodes = BX.findChild(this.node.main, {attrs : { "bx-mpl-xml-id" : this.ENTITY_XML_ID } }, false, true);
+				for (ii = 0; ii < nodes.length; ii++)
+				{
+					this.recalcMoreButtonComment(nodes[ii].getAttribute("bx-mpl-entity-id"));
+				}
+			}.bind(this),
 		};
 
 		if (this.params["NOTIFY_TAG"] && this.params["NOTIFY_TEXT"] && window["UC"]["Informer"])
@@ -792,11 +804,24 @@
 				node = BX.create("DIV", {
 					attrs : {
 						id : id,
-						className : "feed-com-avatar",
+						className : "feed-com-avatar ui-icon ui-icon-common-user ",
 						title : name
 					},
-					html : (avatar && avatar.length > 0 ? "<img src='" + avatar + "' >" : "")
+
+					children: [
+						(
+							avatar && avatar.length > 0
+								? BX.create("I", {
+									style: {
+										background: 'url(' + avatar + ')',
+										backgroundSize: 'cover'
+									}
+								})
+								: null
+						)
+					]
 				});
+
 				this.node.writers.appendChild(node);
 			}
 			node.setAttribute("bx-check-timeout", (t + ""));
@@ -1381,7 +1406,12 @@
 				node = this.unreadComments.get(key.value);
 				pos = node.pos || BX.pos(node);
 				node.pos = pos;
-				if (screenPosition.top <= pos.top && pos.top <= screenPosition.bottom)
+
+				if (
+					screenPosition.top <= pos.top
+					&& pos.top <= screenPosition.bottom
+					&& node.offsetParent !== null
+				)
 				{
 					this.markCommentAsRead(key.value);
 				}
@@ -2391,7 +2421,28 @@
 
 		return text;
 	};
+	BX.addCustomEvent(window, "BX.Livefeed:recalculateComments", function(params) {
 
+		if (
+			!BX.type.isPlainObject(params)
+			|| !BX.type.isDomNode(params.rootNode)
+		)
+		{
+			return;
+		}
+
+		var commentBlocksList = params.rootNode.querySelectorAll('.feed-comments-block');
+		var commentThreadXmlId = null;
+
+		for (var i = 0; i < commentBlocksList.length; i++)
+		{
+			commentThreadXmlId = commentBlocksList[i].getAttribute('data-bx-comments-entity-xml-id');
+			if (BX.type.isNotEmptyString(commentThreadXmlId))
+			{
+				BX.onCustomEvent(window, "OnUCCommentRecalculate", [commentThreadXmlId]);
+			}
+		}
+	});
 	BX.addCustomEvent(window, 'BX.Forum.Spoiler:toggle', function(params) {
 		if (params.node)
 		{

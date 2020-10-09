@@ -205,6 +205,10 @@
 	          }
 
 	          text = text + "\n";
+	        } else {
+	          if (textarea.value && !textarea.value.endsWith(' ')) {
+	            text = ' ' + text;
+	          }
 	        }
 
 	        textarea.value = textarea.value.substring(0, selectionStart) + text + textarea.value.substring(selectionEnd, textarea.value.length);
@@ -225,6 +229,10 @@
 	          }
 
 	          text = text + "\n";
+	        } else {
+	          if (textarea.value && !textarea.value.endsWith(' ')) {
+	            text = ' ' + text;
+	          }
 	        }
 
 	        textarea.value = textarea.value + text;

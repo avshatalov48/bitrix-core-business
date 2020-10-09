@@ -48,8 +48,13 @@ if(isset($_REQUEST["test"]) && $_REQUEST["test"] === "Y")
 			jsUtils.FindChildObject(BX('perfomance'), 'div', 'adm-detail-title', true).innerHTML = '<?echo GetMessage("PERFMON_PANEL_PERF_TITLE2", array("#TOTAL_MARK_DATE#" => COption::GetOptionString("perfmon", "mark_php_page_date"), "#TOTAL_MARK_VALUE#" => $result));?>';
 		</script><?
 	}
+	AddEventHandler("main", "OnAfterEpilog", function()
+	{
+		$main_exec_time = round(microtime(true) - START_EXEC_TIME, 4);
+		$_SESSION["PERFMON_TIMES"][] = $main_exec_time;
+	}
+	);
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");
-	$_SESSION["PERFMON_TIMES"][] = $main_exec_time;
 	die();
 }
 elseif(isset($_REQUEST["test"]) && $_REQUEST["test"] === "cluster")

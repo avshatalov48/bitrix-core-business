@@ -55,7 +55,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["appl
 	}
 	else
 	{
-		$res = (strlen($langs->Add($arFields))>0);
+		$res = ($langs->Add($arFields) <> '');
 	}
 
 	if(!$res)

@@ -94,7 +94,7 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 			$manifest = Manifest::get($this->arParams['IMPORT_MANIFEST']['CODE']);
 			if(!is_null($manifest))
 			{
-				if(intVal($manifest['VERSION']) < intVal($this->arParams['IMPORT_MANIFEST']['VERSION']))
+				if(intval($manifest['VERSION']) < intval($this->arParams['IMPORT_MANIFEST']['VERSION']))
 				{
 					$result['NOTIFY'][] = Loc::getMessage("REST_CONFIGURATION_INSTALL_ERROR_MANIFEST_OLD");
 				}
@@ -631,7 +631,7 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 		{
 			$request = Application::getInstance()->getContext()->getRequest();
 			$code = preg_replace('/[^a-zA-Z0-9_]/', '', $request->getPost("code"));
-			$step = intVal( $request->getPost("step"));
+			$step = intval($request->getPost("step"));
 			$next = htmlspecialcharsbx( $request->getPost("next"));
 			$clearFull = $request->getPost("clear") == 'true'?:false;
 
@@ -690,7 +690,7 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 		{
 			$request = Application::getInstance()->getContext()->getRequest();
 			$code = preg_replace('/[^a-zA-Z0-9_]/', '', $request->getPost("code"));
-			$step = intVal( $request->getPost("step"));
+			$step = intval($request->getPost("step"));
 			if ($code)
 			{
 				$content = $this->getItemContent($code, $step);
@@ -759,7 +759,7 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 		{
 			$request = Application::getInstance()->getContext()->getRequest();
 			$code = preg_replace('/[^a-zA-Z0-9_]/', '', $request->getPost("code"));
-			$step = intVal($request->getPost("step"));
+			$step = intval($request->getPost("step"));
 			$next = htmlspecialcharsbx($request->getPost("next"));
 			if($code)
 			{
@@ -798,7 +798,7 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 		if($this->checkRequiredParams())
 		{
 			$request = Application::getInstance()->getContext()->getRequest();
-			$step = intVal($request->getPost("step"));
+			$step = intval($request->getPost("step"));
 			$next = htmlspecialcharsbx($request->getPost("next"));
 			$type = $request->getPost("type");
 			if($type != 'import')

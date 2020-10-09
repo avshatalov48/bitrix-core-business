@@ -130,7 +130,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["register_submit_button"] 
 	if (!$USER_FIELD_MANAGER->CheckFields("USER", 0, $arResult["VALUES"]))
 	{
 		$e = $APPLICATION->GetException();
-		$arResult["ERRORS"][] = substr($e->GetString(), 0, -4); //cutting "<br>"
+		$arResult["ERRORS"][] = mb_substr($e->GetString(), 0, -4); //cutting "<br>"
 		$APPLICATION->ResetException();
 	}
 
@@ -341,7 +341,7 @@ if (is_array($arUserFields) && count($arUserFields) > 0)
 		if (!in_array($FIELD_NAME, $arParams["USER_PROPERTY"]) && $arUserField["MANDATORY"] != "Y")
 			continue;
 
-		$arUserField["EDIT_FORM_LABEL"] = strLen($arUserField["EDIT_FORM_LABEL"]) > 0 ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
+		$arUserField["EDIT_FORM_LABEL"] = $arUserField["EDIT_FORM_LABEL"] <> '' ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
 		$arUserField["EDIT_FORM_LABEL"] = htmlspecialcharsEx($arUserField["EDIT_FORM_LABEL"]);
 		$arUserField["~EDIT_FORM_LABEL"] = $arUserField["EDIT_FORM_LABEL"];
 		$arResult["USER_PROPERTIES"]["DATA"][$FIELD_NAME] = $arUserField;

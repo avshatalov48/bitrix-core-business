@@ -43,6 +43,12 @@ if(typeof BX.UI.EntityScheme === "undefined")
 		findElementByName: function(name, options)
 		{
 			var isRecursive = BX.prop.getBoolean(options, "isRecursive", false);
+
+			if (isRecursive)
+			{
+				return this.findElementByNameRecursive(this._elements, name);
+			}
+
 			for(var i = 0, length = this._elements.length; i < length; i++)
 			{
 				var element = this._elements[i];
@@ -50,19 +56,29 @@ if(typeof BX.UI.EntityScheme === "undefined")
 				{
 					return element;
 				}
-
-				if(!isRecursive)
-				{
-					continue;
-				}
-
-				var childElement = element.findElementByName(name);
-				if(childElement !== null)
-				{
-					return childElement;
-				}
 			}
 
+			return null;
+		},
+		findElementByNameRecursive: function(elements, name)
+		{
+			if (Array.isArray(elements))
+			{
+				for(var i = 0, length = elements.length; i < length; i++)
+				{
+					var element = elements[i];
+					if(element.getName() === name)
+					{
+						return element;
+					}
+
+					var result = this.findElementByNameRecursive(element._elements, name);
+					if (result)
+					{
+						return result;
+					}
+				}
+			}
 			return null;
 		},
 		getAvailableElements: function()
@@ -92,6 +108,7 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 		this._title = "";
 		this._originalTitle = "";
 		this._optionFlags = 0;
+		this._options = {};
 
 		this._isEditable = true;
 		this._isShownAlways = false;
@@ -100,6 +117,7 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 		this._isRequired = false;
 		this._isRequiredConditionally = false;
 		this._isHeading = false;
+		this._isMergeable = true;
 
 		this._visibilityPolicy = BX.UI.EntityEditorVisibilityPolicy.always;
 		this._data = null;
@@ -117,7 +135,10 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 
 			this._data = BX.prop.getObject(this._settings, "data", {});
 
+			this.prepareAdditionalParameters();
+
 			this._isEditable = BX.prop.getBoolean(this._settings, "editable", true);
+			this._isMergeable = BX.prop.getBoolean(this._settings, "mergeable", true);
 			this._isShownAlways = BX.prop.getBoolean(this._settings, "showAlways", false);
 			this._isTransferable = BX.prop.getBoolean(this._settings, "transferable", true);
 			this._isContextMenuEnabled = BX.prop.getBoolean(this._settings, "enabledMenu", true);
@@ -154,12 +175,30 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 			//endregion
 
 			this._optionFlags = BX.prop.getInteger(this._settings, "optionFlags", 0);
+			this._options = BX.prop.getObject(this._settings, "options", {});
 
 			this._elements = [];
 			var elementData = BX.prop.getArray(this._settings, "elements", []);
 			for(var i = 0, l = elementData.length; i < l; i++)
 			{
 				this._elements.push(BX.UI.EntitySchemeElement.create(elementData[i]));
+			}
+		},
+		prepareAdditionalParameters: function()
+		{
+			var fieldInfo = this._data.fieldInfo || null;
+			if (
+				fieldInfo
+				&& fieldInfo.ADDITIONAL === undefined
+				&& fieldInfo.USER_TYPE_ID === BX.UI.EntityUserFieldType.file
+				&& BX.UI.EntitySchemeElement.userFieldFileUrlTemplate !== undefined
+			)
+			{
+				var template = BX.UI.EntitySchemeElement.userFieldFileUrlTemplate;
+				template = template.replace('#owner_id#', fieldInfo.ENTITY_VALUE_ID)
+					.replace('#field_name#', fieldInfo.FIELD);
+				fieldInfo.ADDITIONAL = {};
+				fieldInfo.ADDITIONAL.URL_TEMPLATE = template;
 			}
 		},
 		mergeSettings: function(settings)
@@ -242,11 +281,31 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 		{
 			return this._isHeading;
 		},
+		isMergeable: function()
+		{
+			return this._isMergeable;
+		},
+		needShowTitle: function()
+		{
+			return BX.prop.getBoolean(this._settings, "showTitle", true);
+		},
+		isVirtual: function()
+		{
+			return BX.prop.getBoolean(this._settings, "virtual", false);
+		},
 		getCreationPlaceholder: function()
 		{
 			return BX.prop.getString(
 				BX.prop.getObject(this._settings, "placeholders", null),
 				"creation",
+				""
+			);
+		},
+		getChangePlaceholder: function()
+		{
+			return BX.prop.getString(
+				BX.prop.getObject(this._settings, "placeholders", null),
+				"change",
 				""
 			);
 		},
@@ -265,6 +324,10 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 		getDataParam: function(name, defaultval)
 		{
 			return BX.prop.get(this._data, name, defaultval);
+		},
+		setDataParam: function(name, val)
+		{
+			this._data[name] = val;
 		},
 		getDataStringParam: function(name, defaultval)
 		{
@@ -323,6 +386,80 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 		{
 			this._parent = parent instanceof BX.UI.EntitySchemeElement ? parent : null;
 		},
+		hasAttributeConfiguration: function(attributeTypeId)
+		{
+			return !!this.getAttributeConfiguration(attributeTypeId);
+		},
+		getAttributeConfiguration: function(attributeTypeId)
+		{
+			var data = this.getData();
+			var configs = BX.prop.getArray(data, "attrConfigs", null);
+			if(!configs)
+			{
+				return null;
+			}
+
+			for(var i = 0, length = configs.length; i < length; i++)
+			{
+				var config = configs[i];
+				if(BX.prop.getInteger(config, "typeId", BX.UI.EntityFieldAttributeType.undefined) === attributeTypeId)
+				{
+					return BX.clone(config);
+				}
+			}
+			return null;
+		},
+		setAttributeConfiguration: function(config)
+		{
+			var typeId = BX.prop.getInteger(config, "typeId", BX.UI.EntityFieldAttributeType.undefined);
+			if(typeof(this._data["attrConfigs"]) === "undefined")
+			{
+				this._data["attrConfigs"] = [];
+			}
+
+			var index = -1;
+			for(var i = 0, length = this._data["attrConfigs"].length; i < length; i++)
+			{
+				if(BX.prop.getInteger(this._data["attrConfigs"][i], "typeId", BX.UI.EntityFieldAttributeType.undefined) === typeId)
+				{
+					index = i;
+					break;
+				}
+			}
+
+			if(index >= 0)
+			{
+				this._data["attrConfigs"].splice(index, 1, config);
+			}
+			else
+			{
+				this._data["attrConfigs"].push(config);
+			}
+		},
+		removeAttributeConfiguration: function(attributeTypeId)
+		{
+			if(typeof(this._data["attrConfigs"]) === "undefined")
+			{
+				return;
+			}
+
+			for(var i = 0, length = this._data["attrConfigs"].length; i < length; i++)
+			{
+				if(BX.prop.getInteger(this._data["attrConfigs"][i], "typeId", BX.UI.EntityFieldAttributeType.undefined) === attributeTypeId)
+				{
+					this._data["attrConfigs"].splice(i, 1);
+					return;
+				}
+			}
+		},
+		setVisibilityConfiguration: function(config)
+		{
+			this._data["visibilityConfigs"] = config;
+		},
+		removeVisibilityConfiguration: function(attributeTypeId)
+		{
+			this._data["visibilityConfigs"] = {};
+		},
 		createConfigItem: function()
 		{
 			var result = { name: this._name };
@@ -376,6 +513,7 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 				{
 					result["optionFlags"] = this._optionFlags;
 				}
+				result["options"] = this._options;
 			}
 
 			return result;

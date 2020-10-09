@@ -1,5 +1,4 @@
 /**
- * @author Grigoriy Zavodov <zavodov@gmail.com>
  * @module ui
  * @version 1.0
  * @copyright 2001-2019 Bitrix
@@ -14,7 +13,8 @@ if(typeof BX.UI.EntityConfigScope === "undefined")
 	{
 		undefined: '',
 		personal:  'P',
-		common: 'C'
+		common: 'C',
+		custom: 'CUSTOM'
 	};
 
 	BX.UI.EntityConfigScope.getCaption = function(scope)

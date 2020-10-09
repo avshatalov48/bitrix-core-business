@@ -128,7 +128,7 @@ class TimeSigner
 	{
 		$timedValue = $this->signer->unsign($signedValue, $salt);
 
-		if (strpos($signedValue, $timedValue) === false)
+		if (mb_strpos($signedValue, $timedValue) === false)
 			throw new BadSignatureException('Timestamp missing');
 
 		list($value, $time) = $this->unpack($timedValue);

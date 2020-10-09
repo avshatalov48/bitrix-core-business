@@ -81,7 +81,7 @@ foreach($arResult["RECORDS"] as $arGradebook):
 
 <?foreach ($arResult["ATTEMPTS"] as $arAttempt):?>
 	<tr>
-		<?if (strlen($arAttempt["DATE_END"])>0):?>
+		<?if ($arAttempt["DATE_END"] <> ''):?>
 		<td><?=$arAttempt["DATE_END"]?></td>
 		<td><?=CCourse::TimeToStr((MakeTimeStamp($arAttempt["DATE_END"]) - MakeTimeStamp($arAttempt["DATE_START"])));?></td>
 		<?else:?>

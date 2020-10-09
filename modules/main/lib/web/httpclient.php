@@ -21,6 +21,7 @@ class HttpClient
 	const HTTP_HEAD = "HEAD";
 	const HTTP_PATCH = "PATCH";
 	const HTTP_DELETE = "DELETE";
+	const HTTP_OPTIONS = "OPTIONS";
 
 	const DEFAULT_SOCKET_TIMEOUT = 30;
 	const DEFAULT_STREAM_TIMEOUT = 60;
@@ -85,8 +86,10 @@ class HttpClient
 	 *		"compress" bool Accept gzip encoding (default false)
 	 *		"charset" string Charset for body in POST and PUT
 	 *		"disableSslVerification" bool Pass true to disable ssl check
-	 *      "bodyLengthMax" int Maximum length of the body.
-	 *      "privateIp" bool Enable or disable requests to private IPs (default true).
+	 *		"bodyLengthMax" int Maximum length of the body.
+	 *		"privateIp" bool Enable or disable requests to private IPs (default true).
+	 * 	"cookies" array of cookies for HTTP request.
+	 * 	"headers" array of headers for HTTP request.
 	 * 	All the options can be set separately with setters.
 	 */
 	public function __construct(array $options = null)
@@ -152,6 +155,14 @@ class HttpClient
 			if(isset($options["privateIp"]))
 			{
 				$this->setPrivateIp($options["privateIp"]);
+			}
+			if(isset($options["cookies"]))
+			{
+				$this->setCookies($options["cookies"]);
+			}
+			if(isset($options["headers"]))
+			{
+				$this->setHeaders($options["headers"]);
 			}
 		}
 	}
@@ -416,6 +427,21 @@ class HttpClient
 		if($replace == true || $this->requestHeaders->get($name) === null)
 		{
 			$this->requestHeaders->set($name, $value);
+		}
+		return $this;
+	}
+
+	/**
+	 * Sets an array of headers for HTTP request.
+	 *
+	 * @param array $headers Array of header_name => value pairs.
+	 * @return $this
+	 */
+	public function setHeaders(array $headers)
+	{
+		foreach ($headers as $name => $value)
+		{
+			$this->setHeader($name, $value);
 		}
 		return $this;
 	}
@@ -915,9 +941,9 @@ class HttpClient
 				{
 					continue;
 				}
-				if(($pos = strpos($line, ";")) !== false)
+				if(($pos = mb_strpos($line, ";")) !== false)
 				{
-					$line = substr($line, 0, $pos);
+					$line = mb_substr($line, 0, $pos);
 				}
 
 				$length = hexdec($line);
@@ -962,7 +988,7 @@ class HttpClient
 
 	protected function receiveBytes($length)
 	{
-		while($length > 0)
+		while($length > 0 && !feof($this->resource))
 		{
 			$count = ($length > self::BUF_READ_LEN? self::BUF_READ_LEN : $length);
 
@@ -1045,10 +1071,10 @@ class HttpClient
 					$this->status = intval($find[1]);
 				}
 			}
-			elseif(strpos($header, ':') !== false)
+			elseif(mb_strpos($header, ':') !== false)
 			{
 				list($headerName, $headerValue) = explode(':', $header, 2);
-				if(strtolower($headerName) == 'set-cookie')
+				if(mb_strtolower($headerName) == 'set-cookie')
 				{
 					$this->responseCookies->addFromString($headerValue);
 				}

@@ -69,7 +69,7 @@ class CCrypt
 
 	public function __construct($blockCipherMode = CRYPT_MODE_CBC, $cipher = "blowfish", $key = "", $iv = "")
 	{
-		$cipher = strtolower($cipher);
+		$cipher = mb_strtolower($cipher);
 
 		if (!class_exists("CCrypt".$cipher))
 		{
@@ -89,7 +89,7 @@ class CCrypt
 					break;
 
 				case CRYPT_MODE_CBC:
-					if (strlen($this->iv) <= 0)
+					if ($this->iv == '')
 						$this->CreateIV();
 					break;
 
@@ -103,7 +103,7 @@ class CCrypt
 	function CreateIV()
 	{
 		$ivSize = $this->cipher->blockSize;
-		$ivSize = IntVal($ivSize);
+		$ivSize = intval($ivSize);
 
 	   $iv = "";
 		for ($i = 0; $i < $ivSize; $i++)
@@ -178,12 +178,12 @@ class CCrypt
 		}
 		else
 		{
-			$textLength = strlen($text);
+			$textLength = mb_strlen($text);
 			for ($i = 0; $i < $textLength; $i = $i + $blockSize)
 			{
-				$block = substr($text, $i, $blockSize);
+				$block = mb_substr($text, $i, $blockSize);
 
-				if (strlen($block) < $blockSize)
+				if (mb_strlen($block) < $blockSize)
 					$block = str_pad($block, $blockSize, "\0", STR_PAD_LEFT);
 
 				$cipher .= $this->cipher->__Encrypt($block);
@@ -205,14 +205,14 @@ class CCrypt
 		}
 		else
 		{
-			$cipherLength = strlen($cipher);
+			$cipherLength = mb_strlen($cipher);
 			for ($i = 0; $i < $cipherLength; $i = $i + $blockSize)
 			{
-				$block = substr($cipher, $i, $blockSize);
+				$block = mb_substr($cipher, $i, $blockSize);
 				$block = $this->cipher->__Decrypt($block);
 
-				while (substr($block, 0, 1) == "\0")
-					 $block = substr($block, 1);
+				while (mb_substr($block, 0, 1) == "\0")
+					$block = mb_substr($block, 1);
 
 				$text .= $block;
 			}
@@ -233,14 +233,14 @@ class CCrypt
 		}
 		else
 		{
-			$textLength = strlen($text);
+			$textLength = mb_strlen($text);
 			$lastCipher = $this->iv;
 
 			for ($i = 0; $i < $textLength; $i = $i + $blockSize)
 			{
-				$block = substr($text, $i, $blockSize);
+				$block = mb_substr($text, $i, $blockSize);
 
-				if (strlen($block) < $blockSize)
+				if (mb_strlen($block) < $blockSize)
 					$block = str_pad($block, $blockSize, "\0", STR_PAD_LEFT);
 
 				$lastCipher = $this->cipher->__Encrypt($block ^ $lastCipher);
@@ -263,18 +263,18 @@ class CCrypt
 		}
 		else
 		{
-			$cipherLength = strlen($cipher);
+			$cipherLength = mb_strlen($cipher);
 			$lastCipher = $this->iv;
 
 			for ($i = 0; $i < $cipherLength; $i = $i + $blockSize)
 			{
-				$block = substr($cipher, $i, $blockSize);
+				$block = mb_substr($cipher, $i, $blockSize);
 
 				$decryptBlock = $lastCipher ^ $this->cipher->__Decrypt($block);
 				$lastCipher = $block;
 
-				while (substr($decryptBlock, 0, 1) == "\0")
-					$decryptBlock = substr($decryptBlock, 1);
+				while (mb_substr($decryptBlock, 0, 1) == "\0")
+					$decryptBlock = mb_substr($decryptBlock, 1);
 
 				$text .= $decryptBlock;
 			}
@@ -320,8 +320,8 @@ class CSteganos
 
 		$containerFile_tmp = trim($containerFile, ". \r\n\t");
 		$arContainerFile_tmp = explode(".", $containerFile_tmp);
-		$containerFileExt = strtolower($arContainerFile_tmp[count($arContainerFile_tmp) - 1]);
-		switch (strtolower($containerFileExt))
+		$containerFileExt = mb_strtolower($arContainerFile_tmp[count($arContainerFile_tmp) - 1]);
+		switch(mb_strtolower($containerFileExt))
 		{
 			case "bmp":
 				$this->containerType = "bmp";
@@ -380,8 +380,8 @@ class CSteganos
 
 		$containerFile_tmp = trim($containerFile, ". \r\n\t");
 		$arContainerFile_tmp = explode(".", $containerFile_tmp);
-		$containerFileExt = strtolower($arContainerFile_tmp[count($arContainerFile_tmp) - 1]);
-		switch (strtolower($containerFileExt))
+		$containerFileExt = mb_strtolower($arContainerFile_tmp[count($arContainerFile_tmp) - 1]);
+		switch(mb_strtolower($containerFileExt))
 		{
 			case "bmp":
 				$this->containerType = "bmp";
@@ -427,8 +427,8 @@ class CSteganos
 		if (function_exists("gzuncompress"))
 		{
 			$data1 = gzuncompress($this->data);
-			if ($data1 && substr($data1, 0, 4) == "BCDW")
-				$this->data = substr($data1, 4);
+			if ($data1 && mb_substr($data1, 0, 4) == "BCDW")
+				$this->data = mb_substr($data1, 4);
 		}
 	}
 
@@ -444,7 +444,7 @@ class CSteganos
 			}
 
 			$containerSize = filesize($this->containerFile);
-			$this->dataSize = strlen($this->data);
+			$this->dataSize = mb_strlen($this->data);
 			$totalSize = (12 + $this->dataSize) * (ceil(8 / $this->level));
 			if (($containerSize - 55) < $totalSize)
 			{
@@ -484,7 +484,7 @@ class CSteganos
 	{
 		if ($this->containerType == "bmp")
 		{
-			$levelBase = IntVal(8 / $this->level);
+			$levelBase = intval(8 / $this->level);
 			$num = 0;
 			for ($i = 0; $i < $this->level; $i++)
 			{
@@ -493,11 +493,11 @@ class CSteganos
 			}
 			$num = 255 ^ $num;
 
-			$data = sprintf("BSAW%08x", strlen($this->data)).$this->data;
+			$data = sprintf("BSAW%08x", mb_strlen($this->data)).$this->data;
 
-			for ($i = 0, $j = 55, $len = strlen($data); $i < $len; $i++, $j += $levelBase)
+			for ($i = 0, $j = 55, $len = mb_strlen($data); $i < $len; $i++, $j += $levelBase)
 			{  
-				$temp = sprintf("%08s", decbin(ord(substr($data, $i, 1))));
+				$temp = sprintf("%08s", decbin(ord(mb_substr($data, $i, 1))));
 				for ($k = 0; $k < $levelBase; $k++)
 				{
 					$this->containerData[$j + $k] = chr(ord($this->containerData[$j + $k]) & $num);
@@ -514,15 +514,15 @@ class CSteganos
 		elseif ($this->containerType == "txt")
 		{
 			$data = "";
-			for ($i = 0, $n = strlen($this->data); $i < $n; $i++)
+			for ($i = 0, $n = mb_strlen($this->data); $i < $n; $i++)
 			{
 				$data .= $this->__ConvertToBitString(ord($this->data[$i]));
 			}
 
-			$containerDataLength = sprintf("%08X", strlen($this->containerData));
+			$containerDataLength = sprintf("%08X", mb_strlen($this->containerData));
 			for ($i = 6; $i >= 0; $i -= 2)
 			{
-				sscanf(substr($containerDataLength, $i, 2), "%X", $b);
+				sscanf(mb_substr($containerDataLength, $i, 2), "%X", $b);
 				$data .= $this->__ConvertToBitString($b);
 			}
 
@@ -578,7 +578,7 @@ class CSteganos
 		}
 		elseif ($this->containerType == "txt")
 		{
-			$data = substr($this->containerData, $this->offset, $this->dataSize);
+			$data = mb_substr($this->containerData, $this->offset, $this->dataSize);
 			$this->data = $this->__ConvertBitStringToBinary($data);
 		}
 	}
@@ -606,9 +606,9 @@ class CSteganos
 				}
 			}
 
-			if (!strcmp(substr($header, 0, 4), "BSAW"))
+			if (!strcmp(mb_substr($header, 0, 4), "BSAW"))
 			{
-				sscanf(substr($header, 4, 8), "%x", $this->dataSize);
+				sscanf(mb_substr($header, 4, 8), "%x", $this->dataSize);
 				$this->level = 1;
 				$this->offset = 151;
 			}
@@ -631,9 +631,9 @@ class CSteganos
 					}
 				}
 
-				if (!strcmp(substr($header, 0, 4), "BSAW"))
+				if (!strcmp(mb_substr($header, 0, 4), "BSAW"))
 				{
-					sscanf(substr($header, 4, 8), "%x", $this->dataSize);
+					sscanf(mb_substr($header, 4, 8), "%x", $this->dataSize);
 					$this->level = 2;
 					$this->offset = 103;
 				}
@@ -657,9 +657,9 @@ class CSteganos
 					}
 				}
 
-				if (!strcmp(substr($header, 0, 4), "BSAW"))
+				if (!strcmp(mb_substr($header, 0, 4), "BSAW"))
 				{
-					sscanf(substr($header, 4, 8), "%x", $this->dataSize);
+					sscanf(mb_substr($header, 4, 8), "%x", $this->dataSize);
 					$this->level = 4;
 					$this->offset = 79;
 				}
@@ -673,7 +673,7 @@ class CSteganos
 
 			$nBytes = (($this->level == 1) ? 8 : (($this->level == 2) ? 4 : 2));
 
-			if ($this->offset + $this->dataSize * $nBytes > strlen($this->containerData))
+			if ($this->offset + $this->dataSize * $nBytes > mb_strlen($this->containerData))
 			{
 				$this->errorMessage = "The container file '".$this->containerFile."' contains no encrypted data";
 				return false;
@@ -688,7 +688,7 @@ class CSteganos
 				return false;
 			}
 
-			$bits = substr($this->containerData, strlen($this->containerData) - strlen($endStr) - 32, 32);
+			$bits = mb_substr($this->containerData, mb_strlen($this->containerData) - mb_strlen($endStr) - 32, 32);
 			$containerDataLength_bin = $this->__ConvertBitStringToBinary($bits);
 			if ($containerDataLength_bin == false)
 			{
@@ -701,7 +701,7 @@ class CSteganos
 				$containerDataLength_hex .= sprintf("%02X", ord($containerDataLength_bin[$i]));
 			sscanf($containerDataLength_hex, "%X", $this->offset);
 
-			$this->dataSize = strlen($this->containerData) - strlen($endStr) - 32 - $this->offset;
+			$this->dataSize = mb_strlen($this->containerData) - mb_strlen($endStr) - 32 - $this->offset;
 		}
 
 		return True;
@@ -713,7 +713,7 @@ class CSteganos
 		$b = 0;
 		$j = 0;
 		$binStr = "";
-		for ($i = 0, $n = strlen($bitStr); $i < $n; $i++)
+		for ($i = 0, $n = mb_strlen($bitStr); $i < $n; $i++)
 		{
 			if ($j == 0)
 			{
@@ -1137,11 +1137,11 @@ class CCryptrc4
 		$this->arKey[] = "";
 		$this->arBox[] = "";
 
-		$keyLength = strlen($key);
+		$keyLength = mb_strlen($key);
 
 		for ($i = 0; $i < 256; $i++)
 		{
-			$this->arKey[$i] = ord(substr($key, ($i % $keyLength), 1));
+			$this->arKey[$i] = ord(mb_substr($key, ($i % $keyLength), 1));
 			$this->arBox[$i] = $i;
 		}
 
@@ -1157,7 +1157,7 @@ class CCryptrc4
 	function __Process($block)
 	{
 		$data = "";
-		$blockLength = strlen($block);
+		$blockLength = mb_strlen($block);
 
 		for ($a = $j = $i = 0; $i < $blockLength; $i++)
 		{
@@ -1169,7 +1169,7 @@ class CCryptrc4
 			$this->arBox[$a] ^= $this->arBox[$j];
 
 			$k = $this->arBox[(($this->arBox[$a] + $this->arBox[$j]) % 256)];
-			$data .= chr(ord(substr($block, $i, 1)) ^ $k);
+			$data .= chr(ord(mb_substr($block, $i, 1)) ^ $k);
 		}
 
 		return $data;

@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["ACTION"] = "Actions";
 $MESS["ACTIVE"] = "Active";
 $MESS["CHANGE"] = "Modify";
@@ -88,6 +88,6 @@ $MESS["WORK_PHONE"] = "Company phone";
 $MESS["WORK_POSITION"] = "Position";
 $MESS["WORK_WWW"] = "Company site";
 $MESS["XML_ID"] = "External code";
+$MESS["main_user_admin_blocked"] = "Blocked";
 $MESS["main_user_admin_logout"] = "Log out";
 $MESS["main_user_admin_logout_title"] = "Force logout on all devices";
-?>

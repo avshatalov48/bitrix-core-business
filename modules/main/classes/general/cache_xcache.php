@@ -33,17 +33,21 @@ class CPHPCacheXCache implements ICacheBackend
 
 	function clean($basedir, $initdir = false, $filename = false)
 	{
-		if(strlen($filename))
+		if($filename <> '')
 		{
 			$basedir_version = xcache_get($this->sid.$basedir);
 			if($basedir_version === null)
+			{
 				return true;
+			}
 
 			if($initdir !== false)
 			{
 				$initdir_version = xcache_get($basedir_version."|".$initdir);
 				if($initdir_version === null)
+				{
 					return true;
+				}
 			}
 			else
 			{
@@ -54,11 +58,13 @@ class CPHPCacheXCache implements ICacheBackend
 		}
 		else
 		{
-			if(strlen($initdir))
+			if($initdir <> '')
 			{
 				$basedir_version = xcache_get($this->sid.$basedir);
 				if($basedir_version === null)
+				{
 					return true;
+				}
 
 				xcache_unset($basedir_version."|".$initdir);
 			}
@@ -95,7 +101,7 @@ class CPHPCacheXCache implements ICacheBackend
 		}
 		else
 		{
-			$this->read = strlen($arAllVars);
+			$this->read = mb_strlen($arAllVars);
 			$arAllVars = unserialize($arAllVars);
 		}
 
@@ -128,7 +134,7 @@ class CPHPCacheXCache implements ICacheBackend
 		}
 
 		$arAllVars = serialize($arAllVars);
-		$this->written = strlen($arAllVars);
+		$this->written = mb_strlen($arAllVars);
 
 		xcache_set($basedir_version."|".$initdir_version."|".$filename, $arAllVars, intval($TTL));
 	}

@@ -482,7 +482,7 @@ class CRestProvider
 
 		$appOptions = Option::get("rest", "options_".$server->getClientId(), "");
 
-		if(strlen($appOptions) > 0)
+		if($appOptions <> '')
 		{
 			$appOptions = unserialize($appOptions);
 		}
@@ -534,7 +534,7 @@ class CRestProvider
 		if(\CRestUtil::isAdmin())
 		{
 			$appOptions = Option::get("rest", "options_".$server->getClientId(), "");
-			if(strlen($appOptions) > 0)
+			if($appOptions <> '')
 			{
 				$appOptions = unserialize($appOptions);
 			}

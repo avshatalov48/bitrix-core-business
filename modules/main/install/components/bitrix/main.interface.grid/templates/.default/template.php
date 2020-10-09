@@ -179,7 +179,7 @@ elseif($header["type"] == "checkbox")
 	echo ' align="center"';
 		?>><?
 	if($header["type"] == "checkbox"
-		&& strlen($aRow["data"][$id]) > 0
+		&& $aRow["data"][$id] <> ''
 		&& ($aRow["data"][$id] == 'Y' || $aRow["data"][$id] == 'N')
 	)
 	{

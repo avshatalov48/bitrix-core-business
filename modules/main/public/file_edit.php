@@ -25,7 +25,7 @@ $site_template = false;
 $rsSiteTemplates = CSite::GetTemplateList($site);
 while($arSiteTemplate = $rsSiteTemplates->Fetch())
 {
-	if(strlen($arSiteTemplate["CONDITION"])<=0)
+	if($arSiteTemplate["CONDITION"] == '')
 	{
 		$site_template = $arSiteTemplate["TEMPLATE"];
 		break;
@@ -38,7 +38,7 @@ $bVarsFromForm = false;	// if 'true' - we will get content  and variables from f
 $bSessIDRefresh = false;	// флаг, указывающий, нужно ли обновлять ид сессии на клиенте
 $editor_name = (isset($_REQUEST['editor_name'])? $_REQUEST['editor_name'] : 'filesrc_pub');
 
-if (strlen($filename) > 0 && ($mess = CFileMan::CheckFileName($filename)) !== true)
+if ($filename <> '' && ($mess = CFileMan::CheckFileName($filename)) !== true)
 {
 	$filename2 = $filename;
 	$filename = '';
@@ -63,12 +63,12 @@ $arPath = Array($site, $path);
 
 if(!$io->FileExists($abs_path) && !$io->DirectoryExists($abs_path))
 {
-	$p = strrpos($path, "/");
+	$p = mb_strrpos($path, "/");
 	if($p!==false)
 	{
 		$new = "Y";
-		$filename = substr($path, $p+1);
-		$path = substr($path, 0, $p);
+		$filename = mb_substr($path, $p + 1);
+		$path = mb_substr($path, 0, $p);
 	}
 }
 $relPath = $io->ExtractPathFromPath($path);
@@ -109,9 +109,9 @@ if(
 {
 	$strWarning = GetMessage("ACCESS_DENIED");
 }
-elseif(strlen($strWarning) <= 0)
+elseif($strWarning == '')
 {
-	if(!$USER->IsAdmin() && substr(CFileman::GetFileName($abs_path), 0, 1)==".")
+	if(!$USER->IsAdmin() && mb_substr(CFileman::GetFileName($abs_path), 0, 1) == ".")
 	{
 		$strWarning = GetMessage("FILEMAN_FILEEDIT_BAD_FNAME")." ";
 		$bEdit = false;
@@ -136,8 +136,8 @@ elseif(strlen($strWarning) <= 0)
 	if ($limit_php_access)
 	{
 		//OFP - 'original full path' used for restorin' php code fragments in limit_php_access mode
-		if (!isset($_SESSION['arOFP']))
-			$_SESSION['arOFP'] = Array();
+		if (!isset(\Bitrix\Main\Application::getInstance()->getSession()['arOFP']))
+			\Bitrix\Main\Application::getInstance()->getSession()['arOFP'] = Array();
 
 		if(isset($_POST['ofp_id']))
 		{
@@ -145,14 +145,14 @@ elseif(strlen($strWarning) <= 0)
 		}
 		else
 		{
-			$ofp_id = substr(md5($site.'|'.$path),0,8);
-			if(!isset($_SESSION['arOFP'][$ofp_id]))
-				$_SESSION['arOFP'][$ofp_id] = $path;
+			$ofp_id = mb_substr(md5($site.'|'.$path), 0, 8);
+			if(!isset(\Bitrix\Main\Application::getInstance()->getSession()['arOFP'][$ofp_id]))
+				\Bitrix\Main\Application::getInstance()->getSession()['arOFP'][$ofp_id] = $path;
 		}
 	}
 }
 
-if(strlen($strWarning) <= 0)
+if($strWarning == '')
 {
 	if($bEdit)
 	{
@@ -162,7 +162,7 @@ if(strlen($strWarning) <= 0)
 	else
 	{
 		$arTemplates = CFileman::GetFileTemplates(LANGUAGE_ID, array($site_template));
-		if(strlen($template) > 0)
+		if($template <> '')
 		{
 			foreach ($arTemplates as $arTemplate)
 			{
@@ -198,7 +198,7 @@ if(strlen($strWarning) <= 0)
 			if($limit_php_access)
 			{
 				// ofp - original full path :)
-				$ofp = $_SESSION['arOFP'][$ofp_id];
+				$ofp = \Bitrix\Main\Application::getInstance()->getSession()['arOFP'][$ofp_id];
 				$ofp = $io->CombinePath("/", $ofp);
 				$abs_ofp = $DOC_ROOT.$ofp;
 
@@ -213,7 +213,7 @@ if(strlen($strWarning) <= 0)
 			$prolog = CFileman::SetTitle($res["PROLOG"], $title);
 			for ($i = 0; $i<=$maxind; $i++)
 			{
-				if(strlen(Trim($_POST["CODE_".$i]))>0)
+				if(Trim($_POST["CODE_".$i]) <> '')
 				{
 					if($_POST["CODE_".$i] != $_POST["H_CODE_".$i])
 					{
@@ -230,7 +230,7 @@ if(strlen($strWarning) <= 0)
 			$filesrc_for_save = $prolog.$filesrc.$epilog;
 		}
 
-		if(strlen($strWarning) <= 0)
+		if($strWarning == '')
 		{
 			if (!CFileMan::CheckOnAllowedComponents($filesrc_for_save))
 			{
@@ -241,10 +241,10 @@ if(strlen($strWarning) <= 0)
 			}
 		}
 
-		if(strlen($strWarning) <= 0)
+		if($strWarning == '')
 		{
 			// File was created just a second ago
-			if (isset($_REQUEST["edit_new_file_undo"]) && strlen($_REQUEST["edit_new_file_undo"]) > 0)
+			if (isset($_REQUEST["edit_new_file_undo"]) && $_REQUEST["edit_new_file_undo"] <> '')
 			{
 				CUndo::ShowUndoMessage($_REQUEST["edit_new_file_undo"]);
 			}
@@ -282,7 +282,7 @@ if(strlen($strWarning) <= 0)
 			{
 				if(COption::GetOptionString("fileman", "log_page", "Y")=="Y")
 				{
-					$res_log['path'] = substr($path, 1);
+					$res_log['path'] = mb_substr($path, 1);
 					CEventLog::Log(
 						"content",
 						"PAGE_EDIT",
@@ -298,7 +298,7 @@ if(strlen($strWarning) <= 0)
 			}
 		}
 
-		if(strlen($strWarning) <= 0)
+		if($strWarning == '')
 		{
 			if ($arUndoParams)
 				CUndo::ShowUndoMessage(CUndo::Add($arUndoParams));
@@ -308,7 +308,7 @@ if(strlen($strWarning) <= 0)
 <?
 if($_REQUEST['subdialog'] != 'Y'):
 	$url = $_REQUEST["back_url"];
-	if(substr($url, 0, 1) != "/" || substr($url, 1, 1) == "/")
+	if(mb_substr($url, 0, 1) != "/" || mb_substr($url, 1, 1) == "/")
 	{
 		//only local /url is allowed
 		$url = '';
@@ -371,30 +371,30 @@ if(!$bVarsFromForm)
 			for ($n = 0; $n<$l; $n++)
 			{
 				$start = $arPHP[$n][0];
-				$new_filesrc .= substr($filesrc,$end,$start-$end);
+				$new_filesrc .= mb_substr($filesrc, $end, $start - $end);
 				$end = $arPHP[$n][1];
 
 				//Trim php tags
 				$src = $arPHP[$n][2];
-				if (SubStr($src, 0, 5) == "<?"."php")
-					$src = SubStr($src, 5);
+				if (mb_substr($src, 0, 5) == "<?"."php")
+					$src = mb_substr($src, 5);
 				else
-					$src = SubStr($src, 2);
-				$src = SubStr($src, 0, -2);
+					$src = mb_substr($src, 2);
+				$src = mb_substr($src, 0, -2);
 
 				//If it's Component 2, keep the php code. If it's component 1 or ordinary PHP - than replace code by #PHPXXXX# (XXXX - count of PHP scripts)
 				$comp2_begin = '$APPLICATION->INCLUDECOMPONENT(';
-				if (strtoupper(substr($src,0, strlen($comp2_begin))) == $comp2_begin)
+				if (mb_strtoupper(mb_substr($src, 0, mb_strlen($comp2_begin))) == $comp2_begin)
 					$new_filesrc .= $arPHP[$n][2];
 				else
 					$new_filesrc .= '#PHP'.str_pad(++$php_count, 4, "0", STR_PAD_LEFT).'#';
 			}
-			$new_filesrc .= substr($filesrc,$end);
+			$new_filesrc .= mb_substr($filesrc, $end);
 			$filesrc = $new_filesrc;
 		}
 	}
 
-	$bEditProps = (strpos($res["PROLOG"], "prolog_before")>0 || strpos($res["PROLOG"], "header.php")>0);
+	$bEditProps = (mb_strpos($res["PROLOG"], "prolog_before") > 0 || mb_strpos($res["PROLOG"], "header.php") > 0);
 	$title = $res["TITLE"];
 
 	if((CFileman::IsPHP($filesrc) || $isScriptExt) && !($USER->CanDoOperation('edit_php') || $limit_php_access))

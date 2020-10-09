@@ -84,8 +84,8 @@ else if (!empty($arParams["INPUT_VALUE"]))
 				unset($question);
 				foreach ($res as $key => $val)
 				{
-					if (strpos($key, "Q_") === 0)
-						$question[substr($key, 2)] = $val;
+					if (mb_strpos($key, "Q_") === 0)
+						$question[mb_substr($key, 2)] = $val;
 				}
 				$question += [
 					"IMAGE" => null,
@@ -105,8 +105,8 @@ else if (!empty($arParams["INPUT_VALUE"]))
 			$answer = [];
 			foreach ($res as $key => $val)
 			{
-				if (strpos($key, "A_") === 0)
-					$answer[substr($key, 2)] = $val;
+				if (mb_strpos($key, "A_") === 0)
+					$answer[mb_substr($key, 2)] = $val;
 			}
 			if (
 				$question["FIELD_TYPE"] == \Bitrix\Vote\QuestionTypes::CHECKBOX ||
@@ -143,7 +143,7 @@ if (!empty($arResult["VOTES"]))
 				{
 					if (is_string($value))
 					{
-						if (substr($key, 0, 1) != "~")
+						if (mb_substr($key, 0, 1) != "~")
 						{
 							$mixed["~".$key] = $value;
 							$mixed[$key] = htmlspecialcharsbx($value);

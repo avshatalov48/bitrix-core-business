@@ -40,9 +40,9 @@ $aTabs[] = array("DIV" => "edit2", "TAB" => GetMessage("MAIN_TAB_RIGHTS"), "ICON
 
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
-if($REQUEST_METHOD=="POST" && strlen($Update.$Apply.$RestoreDefaults)>0 && check_bitrix_sessid())
+if($REQUEST_METHOD=="POST" && $Update.$Apply.$RestoreDefaults <> '' && check_bitrix_sessid())
 {
-	if (strlen($RestoreDefaults) > 0)
+	if ($RestoreDefaults <> '')
 	{
 		COption::RemoveOption('seo');
 
@@ -85,7 +85,7 @@ if($REQUEST_METHOD=="POST" && strlen($Update.$Apply.$RestoreDefaults)>0 && check
 
 $arCurrentSearchers = array();
 $searchers = COption::GetOptionString('seo', 'searchers_list', '');
-if (strlen($searchers) > 0 && CModule::IncludeModule('statistic'))
+if ($searchers <> '' && CModule::IncludeModule('statistic'))
 {
 	$arSearchersList = explode(',', $searchers);
 

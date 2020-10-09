@@ -55,6 +55,12 @@ final class BlogPostConnector extends Connector
 				"HAS_PROPS",
 				"HAS_COMMENT_IMAGES"
 			))->fetch();
+
+			if (!empty($post['DETAIL_TEXT']))
+			{
+				$post['DETAIL_TEXT'] = \Bitrix\Main\Text\Emoji::decode($post['DETAIL_TEXT']);
+			}
+
 			$cache->endDataCache($post);
 		}
 		self::$posts[$entityId] = $post;
@@ -114,7 +120,9 @@ final class BlogPostConnector extends Connector
 	 */
 	public function canRead($userId)
 	{
-		if(is_null($this->canRead))
+		if ($this->entityId === null)
+			return true;
+		if (is_null($this->canRead))
 			$this->canRead = $this->getPermission($userId) >= BLOG_PERMS_READ;
 
 		return $this->canRead;
@@ -126,6 +134,8 @@ final class BlogPostConnector extends Connector
 	 */
 	public function canEdit($userId)
 	{
+		if ($this->entityId === null)
+			return true;
 		if(is_null($this->canEdit))
 			$this->canEdit = $this->getPermission($userId) > BLOG_PERMS_MODERATE;
 

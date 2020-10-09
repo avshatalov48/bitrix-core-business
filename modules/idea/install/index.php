@@ -262,7 +262,7 @@ Class idea extends CModule
 		global $APPLICATION, $step;
 
 		$this->errors = false;
-		$step = IntVal($step);
+		$step = intval($step);
 		$GLOBALS["obModule"] = $this;
 
 		if(!check_bitrix_sessid())

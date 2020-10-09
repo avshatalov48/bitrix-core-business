@@ -5,6 +5,7 @@
  * @subpackage main
  * @copyright 2001-2012 Bitrix
  */
+
 namespace Bitrix\Main;
 
 use Bitrix\Main;
@@ -18,14 +19,14 @@ Loc::loadMessages(__FILE__);
  * Is used to store and retrieve last used destinations in the destinations selector dialog
  * @package Bitrix\Main
  */
-class FinderDestTable extends Entity\DataManager
+class FinderDestTable extends Main\UI\EntitySelector\EntityUsageTable
 {
-	public static function getTableName()
+	/*public static function getTableName()
 	{
 		return 'b_finder_dest';
-	}
+	}*/
 
-	public static function getMap()
+	/*public static function getMap()
 	{
 		global $USER;
 
@@ -70,40 +71,32 @@ class FinderDestTable extends Entity\DataManager
 				'data_type' => 'datetime'
 			)
 		);
-	}
+	}*/
 
 	/**
 	 * Adds or updates data about using destinations by a user
 	 *
-	 * @param array $data data to store, keys: USER_ID - user who selected a destination, CODE - code or array of codes of destinations, CONTEXT - the place where a destination is selected
+	 * @param array $data data to store,
+	 * keys:
+	 *    USER_ID - user who selected a destination,
+	 *    CODE - code or array of codes of destinations,
+	 *    CONTEXT - the place where a destination is selected
+	 *
 	 * @return void
-	*/
-	public static function merge($data)
+	 */
+	public static function merge(array $data)
 	{
 		global $USER;
 
-		static $connection = false;
-		static $helper = false;
-
 		$userId = (
-			isset($data['USER_ID'])
-			&& intval($data['USER_ID']) > 0
+			isset($data['USER_ID']) && intval($data['USER_ID']) > 0
 				? intval($data['USER_ID'])
 				: (is_object($GLOBALS['USER']) ? $USER->getId() : 0)
 		);
 
-		if (
-			$userId <= 0
-			|| empty($data['CODE'])
-		)
+		if ($userId <= 0 || empty($data['CODE']) || empty($data['CONTEXT']) || !is_string($data['CONTEXT']))
 		{
 			return;
-		}
-
-		if (!$connection)
-		{
-			$connection = \Bitrix\Main\Application::getConnection();
-			$helper = $connection->getSqlHelper();
 		}
 
 		if (is_array($data['CODE']))
@@ -115,63 +108,41 @@ class FinderDestTable extends Entity\DataManager
 				$dataModified['CODE'] = $code;
 				FinderDestTable::merge($dataModified);
 			}
+
 			return;
 		}
-		else
+
+		if (!is_string($data['CODE']))
 		{
-			$insertFields = array(
-				'USER_ID' => $userId,
-				'CODE' => strtoupper($data['CODE']),
-				'CONTEXT' => (isset($data['CONTEXT']) ? strtoupper($data['CONTEXT']) : ''),
-				'LAST_USE_DATE' => new \Bitrix\Main\DB\SqlExpression($helper->getCurrentDateTimeFunction())
-			);
+			return;
+		}
 
-			if (preg_match('/^U(\d+)$/i', $data['CODE'], $matches))
+		foreach (static::getCompatEntities() as $entityId => $entity)
+		{
+			if (preg_match('/'.$entity['pattern'].'/i', $data['CODE'], $matches))
 			{
-				$insertFields['CODE_USER_ID'] = intval($matches[1]);
-				$insertFields['CODE_TYPE'] = 'U';
-			}
-			elseif (preg_match('/^SG(\d+)$/i', $data['CODE'], $matches))
-			{
-				$insertFields['CODE_TYPE'] = 'SG';
-			}
-			elseif (
-				preg_match('/^D(\d+)$/i', $data['CODE'], $matches)
-				|| preg_match('/^DR(\d+)$/i', $data['CODE'], $matches)
-			)
-			{
-				$insertFields['CODE_TYPE'] = 'D';
-			}
-			elseif (
-				preg_match('/^CRMCONTACT(\d+)$/i', $data['CODE'], $matches)
-				|| preg_match('/^CRMCOMPANY(\d+)$/i', $data['CODE'], $matches)
-				|| preg_match('/^CRMDEAL(\d+)$/i', $data['CODE'], $matches)
-				|| preg_match('/^CRMLEAD(\d+)$/i', $data['CODE'], $matches)
-				|| preg_match('/^CRMPRODUCT(\d+)$/i', $data['CODE'], $matches)
-				|| preg_match('/^CRMORDER(\d+)$/i', $data['CODE'], $matches)
-				|| preg_match('/^CRMQUOTE(\d+)$/i', $data['CODE'], $matches)
-			)
-			{
-				$insertFields['CODE_TYPE'] = 'CRM';
-			}
+				$itemId = $matches['itemId'];
+				$prefix = $matches['prefix'];
 
-			$merge = $helper->prepareMerge(
-				'b_finder_dest',
-				array('USER_ID', 'CODE'),
-				$insertFields,
-				array(
-					'LAST_USE_DATE' => new \Bitrix\Main\DB\SqlExpression($helper->getCurrentDateTimeFunction())
-				)
-			);
+				if (isset($entity['itemId']) && is_callable($entity['itemId']))
+				{
+					$itemId = $entity['itemId']($prefix, $itemId);
+				}
 
-			if ($merge[0] != "")
-			{
-				$connection->query($merge[0]);
+				parent::merge([
+					'USER_ID' => $userId,
+					'CONTEXT' => mb_strtoupper($data['CONTEXT']),
+					'ENTITY_ID' => $entityId,
+					'ITEM_ID' => $itemId,
+					'PREFIX' => mb_strtoupper($prefix)
+			  	]);
+
+				$cache = new \CPHPCache;
+				$cache->cleanDir('/sonet/log_dest_sort/'.intval($userId / 100));
+				$cache->cleanDir('/ui_selector/dest_sort/'.intval($userId / 100));
+
+				return;
 			}
-
-			$cache = new \CPHPCache;
-			$cache->cleanDir('/sonet/log_dest_sort/'.intval($userId / 100));
-			$cache->cleanDir('/ui_selector/dest_sort/'.intval($userId / 100));
 		}
 	}
 
@@ -180,11 +151,12 @@ class FinderDestTable extends Entity\DataManager
 	 *
 	 * @param array $rights access right codes to convert
 	 * @param array $excludeCodes access right codes to not process
+	 *
 	 * @return array destination codes
 	 */
-	public static function convertRights($rights, $excludeCodes = array())
+	public static function convertRights($rights, $excludeCodes = [])
 	{
-		$result = array();
+		$result = [];
 
 		if (is_array($rights))
 		{
@@ -203,7 +175,7 @@ class FinderDestTable extends Entity\DataManager
 					)
 				)
 				{
-					$result[] = strtoupper($right);
+					$result[] = mb_strtoupper($right);
 				}
 			}
 
@@ -219,14 +191,15 @@ class FinderDestTable extends Entity\DataManager
 	 * Converts sharings into destination codes and stores them
 	 *
 	 * @param array $sharings
+	 *
 	 * @return void
 	 */
 	public static function onAfterDiskAjaxAction($sharings)
 	{
 		if (is_array($sharings))
 		{
-			$destinationCodes = array();
-			foreach($sharings as $key => $sharing)
+			$destinationCodes = [];
+			foreach ($sharings as $key => $sharing)
 			{
 				$destinationCodes[] = $sharing->getToEntity();
 			}
@@ -234,10 +207,10 @@ class FinderDestTable extends Entity\DataManager
 			if (!empty($destinationCodes))
 			{
 				$destinationCodes = array_unique($destinationCodes);
-				\Bitrix\Main\FinderDestTable::merge(array(
+				\Bitrix\Main\FinderDestTable::merge([
 					"CONTEXT" => "DISK_SHARE",
 					"CODE" => \Bitrix\Main\FinderDestTable::convertRights($destinationCodes)
-				));
+				]);
 			}
 		}
 	}
@@ -250,11 +223,11 @@ class FinderDestTable extends Entity\DataManager
 	public static function migrateData()
 	{
 		$res = \CUserOptions::getList(
-			array(),
-			array(
+			[],
+			[
 				"CATEGORY" => "socialnetwork",
 				"NAME" => "log_destination"
-			)
+			]
 		);
 
 		while ($option = $res->fetch())
@@ -265,18 +238,23 @@ class FinderDestTable extends Entity\DataManager
 
 				if (is_array($optionValue))
 				{
-					foreach($optionValue as $key => $val)
+					foreach ($optionValue as $key => $val)
 					{
-						if (in_array($key, array("users", "sonetgroups", "department", "companies", "contacts", "leads", "deals")))
+						if (in_array(
+							$key,
+							["users", "sonetgroups", "department", "companies", "contacts", "leads", "deals"]
+						))
 						{
 							$codes = \CUtil::jsObjectToPhp($val);
 							if (is_array($codes))
 							{
-								\Bitrix\Main\FinderDestTable::merge(array(
-									"USER_ID" => $option["USER_ID"],
-									"CONTEXT" => "blog_post",
-									"CODE" => array_keys($codes)
-								));
+								\Bitrix\Main\FinderDestTable::merge(
+									[
+										"USER_ID" => $option["USER_ID"],
+										"CONTEXT" => "blog_post",
+										"CODE" => array_keys($codes)
+									]
+								);
 							}
 						}
 					}
@@ -285,11 +263,11 @@ class FinderDestTable extends Entity\DataManager
 		}
 
 		$res = \CUserOptions::getList(
-			array(),
-			array(
+			[],
+			[
 				"CATEGORY" => "crm",
 				"NAME" => "log_destination"
-			)
+			]
 		);
 
 		while ($option = $res->fetch())
@@ -300,16 +278,18 @@ class FinderDestTable extends Entity\DataManager
 
 				if (is_array($optionValue))
 				{
-					foreach($optionValue as $key => $val)
+					foreach ($optionValue as $key => $val)
 					{
 						$codes = explode(',', $val);
 						if (is_array($codes))
 						{
-							\Bitrix\Main\FinderDestTable::merge(array(
-								"USER_ID" => $option["USER_ID"],
-								"CONTEXT" => "crm_post",
-								"CODE" => $codes
-							));
+							\Bitrix\Main\FinderDestTable::merge(
+								[
+									"USER_ID" => $option["USER_ID"],
+									"CONTEXT" => "crm_post",
+									"CODE" => $codes
+								]
+							);
 						}
 					}
 				}
@@ -321,19 +301,20 @@ class FinderDestTable extends Entity\DataManager
 	 * Returns array of email user IDs fetched from users (email and not email) destination codes
 	 *
 	 * @param mixed $code user destination code or array of them
+	 *
 	 * @return array
 	 */
 	public static function getMailUserId($code)
 	{
-		$userId = array();
-		$result = array();
+		$userId = [];
+		$result = [];
 
 		if (!is_array($code))
 		{
-			$code = array($code);
+			$code = [$code];
 		}
 
-		foreach($code as $val)
+		foreach ($code as $val)
 		{
 			if (preg_match('/^U(\d+)$/', $val, $matches))
 			{
@@ -343,14 +324,16 @@ class FinderDestTable extends Entity\DataManager
 
 		if (!empty($userId))
 		{
-			$res = \Bitrix\Main\UserTable::getList(array(
-				'order' => array(),
-				'filter' => array(
-					"ID" => $userId,
-					"=EXTERNAL_AUTH_ID" => 'email'
-				),
-				'select' => array("ID")
-			));
+			$res = \Bitrix\Main\UserTable::getList(
+				[
+					'order' => [],
+					'filter' => [
+						"ID" => $userId,
+						"=EXTERNAL_AUTH_ID" => 'email'
+					],
+					'select' => ["ID"]
+				]
+			);
 
 			while ($user = $res->fetch())
 			{

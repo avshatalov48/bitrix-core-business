@@ -99,7 +99,7 @@ if (isset($_REQUEST["save"]) && check_bitrix_sessid())
 		}
 		$i++;
 	}
-	while (strlen(CUserOptions::GetOption("php_command_line", "query".$i, '')))
+	while(CUserOptions::GetOption("php_command_line", "query".$i, '') <> '')
 	{
 		CUserOptions::DeleteOption("php_command_line", "query".$i);
 		$i++;

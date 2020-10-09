@@ -59,7 +59,7 @@ abstract class CAllTestAttempt
 			return false;
 		}
 
-		if (is_set($arFields, "DATE_END") && strlen($arFields["DATE_END"])>0 && (!$DB->IsDate($arFields["DATE_END"], false, LANG, "FULL")))
+		if (is_set($arFields, "DATE_END") && $arFields["DATE_END"] <> '' && (!$DB->IsDate($arFields["DATE_END"], false, LANG, "FULL")))
 		{
 			$APPLICATION->ThrowException(GetMessage("LEARNING_BAD_DATE_END"), "ERROR_DATE_END");
 			return false;
@@ -174,7 +174,7 @@ abstract class CAllTestAttempt
 			$key = $res["FIELD"];
 			$cOperationType = $res["OPERATION"];
 
-			$key = strtoupper($key);
+			$key = mb_strtoupper($key);
 
 			switch ($key)
 			{
@@ -536,7 +536,7 @@ abstract class CAllTestAttempt
 		$arSqlSelect = array();
 		foreach($arSelect as $field)
 		{
-			$field = strtoupper($field);
+			$field = mb_strtoupper($field);
 			if(array_key_exists($field, $arFields))
 				$arSqlSelect[$field] = $arFields[$field]." AS ".$field;
 		}
@@ -551,11 +551,11 @@ abstract class CAllTestAttempt
 		$strSqlSearch = "";
 		$arSqlSearchCnt = count($arSqlSearch);
 		for($i=0; $i<$arSqlSearchCnt; $i++)
-			if(strlen($arSqlSearch[$i])>0)
+			if($arSqlSearch[$i] <> '')
 				$strSqlSearch .= " AND ".$arSqlSearch[$i]." ";
 
 		$r = $obUserFieldsSql->GetFilter();
-		if(strlen($r)>0)
+		if($r <> '')
 			$strSqlSearch .= " AND (".$r.") ";
 
 		$bCheckPerm = 'ORPHANED VAR';
@@ -566,10 +566,11 @@ abstract class CAllTestAttempt
 		if (!is_array($arOrder))
 			$arOrder = Array();
 
+		$arSqlOrder = [];
 		foreach($arOrder as $by=>$order)
 		{
-			$by = strtolower($by);
-			$order = strtolower($order);
+			$by = mb_strtolower($by);
+			$order = mb_strtolower($order);
 			if ($order!="asc")
 				$order = "desc";
 

@@ -85,10 +85,10 @@ if ($arParams['SEF_MODE'] == 'Y')
 
 	foreach ($arUrlTemplates as $url => $value)
 	{
-		if(strlen($arParams['PATH_TO_'.strToUpper($url)]) <= 0)
-			$arResult['PATH_TO_'.strToUpper($url)] = $arParams['SEF_FOLDER'].$value;
+		if($arParams['PATH_TO_'.mb_strtoupper($url)] == '')
+			$arResult['PATH_TO_'.mb_strtoupper($url)] = $arParams['SEF_FOLDER'].$value;
 		else
-			$arResult['PATH_TO_'.strToUpper($url)] = $arParams['PATH_TO_'.strToUpper($url)];
+			$arResult['PATH_TO_'.mb_strtoupper($url)] = $arParams['PATH_TO_'.mb_strtoupper($url)];
 
 		$arResult['PATH_TO_CATEGORY'] = $arResult['PATH_TO_POST'];
 	}
@@ -97,7 +97,7 @@ if ($arParams['SEF_MODE'] == 'Y')
 
 	if ($bDesignMode)
 	{
-		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' && is_dir($_SERVER['DOCUMENT_ROOT'].$arParams['SEF_FOLDER']))
+		if (mb_strtoupper(mb_substr(PHP_OS, 0, 3)) === 'WIN' && is_dir($_SERVER['DOCUMENT_ROOT'].$arParams['SEF_FOLDER']))
 		{
 			ShowError(GetMessage('WIKI_SEF_FOLDER_INCORRECT'));
 			return ;

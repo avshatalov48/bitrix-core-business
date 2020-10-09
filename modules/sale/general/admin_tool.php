@@ -911,7 +911,7 @@ function fGetBuyerType($PERSON_TYPE_ID, $LID, $USER_ID = '', $ORDER_ID = 0, $for
 					"ALLOW_EMPTY_CITY" => "Y",
 					"LOCATION_VALUE" => $curVal,
 					"COUNTRY" => "",
-					"ONCITYCHANGE" => "fChangeLocationCity();",
+					"ONCITYCHANGE" => "fChangeLocationCity",
 					"PUBLIC" => "N",
 				),
 				array(

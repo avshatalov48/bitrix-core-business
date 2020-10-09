@@ -71,7 +71,7 @@ final class Resolver
 		$namespaces = self::listAllowedNamespaces($module);
 
 		$aliases = array_change_key_case($namespaces, CASE_LOWER);
-		$probablyPrefix = strtolower(reset($actionParts));
+		$probablyPrefix = mb_strtolower(reset($actionParts));
 		if (isset($aliases[$probablyPrefix]))
 		{
 			$alias = $aliases[$probablyPrefix];
@@ -81,7 +81,7 @@ final class Resolver
 			return $alias . '\\' . implode('\\', $actionParts);
 		}
 
-		$furtherNamespace = strtolower(self::buildClassNameByAction($vendor, $module, $actionParts));
+		$furtherNamespace = mb_strtolower(self::buildClassNameByAction($vendor, $module, $actionParts));
 		if (self::checkClassUnderAllowedNamespaces($module, $furtherNamespace))
 		{
 			return $furtherNamespace . '\\' . $controllerName;
@@ -93,7 +93,7 @@ final class Resolver
 			return null;
 		}
 
-		$defaultPath = strtolower(strtr($defaultNamespaceByModule, ['\\' => '.']));
+		$defaultPath = mb_strtolower(strtr($defaultNamespaceByModule, ['\\' => '.']));
 		array_unshift($actionParts, ...explode('.', $defaultPath));
 		array_push($actionParts, $controllerName);
 
@@ -178,7 +178,7 @@ final class Resolver
 		$namespaces = self::listAllowedNamespaces($module);
 		foreach ($namespaces as $namespace)
 		{
-			if (stripos(ltrim($class, '\\'), ltrim($namespace, '\\')) === 0)
+			if (mb_stripos(ltrim($class, '\\'), ltrim($namespace, '\\')) === 0)
 			{
 				return true;
 			}
@@ -226,7 +226,7 @@ final class Resolver
 	public static function getNameByController(Controller $controller)
 	{
 		$parts = explode('\\', get_class($controller));
-		$vendor = strtolower(array_shift($parts));
+		$vendor = mb_strtolower(array_shift($parts));
 
 		return $vendor . ':' . implode('.', $parts);
 	}

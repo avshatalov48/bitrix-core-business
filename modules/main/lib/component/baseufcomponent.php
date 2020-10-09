@@ -326,7 +326,7 @@ abstract class BaseUfComponent extends CBitrixComponent
 		$result = [];
 		foreach($constants as $name => $value)
 		{
-			if(strpos($name, 'MEDIA_TYPE_') === 0)
+			if(mb_strpos($name, 'MEDIA_TYPE_') === 0)
 			{
 				$result[$name] = $value;
 			}

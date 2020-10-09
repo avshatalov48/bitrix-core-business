@@ -115,8 +115,8 @@ class HmacAlgorithm
 		}
 		else
 		{
-			$lenExpected = strlen($expected);
-			$lenActual = strlen($actual);
+			$lenExpected = mb_strlen($expected);
+			$lenActual = mb_strlen($actual);
 		}
 
 		$status = $lenExpected ^ $lenActual;

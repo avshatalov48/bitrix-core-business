@@ -74,7 +74,7 @@ class CAllVoteChannel
 				}
 			}
 			if (empty($aMsg))
-				$arFields["SYMBOLIC_NAME"] = strtoupper($arFields["SYMBOLIC_NAME"]);
+				$arFields["SYMBOLIC_NAME"] = mb_strtoupper($arFields["SYMBOLIC_NAME"]);
 		}
 
 		unset($arFields["TIMESTAMP_X"]);
@@ -231,11 +231,11 @@ class CAllVoteChannel
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if( ($val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -306,7 +306,7 @@ class CAllVoteChannel
 
 		$is_filtered = IsFiltered($strSqlSearch);
 
-		if (VOTE_CACHE_TIME===false || strpos($_SERVER['REQUEST_URI'], '/bitrix/admin/')!==false)
+		if (VOTE_CACHE_TIME===false || mb_strpos($_SERVER['REQUEST_URI'], '/bitrix/admin/') !== false)
 		{
 			$res = $DB->Query($strSql, false, $err_mess.__LINE__);
 			return $res;
@@ -520,40 +520,40 @@ class CVoteDiagramType
 function VoteGetFilterOperation($key)
 {
 	$strNegative = "N";
-	if (substr($key, 0, 1)=="!")
+	if (mb_substr($key, 0, 1) == "!")
 	{
-		$key = substr($key, 1);
+		$key = mb_substr($key, 1);
 		$strNegative = "Y";
 	}
 
-	if (substr($key, 0, 2)==">=")
+	if (mb_substr($key, 0, 2) == ">=")
 	{
-		$key = substr($key, 2);
+		$key = mb_substr($key, 2);
 		$strOperation = ">=";
 	}
-	elseif (substr($key, 0, 1)==">")
+	elseif (mb_substr($key, 0, 1) == ">")
 	{
-		$key = substr($key, 1);
+		$key = mb_substr($key, 1);
 		$strOperation = ">";
 	}
-	elseif (substr($key, 0, 2)=="<=")
+	elseif (mb_substr($key, 0, 2) == "<=")
 	{
-		$key = substr($key, 2);
+		$key = mb_substr($key, 2);
 		$strOperation = "<=";
 	}
-	elseif (substr($key, 0, 1)=="<")
+	elseif (mb_substr($key, 0, 1) == "<")
 	{
-		$key = substr($key, 1);
+		$key = mb_substr($key, 1);
 		$strOperation = "<";
 	}
-	elseif (substr($key, 0, 1)=="@")
+	elseif (mb_substr($key, 0, 1) == "@")
 	{
-		$key = substr($key, 1);
+		$key = mb_substr($key, 1);
 		$strOperation = "IN";
 	}
-	elseif (substr($key, 0, 1)=="%")
+	elseif (mb_substr($key, 0, 1) == "%")
 	{
-		$key = substr($key, 1);
+		$key = mb_substr($key, 1);
 		$strOperation = "LIKE";
 	}
 	else

@@ -80,11 +80,11 @@ if (!function_exists('GetTreeRecursive'))
 				{
 					foreach ($aMenuLinks as $aMenu)
 					{
-						if (strlen($aMenu[0]) <= 0) continue;
+						if ($aMenu[0] == '') continue;
 						if(count($aMenu)>4)
 						{
 							$CONDITION = $aMenu[4];
-							if(strlen($CONDITION)>0 && (!eval("return ".$CONDITION.";")))
+							if($CONDITION <> '' && (!eval("return ".$CONDITION.";")))
 								continue;
 						}
 
@@ -99,17 +99,17 @@ if (!function_exists('GetTreeRecursive'))
 							}
 							else
 							{
-								$full_path = trim(Rel2Abs(substr($PARENT_PATH, strlen($_SERVER["DOCUMENT_ROOT"])), $aMenu[1]));
+								$full_path = trim(Rel2Abs(mb_substr($PARENT_PATH, mb_strlen($_SERVER["DOCUMENT_ROOT"])), $aMenu[1]));
 
-								$slash_pos = strrpos($full_path, "/");
+								$slash_pos = mb_strrpos($full_path, "/");
 								if ($slash_pos !== false)
 								{
-									$page = substr($full_path, $slash_pos+1);
-									if(($pos = strpos($page, '?')) !== false)
-										$page = substr($page, 0, $pos);
+									$page = mb_substr($full_path, $slash_pos + 1);
+									if(($pos = mb_strpos($page, '?')) !== false)
+										$page = mb_substr($page, 0, $pos);
 									if($page == '' || $page == 'index.php' || in_array($page, $arIndexes))
 									{
-										$search_path = substr($full_path, 0, $slash_pos+1);
+										$search_path = mb_substr($full_path, 0, $slash_pos + 1);
 										$search_child = true;
 									}
 								}

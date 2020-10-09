@@ -3,8 +3,8 @@ if (empty($arResult["GALLERIES"])):
 	return false;
 endif;
 
-$arParams["GALLERY_AVATAR_SIZE"] = intVal(intVal($arParams["GALLERY_AVATAR_SIZE"]) > 0 ? $arParams["GALLERY_AVATAR_SIZE"] : 50);
-if (!$this->__component->__parent || strpos($this->__component->__parent->__name, "photogallery") === false):
+$arParams["GALLERY_AVATAR_SIZE"] = intval(intVal($arParams["GALLERY_AVATAR_SIZE"]) > 0 ? $arParams["GALLERY_AVATAR_SIZE"] : 50);
+if (!$this->__component->__parent || mb_strpos($this->__component->__parent->__name, "photogallery") === false):
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/photogallery/templates/.default/style.css');
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/photogallery/templates/.default/themes/gray/style.css');
 ?>
@@ -22,7 +22,7 @@ if ($arResult["I"]["ACTIONS"]["CREATE_GALLERY"] =="Y" && $arParams["USER_ID"] ==
 	<div class="photo-controls photo-controls-buttons photo-controls-gallery-new">
 		<ul class="photo-controls">
 			<li class="photo-control photo-control-first  photo-control-last photo-control-create photo-control-create-gallery">
-				<a href="<?=$arResult["LINK"]["NEW"].((strpos($arResult["LINK"]["NEW"], "?") === false ? "?" : "&"). 
+				<a href="<?=$arResult["LINK"]["NEW"].((mb_strpos($arResult["LINK"]["NEW"], "?") === false ? "?" : "&").
 										"back_url=".urlencode($APPLICATION->GetCurPageParam()))?>" rel="nofollow">
 					<span><?=GetMessage("P_GALLERY_CREATE")?></span></a>
 			</li>
@@ -106,7 +106,7 @@ if ($title != "")
 										<span><?=GetMessage("P_UPLOAD")?></span></a>
 								</li>
 								<li class="photo-control photo-control-gallery-edit">
-									<a rel="nofollow" href="<?=$res["LINK"]["EDIT"].((strpos($res["LINK"]["EDIT"], "?") === false ? "?" : "&"). 
+									<a rel="nofollow" href="<?=$res["LINK"]["EDIT"].((mb_strpos($res["LINK"]["EDIT"], "?") === false ? "?" : "&").
 										"back_url=".urlencode($APPLICATION->GetCurPageParam()))?>">
 										<span><?=GetMessage("P_GALLERY_EDIT")?></span></a>
 								</li>

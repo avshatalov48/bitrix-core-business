@@ -4,9 +4,9 @@ if($_SERVER["REDIRECT_STATUS"]=="404")
 
 define('BX_ADMIN_SECTION_404', 'Y');
 
-if (($pos = strpos($_SERVER["REQUEST_URI"], "?")) !== false)
+if (($pos = mb_strpos($_SERVER["REQUEST_URI"], "?")) !== false)
 {
-	$params = substr($_SERVER["REQUEST_URI"], $pos+1);
+	$params = mb_substr($_SERVER["REQUEST_URI"], $pos + 1);
 	parse_str($params, $_GET);
 	$GLOBALS += $_GET;
 	$HTTP_GET_VARS = $_GET;

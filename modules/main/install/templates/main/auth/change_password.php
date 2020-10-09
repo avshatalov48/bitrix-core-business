@@ -32,7 +32,7 @@ ShowMessage($arAuthResult);
 				</tr>
 				<tr valign="middle"> 
 					<td align="right" nowrap width="1%" class="tablebody"><font class="starrequired">*</font><font class="tablebodytext"><?=GetMessage("AUTH_LOGIN")?></font></td>
-					<td align="left" width="99%" class="tablebody"><input type="text" name="USER_LOGIN" size="30" maxlength="50" value="<?echo (strlen($USER_LOGIN)>0) ? htmlspecialcharsbx($USER_LOGIN) : htmlspecialcharsbx($last_login)?>" class="inputtext"></td>
+					<td align="left" width="99%" class="tablebody"><input type="text" name="USER_LOGIN" size="30" maxlength="50" value="<?echo ($USER_LOGIN <> '') ? htmlspecialcharsbx($USER_LOGIN) : htmlspecialcharsbx($last_login)?>" class="inputtext"></td>
 				</tr>
 				<tr valign="middle"> 
 					<td align="right" nowrap width="1%" class="tablebody"><font class="starrequired">*</font><font class="tablebodytext"><?=GetMessage("AUTH_CHECKWORD")?></font></td>

@@ -23,7 +23,7 @@ if (check_bitrix_sessid())
 			if ($CRM_ID > 0)
 			{
 				$arAuth = null;
-				if (strlen($_REQUEST['LOGIN']) > 0 && strlen($_REQUEST['PASSWORD']) > 0)
+				if ($_REQUEST['LOGIN'] <> '' && $_REQUEST['PASSWORD'] <> '')
 				{
 					$arAuth = array('LOGIN' => $_REQUEST['LOGIN'], 'PASSWORD' => $_REQUEST['PASSWORD']);
 				}

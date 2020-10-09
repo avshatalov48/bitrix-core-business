@@ -223,7 +223,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 // validate list_url
 if (!empty($list_url))
 {
-	$list_url = substr($list_url, 0, 1) === '/' ? $list_url : '/'.$list_url;
+	$list_url = mb_substr($list_url, 0, 1) === '/' ? $list_url : '/'.$list_url;
 }
 
 $aMenu = array();

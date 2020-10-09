@@ -1,8 +1,16 @@
 import {Dom, Event, Reflection, Tag, Type} from 'main.core';
 import {type BaseEvent, EventEmitter} from 'main.core.events';
+import {Loader} from 'main.loader';
 
 class ImageInput
 {
+	container = null;
+	loaderContainer = null;
+	addButton = null;
+	loader = null;
+	timeout = null;
+	uploading = false;
+
 	constructor(params = {})
 	{
 		this.instanceId = params.instanceId;
@@ -22,19 +30,9 @@ class ImageInput
 
 		if (this.instanceId === id)
 		{
-			if (uploader && Type.isDomNode(uploader.fileInput))
+			if (this.getPreviews().length > 0)
 			{
-				const wrapper = uploader.fileInput.closest('.adm-fileinput-wrapper');
-
-				if (Type.isDomNode(wrapper))
-				{
-					const previews = wrapper.querySelectorAll('.adm-fileinput-item');
-
-					if (previews.length)
-					{
-						Dom.addClass(wrapper, 'ui-image-input-wrapper');
-					}
-				}
+				Dom.addClass(this.getFileWrapper(), 'ui-image-input-wrapper');
 			}
 
 			requestAnimationFrame(() => {
@@ -42,8 +40,10 @@ class ImageInput
 				this.getContainer().style.display = '';
 			});
 
-			EventEmitter.subscribe(uploader, 'onFileIsCreated', this.onFileIsCreatedHandler.bind(this));
-			EventEmitter.subscribe(uploader, 'onFileIsDeleted', this.onFileIsCreatedHandler.bind(this));
+			EventEmitter.subscribe(uploader, 'onFileIsDeleted', this.onFileIsDeletedHandler.bind(this));
+			EventEmitter.subscribe(uploader, 'onStart', this.onUploadStartHandler.bind(this));
+			EventEmitter.subscribe(uploader, 'onDone', this.onUploadDoneHandler.bind(this));
+			EventEmitter.subscribe(uploader, 'onFileCanvasIsLoaded', this.onFileCanvasIsLoadedHandler.bind(this));
 		}
 	}
 
@@ -70,6 +70,16 @@ class ImageInput
 		}
 
 		return this.container;
+	}
+
+	getFileWrapper()
+	{
+		if (!this.fileWrapper)
+		{
+			this.fileWrapper = this.getContainer().querySelector('.adm-fileinput-wrapper');
+		}
+
+		return this.fileWrapper;
 	}
 
 	getLoaderContainer()
@@ -130,21 +140,86 @@ class ImageInput
 		this.getFileInput().click();
 	}
 
-	onFileIsCreatedHandler(event: BaseEvent)
+	/**
+	 * @returns {Loader}
+	 */
+	getLoader()
 	{
-		const [, , uploader] = event.getCompatData();
-
-		if (uploader && Type.isDomNode(uploader.fileInput))
+		if (!this.loader)
 		{
-			const wrapper = uploader.fileInput.closest('.adm-fileinput-wrapper');
+			this.loader = new Loader({
+				target: this.getFileWrapper().querySelector('.adm-fileinput-drag-area')
+			});
+		}
 
-			if (Type.isDomNode(wrapper))
-			{
-				setTimeout(() => {
-						this.recalculateWrapper(wrapper);
-					}, 100
-				);
-			}
+		return this.loader;
+	}
+	
+	showLoader()
+	{
+		this.getLoader().setOptions({
+			size: Math.min(this.getContainer().offsetHeight, this.getContainer().offsetWidth)
+		});
+		this.getLoader().show();
+	}
+	
+	hideLoader()
+	{
+		this.getLoader().hide();
+	}
+
+	onFileIsDeletedHandler()
+	{
+		this.timeout = clearTimeout(this.timeout);
+
+		this.timeout = setTimeout(() => {
+			this.hideLoader();
+			this.recalculateWrapper();
+		}, 100);
+	}
+
+	onUploadStartHandler(event: BaseEvent)
+	{
+		const [stream] = event.getCompatData();
+		if (stream)
+		{
+			this.uploading = true;
+		}
+
+		clearTimeout(this.timeout);
+
+		this.timeout = setTimeout(() => {
+			this.showLoader();
+			this.recalculateWrapper();
+		}, 100);
+	}
+
+	onUploadDoneHandler(event: BaseEvent)
+	{
+		const [stream] = event.getCompatData();
+		if (stream)
+		{
+			this.uploading = false;
+			this.timeout = clearTimeout(this.timeout);
+
+			requestAnimationFrame(() => {
+				this.hideLoader();
+				this.recalculateWrapper();
+			});
+		}
+	}
+
+	onFileCanvasIsLoadedHandler()
+	{
+		if (this.timeout && !this.uploading)
+		{
+			this.uploading = false;
+			this.timeout = clearTimeout(this.timeout);
+
+			requestAnimationFrame(() => {
+				this.hideLoader();
+				this.recalculateWrapper();
+			});
 		}
 	}
 
@@ -155,30 +230,35 @@ class ImageInput
 
 	buildShadowElement(wrapper)
 	{
-		if (!wrapper.querySelector('div.ui-image-item-shadow'))
+		let shadowElement = wrapper.querySelector('div.ui-image-item-shadow');
+		if (!shadowElement)
 		{
-			const shadowElement = Tag.render`<div class="ui-image-item-shadow"></div>`;
-			const bottomMargin = 4;
-			const preview = wrapper.querySelector('.adm-fileinput-item-preview');
-			const previewWrapper = wrapper.closest('.adm-fileinput-item-wrapper');
-
-			const canvas = wrapper.querySelector('canvas');
-			if (canvas)
-			{
-				shadowElement.style.height = canvas.offsetHeight + 'px';
-				shadowElement.style.width = canvas.offsetWidth - bottomMargin + 'px';
-
-				preview.style.height = canvas.offsetHeight + 'px';
-				previewWrapper.style.height = canvas.offsetHeight + 'px';
-			}
-
+			shadowElement = Tag.render`<div class="ui-image-item-shadow"></div>`;
 			Dom.prepend(shadowElement, wrapper);
+		}
+
+		const canvas = wrapper.querySelector('canvas');
+		if (canvas)
+		{
+			const bottomMargin = 4;
+
+			shadowElement.style.height = canvas.offsetHeight + 'px';
+			shadowElement.style.width = canvas.offsetWidth - bottomMargin + 'px';
+
+			wrapper.querySelector('.adm-fileinput-item-preview').style.height = canvas.offsetHeight + 'px';
+			wrapper.closest('.adm-fileinput-item-wrapper').style.height = canvas.offsetHeight + 'px';
 		}
 	}
 
-	recalculateWrapper(wrapper)
+	getPreviews()
 	{
-		const previews = wrapper.querySelectorAll('.adm-fileinput-item');
+		return this.getFileWrapper().querySelectorAll('.adm-fileinput-item');
+	}
+
+	recalculateWrapper()
+	{
+		const wrapper = this.getFileWrapper();
+		const previews = this.getPreviews();
 		const length = Math.min(previews.length, 3);
 
 		if (length)

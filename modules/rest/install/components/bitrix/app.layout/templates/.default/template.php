@@ -62,7 +62,7 @@ endif;
 $frameName = $arResult['CURRENT_HOST'].'|'.($arResult['CURRENT_HOST_SECURE']?1:0).'|'.$arResult['APP_SID'];
 
 $url = $arResult['APP_URL'];
-$url .= (strpos($url, '?') === false ? '?' : '&');
+$url .= (mb_strpos($url, '?') === false ? '?' : '&');
 /*
 ?>
 <a href="javascript:void(0)" onclick="BX.rest.AppLayout.get('<?=$arResult['APP_SID']?>').reInstall();">Reinstall app</a>

@@ -145,7 +145,7 @@ abstract class DataManager
 	final public static function getObjectClassName()
 	{
 		$class = static::getObjectClass();
-		return substr($class, strrpos($class, '\\')+1);
+		return mb_substr($class, mb_strrpos($class, '\\') + 1);
 	}
 
 	protected static function getObjectClassByDataClass($dataClass)
@@ -153,8 +153,8 @@ abstract class DataManager
 		$objectClass = static::getEntityClass()::normalizeName($dataClass);
 
 		// make class name more unique
-		$namespace = substr($objectClass, 0, strrpos($objectClass, '\\')+1);
-		$className = substr($objectClass, strrpos($objectClass, '\\') + 1);
+		$namespace = mb_substr($objectClass, 0, mb_strrpos($objectClass, '\\') + 1);
+		$className = mb_substr($objectClass, mb_strrpos($objectClass, '\\') + 1);
 
 		$className = static::getEntityClass()::getDefaultObjectClassName($className);
 
@@ -184,7 +184,7 @@ abstract class DataManager
 	final public static function getCollectionClassName()
 	{
 		$class = static::getCollectionClass();
-		return substr($class, strrpos($class, '\\')+1);
+		return mb_substr($class, mb_strrpos($class, '\\') + 1);
 	}
 
 	protected static function getCollectionClassByDataClass($dataClass)
@@ -192,8 +192,8 @@ abstract class DataManager
 		$objectClass = static::getEntityClass()::normalizeName($dataClass);
 
 		// make class name more unique
-		$namespace = substr($objectClass, 0, strrpos($objectClass, '\\')+1);
-		$className = substr($objectClass, strrpos($objectClass, '\\') + 1);
+		$namespace = mb_substr($objectClass, 0, mb_strrpos($objectClass, '\\') + 1);
+		$className = mb_substr($objectClass, mb_strrpos($objectClass, '\\') + 1);
 
 		$className = static::getEntityClass()::getDefaultCollectionClassName($className);
 
@@ -928,7 +928,7 @@ abstract class DataManager
 
 			if (!empty($id))
 			{
-				if (strlen($entity->getAutoIncrement()))
+				if($entity->getAutoIncrement() <> '')
 				{
 					$primary = array($entity->getAutoIncrement() => $id);
 					static::normalizePrimary($primary);
@@ -990,7 +990,7 @@ abstract class DataManager
 		$rows = array_values($rows);
 		$forceSeparateQueries = false;
 
-		if (!$ignoreEvents && count($rows) > 1 && strlen(static::getEntity()->getAutoIncrement()))
+		if (!$ignoreEvents && count($rows) > 1 && mb_strlen(static::getEntity()->getAutoIncrement()))
 		{
 			$forceSeparateQueries = true;
 
@@ -1132,7 +1132,7 @@ abstract class DataManager
 
 				if (!empty($id))
 				{
-					if (strlen($entity->getAutoIncrement()))
+					if($entity->getAutoIncrement() <> '')
 					{
 						$primary = array($entity->getAutoIncrement() => $id);
 						static::normalizePrimary($primary);
@@ -1863,7 +1863,7 @@ abstract class DataManager
 		{
 			$options = unserialize($optionString);
 		}
-		$options[strtoupper($field)] = $mode;
+		$options[mb_strtoupper($field)] = $mode;
 		Main\Config\Option::set("main", "~crypto_".$table, serialize($options));
 	}
 
@@ -1886,7 +1886,7 @@ abstract class DataManager
 		$optionString = Main\Config\Option::get("main", "~crypto_".$table);
 		if($optionString <> '')
 		{
-			$field = strtoupper($field);
+			$field = mb_strtoupper($field);
 			$options = unserialize($optionString);
 			if(isset($options[$field]) && $options[$field] === true)
 			{

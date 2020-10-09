@@ -62,11 +62,11 @@ if ((($res = CCheckListResult::GetList(Array(),Array("REPORT"=>"N"))->Fetch()) |
 			if ($_POST["COMMENTS"] == "Y")//update only comments
 			{
 				$arPointFields["COMMENTS"] = $arPoints[$arTestID]["STATE"]["COMMENTS"];
-				if ($_POST["perfomer_comment"] && strlen(trim($_POST["perfomer_comment"]))>1)
+				if ($_POST["perfomer_comment"] && mb_strlen(trim($_POST["perfomer_comment"])) > 1)
 				$arPointFields["COMMENTS"]["PERFOMER"] = $_POST["perfomer_comment"];
 				else
 					unset($arPointFields["COMMENTS"]["PERFOMER"]);
-				if ($_POST["custom_comment"] && strlen(trim($_POST["custom_comment"]))>1)
+				if ($_POST["custom_comment"] && mb_strlen(trim($_POST["custom_comment"])) > 1)
 					$arPointFields["COMMENTS"]["CUSTOMER"] = $_POST["custom_comment"];
 				else
 					unset($arPointFields["COMMENTS"]["CUSTOMER"]);

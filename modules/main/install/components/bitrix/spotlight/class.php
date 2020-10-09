@@ -22,7 +22,7 @@ class SpotlightComponent extends \CBitrixComponent
 
 	protected function prepareData()
 	{
-		if (!isset($this->arParams["ID"]) || !strlen($this->arParams["ID"]))
+		if (!isset($this->arParams["ID"]) || !mb_strlen($this->arParams["ID"]))
 		{
 			ShowError("Spotlight: 'ID' parameter is required.");
 			return;

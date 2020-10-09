@@ -162,7 +162,7 @@ $width = $pageWidth - $margin['left'] - $margin['right'];
 			<?if ($params['BILLLA_PAYER_SHOW'] === 'Y'):?>
 				<table class="inv">
 					<tr align="right">
-						<td><b><?=$params['BILLLA_HEADER'];?> #&nbsp;</b></td>
+						<td><b><?=htmlspecialcharsbx($params['BILLLA_HEADER']);?> #&nbsp;</b></td>
 						<td><?=htmlspecialcharsbx($params["ACCOUNT_NUMBER"]); ?></td>
 					</tr>
 					<tr align="right">
@@ -197,7 +197,7 @@ foreach ($columnList as $column)
 	if ($params['BILLLA_COLUMN_'.$column.'_SHOW'] == 'Y')
 	{
 		$arCols[$column] = array(
-			'NAME' => $params['BILLLA_COLUMN_'.$column.'_TITLE'],
+			'NAME' => htmlspecialcharsbx($params['BILLLA_COLUMN_'.$column.'_TITLE']),
 			'SORT' => $params['BILLLA_COLUMN_'.$column.'_SORT']
 		);
 	}
@@ -208,7 +208,7 @@ if ($params['USER_COLUMNS'])
 	foreach ($params['USER_COLUMNS'] as $id => $val)
 	{
 		$arCols[$id] = array(
-			'NAME' => $val['NAME'],
+			'NAME' => htmlspecialcharsbx($val['NAME']),
 			'SORT' => $val['SORT']
 		);
 	}

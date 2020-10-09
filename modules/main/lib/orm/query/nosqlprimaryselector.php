@@ -81,7 +81,7 @@ class NosqlPrimarySelector
 							continue;
 						}
 
-						$operation = substr($filterElement, 0, 1);
+						$operation = mb_substr($filterElement, 0, 1);
 
 						if ($operation !== '=')
 						{

@@ -47,33 +47,81 @@ if(
 	}
 
 	$arUserGroupCode = $USER->GetAccessCodes();
-	$numLocalApps = 0;
 
 	$arMenuApps = array();
-	$dbApps = \Bitrix\Rest\AppTable::getList(array(
-		'order' => array("ID" => "ASC"),
-		'filter' => array("=ACTIVE" => \Bitrix\Rest\AppTable::ACTIVE),
-		'select' => array(
-			'ID', 'CODE', 'CLIENT_ID','STATUS', 'ACCESS', 'MENU_NAME' => 'LANG.MENU_NAME', 'MENU_NAME_DEFAULT' => 'LANG_DEFAULT.MENU_NAME', 'MENU_NAME_LICENSE' => 'LANG_LICENSE.MENU_NAME'
-		)
-	));
-	while($arApp = $dbApps->fetch())
+	$dbApps = \Bitrix\Rest\AppTable::getList(
+		[
+			'order' => [
+				"ID" => "ASC"
+			],
+			'filter' => [
+				"=ACTIVE" => \Bitrix\Rest\AppTable::ACTIVE
+			],
+			'select' => [
+				'ID',
+				'CODE',
+				'CLIENT_ID',
+				'STATUS',
+				'ACTIVE',
+				'ACCESS',
+				'MENU_NAME' => 'LANG.MENU_NAME',
+				'MENU_NAME_DEFAULT' => 'LANG_DEFAULT.MENU_NAME',
+				'MENU_NAME_LICENSE' => 'LANG_LICENSE.MENU_NAME',
+			],
+		]
+	);
+	foreach ($dbApps->fetchCollection() as $app)
 	{
+		$arApp = [
+			'ID' => $app->getId(),
+			'CODE' => $app->getCode(),
+			'ACTIVE' => $app->getActive(),
+			'CLIENT_ID' => $app->getClientId(),
+			'ACCESS' => $app->getAccess(),
+			'MENU_NAME' => !is_null($app->getLang()) ? $app->getLang()->getMenuName() : '',
+			'MENU_NAME_DEFAULT' => !is_null($app->getLangDefault()) ? $app->getLangDefault()->getMenuName() : '',
+			'MENU_NAME_LICENSE' => !is_null($app->getLangLicense()) ? $app->getLangLicense()->getMenuName() : ''
+		];
+
 		if($arApp['CODE'] === \CRestUtil::BITRIX_1C_APP_CODE)
 		{
 			continue;
-		}
-
-		if($arApp["STATUS"] == \Bitrix\Rest\AppTable::STATUS_LOCAL)
-		{
-			$numLocalApps++;
 		}
 
 		$lang = in_array(LANGUAGE_ID, array("ru", "en", "de"))
 			? LANGUAGE_ID
 			: \Bitrix\Main\Localization\Loc::getDefaultLang(LANGUAGE_ID);
 
-		if(strlen($arApp["MENU_NAME"]) > 0 || strlen($arApp['MENU_NAME_DEFAULT']) > 0 || strlen($arApp['MENU_NAME_LICENSE']) > 0)
+		if ($arApp["MENU_NAME"] === '' && $arApp['MENU_NAME_DEFAULT'] === '' && $arApp['MENU_NAME_LICENSE'] === '')
+		{
+			$app->fillLangAll();
+			if (!is_null($app->getLangAll()))
+			{
+				$langList = [];
+				foreach ($app->getLangAll() as $appLang)
+				{
+					if ($appLang->getMenuName() !== '')
+					{
+						$langList[$appLang->getLanguageId()] = $appLang->getMenuName();
+					}
+				}
+
+				if ($langList[$lang])
+				{
+					$arApp["MENU_NAME"] = $langList[$lang];
+				}
+				elseif ($langList['en'])
+				{
+					$arApp["MENU_NAME"] = $langList['en'];
+				}
+				elseif (count($langList) > 0)
+				{
+					$arApp["MENU_NAME"] = reset($langList);
+				}
+			}
+		}
+
+		if($arApp["MENU_NAME"] <> '' || $arApp['MENU_NAME_DEFAULT'] <> '' || $arApp['MENU_NAME_LICENSE'] <> '')
 		{
 			$appRightAvailable = false;
 			if(\CRestUtil::isAdmin())
@@ -101,12 +149,12 @@ if(
 			{
 				$appName = $arApp["MENU_NAME"];
 
-				if(strlen($appName) <= 0)
+				if($appName == '')
 				{
 					$appName = $arApp['MENU_NAME_DEFAULT'];
 				}
 
-				if(strlen($appName) <= 0)
+				if($appName == '')
 				{
 					$appName = $arApp['MENU_NAME_LICENSE'];
 				}
@@ -124,28 +172,19 @@ if(
 			}
 		}
 	}
-	if(\CRestUtil::isAdmin() && $numLocalApps > 0)
-	{
-		$arMenu[] = Array(
-			GetMessage("MENU_MARKETPLACE_LOCAL"),
-			SITE_DIR."marketplace/local/list/",
-			Array(
-				SITE_DIR."marketplace/local/edit/",
-			),
-			Array("menu_item_id" => "menu_marketplace_local"),
-			""
-		);
-	}
 
 	if ($USER->IsAuthorized())
 	{
-		$arMenu[] = Array(
-			GetMessage("MENU_MARKETPLACE_HOOK"),
-			SITE_DIR."marketplace/hook/",
-			Array(),
-			Array("menu_item_id" => "menu_marketplace_hook"),
-			""
-		);
+		$urlDevOps = \Bitrix\Rest\Url\DevOps::getInstance()->getIndexUrl();
+		$arMenu[] = [
+			GetMessage("REST_MENU_MARKETPLACE_DEVOPS"),
+			$urlDevOps,
+			[],
+			[
+				"menu_item_id" => "menu_marketplace_hook"
+			],
+			"",
+		];
 	}
 
 	$arMenu = array_merge($arMenu, $arMenuApps);

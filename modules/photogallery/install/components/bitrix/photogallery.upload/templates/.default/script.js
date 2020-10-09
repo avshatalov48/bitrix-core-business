@@ -508,10 +508,13 @@
 			this.vars["filesCountForUpload"] -= queue.filesCount;
 			BX.removeClass(BX("bxuMain" + this.id), "bxu-thumbnails-loading");
 			BX('bxuUploaded' + this.id).innerHTML = this.vars["uploadedFilesCount"];
-			this.redirectUrl = data.report.uploading[this.uploader.CID]['redirectUrl'];
+			if (stream !== null)
+			{
+				this.redirectUrl = data.report.uploading[this.uploader.CID]['redirectUrl'];
+			}
 		},
-		finish : function() {
-			if(this.uploader.queue.itFailed.length <= 0 && BX.type.isNotEmptyString(this.redirectUrl)) {
+		finish : function(stream) {
+			if (stream !== null && this.uploader.queue.itFailed.length <= 0 && BX.type.isNotEmptyString(this.redirectUrl)) {
 				BX.reload(this.redirectUrl);
 			}
 		},

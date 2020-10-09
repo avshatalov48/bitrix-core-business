@@ -112,7 +112,7 @@ $aTabs[] = $USER_FIELD_MANAGER->EditFormTab('LEARNING_LESSONS');
 $tabControl = new CAdminForm("courseTabControl", $aTabs, true, $bDenyAutosave);
 
 
-if ( ($_SERVER["REQUEST_METHOD"] == "POST") && ($Perm >= "X") && (strlen($_POST["Update"])>0) && check_bitrix_sessid() )
+if ( ($_SERVER["REQUEST_METHOD"] == "POST") && ($Perm >= "X") && ($_POST["Update"] <> '') && check_bitrix_sessid() )
 {
 	$course = new CCourse;
 
@@ -236,11 +236,11 @@ if ( ($_SERVER["REQUEST_METHOD"] == "POST") && ($Perm >= "X") && (strlen($_POST[
 
 		if(!$bVarsFromForm)
 		{
-			if(strlen($apply)<=0)
+			if($apply == '')
 			{
-				if(strlen($return_url)>0)
+				if($return_url <> '')
 				{
-					if(strpos($return_url, "#COURSE_ID#")!==false)
+					if(mb_strpos($return_url, "#COURSE_ID#") !== false)
 					{
 						$return_url = str_replace("#COURSE_ID#", $COURSE_ID, $return_url);
 					}
@@ -435,7 +435,7 @@ if($Perm>="G"):?>
 	<?echo GetFilterHiddens("filter_");?>
 	<input type="hidden" name="Update" value="Y">
 	<input type="hidden" name="COURSE_ID" value="<?echo $COURSE_ID?>">
-	<?php if(strlen($return_url)>0):?><input type="hidden" name="return_url" value="<?=htmlspecialcharsbx($return_url)?>"><?endif?>
+	<?php if($return_url <> ''):?><input type="hidden" name="return_url" value="<?=htmlspecialcharsbx($return_url)?>"><?endif?>
 <?php
 $tabControl->EndEpilogContent();
 $tabControl->Begin();

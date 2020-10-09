@@ -25,16 +25,16 @@ if(!$arStatusList)
 $arUrlParams = array();
 if($arParams["SELECTED_USER_ID"]>0)
 	$arUrlParams['user_id'] = $arParams["SELECTED_USER_ID"];
-if(is_array($arParams["CATEGORIES"]) && array_key_exists("CATEGORY_1", $arParams["CATEGORIES"]) && strlen($arParams["CATEGORIES"]["CATEGORY_1"])>0)
+if(is_array($arParams["CATEGORIES"]) && array_key_exists("CATEGORY_1", $arParams["CATEGORIES"]) && $arParams["CATEGORIES"]["CATEGORY_1"] <> '')
 	$arUrlParams['category_1'] = ToLower($arParams["CATEGORIES"]["CATEGORY_1"]);
-if(is_array($arParams["CATEGORIES"]) && array_key_exists("CATEGORY_2", $arParams["CATEGORIES"]) && strlen($arParams["CATEGORIES"]["CATEGORY_2"])>0)
+if(is_array($arParams["CATEGORIES"]) && array_key_exists("CATEGORY_2", $arParams["CATEGORIES"]) && $arParams["CATEGORIES"]["CATEGORY_2"] <> '')
 	$arUrlParams['category_2'] = ToLower($arParams["CATEGORIES"]["CATEGORY_2"]);
 
 foreach($arStatusList as $key=>$arStatus)
 {
 	$arUrlParams['status_code'] = ToLower($arStatus["XML_ID"]);
 	$arStatusList[$key]["URL"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_CATEGORY_WITH_STATUS"], $arUrlParams);
-	$arStatusList[$key]["SELECTED"] = (strlen($arParams["SELECTED_STATUS"])>0 && ToLower($arStatus["XML_ID"])===ToLower($arParams["SELECTED_STATUS"]));
+	$arStatusList[$key]["SELECTED"] = ($arParams["SELECTED_STATUS"] <> '' && ToLower($arStatus["XML_ID"])===ToLower($arParams["SELECTED_STATUS"]));
 	if($arParams["SET_NAV_CHAIN"] && $arStatusList[$key]["SELECTED"])
 		$APPLICATION->AddChainItem($arStatus["VALUE"], $arStatusList[$key]["URL"]);
 }

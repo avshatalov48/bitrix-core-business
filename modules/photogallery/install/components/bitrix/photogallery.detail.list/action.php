@@ -6,7 +6,7 @@ if ($_REQUEST["detail_list_edit"] == "Y" && !empty($_REQUEST["ACTION"]) && !empt
 	$bVarsFromForm = false;
 
 	CModule::IncludeModule("iblock");
-	$_REQUEST["TO_SECTION_ID"] = intVal($_REQUEST["TO_SECTION_ID"]);
+	$_REQUEST["TO_SECTION_ID"] = intval($_REQUEST["TO_SECTION_ID"]);
 
 	if (!check_bitrix_sessid()): // SESSION
 		$arError[] = array(
@@ -83,9 +83,9 @@ if ($_REQUEST["detail_list_edit"] == "Y" && !empty($_REQUEST["ACTION"]) && !empt
 			$db_res = CIBlockElement::GetList(array(), $arFilter, false, false, $arSelect);
 			if ($arRes = $db_res->Fetch())
 			{
-				$arRes["REAL_PICTURE"] = intVal($arRes["PROPERTY_REAL_PICTURE_VALUE"]);
-				$arRes["BLOG_POST_ID"] = intVal($arRes["PROPERTY_BLOG_POST_ID_VALUE"]);
-				$arRes["FORUM_TOPIC_ID"] = intVal($arRes["PROPERTY_FORUM_TOPIC_ID_VALUE"]);
+				$arRes["REAL_PICTURE"] = intval($arRes["PROPERTY_REAL_PICTURE_VALUE"]);
+				$arRes["BLOG_POST_ID"] = intval($arRes["PROPERTY_BLOG_POST_ID_VALUE"]);
+				$arRes["FORUM_TOPIC_ID"] = intval($arRes["PROPERTY_FORUM_TOPIC_ID_VALUE"]);
 
 				$bClearCacheDetailAll = ($arRes["PROPERTY_PUBLIC_ELEMENT_VALUE"] == "Y" ? true : $bClearCacheDetailAll);
 
@@ -120,7 +120,7 @@ if ($_REQUEST["detail_list_edit"] == "Y" && !empty($_REQUEST["ACTION"]) && !empt
 			   			continue;
 					}
 
-					$iFileSize += intVal($arRes["REAL_PICTURE"]["FILE_SIZE"]);
+					$iFileSize += intval($arRes["REAL_PICTURE"]["FILE_SIZE"]);
 
 					if ($arRes["BLOG_POST_ID"] > 0)
 					{

@@ -6,7 +6,7 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/classes/general/xml
 $APPLICATION->SetAdditionalCSS('/bitrix/gadgets/bitrix/probki/styles.css');
 
 if($arGadgetParams["CITY"]!='')
-	$url = 'yasoft=barff&region='.substr($arGadgetParams["CITY"], 1).'&ts='.time();
+	$url = 'yasoft=barff&region='.mb_substr($arGadgetParams["CITY"], 1).'&ts='.time();
 else
 	$url = 'ts='.time();
 
@@ -41,7 +41,7 @@ $node = $xml->SelectNodes('/info/traffic/title');
 </td>
 <?
 $node = $xml->SelectNodes('/info/traffic/region/level');
-$t = Intval($node->content);
+$t = intval($node->content);
 ?>
 <td nowrap="yes" width="20%"><span class="traf<?=intval(($t+1)/2)?>"><?=$t?></span></td>
 </tr>

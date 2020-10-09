@@ -607,7 +607,7 @@ class CTopPanel
 			}
 			$arMenu[] = array("SEPARATOR"=>true);
 
-			$sessionClearCache = (isset($_SESSION["SESS_CLEAR_CACHE"]) && $_SESSION["SESS_CLEAR_CACHE"] == "Y");
+			$sessionClearCache = (isset(\Bitrix\Main\Application::getInstance()->getKernelSession()["SESS_CLEAR_CACHE"]) && \Bitrix\Main\Application::getInstance()->getSession()["SESS_CLEAR_CACHE"] == "Y");
 			$arMenu[] = array(
 				"TEXT"=>GetMessage("top_panel_cache_not"),
 				"TITLE"=>GetMessage("top_panel_cache_not_title"),
@@ -808,8 +808,8 @@ class CTopPanel
 		if ($USER->CanDoOperation("edit_php"))
 		{
 			//show debug information
-			$sessionShowIncludeTimeExec = isset($_SESSION["SESS_SHOW_INCLUDE_TIME_EXEC"]) && $_SESSION["SESS_SHOW_INCLUDE_TIME_EXEC"]=="Y";
-			$sessionShowTimeExec = isset($_SESSION["SESS_SHOW_TIME_EXEC"]) && $_SESSION["SESS_SHOW_TIME_EXEC"]=="Y";
+			$sessionShowIncludeTimeExec = isset(\Bitrix\Main\Application::getInstance()->getKernelSession()["SESS_SHOW_INCLUDE_TIME_EXEC"]) && \Bitrix\Main\Application::getInstance()->getKernelSession()["SESS_SHOW_INCLUDE_TIME_EXEC"]=="Y";
+			$sessionShowTimeExec = isset(\Bitrix\Main\Application::getInstance()->getKernelSession()["SESS_SHOW_TIME_EXEC"]) && \Bitrix\Main\Application::getInstance()->getKernelSession()["SESS_SHOW_TIME_EXEC"]=="Y";
 			$cmd = ($sessionShowIncludeTimeExec && $sessionShowTimeExec && $DB->ShowSqlStat? "N" : "Y");
 			$url = $APPLICATION->GetCurPageParam("show_page_exec_time=".$cmd."&show_include_exec_time=".$cmd."&show_sql_stat=".$cmd, array("show_page_exec_time", "show_include_exec_time", "show_sql_stat"));
 			$arMenu = array(
@@ -1083,9 +1083,9 @@ class CTopPanel
 		if (
 			isset($_GET["back_url_admin"])
 			&& $_GET["back_url_admin"] != ""
-			&& strpos($_GET["back_url_admin"], "/") === 0
+			&& mb_strpos($_GET["back_url_admin"], "/") === 0
 		)
-			$_SESSION["BACK_URL_ADMIN"] = $_GET["back_url_admin"];
+			\Bitrix\Main\Application::getInstance()->getSession()["BACK_URL_ADMIN"] = $_GET["back_url_admin"];
 
 		$aUserOpt = CUserOptions::GetOption("admin_panel", "settings");
 		$aUserOptGlobal = CUserOptions::GetOption("global", "settings");
@@ -1244,8 +1244,8 @@ class CTopPanel
 
 		$result .= '
 				<a id="bx-panel-admin-tab" href="'.(
-						isset($_SESSION["BACK_URL_ADMIN"]) && $_SESSION["BACK_URL_ADMIN"] <> ""
-						? htmlspecialcharsbx($_SESSION["BACK_URL_ADMIN"]).(strpos($_SESSION["BACK_URL_ADMIN"], "?") !== false? "&amp;":"?")
+						isset(\Bitrix\Main\Application::getInstance()->getSession()["BACK_URL_ADMIN"]) && \Bitrix\Main\Application::getInstance()->getSession()["BACK_URL_ADMIN"] <> ""
+						? htmlspecialcharsbx(\Bitrix\Main\Application::getInstance()->getSession()["BACK_URL_ADMIN"]).(mb_strpos(\Bitrix\Main\Application::getInstance()->getSession()["BACK_URL_ADMIN"], "?") !== false? "&amp;":"?")
 						: '/bitrix/admin/index.php?lang='.LANGUAGE_ID.'&amp;'
 					).$backUrlParamName.'='.urlencode($href.($params<>""? "?".$params:"")).'"><span>'.GetMessage("top_panel_admin").'</span></a>';
 
@@ -1401,9 +1401,9 @@ class CTopPanel
 				$last_btn_small_cnt = 0;
 			}
 
-			if ($bHasAction && substr(strtolower($arButton['HREF']), 0, 11) == 'javascript:')
+			if ($bHasAction && mb_substr(mb_strtolower($arButton['HREF']), 0, 11) == 'javascript:')
 			{
-				$arButton['ONCLICK'] = substr($arButton['HREF'], 11);
+				$arButton['ONCLICK'] = mb_substr($arButton['HREF'], 11);
 				$arButton['HREF'] = 'javascript:void(0)';
 			}
 

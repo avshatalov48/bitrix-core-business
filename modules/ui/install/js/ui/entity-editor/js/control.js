@@ -1,24 +1,10 @@
 /**
- * @author Grigoriy Zavodov <zavodov@gmail.com>
  * @module ui
  * @version 1.0
  * @copyright 2001-2019 Bitrix
  */
 
 BX.namespace("BX.UI");
-
-if(typeof BX.UI.EntityEditorControlOptions === "undefined")
-{
-	BX.UI.EntityEditorControlOptions =
-	{
-		none: 0,
-		showAlways: 1,
-		check: function(options, option)
-		{
-			return((options & option) === option);
-		}
-	};
-}
 
 if(typeof BX.UI.EntityEditorControl === "undefined")
 {
@@ -52,8 +38,10 @@ if(typeof BX.UI.EntityEditorControl === "undefined")
 
 		this._contextMenuButton = null;
 		this._isContextMenuOpened = false;
+		this._modeChangeNotifier = null;
 
 		this._configurationFieldManager = null;
+		this._draggableContextId = "";
 	};
 	BX.UI.EntityEditorControl.prototype =
 	{
@@ -283,6 +271,10 @@ if(typeof BX.UI.EntityEditorControl === "undefined")
 		{
 			return this._schemeElement ? this._schemeElement.getCreationPlaceholder() : "";
 		},
+		getChangePlaceholder: function()
+		{
+			return this._schemeElement ? this._schemeElement.getChangePlaceholder() : "";
+		},
 		isReadOnly: function()
 		{
 			return this._editor && this._editor.isReadOnly();
@@ -303,6 +295,10 @@ if(typeof BX.UI.EntityEditorControl === "undefined")
 			}
 
 			return this._schemeElement && this._schemeElement.getVisibilityPolicy();
+		},
+		getEditPriority: function()
+		{
+			return BX.UI.EntityEditorPriority.normal;
 		},
 		getPosition: function()
 		{
@@ -374,6 +370,14 @@ if(typeof BX.UI.EntityEditorControl === "undefined")
 		},
 		onAfterModeChange: function()
 		{
+			if(this._modeChangeNotifier)
+			{
+				this._modeChangeNotifier.notify();
+			}
+		},
+		getModeChangeNotifier: function()
+		{
+			return this._modeChangeNotifier;
 		},
 		canChangeMode: function(mode)
 		{
@@ -414,6 +418,14 @@ if(typeof BX.UI.EntityEditorControl === "undefined")
 				&& this.isEditable()
 				&& !this.getDataBooleanParam("enableEditInView", false)
 				&& this.getDataBooleanParam("enableSingleEdit", true)
+			);
+		},
+		isEditInViewEnabled: function()
+		{
+			//"Edit in View" - control value may be changed in view mode
+			return(this._editor
+				&& this._editor.isEditInViewEnabled()
+				&& this.getDataBooleanParam("enableEditInView", false)
 			);
 		},
 		isInSingleEditMode: function()
@@ -584,6 +596,10 @@ if(typeof BX.UI.EntityEditorControl === "undefined")
 					: defaultval
 			);
 		},
+		hasLayout: function()
+		{
+			return this._hasLayout;
+		},
 		layout: function(options)
 		{
 		},
@@ -653,6 +669,10 @@ if(typeof BX.UI.EntityEditorControl === "undefined")
 			{
 				options = {};
 			}
+			if(BX.prop.getBoolean(options, "reset", false))
+			{
+				this.reset();
+			}
 
 			options["preservePosition"] = true;
 			this.layout(options);
@@ -672,6 +692,30 @@ if(typeof BX.UI.EntityEditorControl === "undefined")
 		},
 		reset: function()
 		{
+		},
+		onHideButtonClick: function(e)
+		{
+			this.hide();
+		},
+		createHideButton: function()
+		{
+			var enabled = !this.isRequired() && !this.isRequiredConditionally();
+			var button = BX.create(
+				"div",
+				{
+					props:
+						{
+							className: "ui-entity-widget-content-block-hide-btn",
+							title: this.getHideButtonHint(enabled)
+						}
+				}
+			);
+
+			if(enabled)
+			{
+				BX.bind(button, "click", BX.delegate(this.onHideButtonClick, this));
+			}
+			return button;
 		},
 		hide: function()
 		{
@@ -959,6 +1003,14 @@ if(typeof BX.UI.EntityEditorControl === "undefined")
 			}
 
 			return this.getEditor().getConfigurationFieldManager();
+		},
+		createGhostNode: function()
+		{
+			return null;
+		},
+		getHideButtonHint: function(enabled)
+		{
+			return "";
 		}
 	};
 
@@ -970,6 +1022,10 @@ if(typeof BX.UI.EntityEditorControl === "undefined")
 
 if(typeof BX.UI.EntityEditorField === "undefined")
 {
+	/**
+	 * @extends BX.UI.EntityEditorControl
+	 * @constructor
+	 */
 	BX.UI.EntityEditorField = function()
 	{
 		BX.UI.EntityEditorField.superclass.constructor.apply(this);
@@ -990,6 +1046,8 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 		this._spotlight = null;
 
 		this._dragObjectType = BX.UI.EditorDragObjectType.field;
+
+		this.eventsNamespace = 'BX.UI.EntityEditorField';
 	};
 	BX.extend(BX.UI.EntityEditorField, BX.UI.EntityEditorControl);
 	BX.UI.EntityEditorField.prototype.isNewEntity = function()
@@ -1019,6 +1077,14 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 	{
 		return this._schemeElement.removeAttributeConfiguration(attributeTypeId);
 	};
+	BX.UI.EntityEditorField.prototype.setVisibilityConfiguration = function(configuration)
+	{
+		return this._schemeElement.setVisibilityConfiguration(configuration);
+	};
+	BX.UI.EntityEditorField.prototype.removeVisibilityConfiguration = function(attributeTypeId)
+	{
+		return this._schemeElement.removeVisibilityConfiguration(attributeTypeId);
+	};
 	BX.UI.EntityEditorField.prototype.getDuplicateControlConfig = function()
 	{
 		return this._schemeElement ? this._schemeElement.getDataObjectParam("duplicateControl", null) : null;
@@ -1039,6 +1105,8 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 	};
 	BX.UI.EntityEditorField.prototype.bindModel = function()
 	{
+		this._model.addChangeListener(BX.delegate(this.onModelChange, this));
+		this._model.addLockListener(BX.delegate(this.onModelLock, this));
 	};
 	BX.UI.EntityEditorField.prototype.onBeforeModeChange = function()
 	{
@@ -1075,6 +1143,16 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 	{
 		return this.getContentWrapper() !== null;
 	};
+	BX.UI.EntityEditorField.prototype.getHideButtonHint = function(enabled)
+	{
+		return this.getMessage(
+			enabled ? "hideButtonHint" : "hideButtonDisabledHint"
+		);
+	};
+	BX.UI.EntityEditorField.prototype.getEditButton = function()
+	{
+		return this._singleEditButton;
+	};
 	BX.UI.EntityEditorField.prototype.getContentWrapper = function()
 	{
 		return null;
@@ -1086,12 +1164,28 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 			this._wrapper = BX.create("div", { props: { className: "ui-entity-editor-content-block" } });
 		}
 
+		this.createAdditionalWrapperBlock();
+
 		var classNames = BX.prop.getArray(params, "classNames", []);
 		for(var i = 0, length = classNames.length;  i < length; i++)
 		{
 			BX.addClass(this._wrapper, classNames[i]);
 		}
 		return this._wrapper;
+	};
+	BX.UI.EntityEditorField.prototype.createAdditionalWrapperBlock = function()
+	{
+		if(!this._wrapper)
+		{
+			return;
+		}
+
+		var additionalBlock = BX.create("div", {
+			props: { className: "ui-entity-editor-block-before-action" },
+			attrs: { "data-field-tag": this.getId() }
+		});
+
+		this._wrapper.appendChild(additionalBlock);
 	};
 	BX.UI.EntityEditorField.prototype.adjustWrapper = function()
 	{
@@ -1133,6 +1227,14 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 		}
 		//endregion
 	};
+	BX.UI.EntityEditorField.prototype.needShowTitle = function()
+	{
+		return this._schemeElement ? this._schemeElement.needShowTitle() : true;
+	};
+	BX.UI.EntityEditorField.prototype.isVirtual = function()
+	{
+		return this._schemeElement ? this._schemeElement.isVirtual() : false;
+	};
 	BX.UI.EntityEditorField.prototype.createTitleNode = function(title)
 	{
 		this._titleWrapper = BX.create("div",
@@ -1154,6 +1256,11 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 		var titleNode = BX.create("label",
 			{ attrs: { className: "ui-entity-editor-block-title-text" }, text: title }
 		);
+
+		if (this._mode === BX.UI.EntityEditorMode.edit)
+		{
+			BX.addClass(this._titleWrapper, "ui-entity-widget-content-block-title-edit");
+		}
 
 		var focusInputId = this.getFocusInputID();
 		if (focusInputId !== "") {
@@ -1247,6 +1354,11 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 			}
 		}
 
+		if(this._singleEditButton)
+		{
+			this._singleEditButton = null;
+		}
+
 		this.doClearLayout(options);
 
 		this._hasLayout = false;
@@ -1288,17 +1400,34 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 			);
 		}
 	};
+	BX.UI.EntityEditorField.prototype.raiseLayoutEvent = function()
+	{
+		BX.onCustomEvent(window, this.eventsNamespace + ":onLayout", [ this ]);
+	};
 	BX.UI.EntityEditorField.prototype.hasContentToDisplay = function()
 	{
 		return this.hasValue();
 	};
-	BX.UI.EntityEditorField.prototype.isNeedToDisplay = function()
+	BX.UI.EntityEditorField.prototype.isNeedToDisplay = function(options)
 	{
-		return(this._mode === BX.UI.EntityEditorMode.edit
+		if(this._mode === BX.UI.EntityEditorMode.edit
 			|| this.checkOptionFlag(BX.UI.EntityEditorControlOptions.showAlways)
-			|| this.hasContentToDisplay()
 			|| this._schemeElement.isShownAlways()
-		);
+		)
+		{
+			return true;
+		}
+
+		if(this._editor && BX.prop.getBoolean(options, "enableLayoutResolvers", true))
+		{
+			return BX.prop.getBoolean(
+				this._editor.prepareFieldLayoutOptions(this),
+				"isNeedToDisplay",
+				true
+			);
+		}
+
+		return this.hasContentToDisplay();
 	};
 	BX.UI.EntityEditorField.prototype.isWaitingForInput = function()
 	{
@@ -1320,9 +1449,76 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 		}
 	};
 	//region Value
+	BX.UI.EntityEditorField.prototype.getEditPriority = function()
+	{
+		var hasValue = this.hasValue();
+		if(!hasValue && (this.isRequired() || this.isRequiredConditionally()))
+		{
+			return BX.UI.EntityEditorPriority.high;
+		}
+
+		if(!this._editor.isNew())
+		{
+			return BX.UI.EntityEditorPriority.normal;
+		}
+
+		return hasValue ? BX.UI.EntityEditorPriority.high : this.doGetEditPriority();
+	};
+	BX.UI.EntityEditorField.prototype.doGetEditPriority = function()
+	{
+		return BX.UI.EntityEditorPriority.normal;
+	};
 	BX.UI.EntityEditorField.prototype.checkIfNotEmpty = function(value)
 	{
-		return BX.util.trim(value) !== "";
+		if(BX.type.isString(value))
+		{
+			return value.trim() !== "";
+		}
+
+		return (value !== null && value !== undefined);
+	};
+	BX.UI.EntityEditorField.prototype.setupFromModel = function(model, options)
+	{
+		if(!model)
+		{
+			model = this._model;
+		}
+
+		if(!model)
+		{
+			return;
+		}
+
+		var data = this.getRelatedModelData(model);
+		this._model.updateData(data, options);
+	};
+	BX.UI.EntityEditorField.prototype.getRelatedModelData = function(model)
+	{
+		if(!model)
+		{
+			model = this._model;
+		}
+
+		if(!model)
+		{
+			return {};
+		}
+
+		var data = {};
+		var keys = this.getRelatedDataKeys();
+		for(var i = 0, length = keys.length; i < length; i++)
+		{
+			var key = keys[i];
+			if(key !== "")
+			{
+				data[key] = model.getField(key, null);
+			}
+		}
+		return data;
+	};
+	BX.UI.EntityEditorField.prototype.getRelatedDataKeys = function()
+	{
+		return [this.getDataKey()];
 	};
 	BX.UI.EntityEditorField.prototype.hasValue = function()
 	{
@@ -1440,7 +1636,7 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 			);
 		}
 
-		this._errorContainer.innerHTML = error;
+		this._errorContainer.innerHTML = BX.util.htmlspecialchars(error);
 		if (this._wrapper)
 		{
 			this._wrapper.appendChild(this._errorContainer);
@@ -1818,11 +2014,14 @@ if(typeof BX.UI.EntityEditorField === "undefined")
 
 		this._singleEditTimeoutHandle = 0;
 
-		this._editor.switchControlMode(
-			this,
-			BX.UI.EntityEditorMode.edit,
-			BX.UI.EntityEditorModeOptions.individual
-		);
+		if(this._editor)
+		{
+			this._editor.switchControlMode(
+				this,
+				BX.UI.EntityEditorMode.edit,
+				BX.UI.EntityEditorModeOptions.individual
+			);
+		}
 	};
 
 	if (typeof (BX.UI.EntityEditorField.messages) === "undefined")
@@ -1912,12 +2111,16 @@ if(typeof BX.UI.EntityEditorSectionContentStub === "undefined")
 
 if(typeof BX.UI.EntityEditorColumn === "undefined")
 {
+	/**
+	 * @extends BX.UI.EntityEditorControl
+	 * @constructor
+	 */
 	BX.UI.EntityEditorColumn = function()
 	{
 		BX.UI.EntityEditorColumn.superclass.constructor.apply(this);
 		this._sections = null;
 		this._width = 0;
-		
+
 		this._draggableContextId = "";
 		this._dragContainerController = null;
 		this._dragPlaceHolder = null;
@@ -1993,6 +2196,11 @@ if(typeof BX.UI.EntityEditorColumn === "undefined")
 
 		var enableReset = BX.prop.getBoolean(options, "reset", false);
 
+		var sectionOptions = options;
+		if (sectionOptions.hasOwnProperty('anchor'))
+		{
+			delete sectionOptions.anchor;
+		}
 		for (var i = 0, l = this._sections.length; i < l; i++)
 		{
 			var section = this._sections[i];
@@ -2005,7 +2213,7 @@ if(typeof BX.UI.EntityEditorColumn === "undefined")
 				section.reset();
 			}
 
-			section.layout();
+			section.layout(sectionOptions);
 		}
 
 		if (this.isDragEnabled())
@@ -2015,7 +2223,7 @@ if(typeof BX.UI.EntityEditorColumn === "undefined")
 				{
 					charge: BX.UI.EditorSectionDragContainer.create({
 						editor: this._editor,
-						column: this 
+						column: this
 					}),
 					node: this._wrapper
 				}
@@ -2141,7 +2349,7 @@ if(typeof BX.UI.EntityEditorColumn === "undefined")
 			return true;
 		}
 
-		var currentResult = BX.UI.EntityValidationResult.create();
+		var validator = BX.UI.EntityAsyncValidator.create();
 		for(var i = 0, length = this._sections.length; i < length; i++)
 		{
 			var field = this._sections[i];
@@ -2150,11 +2358,10 @@ if(typeof BX.UI.EntityEditorColumn === "undefined")
 				continue;
 			}
 
-			field.validate(currentResult);
+			validator.addResult(field.validate(result));
 		}
 
-		result.addResult(currentResult);
-		return currentResult.getStatus();
+		return validator.validate();
 	};
 	BX.UI.EntityEditorColumn.prototype.commitSchemeChanges = function()
 	{
@@ -2660,13 +2867,17 @@ if(typeof BX.UI.EntityEditorColumn === "undefined")
 
 if(typeof BX.UI.EntityEditorSection === "undefined")
 {
+	/**
+	 * @extends BX.UI.EntityEditorControl
+	 * @constructor
+	 */
 	BX.UI.EntityEditorSection = function()
 	{
 		BX.UI.EntityEditorSection.superclass.constructor.apply(this);
 		this._fields = null;
 		this._fieldConfigurator = null;
-		// this._userFieldConfigurator = null;
 		this._mandatoryConfigurator = null;
+		this._visibilityConfigurator = null;
 
 		this._titleEditButton = null;
 		this._titleEditHandler = BX.delegate(this.onTitleEditButtonClick, this);
@@ -2701,6 +2912,9 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 		this._fieldTypeSelectMenu = null;
 
 		this._stub = null;
+
+		this._detailButton = null;
+		this.eventsNamespace = 'BX.UI.EntityEditorSection';
 	};
 	BX.extend(BX.UI.EntityEditorSection, BX.UI.EntityEditorControl);
 	BX.UI.EntityEditorSection.prototype.doSetActive = function()
@@ -2763,7 +2977,7 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 		this._wrapper.style.display = this.isVisible() ? '' : 'none';
 		BX.UI.EntityEditorField.superclass.registerLayout.apply(this, arguments);
 	};
-	
+
 	BX.UI.EntityEditorSection.prototype.layout = function(options)
 	{
 		//Create wrapper
@@ -2786,6 +3000,30 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 		if(!this._enableToggling)
 		{
 			this._toggleButton.style.display = "none";
+		}
+
+		var firstColumn = this.getEditor().getControlByIndex(0);
+		var url = BX.prop.getString(this.getEditor()._settings, "entityDetailsUrl", "");
+		if (this.getEditor().isEmbedded() && url.length)
+		{
+			var sectionIndex = null;
+			if(firstColumn)
+			{
+				sectionIndex = firstColumn.getChildren().indexOf(this);
+			}
+
+			if (sectionIndex === 0)
+			{
+				this._detailButton = BX.create("a",
+					{
+						attrs: {
+							className: "ui-entity-editor-detail-btn",
+							href: url
+						},
+						text: BX.message('UI_ENTITY_EDITOR_SECTION_OPEN_DETAILS')
+					}
+				);
+			}
 		}
 
 		this._titleMode = BX.UI.EntityEditorMode.view;
@@ -2833,6 +3071,11 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 				props: { className: "ui-entity-editor-header-actions" },
 				children : [ this._toggleButton ]
 			});
+
+			if (this._detailButton)
+			{
+				this._titleActions.appendChild(this._detailButton);
+			}
 
 			this._titleContainer = BX.create("div",
 			{
@@ -2961,8 +3204,13 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 		}
 
 		//region Add custom Html
-		var eventArgs =  { id: this._id, customNodes: [], visible: true };
-		BX.onCustomEvent(window, "BX.UI.EntityEditorSection:onLayout", [ this, eventArgs ]);
+		var serialNumber = null;
+		if(firstColumn)
+		{
+			serialNumber = firstColumn.getChildren().indexOf(this);
+		}
+		var eventArgs =  { id: this._id, customNodes: [], visible: true, serialNumber: serialNumber };
+		BX.onCustomEvent(window, this.eventsNamespace + ":onLayout", [ this, eventArgs ]);
 		if(this._titleActions && BX.type.isArray(eventArgs["customNodes"]))
 		{
 			for(var j = 0, length = eventArgs["customNodes"].length; j < length; j++)
@@ -3290,7 +3538,7 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 			return true;
 		}
 
-		var currentResult = BX.UI.EntityValidationResult.create();
+		var validator = BX.UI.EntityAsyncValidator.create();
 		for(var i = 0, length = this._fields.length; i < length; i++)
 		{
 			var field = this._fields[i];
@@ -3299,11 +3547,10 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 				continue;
 			}
 
-			field.validate(currentResult);
+			validator.addResult(field.validate(result));
 		}
 
-		result.addResult(currentResult);
-		return currentResult.getStatus();
+		return validator.validate();
 	};
 	BX.UI.EntityEditorSection.prototype.commitSchemeChanges = function()
 	{
@@ -3688,7 +3935,7 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 				button: this._addChildButton,
 				cancel: false
 			};
-		BX.onCustomEvent(window, "BX.UI.EntityEditorSection:onOpenChildMenu", [ this, eventArgs ]);
+		BX.onCustomEvent(window, this.eventsNamespace + ":onOpenChildMenu", [ this, eventArgs ]);
 
 		if(eventArgs["cancel"])
 		{
@@ -3737,7 +3984,7 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 				button: this._addChildButton,
 				cancel: false
 			};
-		BX.onCustomEvent(window, "BX.UI.EntityEditorSection:onChildMenuItemSelect", [ this, eventArgs ]);
+		BX.onCustomEvent(window, this.eventsNamespace + ":onChildMenuItemSelect", [ this, eventArgs ]);
 
 		if(eventArgs["cancel"])
 		{
@@ -3896,7 +4143,7 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 		var field = BX.prop.get(params, "field", null);
 		if(!field)
 		{
-			BX.onCustomEvent(this._editor, "BX.UI.EntityEditor:onFieldCreate", [ this, params ]);
+			BX.onCustomEvent(this._editor, this._editor.eventsNamespace + ":onFieldCreate", [ this, params ]);
 			this.removeFieldConfigurator();
 
 			return;
@@ -3907,10 +4154,8 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 		if(label === "" && showAlways === null)
 		{
 			this.removeFieldConfigurator();
-			if(this._mandatoryConfigurator)
-			{
-				this._mandatoryConfigurator = null;
-			}
+			this._mandatoryConfigurator = null;
+			this._visibilityConfigurator = null;
 			return;
 		}
 
@@ -3921,7 +4166,7 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 			field.toggleOptionFlag(BX.UI.EntityEditorControlOptions.showAlways);
 		}
 
-		BX.onCustomEvent(this._editor, "BX.UI.EntityEditor:onFieldModify", [ this, params ]);
+		BX.onCustomEvent(this._editor, this._editor.eventsNamespace + ":onFieldModify", [ this, params ]);
 
 		this.markSchemeAsChanged();
 		this.saveScheme().then(
@@ -3953,6 +4198,7 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 							}
 						}
 						this._mandatoryConfigurator = null;
+						this._visibilityConfigurator = null;
 					}
 					this.removeFieldConfigurator();
 				},
@@ -3968,11 +4214,9 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 		}
 
 		this.removeFieldConfigurator();
-		
-		if(this._mandatoryConfigurator)
-		{
-			this._mandatoryConfigurator = null;
-		}
+
+		this._mandatoryConfigurator = null;
+		this._visibilityConfigurator = null;
 	};
 	BX.UI.EntityEditorSection.prototype.enablePointerEvents = function(enable)
 	{
@@ -4195,6 +4439,19 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 				field.setAttributeConfiguration(attributeConfig);
 			}
 
+			if (this._visibilityConfigurator) {
+				var visibilityConfig = {
+					'accessCodes': this._visibilityConfigurator.formatAccessCodesFromConfig(
+						this._visibilityConfigurator.getItems()
+					)
+				};
+				this._visibilityConfigurator.onUserFieldConfigurationSave(
+					element.getName(),
+					this._editor.getEntityTypeId()
+				);
+				field.setVisibilityConfiguration(visibilityConfig);
+			}
+
 			var showAlways = this._editor.getOption("show_always", "Y") === "Y";
 			if(showAlways !== field.checkOptionFlag(BX.UI.EntityEditorControlOptions.showAlways))
 			{
@@ -4207,10 +4464,8 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 			break;
 		}
 
-		if(this._mandatoryConfigurator)
-		{
-			this._mandatoryConfigurator = null;
-		}
+		this._mandatoryConfigurator = null;
+		this._visibilityConfigurator = null;
 	};
 	BX.UI.EntityEditorSection.prototype.onUserFieldUpdate = function(result)
 	{
@@ -4264,6 +4519,19 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 				}
 			}
 
+			if (this._visibilityConfigurator) {
+				var visibilityConfig = {
+					'accessCodes': this._visibilityConfigurator.formatAccessCodesFromConfig(
+						this._visibilityConfigurator.getItems()
+					)
+				};
+				this._visibilityConfigurator.onUserFieldConfigurationSave(
+					element.getName(),
+					this._editor.getEntityTypeId()
+				);
+				field.setVisibilityConfiguration(visibilityConfig);
+			}
+
 			manager.updateSchemeElement(element, info);
 			var options = {};
 			var html = BX.prop.getString(data, "HTML", "");
@@ -4277,10 +4545,8 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 			break;
 		}
 
-		if(this._mandatoryConfigurator)
-		{
-			this._mandatoryConfigurator = null;
-		}
+		this._mandatoryConfigurator = null;
+		this._visibilityConfigurator = null;
 	};
 	//endregion
 	//region Create|Delete Section
@@ -4622,6 +4888,20 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 		}
 		return false;
 	};
+	BX.UI.EntityEditorSection.prototype.ensureButtonPanelWrapperCreated = function()
+	{
+		if(!this._hasLayout)
+		{
+			throw "EntityEditorSection: Control does not have layout.";
+		}
+
+		if(!this._buttonPanelWrapper)
+		{
+			this._buttonPanelWrapper = BX.create("div", { props: { className: "ui-entity-card-content-actions-container" } });
+			this._contentContainer.appendChild(this._buttonPanelWrapper);
+		}
+		return this._buttonPanelWrapper;
+	};
 	BX.UI.EntityEditorSection.create = function(id, settings)
 	{
 		var self = new BX.UI.EntityEditorSection();
@@ -4716,7 +4996,7 @@ if(typeof BX.UI.EntityEditorIncludedArea === "undefined")
 		var config = this.prepareConfigForAction();
 
 		BX.onCustomEvent(window, "BX.UI.EntityEditorIncludedArea:onBeforeLoad", [this, config]);
-		
+
 		if (this._schemeElement.getDataStringParam("type", "") === "component")
 		{
 			var componentName = this._schemeElement.getDataStringParam("componentName", "");
@@ -6132,7 +6412,7 @@ if(typeof BX.UI.EntityEditorDatetime === "undefined")
 
 			this._innerContainer = BX.create("div",
 				{
-					props: { className: "ui-ctl ui-ctl-after-icon ui-ctl-datetime" },
+					props: { className: "ui-ctl ui-ctl-after-icon ui-ctl-datetime ui-ctl-w50" },
 					children: [
 						this._inputIcon,
 						this._input
@@ -6858,6 +7138,18 @@ if(typeof BX.UI.EntityEditorList === "undefined")
 	{
 		this.closeMenu();
 
+		var eventArgs =
+			{
+				field: this,
+				item: item,
+				cancel: false
+			};
+		BX.onCustomEvent(window, "BX.UI.EntityEditorList:onItemSelect", [ this, eventArgs ]);
+		if(eventArgs["cancel"])
+		{
+			return;
+		}
+
 		this._selectedValue = this._input.value  = item.value;
 		var name = BX.prop.getString(
 			this.getItemByValue(this._selectedValue),
@@ -7486,7 +7778,7 @@ if(typeof BX.UI.EntityEditorHtml === "undefined")
 													{
 														click: BX.delegate(this.onExpandButtonClick, this)
 													},
-												text: BX.message("UI_ENTITY_EDITOR_EXPAND_SM_HTML")
+												text: BX.message("UI_ENTITY_EDITOR_EXPAND_HTML")
 											}
 										)
 									]
@@ -7617,7 +7909,7 @@ if(typeof BX.UI.EntityEditorHtml === "undefined")
 		var button = this._wrapper.querySelector("a.ui-entity-editor-content-block-field-html-expand-btn");
 		if (button)
 		{
-			button.innerHTML = BX.message(this._isCollapsed ? "UI_ENTITY_EDITOR_EXPAND_SM_HTML" : "UI_ENTITY_EDITOR_COLLAPSE_SM_HTML");
+			button.innerHTML = BX.message(this._isCollapsed ? "UI_ENTITY_EDITOR_EXPAND_HTML" : "UI_ENTITY_EDITOR_COLLAPSE_HTML");
 		}
 		return BX.PreventDefault(e);
 	};
@@ -7812,6 +8104,42 @@ if(typeof BX.UI.EntityEditorImage === "undefined")
 			|| this._model.getSchemeField(this._schemeElement, "showUrl", "") !== ""
 		);
 	};
+	BX.UI.EntityEditorImage.prototype.loadInput = function()
+	{
+		console.error('loadInput is not implemented');
+		// BX.ajax.runComponentAction(
+		// 	"bitrix:ui.form",
+		// 	"renderImageInput",
+		// 	{ mode: "ajax", data: { moduleId: "ui", name: this.getName(), value: this.getValue() } }
+		// ).then(
+		// 	function(result)
+		// 	{
+		// 		var data = BX.prop.getObject(result, "data", {});
+		// 		var assets = BX.prop.getObject(data, "assets", {});
+		//
+		// 		BX.html(null, BX.prop.getString(assets, "css", "")).then(
+		// 			function() {
+		// 				BX.loadScript(
+		// 					BX.prop.getArray(assets, "js", []),
+		// 					function() {
+		// 						BX.html(null, BX.prop.getArray(assets, "string", []).join("\n")).then(
+		// 							function() {
+		// 								BX.html(this._innerWrapper, BX.prop.getString(data, "html", "")).then(
+		// 									function() {
+		// 										BX.addCustomEvent(window, "onAfterPopupShow", this._dialogShowHandler);
+		// 										BX.addCustomEvent(window, "onPopupClose", this._dialogCloseHandler);
+		//
+		// 										window.setTimeout(BX.delegate(this.bindFileEvents, this), 500)
+		// 									}.bind(this)
+		// 								);
+		// 							}.bind(this)
+		// 						);
+		// 					}.bind(this)
+		// 				);
+		// 			}.bind(this)
+		// 		);
+		// 	}.bind(this));this.getName()
+	};
 	BX.UI.EntityEditorImage.prototype.layout = function(options)
 	{
 		if(this._hasLayout)
@@ -7819,7 +8147,7 @@ if(typeof BX.UI.EntityEditorImage === "undefined")
 			return;
 		}
 
-		this.ensureWrapperCreated({ classNames: [ "crm-entity-widget-content-block-field-file" ] });
+		this.ensureWrapperCreated({ classNames: [ "ui-entity-widget-content-block-field-file" ] });
 		this.adjustWrapper();
 
 		if(!this.isNeedToDisplay())
@@ -7829,7 +8157,6 @@ if(typeof BX.UI.EntityEditorImage === "undefined")
 			return;
 		}
 
-		var name = this.getName();
 		var title = this.getTitle();
 		this._innerWrapper = null;
 
@@ -7848,38 +8175,7 @@ if(typeof BX.UI.EntityEditorImage === "undefined")
 				}
 			);
 
-			BX.ajax.runComponentAction(
-				"bitrix:ui.form",
-				"renderImageInput",
-				{ mode: "ajax", data: { moduleId: "ui", name: name, value: this.getValue() } }
-			).then(
-				function(result)
-				{
-					var data = BX.prop.getObject(result, "data", {});
-					var assets = BX.prop.getObject(data, "assets", {});
-
-					BX.html(null, BX.prop.getString(assets, "css", "")).then(
-						function() {
-							BX.loadScript(
-								BX.prop.getArray(assets, "js", []),
-								function() {
-									BX.html(null, BX.prop.getArray(assets, "string", []).join("\n")).then(
-										function() {
-											BX.html(this._innerWrapper, BX.prop.getString(data, "html", "")).then(
-												function() {
-													BX.addCustomEvent(window, "onAfterPopupShow", this._dialogShowHandler);
-													BX.addCustomEvent(window, "onPopupClose", this._dialogCloseHandler);
-
-													window.setTimeout(BX.delegate(this.bindFileEvents, this), 500)
-												}.bind(this)
-											);
-										}.bind(this)
-									);
-								}.bind(this)
-							);
-						}.bind(this)
-					);
-				}.bind(this));
+			this.loadInput();
 		}
 		else// if(this._mode === BX.UI.EntityEditorMode.view)
 		{
@@ -8487,6 +8783,7 @@ if(typeof BX.UI.EntityEditorMoney === "undefined")
 		this._selectedCurrencyValue = "";
 		this._selectorClickHandler = BX.delegate(this.onSelectorClick, this);
 		this._isCurrencyMenuOpened = false;
+		this.wrapperClassName = "ui-entity-editor-field-money";
 	};
 	BX.extend(BX.UI.EntityEditorMoney, BX.UI.EntityEditorField);
 	BX.UI.EntityEditorMoney.prototype.getModeSwitchType = function(mode)
@@ -8531,7 +8828,7 @@ if(typeof BX.UI.EntityEditorMoney === "undefined")
 			return;
 		}
 
-		this.ensureWrapperCreated({ classNames: [ "ui-entity-editor-field-money" ] });
+		this.ensureWrapperCreated({ classNames: [ this.wrapperClassName ] });
 		this.adjustWrapper();
 
 		if(!this.isNeedToDisplay())
@@ -8640,7 +8937,7 @@ if(typeof BX.UI.EntityEditorMoney === "undefined")
 
 			this._selectContainer = BX.create("div",
 				{
-					props: {className: "ui-ctl ui-ctl-inline ui-ctl-after-icon ui-ctl-dropdown ui-ctl-w25"},
+					props: {className: "ui-ctl ui-ctl-inline ui-ctl-after-icon ui-ctl-dropdown ui-ctl-w33"},
 					children :[
 						this._select,
 						this._selectIcon

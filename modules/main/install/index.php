@@ -24,9 +24,7 @@ class main extends CModule
 	{
 		$arModuleVersion = array();
 
-		$path = str_replace("\\", "/", __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen("/install/index.php"));
-		include($path."/classes/general/version.php");
+		include(__DIR__.'/../classes/general/version.php');
 
 		if (is_array($arModuleVersion) && array_key_exists("VERSION", $arModuleVersion))
 		{
@@ -69,7 +67,7 @@ class main extends CModule
 		if ($success)
 			return true;
 
-		if ($DBType == "mysql" && defined("MYSQL_TABLE_TYPE") && strlen(MYSQL_TABLE_TYPE)>0)
+		if ($DBType == "mysql" && defined("MYSQL_TABLE_TYPE") && MYSQL_TABLE_TYPE <> '')
 			$DB->Query("SET storage_engine = '".MYSQL_TABLE_TYPE."'", true);
 
 		$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/".$DBType."/install.sql");
@@ -109,8 +107,8 @@ class main extends CModule
 
 		RegisterModule("main");
 		RegisterModuleDependences('iblock', 'OnIBlockPropertyBuildList', 'main', 'CIBlockPropertyUserID', 'GetUserTypeDescription', 100, '/modules/main/tools/prop_userid.php');
-		RegisterModuleDependences('main', 'OnUserDelete','main', 'CFavorites','OnUserDelete', 100, "/modules/main/classes/".strtolower($GLOBALS["DB"]->type)."/favorites.php");
-		RegisterModuleDependences('main', 'OnLanguageDelete','main', 'CFavorites','OnLanguageDelete', 100, "/modules/main/classes/".strtolower($GLOBALS["DB"]->type)."/favorites.php");
+		RegisterModuleDependences('main', 'OnUserDelete','main', 'CFavorites','OnUserDelete', 100, "/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
+		RegisterModuleDependences('main', 'OnLanguageDelete','main', 'CFavorites','OnLanguageDelete', 100, "/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
 		RegisterModuleDependences('main', 'OnUserDelete','main', 'CUserOptions','OnUserDelete');
 		RegisterModuleDependences('main', 'OnChangeFile','main', 'CMain','OnChangeFileComponent');
 		RegisterModuleDependences('main', 'OnUserTypeRightsCheck','main', 'CUser','UserTypeRightsCheck');
@@ -130,12 +128,12 @@ class main extends CModule
 		RegisterModuleDependences('main', 'OnGetRatingRuleConfigs',  'main', 'CRatingRulesMain', 'OnGetRatingRuleConfigs');
 		RegisterModuleDependences('main', 'OnAfterUserAdd', 'main', 'CRatings', 'OnAfterUserRegister');
 		RegisterModuleDependences('main', 'OnUserDelete', 'main', 'CRatings', 'OnUserDelete');
-		RegisterModuleDependences('main', 'OnUserDelete', 'main', 'CAccess', 'OnUserDelete');
 		RegisterModuleDependences('main', 'OnAfterGroupAdd', 'main', 'CGroupAuthProvider', 'OnAfterGroupAdd');
 		RegisterModuleDependences('main', 'OnBeforeGroupUpdate', 'main', 'CGroupAuthProvider', 'OnBeforeGroupUpdate');
 		RegisterModuleDependences('main', 'OnBeforeGroupDelete', 'main', 'CGroupAuthProvider', 'OnBeforeGroupDelete');
 		RegisterModuleDependences('main', 'OnAfterSetUserGroup', 'main', 'CGroupAuthProvider', 'OnAfterSetUserGroup');
 		RegisterModuleDependences('main', 'OnUserLogin', 'main', 'CGroupAuthProvider', 'OnUserLogin');
+		RegisterModuleDependences('main', 'OnUserLogin', 'main', 'CUserAuthProvider', 'OnUserLogin');
 		RegisterModuleDependences("main", "OnEventLogGetAuditTypes", "main", "CEventMain", "GetAuditTypes");
 		RegisterModuleDependences("main", "OnEventLogGetAuditHandlers", "main", "CEventMain", "MakeMainObject");
 		RegisterModuleDependences("perfmon", "OnGetTableSchema", "main", "CTableSchema", "OnGetTableSchema");
@@ -167,22 +165,22 @@ class main extends CModule
 
 		RegisterModuleDependences("rest", "OnRestServiceBuildDescription", "main", '\Bitrix\Main\Rest\Handlers', "onRestServiceBuildDescription");
 
-		COption::SetOptionString("main", "PARAM_MAX_SITES", "2");
-		COption::SetOptionString("main", "PARAM_MAX_USERS", "0");
-		COption::SetOptionString("main", "distributive6", "Y");
-		COption::SetOptionString("main", "~new_license11_sign", "Y");
-		COption::SetOptionString("main", "GROUP_DEFAULT_TASK", "1");
-
 		if (LANGUAGE_ID == "ru")
 			COption::SetOptionString("main", "vendor", "1c_bitrix");
 		else
 			COption::SetOptionString("main", "vendor", "bitrix");
 
+		COption::SetOptionString("main", "PARAM_MAX_SITES", "2");
+		COption::SetOptionString("main", "PARAM_MAX_USERS", "0");
+		COption::SetOptionString("main", "distributive6", "Y");
+		COption::SetOptionString("main", "~new_license11_sign", "Y");
+		COption::SetOptionString("main", "GROUP_DEFAULT_TASK", "1");
 		COption::SetOptionString("main", "admin_lid", LANGUAGE_ID);
 		COption::SetOptionString("main", "update_site", "www.bitrixsoft.com");
 		COption::SetOptionString("main", "update_site_ns", "Y");
 		COption::SetOptionString("main", "optimize_css_files", "Y");
 		COption::SetOptionString("main", "optimize_js_files", "Y");
+		COption::SetOptionString("main", "control_file_duplicates", "Y");
 
 		$nextDay = time() + 86400;
 		CAgent::AddAgent('\\Bitrix\\Main\\Analytics\\CounterDataTable::submitData();', "main", "N", 60);
@@ -290,7 +288,7 @@ class main extends CModule
 				continue;
 
 			//mssql does not allow insert identity by default
-			if(strtolower($DB->type) == "mssql")
+			if($DB->type == "MSSQL")
 				unset($arGroup["~ID"]);
 
 			$success = (bool)$group->Add($arGroup);

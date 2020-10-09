@@ -56,11 +56,11 @@ class CFormValidatorFileType
 		if (!empty($arValues))
 		{
 			$arExt = array();
-			if (strlen($arParams["EXT"]) > 0)
-				$arExt = array_merge($arExt, explode(",", strtolower($arParams["EXT"])));
+			if ($arParams["EXT"] <> '')
+				$arExt = array_merge($arExt, explode(",", mb_strtolower($arParams["EXT"])));
 
-			if (strlen($arParams["EXT_CUSTOM"]) > 0)
-				$arExt = array_merge($arExt, explode(",", strtolower($arParams["EXT_CUSTOM"])));
+			if ($arParams["EXT_CUSTOM"] <> '')
+				$arExt = array_merge($arExt, explode(",", mb_strtolower($arParams["EXT_CUSTOM"])));
 
 			if (!empty($arExt))
 			{
@@ -71,16 +71,20 @@ class CFormValidatorFileType
 
 				foreach ($arValues as $arFile)
 				{
-					if (strlen($arFile["tmp_name"]) > 0 && $arFile["error"] == "0")
+					if (empty($arFile) || !is_array($arFile))
 					{
-						$point_pos = strrpos($arFile["name"], ".");
+						continue;
+					}
+					if ($arFile["tmp_name"] <> '' && $arFile["error"] == "0")
+					{
+						$point_pos = mb_strrpos($arFile["name"], ".");
 						if ($point_pos === false)
 						{
 							$res = false;
 							break;
 						}
 
-						$ext = strtolower(substr($arFile["name"], $point_pos + 1));
+						$ext = mb_strtolower(mb_substr($arFile["name"], $point_pos + 1));
 						if (!isset($arExtKeys[$ext]))
 						{
 							$res = false;

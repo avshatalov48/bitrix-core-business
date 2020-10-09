@@ -70,7 +70,7 @@ else
 			list($ticket_created, $ticket_id, $controller_url) = explode("|", $ticket_id);
 			if($ticket_id == $oRequest->arParameters["controller_ticket_id"])
 			{
-				if(strlen($controller_url)>0)
+				if($controller_url <> '')
 				{
 					if($ticket_created>0 && $ticket_created+10*60>=time())
 					{
@@ -161,7 +161,7 @@ else
 					{
 						$oResponse->status = "200 OK";
 						$command = $oClientResponse->arParameters['command'];
-						if (strlen($command) > 0 && CControllerClient::RunCommand($command, $oResponse, $oClientResponse) === false)
+						if ($command <> '' && CControllerClient::RunCommand($command, $oResponse, $oClientResponse) === false)
 						{
 							$oResponse->status = "450 Execution error";
 						}
@@ -195,17 +195,17 @@ else
 				$oResponse->status = "444 User is not found.";
 				$oResponse->text = "User is not found.";
 			}
-			elseif(strlen($arUser["EXTERNAL_AUTH_ID"]) > 0)
+			elseif($arUser["EXTERNAL_AUTH_ID"] <> '')
 			{
 				$oResponse->status = "445 External user.";
 				$oResponse->text = "External user.";
 			}
 			else
 			{
-				if(strlen($arUser["PASSWORD"]) > 32)
+				if(mb_strlen($arUser["PASSWORD"]) > 32)
 				{
-					$salt = substr($arUser["PASSWORD"], 0, strlen($arUser["PASSWORD"]) - 32);
-					$db_password = substr($arUser["PASSWORD"], -32);
+					$salt = mb_substr($arUser["PASSWORD"], 0, mb_strlen($arUser["PASSWORD"]) - 32);
+					$db_password = mb_substr($arUser["PASSWORD"], -32);
 				}
 				else
 				{
@@ -225,7 +225,7 @@ else
 					$dbUserGroups = CUser::GetUserGroupEx($arUser['ID']);
 					while ($arG = $dbUserGroups->Fetch())
 					{
-						if (strlen($arG["STRING_ID"]) > 0)
+						if ($arG["STRING_ID"] <> '')
 							$arUserGroups[] = $arG["STRING_ID"];
 						elseif ($arG["GROUP_ID"] == 1)
 							$arUserGroups[] = "administrators";
@@ -295,7 +295,7 @@ else
 	else
 	{
 		ShowError(GetMessage("MAIN_ADM_CONTROLLER_ERR7").' '.$oResponse->text.'. '.GetMessage("MAIN_ADM_CONTROLLER_ERR7_AGAIN"));
-		if(strlen($_SERVER['HTTP_REFERER'])>0)
+		if($_SERVER['HTTP_REFERER'] <> '')
 			echo '<br>'.'<a href="'.htmlspecialcharsbx($_SERVER['HTTP_REFERER']).'">'.GetMessage("MAIN_ADM_CONTROLLER_BACK_URL").'</a>';
 	}
 	require_once(dirname(__FILE__)."/../include/epilog.php");

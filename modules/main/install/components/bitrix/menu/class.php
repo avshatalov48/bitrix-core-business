@@ -58,7 +58,7 @@ class CBitrixMenuComponent extends CBitrixComponent
 	public function getGenerationCachePath($id)
 	{
 		$hash = md5($id);
-		$path = $this->getRelativePath()."/".substr($hash,-5,2)."/".substr($hash,-3);
+		$path = $this->getRelativePath()."/".mb_substr($hash, -5, 2)."/".mb_substr($hash, -3);
 		return $path;
 	}
 
@@ -91,7 +91,7 @@ class CBitrixMenuComponent extends CBitrixComponent
 				$bDir = false;
 				if(!preg_match("'^(([a-z]+://)|mailto:|javascript:)'i", $arMenu[$menuIndex]["LINK"]))
 				{
-					if(substr($arMenu[$menuIndex]["LINK"], -1) == "/")
+					if(mb_substr($arMenu[$menuIndex]["LINK"], -1) == "/")
 						$bDir = true;
 				}
 				if($bDir)
@@ -167,7 +167,7 @@ class CBitrixMenuComponent extends CBitrixComponent
 				foreach($ADDITIONAL_LINKS as $link)
 				{
 					$tested_link = trim($link);
-					if(strlen($tested_link)>0)
+					if($tested_link <> '')
 						$all_links[] = $tested_link;
 				}
 			}
@@ -192,7 +192,7 @@ class CBitrixMenuComponent extends CBitrixComponent
 			if($SELECTED && !$bMultiSelect)
 			{
 				/** @noinspection PhpUndefinedVariableInspection */
-				$new_len = strlen($tested_link);
+				$new_len = mb_strlen($tested_link);
 				if($new_len > $cur_selected_len)
 				{
 					if($cur_selected !== -1)

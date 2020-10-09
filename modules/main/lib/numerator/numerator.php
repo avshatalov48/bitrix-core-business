@@ -629,7 +629,7 @@ class Numerator
 		{
 			foreach ($words as $word)
 			{
-				if (stripos($this->template, $word) !== false)
+				if (mb_stripos($this->template, $word) !== false)
 				{
 					$generatorTypes[$type] = 1;
 				}

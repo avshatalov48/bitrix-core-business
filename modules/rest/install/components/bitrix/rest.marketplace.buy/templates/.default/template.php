@@ -59,10 +59,10 @@ if (is_array($arResult["ITEMS_DB"]) && !empty($arResult["ITEMS_DB"])):
 		$itemName = $arResult["ITEMS"][$app["CODE"]]["NAME"]
 				? $arResult["ITEMS"][$app["CODE"]]["NAME"]
 				: $app["MENU_NAME"];
-		if(strlen($itemName) >= 48):
+		if(mb_strlen($itemName) >= 48):
 ?>
 					<a class="mp_sc_ls_title" href="<?=$appUrl;?>" title="<?=htmlspecialcharsbx($itemName)?>">
-						<?=htmlspecialcharsbx(substr($itemName, 0, 48)."...")?>
+						<?=htmlspecialcharsbx(mb_substr($itemName, 0, 48)."...")?>
 					</a>
 <?php
 		else:

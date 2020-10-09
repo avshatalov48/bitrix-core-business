@@ -5,7 +5,7 @@ use Bitrix\Main\UI;
 UI\Extension::load("ui.tooltip");
 
 ?><div id="wiki-post">
-<?if(strlen($arResult['MESSAGE'])>0):
+<?if($arResult['MESSAGE'] <> ''):
 	?>
 	<div class="wiki-notes">
 		<div class="wiki-note-text">

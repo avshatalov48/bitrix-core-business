@@ -23,7 +23,7 @@ class Uri implements \JsonSerializable
 	 */
 	public function __construct($url)
 	{
-		if(strpos($url, "/") === 0)
+		if(mb_strpos($url, "/") === 0)
 		{
 			//we don't support "current scheme" e.g. "//host/path"
 			$url = "/".ltrim($url, "/");
@@ -33,7 +33,7 @@ class Uri implements \JsonSerializable
 
 		if($parsedUrl !== false)
 		{
-			$this->scheme = (isset($parsedUrl["scheme"])? strtolower($parsedUrl["scheme"]) : "http");
+			$this->scheme = (isset($parsedUrl["scheme"])? mb_strtolower($parsedUrl["scheme"]) : "http");
 			$this->host = (isset($parsedUrl["host"])? $parsedUrl["host"] : "");
 			if(isset($parsedUrl["port"]))
 			{

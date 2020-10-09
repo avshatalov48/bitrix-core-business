@@ -34,7 +34,7 @@ class CSelectSiteWizardStep extends CWizardStep
 
 			if ($createSite == "Y")
 			{
-				if (strlen($siteNewID) != 2)
+				if (mb_strlen($siteNewID) != 2)
 				{
 					$this->SetError(GetMessage("wiz_site_id_error"));
 					return;
@@ -61,7 +61,7 @@ class CSelectSiteWizardStep extends CWizardStep
 				$wizard->SetVar("siteCreate", "Y");
 				$wizard->SetVar("siteFolder", $siteFolder);
 			}
-			elseif (strlen($siteID) > 0)
+			elseif ($siteID <> '')
 			{
 				$db_res = CSite::GetList($by="sort", $order="desc", array("LID" => $siteID));
 				if (!($db_res && $res = $db_res->Fetch()))
@@ -217,9 +217,9 @@ class CSelectTemplateWizardStep extends CWizardStep
 		} else {
 
 			$defaultTemplateID = COption::GetOptionString("main", "wizard_template_id", "", $wizard->GetVar("siteID"));
-			if (!(strlen($defaultTemplateID) > 0 && array_key_exists($defaultTemplateID, $arTemplates)))
+			if (!($defaultTemplateID <> '' && array_key_exists($defaultTemplateID, $arTemplates)))
 			{
-				if (strlen($defaultTemplateID) > 0 && array_key_exists($defaultTemplateID, $arTemplates))
+				if ($defaultTemplateID <> '' && array_key_exists($defaultTemplateID, $arTemplates))
 					$wizard->SetDefaultVar("templateID", $defaultTemplateID);
 				else
 					$defaultTemplateID = "";
@@ -304,10 +304,10 @@ class CSelectThemeWizardStep extends CWizardStep
 		} else {
 			$defaultThemeID = COption::GetOptionString("main", "wizard_".$templateID."_theme_id", "", $wizard->GetVar("siteID"));
 
-			if (!(strlen($defaultThemeID) > 0 && array_key_exists($defaultThemeID, $arThemes)))
+			if (!($defaultThemeID <> '' && array_key_exists($defaultThemeID, $arThemes)))
 			{
 				$defaultThemeID = COption::GetOptionString("main", "wizard_".$templateID."_theme_id", "");
-				if (strlen($defaultThemeID) > 0 && array_key_exists($defaultThemeID, $arThemes))
+				if ($defaultThemeID <> '' && array_key_exists($defaultThemeID, $arThemes))
 					$wizard->SetDefaultVar($themeVarName, $defaultThemeID);
 				else
 					$defaultThemeID = "";
@@ -680,7 +680,7 @@ class CDataInstallWizardStep extends CWizardStep
 		if ($nextService == "finish")
 		{
 			$response = "window.ajaxForm.StopAjax(); window.ajaxForm.SetStatus('100'); window.ajaxForm.Post('".$nextService."', '".$nextServiceStage."','".$status."');";
-			COption::SetOptionString("main", "wizard_first" . substr($wizard->GetID(), 7)  . "_" . $wizard->GetVar("siteID"), "Y", false);
+			COption::SetOptionString("main", "wizard_first".mb_substr($wizard->GetID(), 7)  . "_" . $wizard->GetVar("siteID"), "Y", false);
 		}
 		else
 		{
@@ -746,7 +746,7 @@ class CDataInstallWizardStep extends CWizardStep
 		define("WIZARD_SITE_LOGO", intval($wizard->GetVar("siteLogo")));
 		define("WIZARD_INSTALL_DEMO_DATA", $wizard->GetVar("installDemoData") == "Y");
 		define("WIZARD_REINSTALL_DATA", false);
-		define("WIZARD_FIRST_INSTAL", COption::GetOptionString("main", "wizard_first" . substr($wizard->GetID(), 7)  . "_" . $wizard->GetVar("siteID"), false, $wizard->GetVar("siteID")));
+		define("WIZARD_FIRST_INSTAL", COption::GetOptionString("main", "wizard_first".mb_substr($wizard->GetID(), 7)  . "_" . $wizard->GetVar("siteID"), false, $wizard->GetVar("siteID")));
 
 		$dbUsers = CGroup::GetList($by="id", $order="asc", Array("ACTIVE" => "Y"));
 		while($arUser = $dbUsers->Fetch())

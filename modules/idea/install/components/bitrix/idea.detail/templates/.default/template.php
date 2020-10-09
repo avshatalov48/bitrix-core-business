@@ -1,7 +1,7 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <div class="blog-post-current" id="blog-post-<?=$arParams["ID"]?>">
 <?
-if(strlen($arResult["MESSAGE"])>0)
+if($arResult["MESSAGE"] <> '')
 {
 	?>
 	<div class="blog-textinfo blog-note-box">
@@ -11,7 +11,7 @@ if(strlen($arResult["MESSAGE"])>0)
 	</div>
 	<?
 }
-if(strlen($arResult["ERROR_MESSAGE"])>0)
+if($arResult["ERROR_MESSAGE"] <> '')
 {
 	?>
 	<div class="blog-errors blog-note-box blog-note-error">
@@ -21,7 +21,7 @@ if(strlen($arResult["ERROR_MESSAGE"])>0)
 	</div>
 	<?
 }
-if(strlen($arResult["FATAL_MESSAGE"])>0)
+if($arResult["FATAL_MESSAGE"] <> '')
 {
 	?>
 	<div class="blog-errors blog-note-box blog-note-error">
@@ -31,7 +31,7 @@ if(strlen($arResult["FATAL_MESSAGE"])>0)
 	</div>
 	<?
 }
-elseif(strlen($arResult["NOTE_MESSAGE"])>0)
+elseif($arResult["NOTE_MESSAGE"] <> '')
 {
 	?>
 	<div class="blog-textinfo blog-note-box">
@@ -87,7 +87,7 @@ elseif(!empty($arResult["Post"])>0)
 					</div>
 					<?=GetMessage("IDEA_INTRODUCED_TITLE")?> <img class="idea-user-avatar" src="<?=$arResult["AUTHOR_AVATAR"][$arResult["arUser"]["ID"]]["src"]?>" align="top">
 					<?
-					if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && array_key_exists("ALIAS", $arResult["BlogUser"]) && strlen($arResult["BlogUser"]["ALIAS"]) > 0)
+					if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && array_key_exists("ALIAS", $arResult["BlogUser"]) && $arResult["BlogUser"]["ALIAS"] <> '')
 						$arTmpUser = array(
 							"NAME" => "",
 							"LAST_NAME" => "",
@@ -95,7 +95,7 @@ elseif(!empty($arResult["Post"])>0)
 							"LOGIN" => "",
 							"NAME_LIST_FORMATTED" => $arResult["BlogUser"]["~ALIAS"],
 						);
-					elseif (strlen($arResult["urlToBlog"]) > 0 || strlen($arResult["urlToAuthor"]) > 0)
+					elseif ($arResult["urlToBlog"] <> '' || $arResult["urlToAuthor"] <> '')
 						$arTmpUser = array(
 							"NAME" => $arResult["arUser"]["~NAME"],
 							"LAST_NAME" => $arResult["arUser"]["~LAST_NAME"],
@@ -153,18 +153,18 @@ elseif(!empty($arResult["Post"])>0)
 						RemoveEventHandler("main", "system.field.view.file", $eventHandlerID);
 				endif; ?>
 
-				<?if($USER->IsAuthorized() || strLen($arResult["urlToHide"])>0 || strLen($arResult["urlToShow"])>0 || strLen($arResult["urlToEdit"])>0 || strLen($arResult["urlToDelete"])>0):?>
+				<?if($USER->IsAuthorized() || $arResult["urlToHide"] <> '' || $arResult["urlToShow"] <> '' || $arResult["urlToEdit"] <> '' || $arResult["urlToDelete"] <> ''):?>
 					<div class="idea-post-meta">
 						<div class="idea-post-meta-util">
-							<?if(strLen($arResult["urlToHide"])>0):?>
+							<?if($arResult["urlToHide"] <> ''):?>
 								<a href="javascript:void(0)" onclick="if(confirm('<?=GetMessage("BLOG_MES_HIDE_POST_CONFIRM")?>')) window.location='<?=$arResult["urlToHide"]."&".bitrix_sessid_get()?>'"><span><?=GetMessage("BLOG_MES_HIDE")?></span></a>
-							<?elseif(strLen($arResult["urlToShow"])>0):?>
+							<?elseif($arResult["urlToShow"] <> ''):?>
 								<a href="javascript:void(0)" onclick="if(confirm('<?=GetMessage("IDEA_MES_SHOW_POST_CONFIRM")?>')) window.location='<?=$arResult["urlToShow"]."&".bitrix_sessid_get()?>'"><span><?=GetMessage("IDEA_MES_SHOW")?></span></a>
 							<?endif;?>
-							<?if(strLen($arResult["urlToEdit"])>0):?>
+							<?if($arResult["urlToEdit"] <> ''):?>
 								<a href="<?=$arResult["urlToEdit"]?>"><span class="blog-post-link-caption"><?=GetMessage("BLOG_BLOG_BLOG_EDIT")?></span></a></span>
 							<?endif;?>
-							<?if(strLen($arResult["urlToDelete"])>0):?>
+							<?if($arResult["urlToDelete"] <> ''):?>
 								<a href="javascript:void(0)" onclick="if(confirm('<?=GetMessage("BLOG_MES_DELETE_POST_CONFIRM")?>')) window.location='<?=$arResult["urlToDelete"]."&".bitrix_sessid_get()?>'"><span><?=GetMessage("BLOG_BLOG_BLOG_DELETE")?></span></a>
 							<?endif;?>
 						</div>
@@ -280,7 +280,7 @@ else
 						?>
 					</div>
 				</noindex>
-				<span class="post-comment"><a href="<?=$arResult["Post"]["urlToPost"]?>#comments"><?=GetMessage("IDEA_POST_COMMENT_CNT")?>: <?=(IntVal($arResult["Post"]["NUM_COMMENTS"])-$cntOfficial);?></a></span>
+				<span class="post-comment"><a href="<?=$arResult["Post"]["urlToPost"]?>#comments"><?=GetMessage("IDEA_POST_COMMENT_CNT")?>: <?=(intval($arResult["Post"]["NUM_COMMENTS"])-$cntOfficial);?></a></span>
 				<br clear="both"/>
 			</div>
 		</div>

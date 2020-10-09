@@ -60,7 +60,7 @@ class Sender
 				'DEFAULT_EMAIL_FROM' => $fields['EMAIL'],
 				'EMAIL_TO' => $fields['EMAIL'],
 				'MESSAGE_SUBJECT' => getMessage('MAIN_MAIL_CONFIRM_MESSAGE_SUBJECT'),
-				'CONFIRM_CODE' => strtoupper($fields['OPTIONS']['confirm_code']),
+				'CONFIRM_CODE' => mb_strtoupper($fields['OPTIONS']['confirm_code']),
 			);
 
 			if (!empty($smtpConfig))
@@ -346,7 +346,7 @@ class Sender
 				{
 					$mailboxName = trim($mailbox['USERNAME']) ?: trim($mailbox['OPTIONS']['name']) ?: $userNameFormated;
 
-					$key = hash('crc32b', strtolower($mailboxName) . $mailbox['EMAIL']);
+					$key = hash('crc32b', mb_strtolower($mailboxName).$mailbox['EMAIL']);
 					$mailboxes[$userId][$key] = array(
 						'name'  => $mailboxName,
 						'email' => $mailbox['EMAIL'],
@@ -359,7 +359,7 @@ class Sender
 		$crmAddress = new Address(Main\Config\Option::get('crm', 'mail', ''));
 		if ($crmAddress->validate())
 		{
-			$key = hash('crc32b', strtolower($userNameFormated) . $crmAddress->getEmail());
+			$key = hash('crc32b', mb_strtolower($userNameFormated).$crmAddress->getEmail());
 
 			$mailboxes[$userId][$key] = array(
 				'name'  => $crmAddress->getName() ?: $userNameFormated,
@@ -383,8 +383,8 @@ class Sender
 		while ($item = $res->fetch())
 		{
 			$item['NAME']  = trim($item['NAME']) ?: $userNameFormated;
-			$item['EMAIL'] = strtolower($item['EMAIL']);
-			$key = hash('crc32b', strtolower($item['NAME']) . $item['EMAIL']);
+			$item['EMAIL'] = mb_strtolower($item['EMAIL']);
+			$key = hash('crc32b', mb_strtolower($item['NAME']).$item['EMAIL']);
 
 			if (!isset($mailboxes[$userId][$key]))
 			{

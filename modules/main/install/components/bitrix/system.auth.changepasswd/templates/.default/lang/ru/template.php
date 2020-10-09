@@ -13,4 +13,5 @@ $MESS["AUTH_NONSECURE_NOTE"]="Пароль будет отправлен в от
 $MESS["system_auth_captcha"] = "Введите символы с картинки:";
 $MESS["sys_auth_chpass_phone_number"] = "Номер телефона:";
 $MESS["sys_auth_chpass_code"] = "Проверочный код:";
+$MESS["sys_auth_changr_pass_current_pass"] = "Текущий пароль:";
 ?>

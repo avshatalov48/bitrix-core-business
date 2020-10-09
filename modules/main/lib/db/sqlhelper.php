@@ -69,7 +69,7 @@ abstract class SqlHelper
 			$quotedIdentifier = str_replace([$this->getLeftQuote(), $this->getRightQuote()], '', $identifier);
 
 			// shield [[database.]tablename.]columnname
-			if (strpos($quotedIdentifier, '.') !== false)
+			if (mb_strpos($quotedIdentifier, '.') !== false)
 			{
 				$quotedIdentifier = str_replace('.', $this->getRightQuote() . '.' . $this->getLeftQuote(), $quotedIdentifier);
 			}
@@ -533,7 +533,7 @@ abstract class SqlHelper
 	{
 		if ($length > 0)
 		{
-			$value = substr($value, 0, $length);
+			$value = mb_substr($value, 0, $length);
 		}
 
 		return strval($value);

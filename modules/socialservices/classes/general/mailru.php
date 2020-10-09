@@ -103,7 +103,7 @@ class CSocServMyMailRu extends CSocServAuth
 						if ($arPic = CFile::MakeFileArray($arMRUser['0']['pic_190'].'?name=/'.md5($arMRUser['0']['pic_190']).'.jpg'))
 							$arFields["PERSONAL_PHOTO"] = $arPic;
 					$arFields["PERSONAL_WWW"] = $arMRUser['0']['link'];
-					if(strlen(SITE_ID) > 0)
+					if(SITE_ID <> '')
 						$arFields["SITE_ID"] = SITE_ID;
 					$bSuccess = $this->AuthorizeUser($arFields);
 				}

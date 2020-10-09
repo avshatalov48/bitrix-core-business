@@ -16,12 +16,14 @@ class CDatabase extends CDatabaseMysql
 
 	function ConnectInternal()
 	{
+		global $USER;
+
 		$dbHost = $this->DBHost;
 		$dbPort = null;
-		if (($pos = strpos($dbHost, ":")) !== false)
+		if (($pos = mb_strpos($dbHost, ":")) !== false)
 		{
-			$dbPort = intval(substr($dbHost, $pos + 1));
-			$dbHost = substr($dbHost, 0, $pos);
+			$dbPort = intval(mb_substr($dbHost, $pos + 1));
+			$dbHost = mb_substr($dbHost, 0, $pos);
 		}
 
 		$persistentPrefix = (DBPersistent && !$this->bNodeConnection? "p:" : "");
@@ -31,7 +33,7 @@ class CDatabase extends CDatabaseMysql
 		if(!$this->db_Conn)
 		{
 			$error = "[".mysqli_connect_errno()."] ".mysqli_connect_error();
-			if($this->debug || (isset($_SESSION["SESS_AUTH"]["ADMIN"]) && $_SESSION["SESS_AUTH"]["ADMIN"]))
+			if($this->debug || (($USER instanceof CUser) && $USER->IsAdmin()))
 				echo "<br><font color=#ff0000>Error! mysqli_connect()</font><br>".$error."<br>";
 
 			SendError("Error! mysqli_connect()\n".$error."\n");
@@ -66,7 +68,7 @@ class CDatabase extends CDatabaseMysql
 	function ForSql($strValue, $iMaxLength = 0)
 	{
 		if ($iMaxLength > 0)
-			$strValue = substr($strValue, 0, $iMaxLength);
+			$strValue = mb_substr($strValue, 0, $iMaxLength);
 
 		if (!isset($this) || !is_object($this) || !$this->db_Conn)
 		{
@@ -84,7 +86,7 @@ class CDatabase extends CDatabaseMysql
 	function ForSqlLike($strValue, $iMaxLength = 0)
 	{
 		if ($iMaxLength > 0)
-			$strValue = substr($strValue, 0, $iMaxLength);
+			$strValue = mb_substr($strValue, 0, $iMaxLength);
 
 		if(!isset($this) || !is_object($this) || !$this->db_Conn)
 		{
@@ -239,7 +241,8 @@ class CDBResult extends CDBResultMysql
 			$this->NavPageCount++;
 
 		//page number to display. start with 1
-		$this->NavPageNomer = ($this->PAGEN < 1 || $this->PAGEN > $this->NavPageCount? ($_SESSION[$this->SESS_PAGEN] < 1 || $_SESSION[$this->SESS_PAGEN] > $this->NavPageCount? 1:$_SESSION[$this->SESS_PAGEN]):$this->PAGEN);
+		$session = \Bitrix\Main\Application::getInstance()->getSession();
+		$this->NavPageNomer = ($this->PAGEN < 1 || $this->PAGEN > $this->NavPageCount? ($session[$this->SESS_PAGEN] < 1 || $session[$this->SESS_PAGEN] > $this->NavPageCount? 1: $session[$this->SESS_PAGEN]):$this->PAGEN);
 
 		//rows to skip
 		$NavFirstRecordShow = $this->NavPageSize * ($this->NavPageNomer-1);

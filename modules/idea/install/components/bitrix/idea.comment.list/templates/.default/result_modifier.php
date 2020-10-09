@@ -28,7 +28,7 @@ if(is_array($arResult["CommentsResult"][0]))
 		}
 
 		//message status\type
-		if(strlen($arComment["urlToShow"])>0)
+		if($arComment["urlToShow"] <> '')
 			$arResult["CommentsResult"][0][$key]["COMMENT_STATUS"] = "hidden";
 		elseif($arResult["Post"]["AUTHOR_ID"] == $arComment["AUTHOR_ID"])
 			$arResult["CommentsResult"][0][$key]["COMMENT_STATUS"] = "owner";

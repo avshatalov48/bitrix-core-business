@@ -115,7 +115,7 @@ elseif ($arCurrentValues["COMMENTS_TYPE"] == "forum" && IsModuleInstalled("forum
 	{
 		do 
 		{
-			$arForum[intVal($res["ID"])] = $res["NAME"];
+			$arForum[intval($res["ID"])] = $res["NAME"];
 		}while ($res = $db_res->GetNext());
 	}
 	}

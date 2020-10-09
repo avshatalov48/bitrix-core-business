@@ -15,7 +15,7 @@ if (!is_array($requiredModules))
 }
 
 $params = isset($_REQUEST['PARAMS']) && is_array($_REQUEST['PARAMS']) ? $_REQUEST['PARAMS'] : array();
-$siteId = (is_array($params) && isset($params['SITE_ID'])) ? substr(preg_replace('/[^a-z0-9_]/i', '', $params['SITE_ID']), 0, 2) : '';
+$siteId = (is_array($params) && isset($params['SITE_ID']))? mb_substr(preg_replace('/[^a-z0-9_]/i', '', $params['SITE_ID']), 0, 2) : '';
 if($siteId !== '')
 {
 	define('SITE_ID', $siteId);
@@ -66,7 +66,7 @@ if(!function_exists('__ReportExportWriteDataToFile'))
 	}
 }
 
-if (!is_string($siteId) || strlen($siteId) <= 0)
+if (!is_string($siteId) || $siteId == '')
 {
 	__ReportStExportEndResponse(array('ERROR' => 'Site ID is not specified.'));
 }
@@ -152,7 +152,7 @@ if ($action === 'STEXPORT')
 		}*/
 	}
 
-	if (!is_string($filePath) || strlen($filePath) === 0 || !CheckDirPath($filePath))
+	if (!is_string($filePath) || $filePath == '' || !CheckDirPath($filePath))
 	{
 		if (!$isNewToken)
 		{

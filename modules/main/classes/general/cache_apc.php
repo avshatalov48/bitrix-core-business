@@ -26,17 +26,21 @@ class CPHPCacheAPC implements ICacheBackend
 
 	function clean($basedir, $initdir = false, $filename = false)
 	{
-		if(strlen($filename))
+		if($filename <> '')
 		{
 			$basedir_version = apc_fetch($this->sid.$basedir);
 			if($basedir_version === false)
+			{
 				return true;
+			}
 
 			if($initdir !== false)
 			{
 				$initdir_version = apc_fetch($basedir_version."|".$initdir);
 				if($initdir_version === false)
+				{
 					return true;
+				}
 			}
 			else
 			{
@@ -47,11 +51,13 @@ class CPHPCacheAPC implements ICacheBackend
 		}
 		else
 		{
-			if(strlen($initdir))
+			if($initdir <> '')
 			{
 				$basedir_version = apc_fetch($this->sid.$basedir);
 				if($basedir_version === false)
+				{
 					return true;
+				}
 
 				apc_delete($basedir_version."|".$initdir);
 			}
@@ -88,7 +94,7 @@ class CPHPCacheAPC implements ICacheBackend
 		}
 		else
 		{
-			$this->read = strlen($arAllVars);
+			$this->read = mb_strlen($arAllVars);
 			$arAllVars = unserialize($arAllVars);
 		}
 
@@ -121,7 +127,7 @@ class CPHPCacheAPC implements ICacheBackend
 		}
 
 		$arAllVars = serialize($arAllVars);
-		$this->written = strlen($arAllVars);
+		$this->written = mb_strlen($arAllVars);
 
 		apc_store($basedir_version."|".$initdir_version."|".$filename, $arAllVars, intval($TTL));
 	}

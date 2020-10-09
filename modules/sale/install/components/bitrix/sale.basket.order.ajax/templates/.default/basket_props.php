@@ -120,7 +120,7 @@ if (!function_exists('PrintPropsForm'))
 								"CITY_OUT_LOCATION" => "Y",
 								"LOCATION_VALUE" => $value,
 								"ORDER_PROPS_ID" => $arProperties["ID"],
-								"ONCITYCHANGE" => ($arProperties["IS_LOCATION"] == "Y" || $arProperties["IS_LOCATION4TAX"] == "Y") ? "submitForm()" : "",
+								"ONCITYCHANGE" => ($arProperties["IS_LOCATION"] == "Y" || $arProperties["IS_LOCATION4TAX"] == "Y") ? "submitForm" : "",
 								"SIZE1" => $arProperties["SIZE1"],
 							),
 							array(

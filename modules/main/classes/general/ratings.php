@@ -99,35 +99,43 @@ class CAllRatings
 		{
 			foreach ($arFilter as $key => $val)
 			{
-				if (strlen($val)<=0 || $val=="NOT_REF")
+				if ((string)$val == '' || $val=="NOT_REF")
 					continue;
-				switch(strtoupper($key))
+				switch(mb_strtoupper($key))
 				{
 					case "ID":
-						$arSqlSearch[] = GetFilterQuery("R.ID",$val,"N");
-					break;
+						$arSqlSearch[] = GetFilterQuery("R.ID", $val, "N");
+						break;
 					case "ACTIVE":
-						if (in_array($val, Array('Y','N')))
+						if(in_array($val, Array('Y', 'N')))
+						{
 							$arSqlSearch[] = "R.ACTIVE = '".$val."'";
-					break;
+						}
+						break;
 					case "AUTHORITY":
-						if (in_array($val, Array('Y','N')))
+						if(in_array($val, Array('Y', 'N')))
+						{
 							$arSqlSearch[] = "R.AUTHORITY = '".$val."'";
-					break;
+						}
+						break;
 					case "POSITION":
-						if (in_array($val, Array('Y','N')))
+						if(in_array($val, Array('Y', 'N')))
+						{
 							$arSqlSearch[] = "R.POSITION = '".$val."'";
-					break;
+						}
+						break;
 					case "CALCULATED":
-						if (in_array($val, Array('Y','N','C')))
+						if(in_array($val, Array('Y', 'N', 'C')))
+						{
 							$arSqlSearch[] = "R.CALCULATED = '".$val."'";
-					break;
+						}
+						break;
 					case "NAME":
 						$arSqlSearch[] = GetFilterQuery("R.NAME", $val);
-					break;
+						break;
 					case "ENTITY_ID":
 						$arSqlSearch[] = GetFilterQuery("R.ENTITY_ID", $val);
-					break;
+						break;
 				}
 			}
 		}
@@ -135,25 +143,49 @@ class CAllRatings
 		$sOrder = "";
 		foreach($arSort as $key=>$val)
 		{
-			$ord = (strtoupper($val) <> "ASC"? "DESC":"ASC");
-			switch (strtoupper($key))
+			$ord = (mb_strtoupper($val) <> "ASC"? "DESC":"ASC");
+			switch(mb_strtoupper($key))
 			{
-				case "ID":		$sOrder .= ", R.ID ".$ord; break;
-				case "NAME":	$sOrder .= ", R.NAME ".$ord; break;
-				case "CREATED":	$sOrder .= ", R.CREATED ".$ord; break;
-				case "LAST_MODIFIED":	$sOrder .= ", R.LAST_MODIFIED ".$ord; break;
-				case "LAST_CALCULATED":	$sOrder .= ", R.LAST_CALCULATED ".$ord; break;
-				case "ACTIVE":	$sOrder .= ", R.ACTIVE ".$ord; break;
-				case "AUTHORITY":$sOrder .= ", R.AUTHORITY ".$ord; break;
-				case "POSITION":$sOrder .= ", R.POSITION ".$ord; break;
-				case "STATUS":	$sOrder .= ", R.CALCULATED ".$ord; break;
-				case "CALCULATED":	$sOrder .= ", R.CALCULATED ".$ord; break;
-				case "CALCULATION_METHOD":	$sOrder .= ", R.CALCULATION_METHOD ".$ord; break;
-				case "ENTITY_ID":	$sOrder .= ", R.ENTITY_ID ".$ord; break;
+				case "ID":
+					$sOrder .= ", R.ID ".$ord;
+					break;
+				case "NAME":
+					$sOrder .= ", R.NAME ".$ord;
+					break;
+				case "CREATED":
+					$sOrder .= ", R.CREATED ".$ord;
+					break;
+				case "LAST_MODIFIED":
+					$sOrder .= ", R.LAST_MODIFIED ".$ord;
+					break;
+				case "LAST_CALCULATED":
+					$sOrder .= ", R.LAST_CALCULATED ".$ord;
+					break;
+				case "ACTIVE":
+					$sOrder .= ", R.ACTIVE ".$ord;
+					break;
+				case "AUTHORITY":
+					$sOrder .= ", R.AUTHORITY ".$ord;
+					break;
+				case "POSITION":
+					$sOrder .= ", R.POSITION ".$ord;
+					break;
+				case "STATUS":
+					$sOrder .= ", R.CALCULATED ".$ord;
+					break;
+				case "CALCULATED":
+					$sOrder .= ", R.CALCULATED ".$ord;
+					break;
+				case "CALCULATION_METHOD":
+					$sOrder .= ", R.CALCULATION_METHOD ".$ord;
+					break;
+				case "ENTITY_ID":
+					$sOrder .= ", R.ENTITY_ID ".$ord;
+					break;
 			}
 		}
 
-		if (strlen($sOrder)<=0)
+		if ($sOrder == '')
 			$sOrder = "R.ID DESC";
 
 		$strSqlOrder = " ORDER BY ".TrimEx($sOrder,",");
@@ -348,7 +380,7 @@ class CAllRatings
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
 		while($arRes = $res->Fetch())
 		{
-			if(CModule::IncludeModule(strtolower($arRes['MODULE_ID'])))
+			if(CModule::IncludeModule(mb_strtolower($arRes['MODULE_ID'])))
 			{
 				$arRes['CONFIG'] = unserialize($arRes['CONFIG']);
 				// If the type is automatic calculation of parameters * global vote weight
@@ -358,7 +390,7 @@ class CAllRatings
 					$voteWeight = COption::GetOptionString("main", "rating_vote_weight", 1);
 					$arRes['CONFIG']['COEFFICIENT'] = $arRes['CONFIG']['COEFFICIENT']*$voteWeight;
 				}
-				if (strlen($arRes['EXCEPTION_METHOD']) > 0)
+				if ($arRes['EXCEPTION_METHOD'] <> '')
 				{
 					if (method_exists($arRes['CLASS'], $arRes['EXCEPTION_METHOD']))
 					{
@@ -509,7 +541,7 @@ class CAllRatings
 		$entityId = intval($entityId);
 		$user_id = intval($user_id);
 
-		if (strlen($entityTypeId) <= 0 || $entityId <= 0)
+		if ($entityTypeId == '' || $entityId <= 0)
 			return $arResult;
 
 		if ($user_id == 0)
@@ -648,7 +680,7 @@ class CAllRatings
 	{
 		global $DB;
 		$err_mess = (CRatings::err_mess())."<br>Function: GetRatingResult<br>Line: ";
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		static $cacheRatingResult = array();
 		if(!array_key_exists($ID, $cacheRatingResult))
@@ -729,16 +761,20 @@ class CAllRatings
 	{
 		global $DB, $CACHE_MANAGER;
 
-		if (isset($_SESSION['RATING_VOTE_COUNT']) && $arParam['ENTITY_TYPE_ID'] == 'USER')
+		if ($arParam['ENTITY_TYPE_ID'] == 'USER' && isset(\Bitrix\Main\Application::getInstance()->getSession()['RATING_VOTE_COUNT']))
 		{
-			if ($_SESSION['RATING_VOTE_COUNT'] >= $_SESSION['RATING_USER_VOTE_COUNT'])
+			if (\Bitrix\Main\Application::getInstance()->getSession()['RATING_VOTE_COUNT'] >= \Bitrix\Main\Application::getInstance()->getSession()['RATING_USER_VOTE_COUNT'])
+			{
 				return false;
+			}
 			else
-				$_SESSION['RATING_VOTE_COUNT']++;
+			{
+				\Bitrix\Main\Application::getInstance()->getSession()['RATING_VOTE_COUNT']++;
+			}
 		}
 
-		$arParam['ENTITY_TYPE_ID'] = substr($arParam['ENTITY_TYPE_ID'], 0, 50);
-		$arParam['REACTION'] = (strlen($arParam['REACTION']) > 0 ? $arParam['REACTION'] : self::REACTION_DEFAULT);
+		$arParam['ENTITY_TYPE_ID'] = mb_substr($arParam['ENTITY_TYPE_ID'], 0, 50);
+		$arParam['REACTION'] = ($arParam['REACTION'] <> '' ? $arParam['REACTION'] : self::REACTION_DEFAULT);
 
 		CRatings::CancelRatingVote($arParam);
 
@@ -787,7 +823,7 @@ class CAllRatings
 		{
 			$result = ExecuteModuleEventEx($arEvent, array($arParam));
 			if ($result !== false)
-				$arParam['OWNER_ID'] = IntVal($result);
+				$arParam['OWNER_ID'] = intval($result);
 		}
 
 		$rowAffected = $DB->Update("b_rating_voting", $arFields, "WHERE ENTITY_TYPE_ID='".$DB->ForSql($arParam['ENTITY_TYPE_ID'])."' AND ENTITY_ID='".intval($arParam['ENTITY_ID'])."'" , $err_mess.__LINE__);
@@ -912,8 +948,8 @@ class CAllRatings
 	{
 		global $DB, $CACHE_MANAGER;
 
-		$arParam['ENTITY_TYPE_ID'] = substr($arParam['ENTITY_TYPE_ID'], 0, 50);
-		$arParam['REACTION'] = (strlen($arParam['REACTION']) > 0 ? $arParam['REACTION'] : self::REACTION_DEFAULT);
+		$arParam['ENTITY_TYPE_ID'] = mb_substr($arParam['ENTITY_TYPE_ID'], 0, 50);
+		$arParam['REACTION'] = ($arParam['REACTION'] <> '' ? $arParam['REACTION'] : self::REACTION_DEFAULT);
 		$userData = \CAllRatings::getUserData(intval($arParam['USER_ID']), floatval($arParam['VALUE']));
 
 		$err_mess = (CRatings::err_mess())."<br>Function: ChangeRatingVote<br>Line: ";
@@ -943,11 +979,11 @@ class CAllRatings
 			{
 				$result = ExecuteModuleEventEx($arEvent, array($arParam));
 				if ($result !== false)
-					$arParam['OWNER_ID'] = IntVal($result);
+					$arParam['OWNER_ID'] = intval($result);
 			}
 
 			$votePlus = $arVote['VOTE_VALUE'] >= 0 ? true : false;
-			$arVote['REACTION_OLD'] = (strlen($arVote['REACTION']) > 0 ? $arVote['REACTION'] : self::REACTION_DEFAULT);
+			$arVote['REACTION_OLD'] = ($arVote['REACTION'] <> '' ? $arVote['REACTION'] : self::REACTION_DEFAULT);
 
 			if (!$votePlus)
 			{
@@ -1073,7 +1109,7 @@ class CAllRatings
 		if ($arVote = $res->Fetch())
 		{
 			$votePlus = $arVote['VOTE_VALUE'] >= 0 ? true : false;
-			$arVote['REACTION'] = (strlen($arVote['REACTION']) > 0 ? $arVote['REACTION'] : self::REACTION_DEFAULT);
+			$arVote['REACTION'] = ($arVote['REACTION'] <> '' ? $arVote['REACTION'] : self::REACTION_DEFAULT);
 
 			if ($votePlus)
 			{
@@ -1196,7 +1232,7 @@ class CAllRatings
 	{
 		global $DB;
 		$err_mess = (CRatings::err_mess())."<br>Function: GetRatingUserProp<br>Line: ";
-		$ratingId = IntVal($ratingId);
+		$ratingId = intval($ratingId);
 
 		static $cache = array();
 		if(!array_key_exists($ratingId, $cache))
@@ -1259,8 +1295,8 @@ class CAllRatings
 		global $DB, $CACHE_MANAGER;
 		$err_mess = (CRatings::err_mess())."<br>Function: GetRatingUserPropEx<br>Line: ";
 
-		$ratingId = IntVal($ratingId);
-		$entityId = IntVal($entityId);
+		$ratingId = intval($ratingId);
+		$entityId = intval($entityId);
 
 		$arDefaultResult = array(
 			"RATING_ID" => $ratingId,
@@ -1329,29 +1365,31 @@ class CAllRatings
 		{
 			foreach ($arFilter as $key => $val)
 			{
-				if (strlen($val)<=0 || $val=="NOT_REF")
+				if ($val == '' || $val=="NOT_REF")
 					continue;
-				switch(strtoupper($key))
+				switch(mb_strtoupper($key))
 				{
 					case "ID":
-						$arSqlSearch[] = GetFilterQuery("RW.ID",$val,"N");
-					break;
+						$arSqlSearch[] = GetFilterQuery("RW.ID", $val, "N");
+						break;
 					case "RATING_FROM":
-						$arSqlSearch[] = GetFilterQuery("RW.RATING_FROM",$val,"N");
-					break;
+						$arSqlSearch[] = GetFilterQuery("RW.RATING_FROM", $val, "N");
+						break;
 					case "RATING_TO":
-						$arSqlSearch[] = GetFilterQuery("RW.RATING_TO",$val,"N");
-					break;
+						$arSqlSearch[] = GetFilterQuery("RW.RATING_TO", $val, "N");
+						break;
 					case "WEIGHT":
-						$arSqlSearch[] = GetFilterQuery("RW.WEIGHT",$val,"N");
-					break;
+						$arSqlSearch[] = GetFilterQuery("RW.WEIGHT", $val, "N");
+						break;
 					case "COUNT":
-						$arSqlSearch[] = GetFilterQuery("RW.COUNT",$val,"N");
-					break;
+						$arSqlSearch[] = GetFilterQuery("RW.COUNT", $val, "N");
+						break;
 					case "MAX":
-						if (in_array($val, Array('Y','N')))
+						if(in_array($val, Array('Y', 'N')))
+						{
 							$arSqlSearch[] = "R.MAX = '".$val."'";
-					break;
+						}
+						break;
 				}
 			}
 		}
@@ -1359,18 +1397,28 @@ class CAllRatings
 		$sOrder = "";
 		foreach($arSort as $key=>$val)
 		{
-			$ord = (strtoupper($val) <> "ASC"? "DESC":"ASC");
-			switch (strtoupper($key))
+			$ord = (mb_strtoupper($val) <> "ASC"? "DESC":"ASC");
+			switch(mb_strtoupper($key))
 			{
-				case "ID":		$sOrder .= ", RW.ID ".$ord; break;
-				case "RATING_FROM":	$sOrder .= ", RW.RATING_FROM ".$ord; break;
-				case "RATING_TO":		$sOrder .= ", RW.RATING_TO ".$ord; break;
-				case "WEIGHT":	$sOrder .= ", RW.WEIGHT ".$ord; break;
-				case "COUNT":	$sOrder .= ", RW.COUNT ".$ord; break;
+				case "ID":
+					$sOrder .= ", RW.ID ".$ord;
+					break;
+				case "RATING_FROM":
+					$sOrder .= ", RW.RATING_FROM ".$ord;
+					break;
+				case "RATING_TO":
+					$sOrder .= ", RW.RATING_TO ".$ord;
+					break;
+				case "WEIGHT":
+					$sOrder .= ", RW.WEIGHT ".$ord;
+					break;
+				case "COUNT":
+					$sOrder .= ", RW.COUNT ".$ord;
+					break;
 			}
 		}
 
-		if (strlen($sOrder)<=0)
+		if ($sOrder == '')
 			$sOrder = "RW.ID DESC";
 
 		$strSqlOrder = " ORDER BY ".TrimEx($sOrder,",");
@@ -1536,6 +1584,11 @@ class CAllRatings
 		global $DB;
 		$err_mess = (CRatings::err_mess())."<br>Function: OnAfterUserRegister<br>Line: ";
 
+		if (in_array($arFields['EXTERNAL_AUTH_ID'], \Bitrix\Main\UserTable::getExternalUserTypes(), true))
+		{
+			return false;
+		}
+
 		$userId = isset($arFields["USER_ID"]) ? intval($arFields["USER_ID"]): (isset($arFields["ID"]) ? intval($arFields["ID"]): 0);
 		if($userId>0)
 		{
@@ -1700,7 +1753,7 @@ class CAllRatings
 
 		static $cache = array();
 
-		$bplus = (strtoupper($arParam['LIST_TYPE']) != 'MINUS');
+		$bplus = (mb_strtoupper($arParam['LIST_TYPE']) != 'MINUS');
 		$key = $arParam['ENTITY_TYPE_ID'].'_'.intval($arParam['ENTITY_ID']).'_'.($bplus ? '1' : '0');
 
 		if (
@@ -1756,7 +1809,7 @@ class CAllRatings
 		$cnt = $reactionResult['items_all'];
 		$cntReactions = $reactionResult['reactions'];
 
-		$bplus = (strtoupper($arParam['LIST_TYPE']) != 'MINUS');
+		$bplus = (mb_strtoupper($arParam['LIST_TYPE']) != 'MINUS');
 
 		$bIntranetInstalled = IsModuleInstalled("intranet");
 
@@ -2233,7 +2286,7 @@ class CAllRatings
 
 		$entityTypeId = (
 			isset($params['ENTITY_TYPE_ID'])
-			&& strlen($params['ENTITY_TYPE_ID']) > 0
+			&& $params['ENTITY_TYPE_ID'] <> ''
 				? $params['ENTITY_TYPE_ID']
 				: ''
 		);
@@ -2244,7 +2297,7 @@ class CAllRatings
 				: 0
 		);
 		if (
-			strlen($entityTypeId) <= 0
+			$entityTypeId == ''
 			|| $entityId <= 0
 		)
 		{

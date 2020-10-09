@@ -58,9 +58,9 @@ class MainMailConfirmAjax
 		$isAdmin = Main\Loader::includeModule('bitrix24') ? \CBitrix24::isPortalAdmin($USER->getId()) : $USER->isAdmin();
 
 		$name   = trim($_REQUEST['name']);
-		$email  = strtolower(trim($_REQUEST['email']));
+		$email = mb_strtolower(trim($_REQUEST['email']));
 		$smtp   = $_REQUEST['smtp'];
-		$code   = strtolower(trim($_REQUEST['code']));
+		$code = mb_strtolower(trim($_REQUEST['code']));
 		$public = $isAdmin && $_REQUEST['public'] == 'Y';
 
 		if (!check_email($email, true))
@@ -78,8 +78,8 @@ class MainMailConfirmAjax
 			}
 
 			$smtp = array(
-				'server'   => strtolower(trim($smtp['server'])),
-				'port'     => strtolower(trim($smtp['port'])),
+				'server'   => mb_strtolower(trim($smtp['server'])),
+				'port'     => mb_strtolower(trim($smtp['port'])),
 				'protocol' => 'Y' == $smtp['ssl'] ? 'smtps' : 'smtp',
 				'login'    => $smtp['login'],
 				'password' => $smtp['password'],
@@ -163,7 +163,7 @@ class MainMailConfirmAjax
 						$pending[$item['EMAIL']] = array();
 					}
 
-					$pending[$item['EMAIL']][$item['ID']] = strtolower($item['OPTIONS']['confirm_code']);
+					$pending[$item['EMAIL']][$item['ID']] = mb_strtolower($item['OPTIONS']['confirm_code']);
 				}
 			}
 		}

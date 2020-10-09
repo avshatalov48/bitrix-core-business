@@ -13,7 +13,7 @@ class CSqlUtil
 		}
 
 		global $DB;
-		$isOracle = strtoupper($DB->type) === 'ORACLE';
+		$isOracle = $DB->type === 'ORACLE';
 
 		$sql = $isOracle
 			? "SELECT COUNT(1) AS QTY FROM {$tableName}"
@@ -49,82 +49,82 @@ class CSqlUtil
 	public static function GetFilterOperation($key)
 	{
 		$strNegative = "N";
-		if (substr($key, 0, 1)=="!")
+		if (mb_substr($key, 0, 1) == "!")
 		{
-			$key = substr($key, 1);
+			$key = mb_substr($key, 1);
 			$strNegative = "Y";
 		}
 
 		$strOrNull = "N";
-		if (substr($key, 0, 1)=="+")
+		if (mb_substr($key, 0, 1) == "+")
 		{
-			$key = substr($key, 1);
+			$key = mb_substr($key, 1);
 			$strOrNull = "Y";
 		}
 
-		if (substr($key, 0, 2)==">=")
+		if (mb_substr($key, 0, 2) == ">=")
 		{
-			$key = substr($key, 2);
+			$key = mb_substr($key, 2);
 			$strOperation = ">=";
 		}
-		elseif (substr($key, 0, 1)==">")
+		elseif (mb_substr($key, 0, 1) == ">")
 		{
-			$key = substr($key, 1);
+			$key = mb_substr($key, 1);
 			$strOperation = ">";
 		}
-		elseif (substr($key, 0, 2)=="<=")
+		elseif (mb_substr($key, 0, 2) == "<=")
 		{
-			$key = substr($key, 2);
+			$key = mb_substr($key, 2);
 			$strOperation = "<=";
 		}
-		elseif (substr($key, 0, 1)=="<")
+		elseif (mb_substr($key, 0, 1) == "<")
 		{
-			$key = substr($key, 1);
+			$key = mb_substr($key, 1);
 			$strOperation = "<";
 		}
-		elseif (substr($key, 0, 1)=="@")
+		elseif (mb_substr($key, 0, 1) == "@")
 		{
-			$key = substr($key, 1);
+			$key = mb_substr($key, 1);
 			$strOperation = "IN";
 		}
-		elseif (substr($key, 0, 2)=="=%")
+		elseif (mb_substr($key, 0, 2) == "=%")
 		{
-			$key = substr($key, 2);
+			$key = mb_substr($key, 2);
 			$strOperation = "RLIKE";
 		}
-		elseif (substr($key, 0, 2)=="%=")
+		elseif (mb_substr($key, 0, 2) == "%=")
 		{
-			$key = substr($key, 2);
+			$key = mb_substr($key, 2);
 			$strOperation = "LLIKE";
 		}
-		elseif (substr($key, 0, 1)=="%")
+		elseif (mb_substr($key, 0, 1) == "%")
 		{
-			$key = substr($key, 1);
+			$key = mb_substr($key, 1);
 			$strOperation = "LIKE";
 		}
-		elseif (substr($key, 0, 1)=="?")
+		elseif (mb_substr($key, 0, 1) == "?")
 		{
-			$key = substr($key, 1);
+			$key = mb_substr($key, 1);
 			$strOperation = "QUERY";
 		}
-		elseif (substr($key, 0, 2)=="*=")
+		elseif (mb_substr($key, 0, 2) == "*=")
 		{
-			$key = substr($key, 2);
+			$key = mb_substr($key, 2);
 			$strOperation = "FTI";
 		}
-		elseif (substr($key, 0, 2)=="*%")
+		elseif (mb_substr($key, 0, 2) == "*%")
 		{
-			$key = substr($key, 2);
+			$key = mb_substr($key, 2);
 			$strOperation = "FTL";
 		}
-		elseif (substr($key, 0, 1)=="*")
+		elseif (mb_substr($key, 0, 1) == "*")
 		{
-			$key = substr($key, 1);
+			$key = mb_substr($key, 1);
 			$strOperation = "FT";
 		}
-		elseif (substr($key, 0, 1)=="=")
+		elseif (mb_substr($key, 0, 1) == "=")
 		{
-			$key = substr($key, 1);
+			$key = mb_substr($key, 1);
 			$strOperation = "=";
 		}
 		else
@@ -139,20 +139,20 @@ class CSqlUtil
 	{
 		global $DB;
 
-		if (strlen($strSqlSelect) > 0)
+		if ($strSqlSelect <> '')
 			$strSqlSelect .= ", ";
 
 		// ORACLE AND MSSQL require datetime/date field in select list if it present in order list
 		if ($arField["TYPE"] == "datetime")
 		{
-			if ((strtoupper($DB->type)=="ORACLE" || strtoupper($DB->type)=="MSSQL") && (array_key_exists($fieldKey, $arOrder)))
+			if (($DB->type == "ORACLE" || $DB->type == "MSSQL") && (array_key_exists($fieldKey, $arOrder)))
 				$strSqlSelect .= $arField["FIELD"]." as ".$fieldKey."_X1, ";
 
 			$strSqlSelect .= $DB->DateToCharFunction($arField["FIELD"], "FULL")." as ".$fieldKey;
 		}
 		elseif ($arField["TYPE"] == "date")
 		{
-			if ((strtoupper($DB->type)=="ORACLE" || strtoupper($DB->type)=="MSSQL") && (array_key_exists($fieldKey, $arOrder)))
+			if (($DB->type == "ORACLE" || $DB->type == "MSSQL") && (array_key_exists($fieldKey, $arOrder)))
 				$strSqlSelect .= $arField["FIELD"]." as ".$fieldKey."_X1, ";
 
 			$strSqlSelect .= $DB->DateToCharFunction($arField["FIELD"], "SHORT")." as ".$fieldKey;
@@ -164,10 +164,10 @@ class CSqlUtil
 	private static function AddToFrom(&$arField, &$arJoined, &$strSqlFrom)
 	{
 		if (isset($arField["FROM"])
-			&& strlen($arField["FROM"]) > 0
+			&& $arField["FROM"] <> ''
 			&& !in_array($arField["FROM"], $arJoined))
 		{
-			if (strlen($strSqlFrom) > 0)
+			if ($strSqlFrom <> '')
 				$strSqlFrom .= " ";
 			$strSqlFrom .= $arField["FROM"];
 			$arJoined[] = $arField["FROM"];
@@ -221,19 +221,19 @@ class CSqlUtil
 			$arSelectFields = $arGroupBy;
 			foreach ($arGroupBy as $key => $val)
 			{
-				$val = strtoupper($val);
-				$key = strtoupper($key);
+				$val = mb_strtoupper($val);
+				$key = mb_strtoupper($key);
 				if (array_key_exists($val, $arFields) && !in_array($key, $arGroupByFunct))
 				{
-					if (strlen($strSqlGroupBy) > 0)
+					if ($strSqlGroupBy <> '')
 						$strSqlGroupBy .= ", ";
 					$strSqlGroupBy .= $arFields[$val]["FIELD"];
 
 					if (isset($arFields[$val]["FROM"])
-						&& strlen($arFields[$val]["FROM"]) > 0
+						&& $arFields[$val]["FROM"] <> ''
 						&& !in_array($arFields[$val]["FROM"], $arAlreadyJoined))
 					{
-						if (strlen($strSqlFrom) > 0)
+						if ($strSqlFrom <> '')
 							$strSqlFrom .= " ";
 						$strSqlFrom .= $arFields[$val]["FROM"];
 						$arAlreadyJoined[] = $arFields[$val]["FROM"];
@@ -252,7 +252,7 @@ class CSqlUtil
 		}
 		else
 		{
-			if (isset($arSelectFields) && !is_array($arSelectFields) && is_string($arSelectFields) && strlen($arSelectFields)>0 && array_key_exists($arSelectFields, $arFields))
+			if (isset($arSelectFields) && !is_array($arSelectFields) && is_string($arSelectFields) && $arSelectFields <> '' && array_key_exists($arSelectFields, $arFields))
 				$arSelectFields = array($arSelectFields);
 
 			if (!isset($arSelectFields)
@@ -270,8 +270,8 @@ class CSqlUtil
 						self::PrepareDefaultFields($arFields, $arOrder, $arAlreadyJoined, $strSqlSelect, $strSqlFrom);
 					}
 
-					$val = strtoupper($val);
-					$key = strtoupper($key);
+					$val = mb_strtoupper($val);
+					$key = mb_strtoupper($key);
 
 					if (!array_key_exists($val, $arFields))
 					{
@@ -280,7 +280,7 @@ class CSqlUtil
 
 					if (in_array($key, $arGroupByFunct))
 					{
-						if (strlen($strSqlSelect) > 0)
+						if ($strSqlSelect <> '')
 							$strSqlSelect .= ", ";
 
 						$strSqlSelect .= $key."(".$arFields[$val]["FIELD"].") as ".$val;
@@ -299,7 +299,7 @@ class CSqlUtil
 			}
 			elseif(!isset($arOptions['ENABLE_GROUPING_COUNT']) || $arOptions['ENABLE_GROUPING_COUNT'] === true)
 			{
-				if (strlen($strSqlSelect) > 0)
+				if ($strSqlSelect <> '')
 					$strSqlSelect .= ", ";
 				$strSqlSelect .= "COUNT(%%_DISTINCT_%% ".$arFields[$arFieldsKeys[0]]["FIELD"].") as CNT";
 			}
@@ -338,12 +338,12 @@ class CSqlUtil
 
 		// ORDER BY -->
 		$arSqlOrder = array();
-		$dbType = strtoupper($DB->type);
+		$dbType = $DB->type;
 		$nullsLast = isset($arOptions['NULLS_LAST']) ? (bool)$arOptions['NULLS_LAST'] : false;
 		foreach ($arOrder as $by => $order)
 		{
-			$by = strtoupper($by);
-			$order = strtoupper($order);
+			$by = mb_strtoupper($by);
+			$order = mb_strtoupper($order);
 
 			if ($order != "ASC")
 				$order = "DESC";
@@ -392,10 +392,10 @@ class CSqlUtil
 				}
 
 				if (isset($arFields[$by]["FROM"])
-					&& strlen($arFields[$by]["FROM"]) > 0
+					&& $arFields[$by]["FROM"] <> ''
 					&& !in_array($arFields[$by]["FROM"], $arAlreadyJoined))
 				{
-					if (strlen($strSqlFrom) > 0)
+					if ($strSqlFrom <> '')
 						$strSqlFrom .= " ";
 					$strSqlFrom .= $arFields[$by]["FROM"];
 					$arAlreadyJoined[] = $arFields[$by]["FROM"];
@@ -408,7 +408,7 @@ class CSqlUtil
 		$sqlOrderQty = count($arSqlOrder);
 		for ($i = 0; $i < $sqlOrderQty; $i++)
 		{
-			if (strlen($strSqlOrderBy) > 0)
+			if ($strSqlOrderBy <> '')
 				$strSqlOrderBy .= ", ";
 
 			$strSqlOrderBy .= $arSqlOrder[$i];
@@ -443,7 +443,7 @@ class CSqlUtil
 				$vals = array($vals);
 
 			$filterKey = $filter_keys[$i];
-			if(strpos($filterKey, '__INNER_FILTER') === 0)
+			if(mb_strpos($filterKey, '__INNER_FILTER') === 0)
 			{
 				$innerFilterSql = self::PrepareWhere($arFields, $vals, $arJoins);
 				if(is_string($innerFilterSql) && $innerFilterSql !== '')
@@ -567,7 +567,7 @@ class CSqlUtil
 
 								if ($fieldType === "int")
 								{
-									if ((intval($val) === 0) && (strpos($strOperation, "=") !== false))
+									if ((intval($val) === 0) && (mb_strpos($strOperation, "=") !== false))
 										$arSqlSearch_tmp[] = "(".$arFields[$key]["FIELD"]." IS ".(($strNegative == "Y") ? "NOT " : "")."NULL) ".(($strNegative == "Y") ? "AND" : "OR")." ".(($strNegative == "Y") ? "NOT " : "")."(".$arFields[$key]["FIELD"]." ".$strOperation." 0)";
 									else
 									{
@@ -578,7 +578,7 @@ class CSqlUtil
 								{
 									$val = str_replace(",", ".", $val);
 
-									if ((doubleval($val) === 0) && (strpos($strOperation, "=") !== false))
+									if ((doubleval($val) === 0) && (mb_strpos($strOperation, "=") !== false))
 										$arSqlSearch_tmp[] = "(".$arFields[$key]["FIELD"]." IS ".(($strNegative == "Y") ? "NOT " : "")."NULL) ".(($strNegative == "Y") ? "AND" : "OR")." ".(($strNegative == "Y") ? "NOT " : "")."(".$arFields[$key]["FIELD"]." ".$strOperation." 0)";
 									else
 										$arSqlSearch_tmp[] = (($strNegative == "Y") ? " ".$arFields[$key]["FIELD"]." IS NULL OR NOT " : "")."(".$arFields[$key]["FIELD"]." ".$strOperation." ".DoubleVal($val)." )";
@@ -591,7 +591,7 @@ class CSqlUtil
 									}
 									else
 									{
-										if ((strlen($val) === 0) && (strpos($strOperation, "=") !== false))
+										if (($val == '') && (mb_strpos($strOperation, "=") !== false))
 											$arSqlSearch_tmp[] = "(".$fieldName." IS ".(($strNegative == "Y") ? "NOT " : "")."NULL) ".(($strNegative == "Y") ? "AND NOT" : "OR")." (".$DB->Length($fieldName)." <= 0) ".(($strNegative == "Y") ? "AND NOT" : "OR")." (".$fieldName." ".$strOperation." '".$DB->ForSql($val)."' )";
 										else
 										{
@@ -599,7 +599,7 @@ class CSqlUtil
 											{
 												if(is_array($val))
 													$arSqlSearch_tmp[] = "(".$fieldName." LIKE '%".implode("%' ESCAPE '!' OR ".$fieldName." LIKE '%", self::ForLike($val))."%' ESCAPE '!')";
-												elseif(strlen($val)<=0)
+												elseif($val == '')
 													$arSqlSearch_tmp[] = $fieldName;
 												else
 													$arSqlSearch_tmp[] = $fieldName." LIKE '%".self::ForLike($val)."%' ESCAPE '!'";
@@ -609,7 +609,7 @@ class CSqlUtil
 											{
 												if(is_array($val))
 													$arSqlSearch_tmp[] = "(".$fieldName." LIKE '".implode("' OR ". $fieldName." LIKE '", $DB->ForSql($val))."')";
-												elseif(strlen($val)<=0)
+												elseif($val == '')
 													$arSqlSearch_tmp[] = $fieldName;
 												else
 													$arSqlSearch_tmp[] = $fieldName." LIKE '".$DB->ForSql($val)."'";
@@ -645,9 +645,9 @@ class CSqlUtil
 										$strOperation = '=';
 									}
 
-									if (strlen($val) <= 0)
+									if ($val == '')
 										$arSqlSearch_tmp[] = ($strNegative=="Y"?"NOT":"")."(".$arFields[$key]["FIELD"]." IS NULL)";
-									elseif (strtoupper($val) === "NOW")
+									elseif (mb_strtoupper($val) === "NOW")
 										$arSqlSearch_tmp[] = ($strNegative=="Y"?" ".$arFields[$key]["FIELD"]." IS NULL OR NOT ":"")."(".$arFields[$key]["FIELD"]." ".$strOperation." ".$DB->GetNowFunction().")";
 									else
 										$arSqlSearch_tmp[] = ($strNegative=="Y"?" ".$arFields[$key]["FIELD"]." IS NULL OR NOT ":"")."(".$arFields[$key]["FIELD"]." ".$strOperation." ".$DB->CharToDateFunction($DB->ForSql($val), "FULL").")";
@@ -659,7 +659,7 @@ class CSqlUtil
 										$strOperation = '=';
 									}
 
-									if (strlen($val) <= 0)
+									if ($val == '')
 										$arSqlSearch_tmp[] = ($strNegative=="Y"?"NOT":"")."(".$arFields[$key]["FIELD"]." IS NULL)";
 									else
 										$arSqlSearch_tmp[] = ($strNegative=="Y"?" ".$arFields[$key]["FIELD"]." IS NULL OR NOT ":"")."(".$arFields[$key]["FIELD"]." ".$strOperation." ".$DB->CharToDateFunction($DB->ForSql($val), "SHORT").")";
@@ -670,7 +670,7 @@ class CSqlUtil
 				}
 
 				if (isset($arFields[$key]["FROM"])
-					&& strlen($arFields[$key]["FROM"]) > 0
+					&& $arFields[$key]["FROM"] <> ''
 					&& !in_array($arFields[$key]["FROM"], $arJoins))
 				{
 					$arJoins[] = $arFields[$key]["FROM"];
@@ -686,19 +686,19 @@ class CSqlUtil
 				}
 				if ($strOrNull == "Y")
 				{
-					if (strlen($strSqlSearch_tmp) > 0)
+					if ($strSqlSearch_tmp <> '')
 						$strSqlSearch_tmp .= ($strNegative=="Y" ? " AND " : " OR ");
 					$strSqlSearch_tmp .= "(".$arFields[$key]["FIELD"]." IS ".($strNegative=="Y" ? "NOT " : "")."NULL)";
 
 					if ($arFields[$key]["TYPE"] == "int" || $arFields[$key]["TYPE"] == "double")
 					{
-						if (strlen($strSqlSearch_tmp) > 0)
+						if ($strSqlSearch_tmp <> '')
 							$strSqlSearch_tmp .= ($strNegative=="Y" ? " AND " : " OR ");
 						$strSqlSearch_tmp .= "(".$arFields[$key]["FIELD"]." ".($strNegative=="Y" ? "<>" : "=")." 0)";
 					}
 					elseif ($arFields[$key]["TYPE"] == "string" || $arFields[$key]["TYPE"] == "char")
 					{
-						if (strlen($strSqlSearch_tmp) > 0)
+						if ($strSqlSearch_tmp <> '')
 							$strSqlSearch_tmp .= ($strNegative=="Y" ? " AND " : " OR ");
 						$strSqlSearch_tmp .= "(".$arFields[$key]["FIELD"]." ".($strNegative=="Y" ? "<>" : "=")." '')";
 					}
@@ -714,7 +714,7 @@ class CSqlUtil
 		$logic = 'AND';
 		if(isset($arFilter['LOGIC']) && $arFilter['LOGIC'] !== '')
 		{
-			$logic = strtoupper($arFilter['LOGIC']);
+			$logic = mb_strtoupper($arFilter['LOGIC']);
 			if($logic !== 'AND' && $logic !== 'OR')
 			{
 				$logic = 'AND';
@@ -805,7 +805,7 @@ class CSqlUtil
 			$dbType = 'MYSQL';
 		}
 
-		$dbType = strtoupper($dbType);
+		$dbType = mb_strtoupper($dbType);
 
 		if($dbType === 'MYSQL')
 		{
@@ -813,9 +813,9 @@ class CSqlUtil
 		}
 		elseif($dbType === 'MSSQL')
 		{
-			if(substr($sql, 0, 7) === 'SELECT ')
+			if(mb_substr($sql, 0, 7) === 'SELECT ')
 			{
-				$sql = 'SELECT TOP '.$top.substr($sql, 6);
+				$sql = 'SELECT TOP '.$top.mb_substr($sql, 6);
 			}
 		}
 		elseif($dbType === 'ORACLE')

@@ -109,9 +109,9 @@ class CCaptcha
 
 		$strChars = COption::GetOptionString("main", "CAPTCHA_letters", "ABCDEFGHJKLMNPQRSTWXYZ23456789");
 		$arChars = array();
-		for($i = 0, $n = strlen($strChars); $i < $n; $i++)
+		for($i = 0, $n = mb_strlen($strChars); $i < $n; $i++)
 		{
-			$arChars[] = substr($strChars, $i, 1);
+			$arChars[] = mb_substr($strChars, $i, 1);
 		}
 		$this->SetCodeChars($arChars);
 	}
@@ -119,8 +119,8 @@ class CCaptcha
 	/* SET */
 	function SetImageSize($width, $height)
 	{
-		$width = IntVal($width);
-		$height = IntVal($height);
+		$width = intval($width);
+		$height = intval($height);
 
 		if ($width > 0)
 			$this->imageWidth = $width;
@@ -131,7 +131,7 @@ class CCaptcha
 
 	function SetCodeLength($length)
 	{
-		$length = IntVal($length);
+		$length = intval($length);
 
 		if ($length > 0)
 			$this->codeLength = $length;
@@ -139,11 +139,11 @@ class CCaptcha
 
 	function SetTTFFontsPath($ttfFilesPath)
 	{
-		if (strlen($ttfFilesPath) > 0)
+		if ($ttfFilesPath <> '')
 		{
 			$filename = trim(str_replace("\\", "/", trim($ttfFilesPath)), "/");
 			$FILE_NAME = rel2abs($_SERVER["DOCUMENT_ROOT"], "/".$filename);
-			if(strlen($FILE_NAME) > 1 && is_dir($_SERVER["DOCUMENT_ROOT"].$FILE_NAME))
+			if(mb_strlen($FILE_NAME) > 1 && is_dir($_SERVER["DOCUMENT_ROOT"].$FILE_NAME))
 				$this->ttfFilesPath = $FILE_NAME;
 		}
 	}
@@ -163,12 +163,12 @@ class CCaptcha
 
 	function SetTextWriting($angleFrom, $angleTo, $startX, $distanceFrom, $distanceTo, $fontSize)
 	{
-		$angleFrom = IntVal($angleFrom);
-		$angleTo = IntVal($angleTo);
-		$startX = IntVal($startX);
-		$distanceFrom = IntVal($distanceFrom);
-		$distanceTo = IntVal($distanceTo);
-		$fontSize = IntVal($fontSize);
+		$angleFrom = intval($angleFrom);
+		$angleTo = intval($angleTo);
+		$startX = intval($startX);
+		$distanceFrom = intval($distanceFrom);
+		$distanceTo = intval($distanceTo);
+		$fontSize = intval($fontSize);
 
 		$this->textAngleFrom = $angleFrom;
 		$this->textAngleTo = $angleTo;
@@ -189,7 +189,7 @@ class CCaptcha
 	function SetTextTransparent($bTransparentText, $transparentTextPercent = 10)
 	{
 		$this->bTransparentText = ($bTransparentText ? True : False);
-		$this->transparentTextPercent = IntVal($transparentTextPercent);
+		$this->transparentTextPercent = intval($transparentTextPercent);
 	}
 
 	function SetColor($arColor)
@@ -213,7 +213,7 @@ class CCaptcha
 						$arColor[$i][$j] = $arColor[$i][$j - 1];
 				}
 
-				$arColor[$i][$j] = IntVal($arColor[$i][$j]);
+				$arColor[$i][$j] = intval($arColor[$i][$j]);
 				if ($arColor[$i][$j] < 0 || $arColor[$i][$j] > 255)
 				{
 					$bCorrectColor = False;
@@ -256,9 +256,9 @@ class CCaptcha
 		if(preg_match("/^[0-9A-Fa-f]{6}$/", $color_1) && preg_match("/^[0-9A-Fa-f]{6}$/", $color_1))
 		{
 			$arColor = array(
-				array(hexdec(substr($color_1, 0, 2)), hexdec(substr($color_2, 0, 2))),
-				array(hexdec(substr($color_1, 2, 2)), hexdec(substr($color_2, 2, 2))),
-				array(hexdec(substr($color_1, 4, 2)), hexdec(substr($color_2, 4, 2))),
+				array(hexdec(mb_substr($color_1, 0, 2)), hexdec(mb_substr($color_2, 0, 2))),
+				array(hexdec(mb_substr($color_1, 2, 2)), hexdec(mb_substr($color_2, 2, 2))),
+				array(hexdec(mb_substr($color_1, 4, 2)), hexdec(mb_substr($color_2, 4, 2))),
 			);
 			$this->SetBGColor($arColor);
 		}
@@ -275,9 +275,9 @@ class CCaptcha
 		if(preg_match("/^[0-9A-Fa-f]{6}$/", $color_1) && preg_match("/^[0-9A-Fa-f]{6}$/", $color_1))
 		{
 			$arColor = array(
-				array(hexdec(substr($color_1, 0, 2)), hexdec(substr($color_2, 0, 2))),
-				array(hexdec(substr($color_1, 2, 2)), hexdec(substr($color_2, 2, 2))),
-				array(hexdec(substr($color_1, 4, 2)), hexdec(substr($color_2, 4, 2))),
+				array(hexdec(mb_substr($color_1, 0, 2)), hexdec(mb_substr($color_2, 0, 2))),
+				array(hexdec(mb_substr($color_1, 2, 2)), hexdec(mb_substr($color_2, 2, 2))),
+				array(hexdec(mb_substr($color_1, 4, 2)), hexdec(mb_substr($color_2, 4, 2))),
 			);
 			$this->SetTextColor($arColor);
 		}
@@ -294,9 +294,9 @@ class CCaptcha
 		if(preg_match("/^[0-9A-Fa-f]{6}$/", $color_1) && preg_match("/^[0-9A-Fa-f]{6}$/", $color_1))
 		{
 			$arColor = array(
-				array(hexdec(substr($color_1, 0, 2)), hexdec(substr($color_2, 0, 2))),
-				array(hexdec(substr($color_1, 2, 2)), hexdec(substr($color_2, 2, 2))),
-				array(hexdec(substr($color_1, 4, 2)), hexdec(substr($color_2, 4, 2))),
+				array(hexdec(mb_substr($color_1, 0, 2)), hexdec(mb_substr($color_2, 0, 2))),
+				array(hexdec(mb_substr($color_1, 2, 2)), hexdec(mb_substr($color_2, 2, 2))),
+				array(hexdec(mb_substr($color_1, 4, 2)), hexdec(mb_substr($color_2, 4, 2))),
 			);
 			$this->SetEllipseColor($arColor);
 		}
@@ -313,9 +313,9 @@ class CCaptcha
 		if(preg_match("/^[0-9A-Fa-f]{6}$/", $color_1) && preg_match("/^[0-9A-Fa-f]{6}$/", $color_1))
 		{
 			$arColor = array(
-				array(hexdec(substr($color_1, 0, 2)), hexdec(substr($color_2, 0, 2))),
-				array(hexdec(substr($color_1, 2, 2)), hexdec(substr($color_2, 2, 2))),
-				array(hexdec(substr($color_1, 4, 2)), hexdec(substr($color_2, 4, 2))),
+				array(hexdec(mb_substr($color_1, 0, 2)), hexdec(mb_substr($color_2, 0, 2))),
+				array(hexdec(mb_substr($color_1, 2, 2)), hexdec(mb_substr($color_2, 2, 2))),
+				array(hexdec(mb_substr($color_1, 4, 2)), hexdec(mb_substr($color_2, 4, 2))),
 			);
 			$this->SetLineColor($arColor);
 		}
@@ -332,9 +332,9 @@ class CCaptcha
 		if(preg_match("/^[0-9A-Fa-f]{6}$/", $color))
 		{
 			$arColor = array(
-				hexdec(substr($color, 0, 2)),
-				hexdec(substr($color, 2, 2)),
-				hexdec(substr($color, 4, 2)),
+				hexdec(mb_substr($color, 0, 2)),
+				hexdec(mb_substr($color, 2, 2)),
+				hexdec(mb_substr($color, 4, 2)),
 			);
 			$this->SetBorderColor($arColor);
 		}
@@ -342,12 +342,12 @@ class CCaptcha
 
 	function SetEllipsesNumber($num)
 	{
-		$this->numEllipses = IntVal($num);
+		$this->numEllipses = intval($num);
 	}
 
 	function SetLinesNumber($num)
 	{
-		$this->numLines = IntVal($num);
+		$this->numLines = intval($num);
 	}
 
 	function SetLinesOverText($bLinesOverText)
@@ -448,7 +448,7 @@ class CCaptcha
 		$y = 5;
 		for ($i = 0, $n = count($arMsg); $i < $n; $i++)
 		{
-			if (strlen(Trim($arMsg[$i])) > 0)
+			if (Trim($arMsg[$i]) <> '')
 			{
 				$bTextOut = True;
 				imagestring($this->image, 3, 5, $y, $arMsg[$i], $textColor);
@@ -638,7 +638,7 @@ class CCaptcha
 
 		for ($i = 0; $i < $this->codeLength; $i++)
 		{
-			$char = substr($this->code, $i, 1);
+			$char = mb_substr($this->code, $i, 1);
 			$utf = $APPLICATION->ConvertCharset($char, LANG_CHARSET, "utf-8");
 
 			$ttfFile = $_SERVER["DOCUMENT_ROOT"].$this->ttfFilesPath."/".$this->arTTFFiles[rand(1, count($this->arTTFFiles)) - 1];
@@ -833,10 +833,10 @@ class CCaptcha
 
 		$this->sid = time();
 
-		if (!is_array($_SESSION["CAPTCHA_CODE"]))
-			$_SESSION["CAPTCHA_CODE"] = array();
+		if (!is_array(\Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_CODE"]))
+			\Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_CODE"] = array();
 
-		$_SESSION["CAPTCHA_CODE"][$this->sid] = $this->code;
+		\Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_CODE"][$this->sid] = $this->code;
 	}
 
 	function SetCodeCrypt($password = "")
@@ -853,10 +853,10 @@ class CCaptcha
 		for ($i = 0; $i < $this->codeLength; $i++)
 			$this->code .= $this->arChars[rand(1, $max) - 1];
 
-		if (!array_key_exists("CAPTCHA_PASSWORD", $_SESSION) || strlen($_SESSION["CAPTCHA_PASSWORD"]) <= 0)
-			$_SESSION["CAPTCHA_PASSWORD"] = randString(10);
+		if (!\Bitrix\Main\Application::getInstance()->getSession()->get("CAPTCHA_PASSWORD"))
+			\Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_PASSWORD"] = randString(10);
 
-		$this->codeCrypt = $this->CryptData($this->code, "E", $_SESSION["CAPTCHA_PASSWORD"]);
+		$this->codeCrypt = $this->CryptData($this->code, "E", \Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_PASSWORD"]);
 	}
 
 	function SetCaptchaCode($sid = false)
@@ -881,7 +881,7 @@ class CCaptcha
 	function Generate32RandomString()
 	{
 		$prefix = (defined("BX_CLUSTER_GROUP")? BX_CLUSTER_GROUP: "0");
-		return substr($prefix.md5(uniqid()), 0, 32);
+		return mb_substr($prefix.md5(uniqid()), 0, 32);
 	}
 
 	function InitCaptchaCode($sid)
@@ -896,7 +896,7 @@ class CCaptcha
 
 		$this->code = $ar["CODE"];
 		$this->sid = $sid;
-		$this->codeLength = strlen($this->code);
+		$this->codeLength = mb_strlen($this->code);
 
 		return true;
 
@@ -907,15 +907,15 @@ class CCaptcha
 		if (!defined("CAPTCHA_COMPATIBILITY"))
 			return CCaptcha::InitCaptchaCode($sid);
 
-		if (!is_array($_SESSION["CAPTCHA_CODE"]) || count($_SESSION["CAPTCHA_CODE"]) <= 0)
+		if (!is_array(\Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_CODE"]) || count(\Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_CODE"]) <= 0)
 			return False;
 
-		if (!array_key_exists($sid, $_SESSION["CAPTCHA_CODE"]))
+		if (!array_key_exists($sid, \Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_CODE"]))
 			return False;
 
-		$this->code = $_SESSION["CAPTCHA_CODE"][$sid];
+		$this->code = \Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_CODE"][$sid];
 		$this->sid = $sid;
-		$this->codeLength = strlen($this->code);
+		$this->codeLength = mb_strlen($this->code);
 
 		return True;
 	}
@@ -925,15 +925,15 @@ class CCaptcha
 		if (!defined("CAPTCHA_COMPATIBILITY"))
 			return CCaptcha::InitCaptchaCode($codeCrypt);
 
-		if (strlen($codeCrypt) <= 0)
+		if ($codeCrypt == '')
 			return False;
 
-		if (!array_key_exists("CAPTCHA_PASSWORD", $_SESSION) || strlen($_SESSION["CAPTCHA_PASSWORD"]) <= 0)
+		if (!\Bitrix\Main\Application::getInstance()->getSession()->get("CAPTCHA_PASSWORD"))
 			return False;
 
 		$this->codeCrypt = $codeCrypt;
-		$this->code = $this->CryptData($codeCrypt, "D", $_SESSION["CAPTCHA_PASSWORD"]);
-		$this->codeLength = strlen($this->code);
+		$this->code = $this->CryptData($codeCrypt, "D", \Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_PASSWORD"]);
+		$this->codeLength = mb_strlen($this->code);
 
 		return True;
 	}
@@ -955,7 +955,7 @@ class CCaptcha
 	{
 		global $DB;
 
-		if (strlen($userCode)<=0 || strlen($sid)<=0)
+		if ($userCode == '' || $sid == '')
 			return false;
 
 		if ($bUpperCode)
@@ -978,19 +978,19 @@ class CCaptcha
 		if (!defined("CAPTCHA_COMPATIBILITY"))
 			return CCaptcha::CheckCaptchaCode($userCode, $sid, $bUpperCode);
 
-		if (!is_array($_SESSION["CAPTCHA_CODE"]) || count($_SESSION["CAPTCHA_CODE"]) <= 0)
+		if (!is_array(\Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_CODE"]) || count(\Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_CODE"]) <= 0)
 			return False;
 
-		if (!array_key_exists($sid, $_SESSION["CAPTCHA_CODE"]))
+		if (!array_key_exists($sid, \Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_CODE"]))
 			return False;
 
 		if ($bUpperCode)
 			$userCode = ToUpper($userCode);
 
-		if ($_SESSION["CAPTCHA_CODE"][$sid] != $userCode)
+		if (\Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_CODE"][$sid] != $userCode)
 			return False;
 
-		unset($_SESSION["CAPTCHA_CODE"][$sid]);
+		unset(\Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_CODE"][$sid]);
 
 		return True;
 	}
@@ -1000,16 +1000,16 @@ class CCaptcha
 		if (!defined("CAPTCHA_COMPATIBILITY"))
 			return CCaptcha::CheckCaptchaCode($userCode, $codeCrypt, $bUpperCode);
 
-		if (strlen($codeCrypt) <= 0)
+		if ($codeCrypt == '')
 			return False;
 
-		if (!array_key_exists("CAPTCHA_PASSWORD", $_SESSION) || strlen($_SESSION["CAPTCHA_PASSWORD"]) <= 0)
+		if (!\Bitrix\Main\Application::getInstance()->getSession()->get("CAPTCHA_PASSWORD"))
 			return False;
 
 		if ($bUpperCode)
 			$userCode = ToUpper($userCode);
 
-		$code = $this->CryptData($codeCrypt, "D", $_SESSION["CAPTCHA_PASSWORD"]);
+		$code = $this->CryptData($codeCrypt, "D", \Bitrix\Main\Application::getInstance()->getSession()["CAPTCHA_PASSWORD"]);
 
 		if ($code != $userCode)
 			return False;
@@ -1019,7 +1019,7 @@ class CCaptcha
 
 	function CryptData($data, $type, $pwdString)
 	{
-		$type = strtoupper($type);
+		$type = mb_strtoupper($type);
 		if ($type != "D")
 			$type = "E";
 
@@ -1031,11 +1031,11 @@ class CCaptcha
 		$key[] = "";
 		$box[] = "";
 		$temp_swap = "";
-		$pwdLength = strlen($pwdString);
+		$pwdLength = mb_strlen($pwdString);
 
 		for ($i = 0; $i <= 255; $i++)
 		{
-			$key[$i] = ord(substr($pwdString, ($i % $pwdLength), 1));
+			$key[$i] = ord(mb_substr($pwdString, ($i % $pwdLength), 1));
 			$box[$i] = $i;
 		}
 		$x = 0;
@@ -1050,7 +1050,7 @@ class CCaptcha
 		$cipher = "";
 		$a = 0;
 		$j = 0;
-		for ($i = 0, $n = strlen($data); $i < $n; $i++)
+		for ($i = 0, $n = mb_strlen($data); $i < $n; $i++)
 		{
 			$a = ($a + 1) % 256;
 			$j = ($j + $box[$a]) % 256;
@@ -1058,7 +1058,7 @@ class CCaptcha
 			$box[$a] = $box[$j];
 			$box[$j] = $temp;
 			$k = $box[(($box[$a] + $box[$j]) % 256)];
-			$cipherby = ord(substr($data, $i, 1)) ^ $k;
+			$cipherby = ord(mb_substr($data, $i, 1)) ^ $k;
 			$cipher .= chr($cipherby);
 		}
 
@@ -1075,16 +1075,16 @@ class CCaptcha
 	{
 		global $DB;
 
-		if (!is_set($arFields, "CODE") || strlen($arFields["CODE"])<= 0)
+		if (!is_set($arFields, "CODE") || $arFields["CODE"] == '')
 			return false;
 
-		if (!is_set($arFields, "ID") || strlen($arFields["ID"])<= 0)
+		if (!is_set($arFields, "ID") || $arFields["ID"] == '')
 			$arFields["ID"] = $this->Generate32RandomString();
 
-		if (!is_set($arFields, "IP") || strlen($arFields["IP"])<= 0)
+		if (!is_set($arFields, "IP") || $arFields["IP"] == '')
 			$arFields["IP"] = $_SERVER["REMOTE_ADDR"];
 
-		if (!is_set($arFields, "DATE_CREATE") || strlen($arFields["DATE_CREATE"])<=0 || !$DB->IsDate($arFields["DATE_CREATE"], false, LANG, "FULL"))
+		if (!is_set($arFields, "DATE_CREATE") || $arFields["DATE_CREATE"] == '' || !$DB->IsDate($arFields["DATE_CREATE"], false, LANG, "FULL"))
 		{
 			unset($arFields["DATE_CREATE"]);
 			$arFields["~DATE_CREATE"] = CDatabase::CurrentTimeFunction();

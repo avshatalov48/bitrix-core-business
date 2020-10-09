@@ -155,6 +155,6 @@ class AuthAdapter
 	 */
 	public function hasAuth()
 	{
-		return strlen($this->getToken()) > 0;
+		return $this->getToken() <> '';
 	}
 }

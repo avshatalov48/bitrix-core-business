@@ -75,7 +75,7 @@ exportData('<?=CUtil::JSEscape($ID)?>');
 				break;
 			case "copy":
 				$from = getLocalPath("templates/".$ID, BX_PERSONAL_ROOT);
-				$to = substr($from, 0, -strlen($ID)).($ID == ".default"? "default" : $ID)."_copy";
+				$to = mb_substr($from, 0, -mb_strlen($ID)).($ID == ".default"? "default" : $ID)."_copy";
 				CopyDirFiles($_SERVER["DOCUMENT_ROOT"].$from, $_SERVER["DOCUMENT_ROOT"].$to, false, true);
 				break;
 		}

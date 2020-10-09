@@ -70,7 +70,7 @@ class StyleInliner
 			$result = static::getStyle($node);
 			foreach($styleList as $k => $v)
 			{
-				if("!important" !== substr(strtolower($styleList[$k]), -10))
+				if("!important" !== mb_substr(mb_strtolower($styleList[$k]), -10))
 				{
 					if(array_key_exists($k, $result))
 					{

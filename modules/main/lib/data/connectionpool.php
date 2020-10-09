@@ -178,7 +178,7 @@ class ConnectionPool
 				return 'MSSQL';
 		}
 
-		return strtoupper($GLOBALS["DBType"]);
+		return mb_strtoupper($GLOBALS["DBType"]);
 	}
 
 	protected function getDbConnConnectionParameters()
@@ -194,7 +194,7 @@ class ConnectionPool
 		);
 
 		$className = null;
-		$type = strtolower($DBType);
+		$type = mb_strtolower($DBType);
 		if($type == 'mysql')
 		{
 			$className = "\\Bitrix\\Main\\DB\\MysqlConnection";

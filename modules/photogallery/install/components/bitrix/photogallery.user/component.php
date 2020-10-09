@@ -11,7 +11,7 @@ elseif (!IsModuleInstalled("iblock"))
 	$arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
 	$arParams["IBLOCK_ID"] = intval($arParams["IBLOCK_ID"]);
 	$arParams["USER_ALIAS"] = preg_replace("/[^a-z0-9\_]+/is" , "", $arParams["USER_ALIAS"]);
-	$arParams["SECTION_ID"] = intVal($arParams["SECTION_ID"]);
+	$arParams["SECTION_ID"] = intval($arParams["SECTION_ID"]);
 	$arParams["PERMISSION_EXTERNAL"] = trim($arParams["PERMISSION"]);
 	$arParams["ANALIZE_SOCNET_PERMISSION"] = ($arParams["ANALIZE_SOCNET_PERMISSION"] == "Y" ? "Y" : "N");
 
@@ -28,19 +28,19 @@ $URL_NAME_DEFAULT = array(
 
 foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 {
-	$arParams[strToUpper($URL)."_URL"] = trim($arParams[strToUpper($URL)."_URL"]);
-	if (empty($arParams[strToUpper($URL)."_URL"]))
-		$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-	$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-	$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
+	$arParams[mb_strtoupper($URL)."_URL"] = trim($arParams[mb_strtoupper($URL)."_URL"]);
+	if (empty($arParams[mb_strtoupper($URL)."_URL"]))
+		$arParams[mb_strtoupper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+	$arParams["~".mb_strtoupper($URL)."_URL"] = $arParams[mb_strtoupper($URL)."_URL"];
+	$arParams[mb_strtoupper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".mb_strtoupper($URL)."_URL"]);
 }
 /***************** ADDITIONAL **************************************/
 	$arParams["ONLY_ONE_GALLERY"] = ($arParams["ONLY_ONE_GALLERY"] == "N" ? "N" : "Y");
 	$arParams["GALLERY_GROUPS"] = (is_array($arParams["GALLERY_GROUPS"]) ? $arParams["GALLERY_GROUPS"] : array());
-	$arParams["GALLERY_SIZE"] = intVal($arParams["GALLERY_SIZE"])*1024*1024;
+	$arParams["GALLERY_SIZE"] = intval($arParams["GALLERY_SIZE"])*1024*1024;
 	$arParams["RETURN_ARRAY"] = ($arParams["RETURN_ARRAY"] == "Y" ? "Y" : "N");// hidden params for custom components
 	$arParams["SHOW_PHOTO_USER"] = ($arParams["SHOW_PHOTO_USER"] == "Y" ? "Y" : "N");// hidden params for custom components
-	$arParams["GALLERY_AVATAR_SIZE"] = intVal(intVal($arParams["GALLERY_AVATAR_SIZE"]) > 0 ? $arParams["GALLERY_AVATAR_SIZE"] : 50);
+	$arParams["GALLERY_AVATAR_SIZE"] = intval(intVal($arParams["GALLERY_AVATAR_SIZE"]) > 0 ? $arParams["GALLERY_AVATAR_SIZE"] : 50);
 /***************** STANDART ****************************************/
 	if(!isset($arParams["CACHE_TIME"]))
 		$arParams["CACHE_TIME"] = 3600;
@@ -137,7 +137,7 @@ if ($GLOBALS["USER"]->IsAuthorized())
 						$res_user = $db_user->Fetch();
 						$arResult["USERS"][$res_user["ID"]] = $res_user;
 					}
-					$res["PICTURE"] = intVal($arResult["USERS"][$res["CREATED_BY"]]["PERSONAL_PHOTO"]);
+					$res["PICTURE"] = intval($arResult["USERS"][$res["CREATED_BY"]]["PERSONAL_PHOTO"]);
 				}
 				$res["PICTURE"] = CFile::GetFileArray($res["PICTURE"]);
 				if ($arParams["SHOW_PHOTO_USER"] == "Y" && !empty($res["PICTURE"]))
@@ -251,7 +251,7 @@ if (!empty($arParams["USER_ALIAS"]))
 					$res_user = $db_user->Fetch();
 					$arResult["USERS"][$res_user["ID"]] = $res_user;
 				}
-				$res["PICTURE"] = intVal($arResult["USERS"][$res["CREATED_BY"]]["PERSONAL_PHOTO"]);
+				$res["PICTURE"] = intval($arResult["USERS"][$res["CREATED_BY"]]["PERSONAL_PHOTO"]);
 
 				if ($res["PICTURE"] > 0)
 				{
@@ -324,7 +324,7 @@ if (!empty($arParams["PERMISSION_EXTERNAL"])):
 elseif ($arParams["PERMISSION"] < "R"):
 	// empty block
 elseif ($arParams["ANALIZE_SOCNET_PERMISSION"] == "Y" && !empty($arResult["GALLERY"]) && CModule::IncludeModule("socialnetwork")):
-	if (intVal($arResult["GALLERY"]["SOCNET_GROUP_ID"]) > 0)
+	if (intval($arResult["GALLERY"]["SOCNET_GROUP_ID"]) > 0)
 	{
 		if (CSocNetFeaturesPerms::CanPerformOperation($USER->GetID(), SONET_ENTITY_GROUP, $arResult["GALLERY"]["SOCNET_GROUP_ID"], "photo", "write"))
 			$arParams["PERMISSION"]	= "W";

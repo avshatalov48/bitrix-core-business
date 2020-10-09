@@ -31,7 +31,7 @@ class Application
 
 		foreach($this->validUrls as $url)
 		{
-			if(strpos($realPath, $url) === 0)
+			if(mb_strpos($realPath, $url) === 0)
 			{
 				return true;
 			}

@@ -20,15 +20,15 @@ $arParams["PAGE_WINDOW"] = (isset($arParams["PAGE_WINDOW"]) && intval($arParams[
 $arParams["SHOW_TIME_LIMIT"] = (isset($arParams["SHOW_TIME_LIMIT"]) && $arParams["SHOW_TIME_LIMIT"] == "N" ? "N" : "Y");
 $arParams["TESTS_PER_PAGE"] = (intval($arParams["TESTS_PER_PAGE"]) > 0 ? intval($arParams["TESTS_PER_PAGE"]) : 20);
 
-if ( ! ( isset($arParams['LESSON_PATH']) && strlen($arParams['LESSON_PATH']) ) )
+if ( ! (isset($arParams['LESSON_PATH']) && mb_strlen($arParams['LESSON_PATH']) ) )
 {
 	$arParams['LESSON_PATH'] = '';
 
-	if (isset($_REQUEST['LESSON_PATH']) && strlen($_REQUEST['LESSON_PATH']))
+	if (isset($_REQUEST['LESSON_PATH']) && mb_strlen($_REQUEST['LESSON_PATH']))
 		$arParams['LESSON_PATH'] = $_REQUEST['LESSON_PATH'];
 }
 
-if (strlen($arParams["PAGE_NUMBER_VARIABLE"]) <=0 || !preg_match("#^[A-Za-z_][A-Za-z01-9_]*$#", $arParams["PAGE_NUMBER_VARIABLE"]))
+if ($arParams["PAGE_NUMBER_VARIABLE"] == '' || !preg_match("#^[A-Za-z_][A-Za-z01-9_]*$#", $arParams["PAGE_NUMBER_VARIABLE"]))
 	$arParams["PAGE_NUMBER_VARIABLE"] = "PAGE";
 
 $arComponentVariables = Array(
@@ -205,9 +205,9 @@ elseif (isset($arVariables['CHAPTER_ID']))
 		$LESSON_PATH->ImportUrlencoded($arVariables['CHAPTER_ID']);
 		$lessonID = (int) $LESSON_PATH->GetBottom();
 	}
-	elseif (substr($arVariables['CHAPTER_ID'], 0, 1) === '0')
+	elseif (mb_substr($arVariables['CHAPTER_ID'], 0, 1) === '0')
 	{
-		$lessonID = (int) substr($arVariables['CHAPTER_ID'], 1);
+		$lessonID = (int)mb_substr($arVariables['CHAPTER_ID'], 1);
 	}
 	else
 	{
@@ -308,7 +308,7 @@ else
 	);
 }
 
-$addReturnUrl["lesson"] .= strpos($addReturnUrl["lesson"], "?") !== false ? "&" : "?";
+$addReturnUrl["lesson"] .= mb_strpos($addReturnUrl["lesson"], "?") !== false ? "&" : "?";
 $addReturnUrl["lesson"] .= "LESSON_PATH=#LESSON_PATH#";
 
 $contextLessonId = $lessonID;

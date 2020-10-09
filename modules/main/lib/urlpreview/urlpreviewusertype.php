@@ -34,13 +34,13 @@ class UrlPreviewUserType
 	public static function getDBColumnType($userField)
 	{
 		global $DB;
-		switch(strtolower($DB->type))
+		switch($DB->type)
 		{
-			case "mysql":
+			case "MYSQL":
 				return "int(11)";
-			case "oracle":
+			case "ORACLE":
 				return "number(18)";
-			case "mssql":
+			case "MSSQL":
 				return "int";
 		}
 	}
@@ -186,7 +186,7 @@ class UrlPreviewUserType
 	public static function onBeforeSave($userField, $value)
 	{
 		$imageUrl = null;
-		if(strpos($value, ';') !== false)
+		if(mb_strpos($value, ';') !== false)
 		{
 			list($value, $imageUrl) = explode(';', $value);
 		}

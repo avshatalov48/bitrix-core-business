@@ -68,7 +68,7 @@ $aTabs = array(
 
 $tabControl = new CAdminForm("testResultTabControl", $aTabs);
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($Update)>0 && check_bitrix_sessid())
+if ($_SERVER["REQUEST_METHOD"] == "POST" && $Update <> '' && check_bitrix_sessid())
 {
 	if ($ANSWERED != "Y")
 	{
@@ -105,9 +105,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($Update)>0 && check_bitrix_se
 	{
 		$tr->OnTestResultChange($ID);
 		$DB->Commit();
-		if(strlen($apply)<=0)
+		if($apply == '')
 		{
-			if(strlen($return_url)>0)
+			if($return_url <> '')
 				LocalRedirect($return_url);
 			else
 				LocalRedirect("/bitrix/admin/learn_test_result_admin.php?lang=".LANG."&ATTEMPT_ID=".$ATTEMPT_ID.GetFilterParams("filter_", false));
@@ -171,7 +171,7 @@ if ($message)
 		<input type="checkbox" name="ANSWERED" value="Y"<?if($str_ANSWERED=="Y")echo " checked"?> onclick="OnChangeAnswered(this.checked)">
 	</td>
 </tr>
-<?php $tabControl->EndCustomField("USER_NAME");?>
+<?php $tabControl->EndCustomField("ANSWERED");?>
 <?php $tabControl->BeginCustomField("CORRECT", GetMessage("LEARNING_ADMIN_CORRECT"), false);?>
 <tr>
 	<td><?php echo $tabControl->GetCustomLabelHTML()?>:</td>

@@ -10,6 +10,11 @@ namespace Bitrix\Main;
 
 use Bitrix\Main\Entity;
 
+/**
+ * @internal
+ * Class UserProfileRecordTable
+ * @package Bitrix\Main
+ */
 class UserProfileRecordTable extends Entity\DataManager
 {
 	public static function getTableName()
@@ -39,18 +44,21 @@ class UserProfileRecordTable extends Entity\DataManager
 		);
 	}
 
-	public static function deleteByUser($userId)
+	public static function deleteByHistoryFilter($where)
 	{
-		$userId = intval($userId);
+		if($where == '')
+		{
+			throw new ArgumentException("Deleting by empty filter is not allowed, use truncate (b_user_profile_record).", "where");
+		}
 
 		$entity = static::getEntity();
 		$conn = $entity->getConnection();
 
-		$conn->queryExecute("
+		$conn->query("
 			DELETE FROM b_user_profile_record 
 			WHERE HISTORY_ID IN(
 				SELECT ID FROM b_user_profile_history 
-				WHERE USER_ID = {$userId}
+				{$where} 
 			)"
 		);
 

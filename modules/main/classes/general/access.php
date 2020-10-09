@@ -10,18 +10,18 @@ IncludeModuleLangFile(__FILE__);
 
 class CAccess
 {
-	protected static $arAuthProviders = false;
-	protected static $arChecked = array();
+	const CACHE_DIR = "access_check";
+
+	protected static $arAuthProviders = [];
+	protected static $arChecked = [];
 	protected $arParams = false;
 
 	public function __construct($arParams=false)
 	{
 		$this->arParams = $arParams;
 
-		if(!is_array(self::$arAuthProviders))
+		if(empty(static::$arAuthProviders))
 		{
-			self::$arAuthProviders = array();
-
 			foreach(GetModuleEvents("main", "OnAuthProvidersBuildList", true) as $arEvent)
 			{
 				$res = ExecuteModuleEventEx($arEvent);
@@ -30,26 +30,26 @@ class CAccess
 					if(!is_array($res[0]))
 						$res = array($res);
 					foreach($res as $provider)
-						self::$arAuthProviders[$provider["ID"]] = $provider;
+						static::$arAuthProviders[$provider["ID"]] = $provider;
 				}
 			}
-			sortByColumn(self::$arAuthProviders, "SORT");
+			sortByColumn(static::$arAuthProviders, "SORT");
 		}
 	}
 
-	protected static function CheckUserCodes($provider, $USER_ID)
+	protected static function NeedToRecalculate($provider, $USER_ID)
 	{
 		global $DB, $CACHE_MANAGER;
 
 		$USER_ID = intval($USER_ID);
 
-		if(!isset(self::$arChecked[$provider][$USER_ID]))
+		if(!isset(static::$arChecked[$provider][$USER_ID]))
 		{
-			$cacheId = "access_check_".$provider."_".$USER_ID;
+			$cacheId = static::GetCheckCacheId($provider, $USER_ID);
 
-			if (CACHED_b_user_access_check !== false && $CACHE_MANAGER->Read(CACHED_b_user_access_check, $cacheId, "access_check"))
+			if (CACHED_b_user_access_check !== false && $CACHE_MANAGER->Read(CACHED_b_user_access_check, $cacheId, static::CACHE_DIR))
 			{
-				self::$arChecked[$provider][$USER_ID] = $CACHE_MANAGER->Get($cacheId);
+				static::$arChecked[$provider][$USER_ID] = $CACHE_MANAGER->Get($cacheId);
 			}
 			else
 			{
@@ -60,21 +60,21 @@ class CAccess
 						and PROVIDER_ID = '".$DB->ForSql($provider)."'
 				");
 
-				self::$arChecked[$provider][$USER_ID] = ($res->Fetch()? true : false);
+				static::$arChecked[$provider][$USER_ID] = ($res->Fetch()? true : false);
 
 				if (CACHED_b_user_access_check !== false)
 				{
-					$CACHE_MANAGER->Set($cacheId, self::$arChecked[$provider][$USER_ID]);
+					$CACHE_MANAGER->Set($cacheId, static::$arChecked[$provider][$USER_ID]);
 				}
 			}
 		}
 
-		return (self::$arChecked[$provider][$USER_ID]);
+		return (static::$arChecked[$provider][$USER_ID]);
 	}
 
 	public function UpdateCodes($arParams=false)
 	{
-		global $USER;
+		global $USER, $CACHE_MANAGER;
 
 		$USER_ID = 0;
 		if(is_array($arParams) && isset($arParams["USER_ID"]))
@@ -84,89 +84,118 @@ class CAccess
 
 		if($USER_ID > 0)
 		{
-			foreach(self::$arAuthProviders as $provider_id=>$provider)
+			$connection = \Bitrix\Main\Application::getConnection();
+
+			foreach(static::$arAuthProviders as $provider_id=>$provider)
 			{
 				if(is_callable(array($provider["CLASS"], "UpdateCodes")))
 				{
-					//are there access codes for the user already?
-					if(!self::CheckUserCodes($provider_id, $USER_ID))
+					//do we need to recalculate codes for the user?
+					if(static::NeedToRecalculate($provider_id, $USER_ID))
 					{
-						/** @var CGroupAuthProvider $pr For example*/
-						$pr = new $provider["CLASS"];
+						$name = "access.{$provider_id}.{$USER_ID}";
 
-						//call provider to insert access codes
-						$pr->UpdateCodes($USER_ID);
+						if($connection->lock($name))
+						{
+							//remove old codes
+							static::DeleteCodes($provider_id, $USER_ID);
 
-						//update cache for checking
-						self::UpdateStat($provider_id, $USER_ID);
+							/** @var CGroupAuthProvider $pr For example*/
+							$pr = new $provider["CLASS"];
+
+							//call provider to insert access codes
+							$pr->UpdateCodes($USER_ID);
+
+							//update cache for checking
+							static::UpdateStat($provider_id, $USER_ID);
+
+							$connection->unlock($name);
+						}
 					}
 				}
 			}
+			$CACHE_MANAGER->Clean(static::GetCodesCacheId($USER_ID), static::CACHE_DIR);
 		}
 	}
 
-	protected static function UpdateStat($provider, $USER_ID)
+	public static function RecalculateForUser($userId, $provider)
 	{
 		global $DB, $CACHE_MANAGER;
-		$USER_ID = intval($USER_ID);
+		$userId = intval($userId);
 
-		$res = $DB->Query("
+		$DB->Query("
 			INSERT INTO b_user_access_check (USER_ID, PROVIDER_ID)
-			SELECT ID, '".$DB->ForSQL($provider)."'
+			SELECT ID, '{$DB->ForSQL($provider)}'
 			FROM b_user
-			WHERE ID=".$USER_ID
+			WHERE ID = {$userId}"
 		);
-		$CACHE_MANAGER->Clean("access_check_".$provider."_".$USER_ID, "access_check");
-		$CACHE_MANAGER->Clean("access_codes".$USER_ID, "access_check");
 
-		self::$arChecked[$provider][$USER_ID] = ($res->AffectedRowsCount() > 0);
+		$CACHE_MANAGER->Clean(static::GetCheckCacheId($provider, $userId), static::CACHE_DIR);
+
+		static::$arChecked[$provider][$userId] = true;
 	}
 
-	public static function ClearStat($provider=false, $USER_ID=false)
+	public static function RecalculateForProvider($provider)
 	{
 		global $DB, $CACHE_MANAGER;
 
-		$arWhere = array();
-		if($provider !== false)
-			$arWhere[] = "provider_id='".$DB->ForSQL($provider)."'";
-		if($USER_ID !== false)
-			$arWhere[] = "user_id=".intval($USER_ID);
+		$DB->Query("
+			INSERT INTO b_user_access_check (USER_ID, PROVIDER_ID)
+			SELECT USER_ID, PROVIDER_ID
+			FROM b_user_access
+			WHERE PROVIDER_ID = '{$DB->ForSQL($provider)}'
+				AND USER_ID > 0
+			GROUP BY USER_ID, PROVIDER_ID 
+		");
 
-		$sWhere = '';
-		if(!empty($arWhere))
-			$sWhere = " where ".implode(" and ", $arWhere);
+		$CACHE_MANAGER->CleanDir(static::CACHE_DIR);
 
-		$DB->Query("delete from b_user_access_check ".$sWhere);
-
-		if($provider === false && $USER_ID === false)
+		if(is_array(static::$arChecked[$provider]))
 		{
-			//all users and all providers
-			self::$arChecked = array();
-			$CACHE_MANAGER->CleanDir("access_check");
-		}
-		elseif($USER_ID === false)
-		{
-			//one provider for all users
-			unset(self::$arChecked[$provider]);
-			$CACHE_MANAGER->CleanDir("access_check");
-		}
-		elseif($provider === false)
-		{
-			//all providers for one user
-			foreach(self::$arChecked as $pr => $ar)
+			foreach(static::$arChecked[$provider] as $userId => $dummy)
 			{
-				unset(self::$arChecked[$pr][$USER_ID]);
-				$CACHE_MANAGER->Clean("access_check_".$pr."_".$USER_ID, "access_check");
+				static::$arChecked[$provider][$userId] = true;
 			}
-			$CACHE_MANAGER->Clean("access_codes".$USER_ID, "access_check");
 		}
-		else
-		{
-			//one provider for one user
-			unset(self::$arChecked[$provider][$USER_ID]);
-			$CACHE_MANAGER->Clean("access_check_".$provider."_".$USER_ID, "access_check");
-			$CACHE_MANAGER->Clean("access_codes".$USER_ID, "access_check");
-		}
+	}
+
+	protected static function GetCheckCacheId($provider, $userId)
+	{
+		return "access_check_".$provider."_".$userId;
+	}
+
+	protected static function GetCodesCacheId($userId)
+	{
+		return "access_codes".$userId;
+	}
+
+	protected static function DeleteCodes($providerId, $userId)
+	{
+		$userId = (int)$userId;
+
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
+		$connection->query("
+			delete from b_user_access 
+			where user_id = {$userId} 
+				and provider_id = '{$helper->forSql($providerId)}'
+		");
+	}
+
+	protected static function UpdateStat($provider, $userId)
+	{
+		global $DB, $CACHE_MANAGER;
+		$userId = intval($userId);
+
+		$DB->Query("
+			delete from b_user_access_check 
+			where user_id = {$userId} 
+				and provider_id = '{$DB->ForSql($provider)}'
+		");
+		$CACHE_MANAGER->Clean(static::GetCheckCacheId($provider, $userId), static::CACHE_DIR);
+
+		static::$arChecked[$provider][$userId] = false;
 	}
 
 	public static function GetUserCodes($USER_ID, $arFilter=array())
@@ -212,9 +241,10 @@ class CAccess
 
 		$useCache = (empty($arFilter) && CACHED_b_user_access_check !== false);
 
-		if ($useCache && $CACHE_MANAGER->Read(CACHED_b_user_access_check, "access_codes".$USER_ID, "access_check"))
+		$cacheId = static::GetCodesCacheId($USER_ID);
+		if ($useCache && $CACHE_MANAGER->Read(CACHED_b_user_access_check, $cacheId, static::CACHE_DIR))
 		{
-			return $CACHE_MANAGER->Get("access_codes".$USER_ID);
+			return $CACHE_MANAGER->Get($cacheId);
 		}
 		else
 		{
@@ -224,7 +254,7 @@ class CAccess
 				$arCodes[] = $arRes["ACCESS_CODE"];
 
 			if ($useCache)
-				$CACHE_MANAGER->Set("access_codes".$USER_ID, $arCodes);
+				$CACHE_MANAGER->Set($cacheId, $arCodes);
 
 			return $arCodes;
 		}
@@ -233,7 +263,7 @@ class CAccess
 	public function GetFormHtml($arParams=false)
 	{
 		$arHtml = array();
-		foreach(self::$arAuthProviders as $provider)
+		foreach(static::$arAuthProviders as $provider)
 		{
 			$cl = new $provider["CLASS"];
 			if(is_callable(array($cl, "GetFormHtml")))
@@ -248,9 +278,9 @@ class CAccess
 
 	public function AjaxRequest($arParams)
 	{
-		if(array_key_exists($arParams["provider"], self::$arAuthProviders))
+		if(array_key_exists($arParams["provider"], static::$arAuthProviders))
 		{
-			$cl = new self::$arAuthProviders[$arParams["provider"]]["CLASS"];
+			$cl = new static::$arAuthProviders[$arParams["provider"]]["CLASS"];
 			if(is_callable(array($cl, "AjaxRequest")))
 			{
 				CUtil::JSPostUnescape();
@@ -267,7 +297,7 @@ class CAccess
 		if(!is_array($arCodes) || empty($arCodes))
 			return $arResult;
 
-		foreach(self::$arAuthProviders as $provider)
+		foreach(static::$arAuthProviders as $provider)
 		{
 
 			$cl = new $provider["CLASS"];
@@ -303,7 +333,7 @@ class CAccess
 	public function GetProviderNames()
 	{
 		$arResult = array();
-		foreach(self::$arAuthProviders as $ID=>$provider)
+		foreach(static::$arAuthProviders as $ID=>$provider)
 		{
 			$arResult[$ID] = array(
 				"name" => (isset($provider["PROVIDER_NAME"])? $provider["PROVIDER_NAME"] : $ID),
@@ -340,20 +370,23 @@ class CAccess
 		);
 	}
 
-	public static function OnUserDelete($ID)
+	public static function OnUserDelete($USER_ID)
 	{
-		self::DeleteByUser($ID);
-		return true;
-	}
-
-	public static function DeleteByUser($USER_ID)
-	{
-		global $DB;
+		global $DB, $CACHE_MANAGER;
 		$USER_ID = intval($USER_ID);
 
 		$DB->Query("delete from b_user_access where user_id=".$USER_ID);
+		$DB->Query("delete from b_user_access_check where user_id=".$USER_ID);
 
-		self::ClearStat(false, $USER_ID);
+		//all providers for one user
+		foreach(static::$arChecked as $provider => $dummy)
+		{
+			unset(static::$arChecked[$provider][$USER_ID]);
+			$CACHE_MANAGER->Clean(static::GetCheckCacheId($provider, $USER_ID), static::CACHE_DIR);
+		}
+		$CACHE_MANAGER->Clean(static::GetCodesCacheId($USER_ID), static::CACHE_DIR);
+
+		return true;
 	}
 
 	public static function SaveLastRecentlyUsed($arLRU)

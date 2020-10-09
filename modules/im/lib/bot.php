@@ -1119,6 +1119,7 @@ class Bot
 		foreach ($bots as $bot)
 		{
 			$type = 'bot';
+			$code = $bot['CODE'];
 
 			if ($bot['TYPE'] == self::TYPE_HUMAN)
 			{
@@ -1128,12 +1129,20 @@ class Bot
 			{
 				$type = 'network';
 
-				if (
-					$bot['CLASS'] == 'Bitrix\ImBot\Bot\Support24'
-					|| $bot['CLASS'] == 'Bitrix\ImBot\Bot\Partner24'
-				)
+				if ($bot['CLASS'] == 'Bitrix\ImBot\Bot\Support24')
 				{
 					$type = 'support24';
+					$code = 'network_cloud';
+				}
+				else if ($bot['CLASS'] == 'Bitrix\ImBot\Bot\Partner24')
+				{
+					$type = 'support24';
+					$code = 'network_partner';
+				}
+				else if ($bot['CLASS'] == 'Bitrix\ImBot\Bot\SupportBox')
+				{
+					$type = 'support24';
+					$code = 'network_box';
 				}
 			}
 			else if ($bot['TYPE'] == self::TYPE_OPENLINE)
@@ -1147,7 +1156,7 @@ class Bot
 
 			$result[$bot['BOT_ID']] = Array(
 				'id' => $bot['BOT_ID'],
-				'code' => $bot['CODE'],
+				'code' => $code,
 				'type' => $type,
 				'openline' => $bot['OPENLINE'] == 'Y',
 			);

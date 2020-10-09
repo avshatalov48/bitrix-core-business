@@ -113,10 +113,10 @@ class CSiteTemplate
 			static $fields = array("ID"=>1, "NAME"=>1, "DESCRIPTION"=>1, "SORT"=>1);
 			foreach($arOrder as $key => $val)
 			{
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				if(isset($fields[$key]))
 				{
-					$columns[$key] = (strtoupper($val) == "DESC"? SORT_DESC : SORT_ASC);
+					$columns[$key] = (mb_strtoupper($val) == "DESC"? SORT_DESC : SORT_ASC);
 				}
 			}
 			if(!empty($columns))
@@ -168,7 +168,7 @@ class CSiteTemplate
 			$this->LAST_ERROR .= GetMessage("MAIN_TEMPLATE_CONTENT_NA")." ";
 			$arMsg[] = array("id"=>"CONTENT", "text"=> GetMessage("MAIN_TEMPLATE_CONTENT_NA"));
 		}
-		elseif(isset($arFields["CONTENT"]) && strpos($arFields["CONTENT"], "#WORK_AREA#") === false)
+		elseif(isset($arFields["CONTENT"]) && mb_strpos($arFields["CONTENT"], "#WORK_AREA#") === false)
 		{
 			$this->LAST_ERROR .= GetMessage("MAIN_TEMPLATE_WORKAREA_NA")." ";
 			$arMsg[] = array("id"=>"CONTENT", "text"=> GetMessage("MAIN_TEMPLATE_WORKAREA_NA"));
@@ -199,10 +199,10 @@ class CSiteTemplate
 
 		if(isset($arFields["CONTENT"]))
 		{
-			$p = strpos($arFields["CONTENT"], "#WORK_AREA#");
-			$header = substr($arFields["CONTENT"], 0, $p);
+			$p = mb_strpos($arFields["CONTENT"], "#WORK_AREA#");
+			$header = mb_substr($arFields["CONTENT"], 0, $p);
 			$APPLICATION->SaveFileContent($_SERVER["DOCUMENT_ROOT"].$path."/header.php", $header);
-			$footer = substr($arFields["CONTENT"], $p + strlen("#WORK_AREA#"));
+			$footer = mb_substr($arFields["CONTENT"], $p + mb_strlen("#WORK_AREA#"));
 			$APPLICATION->SaveFileContent($_SERVER["DOCUMENT_ROOT"].$path."/footer.php", $footer);
 		}
 		if(isset($arFields["STYLES"]))
@@ -243,10 +243,10 @@ class CSiteTemplate
 		}
 		if(isset($arFields["CONTENT"]))
 		{
-			$p = strpos($arFields["CONTENT"], "#WORK_AREA#");
-			$header = substr($arFields["CONTENT"], 0, $p);
+			$p = mb_strpos($arFields["CONTENT"], "#WORK_AREA#");
+			$header = mb_substr($arFields["CONTENT"], 0, $p);
 			$APPLICATION->SaveFileContent($_SERVER["DOCUMENT_ROOT"].$path."/header.php", $header);
-			$footer = substr($arFields["CONTENT"], $p + strlen("#WORK_AREA#"));
+			$footer = mb_substr($arFields["CONTENT"], $p + mb_strlen("#WORK_AREA#"));
 			$APPLICATION->SaveFileContent($_SERVER["DOCUMENT_ROOT"].$path."/footer.php", $footer);
 		}
 		if(isset($arFields["STYLES"]))
@@ -302,7 +302,7 @@ class CSiteTemplate
 
 	public static function GetContent($ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			$arRes = array();
 		else
 			$arRes = CSiteTemplate::DirsRecursive($ID);
@@ -335,23 +335,23 @@ class CSiteTemplate
 					$file["DESCRIPTION"] = "";
 					break;
 				default:
-					if(($p=strpos($file["NAME"], ".menu_template.php"))!==false)
-						$file["DESCRIPTION"] = str_replace("#MENU_TYPE#", substr($file["NAME"], 0, $p), GetMessage("MAIN_TEMPLATE_MENU"));
-					elseif(($p=strpos($file["NAME"], "authorize_registration.php"))!==false)
+					if(($p = mb_strpos($file["NAME"], ".menu_template.php"))!==false)
+						$file["DESCRIPTION"] = str_replace("#MENU_TYPE#", mb_substr($file["NAME"], 0, $p), GetMessage("MAIN_TEMPLATE_MENU"));
+					elseif(($p = mb_strpos($file["NAME"], "authorize_registration.php"))!==false)
 						$file["DESCRIPTION"] = GetMessage("MAIN_TEMPLATE_AUTH_REG");
-					elseif(($p=strpos($file["NAME"], "forgot_password.php"))!==false)
+					elseif(($p = mb_strpos($file["NAME"], "forgot_password.php"))!==false)
 						$file["DESCRIPTION"] = GetMessage("MAIN_TEMPLATE_SEND_PWD");
-					elseif(($p=strpos($file["NAME"], "change_password.php"))!==false)
+					elseif(($p = mb_strpos($file["NAME"], "change_password.php"))!==false)
 						$file["DESCRIPTION"] = GetMessage("MAIN_TEMPLATE_CHN_PWD");
-					elseif(($p=strpos($file["NAME"], "authorize.php"))!==false)
+					elseif(($p = mb_strpos($file["NAME"], "authorize.php"))!==false)
 						$file["DESCRIPTION"] = GetMessage("MAIN_TEMPLATE_AUTH");
-					elseif(($p=strpos($file["NAME"], "registration.php"))!==false)
+					elseif(($p = mb_strpos($file["NAME"], "registration.php"))!==false)
 						$file["DESCRIPTION"] = GetMessage("MAIN_TEMPLATE_REG");
 			}
 			$arRes[] = $file;
 		}
 
-		$nTemplateLen = strlen($templPath."/");
+		$nTemplateLen = mb_strlen($templPath."/");
 		foreach($arDirsTmp as $dir)
 		{
 			$arDir = $dir;
@@ -360,7 +360,7 @@ class CSiteTemplate
 
 			if($depth < $maxDepth)
 			{
-				$dirPath = substr($arDir["ABS_PATH"], $nTemplateLen);
+				$dirPath = mb_substr($arDir["ABS_PATH"], $nTemplateLen);
 				$arRes = array_merge($arRes, CSiteTemplate::DirsRecursive($ID, $dirPath, $depth, $maxDepth));
 			}
 		}

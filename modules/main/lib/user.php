@@ -54,6 +54,10 @@ class UserTable extends Entity\DataManager
 				'data_type' => 'boolean',
 				'values' => array('N','Y')
 			),
+			'BLOCKED' => array(
+				'data_type' => 'boolean',
+				'values' => array('N','Y')
+			),
 			'DATE_REGISTER' => array(
 				'data_type' => 'datetime'
 			),
@@ -372,7 +376,7 @@ class UserTable extends Entity\DataManager
 
 	public static function getExternalUserTypes()
 	{
-		static $types = array("bot", "email", "controller", "replica", "imconnector", "sale", "saleanonymous", "shop", "call");
+		static $types = array("bot", "email", "__controller", "replica", "imconnector", "sale", "saleanonymous", "shop", "call");
 		return $types;
 	}
 

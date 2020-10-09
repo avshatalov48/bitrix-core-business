@@ -329,6 +329,11 @@ input.ui-entity-editor-header-title-text {
 /* addiction step*/
 .ui-entity-new-field-addiction-label { white-space: nowrap; }
 
+.ui-entity-new-field-addiction-flex-row {
+	display: flex;
+	align-items: center;
+}
+
 /* remove btn*/
 
 .ui-entity-editor-content-remove-block {
@@ -1136,6 +1141,14 @@ input.ui-entity-editor-header-title-text {
 	width: 150px;
 	padding: 2px 9px !important;
 }
+
+.fields.money .main-ui-control.main-ui-select {
+	padding-right: 22px !important;
+}
+
+.fields.money .main-ui-control.main-ui-select .main-ui-select-name {
+	width: 100%;
+}
 /*endregion*/
 
 /*region Editor - User*/
@@ -1700,3 +1713,80 @@ input.ui-entity-editor-header-title-text {
 .ui-entity-editor-block-title-link:hover {
 	font:12px/14px "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
+
+.ui-entity-editor-detail-btn {
+	display: inline-block;
+	border-bottom: 1px dashed rgba(39, 107, 179, .4);
+	color: #2067b0;
+	text-decoration: none;
+	transition: border-bottom 0.2s linear;
+	cursor: pointer;
+}
+
+.ui-entity-editor-detail-btn:hover {
+	border-bottom: 1px dashed transparent;
+}
+
+.ui-entity-editor-section-content-padding-right .crm-entity-widget-content-block-field-money {
+	padding-right: 0;
+}
+
+.ui-entity-editor-section-content-padding-right .crm-entity-widget-content-block-field-money.ui-entity-editor-content-block-edit,
+.ui-entity-editor-section-edit .ui-entity-editor-section-content-padding-right .crm-entity-widget-content-block-field-money {
+	padding-right: 24px;
+}
+
+/*region user scopes popup custom css */
+.ui-entity-editor-content-user-scope-popup .ui-ctl-label-text {
+	opacity: .5;
+}
+
+.ui-entity-editor-content-user-scope-popup .ui-ctl-element::-moz-placeholder,
+.ui-entity-editor-content-user-scope-popup .ui-ctl-element::-webkit-input-placeholder,
+.ui-entity-editor-content-user-scope-popup .ui-ctl-element:-ms-input-placeholder,
+.ui-entity-editor-content-user-scope-popup .ui-ctl-element::-ms-input-placeholder,
+.ui-entity-editor-content-user-scope-popup .ui-ctl-element::placeholder {
+	color: rgba(51,51,51,.3);
+}
+
+.ui-entity-editor-content-user-scope-popup--alert .popup-window-content {
+	color: #535c69;
+	line-height: 17px;
+	padding-bottom: 30px !important;
+	border-bottom: 1px solid rgb(242, 242, 244);
+}
+
+.ui-entity-editor-content-user-scope-popup--alert .popup-window-titlebar:before {
+	content: '';
+	display: inline-block;
+	vertical-align: top;
+	width: 18px;
+	height: 47px;
+	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2218px%22%20height%3D%2216px%22%20viewBox%3D%220%200%2018%2016%22%20version%3D%221.1%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20fill%3D%22%23FF5752%22%20d%3D%22M17.4942171%2C13.0335968%20L10.0949672%2C0.709600197%20C9.52486109%2C-0.236533399%208.16631028%2C-0.236533399%207.60833406%2C0.709600197%20L0.209084143%2C13.0335968%20C-0.373151916%2C14.0039902%200.330383322%2C15.2291119%201.45846569%2C15.2291119%20L16.2569655%2C15.2291119%20C17.372918%2C15.2291119%2018.0764532%2C14.0039902%2017.4942171%2C13.0335968%20Z%20M7.79028283%2C5.00359113%20C7.79028283%2C4.45774483%208.22695987%2C4.02106778%208.77280618%2C4.02106778%20L8.90623528%2C4.02106778%20C9.45208158%2C4.02106778%209.88875863%2C4.45774483%209.88875863%2C5.00359113%20L9.88875863%2C8.67895626%20C9.88875863%2C9.22480256%209.45208158%2C9.66147961%208.90623528%2C9.66147961%20L8.77280618%2C9.66147961%20C8.22695987%2C9.66147961%207.79028283%2C9.22480256%207.79028283%2C8.67895626%20L7.79028283%2C5.00359113%20Z%20M8.84558569%2C13.3732345%20C8.16631028%2C13.3732345%207.60833406%2C12.8152583%207.60833406%2C12.1359829%20C7.60833406%2C11.4567075%208.16631028%2C10.8987312%208.84558569%2C10.8987312%20C9.52486109%2C10.8987312%2010.0828373%2C11.4567075%2010.0828373%2C12.1359829%20C10.0828373%2C12.8152583%209.52486109%2C13.3732345%208.84558569%2C13.3732345%20Z%22%3E%3C/path%3E%3C/svg%3E') center 17px no-repeat;
+}
+
+.ui-entity-editor-content-user-scope-popup--alert .ui-btn-link,
+.ui-entity-editor-content-user-scope-popup .ui-btn-link {
+	margin-left: 18px;
+}
+
+.ui-entity-editor-content-user-scope-popup .popup-window-buttons,
+.ui-entity-editor-content-user-scope-popup--alert .popup-window-buttons {
+	padding: 17px 0;
+}
+
+.popup-window.popup-window-with-titlebar {
+	padding: 0 20px 0;
+}
+
+.ui-entity-editor-content-user-scope-popup .popup-window-with-titlebar .popup-window-content,
+.ui-entity-editor-content-user-scope-popup .popup-window-titlebar {
+	padding: 0 10px !important;
+}
+
+.ui-entity-editor-content-user-scope-popup .ui-entity-section-control-error-text {
+	margin-top: 5px;
+	padding: 10px 11px;
+}
+
+/*endregion*/

@@ -41,11 +41,11 @@ function __GetSubmenu($menu)
 			if($item["url"] <> "")
 			{
 				$link = htmlspecialcharsback($item["url"]);
-				if(strpos($link, "/bitrix/admin/") !== 0)
+				if(mb_strpos($link, "/bitrix/admin/") !== 0)
 					$link = "/bitrix/admin/".$link;
 
 				if ($_REQUEST['back_url_pub'])
-					$link .= (strpos($link, '?') > 0 ? '&' : '?')."back_url_pub=".urlencode($_REQUEST["back_url_pub"]);
+					$link .= (mb_strpos($link, '?') > 0 ? '&' : '?')."back_url_pub=".urlencode($_REQUEST["back_url_pub"]);
 
 				$aItem['LINK'] = $link;
 
@@ -196,7 +196,7 @@ else
 			if($aUserOpt['start_menu_title'] <> 'N')
 			{
 				$sTitle = $db_fav_arr["COMMENTS"];
-				$sTitle = (strlen($sTitle)>100? substr($sTitle, 0, 100)."..." : $sTitle);
+				$sTitle = (mb_strlen($sTitle) > 100? mb_substr($sTitle, 0, 100)."..." : $sTitle);
 				$sTitle = str_replace("\r\n", "\n", $sTitle);
 				$sTitle = str_replace("\r", "\n", $sTitle);
 				$sTitle = str_replace("\n", " ", $sTitle);

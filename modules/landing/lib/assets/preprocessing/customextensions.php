@@ -1,7 +1,8 @@
 <?php
+
 namespace Bitrix\Landing\Assets\PreProcessing;
 
-use Bitrix\Landing\Assets\Manager;
+use Bitrix\Landing\Assets;
 use \Bitrix\Landing\Block;
 use \Bitrix\Landing\Internals\BlockTable;
 
@@ -9,6 +10,7 @@ class CustomExtensions
 {
 	protected const EXT_POPUP = 'landing_popup_link';
 	protected const EXT_JQUERY = 'landing_jquery';
+	protected const CRITICAL_EXTENSIONS = ['landing_jquery'];
 
 	/**
 	 * @param Block $block Bock instance.
@@ -30,12 +32,12 @@ class CustomExtensions
 
 		// for partners using jQuery always
 		// todo: add flag 'no_jq' for different jq?
-		if($block->getRepoId())
+		if ($block->getRepoId())
 		{
 			$newExtensions[] = self::EXT_JQUERY;
 		}
 
-		if(!empty($newExtensions))
+		if (!empty($newExtensions))
 		{
 			$extensions = $block->getAsset()['ext'] ?: [];
 			$extensions = array_merge($newExtensions, $extensions);
@@ -90,10 +92,15 @@ class CustomExtensions
 		$blockAssets = $block->getAssets();
 		if (isset($blockAssets['ext']))
 		{
-			$assets = Manager::getInstance();
+			$assets = Assets\Manager::getInstance();
 			foreach ($blockAssets['ext'] as $ext)
 			{
-				$assets->addAsset($ext);
+				$location = Assets\Location::getDefaultLocation();
+				if (in_array($ext, self::CRITICAL_EXTENSIONS, true))
+				{
+					$location = Assets\Location::LOCATION_BEFORE_ALL;
+				}
+				$assets->addAsset($ext, $location);
 			}
 		}
 	}

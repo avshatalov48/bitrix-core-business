@@ -59,7 +59,7 @@ class UserDataProvider extends EntityDataProvider
 		{
 			$result = (
 				ModuleManager::isModuleInstalled('extranet')
-				&& strlen(Option::get("extranet", "extranet_site")) > 0
+				&& Option::get("extranet", "extranet_site") <> ''
 			);
 		}
 
@@ -78,7 +78,7 @@ class UserDataProvider extends EntityDataProvider
 				$USER->canDoOperation('edit_all_users')
 				&& (
 					!ModuleManager::isModuleInstalled('extranet')
-					|| strlen(Option::get("extranet", "extranet_site")) <= 0 // master hasn't been run
+					|| Option::get("extranet", "extranet_site") == '' // master hasn't been run
 					|| !self::extranetSite()
 				)
 			);
@@ -101,7 +101,7 @@ class UserDataProvider extends EntityDataProvider
 				&& (
 					!ModuleManager::isModuleInstalled('extranet')
 					|| (
-						strlen(Option::get("extranet", "extranet_site")) > 0
+						Option::get("extranet", "extranet_site") <> ''
 						&& !self::extranetSite()
 					)
 				)
@@ -124,7 +124,7 @@ class UserDataProvider extends EntityDataProvider
 				&& (
 					!ModuleManager::isModuleInstalled('extranet')
 					|| (
-						strlen(Option::get("extranet", "extranet_site")) > 0
+						Option::get("extranet", "extranet_site") <> ''
 						&& !self::extranetSite()
 					)
 				)

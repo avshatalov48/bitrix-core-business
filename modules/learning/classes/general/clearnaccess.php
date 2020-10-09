@@ -235,7 +235,7 @@ class CLearnAccess implements ILearnAccessInterface
 				LearnException::EXC_ERR_ALL_LOGIC);
 		}
 
-		$nameUpperCase = strtoupper($row['NAME']);
+		$nameUpperCase = mb_strtoupper($row['NAME']);
 
 		return CTask::GetLangTitle($nameUpperCase, "learning");
 	}
@@ -267,7 +267,7 @@ class CLearnAccess implements ILearnAccessInterface
 		$arPossibleRights = array();
 		while ($row = $rc->Fetch())
 		{
-			$nameUpperCase = strtoupper($row['NAME']);
+			$nameUpperCase = mb_strtoupper($row['NAME']);
 
 			$arPossibleRights[$row['ID']] = array(
 				'name'              => $row['NAME'],

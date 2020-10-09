@@ -13,9 +13,9 @@ Converts ISO to UNICODE
 function iso2uni ($isoline)
 {
 	$uniline = "";
-	for ($i = 0, $n = strlen($isoline); $i < $n; $i++)
+	for ($i = 0, $n = mb_strlen($isoline); $i < $n; $i++)
 	{
-		$thischar = substr($isoline,$i,1);
+		$thischar = mb_substr($isoline, $i, 1);
 		$charcode = ord($thischar);
 		$uniline .= ($charcode>175) ? "&#" . (1040+($charcode-176)). ";" : $thischar;
 	}
@@ -82,7 +82,7 @@ Returns some color
 function GetArrSaveDecColor($arr)
 {
 	$arrSaveDecColor = array();
-	while(list($key, $scolor) = each($arr))
+	foreach($arr as $key => $scolor)
 	{
 		$arrSaveDecColor[$key] = hexdec($scolor);
 	}
@@ -99,7 +99,7 @@ function GetNextRGB($base_color, $total)
 	{
 		return GetBNextRGB($base_color, $total);
 	}
-	elseif (strlen($base_color) <= 0)
+	elseif ($base_color == '')
 	{
 		$res = "1288A0";
 	}
@@ -109,8 +109,7 @@ function GetNextRGB($base_color, $total)
 		$step = round($tsc/$total);
 		$dec = hexdec($base_color);
 		$arrSaveDecColor = GetArrSaveDecColor($arrSaveColor);
-		reset($arrSaveDecColor);
-		while(list($key, $sdcolor) = each($arrSaveDecColor))
+		foreach($arrSaveDecColor as $key => $sdcolor)
 		{
 			if ($dec <= $sdcolor)
 			{
@@ -166,7 +165,7 @@ function EchoGraphData($arrayX, $MinX, $MaxX, $arrayY, $MinY, $MaxY, $arrX, $arr
 {
 	echo "<pre>";
 	echo "--------------------------------------\n";
-	while (list($key, $value) = each($arrX))
+	foreach($arrX as $key => $value)
 	{
 		echo date("d.m.Y",$value)." = ".$arrY[$key]."\n";
 	}
@@ -388,7 +387,7 @@ function DrawCoordinatGrid($arrayX, $arrayY, $width, $height, $ImageHandle, $bgC
 	else
 	{
 		foreach($arrayY as $value)
-			$max_len=max($max_len, strlen($value));
+			$max_len=max($max_len, mb_strlen($value));
 		$dlataX = $max_len*ImageFontWidth($FontWidth);
 	}
 
@@ -486,7 +485,7 @@ function DrawCoordinatGrid($arrayX, $arrayY, $width, $height, $ImageHandle, $bgC
 			$arResult["XBUCKETS"][$i] = array(ceil($xP0)+1, ceil($xP0+$dX)-1);
 
 		$captionX = $arrayX[$i];
-		$xCaption = $xP0 - strlen($captionX)*$k[$FontWidth] + ($dX*$bForBarDiagram/2);
+		$xCaption = $xP0 - mb_strlen($captionX) * $k[$FontWidth] + ($dX*$bForBarDiagram/2);
 		$yCaption = $yP0;
 
 		if ($bUseTTFX)
@@ -546,7 +545,7 @@ function DrawCoordinatGrid($arrayX, $arrayY, $width, $height, $ImageHandle, $bgC
 				$yCaption = $yM1+($ttf_shift_y-$ttf_base_y)/2;
 				ImageTTFText($ImageHandle, $ttf_size_y, 0, $xCaption-abs($bbox[2]-$bbox[0])-1, $yCaption, $color000000, $ttf_font_y, $captionY);
 			}
-			else ImageString($ImageHandle, $FontWidth, $xCaption-strlen($captionY)*ImageFontWidth($FontWidth), $yCaption, $captionY, $color000000);
+			else ImageString($ImageHandle, $FontWidth, $xCaption- mb_strlen($captionY) * ImageFontWidth($FontWidth), $yCaption, $captionY, $color000000);
 		}
 		$yM0 -= $dY;
 		$yM1 -= $dY;

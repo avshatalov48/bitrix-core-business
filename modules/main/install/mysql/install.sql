@@ -169,8 +169,8 @@ CREATE TABLE b_user
 	ID int(18) not null auto_increment,
 	TIMESTAMP_X timestamp,
 	LOGIN varchar(50) not null,
-	`PASSWORD` varchar(50) not null,
-	CHECKWORD varchar(50),
+	`PASSWORD` varchar(255) not null,
+	CHECKWORD varchar(255),
 	ACTIVE char(1) not null default 'Y',
 	NAME varchar(50),
 	LAST_NAME varchar(50),
@@ -227,6 +227,7 @@ CREATE TABLE b_user
 	TITLE varchar(255) null,
 	BX_USER_ID varchar(32) null,
 	LANGUAGE_ID char(2) null,
+	BLOCKED char(1) not null default 'N',
 	PRIMARY KEY (ID),
 	UNIQUE ix_login (LOGIN, EXTERNAL_AUTH_ID),
 	INDEX ix_b_user_email (EMAIL),
@@ -234,6 +235,16 @@ CREATE TABLE b_user
 	INDEX IX_B_USER_XML_ID (XML_ID),
 	INDEX ix_user_last_login(LAST_LOGIN),
 	INDEX ix_user_date_register(DATE_REGISTER)
+);
+
+CREATE TABLE b_user_password
+(
+    ID bigint not null auto_increment,
+    USER_ID bigint not null,
+	`PASSWORD` varchar(255) not null,
+	DATE_CHANGE datetime not null,
+	PRIMARY KEY (ID),
+	INDEX ix_user_password_user_date (USER_ID, DATE_CHANGE)
 );
 
 CREATE TABLE b_user_index
@@ -369,6 +380,25 @@ CREATE TABLE b_file
 	EXTERNAL_ID VARCHAR(50),
 	INDEX IX_B_FILE_EXTERNAL_ID(EXTERNAL_ID),
 	PRIMARY KEY (ID)
+);
+
+CREATE TABLE b_file_duplicate
+(
+	DUPLICATE_ID int not null,
+	ORIGINAL_ID int not null,
+	COUNTER int not null default 1,
+	ORIGINAL_DELETED char(1) not null default 'N',
+	primary key (DUPLICATE_ID, ORIGINAL_ID),
+	index ix_file_duplicate_duplicate(ORIGINAL_ID)
+);
+
+CREATE TABLE b_file_hash
+(
+	FILE_ID int not null,
+	FILE_SIZE bigint not null,
+	FILE_HASH varchar(50) not null,
+	primary key (FILE_ID),
+	index ix_file_hash_size_hash(FILE_SIZE, FILE_HASH)
 );
 
 CREATE TABLE b_file_preview
@@ -508,6 +538,20 @@ CREATE TABLE if not exists b_user_field_enum
 	XML_ID varchar(255) not null,
 	PRIMARY KEY (ID),
 	UNIQUE ux_user_field_enum(USER_FIELD_ID, XML_ID)
+);
+
+CREATE TABLE b_user_field_permission
+(
+	ID INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	ENTITY_TYPE_ID TINYINT(2) UNSIGNED NOT NULL,
+	USER_FIELD_ID INT(10) UNSIGNED NOT NULL,
+	ACCESS_CODE VARCHAR(8) NOT NULL,
+	PERMISSION_ID VARCHAR(32) NOT NULL,
+	VALUE TINYINT(3) UNSIGNED NOT NULL,
+	PRIMARY KEY (ID),
+	INDEX ROLE_ID(ENTITY_TYPE_ID),
+	INDEX GROUP_ID(USER_FIELD_ID),
+	INDEX PERMISSION_ID(PERMISSION_ID)
 );
 
 CREATE TABLE b_task
@@ -909,7 +953,8 @@ CREATE TABLE b_user_access
 	ACCESS_CODE varchar(100),
 	INDEX ix_ua_user_provider (USER_ID, PROVIDER_ID),
 	INDEX ix_ua_user_access (USER_ID, ACCESS_CODE),
-	INDEX ix_ua_access (ACCESS_CODE)
+	INDEX ix_ua_access (ACCESS_CODE),
+	INDEX ix_ua_provider (PROVIDER_ID)
 );
 
 insert into b_user_access (USER_ID, PROVIDER_ID, ACCESS_CODE) values (0, 'group', 'G2');
@@ -1151,7 +1196,7 @@ CREATE TABLE b_smile_lang
 	unique UX_SMILE_SL (TYPE, SID, LID)
 );
 
-CREATE TABLE `b_app_password` 
+CREATE TABLE `b_app_password`
 (
 	`ID` INT NOT NULL AUTO_INCREMENT,
 	`USER_ID` INT NOT NULL,
@@ -1186,6 +1231,20 @@ CREATE TABLE b_finder_dest
 	`LAST_USE_DATE` DATETIME NULL,
 	PRIMARY KEY (`USER_ID`, `CODE`, `CONTEXT`),
 	INDEX IX_FINDER_DEST (`CODE_TYPE`)
+);
+
+CREATE TABLE b_entity_usage
+(
+	`USER_ID` INT NOT NULL,
+	`CONTEXT` varchar(50) NOT NULL,
+	`ENTITY_ID` varchar(30) NOT NULL,
+	`ITEM_ID` varchar(50) NOT NULL,
+	`ITEM_ID_INT` INT NOT NULL DEFAULT 0,
+	`PREFIX` varchar(10) NOT NULL DEFAULT '',
+	`LAST_USE_DATE` DATETIME NOT NULL,
+	PRIMARY KEY (`USER_ID`, `CONTEXT`, `ENTITY_ID`, `ITEM_ID`),
+	INDEX IX_ENTITY_USAGE_ITEM_ID_INT (`ITEM_ID_INT`),
+	INDEX IX_ENTITY_USAGE_LAST_USE_DATE (`LAST_USE_DATE`)
 );
 
 CREATE TABLE b_urlpreview_metadata
@@ -1237,7 +1296,8 @@ CREATE TABLE b_consent_user_consent
   ORIGIN_ID VARCHAR(30) DEFAULT NULL,
   ORIGINATOR_ID VARCHAR(30) DEFAULT NULL,
   PRIMARY KEY (ID),
-  INDEX IX_B_CONSENT_USER_CONSENT (AGREEMENT_ID)
+  INDEX IX_B_CONSENT_USER_CONSENT (AGREEMENT_ID),
+  INDEX IX_CONSENT_USER_CONSENT_USER_ORIGIN (USER_ID, ORIGIN_ID)
 );
 
 CREATE TABLE b_consent_agreement
@@ -1388,7 +1448,8 @@ CREATE TABLE b_user_profile_history
 	REQUEST_URI text,
 	UPDATED_BY_ID int,
 	PRIMARY KEY (ID),
-	INDEX ix_profile_history_user(USER_ID)
+	INDEX ix_profile_history_user(USER_ID),
+	INDEX ix_profile_history_date(DATE_INSERT)
 );
 
 CREATE TABLE b_user_profile_record
@@ -1422,6 +1483,15 @@ CREATE TABLE b_user_auth_code
 	DATE_SENT datetime,
 	DATE_RESENT datetime,
 	PRIMARY KEY (USER_ID, CODE_TYPE)
+);
+
+CREATE TABLE b_user_session
+(
+	SESSION_ID VARCHAR(250) NOT NULL,
+	TIMESTAMP_X TIMESTAMP NOT NULL,
+	SESSION_DATA LONGTEXT,
+	PRIMARY KEY(SESSION_ID),
+	INDEX ix_user_session_time(TIMESTAMP_X)
 );
 
 CREATE TABLE b_sms_template

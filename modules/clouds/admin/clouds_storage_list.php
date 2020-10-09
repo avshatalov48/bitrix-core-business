@@ -67,10 +67,12 @@ if(is_array($arID))
 					$last_file_pos = 0;
 
 				$rsNextFile = $DB->Query("
-					SELECT MIN(ID) ID, COUNT(1) CNT, SUM(FILE_SIZE) FILE_SIZE
+					SELECT MIN(b_file.ID) ID, COUNT(1) CNT, SUM(b_file.FILE_SIZE) FILE_SIZE
 					FROM b_file
-					WHERE ID > ".intval($last_file_id)."
-					AND HANDLER_ID = '".$DB->ForSQL($ob->ID)."'
+					LEFT JOIN b_file_duplicate on b_file_duplicate.DUPLICATE_ID = b_file.ID
+					WHERE b_file.ID > ".intval($last_file_id)."
+					AND b_file.HANDLER_ID = '".$DB->ForSQL($ob->ID)."'
+					AND b_file_duplicate.DUPLICATE_ID is null
 				");
 
 				$lAdmin->BeginPrologContent();
@@ -161,12 +163,29 @@ if(is_array($arID))
 						{
 							rename($absTempPath, $absPath);
 							$ob->DeleteFile($filePath);
-							$DB->Query("
+
+							$filesToUpdate = array(intval($arFile["ID"]));
+							//Find duplicates of the file
+							$duplicates = \Bitrix\Main\File\Internal\FileDuplicateTable::query()
+								->addSelect("DUPLICATE_ID")
+								->where("ORIGINAL_ID", $arFile["ID"])
+								->fetchAll();
+							foreach ($duplicates as $dupFile)
+							{
+								$filesToUpdate[] = intval($dupFile["DUPLICATE_ID"]);
+							}
+							//Mark them as moved
+							$updateResult = $DB->Query("
 								UPDATE b_file
 								SET HANDLER_ID = null
-								WHERE ID = ".intval($arFile["ID"])."
+								WHERE ID in (".implode(",", $filesToUpdate).")
 							");
-							CFile::CleanCache($arFile["ID"]);
+							$updateCount = $updateResult->AffectedRowsCount();
+							//Clean cache
+							foreach ($filesToUpdate as $updatedFileId)
+							{
+								CFile::CleanCache($updatedFileId);
+							}
 							$ob->DecFileCounter((float)$arFile["FILE_SIZE"]);
 							$ob->Update(array("LAST_FILE_ID" => 0));
 						}
@@ -234,6 +253,7 @@ if(is_array($arID))
 					ORDER BY ID ASC
 				", $files_per_step));
 
+				$file_skip_reason = array();
 				$counter = 0;
 				$bWasMoved = false;
 				$moveResult = CCloudStorage::FILE_SKIPPED;
@@ -242,18 +262,48 @@ if(is_array($arID))
 					|| is_array($arFile = $rsNextFile->Fetch())
 				)
 				{
+					//Check if file is a duplicate then skip it
+					$original = \Bitrix\Main\File\Internal\FileDuplicateTable::query()
+						->addSelect("DUPLICATE_ID")
+						->where("DUPLICATE_ID", $arFile["ID"])
+						->fetch();
+					if ($original)
+					{
+						$ob->Update(array("LAST_FILE_ID" => $arFile["ID"]));
+						$counter++;
+						continue;
+					}
+
 					CCloudStorage::FixFileContentType($arFile);
 					$moveResult = CCloudStorage::MoveFile($arFile, $ob);
+					$file_skip_reason[$arFile["ID"]] = CCloudStorage::$file_skip_reason;
 					if($moveResult == CCloudStorage::FILE_MOVED)
 					{
-						$DB->Query("
+						$filesToUpdate = array(intval($arFile["ID"]));
+						//Find duplicates of the file
+						$duplicates = \Bitrix\Main\File\Internal\FileDuplicateTable::query()
+							->addSelect("DUPLICATE_ID")
+							->where("ORIGINAL_ID", $arFile["ID"])
+							->fetchAll();
+						foreach ($duplicates as $dupFile)
+						{
+							$filesToUpdate[] = intval($dupFile["DUPLICATE_ID"]);
+						}
+						//Mark them as moved
+						$updateResult = $DB->Query("
 							UPDATE b_file
 							SET HANDLER_ID = '".$DB->ForSQL($ob->ID)."'
-							WHERE ID = ".intval($arFile["ID"])."
+							WHERE ID in (".implode(",", $filesToUpdate).")
+							and (HANDLER_ID is null or HANDLER_ID <> '".$DB->ForSQL($ob->ID)."')
 						");
-						CFile::CleanCache($arFile["ID"]);
-						$_done += 1;
-						$_size += doubleval($arFile["FILE_SIZE"]);
+						$updateCount = $updateResult->AffectedRowsCount();
+						//Clean cache
+						foreach ($filesToUpdate as $updatedFileId)
+						{
+							CFile::CleanCache($updatedFileId);
+						}
+						$_done += $updateCount;
+						$_size += doubleval($arFile["FILE_SIZE"]) * $updateCount;
 						$bWasMoved = true;
 						$ob->Update(array("LAST_FILE_ID" => $arFile["ID"]));
 						$counter++;
@@ -328,6 +378,8 @@ if(is_array($arID))
 					$bOnTheMove = true;
 					echo '<script>', $lAdmin->ActionDoGroup($ID, "move", "themove=y"), '</script>';
 				}
+				//File skip reasons debug infirmation:
+				echo "\n<!--\nFile skip reasons:\n".print_r($file_skip_reason, true)."-->\n";
 				$lAdmin->EndPrologContent();
 
 				$_SESSION["arMoveStat_done"] = $_done;

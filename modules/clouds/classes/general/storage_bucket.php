@@ -464,9 +464,9 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 	}
 	/**
 	 * @param string $filePath
-	 * @return double
+	 * @return array|false
 	*/
-	function GetFileSize($filePath)
+	function GetFileInfo($filePath)
 	{
 		$DIR_NAME = mb_substr($filePath, 0, mb_strrpos($filePath, "/") + 1);
 		$FILE_NAME = mb_substr($filePath, mb_strlen($DIR_NAME));
@@ -475,10 +475,35 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 		if(is_array($arListing))
 		{
 			foreach($arListing["file"] as $i => $name)
+			{
 				if($name === $FILE_NAME)
-					return doubleval($arListing["file_size"][$i]);
+				{
+					return array(
+						"name" => $name,
+						"size" => $arListing["file_size"][$i],
+						"mtime" => $arListing["file_mtime"][$i],
+						"hash" => $arListing["file_hash"][$i],
+					);
+				}
+			}
 		}
-		return 0.0;
+		return false;
+	}
+	/**
+	 * @param string $filePath
+	 * @return double
+	*/
+	function GetFileSize($filePath)
+	{
+		$fileInfo = $this->GetFileInfo($filePath);
+		if ($fileInfo)
+		{
+			return doubleval($fileInfo["size"]);
+		}
+		else
+		{
+			return 0.0;
+		}
 	}
 	/**
 	 * @return array[int][string]string
@@ -829,9 +854,37 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 
 		if($this->Init())
 		{
-			if($this->service->IsEmptyBucket($this->arBucket))
+			$isEmptyBucket = $this->service->IsEmptyBucket($this->arBucket);
+			$forceDeleteTry = false;
+			if (!$isEmptyBucket && is_object($APPLICATION->GetException()))
 			{
-				if($this->service->DeleteBucket($this->arBucket))
+				// The bucket was created within wrong s3 region
+				if (
+					$this->service->GetLastRequestStatus() == 301
+					&& $this->service->GetLastRequestHeader('x-amz-bucket-region') != ''
+				)
+				{
+					$forceDeleteTry = true;
+				}
+			}
+
+			if ($isEmptyBucket || $forceDeleteTry)
+			{
+				$isDeleted = $this->service->DeleteBucket($this->arBucket);
+				$forceDelete = false;
+				if (!$isDeleted && is_object($APPLICATION->GetException()))
+				{
+					// The bucket was created within wrong s3 region
+					if (
+						$this->service->GetLastRequestStatus() == 301
+						&& $this->service->GetLastRequestHeader('x-amz-bucket-region') != ''
+					)
+					{
+						$forceDelete = true;
+					}
+				}
+
+				if($isDeleted || $forceDelete)
 				{
 					$res = $DB->Query("DELETE FROM b_clouds_file_bucket WHERE ID = ".$this->_ID);
 					if(CACHED_b_clouds_file_bucket !== false)

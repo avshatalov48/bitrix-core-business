@@ -37,11 +37,11 @@ class CounterDataTable extends Entity\DataManager
 	{
 		list($usec, $sec) = explode(" ", microtime());
 
-		$uniqid = substr(base_convert($sec.substr($usec, 2), 10, 36), 0, 16);
+		$uniqid = mb_substr(base_convert($sec.mb_substr($usec, 2), 10, 36), 0, 16);
 
-		if (strlen($uniqid) < 16)
+		if (mb_strlen($uniqid) < 16)
 		{
-			$uniqid .= Random::getString(16-strlen($uniqid));
+			$uniqid .= Random::getString(16 - mb_strlen($uniqid));
 		}
 
 		return $uniqid;
@@ -79,7 +79,7 @@ class CounterDataTable extends Entity\DataManager
 			$dataSizeLimit = 45000;
 
 			// make an optimal dataset
-			$dataSize = strlen(base64_encode(json_encode(array_values($rows))));
+			$dataSize = mb_strlen(base64_encode(json_encode(array_values($rows))));
 
 			// records to delete
 			$toDelete = array();
@@ -90,8 +90,8 @@ class CounterDataTable extends Entity\DataManager
 
 				foreach ($rows as $id => $row)
 				{
-					$rowSize = strlen(base64_encode(json_encode(array_values($row))));
-					$reducedDataSize = strlen(base64_encode(json_encode(array_values($reducedRows))));
+					$rowSize = mb_strlen(base64_encode(json_encode(array_values($row))));
+					$reducedDataSize = mb_strlen(base64_encode(json_encode(array_values($reducedRows))));
 
 					if ($rowSize > $dataSizeLimit)
 					{
@@ -129,7 +129,7 @@ class CounterDataTable extends Entity\DataManager
 					$out = "POST /bx_stat HTTP/1.1\r\n";
 					$out .= "Host: bitrix.info\r\n";
 					$out .= "Content-type: application/x-www-form-urlencoded\r\n";
-					$out .= "Content-length: " . strlen($data) . "\r\n";
+					$out .= "Content-length: ".mb_strlen($data) . "\r\n";
 					$out .= "User-Agent: Bitrix Stats Counter\r\n";
 					$out .= "Connection: Close\r\n";
 					$out .= "\r\n";
@@ -147,7 +147,7 @@ class CounterDataTable extends Entity\DataManager
 					fclose($f);
 
 					// delete rows if service received data
-					if (strpos($response, '200 OK'))
+					if(mb_strpos($response, '200 OK'))
 					{
 						$toDelete = array_merge($toDelete, array_keys($rows));
 					}

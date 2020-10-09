@@ -15,17 +15,17 @@ function ConditionCompose($arRequest, $i=0)
 {
 	global $USER;
 	$type=$_REQUEST['selected_type'][$i];
-	if ($type=='folder' && strlen($arRequest['CONDITION_folder'])>0)
+	if ($type=='folder' && $arRequest['CONDITION_folder'] <> '')
 		$cond='CSite::InDir(\''.addslashes($arRequest['CONDITION_folder']).'\')';
 	elseif ($type=='ugroups' && is_array($arRequest['CONDITION_ugroups']))
 	{
 		for($i=0; $i<count($arRequest['CONDITION_ugroups']);$i++)
-			$arRequest['CONDITION_ugroups'][$i] = IntVal($arRequest['CONDITION_ugroups'][$i]);
+			$arRequest['CONDITION_ugroups'][$i] = intval($arRequest['CONDITION_ugroups'][$i]);
 		$cond='CSite::InGroup(array('.implode(",", $arRequest['CONDITION_ugroups']).'))';
 	}
 	elseif ($type=='period' && (MakeTimeStamp($arRequest['CONDITION_period_start']) || MakeTimeStamp($arRequest['CONDITION_period_end'])))
 		$cond="CSite::InPeriod(".intval(MakeTimeStamp($arRequest['CONDITION_period_start'])).",".intval(MakeTimeStamp($arRequest['CONDITION_period_end'])).")";
-	elseif ($type=='url' && strlen($arRequest['CONDITION_url_param'])>0 && strlen($arRequest['CONDITION_url_value'])>0)
+	elseif ($type=='url' && $arRequest['CONDITION_url_param'] <> '' && $arRequest['CONDITION_url_value'] <> '')
 		$cond='$_GET[\''.addslashes($arRequest['CONDITION_url_param']).'\']==\''.addslashes($arRequest['CONDITION_url_value']).'\'';
 	elseif ($type === 'no_access')
 		$cond = GetNoAccessConditionString();
@@ -99,9 +99,9 @@ function ConditionSelect($i='')
 {
 	global $CurType, $arConditionTypes;
 
-	reset($arConditionTypes);
-	while($e=each($arConditionTypes))
-		$types_options.="<option value=\"$e[0]\"".($e[0]==$CurType ? " selected" : "").">$e[1]</option>";
+	$types_options = '';
+	foreach($arConditionTypes as $key => $val)
+		$types_options .= "<option value=\"{$key}\"".($key == $CurType? " selected" : "").">{$val}</option>";
 
 	echo "<select OnChange=\"ShowSelected('$i')\" id=\"selected_type$i\" name=\"selected_type[$i]\">$types_options</select>";
 }
@@ -136,9 +136,8 @@ function ConditionShow($arArgs=array())
 	</div>
 	<div style="display:<?=$arDisplay['ugroups']?>" id="type_ugroups<?=$i?>">
 		<select title="<?=GetMessage("MAIN_USERGROUPS");?>" multiple size=5 name="<?=$field_name?>[CONDITION_ugroups][]"><?
-		reset($arGroupsNames);
-		while ($e=each($arGroupsNames))
-			echo '<option value="'.$e[0].'"'.(in_array($e[0], $arSelGroups)?" selected":"").'>'.htmlspecialcharsbx($e[1]).'</option>';
+		foreach($arGroupsNames as $key => $val)
+			echo '<option value="'.$key.'"'.(in_array($key, $arSelGroups)? " selected" : "").'>'.htmlspecialcharsbx($val).'</option>';
 		?></select>
 	</div>
 	<div style="display:<?=$arDisplay['period']?>" id="type_period<?=$i?>">
@@ -187,8 +186,8 @@ function ConditionJS($arOpt = array())
 	{
 		a = document.getElementById("selected_type" + i).value;
 <?
-	while ($e = each($arConditionTypes))
-		print "document.getElementById('type_$e[0]'+i).style.display=\"none\"\n";
+	foreach($arConditionTypes as $key => $dummy)
+		print "document.getElementById('type_{$key}'+i).style.display=\"none\"\n";
 ?>
 		document.getElementById('type_' + a + i).style.display = "block";
 	}

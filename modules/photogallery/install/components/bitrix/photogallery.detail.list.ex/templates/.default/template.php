@@ -2,7 +2,7 @@
 if (empty($arResult["ELEMENTS_LIST"]))
 	return true;
 
-if (!$this->__component->__parent || strpos($this->__component->__parent->__name, "photogallery") === false)
+if (!$this->__component->__parent || mb_strpos($this->__component->__parent->__name, "photogallery") === false)
 {
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/photogallery/templates/.default/style.css');
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/photogallery/templates/.default/themes/gray/style.css');
@@ -21,16 +21,16 @@ CJSCore::Init(array('window', 'ajax', 'tooltip', 'popup'));
 // PICTURE
 $temp = array("STRING" => preg_replace("/[^0-9]/is", "/", $arParams["THUMBNAIL_SIZE"]));
 list($temp["WIDTH"], $temp["HEIGHT"]) = explode("/", $temp["STRING"]);
-$arParams["THUMBNAIL_SIZE"] = (intVal($temp["WIDTH"]) > 0 ? intVal($temp["WIDTH"]) : 120);
+$arParams["THUMBNAIL_SIZE"] = (intval($temp["WIDTH"]) > 0 ? intval($temp["WIDTH"]) : 120);
 
-if ($arParams["PICTURES_SIGHT"] != "standart" && intVal($arParams["PICTURES"][$arParams["PICTURES_SIGHT"]]["size"]) > 0)
+if ($arParams["PICTURES_SIGHT"] != "standart" && intval($arParams["PICTURES"][$arParams["PICTURES_SIGHT"]]["size"]) > 0)
 	$arParams["THUMBNAIL_SIZE"] = $arParams["PICTURES"][$arParams["PICTURES_SIGHT"]]["size"];
 
 $arParams["ID"] = md5(serialize(array("default", $arParams["FILTER"], $arParams["SORTING"])));
 $arParams["SHOW_RATING"] = ($arParams["SHOW_RATING"] == "N" ? "N" : "Y");
 $arParams["SHOW_SHOWS"] = ($arParams["SHOW_SHOWS"] == "N" ? "N" : "Y");
 $arParams["SHOW_COMMENTS"] = ($arParams["SHOW_COMMENTS"] == "N" ? "N" : "Y");
-$arParams["COMMENTS_TYPE"] = (strToLower($arParams["COMMENTS_TYPE"]) == "blog" ? "blog" : "forum");
+$arParams["COMMENTS_TYPE"] = (mb_strtolower($arParams["COMMENTS_TYPE"]) == "blog" ? "blog" : "forum");
 $arParams["SHOW_DATETIME"] = ($arParams["SHOW_DATETIME"] == "Y" ? "Y" : "N");
 $arParams["SHOW_DESCRIPTION"] = ($arParams["SHOW_DESCRIPTION"] == "Y" ? "Y" : "N");
 
@@ -97,8 +97,8 @@ foreach ($arResult["ELEMENTS_LIST"] as $key => $arItem)
 	$arItem["TITLE"] = trim($arItem["TITLE"], " -");
 
 	$src = $arItem["PREVIEW_PICTURE"]["SRC"];
-	$w = intVal($arItem["PREVIEW_PICTURE"]["WIDTH"]);
-	$h = intVal($arItem["PREVIEW_PICTURE"]["HEIGHT"]);
+	$w = intval($arItem["PREVIEW_PICTURE"]["WIDTH"]);
+	$h = intval($arItem["PREVIEW_PICTURE"]["HEIGHT"]);
 	if (!$w || !$h)
 		continue;
 	$r = $w / $h;
@@ -151,10 +151,10 @@ if ($_REQUEST["return_array"] == "Y" && $_REQUEST["UCID"] == $arParams["~UNIQUE_
 	$APPLICATION->RestartBuffer();
 	?><script>window.bxphres = {
 		items: <?= CUtil::PhpToJSObject($arResult["ELEMENTS_LIST_JS"])?>,
-		currentPage: '<?= intVal($arResult["NAV_RESULT_NavPageNomer"])?>',
-		itemsPageSize: '<?= intVal($arResult["NAV_RESULT_NavPageSize"])?>',
-		itemsCount: '<?= intVal($arResult["ALL_ELEMENTS_CNT"])?>',
-		pageCount: '<?= intVal($arResult["NAV_RESULT_NavPageCount"])?>'
+		currentPage: '<?= intval($arResult["NAV_RESULT_NavPageNomer"])?>',
+		itemsPageSize: '<?= intval($arResult["NAV_RESULT_NavPageSize"])?>',
+		itemsCount: '<?= intval($arResult["ALL_ELEMENTS_CNT"])?>',
+		pageCount: '<?= intval($arResult["NAV_RESULT_NavPageCount"])?>'
 	};
 	<?if($_REQUEST['get_elements_html']):?>
 		window.bxphres.elementsHTML = '<?= CUtil::JSEscape(trim($elementsHTML))?>';
@@ -177,11 +177,11 @@ BX.ready(function(){
 		uniqueId: '<?= $ucid?>',
 		actionUrl: '<?= CUtil::JSEscape($arParams["ACTION_URL"])?>',
 		actionPostUrl: <?= ($arParams['CHECK_ACTION_URL'] == 'Y' ? 'false' : 'true')?>,
-		itemsCount: '<?= intVal($arResult["ALL_ELEMENTS_CNT"])?>',
-		itemsPageSize: '<?= intVal($arResult["NAV_RESULT_NavPageSize"])?>',
-		navName: 'PAGEN_<?= intVal($arResult["NAV_RESULT_NavNum"])?>',
-		currentPage: '<?= intVal($arResult["NAV_RESULT_NavPageNomer"])?>',
-		pageCount: '<?= intVal($arResult["NAV_RESULT_NavPageCount"])?>',
+		itemsCount: '<?= intval($arResult["ALL_ELEMENTS_CNT"])?>',
+		itemsPageSize: '<?= intval($arResult["NAV_RESULT_NavPageSize"])?>',
+		navName: 'PAGEN_<?= intval($arResult["NAV_RESULT_NavNum"])?>',
+		currentPage: '<?= intval($arResult["NAV_RESULT_NavPageNomer"])?>',
+		pageCount: '<?= intval($arResult["NAV_RESULT_NavPageCount"])?>',
 		items: <?= CUtil::PhpToJSObject($arResult["ELEMENTS_LIST_JS"])?>,
 		pElementsCont: pPhotoCont<?= $ucid?>,
 		initDragSorting: '<?= $arParams["DRAG_SORT"]?>',
@@ -204,9 +204,9 @@ BX.ready(function(){
 				"NAME" => $arResult['SECTION']['NAME']
 			)))?>,
 		items: <?= CUtil::PhpToJSObject($arResult["ELEMENTS_LIST_JS"])?>,
-		itemsCount: '<?= intVal($arResult["ALL_ELEMENTS_CNT"])?>',
-		itemsPageSize: '<?= intVal($arResult["NAV_RESULT_NavPageSize"])?>',
-		currentPage: '<?= intVal($arResult["NAV_RESULT_NavPageNomer"])?>',
+		itemsCount: '<?= intval($arResult["ALL_ELEMENTS_CNT"])?>',
+		itemsPageSize: '<?= intval($arResult["NAV_RESULT_NavPageSize"])?>',
+		currentPage: '<?= intval($arResult["NAV_RESULT_NavPageNomer"])?>',
 		useComments: '<?= $arParams["USE_COMMENTS"]?>',
 		useRatings: '<?= $arParams["USE_RATING"]?>',
 		showViewsCont: '<?= $arParams["SHOW_SHOWS"]?>',

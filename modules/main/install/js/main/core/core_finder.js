@@ -560,6 +560,7 @@ BX.Finder.initFinderDb = function(obDestination, entities, oContext, version)
 
 		if (!BX.FinderManager.initHandler2Added)
 		{
+			BX.removeAllCustomEvents(oContext, "onFinderAjaxSuccess");
 			BX.addCustomEvent(oContext, "onFinderAjaxSuccess", BX.Finder.onFinderAjaxSuccess);
 			if (typeof oContext.finderInitialized != 'undefined')
 			{
@@ -624,7 +625,6 @@ BX.Finder.findEntityByName = function(obDestination, obSearch, oParams, oResult)
 
 BX.Finder.onFinderAjaxSuccess = function(data, obDestination, entity)
 {
-console.log('onFinderAjaxSuccess');
 	if (typeof entity == 'undefined')
 	{
 		entity = 'users'
@@ -643,7 +643,6 @@ console.log('onFinderAjaxSuccess');
 					|| obDestination.obClientDbData[entity][oEntity.id].checksum != oEntity.checksum
 				)
 				{
-console.log('update');
 					if (typeof obDestination.obClientDbData[entity] == 'undefined')
 					{
 						obDestination.obClientDbData[entity] = [];

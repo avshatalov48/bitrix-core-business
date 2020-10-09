@@ -53,7 +53,7 @@ if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
 
 		switch($_REQUEST['action'])

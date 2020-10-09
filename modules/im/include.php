@@ -21,7 +21,6 @@ define("IM_MESSAGE_CHAT", "C");
 define("IM_MESSAGE_OPEN", "O");
 define("IM_MESSAGE_THREAD", "T");
 define("IM_MESSAGE_OPEN_LINE", "L");
-define("IM_MESSAGE_VIDEOCONF", "V");
 
 define("IM_CHAT_TYPE_PERSONAL", "PERSONAL");
 /**

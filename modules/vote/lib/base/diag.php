@@ -206,7 +206,7 @@ final class Diag
 		$functionStack = $filesStack = '';
 		foreach($backtrace as $b)
 		{
-			if(strlen($functionStack) > 0)
+			if($functionStack <> '')
 			{
 				$functionStack .= " < ";
 			}

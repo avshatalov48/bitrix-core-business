@@ -18,7 +18,7 @@ if (CModule::IncludeModule("form"))
 
 	foreach ($arDefaultUrl as $action => $url)
 	{
-		if (strlen($arParams[$action.'_URL']) <= 0)
+		if ($arParams[$action.'_URL'] == '')
 		{
 			if (!is_set($arParams, 'SHOW_'.$action.'_PAGE') || $arParams['SHOW_'.$action.'_PAGE'] == 'Y')
 				$arParams[$action.'_URL'] = $url;
@@ -83,7 +83,7 @@ if (CModule::IncludeModule("form"))
 	if ($arParams["WEB_FORM_ID"] > 0)
 	{
 	//  insert chain item
-		if (strlen($arParams["CHAIN_ITEM_TEXT"]) > 0)
+		if ($arParams["CHAIN_ITEM_TEXT"] <> '')
 		{
 			$APPLICATION->AddChainItem($arParams["CHAIN_ITEM_TEXT"], $arParams["CHAIN_ITEM_LINK"]);
 		}
@@ -150,7 +150,7 @@ if (CModule::IncludeModule("form"))
 		$arResult["ERROR"] = "FORM_NOT_FOUND";
 	} // endif ($WEB_FORM_ID>0);
 
-	if (strlen($arResult["ERROR"]) <= 0)
+	if ($arResult["ERROR"] == '')
 	{
 		$arParams["SHOW_STATUS"] = ($arParams["SHOW_STATUS"]=="Y" && !$arResult["FORM_SIMPLE"] == "Y") ? "Y" : "N";
 
@@ -185,8 +185,8 @@ if (CModule::IncludeModule("form"))
 			)
 		);
 
-		$arResult["isFormTitle"] = strlen($arResult["FORM_TITLE"]) > 0 ? "Y" : "N";
-		$arResult["isFormDescription"] = strlen($arResult["FORM_DESCRIPTION"]) > 0 ? "Y" : "N";
+		$arResult["isFormTitle"] = $arResult["FORM_TITLE"] <> '' ? "Y" : "N";
+		$arResult["isFormDescription"] = $arResult["FORM_DESCRIPTION"] <> '' ? "Y" : "N";
 
 		//append user data to arResult
 		if (intval($arResult["arResultData"]["USER_ID"])>0)
@@ -228,7 +228,7 @@ if (CModule::IncludeModule("form"))
 				{
 					$arResultAnswer = array();
 
-					if (strlen(trim($arrA["USER_TEXT"]))>0)
+					if (trim($arrA["USER_TEXT"]) <> '')
 					{
 						if (intval($arrA["USER_FILE_ID"])>0)
 						{
@@ -243,12 +243,12 @@ if (CModule::IncludeModule("form"))
 						}
 					}
 
-					if (strlen(trim($arrA["ANSWER_TEXT"]))>0)
+					if (trim($arrA["ANSWER_TEXT"]) <> '')
 					{
 						$arResultAnswer["ANSWER_TEXT"] = TxtToHTML(trim($arrA["ANSWER_TEXT"]),true,50);
 					}
 
-					if (strlen(trim($arrA["USER_DATE"]))>0)
+					if (trim($arrA["USER_DATE"]) <> '')
 					{
 						$arResultAnswer["USER_TEXT"] = $DB->FormatDate(
 							$arrA["USER_DATE"],
@@ -271,7 +271,7 @@ if (CModule::IncludeModule("form"))
 							$arImage = CFile::GetFileArray($arrA["USER_FILE_ID"]);
 							$arResultAnswer["ANSWER_IMAGE"]["URL"] = $arImage["SRC"];
 
-							if(substr($arImage["SRC"], 0, 1) == "/")
+							if(mb_substr($arImage["SRC"], 0, 1) == "/")
 							{
 								$arSize = CFile::GetImageSize($_SERVER["DOCUMENT_ROOT"].$arImage["SRC"]);
 								if (is_array($arSize))
@@ -300,7 +300,7 @@ if (CModule::IncludeModule("form"))
 							{
 								foreach ($arrResultAnswer as $key => $arrAns)
 								{
-									if (strlen(trim($arrAns["USER_TEXT"]))>0)
+									if (trim($arrAns["USER_TEXT"]) <> '')
 									{
 										if (intval($arrAns["USER_FILE_ID"])>0)
 										{
@@ -310,16 +310,16 @@ if (CModule::IncludeModule("form"))
 										else $out .= TxtToHTML($arrAns["USER_TEXT"],true,50)."<br />";
 									}
 
-									if (strlen(trim($arrAns["ANSWER_TEXT"]))>0)
+									if (trim($arrAns["ANSWER_TEXT"]) <> '')
 									{
 										$answer = "[<span class='form-anstext'>".TxtToHTML($arrAns["ANSWER_TEXT"],true,50)."</span>]";
-										if (strlen(trim($arrAns["ANSWER_VALUE"]))>0) $answer .= "&nbsp;"; else $answer .= "<br />";
+										if (trim($arrAns["ANSWER_VALUE"]) <> '') $answer .= "&nbsp;"; else $answer .= "<br />";
 										$out .= $answer;
 									}
 
 									if ($arParams["SHOW_ANSWER_VALUE"]=="Y")
 									{
-										if (strlen(trim($arrAns["ANSWER_VALUE"]))>0)
+										if (trim($arrAns["ANSWER_VALUE"]) <> '')
 											$out .= "(<span class='form-ansvalue'>".TxtToHTML($arrAns["ANSWER_VALUE"],true,50)."</span>)<br />";
 									}
 
@@ -368,7 +368,7 @@ if (CModule::IncludeModule("form"))
 				$arResult["QUESTIONS"][$FIELD_SID]["IMAGE"]["URL"] = $arImage["SRC"]; // image url
 
 				// image params
-				if (substr($arImage["SRC"], 0, 1) == "/")
+				if (mb_substr($arImage["SRC"], 0, 1) == "/")
 				{
 					$arSize = CFile::GetImageSize($_SERVER["DOCUMENT_ROOT"].$arImage["SRC"]);
 					if (is_array($arSize))

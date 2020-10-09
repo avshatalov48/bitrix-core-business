@@ -19,7 +19,7 @@ if(!function_exists("__UnEscape"))
 	{
 		if(is_array($item))
 			array_walk($item, '__UnEscape');
-		elseif (strpos($item, "%u") !== false)
+		elseif (mb_strpos($item, "%u") !== false)
 			$item = $GLOBALS["APPLICATION"]->UnJSEscape($item);
 		elseif (LANG_CHARSET != "UTF-8" && preg_match("/^.{1}/su", $item) == 1)
 			$item = $GLOBALS["APPLICATION"]->ConvertCharset($item, "UTF-8", LANG_CHARSET);
@@ -28,13 +28,13 @@ if(!function_exists("__UnEscape"))
 
 function UnsharpMask(&$img /*, $amount, $radius, $threshold*/)
 {
-	$amount = intVal($amount);
+	$amount = intval($amount);
 	$amount = ($amount > 500 ? 500 : $amount) * 0.016;
-	$radius = round(intVal($radius > 50 ? 50 : $radius) * 2);
+	$radius = round(intval($radius > 50 ? 50 : $radius) * 2);
 	if ($radius <= 0):
 		return false;
 	endif;
-	$threshold = intVal($threshold > 255 ? 255 : $threshold);
+	$threshold = intval($threshold > 255 ? 255 : $threshold);
 	$amount = 150;
 	$radius = 2;
 	$threshold = 70;
@@ -123,13 +123,13 @@ if (empty($arParams["INDEX_URL"]) && !empty($arParams["SECTIONS_TOP_URL"]))
 //***************** BASE *******************************************/
 	$arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
 	$arParams["IBLOCK_ID"] = intval($arParams["IBLOCK_ID"]);
-	$arParams["SECTION_ID"] = intVal($arParams["SECTION_ID"]);
+	$arParams["SECTION_ID"] = intval($arParams["SECTION_ID"]);
 	$arParams["USER_ALIAS"] = trim($arParams["USER_ALIAS"]);
 	$arParams["PERMISSION_EXTERNAL"] = trim($arParams["PERMISSION"]);
 	$arParams["BEHAVIOUR"] = ($arParams["BEHAVIOUR"] == "USER" ? "USER" : "SIMPLE");
 
-	$arParams["ELEMENT_SORT_FIELD"] = (empty($arParams["ELEMENT_SORT_FIELD"]) ? "ID" : strToUpper($arParams["ELEMENT_SORT_FIELD"]));
-	$arParams["ELEMENT_SORT_ORDER"] = (strToUpper($arParams["ELEMENT_SORT_ORDER"]) != "DESC" ? "ASC" : "DESC");
+	$arParams["ELEMENT_SORT_FIELD"] = (empty($arParams["ELEMENT_SORT_FIELD"])? "ID" : mb_strtoupper($arParams["ELEMENT_SORT_FIELD"]));
+	$arParams["ELEMENT_SORT_ORDER"] = (mb_strtoupper($arParams["ELEMENT_SORT_ORDER"]) != "DESC" ? "ASC" : "DESC");
 	$arParams["PATH_TMP"] = CTempFile::GetDirectoryName(12, "uploader");
 //***************** URL ********************************************/
 	$URL_NAME_DEFAULT = array(
@@ -143,25 +143,25 @@ if (empty($arParams["INDEX_URL"]) && !empty($arParams["SECTIONS_TOP_URL"]))
 
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		$arParams[strToUpper($URL)."_URL"] = trim($arParams[strToUpper($URL)."_URL"]);
-		if (empty($arParams[strToUpper($URL)."_URL"]))
-			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[mb_strtoupper($URL)."_URL"] = trim($arParams[mb_strtoupper($URL)."_URL"]);
+		if (empty($arParams[mb_strtoupper($URL)."_URL"]))
+			$arParams[mb_strtoupper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
+		$arParams["~".mb_strtoupper($URL)."_URL"] = $arParams[mb_strtoupper($URL)."_URL"];
+		$arParams[mb_strtoupper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".mb_strtoupper($URL)."_URL"]);
 	}
 //***************** ADDITIONAL **************************************/
 	$arParams["ALBUM_PHOTO"] = array(
-		"WIDTH" => (intVal($arParams["ALBUM_PHOTO_WIDTH"]) > 0 ? intVal($arParams["ALBUM_PHOTO_WIDTH"]) : 200),
-		"HEIGHT" => (intVal($arParams["ALBUM_PHOTO_HEIGHT"]) > 0 ? intVal($arParams["ALBUM_PHOTO_HEIGHT"]) : 200)
+		"WIDTH" => (intval($arParams["ALBUM_PHOTO_WIDTH"]) > 0 ? intval($arParams["ALBUM_PHOTO_WIDTH"]) : 200),
+		"HEIGHT" => (intval($arParams["ALBUM_PHOTO_HEIGHT"]) > 0 ? intval($arParams["ALBUM_PHOTO_HEIGHT"]) : 200)
 	);
 	$arParams["ALBUM_PHOTO"]["HEIGHT"] = $arParams["ALBUM_PHOTO"]["WIDTH"];
 
-	$arParams["PAGE_ELEMENTS"] = intVal($arParams["PAGE_ELEMENTS"] > 0 ? $arParams["PAGE_ELEMENTS"] : 20);
+	$arParams["PAGE_ELEMENTS"] = intval($arParams["PAGE_ELEMENTS"] > 0 ? $arParams["PAGE_ELEMENTS"] : 20);
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
 
 	$arParams["ALBUM_PHOTO_THUMBS"] = array(
-		"WIDTH" => (intVal($arParams["ALBUM_PHOTO_THUMBS_WIDTH"]) > 0 ? intVal($arParams["ALBUM_PHOTO_THUMBS_WIDTH"]) : 120),
-		"HEIGHT" => (intVal($arParams["ALBUM_PHOTO_THUMBS_HEIGHT"]) > 0 ? intVal($arParams["ALBUM_PHOTO_THUMBS_HEIGHT"]) : 120)
+		"WIDTH" => (intval($arParams["ALBUM_PHOTO_THUMBS_WIDTH"]) > 0 ? intval($arParams["ALBUM_PHOTO_THUMBS_WIDTH"]) : 120),
+		"HEIGHT" => (intval($arParams["ALBUM_PHOTO_THUMBS_HEIGHT"]) > 0 ? intval($arParams["ALBUM_PHOTO_THUMBS_HEIGHT"]) : 120)
 	);
 	$arParams["ALBUM_PHOTO_THUMBS"]["HEIGHT"] = $arParams["ALBUM_PHOTO_THUMBS"]["WIDTH"];
 	$arParams["SET_STATUS_404"] = ($arParams["SET_STATUS_404"] == "Y" ? "Y" : "N");
@@ -234,7 +234,7 @@ $bGD2 = false;
 if (function_exists("gd_info"))
 {
 	$arGDInfo = gd_info();
-	$bGD2 = ((strpos($arGDInfo['GD Version'], "2.") !== false) ? true : false);
+	$bGD2 = ((mb_strpos($arGDInfo['GD Version'], "2.") !== false) ? true : false);
 }
 $arSelect = array("ID", "CODE", "IBLOCK_ID", "NAME", "PREVIEW_PICTURE"/*, "DETAIL_PICTURE", "PROPERTY_REAL_PICTURE"*/);
 //WHERE
@@ -245,7 +245,7 @@ $arFilter = array(
 	"CHECK_PERMISSIONS" => "Y"
 );
 /************** URL ************************************************/
-if (intVal($arResult["SECTION"]["IBLOCK_SECTION_ID"]) <= 0)
+if (intval($arResult["SECTION"]["IBLOCK_SECTION_ID"]) <= 0)
 	$arResult["SECTION"]["BACK_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["~INDEX_URL"], array());
 elseif ($arResult["SECTION"]["IBLOCK_SECTION_ID"] != $arResult["GALLERY"]["ID"])
 	$arResult["SECTION"]["BACK_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["~GALLERY_URL"], array("USER_ALIAS" => $arParams["USER_ALIAS"]));
@@ -310,7 +310,7 @@ if ($_REQUEST["save_edit"] == "Y" || $_REQUEST["edit"] == "Y")
 
 				foreach (array("PREVIEW_PICTURE", "DETAIL_PICTURE", "PROPERTY_REAL_PICTURE_VALUE") as $key)
 				{
-					$iImage = intVal($arItem[$key]);
+					$iImage = intval($arItem[$key]);
 					if ($iImage <= 0)
 						continue;
 					$arImage = CFile::GetFileArray($iImage);
@@ -387,20 +387,20 @@ if ($_REQUEST["save_edit"] == "Y" || $_REQUEST["edit"] == "Y")
 				$src["SRC"] = $arTempFile["tmp_name"];
 
 				$imageInput = false;
-				switch (strToLower($src["pathinfo"]["extension"]))
+				switch(mb_strtolower($src["pathinfo"]["extension"]))
 				{
 					case 'gif':
 						$imageInput = imagecreatefromgif($src["SRC"]);
-					break;
+						break;
 					case 'png':
 						$imageInput = imagecreatefrompng($src["SRC"]);
-					break;
+						break;
 					case 'bmp':
 						$imageInput = imagecreatefromgif($src["SRC"]);
-					break;
+						break;
 					default:
 						$imageInput = imagecreatefromjpeg($src["SRC"]);
-					break;
+						break;
 				}
 				$src["image"] = $imageInput;
 				if ($bGD2)

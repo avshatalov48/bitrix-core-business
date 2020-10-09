@@ -218,7 +218,7 @@ abstract class BaseType
 	 */
 	private static function getComponentName(): string
 	{
-		if(strpos(static::RENDER_COMPONENT, ':'))
+		if(mb_strpos(static::RENDER_COMPONENT, ':'))
 		{
 			return static::RENDER_COMPONENT;
 		}

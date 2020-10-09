@@ -286,8 +286,8 @@ class PageNavigation
 			$this->clearParams($uri, $sef);
 
 			$path = $uri->getPath();
-			$pos = strrpos($path, "/");
-			$path = substr($path, 0, $pos+1).$this->id."/page-".$page."/".($size !== null? "size-".$size."/" : '').substr($path, $pos+1);
+			$pos = mb_strrpos($path, "/");
+			$path = mb_substr($path, 0, $pos + 1).$this->id."/page-".$page."/".($size !== null? "size-".$size."/" : '').mb_substr($path, $pos + 1);
 			$uri->setPath($path);
 		}
 		else

@@ -6,7 +6,7 @@ use Bitrix\Main\UserField\Types\DoubleType;
 
 $value = '';
 
-if(strlen($arResult['additionalParameters']['VALUE']))
+if($arResult['additionalParameters']['VALUE'] <> '')
 {
 	$value = round(
 		(double)$arResult['additionalParameters']['VALUE'],

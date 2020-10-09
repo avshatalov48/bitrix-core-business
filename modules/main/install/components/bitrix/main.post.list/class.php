@@ -57,7 +57,7 @@ final class MainPostList extends CBitrixComponent
 		$viewMode = "plain";
 		if ($this->isAjax())
 		{
-			$viewMode = strtoupper($this->request->getPost("MODE") ?: $this->request->getQuery("MODE"));
+			$viewMode = mb_strtoupper($this->request->getPost("MODE")?: $this->request->getQuery("MODE"));
 		}
 		return $viewMode;
 	}
@@ -401,7 +401,7 @@ HTML;
 			if (!empty($res['AUX']))
 			{
 				$classNameList[] = 'mpl-comment-aux';
-				$classNameList[] = 'mpl-comment-aux-'.strtolower($res['AUX']);
+				$classNameList[] = 'mpl-comment-aux-'.mb_strtolower($res['AUX']);
 			}
 
 			$result[$key] = array(
@@ -458,11 +458,11 @@ HTML;
 		{
 			if (!empty($res["RATING_USER_REACTION"]))
 			{
-				$emotion = strtoupper($res["RATING_USER_REACTION"]);
+				$emotion = mb_strtoupper($res["RATING_USER_REACTION"]);
 			}
 			else
 			{
-				$emotion = (!empty($this->arParams["RATING_RESULTS"][$result["ID"]]["USER_REACTION"]) ? strtoupper($this->arParams["RATING_RESULTS"][$result["ID"]]["USER_REACTION"]) : 'LIKE');
+				$emotion = (!empty($this->arParams["RATING_RESULTS"][$result["ID"]]["USER_REACTION"])? mb_strtoupper($this->arParams["RATING_RESULTS"][$result["ID"]]["USER_REACTION"]) : 'LIKE');
 			}
 
 			$buttonText = \CRatingsComponentsMain::getRatingLikeMessage($emotion);
@@ -581,7 +581,7 @@ HTML;
 					$ids = array();
 					foreach($images as $file)
 					{
-						$id = "mpl-".$arParams["ENTITY_XML_ID"]."-".strtolower(randString(5));
+						$id = "mpl-".$arParams["ENTITY_XML_ID"]."-".mb_strtolower(randString(5));
 						$ids[] = $id;
 						$thumbnail = ($file["THUMBNAIL"] ?: $file["SRC"]);
 						?><div class="post-item-attached-img-block" onclick="<?
@@ -759,7 +759,7 @@ HTML;
 					$strParams .= ($i > 0 ? '&' : '').urlencode($key).'='.urlencode($value);
 					$i++;
 				}
-				$authorUrl .= (strpos($authorUrl, '?') === false ? '?' : '&').$strParams;
+				$authorUrl .= (mb_strpos($authorUrl, '?') === false ? '?' : '&').$strParams;
 			}
 		}
 
@@ -901,6 +901,8 @@ HTML;
 
 	protected function prepareParams(array &$arParams, array &$arResult)
 	{
+		global $USER;
+
 		static $currentExtranetUser = null;
 		static $availableUsersList = null;
 
@@ -918,7 +920,7 @@ HTML;
 		$arParams["PREORDER"] = ($arParams["PREORDER"] == "Y" ? "Y" : "N");
 		$arParams["RIGHTS"] = (is_array($arParams["RIGHTS"]) ? $arParams["RIGHTS"] : array());
 		foreach (array("MODERATE", "EDIT", "DELETE", "CREATETASK") as $act)
-			$arParams["RIGHTS"][$act] = in_array(strtoupper($arParams["RIGHTS"][$act]), array("Y", "ALL", "OWN", "OWNLAST")) ? $arParams["RIGHTS"][$act] : "N";
+			$arParams["RIGHTS"][$act] = in_array(mb_strtoupper($arParams["RIGHTS"][$act]), array("Y", "ALL", "OWN", "OWNLAST")) ? $arParams["RIGHTS"][$act] : "N";
 		$arParams["LAST_RECORD"] = array();
 		// Answer params
 		/*@param int $arParams["RESULT"] contains id of new record for cutting out and sending back*/
@@ -943,7 +945,7 @@ HTML;
 		$arParams["SHOW_LOGIN"] = ($_REQUEST["SHOW_LOGIN"] == "Y" ? "Y" : ($arParams["SHOW_LOGIN"] == "Y" ? "Y" : "N"));
 		$arParams["DATE_TIME_FORMAT"] = trim($arParams["DATE_TIME_FORMAT"]);
 		$arParams["FORM_ID"] = trim($arParams["FORM_ID"]);
-		$arParams["SHOW_POST_FORM"] = ($arParams["SHOW_POST_FORM"] == "Y" || strlen($arParams["FORM_ID"]) > 0 ? "Y" : "N");
+		$arParams["SHOW_POST_FORM"] = ($arParams["SHOW_POST_FORM"] == "Y" || $arParams["FORM_ID"] <> '' ? "Y" : "N");
 		$arParams["BIND_VIEWER"] = ($arParams["BIND_VIEWER"] == "N" ? "N" : "Y");
 		$arParams["SIGN"] = $this->sign->sign($arParams["ENTITY_XML_ID"], "main.post.list");
 
@@ -973,7 +975,7 @@ HTML;
 					$path .= ($arParams["NAV_RESULT"]->NavPageNomer - 1);
 				else
 					$path .= ($arParams["NAV_RESULT"]->NavPageNomer + 1);
-				$arParams["NAV_STRING"] .= (strpos($arParams["NAV_STRING"], "?") === false ? "?" : "&").$path;
+				$arParams["NAV_STRING"] .= (mb_strpos($arParams["NAV_STRING"], "?") === false ? "?" : "&").$path;
 			}
 		}
 		if (!empty($arParams["RECORDS"]))
@@ -1024,7 +1026,7 @@ HTML;
 					($arParams["SHOW_LOGIN"] != "N"),
 					false),
 				"AVATAR" => \CFile::ResizeImageGet(
-					$_SESSION["SESS_AUTH"]["PERSONAL_PHOTO"],
+					$USER->GetParam("PERSONAL_PHOTO"),
 					array(
 						"width" => $arParams["AVATAR_SIZE"],
 						"height" => $arParams["AVATAR_SIZE"]
@@ -1117,7 +1119,7 @@ HTML;
 
 			if (
 				(!$this->isWeb())
-				&& strtolower($this->getMode()) == 'plain'
+				&& mb_strtolower($this->getMode()) == 'plain'
 				&& is_array($this->arParams['RECORDS'])
 				&& !empty($this->arParams['RECORDS'])
 				&& !empty($this->arParams['IS_POSTS_LIST'])

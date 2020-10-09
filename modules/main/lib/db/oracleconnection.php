@@ -211,7 +211,7 @@ class OracleConnection extends Connection
 			$binds1 = $binds2 = "";
 			foreach ($binds as $key => $value)
 			{
-				if (strlen($value) > 0)
+				if ($value <> '')
 				{
 					if ($binds1 != "")
 					{
@@ -395,7 +395,7 @@ class OracleConnection extends Connection
 			}
 			else
 			{
-				if (substr($indexColumnList, 0, strlen($columnsList)) === $columnsList)
+				if (mb_substr($indexColumnList, 0, mb_strlen($columnsList)) === $columnsList)
 					return $indexName;
 			}
 		}
@@ -650,7 +650,7 @@ class OracleConnection extends Connection
 			if ($version != null)
 			{
 				$version = trim($version);
-				$this->versionExpress = (strpos($version, "Express Edition") > 0);
+				$this->versionExpress = (mb_strpos($version, "Express Edition") > 0);
 				preg_match("#[0-9]+\\.[0-9]+\\.[0-9]+#", $version, $arr);
 				$this->version = $arr[0];
 			}

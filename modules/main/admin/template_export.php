@@ -64,7 +64,7 @@ if(is_dir($_SERVER["DOCUMENT_ROOT"].$path))
 	//	die();
 }
 
-if (strlen($strError) > 0)
+if ($strError <> '')
 {
 	$APPLICATION->SetTitle("Archiver error");
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");

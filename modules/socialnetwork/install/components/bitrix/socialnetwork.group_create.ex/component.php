@@ -39,33 +39,33 @@ $arParams["GROUP_ID"] = (
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 $bAutoSubscribe = (array_key_exists("USE_AUTOSUBSCRIBE", $arParams) && $arParams["USE_AUTOSUBSCRIBE"] == "N" ? false : true);
 
-if ($arParams["USER_VAR"] == '')
+if (strLen($arParams["USER_VAR"]) <= 0)
 	$arParams["USER_VAR"] = "user_id";
-if ($arParams["PAGE_VAR"] == '')
+if (strLen($arParams["PAGE_VAR"]) <= 0)
 	$arParams["PAGE_VAR"] = "page";
-if ($arParams["GROUP_VAR"] == '')
+if (strLen($arParams["GROUP_VAR"]) <= 0)
 	$arParams["GROUP_VAR"] = "group_id";
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
-if ($arParams["PATH_TO_USER"] == '')
+if (strlen($arParams["PATH_TO_USER"]) <= 0)
 	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_GROUP"] = trim($arParams["PATH_TO_GROUP"]);
-if ($arParams["PATH_TO_GROUP"] == '')
+if (strlen($arParams["PATH_TO_GROUP"]) <= 0)
 	$arParams["PATH_TO_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $strSiteWorkgroupsPage = \Bitrix\Socialnetwork\ComponentHelper::getWorkgroupSEFUrl();
-if ($strSiteWorkgroupsPage <> '')
+if (strlen($strSiteWorkgroupsPage) > 0)
 {
 	$arParams["PATH_TO_GROUP_GENERAL"] = $strSiteWorkgroupsPage."group/#group_id#/general/";
 }
 
 $arParams["PATH_TO_GROUP_EDIT"] = trim($arParams["PATH_TO_GROUP_EDIT"]);
-if ($arParams["PATH_TO_GROUP_EDIT"] == '')
+if (strlen($arParams["PATH_TO_GROUP_EDIT"]) <= 0)
 	$arParams["PATH_TO_GROUP_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_edit&".$arParams["GROUP_VAR"]."=#group_id#");
 
 $arParams["PATH_TO_GROUP_CREATE"] = trim($arParams["PATH_TO_GROUP_CREATE"]);
-if ($arParams["PATH_TO_GROUP_CREATE"] == '')
+if (strlen($arParams["PATH_TO_GROUP_CREATE"]) <= 0)
 	$arParams["PATH_TO_GROUP_CREATE"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_create&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["IUS_INPUT_NAME"] = "ius_ids";
@@ -75,7 +75,7 @@ $arParams["IUS_INPUT_NAME_EXTRANET"] = "ius_ids_extranet";
 $arParams["IUS_INPUT_NAME_SUSPICIOUS_EXTRANET"] = "ius_susp_extranet";
 $arParams["IUS_INPUT_NAME_STRING_EXTRANET"] = "users_list_string_ius_extranet";
 
-if ($arParams["NAME_TEMPLATE"] == '')
+if (strlen($arParams["NAME_TEMPLATE"]) <= 0)
 	$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 $bUseLogin = $arParams["SHOW_LOGIN"] != "N" ? true : false;
 
@@ -98,7 +98,7 @@ foreach($arResult["GROUP_PROPERTIES"] as $field => $arUserField)
 		continue;
 	}
 
-	$arResult["GROUP_PROPERTIES"][$field]["EDIT_FORM_LABEL"] = $arUserField["EDIT_FORM_LABEL"] <> '' ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
+	$arResult["GROUP_PROPERTIES"][$field]["EDIT_FORM_LABEL"] = StrLen($arUserField["EDIT_FORM_LABEL"]) > 0 ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
 	$arResult["GROUP_PROPERTIES"][$field]["EDIT_FORM_LABEL"] = htmlspecialcharsEx($arResult["GROUP_PROPERTIES"][$field]["EDIT_FORM_LABEL"]);
 	$arResult["GROUP_PROPERTIES"][$field]["~EDIT_FORM_LABEL"] = $arResult["GROUP_PROPERTIES"][$field]["EDIT_FORM_LABEL"];
 }
@@ -116,10 +116,10 @@ if (in_array($_GET["CALLBACK"], array("REFRESH", "GROUP")))
 
 if (!empty($arParams["TAB"]))
 {
-	$arResult["TAB"] = mb_strtolower($arParams["TAB"]);
+	$arResult["TAB"] = strtolower($arParams["TAB"]);
 }
 
-if ($_GET["tab"] <> '')
+if (strlen($_GET["tab"]) > 0)
 {
 	$arResult["TAB"] = $_GET["tab"];
 }
@@ -256,7 +256,7 @@ else
 		}
 	}
 
-	if ($arResult["FatalError"] == '')
+	if (StrLen($arResult["FatalError"]) <= 0)
 	{
 		if (
 			!array_key_exists("TAB", $arResult)
@@ -271,7 +271,7 @@ else
 
 		if (
 			$_SERVER["REQUEST_METHOD"] == "POST"
-			&& $_POST["save"] <> ''
+			&& strlen($_POST["save"]) > 0
 			&& check_bitrix_sessid()
 		)
 		{
@@ -355,23 +355,23 @@ else
 					}
 				}
 
-				if ($_POST["GROUP_NAME"] == '')
+				if (strlen($_POST["GROUP_NAME"]) <= 0)
 				{
 					$errorMessage[] = GetMessage(empty($_POST["GROUP_PROJECT"]) && $_POST["GROUP_PROJECT"] == 'Y' ? "SONET_GCE_ERR_NAME_PROJECT" : "SONET_GCE_ERR_NAME");
 					$arResult["ErrorFields"][] = "GROUP_NAME";
 				}
-				if (intval($_POST["GROUP_SUBJECT_ID"]) <= 0)
+				if (IntVal($_POST["GROUP_SUBJECT_ID"]) <= 0 && empty($_POST["SCRUM_PROJECT"]))
 				{
 					$errorMessage[] = GetMessage(!empty($_POST["GROUP_PROJECT"]) && $_POST["GROUP_PROJECT"] == 'Y' ? "SONET_GCE_ERR_SUBJECT_PROJECT" : "SONET_GCE_ERR_SUBJECT");
 					$arResult["ErrorFields"][] = "GROUP_SUBJECT_ID";
 				}
 
-				if ($_POST["GROUP_INITIATE_PERMS"] == '')
+				if (strlen($_POST["GROUP_INITIATE_PERMS"]) <= 0)
 				{
 					$errorMessage[] = GetMessage(!empty($_POST["GROUP_PROJECT"]) && $_POST["GROUP_PROJECT"] == 'Y' ? "SONET_GCE_ERR_PERMS_PROJECT" : "SONET_GCE_ERR_PERMS");
 					$arResult["ErrorFields"][] = "GROUP_INITIATE_PERMS";
 				}
-				if ($_POST["GROUP_SPAM_PERMS"] == '')
+				if (strlen($_POST["GROUP_SPAM_PERMS"]) <= 0)
 				{
 					$errorMessage[] .= GetMessage("SONET_GCE_ERR_SPAM_PERMS");
 					$arResult["ErrorFields"][] = "GROUP_SPAM_PERMS";
@@ -380,7 +380,7 @@ else
 				foreach ($arResult["POST"]["FEATURES"] as $feature => $arFeature)
 				{
 					$arResult["POST"]["FEATURES"][$feature]["Active"] = ($_POST[$feature."_active"] == "Y");
-					$arResult["POST"]["FEATURES"][$feature]["FeatureName"] = (trim($_POST[$feature."_name"]) <> '' ? trim($_POST[$feature."_name"]) : '');
+					$arResult["POST"]["FEATURES"][$feature]["FeatureName"] = (strlen(trim($_POST[$feature."_name"])) > 0 ? trim($_POST[$feature."_name"]) : '');
 				}
 
 				// owner
@@ -498,7 +498,7 @@ else
 						//adding e-mail from the input field to the list
 						if (
 							array_key_exists("EMAIL", $_POST)
-							&& $_POST["EMAIL"] <> ''
+							&& strlen($_POST["EMAIL"]) > 0
 							&& check_email($_POST["EMAIL"])
 						)
 						{
@@ -519,7 +519,7 @@ else
 						foreach ($arUsersListTmp as $userTmp)
 						{
 							$userTmp = Trim($userTmp);
-							if ($userTmp <> '')
+							if (StrLen($userTmp) > 0)
 							{
 								$arUsersList[] = $userTmp;
 							}
@@ -686,6 +686,34 @@ else
 
 				$USER_FIELD_MANAGER->EditFormAddFields("SONET_GROUP", $arFields);
 
+				if (!empty($_POST["SCRUM_PROJECT"]))
+				{
+					if (preg_match('/^U(\d+)$/', $_POST["SCRUM_OWNER_CODE"], $match) && intval($match[1]) > 0)
+					{
+						$ownerMasterId = (int) $match[1];
+					}
+					if (preg_match('/^U(\d+)$/', $_POST["SCRUM_MASTER_CODE"], $match) && intval($match[1]) > 0)
+					{
+						$scrumMasterId = (int) $match[1];
+					}
+					$arFields['SCRUM_OWNER_ID'] = $ownerMasterId;
+					$arFields['SCRUM_MASTER_ID'] = $scrumMasterId;
+					$arFields['SCRUM_SPRINT_DURATION'] = (int) $_POST["SCRUM_SPRINT_DURATION"];
+
+					//todo
+					$subjectQueryObject = CSocNetGroupSubject::getList(
+						["SORT"=>"ASC", "NAME" => "ASC"],
+						["SITE_ID" => $this->getSiteId()],
+						false,
+						false,
+						["ID"]
+					);
+					if ($subject = $subjectQueryObject->getNext())
+					{
+						$arFields['SUBJECT_ID'] = (int) $subject["ID"];
+					}
+				}
+
 				if ($arParams["GROUP_ID"] <= 0)
 				{
 					if (
@@ -703,7 +731,7 @@ else
 						{
 							$errorMessage[] = $e->GetString();
 							$errorID = $e->GetID();
-							if ($errorID <> '')
+							if (strlen($errorID) > 0)
 							{
 								$arResult["ErrorFields"][] = $errorID;
 							}
@@ -769,6 +797,15 @@ else
 							: array()
 					);
 
+					if (!empty($arFields['SCRUM_OWNER_ID']))
+					{
+						$plusList[] = $arFields['SCRUM_OWNER_ID'];
+					}
+					if (!empty($arFields['SCRUM_MASTER_ID']))
+					{
+						$plusList[] = $arFields['SCRUM_MASTER_ID'];
+					}
+
 					if (!empty($minusList))
 					{
 						$relationIdList = array();
@@ -825,7 +862,7 @@ else
 
 			if (
 				!empty($arImageID)
-				&& $arImageID["tmp_name"] <> ''
+				&& strlen($arImageID["tmp_name"]) > 0
 			)
 			{
 				CFile::ResizeImageDeleteCache($arImageID);
@@ -849,9 +886,9 @@ else
 							$feature,
 							($_POST[$feature."_active"] == "Y"),
 							(
-								$_REQUEST[$feature."_name"] <> ''
+								strlen($_REQUEST[$feature."_name"]) > 0
 									? $_REQUEST[$feature."_name"]
-									: ($arFeature["FeatureName"] <> '' ? $arFeature["FeatureName"] : false)
+									: (strlen($arFeature["FeatureName"]) > 0 ? $arFeature["FeatureName"] : false)
 							)
 						);
 
@@ -895,7 +932,7 @@ else
 
 						if (
 							$_POST["EXTRANET_INVITE_ACTION"] == "invite"
-							&& $_POST["EMAILS"] <> ''
+							&& strlen($_POST["EMAILS"]) > 0
 						)
 						{
 							if ($_POST["MESSAGE_TEXT"] != $inviteMessageTextDefault)
@@ -916,7 +953,7 @@ else
 									break;
 								}
 
-								if($addr <> '' && check_email($addr))
+								if(strlen($addr) > 0 && check_email($addr))
 								{
 									$addrX = "";
 									$phraseX = "";
@@ -1370,14 +1407,14 @@ else
 							$redirectPath = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_EDIT"], array("group_id" => $arResult["GROUP_ID"], "user_id" => $arResult["currentUserId"]));
 						}
 
-						$redirectPath .= (mb_strpos($redirectPath, "?") === false ? "?" :  "&")."POPUP=Y&SONET=Y";
+						$redirectPath .= (strpos($redirectPath, "?") === false ? "?" :  "&")."POPUP=Y&SONET=Y";
 						if ($arResult["TAB"] == "invite")
 						{
-							$redirectPath .= (mb_strpos($redirectPath, "?") === false ? "?" :  "&")."tab=invite";
+							$redirectPath .= (strpos($redirectPath, "?") === false ? "?" :  "&")."tab=invite";
 						}
 						elseif ($arResult["TAB"] == "edit")
 						{
-							$redirectPath .= (mb_strpos($redirectPath, "?") === false ? "?" :  "&")."tab=edit";
+							$redirectPath .= (strpos($redirectPath, "?") === false ? "?" :  "&")."tab=edit";
 						}
 
 						if ($bFirstStepSuccess)
@@ -1537,6 +1574,14 @@ else
 				);
 			}
 		}
+
+		if ($arResult["GROUP_ID"])
+		{
+			$group = Bitrix\Socialnetwork\Item\Workgroup::getById($arResult["GROUP_ID"]);
+			$arResult["isScrumProject"] = $group->isScrumProject();
+		}
+
+		$arResult['ScrumSprintDuration'] = Bitrix\Socialnetwork\Item\Workgroup::getListSprintDuration();
 
 		if (
 			!array_key_exists("TAB", $arResult)

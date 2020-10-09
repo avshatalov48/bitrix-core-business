@@ -117,7 +117,7 @@ ACTIONS
  ********************************************************************/
 
 
-if (!($_SERVER["REQUEST_METHOD"] == "POST" && (strlen($save)>0 || strlen($apply)>0))) {}
+if (!($_SERVER["REQUEST_METHOD"] == "POST" && ($save <> '' || $apply <> ''))) {}
 elseif (!check_bitrix_sessid()) {}
 else
 {
@@ -197,7 +197,7 @@ else
 		}
 	}
 	if (!$bVarsFromForm):
-		if (strlen($save)>0):
+		if ($save <> ''):
 			LocalRedirect("vote_question_list.php?lang=".LANGUAGE_ID."&VOTE_ID=".$voteId);
 		endif;
 		LocalRedirect("vote_question_edit.php?lang=".LANGUAGE_ID."&ID=$ID&VOTE_ID=".$voteId."&".$tabControl->ActiveTabParam());
@@ -363,7 +363,7 @@ $t_COL = array("00", "33", "66", "99", "CC", "FF");
 		<td>[<a href="vote_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$vote["ID"]?>" title="<?=GetMessage("VOTE_CONF")?>"><?=$vote["ID"]?></a>]&nbsp;
 			<?=htmlspecialcharsbx($vote["TITLE"])?></td>
 	</tr>
-	<?if (strlen($arQuestion["TIMESTAMP_X"]) > 0):?>
+	<?if ($arQuestion["TIMESTAMP_X"] <> ''):?>
 		<tr><td><?=GetMessage("VOTE_TIMESTAMP")?></td>
 			<td><?=$arQuestion["TIMESTAMP_X"]?></td>
 		</tr>
@@ -416,7 +416,7 @@ $t_COL = array("00", "33", "66", "99", "CC", "FF");
 	<tr>
 		<td><?=GetMessage("VOTE_IMAGE")?></td>
 		<td><?=CFile::InputFile("IMAGE_ID", 20, $arQuestion["IMAGE_ID"]);?><?
-			if (!is_array($arQuestion["IMAGE_ID"]) && strlen($arQuestion["IMAGE_ID"]) > 0):
+			if (!is_array($arQuestion["IMAGE_ID"]) && $arQuestion["IMAGE_ID"] <> ''):
 				?><br /><?=CFile::ShowImage($arQuestion["IMAGE_ID"], 200, 200, "border=0", "", true)?><?
 			endif;?>
 		</td>

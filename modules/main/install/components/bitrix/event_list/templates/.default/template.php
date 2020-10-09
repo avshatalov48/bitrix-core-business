@@ -184,7 +184,7 @@ if ($arResult["EVENT"])
 				<span class="event-list-item-avatar"<?
 				if (
 					array_key_exists("avatar", $arEvent["user"])
-					&& strlen($arEvent["user"]["avatar"]) > 0
+					&& $arEvent["user"]["avatar"] <> ''
 				)
 				{
 					?>style="background: url('<?=$arEvent["user"]["avatar"]?>') no-repeat 0 0;"<?

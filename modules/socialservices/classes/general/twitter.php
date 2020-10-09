@@ -90,7 +90,7 @@ class CSocServTwitter extends CSocServAuth
 				}
 
 				$arFields["PERSONAL_WWW"] = "https://twitter.com/".$arResult["screen_name"];
-				if(strlen(SITE_ID) > 0)
+				if(SITE_ID <> '')
 					$arFields["SITE_ID"] = SITE_ID;
 				if(COption::GetOptionString('socialservices','last_twit_id','1') == 1)
 				{
@@ -108,7 +108,7 @@ class CSocServTwitter extends CSocServAuth
 			$aRemove = array("logout", "auth_service_error", "auth_service_id", "oauth_token", "oauth_verifier", "check_key", "current_fieldset", "ncc");
 
 			$url = isset($_REQUEST['backurl']) ? $_REQUEST['backurl'] : $GLOBALS['APPLICATION']->GetCurPageParam(($bSuccess === true ? '' : 'auth_service_id='.self::ID.'&auth_service_error='.$bSuccess), $aRemove);
-			if(CModule::IncludeModule("socialnetwork") && strpos($url, "current_fieldset=") === false)
+			if(CModule::IncludeModule("socialnetwork") && mb_strpos($url, "current_fieldset=") === false)
 				$url = (preg_match("/\?/", $url)) ? $url."&current_fieldset=SOCSERV" : $url."?current_fieldset=SOCSERV";
 
 			$url .= (preg_match("/\?/", $url) ? '&' : '?').CSocServUtil::getOAuthProxyString();
@@ -566,8 +566,8 @@ class CTwitterInterface
 			return false;
 		}
 
-		if(strlen($message) > 139)
-			$message = substr($message, 0, 137)."...";
+		if(mb_strlen($message) > 139)
+			$message = mb_substr($message, 0, 137)."...";
 
 		if(!defined("BX_UTF"))
 			$message = CharsetConverter::ConvertCharset($message, LANG_CHARSET, "utf-8");

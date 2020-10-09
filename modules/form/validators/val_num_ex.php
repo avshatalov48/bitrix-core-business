@@ -66,7 +66,7 @@ class CFormValidatorNumberEx
 
 		foreach ($arValues as $value)
 		{
-			if (strlen($value) <= 0) continue;
+			if ($value == '') continue;
 
 			// do not return error if NaN, but set it to number -
 
@@ -85,14 +85,14 @@ class CFormValidatorNumberEx
 			}
 
 			// check minimum number
-			if (strlen($arParams["NUMBER_FROM"]) > 0 && $value < $arParams["NUMBER_FROM"])
+			if ($arParams["NUMBER_FROM"] <> '' && $value < $arParams["NUMBER_FROM"])
 			{
 				$APPLICATION->ThrowException(GetMessage("FORM_VALIDATOR_VAL_NUM_EX_ERROR_LESS"));
 				return false;
 			}
 
 			// check maximum number
-			if (strlen($arParams["NUMBER_TO"]) > 0 && $value > $arParams["NUMBER_TO"])
+			if ($arParams["NUMBER_TO"] <> '' && $value > $arParams["NUMBER_TO"])
 			{
 				$APPLICATION->ThrowException(GetMessage("FORM_VALIDATOR_VAL_NUM_EX_ERROR_MORE"));
 				return false;

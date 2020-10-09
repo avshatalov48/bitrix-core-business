@@ -61,10 +61,10 @@ final class Crawler
 					continue;
 				}
 
-				$classNamespace = strtolower(trim($reflectionClass->getNamespaceName(), '\\'));
-				$namespace = strtolower(trim($namespace, '\\'));
+				$classNamespace = mb_strtolower(trim($reflectionClass->getNamespaceName(), '\\'));
+				$namespace = mb_strtolower(trim($namespace, '\\'));
 
-				if (strpos($classNamespace, $namespace) === false)
+				if (mb_strpos($classNamespace, $namespace) === false)
 				{
 					continue;
 				}
@@ -75,12 +75,12 @@ final class Crawler
 				}
 
 				$controllerName = strtr($reflectionClass->getName(), '\\', '.');
-				$controllerName = strtolower($controllerName);
+				$controllerName = mb_strtolower($controllerName);
 
 				$controller = $this->constructController($reflectionClass);
 				foreach ($controller->listNameActions() as $actionName)
 				{
-					$actions[] = $controllerName . '.' . strtolower($actionName);
+					$actions[] = $controllerName.'.'.mb_strtolower($actionName);
 				}
 			}
 			catch (\ReflectionException $exception)
@@ -149,7 +149,7 @@ final class Crawler
 				continue;
 			}
 
-			$relativeFolder = trim(substr($file->getPath(), strlen($rootFolder)), '\\/');
+			$relativeFolder = trim(mb_substr($file->getPath(), mb_strlen($rootFolder)), '\\/');
 			$classes[] = $namespace . '\\' . strtr($relativeFolder, array('/' => '\\')) . '\\' . $file->getBasename('.php');
 		}
 

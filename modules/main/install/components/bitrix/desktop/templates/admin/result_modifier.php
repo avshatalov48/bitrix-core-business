@@ -14,7 +14,7 @@ if (!empty($arDiff))
 {
 	if (
 		array_key_exists("DEFAULT_ID", $arParams) 
-		&& strlen(trim($arParams["DEFAULT_ID"])) > 0
+		&& trim($arParams["DEFAULT_ID"]) <> ''
 	)
 	{
 		$arUserOptionsDefault = CUserOptions::GetOption("intranet", "~gadgets_".$arParams["DEFAULT_ID"], false, 0);
@@ -76,18 +76,18 @@ if (!empty($arDiff))
 				foreach($arParams as $id=>$p)
 				{
 					$pref = "G_".$gadget_id."_";
-					if(strpos($id, $pref) === 0)
+					if(mb_strpos($id, $pref) === 0)
 					{
-						$arGadgetParams[substr($id, strlen($pref))]=$p;
+						$arGadgetParams[mb_substr($id, mb_strlen($pref))]=$p;
 					}
 
 					$pref = "GU_".$gadget_id."_";
 					if(
-						strpos($id, $pref) === 0 
-						&& !isset($arGadgetParams[substr($id, strlen($pref))])
+						mb_strpos($id, $pref) === 0
+						&& !isset($arGadgetParams[mb_substr($id, mb_strlen($pref))])
 					)
 					{
-						$arGadgetParams[substr($id, strlen($pref))]=$p;
+						$arGadgetParams[mb_substr($id, mb_strlen($pref))]=$p;
 					}
 				}
 

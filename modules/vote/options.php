@@ -69,10 +69,10 @@ if ($request->isPost() && $request->getPost("edit_vote_options") === "Y")
 }
 if (COption::GetOptionString("vote", "VOTE_COMPATIBLE_OLD_TEMPLATE", "N") == "N")
 {
-	if (strlen(COption::GetOptionString("vote", "VOTE_TEMPLATE_PATH")) <= 0 &&
-		strlen(COption::GetOptionString("vote", "VOTE_TEMPLATE_PATH_VOTE")) <= 0 &&
-		strlen(COption::GetOptionString("vote", "VOTE_TEMPLATE_PATH_QUESTION")) <= 0 &&
-		strlen(COption::GetOptionString("vote", "VOTE_TEMPLATE_PATH_QUESTION_NEW")) <= 0)
+	if (COption::GetOptionString("vote", "VOTE_TEMPLATE_PATH") == '' &&
+		COption::GetOptionString("vote", "VOTE_TEMPLATE_PATH_VOTE") == '' &&
+		COption::GetOptionString("vote", "VOTE_TEMPLATE_PATH_QUESTION") == '' &&
+		COption::GetOptionString("vote", "VOTE_TEMPLATE_PATH_QUESTION_NEW") == '')
 	{
 		unset($arDisplayOptions["VOTE_COMPATIBLE_OLD_TEMPLATE"]);
 	}

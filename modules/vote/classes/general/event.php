@@ -45,7 +45,7 @@ class CAllVoteEvent
 		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
 		if ($zr = $z->Fetch())
 		{
-			if (strlen($zr["MESSAGE"])>0) return $zr["MESSAGE"]; else return $zr["ANSWER_ID"];
+			if ($zr["MESSAGE"] <> '') return $zr["MESSAGE"]; else return $zr["ANSWER_ID"];
 		}
 		return false;
 	}
@@ -81,11 +81,11 @@ class CAllVoteEvent
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if( ($val == '') || ($val === "NOT_REF") )
 						continue;
 				}
 				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys)) ? true : false;
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "ID":

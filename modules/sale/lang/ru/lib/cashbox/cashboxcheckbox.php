@@ -1,0 +1,18 @@
+<?php
+$MESS['SALE_CASHBOX_CHECKBOX_TITLE'] = 'Checkbox';
+$MESS['SALE_CASHBOX_CHECKBOX_SETTINGS_AUTH'] = 'Настройки авторизации';
+$MESS['SALE_CASHBOX_CHECKBOX_SETTINGS_AUTH_LOGIN_LABEL'] = 'Логин';
+$MESS['SALE_CASHBOX_CHECKBOX_SETTINGS_AUTH_PASSWORD_LABEL'] = 'Пароль';
+$MESS['SALE_CASHBOX_CHECKBOX_SETTINGS_AUTH_LICENSE_KEY_LABEL'] = 'Ключ лицензии кассы';
+$MESS['SALE_CASHBOX_CHECKBOX_SETTINGS_INTERACTION'] = 'Настройки взаимодействия';
+$MESS['SALE_CASHBOX_CHECKBOX_SETTINGS_HANDLER_MODE_LABEL'] = 'Режим работы кассы';
+$MESS['SALE_CASHBOX_CHECKBOX_MODE_TEST'] = 'тестовый';
+$MESS['SALE_CASHBOX_CHECKBOX_MODE_ACTIVE'] = 'рабочий';
+$MESS['SALE_CASHBOX_CHECKBOX_AUTHORIZATION_ERROR'] = 'Ошибка авторизации. Пожалуйста, проверьте правильность логина/пароля в настройках кассы';
+$MESS['SALE_CASHBOX_CHECKBOX_TOKEN_ERROR'] = 'Ошибка при получении токена';
+$MESS['SALE_CASHBOX_CHECKBOX_SHIFT_ALREADY_OPENED'] = 'Смена уже открыта';
+$MESS['SALE_CASHBOX_CHECKBOX_SHIFT_OPEN_ERROR'] = 'Ошибка при открытии смены';
+$MESS['SALE_CASHBOX_CHECKBOX_SHIFT_CLOSE_ERROR'] = 'Ошибка при закрытии смены';
+$MESS['SALE_CASHBOX_CHECKBOX_CHECK_PRINT_ERROR'] = 'Ошибка при печати чека';
+$MESS['SALE_CASHBOX_CHECKBOX_SETTINGS_VAT'] = 'Настройки ставок НДС';
+$MESS['SALE_CASHBOX_CHECKBOX_SETTINGS_VAT_LABEL_NOT_VAT'] = 'Без НДС [по умолчанию]';

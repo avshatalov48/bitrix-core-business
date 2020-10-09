@@ -16,10 +16,10 @@ if (!CModule::IncludeModule("learning"))
 }
 
 //Params
-$arParams["TEST_DETAIL_TEMPLATE"] = (strlen($arParams["TEST_DETAIL_TEMPLATE"]) > 0 ? htmlspecialcharsbx($arParams["TEST_DETAIL_TEMPLATE"]) : "course/test.php?TEST_ID=#TEST_ID#");
-$arParams["COURSE_DETAIL_TEMPLATE"] = (strlen($arParams["COURSE_DETAIL_TEMPLATE"]) > 0 ? htmlspecialcharsbx($arParams["COURSE_DETAIL_TEMPLATE"]) : "course/index.php?COURSE_ID=#COURSE_ID#");
+$arParams["TEST_DETAIL_TEMPLATE"] = ($arParams["TEST_DETAIL_TEMPLATE"] <> '' ? htmlspecialcharsbx($arParams["TEST_DETAIL_TEMPLATE"]) : "course/test.php?TEST_ID=#TEST_ID#");
+$arParams["COURSE_DETAIL_TEMPLATE"] = ($arParams["COURSE_DETAIL_TEMPLATE"] <> '' ? htmlspecialcharsbx($arParams["COURSE_DETAIL_TEMPLATE"]) : "course/index.php?COURSE_ID=#COURSE_ID#");
 
-if (strlen($arParams["TEST_ID_VARIABLE"]) <=0 || !preg_match("#^[A-Za-z_][A-Za-z01-9_]*$#", $arParams["TEST_ID_VARIABLE"]))
+if ($arParams["TEST_ID_VARIABLE"] == '' || !preg_match("#^[A-Za-z_][A-Za-z01-9_]*$#", $arParams["TEST_ID_VARIABLE"]))
 	$arParams["TEST_ID_VARIABLE"] = "TEST_ID";
 
 //Set Title

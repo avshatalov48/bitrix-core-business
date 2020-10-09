@@ -21,8 +21,8 @@ class CCourseSCORM
 	public function __construct($PACKAGE_DIR, $arSITE_ID)
 	{
 		//Cut last slash
-		if (substr($PACKAGE_DIR,-1, 1) == "/")
-			$PACKAGE_DIR = substr($PACKAGE_DIR, 0, -1);
+		if (mb_substr($PACKAGE_DIR, -1, 1) == "/")
+			$PACKAGE_DIR = mb_substr($PACKAGE_DIR, 0, -1);
 
 		$this->package_dir = $_SERVER["DOCUMENT_ROOT"].$PACKAGE_DIR;
 
@@ -65,7 +65,7 @@ class CCourseSCORM
 	{
 		global $APPLICATION;
 
-		if (strlen($this->LAST_ERROR)>0)
+		if ($this->LAST_ERROR <> '')
 			return false;
 
 		if (!$title = $this->objXML->SelectNodes("/manifest/organizations/organization/title"))
@@ -97,7 +97,7 @@ class CCourseSCORM
 	// 2012-04-19 Checked/modified for compatibility with new data model
 	protected function CreateContent($arItems = array(), $PARENT_ID = 0)
 	{
-		if (strlen($this->LAST_ERROR)>0)
+		if ($this->LAST_ERROR <> '')
 			return false;
 
 		if (empty($arItems))

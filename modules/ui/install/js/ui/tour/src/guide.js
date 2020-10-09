@@ -138,7 +138,7 @@ export class Guide extends Event.EventEmitter
 
 		this.showStep();
 
-		Dom.addClass(this.layout.backBtn, "ui-tour-popup-btn-disabled");
+		Dom.addClass(this.layout.backBtn, "ui-tour-popup-btn-hidden");
 
 		if (this.getCurrentStep().getTarget())
 		{
@@ -457,7 +457,9 @@ export class Guide extends Event.EventEmitter
 
 		if (this.currentStepIndex < this.steps.length && !this.finalStep)
 		{
-			this.layout.nextBtn.textContent = Loc.getMessage("JS_UI_TOUR_BUTTON");
+			setTimeout(function() {
+				this.layout.nextBtn.textContent = Loc.getMessage("JS_UI_TOUR_BUTTON");
+			}.bind(this), 200);
 		}
 
 		this.currentStepIndex--;
@@ -765,9 +767,9 @@ export class Guide extends Event.EventEmitter
 				this.showStep();
 			}.bind(this), 200);
 
-			if (Dom.hasClass(this.layout.backBtn, 'ui-tour-popup-btn-disabled'))
+			if (Dom.hasClass(this.layout.backBtn, 'ui-tour-popup-btn-hidden'))
 			{
-				Dom.removeClass(this.layout.backBtn, 'ui-tour-popup-btn-disabled');
+				Dom.removeClass(this.layout.backBtn, 'ui-tour-popup-btn-hidden');
 			}
 		}
 
@@ -783,7 +785,7 @@ export class Guide extends Event.EventEmitter
 
 		if (this.currentStepIndex === 0)
 		{
-			Dom.addClass(this.layout.backBtn, 'ui-tour-popup-btn-disabled');
+			Dom.addClass(this.layout.backBtn, 'ui-tour-popup-btn-hidden');
 		}
 
 		this.clickOnBackBtn = true;

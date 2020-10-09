@@ -15,11 +15,11 @@
 							$strSupportErrorText = "";
 							$strSupportErrorText .= "File: ".__FILE__."\n";
 
-							if (strlen($error_position)>0)
+							if ($error_position <> '')
 								$strSupportErrorText .= "[".$error_position."]\n";
-							if (strlen($strSql)>0)
+							if ($strSql <> '')
 								$strSupportErrorText .= "Query: ".$strSql."\n";
-							if (isset($this) && is_object($this) && strlen($this->db_Error)>0)
+							if (isset($this) && is_object($this) && $this->db_Error <> '')
 								$strSupportErrorText .= "[".$this->db_Error."]\n";
 
 							$d = Bitrix\Main\Diag\Helper::getBackTrace();

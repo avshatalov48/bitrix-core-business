@@ -41,7 +41,7 @@ final class ComponentController extends Controller
 		if (method_exists($this->component, $methodName))
 		{
 			$method = new \ReflectionMethod($this->component, $methodName);
-			if ($method->isPublic() && strtolower($method->getName()) === strtolower($methodName))
+			if ($method->isPublic() && mb_strtolower($method->getName()) === mb_strtolower($methodName))
 			{
 				return new InlineAction($actionName, $this->component, $this, $config);
 			}

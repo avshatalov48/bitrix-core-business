@@ -18,11 +18,11 @@ if (isset($photo_list_action) && $photo_list_action != "")
 		$this->InitComponentTemplate("", false, "");
 		$arCommentsParams = Array(
 			"POPUP_MODE" => "Y",
-			"ACTION_URL" => $arParams["ACTION_URL"].(strpos($arParams["ACTION_URL"], "?") === false ? "?" : "&")."photo_list_action=load_comments",
+			"ACTION_URL" => $arParams["ACTION_URL"].(mb_strpos($arParams["ACTION_URL"], "?") === false ? "?" : "&")."photo_list_action=load_comments",
 			"IBLOCK_TYPE" => $arParams["IBLOCK_TYPE"],
 			"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 			"SECTION_ID" => $arParams["SECTION_ID"],
-			"ELEMENT_ID" => intVal($_REQUEST["photo_element_id"]),
+			"ELEMENT_ID" => intval($_REQUEST["photo_element_id"]),
 			"COMMENTS_TYPE" => $arParams["COMMENTS_TYPE"],
 			"DETAIL_URL" => $arParams["~DETAIL_URL"],
 			"SECTION_URL" => $arParams["~SECTION_URL"],
@@ -37,7 +37,7 @@ if (isset($photo_list_action) && $photo_list_action != "")
 			"FETCH_USER_ALIAS" => preg_match("/#user_alias#/i".BX_UTF_PCRE_MODIFIER, $arParams["PATH_TO_USER"])
 		);
 
-		$arCommentsParams["COMMENTS_TYPE"] = (strToLower($arParams["COMMENTS_TYPE"]) == "forum" ? "forum" : "blog");
+		$arCommentsParams["COMMENTS_TYPE"] = (mb_strtolower($arParams["COMMENTS_TYPE"]) == "forum" ? "forum" : "blog");
 
 		if ($arCommentsParams["COMMENTS_TYPE"] == "blog")
 		{
@@ -80,8 +80,8 @@ if (isset($photo_list_action) && $photo_list_action != "")
 			$bs = new CIBlockElement;
 			foreach ($_REQUEST['pio'] as $id => $sort)
 			{
-				if (intVal($id) > 0 && intVal($sort) >= 0)
-					$bs->Update(intVal($id), array("SORT" => intVal($sort)),false,false);
+				if (intval($id) > 0 && intval($sort) >= 0)
+					$bs->Update(intval($id), array("SORT" => intval($sort)),false,false);
 			}
 
 			PClearComponentCacheEx($arParams["IBLOCK_ID"], array(0, $arParams["SECTION_ID"]));
@@ -148,7 +148,7 @@ if (isset($photo_list_action) && $photo_list_action != "")
 			"PROPERTY_REAL_PICTURE"
 		);
 
-		$angle = intVal($_REQUEST['angle']);
+		$angle = intval($_REQUEST['angle']);
 		$db_res = CIBlockElement::GetList(array(), $arFilter, false, false, $arSelect);
 
 		if ($arRes = $db_res->Fetch())
@@ -262,8 +262,8 @@ if (isset($photo_list_action) && $photo_list_action != "")
 	{
 		CUtil::JSPostUnEscape();
 		CModule::IncludeModule("iblock");
-		if (intVal($_REQUEST["SECTION_ID"]) > 0)
-			$arParams["SECTION_ID"] = intVal($_REQUEST["SECTION_ID"]);
+		if (intval($_REQUEST["SECTION_ID"]) > 0)
+			$arParams["SECTION_ID"] = intval($_REQUEST["SECTION_ID"]);
 		if (!$arParams["USER_ALIAS"] && isset($_REQUEST["USER_ALIAS"]))
 			$arParams["USER_ALIAS"] = $_REQUEST["USER_ALIAS"];
 

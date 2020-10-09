@@ -199,7 +199,7 @@ foreach ($columnList as $column)
 	if ($params['BILLEN_COLUMN_'.$column.'_SHOW'] == 'Y')
 	{
 		$arCols[$column] = array(
-			'NAME' => $params['BILLEN_COLUMN_'.$column.'_TITLE'],
+			'NAME' => htmlspecialcharsbx($params['BILLEN_COLUMN_'.$column.'_TITLE']),
 			'SORT' => $params['BILLEN_COLUMN_'.$column.'_SORT']
 		);
 	}
@@ -210,7 +210,7 @@ if ($params['USER_COLUMNS'])
 	foreach ($params['USER_COLUMNS'] as $id => $val)
 	{
 		$arCols[$id] = array(
-			'NAME' => $val['NAME'],
+			'NAME' => htmlspecialcharsbx($val['NAME']),
 			'SORT' => $val['SORT']
 		);
 	}

@@ -39,6 +39,8 @@
 		voiceStopped: 'Call::voiceStopped',
 		microphoneState: 'Call::microphoneState',
 		screenState: 'Call::screenState',
+		floorRequest: 'Call::floorRequest',
+		emotion: 'Call::emotion',
 		showUsers: 'Call::showUsers',
 		showAll: 'Call::showAll',
 		hideAll: 'Call::hideAll',
@@ -272,7 +274,6 @@
 		streamManager.off(VoxImplant.Hardware.HardwareEvents.DevicesUpdated, this.__onLocalDevicesUpdatedHandler);
 		streamManager.off(VoxImplant.Hardware.HardwareEvents.MediaRendererAdded, this.__onLocalMediaRendererAddedHandler);
 		streamManager.off(VoxImplant.Hardware.HardwareEvents.BeforeMediaRendererRemoved, this.__onBeforeLocalMediaRendererRemovedHandler);
-
 		this.clientEventsBound = false;
 	};
 
@@ -409,6 +410,16 @@
 		}
 		this.videoQuality = videoQuality;
 		this._applyCurrentVideoQuality();
+	};
+
+	BX.Call.VoximplantCall.prototype.requestFloor = function(requestActive)
+	{
+		this.signaling.sendFloorRequest(requestActive);
+	};
+
+	BX.Call.VoximplantCall.prototype.sendEmotion = function(toUserId, emotion)
+	{
+		this.signaling.sendEmotion(toUserId, emotion);
 	};
 
 	/**
@@ -1429,6 +1440,21 @@
 				screenState: message.screenState === "Y"
 			});
 		}
+		else if (eventName === clientEvents.floorRequest)
+		{
+			this.runCallback(BX.Call.Event.onUserFloorRequest, {
+				userId: message.senderId,
+				requestActive: message.requestActive === "Y"
+			})
+		}
+		else if (eventName === clientEvents.emotion)
+		{
+			this.runCallback(BX.Call.Event.onUserEmotion, {
+				userId: message.senderId,
+				toUserId: message.toUserId,
+				emotion: message.emotion
+			})
+		}
 		else if (eventName === "scenarioLogUrl")
 		{
 			console.warn("scenario log url: " + message.logUrl)
@@ -1443,7 +1469,6 @@
 	{
 		this.ready = false;
 		this._hideLocalVideo();
-
 		if(this.voximplantCall)
 		{
 			this.removeCallEvents();
@@ -1529,6 +1554,21 @@
 	{
 		return this.__sendMessage(clientEvents.screenState, {
 			screenState: screenState ? "Y" : "N"
+		});
+	};
+
+	BX.Call.VoximplantCall.Signaling.prototype.sendFloorRequest = function(requestActive)
+	{
+		return this.__sendMessage(clientEvents.floorRequest, {
+			requestActive: requestActive ? "Y" : "N"
+		});
+	};
+
+	BX.Call.VoximplantCall.Signaling.prototype.sendEmotion = function(toUserId, emotion)
+	{
+		return this.__sendMessage(clientEvents.emotion, {
+			toUserId: toUserId,
+			emotion: emotion
 		});
 	};
 

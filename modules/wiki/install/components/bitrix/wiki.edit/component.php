@@ -21,7 +21,7 @@ if(empty($arParams['SEF_MODE']))
 
 if(empty($arParams['SOCNET_GROUP_ID']) && $arParams['IN_COMPLEX'] == 'Y')
 {
-	if (strpos($this->GetParent()->GetName(), 'socialnetwork') !== false &&
+	if (mb_strpos($this->GetParent()->GetName(), 'socialnetwork') !== false &&
 		!empty($this->GetParent()->arResult['VARIABLES']['group_id']))
 		$arParams['SOCNET_GROUP_ID'] = $this->GetParent()->arResult['VARIABLES']['group_id'];
 }
@@ -33,7 +33,7 @@ if(empty($arParams['PATH_TO_POST']))
 	$arParams['PATH_TO_POST'] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?$arParams[PAGE_VAR]=#wiki_name#");
 
 $arParams['PATH_TO_POST_EDIT'] = trim($arParams['PATH_TO_POST_EDIT']);
-if(strlen($arParams['PATH_TO_POST_EDIT'])<=0)
+if($arParams['PATH_TO_POST_EDIT'] == '')
 {
 	$arParams['PATH_TO_POST_EDIT'] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?$arParams[PAGE_VAR]=#wiki_name#");
 	if ($arParams['IN_COMPLEX'] == 'Y' && $arParams['SEF_MODE'] == 'Y')
@@ -41,25 +41,25 @@ if(strlen($arParams['PATH_TO_POST_EDIT'])<=0)
 }
 
 $arParams['PATH_TO_HISTORY'] = trim($arParams['PATH_TO_HISTORY']);
-if(strlen($arParams['PATH_TO_HISTORY'])<=0)
+if($arParams['PATH_TO_HISTORY'] == '')
 	$arParams['PATH_TO_HISTORY'] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?$arParams[PAGE_VAR]=#wiki_name#");
 
 $arParams['PATH_TO_HISTORY_DIFF'] = trim($arParams['PATH_TO_HISTORY_DIFF']);
-if(strlen($arParams['PATH_TO_HISTORY_DIFF'])<=0)
+if($arParams['PATH_TO_HISTORY_DIFF'] == '')
 	$arParams['PATH_TO_HISTORY_DIFF'] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?$arParams[PAGE_VAR]=#wiki_name#");
 
 $arParams['PATH_TO_DISCUSSION'] = trim($arParams['PATH_TO_DISCUSSION']);
-if(strlen($arParams['PATH_TO_DISCUSSION'])<=0)
+if($arParams['PATH_TO_DISCUSSION'] == '')
 	$arParams['PATH_TO_DISCUSSION'] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?$arParams[PAGE_VAR]=#wiki_name#");
 
 $arParams['PATH_TO_CATEGORY'] = trim($arParams['PATH_TO_POST']);
 
 $arParams['PATH_TO_CATEGORIES'] = trim($arParams['PATH_TO_CATEGORIES']);
-if(strlen($arParams['PATH_TO_CATEGORIES'])<=0)
+if($arParams['PATH_TO_CATEGORIES'] == '')
 	$arParams['PATH_TO_CATEGORIES'] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?$arParams[OPER_VAR]=categories");
 
 $arParams['PATH_TO_USER'] = trim($arParams['PATH_TO_USER']);
-if(strlen($arParams['PATH_TO_USER'])<=0)
+if($arParams['PATH_TO_USER'] == '')
 {
 	if ($arParams['IN_COMPLEX'] == 'Y' && $arParams['SEF_MODE'] == 'Y')
 		$arParams['PATH_TO_USER'] = $this->GetParent()->arParams['PATH_TO_USER'];
@@ -315,7 +315,7 @@ else if ($arResult['IMAGE_UPLOAD'] == 'Y' && isset($_POST['do_upload']))
 		$file = $_FILES['FILE_ID'];
 		$file['name'] =  Encoding::convertEncoding($file['name'], 'UTF-8', Context::getCurrent()->getCulture()->getCharset());
 		$iCheckResult = CFile::CheckImageFile($file);
-		if (strlen($iCheckResult)==0)
+		if ($iCheckResult == '')
 		{
 			$_imgID = $CWiki->addImage($arParams['ELEMENT_ID'], $arParams['IBLOCK_ID'], $file);
 			if($_imgID !== false)
@@ -384,7 +384,7 @@ else
 							$arFields['NAME'] = $arParams['ELEMENT_NAME'] = $_POST['POST_TITLE'] = $arResult['ELEMENT']['NAME_LOCALIZE'];
 							$arResult['ERROR_MESSAGE'] = GetMessage('WIKI_ERROR_NAME_EMPTY');
 						}
-						else if (strpos($_POST['POST_TITLE'], '/') !== false)
+						else if (mb_strpos($_POST['POST_TITLE'], '/') !== false)
 						{
 							$arFields['NAME'] = $arParams['ELEMENT_NAME'] = $arResult['ELEMENT']['NAME_LOCALIZE'];
 							$arResult['ELEMENT']['NAME_LOCALIZE'] = $_POST["POST_TITLE"];
@@ -435,7 +435,7 @@ else
 
 						if(CWikiSocnet::IsSocNet() && $arResult['POST_TO_FEED'] == "Y" && !$bPageRedirect)
 						{
-							if (strlen($arParams['SOCNET_GROUP_ID']) > 0)
+							if ($arParams['SOCNET_GROUP_ID'] <> '')
 								CSocNetGroup::SetLastActivity(intval($arParams['SOCNET_GROUP_ID']));
 
 							$postUrl = str_replace(
@@ -600,7 +600,7 @@ else
 
 					$CWiki->Delete($arParams['ELEMENT_ID'], $arParams['IBLOCK_ID']);
 
-					if(strlen($strTitleTmp) > 0 && isset($arLog['ID']) && CWikiSocnet::IsSocNet())
+					if($strTitleTmp <> '' && isset($arLog['ID']) && CWikiSocnet::IsSocNet())
 					{
 						$arSoFields = Array(
 							'ENTITY_TYPE' => SONET_SUBSCRIBE_ENTITY_GROUP,
@@ -835,7 +835,7 @@ else
 	$arResult['~PATH_TO_POST_EDIT'] = rawurldecode($arResult['PATH_TO_POST_EDIT']);
 
 	//because it can change the page name, and hence the path for the parameter "Action" in tag "Form"
-	if (strpos(POST_FORM_ACTION_URI, 'SEF_APPLICATION_CUR_PAGE_URL=') !== false)
+	if (mb_strpos(POST_FORM_ACTION_URI, 'SEF_APPLICATION_CUR_PAGE_URL=') !== false)
 	{
 		$arResult['PATH_TO_POST_EDIT_SUBMIT'] = CHTTP::urlAddParams(
 			CHTTP::urlDeleteParams(POST_FORM_ACTION_URI, array('SEF_APPLICATION_CUR_PAGE_URL')),

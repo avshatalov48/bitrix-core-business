@@ -93,7 +93,7 @@ if($lAdmin->EditAction()) //save from the list
 			continue;
 
 		$DB->StartTransaction();
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$ob = new CGradeBook;
 		if(!$ob->Update($ID, $arFields))
@@ -125,7 +125,7 @@ if($arID = $lAdmin->GroupAction())
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
 
 		$ID = intval($ID);

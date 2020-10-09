@@ -8,12 +8,12 @@ if (!function_exists("__photo_template_default_comments_ending"))
 	function __photo_template_default_comments_ending($count)
 	{
 		$text = GetMessage("P_COMMENTS");
-		$count = intVal($count);
-		$iCount = intVal($count%100);
+		$count = intval($count);
+		$iCount = intval($count%100);
 
 		if (!(10 < $iCount && $iCount < 20))
 		{
-			$count = intVal($count % 10);
+			$count = intval($count % 10);
 			if ($count == 1)
 				$text = GetMessage("P_COMMENT");
 			elseif ($count > 1 && $count < 5)
@@ -29,12 +29,12 @@ if (!function_exists("__photo_template_default_shows_ending"))
 	function __photo_template_default_shows_ending($count)
 	{
 		$text = GetMessage("P_SHOWS");
-		$count = intVal($count);
-		$iCount = intVal($count%100);
+		$count = intval($count);
+		$iCount = intval($count%100);
 
 		if (!(10 < $iCount && $iCount < 20))
 		{
-			$count = intVal($count % 10);
+			$count = intval($count % 10);
 			if ($count == 1)
 				$text = GetMessage("P_SHOW");
 			elseif ($count > 1 && $count < 5)
@@ -55,7 +55,7 @@ $arParams["URL"] = trim($arParams["URL"]);
 $arParams["USE_COMMENTS"] = ($arParams["USE_COMMENTS"] == "Y" || $arParams["SHOW_COMMENTS"] == "Y" ? "Y" : "N");
 $arParams["USE_RATING"] = ($arParams["USE_RATING"] == "Y" || $arParams["SHOW_RATING"] == "Y" ? "Y" : "N");
 
-$arParams["COMMENTS_TYPE"] = (strToLower($arParams["COMMENTS_TYPE"]) == "forum" ? "forum" : "blog");
+$arParams["COMMENTS_TYPE"] = (mb_strtolower($arParams["COMMENTS_TYPE"]) == "forum" ? "forum" : "blog");
 
 if ($_REQUEST["return_array"] == "Y")
 {
@@ -92,7 +92,7 @@ if ($_REQUEST["return_array"] == "Y")
 		$arResult["ELEMENTS_LIST_JS"][$key]["comments"] = '';
 		if ($arParams["USE_COMMENTS"] == "Y")
 		{
-			$arResult["ELEMENTS_LIST_JS"][$key]["comments"] = intVal($arParams["COMMENTS_TYPE"] != "blog" ?
+			$arResult["ELEMENTS_LIST_JS"][$key]["comments"] = intval($arParams["COMMENTS_TYPE"] != "blog" ?
 					$arResult["ELEMENTS_LIST"][$key]["PROPERTIES"]["FORUM_MESSAGE_CNT"]["VALUE"] :
 					$arResult["ELEMENTS_LIST"][$key]["PROPERTIES"]["BLOG_COMMENTS_CNT"]["VALUE"]);
 			if ($arResult["ELEMENTS_LIST_JS"][$key]["comments"] > 0)
@@ -179,7 +179,7 @@ $arSlideParams = array('speed' => 4, 'effects' => 'N');
 if ($GLOBALS['USER']->IsAuthorized())
 {
 	$GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/main/admin_tools.js');
-	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".strToLower($GLOBALS["DB"]->type)."/favorites.php");
+	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
 	$arSlideParams = CUserOptions::GetOption('photogallery', 'slide', array('speed' => 4, 'effects' => 'N'));
 }
 $arSlideParams = (is_array($arSlideParams) ? $arSlideParams : array());
@@ -270,7 +270,7 @@ var oPhotoObjects = {
 };
 
 window.__photo_params = {
-	'user_id' : <?=intVal($GLOBALS['USER']->GetID())?>,
+	'user_id' : <?=intval($GLOBALS['USER']->GetID())?>,
 	'speed' : <?=$arSlideParams['speed']?>,
 	'effects' : <?=($arSlideParams['effects'] == "Y" ? "true" : "false");?>,
 	'template' : ('<div class="photo-title"><a href="#url#">#title#</a></div>' + <?

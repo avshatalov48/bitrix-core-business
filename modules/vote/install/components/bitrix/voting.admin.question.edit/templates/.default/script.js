@@ -525,18 +525,20 @@
 
 	  if (grid) {
 	    var rows = grid.getRows().getRows();
-	    var attrs, id;
 	    rows.forEach(function (current) {
-	      if (current.getIndex() < 1) return;
-	      id = current.getId();
-	      form.appendChild(BX.create('INPUT', {
+	      if (current.getIndex() < 1 || current.getId() === "template_0") {
+	        return;
+	      }
+
+	      var id = current.getId();
+	      form.appendChild(BX.create("INPUT", {
 	        props: {
 	          type: "hidden",
 	          name: "ANSWER[" + id.toLowerCase() + "][ID]",
 	          value: id
 	        }
 	      }));
-	      attrs = BX.parseJSON(BX.data(current.getNode(), "item"), current);
+	      var attrs = BX.parseJSON(BX.data(current.getNode(), "item"), current);
 
 	      var func = function func(prefix, params, depth) {
 	        var key;

@@ -1,12 +1,4 @@
 <?
-/*
-##############################################
-# Bitrix: SiteManager                        #
-# Copyright (c) 2004 Bitrix                  #
-# http://www.bitrix.ru                       #
-# mailto:admin@bitrix.ru                     #
-##############################################
-*/
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/form/prolog.php");
 
@@ -16,11 +8,10 @@ ClearVars();
 
 $FORM_RIGHT = $APPLICATION->GetGroupRight("form");
 if($FORM_RIGHT<="D") $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
-//require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/form/include.php");
 
 $WEB_FORM_ID = intval($WEB_FORM_ID);
 $z = CForm::GetByID($WEB_FORM_ID);
-if ($form=$z->Fetch()) 
+if ($form=$z->Fetch())
 {
 	$SHOW_ADDITIONAL = "Y";
 	$SHOW_ANSWER_VALUE = "Y";
@@ -35,4 +26,3 @@ if ($form=$z->Fetch())
 	require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/form/admin/body/form_result_list_table_excel.php");
 	require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_excel.php");
 }
-?>

@@ -11,7 +11,7 @@ class Factory
 		$spaceList = explode('\\', $object);
 		$objectClassName = array_pop($spaceList);
 		array_push($spaceList, 'Services', $objectClassName);
-		$className = implode('\\', $spaceList) . strtoupper(substr($type, 0, 1)) . strtolower(substr($type, 1));
+		$className = implode('\\', $spaceList).mb_strtoupper(mb_substr($type, 0, 1)).mb_strtolower(mb_substr($type, 1));
 
 		if (!class_exists($object))
 		{

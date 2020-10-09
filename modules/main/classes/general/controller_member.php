@@ -24,16 +24,16 @@ class CControllerClient
 
 		$prefix = COption::GetOptionString("main", "auth_controller_prefix", "controller");
 		if(
-			($prefix!='' && substr(strtolower($arParams["LOGIN"]), 0, strlen($prefix)+1) == $prefix.'\\')
+			($prefix!='' && mb_substr(mb_strtolower($arParams["LOGIN"]), 0, mb_strlen($prefix) + 1) == $prefix.'\\')
 			||
-			($prefix=='' && strpos($arParams["LOGIN"], "\\")===false)
+			($prefix=='' && mb_strpos($arParams["LOGIN"], "\\") === false)
 		)
 		{
 			$site = $prefix;
 			if($prefix=='')
 				$login = $arParams["LOGIN"];
 			else
-				$login = substr($arParams["LOGIN"], strlen($prefix)+1);
+				$login = mb_substr($arParams["LOGIN"], mb_strlen($prefix) + 1);
 			$password = $arParams["PASSWORD"];
 			$arVars = array("login"=>$login, "password"=>$password);
 
@@ -54,11 +54,11 @@ class CControllerClient
 		}
 		elseif(
 			COption::GetOptionString("main", "auth_controller_sso", "N")=="Y"
-			&& strpos($arParams["LOGIN"], "\\") > 0
+			&& mb_strpos($arParams["LOGIN"], "\\") > 0
 		)
 		{
-			$site = substr($arParams["LOGIN"], 0, strpos($arParams["LOGIN"], "\\"));
-			$login = substr($arParams["LOGIN"], strpos($arParams["LOGIN"], "\\")+1);
+			$site = mb_substr($arParams["LOGIN"], 0, mb_strpos($arParams["LOGIN"], "\\"));
+			$login = mb_substr($arParams["LOGIN"], mb_strpos($arParams["LOGIN"], "\\") + 1);
 			$password = $arParams["PASSWORD"];
 			$arVars = array("login"=>$login, "password"=>$password, "site"=>$site);
 
@@ -78,16 +78,16 @@ class CControllerClient
 		}
 		elseif(
 			COption::GetOptionString("controller", "auth_controller_enabled", "N") === "Y"
-			&& strpos($arParams["LOGIN"], "\\") > 0
+			&& mb_strpos($arParams["LOGIN"], "\\") > 0
 			&& CModule::IncludeModule("controller")
 		)
 		{
-			$site = substr($arParams["LOGIN"], 0, strpos($arParams["LOGIN"], "\\"));
-			$login = substr($arParams["LOGIN"], strpos($arParams["LOGIN"], "\\")+1);
+			$site = mb_substr($arParams["LOGIN"], 0, mb_strpos($arParams["LOGIN"], "\\"));
+			$login = mb_substr($arParams["LOGIN"], mb_strpos($arParams["LOGIN"], "\\") + 1);
 			$password = $arParams["PASSWORD"];
 
-			$url = strtolower(trim($site, " \t\r\n./"));
-			if(substr($url, 0, 7) != "http://" && substr($url, 0, 8) != "https://")
+			$url = mb_strtolower(trim($site, " \t\r\n./"));
+			if(mb_substr($url, 0, 7) != "http://" && mb_substr($url, 0, 8) != "https://")
 				$url = array("http://".$url, "https://".$url);
 
 			$dbr_mem = CControllerMember::GetList(
@@ -124,11 +124,11 @@ class CControllerClient
 		////////////////////////////////////////////////////////
 		/// сравнивать не просто логин, а полностью\логин
 		/////////////////////////
-		if(is_array($arUser) && strtolower($arUser['LOGIN']) == strtolower($login))
+		if(is_array($arUser) && mb_strtolower($arUser['LOGIN']) == mb_strtolower($login))
 		{
 			//When user did not fill any inforamtion about
 			//we'll use first part of his e-mail like login
-			if(strlen($arUser["NAME"]) == 0 && strlen($arUser["SECOND_NAME"]) == 0)
+			if($arUser["NAME"] == '' && $arUser["SECOND_NAME"] == '')
 			{
 				if(preg_match("/^(.+)@/", $arUser["LOGIN"], $match))
 					$arUser["NAME"] = $match[1];
@@ -408,7 +408,7 @@ class CControllerClient
 		if(COption::GetOptionString("main", "controller_member", "N")=="Y")
 			return false;
 
-		if(strlen($arMemberParams["URL"])<=0)
+		if($arMemberParams["URL"] == '')
 			$arMemberParams["URL"] = $_SERVER['HTTP_HOST'];
 
 		list($member_id, $member_secret_id, $ticket_id) = CControllerClient::InitTicket($controller_url);
@@ -547,7 +547,7 @@ class CControllerClient
 	public static function Unlink()
 	{
 		$disconnect_command = COption::GetOptionString("main", "~controller_disconnect_command", "");
-		if(strlen($disconnect_command)>0)
+		if($disconnect_command <> '')
 			eval($disconnect_command);
 		COption::SetOptionString("main", "controller_member", "N");
 	}
@@ -1150,7 +1150,7 @@ class __CControllerPacketRequest extends __CControllerPacket
 	 **/
 	public function RedirectRequest($url)
 	{
-		if(strpos($url, "?")>0)
+		if(mb_strpos($url, "?") > 0)
 			$url .= '&';
 		else
 			$url .= '?';
@@ -1182,31 +1182,31 @@ class __CControllerPacketRequest extends __CControllerPacket
 		global $APPLICATION;
 
 		$server_port = 80;
-		$server_name = strtolower(trim($url, "/ \r\n\t"));
-		if (substr($server_name, 0, 7)=='http://')
+		$server_name = mb_strtolower(trim($url, "/ \r\n\t"));
+		if (mb_substr($server_name, 0, 7) == 'http://')
 		{
-			$server_name = substr($server_name, 7);
+			$server_name = mb_substr($server_name, 7);
 		}
-		elseif (substr($server_name, 0, 8)=='https://')
+		elseif (mb_substr($server_name, 0, 8) == 'https://')
 		{
-			$server_name = substr($server_name, 8);
+			$server_name = mb_substr($server_name, 8);
 			$server_port = 443;
 		}
 
 		if (preg_match('/.+:([0-9]+)$/', $server_name, $matches))
 		{
 			$server_port = $matches[1];
-			$server_name = substr($server_name, 0, 0 - strlen($server_port) - 1);
+			$server_name = mb_substr($server_name, 0, 0 - mb_strlen($server_port) - 1);
 		}
 
 		$proxy_url = CPageOption::GetOptionString("main", "controller_proxy_url", "");
 		$proxy_port = CPageOption::GetOptionString("main", "controller_proxy_port", "");
-		$bUseProxy = (strlen($proxy_url) > 0 && strlen($proxy_port) > 0);
+		$bUseProxy = ($proxy_url <> '' && $proxy_port <> '');
 		if (!$bUseProxy)
 		{
 			$proxy_url = COption::GetOptionString("main", "controller_proxy_url", "");
 			$proxy_port = COption::GetOptionString("main", "controller_proxy_port", "");
-			$bUseProxy = (strlen($proxy_url) > 0 && strlen($proxy_port) > 0);
+			$bUseProxy = ($proxy_url <> '' && $proxy_port <> '');
 		}
 
 		// соедин€емс€ с удаленным сервером
@@ -1262,7 +1262,7 @@ class __CControllerPacketRequest extends __CControllerPacket
 
 			$proxy_user = COption::GetOptionString("main", "controller_proxy_user", "");
 			$proxy_password = COption::GetOptionString("main", "controller_proxy_password", "");
-			if (strlen($proxy_user) > 0)
+			if ($proxy_user <> '')
 			{
 				$strRequest .= "Proxy-Authorization: Basic ".base64_encode($proxy_user.":".$proxy_password)."\r\n";
 			}
@@ -1276,7 +1276,7 @@ class __CControllerPacketRequest extends __CControllerPacket
 		$strRequest .= "Host: ".$server_name."\r\n";
 		$strRequest .= "Accept-Language: en\r\n";
 		$strRequest .= "Content-type: application/x-www-form-urlencoded\r\n";
-		$strRequest .= "Content-length: ".strlen($strVars)."\r\n\r\n";
+		$strRequest .= "Content-length: ".mb_strlen($strVars)."\r\n\r\n";
 		$strRequest .= $strVars."\r\n";
 
 		if ($this->isDebugEnabled())
@@ -1386,7 +1386,7 @@ class __CControllerPacketResponse extends __CControllerPacket
 	// ¬озвращает успешно ли выполнилс€ запрос по статус его ответа
 	function OK()
 	{
-		return (substr($this->status, 0, 1)=="2");
+		return (mb_substr($this->status, 0, 1) == "2");
 	}
 
 	// –азбирает строку ответа по пол€м объекта
@@ -1426,13 +1426,13 @@ class __CControllerPacketResponse extends __CControllerPacket
 		$this->version = $ar_result['version'];
 
 		if (
-			strlen($this->status) <= 0
-			&& strlen($this->text) <= 0
-			&& strlen($this->member_id) <= 0
+			$this->status == ''
+			&& $this->text == ''
+			&& $this->member_id == ''
 		)
 		{
 			$this->status = "479";
-			$this->text = GetMessage("MAIN_CMEMBER_ERR7")." ".substr($result, 0, 1000);
+			$this->text = GetMessage("MAIN_CMEMBER_ERR7")." ".mb_substr($result, 0, 1000);
 		}
 	}
 
@@ -1565,7 +1565,7 @@ class CControllerClientRequestFrom extends __CControllerPacketRequest
 	function Check()
 	{
 		$member_id = COption::GetOptionString("main", "controller_member_id", "");
-		if(strlen($member_id)<=0 || $member_id != $this->member_id)
+		if($member_id == '' || $member_id != $this->member_id)
 		{
 			$e = new CApplicationException("Bad member_id: ((get)".$member_id."!=(own)".$this->member_id.")");
 			$GLOBALS["APPLICATION"]->ThrowException($e);

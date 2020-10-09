@@ -216,7 +216,7 @@ class Entities
 		{
 			foreach($selectedItems as $key => $entityType)
 			{
-				$entityType = strtoupper($entityType);
+				$entityType = mb_strtoupper($entityType);
 				if (!isset($selectedItemsByEntityType[$entityType]))
 				{
 					$selectedItemsByEntityType[$entityType] = array();
@@ -363,7 +363,7 @@ class Entities
 
 			if (!empty($params["CODE_TYPE"]))
 			{
-				$filter["=CODE_TYPE"] = strtoupper($params["CODE_TYPE"]);
+				$filter["=CODE_TYPE"] = mb_strtoupper($params["CODE_TYPE"]);
 			}
 			elseif (
 				empty($params["CRM"])
@@ -494,7 +494,7 @@ class Entities
 
 			$contextType = (
 				isset($params["DEST_CONTEXT"])
-				&& strtoupper($params["DEST_CONTEXT"]) == strtoupper($dest["CONTEXT"])
+				&& mb_strtoupper($params["DEST_CONTEXT"]) == mb_strtoupper($dest["CONTEXT"])
 					? "Y"
 					: "N"
 			);

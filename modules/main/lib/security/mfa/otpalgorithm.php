@@ -92,7 +92,7 @@ abstract class OtpAlgorithm
 
 		$opts['algorithm'] = $this->getDigest();
 		// Digest must be in upper case for some OTP apps (e.g Google Authenticator for iOS)
-		$opts['algorithm'] = strtoupper($opts['algorithm']);
+		$opts['algorithm'] = mb_strtoupper($opts['algorithm']);
 		$opts['digits'] = $this->getDigits();
 
 		ksort($opts);
@@ -184,8 +184,8 @@ abstract class OtpAlgorithm
 		}
 		else
 		{
-			$lenExpected = strlen($expected);
-			$lenActual = strlen($actual);
+			$lenExpected = mb_strlen($expected);
+			$lenActual = mb_strlen($actual);
 		}
 
 		$status = $lenExpected ^ $lenActual;

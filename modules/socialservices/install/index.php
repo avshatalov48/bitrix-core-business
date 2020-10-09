@@ -13,7 +13,7 @@ class socialservices extends CModule
 	{
 		$arModuleVersion = array();
 
-		include(substr(__FILE__, 0,  -10)."/version.php");
+		include(__DIR__.'/version.php');
 
 		$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 		$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
@@ -81,7 +81,7 @@ class socialservices extends CModule
 
 		if(!array_key_exists("savedata", $arParams) || $arParams["savedata"] != "Y")
 		{
-			$errors = $DB->RunSQLBatch($DOCUMENT_ROOT."/bitrix/modules/socialservices/install/db/".strtolower($DB->type)."/uninstall.sql");
+			$errors = $DB->RunSQLBatch($DOCUMENT_ROOT."/bitrix/modules/socialservices/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
 			if (!empty($errors))
 			{
 				$APPLICATION->ThrowException(implode("", $errors));
@@ -148,7 +148,7 @@ class socialservices extends CModule
 	function DoInstall()
 	{
 		global $DOCUMENT_ROOT, $APPLICATION, $step;
-		$step = IntVal($step);
+		$step = intval($step);
 		if($step<2)
 		{
 			$APPLICATION->IncludeAdminFile(GetMessage("socialservices_install_title_inst"), $DOCUMENT_ROOT."/bitrix/modules/socialservices/install/step1.php");
@@ -164,7 +164,7 @@ class socialservices extends CModule
 	function DoUninstall()
 	{
 		global $DOCUMENT_ROOT, $APPLICATION, $step, $errors;
-		$step = IntVal($step);
+		$step = intval($step);
 		if($step<2)
 		{
 			$APPLICATION->IncludeAdminFile(GetMessage("socialservices_install_title_inst"), $DOCUMENT_ROOT."/bitrix/modules/socialservices/install/unstep1.php");

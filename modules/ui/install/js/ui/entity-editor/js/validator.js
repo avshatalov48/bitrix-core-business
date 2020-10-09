@@ -246,3 +246,38 @@ if(typeof BX.UI.EntityValidationResult === "undefined")
 		return self;
 	};
 }
+if(typeof BX.UI.EntityAsyncValidator === "undefined")
+{
+	BX.UI.EntityAsyncValidator = function()
+	{
+		this.promisesList = [];
+		this.isValid = true;
+	};
+	BX.UI.EntityAsyncValidator.prototype =
+		{
+			addResult: function(validationResult)
+			{
+				if (validationResult instanceof Promise || validationResult instanceof BX.Promise)
+				{
+					this.promisesList.push(validationResult);
+				}
+				else
+				{
+					this.isValid = (this.isValid && validationResult);
+				}
+			},
+			validate: function()
+			{
+				if (this.promisesList.length)
+				{
+					return Promise.all(this.promisesList);
+				}
+
+				return this.isValid;
+			}
+		};
+	BX.UI.EntityAsyncValidator.create = function()
+	{
+		return new BX.UI.EntityAsyncValidator();
+	};
+}

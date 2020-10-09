@@ -19,7 +19,7 @@ class ErrorCatcher
 			is_string($errorText) &&
 			\Bitrix\Main\Config\Option::get("main", "uploaderLog", "N") == "Y")
 		{
-			trigger_error("Uploading error! Path: ".substr($path, 0, 100)."\n Text:".substr($errorText, 0, 500), E_USER_WARNING);
+			trigger_error("Uploading error! Path: ".mb_substr($path, 0, 100)."\n Text:".mb_substr($errorText, 0, 500), E_USER_WARNING);
 		}
 	}
 }

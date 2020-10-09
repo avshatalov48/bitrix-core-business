@@ -79,7 +79,7 @@ ShowMessage($arAuthResult);
 </form>
 <script>
 <!--
-<? if (strlen($last_login)>0) : ?>
+<? if ($last_login <> '') : ?>
 try{document.form_auth.USER_PASSWORD.focus();}catch(e){}
 <? else : ?>
 try{document.form_auth.USER_LOGIN.focus();}catch(e){}

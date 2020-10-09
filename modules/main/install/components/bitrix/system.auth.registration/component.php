@@ -79,11 +79,11 @@ $arRequestParams = array(
 
 foreach ($arRequestParams as $param)
 {
-	$arResult[$param] = strlen($_REQUEST[$param]) > 0 ? $_REQUEST[$param] : "";
+	$arResult[$param] = $_REQUEST[$param] <> '' ? $_REQUEST[$param] : "";
 	$arResult[$param] = htmlspecialcharsbx($arResult[$param]);
 }
 
-$arResult["USER_EMAIL"] = htmlspecialcharsbx(strlen($_REQUEST["sf_EMAIL"])>0 ? $_REQUEST["sf_EMAIL"] : $_REQUEST["USER_EMAIL"]);
+$arResult["USER_EMAIL"] = htmlspecialcharsbx($_REQUEST["sf_EMAIL"] <> '' ? $_REQUEST["sf_EMAIL"] : $_REQUEST["USER_EMAIL"]);
 
 // ********************* User properties ***************************************************
 $arResult["USER_PROPERTIES"] = array("SHOW" => "N");
@@ -94,7 +94,7 @@ if (is_array($arUserFields) && count($arUserFields) > 0)
 	{
 		if ($arUserField["MANDATORY"] != "Y")
 			continue;
-		$arUserField["EDIT_FORM_LABEL"] = strlen($arUserField["EDIT_FORM_LABEL"]) > 0 ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
+		$arUserField["EDIT_FORM_LABEL"] = $arUserField["EDIT_FORM_LABEL"] <> '' ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
 		$arUserField["EDIT_FORM_LABEL"] = htmlspecialcharsEx($arUserField["EDIT_FORM_LABEL"]);
 		$arUserField["~EDIT_FORM_LABEL"] = $arUserField["EDIT_FORM_LABEL"];
 		$arResult["USER_PROPERTIES"]["DATA"][$FIELD_NAME] = $arUserField;

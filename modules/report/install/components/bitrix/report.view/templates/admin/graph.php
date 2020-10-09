@@ -438,7 +438,7 @@ if ($errorCode === 0)
 		ShowImageHeader($imageHandle);
 		$img_base64 = base64_encode(ob_get_contents());
 		ob_end_clean();
-		if (substr($img_base64, 0, 5) === 'iVBOR')
+		if (mb_substr($img_base64, 0, 5) === 'iVBOR')
 		{
 			$imageData = 'data:image/png;base64,'.PHP_EOL.chunk_split($img_base64);
 			$response = array(

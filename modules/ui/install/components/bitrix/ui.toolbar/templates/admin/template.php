@@ -32,7 +32,7 @@ $titleStyles = !empty($titleProps) ? ' style="'.$titleProps.'"' : "";
 
 <div id="uiToolbarContainer" class="ui-toolbar"><?
 	?><div id="pagetitleContainer" class="ui-toolbar-title-box"<?=$titleStyles?>><?
-		?><span id="pagetitle" class="ui-toolbar-title-item"><?=$APPLICATION->getTitle(false)?></span><?
+		?><span id="pagetitle" class="ui-toolbar-title-item"><?=$APPLICATION->getTitle(false, true)?></span><?
 		?><?= $favoriteStar ?><?
 	?></div><?
 

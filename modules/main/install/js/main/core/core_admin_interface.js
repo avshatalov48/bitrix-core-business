@@ -3094,17 +3094,25 @@ BX.adminTabControl.prototype.Init = function()
 
 BX.adminTabControl.prototype.setFormDataForSidePanel = function()
 {
-	if (!BX.SidePanel.Instance)
+	var sidePanel = top.BX.SidePanel ? top.BX.SidePanel : BX.SidePanel,
+		slider,
+		dictionary;
+	if (typeof sidePanel === 'undefined')
+	{
+		return;
+	}
+	if (!sidePanel.Instance)
 	{
 		return;
 	}
 
-	var slider = BX.SidePanel.Instance.getSliderByWindow(window);
+	slider = sidePanel.Instance.getSliderByWindow(window);
 	if (slider)
 	{
-		var dictionary = slider.getData();
+		dictionary = slider.getData();
 		dictionary.set("adminTabControlInstance", this);
 	}
+	sidePanel = null;
 };
 
 BX.adminTabControl.prototype.onClickSidePanelButtons = function(event)
@@ -4968,7 +4976,7 @@ BX.AdminFilter = function(filter_id, aRows)
 
 		tab.id = "adm-filter-tab-"+this.filter_id+"-"+newId;
 
-		if(this.url)
+		if(this.url && BX.adminMenu)
 		{
 			var registerUrl = BX.util.remove_url_param(this.url,["adm_filter_applied","adm_filter_preset"]);
 			registerUrl += "&adm_filter_applied" + '=' + BX.util.urlencode(newId);
@@ -6233,8 +6241,15 @@ BX.admFltTab.prototype = {
 
 	_RegisterDD: function(tabId, url, name)
 	{
+		if(!BX.adminMenu)
+		{
+			return;
+		}
+
 		if(!url)
-			return false;
+		{
+			return;
+		}
 
 		var registerUrl = BX.util.remove_url_param(url, ["adm_filter_applied","adm_filter_preset"]);
 		registerUrl += "&adm_filter_applied" + '=' + BX.util.urlencode(this.id);

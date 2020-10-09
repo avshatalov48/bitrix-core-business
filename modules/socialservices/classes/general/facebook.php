@@ -137,7 +137,7 @@ class CSocServFacebook extends CSocServAuth
 
 		$arFields["PERSONAL_WWW"] = $this->getProfileUrl($arFBUser['id']);
 
-		if(strlen(SITE_ID) > 0)
+		if(SITE_ID <> '')
 		{
 			$arFields["SITE_ID"] = SITE_ID;
 		}
@@ -191,7 +191,7 @@ class CSocServFacebook extends CSocServAuth
 			if(isset($arState['backurl']) || isset($arState['redirect_url']))
 			{
 				$url = !empty($arState['redirect_url']) ? $arState['redirect_url'] : $arState['backurl'];
-				if(substr($url, 0, 1) !== "#")
+				if(mb_substr($url, 0, 1) !== "#")
 				{
 					$parseUrl = parse_url($url);
 
@@ -202,7 +202,7 @@ class CSocServFacebook extends CSocServAuth
 					{
 						foreach($aRemove as $param)
 						{
-							if(strpos($value, $param."=") === 0)
+							if(mb_strpos($value, $param."=") === 0)
 							{
 								unset($arUrlQuery[$key]);
 								break;
@@ -225,9 +225,9 @@ class CSocServFacebook extends CSocServAuth
 			$url = (isset($urlPath)) ? $urlPath.'?auth_service_id='.self::ID.'&auth_service_error='.$authError : $GLOBALS['APPLICATION']->GetCurPageParam(('auth_service_id='.self::ID.'&auth_service_error='.$authError), $aRemove);
 		}
 
-		if(CModule::IncludeModule("socialnetwork") && strpos($url, "current_fieldset=") === false)
+		if(CModule::IncludeModule("socialnetwork") && mb_strpos($url, "current_fieldset=") === false)
 		{
-			$url .= ((strpos($url, "?") === false) ? '?' : '&')."current_fieldset=SOCSERV";
+			$url .= ((mb_strpos($url, "?") === false) ? '?' : '&')."current_fieldset=SOCSERV";
 		}
 ?>
 <script type="text/javascript">

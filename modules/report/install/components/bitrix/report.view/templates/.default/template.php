@@ -1150,7 +1150,7 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 										.'">'.$v.'</a>';
 									}
 								}
-								elseif (strlen($row[$col['resultName']]))
+								elseif($row[$col['resultName']] <> '')
 								{
 									$finalValue = '<a target="_blank" href="'.$row['__HREF_'.$col['resultName']].'">'.$row[$col['resultName']].'</a>';
 								}
@@ -1975,13 +1975,13 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 	<i class="r0"></i><i class="r1"></i><i class="r2"></i>
 </div>
 
-<? if (strlen($arResult['report']['DESCRIPTION'])): ?>
+<? if($arResult['report']['DESCRIPTION'] <> ''): ?>
 	<div class="sidebar-block">
 		<b class="r2"></b><b class="r1"></b><b class="r0"></b>
 		<div class="sidebar-block-inner">
-			<div class="filter-block-title report-filter-block-title"><?=GetMessage('REPORT_DESCRIPTION')?></div>
+			<div class="filter-block-title report-filter-block-title"><?= GetMessage('REPORT_DESCRIPTION') ?></div>
 			<div class="reports-description-text">
-				<?=htmlspecialcharsbx($arResult['report']['DESCRIPTION'])?>
+				<?= htmlspecialcharsbx($arResult['report']['DESCRIPTION']) ?>
 			</div>
 		</div>
 	</div>

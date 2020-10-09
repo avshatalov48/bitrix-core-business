@@ -324,7 +324,7 @@ class Catalog
 		$result = \CSaleOrderPropsValue::GetList(array(), array("ORDER_ID" => $orderId));
 		while ($row = $result->fetch())
 		{
-			if (empty($phone) && stripos($row['CODE'], 'PHONE') !== false)
+			if (empty($phone) && mb_stripos($row['CODE'], 'PHONE') !== false)
 			{
 				$stPhone = static::normalizePhoneNumber($row['VALUE']);
 
@@ -336,12 +336,12 @@ class Catalog
 				}
 			}
 
-			if (empty($email) && stripos($row['CODE'], 'EMAIL') !== false)
+			if (empty($email) && mb_stripos($row['CODE'], 'EMAIL') !== false)
 			{
 				if (!empty($row['VALUE']))
 				{
 					$email = sha1($row['VALUE']);
-					$email256 = hash('sha256', strtolower(trim($row['VALUE'])));
+					$email256 = hash('sha256', mb_strtolower(trim($row['VALUE'])));
 				}
 			}
 		}
@@ -424,7 +424,7 @@ class Catalog
 
 		$cleanPhone = \NormalizePhone($phone, 6);
 
-		if (strlen($cleanPhone) == 10)
+		if (mb_strlen($cleanPhone) == 10)
 		{
 			$cleanPhone = '7'.$cleanPhone;
 		}

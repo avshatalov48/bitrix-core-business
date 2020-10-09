@@ -13,6 +13,7 @@ class Cookie
 	protected $httpOnly = true;
 	protected $spread;
 	protected $name;
+	protected $originalName;
 	protected $path = '/';
 	protected $secure = false;
 	protected $value;
@@ -34,6 +35,7 @@ class Cookie
 		{
 			$this->name = $name;
 		}
+		$this->originalName = $name;
 		$this->value = $value;
 		$this->expires = $expires;
 		if ($this->expires === null)
@@ -53,7 +55,7 @@ class Cookie
 		{
 			$cookiePrefix = Config\Option::get("main", "cookie_name", "BITRIX_SM")."_";
 		}
-		if (strpos($name, $cookiePrefix) !== 0)
+		if (mb_strpos($name, $cookiePrefix) !== 0)
 		{
 			$name = $cookiePrefix.$name;
 		}
@@ -110,6 +112,11 @@ class Cookie
 	{
 		$this->name = $name;
 		return $this;
+	}
+
+	public function getOriginalName(): string
+	{
+		return $this->originalName;
 	}
 
 	public function getName()
@@ -230,7 +237,7 @@ class Cookie
 
 			foreach ($arLangDomain["DOMAIN"] as $record)
 			{
-				if (strcasecmp(substr('.'.$httpHost, -(strlen($record['DOMAIN']) + 1)), ".".$record['DOMAIN']) == 0)
+				if (strcasecmp(mb_substr('.'.$httpHost, -(mb_strlen($record['DOMAIN']) + 1)), ".".$record['DOMAIN']) == 0)
 				{
 					$domain = $record['DOMAIN'];
 					break;

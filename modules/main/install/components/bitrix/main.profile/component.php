@@ -418,17 +418,17 @@ if($strError <> '')
 			{
 				$val = htmlspecialcharsex($val);
 			}
-			if(strpos($k, "forum_") === 0)
+			if(mb_strpos($k, "forum_") === 0)
 			{
-				$arResult["arForumUser"][substr($k, 6)] = $val;
+				$arResult["arForumUser"][mb_substr($k, 6)] = $val;
 			}
-			elseif(strpos($k, "blog_") === 0)
+			elseif(mb_strpos($k, "blog_") === 0)
 			{
-				$arResult["arBlogUser"][substr($k, 5)] = $val;
+				$arResult["arBlogUser"][mb_substr($k, 5)] = $val;
 			}
-			elseif(strpos($k, "student_") === 0)
+			elseif(mb_strpos($k, "student_") === 0)
 			{
-				$arResult["arStudent"][substr($k, 8)] = $val;
+				$arResult["arStudent"][mb_substr($k, 8)] = $val;
 			}
 			else
 			{
@@ -441,19 +441,19 @@ if($strError <> '')
 $arResult["FORM_TARGET"] = $APPLICATION->GetCurPage();
 
 $arResult["arUser"]["PERSONAL_PHOTO_INPUT"] = CFile::InputFile("PERSONAL_PHOTO", 20, $arResult["arUser"]["PERSONAL_PHOTO"], false, 0, "IMAGE");
-if (strlen($arResult["arUser"]["PERSONAL_PHOTO"])>0)
+if ($arResult["arUser"]["PERSONAL_PHOTO"] <> '')
 	$arResult["arUser"]["PERSONAL_PHOTO_HTML"] = CFile::ShowImage($arResult["arUser"]["PERSONAL_PHOTO"], 150, 150, "border=0", "", true);
 
 $arResult["arUser"]["WORK_LOGO_INPUT"] = CFile::InputFile("WORK_LOGO", 20, $arResult["arUser"]["WORK_LOGO"], false, 0, "IMAGE");
-if (strlen($arResult["arUser"]["WORK_LOGO"])>0)
+if ($arResult["arUser"]["WORK_LOGO"] <> '')
 	$arResult["arUser"]["WORK_LOGO_HTML"] = CFile::ShowImage($arResult["arUser"]["WORK_LOGO"], 150, 150, "border=0", "", true);
 
 $arResult["arForumUser"]["AVATAR_INPUT"] = CFile::InputFile("forum_AVATAR", 20, $arResult["arForumUser"]["AVATAR"], false, 0, "IMAGE");
-if (strlen($arResult["arForumUser"]["AVATAR"])>0)
+if ($arResult["arForumUser"]["AVATAR"] <> '')
 	$arResult["arForumUser"]["AVATAR_HTML"] = CFile::ShowImage($arResult["arForumUser"]["AVATAR"], 150, 150, "border=0", "", true);
 
 $arResult["arBlogUser"]["AVATAR_INPUT"] = CFile::InputFile("blog_AVATAR", 20, $arResult["arBlogUser"]["AVATAR"], false, 0, "IMAGE");
-if (strlen($arResult["arBlogUser"]["AVATAR"])>0)
+if ($arResult["arBlogUser"]["AVATAR"] <> '')
 	$arResult["arBlogUser"]["AVATAR_HTML"] = CFile::ShowImage($arResult["arBlogUser"]["AVATAR"], 150, 150, "border=0", "", true);
 
 $arResult["IS_ADMIN"] = $USER->IsAdmin();
@@ -470,7 +470,7 @@ $arResult["BX_SESSION_CHECK"] = bitrix_sessid_post();
 $arResult["DATE_FORMAT"] = CLang::GetDateFormat("SHORT");
 
 $arResult["COOKIE_PREFIX"] = COption::GetOptionString("main", "cookie_name", "BITRIX_SM");
-if (strlen($arResult["COOKIE_PREFIX"]) <= 0) 
+if ($arResult["COOKIE_PREFIX"] == '')
 	$arResult["COOKIE_PREFIX"] = "BX";
 
 // ********************* User properties ***************************************************
@@ -484,7 +484,7 @@ if (!empty($arParams["USER_PROPERTY"]))
 		{
 			if (!in_array($FIELD_NAME, $arParams["USER_PROPERTY"]))
 				continue;
-			$arUserField["EDIT_FORM_LABEL"] = strLen($arUserField["EDIT_FORM_LABEL"]) > 0 ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
+			$arUserField["EDIT_FORM_LABEL"] = $arUserField["EDIT_FORM_LABEL"] <> '' ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
 			$arUserField["EDIT_FORM_LABEL"] = htmlspecialcharsEx($arUserField["EDIT_FORM_LABEL"]);
 			$arUserField["~EDIT_FORM_LABEL"] = $arUserField["EDIT_FORM_LABEL"];
 			$arResult["USER_PROPERTIES"]["DATA"][$FIELD_NAME] = $arUserField;

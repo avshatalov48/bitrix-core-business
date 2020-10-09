@@ -21,7 +21,7 @@ else:
 	foreach ($arWizardNameTmp as $a)
 	{
 		$a = preg_replace("#[^a-z0-9_.-]+#i", "", $a);
-		if (strlen($a) > 0)
+		if ($a <> '')
 			$arWizardName[] = $a;
 	}
 

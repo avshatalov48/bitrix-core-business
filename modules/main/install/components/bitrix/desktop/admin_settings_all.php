@@ -24,7 +24,7 @@ if(!is_array($arUserOptions))
 
 /******* POST **********/
 
-if ($REQUEST_METHOD == "POST" && $_REQUEST['desktop_backurl'] && strpos($_REQUEST['desktop_backurl'], "/") === 0)
+if ($REQUEST_METHOD == "POST" && $_REQUEST['desktop_backurl'] && mb_strpos($_REQUEST['desktop_backurl'], "/") === 0)
 	$desktop_backurl = $_REQUEST['desktop_backurl'];
 else
 	$desktop_backurl = "";
@@ -48,7 +48,7 @@ if($REQUEST_METHOD=="POST" && $_REQUEST['save'] == 'Y')
 
 		$arTmp = $arUserOptions[$num-1];
 		
-		if(strlen(trim($arValues["text_".$num]))  > 0)
+		if(trim($arValues["text_".$num]) <> '')
 			$arTmp["NAME"] = $arValues["text_".$num];
 
 		$arUserOptionsTmp[] = $arTmp;
@@ -126,8 +126,8 @@ for($i=1; $i<=count($arUserOptions); $i++):
 		</td>
 		</td>
 		<td>
-			<div onmouseout="rowMouseOut(this)" onmouseover="rowMouseOver(this)" class="edit-field view-area" id="view_area_text_<?=$i?>" onclick="editArea('text_<?=$i?>')" title="<?=GetMessage('CMDESKTOP_ADMIN_SETTINGS_ALL_TOOLTIP_TEXT_EDIT')?>"><?=(strlen($arUserOption["NAME"])>0?htmlspecialcharsbx($arUserOption["NAME"]):GetMessage('CMDESKTOP_ADMIN_SETTINGS_ALL_DIALOG_DESKTOP').$i)?></div>
-			<div class="edit-area" id="edit_area_text_<?=$i?>" style="display: none;"><input type="text" style="width: 220px;" name="text_<?echo $i?>" value="<?=(strlen($arUserOption["NAME"])>0?htmlspecialcharsbx($arUserOption["NAME"]):GetMessage('CMDESKTOP_ADMIN_SETTINGS_ALL_DIALOG_DESKTOP').$i)?>" onblur="viewArea('text_<?=$i?>')" /></div>
+			<div onmouseout="rowMouseOut(this)" onmouseover="rowMouseOver(this)" class="edit-field view-area" id="view_area_text_<?=$i?>" onclick="editArea('text_<?=$i?>')" title="<?=GetMessage('CMDESKTOP_ADMIN_SETTINGS_ALL_TOOLTIP_TEXT_EDIT')?>"><?=($arUserOption["NAME"] <> ''?htmlspecialcharsbx($arUserOption["NAME"]):GetMessage('CMDESKTOP_ADMIN_SETTINGS_ALL_DIALOG_DESKTOP').$i)?></div>
+			<div class="edit-area" id="edit_area_text_<?=$i?>" style="display: none;"><input type="text" style="width: 220px;" name="text_<?echo $i?>" value="<?=($arUserOption["NAME"] <> ''?htmlspecialcharsbx($arUserOption["NAME"]):GetMessage('CMDESKTOP_ADMIN_SETTINGS_ALL_DIALOG_DESKTOP').$i)?>" onblur="viewArea('text_<?=$i?>')" /></div>
 		</td>
 		<td><span onclick="dsMoveUp(<?=$i?>)" class="rowcontrol up" style="visibility: <?=($i == 1 ? 'hidden' : 'visible')?>" title="<?=GetMessage('CMDESKTOP_ADMIN_SETTINGS_ALL_TOOLTIP_UP')?>"></span></td>
 		<td><span onclick="dsMoveDown(<?=$i?>)" class="rowcontrol down" style="visibility: <?=($i == count($arUserOptions) ? 'hidden' : 'visible')?>" title="<?=GetMessage('CMDESKTOP_ADMIN_SETTINGS_ALL_TOOLTIP_DOWN')?>"></span></td>

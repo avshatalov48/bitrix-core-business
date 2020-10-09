@@ -9,6 +9,8 @@ use Bitrix\Main\Page\Asset;
 $fieldName = $arResult['fieldName'];
 $value = $arResult['value'];
 
+$arResult['isEnabled'] = ($arResult['userField']['EDIT_IN_LIST'] === 'Y');
+
 if($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_UI)
 {
 	\CJSCore::Init('ui');

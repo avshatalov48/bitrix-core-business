@@ -4,10 +4,10 @@ foreach ($arResult["VALUE"] as $res):
 ?><div class="fields string"><?
 	if($arParams["arUserField"]["SETTINGS"]["ROWS"] < 2):
 ?><input type="text" name="<?=$arParams["arUserField"]["FIELD_NAME"]?>" value="<?=$res?>"<?
-	if (intVal($arParams["arUserField"]["SETTINGS"]["SIZE"]) > 0):
+	if (intval($arParams["arUserField"]["SETTINGS"]["SIZE"]) > 0):
 		?> size="<?=$arParams["arUserField"]["SETTINGS"]["SIZE"]?>"<?
 	endif;
-	if (intVal($arParams["arUserField"]["SETTINGS"]["MAX_LENGTH"]) > 0):
+	if (intval($arParams["arUserField"]["SETTINGS"]["MAX_LENGTH"]) > 0):
 		?> maxlength="<?=$arParams["arUserField"]["SETTINGS"]["MAX_LENGTH"]?>"<?
 	endif;
 	if ($arParams["arUserField"]["EDIT_IN_LIST"]!="Y"):
@@ -18,7 +18,7 @@ foreach ($arResult["VALUE"] as $res):
 ?><textarea class="fields string" name="<?=$arParams["arUserField"]["FIELD_NAME"]?>"<?
 	?> cols="<?=$arParams["arUserField"]["SETTINGS"]["SIZE"]?>"<?
 	?> rows="<?=$arParams["arUserField"]["SETTINGS"]["ROWS"]?>" <?
-	if (intVal($arParams["arUserField"]["SETTINGS"]["MAX_LENGTH"]) > 0):
+	if (intval($arParams["arUserField"]["SETTINGS"]["MAX_LENGTH"]) > 0):
 		?> maxlength="<?=$arParams["arUserField"]["SETTINGS"]["MAX_LENGTH"]?>"<?
 	endif;
 	if ($arParams["arUserField"]["EDIT_IN_LIST"]!="Y"):

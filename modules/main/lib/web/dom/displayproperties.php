@@ -136,7 +136,7 @@ class DisplayProperties
 			'ul' => true,
 		];
 
-		return isset($blockTagNames[strtolower($tagName)]);
+		return isset($blockTagNames[mb_strtolower($tagName)]);
 	}
 
 	/**
@@ -152,7 +152,7 @@ class DisplayProperties
 			'h4' => true, 'h5' => true, 'h6' => true,
 		];
 
-		return isset($boldTagNames[strtolower($tagName)]);
+		return isset($boldTagNames[mb_strtolower($tagName)]);
 	}
 
 	/**
@@ -167,7 +167,7 @@ class DisplayProperties
 			'i' => true, 'cite' => true, 'dfn' => true,
 		];
 
-		return isset($italicTagNames[strtolower($tagName)]);
+		return isset($italicTagNames[mb_strtolower($tagName)]);
 	}
 
 	/**
@@ -178,7 +178,7 @@ class DisplayProperties
 	 */
 	protected function isUnderlinedTag($tagName)
 	{
-		return strtolower($tagName) == 'u';
+		return mb_strtolower($tagName) == 'u';
 	}
 
 	/**
@@ -189,7 +189,7 @@ class DisplayProperties
 	 */
 	protected function isDeletedTag($tagName)
 	{
-		return strtolower($tagName) == 'del';
+		return mb_strtolower($tagName) == 'del';
 	}
 
 	/**
@@ -249,7 +249,7 @@ class DisplayProperties
 						}
 						elseif($name == 'font-style')
 						{
-							if($value == 'italic' || strpos($value, 'oblique') === 0)
+							if($value == 'italic' || mb_strpos($value, 'oblique') === 0)
 							{
 								$font[static::FONT_ITALIC] = true;
 							}
@@ -260,11 +260,11 @@ class DisplayProperties
 						}
 						elseif($name == 'text-decoration')
 						{
-							if(strpos($value, 'underline') !== false)
+							if(mb_strpos($value, 'underline') !== false)
 							{
 								$font[static::FONT_UNDERLINED] = true;
 							}
-							if(strpos($value, 'line-through') !== false)
+							if(mb_strpos($value, 'line-through') !== false)
 							{
 								$font[static::FONT_DELETED] = true;
 							}

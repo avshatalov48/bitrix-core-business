@@ -47,9 +47,9 @@ function __main_post_form_image_resize(&$arCustomFile, $arParams = null)
 		{
 			$arResizeParams = $arParams;
 		}
-		elseif(intVal($arParams) > 0)
+		elseif(intval($arParams) > 0)
 		{
-			$arResizeParams = array("width" => intVal($arParams), "height" => intVal($arParams));
+			$arResizeParams = array("width" => intval($arParams), "height" => intval($arParams));
 		}
 	}
 

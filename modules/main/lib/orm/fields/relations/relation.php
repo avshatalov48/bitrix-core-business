@@ -102,7 +102,7 @@ abstract class Relation extends Field implements ITypeHintable
 	 */
 	public function configureJoinType($type)
 	{
-		$type = strtoupper($type);
+		$type = mb_strtoupper($type);
 
 		if (!in_array($type, Join::getTypes(), true))
 		{

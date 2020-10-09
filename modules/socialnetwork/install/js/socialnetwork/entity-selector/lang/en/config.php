@@ -1,0 +1,6 @@
+<?php
+$MESS["SOCNET_ENTITY_SELECTOR_INVITED_GUEST_HINT"] = "You can also add your partner or customer via the email.";
+$MESS["SOCNET_ENTITY_SELECTOR_INVITED_USERS_TAB_TITLE"] = "Invited persons";
+$MESS["SOCNET_ENTITY_SELECTOR_INVITE_EMPLOYEE"] = "Invite a user";
+$MESS["SOCNET_ENTITY_SELECTOR_INVITE_EMPLOYEE_OR_GUEST"] = "<employee>Invite a user</employee><span>or</span><guest>invite a guest</guest>";
+$MESS["SOCNET_ENTITY_SELECTOR_INVITE_GUEST"] = "Invite a guest";

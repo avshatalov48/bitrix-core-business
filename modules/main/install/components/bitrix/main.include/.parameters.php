@@ -14,7 +14,7 @@ if($site !== false)
 	$rsSiteTemplates = CSite::GetTemplateList($site);
 	while($arSiteTemplate = $rsSiteTemplates->Fetch())
 	{
-		if(strlen($arSiteTemplate["CONDITION"])<=0)
+		if($arSiteTemplate["CONDITION"] == '')
 		{
 			$site_template = $arSiteTemplate["TEMPLATE"];
 			break;

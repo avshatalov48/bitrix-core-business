@@ -42,22 +42,24 @@ class CRatingRule
 			for ($i=0; $i<count($filter_keys); $i++)
 			{
 				$val = $arFilter[$filter_keys[$i]];
-				if (strlen($val)<=0 || $val=="NOT_REF") continue;
-				switch(strtoupper($filter_keys[$i]))
+				if ((string)$val == '' || $val=="NOT_REF") continue;
+				switch(mb_strtoupper($filter_keys[$i]))
 				{
 					case "ID":
-						$arSqlSearch[] = GetFilterQuery("PR.ID",$val,"N");
-					break;
+						$arSqlSearch[] = GetFilterQuery("PR.ID", $val, "N");
+						break;
 					case "ACTIVE":
-						if (in_array($val, Array('Y','N')))
+						if(in_array($val, Array('Y', 'N')))
+						{
 							$arSqlSearch[] = "PR.ACTIVE = '".$val."'";
-					break;
+						}
+						break;
 					case "NAME":
 						$arSqlSearch[] = GetFilterQuery("PR.NAME", $val);
-					break;
+						break;
 					case "ENTITY_ID":
 						$arSqlSearch[] = GetFilterQuery("PR.ENTITY_ID", $val);
-					break;
+						break;
 				}
 			}
 		}
@@ -65,21 +67,37 @@ class CRatingRule
 		$sOrder = "";
 		foreach($aSort as $key=>$val)
 		{
-			$ord = (strtoupper($val) <> "ASC"? "DESC":"ASC");
-			switch (strtoupper($key))
+			$ord = (mb_strtoupper($val) <> "ASC"? "DESC":"ASC");
+			switch(mb_strtoupper($key))
 			{
-				case "ID":		$sOrder .= ", PR.ID ".$ord; break;
-				case "NAME":	$sOrder .= ", PR.NAME ".$ord; break;
-				case "CREATED":	$sOrder .= ", PR.CREATED ".$ord; break;
-				case "LAST_MODIFIED":	$sOrder .= ", PR.LAST_MODIFIED ".$ord; break;
-				case "LAST_APPLIED":	$sOrder .= ", PR.LAST_APPLIED ".$ord; break;
-				case "ACTIVE":	$sOrder .= ", PR.ACTIVE ".$ord; break;
-				case "CALCULATION_METHOD":	$sOrder .= ", PR.CALCULATION_METHOD ".$ord; break;
-				case "ENTITY_TYPE_ID":	$sOrder .= ", PR.ENTITY_TYPE_ID ".$ord; break;
+				case "ID":
+					$sOrder .= ", PR.ID ".$ord;
+					break;
+				case "NAME":
+					$sOrder .= ", PR.NAME ".$ord;
+					break;
+				case "CREATED":
+					$sOrder .= ", PR.CREATED ".$ord;
+					break;
+				case "LAST_MODIFIED":
+					$sOrder .= ", PR.LAST_MODIFIED ".$ord;
+					break;
+				case "LAST_APPLIED":
+					$sOrder .= ", PR.LAST_APPLIED ".$ord;
+					break;
+				case "ACTIVE":
+					$sOrder .= ", PR.ACTIVE ".$ord;
+					break;
+				case "CALCULATION_METHOD":
+					$sOrder .= ", PR.CALCULATION_METHOD ".$ord;
+					break;
+				case "ENTITY_TYPE_ID":
+					$sOrder .= ", PR.ENTITY_TYPE_ID ".$ord;
+					break;
 			}
 		}
 
-		if (strlen($sOrder)<=0)
+		if ($sOrder == '')
 			$sOrder = "PR.ID DESC";
 
 		$strSqlOrder = " ORDER BY ".TrimEx($sOrder,",");
@@ -112,7 +130,7 @@ class CRatingRule
 		if(!CRatingRule::__CheckFields($arFields))
 			return false;
 
-		if (!(isset($arFields['ENTITY_TYPE_ID']) && strlen($arFields['ENTITY_TYPE_ID']) > 0))
+		if (!(isset($arFields['ENTITY_TYPE_ID']) && $arFields['ENTITY_TYPE_ID'] <> ''))
 			return false;
 
 		$arRatingRuleConfigs = CRatingRule::GetRatingRuleConfigs($arFields["ENTITY_TYPE_ID"]);
@@ -126,7 +144,7 @@ class CRatingRule
 			"NAME"					=> $arFields["NAME"],
 			"ENTITY_TYPE_ID"		=> $arFields["ENTITY_TYPE_ID"],
 			"CONDITION_NAME"		=> $arFields["CONDITION_NAME"],
-			"CONDITION_MODULE"	=> strlen($conditionModuleId)>0? $conditionModuleId: 'main',
+			"CONDITION_MODULE"	=> $conditionModuleId <> ''? $conditionModuleId: 'main',
 			"CONDITION_CLASS"		=> $arRatingRuleConfigs['CONDITION_CONFIG'][$arFields["CONDITION_NAME"]]['CLASS'],
 			"CONDITION_METHOD"	=> $arRatingRuleConfigs['CONDITION_CONFIG'][$arFields["CONDITION_NAME"]]['METHOD'],
 			"ACTION_NAME"			=> $bHideAction? 'empty': $arFields["ACTION_NAME"],			
@@ -167,7 +185,7 @@ class CRatingRule
 		if(!CRatingRule::__CheckFields($arFields))
 			return false;
 
-		if (isset($arFields["ENTITY_TYPE_ID"]) && strlen($arFields['ENTITY_TYPE_ID']) > 0)
+		if (isset($arFields["ENTITY_TYPE_ID"]) && $arFields['ENTITY_TYPE_ID'] <> '')
 		{
 			$arRatingRuleConfigs = CRatingRule::GetRatingRuleConfigs($arFields["ENTITY_TYPE_ID"]);
 			
@@ -180,7 +198,7 @@ class CRatingRule
 				"NAME"					=> $arFields["NAME"],
 				"ENTITY_TYPE_ID"		=> $arFields["ENTITY_TYPE_ID"],
 				"CONDITION_NAME"		=> $arFields["CONDITION_NAME"],
-				"CONDITION_MODULE"	=> strlen($conditionModuleId)>0? $conditionModuleId: 'main',
+				"CONDITION_MODULE"	=> $conditionModuleId <> ''? $conditionModuleId: 'main',
 				"CONDITION_CLASS"		=> $arRatingRuleConfigs['CONDITION_CONFIG'][$arFields["CONDITION_NAME"]]['CLASS'],
 				"CONDITION_METHOD"	=> $arRatingRuleConfigs['CONDITION_CONFIG'][$arFields["CONDITION_NAME"]]['METHOD'],
 				"ACTION_NAME"			=> $bHideAction? 'empty': $arFields["ACTION_NAME"],				
@@ -264,8 +282,8 @@ class CRatingRule
 			$arConfigs['CONDITION_CONFIG'] = unserialize(htmlspecialcharsback($arConfigs['CONDITION_CONFIG']));
 			$arConfigs['ACTION_CONFIG']	 = unserialize(htmlspecialcharsback($arConfigs['ACTION_CONFIG']));
 			
-			$arConfigs['CONDITION_MODULE'] = isset($arConfigs['CONDITION_MODULE']) && strlen($arConfigs['CONDITION_MODULE'])> 0? $arConfigs['CONDITION_MODULE']: 'main';
-			if(CModule::IncludeModule(strtolower($arConfigs['CONDITION_MODULE']))) {
+			$arConfigs['CONDITION_MODULE'] = isset($arConfigs['CONDITION_MODULE']) && $arConfigs['CONDITION_MODULE'] <> ''? $arConfigs['CONDITION_MODULE']: 'main';
+			if(CModule::IncludeModule(mb_strtolower($arConfigs['CONDITION_MODULE']))) {
 				if (method_exists($arConfigs['CONDITION_CLASS'],  $arConfigs['CONDITION_METHOD']))
 					call_user_func(array($arConfigs['CONDITION_CLASS'], $arConfigs['CONDITION_METHOD']), $arConfigs);
 
@@ -292,22 +310,24 @@ class CRatingRule
 			for ($i=0; $i<count($filter_keys); $i++)
 			{
 				$val = $arFilter[$filter_keys[$i]];
-				if (strlen($val)<=0 || $val=="NOT_REF") continue;
-				switch(strtoupper($filter_keys[$i]))
+				if ($val == '' || $val=="NOT_REF") continue;
+				switch(mb_strtoupper($filter_keys[$i]))
 				{
 					case "RULE_ID":
-						$arSqlSearch[] = GetFilterQuery("RULE_ID",$val,"N");
-					break;
+						$arSqlSearch[] = GetFilterQuery("RULE_ID", $val, "N");
+						break;
 					case "ENTITY_TYPE_ID":
-						$arSqlSearch[] = GetFilterQuery("ENTITY_TYPE_ID",$val,"N");
-					break;
+						$arSqlSearch[] = GetFilterQuery("ENTITY_TYPE_ID", $val, "N");
+						break;
 					case "ENTITY_ID":
-						$arSqlSearch[] = GetFilterQuery("ENTITY_ID",$val,"N");
-					break;
+						$arSqlSearch[] = GetFilterQuery("ENTITY_ID", $val, "N");
+						break;
 					case "APPLIED":
-						if (in_array($val, Array('Y','N')))
+						if(in_array($val, Array('Y', 'N')))
+						{
 							$arSqlSearch[] = "APPLIED = '".$val."'";
-					break;
+						}
+						break;
 				}
 			}
 		}
@@ -316,18 +336,28 @@ class CRatingRule
 		$sOrder = "";
 		foreach($arSort as $key=>$val)
 		{
-			$ord = (strtoupper($val) <> "ASC"? "DESC":"ASC");
-			switch (strtoupper($key))
+			$ord = (mb_strtoupper($val) <> "ASC"? "DESC":"ASC");
+			switch(mb_strtoupper($key))
 			{
-				case "ID": $sOrder .= ", ID ".$ord; break;
-				case "RULE_ID":	$sOrder .= ", RULE_ID ".$ord; break;
-				case "ENTITY_TYPE_ID": $sOrder .= ", ENTITY_TYPE_ID ".$ord; break;
-				case "ENTITY_ID": $sOrder .= ", ENTITY_ID ".$ord; break;
-				case "APPLIED":	$sOrder .= ", APPLIED ".$ord; break;
+				case "ID":
+					$sOrder .= ", ID ".$ord;
+					break;
+				case "RULE_ID":
+					$sOrder .= ", RULE_ID ".$ord;
+					break;
+				case "ENTITY_TYPE_ID":
+					$sOrder .= ", ENTITY_TYPE_ID ".$ord;
+					break;
+				case "ENTITY_ID":
+					$sOrder .= ", ENTITY_ID ".$ord;
+					break;
+				case "APPLIED":
+					$sOrder .= ", APPLIED ".$ord;
+					break;
 			}
 		}
 
-		if (strlen($sOrder)<=0)
+		if ($sOrder == '')
 			$sOrder = "ID ASC";
 		$strSqlOrder = " ORDER BY ".TrimEx($sOrder,",");
 
@@ -342,7 +372,7 @@ class CRatingRule
 
 		$err_mess = (CRatingRule::err_mess())."<br>Function: ApplyVetting<br>Line: ";
 
-		$ruleId = IntVal($arConfigs['ID']);
+		$ruleId = intval($arConfigs['ID']);
 
 		// put a check that they are counted
 		$DB->Query("UPDATE b_rating_rule_vetting SET APPLIED = 'Y' WHERE RULE_ID = $ruleId", false, $err_mess.__LINE__);

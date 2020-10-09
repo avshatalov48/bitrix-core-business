@@ -63,7 +63,7 @@ if($_REQUEST["action"] == "delete" && check_bitrix_sessid())
 			$mt = COption::GetOptionString("fileman", "menutypes", "", $site);
 			$mt = unserialize(str_replace("\\", "", $mt));
 			$res_log['menu_name'] = $mt[$name];
-			$res_log['path'] = substr($path, 1);
+			$res_log['path'] = mb_substr($path, 1);
 			CEventLog::Log(
 				"content",
 				"MENU_DELETE",
@@ -92,7 +92,7 @@ if($_REQUEST["action"] == "delete" && check_bitrix_sessid())
 	die();
 }
 
-if($io->FileExists($abs_path) && strlen($new)<=0)
+if($io->FileExists($abs_path) && $new == '')
 	$bEdit = true;
 else
 	$bEdit = false;
@@ -140,7 +140,7 @@ else
 			$aMenuItem = array_merge($aMenuItem, $arAdditionalParams);
 
 			$aMenuLinksTmp_[] = $aMenuItem;
-			$aMenuSort[] = IntVal(${"sort_".$num});
+			$aMenuSort[] = intval(${"sort_".$num});
 		}
 
 		$aMenuLinksTmp = $aMenuLinksTmp_;
@@ -196,7 +196,7 @@ else
 				$mt = COption::GetOptionString("fileman", "menutypes", false, $site);
 				$mt = unserialize(str_replace("\\", "", $mt));
 				$res_log['menu_name'] = $mt[$name];
-				$res_log['path'] = substr($path, 1);
+				$res_log['path'] = mb_substr($path, 1);
 				if ($bEdit)
 					CEventLog::Log(
 						"content",
@@ -240,7 +240,7 @@ $arMenuTypes = GetMenuTypes($site);
 $TITLE = GetMessage("MENU_EDIT_TITLE_".($bEdit ? "EDIT" : "ADD"));
 $DESCRIPTION = str_replace(
 	array("#TYPE#", "#DIR#"),
-	array(strlen($arMenuTypes[$name]) > 0 ? $arMenuTypes[$name] : $name, $path),
+	array($arMenuTypes[$name] <> '' ? $arMenuTypes[$name] : $name, $path),
 	GetMessage("MENU_EDIT_DESCRIPTION_".($bEdit ? "EDIT" : "ADD"))
 );
 
@@ -275,7 +275,7 @@ if($strWarning <> "")
 // ======================== Show content ============================= //
 $obJSPopup->StartContent();
 
-if($bEdit && strlen($strWarning)<=0)
+if($bEdit && $strWarning == '')
 {
 	$res = CFileMan::GetMenuArray($abs_path);
 	$aMenuLinksTmp = $res["aMenuLinks"];
@@ -314,12 +314,12 @@ if(!is_array($aMenuLinksTmp))
 		<span class="rowcontrol drag" title="<?=GetMessage('MENU_EDIT_TOOLTIP_DRAG')?>"></span>
 		</td>
 		</td><td>
-			<div onmouseout="rowMouseOut(this)" onmouseover="rowMouseOver(this)" class="edit-field view-area" id="view_area_text_<?=$i?>" onclick="editArea('text_<?=$i?>')" title="<?=GetMessage('MENU_EDIT_TOOLTIP_TEXT_EDIT')?>"><?=strlen($aMenuLinksItem[0]) > 0 ? htmlspecialcharsbx($aMenuLinksItem[0]) : GetMessage('MENU_EDIT_JS_NONAME')?></div>
+			<div onmouseout="rowMouseOut(this)" onmouseover="rowMouseOver(this)" class="edit-field view-area" id="view_area_text_<?=$i?>" onclick="editArea('text_<?=$i?>')" title="<?=GetMessage('MENU_EDIT_TOOLTIP_TEXT_EDIT')?>"><?=$aMenuLinksItem[0] <> '' ? htmlspecialcharsbx($aMenuLinksItem[0]) : GetMessage('MENU_EDIT_JS_NONAME')?></div>
 			<div class="edit-area" id="edit_area_text_<?=$i?>" style="display: none;"><input type="text" style="width: 220px;" name="text_<?echo $i?>" value="<?=htmlspecialcharsbx($aMenuLinksItem[0])?>" onblur="viewArea('text_<?=$i?>')" />
 </div>
 		</td>
 		<td>
-			<div onmouseout="rowMouseOut(this)" onmouseover="rowMouseOver(this)" class="edit-field view-area" id="view_area_link_<?=$i?>" onclick="editArea('link_<?=$i?>')" title="<?=GetMessage('MENU_EDIT_TOOLTIP_LINK_EDIT')?>"><?=strlen($aMenuLinksItem[1]) > 0 ? htmlspecialcharsbx($aMenuLinksItem[1]) : GetMessage('MENU_EDIT_JS_NONAME')?></div>
+			<div onmouseout="rowMouseOut(this)" onmouseover="rowMouseOver(this)" class="edit-field view-area" id="view_area_link_<?=$i?>" onclick="editArea('link_<?=$i?>')" title="<?=GetMessage('MENU_EDIT_TOOLTIP_LINK_EDIT')?>"><?=$aMenuLinksItem[1] <> '' ? htmlspecialcharsbx($aMenuLinksItem[1]) : GetMessage('MENU_EDIT_JS_NONAME')?></div>
 			<div class="edit-area" id="edit_area_link_<?=$i?>" style="display: none;"><input type="text" style="width: 220px;" name="link_<?echo $i?>" value="<?=htmlspecialcharsbx($aMenuLinksItem[1])?>" onblur="viewArea('link_<?=$i?>')" /></div>
 		</td>
 		<td>
@@ -484,8 +484,8 @@ function menuAdd()
 	$out = ob_get_contents();
 	ob_end_clean();
 	$out = trim($out);
-	$unscript_pos = strpos($out, '</script>');
-	$out = substr($out, 8, $unscript_pos-8);
+	$unscript_pos = mb_strpos($out, '</script>');
+	$out = mb_substr($out, 8, $unscript_pos - 8);
 	$out = trim($out);
 
 	$out = CUtil::JSEscape($out);

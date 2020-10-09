@@ -201,12 +201,13 @@ class CLearningGroup
 		if (!is_array($arOrder))
 			$arOrder = array();
 
+		$arSqlOrder = [];
 		foreach ($arOrder as $by => $order)
 		{
 			$by = (string) $by;
-			$byUppercase = strtoupper($by);
+			$byUppercase = mb_strtoupper($by);
 			$needle = null;
-			$order = strtolower($order);
+			$order = mb_strtolower($order);
 
 			if ($order != "asc")
 				$order = "desc";
@@ -216,7 +217,7 @@ class CLearningGroup
 				$arSqlOrder[] = ' ' . $arFieldsSort[$byUppercase] . ' ' . $order . ' ';
 				$needle = $byUppercase;
 			}
-			elseif ($s = $obUserFieldsSql->getOrder(strtolower($by)))
+			elseif ($s = $obUserFieldsSql->getOrder(mb_strtolower($by)))
 				$arSqlOrder[] = ' ' . $s . ' ' . $order . ' ';
 
 			if (
@@ -239,7 +240,7 @@ class CLearningGroup
 		$arSqlSelect = array();
 		foreach ($arSelect as $field)
 		{
-			$field = strtoupper($field);
+			$field = mb_strtoupper($field);
 			if (array_key_exists($field, $arFields))
 				$arSqlSelect[$field] = $arFields[$field] . ' AS ' . $field;
 		}
@@ -250,7 +251,7 @@ class CLearningGroup
 		$arSqlSearch = self::getFilter($arFilter);
 
 		$r = $obUserFieldsSql->GetFilter();
-		if (strlen($r) > 0)
+		if ($r <> '')
 			$arSqlSearch[] = "(".$r.")";
 
 		$strSql = "
@@ -382,13 +383,13 @@ class CLearningGroup
 
 		$arMsg = array();
 
-		if ( (is_set($arFields, "TITLE") || $id === false) && strlen(trim($arFields["TITLE"])) <= 0)
+		if ( (is_set($arFields, "TITLE") || $id === false) && trim($arFields["TITLE"]) == '')
 			$arMsg[] = array("id"=>"TITLE", "text"=> GetMessage("LEARNING_BAD_NAME"));
 
-		if (is_set($arFields, "ACTIVE_FROM") && strlen($arFields["ACTIVE_FROM"])>0 && (!$DB->IsDate($arFields["ACTIVE_FROM"], false, LANG, "FULL")))
+		if (is_set($arFields, "ACTIVE_FROM") && $arFields["ACTIVE_FROM"] <> '' && (!$DB->IsDate($arFields["ACTIVE_FROM"], false, LANG, "FULL")))
 			$arMsg[] = array("id"=>"ACTIVE_FROM", "text"=> GetMessage("LEARNING_BAD_ACTIVE_FROM"));
 
-		if (is_set($arFields, "ACTIVE_TO") && strlen($arFields["ACTIVE_TO"])>0 && (!$DB->IsDate($arFields["ACTIVE_TO"], false, LANG, "FULL")))
+		if (is_set($arFields, "ACTIVE_TO") && $arFields["ACTIVE_TO"] <> '' && (!$DB->IsDate($arFields["ACTIVE_TO"], false, LANG, "FULL")))
 			$arMsg[] = array("id"=>"ACTIVE_TO", "text"=> GetMessage("LEARNING_BAD_ACTIVE_TO"));
 
 		if ($id === false)
@@ -425,7 +426,7 @@ class CLearningGroup
 			$key = $res["FIELD"];
 			$cOperationType = $res["OPERATION"];
 
-			$key = strtoupper($key);
+			$key = mb_strtoupper($key);
 
 			switch ($key)
 			{
@@ -445,7 +446,7 @@ class CLearningGroup
 						$arSqlSearch[] = CLearnHelper::FilterCreate('LG.' . $key, $val, 'date', $bFullJoin, $cOperationType);
 					break;
 				case "ACTIVE_DATE":
-					if(strlen($val) > 0)
+					if($val <> '')
 					{
 						$arSqlSearch[] = ($cOperationType == "N" ? " NOT" : "")
 							. "((LG.ACTIVE_TO >= " . $DB->GetNowFunction()
@@ -467,7 +468,7 @@ class CLearningGroup
 					break;
 
 				default:
-					if (substr($key, 0, 3) !== 'UF_')
+					if (mb_substr($key, 0, 3) !== 'UF_')
 					{
 						throw new LearnException(
 							'Unknown field: ' . $key, 

@@ -74,37 +74,34 @@ class Auth
 			static::checkHttpAuth();
 			static::checkCookieAuth();
 
-			if(check_bitrix_sessid() || $authKey === bitrix_sessid())
+			if(!$USER->isAuthorized())
 			{
-				if($USER->isAuthorized())
+				$error = true;
+				$res = array('error' => 'access_denied', 'error_description' => 'User not authorized', 'additional' => array('sessid' => bitrix_sessid(), 'extended_error' => 'user_not_authorized'));
+			}
+			else if(check_bitrix_sessid() || $authKey === bitrix_sessid())
+			{
+				if (self::isAccessAllowed())
 				{
-					if (self::isAccessAllowed())
-					{
-						$error = false;
-						$res = array(
-							'user_id' => $USER->GetID(),
-							'scope' => implode(',', \CRestUtil::getScopeList()),
-							'parameters_clear' => static::$authQueryParams,
-							'auth_type' => static::AUTH_TYPE,
-						);
+					$error = false;
+					$res = array(
+						'user_id' => $USER->GetID(),
+						'scope' => implode(',', \CRestUtil::getScopeList()),
+						'parameters_clear' => static::$authQueryParams,
+						'auth_type' => static::AUTH_TYPE,
+					);
 
-						self::setLastActivityDate($USER->GetID(), $query);
+					self::setLastActivityDate($USER->GetID(), $query);
 
-						if ($query['BX_SESSION_LOCK'] !== 'Y')
-						{
-							session_write_close();
-						}
-					}
-					else
+					if ($query['BX_SESSION_LOCK'] !== 'Y')
 					{
-						$error = true;
-						$res = array('error' => 'access_denied', 'error_description' => 'Access denied for this type of user', 'additional' => array('type' => $USER->GetParam('EXTERNAL_AUTH_ID')));
+						session_write_close();
 					}
 				}
 				else
 				{
 					$error = true;
-					$res = array('error' => 'access_denied', 'error_description' => 'User not authorized', 'additional' => array('sessid' => bitrix_sessid()));
+					$res = array('error' => 'access_denied', 'error_description' => 'Access denied for this type of user', 'additional' => array('type' => $USER->GetParam('EXTERNAL_AUTH_ID')));
 				}
 			}
 			else

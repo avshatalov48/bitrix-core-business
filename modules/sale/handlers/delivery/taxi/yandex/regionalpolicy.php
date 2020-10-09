@@ -21,10 +21,10 @@ class RegionalPolicy
 	}
 
 	/**
-	 * @return string
+	 * @return string|null
 	 * @throws \Bitrix\Main\LoaderException
 	 */
-	private function getCurrentRegion(): string
+	private function getCurrentRegion()
 	{
 		$result = null;
 
@@ -32,11 +32,11 @@ class RegionalPolicy
 		{
 			$result = CBitrix24::getLicensePrefix();
 		}
-		else
+		elseif (Loader::includeModule('intranet'))
 		{
-			$result = LANGUAGE_ID;
+			$result = \CIntranetUtils::getPortalZone();
 		}
 
-		return ($result) ? (string)$result : 'en';
+		return $result;
 	}
 }

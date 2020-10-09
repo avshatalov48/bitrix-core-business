@@ -384,7 +384,7 @@ abstract class CReportHelper
 		$valueKey = trim(strval($valueKey));
 		$value = '';
 
-		if (strlen($valueKey) > 0)
+		if ($valueKey <> '')
 		{
 			$prefixByType = array(
 				'lead' => 'L',
@@ -406,15 +406,15 @@ abstract class CReportHelper
 				$supportedTypes = array_keys($supportedTypes);
 				if (count($supportedTypes) === 1)
 				{
-					if (isset($prefixByType[strtolower($supportedTypes[0])]))
-						$singleTypePrefix = $prefixByType[strtolower($supportedTypes[0])];
+					if (isset($prefixByType[mb_strtolower($supportedTypes[0])]))
+						$singleTypePrefix = $prefixByType[mb_strtolower($supportedTypes[0])];
 				}
 				unset($supportedTypes, $type, $supported);
 			}
 
 			$prefix = '';
-			if (($pos = strpos(substr($valueKey, 0, $maxPrefixLength + 1), '_')) !== false && $pos > 0)
-				$prefix = substr($valueKey, 0, $pos);
+			if (($pos = mb_strpos(mb_substr($valueKey, 0, $maxPrefixLength + 1), '_')) !== false && $pos > 0)
+				$prefix = mb_substr($valueKey, 0, $pos);
 			if (empty($prefix))
 				$valueKey = $singleTypePrefix . '_' . $valueKey;
 			unset($prefix, $pos);
@@ -424,7 +424,7 @@ abstract class CReportHelper
 				$element = self::$ufCrmElements[$valueKey];
 				$item = explode('_', $valueKey);
 				$arEntityType = array_flip($prefixByType);
-				if (strlen($item[0]) > 0 && strlen($item[1]) > 0)
+				if ($item[0] <> '' && $item[1] <> '')
 				{
 					$entityTitle = $entityLink = '';
 					switch ($item[0])
@@ -455,9 +455,9 @@ abstract class CReportHelper
 							array($arEntityType[$item[0]].'_id' => $element['ID'])
 						);
 					}
-					if (strlen($entityTitle) > 0)
+					if ($entityTitle <> '')
 					{
-						if (strlen($entityLink) > 0)
+						if ($entityLink <> '')
 						{
 							$value = '<a target="_blank" href="'.$entityLink.'">'.
 								htmlspecialcharsbx($entityTitle).'</a>';
@@ -477,7 +477,7 @@ abstract class CReportHelper
 		$valueKey = trim(strval($valueKey));
 		$value = '';
 
-		if (strlen($valueKey) > 0)
+		if ($valueKey <> '')
 		{
 			$prefixByType = array(
 				'lead' => 'L',
@@ -499,15 +499,15 @@ abstract class CReportHelper
 				$supportedTypes = array_keys($supportedTypes);
 				if (count($supportedTypes) === 1)
 				{
-					if (isset($prefixByType[strtolower($supportedTypes[0])]))
-						$singleTypePrefix = $prefixByType[strtolower($supportedTypes[0])];
+					if (isset($prefixByType[mb_strtolower($supportedTypes[0])]))
+						$singleTypePrefix = $prefixByType[mb_strtolower($supportedTypes[0])];
 				}
 				unset($supportedTypes, $type, $supported);
 			}
 
 			$prefix = '';
-			if (($pos = strpos(substr($valueKey, 0, $maxPrefixLength + 1), '_')) !== false && $pos > 0)
-				$prefix = substr($valueKey, 0, $pos);
+			if (($pos = mb_strpos(mb_substr($valueKey, 0, $maxPrefixLength + 1), '_')) !== false && $pos > 0)
+				$prefix = mb_substr($valueKey, 0, $pos);
 			if (empty($prefix))
 				$valueKey = $singleTypePrefix . '_' . $valueKey;
 			unset($prefix, $pos);
@@ -516,7 +516,7 @@ abstract class CReportHelper
 			{
 				$element = self::$ufCrmElements[$valueKey];
 				$item = explode('_', $valueKey);
-				if (strlen($item[0]) > 0 && strlen($item[1]) > 0)
+				if ($item[0] <> '' && $item[1] <> '')
 				{
 					switch ($item[0])
 					{
@@ -552,7 +552,7 @@ abstract class CReportHelper
 		$valueKey = trim(strval($valueKey));
 		$value = '';
 
-		if (!empty($entityType) && strlen($valueKey) > 0)
+		if (!empty($entityType) && $valueKey <> '')
 		{
 			if (is_array(self::$ufCrmStatuses) && isset(self::$ufCrmStatuses[$entityType][$valueKey]))
 				$value = htmlspecialcharsbx(self::$ufCrmStatuses[$entityType][$valueKey]);
@@ -575,9 +575,9 @@ abstract class CReportHelper
 				$elementName = $element['~NAME'];
 				if (!empty($element['~DETAIL_PAGE_URL']))
 					$elementLink = $element['~DETAIL_PAGE_URL'];
-				if (strlen($elementName) > 0)
+				if ($elementName <> '')
 				{
-					if (strlen($elementLink) > 0)
+					if ($elementLink <> '')
 					{
 						$value = '<a target="_blank" href="'.$elementLink.'">'.
 							htmlspecialcharsbx($elementName).'</a>';
@@ -602,7 +602,7 @@ abstract class CReportHelper
 			{
 				$element = self::$ufIblockElements[$valueKey];
 				$elementName = $element['~NAME'];
-				if (strlen($elementName) > 0)
+				if ($elementName <> '')
 					$value = htmlspecialcharsbx($elementName);
 			}
 		}
@@ -624,9 +624,9 @@ abstract class CReportHelper
 				$sectionName = $section['~NAME'];
 				if (!empty($section['~SECTION_PAGE_URL']))
 					$sectionLink = $section['~SECTION_PAGE_URL'];
-				if (strlen($sectionName) > 0)
+				if ($sectionName <> '')
 				{
-					if (strlen($sectionLink) > 0)
+					if ($sectionLink <> '')
 					{
 						$value = '<a target="_blank" href="'.$sectionLink.'">'.
 							htmlspecialcharsbx($sectionName).'</a>';
@@ -651,7 +651,7 @@ abstract class CReportHelper
 			{
 				$section = self::$ufIblockSections[$valueKey];
 				$sectionName = $section['~NAME'];
-				if (strlen($sectionName) > 0)
+				if ($sectionName <> '')
 					$value = htmlspecialcharsbx($sectionName);
 			}
 		}
@@ -1292,8 +1292,8 @@ abstract class CReportHelper
 							$supportedTypes = array_keys($supportedTypes);
 							if (count($supportedTypes) === 1)
 							{
-								if (isset($prefixByType[strtolower($supportedTypes[0])]))
-									$singleTypePrefix = $prefixByType[strtolower($supportedTypes[0])];
+								if (isset($prefixByType[mb_strtolower($supportedTypes[0])]))
+									$singleTypePrefix = $prefixByType[mb_strtolower($supportedTypes[0])];
 							}
 							unset($supportedTypes, $type, $supported);
 						}
@@ -1303,17 +1303,17 @@ abstract class CReportHelper
 							foreach ($v as $subv)
 							{
 								$subv = strval($subv);
-								if (strlen($subv) > 0)
+								if ($subv <> '')
 								{
 									$prefix = '';
-									if (($pos = strpos(substr($subv, 0, $maxPrefixLength + 1), '_')) !== false && $pos > 0)
-										$prefix = substr($subv, 0, $pos);
+									if (($pos = mb_strpos(mb_substr($subv, 0, $maxPrefixLength + 1), '_')) !== false && $pos > 0)
+										$prefix = mb_substr($subv, 0, $pos);
 									if (empty($prefix))
 										$subv = $singleTypePrefix . '_' . $subv;
 									unset($prefix, $pos);
 
 									$value = explode('_', trim($subv));
-									if (strlen($value[0]) > 0 && strlen($value[1]) > 0)
+									if ($value[0] <> '' && $value[1] <> '')
 									{
 										if (!is_array($arCrmID[$value[0]]))
 											$arCrmID[$value[0]] = array();
@@ -1325,17 +1325,17 @@ abstract class CReportHelper
 						else
 						{
 							$v = strval($v);
-							if (strlen($v) > 0)
+							if ($v <> '')
 							{
 								$prefix = '';
-								if (($pos = strpos(substr($v, 0, $maxPrefixLength + 1), '_')) !== false && $pos > 0)
-									$prefix = substr($v, 0, $pos);
+								if (($pos = mb_strpos(mb_substr($v, 0, $maxPrefixLength + 1), '_')) !== false && $pos > 0)
+									$prefix = mb_substr($v, 0, $pos);
 								if (empty($prefix))
 									$v = $singleTypePrefix . '_' . $v;
 								unset($prefix, $pos);
 
 								$value = explode('_', trim($v));
-								if (strlen($value[0]) > 0 && strlen($value[1]) > 0)
+								if ($value[0] <> '' && $value[1] <> '')
 								{
 									if (!is_array($arCrmID[$value[0]]))
 										$arCrmID[$value[0]] = array();
@@ -1363,7 +1363,7 @@ abstract class CReportHelper
 							if (is_array($v))
 								foreach ($v as $subv)
 								{
-									if (strlen($subv) > 0)
+									if ($subv <> '')
 									{
 										if (!is_array($arCrmStatusID[$arCrmStatusEntityType[$k]]))
 											$arCrmStatusID[$arCrmStatusEntityType[$k]] = array();
@@ -1372,7 +1372,7 @@ abstract class CReportHelper
 								}
 							else
 							{
-								if (strlen($v) > 0)
+								if ($v <> '')
 								{
 									if (!is_array($arCrmStatusID[$arCrmStatusEntityType[$k]]))
 										$arCrmStatusID[$arCrmStatusEntityType[$k]] = array();
@@ -1758,7 +1758,7 @@ abstract class CReportHelper
 		}
 
 		if ($isUF && $dataType == 'float' && (empty($cInfo['aggr']) || $cInfo['aggr'] !== 'COUNT_DISTINCT')
-			&& !strlen($cInfo['prcnt']))
+			&& !mb_strlen($cInfo['prcnt']))
 		{
 			$precision = $defaultPrecision = 1;
 			if (is_array($ufInfo) && is_array($ufInfo['SETTINGS']) && isset($ufInfo['SETTINGS']['PRECISION']))
@@ -1770,13 +1770,13 @@ abstract class CReportHelper
 		}
 		elseif ($isUF && $dataType === 'enum' && !empty($v)
 			&& (empty($cInfo['aggr']) || $cInfo['aggr'] !== 'COUNT_DISTINCT')
-			&& !strlen($cInfo['prcnt']))
+			&& !mb_strlen($cInfo['prcnt']))
 		{
 			$v = htmlspecialcharsbx(static::getUserFieldEnumerationValue($v, $ufInfo));
 		}
 		elseif ($isUF && $dataType === 'file' && !empty($v)
 			&& (empty($cInfo['aggr']) || $cInfo['aggr'] !== 'COUNT_DISTINCT')
-			&& !strlen($cInfo['prcnt']))
+			&& !mb_strlen($cInfo['prcnt']))
 		{
 			$valueKey = $v;
 			$v = static::getUserFieldFileValue($valueKey, $ufInfo);
@@ -1787,7 +1787,7 @@ abstract class CReportHelper
 		}
 		elseif ($isUF && $dataType === 'disk_file' && !empty($v)
 			&& (empty($cInfo['aggr']) || $cInfo['aggr'] !== 'COUNT_DISTINCT')
-			&& !strlen($cInfo['prcnt']))
+			&& !mb_strlen($cInfo['prcnt']))
 		{
 			$valueKey = $v;
 			$v = static::getUserFieldDiskFileValue($valueKey, $ufInfo);
@@ -1798,7 +1798,7 @@ abstract class CReportHelper
 		}
 		elseif ($isUF && $dataType === 'employee' && !empty($v)
 			&& (empty($cInfo['aggr']) || $cInfo['aggr'] !== 'COUNT_DISTINCT')
-			&& !strlen($cInfo['prcnt']))
+			&& !mb_strlen($cInfo['prcnt']))
 		{
 			$valueKey = $v;
 			$v = static::getUserFieldEmployeeValue($valueKey, $ufInfo);
@@ -1809,7 +1809,7 @@ abstract class CReportHelper
 		}
 		elseif ($isUF && $dataType === 'crm' && !empty($v)
 			&& (empty($cInfo['aggr']) || $cInfo['aggr'] !== 'COUNT_DISTINCT')
-			&& !strlen($cInfo['prcnt']))
+			&& !mb_strlen($cInfo['prcnt']))
 		{
 			$valueKey = $v;
 			$v = static::getUserFieldCrmValue($valueKey, $ufInfo);
@@ -1820,14 +1820,14 @@ abstract class CReportHelper
 		}
 		elseif ($isUF && $dataType === 'crm_status' && !empty($v)
 			&& (empty($cInfo['aggr']) || $cInfo['aggr'] !== 'COUNT_DISTINCT')
-			&& !strlen($cInfo['prcnt']))
+			&& !mb_strlen($cInfo['prcnt']))
 		{
 			$valueKey = $v;
 			$v = static::getUserFieldCrmStatusValue($valueKey, $ufInfo);
 		}
 		elseif ($isUF && $dataType === 'iblock_element' && !empty($v)
 			&& (empty($cInfo['aggr']) || $cInfo['aggr'] !== 'COUNT_DISTINCT')
-			&& !strlen($cInfo['prcnt']))
+			&& !mb_strlen($cInfo['prcnt']))
 		{
 			$valueKey = $v;
 			$v = static::getUserFieldIblockElementValue($valueKey, $ufInfo);
@@ -1838,7 +1838,7 @@ abstract class CReportHelper
 		}
 		elseif ($isUF && $dataType === 'iblock_section' && !empty($v)
 			&& (empty($cInfo['aggr']) || $cInfo['aggr'] !== 'COUNT_DISTINCT')
-			&& !strlen($cInfo['prcnt']))
+			&& !mb_strlen($cInfo['prcnt']))
 		{
 			$valueKey = $v;
 			$v = static::getUserFieldIblockSectionValue($valueKey, $ufInfo);
@@ -1849,7 +1849,7 @@ abstract class CReportHelper
 		}
 		elseif ($isUF && $dataType === 'money' && !empty($v)
 			&& (empty($cInfo['aggr']) || $cInfo['aggr'] !== 'COUNT_DISTINCT')
-			&& !strlen($cInfo['prcnt']))
+			&& !mb_strlen($cInfo['prcnt']))
 		{
 			$valueKey = $v;
 			$v = static::getUserFieldMoneyValue($valueKey, $ufInfo);
@@ -1860,23 +1860,23 @@ abstract class CReportHelper
 		}
 		elseif ($dataType == 'datetime' && !empty($v)
 			&& (empty($cInfo['aggr']) || $cInfo['aggr'] !== 'COUNT_DISTINCT')
-			&& !strlen($cInfo['prcnt'])
+			&& !mb_strlen($cInfo['prcnt'])
 		)
 		{
 			$v = ($v instanceof \Bitrix\Main\Type\DateTime || $v instanceof \Bitrix\Main\Type\Date) ? ConvertTimeStamp($v->getTimestamp(), 'SHORT') : '';
 		}
-		elseif ($dataType == 'float' && !empty($v) && !$isUF && !strlen($cInfo['prcnt']))
+		elseif ($dataType == 'float' && !empty($v) && !$isUF && !mb_strlen($cInfo['prcnt']))
 		{
 			$v = round($v, 1);
 		}
-		elseif (substr($k, -11) == '_SHORT_NAME' && (empty($cInfo['aggr']) || $cInfo['aggr'] == 'GROUP_CONCAT'))
+		elseif (mb_substr($k, -11) == '_SHORT_NAME' && (empty($cInfo['aggr']) || $cInfo['aggr'] == 'GROUP_CONCAT'))
 		{
 			$v = str_replace(
 				array('#NOBR#', '#/NOBR#'),
 				array('<NOBR>', '</NOBR>'),
 				htmlspecialcharsbx($v));
 		}
-		elseif (substr($k, -6) == '_PRCNT' && !strlen($cInfo['prcnt']))
+		elseif (mb_substr($k, -6) == '_PRCNT' && !mb_strlen($cInfo['prcnt']))
 		{
 			$v = round($v, 2). '%';
 		}
@@ -1885,23 +1885,23 @@ abstract class CReportHelper
 			if ($isUF && empty($v))
 				$v = 0;
 
-			if (strlen($v))
+			if($v <> '')
 			{
 				// get bool value "yes/no"
 				/** @var Entity\BooleanField $field */
-				$boolValues = ($isUF ? array(0, 1) : $field->GetValues());
+				$boolValues = ($isUF? array(0, 1) : $field->GetValues());
 				$fValues = array_flip($boolValues);
-				$fValue = (bool) $fValues[$v];
+				$fValue = (bool)$fValues[$v];
 
-				$mess = 'REPORT_BOOLEAN_VALUE_' . ($fValue ? 'TRUE' : 'FALSE');
+				$mess = 'REPORT_BOOLEAN_VALUE_'.($fValue? 'TRUE' : 'FALSE');
 				$v = htmlspecialcharsbx(GetMessage($mess));
 			}
 		}
-		elseif (strlen($cInfo['prcnt']))
+		elseif($cInfo['prcnt'] <> '')
 		{
-			if ($cInfo['prcnt'] == 'self_column')
+			if($cInfo['prcnt'] == 'self_column')
 			{
-				if (array_key_exists('TOTAL_'.$k, $total) && $total['TOTAL_'.$k] > 0)
+				if(array_key_exists('TOTAL_'.$k, $total) && $total['TOTAL_'.$k] > 0)
 				{
 					$v = round($v / $total['TOTAL_'.$k] * 100, 2);
 				}
@@ -1915,7 +1915,7 @@ abstract class CReportHelper
 				$v = round($v, 2);
 			}
 
-			$v = $v . '%';
+			$v = $v.'%';
 		}
 		else
 		{
@@ -1928,7 +1928,7 @@ abstract class CReportHelper
 		foreach ($total as $k => $v)
 		{
 			// remove prefix TOTAL_
-			$original_k = substr($k, 6);
+			$original_k = mb_substr($k, 6);
 
 			$cInfo = $columnInfo[$original_k];
 			$field = $cInfo['field'];
@@ -1943,15 +1943,15 @@ abstract class CReportHelper
 				$ufInfo = $cInfo['ufInfo'];
 			}
 
-			if ($field->getName() == 'ID' && empty($cInfo['aggr']) && !strlen($cInfo['prcnt']))
+			if ($field->getName() == 'ID' && empty($cInfo['aggr']) && $cInfo['prcnt'] == '')
 			{
 				unset($total[$k]);
 			}
-			elseif (strlen($cInfo['prcnt']))
+			elseif($cInfo['prcnt'] <> '')
 			{
-				if ($cInfo['prcnt'] == 'self_column')
+				if($cInfo['prcnt'] == 'self_column')
 				{
-					if (array_key_exists($k, $total) && $v > 0)
+					if(array_key_exists($k, $total) && $v > 0)
 					{
 						$v = round($v / $total[$k] * 100, 2);
 					}
@@ -1965,9 +1965,9 @@ abstract class CReportHelper
 					$v = round($v, 2);
 				}
 
-				$total[$k] = $v . '%';
+				$total[$k] = $v.'%';
 			}
-			elseif (substr($k, -6) == '_PRCNT' && !strlen($cInfo['prcnt']))
+			elseif (mb_substr($k, -6) == '_PRCNT' && !mb_strlen($cInfo['prcnt']))
 			{
 				$total[$k] = round($v, 2). '%';
 			}

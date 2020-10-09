@@ -1,4 +1,4 @@
-(function (exports,main_core,main_core_events) {
+(function (exports,main_core,main_core_events,main_loader) {
 	'use strict';
 
 	function _templateObject() {
@@ -17,6 +17,12 @@
 	  function ImageInput() {
 	    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, ImageInput);
+	    babelHelpers.defineProperty(this, "container", null);
+	    babelHelpers.defineProperty(this, "loaderContainer", null);
+	    babelHelpers.defineProperty(this, "addButton", null);
+	    babelHelpers.defineProperty(this, "loader", null);
+	    babelHelpers.defineProperty(this, "timeout", null);
+	    babelHelpers.defineProperty(this, "uploading", false);
 	    this.instanceId = params.instanceId;
 	    this.containerId = params.containerId;
 	    this.loaderContainerId = params.loaderContainerId;
@@ -37,24 +43,18 @@
 	          uploader = _event$getCompatData2[1];
 
 	      if (this.instanceId === id) {
-	        if (uploader && main_core.Type.isDomNode(uploader.fileInput)) {
-	          var wrapper = uploader.fileInput.closest('.adm-fileinput-wrapper');
-
-	          if (main_core.Type.isDomNode(wrapper)) {
-	            var previews = wrapper.querySelectorAll('.adm-fileinput-item');
-
-	            if (previews.length) {
-	              main_core.Dom.addClass(wrapper, 'ui-image-input-wrapper');
-	            }
-	          }
+	        if (this.getPreviews().length > 0) {
+	          main_core.Dom.addClass(this.getFileWrapper(), 'ui-image-input-wrapper');
 	        }
 
 	        requestAnimationFrame(function () {
 	          _this.getLoaderContainer() && (_this.getLoaderContainer().style.display = 'none');
 	          _this.getContainer().style.display = '';
 	        });
-	        main_core_events.EventEmitter.subscribe(uploader, 'onFileIsCreated', this.onFileIsCreatedHandler.bind(this));
-	        main_core_events.EventEmitter.subscribe(uploader, 'onFileIsDeleted', this.onFileIsCreatedHandler.bind(this));
+	        main_core_events.EventEmitter.subscribe(uploader, 'onFileIsDeleted', this.onFileIsDeletedHandler.bind(this));
+	        main_core_events.EventEmitter.subscribe(uploader, 'onStart', this.onUploadStartHandler.bind(this));
+	        main_core_events.EventEmitter.subscribe(uploader, 'onDone', this.onUploadDoneHandler.bind(this));
+	        main_core_events.EventEmitter.subscribe(uploader, 'onFileCanvasIsLoaded', this.onFileCanvasIsLoadedHandler.bind(this));
 	      }
 	    }
 	  }, {
@@ -79,6 +79,15 @@
 	      }
 
 	      return this.container;
+	    }
+	  }, {
+	    key: "getFileWrapper",
+	    value: function getFileWrapper() {
+	      if (!this.fileWrapper) {
+	        this.fileWrapper = this.getContainer().querySelector('.adm-fileinput-wrapper');
+	      }
+
+	      return this.fileWrapper;
 	    }
 	  }, {
 	    key: "getLoaderContainer",
@@ -130,23 +139,98 @@
 	      event.stopPropagation();
 	      this.getFileInput().click();
 	    }
+	    /**
+	     * @returns {Loader}
+	     */
+
 	  }, {
-	    key: "onFileIsCreatedHandler",
-	    value: function onFileIsCreatedHandler(event) {
+	    key: "getLoader",
+	    value: function getLoader() {
+	      if (!this.loader) {
+	        this.loader = new main_loader.Loader({
+	          target: this.getFileWrapper().querySelector('.adm-fileinput-drag-area')
+	        });
+	      }
+
+	      return this.loader;
+	    }
+	  }, {
+	    key: "showLoader",
+	    value: function showLoader() {
+	      this.getLoader().setOptions({
+	        size: Math.min(this.getContainer().offsetHeight, this.getContainer().offsetWidth)
+	      });
+	      this.getLoader().show();
+	    }
+	  }, {
+	    key: "hideLoader",
+	    value: function hideLoader() {
+	      this.getLoader().hide();
+	    }
+	  }, {
+	    key: "onFileIsDeletedHandler",
+	    value: function onFileIsDeletedHandler() {
 	      var _this2 = this;
 
+	      this.timeout = clearTimeout(this.timeout);
+	      this.timeout = setTimeout(function () {
+	        _this2.hideLoader();
+
+	        _this2.recalculateWrapper();
+	      }, 100);
+	    }
+	  }, {
+	    key: "onUploadStartHandler",
+	    value: function onUploadStartHandler(event) {
+	      var _this3 = this;
+
 	      var _event$getCompatData3 = event.getCompatData(),
-	          _event$getCompatData4 = babelHelpers.slicedToArray(_event$getCompatData3, 3),
-	          uploader = _event$getCompatData4[2];
+	          _event$getCompatData4 = babelHelpers.slicedToArray(_event$getCompatData3, 1),
+	          stream = _event$getCompatData4[0];
 
-	      if (uploader && main_core.Type.isDomNode(uploader.fileInput)) {
-	        var wrapper = uploader.fileInput.closest('.adm-fileinput-wrapper');
+	      if (stream) {
+	        this.uploading = true;
+	      }
 
-	        if (main_core.Type.isDomNode(wrapper)) {
-	          setTimeout(function () {
-	            _this2.recalculateWrapper(wrapper);
-	          }, 100);
-	        }
+	      clearTimeout(this.timeout);
+	      this.timeout = setTimeout(function () {
+	        _this3.showLoader();
+
+	        _this3.recalculateWrapper();
+	      }, 100);
+	    }
+	  }, {
+	    key: "onUploadDoneHandler",
+	    value: function onUploadDoneHandler(event) {
+	      var _this4 = this;
+
+	      var _event$getCompatData5 = event.getCompatData(),
+	          _event$getCompatData6 = babelHelpers.slicedToArray(_event$getCompatData5, 1),
+	          stream = _event$getCompatData6[0];
+
+	      if (stream) {
+	        this.uploading = false;
+	        this.timeout = clearTimeout(this.timeout);
+	        requestAnimationFrame(function () {
+	          _this4.hideLoader();
+
+	          _this4.recalculateWrapper();
+	        });
+	      }
+	    }
+	  }, {
+	    key: "onFileCanvasIsLoadedHandler",
+	    value: function onFileCanvasIsLoadedHandler() {
+	      var _this5 = this;
+
+	      if (this.timeout && !this.uploading) {
+	        this.uploading = false;
+	        this.timeout = clearTimeout(this.timeout);
+	        requestAnimationFrame(function () {
+	          _this5.hideLoader();
+
+	          _this5.recalculateWrapper();
+	        });
 	      }
 	    }
 	  }, {
@@ -157,27 +241,33 @@
 	  }, {
 	    key: "buildShadowElement",
 	    value: function buildShadowElement(wrapper) {
-	      if (!wrapper.querySelector('div.ui-image-item-shadow')) {
-	        var shadowElement = main_core.Tag.render(_templateObject());
-	        var bottomMargin = 4;
-	        var preview = wrapper.querySelector('.adm-fileinput-item-preview');
-	        var previewWrapper = wrapper.closest('.adm-fileinput-item-wrapper');
-	        var canvas = wrapper.querySelector('canvas');
+	      var shadowElement = wrapper.querySelector('div.ui-image-item-shadow');
 
-	        if (canvas) {
-	          shadowElement.style.height = canvas.offsetHeight + 'px';
-	          shadowElement.style.width = canvas.offsetWidth - bottomMargin + 'px';
-	          preview.style.height = canvas.offsetHeight + 'px';
-	          previewWrapper.style.height = canvas.offsetHeight + 'px';
-	        }
-
+	      if (!shadowElement) {
+	        shadowElement = main_core.Tag.render(_templateObject());
 	        main_core.Dom.prepend(shadowElement, wrapper);
+	      }
+
+	      var canvas = wrapper.querySelector('canvas');
+
+	      if (canvas) {
+	        var bottomMargin = 4;
+	        shadowElement.style.height = canvas.offsetHeight + 'px';
+	        shadowElement.style.width = canvas.offsetWidth - bottomMargin + 'px';
+	        wrapper.querySelector('.adm-fileinput-item-preview').style.height = canvas.offsetHeight + 'px';
+	        wrapper.closest('.adm-fileinput-item-wrapper').style.height = canvas.offsetHeight + 'px';
 	      }
 	    }
 	  }, {
+	    key: "getPreviews",
+	    value: function getPreviews() {
+	      return this.getFileWrapper().querySelectorAll('.adm-fileinput-item');
+	    }
+	  }, {
 	    key: "recalculateWrapper",
-	    value: function recalculateWrapper(wrapper) {
-	      var previews = wrapper.querySelectorAll('.adm-fileinput-item');
+	    value: function recalculateWrapper() {
+	      var wrapper = this.getFileWrapper();
+	      var previews = this.getPreviews();
 	      var length = Math.min(previews.length, 3);
 
 	      if (length) {
@@ -226,5 +316,5 @@
 
 	main_core.Reflection.namespace('BX.UI').ImageInput = ImageInput;
 
-}((this.window = this.window || {}),BX,BX.Event));
+}((this.window = this.window || {}),BX,BX.Event,BX));
 //# sourceMappingURL=script.js.map

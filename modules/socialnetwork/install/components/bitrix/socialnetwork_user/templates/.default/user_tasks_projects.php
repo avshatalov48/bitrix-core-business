@@ -125,6 +125,12 @@ if (!$groupId || CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $groupId, 
 		$componentName = 'bitrix:tasks.list';
 	}
 
+	$group = Bitrix\Socialnetwork\Item\Workgroup::getById($groupId);
+	if ($group && $group->isScrumProject())
+	{
+		$componentName = 'bitrix:tasks.scrum';
+	}
+
 	$APPLICATION->IncludeComponent(
 		$componentName,
 		".default",

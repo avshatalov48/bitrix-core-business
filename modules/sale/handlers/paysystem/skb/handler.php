@@ -9,7 +9,8 @@ use Bitrix\Main,
 	Bitrix\Sale\Payment,
 	Bitrix\Sale\PaySystem,
 	Bitrix\Sale\PriceMaths,
-	Bitrix\Sale\PaymentCollection;
+	Bitrix\Sale\PaymentCollection,
+	Bitrix\Sale\BusinessValue;
 
 Loc::loadMessages(__FILE__);
 
@@ -29,6 +30,9 @@ class SkbHandler
 		'0',
 		'RQ00000'
 	];
+
+	private const HTTP_CODE_OK = 200;
+	private const HTTP_CODE_LOCKED = 423;
 
 	private const PAYMENT_STATUS_ACCEPTED = 'ACWP';
 
@@ -85,6 +89,74 @@ class SkbHandler
 	 * @throws Main\ArgumentNullException
 	 * @throws Main\ArgumentOutOfRangeException
 	 * @throws Main\ArgumentTypeException
+	 * @throws Main\ObjectException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	private function changeUserPassword(Payment $payment): PaySystem\ServiceResult
+	{
+		$result = new PaySystem\ServiceResult();
+
+		$params = [
+			'messageId' => self::getMessageId(),
+			'login' => $this->getBusinessValue($payment, 'SKB_LOGIN'),
+			'password' => $this->getBusinessValue($payment, 'SKB_PASSWORD'),
+			'newPassword' => Main\Security\Random::getString(10, true),
+		];
+
+		$sendResult = $this->send($payment, 'changeUserPassword', $params);
+		if ($sendResult->isSuccess())
+		{
+			$updatePasswordResult = $this->updatePassword($payment, $params['newPassword']);
+			if (!$updatePasswordResult->isSuccess())
+			{
+				$result->addErrors($updatePasswordResult->getErrors());
+			}
+		}
+		else
+		{
+			$result->addErrors($sendResult->getErrors());
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param Payment $payment
+	 * @param string $password
+	 * @return PaySystem\ServiceResult
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	private function updatePassword(Payment $payment, string $password): PaySystem\ServiceResult
+	{
+		$result = new PaySystem\ServiceResult();
+
+		$oldMapping = BusinessValue::getMapping('SKB_PASSWORD', $this->service->getConsumerName(), $payment->getPersonTypeId());
+		$updateMappingResult = BusinessValue::updateMapping(
+			'SKB_PASSWORD',
+			$oldMapping,
+			[
+				'PROVIDER_KEY' => 'VALUE',
+				'PROVIDER_VALUE' => $password,
+			]
+		);
+		if (!$updateMappingResult->isSuccess())
+		{
+			$result->addErrors($updateMappingResult->getErrors());
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param Payment $payment
+	 * @return PaySystem\ServiceResult
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\ArgumentTypeException
 	 * @throws Main\NotImplementedException
 	 * @throws Main\ObjectException
 	 * @throws Main\ObjectPropertyException
@@ -94,7 +166,6 @@ class SkbHandler
 	{
 		$result = new PaySystem\ServiceResult();
 
-		$url = $this->getUrl($payment, 'register');
 		$params = [
 			'messageId' => self::getMessageId(),
 			'agentId' => $this->getAgentId(),
@@ -105,9 +176,8 @@ class SkbHandler
 			'paymentPurpose' => $this->getAdditionalInfo($payment),
 			'qrcType' => '02',
 		];
-		$headers = $this->getHeaders($payment);
 
-		$sendResult = $this->send($url, $params, $headers);
+		$sendResult = $this->send($payment, 'register', $params);
 		if (!$sendResult->isSuccess())
 		{
 			$result->addErrors($sendResult->getErrors());
@@ -222,12 +292,13 @@ class SkbHandler
 	 * @throws Main\ArgumentOutOfRangeException
 	 * @throws Main\ArgumentTypeException
 	 * @throws Main\ObjectException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
 	 */
 	private function getSkbPaymentStatus(Payment $payment): PaySystem\ServiceResult
 	{
 		$result = new PaySystem\ServiceResult();
 
-		$url = $this->getUrl($payment, 'getPaymentsStatus');
 		$params = [
 			'messageId' => self::getMessageId(),
 			'agentId' => $this->getAgentId(),
@@ -235,9 +306,8 @@ class SkbHandler
 				$payment->getField('PS_INVOICE_ID'),
 			],
 		];
-		$headers = $this->getHeaders($payment);
 
-		$sendResult = $this->send($url, $params, $headers);
+		$sendResult = $this->send($payment, 'getPaymentsStatus', $params);
 		if (!$sendResult->isSuccess())
 		{
 			$result->addErrors($sendResult->getErrors());
@@ -359,6 +429,8 @@ class SkbHandler
 	 * @throws Main\ArgumentOutOfRangeException
 	 * @throws Main\ArgumentTypeException
 	 * @throws Main\ObjectException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
 	 */
 	private function checkRefundTransfer(Payment $payment, $refundableSum): PaySystem\ServiceResult
 	{
@@ -374,15 +446,13 @@ class SkbHandler
 		$paymentStatusData = $paymentStatusResult->getData();
 		$skbPayment = current($paymentStatusData['payments']);
 
-		$url = $this->getUrl($payment, 'checkRefundTransfer');
 		$params = [
 			'messageId' => self::getMessageId(),
 			'trxId' => $skbPayment['trxId'],
 			'amount' => (string)($refundableSum * 100),
 		];
-		$headers = $this->getHeaders($payment);
 
-		$sendResult = $this->send($url, $params, $headers);
+		$sendResult = $this->send($payment, 'checkRefundTransfer', $params);
 		if ($sendResult->isSuccess())
 		{
 			$result->setData($sendResult->getData());
@@ -404,19 +474,19 @@ class SkbHandler
 	 * @throws Main\ArgumentOutOfRangeException
 	 * @throws Main\ArgumentTypeException
 	 * @throws Main\ObjectException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
 	 */
 	private function approveRefundTransfer(Payment $payment, string $corelationId): PaySystem\ServiceResult
 	{
 		$result = new PaySystem\ServiceResult();
 
-		$url = $this->getUrl($payment, 'approveRefundTransfer');
 		$params = [
 			'messageId' => self::getMessageId(),
 			'corelationId' => $corelationId,
 		];
-		$headers = $this->getHeaders($payment);
 
-		$sendResult = $this->send($url, $params, $headers);
+		$sendResult = $this->send($payment, 'approveRefundTransfer', $params);
 		if ($sendResult->isSuccess())
 		{
 			$result->setData($sendResult->getData());
@@ -424,6 +494,55 @@ class SkbHandler
 		else
 		{
 			$result->addErrors($sendResult->getErrors());
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param Payment $payment
+	 * @param $action
+	 * @param array $params
+	 * @return PaySystem\ServiceResult
+	 * @throws Main\ArgumentException
+	 * @throws Main\ArgumentNullException
+	 * @throws Main\ArgumentOutOfRangeException
+	 * @throws Main\ArgumentTypeException
+	 * @throws Main\ObjectException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	private function send(Payment $payment, $action, array $params = []): PaySystem\ServiceResult
+	{
+		$url = $this->getUrl($payment, $action);
+
+		$result = $this->makeQuery($url, $params, $this->getHeaders($payment));
+		if (!$result->isSuccess() && $result->getErrorCollection()->getErrorByCode(self::HTTP_CODE_LOCKED))
+		{
+			$changeUserPasswordResult = $this->changeUserPassword($payment);
+			if (!$changeUserPasswordResult->isSuccess())
+			{
+				$result->addErrors($changeUserPasswordResult->getErrors());
+				return $result;
+			}
+
+			$result = $this->makeQuery($url, $params, $this->getHeaders($payment));
+		}
+
+		if (!$result->isSuccess())
+		{
+			return $result;
+		}
+
+		$sendData = $result->getData();
+		$verifyResult = $this->verifyResponse($sendData['response']);
+		if ($verifyResult->isSuccess())
+		{
+			$result->setData(static::decode($sendData['response']));
+		}
+		else
+		{
+			$result->addErrors($verifyResult->getErrors());
 		}
 
 		return $result;
@@ -440,33 +559,21 @@ class SkbHandler
 	 * @throws Main\ArgumentTypeException
 	 * @throws Main\ObjectException
 	 */
-	private function send($url, array $params = [], array $headers = []): PaySystem\ServiceResult
+	private function makeQuery($url, array $params = [], array $headers = []): PaySystem\ServiceResult
 	{
 		$result = new PaySystem\ServiceResult();
 
 		$httpClient = new HttpClient();
-		foreach ($headers as $name => $value)
-		{
-			$httpClient->setHeader($name, $value);
-		}
+		$httpClient->setHeaders($headers);
 
 		$postData = static::encode($params);
 		PaySystem\Logger::addDebugInfo(__CLASS__.': request data: '.$postData);
 
-		try
-		{
-			$response = $httpClient->post($url, $postData);
-		}
-		catch(\ErrorException $ex)
-		{
-			$result->addError(new Main\Error($ex->getMessage()));
-			return $result;
-		}
-
+		$response = $httpClient->post($url, $postData);
 		if ($response === false)
 		{
-			$errors = $httpClient->getError();
-			foreach ($errors as $code => $message)
+			$result->addError(new Main\Error(Loc::getMessage('SALE_HPS_SKB_ERROR_EMPTY_RESPONSE')));
+			foreach ($httpClient->getError() as $code => $message)
 			{
 				$result->addError(new Main\Error($message, $code));
 			}
@@ -477,14 +584,24 @@ class SkbHandler
 		PaySystem\Logger::addDebugInfo(__CLASS__.': response data: '.Main\Text\Encoding::convertEncoding($response, "UTF-8", LANG_CHARSET));
 
 		$httpStatus = $httpClient->getStatus();
-		$verifyResult = $this->verifyResponse($response, $httpStatus);
-		if ($verifyResult->isSuccess())
+		if ($httpStatus === self::HTTP_CODE_OK)
 		{
-			$result->setData($verifyResult->getData());
+			$result->setData(['response' => $response]);
 		}
 		else
 		{
-			$result->addErrors($verifyResult->getErrors());
+			$errorMessage = Loc::getMessage('SALE_HPS_SKB_ERROR_STATUS_'.$httpStatus);
+			if (!$errorMessage)
+			{
+				$errorMessage = Loc::getMessage(
+					'SALE_HPS_SKB_ERROR_STATUS_UNKNOWN',
+					[
+						'#STATUS#' => $httpStatus,
+					]
+				);
+			}
+
+			$result->addError(new Main\Error($errorMessage, $httpStatus));
 		}
 
 		return $result;
@@ -492,10 +609,9 @@ class SkbHandler
 
 	/**
 	 * @param $response
-	 * @param $httpStatus
 	 * @return PaySystem\ServiceResult
 	 */
-	private function verifyResponse($response, $httpStatus): PaySystem\ServiceResult
+	private function verifyResponse($response): PaySystem\ServiceResult
 	{
 		$result = new PaySystem\ServiceResult();
 
@@ -506,31 +622,20 @@ class SkbHandler
 			return $result;
 		}
 
-		if ($httpStatus === 200)
+		if (isset($responseData['errCode']) && !in_array($responseData['errCode'], self::RESPONSE_CODE_SUCCESS, true))
 		{
-			if (isset($responseData['errCode']) && !in_array($responseData['errCode'], self::RESPONSE_CODE_SUCCESS, true))
-			{
-				$result->addError(new Main\Error($responseData['errCode'], $responseData['errMess']));
-			}
-			else
-			{
-				$result->setData($responseData);
-			}
+			$result->addError(new Main\Error($responseData['errMess'], $responseData['errCode']));
 		}
 		elseif (isset($responseData['moreInformation'], $responseData['httpCode']))
 		{
 			$result->addError(new Main\Error($responseData['moreInformation'], $responseData['httpCode']));
-		}
-		else
-		{
-			$result->addError(new Main\Error(Loc::getMessage('SALE_HPS_SKB_ERROR_VERIFY')));
 		}
 
 		return $result;
 	}
 
 	/**
-	 * @param Payment $payment
+	 * @param Payment|null $payment
 	 * @return bool
 	 */
 	protected function isTestMode(Payment $payment = null): bool
@@ -562,6 +667,10 @@ class SkbHandler
 			'approveRefundTransfer' => [
 				self::TEST_URL => $testUrl.'refund/ApproveRefundTransfer',
 				self::ACTIVE_URL => $activeUrl.'refund/ApproveRefundTransfer'
+			],
+			'changeUserPassword' => [
+				self::TEST_URL => $testUrl.'user/changeUserPassword',
+				self::ACTIVE_URL => $activeUrl.'user/changeUserPassword'
 			],
 		];
 	}
@@ -610,9 +719,9 @@ class SkbHandler
 	private function getBasicAuthString(Payment $payment): string
 	{
 		return base64_encode(
-			trim($this->getBusinessValue($payment, 'SKB_LOGIN'))
+			$this->getBusinessValue($payment, 'SKB_LOGIN')
 			.':'
-			. trim($this->getBusinessValue($payment, 'SKB_PASSWORD'))
+			. $this->getBusinessValue($payment, 'SKB_PASSWORD')
 		);
 	}
 

@@ -165,12 +165,12 @@ class Event extends \IRestService
 
 		$connectorId = isset($authData['auth_connector']) ? $authData['auth_connector'] : '';
 
-		if(strlen($eventName) <= 0)
+		if($eventName == '')
 		{
 			throw new ArgumentNullException("EVENT");
 		}
 
-		if(strlen($eventType) > 0)
+		if($eventType <> '')
 		{
 			if(!in_array($eventType, array(EventTable::TYPE_ONLINE, EventTable::TYPE_OFFLINE)))
 			{
@@ -192,14 +192,14 @@ class Event extends \IRestService
 			$eventCallback = '';
 			$eventUser = 0;
 		}
-		elseif(strlen($eventCallback) <= 0 && $eventType === EventTable::TYPE_ONLINE)
+		elseif($eventCallback == '' && $eventType === EventTable::TYPE_ONLINE)
 		{
 			throw new ArgumentNullException("HANDLER");
 		}
 
 		$clientInfo = AppTable::getByClientId($server->getClientId());
 
-		if(strlen($eventCallback) <= 0 || HandlerHelper::checkCallback($eventCallback, $clientInfo))
+		if($eventCallback == '' || HandlerHelper::checkCallback($eventCallback, $clientInfo))
 		{
 			$scopeList = $server->getAuthScope();
 			$scopeList[] = \CRestUtil::GLOBAL_SCOPE;
@@ -296,12 +296,12 @@ class Event extends \IRestService
 		$eventType = ToLower($query['EVENT_TYPE']);
 		$eventCallback = $query['HANDLER'];
 
-		if(strlen($eventName) <= 0)
+		if($eventName == '')
 		{
 			throw new ArgumentNullException("EVENT");
 		}
 
-		if(strlen($eventType) > 0)
+		if($eventType <> '')
 		{
 			if(!in_array($eventType, array(EventTable::TYPE_ONLINE, EventTable::TYPE_OFFLINE)))
 			{
@@ -322,7 +322,7 @@ class Event extends \IRestService
 
 			$eventCallback = '';
 		}
-		elseif(strlen($eventCallback) <= 0)
+		elseif($eventCallback == '')
 		{
 			throw new ArgumentNullException("HANDLER");
 		}
@@ -407,7 +407,7 @@ class Event extends \IRestService
 		));
 		while($eventHandler = $dbRes->fetch())
 		{
-			if(strlen($eventHandler['EVENT_HANDLER']) > 0)
+			if($eventHandler['EVENT_HANDLER'] <> '')
 			{
 				$result[] = array(
 					"event" => $eventHandler['EVENT_NAME'],
@@ -584,7 +584,7 @@ class Event extends \IRestService
 			{
 				$messageId = trim($messageId);
 
-				if(strlen($messageId) !== 32)
+				if(mb_strlen($messageId) !== 32)
 				{
 					throw new ArgumentException('Value must be array of MESSAGE_ID values', 'messsage_id');
 				}

@@ -1,9 +1,5 @@
 <?
 
-/***************************************
-				Ответы
-***************************************/
-
 class CAllFormAnswer
 {
 	function err_mess()
@@ -13,7 +9,6 @@ class CAllFormAnswer
 		return "<br>Module: ".$module_id." (".$arModuleVersion["VERSION"].")<br>Class: CAllFormAnswer<br>File: ".__FILE__;
 	}
 
-	// копирует ответ
 	function Copy($ID, $NEW_QUESTION_ID=false)
 	{
 		global $DB, $APPLICATION, $strError;
@@ -41,7 +36,6 @@ class CAllFormAnswer
 		return false;
 	}
 
-	// удаляем ответ
 	function Delete($ID, $QUESTION_ID=false)
 	{
 		global $DB, $strError;
@@ -76,7 +70,6 @@ class CAllFormAnswer
 		return $arr;
 	}
 
-	// возвращает список ответов
 	function GetList($QUESTION_ID, &$by, &$order, $arFilter=Array(), &$is_filtered)
 	{
 		$err_mess = (CAllFormAnswer::err_mess())."<br>Function: GetList<br>Line: ";
@@ -87,14 +80,23 @@ class CAllFormAnswer
 		if (is_array($arFilter))
 		{
 			$filter_keys = array_keys($arFilter);
-			for ($i=0; $i<count($filter_keys); $i++)
+			$keyCount = count($filter_keys);
+			for ($i=0; $i<$keyCount; $i++)
 			{
 				$key = $filter_keys[$i];
 				$val = $arFilter[$filter_keys[$i]];
-				if (strlen($val)<=0 || "$val"=="NOT_REF") continue;
-				if (is_array($val) && count($val)<=0) continue;
-				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys)) ? true : false;
-				$key = strtoupper($key);
+				if(is_array($val))
+				{
+					if(empty($val))
+						continue;
+				}
+				else
+				{
+				if((string)$val == '' || $val === "NOT_REF")
+					continue;
+				}
+				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys));
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -190,7 +192,6 @@ class CAllFormAnswer
 		return $res;
 	}
 
-	// проверка ответа
 	function CheckFields($arFields, $ANSWER_ID=false)
 	{
 		$err_mess = (CAllFormAnswer::err_mess())."<br>Function: CheckFields<br>Line: ";
@@ -208,14 +209,13 @@ class CAllFormAnswer
 
 		if ($ANSWER_ID<=0 || ($ANSWER_ID>0 && is_set($arFields, "MESSAGE")))
 		{
-			if (strlen($arFields["MESSAGE"])<=0) $str .= GetMessage("FORM_ERROR_FORGOT_ANSWER_TEXT")."<br>";
+			if ($arFields["MESSAGE"] == '') $str .= GetMessage("FORM_ERROR_FORGOT_ANSWER_TEXT")."<br>";
 		}
 
 		$strError .= $str;
-		if (strlen($str)>0) return false; else return true;
+		if ($str <> '') return false; else return true;
 	}
 
-	// добавление/обновление ответа
 	function Set($arFields, $ANSWER_ID=false)
 	{
 		$err_mess = (CAllFormAnswer::err_mess())."<br>Function: Set<br>Line: ";
@@ -257,7 +257,6 @@ class CAllFormAnswer
 			{
 				$DB->Update("b_form_answer", $arFields_i, "WHERE ID='".$ANSWER_ID."'", $err_mess.__LINE__);
 
-				// обновим все результаты для данного ответа
 				$arFields_u = array();
 				$arFields_u["ANSWER_TEXT"] = $arFields_i["MESSAGE"];
 				$arFields_u["ANSWER_VALUE"] = $arFields_i["VALUE"];
@@ -270,7 +269,7 @@ class CAllFormAnswer
 				else $arFields["QUESTION_ID"] = $arFields["FIELD_ID"];
 
 				$arFields_i["FIELD_ID"] = "'".intval($arFields["QUESTION_ID"])."'";
-				
+
 				$ANSWER_ID = $DB->Insert("b_form_answer", $arFields_i, $err_mess.__LINE__);
 				$ANSWER_ID = intval($ANSWER_ID);
 			}
@@ -279,6 +278,3 @@ class CAllFormAnswer
 		return false;
 	}
 }
-
-
-?>

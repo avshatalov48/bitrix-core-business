@@ -130,51 +130,65 @@ class Client
 		return intval(Option::get("rest", "mp_num_updates", 0));
 	}
 
-	public static function getCategories($forceReload = false)
+	/**
+	 * Return marketplace category query result
+	 * @param bool $forceReload
+	 *
+	 * @return array
+	 */
+	public static function getCategoriesFull($forceReload = false)
 	{
 		$managedCache = Application::getInstance()->getManagedCache();
 
-		$cacheId = 'rest|marketplace|categories|'.LANGUAGE_ID;
+		$cacheId = 'rest|marketplace|categories|full|'.LANGUAGE_ID;
 
 		$requestNeeded = true;
 
-		if(
+		if (
 			$forceReload === false
 			&& static::CATEGORIES_CACHE_TTL > 0
 			&& $managedCache->read(static::CATEGORIES_CACHE_TTL, $cacheId)
 		)
 		{
-			$categoriesList = $managedCache->get($cacheId);
-			if (is_array($categoriesList))
+			$result = $managedCache->get($cacheId);
+			if (is_array($result))
 			{
 				$requestNeeded = false;
 			}
-			elseif (intval($categoriesList) > time())
+			elseif (intval($result) > time())
 			{
 				$requestNeeded = false;
-				$categoriesList = [];
+				$result = [];
 			}
 		}
 
 		if ($requestNeeded)
 		{
-			$categoriesList = Transport::instance()->call(Transport::METHOD_GET_CATEGORIES);
-			if(is_array($categoriesList))
+			$result = Transport::instance()->call(Transport::METHOD_GET_CATEGORIES);
+			if (!is_array($result))
 			{
-				$categoriesList = $categoriesList["ITEMS"];
-			}
-			else
-			{
-				$categoriesList = time() + 300;
+				$result = time() + 300;
 			}
 
-			if(static::CATEGORIES_CACHE_TTL > 0)
+			if (static::CATEGORIES_CACHE_TTL > 0)
 			{
-				$managedCache->set($cacheId, $categoriesList);
+				$managedCache->set($cacheId, $result);
 			}
 		}
 
-		return (is_array($categoriesList) ? $categoriesList : []);
+		return (is_array($result) ? $result : []);
+	}
+
+	/**
+	 * Return marketplace category items
+	 * @param bool $forceReload
+	 *
+	 * @return array
+	 */
+	public static function getCategories($forceReload = false)
+	{
+		$categories = static::getCategoriesFull($forceReload);
+		return (is_array($categories['ITEMS']) ? $categories['ITEMS'] : []);
 	}
 
 	public static function getCategory($code, $page = false, $pageSize = false)
@@ -414,9 +428,9 @@ class Client
 	public static function getTagByPlacement($placement)
 	{
 		$tag = array();
-		if(strlen($placement) > 0)
+		if($placement <> '')
 		{
-			if(substr($placement, 0, 4) === 'CRM_' || $placement === \Bitrix\Rest\Api\UserFieldType::PLACEMENT_UF_TYPE)
+			if(mb_substr($placement, 0, 4) === 'CRM_' || $placement === \Bitrix\Rest\Api\UserFieldType::PLACEMENT_UF_TYPE)
 			{
 				if($placement !== 'CRM_ROBOT_TRIGGERS')
 				{
@@ -429,7 +443,7 @@ class Client
 
 				$tag[] = 'crm';
 			}
-			elseif(substr($placement, 0, 5) === 'CALL_')
+			elseif(mb_substr($placement, 0, 5) === 'CALL_')
 			{
 				$tag[] = 'placement';
 				$tag[] = 'telephony';
@@ -453,7 +467,8 @@ class Client
 	 */
 	public static function isSubscriptionAvailable()
 	{
-		return \Bitrix\Main\Config\Option::get("bitrix24", "~mp24_paid", "N") === "Y";
+		$status = \Bitrix\Main\Config\Option::get('bitrix24', '~mp24_paid', 'N');
+		return ($status === 'Y' || $status === 'T');
 	}
 
 	/**
@@ -461,7 +476,14 @@ class Client
 	 */
 	public static function getSubscriptionFinalDate()
 	{
-		return new \Bitrix\Main\Type\Date(\Bitrix\Main\Config\Option::get("bitrix24", "~mp24_paid_date"));
+		$result = false;
+		$timestamp = \Bitrix\Main\Config\Option::get("bitrix24", "~mp24_paid_date");
+		if ($timestamp > 0)
+		{
+			$result = \Bitrix\Main\Type\Date::createFromTimestamp($timestamp);
+		}
+
+		return $result;
 	}
 
 }

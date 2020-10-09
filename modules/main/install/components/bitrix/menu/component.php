@@ -20,13 +20,13 @@ else
 	$arParams["MAX_LEVEL"] = 1;
 
 //Root menu type
-if (isset($arParams["ROOT_MENU_TYPE"]) && strlen($arParams["ROOT_MENU_TYPE"]) > 0)
+if (isset($arParams["ROOT_MENU_TYPE"]) && $arParams["ROOT_MENU_TYPE"] <> '')
 	$arParams["ROOT_MENU_TYPE"] = htmlspecialcharsbx(trim($arParams["ROOT_MENU_TYPE"]));
 else
 	$arParams["ROOT_MENU_TYPE"] = "left";
 
 //Child menu type
-if (isset($arParams["CHILD_MENU_TYPE"]) && strlen($arParams["CHILD_MENU_TYPE"]) > 0)
+if (isset($arParams["CHILD_MENU_TYPE"]) && $arParams["CHILD_MENU_TYPE"] <> '')
 	$arParams["CHILD_MENU_TYPE"] = htmlspecialcharsbx(trim($arParams["CHILD_MENU_TYPE"]));
 else
 	$arParams["CHILD_MENU_TYPE"] = "left";
@@ -160,8 +160,8 @@ if($USER->IsAuthorized())
 			$position = bxstrrpos($currentAddDir, "/");
 			if ($position === false)
 				break;
-	
-			$currentAddDir = substr($currentAddDir, 0, $position+1);
+
+			$currentAddDir = mb_substr($currentAddDir, 0, $position + 1);
 		}
 	}
 	

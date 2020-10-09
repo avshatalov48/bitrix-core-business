@@ -114,9 +114,9 @@ class TaggedCache
 						if (!isset($this->cacheTag[$path][$tag]))
 						{
 							$strSqlValues .= $sql." '".$sqlHelper->forSql($tag, 100)."')";
-							if (strlen($strSqlValues) > $maxValuesLen)
+							if (mb_strlen($strSqlValues) > $maxValuesLen)
 							{
-								$con->queryExecute($strSqlPrefix.substr($strSqlValues, 2));
+								$con->queryExecute($strSqlPrefix.mb_substr($strSqlValues, 2));
 								$strSqlValues = "";
 							}
 							$this->cacheTag[$path][$tag] = true;
@@ -126,7 +126,7 @@ class TaggedCache
 			}
 			if ($strSqlValues <> '')
 			{
-				$con->queryExecute($strSqlPrefix.substr($strSqlValues, 2));
+				$con->queryExecute($strSqlPrefix.mb_substr($strSqlValues, 2));
 			}
 
 			$this->pool->useMasterOnly(false);

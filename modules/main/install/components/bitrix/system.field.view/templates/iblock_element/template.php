@@ -4,7 +4,7 @@ $bFirst = true;
 
 	foreach ($arResult["VALUE"] as $ID => $res):
 		$surl = GetIBlockElementLinkById($ID);
-		if ($surl && strlen($surl) > 0)
+		if ($surl && $surl <> '')
 			$res = '<a href="'.$surl.'">'.$res.'</a>';
 	
 		if (!$bFirst):

@@ -83,7 +83,7 @@ if($request->isPost() && check_bitrix_sessid())
 
 	$error = new \Bitrix\Main\ErrorCollection();
 
-	if(strlen($arResult['INFO']['EVENT_NAME']) > 0)
+	if($arResult['INFO']['EVENT_NAME'] <> '')
 	{
 		if(!isset($arResult['EVENTS_DESC'][$arResult['INFO']['EVENT_NAME']]))
 		{
@@ -91,7 +91,7 @@ if($request->isPost() && check_bitrix_sessid())
 		}
 	}
 
-	if(strlen($arResult['INFO']['EVENT_NAME']) <= 0)
+	if($arResult['INFO']['EVENT_NAME'] == '')
 	{
 		$error->add(
 			array(
@@ -103,7 +103,7 @@ if($request->isPost() && check_bitrix_sessid())
 	$uri = new \Bitrix\Main\Web\Uri($arResult['INFO']['EVENT_HANDLER']);
 
 	if(
-		strlen($uri->getHost()) <= 0
+		$uri->getHost() == ''
 		|| !($uri->getScheme() == 'http' || $uri->getScheme() == 'https')
 	)
 	{

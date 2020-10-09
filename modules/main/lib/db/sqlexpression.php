@@ -62,7 +62,7 @@ class SqlExpression
 	{
 		$this->i = -1;
 
-		if (strpos($this->expression, '\\') === false)
+		if (mb_strpos($this->expression, '\\') === false)
 		{
 			// regular case
 			return preg_replace_callback($this->pattern, array($this, 'execPlaceholders'), $this->expression);

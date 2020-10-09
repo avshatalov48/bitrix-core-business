@@ -136,13 +136,13 @@ if(($arID = $adminList->GroupAction()) && $isAdmin)
 
 $APPLICATION->SetTitle(Loc::getMessage("sms_template_admin_title"));
 
-$sortBy = strtoupper($sorting->getField());
+$sortBy = mb_strtoupper($sorting->getField());
 if(!TemplateTable::getEntity()->hasField($sortBy))
 {
 	$sortBy = "ID";
 }
 
-$sortOrder = strtoupper($sorting->getOrder());
+$sortOrder = mb_strtoupper($sorting->getOrder());
 if($sortOrder <> "ASC")
 {
 	$sortOrder = "DESC";

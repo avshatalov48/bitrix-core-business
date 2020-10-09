@@ -29,23 +29,23 @@ class MPLSimpleHTMLParser
 			foreach($arAttr as $attr)
 			{
 				list($attr_name, $attr_value) = explode('=', $attr);
-				$search[strToUpper(trim($attr_name))] = trim($attr_value);
+				$search[mb_strtoupper(trim($attr_name))] = trim($attr_value);
 			}
 		}
 		$tmp = $this->data;
 		// skip beginning spaces
 		if (preg_match($this->parse_beginning_spaces, $tmp, $spaces) > 0)
 		{
-			$offset = strlen($spaces[1]);
-			$tmp = substr($tmp, $offset);
+			$offset = mb_strlen($spaces[1]);
+			$tmp = mb_substr($tmp, $offset);
 		}
 
-		while (strlen($tmp) > 0 && preg_match($this->parse_tag, $tmp, $matches) > 0)
+		while ($tmp <> '' && preg_match($this->parse_tag, $tmp, $matches) > 0)
 		{
 			$tag_name = $matches[4];
 			$tag = $matches[2];
 			$skip = $matches[1];
-			if (strlen($skip) < 1) return false;
+			if (mb_strlen($skip) < 1) return false;
 			if ($tag_name == $search['TAG']) // tag found
 			{
 				// parse params
@@ -55,7 +55,7 @@ class MPLSimpleHTMLParser
 					// store tag params
 					$arTagParams = array();
 					foreach($arParams as $arParam)
-						$arTagParams[strToUpper(trim($arParam[1]))] = trim(trim($arParam[2]), '"\'');
+						$arTagParams[mb_strtoupper(trim($arParam[1]))] = trim(trim($arParam[2]), '"\'');
 					// compare all search params
 					$found = true;
 					foreach($search as $key => $value)
@@ -73,14 +73,14 @@ class MPLSimpleHTMLParser
 					}
 				}
 			}
-			$offset += strlen($skip);
-			$tmp = substr($tmp, strlen($skip));
+			$offset += mb_strlen($skip);
+			$tmp = mb_substr($tmp, mb_strlen($skip));
 
 			// skip special tags
 			while ($skip = $this->skipTags($tmp))
 			{
 				$offset += $skip;
-				$tmp = substr($tmp, $skip);
+				$tmp = mb_substr($tmp, $skip);
 			}
 		}
 		return false;
@@ -102,8 +102,8 @@ class MPLSimpleHTMLParser
 			if (preg_match('#^\s*'.$tags_quoted[$i]['open'].'#i', $tmp) < 1) continue;
 			if (preg_match('#('.$tags_quoted[$i]['close'].'\s*)#im', $tmp, $matches) > 0)
 			{
-				$endpos = strpos($tmp, $matches[1]);
-				$offset = $endpos+strlen($matches[1]);
+				$endpos = mb_strpos($tmp, $matches[1]);
+				$offset = $endpos + mb_strlen($matches[1]);
 				return $offset;
 			}
 		}
@@ -120,7 +120,7 @@ class MPLSimpleHTMLParser
 	{
 		if ($startIndex === false || (intval($startIndex) == 0 && $startIndex !== 0))
 			return $this->setError('E_PARSE_INVALID_INDEX');
-		$tmp = substr($this->data, $startIndex);
+		$tmp = mb_substr($this->data, $startIndex);
 
 		$this->lastError = '';
 		$arStack = array();
@@ -131,17 +131,17 @@ class MPLSimpleHTMLParser
 		// skip beginning spaces
 		if (preg_match($this->parse_beginning_spaces, $tmp, $spaces) > 0)
 		{
-			$offset = strlen($spaces[1]);
-			$tmp = substr($tmp, $offset);
+			$offset = mb_strlen($spaces[1]);
+			$tmp = mb_substr($tmp, $offset);
 		}
 
-		while (strlen($tmp) > 0 && preg_match($this->parse_tag, $tmp, $matches) > 0)
+		while ($tmp <> '' && preg_match($this->parse_tag, $tmp, $matches) > 0)
 		{
 			$tag_id++;
-			$tag_name = strtoupper(trim($matches[4]));
+			$tag_name = mb_strtoupper(trim($matches[4]));
 			$tag = $matches[2];
 			$skip = $matches[1];
-			if (strlen($skip) < 1) return $this->setError('E_PARSE_INVALID_DOM_1');
+			if (mb_strlen($skip) < 1) return $this->setError('E_PARSE_INVALID_DOM_1');
 			if ($matches[3] == '/') // close tag
 			{
 				if (end($arStack) == $tag_name)
@@ -178,17 +178,17 @@ class MPLSimpleHTMLParser
 			if (sizeof($arStack) > 300)
 				return $this->setError('E_PARSE_TOO_BIG_DOM_3');  // too big DOM
 			elseif (sizeof($arStack) == 0) // done !
-			return $offset + strlen($tag);
+			return $offset + mb_strlen($tag);
 			else // continue
 			{
-				$offset += strlen($skip);
-				$tmp = substr($tmp, strlen($skip));
+				$offset += mb_strlen($skip);
+				$tmp = mb_substr($tmp, mb_strlen($skip));
 			}
 			// skip special tags
 			while ($skip = $this->skipTags($tmp))
 			{
 				$offset += $skip;
-				$tmp = substr($tmp, $skip);
+				$tmp = mb_substr($tmp, $skip);
 			}
 		}
 		return $this->setError('E_PARSE_INVALID_DOM_4');  // not enough data in $data ?
@@ -201,18 +201,18 @@ class MPLSimpleHTMLParser
 		if ($messageStart === false) return '';
 		$messageEnd = $this->findTagEnd($messageStart);
 		if ($messageEnd !== false)
-			$messagePost = substr($this->data, $messageStart, $messageEnd);
+			$messagePost = mb_substr($this->data, $messageStart, $messageEnd);
 		return trim($messagePost);
 	}
 
 	function getInnerHTML($startLabel, $endLabel, $multiple=false)
 	{
-		$startPos = strpos($this->data, $startLabel);
+		$startPos = mb_strpos($this->data, $startLabel);
 		if ($startPos === false) return '';
-		$startPos += strlen($startLabel);
-		$endPos = strpos($this->data, $endLabel, $startPos);
+		$startPos += mb_strlen($startLabel);
+		$endPos = mb_strpos($this->data, $endLabel, $startPos);
 		if ($endPos === false) return '';
-		return trim(substr($this->data, $startPos, $endPos-$startPos));
+		return trim(mb_substr($this->data, $startPos, $endPos - $startPos));
 	}
 }
 

@@ -86,7 +86,7 @@ abstract class UserFieldAccess
 		$filterEntityIds = [];
 		foreach($filter as $name => $value)
 		{
-			if(strpos($name, 'ENTITY_ID') !== false)
+			if(mb_strpos($name, 'ENTITY_ID') !== false)
 			{
 				if($name === 'ENTITY_ID')
 				{

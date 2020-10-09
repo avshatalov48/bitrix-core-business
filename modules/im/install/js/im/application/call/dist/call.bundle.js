@@ -260,7 +260,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    this.dialogInited = false;
 	    this.initPromise = new BX.Promise();
 	    this.params = params;
-	    console.trace(params);
 	    this.params.userId = this.params.userId ? parseInt(this.params.userId) : 0;
 	    this.params.siteId = this.params.siteId || '';
 	    this.params.chatId = this.params.chatId ? parseInt(this.params.chatId) : 0;
@@ -1175,6 +1174,12 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	        _this13.toggleChat();
 	      });
+	    }
+	  }, {
+	    key: "insertText",
+	    value: function insertText() {
+	      var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	      this.template.$emit(im_const.EventType.textarea.insertText, params);
 	    }
 	  }, {
 	    key: "addMessage",

@@ -144,8 +144,8 @@ ul.photo-album-list div.photo-item-info-block-outside {
 ul.photo-album-thumbs-list div.photo-item-info-block-inner {
 	width:<?=($arParams["ALBUM_PHOTO_THUMBS_SIZE"] + 48)?>px;}
 div.photo-body-text-ajax{
-	height:<?=intVal($arParams["THUMBNAIL_SIZE"] * $arParams["INDEX_PAGE_TOP_ELEMENTS_PERCENT"]/100 + 39)?>px;
-	padding-top:<?=intVal($arParams["THUMBNAIL_SIZE"] * $arParams["INDEX_PAGE_TOP_ELEMENTS_PERCENT"]/200)?>px;
+	height:<?=intval($arParams["THUMBNAIL_SIZE"] * $arParams["INDEX_PAGE_TOP_ELEMENTS_PERCENT"]/100 + 39)?>px;
+	padding-top:<?=intval($arParams["THUMBNAIL_SIZE"] * $arParams["INDEX_PAGE_TOP_ELEMENTS_PERCENT"]/200)?>px;
 	text-align:center;}
 </style>
 <?endif; /*(!isset($_REQUEST["photo_list_action"]) || !$_REQUEST["photo_list_action"])*/?>

@@ -169,7 +169,7 @@ while (($row = $arResult["ANSWERS"]->fetch()) && $row)
 	}
 
 	$field = htmlspecialcharsbx($gridRow["columns"]["COLOR"]);
-	$gridRow["columns"]["COLOR"] = strlen($field) > 0 ? "<span class=\"vote-edit-color\" style='border-color:$field;'>$field</span>" : "";
+	$gridRow["columns"]["COLOR"] = $field <> '' ? "<span class=\"vote-edit-color\" style='border-color:$field;'>$field</span>" : "";
 	$gridRow["data"]["COLOR"] = "<input name=\"COLOR\" class=\"main-grid-editor main-grid-editor-text\" id=\"COLOR_control\" value=\"$field\" onclick=\"BX.Vote.showColorPicker(this)\">";
 
 	$gridRow["columns"]["ACTIVE"] = ($gridRow["data"]["ACTIVE"] == "Y" ? GetMessage("admin_lib_list_yes") : GetMessage("admin_lib_list_no"));
@@ -305,7 +305,7 @@ $arQuestion = $arResult["QUESTION"];
 			<td>[<a href="vote_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$vote["ID"]?>" title="<?=GetMessage("VOTE_CONF")?>"><?=$vote["ID"]?></a>]&nbsp;
 				<?=htmlspecialcharsbx($vote["TITLE"])?></td>
 		</tr>
-		<?if (strlen($arQuestion["TIMESTAMP_X"]) > 0):?>
+		<?if ($arQuestion["TIMESTAMP_X"] <> ''):?>
 			<tr><td><?=GetMessage("VOTE_TIMESTAMP")?></td>
 				<td><?=$arQuestion["TIMESTAMP_X"]?></td>
 			</tr>

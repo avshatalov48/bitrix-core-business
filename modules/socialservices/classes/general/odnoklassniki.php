@@ -129,7 +129,7 @@ class CSocServOdnoklassniki extends CSocServAuth
 						}
 					}
 					$arFields["PERSONAL_WWW"] = "http://odnoklassniki.ru/profile/".$uid;
-					if(strlen(SITE_ID) > 0)
+					if(SITE_ID <> '')
 						$arFields["SITE_ID"] = SITE_ID;
 
 					$bSuccess = $this->AuthorizeUser($arFields);
@@ -160,7 +160,7 @@ class CSocServOdnoklassniki extends CSocServAuth
 				{
 					foreach($aRemove as $param)
 					{
-						if(strpos($value, $param."=") === 0)
+						if(mb_strpos($value, $param."=") === 0)
 						{
 							unset($arUrlQuery[$key]);
 							break;
@@ -189,7 +189,7 @@ class CSocServOdnoklassniki extends CSocServAuth
 				: $APPLICATION->GetCurPageParam(('auth_service_id='.self::ID.'&auth_service_error='.$bSuccess), $aRemove);
 		}
 
-		if(CModule::IncludeModule("socialnetwork") && strpos($url, "current_fieldset=") === false)
+		if(CModule::IncludeModule("socialnetwork") && mb_strpos($url, "current_fieldset=") === false)
 			$url = (preg_match("/\?/", $url)) ? $url."&current_fieldset=SOCSERV" : $url."?current_fieldset=SOCSERV";
 
 		$url = CUtil::JSEscape($url);
@@ -295,7 +295,7 @@ class COdnoklassnikiInterface
 			$arguments["application_key"] = $this->appKey;
 			$arguments['method'] = 'users.getCurrentUser';
 			ksort($arguments);
-			$this->sign = strtolower(md5('application_key='.$arguments["application_key"].'method='.$arguments['method'].md5($this->access_token.$this->appSecret)));
+			$this->sign = mb_strtolower(md5('application_key='.$arguments["application_key"].'method='.$arguments['method'].md5($this->access_token.$this->appSecret)));
 			return true;
 		}
 		return false;
@@ -319,7 +319,7 @@ class COdnoklassnikiInterface
 			self::SetOauthKeys($socServUserId);
 		if(!defined("BX_UTF"))
 			$message = CharsetConverter::ConvertCharset($message, LANG_CHARSET, "utf-8");
-		$this->sign = strtolower(md5('application_key='.$this->appKey.'method=users.setStatusstatus='.$message.md5($this->access_token.$this->appSecret)));
+		$this->sign = mb_strtolower(md5('application_key='.$this->appKey.'method=users.setStatusstatus='.$message.md5($this->access_token.$this->appSecret)));
 		$result = CHTTP::sGetHeader(self::CONTACTS_URL."?method=users.setStatus&application_key=".$this->appKey."&access_token=".$this->access_token."&sig=".$this->sign."&status=".urlencode($message), array(), $this->httpTimeout);
 
 		if(!defined("BX_UTF"))

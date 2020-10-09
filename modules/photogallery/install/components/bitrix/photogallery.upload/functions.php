@@ -12,7 +12,7 @@ class CPhotoUploader
 		if ($arParams['WATERMARK_RULES'] == 'ALL')
 		{
 			$arWatermark = array(
-				'type' => strtolower($arParams['WATERMARK_TYPE']),
+				'type' => mb_strtolower($arParams['WATERMARK_TYPE']),
 				'position' => $arParams['WATERMARK_POSITION']
 			);
 
@@ -62,8 +62,8 @@ class CPhotoUploader
 		if (!CModule::IncludeModule("iblock"))
 			return false;
 		$name = trim($name);
-		$name = (strlen($name) > 0 ? $name : GetMessage("P_NEW_ALBUM"));
-		$name = (strlen($name) > 0 ? $name : "New album");
+		$name = ($name <> '' ? $name : GetMessage("P_NEW_ALBUM"));
+		$name = ($name <> '' ? $name : "New album");
 		$arFields = Array(
 			"ACTIVE" => "Y",
 			"IBLOCK_ID" => $arParams["IBLOCK_ID"],
@@ -103,8 +103,8 @@ class CPhotoUploader
 						"ACTIVE" => "Y",
 						"PROPERTY_TYPE" => "F",
 						"MULTIPLE" => "N",
-						"NAME" => (strLen(GetMessage("P_".strToUpper($key))) > 0 ? GetMessage("P_".strToUpper($key)) : strToUpper($key)),
-						"CODE" => strToUpper($key),
+						"NAME" => (GetMessage("P_".mb_strtoupper($key)) <> ''? GetMessage("P_".mb_strtoupper($key)) : mb_strtoupper($key)),
+						"CODE" => mb_strtoupper($key),
 						"FILE_TYPE" => "jpg, gif, bmp, png, jpeg"
 					));
 				}
@@ -129,7 +129,7 @@ class CPhotoUploader
 						"ACTIVE" => "Y",
 						"PROPERTY_TYPE" => "S",
 						"MULTIPLE" => "N",
-						"NAME" => (strLen(GetMessage("P_".$key)) > 0 ? GetMessage("P_".$key) : $key),
+						"NAME" => (GetMessage("P_".$key) <> '' ? GetMessage("P_".$key) : $key),
 						"DEFAULT_VALUE" => "N",
 						"CODE" => $key
 					));
@@ -167,8 +167,8 @@ class CPhotoUploader
 					"ACTIVE" => "Y",
 					"PROPERTY_TYPE" => "F",
 					"MULTIPLE" => "N",
-					"NAME" => (strLen(GetMessage("P_".strToUpper($key))) > 0 ? GetMessage("P_".strToUpper($key)) : strToUpper($key)),
-					"CODE" => strToUpper($key),
+					"NAME" => (GetMessage("P_".mb_strtoupper($key)) <> ''? GetMessage("P_".mb_strtoupper($key)) : mb_strtoupper($key)),
+					"CODE" => mb_strtoupper($key),
 					"FILE_TYPE" => "jpg, gif, bmp, png, jpeg"
 				));
 			}
@@ -193,7 +193,7 @@ class CPhotoUploader
 					"ACTIVE" => "Y",
 					"PROPERTY_TYPE" => "S",
 					"MULTIPLE" => "N",
-					"NAME" => (strLen(GetMessage("P_".$key)) > 0 ? GetMessage("P_".$key) : $key),
+					"NAME" => (GetMessage("P_".$key) <> '' ? GetMessage("P_".$key) : $key),
 					"DEFAULT_VALUE" => "N",
 					"CODE" => $key
 				));
@@ -269,7 +269,7 @@ class CPhotoUploader
 		foreach ($arParams['converters'] as $val)
 		{
 			if ($val['code'] != "default" && $val['code'] != "thumbnail")
-				$Prop[strtoupper($val['code'])] = array("n0" => $photo["files"][$val['code']]);
+				$Prop[mb_strtoupper($val['code'])] = array("n0" => $photo["files"][$val['code']]);
 		}
 		// Real photo
 		$arFields = Array(
@@ -409,9 +409,9 @@ function GetAlbumId($Params)
 	if ($savedData['SECTION_ID'] <= 0)
 	{
 		// Upload photos to existing album
-		if ($Params['id'] !== 'new' && intVal($Params['id']) > 0)
+		if ($Params['id'] !== 'new' && intval($Params['id']) > 0)
 		{
-			$sectionId = intVal($Params['id']);
+			$sectionId = intval($Params['id']);
 		}
 		// Create new album
 		else	if ($Params['id'] == 'new')
@@ -459,7 +459,7 @@ function handleFile($Info, $arFiles, $Params)
 		if ($file['size'] > 0 && $arParams["UPLOAD_MAX_FILE_SIZE"] > 0 && $file['size'] > $arParams["UPLOAD_MAX_FILE_SIZE"])
 			$arErrors[] = array("file" => $file['name'], "id" => "BXPH_FUNC_HANDLE_2_LARGE_SIZE","text" => GetMessage('P_WM_IMG_ERROR04'));
 
-		if ($file['type'] && strpos(strtolower($file['type']), 'image') === false)
+		if ($file['type'] && mb_strpos(mb_strtolower($file['type']), 'image') === false)
 			$arErrors[] = array("file" => $file['name'], "id" => "BXPH_FUNC_HANDLE_2_TYPE","text" => GetMessage('P_WM_IMG_ERROR02'));
 	}
 
@@ -474,7 +474,7 @@ function handleFile($Info, $arFiles, $Params)
 		if ($arParams['WATERMARK_RULES'] == 'ALL')
 		{
 			$arWatermark = array(
-				'type' => strtolower($arParams['WATERMARK_TYPE']),
+				'type' => mb_strtolower($arParams['WATERMARK_TYPE']),
 				'position' => $arParams['WATERMARK_POSITION']
 			);
 
@@ -560,7 +560,7 @@ function handleFile($Info, $arFiles, $Params)
 		$ind++;
 		if ($val['code'] == "real_picture" || $val['code'] == "thumbnail")
 			continue;
-		$Prop[strtoupper($val['code'])] = array("n0" => $arFiles[$ind]);
+		$Prop[mb_strtoupper($val['code'])] = array("n0" => $arFiles[$ind]);
 	}
 
 	$_REQUEST["Public"] = $_REQUEST["Public"] == "N" ? "N" : "Y";
@@ -620,7 +620,7 @@ function handleFile($Info, $arFiles, $Params)
 		{
 			$File = $arFiles[0]; // Big picture
 			$File['tmp_name_1'] = $File['tmp_name'];
-			$File['tmp_name'] = substr($File['tmp_name'], 0, strrpos($File['tmp_name'], "."))."_album_cover.tmp";
+			$File['tmp_name'] = mb_substr($File['tmp_name'], 0, mb_strrpos($File['tmp_name'], "."))."_album_cover.tmp";
 
 			if (CFile::ResizeImageFile($File['tmp_name_1'], $File['tmp_name'], array('width' => $arParams["ALBUM_PHOTO_THUMBS"]["SIZE"], 'height' => $arParams["ALBUM_PHOTO_THUMBS"]["SIZE"]), BX_RESIZE_IMAGE_PROPORTIONAL))
 			{
@@ -658,7 +658,7 @@ function simpleUploadHandler($arParams, $arResult = array())
 		'packageFields' => array(
 			'photo_album_id' => $_POST['photo_album_id'],
 			'new_album_name' => $_POST['new_album_name'],
-			'photo_resize_size' => intVal($_POST['photo_resize_size'])
+			'photo_resize_size' => intval($_POST['photo_resize_size'])
 		)
 	));
 
@@ -681,7 +681,7 @@ function simpleUploadHandler($arParams, $arResult = array())
 	if ($arParams['WATERMARK_RULES'] == 'ALL')
 	{
 		$arWatermark = array(
-			'type' => strtolower($arParams['WATERMARK_TYPE']),
+			'type' => mb_strtolower($arParams['WATERMARK_TYPE']),
 			'position' => $arParams['WATERMARK_POSITION']
 		);
 
@@ -742,7 +742,7 @@ function simpleUploadHandler($arParams, $arResult = array())
 			CImageUploader::SaveError(array(array("file" => $name_i, "id" => "BXPH_FUNC_HANDLE_LARGE_SIZE","text" => GetMessage('P_WM_IMG_ERROR04'))));
 			continue;
 		}
-		if ($type_i && strpos(strtolower($type_i), 'image') === false)
+		if ($type_i && mb_strpos(mb_strtolower($type_i), 'image') === false)
 		{
 			CImageUploader::SaveError(array(array("file" => $name_i, "id" => "BXPH_FUNC_HANDLE_TYPE","text" => GetMessage('P_WM_IMG_ERROR02'))));
 			continue;
@@ -752,7 +752,7 @@ function simpleUploadHandler($arParams, $arResult = array())
 		$name_i = GetFileNameWithoutExtension($name_i);
 		$name_i_ = preg_replace("/[^a-zA-Z0-9_]/i", "", $name_i);
 		if ($name_i_ != $name_i)
-			$name_i = ($name_i_ == '' ? substr(md5(mt_rand()), 0, 6) : '').$name_i_;
+			$name_i = ($name_i_ == ''? mb_substr(md5(mt_rand()), 0, 6) : '').$name_i_;
 
 		// TODO: exif, iptc
 		//$exif = CFile::ExtractImageExif($tmp_name_i);
@@ -764,7 +764,7 @@ function simpleUploadHandler($arParams, $arResult = array())
 			$destPath = $sTmpPath.$name_i."_".$key.".".$ext_i;
 			if ($val["code"] == "real_picture") // original file
 			{
-				$size = intVal($_POST['photo_resize_size']);
+				$size = intval($_POST['photo_resize_size']);
 				if ($arParams['ORIGINAL_SIZE'] && $arParams['ORIGINAL_SIZE'] > 0 && ($arParams['ORIGINAL_SIZE'] < $size || $size <= 0))
 					$size = $arParams['ORIGINAL_SIZE'];
 
@@ -778,7 +778,7 @@ function simpleUploadHandler($arParams, $arResult = array())
 			}
 			else
 			{
-				$arSize = array('width' => intVal($val['width']), 'height' => intVal($val['height']));
+				$arSize = array('width' => intval($val['width']), 'height' => intval($val['height']));
 			}
 
 			if (!$jpegQuality || $jpegQuality < 20)
@@ -849,7 +849,7 @@ function simpleUploadHandler($arParams, $arResult = array())
 		redirectUrl: '<?= CUtil::JSEscape($REDIRECT_URL)?>'
 		<? if (!empty($newSectionName)):?>
 		,newSection: {
-			id: <?= intVal($savedData['SECTION_ID'])?>,
+			id: <?= intval($savedData['SECTION_ID'])?>,
 			title: '<?= CUtil::JSEscape($newSectionName);?>'
 		}
 		<?endif;?>
@@ -864,9 +864,9 @@ if (!function_exists("_get_size"))
 {
 	function _get_size($v)
 	{
-		$l = substr($v, -1);
-		$ret = substr($v, 0, -1);
-		switch(strtoupper($l))
+		$l = mb_substr($v, -1);
+		$ret = mb_substr($v, 0, -1);
+		switch(mb_strtoupper($l))
 		{
 			case 'P':
 				$ret *= 1024;
@@ -876,7 +876,7 @@ if (!function_exists("_get_size"))
 				$ret *= 1024;
 			case 'K':
 				$ret /= 1024;
-			break;
+				break;
 		}
 		return $ret;
 	}

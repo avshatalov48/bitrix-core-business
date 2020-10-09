@@ -9,11 +9,11 @@ if(!$USER->CanDoOperation('edit_php'))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 $res=false;
-if(strlen($Reindex)>0 && check_bitrix_sessid())
+if($Reindex <> '' && check_bitrix_sessid())
 {
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 
-	if(strlen($Next)<=0 || !CheckSerializedData($_REQUEST['NS']))
+	if($Next == '' || !CheckSerializedData($_REQUEST['NS']))
 	{
 		$NS = array(
 			"max_execution_time" => $max_execution_time,

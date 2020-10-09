@@ -1,0 +1,226 @@
+.ui-selector-items {
+	padding: 10px 5px 10px 10px;
+}
+
+.ui-selector-item-box {
+
+}
+
+.ui-selector-item {
+	min-height: 48px;
+	cursor: pointer;
+	margin-bottom: 1px;
+	padding: 0 45px 0 10px;
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.bx-ie11 .ui-selector-item {
+	height: 48px;
+}
+
+.ui-selector-item-avatar {
+	width: 32px;
+	height: 32px;
+	min-width: 32px;
+	border-radius: 50%;
+	background-image: url(images/default-avatar.svg);
+	background-size: cover;
+	overflow: hidden;
+}
+
+.ui-selector-item-titles {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	justify-content: center;
+	margin-left: 10px;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.ui-selector-item-supertitle {
+	font-size: 9px;
+	font-family: "OpenSans-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	text-transform: uppercase;
+	color: #b1b6bb;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+.ui-selector-item-subtitle {
+	font-size: 13px;
+	color: #a9adb4;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+.ui-selector-item-title-box {
+	display: flex;
+}
+
+.ui-selector-item-title {
+	font-size: 16px;
+	color: #535c69;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+.ui-selector-item-badges {
+	display: flex;
+	overflow: hidden;
+}
+
+.ui-selector-item-badges:empty {
+	display: none;
+}
+
+.ui-selector-item-badge {
+	font-size: 9px;
+	background-color: rgba(47, 198, 246, 0.17);
+	padding: 4px 8px;
+	margin-left: 7px;
+	border-radius: 10px;
+	color: #23a2ca;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.ui-selector-item-badge:empty {
+	display: none;
+}
+
+.ui-selector-item-caption {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	font-size: 13px;
+	color: rgba(83, 92, 105, 0.5);
+	align-self: flex-end;
+	margin-left: 7px;
+	transition: width 200ms ease;
+}
+
+.ui-selector-item-caption:empty {
+	display: none;
+}
+
+.ui-selector-item-link {
+	display: none;
+	position: absolute;
+	top: 0;
+	right: 45px;
+	height: 48px;
+	align-items: center;
+	padding-left: 10px;
+	opacity: 0;
+	transition: opacity ease 300ms 500ms, background-color ease 100ms;
+	text-decoration: none;
+}
+
+.ui-selector-item-box-focused .ui-selector-item-link {
+	background-color: #f7f8f8;
+}
+
+.ui-selector-item-box-selected.ui-selector-item-box-focused .ui-selector-item-link {
+	background-color: #c8f0fd;
+}
+
+.ui-selector-item-box-focused .ui-selector-item-link--show {
+	display: flex;
+}
+
+.ui-selector-item-box-focused .ui-selector-item-link--animate {
+	opacity: 1;
+}
+
+.ui-selector-item-link-text {
+	color: #9b9b9b;
+	border-bottom: 1px dashed rgba(155, 155, 155, 0.4);
+	font-size: 14px;
+	white-space: nowrap;
+}
+
+.ui-selector-item-link:hover .ui-selector-item-link-text {
+	color: #5f5f5f;
+	border-bottom-color: #9b9b9b;
+}
+
+.ui-selector-item-indicator {
+	display: block;
+	position: absolute;
+	right: 0;
+	top: 0;
+	width: 45px;
+	height: 48px;
+	background-repeat: no-repeat;
+	background-position: center center;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+.ui-selector-item-indicator-hidden {
+	background-image: none !important;
+}
+
+.ui-selector-item-children {
+	overflow: hidden;
+	height: 0;
+	opacity: 0;
+	transition: height 300ms, opacity 300ms;
+	margin-left: 16px;
+	padding-left: 16px;
+	border-left: 1px solid #ebecee;
+}
+
+.ui-selector-item-box-max-depth .ui-selector-item-children {
+	margin-left: 0;
+	padding-left: 0;
+	border-left: none;
+}
+
+.ui-selector-item-children:empty {
+	display: none;
+}
+
+.ui-selector-item-box-open > .ui-selector-item-children {
+	height: auto;
+	opacity: 1;
+	margin-bottom: 15px;
+}
+
+.ui-selector-item-box-has-children > .ui-selector-item > .ui-selector-item-indicator {
+	background-image: url(images/has-children.svg);
+	transition: transform .3s;
+}
+
+.ui-selector-item-box-open > .ui-selector-item > .ui-selector-item-indicator {
+	transform: rotate(180deg);
+}
+
+.ui-selector-item-box-selected > .ui-selector-item {
+	background-color: #e0f6fe;
+}
+
+.ui-selector-item-box-focused > .ui-selector-item {
+	background-color: #f7f8f8;
+	transition: background-color ease 100ms;
+}
+
+.ui-selector-item-box-selected.ui-selector-item-box-focused > .ui-selector-item {
+	background-color: #c8f0fd;
+}
+
+.ui-selector-item-box-selected > .ui-selector-item > .ui-selector-item-indicator {
+	background-image: url(images/selected.svg);
+}
+
+.ui-selector-highlight-mark {
+	color: #000;
+	background-color: #faf16d;
+}

@@ -21,7 +21,7 @@ $strWarning = "";
 $io = CBXVirtualIo::GetInstance();
 
 $bVarsFromForm = false;
-if (strlen($filename) > 0 && ($mess = CFileMan::CheckFileName($filename)) !== true)
+if ($filename <> '' && ($mess = CFileMan::CheckFileName($filename)) !== true)
 {
 	$filename2 = $filename;
 	$filename = '';
@@ -40,27 +40,27 @@ if(!$site)
 $DOC_ROOT = CSite::GetSiteDocRoot($site);
 $abs_path = $io->CombinePath($DOC_ROOT, $path);
 
-if(strlen($new)>0 && strlen($filename)>0)
+if($new <> '' && $filename <> '')
 	$abs_path = $io->CombinePath($abs_path, $filename);
 
-if((strlen($new) <= 0 || strlen($filename)<=0) && !$io->FileExists($abs_path))
+if(($new == '' || $filename == '') && !$io->FileExists($abs_path))
 {
-	$p = strrpos($path, "/");
+	$p = mb_strrpos($path, "/");
 	if($p!==false)
 	{
 		$new = "Y";
-		$filename = substr($path, $p+1);
-		$path = substr($path, 0, $p);
+		$filename = mb_substr($path, $p + 1);
+		$path = mb_substr($path, 0, $p);
 	}
 }
 
-if(strlen($new) > 0 && strlen($filename) > 0 && ($io->FileExists($abs_path) || $io->DirectoryExists($abs_path)))		// если мы хотим создать новый файл, но уже такой есть - ругаемся
+if($new <> '' && $filename <> '' && ($io->FileExists($abs_path) || $io->DirectoryExists($abs_path)))		// если мы хотим создать новый файл, но уже такой есть - ругаемся
 {
 	$strWarning = GetMessage("FILEMAN_FILEEDIT_FILE_EXISTS")." ";
 	$bEdit = false;
 	$bVarsFromForm = true;
 }
-elseif(strlen($new) > 0)
+elseif($new <> '')
 {
 	if ($filename == '')
 		$strWarning = GetMessage("FILEMAN_FILEEDIT_FILENAME_EMPTY")." ";
@@ -74,7 +74,7 @@ else
 		$bEdit = true;
 }
 
-if(strlen($strWarning)<=0)
+if($strWarning == '')
 {
 	if($bEdit)
 	{
@@ -87,7 +87,7 @@ if(strlen($strWarning)<=0)
 		$rsSiteTemplates = CSite::GetTemplateList($site);
 		while($arSiteTemplate = $rsSiteTemplates->Fetch())
 		{
-			if(strlen($arSiteTemplate["CONDITION"])<=0)
+			if($arSiteTemplate["CONDITION"] == '')
 			{
 				$site_template = $arSiteTemplate["TEMPLATE"];
 				break;
@@ -95,7 +95,7 @@ if(strlen($strWarning)<=0)
 		}
 
 		$arTemplates = CFileman::GetFileTemplates(LANGUAGE_ID, array($site_template));
-		if(strlen($template)>0)
+		if($template <> '')
 		{
 			for ($i=0; $i<count($arTemplates); $i++)
 			{
@@ -110,7 +110,7 @@ if(strlen($strWarning)<=0)
 			$filesrc_tmp = CFileman::GetTemplateContent($arTemplates[0]["file"], LANGUAGE_ID, array($site_template));
 	}
 
-	if($REQUEST_METHOD=="POST" && strlen($save)>0)
+	if($REQUEST_METHOD=="POST" && $save <> '')
 	{
 		if(!check_bitrix_sessid())
 		{
@@ -121,7 +121,7 @@ if(strlen($strWarning)<=0)
 		// lpa was denied earlier, so use file src as is
 		$filesrc_for_save = $_POST['filesrc'];
 
-		if(strlen($strWarning) <= 0)
+		if($strWarning == '')
 		{
 			if (!CFileMan::CheckOnAllowedComponents($filesrc_for_save))
 			{
@@ -132,7 +132,7 @@ if(strlen($strWarning)<=0)
 			}
 		}
 
-		if(strlen($strWarning) <= 0)
+		if($strWarning == '')
 		{
 			$f = $io->GetFile($abs_path);
 			$arUndoParams = array(
@@ -168,7 +168,7 @@ if(strlen($strWarning)<=0)
 				$module_id = "fileman";
 				if(COption::GetOptionString($module_id, "log_page", "Y")=="Y")
 				{
-					$res_log['path'] = substr($path, 1);
+					$res_log['path'] = mb_substr($path, 1);
 					CEventLog::Log(
 						"content",
 						"PAGE_EDIT",
@@ -183,7 +183,7 @@ if(strlen($strWarning)<=0)
 					$AUTOSAVE->Reset();
 			}
 
-			if(strlen($strWarning)<=0)
+			if($strWarning == '')
 			{
 ?>
 <script type="text/javascript" bxrunfirst="true">
@@ -200,12 +200,12 @@ top.<?=$obJSPopup->jsPopup?>.Close();
 	}
 }
 
-if (strlen($strWarning) > 0)
+if ($strWarning <> '')
 	$obJSPopup->ShowValidationError($strWarning);
 
 if(!$bVarsFromForm)
 {
-	if(!$bEdit && strlen($filename)<=0)
+	if(!$bEdit && $filename == '')
 		$filename = "untitled.php";
 
 	$filesrc = $filesrc_tmp;
@@ -262,7 +262,7 @@ if(COption::GetOptionString('fileman', "use_code_editor", "Y") == "Y" && CModule
 	$forceSyntax = false;
 	if ($path)
 	{
-		$ext = strtolower(CFileMan::GetFileExtension($path));
+		$ext = mb_strtolower(CFileMan::GetFileExtension($path));
 		if ($ext == 'sql')
 			$forceSyntax = 'sql';
 		elseif($ext == 'js')

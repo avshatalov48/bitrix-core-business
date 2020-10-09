@@ -618,6 +618,7 @@ export class FilesModel extends VuexBuilderModel
 			case 'gif':
 			case 'heic':
 			case 'bmp':
+			case 'webp':
 				return FileType.image;
 
 			case 'mp4':
@@ -654,6 +655,7 @@ export class FilesModel extends VuexBuilderModel
 			case 'gif':
 			case 'heic':
 			case 'bmp':
+			case 'webp':
 				icon = 'img';
 				break;
 

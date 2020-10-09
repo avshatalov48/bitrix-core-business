@@ -60,7 +60,7 @@ class MssqlSqlHelper extends SqlHelper
 	{
 		if ($maxLength > 0)
 		{
-			$value = substr($value, 0, $maxLength);
+			$value = mb_substr($value, 0, $maxLength);
 		}
 		$value = str_replace("'", "''", $value);
 		$value = str_replace("\x00", "", $value);
@@ -390,7 +390,7 @@ class MssqlSqlHelper extends SqlHelper
 	{
 		if ($value !== null)
 		{
-			$value = new Type\DateTime(substr($value, 0, 19), "Y-m-d H:i:s");
+			$value = new Type\DateTime(mb_substr($value, 0, 19), "Y-m-d H:i:s");
 		}
 
 		return $value;
@@ -503,7 +503,7 @@ class MssqlSqlHelper extends SqlHelper
 			}
 			else
 			{
-				return 'varchar('.max(strlen($values[0]), strlen($values[1])).')';
+				return 'varchar('.max(mb_strlen($values[0]), mb_strlen($values[1])).')';
 			}
 		}
 		elseif ($field instanceof ORM\Fields\EnumField)
@@ -627,11 +627,11 @@ class MssqlSqlHelper extends SqlHelper
 				if (isset($matches[0]) && is_array($matches[0]) && count($matches[0]) > 0)
 				{
 					$idx = $matches[0][count($matches[0]) - 1][1];
-					$s = substr($sql, $idx);
+					$s = mb_substr($sql, $idx);
 					if (substr_count($s, '(') === substr_count($s, ')'))
 					{
 						$orderBy = $s;
-						$sqlTmp = substr($sql, 0, $idx);
+						$sqlTmp = mb_substr($sql, 0, $idx);
 					}
 				}
 

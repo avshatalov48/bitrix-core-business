@@ -1578,7 +1578,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      if (image) {
 	        var changed = false;
 	        text = text.replace(/<a(.*?)>(http[s]{0,1}:\/\/.*?)<\/a>/ig, function (whole, aInner, text, offset) {
-	          if (!text.match(/(\.(jpg|jpeg|png|gif)\?|\.(jpg|jpeg|png|gif)$)/i) || text.indexOf("/docs/pub/") > 0 || text.indexOf("logout=yes") > 0) {
+	          if (!text.match(/(\.(jpg|jpeg|png|gif|webp)\?|\.(jpg|jpeg|png|gif|webp)$)/i) || text.indexOf("/docs/pub/") > 0 || text.indexOf("logout=yes") > 0) {
 	            return whole;
 	          } else {
 	            changed = true;
@@ -3892,6 +3892,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        case 'gif':
 	        case 'heic':
 	        case 'bmp':
+	        case 'webp':
 	          return im_const.FileType.image;
 
 	        case 'mp4':
@@ -3927,6 +3928,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        case 'gif':
 	        case 'heic':
 	        case 'bmp':
+	        case 'webp':
 	          icon = 'img';
 	          break;
 

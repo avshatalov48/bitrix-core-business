@@ -489,9 +489,9 @@ class CDataXML
 				{
 					$arXMLAttribute_tmp = explode("=\"", $strXMLParam_tmp);
 					if ($arXMLAttribute_tmp[0] == "version")
-						$oXMLDocument->version = substr($arXMLAttribute_tmp[1], 0, strlen($arXMLAttribute_tmp[1]) - 1);
+						$oXMLDocument->version = mb_substr($arXMLAttribute_tmp[1], 0, mb_strlen($arXMLAttribute_tmp[1]) - 1);
 					elseif ($arXMLAttribute_tmp[0] == "encoding")
-						$oXMLDocument->encoding = substr($arXMLAttribute_tmp[1], 0, strlen($arXMLAttribute_tmp[1]) - 1);
+						$oXMLDocument->encoding = mb_substr($arXMLAttribute_tmp[1], 0, mb_strlen($arXMLAttribute_tmp[1]) - 1);
 				}
 			}
 		}
@@ -527,14 +527,14 @@ class CDataXML
 			// check if it's an endtag </tagname>
 			if($tagName[0] == "/")
 			{
-				$tagName = substr($tagName, 1);
+				$tagName = mb_substr($tagName, 1);
 				// strip out namespace; nameSpace:Name
 				if($this->delete_ns)
 				{
-					$colonPos = strpos($tagName, ":");
+					$colonPos = mb_strpos($tagName, ":");
 
 					if ($colonPos > 0)
-						$tagName = substr($tagName, $colonPos + 1);
+						$tagName = mb_substr($tagName, $colonPos + 1);
 				}
 
 				if($currentNode->name != $tagName)
@@ -557,27 +557,27 @@ class CDataXML
 				for($i = 0, $c = count($arTag); $i < $c; $i++)
 				{
 					$cdata .= $arTag[$i].">";
-					if(substr($cdata, -3) == "]]>")
+					if(mb_substr($cdata, -3) == "]]>")
 					{
 						$tagContent = $arTag[$i+1];
 						break;
 					}
 				}
 
-				if(substr($cdata, -3) != "]]>")
+				if(mb_substr($cdata, -3) != "]]>")
 				{
-					$cdata = substr($cdata, 0, -1)."<";
+					$cdata = mb_substr($cdata, 0, -1)."<";
 					do
 					{
 						$tok = strtok(">");//unfortunatly strtok eats > followed by >
 						$cdata .= $tok.">";
 						//util end of string or end of cdata found
 					}
-					while ($tok !== false && substr($tok, -2) != "]]");
+					while ($tok !== false && mb_substr($tok, -2) != "]]");
 					//$tagName = substr($tagName, 0, -1);
 				}
 
-				$cdataSection = substr($cdata, 8, -3);
+				$cdataSection = mb_substr($cdata, 8, -3);
 
 				// new CDATA node
 				$subNode = new CDataXMLNode();
@@ -594,8 +594,8 @@ class CDataXML
 			else
 			{
 				// normal start tag
-				$firstSpaceEnd = strpos($tagName, " ");
-				$firstNewlineEnd = strpos($tagName, "\n");
+				$firstSpaceEnd = mb_strpos($tagName, " ");
+				$firstNewlineEnd = mb_strpos($tagName, "\n");
 
 				if ($firstNewlineEnd != false)
 				{
@@ -621,17 +621,17 @@ class CDataXML
 				}
 
 				if ($tagNameEnd > 0)
-					$justName = substr($tagName, 0, $tagNameEnd);
+					$justName = mb_substr($tagName, 0, $tagNameEnd);
 				else
 					$justName = $tagName;
 
 				// strip out namespace; nameSpace:Name
 				if ($this->delete_ns)
 				{
-					$colonPos = strpos($justName, ":");
+					$colonPos = mb_strpos($justName, ":");
 
 					if ($colonPos > 0)
-						$justName = substr($justName, $colonPos + 1);
+						$justName = mb_substr($justName, $colonPos + 1);
 				}
 
 				// remove trailing / from the name if exists
@@ -644,7 +644,7 @@ class CDataXML
 				// find attributes
 				if ($tagNameEnd > 0)
 				{
-					$attributePart = substr($tagName, $tagNameEnd);
+					$attributePart = mb_substr($tagName, $tagNameEnd);
 
 					// attributes
 					unset($attr);
@@ -660,7 +660,7 @@ class CDataXML
 
 				$currentNode->children[] = $subNode;
 
-				if (substr($tagName, -1) != "/")
+				if (mb_substr($tagName, -1) != "/")
 					$currentNode = $subNode;
 			}
 
@@ -706,15 +706,15 @@ class CDataXML
 				// strip out namespace; nameSpace:Name
 				if ($this->delete_ns)
 				{
-					$colonPos = strpos($attributeName, ":");
+					$colonPos = mb_strpos($attributeName, ":");
 
 					if ($colonPos > 0)
 					{
 						// exclusion: xmlns attribute is xmlns:nameSpace
-						if ($colonPos == 5 && (substr($attributeName, 0, $colonPos) == 'xmlns'))
+						if ($colonPos == 5 && (mb_substr($attributeName, 0, $colonPos) == 'xmlns'))
 							$attributeName = 'xmlns';
 						else
-							$attributeName = substr($attributeName, $colonPos + 1);
+							$attributeName = mb_substr($attributeName, $colonPos + 1);
 					}
 				}
 				$attributeValue = $attributeArray[3][$i];
@@ -951,12 +951,12 @@ class CXMLFileStream
 			}
 			elseif($xmlChunk[0] == "!" || $xmlChunk[0] == "?")
 			{
-				if(substr($xmlChunk, 0, 4) === "?xml")
+				if(mb_substr($xmlChunk, 0, 4) === "?xml")
 				{
 					if(preg_match('#encoding[\s]*=[\s]*"(.*?)"#i', $xmlChunk, $arMatch))
 					{
 						$this->fileCharset = $arMatch[1];
-						if(strtoupper($this->fileCharset) === strtoupper(LANG_CHARSET))
+						if(mb_strtoupper($this->fileCharset) === mb_strtoupper(LANG_CHARSET))
 							$this->fileCharset = false;
 						$cs = $this->fileCharset;
 					}
@@ -966,8 +966,8 @@ class CXMLFileStream
 			{
 				$this->startElement($bMB, $xmlChunk, $origChunk);
 				//check for self-closing tag
-				$p = strpos($xmlChunk, ">");
-				if (($p !== false) && (substr($xmlChunk, $p - 1, 1)=="/"))
+				$p = mb_strpos($xmlChunk, ">");
+				if (($p !== false) && (mb_substr($xmlChunk, $p - 1, 1) == "/"))
 				{
 					$this->endElement($xmlChunk);
 					return true;
@@ -993,7 +993,7 @@ class CXMLFileStream
 			{
 				$this->buf = fread($this->fileHandler, $this->readSize);
 				$this->bufPosition = 0;
-				$this->bufLen = $bMB? mb_strlen($this->buf, 'latin1'): strlen($this->buf);
+				$this->bufLen = $bMB? mb_strlen($this->buf, 'latin1') : mb_strlen($this->buf);
 			}
 			else
 			{
@@ -1002,7 +1002,7 @@ class CXMLFileStream
 		}
 
 		//Skip line delimiters (ltrim)
-		$xml_position = $bMB? mb_strpos($this->buf, "<", $this->bufPosition, 'latin1'): strpos($this->buf, "<", $this->bufPosition);
+		$xml_position = $bMB? mb_strpos($this->buf, "<", $this->bufPosition, 'latin1') : mb_strpos($this->buf, "<", $this->bufPosition);
 		while($xml_position === $this->bufPosition)
 		{
 			$this->bufPosition++;
@@ -1014,12 +1014,12 @@ class CXMLFileStream
 				{
 					$this->buf = fread($this->fileHandler, $this->readSize);
 					$this->bufPosition = 0;
-					$this->bufLen = $bMB? mb_strlen($this->buf, 'latin1'): strlen($this->buf);
+					$this->bufLen = $bMB? mb_strlen($this->buf, 'latin1') : mb_strlen($this->buf);
 				}
 				else
 					return false;
 			}
-			$xml_position = $bMB? mb_strpos($this->buf, "<", $this->bufPosition, 'latin1'): strpos($this->buf, "<", $this->bufPosition);
+			$xml_position = $bMB? mb_strpos($this->buf, "<", $this->bufPosition, 'latin1') : mb_strpos($this->buf, "<", $this->bufPosition);
 		}
 
 		//Let's find next line delimiter
@@ -1030,20 +1030,20 @@ class CXMLFileStream
 			if(!feof($this->fileHandler))
 			{
 				$this->buf .= fread($this->fileHandler, $this->readSize);
-				$this->bufLen = $bMB? mb_strlen($this->buf, 'latin1'): strlen($this->buf);
+				$this->bufLen = $bMB? mb_strlen($this->buf, 'latin1') : mb_strlen($this->buf);
 			}
 			else
 				break;
 
 			//Let's find xml tag start
-			$xml_position = $bMB? mb_strpos($this->buf, "<", $next_search, 'latin1'): strpos($this->buf, "<", $next_search);
+			$xml_position = $bMB? mb_strpos($this->buf, "<", $next_search, 'latin1') : mb_strpos($this->buf, "<", $next_search);
 		}
 		if($xml_position===false)
 			$xml_position = $this->bufLen+1;
 
 		$len = $xml_position-$this->bufPosition;
 		$this->filePosition += $len;
-		$result = $bMB? mb_substr($this->buf, $this->bufPosition, $len, 'latin1'): substr($this->buf, $this->bufPosition, $len);
+		$result = $bMB? mb_substr($this->buf, $this->bufPosition, $len, 'latin1') : mb_substr($this->buf, $this->bufPosition, $len);
 		$this->bufPosition = $xml_position;
 
 		return $result;
@@ -1073,18 +1073,18 @@ class CXMLFileStream
 				"&",
 			);
 
-		$p = strpos($xmlChunk, ">");
+		$p = mb_strpos($xmlChunk, ">");
 		if($p !== false)
 		{
-			if(substr($xmlChunk, $p - 1, 1)=="/")
-				$elementName = substr($xmlChunk, 0, $p-1);
+			if(mb_substr($xmlChunk, $p - 1, 1) == "/")
+				$elementName = mb_substr($xmlChunk, 0, $p - 1);
 			else
-				$elementName = substr($xmlChunk, 0, $p);
+				$elementName = mb_substr($xmlChunk, 0, $p);
 
-			if(($ps = strpos($elementName, " "))!==false)
+			if(($ps = mb_strpos($elementName, " "))!==false)
 			{
-				$elementAttrs = substr($elementName, $ps+1);
-				$elementName = substr($elementName, 0, $ps);
+				$elementAttrs = mb_substr($elementName, $ps + 1);
+				$elementName = mb_substr($elementName, 0, $ps);
 			}
 			else
 			{
@@ -1092,7 +1092,7 @@ class CXMLFileStream
 			}
 
 			$this->elementStack[] = $elementName;
-			$this->positionStack[] = $this->filePosition - ($bMB? mb_strlen($origChunk, 'latin1'): strlen($origChunk)) - 1;
+			$this->positionStack[] = $this->filePosition - ($bMB? mb_strlen($origChunk, 'latin1') : mb_strlen($origChunk)) - 1;
 
 			if (isset($this->endNodes[$elementName]))
 			{
@@ -1103,7 +1103,7 @@ class CXMLFileStream
 					if ($elementAttrs !== "")
 					{
 						preg_match_all("/(\\S+)\\s*=\\s*[\"](.*?)[\"]/s", $elementAttrs, $attrs_tmp);
-						if(strpos($elementAttrs, "&")===false)
+						if(mb_strpos($elementAttrs, "&") === false)
 						{
 							foreach($attrs_tmp[1] as $i=>$attrs_tmp_1)
 								$attributes[$attrs_tmp_1] = $attrs_tmp[2][$i];

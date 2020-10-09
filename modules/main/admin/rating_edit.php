@@ -49,7 +49,7 @@ if($_SERVER['REQUEST_METHOD']=="POST" && ($_POST['save']<>"" || $_POST['apply']<
 	{
 		if($_POST["apply"] <> "")
 		{
-			$_SESSION["SESS_ADMIN"]["RATING_EDIT_MESSAGE"]=array("MESSAGE"=>GetMessage("RATING_EDIT_SUCCESS"), "TYPE"=>"OK");
+			\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["RATING_EDIT_MESSAGE"]=array("MESSAGE"=>GetMessage("RATING_EDIT_SUCCESS"), "TYPE"=>"OK");
 			LocalRedirect("rating_edit.php?ID=".$ID."&lang=".LANG);
 		}
 		else
@@ -66,7 +66,7 @@ if($_SERVER['REQUEST_METHOD']=="POST" && ($_POST['save']<>"" || $_POST['apply']<
 $bTypeChange = isset($_POST["action"]) && $_POST["action"] == 'type_changed' ? true : false;
 $str_NAME = isset($_REQUEST["NAME"]) ? htmlspecialcharsbx($_REQUEST["NAME"]) : GetMessage("RATING_DEF_NAME");
 $str_ENTITY_ID = isset($_REQUEST["ENTITY_ID"]) ? htmlspecialcharsbx($_REQUEST["ENTITY_ID"]) : 'USER';
-$str_CALCULATION_METHOD = isset($_REQUEST["CALCULATION_METHOD"]) ? IntVal($_REQUEST["CALCULATION_METHOD"]) : '1';
+$str_CALCULATION_METHOD = isset($_REQUEST["CALCULATION_METHOD"]) ? intval($_REQUEST["CALCULATION_METHOD"]) : '1';
 $str_ACTIVE = isset($_REQUEST["ACTIVE"]) && $_REQUEST["ACTIVE"] == 'Y' ? 'Y' : 'N';
 $str_POSITION = isset($_REQUEST["POSITION"]) && $_REQUEST["POSITION"] == 'Y' ? 'Y' : 'N';
 $str_AUTHORITY = isset($_REQUEST["AUTHORITY"]) && $_REQUEST["AUTHORITY"] == 'Y' ? 'Y' : 'N';
@@ -119,10 +119,10 @@ if($ID>0)
 $context = new CAdminContextMenu($aMenu);
 $context->Show();
 
-if(is_array($_SESSION["SESS_ADMIN"]["RATING_EDIT_MESSAGE"]))
+if(is_array(\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["RATING_EDIT_MESSAGE"]))
 {
-	CAdminMessage::ShowMessage($_SESSION["SESS_ADMIN"]["RATING_EDIT_MESSAGE"]);
-	$_SESSION["SESS_ADMIN"]["RATING_EDIT_MESSAGE"]=false;
+	CAdminMessage::ShowMessage(\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["RATING_EDIT_MESSAGE"]);
+	\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["RATING_EDIT_MESSAGE"]=false;
 }
 
 if($message)

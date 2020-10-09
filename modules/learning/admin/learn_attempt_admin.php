@@ -115,7 +115,7 @@ if($lAdmin->EditAction()) //save from the list
 		if(!$lAdmin->IsUpdated($ID))
 			continue;
 
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		$res = CTestAttempt::GetList(
 			array(),
@@ -164,7 +164,7 @@ if($arID = $lAdmin->GroupAction())
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
 
 		$ID = intval($ID);

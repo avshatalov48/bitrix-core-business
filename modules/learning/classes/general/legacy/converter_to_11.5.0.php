@@ -86,7 +86,7 @@
 		{
 			global $DB, $DBType;
 
-			$dbtype = strtolower($DBType);
+			$dbtype = mb_strtolower($DBType);
 
 			if ($dbtype == 'mssql')
 				return;
@@ -99,7 +99,7 @@
 		{
 			global $DB, $DBType;
 
-			$dbtype = strtolower($DBType);
+			$dbtype = mb_strtolower($DBType);
 
 			if ($dbtype == 'mssql')
 				return;
@@ -112,7 +112,7 @@
 		{
 			global $DB, $DBType;
 
-			$dbtype = strtolower($DBType);
+			$dbtype = mb_strtolower($DBType);
 
 			if ($dbtype == 'mssql')
 				return;
@@ -125,7 +125,7 @@
 		{
 			global $DB, $DBType;
 
-			$dbtype = strtolower($DBType);
+			$dbtype = mb_strtolower($DBType);
 
 			if ($dbtype != 'mssql')
 				return;
@@ -273,7 +273,7 @@
 			$arOperationsInDB = array();
 			while ($arOperation = $rc->Fetch())
 			{
-				if (substr($arOperation['NAME'], 0, 7) === 'lesson_')
+				if (mb_substr($arOperation['NAME'], 0, 7) === 'lesson_')
 					$binding = 'lesson';
 				else
 					$binding = 'module';
@@ -309,7 +309,7 @@
 			$arTasksInDB = array();
 			while ($arTask = $rc->Fetch())
 			{
-				if (substr($arTask['NAME'], 0, 16) === 'learning_lesson_')
+				if (mb_substr($arTask['NAME'], 0, 16) === 'learning_lesson_')
 					$binding = 'lesson';
 				else
 					$binding = 'module';
@@ -416,7 +416,7 @@
 
 			foreach ($arAllOperations as $operationName)
 			{
-				if (substr($operationName, 0, 7) === 'lesson_')
+				if (mb_substr($operationName, 0, 7) === 'lesson_')
 					$binding = 'lesson';
 				else
 					$binding = 'module';
@@ -487,7 +487,7 @@
 
 			foreach ($arTasksOperations as $taskName => $arOperationsForTask)
 			{
-				if (substr($taskName, 0, 16) === 'learning_lesson_')
+				if (mb_substr($taskName, 0, 16) === 'learning_lesson_')
 					$binding = 'lesson';
 				else
 					$binding = 'module';
@@ -598,7 +598,7 @@
 
 			if ( ! $DB->TableExists('b_learn_rights_all') )
 			{
-				$dbtype = strtolower($DBType);
+				$dbtype = mb_strtolower($DBType);
 
 				// Prepare sql code for adding fields
 				if ($dbtype === 'mysql')
@@ -1247,7 +1247,7 @@
 		{
 			global $DB, $DBType;
 
-			$dbtype = strtolower($DBType);
+			$dbtype = mb_strtolower($DBType);
 
 			if ( ! is_array($arFields) )
 				throw new CLearnInstall201203ConvertDBException('EA_PARAMS');
@@ -1388,21 +1388,21 @@
 			if ($DB->TableExists('b_learn_lesson_edges'))
 				return;
 
-			switch (strtolower($DBType))
+			switch(mb_strtolower($DBType))
 			{
 				case 'mysql':
-					$sql 
-					= "CREATE TABLE b_learn_lesson_edges (
+					$sql
+						= "CREATE TABLE b_learn_lesson_edges (
 						SOURCE_NODE INT NOT NULL ,
 						TARGET_NODE INT NOT NULL ,
 						SORT INT NOT NULL DEFAULT '500',
 						PRIMARY KEY ( SOURCE_NODE , TARGET_NODE )
 					)";
-				break;
+					break;
 
 				case 'mssql':
-					$sql 
-					= "CREATE TABLE B_LEARN_LESSON_EDGES (
+					$sql
+						= "CREATE TABLE B_LEARN_LESSON_EDGES (
 						SOURCE_NODE INT NOT NULL ,
 						TARGET_NODE INT NOT NULL ,
 						SORT INT NOT NULL DEFAULT '500',
@@ -1410,11 +1410,11 @@
 					)
 					
 					";
-				break;
+					break;
 
 				case 'oracle':
 					$sql
-					= "CREATE TABLE b_learn_lesson_edges
+						= "CREATE TABLE b_learn_lesson_edges
 					(
 						SOURCE_NODE NUMBER(11) NOT NULL,
 						TARGET_NODE NUMBER(11) NOT NULL,
@@ -1423,11 +1423,11 @@
 					)
 					
 					";
-				break;
+					break;
 
 				default:
-					throw new CLearnInstall201203ConvertDBException('Unsupported database engine: ' . $DBType);
-				break;
+					throw new CLearnInstall201203ConvertDBException('Unsupported database engine: '.$DBType);
+					break;
 			}
 
 			$rc = $DB->Query ($sql, $ignore_errors = true);
@@ -1446,7 +1446,7 @@
 				);
 
 			$sql_add = array();
-			$dbtype = strtolower($DBType);
+			$dbtype = mb_strtolower($DBType);
 			$other_sql_skip_errors = array();
 			$other_sql = array();
 
@@ -1672,7 +1672,7 @@
 						$rc = $DB->Query($sql, $ignore_erros = true);
 
 						if ($rc === false)
-							throw new CLearnInstall201203ConvertDBException(__LINE__ . '/tbl:' . strlen($fieldName));
+							throw new CLearnInstall201203ConvertDBException(__LINE__.'/tbl:'.mb_strlen($fieldName));
 					}
 				}
 				/*

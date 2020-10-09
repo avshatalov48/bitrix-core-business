@@ -2072,7 +2072,7 @@ class CMainUIGrid extends CBitrixComponent
 				{
 					$ext = getFileExtension($file);
 
-					if ($ext === 'js' && !(strpos($file, 'map.js') !== false || strpos($file, 'min.js') !== false))
+					if ($ext === 'js' && !(mb_strpos($file, 'map.js') !== false || mb_strpos($file, 'min.js') !== false))
 					{
 						$tmpl->addExternalJs($relPath.$file);
 					}

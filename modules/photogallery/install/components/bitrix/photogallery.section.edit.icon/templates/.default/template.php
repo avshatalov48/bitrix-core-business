@@ -1,5 +1,5 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
-if (!$this->__component->__parent || strpos($this->__component->__parent->__name, "photogallery") === false):
+if (!$this->__component->__parent || mb_strpos($this->__component->__parent->__name, "photogallery") === false):
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/photogallery/templates/.default/style.css');
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/photogallery/templates/.default/themes/gray/style.css');
 endif;
@@ -8,7 +8,7 @@ endif;
 				Input params
 ********************************************************************/
 $arParams["SQUARE"] = ($arParams["SQUARE"] == "N" ? "N" : "Y");
-$arParams["THUMBNAIL_SIZE"] = intVal(intVal($arParams["THUMBNAIL_SIZE"]) > 0 ? $arParams["THUMBNAIL_SIZE"] : 80);
+$arParams["THUMBNAIL_SIZE"] = intval(intVal($arParams["THUMBNAIL_SIZE"]) > 0 ? $arParams["THUMBNAIL_SIZE"] : 80);
 /********************************************************************
 				Input params
 ********************************************************************/
@@ -79,8 +79,8 @@ $_REQUEST["photos"] = (is_array($_REQUEST["photos"]) ? $_REQUEST["photos"] : arr
 		continue;
 
 	$res = array(
-		"width" => intVal($arItem["PICTURE"]["WIDTH"]),
-		"height" => intVal($arItem["PICTURE"]["HEIGHT"]),
+		"width" => intval($arItem["PICTURE"]["WIDTH"]),
+		"height" => intval($arItem["PICTURE"]["HEIGHT"]),
 		"left" => 0,
 		"top" => 0
 	);
@@ -89,11 +89,11 @@ $_REQUEST["photos"] = (is_array($_REQUEST["photos"]) ? $_REQUEST["photos"] : arr
 		$koeff = ($arParams["THUMBNAIL_SIZE"] / min($res["width"], $res["height"]));
 		if ($koeff < 1)
 		{
-			$res["width"] = intVal($res["width"] * $koeff);
-			$res["height"] = intVal($res["height"] * $koeff);
+			$res["width"] = intval($res["width"] * $koeff);
+			$res["height"] = intval($res["height"] * $koeff);
 		}
-		$res["left"] = 0 - intVal(($res["width"] - $arParams["THUMBNAIL_SIZE"])/2);
-		$res["top"] = 0 - intVal(($res["height"] - $arParams["THUMBNAIL_SIZE"])/2);
+		$res["left"] = 0 - intval(($res["width"] - $arParams["THUMBNAIL_SIZE"])/2);
+		$res["top"] = 0 - intval(($res["height"] - $arParams["THUMBNAIL_SIZE"])/2);
 	}
 	elseif ($res["width"] == 0)
 	{

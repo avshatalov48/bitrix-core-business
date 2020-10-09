@@ -1,0 +1,52 @@
+.rest-integration-list-title {
+	font: 16px/24px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #333;
+	margin-bottom: 12px;
+}
+
+.bitrix24-light-theme .rest-integration-list-title {
+	color: #fff;
+}
+
+.rest-integration-tile-item {
+	padding: 13px 22px;
+	height: 100%;
+	background-color: #fff;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, .15);
+	transition: box-shadow .3s;
+	box-sizing: border-box;
+	cursor: pointer;
+}
+
+.rest-integration-tile-item:hover {
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+	transition: .15s linear;
+	transform: translate(0, -1px);
+}
+
+.rest-integration-tile-head {
+	display: flex;
+	align-items: center;
+	margin: 0 0 13px 0;
+}
+
+.rest-integration-tile-img {
+	display: inline-block;
+	margin: 0 17px 0 0;
+	width: 42px;
+	height: 42px;
+	background-size: cover;
+}
+.rest-integration-tile-img.rest-integration-tile-img-hidden {
+	display: none;
+}
+.rest-integration-tile-title {
+	display: inline-block;
+	font: 16px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #333;
+}
+
+.rest-integration-tile-description {
+	font: 12px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #525C69;
+}

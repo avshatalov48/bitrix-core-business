@@ -16,7 +16,7 @@ class Input extends Element
 	{
 		parent::__construct($name);
 
-		$this->name = strtolower($name);
+		$this->name = mb_strtolower($name);
 		if($value !== null)
 		{
 			$this->value = $value;

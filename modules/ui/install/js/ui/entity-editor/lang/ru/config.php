@@ -74,10 +74,16 @@ $MESS["UI_ENTITY_EDITOR_UF_DOUBLE_LEGEND"] = "Для хранения число
 $MESS["UI_ENTITY_EDITOR_UF_CUSTOM_TITLE"] = "Дополнительные поля...";
 $MESS["UI_ENTITY_EDITOR_UF_CUSTOM_LEGEND"] = "Создать поле целое число, привязка к пользователю, привязка к элементам CRM или другого типа.";
 $MESS["UI_ENTITY_EDITOR_NOT_SELECTED"] = "Не выбрано";
-$MESS["UI_ENTITY_EDITOR_EXPAND_SM_HTML"] = "развернуть";
-$MESS["UI_ENTITY_EDITOR_COLLAPSE__SM_HTML"] = "свернуть";
+$MESS["UI_ENTITY_EDITOR_EXPAND_HTML"] = "развернуть";
+$MESS["UI_ENTITY_EDITOR_COLLAPSE_HTML"] = "свернуть";
 $MESS["UI_ENTITY_EDITOR_NEW_LIST_ITEM"] = "Новый элемент";
-
-
-
-
+$MESS["UI_ENTITY_EDITOR_SECTION_OPEN_DETAILS"] = "открыть";
+$MESS["UI_ENTITY_EDITOR_CHECK_SCOPE"] = "Выбрать \"#SCOPE_NAME#\"";
+$MESS["UI_ENTITY_EDITOR_CREATE_SCOPE"] = "Создать новое представление";
+$MESS["UI_ENTITY_EDITOR_UPDATE_SCOPE"] = "Изменить/удалить представление...";
+$MESS["UI_ENTITY_EDITOR_CONFIG_SCOPE_NAME"] = "Название представления:";
+$MESS["UI_ENTITY_EDITOR_CONFIG_SCOPE_NAME_PLACEHOLDER"] = "Введите название";
+$MESS["UI_ENTITY_EDITOR_CONFIG_SCOPE_MEMBERS"] = "Выбрать относящихся к представлению:";
+$MESS["UI_ENTITY_EDITOR_CONFIG_SCOPE_SAVE"] = "Сохранить";
+$MESS["UI_ENTITY_EDITOR_CONFIG_SCOPE_CANCEL"] = "Отменить";
+$MESS["UI_ENTITY_EDITOR_CONFIG_SCOPE_SAVED"] = "Представление сохранено";

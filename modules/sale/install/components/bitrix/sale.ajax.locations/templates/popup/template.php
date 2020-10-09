@@ -21,8 +21,8 @@ if ($arParams["AJAX_CALL"] != "Y"
 			$checked = "checked";
 			$isChecked = "Y";
 		}?>
-
-		<div><input onChange="<?=$arParams["ONCITYCHANGE"]?>;" <?=$checked?> type="radio" name="NEW_LOCATION_<?=$arParams["ORDER_PROPS_ID"]?>" value="<?=$val["ID"]?>" id="loc_<?=$val["ID"]?>" /><label for="loc_<?=$val["ID"]?>"><?=$val["LOC_DEFAULT_NAME"]?></label></div>
+		<?$onCityChange = htmlspecialcharsbx(CUtil::JSEscape($arResult["ONCITYCHANGE"]));?>
+		<div><input onChange="if(window['<?=$onCityChange?>'] && typeof window['<?=$onCityChange?>'] === 'function') window['<?=$onCityChange?>']();" <?=$checked?> type="radio" name="NEW_LOCATION_<?=$arParams["ORDER_PROPS_ID"]?>" value="<?=$val["ID"]?>" id="loc_<?=$val["ID"]?>" /><label for="loc_<?=$val["ID"]?>"><?=$val["LOC_DEFAULT_NAME"]?></label></div>
 	<?endforeach;?>
 	<div><input <? if($isChecked!="Y") echo 'checked';?> type="radio" onclick="clearLocInput();" name="NEW_LOCATION_<?=$arParams["ORDER_PROPS_ID"]?>" value="0" id="loc_0" /><label for="loc_0"><?=GetMessage("LOC_DEFAULT_NAME_NULL")?>:</label></div>
 <?endif;?>
@@ -48,7 +48,13 @@ if ($arParams["AJAX_CALL"] != "Y"
 		{
 			if(SuggestLoadedSale)
 			{
-				window.oObject[oObj.id] = new JsSuggestSale(oObj, '<?echo $arResult["ADDITIONAL_VALUES"]?>', '', '', '<?=CUtil::JSEscape($arParams["ONCITYCHANGE"])?>');
+				var onCityChangeHandler = "var onCityChangeCallbackName = '<?=CUtil::JSEscape($arResult["ONCITYCHANGE"])?>';" +
+					" if(window[onCityChangeCallbackName] && typeof window[onCityChangeCallbackName] === 'function')" +
+					" {" +
+						" window[onCityChangeCallbackName]();" +
+					" }";
+
+				window.oObject[oObj.id] = new JsSuggestSale(oObj, '<?echo $arResult["ADDITIONAL_VALUES"]?>', '', '', onCityChangeHandler);
 				return;
 			}
 			else
@@ -59,6 +65,7 @@ if ($arParams["AJAX_CALL"] != "Y"
 		catch(e)
 		{
 			setTimeout(loc_sug_CheckThis(oObj, id), 10);
+
 		}
 	}
 	

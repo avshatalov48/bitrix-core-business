@@ -14,7 +14,7 @@ $APPLICATION->SetTitle("");
 				//"top" => "",
 				"category" => "category/#category#/",
 				"detail" => "detail/#app#/",
-				"placement_app" => "view/#APP#/",
+				"placement_view" => "view/#APP#/",
 				"placement" => "placement/#PLACEMENT_ID#/",
 				"search" => "search/",
 				"buy" => "buy/",

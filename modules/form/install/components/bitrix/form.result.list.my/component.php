@@ -60,7 +60,6 @@ foreach ($arParams['FORMS'] as $FORM_ID)
 		$bFirst = true;
 		while ($arRes = $dbRes->GetNext())
 		{
-			//if ($FORM_ID == 6) print_r($arRes);
 			if ($bFirst)
 			{
 				$arResult['FORMS'][$FORM_ID]['__LAST_TS'] = MakeTimeStamp($arRes['TIMESTAMP_X']);
@@ -68,8 +67,6 @@ foreach ($arParams['FORMS'] as $FORM_ID)
 			}
 
 			$arValues = CFormResult::GetDataByID($arRes['ID'], array(), $arRes1 = null, $arAnswers = null);
-
-			//if ($FORM_ID == 6) print_r($arValues);
 
 			reset ($arValues);
 			list(, $first_res) = each($arValues);
@@ -93,10 +90,16 @@ foreach ($arParams['FORMS'] as $FORM_ID)
 	}
 }
 
-//echo '<pre>'; print_r($arResult['RESULTS'][6]); /*print_r($arResult['FORMS'][6]);*/ echo '</pre>';
-
-if(!function_exists('BX_FSBT')){function BX_FSBT($a,$b){$q='__LAST_TS';$c=$a[$q];$d=$b[$q];return($c==$d?0:($c<$d?1:-1));}};
+if(!function_exists('BX_FSBT'))
+{
+	function BX_FSBT($a,$b)
+	{
+		$q='__LAST_TS';
+		$c=$a[$q];
+		$d=$b[$q];
+		return($c==$d?0:($c<$d?1:-1));
+	}
+};
 uasort($arResult['FORMS'], 'BX_FSBT');
 
 $this->IncludeComponentTemplate();
-?>

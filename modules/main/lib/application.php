@@ -7,15 +7,24 @@
  */
 namespace Bitrix\Main;
 
+use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\Data;
+use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Diag;
 use Bitrix\Main\IO;
+use Bitrix\Main\Session\CompositeSessionManager;
+use Bitrix\Main\Session\KernelSessionProxy;
+use Bitrix\Main\Session\SessionConfigurationResolver;
+use Bitrix\Main\Session\SessionInterface;
 
 /**
  * Base class for any application.
  */
 abstract class Application
 {
+	const JOB_PRIORITY_NORMAL = 100;
+	const JOB_PRIORITY_LOW = 50;
+
 	/**
 	 * @var Application
 	 */
@@ -33,55 +42,48 @@ abstract class Application
 
 	/**
 	 * Pool of database connections.
-	 *
 	 * @var Data\ConnectionPool
 	 */
 	protected $connectionPool;
 
 	/**
 	 * Managed cache instance.
-	 *
 	 * @var \Bitrix\Main\Data\ManagedCache
 	 */
 	protected $managedCache;
 
 	/**
 	 * Tagged cache instance.
-	 *
 	 * @var \Bitrix\Main\Data\TaggedCache
 	 */
 	protected $taggedCache;
 
-	/**
-	 * LRU cache instance.
-	 *
-	 * @var \Bitrix\Main\Data\LruCache
-	 */
-	protected $lruCache;
+	/** @var SessionInterface */
+	protected $session;
+	/** @var SessionInterface */
+	protected $kernelSession;
+	/** @var CompositeSessionManager */
+	protected $compositeSessionManager;
+	/** @var Data\LocalStorage\SessionLocalStorageManager */
+	protected $sessionLocalStorageManager;
 
-	/**
-	 * @var \Bitrix\Main\Diag\ExceptionHandler
+	/*
+	 * @var \SplPriorityQueue
 	 */
-	protected $exceptionHandler = null;
-
-	/**
-	 * @var Dispatcher
-	 */
-	private $dispatcher = null;
+	protected $backgroundJobs;
 
 	/**
 	 * Creates new application instance.
 	 */
 	protected function __construct()
 	{
-
+		$this->backgroundJobs = new \SplPriorityQueue();
 	}
 
 	/**
 	 * Returns current instance of the Application.
 	 *
 	 * @return Application
-	 * @throws SystemException
 	 */
 	public static function getInstance()
 	{
@@ -92,9 +94,7 @@ abstract class Application
 	}
 
 	/**
-	 * Does minimally possible kernel initialization
-	 *
-	 * @throws SystemException
+	 * Does minimally possible kernel initialization.
 	 */
 	public function initializeBasicKernel()
 	{
@@ -102,16 +102,16 @@ abstract class Application
 			return;
 		$this->isBasicKernelInitialized = true;
 
+		ServiceLocator::getInstance()->registerByGlobalSettings();
 		$this->initializeExceptionHandler();
 		$this->initializeCache();
 		$this->createDatabaseConnection();
 	}
 
 	/**
-	 * Does full kernel initialization. Should be called somewhere after initializeBasicKernel()
+	 * Does full kernel initialization. Should be called somewhere after initializeBasicKernel().
 	 *
 	 * @param array $params Parameters of the current request (depends on application type)
-	 * @throws SystemException
 	 */
 	public function initializeExtendedKernel(array $params)
 	{
@@ -119,24 +119,55 @@ abstract class Application
 			return;
 		$this->isExtendedKernelInitialized = true;
 
+		$this->initializeSessions();
 		$this->initializeContext($params);
-
-		//$this->initializeDispatcher();
+		$this->initializeSessionLocalStorage();
 	}
 
-	final public function getDispatcher()
+	private function initializeSessions()
 	{
-		if (is_null($this->dispatcher))
-			throw new NotSupportedException();
-		if (!($this->dispatcher instanceof Dispatcher))
-			throw new NotSupportedException();
+		$resolver = new SessionConfigurationResolver(Configuration::getInstance());
+		$resolver->resolve();
 
-		return clone $this->dispatcher;
+		$this->session = $resolver->getSession();
+		$this->kernelSession = $resolver->getKernelSession();
+
+		$this->compositeSessionManager = new CompositeSessionManager(
+			$this->kernelSession,
+			$this->session
+		);
+	}
+
+	private function initializeSessionLocalStorage()
+	{
+		$cacheEngine = Data\Cache::createCacheEngine();
+		if (
+			$cacheEngine instanceof Data\CacheEngineNone ||
+			$cacheEngine instanceof Data\CacheEngineFiles ||
+			!($cacheEngine instanceof Data\ICacheEngine)
+		)
+		{
+			$localSessionStorage = new Data\LocalStorage\Storage\NativeSessionStorage(
+				$this->getSession()
+			);
+		}
+		else
+		{
+			$localSessionStorage = new Data\LocalStorage\Storage\CacheStorage($cacheEngine);
+		}
+
+		$this->sessionLocalStorageManager = new Data\LocalStorage\SessionLocalStorageManager($localSessionStorage);
+		$configLocalStorage = Config\Configuration::getValue("session_local_storage") ?: [];
+		if (isset($configLocalStorage['ttl']))
+		{
+			$this->sessionLocalStorageManager->setTtl($configLocalStorage['ttl']);
+		}
 	}
 
 	/**
 	 * Initializes context of the current request.
 	 * Should be implemented in subclass.
+	 * @param array $params
 	 */
 	abstract protected function initializeContext(array $params);
 
@@ -153,7 +184,8 @@ abstract class Application
 	 * @return void
 	 */
 	public function run()
-	{}
+	{
+	}
 
 	/**
 	 * Ends work of application.
@@ -164,27 +196,73 @@ abstract class Application
 	 * @param Response|null $response
 	 *
 	 * @return void
-	 * @throws SystemException
 	 */
 	public function end($status = 0, Response $response = null)
 	{
-		$response = $response?: $this->context->getResponse();
+		if($response === null)
+		{
+			//use default response
+			$response = $this->context->getResponse();
+
+			//it's possible to have open buffers
+			$content = '';
+			while(($c = ob_get_clean()) !== false)
+			{
+				$content .= $c;
+			}
+
+			if($content <> '')
+			{
+				$response->appendContent($content);
+			}
+		}
+
+		$this->handleResponseBeforeSend($response);
+		//this is the last point of output - all output below will be ignored
 		$response->send();
 
 		$this->terminate($status);
 	}
 
+	protected function handleResponseBeforeSend(Response $response): void
+	{
+		$kernelSession = $this->getKernelSession();
+		if (!($kernelSession instanceof KernelSessionProxy) && $kernelSession->isStarted())
+		{
+			//save session data in cookies
+			$kernelSession->getSessionHandler()->setResponse($response);
+			$kernelSession->save();
+		}
+	}
+
 	/**
 	 * Terminates application by invoking exit().
-	 * It's the right way to finish application @see \CMain::finalActions().
+	 * It's the right way to finish application.
 	 *
 	 * @param int $status
 	 * @return void
 	 */
 	public function terminate($status = 0)
 	{
-		/** @noinspection PhpUndefinedClassInspection */
-		\CMain::runFinalActionsInternal();
+		global $DB;
+
+		//old kernel staff
+		\CMain::RunFinalActionsInternal();
+
+		//Release session
+		session_write_close();
+
+		$this->getConnectionPool()->useMasterOnly(true);
+
+		$this->runBackgroundJobs();
+
+		$this->getConnectionPool()->useMasterOnly(false);
+
+		Data\ManagedCache::finalize();
+
+		//todo: migrate to the d7 connection
+		$DB->Disconnect();
+
 		exit($status);
 	}
 
@@ -245,7 +323,7 @@ abstract class Application
 			array($this, "createExceptionHandlerLog")
 		);
 
-		$this->exceptionHandler = $exceptionHandler;
+		ServiceLocator::getInstance()->addInstance('exceptionHandler', $exceptionHandler);
 	}
 
 	public function createExceptionHandlerLog()
@@ -308,7 +386,7 @@ abstract class Application
 		$show_cache_stat = "";
 		if (isset($_GET["show_cache_stat"]))
 		{
-			$show_cache_stat = (strtoupper($_GET["show_cache_stat"]) == "Y" ? "Y" : "");
+			$show_cache_stat = (mb_strtoupper($_GET["show_cache_stat"]) == "Y" ? "Y" : "");
 			@setcookie("show_cache_stat", $show_cache_stat, false, "/");
 		}
 		elseif (isset($_COOKIE["show_cache_stat"]))
@@ -323,21 +401,12 @@ abstract class Application
 			Data\Cache::setClearCache($_GET["clear_cache"] === 'Y');
 	}
 
-	/*
-	final private function initializeDispatcher()
-	{
-		$dispatcher = new Dispatcher();
-		$dispatcher->initialize();
-		$this->dispatcher = $dispatcher;
-	}
-	*/
-
 	/**
 	 * @return \Bitrix\Main\Diag\ExceptionHandler
 	 */
 	public function getExceptionHandler()
 	{
-		return $this->exceptionHandler;
+		return ServiceLocator::getInstance()->get('exceptionHandler');
 	}
 
 	/**
@@ -376,7 +445,7 @@ abstract class Application
 	 *
 	 * @static
 	 * @param string $name Name of database connection. If empty - default connection.
-	 * @return DB\Connection
+	 * @return Data\Connection|DB\Connection
 	 */
 	public static function getConnection($name = "")
 	{
@@ -422,6 +491,31 @@ abstract class Application
 		}
 
 		return $this->taggedCache;
+	}
+
+	final public function getSessionLocalStorageManager(): Data\LocalStorage\SessionLocalStorageManager
+	{
+		return $this->sessionLocalStorageManager;
+	}
+
+	final public function getLocalSession($name): Data\LocalStorage\SessionLocalStorage
+	{
+		return $this->sessionLocalStorageManager->get($name);
+	}
+
+	final public function getKernelSession(): SessionInterface
+	{
+		return $this->kernelSession;
+	}
+
+	final public function getSession(): SessionInterface
+	{
+		return $this->session;
+	}
+
+	final public function getCompositeSessionManager(): CompositeSessionManager
+	{
+		return $this->compositeSessionManager;
 	}
 
 	/**
@@ -512,5 +606,60 @@ abstract class Application
 			accelerator_reset();
 		elseif (function_exists("wincache_refresh_if_changed"))
 			wincache_refresh_if_changed();
+	}
+
+	/**
+	 * Adds a job to do after the response was sent.
+	 * @param callable $job
+	 * @param array $args
+	 * @param int $priority
+	 * @return $this
+	 */
+	public function addBackgroundJob(callable $job, array $args = [], $priority = self::JOB_PRIORITY_NORMAL)
+	{
+		$this->backgroundJobs->insert([$job, $args], $priority);
+
+		return $this;
+	}
+
+	protected function runBackgroundJobs()
+	{
+		$lastException = null;
+		$exceptionHandler = $this->getExceptionHandler();
+
+		//jobs can be added from jobs
+		while($this->backgroundJobs->valid())
+		{
+			//clear the queue
+			$jobs = [];
+			foreach ($this->backgroundJobs as $job)
+			{
+				$jobs[] = $job;
+			}
+
+			//do jobs
+			foreach ($jobs as $job)
+			{
+				try
+				{
+					call_user_func_array($job[0], $job[1]);
+				}
+				catch (\Throwable $exception)
+				{
+					$lastException = $exception;
+					$exceptionHandler->writeToLog($exception);
+				}
+			}
+		}
+
+		if ($lastException !== null)
+		{
+			throw $lastException;
+		}
+	}
+
+	public function isExtendedKernelInitialized(): bool
+	{
+		return (bool)$this->isExtendedKernelInitialized;
 	}
 }

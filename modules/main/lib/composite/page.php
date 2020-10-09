@@ -55,7 +55,7 @@ class Page
 
 	protected function init($cacheKey)
 	{
-		if (is_string($cacheKey) && strlen($cacheKey))
+		if (is_string($cacheKey) && mb_strlen($cacheKey))
 		{
 			$this->cacheKey = $cacheKey;
 			$this->storage = $this->getStaticHtmlStorage($this->cacheKey);
@@ -321,15 +321,15 @@ class Page
 			return false;
 		}
 
-		if (isset($_SESSION["SESS_SHOW_TIME_EXEC"]) && ($_SESSION["SESS_SHOW_TIME_EXEC"] == 'Y'))
+		if (isset(\Bitrix\Main\Application::getInstance()->getKernelSession()["SESS_SHOW_TIME_EXEC"]) && (\Bitrix\Main\Application::getInstance()->getKernelSession()["SESS_SHOW_TIME_EXEC"] == 'Y'))
 		{
 			return false;
 		}
-		elseif (isset($_SESSION["SHOW_SQL_STAT"]) && ($_SESSION["SHOW_SQL_STAT"] == 'Y'))
+		elseif (isset(\Bitrix\Main\Application::getInstance()->getKernelSession()["SHOW_SQL_STAT"]) && (\Bitrix\Main\Application::getInstance()->getKernelSession()["SHOW_SQL_STAT"] == 'Y'))
 		{
 			return false;
 		}
-		elseif (isset($_SESSION["SHOW_CACHE_STAT"]) && ($_SESSION["SHOW_CACHE_STAT"] == 'Y'))
+		elseif (isset(\Bitrix\Main\Application::getInstance()->getKernelSession()["SHOW_CACHE_STAT"]) && (\Bitrix\Main\Application::getInstance()->getKernelSession()["SHOW_CACHE_STAT"] == 'Y'))
 		{
 			return false;
 		}

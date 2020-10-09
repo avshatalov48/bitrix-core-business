@@ -130,11 +130,11 @@ if($bVarsFromForm)
 {
 	$arRes = array(
 		"ACTIVE" => (string)$_REQUEST["ACTIVE"],
-		"SORT" => "500",
+		"SORT" => (int)$_POST["SORT"],
 		"READ_ONLY" => (string)$_REQUEST["READ_ONLY"],
 		"SERVICE_ID" => (string)$_REQUEST["SERVICE_ID"],
 		"BUCKET" => (string)$_REQUEST["BUCKET"],
-		"LOCATION" => (string)$_REQUEST["LOCATION"],
+		"LOCATION" => (string)$_POST["LOCATION"][$_POST["SERVICE_ID"]],
 		"CNAME" => (string)$_REQUEST["CNAME"],
 		"SETTINGS" => "",
 		"FAILOVER_ACTIVE" => (string)$_REQUEST["FAILOVER_ACTIVE"],
@@ -338,7 +338,7 @@ $tabControl->BeginNextTab();
 			<?
 			foreach(CCloudStorage::GetServiceLocationList($SERVICE_ID) as $LOCATION_ID => $LOCATION_NAME)
 			{
-				?><option value="<?echo htmlspecialcharsbx($LOCATION_ID)?>"<?if($arRes["SERVICE_ID"] === $LOCATION_ID) echo " selected"?>><?echo htmlspecialcharsex($LOCATION_NAME)?></option><?
+				?><option value="<?echo htmlspecialcharsbx($LOCATION_ID)?>"<?if($arRes["LOCATION"] === $LOCATION_ID) echo " selected"?>><?echo htmlspecialcharsex($LOCATION_NAME)?></option><?
 			}
 			?>
 			</select>

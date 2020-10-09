@@ -1,19 +1,6 @@
 <?
-CModule::AddAutoloadClasses(
-	"rest",
-	array(
-		"CRestServer" => "classes/general/rest.php",
-		"CRestUtil" => "classes/general/rest_util.php",
-		"CRestEvent" => "classes/general/rest_event.php",
-		"CRestEventCallback" => "classes/general/rest_event.php",
-		"CRestEventSession" => "classes/general/rest_event.php",
-		"IRestService" => "classes/general/rest.php",
-		"CRestProvider" => "classes/general/rest_provider.php",
-		"CBitrixRestEntity" => "classes/general/restentity.php",
-		"CRestServerBatchItem" => "classes/general/rest.php",
-		"rest" => "install/index.php",
-	)
-);
+
+require_once __DIR__.'/autoload.php';
 
 class CRestEventHandlers
 {
@@ -22,7 +9,7 @@ class CRestEventHandlers
 		if($_SERVER['REQUEST_METHOD'] == 'OPTIONS')
 		{
 			$p = COption::GetOptionString("rest", "server_path", "/rest")."/";
-			if(substr(strtolower($_SERVER['REQUEST_URI']), 0, strlen($p)) === $p)
+			if(mb_substr(mb_strtolower($_SERVER['REQUEST_URI']), 0, mb_strlen($p)) === $p)
 			{
 				if(!defined('BX24_REST_SKIP_SEND_HEADERS'))
 				{

@@ -7,7 +7,7 @@ foreach ($arResult["VALUE"] as $res):
 		$first = false;	
 	endif;
 
-	if (StrLen($arParams['arUserField']['PROPERTY_VALUE_LINK']) > 0)
+	if ($arParams['arUserField']['PROPERTY_VALUE_LINK'] <> '')
 		$res = '<a href="'.str_replace('#VALUE#', urlencode($res), $arParams['arUserField']['PROPERTY_VALUE_LINK']).'">'.$res.'</a>';
 
 ?><span class="fields"><?=$res?></span><?

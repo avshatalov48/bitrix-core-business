@@ -353,7 +353,7 @@ abstract class CAllDatabase
 					"DD",
 					"HH:MI:SS",
 				),
-				strtoupper($new_format)
+				mb_strtoupper($new_format)
 			);
 			$toPhpFormat = Main\Type\Date::convertFormatToPhp($fixed_format);
 
@@ -391,9 +391,9 @@ abstract class CAllDatabase
 
 	function ParseSqlBatch($strSql, $bIncremental = False)
 	{
-		if(strtolower($this->type)=="mysql")
+		if(mb_strtolower($this->type) == "mysql")
 			$delimiter = ";";
-		elseif(strtolower($this->type)=="mssql")
+		elseif(mb_strtolower($this->type) == "mssql")
 			$delimiter = "\nGO";
 		else
 			$delimiter = "(?<!\\*)/(?!\\*)";
@@ -410,12 +410,12 @@ abstract class CAllDatabase
 				//Found string start
 				if($match[2] == "\"" || $match[2] == "'" || $match[2] == "`")
 				{
-					$strSql = substr($strSql, strlen($match[0]));
+					$strSql = mb_substr($strSql, mb_strlen($match[0]));
 					$str .= $match[0];
 					//find a qoute not preceeded by \
 					if(preg_match("%^(.*?)(?<!\\\\)".$match[2]."%s", $strSql, $string_match))
 					{
-						$strSql = substr($strSql, strlen($string_match[0]));
+						$strSql = mb_substr($strSql, mb_strlen($string_match[0]));
 						$str .= $string_match[0];
 					}
 					else
@@ -429,40 +429,50 @@ abstract class CAllDatabase
 				elseif($match[2] == "#" || $match[2] == "--")
 				{
 					//Take that was before comment as part of sql
-					$strSql = substr($strSql, strlen($match[1]));
+					$strSql = mb_substr($strSql, mb_strlen($match[1]));
 					$str .= $match[1];
 					//And cut the rest
-					$p = strpos($strSql, "\n");
+					$p = mb_strpos($strSql, "\n");
 					if($p === false)
 					{
-						$p1 = strpos($strSql, "\r");
+						$p1 = mb_strpos($strSql, "\r");
 						if($p1 === false)
+						{
 							$strSql = "";
+						}
 						elseif($p < $p1)
-							$strSql = substr($strSql, $p);
+						{
+							$strSql = mb_substr($strSql, $p);
+						}
 						else
-							$strSql = substr($strSql, $p1);
+						{
+							$strSql = mb_substr($strSql, $p1);
+						}
 					}
 					else
-						$strSql = substr($strSql, $p);
+					{
+						$strSql = mb_substr($strSql, $p);
+					}
 				}
 				//Delimiter!
 				else
 				{
 					//Take that was before delimiter as part of sql
-					$strSql = substr($strSql, strlen($match[0]));
+					$strSql = mb_substr($strSql, mb_strlen($match[0]));
 					$str .= $match[1];
 					//Delimiter must be followed by whitespace
 					if(preg_match("%^[\n\r\t ]%", $strSql))
 					{
 						$str = trim($str);
-						if(strlen($str))
+						if($str <> '')
 						{
-							if ($bIncremental)
+							if($bIncremental)
 							{
 								$strSql1 = str_replace("\r\n", "\n", $str);
-								if (!$this->QueryLong($strSql1, true))
+								if(!$this->QueryLong($strSql1, true))
+								{
 									$ret[] = $this->GetErrorMessage();
+								}
 							}
 							else
 							{
@@ -472,7 +482,7 @@ abstract class CAllDatabase
 						}
 					}
 					//It was not delimiter!
-					elseif(strlen($strSql))
+					elseif($strSql <> '')
 					{
 						$str .= $match[2];
 					}
@@ -483,16 +493,19 @@ abstract class CAllDatabase
 				$str .= $strSql;
 				$strSql = "";
 			}
-		} while (strlen($strSql));
+		}
+		while(mb_strlen($strSql));
 
 		$str = trim($str);
-		if(strlen($str))
+		if($str <> '')
 		{
-			if ($bIncremental)
+			if($bIncremental)
 			{
 				$strSql1 = str_replace("\r\n", "\n", $str);
-				if (!$this->QueryLong($strSql1, true))
+				if(!$this->QueryLong($strSql1, true))
+				{
 					$ret[] = $this->GetErrorMessage();
+				}
 			}
 			else
 			{
@@ -539,20 +552,24 @@ abstract class CAllDatabase
 
 	function GetErrorMessage()
 	{
-		if(is_object($this->obSlave) && strlen($this->obSlave->db_Error))
+		if(is_object($this->obSlave) && $this->obSlave->db_Error <> '')
 			return $this->obSlave->db_Error;
-		elseif(strlen($this->db_Error))
+		elseif($this->db_Error <> '')
+		{
 			return $this->db_Error."!";
+		}
 		else
 			return '';
 	}
 
 	function GetErrorSQL()
 	{
-		if(is_object($this->obSlave) && strlen($this->obSlave->db_ErrorSQL))
+		if(is_object($this->obSlave) && $this->obSlave->db_ErrorSQL <> '')
 			return $this->obSlave->db_ErrorSQL;
-		elseif(strlen($this->db_ErrorSQL))
+		elseif($this->db_ErrorSQL <> '')
+		{
 			return $this->db_ErrorSQL;
+		}
 		else
 			return '';
 	}
@@ -1066,8 +1083,8 @@ abstract class CAllDBResult
 		$SESS_ALL = $md5Path."SESS_ALL_".($NavNum+1);
 		if(intval($PAGEN) <= 0)
 		{
-			if(CPageOption::GetOptionString("main", "nav_page_in_session", "Y")=="Y" && intval($_SESSION[$SESS_PAGEN])>0)
-				$PAGEN = $_SESSION[$SESS_PAGEN];
+			if(CPageOption::GetOptionString("main", "nav_page_in_session", "Y")=="Y" && intval(\Bitrix\Main\Application::getInstance()->getSession()[$SESS_PAGEN])>0)
+				$PAGEN = \Bitrix\Main\Application::getInstance()->getSession()[$SESS_PAGEN];
 			elseif($bDescPageNumbering === true)
 				$PAGEN = 0;
 			else
@@ -1080,7 +1097,7 @@ abstract class CAllDBResult
 			$SIZEN = 10;
 
 		//Show all records
-		$SHOW_ALL = ($bShowAll? (isset($SHOWALL) ? ($SHOWALL == 1) : (CPageOption::GetOptionString("main", "nav_page_in_session", "Y")=="Y" && $_SESSION[$SESS_ALL] == 1)) : false);
+		$SHOW_ALL = ($bShowAll? (isset($SHOWALL) ? ($SHOWALL == 1) : (CPageOption::GetOptionString("main", "nav_page_in_session", "Y")=="Y" && \Bitrix\Main\Application::getInstance()->getSession()[$SESS_ALL] == 1)) : false);
 
 		//$NavShowAll comes from $nPageSize array
 		$res = array(
@@ -1091,8 +1108,8 @@ abstract class CAllDBResult
 
 		if(CPageOption::GetOptionString("main", "nav_page_in_session", "Y")=="Y")
 		{
-			$_SESSION[$SESS_PAGEN] = $PAGEN;
-			$_SESSION[$SESS_ALL] = $SHOW_ALL;
+			\Bitrix\Main\Application::getInstance()->getSession()[$SESS_PAGEN] = $PAGEN;
+			\Bitrix\Main\Application::getInstance()->getSession()[$SESS_ALL] = $SHOW_ALL;
 			$res["SESS_PAGEN"] = $SESS_PAGEN;
 			$res["SESS_ALL"] = $SESS_ALL;
 		}
@@ -1159,12 +1176,12 @@ abstract class CAllDBResult
 				($this->PAGEN < 1 || $this->PAGEN > $this->NavPageCount
 				?
 					(CPageOption::GetOptionString("main", "nav_page_in_session", "Y")!="Y"
-						|| $_SESSION[$this->SESS_PAGEN] < 1
-						|| $_SESSION[$this->SESS_PAGEN] > $this->NavPageCount
+						|| \Bitrix\Main\Application::getInstance()->getSession()[$this->SESS_PAGEN] < 1
+						|| \Bitrix\Main\Application::getInstance()->getSession()[$this->SESS_PAGEN] > $this->NavPageCount
 					?
 						1
 					:
-						$_SESSION[$this->SESS_PAGEN]
+						\Bitrix\Main\Application::getInstance()->getSession()[$this->SESS_PAGEN]
 					)
 				:
 					$this->PAGEN
@@ -1291,7 +1308,7 @@ abstract class CAllDBResult
 				$name = $userField['FIELD_NAME'];
 				if ($userField['MULTIPLE'] === 'Y')
 				{
-					if (substr($res[$name], 0, 1) !== 'a' && $res[$name] > 0)
+					if (mb_substr($res[$name], 0, 1) !== 'a' && $res[$name] > 0)
 					{
 						$res[$name] = $USER_FIELD_MANAGER->LoadMultipleValues($userField, $res[$name]);
 					}

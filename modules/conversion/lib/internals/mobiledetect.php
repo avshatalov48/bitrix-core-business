@@ -680,7 +680,7 @@ final class MobileDetect
         // Only save HTTP headers. In PHP land, that means only _SERVER vars that
         // start with HTTP_.
         foreach ($httpHeaders as $key => $value) {
-            if (substr($key, 0, 5) === 'HTTP_') {
+            if (mb_substr($key, 0, 5) === 'HTTP_') {
                 $this->httpHeaders[$key] = $value;
             }
         }
@@ -709,9 +709,9 @@ final class MobileDetect
     public function getHttpHeader($header)
     {
         // are we using PHP-flavored headers?
-        if (strpos($header, '_') === false) {
+        if (mb_strpos($header, '_') === false) {
             $header = str_replace('-', '_', $header);
-            $header = strtoupper($header);
+			$header = mb_strtoupper($header);
         }
 
         // test the alternate, too
@@ -954,7 +954,7 @@ final class MobileDetect
             if (isset($this->httpHeaders[$mobileHeader])) {
                 if (is_array($matchType['matches'])) {
                     foreach ($matchType['matches'] as $_match) {
-                        if (strpos($this->httpHeaders[$mobileHeader], $_match) !== false) {
+                        if (mb_strpos($this->httpHeaders[$mobileHeader], $_match) !== false) {
                             return true;
                         }
                     }
@@ -982,13 +982,13 @@ final class MobileDetect
     public function __call($name, $arguments)
     {
         // make sure the name starts with 'is', otherwise
-        if (substr($name, 0, 2) !== 'is') {
+        if (mb_substr($name, 0, 2) !== 'is') {
             throw new BadMethodCallException("No such method exists: $name");
         }
 
         $this->setDetectionType(self::DETECTION_TYPE_MOBILE);
 
-        $key = substr($name, 2);
+		$key = mb_substr($name, 2);
 
         return $this->matchUAAgainstKey($key);
     }
@@ -1027,7 +1027,7 @@ final class MobileDetect
     protected function matchUAAgainstKey($key)
     {
         // Make the keys lowercase so we can match: isIphone(), isiPhone(), isiphone(), etc.
-        $key = strtolower($key);
+		$key = mb_strtolower($key);
         if (false === isset($this->cache[$key])) {
 
             // change the keys to lower case

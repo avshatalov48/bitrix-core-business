@@ -57,7 +57,7 @@ if (Loader::includeModule('sender'))
 			if($groupId)
 				$filter['GROUP_ID'] = $groupId;
 
-			if(strlen($dateRegister)>0)
+			if($dateRegister <> '')
 			{
 				if(\Bitrix\Main\Type\Date::isCorrect($dateRegister))
 				{

@@ -99,7 +99,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["appl
 	{
 		if (!array_key_exists("START_SITE_WIZARD_REWRITE", $_POST) || $_POST["START_SITE_WIZARD_REWRITE"] != "Y")
 		{
-			if (strlen($arFields["DOC_ROOT"]) > 0)
+			if ($arFields["DOC_ROOT"] <> '')
 				$sr = Rel2Abs($_SERVER["DOCUMENT_ROOT"], $arFields["DOC_ROOT"]);
 			else
 				$sr = rtrim($_SERVER["DOCUMENT_ROOT"], "/\\");
@@ -120,7 +120,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["appl
 		}
 		else
 		{
-			$res = (strlen($langs->Add($arFields))>0);
+			$res = ($langs->Add($arFields) <> '');
 		}
 	}
 

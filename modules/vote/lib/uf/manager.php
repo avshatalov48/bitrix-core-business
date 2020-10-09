@@ -175,7 +175,7 @@ final class Manager
 	public function getConnectorDataByEntityType($entityType)
 	{
 		$defaultConnectors = $this->getDefaultConnectors();
-		$entityType = strtolower($entityType);
+		$entityType = mb_strtolower($entityType);
 
 		if(isset($defaultConnectors[$entityType]))
 			return $defaultConnectors[$entityType];
@@ -259,7 +259,7 @@ final class Manager
 
 				if(is_string($connector['CLASS']) && class_exists($connector['CLASS']))
 				{
-					$this->additionalConnectorList[strtolower($connector['ENTITY_TYPE'])] = array(
+					$this->additionalConnectorList[mb_strtolower($connector['ENTITY_TYPE'])] = array(
 						$connector['CLASS'],
 						$connector['MODULE_ID']
 					);

@@ -11,7 +11,7 @@ use Bitrix\Main\UI\Extension;
 
 Loc::loadMessages(__FILE__);
 
-if($arParams['IS_SLIDER'])
+if ($arParams['IS_SLIDER'])
 {
 	$APPLICATION->RestartBuffer();
 	$APPLICATION->ShowHead();
@@ -30,11 +30,11 @@ $needPadding = $arParams['SET_TITLE'] == 'Y' ? true : false;
 Loader::includeModule('ui');
 Extension::load(['ui.common','ui.buttons']);
 
-if($arResult['APP_STATUS']['STATUS'] == AppTable::STATUS_SUBSCRIPTION)
+if ($arResult['PAYMENT_TYPE'] === AppTable::STATUS_SUBSCRIPTION || $arResult['APP_STATUS']['STATUS'] === AppTable::STATUS_SUBSCRIPTION)
 {
 	$title = Loc::getMessage('REST_APP_LAYOUT_PAYMENT_ACCESS_TITLE_SUBSCRIBE');
 	$buyButton = Loc::getMessage('REST_APP_LAYOUT_PAYMENT_ACCESS_BTN_BUY_SUBSCRIBE');
-	$buyUrl = '#';//TODO: buy subscribe url
+	$buyUrl = '/settings/license_buy.php?product=subscr';
 }
 else
 {
@@ -66,11 +66,16 @@ else
 			<div class="app-layout-icon-clock"></div>
 		</div>
 	</div>
-	<a class="ui-btn ui-btn-success ui-btn-lg ui-btn-round app-layout-subscribe-renew-button" href="<?=$buyUrl; ?>"><?=$buyButton; ?></a>
+	<?php
+	if ($arResult['PAYMENT_TYPE'] === AppTable::STATUS_SUBSCRIPTION || $arResult['APP_STATUS']['STATUS'] === AppTable::STATUS_SUBSCRIPTION):?>
+		<a class="ui-btn ui-btn-success ui-btn-lg ui-btn-round app-layout-subscribe-renew-button" target="_blank" href="<?=$buyUrl; ?>"><?=$buyButton; ?></a>
+	<?php else:?>
+		<a class="ui-btn ui-btn-success ui-btn-lg ui-btn-round app-layout-subscribe-renew-button" href="<?=$buyUrl; ?>"><?=$buyButton; ?></a>
+	<?php endif;?>
 </div>
 <?php
 
-if($arParams['IS_SLIDER'])
+if ($arParams['IS_SLIDER'])
 {
 	CMain::FinalActions();
 	die();

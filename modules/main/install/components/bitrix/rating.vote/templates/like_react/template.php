@@ -278,7 +278,7 @@ BX.ready(function() {
 		RatingLike.Set(
 			'<?=CUtil::JSEscape($arResult['VOTE_ID'])?>',
 			'<?=CUtil::JSEscape($arResult['ENTITY_TYPE_ID'])?>',
-			'<?=IntVal($arResult['ENTITY_ID'])?>',
+			'<?=intval($arResult['ENTITY_ID'])?>',
 			'<?=CUtil::JSEscape($arResult['VOTE_AVAILABLE'])?>',
 			'<?=$USER->GetId()?>',
 			{

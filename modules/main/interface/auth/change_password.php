@@ -1,7 +1,7 @@
 <?
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
-$login = (strlen($USER_LOGIN)>0) ? $USER_LOGIN : $last_login;
+$login = ($USER_LOGIN <> '') ? $USER_LOGIN : $last_login;
 $bNeedCaptcha = (COption::GetOptionString("main", "captcha_restoring_password", "N") == "Y");
 ?>
 

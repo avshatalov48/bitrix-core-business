@@ -101,8 +101,12 @@ class CRsaSecurity
 
 		$formid = preg_replace("/[^a-z0-9_]/is", "", $formid);
 
-		if(!isset($_SESSION['__STORED_RSA_RAND']))
-			$_SESSION['__STORED_RSA_RAND'] = $this->GetNewRsaRand();
+		$session = \Bitrix\Main\Application::getInstance()->getSession();
+
+		if($session['__STORED_RSA_RAND'] == '')
+		{
+			$session['__STORED_RSA_RAND'] = $this->GetNewRsaRand();
+		}
 
 		$arSafeParams = array();
 		foreach($arParams as $param)
@@ -111,7 +115,7 @@ class CRsaSecurity
 		$arData = array(
 			"formid" => $formid,
 			"key" => $this->provider->GetPublicKey(),
-			"rsa_rand" => $_SESSION['__STORED_RSA_RAND'],
+			"rsa_rand" => $session['__STORED_RSA_RAND'],
 			"params" => $arSafeParams,
 		);
 
@@ -139,15 +143,15 @@ top.BX.defer(top.rsasec_form_bind)('.CUtil::PhpToJSObject($arData).');
 		if($data == '')
 			return self::ERROR_EMPTY_DATA; //no encrypted data
 
-		if(strlen($data) >= self::MAX_ENCRIPTED_DATA)
+		if(mb_strlen($data) >= self::MAX_ENCRIPTED_DATA)
 			return self::ERROR_BIG_DATA; //too big encrypted data
 
 		$data = $this->provider->Decrypt($data);
 		if($data == '')
 			return self::ERROR_DECODE; //decoding error
 
-		$data1 = substr($data, 0, -47);
-		$sha1 = substr($data, -40);
+		$data1 = mb_substr($data, 0, -47);
+		$sha1 = mb_substr($data, -40);
 
 		if($sha1 <> sha1($data1))
 	  		return self::ERROR_INTEGRITY; //integrity check error
@@ -156,7 +160,9 @@ top.BX.defer(top.rsasec_form_bind)('.CUtil::PhpToJSObject($arData).');
 		if($accepted_params['__RSA_RAND'] == '')
 			return self::ERROR_SESS_VALUE; //no session control value
 
-		if($accepted_params['__RSA_RAND'] <> $_SESSION['__STORED_RSA_RAND'])
+		$session = \Bitrix\Main\Application::getInstance()->getSession();
+
+		if($accepted_params['__RSA_RAND'] <> $session['__STORED_RSA_RAND'])
 			return self::ERROR_SESS_CHECK; //session control value does not match
 
 		CUtil::decodeURIComponent($accepted_params);
@@ -186,7 +192,6 @@ top.BX.defer(top.rsasec_form_bind)('.CUtil::PhpToJSObject($arData).');
 
 	protected function GetNewRsaRand()
 	{
-		return uniqid("", true);
+		return \Bitrix\Main\Security\Random::getString(20);
 	}
 }
-?>

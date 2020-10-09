@@ -78,7 +78,7 @@ class SitemapFile
 	{
 		// normalize slashes
 		$fileName = Path::normalize($fileName);
-		if (substr($fileName, -strlen(self::FILE_EXT)) != self::FILE_EXT)
+		if (mb_substr($fileName, -mb_strlen(self::FILE_EXT)) != self::FILE_EXT)
 		{
 			$fileName .= self::FILE_EXT;
 		}
@@ -172,7 +172,7 @@ class SitemapFile
 		$this->part++;
 
 		$fileName = $this->partFile;
-		$fileName = substr($fileName, 0, -strlen(self::FILE_EXT)).self::FILE_PART_SUFFIX.$this->part.substr($fileName, -strlen(self::FILE_EXT));
+		$fileName = mb_substr($fileName, 0, -mb_strlen(self::FILE_EXT)).self::FILE_PART_SUFFIX.$this->part.mb_substr($fileName, -mb_strlen(self::FILE_EXT));
 
 		$this->reInit($fileName);
 
@@ -227,7 +227,7 @@ class SitemapFile
 		if($this->isExists())
 		{
 			$c = $this->getContents();
-			return strlen($c) > 0 && $c != self::XML_HEADER.self::FILE_HEADER;
+			return $c <> '' && $c != self::XML_HEADER.self::FILE_HEADER;
 		}
 
 		return false;
@@ -260,7 +260,7 @@ class SitemapFile
 			}
 			else
 			{
-				$offset = $this->getSize()-strlen(self::FILE_FOOTER);
+				$offset = $this->getSize() - mb_strlen(self::FILE_FOOTER);
 			}
 
 			$fd = $this->open('r+');
@@ -297,7 +297,7 @@ class SitemapFile
 		while($this->isExists())
 		{
 			$c = $this->getContents();
-			$p = strpos($c, $pattern);
+			$p = mb_strpos($c, $pattern);
 			unset($c);
 
 			if($p !== false)
@@ -305,7 +305,7 @@ class SitemapFile
 				$fd = $this->open('r+');
 
 				fseek($fd, intval($p));
-				fwrite($fd, str_repeat(" ", strlen(sprintf(
+				fwrite($fd, str_repeat(" ", mb_strlen(sprintf(
 					self::ENTRY_TPL,
 					Converter::getXmlConverter()->encode($url),
 					Converter::getXmlConverter()->encode(date('c'))
@@ -321,7 +321,7 @@ class SitemapFile
 			else
 			{
 				$this->part++;
-				$fileName = substr($fileName, 0, -strlen(self::FILE_EXT)) . self::FILE_PART_SUFFIX . $this->part . substr($fileName, -strlen(self::FILE_EXT));
+				$fileName = mb_substr($fileName, 0, -mb_strlen(self::FILE_EXT)).self::FILE_PART_SUFFIX.$this->part.mb_substr($fileName, -mb_strlen(self::FILE_EXT));
 				$this->reInit($fileName);
 			}
 		}
@@ -457,9 +457,9 @@ class SitemapFile
 		
 		$documentRoot  = Path::normalize($this->documentRoot);
 		$path = '/';
-		if (substr($this->path, 0, strlen($documentRoot)) === $documentRoot)
+		if (mb_substr($this->path, 0, mb_strlen($documentRoot)) === $documentRoot)
 		{
-			$path = '/'.substr($f->getPath(), strlen($documentRoot));
+			$path = '/'.mb_substr($f->getPath(), mb_strlen($documentRoot));
 		}
 
 		$path = Path::convertLogicalToUri($path);

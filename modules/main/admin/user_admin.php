@@ -173,7 +173,7 @@ if (!$USER->CanDoOperation('edit_php'))
 if($lAdmin->EditAction())
 {
 	$editableFields = array(
-		"ACTIVE"=>1, "LOGIN"=>1, "TITLE"=>1, "NAME"=>1, "LAST_NAME"=>1, "SECOND_NAME"=>1, "EMAIL"=>1, "PERSONAL_PROFESSION"=>1,
+		"ACTIVE"=>1, "BLOCKED"=>1, "LOGIN"=>1, "TITLE"=>1, "NAME"=>1, "LAST_NAME"=>1, "SECOND_NAME"=>1, "EMAIL"=>1, "PERSONAL_PROFESSION"=>1,
 		"PERSONAL_WWW"=>1, "PERSONAL_ICQ"=>1, "PERSONAL_GENDER"=>1, "PERSONAL_PHONE"=>1, "PERSONAL_MOBILE"=>1,
 		"PERSONAL_CITY"=>1, "PERSONAL_STREET"=>1, "WORK_COMPANY"=>1, "WORK_DEPARTMENT"=>1, "WORK_POSITION"=>1,
 		"WORK_WWW"=>1, "WORK_PHONE"=>1, "WORK_CITY"=>1, "XML_ID"=>1,
@@ -355,6 +355,7 @@ if ($totalCountRequest)
 	$lAdmin->sendTotalCountResponse($result->getCount());
 }
 
+$edit = ($USER->canDoOperation('edit_subordinate_users') || $USER->canDoOperation('edit_all_users'));
 $n = 0;
 $pageSize = $lAdmin->getNavSize();
 while ($userData = $result->fetch())
@@ -371,12 +372,17 @@ while ($userData = $result->fetch())
 	$USER_FIELD_MANAGER->addUserFields($entity_id, $userData, $row);
 	$row->addViewField("ID", "<a href='".$userEditUrl."' title='".GetMessage("MAIN_EDIT_TITLE")."'>".$userId."</a>");
 	$own_edit = ($USER->canDoOperation('edit_own_profile') && ($USER->getParam("USER_ID") == $userId));
-	$edit = ($USER->canDoOperation('edit_subordinate_users') || $USER->canDoOperation('edit_all_users'));
-	$can_edit = (IntVal($userId) > 1 && ($own_edit || $edit));
+	$can_edit = (intval($userId) > 1 && ($own_edit || $edit));
 	if ($userId == 1 || $own_edit || !$can_edit)
+	{
 		$row->addCheckField("ACTIVE", false);
+		$row->addCheckField("BLOCKED", false);
+	}
 	else
+	{
 		$row->addCheckField("ACTIVE");
+		$row->addCheckField("BLOCKED");
+	}
 
 	if ($can_edit && $edit)
 	{
@@ -392,8 +398,11 @@ while ($userData = $result->fetch())
 		$row->addViewField("PERSONAL_WWW", TxtToHtml($userData["PERSONAL_WWW"]));
 		$row->addInputField("PERSONAL_WWW");
 		$row->addInputField("PERSONAL_ICQ");
-		$row->addSelectField("PERSONAL_GENDER", array("" => GetMessage("USER_DONT_KNOW"),
-			"M" => GetMessage("USER_MALE"), "F" => GetMessage("USER_FEMALE")));
+		$row->addSelectField("PERSONAL_GENDER", array(
+			"" => GetMessage("USER_DONT_KNOW"),
+			"M" => GetMessage("USER_MALE"),
+			"F" => GetMessage("USER_FEMALE"),
+		));
 		$row->addInputField("PERSONAL_PHONE");
 		$row->addInputField("PERSONAL_MOBILE");
 		$row->addInputField("PERSONAL_CITY");
@@ -553,6 +562,7 @@ function setHeaderColumn(CAdminUiList $lAdmin)
 	$arHeaders = array(
 		array("id"=>"LOGIN", "content"=>GetMessage("LOGIN"), "sort"=>"login", "default"=>true),
 		array("id"=>"ACTIVE", "content"=>GetMessage('ACTIVE'),	"sort"=>"active", "default"=>true, "align" => "center"),
+		array("id"=>"BLOCKED", "content"=>GetMessage("main_user_admin_blocked"), "sort"=>"blocked", "default"=>false, "align" => "center"),
 		array("id"=>"TIMESTAMP_X", "content"=>GetMessage('TIMESTAMP'), "sort"=>"timestamp_x", "default"=>true),
 		array("id"=>"TITLE", "content"=>GetMessage("USER_ADMIN_TITLE"), "sort"=>"title"),
 		array("id"=>"NAME", "content"=>GetMessage("NAME"), "sort"=>"name",	"default"=>true),
@@ -678,7 +688,7 @@ function getUserQuery(CAdminUiList $lAdmin, $arFilter, $filterFields, $excelMode
 		$filterQueryObject = new CFilterQuery("and", "yes", "N", array(), "N", "Y", "N");
 		$nameWords = $filterQueryObject->CutKav($nameWords);
 		$nameWords = $filterQueryObject->ParseQ($nameWords);
-		if (strlen($nameWords) > 0 && $nameWords !== "( )")
+		if ($nameWords <> '' && $nameWords !== "( )")
 			$parsedNameWords = preg_split('/[&&(||)]/',  $nameWords, -1, PREG_SPLIT_NO_EMPTY);
 
 		$filterOr = Query::filter()->logic("or");
@@ -795,7 +805,7 @@ function getUserQuery(CAdminUiList $lAdmin, $arFilter, $filterFields, $excelMode
 		$filterQueryObject = new CFilterQuery("and", "yes", "N", array(), "N", "Y", "N");
 		$keyWords = $filterQueryObject->CutKav($keyWords);
 		$keyWords = $filterQueryObject->ParseQ($keyWords);
-		if (strlen($keyWords) > 0 && $keyWords !== "( )")
+		if ($keyWords <> '' && $keyWords !== "( )")
 			$parsedKeyWords = preg_split('/[&&(||)]/',  $keyWords, -1, PREG_SPLIT_NO_EMPTY);
 		$filterOr = Query::filter()->logic("or");
 		foreach ($listFields as $fieldId)

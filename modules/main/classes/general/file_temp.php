@@ -36,7 +36,7 @@ class CTempFile
 			if($file_name == '/')
 				$dir_add = md5(mt_rand());
 			elseif($i < 25)
-				$dir_add = substr(md5(mt_rand()), 0, 3);
+				$dir_add = mb_substr(md5(mt_rand()), 0, 3);
 			else
 				$dir_add = md5(mt_rand());
 
@@ -81,7 +81,7 @@ class CTempFile
 		else //Fixed name during the session
 		{
 			$subdir = implode("/", (is_array($subdir) ? $subdir : array($subdir, bitrix_sessid())))."/";
-			while (strpos($subdir, "//") !== false)
+			while (mb_strpos($subdir, "//") !== false)
 				$subdir = str_replace("//", "/", $subdir);
 			$bFound = false;
 			for($i = $hours_to_keep_files-1; $i > 0; $i--)
@@ -128,8 +128,8 @@ class CTempFile
 				}
 				//Clean whole temporary directory from CTempFile::GetFileName('');
 				elseif(
-					substr($temp_path, -1) == '/'
-					&& strpos($temp_path, "BXTEMP") === false
+					mb_substr($temp_path, -1) == '/'
+					&& mb_strpos($temp_path, "BXTEMP") === false
 					&& is_dir($temp_path)
 				)
 				{
@@ -187,7 +187,7 @@ class CTempFile
 
 	private static function _absolute_path_recursive_delete($path)
 	{
-		if(strlen($path) == 0 || $path == '/')
+		if($path == '' || $path == '/')
 			return false;
 
 		$f = true;

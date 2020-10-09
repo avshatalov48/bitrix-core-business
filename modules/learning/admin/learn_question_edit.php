@@ -97,7 +97,7 @@ $aTabs = array(
 $aTabs[] = $USER_FIELD_MANAGER->EditFormTab('LEARNING_QUESTIONS');
 $tabControl = new CAdminForm("questionTabControl", $aTabs);
 
-if (!$bBadCourse && $_SERVER["REQUEST_METHOD"] == "POST" && strlen($Update)>0 && check_bitrix_sessid())
+if (!$bBadCourse && $_SERVER["REQUEST_METHOD"] == "POST" && $Update <> '' && check_bitrix_sessid())
 {
 	$arFILE_ID = $_FILES["FILE_ID"];
 	$arFILE_ID["del"] = ${"FILE_ID_del"};
@@ -210,7 +210,7 @@ if (!$bBadCourse && $_SERVER["REQUEST_METHOD"] == "POST" && strlen($Update)>0 &&
 			//add new
 			for ($i=0; $i<500; $i++)
 			{
-				if (strlen(${"ANSWER_n".$i."_ANSWER"})<=0) continue;
+				if (${"ANSWER_n".$i."_ANSWER"} == '') continue;
 
 				$arFields = Array(
 					"SORT" => ${"ANSWER_n".$i."_SORT"},
@@ -255,7 +255,7 @@ if (!$bBadCourse && $_SERVER["REQUEST_METHOD"] == "POST" && strlen($Update)>0 &&
 		//Redirect
 		if (!$bVarsFromForm)
 		{
-			if(strlen($apply)<=0)
+			if($apply == '')
 			{
 				if ($from == "learn_admin")
 				{
@@ -271,7 +271,7 @@ if (!$bBadCourse && $_SERVER["REQUEST_METHOD"] == "POST" && strlen($Update)>0 &&
 						. GetFilterParams("filter_", false)
 						. "&from=learn_menu");
 				}
-				elseif (strlen($return_url)>0)
+				elseif ($return_url <> '')
 					LocalRedirect($return_url);
 				else
 				{
@@ -316,7 +316,7 @@ if($bVarsFromForm)
 	$str_FILE_ID = 0;
 }
 
-if (isset($QUESTION_TYPE) && strlen($QUESTION_TYPE) === 1)
+if (isset($QUESTION_TYPE) && mb_strlen($QUESTION_TYPE) === 1)
 {
 	$str_QUESTION_TYPE = $QUESTION_TYPE;
 }
@@ -418,7 +418,7 @@ if ($message)
 CAdminFileDialog::ShowScript(Array(
 		"event" => "OpenFileBrowserWindMedia",
 		"arResultDest" => Array("FUNCTION_NAME" => "SetUrl"),
-		"arPath" => Array("SITE" => $_GET["site"], "PATH" =>(strlen($str_FILENAME)>0 ? GetDirPath($str_FILENAME) : '')),
+		"arPath" => Array("SITE" => $_GET["site"], "PATH" =>($str_FILENAME <> '' ? GetDirPath($str_FILENAME) : '')),
 		"select" => 'F',// F - file only, D - folder only,
 		"operation" => 'O',// O - open, S - save
 		"showUploadTab" => true,
@@ -768,7 +768,7 @@ function CustomizeEditor()
 			$arLesson = $rsLesson->GetNext();
 
 			$curDir = $APPLICATION->GetCurDir();
-			if (substr($curDir, -1) !== '/')
+			if (mb_substr($curDir, -1) !== '/')
 				$curDir .= '/';
 			?>
 			<script>
@@ -903,7 +903,7 @@ function CustomizeEditor()
 					{
 						if ($id[0] == "n")
 						{
-							$origID = intval(substr($id, 1));
+							$origID = intval(mb_substr($id, 1));
 							$arNewIDs[] = "n".$origID;
 							$arNewIDsInt[] = $origID;
 						}

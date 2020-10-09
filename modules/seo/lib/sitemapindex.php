@@ -64,7 +64,7 @@ class SitemapIndex
 
 			if($count <= 0)
 			{
-				$contents = substr($contents, 0, -strlen(self::FILE_FOOTER))
+				$contents = mb_substr($contents, 0, -mb_strlen(self::FILE_FOOTER))
 					.$newEntry.self::FILE_FOOTER;
 			}
 

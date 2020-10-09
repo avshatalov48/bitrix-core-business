@@ -100,10 +100,7 @@ class ArchiveEntry
 				'ID' => 0,
 				'ORIGINAL_NAME' => $fileArray['name'],
 				'FILE_SIZE' => $fileArray['size'],
-				'SRC' => substr(
-					$fileArray['tmp_name'],
-					strlen(self::getDocRoot())
-				),
+				'SRC' => mb_substr($fileArray['tmp_name'], mb_strlen(self::getDocRoot())),
 			], $name);
 		}
 

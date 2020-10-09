@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,ui_vue,ui_vue_vuex,im_lib_logger,im_const,im_lib_utils) {
+(function (exports,ui_vue,ui_vue_vuex,im_lib_logger,im_const,im_lib_utils,im_lib_clipboard) {
 	'use strict';
 
 	/**
@@ -93,7 +93,7 @@ this.BX = this.BX || {};
 	      return im_const.EventType;
 	    },
 	    localize: function localize() {
-	      return Object.assign({}, ui_vue.Vue.getFilteredPhrases('MOBILE_CHAT_', this.$root.$bitrixMessages), ui_vue.Vue.getFilteredPhrases('IM_UTILS_', this.$root.$bitrixMessages));
+	      return Object.assign({}, ui_vue.Vue.getFilteredPhrases('IM_DIALOG_', this.$root.$bitrixMessages), ui_vue.Vue.getFilteredPhrases('IM_UTILS_', this.$root.$bitrixMessages));
 	    },
 	    widgetClassName: function widgetClassName(state) {
 	      var className = ['bx-mobilechat-wrapper'];
@@ -388,11 +388,11 @@ this.BX = this.BX || {};
 	    },
 	    onDialogMessageClickByCommand: function onDialogMessageClickByCommand(event) {
 	      if (event.type === 'put') {
-	        this.$root.$bitrixController.application.insertText({
+	        this.$root.$bitrixApplication.insertText({
 	          text: event.value + ' '
 	        });
 	      } else if (event.type === 'send') {
-	        this.$root.$bitrixController.application.addMessage(event.value);
+	        this.$root.$bitrixApplication.addMessage(event.value);
 	      } else {
 	        im_lib_logger.Logger.warn('Unprocessed command', event);
 	      }
@@ -429,19 +429,74 @@ this.BX = this.BX || {};
 	    onDialogMessageReactionListOpen: function onDialogMessageReactionListOpen(event) {
 	      this.$root.$bitrixController.application.openMessageReactionList(event.message.id, event.values);
 	    },
-	    onDialogMessageClickByKeyboardButton: function onDialogMessageClickByKeyboardButton(event) {
-	      this.$root.$bitrixController.application.execMessageKeyboardCommand(event);
-	    },
 	    onDialogMessageClickByChatTeaser: function onDialogMessageClickByChatTeaser(event) {
-	      this.$root.$bitrixController.application.execMessageOpenChatTeaser(event);
+	      var _this4 = this;
+
+	      this.$root.$bitrixController.application.joinParentChat(data.message.id, 'chat' + data.message.params.CHAT_ID).then(function (dialogId) {
+	        _this4.openDialog(dialogId);
+	      }).catch(function () {});
+	      return true;
+	    },
+	    onDialogMessageClickByKeyboardButton: function onDialogMessageClickByKeyboardButton(data) {
+	      var _this5 = this;
+
+	      if (data.action === 'ACTION') {
+	        var _data$params = data.params,
+	            dialogId = _data$params.dialogId,
+	            messageId = _data$params.messageId,
+	            botId = _data$params.botId,
+	            action = _data$params.action,
+	            value = _data$params.value;
+
+	        if (action === 'SEND') {
+	          this.$root.$bitrixApplication.addMessage(value);
+	          setTimeout(function () {
+	            return _this5.$root.$bitrixController.application.emit(im_const.EventType.dialog.scrollToBottom, {
+	              duration: 300,
+	              cancelIfScrollChange: false
+	            });
+	          }, 300);
+	        } else if (action === 'PUT') {
+	          this.$root.$bitrixApplication.insertText({
+	            text: value + ' '
+	          });
+	        } else if (action === 'CALL') ; else if (action === 'COPY') {
+	          im_lib_clipboard.Clipboard.copy(value);
+	          BX.UI.Notification.Center.notify({
+	            content: this.localize.IM_DIALOG_CLIPBOARD_COPY_SUCCESS,
+	            autoHideDelay: 4000
+	          });
+	        }
+
+	        return true;
+	      }
+
+	      if (data.action === 'COMMAND') {
+	        var _data$params2 = data.params,
+	            _dialogId = _data$params2.dialogId,
+	            _messageId = _data$params2.messageId,
+	            _botId = _data$params2.botId,
+	            command = _data$params2.command,
+	            params = _data$params2.params;
+	        this.$root.$bitrixController.restClient.callMethod(im_const.RestMethod.imMessageCommand, {
+	          'MESSAGE_ID': _messageId,
+	          'DIALOG_ID': _dialogId,
+	          'BOT_ID': _botId,
+	          'COMMAND': command,
+	          'COMMAND_PARAMS': params
+	        });
+	        return true;
+	      }
+
+	      return false;
 	    },
 	    onDialogClick: function onDialogClick(event) {},
 	    onQuotePanelClose: function onQuotePanelClose() {
 	      this.$root.$bitrixController.quoteMessageClear();
 	    }
 	  },
-	  template: "\n\t\t<div :class=\"widgetClassName\">\n\t\t\t<div :class=\"['bx-mobilechat-box', {'bx-mobilechat-box-dark-background': isDarkBackground}]\">\n\t\t\t\t<template v-if=\"application.error.active\">\n\t\t\t\t\t<div class=\"bx-mobilechat-body\">\n\t\t\t\t\t\t<div class=\"bx-mobilechat-warning-window\">\n\t\t\t\t\t\t\t<div class=\"bx-mobilechat-warning-icon\"></div>\n\t\t\t\t\t\t\t<template v-if=\"application.error.description\"> \n\t\t\t\t\t\t\t\t<div class=\"bx-mobilechat-help-title bx-mobilechat-help-title-sm bx-mobilechat-warning-msg\" v-html=\"application.error.description\"></div>\n\t\t\t\t\t\t\t</template> \n\t\t\t\t\t\t\t<template v-else>\n\t\t\t\t\t\t\t\t<div class=\"bx-mobilechat-help-title bx-mobilechat-help-title-md bx-mobilechat-warning-msg\">{{localize.MOBILE_CHAT_ERROR_TITLE}}</div>\n\t\t\t\t\t\t\t\t<div class=\"bx-mobilechat-help-title bx-mobilechat-help-title-sm bx-mobilechat-warning-msg\">{{localize.MOBILE_CHAT_ERROR_DESC}}</div>\n\t\t\t\t\t\t\t</template> \n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\t\t\t\n\t\t\t\t<template v-else>\n\t\t\t\t\t<div :class=\"['bx-mobilechat-body', {'bx-mobilechat-body-with-message': dialogState == 'show'}]\" key=\"with-message\">\n\t\t\t\t\t\t<template v-if=\"dialogState == 'loading'\">\n\t\t\t\t\t\t\t<div class=\"bx-mobilechat-loading-window\">\n\t\t\t\t\t\t\t\t<svg class=\"bx-mobilechat-loading-circular\" viewBox=\"25 25 50 50\">\n\t\t\t\t\t\t\t\t\t<circle class=\"bx-mobilechat-loading-path\" cx=\"50\" cy=\"50\" r=\"20\" fill=\"none\" stroke-miterlimit=\"10\"/>\n\t\t\t\t\t\t\t\t\t<circle class=\"bx-mobilechat-loading-inner-path\" cx=\"50\" cy=\"50\" r=\"20\" fill=\"none\" stroke-miterlimit=\"10\"/>\n\t\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t\t\t<h3 class=\"bx-mobilechat-help-title bx-mobilechat-help-title-md bx-mobilechat-loading-msg\">{{localize.MOBILE_CHAT_LOADING}}</h3>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</template>\n\t\t\t\t\t\t<template v-else-if=\"dialogState == 'empty'\">\n\t\t\t\t\t\t\t<div class=\"bx-mobilechat-loading-window\">\n\t\t\t\t\t\t\t\t<h3 class=\"bx-mobilechat-help-title bx-mobilechat-help-title-md bx-mobilechat-loading-msg\">{{localize.MOBILE_CHAT_EMPTY}}</h3>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</template>\n\t\t\t\t\t\t<template v-else>\n\t\t\t\t\t\t\t<div class=\"bx-mobilechat-dialog\">\n\t\t\t\t\t\t\t\t<bx-im-view-dialog\n\t\t\t\t\t\t\t\t\t:userId=\"userId\" \n\t\t\t\t\t\t\t\t\t:dialogId=\"dialogId\"\n\t\t\t\t\t\t\t\t\t:chatId=\"dialogChatId\"\n\t\t\t\t\t\t\t\t\t:messageLimit=\"application.dialog.messageLimit\"\n\t\t\t\t\t\t\t\t\t:messageExtraCount=\"application.dialog.messageExtraCount\"\n\t\t\t\t\t\t\t\t\t:enableReadMessages=\"application.dialog.enableReadMessages\"\n\t\t\t\t\t\t\t\t\t:enableReactions=\"true\"\n\t\t\t\t\t\t\t\t\t:enableDateActions=\"false\"\n\t\t\t\t\t\t\t\t\t:enableCreateContent=\"false\"\n\t\t\t\t\t\t\t\t\t:enableGestureQuote=\"enableGestureQuote\"\n\t\t\t\t\t\t\t\t\t:enableGestureQuoteFromRight=\"enableGestureQuoteFromRight\"\n\t\t\t\t\t\t\t\t\t:enableGestureMenu=\"enableGestureMenu\"\n\t\t\t\t\t\t\t\t\t:showMessageUserName=\"showMessageUserName\"\n\t\t\t\t\t\t\t\t\t:showMessageAvatar=\"showMessageAvatar\"\n\t\t\t\t\t\t\t\t\t:showMessageMenu=\"false\"\n\t\t\t\t\t\t\t\t\t:listenEventScrollToBottom=\"scrollToBottomEvent\"\n\t\t\t\t\t\t\t\t\t:listenEventRequestHistory=\"listenEventRequestHistory\"\n\t\t\t\t\t\t\t\t\t:listenEventRequestUnread=\"listenEventRequestUnread\"\n\t\t\t\t\t\t\t\t\t:listenEventSendReadMessages=\"listenEventSendReadMessages\"\n\t\t\t\t\t\t\t\t\t@readMessage=\"onDialogReadMessage\"\n\t\t\t\t\t\t\t\t\t@quoteMessage=\"onDialogQuoteMessage\"\n\t\t\t\t\t\t\t\t\t@requestHistory=\"onDialogRequestHistory\"\n\t\t\t\t\t\t\t\t\t@requestUnread=\"onDialogRequestUnread\"\n\t\t\t\t\t\t\t\t\t@clickByCommand=\"onDialogMessageClickByCommand\"\n\t\t\t\t\t\t\t\t\t@clickByMention=\"onDialogMessageClickByMention\"\n\t\t\t\t\t\t\t\t\t@clickByUserName=\"onDialogMessageClickByUserName\"\n\t\t\t\t\t\t\t\t\t@clickByMessageMenu=\"onDialogMessageMenuClick\"\n\t\t\t\t\t\t\t\t\t@clickByMessageRetry=\"onDialogMessageRetryClick\"\n\t\t\t\t\t\t\t\t\t@clickByUploadCancel=\"onDialogMessageClickByUploadCancel\"\n\t\t\t\t\t\t\t\t\t@clickByReadedList=\"onDialogReadedListClick\"\n\t\t\t\t\t\t\t\t\t@setMessageReaction=\"onDialogMessageReactionSet\"\n\t\t\t\t\t\t\t\t\t@openMessageReactionList=\"onDialogMessageReactionListOpen\"\n\t\t\t\t\t\t\t\t\t@clickByKeyboardButton=\"onDialogMessageClickByKeyboardButton\"\n\t\t\t\t\t\t\t\t\t@clickByChatTeaser=\"onDialogMessageClickByChatTeaser\"\n\t\t\t\t\t\t\t\t\t@click=\"onDialogClick\"\n\t\t\t\t\t\t\t\t />\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t<bx-im-view-quote-panel :id=\"quotePanelData.id\" :title=\"quotePanelData.title\" :description=\"quotePanelData.description\" :color=\"quotePanelData.color\" @close=\"onQuotePanelClose\"/>\n\t\t\t\t\t\t</template>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t</div>\n\t\t</div>\n\t"
+	  template: "\n\t\t<div :class=\"widgetClassName\">\n\t\t\t<div :class=\"['bx-mobilechat-box', {'bx-mobilechat-box-dark-background': isDarkBackground}]\">\n\t\t\t\t<template v-if=\"application.error.active\">\n\t\t\t\t\t<div class=\"bx-mobilechat-body\">\n\t\t\t\t\t\t<div class=\"bx-mobilechat-warning-window\">\n\t\t\t\t\t\t\t<div class=\"bx-mobilechat-warning-icon\"></div>\n\t\t\t\t\t\t\t<template v-if=\"application.error.description\"> \n\t\t\t\t\t\t\t\t<div class=\"bx-mobilechat-help-title bx-mobilechat-help-title-sm bx-mobilechat-warning-msg\" v-html=\"application.error.description\"></div>\n\t\t\t\t\t\t\t</template> \n\t\t\t\t\t\t\t<template v-else>\n\t\t\t\t\t\t\t\t<div class=\"bx-mobilechat-help-title bx-mobilechat-help-title-md bx-mobilechat-warning-msg\">{{localize.IM_DIALOG_ERROR_TITLE}}</div>\n\t\t\t\t\t\t\t\t<div class=\"bx-mobilechat-help-title bx-mobilechat-help-title-sm bx-mobilechat-warning-msg\">{{localize.IM_DIALOG_ERROR_DESC}}</div>\n\t\t\t\t\t\t\t</template> \n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\t\t\t\n\t\t\t\t<template v-else>\n\t\t\t\t\t<div :class=\"['bx-mobilechat-body', {'bx-mobilechat-body-with-message': dialogState == 'show'}]\" key=\"with-message\">\n\t\t\t\t\t\t<template v-if=\"dialogState == 'loading'\">\n\t\t\t\t\t\t\t<div class=\"bx-mobilechat-loading-window\">\n\t\t\t\t\t\t\t\t<svg class=\"bx-mobilechat-loading-circular\" viewBox=\"25 25 50 50\">\n\t\t\t\t\t\t\t\t\t<circle class=\"bx-mobilechat-loading-path\" cx=\"50\" cy=\"50\" r=\"20\" fill=\"none\" stroke-miterlimit=\"10\"/>\n\t\t\t\t\t\t\t\t\t<circle class=\"bx-mobilechat-loading-inner-path\" cx=\"50\" cy=\"50\" r=\"20\" fill=\"none\" stroke-miterlimit=\"10\"/>\n\t\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t\t\t<h3 class=\"bx-mobilechat-help-title bx-mobilechat-help-title-md bx-mobilechat-loading-msg\">{{localize.IM_DIALOG_LOADING}}</h3>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</template>\n\t\t\t\t\t\t<template v-else-if=\"dialogState == 'empty'\">\n\t\t\t\t\t\t\t<div class=\"bx-mobilechat-loading-window\">\n\t\t\t\t\t\t\t\t<h3 class=\"bx-mobilechat-help-title bx-mobilechat-help-title-md bx-mobilechat-loading-msg\">{{localize.IM_DIALOG_EMPTY}}</h3>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</template>\n\t\t\t\t\t\t<template v-else>\n\t\t\t\t\t\t\t<div class=\"bx-mobilechat-dialog\">\n\t\t\t\t\t\t\t\t<bx-im-view-dialog\n\t\t\t\t\t\t\t\t\t:userId=\"userId\" \n\t\t\t\t\t\t\t\t\t:dialogId=\"dialogId\"\n\t\t\t\t\t\t\t\t\t:chatId=\"dialogChatId\"\n\t\t\t\t\t\t\t\t\t:messageLimit=\"application.dialog.messageLimit\"\n\t\t\t\t\t\t\t\t\t:messageExtraCount=\"application.dialog.messageExtraCount\"\n\t\t\t\t\t\t\t\t\t:enableReadMessages=\"application.dialog.enableReadMessages\"\n\t\t\t\t\t\t\t\t\t:enableReactions=\"true\"\n\t\t\t\t\t\t\t\t\t:enableDateActions=\"false\"\n\t\t\t\t\t\t\t\t\t:enableCreateContent=\"false\"\n\t\t\t\t\t\t\t\t\t:enableGestureQuote=\"enableGestureQuote\"\n\t\t\t\t\t\t\t\t\t:enableGestureQuoteFromRight=\"enableGestureQuoteFromRight\"\n\t\t\t\t\t\t\t\t\t:enableGestureMenu=\"enableGestureMenu\"\n\t\t\t\t\t\t\t\t\t:showMessageUserName=\"showMessageUserName\"\n\t\t\t\t\t\t\t\t\t:showMessageAvatar=\"showMessageAvatar\"\n\t\t\t\t\t\t\t\t\t:showMessageMenu=\"false\"\n\t\t\t\t\t\t\t\t\t:listenEventScrollToBottom=\"scrollToBottomEvent\"\n\t\t\t\t\t\t\t\t\t:listenEventRequestHistory=\"listenEventRequestHistory\"\n\t\t\t\t\t\t\t\t\t:listenEventRequestUnread=\"listenEventRequestUnread\"\n\t\t\t\t\t\t\t\t\t:listenEventSendReadMessages=\"listenEventSendReadMessages\"\n\t\t\t\t\t\t\t\t\t@readMessage=\"onDialogReadMessage\"\n\t\t\t\t\t\t\t\t\t@quoteMessage=\"onDialogQuoteMessage\"\n\t\t\t\t\t\t\t\t\t@requestHistory=\"onDialogRequestHistory\"\n\t\t\t\t\t\t\t\t\t@requestUnread=\"onDialogRequestUnread\"\n\t\t\t\t\t\t\t\t\t@clickByCommand=\"onDialogMessageClickByCommand\"\n\t\t\t\t\t\t\t\t\t@clickByMention=\"onDialogMessageClickByMention\"\n\t\t\t\t\t\t\t\t\t@clickByUserName=\"onDialogMessageClickByUserName\"\n\t\t\t\t\t\t\t\t\t@clickByMessageMenu=\"onDialogMessageMenuClick\"\n\t\t\t\t\t\t\t\t\t@clickByMessageRetry=\"onDialogMessageRetryClick\"\n\t\t\t\t\t\t\t\t\t@clickByUploadCancel=\"onDialogMessageClickByUploadCancel\"\n\t\t\t\t\t\t\t\t\t@clickByReadedList=\"onDialogReadedListClick\"\n\t\t\t\t\t\t\t\t\t@setMessageReaction=\"onDialogMessageReactionSet\"\n\t\t\t\t\t\t\t\t\t@openMessageReactionList=\"onDialogMessageReactionListOpen\"\n\t\t\t\t\t\t\t\t\t@clickByKeyboardButton=\"onDialogMessageClickByKeyboardButton\"\n\t\t\t\t\t\t\t\t\t@clickByChatTeaser=\"onDialogMessageClickByChatTeaser\"\n\t\t\t\t\t\t\t\t\t@click=\"onDialogClick\"\n\t\t\t\t\t\t\t\t />\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t<bx-im-view-quote-panel :id=\"quotePanelData.id\" :title=\"quotePanelData.title\" :description=\"quotePanelData.description\" :color=\"quotePanelData.color\" @close=\"onQuotePanelClose\"/>\n\t\t\t\t\t\t</template>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t</div>\n\t\t</div>\n\t"
 	});
 
-}((this.BX.Messenger = this.BX.Messenger || {}),BX,BX,BX.Messenger.Lib,BX.Messenger.Const,BX.Messenger.Lib));
+}((this.BX.Messenger = this.BX.Messenger || {}),BX,BX,BX.Messenger.Lib,BX.Messenger.Const,BX.Messenger.Lib,BX.Messenger.Lib));
 //# sourceMappingURL=dialog.bundle.js.map

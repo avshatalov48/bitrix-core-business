@@ -36,10 +36,10 @@ class Type
 		foreach ($constants as $key)
 		{
 			$list[$key] = null;
-			$filename = str_replace("_", "", strtolower($key))."type.php";
+			$filename = str_replace("_", "", mb_strtolower($key))."type.php";
 			if (file_exists(__DIR__."/".$filename))
 			{
-				$className = str_replace('_', ' ', strtolower($key));
+				$className = str_replace('_', ' ', mb_strtolower($key));
 				$className = str_replace(' ', '', ucwords($className));
 				$list[$key] = __NAMESPACE__."\\".$className."Type";
 			}
@@ -123,7 +123,7 @@ class Type
 				if (!empty($res))
 					$result += $res ;
 			}
-			else if (array_key_exists($filter["NAME"], $data) && strlen($data[$filter["NAME"]]) > 0)
+			else if (array_key_exists($filter["NAME"], $data) && $data[$filter["NAME"]] <> '')
 			{
 				$result[$filter["NAME"]] = $data[$filter["NAME"]];
 			}

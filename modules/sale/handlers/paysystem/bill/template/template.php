@@ -285,7 +285,7 @@ foreach ($columnList as $column)
 			$caption .= ', '.$currency;
 
 		$arCols[$column] = array(
-			'NAME' => $caption,
+			'NAME' => htmlspecialcharsbx($caption),
 			'SORT' => $params['BILL_COLUMN_'.$column.'_SORT']
 		);
 	}
@@ -296,7 +296,7 @@ if ($params['USER_COLUMNS'])
 	foreach ($params['USER_COLUMNS'] as $id => $val)
 	{
 		$arCols[$id] = array(
-			'NAME' => $val['NAME'],
+			'NAME' => htmlspecialcharsbx($val['NAME']),
 			'SORT' => $val['SORT']
 		);
 	}

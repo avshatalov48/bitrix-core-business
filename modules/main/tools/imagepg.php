@@ -15,7 +15,7 @@ else
 	$alt = "";
 
 $img = $_GET["img"];
-if(substr($img, 0, 1) !== "/" && strtolower(substr($img, 0, 4) !== "http"))
+if(mb_substr($img, 0, 1) !== "/" && mb_strtolower(mb_substr($img, 0, 4) !== "http"))
 	$img = "/".$img; // some browsers run javascript: in img src tag
 ?>
 <html>

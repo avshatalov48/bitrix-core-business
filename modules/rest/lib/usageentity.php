@@ -31,6 +31,8 @@ class UsageEntityTable extends Main\Entity\DataManager
 	const SUB_ENTITY_TYPE_ROBOT = 'R';
 	const SUB_ENTITY_TYPE_ACTIVITY = 'A';
 	const SUB_ENTITY_TYPE_CONFIGURATION = 'C';
+	const SUB_ENTITY_TYPE_SEND_MESSAGE = 'S';
+	const SUB_ENTITY_TYPE_LANDING = 'L';
 
 	protected static $info = array();
 
@@ -89,6 +91,8 @@ class UsageEntityTable extends Main\Entity\DataManager
 					self::SUB_ENTITY_TYPE_ROBOT,
 					self::SUB_ENTITY_TYPE_ACTIVITY,
 					self::SUB_ENTITY_TYPE_CONFIGURATION,
+					self::SUB_ENTITY_TYPE_SEND_MESSAGE,
+					self::SUB_ENTITY_TYPE_LANDING,
 				),
 				'validation' => array(
 					__CLASS__,
@@ -179,7 +183,7 @@ class UsageEntityTable extends Main\Entity\DataManager
 		}
 		catch (SqlQueryException $e)
 		{
-			if (strpos($e->getMessage(), 'Duplicate entry') !== false)
+			if (mb_strpos($e->getMessage(), 'Duplicate entry') !== false)
 			{
 				//Try one more time
 				$res = static::add($newEntity);

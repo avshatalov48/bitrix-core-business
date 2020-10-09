@@ -32,7 +32,7 @@
 	$component
 );?>
 <?
-if ($result && intVal($result["ELEMENTS_CNT"]) > 0)
+if ($result && intval($result["ELEMENTS_CNT"]) > 0)
 {
 if ($arParams["USE_RATING"] == "Y"):
 	$arParams["PROPERTY_CODE"][] = "PROPERTY_vote_count";
@@ -141,7 +141,7 @@ div.photo-page-section div.photo-info-box-photo-list {
 endif;
 }
 // SECTIONS LIST
-if (intVal($result["SECTIONS_CNT"]) > 0)
+if (intval($result["SECTIONS_CNT"]) > 0)
 {
 ?>
 <div class="photo-info-box photo-info-box-section-list">

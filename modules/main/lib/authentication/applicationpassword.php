@@ -66,12 +66,9 @@ class ApplicationPasswordTable extends Data\DataManager
 
 		if(isset($data["USER_ID"]) && isset($data['PASSWORD']))
 		{
-			$salt = md5(\CMain::GetServerUniqID().uniqid());
-			$password = $salt.md5($salt.$data['PASSWORD']);
-
-			$modified = array(
-				'PASSWORD' => $password,
-			);
+			$modified = [
+				'PASSWORD' => Main\Security\Password::hash($data['PASSWORD']),
+			];
 
 			$user = Main\UserTable::getRowById($data["USER_ID"]);
 			if($user !== null)
@@ -103,7 +100,7 @@ class ApplicationPasswordTable extends Data\DataManager
 	 */
 	public static function generatePassword()
 	{
-		return \randString(16, "qwertyuiopasdfghjklzxcvbnm");
+		return Main\Security\Random::getStringByCharsets(16, "qwertyuiopasdfghjklzxcvbnm");
 	}
 
 	/**
@@ -116,8 +113,10 @@ class ApplicationPasswordTable extends Data\DataManager
 	 */
 	public static function findPassword($userId, $password, $passwordOriginal = true)
 	{
-		$encodedPassword = substr($password, 32);
-		$noSpacePassword = str_replace(' ', '', $password);
+		if($passwordOriginal)
+		{
+			$password = str_replace(' ', '', $password);
+		}
 
 		$appPasswords = static::getList(array(
 			'select' => array('ID', 'PASSWORD', 'APPLICATION_ID'),
@@ -125,19 +124,7 @@ class ApplicationPasswordTable extends Data\DataManager
 		));
 		while(($appPassword = $appPasswords->fetch()))
 		{
-			$dbPassword = substr($appPassword["PASSWORD"], 32);
-
-			if($passwordOriginal)
-			{
-				$appSalt = substr($appPassword["PASSWORD"], 0, 32);
-				$userPassword =  md5($appSalt.$noSpacePassword);
-			}
-			else
-			{
-				$userPassword = $encodedPassword;
-			}
-
-			if($dbPassword === $userPassword)
+			if(Main\Security\Password::equals($appPassword["PASSWORD"], $password, $passwordOriginal))
 			{
 				//bingo, application password
 				return $appPassword;

@@ -180,7 +180,7 @@ class User
 			return '';
 		}
 
-		if (!in_array(mb_strtolower(\GetFileExtension($avatarUrl)), ['png', 'jpg', 'jpeg', 'gif']))
+		if (!in_array(mb_strtolower(\GetFileExtension($avatarUrl)), ['png', 'jpg', 'jpeg', 'gif', 'webp']))
 		{
 			return '';
 		}

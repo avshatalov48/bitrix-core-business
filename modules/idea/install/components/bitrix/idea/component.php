@@ -56,12 +56,12 @@ $arDefaultVariableAliases = array();
 $componentPage = "";
 $arComponentVariables = array("category_1", "category_2", "status_code", "user_id", "post_id", "tag");
 
-if (strlen(trim($arParams["NAME_TEMPLATE"])) <= 0)
+if (trim($arParams["NAME_TEMPLATE"]) == '')
 	$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 
 $arParams['SHOW_LOGIN'] = $arParams['SHOW_LOGIN'] != "N" ? "Y" : "N";
 
-$arParams['RATING_TEMPLATE'] = (strlen($arParams['RATING_TEMPLATE'])>0 && in_array($arParams['RATING_TEMPLATE'], array("standart", "like")))
+$arParams['RATING_TEMPLATE'] = ($arParams['RATING_TEMPLATE'] <> '' && in_array($arParams['RATING_TEMPLATE'], array("standart", "like")))
 	?$arParams['RATING_TEMPLATE']
 	:"standart";
 
@@ -102,13 +102,13 @@ if ($arParams["SEF_MODE"] == "Y")
 	CComponentEngine::InitComponentVariables($componentPage, $arComponentVariables, $arVariableAliases, $arVariables);
 	foreach ($arUrlTemplates as $url => $value)
 	{
-			if(strlen($arParams["PATH_TO_".ToUpper($url)]) <= 0)
+			if($arParams["PATH_TO_".ToUpper($url)] == '')
 				$arResult["PATH_TO_".ToUpper($url)] = $arParams["SEF_FOLDER"].$value;
 			else
 				$arResult["PATH_TO_".ToUpper($url)] = $arParams["PATH_TO_".ToUpper($url)];
 	}
 
-	$arResult["PATH_TO_BLOG_CATEGORY"] = $arParams["SEF_FOLDER"].$arUrlTemplates["blog"].(strpos($arParams["SEF_FOLDER"].$arUrlTemplates["blog"], "?")===false ? "?" : "&")."tag=#category_id#";
+	$arResult["PATH_TO_BLOG_CATEGORY"] = $arParams["SEF_FOLDER"].$arUrlTemplates["blog"].(mb_strpos($arParams["SEF_FOLDER"].$arUrlTemplates["blog"], "?") === false ? "?" : "&")."tag=#category_id#";
 }
 else
 {
@@ -133,7 +133,7 @@ else
 			foreach($arNotSefParams[1] as $subURLParam)
 				$subURL .= '&'.htmlspecialcharsbx($arVariableAliases[$subURLParam]).'=#'.$subURLParam.'#';
 
-		if(strlen($arParams["PATH_TO_".ToUpper($url)]) <= 0)
+		if($arParams["PATH_TO_".ToUpper($url)] == '')
 			$arResult["PATH_TO_".ToUpper($url)] = htmlspecialcharsbx($APPLICATION->GetCurPage())."?".htmlspecialcharsbx($arVariableAliases["page"])."=".$url.$subURL;
 	}
 

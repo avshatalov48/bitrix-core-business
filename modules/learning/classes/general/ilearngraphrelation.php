@@ -185,7 +185,7 @@ final class CLearnGraphRelation implements ILearnGraphRelation
 		// Prepare string for query
 		$sqlWhere = implode (' OR ', $arWhere);
 
-		if (strlen($sqlWhere) == 0)
+		if ($sqlWhere == '')
 		{
 			throw new LearnException ('EA_PARAMS: nothing to search (check search mode bitmask);',
 				LearnException::EXC_ERR_GR_GET_NEIGHBOURS | LearnException::EXC_ERR_ALL_LOGIC);

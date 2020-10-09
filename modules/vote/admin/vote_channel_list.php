@@ -58,7 +58,7 @@ if ($lAdmin->EditAction() && $VOTE_RIGHT>="W" && check_bitrix_sessid())
 		if(!$lAdmin->IsUpdated($ID))
 			continue;
 		$DB->StartTransaction();
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		$arFieldsStore = Array(
 			"TIMESTAMP_X"	=> $DB->GetNowFunction(),
 			"ACTIVE"		=> "'".$DB->ForSql($arFields["ACTIVE"])."'",
@@ -94,9 +94,9 @@ if(($arID = $lAdmin->GroupAction()) && $VOTE_RIGHT=="W" && check_bitrix_sessid()
 
 		foreach($arID as $ID)
 		{
-				if(strlen($ID)<=0)
+				if($ID == '')
 						continue;
-				$ID = IntVal($ID);
+				$ID = intval($ID);
 				switch($_REQUEST['action'])
 				{
 				case "delete":

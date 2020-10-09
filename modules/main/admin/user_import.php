@@ -29,7 +29,7 @@ if(isset($_REQUEST["getSample"]) && $_REQUEST["getSample"] == "csv" && is_file($
 	fclose($file);
 
 	header("Content-Type: application/octet-stream");
-	header("Content-Length: ".strlen($contents));
+	header("Content-Length: ".mb_strlen($contents));
 	header("Content-Disposition: attachment; filename=\"sample.csv\"");
 	header("Expires: 0");
 	header("Cache-Control: no-cache, must-revalidate");
@@ -71,10 +71,10 @@ $ldapServer = (isset($_REQUEST["ldapServer"]) ? intval($_REQUEST["ldapServer"]) 
 $attachIBlockID = (isset($_REQUEST["attachIBlockID"]) && intval($_REQUEST["attachIBlockID"]) > 0 ? intval($_REQUEST["attachIBlockID"]) : 0);
 
 $create1cUser = (isset($_REQUEST["create1cUser"]) && $_REQUEST["create1cUser"] == "Y" ? "Y" : "N");
-$newUserLogin = (isset($_REQUEST["newUserLogin"]) && strlen($_REQUEST["newUserLogin"]) > 0 ? $_REQUEST["newUserLogin"] : "");
-$newUserPass = (isset($_REQUEST["newUserPass"]) && strlen($_REQUEST["newUserPass"]) > 0 ? $_REQUEST["newUserPass"] : "");
-$newUserConfirmPass = (isset($_REQUEST["newUserConfirmPass"]) && strlen($_REQUEST["newUserConfirmPass"]) > 0 ? $_REQUEST["newUserConfirmPass"] : "");
-$newUserEmail = (isset($_REQUEST["newUserEmail"]) && strlen($_REQUEST["newUserEmail"]) > 0 ? $_REQUEST["newUserEmail"] : "");
+$newUserLogin = (isset($_REQUEST["newUserLogin"]) && $_REQUEST["newUserLogin"] <> '' ? $_REQUEST["newUserLogin"] : "");
+$newUserPass = (isset($_REQUEST["newUserPass"]) && $_REQUEST["newUserPass"] <> '' ? $_REQUEST["newUserPass"] : "");
+$newUserConfirmPass = (isset($_REQUEST["newUserConfirmPass"]) && $_REQUEST["newUserConfirmPass"] <> '' ? $_REQUEST["newUserConfirmPass"] : "");
+$newUserEmail = (isset($_REQUEST["newUserEmail"]) && $_REQUEST["newUserEmail"] <> '' ? $_REQUEST["newUserEmail"] : "");
 $newUserGroups = isset($_REQUEST['newUserGroups']) && is_array($_REQUEST['newUserGroups']) ? $_REQUEST['newUserGroups'] : array();
 
 //Step
@@ -101,13 +101,13 @@ function _OnUserAdd(&$arFields, &$userID)
 	$arFields["ID"] = $arFields["USER_ID"] = $userID;
 	$arFields["URL_LOGIN"] = urlencode($arFields["LOGIN"]);
 
-	if (isset($arFields["EXTERNAL_AUTH_ID"]) && strlen($arFields["EXTERNAL_AUTH_ID"]) > 0 && strlen($GLOBALS["eventLdapLangID"]) > 0)
+	if (isset($arFields["EXTERNAL_AUTH_ID"]) && $arFields["EXTERNAL_AUTH_ID"] <> '' && $GLOBALS["eventLdapLangID"] <> '')
 	{
 		$arFields["BACK_URL"] = "/";
 		$event = new CEvent;
 		$event->Send("LDAP_USER_CONFIRM", $GLOBALS["eventLdapLangID"], $arFields);
 	}
-	elseif ($GLOBALS["sendEmail"] == "Y" && $arFields["EMAIL"] <> '' && $arFields["EMAIL"] <> $GLOBALS["defaultUserEmail"] && strlen($GLOBALS["eventLangID"]) > 0)
+	elseif ($GLOBALS["sendEmail"] == "Y" && $arFields["EMAIL"] <> '' && $arFields["EMAIL"] <> $GLOBALS["defaultUserEmail"] && $GLOBALS["eventLangID"] <> '')
 	{
 		$event = new CEvent;
 		$event->Send("USER_INVITE", $GLOBALS["eventLangID"], $arFields);

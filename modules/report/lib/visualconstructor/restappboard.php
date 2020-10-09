@@ -68,6 +68,10 @@ class RestAppBoard extends AnalyticBoard
 			'PLACEMENT_OPTIONS' => [],
 			'ID' => $this->getRestAppId(),
 			'PLACEMENT_ID' => $this->getPlacementHandlerId(),
+			'PARAM' => [
+				'FRAME_WIDTH' => '100%',
+				'FRAME_HEIGHT' => 'calc(100vh - 75px)',
+			],
 		];
 	}
 }

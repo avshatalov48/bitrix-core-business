@@ -57,7 +57,7 @@ class CTimeZone
 		foreach(DateTimeZone::listIdentifiers() as $tz)
 		{
 			foreach($aExcept as $ex)
-				if(strpos($tz, $ex) === 0)
+				if(mb_strpos($tz, $ex) === 0)
 					continue 2;
 			try
 			{
@@ -85,6 +85,9 @@ class CTimeZone
 		if(self::IsAutoTimeZone(trim($USER->GetParam("AUTO_TIME_ZONE"))))
 		{
 			$cookieDate = (new \Bitrix\Main\Type\DateTime())->add("12M");
+			$cookieDate->setDate((int)$cookieDate->format('Y'), (int)$cookieDate->format('m'), 1);
+			$cookieDate->setTime(0,	0);
+
 			$APPLICATION->AddHeadString(
 				'<script type="text/javascript">var bxDate = new Date(); document.cookie="'.$cookie_prefix.'_TIME_ZONE="+bxDate.getTimezoneOffset()+"; path=/; expires='.$cookieDate->format("r").'"</script>', true
 			);

@@ -45,7 +45,7 @@ class MainUserSelectorComponent extends CBitrixComponent
 
 		$this->arParams['LIST'] = isset($this->arParams['LIST']) ? $this->arParams['LIST'] : [];
 
-		$this->arParams['LIST'] = array_filter($this->arParams['LIST'], function($value) { return (strlen($value) > 0); });
+		$this->arParams['LIST'] = array_filter($this->arParams['LIST'], function($value) { return ($value <> ''); });
 
 		$this->arParams['READONLY'] = isset($this->arParams['READONLY']) ? (bool) $this->arParams['READONLY'] : false;
 		$this->arParams['BUTTON_SELECT_CAPTION'] = isset($this->arParams['BUTTON_SELECT_CAPTION']) ? $this->arParams['BUTTON_SELECT_CAPTION'] : null;
@@ -130,7 +130,7 @@ class MainUserSelectorComponent extends CBitrixComponent
 				? $this->arParams['UNDELETABLE']
 				: []
 		);
-		$this->arResult['IS_INPUT_MULTIPLE'] = substr($this->arParams['INPUT_NAME'], -2) == '[]';
+		$this->arResult['IS_INPUT_MULTIPLE'] = mb_substr($this->arParams['INPUT_NAME'], -2) == '[]';
 		$this->arResult['FIRE_CLICK_EVENT'] = (
 			$this->arParams['FIRE_CLICK_EVENT'] == 'Y'
 			&& empty($this->arParams['LIST'])

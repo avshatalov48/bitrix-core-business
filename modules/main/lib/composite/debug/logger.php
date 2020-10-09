@@ -66,13 +66,13 @@ class Logger
 		}
 
 		$pageTitle = isset($params["TITLE"]) ? $params["TITLE"] : $GLOBALS["APPLICATION"]->getTitle();
-		$pageTitle = substr($pageTitle, 0, 250);
+		$pageTitle = mb_substr($pageTitle, 0, 250);
 
-		$pageHost = isset($params["HOST"]) && strlen($params["HOST"]) ? $params["HOST"] : Helper::getHttpHost();
-		$pageHost = substr($pageHost, 0, 100);
+		$pageHost = isset($params["HOST"]) && mb_strlen($params["HOST"]) ? $params["HOST"] : Helper::getHttpHost();
+		$pageHost = mb_substr($pageHost, 0, 100);
 
-		$pageUri = isset($params["URI"]) && strlen($params["URI"]) ? $params["URI"] : Helper::getRequestUri();
-		$pageUri = substr($pageUri, 0, 2000);
+		$pageUri = isset($params["URI"]) && mb_strlen($params["URI"]) ? $params["URI"] : Helper::getRequestUri();
+		$pageUri = mb_substr($pageUri, 0, 2000);
 
 		$userId = 0;
 		if (isset($params["USER_ID"]))
@@ -123,7 +123,7 @@ class Logger
 		$refClass = new \ReflectionClass(__CLASS__);
 		foreach ($refClass->getConstants() as $name => $value)
 		{
-			if (substr($name, 0, 4) === "TYPE")
+			if (mb_substr($name, 0, 4) === "TYPE")
 			{
 				$types[] = $value;
 			}

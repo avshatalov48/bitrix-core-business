@@ -21,9 +21,9 @@ if($MAIN_RIGHT!="P" && $MAIN_RIGHT!="T" && $MAIN_RIGHT!="W")
 ****************************************************************************/
 
 $strError="";
-$ID=IntVal($ID);
+$ID=intval($ID);
 
-if($REQUEST_METHOD=="POST" && (strlen($save)>0 || strlen($apply)>0) && check_bitrix_sessid())
+if($REQUEST_METHOD=="POST" && ($save <> '' || $apply <> '') && check_bitrix_sessid())
 {
 	$obUser = new CUser;
 
@@ -88,7 +88,7 @@ if($REQUEST_METHOD=="POST" && (strlen($save)>0 || strlen($apply)>0) && check_bit
 		);
 
 //echo "<pre>"; print_r($arFields); echo "</pre>";
-	if($MAIN_RIGHT=="W" && strlen($LID)>0) $arFields["LID"] = $LID;
+	if($MAIN_RIGHT=="W" && $LID <> '') $arFields["LID"] = $LID;
 	if($MAIN_RIGHT=="W" && is_set($_POST, 'EXTERNAL_AUTH_ID')) $arFields['EXTERNAL_AUTH_ID'] = $EXTERNAL_AUTH_ID;
 	if($USER->IsAdmin())
 	{
@@ -96,7 +96,7 @@ if($REQUEST_METHOD=="POST" && (strlen($save)>0 || strlen($apply)>0) && check_bit
 		$arFields["GROUP_ID"]=$GROUP_ID;
 		$arFields["ADMIN_NOTES"]=$ADMIN_NOTES;
 	}
-	if(strlen($NEW_PASSWORD)>0)
+	if($NEW_PASSWORD <> '')
 	{
 		$arFields["PASSWORD"]=$NEW_PASSWORD;
 		$arFields["CONFIRM_PASSWORD"]=$NEW_PASSWORD_CONFIRM;
@@ -114,7 +114,7 @@ if($REQUEST_METHOD=="POST" && (strlen($save)>0 || strlen($apply)>0) && check_bit
 
 	$strError .= $obUser->LAST_ERROR;
 
-	if (strlen($strError)<=0)
+	if ($strError == '')
 	{
 		if (CModule::IncludeModule("forum"))
 		{
@@ -133,20 +133,20 @@ if($REQUEST_METHOD=="POST" && (strlen($save)>0 || strlen($apply)>0) && check_bit
 			if ($ar_res)
 			{
 				$arforumFields["AVATAR"]["old_file"] = $ar_res["AVATAR"];
-				$FORUM_USER_ID = IntVal($ar_res["ID"]);
+				$FORUM_USER_ID = intval($ar_res["ID"]);
 				$FORUM_USER_ID1 = CForumUser::Update($FORUM_USER_ID, $arforumFields);
-				$forum_res = (IntVal($FORUM_USER_ID1)>0);
+				$forum_res = (intval($FORUM_USER_ID1)>0);
 			}
 			else
 			{
 				$arforumFields["USER_ID"] = $ID;
 				$FORUM_USER_ID = CForumUser::Add($arforumFields);
-				$forum_res = (IntVal($FORUM_USER_ID)>0);
+				$forum_res = (intval($FORUM_USER_ID)>0);
 			}
 		}
 	}
 	
-	if (strlen($strError)<=0)
+	if ($strError == '')
 	{
 		if (CModule::IncludeModule("blog"))
 		{
@@ -165,10 +165,10 @@ if($REQUEST_METHOD=="POST" && (strlen($save)>0 || strlen($apply)>0) && check_bit
 			if ($ar_res)
 			{
 				$arblogFields["AVATAR"]["old_file"] = $ar_res["AVATAR"];
-				$BLOG_USER_ID = IntVal($ar_res["ID"]);
+				$BLOG_USER_ID = intval($ar_res["ID"]);
 
 				$BLOG_USER_ID1 = CBlogUser::Update($BLOG_USER_ID, $arblogFields);
-				$blog_res = (IntVal($BLOG_USER_ID1)>0);
+				$blog_res = (intval($BLOG_USER_ID1)>0);
 			}
 			else
 			{
@@ -176,12 +176,12 @@ if($REQUEST_METHOD=="POST" && (strlen($save)>0 || strlen($apply)>0) && check_bit
 				$arblogFields["~DATE_REG"] = CDatabase::CurrentTimeFunction();
 
 				$BLOG_USER_ID = CBlogUser::Add($arblogFields);
-				$blog_res = (IntVal($BLOG_USER_ID)>0);
+				$blog_res = (intval($BLOG_USER_ID)>0);
 			}
 		}
 	}
 	
-	if(CModule::IncludeModule("learning") && strlen($strError)<=0)
+	if(CModule::IncludeModule("learning") && $strError == '')
 	{
 		$arStudentFields = Array(
 			"RESUME" => $student_RESUME,
@@ -225,7 +225,7 @@ if (CModule::IncludeModule("blog"))
 
 if (CModule::IncludeModule("forum"))
 {
-	$ID = IntVal($ID);
+	$ID = intval($ID);
 	$rsForumUser = CForumUser::GetList(array(), array("USER_ID" => $ID));
 	$arForumUser = $rsForumUser->GetNext(false);
 	if (!isset($arForumUser["ALLOW_POST"]) || ($arForumUser["ALLOW_POST"]!="Y" && $arForumUser["ALLOW_POST"]!="N"))
@@ -240,7 +240,7 @@ if (CModule::IncludeModule("learning"))
 		$arStudent["PUBLIC_PROFILE"] = "N";
 }
 	
-if(strlen($strError)>0)
+if($strError <> '')
 {
 	foreach($_POST as $k=>$val)
 	{
@@ -284,13 +284,13 @@ function SectionClick(id)
 <input type="hidden" name="ID" value=<?echo $ID?>>
 <table border="0" cellpadding="3" width="100%" cellspacing="1">
 	<?if($ID>0):?>
-	<?if (strlen($arUser["TIMESTAMP_X"])>0):?>
+	<?if ($arUser["TIMESTAMP_X"] <> ''):?>
 	<tr valign="top">
 		<td align="right"><font class="tablefieldtext"><?echo GetMessage('LAST_UPDATE')?></font></td>
 		<td><font class="tablebodytext"><?echo $arUser["TIMESTAMP_X"]?></font></td>
 	</tr>
 	<?endif;?>
-	<?if (strlen($arUser["LAST_LOGIN"])>0):?>
+	<?if ($arUser["LAST_LOGIN"] <> ''):?>
 	<tr valign="top">
 		<td align="right"><font class="tablefieldtext"><?echo GetMessage('LAST_LOGIN')?></font></td>
 		<td><font class="tablebodytext"><?echo $arUser["LAST_LOGIN"]?></font></td>
@@ -383,7 +383,7 @@ function SectionClick(id)
 					<input type="hidden" name="PERSONAL_PHOTO_ID" value="<?=$arUser["PERSONAL_PHOTO"]?>">
 					<?
 					echo CFile::InputFile("PERSONAL_PHOTO", 20, $arUser["PERSONAL_PHOTO"], false, 0, "IMAGE", "class=\"inputfile\"");
-					if (strlen($arUser["PERSONAL_PHOTO"])>0):
+					if ($arUser["PERSONAL_PHOTO"] <> ''):
 						?><br><?
 						echo CFile::ShowImage($arUser["PERSONAL_PHOTO"], 150, 150, "border=0", "", true);
 					endif;
@@ -475,7 +475,7 @@ function SectionClick(id)
 					<input type="hidden" name="WORK_LOGO_ID" value="<?=$arUser["WORK_LOGO"]?>">
 					<?
 						echo CFile::InputFile("WORK_LOGO", 20, $arUser["WORK_LOGO"], false, 0, "IMAGE", "class=\"inputfile\"");
-						if (strlen($arUser["WORK_LOGO"])>0):
+						if ($arUser["WORK_LOGO"] <> ''):
 							?><br><?
 							echo CFile::ShowImage($arUser["WORK_LOGO"], 150, 150, "border=0", "", true);
 						endif;
@@ -566,7 +566,7 @@ function SectionClick(id)
 					<td align="right"><font class="tablefieldtext"><?=GetMessage("forum_AVATAR")?></font></td>
 					<td><font class="tablebodytext"><?
 						echo CFile::InputFile("forum_AVATAR", 20, $arForumUser["AVATAR"], false, 0, "IMAGE", "class=\"inputfile\"");
-						if (strlen($arForumUser["AVATAR"])>0):
+						if ($arForumUser["AVATAR"] <> ''):
 							?><br><?
 							echo CFile::ShowImage($arForumUser["AVATAR"], 150, 150, "border=0", "", true);
 						endif;
@@ -609,7 +609,7 @@ function SectionClick(id)
 					<td align="right"><font class="tablefieldtext"><?=GetMessage("blog_AVATAR")?></font></td>
 					<td><font class="tablebodytext"><?
 						echo CFile::InputFile("blog_AVATAR", 20, $arBlogUser["AVATAR"]);
-						if (strlen($arBlogUser["AVATAR"])>0):
+						if ($arBlogUser["AVATAR"] <> ''):
 							?><br><?
 							echo CFile::ShowImage($arBlogUser["AVATAR"], 150, 150, "border=0", "", true);
 						endif;

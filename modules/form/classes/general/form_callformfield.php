@@ -1,9 +1,4 @@
 <?
-
-/***************************************
-			Вопрос/поле
-***************************************/
-
 class CAllFormField
 {
 	function err_mess()
@@ -13,14 +8,13 @@ class CAllFormField
 		return "<br>Module: ".$module_id." (".$arModuleVersion["VERSION"].")<br>Class: CAllFormField<br>File: ".__FILE__;
 	}
 
-	// список вопросов/полей
 	function GetList($WEB_FORM_ID, $get_fields, &$by, &$order, $arFilter=Array(), &$is_filtered)
 	{
 		$err_mess = (CAllFormField::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB, $strError;
 		$WEB_FORM_ID = intval($WEB_FORM_ID);
 		$str = "";
-		if (strlen($get_fields)>0 && $get_fields!="ALL")
+		if ($get_fields <> '' && $get_fields!="ALL")
 		{
 			InitBVar($get_fields);
 			$str = "and ADDITIONAL='$get_fields'";
@@ -29,24 +23,27 @@ class CAllFormField
 		$strSqlSearch = "";
 		if (is_array($arFilter))
 		{
-			if(isset($arFilter["SID"]) && strlen($arFilter["SID"])>0)
+			if(isset($arFilter["SID"]) && $arFilter["SID"] <> '')
 			{
 				$arFilter["VARNAME"] = $arFilter["SID"];
 			}
-			elseif(isset($arFilter["VARNAME"]) && strlen($arFilter["VARNAME"])>0)
+			elseif(isset($arFilter["VARNAME"]) && $arFilter["VARNAME"] <> '')
 			{
 				$arFilter["SID"] = $arFilter["VARNAME"];
 			}
 
 			$filter_keys = array_keys($arFilter);
-			for ($i=0; $i<count($filter_keys); $i++)
+			$keyCount = count($filter_keys);
+			for ($i=0; $i<$keyCount; $i++)
 			{
 				$key = $filter_keys[$i];
 				$val = $arFilter[$filter_keys[$i]];
-				if (strlen($val)<=0 || "$val"=="NOT_REF") continue;
-				if (is_array($val) && count($val)<=0) continue;
-				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys)) ? true : false;
-				$key = strtoupper($key);
+				if ((string)$val == '' || $val=="NOT_REF")
+					continue;
+				if (is_array($val) && empty($val))
+					continue;
+				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys));
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -110,7 +107,6 @@ class CAllFormField
 			and FORM_ID='$WEB_FORM_ID'
 			$strSqlOrder
 			";
-		//echo "<pre>".$strSql."</pre>";
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
 		$is_filtered = (IsFiltered($strSqlSearch));
 		return $res;
@@ -160,14 +156,12 @@ class CAllFormField
 		global $DB;
 		$err_mess = (CAllFormField::err_mess())."<br>Function: GetNextSort<br>Line: ";
 		$WEB_FORM_ID = intval($WEB_FORM_ID);
-		//InitBVar($additional);
 		$strSql = "SELECT max(C_SORT) as MAX_SORT FROM b_form_field WHERE FORM_ID='$WEB_FORM_ID'";
 		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
 		$zr = $z->Fetch();
 		return (intval($zr["MAX_SORT"])+100);
 	}
 
-	// копирует вопрос/поле
 	function Copy($ID, $CHECK_RIGHTS="Y", $NEW_FORM_ID=false)
 	{
 		global $DB, $strError;
@@ -182,34 +176,28 @@ class CAllFormField
 			else
 			{
 				$F_RIGHT = CForm::GetPermission($arField["FORM_ID"]);
-				// если имеем право на просмотр параметров формы
 				if ($F_RIGHT>=25)
 				{
-					// если задана новая форма
 					if ($NEW_FORM_ID>0)
 					{
 						$NEW_F_RIGHT = CForm::GetPermission($NEW_FORM_ID);
-						// если имеем полный доступ на новую форму
 						if ($NEW_F_RIGHT>=30) $RIGHT_OK = "Y";
 					}
-					elseif ($F_RIGHT>=30) // иначе если имеем полный доступ на исходную форму
+					elseif ($F_RIGHT>=30)
 					{
 						$RIGHT_OK = "Y";
 					}
 				}
 			}
 
-			// если права проверили то
 			if ($RIGHT_OK=="Y")
 			{
-				// символьный код поля
 				if (!$NEW_FORM_ID)
 				{
 					while(true)
 					{
-						// change: SID изменяем только если для старой формы. Требование уникальности снято.
 						$SID = $arField["SID"];
-						if (strlen($SID) > 44) $SID = substr($SID, 0, 44);
+						if (mb_strlen($SID) > 44) $SID = mb_substr($SID, 0, 44);
 						$SID .= "_".RandString(5);
 
 
@@ -228,8 +216,6 @@ class CAllFormField
 					$SID = $arField["SID"];
 				}
 
-
-				// копируем
 				$arFields = array(
 					"FORM_ID"				=> ($NEW_FORM_ID>0) ? $NEW_FORM_ID : $arField["FORM_ID"],
 					"ACTIVE"				=> $arField["ACTIVE"],
@@ -248,7 +234,6 @@ class CAllFormField
 					"RESULTS_TABLE_TITLE"	=> $arField["RESULTS_TABLE_TITLE"],
 					);
 
-				// картинка
 				if (intval($arField["IMAGE_ID"])>0)
 				{
 					$arIMAGE = CFile::MakeFileArray(CFile::CopyFile($arField["IMAGE_ID"]));
@@ -256,25 +241,21 @@ class CAllFormField
 					$arFields["arIMAGE"] = $arIMAGE;
 				}
 
-				// фильтр
 				$z = CFormField::GetFilterList($arField["FORM_ID"], Array("FIELD_ID" => $ID, "FIELD_ID_EXACT_MATCH" => "Y"));
 				while ($zr = $z->Fetch())
 				{
 					if ($arField["ADDITIONAL"]!="Y") $arFields["arFILTER_".$zr["PARAMETER_NAME"]][] = $zr["FILTER_TYPE"];
 					elseif ($zr["PARAMETER_NAME"]=="USER") $arFields["arFILTER_FIELD"][] = $zr["FILTER_TYPE"];
 				}
-				//echo "<pre>"; print_r($arFields); echo "</pre>";
 				$NEW_ID = CFormField::Set($arFields);
 				if (intval($NEW_ID)>0)
 				{
 					if ($arField["ADDITIONAL"]!="Y")
 					{
-						// ответы
 						$rsAnswer = CFormAnswer::GetList($ID, $by='ID', $order='ASC', array(), $is_filtered);
 						while ($arAnswer = $rsAnswer->Fetch())
 							CFormAnswer::Copy($arAnswer["ID"], $NEW_ID);
 
-						// валидаторы
 						$dbValidators = CFormValidator::GetList($ID, array(), $by='C_SORT', $order='ASC');
 						while ($arVal = $dbValidators->Fetch())
 						{
@@ -290,7 +271,6 @@ class CAllFormField
 		return false;
 	}
 
-	// удаляет вопрос/поле
 	function Delete($ID, $CHECK_RIGHTS="Y")
 	{
 		global $DB, $strError;
@@ -305,24 +285,19 @@ class CAllFormField
 			$F_RIGHT = ($CHECK_RIGHTS!="Y") ? 30 : CForm::GetPermission($WEB_FORM_ID);
 			if ($F_RIGHT>=30)
 			{
-				// очищаем результаты по данному полю
 				CFormField::Reset($ID, $CHECK_RIGHTS);
 				// clear field validators
 				CFormValidator::Clear($ID);
 
-				// удаляем изображения поля
 				$strSql = "SELECT IMAGE_ID FROM b_form_field WHERE ID='$ID' and IMAGE_ID>0";
 				$z = $DB->Query($strSql, false, $err_mess.__LINE__);
 				while ($zr = $z->Fetch())
 					CFile::Delete($zr["IMAGE_ID"]);
 
-				// удаляем варианты ответов на поле формы
 				$DB->Query("DELETE FROM b_form_answer WHERE FIELD_ID='$ID'", false, $err_mess.__LINE__);
 
-				// удаляем привязку к типам фильтра
 				$DB->Query("DELETE FROM b_form_field_filter WHERE FIELD_ID='$ID'", false, $err_mess.__LINE__);
 
-				// удаляем само поле
 				$DB->Query("DELETE FROM b_form_field WHERE ID='$ID'", false, $err_mess.__LINE__);
 
 				return true;
@@ -333,7 +308,6 @@ class CAllFormField
 		return false;
 	}
 
-	// обнуляем результаты по вопросу/полю
 	function Reset($ID, $CHECK_RIGHTS="Y")
 	{
 		global $DB, $strError;
@@ -348,7 +322,6 @@ class CAllFormField
 			$F_RIGHT = ($CHECK_RIGHTS!="Y") ? 30 : CForm::GetPermission($WEB_FORM_ID);
 			if ($F_RIGHT>=30)
 			{
-				// удаляем ответы по данному полю
 				$DB->Query("DELETE FROM b_form_result_answer WHERE FIELD_ID='".$ID."'", false, $err_mess.__LINE__);
 
 				return true;
@@ -445,14 +418,17 @@ class CAllFormField
 		if (is_array($arFilter))
 		{
 			$filter_keys = array_keys($arFilter);
-			for ($i=0; $i<count($filter_keys); $i++)
+			$keyCount = count($filter_keys);
+			for ($i=0; $i<$keyCount; $i++)
 			{
 				$key = $filter_keys[$i];
 				$val = $arFilter[$filter_keys[$i]];
-				if (strlen($val)<=0 || "$val"=="NOT_REF") continue;
-				if (is_array($val) && count($val)<=0) continue;
-				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys)) ? true : false;
-				$key = strtoupper($key);
+				if ((string)$val == '' || $val=="NOT_REF")
+					continue;
+				if (is_array($val) && empty($val))
+					continue;
+				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys));
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "FIELD_ID":
@@ -499,7 +475,6 @@ class CAllFormField
 		return $res;
 	}
 
-	// проверка вопроса/поля
 	function CheckFields(&$arFields, $FIELD_ID, $CHECK_RIGHTS="Y")
 	{
 		$err_mess = (CAllFormField::err_mess())."<br>Function: CheckFields<br>Line: ";
@@ -520,15 +495,15 @@ class CAllFormField
 
 			if ($RIGHT_OK=="Y")
 			{
-				if (strlen(trim($arFields["SID"]))>0) $arFields["VARNAME"] = $arFields["SID"];
-				elseif (strlen($arFields["VARNAME"])>0) $arFields["SID"] = $arFields["VARNAME"];
+				if (trim($arFields["SID"]) <> '') $arFields["VARNAME"] = $arFields["SID"];
+				elseif ($arFields["VARNAME"] <> '') $arFields["SID"] = $arFields["VARNAME"];
 
 				if ($FIELD_ID<=0 && !is_set($arFields, 'ADDITIONAL'))
 					$arFields['ADDITIONAL'] = 'N';
 
 				if ($FIELD_ID<=0 || ($FIELD_ID>0 && is_set($arFields, "SID")))
 				{
-					if (strlen(trim($arFields["SID"]))<=0) $str .= GetMessage("FORM_ERROR_FORGOT_SID")."<br>";
+					if (trim($arFields["SID"]) == '') $str .= GetMessage("FORM_ERROR_FORGOT_SID")."<br>";
 					if (preg_match("/[^A-Za-z_01-9]/",$arFields["SID"])) $str .= GetMessage("FORM_ERROR_INCORRECT_SID")."<br>";
 					else
 					{
@@ -562,10 +537,9 @@ class CAllFormField
 		}
 
 		$strError .= $str;
-		if (strlen($str)>0) return false; else return true;
+		if ($str <> '') return false; else return true;
 	}
 
-	// добавление/обновление вопроса/поля
 	function Set($arFields, $FIELD_ID=false, $CHECK_RIGHTS="Y", $UPDATE_FILTER="Y")
 	{
 		$err_mess = (CAllFormField::err_mess())."<br>Function: Set<br>Line: ";
@@ -575,8 +549,8 @@ class CAllFormField
 		{
 			$arFields_i = array();
 
-			if (strlen(trim($arFields["SID"]))>0) $arFields["VARNAME"] = $arFields["SID"];
-			elseif (strlen($arFields["VARNAME"])>0) $arFields["SID"] = $arFields["VARNAME"];
+			if (trim($arFields["SID"]) <> '') $arFields["VARNAME"] = $arFields["SID"];
+			elseif ($arFields["VARNAME"] <> '') $arFields["SID"] = $arFields["VARNAME"];
 
 			$arFields_i["TIMESTAMP_X"] = $DB->GetNowFunction();
 
@@ -619,13 +593,9 @@ class CAllFormField
 			if (is_set($arFields, "RESULTS_TABLE_TITLE"))
 				$arFields_i["RESULTS_TABLE_TITLE"] = "'".$DB->ForSql($arFields["RESULTS_TABLE_TITLE"],2000)."'";
 
-			// fcuk knows why he wrote it. maybe for some checking. but it's absolutely useless.
-			//$z = $DB->Query("SELECT IMAGE_ID FROM b_form_field WHERE ID='$FIELD_ID'", false, $err_mess.__LINE__);
-			//$zr = $z->Fetch();
-
-			if (strlen($arFields["arIMAGE"]["name"])>0 || strlen($arFields["arIMAGE"]["del"])>0)
+			if ($arFields["arIMAGE"]["name"] <> '' || $arFields["arIMAGE"]["del"] <> '')
 			{
-				if (!array_key_exists("MODULE_ID", $arFields["arIMAGE"]) || strlen($arFields["arIMAGE"]["MODULE_ID"]) <= 0)
+				if (!array_key_exists("MODULE_ID", $arFields["arIMAGE"]) || $arFields["arIMAGE"]["MODULE_ID"] == '')
 					$arFields["arIMAGE"]["MODULE_ID"] = "form";
 
 				$fid = CFile::SaveFile($arFields["arIMAGE"], "form");
@@ -648,7 +618,6 @@ class CAllFormField
 
 			if ($FIELD_ID>0)
 			{
-				// ответы на вопрос
 				if ($arFields["ADDITIONAL"]!="Y" && is_set($arFields, "arANSWER"))
 				{
 					$arANSWER = $arFields["arANSWER"];
@@ -665,7 +634,7 @@ class CAllFormField
 							if ($arA["DELETE"]=="Y" && $answer_id>0) CFormAnswer::Delete($answer_id, $FIELD_ID);
 							else
 							{
-								if ($answer_id>0 || ($answer_id<=0 && strlen($arA["MESSAGE"])>0))
+								if ($answer_id>0 || ($answer_id<=0 && $arA["MESSAGE"] <> ''))
 								{
 									$arFields_a = array(
 										"FIELD_ID"		=> $FIELD_ID,
@@ -678,7 +647,6 @@ class CAllFormField
 										"FIELD_HEIGHT"	=> $arA["FIELD_HEIGHT"],
 										"FIELD_PARAM"	=> $arA["FIELD_PARAM"],
 										);
-									//echo "<pre>"; print_r($arFields_a); echo "</pre>";
 									CFormAnswer::Set($arFields_a, $answer_id, $FIELD_ID);
 								}
 							}
@@ -686,12 +654,10 @@ class CAllFormField
 					}
 				}
 
-				// тип почтового события
 				CForm::SetMailTemplate(intval($arFields["FORM_ID"]),"N");
 
 				if ($UPDATE_FILTER == 'Y')
 				{
-					// фильтр
 					$in_filter="N";
 					$DB->Query("UPDATE b_form_field SET IN_FILTER='N' WHERE ID='".$FIELD_ID."'", false, $err_mess.__LINE__);
 					$arrFilterType = array(
@@ -733,6 +699,3 @@ class CAllFormField
 		return false;
 	}
 }
-
-
-?>

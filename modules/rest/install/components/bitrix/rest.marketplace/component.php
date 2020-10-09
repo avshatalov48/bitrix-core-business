@@ -23,6 +23,7 @@ $arDefaultUrlTemplates404 = array(
 	"buy" => "buy/",
 	"updates" => "updates/",
 	"installed" => "installed/",
+	"booklet" => "booklet/#CODE#/",
 );
 
 $arDefaultVariableAliases404 = array();
@@ -50,7 +51,7 @@ if($arParams["SEF_MODE"] == "Y")
 		$arVariables
 	);
 
-	if(strlen($componentPage) <= 0)
+	if($componentPage == '')
 	{
 		$componentPage = "category";
 	}
@@ -72,6 +73,7 @@ if($arParams["SEF_MODE"] == "Y")
 	$arParams["INSTALLED_URL"] = CComponentEngine::MakePathFromTemplate($arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["installed"], $arVariables);
 	$arParams["PLACEMENT_VIEW"] = CComponentEngine::MakePathFromTemplate($arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["placement_view"], $arVariables);
 	$arParams["PLACEMENT"] = CComponentEngine::MakePathFromTemplate($arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["placement"], $arVariables);
+	$arParams["BOOKLET"] = CComponentEngine::MakePathFromTemplate($arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["booklet"], $arVariables);
 
 	$arParams["CATEGORY_URL_TPL"] = $arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["category"];
 	$arParams["DETAIL_URL_TPL"] = $arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["detail"];
@@ -90,11 +92,11 @@ else
 	CComponentEngine::InitComponentVariables(false, $arComponentVariables, $arVariableAliases, $arVariables);
 
 	$componentPage = "";
-	if(strlen($arVariables["app"]) > 0)
+	if($arVariables["app"] <> '')
 	{
 		$componentPage = "detail";
 	}
-	elseif(strlen($arVariables["category"]) > 0)
+	elseif($arVariables["category"] <> '')
 	{
 		$componentPage = "category";
 	}
@@ -107,6 +109,29 @@ else
 		$arParams['DETAIL_URL_TPL'] = $APPLICATION->GetCurPageParam('app=#app#');
 	else
 		$arParams['DETAIL_URL_TPL'] = $APPLICATION->GetCurPageParam('app=#app#', array('IFRAME', 'IFRAME_TYPE'));
+}
+
+
+if (!empty($this->request->get('from')))
+{
+	$from = htmlspecialcharsbx($this->request->get('from'));
+	if (mb_strpos($arParams["DETAIL_URL_TPL"], '?') === false)
+	{
+		$arParams["DETAIL_URL_TPL"] .= '?from=' . $from;
+	}
+	else
+	{
+		$arParams["DETAIL_URL_TPL"] .= '&from=' . $from;
+	}
+
+	if (mb_strpos($arParams["CATEGORY_URL_TPL"], '?') === false)
+	{
+		$arParams["CATEGORY_URL_TPL"] .= '?from=' . $from;
+	}
+	else
+	{
+		$arParams["CATEGORY_URL_TPL"] .= '&from=' . $from;
+	}
 }
 
 if($componentPage == 'placement_view')

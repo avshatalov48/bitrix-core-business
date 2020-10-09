@@ -46,9 +46,9 @@ class CAllOption
 	public static function RemoveOption($module_id, $name="", $site=false)
 	{
 		$filter = array();
-		if (strlen($name) > 0)
+		if ($name <> '')
 			$filter["name"] = $name;
-		if (strlen($site) > 0)
+		if ($site <> '')
 			$filter["site_id"] = $site;
 		\Bitrix\Main\Config\Option::delete($module_id, $filter);
 	}
@@ -60,7 +60,7 @@ class CAllOption
 
 	public static function SetOptionInt($module_id, $name, $value="", $desc="", $site="")
 	{
-		return COption::SetOptionString($module_id, $name, IntVal($value), $desc, $site);
+		return COption::SetOptionString($module_id, $name, intval($value), $desc, $site);
 	}
 }
 
@@ -88,7 +88,7 @@ class CAllPageOption
 
 		if($site===false)
 			$site = SITE_ID;
-		if(strlen($site)<=0)
+		if($site == '')
 			$site = "-";
 
 		$MAIN_PAGE_OPTIONS[$site][$module_id][$name] = $value;
@@ -125,7 +125,7 @@ class CAllPageOption
 
 	public static function SetOptionInt($module_id, $name, $value="", $desc="", $site="")
 	{
-		return CPageOption::SetOptionString($module_id, $name, IntVal($value), $desc, $site);
+		return CPageOption::SetOptionString($module_id, $name, intval($value), $desc, $site);
 	}
 }
 ?>

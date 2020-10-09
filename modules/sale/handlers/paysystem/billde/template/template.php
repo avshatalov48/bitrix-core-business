@@ -198,7 +198,7 @@ foreach ($columnList as $column)
 	if ($params['BILLDE_COLUMN_'.$column.'_SHOW'] == 'Y')
 	{
 		$arCols[$column] = array(
-			'NAME' => $params['BILLDE_COLUMN_'.$column.'_TITLE'],
+			'NAME' => htmlspecialcharsbx($params['BILLDE_COLUMN_'.$column.'_TITLE']),
 			'SORT' => $params['BILLDE_COLUMN_'.$column.'_SORT']
 		);
 	}
@@ -209,7 +209,7 @@ if ($params['USER_COLUMNS'])
 	foreach ($params['USER_COLUMNS'] as $id => $val)
 	{
 		$arCols[$id] = array(
-			'NAME' => $val['NAME'],
+			'NAME' => htmlspecialcharsbx($val['NAME']),
 			'SORT' => $val['SORT']
 		);
 	}

@@ -16,30 +16,30 @@ function CheckFilter()
 {
 	global $FilterArr, $lAdmin;
 	foreach ($FilterArr as $f) global $$f;
-	if (strlen(trim($find_modified_1))>0 || strlen(trim($find_modified_2))>0)
+	if (trim($find_modified_1) <> '' || trim($find_modified_2) <> '')
 	{
 		$date_1_ok = false;
 		$date1_stm = MkDateTime(FmtDate($find_modified_1,"D.M.Y"),"d.m.Y");
 		$date2_stm = MkDateTime(FmtDate($find_modified_2,"D.M.Y")." 23:59","d.m.Y H:i");
-		if (!$date1_stm && strlen(trim($find_modified_1))>0)
+		if (!$date1_stm && trim($find_modified_1) <> '')
 			$lAdmin->AddFilterError(GetMessage("SU_AF_WRONG_UPDATE_FROM"));
 		else $date_1_ok = true;
-		if (!$date2_stm && strlen(trim($find_modified_2))>0)
+		if (!$date2_stm && trim($find_modified_2) <> '')
 			$lAdmin->AddFilterError(GetMessage("SU_AF_WRONG_UPDATE_TILL"));
-		elseif ($date_1_ok && $date2_stm <= $date1_stm && strlen($date2_stm)>0)
+		elseif ($date_1_ok && $date2_stm <= $date1_stm && $date2_stm <> '')
 			$lAdmin->AddFilterError(GetMessage("SU_AF_FROM_TILL_UPDATE"));
 	}
-	if (strlen(trim($find_last_used_1))>0 || strlen(trim($find_last_used_2))>0)
+	if (trim($find_last_used_1) <> '' || trim($find_last_used_2) <> '')
 	{
 		$date_1_ok = false;
 		$date1_stm = MkDateTime(FmtDate($find_last_used_1,"D.M.Y"),"d.m.Y");
 		$date2_stm = MkDateTime(FmtDate($find_last_used_2,"D.M.Y")." 23:59","d.m.Y H:i");
-		if (!$date1_stm && strlen(trim($find_last_used_1))>0)
+		if (!$date1_stm && trim($find_last_used_1) <> '')
 			$lAdmin->AddFilterError(GetMessage("SU_AF_WRONG_INSERT_FROM"));
 		else $date_1_ok = true;
-		if (!$date2_stm && strlen(trim($find_last_used_2))>0)
+		if (!$date2_stm && trim($find_last_used_2) <> '')
 			$lAdmin->AddFilterError(GetMessage("SU_AF_WRONG_INSERT_TILL"));
-		elseif ($date_1_ok && $date2_stm <= $date1_stm && strlen($date2_stm)>0)
+		elseif ($date_1_ok && $date2_stm <= $date1_stm && $date2_stm <> '')
 			$lAdmin->AddFilterError(GetMessage("SU_AF_FROM_TILL_INSERT"));
 	}
 	return count($lAdmin->arFilterErrors)==0;
@@ -59,17 +59,17 @@ $lAdmin->InitFilter($FilterArr);
 if (CheckFilter())
 {
 	$arFilter = Array();
-	if (strlen($find_modified_1) > 0)
+	if ($find_modified_1 <> '')
 		$arFilter["MODIFIED_1"]	= $find_modified_1;
-	if (strlen($find_modified_2) > 0)
+	if ($find_modified_2 <> '')
 		$arFilter["MODIFIED_2"]	= $find_modified_2;
-	if (strlen($find_last_used_1) > 0)
+	if ($find_last_used_1 <> '')
 		$arFilter["LAST_USED_1"] = $find_last_used_1;
-	if (strlen($find_last_used_2) > 0)
+	if ($find_last_used_2 <> '')
 		$arFilter["LAST_USED_2"] = $find_last_used_2;
-	if (strlen($find_uri) > 0)
+	if ($find_uri <> '')
 		$arFilter["URI"] = $find_uri;
-	if (strlen($find_short_uri) > 0)
+	if ($find_short_uri <> '')
 		$arFilter["SHORT_URI"] = $find_short_uri;
 }
 
@@ -80,7 +80,7 @@ if($lAdmin->EditAction() && $isAdmin)
 		if(!$lAdmin->IsUpdated($ID))
 			continue;
 		$DB->StartTransaction();
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		if(!CBXShortUri::Update($ID, $arFields))
 		{
@@ -104,9 +104,9 @@ if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		switch($_REQUEST['action'])
 		{
 		case "delete":

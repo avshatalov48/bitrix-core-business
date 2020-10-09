@@ -24,7 +24,9 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/prolog.php");
 $request = \Bitrix\Main\Context::getCurrent()->getRequest();
 $VOTE_RIGHT = $APPLICATION->GetGroupRight("vote");
 if ($VOTE_RIGHT <= "D")
+{
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+}
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/include.php");
 
@@ -41,6 +43,7 @@ $db_res = \Bitrix\Vote\Channel::getList(array(
 	),
 	'group' => array("ID")
 ));
+
 $arChannels = array();
 $arChannelsTitle = array();
 if ($db_res && $res = $db_res->GetNext())
@@ -53,7 +56,9 @@ if ($db_res && $res = $db_res->GetNext())
 }
 $channelsToAdmin = array();
 if ($VOTE_RIGHT >= "W")
+{
 	$channelsToAdmin = array_keys($arChannels);
+}
 else
 {
 	$db_res = \Bitrix\Vote\Channel::getList(array(
@@ -74,6 +79,8 @@ else
 		$channelsToAdmin[] = $res["ID"];
 	}
 }
+
+// region Filter and sorting
 $arFilterFields = Array(
 	"find_id",
 	"find_id_exact_match",
@@ -93,118 +100,95 @@ $arFilterFields = Array(
 	"find_counter_1",
 	"find_counter_2");
 $arFilter = ($VOTE_RIGHT < "W" ? array("@CHANNEL_ID" => array_keys($arChannels)) : array());
-$lAdmin->InitFilter($arFilterFields);
-global $by, $order;
-/********************************************************************
-				Functions
-********************************************************************/
-function CheckFilter()
+$filter = $lAdmin->InitFilter($arFilterFields);
+if (is_array($filter))
 {
-	global $lAdmin;
-	$bGotErr = false;
-
-	$request = \Bitrix\Main\Context::getCurrent()->getRequest();
-	$find_date_start_1 = trim($request->getQuery("find_date_start_1"));
-	$find_date_start_2 = trim($request->getQuery("find_date_start_2"));
-	$find_date_end_1 = trim($request->getQuery("find_date_end_1"));
-	$find_date_end_2 = trim($request->getQuery("find_date_end_2"));
-
-	if (strlen($find_date_start_1)>0 || strlen($find_date_start_2)>0)
+	foreach (array("ACTIVE", "CHANNEL_ID") as $k)
 	{
-		// start date
-		$date_start_1_stm = MkDateTime(ConvertDateTime($find_date_start_1,"D.M.Y"),"d.m.Y");
-		$date_start_2_stm = MkDateTime(ConvertDateTime($find_date_start_2,"D.M.Y")." 23:59:59","d.m.Y H:i:s");
-		if (!$date_start_1_stm && strlen(trim($find_date_start_1))>0)
+		$key = "find_".mb_strtolower($k);
+		if (array_key_exists($key, $filter) && strlen($filter[$key]) > 0)
 		{
-			$bGotErr = true;
-			$lAdmin->AddUpdateError(GetMessage("VOTE_WRONG_START_DATE_FROM"));
-		}
-
-		if (!$date_start_2_stm && strlen(trim($find_date_start_2))>0)
-		{
-			$bGotErr = true;
-			$lAdmin->AddUpdateError(GetMessage("VOTE_WRONG_START_DATE_TILL"));
-		}
-		if (!$bGotErr && $date_start_2_stm <= $date_start_1_stm && strlen($date_start_2_stm)>0)
-		{
-			$bGotErr = true;
-			$lAdmin->AddUpdateError(GetMessage("VOTE_WRONG_START_FROM_TILL"));
+			$arFilter[$k] = $filter[$key];
 		}
 	}
-
-	if (strlen($find_date_end_1)>0 || strlen($find_date_end_2)>0)
+	foreach (array("ID", "TITLE", "DESCRIPTION") as $k)
 	{
-		// end date
-		$date_end_1_stm = MkDateTime(ConvertDateTime($find_date_end_1,"D.M.Y"),"d.m.Y");
-		$date_end_2_stm = MkDateTime(ConvertDateTime($find_date_end_2,"D.M.Y")." 23:59:59","d.m.Y H:i:s");
-		if (!$date_end_1_stm && strlen(trim($find_date_end_1))>0)
+		$key = "find_".mb_strtolower($k);
+		if (array_key_exists($key, $filter) && strlen($filter[$key]) > 0)
 		{
-			$bGotErr = true;
-			$lAdmin->AddUpdateError(GetMessage("VOTE_WRONG_END_DATE_FROM"));
-		}
-		if (!$date_end_2_stm && strlen(trim($find_date_end_2))>0)
-		{
-			$bGotErr = true;
-			$lAdmin->AddUpdateError(GetMessage("VOTE_WRONG_END_DATE_TILL"));
-		}
-		if (!$bGotErr && $date_end_2_stm <= $date_end_1_stm && strlen($date_end_2_stm)>0)
-		{
-			$bGotErr = true;
-			$lAdmin->AddUpdateError(GetMessage("VOTE_WRONG_END_FROM_TILL"));
+			$arFilter[($filter[$key."_exact_match"] === "Y" ? "" : "%").$k] = $filter[$key];
 		}
 	}
+	foreach (array("COUNTER", "DATE_START", "DATE_END") as $k)
+	{
+		$key = "find_".mb_strtolower($k);
+		$startKey = $key."_1";
+		if (array_key_exists($startKey, $filter) && strlen($filter[$startKey]) > 0)
+		{
+			$arFilter[">=".$k] = $filter[$startKey];
+		}
+		$endKey = $key."_2";
+		if (array_key_exists($endKey, $filter) && strlen($filter[$endKey]) > 0)
+		{
+			$arFilter["<=".$k] = $filter[$endKey];
+		}
+	}
+	if (array_key_exists("find_channel", $filter) && strlen($filter["find_channel"]) > 0)
+	{
+		$prefix = $filter["find_channel_exact_match"] === "Y" ? "" : "%";
+		$arFilter[] = [
+			"LOGIC" => "OR",
+			$prefix."CHANNEL.TITLE" => $filter["find_channel"],
+			$prefix."CHANNEL.SYMBOLIC_NAME" => $filter["find_channel"],
+		];
+	}
 
-	return ($bGotErr ? false : true);
+	if (array_key_exists("find_lamp", $filter))
+	{
+		$now = new \Bitrix\Main\Type\DateTime();
+		if ($filter["find_lamp"] == "red")
+		{
+			$arFilter[] = [
+				"LOGIC" => "OR",
+				"!=ACTIVE" => "Y",
+				">DATE_START" => $now,
+				"<DATE_END" => $now,
+			];
+		}
+		else if ($filter["find_lamp"] == "green")
+		{
+			$arFilter[] = [
+				"LOGIC" => "AND",
+				"ACTIVE" => "Y",
+				"<DATE_START" => $now,
+				">DATE_END" => $now,
+			];
+		}
+	}
 }
-
+global $by, $order;
+if (!(strlen($by) > 0))
+{
+	$by = "id";
+	$order = "asc";
+}
+$listOrder = [mb_strtoupper($by) => $order === "desc" ? "DESC" : "ASC"];
+//endregion
+// region Actions
 /********************************************************************
-				ACTIONS
+		ACTIONS
 ********************************************************************/
-if (intval($request->getQuery("reset_id")) > 0 && $VOTE_RIGHT >= "W" && check_bitrix_sessid()):
+// region Reset action
+if (intval($request->getQuery("reset_id")) > 0 && $VOTE_RIGHT >= "W" && check_bitrix_sessid())
+{
 	CVote::Reset($request->getQuery("reset_id"));
 	$url = (new \Bitrix\Main\Web\Uri($request->getRequestUri()))
 		->deleteParams(array("reset_id", "sessid"))
 		->getLocator();
 	LocalRedirect($url);
-endif;
-
-if (CheckFilter() && $request->getQuery("del_filter") != "Y")
-{
-	if ($request->getQuery("find_id"))
-	{
-		$m = ($request->getQuery("find_id_exact_match") == "Y" ? "" : "%");
-		$arFilter[($request->getQuery("find_id_exact_match") == "Y" ? "" : "~")."ID"] = $m.$request->getQuery("find_id").$m;
-	}
-	foreach (array("CHANNEL", "TITLE", "DESCRIPTION") as $k)
-	{
-		$n = strtolower($k);
-		if ($request->getQuery("find_".$n))
-		{
-			$arFilter[$k] = $request->getQuery("find_".$n);
-			if ($request->getQuery("ajax_post") == "Y")
-				CUtil::decodeURIComponent($arFilter[$k]);
-			$arFilter[$k."_EXACT_MATCH"] = $request->getQuery("find_".$n."_exact_match");
-		}
-	}
-	if ($request->getQuery("find_active"))
-		$arFilter["ACTIVE"] = $request->getQuery("find_active");
-	if ($request->getQuery("find_date_start_1"))
-		$arFilter[">=DATE_START"] = $request->getQuery("find_date_start_1");
-	if ($request->getQuery("find_date_start_2"))
-		$arFilter["<=DATE_START"] = $request->getQuery("find_date_start_2");
-	if ($request->getQuery("find_date_end_1"))
-		$arFilter[">=DATE_END"] = $request->getQuery("find_date_end_1");
-	if ($request->getQuery("find_date_end_2"))
-		$arFilter["<=DATE_END"] = $request->getQuery("find_date_end_2");
-	if ($request->getQuery("find_lamp"))
-		$arFilter["LAMP"] = $request->getQuery("find_lamp");
-	if ($request->getQuery("find_channel_id") > 0)
-		$arFilter["CHANNEL_ID"] = $request->getQuery("find_channel_id");
-	if ($request->getQuery("find_counter_1"))
-		$arFilter[">=COUNTER"] = $request->getQuery("find_counter_1");
-	if ($request->getQuery("find_counter_2"))
-		$arFilter["<=COUNTER"] = $request->getQuery("find_counter_2");
 }
+//endregion
+//region Edit single vote
 if ($lAdmin->EditAction() && $VOTE_RIGHT >= "W" && check_bitrix_sessid())
 {
 	$FIELDS = $request->getPost("FIELDS");
@@ -226,15 +210,20 @@ if ($lAdmin->EditAction() && $VOTE_RIGHT >= "W" && check_bitrix_sessid())
 		endif;
 	}
 }
-// Group actions
+//endregion
+//region Group actions
 if(($arID = $lAdmin->GroupAction()) && $VOTE_RIGHT>="W" && check_bitrix_sessid())
 {
-	if($_REQUEST['action_target'] == 'selected')
+	if ($request->get("action_target") == 'selected')
 	{
 		$arID = array();
-		$rsData = CVote::GetListEx(array($by => $order), $arFilter);
-		while ($arRes = $rsData->fetch())
-			$arID[] = $arRes['ID'];
+		$dbRes = \Bitrix\Vote\VoteTable::getList(array(
+			"select" => ["ID"],
+			"filter" => $arFilter,
+			"order" => $listOrder,
+		));
+		while ($res = $dbRes->fetch())
+			$arID[] = $res["ID"];
 	}
 	$arID = (is_array($arID) ? $arID : array($arID));
 	foreach($arID as $ID)
@@ -242,14 +231,14 @@ if(($arID = $lAdmin->GroupAction()) && $VOTE_RIGHT>="W" && check_bitrix_sessid()
 		$ID = intval($ID);
 		if ($ID <= 0)
 			continue;
-		switch($_REQUEST['action'])
+		switch ($request->get("action"))
 		{
 			case "delete":
 				CVote::Delete($ID);
 			break;
 			case "activate":
 			case "deactivate":
-				if (!CVote::Update($ID, array("ACTIVE" => ($_REQUEST['action'] == "activate"? "Y" : "N")))):
+				if (!CVote::Update($ID, array("ACTIVE" => ($request->get("action") == "activate"? "Y" : "N")))):
 					if ($ex = $APPLICATION->GetException())
 						$lAdmin->AddGroupError($ex->GetString(), $ID);
 					else
@@ -259,15 +248,22 @@ if(($arID = $lAdmin->GroupAction()) && $VOTE_RIGHT>="W" && check_bitrix_sessid()
 		}
 	}
 }
+//endregion Group actions
 /********************************************************************
 		/ACTIONS
  ********************************************************************/
+//endregion Actions
+
 
 /********************************************************************
 		Data
  ********************************************************************/
-$rsData = CVote::GetListEx(array($by => $order), $arFilter);
-$rsData = new CAdminResult($rsData, $sTableID);
+$dbRes = \Bitrix\Vote\VoteTable::getList(array(
+	"select" => ["*", "USER_" => "USER.*", "LAMP"],
+	"filter" => $arFilter,
+	"order" => $listOrder,
+));
+$rsData = new CAdminResult($dbRes, $sTableID);
 $rsData->NavStart();
 $lAdmin->NavText($rsData->GetNavPrint(GetMessage("VOTE_PAGES")));
 $lAdmin->AddHeaders(array(
@@ -282,7 +278,7 @@ $lAdmin->AddHeaders(array(
 	array("id"=>"C_SORT", "content"=>GetMessage("VOTE_C_SORT"), "sort"=>"c_sort", "default"=>false),
 	array("id"=>"COUNTER", "content"=>GetMessage("VOTE_COUNTER"), "sort"=>"counter", "default"=>true),
 ));
-
+$today = new \Bitrix\Main\Type\DateTime();
 while($res = $rsData->fetch())
 {
 	$row =& $lAdmin->AddRow($res["ID"], $res);
@@ -298,7 +294,7 @@ while($res = $rsData->fetch())
 		if ($res["AUTHOR_ID"] > 0)
 			$row->AddViewField("AUTHOR_ID",
 				"[<a href=\"user_edit.php?lang=".LANGUAGE_ID."&ID={$res["AUTHOR_ID"]}\">".htmlspecialcharsbx($res["AUTHOR_ID"])."</a>]".
-				"&nbsp;(".htmlspecialcharsbx($res["LOGIN"]).") ".htmlspecialcharsbx($res["AUTH_USER_NAME"]));
+				"&nbsp;(".htmlspecialcharsbx($res["USER_LOGIN"]).") ".htmlspecialcharsbx($res["USER_LAST_NAME"]." ".$res["USER_NAME"]));
 
 		if ($res["COUNTER"] > 0)
 			$row->AddViewField("COUNTER",
@@ -342,14 +338,33 @@ while($res = $rsData->fetch())
 		$arActions[] = array("DEFAULT"=>"Y", "ICON"=>"read", "TEXT"=>GetMessage("VOTE_RESULTS"), "ACTION"=>$lAdmin->ActionRedirect("vote_results.php?lang=".LANGUAGE_ID."&VOTE_ID={$res["ID"]}"));
 	}
 	$row->AddActions($arActions);
-
 	$lamp = $res["LAMP"];
 	if ($res["LAMP"] == "yellow")
+	{
 		$res["LAMP"] = ($res["ID"] == CVote::GetActiveVoteId($res["CHANNEL_ID"]) ? "green" : "red");
+	}
 	if ($res["LAMP"] == "green")
+	{
 		$lamp = "<div class=\"lamp-green\" title=\"".GetMessage("VOTE_LAMP_ACTIVE")."\"></div>";
+	}
 	elseif ($res["LAMP"] == "red")
-		$lamp = "<div class=\"lamp-red\" title=\"".($res["ACTIVE"] != 'Y' ? GetMessage("VOTE_NOT_ACTIVE") : GetMessage("VOTE_ACTIVE_RED_LAMP"))."\"></div>";
+	{
+		$title = GetMessage("VOTE_ACTIVE_RED_LAMP");
+		if ($res["ACTIVE"] != "Y")
+		{
+			$title = GetMessage("VOTE_NOT_ACTIVE");
+		}
+		else if ($res["DATE_END"] < $today)
+		{
+			$title = GetMessage("VOTE_ACTIVE_RED_LAMP_EXPIRED");
+		}
+		else if ($res["DATE_START"] > $today)
+		{
+			$title = GetMessage("VOTE_ACTIVE_RED_LAMP_UPCOMING");
+		}
+		$lamp = "<div class=\"lamp-red\" title=\"{$title}\"></div>";
+	}
+
 
 	$row->AddViewField("LAMP", $lamp);
 }

@@ -189,7 +189,7 @@ final class Manager
 	{
 		$result = null;
 
-		if(strlen($ip) <= 0)
+		if($ip == '')
 			$ip = self::getRealIp();
 
 		self::$data[$ip] = self::getFromStore($ip);
@@ -203,7 +203,7 @@ final class Manager
 				{
 					if(empty($required) || self::hasDataAllRequiredFields($required, $data))
 					{
-						if(strlen($lang) <= 0 || $data->lang == $lang)
+						if($lang == '' || $data->lang == $lang)
 						{
 							$result = new Result();
 							$result->setGeoData($data);
@@ -232,7 +232,7 @@ final class Manager
 				if(!$handler->isActive())
 					continue;
 
-				if(strlen($lang) > 0)
+				if($lang <> '')
 					if(!in_array($lang, $handler->getSupportedLanguages()))
 						continue;
 
@@ -282,12 +282,12 @@ final class Manager
 	{
 		$name = self::getStoreVarName();
 
-		if(!isset($_SESSION[$name][$ip]) || !is_array($_SESSION[$name][$ip]))
+		if(!isset(\Bitrix\Main\Application::getInstance()->getSession()[$name][$ip]) || !is_array(\Bitrix\Main\Application::getInstance()->getSession()[$name][$ip]))
 		{
 			return false;
 		}
 
-		$storedData = $_SESSION[$name][$ip];
+		$storedData = \Bitrix\Main\Application::getInstance()->getSession()[$name][$ip];
 		$result = array();
 
 		foreach($storedData as $class => $data)
@@ -322,12 +322,12 @@ final class Manager
 					$storedData[$class][$attr] = $value;
 		}
 
-		if(!is_array($_SESSION[self::getStoreVarName()]))
+		if(!is_array(\Bitrix\Main\Application::getInstance()->getSession()[self::getStoreVarName()]))
 		{
-			$_SESSION[self::getStoreVarName()] = [];
+			\Bitrix\Main\Application::getInstance()->getSession()[self::getStoreVarName()] = [];
 		}
 
-		$_SESSION[self::getStoreVarName()][$ip] = $storedData;
+		\Bitrix\Main\Application::getInstance()->getSession()[self::getStoreVarName()][$ip] = $storedData;
 	}
 
 	/**

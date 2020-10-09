@@ -550,7 +550,7 @@ SQL
 					foreach ($answerIds as $answerId => $message)
 					{
 						$message = trim($message);
-						if (strlen($message) > 0)
+						if ($message <> '')
 						{
 							$data["MESSAGE"][$qId] = is_array($data["MESSAGE"][$qId]) ? $data["MESSAGE"][$qId] : [];
 							$data["MESSAGE"][$qId][$answerId] = $message;
@@ -587,7 +587,7 @@ SQL
 					foreach($message[$question["ID"]] as $id => $value)
 					{
 						$value = trim($value);
-						if (strlen($value) > 0)
+						if ($value <> '')
 						{
 							$answers[$id] = true;
 						}
@@ -691,7 +691,7 @@ SQL
 			{
 				$sqlAnswers[$questionId][$answerId] = array(
 					"ANSWER_ID" => $answerId,
-					"MESSAGE" => is_string($value) ? substr($value, 0, 2000) : "");
+					"MESSAGE" => is_string($value)? mb_substr($value, 0, 2000) : "");
 			}
 		}
 

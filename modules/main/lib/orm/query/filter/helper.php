@@ -44,7 +44,7 @@ class Helper
 				$andValues,
 				function($val) use ($ftMinTokenSize)
 				{
-					return (strlen($val) >= $ftMinTokenSize);
+					return (mb_strlen($val) >= $ftMinTokenSize);
 				}
 			);
 
@@ -86,7 +86,7 @@ class Helper
 		static $encoding = null;
 		if($encoding === null)
 		{
-			$encoding = strtolower(\Bitrix\Main\Context::getCurrent()->getCulture()->getCharset());
+			$encoding = mb_strtolower(\Bitrix\Main\Context::getCurrent()->getCulture()->getCharset());
 		}
 
 		if($encoding <> "utf-8")

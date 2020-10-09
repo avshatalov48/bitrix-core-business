@@ -188,7 +188,7 @@ elseif($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_LIST)
 			$fullValue = $shortValue = $item['VALUE'];
 			$valueTitle = '';
 
-			if(strlen($item['~VALUE']) > EnumUfComponent::MAX_OPTION_LENGTH)
+			if(mb_strlen($item['~VALUE']) > EnumUfComponent::MAX_OPTION_LENGTH)
 			{
 				$textParser = new CTextParser();
 				$shortValue = HtmlFilter::encode($textParser->html_cut($item['~VALUE'], EnumUfComponent::MAX_OPTION_LENGTH));

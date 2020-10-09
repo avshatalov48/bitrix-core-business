@@ -10,7 +10,7 @@
 import {Vue} from "ui.vue";
 import {Vuex} from "ui.vue.vuex";
 import {Logger} from "im.lib.logger";
-import {CallStateType, CallErrorCode} from "im.const";
+import {CallStateType, CallErrorCode, EventType} from "im.const";
 
 //global components
 import "im.view.textarea";
@@ -55,8 +55,8 @@ Vue.component('bx-im-component-call',
 			if (newValue === true)
 			{
 				this.$nextTick(() => {
-					this.$root.$emit('focusTextarea');
-					this.$root.$emit('scrollDialog');
+					this.$root.$emit(EventType.textarea.focus);
+					this.$root.$emit(EventType.dialog.scrollToBottom);
 				});
 			}
 
@@ -77,6 +77,7 @@ Vue.component('bx-im-component-call',
 	},
 	computed:
 	{
+		EventType: () => EventType,
 		userId()
 		{
 			return this.application.common.userId;
@@ -252,7 +253,7 @@ Vue.component('bx-im-component-call',
 		},
 		onSmilesSelectSmile(event)
 		{
-			this.$root.$emit('insertText', { text: event.text });
+			this.$root.$emit(EventType.textarea.insertText, { text: event.text });
 		},
 		onSmilesSelectSet(event)
 		{
@@ -321,7 +322,6 @@ Vue.component('bx-im-component-call',
 							<bx-im-component-dialog
 								:userId="userId"
 								:dialogId="dialogId"
-								listenEventScrollToBottom="scrollDialog"
 							/>
 							<keep-alive include="bx-im-component-call-smiles">
 								<template v-if="callApplication.common.showSmiles">
@@ -337,8 +337,9 @@ Vue.component('bx-im-component-call',
 									:enableCommand="false"
 									:enableMention="false"
 									:autoFocus="true"
-									listenEventFocus="focusTextarea"
-									listenEventInsertText="insertText"
+									:listenEventInsertText="EventType.textarea.insertText"
+									:listenEventFocus="EventType.textarea.focus"
+									:listenEventBlur="EventType.textarea.blur"
 									@send="onTextareaSend"
 									@fileSelected="onTextareaFileSelected"
 									@writes="onTextareaWrites"

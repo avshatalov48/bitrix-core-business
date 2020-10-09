@@ -150,7 +150,7 @@ class Structure
 	 */
 	public function saveFile($id, $additionalData = [])
 	{
-		$id = intVal($id);
+		$id = intval($id);
 		$files = $this->getFileList();
 		if(!is_array($files))
 		{
@@ -214,7 +214,7 @@ class Structure
 					$saveFiles = [];
 					foreach ($files as $file)
 					{
-						$id = intVal($file['ID']);
+						$id = intval($file['ID']);
 						if($id > 0 && File::isFileExists($folder.Helper::STRUCTURE_FILES_NAME.'/'.$id))
 						{
 							$file['PATH'] = $folder.Helper::STRUCTURE_FILES_NAME.'/'.$id;

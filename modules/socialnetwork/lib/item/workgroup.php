@@ -106,6 +106,36 @@ class Workgroup
 		);
 	}
 
+	public function isScrumProject(): bool
+	{
+		return (!empty($this->fields['SCRUM_OWNER_ID']));
+	}
+
+	public function getDefaultSprintDuration(): int
+	{
+		return ($this->fields['SCRUM_SPRINT_DURATION'] ? $this->fields['SCRUM_SPRINT_DURATION'] : 0);
+	}
+
+	public function getScrumMaster(): int
+	{
+		return ($this->fields['SCRUM_MASTER_ID'] ? $this->fields['SCRUM_MASTER_ID'] : 0);
+	}
+
+	public static function getListSprintDuration(): array
+	{
+		$oneWeek = \DateInterval::createFromDateString('1 week')->format('%d') * 86400;
+		$twoWeek = \DateInterval::createFromDateString('2 weeks')->format('%d') * 86400;
+		$threeWeek = \DateInterval::createFromDateString('3 weeks')->format('%d') * 86400;
+		$fourWeek = \DateInterval::createFromDateString('4 weeks')->format('%d') * 86400;
+
+		return [
+			$oneWeek => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_SCRUM_SPRINT_DURATION_ONE_WEEK'),
+			$twoWeek => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_SCRUM_SPRINT_DURATION_TWO_WEEK'),
+			$threeWeek => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_SCRUM_SPRINT_DURATION_THREE_WEEK'),
+			$fourWeek => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_SCRUM_SPRINT_DURATION_FOUR_WEEK'),
+		];
+	}
+
 	private static function getSubDepartments($departmentList = array())
 	{
 		$result = array();
@@ -490,6 +520,7 @@ class Workgroup
 		);
 
 		$result = [];
+		$sort = 0;
 
 		if (
 			$intranetInstalled
@@ -502,7 +533,7 @@ class Workgroup
 			if (!$currentExtranetSite)
 			{
 				$result['project-open'] = array(
-					'SORT' => '10',
+					'SORT' => $sort = $sort + 10,
 					'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_OPEN'),
 					'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_OPEN_DESC'),
 					'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_OPEN_DESC2'),
@@ -513,7 +544,7 @@ class Workgroup
 					'TILE_CLASS' => 'social-group-tile-item-cover-open social-group-tile-item-icon-project-open'
 				);
 				$result['project-closed'] = array(
-					'SORT' => '20',
+					'SORT' => $sort = $sort + 10,
 					'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_CLOSED'),
 					'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_CLOSED_DESC'),
 					'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_CLOSED_DESC'),
@@ -523,10 +554,25 @@ class Workgroup
 					'EXTERNAL' => 'N',
 					'TILE_CLASS' => 'social-group-tile-item-cover-close social-group-tile-item-icon-project-close'
 				);
+				if (Option::get('tasks', 'tasks_scrum_enabled', 'N') === 'Y')
+				{
+					$result['project-scrum'] = [
+						'SORT' => $sort = $sort + 10,
+						'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_SCRUM'),
+						'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_SCRUM_DESC'),
+						'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_SCRUM_DESC'),
+						'VISIBLE' => 'N',
+						'OPENED' => 'N',
+						'PROJECT' => 'Y',
+						'SCRUM_PROJECT' => 'Y',
+						'EXTERNAL' => 'N',
+						'TILE_CLASS' => 'social-group-tile-item-cover-scrum social-group-tile-item-icon-project-scrum'
+					];
+				}
 				if ($fullMode)
 				{
 					$result['project-closed-visible'] = array(
-						'SORT' => '20',
+						'SORT' => $sort = $sort + 10,
 						'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_CLOSED_VISIBLE'),
 						'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_CLOSED_VISIBLE_DESC'),
 						'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_CLOSED_VISIBLE_DESC'),
@@ -542,7 +588,7 @@ class Workgroup
 			if ($extranetInstalled)
 			{
 				$result['project-external'] = array(
-					'SORT' => '30',
+					'SORT' => $sort = $sort + 10,
 					'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_EXTERNAL'),
 					'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_EXTERNAL_DESC'),
 					'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_EXTERNAL_DESC'),
@@ -564,7 +610,7 @@ class Workgroup
 		)
 		{
 			$result['group-open'] = array(
-				'SORT' => '40',
+				'SORT' => $sort = $sort + 10,
 				'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_OPEN'),
 				'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_OPEN_DESC'),
 				'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_OPEN_DESC2'),
@@ -575,7 +621,7 @@ class Workgroup
 				'TILE_CLASS' => 'social-group-tile-item-cover-open social-group-tile-item-icon-group-open'
 			);
 			$result['group-closed'] = array(
-				'SORT' => '40',
+				'SORT' => $sort = $sort + 10,
 				'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED'),
 				'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED_DESC'),
 				'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED_DESC'),
@@ -588,7 +634,7 @@ class Workgroup
 			if ($fullMode)
 			{
 				$result['group-closed-visible'] = array(
-					'SORT' => '40',
+					'SORT' => $sort = $sort + 10,
 					'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED_VISIBLE'),
 					'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED_VISIBLE_DESC'),
 					'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_CLOSED_VISIBLE_DESC'),
@@ -610,7 +656,7 @@ class Workgroup
 		)
 		{
 			$result['group-external'] = array(
-				'SORT' => '40',
+				'SORT' => $sort = $sort + 10,
 				'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_EXTERNAL'),
 				'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_EXTERNAL_DESC'),
 				'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_EXTERNAL_DESC'),
@@ -631,7 +677,7 @@ class Workgroup
 		)
 		{
 			$result['group-landing'] = array(
-				'SORT' => '50',
+				'SORT' => $sort = $sort + 10,
 				'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING'),
 				'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING_DESC'),
 				'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING_DESC'),
@@ -1083,7 +1129,7 @@ class Workgroup
 				WHEN 
 					(
 						%s NOT IN (\''.FeaturePermTable::PERM_OWNER.'\', \''.FeaturePermTable::PERM_MODERATOR.'\', \''.FeaturePermTable::PERM_USER.'\')
-						OR %s <= %s
+						OR %s >= %s
 					) THEN \'Y\' 
 					ELSE \'N\' 
 			END',

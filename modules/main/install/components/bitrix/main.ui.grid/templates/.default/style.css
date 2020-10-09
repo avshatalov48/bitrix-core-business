@@ -1798,7 +1798,7 @@ label.main-grid-checkbox {
 
 .main-grid-editor.main-grid-editor-money-currency {
 	cursor: pointer;
-	width: 35px;
+	width: 36px;
 	height: 100%;
 	color: #80868E;
 	font-size: 13px;
@@ -1832,7 +1832,7 @@ label.main-grid-checkbox {
 	margin: 1px 7px 0 0;
 	height: 18px;
 	line-height: 19px;
-	font-size: 13px;
+	font-size: 14px;
 	-o-text-overflow: clip;
 	   text-overflow: clip;
 }

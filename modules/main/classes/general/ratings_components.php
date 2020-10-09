@@ -130,7 +130,7 @@ class CAllRatingsComponentsMain
 	{
 		if ($arParams['ENTITY_TYPE_ID'] == 'USER')
 		{
-			return IntVal($arParams['ENTITY_ID']);
+			return intval($arParams['ENTITY_ID']);
 		}
 		return false;
 	}
@@ -150,7 +150,7 @@ class CAllRatingsComponentsMain
 	{
 		Loc::loadLanguageFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/install/js/main/rating/config.php');
 
-		$emotion = strtoupper($emotion);
+		$emotion = mb_strtoupper($emotion);
 
 		return (
 			empty($emotion)

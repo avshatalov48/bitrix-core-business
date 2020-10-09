@@ -47,21 +47,21 @@ function CheckFilter() // проверка введенных полей
 	global $strError, $find_timestamp_1, $find_timestamp_2;
 	$str = "";
 
-	if (strlen(trim($find_timestamp_1))>0 || strlen(trim($find_timestamp_2))>0)
+	if (trim($find_timestamp_1) <> '' || trim($find_timestamp_2) <> '')
 	{
 		$date_1_ok = false;
 		$date1_stm = MkDateTime(FmtDate($find_timestamp_1,"D.M.Y"),"d.m.Y");
 		$date2_stm = MkDateTime(FmtDate($find_timestamp_2,"D.M.Y")." 23:59","d.m.Y H:i");
-		if (!$date1_stm && strlen(trim($find_timestamp_1))>0)
+		if (!$date1_stm && trim($find_timestamp_1) <> '')
 			$str.= GetMessage("MAIN_WRONG_DATE_FROM")."<br>";
 		else $date_1_ok = true;
-		if (!$date2_stm && strlen(trim($find_timestamp_2))>0)
+		if (!$date2_stm && trim($find_timestamp_2) <> '')
 			$str.= GetMessage("MAIN_WRONG_DATE_TILL")."<br>";
-		elseif ($date_1_ok && $date2_stm <= $date1_stm && strlen($date2_stm)>0)
+		elseif ($date_1_ok && $date2_stm <= $date1_stm && $date2_stm <> '')
 			$str.= GetMessage("MAIN_FROM_TILL_DATE")."<br>";
 	}
 	$strError .= $str;
-	if(strlen($str)>0)
+	if($str <> '')
 	{
 		global $lAdmin;
 		$lAdmin->AddFilterError($str);
@@ -93,7 +93,7 @@ if($lAdmin->EditAction() && $USER->CanDoOperation('edit_groups'))
 	foreach($FIELDS as $ID=>$arFields)
 	{
 		$DB->StartTransaction();
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		if(!$lAdmin->IsUpdated($ID))
 			continue;
@@ -121,7 +121,7 @@ if(($arID = $lAdmin->GroupAction()) && $USER->CanDoOperation('edit_groups'))
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
 
 		switch($_REQUEST['action'])
@@ -210,7 +210,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 
 	$arActions = Array();
 
-	if(IntVal($f_ID)>2 && $USER->CanDoOperation('edit_groups'))
+	if(intval($f_ID)>2 && $USER->CanDoOperation('edit_groups'))
 	{
 		$arActions[] = array("ICON"=>"edit", "TEXT"=>GetMessage("MAIN_ADMIN_MENU_EDIT"), "ACTION"=>$lAdmin->ActionRedirect("group_edit.php?ID=".$f_ID));
 		$arActions[] = array("ICON"=>"copy", "TEXT"=>GetMessage("MAIN_ADMIN_MENU_COPY"), "ACTION"=>$lAdmin->ActionRedirect("group_edit.php?COPY_ID=".$f_ID));

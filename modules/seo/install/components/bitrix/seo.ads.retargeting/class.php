@@ -209,11 +209,11 @@ class SeoAdsRetargetingComponent extends CBitrixComponent implements Controllera
 			$service = AdsAudience::getService();
 			$service->setClientId($clientId);
 			$data = AdsAudience::getRegions($type);
-			$langId = strtolower(LANGUAGE_ID);
+			$langId = mb_strtolower(LANGUAGE_ID);
 			$langId = ($langId == 'en' ? 'us' : $langId);
 			array_walk($data, function (&$region) use ($langId)
 			{
-				$region['isDefault'] = (strtolower($region['id']) == $langId);
+				$region['isDefault'] = (mb_strtolower($region['id']) == $langId);
 			});
 		}
 

@@ -68,11 +68,11 @@ abstract class TypeFactory
 
 	public static function getCodeByPrefix(string $prefix): string
 	{
-		return strtolower($prefix);
+		return mb_strtolower($prefix);
 	}
 
 	public static function getPrefixByCode(string $code): string
 	{
-		return strtoupper($code);
+		return mb_strtoupper($code);
 	}
 }

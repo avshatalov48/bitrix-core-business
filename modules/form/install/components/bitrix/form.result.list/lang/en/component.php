@@ -14,4 +14,8 @@ $MESS ['FORM_NOTE_ADDOK'] = "Thank you.
 Your application form #RESULT_ID# was received.";
 $MESS ['FORM_NOTE_EDITOK'] = "All changes saved";
 $MESS ['FORM_PAGES'] = "Results";
+$MESS ['FORM_WRONG_DATE_CREATE_FROM'] = "Please enter the correct \"from\" date (\"Created\" field)";
+$MESS ['FORM_WRONG_DATE_CREATE_TO'] = "Please enter the correct \"till\" date (\"Created\" field)";
+$MESS ['FORM_FROM_TILL_DATE_CREATE'] = "The \"till\" date must be greater than or equal to the \"from\" date (\"Created\" field)";
+$MESS["FORM_MODULE_NOT_INSTALLED"] = "Web-form module is not installed.";
 ?>

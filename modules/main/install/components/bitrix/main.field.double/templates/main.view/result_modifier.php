@@ -18,7 +18,7 @@ foreach($arResult['value'] as $key => $value)
 {
 	$value = (double) $value;
 
-	if(strlen($arResult['userField']['PROPERTY_VALUE_LINK']))
+	if($arResult['userField']['PROPERTY_VALUE_LINK'] <> '')
 	{
 		$tag = 'a';
 		$href = HtmlFilter::encode(

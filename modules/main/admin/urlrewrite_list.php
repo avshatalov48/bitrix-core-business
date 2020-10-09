@@ -39,7 +39,7 @@ $lAdmin->InitFilter($arFilterFields);
 
 $siteId = \CSite::getDefSite($filter_site_id);
 
-if (StrLen($filter_site_id) <= 0)
+if ($filter_site_id == '')
 {
 	$set_filter = "Y";
 	$filter_site_id = $siteId;
@@ -48,9 +48,9 @@ if (StrLen($filter_site_id) <= 0)
 
 $arFilter = array();
 
-if (strlen($filter_condition) > 0) $arFilter["CONDITION"] = $filter_condition;
-if (strlen($filter_id) > 0) $arFilter["ID"] = $filter_id;
-if (strlen($filter_path) > 0) $arFilter["PATH"] = $filter_path;
+if ($filter_condition <> '') $arFilter["CONDITION"] = $filter_condition;
+if ($filter_id <> '') $arFilter["ID"] = $filter_id;
+if ($filter_path <> '') $arFilter["PATH"] = $filter_path;
 
 // обработка действий групповых и одиночных
 if (($arID = $lAdmin->GroupAction()) && $isAdmin)
@@ -65,7 +65,7 @@ if (($arID = $lAdmin->GroupAction()) && $isAdmin)
 
 	foreach ($arID as $ID)
 	{
-		if (strlen($ID) <= 0)
+		if ($ID == '')
 			continue;
 
 		switch ($_REQUEST['action'])

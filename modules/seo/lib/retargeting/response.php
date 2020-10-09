@@ -80,7 +80,7 @@ abstract class Response extends Result
 			$result = array();
 			foreach ($row as $k => $v)
 			{
-				$result[strtoupper($k)] = $v;
+				$result[mb_strtoupper($k)] = $v;
 			}
 
 			return $result;

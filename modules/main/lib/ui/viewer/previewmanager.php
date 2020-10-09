@@ -203,7 +203,6 @@ final class PreviewManager
 			global $APPLICATION;
 
 			$APPLICATION->RestartBuffer();
-			while(ob_end_clean());
 
 			Application::getInstance()->end(0, $response);
 		}

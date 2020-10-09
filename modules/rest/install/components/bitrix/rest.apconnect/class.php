@@ -91,7 +91,7 @@ class CAPConnectComponent extends CBitrixComponent
 			throw new SystemException(Loc::getMessage('APC_NOT_AUTHORIZED'));
 		}
 
-		if(strlen($this->arParams['CLIENT_ID']) <= 0)
+		if($this->arParams['CLIENT_ID'] == '')
 		{
 			throw new SystemException(Loc::getMessage('APC_NO_CLIENT'));
 		}
@@ -135,7 +135,7 @@ class CAPConnectComponent extends CBitrixComponent
 
 				$url = $clientInfo['REDIRECT_URI'];
 
-				$url .= (strpos($url, '?') !== false ? '&' : '?').http_build_query(array(
+				$url .= (mb_strpos($url, '?') !== false ? '&' : '?').http_build_query(array(
 					'apcode' => $result['result']['apcode'],
 					'state' => $this->arParams['CLIENT_STATE'],
 				));

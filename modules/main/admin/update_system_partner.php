@@ -63,7 +63,7 @@ else
 
 $strError_tmp = "";
 $arClientModules = CUpdateClientPartner::GetCurrentModules($strError_tmp);
-if (StrLen($strError_tmp) > 0)
+if ($strError_tmp <> '')
 	$errorMessage .= $strError_tmp;
 
 if ($arUpdateList)
@@ -75,7 +75,7 @@ if ($arUpdateList)
 	}
 }
 
-if (strlen($errorMessage) > 0)
+if ($errorMessage <> '')
 	echo CAdminMessage::ShowMessage(Array("DETAILS" => $errorMessage, "TYPE" => "ERROR", "MESSAGE" => GetMessage("SUP_ERROR"), "HTML" => true));
 
 ?>
@@ -125,7 +125,7 @@ $tabControl->Begin();
 <?
 $tabControl->BeginNextTab();
 ?>
-	<?if(strlen($myaddmodule) > 0)
+	<?if($myaddmodule <> '')
 	{
 		?><script>
 		BX.ready(function()
@@ -590,7 +590,7 @@ $tabControl->BeginNextTab();
 											</tr>
 											<tr>
 												<td><?echo GetMessage("SUP_ACTIVE")?>&nbsp;&nbsp;</td>
-												<td><?echo GetMessage("SUP_ACTIVE_PERIOD", array("#DATE_TO#"=>((strlen($arUpdateList["CLIENT"][0]["@"]["DATE_TO"]) > 0) ? $arUpdateList["CLIENT"][0]["@"]["DATE_TO"] : "<i>N/A</i>"), "#DATE_FROM#" => ((strlen($arUpdateList["CLIENT"][0]["@"]["DATE_FROM"]) > 0) ? $arUpdateList["CLIENT"][0]["@"]["DATE_FROM"] : "<i>N/A</i>")));?></td>
+												<td><?echo GetMessage("SUP_ACTIVE_PERIOD", array("#DATE_TO#"=>(($arUpdateList["CLIENT"][0]["@"]["DATE_TO"] <> '') ? $arUpdateList["CLIENT"][0]["@"]["DATE_TO"] : "<i>N/A</i>"), "#DATE_FROM#" => (($arUpdateList["CLIENT"][0]["@"]["DATE_FROM"] <> '') ? $arUpdateList["CLIENT"][0]["@"]["DATE_FROM"] : "<i>N/A</i>")));?></td>
 											</tr>
 											<?if (is_array($arUpdateList) && array_key_exists("CLIENT", $arUpdateList)):?>
 												<tr>
@@ -663,9 +663,9 @@ $tabControl->BeginNextTab();
 							$checked = " checked";
 							$arModuleTmp = $arUpdateList["MODULE"][$i];
 							$arModuleTmp["@"]["ID"] = preg_replace("#[^A-Za-z0-9._-]#", "", $arModuleTmp["@"]["ID"]);
-							if(strlen($myaddmodule) > 0)
+							if($myaddmodule <> '')
 							{
-								if(toLower($myaddmodule) != toLower($arModuleTmp["@"]["ID"]) && strpos(toLower($myaddmodule), toLower($arModuleTmp["@"]["ID"])) === false)
+								if(toLower($myaddmodule) != toLower($arModuleTmp["@"]["ID"]) && mb_strpos(toLower($myaddmodule), toLower($arModuleTmp["@"]["ID"])) === false)
 									$checked = "";
 							}
 							$strTitleTmp = $arModuleTmp["@"]["NAME"]." (".$arModuleTmp["@"]["ID"].")\n".$arModuleTmp["@"]["DESCRIPTION"]."\n";
@@ -696,7 +696,7 @@ $tabControl->BeginNextTab();
 									else
 									{
 										echo GetMessage("SUP_SULL_REF_N");
-										if(toLower($myaddmodule) == toLower($arModuleTmp["@"]["ID"]) || strpos(toLower($myaddmodule), toLower($arModuleTmp["@"]["ID"])) !== false)
+										if(toLower($myaddmodule) == toLower($arModuleTmp["@"]["ID"]) || mb_strpos(toLower($myaddmodule), toLower($arModuleTmp["@"]["ID"])) !== false)
 										{
 											?>
 											<script>

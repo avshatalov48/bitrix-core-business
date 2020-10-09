@@ -1,6 +1,9 @@
 <?php
 namespace Bitrix\Main;
 
+use Bitrix\Main\Config\Configuration;
+use Bitrix\Main\DI\ServiceLocator;
+
 /**
  * Class Loader loads required files, classes and modules. It is the only class which is included directly.
  * @package Bitrix\Main
@@ -145,6 +148,10 @@ final class Loader
 		{
 			//unregister the namespace if "include" fails
 			self::unregisterNamespace($baseName);
+		}
+		else
+		{
+			ServiceLocator::getInstance()->registerByModuleSettings($moduleName);
 		}
 
 		return self::$loadedModules[$moduleName];
@@ -569,8 +576,10 @@ class LoaderException extends \Exception
 	}
 }
 
-//main usually is included directly
-Loader::registerNamespace("Bitrix\\Main", Loader::getDocumentRoot()."/bitrix/modules/main/lib");
+$loaderDocumentRoot = Loader::getDocumentRoot();
+Loader::registerNamespace("Bitrix\\Main", $loaderDocumentRoot."/bitrix/modules/main/lib");
+Loader::registerNamespace("Bitrix\\UI", $loaderDocumentRoot.'/bitrix/modules/ui/lib');
+Loader::registerNamespace("Psr\\Container", Loader::getDocumentRoot()."/bitrix/modules/main/vendor/psr/container/src");
 
 \spl_autoload_register([Loader::class, 'autoLoad']);
 

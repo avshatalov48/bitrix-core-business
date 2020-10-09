@@ -25,7 +25,7 @@ if (isset($_REQUEST['learning_process']) && ($_REQUEST['learning_process'] === '
 	{
 		$rc = CLearnInstall201203ConvertDB::run();
 
-		if (strlen($rc) > 0)
+		if ($rc <> '')
 			throw new Exception($rc);
 
 		$processedAtLastStep = (int) CLearnInstall201203ConvertDB::$items_processed;

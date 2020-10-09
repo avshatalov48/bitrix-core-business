@@ -225,7 +225,7 @@ BX.Access.AddSelection = function(ob)
 				'className':'bx-finder-box-selected-item',
 				'id': 'access_selected_item_'+ob.id
 			}, 
-			html: '<a href="javascript:void(0);" onclick="BX.Access.RemoveSelection(\''+ob.provider+'\', \''+ob.id+'\')" class="bx-finder-box-selected-item-icon"></a><span class="bx-finder-box-selected-item-text">'+ob.name+'</span>'
+			html: '<a href="javascript:void(0);" onclick="BX.Access.RemoveSelection(\''+ob.provider+'\', \''+ob.id+'\')" class="bx-finder-box-selected-item-icon"></a><span class="bx-finder-box-selected-item-text">'+BX.util.htmlspecialchars(ob.name)+'</span>'
 		}));
 
 		BX('access_sel_count_'+ob.provider).innerHTML = '('+BX.Access.obCnt[ob.provider]+')';

@@ -65,8 +65,8 @@ class YandexException
 //			Try translate error. If unknown error - write as is
 			$codeTranslated = Loc::getMessage('YANDEX_ERROR__'.str_replace(' ','_',ToUpper($this->code)));
 			$messageTranslated = Loc::getMessage('YANDEX_ERROR__'.str_replace(' ','_',ToUpper($this->message)));
-			$this->code = (strlen($codeTranslated) > 0) ? $codeTranslated : $this->code;
-			$this->message = (strlen($messageTranslated) > 0) ? $messageTranslated : $this->message;
+			$this->code = ($codeTranslated <> '') ? $codeTranslated : $this->code;
+			$this->message = ($messageTranslated <> '') ? $messageTranslated : $this->message;
 			
 			return true;
 		}
@@ -88,7 +88,7 @@ class YandexException
 	private function formatMessage()
 	{
 		$translateString = Loc::getMessage('SEO_ERROR_'.$this->code);
-		if(strlen($translateString) > 0)
+		if($translateString <> '')
 		{
 			$this->message = $translateString.' ('.Loc::getMessage('SEO_ERROR_CODE').': '.$this->code.').';
 		}

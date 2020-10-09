@@ -42,12 +42,12 @@ $codeEditorId = false;
 
 $ID = _normalizePath($_REQUEST["ID"]);
 
-if($lpa && $_REQUEST['edit'] != "Y" && strlen($ID) <= 0) // In lpa mode users can only edit existent templates
+if($lpa && $_REQUEST['edit'] != "Y" && $ID == '') // In lpa mode users can only edit existent templates
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 $bEdit = false;
 $templFields = array();
-if(strlen($ID)>0 && $_REQUEST['edit'] != "N")
+if($ID <> '' && $_REQUEST['edit'] != "N")
 {
 	$templ = CSiteTemplate::GetByID($ID);
 	if(($templFields = $templ->ExtractFields("str_")))
@@ -71,15 +71,15 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["appl
 	{
 		$CONTENT = LPA::Process($_POST["CONTENT"], htmlspecialcharsback($str_CONTENT));
 		//Add ..->ShowPanel() and WORK_AREA
-		$ucont = strtolower($CONTENT);
+		$ucont = mb_strtolower($CONTENT);
 		$sp = '<?$APPLICATION->ShowPanel();?>';
 		$body = '<body>';
 		$wa = '#WORK_AREA#';
-		$body_pos = strpos($ucont, $body);
-		$sp_pos = strpos($ucont, strtolower($sp));
-		$wa_pos = strpos($ucont, strtolower($wa), $body_pos);
+		$body_pos = mb_strpos($ucont, $body);
+		$sp_pos = mb_strpos($ucont, mb_strtolower($sp));
+		$wa_pos = mb_strpos($ucont, mb_strtolower($wa), $body_pos);
 		if ($body_pos !== false && $sp_pos === false) // Add $APPLICATION->ShowPanel();
-			$CONTENT = substr($CONTENT, 0, $body_pos + strlen($body)).$sp.substr($CONTENT, $body_pos + strlen($body));
+			$CONTENT = mb_substr($CONTENT, 0, $body_pos + mb_strlen($body)).$sp.mb_substr($CONTENT, $body_pos + mb_strlen($body));
 		if ($wa_pos === false)
 			$CONTENT .= $wa;
 	}
@@ -127,7 +127,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["appl
 		if($_REQUEST['edit']=="Y")
 			$res = $ST->Update($ID, $arFields);
 		else
-			$res = (strlen($ST->Add($arFields))>0);
+			$res = ($ST->Add($arFields) <> '');
 
 		if(!$res)
 		{
@@ -172,20 +172,20 @@ if ($lpa || $lpa_view)
 		for ($n = 0; $n < $l; $n++)
 		{
 			$start = $arPHP[$n][0];
-			$s_cont = substr($str_CONTENT, $end, $start - $end);
+			$s_cont = mb_substr($str_CONTENT, $end, $start - $end);
 			$end = $arPHP[$n][1];
 			$new_content .= $s_cont;
 
 			$src = $arPHP[$n][2];
-			$src = SubStr($src, (SubStr($src, 0, 5) == "<?"."php") ? 5 : 2, -2); // Trim php tags
+			$src = mb_substr($src, (mb_substr($src, 0, 5) == "<?"."php")? 5 : 2, -2); // Trim php tags
 
 			$comp2_begin = '$APPLICATION->INCLUDECOMPONENT(';
-			if (strtoupper(substr($src, 0, strlen($comp2_begin))) == $comp2_begin) //If it's Component 2, keep the php code
+			if (mb_strtoupper(mb_substr($src, 0, mb_strlen($comp2_begin))) == $comp2_begin) //If it's Component 2, keep the php code
 				$new_content .= $arPHP[$n][2];
 			else //If it's component 1 or ordinary PHP - than replace code by #PHPXXXX# (XXXX - count of PHP scripts)
 				$new_content .= '#PHP'.str_pad(++$php_count, 4, "0", STR_PAD_LEFT).'#';
 		}
-		$new_content .= substr($str_CONTENT,$end);
+		$new_content .= mb_substr($str_CONTENT, $end);
 	}
 	$str_CONTENT = htmlspecialcharsex($new_content);
 }
@@ -211,7 +211,7 @@ $aMenu = array(
 	)
 );
 
-if (strlen($ID)>0 && $edit_php)
+if ($ID <> '' && $edit_php)
 {
 	$aMenu[] = array("SEPARATOR"=>"Y");
 

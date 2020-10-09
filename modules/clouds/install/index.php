@@ -92,7 +92,7 @@ Class clouds extends CModule
 			RegisterModuleDependences("main", "OnAfterFileSave", "clouds", "CCloudStorage", "OnAfterFileSave");
 			RegisterModuleDependences("main", "OnGetFileSRC", "clouds", "CCloudStorage", "OnGetFileSRC");
 			RegisterModuleDependences("main", "OnFileCopy", "clouds", "CCloudStorage", "OnFileCopy");
-			RegisterModuleDependences("main", "OnFileDelete", "clouds", "CCloudStorage", "OnFileDelete");
+			RegisterModuleDependences("main", "OnPhysicalFileDelete", "clouds", "CCloudStorage", "OnFileDelete");
 			RegisterModuleDependences("main", "OnMakeFileArray", "clouds", "CCloudStorage", "OnMakeFileArray");
 			RegisterModuleDependences("main", "OnBeforeResizeImage", "clouds", "CCloudStorage", "OnBeforeResizeImage");
 			RegisterModuleDependences("main", "OnAfterResizeImage", "clouds", "CCloudStorage", "OnAfterResizeImage");
@@ -140,7 +140,7 @@ Class clouds extends CModule
 		UnRegisterModuleDependences("main", "OnAfterFileSave", "clouds", "CCloudStorage", "OnAfterFileSave");
 		UnRegisterModuleDependences("main", "OnGetFileSRC", "clouds", "CCloudStorage", "OnGetFileSRC");
 		UnRegisterModuleDependences("main", "OnFileCopy", "clouds", "CCloudStorage", "OnFileCopy");
-		UnRegisterModuleDependences("main", "OnFileDelete", "clouds", "CCloudStorage", "OnFileDelete");
+		UnRegisterModuleDependences("main", "OnPhysicalFileDelete", "clouds", "CCloudStorage", "OnFileDelete");
 		UnRegisterModuleDependences("main", "OnMakeFileArray", "clouds", "CCloudStorage", "OnMakeFileArray");
 		UnRegisterModuleDependences("main", "OnBeforeResizeImage", "clouds", "CCloudStorage", "OnBeforeResizeImage");
 		UnRegisterModuleDependences("main", "OnAfterResizeImage", "clouds", "CCloudStorage", "OnAfterResizeImage");

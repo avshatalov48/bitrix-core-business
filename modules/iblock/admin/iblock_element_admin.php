@@ -1103,8 +1103,7 @@ $arSelectedFieldsMap["EXTERNAL_ID"] = true;
 $measureList[0] = ' ';
 if ($bCatalog)
 {
-	if (isset($arSelectedFieldsMap['CATALOG_QUANTITY_RESERVED']) || isset($arSelectedFieldsMap['CATALOG_MEASURE']))
-		$arSelectedFieldsMap['CATALOG_TYPE'] = true;
+	$arSelectedFieldsMap['CATALOG_TYPE'] = true;
 
 	$boolPriceInc = false;
 	if ($boolCatalogPurchasInfo)
@@ -2298,8 +2297,9 @@ foreach (array_keys($rawRows) as $rowId)
 
 	$row->AddViewField("ID", '<a href="'.$arRes["edit_url"].'" title="'.GetMessage("IBEL_A_EDIT_TITLE").'">'.$itemId.'</a>');
 
-	if(isset($arRes["LOCKED_USER_NAME"]) && $arRes["LOCKED_USER_NAME"])
+	if(isset($arRes["LOCKED_USER_NAME"]) && $arRes["LOCKED_USER_NAME"] != '')
 	{
+		$arRes["LOCKED_USER_NAME"] = htmlspecialcharsEx($arRes["LOCKED_USER_NAME"]);
 		$userName = ($publicMode
 			? '['.$arRes["WF_LOCKED_BY"].']&nbsp;'.$arRes["LOCKED_USER_NAME"]
 			: '[<a href="'.$selfFolderUrl.'user_edit.php?lang='.LANGUAGE_ID.'&ID='.$arRes["WF_LOCKED_BY"].'" title="'.GetMessage("IBEL_A_USERINFO").'">'.$arRes["WF_LOCKED_BY"].'</a>]&nbsp;'.$arRes["LOCKED_USER_NAME"]
@@ -2307,8 +2307,9 @@ foreach (array_keys($rawRows) as $rowId)
 		$row->AddViewField("LOCKED_USER_NAME", $userName);
 		unset($userName);
 	}
-	if(isset($arRes["USER_NAME"]) && $arRes["USER_NAME"])
+	if(isset($arRes["USER_NAME"]) && $arRes["USER_NAME"] != '')
 	{
+		$arRes["USER_NAME"] = htmlspecialcharsEx($arRes["USER_NAME"]);
 		$userName = ($publicMode
 			? '['.$arRes["MODIFIED_BY"].']&nbsp;'.$arRes["USER_NAME"]
 			: '[<a href="user_edit.php?lang='.LANGUAGE_ID.'&ID='.$arRes["MODIFIED_BY"].'" title="'.GetMessage("IBEL_A_USERINFO").'">'.$arRes["MODIFIED_BY"].'</a>]&nbsp;'.$arRes["USER_NAME"]
@@ -2316,8 +2317,9 @@ foreach (array_keys($rawRows) as $rowId)
 		$row->AddViewField("USER_NAME", $userName);
 		unset($userName);
 	}
-	if(isset($arRes["CREATED_USER_NAME"]) && $arRes["CREATED_USER_NAME"])
+	if(isset($arRes["CREATED_USER_NAME"]) && $arRes["CREATED_USER_NAME"] != '')
 	{
+		$arRes["CREATED_USER_NAME"] = htmlspecialcharsEx($arRes["CREATED_USER_NAME"]);
 		$userName = ($publicMode
 			? '['.$arRes["CREATED_BY"].']&nbsp;'.$arRes["CREATED_USER_NAME"]
 			: '[<a href="user_edit.php?lang='.LANGUAGE_ID.'&ID='.$arRes["CREATED_BY"].'" title="'.GetMessage("IBEL_A_USERINFO").'">'.$arRes["CREATED_BY"].'</a>]&nbsp;'.$arRes["CREATED_USER_NAME"]
@@ -2329,8 +2331,8 @@ foreach (array_keys($rawRows) as $rowId)
 	if($bWorkFlow || $bBizproc)
 	{
 		$lamp = '<span class="adm-lamp adm-lamp-in-list adm-lamp-'.$lockStatus.'"></span>';
-		if($lockStatus=='red' && $arRes_orig['LOCKED_USER_NAME']!='')
-			$row->AddViewField("LOCK_STATUS", $lamp.$arRes_orig['LOCKED_USER_NAME']);
+		if($lockStatus=='red' && $arRes_orig['LOCKED_USER_NAME'] != '')
+			$row->AddViewField("LOCK_STATUS", $lamp.htmlspecialcharsEx($arRes_orig['LOCKED_USER_NAME']));
 		else
 			$row->AddViewField("LOCK_STATUS", $lamp);
 	}

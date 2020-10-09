@@ -456,7 +456,7 @@ unset($arGroupingResult);
 							.'">'.$v.'</a>';
 					}
 				}
-				elseif (strlen($row[$col['resultName']]))
+				elseif(mb_strlen($row[$col['resultName']]))
 				{
 					$finalValue = '<a href="'.$row['__HREF_'.$col['resultName']].'">'.$row[$col['resultName']].'</a>';
 				}

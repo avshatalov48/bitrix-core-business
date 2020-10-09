@@ -270,7 +270,7 @@ class Signer
 		// Some kind of optimization
 		if ($limit === 0)
 		{
-			if (strpos($value, $this->separator) === false)
+			if (mb_strpos($value, $this->separator) === false)
 				throw new BadSignatureException('Separator not found in value');
 
 			return explode($this->separator, $value);
@@ -283,8 +283,8 @@ class Signer
 			if ($pos === false)
 				throw new BadSignatureException('Separator not found in value');
 
-			$result[] = substr($value, $pos + 1);
-			$value = substr($value, 0, $pos);
+			$result[] = mb_substr($value, $pos + 1);
+			$value = mb_substr($value, 0, $pos);
 		}
 		$result[] = $value;
 

@@ -1,9 +1,7 @@
 <?php
-global $MESS;
-$strPath2Lang = str_replace("\\", "/", __FILE__);
-$strPath2Lang = substr($strPath2Lang, 0, strlen($strPath2Lang)-strlen("/install/index.php"));
-include(GetLangFileName($strPath2Lang."/lang/", "/install/index.php"));
 
+use Bitrix\Main\Localization\Loc;
+Loc::loadMessages(__FILE__);
 
 Class learning extends CModule
 {
@@ -17,13 +15,11 @@ Class learning extends CModule
 	
 	public $MODULE_GROUP_RIGHTS = 'Y';
 
-	function learning()
+	function __construct()
 	{
 		$arModuleVersion = array();
 
-		$path = str_replace("\\", "/", __FILE__);
-		$path = substr($path, 0, strlen($path) - strlen("/index.php"));
-		include($path."/version.php");
+		include(__DIR__.'/version.php');
 
 		if (is_array($arModuleVersion) && array_key_exists("VERSION", $arModuleVersion))
 		{
@@ -36,8 +32,8 @@ Class learning extends CModule
 			$this->MODULE_VERSION_DATE = LEARNING_VERSION_DATE;
 		}
 
-		$this->MODULE_NAME = GetMessage("LEARNING_MODULE_NAME");
-		$this->MODULE_DESCRIPTION = GetMessage("LEARNING_MODULE_DESC");
+		$this->MODULE_NAME = Loc::getMessage("LEARNING_MODULE_NAME");
+		$this->MODULE_DESCRIPTION = Loc::getMessage("LEARNING_MODULE_DESC");
 	}
 
 	function InstallDB($arParams = array())
@@ -56,7 +52,7 @@ Class learning extends CModule
 		// was:		if(!$DB->Query("SELECT 'x' FROM b_learn_course WHERE 1=0", true))
 		if ( ! $DB->TableExists('b_learn_lesson') )
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/learning/install/db/".strtolower($DB->type)."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/learning/install/db/".mb_strtolower($DB->type)."/install.sql");
 
 			if ($this->errors === false)
 			{
@@ -128,7 +124,7 @@ Class learning extends CModule
 
 		if(!array_key_exists("savedata", $arParams) || $arParams["savedata"] != "Y")
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/learning/install/db/".strtolower($DB->type)."/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/learning/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
 
 			// remove module permissions data
 			self::_RightsModelPurge();
@@ -209,7 +205,7 @@ Class learning extends CModule
 			if($_REQUEST["copy_".$site["LID"]] == "Y" && !empty($_REQUEST["path_".$site["LID"]]))
 			{
 				$arSITE_ID[] = $site["LID"];
-				$DOC_ROOT = (strlen($site["DOC_ROOT"])<=0) ? $_SERVER["DOCUMENT_ROOT"] : $site["DOC_ROOT"];
+				$DOC_ROOT = ($site["DOC_ROOT"] == '') ? $_SERVER["DOCUMENT_ROOT"] : $site["DOC_ROOT"];
 
 				$ldir = $site['LANGUAGE_ID'] == 'ru' ? 'ru' : 'en';
 
@@ -224,7 +220,7 @@ Class learning extends CModule
 
 		if(!empty($arSITE_ID))
 		{
-			if (strlen($_REQUEST["template_id"])<=0)
+			if ($_REQUEST["template_id"] == '')
 				$_REQUEST["template_id"] = "learning";
 
 			//Copy Template
@@ -233,10 +229,10 @@ Class learning extends CModule
 			foreach($arSITE_ID as $SITE_ID)
 			{
 				$path = $_REQUEST["path_".$SITE_ID];
-				if (strlen($path)<=0)
+				if ($path == '')
 					continue;
 
-				if(substr($path,-1,1)!="/")
+				if(mb_substr($path, -1, 1) != "/")
 					$path .= "/";
 
 				$cond = "CSite::InDir('".$path."course/')";
@@ -263,10 +259,10 @@ Class learning extends CModule
 	function DoInstall()
 	{
 		global $DB, $DOCUMENT_ROOT, $APPLICATION, $step;
-		$step = IntVal($step);
+		$step = intval($step);
 		if($step < 2)
 		{
-			$APPLICATION->IncludeAdminFile(GetMessage("LEARNING_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/learning/install/step1.php");
+			$APPLICATION->IncludeAdminFile(Loc::getMessage("LEARNING_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/learning/install/step1.php");
 		}
 		elseif($step==2)
 		{
@@ -274,17 +270,17 @@ Class learning extends CModule
 			$this->InstallDB();
 			self::_AddConvertDbNotify();
 			$GLOBALS["errors"] = $this->errors;
-			$APPLICATION->IncludeAdminFile(GetMessage("LEARNING_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/learning/install/step2.php");
+			$APPLICATION->IncludeAdminFile(Loc::getMessage("LEARNING_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/learning/install/step2.php");
 		}
 	}
 
 	function DoUninstall()
 	{
 		global $DB, $DOCUMENT_ROOT, $APPLICATION, $step;
-		$step = IntVal($step);
+		$step = intval($step);
 		if($step < 2)
 		{
-			$APPLICATION->IncludeAdminFile(GetMessage("LEARNING_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/learning/install/unstep1.php");
+			$APPLICATION->IncludeAdminFile(Loc::getMessage("LEARNING_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/learning/install/unstep1.php");
 		}
 		elseif($step == 2)
 		{
@@ -294,7 +290,7 @@ Class learning extends CModule
 			$this->UnInstallFiles();
 			self::_RemoveConvertDbNotify();
 			$GLOBALS["errors"] = $this->errors;
-			$APPLICATION->IncludeAdminFile(GetMessage("LEARNING_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/learning/install/unstep2.php");
+			$APPLICATION->IncludeAdminFile(Loc::getMessage("LEARNING_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/learning/install/unstep2.php");
 		}
 	}
 
@@ -303,8 +299,8 @@ Class learning extends CModule
 		$arr = array(
 			"reference_id" => array("D", "W"),
 			"reference" => array(
-					"[D] ".GetMessage("LEARNING_PERM_ADMIN_D"),
-					"[W] ".GetMessage("LEARNING_PERM_ADMIN_W")
+					"[D] ".Loc::getMessage("LEARNING_PERM_ADMIN_D"),
+					"[W] ".Loc::getMessage("LEARNING_PERM_ADMIN_W")
 				)
 			);
 		return $arr;
@@ -342,7 +338,7 @@ Class learning extends CModule
 							'MESSAGE' => str_replace(
 								'#LANG#', 
 								LANGUAGE_ID, 
-								GetMessage('LEARNING_ADMIN_NOTIFY_CONVERT_DB')
+								Loc::getMessage('LEARNING_ADMIN_NOTIFY_CONVERT_DB')
 							),
 							'TAG'          => 'learning_convert_11_5_0',
 							'MODULE_ID'    => 'learning',
@@ -394,7 +390,7 @@ Class learning extends CModule
 
 		foreach ($arTasksOperations as $taskName => $arOperationsForTask)
 		{
-			if (substr($taskName, 0, 16) === 'learning_lesson_')
+			if (mb_substr($taskName, 0, 16) === 'learning_lesson_')
 				$binding = 'lesson';
 			else
 				$binding = 'module';
@@ -552,7 +548,7 @@ Class learning extends CModule
 
 		foreach ($arAllOperations as $operationName)
 		{
-			if (substr($operationName, 0, 7) === 'lesson_')
+			if (mb_substr($operationName, 0, 7) === 'lesson_')
 				$binding = 'lesson';
 			else
 				$binding = 'module';

@@ -18,7 +18,7 @@ if(!defined("B_PROLOG_INCLUDED")||B_PROLOG_INCLUDED!==true)die();
 		foreach($arResult["ERROR_MESSAGE"] as $v)
 			ShowError($v);
 	}
-	if(strlen($arResult["OK_MESSAGE"]) > 0)
+	if($arResult["OK_MESSAGE"] <> '')
 	{
 		?><div class="alert alert-success"><?=$arResult["OK_MESSAGE"]?></div><?
 	}

@@ -6,7 +6,7 @@
  * @copyright 2001-2013 Bitrix
  */
 
-require_once(substr(__FILE__, 0, strlen(__FILE__) - strlen("/classes/mysql/main.php"))."/bx_root.php");
+require_once(mb_substr(__FILE__, 0, mb_strlen(__FILE__) - mb_strlen("/classes/mysql/main.php"))."/bx_root.php");
 
 require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/main.php");
 
@@ -33,8 +33,8 @@ class CMain extends CAllMain
 			$cur_host = $_SERVER["HTTP_HOST"];
 
 		if(
-			strpos($cur_dir, BX_ROOT."/admin/") === 0
-			|| strpos($cur_dir, BX_ROOT."/updates/") === 0
+			mb_strpos($cur_dir, BX_ROOT."/admin/") === 0
+			|| mb_strpos($cur_dir, BX_ROOT."/updates/") === 0
 			|| (defined("ADMIN_SECTION") &&  ADMIN_SECTION === true)
 			|| (defined("BX_PUBLIC_TOOLS") && BX_PUBLIC_TOOLS === true)
 		)
@@ -42,7 +42,7 @@ class CMain extends CAllMain
 			//if admin section
 
 			//lang by global var
-			if(strlen($lang)<=0)
+			if($lang == '')
 				$lang = COption::GetOptionString("main", "admin_lid", "ru");
 
 			$R = CLanguage::GetList($o, $b, array("LID"=>$lang, "ACTIVE"=>"Y"));
@@ -65,13 +65,13 @@ class CMain extends CAllMain
 			// all other sections
 
 			$arURL = parse_url("http://".$cur_host);
-			if($arURL["scheme"]=="" && strlen($arURL["host"])>0)
+			if($arURL["scheme"]=="" && $arURL["host"] <> '')
 				$CURR_DOMAIN = $arURL["host"];
 			else
 				$CURR_DOMAIN = $cur_host;
 
-			if(strpos($CURR_DOMAIN, ':')>0)
-				$CURR_DOMAIN = substr($CURR_DOMAIN, 0, strpos($CURR_DOMAIN, ':'));
+			if(mb_strpos($CURR_DOMAIN, ':') > 0)
+				$CURR_DOMAIN = mb_substr($CURR_DOMAIN, 0, mb_strpos($CURR_DOMAIN, ':'));
 			$CURR_DOMAIN = trim($CURR_DOMAIN, "\t\r\n\0 .");
 
 			//get site by path
@@ -131,7 +131,7 @@ class CMain extends CAllMain
 						foreach($arLangDomain[$row["LID"]] as $dom)
 						{
 							//AND '".$DB->ForSql($CURR_DOMAIN, 255)."' LIKE CONCAT('%', LD.DOMAIN)
-							if(strcasecmp(substr(".".$CURR_DOMAIN, -strlen(".".$dom["LD_DOMAIN"])), ".".$dom["LD_DOMAIN"]) == 0)
+							if(strcasecmp(mb_substr(".".$CURR_DOMAIN, -mb_strlen(".".$dom["LD_DOMAIN"])), ".".$dom["LD_DOMAIN"]) == 0)
 							{
 								$arJoin[] = $row+$dom;
 								$bLeft = false;
@@ -147,7 +147,7 @@ class CMain extends CAllMain
 				foreach($arJoin as $row)
 				{
 					//WHERE ('".$DB->ForSql($cur_dir)."' LIKE CONCAT(L.DIR, '%') OR LD.LID IS NOT NULL)
-					if($row["LD_LID"]!="" || strcasecmp(substr($cur_dir, 0, strlen($row["DIR"])), $row["DIR"]) == 0)
+					if($row["LD_LID"]!="" || strcasecmp(mb_substr($cur_dir, 0, mb_strlen($row["DIR"])), $row["DIR"]) == 0)
 						$A[]=$row;
 				}
 
@@ -157,7 +157,7 @@ class CMain extends CAllMain
 					foreach($A as $row)
 					{
 						if(
-							(strcasecmp(substr($cur_dir, 0, strlen($row["DIR"])), $row["DIR"]) == 0)
+							(strcasecmp(mb_substr($cur_dir, 0, mb_strlen($row["DIR"])), $row["DIR"]) == 0)
 							&& (($row["DOMAIN_LIMITED"]=="Y" && $row["LD_LID"]!="")||$row["DOMAIN_LIMITED"]!="Y")
 						)
 						{
@@ -170,7 +170,7 @@ class CMain extends CAllMain
 				{
 					foreach($A as $row)
 					{
-						if(strncasecmp($cur_dir, $row["DIR"], strlen($cur_dir)) == 0)
+						if(strncasecmp($cur_dir, $row["DIR"], mb_strlen($cur_dir)) == 0)
 						{
 							$res=$row;
 							break;
@@ -282,7 +282,7 @@ class CFilterQuery extends CAllFilterQuery
 					(upper($field) like upper('%".$DB->ForSqlLike($word, 2000)."%') and $field is not null)
 					";
 			}
-			elseif (strpos($word, "%")!==false || strpos($word, "_")!==false)
+			elseif (mb_strpos($word, "%") !== false || mb_strpos($word, "_") !== false)
 			{
 				$ret.= "
 					(upper($field) like upper('".$DB->ForSqlLike($word, 2000)."') and $field is not null)

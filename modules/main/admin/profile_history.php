@@ -110,7 +110,7 @@ if(CheckFilter())
 	}
 }
 
-$sortOrder = strtoupper($sorting->getOrder());
+$sortOrder = mb_strtoupper($sorting->getOrder());
 if($sortOrder <> "DESC")
 {
 	$sortOrder = "ASC";

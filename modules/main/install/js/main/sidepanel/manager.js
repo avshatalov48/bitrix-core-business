@@ -198,7 +198,7 @@ BX.SidePanel.Manager.prototype =
 			var sliderClass = BX.SidePanel.Manager.getSliderClass();
 			slider = new sliderClass(url, options);
 
-			var zIndex = topSlider ? topSlider.getZindex() + 1 : slider.getZindex();
+			var zIndex = Math.max(topSlider ? topSlider.getZindex() + 10 : slider.getZindex(), slider.getZindex());
 			var offset = null;
 			if (slider.getWidth() === null && slider.getCustomLeftBoundary() === null)
 			{

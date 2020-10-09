@@ -113,10 +113,10 @@ class CAdminTabEngine
 
 		foreach ($this->arEngines as $key => $value)
 		{
-			if (SubStr($divName, 0, StrLen($key."_")) == $key."_")
+			if (mb_substr($divName, 0, mb_strlen($key."_")) == $key."_")
 			{
 				if (array_key_exists("ShowTab", $value))
-					call_user_func_array($value["ShowTab"], array(SubStr($divName, StrLen($key."_")), $this->arArgs, $this->bVarsFromForm));
+					call_user_func_array($value["ShowTab"], array(mb_substr($divName, mb_strlen($key."_")), $this->arArgs, $this->bVarsFromForm));
 			}
 		}
 		return null;

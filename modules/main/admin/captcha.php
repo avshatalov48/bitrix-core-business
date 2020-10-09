@@ -1,5 +1,5 @@
 <?
-if(array_key_exists("Preview", $_REQUEST) && strlen($_REQUEST["Preview"]) > 0)
+if(array_key_exists("Preview", $_REQUEST) && $_REQUEST["Preview"] <> '')
 {
 	define("NO_KEEP_STATISTIC", "Y");
 }
@@ -164,7 +164,7 @@ if($dh)
 {
 	while(($file = readdir($dh)) !== false)
 	{
-		if(substr(strtolower($file), -4) === ".ttf")
+		if(mb_substr(mb_strtolower($file), -4) === ".ttf")
 		{
 			$arSettings["arTTFFiles"][1][$file] = $file;
 		}
@@ -177,17 +177,17 @@ $aTabs = array(
 );
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
-if($REQUEST_METHOD=="POST" && (strlen($save)>0 || strlen($apply)>0) && check_bitrix_sessid() && $isAdmin)
+if($REQUEST_METHOD=="POST" && ($save <> '' || $apply <> '') && check_bitrix_sessid() && $isAdmin)
 {
 	foreach($arSettings as $key => $value)
 	{
 		if($key === "letters")
 		{
-			$strChars = strtoupper($_POST[$key]);
+			$strChars = mb_strtoupper($_POST[$key]);
 			$arChars = array();
-			for($i = 0, $c = strlen($strChars);$i < $c;$i++)
+			for($i = 0, $c = mb_strlen($strChars);$i < $c;$i++)
 			{
-				$ch = substr($strChars, $i, 1);
+				$ch = mb_substr($strChars, $i, 1);
 				$arChars[$ch] = $ch;
 			}
 			COption::SetOptionString("main", "CAPTCHA_".$key, implode("", $arChars));
@@ -215,7 +215,7 @@ if($REQUEST_METHOD=="POST" && (strlen($save)>0 || strlen($apply)>0) && check_bit
 	LocalRedirect($APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&".$tabControl->ActiveTabParam());
 }
 
-if(strlen($Preview) > 0)
+if($Preview <> '')
 {
 	$cpt = new CCaptcha();
 
@@ -276,9 +276,9 @@ if(strlen($Preview) > 0)
 	$cpt->SetTTFFonts($result["arTTFFiles"]);
 
 	$arChars = array();
-	$l = strlen($result["letters"]);
+	$l = mb_strlen($result["letters"]);
 	for($i = 0; $i < $l; $i++)
-		$arChars[] = substr($result["letters"], $i, 1);
+		$arChars[] = mb_substr($result["letters"], $i, 1);
 	$cpt->SetCodeChars($arChars);
 
 	$cpt->SetCode();
@@ -533,7 +533,7 @@ function set_presets()
 	</select>
 	</td>
 	<td valign="top" rowspan="<?echo count($arSettings)+1?>">
-		<?for($i=0;$i < 12; $i++):?>
+		<?for($i=0;$i < 10; $i++):?>
 			<img id="CAPTCHA_<?echo $i?>" src="/bitrix/admin/captcha.php?Preview=Y&amp;captcha_sid=<?echo $CAPTCHA_CODE?>&amp;i=<?echo $i?>&amp;j=0" width="180" height="40" alt="CAPTCHA" /><br><br><br>
 		<?endfor?>
 	</td>

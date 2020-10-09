@@ -8,35 +8,36 @@ Main\Loader::includeModule('ui');
 
 class CUIFormComponentAjaxController extends Main\Engine\Controller
 {
-	/** @var UI\Form\EntityEditorConfiguration|null  */
-	protected static $configuration = null;
+	/** @var UI\Form\EntityEditorConfiguration  */
+	protected static $configuration;
 
-	protected static function getConfiguration()
+	protected function getConfiguration(string $categoryName = null): UI\Form\EntityEditorConfiguration
 	{
 		if(self::$configuration === null)
 		{
-			self::$configuration = new UI\Form\EntityEditorConfiguration();
+			self::$configuration = new UI\Form\EntityEditorConfiguration($categoryName);
 		}
+
 		return self::$configuration;
 	}
 
-	public static function saveConfigurationAction($guid, array $config, array $params)
+	public function saveConfigurationAction($guid, array $config, array $params, string $categoryName = '')
 	{
-		self::getConfiguration()->set($guid, $config, $params);
+		$this->getConfiguration($categoryName)->set($guid, $config, $params);
 	}
-	public static function resetConfigurationAction($guid, array $params)
+	public function resetConfigurationAction($guid, array $params, string $categoryName = '')
 	{
-		self::getConfiguration()->reset($guid, $params);
-	}
-
-	public static function setScopeAction($guid, $scope)
-	{
-		self::getConfiguration()->setScope($guid, $scope);
+		$this->getConfiguration($categoryName)->reset($guid, $params);
 	}
 
-	public static function forceCommonScopeForAllAction($guid)
+	public function setScopeAction($guid, $scope, string $categoryName = '')
 	{
-		self::getConfiguration()->forceCommonScopeForAll($guid);
+		$this->getConfiguration($categoryName)->setScope($guid, $scope);
+	}
+
+	public function forceCommonScopeForAllAction($guid, string $categoryName = '')
+	{
+		$this->getConfiguration($categoryName)->forceCommonScopeForAll($guid);
 	}
 
 	public static function renderImageInputAction($moduleId, $name, $value)

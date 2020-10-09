@@ -119,7 +119,7 @@ class Transport
 	protected function prepareAnswer($response)
 	{
 		$responseData = false;
-		if($response && strlen($response) > 0)
+		if($response && $response <> '')
 		{
 			try
 			{

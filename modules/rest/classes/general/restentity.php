@@ -1062,7 +1062,7 @@ class CBitrixRestEntity extends IRestService
 		{
 			$params['ENTITY'] = preg_replace('/[^a-zA-Z0-9_]/i', '', trim(strval($params['ENTITY'])));
 
-			if(strlen($params['ENTITY']) <= 0)
+			if($params['ENTITY'] == '')
 			{
 				throw new \Bitrix\Main\ArgumentNullException("ENTITY");
 			}
@@ -1165,9 +1165,9 @@ class CBitrixRestEntity extends IRestService
 
 		$str = self::ENTITY_IBLOCK_CODE_PREFIX."_".$server->getClientId()."_";
 
-		if(substr($iblock, 0, strlen($str)) === $str)
+		if(mb_substr($iblock, 0, mb_strlen($str)) === $str)
 		{
-			return substr($iblock, strlen($str));
+			return mb_substr($iblock, mb_strlen($str));
 		}
 		else
 		{

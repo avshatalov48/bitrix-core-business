@@ -64,7 +64,7 @@ abstract class QueryEngine
 						break;
 
 					case self::FILTER_NODE_NAME:
-						if(strtoupper($value) === $node->getNodeName())
+						if(mb_strtoupper($value) === $node->getNodeName())
 						{
 							$isFiltered = true;
 						}
@@ -129,7 +129,7 @@ abstract class QueryEngine
 
 									case self::FILTER_OPERATION_CONTAIN:
 
-										if(strpos($attrValue, $operationValue) === false)
+										if(mb_strpos($attrValue, $operationValue) === false)
 										{
 											return false;
 										}
@@ -137,7 +137,7 @@ abstract class QueryEngine
 
 									case self::FILTER_OPERATION_END:
 
-										if(substr($attrValue, -strlen($operationValue)) !== $operationValue)
+										if(mb_substr($attrValue, -mb_strlen($operationValue)) !== $operationValue)
 										{
 											return false;
 										}
@@ -145,7 +145,7 @@ abstract class QueryEngine
 
 									case self::FILTER_OPERATION_START:
 
-										if(strpos($attrValue, $operationValue) !== 0)
+										if(mb_strpos($attrValue, $operationValue) !== 0)
 										{
 											return false;
 										}

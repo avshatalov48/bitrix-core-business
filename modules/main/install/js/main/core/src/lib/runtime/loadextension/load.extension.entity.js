@@ -9,6 +9,7 @@ import {
 
 import Type from '../../type';
 import Reflection from '../../reflection';
+import fetchExtensionSettings from './internal/fetch-extension-settings';
 
 export default class Extension
 {
@@ -31,6 +32,7 @@ export default class Extension
 		this.inlineScripts = result.SCRIPT.reduce(inlineScripts, []);
 		this.externalScripts = result.SCRIPT.reduce(externalScripts, []);
 		this.externalStyles = result.STYLE.reduce(externalStyles, []);
+		this.settingsScripts = fetchExtensionSettings(result.HTML);
 	}
 
 	load(): Promise<Extension>
@@ -44,7 +46,15 @@ export default class Extension
 		if (!this.loadPromise && this.state)
 		{
 			this.state = 'load';
-			// eslint-disable-next-line
+			this.settingsScripts.forEach((entry) => {
+				const isLoaded = !!document.querySelector(
+					`script[data-extension="${entry.extension}"]`,
+				);
+				if (!isLoaded)
+				{
+					document.body.insertAdjacentHTML('beforeend', entry.script);
+				}
+			});
 			this.inlineScripts.forEach(BX.evalGlobal);
 
 			this.loadPromise = Promise

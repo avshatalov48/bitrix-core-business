@@ -25,11 +25,11 @@ class Options extends \CGridOptions
 		parent::__construct($gridId, $filterPresets);
 
 		if (!static::isAuthorized() &&
-			isset($_SESSION["main.ui.grid.options"][$this->id]) &&
-			is_array($_SESSION["main.ui.grid.options"][$this->id]) &&
-			!empty($_SESSION["main.ui.grid.options"][$this->id]))
+			isset(\Bitrix\Main\Application::getInstance()->getSession()["main.ui.grid.options"][$this->id]) &&
+			is_array(\Bitrix\Main\Application::getInstance()->getSession()["main.ui.grid.options"][$this->id]) &&
+			!empty(\Bitrix\Main\Application::getInstance()->getSession()["main.ui.grid.options"][$this->id]))
 		{
-			$this->all_options = $_SESSION["main.ui.grid.options"][$this->id];
+			$this->all_options = \Bitrix\Main\Application::getInstance()->getSession()["main.ui.grid.options"][$this->id];
 		}
 	}
 
@@ -116,7 +116,7 @@ class Options extends \CGridOptions
 	 */
 	public function setExpandedRows($ids = array())
 	{
-		$_SESSION["main.ui.grid"][$this->getId()]["expanded_rows"] = $ids;
+		\Bitrix\Main\Application::getInstance()->getSession()["main.ui.grid"][$this->getId()]["expanded_rows"] = $ids;
 	}
 
 
@@ -126,7 +126,7 @@ class Options extends \CGridOptions
 	 */
 	public function getExpandedRows()
 	{
-		return $_SESSION["main.ui.grid"][$this->getId()]["expanded_rows"];
+		return \Bitrix\Main\Application::getInstance()->getSession()["main.ui.grid"][$this->getId()]["expanded_rows"];
 	}
 
 
@@ -136,7 +136,7 @@ class Options extends \CGridOptions
 	 */
 	public function setCollapsedGroups($ids = array())
 	{
-		$_SESSION["main.ui.grid"][$this->getId()]["collapsed_groups"] = is_array($ids) ? $ids : array();
+		\Bitrix\Main\Application::getInstance()->getSession()["main.ui.grid"][$this->getId()]["collapsed_groups"] = is_array($ids) ? $ids : array();
 	}
 
 
@@ -146,7 +146,7 @@ class Options extends \CGridOptions
 	 */
 	public function getCollapsedGroups()
 	{
-		return $_SESSION["main.ui.grid"][$this->getId()]["collapsed_groups"];
+		return \Bitrix\Main\Application::getInstance()->getSession()["main.ui.grid"][$this->getId()]["collapsed_groups"];
 	}
 
 
@@ -158,8 +158,8 @@ class Options extends \CGridOptions
 	{
 		$gridId = $this->getId();
 		$this->all_options["views"][$viewId] = array();
-		unset($_SESSION["main.interface.grid"][$gridId]);
-		unset($_SESSION["main.ui.grid"][$gridId]);
+		unset(\Bitrix\Main\Application::getInstance()->getSession()["main.interface.grid"][$gridId]);
+		unset(\Bitrix\Main\Application::getInstance()->getSession()["main.ui.grid"][$gridId]);
 		$this->Save();
 		parent::__construct($gridId);
 	}
@@ -173,8 +173,8 @@ class Options extends \CGridOptions
 	{
 		$gridId = $this->getId();
 		unset($this->all_options["views"][$viewId]);
-		unset($_SESSION["main.interface.grid"][$gridId]);
-		unset($_SESSION["main.ui.grid"][$gridId]);
+		unset(\Bitrix\Main\Application::getInstance()->getSession()["main.interface.grid"][$gridId]);
+		unset(\Bitrix\Main\Application::getInstance()->getSession()["main.ui.grid"][$gridId]);
 		$this->Save();
 		parent::__construct($gridId);
 	}
@@ -262,7 +262,7 @@ class Options extends \CGridOptions
 		}
 		else
 		{
-			$_SESSION["main.ui.grid.options"][$gridId] = $this->all_options;
+			\Bitrix\Main\Application::getInstance()->getSession()["main.ui.grid.options"][$gridId] = $this->all_options;
 		}
 	}
 

@@ -194,8 +194,8 @@ class FileInputReceiver
 
 		$docRoot = \CBXVirtualIo::GetInstance()->CombinePath(\CTempFile::GetAbsoluteRoot());
 		$file["files"][$key]["path"] = \CBXVirtualIo::GetInstance()->GetFile($file["files"][$key]["tmp_name"])->GetPathWithName();
-		if (strpos($file["files"][$key]["path"], $docRoot) === 0)
-			$file["files"][$key]["path"] = str_replace("//", "/", "/".substr($file["files"][$key]["path"], strlen($docRoot)));
+		if (mb_strpos($file["files"][$key]["path"], $docRoot) === 0)
+			$file["files"][$key]["path"] = str_replace("//", "/", "/".mb_substr($file["files"][$key]["path"], mb_strlen($docRoot)));
 
 		$file["files"][$key]["tmp_url"] = $file["files"][$key]["url"];
 		$file["type"] = $file["files"][$key]["type"];

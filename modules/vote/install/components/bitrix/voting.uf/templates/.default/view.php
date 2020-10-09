@@ -253,13 +253,13 @@ foreach ($arResult['ATTACHES'] as $attach)
 	?></div><?
 
 	?><div class="bx-vote-buttons"><?
-		?><button class="ui-btn ui-btn-lg ui-btn-link" data-bx-vote-button="showVoteForm"><?=GetMessage("VOTE_RESUBMIT_BUTTON")?></button><?
+		?><button class="ui-btn ui-btn-lg ui-btn-link bx-vote-button-resubmit" data-bx-vote-button="showVoteForm"><?=GetMessage("VOTE_RESUBMIT_BUTTON")?></button><?
 		?><button class="ui-btn ui-btn-lg ui-btn-primary" data-bx-vote-button="actVoting"><?= GetMessage("VOTE_SUBMIT_BUTTON") ?></button><?
 		if ($attach->canEdit($USER->GetID()))
 		{
-			?><span href="#" data-bx-vote-button="stopOrResume"><?
-				?><button class="ui-btn ui-btn-lg ui-btn-link"><?=GetMessage("VOTE_STOP_BUTTON")?></button><?
-				?><button class="ui-btn ui-btn-lg ui-btn-link"><?=GetMessage("VOTE_RESUME_BUTTON")?></button><?
+			?><span data-bx-vote-button="stopOrResume"><?
+				?><button class="ui-btn ui-btn-lg ui-btn-link bx-vote-button-stop"><?=GetMessage("VOTE_STOP_BUTTON")?></button><?
+				?><button class="ui-btn ui-btn-lg ui-btn-link bx-vote-button-resume"><?=GetMessage("VOTE_RESUME_BUTTON")?></button><?
 			?></span><?
 			?><button class="ui-btn ui-btn-lg ui-btn-link" data-bx-vote-button="exportXls"><?=GetMessage("VOTE_EXPORT_BUTTON")?></button><?
 		}

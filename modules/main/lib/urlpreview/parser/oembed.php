@@ -32,7 +32,7 @@ class Oembed extends Parser
 	 */
 	public function handle(HtmlDocument $document, HttpClient $httpClient = null)
 	{
-		if(!$this->detectOembedLink($document) || strlen($this->metadataUrl) == 0)
+		if(!$this->detectOembedLink($document) || $this->metadataUrl == '')
 		{
 			return;
 		}
@@ -47,7 +47,7 @@ class Oembed extends Parser
 		$parsedMetadata = $this->parseMetadata($rawMetadata);
 		if($parsedMetadata !== false)
 		{
-			if(strlen($this->metadataEncoding) > 0 && $document->getEncoding() !== $this->metadataEncoding)
+			if($this->metadataEncoding <> '' && $document->getEncoding() !== $this->metadataEncoding)
 			{
 				$parsedMetadata = Encoding::convertEncoding($parsedMetadata, $this->metadataEncoding, $document->getEncoding());
 			}
@@ -94,8 +94,8 @@ class Oembed extends Parser
 
 		foreach($linkElements[0] as $linkElement)
 		{
-			$typeJson = (strpos($linkElement, $this::OEMBED_TYPE_JSON) !== false);
-			$typeXml = (strpos($linkElement, $this::OEMBED_TYPE_XML) !== false);
+			$typeJson = (mb_strpos($linkElement, $this::OEMBED_TYPE_JSON) !== false);
+			$typeXml = (mb_strpos($linkElement, $this::OEMBED_TYPE_XML) !== false);
 			if($typeJson || $typeXml)
 			{
 				if(preg_match('/href=[\'"](.+?)[\'"]/', $linkElement, $attributes))

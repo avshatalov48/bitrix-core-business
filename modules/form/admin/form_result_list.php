@@ -23,7 +23,6 @@ ClearVars();
 $FORM_RIGHT = $APPLICATION->GetGroupRight("form");
 if($FORM_RIGHT<="D") $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-//require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/form/include.php");
 IncludeModuleLangFile(__FILE__);
 
 $old_module_version = CForm::IsOldVersion();
@@ -69,8 +68,7 @@ $HELP_FILE_ACCESS = $APPLICATION->GetFileAccessPermission("/bitrix/modules/form/
 $FORM_RIGHT = $APPLICATION->GetGroupRight("form");
 $MAIN_RIGHT = $APPLICATION->GetGroupRight("main");
 $WEB_FORM_NAME = $arForm["SID"];
-##########
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/form/include.php");
+
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/form/admin/form_result_list.php");
 $err_mess = "File: ".__FILE__."<br>Line: ";
 
@@ -123,7 +121,7 @@ function CheckFilter()
 		}
 	}
 	$strError .= $str;
-	if (strlen($str)>0)
+	if ($str <> '')
 	{
 		$lAdmin->AddFilterError($str);
 		return false;
@@ -277,7 +275,7 @@ if ($lAdmin->EditAction() && /*$FORM_RIGHT>="W"*/ $F_RIGHT >= 20 && check_bitrix
 		if(!$lAdmin->IsUpdated($ID))
 			continue;
 		$DB->StartTransaction();
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 
 		if (!CFormResult::SetStatus($ID, $arFields['STATUS_ID']))
 		{
@@ -308,9 +306,9 @@ if(($arID = $lAdmin->GroupAction()) && /*$FORM_RIGHT>="W"*/ $F_RIGHT >= 20 && ch
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 				continue;
-		$ID = IntVal($ID);
+		$ID = intval($ID);
 		switch($_REQUEST['action'])
 		{
 			case "delete":
@@ -345,7 +343,7 @@ $result->NavStart();
 
 $custom_table=false;
 $TABLE_RESULT_TEMPLATE = $arForm["TABLE_RESULT_TEMPLATE"];
-if (strlen($TABLE_RESULT_TEMPLATE)>0 && file_exists($_SERVER["DOCUMENT_ROOT"].$TABLE_RESULT_TEMPLATE)) // use custom tpl
+if ($TABLE_RESULT_TEMPLATE <> '' && file_exists($_SERVER["DOCUMENT_ROOT"].$TABLE_RESULT_TEMPLATE)) // use custom tpl
 {
 	$custom_table=true;
 }
@@ -384,9 +382,9 @@ else
 	$rsFields = CFormField::GetList($WEB_FORM_ID, "ALL", ($v1="s_c_sort"), ($v2="asc"), $arFilter, $v3);
 	while ($arField = $rsFields->Fetch())
 	{
-		if (strlen($arField['RESULTS_TABLE_TITLE'])>0)
+		if ($arField['RESULTS_TABLE_TITLE'] <> '')
 			$r=$arField['RESULTS_TABLE_TITLE'];
-		elseif (strlen($arField['TITLE'])>0)
+		elseif ($arField['TITLE'] <> '')
 			$r=$arField['TITLE'];
 		else
 			$r=$arField['SID'];
@@ -400,13 +398,30 @@ else
 	$obj=CFormStatus::GetDropdown($WEB_FORM_ID, array("MOVE"));
 	while ($ar=$obj->Fetch())
 		$arValues[$ar['REFERENCE_ID']]=$ar['REFERENCE'];
+	$fullStatusList = [];
+	$statusBy = 's_id';
+	$statusOrder = 'asc';
+	$statusFiltered = false;
+	$iterator = CFormStatus::GetList($WEB_FORM_ID, $statusBy, $statusOrder, [], $statusFiltered);
+	while ($row = $iterator->Fetch())
+	{
+		$fullStatusList[$row['ID']] = htmlspecialcharsbx('['.$row['ID'].'] '.$row['TITLE']);
+	}
+	unset($row, $iterator);
 
 	$arrUsers = array();
 	while($arRes = $result->NavNext(true, "f_"))
 	{
 		$row =& $lAdmin->AddRow($f_ID, $arRes);
 
-		$row->AddSelectField("STATUS_ID",$arValues);
+		if (isset($arValues[$arRes['STATUS_ID']]))
+		{
+			$row->AddSelectField("STATUS_ID", $arValues);
+		}
+		else
+		{
+			$row->AddViewField('STATUS_ID', $fullStatusList[$arRes['STATUS_ID']]);
+		}
 
 		$arFilter = array("RESULT_ID" => $f_ID);
 		$arrAnswers = array();
@@ -473,12 +488,12 @@ else
 
 			foreach ($arFieldValues as $arrA)
 			{
-				if (strlen(trim($arrA["USER_DATE"]))>0)
+				if (trim($arrA["USER_DATE"]) <> '')
 				{
 					// hack
 					$txt.= ((MakeTimeStamp($arrA["USER_TEXT"])+date('Z'))%86400 == 0 ? $arrA['USER_TEXT'] : $arrA['USER_DATE'])."<br>";
 				}
-				elseif (strlen(trim($arrA["USER_TEXT"]))>0)
+				elseif (trim($arrA["USER_TEXT"]) <> '')
 				{
 					if (intval($arrA["USER_FILE_ID"])>0)
 					{
@@ -488,14 +503,14 @@ else
 					else $txt.= TxtToHTML($arrA["USER_TEXT"],true,100)."<br>";
 				}
 
-				if (strlen(trim($arrA["ANSWER_TEXT"]))>0)
+				if (trim($arrA["ANSWER_TEXT"]) <> '')
 				{
 					$answer = "[".TxtToHTML($arrA["ANSWER_TEXT"],true,100)."]";
-					if (strlen(trim($arrA["ANSWER_VALUE"]))>0) $answer .= "&nbsp;"; else $answer .= "<br>";
+					if (trim($arrA["ANSWER_VALUE"]) <> '') $answer .= "&nbsp;"; else $answer .= "<br>";
 					$txt.= $answer;
 				}
 
-				if (strlen(trim($arrA["ANSWER_VALUE"]))>0)
+				if (trim($arrA["ANSWER_VALUE"]) <> '')
 					$txt.= "(".TxtToHTML($arrA["ANSWER_VALUE"],true,100).")<br>";
 
 				if (intval($arrA["USER_FILE_ID"])>0)
@@ -582,7 +597,7 @@ if(!is_set($_REQUEST, "mode"))
 }
 
 $FILTER_RESULT_TEMPLATE = $arForm["FILTER_RESULT_TEMPLATE"];
-if(strlen($FILTER_RESULT_TEMPLATE)>0 && file_exists($_SERVER["DOCUMENT_ROOT"].$FILTER_RESULT_TEMPLATE))
+if($FILTER_RESULT_TEMPLATE <> '' && file_exists($_SERVER["DOCUMENT_ROOT"].$FILTER_RESULT_TEMPLATE))
 {
 	require_once($_SERVER["DOCUMENT_ROOT"].$FILTER_RESULT_TEMPLATE);
 }
@@ -630,9 +645,9 @@ else
 		reset($arrFILTER);
 		list($key, $arrF) = each($arrFILTER);
 
-		if (strlen($arrF["FILTER_TITLE"])>0)
+		if ($arrF["FILTER_TITLE"] <> '')
 			$arFieldsTitle[] = htmlspecialcharsbx($arrF["FILTER_TITLE"]);
-		elseif (strlen($arrF["TITLE"])>0)
+		elseif ($arrF["TITLE"] <> '')
 			$arFieldsTitle[] = htmlspecialcharsbx($arrF["TITLE"]);
 		else
 			$arFieldsTitle[] = $arrF["SID"];
@@ -733,9 +748,9 @@ else
 	<tr>
 		<td width="40%">
 <?
-						if (strlen($arrF["FILTER_TITLE"])>0)
+						if ($arrF["FILTER_TITLE"] <> '')
 							echo htmlspecialcharsbx($arrF["FILTER_TITLE"]);
-						elseif (strlen($arrF["TITLE"])>0)
+						elseif ($arrF["TITLE"] <> '')
 							echo htmlspecialcharsbx($arrF["TITLE"]);
 						else
 							echo $arrF["SID"];
@@ -851,4 +866,3 @@ echo BeginNote();
 <?
 echo EndNote();
 require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
-?>

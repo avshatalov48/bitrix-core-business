@@ -8,7 +8,7 @@ if (isset($arResult["REQUEST"]["TAGS"]))
 	$arResult["REQUEST"]["TAGS"] = htmlspecialcharsback($arResult["REQUEST"]["TAGS"]);
 
 if($arParams["USE_SUGGEST"] === "Y"):
-	if(strlen($arResult["REQUEST"]["~QUERY"]) && is_object($arResult["NAV_RESULT"]))
+	if(mb_strlen($arResult["REQUEST"]["~QUERY"]) && is_object($arResult["NAV_RESULT"]))
 	{
 		$arResult["FILTER_MD5"] = $arResult["NAV_RESULT"]->GetFilterMD5();
 		$obSearchSuggest = new CSearchSuggest($arResult["FILTER_MD5"], $arResult["REQUEST"]["~QUERY"]);
@@ -152,7 +152,7 @@ endif;?>
 	<br/>
 	<?
 	$arResult["PATH_TO_POST_EDIT"] = $component->GetParent()->arResult['PATH_TO_POST_EDIT'];
-	if(strlen($arResult["PATH_TO_POST_EDIT"])<=0)
+	if($arResult["PATH_TO_POST_EDIT"] == '')
 		$arResult["PATH_TO_POST_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$component->arParams['OPER_VAR']."=#wiki_name#");
 	$arResult["PATH_TO_POST_EDIT"] = CHTTP::urlAddParams(
 		CComponentEngine::MakePathFromTemplate(

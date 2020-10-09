@@ -112,7 +112,7 @@ class ConfigRoleEditSenderComponent extends Bitrix\Sender\Internals\CommonSender
 		{
 			$items[] = [
 				'id' => $key,
-				'text' => $dealCategory,
+				'text' => htmlspecialcharsEx($dealCategory),
 				'href' => sprintf("/marketing/config/role/edit/%d/", $key)
 			];
 		}

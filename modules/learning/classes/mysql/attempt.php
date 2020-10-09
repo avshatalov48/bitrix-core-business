@@ -7,7 +7,7 @@ class CTestAttempt extends CAllTestAttempt
 	{
 		global $DB;
 
-		if (strlen($arInsert[0]) <= 0 || strlen($arInsert[0])<= 0)		// BUG ?
+		if ($arInsert[0] == '' || $arInsert[0] == '')		// BUG ?
 			return false;
 
 		if (!isset($arFields["DATE_START"]))

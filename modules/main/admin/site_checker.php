@@ -45,8 +45,13 @@ if ($_REQUEST['unique_id'])
 			define("NOT_CHECK_PERMISSIONS", true);
 			define("LDAP_NO_PORT_REDIRECTION", true);
 			require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
-			require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");
-			echo $main_exec_time;
+
+			foreach(GetModuleEvents("main", "OnEpilog", true) as $arEvent)
+				ExecuteModuleEventEx($arEvent);
+
+			$APPLICATION->EndBufferContentMan();
+
+			echo round(microtime(true) - START_EXEC_TIME, 4);
 		break;
 		case 'fast_download':
 			header('X-Accel-Redirect: /bitrix/tmp/success.txt');
@@ -64,7 +69,7 @@ if ($_REQUEST['unique_id'])
 			ob_end_clean();
 			if (function_exists('mb_internal_encoding'))
 				mb_internal_encoding('ISO-8859-1');
-			echo $buff === '' ? 'SUCCESS' : 'Length: '.strlen($buff).' ('.$buff . ')';
+			echo $buff === '' ? 'SUCCESS' : 'Length: '.mb_strlen($buff).' ('.$buff . ')';
 		break;
 		case 'pcre_recursion_test':
 			$a = str_repeat('a',4096);
@@ -114,7 +119,7 @@ if ($_REQUEST['unique_id'])
 			if ($binaryData === $binaryData_received)
 				echo "SUCCESS";
 			else
-				echo 'strlen($binaryData)='.strlen($binaryData).', strlen($binaryData_received)='.strlen($binaryData_received);
+				echo 'strlen($binaryData)='.mb_strlen($binaryData).', strlen($binaryData_received)='.mb_strlen($binaryData_received);
 		break;
 		case 'post_test':
 			$ok = true;
@@ -136,7 +141,7 @@ if ($_REQUEST['unique_id'])
 		break;
 		case 'auth_test':
 			$remote_user = $_SERVER["REMOTE_USER"] ? $_SERVER["REMOTE_USER"] : $_SERVER["REDIRECT_REMOTE_USER"];
-			$strTmp = base64_decode(substr($remote_user,6));
+			$strTmp = base64_decode(mb_substr($remote_user, 6));
 			if ($strTmp)
 				list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', $strTmp);
 			if ($_SERVER['PHP_AUTH_USER']=='test_user' && $_SERVER['PHP_AUTH_PW']=='test_password')
@@ -152,12 +157,12 @@ if ($_REQUEST['unique_id'])
 				$GLOBALS['_SERVER'][$key] = $GLOBALS['_REQUEST'][$key];
 			function IsHTTPS()
 			{
-				return ($_SERVER["SERVER_PORT"]==443 || strtolower($_SERVER["HTTPS"])=="on");
+				return ($_SERVER["SERVER_PORT"]==443 || mb_strtolower($_SERVER["HTTPS"]) == "on");
 			}
 
 			function SetStatus($status)
 			{
-				$bCgi = (stristr(php_sapi_name(), "cgi") !== false);
+				$bCgi = (mb_stristr(php_sapi_name(), "cgi") !== false);
 				$bFastCgi = ($bCgi && (array_key_exists('FCGI_ROLE', $_SERVER) || array_key_exists('FCGI_ROLE', $_ENV)));
 				if($bCgi && !$bFastCgi)
 					header("Status: ".$status);
@@ -172,7 +177,7 @@ if ($_REQUEST['unique_id'])
 				SetStatus("302 Found");
 				$protocol = (IsHTTPS() ? "https" : "http");
 				$host = $_SERVER['HTTP_HOST'];
-				if($_SERVER['SERVER_PORT'] <> 80 && $_SERVER['SERVER_PORT'] <> 443 && $_SERVER['SERVER_PORT'] > 0 && strpos($_SERVER['HTTP_HOST'], ":") === false)
+				if($_SERVER['SERVER_PORT'] <> 80 && $_SERVER['SERVER_PORT'] <> 443 && $_SERVER['SERVER_PORT'] > 0 && mb_strpos($_SERVER['HTTP_HOST'], ":") === false)
 					$host .= ":".$_SERVER['SERVER_PORT'];
 				$url = "?redirect_test=Y&done=Y&unique_id=".checker_get_unique_id();
 				header("Request-URI: ".$protocol."://".$host.$url);
@@ -324,7 +329,7 @@ if ($_POST['access_check'])
 				mkdir($tmp);
 			$upload = $_SERVER['DOCUMENT_ROOT'].'/'.COption::GetOptionString('main', 'upload_dir', 'upload');
 
-			if (0===strpos($_REQUEST['break_point'], $upload))
+			if (0 === mb_strpos($_REQUEST['break_point'], $upload))
 				$path = $upload;
 			else
 			{
@@ -984,7 +989,7 @@ $tabControl->BeginNextTab();
 		<?
 		foreach(CSiteCheckerTest::GetTestList() as $test)
 		{
-			$help = GetMessage('SC_HELP_'.strtoupper($test));
+			$help = GetMessage('SC_HELP_'.mb_strtoupper($test));
 			$help = str_replace('<code>','<div class="sc_code">',$help);
 			$help = str_replace('</code>','</div>',$help);
 			$help = str_replace("\r", "", $help);

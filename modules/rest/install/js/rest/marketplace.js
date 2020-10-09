@@ -3,6 +3,7 @@ BX.namespace('BX.rest.Marketplace');
 BX.rest.Marketplace = (function(){
 
 	var ajaxPath = "/bitrix/tools/rest.php";
+	var buySubscriptionPath = "/settings/license_buy.php?product=subscr";
 
 	var query = function(action, data, callback)
 	{
@@ -92,6 +93,11 @@ BX.rest.Marketplace = (function(){
 									queryParam.install_hash = params.INSTALL_HASH;
 								}
 
+								if (!!params.FROM)
+								{
+									queryParam.from = params.FROM;
+								}
+
 								query(
 									'install',
 									queryParam,
@@ -161,10 +167,20 @@ BX.rest.Marketplace = (function(){
 				events: {
 					onAfterPopupShow: function()
 					{
+						var url = params.url || location.href;
+						if (url.indexOf("?") > 0)
+						{
+							url += '&label=startInstall'
+						}
+						else
+						{
+							url += '?label=startInstall'
+						}
+
 						return BX.ajax({
 							'method': 'POST',
 							'processData' : false,
-							'url': params.url || location.href,
+							'url': url,
 							'data':  BX.ajax.prepareData({
 								install: 1,
 								sessid: BX.bitrix_sessid(),
@@ -193,7 +209,7 @@ BX.rest.Marketplace = (function(){
 			popup.show();
 		},
 
-		uninstallConfirm: function(code)
+		uninstallConfirm: function(code, analyticsFrom)
 		{
 			var popup = new BX.PopupWindow('mp_delete_confirm_popup', null, {
 				content: '<div class="mp_delete_confirm"><div class="mp_delete_confirm_text">' + BX.message('REST_MP_DELETE_CONFIRM') + '</div><div class="mp_delete_confirm_cb"><input type="checkbox" name="delete_data" id="delete_data">&nbsp;<label for="delete_data">' + BX.message('REST_MP_DELETE_CONFIRM_CLEAN') + '</label></div></div>',
@@ -237,7 +253,8 @@ BX.rest.Marketplace = (function(){
 												window.location.reload();
 											}
 										}
-									}
+									},
+									analyticsFrom
 								);
 							}
 						}
@@ -258,34 +275,41 @@ BX.rest.Marketplace = (function(){
 			popup.show();
 		},
 
-		uninstall: function(code, clean, callback)
+		uninstall: function(code, clean, callback, analyticsFrom)
 		{
-			query('uninstall', {
-				code: code,
-				clean: clean
-			}, function(result)
-			{
-				var eventResult = {};
-				top.BX.onCustomEvent(top, 'Rest:AppLayout:ApplicationInstall', [false, eventResult], false);
+			query(
+				'uninstall',
+				{
+					code: code,
+					clean: clean,
+					from: analyticsFrom
+				},
+				function (result)
+				{
+					var eventResult = {};
+					top.BX.onCustomEvent(top, 'Rest:AppLayout:ApplicationInstall', [false, eventResult], false);
 
-				if(!!callback)
-				{
-					callback(result);
-				}
-				else
-				{
-					if (!!result.error)
+					if (!!callback)
 					{
-						BX.UI.Notification.Center.notify({
-							content: result.error
-						});
+						callback(result);
 					}
 					else
 					{
-						location.reload();
+						if (!!result.error)
+						{
+							BX.UI.Notification.Center.notify(
+								{
+									content: result.error
+								}
+							);
+						}
+						else
+						{
+							location.reload();
+						}
 					}
 				}
-			});
+			);
 		},
 
 		reinstall: function(id, callback)
@@ -339,7 +363,7 @@ BX.rest.Marketplace = (function(){
 				angle: true
 			});
 		},
-		buySubscription : function(params) 
+		buySubscription: function(params)
 		{
 			var oPopup = BX.PopupWindowManager.create('marketplace_buy_subscription', null, {
 				content: [
@@ -361,11 +385,184 @@ BX.rest.Marketplace = (function(){
 				buttons: [
 					new BX.PopupWindowButton({
 						text: BX.message("REST_MP_SUBSCRIPTION_BUTTON_TITLE"),
-						className: "popup-window-button-accept"
+						className: "popup-window-button-accept",
+						events: {
+							click: this.openBuySubscription
+						}
 					}),
 					new BX.PopupWindowButtonLink({
 						text: BX.message("REST_MP_SUBSCRIPTION_BUTTON_TITLE2"),
-						className: "popup-window-button-link-cancel"
+						className: "popup-window-button-link-cancel",
+						events: {
+							click: function()
+							{
+								this.openDemoSubscription();
+							}.bind(this)
+						}
+					})
+				]
+			}).show();
+		},
+
+		openBuySubscription: function()
+		{
+			top.window.location.href = buySubscriptionPath;
+		},
+
+		openDemoSubscription: function(callback)
+		{
+			var btnConfirm = new BX.UI.Button({
+				color: BX.UI.Button.Color.SUCCESS,
+				state: BX.UI.Button.State.DISABLED,
+				text: BX.message('REST_MP_SUBSCRIPTION_BUTTON_DEMO_ACTIVE'),
+				className: "rest-marketplace-popup-activate-subscription-btn",
+				onclick: BX.delegate(
+					function()
+					{
+						if (BX('mp_demo_subscription_license').checked)
+						{
+							btnConfirm.setState(
+								BX.UI.Button.State.WAITING
+							);
+							query(
+								'activate_demo',
+								{},
+								function(result)
+								{
+									if (!!result.error)
+									{
+										BX.UI.Notification.Center.notify(
+											{
+												content: result.error
+											}
+										);
+										btnConfirm.setState(
+											BX('mp_demo_subscription_license').checked ? BX.UI.Button.State.ACTIVE : BX.UI.Button.State.DISABLED
+										);
+									}
+									else
+									{
+										if (BX.type.isFunction(callback))
+										{
+											callback(result);
+										}
+										else
+										{
+											var slider = BX.SidePanel.Instance.getTopSlider();
+											if (!!slider)
+											{
+												slider.reload();
+											}
+											else
+											{
+												window.location.reload();
+											}
+										}
+									}
+								}
+							)
+						}
+					},
+					this
+				)
+			});
+			var popupDemo = BX.PopupWindowManager.create('marketplace_demo_subscription', null, {
+				content: BX.create(
+					'div',
+					{
+						props: {
+							className: 'rest-marketplace-popup-block'
+						},
+						children:
+						[
+							BX.create(
+								'div',
+								{
+									props: {
+										className: 'rest-marketplace-popup-text-block'
+									},
+									children: [
+										BX.create(
+											'div',
+											{
+												props: {
+													className: 'rest-marketplace-popup-text'
+												},
+												text: BX.message("REST_MP_SUBSCRIPTION_DEMO_TEXT1")
+											}
+										),
+										BX.create(
+											'div',
+											{
+												props: {
+													className: 'rest-marketplace-popup-text'
+												},
+												text: BX.message("REST_MP_SUBSCRIPTION_DEMO_TEXT2")
+											}
+										),
+										BX.create(
+											'div',
+											{
+												style: {
+													'margin-bottom': '8px',
+													'margin-top': '15px'
+												},
+												children: [
+													BX.create(
+														'input',
+														{
+															attrs: {
+																id: "mp_demo_subscription_license",
+																type: "checkbox",
+																name: 'ACCEPT_SUBSCRIPTION_LICENSE',
+																value: 'Y'
+															},
+															events: {
+																change: function (event)
+																{
+																	btnConfirm.setState(
+																		event.target.checked ? BX.UI.Button.State.ACTIVE : BX.UI.Button.State.DISABLED
+																	);
+																}
+															}
+														}
+													),
+													BX.create(
+														'label',
+														{
+															attrs: {
+																for: "mp_demo_subscription_license",
+															},
+															html: BX.message("REST_MP_SUBSCRIPTION_DEMO_EULA_TITLE").replace('#LINK#', BX.message("REST_MP_SUBSCRIPTION_DEMO_EULA_LINK"))
+														}
+													)
+												]
+											}
+										)
+									]
+								}
+							)
+						]
+					}
+				),
+				titleBar: BX.message("REST_MP_SUBSCRIPTION_TITLE"),
+				closeIcon : true,
+				closeByEsc : true,
+				draggable: true,
+				lightShadow: true,
+				overlay: true,
+				className: 'landing-marketplace-popup-wrapper',
+				buttons: [
+					btnConfirm,
+					new BX.PopupWindowButtonLink({
+						text: BX.message("JS_CORE_WINDOW_CANCEL"),
+						className: "popup-window-button-link-cancel",
+						events: {
+							click: function()
+							{
+								this.popupWindow.close();
+							}
+						}
 					})
 				]
 			}).show();

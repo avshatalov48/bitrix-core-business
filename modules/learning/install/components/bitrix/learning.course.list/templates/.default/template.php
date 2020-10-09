@@ -24,7 +24,7 @@
 		<?endif;?>
 
 		<a href="<?=$arCourse["COURSE_DETAIL_URL"]?>" target="_blank"><?=$arCourse["NAME"]?></a>
-		<?if(strlen($arCourse["PREVIEW_TEXT"])>0):?>
+		<?if($arCourse["PREVIEW_TEXT"] <> ''):?>
 			<br /><?=$arCourse["PREVIEW_TEXT"]?>
 		<?endif?>
 		<br clear="all"><br />

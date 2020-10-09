@@ -395,7 +395,7 @@ this.BX.UI = this.BX.UI || {};
 	      }
 
 	      this.showStep();
-	      main_core.Dom.addClass(this.layout.backBtn, "ui-tour-popup-btn-disabled");
+	      main_core.Dom.addClass(this.layout.backBtn, "ui-tour-popup-btn-hidden");
 
 	      if (this.getCurrentStep().getTarget()) {
 	        main_core.Dom.addClass(this.getCurrentStep().getTarget(), "ui-tour-selector");
@@ -676,7 +676,9 @@ this.BX.UI = this.BX.UI || {};
 	      }
 
 	      if (this.currentStepIndex < this.steps.length && !this.finalStep) {
-	        this.layout.nextBtn.textContent = main_core.Loc.getMessage("JS_UI_TOUR_BUTTON");
+	        setTimeout(function () {
+	          this.layout.nextBtn.textContent = main_core.Loc.getMessage("JS_UI_TOUR_BUTTON");
+	        }.bind(this), 200);
 	      }
 
 	      this.currentStepIndex--;
@@ -916,8 +918,8 @@ this.BX.UI = this.BX.UI || {};
 	          this.showStep();
 	        }.bind(this), 200);
 
-	        if (main_core.Dom.hasClass(this.layout.backBtn, 'ui-tour-popup-btn-disabled')) {
-	          main_core.Dom.removeClass(this.layout.backBtn, 'ui-tour-popup-btn-disabled');
+	        if (main_core.Dom.hasClass(this.layout.backBtn, 'ui-tour-popup-btn-hidden')) {
+	          main_core.Dom.removeClass(this.layout.backBtn, 'ui-tour-popup-btn-hidden');
 	        }
 	      }
 	    }
@@ -930,7 +932,7 @@ this.BX.UI = this.BX.UI || {};
 	      this.reduceCurrentStepIndex();
 
 	      if (this.currentStepIndex === 0) {
-	        main_core.Dom.addClass(this.layout.backBtn, 'ui-tour-popup-btn-disabled');
+	        main_core.Dom.addClass(this.layout.backBtn, 'ui-tour-popup-btn-hidden');
 	      }
 
 	      this.clickOnBackBtn = true;

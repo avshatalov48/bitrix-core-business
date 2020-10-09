@@ -15,11 +15,11 @@ $URL_NAME_DEFAULT = array(
 
 foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 {
-	$arParams[strToUpper($URL)."_URL"] = trim($arResult["URL_TEMPLATES"][strToLower($URL)]);
-	if (empty($arParams[strToUpper($URL)."_URL"]))
-		$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPageParam($URL_VALUE, array("PAGE_NAME", "SECTION_ID", "ELEMENT_ID", "ACTION", "sessid", "edit", "order"));
-	$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-	$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
+	$arParams[mb_strtoupper($URL)."_URL"] = trim($arResult["URL_TEMPLATES"][mb_strtolower($URL)]);
+	if (empty($arParams[mb_strtoupper($URL)."_URL"]))
+		$arParams[mb_strtoupper($URL)."_URL"] = $APPLICATION->GetCurPageParam($URL_VALUE, array("PAGE_NAME", "SECTION_ID", "ELEMENT_ID", "ACTION", "sessid", "edit", "order"));
+	$arParams["~".mb_strtoupper($URL)."_URL"] = $arParams[mb_strtoupper($URL)."_URL"];
+	$arParams[mb_strtoupper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".mb_strtoupper($URL)."_URL"]);
 }
 
 $arRes = array();
@@ -28,7 +28,7 @@ if (is_array($arParams["SHOW_LINK_ON_MAIN_PAGE"]))
 	$detail_list = array(
 		"~url" => CComponentEngine::MakePathFromTemplate($arParams["DETAIL_LIST_URL"], array("SECTION_ID" => "all", "ELEMENT_ID" => "all")));
 	$detail_list["url"] = $detail_list["~url"];
-	if (strpos($detail_list["url"], "?") === false)
+	if (mb_strpos($detail_list["url"], "?") === false)
 		$detail_list["url"] .= "?";
 	foreach ($arParams["SHOW_LINK_ON_MAIN_PAGE"] as $key)
 	{

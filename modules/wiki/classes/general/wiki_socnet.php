@@ -21,7 +21,7 @@ class CWikiSocnet
 		if (!self::IsEnabledSocnet())
 			return false;
 
-		self::$iSocNetId = intVal($SOCNET_GROUP_ID);
+		self::$iSocNetId = intval($SOCNET_GROUP_ID);
 
 		// detect work group
 		$arFilter = Array();
@@ -184,7 +184,7 @@ class CWikiSocnet
 		$arResult['AllowSettings']['wiki'] = true;
 
 		$arResult['CanView']['wiki'] = ((array_key_exists('ActiveFeatures', $arResult) ? array_key_exists('wiki', $arResult['ActiveFeatures']) : true) && CSocNetFeaturesPerms::CanPerformOperation($GLOBALS['USER']->GetID(), $arParams['ENTITY_TYPE'], $arParams['ENTITY_ID'], 'wiki', 'view', CSocNetUser::IsCurrentUserModuleAdmin()));
-		$arResult['Title']['wiki'] = (array_key_exists('ActiveFeatures', $arResult) && array_key_exists('wiki', $arResult['ActiveFeatures']) && strlen($arResult['ActiveFeatures']['wiki']) > 0 ? $arResult['ActiveFeatures']['wiki'] : GetMessage('WIKI_SOCNET_TAB'));
+		$arResult['Title']['wiki'] = (array_key_exists('ActiveFeatures', $arResult) && array_key_exists('wiki', $arResult['ActiveFeatures']) && $arResult['ActiveFeatures']['wiki'] <> '' ? $arResult['ActiveFeatures']['wiki'] : GetMessage('WIKI_SOCNET_TAB'));
 
 		if (!array_key_exists('SEF_MODE', $arResult) || $arResult['SEF_MODE'] != 'N')
 			$arResult['Urls']['wiki'] = $arResult['Urls']['view'].'wiki/';
@@ -299,7 +299,7 @@ class CWikiSocnet
 		if (
 			!$bMail
 			&& array_key_exists('URL', $arFields)
-			&& strlen($arFields['URL']) > 0
+			&& $arFields['URL'] <> ''
 		)
 			$wiki_tmp = '<a href="'.$arFields['URL'].'">'.$arFields['TITLE'].'</a>';
 		else
@@ -337,7 +337,7 @@ class CWikiSocnet
 		if (
 			intval($arFields['SOURCE_ID']) > 0
 			&& array_key_exists('PARAMS', $arFields)
-			&& strlen($arFields['PARAMS']) > 0
+			&& $arFields['PARAMS'] <> ''
 		)
 		{
 			$arFieldsParams = explode('&', $arFields['PARAMS']);
@@ -356,7 +356,7 @@ class CWikiSocnet
 		if ($bMail)
 		{
 			$url = CSocNetLogTools::FormatEvent_GetURL($arFields);
-			if (strlen($url) > 0)
+			if ($url <> '')
 				$arResult['EVENT_FORMATTED']['URL'] = $url;
 
 			$parserLog = new logTextParser(false, $arParams["PATH_TO_SMILE"]);
@@ -416,7 +416,7 @@ class CWikiSocnet
 		if (
 			!$bMail
 			&& array_key_exists('URL', $arLog)
-			&& strlen($arLog['URL']) > 0
+			&& $arLog['URL'] <> ''
 		)
 			$wiki_tmp = '<a href="'.$arLog['URL'].'">'.$arLog['TITLE'].'</a>';
 		else
@@ -436,7 +436,7 @@ class CWikiSocnet
 		if ($bMail)
 		{
 			$url = CSocNetLogTools::FormatEvent_GetURL($arLog);
-			if (strlen($url) > 0)
+			if ($url <> '')
 				$arResult['EVENT_FORMATTED']['URL'] = $url;
 		}
 		else
@@ -531,7 +531,7 @@ class CWikiSocnet
 		$bFound = false;
 		if ($arLog = $dbResult->Fetch())
 		{
-			if (strlen($arLog['PARAMS']) > 0)
+			if ($arLog['PARAMS'] <> '')
 			{
 				$arFieldsParams = explode('&', $arLog['PARAMS']);
 				if (is_array($arFieldsParams) && count($arFieldsParams) > 0)
@@ -671,7 +671,7 @@ class CWikiSocnet
 								$arMessageFields["NOTIFY_TAG"] = "WIKI|COMMENT|".$arElement['ID'];
 								$arMessageFields["NOTIFY_MESSAGE"] = GetMessage("WIKI_SONET_FROM_LOG_IM_COMMENT", Array(
 									"#title#" => (
-										strlen($url) > 0 
+										$url <> ''
 											? "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["TITLE"])."</a>"
 											: htmlspecialcharsbx($arParams["TITLE"])
 									)
@@ -679,7 +679,7 @@ class CWikiSocnet
 
 								$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage("WIKI_SONET_FROM_LOG_IM_COMMENT", Array(
 									"#title#" => htmlspecialcharsbx($arParams["TITLE"])
-								)).(strlen($url) > 0 
+								)).($url <> ''
 									? " (".$serverName.$url.")"
 									: ""
 								)."#BR##BR#".$arFields["TEXT_MESSAGE"];

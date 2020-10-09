@@ -7,7 +7,7 @@
 	<?foreach ($arResult["TESTS"] as $arTest):?>
 
 		<?=GetMessage("LEARNING_TEST_NAME")?>: <?=$arTest["NAME"];?><br />
-		<?if (strlen($arTest["DESCRIPTION"]) > 0):?>
+		<?if ($arTest["DESCRIPTION"] <> ''):?>
 			<?=$arTest["DESCRIPTION"]?><br />
 		<?endif?>
 

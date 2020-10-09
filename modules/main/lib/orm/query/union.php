@@ -95,7 +95,7 @@ class Union
 	 */
 	public function addOrder($definition, $order = 'ASC')
 	{
-		$order = strtoupper($order);
+		$order = mb_strtoupper($order);
 
 		if (!in_array($order, array('ASC', 'DESC'), true))
 		{

@@ -14,7 +14,7 @@ foreach ($arResult["QUESTIONS"] as $questionKey => $arQuestion):
 		if ($FirstAnswerKey === false):
 			$FirstAnswerKey = $answerKey;
 		endif;
-		$arAnswer["FIELD_PARAM"] = (strlen($arAnswer["FIELD_PARAM"]) > 0 ? $arAnswer["FIELD_PARAM"] : "");
+		$arAnswer["FIELD_PARAM"] = ($arAnswer["FIELD_PARAM"] <> '' ? $arAnswer["FIELD_PARAM"] : "");
 		switch ($arAnswer["FIELD_TYPE"]):
 			case 0:
 				if ($_REQUEST["vote_radio_".$arAnswer["QUESTION_ID"]] == $arAnswer["ID"]):
@@ -73,7 +73,7 @@ foreach ($arResult["QUESTIONS"] as $questionKey => $arQuestion):
 	endforeach; 
 	if (!$bFountActive && $FirstAnswerKey !== false):
 		$arAnswer = $arResult["QUESTIONS"][$questionKey]["ANSWERS"][$FirstAnswerKey];
-		$arAnswer["FIELD_PARAM"] = (strlen($arAnswer["FIELD_PARAM"]) > 0 ? $arAnswer["FIELD_PARAM"] : "");
+		$arAnswer["FIELD_PARAM"] = ($arAnswer["FIELD_PARAM"] <> '' ? $arAnswer["FIELD_PARAM"] : "");
 		switch ($arAnswer["FIELD_TYPE"]):
 			case 0:
 				$arAnswer["FIELD_PARAM"] .= " checked='checked' ";

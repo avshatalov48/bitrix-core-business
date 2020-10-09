@@ -107,14 +107,14 @@ if(count($arResult["POST"])>0)
 							<div <?if($arResult["IDEA_MODERATOR"]):?>class="status-action idea-action-cursor" onclick="JSPublicIdea.ShowStatusDialog(this, '<?=$CurPost["ID"]?>')" id="status-<?=$CurPost["ID"]?>"<?endif;?>><?=htmlspecialcharsbx($status)?></div>
 						</div>
 						<?=GetMessage("IDEA_INTRODUCED_TITLE")?> <img class="idea-user-avatar" src="<?=$arResult["AUTHOR_AVATAR"][$CurPost["arUser"]["ID"]]["src"]?>" align="top">
-						<?if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && array_key_exists("ALIAS", $CurPost["BlogUser"]) && strlen($CurPost["BlogUser"]["ALIAS"]) > 0)
+						<?if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && array_key_exists("ALIAS", $CurPost["BlogUser"]) && $CurPost["BlogUser"]["ALIAS"] <> '')
 							$arTmpUser = array(
 								"NAME" => "",
 								"LAST_NAME" => "",
 								"SECOND_NAME" => "",
 								"LOGIN" => "",
 								"NAME_LIST_FORMATTED" => $CurPost["BlogUser"]["~ALIAS"]);
-						elseif (strlen($CurPost["urlToAuthor"]) > 0)
+						elseif ($CurPost["urlToAuthor"] <> '')
 							$arTmpUser = array(
 								"NAME" => $CurPost["arUser"]["~NAME"],
 								"LAST_NAME" => $CurPost["arUser"]["~LAST_NAME"],
@@ -199,15 +199,15 @@ if(count($arResult["POST"])>0)
 						!empty($CurPost["urlToEdit"]) || !empty($CurPost["urlToDelete"])):?>
 						<div class="idea-post-meta">
 							<div class="idea-post-meta-util">
-								<?if(strLen($CurPost["urlToHide"])>0):?>
+								<?if($CurPost["urlToHide"] <> ''):?>
 									<a href="<?=$CurPost["urlToHide"]?>" onclick="if(confirm('<?=GetMessageJS("BLOG_MES_HIDE_POST_CONFIRM")?>')){this.href+='&sessid='+BX.bitrix_sessid(); return true;}return false;"><span class="idea-post-link-caption"><?=GetMessage("BLOG_MES_HIDE")?></span></a>
-								<?elseif(strLen($CurPost["urlToShow"])>0):?>
+								<?elseif($CurPost["urlToShow"] <> ''):?>
 									<a href="<?=$CurPost["urlToShow"]?>" onclick="if(confirm('<?=GetMessageJS("IDEA_MES_SHOW_POST_CONFIRM")?>')){this.href+='&sessid='+BX.bitrix_sessid(); return true;}return false;"><span class="idea-post-link-caption"><?=GetMessage("IDEA_MES_SHOW")?></span></a>
 								<?endif;?>
-								<?if(strLen($CurPost["urlToEdit"])>0):?>
+								<?if($CurPost["urlToEdit"] <> ''):?>
 									<a href="<?=$CurPost["urlToEdit"]?>"><span class="idea-post-link-caption"><?=GetMessage("BLOG_MES_EDIT")?></span></a>
 								<?endif;?>
-								<?if(strLen($CurPost["urlToDelete"])>0):?>
+								<?if($CurPost["urlToDelete"] <> ''):?>
 									<a href="<?=$CurPost["urlToDelete"]?>" onclick="if(confirm('<?=GetMessageJS("BLOG_MES_DELETE_POST_CONFIRM")?>')){this.href+='&sessid='+BX.bitrix_sessid(); return true;}return false;"><span class="idea-post-link-caption"><?=GetMessage("BLOG_MES_DELETE")?></span></a>
 								<?endif;?>
 							</div>
@@ -304,7 +304,7 @@ if(count($arResult["POST"])>0)
 							}
 							?>
 						</div>
-						<span class="post-comment">(<a href="<?=$CurPost["urlToPost"]?>#comments"><?=GetMessage("IDEA_POST_COMMENT_CNT")?>: <?=(IntVal($CurPost["NUM_COMMENTS"]) - $cntOfficial);?></a>)</span>
+						<span class="post-comment">(<a href="<?=$CurPost["urlToPost"]?>#comments"><?=GetMessage("IDEA_POST_COMMENT_CNT")?>: <?=(intval($CurPost["NUM_COMMENTS"]) - $cntOfficial);?></a>)</span>
 						<br style="clear:both;" />
 					</div>
 				</div>

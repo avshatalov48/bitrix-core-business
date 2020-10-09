@@ -89,7 +89,7 @@ class CRestUtil
 
 				default:
 
-					if(strlen($rawPostData) > 0)
+					if($rawPostData <> '')
 					{
 						parse_str($rawPostData, $postData);
 					}
@@ -322,7 +322,7 @@ class CRestUtil
 			$bMult = true;
 		}
 
-		if(strlen($fileId) > 0)
+		if($fileId <> '')
 		{
 			$files = \CFile::GetList(array(), array('@ID' => $fileId));
 			while($file = $files->Fetch())
@@ -568,12 +568,12 @@ class CRestUtil
 			list($fileName, $fileContent) = array_values($fileContent);
 		}
 
-		if(strlen($fileContent) > 0 && $fileContent !== 'false') // let it be >0
+		if($fileContent <> '' && $fileContent !== 'false') // let it be >0
 		{
 			$fileContent = base64_decode($fileContent);
-			if($fileContent !== false && strlen($fileContent) > 0)
+			if($fileContent !== false && $fileContent <> '')
 			{
-				if(strlen($fileName) <= 0)
+				if($fileName == '')
 				{
 					$fileName = md5(mt_rand());
 				}
@@ -669,6 +669,7 @@ class CRestUtil
 				$queryFields = array(
 					'CLIENT_ID' => $appDetailInfo['APP_CODE'],
 					'VERSION' => $appDetailInfo['VER'],
+					'BY_SUBSCRIPTION' => $appDetailInfo['BY_SUBSCRIPTION'] === 'Y' ? 'Y' : 'N',
 				);
 
 				$installResult = \Bitrix\Rest\OAuthService::getEngine()

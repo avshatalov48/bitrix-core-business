@@ -12,10 +12,10 @@ if($arResult["User"]["WORK_COUNTRY"]>0)
 	$arResult["User"]["WORK_COUNTRY"] = GetCountryByID($arResult["User"]["WORK_COUNTRY"]);
 else
 	$arResult["User"]["WORK_COUNTRY"] = "";
-if(strlen($arResult["User"]["PERSONAL_GENDER"])>0)
+if($arResult["User"]["PERSONAL_GENDER"] <> '')
 	$arResult["User"]["PERSONAL_GENDER"] = $arResult["arSex"][$arResult["User"]["PERSONAL_GENDER"]];
 
-if(strlen($arResult["User"]["LAST_ACTIVITY_DATE"])>0 && strlen($arParams["DATE_TIME_FORMAT"])>0)
+if($arResult["User"]["LAST_ACTIVITY_DATE"] <> '' && $arParams["DATE_TIME_FORMAT"] <> '')
 	$arResult["User"]["LAST_ACTIVITY_DATE"] = date($arParams["DATE_TIME_FORMAT"], strtotime($arResult["User"]["LAST_ACTIVITY_DATE"]));
 
 

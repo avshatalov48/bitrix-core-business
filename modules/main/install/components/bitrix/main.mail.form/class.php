@@ -135,7 +135,7 @@ class MainMailFormComponent extends CBitrixComponent
 			{
 				if (in_array($item['type'], array('editor', 'files')))
 				{
-					$this->arParams[strtoupper($item['type'])] = $item;
+					$this->arParams[mb_strtoupper($item['type'])] = $item;
 					unset($fields[$k]);
 				}
 			}
@@ -292,7 +292,7 @@ class MainMailFormComponent extends CBitrixComponent
 				{
 					$email = $field['value'];
 					if (preg_match('/.*?[<\[\(](.+?)[>\]\)].*/i', $email, $matches))
-						$email = strtolower(trim($matches[1]));
+						$email = mb_strtolower(trim($matches[1]));
 
 					foreach ($field['mailboxes'] as $item)
 					{

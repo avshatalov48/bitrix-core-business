@@ -1,10 +1,6 @@
 <?
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
-//echo "<pre>arParams: "; print_r($arParams); echo "</pre>";
-//echo "<pre>arResult: "; print_r($arResult); echo "</pre>";
-
-//echo "<pre>"; print_r($arResult["arrFORM_FILTER"]); echo "</pre>";
 ?>
 <script>
 <!--
@@ -34,11 +30,6 @@ function Form_Filter_Click_<?=$arResult["filter_id"]?>()
 <?=($arResult["is_filtered"] ? "<span class='form-filteron'>".GetMessage("FORM_FILTER_ON") : "<span class='form-filteroff'>".GetMessage("FORM_FILTER_OFF"))?></span>&nbsp;&nbsp;&nbsp;
 [ <a href="javascript:void(0)" OnClick="Form_Filter_Click_<?=$arResult["filter_id"]?>()"><?=GetMessage("FORM_FILTER")?></a> ]
 </p>
-<?
-/***********************************************
-				  filter
-************************************************/
-?>
 <form name="form1" method="GET" action="<?=$APPLICATION->GetCurPageParam("", array("sessid", "delete", "del_id", "action"), false)?>?" id="form_filter_<?=$arResult["filter_id"]?>" class="form-filter-<?=htmlspecialcharsbx($arResult["tf"]);?>">
 <input type="hidden" name="WEB_FORM_ID" value="<?=$arParams["WEB_FORM_ID"]?>" />
 <?if ($arParams["SEF_MODE"] == "N"):?><input type="hidden" name="action" value="list" /><?endif?>
@@ -50,7 +41,7 @@ function Form_Filter_Click_<?=$arResult["filter_id"]?>()
 	</thead>
 	<tbody>
 		<?
-		if (strlen($arResult["str_error"]) > 0)
+		if ($arResult["str_error"] <> '')
 		{
 		?>
 		<tr>
@@ -137,15 +128,9 @@ function Form_Filter_Click_<?=$arResult["filter_id"]?>()
 		</tr>
 		<?
 			} // endif(CModule::IncludeModule("statistic"));
-		?>
-		<?
 		} // endif($F_RIGHT>=25);
-		?>
-		<?
 		if (is_array($arResult["arrFORM_FILTER"]) && count($arResult["arrFORM_FILTER"])>0)
 		{
-		?>
-		<?
 			if ($arParams["F_RIGHT"] >= 25)
 			{
 		?>
@@ -154,7 +139,6 @@ function Form_Filter_Click_<?=$arResult["filter_id"]?>()
 		</tr>
 		<?
 			} // endif ($F_RIGHT>=25);
-		?><?
 			foreach ($arResult["arrFORM_FILTER"] as $arrFILTER)
 			{
 				$prev_fname = "";
@@ -182,9 +166,8 @@ function Form_Filter_Click_<?=$arResult["filter_id"]?>()
 			<td>
 			<?
 						} //endif ($fname!=$prev_fname) ;
-						?>
-						<?
-						switch($arrF["FILTER_TYPE"]){
+						switch($arrF["FILTER_TYPE"])
+						{
 							case "text":
 								echo CForm::GetTextFilter($arrF["FID"]);
 								break;
@@ -204,8 +187,6 @@ function Form_Filter_Click_<?=$arResult["filter_id"]?>()
 							<?
 								break;
 						} // endswitch
-						?>
-						<?
 						if ($arrF["PARAMETER_NAME"]=="ANSWER_TEXT")
 						{
 						?>
@@ -290,14 +271,12 @@ function OnSelectAll_<?=$arResult["filter_id"]?>(fl)
 </SCRIPT>
 <?
 } //endif($can_delete_some);
-?>
 
-<?
-if (strlen($arResult["FORM_ERROR"]) > 0) ShowError($arResult["FORM_ERROR"]);
-if (strlen($arResult["FORM_NOTE"]) > 0) ShowNote($arResult["FORM_NOTE"]);
+if ($arResult["FORM_ERROR"] <> '') ShowError($arResult["FORM_ERROR"]);
+if ($arResult["FORM_NOTE"] <> '') ShowNote($arResult["FORM_NOTE"]);
 ?>
 <p>
-<b><a href="<?=$arParams["NEW_URL"]?><?=$arParams["SEF_MODE"] != "Y" ? (strpos($arParams["NEW_URL"], "?") === false ? "?" : "&")."WEB_FORM_ID=".$arParams["WEB_FORM_ID"] : ""?>"><?=GetMessage("FORM_ADD")?>&nbsp;&nbsp;&gt;&gt;</a></b>
+<b><a href="<?=$arParams["NEW_URL"]?><?=$arParams["SEF_MODE"] != "Y" ? (mb_strpos($arParams["NEW_URL"], "?") === false ? "?" : "&")."WEB_FORM_ID=".$arParams["WEB_FORM_ID"] : ""?>"><?=GetMessage("FORM_ADD")?>&nbsp;&nbsp;&gt;&gt;</a></b>
 </p>
 <form name="rform_<?=$arResult["filter_id"]?>" method="post" action="<?=POST_FORM_ACTION_URI?>#nav_start">
 	<input type="hidden" name="WEB_FORM_ID" value="<?=$arParams["WEB_FORM_ID"]?>" />
@@ -324,11 +303,6 @@ if (strlen($arResult["FORM_NOTE"]) > 0) ShowNote($arResult["FORM_NOTE"]);
 	<?=$arResult["pager"]?>
 	</p>
 	<table class="form-table data-table">
-		<?
-		/***********************************************
-					  table header
-		************************************************/
-		?>
 		<thead>
 			<tr>
 				<th>
@@ -342,7 +316,11 @@ if (strlen($arResult["FORM_NOTE"]) > 0) ShowNote($arResult["FORM_NOTE"]);
 							<input type="checkbox" name="selectall" value="Y" onclick="OnSelectAll_<?=$arResult["filter_id"]?>(this.checked)" />&nbsp;
 							<?
 							} //endif ($can_delete_some);
-							?>ID<?if ($arParams["SHOW_STATUS"]!="Y") { ?><br /><?=SortingEx("s_id")?><? } //endif($SHOW_STATUS!="Y");?></th>
+							?>ID<?
+							if ($arParams["SHOW_STATUS"]!="Y")
+							{
+								?><br /><?=SortingEx("s_id")?><?
+							} //endif($SHOW_STATUS!="Y");?></th>
 							<?
 							if ($arParams["SHOW_STATUS"]=="Y")
 							{
@@ -436,11 +414,6 @@ if (strlen($arResult["FORM_NOTE"]) > 0) ShowNote($arResult["FORM_NOTE"]);
 			</tr>
 		</thead>
 		<?
-		/***********************************************
-					  table body
-		************************************************/
-		?>
-		<?
 		if(count($arResult["arrResults"]) > 0)
 		{
 			?>
@@ -471,7 +444,7 @@ if (strlen($arResult["FORM_NOTE"]) > 0) ShowNote($arResult["FORM_NOTE"]);
 					if ($arParams["SHOW_STATUS"] == "Y")
 					{
 					?>
-						<?=GetMessage("FORM_STATUS")?>:&nbsp;[&nbsp;<span class="<?=htmlspecialcharsbx($arRes["STATUS_CSS"])?>"><?=htmlspecialchars($arRes["STATUS_TITLE"])?></span>&nbsp;]
+						<?=GetMessage("FORM_STATUS")?>:&nbsp;[&nbsp;<span class="<?=htmlspecialcharsbx($arRes["STATUS_CSS"])?>"><?=htmlspecialcharsbx($arRes["STATUS_TITLE"])?></span>&nbsp;]
 						<?
 						if ($arRes["can_edit"] && ($arParams["F_RIGHT"] >= 20 || $arParams["F_RIGHT"] >= 15 && ($arParams["USER_ID"]==$arRes["USER_ID"])))
 						{
@@ -507,9 +480,9 @@ if (strlen($arResult["FORM_NOTE"]) > 0) ShowNote($arResult["FORM_NOTE"]);
 						{
 						?>
 						<?
-							if (strlen(trim($arParams["EDIT_URL"]))>0)
+							if (trim($arParams["EDIT_URL"]) <> '')
 							{
-								$href = $arParams["SEF_MODE"] == "Y" ? str_replace("#RESULT_ID#", $arRes["ID"], $arParams["EDIT_URL"]) : $arParams["EDIT_URL"].(strpos($arParams["EDIT_URL"], "?") === false ? "?" : "&")."RESULT_ID=".$arRes["ID"]."&WEB_FORM_ID=".$arParams["WEB_FORM_ID"];
+								$href = $arParams["SEF_MODE"] == "Y" ? str_replace("#RESULT_ID#", $arRes["ID"], $arParams["EDIT_URL"]) : $arParams["EDIT_URL"].(mb_strpos($arParams["EDIT_URL"], "?") === false ? "?" : "&")."RESULT_ID=".$arRes["ID"]."&WEB_FORM_ID=".$arParams["WEB_FORM_ID"];
 						?>
 								[&nbsp;<a title="<?=GetMessage("FORM_EDIT_ALT")?>" href="<?=$href?>"><?=GetMessage("FORM_EDIT")?></a>&nbsp;]<br />
 						<?
@@ -524,9 +497,9 @@ if (strlen($arResult["FORM_NOTE"]) > 0) ShowNote($arResult["FORM_NOTE"]);
 						{
 						?>
 						<?
-							if (strlen(trim($arParams["VIEW_URL"]))>0)
+							if (trim($arParams["VIEW_URL"]) <> '')
 							{
-								$href = $arParams["SEF_MODE"] == "Y" ? str_replace("#RESULT_ID#", $arRes["ID"], $arParams["VIEW_URL"]) : $arParams["VIEW_URL"].(strpos($arParams["VIEW_URL"], "?") === false ? "?" : "&")."RESULT_ID=".$arRes["ID"]."&WEB_FORM_ID=".$arParams["WEB_FORM_ID"];
+								$href = $arParams["SEF_MODE"] == "Y" ? str_replace("#RESULT_ID#", $arRes["ID"], $arParams["VIEW_URL"]) : $arParams["VIEW_URL"].(mb_strpos($arParams["VIEW_URL"], "?") === false ? "?" : "&")."RESULT_ID=".$arRes["ID"]."&WEB_FORM_ID=".$arParams["WEB_FORM_ID"];
 						?>
 						[&nbsp;<a title="<?=GetMessage("FORM_VIEW_ALT")?>" href="<?=$href?>"><?=GetMessage("FORM_VIEW")?></a>&nbsp;]<br />
 						<?
@@ -538,7 +511,7 @@ if (strlen($arResult["FORM_NOTE"]) > 0) ShowNote($arResult["FORM_NOTE"]);
 						<?
 						if ($arRes["can_delete"])
 						{
-							$href = $arParams["LIST_URL"].(strpos($arParams["LIST_URL"], "?") === false ? "?" : "&").($arParams["SEF_MODE"] == "Y" ? "" : "WEB_FORM_ID=".$arParams["WEB_FORM_ID"]."&")."del_id=".$arRes["ID"]."&".bitrix_sessid_get()."#nav_start";
+							$href = $arParams["LIST_URL"].(mb_strpos($arParams["LIST_URL"], "?") === false ? "?" : "&").($arParams["SEF_MODE"] == "Y" ? "" : "WEB_FORM_ID=".$arParams["WEB_FORM_ID"]."&")."del_id=".$arRes["ID"]."&".bitrix_sessid_get()."#nav_start";
 						?>
 						[&nbsp;<a title="<?=GetMessage("FORM_DELETE_ALT")?>" href="javascript:if(confirm('<?=GetMessage("FORM_CONFIRM_DELETE")?>')) window.location='<?=$href?>'"><?=GetMessage("FORM_DELETE")?></a>&nbsp;]<br />
 						<?
@@ -556,8 +529,10 @@ if (strlen($arResult["FORM_NOTE"]) > 0) ShowNote($arResult["FORM_NOTE"]);
 						$userName = array("NAME" => $arRes["USER_FIRST_NAME"], "LAST_NAME" => $arRes["USER_LAST_NAME"], "SECOND_NAME" => $arRes["USER_SECOND_NAME"], "LOGIN" => $arRes["LOGIN"]);
 					?>
 						[<a title="<?=GetMessage("FORM_EDIT_USER")?>" href="/bitrix/admin/user_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$arRes["USER_ID"]?>"><?=$arRes["USER_ID"]?></a>] (<?=$arRes["LOGIN"]?>) <?=CUser::FormatName($arParams["NAME_TEMPLATE"], $userName)?>
-						<?if($arRes["USER_AUTH"]=="N") { ?><?=GetMessage("FORM_NOT_AUTH")?><?}?>
-					<?
+						<?if($arRes["USER_AUTH"]=="N")
+						{
+							?><?=GetMessage("FORM_NOT_AUTH")?><?
+						}
 					}
 					else
 					{
@@ -565,8 +540,6 @@ if (strlen($arResult["FORM_NOTE"]) > 0) ShowNote($arResult["FORM_NOTE"]);
 						<?=GetMessage("FORM_NOT_REGISTERED")?>
 					<?
 					} // endif ($GLOBALS["f_USER_ID"]>0);
-					?>
-					<?
 					if ($arParams["isStatisticIncluded"])
 					{
 						if (intval($arRes["STAT_GUEST_ID"])>0)
@@ -603,10 +576,18 @@ if (strlen($arResult["FORM_NOTE"]) > 0) ShowNote($arResult["FORM_NOTE"]);
 					{
 						foreach ($arrAnswer as $key => $arrA)
 						{
-						?>
-							<?if (strlen(trim($arrA["USER_TEXT"])) > 0) {?><?=$arrA["USER_TEXT"]?><br /><?}?>
-							<?if (strlen(trim($arrA["ANSWER_TEXT"])) > 0) {?>[<span class='form-anstext'><?=$arrA["ANSWER_TEXT"]?></span>]&nbsp;<?}?>
-							<?if (strlen(trim($arrA["ANSWER_VALUE"])) > 0 && $arParams["SHOW_ANSWER_VALUE"]=="Y") {?>(<span class='form-ansvalue'><?=$arrA["ANSWER_VALUE"]?></span>)<?}?>
+							if (trim($arrA["USER_TEXT"]) <> '')
+							{
+								?><?=$arrA["USER_TEXT"]?><br /><?
+							}
+							if (trim($arrA["ANSWER_TEXT"]) <> '')
+							{
+								?>[<span class='form-anstext'><?=$arrA["ANSWER_TEXT"]?></span>]&nbsp;<?
+							}
+							if (trim($arrA["ANSWER_VALUE"]) <> '' && $arParams["SHOW_ANSWER_VALUE"]=="Y")
+							{
+								?>(<span class='form-ansvalue'><?=$arrA["ANSWER_VALUE"]?></span>)<?
+							}?>
 									<br />
 									<?
 									if (intval($arrA["USER_FILE_ID"])>0)

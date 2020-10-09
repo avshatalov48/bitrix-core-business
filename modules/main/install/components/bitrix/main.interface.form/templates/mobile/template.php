@@ -540,7 +540,7 @@ array_unshift($tab["fields"], array(
 						case 'disk_fileview':
 						case 'crmview':
 							$field["type"] = ($field["type"] == "diskview" ? "disk_fileview" : $field["type"]);
-							$field["type"] = substr($field["type"], 0, -4);
+							$field["type"] = mb_substr($field["type"], 0, -4);
 							if($field["type"] == "crm" && !\Bitrix\Main\ModuleManager::isModuleInstalled("crm") ||
 								$field["type"] == "disk_file" && !\Bitrix\Main\ModuleManager::isModuleInstalled("disk"))
 								break;
@@ -683,7 +683,7 @@ array_unshift($tab["fields"], array(
 								{
 									?><div class="mobile-grid-title <?= ($field["required"] ? " mobile-grid-title-required" : "") ?>" <?
 									if($field["title"] <> '') echo ' title="' . htmlspecialcharsEx($field["title"]) . '"'?>><?
-									?><?if(strlen($field["name"])):?><?=htmlspecialcharsEx($field["name"])?><? endif ?>
+									?><? if($field["name"] <> ''):?><?= htmlspecialcharsEx($field["name"]) ?><? endif ?>
 									</div><?
 								}
 								?>
@@ -702,7 +702,7 @@ array_unshift($tab["fields"], array(
 <?
 }
 ?></div><?
-if (isset($arParams["BUTTONS"]) && is_string($arParams["BUTTONS"]) && strtolower($arParams["BUTTONS"]) == "app")
+if (isset($arParams["BUTTONS"]) && is_string($arParams["BUTTONS"]) && mb_strtolower($arParams["BUTTONS"]) == "app")
 {
 
 }
@@ -740,7 +740,7 @@ BX.ready(function() {
 		"formId" => $arParams["FORM_ID"],
 		"restrictedMode" => $arParams["RESTRICTED_MODE"],
 		"customElements" => $jsObjects,
-		"buttons" => (isset($arParams["BUTTONS"]) && is_string($arParams["BUTTONS"]) ? strtolower($arParams["BUTTONS"]) : "none"),
+		"buttons" => (isset($arParams["BUTTONS"]) && is_string($arParams["BUTTONS"])? mb_strtolower($arParams["BUTTONS"]) : "none"),
 		"format" => (isset($arParams["~DATE_TIME_FORMAT"]) ? array("datetime" => $arParams["~DATE_TIME_FORMAT"]) : array()) +
 			(isset($arParams["~DATE_FORMAT"]) ? array("date" => $arParams["~DATE_FORMAT"]) : array()) +
 			(isset($arParams["~TIME_FORMAT"]) ? array("time" => $arParams["~TIME_FORMAT"]) : array()),

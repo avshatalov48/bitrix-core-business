@@ -12,7 +12,7 @@ class RequestFacebook extends ProxyRequest
 
 	protected function directQuery(array $params = array())
 	{
-		$url = 'https://graph.facebook.com/v5.0/';
+		$url = 'https://graph.facebook.com/v8.0/';
 		$url .= $params['endpoint'];
 
 		$clientParameters = is_array($params['fields']) ? $params['fields'] : array();

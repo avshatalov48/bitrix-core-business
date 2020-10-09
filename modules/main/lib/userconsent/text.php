@@ -34,7 +34,7 @@ class Text
 		$dataTmp = array();
 		foreach ($data as $key => $value)
 		{
-			$key = strtolower($key);
+			$key = mb_strtolower($key);
 			if (is_array($value))
 			{
 				$value = self::formatArrayToText($value);

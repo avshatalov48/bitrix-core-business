@@ -1,5 +1,6 @@
 <?
 $MESS["IM_YOU"] = "это вы";
+$MESS["IM_COPIED"] = "Скопировано";
 $MESS["IM_M_ICON"] = "иконка";
 $MESS["IM_M_CODE_BLOCK"] = "Фрагмент кода";
 $MESS["IM_M_QUOTE_BLOCK"] = "Цитата";

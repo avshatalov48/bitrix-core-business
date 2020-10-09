@@ -76,7 +76,7 @@ endif;
 ?>
 
 					<div class="mp_sc_ls_container">
-						<a class="mp_sc_ls_title crop" href="<?=$appUrl;?>"><?=htmlspecialcharsbx(strlen($app["NAME"]) <= 25 ? $app["NAME"] :  substr($app["NAME"], 0, 25)."...")?></a>
+						<a class="mp_sc_ls_title crop" href="<?=$appUrl;?>"><?=htmlspecialcharsbx(mb_strlen($app["NAME"]) <= 25 ? $app["NAME"] : mb_substr($app["NAME"], 0, 25)."...")?></a>
 						<span class="mp_sc_ls_price">
 <?php
 				if (is_array($app["PRICE"]) && !empty($app["PRICE"][1])):

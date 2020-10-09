@@ -35,7 +35,7 @@ BX.ready(function() {
 		RatingLike.Set(
 			'<?=CUtil::JSEscape($arResult['VOTE_ID'])?>',
 			'<?=CUtil::JSEscape($arResult['ENTITY_TYPE_ID'])?>',
-			'<?=IntVal($arResult['ENTITY_ID'])?>',
+			'<?=intval($arResult['ENTITY_ID'])?>',
 			'<?=CUtil::JSEscape($arResult['VOTE_AVAILABLE'])?>',
 			'<?=$USER->GetId()?>',
 			{'LIKE_Y' : '<?=htmlspecialcharsBx(CUtil::JSEscape($arResult['RATING_TEXT_LIKE_Y']))?>', 'LIKE_N' : '<?=htmlspecialcharsBx(CUtil::JSEscape($arResult['RATING_TEXT_LIKE_Y']))?>', 'LIKE_D' : '<?=htmlspecialcharsBx(CUtil::JSEscape($arResult['RATING_TEXT_LIKE_D']))?>'},

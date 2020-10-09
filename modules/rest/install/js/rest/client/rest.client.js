@@ -2,10 +2,10 @@
 
 ;(function(){
 
-	/****************** ATTENTION *******************************
-	 * Please do not use Bitrix CoreJS in this class.
-	 * This class can be called on page without Bitrix Framework
-	*************************************************************/
+	/************************ ATTENTION ***************************
+	 * Please do not use Bitrix CoreJS in this class.            *
+	 * This class can be called on page without Bitrix Framework *
+	**************************************************************/
 
 	if (!window.BX)
 	{
@@ -249,6 +249,7 @@
 		var promise = typeof BX.Promise === 'undefined' || hasCallback? null: new BX.Promise();
 		var sendCallback = config.sendCallback || function() {};
 		var withoutRestoringCsrf = config.withoutRestoringCsrf || false;
+		var loginAttempt = config.loginAttempt || 0;
 
 		var xhr = ajax.xhr();
 
@@ -297,7 +298,44 @@
 
 				if (status == 401)
 				{
-					if (data.sessid && !withoutRestoringCsrf)
+					if (data.extended_error === 'user_not_authorized' && loginAttempt === 0)
+					{
+						if (data.sessid)
+						{
+							console.warn('BX.rest: csrf-token has expired, replace to a new token');
+							BX.message({'bitrix_sessid': data.sessid});
+						}
+
+						if('BXDesktopSystem' in window)
+						{
+							console.warn('BX.rest: you are not authorized, trying to log in');
+							config.loginAttempt = 1;
+							BXDesktopSystem.Login({
+								// todo: support auth failure callback in future (when it is ready)
+								success: function()
+								{
+									console.warn('BX.rest: successfully logged in, repeating request');
+									if (!hasCallback)
+									{
+										config.callback = function(result)
+										{
+											if (result.error())
+											{
+												promise.reject(result);
+											}
+											else
+											{
+												promise.fulfill(result);
+											}
+										}
+									}
+									ajax(config);
+								}
+							});
+							return true;
+						}
+					}
+					else if (data.sessid && !withoutRestoringCsrf)
 					{
 						BX.message({'bitrix_sessid': data.sessid});
 						console.warn('BX.rest: your csrf-token has expired, send query with a new token');
@@ -548,6 +586,11 @@
 
 				if(typeof arData[i] === 'object')
 				{
+					if(Utils.isArray(arData[i]) && arData[i].length <= 0)
+					{
+						continue;
+					}
+
 					objects.push([name, arData[i]]);
 				}
 				else

@@ -2,23 +2,10 @@
 namespace Bitrix\Socialservices;
 
 use Bitrix\Main,
-	Bitrix\Main\Entity;
+	Bitrix\Main\ORM\Fields;
 
 /**
  * Class ZoomMeetingTable
- *
- * Fields:
- * <ul>
- * <li> ID int mandatory
- * <li> ENTITY_TYPE_ID string(10) mandatory
- * <li> ENTITY_ID int mandatory
- * <li> CONFERENCE_URL string(255) mandatory
- * <li> CONFERENCE_EXTERNAL_ID string(32) mandatory
- * <li> CONFERENCE_PASSWORD string(32) mandatory
- * <li> JOINED string(1) optional
- * <li> CONFERENCE_CREATED datetime optional
- * <li> CONFERENCE_ENDED datetime optional
- * </ul>
  *
  * @package Bitrix\Socialservices
  **/
@@ -43,35 +30,57 @@ class ZoomMeetingTable extends Main\Entity\DataManager
 	 */
 	public static function getMap(): array
 	{
-		return array(
-			new Entity\IntegerField('ID', array(
+		return [
+			new Fields\IntegerField('ID', [
 				'primary' => true,
 				'autocomplete' => true
-			)),
-			new Entity\StringField('ENTITY_TYPE_ID', array(
+			]),
+			new Fields\StringField('ENTITY_TYPE_ID', [
 				'required' => true,
 				'size' => 10,
-			)),
-			new Entity\IntegerField('ENTITY_ID', array(
+			]),
+			new Fields\IntegerField('ENTITY_ID', [
 				'required' => true
-			)),
-			new Entity\StringField('CONFERENCE_URL', array(
+			]),
+			new Fields\StringField('CONFERENCE_URL', [
 				'required' => true,
 				'size' => 255,
-			)),
-			new Entity\StringField('CONFERENCE_EXTERNAL_ID', array(
+			]),
+			new Fields\IntegerField('CONFERENCE_EXTERNAL_ID', [
 				'required' => true,
-				'size' => 32,
-			)),
-			new Entity\StringField('CONFERENCE_PASSWORD', array(
+			]),
+			new Fields\CryptoField('CONFERENCE_PASSWORD', [
+				'crypto_enabled' => static::cryptoEnabled('CONFERENCE_PASSWORD'),
+			]),
+			new Fields\BooleanField('JOINED', [
+				'values' => ['N', 'Y']
+			]),
+			new Fields\DatetimeField('CONFERENCE_CREATED',[
 				'required' => true,
-				'size' => 32,
-			)),
-			new Entity\BooleanField('JOINED', array(
-				'values' => array('N', 'Y')
-			)),
-			new Entity\DatetimeField('CONFERENCE_CREATED', array()),
-			new Entity\DatetimeField('CONFERENCE_ENDED', array()),
-		);
+			]),
+			new Fields\DatetimeField('CONFERENCE_STARTED'),
+			new Fields\DatetimeField('CONFERENCE_ENDED'),
+			new Fields\BooleanField('HAS_RECORDING', [
+				'values' => ['N', 'Y']
+			]),
+			new Fields\IntegerField('DURATION', [
+				'required' => true,
+			]),
+			new Fields\TextField('TITLE', [
+				'required' => true,
+			]),
+			new Fields\StringField('SHORT_LINK', [
+				'required' => true,
+				'size' => 255,
+			])
+		];
+	}
+
+	public static function getRowByExternalId($externalId)
+	{
+		return static::getRow([
+			'select' => ['*'],
+			'filter' => ['=CONFERENCE_EXTERNAL_ID' => $externalId]
+		]);
 	}
 }

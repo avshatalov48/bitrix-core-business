@@ -119,7 +119,7 @@ if (isset($_GET['PROPOSE_RETURN_LESSON_PATH']))
 
 // Place to $topCourseLessonId lesson id of top course, if top lesson is course.
 $topCourseLessonId = false;
-if (isset($g_learn_parentLessonPath) && strlen($g_learn_parentLessonPath))
+if (isset($g_learn_parentLessonPath) && mb_strlen($g_learn_parentLessonPath))
 {
 	try
 	{
@@ -150,7 +150,7 @@ if (isset($_POST['PARENT_LESSON_ID']))
 }
 
 $createNewLesson = false;
-if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($Update)>0 && check_bitrix_sessid())
+if ($_SERVER["REQUEST_METHOD"] == "POST" && $Update <> '' && check_bitrix_sessid())
 {
 	$arEdgeProperties = array();
 
@@ -263,6 +263,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($Update)>0 && check_bitrix_se
 			}
 			catch (Exception $e)
 			{
+				/* @var Exception $e */
+
+				$APPLICATION->ThrowException($e->getMessage(), $e->getCode());
 				$res = false;
 			}
 
@@ -374,9 +377,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($Update)>0 && check_bitrix_se
 			$currentLessonPath = $g_learn_currentLessonPath.($createNewLesson && $LESSON_ID > 0 ? ".".$LESSON_ID : "");
 		}
 
-		if (strlen($apply) <= 0)
+		if ($apply == '')
 		{
-			if (strlen($return_url) > 0)
+			if ($return_url <> '')
 			{
 				LocalRedirect(
 					str_replace(
@@ -711,7 +714,7 @@ CAdminFileDialog::ShowScript(Array
 	(
 		"event" => "OpenFileBrowserWindMedia",
 		"arResultDest" => Array("FUNCTION_NAME" => "SetUrl"),
-		"arPath" => Array("SITE" => $_GET["site"], "PATH" =>(strlen($str_FILENAME)>0 ? GetDirPath($str_FILENAME) : '')),
+		"arPath" => Array("SITE" => $_GET["site"], "PATH" =>($str_FILENAME <> '' ? GetDirPath($str_FILENAME) : '')),
 		"select" => 'F',// F - file only, D - folder only,
 		"operation" => 'O',// O - open, S - save
 		"showUploadTab" => true,

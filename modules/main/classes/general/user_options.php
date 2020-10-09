@@ -17,7 +17,7 @@ class CUserOptions
 		$arSqlSearch = array();
 		foreach ($arFilter as $key => $val)
 		{
-			$key = strtoupper($key);
+			$key = mb_strtoupper($key);
 			switch ($key)
 			{
 				case "ID":
@@ -52,7 +52,7 @@ class CUserOptions
 
 		$strSqlSearch = "";
 		foreach ($arSqlSearch as $condition)
-			if (strlen($condition) > 0)
+			if ($condition <> '')
 				$strSqlSearch.= " AND  (".$condition.") ";
 
 		$strSql = "
@@ -67,8 +67,8 @@ class CUserOptions
 		{
 			foreach ($arOrder as $by => $order)
 			{
-				$by = strtoupper($by);
-				$order = strtoupper($order);
+				$by = mb_strtoupper($by);
+				$order = mb_strtoupper($order);
 				if ($order != "ASC")
 					$order = "DESC";
 
@@ -102,7 +102,7 @@ class CUserOptions
 			$user_id = $USER->GetID();
 
 		$user_id = intval($user_id);
-		$category = strtolower($category);
+		$category = mb_strtolower($category);
 
 		if (!is_array(self::$cache[$user_id][$category]) || !array_key_exists($name, self::$cache[$user_id][$category]))
 		{
@@ -191,7 +191,7 @@ class CUserOptions
 			$user_id = $USER->GetID();
 		}
 
-		$category = strtolower($category);
+		$category = mb_strtolower($category);
 
 		$user_id = intval($user_id);
 		$arFields = array(

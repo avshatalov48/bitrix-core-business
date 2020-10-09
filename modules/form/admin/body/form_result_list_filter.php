@@ -93,7 +93,7 @@ while (list($key, $arrFILTER) = each($arrFORM_FILTER)) :
 		?>
 <tr>
 	<td class="tablebody" valign="top" width="40%"><font class="tablefieldtext"><?
-	if (strlen($arrF["FILTER_TITLE"])<=0)
+	if ($arrF["FILTER_TITLE"] == '')
 	{
 		$title = ($arrF["TITLE_TYPE"]=="html" ? strip_tags($arrF["TITLE"]) : htmlspecialcharsbx($arrF["TITLE"]));
 		echo $title;

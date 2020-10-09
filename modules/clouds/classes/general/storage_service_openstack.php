@@ -377,7 +377,23 @@ class CCloudStorageService_OpenStackStorage extends CCloudStorageService
 			$filePath
 		);
 
-		return ($this->status == 200 || $this->status == 206);
+		if($this->status == 200)
+		{
+			if (isset($this->headers["Content-Length"]) && $this->headers["Content-Length"] > 0)
+				return $this->headers["Content-Length"];
+			else
+				return true;
+		}
+		elseif($this->status == 206)
+		{
+			$APPLICATION->ResetException();
+			return true;
+		}
+		else//if($this->status == 404)
+		{
+			$APPLICATION->ResetException();
+			return false;
+		}
 	}
 
 	function FileCopy($arBucket, $arFile, $filePath)
@@ -520,6 +536,7 @@ class CCloudStorageService_OpenStackStorage extends CCloudStorageService
 			"file" => array(),
 			"file_size" => array(),
 			"file_mtime" => array(),
+			"file_hash" => array(),
 		);
 
 		$filePath = trim($filePath, '/');
@@ -587,6 +604,7 @@ class CCloudStorageService_OpenStackStorage extends CCloudStorageService
 										$result["file"][] = $file_name;
 										$result["file_size"][] = $a["#"]["bytes"][0]["#"];
 										$result["file_mtime"][] = mb_substr($a["#"]["last_modified"][0]["#"], 0, 19);
+										$result["file_hash"][] = $a["#"]["hash"][0]["#"];
 									}
 								}
 							}

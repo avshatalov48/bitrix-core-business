@@ -17,7 +17,7 @@ foreach ($requiredModules as $requiredModule)
 }
 
 if (!isset($arParams['REPORT_HELPER_CLASS'])
-	|| strlen($arParams['REPORT_HELPER_CLASS']) < 1
+	|| mb_strlen($arParams['REPORT_HELPER_CLASS']) < 1
 	|| !class_exists($arParams['REPORT_HELPER_CLASS'])
 	|| !is_subclass_of($arParams['REPORT_HELPER_CLASS'], 'CReportHelper'))
 {
@@ -348,9 +348,9 @@ try
 				}
 
 				// save prcnt
-				if (strlen($v['prcnt']))
+				if($v['prcnt'] <> '')
 				{
-					if ($v['prcnt'] == 'self_column' || array_key_exists($v['prcnt'], $_POST['report_select_columns']))
+					if($v['prcnt'] == 'self_column' || array_key_exists($v['prcnt'], $_POST['report_select_columns']))
 					{
 						$row['prcnt'] = $v['prcnt'];
 					}

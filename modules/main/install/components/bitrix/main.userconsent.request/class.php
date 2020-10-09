@@ -102,9 +102,9 @@ class MainUserConsentRequestComponent extends CBitrixComponent
 		foreach ($inputFieldNames as $fieldName)
 		{
 			$fieldName = trim($fieldName);
-			if (substr($fieldName, -1, 1) == ':')
+			if (mb_substr($fieldName, -1, 1) == ':')
 			{
-				$fieldName = substr($fieldName, 0, -1);
+				$fieldName = mb_substr($fieldName, 0, -1);
 				$fieldName = trim($fieldName);
 			}
 			if (!$fieldName)

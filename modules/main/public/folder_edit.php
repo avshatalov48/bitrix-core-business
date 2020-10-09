@@ -13,7 +13,7 @@ if (IsModuleInstalled("fileman"))
 
 //Site ID
 $site = SITE_ID;
-if (isset($_REQUEST["site"]) && strlen($_REQUEST["site"]) > 0)
+if (isset($_REQUEST["site"]) && $_REQUEST["site"] <> '')
 {
 	$obSite = CSite::GetByID($_REQUEST["site"]);
 	if ($arSite = $obSite->Fetch())
@@ -25,32 +25,32 @@ $io = CBXVirtualIo::GetInstance();
 //Folder path
 $path = "";
 $documentRoot = CSite::GetSiteDocRoot($site);
-if (isset($_REQUEST["path"]) && strlen($_REQUEST["path"]) > 0)
+if (isset($_REQUEST["path"]) && $_REQUEST["path"] <> '')
 {
 	$path = $io->CombinePath("/", $_REQUEST["path"]);
 
 	//Find real folder
 	while($path != "/" && !$io->DirectoryExists($documentRoot.$path))
 	{
-		$position = strrpos($path, "/");
+		$position = mb_strrpos($path, "/");
 		if ($position === false)
 			break;
 
-		$path = substr($path, 0, $position);
+		$path = mb_substr($path, 0, $position);
 	}
 
 	//Cut / from the end
 	$path = rtrim($path, "/");
 }
 
-if (strlen($path) <= 0 || !$io->DirectoryExists($documentRoot.$path))
+if ($path == '' || !$io->DirectoryExists($documentRoot.$path))
 	$path = "/";
 
 //Absolute path
 $absolutePath = $documentRoot.($path != "/" ? $path : "");
 
 //Lang
-if (!isset($_REQUEST["lang"]) || strlen($_REQUEST["lang"]) <= 0)
+if (!isset($_REQUEST["lang"]) || $_REQUEST["lang"] == '')
 	$lang = LANGUAGE_ID;
 
 //BackUrl
@@ -74,7 +74,7 @@ elseif ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]))
 
 	$bNeedSectionFile = false;
 	$strSectionName = "";
-	if (isset($_POST["sSectionName"]) && strlen($_POST["sSectionName"]) > 0)
+	if (isset($_POST["sSectionName"]) && $_POST["sSectionName"] <> '')
 	{
 		$strSectionName = "\$sSectionName = \"".EscapePHPString($_POST["sSectionName"])."\";\n";
 		$bNeedSectionFile = true;
@@ -90,7 +90,7 @@ elseif ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]))
 			$arProperty["CODE"] = (isset($arProperty["CODE"]) ? trim($arProperty["CODE"]) : "");
 			$arProperty["VALUE"] = (isset($arProperty["VALUE"]) ? trim($arProperty["VALUE"]) : "");
 
-			if (strlen($arProperty["VALUE"]) > 0 && preg_match("/[a-zA-Z_-~]+/i", $arProperty["CODE"]) )
+			if ($arProperty["VALUE"] <> '' && preg_match("/[a-zA-Z_-~]+/i", $arProperty["CODE"]) )
 			{
 				if($bNeedComma)
 					$strDirProperties .= ",\n";
@@ -123,7 +123,7 @@ elseif ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]))
 		$module_id = "fileman";
 		if(COption::GetOptionString($module_id, "log_page", "Y")=="Y")
 		{
-			$res_log['path'] = substr($path, 1);
+			$res_log['path'] = mb_substr($path, 1);
 			CEventLog::Log(
 				"content",
 				"SECTION_EDIT",
@@ -163,13 +163,13 @@ $arDirProperties = Array();
 if ($strWarning != "")
 {
 	//Restore post values if error occured
-	$sSectionName = (isset($_POST["sSectionName"]) && strlen($_POST["sSectionName"]) > 0 ? $_POST["sSectionName"] : "");
+	$sSectionName = (isset($_POST["sSectionName"]) && $_POST["sSectionName"] <> '' ? $_POST["sSectionName"] : "");
 
 	if (isset($_POST["PROPERTY"]) && is_array($_POST["PROPERTY"]))
 	{
 		foreach ($_POST["PROPERTY"] as $arProperty)
 		{
-			if (isset($arProperty["VALUE"]) && strlen($arProperty["VALUE"]) > 0)
+			if (isset($arProperty["VALUE"]) && $arProperty["VALUE"] <> '')
 				$arDirProperties[$arProperty["CODE"]] = $arProperty["VALUE"];
 		}
 	}
@@ -194,11 +194,11 @@ foreach ($arFilemanProperties as $propertyCode => $propertyDesc)
 		$arGlobalProperties[$propertyCode] = "";
 
 	unset($arDirProperties[$propertyCode]);
-	unset($arInheritProperties[strtoupper($propertyCode)]);
+	unset($arInheritProperties[mb_strtoupper($propertyCode)]);
 }
 
 foreach ($arDirProperties as $propertyCode => $propertyValue)
-	unset($arInheritProperties[strtoupper($propertyCode)]);
+	unset($arInheritProperties[mb_strtoupper($propertyCode)]);
 
 $popupWindow->ShowTitlebar(GetMessage('FOLDER_EDIT_WINDOW_TITLE'));
 $popupWindow->StartDescription("bx-property-folder");
@@ -264,7 +264,7 @@ foreach ($arGlobalProperties as $propertyCode => $propertyValue):?>
 
 	<tr style="height:30px;">
 		<td class="bx-popup-label bx-width30"><?=(
-			strlen($arFilemanProperties[$propertyCode]) > 0 ? 
+			$arFilemanProperties[$propertyCode] <> '' ? 
 				htmlspecialcharsEx($arFilemanProperties[$propertyCode]) : 
 				htmlspecialcharsEx($propertyCode))
 		?>:</td>
@@ -272,7 +272,7 @@ foreach ($arGlobalProperties as $propertyCode => $propertyValue):?>
 
 		<?$inheritValue = $APPLICATION->GetDirProperty($propertyCode, Array($site, $path));?>
 
-		<?if (strlen($inheritValue) > 0 && strlen($propertyValue) <= 0):
+		<?if ($inheritValue <> '' && $propertyValue == ''):
 			$jsInheritPropIds .= ",".$propertyIndex;
 		?>
 

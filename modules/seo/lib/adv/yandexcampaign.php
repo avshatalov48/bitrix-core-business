@@ -385,7 +385,7 @@ class YandexCampaignTable extends AdvEntity
 		if($newCampaign || isset($data['SETTINGS']["Name"]))
 		{
 			$campaignParam["Name"] = trim($data['SETTINGS']["Name"]);
-			if(strlen($campaignParam["Name"]) <= 0)
+			if($campaignParam["Name"] == '')
 			{
 				$result->addError(new Entity\FieldError(
 					static::getEntity()->getField('NAME'),
@@ -398,7 +398,7 @@ class YandexCampaignTable extends AdvEntity
 		{
 			$campaignParam["FIO"] = trim($data["SETTINGS"]["FIO"]);
 
-			if(strlen($campaignParam["FIO"]) <= 0)
+			if($campaignParam["FIO"] == '')
 			{
 				$result->addError(new Entity\FieldError(
 					static::getEntity()->getField('SETTINGS'),
@@ -614,7 +614,7 @@ class YandexCampaignTable extends AdvEntity
 		{
 			if(!is_array($data["SETTINGS"]["MinusKeywords"]))
 			{
-				if(strlen($data["SETTINGS"]["MinusKeywords"]) > 0)
+				if($data["SETTINGS"]["MinusKeywords"] <> '')
 				{
 					$data["SETTINGS"]["MinusKeywords"] = array();
 				}

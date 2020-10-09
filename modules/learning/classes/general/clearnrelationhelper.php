@@ -7,7 +7,7 @@ class CLearnRelationHelper
 		global $APPLICATION;
 
 		$curDir = $APPLICATION->GetCurDir();
-		if (substr($curDir, -1) !== '/')
+		if (mb_substr($curDir, -1) !== '/')
 			$curDir .= '/';
 
 		?>

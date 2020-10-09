@@ -1,7 +1,7 @@
 <?
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
-if(strlen($arParams["START_PAGE"]) <= 0)
+if($arParams["START_PAGE"] == '')
 	$arParams["START_PAGE"] = 'new';
 
 if($arParams["AJAX_MODE"] == "Y")
@@ -54,13 +54,13 @@ if (CModule::IncludeModule("form"))
 			$componentPage = CComponentEngine::ParseComponentPath($arParams["SEF_FOLDER"], $arUrlTemplates, $arVariables);
 
 			// if there's no page identefier - set it to start one
-			if(strlen($componentPage) <= 0)
+			if($componentPage == '')
 			{
 				$componentPage = $arParams["START_PAGE"];
 			}
 
 			// if page is disabled - set it to start one
-			if ($componentPage != "new" && $arParams["SHOW_".strtoupper($componentPage)."_PAGE"] != "Y")
+			if ($componentPage != "new" && $arParams["SHOW_".mb_strtoupper($componentPage)."_PAGE"] != "Y")
 			{
 				$componentPage = $arParams["START_PAGE"];
 			}
@@ -127,16 +127,16 @@ if (CModule::IncludeModule("form"))
 		$arPages = array("NEW", "EDIT", "LIST", "VIEW");
 
 		// get current page
-		$sAction = strtoupper(trim($arVariables["action"]));
+		$sAction = mb_strtoupper(trim($arVariables["action"]));
 
 		// check current page
 		if (!in_array($sAction, $arPages)) $sAction = "";
 		elseif ($sAction != "NEW" && $arParams["SHOW_".$sAction."_PAGE"] != "Y") $sAction = "";
 
 		// if current page is wrong or not set - get default value
-		if (strlen($sAction) <= "0") $sAction = $arParams["START_PAGE"];
+		if (mb_strlen($sAction) <= "0") $sAction = $arParams["START_PAGE"];
 
-		$componentPage = strtolower($sAction);
+		$componentPage = mb_strtolower($sAction);
 
 		// prepare component parameters for pages
 		foreach ($arPages as $page)
@@ -144,7 +144,7 @@ if (CModule::IncludeModule("form"))
 			if ($page == "NEW" || $arParams["SHOW_".$page."_PAGE"] == "Y")
 			{
 				$arParams[$page."_URL"] = $APPLICATION->GetCurPageParam(
-					strtolower($page) == $arParams["START_PAGE"] ? "" : $arVariableAliases["action"]."=".strtolower($page),
+					mb_strtolower($page) == $arParams["START_PAGE"] ? "" : $arVariableAliases["action"]."=".mb_strtolower($page),
 					array_merge(array_values($arVariableAliases), array("strFormNote", 'formresult')),
 					false
 				);

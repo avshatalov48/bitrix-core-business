@@ -45,12 +45,6 @@ class EventManager
 	{
 		$manage_cache = Main\Application::getInstance()->getManagedCache();
 
-		if(defined("BX_FORK_AGENTS_AND_EVENTS_FUNCTION"))
-		{
-			if(\CMain::ForkActions(array("CEvent", "ExecuteEvents")))
-				return "";
-		}
-
 		$bulk = intval(Main\Config\Option::get("main", "mail_event_bulk", 5));
 		if($bulk <= 0)
 			$bulk = 5;
@@ -60,20 +54,11 @@ class EventManager
 		$connection = Main\Application::getConnection();
 		if($connection instanceof Main\DB\MysqlCommonConnection)
 		{
-			$uniq = Main\Config\Option::get("main", "server_uniq_id", "");
-			if(strlen($uniq)<=0)
-			{
-				$uniq = md5(uniqid(rand(), true));
-				Main\Config\Option::set("main", "server_uniq_id", $uniq);
-			}
-
 			$strSql= "SELECT 'x' FROM b_event WHERE SUCCESS_EXEC='N' LIMIT 1";
 			$resultEventDb = $connection->query($strSql);
 			if($resultEventDb->fetch())
 			{
-				$lockDb = $connection->query("SELECT GET_LOCK('".$uniq."_event', 0) as L");
-				$arLock = $lockDb->fetch();
-				if($arLock["L"]=="0")
+				if(!$connection->lock('event'))
 					return "";
 			}
 			else
@@ -187,7 +172,7 @@ class EventManager
 
 		if($connection instanceof Main\DB\MysqlCommonConnection)
 		{
-			$connection->query("SELECT RELEASE_LOCK('".$uniq."_event')");
+			$connection->unlock('event');
 		}
 		elseif($connection instanceof Main\DB\MssqlConnection)
 		{
@@ -305,7 +290,7 @@ class EventManager
 			return false;
 		}
 
-		$code = strtolower(trim($data['FIELDS']['CODE']));
+		$code = mb_strtolower(trim($data['FIELDS']['CODE']));
 		if (!check_email($code))
 		{
 			return false;

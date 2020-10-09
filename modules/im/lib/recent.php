@@ -116,7 +116,7 @@ class Recent
 
 		if (!$options['IS_RECENT_GET'])
 		{
-			$filter['=PINNED'] = $options['GET_PINNED'];
+			$filter['=PINNED'] = $options['GET_PINNED'] === 'Y'? 'Y': 'N';
 		}
 
 		if ($options['LAST_UPDATE'])

@@ -1,6 +1,10 @@
 <?php
 namespace Bitrix\Main;
 
+use Bitrix\Main\ORM\Fields;
+use Bitrix\Main\ORM\Query;
+use Bitrix\Main\File\Internal;
+
 /**
  * Class FileTable
  *
@@ -22,6 +26,7 @@ namespace Bitrix\Main;
  * </ul>
  *
  * @package Bitrix\File
+ * @internal
  **/
 class FileTable extends Entity\DataManager
 {
@@ -78,6 +83,12 @@ class FileTable extends Entity\DataManager
 			'EXTERNAL_ID' => new Entity\StringField('EXTERNAL_ID', array(
 				'validation' => array(__CLASS__, 'validateExternalId'),
 			)),
+			(new Fields\Relations\Reference(
+				'HASH',
+				Internal\FileHashTable::class,
+				Query\Join::on('this.ID', 'ref.FILE_ID')
+			))
+				->configureJoinType(Query\Join::TYPE_LEFT),
 		);
 	}
 

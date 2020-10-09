@@ -3,7 +3,7 @@
 	<tr>
 		<td align="center" valign="middle">
 		<?
-		if(strlen($arResult['ERROR_MESSAGE'])<=0)
+		if($arResult['ERROR_MESSAGE'] == '')
 		{
 			?>
 			<form action="<?=$arResult['PATH_TO_DELETE']?>" name="load_form" method="GET">

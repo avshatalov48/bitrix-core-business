@@ -267,7 +267,7 @@ class AccountYandex extends \Bitrix\Seo\Analytics\Account implements IRequestDir
 			{
 				$titles = explode("\t", $string);
 			}
-			elseif(!empty($string) && strpos($string, 'Total') !== 0)
+			elseif(!empty($string) && mb_strpos($string, 'Total') !== 0)
 			{
 				$row = array_combine($titles, explode("\t", $string));
 

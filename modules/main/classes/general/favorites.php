@@ -322,7 +322,7 @@ class CBXFavAdmMenu
 				$tmpMenu["fav_id"] = $arItem["ID"];
 				$tmpMenu["parent_menu"] = "global_menu_desktop";
 
-				if (!isset($tmpMenu['icon']) || strlen($tmpMenu['icon']) <= 0)
+				if (!isset($tmpMenu['icon']) || $tmpMenu['icon'] == '')
 					$tmpMenu['icon'] = 'fav_menu_icon';
 
 				if($this->CheckItemActivity($tmpMenu))

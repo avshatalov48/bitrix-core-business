@@ -2,7 +2,7 @@
 $siteId = '';
 if (isset($_REQUEST['site_id']) && is_string($_REQUEST['site_id']))
 {
-	$siteId = substr(preg_replace('/[^a-z0-9_]/i', '', $_REQUEST['site_id']), 0, 2);
+	$siteId = mb_substr(preg_replace('/[^a-z0-9_]/i', '', $_REQUEST['site_id']), 0, 2);
 }
 
 if ($siteId)

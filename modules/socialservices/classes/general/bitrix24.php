@@ -120,7 +120,7 @@ class CSocServBitrixOAuth extends CSocServAuth
 			$appID = trim(COption::GetOptionString("socialservices", "bitrix24_gadget_appid", ''));
 			$appSecret = trim(COption::GetOptionString("socialservices", "bitrix24_gadget_appsecret", ''));
 			$portalURI = $_REQUEST['domain'];
-			if(strpos($portalURI, "http://") === false && strpos($portalURI, "https://") === false)
+			if(mb_strpos($portalURI, "http://") === false && mb_strpos($portalURI, "https://") === false)
 				$portalURI = "https://".$portalURI;
 			$gAuth = new CBitrixOAuthInterface($appID, $appSecret, $portalURI, $_REQUEST["code"]);
 

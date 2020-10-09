@@ -462,17 +462,15 @@
 					});
 				}
 			}
-			else if (typeof window.ga === 'function' && window.ga.getAll)
+			else if (typeof window.ga === 'function')
 			{
-				var isGaExists = window.ga.getAll().filter(function(tracker){
-					return tracker.get('trackingId') == item.gaId
-				}).length > 0;
-				if (!item.gaId || !isGaExists)
+				if (action)
 				{
-					if (item.params[2])
-						window.ga('send', type, category, action);
-					else
-						window.ga('send', type, category);
+					window.ga('send', type, category, action);
+				}
+				else
+				{
+					window.ga('send', type, category);
 				}
 			}
 		},

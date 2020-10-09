@@ -58,7 +58,7 @@ else
 
 	$arCurrentModules = CUpdateClientPartner::GetCurrentModules($errorMessage);
 
-	if (strlen($errorMessage) > 0)
+	if ($errorMessage <> '')
 		CAdminMessage::ShowMessage($errorMessage);
 	?>
 	<form method="post" name="task_form1" action="update_system_market_detail.php">
@@ -92,7 +92,7 @@ else
 				<td align="right" valign="top" width="40%"><?= GetMessage("USMP_DESCR") ?>:</td>
 				<td width="60%" valign="top"><?= nl2br($arModule["DESCRIPTION"]) ?></td>
 			</tr>
-			<?if (strlen($arModule["IMAGE"]) > 0):?>
+			<?if ($arModule["IMAGE"] <> ''):?>
 				<tr>
 					<td align="right" valign="top" width="40%"><?= GetMessage("USMP_IMAGE") ?>:</td>
 					<td width="60%" valign="top">

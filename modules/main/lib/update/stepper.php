@@ -107,7 +107,7 @@ abstract class Stepper
 			$id = ++self::$countId;
 			\CJSCore::Init(array('update_stepper'));
 			$title = empty($title) ? self::getTitle() : $title;
-			$progress = $count > 0 ? intval( $steps * 100 / $count) : 0;
+			$progress = $count > 0 ? intval($steps * 100 / $count) : 0;
 			$result .= <<<HTML
 <div class="main-stepper main-stepper-show" id="{$id}-container" data-bx-steps-count="{$count}">
 	<div class="main-stepper-info" id="{$id}-title">{$title}</div>
@@ -176,14 +176,14 @@ HTML;
 
 				$langDir = $fileName = "";
 				$filePath = $file->GetPathWithName();
-				while(($slashPos = strrpos($filePath, "/")) !== false)
+				while(($slashPos = mb_strrpos($filePath, "/")) !== false)
 				{
-					$filePath = substr($filePath, 0, $slashPos);
+					$filePath = mb_substr($filePath, 0, $slashPos);
 					$langPath = $filePath."/lang";
 					if(is_dir($langPath))
 					{
 						$langDir = $langPath;
-						$fileName = substr($file->GetPathWithName(), $slashPos);
+						$fileName = mb_substr($file->GetPathWithName(), $slashPos);
 						break;
 					}
 				}
@@ -330,7 +330,6 @@ HTML;
 	{
 		global $APPLICATION;
 		$APPLICATION->RestartBuffer();
-		while(ob_end_clean());
 
 		header('Content-Type:application/json; charset=UTF-8');
 

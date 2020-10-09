@@ -195,7 +195,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && $_REQUEST["action"] == "delete" && is
 		$backurl = $arResult['BACKURL'];
 		if($componentTemplate == 'twitpost')
 		{
-			$backurl .= (strpos($arResult['BACKURL'], '?') > 0 ? "&" : "?")."current_fieldset=SOCSERV";
+			$backurl .= (mb_strpos($arResult['BACKURL'], '?') > 0 ? "&" : "?")."current_fieldset=SOCSERV";
 		}
 	}
 	else

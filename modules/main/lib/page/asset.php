@@ -291,7 +291,7 @@ class Asset
 	public function startTarget($id = '', $mode = AssetMode::ALL)
 	{
 		$id = ToUpper(trim($id));
-		if (strlen($id) <= 0)
+		if ($id == '')
 		{
 			return false;
 		}
@@ -495,7 +495,7 @@ class Asset
 	public function compositeTarget($id = '')
 	{
 		$id = ToUpper(trim($id));
-		if (strlen($id) <= 0 || !isset($this->targetList[$id]))
+		if ($id == '' || !isset($this->targetList[$id]))
 		{
 			return false;
 		}
@@ -619,7 +619,7 @@ class Asset
 	 */
 	public function addCss($path, $additional = false)
 	{
-		if (strlen($path) <= 0)
+		if ($path == '')
 		{
 			return false;
 		}
@@ -638,7 +638,7 @@ class Asset
 	 */
 	public function addJs($path, $additional = false)
 	{
-		if (strlen($path) <= 0)
+		if ($path == '')
 		{
 			return false;
 		}
@@ -887,9 +887,9 @@ class Asset
 				break;
 			}
 
-			$attrsStart = $openTagStart + strlen($openTag);
+			$attrsStart = $openTagStart + mb_strlen($openTag);
 			$attrs = BinaryString::getSubstring($content, $attrsStart, $endingPos - $attrsStart);
-			$openTagEnd = $endingPos + strlen($ending);
+			$openTagEnd = $endingPos + mb_strlen($ending);
 
 			$realClosingTag = $closingTag.$ending;
 			$closingTagStart = BinaryString::getPosition($content, $realClosingTag, $openTagEnd);
@@ -899,7 +899,7 @@ class Asset
 				continue;
 			}
 
-			$closingTagEnd = $closingTagStart + strlen($realClosingTag);
+			$closingTagEnd = $closingTagStart + mb_strlen($realClosingTag);
 			while (isset($content[$closingTagEnd]) && $content[$closingTagEnd] === "\n")
 			{
 				$closingTagEnd++;
@@ -946,7 +946,7 @@ class Asset
 			return true;
 		}
 
-		$type = strtolower($match[2]);
+		$type = mb_strtolower($match[2]);
 		return $type === "" || $type === "text/javascript" || $type === "application/javascript";
 	}
 
@@ -961,16 +961,16 @@ class Asset
 	public static function replaceUrlCss($url, $quote, $path)
 	{
 		if (
-			strpos($url, "://") !== false
-			|| strpos($url, "data:") !== false
-			|| substr($url, 0, 1) == "#"
+			mb_strpos($url, "://") !== false
+			|| mb_strpos($url, "data:") !== false
+			|| mb_substr($url, 0, 1) == "#"
 		)
 		{
 			return $quote.$url.$quote;
 		}
 
 		$url = trim(stripslashes($url), "'\" \r\n\t");
-		if (substr($url, 0, 1) == "/")
+		if (mb_substr($url, 0, 1) == "/")
 		{
 			return $quote.$url.$quote;
 		}
@@ -986,9 +986,9 @@ class Asset
 	public static function getAssetPath($src)
 	{
 		/** @noinspection PhpUndefinedClassInspection */
-		if (($p = strpos($src, "?")) > 0 && !\CMain::IsExternalLink($src))
+		if (($p = mb_strpos($src, "?")) > 0 && !\CMain::IsExternalLink($src))
 		{
-			$src = substr($src, 0, $p);
+			$src = mb_substr($src, 0, $p);
 		}
 		return $src;
 	}
@@ -2091,14 +2091,14 @@ class Asset
 	 */
 	public static function getAssetTime($file = '')
 	{
-		$qpos = strpos($file, '?');
+		$qpos = mb_strpos($file, '?');
 		if ($qpos === false)
 		{
 			return false;
 		}
 		$qpos++;
 
-		return substr($file, $qpos);
+		return mb_substr($file, $qpos);
 	}
 
 	/**
@@ -2208,7 +2208,7 @@ class Asset
 		$this->setTemplateID();
 		$res = $assetMD5 = $comments = $contents = '';
 		$prefix = trim($prefix);
-		$prefix = strlen($prefix) < 1 ? 'default' : $prefix;
+		$prefix = mb_strlen($prefix) < 1 ? 'default' : $prefix;
 		$add2End = (strncmp($prefix, 'kernel', 6) == 0);
 		$type = ($type == 'js' ? 'js' : 'css');
 
@@ -2278,7 +2278,7 @@ class Asset
 						if (preg_match("/\\.min\\.js$/i", $file['FILE_PATH']))
 						{
 							$sourceMap = self::cutSourceMap($assetContent);
-							if (strlen($sourceMap) > 0)
+							if ($sourceMap <> '')
 							{
 								$dirPath = IO\Path::getDirectory($file['PATH']);
 								$info["map"] = $dirPath."/".$sourceMap;
@@ -2298,7 +2298,7 @@ class Asset
 				if ($needWrite)
 				{
 					$sourceMap = self::cutSourceMap($contents);
-					$mapNeeded = $mapNeeded || strlen($sourceMap) > 0;
+					$mapNeeded = $mapNeeded || $sourceMap <> '';
 
 					// Write packed files and meta information
 					$contents = ($add2End ? $comments.$contents.$newContent : $newContent.$contents.$comments);
@@ -2333,7 +2333,7 @@ class Asset
 			}
 		}
 
-		$label = (($type == 'css') && ($prefix == 'template' || substr($prefix, 0, 9)  == 'template_') ? ' data-template-style="true" ' : '');
+		$label = (($type == 'css') && ($prefix == 'template' || mb_substr($prefix, 0, 9) == 'template_') ? ' data-template-style="true" ' : '');
 
 		$bundleFile = '';
 		$extendData = ($data != '' ? ' '.trim($data) : '');
@@ -2403,7 +2403,7 @@ class Asset
 		$lastLine = BinaryString::getPosition($content, self::SOURCE_MAP_TAG, $position);
 		if ($lastLine !== false)
 		{
-			$nameStart = $lastLine + strlen(self::SOURCE_MAP_TAG);
+			$nameStart = $lastLine + mb_strlen(self::SOURCE_MAP_TAG);
 			if (($newLinePos = BinaryString::getPosition($content, "\n", $nameStart)) !== false)
 			{
 				$sourceMapName = BinaryString::getSubstring($content, $nameStart, $newLinePos - $nameStart);
@@ -2435,7 +2435,7 @@ class Asset
 		{
 			$line++;
 			$offset = $newLinePos + 1;
-			if (BinaryString::getSubstring($content, $offset, strlen(self::HEADER_START_TAG)) === self::HEADER_START_TAG)
+			if (BinaryString::getSubstring($content, $offset, mb_strlen(self::HEADER_START_TAG)) === self::HEADER_START_TAG)
 			{
 				$endingPos = BinaryString::getPosition($content, self::HEADER_END_TAG, $offset);
 				if ($endingPos === false)
@@ -2443,7 +2443,7 @@ class Asset
 					break;
 				}
 
-				$startData = $offset + strlen(self::HEADER_START_TAG);
+				$startData = $offset + mb_strlen(self::HEADER_START_TAG);
 				$data = unserialize(BinaryString::getSubstring($content, $startData, $endingPos - $startData));
 
 				if (is_array($data))
@@ -2471,7 +2471,7 @@ class Asset
 		$sections = "";
 		foreach ($files as $file)
 		{
-			if (!isset($file["map"]) || strlen($file["map"]) < 1)
+			if (!isset($file["map"]) || mb_strlen($file["map"]) < 1)
 			{
 				continue;
 			}

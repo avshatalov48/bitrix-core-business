@@ -10,6 +10,7 @@ use Bitrix\Main\Engine;
 use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Type\DateTime;
+use Bitrix\Main\Localization\Loc;
 
 class Call extends Engine\Controller
 {
@@ -80,6 +81,12 @@ class Call extends Engine\Controller
 		$currentUserId = $this->getCurrentUser()->getId();
 
 		$parentCall = Registry::getCallWithId($parentId);
+		if (!$parentCall)
+		{
+			$this->addError(new Error(Loc::getMessage("IM_REST_CALL_ERROR_CALL_NOT_FOUND"), "call_not_found"));
+			return null;
+		}
+
 		if(!$this->checkCallAccess($parentCall, $currentUserId))
 		{
 			$this->errorCollection[] = new Error("You do not have access to the parent call", "access_denied");
@@ -169,6 +176,11 @@ class Call extends Engine\Controller
 		$isVideo = ($video === "Y");
 		$currentUserId = $this->getCurrentUser()->getId();
 		$call = Registry::getCallWithId($callId);
+		if (!$call)
+		{
+			$this->addError(new Error(Loc::getMessage("IM_REST_CALL_ERROR_CALL_NOT_FOUND"), "call_not_found"));
+			return null;
+		}
 
 		if(!$this->checkCallAccess($call, $currentUserId))
 			return null;
@@ -218,6 +230,11 @@ class Call extends Engine\Controller
 	{
 		$currentUserId = $this->getCurrentUser()->getId();
 		$call = Registry::getCallWithId($callId);
+		if (!$call)
+		{
+			$this->addError(new Error(Loc::getMessage("IM_REST_CALL_ERROR_CALL_NOT_FOUND"), "call_not_found"));
+			return null;
+		}
 
 		if(!$this->checkCallAccess($call, $currentUserId))
 			return null;
@@ -227,6 +244,11 @@ class Call extends Engine\Controller
 	{
 		$currentUserId = $this->getCurrentUser()->getId();
 		$call = Registry::getCallWithId($callId);
+		if (!$call)
+		{
+			$this->addError(new Error(Loc::getMessage("IM_REST_CALL_ERROR_CALL_NOT_FOUND"), "call_not_found"));
+			return null;
+		}
 		$mobileDevice = Context::getCurrent()->getRequest()->getCookieRaw('MOBILE_DEVICE');
 		$isMobile = $mobileDevice != '';
 
@@ -250,6 +272,11 @@ class Call extends Engine\Controller
 	{
 		$currentUserId = $this->getCurrentUser()->getId();
 		$call = Registry::getCallWithId($callId);
+		if (!$call)
+		{
+			$this->addError(new Error(Loc::getMessage("IM_REST_CALL_ERROR_CALL_NOT_FOUND"), "call_not_found"));
+			return null;
+		}
 
 		if(!$this->checkCallAccess($call, $currentUserId))
 			return null;
@@ -285,6 +312,11 @@ class Call extends Engine\Controller
 	{
 		$currentUserId = $this->getCurrentUser()->getId();
 		$call = Registry::getCallWithId($callId);
+		if (!$call)
+		{
+			$this->addError(new Error(Loc::getMessage("IM_REST_CALL_ERROR_CALL_NOT_FOUND"), "call_not_found"));
+			return null;
+		}
 
 		if(!$this->checkCallAccess($call, $currentUserId))
 			return null;
@@ -312,6 +344,11 @@ class Call extends Engine\Controller
 		$restart = (bool)$restart;
 		$currentUserId = $this->getCurrentUser()->getId();
 		$call = Registry::getCallWithId($callId);
+		if (!$call)
+		{
+			$this->addError(new Error(Loc::getMessage("IM_REST_CALL_ERROR_CALL_NOT_FOUND"), "call_not_found"));
+			return null;
+		}
 
 		if(!$this->checkCallAccess($call, $currentUserId))
 			return null;
@@ -330,6 +367,11 @@ class Call extends Engine\Controller
 	{
 		$currentUserId = $this->getCurrentUser()->getId();
 		$call = Registry::getCallWithId($callId);
+		if (!$call)
+		{
+			$this->addError(new Error(Loc::getMessage("IM_REST_CALL_ERROR_CALL_NOT_FOUND"), "call_not_found"));
+			return null;
+		}
 
 		if(!$this->checkCallAccess($call, $currentUserId))
 			return null;
@@ -348,6 +390,11 @@ class Call extends Engine\Controller
 	{
 		$currentUserId = $this->getCurrentUser()->getId();
 		$call = Registry::getCallWithId($callId);
+		if (!$call)
+		{
+			$this->addError(new Error(Loc::getMessage("IM_REST_CALL_ERROR_CALL_NOT_FOUND"), "call_not_found"));
+			return null;
+		}
 
 		if(!$this->checkCallAccess($call, $currentUserId))
 			return null;
@@ -387,6 +434,11 @@ class Call extends Engine\Controller
 	{
 		$currentUserId = $this->getCurrentUser()->getId();
 		$call = Registry::getCallWithId($callId);
+		if (!$call)
+		{
+			$this->addError(new Error(Loc::getMessage("IM_REST_CALL_ERROR_CALL_NOT_FOUND"), "call_not_found"));
+			return null;
+		}
 
 		if(!$this->checkCallAccess($call, $currentUserId))
 			return null;

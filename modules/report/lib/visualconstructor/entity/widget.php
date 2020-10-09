@@ -490,7 +490,7 @@ class Widget extends ConfigurableModel
 	 */
 	public static function buildPseudoWidget($params)
 	{
-		if (strpos($params['widgetGId'], 'pseudo_') === 0)
+		if (mb_strpos($params['widgetGId'], 'pseudo_') === 0)
 		{
 			$widget = new self();
 			$widget->setViewKey($params['viewKey']);

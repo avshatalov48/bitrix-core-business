@@ -8,8 +8,8 @@ if (is_dir($dir) && $directory = opendir($dir))
 	{
 		if ($file == "." || $file == ".." || is_dir($dir.$file))
 			continue;
-		if (substr($file, -4, 4) == ".css")
-			$arThemes[] = substr($file, 0, strlen($file) - 4);
+		if (mb_substr($file, -4, 4) == ".css")
+			$arThemes[] = mb_substr($file, 0, mb_strlen($file) - 4);
 	}
 	closedir($directory);
 }

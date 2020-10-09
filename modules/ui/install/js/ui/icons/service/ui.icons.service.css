@@ -433,13 +433,17 @@
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-ya-direct.svg);
 }
 
-.ui-icon-service-ya-toloka > i {
-	background-color: rgb(234, 132, 40);
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-toloka.svg);
-}
-
 .ui-icon-service-light-ya-direct > i {
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-ya-direct.svg);
+}
+
+.ui-icon-service-ya-toloka > i {
+	--ui-icon-service-bg-color: rgb(234, 132, 40);
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-ya-toloka.svg);
+}
+
+.ui-icon-service-light-ya-toloka > i {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-ya-toloka.svg);
 }
 
 .ui-icon-service-liveid > i {
@@ -542,6 +546,10 @@
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-audio-infocall.svg);
 }
 
+.ui-icon-service-light-audio-infocall > i {
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-audio-infocall.svg);
+}
+
 .ui-icon-service-light-infocall > i {
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-audio-infocall.svg);
 }
@@ -621,12 +629,12 @@
 }
 
 .ui-icon-service-olx > i {
-	background-color: #5b2b82;
+	--ui-icon-service-bg-color: #5b2b82;
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-olx.svg);
 }
 
 .ui-icon-service-light-olx > i {
-	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-olx.svg);
+	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-olx.svg);
 }
 
 .ui-icon.ui-icon-service-import > i {
@@ -677,7 +685,6 @@
 	--ui-icon-service-bg-color: #333;
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-play.svg);
 }
-
 
 .ui-icon.ui-icon-service-light-play > i {
 	background-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-play.svg);

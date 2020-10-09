@@ -1752,7 +1752,7 @@
 	padding-bottom: 2px;
 	padding-top: 0;
 }
-.bx-messenger-content-quote-name { padding-bottom: 0; font-size: 13px; color: #767a7e;  padding-top: 1px; white-space: nowrap;  }
+.bx-messenger-content-quote-name { padding-bottom: 0; font-size: 13px; color: #767a7e;  padding-top: 1px; }
 .bx-messenger-content-quote-time { display: inline-block; padding-left: 5px; font-size: 11px;}
 .bx-messenger-content-quote-icon {
 	display: none;

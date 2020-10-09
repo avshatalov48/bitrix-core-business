@@ -14,13 +14,13 @@ foreach($arResult['value'] as $key => $value)
 	{
 		$value = HtmlFilter::encode($value);
 	}
-	elseif(strlen($value))
+	elseif($value <> '')
 	{
 		$value = nl2br(HtmlFilter::encode($value));
 	}
 
 	$href = '';
-	if(strlen($arResult['userField']['PROPERTY_VALUE_LINK']))
+	if($arResult['userField']['PROPERTY_VALUE_LINK'] <> '')
 	{
 		$href = HtmlFilter::encode(
 			str_replace(

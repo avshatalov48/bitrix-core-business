@@ -61,7 +61,7 @@ Class CIdeaManagment
 
 		global $USER;
 		//Post CNT
-		$numPosts = IntVal($numPosts);
+		$numPosts = intval($numPosts);
 		//RSS type
 		$type = ToLower(preg_replace("/[^a-zA-Z0-9.]/is", "", $type));
 		if(!in_array($type, array("rss2.0", "atom.03", "rss.92")))
@@ -75,7 +75,7 @@ Class CIdeaManagment
 		$arSettings = array(
 			"BLOG_CODE" => $BlogCode,
 			"NOW" => date("r"),
-			"NOW_ISO" => date("Y-m-d\TH:i:s").substr(date("O"), 0, 3).":".substr(date("O"), -2, 2),
+			"NOW_ISO" => date("Y-m-d\TH:i:s").mb_substr(date("O"), 0, 3).":".mb_substr(date("O"), -2, 2),
 			"SERVER_NAME" => "",
 			"CHARSET" => "",
 			"LANGUAGE" => "",
@@ -94,26 +94,26 @@ Class CIdeaManagment
 			$arSettings["LANGUAGE"] = $arSite["LANGUAGE_ID"];
 		}
 		//Get Server Name
-		if (strlen($arSettings["SERVER_NAME"]) == 0)
+		if ($arSettings["SERVER_NAME"] == '')
 		{
-			if (defined("SITE_SERVER_NAME") && strlen(SITE_SERVER_NAME) > 0)
+			if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '')
 				$arSettings["SERVER_NAME"] = SITE_SERVER_NAME;
 			else
 				$arSettings["SERVER_NAME"] = COption::GetOptionString("main", "server_name", "");
 		}
 		//Get Site Charset
-		if (strlen($arSettings["CHARSET"]) == 0)
+		if ($arSettings["CHARSET"] == '')
 		{
-			if (defined("SITE_CHARSET") && strlen(SITE_CHARSET) > 0)
+			if (defined("SITE_CHARSET") && SITE_CHARSET <> '')
 				$arSettings["CHARSET"] = SITE_CHARSET;
 			else
 				$arSettings["CHARSET"] = "windows-1251";
 		}
 
 		$arSettings["BLOG_URL"] = "http://".$arSettings["SERVER_NAME"];
-		if(!empty($arPathTemplates) && strlen($arPathTemplates["INDEX"])>0)
+		if(!empty($arPathTemplates) && $arPathTemplates["INDEX"] <> '')
 			$arSettings["BLOG_URL"] .= $arPathTemplates["INDEX"];
-		if(!empty($arPathTemplates) && strlen($arPathTemplates["CUSTOM_TITLE"])>0)
+		if(!empty($arPathTemplates) && $arPathTemplates["CUSTOM_TITLE"] <> '')
 			$arSettings["BLOG_NAME"] = htmlspecialcharsbx($arPathTemplates["CUSTOM_TITLE"]);
 		else
 			$arSettings["BLOG_NAME"] = "\"".htmlspecialcharsbx($arSite["NAME"])."\" (".$arSettings["SERVER_NAME"].")";
@@ -226,7 +226,7 @@ Class CIdeaManagment
 			if(isset($arPost[self::UFCategroryCodeField]) && is_array($arSettings["CATEGORIES"][ToUpper($arPost[self::UFCategroryCodeField])]))
 				$category = htmlspecialcharsbx($arSettings["CATEGORIES"][ToUpper($arPost[self::UFCategroryCodeField])]["NAME"]);
 
-			if(strlen($arPathTemplates["USER"]) > 0)
+			if($arPathTemplates["USER"] <> '')
 				$authorURL = htmlspecialcharsbx("http://".$arSettings["SERVER_NAME"].CComponentEngine::MakePathFromTemplate($arPathTemplates["USER"], array("user_id"=>$arPost["AUTHOR_ID"], "group_id"=>$arPost["BLOG_SOCNET_GROUP_ID"])));
 			else
 				$authorURL = htmlspecialcharsbx("http://".$arSettings["SERVER_NAME"].CBlogUser::PreparePath($arPost["AUTHOR_ID"], $arPost["BLOG_GROUP_SITE_ID"]));
@@ -256,7 +256,7 @@ Class CIdeaManagment
 				$arSettings["RSS"] .= "	  <link>".$url."</link>\n";
 				$arSettings["RSS"] .= "	  <guid>".$url."</guid>\n";
 				$arSettings["RSS"] .= "	  <pubDate>".$date."</pubDate>\n";
-				if(strlen($category) > 0)
+				if($category <> '')
 					$arSettings["RSS"] .= "	  <category>".$category."</category>\n";
 				$arSettings["RSS"] .= "	</item>\n";
 				$arSettings["RSS"] .= "\n";
@@ -266,7 +266,7 @@ Class CIdeaManagment
 				$atomID = "tag:".htmlspecialcharsbx($arSettings["SERVER_NAME"]).":".$arBlog["URL"]."/".$arPost["ID"];
 
 				$timeISO = mktime($arDate["HH"], $arDate["MI"], $arDate["SS"], $arDate["MM"], $arDate["DD"], $arDate["YYYY"]);
-				$dateISO = date("Y-m-d\TH:i:s", $timeISO).substr(date("O", $timeISO), 0, 3).":".substr(date("O", $timeISO), -2, 2);
+				$dateISO = date("Y-m-d\TH:i:s", $timeISO).mb_substr(date("O", $timeISO), 0, 3).":".mb_substr(date("O", $timeISO), -2, 2);
 
 				$titleRel = htmlspecialcharsbx($arPost["TITLE"]);
 

@@ -75,8 +75,8 @@ if($strWarning == "")
 	/* identify the component by line number */
 	for ($i = 0, $cnt = count($arComponents); $i < $cnt; $i++)
 	{
-		$nLineFrom = substr_count(substr($filesrc, 0, $arComponents[$i]["START"]), "\n") + 1;
-		$nLineTo = substr_count(substr($filesrc, 0, $arComponents[$i]["END"]), "\n") + 1;
+		$nLineFrom = substr_count(mb_substr($filesrc, 0, $arComponents[$i]["START"]), "\n") + 1;
+		$nLineTo = substr_count(mb_substr($filesrc, 0, $arComponents[$i]["END"]), "\n") + 1;
 
 		if ($nLineFrom <= $src_line && $nLineTo >= $src_line)
 		{
@@ -139,7 +139,7 @@ if($strWarning == "")
 		if ($_POST["SITE_TEMPLATE"] != $_GET["template_id"] && $_POST["SITE_TEMPLATE"] != ".default")
 			$_POST["USE_TEMPLATE"] = "N";
 
-		if (CComponentUtil::CopyTemplate($arComponent["DATA"]["COMPONENT_NAME"], $arComponent["DATA"]["TEMPLATE_NAME"], ((strlen($templateSiteTemplate) > 0) ? $templateSiteTemplate : false), $_POST["SITE_TEMPLATE"], $sTemplateName, false))
+		if (CComponentUtil::CopyTemplate($arComponent["DATA"]["COMPONENT_NAME"], $arComponent["DATA"]["TEMPLATE_NAME"], (($templateSiteTemplate <> '') ? $templateSiteTemplate : false), $_POST["SITE_TEMPLATE"], $sTemplateName, false))
 		{
 			if ($_POST["USE_TEMPLATE"] == "Y")
 			{
@@ -147,11 +147,11 @@ if($strWarning == "")
 					"\$APPLICATION->IncludeComponent(\"".$arComponent["DATA"]["COMPONENT_NAME"]."\", ".
 					"\"".$sTemplateName."\", ".
 					"Array(\n\t".PHPParser::ReturnPHPStr2($arComponent["DATA"]["PARAMS"], $arParameters)."\n\t)".
-					",\n\t".(strlen($arComponent["DATA"]["PARENT_COMP"]) > 0? $arComponent["DATA"]["PARENT_COMP"] : "false").
+					",\n\t".($arComponent["DATA"]["PARENT_COMP"] <> ''? $arComponent["DATA"]["PARENT_COMP"] : "false").
 					(!empty($arComponent["DATA"]["FUNCTION_PARAMS"])? ",\n\t"."array(\n\t".PHPParser::ReturnPHPStr2($arComponent["DATA"]["FUNCTION_PARAMS"])."\n\t)" : "").
 					"\n);";
 
-				$filesrc_for_save = substr($filesrc, 0, $arComponent["START"]).$code.substr($filesrc, $arComponent["END"]);
+				$filesrc_for_save = mb_substr($filesrc, 0, $arComponent["START"]).$code.mb_substr($filesrc, $arComponent["END"]);
 
 				if(!$APPLICATION->SaveFileContent($abs_path, $filesrc_for_save))
 					$strWarning .= GetMessage("comp_prop_err_save")."<br>";
@@ -275,19 +275,19 @@ endif;
 		<td class="bx-popup-label bx-width50"><?= GetMessage("comp_templ_new_tpl") ?>:</td>
 		<td>
 <?
-$sParentComp = strtolower($arComponent["DATA"]["PARENT_COMP"]);
+$sParentComp = mb_strtolower($arComponent["DATA"]["PARENT_COMP"]);
 $bParentComp = ($sParentComp <> "" && $sParentComp !== "false" && $sParentComp !== "null");
 if(!$bParentComp):
 	//find next template name
-	$def = (strlen($arComponent["DATA"]["TEMPLATE_NAME"]) > 0 && $arComponent["DATA"]["TEMPLATE_NAME"]<>".default"? rtrim($arComponent["DATA"]["TEMPLATE_NAME"], "0..9") : "template");
+	$def = ($arComponent["DATA"]["TEMPLATE_NAME"] <> '' && $arComponent["DATA"]["TEMPLATE_NAME"]<>".default"? rtrim($arComponent["DATA"]["TEMPLATE_NAME"], "0..9") : "template");
 	if($def == '')
 		$def = "template";
 	$max = 0;
 	foreach($arTemplatesList as $templ)
-		if(strpos($templ["NAME"], $def) === 0 && ($v = intval(substr($templ["NAME"], strlen($def))))>$max)
+		if(mb_strpos($templ["NAME"], $def) === 0 && ($v = intval(mb_substr($templ["NAME"], mb_strlen($def))))>$max)
 			$max = $v;
 ?>
-			<input type="text" name="TEMPLATE_NAME" value="<?echo (strlen($_REQUEST["TEMPLATE_NAME"]) > 0? htmlspecialcharsbx($_REQUEST["TEMPLATE_NAME"]) : htmlspecialcharsbx($def).($max+1)); ?>">
+			<input type="text" name="TEMPLATE_NAME" value="<?echo ($_REQUEST["TEMPLATE_NAME"] <> ''? htmlspecialcharsbx($_REQUEST["TEMPLATE_NAME"]) : htmlspecialcharsbx($def).($max+1)); ?>">
 <?else:?>
 			<?echo $sCurrentTemplateName?>
 			<input type="hidden" name="TEMPLATE_NAME" value="<?echo $sCurrentTemplateName?>">
@@ -311,7 +311,7 @@ $bList = ($_REQUEST["SITE_TEMPLATE"] <> "" && $_REQUEST["SITE_TEMPLATE"] <> $_GE
 					if($templ_id == ".default" || $templ_id == $_GET["template_id"])
 						continue;
 				?>
-				<option value="<?= htmlspecialcharsbx($templ_id) ?>"<?if ((strlen($_REQUEST["SITE_TEMPLATE"]) > 0 && $_REQUEST["SITE_TEMPLATE"] == $templ_id) || (strlen($_REQUEST["SITE_TEMPLATE"]) <= 0 && $templ_id == $template_site_template)) echo " selected";?>><?= htmlspecialcharsbx($templ_id." (".$templ_name.")") ?></option>
+				<option value="<?= htmlspecialcharsbx($templ_id) ?>"<?if (($_REQUEST["SITE_TEMPLATE"] <> '' && $_REQUEST["SITE_TEMPLATE"] == $templ_id) || ($_REQUEST["SITE_TEMPLATE"] == '' && $templ_id == $template_site_template)) echo " selected";?>><?= htmlspecialcharsbx($templ_id." (".$templ_name.")") ?></option>
 				<?endforeach;?>
 			</select>
 		</td>

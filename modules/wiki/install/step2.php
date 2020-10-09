@@ -36,7 +36,7 @@
 			$GLOBALS["DB"]->StartTransaction();
 			$obBlocktype = new CIBlockType;
 			$IBLOCK_TYPE_ID = $obBlocktype->Add($arFields);
-			if (strLen($IBLOCK_TYPE_ID) <= 0)
+			if ($IBLOCK_TYPE_ID == '')
 			{
 				$strWarning .= $obBlocktype->LAST_ERROR;
 				$GLOBALS["DB"]->Rollback();
@@ -153,7 +153,7 @@
 					$GLOBALS["DB"]->StartTransaction();
 					$obBlocktype = new CIBlockType;
 					$IBLOCK_TYPE_ID = $obBlocktype->Add($arFields);
-					if (strLen($IBLOCK_TYPE_ID) <= 0)
+					if ($IBLOCK_TYPE_ID == '')
 					{
 						$strWarning .= $obBlocktype->LAST_ERROR;
 						$GLOBALS["DB"]->Rollback();

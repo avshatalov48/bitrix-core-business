@@ -20,7 +20,7 @@ class CIBlockXMLFile
 
 	function __construct($table_name = "b_xml_tree")
 	{
-		$this->_table_name = mb_strtolower($table_name);
+		$this->_table_name = strtolower($table_name);
 		if (defined("BX_UTF"))
 		{
 			if (function_exists("mb_orig_strpos") && function_exists("mb_orig_strlen") && function_exists("mb_orig_substr"))
@@ -51,7 +51,7 @@ class CIBlockXMLFile
 
 		if($res)
 		{
-			$this->_sessid = mb_substr($sess_id, 0, 32);
+			$this->_sessid = substr($sess_id, 0, 32);
 
 			$rs = $this->GetList(array(), array("PARENT_ID" => -1), array("ID", "NAME"));
 			if(!$rs->Fetch())
@@ -334,12 +334,12 @@ class CIBlockXMLFile
 			}
 			elseif($xmlChunk[0] == "!" || $xmlChunk[0] == "?")
 			{
-				if(mb_substr($xmlChunk, 0, 4) === "?xml")
+				if(strncmp($xmlChunk, "?xml", 4) === 0)
 				{
 					if(preg_match('#encoding[\s]*=[\s]*"(.*?)"#i', $xmlChunk, $arMatch))
 					{
 						$this->charset = $arMatch[1];
-						if(mb_strtoupper($this->charset) === mb_strtoupper(LANG_CHARSET))
+						if(strtoupper($this->charset) === strtoupper(LANG_CHARSET))
 							$this->charset = false;
 						$cs = $this->charset;
 					}
@@ -367,14 +367,14 @@ class CIBlockXMLFile
 			{
 				$this->buf = fread($fp, $this->read_size);
 				$this->buf_position = 0;
-				$this->buf_len = mb_strlen($this->buf);
+				$this->buf_len = strlen($this->buf);
 			}
 			else
 				return false;
 		}
 
 		//Skip line delimiters (ltrim)
-		$xml_position = mb_strpos($this->buf, "<", $this->buf_position);
+		$xml_position = strpos($this->buf, "<", $this->buf_position);
 		while($xml_position === $this->buf_position)
 		{
 			$this->buf_position++;
@@ -386,12 +386,12 @@ class CIBlockXMLFile
 				{
 					$this->buf = fread($fp, $this->read_size);
 					$this->buf_position = 0;
-					$this->buf_len = mb_strlen($this->buf);
+					$this->buf_len = strlen($this->buf);
 				}
 				else
 					return false;
 			}
-			$xml_position = mb_strpos($this->buf, "<", $this->buf_position);
+			$xml_position = strpos($this->buf, "<", $this->buf_position);
 		}
 
 		//Let's find next line delimiter
@@ -402,20 +402,20 @@ class CIBlockXMLFile
 			if(!feof($fp))
 			{
 				$this->buf .= fread($fp, $this->read_size);
-				$this->buf_len = mb_strlen($this->buf);
+				$this->buf_len = strlen($this->buf);
 			}
 			else
 				break;
 
 			//Let's find xml tag start
-			$xml_position = mb_strpos($this->buf, "<", $next_search);
+			$xml_position = strpos($this->buf, "<", $next_search);
 		}
 		if($xml_position===false)
 			$xml_position = $this->buf_len+1;
 
 		$len = $xml_position-$this->buf_position;
 		$this->file_position += $len;
-		$result = mb_substr($this->buf, $this->buf_position, $len);
+		$result = substr($this->buf, $this->buf_position, $len);
 		$this->buf_position = $xml_position;
 
 		return $result;
@@ -499,14 +499,14 @@ class CIBlockXMLFile
 			{
 				$this->buf = fread($fp, $this->read_size);
 				$this->buf_position = 0;
-				$this->buf_len = mb_strlen($this->buf);
+				$this->buf_len = mb_strlen($this->buf, 'latin1');
 			}
 			else
 				return false;
 		}
 
 		//Skip line delimiters (ltrim)
-		$xml_position = mb_strpos($this->buf, "<", $this->buf_position);
+		$xml_position = mb_strpos($this->buf, "<", $this->buf_position, 'latin1');
 		while($xml_position === $this->buf_position)
 		{
 			$this->buf_position++;
@@ -518,12 +518,12 @@ class CIBlockXMLFile
 				{
 					$this->buf = fread($fp, $this->read_size);
 					$this->buf_position = 0;
-					$this->buf_len = mb_strlen($this->buf);
+					$this->buf_len = mb_strlen($this->buf, 'latin1');
 				}
 				else
 					return false;
 			}
-			$xml_position = mb_strpos($this->buf, "<", $this->buf_position);
+			$xml_position = mb_strpos($this->buf, "<", $this->buf_position, 'latin1');
 		}
 
 		//Let's find next line delimiter
@@ -534,20 +534,20 @@ class CIBlockXMLFile
 			if(!feof($fp))
 			{
 				$this->buf .= fread($fp, $this->read_size);
-				$this->buf_len = mb_strlen($this->buf);
+				$this->buf_len = mb_strlen($this->buf, 'latin1');
 			}
 			else
 				break;
 
 			//Let's find xml tag start
-			$xml_position = mb_strpos($this->buf, "<", $next_search);
+			$xml_position = mb_strpos($this->buf, "<", $next_search, 'latin1');
 		}
 		if($xml_position===false)
 			$xml_position = $this->buf_len+1;
 
 		$len = $xml_position-$this->buf_position;
 		$this->file_position += $len;
-		$result = mb_substr($this->buf, $this->buf_position, $len);
+		$result = mb_substr($this->buf, $this->buf_position, $len, 'latin1');
 		$this->buf_position = $xml_position;
 
 		return $result;
@@ -574,36 +574,36 @@ class CIBlockXMLFile
 				"&",
 			);
 
-		$p = mb_strpos($xmlChunk, ">");
+		$p = strpos($xmlChunk, ">");
 		if($p !== false)
 		{
-			if(mb_substr($xmlChunk, $p - 1, 1) == "/")
+			if(substr($xmlChunk, $p - 1, 1) == "/")
 			{
 				$bHaveChildren = false;
-				$elementName = mb_substr($xmlChunk, 0, $p - 1);
+				$elementName = substr($xmlChunk, 0, $p - 1);
 				$DBelementValue = false;
 			}
 			else
 			{
 				$bHaveChildren = true;
-				$elementName = mb_substr($xmlChunk, 0, $p);
-				$elementValue = mb_substr($xmlChunk, $p + 1);
+				$elementName = substr($xmlChunk, 0, $p);
+				$elementValue = substr($xmlChunk, $p + 1);
 				if(preg_match("/^\s*$/", $elementValue))
 					$DBelementValue = false;
-				elseif(mb_strpos($elementValue, "&") === false)
+				elseif(strpos($elementValue, "&") === false)
 					$DBelementValue = $elementValue;
 				else
 					$DBelementValue = preg_replace($search, $replace, $elementValue);
 			}
 
-			if(($ps = mb_strpos($elementName, " "))!==false)
+			if(($ps = strpos($elementName, " "))!==false)
 			{
 				//Let's handle attributes
-				$elementAttrs = mb_substr($elementName, $ps + 1);
-				$elementName = mb_substr($elementName, 0, $ps);
+				$elementAttrs = substr($elementName, $ps + 1);
+				$elementName = substr($elementName, 0, $ps);
 				preg_match_all("/(\\S+)\\s*=\\s*[\"](.*?)[\"]/s".BX_UTF_PCRE_MODIFIER, $elementAttrs, $attrs_tmp);
 				$attrs = array();
-				if(mb_strpos($elementAttrs, "&") === false)
+				if(strpos($elementAttrs, "&") === false)
 				{
 					foreach($attrs_tmp[1] as $i=>$attrs_tmp_1)
 						$attrs[$attrs_tmp_1] = $attrs_tmp[2][$i];
@@ -820,8 +820,8 @@ class CIBlockXMLFile
 		//Function and securioty checks
 		if(!function_exists("zip_open"))
 			return false;
-		$dir_name = mb_substr($file_name, 0, mb_strrpos($file_name, "/") + 1);
-		if(mb_strlen($dir_name) <= mb_strlen($_SERVER["DOCUMENT_ROOT"]))
+		$dir_name = substr($file_name, 0, strrpos($file_name, "/") + 1);
+		if(strlen($dir_name) <= strlen($_SERVER["DOCUMENT_ROOT"]))
 			return false;
 
 		$hZip = zip_open($file_name);
@@ -861,9 +861,10 @@ class CIBlockXMLFile
 					$fout = fopen($file_name, "wb");
 					if(!$fout)
 						return false;
+					$useMbstring = function_exists('mb_strlen');
 					while($data = zip_entry_read($entry, 102400))
 					{
-						$data_len = function_exists('mb_strlen')? mb_strlen($data, 'latin1') : mb_strlen($data);
+						$data_len = $useMbstring ? mb_strlen($data, 'latin1') : strlen($data);
 						$result = fwrite($fout, $data);
 						if($result !== $data_len)
 							return false;

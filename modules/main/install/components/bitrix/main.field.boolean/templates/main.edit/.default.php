@@ -49,7 +49,7 @@ $value = $arResult['value'];
 						$arResult['userField']['SETTINGS']['LABEL_CHECKBOX'][LANGUAGE_ID];
 				}
 
-				if(strlen($arResult['userField']['SETTINGS']['LABEL_CHECKBOX']))
+				if($arResult['userField']['SETTINGS']['LABEL_CHECKBOX'] <> '')
 				{
 					$label = $arResult['userField']['SETTINGS']['LABEL_CHECKBOX'];
 				}

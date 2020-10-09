@@ -82,7 +82,7 @@ $aTabs[] = $USER_FIELD_MANAGER->EditFormTab("LEARN_ATTEMPT");
 
 $tabControl = new CAdminForm("attemptTabControl", $aTabs);
 
-if (!$bBadAttempt && $_SERVER["REQUEST_METHOD"] == "POST" && strlen($Update)>0 && check_bitrix_sessid())
+if (!$bBadAttempt && $_SERVER["REQUEST_METHOD"] == "POST" && $Update <> '' && check_bitrix_sessid())
 {
 	$ta = new CTestAttempt;
 
@@ -107,9 +107,9 @@ if (!$bBadAttempt && $_SERVER["REQUEST_METHOD"] == "POST" && strlen($Update)>0 &
 	}
 	else
 	{
-		if(strlen($apply)<=0)
+		if($apply == '')
 		{
-			if (strlen($return_url)>0)
+			if ($return_url <> '')
 				LocalRedirect($return_url);
 			else
 				LocalRedirect("/bitrix/admin/learn_attempt_admin.php?lang=". LANG.GetFilterParams("filter_", false));

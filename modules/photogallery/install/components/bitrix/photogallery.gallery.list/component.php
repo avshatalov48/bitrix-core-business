@@ -10,7 +10,7 @@ CPageOption::SetOptionString("main", "nav_page_in_session", "N");
 /***************** BASE ********************************************/
 	$arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
 	$arParams["IBLOCK_ID"] = intval($arParams["IBLOCK_ID"]);
-	$arParams["USER_ID"] = intVal(intVal($arParams["USER_ID"]) > 0 ? $arParams["USER_ID"] : $_REQUEST["USER_ID"]);
+	$arParams["USER_ID"] = intval(intVal($arParams["USER_ID"]) > 0 ? $arParams["USER_ID"] : $_REQUEST["USER_ID"]);
 	$arParams["PERMISSION_EXTERNAL"] = trim($arParams["PERMISSION"]);
 
 	$arParams["SORT_BY"] = (!empty($arParams["SORT_BY"]) ? $arParams["SORT_BY"] : "ID");
@@ -26,23 +26,23 @@ $URL_NAME_DEFAULT = array(
 
 foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 {
-	$arParams[strToUpper($URL)."_URL"] = trim($arParams[strToUpper($URL)."_URL"]);
-	if (empty($arParams[strToUpper($URL)."_URL"]))
-		$arParams[strToUpper($URL)."_URL"] = $GLOBALS["APPLICATION"]->GetCurPageParam($URL_VALUE,
+	$arParams[mb_strtoupper($URL)."_URL"] = trim($arParams[mb_strtoupper($URL)."_URL"]);
+	if (empty($arParams[mb_strtoupper($URL)."_URL"]))
+		$arParams[mb_strtoupper($URL)."_URL"] = $GLOBALS["APPLICATION"]->GetCurPageParam($URL_VALUE,
 			array("PAGE_NAME", "USER_ALIAS", "GALLERY_ID", "ACTION", "AJAX_CALL", "USER_ID", "sessid", "save", "login", "order", "group_by"));
-	$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-	$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
+	$arParams["~".mb_strtoupper($URL)."_URL"] = $arParams[mb_strtoupper($URL)."_URL"];
+	$arParams[mb_strtoupper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".mb_strtoupper($URL)."_URL"]);
 }
 /***************** ADDITIONAL **************************************/
 	$arParams["ONLY_ONE_GALLERY"] = ($arParams["ONLY_ONE_GALLERY"] == "N" ? "N" : "Y");
 	$arParams["GALLERY_GROUPS"] = (is_array($arParams["GALLERY_GROUPS"]) ? $arParams["GALLERY_GROUPS"] : array());
-	$arParams["GALLERY_SIZE"] = intVal($arParams["GALLERY_SIZE"]);
-	$arParams["PAGE_ELEMENTS"] = intVal($arParams["PAGE_ELEMENTS"]);
+	$arParams["GALLERY_SIZE"] = intval($arParams["GALLERY_SIZE"]);
+	$arParams["PAGE_ELEMENTS"] = intval($arParams["PAGE_ELEMENTS"]);
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
-	$arParams["PAGE_NAVIGATION_WINDOW"] = intVal(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 5);
+	$arParams["PAGE_NAVIGATION_WINDOW"] = intval(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 5);
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $GLOBALS["DB"]->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 	$arParams["SHOW_PHOTO_USER"] = ($arParams["SHOW_PHOTO_USER"] == "Y" ? "Y" : "N");// hidden params for custom components
-	$arParams["GALLERY_AVATAR_SIZE"] = intVal(intVal($arParams["GALLERY_AVATAR_SIZE"]) > 0 ? $arParams["GALLERY_AVATAR_SIZE"] : 50);
+	$arParams["GALLERY_AVATAR_SIZE"] = intval(intVal($arParams["GALLERY_AVATAR_SIZE"]) > 0 ? $arParams["GALLERY_AVATAR_SIZE"] : 50);
 	$arParams["SECTION_SELECT_FIELDS"] = (is_array($arParams["SECTION_SELECT_FIELDS"]) ? $arParams["SECTION_SELECT_FIELDS"] : array());
 	$arParams["SECTION_FILTER"] = (is_array($arParams["SECTION_FILTER"]) ? $arParams["SECTION_FILTER"] : array()); // hidden params
 	$arParams["SET_STATUS_404"] = ($arParams["SET_STATUS_404"] == "Y" ? "Y" : "N");
@@ -148,7 +148,7 @@ if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $c
 	$arResult["GALLERIES"] = $res["GALLERIES"];
 	$arResult["NAV_STRING"] = $res["NAV_STRING"];
 	$arResult["NAV_RESULT"] = $res["NAV_RESULT"];
-	$GLOBALS['NavNum'] = intVal($GLOBALS['NavNum']) + 1;
+	$GLOBALS['NavNum'] = intval($GLOBALS['NavNum']) + 1;
 }
 else
 {
@@ -206,7 +206,7 @@ else
 					$res_user = $db_user->Fetch();
 					$arResult["USER"][$res_user["ID"]] = $res_user;
 				}
-				$res["PICTURE"] = intVal($arResult["USER"][$res["CREATED_BY"]]["PERSONAL_PHOTO"]);
+				$res["PICTURE"] = intval($arResult["USER"][$res["CREATED_BY"]]["PERSONAL_PHOTO"]);
 				$res["PICTURE"] = CFile::GetFileArray($res["PICTURE"]);
 				$image_resize = CFile::ResizeImageGet($res["PICTURE"],
 					array("width" => $arParams["GALLERY_AVATAR_SIZE"], "height" => $arParams["GALLERY_AVATAR_SIZE"]));
@@ -262,8 +262,8 @@ else
 					array("USER_ALIAS" => $res["~CODE"], "SECTION_ID" => "0",
 						"USER_ID" => $res["CREATED_BY"], "GROUP_ID" => $res["SOCNET_GROUP_ID"])));
 
-			$res["LINK"]["EDIT"] .= (strpos($res["LINK"]["EDIT"], "?") === false ? "?" : "&")."GALLERY_ID=".$res["ID"];
-			$res["LINK"]["DROP"] .= (strpos($res["LINK"]["DROP"], "?") === false ? "?" : "&")."GALLERY_ID=".$res["ID"];
+			$res["LINK"]["EDIT"] .= (mb_strpos($res["LINK"]["EDIT"], "?") === false ? "?" : "&")."GALLERY_ID=".$res["ID"];
+			$res["LINK"]["DROP"] .= (mb_strpos($res["LINK"]["DROP"], "?") === false ? "?" : "&")."GALLERY_ID=".$res["ID"];
 			foreach ($res["LINK"] as $key => $val)
 			{
 				$res["LINK"]["~".$key] = $val;

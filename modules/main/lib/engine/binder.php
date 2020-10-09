@@ -262,8 +262,8 @@ class Binder
 		}
 
 		if (
-			stripos($exception->getMessage(), 'must be an instance of') === false ||
-			stripos($exception->getMessage(), 'null given') === false
+			mb_stripos($exception->getMessage(), 'must be an instance of') === false ||
+			mb_stripos($exception->getMessage(), 'null given') === false
 		)
 		{
 			throw $exception;

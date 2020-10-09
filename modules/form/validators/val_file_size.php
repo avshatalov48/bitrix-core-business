@@ -62,7 +62,7 @@ class CFormValidatorFileSize
 		{
 			foreach ($arValues as $arFile)
 			{
-				if (strlen($arFile["tmp_name"]) > 0 && $arFile["error"] == "0")
+				if ($arFile["tmp_name"] <> '' && $arFile["error"] == "0")
 				{
 					if ($arParams["SIZE_FROM"] > 0 && $arFile["size"] < $arParams["SIZE_FROM"])
 					{

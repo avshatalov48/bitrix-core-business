@@ -502,6 +502,9 @@ class CSocNetGroup extends CAllSocNetGroup
 			"PROJECT_DATE_START" => Array("FIELD" => "G.PROJECT_DATE_START", "TYPE" => "datetime"),
 			"PROJECT_DATE_FINISH" => Array("FIELD" => "G.PROJECT_DATE_FINISH", "TYPE" => "datetime"),
 			"LANDING" => Array("FIELD" => "G.LANDING", "TYPE" => "string"),
+			"SCRUM_OWNER_ID" => ["FIELD" => "G.SCRUM_OWNER_ID", "TYPE" => "int"],
+			"SCRUM_MASTER_ID" => ["FIELD" => "G.SCRUM_MASTER_ID", "TYPE" => "int"],
+			"SCRUM_SPRINT_DURATION" => ["FIELD" => "G.SCRUM_SPRINT_DURATION", "TYPE" => "int"],
 		);
 
 		if (array_key_exists("SITE_ID", $arFilter))

@@ -63,10 +63,10 @@ if($USER->IsAuthorized())
 		$authResult['server_domain'] = $authResult['domain'];
 		$authResult['domain'] = $request->getHttpHost();
 
-		$redirectUri .= (strpos($redirectUri, '?') !== false) ? '&' : '?';
+		$redirectUri .= (mb_strpos($redirectUri, '?') !== false) ? '&' : '?';
 		$redirectUri .= http_build_query($authResult);
 
-		if(strlen($fragment) > 0)
+		if($fragment <> '')
 		{
 			$redirectUri .= '#'.$fragment;
 		}

@@ -1,9 +1,3 @@
-.catalog-product-variation-grid .main-grid-cell-content,
-.catalog-product-variation-grid .main-grid-editor-container {
-	margin-top: 19px;
-	margin-bottom: 21px;
-}
-
 .ui-image-input-img-add {
 	cursor: pointer;
 	border-radius: 50%;
@@ -103,6 +97,7 @@
 
 .adm-fileinput-drag-area-hint,
 .adm-fileinput-item-panel,
+.adm-fileinput-item-loading,
 .bx-panel-tooltip,
 .adm-fileinput-btn-panel,
 .ui-image-input-wrapper .adm-fileinput-item-wrapper:not(:first-child) {

@@ -15,7 +15,7 @@
 
 
 
-	<?if (strlen($arResult["CHAPTER"]["DETAIL_TEXT"])>0):?>
+	<?if ($arResult["CHAPTER"]["DETAIL_TEXT"] <> ''):?>
 		<br /><?=$arResult["CHAPTER"]["DETAIL_TEXT"]?>
 	<?endif;?>
 

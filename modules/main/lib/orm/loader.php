@@ -27,21 +27,21 @@ class Loader
 	public static function autoLoad($class)
 	{
 		// break recursion
-		if (substr($class, -5) == 'Table')
+		if (mb_substr($class, -5) == 'Table')
 		{
 			return;
 		}
 
-		if (strpos($class, '\\') === false)
+		if (mb_strpos($class, '\\') === false)
 		{
 			// define global namespace explicitly
 			$class = '\\'.$class;
 		}
 
-		$namespace = substr($class, 0, strrpos($class, '\\')+1);
-		$className = substr($class, strrpos($class, '\\') + 1);
+		$namespace = mb_substr($class, 0, mb_strrpos($class, '\\') + 1);
+		$className = mb_substr($class, mb_strrpos($class, '\\') + 1);
 
-		if (substr($className, 0, 3) == 'EO_')
+		if (mb_substr($className, 0, 3) == 'EO_')
 		{
 			$needFor = 'object';
 
@@ -50,14 +50,14 @@ class Loader
 				// entity without name, defined by namespace
 				$entityName = '';
 			}
-			elseif (substr($className, -11) == '_Collection')
+			elseif (mb_substr($className, -11) == '_Collection')
 			{
 				$needFor = 'collection';
-				$entityName = substr($className, 3, -11);
+				$entityName = mb_substr($className, 3, -11);
 			}
 			else
 			{
-				$entityName = substr($className, 3);
+				$entityName = mb_substr($className, 3);
 			}
 
 			$entityName .= 'Table';
@@ -74,11 +74,11 @@ class Loader
 
 	public static function registerObjectClass($objectClass, $entityClass)
 	{
-		static::$predefinedObjectClass[strtolower(Entity::normalizeName($objectClass))] = $entityClass;
+		static::$predefinedObjectClass[mb_strtolower(Entity::normalizeName($objectClass))] = $entityClass;
 	}
 
 	public static function registerCollectionClass($collectionClass, $entityClass)
 	{
-		static::$predefinedCollectionClass[strtolower(Entity::normalizeName($collectionClass))] = $entityClass;
+		static::$predefinedCollectionClass[mb_strtolower(Entity::normalizeName($collectionClass))] = $entityClass;
 	}
 }

@@ -97,7 +97,7 @@ endif; //multiple
 	{
 		for (var i in data)
 		{
-			if (i.substring(0,<?=(strlen($name)+1)?>)=='<?=CUtil::JSEscape($name)?>[')
+			if (i.substring(0,<?=(mb_strlen($name) + 1)?>)=='<?=CUtil::JSEscape($name)?>[')
 			{
 				addNewRow('table_<?=$name?>', '<?=$name?>');
 			}

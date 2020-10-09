@@ -4,6 +4,7 @@ namespace Sale\Handlers\Delivery;
 use Bitrix\Main\Entity\ExpressionField;
 use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
+use Bitrix\Main\ModuleManager;
 use Bitrix\Sale\Internals\CompanyTable;
 use Bitrix\Sale\Result;
 use \Bitrix\Sale\Shipment;
@@ -851,4 +852,24 @@ class SpsrHandler extends \Bitrix\Sale\Delivery\Services\Base
 		);
 	}
 
+	public static function isHandlerCompatible()
+	{
+		if(!parent::isHandlerCompatible())
+		{
+			return false;
+		}
+
+		$lang = '';
+
+		if(Loader::includeModule('bitrix24'))
+		{
+			$lang = \CBitrix24::getLicensePrefix();
+		}
+		elseif (Loader::includeModule('intranet'))
+		{
+			$lang = \CIntranetUtils::getPortalZone();
+		}
+
+		return $lang !== 'ua';
+	}
 }

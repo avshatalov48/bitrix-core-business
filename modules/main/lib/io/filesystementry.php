@@ -30,15 +30,15 @@ abstract class FileSystemEntry
 
 		$documentRoot = static::getDocumentRoot($this->siteId);
 
-		if (substr($this->path, 0, strlen($documentRoot)) === $documentRoot)
+		if (mb_substr($this->path, 0, mb_strlen($documentRoot)) === $documentRoot)
 		{
-			$relativePath = substr($this->path, strlen($documentRoot));
+			$relativePath = mb_substr($this->path, mb_strlen($documentRoot));
 			$relativePath = ltrim($relativePath, "/");
-			if (($pos = strpos($relativePath, "/")) !== false)
-				$s = substr($relativePath, 0, $pos);
+			if (($pos = mb_strpos($relativePath, "/")) !== false)
+				$s = mb_substr($relativePath, 0, $pos);
 			else
 				$s = $relativePath;
-			$s = strtolower(rtrim($s, "."));
+			$s = mb_strtolower(rtrim($s, "."));
 
 			$ar = array(
 				"bitrix" => 1,

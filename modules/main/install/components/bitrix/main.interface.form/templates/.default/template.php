@@ -47,14 +47,16 @@ foreach($arResult["TABS"] as $tab):
 	$bSelected = ($tab["id"] == $arResult["SELECTED_TAB"]);
 
 	$callback = '';
-	if(strlen($tab['onselect_callback']))
+	if($tab['onselect_callback'] <> '')
 	{
 		$callback = trim($tab['onselect_callback']);
 		if(!preg_match('#^[a-z0-9-_\.]+$#i', $callback))
+		{
 			$callback = '';
+		}
 	}
 ?>
-					<td title="<?=htmlspecialcharsbx($tab["title"])?>" id="tab_cont_<?=$tab["id"]?>" class="bx-tab-container<?=($bSelected? "-selected":"")?>" onclick="<?if(strlen($callback)):?><?=$callback?>('<?=$tab["id"]?>');<?endif?>bxForm_<?=$arParams["FORM_ID"]?>.SelectTab('<?=$tab["id"]?>');" onmouseover="if(window.bxForm_<?=$arParams["FORM_ID"]?>){bxForm_<?=$arParams["FORM_ID"]?>.HoverTab('<?=$tab["id"]?>', true);}" onmouseout="if(window.bxForm_<?=$arParams["FORM_ID"]?>){bxForm_<?=$arParams["FORM_ID"]?>.HoverTab('<?=$tab["id"]?>', false);}">
+					<td title="<?=htmlspecialcharsbx($tab["title"])?>" id="tab_cont_<?=$tab["id"]?>" class="bx-tab-container<?=($bSelected? "-selected":"")?>" onclick="<? if($callback <> ''):?><?= $callback ?>('<?=$tab["id"]?>');<?endif?>bxForm_<?=$arParams["FORM_ID"]?>.SelectTab('<?=$tab["id"]?>');" onmouseover="if(window.bxForm_<?=$arParams["FORM_ID"]?>){bxForm_<?=$arParams["FORM_ID"]?>.HoverTab('<?=$tab["id"]?>', true);}" onmouseout="if(window.bxForm_<?=$arParams["FORM_ID"]?>){bxForm_<?=$arParams["FORM_ID"]?>.HoverTab('<?=$tab["id"]?>', false);}">
 						<table cellspacing="0">
 							<tr>
 								<td class="bx-tab-left<?=($bSelected? "-selected":"")?>" id="tab_left_<?=$tab["id"]?>"><div class="empty"></div></td>
@@ -130,8 +132,10 @@ foreach($tab["fields"] as $field):
 	if($prevType == 'section')
 		$className[] = 'bx-after-heading';
 
-	if(strlen($field['class']))
+	if($field['class'] <> '')
+	{
 		$className[] = $field['class'];
+	}
 ?>
 	<tr<?if(!empty($className)):?> class="<?=implode(' ', $className)?>"<?endif?><?if(!empty($style)):?> style="<?= $style ?>"<?endif?>>
 <?
@@ -177,7 +181,7 @@ else:
 		if($field["required"])
 			$bWasRequired = true;
 ?>
-		<td class="bx-field-name<?if($field["type"] <> 'label') echo' bx-padding'?>"<?if($field["title"] <> '') echo ' title="'.htmlspecialcharsEx($field["title"]).'"'?>><?=($field["required"]? '<span class="required">*</span>':'')?><?if(strlen($field["name"])):?><?=htmlspecialcharsEx($field["name"])?>:<?endif?></td>
+		<td class="bx-field-name<?if($field["type"] <> 'label') echo' bx-padding'?>"<?if($field["title"] <> '') echo ' title="'.htmlspecialcharsEx($field["title"]).'"'?>><?=($field["required"]? '<span class="required">*</span>':'')?><? if($field["name"] <> ''):?><?= htmlspecialcharsEx($field["name"]) ?>:<?endif?></td>
 <?
 	endif
 ?>

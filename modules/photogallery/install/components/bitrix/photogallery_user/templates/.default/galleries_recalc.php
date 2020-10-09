@@ -27,7 +27,7 @@ else if (!CModule::IncludeModule("photogallery"))
 $arParams = (is_array($arParams) ? $arParams : array());
 if (empty($arParams))
 {
-	$arParams["IBLOCK_ID"] = intVal($_REQUEST["IBLOCK_ID"]);
+	$arParams["IBLOCK_ID"] = intval($_REQUEST["IBLOCK_ID"]);
 	$arParams["PERMISSION"] = CIBlock::GetPermission($arParams["IBLOCK_ID"]);
 }
 if ($arParams["PERMISSION"] < "W")
@@ -154,7 +154,7 @@ if ($_REQUEST["AJAX"] == "Y" && check_bitrix_sessid())
 			<div class="pbar-outer" style="width: 400px;">
 				<div id="pb_photos" class="pbar-inner-green" style="display:block!important; width:<?
 				if ($arGallery['elements_cnt'] > 0):
-					echo intVal(doubleval($arGallery['element_number']) * 100 / doubleval($arGallery['elements_cnt']));
+					echo intval(doubleval($arGallery['element_number']) * 100 / doubleval($arGallery['elements_cnt']));
 				else:
 					echo "1";
 				endif;

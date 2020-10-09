@@ -67,12 +67,12 @@ class ConditionTree
 			return $this->logic;
 		}
 
-		if (!in_array(strtolower($logic), [static::LOGIC_AND, static::LOGIC_OR], true))
+		if (!in_array(mb_strtolower($logic), [static::LOGIC_AND, static::LOGIC_OR], true))
 		{
 			throw new ArgumentException("Unknown logic");
 		}
 
-		$this->logic = strtolower($logic);
+		$this->logic = mb_strtolower($logic);
 
 		return $this;
 	}
@@ -503,7 +503,7 @@ class ConditionTree
 		}
 
 		// concat with $this->logic
-		$sql = join(" ".strtoupper($this->logic)." ", $finalSql);
+		$sql = join(" ".mb_strtoupper($this->logic)." ", $finalSql);
 
 		// and put NOT if negative
 		if ($this->isNegative)

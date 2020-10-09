@@ -36,10 +36,10 @@ class MysqliConnection extends MysqlCommonConnection
 
 		$host = $this->host;
 		$port = 0;
-		if (($pos = strpos($host, ":")) !== false)
+		if (($pos = mb_strpos($host, ":")) !== false)
 		{
-			$port = intval(substr($host, $pos + 1));
-			$host = substr($host, 0, $pos);
+			$port = intval(mb_substr($host, $pos + 1));
+			$host = mb_substr($host, 0, $pos);
 		}
 		if (($this->options & self::PERSISTENT) != 0)
 			$host = "p:".$host;

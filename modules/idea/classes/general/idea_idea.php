@@ -141,7 +141,7 @@ Class CIdeaManagmentIdea
 
 			$obSec = CIBlockSection::GetList(array("left_margin"=>"ASC"), array("IBLOCK_ID" => $CategoryIB, "ACTIVE" => "Y"));
 			while($r = $obSec->GetNext())
-				if(strlen($r["CODE"])>0)
+				if($r["CODE"] <> '')
 					$arCategory[ToUpper($r["CODE"])] = $r;
 				//else
 				//	$arCategory[$r["ID"]] = $r;

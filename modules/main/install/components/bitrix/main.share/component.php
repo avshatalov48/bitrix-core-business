@@ -8,7 +8,7 @@ else
 
 if (
 	!array_key_exists("ALIGN", $arParams)
-	|| strlen(trim($arParams["ALIGN"])) <= 0
+	|| trim($arParams["ALIGN"]) == ''
 	|| !in_array($arParams["ALIGN"], array("left", "right"))
 )
 	$arParams["ALIGN"] = "left";
@@ -27,7 +27,7 @@ if ($handle = opendir($path2Handlers))
 		if ($file == "." || $file == "..")
 			continue;
 
-		if (is_file($path2Handlers.$file) && strtoupper(substr($file, strlen($file)-4))==".PHP")
+		if (is_file($path2Handlers.$file) && mb_strtoupper(mb_substr($file, mb_strlen($file) - 4)) == ".PHP")
 		{
 			$name = $title = $icon_url_template = $charset = "";
 			$sort = 0;
@@ -35,14 +35,14 @@ if ($handle = opendir($path2Handlers))
 
 			include($path2Handlers.$file);
 
-			if (strlen($name) > 0)
+			if ($name <> '')
 			{
 				$arHandlers[$name] = array(
 					"TITLE" => $title,
 					"ICON" => $icon_url_template,
 					"SORT" => intval($sort),
 				);
-				if (strlen($charset) > 0)
+				if ($charset <> '')
 					$arHandlers[$name]["CHARSET"] = $charset;
 				if ($charsBack)
 					$arHandlers[$name]["CHARSBACK"] = true;

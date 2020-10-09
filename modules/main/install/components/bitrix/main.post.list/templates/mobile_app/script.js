@@ -279,7 +279,7 @@
 
 				this.comment = this.initComment([comment.id[0], 0], "", []);
 				repo.entityId = comment.id[0];
-				this.handler.init(this.comment);
+				this.handler.init(this.comment, { clear: true });
 			}
 		},
 		submitStart : function(comment, text, attachments) {

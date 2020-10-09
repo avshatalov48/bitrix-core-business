@@ -68,7 +68,7 @@ ShowMessage($arAuthResult);
 </form>
 <script>
 <!--
-<? if (strlen($last_login)>0) : ?>
+<? if ($last_login <> '') : ?>
 try{document.form_auth.USER_PASSWORD.focus();}catch(e){}
 <? else : ?>
 try{document.form_auth.USER_LOGIN.focus();}catch(e){}
@@ -116,7 +116,7 @@ try{document.form_auth.USER_LOGIN.focus();}catch(e){}
 				</tr>
 				<tr valign="middle"> 
 					<td align="right" nowrap class="tablebody"><font class="starrequired">*</font><font  class="tablebodytext">E-Mail:</font></td>
-					<td align="left" class="tablebody"><input type="text" name="USER_EMAIL" size="30" maxlength="255" value="<?echo htmlspecialcharsbx((strlen($sf_EMAIL)>0 && $TYPE=="REGISTRATION")? $sf_EMAIL:$USER_EMAIL)?>"></td>
+					<td align="left" class="tablebody"><input type="text" name="USER_EMAIL" size="30" maxlength="255" value="<?echo htmlspecialcharsbx(($sf_EMAIL <> '' && $TYPE=="REGISTRATION")? $sf_EMAIL:$USER_EMAIL)?>"></td>
 				</tr>
 				<tr> 
 					<td nowrap align="right" class="tablebody"><font  class="tablebodytext">&nbsp;</font></td>

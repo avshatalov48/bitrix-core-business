@@ -7,7 +7,7 @@ if (($arParent =  $this->GetParent()) !== NULL)
 if(empty($arParams['USE_REVIEW']))
 	$arParams['USE_REVIEW'] = 'Y';
 
-if ($arParams['IN_COMPLEX'] == 'Y' && strpos($this->GetParent()->GetName(), 'socialnetwork') === false)
+if ($arParams['IN_COMPLEX'] == 'Y' && mb_strpos($this->GetParent()->GetName(), 'socialnetwork') === false)
 	$arParams['USE_REVIEW'] = $this->GetParent()->arResult['USE_REVIEW'];
 
 if($arParams['USE_REVIEW'] == 'N')
@@ -28,7 +28,7 @@ if(empty($arParams['SEF_MODE']))
 
 if(empty($arParams['SOCNET_GROUP_ID']) && $arParams['IN_COMPLEX'] == 'Y')
 {
-	if (strpos($this->GetParent()->GetName(), 'socialnetwork') !== false &&
+	if (mb_strpos($this->GetParent()->GetName(), 'socialnetwork') !== false &&
 		!empty($this->GetParent()->arResult['VARIABLES']['group_id']))
 		$arParams['SOCNET_GROUP_ID'] = $this->GetParent()->arResult['VARIABLES']['group_id'];
 }
@@ -37,19 +37,19 @@ if(empty($arParams['PATH_TO_POST']))
 	$arParams['PATH_TO_POST'] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?$arParams[PAGE_VAR]=#wiki_name#");
 
 $arParams['PATH_TO_POST_EDIT'] = trim($arParams['PATH_TO_POST_EDIT']);
-if(strlen($arParams['PATH_TO_POST_EDIT'])<=0)
+if($arParams['PATH_TO_POST_EDIT'] == '')
 	$arParams['PATH_TO_POST_EDIT'] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?$arParams[PAGE_VAR]=#wiki_name#");
 
 $arParams['PATH_TO_HISTORY'] = trim($arParams['PATH_TO_HISTORY']);
-if(strlen($arParams['PATH_TO_HISTORY'])<=0)
+if($arParams['PATH_TO_HISTORY'] == '')
 	$arParams['PATH_TO_HISTORY'] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?$arParams[PAGE_VAR]=#wiki_name#");
 
 $arParams['PATH_TO_HISTORY_DIFF'] = trim($arParams['PATH_TO_HISTORY_DIFF']);
-if(strlen($arParams['PATH_TO_HISTORY_DIFF'])<=0)
+if($arParams['PATH_TO_HISTORY_DIFF'] == '')
 	$arParams['PATH_TO_HISTORY_DIFF'] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?$arParams[PAGE_VAR]=#wiki_name#");
 
 $arParams['PATH_TO_DISCUSSION'] = trim($arParams['PATH_TO_DISCUSSION']);
-if(strlen($arParams['PATH_TO_DISCUSSION'])<=0)
+if($arParams['PATH_TO_DISCUSSION'] == '')
 {
 	$arParams['PATH_TO_DISCUSSION'] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?$arParams[PAGE_VAR]=#wiki_name#");
 	if ($arParams['IN_COMPLEX'] == 'Y' && $arParams['SEF_MODE'] == 'Y')
@@ -59,7 +59,7 @@ if(strlen($arParams['PATH_TO_DISCUSSION'])<=0)
 $arParams['PATH_TO_CATEGORY'] = trim($arParams['PATH_TO_POST']);
 
 $arParams['PATH_TO_USER'] = trim($arParams['PATH_TO_USER']);
-if(strlen($arParams['PATH_TO_USER'])<=0)
+if($arParams['PATH_TO_USER'] == '')
 {
 	if ($arParams['IN_COMPLEX'] == 'Y' && $arParams['SEF_MODE'] == 'Y')
 		$arParams['PATH_TO_USER'] = $this->GetParent()->arParams['PATH_TO_USER'];
@@ -317,7 +317,7 @@ if (CWikiSocnet::isEnabledSocnet() && !empty($arParams['SOCNET_GROUP_ID']))
 				$parser->imageWidth = false;
 				$parser->imageHeight = false;
 
-				if (intVal($arMessage['AUTHOR_ID']) > 0)
+				if (intval($arMessage['AUTHOR_ID']) > 0)
 					$sAuthorForMail = str_replace(array('#URL#', '#TITLE#'), array('http://'.SITE_SERVER_NAME.CComponentEngine::MakePathFromTemplate(
 						$this->arPath['PATH_TO_USER'], array('user_id' => $arMessage['AUTHOR_ID'])), $arMessage['AUTHOR_NAME']),
 						GetMessage('SONET_FORUM_LOG_TEMPLATE_AUTHOR'));
@@ -337,7 +337,7 @@ if (CWikiSocnet::isEnabledSocnet() && !empty($arParams['SOCNET_GROUP_ID']))
 					'RATING_ENTITY_ID' => intval($arMessage['ID'])
 				);
 
-				if (intVal($arMessage['AUTHOR_ID']) > 0)
+				if (intval($arMessage['AUTHOR_ID']) > 0)
 					$arFieldsForSocnet['USER_ID'] = $arMessage['AUTHOR_ID'];
 
 				$log_comment_id = CSocNetLogComments::Add($arFieldsForSocnet, false, false);
@@ -405,7 +405,7 @@ if (CWikiSocnet::isEnabledSocnet() && !empty($arParams['SOCNET_GROUP_ID']))
 
 				while ($arMessage = $dbMessage->GetNext())
 				{
-					if (intVal($arMessage['AUTHOR_ID']) > 0)
+					if (intval($arMessage['AUTHOR_ID']) > 0)
 						$sAuthorForMail = str_replace(array('#URL#', '#TITLE#'), array('http://'.SITE_SERVER_NAME.CComponentEngine::MakePathFromTemplate(
 							$this->arPath['PATH_TO_USER'], array('user_id' => $arMessage['AUTHOR_ID'])), $arMessage['AUTHOR_NAME']),
 							GetMessage('SONET_FORUM_LOG_TEMPLATE_AUTHOR'));
@@ -425,7 +425,7 @@ if (CWikiSocnet::isEnabledSocnet() && !empty($arParams['SOCNET_GROUP_ID']))
 						'RATING_ENTITY_ID' => intval($arMessage['ID'])
 					);
 
-					if (intVal($arMessage['AUTHOR_ID']) > 0)
+					if (intval($arMessage['AUTHOR_ID']) > 0)
 						$arFieldsForSocnet['USER_ID'] = $arMessage['AUTHOR_ID'];
 
 					$log_comment_id = CSocNetLogComments::Add($arFieldsForSocnet, false, false);

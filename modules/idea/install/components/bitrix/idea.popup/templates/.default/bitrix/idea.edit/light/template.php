@@ -40,7 +40,7 @@ else if($arResult["FATAL_MESSAGE_CODE"] == "NO_RIGHTS")
 <?
 	return;
 }
-else if(strlen($arResult["FATAL_MESSAGE"]) > 0)
+else if($arResult["FATAL_MESSAGE"] <> '')
 {
 ?>
 	<div class="blog-errors blog-note-box blog-note-error">
@@ -51,7 +51,7 @@ else if(strlen($arResult["FATAL_MESSAGE"]) > 0)
 <?
 	return;
 }
-elseif(strlen($arResult["UTIL_MESSAGE"]) > 0)
+elseif($arResult["UTIL_MESSAGE"] <> '')
 {
 ?>
 	<div class="blog-textinfo blog-note-box">
@@ -75,7 +75,7 @@ elseif(strlen($arResult["UTIL_MESSAGE"]) > 0)
 ?>
 <div class="blog-post-edit idea-post-edit-light">
 <?
-if(strlen($arResult["MESSAGE"]) > 0)
+if($arResult["MESSAGE"] <> '')
 {
 	?>
 	<div class="blog-textinfo blog-note-box">
@@ -85,7 +85,7 @@ if(strlen($arResult["MESSAGE"]) > 0)
 	</div>
 <?
 }
-if(strlen($arResult["ERROR_MESSAGE"]) > 0)
+if($arResult["ERROR_MESSAGE"] <> '')
 {
 	?>
 	<div class="blog-errors blog-note-box blog-note-error">

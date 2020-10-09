@@ -9,7 +9,7 @@ class Uri extends \Bitrix\Main\Web\Uri
 	 */
 	public function getUri()
 	{
-		if(strlen($this->user) <= 0 && strlen($this->host) > 0)
+		if($this->user == '' && $this->host <> '')
 		{
 			return parent::getUri();
 		}
@@ -22,7 +22,7 @@ class Uri extends \Bitrix\Main\Web\Uri
 			$url .= "//";
 		}
 
-		if(strlen($this->user) > 0)
+		if($this->user <> '')
 		{
 			$url .= $this->user.':'.$this->pass.'@';
 		}
@@ -46,7 +46,7 @@ class Uri extends \Bitrix\Main\Web\Uri
 
 	public function getASCIIHost()
 	{
-		if(strlen($this->host) > 0)
+		if($this->host <> '')
 		{
 			$asciiHost = \CBXPunycode::ToASCII($this->host, $a);
 			if($asciiHost)

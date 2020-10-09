@@ -78,15 +78,15 @@ if ($isReadAccess === false)
 $arNewIDs = array();
 $nextNum = 0;
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_POST["Update"])>0 && check_bitrix_sessid() && $isCreateOrEditAccess)
+if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["Update"] <> '' && check_bitrix_sessid() && $isCreateOrEditAccess)
 {
 	$test = new CTest;
 
 	foreach($_POST as $key=>$val)
 	{
-		if (substr($key, 0, 7) == "N_MARK_")
+		if (mb_substr($key, 0, 7) == "N_MARK_")
 		{
-			$arNewIDs[] = intval(substr($key, 7));
+			$arNewIDs[] = intval(mb_substr($key, 7));
 		}
 	}
 	if (count($arNewIDs) > 0)
@@ -162,7 +162,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_POST["Update"])>0 && check_
 		"MIN_TIME_BETWEEN_ATTEMPTS" => $MIN_TIME_BETWEEN_ATTEMPTS,
 	);
 
-	if (strlen($arFields["COMPLETED_SCORE"]) <=0)
+	if ($arFields["COMPLETED_SCORE"] == '')
 	{
 		unset($arFields["COMPLETED_SCORE"]);
 		$arFields["APPROVED"] = "N";
@@ -172,7 +172,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_POST["Update"])>0 && check_
 	{
 		$arFields["PREVIOUS_TEST_ID"] = false;
 	}
-	if (strlen($arFields["PREVIOUS_TEST_SCORE"]) <=0)
+	if ($arFields["PREVIOUS_TEST_SCORE"] == '')
 	{
 		$arFields["PREVIOUS_TEST_SCORE"] = 0;
 	}
@@ -254,7 +254,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_POST["Update"])>0 && check_
 		//add new
 		foreach ($arNewIDs as $i)
 		{
-			if (strlen(${"N_MARK_".$i})<=0 && strlen(${"N_SCORE_".$i})<=0) continue;
+			if (${"N_MARK_".$i} == '' && ${"N_SCORE_".$i} == '') continue;
 
 			if(in_array(${"N_SCORE_".$i}, $arScores))
 			{
@@ -301,7 +301,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_POST["Update"])>0 && check_
 	{
 		$DB->Commit();
 
-		if(strlen($apply)<=0)
+		if($apply == '')
 		{
 			if($from == "learn_admin")
 			{
@@ -310,9 +310,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && strlen($_POST["Update"])>0 && check_
 					. '&LESSON_PATH=' . urlencode($_GET['LESSON_PATH'])
 					."&".GetFilterParams("filter_", false));
 			}
-			elseif (strlen($return_url)>0)
+			elseif ($return_url <> '')
 			{
-				if(strpos($return_url, "#TEST_ID#")!==false)
+				if(mb_strpos($return_url, "#TEST_ID#") !== false)
 				{
 					$return_url = str_replace("#TEST_ID#", $ID, $return_url);
 				}
@@ -496,7 +496,7 @@ $context->Show();
 	<input type="hidden" name="ID" value="<?echo $ID?>">
 	<input type="hidden" name="COURSE_ID" value="<?echo $COURSE_ID?>">
 	<input type="hidden" name="from" value="<?echo htmlspecialcharsbx($from)?>">
-	<?if(strlen($return_url)>0):?><input type="hidden" name="return_url" value="<?=htmlspecialcharsbx($return_url)?>"><?endif?>
+	<?if($return_url <> ''):?><input type="hidden" name="return_url" value="<?=htmlspecialcharsbx($return_url)?>"><?endif?>
 <?php $tabControl->EndEpilogContent();?>
 <?$tabControl->Begin();?>
 <?$tabControl->BeginNextFormTab();?>
@@ -829,7 +829,7 @@ $context->Show();
 			$course = CCourse::GetList(array("SORT" => "ASC"), array("ACCESS_OPERATIONS" => CLearnAccess::OP_LESSON_READ));
 			while ($course->ExtractFields("f_"))
 			{
-				?><option value="<?echo $f_ID ?>" <?if (IntVal($f_ID)==$PREVIOUS_TEST_COURSE_ID || (!isset($PREVIOUS_TEST_COURSE_ID) && IntVal($f_ID)==$COURSE_ID)) echo "selected";?>><?echo $f_NAME ?></option><?
+				?><option value="<?echo $f_ID ?>" <?if (intval($f_ID)==$PREVIOUS_TEST_COURSE_ID || (!isset($PREVIOUS_TEST_COURSE_ID) && intval($f_ID)==$COURSE_ID)) echo "selected";?>><?echo $f_NAME ?></option><?
 			}
 			?>
 		</select>

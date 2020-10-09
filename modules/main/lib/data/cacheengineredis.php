@@ -257,10 +257,10 @@ class CacheEngineRedis implements ICacheEngine
 		}
 
 		$key = false;
-		if (strlen($filename))
+		if($filename <> '')
 		{
 			$this->getBaseDirVersion($baseDir, true);
-			if (self::$baseDirVersion[$baseDir] === false)
+			if(self::$baseDirVersion[$baseDir] === false)
 			{
 				return;
 			}
@@ -269,7 +269,7 @@ class CacheEngineRedis implements ICacheEngine
 			$key = self::$baseDirVersion[$baseDir]."|".$initDirVersion."|".$filename;
 			$cachedData = self::$redis->get($key);
 
-			if (is_array($cachedData))
+			if(is_array($cachedData))
 			{
 				self::$redis->setex($key.'|old', 1, $cachedData);
 			}
@@ -277,27 +277,27 @@ class CacheEngineRedis implements ICacheEngine
 		}
 		else
 		{
-			if (strlen($initDir))
+			if($initDir <> '')
 			{
 				$this->getBaseDirVersion($baseDir, true);
 
-				if (self::$baseDirVersion[$baseDir] === false)
+				if(self::$baseDirVersion[$baseDir] === false)
 				{
 					return;
 				}
 
 				$initDirKey = self::$baseDirVersion[$baseDir]."|".$initDir;
 				$initDirVersion = self::$redis->get($initDirKey);
-				if ($initDirVersion === false)
+				if($initDirVersion === false)
 				{
-					self::$redis->setex($initDirKey.'|old', 1,$initDirVersion);
+					self::$redis->setex($initDirKey.'|old', 1, $initDirVersion);
 				}
 				self::$redis->del($initDirKey);
 			}
 			else
 			{
 				$this->getBaseDirVersion($baseDir, true);
-				if (isset(self::$baseDirVersion[$baseDir]))
+				if(isset(self::$baseDirVersion[$baseDir]))
 				{
 					self::$redis->setex($this->sid.$baseDir.'|old', 1, self::$baseDirVersion[$baseDir]);
 					unset(self::$baseDirVersion[$baseDir]);

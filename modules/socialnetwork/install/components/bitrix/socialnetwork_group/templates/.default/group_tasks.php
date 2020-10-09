@@ -31,15 +31,15 @@ if (CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $arResult["VARIABLES"][
 		);
 	}
 
+	$sprintId = -1;
+	$kanbanIsTimelineMode = 'N';
+	$isPersonalKanban = 'N';
+	$groupId = $arResult['VARIABLES']['group_id'];
+
 	if(class_exists('Bitrix\Tasks\Ui\Filter\Task'))
 	{
 		\Bitrix\Tasks\Ui\Filter\Task::setGroupId($arResult[ "VARIABLES" ][ "group_id" ]);
 		$state = \Bitrix\Tasks\Ui\Filter\Task::listStateInit()->getState();
-
-		$sprintId = -1;
-		$kanbanIsTimelineMode = 'N';
-		$isPersonalKanban = 'N';
-		$groupId = $arResult['VARIABLES']['group_id'];
 
 		// temporary we show agile parts only by option
 		$scrumBacklog = \Bitrix\Main\Config\Option::get(
@@ -81,6 +81,12 @@ if (CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $arResult["VARIABLES"][
 	else
 	{
 		$componentName = 'bitrix:tasks.list';
+	}
+
+	$group = Bitrix\Socialnetwork\Item\Workgroup::getById($groupId);
+	if ($group->isScrumProject())
+	{
+		$componentName = 'bitrix:tasks.scrum';
 	}
 
 	$APPLICATION->IncludeComponent(

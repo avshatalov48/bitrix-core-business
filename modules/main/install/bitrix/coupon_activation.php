@@ -80,7 +80,7 @@ function UpdateGetOption($name, $default = "")
 	$dbOption = $DB->Query("SELECT VALUE FROM b_option WHERE MODULE_ID='main' AND NAME='".$DB->ForSql($name)."'", true);
 	if ($arOption = $dbOption->Fetch())
 		$value = $arOption['VALUE'];
-	if (strlen($value) <= 0)
+	if ($value == '')
 		$value = $default;
 
 	return $value;
@@ -90,7 +90,7 @@ function UpdateSetOption($name, $value)
 {
 	global $DB, $DBType;
 
-	$fn = $_SERVER['DOCUMENT_ROOT']."/bitrix/managed_cache/".strtoupper($DBType)."/e5/".md5("b_option").".php";
+	$fn = $_SERVER['DOCUMENT_ROOT']."/bitrix/managed_cache/".mb_strtoupper($DBType)."/e5/".md5("b_option").".php";
 	@chmod($fn, BX_FILE_PERMISSIONS);
 	@unlink($fn);
 
@@ -119,14 +119,14 @@ function UpdateGetHTTPPage($requestDataAdd, &$errorMessage)
 	$proxyPort = 0;
 	$proxyUserName = "";
 	$proxyPassword = "";
-	if (strlen($proxyAddr) > 0)
+	if ($proxyAddr <> '')
 	{
 		$proxyPort = intval(UpdateGetOption("update_site_proxy_port", ""));
 		$proxyUserName = UpdateGetOption("update_site_proxy_user", "");
 		$proxyPassword = UpdateGetOption("update_site_proxy_pass", "");
 	}
 
-	$bUseProxy = (strlen($proxyAddr) > 0 && $proxyPort > 0);
+	$bUseProxy = ($proxyAddr <> '' && $proxyPort > 0);
 
 	if ($bUseProxy)
 	{
@@ -172,7 +172,7 @@ function UpdateGetHTTPPage($requestDataAdd, &$errorMessage)
 			"&dbv=".urlencode($dbv != false ? $dbv : "").
 			"&SUPD_VER=".urlencode(UPDATE_SYSTEM_VERSION);
 
-		if (strlen($requestDataAdd) > 0)
+		if ($requestDataAdd <> '')
 			$requestData .= "&".$requestDataAdd;
 
 		$requestString = "";
@@ -180,7 +180,7 @@ function UpdateGetHTTPPage($requestDataAdd, &$errorMessage)
 		if ($bUseProxy)
 		{
 			$requestString .= "POST http://".$serverIP."/bitrix/updates/us_updater_actions.php HTTP/1.0\r\n";
-			if (strlen($proxyUserName) > 0)
+			if ($proxyUserName <> '')
 				$requestString .= "Proxy-Authorization: Basic ".base64_encode($proxyUserName.":".$proxyPassword)."\r\n";
 		}
 		else
@@ -192,7 +192,7 @@ function UpdateGetHTTPPage($requestDataAdd, &$errorMessage)
 		$requestString .= "Host: ".$serverIP."\r\n";
 		$requestString .= "Accept-Language: en\r\n";
 		$requestString .= "Content-type: application/x-www-form-urlencoded\r\n";
-		$requestString .= "Content-length: ".strlen($requestData)."\r\n\r\n";
+		$requestString .= "Content-length: ".mb_strlen($requestData)."\r\n\r\n";
 		$requestString .= "$requestData";
 		$requestString .= "\r\n";
 
@@ -222,7 +222,7 @@ function UpdateGetHTTPPage($requestDataAdd, &$errorMessage)
 
 function UpdateHtmlSpecialCharsBack($str)
 {
-	if (strlen($str) > 0)
+	if ($str <> '')
 	{
 		$str = str_replace("&lt;", "<", $str);
 		$str = str_replace("&gt;", ">", $str);
@@ -238,10 +238,10 @@ function UpdateParseServerData($content, &$errorMessage)
 
 	$arContent = array();
 
-	if (substr($content, 0, strlen("<DATA>")) != "<DATA>" && function_exists("gzcompress"))
+	if (mb_substr($content, 0, mb_strlen("<DATA>")) != "<DATA>" && function_exists("gzcompress"))
 		$content = @gzuncompress($content);
 
-	if (substr($content, 0, strlen("<DATA>")) != "<DATA>")
+	if (mb_substr($content, 0, mb_strlen("<DATA>")) != "<DATA>")
 		return false;
 
 	if (preg_match_all('#<ERROR[^>]*>(.+?)</ERROR>#is', $content, $arMatches))
@@ -273,7 +273,7 @@ function UpdateActivateCoupon($coupon, &$errorMessage)
 
 	$postDataString = "coupon=".urlencode($coupon)."&query_type=".urlencode("reincarnate");
 	$content = UpdateGetHTTPPage($postDataString, $errorMessage);
-	if (strlen($content) <= 0)
+	if ($content == '')
 	{
 		$errorMessage .= $MESS['ERROR_EMPTY_CONTENT'].". ";
 		return false;
@@ -282,7 +282,7 @@ function UpdateActivateCoupon($coupon, &$errorMessage)
 	$arContent = UpdateParseServerData($content, $errorMessage);
 	if (!is_array($arContent) || count($arContent) <= 0)
 	{
-		if (strlen($errorMessage) <= 0)
+		if ($errorMessage == '')
 			$errorMessage .= $MESS['ERROR_INVALID_CONTENT'].". ";
 		return false;
 	}
@@ -363,10 +363,10 @@ function UpdateIsAdmin($login, $password)
 	{
 		if(intval($arUser["LOGIN_ATTEMPTS"]) <= 5)
 		{
-			if (strlen($arUser["PASSWORD"]) > 32)
+			if (mb_strlen($arUser["PASSWORD"]) > 32)
 			{
-				$salt = substr($arUser["PASSWORD"], 0, strlen($arUser["PASSWORD"]) - 32);
-				$db_password = substr($arUser["PASSWORD"], -32);
+				$salt = mb_substr($arUser["PASSWORD"], 0, mb_strlen($arUser["PASSWORD"]) - 32);
+				$db_password = mb_substr($arUser["PASSWORD"], -32);
 			}
 			else
 			{
@@ -443,7 +443,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 	</head>
 	<body>
 	<?
-	if (strlen($errorMessage) > 0)
+	if ($errorMessage <> '')
 	{
 		?><br>
 		<table width="600" align="center" cellspacing="1" cellpadding="10" bgcolor="red"><tr><td bgcolor="white">
@@ -453,7 +453,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 		<?
 	}
 
-	if (strlen($successMessage) > 0)
+	if ($successMessage <> '')
 	{
 		?><br>
 		<table width="600" align="center" cellspacing="1" cellpadding="10" bgcolor="green"><tr><td bgcolor="white">

@@ -94,8 +94,14 @@
 			var skipTag = false;
 			if ((matchType = matchScript[1].match(r.script_type)) !== null)
 			{
-				if(matchType[1] == 'text/html' || matchType[1] == 'text/template')
+				if(
+					matchType[1] == 'text/html'
+					|| matchType[1] == 'text/template'
+					|| matchType[1] == 'extension/settings'
+				)
+				{
 					skipTag = true;
+				}
 			}
 
 			if(skipTag)

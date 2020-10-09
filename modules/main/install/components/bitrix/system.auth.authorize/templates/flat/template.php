@@ -54,7 +54,7 @@ $APPLICATION->IncludeComponent("bitrix:socserv.auth.form",
 
 		<input type="hidden" name="AUTH_FORM" value="Y" />
 		<input type="hidden" name="TYPE" value="AUTH" />
-<?if (strlen($arResult["BACKURL"]) > 0):?>
+<?if ($arResult["BACKURL"] <> ''):?>
 		<input type="hidden" name="backurl" value="<?=$arResult["BACKURL"]?>" />
 <?endif?>
 <?foreach ($arResult["POST"] as $key => $value):?>
@@ -132,7 +132,7 @@ document.getElementById('bx_auth_secure').style.display = '';
 </div>
 
 <script type="text/javascript">
-<?if (strlen($arResult["LAST_LOGIN"])>0):?>
+<?if ($arResult["LAST_LOGIN"] <> ''):?>
 try{document.form_auth.USER_PASSWORD.focus();}catch(e){}
 <?else:?>
 try{document.form_auth.USER_LOGIN.focus();}catch(e){}

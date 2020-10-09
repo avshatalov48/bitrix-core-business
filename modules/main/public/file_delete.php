@@ -23,7 +23,7 @@ function BXDeleteFromSystem($absoluteFilePath, $path, $site)
 
 	if(COption::GetOptionString("fileman", "log_page", "Y")=="Y")
 	{
-		$res_log['path'] = substr($path, 1);
+		$res_log['path'] = mb_substr($path, 1);
 		CEventLog::Log(
 			"content",
 			"PAGE_DELETE",
@@ -65,7 +65,7 @@ function BXDeleteFromMenu($documentRoot, $path, $site)
 	{
 		$currentPath = rtrim($currentPath, "/");
 
-		if (strlen($currentPath) <= 0)
+		if ($currentPath == '')
 		{
 			$currentPath = "/";
 			$slash = "";
@@ -73,10 +73,10 @@ function BXDeleteFromMenu($documentRoot, $path, $site)
 		else
 		{
 			//Find parent folder
-			$position = strrpos($currentPath, "/");
+			$position = mb_strrpos($currentPath, "/");
 			if ($position === false)
 				break;
-			$currentPath = substr($currentPath, 0, $position);
+			$currentPath = mb_substr($currentPath, 0, $position);
 			$slash = "/";
 		}
 
@@ -92,7 +92,7 @@ function BXDeleteFromMenu($documentRoot, $path, $site)
 			}
 		}
 
-		if (strlen($currentPath)<=0)
+		if ($currentPath == '')
 			break;
 	}
 
@@ -114,9 +114,9 @@ function BXDeleteFromMenuFile($menuFile, $documentRoot, $site, $path)
 			continue;
 
 		$menuLink = $arItem[1];
-		$position = strpos($menuLink, "?");
+		$position = mb_strpos($menuLink, "?");
 		if ($position !== false)
-			$menuLink = substr($menuLink, 0, $position);
+			$menuLink = mb_substr($menuLink, 0, $position);
 
 		if ($menuLink != "/")
 			$menuLink = rtrim($menuLink, "/");
@@ -145,7 +145,7 @@ function BXDeleteFromMenuFile($menuFile, $documentRoot, $site, $path)
 			$mt = COption::GetOptionString("fileman", "menutypes", $default_value, $site);
 			$mt = unserialize(str_replace("\\", "", $mt));
 			$res_log['menu_name'] = $mt[$menuType];
-			$res_log['path'] = substr($dirName, 1);
+			$res_log['path'] = mb_substr($dirName, 1);
 			CEventLog::Log(
 				"content",
 				"MENU_EDIT",
@@ -172,11 +172,11 @@ $io = CBXVirtualIo::GetInstance();
 
 //Page path
 $path = "/";
-if (isset($_REQUEST["path"]) && strlen($_REQUEST["path"]) > 0)
+if (isset($_REQUEST["path"]) && $_REQUEST["path"] <> '')
 	$path = $io->CombinePath("/", $_REQUEST["path"]);
 
 //Lang
-if (!isset($_REQUEST["lang"]) || strlen($_REQUEST["lang"]) <= 0)
+if (!isset($_REQUEST["lang"]) || $_REQUEST["lang"] == '')
 	$lang = LANGUAGE_ID;
 
 //BackUrl
@@ -186,7 +186,7 @@ if ($back_url == "")
 
 //Site ID
 $site = SITE_ID;
-if (isset($_REQUEST["site"]) && strlen($_REQUEST["site"]) > 0)
+if (isset($_REQUEST["site"]) && $_REQUEST["site"] <> '')
 {
 	$obSite = CSite::GetByID($_REQUEST["site"]);
 	if ($arSite = $obSite->Fetch())

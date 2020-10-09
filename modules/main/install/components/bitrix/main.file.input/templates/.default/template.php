@@ -38,7 +38,7 @@ if ($arParams["ALLOW_UPLOAD"] == "N" && empty($arResult['FILES']))
 	return "";
 $cnt = count($arResult['FILES']);
 $id = CUtil::JSEscape($arParams['CONTROL_ID']);
-if ($arParams['MULTIPLE'] == 'Y' && substr($arParams['INPUT_NAME'], -2) !== "[]")
+if ($arParams['MULTIPLE'] == 'Y' && mb_substr($arParams['INPUT_NAME'], -2) !== "[]")
 	$arParams['INPUT_NAME'] .= "[]";
 $thumbForUploaded = <<<HTML
 <div class="webform-field-item-wrap"><span class="webform-field-upload-icon webform-field-upload-icon-#ext#"><img src="#preview_url#" onerror="BX.remove(this);" /></span>

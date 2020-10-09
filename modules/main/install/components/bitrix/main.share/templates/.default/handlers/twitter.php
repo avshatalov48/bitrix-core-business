@@ -9,9 +9,9 @@ if (
 	false &&
 	is_array($arParams)
 	&& array_key_exists("SHORTEN_URL_LOGIN", $arParams) 
-	&& strlen(trim($arParams["SHORTEN_URL_LOGIN"])) > 0
+	&& trim($arParams["SHORTEN_URL_LOGIN"]) <> ''
 	&& array_key_exists("SHORTEN_URL_KEY", $arParams) 
-	&& strlen(trim($arParams["SHORTEN_URL_KEY"])) > 0
+	&& trim($arParams["SHORTEN_URL_KEY"]) <> ''
 )
 {
 	$icon_url_template = "<script>\n".

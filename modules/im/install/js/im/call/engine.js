@@ -59,6 +59,8 @@
 		onUserScreenState: 'onUserScreenState',
 		onUserVoiceStarted: 'onUserVoiceStarted',
 		onUserVoiceStopped: 'onUserVoiceStopped',
+		onUserFloorRequest: 'onUserFloorRequest', // request for a permission to speak
+		onUserEmotion: 'onUserEmotion',
 		onLocalMediaReceived: 'onLocalMediaReceived',
 		onLocalMediaStopped: 'onLocalMediaStopped',
 		onDeviceListUpdated: 'onDeviceListUpdated',

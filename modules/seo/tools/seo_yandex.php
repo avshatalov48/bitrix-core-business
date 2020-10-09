@@ -24,7 +24,7 @@ if(isset($_REQUEST['action']))
 	$res = array();
 
 	$arDomain = null;
-	if(isset($_REQUEST['domain']) && strlen($_REQUEST['domain']) > 0)
+	if(isset($_REQUEST['domain']) && $_REQUEST['domain'] <> '')
 	{
 		$bFound = false;
 		$arDomains = \CSeoUtils::getDomainsList();
@@ -85,7 +85,7 @@ if(isset($_REQUEST['action']))
 									$filename = "yandex_".$uin.".html";
 
 									$path = Path::combine((
-										strlen($arDomain['SITE_DOC_ROOT']) > 0
+										$arDomain['SITE_DOC_ROOT'] <> ''
 											? $arDomain['SITE_DOC_ROOT']
 											: $_SERVER['DOCUMENT_ROOT']
 										), $arDomain['SITE_DIR'], $filename);

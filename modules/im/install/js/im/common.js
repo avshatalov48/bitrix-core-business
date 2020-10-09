@@ -4310,10 +4310,22 @@
 					if (category[i].id == 'ol')
 					{
 						if (!this.BXIM.messenger.users[userId].bot)
+						{
 							continue;
+						}
 
-						if (!this.BXIM.messenger.bot[userId] || this.BXIM.messenger.bot[userId].type != 'network' && this.BXIM.messenger.bot[userId].type != 'support24')
+						if (this.BXIM.bitrix24 && this.BXIM.messenger.bot[userId] && this.BXIM.messenger.bot[userId].code == 'network_cloud')
+						{
 							continue;
+						}
+
+						if (
+							!this.BXIM.messenger.bot[userId]
+							|| this.BXIM.messenger.bot[userId].type != 'network' && this.BXIM.messenger.bot[userId].type != 'support24'
+						)
+						{
+							continue;
+						}
 					}
 					else if (category[i].id == 'bot')
 					{
@@ -5011,7 +5023,7 @@
 			messageText = messageText.replace(/(^|[^"'])((https|http):\/\/([\S]+)\.(jpg|jpeg|png|gif|webp)(\?[\S]+)?)/ig, function(whole, prelink, link)
 			{
 				if(
-					!link.match(/(\.(jpg|jpeg|png|gif)\?|\.(jpg|jpeg|png|gif)$)/i)
+					!link.match(/(\.(jpg|jpeg|png|gif|webp)\?|\.(jpg|jpeg|png|gif|webp)$)/i)
 					|| link.toLowerCase().indexOf("/docs/pub/") > 0
 					|| link.toLowerCase().indexOf("logout=yes") > 0
 				)
@@ -5396,7 +5408,7 @@
 		{
 			if (messageText.length > 0)
 			{
-				var checkImages = messageText.replace(/<img.*?data-code="([^"]*)".*?>/ig, '$1').replace(/<\/?[^>]+>/gi, ' ').replace(/(https|http):\/\/([\S]+)\.(jpg|jpeg|png|gif)(\?[\S]+)?/ig, function(whole) {return '';}).trim();
+				var checkImages = messageText.replace(/<img.*?data-code="([^"]*)".*?>/ig, '$1').replace(/<\/?[^>]+>/gi, ' ').replace(/(https|http):\/\/([\S]+)\.(jpg|jpeg|png|gif|webp)(\?[\S]+)?/ig, function(whole) {return '';}).trim();
 				if (!checkImages)
 				{
 					messageWithoutPadding = true;
@@ -8712,11 +8724,6 @@
 		{
 			this.BXIM.messenger.newMessage(send);
 			this.BXIM.messenger.updateMessageCount(send);
-
-			if (send && playSound && userStatus != 'dnd')
-			{
-				this.BXIM.playSound("newMessage2");
-			}
 		}
 	}
 
@@ -10316,7 +10323,7 @@
 			}
 			else
 			{
-				messageEmpty = BX.message(this.BXIM.settings.loadLastMessage? "IM_M_NO_MESSAGE_2": "IM_M_NO_MESSAGE");
+				messageEmpty = BX.message("IM_M_NO_MESSAGE");
 			}
 			BX.removeClass(this.BXIM.messenger.popupMessengerBodyWrap, 'bx-messenger-loading');
 			arMessage = [BX.create("div", { props : { className : "bx-messenger-content-empty"}, children : [
@@ -10346,25 +10353,7 @@
 
 		if (this.BXIM.messenger.redrawTab[userId])
 		{
-			if (
-				this.BXIM.settings.loadLastMessage
-				|| userId.toString().substr(0, 2) == 'sg'
-				|| userId.toString().substr(0, 3) == 'crm'
-				|| userId.toString().substr(0, 7) == 'network'
-			)
-			{
-				this.loadLastMessage(userId);
-			}
-			else
-			{
-				if (this.BXIM.messenger.openChatFlag)
-					BX.MessengerCommon.loadChatData(userId.toString().substr(4));
-				else
-					BX.MessengerCommon.loadUserData(userId);
-
-				delete this.BXIM.messenger.redrawTab[userId];
-				this.drawTab(userId, true);
-			}
+			this.loadLastMessage(userId);
 		}
 		else
 		{
@@ -10503,7 +10492,7 @@
 			}
 			else
 			{
-				messageEmpty = BX.message(this.BXIM.settings.loadLastMessage? "IM_M_NO_MESSAGE_2": "IM_M_NO_MESSAGE");
+				messageEmpty = BX.message("IM_M_NO_MESSAGE");
 				messageEmptyButton = BX.create('span', {props : { className : "bx-notifier-content-link-history bx-notifier-content-link-history-empty" }, children: [
 					BX.create('span', {props : { className : "bx-notifier-item-button bx-notifier-item-button-white" }, html: BX.message('IM_M_NO_MESSAGE_LOAD')})
 				], events: {click: BX.delegate(function(){
@@ -11588,6 +11577,69 @@
 		}
 
 		return keyboardNode;
+	}
+
+	MessengerCommon.prototype.executeParamsButton = function(type, messageId, index)
+	{
+		if (
+			!this.BXIM.messenger.message[messageId]
+			|| !this.BXIM.messenger.message[messageId].params[type]
+			|| !this.BXIM.messenger.message[messageId].params[type][index]
+		)
+		{
+			return false;
+		}
+
+		var button = this.BXIM.messenger.message[messageId].params[type][index];
+		if (button.ACTION)
+		{
+			if (button.ACTION === 'SEND')
+			{
+				this.BXIM.sendMessage(this.BXIM.messenger.currentTab, button.ACTION_VALUE);
+			}
+			else if (button.ACTION === 'PUT')
+			{
+				this.BXIM.putMessage(button.ACTION_VALUE);
+			}
+			else if (button.ACTION === 'CALL')
+			{
+				this.BXIM.phoneTo(button.ACTION_VALUE);
+			}
+			else if (button.ACTION === 'COPY')
+			{
+				if (this.isMobile())
+				{
+					app.exec("copyToClipboard", {text: button.ACTION_VALUE});
+
+					(new BXMobileApp.UI.NotificationBar({
+						message: BX.message("IM_COPIED"),
+						color: "#af000000",
+						textColor: "#ffffff",
+						groupId: "clipboard",
+						maxLines: 1,
+						align: "center",
+						isGlobal: true,
+						useCloseButton: true,
+						autoHideTimeout: 1500,
+						hideOnTap: true
+					}, "copy")).show();
+				}
+				else
+				{
+					BX.UI.Notification.Center.notify({
+						content: BX.message('IM_COPIED'),
+						autoHideDelay: 2000
+					});
+					BX.MessengerCommon.clipboardCopy(button.ACTION_VALUE);
+				}
+			}
+			else if (button.ACTION === 'DIALOG')
+			{
+				this.BXIM.openMessenger(button.ACTION_VALUE);
+			}
+		}
+
+		return false;
 	}
 
 	MessengerCommon.prototype.clickButtonKeyboard = function()
@@ -14141,7 +14193,7 @@
 		var currentChat = this.BXIM.messenger.chat[chatId];
 
 		var crmData = currentChat.entity_data_1.toString().split('|');
-		if(crmData.length < 3 || crmData[0] !== 'Y')
+		if(crmData.length < 3 || crmData[0] !== 'Y' || !this.BXIM.path.crm[crmData[1]])
 		{
 			return {crm: false};
 		}
@@ -15183,9 +15235,6 @@
 			return false;
 
 		if (this.BXIM.messenger.chat[chatId] && this.BXIM.messenger.chat[chatId].entity_type != 'LINES')
-			return false;
-
-		if (!BX.MessengerCommon.userInChat(chatId))
 			return false;
 
 		this.BXIM.messenger.blockJoinChat[chatId] = true;

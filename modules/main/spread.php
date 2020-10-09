@@ -5,7 +5,7 @@ if(isset($_GET["k"]) && isset($_GET["s"]) && is_string($_GET["k"]) && is_string(
 {
 	$LICENSE_KEY = "";
 	@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/license_key.php");
-	if($LICENSE_KEY == "" || strtoupper($LICENSE_KEY) == "DEMO")
+	if($LICENSE_KEY == "" || mb_strtoupper($LICENSE_KEY) == "DEMO")
 		$LICENSE_KEY = "DEMO";
 
 	$cookie = base64_decode($_GET["s"]);
@@ -17,7 +17,7 @@ if(isset($_GET["k"]) && isset($_GET["s"]) && is_string($_GET["k"]) && is_string(
 		{
 			foreach($arr as $str)
 			{
-				if(strlen($str)>0)
+				if($str <> '')
 				{
 					$host = $_SERVER["HTTP_HOST"];
 					if(($pos = strpos($host, ":")) !== false)
@@ -29,12 +29,13 @@ if(isset($_GET["k"]) && isset($_GET["s"]) && is_string($_GET["k"]) && is_string(
 					//logout
 					if(substr($ar[0], -5) == '_UIDH' && $ar[1] == '')
 					{
-						session_start();
-						$_SESSION["SESS_AUTH"] = Array();
-						unset($_SESSION["SESS_AUTH"]);
-						unset($_SESSION["SESS_OPERATIONS"]);
-						unset($_SESSION["MODULE_PERMISSIONS"]);
-						unset($_SESSION["SESS_PWD_HASH_TESTED"]);
+						$kernelSession = \Bitrix\Main\Application::getInstance()->getKernelSession();
+						$kernelSession->start();
+						$kernelSession["SESS_AUTH"] = Array();
+						unset($kernelSession["SESS_AUTH"]);
+						unset($kernelSession["SESS_OPERATIONS"]);
+						unset($kernelSession["MODULE_PERMISSIONS"]);
+						unset($kernelSession["SESS_PWD_HASH_TESTED"]);
 					}
 				}
 			}

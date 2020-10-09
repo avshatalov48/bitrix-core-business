@@ -31,7 +31,7 @@ class CAllEvent
 		return Mail\EventManager::cleanUpAgent();
 	}
 
-	public static function SendImmediate($event, $lid, $arFields, $Duplicate = "Y", $message_id="", $files=array(), $languageId = '')
+	public static function SendImmediate($event, $lid, $arFields, $Duplicate = "Y", $message_id = "", $files = array(), $languageId = '', array $filesContent = [])
 	{
 		foreach(GetModuleEvents("main", "OnBeforeEventAdd", true) as $arEvent)
 			if(ExecuteModuleEventEx($arEvent, array(&$event, &$lid, &$arFields, &$message_id, &$files, &$languageId)) === false)
@@ -52,6 +52,7 @@ class CAllEvent
 			"FILE" => $files,
 			"LANGUAGE_ID" => ($languageId == ''? LANGUAGE_ID : $languageId),
 			"ID" => "0",
+			"FILES_CONTENT" => $filesContent,
 		);
 
 		return Mail\Event::sendImmediate($arLocalFields);
@@ -105,7 +106,7 @@ class CAllEvent
 	{
 		$ar = explode("&", $str);
 		$newar = array();
-		while (list (, $val) = each ($ar))
+		foreach($ar as $val)
 		{
 			$val = str_replace("%1", "&", $val);
 			$tar = explode("=", $val);
@@ -131,7 +132,7 @@ class CAllEvent
 		$SERVER_NAME = COption::GetOptionString("main", "server_name", $GLOBALS["SERVER_NAME"]);
 		$DEFAULT_EMAIL_FROM = COption::GetOptionString("main", "email_from", "admin@".$GLOBALS["SERVER_NAME"]);
 
-		if(strlen($site_id)>0)
+		if($site_id <> '')
 		{
 			$dbSite = CSite::GetByID($site_id);
 			if($arSite = $dbSite->Fetch())
@@ -159,7 +160,7 @@ class CAllEvent
 		$str = str_replace("%", "%2", $str);
 		foreach($ar as $key=>$val)
 		{
-			if($bNewLineToBreak && strpos($val, "<") === false)
+			if($bNewLineToBreak && mb_strpos($val, "<") === false)
 				$val = nl2br($val);
 			$val = str_replace("%", "%2", $val);
 			$val = str_replace("#", "%1", $val);
@@ -237,12 +238,12 @@ class CAllEventMessage
 		$this->LAST_ERROR = "";
 		$arMsg = array();
 
-		if(is_set($arFields, "EMAIL_FROM") && strlen($arFields["EMAIL_FROM"])<3)
+		if(is_set($arFields, "EMAIL_FROM") && mb_strlen($arFields["EMAIL_FROM"]) < 3)
 		{
 			$this->LAST_ERROR .= GetMessage("BAD_EMAIL_FROM")."<br>";
 			$arMsg[] = array("id"=>"EMAIL_FROM", "text"=> GetMessage("BAD_EMAIL_FROM"));
 		}
-		if(is_set($arFields, "EMAIL_TO") && strlen($arFields["EMAIL_TO"])<3)
+		if(is_set($arFields, "EMAIL_TO") && mb_strlen($arFields["EMAIL_TO"]) < 3)
 		{
 			$this->LAST_ERROR .= GetMessage("BAD_EMAIL_TO")."<br>";
 			$arMsg[] = array("id"=>"EMAIL_TO", "text"=> GetMessage("BAD_EMAIL_TO"));
@@ -269,7 +270,7 @@ class CAllEventMessage
 			&& (
 				(is_array($arFields["LID"]) && count($arFields["LID"])<=0)
 				||
-				(!is_array($arFields["LID"]) && strlen($arFields["LID"])<=0)
+				(!is_array($arFields["LID"]) && $arFields["LID"] == '')
 				)
 			)
 		)
@@ -299,7 +300,7 @@ class CAllEventMessage
 			$APPLICATION->ThrowException($e);
 		}
 
-		if(strlen($this->LAST_ERROR)>0)
+		if($this->LAST_ERROR <> '')
 			return false;
 
 		return true;
@@ -516,7 +517,7 @@ class CAllEventMessage
 		 * @global CDatabase $DB
 		 */
 		global $APPLICATION;
-		$ID = Intval($ID);
+		$ID = intval($ID);
 
 		foreach(GetModuleEvents("main", "OnBeforeEventMessageDelete", true) as $arEvent)
 		{
@@ -609,11 +610,11 @@ class CAllEventMessage
 				}
 				else
 				{
-					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					if((string)$val == '' || $val === "NOT_REF")
 						continue;
 				}
 				$match_value_set = array_key_exists($key."_EXACT_MATCH", $arFilter);
-				$key = strtoupper($key);
+				$key = mb_strtoupper($key);
 				switch($key)
 				{
 					case "ID":
@@ -907,7 +908,7 @@ class CEventType
 			$arID = array("EVENT_NAME" => $arID);
 		foreach ($arID as $k => $v)
 		{
-			if (!in_array(strToUpper($k), array("ID", "LID", "EVENT_NAME", "NAME", "SORT")))
+			if (!in_array(mb_strtoupper($k), array("ID", "LID", "EVENT_NAME", "NAME", "SORT")))
 				continue;
 			$ID[$k] = $v;
 		}
@@ -957,7 +958,7 @@ class CEventType
 			if($val_escaped == '')
 				continue;
 
-			$key = strtoupper($key);
+			$key = mb_strtoupper($key);
 			switch($key)
 			{
 				case "EVENT_NAME":
@@ -981,8 +982,8 @@ class CEventType
 			static $arFields = array("ID"=>1, "LID"=>1, "EVENT_NAME"=>1, "NAME"=>1, "SORT"=>1);
 			foreach($arOrder as $by => $ord)
 			{
-				$by = strtoupper($by);
-				$ord = strtoupper($ord);
+				$by = mb_strtoupper($by);
+				$ord = mb_strtoupper($ord);
 				if(array_key_exists($by, $arFields))
 					$arSqlOrder[$by] = ($ord == "DESC"? "DESC":"ASC");
 			}
@@ -1031,11 +1032,11 @@ class CEventType
 		$arSqlOrder = array();
 		foreach($arFilter as $key => $val)
 		{
-			if(strlen($val) <= 0)
+			if((string)$val == '')
 				continue;
 			$val = $DB->ForSql($val);
 			$key_res = CEventType::GetFilterOperation($key);
-			$key = strToUpper($key_res["FIELD"]);
+			$key = mb_strtoupper($key_res["FIELD"]);
 			$strNegative = $key_res["NEGATIVE"];
 			$strOperation = $key_res["OPERATION"];
 			$strNOperation = $key_res["NOPERATION"];
@@ -1066,12 +1067,12 @@ class CEventType
 					$arSearch2[] = array($strNOperation.$key => $val);
 					break;
 				case "ID":
-					$val = intVal($val);
+					$val = intval($val);
 					$arSearch1[] = array($strNOperation.'EVENT_MESSAGE_TYPE.'.$key => $val);
 					$arSearch2[] = array($strNOperation.$key => $val);
 					break;
 				case "MESSAGE_ID":
-					$val = intVal($val);
+					$val = intval($val);
 					$arSearch1[] = array($strNOperation."ID" => $val);
 					$arSearch2[] = array($strNOperation.'EVENT_MESSAGE.ID' => $val);
 					break;
@@ -1082,8 +1083,8 @@ class CEventType
 		{
 			foreach($arOrder as $by=>$order)
 			{
-				$by = strtoupper($by);
-				$order = strtoupper($order);
+				$by = mb_strtoupper($by);
+				$order = mb_strtoupper($order);
 				$order = ($order <> "DESC"? "ASC" : "DESC");
 				if($by == "EVENT_NAME" || $by == "ID")
 					$arSqlOrder["EVENT_NAME"] = "EVENT_NAME1 ".$order;
@@ -1135,58 +1136,58 @@ class CEventType
 	public static function GetFilterOperation($key)
 	{
 		$strNegative = "N";
-		if (substr($key, 0, 1)=="!")
+		if (mb_substr($key, 0, 1) == "!")
 		{
-			$key = subStr($key, 1);
+			$key = mb_substr($key, 1);
 			$strNegative = "Y";
 		}
 
 		$strOrNull = "N";
-		if (subStr($key, 0, 1)=="+")
+		if (mb_substr($key, 0, 1) == "+")
 		{
-			$key = subStr($key, 1);
+			$key = mb_substr($key, 1);
 			$strOrNull = "Y";
 		}
 
-		if (subStr($key, 0, 2)==">=")
+		if (mb_substr($key, 0, 2) == ">=")
 		{
-			$key = subStr($key, 2);
+			$key = mb_substr($key, 2);
 			$strOperation = ">=";
 			$strNOperation = ($strNegative == "Y" ? '<' : $strOperation);
 		}
-		elseif (subStr($key, 0, 1)==">")
+		elseif (mb_substr($key, 0, 1) == ">")
 		{
-			$key = subStr($key, 1);
+			$key = mb_substr($key, 1);
 			$strOperation = ">";
 			$strNOperation = ($strNegative == "Y" ? '<=' : $strOperation);
 		}
-		elseif (subStr($key, 0, 2)=="<=")
+		elseif (mb_substr($key, 0, 2) == "<=")
 		{
-			$key = subStr($key, 2);
+			$key = mb_substr($key, 2);
 			$strOperation = "<=";
 			$strNOperation = ($strNegative == "Y" ? '>' : $strOperation);
 		}
-		elseif (subStr($key, 0, 1)=="<")
+		elseif (mb_substr($key, 0, 1) == "<")
 		{
-			$key = subStr($key, 1);
+			$key = mb_substr($key, 1);
 			$strOperation = "<";
 			$strNOperation = ($strNegative == "Y" ? '>=' : $strOperation);
 		}
-		elseif (subStr($key, 0, 1)=="@")
+		elseif (mb_substr($key, 0, 1) == "@")
 		{
-			$key = subStr($key, 1);
+			$key = mb_substr($key, 1);
 			$strOperation = "IN";
 			$strNOperation = ($strNegative == "Y" ? '' : '');
 		}
-		elseif (subStr($key, 0, 1)=="~")
+		elseif (mb_substr($key, 0, 1) == "~")
 		{
-			$key = subStr($key, 1);
+			$key = mb_substr($key, 1);
 			$strOperation = "LIKE";
 			$strNOperation = ($strNegative == "Y" ? '!=%' : '=%');
 		}
-		elseif (subStr($key, 0, 1)=="%")
+		elseif (mb_substr($key, 0, 1) == "%")
 		{
-			$key = subStr($key, 1);
+			$key = mb_substr($key, 1);
 			$strOperation = "QUERY";
 			$strNOperation = ($strNegative == "Y" ? '' : '');
 		}

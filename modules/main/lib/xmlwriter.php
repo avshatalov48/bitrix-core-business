@@ -57,7 +57,7 @@ class XmlWriter
 	{
 		if ($this->lowercaseTag)
 		{
-			$tag = strtolower($tag);
+			$tag = mb_strtolower($tag);
 		}
 		return $tag;
 	}

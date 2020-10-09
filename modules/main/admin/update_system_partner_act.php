@@ -66,16 +66,16 @@ elseif ($queryType == "register")
 elseif ($queryType == "coupon")
 {
 	$coupon = $APPLICATION->UnJSEscape($_REQUEST["COUPON"]);
-	if (StrLen($coupon) <= 0)
+	if ($coupon == '')
 		$errorMessage .= GetMessage("SUPA_ACE_CPN").". ";
 
-	if (StrLen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
 		if (!CUpdateClientPartner::ActivateCoupon($coupon, $errorMessage, LANG, $stableVersionsOnly))
 			$errorMessage .= GetMessage("SUPA_ACE_ACT").". ";
 	}
 
-	if (StrLen($errorMessage) <= 0)
+	if ($errorMessage == '')
 	{
 		CUpdateClientPartner::AddMessage2Log("Coupon activated", "UPD_SUCCESS");
 		echo "Y";

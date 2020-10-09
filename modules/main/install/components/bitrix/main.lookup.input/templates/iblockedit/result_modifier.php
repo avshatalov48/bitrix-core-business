@@ -3,7 +3,7 @@
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 $arParams['BAN_SYM'] = trim($arParams['BAN_SYM']);
-$arParams['REP_SYM'] = substr($arParams['REP_SYM'], 0, 1);
+$arParams['REP_SYM'] = mb_substr($arParams['REP_SYM'], 0, 1);
 $arParams['FILTER'] = (isset($arParams['FILTER']) && $arParams['FILTER'] == 'Y' ? 'Y' : 'N');
 $arParams['TYPE'] = (isset($arParams['TYPE']) && $arParams['TYPE'] == 'SECTION' ? 'SECTION' : 'ELEMENT');
 $arParams['RESULT_COUNT'] = (isset($arParams['RESULT_COUNT']) ? (int)$arParams['RESULT_COUNT'] : 0);

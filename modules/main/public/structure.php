@@ -30,7 +30,7 @@ function __struct_file_sort($a, $b)
 	{
 		$name1 = ($a["name"] <> ''? $a["name"] : $a["file"]);
 		$name2 = ($b["name"] <> ''? $b["name"] : $b["file"]);
-		return strcmp(strtoupper($name1), strtoupper($name2));
+		return strcmp(mb_strtoupper($name1), mb_strtoupper($name2));
 	}
 }
 
@@ -119,7 +119,7 @@ function __struct_show_files($arFiles, $doc_root, $path, $open_path, $dirsonly=f
 				"del_folder" => $USER->CanDoFileOperation("fm_delete_folder", $arPath),
 			);
 			
-			$bOpenSubdir = ($open_path <> "" && (strpos($open_path."/", $full_path."/") === 0 || $arFile["file"] == "/"));
+			$bOpenSubdir = ($open_path <> "" && (mb_strpos($open_path."/", $full_path."/") === 0 || $arFile["file"] == "/"));
 			$dirID = 'dir'.$md5;
 			$item = '<div id="sign'.$md5.'" class="'.($bOpenSubdir? 'bx-struct-minus':'bx-struct-plus').'" onclick="structGetSubDir(this, \''.$dirID.'\', \''.$encPath.'\', '.($dirsonly? 'true':'false').')"></div>
 				<div class="bx-struct-dir" id="icon'.$md5.'"></div>
@@ -235,8 +235,8 @@ if($_GET['ajax'] == 'Y')
 			
 		$module_id = "fileman";
 		if(COption::GetOptionString($module_id, "log_page", "Y")=="Y")
-		{	
-			$res_log['path'] = substr($_GET["path"], 1);
+		{
+			$res_log['path'] = mb_substr($_GET["path"], 1);
 			CEventLog::Log(
 				"content",                   
 				"SECTION_DELETE",
@@ -250,8 +250,8 @@ if($_GET['ajax'] == 'Y')
 	{
 		$normFrom = $io->CombinePath("/", $_GET["from"]);
 		$name = "";
-		if(($pos = strrpos($normFrom, "/")) !== false)
-			$name = substr($normFrom, $pos+1);
+		if(($pos = mb_strrpos($normFrom, "/")) !== false)
+			$name = mb_substr($normFrom, $pos + 1);
 		$normTo = $io->CombinePath("/", $_GET["to"]."/".$name);
 		if($normFrom <> "" && $normTo <> "")
 			$strWarning = CFileMan::CopyEx(array($_GET["site"], $normFrom), array($_GET["site"], $normTo), ($_GET['action'] == "move"? true : false));

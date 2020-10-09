@@ -11,7 +11,7 @@ if (CWikiSocnet::IsSocNet())
 	{
 		$arGroup = CSocNetGroup::GetByID($arParams["SOCNET_GROUP_ID"]);
 		$arActiveFeatures = CSocNetFeatures::GetActiveFeaturesNames(SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"]);
-		$sFeatureName = (array_key_exists("wiki", $arActiveFeatures) && strlen($arActiveFeatures["wiki"]) > 0 ? $arActiveFeatures["wiki"] : GetMessage("WIKI_SOCNET_TAB"));
+		$sFeatureName = (array_key_exists("wiki", $arActiveFeatures) && $arActiveFeatures["wiki"] <> '' ? $arActiveFeatures["wiki"] : GetMessage("WIKI_SOCNET_TAB"));
 	}
 
 	if (
@@ -67,7 +67,7 @@ else
 			$arIBLOCK["~LIST_PAGE_URL"] = str_replace(
 				array("#SERVER_NAME#", "#SITE_DIR#", "#IBLOCK_TYPE_ID#", "#IBLOCK_ID#", "#IBLOCK_CODE#", "#IBLOCK_EXTERNAL_ID#", "#CODE#"),
 				array(SITE_SERVER_NAME, SITE_DIR, $arIBLOCK["IBLOCK_TYPE_ID"], $arIBLOCK["ID"], $arIBLOCK["CODE"], $arIBLOCK["EXTERNAL_ID"], $arIBLOCK["CODE"]),
-				strlen($arParams["IBLOCK_URL"])? trim($arParams["~IBLOCK_URL"]): $arIBLOCK["~LIST_PAGE_URL"]
+				$arParams["IBLOCK_URL"] <> ''? trim($arParams["~IBLOCK_URL"]) : $arIBLOCK["~LIST_PAGE_URL"]
 			);
 			$arIBLOCK["~LIST_PAGE_URL"] = preg_replace("'/+'s", "/", $arIBLOCK["~LIST_PAGE_URL"]);
 			$APPLICATION->AddChainItem($arIBLOCK['NAME'], $arIBLOCK['~LIST_PAGE_URL']);

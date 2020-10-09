@@ -1309,7 +1309,7 @@ class CIBlockElement extends CAllIBlockElement
 
 		$arFields["IBLOCK_ID"] = $ar_element["IBLOCK_ID"];
 
-		if(!$this->CheckFields($arFields, $ID, $bCheckDiskQuota) || mb_strlen($strWarning))
+		if(!$this->CheckFields($arFields, $ID, $bCheckDiskQuota) || $strWarning != '')
 		{
 			$this->LAST_ERROR .= $strWarning;
 			$Result = false;
@@ -2145,7 +2145,7 @@ class CIBlockElement extends CAllIBlockElement
 					else
 						$arWas[$val] = true;
 
-					if ($val == '')
+					if ((string)$val == '')
 						continue;
 
 					if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "N")
@@ -2434,7 +2434,7 @@ class CIBlockElement extends CAllIBlockElement
 							$val_desc = false;
 						}
 
-						if ($val == '')
+						if ((string)$val == '')
 						{
 							if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "N")
 							{
@@ -2508,7 +2508,7 @@ class CIBlockElement extends CAllIBlockElement
 						$val_desc = false;
 					}
 
-					if ($val == '')
+					if ((string)$val == '')
 						continue;
 
 					if ($prop["VERSION"] == 2 && $prop["MULTIPLE"] == "N")

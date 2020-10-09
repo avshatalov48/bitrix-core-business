@@ -26,11 +26,11 @@ class AuthFlow extends Engine\Controller
 
 	public function signInAppleAction(): void
 	{
-		$request = $this->getrequest()->toArray();
+		$redirectUrl = $this->getRequest()->getQuery('url');
 
-		if (isset($request['url']) && strpos($request['url'], self::APPLE_OAUTH_URL) === 0)
+		if (strpos($redirectUrl, self::APPLE_OAUTH_URL) === 0)
 		{
-			LocalRedirect($request['url'], true);
+			LocalRedirect($redirectUrl, true);
 			die();
 		}
 	}

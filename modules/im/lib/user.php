@@ -575,7 +575,7 @@ class User
 		if (!$ar = parse_url($avatarUrl))
 			return '';
 
-		if (!preg_match('#\.(png|jpg|jpeg|gif)$#i', $ar['path']))
+		if (!preg_match('#\.(png|jpg|jpeg|gif|webp)$#i', $ar['path']))
 			return '';
 
 		$hash = md5($hash.$avatarUrl);

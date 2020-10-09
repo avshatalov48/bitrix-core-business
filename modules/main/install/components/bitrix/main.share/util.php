@@ -15,7 +15,7 @@ if (!function_exists("__bx_share_get_handlers"))
 		$shareComponent->InitComponent("bitrix:main.share", $template);
 		$shareComponent->InitComponentTemplate("", $siteTemplate);
 
-		if (strlen($shareComponent->__template->__folder) > 0)
+		if ($shareComponent->__template->__folder <> '')
 		{
 			$path2Handlers = $_SERVER["DOCUMENT_ROOT"]."/".$shareComponent->__template->__folder."/handlers/";
 			CheckDirPath($path2Handlers);
@@ -27,13 +27,13 @@ if (!function_exists("__bx_share_get_handlers"))
 				{
 					if ($file == "." || $file == "..")
 						continue;
-					if (is_file($path2Handlers.$file) && strtoupper(substr($file, strlen($file)-4))==".PHP")
+					if (is_file($path2Handlers.$file) && mb_strtoupper(mb_substr($file, mb_strlen($file) - 4)) == ".PHP")
 					{
 						$name = $title = $icon_url_template = "";
 						$sort = 0;
 						include($path2Handlers.$file);
 						
-						if (strlen($name) > 0)
+						if ($name <> '')
 						{
 							$arHandlers[$name] = array(
 								"TITLE" => $title,
@@ -46,7 +46,7 @@ if (!function_exists("__bx_share_get_handlers"))
 			}
 
 			foreach($arHandlers as $name=>$arSystem)
-				if (strlen($arSystem["TITLE"]) > 0)
+				if ($arSystem["TITLE"] <> '')
 					$arBookmarkHandlerDropdown[$name] = $arSystem["TITLE"];
 
 			$arBookmarkHandlerDropdownTmp = $arBookmarkHandlerDropdown;

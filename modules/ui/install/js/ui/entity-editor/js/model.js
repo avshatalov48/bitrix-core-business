@@ -10,6 +10,9 @@ if(typeof BX.UI.EntityModel === "undefined")
 		this._data = null;
 		this._initData = null;
 		this._lockedFields = null;
+		this._changeNotifier = null;
+		this._lockNotifier = null;
+		this.eventsNamespace = 'UI.EntityModel';
 	};
 	BX.UI.EntityModel.prototype =
 	{
@@ -26,6 +29,10 @@ if(typeof BX.UI.EntityModel === "undefined")
 		},
 		doInitialize: function()
 		{
+		},
+		getEventArguments: function()
+		{
+			return { entityTypeName: this.getEntityTypeName(), entityId: this.getEntityId() };
 		},
 		getEntityTypeName: function()
 		{
@@ -102,11 +109,25 @@ if(typeof BX.UI.EntityModel === "undefined")
 
 			if(BX.prop.getBoolean(options, "enableNotification", true))
 			{
+				var eventArgs = this.getEventArguments();
+				eventArgs.fieldName = name;
 				BX.onCustomEvent(
 					window,
-					"UI.EntityModel.Change",
-					[ this, { entityTypeName: this.getEntityTypeName(), entityId: this.getEntityId(), fieldName: name } ]
+					this.eventsNamespace + ".Change",
+					[ this, eventArgs ]
 				);
+
+				if(this._changeNotifier && BX.type.isFunction(this._changeNotifier.notify))
+				{
+					this._changeNotifier.notify(
+						[
+							{
+								name: name,
+								originator: BX.prop.get(options, "originator", null)
+							}
+						]
+					);
+				}
 			}
 		},
 		getData: function()
@@ -120,12 +141,109 @@ if(typeof BX.UI.EntityModel === "undefined")
 
 			if(BX.prop.getBoolean(options, "enableNotification", true))
 			{
+				var eventArgs = this.getEventArguments();
+				eventArgs.forAll = true;
 				BX.onCustomEvent(
 					window,
-					"Crm.EntityModel.Change",
-					[ this, { entityTypeName: this.getEntityTypeName(), entityId: this.getEntityId(), forAll: true } ]
+					this.eventsNamespace + ".Change",
+					[ this, eventArgs ]
 				);
+
+				if(this._changeNotifier && BX.type.isFunction(this._changeNotifier.notify))
+				{
+					this._changeNotifier.notify(
+						[
+							{
+								forAll: true,
+								originator: BX.prop.get(options, "originator", null)
+							}
+						]
+					);
+				}
 			}
+		},
+		updateData: function(data, options)
+		{
+			if(!BX.type.isPlainObject(data))
+			{
+				return;
+			}
+
+			this._data = BX.mergeEx(this._data, data);
+			if(BX.prop.getBoolean(options, "enableNotification", true))
+			{
+				var eventArgs = this.getEventArguments();
+				eventArgs.forAll = true;
+
+				BX.onCustomEvent(
+					window,
+					this.eventsNamespace + ".Change",
+					[ this, eventArgs ]
+				);
+
+				if(this._changeNotifier && BX.type.isFunction(this._changeNotifier.notify))
+				{
+					this._changeNotifier.notify(
+						[
+							{
+								forAll: true,
+								originator: BX.prop.get(options, "originator", null)
+							}
+						]
+					);
+				}
+			}
+		},
+		updateDataObject: function(name, data, options)
+		{
+			if(!this._data.hasOwnProperty(name))
+			{
+				this._data[name] = data;
+			}
+			else
+			{
+				this._data[name] = BX.mergeEx(this._data[name], data);
+			}
+
+			if(BX.prop.getBoolean(options, "enableNotification", true))
+			{
+				var eventArgs = this.getEventArguments();
+				eventArgs.forAll = true;
+
+				BX.onCustomEvent(
+					window,
+					this.eventsNamespace + ".Change",
+					[ this, eventArgs ]
+				);
+
+				if(this._changeNotifier && BX.type.isFunction(this._changeNotifier.notify))
+				{
+					this._changeNotifier.notify(
+						[
+							{
+								forAll: true,
+								originator: BX.prop.get(options, "originator", null)
+							}
+						]
+					);
+				}
+			}
+		},
+		getInitFieldValue: function(name, defaultValue)
+		{
+			if(defaultValue === undefined)
+			{
+				defaultValue = null;
+			}
+			return BX.prop.get(this._initData, name, defaultValue);
+		},
+		setInitFieldValue: function(name, value)
+		{
+			if(this._initData.hasOwnProperty(name) && this._initData[name] === value)
+			{
+				return;
+			}
+			this._initData[name] = value;
 		},
 		getSchemeField: function(schemeElement, name, defaultValue)
 		{
@@ -167,6 +285,10 @@ if(typeof BX.UI.EntityModel === "undefined")
 			}
 
 			this._lockedFields[fieldName] = true;
+			if(this._lockNotifier && BX.type.isFunction(this._lockNotifier.notify))
+			{
+				this._lockNotifier.notify([ { name: fieldName, isLocked: true } ]);
+			}
 		},
 		unlockField: function(fieldName)
 		{
@@ -176,6 +298,10 @@ if(typeof BX.UI.EntityModel === "undefined")
 			}
 
 			delete this._lockedFields[fieldName];
+			if(this._lockNotifier && BX.type.isFunction(this._lockNotifier.notify))
+			{
+				this._lockNotifier.notify([ { name: fieldName, isLocked: false } ]);
+			}
 		},
 		isFieldLocked: function(fieldName)
 		{
@@ -194,6 +320,34 @@ if(typeof BX.UI.EntityModel === "undefined")
 		},
 		prepareCaptionData: function(data)
 		{
+		},
+		addChangeListener: function(listener)
+		{
+			if(this._changeNotifier && BX.type.isFunction(this._changeNotifier.addListener))
+			{
+				this._changeNotifier.addListener(listener);
+			}
+		},
+		removeChangeListener: function(listener)
+		{
+			if(this._changeNotifier && BX.type.isFunction(this._changeNotifier.removeListener))
+			{
+				this._changeNotifier.removeListener(listener);
+			}
+		},
+		addLockListener: function(listener)
+		{
+			if(this._lockNotifier && BX.type.isFunction(this._lockNotifier.addListener))
+			{
+				this._lockNotifier.addListener(listener);
+			}
+		},
+		removeLockListener: function(listener)
+		{
+			if(this._lockNotifier && BX.type.isFunction(this._lockNotifier.removeListener))
+			{
+				this._lockNotifier.removeListener(listener);
+			}
 		}
 	};
 	BX.UI.EntityModel.create = function(id, settings)

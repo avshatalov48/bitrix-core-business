@@ -116,14 +116,20 @@ class Entity
 		if (empty(self::$instances[$className]))
 		{
 			/** @var Entity $entity */
-			$entity = new static;
-			$entity->initialize($className);
-			$entity->postInitialize();
+			$entityClass = $className::getEntityClass();
 
-			// call user-defined postInitialize
-			$className::postInitialize($entity);
+			// in case of calling Table class was not ended with entity initialization
+			if (empty(self::$instances[$className]))
+			{
+				$entity = new $entityClass;
+				$entity->initialize($className);
+				$entity->postInitialize();
 
-			self::$instances[$className] = $entity;
+				// call user-defined postInitialize
+				$className::postInitialize($entity);
+
+				self::$instances[$className] = $entity;
+			}
 		}
 
 		return self::$instances[$className];
@@ -155,7 +161,7 @@ class Entity
 		{
 			if (!empty($fieldInfo['reference']))
 			{
-				if (is_string($fieldInfo['data_type']) && strpos($fieldInfo['data_type'], '\\') === false)
+				if (is_string($fieldInfo['data_type']) && mb_strpos($fieldInfo['data_type'], '\\') === false)
 				{
 					// if reference has no namespace, then it'is in the same namespace
 					$fieldInfo['data_type'] = $this->getNamespace().$fieldInfo['data_type'];
@@ -180,11 +186,11 @@ class Entity
 				$fieldClass = StringHelper::snake2camel($fieldInfo['data_type']) . 'Field';
 				$fieldClass = '\\Bitrix\\Main\\Entity\\'.$fieldClass;
 
-				if (strlen($fieldInfo['data_type']) && class_exists($fieldClass))
+				if (mb_strlen($fieldInfo['data_type']) && class_exists($fieldClass))
 				{
 					$field = new $fieldClass($fieldName, $fieldInfo);
 				}
-				elseif (strlen($fieldInfo['data_type']) && class_exists($fieldInfo['data_type']))
+				elseif (mb_strlen($fieldInfo['data_type']) && class_exists($fieldInfo['data_type']))
 				{
 					$fieldClass = $fieldInfo['data_type'];
 					$field = new $fieldClass($fieldName, $fieldInfo);
@@ -237,7 +243,7 @@ class Entity
 	{
 		// basic properties
 		$classPath = explode('\\', ltrim($this->className, '\\'));
-		$this->name = substr(end($classPath), 0, -5);
+		$this->name = mb_substr(end($classPath), 0, -5);
 
 		// default db table name
 		if (is_null($this->dbTableName))
@@ -260,7 +266,7 @@ class Entity
 					continue;
 				}
 
-				$this->dbTableName .= strtolower($_pathElem).'_';
+				$this->dbTableName .= mb_strtolower($_pathElem).'_';
 			}
 
 			// add class
@@ -270,7 +276,7 @@ class Entity
 			}
 			else
 			{
-				$this->dbTableName = substr($this->dbTableName, 0, -1);
+				$this->dbTableName = mb_substr($this->dbTableName, 0, -1);
 			}
 		}
 
@@ -336,7 +342,7 @@ class Entity
 	{
 		$className = $entityName;
 
-		if (!strlen($className))
+		if ($className == '')
 		{
 			// entity without name
 			$className = 'NNM_Object';
@@ -503,7 +509,7 @@ class Entity
 
 	public function getReferencesCountTo($refEntityName)
 	{
-		if (array_key_exists($key = strtolower($refEntityName), $this->references))
+		if (array_key_exists($key = mb_strtolower($refEntityName), $this->references))
 		{
 			return count($this->references[$key]);
 		}
@@ -514,7 +520,7 @@ class Entity
 
 	public function getReferencesTo($refEntityName)
 	{
-		if (array_key_exists($key = strtolower($refEntityName), $this->references))
+		if (array_key_exists($key = mb_strtolower($refEntityName), $this->references))
 		{
 			return $this->references[$key];
 		}
@@ -604,18 +610,18 @@ class Entity
 		{
 			$this->u_fields = array();
 
-			if (strlen($this->uf_id))
+			if($this->uf_id <> '')
 			{
 				/** @var \CUserTypeManager $USER_FIELD_MANAGER */
 				global $USER_FIELD_MANAGER;
 
-				foreach ($USER_FIELD_MANAGER->getUserFields($this->uf_id) as $info)
+				foreach($USER_FIELD_MANAGER->getUserFields($this->uf_id) as $info)
 				{
 					$this->u_fields[$info['FIELD_NAME']] = new UField($info);
 					$this->u_fields[$info['FIELD_NAME']]->setEntity($this);
 
 					// add references for ufield (UF_DEPARTMENT_BY)
-					if ($info['USER_TYPE_ID'] == 'iblock_section')
+					if($info['USER_TYPE_ID'] == 'iblock_section')
 					{
 						$info['FIELD_NAME'] .= '_BY';
 						$this->u_fields[$info['FIELD_NAME']] = new UField($info);
@@ -635,12 +641,12 @@ class Entity
 
 	public function getFullName()
 	{
-		return substr($this->className, 0, -5);
+		return mb_substr($this->className, 0, -5);
 	}
 
 	public function getNamespace()
 	{
-		return substr($this->className, 0, strrpos($this->className, '\\')+1);
+		return mb_substr($this->className, 0, mb_strrpos($this->className, '\\') + 1);
 	}
 
 	public function getModule()
@@ -652,9 +658,9 @@ class Entity
 			// \Thing -> ""
 			$parts = explode("\\", $this->className);
 			if($parts[1] == "Bitrix")
-				$this->module = strtolower($parts[2]);
+				$this->module = mb_strtolower($parts[2]);
 			elseif(!empty($parts[1]) && isset($parts[2]))
-				$this->module = strtolower($parts[1].".".$parts[2]);
+				$this->module = mb_strtolower($parts[1].".".$parts[2]);
 			else
 				$this->module = "";
 		}
@@ -738,12 +744,12 @@ class Entity
 	 */
 	public static function normalizeEntityClass($entityName)
 	{
-		if (strtolower(substr($entityName, -5)) !== 'table')
+		if (mb_strtolower(mb_substr($entityName, -5)) !== 'table')
 		{
 			$entityName .= 'Table';
 		}
 
-		if (substr($entityName, 0, 1) !== '\\')
+		if (mb_substr($entityName, 0, 1) !== '\\')
 		{
 			$entityName = '\\'.$entityName;
 		}
@@ -754,7 +760,7 @@ class Entity
 	public static function getEntityClassParts($class)
 	{
 		$class = static::normalizeEntityClass($class);
-		$lastPos = strrpos($class, '\\');
+		$lastPos = mb_strrpos($class, '\\');
 
 		if($lastPos === 0)
 		{
@@ -763,9 +769,9 @@ class Entity
 		}
 		else
 		{
-			$namespace = substr($class, 1, $lastPos-1);
+			$namespace = mb_substr($class, 1, $lastPos - 1);
 		}
-		$name = substr($class, $lastPos+1, -5);
+		$name = mb_substr($class, $lastPos + 1, -5);
 
 		return compact('namespace', 'name');
 	}
@@ -777,7 +783,7 @@ class Entity
 			$this->code = '';
 
 			// get absolute path to class
-			$class_path = explode('\\', strtoupper(ltrim($this->className, '\\')));
+			$class_path = explode('\\', mb_strtoupper(ltrim($this->className, '\\')));
 
 			// cut class name to leave namespace only
 			$class_path = array_slice($class_path, 0, -1);
@@ -795,7 +801,7 @@ class Entity
 			}
 
 			// glue entity name
-			$this->code .= strtoupper(StringHelper::camel2snake($this->getName()));
+			$this->code .= mb_strtoupper(StringHelper::camel2snake($this->getName()));
 		}
 
 		return $this->code;
@@ -845,14 +851,14 @@ class Entity
 
 	public static function normalizeName($entityName)
 	{
-		if (substr($entityName, 0, 1) !== '\\')
+		if (mb_substr($entityName, 0, 1) !== '\\')
 		{
 			$entityName = '\\'.$entityName;
 		}
 
-		if (strtolower(substr($entityName, -5)) === 'table')
+		if (mb_strtolower(mb_substr($entityName, -5)) === 'table')
 		{
-			$entityName = substr($entityName, 0, -5);
+			$entityName = mb_substr($entityName, 0, -5);
 		}
 
 		return $entityName;
@@ -984,7 +990,7 @@ class Entity
 		$classCode = '';
 		$classCodeEnd = '';
 
-		if (strtolower(substr($entityName, -5)) !== 'table')
+		if (mb_strtolower(mb_substr($entityName, -5)) !== 'table')
 		{
 			$entityName .= 'Table';
 		}
@@ -1327,8 +1333,12 @@ class Entity
 	 */
 	public function cleanCache()
 	{
-		$cache = Main\Application::getInstance()->getManagedCache();
-		$cache->cleanDir($this->getCacheDir());
+		if($this->getCacheTtl(100) > 0)
+		{
+			//cache might be disabled in .settings.php via *_max_ttl = 0 option
+			$cache = Main\Application::getInstance()->getManagedCache();
+			$cache->cleanDir($this->getCacheDir());
+		}
 	}
 
 	/**

@@ -1,9 +1,4 @@
 <?
-
-/***************************************
-	Статус результата веб-формы
-***************************************/
-
 class CAllFormStatus
 {
 	function err_mess()
@@ -13,7 +8,6 @@ class CAllFormStatus
 		return "<br>Module: ".$module_id." (".$arModuleVersion["VERSION"].")<br>Class: CAllFormStatus<br>File: ".__FILE__;
 	}
 
-	// права на статус по группам
 	function GetPermissionList($STATUS_ID, &$arPERMISSION_VIEW, &$arPERMISSION_MOVE, &$arPERMISSION_EDIT, &$arPERMISSION_DELETE)
 	{
 		$err_mess = (CAllFormStatus::err_mess())."<br>Function: GetPermissionList<br>Line: ";
@@ -40,13 +34,11 @@ class CAllFormStatus
 
 	}
 
-	// возвращает массив максимальных прав на результат
 	function GetMaxPermissions()
 	{
 		return array("VIEW","MOVE","EDIT","DELETE");
 	}
 
-	// права на статус
 	function GetPermissions($STATUS_ID)
 	{
 		$err_mess = (CAllFormStatus::err_mess())."<br>Function: GetPermissions<br>Line: ";
@@ -109,7 +101,6 @@ class CAllFormStatus
 		return intval($zr["ID"]);
 	}
 
-	// проверка статуса
 	function CheckFields($arFields, $STATUS_ID, $CHECK_RIGHTS="Y")
 	{
 		$err_mess = (CAllFormStatus::err_mess())."<br>Function: CheckFields<br>Line: ";
@@ -132,16 +123,15 @@ class CAllFormStatus
 			{
 				if ($STATUS_ID<=0 || ($STATUS_ID>0 && is_set($arFields, "TITLE")))
 				{
-					if (strlen(trim($arFields["TITLE"]))<=0) $str .= GetMessage("FORM_ERROR_FORGOT_TITLE")."<br>";
+					if (trim($arFields["TITLE"]) == '') $str .= GetMessage("FORM_ERROR_FORGOT_TITLE")."<br>";
 				}
 			}
 			else $str .= GetMessage("FORM_ERROR_ACCESS_DENIED");
 		}
 		$strError .= $str;
-		if (strlen($str)>0) return false; else return true;
+		if ($str <> '') return false; else return true;
 	}
 
-	// добавление/обновление статуса
 	function Set($arFields, $STATUS_ID=false, $CHECK_RIGHTS="Y")
 	{
 		$err_mess = (CAllFormStatus::err_mess())."<br>Function: Set<br>Line: ";
@@ -184,9 +174,6 @@ class CAllFormStatus
 					$arFields_i["DEFAULT_VALUE"] = ($arFields["DEFAULT_VALUE"]=="Y") ? "'Y'" : "'N'";
 			}
 
-			//echo '<pre>'; print_r($arFields); echo '</pre>';
-			//die();
-
 			if ($STATUS_ID>0)
 			{
 				$DB->Update("b_form_status", $arFields_i, "WHERE ID='".$STATUS_ID."'", $err_mess.__LINE__);
@@ -201,7 +188,6 @@ class CAllFormStatus
 
 			if ($STATUS_ID>0)
 			{
-				// право на просмотр
 				if (is_set($arFields, "arPERMISSION_VIEW"))
 				{
 					$DB->Query("DELETE FROM b_form_status_2_group WHERE STATUS_ID='".$STATUS_ID."' and PERMISSION='VIEW'", false, $err_mess.__LINE__);
@@ -220,7 +206,6 @@ class CAllFormStatus
 					}
 				}
 
-				// право на перевод
 				if (is_set($arFields, "arPERMISSION_MOVE"))
 				{
 					$DB->Query("DELETE FROM b_form_status_2_group WHERE STATUS_ID='".$STATUS_ID."' and PERMISSION='MOVE'", false, $err_mess.__LINE__);
@@ -239,7 +224,6 @@ class CAllFormStatus
 					}
 				}
 
-				// право на редактирование
 				if (is_set($arFields, "arPERMISSION_EDIT"))
 				{
 					$DB->Query("DELETE FROM b_form_status_2_group WHERE STATUS_ID='".$STATUS_ID."' and PERMISSION='EDIT'", false, $err_mess.__LINE__);
@@ -258,7 +242,6 @@ class CAllFormStatus
 					}
 				}
 
-				// право на удаление
 				if (is_set($arFields, "arPERMISSION_DELETE"))
 				{
 					$DB->Query("DELETE FROM b_form_status_2_group WHERE STATUS_ID='".$STATUS_ID."' and PERMISSION='DELETE'", false, $err_mess.__LINE__);
@@ -301,7 +284,6 @@ class CAllFormStatus
 		return false;
 	}
 
-	// удаляет статус
 	function Delete($ID, $CHECK_RIGHTS="Y")
 	{
 		global $DB, $APPLICATION, $strError;
@@ -338,7 +320,6 @@ class CAllFormStatus
 		return false;
 	}
 
-	// копирует статус
 	function Copy($ID, $CHECK_RIGHTS="Y", $NEW_FORM_ID=false)
 	{
 		global $DB, $APPLICATION, $strError;
@@ -353,28 +334,23 @@ class CAllFormStatus
 			else
 			{
 				$F_RIGHT = CForm::GetPermission($arStatus["FORM_ID"]);
-				// если имеем право на просмотр параметров формы
 				if ($F_RIGHT>=25)
 				{
-					// если задана новая форма
 					if ($NEW_FORM_ID>0)
 					{
 						$NEW_F_RIGHT = CForm::GetPermission($NEW_FORM_ID);
-						// если имеем полный доступ на новую форму
 						if ($NEW_F_RIGHT>=30) $RIGHT_OK = "Y";
 					}
-					elseif ($F_RIGHT>=30) // если имеем полный доступ на исходную форму
+					elseif ($F_RIGHT>=30)
 					{
 						$RIGHT_OK = "Y";
 					}
 				}
 			}
 
-			// если права проверили то
 			if ($RIGHT_OK=="Y")
 			{
 				CFormStatus::GetPermissionList($ID, $arPERMISSION_VIEW, $arPERMISSION_MOVE, $arPERMISSION_EDIT, $arPERMISSION_DELETE);
-				// копируем
 				$arFields = array(
 					"FORM_ID"				=> ($NEW_FORM_ID>0) ? $NEW_FORM_ID : $arStatus["FORM_ID"],
 					"C_SORT"				=> $arStatus["C_SORT"],
@@ -412,13 +388,13 @@ class CAllFormStatus
 			if ($arrStatus = $dbRes->Fetch())
 			{
 				$MAIL_EVENT_TYPE = "FORM_STATUS_CHANGE_".$arrForm["SID"]."_".$arrStatus['ID'];
-				if (strlen($old_SID)>0)
+				if ($old_SID <> '')
 					$old_MAIL_EVENT_TYPE = "FORM_STATUS_CHANGE_".$old_SID."_".$arrStatus['ID'];
 
 				$et = new CEventType;
 				$em = new CEventMessage;
 
-				if (strlen($MAIL_EVENT_TYPE)>0)
+				if ($MAIL_EVENT_TYPE <> '')
 					$et->Delete($MAIL_EVENT_TYPE);
 
 				$z = CLanguage::GetList($v1, $v2);
@@ -451,14 +427,14 @@ class CAllFormStatus
 						);
 				}
 				// create new event type for old templates
-				if (strlen($old_MAIL_EVENT_TYPE)>0 && $old_MAIL_EVENT_TYPE!=$MAIL_EVENT_TYPE)
+				if ($old_MAIL_EVENT_TYPE <> '' && $old_MAIL_EVENT_TYPE!=$MAIL_EVENT_TYPE)
 				{
 					$e = $em->GetList($by="id",$order="desc",array("EVENT_NAME"=>$old_MAIL_EVENT_TYPE));
 					while ($er=$e->Fetch())
 					{
 						$em->Update($er["ID"],array("EVENT_NAME"=>$MAIL_EVENT_TYPE));
 					}
-					if (strlen($old_MAIL_EVENT_TYPE)>0)
+					if ($old_MAIL_EVENT_TYPE <> '')
 						$et->Delete($old_MAIL_EVENT_TYPE);
 				}
 
@@ -477,7 +453,6 @@ class CAllFormStatus
 							$SUBJECT = GetMessage("FORM_CHANGE_STATUS_S");
 							$MESSAGE = GetMessage("FORM_CHANGE_STATUS_B");
 
-							// добавляем новый шаблон
 							$arFields = Array(
 								"ACTIVE"		=> "Y",
 								"EVENT_NAME"	=> $MAIL_EVENT_TYPE,
@@ -488,7 +463,6 @@ class CAllFormStatus
 								"MESSAGE"		=> $MESSAGE,
 								"BODY_TYPE"		=> "text"
 								);
-							//echo '<pre>'; print_r($arFields); echo '</pre>';
 							$TEMPLATE_ID = $em->Add($arFields);
 							if ($bReturnFullInfo)
 								$arrReturn[] = array(
@@ -528,10 +502,8 @@ FROM
 WHERE
 	FM.STATUS_ID='".$STATUS_ID."'
 ";
-		//echo "<pre>".$strSql."</pre>";
 		$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
 		while ($ar = $rs->Fetch()) $arrRes[] = $ar["MAIL_TEMPLATE_ID"];
-		//echo "<pre>".print_r($arrRes, true)."</pre>";
 
 		return $arrRes;
 	}
@@ -555,7 +527,6 @@ WHERE
 	F.ID='".$STATUS_ID."'
 ";
 
-			//echo '<pre>',$strSql,'</pre>';
 			$z = $DB->Query($strSql,false,$err_mess.__LINE__);
 			while ($zr = $z->Fetch())
 			{
@@ -563,7 +534,7 @@ WHERE
 				$arrSITE[] = $zr["SITE_ID"];
 			}
 
-			if (strlen($MAIL_EVENT_TYPE) <= 0)
+			if ($MAIL_EVENT_TYPE == '')
 				return false;
 
 			$arReferenceId = array();
@@ -589,4 +560,3 @@ WHERE
 		return false;
 	}
 }
-?>

@@ -209,8 +209,8 @@ class ExceptionHandlerFormatter
 				}
 				else
 				{
-					if (strlen($arg) > static::MAX_CHARS)
-						$result = '"'.substr($arg, 0, static::MAX_CHARS / 2).'...'.substr($arg, -static::MAX_CHARS / 2).'" ('.strlen($arg).')';
+					if (mb_strlen($arg) > static::MAX_CHARS)
+						$result = '"'.mb_substr($arg, 0, static::MAX_CHARS / 2).'...'.mb_substr($arg, -static::MAX_CHARS / 2).'" ('.mb_strlen($arg).')';
 					else
 						$result = '"'.$arg.'"';
 				}

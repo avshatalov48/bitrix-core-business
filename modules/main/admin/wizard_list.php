@@ -27,7 +27,7 @@ if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 
 	foreach($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if($ID == '')
 			continue;
 
 		switch($_REQUEST['action'])
@@ -81,7 +81,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	if ($isAdmin)
 	{
 		$startType = (array_key_exists("START_TYPE",$arRes) ? $arRes["START_TYPE"] : "POPUP");
-		$startType = strtoupper($startType);
+		$startType = mb_strtoupper($startType);
 
 		if ($startType == "POPUP")
 			$arActions[] = array("DEFAULT" => "Y", "ICON"=>"install", "TEXT" => GetMessage("MAIN_WIZARD_ADMIN_INSTALL"), "ACTION"=>"WizardWindow.Open('".$f_ID."','".bitrix_sessid()."')");

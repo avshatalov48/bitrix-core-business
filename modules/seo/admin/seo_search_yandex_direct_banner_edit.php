@@ -178,7 +178,7 @@ if($ID <= 0)
 		$banner['SETTINGS']['Href'] .= '/';
 	}
 
-	$banner['SETTINGS']['Href'] .= strpos($banner['SETTINGS']['Href'], "?") >= 0 ? '?' : '&';
+	$banner['SETTINGS']['Href'] .= mb_strpos($banner['SETTINGS']['Href'], "?") >= 0 ? '?' : '&';
 	$banner['SETTINGS']['Href'] .= AdvSession::URL_PARAM_CAMPAIGN.'='.AdvSession::URL_PARAM_CAMPAIGN_VALUE.'&'.AdvSession::URL_PARAM_BANNER.'='.AdvSession::URL_PARAM_BANNER_VALUE;
 }
 
@@ -537,7 +537,7 @@ endif;
 			<input type="text" name="SETTINGS[Title]" placeholder="<?=Loc::getMessage('SEO_BANNER_DATA_TITLE')?>" value="<?=HtmlFilter::encode($banner["SETTINGS"]["Title"])?>" id="title_content" style="width: 250px;" maxlength="<?=Adv\YandexBannerTable::MAX_TITLE_LENGTH;?>" onkeyup="updateAdv()" onchange="updateAdv()" onpaste="updateAdv()" tabindex="1">
 		</td>
 		<td width="0" valign="top">
-			<span id="title_stats" class="yandex-adv-stats"><?=Adv\YandexBannerTable::MAX_TITLE_LENGTH-strlen($banner["SETTINGS"]["Title"])?></span>
+			<span id="title_stats" class="yandex-adv-stats"><?= Adv\YandexBannerTable::MAX_TITLE_LENGTH - mb_strlen($banner["SETTINGS"]["Title"])?></span>
 		</td>
 		<td width="60%" valign="top" rowspan="2">
 <?
@@ -552,7 +552,7 @@ require("tab/seo_search_yandex_direct_banner.php");
 			<textarea name="SETTINGS[Text]" placeholder="<?=Loc::getMessage('SEO_BANNER_DATA_TEXT')?>"  id="text_content"  style="width: 250px; height: 100px;" maxlength="<?=Adv\YandexBannerTable::MAX_TEXT_LENGTH;?>" onkeyup="updateAdv()" onchange="updateAdv()" onpaste="updateAdv()" tabindex="2"><?=HtmlFilter::encode($banner["SETTINGS"]["Text"])?></textarea>
 		</td>
 		<td valign="top">
-			<span id="text_stats" class="yandex-adv-stats"><?=Adv\YandexBannerTable::MAX_TEXT_LENGTH-strlen($banner["SETTINGS"]["Text"])?></span>
+			<span id="text_stats" class="yandex-adv-stats"><?= Adv\YandexBannerTable::MAX_TEXT_LENGTH - mb_strlen($banner["SETTINGS"]["Text"])?></span>
 		</td>
 	</tr>
 	<tr class="adm-detail-required-field">

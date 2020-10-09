@@ -1,9 +1,9 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?=$arResult["FormErrors"]?><?=$arResult["FORM_NOTE"]?>
 <?
-if ($arResult["isAccessFormResultEdit"] == "Y" && strlen($arParams["EDIT_URL"]) > 0) 
+if ($arResult["isAccessFormResultEdit"] == "Y" && $arParams["EDIT_URL"] <> '') 
 {
-	$href = $arParams["SEF_MODE"] == "Y" ? str_replace("#RESULT_ID#", $arParams["RESULT_ID"], $arParams["EDIT_URL"]) : $arParams["EDIT_URL"].(strpos($arParams["EDIT_URL"], "?") === false ? "?" : "&")."RESULT_ID=".$arParams["RESULT_ID"]."&WEB_FORM_ID=".$arParams["WEB_FORM_ID"];
+	$href = $arParams["SEF_MODE"] == "Y" ? str_replace("#RESULT_ID#", $arParams["RESULT_ID"], $arParams["EDIT_URL"]) : $arParams["EDIT_URL"].(mb_strpos($arParams["EDIT_URL"], "?") === false ? "?" : "&")."RESULT_ID=".$arParams["RESULT_ID"]."&WEB_FORM_ID=".$arParams["WEB_FORM_ID"];
 ?>
 <p>
 [&nbsp;<a href="<?=$href?>"><?=GetMessage("FORM_EDIT")?></a>&nbsp;]
@@ -70,16 +70,16 @@ if ($arParams["SHOW_STATUS"] == "Y")
 			{
 			?>
 			<?if ($arAnswer["ANSWER_IMAGE"]):?>
-				<?if (strlen($arAnswer["USER_TEXT"]) > 0):?><?=$arAnswer["USER_TEXT"]?><br /><?endif?>
+				<?if ($arAnswer["USER_TEXT"] <> ''):?><?=$arAnswer["USER_TEXT"]?><br /><?endif?>
 				<img src="<?=$arAnswer["ANSWER_IMAGE"]["URL"]?>" <?=$arAnswer["ANSWER_IMAGE"]["ATTR"]?> border="0" />
 			<?elseif ($arAnswer["ANSWER_FILE"]):?>
 				<a title="<?=GetMessage("FORM_VIEW_FILE")?>" target="_blank" href="<?=$arAnswer["ANSWER_FILE"]["URL"]?>"><?=$arAnswer["ANSWER_FILE"]["NAME"]?></a><br />(<?=$arAnswer["ANSWER_FILE"]["SIZE_FORMATTED"]?>)<br />[&nbsp;<a title="<?=str_replace("#FILE_NAME#", $arAnswer["ANSWER_FILE"]["NAME"], GetMessage("FORM_DOWNLOAD_FILE"))?>" href="<?=$arAnswer["ANSWER_FILE"]["URL"]?>&action=download"><?=GetMessage("FORM_DOWNLOAD")?></a>&nbsp;]
-			<?elseif (strlen($arAnswer["USER_TEXT"])):?>
-				<?=$arAnswer["USER_TEXT"]?>
+			<? elseif($arAnswer["USER_TEXT"] <> ''):?>
+				<?= $arAnswer["USER_TEXT"] ?>
 			<?else:?>
-				<?if (strlen($arAnswer["ANSWER_TEXT"])>0):?>
+				<?if ($arAnswer["ANSWER_TEXT"] <> ''):?>
 				[<span class="form-anstext"><?=$arAnswer["ANSWER_TEXT"]?></span>]
-					<?if (strlen($arAnswer["ANSWER_VALUE"])>0):?>&nbsp;(<span class="form-ansvalue"><?=$arAnswer["ANSWER_VALUE"]?></span>)<?endif?>
+					<?if ($arAnswer["ANSWER_VALUE"] <> ''):?>&nbsp;(<span class="form-ansvalue"><?=$arAnswer["ANSWER_VALUE"]?></span>)<?endif?>
 				<br />
 				<?endif;?>
 			<?endif;?>

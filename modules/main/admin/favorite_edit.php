@@ -80,7 +80,7 @@ if($_SERVER['REQUEST_METHOD']=="POST" && ($_POST['save']<>"" || $_POST['apply']<
 	{
 		if($apply <> "")
 		{
-			$_SESSION["SESS_ADMIN"]["FAVORITES_EDIT_MESSAGE"]=array("MESSAGE"=>GetMessage("fav_edit_success"), "TYPE"=>"OK");
+			\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["FAVORITES_EDIT_MESSAGE"]=array("MESSAGE"=>GetMessage("fav_edit_success"), "TYPE"=>"OK");
 			LocalRedirect("favorite_edit.php?ID=".$ID."&lang=".LANG);
 		}
 		else
@@ -145,10 +145,10 @@ if($ID>0)
 $context = new CAdminContextMenu($aMenu);
 $context->Show();
 
-if(is_array($_SESSION["SESS_ADMIN"]["FAVORITES_EDIT_MESSAGE"]))
+if(is_array(\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["FAVORITES_EDIT_MESSAGE"]))
 {
-	CAdminMessage::ShowMessage($_SESSION["SESS_ADMIN"]["FAVORITES_EDIT_MESSAGE"]);
-	$_SESSION["SESS_ADMIN"]["FAVORITES_EDIT_MESSAGE"]=false;
+	CAdminMessage::ShowMessage(\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["FAVORITES_EDIT_MESSAGE"]);
+	\Bitrix\Main\Application::getInstance()->getSession()["SESS_ADMIN"]["FAVORITES_EDIT_MESSAGE"]=false;
 }
 
 if($message)
@@ -171,13 +171,13 @@ $tabControl = new CAdminTabControl("tabControl", $aTabs);
 $tabControl->Begin();
 $tabControl->BeginNextTab();
 ?>
-	<? if (strlen($str_TIMESTAMP_X)>0) : ?>
+	<? if ($str_TIMESTAMP_X <> '') : ?>
 	<tr>
 		<td><?echo GetMessage("MAIN_TIMESTAMP_X")?></td>
 		<td><?=$str_TIMESTAMP_X?> / <?echo UserInfo($str_MODIFIED_BY)?></td>
 	</tr>
 	<? endif; ?>
-	<? if (strlen($str_DATE_CREATE)>0) : ?>
+	<? if ($str_DATE_CREATE <> '') : ?>
 	<tr>
 		<td><?echo GetMessage("MAIN_CREATED")?></td>
 		<td><?=$str_DATE_CREATE?> / <?echo UserInfo($str_CREATED_BY)?></td>
